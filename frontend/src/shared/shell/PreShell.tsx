@@ -22,15 +22,12 @@ export function PreShell({ intro }: { intro: RouteIntro }) {
         </div>
       </aside>
       <main id="main" className={shell.main} aria-busy="true">
-        <div className={[ls.page, ls[intro.width ?? "reading"]].join(" ")}>
+        <div className={[ls.page, ls[intro.width ?? "read"]].join(" ")}>
           <div className={ls.header}>
             <div className={ls.headRow}>
-              <div className={ls.headText}>
-                <h1 className="ep-page-title" data-part="page-title">
-                  {intro.title}
-                </h1>
-                {intro.description && <p className={ls.desc}>{intro.description}</p>}
-              </div>
+              <h1 className="ep-page-title" data-part="page-title">
+                {intro.title}
+              </h1>
             </div>
           </div>
           {intro.body && (

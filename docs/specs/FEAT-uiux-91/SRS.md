@@ -44,7 +44,7 @@ Thứ tự dev làm: đợt 1 → đợt 2 → **đợt 6** (trang giới thiệ
 
 | Tình huống | Hệ thống phản ứng | Người dùng thấy |
 | --- | --- | --- |
-| API Hôm nay lỗi lần đầu | `ApiErrorNotice` + `Thử lại` (không đổi) | Lỗi + dữ liệu an toàn + nút thử lại |
+| API Hôm nay lỗi lần đầu | `ApiErrorNotice` + `Thử lại` (không đổi) | Một dòng nói chuyện gì hỏng + nút thử lại (P-107-3) |
 | Làm mới Hôm nay lỗi khi đã có dữ liệu | Giữ nhóm cũ, dải "Chưa làm mới được…" | Không mất nhóm đã hiện |
 | Điểm danh mất mạng | Hàng đợi cục bộ, thanh lưu "Chờ mạng", đồng bộ khi có mạng (không đổi) | Không mất lựa chọn |
 | Sổ điểm xung đột 409 | Ô viền hổ phách + dòng "giữ của tôi / lấy giá trị kia" | Chọn bên giữ, không mất chữ |

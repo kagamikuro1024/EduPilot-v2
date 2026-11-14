@@ -31,6 +31,7 @@ func (h *Handler) Mount(r chi.Router) {
 	const c = "/courses/{id}"
 	r.With(member).Get(c+"/threads", h.list)
 	r.With(member).Post(c+"/threads/precheck", h.precheck)
+	r.With(member).Post(c+"/threads/similar-confirmed", h.similarConfirmed)
 	r.With(member, h.Idem).Post(c+"/threads", h.create)
 	r.With(member).Get(c+"/threads/{tid}", h.get)
 	r.With(member).Get(c+"/threads/{tid}/similar", h.similar)
@@ -188,6 +189,27 @@ func (h *Handler) precheck(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// similarConfirmed: thân `{q}` (chữ đang soạn chưa qua tường lửa nên KHÔNG đặt trong URL); chỉ đọc, không Idempotency-Key, không ghi log thân.
+func (h *Handler) similarConfirmed(w http.ResponseWriter, r *http.Request) {
+	x, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	var in struct {
+		Q string `json:"q"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Svc.SimilarConfirmed(r.Context(), x.a, x.course, in.Q)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
 	httpx.WriteJSON(w, http.StatusOK, out)
 }
 

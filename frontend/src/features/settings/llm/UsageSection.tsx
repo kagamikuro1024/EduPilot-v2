@@ -93,9 +93,7 @@ export function UsageSection({ canEdit }: { canEdit: boolean }) {
           rowKey={(r) => r.key}
           loading={usage.isPending ? 3 : undefined}
           empty={
-            <EmptyState title="Chưa có lượt gọi nào trong khoảng này." action={days === 7 ? <Button onClick={() => setDays(30)}>Xem 30 ngày</Button> : <Button onClick={() => setDays(7)}>Xem 7 ngày</Button>}>
-              Khi hệ thống gọi mô hình, mức dùng sẽ hiện ở đây.
-            </EmptyState>
+            <EmptyState title="Chưa có lượt gọi nào trong khoảng này." action={days === 7 ? <Button onClick={() => setDays(30)}>Xem 30 ngày</Button> : <Button onClick={() => setDays(7)}>Xem 7 ngày</Button>} />
           }
         />
       )}

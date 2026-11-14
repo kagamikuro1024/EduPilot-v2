@@ -117,3 +117,46 @@ func TestResultIDOR(t *testing.T) {
 		require.Equal(t, http.StatusForbidden, h.call(c.method, c.path, sa, auth.RoleStudent, c.body), c.method+" "+c.path)
 	}
 }
+
+// TestGuidanceRBAC — FEAT-grading-guidance US-GD-04 AC6 / US-GD-11: cờ chỉ TEACHER + ADMIN đọc; duyệt / bỏ / áp dụng / rút CHỈ giảng viên của lớp (TA, SV, ADMIN, giảng viên lớp khác 403);
+// xem tổng quan, số đo, chấm lại: TA được (cờ tắt → chấm lại 409 chứ không 403); sinh viên và ADMIN không.
+func TestGuidanceRBAC(t *testing.T) {
+	h := newHTTPEnv(t)
+	a := h.create("BT03")
+	base := "/api/v1/courses/" + h.course.String()
+	asg := base + "/assignments/" + a.ID.String()
+	stu := h.students[0]
+	type who struct {
+		id   uuid.UUID
+		role auth.Role
+	}
+	teacher, ta := who{h.teacher, auth.RoleTeacher}, who{h.ta, auth.RoleTA}
+	sv, adm, other := who{stu, auth.RoleStudent}, who{h.adm, auth.RoleAdmin}, who{h.other, auth.RoleTeacher}
+	item := uuid.NewString()
+	for _, c := range []struct {
+		name, method, path, body string
+		ok                       map[string]int // người → mã; còn lại 403
+		def                      int
+	}{
+		{"cờ đọc", http.MethodGet, base + "/guidance-flags", "", map[string]int{"giảng viên": 200, "admin": 200}, 403},
+		{"tổng quan", http.MethodGet, asg + "/guidance", "", map[string]int{"giảng viên": 200, "TA": 200}, 403},
+		{"số đo", http.MethodGet, asg + "/guidance/stats", "", map[string]int{"giảng viên": 200, "TA": 200}, 403},
+		{"rút lưu ý", http.MethodPost, asg + "/guidance/reflect", "", map[string]int{"giảng viên": 409}, 403}, // cờ tắt → 409 GUIDANCE_DISABLED
+		{"duyệt / bỏ", http.MethodPost, asg + "/guidance/items/" + item + "/decide", `{"decision":"APPROVE","version":1}`, map[string]int{"giảng viên": 409}, 403},
+		{"áp dụng", http.MethodPost, asg + "/guidance/apply", `{"expected_version":0}`, map[string]int{"giảng viên": 409}, 403},
+		{"chấm lại", http.MethodPost, asg + "/regrade-stale", "", map[string]int{"giảng viên": 409, "TA": 409}, 403},
+	} {
+		for name, w := range map[string]who{"giảng viên": teacher, "TA": ta, "sinh viên": sv, "admin": adm, "giảng viên lớp khác": other} {
+			want := c.def
+			if v, ok := c.ok[name]; ok {
+				want = v
+			}
+			require.Equal(t, want, h.call(c.method, c.path, w.id, w.role, c.body), c.name+" · "+name)
+		}
+	}
+	// cờ: PUT — REGRESSION_CAPTURE chỉ ADMIN; TA / SV 403
+	put := base + "/guidance-flags/REGRESSION_CAPTURE"
+	require.Equal(t, 403, h.call(http.MethodPut, put, h.teacher, auth.RoleTeacher, `{"enabled":true,"version":1}`))
+	require.Equal(t, 403, h.call(http.MethodPut, base+"/guidance-flags/GRADING_GUIDANCE", h.ta, auth.RoleTA, `{"enabled":true,"version":1}`))
+	require.Equal(t, 200, h.call(http.MethodPut, put, h.adm, auth.RoleAdmin, `{"enabled":true,"version":1}`))
+}

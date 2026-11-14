@@ -25,27 +25,19 @@ export function AnalyticsScreen() {
   const days = range === "7" ? "7 ngày" : "30 ngày";
 
   return (
-    <Page>
-      <PageHeader
-        title="Số liệu lớp học"
-        meta={
-          <>
-            <span>{course.label}</span>
-            <span>Tính tới hôm nay, {fmtTime(new Date(nowMs))}</span>
-          </>
-        }
-        actions={
-          <SegmentedControl
-            label="Khoảng thời gian"
-            value={range}
-            onChange={setRange}
-            options={[
-              { value: "7", label: "7 ngày" },
-              { value: "30", label: "30 ngày" },
-            ]}
-          />
-        }
-      />
+    <Page kind="read">
+      <PageHeader title="Số liệu lớp học" meta={[<span key="m0">{course.label}</span>, <span key="m1">Tính tới hôm nay, {fmtTime(new Date(nowMs))}</span>]} />
+      <div className={s.range}>
+        <SegmentedControl
+          label="Khoảng thời gian"
+          value={range}
+          onChange={setRange}
+          options={[
+            { value: "7", label: "7 ngày" },
+            { value: "30", label: "30 ngày" },
+          ]}
+        />
+      </div>
 
       <PageState
         loading={
@@ -58,16 +50,13 @@ export function AnalyticsScreen() {
           </Panel>
         }
         empty={
-          <Panel><EmptyState title={`Lớp ${course.code} chưa đủ dữ liệu để vẽ xu hướng`}>
-            Số liệu xuất hiện sau khi lớp có câu hỏi và bài nộp đầu tiên. Mời sinh viên vào lớp bằng mã tham gia, hoặc mở một bài tập để bắt đầu.
-          </EmptyState></Panel>
+          <Panel><EmptyState title={`Lớp ${course.code} chưa đủ dữ liệu để vẽ xu hướng`} /></Panel>
         }
         error={{
           problem: "Không tải được số liệu của lớp.",
-          recovery: "Việc tổng hợp số liệu chạy mỗi giờ một lần và đang chậm. Thử lại sau vài phút; dữ liệu lớp không bị ảnh hưởng.",
         }}
       >
-        <Section panel title="Hoạt động học">
+        <Section title="Hoạt động học">
           <p className={s.lead}>
             {`${fmtNum(a.questions)} câu hỏi trong ${days}, trung bình ${a.questionsPerDay} câu mỗi ngày. ${a.activeStudents}/${a.students} sinh viên có hỏi ít nhất một câu; ${a.students - a.activeStudents} bạn chưa hỏi câu nào.`}
           </p>
@@ -76,7 +65,7 @@ export function AnalyticsScreen() {
           <BarList items={a.topics.map((t) => ({ label: t.label, value: t.value }))} format={(v) => `${v} câu`} />
         </Section>
 
-        <Section panel title="Hỗ trợ">
+        <Section title="Hỗ trợ">
           <p className={s.lead}>
             {`AI tự trả lời ${a.aiSharePct}% trong ${fmtNum(a.questions)} câu hỏi; ${a.escalated} câu chuyển sang giảng viên vì không đủ chắc chắn hoặc sinh viên tự yêu cầu.`}
           </p>
@@ -89,14 +78,14 @@ export function AnalyticsScreen() {
           />
         </Section>
 
-        <Section panel title="Bảo vệ thông tin cá nhân">
+        <Section title="Bảo vệ thông tin cá nhân">
           <p className={s.lead}>
             <strong>{a.piiDetected} lần</strong> hệ thống phát hiện thông tin cá nhân trong {days} và che lại trước khi gửi đi. <strong>{a.piiLeaked} lần</strong> lọt ra ngoài.
           </p>
           {a.piiChannels.length > 0 && <BarList items={a.piiChannels.map((c) => ({ label: c.label, value: c.value, tone: "amber" as const }))} format={(v) => `${v} lần`} />}
         </Section>
 
-        <Section panel title="Chất lượng chấm">
+        <Section title="Chất lượng chấm">
           {a.submissions === 0 ? (
             <p className={s.lead}>Lớp chưa có bài nộp nào được chấm nên chưa đo được chất lượng bản nháp.</p>
           ) : (
@@ -116,7 +105,7 @@ export function AnalyticsScreen() {
         </Section>
 
         {role === "teacher" && (
-          <Section panel title="Chi phí">
+          <Section title="Chi phí">
             <p className={s.lead}>
               <strong>{fmtVnd(a.cost)}</strong> trong {days}, khoảng {fmtVnd(a.costPerStudent)} cho mỗi sinh viên. Trần chi tiêu do quản trị viên hệ thống đặt.
             </p>

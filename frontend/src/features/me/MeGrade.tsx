@@ -27,7 +27,7 @@ export function MeGrade({ courseId }: { courseId: string }) {
   const q = useMyGrades(courseId);
   const g = q.data;
   return (
-    <Section panel title="Điểm">
+    <Section title="Điểm">
       {q.isPending ? (
         <Skeleton lines={4} />
       ) : !g ? (
@@ -46,7 +46,7 @@ function GradeBody({ courseId, g }: { courseId: string; g: MeGrades }) {
   const lines = explainLines(comps, g.calculation ?? []);
   const published = comps.filter((c) => c.status === "PUBLISHED");
   const sentence = gradeSentence(g);
-  if (published.length === 0 && !sentence) return <EmptyState title="Chưa có điểm nào được công bố.">Điểm sẽ hiện ở đây khi giảng viên công bố.</EmptyState>;
+  if (published.length === 0 && !sentence) return <EmptyState title="Chưa có điểm nào được công bố." />;
   return (
     <>
       {sentence && <p className={s.headline} data-part="grade-sentence">{sentence}</p>}

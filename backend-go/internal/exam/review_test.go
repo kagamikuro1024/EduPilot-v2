@@ -148,7 +148,7 @@ func TestReviewAudit(t *testing.T) {
 			var m map[string]any
 			require.NoError(t, json.Unmarshal([]byte(txt), &m))
 			for k := range m {
-				require.Contains(t, []string{"review_status", "version", "tests_version", "changed", "archived"}, k, "trường nhỏ")
+				require.Contains(t, []string{"review_status", "version", "tests_version", "changed", "archived", "reject_reason"}, k, "trường nhỏ (reject_reason là enum, không chữ tự do)")
 			}
 		}
 	}

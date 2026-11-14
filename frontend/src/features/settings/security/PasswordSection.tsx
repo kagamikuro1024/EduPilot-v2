@@ -44,7 +44,7 @@ export function PasswordSection() {
   }
 
   return (
-    <Section title="Mật khẩu" panel>
+    <Section title="Mật khẩu">
       <form onSubmit={submit} className={s.form} noValidate>
         {problem && <InlineNotice tone="danger" compact>{problem}</InlineNotice>}
         <Field label="Mật khẩu hiện tại" error={errors.cur}>

@@ -11,7 +11,7 @@ export function MeScreen() {
   if (realPending) return null;
   if (!realCourseId || realCourseId === "all")
     return (
-      <Page>
+      <Page kind="read">
         <PageHeader title="Kết quả của tôi" />
         <Panel><EmptyState title="Chưa có lớp nào." /></Panel>
       </Page>

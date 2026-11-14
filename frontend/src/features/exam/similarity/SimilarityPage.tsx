@@ -23,16 +23,16 @@ export function SimilarityPage({ id }: { id: string }) {
   const back = { href: "/exams", label: "Bài thi" };
   if (role !== "teacher")
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Nghi giống nhau" back={back} />
-        <Panel><EmptyState title="Chỉ dành cho giảng viên">Trang này dành cho giảng viên của lớp.</EmptyState></Panel>
+        <Panel><EmptyState title="Chỉ dành cho giảng viên" /></Panel>
       </Page>
     );
   if (!course)
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Nghi giống nhau" back={back} />
-        {cc.state === "loading" ? <Panel><Skeleton lines={6} /></Panel> : <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem các cặp bài.</EmptyState></Panel>}
+        {cc.state === "loading" ? <Panel><Skeleton lines={6} /></Panel> : <Panel><EmptyState title="Chưa chọn lớp" /></Panel>}
       </Page>
     );
   return <Board course={course} exam={id} />;
@@ -73,7 +73,7 @@ function Board({ course, exam }: { course: string; exam: string }) {
   ];
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader title="Nghi giống nhau" back={{ href: "/exams", label: "Bài thi" }} />
       <Panel>
       <p className={s.note} data-part="similarity-note">{FIXED_NOTE}</p>
@@ -97,7 +97,7 @@ function Board({ course, exam }: { course: string; exam: string }) {
             rowKey={(p) => p.id}
             onRowClick={(p) => setOpen(p.id)}
             activeKey={open ?? undefined}
-            empty={<EmptyState title="Chưa có cặp nào">Chưa có cặp bài nào cần xem. Bài thi cần đã đóng và có câu lập trình; bấm Chạy lại so sánh nếu vừa đóng.</EmptyState>}
+            empty={<EmptyState title="Chưa có cặp nào" />}
           />
           {list.hasNextPage && <div><Button onClick={() => void list.fetchNextPage()} loading={list.isFetchingNextPage}>Xem thêm</Button></div>}
         </>

@@ -16,8 +16,8 @@ export function StaffToday() {
   const d = q.data;
   const scope = "Tất cả lớp của tôi";
   return (
-    <Page>
-      <PageHeader title={d ? (d.count > 0 ? `${d.count} việc cần xử lý hôm nay` : "Không có việc cần xử lý hôm nay.") : "Hôm nay"} description={q.isAll ? `${longDate(new Date())} · ${scope}` : longDate(new Date())} />
+    <Page kind="read">
+      <PageHeader title={d ? (d.count > 0 ? `${d.count} việc cần xử lý hôm nay` : "Không có việc cần xử lý hôm nay.") : "Hôm nay"} meta={q.isAll ? [longDate(new Date()), scope] : [longDate(new Date())]} />
       {!d ? (
         q.isError ? (
           <ApiErrorNotice error={q.error} showTechnical onRetry={() => void q.refetch()} title="Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng." />
@@ -40,14 +40,14 @@ export function StaffToday() {
                 </>
               ) : (
                 <Panel>
-                  <EmptyState title="Bạn đã xử lý hết việc.">Khi có yêu cầu vào lớp hoặc việc mới, chúng sẽ hiện ở đây.</EmptyState>
+                  <EmptyState title="Bạn đã xử lý hết việc." />
                 </Panel>
               )}
             </div>
             {(d.attention.length > 0 || d.upcoming.length > 0) && (
               <aside className={s.side} aria-label="Lớp học">
                 {d.attention.length > 0 && (
-                  <Section title="Lớp cần chú ý" panel>
+                  <Section title="Lớp cần chú ý">
                     <ActionList label="Sinh viên cần chú ý">
                       {d.attention.map((a) => (
                         <ActionRow key={`${a.course.id}-${a.student.id}`} title={a.student.full_name} context={a.reason} meta={q.isAll ? classLabel(a.course) : undefined} href={`/students/${a.student.id}?course=${a.course.id}`} />
@@ -59,7 +59,7 @@ export function StaffToday() {
                   </Section>
                 )}
                 {d.upcoming.length > 0 && (
-                  <Section title="Sắp tới" panel>
+                  <Section title="Sắp tới">
                     <ActionList label="Buổi học sắp tới">
                       {d.upcoming.map((u) => (
                         <ActionRow key={`${u.course.id}-${u.at}`} title={u.title} context={`${formatWhen(u.at)}${u.place ? ` · ${u.place}` : ""}`} meta={q.isAll ? classLabel(u.course) : undefined} href="/calendar" />

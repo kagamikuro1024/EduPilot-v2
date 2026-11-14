@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FileText, Trash2, Upload } from "lucide-react";
+import { Trash2, Upload } from "lucide-react";
 import { Button, type Column, ConfirmIrreversible, DataTable, DefinitionList, Drawer, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText, useRouteState } from "@/shared/ui";
 import { isDocOfCourse } from "@/mock/docs";
 import { ANSWER_KEY_NOTE, DOCUMENTS, DOC_KIND_LABEL, FAILING_UPLOAD, titleFromFile, type DocRow, type DocStatus } from "@/mock/documents";
@@ -63,8 +63,7 @@ export function DemoDocuments() {
         size: "1,9 MB",
         forStudents: false,
         forAi: false,
-        status: "PROCESSING",
-      })),
+        status: "PROCESSING" })),
       ...prev,
     ]);
     window.setTimeout(() => {
@@ -101,8 +100,7 @@ export function DemoDocuments() {
       header: "Tài liệu",
       frozen: true,
       width: "320px",
-      render: (d) => <span className={s.name}>{d.title}</span>,
-    },
+      render: (d) => <span className={s.name}>{d.title}</span> },
     { key: "kind", header: "Loại", width: "110px", render: (d) => <span className={s.meta}>{DOC_KIND_LABEL[d.kind]}</span> },
     { key: "week", header: "Tuần", width: "80px", render: (d) => <span className={s.meta}>{d.week ? `Tuần ${d.week}` : "—"}</span> },
     {
@@ -120,8 +118,7 @@ export function DemoDocuments() {
           <button type="button" className={s.toggle} aria-pressed={d.forAi} disabled={role !== "teacher"} onClick={() => toggle(d, "forAi")}>
             <StatusText tone={d.forAi ? "green" : "neutral"}>{d.forAi ? "Có" : "Không"}</StatusText>
           </button>
-        ),
-    },
+        ) },
     {
       key: "students",
       header: "Hiện cho sinh viên",
@@ -133,8 +130,7 @@ export function DemoDocuments() {
           <button type="button" className={s.toggle} aria-pressed={d.forStudents} disabled={role !== "teacher" || d.status !== "READY"} onClick={() => toggle(d, "forStudents")}>
             <StatusText tone={d.forStudents ? "green" : "neutral"}>{d.forStudents ? "Có" : "Không"}</StatusText>
           </button>
-        ),
-    },
+        ) },
     {
       key: "status",
       header: "Trạng thái",
@@ -143,8 +139,7 @@ export function DemoDocuments() {
         <span className={s.flagCell}>
           <StatusText tone={STATUS_TONE[d.status]}>{STATUS_LABEL[d.status]}</StatusText>
         </span>
-      ),
-    },
+      ) },
     { key: "updated", header: "Cập nhật", width: "110px", render: (d) => <span className={s.meta}>{d.uploaded}</span> },
     {
       key: "menu",
@@ -161,21 +156,15 @@ export function DemoDocuments() {
               : []),
           ]}
         />
-      ),
-    },
+      ) },
   ];
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader
         title="Tài liệu"
-        description="Nguồn để AI trả lời sinh viên và nội dung hiện trong Thư viện của lớp."
         meta={
-          <>
-            <span>{emptyShown ? 0 : docs.length} tài liệu</span>
-            <span>{emptyShown ? 0 : docs.filter((d) => d.forAi).length} tài liệu đang dùng cho AI</span>
-            <span>Đáp án không bao giờ hiện cho sinh viên</span>
-          </>
+          [<span key="m0">{emptyShown ? 0 : docs.length} tài liệu</span>, <span key="m1">{emptyShown ? 0 : docs.filter((d) => d.forAi).length} tài liệu đang dùng cho AI</span>, <span key="m2">Đáp án không bao giờ hiện cho sinh viên</span>]
         }
       />
 
@@ -240,7 +229,6 @@ export function DemoDocuments() {
         empty={
           <Panel><EmptyState
             title="Chưa có tài liệu"
-            icon={<FileText aria-hidden />}
             action={
               role === "teacher" ? (
                 <Button variant="primary" icon={<Upload aria-hidden />} onClick={() => fileRef.current?.click()}>
@@ -248,11 +236,9 @@ export function DemoDocuments() {
                 </Button>
               ) : undefined
             }
-          >
-            Tải bài giảng, quy chế môn học và đề cũ lên để AI trả lời sinh viên theo đúng nội dung lớp bạn dạy. Đáp án tải lên vẫn được giữ kín với sinh viên.
-          </EmptyState></Panel>
+           /></Panel>
         }
-        error={{ problem: "Không tải được danh sách tài liệu.", recovery: "Tệp đã tải lên vẫn được giữ. Thử lại sau ít phút." }}
+        error={{ problem: "Không tải được danh sách tài liệu." }}
       >
         <Panel>
         {failedDocs.map((d) => (
@@ -272,7 +258,7 @@ export function DemoDocuments() {
           columns={columns}
           rows={docs}
           rowKey={(d) => d.id}
-          empty={<EmptyState title="Chưa có tài liệu">Tải tài liệu đầu tiên lên để bắt đầu.</EmptyState>}
+          empty={<EmptyState title="Chưa có tài liệu" />}
         />
         </Panel>
       </PageState>
@@ -288,8 +274,7 @@ export function DemoDocuments() {
               { term: "Trạng thái", value: <StatusText tone={STATUS_TONE[detail.status]}>{STATUS_LABEL[detail.status]}</StatusText> },
               {
                 term: "Hiện cho sinh viên",
-                value: detail.kind === "answer" ? "Không hiển thị cho sinh viên" : detail.forStudents ? "Có" : "Không",
-              },
+                value: detail.kind === "answer" ? "Không hiển thị cho sinh viên" : detail.forStudents ? "Có" : "Không" },
               {
                 term: "Dùng cho AI",
                 value:
@@ -301,8 +286,7 @@ export function DemoDocuments() {
                         ? "Chờ xử lý"
                         : detail.forAi
                           ? "Có"
-                          : "Không",
-              },
+                          : "Không" },
             ]}
           />
         )}

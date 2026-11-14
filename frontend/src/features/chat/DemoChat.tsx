@@ -107,21 +107,21 @@ export function DemoChatScreen() {
   }
 
   return (
-    <Page width="full" className={s.page}>
+    <Page kind="work">
       <PageHeader
         title="Chat riêng"
-        description={`Hỏi về điểm, chuyên cần và bài học của chính bạn — ${course.label}. Giảng viên không đọc được phiên chat này.`}
-        actions={
-          msgs.length > 0 || openSession ? (
-            <Button
-              onClick={() => {
-                setMsgs([]);
-                setOpenSession(null);
-              }}
-            >
-              Phiên mới
-            </Button>
-          ) : undefined
+        secondary={
+          msgs.length > 0 || openSession
+            ? [
+                {
+                  label: "Phiên mới",
+                  onClick: () => {
+                    setMsgs([]);
+                    setOpenSession(null);
+                  },
+                },
+              ]
+            : undefined
         }
       />
 

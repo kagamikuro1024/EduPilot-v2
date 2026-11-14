@@ -17,7 +17,7 @@ const MAX_LIMIT = 100;
 export function useCursorList<T extends object>(
   key: QueryKey,
   path: string,
-  opts: { limit?: number; query?: Record<string, string | number | boolean | undefined>; /** khoá duy nhất của một dòng; mặc định `id` */ idOf?: (row: T) => string } = {},
+  opts: { limit?: number; /** mặc định của QueryClient (30 s); 0 = luôn lấy lại khi mở / lấy lại tiêu điểm (số liệu do người khác đổi) */ staleTime?: number; query?: Record<string, string | number | boolean | undefined>; /** khoá duy nhất của một dòng; mặc định `id` */ idOf?: (row: T) => string } = {},
 ) {
   const idOf = opts.idOf ?? ((row: T) => (row as { id: string }).id);
   const limit = Math.min(MAX_LIMIT, Math.max(1, opts.limit ?? DEFAULT_LIMIT));
@@ -25,6 +25,7 @@ export function useCursorList<T extends object>(
   const reset = useRef(false);
   const q = useInfiniteQuery({
     queryKey: key,
+    staleTime: opts.staleTime,
     initialPageParam: null as string | null,
     queryFn: async ({ pageParam, signal }) => (await apiClient.get<CursorPage<T>>(path, { signal, query: { ...opts.query, limit, cursor: pageParam } })).data,
     getNextPageParam: (last) => last.next_cursor ?? undefined,

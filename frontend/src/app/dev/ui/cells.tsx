@@ -37,9 +37,7 @@ const errorNote = (act: () => void, what = "Không tải được danh sách.") 
   </InlineNotice>
 );
 const emptyOne = (act: () => void, title = "Chưa có bài nộp nào", text = "Khi sinh viên nộp bài, bài sẽ hiện ở đây.", label = "Giao bài đầu tiên") => (
-  <EmptyState title={title} action={<Button onClick={act}>{label}</Button>}>
-    {text}
-  </EmptyState>
+  <EmptyState title={title} action={<Button onClick={act}>{label}</Button>} />
 );
 const noop = () => {};
 
@@ -246,8 +244,8 @@ export const CELLS: Record<string, Cell> = {
     if (st === "loading") return <Skeleton lines={5} />;
     if (st === "error") return errorNote(act, "Không tải được trang.");
     return (
-      <Page width="reading">
-        <Section title="Thông tin lớp" description="Cập nhật lần cuối hôm nay">
+      <Page kind="read">
+        <Section title="Thông tin lớp">
           <Toolbar end={<Button size="sm" onClick={act}>Chỉnh sửa</Button>}>
             <StatusText tone="green">Đang mở</StatusText>
           </Toolbar>

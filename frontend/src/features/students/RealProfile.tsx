@@ -7,7 +7,7 @@ import { apiClient } from "@/shared/data";
 import { useCursorList } from "@/shared/data/useCursorList";
 import { GradeCalculation } from "@/shared/domain";
 import { useExplain, useSchemeStatus } from "../gradebook/gradeApi";
-import { Button, ButtonLink, DataTable, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, Panel, Section, Skeleton, StatusText, Tabs, TrendChart } from "@/shared/ui";
+import { ButtonLink, DataTable, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, Panel, Section, Skeleton, StatusText, Tabs, TrendChart } from "@/shared/ui";
 import { ProfileNotes } from "./ProfileNotes";
 import { ProfileOutreach } from "./ProfileOutreach";
 import { STATUS_LABEL, signedPoints, type AttendanceRow, type Profile } from "./studentsApi";
@@ -40,23 +40,22 @@ export function RealProfile({ courseId, studentId, userId, canManage }: { course
     retry: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    queryFn: async ({ signal }) => (await apiClient.get<Profile>(`/courses/${courseId}/students/${studentId}/profile`, { signal })).data,
-  });
+    queryFn: async ({ signal }) => (await apiClient.get<Profile>(`/courses/${courseId}/students/${studentId}/profile`, { signal })).data });
   const p = q.data;
 
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader
         title={p?.student.full_name ?? "Hồ sơ sinh viên"}
         back={{ href: "/students", label: "Sinh viên" }}
-        description={p?.student.student_code ?? undefined}
-        actions={
-          p && (
-            <>
-              <Button onClick={() => { setTab("notes"); setComposeNote((n) => n + 1); }}>Thêm ghi chú</Button>
-              <Button onClick={() => setMessaging((v) => !v)} aria-expanded={messaging}>Nhắn sinh viên</Button>
-            </>
-          )
+        meta={[p?.student.student_code ?? undefined]}
+        secondary={
+          p
+            ? [
+                { label: "Thêm ghi chú", onClick: () => { setTab("notes"); setComposeNote((n) => n + 1); } },
+                { label: "Nhắn sinh viên", onClick: () => setMessaging((v) => !v), expanded: messaging },
+              ]
+            : undefined
         }
       />
       {!p ? (
@@ -92,7 +91,7 @@ function Overview({ p }: { p: Profile }) {
     p.study.tracked ? `tuần này học ${p.study.minutes_7d} phút` : null,
   ].filter(Boolean);
   return (
-    <Section panel title="Tổng quan">
+    <Section title="Tổng quan">
       <p className={s.narrative}>{parts.join("; ")}.</p>
       <DefinitionList
         items={[
@@ -109,7 +108,7 @@ function Overview({ p }: { p: Profile }) {
 function AttendanceTab({ courseId, studentId, name }: { courseId: string; studentId: string; name: string }) {
   const list = useCursorList<AttendanceRow>(["student-attendance", courseId, studentId], `/courses/${courseId}/students/${studentId}/attendance`, { limit: 50, idOf: (r) => r.session.id });
   return (
-    <Section panel title="Chuyên cần">
+    <Section title="Chuyên cần">
       <DataTable
         caption={`Chuyên cần của ${name}`}
         dense
@@ -133,7 +132,7 @@ function GradesTab({ p, courseId, studentId, canManage }: { p: Profile; courseId
   const confirmed = useSchemeStatus(courseId).data?.state === "CONFIRMED";
   const explain = useExplain(courseId, confirmed ? studentId : null);
   return (
-    <Section panel title="Điểm">
+    <Section title="Điểm">
       <DefinitionList items={[{ term: "Điểm cộng đã ghi", value: signedPoints(p.participation.points_total) }]} />
       {confirmed ? (
         explain.isPending ? <Skeleton lines={5} /> : explain.data ? <GradeCalculation lines={explain.data.lines} caption={`Giải trình điểm của ${p.student.full_name}`} /> : <ApiErrorNotice error={explain.error} onRetry={() => void explain.refetch()} title="Không tải được giải trình." />
@@ -146,7 +145,7 @@ function GradesTab({ p, courseId, studentId, canManage }: { p: Profile; courseId
 
 function ActivityTab({ p }: { p: Profile }) {
   return (
-    <Section panel title="Hoạt động học">
+    <Section title="Hoạt động học">
       {p.study.tracked ? (
         <TrendChart label={`Phút học mỗi tuần của ${p.student.full_name}`} points={p.study.weeks.map((w) => ({ x: shortDate(w.week_start), full: `Tuần từ ${shortDate(w.week_start)}`, y: w.minutes }))} format={(v) => `${v} phút`} />
       ) : (

@@ -20,6 +20,33 @@ async function open(page: Page, context: Parameters<typeof asDemo>[0], opts: Par
 const rows = (page: Page) => page.locator("[data-part=assignment-row]");
 const drawer = (page: Page) => page.getByRole("dialog");
 
+test("assignments tab: «Đã nộp / Tổng» lấy lại khi cửa sổ lấy lại tiêu điểm — bài nộp tải lên / ZIP vào sau không còn hiện 0 (GV-BUG S2-2)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let n = 0;
+  const base = assignment();
+  await open(page, context, { h: { "GET assignments": (r) => r.fulfill(json({ items: [{ ...base, counts: { submitted: n++ === 0 ? 0 : 60, total: 60, graded: 0, published: 0 } }], next_cursor: null })) } });
+  await expect(rows(page).first()).toContainText("0 / 60");
+  await page.evaluate(() => {
+    // tab ẩn rồi hiện lại: TanStack Query lấy lại danh sách
+    for (const state of ["hidden", "visible"]) {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+      document.dispatchEvent(new Event("visibilitychange", { bubbles: true }));
+    }
+  });
+  await expect(rows(page).first()).toContainText("60 / 60");
+});
+
+test("assignments tab: dòng bài tập là LIÊN KẾT thật (href sâu), bấm thường mở ngăn, mở thẳng bằng ?open= (GV-BUG j)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await open(page, context);
+  const link = rows(page).first().getByRole("link");
+  await expect(link).toHaveAttribute("href", `/grading?tab=assignments&open=${A1}`);
+  await link.click();
+  await expect(drawer(page)).toBeVisible();
+  await page.goto(`${URL}&open=${A1}`);
+  await expect(drawer(page)).toBeVisible(); // liên kết sâu mở đúng ngăn
+});
+
 test("assignments tab layout: Tabs, một Panel + bảng năm cột, Tạo bài tập chỉ của giảng viên, TA chỉ xem", async ({ page, context, browser }, info) => {
   desktopOnly(info);
   await open(page, context);
@@ -497,6 +524,45 @@ async function openReview(page: Page, context: Parameters<typeof asDemo>[0], opt
   return api;
 }
 
+test("queue: toàn bài chưa chấm — lọc mặc định không che bài, Chấm tất cả bấm được (GV-BUG lọc mặc định + khoá Chấm tất cả)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openQueue(page, context, { rows: defaultRows().map((r) => ({ ...r, result: null })) });
+  await page.getByLabel("Bài tập").selectOption({ index: 1 });
+  await expect(page.getByLabel("Trạng thái")).toHaveValue("NONE"); // tự chuyển khỏi «Chưa duyệt» trống
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Chấm tất cả" })).not.toHaveAttribute("aria-disabled", "true");
+});
+
+test("queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn trang, cuộn tải tiếp) — không còn mù số lượng (GV-BUG S2-3)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const all = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, { rows: all });
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  const n = await page.locator("[data-part=queue-row]").count();
+  await expect(page.locator("[data-part=queue-count]")).toHaveText(`${n} bài`);
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await openQueue(page, context, { rows: all, h: { "GET submissions": (r) => r.fulfill(json({ items: all, next_cursor: "con-tro-1" })) } });
+  await expect(page.locator("[data-part=queue-count]")).toHaveText(`${all.length}+ bài`);
+});
+
+test("queue: người khác chấm lại — hàng chờ lấy lại khi tab hiện ra lại, không giữ số cũ (GV-BUG o)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let n = 0;
+  const first = defaultRows()[0];
+  const api = await openQueue(page, context, {
+    h: { "GET submissions": (r) => r.fulfill(json({ items: [{ ...first, result: first.result ? { ...first.result, total: n++ === 0 ? "8.00" : "7.50", needs_review: true } : first.result }], next_cursor: null })) },
+  });
+  await expect(page.locator("[data-part=queue-row]").first()).toContainText("8,00");
+  await page.evaluate(() => {
+    for (const state of ["hidden", "visible"]) {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+      document.dispatchEvent(new Event("visibilitychange", { bubbles: true }));
+    }
+  });
+  await expect(page.locator("[data-part=queue-row]").first()).toContainText("7,50");
+  expect(api.calls.filter((c) => c.method === "GET" && c.path.includes("/submissions?")).length).toBeGreaterThanOrEqual(2);
+});
+
 test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openQueue(page, context);
@@ -663,6 +729,36 @@ test("review key A next: duyệt rồi sang bài kế, có thanh tiến độ", 
   await expect.poll(() => api.reviews().length).toBe(1);
   await expect(page).toHaveURL(new RegExp(SUB_C));
   await expect(progress).toHaveText(`Đã duyệt 1/${m}`); // N tăng, M cố định
+  // GV-BUG (b): tự sang bài kế thì có chỉ báo rõ + cách ở lại (quay về bài vừa duyệt)
+  await expect(page.locator("[data-part=review-from]")).toHaveText("Đã duyệt bài trước");
+  await expect(page.getByRole("link", { name: "Quay lại" })).toHaveAttribute("href", new RegExp(SUB_B));
+});
+
+test("queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (M = số bài lúc mở, cố định) và lọc «Cần xem kỹ» bỏ đi thì GIỮ khi vào lại (GV-BUG c, d)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const rowsAll = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, { rows: rowsAll });
+  const flag = page.getByRole("button", { name: "Cần xem kỹ" });
+  await expect(flag).toHaveAttribute("aria-pressed", "true");
+  await flag.click(); // người dùng bỏ lọc
+  await expect(flag).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  await expect.poll(() => page.locator("[data-part=queue-row]").count()).toBeGreaterThan(1); // bỏ lọc cờ: hiện cả bài không cờ
+  const n = await page.locator("[data-part=queue-row]").count();
+  await page.locator("[data-part=queue-row]").first().click();
+  await expect(page.locator("[data-part=review-progress]")).toHaveText(`Đã duyệt 0/${n}`);
+  await page.goto(QUEUE_URL); // rời hàng chờ rồi vào lại
+  await expect(page.getByRole("button", { name: "Cần xem kỹ" })).toHaveAttribute("aria-pressed", "false"); // không tự bật lại
+});
+
+test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openReview(page, context, { h: { "PUT grading-results/:id": async (r, next) => { await new Promise((res) => setTimeout(res, 600)); return next(r); } } });
+  await page.locator("[data-part=criterion-comment]").first().fill("Nhận xét vừa gõ xong.");
+  await page.getByRole("button", { name: "Duyệt bài" }).click(); // bấm nút làm ô nhận xét blur → lưu đang chạy
+  await expect.poll(() => api.reviews().length, { timeout: 10_000 }).toBe(1);
+  expect(api.puts().length).toBe(1); // không lưu hai lần
+  expect(api.puts()[0].body).toContain("Nhận xét vừa gõ xong.");
 });
 
 test("review approve fails: lỗi hiện ở thanh dưới kèm Thử lại, điểm đã nhập còn nguyên", async ({ page, context }, info) => {
@@ -722,7 +818,8 @@ test("publish bulk confirm: chọn bài đã duyệt, xác nhận hậu quả b�
   await page.getByRole("button", { name: "Cần xem kỹ" }).click(); // bỏ lọc cờ
   await page.getByLabel("Trạng thái").selectOption("REVIEWED");
   await expect(qRows(page)).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Công bố" })).toHaveCount(0); // chưa chọn gì
+  // GV-BUG (l): nút «Công bố» luôn thấy; chưa chọn gì thì khoá kèm lý do ngắn (không phải mò «Chọn tất cả đã duyệt» mới thấy)
+  await expect(page.getByRole("button", { name: "Công bố" })).toHaveAttribute("aria-disabled", "true");
 
   await qRows(page).first().getByRole("checkbox").check();
   await qRows(page).nth(1).getByRole("checkbox").check();

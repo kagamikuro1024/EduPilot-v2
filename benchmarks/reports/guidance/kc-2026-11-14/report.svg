@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" font-family="sans-serif" font-size="13">
+<text x="10" y="22" font-size="15" fill="currentColor">Trước (v0) / sau (v1): điểm AI − giảng viên, càng thấp càng tốt (BT-B: trước / sau bước 7)</text>
+<text x="10" y="64" fill="currentColor">MAE tổng</text>
+<rect x="150" y="50" width="360" height="20" fill="var(--muted)"/><text x="516" y="65" fill="currentColor">trước 1.519</text>
+<rect x="150" y="74" width="207" height="20" fill="var(--accent)"/><text x="363" y="89" fill="currentColor">sau 0.875</text>
+<text x="10" y="134" fill="currentColor">MAE tiêu chí</text>
+<rect x="150" y="120" width="98" height="20" fill="var(--muted)"/><text x="254" y="135" fill="currentColor">trước 0.414</text>
+<rect x="150" y="144" width="77" height="20" fill="var(--accent)"/><text x="233" y="159" fill="currentColor">sau 0.328</text>
+<text x="10" y="204" fill="currentColor">|lệch TB| tổng</text>
+<rect x="150" y="190" width="360" height="20" fill="var(--muted)"/><text x="516" y="205" fill="currentColor">trước 1.519</text>
+<rect x="150" y="214" width="194" height="20" fill="var(--accent)"/><text x="350" y="229" fill="currentColor">sau 0.819</text>
+<text x="10" y="274" fill="currentColor">BT-B MAE tổng</text>
+<rect x="150" y="260" width="279" height="20" fill="var(--muted)"/><text x="435" y="275" fill="currentColor">trước 1.177</text>
+<rect x="150" y="284" width="279" height="20" fill="var(--accent)"/><text x="435" y="299" fill="currentColor">sau 1.177</text>
+</svg>

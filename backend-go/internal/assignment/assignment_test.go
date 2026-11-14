@@ -589,3 +589,23 @@ func TestTeamsIdsFollowChannel(t *testing.T) {
 	_, err = e.svc.Update(e.ctx, e.act, e.course, a.ID, i)
 	require.Equal(t, "VALIDATION_FAILED", code(err), "TEAMS thiếu id")
 }
+
+// TestListCountsAnySource — GV-BUG «Đã nộp 0/60» (S2-2): `counts.submitted` đếm sinh viên có bài MATCHED ở MỌI nguồn (tải lên ZIP, thư IMAP, Teams, trong ứng dụng), không riêng IN_APP (bài UNMATCHED không có bài tập nên không thể tính).
+func TestListCountsAnySource(t *testing.T) {
+	e := newEnv(t)
+	a := e.create("BT03")
+	for _, src := range []string{"IN_APP", "UPLOAD", "IMAP", "TEAMS"} {
+		r := e.rrow(a, e.student(), 1, time.Now().UTC().Add(-time.Hour), "DONE", "DRAFT", crit10, nil)
+		e.exec(`update submissions set source = $2 where id = $1`, r.sub, src)
+	}
+	page, err := e.svc.List(e.ctx, e.act, e.course, httpx.PageParams{Limit: 10})
+	require.NoError(t, err)
+	var got *assignment.Counts
+	for _, it := range page.Items {
+		if it.ID == a.ID {
+			got = it.Counts
+		}
+	}
+	require.NotNil(t, got)
+	require.Equal(t, 4, got.Submitted)
+}

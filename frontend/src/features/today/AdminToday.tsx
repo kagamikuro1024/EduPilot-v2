@@ -1,9 +1,9 @@
 "use client";
 
+import { longDate } from "./format";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { ActionList, Button, EmptyState, InlineNotice, Page, PageHeader, Panel } from "@/shared/ui";
 import { TodayActions } from "./TodayActions";
-import { longDate } from "./format";
 import { useToday, type AdminToday as Data } from "./todayApi";
 
 /** "Hôm nay" của quản trị viên: việc của hệ thống (nhà cung cấp AI, ngân sách, lớp không giảng viên, lời mời hết hạn). */
@@ -11,8 +11,8 @@ export function AdminToday() {
   const q = useToday<Data>();
   const d = q.data;
   return (
-    <Page>
-      <PageHeader title={d ? (d.count > 0 ? `${d.count} việc cần xử lý hôm nay` : "Không có việc cần xử lý hôm nay.") : "Hôm nay"} description={`${longDate(new Date())} · việc của hệ thống`} />
+    <Page kind="read">
+      <PageHeader title={d ? (d.count > 0 ? `${d.count} việc cần xử lý hôm nay` : "Không có việc cần xử lý hôm nay.") : "Hôm nay"} meta={[longDate(new Date()), "việc của hệ thống"]} />
       {!d ? (
         q.isError ? (
           <ApiErrorNotice error={q.error} showTechnical onRetry={() => void q.refetch()} title="Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng." />
@@ -29,7 +29,7 @@ export function AdminToday() {
           {d.actions.length > 0 ? (
             <TodayActions actions={d.actions} showClass={false} canDismiss={false} />
           ) : (
-            <Panel><EmptyState title="Hệ thống đang vận hành bình thường">Khi một nhà cung cấp AI lỗi, ngân sách sắp chạm trần hoặc một lớp không có giảng viên, việc sẽ xuất hiện ở đây.</EmptyState></Panel>
+            <Panel><EmptyState title="Hệ thống đang vận hành bình thường" /></Panel>
           )}
         </>
       )}

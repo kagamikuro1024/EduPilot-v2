@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { FileText, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ApiError, newIdempotencyKey } from "@/shared/data";
 import { Button, ButtonLink, ConfirmIrreversible, Drawer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, PanelSection, Skeleton, StatusText } from "@/shared/ui";
@@ -56,22 +56,14 @@ function RealGradeScheme({ courseId, teacher }: { courseId: string; classCode: s
     <PageHeader
       title="Công thức điểm"
       back={{ href: "/gradebook", label: "Sổ điểm" }}
-      meta={draft ? <StatusText tone="amber">Bản nháp</StatusText> : confirmed ? <span data-part="confirmed-line"><StatusText tone="green">{`Đã xác nhận · ${at(confirmed.confirmed_at)}`}</StatusText></span> : undefined}
-      actions={
-        teacher && (
-          <>
-            <input ref={picker} type="file" hidden accept=".pdf,.docx,.pptx" data-part="policy-input" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload.start(f); }} />
-            <Button variant="secondary" icon={<Upload aria-hidden />} disabled={upload.state.phase === "uploading" || upload.state.phase === "reading" || upload.state.phase === "extracting"} onClick={() => picker.current?.click()}>
-              Tải quy chế
-            </Button>
-          </>
-        )
-      }
+      meta={[draft ? <StatusText key="m0" tone="amber">Bản nháp</StatusText> : confirmed ? <span key="m0" data-part="confirmed-line"><StatusText tone="green">{`Đã xác nhận · ${at(confirmed.confirmed_at)}`}</StatusText></span> : undefined]}
+      secondary={teacher ? [{ label: "Tải quy chế", icon: <Upload aria-hidden />, disabled: upload.state.phase === "uploading" || upload.state.phase === "reading" || upload.state.phase === "extracting", onClick: () => picker.current?.click() }] : undefined}
     />
   );
 
   return (
-    <Page>
+    <Page kind="read">
+      {teacher && <input ref={picker} type="file" hidden accept=".pdf,.docx,.pptx" data-part="policy-input" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload.start(f); }} />}
       <PageState
         query={{ isPending: base.isPending, isError: base.isError, error: base.error, data: base.data, refetch: base.refetch }}
         loading={<><PageHeader title="Công thức điểm" back={{ href: "/gradebook", label: "Sổ điểm" }} /><Panel><Skeleton lines={10} /></Panel></>}
@@ -83,7 +75,6 @@ function RealGradeScheme({ courseId, teacher }: { courseId: string; classCode: s
           <Panel>
             <EmptyState
               title="Lớp chưa có quy chế."
-              icon={<FileText aria-hidden />}
               action={teacher ? <Button variant="primary" icon={<Upload aria-hidden />} onClick={() => picker.current?.click()}>Tải quy chế</Button> : <ButtonLink href="/gradebook">Về sổ điểm</ButtonLink>}
             />
           </Panel>

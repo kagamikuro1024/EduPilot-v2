@@ -59,7 +59,7 @@ export function RiskSection({ courseId, canManage }: { courseId: string; canMana
   const risk = q.data?.risk;
   if (!risk) return null; // chưa tải (hoặc phản hồi không mang ngưỡng): không dựng khối rỗng
   return (
-    <Section panel title="Ngưỡng cần chú ý">
+    <Section title="Ngưỡng cần chú ý">
       <div className={s.riskRows}>
         {ROWS.map((r) => {
           const value = draft[r.field] ?? num(risk, r.field);

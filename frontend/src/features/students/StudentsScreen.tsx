@@ -11,7 +11,7 @@ export function StudentsScreen() {
   if (realPending) return null; // chưa biết có lớp thật hay không: không dựng gì
   if ((role !== "teacher" && role !== "ta") || !realCourseId || realCourseId === "all")
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Sinh viên" />
         <Panel><EmptyState title={realCourseId === "all" ? "Chọn một lớp để xem sinh viên." : "Chưa có lớp nào."} /></Panel>
       </Page>

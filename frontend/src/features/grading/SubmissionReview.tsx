@@ -15,6 +15,7 @@ import {
   type Criterion, type QueueStatus, type ResultView,
 } from "./gradingApi";
 import { AppealPanel } from "./AppealPanel";
+import { GuidanceMeta } from "./GuidanceMeta";
 import s from "./SubmissionReview.module.css";
 
 type Draft = { overall: string; comments: Record<string, string> };
@@ -63,23 +64,24 @@ function Review({ courseId, submissionId }: { courseId: string; submissionId: st
   const q = useResult(courseId, submissionId);
   const view = q.data ?? null;
   return (
-    <Page width="full">
+    <Page kind="work">
       <PageHeader
         title={view ? view.assignment.title : "Duyệt bài"}
         back={{ href: "/grading", label: "Hàng chờ chấm" }}
         meta={
-          view ? (
-            <>
-              <span>{`Phiên bản ${view.submission.version}`}</span>
-              <span>
-                {`Nộp ${fmtLong(view.submission.received_at)}`}
-                {view.submission.late_days > 0 ? ` · muộn ${view.submission.late_days} ngày` : ""}
-              </span>
-              <StatusText tone={view.result.status === "PUBLISHED" ? "green" : view.result.status === "REVIEWED" ? "blue" : "amber"}>
-                {view.result.status === "PUBLISHED" ? "Đã công bố" : view.result.status === "REVIEWED" ? "Đã duyệt" : "Chưa duyệt"}
-              </StatusText>
-            </>
-          ) : undefined
+          view
+            ? [
+                <span key="m0">{`Phiên bản ${view.submission.version}`}</span>,
+                <span key="m1">
+                  {`Nộp ${fmtLong(view.submission.received_at)}`}
+                  {view.submission.late_days > 0 ? ` · muộn ${view.submission.late_days} ngày` : ""}
+                </span>,
+                <StatusText key="m2" tone={view.result.status === "PUBLISHED" ? "green" : view.result.status === "REVIEWED" ? "blue" : "amber"}>
+                  {view.result.status === "PUBLISHED" ? "Đã công bố" : view.result.status === "REVIEWED" ? "Đã duyệt" : "Chưa duyệt"}
+                </StatusText>,
+                <GuidanceMeta key="m3" courseId={courseId} view={view} />,
+              ]
+            : undefined
         }
       />
       {view ? (
@@ -159,7 +161,9 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   };
   const [activeCrit, setActiveCrit] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const running = useRef(false);
+  /** Việc ghi nối đuôi nhau (GV-BUG «Duyệt bài đua với tự lưu»): bấm Duyệt ngay sau khi gõ thì lần lưu nhận xét do blur chạy xong RỒI mới duyệt, không bị bỏ. */
+  const chain = useRef<Promise<void>>(Promise.resolve());
+  const pending = useRef(0);
   const docRef = useRef<HTMLDivElement>(null);
 
   const commentOf = (c: Criterion) => comments[c.id] ?? restored?.comments?.[c.id] ?? c.comment;
@@ -227,22 +231,28 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
     undo.run({ id: c.id, before: was, after: next });
   }
 
-  async function run(job: () => Promise<void>) {
-    if (running.current) return;
-    running.current = true;
-    setBusy(true);
-    try {
-      await job();
-    } catch (e) {
-      handle(e);
-    } finally {
-      running.current = false;
-      setBusy(false);
+  /** `quiet`: lưu nền (blur ô nhận xét) KHÔNG bật `busy` — nếu bật, nút Duyệt thành «đang tải» ngay lúc bấm chuột và cú bấm bị mất. */
+  function run(job: () => Promise<void>, quiet = false): Promise<void> {
+    if (!quiet) {
+      pending.current += 1;
+      setBusy(true);
     }
+    const p = chain.current.then(async () => {
+      try {
+        await job();
+      } catch (e) {
+        handle(e);
+      } finally {
+        if (!quiet) {
+          pending.current -= 1;
+          if (pending.current === 0) setBusy(false);
+        }
+      }
+    });
+    chain.current = p;
+    return p;
   }
 
-  const dirtyComments = view.criteria.filter((c) => commentOf(c) !== c.comment).map((c) => ({ id: c.id, comment: commentOf(c) }));
-  const overallDirty = overallText !== view.result.overall_feedback;
 
   const goto = (i: number) => {
     const id = order[i];
@@ -259,8 +269,10 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
     void run(async () => {
       try {
         let cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
-        if (dirtyComments.length > 0 || overallDirty) {
-          cur = await put({ version: cur.result.version, criteria: dirtyComments, overall_feedback: overallText });
+        // so với bản MỚI NHẤT (lần lưu do blur có thể vừa xong): chỉ gửi phần còn khác
+        const dirty = view.criteria.filter((c) => commentOf(c) !== (cur.criteria.find((x) => x.id === c.id)?.comment ?? c.comment)).map((c) => ({ id: c.id, comment: commentOf(c) }));
+        if (dirty.length > 0 || overallText !== cur.result.overall_feedback) {
+          cur = await put({ version: cur.result.version, criteria: dirty, overall_feedback: overallText });
         }
         await reviewResult(courseId, rid, cur.result.version);
       } catch (e) {
@@ -274,6 +286,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
       const next = new URLSearchParams(params);
       next.set("n", String(done + 1));
       next.set("m", String(total));
+      next.set("from", submissionId); // bài vừa duyệt: trang kế hiện «Đã duyệt bài trước · Quay lại» (GV-BUG b: tự nhảy không báo)
       if (at >= 0 && at + 1 < order.length) router.push(`/grading/${order[at + 1]}?${next}`);
       else {
         router.replace(`/grading/${submissionId}?${next}`);
@@ -335,7 +348,16 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
 
   const otherFlags = view.flags.filter((f) => f !== "NEEDS_REVIEW");
 
+  const fromId = params.get("from");
+  const backParams = new URLSearchParams(params);
+  backParams.delete("from");
   return (
+    <>
+    {fromId && fromId !== submissionId && (
+      <InlineNotice tone="info" compact action={<ButtonLink href={`/grading/${fromId}?${backParams}`} variant="ghost" size="sm">Quay lại</ButtonLink>}>
+        <span data-part="review-from">Đã duyệt bài trước</span>
+      </InlineNotice>
+    )}
     <div className={s.reviewGrid} data-tab={tab}>
       <div className={s.tabs} role="tablist" aria-label="Chế độ xem">
         <button type="button" role="tab" aria-selected={tab === "doc"} onClick={() => setTab("doc")}>Bài làm</button>
@@ -517,7 +539,15 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                         saveDraft({ comments: { [c.id]: e.target.value } });
                       }}
                       onBlur={() => {
-                        if (commentOf(c) !== c.comment) void run(() => put({ version: view.result.version, criteria: [{ id: c.id, comment: commentOf(c) }] }).then(() => flashSaved(`comment:${c.id}`)));
+                        const text = commentOf(c);
+                        if (text !== c.comment) {
+                          void run(async () => {
+                            const cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
+                            if (text === (cur.criteria.find((x) => x.id === c.id)?.comment ?? c.comment)) return;
+                            await put({ version: cur.result.version, criteria: [{ id: c.id, comment: text }] });
+                            flashSaved(`comment:${c.id}`);
+                          }, true);
+                        }
                       }}
                     />
                   )}
@@ -566,5 +596,6 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
       </Panel>
       </div>
     </div>
+    </>
   );
 }

@@ -34,7 +34,7 @@ export function StudyTimeSetting({ courseId, canManage }: { courseId: string; ca
   }
 
   return (
-    <Section panel title="Đo thời gian học">
+    <Section title="Đo thời gian học">
       <Switch
         label="Cho sinh viên tắt đo thời gian học"
         checked={value}

@@ -66,7 +66,7 @@ export function ThresholdSection({ courseId, canManage }: { courseId: string; ca
 
   if (!q.data || value === null) return null;
   return (
-    <Section panel title="Ngưỡng chuyển cho giảng viên">
+    <Section title="Ngưỡng chuyển cho giảng viên">
       <div className={s.threshold}>
         <span className={s.readonly}>Ít chuyển</span>
         <input

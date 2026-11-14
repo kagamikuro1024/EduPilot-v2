@@ -28,25 +28,23 @@ export function IntegrationsSettings() {
   const courseId = admin ? picked || list[0]?.id || "" : realCourseId && realCourseId !== "all" ? realCourseId : "";
 
   return (
-    <Page>
-      <PageHeader
-        title="Tích hợp"
-        actions={
-          admin && list.length > 0 ? (
-            <Field label="Lớp" className={s.picker}>
-              {(id) => (
-                <Select id={id} value={courseId} onChange={(e) => setPicked(e.target.value)} data-part="course-picker">
-                  {list.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.class_code} · {c.name}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
-          ) : undefined
-        }
-      />
+    <Page kind="read">
+      <PageHeader title="Tích hợp" />
+      {admin && list.length > 0 && (
+        <div className={s.picker}>
+          <Field label="Lớp">
+            {(id) => (
+              <Select id={id} value={courseId} onChange={(e) => setPicked(e.target.value)} data-part="course-picker">
+                {list.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.class_code} · {c.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        </div>
+      )}
       {admin && courses.isPending ? (
         <Panel>
           <Skeleton lines={8} />

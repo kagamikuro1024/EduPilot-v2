@@ -65,7 +65,7 @@ func TestExamSchema(t *testing.T) {
 	}
 
 	wantCols := map[string][]string{
-		"question_bank":      {"id", "course_id", "type", "title", "topic", "difficulty", "stem", "answer_key", "explanation", "citations", "origin", "review_status", "created_by", "reviewed_by", "reviewed_at", "ai_job_id", "archived_at", "version", "created_at", "updated_at"},
+		"question_bank":      {"id", "course_id", "type", "title", "topic", "difficulty", "stem", "answer_key", "explanation", "citations", "origin", "review_status", "created_by", "reviewed_by", "reviewed_at", "ai_job_id", "archived_at", "version", "created_at", "updated_at", "reject_reason"},
 		"question_options":   {"id", "course_id", "question_id", "position", "body", "pinned_last"},
 		"code_problems":      {"question_id", "course_id", "languages", "time_limit_ms", "memory_limit_mb", "output_limit_kb", "checker", "float_eps", "starter_code", "reference_language", "reference_source", "reference_verified_version", "reference_verified_at", "tests_version", "created_at", "updated_at"},
 		"code_testcases":     {"id", "course_id", "problem_id", "position", "name", "is_sample", "weight", "input", "input_blob_key", "expected", "expected_blob_key", "input_bytes", "expected_bytes", "source", "approved", "created_at", "updated_at"},

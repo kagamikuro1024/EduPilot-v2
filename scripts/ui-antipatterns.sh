@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Kiểm phản mẫu giao diện: docs/design/DESIGN.md §21, docs/design/INTEGRATION.md mục 5, docs/specs/FEAT-ui-foundation/SRS.md 4.1 + 4.3, docs/specs/FEAT-ui-panels/SRS.md 4.3.
-# 23 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
+# 31 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề; 24–31 = hợp đồng khung trang DESIGN.md §23, sprint 10.7); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
 # Danh sách trắng: thêm chú thích `ui-allow: <lý do>` trên CÙNG dòng (trần 10 chỗ — QC đếm).
-# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 23 phép bắt được`.
+# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 31 phép bắt được`.
 # Chạy ở gốc repo. UI_SRC đổi thư mục nguồn (dùng cho --selftest).
 set -uo pipefail
 export LC_ALL=C
@@ -37,6 +37,14 @@ if [ "${1:-}" = "--selftest" ]; then
     "Bo góc panel ngoài Panel|features/_selftest/g.module.css|.g { border-radius: var(--ep-radius-panel); }"
     "Câu mô tả tĩnh dưới tiêu đề|features/_selftest/desc.tsx|export const D = () => <PageHeader title=\"x\" description=\"Câu giải thích rất dài nằm dưới tiêu đề của trang này đấy\" />;"
     "Panel lồng Panel (cùng tệp)|features/_selftest/nest.tsx|export const N = () => (<Panel"$'\n'"  aria-label=\"a\">"$'\n'"<Panel>x</Panel></Panel>);"
+    "Khung tự đặt độ rộng|features/_selftest/w.module.css|.a { max-width: 840px; }"
+    "Chiều cao theo màn ngoài shared/|features/_selftest/vh.module.css|.b { height: calc(100dvh - 56px); }"
+    "Với tay vào primitive|features/_selftest/reach.module.css|.c > :global([data-ep-panel]) { height: 100%; }"
+    "Meta lặp lớp đang chọn|features/_selftest/meta.tsx|export const M = () => <PageHeader title=\"x\" meta={[course.label]} />;"
+    "Tiêu đề tự dựng ngoài shared/ui|features/_selftest/h2.tsx|export const H = () => <h2 className=\"ep-section-title\">x</h2>;"
+    "Nút rỗng trùng nút đầu trang|features/_selftest/dup.tsx|export const D2 = () => (<><PageHeader title=\"x\" primary={{ label: \"Tạo câu hỏi\" }} /><EmptyState title=\"x\" action={<Button>Tạo câu hỏi</Button>} /></>);"
+    "Tiêu đề rỗng là câu|features/_selftest/et.tsx|export const E = () => <EmptyState title=\"Chưa có gì. Khi có dữ liệu nó sẽ hiện ở đây.\" />;"
+    "Vàng làm chữ|features/_selftest/y.module.css|.d { color: var(--ep-yellow); }"
   )
   miss=0; names=""
   for s in "${seeds[@]}"; do
@@ -146,4 +154,48 @@ out=$(find "$SRC" -name '*.tsx' ! -path '*/shared/ui/*' ! -path '*/app/dev/*' ! 
   } continue { close ARGV if eof }
 ' 2>/dev/null || true)
 if [ -n "$out" ]; then echo "✗ Câu mô tả tĩnh dưới tiêu đề"; echo "$out" | head -20; echo; FAIL=1; else echo "✓ Câu mô tả tĩnh dưới tiêu đề"; fi
+# ---- hợp đồng khung trang (DESIGN.md §23, sprint 10.7): phép 24–31 ----------------------------------------------------------
+# Nợ khung: route CHƯA chuyển sang hợp đồng (scripts/ui-frame-debt.txt, mỗi dòng một regex đường dẫn). Mỗi lô sửa route xoá dòng tương ứng; hết lô 7 tệp phải rỗng.
+DEBT=$(grep -vE '^\s*(#|$)' "$(dirname "$0")/ui-frame-debt.txt" 2>/dev/null | paste -sd'|' - || true)
+[ -n "$DEBT" ] || DEBT='__none__'
+# "CSS route" = *.module.css dưới features/ và app/, trừ landing, dev, _selftest không bị loại
+route_css() { find "$SRC/features" "$SRC/app" -name '*.module.css' ! -path '*/features/landing/*' ! -path '*/app/dev/*' 2>/dev/null; }
+route_tsx() { find "$SRC/features" "$SRC/app" "$SRC/shared/shell" -name '*.tsx' ! -path '*/features/landing/*' ! -path '*/app/dev/*' 2>/dev/null; }
+report() { # tên, nội dung vi phạm (đã lọc nợ và ui-allow)
+  local out; out=$(printf '%s' "$2" | grep -v "ui-allow:" | grep -vE "$DEBT" || true)
+  if [ -n "$out" ]; then echo "✗ $1"; echo "$out" | head -20; echo; FAIL=1; else echo "✓ $1"; fi
+}
+# 24: khung tự đặt độ rộng (≥ 600 px / ≥ 30 rem / vw) hoặc tự căn giữa trong CSS route. Ô nhập, cột chữ (< 600 px, ch) không bị bắt.
+report "Khung tự đặt độ rộng" "$(route_css | xargs grep -nE '(max-|min-)?width[[:space:]]*:[^;]*(([6-9][0-9]{2}|[0-9]{4,})px|[3-9][0-9](\.[0-9]+)?rem|[0-9]+vw)|margin(-inline)?[[:space:]]*:[^;]*\bauto\b' 2>/dev/null | grep -v '@media' || true)"
+# 25: chiều cao theo màn ngoài shared/ (chỉ Split được đặt)
+report "Chiều cao theo màn ngoài shared/" "$(route_css | xargs grep -nE '(min-|max-)?height[[:space:]]*:[^;]*[0-9](d|s|l)?vh' 2>/dev/null || true)"
+# 26: CSS route với tay vào phần tử của primitive
+report "Với tay vào primitive" "$(route_css | xargs grep -nE 'data-ep-(panel|page|empty|section|split)|\.page\.page' 2>/dev/null || true)"
+# 27: meta của PageHeader lặp lớp đang chọn (thanh trên đã có)
+report "Meta lặp lớp đang chọn" "$(route_tsx | xargs perl -CSD -0777 -ne '
+  while (/<PageHeader(?=[\s>])((?:[^>"{]|"[^"]*"|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)>/g) {
+    my $a = $1; my $at = $-[0];
+    if ($a =~ /\bmeta=\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*(?:course(?:Label|Code|Name)|class_?[cC]ode|course\??\.(?:label|code|name|class_code))/ && $a !~ /ui-allow:/) { my $l = 1 + (substr($_, 0, $at) =~ tr/\n//); print "$ARGV:$l: meta lặp lớp\n"; }
+  } continue { close ARGV if eof }
+' 2>/dev/null || true)"
+# 28: tiêu đề tự dựng (h1 / h2 / lớp tiêu đề) ngoài shared/ui — chỉ PageHeader và Section được vẽ
+report "Tiêu đề tự dựng ngoài shared/ui" "$(route_tsx | xargs grep -nE '<h1\b|<h2\b|ep-page-title|ep-section-title' 2>/dev/null || true)"
+# 29: trong CÙNG tệp, nhãn nút của EmptyState trùng nhãn primary của PageHeader (nút rỗng lặp hành động đầu trang). Trần: không thấy qua ranh giới tệp (đo bằng E4 ở frame.spec).
+report "Nút rỗng trùng nút đầu trang" "$(route_tsx | xargs perl -CSD -0777 -ne '
+  my %p; while (/primary=\{\{[^}]*?label:\s*"([^"]+)"/g) { $p{$1} = 1 }
+  while (/<EmptyState(?=[\s>\/])((?:[^>"{]|"[^"]*"|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)\/?>/g) {
+    my $a = $1; my $at = $-[0];
+    for my $lab (keys %p) { if ($a =~ /action=.*>\s*\Q$lab\E\s*</s && $a !~ /ui-allow:/) { my $l = 1 + (substr($_, 0, $at) =~ tr/\n//); print "$ARGV:$l: nút rỗng «$lab» trùng primary\n"; } }
+  } continue { close ARGV if eof }
+' 2>/dev/null || true)"
+# 30: tiêu đề EmptyState tĩnh dài hơn 40 ký tự, có dấu chấm giữa chuỗi, hoặc kết thúc bằng dấu chấm (là câu, không phải tiêu đề)
+report "Tiêu đề rỗng là câu" "$(route_tsx | xargs perl -CSD -0777 -ne '
+  while (/<EmptyState(?=[\s>\/])((?:[^>"{]|"[^"]*"|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)\/?>/g) {
+    my $a = $1; my $at = $-[0];
+    if ($a =~ /\btitle="([^"]*)"/ && $a !~ /ui-allow:/) { my $t = $1; if (length($t) > 40 || $t =~ /\.\s/ || $t =~ /\.$/) { my $l = 1 + (substr($_, 0, $at) =~ tr/\n//); print "$ARGV:$l: tiêu đề rỗng là câu\n"; } }
+  } continue { close ARGV if eof }
+' 2>/dev/null || true)"
+# 31: vàng chỉ làm nền / chấm / vạch — cấm làm chữ, viền, icon (1,69 : 1 trên trắng, không đạt WCAG)
+out=$(grep -rnE '(^|[^-])(color|border(-[a-z]+)?-color|stroke|fill)[[:space:]]*:[^;]*--ep-yellow\b' "$SRC" --include=*.css 2>/dev/null | grep -vE 'features/landing/' || true)
+report "Vàng làm chữ" "$out"
 exit $FAIL

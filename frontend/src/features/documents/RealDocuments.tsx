@@ -163,8 +163,8 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
   const filtered = filter.type !== "" || filter.status !== "" || filter.q !== "";
 
   return (
-    <Page width="full">
-      <PageHeader title="Tài liệu" actions={<Button variant="primary" onClick={() => pick("LECTURE")}>Tải tài liệu lên</Button>} />
+    <Page kind="work">
+      <PageHeader title="Tài liệu" primary={{ label: "Tải tài liệu lên", onClick: () => pick("LECTURE") }} />
       <input ref={picker} type="file" hidden multiple accept=".pdf,.docx,.pptx" data-part="file-input" onChange={(e) => { if (e.target.files) add(e.target.files, pendingType); e.target.value = ""; }} />
       <Panel>
         <div className={r.stack}>
@@ -220,7 +220,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
             query={list}
             isEmpty={() => rows.length === 0}
             loading={<Skeleton lines={5} />}
-            empty={<EmptyState title={filtered ? "Không có tài liệu nào khớp." : "Lớp chưa có tài liệu."}>{!filtered && <Button variant="primary" onClick={() => pick("LECTURE")}>Tải tài liệu lên</Button>}</EmptyState>}
+            empty={<EmptyState title={filtered ? "Không có tài liệu nào khớp." : "Lớp chưa có tài liệu."} />}
           >
             <DataTable columns={cols} rows={rows} rowKey={(d) => d.id} caption="Tài liệu của lớp" rowAttrs={(d) => ({ "data-part": "doc-row", "data-doc-id": d.id })} />
             {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}

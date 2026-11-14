@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
@@ -123,54 +124,101 @@ func (r *Roster) Invalidate(ctx context.Context, m outbox.Message) error {
 // rosterIndex: biến thể tên đã chuẩn hoá → họ tên đầy đủ chuẩn hoá (khoá thực thể); mã sinh viên chữ thường.
 type rosterIndex struct {
 	names  map[string]string
+	forms  map[string][][]string // biến thể (đã bỏ dấu) → các dạng CÓ DẤU của nó (từng âm tiết, chữ thường NFC), để kiểm «dấu là tập con» (P-106-11)
 	codes  map[string]string
 	maxTok int
 }
 
 // buildIndex sinh biến thể cho mỗi tên ≥ 2 âm tiết: nguyên; đảo (tên trước họ: "An Nguyễn Văn", "An Nguyễn"); rút ("Nguyễn An").
+// Mỗi biến thể lưu cả dạng có dấu (forms) — find chỉ nhận đoạn trong bài khi «dấu là tập con» của dạng đó.
 func buildIndex(ms []Member) *rosterIndex {
-	idx := &rosterIndex{names: map[string]string{}, codes: map[string]string{}}
+	idx := &rosterIndex{names: map[string]string{}, forms: map[string][][]string{}, codes: map[string]string{}}
 	for _, m := range ms {
 		if c := strings.ToLower(strings.TrimSpace(m.Code)); c != "" {
 			idx.codes[c] = c
 		}
-		toks := strings.Fields(auth.Fold(m.Name))
+		acc := strings.Fields(strings.ToLower(norm.NFC.String(m.Name)))
+		toks := make([]string, len(acc))
+		for i, a := range acc {
+			toks[i] = auth.Fold(a)
+		}
 		if len(toks) < 2 {
 			continue
 		}
 		full := strings.Join(toks, " ")
-		first, last := toks[0], toks[len(toks)-1]
-		rev := last + " " + strings.Join(toks[:len(toks)-1], " ")
-		variants := []string{full, rev, last + " " + first, first + " " + last}
-		if len(toks) >= 3 && len(toks) <= 4 { // mọi thứ tự của 3–4 âm tiết (người gõ đảo tuỳ ý: "Giang Ngọc Bùi"); 2 âm tiết đã đủ hai chiều ở trên
-			variants = append(variants, permutations(toks)...)
+		n := len(toks)
+		orders := [][]int{seq(n), append([]int{n - 1}, seq(n-1)...), {n - 1, 0}, {0, n - 1}}
+		if n >= 3 && n <= 4 { // mọi thứ tự của 3–4 âm tiết (người gõ đảo tuỳ ý: "Giang Ngọc Bùi"); 2 âm tiết đã đủ hai chiều ở trên
+			orders = append(orders, permutationsOf(n)...)
 		}
-		for _, v := range variants {
+		for _, o := range orders {
+			key, form := make([]string, len(o)), make([]string, len(o))
+			for k, i := range o {
+				key[k], form[k] = toks[i], acc[i]
+			}
+			v := strings.Join(key, " ")
 			if _, taken := idx.names[v]; !taken {
 				idx.names[v] = full
 			}
-			idx.maxTok = max(idx.maxTok, len(strings.Fields(v)))
+			idx.forms[v] = append(idx.forms[v], form)
+			idx.maxTok = max(idx.maxTok, len(o))
 		}
 	}
 	return idx
 }
 
-// permutations trả mọi hoán vị (nối bằng dấu cách) của toks; ≤ 24 phần tử cho 4 âm tiết.
-func permutations(toks []string) []string {
-	var out []string
-	var rec func(cur []string, rest []string)
-	rec = func(cur, rest []string) {
+func seq(n int) []int {
+	out := make([]int, n)
+	for i := range out {
+		out[i] = i
+	}
+	return out
+}
+
+// permutationsOf trả mọi hoán vị của 0..n-1 (n ≤ 4 → ≤ 24 phần tử).
+func permutationsOf(n int) [][]int {
+	var out [][]int
+	var rec func(cur, rest []int)
+	rec = func(cur, rest []int) {
 		if len(rest) == 0 {
-			out = append(out, strings.Join(cur, " "))
+			out = append(out, cur)
 			return
 		}
 		for i := range rest {
-			next := append(append([]string{}, rest[:i]...), rest[i+1:]...)
-			rec(append(cur, rest[i]), next)
+			next := append(append([]int{}, rest[:i]...), rest[i+1:]...)
+			rec(append(append([]int{}, cur...), rest[i]), next)
 		}
 	}
-	rec(nil, toks)
+	rec(nil, seq(n))
 	return out
+}
+
+// diacriticSubset (P-106-11, «dấu là tập con»): từ trong bài khớp âm tiết của tên nếu trùng hẳn HOẶC là dạng không dấu của nó; khác dấu (ụ ≠ ũ) thì không.
+// Giữ bắt tên gõ không dấu / thiếu dấu một phần ("Dung Nguyen", "Dũng Nguyen"), bỏ cụm thường có dấu khác ("áp dụng nguyên tắc" ≠ "Dũng Nguyễn").
+func diacriticSubset(textWord, nameWord string) bool {
+	t, n := []rune(strings.ToLower(norm.NFC.String(textWord))), []rune(nameWord)
+	if len(t) != len(n) {
+		return false
+	}
+	for i := range t {
+		if t[i] != n[i] && auth.Fold(string(n[i])) != string(t[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+func (idx *rosterIndex) accentOK(key string, runes []rune, ws []word) bool {
+	for _, form := range idx.forms[key] {
+		ok := len(form) == len(ws)
+		for k := 0; ok && k < len(ws); k++ {
+			ok = diacriticSubset(string(runes[ws[k].start:ws[k].end]), form[k])
+		}
+		if ok {
+			return true
+		}
+	}
+	return false
 }
 
 type word struct {
@@ -215,7 +263,8 @@ func (idx *rosterIndex) find(text string) []match {
 			for k := range parts {
 				parts[k] = ws[i+k].folded
 			}
-			if full, ok := idx.names[strings.Join(parts, " ")]; ok {
+			key := strings.Join(parts, " ")
+			if full, ok := idx.names[key]; ok && idx.accentOK(key, runes, ws[i:i+n]) {
 				out = append(out, match{Finding: Finding{Kind: KindName, Start: ws[i].start, End: ws[i+n-1].end}, key: full})
 				matched = n
 				break

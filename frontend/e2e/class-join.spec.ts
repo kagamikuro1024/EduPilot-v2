@@ -128,7 +128,6 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
   for (const route of routes) {
     await page.goto(route);
     await expect(page.getByRole("heading", { name: "Bạn chưa vào lớp nào" }), route).toBeVisible();
-    await expect(page.getByText("Nhập mã tham gia do giảng viên cung cấp để dùng tính năng này."), route).toBeVisible();
     await expect(page.locator("main").getByRole("link", { name: "Tham gia lớp bằng mã" }), route).toHaveAttribute("href", "/join");
     await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" }), route).toHaveCount(0);
   }
@@ -150,11 +149,12 @@ test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùn
   expect(courseCalls).toEqual([]);
 });
 
-test("mock course mapping: lớp có class_code lạ dùng lớp mô phỏng đầu", async ({ page }) => {
+test("mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, không mượn lớp mô phỏng 761987 (10.7 lô 1)", async ({ page }) => {
   await login(page, "TEACHER", [item(C1, "999999", "TEACHER")]);
   await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)
   await expect(picker(page)).toContainText("999999");
-  await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
+  await expect(page.getByText(/An ninh mạng – 999999/).first()).toBeVisible();
+  await expect(page.getByText(/An ninh mạng – 761987/)).toHaveCount(0);
 });
 
 // ===== US-P2-08: /admin/courses và chuông thật =====
@@ -630,6 +630,38 @@ async function openSettings(page: Page, role: "TEACHER" | "TA", h: { put?: (b: J
   await expect(page.getByRole("heading", { name: "Mã và cài đặt tham gia", level: 1 })).toBeVisible();
   return log;
 }
+
+test("class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng thái Bật/Tắt, lạc quan + Hoàn tác; «Ca kiểm thử» khoá với giảng viên; TA không thấy khối", async ({ page }) => {
+  const flags = ["GRADING_GUIDANCE", "THREAD_SUGGEST", "QUESTION_HINTS", "REGRESSION_CAPTURE"].map((feature) => ({ feature, enabled: false, version: 1, can_edit: feature !== "REGRESSION_CAPTURE" }));
+  const puts: Json[] = [];
+  await openSettings(page, "TEACHER", {
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags`, (r) => fulfill(r, 200, { items: flags }));
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags/*`, (r) => {
+        const b = JSON.parse(r.request().postData() ?? "{}") as Json;
+        puts.push({ path: new URL(r.request().url()).pathname.split("/").pop(), ...b });
+        return fulfill(r, 200, { feature: "GRADING_GUIDANCE", enabled: b.enabled, version: (b.version as number) + 1, can_edit: true });
+      });
+    },
+  });
+  const box = page.locator("[data-part=guidance-flags]");
+  await expect(box.getByRole("switch")).toHaveCount(4);
+  await expect(box.locator("label")).toHaveText(["Lưu ý chấm", "Ca kiểm thử", "Gợi ý câu hỏi tương tự", "Gợi ý khi sinh câu hỏi"]);
+  await expect(box.getByRole("switch", { name: "Ca kiểm thử" })).toBeDisabled();
+  const row = box.locator("[data-feature=GRADING_GUIDANCE]");
+  await expect(row).toContainText("Tắt");
+  await row.getByRole("switch", { name: "Lưu ý chấm" }).click();
+  await expect(row).toContainText("Bật"); // lạc quan
+  await expect(row.locator("[data-part=undo-line]")).toContainText("Đã bật Lưu ý chấm");
+  await row.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect.poll(() => puts.length).toBe(2);
+  expect(puts[0]).toEqual({ path: "GRADING_GUIDANCE", enabled: true, version: 1 });
+  expect(puts[1]).toEqual({ path: "GRADING_GUIDANCE", enabled: false, version: 2 });
+  await expect(row).toContainText("Tắt");
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await openSettings(page, "TA");
+  await expect(page.locator("[data-part=guidance-flags]")).toHaveCount(0);
+});
 
 test("class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { resetDemo } from "@/shared/state/demo";
-import { Button, ButtonLink, Page, PageHeader } from "@/shared/ui";
+import { Page, PageHeader } from "@/shared/ui";
 
 const HEAL_KEY = "ep_auto_heal";
 
@@ -23,27 +23,19 @@ export default function AppError({ reset }: { error: Error & { digest?: string }
   }, [reset]);
 
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader
         title="Trang này gặp sự cố"
-        description="Dữ liệu mô phỏng của trang không dựng được. Bạn thử lại, đặt lại dữ liệu demo, hoặc quay về màn Hôm nay rồi mở lại sau."
-        actions={
-          <>
-            <Button variant="primary" onClick={reset}>
-              Thử lại
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                resetDemo();
-                reset();
-              }}
-            >
-              Đặt lại dữ liệu demo
-            </Button>
-            <ButtonLink href="/">Về Hôm nay</ButtonLink>
-          </>
-        }
+        primary={{ label: "Thử lại", onClick: reset }}
+        secondary={[
+          {
+            label: "Đặt lại dữ liệu demo",
+            onClick: () => {
+              resetDemo();
+              reset();
+            } },
+          { label: "Về Hôm nay", href: "/" },
+        ]}
       />
     </Page>
   );

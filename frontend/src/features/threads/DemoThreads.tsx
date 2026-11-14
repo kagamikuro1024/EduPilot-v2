@@ -153,22 +153,15 @@ export function DemoThreadsScreen() {
   }
 
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader
         title="Hỏi đáp công khai"
-        description={`Câu hỏi công khai của ${isAll ? "các lớp bạn phụ trách" : course.label}. Câu trả lời có nhãn xác nhận là đã được giảng viên duyệt.`}
-        meta={`${rows.length} thread · tuần ${course.week}`}
-        actions={
-          canPost && !open ? (
-            <Button variant="primary" onClick={() => setOpen(true)} aria-expanded={open}>
-              Đặt câu hỏi
-            </Button>
-          ) : undefined
-        }
+        meta={[`${rows.length} thread · tuần ${course.week}`]}
+        primary={canPost && !open ? { label: "Đặt câu hỏi", onClick: () => setOpen(true), expanded: open } : undefined}
       />
 
       {canPost && open && (
-        <Section title="Đặt câu hỏi" description="Hỏi về nội dung môn học. Đừng ghi mã số sinh viên, số điện thoại hay điểm cá nhân — chuyện riêng hỏi ở Chat riêng." panel action={<Button variant="ghost" size="sm" onClick={() => setOpen(false)}>Thu gọn</Button>}>
+        <Section title="Đặt câu hỏi" action={<Button variant="ghost" size="sm" onClick={() => setOpen(false)}>Thu gọn</Button>}>
           <form
             className={s.createPanel}
             data-part="thread-form"
@@ -237,20 +230,14 @@ export function DemoThreadsScreen() {
         <PageState
           loading={<Skeleton lines={6} />}
           empty={
-            <EmptyState title="Chưa có câu hỏi nào trong tuần này" action={canPost ? <Button variant="primary" onClick={() => setOpen(true)}>Đặt câu hỏi</Button> : undefined}>
-              Khi bạn hoặc bạn cùng lớp đặt câu hỏi, thread sẽ hiện ở đây kèm trạng thái xác nhận của giảng viên.
-            </EmptyState>
+            <EmptyState title="Chưa có câu hỏi nào trong tuần này" action={canPost ? <Button variant="primary" onClick={() => setOpen(true)}>Đặt câu hỏi</Button> : undefined} />
           }
         >
           {rows.length === 0 ? (
             views.length === 0 ? (
-              <EmptyState title="Chưa có câu hỏi nào trong tuần này" action={canPost ? <Button variant="primary" onClick={() => setOpen(true)}>Đặt câu hỏi</Button> : undefined}>
-                Khi bạn hoặc bạn cùng lớp đặt câu hỏi, thread sẽ hiện ở đây kèm trạng thái xác nhận của giảng viên.
-              </EmptyState>
+              <EmptyState title="Chưa có câu hỏi nào trong tuần này" action={canPost ? <Button variant="primary" onClick={() => setOpen(true)}>Đặt câu hỏi</Button> : undefined} />
             ) : (
-              <EmptyState title="Không có thread nào khớp bộ lọc" action={<ButtonLink href="/threads">Bỏ bộ lọc</ButtonLink>}>
-                Thử bỏ bớt chủ đề hoặc tìm bằng từ khoá khác.
-              </EmptyState>
+              <EmptyState title="Không có thread nào khớp bộ lọc" action={<ButtonLink href="/threads">Bỏ bộ lọc</ButtonLink>} />
             )
           ) : (
             <ActionList label="Thread của lớp">

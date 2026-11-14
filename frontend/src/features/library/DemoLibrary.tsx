@@ -37,8 +37,8 @@ export function DemoLibraryScreen() {
   }
 
   return (
-    <Page>
-      <PageHeader title="Thư viện" description="Bài giảng, quy chế và đề cũ của lớp. Tìm theo tên, chủ đề hoặc tuần học." meta={`${docs.length} tài liệu`} />
+    <Page kind="read">
+      <PageHeader title="Thư viện" meta={[`${docs.length} tài liệu`]} />
 
       <Toolbar
         end={
@@ -68,15 +68,11 @@ export function DemoLibraryScreen() {
       <PageState
         loading={<Panel><Skeleton lines={7} /></Panel>}
         empty={
-          <Panel><EmptyState title="Chưa có tài liệu nào được chia sẻ" action={<ButtonLink href="/" variant="primary">Về Hôm nay</ButtonLink>}>
-            Khi giảng viên đăng bài giảng hoặc quy chế, tài liệu sẽ hiện ở đây.
-          </EmptyState></Panel>
+          <Panel><EmptyState title="Chưa có tài liệu nào được chia sẻ" action={<ButtonLink href="/" variant="primary">Về Hôm nay</ButtonLink>} /></Panel>
         }
       >
         {rows.length === 0 ? (
-          <Panel><EmptyState title={`Không có tài liệu nào khớp “${query}”`} action={<Button variant="primary" onClick={() => { setQuery(""); setKind("all"); }}>Xoá bộ lọc</Button>}>
-            Thử từ khoá ngắn hơn, ví dụ “AES” hoặc “quy chế”.
-          </EmptyState></Panel>
+          <Panel><EmptyState title={`Không có tài liệu nào khớp “${query}”`} action={<Button variant="primary" onClick={() => { setQuery(""); setKind("all"); }}>Xoá bộ lọc</Button>} /></Panel>
         ) : (
           <Panel>
           <ActionList label="Tài liệu của lớp">

@@ -199,8 +199,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             </span>
                           ),
                           icon: !isAll && c.id === realCourseId ? <Check aria-hidden /> : <span className={s.iconGap} />,
-                          onSelect: () => setCourse(c.id),
-                        }))
+                          onSelect: () => setCourse(c.id) }))
                       : courses.map((c) => ({
                           label: (
                             <span className={s.courseOpt}>
@@ -212,15 +211,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             </span>
                           ),
                           icon: !isAll && c.id === course.id ? <Check aria-hidden /> : <span className={s.iconGap} />,
-                          onSelect: () => setCourse(c.id),
-                        }))),
+                          onSelect: () => setCourse(c.id) }))),
                     ...(canAll
                       ? [
                           {
                             label: "Tất cả lớp của tôi",
                             icon: isAll ? <Check aria-hidden /> : <span className={s.iconGap} />,
-                            onSelect: () => setCourse(ALL_COURSES),
-                          },
+                            onSelect: () => setCourse(ALL_COURSES) },
                         ]
                       : []),
                   ]}
@@ -300,8 +297,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         const n = unsavedCount();
                         if (n > 0) setAskLogout(n);
                         else logout(); // thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login
-                      },
-                    },
+                      } },
                   ]}
                 />
               </div>
@@ -354,12 +350,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main id="main" className={s.main} tabIndex={-1}>
         {!canOpen(role, pathname) ? (
-          <Page>
-            <PageHeader
-              title="Bạn không có quyền xem màn này"
-              description={whoCanOpen(pathname)}
-              actions={<ButtonLink href="/">Về Hôm nay</ButtonLink>}
-            />
+          <Page kind="read">
+            <PageHeader title="Bạn không có quyền xem màn này" meta={[whoCanOpen(pathname)]} primary={{ label: "Về Hôm nay", href: "/" }} />
           </Page>
         ) : !hasCourse && needsCourse(role, pathname) ? (
           <NoCourse />
@@ -469,13 +461,8 @@ function BottomLink({ item, active, badge }: { item: NavItem; active: boolean; b
  */
 function NoCourse() {
   return (
-    <Page>
-      <PageHeader
-        title="Bạn chưa vào lớp nào"
-        // ui-allow: trạng thái "chưa vào lớp" nêu lý do + việc kế tiếp (US-UX91-01 #58)
-        description="Nhập mã tham gia do giảng viên cung cấp để dùng tính năng này."
-        actions={<ButtonLink href="/join" variant="primary">Tham gia lớp bằng mã</ButtonLink>}
-      />
+    <Page kind="read">
+      <PageHeader title="Bạn chưa vào lớp nào" primary={{ label: "Tham gia lớp bằng mã", href: "/join" }} />
     </Page>
   );
 }
@@ -483,11 +470,9 @@ function NoCourse() {
 /** Route chưa có backend (build `MOCK_SCREENS=0`): nói thật tiến độ, một nút kế tiếp; mục nav vẫn còn (US-PU-04 AC11). */
 function NoBackend({ phase }: { phase: { phase: string; name: string } }) {
   return (
-    <Page>
+    <Page kind="read">
       <div data-part="empty-no-backend">
-        <EmptyState title="Màn này chưa sẵn sàng" action={<ButtonLink href="/">Về Hôm nay</ButtonLink>}>
-          Tính năng này đang được xây ở giai đoạn {phase.phase} — {phase.name}. Khi xong, bạn sẽ dùng nó ngay tại đây.
-        </EmptyState>
+        <EmptyState title="Màn này chưa sẵn sàng" action={<ButtonLink href="/">Về Hôm nay</ButtonLink>} />
       </div>
     </Page>
   );

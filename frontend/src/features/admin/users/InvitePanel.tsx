@@ -31,7 +31,7 @@ export function InvitePanel({ onSent, onClose }: { onSent: (u: AdminUser) => voi
   }
 
   return (
-    <Section panel title="Mời giảng viên">
+    <Section title="Mời giảng viên">
       <form onSubmit={submit} className={s.form} noValidate>
         <Field label="Email" error={dup ? "Email này đã có tài khoản." : fe.email}>
           {(id, d) => (

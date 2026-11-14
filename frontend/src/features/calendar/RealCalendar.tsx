@@ -74,16 +74,11 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
   const del = staff ? (e: CalItem) => { if (pending) commitDelete(); setPending(e); } : undefined;
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader
         title="Lịch"
-        actions={
-          <>
-            <Button onClick={() => setIcs((v) => !v)} aria-expanded={ics}>Thêm vào lịch</Button>
-            {staff && <Button onClick={() => setForm("new")}>Thêm sự kiện</Button>}
-            {staff && <Button variant="primary" onClick={() => setSessions(true)}>Tạo lịch buổi học</Button>}
-          </>
-        }
+        primary={staff ? { label: "Tạo lịch buổi học", onClick: () => setSessions(true) } : undefined}
+        secondary={[{ label: "Thêm vào lịch", onClick: () => setIcs((v) => !v), expanded: ics }, staff ? { label: "Thêm sự kiện", onClick: () => setForm("new") } : undefined]}
       />
       {staff && (
         <>
