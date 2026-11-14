@@ -40,6 +40,8 @@
 /* list-detail: một panel sát mép (Panel tự bỏ đệm nhờ :has), danh sách 380 px + chi tiết. `fill` cao đúng phần còn lại của màn; hai ngăn cuộn riêng. */
 .listDetail { display: grid; grid-template-columns: 380px minmax(0, 1fr); min-height: 0; }
 .listDetail[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 12rem); min-height: 28rem; }
+.listDetail[data-list-collapsed] { grid-template-columns: minmax(0, 1fr); }
+.listDetail[data-list-collapsed] .ldList { display: none; }
 .ldList { min-width: 0; min-height: 0; overflow-y: auto; border-right: 1px solid var(--ep-rule); }
 .ldDetail { min-width: 0; min-height: 0; overflow-y: auto; }
 

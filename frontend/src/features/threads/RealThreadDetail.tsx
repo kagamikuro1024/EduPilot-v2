@@ -26,7 +26,7 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
   const th = q.data?.thread;
   const locked = q.data?.posts.some((p) => p.kind === "AI" && (p.verification_state === "VERIFIED" || p.verification_state === "CORRECTED")) ?? false;
   return (
-    <Page kind="work">
+    <Page kind="read">
       <PageHeader title={q.data?.thread.title ?? "Thread"} back={{ href: "/threads", label: "Tất cả câu hỏi" }} />
       <PageState query={q} loading={<Panel><Skeleton lines={5} /></Panel>}>
         {q.data && (
@@ -73,7 +73,7 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
             </Panel>
             {similar.data && similar.data.length > 0 && (
               <Panel>
-                <h2 className="ep-item-title">Câu hỏi tương tự</h2>
+                <h3 className="ep-item-title">Câu hỏi tương tự</h3>
                 <ul className={r.similar}>
                   {similar.data.map((s) => <li key={s.id}><Link href={`/threads/${s.id}`}>{s.title}</Link></li>)}
                 </ul>

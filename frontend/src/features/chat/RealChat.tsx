@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { ApiError, apiClient, useAutosaveDraft, useUndoableAction } from "@/shared/data";
 import { CitationList, Markdown } from "@/shared/domain";
 import { useSession } from "@/shared/session/session";
-import { Button, Composer, IconButton, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton } from "@/shared/ui";
+import { Button, Composer, IconButton, OverflowMenu, Page, PageHeader, PageState, Skeleton, Split } from "@/shared/ui";
 import {
   LOCK_KEY,
   messagesKey,
@@ -203,23 +203,26 @@ export function RealChat({ courseId }: { courseId: string }) {
   return (
     <Page kind="work">
       <PageHeader title="Chat riêng" secondary={hasMessages ? [{ label: "Phiên mới", onClick: () => open(null) }] : undefined} />
-      <div className={`${s.layout} ${r.layout} ${collapsed ? r.collapsed : ""}`}>
-        {!collapsed && (
-          <nav className={`${s.history} ${r.flat}`} data-part="chat-history" aria-label="Phiên trước">
+      <Split
+        ratio="list-detail"
+        fill
+        detailOpen
+        listCollapsed={collapsed}
+        main={
+          <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
             <div className={r.historyHead}>
               <p className={s.historyLabel}>Phiên trước</p>
               <IconButton label="Thu gọn lịch sử" size="sm" onClick={() => setCollapsed(true)}><PanelLeftClose aria-hidden /></IconButton>
             </div>
             <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />
-            {del.node}
-          </nav>
-        )}
+            {del.node}</nav>
+        }
+        aside={
+          <div className={s.convo}>
 
-        <div className={s.column}>
           <button type="button" className={`${s.sessionsBtn} ${collapsed ? r.showSessions : ""}`} data-part="chat-sessions-button" onClick={() => (wide ? setCollapsed(false) : setSheet(true))} aria-haspopup={wide ? undefined : "dialog"}>
             Phiên trước ({items.length})
           </button>
-          <Panel>
             <div className={`${s.inner} ${showEmpty && !live ? r.empty : ""}`} data-part="chat-inner">
               <PageState
                 query={sid ? messages : undefined}
@@ -264,9 +267,9 @@ export function RealChat({ courseId }: { courseId: string }) {
                 />
               </div>
             </div>
-          </Panel>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       <ChatSessionSheet open={sheet} onClose={() => setSheet(false)} onNew={hasMessages ? () => open(null) : undefined}>
         <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />

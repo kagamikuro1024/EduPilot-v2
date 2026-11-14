@@ -218,7 +218,7 @@ function ModerationQueue({ courseId }: { courseId: string }) {
   return (
     <Panel>
       <Tabs label="Trạng thái báo cáo" value={status} onChange={setStatus} options={[{ value: "OPEN", label: "Chờ xem" }, { value: "HIDDEN", label: "Đã ẩn" }]} />
-      <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Không có bài nào cần xem." />}>
+      <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Không có bài nào cần xem" />}>
         <DataTable
           caption="Bài bị báo cáo"
           rows={q.items}

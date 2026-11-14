@@ -225,6 +225,7 @@ export function Split({
   ratio = "main-aside",
   fill = false,
   detailOpen = false,
+  listCollapsed = false,
 }: {
   main: ReactNode;
   aside: ReactNode;
@@ -233,11 +234,13 @@ export function Split({
   fill?: boolean;
   /** `list-detail` dưới 1100 px: hiện ngăn chi tiết thay cho danh sách */
   detailOpen?: boolean;
+  /** `list-detail`: người dùng thu gọn danh sách (chat); chi tiết chiếm cả bề rộng */
+  listCollapsed?: boolean;
 }) {
   if (ratio === "list-detail") {
     return (
       <Panel>
-        <div className={s.listDetail} data-ep-split="list-detail" data-ep-split-fill={fill ? "" : undefined} data-detail-open={detailOpen ? "" : undefined}>
+        <div className={s.listDetail} data-ep-split="list-detail" data-ep-split-fill={fill ? "" : undefined} data-detail-open={detailOpen ? "" : undefined} data-list-collapsed={listCollapsed ? "" : undefined}>
           <div className={s.ldList}>{main}</div>
           <div className={s.ldDetail}>{aside}</div>
         </div>

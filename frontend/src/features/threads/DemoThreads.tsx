@@ -153,7 +153,7 @@ export function DemoThreadsScreen() {
   }
 
   return (
-    <Page kind="read">
+    <Page kind="work">
       <PageHeader
         title="Hỏi đáp công khai"
         meta={[`${rows.length} thread · tuần ${course.week}`]}
