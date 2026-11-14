@@ -1,0 +1,144 @@
+{
+ "leg_a": {
+  "B0#1": {
+   "mae_total": 0.375,
+   "bias_total": 0.188,
+   "mae_crit": 0.125,
+   "within_0_5": "15/16",
+   "mae_hidden": 0.284,
+   "n_hidden": 22,
+   "mae_plain": 0.042,
+   "n_plain": 42
+  },
+  "B1#1": {
+   "mae_total": 0.297,
+   "bias_total": -0.078,
+   "mae_crit": 0.082,
+   "within_0_5": "14/16",
+   "mae_hidden": 0.011,
+   "n_hidden": 22,
+   "mae_plain": 0.119,
+   "n_plain": 42
+  },
+  "B2#1": {
+   "mae_total": 0.047,
+   "bias_total": 0.047,
+   "mae_crit": 0.012,
+   "within_0_5": "16/16",
+   "mae_hidden": 0.0,
+   "n_hidden": 22,
+   "mae_plain": 0.018,
+   "n_plain": 42
+  },
+  "B0#2": {
+   "mae_total": 0.359,
+   "bias_total": 0.203,
+   "mae_crit": 0.121,
+   "within_0_5": "14/16",
+   "mae_hidden": 0.295,
+   "n_hidden": 22,
+   "mae_plain": 0.03,
+   "n_plain": 42
+  },
+  "B1#2": {
+   "mae_total": 0.312,
+   "bias_total": -0.156,
+   "mae_crit": 0.086,
+   "within_0_5": "12/16",
+   "mae_hidden": 0.023,
+   "n_hidden": 22,
+   "mae_plain": 0.119,
+   "n_plain": 42
+  },
+  "B2#2": {
+   "mae_total": 0.016,
+   "bias_total": 0.016,
+   "mae_crit": 0.004,
+   "within_0_5": "16/16",
+   "mae_hidden": 0.0,
+   "n_hidden": 22,
+   "mae_plain": 0.006,
+   "n_plain": 42
+  },
+  "B1a#1": {
+   "mae_total": 0.203,
+   "bias_total": 0.047,
+   "mae_crit": 0.051,
+   "within_0_5": "15/16",
+   "mae_hidden": 0.034,
+   "n_hidden": 22,
+   "mae_plain": 0.06,
+   "n_plain": 42
+  },
+  "B1a#2": {
+   "mae_total": 0.172,
+   "bias_total": 0.047,
+   "mae_crit": 0.059,
+   "within_0_5": "16/16",
+   "mae_hidden": 0.034,
+   "n_hidden": 22,
+   "mae_plain": 0.071,
+   "n_plain": 42
+  }
+ },
+ "leg_a_tokens_in": {
+  "B0": 5800,
+  "B1": 6153,
+  "B1a": 5967,
+  "B2": 7888
+ },
+ "leg_a_lessons": [
+  {
+   "criterion": "c4",
+   "lesson": "c4: nêu được các biện pháp kỹ thuật phù hợp nhưng còn mang tính liệt kê, chưa phân tích gắn kết chi tiết với từng bước tấn công → khoảng 1.5",
+   "support": 2
+  },
+  {
+   "criterion": "c4",
+   "lesson": "c4: đề xuất biện pháp phòng thủ cụ thể gắn với các kỹ thuật tấn công → khoảng 1.5",
+   "support": 1
+  },
+  {
+   "criterion": "c3",
+   "lesson": "c3: bịa đặt số liệu và đưa thông tin sai lệch nghiêm trọng về bản chất vụ việc → khoảng 0.75",
+   "support": 1
+  },
+  {
+   "criterion": "c3",
+   "lesson": "c3: đề cập đầy đủ các khía cạnh tác động và giải trình rõ lý do thiếu số liệu dù phân tích còn khái quát → khoảng 2.25",
+   "support": 1
+  }
+ ],
+ "leg_a_n_corrections": 5,
+ "leg_b": {
+  "B0#1": {
+   "mae_total": 1.125,
+   "bias_total": 0.208,
+   "mae_crit": 0.344,
+   "within_0_5": "3/6"
+  },
+  "B0#2": {
+   "mae_total": 1.083,
+   "bias_total": 0.25,
+   "mae_crit": 0.354,
+   "within_0_5": "3/6"
+  },
+  "B1#1": {
+   "mae_total": 0.792,
+   "bias_total": -0.208,
+   "mae_crit": 0.26,
+   "within_0_5": "2/6"
+  },
+  "B1#2": {
+   "mae_total": 0.458,
+   "bias_total": -0.292,
+   "mae_crit": 0.24,
+   "within_0_5": "4/6"
+  }
+ },
+ "poison": [
+  false,
+  false,
+  false
+ ]
+}
