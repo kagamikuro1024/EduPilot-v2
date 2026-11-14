@@ -1,5 +1,5 @@
 # SRS FEAT-grading-guidance Harness học từ lần giảng viên sửa (M1, M2, M4, M6)
-Phiên bản 1.0 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; các câu **CHỜ PM** ở `QUESTIONS.md` — Q-G-1, 2, 3, 5, 6, 10, S7 — viết theo phương án an toàn nhất và không chặn thi công phần không đụng chúng)
+Phiên bản 1.1 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
 
 ## 1. Mục đích và phạm vi
 **Vấn đề.** Điểm nháp của AI lệch chuẩn của giảng viên (9.5 đo MAE tổng 0,94–1,27 / 10). Mỗi lần giảng viên sửa đã được lưu có cấu trúc (`grading_results.ai_scores` bất biến so với `criteria`), nhưng chưa được dùng lại: giảng viên sửa cùng một lỗi nhiều lần.
@@ -41,7 +41,7 @@ PoC (mô phỏng, `docs/research/2026-11-14-agent-memory.md` mục 5): lưu ý *
 | Ghi lý do loại câu hỏi (M6) | – | ✓ | ✓ | 403 |
 | Đọc / chạy / xuất ca hồi quy (CLI) | ✓ | 403 (chỉ thấy số ca) | 403 | 403 |
 | Thấy lưu ý, bản, cờ, số đo, lý do loại | ✓ | ✓ | ✓ | **không bao giờ** |
-Lớp khác → `404`; mọi API lớp qua `CourseAccessGuard`. **CHỜ PM (Q-G-2):** vai bật cờ và TA có duyệt không; viết theo cột trên (an toàn: TA chỉ đọc, chỉ ADMIN bật cờ dữ liệu).
+Lớp khác → `404`; mọi API lớp qua `CourseAccessGuard`. (Q-G-2, PM xác nhận P-106-1) vai bật cờ và TA có duyệt không; viết theo cột trên (an toàn: TA chỉ đọc, chỉ ADMIN bật cờ dữ liệu).
 
 ## 3. Luồng chính và nhánh lỗi
 
@@ -243,7 +243,7 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 **4.2.11 Chấm lại lô.** `regrade-stale {scope ∈ UNREVIEWED | ALL_UNPUBLISHED}`: chọn kết quả **hiện hành** `status ∈ {DRAFT}` (hoặc `{DRAFT,REVIEWED}`) có `guidance_version < assignments.guidance_version`, bài nộp còn là bản mới nhất, `round < 20`; tối đa `REGRADE_MAX_BATCH`; `INSERT round+1 QUEUED` + `jobs` trong một giao dịch rồi `XADD`; idempotent theo `Idempotency-Key` và `UNIQUE (course_id, submission_id, round)`; `REVIEWED` bị chấm lại quay về `DRAFT` mới (round cũ vẫn xem được).
 
-**4.2.12 Chặn công bố lô trộn.** Trong `publish` (4.8.5 FEAT-assignments) thêm bước sau khi chọn tập: nếu `|DISTINCT guidance_version| > 1` hoặc có giá trị ≠ `assignments.guidance_version` → `409 MIXED_GUIDANCE {versions, counts}` trước mọi ghi. Hiệu lực chỉ khi cờ `GRADING_GUIDANCE` bật cho lớp (cờ tắt: như hiện hành). **CHỜ PM (Q-G-1).**
+**4.2.12 Chặn công bố lô trộn.** Trong `publish` (4.8.5 FEAT-assignments) thêm bước sau khi chọn tập: nếu `|DISTINCT guidance_version| > 1` hoặc có giá trị ≠ `assignments.guidance_version` → `409 MIXED_GUIDANCE {versions, counts}` trước mọi ghi. Hiệu lực chỉ khi cờ `GRADING_GUIDANCE` bật cho lớp (cờ tắt: như hiện hành). (Q-G-1, PM xác nhận P-106-1.)
 
 **4.2.13 Số đo.** `GET …/guidance/stats`: theo `guidance_version` của kết quả hiện hành `REVIEWED`/`PUBLISHED`: `n`, `mae_criterion`, `mae_total`, `bias_total` (có dấu), `edited_criteria`, `edited_rate`; `decimal`; `n < 5` → `null`. `mae_total = mean(|ai_total_before_late − total_before_late chốt|)`.
 
@@ -434,7 +434,7 @@ Chỉ gọi LLM qua 9router; không Gemini trực tiếp; không embedding thậ
 Seed: BT03 lớp 1 ≥ 8 kết quả `REVIEWED` với «sở thích» chấm gắt ở một tiêu chí; `SEED_GUIDANCE_DEMO=1` bật cờ + nháp mẫu; `scripts/check-guidance-seed.mjs`.
 
 ## 10. Câu hỏi mở và quyết định đã chốt
-Xem `QUESTIONS.md` (Q-G-1…16, Q-G-S7). **Đã chốt (chủ dự án / PM):** gói M1 + M2 + M4 + M6; D61 (không dùng hệ bộ nhớ ngoài), D62 (lưu ý = phiên bản rubric do giảng viên duyệt, ghim theo lượt chấm); mặc định tắt theo lớp; không M11, M12; làm ngay sau 10.5. **CHỜ PM (đụng điểm / phân quyền / dữ liệu cá nhân; spec viết theo phương án an toàn):** Q-G-1 (công bố lô trộn, chấm lại bài đã duyệt), Q-G-2 (vai bật cờ, TA duyệt), Q-G-3 (ca hồi quy theo tham chiếu, xuất văn bản), Q-G-5 (M4 chỉ POST), Q-G-6 (xoá dữ liệu sinh viên), Q-G-10 (đầu vào reflect không có nhận xét tay), Q-G-S7 (nhãn S7). **Đề xuất vá tài liệu khác (Tech Lead / PM):** ARCHITECTURE (bảng, job, cờ, env), SYSTEM_DESIGN (làn BATCH, chi phí), FEAT-assignments (4.6.5, 4.8.5, §5), FEAT-practice (`bulk reject`), FLOWS F9 / F4 / F12 (đã vá trong cùng đợt này), PRD M8 / M1.
+Xem `QUESTIONS.md` (Q-G-1…16, Q-G-S7). **Đã chốt (chủ dự án / PM):** gói M1 + M2 + M4 + M6; D61 (không dùng hệ bộ nhớ ngoài), D62 (lưu ý = phiên bản rubric do giảng viên duyệt, ghim theo lượt chấm); mặc định tắt theo lớp; không M11, M12; làm ngay sau 10.5. **PM xác nhận P-106-1 (theo đề xuất BA):** Q-G-1, Q-G-2, Q-G-3, Q-G-5, Q-G-6, Q-G-10, Q-G-S7. **Đề xuất vá tài liệu khác (Tech Lead / PM):** ARCHITECTURE (bảng, job, cờ, env), SYSTEM_DESIGN (làn BATCH, chi phí), FEAT-assignments (4.6.5, 4.8.5, §5), FEAT-practice (`bulk reject`), FLOWS F9 / F4 / F12 (đã vá trong cùng đợt này), PRD M8 / M1.
 
 ## 11. Truy vết
 | PRD | FLOWS | Phase / quyết định | US | FR | Test |

@@ -1,6 +1,6 @@
 # FEAT-grading-guidance Harness học từ lần giảng viên sửa (M1 lưu ý chấm, M2 ca hồi quy, M4 câu tương tự Threads, M6 mẫu câu bị loại)
 Nguồn: `docs/sprints/10.6/plan.md` · research `docs/research/2026-11-14-agent-memory.md` + thẩm định PM `docs/research/2026-11-14-agent-memory-tham-dinh-pm.html` (nhánh `research/agent-memory`) · ADR **D61**, **D62** (`docs/DECISIONS.md`, techlead-mem) · AGENTS.md nguyên tắc 2, 4, 5, 11, 12 · FEAT-assignments (F9: 4.6 Grading Engine, 4.7 hàng đợi, 4.8 duyệt / công bố, 4.10 phúc khảo) · FEAT-practice (F12: `GenerateQuestions`) · FLOWS F4, F9, F12 · PRD M1, M8 · `docs/design/DESIGN.md` §13, §14 · `docs/UX.md` mục 6 · FEAT-llm-gateway.
-Phase: sprint 10.6. Trạng thái: **APPROVED** v1.0 (2026-11-14; PM uỷ quyền; câu không đụng điểm / phân quyền / dữ liệu cá nhân: **PM chốt theo đề xuất BA**; các câu đụng điểm, phân quyền, dữ liệu cá nhân ghi **CHỜ PM** ở `QUESTIONS.md`, spec viết theo phương án an toàn nhất).
+Phase: sprint 10.6. Trạng thái: **APPROVED** v1.0 (2026-11-14; PM uỷ quyền; câu không đụng điểm / phân quyền / dữ liệu cá nhân: **PM chốt theo đề xuất BA**; các câu đụng điểm, phân quyền, dữ liệu cá nhân ghi **PM xác nhận P-106-1** ở `QUESTIONS.md` (spec đã viết theo phương án an toàn nhất)).
 
 **Ý tưởng một dòng.** Mỗi lần giảng viên sửa điểm nháp của AI là một tín hiệu có cấu trúc đã nằm trong DB; feature này **khép vòng** bằng một bước **người duyệt**: AI rút «lưu ý chấm» dạng nháp → giảng viên duyệt từng lưu ý → thành **phiên bản hướng dẫn chấm** gắn với bài tập → mỗi lượt chấm **ghim** một phiên bản → đổi phiên bản thì chấm lại lô chưa công bố. Không dùng hệ bộ nhớ agent bên ngoài (D61); lưu ý là dữ liệu Postgres có người duyệt (D62).
 
@@ -21,7 +21,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 
 ### Tiêu chí nghiệm thu
 - AC1 (bốn cờ). Given lớp Then có bốn cờ theo lớp, **mặc định tắt**: `GRADING_GUIDANCE` (M1), `REGRESSION_CAPTURE` (M2), `THREAD_SUGGEST` (M4), `QUESTION_HINTS` (M6); không hàng = tắt.
-- AC2 (ai bật). Given Teacher của lớp When bật / tắt `GRADING_GUIDANCE`, `THREAD_SUGGEST`, `QUESTION_HINTS` Then `200`, `version + 1`, `audit_log`; `REGRESSION_CAPTURE` **chỉ ADMIN** (liên quan dữ liệu bài làm, Q-G-3); TA / STUDENT → `403`; lớp khác → `404`. **CHỜ PM (Q-G-2):** vai bật cờ.
+- AC2 (ai bật). Given Teacher của lớp When bật / tắt `GRADING_GUIDANCE`, `THREAD_SUGGEST`, `QUESTION_HINTS` Then `200`, `version + 1`, `audit_log`; `REGRESSION_CAPTURE` **chỉ ADMIN** (liên quan dữ liệu bài làm, Q-G-3); TA / STUDENT → `403`; lớp khác → `404`. (Q-G-2, PM xác nhận P-106-1) vai bật cờ.
 - AC3 (công tắc cứng toàn hệ thống). Given biến `GUIDANCE_ENABLED` (mặc định `true`) = `false` Then mọi cờ coi như tắt, API ghi trả `409 GUIDANCE_DISABLED`, không job nào chạy (tắt khẩn một chỗ).
 - AC4 (hiệu lực tức thời). Given cờ tắt Then: không job `grading.reflect` mới; prompt chấm **không** thêm khối lưu ý; không gợi ý câu tương tự; prompt sinh câu hỏi không thêm mẫu âm; không ghi ca hồi quy. Dữ liệu cũ (lưu ý, phiên bản) giữ nguyên, **không** hiện trong prompt.
 - AC5 (giao diện). Given `/class/settings` Then một nhóm «Học từ lần sửa» với bốn công tắc (nhãn: «Lưu ý chấm», «Ca kiểm thử», «Gợi ý câu hỏi tương tự», «Gợi ý khi sinh câu hỏi»); trạng thái 1–2 từ; không câu mô tả; tooltip chỉ trên công tắc bị khoá («Chỉ quản trị viên bật») ; cập nhật lạc quan + «Hoàn tác»; 375 px dùng được.
@@ -89,7 +89,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 - AC3 (duyệt / bỏ). Given Teacher bấm `Duyệt` / `Bỏ` Then `POST …/guidance/items/{iid}/decide {decision, version}`; chỉ `DRAFT`; `409 ITEM_NOT_DRAFT` / `VERSION_CONFLICT`; ghi `audit_log` (mục, quyết định, người); `Bỏ` có hoàn tác 5 giây (UX.md), `Duyệt` hiện «Chờ áp dụng».
 - AC4 (sửa trước khi duyệt). Given Teacher sửa chữ của một lưu ý rồi `Duyệt` Then chữ mới qua lại `privacy.Detect` + từ khoá cấm (AC6 US-GD-03); bản gốc giữ ở `text_original`; `422 GUIDANCE_TEXT_REJECTED` nếu không qua.
 - AC5 (Áp dụng). Given có ≥ 1 mục «Chờ áp dụng» hoặc «Chờ nghỉ» When Teacher bấm `Áp dụng` Then `POST …/guidance/apply {expected_version}` (`Idempotency-Key`) tạo **phiên bản mới** `v+1` gồm các mục đã duyệt (trừ đã nghỉ), cập nhật `assignments.guidance_version`; một giao dịch; `409 VERSION_CONFLICT` nếu `expected_version` cũ; `409 NOTHING_TO_APPLY` nếu không đổi gì; `audit_log`.
-- AC6 (chỉ TEACHER). Given TA When `Duyệt` / `Bỏ` / `Áp dụng` Then `403` (TA chỉ xem danh sách); STUDENT → `403`. **CHỜ PM (Q-G-2):** TA có được duyệt không — mặc định **không**.
+- AC6 (chỉ TEACHER). Given TA When `Duyệt` / `Bỏ` / `Áp dụng` Then `403` (TA chỉ xem danh sách); STUDENT → `403`. (Q-G-2, PM xác nhận P-106-1) TA có được duyệt không — mặc định **không**.
 - AC7 (cho nghỉ). Given lưu ý đã duyệt không còn đúng When Teacher `Cho nghỉ` Then mục sang «Chờ nghỉ»; chỉ có hiệu lực ở phiên bản **kế tiếp** khi `Áp dụng`; phiên bản cũ dựng lại vẫn có mục đó (AC5 US-GD-02).
 - AC8 (sau Áp dụng). Given phiên bản mới Then hiện ngay ở `/grading` «N bài chấm theo bản cũ · Chấm lại» (US-GD-05); **không** tự chấm lại.
 - AC9 (nhánh lỗi / rỗng). Given chưa có lưu ý → `EmptyState` một dòng; API lỗi → `<PageState>` + `Thử lại`; mất chữ đã sửa → `useAutosaveDraft`.
@@ -105,7 +105,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 ---
 
 ## US-GD-05: Giảng viên muốn mọi bài chấm theo đúng một bản hướng dẫn, chấm lại được lô chưa công bố, và không bị công bố lẫn hai bản
-Ưu tiên: Must · Ước lượng: L · Sprint: 10.6 · **L3** · M1 · **đụng điểm: Q-G-1 CHỜ PM**
+Ưu tiên: Must · Ước lượng: L · Sprint: 10.6 · **L3** · M1 · **đụng điểm: Q-G-1, PM xác nhận P-106-1**
 
 ### Tiêu chí nghiệm thu
 - AC1 (prompt). Given lượt chấm ghim phiên bản `v ≥ 1` Then `BuildEssayPrompt` thêm **một khối** «Lưu ý của giảng viên (bản v)» sau rubric, nhóm theo tiêu chí, chỉ gồm lưu ý của phiên bản `v` (AC5 US-GD-02); khối nằm ngoài vùng «bài làm là dữ liệu không tin cậy»; lưu ý chỉ nói về **điểm từng tiêu chí**; mọi kiểm bằng code ở 4.6.6 (điểm ≤ max, bước 0,25, tổng, trích dẫn, muộn, làm tròn) **không đổi**.
@@ -113,7 +113,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 - AC3 (nhãn cũ). Given `assignments.guidance_version = 3` và có kết quả `DRAFT` / `REVIEWED` ghim `< 3` Then `/grading` hiện một dòng «N bài chấm theo bản cũ · Chấm lại» (`InlineNotice`, theo bài tập); số lấy từ `GET …/guidance` (`stale.count`).
 - AC4 (chấm lại lô). Given Staff bấm `Chấm lại` When `POST …/assignments/{aid}/regrade-stale {scope}` (`Idempotency-Key`) Then tạo việc `round + 1` cho kết quả hiện hành **chưa công bố** có `guidance_version < hiện hành`: `scope=UNREVIEWED` (mặc định: chỉ `DRAFT`) hoặc `scope=ALL_UNPUBLISHED` (gồm `REVIEWED`; kèm `ConfirmIrreversible`: bài đã duyệt quay về nháp); `202 {job_id, queued}`; tiến độ `job.progress`; tối đa `REGRADE_MAX_BATCH` (200) mỗi lần; `round` > 20 → bỏ qua bài đó và báo.
 - AC5 (không đụng cái đã công bố). Given kết quả `PUBLISHED` Then **không bao giờ** bị chấm lại theo đường này; điểm đã công bố giữ nguyên; muốn đổi phải qua phúc khảo như hiện hành.
-- AC6 (chặn công bố lô trộn). Given `POST …/grading-results/publish` When tập sẽ công bố có **> 1** giá trị `guidance_version`, hoặc có giá trị khác `assignments.guidance_version` Then `409 MIXED_GUIDANCE {versions, counts}`, **không công bố gì**; giao diện: dòng báo tại chỗ + `Chấm lại`. Công bố tường minh `result_ids[]` cùng một phiên bản vẫn được. **CHỜ PM (Q-G-1):** mặc định cứng như trên (không có «công bố bản cũ»); và việc bài `REVIEWED` có bị chấm lại hay không (mặc định `UNREVIEWED`).
+- AC6 (chặn công bố lô trộn). Given `POST …/grading-results/publish` When tập sẽ công bố có **> 1** giá trị `guidance_version`, hoặc có giá trị khác `assignments.guidance_version` Then `409 MIXED_GUIDANCE {versions, counts}`, **không công bố gì**; giao diện: dòng báo tại chỗ + `Chấm lại`. Công bố tường minh `result_ids[]` cùng một phiên bản vẫn được. (Q-G-1, PM xác nhận P-106-1) mặc định cứng như trên (không có «công bố bản cũ»); và việc bài `REVIEWED` có bị chấm lại hay không (mặc định `UNREVIEWED`).
 - AC7 (đang chấm lại). Given đang có việc `regrade-stale` chạy Then nút `Chấm lại` khoá («Đang chấm lại …»); chấm lại lần hai cùng khoá không nhân đôi việc (`Idempotency-Key` + `UNIQUE (course_id, submission_id, round)`).
 - AC8 (lịch sử). Given bài chấm lại Then kết quả round cũ giữ nguyên (xem được ở lịch sử), `guidance_version` mỗi round khác nhau hiển thị ở chi tiết; `ai_scores` / `ai_comments` mỗi round bất biến.
 - AC9 (nhánh lỗi). Given worker chết giữa lô → việc được nhận lại, không chấm đôi (như 4.7); LLM lỗi → bài `FAILED` theo 4.7.4, các bài khác tiếp tục; cờ tắt giữa chừng → việc chưa nhận chạy với `guidance_version` hiện hành (0).
@@ -149,14 +149,14 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 ---
 
 ## US-GD-07: Đội muốn mỗi lần giảng viên sửa trở thành một ca kiểm thử hồi quy, để đổi prompt hoặc model không làm lùi
-Ưu tiên: Should · Ước lượng: S · Sprint: 10.6 · **L5** · M2 · **đụng dữ liệu cá nhân: Q-G-3 CHỜ PM**
+Ưu tiên: Should · Ước lượng: S · Sprint: 10.6 · **L5** · M2 · **đụng dữ liệu cá nhân: Q-G-3, PM xác nhận P-106-1**
 
 ### Tiêu chí nghiệm thu
 - AC1 (ghi ca theo tham chiếu). Given lớp bật `REGRESSION_CAPTURE` (chỉ ADMIN bật) When giảng viên `review` một kết quả có tiêu chí sửa ≥ `REGRESSION_MIN_DELTA` (1,0), hoặc phúc khảo `ADJUSTED`, hoặc bài Threads chuyển `CORRECTED` / `REJECTED` Then ghi một hàng `grading_regression_cases(kind, source_id, criterion_id?, expected jsonb)` với **chỉ số / enum** (điểm AI, điểm giảng viên, chiều, id rubric, băm rubric) và **tham chiếu** `source_id`; **không** chứa văn bản bài, câu hỏi, câu trả lời, tên, MSSV.
 - AC2 (idempotent). Given cùng `(kind, source_id, criterion_id)` Then một hàng (`UNIQUE`); sửa lại thì cập nhật `expected` mới nhất; ghi ca **không** làm chậm `review` (cùng giao dịch, một `INSERT … ON CONFLICT`).
 - AC3 (chạy hồi quy ở nơi dữ liệu nằm). Given `cmd/regress run --assignment <id> [--prompt-ref …]` (CLI vận hành, môi trường đo, ADMIN) Then đọc ca + văn bản bài **ngay trong DB**, chấm lại bằng prompt / model hiện hành qua 9router, so với `expected.teacher_score`, in báo cáo `{n, MAE, lệch TB, số tiêu chí xấu đi, số tốt lên}`; **văn bản không ra khỏi DB / máy chạy CLI**, không ghi vào repo.
 - AC4 (không cho lùi). Given `benchmarks/guidance/baseline.json` Then báo cáo so với đường cơ sở: MAE tăng quá `REGRESSION_MAX_REL` (10 %) **hoặc** có tiêu chí vốn đúng (|Δ| ≤ 0,25) nay sai > 0,5 → mã thoát ≠ 0 «Có lùi»; đổi prompt / model phải chạy lệnh này (ghi vào guide và checklist PR); không chạy thật trong CI (CI chỉ kiểm cấu trúc ca bằng provider `fake`).
-- AC5 (xuất bản đã che — mặc định **tắt**). Given `REGRESSION_EXPORT_ALLOWED=false` (mặc định) Then `cmd/regress export` từ chối. **CHỜ PM (Q-G-3):** nếu PM cho phép (`true`): ghi JSONL **ngoài repo**, văn bản qua `privacy.Mask` + `Detect` (khớp còn sót → bỏ ca), id băm, không `student_id`; mỗi lần xuất ghi `audit_log` (ai, bao nhiêu ca); không có đường xuất qua HTTP.
+- AC5 (xuất bản đã che — mặc định **tắt**). Given `REGRESSION_EXPORT_ALLOWED=false` (mặc định) Then `cmd/regress export` từ chối. (Q-G-3, PM xác nhận P-106-1) nếu PM cho phép (`true`): ghi JSONL **ngoài repo**, văn bản qua `privacy.Mask` + `Detect` (khớp còn sót → bỏ ca), id băm, không `student_id`; mỗi lần xuất ghi `audit_log` (ai, bao nhiêu ca); không có đường xuất qua HTTP.
 - AC6 (phân quyền). Given chỉ ADMIN đọc / xuất ca; Teacher chỉ thấy **số ca** của lớp mình ở màn thống kê; STUDENT / TA → `403`.
 - AC7 (xoá). Given xoá dữ liệu một sinh viên / lớp Then ca liên quan bị xoá theo `ON DELETE` / job xoá (không còn tham chiếu mồ côi).
 - AC8 (kiểm). Given test Then `TestRegressionCaseNoText` (cột / `expected` không có chuỗi văn bản), `TestRegressionCaseIdempotent`, `TestRegressCLIRefusesExport`.
@@ -174,7 +174,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 
 ### Tiêu chí nghiệm thu
 - AC1 (khi nào). Given lớp bật `THREAD_SUGGEST` When sinh viên đang soạn tiêu đề ≥ 3 từ ở `/threads` (debounce 600 ms) Then `GET …/threads/similar-confirmed?q=` trả tối đa **3** thread **công khai** cùng lớp, câu trả lời AI đã `VERIFIED` / `CORRECTED`, chưa `Ẩn`/`Loại`, độ tương tự ≥ `THREAD_SUGGEST_MIN` (0,80, cosine); xếp theo độ tương tự giảm dần.
-- AC2 (nguồn tin cậy). Given nguồn Then chỉ thread **đăng công khai** qua tường lửa (`knowledge_items.source_type='POST'`); **không** dùng mục `TICKET` (nguồn từ kênh riêng) để hiện ra công khai. **CHỜ PM (Q-G-5):** mặc định chỉ `POST`.
+- AC2 (nguồn tin cậy). Given nguồn Then chỉ thread **đăng công khai** qua tường lửa (`knowledge_items.source_type='POST'`); **không** dùng mục `TICKET` (nguồn từ kênh riêng) để hiện ra công khai. (Q-G-5, PM xác nhận P-106-1) mặc định chỉ `POST`.
 - AC3 (hiển thị). Given có kết quả Then một danh sách dưới ô tiêu đề: tiêu đề thread (liên kết mở `/threads/[id]`) + `Đã xác nhận`; không đoạn giải thích; không đẩy ô đăng xuống quá 3 dòng; không có kết quả → **không hiện gì** (không «không tìm thấy»).
 - AC4 (không chặn đăng). Given sinh viên vẫn bấm đăng Then đăng bình thường (gợi ý không bắt buộc, không hộp thoại); luồng tường lửa / gộp thread tương tự (`THREAD_SIMILAR_MIN`) giữ nguyên.
 - AC5 (hiệu năng và chi phí). Given mỗi lần gợi ý Then đúng **một** lần nhúng câu đang soạn (không LLM sinh chữ) + một truy vấn SQL theo `course_id` (HNSW, lọc trong cùng truy vấn); p95 ≤ 300 ms với embedding giả; rate limit 30 lần / phút / người; không gọi khi cờ tắt; dùng lại cache nhúng nếu cùng chuỗi.
@@ -251,7 +251,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 - AC4 (cách ly). Given hai lớp / hai bài tập Then lưu ý của bài A **không** vào prompt bài B (khoá `(course_id, assignment_id)`); `TestGuidanceIsolation`.
 - AC5 (sinh viên không thấy). Given mọi DTO phía STUDENT (`/assignments/[id]`, kết quả đã công bố, `/threads`, thông báo) Then không trường / chữ về lưu ý, phiên bản, cờ, số đo; kiểm hợp đồng.
 - AC6 (đường lùi). Given tắt cờ hoặc `GUIDANCE_ENABLED=false` Then hệ thống như trước 10.6, kể cả prompt (byte-for-byte); dữ liệu còn để đo.
-- AC7 (xoá dữ liệu sinh viên). Given xoá / ẩn danh một sinh viên Then id kết quả của em được bỏ khỏi `source_result_ids`; mục còn `support < 2` đánh dấu «Cần xem lại» cho giảng viên (không tự nghỉ, không tự đổi hành vi chấm); ca hồi quy liên quan xoá; **CHỜ PM (Q-G-6)**: mặc định như vậy.
+- AC7 (xoá dữ liệu sinh viên). Given xoá / ẩn danh một sinh viên Then id kết quả của em được bỏ khỏi `source_result_ids`; mục còn `support < 2` đánh dấu «Cần xem lại» cho giảng viên (không tự nghỉ, không tự đổi hành vi chấm); ca hồi quy liên quan xoá; (Q-G-6, PM xác nhận P-106-1): mặc định như vậy.
 - AC8 (không bộ nhớ ngoài). Given repo Then không thư viện / dịch vụ bộ nhớ agent (Hindsight…); `go.mod` / `package.json` không thêm mục ngoài bảng `ARCHITECTURE.md`.
 - AC9 (kiểm toán). Given mọi quyết định (duyệt, bỏ, áp dụng, nghỉ, bật cờ, xuất ca) Then có dòng `audit_log` (ai, gì, trước / sau); `reflect` có `llm_audit`.
 
