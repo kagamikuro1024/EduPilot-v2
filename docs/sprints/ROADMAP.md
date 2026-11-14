@@ -1,4 +1,4 @@
-# Lộ trình 11 sprint (+ 1.5, 5.5, 9.5 chen giữa)
+# Lộ trình 11 sprint (+ 1.5, 5.5, 9.1, 9.5, 10.5, 10.6, 10.7 chen giữa)
 
 Chủ dự án chốt 2026-10-01: toàn dự án = **10 sprint**; 2026-10-03 chèn **sprint 5 — PE Thi hằng tuần** (yêu cầu của thầy hướng dẫn, D54), các sprint sau lùi 1 → **11 sprint**. Sprint 1 đã xong và là `main` của repo mới `kagamikuro1024/EduPilot-v2` (public từ 2026-10-09; trước đó `TA_Agent_v2`). Mỗi sprint rộng hơn trước (1–2 phase), nhưng giữ nguyên thứ tự phụ thuộc của phase và cổng nghiệm thu của từng phase.
 
@@ -22,6 +22,7 @@ Phạm vi: P0 → P10 (vạch bảo vệ). **PR nằm ngoài đồ án** (D44). 
 | 10 ✅ | P9 Luyện đề (dùng lại ngân hàng câu hỏi + Quiz Engine của PE) | 1 | F12 | `gate P9` | #2 `GenerateQuestions` + E5; #3 import Forms |
 | 10.5 ✅ | **Decision model + cascade (D60)** — tách theo chủ dự án 2026-11-14, làm trước bench 9.5 còn lại và sprint 11: `Decide()` + provider `gemini-decision-1`, 3 cổng (tường lửa Threads chỉ-thêm-chặn, cờ chèn lệnh, định tuyến chat; dưới ngưỡng về luật), cấm cho khủng hoảng / điểm / rubric / escalate; tài liệu viết kỹ (`docs/sprints/10.5/plan.md`) | ≈ 1 | F3, F4, F9 | QC PASS + đo trước / sau | – |
 | 10.6 | **Harness học từ lần giảng viên sửa (bộ nhớ agent, D61/D62)** — chủ dự án duyệt 2026-11-14: lưu ý chấm theo bài tập có phiên bản + GV duyệt, ca hồi quy E2/E3, câu tương tự Threads, mẫu câu bị loại; kiểm chứng bằng agent «Giáo viên» tạm (`docs/sprints/10.6/plan.md`) | ≈ 1 | F4, F9 | QC PASS + E3 trước / sau | Sau 10.6: một lượt kiểm + bench 1.000 bài chung, rồi 11 |
+| 10.7 | **Điểm danh tự phục vụ chống gian lận + app điện thoại** — chủ dự án yêu cầu 2026-11-14: sinh viên tự điểm danh (QR xoay vòng ngắn hạn hoặc cơ chế khác, nhiều lớp chống gian lận: khoá thiết bị, vị trí / mạng, kiểm chéo đếm đầu người, gắn cờ bất thường cho giảng viên, không tự phạt), giảng viên luôn sửa tay được + audit; **app sinh viên trên điện thoại** (PWA hoặc bọc native — chốt theo nghiên cứu Tech Lead `docs/sprints/10.7/techlead.md`); thư viện / SDK mới cần chủ dự án duyệt | ≈ 1,5 (chốt sau TL-1) | F5 (điểm danh) + luồng tự điểm danh mới | QC PASS + thử tải 200 SV quét / 30 s | Làm sau lượt kiểm + bench chung của 10.6, trước 11 |
 | 11 | P10 Đánh giá + hoàn thiện (gồm **thống kê điểm thi PE** trên màn quan sát lớp — chủ dự án yêu cầu 2026-10-09) | 2,5 | F14–F17, F19; chạy lại `DEMO_SCRIPT.md` trọn 15 phút | `gate P10` → **vạch bảo vệ** | #7 xuất PDF; #8 k6 (d), chaos Redis |
 
 Tổng ước lượng gốc: 23,5 tuần người. Đội agent làm nhanh hơn nhiều (P0: 0,5 tuần → 1 ngày); lịch thật đo theo sprint, không theo tuần.
