@@ -124,7 +124,7 @@ Các phép khác **không đổi**: "Bo góc kiểu SaaS / số cứng" đã ch�
 
 | Token | Vai trò | Ghi chú |
 | --- | --- | --- |
-| `--ep-canvas` | nền trang (thay `--ep-paper`) | tối hơn `--ep-surface` đúng `ΔL` của phương án |
+| `--ep-canvas` | nền trang (thay `--ep-paper`) | **từ 10.7 (P-107-10): `#FFFFFF` = `--ep-surface`; không còn điều kiện ΔL nền–panel**; panel luôn có viền 1 px **và** `--ep-elevation-1` (đo `getComputedStyle`) |
 | `--ep-surface-strong` | ô nhấn trong panel | `oklch(96% 0.012 25)` ≈ `#faefee` ở cả ba phương án |
 | `--ep-elevation-1` | bóng tĩnh của `Panel` | `none` ở (b), (c) — token luôn tồn tại để API không đổi |
 | `--ep-radius-panel` | bán kính `Panel` | mặc định 14 px; trong [12, 16] px (Q3) |
