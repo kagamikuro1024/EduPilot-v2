@@ -277,19 +277,20 @@ export const REVIEW_SLOT: Record<string, { at: string; label: string; durationMi
  * Báo cáo của một lớp. `fresh` = vừa bấm `Tạo báo cáo mới`: ngày hôm nay, số liệu mới và phần so
  * với bản trước; ngược lại là bản đã có sẵn (số liệu trừ đi phần tăng thêm).
  */
-export function reportFor(courseId: string, fresh: boolean): InsightReport {
-  const topics = TOPICS[courseId] ?? TOPICS[COURSE_1];
+export function reportFor(courseId: string, fresh: boolean): InsightReport | null {
+  const topics = TOPICS[courseId];
+  if (!topics) return null; // lớp ngoài mô phỏng: chưa có báo cáo (không mượn báo cáo của lớp khác)
   const list = fresh ? topics : topics.map((t) => ({ ...t, questions: t.questions - t.delta }));
   const questions = list.reduce((n, t) => n + t.questions, 0);
   const students = Math.max(...list.map((t) => t.students));
   return {
     courseId,
-    generatedAt: fresh ? NOW : PREVIOUS_AT[courseId] ?? PREVIOUS_AT[COURSE_1],
+    generatedAt: fresh ? NOW : PREVIOUS_AT[courseId],
     window: fresh ? "Câu hỏi 7 ngày gần nhất, đã ẩn danh" : "Câu hỏi trong 7 ngày liền trước đó, đã ẩn danh",
     questions,
     students,
     topics: list,
-    uncovered: UNCOVERED[courseId] ?? UNCOVERED[COURSE_1],
+    uncovered: UNCOVERED[courseId] ?? [],
     comparison: fresh
       ? [
           `${list[0].title}: +${list[0].delta} câu so với báo cáo trước, vẫn đứng đầu`,

@@ -105,10 +105,10 @@ export function SessionProvider({
       // Lớp THẬT quyết định ai thấy lớp nào; màn mô phỏng dùng lớp mô phỏng tương ứng theo class_code (AC13), không gọi API lớp.
       const pick = jwtCourseId === ALL_COURSES && role !== "student" && real.length > 1 ? ALL_COURSES : (real.find((c) => c.id === jwtCourseId) ?? real.find((c) => c.id === firstId) ?? real.find((c) => c.status === "ACTIVE") ?? real[0])?.id ?? null; // mặc định: lớp đang hoạt động đầu tiên, không phải lớp đã lưu trữ
       realCourseId = pick;
-      courses = [...new Map(real.map((c) => mockCourseFor(c.class_code)).map((c) => [c.id, c])).values()];
+      courses = [...new Map(real.map(mockCourseFor).map((c) => [c.id, c])).values()];
       isAll = pick === ALL_COURSES;
       const chosen = real.find((c) => c.id === pick);
-      course = chosen ? mockCourseFor(chosen.class_code) : (courses[0] ?? COURSES[0]);
+      course = chosen ? mockCourseFor(chosen) : (courses[0] ?? COURSES[0]);
     } else {
       // TA chỉ phụ trách lớp 1 (SRS 4.1); GV phụ trách cả hai; Admin thấy tất cả.
       const courseId = COURSE_1;
