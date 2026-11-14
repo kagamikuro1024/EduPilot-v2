@@ -37,8 +37,8 @@ body { margin: 0; font-size: 1rem; line-height: 1.6; }
 h1, h2, h3, p, dl, dd, ol, ul { margin: 0; padding: 0; } ol, ul { list-style: none; } img, svg { display: block; max-width: 100%; } a { color: inherit; text-decoration: none; } button { font: inherit; cursor: pointer; }
 .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 :focus-visible { outline: 2px solid var(--ep-red); outline-offset: 3px; border-radius: var(--ep-radius-sm); }
-.skip { position: absolute; left: -9999px; top: 8px; z-index: 50; padding: 8px 12px; background: var(--ep-ink); color: var(--ep-surface); border-radius: var(--ep-radius-sm); }
-.skip:focus { left: 8px; }
+.skip { position: absolute; left: 8px; top: 8px; z-index: 50; padding: 8px 12px; background: var(--ep-ink); color: var(--ep-surface); border-radius: var(--ep-radius-sm); transform: translateY(-200%); }
+.skip:focus { transform: none; }
 
 /* một khung chứa cho thanh trên, mọi mục và chân trang: mép 80 → 1360 ở 1440 */
 .wrap { width: min(100% - 2 * var(--gut), 1280px); margin-inline: auto; position: relative; z-index: 1; }
@@ -61,12 +61,12 @@ main > section, footer.closing { height: 100svh; min-height: 820px; padding: var
 .section--white { background: var(--ep-surface); }
 .h2 { font-size: 3rem; font-weight: 600; line-height: 1.12; letter-spacing: -0.03em; text-wrap: balance; }
 .h3 { font-size: 1.25rem; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; }
-.lead { font-size: 1.125rem; line-height: 1.6; color: var(--ep-ink-2); max-width: 46ch; }
+.lead { font-size: 1.125rem; line-height: 1.6; color: var(--ep-ink); max-width: 46ch; }
 .head { display: grid; gap: 16px; margin-bottom: 48px; }
-.body { color: var(--ep-ink-2); }
+.body { color: var(--ep-ink); }
 
 /* ---------- 1. màn đầu: chữ + ba dữ kiện ở cột 1–6, sản phẩm thật ở cột 7–12, hai cột cùng đỉnh ---------- */
-.hero .wrap { align-content: start; }
+.hero-text { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; }
 .hero__text { grid-column: 1 / span 6; display: grid; gap: 24px; align-content: start; padding-right: 48px; }
 .h1 { font-size: 4.5rem; font-weight: 600; line-height: 1.04; letter-spacing: -0.04em; }
 .stripe { display: flex; height: 4px; width: 96px; } .stripe i { flex: 3; background: var(--ep-red); } .stripe b { flex: 1; background: var(--ep-yellow); } /* tỉ lệ dải đỏ / vàng của nhận diện Bách khoa, không dùng logo trường */
@@ -85,7 +85,7 @@ main > section, footer.closing { height: 100svh; min-height: 820px; padding: var
 .chip--primary { background: var(--ep-red); color: var(--ep-surface); } .chip--ghost { color: var(--ep-ink); } .chip .ic { width: 14px; height: 14px; }
 .facts { display: grid; margin-top: 16px; }
 .fact { display: grid; grid-template-columns: 124px minmax(0, 1fr); column-gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--ep-rule); } .fact:last-child { border-bottom: 1px solid var(--ep-rule); }
-.fact b { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; } .fact span { color: var(--ep-ink-2); line-height: 1.45; }
+.fact b { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; } .fact span { line-height: 1.45; }
 
 /* ---------- 2. ba bước của một bài nộp ---------- */
 .steps3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
@@ -97,32 +97,33 @@ main > section, footer.closing { height: 100svh; min-height: 820px; padding: var
 .tag--draft { background: var(--ep-yellow-soft); color: var(--ep-ink); } .tag--done { background: var(--ep-surface); color: var(--ep-green); border: 1px solid var(--ep-rule); }
 
 /* ---------- 3. EduPilot trong ba màn ---------- */
-.story__list { grid-column: 1 / span 4; display: grid; gap: 0; align-content: start; }
-.story__item { display: grid; gap: 6px; padding: 20px 0 20px 20px; border-left: 2px solid var(--ep-rule); }
-.story__item[aria-current] { border-left-color: var(--ep-red); }
+/* mọi chỗ chia đôi của trang dùng chung một đường: cột phải bắt đầu ở cột 7 (x 732 ở 1440) */
+.story__list { grid-column: 1 / span 6; display: grid; gap: 0; align-content: start; padding-right: 48px; }
+.story__item { display: grid; gap: 6px; padding: 20px 0; border-top: 2px solid var(--ep-rule); }
+.story__item[aria-current] { border-top-color: var(--ep-red); }
 .story__item:not([aria-current]) .h3 { color: var(--ep-ink-2); }
-.story__shot { grid-column: 5 / span 8; align-self: start; }
+.story__shot { grid-column: 7 / span 6; align-self: start; }
 .story__shot img { width: 100%; height: auto; }
 
 /* ---------- 4. ba số đo ---------- */
 .stats { display: grid; }
 .stat { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: baseline; padding: 28px 0; border-top: 1px solid var(--ep-rule); }
 .stat:last-child { border-bottom: 1px solid var(--ep-rule); }
-.stat__num { grid-column: 1 / span 3; font-size: 3.5rem; font-weight: 600; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.stat__what { grid-column: 4 / span 5; } .stat__how { grid-column: 9 / span 4; color: var(--ep-ink-2); }
+.stat__num { grid-column: 1 / span 3; font-size: 2.375rem; font-weight: 600; line-height: 1.1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.stat__what { grid-column: 4 / span 5; } .stat__how { grid-column: 9 / span 4; }
 
 /* ---------- 5. hai vai ---------- */
 .roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
 .role { display: grid; gap: 8px; align-content: start; }
 .items > div { display: grid; grid-template-columns: 168px minmax(0, 1fr); column-gap: 24px; padding: 18px 0; border-top: 1px solid var(--ep-rule); }
-.items dt { font-weight: 600; } .items dd { color: var(--ep-ink-2); }
+.items dt { font-weight: 600; }
 
 /* ---------- 6. lời kết + chân trang: một mục ---------- */
 footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto; }
 .close { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; }
-.close__text { grid-column: 1 / span 5; display: grid; gap: 32px; }
+.close__text { grid-column: 1 / span 6; display: grid; gap: 32px; }
 .close .h2 { font-size: 3.5rem; line-height: 1.08; }
-.close__shot { grid-column: 6 / span 7; } .close__shot img { width: 100%; height: auto; }
+.close__shot { grid-column: 7 / span 6; } .close__shot img { width: 100%; height: auto; }
 .legal { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid var(--ep-rule); color: var(--ep-ink-2); }
 .legal a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ep-ink); text-decoration: underline; text-decoration-color: var(--ep-rule); text-underline-offset: 4px; }
 .legal a:hover { text-decoration-color: var(--ep-red); }
@@ -136,7 +137,7 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
 @media (max-width: 1023px) {
   :root { --gut: 48px; }
   main > section, footer.closing { height: auto; min-height: 100svh; }
-  .hero__text, .hero__shot, .story__list, .story__shot, .close__text, .close__shot { grid-column: 1 / -1; } .hero__text { padding-right: 0; } .hero .wrap, .close { row-gap: 32px; }
+  .hero__text, .hero__shot, .story__list, .story__shot, .close__text, .close__shot { grid-column: 1 / -1; } .hero__text, .story__list { padding-right: 0; } .hero-text, .close, .grid { row-gap: 32px; }
   .steps3, .roles { grid-template-columns: 1fr; row-gap: 24px; }
 }
 @media (max-width: 639px) {
@@ -146,8 +147,11 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
   .head { margin-bottom: 32px; }
   .actions .btn { flex: 1; }
   .fact { grid-template-columns: 96px minmax(0, 1fr); } .fact b { font-size: 1.375rem; }
+  /* màn đầu vừa đúng một màn điện thoại: một dữ kiện, nhóm việc đầu tiên */
+  .fact:nth-child(n+2), .app > :nth-child(n+6) { display: none; }
+  #bai-nop, #vai { min-height: 200svh; }
   .card { padding: 24px; }
-  .stat { grid-template-columns: 1fr; row-gap: 8px; } .stat__num, .stat__what, .stat__how { grid-column: 1; } .stat__num { font-size: 2.5rem; }
+  .stat { grid-template-columns: 1fr; row-gap: 6px; padding: 16px 0; } .stat__num, .stat__what, .stat__how { grid-column: 1; } .stat__num { font-size: 1.75rem; }
   .items > div { grid-template-columns: 1fr; row-gap: 4px; }
   .app { padding: 16px; } .chip--ghost { display: none; }
 }
@@ -155,50 +159,14 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
-<symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
-<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></symbol>
-<symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
-<symbol id="i-notebook-pen" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></symbol>
-<symbol id="i-list-checks" viewBox="0 0 24 24"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></symbol>
-<symbol id="i-circle-question-mark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
-<symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
-<symbol id="i-messages-square" viewBox="0 0 24 24"><path d="M16 10a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 14.286V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M20 9a2 2 0 0 1 2 2v10.286a.71.71 0 0 1-1.212.502l-2.202-2.202A2 2 0 0 0 17.172 19H10a2 2 0 0 1-2-2v-1"/></symbol>
-<symbol id="i-message-square" viewBox="0 0 24 24"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></symbol>
-<symbol id="i-file-text" viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
-<symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></symbol>
-<symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
-<symbol id="i-chart-column" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
-<symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></symbol>
-<symbol id="i-sliders-horizontal" viewBox="0 0 24 24"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></symbol>
-<symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5"/><path d="M15 8V2"/><path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z"/><path d="M9 8V2"/></symbol>
-<symbol id="i-panel-left-close" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></symbol>
-<symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></symbol>
-<symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></symbol>
-<symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
-<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
-<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
-<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></symbol>
-<symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
-<symbol id="i-circle-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
-<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></symbol>
-<symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
-<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></symbol>
-<symbol id="i-calendar-plus" viewBox="0 0 24 24"><path d="M16 18h6"/><path d="M16 2v3"/><path d="M19 15v6"/><path d="M21 11.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h8.3"/><path d="M3 9h18"/><path d="M8 2v3"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></symbol>
 <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
-<symbol id="i-qr-code" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></symbol>
-<symbol id="i-scan-line" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol>
-<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
-<symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></symbol>
-<symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
-<symbol id="i-library" viewBox="0 0 24 24"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></symbol>
-<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
 </defs></svg>
-<a class="skip" href="#main">Tới nội dung</a>
 
 <header class="nav">
+  <a class="skip" href="#main">Tới nội dung</a>
   <div class="wrap">
-    <a href="#top" aria-label="EduPilot"><svg width="188" height="40" viewBox="0 0 188 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <a href="#top" aria-label="EduPilot"><svg class="logo" width="188" height="40" viewBox="0 0 188 40" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>EduPilot</title>
   <g>
     <path d="M4.75 10.25C10.3 8.85 15.35 10.15 20 14.15V31.6C15.35 27.8 10.3 26.6 4.75 28.15V10.25Z" stroke="#231F20" stroke-width="2" stroke-linejoin="round"/>
@@ -211,13 +179,13 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
   <text x="51" y="27" fill="#231F20" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Edu</text>
   <text x="88" y="27" fill="#CE1628" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Pilot</text>
 </svg></a>
-    <div class="nav__end"><a class="nav__link" href="#register">Tạo tài khoản</a><a class="btn btn--secondary btn--sm" href="#login">Đăng nhập</a></div>
+    <div class="nav__end"><a class="nav__link" href="#register">Tạo tài khoản</a><a class="btn btn--primary btn--sm" href="#login">Đăng nhập</a></div>
   </div>
 </header>
 
 <main id="main">
   <section class="hero" id="top" aria-labelledby="hero-title" data-enter>
-    <div class="wrap grid">
+    <div class="wrap"><div class="hero-text">
       <div class="hero__text">
         <h1 class="h1" id="hero-title">Vận hành lớp học<br>có trợ lý AI</h1>
         <span class="stripe" aria-hidden="true"><i></i><b></b></span>
@@ -229,7 +197,7 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
         <div class="fact"><b>1.000</b><span>sinh viên trên 20 lớp là tải thiết kế</span></div>
       </dl>
       </div>
-      <div class="hero__shot frame" role="img" aria-label="Màn Hôm nay của giảng viên: năm việc cần xử lý, xếp theo mức khẩn">
+      <div class="hero__shot frame" data-ui role="img" aria-label="Màn Hôm nay của giảng viên: năm việc cần xử lý, xếp theo mức khẩn">
         <div class="app" aria-hidden="true">
           <p class="app__title">5 việc cần xử lý hôm nay</p>
           <p class="app__meta">Thứ Bảy, 14/11 · 761987 An ninh mạng</p>
@@ -243,7 +211,7 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
           <div class="row"><i class="dot"></i><div class="row__text"><p class="row__title">Hai bài thi có đáp án giống nhau</p><p class="row__ctx">Kiểm tra tuần 7 · trùng 9/10 câu</p></div><span class="chip chip--ghost">Mở<svg class="ic"><use href="#i-arrow-right"/></svg></span></div>
         </div>
       </div>
-    </div>
+    </div></div>
   </section>
 
   <section class="section" id="bai-nop" aria-labelledby="flow-title">
@@ -251,13 +219,13 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
       <div class="head"><h2 class="h2" id="flow-title">Bài nộp đi qua ba bước</h2><p class="lead">AI không tự công bố điểm. Mỗi bài qua tay giảng viên trước khi sinh viên thấy kết quả.</p></div>
       <ol class="steps3">
         <li class="card"><span class="mark" aria-hidden="true">1</span><h3 class="h3">AI chấm nháp theo rubric</h3>
-          <div class="spec" aria-hidden="true"><p><span>Tiêu chí 1</span><b>8,0</b></p><p><span>Tiêu chí 2</span><b>7,5</b></p><i class="tag tag--draft">Nháp</i></div>
+          <div class="spec" data-ui aria-hidden="true"><p><span>Tiêu chí 1</span><b>8,0</b></p><p><span>Tiêu chí 2</span><b>7,5</b></p><i class="tag tag--draft">Nháp</i></div>
           <p class="body">Mỗi tiêu chí có điểm nháp và đoạn trích từ chính bài làm.</p></li>
         <li class="card"><span class="mark" aria-hidden="true">2</span><h3 class="h3">Giảng viên sửa và duyệt</h3>
-          <div class="spec" aria-hidden="true"><p><span>Tiêu chí 1</span><b>8,0</b></p><p><span>Tiêu chí 2</span><b><s>7,5</s>8,5</b></p><i class="tag tag--done">Đã duyệt</i></div>
+          <div class="spec" data-ui aria-hidden="true"><p><span>Tiêu chí 1</span><b>8,0</b></p><p><span>Tiêu chí 2</span><b><s>7,5</s>8,5</b></p><i class="tag tag--done">Đã duyệt</i></div>
           <p class="body">Giảng viên sửa từng tiêu chí, duyệt, rồi mới công bố cho lớp.</p></li>
         <li class="card"><span class="mark" aria-hidden="true">3</span><h3 class="h3">Mã tính điểm học phần</h3>
-          <div class="spec" aria-hidden="true"><p><span>0,1 × 9,0 + 0,3 × 8,0 + 0,6 × 8,3</span></p><p><span>Điểm học phần</span><b>8,3</b></p><i class="tag tag--done">Mã tính</i></div>
+          <div class="spec" data-ui aria-hidden="true"><p><span>0,1 × 9,0 + 0,3 × 8,0 + 0,6 × 8,3</span></p><p><span>Điểm học phần</span><b>8,3</b></p><i class="tag tag--done">Mã tính</i></div>
           <p class="body">Công thức trích từ quy chế, giảng viên xác nhận; mỗi điểm mở ra giải trình từng dòng.</p></li>
       </ol>
     </div>
