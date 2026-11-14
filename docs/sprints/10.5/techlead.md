@@ -290,3 +290,5 @@ Ngoài CI:
 | D60 | thiếu công tắc lớp, cột audit, migration | đã thêm (4) công tắc + fail-closed của Threads, (2) `cascade_gate/path` + `00020`, (6) `decision-fake` |
 
 Tệp đã sửa: `docs/DECISIONS.md` (D60), `docs/ARCHITECTURE.md` (§4, §6, §8), `docs/SYSTEM_DESIGN.md` (§3.1), `docs/research/poc/jev-decision/cascade.md`. Bản phác `docs/guides/decision-model.md`: dev bổ sung số đo thật và ảnh màn sau L5–L6.
+
+**Đang dở (tạm dừng 2026-11-14):** không. TL-1, TL-2, sửa theo SRS và P-105-1 đã push; Tech Lead chỉ còn trực câu hỏi dev. Research bộ nhớ agent đã chuyển cho `techlead-mem` (ghi chép ở nhánh `research/agent-memory`).
