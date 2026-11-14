@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 )
 
@@ -50,5 +52,29 @@ func TestDecodeJSONRejectsNUL(t *testing.T) {
 				t.Fatalf("thiếu mã/trường: %s", out)
 			}
 		})
+	}
+}
+
+type decBody struct {
+	Threshold *decimal.Decimal `json:"threshold"`
+}
+
+// DM-BUG-6: JSON đúng cú pháp nhưng giá trị không đọc được (decimal «0,5») → 422 VALIDATION_FAILED; JSON hỏng cú pháp / cụt vẫn 400.
+func TestDecodeJSONUnreadableValueIs422(t *testing.T) {
+	for raw, want := range map[string]int{`{"threshold":"0,5"}`: 422, `{"threshold":"abc"}`: 422, `{"threshold":"0.5"}`: 200, `{"threshold":`: 400, `{"threshold" 1}`: 400} {
+		r := httptest.NewRequest(http.MethodPut, "/x", strings.NewReader(raw))
+		r.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		var b decBody
+		got := http.StatusOK
+		if !httpx.DecodeJSON(w, r, &b) {
+			got = w.Code
+		}
+		if got != want {
+			t.Errorf("%s → %d, cần %d", raw, got, want)
+		}
+		if want == 422 && !strings.Contains(w.Body.String(), "VALIDATION_FAILED") {
+			t.Errorf("%s: thiếu VALIDATION_FAILED: %s", raw, w.Body.String())
+		}
 	}
 }
