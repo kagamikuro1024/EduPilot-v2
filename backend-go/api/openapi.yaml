@@ -8892,6 +8892,47 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/threads/similar-confirmed:
+    post:
+      operationId: similarConfirmedThreads
+      tags: [threads]
+      summary: "Gợi ý ≤ 3 thread «Đã xác nhận» cùng lớp gần với chữ đang soạn (thành viên lớp). Chữ chưa qua tường lửa nên nằm trong THÂN, không trong URL; thân không ghi log; Cache-Control: no-store; chỉ đọc, không Idempotency-Key. Trả [] khi cờ THREAD_SUGGEST tắt, chưa đủ 3 từ, có PII hoặc lỗi; 429 quá THREAD_SUGGEST_RPM; 422 q > 4000 ký tự"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [q]
+              additionalProperties: false
+              properties:
+                q: {type: string}
+      responses:
+        "200":
+          description: Danh sách (có thể rỗng)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [thread_id, title]
+                  additionalProperties: false
+                  properties:
+                    thread_id: {type: string, format: uuid}
+                    title: {type: string}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/courses/{id}/threads/{tid}:
     put:
       operationId: editThread

@@ -69,7 +69,7 @@ func threadService(d Deps, a *aiStack) *thread.Service {
 	}
 	return &thread.Service{Pool: d.DB, Redis: d.Redis, FW: &thread.Firewall{Detector: a.det, Classifier: a.cl, Embed: a.embed, Decider: a.gw, StructuredTimeout: d.Cfg.ThreadsStructuredTimeout}, Lock: a.locker(d), Jobs: d.Jobs,
 		Rag: &rag.Service{DB: d.DB}, LLM: a.gw, Embed: a.raw, Clock: d.Clock, Log: d.Log, Notify: notify.New(d.DB, d.Publisher, d.Log),
-		Support: d.Cfg.SupportResourcesVI, Limits: thread.Limits{ReportPerHour: d.Cfg.ReportRatePerHour, AutoHideAt: d.Cfg.ReportAutoHideThreshold, PinMax: d.Cfg.ThreadPinMax}}
+		Support: d.Cfg.SupportResourcesVI, Suggest: suggestConfig(d), Limits: thread.Limits{ReportPerHour: d.Cfg.ReportRatePerHour, AutoHideAt: d.Cfg.ReportAutoHideThreshold, PinMax: d.Cfg.ThreadPinMax}}
 }
 
 // chatService dựng chat.Service thật từ Deps (nil nếu thiếu DB / Redis / LLM → route chat không được gắn).
@@ -90,4 +90,13 @@ func chatService(d Deps, a *aiStack) *chat.Service {
 		Tickets: &escalation.Service{Pool: d.DB, Members: members, Lock: a.locker(d), Log: d.Log, PII: a.det, Clock: d.Clock, Cfg: escalation.ConfigFrom(d.Cfg)},
 		Cfg:     chat.Config{MaxInput: d.Cfg.ChatMaxInputChars, RatePerMin: d.Cfg.ChatRatePerMin, StreamMax: d.Cfg.ChatStreamMax},
 	}
+}
+
+// suggestConfig: cờ «câu tương tự lúc soạn» dùng ảnh chụp cờ của llmrt (nil → tắt).
+func suggestConfig(d Deps) thread.SuggestConfig {
+	c := thread.SuggestConfig{Min: d.Cfg.ThreadSuggestMin, RPM: d.Cfg.ThreadSuggestRPM}
+	if d.LLM != nil && d.LLM.Guidance != nil {
+		c.Gate = d.LLM.Guidance
+	}
+	return c
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 
@@ -84,6 +85,27 @@ func (r *runner) threadScenarios(x examRig) {
 	}
 	if !got429 {
 		r.t.Fatal("precheck không bị giới hạn 60 / phút")
+	}
+
+	// M4 (FEAT-grading-guidance #10): câu tương tự đã xác nhận lúc soạn — chữ ở THÂN, chỉ đọc.
+	SC := T + "/similar-confirmed"
+	sq := `{"q":"Quy chế thi cuối kỳ thế nào"}`
+	r.must(call{method: "POST", path: SC, token: tsv, body: sq}, 200) // cờ tắt → []
+	r.must(call{method: "POST", path: SC, body: sq}, 401)
+	r.must(call{method: "POST", path: SC, token: x.admin, body: sq}, 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/threads/similar-confirmed", token: tsv, body: sq}, 404)
+	r.must(call{method: "POST", path: SC, token: tsv, body: `{"q":"` + strings.Repeat("a", 4001) + `"}`}, 422)
+	r.must(call{method: "PUT", path: "/api/v1/courses/" + x.cid + "/guidance-flags/THREAD_SUGGEST", token: x.gv, body: `{"enabled":true,"version":1}`}, 200)
+	r.must(call{method: "POST", path: SC, token: tsv, body: sq}, 200)
+	got429b := false
+	for range 70 {
+		if st, _, _ := r.do(call{method: "POST", path: SC, token: tother, body: sq}); st == http.StatusTooManyRequests {
+			got429b = true
+			break
+		}
+	}
+	if !got429b {
+		r.t.Fatal("similar-confirmed không bị giới hạn THREAD_SUGGEST_RPM")
 	}
 
 	// 16: bình luận.

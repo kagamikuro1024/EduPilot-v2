@@ -72,6 +72,8 @@ type Service struct {
 	Support string
 	// Notify: một cửa tạo thông báo — thread ghi dòng trong giao dịch của mình (notify.SendTx) rồi Announce sau commit; nil → chỉ ghi, chuông làm mới 30 s.
 	Notify *notify.Service
+	// Suggest: M4 «câu tương tự đã xác nhận lúc soạn» (cờ THREAD_SUGGEST, THREAD_SUGGEST_MIN / _RPM); Gate nil = tắt.
+	Suggest SuggestConfig
 }
 
 // Actor là người gọi: danh tính từ JWT, vai TRONG LỚP từ CourseAccessGuard.
