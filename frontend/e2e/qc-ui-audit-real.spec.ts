@@ -87,7 +87,7 @@ async function probe(page: Page) {
     const h1r = h1 ? R(h1) : null; const ar = actions ? R(actions) : null; const hr = hdr ? R(hdr) : null;
     const hbtns = actions ? Array.from(actions.querySelectorAll("button,a")).filter(vis) : [];
     const variantOf = (b: Element) => b.getAttribute("data-variant") ?? "link";
-    const primOut = Array.from(main.querySelectorAll("[data-variant=primary]")).filter((b) => vis(b) && !actions?.contains(b));
+    const primOut = Array.from(main.querySelectorAll("[data-variant=primary]")).filter((b) => vis(b) && !actions?.contains(b) && !b.closest("[data-ep-header-dock]")); // P-107-14: nút trong thanh dính đáy không tính H6
     const sections = Array.from(main.querySelectorAll("[data-ep-section]"));
     const secGaps = sections.slice(1).map((s, i) => +(R(s).y - R(sections[i]).b).toFixed(1));
     const headToPanel = sections.slice(0, 4).map((s) => { const hd = s.querySelector("[data-ep-section-head]"); const pn = s.querySelector("[data-ep-panel]"); return hd && pn ? +(R(pn).y - R(hd).b).toFixed(1) : null; });
@@ -127,7 +127,7 @@ async function probe(page: Page) {
       panels: { n: topPanels.length, nested, list: panels },
       header: { h1Count: h1s.length, h1InHeader: !!hdr && !!hdr.querySelector("h1"), pTags: hdrKids, h1: h1r, h1x: h1r?.x ?? null, hdrH: hr?.h ?? null, hasMeta: !!meta, metaText, metaLines: meta ? Math.max(1, Math.round(R(meta).h / lh(meta))) : 0,
         metaDupClass: !!meta && classTokens.some((t) => metaText.includes(t) && topbar.includes(t)),
-        dy: h1r && ar ? +((ar.y + ar.h / 2) - (h1r.y + h1r.h / 2)).toFixed(1) : null, actionsRight: ar && col ? +(col.r - ar.r).toFixed(1) : null, actionsH: ar?.h ?? null, btns: hbtns.map((b) => ({ t: txt(b) || b.getAttribute("aria-label") || "", v: variantOf(b) })) },
+        dy: h1r && ar ? +((ar.y + ar.h / 2) - (h1r.y + h1r.h / 2)).toFixed(1) : null, actionsRight: ar && ar.w > 0 && col ? +(col.r - ar.r).toFixed(1) : null, actionsH: ar?.h ?? null, btns: hbtns.map((b) => ({ t: txt(b) || b.getAttribute("aria-label") || "", v: variantOf(b) })) },
       primaryTotal: primOut.length + hbtns.filter((b) => variantOf(b) === "primary").length, primaryOutside: primOut.map(txt),
       sections: sections.length, h2: h2s.length, h2NoHook: h2s.filter((h) => !h.hasAttribute("data-ep-section-title")).length, sectionP: main.querySelectorAll("[data-ep-section-head] p").length,
       secGaps, headToPanel, hdrToBody, tabs, toolbarBtns,
@@ -189,9 +189,11 @@ if (STATE === "data" || STATE === "empty") {
         test.setTimeout(900_000);
         const { ctx, page } = await login(browser, role, w, h);
         let mode: "pass" | "loading" | "error" = "pass";
+        let apiHits = 0; // yêu cầu /api/v1 bị chặn khi đang tải / lỗi; 0 = màn mô phỏng (TL 12.2: L/X không áp dụng)
         await page.route("**/api/v1/**", async (route) => {
           const p = new URL(route.request().url()).pathname;
           if (mode === "pass" || p.startsWith("/api/v1/auth/") || p === "/api/v1/me" || p.startsWith("/api/v1/me/")) return route.continue();
+          apiHits++;
           if (mode === "error") return route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "Lỗi máy chủ." }) });
           await new Promise((r) => setTimeout(r, 5000));
           return route.continue();
@@ -200,10 +202,10 @@ if (STATE === "data" || STATE === "empty") {
           let rec: Record<string, unknown> = { role, state: STATE, w, route };
           try {
             mode = "pass"; await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" }); await page.waitForTimeout(800);
-            mode = STATE as "loading" | "error";
+            mode = STATE as "loading" | "error"; apiHits = 0;
             await page.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" });
             await page.waitForTimeout(STATE === "loading" ? 800 : 2000);
-            rec = { ...rec, ...(await probe(page)) };
+            rec = { ...rec, apiHits, ...(await probe(page)) };
             await shoot(page, rec, route, w);
           } catch (e) { rec.err = String(e).slice(0, 160); }
           appendFileSync(LOG, JSON.stringify(rec) + "\n");

@@ -1,0 +1,136 @@
+== copy-lint ==
+
+== /tmp/land-live.html  (608 words)  0 FAIL, 0 WARN
+  INFO copy-rhythm          28 sentences, mean 19.7 words, spread 13.2, 0% of 4 words or fewer
+== perf ==
+  FAIL  font files                                 8              69.8K
+  PASS  font bytes                                 69.8 KiB       
+  WARN  images without width+height                2              logo-edupilot.svg, logo-edupilot.svg
+  WARN  below-fold images not lazy                 3              logo-edupilot.svg, logo-edupilot-mark.svg, logo-edupilot.svg
+  PASS  oversized images (natural > 2.2x shown)    0              
+  WARN  upscaled images (natural < 0.75x shown)    1              sinh-vien-375-hom-nay-360.webp 360px for 639
+  PASS  WebGL live at load                         0              
+  PASS  WebGL live at bottom                       0              
+  PASS  WebGL peak live                            0              0 contexts made in all
+  PASS  long tasks                                 0              runs 3, 0..0, max 0ms
+  PASS  blocking time                              0 ms           runs 3, 0..0 ms; at load 0ms
+  PASS  FCP (CPU, relative)                        88 ms          runs 3, 80..92
+  PASS  LCP (CPU, relative)                        88 ms          runs 3, 80..92, span.Landing-module__H_TZ-W__ln
+  PASS  layout shift                               0.000          runs 3, 0.000..0.000; at load 0.000
+  PASS  modules loaded, never mounted              0              
+  PASS  broken requests                            0              
+  PASS  page height                                7 screens      DOM 317 nodes
+
+perf /localhost:580/ @ 390px
+  PASS  host CPU load (before/after)               14/13 %        
+  PASS  total transfer                             598.2 KiB      html 74.2K  js 194.9K  font 69.8K  img 153.8K  other 105.5K
+  PASS  requests                                   37             26 by load
+  PASS  images bytes                               153.8 KiB      9 files
+  PASS  largest image                              43.8 KiB       landing/story-gradebook-v1-1280.webp
+  WARN  JS parsed                                  614.8 KiB      13 files, 194.9K gz
+  PASS  CSS                                        0 KiB          0 files
+  PASS  font families                              1              Be Vietnam Pro
+  FAIL  font files                                 8              69.8K
+  PASS  font bytes                                 69.8 KiB       
+  WARN  images without width+height                2              logo-edupilot.svg, logo-edupilot.svg
+  WARN  below-fold images not lazy                 3              logo-edupilot.svg, logo-edupilot-mark.svg, logo-edupilot.svg
+  WARN  oversized images (natural > 2.2x shown)    1              story-gradebook-v1-1280.webp 1280px for 340
+  PASS  WebGL live at load                         0              
+  PASS  WebGL live at bottom                       0              
+  PASS  WebGL peak live                            0              0 contexts made in all
+  PASS  long tasks                                 0              runs 3, 0..0, max 0ms
+  PASS  blocking time                              0 ms           runs 3, 0..0 ms; at load 0ms
+  PASS  FCP (CPU, relative)                        72 ms          runs 3, 68..80
+  PASS  LCP (CPU, relative)                        100 ms         runs 3, 96..104, p.Landing-module__H_TZ-W__lead
+  PASS  layout shift                               0.000          runs 3, 0.000..0.000; at load 0.000
+  PASS  modules loaded, never mounted              0              
+  PASS  broken requests                            0              
+  PASS  page height                                8 screens      DOM 317 nodes
+
+SUMMARY /localhost:580/: 2 FAIL, 8 WARN  -> FAIL
+== consistency ==
+1440x900  9 screens, 1 held section  8 FAIL  9 WARN
+  FAIL scroll-linked   section#ba-man > div.Landing-module__H_TZ-W__wrap.Landing-module__H_TZ-W__story  "EduPilot trong ba màn Chat riêng có nguồ"
+  FAIL scroll-reveal   section#bai-nop  "Bài nộp đi qua ba bước 1 AI chấm nháp th"
+  FAIL scroll-reveal   section#so-do  "Ba số đo trên dữ liệu mô phỏng 146 yêu c"
+  FAIL scroll-reveal   div.Landing-module__H_TZ-W__landingRoot > div.Landing-module__H_TZ-W__page > footer.Landing-module__H_TZ-W__sec.Landing-module__H_TZ-W__closing  "Lớp của bạn trên EduPilot Đăng nhập Tạo "
+  FAIL copy-headings   h2#flow-title  "Bài nộp đi qua ba bước"
+  FAIL empty-area      section#ba-man  "EduPilot trong ba màn"
+       57% of the section is empty: 96px above its first content, 944px under its last (img:nth-of-type(2)), in its 1800px of rows (WARN over 35%, FAIL over 50%)  [1440-05-empty-area.jpg]
+  WARN cta             section#ba-man  "EduPilot trong ba màn"
+  WARN copy-headings   ol.Landing-module__H_TZ-W__steps3 > li.Landing-module__H_TZ-W__step:nth-of-type(1) > div.Landing-module__H_TZ-W__card > h3.Landing-module__H_TZ-W__h3  "AI chấm nháp theo rubric"
+  WARN copy-buttons    div.Landing-module__H_TZ-W__page > header.Landing-module__H_TZ-W__nav.nav > div.Landing-module__H_TZ-W__wrap.wrap > a.Landing-module__H_TZ-W__skip  "Tới nội dung"
+  WARN copy-actions    (the page)
+  WARN section-gaps    section#ba-man / section#so-do
+  WARN copy-length     section#vai  "Việc của giảng viên và sinh viên"
+       1 section over 90 words a screen outside the UI mocks ("Việc của giảng viên và s" 93); 60 words a screen across the page (360 words in 6 screens): a tech page says it in about 80 or fewer  [1440-08-copy-length.jpg]
+  WARN moment-none     (the page)
+  WARN skip-link       div.Landing-module__H_TZ-W__page > header.Landing-module__H_TZ-W__nav.nav > div.Landing-module__H_TZ-W__wrap.wrap > a.Landing-module__H_TZ-W__skip:nth-of-type(1)  "Tới nội dung"
+  WARN share-meta      head
+  FAIL section-air     section#ba-man / section#so-do
+       1089px of air between the content of these two sections: 128-480px (64-600px WARN) (SR-3)  [1440-rhythm-01-section-air.jpg]
+  FAIL section-air     section#ba-man  "EduPilot trong ba mànChat riêng có nguồn"
+       the content fills 39.5% of the section's height (712 of 1800px): 55% or more (40% WARN) (SR-3)  [1440-rhythm-02-section-air.jpg]
+390x844  10 screens  3 FAIL  5 WARN
+  FAIL scroll-reveal   section#bai-nop  "Bài nộp đi qua ba bước 1 AI chấm nháp th"
+  FAIL scroll-reveal   section#so-do  "Ba số đo trên dữ liệu mô phỏng 146 yêu c"
+  FAIL scroll-reveal   div.Landing-module__H_TZ-W__landingRoot > div.Landing-module__H_TZ-W__page > footer.Landing-module__H_TZ-W__sec.Landing-module__H_TZ-W__closing  "Lớp của bạn trên EduPilot Đăng nhập Tạo "
+  WARN tap-size        div.Landing-module__H_TZ-W__page > header.Landing-module__H_TZ-W__nav.nav > div.Landing-module__H_TZ-W__wrap.wrap > a:nth-of-type(2)
+  WARN no-visual       section#vai  "Việc của giảng viên và sinh viên"
+  WARN cta             section#bai-nop  "Bài nộp đi qua ba bước"
+  WARN cta             section#so-do  "Ba số đo trên dữ liệu mô phỏng"
+  WARN section-gaps    section#top / section#bai-nop
+first screen at 1280, 1152, 1024, 896, 768  0 FAIL  0 WARN
+the page at 320x640, walked for what runs past the screen's edge  0 FAIL
+  WARN tap-size        [320] div.Landing-module__H_TZ-W__page > header.Landing-module__H_TZ-W__nav.nav > div.Landing-module__H_TZ-W__wrap.wrap > a:nth-of-type(2)
+checks
+  PASS assets                 PASS shader-lint            PASS gl-fallback            
+  PASS empty-visual           PASS hero-fill              PASS flush                  
+  PASS placeholder            PASS sample-label           PASS caption                
+  PASS credit-wall            PASS nav                    PASS nav-covers             
+  PASS spill                  PASS off-viewport           PASS fold-card              
+  PASS hover-spill            PASS overlap-text           PASS collide                
+  WARN tap-size               PASS row-gap                PASS cut-text               
+  PASS fold-cut               PASS marquee                FAIL scroll-linked          
+  FAIL scroll-reveal          PASS pinned                 PASS loop-pause             
+  PASS reduced-motion         PASS hidden-content         PASS webgl                  
+  WARN no-visual              PASS text-only              PASS card-visual            
+  PASS hidden-visual          PASS card-family            PASS card-layout            
+  PASS nesting                PASS effect-repeat          PASS ui-fit                 
+  PASS ui-centre              PASS dark-ground            PASS button-styles          
+  PASS button-shape           PASS same-action            PASS button-picture         
+  WARN cta                    PASS pricing-tiers          PASS copy-headline          
+  PASS copy-fact              FAIL copy-headings          WARN copy-buttons           
+  WARN copy-actions           PASS heading-scale          PASS stagger                
+  PASS top-stagger            PASS off-grid               PASS col-edge               
+  PASS right-edge             PASS centre-axis            PASS tilt                   
+  PASS contrast               PASS text-contrast          PASS body-size              
+  PASS busy-ground            WARN section-gaps           PASS proximity              
+  PASS hole                   PASS links                  PASS forms                  
+  PASS photo-upscale          PASS photo-set              PASS photo-credit           
+  PASS nav-family             PASS nav-labels             PASS link-styles            
+  PASS heading-align          PASS label-centre           PASS fake-button            
+  PASS stranded-action        PASS orphan                 PASS unit-break             
+  PASS tab-wrap               PASS effects-fit            PASS fade-cut               
+  PASS photo-weight           WARN copy-length            PASS nav-current            
+  PASS progress-bar           PASS photo-repeat           PASS button-contrast        
+  PASS photo-print            PASS grounds                PASS split-align            
+  PASS fact-agree             PASS fold-action            PASS action-count           
+  PASS one-screen             PASS hover                  PASS hover-move             
+  PASS product-shown          PASS same-object            PASS font-load              
+  PASS visual-caption         PASS visual-empty           PASS effect-kind            
+  PASS hero-enter             WARN moment-none            PASS street-number          
+  PASS postcode               PASS coordinates            PASS company-number         
+  PASS phone-number           PASS hero-screen            PASS section-height         
+  FAIL section-air            PASS one-section            PASS one-heading            
+  PASS container-edges        PASS row-lines              PASS split-pair             
+  PASS motion-layer           PASS count-text             PASS loop-cycle             
+  PASS section-tile           FAIL empty-area             PASS a11y-name              
+  PASS img-alt                PASS field-label            PASS heading-order          
+  PASS tabindex               PASS focus-ring             PASS focus-visible          
+  PASS focus-hidden           WARN skip-link              PASS menu-toggle            
+  PASS lang                   PASS page-meta              WARN share-meta             
+  PASS action-repeat          PASS map-link               PASS open-now               
+  PASS assumed                PASS run-on                 PASS form-fields            
+  PASS form-send              
+total  11 FAIL  15 WARN  (crops and report.json in /Users/kuro/Documents/TA_Agent_qc106/docs/sprints/10.7/qc/landing/consistency)

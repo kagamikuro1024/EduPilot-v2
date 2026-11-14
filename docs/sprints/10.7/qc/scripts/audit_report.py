@@ -87,7 +87,7 @@ for (w, h1h, ml, row), lst in hmeta.items():
     for v, r in lst:
         if abs(v - mode) > 2: bad("H7", r, f"{v} ≠ {mode} (w{w}, h1 {h1h}px, meta {ml} dòng, hàng nút={row})")
 for r in rows["loading"]:
-    if not ok(r): continue
+    if not ok(r) or r.get("apiHits") == 0: continue  # 0 yêu cầu API: màn mô phỏng, không áp dụng (TL 12.2)
     d = idx.get(("data", r["role"], r["route"], r["w"]))
     if ok(d) and r["header"]["h1"] and d["header"]["h1"]:
         a, b = r["header"]["h1"], d["header"]["h1"]
@@ -95,7 +95,7 @@ for r in rows["loading"]:
     elif ok(d) and not r["header"]["h1"]: bad("L1", r, "không có h1 khi tải")
     if r["busy"] < 1 and r["route"] != "/insights": bad("L2", r, "không có aria-busy")  # /insights mô phỏng: không áp dụng tới sprint 11 (PM 15/11)
 for r in rows["error"]:
-    if not ok(r): continue
+    if not ok(r) or r.get("apiHits") == 0: continue
     if r["route"] != "/insights" and (r["alertCount"] != 1 or not r["alerts"] or not near(r["alerts"][0]["w"], (r["col"] or {}).get("w", -999), 2) or not r["alerts"][0]["retry"]):
         bad("X1", r, f"alert×{r['alertCount']}" + (f" rộng {r['alerts'][0]['w']}" if r["alerts"] else "") + (" thiếu Thử lại" if r["alerts"] and not r["alerts"][0]["retry"] else ""))
     if any(a["bare"] for a in r["alerts"]): bad("X2", r, r["alerts"][0]["text"][:60])
