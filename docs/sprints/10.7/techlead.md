@@ -643,3 +643,29 @@ Khoá gom H7 thêm «có hàng quay lại»: `(độ rộng, cao h1, số dòng 
 | `gradebook/scheme` có dữ liệu, GV (có hàng nút) | 375 | 175,2 | 178,4 | **+3,2** |
 
 Vậy 8 dòng hết lệch. 4 dòng `gradebook/scheme` có dữ liệu còn lệch 3,2 px và là **lệch thật, không do hàng quay lại**: meta của màn này là một `StatusText` («Bản nháp», «Đã xác nhận · …») nên dòng meta cao 22,4 thay vì 19,2. Sửa ở primitive, không ở route: `.meta` trong `Layout.module.css` phải cho mọi thứ nằm trong nó cùng một chiều cao dòng (thành phần con thừa hưởng cỡ chữ và `line-height` của meta).
+
+### 14.6 X3: nút ở đầu trang khi vùng lỗi
+
+**Quyết: nút ở đầu trang không được mất khi lỗi (và khi đang tải). Nút cần dữ liệu thì hiện ở trạng thái khoá; nút không cần dữ liệu thì hiện và bấm được.** Ba màn QC nêu là lệch thật.
+
+| Loại nút | Ví dụ | Khi đang tải / lỗi |
+| --- | --- | --- |
+| Cần dữ liệu đã tải | «Lưu điểm danh», «Chốt điểm» | Hiện, `disabled`. **Không** thêm `reason`: khối lỗi ngay dưới, có «Thử lại», đã là lý do; thêm tooltip là nói hai lần |
+| Không cần dữ liệu | «Tải quy chế», «Xem công thức», mọi nút là liên kết | Hiện, bấm được |
+| Nút chính gắn thanh dính đáy (375) | thanh «Lưu điểm danh · N có mặt · M vắng» | Thanh vẫn hiện, `disabled`, nhãn không kèm số đếm |
+
+Vì sao:
+
+- §23.5 đã ghi: đang tải, rỗng và lỗi không đổi kiểu trang, đầu trang, tab. Nút là một phần của đầu trang. Meta được mất (14.2) vì nó **là** dữ liệu; nút thì không.
+- Ẩn nút rồi cho hiện lại làm trang nhảy: ở 375 hàng nút cao 68 px, tải xong hay «Thử lại» xong là thân trang tụt xuống 68 px.
+- «Tải quy chế» mất khi lỗi là mất một đường làm việc vẫn chạy được.
+
+Nguyên nhân trong mã, cùng một kiểu ở cả ba màn: route viết thêm một `PageHeader` rút gọn (chỉ `title`) cho nhánh đang tải và nhánh lỗi. `RealAttendance.tsx` dòng 55, 56, 60, 71, 72; `Gradebook.tsx` dòng 70, 350, 351; `GradeScheme.tsx` dòng 42, 76, 77. Sửa: mỗi route dựng **một** `PageHeader` dùng cho cả bốn trạng thái, nút cần dữ liệu nhận `disabled` khi chưa có dữ liệu. Ít mã hơn hiện tại.
+
+X3 viết lại, thay dòng «Nút ở đầu trang» ở 14.2. Khi đang tải và khi lỗi, so với lúc có dữ liệu:
+
+- cùng số nút đang hiện trong `[data-ep-header-actions]`, cùng kiểu (`primary` / `secondary`), cùng thứ tự; nhãn được khác khi nhãn mang trạng thái («Đã lưu» ↔ «Lưu điểm danh»);
+- route có thanh dính đáy: `[data-ep-header-dock]` vẫn hiện ở 375;
+- nút được `disabled`.
+
+Cùng luật cho L1 (đang tải). QC đo thêm ở trạng thái đang tải; nếu các màn khác cũng rút gọn đầu trang khi tải thì ghi cùng mã X3.
