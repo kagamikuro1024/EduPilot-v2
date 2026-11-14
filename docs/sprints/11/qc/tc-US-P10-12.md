@@ -19,7 +19,7 @@ Nguồn: US.md + SRS FR-22; `docs/DEMO_SCRIPT.md`; AGENTS.md (cấm secret / PII
 | TC-12-14 | AC7 | – | Nếu trễ | Ghi «cắt» khi dev báo; không tính FAIL story (AC không chặn) | – |
 | TC-12-15 | AC8 | 7 route đại diện (Q-S11-16; QC đề xuất: `/`, `/chat`, `/threads`, `/gradebook`, `/practice`, `/observability`, `/insights`) | Lượt A: chụp 1440 + 375 → ghi danh sách lỗi → dev sửa một mẻ → Lượt B chụp lại | Ảnh + danh sách ở `docs/sprints/11/qc/visual/`; **không có lượt thứ ba**; lỗi lượt A đã hết ở lượt B (hoặc ghi nợ) | TAY |
 | TC-12-16 | AC8 | – | Mỗi ảnh | Đối chiếu `DESIGN.md` §22 (10 điều kiện) + `UX.md` 375 px (không tràn ngang, vùng chạm ≥ 44 px) | TAY |
-| TC-12-17 | AC9 | – | `docs/sprints/11/qc/acceptance-10.md` | 10 câu (Q-S11-17: nguồn câu) mỗi câu có trả lời + bằng chứng (lệnh / ảnh / test); QC chạy lại ≥ 3 bằng chứng ngẫu nhiên; câu không đạt ghi rõ | TAY |
+| TC-12-17 | AC9 | – | `docs/sprints/11/qc/acceptance-10.md` | 10 câu ở `docs/design/AGENT_PROMPT.md` §«Final acceptance questions» (Q-S11-17, PM 2026-11-14) mỗi câu có trả lời + bằng chứng (lệnh / ảnh / test); QC chạy lại ≥ 3 bằng chứng ngẫu nhiên; câu không đạt ghi rõ | TAY |
 | TC-12-18 | AC10 | Stack demo | Chạy `docs/DEMO_SCRIPT.md` trọn, bấm giờ (một người, không bỏ bước) | Tổng ≤ 15 phút; mọi «kết quả phải thấy» đúng; lệch → sửa kịch bản/seed, **không** sửa kết quả mong đợi cho khớp lỗi (`git diff DEMO_SCRIPT.md` kiểm) | TAY |
 | TC-12-19 | AC11 | – | Bước 7 (F17) | Khớp US-P10-04/05: A, B đầu lớp 1; C lớp 2; chủ đề < 3 SV không câu mẫu; «Nhật ký chạy lại» có dòng mới (ngày, commit, thời lượng) | TAY |
 | TC-12-20 | AC12 | – | Video | «chờ chủ dự án» — không kiểm, không FAIL | – |
@@ -34,4 +34,4 @@ TC-12-04 (429), TC-12-09 (bước sai), TC-12-11.
 TC-12-06, 12-07, 12-08.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-11-14: TC-12-17 ghi nguồn 10 câu theo trả lời PM Q-S11-17 (spec không đổi; chỉ điền chỗ trống).
