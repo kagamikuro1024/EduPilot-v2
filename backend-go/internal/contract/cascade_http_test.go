@@ -13,7 +13,7 @@ import (
 )
 
 // TestCascadeThreadsHTTP — US-DM-08 AC3 (a)(b)(c)(f) ở mức HTTP thật (router + Postgres + provider giả, không mạng): từng nhánh cascade của THREADS_PRECHECK
-// cho đúng mã HTTP, đúng số lời gọi decision, và đúng `cascade_path` ở llm_audit. (d) chèn lệnh: internal/grading TestInjectionFlagTiers; (e) chat: internal/agent TestRouteDecisionTable.
+// cho đúng mã HTTP, đúng số lời gọi decision, và đúng `cascade_path` ở llm_audit. (d) chèn lệnh: internal/grading TestInjectionOR; (e) chat: internal/agent TestRouteDecisionTable.
 func TestCascadeThreadsHTTP(t *testing.T) {
 	r := &runner{t: t, rig: getRig(t), cache: map[string]string{}}
 	r.prod, r.test = mustLoad(t)

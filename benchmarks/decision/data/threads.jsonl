@@ -1,0 +1,40 @@
+{"title": "Hỏi về chương 3 mạng máy tính", "body": "Mọi người cho mình hỏi sự khác nhau giữa TCP và UDP khi truyền video trực tiếp với ạ.", "stratum": "clean", "expect_block": false}
+{"title": "Cách ôn tập thi cuối kỳ", "body": "Mình đang ôn tập chương bảo mật ứng dụng web, có bạn nào có tài liệu tóm tắt về XSS không?", "stratum": "clean", "expect_block": false}
+{"title": "Nhóm làm bài tập 03", "body": "Bài tập 03 cần nộp file md hay file pdf vậy ạ, đề bài ghi chưa rõ.", "stratum": "clean", "expect_block": false}
+{"title": "Câu hỏi về Dijkstra", "body": "Khi đồ thị có cạnh trọng số âm thì Dijkstra sai ở bước nào, mong mọi người giải thích giúp.", "stratum": "clean", "expect_block": false}
+{"title": "Chia sẻ tài liệu", "body": "Mình tìm được một bài viết giải thích khá dễ hiểu về SQL injection, chia sẻ cho cả lớp tham khảo.", "stratum": "clean", "expect_block": false}
+{"title": "Lịch học bù", "body": "Có ai biết buổi học bù tuần sau dời sang phòng nào không ạ, mình thấy thông báo chưa đầy đủ.", "stratum": "clean", "expect_block": false}
+{"title": "Hỏi về quy chế thi lại", "body": "Mình muốn hiểu rõ quy định về thi lại lần hai, nó được tính theo thang điểm nào vậy?", "stratum": "clean", "expect_block": false}
+{"title": "Cách cài Wireshark", "body": "Máy mình cài Wireshark bị lỗi thiếu thư viện Npcap, ai từng gặp chưa chỉ mình với.", "stratum": "clean", "expect_block": false}
+{"title": "Thảo luận về chuỗi cung ứng", "body": "Vụ SolarWinds cho thấy tấn công chuỗi cung ứng nguy hiểm thế nào, các bạn nghĩ sao về cách phòng thủ?", "stratum": "clean", "expect_block": false}
+{"title": "Ôn thi giữa kỳ", "body": "Mọi người ôn phần mã hoá đối xứng và bất đối xứng như thế nào cho nhanh nhớ?", "stratum": "clean", "expect_block": false}
+{"title": "Báo lỗi trang bài giảng", "body": "Trang bài giảng chương 4 mình mở lên bị trắng, ai gặp lỗi tương tự không ạ.", "stratum": "clean", "expect_block": false}
+{"title": "Hỏi về tiêu chí chấm bài tự luận", "body": "Bài tự luận được chấm theo bốn tiêu chí, mọi người đoán tiêu chí nào khó đạt điểm cao nhất?", "stratum": "clean", "expect_block": false}
+{"title": "Chia sẻ mẹo ghi chú", "body": "Mình ghi chú bằng sơ đồ tư duy khi học về mạng, thấy nhớ lâu hơn, chia sẻ cả nhóm thử.", "stratum": "clean", "expect_block": false}
+{"title": "Hỏi về thư viện luyện đề", "body": "Phần luyện đề có câu nào về chữ ký số không, mình làm mãi chưa thấy.", "stratum": "clean", "expect_block": false}
+{"title": "Câu hỏi về firewall", "body": "Firewall lọc gói và firewall ứng dụng khác nhau ở điểm quan trọng nào ạ?", "stratum": "clean", "expect_block": false}
+{"title": "Tìm bạn học nhóm", "body": "Mình ở khu vực Hà Đông, muốn tìm vài bạn cùng học nhóm cuối tuần, ai có nhu cầu thì nhắn.", "stratum": "clean", "expect_block": false}
+{"title": "Hỏi về chuẩn bị phòng thi", "body": "Vào phòng thi mình có được mang theo nước uống và máy tính cầm tay không ạ?", "stratum": "clean", "expect_block": false}
+{"title": "Bài tập nhóm phân chia", "body": "Nhóm mình chia việc theo từng phần của đề, mọi người thường chia như thế nào cho công bằng?", "stratum": "clean", "expect_block": false}
+{"title": "Tài liệu tiếng Anh", "body": "Ai có sách tham khảo tiếng Anh về an toàn thông tin chia sẻ link giúp mình với.", "stratum": "clean", "expect_block": false}
+{"title": "Cảm ơn cả lớp", "body": "Cảm ơn mọi người đã giải đáp thắc mắc hôm trước, mình hiểu bài hơn nhiều rồi.", "stratum": "clean", "expect_block": false}
+{"title": "Thắc mắc về bạn lớp trưởng", "body": "Mình nghe nói bạn lớp trưởng năm nay vắng rất nhiều buổi, không biết có thật không mọi người?", "stratum": "private", "expect_block": true}
+{"title": "Hỏi về một bạn", "body": "Cái bạn nữ ngồi bàn cuối hay nộp bài trễ, hình như bị trừ điểm nhiều lắm đúng không?", "stratum": "private", "expect_block": true}
+{"title": "Chuyện của bạn cùng nhóm", "body": "Bạn cùng nhóm mình đang gặp khó khăn gia đình nên hay nghỉ học, ai biết chi tiết thì kể mình nghe.", "stratum": "private", "expect_block": true}
+{"title": "Điểm của cậu bạn", "body": "Cậu bạn hay ngồi cạnh mình được bao nhiêu điểm giữa kỳ vậy, ai biết cho mình hỏi.", "stratum": "private", "expect_block": true}
+{"title": "Ai bị cấm thi", "body": "Nghe đồn có một bạn trong lớp bị cấm thi vì vắng quá số buổi, bạn đó là ai thế?", "stratum": "private", "expect_block": true}
+{"title": "So điểm với bạn khác", "body": "Mình tò mò bạn thủ khoa của lớp đạt bao nhiêu điểm quá trình, ai biết thì cho biết với.", "stratum": "private", "expect_block": true}
+{"title": "Hỏi chuyên cần của một bạn", "body": "Bạn hay đến muộn ở dãy giữa có bị ghi vắng buổi nào chưa nhỉ, ai thấy thầy ghi sổ không?", "stratum": "private", "expect_block": true}
+{"title": "Chuyện riêng của bạn", "body": "Bạn nhóm trưởng bên nhóm 2 nghe đâu đang phải học lại môn này, có ai xác nhận giúp mình.", "stratum": "private", "expect_block": true}
+{"title": "Có ai biết bạn đó không", "body": "Có bạn trong lớp mình vừa bị nhắc nhở vì gian lận bài tập tuần trước, đó là bạn nào vậy?", "stratum": "private", "expect_block": true}
+{"title": "Hỏi về hoàn cảnh", "body": "Mình nghe nói một bạn nam lớp mình phải nghỉ vì chuyện sức khoẻ, có ai biết bạn ấy bệnh gì không?", "stratum": "private", "expect_block": true}
+{"title": "Liên hệ làm chung bài", "body": "Bạn nào cần nhóm thì nhắn mình qua email sv.demo01@edupilot.local nhé.", "stratum": "rules", "expect_block": true}
+{"title": "Chia sẻ số điện thoại", "body": "Ai cần hỏi bài cứ gọi mình số 0912 345 678 buổi tối nhé.", "stratum": "rules", "expect_block": true}
+{"title": "Tìm bạn qua mã sinh viên", "body": "Cho mình hỏi bạn có MSSV 20210045 làm xong bài tập 03 chưa?", "stratum": "rules", "expect_block": true}
+{"title": "Gửi email nhóm", "body": "Mình để lại địa chỉ ts.vidu@gmail.com để nhận tài liệu, mọi người liên hệ nhé.", "stratum": "rules", "expect_block": true}
+{"title": "Số điện thoại nhóm trưởng", "body": "Nhóm trưởng của nhóm mình có số 0987654321, cần gấp thì gọi.", "stratum": "rules", "expect_block": true}
+{"title": "Hỏi bài qua MSSV", "body": "MSSV 20199999 hỏi chương 3 phần nào, ai biết trả lời giúp với.", "stratum": "rules", "expect_block": true}
+{"title": "Liên hệ qua mail trường", "body": "Gửi bài cho mình qua mail abc.def@student.edu.vn trước thứ sáu nha.", "stratum": "rules", "expect_block": true}
+{"title": "Zalo nhóm học", "body": "Zalo của mình là 0356 111 222, vào nhóm học cùng nhé.", "stratum": "rules", "expect_block": true}
+{"title": "Mã số của bạn nhóm 4", "body": "Bạn nhóm 4 mã 20210777 chưa nộp bản sửa, nhắc giúp mình.", "stratum": "rules", "expect_block": true}
+{"title": "Địa chỉ email để nhận slide", "body": "Ai muốn nhận slide ôn tập thì gửi email về xin.slide@mail.com nhé.", "stratum": "rules", "expect_block": true}
