@@ -221,7 +221,7 @@ Quy ước cột: **Vùng → Panel** = mỗi vùng một `Panel`; "ngoài panel
 
 | Route | Khung nhìn đầu | Vùng → Panel | Ghi chú |
 | --- | --- | --- | --- |
-| `/` | §14.1 Teacher / TA | "{N} việc cần xử lý hôm nay" (`ActionList`, 1 nút chính) · "Sắp tới" · "Lớp cần chú ý" **chỉ khi có dữ liệu** (hợp đồng do P5 định nghĩa — góp ý #2) | không hero metrics; ≤ 1 ô nhấn |
+| `/` | §14.1 Teacher / TA | `h1` "{N} việc cần xử lý hôm nay"; `Split main-aside` (P-107-6): panel chính = `ActionList` 1 nút chính, nhóm «Gấp» / «Hôm nay» / «Khi rảnh» là `PanelSection`; panel phụ (một) = `PanelSection` "Sắp tới" + "Lớp cần chú ý" **chỉ khi có dữ liệu** (hợp đồng do P5 định nghĩa — góp ý #2); hai panel thẳng đỉnh | không hero metrics; ≤ 1 ô nhấn |
 | `/class/members` | bảng thành viên | `Tabs` ngoài panel; mỗi tab 1 panel; tab "Nạp danh sách" = 1 panel với `PanelSection` (chọn tệp → xem trước → kết quả), ≤ 3 ô nhấn (thêm / bỏ qua / lỗi) | TA: quyền như cũ |
 | `/class/settings` | cài đặt lớp | mỗi mục 1 panel | |
 | `/exams` | nhóm `Đang mở` / `Sắp tới` / `Đã đóng` / `Nháp` | mỗi nhóm 1 panel; nút chính `Tạo bài thi` | |
