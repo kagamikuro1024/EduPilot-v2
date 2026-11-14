@@ -102,7 +102,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-05-13 | PASS | API stack |
 | TC-05-14 | PASS | API stack |
 | TC-05-15 | PASS | API stack |
-| TC-05-16 | FAIL | L6 count=0 → 201; L7 chủ đề 0 câu đủ điều kiện → 422 |
+| TC-05-16 | PASS (có Nợ chấp nhận) | `count=0` → 201: **Nợ chấp nhận (P-10-10, Nợ sprint 11)**, không tính FAIL; các ca còn lại đạt; ca chủ đề 0 câu đủ điều kiện (L7) kiểm lại ở `recheck_low.py` |
 | TC-05-17 | PASS | API stack |
 | TC-05-18 | CHƯA CHẠY |  |
 | TC-06-01 | CHƯA CHẠY |  |

@@ -26,7 +26,7 @@ Hệ quả: luồng F12 (trích đề → duyệt → luyện) không đi đư�
 **L5 — ĐÃ SỬA ở `5d9c54e3`, QC kiểm lại: PASS (`OK: 107 APPROVED, 26 PENDING, Quiz SCHEDULED, 23 lượt của 6 sinh viên mẫu`). Lỗi cũ: `scripts/check-practice-seed.mjs` không chạy được:** `Error: Không thấy lớp 761987` (dòng 62: `find(c => c.class_code === …)` nhưng `GET /me/courses` trả `items[].course.class_code`). Với bản vá tạm ở bản sao (không commit) script báo `OK: 104 APPROVED, 25 PENDING, Quiz SCHEDULED, 21 lượt của 6 sinh viên mẫu`.
 
 ### Thấp (11)
-- **L6** `start {mode:TOPIC,count:0}` → `201` (coi như không gửi). Đúng: `422` (TC-05-16).
+- **L6 — NỢ CHẤP NHẬN (P-10-10: Nợ sprint 11, không tính FAIL)** `start {mode:TOPIC,count:0}` → `201` (coi như không gửi). Đúng: `422` (TC-05-16).
 - **L7** Chủ đề có trong ngân hàng nhưng 0 câu đủ điều kiện (chỉ `PENDING`) → `422 UNKNOWN_TOPIC`. Đúng theo P-10-7 Q10: `409 NOT_ENOUGH_QUESTIONS {available:0}`.
 - **L8** Ma trận `MOCK` không có `difficulty` mà ô thiếu câu → không bù (`{Mạng:6, Mật mã công khai:4}` ra 8 câu, `notes:["thiếu câu chủ đề Mạng"]`); có `difficulty` thì bù đủ 10. AC1 («bù từ ô gần nhất») và AC4 («đề ngắn hơn kèm notes») mâu thuẫn nhau: ghi `proposals.md` P-10-9 để PM quyết.
 - **L9** `generate` với `types: []` → `202` (TC-03-07 mong `422`).
