@@ -513,3 +513,33 @@ func (r *Registry) buildDecide(ctx context.Context, snap llmconfig.Snapshot, st 
 		}
 	}
 }
+
+// ProbeDecision thử kết nối một mô hình decision bằng MỘT câu `noul` vô hại (POST …/providers/{id}/test). Bản giả: cục bộ, không mạng.
+// Bản thật chỉ khi LLM_DECISION_ALLOW_REAL (ngược lại llmconfig.ErrDecisionRealDisabled — không gọi mạng). key / baseURL rỗng → GEMINI_API_KEY / LLM_DECISION_BASE_URL.
+func (r *Registry) ProbeDecision(ctx context.Context, model, key, baseURL string) error {
+	if model != RealDecisionModel {
+		return nil
+	}
+	if !r.env.DecisionAllowReal {
+		return llmconfig.ErrDecisionRealDisabled
+	}
+	if key == "" {
+		key = r.env.GeminiKey
+	}
+	if key == "" {
+		return &provider.Error{Kind: provider.KindAuth}
+	}
+	if baseURL == "" {
+		baseURL = r.env.DecisionBaseURL
+	}
+	d, ok := provider.NewDecision(provider.DecisionConfig{BaseURL: baseURL, APIKey: key}).(provider.Decider)
+	if !ok {
+		return &provider.Error{Kind: provider.KindBadRequest}
+	}
+	_, err := d.Decide(ctx, provider.DecideOpts{Model: model, Input: "Xin chào", Questions: map[string]provider.DecideQuestion{
+		"q": {Type: provider.QuestionNoul, Instructions: "Đây có phải một lời chào không?"}}})
+	return err
+}
+
+// DecisionAllowReal cho biết bản thật có được phép không (LLM_DECISION_ALLOW_REAL).
+func (r *Registry) DecisionAllowReal() bool { return r.env.DecisionAllowReal }

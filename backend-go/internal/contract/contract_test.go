@@ -63,8 +63,8 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 304 { // 16 luyện đề (+ 2 nhập Forms US-P9-11) / trích / sinh / duyệt hàng loạt (US-P9-02…09) + 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05) + 10 Threads / from-draft (US-P3-06) + 11 quản lý tài liệu / thư viện (US-P8-02) + 8 lịch / ICS (US-P8-03) + 2 sửa / huỷ buổi học (US-P5-01, proposals #11) + 5 điểm danh / tham gia (US-P5-02, #11) + 17 kiểm duyệt Threads (US-P4-06, #11) + 4 thời gian học (US-P5-03, #11) + 1 danh sách sinh viên (US-P5-04, #11) + 8 hồ sơ 360 / ghi chú / nhận xét AI / nhắn sinh viên (US-P5-05, #11) + 2 điểm danh / phát biểu của chính sinh viên (US-P5-06, #11) + 1 trích công thức từ quy chế (US-P6-03, #12) + 1 trạng thái công thức điểm (US-P6-05, #12) + 4 đọc / sửa / xem thử / xác nhận công thức (US-P6-04, #12) + 6 bảng điểm / xem trước / sửa ô / công bố cột / giải trình / lịch sử (US-P6-06, #12); mỗi story PE sau cộng thêm
-			t.Errorf("openapi.yaml: %d thao tác (cần 304)", n)
+		if n := len(prod.Operations()); n != 310 { // 6 API decision model (SRS FEAT-decision-model 6: 5 cấu hình + 1 quan sát) + 16 luyện đề (+ 2 nhập Forms US-P9-11) / trích / sinh / duyệt hàng loạt (US-P9-02…09) + 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05) + 10 Threads / from-draft (US-P3-06) + 11 quản lý tài liệu / thư viện (US-P8-02) + 8 lịch / ICS (US-P8-03) + 2 sửa / huỷ buổi học (US-P5-01, proposals #11) + 5 điểm danh / tham gia (US-P5-02, #11) + 17 kiểm duyệt Threads (US-P4-06, #11) + 4 thời gian học (US-P5-03, #11) + 1 danh sách sinh viên (US-P5-04, #11) + 8 hồ sơ 360 / ghi chú / nhận xét AI / nhắn sinh viên (US-P5-05, #11) + 2 điểm danh / phát biểu của chính sinh viên (US-P5-06, #11) + 1 trích công thức từ quy chế (US-P6-03, #12) + 1 trạng thái công thức điểm (US-P6-05, #12) + 4 đọc / sửa / xem thử / xác nhận công thức (US-P6-04, #12) + 6 bảng điểm / xem trước / sửa ô / công bố cột / giải trình / lịch sử (US-P6-06, #12); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 310)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake) + 1 cổng chat (US-PE-07).
 		if n := len(test.Operations()); n != 21 {
@@ -264,6 +264,7 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/admin/llm/routes": true, "PUT /api/v1/admin/llm/routes": true, "GET /api/v1/admin/llm/usage": true,
 		"GET /api/v1/admin/llm/budget": true, "PUT /api/v1/admin/llm/budget": true,
 		"GET /api/v1/courses/{id}/llm-budget": true, "PUT /api/v1/courses/{id}/llm-budget": true,
+		"GET /api/v1/admin/llm/decision": true, "PUT /api/v1/admin/llm/decision/gates/{gate}": true, "GET /api/v1/admin/llm/decision/courses": true, "GET /api/v1/admin/observability/decision": true, "GET /api/v1/courses/{id}/decision-gates": true, "PUT /api/v1/courses/{id}/decision-gates/{gate}": true,
 		"POST /api/v1/auth/login": false, "POST /api/v1/auth/refresh": false, "POST /api/v1/auth/logout": false,
 		"POST /api/v1/auth/register": false, "POST /api/v1/auth/verify-email": false, "POST /api/v1/auth/resend-verification": false,
 		"POST /api/v1/auth/forgot-password": false, "POST /api/v1/auth/reset-password": false, "POST /api/v1/auth/tokens/preview": false,

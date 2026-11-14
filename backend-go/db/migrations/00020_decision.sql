@@ -25,7 +25,7 @@ CREATE TABLE decision_gates (
     threshold  numeric(4,3)  NOT NULL,
     timeout_ms integer       NOT NULL CHECK (timeout_ms BETWEEN 200 AND 5000),
     version    integer       NOT NULL DEFAULT 1,
-    updated_by uuid          REFERENCES users (id),
+    updated_by uuid,
     updated_at timestamptz   NOT NULL DEFAULT now()
 );
 INSERT INTO decision_gates (gate, enabled, threshold, timeout_ms) VALUES
@@ -37,7 +37,7 @@ CREATE TABLE course_decision_gates (
     gate       text         NOT NULL REFERENCES decision_gates (gate),
     enabled    boolean      NOT NULL DEFAULT false,
     version    integer      NOT NULL DEFAULT 1,
-    updated_by uuid         REFERENCES users (id),
+    updated_by uuid,
     updated_at timestamptz  NOT NULL DEFAULT now(),
     PRIMARY KEY (course_id, gate)
 );
