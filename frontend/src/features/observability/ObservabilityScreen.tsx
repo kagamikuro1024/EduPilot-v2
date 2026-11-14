@@ -147,7 +147,7 @@ export function ObservabilityScreen() {
             dense
             onRowClick={isAdmin ? (r) => setOpen(r) : undefined}
             activeKey={open?.id}
-            empty={<p className={s.sub}>Không có yêu cầu nào khớp bộ lọc này.</p>}
+            empty={<EmptyState title="Không có yêu cầu khớp bộ lọc" />}
           />
         </Section>
 

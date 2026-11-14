@@ -109,7 +109,7 @@ export function DemoDocuments() {
       width: "150px",
       render: (d) =>
         d.kind === "answer" ? (
-          <span className={s.locked}>Không dùng cho AI của sinh viên</span>
+          <span className={s.locked}>Không dùng cho AI</span>
         ) : d.status === "FAILED" ? (
           <StatusText tone="neutral">Không dùng được</StatusText>
         ) : d.status !== "READY" ? (
@@ -279,7 +279,7 @@ export function DemoDocuments() {
                 term: "Dùng cho AI",
                 value:
                   detail.kind === "answer"
-                    ? "Không dùng cho AI của sinh viên"
+                    ? "Không dùng cho AI"
                     : detail.status === "FAILED"
                       ? "Không dùng được"
                       : detail.status !== "READY"

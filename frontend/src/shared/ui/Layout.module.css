@@ -19,6 +19,7 @@
 .headRow { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-6); min-height: 36px; }
 .headRow h1 { min-width: 0; }
 .meta { font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meta, .meta * { line-height: 1.6; } .meta > * { font-size: inherit; } /* dòng meta luôn cao 19,2 px dù con là StatusText (H7) */
 .actions { display: flex; align-items: center; gap: var(--ep-space-2); flex: none; }
 .wide, .primary, .lead { display: inline-flex; }
 .narrow { display: none; }

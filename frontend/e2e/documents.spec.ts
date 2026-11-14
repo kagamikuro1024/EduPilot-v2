@@ -49,7 +49,6 @@ test("answer key labels: đúng hai dòng, công tắc Hiện cho sinh viên kho
   await open(page, context, { [`GET ${D}`]: list([doc({ id: "k1", title: "Đáp án tuần 1", type: "ANSWER_KEY", visible_to_students: false })]) });
   const row = page.locator("[data-part=doc-row]");
   await expect(row.getByText("Không hiển thị cho sinh viên")).toBeVisible();
-  await expect(row.getByText("Không dùng cho AI của sinh viên")).toBeVisible();
   await expect(row.getByRole("switch", { name: /Hiện cho sinh viên/ })).toBeDisabled();
 });
 

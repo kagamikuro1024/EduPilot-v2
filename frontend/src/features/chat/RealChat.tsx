@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { ApiError, apiClient, useAutosaveDraft, useUndoableAction } from "@/shared/data";
 import { CitationList, Markdown } from "@/shared/domain";
 import { useSession } from "@/shared/session/session";
-import { Button, Composer, IconButton, OverflowMenu, Page, PageHeader, PageState, Skeleton, Split } from "@/shared/ui";
+import { Button, Composer, EmptyState, IconButton, OverflowMenu, Page, PageHeader, PageState, Skeleton, Split } from "@/shared/ui";
 import {
   LOCK_KEY,
   messagesKey,
@@ -280,7 +280,7 @@ export function RealChat({ courseId }: { courseId: string }) {
 
 function SessionList({ items, current, loading, onOpen, onDelete }: { items: ChatSession[]; current: string | null; loading: boolean; onOpen: (id: string) => void; onDelete: (id: string) => void }) {
   if (loading) return <Skeleton lines={3} />;
-  if (items.length === 0) return <p className={s.historyEmpty}>Chưa có phiên nào</p>;
+  if (items.length === 0) return <EmptyState title="Chưa có phiên nào" />;
   return (
     <ul className={r.sheetList}>
       {items.map((x) => (

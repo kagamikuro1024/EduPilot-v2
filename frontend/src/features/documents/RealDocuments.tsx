@@ -112,7 +112,6 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
           {d.type === "ANSWER_KEY" && (
             <div className={r.keyNote}>
               <span>Không hiển thị cho sinh viên</span>
-              <span>Không dùng cho AI của sinh viên</span>
             </div>
           )}
         </div>
@@ -217,6 +216,11 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
           </div>
           {failed && <InlineNotice tone="danger" compact action={failed.retry && <Button size="sm" onClick={failed.retry}>Thử lại</Button>}>{failed.text}</InlineNotice>}
           {undo.node}
+        </div>
+      </Panel>
+      {/* danh sách ở panel riêng: khối rỗng nằm trong vật chứa thấp (E6 ≤ 320 px); lỗi đã được panel trên thay bằng MỘT thông báo */}
+      <Panel fault={list.isError && list.items.length === 0 ? <></> : null}>
+        <div className={r.stack}>
           <PageState
             query={list}
             isEmpty={() => rows.length === 0}

@@ -6,7 +6,7 @@ import { cleanCode } from "@/features/join/JoinScreen";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useSession } from "@/shared/session/session";
 import { withCourse } from "@/shared/lib/courseHref";
-import { ActionList, ActionRow, Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, Section, Skeleton, StatusText } from "@/shared/ui";
+import { ActionList, EmptyState, ActionRow, Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, Section, Skeleton, StatusText } from "@/shared/ui";
 import s from "./Today.module.css";
 import { formatTime, formatWhen } from "@/shared/lib/datetime";
 import { longDate } from "./format";
@@ -63,7 +63,7 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
       )}
       {calm && (
         <Section title="Việc nên làm tiếp">
-          <p className={s.calm}>Hôm nay bạn không có việc gấp.</p>
+          <EmptyState title="Hôm nay bạn không có việc gấp" />
         </Section>
       )}
       {d.timeline.length > 0 && (
