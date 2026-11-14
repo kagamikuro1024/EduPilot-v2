@@ -78,6 +78,8 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   const narrow = useSyncExternalStore(subscribeNarrow, () => window.matchMedia(NARROW).matches, () => false);
   const list = useQueue(courseId, filter);
   const rows = list.items;
+  // Bài CHƯA CHẤM của bài tập đang chọn (độc lập với bộ lọc đang xem): nguồn cho nút «Chấm tất cả» và cho việc tự chuyển khỏi hàng chờ trống (GV-BUG lọc mặc định che bài chưa chấm)
+  const ungraded = useQueue(courseId, { assignment_id: assignmentId || undefined, status: "NONE" });
 
   // Lọc mặc định có `Cần xem kỹ`; nếu không còn việc chờ nào thì bỏ lọc cờ MỘT lần (AC1).
   useEffect(() => {
@@ -86,6 +88,15 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       setFlagOnly(false);
     }
   }, [flagOnly, list.isPending, list.isError, rows.length]);
+
+  // Hàng chờ «Chưa duyệt» trống mà còn bài chưa chấm: chuyển MỘT lần sang «Chưa chấm» để giảng viên thấy việc cần làm.
+  const relaxedStatus = useRef(false);
+  useEffect(() => {
+    if (!relaxedStatus.current && !flagOnly && status === "DRAFT" && !list.isPending && !list.isError && rows.length === 0 && !ungraded.isPending && ungraded.items.length > 0) {
+      relaxedStatus.current = true;
+      setStatus("NONE");
+    }
+  }, [flagOnly, status, list.isPending, list.isError, rows.length, ungraded.isPending, ungraded.items.length]);
 
   // Tiến độ của CẢ lô do máy chủ báo (job.progress); `rows.length` chỉ là số dòng đã tải nên không dùng làm tổng.
   const jobState = useJob(job?.id ?? null);
@@ -185,7 +196,8 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   };
 
   const needAssignment = assignmentId === "" ? "Chọn một bài tập trước." : undefined;
-  const noneToGrade = !needAssignment && !list.isPending && !list.isError && rows.length === 0 ? "Chưa có bài nộp." : undefined; // hàng chờ rỗng: không có gì để chấm (US-UX91-03 AC2)
+  // Không còn bài nào để chấm (US-UX91-03 AC2): hàng chờ đang xem trống VÀ không có bài chưa chấm của bài tập này. Lọc «Chưa duyệt» trống mà còn bài chưa chấm thì KHÔNG khoá (GV-BUG).
+  const noneToGrade = !needAssignment && !list.isPending && !list.isError && rows.length === 0 && !ungraded.isPending && !ungraded.isError && ungraded.items.length === 0 ? "Chưa có bài nộp." : undefined;
 
   // ---- công bố hàng loạt (US-P7-09 AC1): chỉ TEACHER, chỉ hàng ĐÃ DUYỆT ---------------------------------------------------
   const reviewable = rows.filter((r) => r.result?.status === "REVIEWED");

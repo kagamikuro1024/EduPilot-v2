@@ -497,6 +497,15 @@ async function openReview(page: Page, context: Parameters<typeof asDemo>[0], opt
   return api;
 }
 
+test("queue: toàn bài chưa chấm — lọc mặc định không che bài, Chấm tất cả bấm được (GV-BUG lọc mặc định + khoá Chấm tất cả)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openQueue(page, context, { rows: defaultRows().map((r) => ({ ...r, result: null })) });
+  await page.getByLabel("Bài tập").selectOption({ index: 1 });
+  await expect(page.getByLabel("Trạng thái")).toHaveValue("NONE"); // tự chuyển khỏi «Chưa duyệt» trống
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Chấm tất cả" })).not.toHaveAttribute("aria-disabled", "true");
+});
+
 test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openQueue(page, context);
