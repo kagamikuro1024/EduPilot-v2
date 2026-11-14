@@ -1,5 +1,7 @@
 # SRS FEAT-decision-model Decision model (`gemini-decision-1`) và cascade ba cổng
-Phiên bản 1.0 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; câu không đụng điểm / auth / PII do BA tự chốt, ghi «PM chốt theo đề xuất BA» ở `QUESTIONS.md`)
+Phiên bản 1.1 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; câu không đụng điểm / auth / PII do BA tự chốt, ghi «PM chốt theo đề xuất BA» ở `QUESTIONS.md`)
+
+**v1.1 (P-105-1):** bản giả trả `noul = 0,25` cho đầu vào lạ + `FAKE_DECISION_PROB` (Q-S105-3); bộ đối chứng chèn lệnh = 6 bài (Q-S105-6).
 
 ## 1. Mục đích và phạm vi
 Đưa **decision model** (mô hình cho xác suất, không sinh chữ) vào làm lớp **thêm** ở ba cổng của EduPilot để nhanh hơn và rẻ hơn chỉ-LLM mà không bỏ sót: kiểm duyệt Threads, cờ chèn lệnh khi chấm, định tuyến câu hỏi chat. Cơ sở: ADR **D60**, P-11-9, P-11-10, P-11-11; số PoC 2026-11-14 (`docs/research/poc/jev-decision/cascade.md`: tường lửa đúng 0,980 so với chỉ-LLM 0,960, p50 464 ms so với 4.642 ms, $0,066 so với $0,328 / 1.000 yêu cầu).
@@ -240,7 +242,7 @@ Lời chỉ thị và mô tả nhãn **cố định trong mã** (tiếng Việt,
 - Token bucket riêng: `LLM_DECISION_RPM` (mặc định 150, dưới 200 RPM của Free Tier); hết giấy phép → fallback ngay (không xếp hàng ở làn `INTERACTIVE`).
 
 ### 4.6 Provider giả `decision-fake`
-- Khoá bản phát lại: `sha256(masked_input) + ":" + question_id`; giá trị `{noul | choice, probabilities}`; tập tin `internal/llm/testdata/decision-replay.json` do dev dựng từ bộ nhãn của PoC và E1 / E2 / 9.5; thiếu khoá → `noul=0,5` hoặc đều nhau (lưỡng lự → ép fallback).
+- Khoá bản phát lại: `sha256(masked_input) + ":" + question_id`; giá trị `{noul | choice, probabilities}`; tập tin `internal/llm/testdata/decision-replay.json` do dev dựng từ bộ nhãn của PoC và E1 / E2 / 9.5; thiếu khoá → `noul = 0,25` (trung tính rõ ràng, dưới ngưỡng 0,5 nên không phải «có»; nằm giữa ε và 0,5 nên lưỡng lự → ép fallback; `confidence` 0,75 < τ) và `choice` chia đều; `FAKE_DECISION_PROB` (một số trong [0,01; 0,99]) ghi đè cho các câu `noul` không có trong bản phát lại, dùng để dựng ca; dev nêu bảng ca replay (đầu vào → xác suất / nhãn) trong handoff.
 - Độ trễ lấy mẫu log-chuẩn theo `LLM_DECISION_FAKE_P50_MS` / `…_P95_MS` (mặc định 426 / 682); lỗi theo `LLM_DECISION_FAKE_ERROR_RATE`; có chế độ `LLM_DECISION_FAKE_MODE=error|timeout|always_yes|always_no` cho E2E.
 - Chạy mặc định ở dev / test / CI / seed / demo / eval; không gọi mạng.
 
@@ -364,7 +366,7 @@ Dưới bảng 7 ngày: hàng = cổng; cột = số lời gọi, đường nhan
 | `LLM_DECISION_REAL_DAILY_CAP` | `300` | trần lời gọi thật / ngày |
 | `LLM_DECISION_RPM` | `150` | token bucket của provider `decision` |
 | `THREADS_STRUCTURED_TIMEOUT` | `6s` | hạn nhánh `Structured` của cổng Threads |
-| `LLM_DECISION_FAKE_P50_MS`, `…_P95_MS`, `…_ERROR_RATE`, `…_MODE` | `426`, `682`, `0`, – | bản giả |
+| `LLM_DECISION_FAKE_P50_MS`, `…_P95_MS`, `…_ERROR_RATE`, `…_MODE`, `FAKE_DECISION_PROB` | `426`, `682`, `0`, –, – | bản giả |
 
 ## 9. Kiểm thử
 | Cấp | Test | Phủ |
@@ -385,7 +387,7 @@ Dưới bảng 7 ngày: hàng = cổng; cột = số lời gọi, đường nhan
 | --- | --- | --- | --- |
 | Chat | 30 câu × 3 lượt, bật / tắt `CHAT_ROUTING` | TTFT p50 / p95, SSE đầu, số lời gọi / câu, độ chính xác 61 câu định tuyến | TTFT p95 ≤ +20 %; SSE đầu ≤ 300 ms không đổi; độ chính xác ≥ luật |
 | Threads | 40 bài (20 sạch, 10 tinh vi, 10 luật tự bắt), bật / tắt | độ trễ đăng p50 / p95, chặn đúng / nhầm, `FAST` / `FALLBACK` / `FAIL_CLOSED` | chặn nhầm ≤ 0,05; không lọt thêm so với luật |
-| Chèn lệnh | 13 bài (6 biến thể + 7 đối chứng) | cờ đúng / nhầm, độ trễ chấm | 6/6 và 0 nhầm |
+| Chèn lệnh | 12 bài (6 biến thể + 6 đối chứng `s1`–`s5`, `s7`) | cờ đúng / nhầm, độ trễ chấm | 6/6 và 0 nhầm |
 Dữ liệu thử: mô phỏng; bản phát lại do dev dựng từ nhãn có sẵn, **không** có dữ liệu sinh viên thật.
 
 Seed: `decision-fake` + 3 hàng cổng tắt; `SEED_DECISION_DEMO=1` bật ba cổng ở lớp 1; `scripts/check-decision-seed.mjs`.
