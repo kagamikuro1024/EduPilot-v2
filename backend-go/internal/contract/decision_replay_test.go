@@ -35,7 +35,7 @@ func jsonl[T any](t *testing.T, path string) []T {
 	t.Helper()
 	f, err := os.Open(path)
 	require.NoError(t, err)
-	defer f.Close()
+	t.Cleanup(func() { _ = f.Close() })
 	var out []T
 	sc := bufio.NewScanner(f)
 	sc.Buffer(make([]byte, 1<<20), 1<<20)
