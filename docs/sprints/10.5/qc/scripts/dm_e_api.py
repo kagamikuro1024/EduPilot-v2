@@ -1,5 +1,6 @@
 # L5: API cấu hình + quan sát decision (SRS §6 #1–5, #7) — TC-D02-11…13, 17…19, 22…25, D06-15/17, D07-01/06/09/10/14
 from dmx import *
+gates_off()  # trạng thái sạch: ba cổng hệ thống tắt (cổng lớp do script đặt)
 DEC = "/admin/llm/decision"
 C1 = course("sv.kha", "761987"); C2 = sql("select id from courses where class_code='761988'")[0][0]
 
@@ -30,8 +31,8 @@ for gate, th, to in (("THREADS_PRECHECK", 0.05, 800), ("CHAT_ROUTING", 0.95, 800
     api("admin", "PUT", f"{DEC}/gates/{gate}", {"threshold": th, "timeout_ms": to, "version": ver})
 c, r, _ = api("admin", "PUT", f"{DEC}/gates/XX", {"enabled": True, "version": 1}); ok("D02-12 gate lạ → 404", c == 404, str(c))
 c, cur, _ = api("admin", "GET", DEC); ver = [x for x in cur["gates"] if x["gate"] == "CHAT_ROUTING"][0]["version"]
-for b, tag in (({"threshold": "0,5", "version": ver}, "chuỗi"), ({"version": ver}, "rỗng"), ({"enabled": "yes", "version": ver}, "enabled chuỗi")):
-    c, r, _ = api("admin", "PUT", f"{DEC}/gates/CHAT_ROUTING", b); ok(f"D02-12 thân {tag} → 4xx không 5xx", 400 <= c < 500, f"{c} {json.dumps(r, ensure_ascii=False)[:80]}")
+for b, tag in (({"threshold": "0,5", "version": ver}, "chuỗi"), ({}, "rỗng"), ({"enabled": "yes", "version": ver}, "enabled chuỗi")):
+    c, r, _ = api("admin", "PUT", f"{DEC}/gates/CHAT_ROUTING", b); ok(f"D02-12 thân {tag} → 4xx không 5xx", c == 422, f"{c} {json.dumps(r, ensure_ascii=False)[:80]}")
 
 # version, audit_log
 s = now_db()
