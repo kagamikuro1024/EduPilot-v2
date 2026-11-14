@@ -33,4 +33,4 @@ Nguồn: US-P9-04 + SRS §6 #3, §7 (`/questions`), DESIGN §14.17. Staff dùng 
 
 ## Lịch sử sửa TC
 - 2026-11-14 — PM quyết P-10-8 (F1–F7, Q-S10-27…31): thêm TC-04-06b (Q31: rời trang / đóng tab trong 5 s → lệnh `Loại` gửi ngay, không mất).
-(trống)
+- 2026-11-14 — P-10-9 (PM chấp nhận): TC-04-02: «Soạn tay» là nhóm cha gồm «Câu trắc nghiệm» / «Bài lập trình»; không dòng phụ dưới mục menu (luật chữ UI).
