@@ -379,7 +379,7 @@ func (q *Queries) QuestionBump(ctx context.Context, arg QuestionBumpParams) (Que
 }
 
 const questionCitationDocTitles = `-- name: QuestionCitationDocTitles :many
-select id, title from documents where course_id = $1 and id = any($2::text[]::uuid[])
+select id, title from documents where course_id = $1 and id = any($2::text[]::uuid[]) and category is distinct from 'THREAD_KNOWLEDGE'
 `
 
 type QuestionCitationDocTitlesParams struct {

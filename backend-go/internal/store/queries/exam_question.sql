@@ -180,4 +180,4 @@ select id from code_testcases where course_id = sqlc.arg(course_id) and problem_
 
 -- name: QuestionCitationDocTitles :many
 -- Tên tài liệu cho nhãn nguồn của câu EXTRACTED / GENERATED (US-P9-04 AC5).
-select id, title from documents where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]);
+select id, title from documents where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]) and category is distinct from 'THREAD_KNOWLEDGE';
