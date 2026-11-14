@@ -117,6 +117,14 @@ for k in sorted(bad):
 errs = [r for r in rows if not ok(r)]
 if errs:
     w("\n## Lượt chụp lỗi\n"); [w(f"- {r['role']} {r['state']} {r['w']} `{r['route']}`: {r.get('err') or 'không có <main>'}") for r in errs]
+head = ["## Kết quả chính (số đo DOM, hiện trạng)\n"]
+head.append(f"- **Độ rộng:** 3 kiểu `Page` (`wide` {kinds.get('wide',0)}, `reading` {kinds.get('reading',0)}, `full` {kinds.get('full',0)} trang) và **{len(pws)}** độ rộng panel khác nhau (hợp đồng: 2 kiểu, panel theo kiểu).")
+for k, label in [("K2a", "nút đầu trang nằm dưới tiêu đề"), ("K2b", "meta > 1 dòng"), ("K2c", "meta lặp mã / tên lớp"), ("K2d", "dòng mô tả dưới tiêu đề trang"), ("K2f", "> 1 nút primary trên trang"), ("K3", "tiêu đề mục có dòng phụ"), ("K4a", "khối rỗng có thân chữ"), ("K4b", "khối rỗng không căn giữa (> 40 px)"), ("K4c", "panel kéo cao ≥ 0,8 viewport khi rỗng"), ("K4d", "> 1 nút trong khối rỗng"), ("K4e", "khối rỗng có icon"), ("K4f", "nút rỗng trùng nút đầu trang"), ("K6", "tràn ngang ở 375 px")]:
+    n = len({x for kk, v in bad.items() if kk.startswith(k + " ") for x in v})
+    head.append(f"- **{k}** {label}: **{n}** mục")
+head.append(f"- **Kiểu khối rỗng:** {len(sig)} kiểu khác nhau (hợp đồng: 1).\n")
+_i = next(i for i, x in enumerate(L) if x.startswith("## K1."))
+L[_i:_i] = head
 open(os.path.join(QC, "audit.md"), "w").write("\n".join(L) + "\n")
 
 # HTML lưới
