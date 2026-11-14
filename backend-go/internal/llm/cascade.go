@@ -88,6 +88,24 @@ func (p OrFlag) judge(r DecideResponse, thr float64) (Verdict, bool) {
 	return Verdict{Yes: true, Confidence: a.Noul}, true
 }
 
+// effective là cấu hình hiệu lực của cổng cho lớp trong ctx: công tắc hệ thống ∧ công tắc lớp ∧ provider decision sẵn sàng.
+func (g *Gateway) effective(ctx context.Context, gate DecideGate) (GateCfg, bool) {
+	cfg, ok := g.o.Decision.Effective(gate, IdentityFrom(ctx).CourseID)
+	if !ok {
+		return GateCfg{}, false
+	}
+	if _, ready := g.o.Registry.DecideTarget(); !ready {
+		return GateCfg{}, false
+	}
+	return cfg, true
+}
+
+// GateEffective cho người gọi biết cổng có chạy cho lớp trong ctx không (vd. luồng chấm quyết định có thêm tầng Structured vào lời gọi chấm). Không gọi mạng, không DB.
+func (g *Gateway) GateEffective(ctx context.Context, gate DecideGate) bool {
+	_, ok := g.effective(ctx, gate)
+	return ok
+}
+
 // Fallback chạy đường cũ (luật / Structured). Trả lỗi → FAIL_CLOSED.
 type Fallback func(ctx context.Context) (Verdict, error)
 
@@ -95,11 +113,8 @@ type Fallback func(ctx context.Context) (Verdict, error)
 // trả failClosed + FAIL_CLOSED (người gọi quyết định chặn). Cổng tắt / provider chưa sẵn sàng → PathNotUsed, KHÔNG gọi gì: người gọi chạy đường cũ.
 // Ghi đúng một dòng llm_audit cho lời gọi decision (cascade_gate + cascade_path); fallback ghi dòng riêng của task gốc.
 func (g *Gateway) Cascade(ctx context.Context, gate DecideGate, req DecideRequest, pol Policy, fb Fallback, failClosed Verdict) (Verdict, Path) {
-	cfg, ok := g.o.Decision.Effective(gate, IdentityFrom(ctx).CourseID)
+	cfg, ok := g.effective(ctx, gate)
 	if !ok {
-		return Verdict{}, PathNotUsed
-	}
-	if _, ready := g.o.Registry.DecideTarget(); !ready {
 		return Verdict{}, PathNotUsed
 	}
 	req.Gate = gate
