@@ -18,6 +18,12 @@ async function login(browser: Browser, user: string, w: number) {
   await page.locator("[data-part=topbar]").waitFor();
   return { ctx, page };
 }
+async function pick(page: Page) {
+  const list = page.getByRole("list", { name: "Các đáp án" });
+  if (await list.count()) await list.getByRole("button").first().click();
+  else if (await page.getByRole("button", { name: "Đúng", exact: true }).count()) await page.getByRole("button", { name: "Đúng", exact: true }).click();
+  else await page.getByRole("textbox").first().fill("đáp án thử");
+}
 async function layout(page: Page, tag: string, notes: string[]) {
   const m = await page.evaluate(() => {
     const small = [...document.querySelectorAll("button,a[role=button],[role=tab]")].filter((e) => { const r = (e as HTMLElement).getBoundingClientRect(); return r.width > 0 && (r.height < 44 || r.width < 44); }).length;
@@ -40,7 +46,7 @@ for (const w of [1440, 375]) {
     await page.waitForURL(/\/practice\/[0-9a-f-]{36}/);
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${OUT}/topic-q1-${w}.png` }); await layout(page, "topic câu 1", notes);
-    await page.getByRole("list", { name: "Các đáp án" }).getByRole("button").first().click();
+    await pick(page);
     await page.getByRole("button", { name: "Kiểm tra" }).click();
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${OUT}/topic-feedback-${w}.png` }); await layout(page, "topic phản hồi", notes);
@@ -55,7 +61,7 @@ for (const w of [1440, 375]) {
     await page.getByRole("button", { name: "Bắt đầu thi thử" }).click();
     await page.waitForURL(/\/practice\/[0-9a-f-]{36}/); await page.waitForTimeout(1200);
     await page.screenshot({ path: `${OUT}/mock-${w}.png` }); await layout(page, "mock câu 1", notes);
-    await page.getByRole("button", { name: "Sai", exact: true }).or(page.getByRole("list", { name: "Các đáp án" }).getByRole("button").nth(1)).first().click(); await page.waitForTimeout(1500);
+    await pick(page); await page.waitForTimeout(1500);
     await page.screenshot({ path: `${OUT}/mock-saved-${w}.png` });
     require("fs").writeFileSync(`${OUT}/notes-sv-${w}.txt`, notes.join("\n"));
     await ctx.close();

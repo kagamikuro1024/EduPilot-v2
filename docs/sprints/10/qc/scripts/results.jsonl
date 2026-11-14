@@ -228,3 +228,8 @@
 {"tc": "TC-09-08 luyện xong chủ đề → việc 'Ôn chủ đề' biến mất ≤ 5 s", "st": "FAIL", "note": "biến mất sau Nones; việc kế tiếp = PRACTICE_WEAK_TOPIC"}
 {"tc": "TC-09-08 sau khi luyện xong 'Xác thực…' việc ôn chủ đề đó biến mất/ chuyển sang chủ đề yếu kế tiếp trong ≤ 5 s", "st": "FAIL", "note": "việc hiện tại: Ôn chủ đề Xác thực và phân quyền"}
 {"tc": "TC-09-08 luyện xong chủ đề (start+submit mới) → việc 'Ôn chủ đề' đó biến mất ≤ 5 s", "st": "FAIL", "note": "sau Nones, việc kế tiếp: Ôn chủ đề Xác thực và phân quyền"}
+{"tc": "TC-09-08 (HEAD 57f4cb25) luyện xong → việc 'Ôn chủ đề' biến mất ≤ 5 s", "st": "FAIL", "note": "sau Nones (None = còn sau 15 s); kế tiếp: Ôn chủ đề An toàn ứng dụng web"}
+{"tc": "TC-06-20 explain khi LLM quá tải: có luồng nhận lỗi tại chỗ (event error), không treo", "st": "PASS", "note": "[('exp0', 200, False), ('exp1', 200, True), ('exp2', 200, True)]"}
+{"tc": "TC-06-20b phản hồi đúng/sai sẵn có không đổi, nộp bình thường", "st": "PASS", "note": ""}
+{"tc": "TC-02-14 trích khi quá tải: job FAILED OVERLOADED, không câu nửa vời", "st": "FAIL", "note": "status=SUCCEEDED error=null câu trích/sinh 7→7"}
+{"tc": "TC-02-14/03-08 quá tải: có việc FAILED OVERLOADED, không câu nửa vời", "st": "FAIL", "note": "[('gen', 'SUCCEEDED', 'null'), ('gen', 'SUCCEEDED', 'null'), ('gen', 'SUCCEEDED', 'null'), ('ext', 429)]; câu 7→7 (câu mới đến từ việc thành công)"}
