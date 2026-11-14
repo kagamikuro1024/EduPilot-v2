@@ -1,9 +1,11 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.3 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.4 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
 **v1.3 (P-11-9):** US-P10-12 AC14…AC18 — cờ chèn lệnh bằng `llm.Structured` trong luồng chấm (chỉ cờ, không đổi điểm; bắt ≥ 6/6 bộ 9.5); FR-24.
+
+**v1.4 (P-11-10):** US-P10-13 «Decision cascade» (đợt 6); FR-25…FR-27; `llm_audit.path`; Q-E-23…25.
 
 ## 1. Mục đích và phạm vi
 Hoàn tất M13 (Observation A: `/observability`; B: `/insights`), thống kê điểm thi PE trên `/analytics`, đóng Nợ (UX17-8/9, LCP, L6), đo đạc E1–E6, E2E F1–F17, rà bảo mật và hoàn thiện cho buổi bảo vệ.
@@ -99,6 +101,9 @@ sequenceDiagram
 | FR-21 | Bảng luồng × spec × kết quả F1–F17; spec bù cho luồng thiếu | P10-11 |
 | FR-22 | Rà bảo mật, README, compose production, visual QA 2 lượt, 10 câu nghiệm thu, demo 15 phút | P10-12 |
 | FR-24 | Gắn cờ `INJECTION_SUSPECTED` bằng `llm.Structured` (gộp lời gọi chấm nếu được, làn `BATCH`, đã che) OR regex; chỉ cờ, không đổi điểm; bài trống không gọi; LLM lỗi → chỉ regex | P10-12 AC14…AC18 |
+| FR-25 | `internal/llm` thêm `Decide` (`net/http`, provider loại `decision`, chỉ `gemini-decision-1`, qua Scheduler + Masker) và `Cascade` với chính sách đối xứng `τ` / chỉ-thêm-cờ `ε`, lỗi → fallback → fail-closed, ghi `Path` | P10-13 AC1…3 |
+| FR-26 | Áp cascade cho: tường lửa Threads (chỉ thêm chặn), lưới khủng hoảng (OR, fail-closed, bật sau bộ thử ≥ 200 câu), cờ chèn lệnh (regex OR `Structured` OR decision), định tuyến chat (ngưỡng + fallback + cổng TTFT); **không** cho điểm / rubric / escalate | P10-13 AC4…10 |
+| FR-27 | Đo + hiển thị tỉ lệ đường nhanh theo tác vụ (Admin), báo cáo `cascade.md`; cờ mặc định tắt | P10-13 AC11, AC15 |
 | FR-23 | Seed A + B + điểm thi và `check-p10-seed.mjs` idempotent | P10-07 |
 
 ### 4.1 Xếp hạng chủ đề (code thuần, không LLM; hằng số ở cấu hình, đề xuất Q-E-6)
@@ -124,6 +129,8 @@ llm_request_payloads(
 - Quyền DB: bảng chỉ đọc qua API ADMIN; không view cho vai khác.
 
 **Chỉ mục cần xác nhận trên T1 (`EXPLAIN ANALYZE`):** `llm_audit(created_at)`, `llm_audit(course_id, created_at)`, `llm_audit(status, created_at)`; thống kê điểm thi theo `(course_id, exam_id)`. Thiếu → thêm trong cùng migration (index phức hợp bắt đầu `course_id`).
+
+**Cột mới (đề xuất đổi ARCHITECTURE, P-11-10):** `llm_audit.path text NULL` ∈ {`FAST`,`FALLBACK`,`FAIL_CLOSED`} (null cho lời gọi không qua cascade); task `DECIDE` thêm vào enum task / `llm_task_routes`; provider loại `decision`. Cùng migration với `llm_request_payloads` hoặc migration kế tiếp.
 
 Không đổi: `audit_log`, `notifications`, `calendar_events`, `forum_threads.pinned_at`, `llm_budgets`.
 
@@ -179,13 +186,14 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 | Go | `TestStartCountZero` (`internal/practice`) | P10-09 |
 | Contract | `go test ./internal/contract/...` | mọi endpoint mới |
 | E2E | `insights.spec.ts`, `observability.spec.ts`, `analytics-exam.spec.ts`; bảng F1–F17 | P10-05…07, 11 |
+| Go | `TestCascadeTable`, `TestCascadeFailClosed`, `TestDecidePayloadMasked`, `TestDecideCallersAllowlist`, `TestPrecheckAddOnly`, `TestCrisisNetFailClosed` (bộ ≥ 200 câu), `TestRouteDecisionNoOverride` | P10-13 |
 | Go | `TestInjectionFlagLLM` (fake: OR, không đổi điểm, bài trống không gọi, LLM lỗi → regex); chạy tay với LLM thật trên bộ 6 biến thể → ≥ 6/6 | P10-12 AC14…AC18 |
 | Đo | `benchmarks/lighthouse/run.sh`; `make eval` | P10-08, 10 |
 | Seed | `scripts/check-p10-seed.mjs`; idempotent | P10-07 |
 Dữ liệu seed: lớp 1 ≈ 150 câu hỏi (chủ đề A, B lệch + 1 chủ đề đúng 2 sinh viên + 10 `no_context`), lớp 2 ≈ 40 câu (chủ đề C), ≥ 300 dòng `llm_audit` / 7 ngày, ≥ 4 bài thi PE đã công bố, ≥ 1 sinh viên tụt 3 bài liên tiếp, câu hỏi có PII mô phỏng để kiểm che.
 
 ## 10. Câu hỏi mở và quyết định
-Xem `QUESTIONS.md` (Q-E-1…22). **Đề xuất đổi ARCHITECTURE (PM quyết):** (1) bảng `llm_request_payloads` (Q-E-1); (2) `GET …/requests/{id}` → `POST …/requests/{id}/open` (Q-E-4); (3) §5 thêm 5 endpoint thống kê điểm thi + `export` của Insight (US-P10-06); (4) `/analytics` thêm tab «Điểm thi» (§7 route). **PM xác nhận P-11-1:** Q-E-1, Q-E-4, Q-E-21; còn lại đã chốt theo đề xuất BA.
+Xem `QUESTIONS.md` (Q-E-1…22). **Đề xuất đổi ARCHITECTURE (PM quyết):** (1) bảng `llm_request_payloads` (Q-E-1); (2) `GET …/requests/{id}` → `POST …/requests/{id}/open` (Q-E-4); (3) §5 thêm 5 endpoint thống kê điểm thi + `export` của Insight (US-P10-06); (4) `/analytics` thêm tab «Điểm thi» (§7 route); (5) `llm_audit.path`, task `DECIDE`, provider loại `decision` (P-11-10); (6) ADR D53, sửa D47(2), làm rõ luật 5, `PRODUCTION_READINESS` (Tech Lead); (7) vá US-P3-04 AC13 (Q-E-23). **PM xác nhận P-11-1:** Q-E-1, Q-E-4, Q-E-21; **chờ PM:** Q-E-23 (khủng hoảng vs. AC13), Q-E-24 (fallback chat vs. D47); còn lại đã chốt theo đề xuất BA.
 
 ## 11. Truy vết
 | PRD | FLOWS | Phase | US | FR | Test |
@@ -198,4 +206,5 @@ Xem `QUESTIONS.md` (Q-E-1…22). **Đề xuất đổi ARCHITECTURE (PM quyết)
 | M4 (Nợ P-10-10) | F12 | P9 | P10-09 | FR-18 | `TestStartCountZero`, TC-05-16 |
 | E1–E6 | – | P10 L3 | P10-10 | FR-20 | `make eval` |
 | Tất cả | F1–F17 | P10 L3 | P10-11 | FR-21 | Bảng `e2e-matrix.md` |
+| – | – | P10 đợt 6 (P-11-10) | P10-13 | FR-25…27 | `TestCascade*`, `cascade.md` |
 | – | – | P10 L4 (rà bảo mật; P-11-9) | P10-12 | FR-22, FR-24 | Báo cáo rà bảo mật, README, `DEMO_SCRIPT.md` |
