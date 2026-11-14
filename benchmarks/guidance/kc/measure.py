@@ -2,7 +2,7 @@
 """Chụp nháp, chấm lại và tính số đo của kiểm chứng «học từ lần sửa» (kiem-chung.md §2–§4). Chỉ thư viện chuẩn; điểm tính bằng decimal.Decimal.
 
   measure.py snap <nhãn> --dir <thư mục báo cáo>       chụp `drafts-<nhãn>.json` (b0r1 | b0r2 | b1r1 | b1r2 | bt-b-after): chỉ mã, round, guidance_version, status, criteria[], ai_scores[]; KHÔNG văn bản
-  measure.py regrade <nhãn> [--limit N]                 POST …/submissions/{id}/grade cho tập đo (BT-A kc021–kc060 + BT-B), chờ xong (round + 1, giữ nguyên bản lưu ý hiện hành)
+  measure.py regrade <nhãn> [--limit N] [--bt bt-a]                 POST …/submissions/{id}/grade cho tập đo (BT-A kc021–kc060 + BT-B), chờ xong (round + 1, giữ nguyên bản lưu ý hiện hành)
   measure.py report --dir <thư mục báo cáo>             đọc labels.csv + drafts-*.json → metrics.json, report.md, report.svg + kết luận ĐẠT | KHÔNG ĐẠT | HARNESS_LỖI
   measure.py selftest                                   kiểm công thức trên dữ liệu tổng hợp
 Biến: API_URL, SEED_DEFAULT_PASSWORD, KC_CLASS (KC106), KC_DATA. Thoát 1 khi HARNESS_LỖI hoặc KHÔNG ĐẠT, 0 khi ĐẠT.
@@ -47,8 +47,8 @@ def snap(token, course):
     return items
 
 
-def regrade(token, course, tag, limit):
-    asg = {bt: find_assignment(token, course, bt)["id"] for bt in ("bt-a", "bt-b")}
+def regrade(token, course, tag, limit, only=None):
+    asg = {bt: find_assignment(token, course, bt)["id"] for bt in (only or ("bt-a", "bt-b"))}
 
     def current(bt):
         """submission id → (result id, round, run_state) hiện hành; mỗi lượt chấm lại là MỘT dòng kết quả mới (id mới)."""
@@ -285,6 +285,7 @@ def main():
     ap.add_argument("label", nargs="?")
     ap.add_argument("--dir")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--bt", choices=["bt-a", "bt-b"], help="regrade: chỉ bài tập này (bước 7b chỉ chấm lại BT-A; BT-B phải giữ nguyên v0)")
     a = ap.parse_args()
     if a.cmd == "selftest":
         return selftest()
@@ -301,7 +302,7 @@ def main():
         (d / f"drafts-{a.label}.json").write_text(json.dumps({"label": a.label, "taken_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "items": items}, indent=1) + "\n")
         print(f"snap {a.label}: {len(items)} mục")
     else:
-        regrade(token, course, a.label, a.limit)
+        regrade(token, course, a.label, a.limit, (a.bt,) if a.bt else None)
 
 
 if __name__ == "__main__":
