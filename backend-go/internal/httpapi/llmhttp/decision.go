@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
+	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/decision"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
@@ -25,7 +26,7 @@ func (a *Admin) mountDecision(r chi.Router) {
 	if a.Decision == nil {
 		return
 	}
-	admin := adminOnly
+	admin := auth.RequireRole(auth.RoleAdmin)
 	r.With(admin).Get("/admin/llm/decision", a.decisionOverview)
 	r.With(admin).Put("/admin/llm/decision/gates/{gate}", a.putDecisionGate)
 	r.With(admin).Get("/admin/llm/decision/courses", a.decisionCourses)

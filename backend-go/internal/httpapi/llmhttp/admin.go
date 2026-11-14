@@ -67,8 +67,6 @@ func (a *Admin) Mount(r chi.Router, idem func(http.Handler) http.Handler) {
 	a.mountDecision(r)
 }
 
-var adminOnly = auth.RequireRole(auth.RoleAdmin)
-
 // fail đổi lỗi của dịch vụ cấu hình sang lỗi API; lỗi lạ → 500 INTERNAL (chi tiết chỉ vào log, không có khoá / thân nhà cung cấp).
 func (a *Admin) fail(w http.ResponseWriter, r *http.Request, err error) {
 	if e, ok := FromConfig(err); ok {
