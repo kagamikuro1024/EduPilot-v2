@@ -74,7 +74,7 @@ test("US-UX91-19 di động: Bộ lọc là nút có biểu tượng + số bộ
 });
 test("empty: câu dạy bước kế + Đặt câu hỏi", async ({ page, context }) => {
   await openList(page, context, { [`GET ${T}`]: list([]) });
-  await expect(page.getByText("Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên.")).toBeVisible();
+  await expect(page.getByText("Chưa có câu hỏi nào")).toBeVisible();
 });
 
 test("precheck debounce: gõ liên tục chỉ phát yêu cầu sau khi ngừng ≥ 800 ms; notice while typing hiện một dòng loại", async ({ page, context }) => {

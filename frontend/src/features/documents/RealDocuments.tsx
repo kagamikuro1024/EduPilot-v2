@@ -220,7 +220,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
             query={list}
             isEmpty={() => rows.length === 0}
             loading={<Skeleton lines={5} />}
-            empty={<EmptyState title={filtered ? "Không có tài liệu nào khớp." : "Lớp chưa có tài liệu."} />}
+            empty={<EmptyState title={filtered ? "Không có tài liệu nào khớp" : "Lớp chưa có tài liệu"} />}
           >
             <DataTable columns={cols} rows={rows} rowKey={(d) => d.id} caption="Tài liệu của lớp" rowAttrs={(d) => ({ "data-part": "doc-row", "data-doc-id": d.id })} />
             {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}

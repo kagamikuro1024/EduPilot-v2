@@ -17,7 +17,7 @@ const SIZES = [
 test.beforeEach(({ page }) => settleGoto(page));
 
 for (const role of ROLES) {
-  test(`frame ${role}: mọi route × 1440 / 375 × (dữ liệu, rỗng)`, async ({ page, context }, info) => {
+  test(`frame ${role}: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)`, async ({ page, context }, info) => {
     test.skip(info.project.name !== "desktop", "đo một lần");
     test.setTimeout(300_000);
     await asDemo(context, role as DemoRole);
@@ -25,11 +25,23 @@ for (const role of ROLES) {
     for (const size of SIZES) {
       await page.setViewportSize({ width: size.w, height: size.h });
       for (const route of routesFor(role)) {
-        for (const state of ["data", "empty"] as const) {
-          await page.goto(state === "empty" ? `${route}${route.includes("?") ? "&" : "?"}state=empty` : route);
+        for (const state of ["data", "empty", "loading", "error"] as const) {
+          // đang tải / lỗi vào bằng CẢ HAI đường: ?state= (màn mô phỏng) và chặn /api/v1 (màn nối API), như QC (TL-1 §12.2)
+          let calls = 0;
+          if (state === "loading" || state === "error") {
+            await page.route(/\/api\/v1\/(?!auth|me)/, async (r) => {
+              calls++;
+              if (state === "error") return r.fulfill({ status: 500, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ code: "INTERNAL", message: "x", trace_id: "t" }) });
+              await new Promise((x) => setTimeout(x, 5000));
+              return r.abort().catch(() => undefined);
+            });
+          }
+          await page.goto(state === "data" ? route : `${route}${route.includes("?") ? "&" : "?"}state=${state}`);
           await page.locator("main, body").first().waitFor();
-          await page.waitForLoadState("networkidle").catch(() => undefined);
-          rows.push({ route, size: size.name, state, ...(await measureFrame(page, { wide: size.wide })) });
+          if (state === "loading" || state === "error") await page.waitForTimeout(800);
+          else await page.waitForLoadState("networkidle").catch(() => undefined);
+          rows.push({ route, size: size.name, state, ...(await measureFrame(page, { wide: size.wide, state, calls })) });
+          await page.unrouteAll({ behavior: "ignoreErrors" });
         }
       }
     }

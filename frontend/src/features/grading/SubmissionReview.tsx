@@ -570,7 +570,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
             )}
           </Field>
 
-          <div className={s.foot} data-part="review-bar">
+          <div className={s.foot} data-part="review-bar" data-ep-header-dock>
             {footErr && (
               <div className={s.footErr}>
                 <InlineNotice tone="danger" compact action={<Button size="sm" onClick={approve}>Thử lại</Button>}>

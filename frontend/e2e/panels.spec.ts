@@ -182,7 +182,7 @@ test.describe("auth shell", () => {
             panels: panels.length,
             nested: document.querySelectorAll("[data-ep-panel] [data-ep-panel]").length,
             inside: document.querySelectorAll("[data-ep-panel] h1, [data-ep-panel] h2").length,
-            h1Before: !!h1 && h1.nextElementSibling === panels[0],
+            h1Before: !!h1 && (h1.closest("[data-ep-page-header]")?.nextElementSibling ?? h1.nextElementSibling) === panels[0],
             width: r.width,
             left: r.left,
             right: window.innerWidth - r.right,
@@ -419,17 +419,17 @@ async function staffToday(page: Page) {
 test.describe("staff home", () => {
   for (const role of STAFF_ROLES) {
     for (const w of [1440, 1024]) {
-      test(`/ ${role} @${w}: nhóm việc (h3) + Panel "Sắp tới", NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu`, async ({ page, context }, info) => {
+      test(`/ ${role} @${w}: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu`, async ({ page, context }, info) => {
         test.skip(info.project.name !== "desktop", "đo cả hai bề rộng trong một ca");
         await asDemo(context, role);
         await staffToday(page);
         await page.setViewportSize({ width: w, height: 900 });
         await page.goto("/");
-        await page.getByRole("heading", { name: "Sắp tới", level: 2 }).waitFor();
+        await page.getByRole("heading", { name: "Sắp tới", level: 3 }).waitFor();
         const v = await violations(page);
-        expect(v).toMatchObject({ nest: 0, title: 0, wall: 0, strongNested: 0, panels: 1 });
+        expect(v).toMatchObject({ nest: 0, title: 0, wall: 0, strongNested: 0, panels: 2 }); // P-107-6 (a): danh sách việc | một panel phụ gộp «Lớp cần chú ý» + «Sắp tới»
         expect(v.strongMax).toBeLessThanOrEqual(1);
-        expect(v.h2).toEqual(["Sắp tới"]); // US-UX91-10 AC3: khối "Việc cần xử lý" trùng tiêu đề trang đã bỏ
+        expect(v.h2).toEqual([]); // US-UX91-10 AC3: khối "Việc cần xử lý" trùng tiêu đề trang đã bỏ; mục phụ là PanelSection (h3)
         expect(await page.locator("main [data-part=kpi]").count()).toBe(0);
       });
     }

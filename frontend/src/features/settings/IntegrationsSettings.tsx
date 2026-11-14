@@ -53,7 +53,7 @@ export function IntegrationsSettings() {
         <Blocks key={courseId} courseId={courseId} admin={admin} />
       ) : (
         <Panel>
-          <EmptyState title={admin ? "Chưa có lớp nào." : "Chọn một lớp ở thanh trên."} />
+          <EmptyState title={admin ? "Chưa có lớp nào" : "Chọn một lớp ở thanh trên"} />
         </Panel>
       )}
     </Page>

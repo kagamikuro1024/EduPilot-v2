@@ -50,7 +50,7 @@ export function AnalyticsScreen() {
           </Panel>
         }
         empty={
-          <Panel><EmptyState title={`Lớp ${course.code} chưa đủ dữ liệu để vẽ xu hướng`} /></Panel>
+          <Panel><EmptyState title={"Chưa đủ dữ liệu để vẽ xu hướng"} /></Panel>
         }
         error={{
           problem: "Không tải được số liệu của lớp.",

@@ -38,8 +38,8 @@ export type HeaderAction = {
   expanded?: boolean;
   /** lệnh nguy hiểm trong menu «Thêm» / ⋯ */
   danger?: boolean;
-  /** chỉ hiện từ 720 px (màn đã có thanh hành động dính riêng ở điện thoại) */
-  desktopOnly?: boolean;
+  /** nút chính của màn có thanh dính đáy (`data-ep-header-dock`): dưới 720 px thanh đó LÀ nút chính, đầu trang không vẽ nút này (§23.2) */
+  docked?: boolean;
 };
 
 function ActionButton({ a, variant }: { a: HeaderAction; variant: ButtonVariant }) {
@@ -119,7 +119,7 @@ export function PageHeader({
           {title}
         </h1>
         {hasActions && (
-          <div className={s.actions} data-ep-header-actions>
+          <div className={[s.actions, primary?.docked && second.length === 0 && extra.length === 0 ? s.dockedOnly : ""].join(" ")} data-ep-header-actions>
             {second.map((a) => (
               <span key={a.label} className={a === lead ? s.lead : s.wide}>
                 <ActionButton a={a} variant="secondary" />
@@ -146,7 +146,7 @@ export function PageHeader({
               </span>
             )}
             {primary && (
-              <span className={[s.primary, primary.desktopOnly ? s.wide : ""].join(" ")}>
+              <span className={[s.primary, primary.docked ? s.wide : ""].join(" ")}>
                 <ActionButton a={primary} variant="primary" />
               </span>
             )}

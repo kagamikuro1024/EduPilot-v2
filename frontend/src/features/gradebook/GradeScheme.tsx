@@ -36,7 +36,14 @@ const at = (iso?: string) => (iso ? formatWhen(iso) : "");
 /** Công thức điểm: chỉ có thật, Giảng viên / TA của lớp (TA chỉ đọc). */
 export function GradeScheme() {
   const { role, realCourseId, realPending, realCourses } = useSession();
-  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) return null;
+  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) {
+    return (
+      <Page kind="work">
+        <PageHeader title="Công thức điểm" back={{ href: "/gradebook", label: "Sổ điểm" }} />
+        <Panel>{realPending ? <Skeleton lines={10} /> : <EmptyState title="Chọn một lớp để xem" />}</Panel>
+      </Page>
+    );
+  }
   const code = realCourses?.find((c) => c.id === realCourseId)?.class_code ?? "";
   return <RealGradeScheme courseId={realCourseId} classCode={code} teacher={role === "teacher"} />;
 }

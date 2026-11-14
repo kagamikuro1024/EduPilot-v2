@@ -64,7 +64,14 @@ const ago = (iso?: string) => {
 /** Sổ điểm: chỉ có thật, Giảng viên / TA của lớp (TA chỉ đọc). */
 export function Gradebook() {
   const { role, realCourseId, realPending } = useSession();
-  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) return null;
+  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) {
+    return (
+      <Page kind="work">
+        <PageHeader title="Sổ điểm" />
+        <Panel>{realPending ? <Skeleton lines={10} /> : <EmptyState title="Chọn một lớp để xem" />}</Panel>
+      </Page>
+    );
+  }
   return <RealGradebook courseId={realCourseId} teacher={role === "teacher"} />;
 }
 

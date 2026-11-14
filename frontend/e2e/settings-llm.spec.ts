@@ -207,7 +207,7 @@ test("usage|budget: 7 cột, số căn phải tabular-nums, cảnh báo 80 %, kh
   await reset(page);
   await script(page, base({ [`GET ${P}/usage`]: [{ body: usage([]) }] }));
   await page.getByRole("radio", { name: "30 ngày" }).click();
-  await expect(page.getByText("Chưa có lượt gọi nào trong khoảng này.")).toBeVisible();
+  await expect(page.getByText("Chưa có lượt gọi nào trong khoảng này")).toBeVisible();
 });
 
 test("errors: tải lỗi 503 ⇒ thông báo chuẩn + Thử lại 1 request; LLM_NOT_CONFIGURED ⇒ mặc định + Thêm nhà cung cấp", async ({ page }) => {

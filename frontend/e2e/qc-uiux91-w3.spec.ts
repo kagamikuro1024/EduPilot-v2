@@ -213,7 +213,7 @@ test("TC-UX10-18/19/20/21 lỗi tải, làm mới lỗi, rỗng, 15 trên 40", a
   expect((await main(page).innerText()).replace(/\s+/g, " "), "dải làm mới lỗi").toMatch(/Chưa làm mới được/);
   const p3 = await page.context().newPage();
   await open(p3, "TEACHER", T1, () => staff([]));
-  await expect(p3.getByText("Bạn đã xử lý hết việc.")).toBeVisible();
+  await expect(p3.getByText("Bạn đã xử lý hết việc")).toBeVisible();
   expect(await p3.locator("main h3").count(), "không nhóm trống").toBe(0);
   const p4 = await page.context().newPage();
   const many = Array.from({ length: 15 }, (_, i) => act(`m${i}`, "QUESTION_REVIEW", `Việc ${i}`, "normal"));

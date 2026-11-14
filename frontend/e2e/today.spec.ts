@@ -238,7 +238,7 @@ test("staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ 
 test("staff today: TA không có nút Bỏ qua; 0 việc ⇒ 'Không có việc cần xử lý hôm nay.'", async ({ page }) => {
   await open(page, "TA", [mine(C1, "761988", "TA")], () => staff([]));
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Không có việc cần xử lý hôm nay.");
-  await expect(page.getByText("Bạn đã xử lý hết việc.")).toBeVisible();
+  await expect(page.getByText("Bạn đã xử lý hết việc")).toBeVisible();
 });
 
 test("admin today: việc của hệ thống, không có lớp", async ({ page }) => {
@@ -323,6 +323,6 @@ test("staff attention block: liệt kê sinh viên + lý do ngắn + Xem tất c
 
 test("staff attention block: không có AT_RISK thì không hiện khối", async ({ page }) => {
   await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff([]));
-  await expect(main(page).getByText("Bạn đã xử lý hết việc.")).toBeVisible();
+  await expect(main(page).getByText("Bạn đã xử lý hết việc")).toBeVisible();
   await expect(main(page).getByRole("heading", { name: "Lớp cần chú ý" })).toHaveCount(0);
 });

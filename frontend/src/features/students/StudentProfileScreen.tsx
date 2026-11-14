@@ -13,7 +13,7 @@ export function StudentProfileScreen({ id }: { id: string }) {
     return (
       <Page kind="work">
         <PageHeader title="Hồ sơ sinh viên" back={{ href: "/students", label: "Sinh viên" }} />
-        <Panel><EmptyState title={realCourseId === "all" ? "Chọn một lớp để xem hồ sơ." : "Chưa có lớp nào."} /></Panel>
+        <Panel><EmptyState title={realCourseId === "all" ? "Chọn một lớp để xem hồ sơ" : "Chưa có lớp nào"} /></Panel>
       </Page>
     );
   return (

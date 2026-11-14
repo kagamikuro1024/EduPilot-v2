@@ -56,7 +56,7 @@ export function RealLibrary({ courseId }: { courseId: string }) {
         query={list}
         isEmpty={() => list.items.length === 0}
         loading={<Panel><Skeleton lines={6} /></Panel>}
-        empty={<Panel><EmptyState title={filtered ? "Không có tài liệu nào khớp." : "Chưa có tài liệu nào."} /></Panel>}
+        empty={<Panel><EmptyState title={filtered ? "Không có tài liệu nào khớp" : "Chưa có tài liệu nào"} /></Panel>}
       >
         <Panel>
           <ActionList label="Tài liệu của lớp">

@@ -126,7 +126,7 @@ test("ics panel: Tạo liên kết hiện URL một lần + Sao chép; Đặt l�
 test("states: rỗng có hành động, lỗi có Thử lại, đang tải có khung xương", async ({ page, context }, info) => {
   test.skip(info.project.name !== "desktop", "đo một lần");
   await open(page, context, "teacher", { [`GET ${C}`]: pageOf([]) });
-  await expect(page.getByText("Chưa có gì trong lịch.")).toBeVisible();
+  await expect(page.getByText("Chưa có gì trong lịch")).toBeVisible();
   await page.unroute(`**/api/v1/courses/00000000-0000-7000-8000-00000000c001/calendar**`);
   let n = 0;
   await calApi(page, { [`GET ${C}`]: (r) => (++n === 1 ? r.fulfill(err(500, "INTERNAL")) : r.fulfill(pageOf([exam()]))) });
@@ -285,7 +285,7 @@ test("generate sessions: ?new=sessions mở sẵn ngăn kéo (liên kết từ H
   await page.clock.setFixedTime(NOW);
   await page.goto("/calendar?new=sessions");
   await expect(page.getByRole("dialog").getByRole("heading", { name: "Lịch buổi học" })).toBeVisible();
-  await expect(page.getByRole("dialog").getByText("Lớp chưa có buổi học.")).toBeVisible();
+  await expect(page.getByRole("dialog").getByText("Lớp chưa có buổi học")).toBeVisible();
   await page.getByRole("dialog").getByRole("button", { name: "Đóng" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await open(page, context, "student");

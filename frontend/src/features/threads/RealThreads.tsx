@@ -90,7 +90,7 @@ export function RealThreads({ courseId }: { courseId: string }) {
             isEmpty={() => list.items.length === 0 && pinned.length === 0}
             loading={<Skeleton lines={5} />}
             empty={
-              <EmptyState title={filtered ? "Không có câu hỏi nào khớp." : "Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên."} />
+              <EmptyState title={filtered ? "Không có câu hỏi nào khớp" : "Chưa có câu hỏi nào"} />
             }
           >
             {pendingMajor && <p className={r.majority}>{pendingCount} câu chờ xác nhận</p>}

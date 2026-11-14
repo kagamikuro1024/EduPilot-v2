@@ -70,14 +70,17 @@
 @media (max-width: 719px) {
   .page { padding: var(--ep-space-6) var(--ep-space-3) calc(var(--ep-space-20) + 64px); } /* 12 px tới mép viewport: MỘT quy tắc lề cho Panel (FEAT-ui-panels SRS 4.2 điều 8) */
   .header { margin-bottom: var(--ep-space-8); }
-  .headRow { flex-wrap: wrap; align-items: flex-start; }
-  .meta { white-space: normal; }
-  /* tiêu đề, meta, rồi MỘT hàng nút: chính trước và rộng nhất, nút phụ gom vào «Thêm» (§23.2) */
-  .actions { width: 100%; }
+  /* tiêu đề → meta → MỘT hàng nút (§23.2): `headRow` tan ra để `order` sắp lại; 8 (tiêu đề → meta) + 8 + 16 = 24 (→ hàng nút) */
+  .headRow { display: contents; }
+  .headRow h1 { order: 0; min-height: 36px; }
+  .meta { order: 1; white-space: normal; }
+  /* chính trước và rộng nhất, nút phụ gom vào «Thêm» */
+  .actions { order: 2; width: 100%; margin-top: var(--ep-space-4); }
   .primary { order: -1; flex: 1; }
   .primary > *, .primary > div, .primary button, .primary a { flex: 1; width: 100%; justify-content: center; }
   .split[data-only="main"] > .splitAside, .split[data-only="aside"] > .splitMain { display: none; } /* chỉ một ngăn: màn có tab */
   .wide { display: none; }
+  .dockedOnly { display: none; } /* chỉ có nút chính và nút đó ở thanh dính đáy: không để hàng nút rỗng */
   .lead { order: -1; flex: 1; }
   .lead > *, .lead > div, .lead button, .lead a { flex: 1; width: 100%; justify-content: center; }
   .narrow { display: inline-flex; }

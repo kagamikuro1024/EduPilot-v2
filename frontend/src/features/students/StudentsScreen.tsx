@@ -13,7 +13,7 @@ export function StudentsScreen() {
     return (
       <Page kind="work">
         <PageHeader title="Sinh viên" />
-        <Panel><EmptyState title={realCourseId === "all" ? "Chọn một lớp để xem sinh viên." : "Chưa có lớp nào."} /></Panel>
+        <Panel><EmptyState title={realCourseId === "all" ? "Chọn một lớp để xem sinh viên" : "Chưa có lớp nào"} /></Panel>
       </Page>
     );
   return <RealStudents key={realCourseId} courseId={realCourseId} classCode={realCourses?.find((c) => c.id === realCourseId)?.class_code ?? ""} />;

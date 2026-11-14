@@ -20,7 +20,7 @@ test("landing anonymous: tiêu đề, nút Đăng nhập / Tạo tài khoản, c
   await anonymous(page);
   await page.goto("/");
   await expect(page).toHaveURL(`${BASE_URL}/`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Vận hành lớp học có trợ lý AI");
   await expect(page.locator("[data-part=landing]").getByRole("link", { name: "Đăng nhập" }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Tạo tài khoản" }).first()).toHaveAttribute("href", "/register");
   await expect(page.getByText("Đồ án tốt nghiệp · Lê Văn Quang Trung")).toBeVisible();
@@ -28,7 +28,7 @@ test("landing anonymous: tiêu đề, nút Đăng nhập / Tạo tài khoản, c
   await expect(page.getByText("Dữ liệu trên bản demo là dữ liệu mô phỏng.")).toBeVisible();
   const text = await page.locator("body").innerText();
   expect(text).not.toMatch(/@edupilot\.local|Edupilot#|mật khẩu mặc định/i);
-  await expect(page.locator("[data-part=landing] h2")).toHaveText(["Xem EduPilot làm việc", "AI soạn nháp, giảng viên quyết, mã tính điểm", "Khác biệt, có số đo", "Cho giảng viên và sinh viên", "Bắt đầu với lớp của bạn"]);
+  await expect(page.locator("[data-part=landing] h2")).toHaveText(["Bài nộp đi qua ba bước", "EduPilot trong ba màn", "Ba số đo trên dữ liệu mô phỏng", "Việc của giảng viên và sinh viên", "Lớp của bạn trên EduPilot"]);
   await expect(page.locator("[data-part=sidebar]:visible, [data-part=topbar]:visible")).toHaveCount(0); // không khung ứng dụng
   expect(api).toEqual([]); // US-21: máy chưa từng đăng nhập thì `/` không gọi làm mới phiên
   await page.getByRole("link", { name: "Đăng nhập" }).first().click();
@@ -54,24 +54,6 @@ test("landing mất cờ nhưng còn cookie: bấm Đăng nhập (chuyển trang
   await page.getByRole("link", { name: "Đăng nhập" }).first().click();
   await expect(page).toHaveURL(`${BASE_URL}/login`);
   await expect.poll(() => refresh.length).toBe(1);
-});
-
-test("landing clip: tab ẩn ngay lúc tải rồi hiện ⇒ clip tải và phát (US-UX91-08 AC3)", async ({ page }) => {
-  const clipReq: string[] = [];
-  page.on("request", (q) => /gioi-thieu-clip-v1\.(mp4|webm)/.test(q.url()) && clipReq.push(q.url()));
-  await anonymous(page);
-  await page.addInitScript(() => {
-    Object.defineProperty(document, "hidden", { configurable: true, get: () => (window as unknown as { __hid?: boolean }).__hid !== false });
-  });
-  await page.goto("/");
-  await page.waitForLoadState("networkidle");
-  expect(clipReq).toEqual([]);
-  await page.evaluate(() => {
-    (window as unknown as { __hid: boolean }).__hid = false;
-    document.dispatchEvent(new Event("visibilitychange", { bubbles: true }));
-  });
-  await expect.poll(() => clipReq.length).toBeGreaterThan(0);
-  await expect(page.locator("[data-part=landing] video[data-clip]")).toHaveAttribute("data-ready", "");
 });
 
 test("landing signed in: đã đăng nhập thì `/` là Hôm nay, không có trang giới thiệu", async ({ page, context }) => {
@@ -110,8 +92,10 @@ for (const width of [1440, 375]) {
   test(`landing responsive ${width}: không cuộn ngang, axe không lỗi nghiêm trọng, ảnh có kích thước`, async ({ page }) => {
     await anonymous(page);
     await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
+    await page.emulateMedia({ reducedMotion: "reduce" }); // axe đo hình đã xong, không đo giữa chừng của chuyển động (hết chập chờn color-contrast)
     await page.goto("/");
     await expect(page.locator("[data-part=landing]")).toBeVisible();
+    await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 600) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 40)); } window.scrollTo(0, 0); }); // nạp hết ảnh lười
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
     for (const img of await page.locator("[data-part=landing] img[src^='/landing/']").all()) {
       expect(await img.getAttribute("width")).toBeTruthy();
@@ -152,76 +136,115 @@ test("landing video đầy đủ: không tải khi chưa bấm; `Xem video` mở
   await expect(page.locator("#video-loi")).toContainText("AI không tự công bố");
 });
 
-test("landing clip màn đầu: poster trước, clip nạp sau `load`, có nút Tạm dừng / Phát; reduce và Save-Data thì không tải", async ({ page, browser }) => {
+test("landing đoạn sản phẩm: chạy khi có chuyển động, Tạm dừng / Phát dừng hẳn và nhớ trong phiên; reduce thì đứng ở hình đã xong, không m-on, không nút", async ({ page, browser }) => {
   await anonymous(page);
-  const clipReq: string[] = [];
-  page.on("request", (q) => /gioi-thieu-clip-v1\.(mp4|webm)/.test(q.url()) && clipReq.push(q.url()));
   await page.goto("/");
-  const clip = page.locator("[data-part=landing] video[data-clip]");
-  await expect(page.locator("[data-part=landing] img[src='/landing/gioi-thieu-clip-v1.webp']")).toBeVisible(); // poster là <img> (LCP); video không có thuộc tính poster
-  expect(await clip.getAttribute("poster")).toBeNull();
-  await expect(clip).toHaveAttribute("aria-hidden", "true");
-  await expect(clip).toHaveAttribute("data-ready", ""); // đã phát thì đè lên poster
-  const toggle = page.getByRole("button", { name: "Tạm dừng" });
-  await expect(toggle).toBeVisible();
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await toggle.click();
-  await expect(page.getByRole("button", { name: "Phát" })).toHaveAttribute("aria-pressed", "true");
-  expect(await clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
-  expect(clipReq.length).toBeGreaterThan(0);
+  const demo = page.locator("[data-part=landing] [data-demo]");
+  const running = () => demo.evaluate((e) => e.getAnimations({ subtree: true }).filter((a) => a.playState === "running").length);
+  await expect.poll(running).toBeGreaterThan(0);
+  expect(await page.evaluate(() => document.documentElement.classList.contains("m-on"))).toBe(true);
+  const pause = page.getByRole("button", { name: "Tạm dừng" });
+  await expect(pause).toHaveAttribute("aria-pressed", "false");
+  await pause.click();
+  await expect(page.getByRole("button", { name: "Phát tiếp" })).toHaveAttribute("aria-pressed", "true");
+  expect(await running()).toBe(0);
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Phát tiếp" })).toBeVisible(); // nhớ trong phiên
+  await page.getByRole("button", { name: "Phát tiếp" }).click();
+  await expect.poll(running).toBeGreaterThan(0);
 
   const reduced = await browser.newContext({ reducedMotion: "reduce" });
   const p2 = await reduced.newPage();
-  const req2: string[] = [];
-  p2.on("request", (q) => /gioi-thieu-clip-v1\.(mp4|webm)/.test(q.url()) && req2.push(q.url()));
   await anonymous(p2);
   await p2.goto("/");
-  await p2.waitForLoadState("networkidle");
-  expect(req2).toEqual([]);
-  await expect(p2.getByRole("button", { name: /Tạm dừng|Phát/ })).toBeHidden();
+  await expect(p2.locator("[data-part=landing]")).toBeVisible();
+  expect(await p2.evaluate(() => document.documentElement.classList.contains("m-on"))).toBe(false);
+  expect(await p2.evaluate(() => document.getAnimations().length)).toBe(0);
+  await expect(p2.getByRole("button", { name: /Tạm dừng|Phát tiếp/ })).toBeHidden();
+  await expect(p2.locator("[data-part=landing] [data-demo]").getByText("Đã duyệt").first()).toHaveCSS("opacity", "1"); // hình đã xong
   await reduced.close();
 });
 
-test("landing motion: khối dưới màn hình hiện dần theo cuộn (scroll-driven); reduced-motion hiện đủ ngay", async ({ page }) => {
+test("landing hiện theo cuộn: ba số đo ẩn tới khi cuộn tới; 146 đếm lên rồi đứng; reduce hiện đủ ngay (AC9, AC14, AC15)", async ({ page }) => {
   await anonymous(page);
   await page.goto("/");
-  const proof = page.locator("[data-part=landing] li").filter({ hasText: "yêu cầu gửi AI" }).first();
-  const opacity = () => proof.evaluate((e) => Number(getComputedStyle(e).opacity));
-  expect(await opacity()).toBeLessThan(1);
-  await proof.scrollIntoViewIfNeeded();
-  await page.mouse.wheel(0, 400);
+  const stat = page.locator("[data-part=landing] li").filter({ hasText: "yêu cầu gửi AI" }).first();
+  const num = stat.locator("p").first();
+  const opacity = () => num.evaluate((e) => Number(getComputedStyle(e).opacity));
+  await expect(page.locator("html")).toHaveClass(/m-armed/); // bộ quan sát đã gắn: từ đây khối mới bị ẩn (AC15)
+  await expect.poll(opacity).toBe(0); // ẩn (có chuyển tiếp 1 → 0 ngay sau khi gắn)
+  await stat.scrollIntoViewIfNeeded();
   await expect.poll(opacity).toBe(1);
-  await expect(proof.locator("p").first()).toHaveText("146"); // chữ thật luôn ở trong DOM; số đếm chỉ là phần vẽ
+  await expect(num).toHaveText("146");
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.reload();
   await expect(page.locator("[data-part=landing]")).toBeVisible();
   expect(await opacity()).toBe(1);
+  await expect(num).toHaveText("146");
 });
 
-test("landing vai: hai cột Giảng viên và Sinh viên cạnh nhau, mỗi vai 4 mục, không tab, nhãn mới 'Hỏi đáp công khai'", async ({ page }) => {
+test("landing số liệu: ba số đo nguyên văn nguồn, mỗi số có hình (AC9, AC24)", async ({ page }) => {
+  await anonymous(page);
+  await page.goto("/");
+  const sec = page.locator("[data-part=landing] section[aria-labelledby=proof-title]");
+  await expect(sec.getByRole("heading", { level: 3 })).toHaveText([
+    "yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp",
+    "sinh viên mẫu có điểm học phần khớp tính tay",
+    "Chấm hàng loạt, thời gian đến chữ đầu tiên của chat chỉ tăng 0,05 %",
+  ]);
+  await expect(sec.getByText("Bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn.")).toBeVisible();
+  await expect(sec.locator("li [aria-hidden=true]")).toHaveCount(3); // mỗi số một hình
+});
+
+test("landing vai: hai tab Giảng viên / Sinh viên (bấm, mũi tên, ảnh đổi); không script → hai danh sách xếp dọc", async ({ page, browser }) => {
   await anonymous(page);
   await page.goto("/");
   const sec = page.locator("[data-part=landing] section[aria-labelledby=roles-title]");
-  await expect(sec.getByRole("heading", { level: 3 })).toHaveText(["Giảng viên", "Sinh viên"]);
+  const tabs = sec.getByRole("tab");
+  await expect(tabs).toHaveText(["Giảng viên", "Sinh viên"]);
+  await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
   await expect(sec.locator("dt")).toHaveCount(8);
-  await expect(sec.getByRole("tab")).toHaveCount(0);
-  await expect(sec.getByRole("radio")).toHaveCount(0);
-  const [a, b] = await sec.getByRole("heading", { level: 3 }).evaluateAll((hs) => hs.map((h) => h.getBoundingClientRect().top));
-  expect(Math.abs(a - b)).toBeLessThan(4); // cạnh nhau ở 1440
-  await expect(sec.getByText("Hỏi đáp công khai", { exact: true })).toBeVisible();
+  await expect(sec.getByText("Hỏi đáp công khai", { exact: true })).toBeAttached();
   expect(await page.locator("[data-part=landing]").innerText()).not.toMatch(/Threads/);
+  await expect(sec.getByRole("tabpanel")).toHaveCount(1); // tab bị ẩn khỏi cây truy cập
+  await tabs.nth(1).click();
+  await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+  await expect(sec.getByText("Chat riêng", { exact: true })).toBeVisible();
+  await expect(sec.locator("[data-role-shots] img.is-on")).toHaveAttribute("alt", /điện thoại/); // ảnh đổi theo vai
+  await tabs.nth(1).press("ArrowLeft");
+  await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
+  await expect(sec.getByText("Chấm bài", { exact: true })).toBeVisible();
+
+  const noJs = await browser.newContext({ javaScriptEnabled: false });
+  const p2 = await noJs.newPage();
+  await anonymous(p2);
+  await p2.goto("/");
+  const s2 = p2.locator("[data-part=landing] section[aria-labelledby=roles-title]");
+  await expect(s2.getByRole("tab")).toHaveCount(0);
+  await expect(s2.getByRole("heading", { level: 3 })).toHaveText(["Giảng viên", "Sinh viên"]);
+  await expect(s2.getByText("Sổ điểm", { exact: true })).toBeVisible();
+  await expect(s2.getByText("Nộp bài tập", { exact: true })).toBeVisible();
+  await noJs.close();
 });
 
-test("landing khung ghim: ở 1440 khung ảnh dính; ở 1024 xếp dọc, mỗi bước mang ảnh của nó", async ({ page }) => {
+test("landing khung ghim: ở 1440 khung dính và ba màn đổi theo cuộn; ở 1024 và reduce xếp dọc không ghim", async ({ page }) => {
   await anonymous(page);
-  const stage = page.locator("[data-part=landing] section[aria-labelledby=story-title] div[aria-hidden=true]");
+  const story = page.locator("[data-part=landing] section[aria-labelledby=story-title]");
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  expect(await stage.evaluate((e) => getComputedStyle(e).position)).toBe("sticky");
+  await expect(story).toHaveClass(/is-pinned/);
+  expect(await story.locator(":scope > div").evaluate((e) => getComputedStyle(e).position)).toBe("sticky");
+  const current = () => story.locator("[aria-current=true] h3").textContent();
+  await story.scrollIntoViewIfNeeded();
+  const box = (await story.boundingBox())!;
+  await page.evaluate((y) => window.scrollTo(0, y), box.y + (await page.evaluate(() => window.scrollY)) + 1.4 * 900);
+  await expect.poll(current).toBe("Sổ điểm có giải trình");
   await page.setViewportSize({ width: 1024, height: 800 });
-  expect(await stage.evaluate((e) => getComputedStyle(e).display)).toBe("none");
-  await expect(page.locator("[data-part=landing] section[aria-labelledby=story-title] figure img")).toHaveCount(3);
+  await expect(story).not.toHaveClass(/is-pinned/);
+  await expect(story.locator("img")).toHaveCount(3);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  expect(await stage.evaluate((e) => getComputedStyle(e).display)).toBe("none"); // reduce: không ghim
+  await page.reload();
+  await expect(story).not.toHaveClass(/is-pinned/);
 });

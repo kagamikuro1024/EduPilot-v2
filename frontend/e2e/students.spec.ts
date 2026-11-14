@@ -120,7 +120,7 @@ test("students no real class: không còn màn mô phỏng (AC10), chưa có l�
   await page.route(`**/api/v1/courses/**/students**`, (r) => { calls.push(r.request().url()); return r.fulfill(json(pageOf([]))); });
   await page.goto("/students");
   await expect(page.getByRole("heading", { name: "Sinh viên" })).toBeVisible();
-  await expect(page.getByText("Chưa có lớp nào.")).toBeVisible();
+  await expect(page.getByText("Chưa có lớp nào")).toBeVisible();
   expect(calls).toEqual([]);
 });
 

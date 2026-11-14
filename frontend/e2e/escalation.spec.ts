@@ -390,7 +390,7 @@ test("observability failed mail: Admin thấy thư lỗi với người nhận �
   expect(await sec.innerText()).not.toMatch(/nguyen|payload|CANARY/i);
   rows = [];
   await page.reload();
-  await expect(page.getByText("Không có thư lỗi.")).toBeVisible();
+  await expect(page.getByText("Không có thư lỗi")).toBeVisible();
   await expect(sec.getByRole("button")).toHaveCount(0);
 
   await context.clearCookies();

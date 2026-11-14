@@ -7,8 +7,8 @@ export type FrameRow = { kind: string | null; cols: number; headerH: number | nu
  * Đo hợp đồng khung trang (DESIGN.md §23) trên trang hiện tại, chỉ đọc DOM qua các móc `data-ep-*` (không đọc lớp CSS Module).
  * Mã phép khớp TL-1 mục 1.2: W (độ rộng / mép), H (đầu trang), P (panel), E (rỗng), T (chữ thừa), D (mật độ).
  */
-export async function measureFrame(page: Page, opts: { wide: boolean }): Promise<FrameRow> {
-  return page.evaluate((wide) => {
+export async function measureFrame(page: Page, opts: { wide: boolean; state?: "data" | "empty" | "loading" | "error"; calls?: number }): Promise<FrameRow> {
+  return page.evaluate(({ wide, state, calls }) => {
     const vis = (e: Element) => (e as HTMLElement).getClientRects().length > 0;
     const devs: { code: string; detail: string }[] = [];
     const add = (code: string, detail: string) => devs.push({ code, detail });
@@ -72,7 +72,9 @@ export async function measureFrame(page: Page, opts: { wide: boolean }): Promise
       }
     }
     // H6: nút primary ngoài đầu trang
-    const stray = [...pg.querySelectorAll<HTMLElement>('[data-variant="primary"]')].filter((b) => vis(b) && !b.closest("[data-ep-page-header]") && !b.closest("[role=dialog]") && !b.closest("form"));
+    const stray = [...pg.querySelectorAll<HTMLElement>('[data-variant="primary"]')].filter((b) => vis(b) && !b.closest("[data-ep-page-header]") && !b.closest("[data-ep-header-dock]") && !b.closest("[role=dialog]") && !b.closest("form"))
+    // thanh dính đáy là nút chính của màn ở điện thoại (TL-1 §12.3): có dock hiện thì đầu trang không còn nút primary nào hiện (một việc, một nút)
+    if ([...pg.querySelectorAll<HTMLElement>("[data-ep-header-dock]")].some(vis) && [...(headers[0]?.querySelectorAll<HTMLElement>('[data-variant="primary"]') ?? [])].some(vis)) add("H6", "thanh dính và nút đầu trang cùng hiện");
     const sections = pg.querySelectorAll("[data-ep-section]").length;
     if (headers[0]?.querySelector('[data-variant="primary"]') && stray.length && sections === 0) add("H6", `${stray.length} nút primary ngoài đầu trang`);
     // P1: đệm panel
@@ -106,9 +108,26 @@ export async function measureFrame(page: Page, opts: { wide: boolean }): Promise
         if (dup) add("E4", `nút rỗng «${label}» trùng đầu trang`);
       }
     }
+    // L / X: đang tải và lỗi (TL-1 §12.2). Route không phát yêu cầu /api/v1 nào và không nghe ?state= → không áp dụng.
+    if (state === "loading") {
+      const busy = pg.querySelectorAll('[aria-busy="true"]').length;
+      if (!busy && calls) add("L2", "đang tải mà không có khung xương aria-busy");
+    }
+    if (state === "error") {
+      const alerts = [...pg.querySelectorAll<HTMLElement>("[role=alert]")].filter(vis);
+      if (alerts.length || calls) {
+        if (alerts.length !== 1) add("X1", `${alerts.length} role=alert`);
+        else {
+          const ar = alerts[0].getBoundingClientRect();
+          if (!near(ar.width, colW, 2)) add("X1", `alert rộng ${Math.round(ar.width)} ≠ cột ${Math.round(colW)}`);
+          if (![...pg.querySelectorAll<HTMLElement>("button, a")].some((b) => (b.textContent ?? "").trim() === "Thử lại")) add("X1", "không có «Thử lại»");
+          if (/\b[45]\d\d\b|undefined|Error:/.test(alerts[0].textContent ?? "")) add("X2", "mã trần trong thông báo lỗi");
+        }
+      }
+    }
     // T: chữ thừa
     const info = [...main.querySelectorAll("svg.lucide-info, svg.lucide-circle-help")].filter((s) => vis(s) && !s.closest("[role=status], [role=alert], [data-ep-notice]"));
     if (info.length) add("T1", `${info.length} icon giải thích`);
     return { kind, cols: Math.round(colW), headerH, devs };
-  }, opts.wide);
+  }, { wide: opts.wide, state: opts.state, calls: opts.calls ?? 0 });
 }
