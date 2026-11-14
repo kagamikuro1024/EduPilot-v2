@@ -1,0 +1,276 @@
+{
+  "meta": {
+    "commit": "e1f9925f",
+    "timestamp": "2026-11-14T08:00:53.309Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "scenario": "grading-baseline",
+      "PHASE": "baseline",
+      "VUS": "20",
+      "ACCOUNTS": "t1",
+      "DURATION": "160m",
+      "COURSE_ID": "01a1d912-4c1d-7079-a093-98c0b4f1e805",
+      "ASSIGNMENT_ID": "01a1d912-6733-7add-839a-a5f9d9deac48",
+      "CHAT_CLASS": "01a1d912-4c1d-7079-a093-98c0b4f1e805",
+      "gateways": 1,
+      "workers": 1,
+      "provider": "fake",
+      "compose_project": "ep-t1",
+      "tag": "1000"
+    },
+    "k6_cpus": "1.5",
+    "demo_stack": "stopped"
+  },
+  "scenario": "baseline",
+  "metrics": {
+    "first_event_ms": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 16.943857262455715,
+        "med": 13.860352,
+        "p(90)": 32.0127242,
+        "p(95)": 37.39354039999999,
+        "p(99)": 52.010467279999986,
+        "max": 128.543863
+      }
+    },
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 4797,
+        "fails": 0
+      }
+    },
+    "first_event_samples": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 4797,
+        "rate": 5.154642566543702
+      },
+      "thresholds": {
+        "count>0": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_blocked": {
+      "contains": "time",
+      "values": {
+        "p(95)": 0.001625,
+        "p(99)": 0.004751679999999998,
+        "max": 7.475255,
+        "avg": 0.022767080457422748,
+        "med": 0.000458,
+        "p(90)": 0.001208
+      },
+      "type": "trend"
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 32.577553800000004,
+        "p(95)": 38.616298,
+        "p(99)": 69.72248443999999,
+        "max": 478.46165,
+        "avg": 19.060543902389252,
+        "med": 13.830186
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(99)": 0,
+        "max": 4.006695,
+        "avg": 0.01095596242597509,
+        "med": 0,
+        "p(90)": 0,
+        "p(95)": 0
+      }
+    },
+    "data_received": {
+      "values": {
+        "count": 4012264,
+        "rate": 4311.400209007901
+      },
+      "type": "counter",
+      "contains": "data"
+    },
+    "ttft_samples": {
+      "contains": "default",
+      "values": {
+        "count": 4797,
+        "rate": 5.154642566543702
+      },
+      "thresholds": {
+        "count>0": {
+          "ok": true
+        }
+      },
+      "type": "counter"
+    },
+    "http_req_failed": {
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      },
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.004084133142740453,
+        "passes": 20,
+        "fails": 4877
+      }
+    },
+    "http_req_sending": {
+      "contains": "time",
+      "values": {
+        "p(95)": 0.6508317999999994,
+        "p(99)": 2.034086839999998,
+        "max": 16.832701,
+        "avg": 0.22170168041658145,
+        "med": 0.10921,
+        "p(90)": 0.4030548000000001
+      },
+      "type": "trend"
+    },
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 20,
+        "min": 0,
+        "max": 20
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 1004043,
+        "rate": 1078.8998929414713
+      }
+    },
+    "iteration_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 3857.0926104338077,
+        "med": 3863.633081,
+        "p(90)": 3901.5711178,
+        "p(95)": 3913.3913688000002,
+        "p(99)": 3981.14157296,
+        "max": 4184.814105
+      }
+    },
+    "iterations": {
+      "values": {
+        "count": 4797,
+        "rate": 5.154642566543702
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.00986228895241985,
+        "med": 0,
+        "p(90)": 0,
+        "p(95)": 0,
+        "p(99)": 0,
+        "max": 4.89321
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 4897,
+        "rate": 5.262098113063271
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 341.45922151807144,
+        "med": 343.639366,
+        "p(90)": 373.5687614,
+        "p(95)": 384.17468840000004,
+        "p(99)": 443.18244672,
+        "max": 643.207013
+      }
+    },
+    "ttft_ms": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 397.28718979999996,
+        "p(99)": 438.99351696,
+        "max": 672.188053,
+        "avg": 356.2773990594119,
+        "med": 352.842025,
+        "p(90)": 388.6945776
+      }
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 399.6539302,
+        "p(95)": 411.70999559999996,
+        "p(99)": 471.81573036,
+        "max": 677.4519,
+        "avg": 360.7414671008785,
+        "med": 361.647375
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 399.6914852,
+        "p(95)": 411.7419202,
+        "p(99)": 472.05323215999994,
+        "max": 677.4519,
+        "avg": 362.1996349540705,
+        "med": 361.840398
+      }
+    },
+    "vus_max": {
+      "contains": "default",
+      "values": {
+        "value": 20,
+        "min": 20,
+        "max": 20
+      },
+      "type": "gauge"
+    }
+  },
+  "thresholds": {
+    "first_event_samples": {
+      "count>0": {
+        "ok": true
+      }
+    },
+    "ttft_samples": {
+      "count>0": {
+        "ok": true
+      }
+    },
+    "http_req_failed": {
+      "rate<0.01": {
+        "ok": true
+      }
+    }
+  }
+}

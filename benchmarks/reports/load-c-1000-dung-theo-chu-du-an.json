@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "commit": "935a08ac",
+    "timestamp": "2026-11-14T08:16:43.289Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "scenario": "grade-1000",
+      "courses": 20,
+      "provider": "fake",
+      "worker_fake_latency": "20000-20000",
+      "grading_workers": "5",
+      "compose_project": "ep-t1"
+    },
+    "k6_cpus": "1.5",
+    "demo_stack": "stopped"
+  },
+  "status": "DỪNG THEO CHỦ DỰ ÁN, chạy lại sau (bench 9.5 hoãn tới sau decision model)",
+  "queued": 1000,
+  "done": 235,
+  "failed": 0,
+  "still_queued": 765,
+  "started_at": "2026-11-14T08:00:50Z",
+  "stopped_at": "2026-11-14T08:16:32Z",
+  "hours": 0.26,
+  "slo_hours": 3,
+  "pass": null,
+  "note": "Lượt dở: không phải kết quả đo. Tốc độ 235 bài / 15,7 phút ≈ 15 bài/phút (5 luồng × 2 lượt × 20 s) cho ngoại suy THAM KHẢO ≈ 1,1 giờ cho 1.000 bài, KHÔNG dùng làm số đo (US-NFR-04 AC9 đòi chạy thật)."
+}
