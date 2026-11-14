@@ -19,7 +19,7 @@ Thứ tự: BA spec `FEAT-p10-eval` (US + SRS + QUESTIONS) → QC TC → dev the
 
 ## Tài liệu phải sửa cùng đợt 6 (decision model, chủ dự án nhắc 2026-11-14)
 Đợt 6 chỉ «xong» khi tài liệu khớp luồng mới:
-- `docs/DECISIONS.md`: D53 (Decide(), provider `decision`), sửa D47(2) — techlead.
+- `docs/DECISIONS.md`: D60 (Decide(), provider `decision`), sửa D47(2) — techlead.
 - `docs/ARCHITECTURE.md`: `internal/llm` có provider `decision` + `Decide()`, env / cấu hình, bảng thư viện không đổi — techlead.
 - `docs/SYSTEM_DESIGN.md`: đường hỏi–đáp (bước phân loại decision → dưới ngưỡng fallback luật), Scheduler làn cho decision, chi phí, ghi chú Free Tier — techlead.
 - `docs/FLOWS.md`: F-chat riêng, F-Threads (tường lửa chỉ-thêm-cờ), F-chấm bài (cờ chèn lệnh) — sơ đồ + nhánh lỗi (decision lỗi / hết hạn → fallback) — BA.
