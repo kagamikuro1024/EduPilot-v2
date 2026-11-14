@@ -35,3 +35,6 @@
 @media (max-width: 719px) {
   .composerRow { grid-template-columns: minmax(0, 1fr); }
 }
+
+.similar { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--ep-space-2); font-size: var(--ep-text-label); }
+.similar a { color: var(--ep-ink); text-decoration: underline; text-underline-offset: 3px; }

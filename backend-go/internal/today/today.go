@@ -62,6 +62,8 @@ const (
 	KindUnmatchedSubmission    Kind = "UNMATCHED_SUBMISSION"     // US-P7-04: bài nộp chưa khớp sinh viên (Giảng viên + TA)
 	KindGradingError           Kind = "GRADING_ERROR"            // US-P7-08: bài chấm lỗi (Giảng viên + TA)
 	KindGradingReview          Kind = "GRADING_REVIEW"           // US-P7-08: bài cần xem kỹ (Giảng viên + TA)
+	KindGuidancePending        Kind = "GUIDANCE_PENDING"         // 10.6: lưu ý chấm chờ duyệt (chỉ Giảng viên)
+	KindGuidanceStale          Kind = "GUIDANCE_STALE"           // 10.6: bài nháp chấm theo bản lưu ý cũ (Giảng viên + TA)
 	KindPublishPending         Kind = "PUBLISH_PENDING"          // US-P7-09: bài đã duyệt chờ công bố (chỉ Giảng viên)
 	KindAssignmentGraded       Kind = "ASSIGNMENT_GRADED"        // US-P7-09: điểm bài tập đã công bố (sinh viên)
 	KindAppeal                 Kind = "APPEAL"                   // US-P7-10: yêu cầu xem lại điểm bài tập chờ quyết (chỉ Giảng viên)
@@ -103,6 +105,8 @@ const (
 	TierUnmatchedSubmission    = 60 // SRS FEAT-assignments 4.12
 	TierGradingError           = 28
 	TierGradingReview          = 30
+	TierGuidancePending        = 34 // 10.6, chỉ TEACHER
+	TierGuidanceStale          = 35 // 10.6
 	TierPublishPending         = 33 // không trùng 32 của TierExamPublishHold cùng vai TEACHER
 	TierAssignmentGraded       = 43
 	TierAppeal                 = 20
@@ -120,9 +124,9 @@ func allowed(role Role, k Kind) bool {
 	switch k {
 	case KindStaffAnswerUnread, KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply, KindAssignmentDue, KindAssignmentGraded, KindAssignmentAppealReply, KindPracticeWeakTopic:
 		return role == RoleStudent
-	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked, KindPostReported, KindStudentAttention, KindGradeSchemeUnconfirmed, KindUnmatchedSubmission, KindGradingError, KindGradingReview:
+	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked, KindPostReported, KindStudentAttention, KindGradeSchemeUnconfirmed, KindUnmatchedSubmission, KindGradingError, KindGradingReview, KindGuidanceStale:
 		return role == RoleTeacher || role == RoleTA
-	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold, KindPublishPending, KindAppeal:
+	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold, KindPublishPending, KindAppeal, KindGuidancePending:
 		return role == RoleTeacher
 	case KindCourseStalled, KindLLMProviderError, KindLLMBudgetOut, KindLLMBudgetWarn, KindCourseNoTeacher, KindInviteExpired:
 		return role == RoleAdmin

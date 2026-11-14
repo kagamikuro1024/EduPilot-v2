@@ -182,6 +182,8 @@ func (w *Worker) generate(ctx context.Context, j jobs.JobCtx) (any, error) {
 		return nil, &jobs.UserError{Code: "EMPTY_SOURCE", Message: "Nguồn không có văn bản để sinh câu."}
 	}
 	user := fmt.Sprintf("Chủ đề: %s\nĐộ khó: %s\nSố câu: %d\nLoại: %s\n\nĐOẠN TÀI LIỆU:\n%s", p.Topic, p.Difficulty, p.Count, strings.Join(p.Types, ", "), b.String())
+	hint, hintReasons := w.Hints.Of(ctx, w.Pool, p.CourseID)
+	user += hint
 	j.Progress(20)
 	raw, err := w.call(ctx, generatePrompt, user, generateSchema)
 	if err != nil {
@@ -223,7 +225,7 @@ func (w *Worker) generate(ctx context.Context, j jobs.JobCtx) (any, error) {
 		c     exam.Checked
 		cites []map[string]any
 	}
-	res := ExtractResult{Created: []uuid.UUID{}, Skipped: []Skipped{}}
+	res := ExtractResult{Created: []uuid.UUID{}, Skipped: []Skipped{}, Hints: hintReasons}
 	var ok []ready
 	for i, a := range parsed.Questions {
 		skip := func(reason string) { res.Skipped = append(res.Skipped, Skipped{Number: i + 1, Reason: reason}) }

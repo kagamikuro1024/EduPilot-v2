@@ -59,6 +59,9 @@ func newTasks(d Deps) []Task {
 	if gq := newGradingQueue(d); gq != nil {
 		tasks = append(tasks, gradingTask{gq})
 	}
+	if rq := newReflectQueue(d); rq != nil {
+		tasks = append(tasks, reflectTask{rq})
+	}
 	if ys := newImapSyncer(d); ys != nil {
 		tasks = append(tasks, imapTask{ys})
 	}

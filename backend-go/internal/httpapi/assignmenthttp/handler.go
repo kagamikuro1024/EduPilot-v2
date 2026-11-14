@@ -26,7 +26,8 @@ type Handler struct {
 	Assignments *assignment.Service
 	Submit      *submission.Service
 	Batches     *grading.Batches
-	Teams       *submission.TeamsSync // nil → không có route đồng bộ Teams
+	Teams       *submission.TeamsSync    // nil → không có route đồng bộ Teams
+	Guidance    *grading.GuidanceService // nil → không có route «Lưu ý chấm» (10.6)
 	Guard       func(auth.GuardMode) func(http.Handler) http.Handler
 	Idem        func(http.Handler) http.Handler // `Idempotency-Key` bắt buộc
 	Log         *slog.Logger
@@ -63,6 +64,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(teacher, h.Idem).Post("/courses/{id}/grading-results/publish", h.publishResults)
 	r.With(staff).Get("/courses/{id}/assignments/{aid}/stats", h.stats)
 	r.With(staff).Get("/courses/{id}/assignments/{aid}/versions", h.versionCount)
+	h.mountGuidance(r)
 	if h.Teams != nil { // US-P7-11: Đồng bộ từ Teams (TA, TEACHER)
 		r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/teams/sync", h.teamsSync)
 	}

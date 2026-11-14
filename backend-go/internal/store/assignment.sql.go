@@ -138,7 +138,7 @@ func (q *Queries) AssignmentDelete(ctx context.Context, arg AssignmentDeletePara
 }
 
 const assignmentGet = `-- name: AssignmentGet :one
-select id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at from assignments where course_id = $1 and id = $2
+select id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at, guidance_version from assignments where course_id = $1 and id = $2
 `
 
 type AssignmentGetParams struct {
@@ -172,12 +172,13 @@ func (q *Queries) AssignmentGet(ctx context.Context, arg AssignmentGetParams) (A
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.GuidanceVersion,
 	)
 	return i, err
 }
 
 const assignmentGetForUpdate = `-- name: AssignmentGetForUpdate :one
-select id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at from assignments where course_id = $1 and id = $2 for update
+select id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at, guidance_version from assignments where course_id = $1 and id = $2 for update
 `
 
 type AssignmentGetForUpdateParams struct {
@@ -211,6 +212,7 @@ func (q *Queries) AssignmentGetForUpdate(ctx context.Context, arg AssignmentGetF
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.GuidanceVersion,
 	)
 	return i, err
 }
@@ -249,7 +251,7 @@ insert into assignments (course_id, title, description, type, max_score, due_at,
 values ($1, $2, $3, $4, $5, $6, $7, $8,
         $9, $10, $11, $12, $13, $14,
         $15, $16, $17)
-returning id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at
+returning id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at, guidance_version
 `
 
 type AssignmentInsertParams struct {
@@ -316,12 +318,13 @@ func (q *Queries) AssignmentInsert(ctx context.Context, arg AssignmentInsertPara
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.GuidanceVersion,
 	)
 	return i, err
 }
 
 const assignmentList = `-- name: AssignmentList :many
-select id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at from assignments a
+select id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at, guidance_version from assignments a
 where a.course_id = $1
   and (not $2::bool or a.published_at is not null)
   and ($3::timestamptz is null or (a.created_at, a.id) < ($3::timestamptz, $4::uuid))
@@ -376,6 +379,7 @@ func (q *Queries) AssignmentList(ctx context.Context, arg AssignmentListParams) 
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.GuidanceVersion,
 		); err != nil {
 			return nil, err
 		}
@@ -422,7 +426,7 @@ func (q *Queries) AssignmentLockFacts(ctx context.Context, arg AssignmentLockFac
 const assignmentPublish = `-- name: AssignmentPublish :one
 update assignments set published_at = now(), version = version + 1
 where course_id = $1 and id = $2 and published_at is null
-returning id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at
+returning id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at, guidance_version
 `
 
 type AssignmentPublishParams struct {
@@ -456,6 +460,7 @@ func (q *Queries) AssignmentPublish(ctx context.Context, arg AssignmentPublishPa
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.GuidanceVersion,
 	)
 	return i, err
 }
@@ -520,7 +525,7 @@ func (q *Queries) AssignmentRecomputeCandidates(ctx context.Context, arg Assignm
 const assignmentSetRubric = `-- name: AssignmentSetRubric :one
 update assignments set rubric = $1, version = version + 1
 where course_id = $2 and id = $3 and version = $4
-returning id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at
+returning id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at, guidance_version
 `
 
 type AssignmentSetRubricParams struct {
@@ -561,6 +566,7 @@ func (q *Queries) AssignmentSetRubric(ctx context.Context, arg AssignmentSetRubr
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.GuidanceVersion,
 	)
 	return i, err
 }
@@ -570,7 +576,7 @@ update assignments set title = $1, description = $2, max_score = $3, due_at = $4
        late_penalty_per_day = $6, late_max_days = $7, appeal_days = $8, channels = $9,
        reference_answer = $10, teams_class_id = $11, teams_assignment_id = $12, version = version + 1
 where course_id = $13 and id = $14 and version = $15
-returning id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at
+returning id, course_id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, created_by, version, created_at, updated_at, guidance_version
 `
 
 type AssignmentUpdateParams struct {
@@ -633,6 +639,7 @@ func (q *Queries) AssignmentUpdate(ctx context.Context, arg AssignmentUpdatePara
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.GuidanceVersion,
 	)
 	return i, err
 }

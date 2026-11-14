@@ -58,6 +58,8 @@ export type ResultView = {
   pass_detail: Record<string, { pass1?: string; pass2?: string }> | null;
   late: { days: number; penalty: string; max_days: number; per_day: string; manual: boolean };
   appeal?: Appeal | null;
+  /** chỉ khi lớp bật «Lưu ý chấm»: bản lưu ý ĐÃ GHIM cho kết quả này (10.6) */
+  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]> };
 };
 
 /** Lý do cờ bằng chữ (AC1). Màn của nhân viên: dùng đúng cụm của AC. */
@@ -102,6 +104,7 @@ export const queueKey = (course: string, f: QueueFilter) => ["grading-queue", co
 export const useQueue = (course: string, f: QueueFilter) =>
   useCursorList<QueueRow>(queueKey(course, f), `/courses/${course}/submissions`, {
     limit: 50,
+    staleTime: 0, // người khác chấm lại / duyệt: lấy lại khi mở và khi tab lấy lại tiêu điểm (GV-BUG o)
     query: { match_status: "MATCHED", assignment_id: f.assignment_id || undefined, status: f.status, needs_review: f.needs_review || undefined },
   });
 
@@ -124,6 +127,10 @@ export const editResult = async (course: string, rid: string, body: EditInput) =
 export const reviewResult = async (course: string, rid: string, version: number) =>
   (await apiClient.post<ResultView>(`/courses/${course}/grading-results/${rid}/review`, { version })).data;
 
+/** Chấm lại MỘT bài (round + 1 khi kết quả hiện có là nháp xong hoặc lỗi). */
+export const gradeOne = async (course: string, sid: string, idempotencyKey: string) =>
+  (await apiClient.post<{ job_id?: string; queued: number }>(`/courses/${course}/submissions/${sid}/grade`, {}, { idempotencyKey })).data;
+
 export const gradeAll = async (course: string, aid: string, idempotencyKey: string) =>
   (await apiClient.post<{ job_id?: string; queued: number }>(`/courses/${course}/assignments/${aid}/grade-all`, {}, { idempotencyKey })).data;
 
@@ -141,7 +148,7 @@ export type PublishInput = { result_ids?: string[]; assignment_id?: string; scop
 
 /** Công bố hàng loạt (chỉ TEACHER). `result_ids` tường minh = all-or-nothing; lỗi mang `details.ids`. */
 export const publishResults = async (course: string, body: PublishInput, idempotencyKey: string) =>
-  (await apiClient.post<{ published: number; skipped: number }>(`/courses/${course}/grading-results/publish`, body, { idempotencyKey })).data;
+  (await apiClient.post<{ published: number; skipped: number; exempt: { EDITED: number; ACCEPTED_AS_IS: number } }>(`/courses/${course}/grading-results/publish`, body, { idempotencyKey })).data;
 
 export type AssignmentStats = { submitted: number; graded: number; reviewed: number; published: number; mean_abs_deviation: string | null; teacher_changed_rate: string | null; appealed: number; appeal_rate: string | null; adjusted: number; appeal_success_rate: string | null };
 

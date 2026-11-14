@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/assignment"
+	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 )
@@ -359,4 +360,72 @@ func TestMinePublishedFields(t *testing.T) {
 	other, err := e.svc.Mine(e.ctx, assignment.Actor{UserID: e.student(), Student: true}, e.course, a.ID)
 	require.NoError(t, err)
 	require.Nil(t, other.Result)
+}
+
+// TestPublishMixedGuidance — SRS FEAT-grading-guidance 4.2.12 (P-106-2, P-106-5): bài ĐÃ DUYỆT (first_reviewed_at) chấm theo bản cũ được công bố, đếm lý do miễn EDITED / ACCEPTED_AS_IS
+// và ghi audit; bài CHƯA từng duyệt mà lệch bản → 409 MIXED_GUIDANCE, không công bố gì; cờ tắt → không so phiên bản.
+func TestPublishMixedGuidance(t *testing.T) {
+	e := newEnv(t)
+	flags := grading.NewGuidanceFlags(e.pool, nil)
+	flags.Set(map[uuid.UUID][]string{e.course: {grading.FlagGradingGuidance}})
+	e.svc.Guidance = flags
+	a := e.create("BT03")
+	e.exec(`update assignments set guidance_version = 1 where id = $1`, a.ID)
+	edited := `[{"id":"c1","score":"5.00","comment":"","edited":true,"evidence":[]},{"id":"c2","score":"5.00","comment":"","edited":true,"evidence":[]}]`
+	mk := func(crit string, first bool) uuid.UUID {
+		r := e.rrow(a, e.student(), 1, time.Now().UTC().Add(-time.Hour), "DONE", "REVIEWED", crit, nil)
+		if first {
+			e.exec(`update grading_results set first_reviewed_by = $2, first_reviewed_at = now() where id = $1`, r.res, e.teacher)
+		}
+		return r.res
+	}
+	asIs, ed := mk(crit10, true), mk(edited, true)
+	out, err := e.publish1(asIs, ed)
+	require.NoError(t, err)
+	require.Equal(t, 2, out.Published)
+	require.Equal(t, map[string]int{"EDITED": 1, "ACCEPTED_AS_IS": 1}, out.Exempt)
+	var n int
+	e.one(&n, `select count(*)::int from audit_log where action = 'grading_result.publish' and after->>'guidance_exempt' in ('EDITED', 'ACCEPTED_AS_IS') and entity_id in ($1, $2)`, asIs.String(), ed.String())
+	require.Equal(t, 2, n, "lý do miễn có trong audit_log")
+
+	// lưới an toàn: bài chưa từng duyệt (chèn tay) lệch bản → 409, bài kia trong danh sách cũng không công bố
+	good, raw := mk(crit10, true), mk(crit10, false)
+	_, err = e.publish1(good, raw)
+	require.Equal(t, apierr.MixedGuidance, code(err))
+	require.Equal(t, "REVIEWED", e.status(good), "không công bố gì")
+	// cờ tắt: như trước 10.6
+	flags.Set(nil)
+	out, err = e.publish1(good, raw)
+	require.NoError(t, err)
+	require.Equal(t, 2, out.Published)
+	require.Equal(t, map[string]int{"EDITED": 0, "ACCEPTED_AS_IS": 0}, out.Exempt)
+	// cùng phiên bản thì không cần miễn
+	flags.Set(map[uuid.UUID][]string{e.course: {grading.FlagGradingGuidance}})
+	same := mk(crit10, false)
+	e.exec(`update assignments set guidance_version = 0 where id = $1`, a.ID) // bản của bài tập quay về bản đã ghim của kết quả
+	out, err = e.publish1(same)
+	require.NoError(t, err)
+	require.Equal(t, 1, out.Published)
+}
+
+// TestResultViewGuidance — màn duyệt thấy bản lưu ý ĐÃ GHIM của kết quả, không phải bản hiện hành; `stale` chỉ cho nháp chưa từng duyệt; cờ tắt → không có khối `guidance`.
+func TestResultViewGuidance(t *testing.T) {
+	e := newEnv(t)
+	flags := grading.NewGuidanceFlags(e.pool, nil)
+	e.svc.Guidance = flags
+	a := e.create("BT03")
+	r := e.rrow(a, e.student(), 1, time.Now().UTC().Add(-time.Hour), "DONE", "DRAFT", crit10, nil)
+	e.exec(`insert into grading_guidance_items (course_id, assignment_id, criterion_id, text, direction, support, status, decided_by, approved_in_version) values ($1, $2, 'c1', 'Lưu ý v1.', 'STRICTER', 3, 'APPROVED', $3, 1)`, e.course, a.ID, e.teacher)
+	e.exec(`update assignments set guidance_version = 1 where id = $1`, a.ID)
+	v, err := e.svc.ResultDetail(e.ctx, e.course, r.res)
+	require.NoError(t, err)
+	require.Nil(t, v.Guidance, "cờ tắt")
+	flags.Set(map[uuid.UUID][]string{e.course: {grading.FlagGradingGuidance}})
+	v, err = e.svc.ResultDetail(e.ctx, e.course, r.res)
+	require.NoError(t, err)
+	require.Equal(t, assignment.ResultGuidance{Version: 0, CurrentVersion: 1, Stale: true, ItemsByCriterion: map[string][]string{}}, *v.Guidance, "kết quả v0 không thấy lưu ý v1")
+	e.exec(`update grading_results set first_reviewed_by = $2, first_reviewed_at = now() where id = $1`, r.res, e.teacher)
+	v, err = e.svc.ResultDetail(e.ctx, e.course, r.res)
+	require.NoError(t, err)
+	require.False(t, v.Guidance.Stale, "đã từng duyệt thì không còn «bản cũ»")
 }

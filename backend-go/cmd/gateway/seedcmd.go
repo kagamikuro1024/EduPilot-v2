@@ -15,7 +15,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/edupilot/backend-go/internal/crm"
+	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/seedtool"
 )
 
@@ -24,10 +26,10 @@ var seedEnvs = []string{"dev", "test"} //nolint:gochecknoglobals // danh sách c
 
 // isSeedCmd: tên lệnh con thuộc nhóm seed.
 func isSeedCmd(name string) bool {
-	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity"
+	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity" || name == "seed-guidance"
 }
 
-// runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat|seed-activity`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
+// runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat|seed-activity|seed-guidance`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
 func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdout, stderr io.Writer) int {
 	name := args[0]
 	fail := func(code int, msg string) int {
@@ -89,6 +91,10 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, "không đọc được kế hoạch: "+err.Error())
 		}
 		body = raw
+	case "seed-guidance":
+		if strings.TrimSpace(*assignment) == "" {
+			return fail(2, "thiếu --assignment <submission_code>.")
+		}
 	case "seed-age":
 		modes := 0
 		for _, on := range []bool{*tickets, *activity, strings.TrimSpace(*assignment) != ""} {
@@ -167,6 +173,25 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, err.Error())
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-age: %d dòng\n", n)
+	case "seed-guidance":
+		n, err := seedtool.SeedGuidance(ctx, pool, cid, strings.TrimSpace(*assignment))
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		// GD-BUG-9: cờ ghi thẳng DB phải PUBLISH như PUT /guidance-flags, nếu không gateway chỉ thấy sau ≤ 60 s (FlagsPoll) và check-guidance-seed chạy ngay sau seed sẽ đỏ.
+		if ru := strings.TrimSpace(getenv("REDIS_URL")); ru != "" {
+			rdb, err := appredis.New(ctx, ru)
+			if err != nil {
+				return fail(1, err.Error())
+			}
+			defer func() { _ = rdb.Close() }()
+			if err := rdb.Publish(ctx, grading.FlagsChannel, "1").Err(); err != nil {
+				return fail(1, "không PUBLISH được cờ: "+err.Error())
+			}
+		} else {
+			_, _ = fmt.Fprintln(stderr, "admin seed-guidance: không có REDIS_URL — gateway thấy cờ sau ≤ 60 s")
+		}
+		_, _ = fmt.Fprintf(stdout, "seed-guidance: %d kết quả\n", n)
 	case "crm-risk-run":
 		svc := &crm.Service{Pool: pool, Clock: clock.Real{}, Log: slog.New(slog.NewTextHandler(io.Discard, nil))}
 		if err := svc.RunCourse(ctx, cid, clk); err != nil {

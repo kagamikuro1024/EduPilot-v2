@@ -17,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/regress"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -239,7 +240,16 @@ type ResultView struct {
 	Flags      []string        `json:"flags"`
 	PassDetail json.RawMessage `json:"pass_detail"`
 	Late       LateView        `json:"late"`
-	Appeal     *AppealView     `json:"appeal,omitempty"` // chỉ ở GET chi tiết: phúc khảo của bài (US-P7-10)
+	Appeal     *AppealView     `json:"appeal,omitempty"`   // chỉ ở GET chi tiết: phúc khảo của bài (US-P7-10)
+	Guidance   *ResultGuidance `json:"guidance,omitempty"` // chỉ ở GET chi tiết khi lớp bật «Lưu ý chấm» (10.6)
+}
+
+// ResultGuidance là bản lưu ý ĐÃ GHIM cho kết quả (không phải bản hiện hành), theo tiêu chí.
+type ResultGuidance struct {
+	Version          int                 `json:"version"`
+	CurrentVersion   int                 `json:"current_version"`
+	Stale            bool                `json:"stale"`
+	ItemsByCriterion map[string][]string `json:"items_by_criterion"`
 }
 
 type critRow struct {
@@ -353,6 +363,24 @@ func (s *Service) ResultDetail(ctx context.Context, course, id uuid.UUID) (Resul
 		v.Appeal = &ap
 	} else if !errors.Is(aerr, pgx.ErrNoRows) {
 		return v, fmt.Errorf("assignment: phúc khảo của kết quả: %w", aerr)
+	}
+	if s.Guidance.On(course, grading.FlagGradingGuidance) {
+		g, gerr := q.GuidanceForResult(ctx, store.GuidanceForResultParams{CourseID: course, ID: v.Result.ID})
+		if gerr != nil {
+			return v, fmt.Errorf("assignment: lưu ý của kết quả: %w", gerr)
+		}
+		if g.CurrentVersion > 0 || g.GuidanceVersion > 0 {
+			items, ierr := q.GuidanceSetAt(ctx, store.GuidanceSetAtParams{CourseID: course, AssignmentID: g.AssignmentID, V: g.GuidanceVersion})
+			if ierr != nil {
+				return v, fmt.Errorf("assignment: tập lưu ý đã ghim: %w", ierr)
+			}
+			rg := &ResultGuidance{Version: int(g.GuidanceVersion), CurrentVersion: int(g.CurrentVersion), ItemsByCriterion: map[string][]string{},
+				Stale: g.GuidanceVersion < g.CurrentVersion && g.Status == "DRAFT" && !g.WasReviewed}
+			for _, it := range items {
+				rg.ItemsByCriterion[it.CriterionID] = append(rg.ItemsByCriterion[it.CriterionID], it.Text)
+			}
+			v.Guidance = rg
+		}
 	}
 	return v, nil
 }
@@ -636,6 +664,10 @@ func (s *Service) Review(ctx context.Context, a Actor, course, id uuid.UUID, ver
 		}
 		nd, err := s.lockResult(ctx, q, course, id)
 		if err != nil {
+			return err
+		}
+		// M2: tiêu chí lệch ≥ REGRESSION_MIN_DELTA so với điểm AI → ca hồi quy (chỉ tham chiếu + số; cờ lớp REGRESSION_CAPTURE)
+		if err := regress.CaptureGrading(ctx, q, s.Guidance, course, regress.KindGradingEdit, id, nd.Rubric, nd.Criteria, nd.AiScores, s.RegressMinDelta, nil); err != nil {
 			return err
 		}
 		if err := s.resultAudit(ctx, q, a, course, id, "grading_result.review", map[string]any{"status": d.Status}, map[string]any{"status": nd.Status, "total": totalStr(nd.Total), "flags": nd.Flags}); err != nil {
