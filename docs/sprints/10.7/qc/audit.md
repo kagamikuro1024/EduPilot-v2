@@ -35,9 +35,9 @@
 | E6 | vật chứa khối rỗng ≤ 320 px (1440) | **3** | admin/observability, student/chat, teacher/observability |
 | E7 | route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh) | **0** | – |
 | L1 | đang tải: h1 cùng toạ độ như có dữ liệu (±2) | **0** | – |
-| L2 | đang tải có khung xương `aria-busy` (≥ 1) | **4** | teacher/analytics, teacher/observability |
+| L2 | đang tải có khung xương `aria-busy` (≥ 1) | **0** | – |
 | L3 | CLS ≤ 0,1 (có dữ liệu) | **0** | – |
-| X1 | lỗi: ≤ 1 alert mỗi mục, trang không mục đúng 1, tổng ≤ số GET hỏng khác nhau, mỗi alert rộng = cột + «Thử lại» (TL 14.7) | **8** | student/chat, teacher/analytics, teacher/observability, teacher/settings |
+| X1 | lỗi: ≤ 1 alert mỗi mục, trang không mục đúng 1, tổng ≤ số GET hỏng khác nhau, mỗi alert rộng = cột + «Thử lại» (TL 14.7) | **4** | student/chat, teacher/settings |
 | X2 | lỗi: không mã trần (4xx/5xx/undefined/Error:) | **0** | – |
 | X3 | lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6) | **4** | student/practice, teacher/attendance |
 | D1 | cỡ chữ ⊆ {28,24,20,16,15,14,12} | **0** | – |
@@ -47,7 +47,7 @@
 | T2 | chuỗi > 30 ký tự lặp < 3 lần | **0** | – |
 | C3 | vàng: ≤ 3 nền, 0 chữ | **0** | – |
 
-**Tổng lệch: 48** (mục chưa 0 = chưa đạt).
+**Tổng lệch: 40** (mục chưa 0 = chưa đạt).
 
 ## Chữ ký khung (kiểu, h1.left, cột.left, cột.width, có meta, đệm panel, hình khối rỗng)
 
@@ -140,13 +140,6 @@
 - student/chat[empty@1440] lệch -397.5
 - student/chat[empty@375] lệch -187.5
 
-### L2 — đang tải có khung xương `aria-busy` (≥ 1) (4)
-
-- teacher/analytics[loading@1440] không có aria-busy
-- teacher/observability[loading@1440] không có aria-busy
-- teacher/analytics[loading@375] không có aria-busy
-- teacher/observability[loading@375] không có aria-busy
-
 ### X3 — lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6) (4)
 
 - student/practice[loading@1440] tab [] vs ['Theo chủ đề13', 'Thi thử']
@@ -154,14 +147,10 @@
 - student/practice[loading@375] tab [] vs ['Theo chủ đề13', 'Thi thử']
 - teacher/attendance[error@375] mất thanh dính đáy (dock)
 
-### X1 — lỗi: ≤ 1 alert mỗi mục, trang không mục đúng 1, tổng ≤ số GET hỏng khác nhau, mỗi alert rộng = cột + «Thử lại» (TL 14.7) (8)
+### X1 — lỗi: ≤ 1 alert mỗi mục, trang không mục đúng 1, tổng ≤ số GET hỏng khác nhau, mỗi alert rộng = cột + «Thử lại» (TL 14.7) (4)
 
 - teacher/settings[error@1440] rộng 750,750 ≠ cột 800
-- teacher/analytics[error@1440] alert×0
-- teacher/observability[error@1440] alert×0
 - student/chat[error@1440] rộng 355 ≠ cột 1176
 - teacher/settings[error@375] rộng 317,317 ≠ cột 351
-- teacher/analytics[error@375] alert×0
-- teacher/observability[error@375] alert×0
 - student/chat[error@375] rộng 0 ≠ cột 351
 
