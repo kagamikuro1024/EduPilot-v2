@@ -32,6 +32,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   LLM_NOT_CONFIGURED: "Trợ lý chưa được cấu hình. Báo quản trị viên.",
   LLM_UNAVAILABLE: "Trợ lý tạm thời không khả dụng.",
   PROVIDER_IN_USE: "Nhà cung cấp này đang được dùng. Chuyển các tác vụ sang nhà khác trước.",
+  DECISION_REAL_DISABLED: "Chưa được phép dùng bản thật.",
   MODEL_DIMS_MISMATCH: "Mô hình này không dùng được cho tìm kiếm tài liệu (sai số chiều).",
   ROUTE_INVALID: "Cấu hình tác vụ chưa hợp lệ.",
   INVALID_CREDENTIALS: "Email hoặc mật khẩu không đúng.",

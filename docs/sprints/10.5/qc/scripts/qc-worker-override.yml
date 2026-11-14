@@ -1,0 +1,9 @@
+# Chỉ dùng ở ep-qc của QC: compose local không chuyển LLM_DECISION_* / FAKE_DECISION_PROB cho worker (cổng chèn lệnh chạy ở worker).
+services:
+  worker:
+    environment:
+      LLM_DECISION_FAKE_MODE: ${LLM_DECISION_FAKE_MODE:-}
+      FAKE_DECISION_PROB: ${FAKE_DECISION_PROB:-}
+      LLM_DECISION_FAKE_P50_MS: ${LLM_DECISION_FAKE_P50_MS:-}
+      LLM_DECISION_FAKE_P95_MS: ${LLM_DECISION_FAKE_P95_MS:-}
+      LLM_DECISION_TIMEOUT: ${LLM_DECISION_TIMEOUT:-}

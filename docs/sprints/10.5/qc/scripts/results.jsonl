@@ -1,0 +1,31 @@
+{"tc": "A0 admin GET providers", "st": "PASS", "note": "200"}
+{"tc": "A1 có đúng 1 provider type=decision", "st": "PASS", "note": "1"}
+{"tc": "A1b decision-fake bật, gemini-decision-1 không bật", "st": "PASS", "note": ""}
+{"tc": "D01-19 chọn gemini-decision-1 khi ALLOW_REAL=false → 409 DECISION_REAL_DISABLED", "st": "FAIL", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"ddbf6f49d3f5c207971f1d2936e1d6a8\", \"details\": [{\"field\": \"type\", \"code\": \"oneof\", "}
+{"tc": "D01-19b mô hình KHÔNG đổi sau 409", "st": "PASS", "note": ""}
+{"tc": "A0 admin GET providers", "st": "PASS", "note": "200"}
+{"tc": "A1 có đúng 1 provider type=decision", "st": "PASS", "note": "1"}
+{"tc": "A1b decision-fake bật, gemini-decision-1 không bật", "st": "PASS", "note": ""}
+{"tc": "D01-19 chọn gemini-decision-1 khi ALLOW_REAL=false → 409 DECISION_REAL_DISABLED", "st": "FAIL", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"c8f60d88f85ed6560272c691ff593498\", \"details\": [{\"field\": \"type\", \"code\": \"oneof\", "}
+{"tc": "D01-19b mô hình KHÔNG đổi sau 409", "st": "PASS", "note": ""}
+{"tc": "D01-28b tạo provider decision thứ hai bị từ chối (4xx, không 5xx)", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"dc71ddaa3c1fe2abc83c08dfed5eac68\", \"details\": [{\"field\": \"type"}
+{"tc": "D01-26 teacher không thấy provider decision (403 hoặc ẩn)", "st": "FAIL", "note": "200 vis=True"}
+{"tc": "D01-26b teacher PUT provider decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26c teacher POST test → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26 ta không thấy provider decision (403 hoặc ẩn)", "st": "PASS", "note": "403 vis=None"}
+{"tc": "D01-26b ta PUT provider decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26c ta POST test → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26 sv.kha không thấy provider decision (403 hoặc ẩn)", "st": "PASS", "note": "403 vis=None"}
+{"tc": "D01-26b sv.kha PUT provider decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26c sv.kha POST test → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26d không token → 401", "st": "PASS", "note": "401"}
+{"tc": "D01-27 test kết nối decision-fake → 200", "st": "PASS", "note": "200 5ms {\"ok\": false, \"error_kind\": \"NETWORK\", \"message\": \"Không kết nối được tới nhà cung cấp. Kiểm tra địa chỉ và mạng.\", \"latency_ms\": 0}"}
+{"tc": "D02-13 mặc định ba cổng tắt, ngưỡng đúng", "st": "PASS", "note": "[['CHAT_ROUTING', 'f', '0.950', '800'], ['INJECTION_FLAG', 'f', '0.500', '3000'], ['THREADS_PRECHECK', 'f', '0.050', '800']]"}
+{"tc": "D02-06 không hàng course_decision_gates bật", "st": "PASS", "note": ""}
+{"tc": "D02-06/D03-off cổng tắt: đăng được, 0 DECIDE", "st": "PASS", "note": "201 []"}
+{"tc": "D03-off bài riêng tư tinh vi cổng tắt: như cũ, 0 DECIDE", "st": "PASS", "note": "201 []"}
+{"tc": "D03-01 luật chặn → 0 DECIDE", "st": "PASS", "note": "422 []"}
+{"tc": "D03-09 chỉ placeholder → chặn bởi luật, 0 DECIDE", "st": "PASS", "note": "422 []"}
+{"tc": "D03-10 precheck (lúc gõ): 0 DECIDE", "st": "PASS", "note": "[]"}
+{"tc": "D03-14 khủng hoảng → 422 CRISIS_SUPPORT, 0 DECIDE, 0 CLASSIFY", "st": "PASS", "note": "422 [] []"}
+{"tc": "D03-17 lớp 2 (cổng chỉ lớp 1) không DECIDE", "st": "PASS", "note": "201 []"}

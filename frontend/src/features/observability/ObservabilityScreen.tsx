@@ -6,6 +6,7 @@ import { NOW, fmtScore, fmtTime } from "@/mock/core";
 import { COURSE_SUMMARY, REQUESTS, STATUS_LABEL, STATUS_STRIP, type LlmRequest } from "@/mock/system";
 import { useSession } from "@/shared/session/session";
 import { Button, type Column, DataTable, DefinitionList, Drawer, EmptyState, Field, InlineNotice, Page, PageHeader, PageState, Panel, Section, SegmentedControl, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { DecisionTable } from "./DecisionTable";
 import { FailedMail } from "./FailedMail";
 import s from "./observability.module.css";
 
@@ -154,6 +155,8 @@ export function ObservabilityScreen() {
             empty={<p className={s.sub}>Không có yêu cầu nào khớp bộ lọc này.</p>}
           />
         </Section>
+
+        {isAdmin && <DecisionTable />}
 
         {isAdmin && open && (
           <Drawer

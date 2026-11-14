@@ -181,6 +181,12 @@ type fakeIn struct {
 	ValidKey     *string  `json:"valid_key"`
 	StreamDelay  *int     `json:"stream_delay_ms"`
 	RetryAfterMS *int     `json:"retry_after_ms"`
+	// Decision model giả (SRS FEAT-decision-model 4.6): chế độ, xác suất ghi đè cho đầu vào lạ, độ trễ log-chuẩn, tỉ lệ lỗi.
+	DecisionMode      *string  `json:"decision_mode"`
+	DecisionProb      *float64 `json:"decision_prob"`
+	DecisionP50MS     *int     `json:"decision_p50_ms"`
+	DecisionP95MS     *int     `json:"decision_p95_ms"`
+	DecisionErrorRate *float64 `json:"decision_error_rate"`
 }
 
 func llmFake(d Deps) http.HandlerFunc {
@@ -216,6 +222,31 @@ func llmFake(d Deps) http.HandlerFunc {
 		if in.ValidKey != nil {
 			s.ValidKey = *in.ValidKey
 		}
+		ms(in.DecisionP50MS, &s.DecisionP50)
+		ms(in.DecisionP95MS, &s.DecisionP95)
+		if in.DecisionMode != nil {
+			switch *in.DecisionMode {
+			case "", "error", "timeout", "always_yes", "always_no":
+				s.DecisionMode = *in.DecisionMode
+			default:
+				apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "decision_mode", Code: "enum", Message: "decision_mode: rỗng, error, timeout, always_yes hoặc always_no."}))
+				return
+			}
+		}
+		if in.DecisionProb != nil {
+			if *in.DecisionProb < 0 || *in.DecisionProb > 1 {
+				apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "decision_prob", Code: "range", Message: "decision_prob phải trong [0, 1]."}))
+				return
+			}
+			s.DecisionProb = in.DecisionProb
+		}
+		if in.DecisionErrorRate != nil {
+			if *in.DecisionErrorRate < 0 || *in.DecisionErrorRate > 1 {
+				apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "decision_error_rate", Code: "range", Message: "decision_error_rate phải trong [0, 1]."}))
+				return
+			}
+			s.DecisionErrorRate = *in.DecisionErrorRate
+		}
 		if s.LatencyMax < s.LatencyMin {
 			s.LatencyMax = s.LatencyMin
 		}
@@ -228,5 +259,7 @@ func fakeOut(s fake.Settings) map[string]any {
 	return map[string]any{
 		"latency_min_ms": s.LatencyMin.Milliseconds(), "latency_max_ms": s.LatencyMax.Milliseconds(), "error_rate": s.ErrorRate,
 		"error_kind": string(s.ErrorKind), "valid_key_set": s.ValidKey != "", "stream_delay_ms": s.StreamDelay.Milliseconds(),
+		"decision_mode": s.DecisionMode, "decision_prob": s.DecisionProb, "decision_p50_ms": s.DecisionP50.Milliseconds(),
+		"decision_p95_ms": s.DecisionP95.Milliseconds(), "decision_error_rate": s.DecisionErrorRate,
 	}
 }

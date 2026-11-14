@@ -1311,6 +1311,28 @@ async function step18Assignments() {
   vlog(gatewayAdmin("seed-age", ["--course", "761987", "--assignment", BT03, "--hours", "96"]));
 }
 
+// ---- decision model (US-DM-08 AC1) -----------------------------------------------------------------------------------
+// Provider `decision-fake` và ba hàng `decision_gates` (tắt, ngưỡng mặc định) có sẵn từ migration. SEED_DECISION_DEMO=1 bật cả ba cổng toàn hệ thống và cho lớp 761987
+// (dùng để demo / E2E). Bằng API thật của ADMIN; kiểm trạng thái trước nên chạy lại không đổi gì.
+async function stepDecisionDemo() {
+  if (setting("SEED_DECISION_DEMO", "") !== "1") return;
+  console.log("[+] Decision demo: bật ba cổng quyết định nhanh cho lớp 761987 (provider giả)…");
+  const token = ctx.tokens.admin;
+  const c1 = ctx.ids["761987"];
+  const ov = (await call("GET", "/admin/llm/decision", { token })).body;
+  for (const g of ov.gates) {
+    if (!g.enabled) {
+      await call("PUT", `/admin/llm/decision/gates/${g.gate}`, { token, json: { enabled: true, version: g.version } });
+      ctx.changed = true;
+    }
+    const cur = (await call("GET", `/courses/${c1}/decision-gates`, { token })).body.items.find((x) => x.gate === g.gate);
+    if (!cur.enabled) {
+      await call("PUT", `/courses/${c1}/decision-gates/${g.gate}`, { token, json: { enabled: true, version: cur.version } });
+      ctx.changed = true;
+    }
+  }
+}
+
 // ---- chạy ------------------------------------------------------------------------------------------------------------
 async function main() {
   const started = Date.now();
@@ -1339,6 +1361,7 @@ async function main() {
   await step17Moderation();
   await step18Assignments();
   await step19Practice();
+  await stepDecisionDemo();
   console.log(`Seed xong trong ${Math.round((Date.now() - started) / 1000)} s.`);
   if (!ctx.changed) console.log("Seed xong (không đổi)");
   console.log("  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)");
@@ -1350,6 +1373,7 @@ async function main() {
   console.log("  Lớp 761987: công thức điểm CONFIRMED (trích từ quy chế học phần bằng provider giả, TEACHER xác nhận), điểm giữa kỳ / cuối kỳ nhập bằng XLSX và đã công bố, sổ CHƯA chốt; lớp 761988: chưa có quy chế — `node scripts/check-grade-seed.mjs`");
   console.log("  Lớp 761987: Bài tập 03 (26 bài nộp: 13 app, 5 ZIP, 8 thư IMAP thử; 3 chưa khớp; chưa chấm) + Bài tập 04 (kênh Teams, chưa đồng bộ) — `node scripts/check-assignments-seed.mjs`");
   console.log("  Lớp 761987: Luyện đề — 82 câu APPROVED (8 chủ đề, gồm 8 trả lời ngắn + 2 tự luận) + 20 câu PENDING + 1 Quiz tính điểm (đã công bố, 3 lượt) + câu EXTRACTED / GENERATED có trích dẫn + ngân hàng riêng của lớp 761988 + ≈ 40 lượt của 13 sinh viên (B sai nhiều An toàn ứng dụng web; C đang dở 1 lượt) — `node scripts/check-practice-seed.mjs`");
+  console.log("  Decision model: provider `decision-fake` + 3 cổng tắt (SEED_DECISION_DEMO=1 bật cả ba cho lớp 761987) — `node scripts/check-decision-seed.mjs`");
   console.log("  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)");
 }
 

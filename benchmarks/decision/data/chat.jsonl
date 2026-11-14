@@ -1,0 +1,30 @@
+{"text": "Em đã vắng mấy buổi rồi", "intent": "PERSONAL_ATTENDANCE", "expect_block": "attendance", "stratum": "rules"}
+{"text": "số buổi nghỉ của em là bao nhiêu", "intent": "PERSONAL_ATTENDANCE", "expect_block": "attendance", "stratum": "rules"}
+{"text": "điểm danh của em tuần trước có ghi không", "intent": "PERSONAL_ATTENDANCE", "expect_block": "attendance", "stratum": "rules"}
+{"text": "Điểm giữa kỳ của em là bao nhiêu", "intent": "PERSONAL_GRADE", "expect_block": "grade_summary", "stratum": "rules"}
+{"text": "điểm tổng kết của mình sao rồi", "intent": "PERSONAL_GRADE", "expect_block": "grade_summary", "stratum": "rules"}
+{"text": "Lịch thi khi nào vậy ạ", "intent": "EXAM_SCHEDULE", "expect_block": "exam_schedule", "stratum": "rules"}
+{"text": "phòng thi cuối kỳ ở đâu", "intent": "EXAM_SCHEDULE", "expect_block": "exam_schedule", "stratum": "rules"}
+{"text": "Tuần này có gì sắp tới không", "intent": "UPCOMING_EVENTS", "expect_block": "upcoming_events", "stratum": "rules"}
+{"text": "ngày mai có lịch học không", "intent": "UPCOMING_EVENTS", "expect_block": "upcoming_events", "stratum": "rules"}
+{"text": "Tìm tài liệu về mạng máy tính giúp mình", "intent": "LIBRARY_SEARCH", "expect_block": "library_results", "stratum": "rules"}
+{"text": "Giao thức TCP hoạt động như thế nào", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Quy chế cảnh báo học vụ quy định ra sao", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Giải thích thuật toán Dijkstra giúp mình", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Điều kiện dự thi cuối kỳ là gì", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Thi lại được mấy lần theo quy chế", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Trong phòng thi có được dùng máy tính không", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Giải thích giao thức TCP tuần tới có gì mới", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Quy chế thi cuối kỳ nói gì về tài liệu?", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Chương 3 có gì không", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Bài giảng tuần tới có gì", "intent": "COURSE_QA", "expect_block": null, "stratum": "course_qa"}
+{"text": "Cho mình biết tới giờ mình đã bỏ lớp bao nhiêu lần", "intent": "PERSONAL_ATTENDANCE", "expect_block": "attendance", "stratum": "paraphrase"}
+{"text": "Mình đã bỏ tiết mấy lần tính tới giờ rồi nhỉ", "intent": "PERSONAL_ATTENDANCE", "expect_block": "attendance", "stratum": "paraphrase"}
+{"text": "Em lỡ mấy buổi học rồi ạ", "intent": "PERSONAL_ATTENDANCE", "expect_block": "attendance", "stratum": "paraphrase"}
+{"text": "Mình đang bị mấy buổi không đi học vậy", "intent": "PERSONAL_ATTENDANCE", "expect_block": "attendance", "stratum": "paraphrase"}
+{"text": "Thành tích của mình trong môn này tới nay ra sao", "intent": "PERSONAL_GRADE", "expect_block": "grade_summary", "stratum": "paraphrase"}
+{"text": "Mình đang đứng ở mức nào của môn này", "intent": "PERSONAL_GRADE", "expect_block": "grade_summary", "stratum": "paraphrase"}
+{"text": "Em chưa thấy mình được chấm gì ở môn này, kiểm tra giúp em", "intent": "PERSONAL_GRADE", "expect_block": "grade_summary", "stratum": "paraphrase"}
+{"text": "Cho em coi mình được bao nhiêu rồi", "intent": "PERSONAL_GRADE", "expect_block": "grade_summary", "stratum": "paraphrase"}
+{"text": "Em được tính cộng thêm bao nhiêu vì xung phong trả lời", "intent": "PERSONAL_PARTICIPATION", "expect_block": "participation", "stratum": "paraphrase"}
+{"text": "Mình hay giơ tay trả lời trên lớp thì được tính thêm gì không ạ", "intent": "PERSONAL_PARTICIPATION", "expect_block": "participation", "stratum": "paraphrase"}

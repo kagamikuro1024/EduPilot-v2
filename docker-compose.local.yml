@@ -316,6 +316,19 @@ services:
       LLM_QUEUE_MAX: ${LLM_QUEUE_MAX:-}
       LLM_QUEUE_WAIT_MAX: ${LLM_QUEUE_WAIT_MAX:-}
       FAKE_LLM_LATENCY: ${FAKE_LLM_LATENCY:-}
+      # Decision model (D60): cờ chèn lệnh chạy ở worker (hàng chấm) nên worker cần cùng cấu hình provider decision giả / thật như gateway; DECISION_ALERT_* là việc nền của worker.
+      LLM_DECISION_TIMEOUT: ${LLM_DECISION_TIMEOUT:-}
+      LLM_DECISION_ALLOW_REAL: ${LLM_DECISION_ALLOW_REAL:-}
+      LLM_DECISION_REAL_DAILY_CAP: ${LLM_DECISION_REAL_DAILY_CAP:-}
+      LLM_DECISION_RPM: ${LLM_DECISION_RPM:-}
+      LLM_DECISION_BASE_URL: ${LLM_DECISION_BASE_URL:-}
+      LLM_DECISION_FAKE_P50_MS: ${LLM_DECISION_FAKE_P50_MS:-}
+      LLM_DECISION_FAKE_P95_MS: ${LLM_DECISION_FAKE_P95_MS:-}
+      LLM_DECISION_FAKE_ERROR_RATE: ${LLM_DECISION_FAKE_ERROR_RATE:-}
+      LLM_DECISION_FAKE_MODE: ${LLM_DECISION_FAKE_MODE:-}
+      FAKE_DECISION_PROB: ${FAKE_DECISION_PROB:-}
+      DECISION_ALERT_TICK: ${DECISION_ALERT_TICK:-}
+      DECISION_ALERT_DEDUPE: ${DECISION_ALERT_DEDUPE:-}
     networks: [default, judge_net]
     read_only: true
     tmpfs: ["/tmp"]

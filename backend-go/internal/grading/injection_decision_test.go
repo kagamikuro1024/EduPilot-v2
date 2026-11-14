@@ -25,8 +25,8 @@ func withInjectionFlag(t *testing.T, raw json.RawMessage) json.RawMessage {
 	return out
 }
 
-// TestInjectionFlagTiers — US-DM-04: cờ = regex OR Structured (gộp vào lượt chấm) OR decision; chỉ cờ, điểm không đổi; bài ngắn / cổng tắt không có hai tầng sau.
-func TestInjectionFlagTiers(t *testing.T) {
+// TestInjectionOR — US-DM-04: cờ = regex OR Structured (gộp vào lượt chấm) OR decision; chỉ cờ, điểm không đổi; bài ngắn / cổng tắt không có hai tầng sau.
+func TestInjectionOR(t *testing.T) {
 	ss := samples(t)
 	var s1 sample
 	for _, s := range ss {

@@ -23,7 +23,8 @@ const (
 	privateQID = "private_or_named"
 	// Chữ cố định trong mã (SRS 4.3): người dùng không sửa được; cùng câu hỏi cho decision và cho Structured.
 	privateQuestion = "Nội dung có hỏi về thông tin riêng tư của một sinh viên cụ thể (điểm, chuyên cần, hoàn cảnh) hoặc nêu tên một người cụ thể không?"
-	privateSchema   = `{"type":"object","properties":{"answer":{"type":"boolean"}},"required":["answer"],"additionalProperties":false}`
+	// answer là chuỗi "no" | "yes" (không phải boolean): giá trị đầu của enum là "no" nên provider giả tất định mặc định "không" (đường fallback không chặn nhầm ở dev / demo).
+	privateSchema = `{"type":"object","properties":{"answer":{"type":"string","enum":["no","yes"]}},"required":["answer"],"additionalProperties":false}`
 )
 
 // CheckPublish là tường lửa của MỌI đường LƯU bài công khai: luật (CheckPost) rồi cổng decision.
@@ -45,18 +46,18 @@ func (f *Firewall) CheckPublish(ctx context.Context, courseID uuid.UUID, title, 
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 		raw, err := f.Decider.Structured(ctx, llm.Request{Task: llm.TaskClassify, Messages: []llm.Message{
-			{Role: "system", Content: privateQuestion + " Trả lời answer=true nếu có."},
+			{Role: "system", Content: privateQuestion + " Trả lời answer=yes nếu có, answer=no nếu không."},
 			{Role: "user", Content: input}}}, json.RawMessage(privateSchema))
 		if err != nil {
 			return llm.Verdict{}, err
 		}
 		var out struct {
-			Answer *bool `json:"answer"`
+			Answer string `json:"answer"`
 		}
-		if err := json.Unmarshal(raw, &out); err != nil || out.Answer == nil {
+		if err := json.Unmarshal(raw, &out); err != nil || (out.Answer != "yes" && out.Answer != "no") {
 			return llm.Verdict{}, llm.ErrBadRequest
 		}
-		return llm.Verdict{Yes: *out.Answer}, nil
+		return llm.Verdict{Yes: out.Answer == "yes"}, nil
 	}
 	dv, path := f.Decider.Cascade(ctx, llm.GateThreads, req, llm.AddOnly{QID: privateQID}, fb, llm.Verdict{Yes: true}) // fail-closed = chặn
 	if path == llm.PathNotUsed || !dv.Yes {

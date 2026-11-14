@@ -183,6 +183,8 @@ type Config struct {
 	FakeErrorRate         float64
 	// Decision model (SRS FEAT-decision-model 4.5 / 4.6; D60).
 	ThreadsStructuredTimeout time.Duration // THREADS_STRUCTURED_TIMEOUT: hạn của Structured khi decision lưỡng lự hoặc lỗi (quá hạn → chặn)
+	DecisionAlertTick        time.Duration // chu kỳ worker cảnh báo DECISION_FAIL_CLOSED
+	DecisionAlertDedupe      time.Duration // khử trùng cảnh báo theo cổng
 	LLMDecisionTimeout       time.Duration // thời hạn mặc định của Decide khi cổng chưa có timeout riêng
 	LLMDecisionAllowReal     bool          // cho gọi gemini-decision-1 THẬT; mặc định tắt (chỉ khi PM cho phép)
 	LLMDecisionRealCap       int           // trần lời gọi thật / ngày UTC+7
@@ -418,6 +420,8 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.FakeLatencyMin, c.FakeLatencyMax = l.latencyRange("FAKE_LLM_LATENCY", "0-0")
 	c.FakeErrorRate = l.rate("FAKE_LLM_ERROR_RATE", 0)
 	c.ThreadsStructuredTimeout = l.durRange("THREADS_STRUCTURED_TIMEOUT", 6*time.Second, time.Second, 30*time.Second)
+	c.DecisionAlertTick = l.durRange("DECISION_ALERT_TICK", 5*time.Minute, time.Second, 24*time.Hour)
+	c.DecisionAlertDedupe = l.durRange("DECISION_ALERT_DEDUPE", 6*time.Hour, time.Minute, 7*24*time.Hour)
 	c.LLMDecisionTimeout = l.durRange("LLM_DECISION_TIMEOUT", 800*time.Millisecond, 200*time.Millisecond, 5*time.Second)
 	c.LLMDecisionAllowReal = l.boolean("LLM_DECISION_ALLOW_REAL", false)
 	c.LLMDecisionRealCap = l.num("LLM_DECISION_REAL_DAILY_CAP", 300, 1, 1_000_000)

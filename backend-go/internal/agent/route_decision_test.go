@@ -131,3 +131,22 @@ func TestRouteDecisionParallelWithEmbed(t *testing.T) {
 	require.Equal(t, 1, embeds)
 	require.EqualValues(t, 1, ctl.Decisions())
 }
+
+// TestCallBudgetPerMessage — US-DM-09 AC7: mỗi tin ≤ 1 lần nhúng và ≤ 1 lần decision (câu luật đã quyết: 0 decision); không vòng lặp agent mở.
+func TestCallBudgetPerMessage(t *testing.T) {
+	tc := agent.TrustedContext{UserID: uuid.New(), CourseID: uuid.New(), Role: "STUDENT", SessionID: uuid.New()}
+	ctl := fake.NewController(fake.Settings{})
+	a := routedAnalyzer(ctl, tc, true)
+	embeds := 0
+	a.Embed = func(context.Context, string) ([]float32, error) {
+		embeds++
+		return make([]float32, 8), nil
+	}
+	_, err := a.Analyze(context.Background(), tc, paraphrase)
+	require.NoError(t, err)
+	require.LessOrEqual(t, embeds, 1)
+	require.EqualValues(t, 1, ctl.Decisions())
+	_, err = a.Analyze(context.Background(), tc, "Điểm giữa kỳ của em là bao nhiêu") // luật quyết: không decision
+	require.NoError(t, err)
+	require.EqualValues(t, 1, ctl.Decisions())
+}

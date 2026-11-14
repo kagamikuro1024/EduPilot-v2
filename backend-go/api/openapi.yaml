@@ -5030,6 +5030,188 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/llm/decision:
+    get:
+      operationId: getDecisionConfig
+      tags: [llm]
+      summary: Decision model — provider + ba cổng (chỉ ADMIN)
+      responses:
+        "200":
+          description: Provider decision và ba cổng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionOverview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/admin/llm/decision/gates/{gate}:
+    put:
+      operationId: putDecisionGate
+      tags: [llm]
+      summary: Sửa một cổng toàn hệ thống (chỉ ADMIN); cần version
+      parameters:
+        - name: gate
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [THREADS_PRECHECK, INJECTION_FLAG, CHAT_ROUTING]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionGateInput"
+      responses:
+        "200":
+          description: Cổng sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionGate"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/llm/decision/courses:
+    get:
+      operationId: listDecisionCourses
+      tags: [llm]
+      summary: Lớp và công tắc của một cổng (chỉ ADMIN; cursor, tìm theo tên / mã)
+      parameters:
+        - name: gate
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [THREADS_PRECHECK, INJECTION_FLAG, CHAT_ROUTING]
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Một trang lớp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionCourseList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/decision:
+    get:
+      operationId: getDecisionObservability
+      tags: [llm]
+      summary: Bảng «Quyết định nhanh» theo cổng (chỉ ADMIN; không nội dung)
+      parameters:
+        - name: window
+          in: query
+          schema:
+            type: string
+            enum: [24h, 7d]
+      responses:
+        "200":
+          description: Số liệu theo cổng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionObservability"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/decision-gates:
+    get:
+      operationId: getCourseDecisionGates
+      tags: [llm]
+      summary: Ba cổng của một lớp (chỉ ADMIN)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Công tắc ba cổng của lớp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionCourseGateList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/decision-gates/{gate}:
+    put:
+      operationId: putCourseDecisionGate
+      tags: [llm]
+      summary: Bật / tắt một cổng cho lớp (chỉ ADMIN); cần version (hàng chưa có = 0)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: gate
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [THREADS_PRECHECK, INJECTION_FLAG, CHAT_ROUTING]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionCourseGateInput"
+      responses:
+        "200":
+          description: Công tắc sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionCourseGate"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/questions:
     get:
       operationId: listQuestions
@@ -12329,6 +12511,170 @@ components:
         version:
           type: integer
           minimum: 0
+    DecisionProvider:
+      type: object
+      required: [id, model, status, fake]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        model:
+          type: string
+        status:
+          type: string
+          enum: [fake, connected, no_key, paused, not_configured]
+        fake:
+          type: boolean
+    DecisionGate:
+      type: object
+      required: [gate, enabled, threshold, timeout_ms, version]
+      additionalProperties: false
+      properties:
+        gate:
+          type: string
+          enum: [THREADS_PRECHECK, INJECTION_FLAG, CHAT_ROUTING]
+        enabled:
+          type: boolean
+        threshold:
+          type: string
+        timeout_ms:
+          type: integer
+        version:
+          type: integer
+        courses_enabled:
+          type: integer
+        courses_total:
+          type: integer
+    DecisionOverview:
+      type: object
+      required: [provider, gates, real_allowed]
+      additionalProperties: false
+      properties:
+        provider:
+          oneOf:
+            - $ref: "#/components/schemas/DecisionProvider"
+            - type: "null"
+        gates:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionGate"
+        real_allowed:
+          type: boolean
+    DecisionGateInput:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        threshold:
+          type: string
+        timeout_ms:
+          type: integer
+        version:
+          type: integer
+          minimum: 0
+    DecisionCourse:
+      type: object
+      required: [course_id, name, class_code, enabled, version]
+      additionalProperties: false
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        class_code:
+          type: string
+        enabled:
+          type: boolean
+        version:
+          type: integer
+    DecisionCourseList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionCourse"
+        next_cursor:
+          type: [string, "null"]
+    DecisionCourseGate:
+      type: object
+      required: [gate, enabled, effective, version]
+      additionalProperties: false
+      properties:
+        gate:
+          type: string
+          enum: [THREADS_PRECHECK, INJECTION_FLAG, CHAT_ROUTING]
+        enabled:
+          type: boolean
+        effective:
+          type: boolean
+        version:
+          type: integer
+    DecisionCourseGateList:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionCourseGate"
+    DecisionCourseGateInput:
+      type: object
+      required: [enabled, version]
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        version:
+          type: integer
+          minimum: 0
+    DecisionObsGate:
+      type: object
+      required: [gate, state, courses_enabled, courses_total, calls, fast_pct, fallback_pct, fail_closed_pct, p50_ms, p95_ms, error_pct, cost_vnd]
+      additionalProperties: false
+      properties:
+        gate:
+          type: string
+          enum: [THREADS_PRECHECK, INJECTION_FLAG, CHAT_ROUTING]
+        state:
+          type: string
+          enum: [off, "on"]
+        courses_enabled:
+          type: integer
+        courses_total:
+          type: integer
+        calls:
+          type: integer
+        fast_pct:
+          type: number
+        fallback_pct:
+          type: number
+        fail_closed_pct:
+          type: number
+        p50_ms:
+          type: number
+        p95_ms:
+          type: number
+        error_pct:
+          type: number
+        cost_vnd:
+          type: string
+    DecisionObservability:
+      type: object
+      required: [gates]
+      additionalProperties: false
+      properties:
+        gates:
+          type: array
+          items:
+            $ref: "#/components/schemas/DecisionObsGate"
     LLMBudgetInput:
       type: object
       required: [version]

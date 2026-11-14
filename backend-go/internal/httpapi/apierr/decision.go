@@ -6,7 +6,7 @@ const (
 )
 
 var decisionMessages = map[string]string{ //nolint:gochecknoglobals // bảng lời văn bất biến
-	DecisionRealDisabled: "Mô hình thật chưa được phép dùng trong môi trường này.",
+	DecisionRealDisabled: "Chưa được phép dùng bản thật.",
 }
 
 func decisionMessage(code string) (string, bool) {

@@ -525,6 +525,8 @@ func (r *runner) llmScenarios() {
 	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/llm-budget", token: admin}, 422)
 	r.must(call{method: "GET", path: "/api/v1/courses/" + uuid.NewString() + "/llm-budget", token: teacher}, 403)
 
+	r.decisionScenarios(admin, teacher, ta)
+
 	// DELETE: 409 đang dùng / 401 / 403 / 404 / 204
 	r.must(call{method: "DELETE", path: one, token: admin}, 409)
 	r.must(call{method: "DELETE", path: one}, 401)
@@ -1449,4 +1451,68 @@ func studentLeak(c call, body []byte) string {
 		}
 	}
 	return ""
+}
+
+// decisionScenarios gọi 6 thao tác API decision (SRS FEAT-decision-model 6) với mọi status đã khai báo.
+func (r *runner) decisionScenarios(admin, teacher, ta string) {
+	t := r.t
+	const base = "/api/v1/admin/llm/decision"
+	r.must(call{method: "GET", path: base, token: admin}, 200)
+	r.must(call{method: "GET", path: base}, 401)
+	r.must(call{method: "GET", path: base, token: ta}, 403)
+	r.must(call{method: "GET", path: base, token: teacher}, 403)
+
+	// PUT cổng: 200 / 401 / 403 / 404 / 409 / 422
+	g := base + "/gates/THREADS_PRECHECK"
+	r.must(call{method: "PUT", path: g, token: admin, body: `{"enabled":true,"threshold":"0.100","timeout_ms":900,"version":1}`}, 200)
+	r.must(call{method: "PUT", path: g, token: admin, body: `{"enabled":false,"version":1}`}, 409)
+	r.must(call{method: "PUT", path: g, token: admin, body: `{"threshold":"0.900","version":2}`}, 422)
+	r.must(call{method: "PUT", path: g, token: admin, body: `{"timeout_ms":100,"version":2}`}, 422)
+	r.must(call{method: "PUT", path: base + "/gates/NOPE", token: admin, body: `{"enabled":true,"version":1}`}, 404)
+	r.must(call{method: "PUT", path: g, body: `{"version":2}`}, 401)
+	r.must(call{method: "PUT", path: g, token: teacher, body: `{"version":2}`}, 403)
+
+	// lớp thật cho công tắc theo lớp
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	var adminU, course uuid.UUID
+	if err := db.QueryRow(ctx, `insert into users (email, full_name, role, status, password_hash, email_verified_at) values ($1, 'Người Thử', 'ADMIN', 'ACTIVE', 'x', now()) returning id`,
+		"ct-dec-"+uuid.NewString()[:8]+"@example.test").Scan(&adminU); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.QueryRow(ctx, `insert into courses (subject_code, class_code, name, semester, join_code, created_by) values ('INT1006', $1, 'Lớp quyết định', '2026-2027-HK1', $2, $3) returning id`,
+		"DC-"+uuid.NewString()[:6], "DC"+strings.ToUpper(strings.NewReplacer("0", "X", "1", "Y", "O", "Z", "I", "W", "L", "V").Replace(uuid.NewString()[:5])), adminU).Scan(&course); err != nil {
+		t.Fatal(err)
+	}
+	// danh sách lớp theo cổng: 200 / 401 / 403 / 404 / 422
+	cs := base + "/courses?gate=THREADS_PRECHECK"
+	r.must(call{method: "GET", path: cs + "&q=quyết", token: admin}, 200)
+	r.must(call{method: "GET", path: cs}, 401)
+	r.must(call{method: "GET", path: cs, token: ta}, 403)
+	r.must(call{method: "GET", path: base + "/courses?gate=NOPE", token: admin}, 404)
+	r.must(call{method: "GET", path: cs + "&limit=0", token: admin}, 422)
+
+	// công tắc lớp: 200 / 401 / 403 / 404 / 409 / 422
+	cg := "/api/v1/courses/" + course.String() + "/decision-gates"
+	r.must(call{method: "PUT", path: cg + "/CHAT_ROUTING", token: admin, body: `{"enabled":true,"version":0}`}, 200)
+	r.must(call{method: "PUT", path: cg + "/CHAT_ROUTING", token: admin, body: `{"enabled":false,"version":0}`}, 409)
+	r.must(call{method: "PUT", path: cg + "/CHAT_ROUTING", token: admin, body: `{"enabled":false,"version":1}`}, 200)
+	r.must(call{method: "PUT", path: "/api/v1/courses/" + uuid.NewString() + "/decision-gates/CHAT_ROUTING", token: admin, body: `{"enabled":true,"version":0}`}, 404)
+	r.must(call{method: "PUT", path: cg + "/NOPE", token: admin, body: `{"enabled":true,"version":0}`}, 404)
+	r.must(call{method: "PUT", path: cg + "/CHAT_ROUTING", token: admin, body: `{"version":2}`}, 422)
+	r.must(call{method: "PUT", path: cg + "/CHAT_ROUTING", body: `{"enabled":true,"version":2}`}, 401)
+	r.must(call{method: "PUT", path: cg + "/CHAT_ROUTING", token: teacher, body: `{"enabled":true,"version":2}`}, 403)
+	// đọc ba cổng của lớp: 200 / 401 / 403 / 404 / 422
+	r.must(call{method: "GET", path: cg, token: admin}, 200)
+	r.must(call{method: "GET", path: cg}, 401)
+	r.must(call{method: "GET", path: cg, token: ta}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/" + uuid.NewString() + "/decision-gates", token: admin}, 404)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/decision-gates", token: admin}, 422)
+
+	// quan sát: 200 / 401 / 403 / 422
+	ob := "/api/v1/admin/observability/decision"
+	r.must(call{method: "GET", path: ob + "?window=7d", token: admin}, 200)
+	r.must(call{method: "GET", path: ob}, 401)
+	r.must(call{method: "GET", path: ob, token: teacher}, 403)
+	r.must(call{method: "GET", path: ob + "?window=1y", token: admin}, 422)
 }
