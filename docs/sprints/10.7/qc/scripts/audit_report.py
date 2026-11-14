@@ -19,6 +19,7 @@ FAIL = collections.OrderedDict()
 E7_REAL = {"student/", "student/chat", "teacher/observability"}
 E7_UNMEASURED = {"ta/students", "teacher/students", "ta/analytics", "teacher/analytics"}
 UNMEAS = {}
+MOCK_LX = {"/insights", "/analytics", "/observability"}  # màn mô phỏng: L2/X1 không áp dụng trên stack thật (TL 12.2, PM 15/11); dev kiểm bằng ?state= ở frame.spec
 _SRC = "".join(open(os.path.join(dp, f), errors="ignore").read() for dp, _, fs in os.walk(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(QC)))), "frontend", "src")) for f in fs if f.endswith((".ts", ".tsx")))
 static_text = lambda t: t.strip() in _SRC
 def bad(code, r, why=""):
@@ -122,11 +123,11 @@ for r in rows["loading"]:
         a, b = r["header"]["h1"], d["header"]["h1"]
         if abs(a["y"] - b["y"]) > 2 or abs(a["x"] - b["x"]) > 2: bad("L1", r, f"h1 ({a['x']},{a['y']}) vs ({b['x']},{b['y']})")
     elif ok(d) and not r["header"]["h1"]: bad("L1", r, "không có h1 khi tải")
-    if r["busy"] < 1 and r["route"] != "/insights": bad("L2", r, "không có aria-busy")
+    if r["busy"] < 1 and r["route"] not in MOCK_LX: bad("L2", r, "không có aria-busy")
     x3(r, idx.get(("data", r["role"], r["route"], r["w"])))  # /insights mô phỏng: không áp dụng tới sprint 11 (PM 15/11)
 for r in rows["error"]:
     if not ok(r) or r.get("apiHits") == 0: continue
-    if r["route"] != "/insights":  # TL 14.7: một alert cho mỗi truy vấn hỏng, tại chỗ vùng nó nuôi; ≤ 1 alert mỗi data-ep-section; trang không mục đúng 1; tổng ≤ số GET hỏng khác nhau
+    if r["route"] not in MOCK_LX:  # TL 14.7: một alert cho mỗi truy vấn hỏng, tại chỗ vùng nó nuôi; ≤ 1 alert mỗi data-ep-section; trang không mục đúng 1; tổng ≤ số GET hỏng khác nhau
         col = (r["col"] or {}).get("w", -999); al = r["alerts"]; why = []
         if r["alertCount"] < 1: why.append("alert×0")
         if r["sections"] == 0 and r["alertCount"] != 1: why.append(f"trang không mục: alert×{r['alertCount']}")

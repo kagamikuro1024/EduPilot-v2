@@ -2,7 +2,7 @@
 
 Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, kể cả `/settings` sinh viên). Stack `ep-qc`: chỉ rebuild frontend (env QC: `NEXT_PUBLIC_API_URL=http://localhost:580`), DB giữ nguyên. Chỉ đọc, không sửa mã dev.
 
-**Kết luận: CHƯA đạt «0 lệch», còn 48 lượt ở 9 mã đo (trước đó 191 lượt, 15 mã).** Đã đạt 0 lệch: H3, H6, H7, E5, E7 (3 route lệch thật đã sửa), D1, T2 và toàn bộ nhóm cứng W, H1–H5, H8, P1, P3, P4, E1–E4, L1, L3, X2, T1, C3. Trang giới thiệu: mọi AC đo được đều đạt. P-107-14 đạt.
+**Kết luận: CHƯA đạt «0 lệch», còn 40 lượt ở 8 mã đo (trước đó 191 lượt, 15 mã).** Đã đạt 0 lệch: H3, H6, H7, E5, E7 (3 route lệch thật đã sửa), D1, T2 và toàn bộ nhóm cứng W, H1–H5, H8, P1, P3, P4, E1–E4, L1, L3, X2, T1, C3. Trang giới thiệu: mọi AC đo được đều đạt. P-107-14 đạt.
 
 ## 1. Verdict
 
@@ -14,7 +14,7 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, k�
 | K4 / K5 (trạng thái rỗng, nút trùng) | **FAIL (Thấp)** | E1, E3–E5 = 0, E7 = 0. E2 (`student/chat` rỗng lệch tâm −397 px / −187 px) và E6 (3 route) còn lệch |
 | K6 (375 px) | **PASS** | W5 = 0, 0 tràn ngang, H8 = 0 |
 | Chuẩn đo mới (D1–D3, P5) | **FAIL (Thấp)** | D1 = 0. D3 còn 12 lượt (6 route), D2 11 lượt (4 route), P5 2 lượt (`admin/observability`) |
-| Đang tải / lỗi (L1–L3, X1–X3) | **FAIL (Thấp)** | L1, L3, X2 = 0. L2 4 lượt, X1 8 lượt, X3 4 lượt |
+| Đang tải / lỗi (L1–L3, X1–X3) | **FAIL (Thấp)** | L1, L3, X2 = 0. L2 = 0, X1 4 lượt, X3 4 lượt |
 | Lô 1 đo lại (`/insights`, `/questions`, `/inbox`) | **PASS có lệch nhỏ** | `/inbox`, `/questions` 0 lệch. Còn `/insights` ở 375 (P2 +2,1 px). `/insights` ở lớp rỗng: «Chưa có báo cáo», không số liệu lớp khác |
 | Lỗi dữ liệu mô phỏng ở lớp rỗng | **PASS** | `/analytics` ở QCEMPTY: «Chưa có số liệu» (trước đó hiện số liệu lớp 761987) |
 | `/settings` sinh viên khi lỗi API (TL 14.7) | **PASS** | 3 mục: «Mật khẩu» dùng được (ô nhập, nút hiện mật khẩu), «Thiết bị đang đăng nhập» 1 alert, «Thư» 1 alert; «Nhắc 24 giờ» và «Thời gian học» không vẽ gì, không nút/ô nào dùng được trên dữ liệu chưa tải; tổng 2 alert ≤ 4 GET hỏng khác nhau |
@@ -23,7 +23,7 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, k�
 | Bộ màu ĐHBK (P-107-8/10) | **Chưa kiểm hết** | C3 = 0 trên mọi lượt; `contrast.spec.ts` QC không chạy lại (dev báo xanh ở CI) |
 | `ui-antipatterns.sh` | **PASS** | exit 0 (HEAD trước), `--selftest` 31/31, `scripts/ui-frame-debt.txt` chỉ còn dòng chú thích |
 
-## 2. Lệch còn lại (48 lượt trong `audit.md`)
+## 2. Lệch còn lại (40 lượt trong `audit.md`)
 
 | Mã | Lệch | Route | Loại | Ghi chú |
 | --- | --- | --- | --- | --- |
@@ -33,9 +33,10 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, k�
 | P5 | 2 | `admin/observability`: mục→mục 60,8 (1440) và 127,9 (375) so với 48 | **Thật** | |
 | E2 | 2 | `student/chat` rỗng: khối rỗng lệch tâm −397,5 / −187,5 | **Thật** | Khối rỗng đã có `data-ep-empty` nhưng nằm trong cột trái của `Split` |
 | E6 | 3 | `admin/observability` 377; `student/chat` rỗng 654; `teacher/observability` rỗng 341 | **Thật** | |
-| L2 khung xương | 4 | `teacher/analytics`, `teacher/observability` (1440, 375) | **Thật** | Có gọi API (2 GET) nhưng không vẽ `aria-busy` |
-| X1 khối lỗi | 8 | `teacher/analytics`, `teacher/observability`: alert×0; `student/chat`: rộng 355 (1440) / 0 (375) so với cột; `teacher/settings`: 2 alert hợp lệ (TL 14.7) nhưng rộng 750 / 317 so với cột 800 / 351 | **Thật** (`analytics`, `observability`, `chat`); **Quyết** (`settings`) | `settings`: mỗi alert nằm trong đệm của panel nên hẹp hơn cột 50 / 34 px; TL 14.7 ghi alert «thay chỗ panel, rộng = cột» → QC tính lệch, đề nghị TL xác nhận |
+| X1 khối lỗi | 4 | `student/chat`: rộng 355 (1440) / 0 (375) so với cột; `teacher/settings`: 2 alert hợp lệ (TL 14.7) nhưng rộng 750 / 317 so với cột 800 / 351 | **Thật** | `settings`: mỗi alert nằm trong đệm của panel nên hẹp hơn cột 50 / 34 px; TL 14.7: alert «thay chỗ panel, rộng = cột» → lệch thật, đã giao dev (PM 15/11) |
 | X3 | 4 | `student/practice` đang tải mất tab (1440, 375); `teacher/attendance` đang tải và lỗi ở 375 mất thanh dính đáy | **Thật** | TL 14.6: dock 375 vẫn hiện, disabled |
+
+**Không áp dụng (PM 15/11, TL 12.2):** L2 và X1 ở `analytics`, `observability` (màn mô phỏng, dev kiểm bằng `?state=` ở `frame.spec`); QC bỏ khỏi cột lệch (`/insights` đã vậy từ trước).
 
 **Chưa đo (TL 14.3):** E7 ở `students` (lớp QCEMPTY vẫn có 1 sinh viên) cho GV, TA; `analytics` (màn mô phỏng, nợ sprint 11).
 
