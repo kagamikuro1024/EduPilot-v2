@@ -1,5 +1,6 @@
 # SRS FEAT-practice Ngân hàng câu hỏi mở rộng, luyện đề, thi thử, form trắc nghiệm
-Phiên bản 1.2 · 2026-11-14 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+Phiên bản 1.3 · 2026-11-14 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+**v1.3 (P-10-9):** một luật bù câu cho `BuildMatrix` — US-P9-05 AC1, AC4, FR-2 (bù từ chủ đề khác cùng độ khó, chỉ cắt ngắn khi cả ngân hàng hết câu); US-P9-04 AC2: `Soạn tay` là nhóm cha (`Câu trắc nghiệm` / `Bài lập trình`), menu không dòng phụ.
 **v1.2 (P-10-8 F3, Q-S10-27):** thêm trần LLM cho `extract` / `generate` — US-P9-02 AC9, US-P9-03 AC8, FR-28, `429` ở API #1, #2.
 **v1.1 (P-10-7):** vá US-P9-01 AC1 (không `practice_exams`), AC2 (mọi dấu câu cuối, không bỏ dấu tiếng Việt), US-P9-07 AC4, AC8, FR-1, FR-17 (dung sai 60 s thống nhất).
 **v1.0:** áp Q-P9-8 (Forms: chỉ TEACHER import + xem trước + xác nhận, không tự công bố, không LLM — US-P9-11 AC10–AC12), Q-P9-10 (thi thử: `{đúng}/{tổng}` chính, thang 10 một chữ số phụ — FR-15, US-P9-07 AC7), Q-P9-3, 4, 7 giữ nguyên như đã viết.
@@ -44,7 +45,7 @@ flowchart LR
 | Trích: LLM `OVERLOADED` | Retry 3 lần rồi dead-letter; câu đã lưu giữ nguyên | "Chưa trích được. Thử lại." |
 | Trích: câu thiếu đáp án / sai schema | Không lưu; ghi vào "bỏ qua" kèm trang | Danh sách "bỏ qua N câu" |
 | Duyệt hàng loạt: một id lỗi | Kết quả từng id; lô không huỷ | Hàng lỗi đánh dấu tại chỗ |
-| Dựng đề: thiếu câu | Đề ngắn hơn + `notes`; < 5 câu → `409 NOT_ENOUGH_QUESTIONS` | "Chưa đủ câu để luyện chủ đề này" |
+| Dựng đề: thiếu câu | Bù từ chủ đề khác cùng độ khó + `notes`; chỉ khi cả ngân hàng hết câu mới ngắn hơn + `notes`; < 5 câu → `409 NOT_ENOUGH_QUESTIONS` | "Chưa đủ câu để luyện chủ đề này" |
 | TOPIC: trả lời khi mất mạng | Hàng chờ cục bộ; gửi lại có `Idempotency-Key` | "Chưa gửi được" tại câu |
 | TOPIC: `explain` LLM lỗi | Chỉ lỗi phần giải thích; phản hồi đúng / sai còn | "Chưa giải thích được. Thử lại." |
 | MOCK: hết giờ máy chủ | Trong 60 s sau hạn nhận `client_ts ≤ deadline_at`, bỏ `client_ts > deadline_at`; sau 60 s `409 ATTEMPT_CLOSED` cho ghi mới; worker đóng lượt; chấm trên câu đã lưu | Kết quả hiện khi mở lại |
@@ -58,7 +59,7 @@ flowchart LR
 ## 4. Yêu cầu chức năng
 ### 4.1 Quiz Engine (`internal/quiz`, code thuần — không import `internal/llm`)
 - **FR-1** Chấm `SHORT` bằng chuẩn hoá `NormalizeShort` (NFC; trim; gộp khoảng trắng; hoa thường; bỏ **mọi** dấu câu ở cuối; **giữ dấu tiếng Việt**, "ha noi" ≠ "Hà Nội" nếu không nằm trong tập đáp án — P-10-7 Q26) so với tập đáp án chấp nhận; trả `decimal` — AC US-P9-01 AC2–AC3.
-- **FR-2** `BuildMatrix(pool, matrix, history, seed)` thuần, tất định theo `seed` (id lượt); không lặp; ưu tiên chưa làm / làm sai trong 30 ngày; bù ô thiếu; trả `notes` — US-P9-05 AC1–AC4.
+- **FR-2** `BuildMatrix(pool, matrix, history, seed)` thuần, tất định theo `seed` (id lượt); không lặp; ưu tiên chưa làm / làm sai trong 30 ngày; một luật bù ô thiếu (chủ đề khác cùng độ khó → câu còn lại gần độ khó nhất → chỉ khi hết ngân hàng mới cắt ngắn); trả `notes` — US-P9-05 AC1–AC4.
 - **FR-3** Xáo thứ tự câu và phương án theo `seed` (id lượt), ổn định khi tải lại — US-P9-05 AC5.
 - **FR-4** `Validate` của PE chấp nhận `SHORT` (đáp án chấp nhận ≥ 1, không rỗng) và `ESSAY` (đáp án mẫu + rubric ngắn); `exam_items` từ chối hai loại này (`422 TYPE_NOT_SUPPORTED_IN_EXAM`) — US-P9-01 AC4, AC6.
 
