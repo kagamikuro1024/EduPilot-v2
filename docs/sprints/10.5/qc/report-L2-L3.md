@@ -54,3 +54,6 @@
 
 ## Chưa kiểm được ở lượt này
 TC-D03-11…13, 15, 16, 18…20; TC-D04-07, 09, 16…18, 20; TC-D01-03, 15, 21 (máy chủ giả cho đường mã provider thật — cần DM-BUG-1 sửa để tạo provider với `base_url`); TC-D02-14, 16 (cấu hình không DB trên đường nóng, hai gateway); mọi TC có «LLM thật» / «chờ phép PM». Kiểm tiếp ở L4–L5 trên stack `testroutes` (`docker-compose.test.yml`).
+
+## Cập nhật sau sửa (6f6ca1f6)
+DM-BUG-1…4 đã sửa và kiểm lại PASS; DM-BUG-5 chỉ còn lại ở tên test phụ trong SRS §9. Chi tiết, các ca `block` 201 (lỗi stub QC, không phải sản phẩm) và L4–L5: `report-L4-L5.md`.
