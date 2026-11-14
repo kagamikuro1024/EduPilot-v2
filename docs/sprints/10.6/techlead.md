@@ -13,6 +13,12 @@
 > - PoC `docs/research/poc/agent-memory/poc.py`.
 >
 > Mã dẫn dưới đây là của `sprint/10.6-guidance` (tách từ `sprint/10.5-decision` `c884c285`).
+>
+> **Cập nhật 2026-11-14 theo PM (`proposals.md`):**
+> - **P-106-2 CHẤP NHẬN, siết.** Miễn so phiên bản cho bài **giảng viên đã duyệt**, không chỉ bài "có tiêu chí đã sửa". Bài còn nháp vẫn phải cùng phiên bản, nên phải chấm lại. Không bao giờ ghi đè điểm giảng viên đã chốt. Màn công bố hiện số bài được miễn theo lý do. Cách làm ở mục 6.
+> - **P-106-3 CHẤP NHẬN:** `POST …/threads/similar-confirmed {q}` (mục 9).
+>
+> BA vá SRS / US theo hai quyết định này. Trong lúc chờ bản vá, **TL-1 mục 6 và 9 thắng phần SRS cũ** ở đúng hai điểm đó.
 
 ### 0.1 Bản đồ lát → mục
 
@@ -25,12 +31,12 @@
 | L5 | M2 (SRS 4.3), M4 (SRS 4.4), M6 (SRS 4.5) | 8, 9, 10 |
 | L6 | Cờ, Hôm nay, env, guide | 11, 12; `docs/guides/grading-guidance.md` |
 
-### 0.2 Chỗ TL thấy cần sửa trong SRS (PM quyết; tới lúc đó làm theo SRS)
+### 0.2 Chỗ TL thấy cần sửa trong SRS (TLR-1, TLR-2 đã được PM quyết; còn lại là gợi ý)
 
 | # | Mức | Vị trí | Vấn đề | Đề xuất | Bằng chứng |
 | --- | --- | --- | --- | --- | --- |
-| TLR-1 → **P-106-2** | **chặn luồng** | SRS 4.2.12, US-GD-05 AC6, P-106-1 Q-G-1 | Các kết quả mà giảng viên **đã sửa tay** để dạy hệ thống (bộ học) đều ghim `v0`. Sau `Áp dụng` (v1), công bố chúng → `409 MIXED_GUIDANCE` (giá trị ≠ hiện hành). Lối ra duy nhất là `regrade-stale ALL_UNPUBLISHED`, đưa chúng về nháp mới; điểm sửa tay nằm lại round cũ, giảng viên phải sửa lại. Luồng 3.1 của SRS ("Áp dụng → Chấm lại → Công bố") vì vậy **không công bố được bộ học** nếu chưa công bố trước khi Áp dụng. Protocol đo của SRS §9 (20 bài học → Áp dụng) rơi đúng vào ca này | Loại khỏi phép so phiên bản những kết quả có `teacher_changed_criteria` ≠ ∅ (tính như `changedCriteria`, `publish.go:175`): điểm đó là quyết định của người, không phải của bản lưu ý. Nếu PM giữ "cấm cứng", tối thiểu nút `Áp dụng` phải báo "k bài đã duyệt chưa công bố sẽ cần chấm lại" (khối `ConfirmIrreversible`) | `publish.go:175` `changedCriteria`; SRS 3.1 bước cuối; SRS §9 bảng đo |
-| TLR-2 → **P-106-3** | nên sửa (PII trong log) | SRS §6 #10, 3.5 | `GET …/threads/similar-confirmed?q=<bản nháp>` đưa chữ sinh viên đang gõ vào **URL**. Caddy ghi `request>uri` đầy đủ, chỉ che `token=`, `/invite/`, `/join/` (`deploy/caddy/Caddyfile:23–28`, `Caddyfile.vps:27`). Bản nháp **chưa qua tường lửa** nên có thể chứa MSSV / tên → vào log truy cập. AGENTS cấm log PII | Đổi thành `POST …/threads/similar-confirmed {q}`: thân không vào log. Không phải trả lời idempotent vì chỉ đọc; không cần `Idempotency-Key` | Caddyfile như trên |
+| TLR-1 → **P-106-2 (đã quyết)** | chặn luồng | SRS 4.2.12, US-GD-05 AC6, P-106-1 Q-G-1 | Bài giảng viên đã sửa tay để dạy hệ thống (bộ học) ghim `v0`. Sau `Áp dụng` (v1), luật cấm cứng chặn công bố chúng, và lối ra duy nhất là chấm lại, làm mất điểm sửa tay | **PM chốt:** miễn so phiên bản cho bài giảng viên **đã duyệt**; nháp vẫn phải cùng phiên bản. Thi công: mục 6 | `publish.go:46–150` (chỉ công bố `REVIEWED`); `review.sql:60–66` (`ReviewApplyEdit` xoá `reviewed_by` / `reviewed_at`) |
+| TLR-2 → **P-106-3 (đã quyết)** | PII trong log | SRS §6 #10, 3.5 | `GET …?q=<bản nháp>` đưa chữ sinh viên chưa qua tường lửa vào URL; Caddy ghi nguyên URI (`deploy/caddy/Caddyfile:23–28`) | **PM chốt:** `POST …/threads/similar-confirmed {q}`; thân không vào log. Thi công: mục 9 | Caddyfile như trên |
 | TLR-3 | gợi ý | SRS §5.1, 5.2 | FK `(course_id, assignment_id) → assignments` không có `ON DELETE CASCADE`, trong khi 4.2.14 ghi "Xoá lớp → CASCADE". Thực tế bài có bài nộp thì không xoá được (`assignment.go:637` → `409 HAS_SUBMISSIONS`), nên lưu ý không bao giờ mồ côi | Thêm `ON DELETE CASCADE` cho khớp 4.2.14 (vô hại) | `assignment.go:637` |
 | TLR-4 | gợi ý (lỗi cú pháp) | SRS §5.5 | Dấu phẩy thừa trước `)` trong `grading_regression_cases`; các bảng mới thiếu trigger `set_updated_at` | Dev sửa khi viết migration (không đổi nghĩa) | – |
 | TLR-5 | gợi ý | SRS 4.4, 3.5 | M4 nhúng lại chuỗi mà precheck (`usePostGate.tsx`, 800 ms) **vừa nhúng**. `Firewall.Embed` đã có cache `ep:emb` (`thread/firewall.go:45`) | Dùng **đúng hàm** `Firewall.Embed` với **đúng chuỗi** `title + "\n" + body`: trúng cache, 0 lời gọi thêm. Vẫn khớp SRS ("cache theo băm, TTL 5 phút" là sàn) | `thread/firewall.go:37–45` |
@@ -71,6 +77,12 @@ CREATE INDEX grc_course_idx ON grading_regression_cases (course_id, kind, create
 CREATE INDEX question_bank_rejected_idx ON question_bank (course_id, reviewed_at DESC)
     WHERE review_status = 'REJECTED' AND reject_reason IS NOT NULL AND reject_reason <> 'UNSPECIFIED';  -- M6
 -- (c) trigger set_updated_at cho grading_guidance_items, course_guidance_flags, grading_regression_cases (TLR-4)
+-- (d) P-106-2: dấu "giảng viên đã duyệt" KHÔNG bị xoá khi sửa lại. ReviewApplyEdit (review.sql:60) đặt reviewed_by/at = NULL khi
+--     REVIEWED → DRAFT, nên không dùng được làm điều kiện miễn. Cột mới chỉ ghi lần đầu, như ai_scores.
+ALTER TABLE grading_results ADD COLUMN first_reviewed_at timestamptz,
+    ADD COLUMN first_reviewed_by uuid REFERENCES users (id);
+-- ReviewMark: first_reviewed_at = coalesce(first_reviewed_at, now()), first_reviewed_by = coalesce(first_reviewed_by, reviewer)
+-- Trigger bất biến (a) thêm: OLD.first_reviewed_at IS NOT NULL AND NEW.first_reviewed_at IS DISTINCT FROM OLD.first_reviewed_at → P0001
 ```
 
 `course_guidance_flags` (SRS 5.4):
@@ -88,12 +100,13 @@ CREATE INDEX question_bank_rejected_idx ON question_bank (course_id, reviewed_at
 | `GuidanceItems :many` | mọi mục của bài trừ `REJECTED` > 30 ngày; cursor `(created_at, id)`, `limit` ≤ 100 | SRS §8 phân trang |
 | `GuidanceCases :many` | kết quả hiện hành (vòng cao nhất) `REVIEWED` / `PUBLISHED`, `ai_scores IS NOT NULL`, của bài; trả `id, criteria, ai_scores, ai_comments, reviewed_at`; `order by reviewed_at desc limit 200` | Lệch tính bằng `decimal` ở Go |
 | `GuidanceInsertDraft :one`, `GuidanceDecide :execrows` (có `version`), `GuidanceApply :exec`, `GuidanceVersionInsert :exec` | SRS 4.2.9–4.2.10 | |
-| `GuidanceStaleCount :one` | số kết quả hiện hành chưa công bố có `guidance_version < hiện hành`, chia theo `status` và theo phiên bản | Dòng "N bài chấm theo bản cũ" |
-| `GuidanceStaleCandidates :many` | như trên, `scope`, bài nộp mới nhất, `round < 20`, `limit REGRADE_MAX_BATCH`, `for update of r` | SRS 4.2.11 |
+| `GuidanceStaleCount :one` | kết quả hiện hành chưa công bố có `guidance_version ≠ hiện hành`, tách hai nhóm: **cần chấm lại** (`first_reviewed_at IS NULL`, mọi `status` chưa công bố) và **được miễn** (`first_reviewed_at IS NOT NULL`) | Dòng "N bài chấm theo bản cũ" chỉ đếm nhóm đầu |
+| `GuidanceStaleCandidates :many` | nhóm "cần chấm lại": `status = 'DRAFT'`, `first_reviewed_at IS NULL`, `run_state IN ('DONE','FAILED')`, bài nộp mới nhất, `round < 20`, `limit REGRADE_MAX_BATCH`, `for update of r` | SRS 4.2.11 + P-106-2: **không bao giờ** chọn bài giảng viên đã duyệt |
 | `GuidanceStats :many` | hàng thô theo `guidance_version` của kết quả hiện hành `REVIEWED` / `PUBLISHED` | MAE / lệch tính bằng `decimal` ở Go (SRS 4.2.13) |
 | `EssayGradeContext` (**sửa**) | thêm `a.guidance_version`, `a.type` | |
 | `EssaySaveDraft` (**sửa**) | `guidance_version = sqlc.arg(guidance_version)`, `ai_comments = coalesce(ai_comments, sqlc.arg(ai_comments))` | Ghim = giá trị **đã dùng dựng prompt** (mục 3.2) |
-| `PublishLockMany` (**sửa**) | thêm `guidance_version` (+ `ai_scores`, `criteria` nếu PM nhận P-106-2) | |
+| `PublishLockMany` (**sửa**) | thêm `guidance_version`, `first_reviewed_at` | Đếm bài miễn theo lý do (mục 6) |
+| `ReviewMark` (**sửa**) | thêm `first_reviewed_at = coalesce(first_reviewed_at, now())`, `first_reviewed_by = coalesce(first_reviewed_by, sqlc.arg(reviewer))` | P-106-2 |
 | `RegressionCaseUpsert :exec` | `on conflict (course_id, kind, source_id, coalesce(criterion_id,'')) do update set expected = …` | SRS 4.3, idempotent |
 | `KnowledgeSimilarPosts :many` | mục 9 | |
 | `QuestionRejectHints :many` | mục 10 | |
@@ -241,28 +254,61 @@ Trả `{version, stale}` (`stale` = `GuidanceStaleCount`).
 
 **`TestGuidanceVersionOnlyViaApply`:** `grep` trong `internal/` khẳng định chỉ `guidance.go` có câu `UPDATE assignments SET guidance_version`. Kèm test hành vi.
 
-### 6. Chấm lại lô, chặn công bố lô trộn (SRS 4.2.11–4.2.12)
+### 6. Chấm lại lô, chặn lô trộn (SRS 4.2.11–4.2.12, sửa theo P-106-2)
 
-**`regrade-stale`** (`{scope}`, `Idempotency-Key`, TA / TEACHER):
-- Mặc định `UNREVIEWED` (P-106-1).
-- Dùng lại `Batches.enqueue` (`queue_api.go:121`): `GuidanceStaleCandidates` rồi `GradingInsertQueued(round+1)` trong cùng giao dịch, rồi `jobs` + outbox `grading.batch`.
-- `scope=ALL_UNPUBLISHED`: trước khi chèn round mới, đưa `REVIEWED → DRAFT` cho round cũ (bỏ `reviewed_by` / `reviewed_at`; `audit_log grading_result.unreview_for_guidance`). Round mới là kết quả hiện hành; round cũ vẫn xem được (SRS 4.2.11).
+**Luật sau P-106-2:**
+- Bài **giảng viên đã duyệt** (`first_reviewed_at IS NOT NULL`, mục 1 (d)) được **miễn** so phiên bản: điểm cuối là quyết định của giảng viên.
+- Bài **chưa từng được duyệt** phải mang đúng phiên bản hiện hành mới được duyệt; nếu không, phải chấm lại.
+- Chấm lại **không bao giờ** đụng bài đã duyệt.
+
+**Vì sao chặn ở bước *duyệt* chứ không ở bước *công bố*:**
+- `PublishResults` chỉ nhận `REVIEWED` (`publish.go`, nhánh `NotReviewed`). Sau P-106-2, mọi bài công bố được đều thuộc diện miễn.
+- Bước công bố vì vậy không còn chặn được gì. Cổng thật là **chuyển DRAFT → REVIEWED**.
+
+```mermaid
+stateDiagram-v2
+  [*] --> DRAFT_moi: chấm (ghim bản hiện hành)
+  DRAFT_moi --> REVIEWED: Duyệt
+  DRAFT_cu: DRAFT ghim bản cũ, chưa từng duyệt
+  DRAFT_moi --> DRAFT_cu: Áp dụng bản mới
+  DRAFT_cu --> DRAFT_moi: Chấm lại (round + 1)
+  DRAFT_cu --> DRAFT_cu: Duyệt / Sửa → 409
+  REVIEWED --> REVIEWED: Áp dụng bản mới (miễn)
+  REVIEWED --> DRAFT_da_duyet: Sửa (first_reviewed_at giữ nguyên, vẫn miễn)
+  DRAFT_da_duyet --> REVIEWED: Duyệt
+  REVIEWED --> PUBLISHED: Công bố
+```
+
+**Ba chỗ chặn,** đều trong giao dịch sẵn có và đều kiểm `stale := flagOn && r.GuidanceVersion != eff && r.FirstReviewedAt == nil`:
+
+| Hàm | Khi `stale` | Lý do |
+| --- | --- | --- |
+| `Review` (`review.go:606`), sau `guardEditable` | `409 MIXED_GUIDANCE {result_version, current_version}` (mã do BA chốt khi vá SRS; TL khuyên dùng lại mã này, không thêm mã mới) | Nháp theo bản cũ không được thành điểm chốt |
+| `EditResult` (`review.go:451`) | cùng 409 | Không để giảng viên sửa tay một nháp sắp phải chấm lại: điểm sửa sẽ nằm lại round cũ |
+| `PublishResults` (`publish.go:46`), sau `PublishLockMany` | không chặn; **đếm** bài miễn | Phòng thủ: nếu gặp bài `stale` mà không có `first_reviewed_at` (về lý thuyết không xảy ra) thì `409 MIXED_GUIDANCE`, không công bố gì |
+
+**`regrade-stale`** (`Idempotency-Key`, TA / TEACHER):
+- Chỉ chọn nhóm "cần chấm lại" (`GuidanceStaleCandidates`, mục 2): `DRAFT`, chưa từng duyệt.
+- **Bỏ** `scope=ALL_UNPUBLISHED` và **bỏ** bước đưa `REVIEWED → DRAFT`. BA vá SRS 4.2.11 / US-GD-05 AC4. Nếu SRS còn giữ tham số `scope` thì chỉ nhận `UNREVIEWED`, giá trị khác → `422`.
+- Dùng lại `Batches.enqueue` (`queue_api.go:121`): `GradingInsertQueued(round+1)` trong cùng giao dịch, rồi `jobs` + outbox `grading.batch`.
 - Trả `{job_id, queued, skipped}`, với `skipped` = số bài bị bỏ vì `round` đã 20.
+- Chấm lại **một** bài (`POST …/submissions/{id}/grade`, `queue_api.go:71`) giữ nguyên hành vi hiện có (đã từ chối `REVIEWED`). Đó là thao tác tay của nhân viên trên từng bài, không thuộc `regrade-stale`.
 
-**`publish`** (`publish.go:46`):
-- Ngay sau `PublishLockMany`, **trước mọi ghi**: nếu cờ lớp bật và tập có `|DISTINCT guidance_version| > 1` hoặc có giá trị ≠ hiện hành → `409 MIXED_GUIDANCE {versions: [...], counts: {"0": k, "1": m}}`.
-- Áp cho cả hai dạng (`result_ids[]` và `ALL_REVIEWED`); `ALL_REVIEWED` cũng không bỏ qua mà trả 409 (SRS: "không công bố gì").
-- Nếu PM nhận **P-106-2**: thêm điều kiện loại trừ "đã sửa tay" ở đúng chỗ này, một dòng `if len(changedCriteria(r.Criteria, r.AiScores)) > 0 { continue }`.
+**Số bài miễn theo lý do** (PM: "màn công bố hiện số bài miễn theo lý do"):
+- `POST …/grading-results/publish` trả thêm `exempt: [{reason, count}]`.
+- `GET …/assignments/{aid}/guidance` trả `stale: {regrade: n, exempt: [{reason, count}]}`.
+- Lý do hiện có một giá trị: `REVIEWED_ON_EARLIER_GUIDANCE` (giảng viên duyệt khi bản còn cũ hơn).
+- Mảng rỗng khi cờ tắt.
 
 ### 7. Giao diện (SRS §7)
 
 | Màn | File | Ghi chú kỹ thuật |
 | --- | --- | --- |
 | `/assignments/[id]` khối "Lưu ý chấm" | `frontend/src/features/assignments/AssignmentDrawer.tsx` (+ component mới `GuidancePanel.tsx` cùng thư mục) | Query `['guidance', aid]`. `Rút lưu ý` → 202 → theo dõi `job.progress` bằng `useSSE`; rời trang được. Quyết định dùng `useUndoableAction` (lạc quan + "Hoàn tác"). Sửa chữ dùng `useAutosaveDraft` (không mất chữ). `Áp dụng` khoá khi không có gì đổi (tooltip trên nút: lý do khoá) |
-| `/grading` | `frontend/src/features/grading/QueueTab.tsx` | `InlineNotice` "N bài chấm theo bản cũ · Chấm lại"; `ALL_UNPUBLISHED` dùng `ConfirmIrreversible`. Bắt `409 MIXED_GUIDANCE` của nút công bố → cùng `InlineNotice` |
-| `/grading/[submissionId]` | `SubmissionReview.tsx` | Phụ đề `meta` "bản v2 · 3 lần sửa" trên nhãn tiêu chí. `Popover` liệt kê lưu ý của **phiên bản ghim của kết quả này**, không phải bản hiện hành. Thêm trường `guidance: {version, items_by_criterion}` vào `ResultView` (`review.go:205`), tính từ `GuidanceSetAt(result.guidance_version)` |
+| `/grading` | `frontend/src/features/grading/QueueTab.tsx` | `InlineNotice` "N bài chấm theo bản cũ · Chấm lại" (chỉ nhóm cần chấm lại; không cần `ConfirmIrreversible` vì không còn đụng bài đã duyệt). Hộp xác nhận công bố có thêm dòng "k bài duyệt theo bản cũ" từ `exempt` |
+| `/grading/[submissionId]` | `SubmissionReview.tsx` | Phụ đề `meta` "bản v2 · 3 lần sửa" trên nhãn tiêu chí. `Popover` liệt kê lưu ý của **phiên bản ghim của kết quả này**, không phải bản hiện hành. Thêm `guidance: {version, items_by_criterion, stale}` vào `ResultView` (`review.go:205`), tính từ `GuidanceSetAt(result.guidance_version)`. Khi `stale`: chip "Bản cũ", ô điểm chỉ đọc, `Duyệt` khoá (tooltip trên nút: "Chấm lại trước khi duyệt"), một nút `Chấm lại` (`POST …/submissions/{id}/grade`) |
 | `/class/settings` | màn cài đặt lớp hiện có | 4 công tắc; `REGRESSION_CAPTURE` khoá với TEACHER (`can_edit=false`, tooltip "Chỉ quản trị viên bật") |
-| `/threads` soạn | `RealThreads.tsx` + `usePostGate.tsx` | Gọi M4 **sau** precheck `allowed && !personal` (cùng debounce), xem TLR-2 / TLR-5 |
+| `/threads` soạn | `RealThreads.tsx` + `usePostGate.tsx` | Gọi `POST …/threads/similar-confirmed {q}` (P-106-3) **sau** precheck `allowed && !personal`, cùng debounce; xem TLR-5 |
 | `/questions` loại câu | màn ngân hàng câu hỏi hiện có | Sau `Loại`: dãy chip lý do (bỏ qua được) + "Hoàn tác" |
 
 Chung:
@@ -296,6 +342,8 @@ Chung:
 - E2 (`--e2`): đọc câu hỏi thread + đáp án xác nhận trong DB; cách chấm ở `benchmarks/e2/README.md`.
 
 ### 9. M4: câu tương tự đã xác nhận (SRS 4.4; P-106-1 Q-G-5: chỉ POST)
+
+**Route** `POST …/threads/similar-confirmed`, thân `{q}` (P-106-3: chữ đang soạn không nằm trong URL nên không vào log truy cập của Caddy / gateway). Chỉ đọc: không `Idempotency-Key`, không ghi DB. `400` khi thiếu thân; `q` > 4.000 ký tự → `422` (cùng trần với precheck).
 
 **Service** `thread.(*Service).SimilarConfirmed(ctx, a, courseID, q)`:
 1. cờ `THREAD_SUGGEST` (ảnh chụp, mục 11) tắt → `[]`;
@@ -373,12 +421,13 @@ GROUP BY reject_reason ORDER BY n DESC, reject_reason LIMIT 3;
 | `TestReflectValidate` | Bảng: tiêu chí lạ; `case_id` lạ; sai chiều; `support < 2`; "trừ điểm muộn"; tên trong roster; Jaccard ≥ 0,8 → đúng biến `dropped`. `support` = số ca hợp lệ, không phải số LLM khai |
 | `TestReflectIdempotent` | Hai `POST` cùng khoá → cùng `job_id`; lần 4 trong giờ → 429 |
 | `TestApplyVersion` | 2 APPROVE + 1 RETIRE → +1 đúng một lần, có `grading_guidance_versions`; chỉ REJECT → `NOTHING_TO_APPLY`; `expected_version` cũ → 409 |
-| `TestRegradeStale` | `UNREVIEWED` không đụng REVIEWED; `ALL_UNPUBLISHED` đưa REVIEWED về DRAFT + round + 1; PUBLISHED không bao giờ; round 20 → `skipped` |
-| `TestPublishMixedGuidance` | Tập {v0, v1} → 409 và **không ghi gì** (kiểm `published_at` NULL cả lô); cờ tắt → công bố như cũ |
+| `TestRegradeStale` | Chọn đúng `DRAFT` ghim bản cũ, chưa từng duyệt → round + 1. **Không bao giờ** chọn `REVIEWED`, `PUBLISHED`, hay `DRAFT` có `first_reviewed_at`; `scope` khác `UNREVIEWED` → 422; round 20 → `skipped` |
+| `TestPublishMixedGuidance` (sửa theo P-106-2) | (a) Duyệt 5 bài ở v0 → Áp dụng v1 → công bố 5 bài đó: **200**, `exempt = [{REVIEWED_ON_EARLIER_GUIDANCE, 5}]`. (b) Nháp v0 chưa duyệt sau Áp dụng: `Review` và `EditResult` → 409, không đổi gì. (c) Bài đã duyệt, sửa lại (về `DRAFT`), duyệt lại → được (miễn còn nguyên). (d) Cờ tắt → không chặn, `exempt` rỗng |
+| `TestFirstReviewedImmutable` (**TL thêm**) | `ReviewApplyEdit` xoá `reviewed_at` nhưng **giữ** `first_reviewed_at`; cố đổi `first_reviewed_at` đã có → `P0001` |
 | `TestGuidanceRBAC` | TA `decide` / `apply` / `reflect` → 403; TEACHER lớp khác → 404; STUDENT không có route |
 | `TestGuidanceDeleteStudent` | Bỏ id khỏi `source_result_ids`; `support < 2` → `needs_recheck`, hành vi chấm **không đổi** (golden prompt như trước) |
 | `TestRegressionCaseNoText`, `…Idempotent`, `TestRegressCLIRefusesExport` | như SRS |
-| `TestSimilarConfirmed` | Chỉ POST (TICKET cùng nội dung → không trả); lớp khác → không; bài ẩn / bị bỏ xác nhận → không; dưới ngưỡng → không; chữ có MSSV → `[]` **và** provider nhúng giả không bị gọi; 429 |
+| `TestSimilarConfirmed` | Route là `POST`; `GET …?q=` → 405. Chỉ POST nguồn (TICKET cùng nội dung → không trả); lớp khác → không; bài ẩn / bị bỏ xác nhận → không; dưới ngưỡng → không; chữ có MSSV → `[]` **và** provider nhúng giả không bị gọi; 429 |
 | `TestRejectReasonHints` | < 5 câu → không khối; ≥ 5 → top 3 đúng thứ tự; khối chỉ gồm câu cố định |
 | Trigger | Sửa `ai_comments` / `guidance_version` khi `run_state='DONE'` → `P0001`; khi `QUEUED` / `RUNNING` → được |
 | Migration | up / down / up trên Postgres thật |
@@ -394,5 +443,5 @@ GROUP BY reject_reason ORDER BY n DESC, reject_reason LIMIT 3;
 | `support ≥ 2` quá chặt khi ít dữ liệu (PoC: 41/45 mục có support 1) | Reflect hay ra `drafts: 0` | Đúng thiết kế (an toàn). Protocol đo dùng 20 bài học thì đủ. Không hạ ngưỡng nếu PM chưa quyết |
 | Lưu ý chấm gắt quá tay (PoC chân B: lệch TB +0,23 → −0,25) | `bias_total` âm ở `stats`, cổng `cmd/regress` | Tiêu chí "bật được" SRS §9; `Cho nghỉ`; tắt cờ |
 | Reflect lặp lời tả sai của AI (PoC 3/3) | Tỉ lệ `Bỏ` cao | Người duyệt (bắt buộc). Cho reflect đọc bài phải mở lại D62 + Q-G-10 |
-| P-106-2 chưa quyết | Bộ học không công bố được sau Áp dụng | Hướng dẫn tạm (`grading-guidance.md` §3): **công bố bộ học trước khi Áp dụng** |
+| Bài đã duyệt theo bản cũ được công bố (P-106-2) | Cùng lô có điểm chốt theo hai bản khác nhau | Chấp nhận có chủ ý: điểm đó là quyết định của giảng viên; màn công bố hiện số bài miễn theo lý do |
 | M4 + HNSW P10 (TLR-6) | Gợi ý rỗng sau P10 | `hnsw.iterative_scan` hoặc Nợ P10 |
