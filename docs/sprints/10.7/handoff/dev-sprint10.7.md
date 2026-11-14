@@ -9,3 +9,6 @@
 ## Nợ chuyển từ 10.6 (PM 2026-11-14)
 - (d) Bộ lọc «Bài tập» của hàng chờ chấm mất khi rời route (10.6 chỉ giữ Trạng thái / Cần xem kỹ qua `sessionStorage`; chọn bài tập bị `relaxed`/danh sách bài tập tải sau ghi đè). Làm cùng hợp đồng khung §23.
 - (k) Dòng báo xong sau «Chấm lại» (`Đã chấm xong N bài`) — nếu QC thấy còn thiếu ở một nhánh (lô không tới SUCCEEDED, tải lại trang giữa chừng), bổ sung.
+
+## Nợ cho hợp đồng khung §23 (techlead-ui)
+- **Toolbar 390 px: ba nút xuống 2 dòng.** `/grading` tab Hàng chờ (giảng viên), `Toolbar` `end` = «Tải bài lên» + «Chấm tất cả» + «Công bố» (nút Công bố luôn hiện từ 10.6 (l)). `shared/ui/Layout.module.css`: `.toolbarEnd` không `flex-wrap`, nút co lại nên mỗi nhãn ngắt dòng. Ảnh chuẩn `visual.spec.ts-snapshots/grading-queue-390.png` (P-106-16) ghi nhận hiện trạng này. Gợi ý: `.toolbarEnd { flex-wrap: wrap }` + nút `flex: none` ở ≤ 719 px; hợp đồng §23 nên định nghĩa hàng hành động trên mobile (≤ 1 nút chính + menu `⋯`, theo luật «tối đa 2 hành động phụ»). Khi sửa phải cập nhật lại ảnh chuẩn trên Linux/CI.
