@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-
 // TestSchemaPractice — US-P9-01 AC1: cột đúng SRS 5; chèn dòng con khác course_id với cha bị DB từ chối (23503); ràng buộc CHECK / UNIQUE từng phần.
 func TestSchemaPractice(t *testing.T) {
 	t.Parallel()

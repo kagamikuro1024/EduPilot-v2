@@ -727,18 +727,18 @@ async function step19Practice() {
   const exams = await listAll(`/courses/${course}/exams`, t);
   let quizTake = null;
   const oldQuiz = exams.find((x) => x.title === P9_QUIZ_TITLE);
-  if (oldQuiz && oldQuiz.status === "SCHEDULED" && new Date(oldQuiz.opens_at) - Date.now() > 3_600_000) { // bản seed cũ (mở sau 7 ngày): dời lại để đi trọn tới PUBLISHED
+  if (oldQuiz && ["SCHEDULED", "DRAFT"].includes(oldQuiz.status) && new Date(oldQuiz.opens_at) - Date.now() > 3_600_000) { // bản seed cũ (mở sau 7 ngày): dời lại để đi trọn tới PUBLISHED
     const now = Date.now();
-    await call("POST", `/courses/${course}/exams/${oldQuiz.id}/unschedule`, { token: t, json: {}, ok: [200] });
+    if (oldQuiz.status === "SCHEDULED") await call("POST", `/courses/${course}/exams/${oldQuiz.id}/unschedule`, { token: t, json: {}, ok: [200] });
     const cur = (await call("GET", `/courses/${course}/exams/${oldQuiz.id}`, { token: t })).body;
-    await call("PUT", `/courses/${course}/exams/${oldQuiz.id}`, { token: t, json: { title: cur.title, instructions: cur.instructions ?? "", duration_minutes: 2, opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 130_000).toISOString(), version: cur.version } });
+    await call("PUT", `/courses/${course}/exams/${oldQuiz.id}`, { token: t, json: { title: cur.title, instructions: cur.instructions ?? "", duration_minutes: 2, opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString(), version: cur.version } });
     await call("POST", `/courses/${course}/exams/${oldQuiz.id}/schedule`, { token: t, json: {}, ok: [200] });
     quizTake = { id: oldQuiz.id, at: now + 15_500 };
   }
   if (!oldQuiz) {
     const ids = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5).map((q) => bank.get(q.title).id);
     const now = Date.now();
-    const quiz = (await call("POST", `/courses/${course}/exams`, { token: t, key: `seed-p9-${P9_QUIZ_TITLE}`, json: { title: P9_QUIZ_TITLE, instructions: "Quiz tính điểm: 5 câu trắc nghiệm.", duration_minutes: 2, multi_scoring: "PARTIAL", opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 130_000).toISOString() } })).body;
+    const quiz = (await call("POST", `/courses/${course}/exams`, { token: t, key: `seed-p9-${P9_QUIZ_TITLE}`, json: { title: P9_QUIZ_TITLE, instructions: "Quiz tính điểm: 5 câu trắc nghiệm.", duration_minutes: 2, multi_scoring: "PARTIAL", opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString() } })).body;
     await call("PUT", `/courses/${course}/exams/${quiz.id}/items`, { token: t, json: { items: ids.map((id) => ({ question_id: id, points: "2" })), version: quiz.version } });
     await call("POST", `/courses/${course}/exams/${quiz.id}/schedule`, { token: t, json: {}, ok: [200] });
     quizTake = { id: quiz.id, at: now + 15_500 };
