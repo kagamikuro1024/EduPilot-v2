@@ -19,6 +19,7 @@ FAIL = collections.OrderedDict()
 E7_REAL = {"student/", "student/chat", "teacher/observability"}
 E7_UNMEASURED = {"ta/students", "teacher/students", "ta/analytics", "teacher/analytics"}
 UNMEAS = {}
+D3_TALL = []
 MOCK_LX = {"/insights", "/analytics", "/observability"}  # màn mô phỏng: L2/X1 không áp dụng trên stack thật (TL 12.2, PM 15/11); dev kiểm bằng ?state= ở frame.spec
 _SRC = "".join(open(os.path.join(dp, f), errors="ignore").read() for dp, _, fs in os.walk(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(QC)))), "frontend", "src")) for f in fs if f.endswith((".ts", ".tsx")))
 static_text = lambda t: t.strip() in _SRC
@@ -45,7 +46,7 @@ DESC = {
  "E1": "khối rỗng: 1 tiêu đề + ≤ 1 nút, 0 svg, 0 chữ khác", "E2": "khối rỗng căn giữa |Δ| ≤ 2 px", "E3": "tiêu đề rỗng ≤ 40 ký tự, 1 dòng, không dấu chấm cuối", "E4": "nút rỗng không trùng nút đầu trang / tab / thanh công cụ", "E5": "nút rỗng `secondary`",
  "E6": "vật chứa khối rỗng ≤ 320 px (1440)", "E7": "route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh)", "L1": "đang tải: h1 cùng toạ độ như có dữ liệu (±2)", "L2": "đang tải có khung xương `aria-busy` (≥ 1)", "L3": "CLS ≤ 0,1 (có dữ liệu)",
  "X1": "lỗi: ≤ 1 alert mỗi mục, trang không mục đúng 1, tổng ≤ số GET hỏng khác nhau, mỗi alert rộng = cột + «Thử lại» (TL 14.7)", "X2": "lỗi: không mã trần (4xx/5xx/undefined/Error:)", "X3": "lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6)", "D1": "cỡ chữ ⊆ {28,24,20,16,15,14,12}", "D2": "cao điều khiển 36|30 (1440), ≥ 44 (375)",
- "D3": "cao hàng bảng 48|44", "T1": "0 icon giải thích (info / circle-help) ngoài thông báo", "T2": "chuỗi > 30 ký tự lặp < 3 lần", "C3": "vàng: ≤ 3 nền, 0 chữ",
+ "D3": "cao hàng bảng: ≥ 720 px 48|44 (±1); < 720 px là sàn (TL 14.8)", "T1": "0 icon giải thích (info / circle-help) ngoài thông báo", "T2": "chuỗi > 30 ký tự lặp < 3 lần", "C3": "vàng: ≤ 3 nền, 0 chữ",
 }
 FONTS = {28, 24, 20, 16, 15, 14, 12}
 hmeta = collections.defaultdict(list)
@@ -106,7 +107,13 @@ for st in ("data", "empty"):
         badc = [x for x in r["ctrlH"] if not okc(x)]
         if badc: bad("D2", r, str(badc))
         hh = [x for x in r["rowH"] if x < 200]  # ≥ 200: hàng đệm của bảng ảo (spacer), không phải hàng dữ liệu; sai số ±1 (TL 1.2)
-        if any(min(abs(x - 48), abs(x - 44)) > 1 for x in hh): bad("D3", r, str(hh))
+        # TL 14.8: ≥ 720 px cố định 48/44 (±1); < 720 px là SÀN (bảng ≥ 48, dense ≥ 44, mục danh sách ≥ 56 / 70 / 92 = 1–3 dòng); mục > 112 px chỉ liệt kê để xem ảnh
+        if w >= 720:
+            if any(min(abs(x - 48), abs(x - 44)) > 1 for x in hh): bad("D3", r, str(hh))
+        else:
+            if any(x < 44 for x in hh): bad("D3", r, str(hh))
+            tall = [x for x in hh if x > 112]
+            if tall: D3_TALL.append(f"{tag(r)} {tall}")
         if r["icons"]: bad("T1", r, f"{r['icons']}")
         st2 = [x for x in r["repeats"] if static_text(re.sub(r"×\d+$", "", x))]  # TL 14.4: chỉ chuỗi tĩnh (có nguyên văn trong frontend/src)
         if st2: bad("T2", r, "; ".join(st2)[:70])
@@ -173,6 +180,7 @@ for wd in (1440, 375):
 w("## Chưa đo / không áp dụng (TL 14)\n")
 w("- **E7 chưa đo:** " + (", ".join(f"{k} ({'/'.join(sorted(v))})" for k, v in sorted(UNMEAS.items())) or "–") + " — lớp QCEMPTY vẫn có 1 sinh viên; `analytics` là màn mô phỏng (nợ sprint 11).")
 w("- **E7 không áp dụng (11 route):** student/settings, ta/ và teacher/ (Hôm nay), ta/ và teacher/ class/members, class/settings, ta/ và teacher/ settings, teacher/settings/llm, teacher/settings/integrations.\n")
+w("- **D3 mục > 112 px ở 375 (liệt kê để xem ảnh, không tính lệch; TL 14.8):** " + ("; ".join(D3_TALL) or "–") + "\n")
 w("## Chi tiết lệch\n")
 for code, v in FAIL.items():
     w(f"### {code} — {DESC[code]} ({len(v)})\n")

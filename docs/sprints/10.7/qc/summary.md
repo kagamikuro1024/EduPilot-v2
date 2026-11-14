@@ -2,7 +2,7 @@
 
 Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, kể cả `/settings` sinh viên). Stack `ep-qc`: chỉ rebuild frontend (env QC: `NEXT_PUBLIC_API_URL=http://localhost:580`), DB giữ nguyên. Chỉ đọc, không sửa mã dev.
 
-**Kết luận: CHƯA đạt «0 lệch», còn 40 lượt ở 8 mã đo (trước đó 191 lượt, 15 mã).** Đã đạt 0 lệch: H3, H6, H7, E5, E7 (3 route lệch thật đã sửa), D1, T2 và toàn bộ nhóm cứng W, H1–H5, H8, P1, P3, P4, E1–E4, L1, L3, X2, T1, C3. Trang giới thiệu: mọi AC đo được đều đạt. P-107-14 đạt.
+**Kết luận: CHƯA đạt «0 lệch», còn 33 lượt ở 8 mã đo (trước đó 191 lượt, 15 mã).** Đã đạt 0 lệch: H3, H6, H7, E5, E7 (3 route lệch thật đã sửa), D1, T2 và toàn bộ nhóm cứng W, H1–H5, H8, P1, P3, P4, E1–E4, L1, L3, X2, T1, C3. Trang giới thiệu: mọi AC đo được đều đạt. P-107-14 đạt.
 
 ## 1. Verdict
 
@@ -13,7 +13,7 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, k�
 | K3 (tiêu đề mục) | **PASS** | P4 = 0 |
 | K4 / K5 (trạng thái rỗng, nút trùng) | **FAIL (Thấp)** | E1, E3–E5 = 0, E7 = 0. E2 (`student/chat` rỗng lệch tâm −397 px / −187 px) và E6 (3 route) còn lệch |
 | K6 (375 px) | **PASS** | W5 = 0, 0 tràn ngang, H8 = 0 |
-| Chuẩn đo mới (D1–D3, P5) | **FAIL (Thấp)** | D1 = 0. D3 còn 12 lượt (6 route), D2 11 lượt (4 route), P5 2 lượt (`admin/observability`) |
+| Chuẩn đo mới (D1–D3, P5) | **FAIL (Thấp)** | D1 = 0. D3 còn 5 lượt (3 route), D2 11 lượt (4 route), P5 2 lượt (`admin/observability`) |
 | Đang tải / lỗi (L1–L3, X1–X3) | **FAIL (Thấp)** | L1, L3, X2 = 0. L2 = 0, X1 4 lượt, X3 4 lượt |
 | Lô 1 đo lại (`/insights`, `/questions`, `/inbox`) | **PASS có lệch nhỏ** | `/inbox`, `/questions` 0 lệch. Còn `/insights` ở 375 (P2 +2,1 px). `/insights` ở lớp rỗng: «Chưa có báo cáo», không số liệu lớp khác |
 | Lỗi dữ liệu mô phỏng ở lớp rỗng | **PASS** | `/analytics` ở QCEMPTY: «Chưa có số liệu» (trước đó hiện số liệu lớp 761987) |
@@ -23,11 +23,11 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, k�
 | Bộ màu ĐHBK (P-107-8/10) | **Chưa kiểm hết** | C3 = 0 trên mọi lượt; `contrast.spec.ts` QC không chạy lại (dev báo xanh ở CI) |
 | `ui-antipatterns.sh` | **PASS** | exit 0 (HEAD trước), `--selftest` 31/31, `scripts/ui-frame-debt.txt` chỉ còn dòng chú thích |
 
-## 2. Lệch còn lại (40 lượt trong `audit.md`)
+## 2. Lệch còn lại (33 lượt trong `audit.md`)
 
 | Mã | Lệch | Route | Loại | Ghi chú |
 | --- | --- | --- | --- | --- |
-| D3 hàng bảng 48\|44 (±1) | 12 | `grading` 53; `documents` 57; `gradebook` 65 (GV, TA); ở 375: `students` 70/92, `gradebook` 65/83/84, `admin/observability` 62/80/81 | **Thật** | Đã bỏ hàng đệm của bảng ảo (≥ 200 px) và nới ±1 theo TL 1.2; ở 1440 `students`, `attendance` nay đạt (48/49) |
+| D3 hàng bảng | 5 | ≥ 720 px: `grading` 53 (GV, TA); `documents` 57/48 (GV, TA); `gradebook` 65 (GV) | **Thật** | ≥ 720 px cố định 48/44 ±1 (TL 14.8). Dưới 720 px là sàn (bảng ≥ 48, dense ≥ 44, mục danh sách ≥ 56), đã bỏ kiểm trần; 0 mục > 112 px; đã bỏ hàng đệm bảng ảo (≥ 200 px) |
 | D2 cao điều khiển | 11 | `student/chat` ô nhập 32; `teacher/gradebook` 32; `class/settings` 16 (GV, TA) | **Thật** | |
 | P2 | 2 | `insights` @375 (GV, TA) +2,1 px | **Thật** | |
 | P5 | 2 | `admin/observability`: mục→mục 60,8 (1440) và 127,9 (375) so với 48 | **Thật** | |

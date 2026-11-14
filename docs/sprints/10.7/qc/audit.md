@@ -42,12 +42,12 @@
 | X3 | lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6) | **4** | student/practice, teacher/attendance |
 | D1 | cỡ chữ ⊆ {28,24,20,16,15,14,12} | **0** | – |
 | D2 | cao điều khiển 36|30 (1440), ≥ 44 (375) | **11** | student/chat, ta/class/settings, teacher/class/settings, teacher/gradebook |
-| D3 | cao hàng bảng 48|44 | **12** | admin/observability, ta/documents, ta/gradebook, ta/grading, ta/students, teacher/documents, teacher/gradebook, teacher/grading … |
+| D3 | cao hàng bảng: ≥ 720 px 48|44 (±1); < 720 px là sàn (TL 14.8) | **5** | ta/documents, ta/grading, teacher/documents, teacher/gradebook, teacher/grading |
 | T1 | 0 icon giải thích (info / circle-help) ngoài thông báo | **0** | – |
 | T2 | chuỗi > 30 ký tự lặp < 3 lần | **0** | – |
 | C3 | vàng: ≤ 3 nền, 0 chữ | **0** | – |
 
-**Tổng lệch: 40** (mục chưa 0 = chưa đạt).
+**Tổng lệch: 33** (mục chưa 0 = chưa đạt).
 
 ## Chữ ký khung (kiểu, h1.left, cột.left, cột.width, có meta, đệm panel, hình khối rỗng)
 
@@ -88,6 +88,8 @@
 - **E7 chưa đo:** ta/students (empty@1440/empty@375), teacher/students (empty@1440/empty@375) — lớp QCEMPTY vẫn có 1 sinh viên; `analytics` là màn mô phỏng (nợ sprint 11).
 - **E7 không áp dụng (11 route):** student/settings, ta/ và teacher/ (Hôm nay), ta/ và teacher/ class/members, class/settings, ta/ và teacher/ settings, teacher/settings/llm, teacher/settings/integrations.
 
+- **D3 mục > 112 px ở 375 (liệt kê để xem ảnh, không tính lệch; TL 14.8):** –
+
 ## Chi tiết lệch
 
 ### D2 — cao điều khiển 36|30 (1440), ≥ 44 (375) (11)
@@ -104,20 +106,13 @@
 - teacher/class/settings[empty@1440] [16]
 - teacher/class/settings[empty@375] [16]
 
-### D3 — cao hàng bảng 48|44 (12)
+### D3 — cao hàng bảng: ≥ 720 px 48|44 (±1); < 720 px là sàn (TL 14.8) (5)
 
 - ta/grading[data@1440] [53]
 - ta/documents[data@1440] [57, 48]
-- ta/students[data@375] [92, 70]
-- ta/gradebook[data@375] [83, 65, 84]
 - teacher/gradebook[data@1440] [48, 65]
 - teacher/grading[data@1440] [53]
 - teacher/documents[data@1440] [57, 48]
-- teacher/students[data@375] [92, 70]
-- teacher/gradebook[data@375] [83, 65, 84]
-- admin/observability[data@375] [80, 81, 62]
-- ta/students[empty@375] [70]
-- teacher/students[empty@375] [70]
 
 ### P2 — panel cao theo nội dung (chênh ≤ 2; trừ Split fill) (2)
 
