@@ -127,6 +127,8 @@ func (s *Service) checkItems(ctx context.Context, q *store.Queries, courseID uui
 		switch {
 		case !ok:
 			errs = append(errs, ve(f+".question_id", "QUESTION_NOT_IN_COURSE", "Câu hỏi không thuộc lớp này."))
+		case r.Type == store.QuestionTypeSHORT || r.Type == store.QuestionTypeESSAY:
+			errs = append(errs, ve(f+".question_id", "TYPE_NOT_SUPPORTED_IN_EXAM", "Câu trả lời ngắn và tự luận chỉ dùng để luyện đề, không đưa vào bài thi tính điểm."))
 		case r.ReviewStatus != store.QuestionReviewStatusAPPROVED || r.ArchivedAt != nil:
 			errs = append(errs, ve(f+".question_id", "ITEM_NOT_APPROVED", "Chỉ chọn được câu đã duyệt và chưa lưu trữ."))
 		default:

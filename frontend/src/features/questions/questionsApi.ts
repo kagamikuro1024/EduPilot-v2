@@ -1,5 +1,5 @@
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/courses/{id}/questions…`, thao tác 1–16 của SRS FEAT-weekly-exam 6.2).
-export type QType = "MCQ_SINGLE" | "MCQ_MULTI" | "TRUE_FALSE" | "CODE";
+export type QType = "MCQ_SINGLE" | "MCQ_MULTI" | "TRUE_FALSE" | "CODE" | "SHORT" | "ESSAY";
 export type Review = "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
 export type Difficulty = "EASY" | "MEDIUM" | "HARD";
 export type Origin = "MANUAL" | "AI_DRAFT" | "EXTRACTED" | "GENERATED";
@@ -36,7 +36,8 @@ export type QuestionDetail = Omit<QuestionRow, "used_in_exams"> & {
   stem: string;
   explanation: string | null;
   options: QOption[];
-  answer_key: { option_ids?: string[]; value?: boolean } | null;
+  answer_key: { option_ids?: string[]; value?: boolean; accepted?: string[]; model_answer?: string; rubric?: string } | null;
+  citations: Array<{ document_id?: string; document_title?: string; page?: number; chunk_id?: string }>;
   code?: CodeDetail;
   used_in_exams: Array<{ id: string; title: string; status: string }>;
   details?: { warnings: Array<{ field: string; code: string; message: string }> };
@@ -61,7 +62,7 @@ export type VerifyResult = { ok: boolean; compile_ok: boolean; compile_log?: str
 export const qPath = (courseId: string) => `/courses/${courseId}/questions`;
 export const qKey = (courseId: string, ...rest: Array<string | number | undefined>) => ["questions", courseId, ...rest] as const;
 
-export const TYPE_LABEL: Record<QType, string> = { MCQ_SINGLE: "Một đáp án", MCQ_MULTI: "Nhiều đáp án", TRUE_FALSE: "Đúng–sai", CODE: "Lập trình" };
+export const TYPE_LABEL: Record<QType, string> = { MCQ_SINGLE: "Một đáp án", MCQ_MULTI: "Nhiều đáp án", TRUE_FALSE: "Đúng–sai", CODE: "Lập trình", SHORT: "Trả lời ngắn", ESSAY: "Tự luận" };
 export const DIFF_LABEL: Record<Difficulty, string> = { EASY: "Dễ", MEDIUM: "Vừa", HARD: "Khó" };
 export const REVIEW_LABEL: Record<Review, string> = { DRAFT: "Nháp", PENDING: "Chờ duyệt", APPROVED: "Đã duyệt", REJECTED: "Đã loại" };
 export const REVIEW_TONE: Record<Review, "neutral" | "amber" | "green" | "red"> = { DRAFT: "neutral", PENDING: "amber", APPROVED: "green", REJECTED: "red" };

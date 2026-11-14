@@ -53,6 +53,8 @@ const (
 	// US-P3-08: thread mới / quyết định về bài AI → việc AI_CONFIRM của Staff đổi.
 	TopicThreadCreated     = "thread.created"
 	TopicThreadPostDecided = "thread.post_decided"
+	// US-P9-09: sinh viên bắt đầu / nộp lượt luyện → chỉ việc của chính họ (cache `all` và cache của lớp) đổi; không đụng cache của Staff.
+	topicPracticeUpdated = "practice.updated"
 )
 
 // Topics là mọi topic mà Invalidator phải được đăng ký.
@@ -101,9 +103,11 @@ func (i Invalidator) Handle(ctx context.Context, m outbox.Message) error {
 		// Giảng viên + TA của lớp luôn bị ảnh hưởng (hàng chờ, thiết lập). course.changed ảnh hưởng cả người học.
 		var uids []uuid.UUID
 		var err error
-		if m.Topic == TopicChanged || m.Topic == TopicCalendarChanged || m.Topic == TopicAssignmentPublished || m.Topic == TopicAssignmentUpdated || isExamTopic(m.Topic) { // sự kiện của bài thi ảnh hưởng cả người học
+		switch {
+		case m.Topic == topicPracticeUpdated: // chỉ người luyện (đã có trong users)
+		case m.Topic == TopicChanged || m.Topic == TopicCalendarChanged || m.Topic == TopicAssignmentPublished || m.Topic == TopicAssignmentUpdated || isExamTopic(m.Topic): // sự kiện của bài thi ảnh hưởng cả người học
 			uids, err = q.TodayCourseMembers(ctx, c)
-		} else {
+		default:
 			uids, err = q.TodayCourseStaff(ctx, c)
 		}
 		if err != nil {

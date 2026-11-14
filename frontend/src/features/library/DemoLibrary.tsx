@@ -90,7 +90,7 @@ export function DemoLibraryScreen() {
                 onSelect={() => setOpen(d.id)}
                 action={
                   <span className={s.rowActions}>
-                    {d.practiceAttemptId && <ButtonLink href={`/practice/${d.practiceAttemptId}`} size="sm">Luyện đề này</ButtonLink>}
+                    {d.practiceAttemptId && <ButtonLink href="/practice" size="sm">Luyện đề này</ButtonLink>}
                     <OverflowMenu
                       items={[
                         { label: "Xem tài liệu", onSelect: () => setOpen(d.id) },
@@ -114,7 +114,7 @@ export function DemoLibraryScreen() {
         footer={
           doc ? (
             <>
-              {doc.practiceAttemptId && <ButtonLink href={`/practice/${doc.practiceAttemptId}`}>Luyện đề này</ButtonLink>}
+              {doc.practiceAttemptId && <ButtonLink href="/practice">Luyện đề này</ButtonLink>}
               <Button variant="primary" onClick={() => askAi(doc.title)}>
                 Hỏi AI về tài liệu
               </Button>

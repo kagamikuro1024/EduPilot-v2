@@ -22,6 +22,8 @@ export type RequestOpts = {
   idempotencyKey?: string;
   /** thân không phải JSON (tệp CSV tải về): trả `Blob`. */
   blob?: boolean;
+  /** `fetch keepalive`: yêu cầu còn sống khi trang đóng (lệnh hoãn gửi lúc `pagehide`); thân ≤ 64 KB. */
+  keepalive?: boolean;
 };
 
 const KEY_RE = /^[A-Za-z0-9._:-]{8,128}$/;
@@ -140,7 +142,7 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
     const signal = opts.signal ? AbortSignal.any([opts.signal, timeout]) : timeout;
     let res: Response;
     try {
-      res = await fetch(url, { method: upper, headers, body: !hasBody ? undefined : body instanceof FormData ? body : JSON.stringify(body), credentials: "include", signal });
+      res = await fetch(url, { method: upper, headers, body: !hasBody ? undefined : body instanceof FormData ? body : JSON.stringify(body), credentials: "include", signal, keepalive: opts.keepalive });
     } catch {
       if (opts.signal?.aborted) throw new ApiError({ status: 0, code: "ABORTED" });
       netStatus.reportFailure();

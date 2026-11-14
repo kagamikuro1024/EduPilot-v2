@@ -22,6 +22,7 @@ tags:
   - name: auth
   - name: today
   - name: exam
+  - name: practice
   - name: document
   - name: chat
   - name: threads
@@ -9656,6 +9657,571 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/overview:
+    get:
+      operationId: getPracticeOverview
+      tags: [practice]
+      summary: "Luyện đề: khối khuyến nghị, chủ đề luyện được, lượt dở (sinh viên ACTIVE của lớp)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Tổng quan luyện đề
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeOverview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/practice/start:
+    post:
+      operationId: startPractice
+      tags: [practice]
+      summary: "Bắt đầu luyện theo chủ đề (TOPIC) hoặc thi thử (MOCK). Idempotency-Key bắt buộc. Mới → 201; còn lượt dở cùng (sinh viên, chế độ, chủ đề) → 200 làm tiếp"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: X-Practice-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang. Bắt buộc khi ghi vào lượt thi thử (MOCK); mở lượt ở tab thứ hai thì tab cũ nhận 409 TAB_TAKEN_OVER."
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeStartRequest"
+      responses:
+        "201":
+          description: Lượt mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "200":
+          description: Làm tiếp lượt dở
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/attempts/{aid}:
+    get:
+      operationId: getPracticeAttempt
+      tags: [practice]
+      summary: "Một lượt của chính mình (DTO sinh viên: không đáp án cho tới khi đến lúc lộ). Lượt của người khác → 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Practice-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang. Bắt buộc khi ghi vào lượt thi thử (MOCK); mở lượt ở tab thứ hai thì tab cũ nhận 409 TAB_TAKEN_OVER."
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lượt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: patchPracticeAttempt
+      tags: [practice]
+      summary: "Lưu vị trí câu đang làm"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Practice-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang. Bắt buộc khi ghi vào lượt thi thử (MOCK); mở lượt ở tab thứ hai thì tab cũ nhận 409 TAB_TAKEN_OVER."
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticePatchRequest"
+      responses:
+        "200":
+          description: Đã lưu vị trí
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/attempts/{aid}/answers/{itemId}:
+    put:
+      operationId: savePracticeAnswer
+      tags: [practice]
+      summary: "Ghi / chấm một câu. TOPIC: phản hồi ngay trong response và khoá đáp án; MOCK: chỉ lưu (version + tab), không phản hồi"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Practice-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang. Bắt buộc khi ghi vào lượt thi thử (MOCK); mở lượt ở tab thứ hai thì tab cũ nhận 409 TAB_TAKEN_OVER."
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeAnswerRequest"
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeSave"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/attempts/{aid}/submit:
+    post:
+      operationId: submitPracticeAttempt
+      tags: [practice]
+      summary: "Nộp lượt (Idempotency-Key bắt buộc): chấm bằng code, đóng lượt, trả kết quả; gọi lại → cùng kết quả"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lượt đã đóng kèm kết quả
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/history:
+    get:
+      operationId: listPracticeHistory
+      tags: [practice]
+      summary: "Lịch sử luyện của chính mình, mới nhất trước (cursor)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang lịch sử
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeHistoryPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/weakness:
+    get:
+      operationId: getPracticeWeakness
+      tags: [practice]
+      summary: "Chủ đề cần ôn kèm tài liệu gợi ý (rỗng khi chưa đủ dữ liệu)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Điểm yếu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeWeakness"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/explain:
+    post:
+      operationId: explainPracticeAnswer
+      tags: [practice]
+      summary: "Giải thích thêm một câu đã trả lời (SSE; một lời gọi LLM làn INTERACTIVE, cache 24 giờ; ≤ 30 lượt cần LLM / giờ / sinh viên, quá → 429 RATE_LIMITED + Retry-After trước khi mở luồng, câu đã cache không tính). 409 NOT_ANSWERED | NOT_SUBMITTED (trả JSON trước khi mở luồng); 422 INVALID_QUESTION (tự luận)"
+      description: |
+        `text/event-stream`: `ready` → `token`* → `done` | `error` (`EXPLAIN_FAILED`: chỉ phần giải thích lỗi, phản hồi đúng / sai còn nguyên).
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Luồng SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback:
+    post:
+      operationId: practiceEssayFeedback
+      tags: [practice]
+      summary: "Nhận xét gợi ý cho câu tự luận (Idempotency-Key bắt buộc; không điểm, không vào sổ điểm). 409 NOT_ANSWERED | NOT_SUBMITTED; 422 INVALID_QUESTION | TOO_LONG; 429 RATE_LIMITED (10 lần / giờ)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Nhận xét theo từng tiêu chí, kèm trích đoạn bằng chứng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeEssayFeedback"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/questions/extract:
+    post:
+      operationId: extractQuestions
+      tags: [practice]
+      summary: "Trích câu hỏi từ đề cũ (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.extract`. Kết quả đọc ở GET /jobs/{id} → result {created: [uuid], skipped: [{number, page, reason}]}, reason ∈ NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID (cũng có ở SSE job.progress cuối). Đề / đáp án sai loại 422 WRONG_DOCUMENT_TYPE (`document_id` phải là EXAM_PAPER, `answer_key_document_id` phải là ANSWER_KEY); thuộc lớp khác hoặc không tồn tại 404; chưa READY 409 DOCUMENT_NOT_READY. AI trả sai schema: việc FAILED, error.code LLM_UNAVAILABLE, không lưu câu nào. Trần chi phí: ≤ 5 việc extract / lớp / giờ → 429 RATE_LIMITED + Retry-After (việc thứ 6 không được xếp); chỉ 60 trang đầu của đề được trích, phần cắt báo bằng skipped[].reason = PAGE_LIMIT"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeExtractRequest"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/questions/generate:
+    post:
+      operationId: generateQuestions
+      tags: [practice]
+      summary: "Sinh câu hỏi từ tài liệu / đoạn (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.generate`; ANSWER_KEY không làm nguồn (422 WRONG_DOCUMENT_TYPE). Kết quả ở GET /jobs/{id} → result {created, skipped: [{number, reason}]}, reason ∈ CITATION_REQUIRED | TYPE_NOT_ALLOWED | INVALID | DUPLICATE | EXTRA (vượt `count`). Sai schema: việc FAILED, error.code LLM_UNAVAILABLE. Trần chi phí: ≤ 5 việc generate / lớp / giờ → 429 RATE_LIMITED + Retry-After"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeGenerateRequest"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/questions/bulk:
+    post:
+      operationId: bulkReviewQuestions
+      tags: [practice]
+      summary: "Duyệt / loại / gắn nhãn hàng loạt (≤ 50; kết quả TỪNG id, một id lỗi không huỷ lô). 422 CITATION_REQUIRED theo từng id"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeBulkRequest"
+      responses:
+        "200":
+          description: Kết quả từng id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeBulkResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/forms-import/preview:
+    post:
+      operationId: previewFormsImport
+      tags: [practice]
+      summary: "Đọc tệp kết quả Forms đã tải lên (purpose=forms_import; chỉ TEACHER) và đánh dấu 'đã xem trước'. Chưa có ánh xạ: trả cột + 20 dòng đầu + gợi ý cột. Có ánh xạ + item_id + answer_source: trả thêm bảng điểm đã chấm (không ghi). 404 UPLOAD_NOT_FOUND; 422 FILE_INVALID | FILE_TOO_LARGE | TOO_MANY_ROWS | lỗi ánh xạ theo từng ô"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormsImportRequest"
+      responses:
+        "200":
+          description: Cột, dòng đầu, gợi ý ánh xạ; kèm bảng điểm khi đã ánh xạ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormsPreview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/forms-import:
+    post:
+      operationId: importFormsResults
+      tags: [practice]
+      summary: "Xác nhận nhập kết quả Forms (chỉ TEACHER; Idempotency-Key bắt buộc). Chấm bằng Quiz Engine (không LLM), ghi grade_entries(source=QUIZ) vào cột điểm MANUAL đã chọn, KHÔNG đặt published_at (công bố qua grade-items/{id}/publish). Cùng tệp (cùng hash) vào cùng cột → trả lại lô cũ (replayed=true), không ghi gì. 409 PREVIEW_REQUIRED | GRADEBOOK_LOCKED | ITEM_NOT_EDITABLE | SCHEME_NOT_CONFIRMED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormsImportRequest"
+      responses:
+        "201":
+          description: Kết quả lô nhập
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormsResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/gen-stats:
+    get:
+      operationId: questionGenStats
+      tags: [practice]
+      summary: "Số liệu thô E5 của một lô trích / sinh: nguyên / sửa nhẹ / loại / chờ duyệt"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: job_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Số liệu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeGenStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -11933,6 +12499,18 @@ components:
             - NOT_ENOUGH_GRADES
             - FINAL_ALREADY_LOCKED
             - EXTRACTION_INVALID
+            - NOT_ENOUGH_QUESTIONS
+            - TAB_TAKEN_OVER
+            - ANSWER_LOCKED
+            - INVALID_OPTION_ID
+            - INVALID_QUESTION
+            - NOT_ANSWERED
+            - NOT_SUBMITTED
+            - WRONG_DOCUMENT_TYPE
+            - CITATION_REQUIRED
+            - PREVIEW_REQUIRED
+            - TOO_LONG
+            - TYPE_NOT_SUPPORTED_IN_EXAM
         message:
           type: string
         trace_id:
@@ -11949,7 +12527,7 @@ components:
       properties:
         purpose:
           type: string
-          enum: [document, grade_import, submission_upload]
+          enum: [document, grade_import, forms_import, submission_upload]
         filename:
           type: string
           maxLength: 255
@@ -13045,6 +13623,19 @@ components:
           type: [boolean, "null"]
         explanation:
           type: [string, "null"]
+        accepted:
+          type: array
+          maxItems: 10
+          description: "SHORT: các đáp án chấp nhận (≥ 1, mỗi đáp án sau chuẩn hoá không rỗng); loại khác bỏ qua. Không có `options`/`correct`."
+          items:
+            type: string
+        model_answer:
+          type: [string, "null"]
+          description: "ESSAY: đáp án mẫu (bắt buộc với ESSAY)."
+        rubric:
+          type: [string, "null"]
+          maxLength: 2000
+          description: "ESSAY: rubric ngắn (bắt buộc với ESSAY)."
         version:
           type: integer
     ExamRef:
@@ -13118,7 +13709,7 @@ components:
           $ref: "#/components/schemas/TestStats"
     QuestionDetail:
       type: object
-      required: [id, type, title, topic, difficulty, stem, explanation, origin, review_status, options, answer_key, used_in_exams, reviewed_by, reviewed_at, archived_at, ai_job_id, version, created_at, updated_at]
+      required: [id, type, title, topic, difficulty, stem, explanation, origin, review_status, options, answer_key, citations, used_in_exams, reviewed_by, reviewed_at, archived_at, ai_job_id, version, created_at, updated_at]
       additionalProperties: false
       properties:
         id:
@@ -13150,6 +13741,10 @@ components:
             $ref: "#/components/schemas/QuestionOption"
         answer_key:
           type: [object, "null"]
+        citations:
+          type: array
+          items:
+            type: object
         code:
           $ref: "#/components/schemas/CodeDetail"
         used_in_exams:
@@ -17166,3 +17761,432 @@ components:
               type: string
             body:
               type: string
+    PracticeOption:
+      type: object
+      required: [id, body]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        body: {type: string}
+    PracticeQuestion:
+      type: object
+      required: [type, topic, stem, options]
+      additionalProperties: false
+      properties:
+        type: {type: string, enum: [MCQ_SINGLE, MCQ_MULTI, TRUE_FALSE, SHORT, ESSAY]}
+        topic: {type: string}
+        stem: {type: string}
+        options:
+          type: array
+          items: {$ref: "#/components/schemas/PracticeOption"}
+    PracticeAnswerView:
+      type: object
+      required: [answer, version, locked]
+      additionalProperties: false
+      properties:
+        answer: {type: object}
+        version: {type: integer}
+        locked: {type: boolean}
+    PracticeFeedback:
+      type: object
+      required: [correct, key, explanation, citations]
+      additionalProperties: false
+      properties:
+        correct: {type: [boolean, "null"]}
+        key: {type: object}
+        explanation: {type: [string, "null"]}
+        citations:
+          type: array
+          items: {type: object}
+    PracticeItem:
+      type: object
+      required: [id, position, question, answer, feedback]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        position: {type: integer}
+        question: {$ref: "#/components/schemas/PracticeQuestion"}
+        answer:
+          oneOf:
+            - {$ref: "#/components/schemas/PracticeAnswerView"}
+            - {type: "null"}
+        feedback:
+          oneOf:
+            - {$ref: "#/components/schemas/PracticeFeedback"}
+            - {type: "null"}
+    PracticeTopicResult:
+      type: object
+      required: [topic, correct, total]
+      additionalProperties: false
+      properties:
+        topic: {type: string}
+        correct: {type: integer}
+        total: {type: integer}
+    PracticeResult:
+      type: object
+      required: [correct, total, score, topics, weakest_topic, expired]
+      additionalProperties: false
+      properties:
+        correct: {type: integer}
+        total: {type: integer}
+        score: {type: string, description: "Điểm thang 10, một chữ số thập phân; phụ, không vào sổ điểm"}
+        topics:
+          type: array
+          items: {$ref: "#/components/schemas/PracticeTopicResult"}
+        weakest_topic: {type: [string, "null"]}
+        expired: {type: boolean}
+    PracticeAttempt:
+      type: object
+      required: [id, mode, topic, status, started_at, deadline_at, server_now, item_count, current_index, notes, version, items, result]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        mode: {type: string, enum: [TOPIC, MOCK]}
+        topic: {type: [string, "null"]}
+        status: {type: string, enum: [IN_PROGRESS, SUBMITTED, EXPIRED]}
+        started_at: {type: string, format: date-time}
+        deadline_at: {type: [string, "null"], format: date-time}
+        server_now: {type: string, format: date-time, description: "Giờ máy chủ lúc trả lời; có ở thân của start và GET attempt (không dùng header Date). Đồng hồ trình duyệt lệch thì tính còn lại = deadline_at − server_now."}
+        item_count: {type: integer}
+        current_index: {type: integer}
+        notes:
+          type: array
+          items: {type: string}
+        version: {type: integer}
+        items:
+          type: array
+          items: {$ref: "#/components/schemas/PracticeItem"}
+        result:
+          oneOf:
+            - {$ref: "#/components/schemas/PracticeResult"}
+            - {type: "null"}
+    PracticeSave:
+      type: object
+      required: [version, locked, feedback]
+      additionalProperties: false
+      properties:
+        version: {type: integer}
+        locked: {type: boolean}
+        feedback:
+          oneOf:
+            - {$ref: "#/components/schemas/PracticeFeedback"}
+            - {type: "null"}
+    PracticeMeta:
+      type: object
+      required: [current_index, version]
+      additionalProperties: false
+      properties:
+        current_index: {type: integer}
+        version: {type: integer}
+    PracticeStartRequest:
+      type: object
+      required: [mode]
+      additionalProperties: false
+      properties:
+        mode: {type: string, enum: [TOPIC, MOCK]}
+        topic: {type: string}
+        count: {type: integer, minimum: 5, maximum: 50}
+        duration_minutes: {type: integer, minimum: 10, maximum: 180}
+        matrix:
+          type: array
+          items:
+            type: object
+            required: [topic, count]
+            additionalProperties: false
+            properties:
+              topic: {type: string}
+              difficulty: {type: string, enum: [EASY, MEDIUM, HARD]}
+              count: {type: integer, minimum: 1}
+    PracticeAnswerRequest:
+      type: object
+      required: [answer]
+      additionalProperties: false
+      properties:
+        answer:
+          type: object
+          description: "MCQ {option_ids}, đúng–sai {value}, trả lời ngắn / tự luận {text}"
+        version: {type: integer, minimum: 0}
+        client_ts: {type: string, format: date-time}
+    PracticePatchRequest:
+      type: object
+      required: [current_index]
+      additionalProperties: false
+      properties:
+        current_index: {type: integer, minimum: 0}
+    PracticeOverview:
+      type: object
+      required: [recommended, topics, in_progress]
+      additionalProperties: false
+      properties:
+        recommended:
+          oneOf:
+            - type: object
+              required: [topic, count]
+              additionalProperties: false
+              properties:
+                topic: {type: string}
+                count: {type: integer}
+            - {type: "null"}
+        topics:
+          type: array
+          items:
+            type: object
+            required: [topic, available]
+            additionalProperties: false
+            properties:
+              topic: {type: string}
+              available: {type: integer}
+        in_progress:
+          type: array
+          items:
+            type: object
+            required: [id, mode, topic, deadline_at, item_count, current_index]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              mode: {type: string, enum: [TOPIC, MOCK]}
+              topic: {type: [string, "null"]}
+              deadline_at: {type: [string, "null"], format: date-time}
+              item_count: {type: integer}
+              current_index: {type: integer}
+    PracticeHistoryPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, mode, topic, status, started_at, submitted_at, item_count, correct]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              mode: {type: string, enum: [TOPIC, MOCK]}
+              topic: {type: [string, "null"]}
+              status: {type: string, enum: [IN_PROGRESS, SUBMITTED, EXPIRED]}
+              started_at: {type: string, format: date-time}
+              submitted_at: {type: [string, "null"], format: date-time}
+              item_count: {type: integer}
+              correct: {type: [integer, "null"]}
+        next_cursor: {type: [string, "null"]}
+    PracticeWeakness:
+      type: object
+      required: [topics]
+      additionalProperties: false
+      properties:
+        topics:
+          type: array
+          items:
+            type: object
+            required: [topic, answered, wrong, documents]
+            additionalProperties: false
+            properties:
+              topic: {type: string}
+              answered: {type: integer}
+              wrong: {type: integer}
+              documents:
+                type: array
+                items:
+                  type: object
+                  required: [document_id, title]
+                  additionalProperties: false
+                  properties:
+                    document_id: {type: string, format: uuid}
+                    title: {type: string}
+    PracticeEssayFeedback:
+      type: object
+      required: [overall, criteria, injected]
+      additionalProperties: false
+      properties:
+        overall: {type: string}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [name, comment, evidence]
+            additionalProperties: false
+            properties:
+              name: {type: string}
+              comment: {type: string}
+              evidence:
+                type: array
+                items: {type: string}
+        injected: {type: boolean}
+    PracticeExtractRequest:
+      type: object
+      required: [document_id]
+      additionalProperties: false
+      properties:
+        document_id: {type: string, format: uuid}
+        answer_key_document_id: {type: [string, "null"], format: uuid}
+    PracticeGenerateRequest:
+      type: object
+      required: [topic, difficulty, count]
+      additionalProperties: false
+      properties:
+        document_ids:
+          type: array
+          maxItems: 5
+          items: {type: string, format: uuid}
+        chunk_ids:
+          type: array
+          maxItems: 40
+          items: {type: string, format: uuid}
+        topic: {type: string, minLength: 1, maxLength: 80}
+        difficulty: {type: string, enum: [EASY, MEDIUM, HARD]}
+        count: {type: integer, minimum: 1, maximum: 10}
+        types:
+          type: array
+          items: {type: string, enum: [MCQ_SINGLE, MCQ_MULTI, TRUE_FALSE]}
+    PracticeBulkRequest:
+      type: object
+      required: [action, ids]
+      additionalProperties: false
+      properties:
+        action: {type: string, enum: [APPROVE, REJECT, SET_TAGS]}
+        ids:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items: {type: string, format: uuid}
+        topic: {type: string, minLength: 1, maxLength: 80}
+        difficulty: {type: string, enum: [EASY, MEDIUM, HARD]}
+    PracticeBulkResponse:
+      type: object
+      required: [results]
+      additionalProperties: false
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            required: [id, ok]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              ok: {type: boolean}
+              code: {type: string}
+    FormsMapping:
+      type: object
+      required: [header_row, questions]
+      additionalProperties: false
+      properties:
+        header_row: {type: integer, minimum: 1, maximum: 100}
+        email_col: {type: string}
+        code_col: {type: string}
+        time_col: {type: string}
+        questions:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [col]
+            additionalProperties: false
+            properties:
+              col: {type: string}
+              question_id: {type: [string, "null"], format: uuid}
+              accepted:
+                type: [array, "null"]
+                items: {type: string}
+    FormsImportRequest:
+      type: object
+      required: [upload_id]
+      additionalProperties: false
+      example:
+        upload_id: "0192f6a0-0000-7000-8000-000000000001"
+        item_id: "0192f6a0-0000-7000-8000-000000000002"
+        answer_source: BANK
+        mapping:
+          header_row: 1
+          email_col: "Email"
+          code_col: "Mã số sinh viên"
+          time_col: "Completion time"
+          questions:
+            - {col: "Câu 1", question_id: "0192f6a0-0000-7000-8000-0000000000a1"}
+            - {col: "Câu 2", question_id: "0192f6a0-0000-7000-8000-0000000000a2"}
+      description: "answer_source=BANK: mỗi cột câu hỏi trỏ `question_id` trong ngân hàng (đáp án lấy từ ngân hàng). answer_source=MANUAL: bỏ `question_id`, điền `accepted` (đáp án đúng gõ tay, ví dụ [\"B\"]). Điểm = đúng/tổng × max_score của item_id, làm tròn nửa lên 2 chữ số (decimal)."
+      properties:
+        upload_id: {type: string, format: uuid}
+        item_id: {type: [string, "null"], format: uuid}
+        answer_source: {type: string, enum: [BANK, MANUAL]}
+        mapping:
+          oneOf:
+            - $ref: "#/components/schemas/FormsMapping"
+            - type: "null"
+    FormsResult:
+      type: object
+      required: [matched, unmatched, duplicates, items, unmatched_rows, written, replayed]
+      additionalProperties: false
+      properties:
+        matched: {type: integer}
+        unmatched: {type: integer}
+        duplicates: {type: integer}
+        written: {type: integer}
+        replayed: {type: boolean}
+        batch_id: {type: string, format: uuid}
+        items:
+          type: array
+          items:
+            type: object
+            required: [student, correct, total, score, mismatch]
+            additionalProperties: false
+            properties:
+              student:
+                type: object
+                required: [id, full_name, student_code]
+                additionalProperties: false
+                properties:
+                  id: {type: string, format: uuid}
+                  full_name: {type: string}
+                  student_code: {type: string}
+              correct: {type: integer}
+              total: {type: integer}
+              score: {type: string, description: "Thập phân dạng chuỗi, thang của cột điểm, 2 chữ số"}
+              mismatch: {type: integer}
+        unmatched_rows:
+          type: array
+          items:
+            type: object
+            required: [row, identifier, reason, correct, total, score]
+            additionalProperties: false
+            properties:
+              row: {type: integer}
+              identifier: {type: string, description: "Đã che"}
+              reason: {type: string, enum: [NOT_FOUND, MISMATCH]}
+              correct: {type: integer}
+              total: {type: integer}
+              score: {type: string}
+    FormsPreview:
+      type: object
+      required: [columns, rows, rows_total, suggested_mapping]
+      additionalProperties: false
+      properties:
+        columns:
+          type: array
+          items:
+            type: object
+            required: [col, header]
+            additionalProperties: false
+            properties:
+              col: {type: string}
+              header: {type: string}
+        rows:
+          type: array
+          items:
+            type: array
+            items: {type: string}
+        rows_total: {type: integer}
+        suggested_mapping:
+          $ref: "#/components/schemas/FormsMapping"
+        result:
+          $ref: "#/components/schemas/FormsResult"
+    PracticeGenStats:
+      type: object
+      required: [unchanged, edited, rejected, pending]
+      additionalProperties: false
+      properties:
+        unchanged: {type: integer}
+        edited: {type: integer}
+        rejected: {type: integer}
+        pending: {type: integer}

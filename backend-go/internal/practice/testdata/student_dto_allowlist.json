@@ -1,0 +1,20 @@
+{
+  "OptionView": ["body", "id"],
+  "QuestionView": ["options", "stem", "topic", "type"],
+  "AnswerView": ["answer", "locked", "version"],
+  "FeedbackView": ["citations", "correct", "explanation", "key"],
+  "ItemView": ["answer", "feedback", "id", "position", "question"],
+  "TopicResult": ["correct", "topic", "total"],
+  "ResultView": ["correct", "expired", "score", "topics", "total", "weakest_topic"],
+  "AttemptView": ["current_index", "deadline_at", "id", "item_count", "items", "mode", "notes", "result", "server_now", "started_at", "status", "topic", "version"],
+  "SaveView": ["feedback", "locked", "version"],
+  "TopicInfo": ["available", "topic"],
+  "Recommended": ["count", "topic"],
+  "InProgressView": ["current_index", "deadline_at", "id", "item_count", "mode", "topic"],
+  "OverviewView": ["in_progress", "recommended", "topics"],
+  "HistoryRow": ["correct", "id", "item_count", "mode", "started_at", "status", "submitted_at", "topic"],
+  "WeakTopic": ["answered", "documents", "topic", "wrong"],
+  "DocSuggested": ["document_id", "title"],
+  "WeaknessView": ["topics"],
+  "MetaView": ["current_index", "version"]
+}

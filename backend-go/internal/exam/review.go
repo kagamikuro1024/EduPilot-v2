@@ -24,6 +24,10 @@ const (
 
 // approvalErrors là điều kiện DUYỆT của câu CODE: ≥ 1 test mẫu, ≥ 1 test ẩn (đã duyệt), Σweight > 0, lời giải mẫu đã kiểm đúng phiên bản test hiện hành.
 func (s *Service) approvalErrors(ctx context.Context, q *store.Queries, row store.QuestionBank) ([]apierr.FieldError, error) {
+	// Câu trích / sinh tự động phải có nguồn trích dẫn trước khi duyệt (US-P9-04 AC5).
+	if (row.Origin == store.QuestionOriginEXTRACTED || row.Origin == store.QuestionOriginGENERATED) && (len(row.Citations) == 0 || string(row.Citations) == "[]") {
+		return []apierr.FieldError{{Field: "citations", Code: "CITATION_REQUIRED", Message: "Câu cần có nguồn trích dẫn trước khi duyệt."}}, nil
+	}
 	if row.Type != store.QuestionTypeCODE {
 		return nil, nil
 	}
