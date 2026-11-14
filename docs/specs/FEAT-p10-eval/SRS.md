@@ -188,6 +188,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 | Go | `TestStartCountZero` (`internal/practice`) | P10-09 |
 | Contract | `go test ./internal/contract/...` | mọi endpoint mới |
 | E2E | `insights.spec.ts`, `observability.spec.ts`, `analytics-exam.spec.ts`; bảng F1–F17 | P10-05…07, 11 |
+| E2E | `cascade.spec.ts` (provider `fake`: decision lỗi → fallback; cả hai lỗi → chặn / gắn cờ; tin khủng hoảng không có lời gọi decision); luồng ở `docs/FLOWS.md` «Decision cascade» | P10-13 |
 | Go | `TestCascadeTable`, `TestCascadeFailClosed`, `TestDecidePayloadMasked`, `TestDecideCallersAllowlist`, `TestPrecheckAddOnly`, `TestCrisisNeverReachesDecide`, `TestRouteDecisionNoOverride` | P10-13 |
 | Go | `TestInjectionFlagLLM` (fake: OR, không đổi điểm, bài trống không gọi, LLM lỗi → regex); chạy tay với LLM thật trên bộ 6 biến thể → ≥ 6/6 | P10-12 AC14…AC18 |
 | Đo | `benchmarks/lighthouse/run.sh`; `make eval` | P10-08, 10 |
