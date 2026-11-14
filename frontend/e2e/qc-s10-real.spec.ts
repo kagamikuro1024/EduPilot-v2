@@ -36,11 +36,11 @@ for (const w of [1440, 375]) {
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${OUT}/practice-${w}.png` }); await layout(page, "/practice", notes);
     // luyện chủ đề: khối khuyến nghị
-    await page.getByRole("button", { name: /Luyện ngay/ }).first().click();
+    await page.getByRole("button", { name: /^Luyện 10 câu/ }).first().click();
     await page.waitForURL(/\/practice\/[0-9a-f-]{36}/);
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${OUT}/topic-q1-${w}.png` }); await layout(page, "topic câu 1", notes);
-    await page.getByRole("button", { name: /^Phương án A của câu 1/ }).click();
+    await page.getByRole("list", { name: "Các đáp án" }).getByRole("button").first().click();
     await page.getByRole("button", { name: "Kiểm tra" }).click();
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${OUT}/topic-feedback-${w}.png` }); await layout(page, "topic phản hồi", notes);
@@ -55,7 +55,7 @@ for (const w of [1440, 375]) {
     await page.getByRole("button", { name: "Bắt đầu thi thử" }).click();
     await page.waitForURL(/\/practice\/[0-9a-f-]{36}/); await page.waitForTimeout(1200);
     await page.screenshot({ path: `${OUT}/mock-${w}.png` }); await layout(page, "mock câu 1", notes);
-    await page.getByRole("button", { name: /^Phương án B của câu 1/ }).click(); await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "Sai", exact: true }).or(page.getByRole("list", { name: "Các đáp án" }).getByRole("button").nth(1)).first().click(); await page.waitForTimeout(1500);
     await page.screenshot({ path: `${OUT}/mock-saved-${w}.png` });
     require("fs").writeFileSync(`${OUT}/notes-sv-${w}.txt`, notes.join("\n"));
     await ctx.close();
@@ -69,7 +69,7 @@ test("GV /questions + sổ điểm Forms 1440", async ({ browser }, info) => {
   const { ctx, page } = await login(browser, "teacher", 1440);
   await page.goto("/questions"); await page.getByRole("heading", { name: "Ngân hàng câu hỏi", level: 1 }).waitFor(); await page.waitForTimeout(1000);
   await page.screenshot({ path: `${OUT}/questions-1440.png` });
-  await page.getByRole("button", { name: "Tạo câu hỏi" }).click(); await page.waitForTimeout(500);
+  await page.getByRole("button", { name: "Tạo câu hỏi" }).first().click(); await page.waitForTimeout(500);
   await page.screenshot({ path: `${OUT}/questions-create-menu-1440.png` });
   notes.push("menu tạo: " + (await page.getByRole("menuitem").allInnerTexts()).join(" | "));
   await page.keyboard.press("Escape");

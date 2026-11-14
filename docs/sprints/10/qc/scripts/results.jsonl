@@ -175,3 +175,56 @@
 {"tc": "TC-08-10 11 lần/giờ → 429 từ lần thứ 11", "st": "PASS", "note": "mã: [429, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429]"}
 {"tc": "TC-08-07 10 lượt MOCK mặc định: 0 câu ESSAY", "st": "PASS", "note": "0"}
 {"tc": "TC-08-05/06 bài chèn lệnh làm dữ liệu: nhận xét như thường, không 10 điểm/khen hết, không lộ prompt, SV không thấy cờ", "st": "PASS", "note": "200 injected=True (trường injected trả về cho SV: True)"}
+{"tc": "TC-09-01 history 200, giảm dần theo thời gian", "st": "PASS", "note": "200 n=20 keys=['id', 'mode', 'topic', 'status', 'started_at', 'submitted_at', 'item_count', 'correct']"}
+{"tc": "TC-09-03 duyệt cursor đến hết: không trùng", "st": "PASS", "note": "106 lượt, trang [20, 20, 20, 20, 20, 6]"}
+{"tc": "TC-09-03b limit=101 → cắt ≤100 hoặc 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-09-21 history p95 ≤ 300 ms", "st": "PASS", "note": "n=60 p50=4 p95=4 ms; 106 lượt của sv.kha (không đạt 200 lượt)"}
+{"tc": "TC-09-04 weakness ≤3 chủ đề, mỗi chủ đề ≥3 câu, xếp theo tỉ lệ sai", "st": "PASS", "note": "[('Mật mã khối', 149, 152), ('Tấn công và phòng thủ', 39, 40), ('Mật mã công khai', 736, 756)]"}
+{"tc": "TC-09-sv.moi weakness → 403/404", "st": "PASS", "note": "403"}
+{"tc": "TC-09-17 lịch sử lớp 2 không chứa lượt lớp 1", "st": "PASS", "note": "200 lớp1=44 lớp2=0"}
+{"tc": "TC-09-09 today teacher không có PRACTICE_WEAK_TOPIC", "st": "PASS", "note": "200"}
+{"tc": "TC-09-09 today ta không có PRACTICE_WEAK_TOPIC", "st": "PASS", "note": "200"}
+{"tc": "TC-09-09 today admin không có PRACTICE_WEAK_TOPIC", "st": "PASS", "note": "403"}
+{"tc": "TC-09-06 today SV có PRACTICE_WEAK_TOPIC", "st": "FAIL", "note": "0 việc: []"}
+{"tc": "TC-09-15 Hồ sơ 360 không chứa dữ liệu luyện đề", "st": "FAIL", "note": "404 khớp: []"}
+{"tc": "TC-09-06/07 (ép lượt lùi 5 ngày) today SV có PRACTICE_WEAK_TOPIC 'Ôn chủ đề'", "st": "FAIL", "note": ""}
+{"tc": "TC-11-01a presign forms_import (TEACHER) 200", "st": "PASS", "note": "200"}
+{"tc": "TC-11-01 preview: cột + 20 dòng đầu, không ghi", "st": "PASS", "note": "200 keys=['columns', 'rows', 'rows_total', 'suggested_mapping']"}
+{"tc": "TC-11-12 chưa preview → 409 PREVIEW_REQUIRED", "st": "PASS", "note": "409 {\"code\": \"PREVIEW_REQUIRED\", \"message\": \"Cần xem trước kết quả trước khi xác nhận.\", \"trace_id\": \"1d"}
+{"tc": "TC-11-08 Xem trước kết quả: điểm + đúng/tổng + chưa khớp, chưa ghi", "st": "FAIL", "note": "422"}
+{"tc": "TC-11-01a presign forms_import (TEACHER) 200", "st": "PASS", "note": "200"}
+{"tc": "TC-11-01 preview: cột + 20 dòng đầu, không ghi", "st": "PASS", "note": "200 keys=['columns', 'rows', 'rows_total', 'suggested_mapping']"}
+{"tc": "TC-11-12 chưa preview → 409 PREVIEW_REQUIRED", "st": "PASS", "note": "409 {\"code\": \"PREVIEW_REQUIRED\", \"message\": \"Cần xem trước kết quả trước khi xác nhận.\", \"trace_id\": \"44"}
+{"tc": "TC-11-08 Xem trước kết quả: điểm + đúng/tổng + chưa khớp, chưa ghi", "st": "FAIL", "note": "422"}
+{"tc": "TC-11-01a presign forms_import (TEACHER) 200", "st": "PASS", "note": "200"}
+{"tc": "TC-11-01 preview: cột + 20 dòng đầu, không ghi", "st": "PASS", "note": "200 keys=['columns', 'rows', 'rows_total', 'suggested_mapping']"}
+{"tc": "TC-11-12 chưa preview → 409 PREVIEW_REQUIRED", "st": "PASS", "note": "409 {\"code\": \"PREVIEW_REQUIRED\", \"message\": \"Cần xem trước kết quả trước khi xác nhận.\", \"trace_id\": \"d0"}
+{"tc": "TC-11-08 Xem trước kết quả: điểm + đúng/tổng + chưa khớp, chưa ghi", "st": "FAIL", "note": "422"}
+{"tc": "TC-11-01a presign forms_import (TEACHER) 200", "st": "PASS", "note": "200"}
+{"tc": "TC-11-01 preview: cột + 20 dòng đầu, không ghi", "st": "PASS", "note": "200 keys=['columns', 'rows', 'rows_total', 'suggested_mapping']"}
+{"tc": "TC-11-12 chưa preview → 409 PREVIEW_REQUIRED", "st": "PASS", "note": "409 {\"code\": \"PREVIEW_REQUIRED\", \"message\": \"Cần xem trước kết quả trước khi xác nhận.\", \"trace_id\": \"41"}
+{"tc": "TC-11-08 Xem trước kết quả: điểm + đúng/tổng + chưa khớp, chưa ghi", "st": "FAIL", "note": "422"}
+{"tc": "TC-11-01a presign forms_import (TEACHER) 200", "st": "PASS", "note": "200"}
+{"tc": "TC-11-01 preview: cột + 20 dòng đầu, không ghi", "st": "PASS", "note": "200 keys=['columns', 'rows', 'rows_total', 'suggested_mapping']"}
+{"tc": "TC-11-12 chưa preview → 409 PREVIEW_REQUIRED", "st": "PASS", "note": "409 {\"code\": \"PREVIEW_REQUIRED\", \"message\": \"Cần xem trước kết quả trước khi xác nhận.\", \"trace_id\": \"4d"}
+{"tc": "TC-11-08 Xem trước kết quả: điểm + đúng/tổng + chưa khớp, chưa ghi", "st": "FAIL", "note": "422"}
+{"tc": "TC-11-03 confirm ghi grade_entries(source=QUIZ), không đổi published_at", "st": "PASS", "note": "201 QUIZ entries 0→6; published_at 2026-11-14 05:47:42.122307+00→2026-11-14 05:47:42.122307+00"}
+{"tc": "TC-11-07 nhập lại cùng tệp/cột (khoá mới) → replayed, không ghi thêm", "st": "PASS", "note": "201 replayed=True"}
+{"tc": "TC-11-11 ta presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 ta preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-11 sv.kha presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 sv.kha preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-11 admin presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 admin preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-09 forms-bad.txt bị từ chối ngay ở presign", "st": "PASS", "note": "presign 429"}
+{"tc": "TC-11-09 forms-nocol.csv bị từ chối ngay ở presign", "st": "PASS", "note": "presign 429"}
+{"tc": "TC-11-09 tệp > 5 MB bị từ chối ở presign", "st": "FAIL", "note": "429"}
+{"tc": "TC-11-09 forms-bad.txt bị từ chối ở presign", "st": "PASS", "note": "presign 422 {\"code\": \"FILE_TYPE_NOT_ALLOWED\", \"message\": \"Chỉ nhận tệp PDF, DOCX hoặc PPTX.\", \"trace_id\": \"8e167"}
+{"tc": "TC-11-09 forms-nocol.csv → 422 kèm vị trí", "st": "FAIL", "note": "200 {\"columns\": [{\"col\": \"A\", \"header\": \"Họ tên\"}, {\"col\": \"B\", \"header\": \"Điểm\"}], \"rows\": [[\"A\", \"1\"]], \"rows_total\": 1, \"suggested_mapping\": {\"header_row\": 1, \"email_col\": \"\", \"code_col\": \"\", \"time_col"}
+{"tc": "TC-11-09 tệp > 5 MB bị từ chối ở presign", "st": "PASS", "note": "422 {\"code\": \"FILE_TOO_LARGE\", \"message\": \"Tệp quá lớn (tối đa 50 MB).\", \"trace_id\": \"760f26ba083d065e59"}
+{"tc": "TC-11-09/AC6 thiếu cột định danh (không email_col, không code_col) → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-02-12 EXAM_PAPER của lớp 2 gọi từ lớp 1 → 404", "st": "FAIL", "note": "202"}
+{"tc": "TC-02-13b answer_key_document_id của lớp 2 → 404", "st": "FAIL", "note": "202"}
+{"tc": "TC-09-08 luyện xong chủ đề → việc 'Ôn chủ đề' biến mất ≤ 5 s", "st": "FAIL", "note": "biến mất sau Nones; việc kế tiếp = PRACTICE_WEAK_TOPIC"}
+{"tc": "TC-09-08 sau khi luyện xong 'Xác thực…' việc ôn chủ đề đó biến mất/ chuyển sang chủ đề yếu kế tiếp trong ≤ 5 s", "st": "FAIL", "note": "việc hiện tại: Ôn chủ đề Xác thực và phân quyền"}
+{"tc": "TC-09-08 luyện xong chủ đề (start+submit mới) → việc 'Ôn chủ đề' đó biến mất ≤ 5 s", "st": "FAIL", "note": "sau Nones, việc kế tiếp: Ôn chủ đề Xác thực và phân quyền"}
