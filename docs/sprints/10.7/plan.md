@@ -32,7 +32,7 @@ Không vẽ lại thương hiệu (giữ Red Thread, token `--ep-*`, Be Vietnam 
 | --- | --- | --- | --- |
 | 0 | dev | Điều tra (chỉ đọc) lỗi `/insights` hiện báo cáo lớp khác | báo PM |
 | 1 | QC | Script chụp toàn bộ + bảng kiểm chéo hiện trạng (dựa ảnh, không cảm tính) | `docs/sprints/10.7/qc/audit.md`, `audit.html` |
-| 1 | Tech Lead | Hợp đồng §23 + danh sách thay đổi primitive + luật script | `docs/sprints/10.7/techlead.md`, nháp §23 |
+| 1 | Tech Lead UI (Fable 5.2, `techlead-ui`) | Kế hoạch đánh giá + refine; hợp đồng §23 + danh sách thay đổi primitive + luật script | `docs/sprints/10.7/techlead.md`, nháp §23 |
 | 2 | dev | (sau hàng sửa 10.6) primitive trước → route sau; nhánh `fix/ui-empty` đổi thành nền của UI-R | commit nhỏ theo nhóm route |
 | 3 | QC | Chụp lại, kiểm chéo, 0 mục còn lại; Playwright + `ui-antipatterns` sạch | `docs/sprints/10.7/qc/summary.md` |
 | 4 | PM | Báo cáo trước/sau cho chủ dự án | `~/Documents/EduPilot-bao-cao/ui-r.html` |
