@@ -5,7 +5,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 ## Đang ở đâu
 - Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (**public** từ 2026-10-09; lịch sử đã làm sạch secret của Project III bằng `git filter-repo`). Repo cũ `TA_Agent_v2` (private, lịch sử chưa làm sạch) = remote `old-private`, **không push thêm**; nhánh cục bộ `chore/edupilot-v2-docs`, `legacy-main` thuộc lịch sử cũ, **không bao giờ push lên `origin`**. `main` = sprint 1 + 1.5 + 2 + 3 + 4 + 5 + 5.5 + 6 + 7 + 8 + 9. Repo Project III `TA_Agent` = remote `old-origin`, không push thêm.
 - Lộ trình: **11 sprint + 1.5 + 5.5 + 9.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu. Mỗi sprint merge xong: `writer` viết phần quyển đồ án, PM + BA review.
-- Sprint gần nhất: **10 — P9 Luyện đề** (`docs/sprints/10/qc/summary.md`): 12/12 story PASS, merge `main` 2026-11-14, CI xanh @`58ae70d7`; Nợ L6 (P-10-10); hoãn k6 / Lighthouse / axe, `OVERLOADED`, 4 TC PII lời nhắc. Trước đó 9.1 UI/UX. Đang làm: **11 — P10 Đánh giá + hoàn thiện** (`docs/sprints/11/plan.md`) gồm đợt 0 hoàn tất 9.5 và smoke hồi quy toàn bộ. Build / test / demo chạy trên Mac (VPS thu hồi).
+- Sprint gần nhất: **10.5 — Decision model + cascade (D60)** (`docs/sprints/10.5/qc/summary.md`): 9/9 story PASS, merge `main` 2026-11-14, CI xanh @`b5f7989c`; hoãn đo trước / sau (`benchmarks/decision/run.sh`) + lượt thật sang lượt đo chung. Trước đó: 10 Luyện đề, 9.1 UI/UX. Đang làm: **10.6 — Harness học từ lần GV sửa** (`docs/sprints/10.6/plan.md`), rồi lượt kiểm + bench 1.000 bài chung, rồi 11. LLM sinh chữ chỉ qua 9router; khoá Gemini chỉ cho decision + embedding (gọi thật cần PM cho phép).
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase
