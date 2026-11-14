@@ -36,6 +36,17 @@ test("assignments tab: «Đã nộp / Tổng» lấy lại khi cửa sổ lấy 
   await expect(rows(page).first()).toContainText("60 / 60");
 });
 
+test("assignments tab: dòng bài tập là LIÊN KẾT thật (href sâu), bấm thường mở ngăn, mở thẳng bằng ?open= (GV-BUG j)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await open(page, context);
+  const link = rows(page).first().getByRole("link");
+  await expect(link).toHaveAttribute("href", `/grading?tab=assignments&open=${A1}`);
+  await link.click();
+  await expect(drawer(page)).toBeVisible();
+  await page.goto(`${URL}&open=${A1}`);
+  await expect(drawer(page)).toBeVisible(); // liên kết sâu mở đúng ngăn
+});
+
 test("assignments tab layout: Tabs, một Panel + bảng năm cột, Tạo bài tập chỉ của giảng viên, TA chỉ xem", async ({ page, context, browser }, info) => {
   desktopOnly(info);
   await open(page, context);
