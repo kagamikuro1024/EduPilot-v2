@@ -58,7 +58,7 @@ async function listAll(route, token) {
 
 const teacher = await tok("teacher");
 const courses = (await call("GET", "/me/courses", { token: teacher })).body;
-const course = (courses.items ?? courses).find((c) => c.class_code === "761987")?.id;
+const course = (courses.items ?? courses).find((c) => (c.course ?? c).class_code === "761987")?.course?.id;
 if (!course) throw new Error("Không thấy lớp 761987");
 const Q = `/courses/${course}/questions`;
 
