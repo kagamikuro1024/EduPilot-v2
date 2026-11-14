@@ -122,11 +122,11 @@ export function QuestionReview({ courseId, id, userId, canEditTests, onClose, on
                   <div><h3 className={s.h3}>Rubric</h3><Markdown source={d.answer_key?.rubric ?? ""} /></div>
                 </div>
               )}
-              {d.citations.length > 0 && (
+              {(d.citations ?? []).length > 0 && (
                 <div>
                   <h3 className={s.h3}>Nguồn</h3>
                   <ul className={s.cites}>
-                    {d.citations.map((c, i) => (
+                    {(d.citations ?? []).map((c, i) => (
                       <li key={i}>{c.document_id ? <Link href={`/library/${c.document_id}${c.page ? `?page=${c.page}` : ""}`}>Tài liệu{c.page ? `, trang ${c.page}` : ""}</Link> : "Tài liệu"}</li>
                     ))}
                   </ul>

@@ -88,7 +88,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
       autoFocus
       onPicked={close}
       items={[
-        { label: "Soạn tay", onSelect: () => setCreating("MCQ") },
+        { label: "Câu trắc nghiệm", onSelect: () => setCreating("MCQ") },
         { label: "Bài lập trình", onSelect: () => setCreating("CODE") },
         { label: "Trích từ đề", hint: "Đề cũ → câu chờ duyệt", onSelect: () => setCreating("EXTRACT") },
         { label: "Sinh từ tài liệu", hint: "Có trích dẫn, bạn duyệt", onSelect: () => setCreating("GENERATE") },
