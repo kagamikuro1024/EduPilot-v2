@@ -39,7 +39,7 @@
 | L3 | CLS ≤ 0,1 (có dữ liệu) | **0** | – |
 | X1 | lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại» | **8** | student/chat, teacher/analytics, teacher/observability, teacher/settings |
 | X2 | lỗi: không mã trần (4xx/5xx/undefined/Error:) | **0** | – |
-| X3 | lỗi: giữ h1 + tab như có dữ liệu | **7** | student/practice, teacher/attendance, teacher/gradebook, teacher/gradebook/scheme |
+| X3 | lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6) | **14** | student/practice, teacher/attendance, teacher/gradebook, teacher/gradebook/scheme |
 | D1 | cỡ chữ ⊆ {28,24,20,16,15,14,12} | **8** | ta/class/settings, teacher/class/settings |
 | D2 | cao điều khiển 36|30 (1440), ≥ 44 (375) | **11** | student/chat, ta/class/settings, teacher/class/settings, teacher/gradebook |
 | D3 | cao hàng bảng 48|44 | **29** | admin/admin/courses, admin/admin/users, admin/observability, ta/attendance, ta/class/members, ta/documents, ta/gradebook, ta/grading … |
@@ -47,7 +47,7 @@
 | T2 | chuỗi > 30 ký tự lặp < 3 lần | **4** | ta/documents, teacher/documents |
 | C3 | vàng: ≤ 3 nền, 0 chữ | **0** | – |
 
-**Tổng lệch: 137** (mục chưa 0 = chưa đạt).
+**Tổng lệch: 144** (mục chưa 0 = chưa đạt).
 
 ## Chữ ký khung (kiểu, h1.left, cột.left, cột.width, có meta, đệm panel, hình khối rỗng)
 
@@ -251,6 +251,23 @@
 - teacher/analytics[loading@375] không có aria-busy
 - teacher/observability[loading@375] không có aria-busy
 
+### X3 — lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6) (14)
+
+- teacher/attendance[loading@1440] nút [] vs ['Lưu điểm danh']
+- teacher/gradebook[loading@1440] nút [] vs ['Xem công thức', 'Thêm hành động', 'Chốt điểm']
+- teacher/gradebook/scheme[loading@1440] nút [] vs ['Tải quy chế']
+- student/practice[loading@1440] tab [] vs ['Theo chủ đề13', 'Thi thử']
+- teacher/gradebook[loading@375] nút [] vs ['Thêm', 'Chốt điểm']
+- teacher/gradebook/scheme[loading@375] nút [] vs ['Tải quy chế']
+- student/practice[loading@375] tab [] vs ['Theo chủ đề13', 'Thi thử']
+- teacher/attendance[error@1440] nút [] vs ['Lưu điểm danh']
+- teacher/gradebook[error@1440] nút [] vs ['Xem công thức', 'Thêm hành động', 'Chốt điểm']
+- teacher/gradebook/scheme[error@1440] nút [] vs ['Tải quy chế']
+- student/practice[error@1440] tab [] vs ['Theo chủ đề13', 'Thi thử']
+- teacher/gradebook[error@375] nút [] vs ['Thêm', 'Chốt điểm']
+- teacher/gradebook/scheme[error@375] nút [] vs ['Tải quy chế']
+- student/practice[error@375] tab [] vs ['Theo chủ đề13', 'Thi thử']
+
 ### X1 — lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại» (8)
 
 - teacher/settings[error@1440] alert×0
@@ -261,14 +278,4 @@
 - teacher/analytics[error@375] alert×0
 - teacher/observability[error@375] alert×0
 - student/chat[error@375] alert×0
-
-### X3 — lỗi: giữ h1 + tab như có dữ liệu (7)
-
-- teacher/attendance[error@1440] nút [] vs ['Lưu điểm danh']
-- teacher/gradebook[error@1440] nút [] vs ['Chốt điểm', 'Thêm hành động', 'Xem công thức']
-- teacher/gradebook/scheme[error@1440] nút [] vs ['Tải quy chế']
-- student/practice[error@1440] tab [] vs ['Theo chủ đề13', 'Thi thử']
-- teacher/gradebook[error@375] nút [] vs ['Chốt điểm', 'Thêm']
-- teacher/gradebook/scheme[error@375] nút [] vs ['Tải quy chế']
-- student/practice[error@375] tab [] vs ['Theo chủ đề13', 'Thi thử']
 

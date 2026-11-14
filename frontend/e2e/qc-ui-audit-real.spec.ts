@@ -132,7 +132,7 @@ async function probe(page: Page) {
       header: { h1Count: h1s.length, h1InHeader: !!hdr && !!hdr.querySelector("h1"), pTags: hdrKids, h1: h1r, h1x: h1r?.x ?? null, hdrH: hr?.h ?? null, hasBack, hasMeta: !!meta, metaText, metaLines: meta ? Math.max(1, Math.round(R(meta).h / lh(meta))) : 0,
         metaDupClass: !!meta && classTokens.some((t) => metaText.includes(t) && topbar.includes(t)),
         dy: h1r && ar ? +((ar.y + ar.h / 2) - (h1r.y + h1r.h / 2)).toFixed(1) : null, actionsRight: ar && ar.w > 0 && col ? +(col.r - ar.r).toFixed(1) : null, actionsH: ar?.h ?? null, btns: hbtns.map((b) => ({ t: txt(b) || b.getAttribute("aria-label") || "", v: variantOf(b) })) },
-      primaryTotal: primOut.length + hbtns.filter((b) => variantOf(b) === "primary").length, primaryOutside: primOut.map(txt), formPrim, alPrim, alCount,
+      primaryTotal: primOut.length + hbtns.filter((b) => variantOf(b) === "primary").length, primaryOutside: primOut.map(txt), dock: Array.from(document.querySelectorAll("[data-ep-header-dock]")).filter(vis).length, formPrim, alPrim, alCount,
       sections: sections.length, h2: h2s.length, h2NoHook: h2s.filter((h) => !h.hasAttribute("data-ep-section-title")).length, sectionP: main.querySelectorAll("[data-ep-section-head] p").length,
       secGaps, headToPanel, hdrToBody, tabs, toolbarBtns,
       empties, dupEmpty, alerts, alertCount: main.querySelectorAll("[role=alert]").length, busy: main.querySelectorAll("[aria-busy=true]").length,

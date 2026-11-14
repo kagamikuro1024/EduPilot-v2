@@ -23,6 +23,19 @@ _SRC = "".join(open(os.path.join(dp, f), errors="ignore").read() for dp, _, fs i
 static_text = lambda t: t.strip() in _SRC
 def bad(code, r, why=""):
     FAIL.setdefault(code, []).append(f"{tag(r)}{(' ' + why) if why else ''}")
+def x3(r, d):
+    """TL 14.2 + 14.6: meta và số đếm được mất; phải giữ h1, nhãn tab (bỏ số đếm), kiểu trang và NÚT đầu trang (cùng số, cùng kiểu, cùng thứ tự; nhãn mang trạng thái được khác). Đo cả lúc đang tải."""
+    if not ok(d): return
+    nt = lambda ts: [re.sub(r"\d+$", "", t) for t in ts]
+    bv = lambda x: [b["v"] for b in x["header"]["btns"]]
+    why = []
+    if not r["header"]["h1Count"]: why.append("mất h1")
+    if nt(r["tabs"]) != nt(d["tabs"]): why.append(f"tab {r['tabs']} vs {d['tabs']}")
+    if bv(r) != bv(d): why.append(f"nút {[b['t'] for b in r['header']['btns']]} vs {[b['t'] for b in d['header']['btns']]}")
+    if r["kind"] != d["kind"]: why.append(f"kiểu {r['kind']} vs {d['kind']}")
+    if d.get("dock", 0) and not r.get("dock", 0): why.append("mất thanh dính đáy (dock)")
+    if why: bad("X3", r, "; ".join(why))
+
 DESC = {
  "W1": "kiểu trang: đúng 1 `data-ep-page` = work|read", "W2": "bề rộng cột 1440: work 1176; read 800 căn giữa (428→1228)", "W3": "mép panel cấp cao nhất = mép cột (trừ Split)", "W4": "mép trái h1 = mép trái cột; mép phải cụm nút = mép phải cột",
  "W5": "375: cột 12→363 (rộng 351), không tràn ngang", "H1": "đúng 1 h1 trong header", "H2": "0 thẻ `p` thừa ở đầu trang", "H3": "meta ≤ 1 dòng, không chứa lớp đang chọn", "H4": "nút cùng hàng tiêu đề (|Δ tâm dọc| ≤ 4, 1440)",
@@ -30,7 +43,7 @@ DESC = {
  "P1": "đệm panel 24 (16 ở 375)", "P2": "panel cao theo nội dung (chênh ≤ 2; trừ Split fill)", "P3": "0 panel lồng", "P4": "h2 có `data-ep-section-title`, 0 `p` ở đầu mục", "P5": "nhịp dọc đầu trang→thân 40 (32@375), mục→mục 48, h2→panel 16",
  "E1": "khối rỗng: 1 tiêu đề + ≤ 1 nút, 0 svg, 0 chữ khác", "E2": "khối rỗng căn giữa |Δ| ≤ 2 px", "E3": "tiêu đề rỗng ≤ 40 ký tự, 1 dòng, không dấu chấm cuối", "E4": "nút rỗng không trùng nút đầu trang / tab / thanh công cụ", "E5": "nút rỗng `secondary`",
  "E6": "vật chứa khối rỗng ≤ 320 px (1440)", "E7": "route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh)", "L1": "đang tải: h1 cùng toạ độ như có dữ liệu (±2)", "L2": "đang tải có khung xương `aria-busy` (≥ 1)", "L3": "CLS ≤ 0,1 (có dữ liệu)",
- "X1": "lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại»", "X2": "lỗi: không mã trần (4xx/5xx/undefined/Error:)", "X3": "lỗi: giữ h1 + tab như có dữ liệu", "D1": "cỡ chữ ⊆ {28,24,20,16,15,14,12}", "D2": "cao điều khiển 36|30 (1440), ≥ 44 (375)",
+ "X1": "lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại»", "X2": "lỗi: không mã trần (4xx/5xx/undefined/Error:)", "X3": "lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6)", "D1": "cỡ chữ ⊆ {28,24,20,16,15,14,12}", "D2": "cao điều khiển 36|30 (1440), ≥ 44 (375)",
  "D3": "cao hàng bảng 48|44", "T1": "0 icon giải thích (info / circle-help) ngoài thông báo", "T2": "chuỗi > 30 ký tự lặp < 3 lần", "C3": "vàng: ≤ 3 nền, 0 chữ",
 }
 FONTS = {28, 24, 20, 16, 15, 14, 12}
@@ -108,22 +121,15 @@ for r in rows["loading"]:
         a, b = r["header"]["h1"], d["header"]["h1"]
         if abs(a["y"] - b["y"]) > 2 or abs(a["x"] - b["x"]) > 2: bad("L1", r, f"h1 ({a['x']},{a['y']}) vs ({b['x']},{b['y']})")
     elif ok(d) and not r["header"]["h1"]: bad("L1", r, "không có h1 khi tải")
-    if r["busy"] < 1 and r["route"] != "/insights": bad("L2", r, "không có aria-busy")  # /insights mô phỏng: không áp dụng tới sprint 11 (PM 15/11)
+    if r["busy"] < 1 and r["route"] != "/insights": bad("L2", r, "không có aria-busy")
+    x3(r, idx.get(("data", r["role"], r["route"], r["w"])))  # /insights mô phỏng: không áp dụng tới sprint 11 (PM 15/11)
 for r in rows["error"]:
     if not ok(r) or r.get("apiHits") == 0: continue
     if r["route"] != "/insights" and (r["alertCount"] != 1 or not r["alerts"] or not near(r["alerts"][0]["w"], (r["col"] or {}).get("w", -999), 2) or not r["alerts"][0]["retry"]):
         bad("X1", r, f"alert×{r['alertCount']}" + (f" rộng {r['alerts'][0]['w']}" if r["alerts"] else "") + (" thiếu Thử lại" if r["alerts"] and not r["alerts"][0]["retry"] else ""))
     if any(a["bare"] for a in r["alerts"]): bad("X2", r, r["alerts"][0]["text"][:60])
     d = idx.get(("data", r["role"], r["route"], r["w"]))
-    if ok(d):  # TL 14.2: meta và số đếm được mất khi lỗi; phải giữ h1, nhãn tab (bỏ số đếm), nút đầu trang, kiểu trang
-        nt = lambda ts: [re.sub(r"\d+$", "", t) for t in ts]
-        bl = lambda x: sorted(b["t"] for b in x["header"]["btns"])
-        why = []
-        if not r["header"]["h1Count"]: why.append("mất h1")
-        if nt(r["tabs"]) != nt(d["tabs"]): why.append(f"tab {r['tabs']} vs {d['tabs']}")
-        if bl(r) != bl(d): why.append(f"nút {bl(r)} vs {bl(d)}")
-        if r["kind"] != d["kind"]: why.append(f"kiểu {r['kind']} vs {d['kind']}")
-        if why: bad("X3", r, "; ".join(why))
+    x3(r, d)
 
 # ---------- md
 L = []; w = L.append
