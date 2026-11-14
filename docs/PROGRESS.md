@@ -37,7 +37,7 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) 
 - Ngày: 2026-11-01
 - Đã làm: sprint 8 (P6, 11/11 story PASS, proposals #1–#26) và sprint 9 (P7, 11/12 story PASS, US-P7-03 FAIL chỉ AC9 LCP; proposals #1–#17). PM chốt thay chủ dự án khi vắng (31/10 → 01/11), danh sách [ĐIỂM] trong `docs/sprints/9/report.md`. Chủ dự án chốt 2026-11-01.
 - Đang dở: không.
-- Bước kế tiếp cụ thể: CI `main` xanh; chủ dự án quyết LCP `/assignments/[id]` (#10 sprint 9), duyệt `golang.org/x/text`, tính tay A, B, C; PM lập kế hoạch sprint 10 (P9 Luyện đề).
+- Bước kế tiếp cụ thể: CI `main` xanh; LCP → sửa ở sprint 11; tính tay A, B, C để sau; PM lập kế hoạch sprint 10 (P9 Luyện đề).
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
 - 9.1 UX17-8, UX17-9 (`/insights`, `/observability` còn dữ liệu mô phỏng; Admin xem hàng → `audit_log`, lớp chưa có báo cáo) → kiểm khi P10 nối API thật (P-91-15).
@@ -58,8 +58,8 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) 
   - At-risk chưa có tín hiệu điểm (neo `GRADE` chờ P6). Chủ dự án chưa bấm giờ điểm danh trên điện thoại thật.
   - Luật chữ trên UI (#42): đã xoá 6 câu ở màn sprint 7 và `/class/settings`, `/settings`; các màn cũ `/settings/llm`, `/settings/integrations`, khối bảo mật `/settings` còn câu mô tả dưới tiêu đề — quét một lượt ở sprint 8 (`docs/sprints/7/handoff/dev-PM-42.md`).
 - **Nợ của sprint 8 + 9:**
-  - LCP `/assignments/[id]` 4,7 s > 2,5 s (US-P7-03 AC9, G7-23): chủ dự án chọn đổi thiết kế màn đầu hoặc chấp nhận.
-  - Chủ dự án chưa tự tính tay A, B, C (G6-30), chưa làm "Bạn tự kiểm" P7; chưa duyệt `golang.org/x/text`.
+  - LCP `/assignments/[id]` 4,7 s (G7-23) + 6 trang LCP 4,8–6,7 s đo trên build production dữ liệu T1 (`/threads`, `/inbox`, `/gradebook`, `/me`, `/settings/llm`; 9.5 TL-2f): **chủ dự án chốt 2026-11-14: sửa mã ở sprint 11**, không nới ngân sách 2,5 s.
+  - Chủ dự án chưa tự tính tay A, B, C (G6-30), chưa làm "Bạn tự kiểm" P7 — để sau (chủ dự án 2026-11-14). `golang.org/x/text` và các mục [ĐIỂM] sprint 9: **đã duyệt 2026-11-14**.
   - Tải 200 bài chấm cùng lúc → P10 (`seed-t1`); chưa kiểm trên stack: `kill -9` worker giữa hai lượt, Redis dừng 70 s, Teams hết thời gian thật; `grading.batch` mồ côi khi Redis mất ánh xạ lô.
   - Compose production đặt `TEAMS_ENABLED=false` (PR); bước CI kiểm danh sách thư viện cho phép; `/students` chưa có cột điểm; xuất XLSX mẫu cột cố định; chưa đo độ chính xác LLM thật (trích công thức, chấm bài).
   - Ghi nhận thấp của QC sprint 8: BUG-P6-02-1, BUG-P6-05-1, BUG-P6-08-1, BUG-P6-08-2 (`data-layer.spec` chập chờn).
