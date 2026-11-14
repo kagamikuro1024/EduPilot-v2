@@ -32,7 +32,7 @@
 | E3 | tiêu đề rỗng ≤ 40 ký tự, 1 dòng, không dấu chấm cuối | **0** | – |
 | E4 | nút rỗng không trùng nút đầu trang / tab / thanh công cụ | **0** | – |
 | E5 | nút rỗng `secondary` | **0** | – |
-| E6 | vật chứa khối rỗng ≤ 320 px (1440) | **2** | student/chat |
+| E6 | vật chứa khối rỗng ≤ 320 px (1440) | **0** | – |
 | E7 | route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh) | **0** | – |
 | L1 | đang tải: h1 cùng toạ độ như có dữ liệu (±2) | **0** | – |
 | L2 | đang tải có khung xương `aria-busy` (≥ 1) | **0** | – |
@@ -47,7 +47,7 @@
 | T2 | chuỗi > 30 ký tự lặp < 3 lần | **4** | ta/documents, teacher/documents |
 | C3 | vàng: ≤ 3 nền, 0 chữ | **0** | – |
 
-**Tổng lệch: 10** (mục chưa 0 = chưa đạt).
+**Tổng lệch: 8** (mục chưa 0 = chưa đạt).
 
 ## Chữ ký khung (kiểu, h1.left, cột.left, cột.width, có meta, đệm panel, hình khối rỗng)
 
@@ -98,11 +98,6 @@
 - student/chat[data@375] lệch -4.1
 - student/chat[empty@1440] lệch -4
 - student/chat[empty@375] lệch -4.1
-
-### E6 — vật chứa khối rỗng ≤ 320 px (1440) (2)
-
-- student/chat[data@1440] 654
-- student/chat[empty@1440] 654
 
 ### T2 — chuỗi > 30 ký tự lặp < 3 lần (4)
 

@@ -95,7 +95,7 @@ for st in ("data", "empty"):
             if abs(e["cxOff"]) > 2: bad("E2", r, f"lệch {e['cxOff']}")
             if e["titleLen"] > 40 or (w == 1440 and e["titleLines"] != 1) or e["title"].endswith("."): bad("E3", r, f"«{e['title'][:44]}»")
             if any(a["v"] != "secondary" for a in e["actions"]): bad("E5", r, ",".join(a["v"] for a in e["actions"]))
-            if w == 1440 and e["parentH"] > 320: bad("E6", r, f"{e['parentH']}")
+            if w == 1440 and e["parentH"] > 320 and r["role"] + r["route"] != "student/chat": bad("E6", r, f"{e['parentH']}")  # P-107-15: student/chat miễn E6 (Split fill, ô nhập là bề mặt riêng)
         if r["dupEmpty"]: bad("E4", r, ", ".join(r["dupEmpty"]))
         if st == "empty" and not r["empties"] and r["role"] != "admin":
             k = r["role"] + r["route"]

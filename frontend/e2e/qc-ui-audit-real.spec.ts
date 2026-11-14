@@ -120,7 +120,7 @@ async function probe(page: Page) {
     const ctrlH = Array.from(main.querySelectorAll("button[data-variant], input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]), select")).filter(vis).map((c) => Math.round(R(c).h));
     const rowH = Array.from(main.querySelectorAll("tbody tr")).filter(vis).map((c) => Math.round(R(c).h));
     const icons = Array.from(main.querySelectorAll("svg.lucide-info, svg.lucide-circle-help")).filter((s) => !s.closest("[role=status],[role=alert]")).length;
-    const long: Record<string, number> = {}; Array.from(main.querySelectorAll("p,span,li,td,div")).filter((e) => e.children.length === 0).forEach((e) => { const t = txt(e); if (t.length > 30) long[t] = (long[t] || 0) + 1; });
+    const long: Record<string, number> = {}; Array.from(main.querySelectorAll("p,span,li,td,div")).filter((e) => e.children.length === 0 && !e.closest("[role=tooltip]")).forEach((e) => { const t = txt(e); /* P-107-15: chữ của [role=tooltip] không đếm T2 */ if (t.length > 30) long[t] = (long[t] || 0) + 1; });
     const repeats = Object.entries(long).filter(([, n]) => n >= 3).map(([t, n]) => `${t.slice(0, 50)}×${n}`);
     const yellow = (rgb: string) => /rgb\(243, 193, 8\)|rgba\(243, 193, 8/.test(rgb);
     let yBg = 0, yFg = 0; Array.from(main.querySelectorAll("*")).slice(0, 1500).forEach((e) => { const cs = getComputedStyle(e); if (yellow(cs.backgroundColor)) yBg++; if (yellow(cs.color)) yFg++; });
