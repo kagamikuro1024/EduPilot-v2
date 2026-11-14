@@ -49,7 +49,7 @@ function Home({ courseId }: { courseId: string }) {
         query={ov}
         isEmpty={() => Boolean(noQuestions)}
         loading={<Panel><Skeleton lines={6} /></Panel>}
-        empty={<Panel><EmptyState title="Chưa có câu hỏi để luyện">Giảng viên chưa duyệt câu hỏi nào cho lớp này.</EmptyState></Panel>}
+        empty={<Panel><EmptyState title="Giảng viên chưa mở câu hỏi" /></Panel>}
       >
         {open.length > 0 && (
           <Section panel title="Lượt đang dở">
