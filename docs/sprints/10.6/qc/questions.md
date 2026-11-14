@@ -21,3 +21,8 @@ Phát sinh khi viết TC pha 1 (2026-11-14). Mỗi câu có phương án QC; TC 
 - Mọi lượt đo thật (E3, bench 1.000 bài, `regress run` thật, `regress export` khi `REGRESSION_EXPORT_ALLOWED=true`) chờ phép PM từng lượt; TC cấu trúc dùng stub / `fake`.
 - Nhãn S7: `expected` = 7,00 (nháp AI lượt 1) **giữ nguyên**; MAE dùng `teacher_label` (S7 = 8,00) — theo P-106-1.
 - TC can thiệp DB (đổi quyền bảng, nạp 1.000 kết quả, kill worker) chỉ trên `ep-qc`, khôi phục ngay, ghi ở báo cáo.
+
+## Hỏi thêm sau khi kiểm L1–L3 (2026-11-14)
+| # | Câu hỏi | Đề xuất QC |
+| --- | --- | --- |
+| Q-S106-14 | Mục lưu ý do LLM trả có `case_id` ngoài đầu vào / thuộc tiêu chí khác: bỏ **cả mục** (mã hiện hành, SRS 4.2.8 (ii)) hay chỉ không đếm ca đó rồi xét `support`? | Giữ hành vi hiện hành; sửa TC-G03-13 (chiều sai chỉ không được đếm; `case_id` lạ → bỏ cả mục) |
