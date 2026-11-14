@@ -18,7 +18,7 @@
 | US-P9-09 Lịch sử, điểm yếu, Hôm nay | **FAIL** | **L3 Trung bình**: «Ôn chủ đề» không biến mất ≤ 5 s ở `/courses/{id}/today`. Đạt: lịch sử phân trang, điểm yếu k ≥ 3, 403 cho staff, lọc theo lớp |
 | US-P9-10 Liêm chính | **PASS** | Bài thi `OPEN` giữ câu → câu bị loại khỏi luyện đề; MOCK đang làm 0 khoá nhạy cảm trong mọi phản hồi; chat khoá khi có lượt bài thi PE (`409 EXAM_IN_PROGRESS`) và mở lại khi nộp; luyện đề không khoá chat; 0 `exam_events`; `NOT_SUBMITTED`; Go: `TestPracticeNoExamLeak`, `TestPracticeNoAnswerLeak`, `TestSearchLibrary*` xanh |
 | US-P9-11 Nhập Forms | **FAIL** | L12 Thấp (ánh xạ theo tên cột trái ví dụ openapi; chữ lỗi tệp sai «PDF, DOCX hoặc PPTX», «50 MB»; ô chọn tệp mặc định). Đạt: ba bước chỉ TEACHER, `PREVIEW_REQUIRED`, khớp email đã xác minh / MSSV, `MISMATCH`, trùng lấy dòng mới nhất, điểm decimal, `replayed`, không đặt `published_at` |
-| US-P9-12 Seed + cổng | **FAIL** | L4 Trung bình (seed không có citations / `EXTRACTED`; Quiz `SCHEDULED`; lớp 2 không có câu), L5 (`check-practice-seed.mjs` lỗi). k6 / Lighthouse / axe hoãn |
+| US-P9-12 Seed + cổng | **FAIL** | L4 Trung bình (seed không có citations / `EXTRACTED`; Quiz `SCHEDULED`; lớp 2 không có câu). L5 (`check-practice-seed.mjs`) dev đã sửa, đạt. k6 / Lighthouse / axe hoãn |
 
 PASS: 4 / 12 (P9-01, 07, 08, 10). FAIL: 8 / 12.
 
@@ -26,7 +26,7 @@ PASS: 4 / 12 (P9-01, 07, 08, 10). FAIL: 8 / 12.
 | Mức | Số | Mã |
 | --- | --- | --- |
 | Cao | 1 | L1 trích đề docling thật 0/24 |
-| Trung bình | 3 | L3 Hôm nay không huỷ cache theo lớp; L4 dữ liệu mẫu sai spec; L5 script kiểm seed |
+| Trung bình | 2 mở + 1 đã sửa | L3 Hôm nay không huỷ cache theo lớp; L4 dữ liệu mẫu sai spec; L5 script kiểm seed (dev sửa ở `5d9c54e3`, QC kiểm lại: PASS) |
 | Thấp | 10 | L6–L15 |
 | Nghiêm trọng | 0 | |
 
@@ -36,4 +36,4 @@ PASS: 4 / 12 (P9-01, 07, 08, 10). FAIL: 8 / 12.
 3. Môi trường: `.env.local` mặc định đặt `BLOB_PUBLIC_ENDPOINT=localhost:9000` nên stack có offset PUT tệp lên MinIO của stack khác (`ep-qc` ghi nhầm vào stack demo). Đã sửa cục bộ (`9500`, không commit). Stack demo `edupilot` có thể có vài đối tượng thừa ở bucket do lượt đầu của QC (UPLOAD_INCOMPLETE).
 
 ## Seed sạch (TC-12-01…06)
-Dựng lại từ trống (`down -v` → `pnpm dev` với `SEED_ON_EMPTY_DB=true`, `57f4cb25`): `scripts/seed.mjs` **mã 0, 334 s** (kể cả docling); chạy lại **mã 0, 21 s**, `question_bank` 129 / `practice_attempts` 42 / `exams` 3 không đổi (idempotent, TC-12-06 PASS). Nội dung: 104 `APPROVED` (14 chủ đề; 60 một đáp án, 12 nhiều đáp án, 20 đúng–sai, 8 trả lời ngắn, 2 tự luận, 2 code; EASY 39, MEDIUM 51, HARD 14), 20 `PENDING` + 5 `AI_DRAFT`, 42 lượt của 13 SV (1 lượt dở). Sai spec: 0 câu có citations, không có `EXTRACTED`, Quiz `SCHEDULED`, lớp 2 không có câu (L4); `node scripts/check-practice-seed.mjs` → `Error: Không thấy lớp 761987` (L5).
+Dựng lại từ trống (`down -v` → `pnpm dev` với `SEED_ON_EMPTY_DB=true`, `57f4cb25`): `scripts/seed.mjs` **mã 0, 334 s** (kể cả docling); chạy lại **mã 0, 21 s**, `question_bank` 129 / `practice_attempts` 42 / `exams` 3 không đổi (idempotent, TC-12-06 PASS). Nội dung: 104 `APPROVED` (14 chủ đề; 60 một đáp án, 12 nhiều đáp án, 20 đúng–sai, 8 trả lời ngắn, 2 tự luận, 2 code; EASY 39, MEDIUM 51, HARD 14), 20 `PENDING` + 5 `AI_DRAFT`, 42 lượt của 13 SV (1 lượt dở). Sai spec: 0 câu có citations, không có `EXTRACTED`, Quiz `SCHEDULED`, lớp 2 không có câu (L4); `node scripts/check-practice-seed.mjs` ở `57f4cb25` lỗi `Không thấy lớp 761987` (L5), sau bản sửa `5d9c54e3` báo `OK: 107 APPROVED, 26 PENDING, Quiz SCHEDULED, 23 lượt của 6 sinh viên mẫu`.

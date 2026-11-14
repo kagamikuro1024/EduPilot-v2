@@ -237,7 +237,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-12-02 | FAIL | 104 APPROVED, 14 chủ đề, đủ độ khó; nhưng 0 câu có citations, không có EXTRACTED trong PENDING (L4) |
 | TC-12-03 | FAIL | 42 lượt của 13 SV (đạt); Quiz `SCHEDULED` thay vì `PUBLISHED` (L4c) |
 | TC-12-04 | FAIL | L4d: lớp 761988 có 0 câu trong ngân hàng (spec: ngân hàng nhỏ khác) |
-| TC-12-05 | FAIL | L5: script không tìm thấy lớp |
+| TC-12-05 | PASS | script đã sửa ở `5d9c54e3`: `OK: 107 APPROVED, 26 PENDING…` (bản `57f4cb25` lỗi, L5) |
 | TC-12-06 | PASS | chạy lại: mã 0, 21 s; `question_bank` 129, `practice_attempts` 42, `exams` 3 không đổi |
 | TC-12-07 | PASS | Go |
 | TC-12-08 | PASS | Go |
