@@ -250,7 +250,7 @@ HTML tĩnh tự chứa ở `docs/sprints/10.7/mau/`, mở bằng trình duyệt;
 | cả ba ở 375 | Một cột, nút chính đủ rộng, nút phụ gom vào «Thêm» | `khung/375-work-data_work-empty_read-data_split-empty.png` |
 | `mau-1.html` · «Hôm nay» giảng viên | `Split main-aside`; đỏ chỉ ở nút chính, mục đang chọn, số việc chờ; vàng ở 4 chỗ nhỏ | `sau-web.png` |
 | `mau-app.html` · app sinh viên | Cùng token trên điện thoại (sprint 10.8) | `sau-app.png` |
-| `landing.html` | Mục 8 | `landing-1440.png`, `landing-390.png` |
+| `landing.html` | Mục 8; có chuyển động, mở bằng trình duyệt | `landing-chuyen-dong.png`, `landing-man-dau-1440.png`, `landing-1440.png`, `landing-390.png` |
 
 Thêm `&guides=1` vào URL của `khung-trang.html` để thấy hai đường gióng mép cột.
 
@@ -290,50 +290,83 @@ Nhìn bằng mắt (ảnh `mau/landing-truoc-720.png`, thu 50 %): ảnh sản ph
 
 ### 8.2 Hướng sửa
 
-Mẫu: `mau/landing.html` (ảnh `landing-1440.png` cả trang, `landing-man-dau-1440.png` màn đầu, `landing-390.png` bốn đoạn ở 390). Dựng theo phương án (a) của P-107-9: token và phông của `DESIGN.md` §11.1, bố cục và lời văn theo skill `design-taste-frontend`, dùng bộ kiểm của skill làm thước đo (không dùng bộ CSS của skill, vì D53).
+Mẫu: `mau/landing.html`, **bản có chuyển động** (mở bằng trình duyệt để xem chạy). Ảnh: `landing-chuyen-dong.png` (12 khung hình của các chuyển động), `landing-man-dau-1440.png` (màn đầu), `landing-1440.png` (cả trang ở trạng thái đứng, tức là khi bật «giảm chuyển động»), `landing-390.png` (bảy màn ở 390). Dựng theo phương án (a) của P-107-9 và P-107-12: token và phông của `DESIGN.md` §11.1, bố cục và lời văn theo skill `design-taste-frontend`, chuyển động theo P-107-12, dùng bộ kiểm của skill làm thước đo (không dùng bộ CSS của skill, vì D53).
+
+Bản đầu của mẫu là bản tĩnh; chủ dự án chê «đơn giản quá, hiệu ứng đâu» (đúng: trang giới thiệu phải thuyết phục, mà bản tĩnh chỉ sửa lỗi đo được). Bản này thêm chuyển động có việc để làm và phóng to phần sản phẩm.
 
 | Lỗi đo được ở 8.1 | Cách sửa trong mẫu |
 | --- | --- |
 | `container-edges` ×8 | **Một** khung chứa `.wrap` cho thanh trên, sáu mục và chân trang: mép 80 → 1360 ở 1440, 24 → 366 ở 390. Lưới 12 cột, mọi khối bắt đầu và kết thúc trên đường cột |
-| `hero-screen`, `section-height` | Trang là `header` + `main > section` ×5 + `footer.closing`; mỗi mục cao đúng một màn (`100svh`), tiêu đề là nội dung đầu tiên, căn trên |
-| `copy-fact` | Màn đầu có ba dữ kiện cứng, lấy từ trang hiện tại và `frontend/PRODUCT.md`: 146 yêu cầu gửi AI / 0 lần lộ danh tính; 30 / 30 điểm khớp tính tay; tải thiết kế 1.000 sinh viên trên 20 lớp |
+| `hero-screen`, `section-height` | Trang là `header` + `main > section` ×5 + `footer.closing`; mỗi mục cao đúng một màn (`100svh`), riêng mục khung ghim cao hai màn khi đang ghim; tiêu đề là nội dung đầu tiên, căn trên |
+| `copy-fact` | Màn đầu có một dữ kiện cứng, **nguyên văn nguồn**: «146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp» |
 | `copy-headline` (14 từ) | `h1` còn 8 từ: «Vận hành lớp học có trợ lý AI»; nửa sau («bảo vệ dữ liệu cá nhân») chuyển thành câu thứ hai của đoạn dẫn |
-| `copy-headings` ×6 | Tiêu đề gọi tên vật: «Bài nộp đi qua ba bước», «EduPilot trong ba màn», «Ba số đo từ kiểm thử», «Việc của giảng viên và sinh viên», «Lớp của bạn trên EduPilot»; tiêu đề thẻ là động từ + vật («AI chấm nháp theo rubric») |
-| Màn đầu 3 nút | Còn 2 («Đăng nhập», «Xem video»); «Tạo tài khoản» lên thanh trên và xuống lời kết |
+| `copy-headings` ×6 | Tiêu đề gọi tên vật: «Bài nộp đi qua ba bước», «EduPilot trong ba màn», «Ba số đo trên dữ liệu mô phỏng», «Việc của giảng viên và sinh viên», «Lớp của bạn trên EduPilot». Không có dòng chú thích dưới tiêu đề mục |
+| Màn đầu 3 nút | Còn 2 («Đăng nhập» có mũi tên, «Xem video»); «Tạo tài khoản» lên thanh trên và xuống lời kết |
 | `body-size` (15 px) | Chữ chạy 16 px, đoạn dẫn 18 px |
 | `tap-size`, `skip-link`, `share-meta` | Liên kết chân trang cao 44 px; có «Tới nội dung»; có thẻ `og:` |
 | `focus-visible` | Vòng focus 2 px `--ep-red` lệch 3 px trên mọi điều khiển của trang |
-| Ảnh màn đầu chồng chữ | Màn đầu dùng **HTML thật** của «Hôm nay» ở cỡ thật (đọc được từng chữ), không dùng ảnh chụp thu nhỏ |
+| `loop-pause` | Đoạn sản phẩm chạy ở màn đầu có nút tạm dừng 32 px ở góc khung |
+| Ảnh màn đầu chồng chữ | Màn đầu là **HTML thật** của màn duyệt bài ở cỡ đọc được, đang chạy (xem 8.3), kèm một thẻ hỏi đáp có nguồn nổi ở góc dưới |
+| Ảnh sản phẩm nhỏ | Mục «EduPilot trong ba màn»: ảnh chụp thật rộng hết khung chứa (1280 px), ba tên màn xếp ngang phía trên |
+| Mục vai chỉ có chữ | Hai tab «Giảng viên» / «Sinh viên»; bấm thì đổi danh sách việc và ảnh «Hôm nay» của vai đó |
 | Lời kết trống | Lời kết + chân trang là **một** mục: tiêu đề, hai nút, ảnh Sổ điểm, dòng pháp lý |
-| Bộ màu | Nền trắng toàn trang; đỏ chỉ ở nút chính, số bước, vạch bước đang xem; vàng ở 3 chỗ nhỏ (vạch hai màu dưới `h1` và ở lời kết theo tỉ lệ dải đỏ / vàng của nhận diện trường, chấm «cần xem kỹ», nhãn «Nháp») |
+| Bộ màu | Nền trắng toàn trang; đỏ chỉ ở nút chính, sợi chỉ nối ba bước, vạch màn đang xem, tab đang chọn, chấm «đã sửa»; vàng ở 2 chỗ nhỏ (vạch hai màu dưới `h1` và ở lời kết theo tỉ lệ dải đỏ / vàng của nhận diện trường, nhãn «Nháp») |
 
-Giữ nguyên, không đụng: mọi con số và câu nguồn (146, 30/30, +0,05 %, recall 0,960); khung ghim đổi màn theo cuộn, đoạn phim màn đầu, hộp thoại video (bản tĩnh không dựng, lô 9 giữ mã hiện có); ngân sách §11.1 (LCP, JS ≤ 256 KB, không thư viện chuyển động). Chuyển động vào màn của `h1` chỉ dùng `transform`, không bắt đầu từ `opacity: 0`.
+Giữ **nguyên văn** ba câu số đo và ba câu nguồn của chúng (US-UX91-08 AC9, kể cả dấu «:»), và vế «trong danh sách lớp» ở câu 146 (P-91-7(2)). Chỉ 146 đếm lên; «30/30» và «+0,05 %» đứng yên, như bản 9.1.
 
-Ba chỗ mẫu **đổi lời** so với trang hiện tại, cần chủ dự án gật vì đây là câu chữ đã nghiệm thu ở 9.1 (`FEAT-uiux-91` US-08): `h1` rút gọn; sáu tiêu đề mục đổi tên; dòng «Ví dụ minh hoạ, số liệu mẫu.» dưới ba bước bị bỏ (skill cấm ghi chú «mẫu»; ba thẻ đó là minh hoạ giao diện, không phải số đo).
+Mẫu **đổi lời** so với trang hiện tại ở ba chỗ (P-107-11 đã nhận): `h1` rút gọn; tiêu đề mục đổi tên; dòng «Ví dụ minh hoạ, số liệu mẫu.» dưới ba bước bị bỏ. Con số «1.000 sinh viên trên 20 lớp» của bản tĩnh đã rút khỏi màn đầu; mẫu không còn số nào ngoài nguồn AC9. Số trong các khối minh hoạ giao diện (8,0 / 7,5 / 8,5 / 9,0; 0,1 × 9,0 + 0,3 × 8,0 + 0,6 × 8,3 = 8,3) là dữ liệu vẽ, không phải số đo; dòng pháp lý cuối trang đã ghi «dữ liệu mô phỏng».
 
-### 8.3 Bộ kiểm chạy trên mẫu
+### 8.3 Chuyển động (hợp đồng cho lô 9, theo P-107-12)
 
-Cùng lệnh với 8.1, chạy trên `mau/landing.html`, 1440 và 390, ngày 2026-11-14. Mẫu được sửa qua ba lượt chạy (42 → 22 → 11 FAIL).
+Luật chung, đo được:
 
-| Công cụ | Trang hiện tại | Mẫu |
-| --- | --- | --- |
-| `consistency.mjs` | 42 FAIL, 20 WARN | **11 FAIL, 25 WARN** |
-| `copy-lint.mjs` | 0 FAIL, 0 WARN | 0 FAIL, 0 WARN |
-| `perf.mjs` | 2 FAIL, 6 WARN | 2 FAIL, 4 WARN |
+- Chỉ `transform` và `opacity` được chạy (đổi màu khi rê chuột là đổi tức thì, không chuyển tiếp).
+- Không thư viện chuyển động: CSS `@keyframes` / `transition`, một `IntersectionObserver`, một lần đọc cuộn thụ động mỗi khung hình. Script của mẫu 51 dòng, 4,3 KB, gồm cả tab, hộp thoại video và nút tạm dừng.
+- Phần hiện theo cuộn chỉ bị ẩn **sau khi** script chạy tới chỗ gắn bộ quan sát (lớp `m-armed`); script hỏng giữa chừng thì không có gì bị ẩn. Bộ quan sát không gọi lại trong 1,5 s thì hiện hết.
+- Nội dung màn đầu hiện ngay từ khung hình đầu: `h1`, đoạn dẫn, nút, dòng số đo chỉ **dịch** (12–20 px), không bắt đầu từ `opacity: 0`. `h1` là LCP; đo bằng `perf.mjs`: LCP là dòng chữ của `h1`, thời gian chặn 0 ms.
+- `prefers-reduced-motion: reduce` hoặc không có script: không gắn lớp `m-on`, mọi thứ đứng ở **hình đã xong**. Đã đo: 0 animation đang chạy, cả trang đọc được (`landing-1440.png` chính là ảnh của chế độ này).
+- Cái gì tự chạy quá 5 giây thì có nút tạm dừng. Chỉ có **một** thứ tự chạy: đoạn sản phẩm ở màn đầu.
+- Điện thoại (< 640 px): màn đầu vẫn vào, các mục vẫn hiện theo cuộn; đoạn sản phẩm đứng ở hình đã xong, không có con trỏ giả, không ghim.
 
-Đã hết trên mẫu: `container-edges`, `hero-screen`, `section-height`, `copy-fact`, `focus-visible`, `focus-ring`, `scroll-linked` (bản tĩnh không có chuyển động theo cuộn), `loop-pause` (bản tĩnh không có phim).
+| # | Ở đâu | Chuyển động | Để làm gì | Số đo |
+| --- | --- | --- | --- | --- |
+| 1 | Màn đầu, lúc tải | `h1` hai dòng dịch lên, lệch nhau 80 ms; vạch đỏ vàng vẽ từ trái; đoạn dẫn, nút, dòng số đo, thẻ hỏi đáp dịch lên lần lượt cách nhau 60 ms; khung sản phẩm từ 0,98 về 1 | Tên sản phẩm đến trước, rồi tới việc cần bấm | Xong trong 1,2 s, một lần |
+| 2 | Màn đầu, khung sản phẩm | **Đoạn sản phẩm chạy**: bản AI chấm nháp → con trỏ tới ô điểm tiêu chí 2, bấm, 7,5 bị gạch và 8,5 hiện ra kèm chấm đỏ «đã sửa», điểm bài 8,2 → 8,5 → con trỏ tới nút «Duyệt», bấm, nhãn «Nháp» đổi thành «Đã duyệt» | Cho thấy lời hứa của sản phẩm trong 9 giây: AI soạn nháp, giảng viên quyết | Vòng 9 s; giữ hình đã xong 3,4 s; cuối vòng mờ còn 30 % rồi viết lại, không bao giờ trống; nút tạm dừng |
+| 3 | «Bài nộp đi qua ba bước», khi cuộn tới | Sợi chỉ đỏ vẽ từ nút 1 tới nút 3 trong 1 s; sợi chỉ tới nút nào thì nút đó và thẻ của nó hiện | Ba bước là một trình tự, không phải ba ô ngang hàng | Một lần; thẻ cách nhau 500 ms |
+| 4 | Ba thẻ bước, khi rê chuột | Thẻ diễn lại bước của nó: các dòng hiện lần lượt (thẻ 2: 8,5 thay 7,5 rồi nhãn «Đã duyệt») | Mời bấm thử; trả lời «bước này làm gì» | 300 ms mỗi dòng; chỉ chuột thật, không chạy trên màn chạm |
+| 5 | «EduPilot trong ba màn» | **Khung ghim**: mục cao 2 màn, nội dung ghim bằng `position: sticky`; cuộn thì vạch đỏ trên tên màn chạy theo, ảnh đổi sang màn kế bằng mờ dần | Ba màn trong chỗ của một | Bám theo thanh cuộn, cuộn ngược thì chạy ngược; không chiếm quyền cuộn |
+| 6 | «Ba số đo», khi cuộn tới | Ba vạch kẻ vẽ từ trái, chữ hiện theo; **146** đếm từ 0 | Con số là bằng chứng, đáng một nhịp dừng | Một lần; đếm 1 s |
+| 7 | «Việc của giảng viên và sinh viên» | Bấm tab: vạch đỏ trượt sang tab mới, danh sách và ảnh đổi | Người xem chọn vai của mình | 240 ms; mũi tên trái / phải đổi tab |
+| 8 | Mọi nút, liên kết | Nút nhích lên 1 px khi rê, lún 1 px khi bấm, mũi tên nhích 3 px; liên kết thanh trên vẽ gạch chân từ trái | Mọi thứ bấm được đều trả lời | 150 ms vào, 90 ms bấm |
+| 9 | Lời kết, khi cuộn tới | Vạch đỏ vàng vẽ từ trái | Khép lại bằng đúng dấu hiệu mở đầu | 700 ms, một lần |
 
-11 FAIL còn lại, không giấu:
+Không làm: chữ chạy ngang, trượt ảnh tự động, thẻ nghiêng theo chuột, nút hút chuột, hạt / tuyết / pháo giấy, chữ đổi màu gradient, kính mờ, phát sáng (`DESIGN.md` §11.1 và §21 vẫn cấm).
 
-| Mã | Số | Vì sao còn | Xử lý ở lô 9 |
+Khác bản đang chạy (lô 9 phải đổi): đoạn phim `gioi-thieu-clip-v1` ở màn đầu được thay bằng đoạn sản phẩm dựng bằng HTML (nét ở mọi cỡ màn, nhẹ hơn 200 KB phim, đọc được bằng trình đọc màn hình qua `aria-label`); «Xem video» vẫn mở phim 75 giây trong hộp thoại.
+
+### 8.4 Bộ kiểm chạy trên mẫu
+
+Cùng lệnh với 8.1, chạy trên `mau/landing.html` (bản có chuyển động), 1440 và 390, ngày 2026-11-14. Số FAIL qua các lượt: bản tĩnh 42 → 22 → 11; thêm chuyển động lên 28; sửa còn 20 → **18**.
+
+| Công cụ | Trang hiện tại | Mẫu bản tĩnh | Mẫu có chuyển động |
 | --- | --- | --- | --- |
-| `no-visual` | 5 | Hai mục «Ba số đo từ kiểm thử» và «Việc của giảng viên và sinh viên» chỉ có chữ. Lỗi **thật** | Mục vai: thêm ảnh thật của «Hôm nay» giảng viên và sinh viên (đã có ở `frontend/public/landing/`). Mục số đo: gộp ba số vào mục «Bài nộp đi qua ba bước» (mỗi bước mang số đo của nó) hoặc giữ và chấp nhận, chủ dự án chọn khi xem mẫu |
-| `links` | 3 | Mẫu tĩnh: `#register`, `#video` không có đích | Tự hết khi nối `/register` và hộp thoại video thật |
-| `section-gaps` | 2 | Ở 390 hai mục dài được đặt cao đúng hai màn nên dư khoảng trống cuối mục | Cắt lời hoặc chia mục để mỗi mục vừa một màn điện thoại |
-| `one-heading` | 1 | Ở 390 con số «30/30» (28 px) bị tính là tiêu đề thứ hai trong 5,8 % vị trí cuộn (ngưỡng 5 %) | Hạ cỡ số ở điện thoại xuống 24 px |
-| `copy-headings` | 1 | **Do công cụ**: bộ kiểm so tiêu đề với danh sách danh từ tiếng Anh và tên sản phẩm; tiêu đề tiếng Việt không chứa «EduPilot» đều bị đánh (đọc ở `consistency.mjs` dòng 9417–9422) | Không sửa; ghi miễn trừ có lý do |
+| `consistency.mjs` | 42 FAIL, 20 WARN | 11 FAIL, 25 WARN | **18 FAIL, 17 WARN** |
+| `copy-lint.mjs` | 0 FAIL, 0 WARN | 0 FAIL, 0 WARN | 0 FAIL, 0 WARN |
+| `perf.mjs` | 2 FAIL, 6 WARN | 2 FAIL, 4 WARN | 4 FAIL, 3 WARN; LCP 576 ms ở 1440 (dòng chữ `h1`), 324 ms ở 390 (đoạn dẫn); thời gian chặn 0 ms |
 
-`perf.mjs` 2 FAIL đều là «8 tệp phông» (ngưỡng của skill là 4). Phông tự host qua `next/font`, subset latin + vietnamese, ≤ 3 độ đậm là điều kiện PM đã nhận ở góp ý #14 sprint 5 (`FEAT-ui-foundation` v1.5); không đổi.
+Bản có chuyển động nhiều FAIL hơn bản tĩnh vì skill cấm đúng thứ P-107-12 cho phép. 18 FAIL, không giấu:
+
+| Nhóm | Mã | Số | Vì sao còn | Xử lý |
+| --- | --- | --- | --- | --- |
+| Chủ ý, theo P-107-12 | `scroll-reveal` | 6 | Ba bước, ba số đo và vạch lời kết hiện khi cuộn tới (skill cấm mọi thứ hiện theo cuộn) | Miễn trừ, ghi lý do là P-107-12 |
+| Chủ ý, theo §11.1 | `scroll-linked`, `section-air`, `empty-area` | 3 | Khung ghim: mục cao hai màn, nội dung ghim một màn, nên bộ kiểm thấy «61 % mục trống». Skill chỉ miễn cho khung ghim dựng bằng module của chính nó | Miễn trừ, ghi lý do là `DESIGN.md` §11.1 |
+| Thật | `no-visual` | 3 | Mục «Ba số đo» chỉ có chữ (cả hai bề rộng); mục vai ở 390 ẩn ảnh để vừa một màn | Chủ dự án chọn: thêm hình cho mục số đo, hoặc nhận là dải số. Ở 390 cho ảnh hiện dưới danh sách nếu chịu mục dài hai màn |
+| Thật | `one-heading` | 2 | Con số 48 px bị tính như tiêu đề: «30/30» và tiêu đề mục kế cùng hiện ở 5,5 % vị trí cuộn (ngưỡng 3 %) | Hạ số xuống 40 px, hoặc nhận: số to là chủ ý |
+| Thật | `container-edges` | 1 | Ở 390 chữ trong thẻ lùi 25 px so với mép khung chứa | Ở điện thoại bỏ viền thẻ, chữ ra sát mép |
+| Do mẫu | `links` | 2 | `#register` không có đích trong tệp tĩnh | Tự hết khi nối `/register` |
+| Do công cụ | `copy-headings` | 1 | Bộ kiểm so tiêu đề với danh sách danh từ tiếng Anh và tên sản phẩm (`consistency.mjs` dòng 9362, 9417–9422); tiêu đề tiếng Việt không chứa «EduPilot» đều bị đánh | Miễn trừ |
+
+`perf.mjs` 4 FAIL: «8 tệp phông» (ngưỡng của skill là 4; ba độ đậm × hai subset là điều kiện PM đã nhận ở góp ý #14 sprint 5); hai lần «yêu cầu hỏng» là ảnh bìa của phim, do mẫu trỏ ra ngoài thư mục khi chạy qua máy chủ tạm của bộ kiểm; «ảnh quá cỡ» ở 390 là **thật**: mẫu nhúng ảnh 1600 px cho mọi bề rộng, lô 9 phải dùng `srcset` với các bản 640 / 800 đã có trong `frontend/public/landing/`.
 
 Bộ kiểm bố cục `assets/layout/check.mjs` và cổng `gate.mjs` của skill chưa chạy trên mẫu: chúng đòi trang dựng từ `starter.html` và bộ CSS của skill (xem P-107-9).
 
