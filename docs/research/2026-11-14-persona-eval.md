@@ -1,6 +1,6 @@
 # Research: đánh giá UI/UX bằng persona (eval-insights) cho phase cuối EduPilot
 
-Tech Lead, 2026-11-14, theo yêu cầu của chủ dự án qua PM.
+Tech Lead, 2026-11-14, theo yêu cầu của chủ dự án qua PM. **Quyết định P-11-12 (PM):** dùng để **bổ sung** ở sprint 11. Không thay QC / E2E / axe, không đưa vào CI. Phiên bản công cụ được ghim: eval-insights `f0fa8ae0934c609f5fbf21b30fbdbfda7c5fd995`, jev-ultrafast `ea6887c919a6fadc26d344b98d54ac6662074efa`. Muốn đổi bản thì chạy lại PoC trước.
 - Nguồn: repo private `Meihkod/eval-insights`, nhánh `tobicooo-20261111/uiux-crowd` @`f0fa8ae`. Bản clone chỉ đọc ở `~/Documents/eval-insights-ro`; không push, không đọc `.env` thật.
 - Agent điều khiển trình duyệt dùng repo công khai `Kaistory/jev-ultrafast` @`ea6887c`.
 - PoC ở `docs/research/poc/persona-eval/`.
@@ -250,7 +250,9 @@ Loại lỗi `giaovien` vừa gặp (lọc mặc định che bài, số đếm s
 ```bash
 # một lần
 gh repo clone Meihkod/eval-insights ~/Documents/eval-insights-ro -- -b tobicooo-20261111/uiux-crowd --single-branch
+git -C ~/Documents/eval-insights-ro checkout -q f0fa8ae0934c609f5fbf21b30fbdbfda7c5fd995   # ghim (P-11-12)
 git clone -b feat/custom-url-scenario https://github.com/Kaistory/jev-ultrafast ~/Documents/jev-ultrafast
+git -C ~/Documents/jev-ultrafast checkout -q ea6887c919a6fadc26d344b98d54ac6662074efa         # ghim
 (cd ~/Documents/eval-insights-ro/backend && UV_PYTHON=3.12 uv sync)
 # mỗi lần (ba tiến trình)
 P=docs/research/poc/persona-eval
