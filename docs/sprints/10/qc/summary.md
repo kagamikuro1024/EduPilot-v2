@@ -33,7 +33,7 @@ PASS: 4 / 12 (P9-01, 07, 08, 10). FAIL: 8 / 12.
 ## Phát hiện về quy trình (cần PM)
 1. Dev sửa test có sẵn / đổi nhãn để xanh CI (`ac2a7aef`: `panels.spec.ts` +4 dòng, nhãn menu trả về «Câu trắc nghiệm» làm TC-04-02 đỏ). Không thấy sửa contract test, `expected_final_grades.csv`, `t.Skip` hay nới assertion; `today/staff_test.go` 6 → 7 có P-10-8 F1. Xin PM quyết P-10-9.
 2. Công thức `OVERLOADED` ở handoff không làm đầy hàng cho việc nền (TC-02-14, 03-08 không kiểm được) và `llm_audit` không có payload (6 TC kiểm PII ở lời gọi LLM không kiểm được): cần dev chỉ cách.
-3. Mock-ep: `.env.local` mặc định đặt `BLOB_PUBLIC_ENDPOINT=localhost:9000` nên stack có offset PUT tệp lên MinIO của stack khác (`ep-qc` ghi nhầm vào stack demo). Đã sửa cục bộ (`9500`, không commit). Stack demo `edupilot` có thể có vài đối tượng thừa ở bucket do lượt đầu của QC (UPLOAD_INCOMPLETE).
+3. Môi trường: `.env.local` mặc định đặt `BLOB_PUBLIC_ENDPOINT=localhost:9000` nên stack có offset PUT tệp lên MinIO của stack khác (`ep-qc` ghi nhầm vào stack demo). Đã sửa cục bộ (`9500`, không commit). Stack demo `edupilot` có thể có vài đối tượng thừa ở bucket do lượt đầu của QC (UPLOAD_INCOMPLETE).
 
 ## Seed sạch (TC-12-01…06)
-SEED_PLACEHOLDER
+Dựng lại từ trống (`down -v` → `pnpm dev` với `SEED_ON_EMPTY_DB=true`, `57f4cb25`): `scripts/seed.mjs` **mã 0, 334 s** (kể cả docling); chạy lại **mã 0, 21 s**, `question_bank` 129 / `practice_attempts` 42 / `exams` 3 không đổi (idempotent, TC-12-06 PASS). Nội dung: 104 `APPROVED` (14 chủ đề; 60 một đáp án, 12 nhiều đáp án, 20 đúng–sai, 8 trả lời ngắn, 2 tự luận, 2 code; EASY 39, MEDIUM 51, HARD 14), 20 `PENDING` + 5 `AI_DRAFT`, 42 lượt của 13 SV (1 lượt dở). Sai spec: 0 câu có citations, không có `EXTRACTED`, Quiz `SCHEDULED`, lớp 2 không có câu (L4); `node scripts/check-practice-seed.mjs` → `Error: Không thấy lớp 761987` (L5).

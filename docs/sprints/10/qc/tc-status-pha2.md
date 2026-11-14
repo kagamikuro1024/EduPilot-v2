@@ -5,12 +5,12 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 
 | TC | Trạng thái | Ghi chú |
 | --- | --- | --- |
-| TC-01-01 | CHƯA CHẠY |  |
-| TC-01-02 | CHƯA CHẠY |  |
-| TC-01-03 | CHƯA CHẠY |  |
+| TC-01-01 | PASS | bảng, enum `practice_mode` / `practice_status`, không có `practice_exams` (DB sạch) |
+| TC-01-02 | PASS | FK phức hợp, CHECK `(mode='MOCK')=(deadline_at IS NOT NULL)`, UNIQUE từng phần, chỉ mục `(course_id,student_id,started_at DESC,id DESC)` và `(status,deadline_at)` |
+| TC-01-03 | PASS | SV không có `enrollments` → `23503`; phần `practice_items` lớp khác chưa chạy (ngân hàng lớp 2 trống) |
 | TC-01-04 | CHƯA CHẠY |  |
 | TC-01-05 | PASS | Go (pha không stack) |
-| TC-01-06 | CHƯA CHẠY |  |
+| TC-01-06 | PASS | trùng lượt dở cùng chủ đề → `23505`; khác chủ đề được |
 | TC-01-07 | PASS | Go (pha không stack) |
 | TC-01-08 | PASS | API stack |
 | TC-01-09 | PASS | API stack |
@@ -59,9 +59,9 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-03-06 | CHƯA CHẠY |  |
 | TC-03-07 | FAIL | L9: types=[] → 202 |
 | TC-03-08 | FAIL | KHÔNG KIỂM ĐƯỢC (như 02-14) |
-| TC-03-09 | CHƯA CHẠY |  |
+| TC-03-09 | PASS | sinh lại: 4/5 câu `DUPLICATE`; câu thứ 5 được tạo vì bản gốc đã bị QC sửa stem |
 | TC-03-10 | PASS | API stack |
-| TC-03-11 | CHƯA CHẠY |  |
+| TC-03-11 | PASS | `{unchanged:2, edited:1, rejected:2, pending:0}` |
 | TC-03-12 | PASS | API stack |
 | TC-03-13 | PASS | API stack |
 | TC-04-01 | CHƯA CHẠY |  |
@@ -233,12 +233,12 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-11-17 | CHƯA CHẠY |  |
 | TC-11-18 | CHƯA CHẠY |  |
 | TC-11-19 | CHƯA CHẠY |  |
-| TC-12-01 | CHƯA CHẠY |  |
-| TC-12-02 | FAIL | L4: citations / EXTRACTED / Quiz sai spec |
-| TC-12-03 | FAIL | L4: citations / EXTRACTED / Quiz sai spec |
-| TC-12-04 | CHƯA CHẠY |  |
+| TC-12-01 | PASS | `seed.mjs` trên stack trống: mã 0, 334 s (kể cả docling) |
+| TC-12-02 | FAIL | 104 APPROVED, 14 chủ đề, đủ độ khó; nhưng 0 câu có citations, không có EXTRACTED trong PENDING (L4) |
+| TC-12-03 | FAIL | 42 lượt của 13 SV (đạt); Quiz `SCHEDULED` thay vì `PUBLISHED` (L4c) |
+| TC-12-04 | FAIL | L4d: lớp 761988 có 0 câu trong ngân hàng (spec: ngân hàng nhỏ khác) |
 | TC-12-05 | FAIL | L5: script không tìm thấy lớp |
-| TC-12-06 | CHƯA CHẠY |  |
+| TC-12-06 | PASS | chạy lại: mã 0, 21 s; `question_bank` 129, `practice_attempts` 42, `exams` 3 không đổi |
 | TC-12-07 | PASS | Go |
 | TC-12-08 | PASS | Go |
 | TC-12-09 | PASS | 52 passed (e2e dev, gateway giả) |
