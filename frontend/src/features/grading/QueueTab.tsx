@@ -9,6 +9,7 @@ import { ApiError, newIdempotencyKey, useJob } from "@/shared/data";
 import { checkSubmissionBundle, uploadSubmissionBundle } from "@/shared/data/uploadFile";
 import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useAssignments, vi } from "@/features/assignments/assignmentApi";
+import { guidanceKey, regradeStale, useGuidance } from "@/features/assignments/guidanceApi";
 import { useSchemes } from "@/features/gradebook/gradeApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
 import { SOURCE_LABEL } from "./submissionApi";
@@ -128,6 +129,19 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   }, [teamsState.status, qc, courseId]);
 
   const refresh = () => void qc.invalidateQueries({ queryKey: ["grading-queue", courseId] });
+  // «Lưu ý chấm» (10.6): chỉ khi chọn một bài tập và lớp bật tính năng; sinh viên không có tab này
+  const guide = useGuidance(courseId, assignmentId, assignmentId !== "");
+  const stale = guide.data?.enabled ? guide.data.stale : null;
+  const regradeIdem = useRef<string | null>(null);
+  const regrade = () =>
+    void run(async () => {
+      regradeIdem.current ??= newIdempotencyKey();
+      const r = await regradeStale(courseId, assignmentId, regradeIdem.current);
+      regradeIdem.current = null;
+      void qc.invalidateQueries({ queryKey: guidanceKey(assignmentId) });
+      refresh();
+      setNotice(r.queued > 0 ? `Đã xếp ${r.queued} bài chấm lại` : "Không có bài nào cần chấm lại");
+    });
 
   function fail(e: unknown) {
     setNotice(e instanceof ApiError ? e.userMessage : "Chưa thực hiện được. Hãy thử lại.");
@@ -188,7 +202,8 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       ? scheme?.components.flatMap((c) => c.items).find((i) => i.assignment_id && assignmentIds.has(i.assignment_id))?.name
       : undefined;
   const students = new Set(chosen.map((r) => r.student?.id).filter(Boolean)).size;
-  const consequence = `Công bố ${chosen.length} bài · ${students} sinh viên nhận thư · ${column ? `điểm vào sổ điểm cột ${column}` : "không tính vào sổ điểm"}`;
+  const oldReviewed = stale && assignmentIds.size === 1 && assignmentIds.has(assignmentId) ? stale.reviewed : 0;
+  const consequence = `Công bố ${chosen.length} bài · ${students} sinh viên nhận thư · ${column ? `điểm vào sổ điểm cột ${column}` : "không tính vào sổ điểm"}${oldReviewed > 0 ? ` · ${oldReviewed} bài đã duyệt chấm theo bản lưu ý cũ` : ""}`;
 
   const publishNow = () =>
     void run(async () => {
@@ -196,9 +211,11 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       const versions: Record<string, number> = {};
       for (const r of chosen) if (r.result) versions[r.result.id] = r.result.version;
       try {
-        await publishResults(courseId, { result_ids: chosen.map((r) => r.result!.id), versions }, publishIdem.current);
+        const out = await publishResults(courseId, { result_ids: chosen.map((r) => r.result!.id), versions }, publishIdem.current);
+        const ex = out.exempt.EDITED + out.exempt.ACCEPTED_AS_IS;
+        if (ex > 0) setNotice(`${ex} bài chấm theo bản lưu ý cũ: ${out.exempt.EDITED} đã sửa tay, ${out.exempt.ACCEPTED_AS_IS} duyệt nguyên nháp`);
       } catch (e) {
-        if (e instanceof ApiError && (e.code === "NOT_REVIEWED" || e.code === "VERSION_CONFLICT" || e.code === "LATE_RECOMPUTED" || e.code === "ALREADY_PUBLISHED")) {
+        if (e instanceof ApiError && (e.code === "MIXED_GUIDANCE" || e.code === "NOT_REVIEWED" || e.code === "VERSION_CONFLICT" || e.code === "LATE_RECOMPUTED" || e.code === "ALREADY_PUBLISHED")) {
           const ids = (e.details as { ids?: string[] } | undefined)?.ids ?? [];
           setConfirming(false);
           setPicked(new Set());
@@ -378,6 +395,15 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
             if (f) upload(f);
           }}
         />
+        {stale && stale.count + stale.editing > 0 && (
+          <InlineNotice
+            tone="warning"
+            compact
+            action={stale.count > 0 ? <Button size="sm" loading={busy} onClick={regrade}>Chấm lại</Button> : undefined}
+          >
+            {[stale.count > 0 && `${stale.count} bài chấm theo bản cũ`, stale.editing > 0 && `${stale.editing} đang sửa dở`].filter(Boolean).join(" · ")}
+          </InlineNotice>
+        )}
         {notice && (
           <InlineNotice tone="info" compact action={<Button size="sm" onClick={() => setNotice(null)}>Đã hiểu</Button>}>
             {notice}

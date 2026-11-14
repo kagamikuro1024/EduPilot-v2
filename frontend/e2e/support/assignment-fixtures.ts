@@ -478,6 +478,7 @@ export type View = {
   flags: string[];
   pass_detail: Record<string, { pass1?: string; pass2?: string }> | null;
   appeal?: AppealFx | null;
+  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]> };
   late: { days: number; penalty: string; max_days: number; per_day: string; manual: boolean };
 };
 
@@ -669,7 +670,7 @@ export async function gradingApi(p: Page, opts: GOpts = {}) {
       const stale = rows.filter((r) => r.result && ids.has(r.result.id) && b.versions?.[r.result.id] !== undefined && b.versions[r.result.id] !== r.result.version);
       if (stale.length > 0) return route.fulfill(e(409, "VERSION_CONFLICT", { ids: stale.map((r) => r.result!.id) }));
       rows = rows.map((r) => (r.result && ids.has(r.result.id) ? { ...r, result: { ...r.result, status: "PUBLISHED", needs_review: false } } : r));
-      return route.fulfill(j({ published: ids.size, skipped: 0 }));
+      return route.fulfill(j({ published: ids.size, skipped: 0, exempt: { EDITED: 0, ACCEPTED_AS_IS: 0 } }));
     }
     if (key === "POST appeals/:id/decide") {
       const v = Object.values(views).find((x) => x.appeal?.id === tail.split("/")[1]);

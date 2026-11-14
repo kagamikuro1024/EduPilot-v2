@@ -15,6 +15,7 @@ import {
   type Criterion, type QueueStatus, type ResultView,
 } from "./gradingApi";
 import { AppealPanel } from "./AppealPanel";
+import { GuidanceMeta } from "./GuidanceMeta";
 import s from "./SubmissionReview.module.css";
 
 type Draft = { overall: string; comments: Record<string, string> };
@@ -78,6 +79,7 @@ function Review({ courseId, submissionId }: { courseId: string; submissionId: st
               <StatusText tone={view.result.status === "PUBLISHED" ? "green" : view.result.status === "REVIEWED" ? "blue" : "amber"}>
                 {view.result.status === "PUBLISHED" ? "Đã công bố" : view.result.status === "REVIEWED" ? "Đã duyệt" : "Chưa duyệt"}
               </StatusText>
+              <GuidanceMeta courseId={courseId} view={view} />
             </>
           ) : undefined
         }

@@ -631,6 +631,29 @@ async function openSettings(page: Page, role: "TEACHER" | "TA", h: { put?: (b: J
   return log;
 }
 
+test("class settings guidance flags: 4 công tắc hiệu lực ngay; «Lưu ca kiểm thử chấm» khoá với giảng viên; TA không thấy khối", async ({ page }) => {
+  const flags = ["GRADING_GUIDANCE", "THREAD_SUGGEST", "QUESTION_HINTS", "REGRESSION_CAPTURE"].map((feature) => ({ feature, enabled: false, version: 1, can_edit: feature !== "REGRESSION_CAPTURE" }));
+  const puts: Json[] = [];
+  await openSettings(page, "TEACHER", {
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags`, (r) => fulfill(r, 200, { items: flags }));
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags/*`, (r) => {
+        puts.push({ path: new URL(r.request().url()).pathname.split("/").pop(), ...(JSON.parse(r.request().postData() ?? "{}") as Json) });
+        return fulfill(r, 200, { feature: "GRADING_GUIDANCE", enabled: true, version: 2, can_edit: true });
+      });
+    },
+  });
+  const box = page.locator("[data-part=guidance-flags]");
+  await expect(box.getByRole("switch")).toHaveCount(4);
+  await expect(box.getByRole("switch", { name: "Lưu ca kiểm thử chấm" })).toBeDisabled();
+  await box.getByRole("switch", { name: "Học từ lần sửa điểm" }).click();
+  await expect.poll(() => puts.length).toBe(1);
+  expect(puts[0]).toEqual({ path: "GRADING_GUIDANCE", enabled: true, version: 1 });
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await openSettings(page, "TA");
+  await expect(page.locator("[data-part=guidance-flags]")).toHaveCount(0);
+});
+
 test("class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   const log = await openSettings(page, "TEACHER");
