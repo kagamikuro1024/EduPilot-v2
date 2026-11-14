@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/privacy"
 )
 
@@ -47,19 +48,40 @@ type Analyzer struct {
 	// Embed nhúng một câu hỏi (làn INTERACTIVE, cache ep:emb) — chỉ được gọi khi luật chưa quyết.
 	Embed func(ctx context.Context, text string) ([]float32, error)
 	Log   *slog.Logger
+	// Decider: cổng CHAT_ROUTING (D60); nil = chỉ luật.
+	Decider Decider
 }
 
 // Analyze phân loại tin nhắn. Không gọi LLM sinh chữ.
 func (a *Analyzer) Analyze(ctx context.Context, tc TrustedContext, text string) (Classification, error) {
+	intent := DetectIntent(text)
+	// CHAT_ROUTING: chỉ khi luật rơi về COURSE_QA (ý định cụ thể và khủng hoảng không bao giờ tới decision). Chạy SONG SONG với lần nhúng duy nhất:
+	// khởi động đúng lúc Classify gọi nhúng (tức luật PII / mẫu câu chưa quyết); luật đã quyết (hỏi hộ, mẫu cá nhân) thì không gọi.
+	var routed chan Intent
+	var dctx context.Context
+	gateOn := a.Decider != nil && intent == IntentCourseQA
+	if gateOn {
+		dctx = llm.WithIdentity(ctx, llm.Identity{UserID: &tc.UserID, CourseID: &tc.CourseID})
+		gateOn = a.Decider.GateEffective(dctx, llm.GateRouting)
+	}
+	launch := func() {
+		if gateOn && routed == nil {
+			routed = make(chan Intent, 1)
+			go func(ch chan Intent) { ch <- a.routeDecision(dctx, text) }(routed)
+		}
+	}
 	var embed func(context.Context) ([]float32, error)
 	if a.Embed != nil {
-		embed = func(c context.Context) ([]float32, error) { return a.Embed(c, text) }
+		embed = func(c context.Context) ([]float32, error) {
+			launch()
+			return a.Embed(c, text)
+		}
 	}
 	res, vec, err := a.Classifier.Classify(ctx, tc.CourseID, text, embed)
 	if err != nil {
 		return Classification{}, fmt.Errorf("agent: phân loại: %w", err)
 	}
-	out := Classification{Class: res, Vec: vec, Intent: DetectIntent(text)}
+	out := Classification{Class: res, Vec: vec, Intent: intent}
 	for _, r := range res.Reasons {
 		switch r {
 		case privacy.ReasonPIIMSSV, privacy.ReasonPIIEmail, privacy.ReasonPIIPhone, privacy.ReasonPIICCCD, privacy.ReasonPIIName:
@@ -84,6 +106,19 @@ func (a *Analyzer) Analyze(ctx context.Context, tc TrustedContext, text string) 
 	if out.Intent == IntentCourseQA && res.Personal && res.Similarity > 0 {
 		if pi := PersonalIntent(text); pi != "" {
 			out.Intent = pi
+		}
+	}
+	if out.Intent == IntentCourseQA && !res.Personal {
+		launch() // chưa nhúng (chưa có mẫu cá nhân / tin quá ngắn): hỏi tại đây
+	}
+	if routed != nil && out.Intent == IntentCourseQA { // luật vẫn không có ý định cụ thể → nhận nhãn decision nếu đủ chắc
+		select {
+		case label := <-routed:
+			if label != "" && label != IntentCourseQA {
+				out.Intent = label
+				out.OtherPerson = label == IntentOtherPerson // đi cùng đường như khi luật cho nhãn đó: từ chối + log; công cụ cá nhân lấy danh tính từ TrustedContext
+			}
+		case <-ctx.Done():
 		}
 	}
 	out.Extra = extraPersonal(text, out.Intent)

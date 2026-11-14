@@ -16,7 +16,7 @@ import (
 var decideCallers = map[string]bool{
 	"thread.CheckPublish":           true, // THREADS_PRECHECK
 	"grading.flagInjectionDecision": true, // INJECTION_FLAG
-	"agent.routeDecision":           true, // CHAT_ROUTING (L4)
+	"agent.routeDecision":           true, // CHAT_ROUTING
 }
 
 // unrelated: hàm trùng tên `Decide` nhưng KHÔNG phải decision model (quyết định của giảng viên về câu trả lời AI ở threadhttp). Phân biệt theo tên vì quét cú pháp không có thông tin kiểu.
@@ -79,7 +79,7 @@ func TestDecideCallersAllowlist(t *testing.T) {
 		t.Fatalf("gọi Decide / Cascade ngoài danh sách trắng: %v", bad)
 	}
 	for name := range decideCallers {
-		if !seen[name] && name != "agent.routeDecision" { // agent.routeDecision: thêm ở L4
+		if !seen[name] {
 			t.Errorf("%s nằm trong danh sách trắng nhưng không còn lời gọi", name)
 		}
 	}
