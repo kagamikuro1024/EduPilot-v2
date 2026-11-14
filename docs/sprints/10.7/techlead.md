@@ -608,3 +608,38 @@ Theo đó, 12 trong 13 dòng X3 hết lệch: `students`, `attendance`, `gradebo
 T2 viết lại: chỉ đếm chuỗi tĩnh, tức chuỗi tìm thấy nguyên văn trong `frontend/src`. QC kiểm bằng `grep` chuỗi đó trong mã; có thì là tĩnh.
 
 «Không dùng cho AI của sinh viên» ×4 ở `documents` là lệch thật như QC ghi: trạng thái bảy chữ lặp mỗi dòng, phải rút về 1–2 chữ dưới một tiêu đề cột.
+
+### 14.5 H7: hàng liên kết quay lại trên `h1`
+
+**Quyết: giữ hàng quay lại, thêm nó vào công thức và khoá gom. Không đổi sang breadcrumb.**
+
+- Hàng quay lại đã là một phần của hợp đồng: `DESIGN.md` §23.2 vẽ nó là hàng riêng, tuỳ chọn, trên tiêu đề; `PageHeader` có prop `back`. Công thức 12.1 của tôi bỏ sót nó.
+- Khoảng 15 màn con đang dùng (`exams/*`, `practice/*`, `gradebook/scheme`, `grading/[id]`, `students/[id]`, `threads/[id]`, `library/[id]`). Các màn này không có trong sidebar, nên bỏ hàng quay lại là mất đường về.
+- Breadcrumb là primitive mới cho cây chỉ sâu hai cấp; không cần.
+
+Giá trị chuẩn, lấy từ `Layout.module.css` (`.back` cao 28, khoảng 8; dưới 720 px cao 44 và kéo lề dưới −8):
+
+```
+H(≥ 720) = 36 + 36 nếu có hàng quay lại + (8 + 19,2) nếu có meta
+H(< 720) = 36 + 44 nếu có hàng quay lại + (8 + 19,2 × số dòng meta) nếu có meta + 68 nếu có hàng nút
+sai số ±2
+```
+
+Hàng nút ở 375 nay là 68 (12.1 ghi 67) vì dev đã đổi thứ tự theo 12.1: khoảng 8 + lề 16 + nút 44.
+
+Khoá gom H7 thêm «có hàng quay lại»: `(độ rộng, cao h1, số dòng meta, có hàng nút, có hàng quay lại)`.
+
+Đối chiếu 12 dòng H7 của `qc/audit.md`:
+
+| Màn | Rộng | Tính | QC đo | Lệch |
+| --- | --- | --- | --- | --- |
+| `practice/history` (có dữ liệu, rỗng) | 1440 | 72 | 72 | 0 |
+| `practice/history` (có dữ liệu, rỗng) | 375 | 80 | 80 | 0 |
+| `gradebook/scheme` rỗng (TA, GV) | 1440 | 72 | 72 | 0 |
+| `gradebook/scheme` rỗng, TA | 375 | 80 | 80 | 0 |
+| `gradebook/scheme` rỗng, GV (có hàng nút) | 375 | 148 | 148 | 0 |
+| `gradebook/scheme` có dữ liệu (TA, GV) | 1440 | 99,2 | 102,4 | **+3,2** |
+| `gradebook/scheme` có dữ liệu, TA | 375 | 107,2 | 110,4 | **+3,2** |
+| `gradebook/scheme` có dữ liệu, GV (có hàng nút) | 375 | 175,2 | 178,4 | **+3,2** |
+
+Vậy 8 dòng hết lệch. 4 dòng `gradebook/scheme` có dữ liệu còn lệch 3,2 px và là **lệch thật, không do hàng quay lại**: meta của màn này là một `StatusText` («Bản nháp», «Đã xác nhận · …») nên dòng meta cao 22,4 thay vì 19,2. Sửa ở primitive, không ở route: `.meta` trong `Layout.module.css` phải cho mọi thứ nằm trong nó cùng một chiều cao dòng (thành phần con thừa hưởng cỡ chữ và `line-height` của meta).
