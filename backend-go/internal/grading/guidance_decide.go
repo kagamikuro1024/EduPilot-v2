@@ -52,9 +52,9 @@ func changed(ctx context.Context, tx pgx.Tx, course, assignment uuid.UUID) error
 	return nil
 }
 
-// Decide quyết định một lưu ý (SRS 4.2.9, #5): APPROVE / REJECT chỉ từ DRAFT (`text` sửa kèm theo phải qua kiểm từ khoá + PII), RETIRE chỉ từ mục đang hiệu lực (chờ nghỉ tới lần Áp dụng).
+// Resolve quyết định một lưu ý (SRS 4.2.9, #5): APPROVE / REJECT chỉ từ DRAFT (`text` sửa kèm theo phải qua kiểm từ khoá + PII), RETIRE chỉ từ mục đang hiệu lực (chờ nghỉ tới lần Áp dụng).
 // Chỉ TEACHER (route). Mỗi quyết định ghi `audit_log` (chữ + ủng hộ, không id sinh viên).
-func (s *GuidanceService) Decide(ctx context.Context, a GuidanceActor, course, assignment, item uuid.UUID, decision string, text *string, version int) (ItemView, error) {
+func (s *GuidanceService) Resolve(ctx context.Context, a GuidanceActor, course, assignment, item uuid.UUID, decision string, text *string, version int) (ItemView, error) {
 	if !s.on(course) {
 		return ItemView{}, disabled()
 	}

@@ -152,7 +152,7 @@ func (h *Handler) guidanceDecide(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, e)
 		return
 	}
-	v, err := h.Guidance.Decide(r.Context(), a, course, aid, iid, in.Decision, in.Text, want)
+	v, err := h.Guidance.Resolve(r.Context(), a, course, aid, iid, in.Decision, in.Text, want)
 	if err != nil {
 		h.fail(w, r, err)
 		return

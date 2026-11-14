@@ -18,3 +18,7 @@ Nhánh `sprint/10.6-guidance` (merge từ `sprint/10.5-decision`). Mỗi lát m�
 
 ## P-106-7 (4 test đúng tên SRS, commit riêng)
 `TestReflectInputNoIdentity`, `TestReflectOutputPII` (dùng `privacy.Detector` thật: tên + MSSV + email), `TestGuidanceSetAtVersion`, `TestGuidanceIsolation` — `internal/grading/guidance_privacy_test.go`. `-run` khớp đủ 4.
+
+## Sửa QC L4 (GD-BUG-2, GD-BUG-3)
+- GD-BUG-3: `GuidanceService.Decide` → `Resolve` (không sửa allowlist `TestDecideCallersAllowlist`).
+- GD-BUG-2: `TestRegradeKeepsLatePolicy` (cùng khoản trừ muộn ở round + 1, tổng = tổng AI − trừ) và `TestRegradeNeverOverwritesTeacherScores` (chạy xong round mới, bài đã sửa / duyệt không đổi).

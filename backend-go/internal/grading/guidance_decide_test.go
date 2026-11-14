@@ -7,8 +7,10 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/grading"
@@ -37,24 +39,24 @@ func TestApplyVersion(t *testing.T) {
 	_, err := svc.Apply(t.Context(), a, g.course, g.asg, 0)
 	_, code := apiCode(t, err)
 	require.Equal(t, "NOTHING_TO_APPLY", code, "chưa duyệt mục nào")
-	v, err := svc.Decide(t.Context(), a, g.course, g.asg, i3, "REJECT", nil, 1)
+	v, err := svc.Resolve(t.Context(), a, g.course, g.asg, i3, "REJECT", nil, 1)
 	require.NoError(t, err)
 	require.Equal(t, "REJECTED", v.Status)
 	_, err = svc.Apply(t.Context(), a, g.course, g.asg, 0)
 	_, code = apiCode(t, err)
 	require.Equal(t, "NOTHING_TO_APPLY", code, "chỉ REJECT")
 
-	_, err = svc.Decide(t.Context(), a, g.course, g.asg, i1, "APPROVE", nil, 99)
+	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "APPROVE", nil, 99)
 	_, code = apiCode(t, err)
 	require.Equal(t, "VERSION_CONFLICT", code)
-	v, err = svc.Decide(t.Context(), a, g.course, g.asg, i1, "APPROVE", nil, 1)
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "APPROVE", nil, 1)
 	require.NoError(t, err)
 	require.Equal(t, "APPROVED", v.Status)
 	require.Nil(t, v.ApprovedInVersion, "duyệt chưa là áp dụng")
-	_, err = svc.Decide(t.Context(), a, g.course, g.asg, i1, "APPROVE", nil, g.itemVersion(i1))
+	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "APPROVE", nil, g.itemVersion(i1))
 	_, code = apiCode(t, err)
 	require.Equal(t, "ITEM_NOT_DRAFT", code)
-	_, err = svc.Decide(t.Context(), a, g.course, g.asg, i2, "APPROVE", nil, 1)
+	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i2, "APPROVE", nil, 1)
 	require.NoError(t, err)
 	var cur int
 	g.one(&cur, `select guidance_version from assignments where id = $1`, g.asg)
@@ -76,7 +78,7 @@ func TestApplyVersion(t *testing.T) {
 	require.Equal(t, "NOTHING_TO_APPLY", code)
 
 	// Cho nghỉ: chờ nghỉ vẫn có hiệu lực ở v1; sang v2 mới rời tập
-	v, err = svc.Decide(t.Context(), a, g.course, g.asg, i1, "RETIRE", nil, g.itemVersion(i1))
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RETIRE", nil, g.itemVersion(i1))
 	require.NoError(t, err)
 	require.True(t, v.PendingRetire)
 	var n int
@@ -121,22 +123,22 @@ func TestGuidanceDecideText(t *testing.T) {
 	a := grading.GuidanceActor{UserID: g.teacher}
 	id := g.draftItem("c1", "Bản gốc của AI.")
 	for _, bad := range []string{"Trừ điểm nếu nộp muộn", "", strings.Repeat("a", 401)} {
-		_, err := svc.Decide(t.Context(), a, g.course, g.asg, id, "APPROVE", &bad, 1)
+		_, err := svc.Resolve(t.Context(), a, g.course, g.asg, id, "APPROVE", &bad, 1)
 		st, code := apiCode(t, err)
 		require.Equal(t, http.StatusUnprocessableEntity, st, bad)
 		require.Equal(t, "GUIDANCE_TEXT_REJECTED", code)
 	}
 	txt := "Bản đã sửa bởi giảng viên."
-	v, err := svc.Decide(t.Context(), a, g.course, g.asg, id, "APPROVE", &txt, 1)
+	v, err := svc.Resolve(t.Context(), a, g.course, g.asg, id, "APPROVE", &txt, 1)
 	require.NoError(t, err)
 	require.Equal(t, txt, v.Text)
 	require.NotNil(t, v.TextOriginal)
 	require.Equal(t, "Bản gốc của AI.", *v.TextOriginal)
-	_, err = svc.Decide(t.Context(), a, g.course, g.asg, id, "RETIRE", &txt, v.Version)
+	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, id, "RETIRE", &txt, v.Version)
 	st, _ := apiCode(t, err)
 	require.Equal(t, http.StatusUnprocessableEntity, st)
 	off, _ := newGuidanceSvc(t, g, false)
-	_, err = off.Decide(t.Context(), a, g.course, g.asg, id, "APPROVE", nil, 1)
+	_, err = off.Resolve(t.Context(), a, g.course, g.asg, id, "APPROVE", nil, 1)
 	_, code := apiCode(t, err)
 	require.Equal(t, "GUIDANCE_DISABLED", code)
 }
@@ -239,4 +241,89 @@ func TestGuidanceStats(t *testing.T) {
 	require.Equal(t, "0.90", *it.BiasTotal)
 	require.Equal(t, 5, it.EditedCriteria)
 	require.Equal(t, "1.00", *it.EditedRate)
+}
+
+// round2Of trả id kết quả round + 1 của bài nộp có kết quả `res`.
+func (g *gradeEnv) round2Of(res uuid.UUID) (r2 uuid.UUID) {
+	g.t.Helper()
+	g.one(&r2, `select x.id from grading_results x join grading_results r on r.course_id = x.course_id and r.submission_id = x.submission_id where r.id = $1 and x.round = r.round + 1`, res)
+	return r2
+}
+
+// TestRegradeKeepsLatePolicy — GD-BUG-2: chấm lại (round + 1) tính trừ muộn đúng như lần đầu: cùng số ngày muộn, cùng khoản trừ, tổng = tổng AI − khoản trừ; bài nộp đúng hạn không bị trừ.
+func TestRegradeKeepsLatePolicy(t *testing.T) {
+	g, text := s1Env(t)
+	g.grader.Flags = guidanceFlagsOn(g, true)
+	svc, _ := newGuidanceSvc(t, g, true)
+	late := g.due.Add(30 * time.Hour) // trễ 2 ngày (làm tròn lên) × 0,5
+	onTime := g.due.Add(-time.Hour)
+	lateRes, okRes := g.submit("Muon", "bai.md", text, &late), g.submit("DungHan", "bai.md", text, &onTime)
+	first := map[uuid.UUID][2]string{}
+	for _, r := range []uuid.UUID{lateRes, okRes} {
+		_, err := g.grader.Run(t.Context(), g.course, r)
+		require.NoError(t, err)
+		var pen, total string
+		g.one(&pen, `select late_penalty::text from grading_results where id = $1`, r)
+		g.one(&total, `select total::text from grading_results where id = $1`, r)
+		first[r] = [2]string{pen, total}
+	}
+	require.False(t, decimalZero(first[lateRes][0]), "bài muộn có khoản trừ")
+	require.True(t, decimalZero(first[okRes][0]), "đúng hạn không trừ")
+
+	g.approveAt("c2", "Chỉ cho điểm tối đa khi có ví dụ thực tế.", 1) // bản mới → hai bài thành «bản cũ»
+	out, err := svc.RegradeStale(t.Context(), grading.GuidanceActor{UserID: g.teacher}, g.course, g.asg)
+	require.NoError(t, err)
+	require.Equal(t, 2, out.Queued)
+	for _, r := range []uuid.UUID{lateRes, okRes} {
+		r2 := g.round2Of(r)
+		_, err := g.grader.Run(t.Context(), g.course, r2)
+		require.NoError(t, err)
+		var pen, total, ai string
+		var ver int
+		g.one(&pen, `select late_penalty::text from grading_results where id = $1`, r2)
+		g.one(&total, `select total::text from grading_results where id = $1`, r2)
+		g.one(&ai, `select ai_total_before_late::text from grading_results where id = $1`, r2)
+		g.one(&ver, `select guidance_version from grading_results where id = $1`, r2)
+		require.Equal(t, first[r][0], pen, "khoản trừ muộn giữ nguyên")
+		require.Equal(t, 1, ver)
+		require.True(t, decimalEq(total, subDec(ai, pen)), "tổng = tổng AI − khoản trừ: %s − %s ≠ %s", ai, pen, total)
+	}
+}
+
+// TestRegradeNeverOverwritesTeacherScores — GD-BUG-2: sau «Chấm lại» chạy xong, điểm / nhận xét giảng viên đã sửa (bài DRAFT có tiêu chí sửa, bài từng duyệt, bài đã duyệt) không đổi và không có round mới.
+func TestRegradeNeverOverwritesTeacherScores(t *testing.T) {
+	g, text := s1Env(t)
+	g.grader.Flags = guidanceFlagsOn(g, true)
+	svc, _ := newGuidanceSvc(t, g, true)
+	fresh := g.submit("Moi", "bai.md", text, nil)
+	_, err := g.grader.Run(t.Context(), g.course, fresh)
+	require.NoError(t, err)
+	// ba bài còn lại: dựng trạng thái người đã chạm vào
+	edited := g.staleRes("Sua", "DRAFT", 0, 1, "1.00", false)
+	reopened := g.staleRes("MoLai", "DRAFT", 0, 1, "2.00", true)
+	reviewed := g.staleRes("Duyet", "REVIEWED", 0, 1, "1.00", true)
+	snap := func() string {
+		var s string
+		g.one(&s, `select string_agg(id::text || ':' || status::text || ':' || round::text || ':' || coalesce(total::text, '') || ':' || criteria::text || ':' || coalesce(overall_feedback, ''), '|' order by id) from grading_results where course_id = $1 and id = any($2)`, g.course, []string{edited.String(), reopened.String(), reviewed.String()})
+		return s
+	}
+	before := snap()
+	g.approveAt("c2", "Chỉ cho điểm tối đa khi có ví dụ thực tế.", 1)
+	out, err := svc.RegradeStale(t.Context(), grading.GuidanceActor{UserID: g.teacher}, g.course, g.asg)
+	require.NoError(t, err)
+	require.Equal(t, 1, out.Queued, "chỉ bài nháp chưa ai chạm")
+	_, err = g.grader.Run(t.Context(), g.course, g.round2Of(fresh))
+	require.NoError(t, err)
+	require.Equal(t, before, snap())
+	var n int
+	g.one(&n, `select count(*) from grading_results where course_id = $1 and round > 1 and id = any($2)`, g.course, []string{edited.String(), reopened.String(), reviewed.String()})
+	require.Zero(t, n)
+}
+
+func decimalEq(a, b string) bool {
+	return decimal.RequireFromString(a).Equal(decimal.RequireFromString(b))
+}
+func decimalZero(a string) bool { return decimal.RequireFromString(a).IsZero() }
+func subDec(a, b string) string {
+	return decimal.RequireFromString(a).Sub(decimal.RequireFromString(b)).String()
 }
