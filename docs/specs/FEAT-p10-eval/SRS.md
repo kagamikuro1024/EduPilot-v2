@@ -196,7 +196,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 Dữ liệu seed: lớp 1 ≈ 150 câu hỏi (chủ đề A, B lệch + 1 chủ đề đúng 2 sinh viên + 10 `no_context`), lớp 2 ≈ 40 câu (chủ đề C), ≥ 300 dòng `llm_audit` / 7 ngày, ≥ 4 bài thi PE đã công bố, ≥ 1 sinh viên tụt 3 bài liên tiếp, câu hỏi có PII mô phỏng để kiểm che.
 
 ## 10. Câu hỏi mở và quyết định
-Xem `QUESTIONS.md` (Q-E-1…25). **Đề xuất đổi ARCHITECTURE (PM quyết):** (1) bảng `llm_request_payloads` (Q-E-1); (2) `GET …/requests/{id}` → `POST …/requests/{id}/open` (Q-E-4); (3) §5 thêm 5 endpoint thống kê điểm thi + `export` của Insight (US-P10-06); (4) `/analytics` thêm tab «Điểm thi» (§7 route); (5) `llm_audit.path`, task `DECIDE`, provider loại `decision` (P-11-10); (6) ADR D53, sửa D47(2), làm rõ luật 5, `PRODUCTION_READINESS` (Tech Lead). **PM xác nhận P-11-1:** Q-E-1, Q-E-4, Q-E-21; **PM xác nhận P-11-11:** Q-E-23, Q-E-24, Q-E-25; còn lại đã chốt theo đề xuất BA.
+Xem `QUESTIONS.md` (Q-E-1…25). **Đề xuất đổi ARCHITECTURE (PM quyết):** (1) bảng `llm_request_payloads` (Q-E-1); (2) `GET …/requests/{id}` → `POST …/requests/{id}/open` (Q-E-4); (3) §5 thêm 5 endpoint thống kê điểm thi + `export` của Insight (US-P10-06); (4) `/analytics` thêm tab «Điểm thi» (§7 route); (5) `llm_audit.path`, task `DECIDE`, provider loại `decision` (P-11-10); (6) ADR D60, sửa D47(2), làm rõ luật 5, `PRODUCTION_READINESS` (Tech Lead). **PM xác nhận P-11-1:** Q-E-1, Q-E-4, Q-E-21; **PM xác nhận P-11-11:** Q-E-23, Q-E-24, Q-E-25; còn lại đã chốt theo đề xuất BA.
 
 ## 11. Truy vết
 | PRD | FLOWS | Phase | US | FR | Test |
