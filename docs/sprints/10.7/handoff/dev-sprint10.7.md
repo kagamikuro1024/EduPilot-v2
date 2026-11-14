@@ -83,3 +83,13 @@ Không sửa: L2/X1 của `analytics`, `observability` (mô phỏng, chỉ gọi
 | X3 | practice đang tải giữ Tabs; attendance đang tải/lỗi ở 375 vẫn có thanh dính đáy (khoá) |
 | TL 14.7 | `Section fault`: lỗi thay CẢ panel của mục (Thiết bị, Thư) — rộng bằng cột |
 | P2 insights@375 +2,1 | không tái hiện ở mô phỏng (đo 2,0); lệch 0,1 px do làm tròn dưới điểm ảnh, để QC xét ngưỡng |
+
+### Đợt QC @9a011cd1 (22 lượt + ui-antipatterns)
+
+- ui-antipatterns: bỏ `max-width: 840px` của `.inner` (chat); `bash scripts/ui-antipatterns.sh` sạch.
+- D2 `class/settings`: `input[type=range]` (ngưỡng chuyển, rủi ro) cao 36 (44 ở màn nhỏ).
+- D3 documents: bỏ dòng «Không hiển thị cho sinh viên» của đáp án; lý do nằm ở chính công tắc (mô tả truy cập).
+- P2 observability +17: `dl` có lề mặc định của trình duyệt → `DefinitionList` `margin: 0`.
+- E2/E6/E7 chat: khối rỗng thật (`EmptyState` «Hỏi bất cứ điều gì về lớp này») nằm trong vật chứa riêng 150 px; cột phiên rỗng không còn dựng khối ẩn (nguồn lệch tâm −828).
+- E6 observability: «Quyết định nhanh» không lời gọi → chỉ `EmptyState`; mục «Lớp … 7 ngày» ẩn khi không có số.
+- P5 attendance rỗng 375: thanh dính đáy khoá nằm CUỐI trang, không chen giữa đầu trang và thân.

@@ -109,11 +109,6 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
         <div>
           <button type="button" className={r.name} onClick={() => setOpen(d)}>{d.title}</button>
           {d.shared_from && <div className={r.meta}>Chia sẻ từ {d.shared_from}</div>}
-          {d.type === "ANSWER_KEY" && (
-            <div className={r.keyNote}>
-              <span>Không hiển thị cho sinh viên</span>
-            </div>
-          )}
         </div>
       ),
     },
@@ -133,7 +128,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
     },
     {
       key: "vis", header: "Hiện cho sinh viên", width: "13%",
-      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.visible_to_students ? "bật" : "tắt"} · {d.title}</span>} />,
+      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} title={d.type === "ANSWER_KEY" ? "Đáp án không hiển thị cho sinh viên" : undefined} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.visible_to_students ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "status", header: "Trạng thái", width: "12%",

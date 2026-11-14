@@ -284,7 +284,7 @@ export function RealChat({ courseId }: { courseId: string }) {
 
 function SessionList({ items, current, loading, onOpen, onDelete }: { items: ChatSession[]; current: string | null; loading: boolean; onOpen: (id: string) => void; onDelete: (id: string) => void }) {
   if (loading) return <Skeleton lines={3} />;
-  if (items.length === 0) return <EmptyState title="Chưa có phiên nào" />;
+  if (items.length === 0) return null; // không phiên: cột phiên đóng (noSessions), không khối rỗng thứ hai
   return (
     <ul className={r.sheetList}>
       {items.map((x) => (
@@ -304,7 +304,7 @@ function SessionList({ items, current, loading, onOpen, onDelete }: { items: Cha
 function Intro({ suggestions, onPick }: { suggestions: string[]; onPick: (text: string) => void }) {
   return (
     <div className={s.intro}>
-      <p className="ep-item-title">Hỏi bất cứ điều gì về lớp này.</p>
+      <div><EmptyState title="Hỏi bất cứ điều gì về lớp này" /></div>
       <p className={s.introText}>Phiên chat này chỉ bạn đọc được.</p>
       <ul className={r.suggest} data-part="chat-suggestions">
         {suggestions.map((t) => (

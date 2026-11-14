@@ -45,11 +45,11 @@ test("states: rỗng có Tải tài liệu lên; lỗi có Thử lại", async (
   await expect(page.locator("[data-part=doc-row]")).toHaveCount(1);
 });
 
-test("answer key labels: đúng hai dòng, công tắc Hiện cho sinh viên khoá", async ({ page, context }) => {
+test("answer key: công tắc Hiện cho sinh viên khoá, lý do ở chính công tắc (không dòng chữ thêm trong hàng)", async ({ page, context }) => {
   await open(page, context, { [`GET ${D}`]: list([doc({ id: "k1", title: "Đáp án tuần 1", type: "ANSWER_KEY", visible_to_students: false })]) });
   const row = page.locator("[data-part=doc-row]");
-  await expect(row.getByText("Không hiển thị cho sinh viên")).toBeVisible();
   await expect(row.getByRole("switch", { name: /Hiện cho sinh viên/ })).toBeDisabled();
+  await expect(row.getByRole("switch", { name: /Hiện cho sinh viên/ })).toHaveAccessibleDescription("Đáp án không hiển thị cho sinh viên");
 });
 
 test("course policy reminder: một dòng khi thiếu quy chế, nút mở chọn tệp; có rồi thì biến mất", async ({ page, context }) => {

@@ -103,7 +103,7 @@ export function ObservabilityScreen() {
           </div>
         </Section>
 
-        {!isAdmin && (
+        {!isAdmin && (COURSE_SUMMARY[course.id] ?? []).length > 0 && (
           <Section title={`Lớp ${course.code} trong 7 ngày`}>
             <DataTable
               caption="Số liệu 7 ngày của lớp"

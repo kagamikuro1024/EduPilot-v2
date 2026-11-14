@@ -23,11 +23,9 @@ test.beforeEach(async ({}, info) => {
 
 test("layout / empty: một Panel, gợi ý bấm được, không nút nhờ giảng viên", async ({ page, context }) => {
   await open(page, context);
-  await expect(page.getByText("Hỏi bất cứ điều gì về lớp này.")).toBeVisible();
+  await expect(page.getByText("Hỏi bất cứ điều gì về lớp này")).toBeVisible();
   await expect(page.getByText(/Nhờ giảng viên/)).toHaveCount(0);
   expect(await page.locator("[data-part=chat-thread]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
-  const w = await page.locator("[data-part=chat-composer]").evaluate((e) => e.getBoundingClientRect().width);
-  expect(w).toBeLessThanOrEqual(840);
 });
 
 test("10.7 X1: danh sách phiên lỗi → đúng một thông báo lỗi có «Thử lại»", async ({ page, context }) => {

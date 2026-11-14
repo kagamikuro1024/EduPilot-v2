@@ -10,7 +10,8 @@
 .source b { font-weight: 600; }
 
 .threshold { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-4); max-width: 560px; }
-.range { flex: 1 1 200px; min-width: 160px; accent-color: var(--ep-red); }
+.range { flex: 1 1 200px; min-width: 160px; height: 36px; accent-color: var(--ep-red); } /* hộp bấm 36 (D2); 44 ở màn nhỏ */
+@media (max-width: 719px) { .range { height: 44px; } }
 .thresholdValue { min-width: 3ch; font-variant-numeric: tabular-nums; font-weight: 600; }
 
 .riskRows { display: grid; gap: var(--ep-space-4); }
