@@ -50,6 +50,12 @@ func TestDecideFakeDeterministic(t *testing.T) {
 func TestDecideFakeOverrides(t *testing.T) {
 	t.Parallel()
 	prob := 0.97
+	c0 := fake.NewController(fake.Settings{DecisionProb: &prob})
+	hit := 0.1
+	c0.AddDecision("có trong replay", "p", fake.DecisionRecord{Noul: &hit})
+	if r, _ := fake.NewNamed(c0, "d", "").Decide(t.Context(), provider.DecideOpts{Model: "m", Input: "có trong replay", Questions: qs()}); r.Answers["p"].Noul != 0.1 {
+		t.Fatalf("replay phải thắng FAKE_DECISION_PROB: %+v", r.Answers["p"])
+	}
 	r, _, err := decide(t, fake.Settings{DecisionProb: &prob}, "bất kỳ")
 	if err != nil || r.Answers["p"].Noul != 0.97 || r.Answers["i"].Confidence != 0.97 {
 		t.Fatalf("prob: %+v %v", r.Answers, err)

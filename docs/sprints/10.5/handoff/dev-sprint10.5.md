@@ -41,3 +41,7 @@ Bản thật gọi `POST {base}/decisions` (header `x-goog-api-key`). `{base}` l
 
 - `TestStudentNeverSeesDraftGrade`: «6.37» khớp vào dấu thời gian `…46.379254Z` (dương tính giả theo giờ chạy). Không bề mặt nào lộ điểm nháp (kiểm lại cả 8 trạng thái × 7 bề mặt + tool tóm tắt). Phép kiểm số đổi từ chuỗi con sang `leaksNumber` (số đứng riêng, ranh giới chữ số / dấu chấm; thử cả dấu phẩy); chuỗi canary chữ và các khoá cấm giữ nguyên. Thêm `TestLeaksNumber` (dấu thời gian không báo nhầm; số thật, chuỗi `"6,37"`, `"được 6.37 điểm"` vẫn bị bắt, kể cả khi cùng body có dấu thời gian vô hại).
 - Hai test sửa ở L1 theo spec: `TestClientSurface` 4→5 hàm; `TestNoNPlusOne` `Len 20→21` (seed nhà `decision`).
+
+## Lát đã bàn giao
+- **L1** (`425d2a74` + openapi `e896b20d`): US-DM-01, US-DM-02. Test: `go test ./internal/llm/... ./internal/llmconfig ./db`; contract cần `-tags testroutes` (không có tag → `_test/llm/fake` 404, đây là bản dựng mặc định).
+- **L2**: US-DM-03 — `thread.Firewall.CheckPublish` (luật `CheckPost` → nếu sạch mới `Cascade` THREADS_PRECHECK, `AddOnly`; fallback `Structured` task CLASSIFY, hạn `THREADS_STRUCTURED_TIMEOUT` 6 s; fail-closed = chặn). Dùng ở `Service.gate` (đăng, bình luận, sửa, cả lần kiểm lại bản «đã ẩn»); `Precheck` và `RecordSwitched` vẫn `CheckPost` (không decision). Luật mới: nội dung chỉ có placeholder → chặn (AC4). Test: `TestThreadsDecisionFlow` (10 ca), `TestPrecheckAddOnly`, `TestThreadsDecisionComment`, `TestThreadsCrisisNeverReachesDecide`, `TestPlaceholderOnlyBlockedByRules` (`go test ./internal/thread`).

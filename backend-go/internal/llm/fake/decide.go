@@ -94,14 +94,14 @@ func (p *Provider) Decide(ctx context.Context, o provider.DecideOpts) (provider.
 		case provider.QuestionNoul:
 			v := UnknownNoul
 			switch {
-			case s.DecisionProb != nil:
-				v = min(max(*s.DecisionProb, 0.01), 0.99)
 			case s.DecisionMode == "always_yes":
 				v = 0.99
 			case s.DecisionMode == "always_no":
 				v = 0.01
 			case ok && rec.Noul != nil:
 				v = min(max(*rec.Noul, 0.01), 0.99)
+			case s.DecisionProb != nil: // chỉ cho câu KHÔNG có trong bản phát lại (SRS 4.6)
+				v = min(max(*s.DecisionProb, 0.01), 0.99)
 			}
 			out.Answers[id] = provider.DecideAnswer{Type: provider.QuestionNoul, Noul: v, Confidence: max(v, 1-v)}
 		case provider.QuestionChoice:
@@ -124,7 +124,7 @@ func (p *Provider) Decide(ctx context.Context, o provider.DecideOpts) (provider.
 					ans.Confidence = rec.Probabilities[rec.Choice]
 				}
 			}
-			if s.DecisionProb != nil && len(keys) > 1 {
+			if s.DecisionProb != nil && len(keys) > 1 && !(ok && rec.Choice != "") {
 				top := min(max(*s.DecisionProb, 0), 1)
 				ans.Confidence = top
 				for _, k := range keys {

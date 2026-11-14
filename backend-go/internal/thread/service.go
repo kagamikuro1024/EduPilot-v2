@@ -412,7 +412,7 @@ func (s *Service) gate(ctx context.Context, a Actor, courseID uuid.UUID, title, 
 	if agent.DetectIntent(title+"\n"+body) == agent.IntentCrisis {
 		return "", "", nil, apierr.New(http.StatusUnprocessableEntity, apierr.CrisisSupport).WithMessage(agent.CrisisText(s.Support)).WithDetails(map[string]any{"actions": []string{"OPEN_PRIVATE_CHAT"}})
 	}
-	v, err := s.FW.CheckPost(ctx, courseID, title, body)
+	v, err := s.FW.CheckPublish(ctx, courseID, title, body)
 	if err != nil {
 		return "", "", nil, unavailableErr()
 	}
@@ -420,7 +420,7 @@ func (s *Service) gate(ctx context.Context, a Actor, courseID uuid.UUID, title, 
 		return title, body, v.Vec, nil
 	}
 	if redact && !v.Personal {
-		again, err := s.FW.CheckPost(ctx, courseID, v.RedactedTitle, v.RedactedBody)
+		again, err := s.FW.CheckPublish(ctx, courseID, v.RedactedTitle, v.RedactedBody)
 		if err != nil {
 			return "", "", nil, unavailableErr()
 		}

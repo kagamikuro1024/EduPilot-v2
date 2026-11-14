@@ -38,7 +38,7 @@ type Settings struct {
 	DecisionP50, DecisionP95 time.Duration
 	DecisionErrorRate        float64
 	DecisionMode             string
-	// DecisionProb != nil: ghi đè mọi `noul` bằng giá trị này (FAKE_DECISION_PROB; P-105-1 Q2) và confidence của nhãn đứng đầu của `choice`.
+	// DecisionProb != nil: thay giá trị mặc định cho câu KHÔNG có trong bản phát lại: `noul` = p, nhãn đứng đầu của `choice` có confidence p (FAKE_DECISION_PROB; P-105-1 Q2).
 	DecisionProb   *float64
 	DecisionReplay []byte // JSON bản phát lại (xem decide.go); rỗng = mọi đầu vào lưỡng lự
 }

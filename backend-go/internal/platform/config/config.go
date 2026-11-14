@@ -182,17 +182,18 @@ type Config struct {
 	FakeLatencyMax        time.Duration
 	FakeErrorRate         float64
 	// Decision model (SRS FEAT-decision-model 4.5 / 4.6; D60).
-	LLMDecisionTimeout    time.Duration // thời hạn mặc định của Decide khi cổng chưa có timeout riêng
-	LLMDecisionAllowReal  bool          // cho gọi gemini-decision-1 THẬT; mặc định tắt (chỉ khi PM cho phép)
-	LLMDecisionRealCap    int           // trần lời gọi thật / ngày UTC+7
-	LLMDecisionRPM        int           // bucket RPM riêng của provider decision
-	LLMDecisionBaseURL    string        // rỗng = Google; trỏ máy chủ giả khi dựng test (P-105-1 Q1)
-	FakeDecisionP50       time.Duration
-	FakeDecisionP95       time.Duration
-	FakeDecisionErrorRate float64
-	FakeDecisionMode      string
-	FakeDecisionProb      *float64 // FAKE_DECISION_PROB: ghi đè xác suất của bản giả (P-105-1 Q2)
-	FakeValidKey          string
+	ThreadsStructuredTimeout time.Duration // THREADS_STRUCTURED_TIMEOUT: hạn của Structured khi decision lưỡng lự hoặc lỗi (quá hạn → chặn)
+	LLMDecisionTimeout       time.Duration // thời hạn mặc định của Decide khi cổng chưa có timeout riêng
+	LLMDecisionAllowReal     bool          // cho gọi gemini-decision-1 THẬT; mặc định tắt (chỉ khi PM cho phép)
+	LLMDecisionRealCap       int           // trần lời gọi thật / ngày UTC+7
+	LLMDecisionRPM           int           // bucket RPM riêng của provider decision
+	LLMDecisionBaseURL       string        // rỗng = Google; trỏ máy chủ giả khi dựng test (P-105-1 Q1)
+	FakeDecisionP50          time.Duration
+	FakeDecisionP95          time.Duration
+	FakeDecisionErrorRate    float64
+	FakeDecisionMode         string
+	FakeDecisionProb         *float64 // FAKE_DECISION_PROB: ghi đè xác suất của bản giả (P-105-1 Q2)
+	FakeValidKey             string
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
 	AppPublicURL string // gốc dựng liên kết trong thư (không có dấu / cuối)
@@ -416,6 +417,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.GeminiKey = l.raw("GEMINI_API_KEY")
 	c.FakeLatencyMin, c.FakeLatencyMax = l.latencyRange("FAKE_LLM_LATENCY", "0-0")
 	c.FakeErrorRate = l.rate("FAKE_LLM_ERROR_RATE", 0)
+	c.ThreadsStructuredTimeout = l.durRange("THREADS_STRUCTURED_TIMEOUT", 6*time.Second, time.Second, 30*time.Second)
 	c.LLMDecisionTimeout = l.durRange("LLM_DECISION_TIMEOUT", 800*time.Millisecond, 200*time.Millisecond, 5*time.Second)
 	c.LLMDecisionAllowReal = l.boolean("LLM_DECISION_ALLOW_REAL", false)
 	c.LLMDecisionRealCap = l.num("LLM_DECISION_REAL_DAILY_CAP", 300, 1, 1_000_000)
