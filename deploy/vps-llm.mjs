@@ -5,7 +5,7 @@
 //   PHASE=seed   (ngay sau khi admin có, TRƯỚC khi seed nạp tài liệu): tuyến sinh chữ → nhà cung cấp `fake` (seed trích quy chế bằng bản ghi demo),
 //                EMBEDDING → Gemini THẬT (tài liệu, thread seed được nhúng bằng Gemini ngay từ đầu).
 //   PHASE=live   (SAU seed): 6 tuyến sinh chữ → `gemini-chat` (MODEL, rồi FALLBACK nếu có); EMBEDDING giữ Gemini.
-//                CHAT_PROVIDER=9router: nhà cung cấp `router-chat` (openai_compatible, ROUTER_BASE mặc định http://host.docker.internal:20128/v1, khoá 9router); GEMINI_API_KEY chỉ còn cho EMBEDDING.
+//                CHAT_PROVIDER=9router: nhà cung cấp `router-chat` (openai_compatible, ROUTER_BASE mặc định http://host.docker.internal:20128/v1, khoá 9router). EMBEDDING mặc định `embed-gia` (fake); EMBED_PROVIDER=gemini mới dùng Gemini (cần PM cho phép).
 // Nhà cung cấp (loại `gemini`, không dùng `openai_compatible`; hai nhà cung cấp tách nhau vì Scheduler tính RPM theo nhà cung cấp):
 //   · "gemini-chat"  model MODEL / FALLBACK, rpm_limit = CHAT_RPM (mặc định 5);
 //   · "gemini-embed" gemini-embedding-001 ép `dimensions` = 1536 (khớp cột vector), rpm_limit 60;
@@ -29,7 +29,9 @@ const GEMINI_KEY = setting("GEMINI_API_KEY");
 const CANDIDATES = ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite"];
 const CHAT_TASKS = ["CHAT", "CLASSIFY", "UTILITY", "GRADING", "QUESTION_GEN", "INSIGHT"];
 if (!["probe", "seed", "live"].includes(PHASE)) throw new Error("PHASE phải là probe | seed | live");
-if (!GEMINI_KEY) throw new Error(`thiếu GEMINI_API_KEY (biến môi trường hoặc ${ENV_FILE})`);
+// Luật LLM 2026-11-14: sinh chữ qua 9router; embedding mặc định `fake` (xác định, 1536 chiều); Gemini chỉ khi EMBED_PROVIDER=gemini (PM cho phép) hoặc PHASE=probe.
+const EMBED_GEMINI = process.env.EMBED_PROVIDER === "gemini";
+if ((PHASE === "probe" || EMBED_GEMINI || (PHASE !== "seed" && process.env.CHAT_PROVIDER !== "9router")) && !GEMINI_KEY) throw new Error(`thiếu GEMINI_API_KEY (biến môi trường hoặc ${ENV_FILE})`);
 
 if (PHASE === "probe") {
   const picked = [];
@@ -102,10 +104,10 @@ function routerKey() {
 }
 const price = { price_in: "0", price_out: "0", enabled: true };
 
-const gem = await ensure("gemini-embed", {
-  type: "gemini", name: "gemini-embed", api_key: GEMINI_KEY, enabled: true, rpm_limit: 60,
-  models: [{ model: "gemini-embedding-001", kind: "embedding", dims: 1536, ...price }],
-});
+const gem = EMBED_GEMINI
+  ? await ensure("gemini-embed", { type: "gemini", name: "gemini-embed", api_key: GEMINI_KEY, enabled: true, rpm_limit: 60, models: [{ model: "gemini-embedding-001", kind: "embedding", dims: 1536, ...price }] })
+  : await ensure("embed-gia", { type: "fake", name: "embed-gia", enabled: true, models: [{ model: "fake-embed", kind: "embedding", dims: 1536, ...price }] });
+const embLabel = EMBED_GEMINI ? "gemini-embed/gemini-embedding-001 (1536)" : "embed-gia/fake-embed (1536)";
 const emb = gem.models.find((m) => m.kind === "embedding")?.id;
 let chain, label;
 if (PHASE === "seed") {
@@ -129,5 +131,5 @@ const routes = must(await call("GET", "/admin/llm/routes", { token }), "đọc t
 for (const t of [...CHAT_TASKS, "EMBEDDING"]) {
   const cur = routes.items.find((r) => r.task === t);
   must(await call("PUT", "/admin/llm/routes", { token, json: { task: t, chain: t === "EMBEDDING" ? [emb] : chain, version: cur?.version ?? 0 } }), `đặt tuyến ${t}`);
-  console.log(`tuyến ${t} → ${t === "EMBEDDING" ? "gemini-embed/gemini-embedding-001 (1536)" : label}`);
+  console.log(`tuyến ${t} → ${t === "EMBEDDING" ? embLabel : label}`);
 }
