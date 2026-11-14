@@ -1,6 +1,6 @@
-# Sprint 10.7: kênh Tech Lead
+# Sprint 10.8: kênh Tech Lead
 
-## TL-1 (sprint 10.7): điểm danh tự phục vụ chống gian lận, web + app điện thoại
+## TL-1 (sprint 10.8): điểm danh tự phục vụ chống gian lận, web + app điện thoại
 
 PM giao (2026-11-14), có bổ sung của chủ dự án: **sẽ có app điện thoại**. Cần:
 - mối đe doạ;
@@ -66,4 +66,4 @@ Bản đầy đủ có nguồn: `docs/research/2026-11-14-attendance-anti-cheat.
 - Q8: HTTPS cho demo.
 - Q9: thời hạn giữ dữ liệu.
 
-Đề xuất `P-107-1` ở §11 research.
+Đề xuất `P-108-1` ở §11 research.

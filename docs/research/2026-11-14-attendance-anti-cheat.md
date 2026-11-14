@@ -1,4 +1,4 @@
-# Điểm danh tự phục vụ chống gian lận (sprint 10.7): web + app điện thoại
+# Điểm danh tự phục vụ chống gian lận (sprint 10.8): web + app điện thoại
 
 **Câu hỏi.** Sinh viên tự điểm danh bằng điện thoại thì làm thế nào để chống gian lận nhiều nhất có thể, mà vẫn giữ luật repo (Go không trạng thái, D46, không tự phạt sinh viên), chạy ở tải T1, và có app điện thoại theo quyết định của chủ dự án?
 
@@ -18,7 +18,7 @@
    Mọi màn còn lại tái dùng nguyên Next.js + `shared/`. iOS hoãn vì cần Apple Developer Program (99 USD/năm). Sinh viên iPhone dùng web/PWA, mức tin cậy thấp hơn và bị gắn cờ.
 3. **Không dùng selfie / khuôn mặt** (dữ liệu sinh trắc, Luật 91/2025 Điều 31 khoản 4). **Không chặn chụp màn hình**: QR nằm trên máy chiếu, nên `FLAG_SECURE` trên máy sinh viên không có tác dụng gì.
 4. **Đường nóng không cần Redis.** Kiểm mã bằng HMAC, khử trùng bằng UNIQUE ở Postgres. Đo 200 lượt kiểm mã + chữ ký: 1,7 ms trên Mac, nên tải T1 (200 SV / 30 s ≈ 7 req/s) không đáng kể. Màn chiếu dùng poll 10 s thay SSE vì đơn giản hơn và giữ gateway không trạng thái (§5.4).
-5. **Lát cho 10.7:** L1–L5 bắt buộc, khoảng 2 L + 3 M + 2 S; L6 (BLE) là tuỳ chọn (§8). Có 9 câu hỏi cần chủ dự án quyết (§9) và 3 thư viện/SDK cần duyệt (§6.3).
+5. **Lát cho 10.8:** L1–L5 bắt buộc, khoảng 2 L + 3 M + 2 S; L6 (BLE) là tuỳ chọn (§8). Có 9 câu hỏi cần chủ dự án quyết (§9) và 3 thư viện/SDK cần duyệt (§6.3).
 
 Độ chắc chắn:
 - **Cao:** cơ chế mã, chữ ký, Key Attestation (đã chạy PoC), năng lực nền tảng (tài liệu chính thức).
@@ -246,7 +246,7 @@ App Capacitor dùng plugin native, nên không vướng giới hạn này. Đây
 | 2 | `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`, `@capacitor/app` (sự kiện `appUrlOpen` cho Android App Links) 8.x | `mobile/` mới (vỏ app) | MIT | L5 | Có, nếu làm app |
 | 3 | `@capacitor-mlkit/barcode-scanning` (ML Kit) | app | Apache-2.0 `[kiểm lại khi cài]` | L5 | Dự phòng. Mặc định: camera hệ thống quét QR, Android App Links (`/.well-known/assetlinks.json` + intent filter, không cần thư viện) mở thẳng app. Rủi ro `[SUY LUẬN]`: App Links cần tên miền HTTPS xác minh được; với CA nội bộ (Caddy `tls internal`), Android có thể không xác minh → link mở trình duyệt → cần #3 hoặc SV bật "Mở liên kết được hỗ trợ" trong cài đặt app |
 | 4 | `@capacitor-community/bluetooth-le` | app | MIT | L6 | Chỉ khi làm BLE |
-| 5 | `fxamacker/cbor/v2` | Go | MIT | (iOS, sau 10.7) | Chỉ khi làm iOS |
+| 5 | `fxamacker/cbor/v2` | Go | MIT | (iOS, sau 10.8) | Chỉ khi làm iOS |
 | – | Bộ công cụ Android (Gradle, Android SDK). Máy đã có `adb`, JDK 21 | Máy chủ dự án | – | L5 | – |
 
 Go phía server **không cần thư viện mới** cho Android (PoC chỉ dùng stdlib). D46 giữ nguyên: không service mới, app chỉ là client.
@@ -276,7 +276,7 @@ Lệnh: `cd docs/research/poc/attendance-checkin && go run .` Kết quả thật
 - Hai điều PoC chưa làm: thử một APK thật (L5) và kiểm danh sách thu hồi.
 - PoC không đo độ chính xác Geolocation trong phòng học vì cần điện thoại thật ở hiện trường. Nguồn tham khảo: W3C quy định `accuracy` ở độ tin 95%. Mô phỏng của bài IJACSA 10/2026 ở độ chính xác 15 m cho chấp nhận nhầm 4,15% và từ chối nhầm 3,70% với luật bán kính cố định; luật siết theo sai số đưa chấp nhận nhầm về 0% nhưng từ chối nhầm lên 20,3%. Vì vậy **vị trí chỉ là cờ, không phải cổng chặn**.
 
-## 8. Lát cho sprint 10.7
+## 8. Lát cho sprint 10.8
 
 | Lát | Nội dung | Cỡ | Phụ thuộc |
 | --- | --- | --- | --- |
@@ -289,7 +289,7 @@ Lệnh: `cd docs/research/poc/attendance-checkin && go run .` Kết quả thật
 | **L7** | Kiểm chứng:<br>• E2E Playwright luồng mới (web) gồm nhánh: mã hết hạn, cửa sổ đóng, máy dùng chung, vòng 2;<br>• k6 `benchmarks/load/checkin.js` 200 SV / 30 s;<br>• seed: buổi 10 có cửa sổ mẫu | M | L1–L3 |
 
 - Tổng phần bắt buộc L1–L5 + L7: **2 L + 3 M + 2 S** (tính L5 ở cỡ M).
-- iOS native, Play Integrity, App Attest: ngoài 10.7.
+- iOS native, Play Integrity, App Attest: ngoài 10.8.
 - BA cần thêm vào FLOWS một luồng mới (F7b "Sinh viên tự điểm danh") với các nhánh lỗi ở trên, và bổ sung bảng dữ liệu ở `PRODUCTION_READINESS.md` §1.1 (lượt check-in, thiết bị, thời hạn giữ).
 
 ## 9. Câu hỏi cho chủ dự án (→ PM)
@@ -319,6 +319,6 @@ Lệnh: `cd docs/research/poc/attendance-checkin && go run .` Kết quả thật
   - tắt `self_checkin` trong `courses.settings`, quay về điểm danh tay như cũ (không đụng `attendance_records`);
   - bỏ L5 / L6 thì còn web mức 1–2.
 
-## 11. Đề xuất cho PM (dòng chép vào `docs/sprints/10.7/proposals.md`)
+## 11. Đề xuất cho PM (dòng chép vào `docs/sprints/10.8/proposals.md`)
 
-`P-107-1: Điểm danh tự phục vụ 5 lớp (QR HMAC 10 s + khoá thiết bị + vị trí tuỳ chọn + đếm đầu người / vòng 2 / gọi ngẫu nhiên + cờ bất thường), chỉ gắn cờ, không tự phạt; migration 00024; app = Capacitor Android tải web từ máy chủ (APK sideload, Key Attestation kiểm bằng stdlib Go); không sinh trắc; iOS dùng web/PWA. Cần chủ dự án quyết Q1–Q9 và duyệt thư viện #1–#2 (research 2026-11-14-attendance-anti-cheat.md).`
+`P-108-1: Điểm danh tự phục vụ 5 lớp (QR HMAC 10 s + khoá thiết bị + vị trí tuỳ chọn + đếm đầu người / vòng 2 / gọi ngẫu nhiên + cờ bất thường), chỉ gắn cờ, không tự phạt; migration 00024; app = Capacitor Android tải web từ máy chủ (APK sideload, Key Attestation kiểm bằng stdlib Go); không sinh trắc; iOS dùng web/PWA. Cần chủ dự án quyết Q1–Q9 và duyệt thư viện #1–#2 (research 2026-11-14-attendance-anti-cheat.md).`
