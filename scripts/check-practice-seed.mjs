@@ -1,6 +1,6 @@
 // Kiểm dữ liệu mẫu của Luyện đề (US-P9-12) bằng API thật, từng tài khoản.
 //   node scripts/check-practice-seed.mjs     (cần API_URL, SEED_DEFAULT_PASSWORD như seed.mjs)
-// Kiểm: ≥ 80 câu APPROVED (đủ loại, đủ độ khó) + 20 PENDING; Quiz xếp lịch; sinh viên thấy lượt + điểm yếu của MÌNH; B có điểm yếu An toàn ứng dụng web;
+// Kiểm: ≥ 80 câu APPROVED (đủ loại, đủ độ khó) + 20 PENDING; Quiz đã công bố; sinh viên thấy lượt + điểm yếu của MÌNH; B có điểm yếu An toàn ứng dụng web;
 // C có lượt đang dở; giảng viên / TA KHÔNG đọc được lượt của sinh viên (403); sinh viên không gọi được /questions (403).
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -72,9 +72,21 @@ for (const d of ["EASY", "MEDIUM", "HARD"]) must(approved.some((q) => q.difficul
 const topics = new Set(approved.map((q) => q.topic));
 must(topics.size >= 8, `chỉ ${topics.size} chủ đề`);
 
+must(pending.some((q) => q.origin === "EXTRACTED"), "PENDING không có câu EXTRACTED");
+const genApproved = approved.find((q) => q.origin === "GENERATED");
+must(genApproved, "không có câu APPROVED nguồn GENERATED (có citations)");
+if (genApproved) {
+  const d = (await call("GET", `${Q}/${genApproved.id}`, { token: teacher })).body;
+  must(Array.isArray(d?.citations) && d.citations.length > 0 && d.citations[0].document_id, "câu GENERATED APPROVED không có citations");
+}
+const c2 = courses.items?.find((c) => c.course.class_code === "761988")?.course.id;
+const bank2 = c2 ? await listAll(`/courses/${c2}/questions`, teacher) : [];
+must(bank2.filter((q) => q.review_status === "APPROVED").length >= 10, "lớp 761988 chưa có ngân hàng riêng");
+must(!bank2.some((q) => bank.some((b) => b.title === q.title)), "lớp 761988 chứa câu của lớp 761987");
+
 const exams = await listAll(`/courses/${course}/exams`, teacher);
 const quiz = exams.find((e) => e.title.startsWith("Quiz 01"));
-must(quiz && ["SCHEDULED", "OPEN"].includes(quiz.effective_status), "Quiz 01 chưa xếp lịch");
+must(quiz && quiz.status === "PUBLISHED", "Quiz 01 chưa PUBLISHED");
 
 // sinh viên thấy lượt của chính mình
 let total = 0;

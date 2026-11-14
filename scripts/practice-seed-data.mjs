@@ -164,6 +164,35 @@ export function buildQuestions(group) {
 export const APPROVED = APPROVED_TOPICS.flatMap(buildQuestions); // 80 câu (8 chủ đề × 10)
 export const PENDING = PENDING_TOPICS.flatMap(buildQuestions); // 20 câu
 
+/** Ngân hàng nhỏ của lớp 761988 (không trùng câu lớp 761987): hai chủ đề riêng, đều APPROVED. */
+export const C2_TOPICS = [
+  T("Bảo mật email", [
+    ["SPF", "Bản ghi DNS liệt kê máy chủ được phép gửi thư thay mặt một tên miền"],
+    ["DKIM", "Chữ ký số gắn vào thư để người nhận kiểm tra thư không bị sửa trên đường đi"],
+    ["DMARC", "Chính sách cho biết xử lý thế nào khi thư không qua SPF hoặc DKIM"],
+    ["Phishing", "Thư giả mạo đánh lừa người nhận để lấy thông tin hoặc cài mã độc"],
+    ["Spear phishing", "Phishing nhắm vào một người hoặc nhóm cụ thể sau khi đã nghiên cứu về họ"],
+    ["S/MIME", "Chuẩn mã hoá và ký thư dựa trên chứng thư số"],
+    ["PGP", "Hệ thống mã hoá thư dựa trên mạng lưới tin cậy giữa những người dùng"],
+    ["Bounce", "Thư báo không gửi được do địa chỉ người nhận sai hoặc hộp thư đầy"],
+    ["Open relay", "Máy chủ thư chuyển tiếp thư cho bất kỳ ai nên dễ bị lạm dụng gửi thư rác"],
+    ["Quarantine", "Giữ thư nghi ngờ ở vùng cách ly để người quản trị xem xét"],
+  ]),
+  T("An toàn đám mây", [
+    ["IAM", "Dịch vụ quản lý ai được làm gì với tài nguyên trên đám mây"],
+    ["Shared responsibility", "Mô hình chia trách nhiệm bảo mật giữa nhà cung cấp và khách hàng"],
+    ["Bucket công khai", "Kho lưu trữ đặt nhầm quyền cho mọi người đọc, nguồn lộ dữ liệu phổ biến"],
+    ["Least privilege", "Nguyên tắc chỉ cấp đúng quyền cần thiết cho công việc"],
+    ["MFA", "Xác thực nhiều yếu tố, thêm lớp bảo vệ ngoài mật khẩu"],
+    ["VPC", "Mạng ảo riêng cô lập tài nguyên của một khách hàng trên đám mây"],
+    ["Security group", "Tập quy tắc tường lửa ảo gắn với máy ảo"],
+    ["CloudTrail", "Dịch vụ ghi lại lệnh gọi API để truy vết thay đổi"],
+    ["Secret manager", "Dịch vụ lưu mật khẩu và khoá API thay vì viết cứng trong mã nguồn"],
+    ["Zero trust", "Mô hình không mặc định tin bất kỳ ai trong mạng, luôn xác minh từng yêu cầu"],
+  ]),
+];
+export const C2_APPROVED = C2_TOPICS.flatMap(buildQuestions); // 20 câu
+
 /** 2 câu tự luận có rubric (APPROVED) cho chủ đề luyện tự luận. */
 export const ESSAYS = [
   { topic: "An toàn ứng dụng web", title: "Tự luận — SQL injection", difficulty: "MEDIUM", type: "ESSAY", stem: "Trình bày cách một cuộc tấn công SQL injection diễn ra và hai biện pháp phòng chống.", modelAnswer: "Kẻ tấn công chèn mã SQL vào dữ liệu nhập; nếu ứng dụng ghép chuỗi vào truy vấn, mã đó được thực thi. Phòng chống: truy vấn tham số hoá (prepared statement) và kiểm tra / giới hạn dữ liệu nhập; thêm quyền tối thiểu cho tài khoản CSDL.", rubric: "Mô tả cơ chế chèn mã (4đ); nêu prepared statement (3đ); nêu biện pháp thứ hai hợp lý (3đ)." },

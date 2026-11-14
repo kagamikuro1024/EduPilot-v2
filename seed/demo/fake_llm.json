@@ -2092,6 +2092,151 @@
    }
   },
   {
+   "name": "practice-generate-seed",
+   "match": [
+    "Chủ đề: Mạng máy tính cơ bản"
+   ],
+   "response": {
+    "questions": [
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Giao thức nào thiết lập kết nối trước khi truyền dữ liệu?",
+      "options": [
+       {
+        "body": "UDP",
+        "correct": false
+       },
+       {
+        "body": "TCP",
+        "correct": true
+       },
+       {
+        "body": "ICMP",
+        "correct": false
+       },
+       {
+        "body": "ARP",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Thiết bị nào chuyển khung theo địa chỉ MAC?",
+      "options": [
+       {
+        "body": "Switch",
+        "correct": true
+       },
+       {
+        "body": "Repeater",
+        "correct": false
+       },
+       {
+        "body": "Modem",
+        "correct": false
+       },
+       {
+        "body": "Antenna",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Tầng nào của OSI chịu trách nhiệm định tuyến?",
+      "options": [
+       {
+        "body": "Tầng vật lý",
+        "correct": false
+       },
+       {
+        "body": "Tầng mạng",
+        "correct": true
+       },
+       {
+        "body": "Tầng ứng dụng",
+        "correct": false
+       },
+       {
+        "body": "Tầng phiên",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Cổng mặc định của HTTPS là bao nhiêu?",
+      "options": [
+       {
+        "body": "21",
+        "correct": false
+       },
+       {
+        "body": "25",
+        "correct": false
+       },
+       {
+        "body": "443",
+        "correct": true
+       },
+       {
+        "body": "110",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "DNS dùng để làm gì?",
+      "options": [
+       {
+        "body": "Cấp địa chỉ IP",
+        "correct": false
+       },
+       {
+        "body": "Phân giải tên miền",
+        "correct": true
+       },
+       {
+        "body": "Mã hoá đường truyền",
+        "correct": false
+       },
+       {
+        "body": "Lọc thư rác",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     }
+    ]
+   }
+  },
+  {
    "name": "practice-explain",
    "match": [
     "Bạn là trợ giảng giải thích một câu trắc nghiệm cho sinh viên đang luyện tập"

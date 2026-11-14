@@ -260,7 +260,7 @@ func TestDemoFixturesValidSchemas(t *testing.T) {
 			require.NoError(t, err, r.Name)
 		}
 	}
-	require.Equal(t, 6, n)
+	require.Equal(t, 7, n) // + practice-generate-seed (dữ liệu mẫu Luyện đề, L4)
 }
 
 // P-10-8 Q29: bản ghi `practice-explain` áp cho luồng của provider giả (DEMO_MODE) và khớp lời nhắc giải thích thật.
