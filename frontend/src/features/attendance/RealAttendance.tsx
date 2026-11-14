@@ -53,7 +53,14 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
   );
 
   // MỘT PageHeader cho mọi trạng thái (TL 14.6): nút cần dữ liệu hiện nhưng khoá
-  const noData = <PageHeader title="Điểm danh" primary={{ label: "Lưu điểm danh", disabled: true, docked: true }} />;
+  const noData = (
+    <>
+      <PageHeader title="Điểm danh" primary={{ label: "Lưu điểm danh", disabled: true, docked: true }} />
+      <div className={s.saveBar} data-part="att-save-bar" data-ep-header-dock>
+        <Button variant="primary" disabled>Lưu điểm danh</Button>
+      </div>
+    </>
+  );
   if (list.isPending) return <Page kind="work">{noData}<Panel><Skeleton lines={10} /></Panel></Page>;
   if (list.isError) return <Page kind="work">{noData}<PageState query={{ isPending: false, isError: true, error: list.error, data: null, refetch: list.refetch }}>{null}</PageState></Page>;
   if (!current) {

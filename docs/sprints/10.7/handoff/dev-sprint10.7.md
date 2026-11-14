@@ -71,3 +71,15 @@
 | AC16 | `og:*` ở metadata của `/` (+ ca `landing.spec`) |
 
 Không sửa: L2/X1 của `analytics`, `observability` (mô phỏng, chỉ gọi `/api/v1/events`: không áp dụng theo TL 12.2; nối API ở sprint 11, D51). `/settings` (GV) đo lại bằng chặn API cho `busy 2 / alert 2` (hai mục Thiết bị và Mail mỗi mục một thông báo).
+
+### Đợt QC @a99a84e9 (48 lượt)
+
+| Mã | Sửa |
+|---|---|
+| D3 1440 | `DataTable` cột `nowrap` (documents «Cập nhật»), nút «Duyệt» ở grading 36 px, tên SV ở gradebook không xuống dòng |
+| D2 | ô tích hộp bấm 36 (44 ở màn nhỏ), ô nhập chat và ô sửa điểm 36 |
+| P5 / E6 | observability: dòng «hôm nay» thành mục «Hôm nay» (DefinitionList); bảng rỗng không vẽ khung bảng |
+| E2 / E6 / X1 chat | chưa có phiên → một cột (không khối rỗng thứ hai); lỗi danh sách phiên → thông báo rộng bằng cột, đặt ngoài `Split`; `.inner` ≤ 840 px |
+| X3 | practice đang tải giữ Tabs; attendance đang tải/lỗi ở 375 vẫn có thanh dính đáy (khoá) |
+| TL 14.7 | `Section fault`: lỗi thay CẢ panel của mục (Thiết bị, Thư) — rộng bằng cột |
+| P2 insights@375 +2,1 | không tái hiện ở mô phỏng (đo 2,0); lệch 0,1 px do làm tròn dưới điểm ảnh, để QC xét ngưỡng |

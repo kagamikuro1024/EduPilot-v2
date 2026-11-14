@@ -188,6 +188,7 @@ export function RealChat({ courseId }: { courseId: string }) {
     setSendError(null);
   };
 
+  const noSessions = sessions.isSuccess && items.length === 0; // chưa có phiên: một cột, không khối rỗng thứ hai trong cột phiên (E2)
   const showEmpty = !sid || (messages.isSuccess && list.length === 0 && !live);
   const hasMessages = (!!sid && list.length > 0) || !!live;
   const today = useQuery({
@@ -204,26 +205,28 @@ export function RealChat({ courseId }: { courseId: string }) {
   return (
     <Page kind="work">
       <PageHeader title="Chat riêng" secondary={hasMessages ? [{ label: "Phiên mới", onClick: () => open(null) }] : undefined} />
+      {del.node}
+      {sessions.isError && <ApiErrorNotice error={sessions.error} onRetry={() => void sessions.refetch()} />}
       <Split
         ratio="list-detail"
         fill
         detailOpen
-        listCollapsed={collapsed}
+        listCollapsed={collapsed || noSessions || sessions.isError}
         main={
           <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
             <div className={r.historyHead}>
               <p className={s.historyLabel}>Phiên trước</p>
               <IconButton label="Thu gọn lịch sử" size="sm" onClick={() => setCollapsed(true)}><PanelLeftClose aria-hidden /></IconButton>
             </div>
-            <SessionList items={items} current={sid} loading={sessions.isPending} error={sessions.isError ? sessions.error : null} onRetry={() => void sessions.refetch()} onOpen={open} onDelete={(id) => void del.run(id)} />
-            {del.node}</nav>
+            <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />
+          </nav>
         }
         aside={
           <div className={s.convo}>
 
-          <button type="button" className={`${s.sessionsBtn} ${collapsed ? r.showSessions : ""}`} data-part="chat-sessions-button" onClick={() => (wide ? setCollapsed(false) : setSheet(true))} aria-haspopup={wide ? undefined : "dialog"}>
+          {!noSessions && !sessions.isError && (<button type="button" className={`${s.sessionsBtn} ${collapsed ? r.showSessions : ""}`} data-part="chat-sessions-button" onClick={() => (wide ? setCollapsed(false) : setSheet(true))} aria-haspopup={wide ? undefined : "dialog"}>
             Phiên trước ({items.length})
-          </button>
+          </button>)}
             <div className={`${s.inner} ${showEmpty && !live ? r.empty : ""}`} data-part="chat-inner">
               <PageState
                 query={sid ? messages : undefined}
@@ -273,15 +276,14 @@ export function RealChat({ courseId }: { courseId: string }) {
       />
 
       <ChatSessionSheet open={sheet} onClose={() => setSheet(false)} onNew={hasMessages ? () => open(null) : undefined}>
-        {sheet && <SessionList items={items} current={sid} loading={sessions.isPending} error={sessions.isError ? sessions.error : null} onRetry={() => void sessions.refetch()} onOpen={open} onDelete={(id) => void del.run(id)} />}
+        {sheet && <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />}
       </ChatSessionSheet>
     </Page>
   );
 }
 
-function SessionList({ items, current, loading, error, onRetry, onOpen, onDelete }: { items: ChatSession[]; current: string | null; loading: boolean; error: Error | null; onRetry: () => void; onOpen: (id: string) => void; onDelete: (id: string) => void }) {
+function SessionList({ items, current, loading, onOpen, onDelete }: { items: ChatSession[]; current: string | null; loading: boolean; onOpen: (id: string) => void; onDelete: (id: string) => void }) {
   if (loading) return <Skeleton lines={3} />;
-  if (error) return <ApiErrorNotice error={error} onRetry={onRetry} />;
   if (items.length === 0) return <EmptyState title="Chưa có phiên nào" />;
   return (
     <ul className={r.sheetList}>

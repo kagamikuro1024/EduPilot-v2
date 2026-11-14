@@ -104,7 +104,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
 
   const cols: Column<DocRow>[] = [
     {
-      key: "title", header: "Tên", primary: true, width: "28%",
+      key: "title", header: "Tên", primary: true, width: "24%",
       render: (d) => (
         <div>
           <button type="button" className={r.name} onClick={() => setOpen(d)}>{d.title}</button>
@@ -143,7 +143,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
         </StatusText>
       ),
     },
-    { key: "updated", header: "Cập nhật", width: "11%", render: (d) => formatWhen(d.updated_at) },
+    { key: "updated", header: "Cập nhật", width: "15%", nowrap: true, render: (d) => formatWhen(d.updated_at) },
     {
       key: "more", header: <span className="ep-sr-only">Thao tác</span>, width: "4%", align: "end",
       render: (d) => {

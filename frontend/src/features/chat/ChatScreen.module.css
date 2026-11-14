@@ -1,7 +1,7 @@
 /* Chat riêng: khung hai ngăn do Split (list-detail, cao theo màn) quyết (DESIGN.md §23.3); ở đây chỉ nội dung. */
 .history { display: grid; gap: var(--ep-space-2); align-content: start; padding: var(--ep-space-4) var(--ep-space-3); }
 .convo { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: var(--ep-space-4); height: 100%; min-height: 0; padding: var(--ep-space-4) var(--ep-space-6); }
-.inner { display: grid; gap: var(--ep-space-4); min-height: 0; grid-template-rows: minmax(0, 1fr) auto; }
+.inner { width: 100%; max-width: 840px; margin-inline: auto; display: grid; gap: var(--ep-space-4); min-height: 0; grid-template-rows: minmax(0, 1fr) auto; }
 .history ul { list-style: none; margin: 0; padding: 0; display: grid; }
 .historyItem {
   display: grid;

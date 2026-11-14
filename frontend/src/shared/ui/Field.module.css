@@ -33,7 +33,12 @@
 }
 
 .check { display: inline-flex; align-items: center; gap: var(--ep-space-2); font-size: var(--ep-text-label); color: var(--ep-ink); cursor: pointer; }
-.check input { width: 16px; height: 16px; accent-color: var(--ep-red); margin: 0; }
+/* Ô tích: hộp bấm 36 × 36 (D2), ô vẽ 16 × 16 bằng ::before, dấu tích bằng ::after */
+.check input { appearance: none; -webkit-appearance: none; position: relative; flex: none; width: 36px; height: 36px; margin: 0 -10px; background: transparent; cursor: inherit; }
+.check input::before { content: ""; position: absolute; inset: 10px; border: 1px solid var(--ep-ink-3); border-radius: var(--ep-radius-xs); background: var(--ep-surface); }
+.check input:checked::before { background: var(--ep-red); border-color: var(--ep-red); }
+.check input:checked::after { content: ""; position: absolute; left: 15px; top: 11px; width: 5px; height: 10px; border: solid var(--ep-surface); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.check input:focus-visible { outline: none; box-shadow: var(--ep-focus); border-radius: var(--ep-radius-sm); }
 
 .switchRow { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ep-space-6); }
 /* Tooltip của công tắc (US-UX91-01 AC5): hiện khi rê / focus / chạm; chỉ `opacity`. */
@@ -87,7 +92,9 @@
   .field { gap: var(--ep-space-1); }
   .label { display: flex; align-items: center; min-height: 44px; min-width: 44px; }
   .check { min-height: 44px; min-width: 44px; }
-  .check input { width: 20px; height: 20px; }
+  .check input { width: 44px; height: 44px; margin: 0 -12px; }
+  .check input::before { inset: 12px; }
+  .check input:checked::after { left: 17px; top: 13px; }
   .switch { width: 44px; height: 44px; }
   .switch::before { top: 12px; left: 4px; }
   .knob { top: 14px; left: 6px; }

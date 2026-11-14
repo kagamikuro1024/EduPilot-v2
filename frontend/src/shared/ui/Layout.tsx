@@ -177,6 +177,7 @@ export function Section({
   children,
   id,
   part,
+  fault,
 }: {
   title?: ReactNode;
   action?: ReactNode;
@@ -184,6 +185,8 @@ export function Section({
   id?: string;
   /** móc đo dev: `data-part` của phần (vd. `settings-section`) */
   part?: string;
+  /** lỗi của vùng: thay CẢ panel của mục bằng một thông báo rộng bằng cột (§23.5), tiêu đề h2 giữ */
+  fault?: ReactNode;
 }) {
   return (
     <section className={s.section} id={id} data-part={part} data-ep-section aria-labelledby={title && id ? `${id}-title` : undefined}>
@@ -197,7 +200,7 @@ export function Section({
           {action && <div className={s.sectionAction}>{action}</div>}
         </div>
       )}
-      {children ? <Panel>{children}</Panel> : null}
+      {children ? <Panel fault={fault}>{children}</Panel> : null}
     </section>
   );
 }

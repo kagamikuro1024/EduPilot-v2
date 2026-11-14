@@ -42,14 +42,16 @@ function Home({ courseId }: { courseId: string }) {
   const minN = Number(minutes);
   const mockBad = !Number.isInteger(countN) || countN < MIN_COUNT || countN > 50 || !Number.isInteger(minN) || minN < 10 || minN > 180;
 
+  // Tabs giữ khi tải / lỗi (X3): nhãn như khi có dữ liệu, không số đếm
+  const noDataTabs = <Tabs label="Cách luyện" value={mode} onChange={setMode} options={[{ value: "topic", label: "Theo chủ đề", count: 0 }, { value: "mock", label: "Thi thử" }]} />;
   return (
     <Page kind="read">
       <PageHeader title="Luyện đề" secondary={[{ label: "Lịch sử luyện tập", href: "/practice/history" }]} />
       <PageState
         query={ov}
-        header={<Tabs label="Cách luyện" value={mode} onChange={setMode} options={[{ value: "topic", label: "Theo chủ đề", count: 0 }, { value: "mock", label: "Thi thử" }]} />}
+        header={noDataTabs}
         isEmpty={() => Boolean(noQuestions)}
-        loading={<Panel><Skeleton lines={6} /></Panel>}
+        loading={<>{noDataTabs}<Panel><Skeleton lines={6} /></Panel></>}
         empty={<Panel><EmptyState title="Giảng viên chưa mở câu hỏi" /></Panel>}
       >
         {open.length > 0 && (

@@ -1,7 +1,6 @@
 .loading { display: grid; gap: var(--ep-space-8); }
 
 /* Số hôm nay: một dòng chữ (US-UX91-17 AC3). */
-.today { margin: 0 0 var(--ep-space-4); font-size: var(--ep-text-label); color: var(--ep-ink-2); line-height: 1.6; font-variant-numeric: tabular-nums; }
 
 .task { display: block; font-weight: 500; }
 .sub { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.45; }

@@ -12,15 +12,6 @@ import s from "./observability.module.css";
 
 type SummaryRow = { label: string; value: string; hint?: string };
 
-/** Số "hôm nay": một dòng chữ, không dải ô số liệu cùng cỡ (US-UX91-17 AC3). Số 7 ngày nằm ở bảng bên dưới, mỗi chỉ số đúng một chỗ. */
-export function TodayLine({ items }: { items: Array<{ label: string; value: string; hint?: string }> }) {
-  return (
-    <p className={s.today} data-part="obs-today">
-      {items.map((m) => `${m.label} ${m.value}${m.hint ? ` (${m.hint})` : ""}`).join(" · ")}
-    </p>
-  );
-}
-
 type Filter = "all" | "problem" | "privacy";
 
 export function ObservabilityScreen() {
@@ -106,7 +97,11 @@ export function ObservabilityScreen() {
         }}
       >
         {isAdmin && <FailedMail />}
-        <TodayLine items={STATUS_STRIP} />
+        <Section title="Hôm nay">
+          <div data-part="obs-today">
+            <DefinitionList items={STATUS_STRIP.map((m) => ({ term: m.label, value: m.hint ? `${m.value} (${m.hint})` : m.value }))} />
+          </div>
+        </Section>
 
         {!isAdmin && (
           <Section title={`Lớp ${course.code} trong 7 ngày`}>
@@ -139,16 +134,19 @@ export function ObservabilityScreen() {
             />
           }
         >
-          <DataTable
-            caption="Yêu cầu gửi tới model, mới nhất trước"
-            columns={columns}
-            rows={rows}
-            rowKey={(r) => r.id}
-            dense
-            onRowClick={isAdmin ? (r) => setOpen(r) : undefined}
-            activeKey={open?.id}
-            empty={<EmptyState title="Không có yêu cầu khớp bộ lọc" />}
-          />
+          {rows.length === 0 ? (
+            <EmptyState title="Không có yêu cầu khớp bộ lọc" />
+          ) : (
+            <DataTable
+              caption="Yêu cầu gửi tới model, mới nhất trước"
+              columns={columns}
+              rows={rows}
+              rowKey={(r) => r.id}
+              dense
+              onRowClick={isAdmin ? (r) => setOpen(r) : undefined}
+              activeKey={open?.id}
+            />
+          )}
         </Section>
 
         {isAdmin && <DecisionTable />}

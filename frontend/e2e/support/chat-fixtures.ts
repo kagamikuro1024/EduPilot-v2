@@ -32,6 +32,7 @@ export async function chatApi(page: Page, h: Record<string, Handler | Fulfill> =
     const step = key ? h[key] : undefined;
     if (typeof step === "function") return step(route);
     if (step) return route.fulfill(step);
+    if (req.method() === "GET" && path === "/chat/sessions") return route.fulfill(json({ items: [], next_cursor: null })); // chưa có phiên: danh sách rỗng (không phải lỗi 404)
     return route.fulfill(json({ code: "NOT_FOUND", message: "m", trace_id: "b".repeat(32) }, 404));
   });
   return calls;
