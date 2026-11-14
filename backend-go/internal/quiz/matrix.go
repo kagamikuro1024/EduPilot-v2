@@ -30,7 +30,7 @@ type Cell struct {
 var diffRank = map[string]int{"EASY": 0, "MEDIUM": 1, "HARD": 2} //nolint:gochecknoglobals // bảng bất biến
 
 // BuildMatrix dựng đề theo ma trận (SRS FEAT-practice FR-2). Thuần, TẤT ĐỊNH theo `seed` (id lượt), không lặp câu. Trong mỗi ô ưu tiên câu làm sai, rồi chưa làm,
-// cuối cùng câu vừa làm đúng; hoà thì theo băm(seed, id). Thiếu câu: bù từ độ khó gần nhất cùng chủ đề, rồi chủ đề khác cùng độ khó, rồi bất kỳ; vẫn thiếu thì đề ngắn hơn
+// cuối cùng câu vừa làm đúng; hoà thì theo băm(seed, id). Thiếu câu: bù từ độ khó gần nhất cùng chủ đề, rồi chủ đề khác cùng độ khó, rồi bất kỳ (ô không có độ khó: chủ đề khác); chỉ khi cả ngân hàng hết câu mới đề ngắn hơn
 // kèm `notes`. Thứ tự trả về là thứ tự chọn (chưa xáo; xem Shuffle).
 func BuildMatrix(pool []Candidate, matrix []Cell, h History, seed uint64) (ids []string, notes []string) {
 	used := make(map[string]bool)
@@ -93,7 +93,7 @@ func BuildMatrix(pool []Candidate, matrix []Cell, h History, seed uint64) (ids [
 				need -= take(need, func(c Candidate) bool { return c.Difficulty == cell.Difficulty })
 			}
 		}
-		if need > 0 && cell.Topic == "" {
+		if need > 0 { // P-10-9: cả ngân hàng còn câu thì không cắt ngắn đề
 			need -= take(need, func(Candidate) bool { return true })
 		}
 		if need > 0 && !short[cell.Topic] {

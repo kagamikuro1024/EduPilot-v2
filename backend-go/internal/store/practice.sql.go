@@ -1191,6 +1191,23 @@ func (q *Queries) PracticeStemsOfCourse(ctx context.Context, courseID uuid.UUID)
 	return items, nil
 }
 
+const practiceTopicExists = `-- name: PracticeTopicExists :one
+select exists (select 1 from question_bank where course_id = $1 and topic = $2 and archived_at is null)
+`
+
+type PracticeTopicExistsParams struct {
+	CourseID uuid.UUID
+	Topic    string
+}
+
+// Chủ đề có trong ngân hàng của lớp (bất kể trạng thái) — phân biệt "chủ đề lạ" (422) với "có nhưng 0 câu đủ điều kiện" (409).
+func (q *Queries) PracticeTopicExists(ctx context.Context, arg PracticeTopicExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, practiceTopicExists, arg.CourseID, arg.Topic)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const practiceTopicStats = `-- name: PracticeTopicStats :many
 select (i.question ->> 'topic')::text as topic, count(*)::int as answered, (count(*) filter (where not a.is_correct))::int as wrong, max(a.answered_at)::timestamptz as last_at
 from practice_answers a

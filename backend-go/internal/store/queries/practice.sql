@@ -10,6 +10,10 @@ where q.course_id = sqlc.arg(course_id) and q.review_status = 'APPROVED' and q.a
   and not exists (select 1 from exam_items i join exams e on e.course_id = i.course_id and e.id = i.exam_id
                   where i.course_id = q.course_id and i.question_id = q.id and e.status <> 'PUBLISHED');
 
+-- name: PracticeTopicExists :one
+-- Chủ đề có trong ngân hàng của lớp (bất kể trạng thái) — phân biệt "chủ đề lạ" (422) với "có nhưng 0 câu đủ điều kiện" (409).
+select exists (select 1 from question_bank where course_id = sqlc.arg(course_id) and topic = sqlc.arg(topic) and archived_at is null);
+
 -- name: PracticeTopics :many
 select q.topic, count(*)::int as available
 from question_bank q

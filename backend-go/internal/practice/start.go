@@ -181,6 +181,13 @@ func (s *Service) build(ctx context.Context, q *store.Queries, userID, courseID 
 		return store.PracticeAttempt{}, fmt.Errorf("practice: đọc ngân hàng câu: %w", err)
 	}
 	if in.Mode == "TOPIC" && len(pool) == 0 {
+		known, err := q.PracticeTopicExists(ctx, store.PracticeTopicExistsParams{CourseID: courseID, Topic: topic})
+		if err != nil {
+			return store.PracticeAttempt{}, fmt.Errorf("practice: đọc chủ đề: %w", err)
+		}
+		if known { // Q10: chủ đề có nhưng chưa câu nào đủ điều kiện luyện
+			return store.PracticeAttempt{}, apierr.New(http.StatusConflict, apierr.NotEnoughQuestions).WithDetails(map[string]int{"available": 0})
+		}
 		return store.PracticeAttempt{}, fieldErr("topic", "UNKNOWN_TOPIC", "Chủ đề này chưa có câu hỏi.")
 	}
 	if len(pool) < MinCount {
