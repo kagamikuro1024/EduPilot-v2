@@ -56,11 +56,15 @@ def regrade(token, course, tag, limit, only=None):
         for code, it in queue(token, course, asg[bt]).items():
             if key_of(code) in set(measure_keys(bt)):
                 r = detail(token, course, it["result"]["id"])["result"]
-                out[it["id"]] = (r["round"], r["run_state"])
+                out[it["id"]] = (r["round"], r["run_state"], r["status"])
         return out
 
     before = {bt: current(bt) for bt in asg}
-    todo = [(bt, sid) for bt in asg for sid in before[bt]][: limit or None]
+    # API chấm lại chỉ nhận DRAFT / FAILED: bài đã REVIEWED / PUBLISHED trả 409 ALREADY_REVIEWED → bỏ qua và báo (v2 đo trên phần còn lại)
+    skipped = sorted(sid for bt in asg for sid, v in before[bt].items() if v[2] in ("REVIEWED", "PUBLISHED"))
+    todo = [(bt, sid) for bt in asg for sid, v in before[bt].items() if v[2] not in ("REVIEWED", "PUBLISHED")][: limit or None]
+    if skipped:
+        print(f"regrade {tag}: bỏ qua {len(skipped)} bài đã duyệt (ALREADY_REVIEWED)")
     for _, sid in todo:
         call("POST", f"/courses/{course}/submissions/{sid}/grade", token, key=f"kc-regrade-{tag}-{sid}")
     end, t0 = time.time() + 3600, time.time()
@@ -177,6 +181,62 @@ def compute(snaps, labels, order=None):
     return m, errs
 
 
+def compute_v2(snaps, labels):
+    """Vòng v2 (b2r1/b2r2 sau khi áp dụng bản lưu ý v2). Tập đo = bài BT-A KHÔNG bị REVIEWED / PUBLISHED ở b2r1 (API không chấm lại bài đã duyệt);
+    B0, B1, B2 đều tính lại trên CÙNG tập đó. Trả (metrics, errors)."""
+    errs = [f"thiếu ảnh chụp {l}" for l in ("b0r1", "b0r2", "b1r1", "b1r2", "b2r1", "b2r2") if l not in snaps]
+    if errs:
+        return {}, errs
+    la = labels["bt-a"]
+    done = lambda lab, k: next((i for i in snaps[lab] if i["bt"] == "bt-a" and i["key"] == k), None)
+    keys = sorted(k for k in la if all(done(l, k) for l in snaps if l != "bt-b-after") and done("b2r1", k)["status"] not in ("REVIEWED", "PUBLISHED"))
+    dropped = sorted(set(la) - set(keys))
+    for lab in ("b2r1", "b2r2"):
+        for k in keys:
+            i = done(lab, k)
+            if i["run_state"] != "DONE" or len(i["ai_scores"]) != 4 or any(c["score"] is None for c in i["ai_scores"]):
+                errs.append(f"{lab}: {k} chưa chấm xong (run_state={i['run_state']})")
+            if i["guidance_version"] <= done("b1r2", k)["guidance_version"]:
+                errs.append(f"{lab}: {k} guidance_version {i['guidance_version']} không cao hơn v1 ({done('b1r2', k)['guidance_version']})")
+    if errs or not keys:
+        return {}, errs or ["không còn bài nào để đo"]
+    sub = {k: la[k] for k in keys}
+    ai = {lab: {k: scores(done(lab, k), "ai_scores") for k in keys} for lab in ("b0r1", "b0r2", "b1r1", "b1r2", "b2r1", "b2r2")}
+    ag = {lab: aggregate(ai[lab], sub) for lab in ai}
+    mean2 = lambda x, y, f: mean([x[f], y[f]])
+    side = lambda a, b: {f: mean2(ag[a], ag[b], f) for f in ("mae_criterion", "mae_total", "bias_total")}
+    s0, s1, s2 = side("b0r1", "b0r2"), side("b1r1", "b1r2"), side("b2r1", "b2r2")
+    eps = max(abs(ag["b0r1"]["mae_total"] - ag["b0r2"]["mae_total"]), abs(ag["b2r1"]["mae_total"] - ag["b2r2"]["mae_total"]))
+    m0, m1, m2 = avg(ai["b0r1"], ai["b0r2"]), avg(ai["b1r1"], ai["b1r2"]), avg(ai["b2r1"], ai["b2r2"])
+    fix = lambda mm: sum(1 for k in sub for j in range(4) if abs(mm[k][j] - sub[k][j]) >= HALF)
+    return {"n": len(keys), "excluded": dropped, "b0": s0, "b1": s1, "b2": s2, "epsilon": eps, "fix_b0": fix(m0), "fix_b1": fix(m1), "fix_b2": fix(m2), "fix_total": len(keys) * 4,
+            "checks": {"V2_not_worse_than_v1": s2["mae_total"] <= s1["mae_total"] + eps, "V2_better_than_v0": s2["mae_total"] < s0["mae_total"]}}, errs
+
+
+def md_v2(m, errs):
+    if not m:
+        return "# KC106 vòng v2 — HARNESS LỖI\n\n" + "\n".join(f"- {e}" for e in errs) + "\n"
+    row = lambda n, x, f: f"| {n} | {x['mae_total']:.3f} | {x['mae_criterion']:.3f} | {x['bias_total']:+.3f} | {f}/{m['fix_total']} |"
+    return "\n".join([f"# KC106 vòng v2 — BT-A đo, n = {m['n']} bài", "",
+                      f"Tập đo bỏ {len(m['excluded'])} bài đã duyệt ({', '.join(m['excluded'])}); B0, B1, B2 tính lại trên cùng {m['n']} bài." if m["excluded"] else "Đủ tập đo.", "",
+                      "| Bản | MAE tổng | MAE tiêu chí | Lệch TB | Tiêu chí phải sửa (|Δ| ≥ 0,5) |", "| --- | --- | --- | --- | --- |",
+                      row("B0 (v0)", m["b0"], m["fix_b0"]), row("B1 (v1)", m["b1"], m["fix_b1"]), row("B2 (v2)", m["b2"], m["fix_b2"]), "",
+                      f"Nền nhiễu ε = {m['epsilon']:.3f}.", f"Kiểm: {m['checks']}", ""])
+
+
+def report_v2(d):
+    d = Path(d)
+    labels = read_labels(d / "labels.csv")
+    snaps = {p.stem.removeprefix("drafts-"): json.loads(p.read_text())["items"] for p in d.glob("drafts-*.json")}
+    m, errs = compute_v2(snaps, labels)
+    (d / "metrics-v2.json").write_text(json.dumps(jsonable({"errors": errs, **m}), ensure_ascii=False, indent=2) + "\n")
+    (d / "report-v2.md").write_text(md_v2(m, errs), encoding="utf8")
+    print(md_v2(m, errs))
+    for e in errs:
+        print("  -", e, file=sys.stderr)
+    return 0 if m and not errs else 1
+
+
 # ---- đọc / ghi ---------------------------------------------------------------------------------------------------------
 def read_labels(path):
     out = {"bt-a": {}, "bt-b": {}}
@@ -276,12 +336,22 @@ def selftest():
     snaps["b0r2"][-1]["guidance_version"] = 1
     assert any("rò sang bài đối chứng" in e for e in compute(snaps, lab)[1]), "phải bắt rò sang BT-B"
     svg(m), md(m, [])
+    # v2: bài đã REVIEWED ở b2r1 bị bỏ khỏi tập đo; B0/B1/B2 tính trên cùng tập
+    a2 = {"kc021": ["2.00", "2.00", "1.50", "2.00"], "kc022": ["1.00", "1.00", "1.00", "1.00"]}
+    mk2 = lambda gv, rnd, st22="DRAFT": [dict(item("bt-a", k, v, gv, rnd), status=("REVIEWED" if k == "kc021" and gv == 2 else st22)) for k, v in a2.items()] + [item("bt-b", "kc001", ["2.00"] * 4)]
+    s2 = dict(snaps, b2r1=mk2(2, 5), b2r2=mk2(2, 6))
+    m2, e2 = compute_v2(s2, lab)
+    assert not e2 and m2["n"] == 1 and m2["excluded"] == ["kc021"], (m2, e2)
+    assert m2["b0"]["mae_total"] == D(1) and m2["b2"]["mae_total"] == D(0) and m2["checks"]["V2_better_than_v0"], m2
+    s2["b2r1"] = mk2(1, 5)
+    assert any("không cao hơn v1" in e for e in compute_v2(s2, lab)[1]), "phải bắt v2 chưa áp dụng"
+    md_v2(m2, [])
     print("selftest ok")
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("cmd", choices=["snap", "regrade", "report", "selftest"])
+    ap.add_argument("cmd", choices=["snap", "regrade", "report", "report-v2", "selftest"])
     ap.add_argument("label", nargs="?")
     ap.add_argument("--dir")
     ap.add_argument("--limit", type=int, default=0)
@@ -291,6 +361,8 @@ def main():
         return selftest()
     if a.cmd == "report":
         sys.exit(report(a.dir or die("--dir")))
+    if a.cmd == "report-v2":
+        sys.exit(report_v2(a.dir or die("--dir")))
     if not a.label:
         die("thiếu nhãn")
     token, _ = login("teacher")
