@@ -1,54 +1,47 @@
 # QC sprint 10.7 (UI-R) — kết luận
 
-Nhánh `sprint/10.7-ui-r`, HEAD kiểm `1935435a` (dev xong lô 3–9). Stack `ep-qc`: chỉ rebuild frontend (env QC: `NEXT_PUBLIC_API_URL=http://localhost:580`), DB giữ nguyên. Chỉ đọc, không sửa mã dev.
+Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, kể cả `/settings` sinh viên). Stack `ep-qc`: chỉ rebuild frontend (env QC: `NEXT_PUBLIC_API_URL=http://localhost:580`), DB giữ nguyên. Chỉ đọc, không sửa mã dev.
 
-**Kết luận chung: KHÔNG ĐẠT mục tiêu «0 lệch».** Phần đạt: các hợp đồng cứng về khung (W1–W3, W5, H1–H2, H4–H5, P1, P3–P4, E1–E4, L3, X2, T1, C3 = 0 lệch trên mọi route × vai × 1440/375 × 4 trạng thái), thanh dính đáy P-107-14, trang giới thiệu (trừ AC16 `og:`), `ui-antipatterns.sh`. Phần chưa đạt: 15 mã đo còn lệch (bảng 2), trong đó `K1/K2/K4` còn P2, H3, H6, E5–E7; nhịp hàng bảng D3 lệch ở 18 route.
+**Kết luận: CHƯA đạt «0 lệch», còn 48 lượt ở 9 mã đo (trước đó 191 lượt, 15 mã).** Đã đạt 0 lệch: H3, H6, H7, E5, E7 (3 route lệch thật đã sửa), D1, T2 và toàn bộ nhóm cứng W, H1–H5, H8, P1, P3, P4, E1–E4, L1, L3, X2, T1, C3. Trang giới thiệu: mọi AC đo được đều đạt. P-107-14 đạt.
 
 ## 1. Verdict
 
 | Hạng mục | Verdict | Căn cứ |
 | --- | --- | --- |
-| Hợp đồng khung §23 — K1 (kiểu trang, độ rộng, panel) | **FAIL (Thấp)** | W1–W3, P1, P3 = 0. P2 (panel cao hơn nội dung) lệch 6 route |
-| K2 (đầu trang) | **FAIL (Thấp)** | H1, H2, H4, H5, W4 = 0. H3 3 route (meta lặp lớp), H6 4 route |
+| Hợp đồng khung §23 — K1 (kiểu trang, độ rộng, panel) | **FAIL (Thấp)** | W1–W3, P1, P3 = 0. P2 còn 2 lượt: `/insights` ở 375 dư +2,1 px (GV, TA) |
+| K2 (đầu trang) | **PASS** | W4, H1–H7 = 0 |
 | K3 (tiêu đề mục) | **PASS** | P4 = 0 |
-| K4 / K5 (trạng thái rỗng, nút trùng) | **FAIL (Thấp)** | E1–E4 = 0, E5 1 route, E6 3 route, E7 1 route lệch thật (xem 2) |
+| K4 / K5 (trạng thái rỗng, nút trùng) | **FAIL (Thấp)** | E1, E3–E5 = 0, E7 = 0. E2 (`student/chat` rỗng lệch tâm −397 px / −187 px) và E6 (3 route) còn lệch |
 | K6 (375 px) | **PASS** | W5 = 0, 0 tràn ngang, H8 = 0 |
-| Chuẩn đo mới (H7, D1–D3, T2, P5) | **FAIL (Thấp)** | D3 18 route, D2 4, D1 2, H7 3, P5 1, T2 1 nhãn tĩnh (xem 2) |
-| Đang tải / lỗi (L1–L3, X1–X3) | **FAIL (Thấp)** | L1 = 0, L3 = 0, X2 = 0. L2 3 route, X1 4 route, X3 7 route |
-| Lô 1 đo lại sau `ff19b6cb` (`/insights`, `/questions`, `/inbox`) | **PASS có lệch nhỏ** | `/inbox` 0 lệch. 34 lượt `audit-lo1` → còn `/insights` P2 +2,1 px ở 375; `/questions` D3 (hàng 48/59/62), X3 |
-| Lỗi dữ liệu `/insights` hiện báo cáo lớp khác | **PASS** | Lớp QCEMPTY: «Chưa có báo cáo», không số liệu 761987 (`audit/sau/teacher-empty-_insights-1440.jpg`) |
-| **P-107-14** thanh dính đáy 375 (`/attendance`, `/grading/[id]`) | **PASS** | xem 3 |
-| **US-UX91-08** trang giới thiệu v2, AC1–24 | **FAIL (Thấp)** | 1 AC lệch (AC16 thiếu `og:`), xem 4 |
-| Bộ màu ĐHBK (P-107-8/10) | **Chưa kiểm hết** | C3 (vàng ≤ 3 nền, 0 chữ) = 0 trên mọi lượt; `contrast.spec.ts` QC không chạy lại (dev báo xanh ở CI) |
-| `ui-antipatterns.sh` | **PASS** | exit 0; `--selftest` 31/31; `scripts/ui-frame-debt.txt` chỉ còn dòng chú thích |
+| Chuẩn đo mới (D1–D3, P5) | **FAIL (Thấp)** | D1 = 0. D3 còn 12 lượt (6 route), D2 11 lượt (4 route), P5 2 lượt (`admin/observability`) |
+| Đang tải / lỗi (L1–L3, X1–X3) | **FAIL (Thấp)** | L1, L3, X2 = 0. L2 4 lượt, X1 8 lượt, X3 4 lượt |
+| Lô 1 đo lại (`/insights`, `/questions`, `/inbox`) | **PASS có lệch nhỏ** | `/inbox`, `/questions` 0 lệch. Còn `/insights` ở 375 (P2 +2,1 px). `/insights` ở lớp rỗng: «Chưa có báo cáo», không số liệu lớp khác |
+| Lỗi dữ liệu mô phỏng ở lớp rỗng | **PASS** | `/analytics` ở QCEMPTY: «Chưa có số liệu» (trước đó hiện số liệu lớp 761987) |
+| `/settings` sinh viên khi lỗi API (TL 14.7) | **PASS** | 3 mục: «Mật khẩu» dùng được (ô nhập, nút hiện mật khẩu), «Thiết bị đang đăng nhập» 1 alert, «Thư» 1 alert; «Nhắc 24 giờ» và «Thời gian học» không vẽ gì, không nút/ô nào dùng được trên dữ liệu chưa tải; tổng 2 alert ≤ 4 GET hỏng khác nhau |
+| **P-107-14** thanh dính đáy 375 | **PASS** | xem 3. Riêng `/attendance` đang tải / lỗi ở 375: dock mất (X3, xem 2) |
+| **US-UX91-08** trang giới thiệu v2, AC1–24 | **PASS** (đo được) | xem 4; AC18, AC20, AC21 thuộc e2e dev, QC không chạy lại |
+| Bộ màu ĐHBK (P-107-8/10) | **Chưa kiểm hết** | C3 = 0 trên mọi lượt; `contrast.spec.ts` QC không chạy lại (dev báo xanh ở CI) |
+| `ui-antipatterns.sh` | **PASS** | exit 0 (HEAD trước), `--selftest` 31/31, `scripts/ui-frame-debt.txt` chỉ còn dòng chú thích |
 
-## 2. Lệch còn lại (191 lượt trong `audit.md`; bảng gom theo mã và route)
+## 2. Lệch còn lại (48 lượt trong `audit.md`)
 
-Phân loại: **Thật** = dev sửa. **Quyết** = cần TL / PM quyết (QC đề xuất). **Không áp dụng** = đo trên dữ liệu hoặc màn mô phỏng, đã loại khỏi kết luận.
-
-| Mã | Lệch | Route (vai × 1440/375) | Loại | Ghi chú |
+| Mã | Lệch | Route | Loại | Ghi chú |
 | --- | --- | --- | --- | --- |
-| D3 hàng bảng 48|44 | 29 | `students`, `gradebook`, `grading`, `questions`, `documents`, `class/members`, `attendance`, `observability` (GV, TA), `admin/courses`, `admin/users` | **Thật** | Hàng thực đo 49–62 px (375: 81–106). `DataTable` không được chỉnh ở lô nào; tiêu chí D3 có trong `techlead.md` 1.2 |
+| D3 hàng bảng 48\|44 (±1) | 12 | `grading` 53; `documents` 57; `gradebook` 65 (GV, TA); ở 375: `students` 70/92, `gradebook` 65/83/84, `admin/observability` 62/80/81 | **Thật** | Đã bỏ hàng đệm của bảng ảo (≥ 200 px) và nới ±1 theo TL 1.2; ở 1440 `students`, `attendance` nay đạt (48/49) |
 | D2 cao điều khiển | 11 | `student/chat` ô nhập 32; `teacher/gradebook` 32; `class/settings` 16 (GV, TA) | **Thật** | |
-| D1 cỡ chữ | 8 | `class/settings` 52 px (1440), 32,2 px (375) | **Thật** | |
-| H7 chiều cao đầu trang | 12 | `student/practice/history` (72/80 so 36), `gradebook/scheme` (102–110 so 63) | **Thật** | Sau khi đổi khoá gom theo TL 12.1 |
-| P2 panel cao hơn nội dung | 13 | `student/me` +17, `analytics` +17 (GV, TA), `insights` +2,1 ở 375, `admin/observability` +2,1 | **Thật** | |
-| H3 meta lặp lớp | 12 | `analytics` (GV, TA), `observability` (GV) | **Thật** | Meta chứa «QC lớp rỗng · QCEMPTY» |
-| H6 nút primary ngoài đầu trang | 14 | `student/practice/history` rỗng «Luyện đề»; `/` GV, TA nút «Mở» ở hàng việc; `student/chat` «Gửi» | **Thật** (`practice`); **Quyết** (`Mở`, `Gửi`) | QC đề xuất miễn: nút gửi của ô nhập và nút hành động của `ActionList` |
-| E5 nút rỗng secondary | 2 | `student/practice/history` | **Thật** | Cùng nguyên nhân H6 |
-| E6 vật chứa rỗng ≤ 320 | 3 | `documents` rỗng 454 px (GV, TA); `admin/observability` 377 | **Thật** | |
-| E7 rỗng tự dựng | 36 | 18 route | **Thật** ×1 (`student/` «Hôm nay bạn không có việc gấp.» là dòng chữ tự dựng); **Không áp dụng** ×17 | Lớp QCEMPTY vẫn có 3 thành viên nên `students`, `class/members` có dữ liệu; `settings`, `class/settings`, `settings/*`, `analytics`, `observability` không có khái niệm rỗng |
-| P5 nhịp dọc | 2 | `admin/observability` (mục→mục 60,8 và 127,9 so 48) | **Thật** | |
-| L2 khung xương | 6 | `settings`, `analytics`, `observability` (GV) | **Thật** | Các route này có gọi `/api/v1` nhưng không vẽ `aria-busy` |
-| X1 khối lỗi | 8 | `settings`, `analytics`, `observability` (GV), `student/chat` | **Thật** | `alert×0` khi API trả 500 |
-| X3 khung khi lỗi | 13 | `students`, `attendance`, `gradebook`, `gradebook/scheme`, `questions` (đầu trang thấp hơn do mất `meta`), `class/members` (tab mất số đếm), `student/practice` (mất tab) | **Thật** ×1 (`practice`), **Quyết** ×6 | QC đề xuất: không tính chênh vì `meta` / số đếm lấy từ dữ liệu |
-| T2 câu lặp ≥ 3 lần | 22 | `documents` «Không dùng cho AI của sinh viên» ×4 | **Thật** ×1 | Còn lại là dữ liệu thật (IP phiên, tên bài tập ×6 ở hàng chờ chấm): **Không áp dụng** — đề xuất T2 chỉ đếm chuỗi tĩnh |
+| P2 | 2 | `insights` @375 (GV, TA) +2,1 px | **Thật** | |
+| P5 | 2 | `admin/observability`: mục→mục 60,8 (1440) và 127,9 (375) so với 48 | **Thật** | |
+| E2 | 2 | `student/chat` rỗng: khối rỗng lệch tâm −397,5 / −187,5 | **Thật** | Khối rỗng đã có `data-ep-empty` nhưng nằm trong cột trái của `Split` |
+| E6 | 3 | `admin/observability` 377; `student/chat` rỗng 654; `teacher/observability` rỗng 341 | **Thật** | |
+| L2 khung xương | 4 | `teacher/analytics`, `teacher/observability` (1440, 375) | **Thật** | Có gọi API (2 GET) nhưng không vẽ `aria-busy` |
+| X1 khối lỗi | 8 | `teacher/analytics`, `teacher/observability`: alert×0; `student/chat`: rộng 355 (1440) / 0 (375) so với cột; `teacher/settings`: 2 alert hợp lệ (TL 14.7) nhưng rộng 750 / 317 so với cột 800 / 351 | **Thật** (`analytics`, `observability`, `chat`); **Quyết** (`settings`) | `settings`: mỗi alert nằm trong đệm của panel nên hẹp hơn cột 50 / 34 px; TL 14.7 ghi alert «thay chỗ panel, rộng = cột» → QC tính lệch, đề nghị TL xác nhận |
+| X3 | 4 | `student/practice` đang tải mất tab (1440, 375); `teacher/attendance` đang tải và lỗi ở 375 mất thanh dính đáy | **Thật** | TL 14.6: dock 375 vẫn hiện, disabled |
 
-**Lỗi dữ liệu ghi thêm (Trung):** `/analytics` ở lớp `QCEMPTY` vẫn hiện số liệu của lớp 761987 («392 câu hỏi trong 7 ngày…», biểu đồ). Cùng loại lỗi đã sửa ở `/insights` (màn mô phỏng, dev đã ghi nợ sprint 11). `/observability` cần kiểm cùng cách.
+**Chưa đo (TL 14.3):** E7 ở `students` (lớp QCEMPTY vẫn có 1 sinh viên) cho GV, TA; `analytics` (màn mô phỏng, nợ sprint 11).
 
-`audit.html` (lưới ảnh) và `audit-truoc.*` (trước) so được từng màn; ảnh sau ở `audit/sau/`.
+`audit.html` (lưới ảnh) và `audit-truoc.*` (trước) so được từng màn; ảnh sau ở `audit/sau/`. Cách đo đã chỉnh theo TL (ghi trong script): H7 gom theo (độ rộng, cao h1, dòng meta, hàng nút, hàng quay lại) (12.1, 14.5); H6 bỏ nút trong dock, trong form, trong `data-ep-action-list` (P-107-14, 14.1); X3 giữ h1, nhãn tab, kiểu trang và nút (số, kiểu, thứ tự), đo cả lúc đang tải (14.2, 14.6); X1 ≤ 1 alert mỗi mục, trang không mục đúng 1, tổng ≤ số GET hỏng khác nhau (14.7); E7 3 thật / 4 chưa đo / 11 không áp dụng (14.3); T2 chỉ chuỗi tĩnh (14.4); L/X bỏ qua màn không phát yêu cầu `/api/v1`. Cách chặn API khi đo lỗi / đang tải: chỉ giữ `/api/v1/auth/*`, `/api/v1/me`, `/api/v1/me/courses` (bản đầu giữ cả `/me/*` nên `/settings` không bao giờ vào lỗi: QC đã sửa, tái hiện ở `repro-settings-x1.md`).
 
-## 3. P-107-14 thanh dính đáy (`shots/dock-log.txt`)
+## 3. P-107-14 thanh dính đáy (`shots/dock-log.txt`, `shots/misc-log.txt`)
 
 | Kiểm | `/attendance` 375 | `/grading/[id]` 375 |
 | --- | --- | --- |
@@ -69,29 +62,27 @@ Phân loại: **Thật** = dev sửa. **Quyết** = cần TL / PM quyết (QC đ
 | 3 | PASS | `role=img` + `aria-label` mô tả; 0 `img`/`video`/nền ảnh trong màn đầu |
 | 4 | PASS | nút Tạm dừng 32×32, `aria-pressed` đổi, nhớ sau tải lại |
 | 5 | PASS | 0 yêu cầu video trước khi bấm; mở `<dialog>`, focus vào hộp, `Esc` đóng, focus về nút, `preload=none`, bỏ nguồn khi đóng, `#video-loi` có |
-| 6 | PASS | khung `sticky`; ba tên màn; ảnh rộng 1278–1304 px; ảnh đổi theo cuộn (ảnh 0 → 1 → 2) |
+| 6 | PASS | khung `sticky`; ba tên màn; ảnh rộng 1278–1304 px; ảnh đổi theo cuộn |
 | 7 | PASS | 1024 px và 390 px: 0 `sticky`, ảnh đều hiện |
-| 8 | PASS | ba tên bước hiện sau cuộn (opacity 1). Chưa đo sợi chỉ 1 s, nhịp 500 ms |
-| 9 | PASS | ba số đo nguyên văn nguồn (câu 1 có «recall 0,960 trên 200 mẫu tự soạn» viết hoa chữ đầu vì đầu câu); số 146 đếm (giữa chừng 91, cuối 146); số lớn 36 px (≤ 40) |
+| 8 | PASS | ba tên bước hiện sau cuộn. Chưa đo sợi chỉ 1 s, nhịp 500 ms |
+| 9 | PASS | ba số đo nguyên văn nguồn (so không phân biệt hoa thường; «Bộ phát hiện…» viết hoa đầu câu); số 146 đếm (giữa chừng 91, cuối 146); số lớn 36 px (≤ 40) |
 | 10 | PASS | hai tab, mũi tên đổi tab, ảnh vai đổi; 390: ảnh vai nằm dưới danh sách |
-| 11 | PASS | `h1` 72/38 px, `h2` 48/30 px; chữ ngoài khung minh hoạ ≥ 16 px. Chữ < 16 px chỉ nằm trong ảnh minh hoạ giao diện (13–15 px) |
+| 11 | PASS | `h1` 72/38 px, `h2` 48/30 px; chữ thân ≥ 16 px (chữ 13–15 px chỉ nằm trong ảnh minh hoạ giao diện) |
 | 12 | PASS | rê: nhích −1 px; bấm: `scale(0.985)` + lún 1 px |
-| 13 | **PASS có ghi chú** | LCP là chữ (`span` trong `h1`, 88 ms ở 1440; ở 390 là đoạn dẫn, 100 ms). AC ghi LCP là `h1` ở cả hai độ rộng; ở 390 LCP là đoạn dẫn như số đo của TL ở mẫu. JS 194,9 KB gz (≤ 256) |
+| 13 | PASS có ghi chú | LCP là chữ của `h1` ở 1440 (28–88 ms); ở 390 `perf.mjs` báo đoạn dẫn (100 ms). JS 194,9 KB gz (≤ 256). Chưa đo Lighthouse 4G |
 | 14 | PASS | `reduce`: 0 `m-on`, 0 animation chạy, 0 `sticky`, số 146 hiện ngay |
-| 15 | PASS | không script: 4 phần tử opacity 0 đều là trạng thái cuối của đoạn sản phẩm (7,5 thay 8,5; Nháp thay Duyệt); không khối chữ nào bị ẩn |
-| 16 | **FAIL (Thấp)** | axe 0 serious/critical ở 1440 và 390; liên kết chân trang ≥ 44 px; **`/` không có thẻ `og:*`** (chỉ có `description`) |
+| 15 | PASS | không script: không khối chữ nào bị ẩn (trừ trạng thái cuối của đoạn sản phẩm: 7,5 → 8,5, Nháp → Duyệt) |
+| 16 | PASS | axe 0 serious/critical ở 1440 và 390; liên kết chân trang ≥ 44 px; có 9 thẻ `og:*` |
 | 17 | PASS | không `@edupilot.local` / `Edupilot#`; có dòng dữ liệu mô phỏng, tên tác giả, liên kết GitHub |
-| 18, 20 | Không chạy | dev có e2e (`landing.spec.ts`); QC không chạy lại |
+| 18, 20, 21 | Không chạy | thuộc e2e dev (`landing.spec.ts`, ảnh mốc) |
 | 19 | PASS | 0 lỗi console |
-| 21 | Không chạy | thuộc dev (`landing.spec.ts`, ảnh mốc) |
 | 22 | PASS | màn đầu có đúng một dữ kiện cứng, nguyên văn nguồn (số 146); không «1.000 sinh viên» |
-| 23 | **PASS** | `copy-lint` 0 FAIL. `consistency.mjs` 11 FAIL (1440: 8; 390: 3) đều nằm trong danh sách miễn trừ của AC23: `scroll-reveal` ×6, `scroll-linked` ×1, `section-air` ×2, `empty-area` ×1, `copy-headings` ×1. `perf.mjs` 2 FAIL = «8 tệp phông» (miễn trừ) |
-| 24 | PASS | (1) mục số đo có ảnh Sổ điểm ở 1440 và 390, khoảng trống liền ở 390 là 347 px (≤ 844); (2) ảnh vai dưới danh sách ở 390; (3) số lớn 36/24 px; (4) 0 `container-edges`; (5) `srcset` chọn 640 ở 390. `perf.mjs` còn 1 WARN «ảnh dư cỡ» ở 390 (`story-gradebook-1280` cho 340 px, đo ở DPR của công cụ) |
+| 23 | PASS | `copy-lint` 0 FAIL. `consistency.mjs` 11 FAIL (1440: 8; 390: 3) đều nằm trong danh sách miễn trừ của AC23: `scroll-reveal` ×6, `scroll-linked` ×1, `section-air` ×2, `empty-area` ×1, `copy-headings` ×1. `perf.mjs` 2 FAIL = «8 tệp phông» (miễn trừ). Số liệu từ lượt chạy ở HEAD `1935435a`, chưa chạy lại ở HEAD mới |
+| 24 | PASS | (1) mục số đo có ảnh Sổ điểm ở 1440 và 390, khoảng trống liền ở 390 là 347 px (≤ 844); (2) ảnh vai dưới danh sách ở 390; (3) số lớn 36/24 px; (4) 0 `container-edges`; (5) `srcset` chọn 640 ở 390 |
 
 ## 5. Phương pháp và phạm vi
 
 - Audit `sau`: 4 vai (admin, giảng viên, trợ giảng, sinh viên) × mọi route × 1440 / 375 × 4 trạng thái (có dữ liệu lớp 761987; rỗng lớp `QCEMPTY`; đang tải bằng chặn API 5 s; lỗi bằng 500). 310 lượt chụp, 0 lượt lỗi chạy. Script: `frontend/e2e/qc-ui-audit-real.spec.ts`, `scripts/audit_report.py`.
-- Chỉnh cách đo theo TL / PM (đã ghi trong script): H7 gom theo (độ rộng, cao `h1`, dòng meta, có hàng nút) (TL 12.1); nút trong `data-ep-header-dock` không tính H6 (P-107-14); màn không phát yêu cầu `/api/v1` khi bị chặn (mô phỏng) bỏ qua L/X (TL 12.2).
-- `landing`: `qc-landing-real.spec.ts` (đo DOM ẩn danh), `copy-lint`, `perf --runs 3`, `consistency` 1440 + 390 trên `http://localhost:580/`.
-- Chưa kiểm: `contrast.spec.ts` / `panels.spec.ts` / `frame.spec.ts` / `landing.spec.ts` của dev (chạy ở CI dev); tương phản chữ–nền theo bộ màu; Lighthouse 4G thật cho LCP; số liệu hành vi cuộn `IntersectionObserver` (AC8 sợi chỉ, AC15 độ trễ 1,5 s); ảnh mốc `visual.spec` (dev sinh trên CI).
-- Dọn: stack `ep-qc` đang chạy (frontend `1935435a`, env QC).
+- Landing: `qc-landing-real.spec.ts` (đo DOM ẩn danh), `copy-lint`, `perf --runs 3`, `consistency` 1440 + 390 (HEAD `1935435a`). Dock: `qc-dock-real.spec.ts`. `/settings` sinh viên: `qc-settings-sv-real.spec.ts`.
+- Chưa kiểm: `contrast.spec.ts` / `panels.spec.ts` / `frame.spec.ts` / `landing.spec.ts` của dev (CI của dev); tương phản chữ–nền theo bộ màu; Lighthouse 4G thật; `IntersectionObserver` (AC8 sợi chỉ, AC15 độ trễ 1,5 s); ảnh mốc `visual.spec` (dev sinh trên CI); `ui-antipatterns.sh` chưa chạy lại ở `a99a84e9`.
+- Dọn: stack `ep-qc` đang chạy (frontend `a99a84e9`, env QC).

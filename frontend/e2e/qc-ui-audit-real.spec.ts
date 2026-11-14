@@ -132,7 +132,7 @@ async function probe(page: Page) {
       header: { h1Count: h1s.length, h1InHeader: !!hdr && !!hdr.querySelector("h1"), pTags: hdrKids, h1: h1r, h1x: h1r?.x ?? null, hdrH: hr?.h ?? null, hasBack, hasMeta: !!meta, metaText, metaLines: meta ? Math.max(1, Math.round(R(meta).h / lh(meta))) : 0,
         metaDupClass: !!meta && classTokens.some((t) => metaText.includes(t) && topbar.includes(t)),
         dy: h1r && ar ? +((ar.y + ar.h / 2) - (h1r.y + h1r.h / 2)).toFixed(1) : null, actionsRight: ar && ar.w > 0 && col ? +(col.r - ar.r).toFixed(1) : null, actionsH: ar?.h ?? null, btns: hbtns.map((b) => ({ t: txt(b) || b.getAttribute("aria-label") || "", v: variantOf(b) })) },
-      primaryTotal: primOut.length + hbtns.filter((b) => variantOf(b) === "primary").length, primaryOutside: primOut.map(txt), dock: Array.from(document.querySelectorAll("[data-ep-header-dock]")).filter(vis).length, formPrim, alPrim, alCount,
+      primaryTotal: primOut.length + hbtns.filter((b) => variantOf(b) === "primary").length, alertSecMax: Math.max(0, ...Array.from(main.querySelectorAll("[data-ep-section]")).map((x) => x.querySelectorAll("[role=alert]").length)), primaryOutside: primOut.map(txt), dock: Array.from(document.querySelectorAll("[data-ep-header-dock]")).filter(vis).length, formPrim, alPrim, alCount,
       sections: sections.length, h2: h2s.length, h2NoHook: h2s.filter((h) => !h.hasAttribute("data-ep-section-title")).length, sectionP: main.querySelectorAll("[data-ep-section-head] p").length,
       secGaps, headToPanel, hdrToBody, tabs, toolbarBtns,
       empties, dupEmpty, alerts, alertCount: main.querySelectorAll("[role=alert]").length, busy: main.querySelectorAll("[aria-busy=true]").length,
@@ -193,11 +193,12 @@ if (STATE === "data" || STATE === "empty") {
         test.setTimeout(900_000);
         const { ctx, page } = await login(browser, role, w, h);
         let mode: "pass" | "loading" | "error" = "pass";
+        const failPaths = new Set<string>();
         let apiHits = 0; // yêu cầu /api/v1 bị chặn khi đang tải / lỗi; 0 = màn mô phỏng (TL 12.2: L/X không áp dụng)
         await page.route("**/api/v1/**", async (route) => {
           const p = new URL(route.request().url()).pathname;
-          if (mode === "pass" || p.startsWith("/api/v1/auth/") || p === "/api/v1/me" || p.startsWith("/api/v1/me/")) return route.continue();
-          apiHits++;
+          if (mode === "pass" || p.startsWith("/api/v1/auth/") || p === "/api/v1/me" || p === "/api/v1/me/courses") return route.continue();
+          apiHits++; if (route.request().method() === "GET") failPaths.add(p);
           if (mode === "error") return route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "Lỗi máy chủ." }) });
           await new Promise((r) => setTimeout(r, 5000));
           return route.continue();
@@ -206,10 +207,10 @@ if (STATE === "data" || STATE === "empty") {
           let rec: Record<string, unknown> = { role, state: STATE, w, route };
           try {
             mode = "pass"; await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" }); await page.waitForTimeout(800);
-            mode = STATE as "loading" | "error"; apiHits = 0;
+            mode = STATE as "loading" | "error"; apiHits = 0; failPaths.clear();
             await page.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" });
             await page.waitForTimeout(STATE === "loading" ? 800 : 2000);
-            rec = { ...rec, apiHits, ...(await probe(page)) };
+            rec = { ...rec, apiHits, apiPaths: failPaths.size, ...(await probe(page)) };
             await shoot(page, rec, route, w);
           } catch (e) { rec.err = String(e).slice(0, 160); }
           appendFileSync(LOG, JSON.stringify(rec) + "\n");

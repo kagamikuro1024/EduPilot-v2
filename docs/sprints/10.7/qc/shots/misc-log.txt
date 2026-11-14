@@ -1,0 +1,45 @@
+QCINFO attendance@375 {"dock":true,"pos":"fixed","bottomGap":56,"navH":57,"h":61,"dockBtn":[{"t":"Lưu điểm danh · 30 có mặ","h":44,"w":343}],"headerPrimary":[],"lastTextBottom":2329,"docH":2696,"vh":812,"overflowX":false}
+QCAC P14-att375-dock PASS dock=true; nút chính trong dock=[{"t":"Lưu điểm danh · 30 có mặ","h":44,"w":343}]; nút primary ở đầu trang=[]
+QCAC P14-att375-sticky PASS position=fixed; cách đáy khung nhìn=56px = cao thanh điều hướng dưới (57px); cao 61
+QCAC P14-att375-touch PASS cao nút 44
+QCAC P14-att375-scroll PASS sau cuộn cách đáy 56px (thanh dưới 57px)
+QCAC P14-att375-nocover PASS cuối trang: đỉnh dock 695; số dòng chữ nằm sau dock 0
+QCINFO grading-detail@375 {"dock":true,"pos":"fixed","bottomGap":56,"navH":57,"h":99,"dockBtn":[{"t":"Duyệt bài","h":44,"w":125}],"headerPrimary":[],"lastTextBottom":2790,"docH":3151,"vh":812,"overflowX":false}
+QCAC P14-rev375-dock PASS dock=true; nút trong dock=[{"t":"Duyệt bài","h":44,"w":125}]; primary ở đầu trang=[]
+QCAC P14-rev375-sticky PASS position=fixed; cách đáy=56px (thanh dưới 57px)
+QCAC P14-rev375-touch PASS cao 44
+QCAC P14-rev375-scroll PASS sau cuộn 56px (thanh dưới 57px)
+QCINFO attendance@1440 {"dock":false,"pos":null,"bottomGap":null,"navH":0,"h":null,"dockBtn":[],"headerPrimary":["Lưu điểm danh"],"lastTextBottom":1787,"docH":1768,"vh":900,"overflowX":false}
+QCAC P14-att1440 PASS đầu trang primary=["Lưu điểm danh"]; dock=[] (không hai nút cùng việc)
+QCINFO 1440 {"secs":[{"id":"top","h":900,"vh":1},{"id":"bai-nop","h":900,"vh":1},{"id":"ba-man","h":1800,"vh":2},{"id":"so-do","h":900,"vh":1},{"id":"vai","h":900,"vh":1}],"h2s":["Bài nộp đi qua ba bước","EduPilot trong ba màn","Ba số đo trên dữ liệu mô phỏng","Việc của giảng viên và sinh viên"],"gaps":[0,0,0,0,0],"heroBtns":[{"t":"Đăng nhập","pause":false},{"t":"Xem video","pause":false}],"h1Count":2,"h1Visible":1,"heroFacts":["146","0","03","12","18","761987","8,08,0","7,57,57,58,5","9,09,0","8,28,5","10","42","10","30","60","4"],"lead":["AI soạn nháp câu trả lời và điểm, giảng viên duyệt rồi mới công bố. Họ tên và MSSV được che trước khi gửi cho AI; điểm học phần do mã tính từ quy chế.","146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp","Bài tập 03Bài làm 12 / 18 ·
+QCAC AC1 PASS h1="Vận hành lớp học có trợ lý AI" (8 từ); mục: top=1vh, bai-nop=1vh, ba-man=2vh, so-do=1vh, vai=1vh; h2: Bài nộp đi qua ba bước | EduPilot trong ba màn | Ba số đo trên dữ liệu mô phỏng | Việc của giảng viên và sinh viên
+QCAC AC1b PASS dòng dẫn nguyên văn
+QCAC AC2 PASS [{"t":"Đăng nhập","pause":false},{"t":"Xem video","pause":false}] skip=Tới nội dung
+QCAC AC3 FAIL demo aria-label=null; img/video/picture trong màn đầu=0; bg=none
+QCAC AC11 FAIL h1 72px; h2 48,48,48,48; p nhỏ nhất 13
+QCAC AC11b PASS khoảng giữa các mục 0,0,0,0,0 (≥ 96, đo khoảng trống bên ngoài; có thể 0 nếu mục tự đệm)
+QCAC AC17 PASS rò=false mô phỏng=true tên=true github=true
+QCAC AC16og PASS og:*=9
+QCAC AC2b-h1 PASS h1 hiện 1/2 trong DOM
+QCAC AC4 PASS nút 32×32; aria-pressed false→true; data-paused=?
+QCAC AC4b PASS sau tải lại aria-pressed=true (nhớ trong phiên)
+QCAC AC5 PASS request video trước bấm=0; mở=true; focus trong hộp=true; Esc đóng=true; focus về nút=true; preload=none; #video-loi=true; bỏ nguồn=true; audioTracks=n/a
+QCAC AC6 PASS mục cao 1800px (2.00 màn); sticky=1; tên=Chat riêng có nguồn | Duyệt bài AI chấm nháp | Sổ điểm có giải trình; ảnh rộng=1278,1304,1304
+QCAC AC6b PASS ảnh#0 top=358 ; ảnh#1 top=358 ; ảnh#2 top=358
+QCAC AC8 PASS trước cuộn opacity=1,1,1,1,1,1; sau 2,6 s=1,1,1
+QCAC AC9 FAIL thiếu nguyên văn: ["bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn"]; 146: giữa=91 cuối=146; hình=[{"w":626,"alt":"Sổ điểm của lớp mẫu: điểm thành phần và "}]; cỡ lớn nhất=48px
+QCAC AC24-1 PASS mục số đo có 1 ảnh
+QCAC AC10 PASS tab=2; chọn true,false→false,true; mục mỗi vai=0,0; ảnh=giang-vien-hom-nay-1280.webp
+QCAC AC13-lcp FAIL LCP={"tag":"SPAN","id":"","t":48} (cần là chữ của h1; ghi chú: 26 tệp JS)
+QCAC AC19 PASS lỗi console: 
+QCAC AC11-390 PASS h1 38px; h2 30,30,30,30
+QCAC AC7-390 PASS sticky=0; ảnh=[{"w":347,"h":216,"vis":true},{"w":340,"h":212,"vis":true},{"w":347,"h":216,"vis":true},{"w":340,"h":606,"vis":true},{"w":340,"h":169,"vis":true},{"w":347,"h":172,"vis":true}]
+QCAC AC10-390 PASS mục vai cao 844px (1.00 màn @844)
+QCAC AC24-390 PASS mục số đo cao 1688px; khoảng trống liền giữa danh sách và ảnh=347px (≤ 844)
+QCAC AC16-390 PASS tràn ngang=false; cao liên kết chân trang=48,48,44
+QCAC AC14 PASS m-on=0; animation chạy=0; sticky=0; số 146 hiện=146; nút tạm dừng hiện=false
+QCAC AC7 PASS 1024 px: sticky=0
+QCAC AC15 FAIL không script: mục hiện=true; khối chữ opacity 0=4; danh sách vai hiện=2
+QCINFO settings-sv@1440 GET hỏng khác nhau=4 ["/api/v1/me/sessions","/api/v1/events","/api/v1/notifications","/api/v1/me/settings"] :: {"secs":[{"h2":"Mật khẩu","alerts":0,"retry":[],"live":["INPUT","Hiện mật khẩu","INPUT","Hiện mật khẩu","INPUT","Hiện mật khẩu"]},{"h2":"Thiết bị đang đăng nhập","alerts":1,"retry":["Thử lại"],"live":[]},{"h2":"Thư","alerts":1,"retry":["Thử lại"],"live":[]}],"alertsTotal":2}
+QCINFO settings-sv@375 GET hỏng khác nhau=4 ["/api/v1/me/sessions","/api/v1/events","/api/v1/notifications","/api/v1/me/settings"] :: {"secs":[{"h2":"Mật khẩu","alerts":0,"retry":[],"live":["INPUT","Hiện mật khẩu","INPUT","Hiện mật khẩu","INPUT","Hiện mật khẩu"]},{"h2":"Thiết bị đang đăng nhập","alerts":1,"retry":["Thử lại"],"live":[]},{"h2":"Thư","alerts":1,"retry":["Thử lại"],"live":[]}],"alertsTotal":2}
+  6 passed (42.5s)

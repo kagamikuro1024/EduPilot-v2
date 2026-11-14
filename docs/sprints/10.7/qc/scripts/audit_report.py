@@ -43,7 +43,7 @@ DESC = {
  "P1": "đệm panel 24 (16 ở 375)", "P2": "panel cao theo nội dung (chênh ≤ 2; trừ Split fill)", "P3": "0 panel lồng", "P4": "h2 có `data-ep-section-title`, 0 `p` ở đầu mục", "P5": "nhịp dọc đầu trang→thân 40 (32@375), mục→mục 48, h2→panel 16",
  "E1": "khối rỗng: 1 tiêu đề + ≤ 1 nút, 0 svg, 0 chữ khác", "E2": "khối rỗng căn giữa |Δ| ≤ 2 px", "E3": "tiêu đề rỗng ≤ 40 ký tự, 1 dòng, không dấu chấm cuối", "E4": "nút rỗng không trùng nút đầu trang / tab / thanh công cụ", "E5": "nút rỗng `secondary`",
  "E6": "vật chứa khối rỗng ≤ 320 px (1440)", "E7": "route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh)", "L1": "đang tải: h1 cùng toạ độ như có dữ liệu (±2)", "L2": "đang tải có khung xương `aria-busy` (≥ 1)", "L3": "CLS ≤ 0,1 (có dữ liệu)",
- "X1": "lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại»", "X2": "lỗi: không mã trần (4xx/5xx/undefined/Error:)", "X3": "lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6)", "D1": "cỡ chữ ⊆ {28,24,20,16,15,14,12}", "D2": "cao điều khiển 36|30 (1440), ≥ 44 (375)",
+ "X1": "lỗi: ≤ 1 alert mỗi mục, trang không mục đúng 1, tổng ≤ số GET hỏng khác nhau, mỗi alert rộng = cột + «Thử lại» (TL 14.7)", "X2": "lỗi: không mã trần (4xx/5xx/undefined/Error:)", "X3": "lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6)", "D1": "cỡ chữ ⊆ {28,24,20,16,15,14,12}", "D2": "cao điều khiển 36|30 (1440), ≥ 44 (375)",
  "D3": "cao hàng bảng 48|44", "T1": "0 icon giải thích (info / circle-help) ngoài thông báo", "T2": "chuỗi > 30 ký tự lặp < 3 lần", "C3": "vàng: ≤ 3 nền, 0 chữ",
 }
 FONTS = {28, 24, 20, 16, 15, 14, 12}
@@ -104,7 +104,8 @@ for st in ("data", "empty"):
         okc = (lambda x: x in (36, 30)) if w == 1440 else (lambda x: x >= 44)
         badc = [x for x in r["ctrlH"] if not okc(x)]
         if badc: bad("D2", r, str(badc))
-        if r["rowH"] and any(x not in (48, 44) for x in r["rowH"]): bad("D3", r, str(r["rowH"]))
+        hh = [x for x in r["rowH"] if x < 200]  # ≥ 200: hàng đệm của bảng ảo (spacer), không phải hàng dữ liệu; sai số ±1 (TL 1.2)
+        if any(min(abs(x - 48), abs(x - 44)) > 1 for x in hh): bad("D3", r, str(hh))
         if r["icons"]: bad("T1", r, f"{r['icons']}")
         st2 = [x for x in r["repeats"] if static_text(re.sub(r"×\d+$", "", x))]  # TL 14.4: chỉ chuỗi tĩnh (có nguyên văn trong frontend/src)
         if st2: bad("T2", r, "; ".join(st2)[:70])
@@ -125,8 +126,15 @@ for r in rows["loading"]:
     x3(r, idx.get(("data", r["role"], r["route"], r["w"])))  # /insights mô phỏng: không áp dụng tới sprint 11 (PM 15/11)
 for r in rows["error"]:
     if not ok(r) or r.get("apiHits") == 0: continue
-    if r["route"] != "/insights" and (r["alertCount"] != 1 or not r["alerts"] or not near(r["alerts"][0]["w"], (r["col"] or {}).get("w", -999), 2) or not r["alerts"][0]["retry"]):
-        bad("X1", r, f"alert×{r['alertCount']}" + (f" rộng {r['alerts'][0]['w']}" if r["alerts"] else "") + (" thiếu Thử lại" if r["alerts"] and not r["alerts"][0]["retry"] else ""))
+    if r["route"] != "/insights":  # TL 14.7: một alert cho mỗi truy vấn hỏng, tại chỗ vùng nó nuôi; ≤ 1 alert mỗi data-ep-section; trang không mục đúng 1; tổng ≤ số GET hỏng khác nhau
+        col = (r["col"] or {}).get("w", -999); al = r["alerts"]; why = []
+        if r["alertCount"] < 1: why.append("alert×0")
+        if r["sections"] == 0 and r["alertCount"] != 1: why.append(f"trang không mục: alert×{r['alertCount']}")
+        if r.get("alertSecMax", 0) > 1: why.append(f"{r['alertSecMax']} alert trong một mục")
+        if r.get("apiPaths") is not None and r["alertCount"] > r["apiPaths"]: why.append(f"alert×{r['alertCount']} > {r['apiPaths']} GET hỏng khác nhau")
+        if any(not near(a["w"], col, 2) for a in al): why.append("rộng " + ",".join(str(a["w"]) for a in al) + f" ≠ cột {col}")
+        if any(not a["retry"] for a in al): why.append("thiếu Thử lại")
+        if why: bad("X1", r, "; ".join(why))
     if any(a["bare"] for a in r["alerts"]): bad("X2", r, r["alerts"][0]["text"][:60])
     d = idx.get(("data", r["role"], r["route"], r["w"]))
     x3(r, d)
