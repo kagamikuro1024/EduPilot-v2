@@ -15,7 +15,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/edupilot/backend-go/internal/crm"
+	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/seedtool"
 )
 
@@ -175,6 +177,19 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 		n, err := seedtool.SeedGuidance(ctx, pool, cid, strings.TrimSpace(*assignment))
 		if err != nil {
 			return fail(1, err.Error())
+		}
+		// GD-BUG-9: cờ ghi thẳng DB phải PUBLISH như PUT /guidance-flags, nếu không gateway chỉ thấy sau ≤ 60 s (FlagsPoll) và check-guidance-seed chạy ngay sau seed sẽ đỏ.
+		if ru := strings.TrimSpace(getenv("REDIS_URL")); ru != "" {
+			rdb, err := appredis.New(ctx, ru)
+			if err != nil {
+				return fail(1, err.Error())
+			}
+			defer func() { _ = rdb.Close() }()
+			if err := rdb.Publish(ctx, grading.FlagsChannel, "1").Err(); err != nil {
+				return fail(1, "không PUBLISH được cờ: "+err.Error())
+			}
+		} else {
+			_, _ = fmt.Fprintln(stderr, "admin seed-guidance: không có REDIS_URL — gateway thấy cờ sau ≤ 60 s")
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-guidance: %d kết quả\n", n)
 	case "crm-risk-run":
