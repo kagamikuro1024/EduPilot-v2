@@ -1,7 +1,9 @@
 # SRS FEAT-grading-guidance Harness học từ lần giảng viên sửa (M1, M2, M4, M6)
-Phiên bản 1.2 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
+Phiên bản 1.3 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
 
 **v1.2 (P-106-2, P-106-3):** công bố **miễn so phiên bản cho bài giảng viên đã duyệt**, `regrade-stale` không còn tham số `scope` và **không bao giờ đụng bài đã duyệt / đã sửa tay** (không ghi đè điểm giảng viên) — US-GD-05 AC3, AC4, AC6, AC6a, AC11, SRS 3.4, 4.2.11, 4.2.12, API #7, #9; `similar-confirmed` đổi `GET ?q=` → `POST {q}` — US-GD-08 AC1, AC7, SRS 3.5, 4.4, API #10; sửa dấu phẩy thừa DDL 5.5.
+
+**v1.3 (P-106-5):** thêm cột `grading_results.first_reviewed_at` / `first_reviewed_by` (ghi **một lần** ở lần duyệt đầu, không bị xoá khi sửa lại; trigger bất biến); miễn so phiên bản và loại khỏi `regrade-stale` dựa vào cột này vì `ReviewApplyEdit` đặt `reviewed_at` / `reviewed_by` = NULL khi `REVIEWED → DRAFT`. **Không** thêm chặn nào ở bước duyệt (giữ v1.2) — SRS 4.2.11, 4.2.12, §5.3.
 
 ## 1. Mục đích và phạm vi
 **Vấn đề.** Điểm nháp của AI lệch chuẩn của giảng viên (9.5 đo MAE tổng 0,94–1,27 / 10). Mỗi lần giảng viên sửa đã được lưu có cấu trúc (`grading_results.ai_scores` bất biến so với `criteria`), nhưng chưa được dùng lại: giảng viên sửa cùng một lỗi nhiều lần.
@@ -245,9 +247,9 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 **4.2.10 `Áp dụng`.** Giao dịch: khoá `assignments` hàng `FOR UPDATE`; kiểm `expected_version = guidance_version` (`409 VERSION_CONFLICT`); có thay đổi (`APPROVED` chờ hoặc chờ nghỉ) hoặc `409 NOTHING_TO_APPLY`; gán `approved_in_version` / `retired_in_version = N+1`; `INSERT grading_guidance_versions`; `UPDATE assignments SET guidance_version = N+1`; `audit_log`. Không tự chấm lại.
 
-**4.2.11 Chấm lại lô (P-106-2).** `regrade-stale` (không tham số): chọn kết quả **hiện hành** `status = 'DRAFT'` **và** mọi tiêu chí `edited = false` (`changedCriteria(criteria, ai_scores) = ∅`) **và** `guidance_version < assignments.guidance_version`, bài nộp còn là bản mới nhất, `round < 20`, chưa công bố; tối đa `REGRADE_MAX_BATCH`; `INSERT round+1 QUEUED` + `jobs` trong một giao dịch rồi `XADD`; idempotent theo `Idempotency-Key` và `UNIQUE (course_id, submission_id, round)`. **Không bao giờ** chọn `REVIEWED` hay bài có điểm / nhận xét giảng viên đã sửa: điểm người đã chốt không bị ghi đè; số bị bỏ trả ở `skipped:{reviewed, edited}`. Chấm lại một bài đang sửa dở: đường `POST …/submissions/{sid}/grade` sẵn có (round + 1, điểm đã sửa nằm ở round cũ), kèm `ConfirmIrreversible` ở giao diện.
+**4.2.11 Chấm lại lô (P-106-2).** `regrade-stale` (không tham số): chọn kết quả **hiện hành** `status = 'DRAFT'` **và** mọi tiêu chí `edited = false` (`changedCriteria(criteria, ai_scores) = ∅`) **và `first_reviewed_at IS NULL`** (chưa từng được giảng viên duyệt; bài đã duyệt rồi mở lại để sửa vẫn là việc dở của giảng viên, P-106-5) **và** `guidance_version < assignments.guidance_version`, bài nộp còn là bản mới nhất, `round < 20`, chưa công bố; tối đa `REGRADE_MAX_BATCH`; `INSERT round+1 QUEUED` + `jobs` trong một giao dịch rồi `XADD`; idempotent theo `Idempotency-Key` và `UNIQUE (course_id, submission_id, round)`. **Không bao giờ** chọn `REVIEWED` hay bài có điểm / nhận xét giảng viên đã sửa: điểm người đã chốt không bị ghi đè; số bị bỏ trả ở `skipped:{reviewed, edited}`. Chấm lại một bài đang sửa dở: đường `POST …/submissions/{sid}/grade` sẵn có (round + 1, điểm đã sửa nằm ở round cũ), kèm `ConfirmIrreversible` ở giao diện.
 
-**4.2.12 So phiên bản khi công bố (P-106-2).** Trong `publish` (4.8.5 FEAT-assignments): (1) giữ `422 NOT_REVIEWED` cho bài không `REVIEWED`; (2) kết quả **đã duyệt** (`reviewed_by` + `reviewed_at`) **miễn so phiên bản** vì điểm cuối là quyết định của giảng viên; đếm lý do miễn: `EDITED` (có tiêu chí giảng viên sửa — `changedCriteria ≠ ∅`) và `ACCEPTED_AS_IS` (duyệt nguyên nháp), trả ở `exempt{}` và ghi `audit_log`; (3) lưới an toàn bất biến: nếu tập còn kết quả **chưa có người duyệt** mà `guidance_version` khác `assignments.guidance_version` (hoặc lẫn nhiều bản) → `409 MIXED_GUIDANCE {versions, counts}` trước mọi ghi. Hiệu lực chỉ khi cờ `GRADING_GUIDANCE` bật cho lớp (cờ tắt: như hiện hành). Hệ quả: bài còn nháp phải chấm lại cho cùng bản; bài đã duyệt (kể cả bộ «học» ghim `v0` đã sửa tay) công bố bình thường sau `Áp dụng`. (Q-G-1, PM xác nhận P-106-1; siết bởi P-106-2.)
+**4.2.12 So phiên bản khi công bố (P-106-2).** Trong `publish` (4.8.5 FEAT-assignments): (1) giữ `422 NOT_REVIEWED` cho bài không `REVIEWED`; (2) kết quả **đã duyệt** — định nghĩa bằng **`first_reviewed_at IS NOT NULL`** (ghi một lần, không bị xoá khi giảng viên sửa lại; **không** dùng `reviewed_at` / `reviewed_by` vì `ReviewApplyEdit` đặt chúng NULL khi `REVIEWED → DRAFT`) — **miễn so phiên bản** vì điểm cuối là quyết định của giảng viên; đếm lý do miễn: `EDITED` (có tiêu chí giảng viên sửa — `changedCriteria ≠ ∅`) và `ACCEPTED_AS_IS` (duyệt nguyên nháp), trả ở `exempt{}` và ghi `audit_log`; (3) lưới an toàn bất biến: nếu tập còn kết quả **chưa từng được duyệt** (`first_reviewed_at IS NULL`) mà `guidance_version` khác `assignments.guidance_version` (hoặc lẫn nhiều bản) → `409 MIXED_GUIDANCE {versions, counts}` trước mọi ghi. Hiệu lực chỉ khi cờ `GRADING_GUIDANCE` bật cho lớp (cờ tắt: như hiện hành). Hệ quả: bài còn nháp phải chấm lại cho cùng bản; bài đã duyệt (kể cả bộ «học» ghim `v0` đã sửa tay) công bố bình thường sau `Áp dụng`. Bước `review` **không** thêm chặn nào (P-106-5, giữ nguyên v1.2). (Q-G-1, PM xác nhận P-106-1; siết bởi P-106-2.)
 
 **4.2.13 Số đo.** `GET …/guidance/stats`: theo `guidance_version` của kết quả hiện hành `REVIEWED`/`PUBLISHED`: `n`, `mae_criterion`, `mae_total`, `bias_total` (có dấu), `edited_criteria`, `edited_rate`; `decimal`; `n < 5` → `null`. `mae_total = mean(|ai_total_before_late − total_before_late chốt|)`.
 
@@ -330,8 +332,14 @@ CREATE TABLE grading_guidance_versions (
 -- 5.3 ghim + bất biến
 ALTER TABLE assignments      ADD COLUMN guidance_version smallint NOT NULL DEFAULT 0;
 ALTER TABLE grading_results  ADD COLUMN guidance_version smallint NOT NULL DEFAULT 0,
-                             ADD COLUMN ai_comments jsonb NULL;
--- mở rộng trigger bất biến hiện có (00017): sau run_state='DONE' cấm đổi ai_scores, ai_comments, guidance_version
+                             ADD COLUMN ai_comments jsonb NULL,
+                             ADD COLUMN first_reviewed_at timestamptz NULL,      -- P-106-5: ghi MỘT lần ở lần duyệt đầu (coalesce)
+                             ADD COLUMN first_reviewed_by uuid NULL REFERENCES users (id),
+                             ADD CONSTRAINT grading_results_first_reviewed_chk CHECK ((first_reviewed_at IS NULL) = (first_reviewed_by IS NULL));
+-- first_reviewed_*: `review` đặt coalesce(first_reviewed_at, now()), coalesce(first_reviewed_by, người duyệt); KHÔNG bao giờ xoá —
+-- khác reviewed_at / reviewed_by mà ReviewApplyEdit đặt NULL khi REVIEWED → DRAFT (sửa lại điểm).
+-- mở rộng trigger bất biến hiện có (00017): sau run_state='DONE' cấm đổi ai_scores, ai_comments, guidance_version;
+-- và cấm đổi / xoá first_reviewed_at, first_reviewed_by khi OLD.first_reviewed_at IS NOT NULL (P0001)
 
 -- 5.4 cờ theo lớp
 CREATE TABLE course_guidance_flags (
@@ -414,7 +422,7 @@ Nhãn: «Lưu ý chấm», `Rút lưu ý`, `Duyệt`, `Bỏ`, `Cho nghỉ`, `Áp
 | --- | --- | --- |
 | Go unit | `TestGuidanceSetAtVersion`, `TestEssayPromptUnchangedAtV0`, `TestGuidanceBlockDeterministic`, `TestGuidanceIsolation`, `TestGuidanceNoTotalsInPrompt`, `TestGuidanceVersionOnlyViaApply` | GD-02, 05, 11 |
 | Go unit | `TestReflectEligibility`, `TestReflectInputNoSubmissionText`, `TestReflectInputNoIdentity`, `TestReflectValidate` (support, chiều, từ khoá, trùng), `TestReflectOutputPII`, `TestReflectIdempotent` | GD-03 |
-| Go | `TestApplyVersion`, `TestRegradeStale`, `TestRegradeKeepsLatePolicy`, `TestRegradeNeverOverwritesTeacherScores`, `TestPublishMixedGuidance` (lưới an toàn + miễn bài đã duyệt + đếm `exempt`), `TestGuidanceRBAC`, `TestGuidanceDeleteStudent` | GD-04, 05, 11 |
+| Go | `TestApplyVersion`, `TestRegradeStale`, `TestRegradeKeepsLatePolicy`, `TestRegradeNeverOverwritesTeacherScores`, `TestFirstReviewedWriteOnce` (duyệt → sửa lại → duyệt: cột giữ nguyên lần đầu; cố ghi đè → lỗi), `TestPublishMixedGuidance` (lưới an toàn + miễn bài đã duyệt + đếm `exempt`), `TestGuidanceRBAC`, `TestGuidanceDeleteStudent` | GD-04, 05, 11 |
 | Go | `TestGuidanceStats` (decimal, n < 5) | GD-06 |
 | Go | `TestRegressionCaseNoText`, `TestRegressionCaseIdempotent`, `TestRegressCLIRefusesExport` | GD-07 |
 | Go | `TestSimilarConfirmed` (nguồn chỉ thread đăng công khai, cùng lớp, không ẩn, ngưỡng, rate limit, cờ tắt), `TestSimilarNoBodyLog`, `TestRejectReasonHints` | GD-08, 09 |
