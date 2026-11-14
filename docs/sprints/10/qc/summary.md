@@ -18,16 +18,16 @@
 | US-P9-09 Lịch sử, điểm yếu, Hôm nay | **PASS** | L3 đã sửa (0,5 s) |
 | US-P9-10 Liêm chính | **PASS** | Không đổi |
 | US-P9-11 Nhập Forms | **PASS** (phạm vi ưu tiên) | L12 đã sửa: ánh xạ theo tên tiêu đề (3/3 khớp), chữ lỗi «Chỉ nhận tệp Excel (.xlsx) hoặc CSV.», «tối đa 5 MB». Chưa đổi: ô chọn tệp mặc định (thẩm mỹ) |
-| US-P9-12 Seed + cổng | **FAIL** | L4 sửa gần hết: có câu `EXTRACTED` (23) và `GENERATED` (4), Quiz `PUBLISHED`, lớp 761988 có 20 câu, `check-practice-seed.mjs` OK; seed sạch exit 0, 504 s. **Còn lại:** (a) chỉ 3 / 107 câu `APPROVED` có citations (spec: «có `citations` thật»; 104 câu `MANUAL` không có) — cần PM / BA nói AC chỉ áp cho câu AI hay cho cả 80; (b) 1 stem trùng giữa lớp 761987 và 761988 («Mô tả nào đúng về MFA?»), spec: lớp 2 không chứa câu lớp 1. k6 / Lighthouse / axe hoãn |
+| US-P9-12 Seed + cổng | **PASS** (phạm vi ưu tiên) | L4 đóng theo P-10-11 (PM 2026-11-14): citations chỉ áp cho câu AI (`GENERATED` 4, `EXTRACTED` 23: có citations thật); câu `MANUAL` không cần; stem trùng giữa hai lớp hợp lệ. Có Quiz `PUBLISHED`, lớp 761988 có 20 câu, `check-practice-seed.mjs` OK; seed sạch exit 0, 504 s. k6 / Lighthouse / axe hoãn |
 
-PASS: 11 / 12. FAIL: 1 / 12 (P9-12).
+PASS: 12 / 12. FAIL: 0 / 12. **Nợ chấp nhận:** L6 (P-10-10, sprint 11). **Hoãn / chưa kiểm:** k6, Lighthouse, axe (chủ dự án); TC-02-14 / 03-08 (`OVERLOADED`); 4 TC PII mức lời nhắc (02-06, 02-16, 03-06); `goose down/up`. Cổng `/gate P9` chưa chạy: `QC.md` chỉ viết khi PM yêu cầu.
 
 ## Lỗi theo mức
 | Mức | Số | Mã |
 | --- | --- | --- |
 | Cao | 0 | L1 đã sửa (kiểm lại PASS) |
-| Trung bình | 0 mở | L3, L5 đã sửa; L4 còn hai điểm Thấp ở P9-12 |
-| Thấp | 2 mở + 1 Nợ | L4(a) citations 3/107, L4(b) trùng 1 stem lớp 2; L6 Nợ sprint 11 (P-10-10); L13, L14 ghi nhận; còn lại đã sửa |
+| Trung bình | 0 | L3, L5 đã sửa |
+| Thấp | 0 mở + 1 Nợ | L4 đóng (P-10-11); L6 Nợ sprint 11 (P-10-10); L13, L14 ghi nhận; còn lại đã sửa |
 | Nghiêm trọng | 0 | |
 
 ## Phát hiện về quy trình (cần PM)
