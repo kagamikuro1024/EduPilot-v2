@@ -26,3 +26,8 @@ Phát sinh khi viết TC pha 1 (2026-11-14). Mỗi câu có phương án QC; TC 
 | # | Câu hỏi | Đề xuất QC |
 | --- | --- | --- |
 | Q-S106-14 | Mục lưu ý do LLM trả có `case_id` ngoài đầu vào / thuộc tiêu chí khác: bỏ **cả mục** (mã hiện hành, SRS 4.2.8 (ii)) hay chỉ không đếm ca đó rồi xét `support`? | Giữ hành vi hiện hành; sửa TC-G03-13 (chiều sai chỉ không được đếm; `case_id` lạ → bỏ cả mục) |
+
+## Hỏi thêm khi viết TC Hoàn tác (P-106-8)
+| # | Câu hỏi | Đề xuất QC |
+| --- | --- | --- |
+| Q-S106-15 | Hoàn tác `Duyệt` / `Bỏ`: (a) hoãn gửi `decide` 5 s hay API đặt lại `DRAFT`; (b) mục đã sửa chữ trước khi duyệt: hoàn tác giữ chữ đã sửa hay khôi phục chữ gốc; (c) mã lỗi khi mục đã thuộc phiên bản đã áp dụng | (a) cách nào cũng được, TC-G04-19/20 chấp nhận cả hai; (b) giữ chữ đã sửa, `text_original` giữ bản gốc của AI; (c) `409 ITEM_NOT_DRAFT` (đã có) |
