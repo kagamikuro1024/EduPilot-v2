@@ -12451,7 +12451,7 @@ components:
           type: integer
           minimum: 0
           maximum: 100
-        result: {}
+        result: {description: "Theo kind; grading.reflect → GuidanceReflectResult"}
         error:
           type: object
           required: [code, message]
@@ -14089,6 +14089,23 @@ components:
       additionalProperties: false
       properties:
         job_id: {type: string, format: uuid}
+    GuidanceReflectResult:
+      type: object
+      description: "Giá trị của Job.result khi kind = grading.reflect (P-106-12); chỉ số, không chữ"
+      required: [drafts, dropped]
+      additionalProperties: false
+      properties:
+        drafts: {type: integer, minimum: 0}
+        dropped:
+          type: array
+          items:
+            type: object
+            required: [criterion_id, reason, count]
+            additionalProperties: false
+            properties:
+              criterion_id: {type: [string, "null"], description: "id tiêu chí trong rubric; null khi reason = criterion"}
+              reason: {type: string, enum: [criterion, case, direction, support, keyword, pii, duplicate, overflow]}
+              count: {type: integer, minimum: 1}
     GuidanceApplied:
       type: object
       required: [version, stale]

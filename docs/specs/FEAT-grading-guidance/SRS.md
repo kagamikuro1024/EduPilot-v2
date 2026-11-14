@@ -1,5 +1,5 @@
 # SRS FEAT-grading-guidance Harness học từ lần giảng viên sửa (M1, M2, M4, M6)
-Phiên bản 1.6 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
+Phiên bản 1.7 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
 
 **v1.2 (P-106-2, P-106-3):** công bố **miễn so phiên bản cho bài giảng viên đã duyệt**, `regrade-stale` không còn tham số `scope` và **không bao giờ đụng bài đã duyệt / đã sửa tay** (không ghi đè điểm giảng viên) — US-GD-05 AC3, AC4, AC6, AC6a, AC11, SRS 3.4, 4.2.11, 4.2.12, API #7, #9; `similar-confirmed` đổi `GET ?q=` → `POST {q}` — US-GD-08 AC1, AC7, SRS 3.5, 4.4, API #10; sửa dấu phẩy thừa DDL 5.5.
 
@@ -10,6 +10,8 @@ Phiên bản 1.6 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; 
 **v1.5 (P-106-8):** thêm «Hoàn tác» cho `Duyệt` / `Bỏ` / `Cho nghỉ` trước `Áp dụng` (API `decide RESET`, `ITEM_NOT_RESETTABLE`, menu `Đặt lại`), `Áp dụng` dùng `ConfirmIrreversible` và không Hoàn tác — US-GD-04 AC3a, AC5; SRS 3.8, 4.2.9, §6 #5, §7.
 
 **v1.6 (P-106-10):** số ca hồi quy hiện qua trường `regression_cases` trong response stats (#8), không endpoint mới — US-GD-07 AC6, SRS 4.2.13.
+
+**v1.7 (P-106-12):** danh sách cụm vô hại miễn khỏi từ khoá cấm (4.1, 4.2.8 v); `dropped` theo tiêu chí `{criterion_id, reason, count}` (4.2.14, 3.8); giao diện «N lưu ý bị loại».
 
 ## 1. Mục đích và phạm vi
 **Vấn đề.** Điểm nháp của AI lệch chuẩn của giảng viên (9.5 đo MAE tổng 0,94–1,27 / 10). Mỗi lần giảng viên sửa đã được lưu có cấu trúc (`grading_results.ai_scores` bất biến so với `criteria`), nhưng chưa được dùng lại: giảng viên sửa cùng một lỗi nhiều lần.
@@ -193,7 +195,7 @@ sequenceDiagram
 | `reflect` thiếu dữ liệu | `409 NOT_ENOUGH_DATA {results, edits}` | «Cần thêm bài đã duyệt» |
 | `reflect` LLM lỗi / sai schema | Thử lại ≤ 3 → dead-letter, job `FAILED`, không nháp nửa vời | «Chưa rút được lưu ý. Thử lại.» |
 | `reflect` 0 mục hợp lệ | Job `DONE {drafts:0, dropped}` | «Không có lưu ý mới» |
-| Mục chứa PII / từ khoá tổng-muộn / `case_id` lạ / support < 2 / trùng | Bỏ **cả mục**, đếm vào `dropped` (`criterion`, `case`, `support`, `keyword`, `pii`, `duplicate`) | Không thấy (chỉ số ở stats nội bộ) |
+| Mục chứa PII / từ khoá tổng-muộn / `case_id` lạ / support < 2 / trùng | Bỏ **cả mục**, đếm vào `dropped` theo tiêu chí (4.2.14) | Một dòng «N lưu ý bị loại» khi N > 0 |
 | Sửa chữ lưu ý không qua kiểm | `422 GUIDANCE_TEXT_REJECTED` | Báo tại ô |
 | `Duyệt` mục không còn `DRAFT` | `409 ITEM_NOT_DRAFT` | Tải lại hàng |
 | `Hoàn tác` / `Đặt lại` mục đã vào bản đã áp dụng (kể cả `Áp dụng` chạy ngay trước ở tab khác) | `409 ITEM_NOT_RESETTABLE` | «Đã áp dụng, không hoàn tác được» + tải lại hàng |
@@ -225,6 +227,7 @@ sequenceDiagram
 | `REGRESSION_MIN_DELTA` / `REGRESSION_MAX_REL` | `1.0` / `0.10` | ngưỡng ghi ca / ngưỡng «lùi» |
 | `REGRESSION_EXPORT_ALLOWED` | `false` | cho phép `cmd/regress export` (Q-G-3) |
 | `THREAD_SUGGEST_MIN` / `THREAD_SUGGEST_RPM` | `0.80` / `30` | cosine tối thiểu / lần gợi ý mỗi phút mỗi người |
+| `GUIDANCE_KEYWORD_EXEMPT` | (cố định trong mã, không phải biến môi trường) | cụm vô hại miễn cho từ khoá cấm (P-106-12): «tổng quát», «tổng quan», «tổng thể», «tổng hợp», «tổng kết», «trừ khi», «ngoại trừ», «loại trừ». Thêm / bớt cụm = sửa SRS + `TestReflectKeywordExempt` |
 | `QUESTION_HINTS_MIN_REJECTS` / `QUESTION_HINTS_WINDOW_DAYS` | `5` / `90` | điều kiện thống kê lý do loại |
 
 ### 4.2 M1 — Lưu ý chấm
@@ -248,7 +251,9 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 **4.2.7 Schema đầu ra (strict).** `items:[{criterion_id enum(id rubric), text string ≤ 400, direction enum{STRICTER,LENIENT,CLARIFY}, case_ids:[string] ≥ 2}] ≤ GUIDANCE_MAX_ITEMS`. Không trường tổng / phạt / làm tròn.
 
-**4.2.8 Kiểm bằng code (thứ tự).** (i) `criterion_id` ∈ rubric; (ii) mọi `case_id` ∈ đầu vào **và** thuộc đúng `criterion_id` của mục — **một `case_id` lạ (không có trong đầu vào hoặc thuộc tiêu chí khác) → bỏ CẢ MỤC**, đếm `dropped.case` (P-106-7; không bỏ riêng id lạ rồi đếm tiếp); (iii) chiều: STRICTER ⇔ `ai_score > teacher_score`, LENIENT ⇔ `<`, CLARIFY không ràng buộc; `case_id` hợp lệ nhưng **ngược chiều** chỉ **không được đếm**; **`support` = số `case_id` hợp lệ cùng chiều** (code đếm); (iv) bỏ nếu `support < GUIDANCE_MIN_SUPPORT`; (v) `fold(text)` chứa từ khoá {`tổng`, `trừ`, `muộn`, `làm tròn`, `phạt`} → bỏ; (vi) `privacy.Detect` khớp (roster lớp + regex MSSV / email / SĐT) → bỏ; (vii) Jaccard theo từ ≥ 0,8 với mục cùng tiêu chí đã có (mọi trạng thái trừ REJECTED lâu hơn 30 ngày) → bỏ; (viii) cắt còn `GUIDANCE_MAX_ITEMS`. `source_result_ids` = id kết quả của các ca hợp lệ.
+**4.2.8 Kiểm bằng code (thứ tự).** (i) `criterion_id` ∈ rubric; (ii) mọi `case_id` ∈ đầu vào **và** thuộc đúng `criterion_id` của mục — **một `case_id` lạ (không có trong đầu vào hoặc thuộc tiêu chí khác) → bỏ CẢ MỤC**, đếm `dropped.case` (P-106-7; không bỏ riêng id lạ rồi đếm tiếp); (iii) chiều: STRICTER ⇔ `ai_score > teacher_score`, LENIENT ⇔ `<`, CLARIFY không ràng buộc; `case_id` hợp lệ nhưng **ngược chiều** chỉ **không được đếm**; **`support` = số `case_id` hợp lệ cùng chiều** (code đếm); (iv) bỏ nếu `support < GUIDANCE_MIN_SUPPORT`; (v) `fold(text)` (bỏ dấu, chữ thường) — **trước hết xoá các cụm trong `GUIDANCE_KEYWORD_EXEMPT` (4.1), khớp theo ranh giới từ**, rồi nếu phần còn lại chứa từ khoá {`tổng`, `trừ`, `muộn`, `làm tròn`, `phạt`} (theo ranh giới từ) → bỏ; mọi cách dùng khác vẫn bị loại («tổng điểm», «trừ điểm», «nộp muộn»; «tổng quát» kèm «tổng điểm» vẫn bị loại). Cùng hàm kiểm dùng cho chữ giảng viên sửa ở `decide` (`422 GUIDANCE_TEXT_REJECTED`); (vi) `privacy.Detect` khớp (roster lớp + regex MSSV / email / SĐT) → bỏ; (vii) Jaccard theo từ ≥ 0,8 với mục cùng tiêu chí đã có (mọi trạng thái trừ REJECTED lâu hơn 30 ngày) → bỏ; (viii) cắt còn `GUIDANCE_MAX_ITEMS`. `source_result_ids` = id kết quả của các ca hợp lệ.
+
+**4.2.14 Kết quả job `reflect` (P-106-12).** `jobs.result` = `{drafts: int, dropped: [{criterion_id: string|null, reason: enum{criterion,case,direction,support,keyword,pii,duplicate,overflow}, count: int ≥ 1}]}`. Mỗi mục bị bỏ cộng 1 vào cặp `(criterion_id, reason)`; `criterion_id` lấy từ **rubric** của bài tập, và là `null` khi `reason = criterion` (id do LLM bịa không được lặp lại trong kết quả). Chỉ số đếm + enum, **không có chữ** của lưu ý bị loại, không `case_id`. `N` = tổng `count`. Mảng rỗng khi không có mục bị loại. Giao diện «Lưu ý chấm» hiện **một dòng** «N lưu ý bị loại» khi N > 0 ở job `reflect` gần nhất của bài tập (không câu mô tả, không tooltip, không liệt kê lý do); mất khi có job `reflect` mới. Schema `GuidanceReflectResult` trong `openapi.yaml`.
 
 **4.2.9 Trạng thái lưu ý.** `DRAFT` → (`Duyệt`) `APPROVED` chờ áp dụng (`approved_in_version IS NULL`) → (`Áp dụng`) có hiệu lực (`approved_in_version = N+1`) → (`Cho nghỉ`) chờ nghỉ (`pending_retire`) → (`Áp dụng`) `RETIRED` (`retired_in_version = N+1`). `DRAFT` → (`Bỏ`) `REJECTED`. **`RESET` (P-106-8):** trước khi `Áp dụng`, `APPROVED` chờ áp dụng và `REJECTED` → `DRAFT` (xoá `decided_by` / `decided_at`, giữ `text`, `text_original`); `APPROVED` có hiệu lực + `pending_retire` → bỏ `pending_retire`; `DRAFT` → không đổi (idempotent); mục đã vào phiên bản đã áp dụng (không chờ nghỉ) hoặc `RETIRED` → `409 ITEM_NOT_RESETTABLE`. `RESET` cạnh tranh với `Áp dụng`: cả hai khoá hàng `assignments` / mục theo thứ tự `FOR UPDATE` nên chỉ một bên thắng; bên sau nhận `409`. Sửa chữ chỉ khi `DRAFT`; lưu `text_original`.
 
@@ -402,7 +407,7 @@ Mã lỗi mới: `GUIDANCE_DISABLED`, `NOT_ENOUGH_DATA`, `ITEM_NOT_DRAFT`, `ITEM
 Nguồn: `DESIGN.md` §13, §14; `UX.md` mục 6; luật chữ UI (không dòng giải thích; tooltip chỉ cho cú pháp / lý do khoá / hệ quả). Chỉ primitive `shared/` và token `--ep-*`.
 | Màn | Khung nhìn đầu | Primitive | Rỗng / tải / lỗi | Mobile 375 px |
 | --- | --- | --- | --- | --- |
-| `/assignments/[id]` (nhân viên) — khối «Lưu ý chấm» dưới rubric | dòng `bản v2 · 3 chờ duyệt` + `Rút lưu ý`; danh sách lưu ý (tiêu chí · chữ · `n lần sửa` · chiều · `Duyệt` / `Bỏ`, sau đó dòng «Hoàn tác» và menu `Đặt lại` tới khi `Áp dụng`); `Áp dụng` khi có thay đổi (`ConfirmIrreversible`); bảng số đo nhỏ | `Panel`, `Section`, `DataTable` nhẹ, `useUndoableAction`, `useAutosaveDraft`, `InlineNotice` | `EmptyState` một dòng; `PageState` lỗi + `Thử lại`; đang rút: chỉ báo giai đoạn, rời trang được | xếp dọc, nút ≥ 44 px |
+| `/assignments/[id]` (nhân viên) — khối «Lưu ý chấm» dưới rubric | dòng `bản v2 · 3 chờ duyệt` + `Rút lưu ý`; danh sách lưu ý (tiêu chí · chữ · `n lần sửa` · chiều · `Duyệt` / `Bỏ`, sau đó dòng «Hoàn tác» và menu `Đặt lại` tới khi `Áp dụng`); `Áp dụng` khi có thay đổi (`ConfirmIrreversible`); bảng số đo nhỏ | `Panel`, `Section`, `DataTable` nhẹ, `useUndoableAction`, `useAutosaveDraft`, `InlineNotice` | `EmptyState` một dòng; «N lưu ý bị loại» (N > 0); `PageState` lỗi + `Thử lại`; đang rút: chỉ báo giai đoạn, rời trang được | xếp dọc, nút ≥ 44 px |
 | `/grading` (Hàng chờ) | `InlineNotice`: «N bài chấm theo bản cũ · Chấm lại» (N = bài nháp chưa sửa; «M đang sửa dở» nếu có); hộp công bố: «k bài chấm theo bản cũ: a đã sửa tay, b duyệt nguyên nháp»; `ConfirmIrreversible` khi chấm lại một bài đang sửa dở | `InlineNotice`, `ConfirmIrreversible` | khi 409 `MIXED_GUIDANCE` (lưới an toàn) báo tại chỗ + `Chấm lại` | như hiện hành |
 | `/grading/[submissionId]` | phụ đề `meta` trên nhãn tiêu chí «bản v2 · 3 lần sửa»; popover liệt kê lưu ý áp dụng | `Popover` | không phụ đề với `v0` | như hiện hành |
 | `/class/settings` — «Học từ lần sửa» | bốn công tắc | `Field`/switch | tooltip chỉ trên công tắc khoá «Chỉ quản trị viên bật» | công tắc ≥ 44 px |
