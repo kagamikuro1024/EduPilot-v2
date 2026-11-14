@@ -137,7 +137,7 @@ func TestPracticeNoExamLeak(t *testing.T) {
 	r.exec(`update question_bank set stem = $2 where id = $1`, x, stemX)
 
 	appears := func() bool {
-		sv := r.student()
+		sv := r.student() //nolint:contextcheck // helper của rig dùng t.Context()
 		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Thi", Count: 6}, uuid.Nil)
 		if err != nil { // còn 5 câu: vẫn dựng được 5 (không phải lỗi)
 			require.NoError(t, err)
@@ -179,7 +179,7 @@ func TestWrongAnswerSignalsNoIdentity(t *testing.T) {
 	wrong := func(sv uuid.UUID, topic string) {
 		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: topic, Count: 5}, uuid.Nil)
 		require.NoError(t, err)
-		_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, v.Items[0].ID, uuid.Nil, opt(r.wrongOption(v.Items[0].ID)))
+		_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, v.Items[0].ID, uuid.Nil, opt(r.wrongOption(v.Items[0].ID))) //nolint:contextcheck // helper của rig dùng t.Context()
 		require.NoError(t, err)
 	}
 	for range 4 {

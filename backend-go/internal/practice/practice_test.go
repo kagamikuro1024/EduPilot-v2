@@ -368,9 +368,9 @@ func TestOverviewWeakness(t *testing.T) {
 		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: topic, Count: n}, uuid.Nil)
 		require.NoError(t, err)
 		for i, it := range v.Items {
-			o := r.wrongOption(it.ID)
+			o := r.wrongOption(it.ID) //nolint:contextcheck // helper của rig dùng t.Context()
 			if rightEvery > 0 && i%rightEvery == 0 {
-				o = r.correctOption(it.ID)
+				o = r.correctOption(it.ID) //nolint:contextcheck // helper của rig dùng t.Context()
 			}
 			_, err := r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, uuid.Nil, opt(o))
 			require.NoError(t, err)

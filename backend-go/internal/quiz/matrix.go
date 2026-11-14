@@ -27,7 +27,7 @@ type Cell struct {
 	Count      int    `json:"count"`
 }
 
-var diffRank = map[string]int{"EASY": 0, "MEDIUM": 1, "HARD": 2}
+var diffRank = map[string]int{"EASY": 0, "MEDIUM": 1, "HARD": 2} //nolint:gochecknoglobals // bảng bất biến
 
 // BuildMatrix dựng đề theo ma trận (SRS FEAT-practice FR-2). Thuần, TẤT ĐỊNH theo `seed` (id lượt), không lặp câu. Trong mỗi ô ưu tiên câu làm sai, rồi chưa làm,
 // cuối cùng câu vừa làm đúng; hoà thì theo băm(seed, id). Thiếu câu: bù từ độ khó gần nhất cùng chủ đề, rồi chủ đề khác cùng độ khó, rồi bất kỳ; vẫn thiếu thì đề ngắn hơn

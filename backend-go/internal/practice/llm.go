@@ -113,7 +113,7 @@ func (j *ExplainJob) Run(ctx context.Context, emit func(string) error) error {
 		case <-gctx.Done():
 		}
 	}()
-	ch, err := j.svc.LLM.Stream(gctx, j.req)
+	ch, err := j.svc.LLM.Stream(gctx, j.req) //nolint:contextcheck // gctx cố ý tách khỏi ctx client: lượt đã hoàn tất vẫn vào cache
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrExplainFailed, err)
 	}

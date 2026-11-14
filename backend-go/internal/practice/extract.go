@@ -299,7 +299,7 @@ func (w *Worker) save(ctx context.Context, q *store.Queries, p ExtractPayload, q
 		if e.Number > 0 && byNumber[e.Number] { // câu nằm ở ranh giới hai cửa sổ bị trích hai lần
 			continue
 		}
-		correct := -1
+		var correct int
 		switch {
 		case key != nil:
 			k, found := key[e.Number]

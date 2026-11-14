@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var practiceTables = []string{"practice_attempts", "practice_items", "practice_answers", "forms_import_batches", "forms_import_rows"}
 
 // TestSchemaPractice — US-P9-01 AC1: cột đúng SRS 5; chèn dòng con khác course_id với cha bị DB từ chối (23503); ràng buộc CHECK / UNIQUE từng phần.
 func TestSchemaPractice(t *testing.T) {

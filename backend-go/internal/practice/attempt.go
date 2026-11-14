@@ -166,7 +166,7 @@ func itemView(att store.PracticeAttempt, id uuid.UUID, pos int32, optionOrder, k
 	opts := make([]OptionView, 0, len(order))
 	for _, id := range order {
 		if o, ok := byID[id]; ok {
-			opts = append(opts, OptionView{ID: o.ID, Body: o.Body})
+			opts = append(opts, OptionView(o))
 		}
 	}
 	v := ItemView{ID: id, Position: int(pos), Question: QuestionView{Type: sn.Type, Topic: sn.Topic, Stem: sn.Stem, Options: opts}}

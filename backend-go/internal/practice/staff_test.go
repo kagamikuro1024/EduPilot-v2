@@ -107,11 +107,11 @@ func paperReply(_, user string) string {
 	page := 1
 	for _, line := range strings.Split(user, "\n") {
 		if m := regexp.MustCompile(`^\[Trang (\d+)\]`).FindStringSubmatch(line); m != nil {
-			fmt.Sscan(m[1], &page)
+			_, _ = fmt.Sscan(m[1], &page)
 		}
 		if m := questionLine.FindStringSubmatch(line); m != nil {
 			var n int
-			fmt.Sscan(m[1], &n)
+			_, _ = fmt.Sscan(m[1], &n)
 			out = append(out, q{Number: n, Stem: strings.TrimSpace(m[2]), Page: page, Options: []opt{{"Phương án một"}, {"Phương án hai"}, {"Phương án ba"}, {"Phương án bốn"}}})
 		}
 	}

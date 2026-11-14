@@ -42,7 +42,7 @@ type GeneratePayload struct {
 	GenerateIn
 }
 
-var genTypes = map[string]bool{exam.TypeMCQSingle: true, exam.TypeMCQMulti: true, exam.TypeTrueFalse: true}
+var genTypes = map[string]bool{exam.TypeMCQSingle: true, exam.TypeMCQMulti: true, exam.TypeTrueFalse: true} //nolint:gochecknoglobals // tập loại cho phép, bất biến
 
 // EnqueueGenerate xếp việc sinh câu từ đoạn tài liệu (US-P9-03): nguồn là `document_ids` HOẶC `chunk_ids`, không phải ANSWER_KEY (422 WRONG_DOCUMENT_TYPE).
 func (s *Service) EnqueueGenerate(ctx context.Context, owner, courseID uuid.UUID, in GenerateIn) (uuid.UUID, error) {
