@@ -222,7 +222,7 @@ Không còn gRPC và `shared-proto`: AI nằm trong cùng tiến trình Go, gọ
 
 **Decision giả: model `decision-fake` trên provider `type = 'decision'`, giá 0** (SRS §4.6).
 - Phát lại theo khoá `sha256(masked_input) + ":" + question_id`, đọc từ `internal/llm/testdata/decision-replay.json`.
-- Thiếu khoá → `noul = 0,5` hoặc các lựa chọn đều nhau, tức là lưỡng lự và buộc đi fallback.
+- Thiếu khoá → `noul = 0,25` (`fake.UnknownNoul`, P-105-1 Q3): dưới ngưỡng "có" 0,5 và trên ε của mọi cổng. Với `choice`, các nhãn chia đều (`confidence = 1/n`, dưới mọi τ). Cả hai đều là lưỡng lự, nên cascade luôn đi fallback. `FAKE_DECISION_PROB` (P-105-1 Q2) ghi đè giá trị này, chỉ cho câu không có trong bản phát lại.
 - Độ trễ log-chuẩn theo `LLM_DECISION_FAKE_P50_MS` / `_P95_MS` (426 / 682).
 - Lỗi theo `LLM_DECISION_FAKE_ERROR_RATE`; chế độ `LLM_DECISION_FAKE_MODE` = `error` / `timeout` / `always_yes` / `always_no` cho E2E.
 - Là mặc định ở dev / test / CI / seed / demo / eval, và không gọi mạng.
