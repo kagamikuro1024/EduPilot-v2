@@ -73,6 +73,7 @@ function RealGradeScheme({ courseId, teacher }: { courseId: string; classCode: s
       {teacher && <input ref={picker} type="file" hidden accept=".pdf,.docx,.pptx" data-part="policy-input" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload.start(f); }} />}
       <PageState
         query={{ isPending: base.isPending, isError: base.isError, error: base.error, data: base.data, refetch: base.refetch }}
+        header={<PageHeader title="Công thức điểm" back={{ href: "/gradebook", label: "Sổ điểm" }} />}
         loading={<><PageHeader title="Công thức điểm" back={{ href: "/gradebook", label: "Sổ điểm" }} /><Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >

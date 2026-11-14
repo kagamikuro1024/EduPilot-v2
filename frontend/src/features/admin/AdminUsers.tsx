@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useQueryClient } from "@tanstack/react-query";
 import { Mail, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -171,7 +172,7 @@ export function AdminUsers() {
         </InlineNotice>
       )}
 
-      <Panel>
+      <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
         <Toolbar
           end={
             <Field label="Tìm người dùng" className={s.searchField}>

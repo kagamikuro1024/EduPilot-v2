@@ -17,15 +17,21 @@ const VIDEO_CAPTIONS = [
   "Hôm nay: việc cần giảng viên quyết, xếp theo mức khẩn.",
 ] as const;
 
-const cx = (v: string) => v.split(" ").map((n) => s[n]).filter(Boolean).join(" ");
+// tên lớp theo mô-đun; `is-*` là lớp trạng thái toàn cục (CSS viết bằng :global, script bật / tắt) — giữ nguyên để hình mặc định HIỆN (mẫu gắn sẵn `is-on`)
+const cx = (v: string) => v.split(" ").map((n) => s[n] ?? (n.startsWith("is-") ? n : "")).filter(Boolean).join(" ");
 
 /** Ảnh chụp màn hình từ bản demo đã seed (scripts/landing-video): `srcset` 640 / 800 / 1280 (không nhúng 1600 px cho mọi bề rộng); có width / height để không dịch bố cục. */
-function Shot({ name, alt, className }: { name: string; alt: string; className?: string }) {
+function Shot({ name, alt, className, single }: { name: string; alt: string; className?: string; single?: boolean }) {
   if (name === "sinh-vien-375-hom-nay-360") {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={`/landing/${name}.webp`} width={360} height={780} alt={alt} loading="lazy" decoding="async" className={className} />;
   }
   const mid = name.startsWith("story-") ? "800w, " : "";
+  if (single) {
+    // một nguồn 1280 px: ảnh bị cắt vuông ở 390 px nên hiện gần 600 px rộng — bản 640 sẽ bị phóng
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={`/landing/${name}-1280.webp`} width={1280} height={800} alt={alt} loading="lazy" decoding="async" className={className} />;
+  }
   const set = `/landing/${name}-640.webp 640w, ${mid ? `/landing/${name}-800.webp ${mid}` : ""}/landing/${name}-1280.webp 1280w`;
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={`/landing/${name}-1280.webp`} srcSet={set} sizes="(min-width: 1024px) 1280px, 100vw" width={1280} height={800} alt={alt} loading="lazy" decoding="async" className={className} />;
@@ -36,17 +42,17 @@ export function Landing() {
     <div className={s.page} data-part="landing">
       <script dangerouslySetInnerHTML={{ __html: "if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('m-on')" }} />
       <LandingMotion />
-      <header className={cx("nav")}>
-  <div className={cx("wrap")}>
+      <header className={`${cx("nav")} nav`}>
+  <div className={`${cx("wrap")} wrap`}>
     <a className={cx("skip")} href="#landing-main">Tới nội dung</a>
     <a href="#top" aria-label="EduPilot"><img src="/brand/logo-edupilot.svg" alt="" height={36} className={cx("logo")} /></a>
     <div className={cx("nav__end")}><Link className={cx("nav__link")} href="/register">Tạo tài khoản</Link><Link className={cx("btn btn--primary btn--sm")} href="/login">Đăng nhập</Link></div>
   </div>
 </header>
 
-<div role="main" id="landing-main">
+<main id="landing-main">
   <section className={cx("sec hero")} id="top" aria-labelledby="hero-title" data-enter>
-    <div className={cx("wrap")}><div className={cx("hero-text")}>
+    <div className={`${cx("wrap")} wrap`}><div className={`${cx("hero-text")} hero-text`}>
       <div className={cx("hero__text")}>
         <h1 className={cx("h1")} id="hero-title"><span className={cx("ln")}>Vận hành lớp học</span> <span className={cx("ln")}>có trợ lý AI</span></h1>
         <span className={cx("stripe")} aria-hidden="true"><i></i><b></b></span>
@@ -59,7 +65,7 @@ export function Landing() {
           <div aria-hidden="true">
             <p className={cx("demo__bar")}><b>Bài tập 03</b><span>Bài làm 12 / 18 · 761987 An ninh mạng</span></p>
             <div className={cx("demo__body")}>
-              <p className={cx("quote")}><small>Đoạn trích từ bài làm</small>«…kẻ tấn công chèn chuỗi vào ô đăng nhập để câu truy vấn luôn đúng, từ đó bỏ qua bước kiểm tra mật khẩu…»</p>
+              <p className={cx("quote")}>«…kẻ tấn công chèn chuỗi vào ô đăng nhập để câu truy vấn luôn đúng, từ đó bỏ qua bước kiểm tra mật khẩu…»</p>
               <div className={cx("rubric")}>
                 <p className={cx("rubric__row rubric__row--head")}><span>Tiêu chí</span><span>AI nháp</span><span>Điểm</span></p>
                 <p className={cx("rubric__row")}><span>Xác định đúng lỗ hổng</span><span className={cx("rubric__ai")}>8,0</span><b>8,0</b></p>
@@ -83,7 +89,7 @@ export function Landing() {
   </section>
 
   <section className={cx("sec flowsec")} id="bai-nop" aria-labelledby="flow-title" data-reveal>
-    <div className={cx("wrap")}>
+    <div className={`${cx("wrap")} wrap`}>
       <div className={cx("head")}><h2 className={cx("h2")} id="flow-title">Bài nộp đi qua ba bước</h2></div>
       <ol className={cx("steps3")}>
         <li className={cx("step")} style={{ "--i": 0 } as CSSProperties}><span className={cx("mark")} aria-hidden="true">1</span>
@@ -103,7 +109,7 @@ export function Landing() {
   </section>
 
   <section className={cx("sec storysec")} id="ba-man" aria-labelledby="story-title">
-    <div className={cx("wrap story")}>
+    <div className={`${cx("wrap story")} wrap story`}>
       <div className={cx("head")}><h2 className={cx("h2")} id="story-title">EduPilot trong ba màn</h2></div>
         <ol className={cx("story__list")}>
           <li data-story-item className={cx("story__item")}><h3 className={cx("h3")}>Chat riêng có nguồn</h3><p>Câu trả lời kèm nguồn trong tài liệu của lớp.</p></li>
@@ -118,19 +124,22 @@ export function Landing() {
     </div>
   </section>
 
-  <section className={cx("sec")} id="so-do" aria-labelledby="proof-title" data-reveal>
-    <div className={cx("wrap")}>
+  <section className={cx("sec sodosec")} id="so-do" aria-labelledby="proof-title" data-reveal>
+    <div className={`${cx("wrap")} wrap`}>
       <div className={cx("head")}><h2 className={cx("h2")} id="proof-title">Ba số đo trên dữ liệu mô phỏng</h2></div>
-      <ol className={cx("stats")}>
-        <li className={cx("stat")} style={{ "--i": 0 } as CSSProperties}><p className={cx("stat__num")} data-count="146">146</p><h3 className={cx("h3 stat__what")}>yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp</h3><p className={cx("stat__how")}>Bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn.</p><div className={cx("viz")} aria-hidden="true"><span className={cx("viz__bar")}><i style={{ width: "96%" }} /></span><small>recall 0,960</small></div></li>
-        <li className={cx("stat")} style={{ "--i": 1 } as CSSProperties}><p className={cx("stat__num")}>30/30</p><h3 className={cx("h3 stat__what")}>sinh viên mẫu có điểm học phần khớp tính tay</h3><p className={cx("stat__how")}>Điểm do mã tính từ quy chế; AI chỉ trích công thức, giảng viên xác nhận.</p><div className={cx("viz")} aria-hidden="true"><span className={cx("viz__dots")}>{Array.from({ length: 30 }, (_, n) => <i key={n} />)}</span><small>30 trên 30 sinh viên mẫu</small></div></li>
-        <li className={cx("stat")} style={{ "--i": 2 } as CSSProperties}><p className={cx("stat__num")}>+0,05 %</p><h3 className={cx("h3 stat__what")}>Chấm hàng loạt, thời gian đến chữ đầu tiên của chat chỉ tăng 0,05 %</h3><p className={cx("stat__how")}>Đo bằng k6 với nhà cung cấp AI mô phỏng.</p><div className={cx("viz viz--pair")} aria-hidden="true"><span className={cx("viz__bar")}><i style={{ width: "100%" }} /></span><span className={cx("viz__bar")}><i style={{ width: "100.05%" }} /></span><small>chat khi không chấm · chat khi đang chấm hàng loạt</small></div></li>
+      <div className={cx("stats")}>
+      <ol className={cx("stats__list")}>
+        <li className={cx("stat")} style={{ "--i": 0 } as CSSProperties}><div className={cx("stat__body")}><p className={cx("stat__num")} data-count="146">146</p><h3 className={cx("h3 stat__what")}>yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp</h3><p className={cx("stat__how")}>Bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn.</p></div></li>
+        <li className={cx("stat")} style={{ "--i": 1 } as CSSProperties}><div className={cx("stat__body")}><p className={cx("stat__num")}>30/30</p><h3 className={cx("h3 stat__what")}>sinh viên mẫu có điểm học phần khớp tính tay</h3><p className={cx("stat__how")}>Điểm do mã tính từ quy chế; AI chỉ trích công thức, giảng viên xác nhận.</p></div></li>
+        <li className={cx("stat")} style={{ "--i": 2 } as CSSProperties}><div className={cx("stat__body")}><p className={cx("stat__num")}>+0,05 %</p><h3 className={cx("h3 stat__what")}>Chấm hàng loạt, thời gian đến chữ đầu tiên của chat chỉ tăng 0,05 %</h3><p className={cx("stat__how")}>Đo bằng k6 với nhà cung cấp AI mô phỏng.</p></div></li>
       </ol>
+      <div className={cx("stats__shot frame")}><Shot single name="story-gradebook-v1" alt="Sổ điểm của lớp mẫu: điểm thành phần và điểm học phần của từng sinh viên, mỗi điểm có giải trình" /></div>
+      </div>
     </div>
   </section>
 
-  <section className={cx("sec")} id="vai" aria-labelledby="roles-title">
-    <div className={cx("wrap")}>
+  <section className={cx("sec vaisec")} id="vai" aria-labelledby="roles-title">
+    <div className={`${cx("wrap")} wrap`}>
       <div className={cx("head")}><h2 className={cx("h2")} id="roles-title">Việc của giảng viên và sinh viên</h2>
         <div className={cx("seg")} role="tablist" aria-label="Vai"><button type="button" role="tab" id="t-gv" aria-controls="p-gv" aria-selected="true">Giảng viên</button><button type="button" role="tab" id="t-sv" aria-controls="p-sv" aria-selected="false">Sinh viên</button><span data-ind className={cx("seg__ind")} aria-hidden="true"></span></div></div>
       <div className={cx("grid")}>
@@ -155,12 +164,14 @@ export function Landing() {
           <Shot name="sinh-vien-375-hom-nay-360" alt="Màn Hôm nay của sinh viên trên điện thoại" className={cx("phone")} />
         </div>
       </div>
+    
+      <div className={cx("actions vai__cta")}><Link className={cx("btn btn--secondary")} href="/register">Tạo tài khoản</Link></div>
     </div>
   </section>
-</div>
+</main>
 
-<footer className={cx("sec closing")} aria-labelledby="cta-title" data-reveal>
-  <div className={cx("wrap")}>
+<footer className={`${cx("sec closing")} closing`} aria-labelledby="cta-title" data-reveal>
+  <div className={`${cx("wrap")} wrap`}>
     <div className={cx("close")}>
       <div className={cx("close__text")}>
         <span className={cx("stripe")} aria-hidden="true"><i></i><b></b></span>

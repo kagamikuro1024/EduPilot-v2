@@ -91,8 +91,6 @@ export function ObservabilityScreen() {
         }
       />
 
-      {isAdmin && <FailedMail />}
-
       <PageState
         loading={
           <Panel>
@@ -107,6 +105,7 @@ export function ObservabilityScreen() {
           problem: "Không đọc được số liệu quan sát trong 5 phút gần nhất.",
         }}
       >
+        {isAdmin && <FailedMail />}
         <TodayLine items={STATUS_STRIP} />
 
         {!isAdmin && (

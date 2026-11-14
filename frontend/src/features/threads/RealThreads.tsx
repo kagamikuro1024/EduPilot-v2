@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useQueryClient } from "@tanstack/react-query";
 import { Pin, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
@@ -84,7 +85,7 @@ export function RealThreads({ courseId }: { courseId: string }) {
             </Drawer>
           </>
         )}
-        <Panel>
+        <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
           <PageState
             query={list}
             isEmpty={() => list.items.length === 0 && pinned.length === 0}

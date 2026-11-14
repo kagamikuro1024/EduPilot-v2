@@ -4,6 +4,8 @@ import s from "./Panel.module.css";
 // Server Component thuần CSS (0 byte JS): không đánh dấu client, không context. Chặn `Panel` lồng `Panel` bằng phép 22 của scripts/ui-antipatterns.sh
 // (cùng tệp) và kiểm DOM `[data-ep-panel] [data-ep-panel]` = 0 ở e2e/panels.spec.ts (qua ranh giới thành phần). `className` KHÔNG cho truyền: không ai tự chế khung.
 type PanelProps = {
+  /** thay cả panel bằng thông báo lỗi của vùng (`ApiErrorNotice`) khi tải vùng thất bại */
+  fault?: ReactNode;
   as?: "div" | "section";
   "aria-label"?: string;
   children: ReactNode;
@@ -11,7 +13,9 @@ type PanelProps = {
 };
 
 /** Một vùng làm việc = một Panel trên nền `--ep-canvas`. Tiêu đề vùng (`h2`) nằm NGOÀI panel; nhóm bên trong tách bằng `PanelSection`. */
-export function Panel({ as: Tag = "div", children, ...rest }: PanelProps) {
+export function Panel({ as: Tag = "div", children, fault, ...rest }: PanelProps) {
+  // lỗi tải cả vùng (§23.5): MỘT dòng thay chỗ vùng, rộng bằng cột — không nằm trong khung panel (nên không có đệm thừa)
+  if (fault) return <>{fault}</>;
   return (
     <Tag className={s.panel} data-ep-panel aria-label={rest["aria-label"]}>
       {children}

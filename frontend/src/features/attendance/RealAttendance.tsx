@@ -68,6 +68,7 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
     <Page kind="work">
       <PageState
         query={{ isPending: grid.isPending, isError: grid.isError, error: grid.error, data: grid.data, refetch: grid.refetch }}
+        header={<PageHeader title="Điểm danh" />}
         loading={<><PageHeader title="Điểm danh" /><Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >

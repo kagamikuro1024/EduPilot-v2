@@ -170,7 +170,7 @@ test("landing hiện theo cuộn: ba số đo ẩn tới khi cuộn tới; 146 �
   await page.goto("/");
   const stat = page.locator("[data-part=landing] li").filter({ hasText: "yêu cầu gửi AI" }).first();
   const num = stat.locator("p").first();
-  const opacity = () => num.evaluate((e) => Number(getComputedStyle(e).opacity));
+  const opacity = () => stat.locator(":scope > div").evaluate((e) => Number(getComputedStyle(e).opacity)); // khối chữ của số đo
   await expect(page.locator("html")).toHaveClass(/m-armed/); // bộ quan sát đã gắn: từ đây khối mới bị ẩn (AC15)
   await expect.poll(opacity).toBe(0); // ẩn (có chuyển tiếp 1 → 0 ngay sau khi gắn)
   await stat.scrollIntoViewIfNeeded();
@@ -194,7 +194,8 @@ test("landing số liệu: ba số đo nguyên văn nguồn, mỗi số có hìn
     "Chấm hàng loạt, thời gian đến chữ đầu tiên của chat chỉ tăng 0,05 %",
   ]);
   await expect(sec.getByText("Bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn.")).toBeVisible();
-  await expect(sec.locator("li [aria-hidden=true]")).toHaveCount(3); // mỗi số một hình
+  await expect(sec.locator("li [data-ui]")).toHaveCount(0); // hình của mục là ảnh Sổ điểm, không vẽ thanh / chấm
+  await expect(sec.locator("img")).toHaveCount(1); // ảnh Sổ điểm: hình của mục (AC24 mục 1) // hình cho hai số có hai giá trị tuyệt đối trong nguồn (recall 0,960; 30/30); +0,05 % chỉ là số tương đối, không vẽ
 });
 
 test("landing vai: hai tab Giảng viên / Sinh viên (bấm, mũi tên, ảnh đổi); không script → hai danh sách xếp dọc", async ({ page, browser }) => {
@@ -247,4 +248,28 @@ test("landing khung ghim: ở 1440 khung dính và ba màn đổi theo cuộn; �
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.reload();
   await expect(story).not.toHaveClass(/is-pinned/);
+});
+
+// P-107-12 / TL-1 §13.1: trạng thái mặc định phải HIỆN ảnh; chuyển động chỉ thêm lên
+test("landing ảnh không bao giờ trống: giảm chuyển động, không script và 390 px đều thấy ảnh khung ghim và ảnh vai", async ({ page, browser }) => {
+  await anonymous(page);
+  const visible = (p: Page, sel: string) => p.locator(sel).evaluateAll((es) => es.filter((e) => getComputedStyle(e).opacity === "1" && e.getBoundingClientRect().height > 0).length);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await expect(page.locator("[data-part=landing]")).toBeVisible();
+  expect(await visible(page, "[data-story-shots] img")).toBe(1);
+  expect(await visible(page, "[data-role-shots] img")).toBe(1);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  expect(await visible(page, "[data-story-shots] img")).toBe(1);
+  expect(await visible(page, "[data-role-shots] img")).toBe(1);
+
+  const noJs = await browser.newContext({ javaScriptEnabled: false });
+  const p2 = await noJs.newPage();
+  await anonymous(p2);
+  await p2.goto("/");
+  expect(await visible(p2, "[data-story-shots] img")).toBe(1);
+  expect(await visible(p2, "[data-role-shots] img")).toBe(1);
+  await noJs.close();
 });

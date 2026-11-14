@@ -32,8 +32,11 @@ export function PageState({
   query,
   isEmpty,
   showTechnical,
+  header,
 }: {
   children: ReactNode;
+  /** đầu trang giữ nguyên khi lỗi (X3: lỗi giữ h1 + tab như lúc có dữ liệu) — cho màn mà đầu trang nằm trong `children` */
+  header?: ReactNode;
   loading?: ReactNode;
   /** nội dung rỗng; thường là <EmptyState title action>…</EmptyState> */
   empty?: ReactNode;
@@ -54,7 +57,7 @@ export function PageState({
   if (query) {
     if (query.isPending) return <>{loading ?? <Skeleton lines={5} />}</>;
     if (query.isError) {
-      return <ApiErrorNotice error={query.error} showTechnical={showTechnical} onRetry={() => void query.refetch()} />;
+      return <>{header}<ApiErrorNotice error={query.error} showTechnical={showTechnical} onRetry={() => void query.refetch()} /></>;
     }
     if (isEmpty?.(query.data)) return <>{empty ?? <EmptyState title="Chưa có dữ liệu" />}</>;
     return <>{children}</>;
@@ -64,6 +67,8 @@ export function PageState({
   if (s === "empty") return <>{empty ?? <EmptyState title="Chưa có dữ liệu" />}</>;
   if (s === "error") {
     return (
+      <>
+      {header}
       <InlineNotice
         tone="danger"
         title={error?.problem ?? "Không tải được nội dung"}
@@ -75,6 +80,7 @@ export function PageState({
       >
         {unsaved ? "Chữ bạn đã nhập vẫn còn" : null}
       </InlineNotice>
+      </>
     );
   }
   return <>{children}</>;

@@ -83,7 +83,7 @@ export function RealStudents({ courseId, classCode }: { courseId: string; classC
   return (
     <Page kind="work">
       <PageHeader title="Sinh viên" meta={[total === null ? undefined : `${total} sinh viên`]} />
-      <Panel>
+      <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
         <Toolbar end={<FilterChips label="Lọc nhanh" value={chips} onChange={(next) => setUrl({ chips: next })} options={FILTERS} />}>
           <label className={s.search}>
             <Search aria-hidden />

@@ -75,15 +75,13 @@ function Blocks({ courseId, admin }: { courseId: string; admin: boolean }) {
   const failed = [smtp, imap, teams].find((q) => q.isError);
   if (failed || !smtp.data || !imap.data || !teams.data) {
     return (
-      <Panel>
-        <ApiErrorNotice
-          error={failed?.error}
-          title="Chưa đọc được trạng thái tích hợp."
-          context="Các kết nối đang có vẫn chạy."
-          showTechnical
-          onRetry={() => void failed?.refetch()}
-        />
-      </Panel>
+      <ApiErrorNotice
+        error={failed?.error}
+        title="Chưa đọc được trạng thái tích hợp"
+        context="Các kết nối đang có vẫn chạy."
+        showTechnical
+        onRetry={() => void failed?.refetch()}
+      />
     );
   }
 

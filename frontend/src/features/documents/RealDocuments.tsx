@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, apiClient, newIdempotencyKey, useJob } from "@/shared/data";
@@ -166,7 +167,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
     <Page kind="work">
       <PageHeader title="Tài liệu" primary={{ label: "Tải tài liệu lên", onClick: () => pick("LECTURE") }} />
       <input ref={picker} type="file" hidden multiple accept=".pdf,.docx,.pptx" data-part="file-input" onChange={(e) => { if (e.target.files) add(e.target.files, pendingType); e.target.value = ""; }} />
-      <Panel>
+      <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
         <div className={r.stack}>
           {stats.data && !stats.data.has_course_policy && (
             <InlineNotice tone="info" compact action={<Button size="sm" onClick={() => pick("COURSE_POLICY")}>Tải quy chế môn học</Button>}>Lớp chưa có quy chế môn học.</InlineNotice>

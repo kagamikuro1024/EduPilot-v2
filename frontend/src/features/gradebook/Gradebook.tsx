@@ -347,6 +347,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     <Page kind="work">
       <PageState
         query={{ isPending: q.isPending, isError: q.isError, error: q.error, data: q.data, refetch: q.refetch }}
+        header={<PageHeader title="Sổ điểm" />}
         loading={<><PageHeader title="Sổ điểm" /><Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >

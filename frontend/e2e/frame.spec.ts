@@ -3,6 +3,7 @@ import { test } from "@playwright/test";
 import { measureFrame, type FrameRow } from "./support/frame";
 import { settleGoto } from "./support/hydrate";
 import { ROLES, routesFor } from "./support/routes";
+import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
 // Hợp đồng khung trang (DESIGN.md §23, sprint 10.7). Đo DOM qua móc `data-ep-*` trên MỌI route × vai × 1440 / 375 × (có dữ liệu, rỗng).
@@ -13,6 +14,9 @@ const SIZES = [
   { name: "1440", w: 1440, h: 900, wide: true },
   { name: "375", w: 375, h: 812, wide: false },
 ] as const;
+
+// Route chỉ có biểu mẫu, không tải dữ liệu vùng: không có trạng thái đang tải / lỗi để đo (các yêu cầu /api/v1 bị chặn là của khung ứng dụng)
+const FORM_ONLY = /^\/join(\/|$)/;
 
 test.beforeEach(({ page }) => settleGoto(page));
 
@@ -29,9 +33,9 @@ for (const role of ROLES) {
           // đang tải / lỗi vào bằng CẢ HAI đường: ?state= (màn mô phỏng) và chặn /api/v1 (màn nối API), như QC (TL-1 §12.2)
           let calls = 0;
           if (state === "loading" || state === "error") {
-            await page.route(/\/api\/v1\/(?!auth|me)/, async (r) => {
+            await page.route(/\/api\/v1\/(?!auth\/|me(\?|$)|me\/courses)/, async (r) => {
               calls++;
-              if (state === "error") return r.fulfill({ status: 500, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ code: "INTERNAL", message: "x", trace_id: "t" }) });
+              if (state === "error") return r.fulfill({ status: 500, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ code: "INTERNAL", message: "x", trace_id: "t" }) });
               await new Promise((x) => setTimeout(x, 5000));
               return r.abort().catch(() => undefined);
             });
@@ -40,7 +44,7 @@ for (const role of ROLES) {
           await page.locator("main, body").first().waitFor();
           if (state === "loading" || state === "error") await page.waitForTimeout(800);
           else await page.waitForLoadState("networkidle").catch(() => undefined);
-          rows.push({ route, size: size.name, state, ...(await measureFrame(page, { wide: size.wide, state, calls })) });
+          rows.push({ route, size: size.name, state, ...(await measureFrame(page, { wide: size.wide, state, calls: FORM_ONLY.test(route) ? 0 : calls })) });
           await page.unrouteAll({ behavior: "ignoreErrors" });
         }
       }

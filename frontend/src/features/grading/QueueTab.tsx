@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Upload } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ApiError, newIdempotencyKey, useJob, useSSE } from "@/shared/data";
+import { ApiError, ApiErrorNotice, newIdempotencyKey, useJob, useSSE } from "@/shared/data";
 import { checkSubmissionBundle, uploadSubmissionBundle } from "@/shared/data/uploadFile";
 import { Button, type Column, type HeaderAction, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useAssignments, vi } from "@/features/assignments/assignmentApi";
@@ -390,7 +390,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   ];
 
   return (
-    <Panel>
+    <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
         <Toolbar
           alignEnd
           end={

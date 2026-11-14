@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -220,7 +221,7 @@ function Members({ courseId, canManage }: { courseId: string; canManage: boolean
       )}
 
       {tab !== "staff" && tab !== "import" && (
-        <Panel>
+        <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
           <Toolbar
             end={
               <Field label="Tìm thành viên" className={s.searchField}>
