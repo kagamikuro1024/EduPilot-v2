@@ -23,6 +23,8 @@ Phát sinh khi viết TC pha 1 (2026-11-14). Mỗi câu có phương án QC; TC 
 | Q-S11-18 | 07-14, 11 | `docs/specs/FEAT-p10-eval/e2e-matrix.md` và PROGRESS «F17 ☑»: ai tick F16/F17 — dev (theo handoff) hay QC sau khi kiểm? | QC xác nhận bằng chạy luồng; dev chỉ đề xuất |  **Chấp nhận phương án QC** (PM 2026-11-14, P-11-2) |
 | Q-S11-19 | 05-03 | AC2 US-P10-05 nói «Kiểm bằng lớp 761987» nhưng seed B có 150 câu hỏi và test tạo báo cáo ở lớp 1 sẽ làm nó có báo cáo. Thứ tự TC? | QC chạy TC-05-03 trên DB vừa seed (chưa generate) và trên lớp mới tạo; sau đó mới TC-04-xx |  **Chấp nhận phương án QC** (PM 2026-11-14, P-11-2) |
 | Q-S11-20 | 03-03 | «Tỷ lệ lỗi > 5 %» với đúng 5,0 %: không báo (strict). Xác nhận | Strict (> 5 %) |  **Chấp nhận phương án QC** (PM 2026-11-14, P-11-2) |
+| Q-S11-21 | 12-36 | AC17 US-P10-12: «LLM lỗi → chỉ regex» — timeout của lời gọi gắn cờ là bao nhiêu? | Dùng timeout chung của lời gọi chấm (handoff nêu giá trị); QC kiểm bằng LLM chậm giả lập | |
+| Q-S11-22 | 12-34 | AC16: «7 bài fixture khác trong `FEAT-assignments`» nhưng thư mục có `s1`…`s7` (6 bài ngoài `s6`, trong đó `s4` là bài trống) | Đối chứng = `s1`, `s2`, `s3`, `s5`, `s7` (5 bài hợp lệ không chèn lệnh) + `s4` kiểm riêng ở TC-12-33; BA xác nhận con số | |
 
 ## Việc QC ghi nhận không cần trả lời
 - Đợt R (smoke hồi quy toàn bộ) tách khỏi các TC này: `docs/sprints/11/qc/smoke-hoi-quy.md`, chạy khi PM xếp lượt RAM.
