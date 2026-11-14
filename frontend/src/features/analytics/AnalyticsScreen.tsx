@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { analyticsFor, fmtVnd, type AnalyticsRange } from "@/mock/analytics";
+import { analyticsFor, fmtVnd, hasAnalytics, type AnalyticsRange } from "@/mock/analytics";
 import { fmtTime } from "@/mock/core";
 import { ticketStats } from "@/mock/derive";
 import { KEYS, type Ticket } from "@/mock/state";
@@ -21,12 +21,13 @@ export function AnalyticsScreen() {
   const [range, setRange] = useState<AnalyticsRange>("7");
   const nowMs = useSimNow();
   const courseIds = isAll ? courses.map((c) => c.id) : [course.id];
-  const a = analyticsFor(course.id, range, ticketStats(mergeTickets(stored), courseIds, nowMs));
+  const seedId = isAll ? courseIds.find(hasAnalytics) : hasAnalytics(course.id) ? course.id : undefined;
+  const a = analyticsFor(seedId ?? course.id, range, ticketStats(mergeTickets(stored), courseIds, nowMs));
   const days = range === "7" ? "7 ngày" : "30 ngày";
 
   return (
     <Page kind="read">
-      <PageHeader title="Số liệu lớp học" meta={[<span key="m0">{course.label}</span>, <span key="m1">Tính tới hôm nay, {fmtTime(new Date(nowMs))}</span>]} />
+      <PageHeader title="Số liệu lớp học" meta={[<span key="m0">Tính tới hôm nay, {fmtTime(new Date(nowMs))}</span>]} />
       <div className={s.range}>
         <SegmentedControl
           label="Khoảng thời gian"
@@ -40,6 +41,7 @@ export function AnalyticsScreen() {
       </div>
 
       <PageState
+        state={seedId ? undefined : "empty"}
         loading={
           <Panel>
             <div className={s.loading}>
@@ -50,7 +52,7 @@ export function AnalyticsScreen() {
           </Panel>
         }
         empty={
-          <Panel><EmptyState title={"Chưa đủ dữ liệu để vẽ xu hướng"} /></Panel>
+          <Panel><EmptyState title={seedId ? "Chưa đủ dữ liệu để vẽ xu hướng" : "Chưa có số liệu"} /></Panel>
         }
         error={{
           problem: "Không tải được số liệu của lớp.",

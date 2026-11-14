@@ -87,7 +87,7 @@ export function ObservabilityScreen() {
       <PageHeader
         title="Quan sát AI"
         meta={
-          [<span key="m0">Thứ Năm, 29 tháng 10 · 09:20</span>, <span key="m1">{isAdmin ? "Toàn hệ thống" : course.label}</span>]
+          [<span key="m0">Thứ Năm, 29 tháng 10 · 09:20</span>, ...(isAdmin ? [<span key="m1">Toàn hệ thống</span>] : [])]
         }
       />
 

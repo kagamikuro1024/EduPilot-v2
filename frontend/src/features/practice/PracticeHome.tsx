@@ -47,6 +47,7 @@ function Home({ courseId }: { courseId: string }) {
       <PageHeader title="Luyện đề" secondary={[{ label: "Lịch sử luyện tập", href: "/practice/history" }]} />
       <PageState
         query={ov}
+        header={<Tabs label="Cách luyện" value={mode} onChange={setMode} options={[{ value: "topic", label: "Theo chủ đề", count: 0 }, { value: "mock", label: "Thi thử" }]} />}
         isEmpty={() => Boolean(noQuestions)}
         loading={<Panel><Skeleton lines={6} /></Panel>}
         empty={<Panel><EmptyState title="Giảng viên chưa mở câu hỏi" /></Panel>}
