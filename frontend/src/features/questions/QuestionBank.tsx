@@ -32,6 +32,39 @@ export function QuestionBank() {
 
 type Creating = null | "MCQ" | "CODE" | "AI" | "EXTRACT" | "GENERATE";
 
+/** Menu Tạo câu hỏi (US-P9-04 AC2): «Soạn tay» là nhóm cha mở ra Câu trắc nghiệm / Bài lập trình; mục chỉ có nhãn. */
+function CreateMenu({ close, pick }: { close: () => void; pick: (c: Creating) => void }) {
+  const [hand, setHand] = useState(false);
+  const go = (c: Creating) => () => {
+    pick(c);
+    close();
+  };
+  if (hand) {
+    return (
+      <MenuList
+        key="hand"
+        autoFocus
+        items={[
+          { label: "Câu trắc nghiệm", onSelect: go("MCQ") },
+          { label: "Bài lập trình", onSelect: go("CODE") },
+        ]}
+      />
+    );
+  }
+  return (
+    <MenuList
+      key="root"
+      autoFocus
+      items={[
+        { label: "Soạn tay", onSelect: () => setHand(true) },
+        { label: "Trích từ đề", onSelect: go("EXTRACT") },
+        { label: "Sinh từ tài liệu", onSelect: go("GENERATE") },
+        { label: "Gợi ý từ AI", onSelect: go("AI") },
+      ]}
+    />
+  );
+}
+
 function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; isTeacher: boolean }) {
   const params = useSearchParams();
   const { identity } = useSession();
@@ -83,20 +116,6 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
 
   const rows = useMemo(() => list.items.filter((r) => !hidden.has(r.id)), [list.items, hidden]);
   const pending = rows.filter((r) => r.review_status === "PENDING").length;
-  const createMenu = (close: () => void) => (
-    <MenuList
-      autoFocus
-      onPicked={close}
-      items={[
-        { label: "Câu trắc nghiệm", onSelect: () => setCreating("MCQ") },
-        { label: "Bài lập trình", onSelect: () => setCreating("CODE") },
-        { label: "Trích từ đề", hint: "Đề cũ → câu chờ duyệt", onSelect: () => setCreating("EXTRACT") },
-        { label: "Sinh từ tài liệu", hint: "Có trích dẫn, bạn duyệt", onSelect: () => setCreating("GENERATE") },
-        { label: "Gợi ý từ AI", hint: "Soạn nháp, bạn duyệt", onSelect: () => setCreating("AI") },
-      ]}
-    />
-  );
-
   return (
     <Page width="wide">
       <PageHeader
@@ -112,7 +131,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
               </Button>
             )}
           >
-            {createMenu}
+            {(close) => <CreateMenu close={close} pick={setCreating} />}
           </Popover>
         }
       />
@@ -141,7 +160,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
           filtered ? (
             <EmptyState title="Không có câu hỏi nào khớp bộ lọc" icon={<CircleHelp aria-hidden />}>Bỏ bớt bộ lọc để xem thêm.</EmptyState>
           ) : (
-            <EmptyState title="Chưa có câu hỏi nào" icon={<CircleHelp aria-hidden />} action={<Popover label="Tạo câu hỏi" width={240} trigger={(p) => <Button variant="primary" onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">Tạo câu hỏi</Button>}>{createMenu}</Popover>}>
+            <EmptyState title="Chưa có câu hỏi nào" icon={<CircleHelp aria-hidden />} action={<Popover label="Tạo câu hỏi" width={240} trigger={(p) => <Button variant="primary" onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">Tạo câu hỏi</Button>}>{(close) => <CreateMenu close={close} pick={setCreating} />}</Popover>}>
               Chưa có câu hỏi nào. Tạo câu đầu tiên hoặc nhờ AI gợi ý nháp.
             </EmptyState>
           )
