@@ -1,0 +1,29 @@
+# Câu hỏi của QC — sprint 11 (FEAT-p10-eval)
+Phát sinh khi viết TC pha 1 (2026-11-14). Mỗi câu có phương án QC; TC dùng phương án đó cho tới khi PM trả lời. Không tự đoán hành vi sản phẩm.
+
+| # | TC | Câu hỏi (chỗ AC mơ hồ / thiếu) | Phương án QC đề xuất | PM trả lời |
+| --- | --- | --- | --- | --- |
+| Q-S11-1 | 01-05 | US-P10-01 AC4: bộ lọc `Có vấn đề` = «status ≠ ok hoặc degraded». Status `cancelled` (người dùng huỷ) có vào đây không? US-P10-03 và SRS FR-1 loại `cancelled` khỏi «lỗi» | `Có vấn đề` = status ∉ {ok, degraded, cancelled} (nhất quán với tỷ lệ lỗi và cảnh báo); `degraded` có thể thêm cờ riêng | |
+| Q-S11-2 | 01-13, 06-21, 08-02 | AC8 US-P10-01 (≥ 1 triệu `llm_audit`), US-P10-06 AC9 (1.000 bài nộp), US-P10-08 (LCP trên dữ liệu T1) cần dữ liệu T1, nhưng luật RAM «demo + 1 stack». Dựng `seed-t1` trên `ep-qc` (xin PM xếp lượt) hay đo ở stack dev `ep-t1`? | QC dựng `ep-qc` rồi nạp thêm bằng SQL (`generate_series`: 1 triệu `llm_audit`, 1.000 `exam_attempts`) thay vì `seed-t1` đầy đủ (nhẹ RAM); LCP đo ở cùng stack | |
+| Q-S11-3 | 02-15, 03-01…10 | QC kích hoạt thế nào: worker cảnh báo (5 phút / lần), job dọn payload 30 ngày, và «đồng hồ giả lập» cho khử trùng 6 giờ? Chờ 5 phút / 6 giờ thật không khả thi | Handoff nêu: biến môi trường rút chu kỳ (`ALERT_INTERVAL`), lệnh chạy một lần (`worker run-alerts`, `worker run-payload-gc`) hoặc dịch `created_at` trong DB. QC chỉ cần một cách tất định | |
+| Q-S11-4 | 04-03 | `generate` thiếu `Idempotency-Key` trả mã nào? (SRS «bắt buộc», không nêu mã) | `400` hoặc `422` `IDEMPOTENCY_KEY_REQUIRED`, theo quy ước chung ở ARCHITECTURE §5 | |
+| Q-S11-5 | 04-20 | `data_watermark` có tính `period_days`? Báo cáo 14 ngày có `reused` cho yêu cầu 30 ngày không? AC8 nói «cùng `period_days`» | Khác `period_days` → coi là báo cáo mới (không `reused`) | |
+| Q-S11-6 | 04-25 | Trần 3 `generate` / 60 phút / lớp: `reused:true` (200, không việc) có tính vào trần không? | Không tính; chỉ việc `202` tính | |
+| Q-S11-7 | 06-09 | US-P10-06 AC4: «`topic` trùng một chủ đề ở báo cáo» — khớp theo chuỗi chính xác, không phân biệt hoa thường, hay theo chương/tuần? Tên chủ đề báo cáo do LLM đặt (có thể khác `topic` câu hỏi) | Khớp theo `topic` / `chapter` của câu hỏi với `chapter`/`week` của chủ đề (metadata cụm), không theo tên LLM đặt; handoff nêu rõ | |
+| Q-S11-8 | 06-11 | «Tụt 3 bài liên tiếp»: điểm bằng nhau có tính giảm? SV vắng một bài ở giữa thì sao? | Giảm nghiêm ngặt (a₁ > a₂ > a₃) trên 3 bài `PUBLISHED` liên tiếp mà SV **có bài nộp**; bài vắng → không tính liên tiếp | |
+| Q-S11-9 | 06-14 | Seed có Teacher dạy ≥ 2 lớp (AC6) và mỗi lớp ≥ 5 bài nộp? Tài khoản nào? | Handoff / `check-p10-seed.mjs` nêu rõ; nếu không có thì seed bổ sung | |
+| Q-S11-10 | 06-16 | `GET /analytics/exams/compare` cho ADMIN: `403` hay chỉ số tổng các lớp? SRS ma trận ghi «–» | `403` (ADMIN không phải người dạy; chỉ số tổng đã có ở từng lớp) | |
+| Q-S11-11 | 09-03 | `count` là chuỗi `"5"` hoặc `null`: mặc định 10 hay `422`? AC chỉ nêu «0 / âm / > 50 → 422; thiếu → 10» | `null` coi như thiếu (10); chuỗi → `422` | |
+| Q-S11-12 | 10-05 | E1: «200 bài gắn nhãn (người gán)» — nhãn đã có trong repo chưa (`benchmarks/pii/…`)? QC xác nhận độc lập bằng cách nào khi nhãn do người gán | QC tự gán nhãn lại 20 bài ngẫu nhiên, đo độ lệch; nhãn đã có thì chấp nhận | |
+| Q-S11-13 | 10-16 | AC11 «sai số được ghi» của E1/E2/E6: giá trị cụ thể? | E1, E2: bằng nhau tuyệt đối với `fake`; E6: ±15 % RAM / thời gian khởi động | |
+| Q-S11-14 | 11-04 | «3 lượt, chập chờn nếu ≥ 1 lần đỏ»: áp cho cả bộ playwright (≈ 80 spec) hay chỉ spec mới / bù? Cả bộ × 3 rất tốn thời gian và RAM | Lượt 1 cả bộ; lượt 2–3 chỉ spec đỏ + spec bù/mới | |
+| Q-S11-15 | 12-04 | AC2 US-P10-12: ngưỡng rate limit cụ thể (số lần / cửa sổ) cho login / đăng ký / đặt lại / tham gia lớp? | Handoff nêu bảng nhóm × ngưỡng; QC kiểm đúng giá trị đó + có `Retry-After` | |
+| Q-S11-16 | 12-15 | AC8: «7 route đại diện (QC chọn, nêu trong plan)». Chọn thế nào? | `/`, `/chat`, `/threads`, `/gradebook`, `/practice`, `/observability`, `/insights` (đủ SV / GV / ADMIN, cũ + mới); PM duyệt trước khi chụp lượt A | |
+| Q-S11-17 | 12-17 | AC9: «10 câu hỏi nghiệm thu cuối (`AGENT_PROMPT.md`)» — repo không có file `AGENT_PROMPT.md` (tìm ở gốc) | PM / chủ dự án chỉ vị trí hoặc dán 10 câu; không có thì QC không kiểm AC9 (K) | |
+| Q-S11-18 | 07-14, 11 | `docs/specs/FEAT-p10-eval/e2e-matrix.md` và PROGRESS «F17 ☑»: ai tick F16/F17 — dev (theo handoff) hay QC sau khi kiểm? | QC xác nhận bằng chạy luồng; dev chỉ đề xuất | |
+| Q-S11-19 | 05-03 | AC2 US-P10-05 nói «Kiểm bằng lớp 761987» nhưng seed B có 150 câu hỏi và test tạo báo cáo ở lớp 1 sẽ làm nó có báo cáo. Thứ tự TC? | QC chạy TC-05-03 trên DB vừa seed (chưa generate) và trên lớp mới tạo; sau đó mới TC-04-xx | |
+| Q-S11-20 | 03-03 | «Tỷ lệ lỗi > 5 %» với đúng 5,0 %: không báo (strict). Xác nhận | Strict (> 5 %) | |
+
+## Việc QC ghi nhận không cần trả lời
+- Đợt R (smoke hồi quy toàn bộ) tách khỏi các TC này: `docs/sprints/11/qc/smoke-hoi-quy.md`, chạy khi PM xếp lượt RAM.
+- TC-02-10 / 02-17 / 04-31 cần can thiệp DB (đổi quyền bảng): chỉ thực hiện trên stack `ep-qc`, khôi phục ngay, ghi ở báo cáo.
