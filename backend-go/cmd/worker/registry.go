@@ -66,8 +66,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	ack := func(context.Context, outbox.Message) error { return nil }
 	reg.Register(budget.TopicWarn, ack)
 	reg.Register(grading.TopicGuidanceChanged, ack) // lưu ý chấm đổi (10.6); L6 nối vào cache «Hôm nay» của nhân viên
-	thread.RegisterKind(runner, d.Redis)  // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
-	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
+	thread.RegisterKind(runner, d.Redis)            // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
+	ingest.RegisterKinds(runner, d.Redis)           // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
 	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log, Resolvers: map[string]mail.Resolver{}}
 	thread.MailResolver{PublicURL: d.Cfg.AppPublicURL}.Register(mh.Resolvers)
 	assignment.MailResolver{PublicURL: d.Cfg.AppPublicURL}.Register(mh.Resolvers) // assignment_feedback: chi tiết dựng lúc gửi

@@ -290,6 +290,41 @@ func (q *Queries) GuidanceFlagsAll(ctx context.Context) ([]GuidanceFlagsAllRow, 
 	return items, nil
 }
 
+const guidanceForResult = `-- name: GuidanceForResult :one
+select r.guidance_version, a.guidance_version as current_version, a.id as assignment_id, r.status::text as status, (r.first_reviewed_at is not null)::boolean as was_reviewed
+from grading_results r
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+where r.course_id = $1 and r.id = $2
+`
+
+type GuidanceForResultParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type GuidanceForResultRow struct {
+	GuidanceVersion int16
+	CurrentVersion  int16
+	AssignmentID    uuid.UUID
+	Status          string
+	WasReviewed     bool
+}
+
+// Phiên bản lưu ý đã ghim của kết quả + phiên bản hiện hành của bài tập (màn duyệt, SRS 4.2.3).
+func (q *Queries) GuidanceForResult(ctx context.Context, arg GuidanceForResultParams) (GuidanceForResultRow, error) {
+	row := q.db.QueryRow(ctx, guidanceForResult, arg.CourseID, arg.ID)
+	var i GuidanceForResultRow
+	err := row.Scan(
+		&i.GuidanceVersion,
+		&i.CurrentVersion,
+		&i.AssignmentID,
+		&i.Status,
+		&i.WasReviewed,
+	)
+	return i, err
+}
+
 const guidanceInsertDraft = `-- name: GuidanceInsertDraft :one
 insert into grading_guidance_items (course_id, assignment_id, criterion_id, text, direction, support, source_result_ids, origin_job)
 values ($1, $2, $3, $4, $5, $6, $7::text[]::uuid[], $8)
@@ -603,7 +638,7 @@ from grading_results r
 join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
 where r.course_id = $1 and s.assignment_id = $2::uuid and r.status = 'DRAFT' and r.run_state in ('DONE', 'FAILED')
-  and r.first_reviewed_at is null and r.guidance_version < a.guidance_version
+  and r.first_reviewed_at is null and r.guidance_version < a.guidance_version and r.round < 20
   and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
   and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
 order by r.id

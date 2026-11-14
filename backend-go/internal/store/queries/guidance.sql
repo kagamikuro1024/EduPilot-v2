@@ -133,7 +133,7 @@ from grading_results r
 join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
 where r.course_id = sqlc.arg(course_id) and s.assignment_id = sqlc.arg(assignment_id)::uuid and r.status = 'DRAFT' and r.run_state in ('DONE', 'FAILED')
-  and r.first_reviewed_at is null and r.guidance_version < a.guidance_version
+  and r.first_reviewed_at is null and r.guidance_version < a.guidance_version and r.round < 20
   and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
   and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
 order by r.id
@@ -181,3 +181,11 @@ select reject_reason, count(*)::int as n from question_bank
 where course_id = sqlc.arg(course_id) and review_status = 'REJECTED' and reject_reason is not null and reject_reason <> 'UNSPECIFIED'
   and reviewed_at >= now() - make_interval(days => sqlc.arg(window_days)::int)
 group by reject_reason order by n desc, reject_reason limit 3;
+
+-- name: GuidanceForResult :one
+-- Phiên bản lưu ý đã ghim của kết quả + phiên bản hiện hành của bài tập (màn duyệt, SRS 4.2.3).
+select r.guidance_version, a.guidance_version as current_version, a.id as assignment_id, r.status::text as status, (r.first_reviewed_at is not null)::boolean as was_reviewed
+from grading_results r
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+where r.course_id = sqlc.arg(course_id) and r.id = sqlc.arg(id);

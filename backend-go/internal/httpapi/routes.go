@@ -233,6 +233,9 @@ func assignmentService(d Deps) *assignment.Service {
 	if d.LLM != nil && d.LLM.Gateway != nil {
 		s.LLM = d.LLM.Gateway
 	}
+	if d.LLM != nil {
+		s.Guidance = d.LLM.Guidance
+	}
 	return s
 }
 

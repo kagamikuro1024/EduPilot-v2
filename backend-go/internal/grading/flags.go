@@ -36,6 +36,8 @@ type flagKey struct {
 
 // GuidanceFlags giữ ảnh chụp «lớp nào bật tính năng nào» trong bộ nhớ: đường nóng (chấm bài, soạn bài, sinh câu hỏi) KHÔNG chạm DB. Chưa nạp được → mọi cờ tắt.
 type GuidanceFlags struct {
+	// Poll: chu kỳ làm mới dự phòng khi mất tin PUBLISH (luật 15: TTL chỉ là lưới an toàn); 0 = FlagsPoll (60 s). Test đặt nhỏ.
+	Poll time.Duration
 	pool store.DBTX
 	log  *slog.Logger
 	cur  atomic.Pointer[map[flagKey]struct{}]
@@ -95,7 +97,11 @@ func (f *GuidanceFlags) Watch(ctx context.Context, rdb *goredis.Client) {
 		defer func() { _ = ps.Close() }()
 		msgs = ps.Channel()
 	}
-	t := time.NewTicker(FlagsPoll)
+	poll := f.Poll
+	if poll <= 0 {
+		poll = FlagsPoll
+	}
+	t := time.NewTicker(poll)
 	defer t.Stop()
 	for {
 		select {

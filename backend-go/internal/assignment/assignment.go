@@ -55,6 +55,8 @@ type Service struct {
 	Notify *notify.Service
 	LLM    grading.Structurer // SuggestRubric (task UTILITY → NEAR_REALTIME)
 	Now    func() time.Time   // nil → time.Now; test đặt để kiểm hạn phúc khảo ở biên
+	// Guidance: cờ «Lưu ý chấm» theo lớp (10.6). nil / lớp tắt → công bố như trước (không so phiên bản).
+	Guidance *grading.GuidanceFlags
 }
 
 func (s *Service) now() time.Time {

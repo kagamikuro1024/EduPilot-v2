@@ -25,6 +25,10 @@ func (h *Handler) mountGuidance(r chi.Router) {
 	r.With(manage).Put("/courses/{id}/guidance-flags/{feature}", h.putGuidanceFlag)
 	r.With(staff).Get("/courses/{id}/assignments/{aid}/guidance", h.guidanceOverview)
 	r.With(teacher, h.Idem).Post("/courses/{id}/assignments/{aid}/guidance/reflect", h.guidanceReflect)
+	r.With(teacher).Post("/courses/{id}/assignments/{aid}/guidance/items/{iid}/decide", h.guidanceDecide)
+	r.With(teacher, h.Idem).Post("/courses/{id}/assignments/{aid}/guidance/apply", h.guidanceApply)
+	r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/regrade-stale", h.regradeStale)
+	r.With(staff).Get("/courses/{id}/assignments/{aid}/guidance/stats", h.guidanceStats)
 }
 
 func guidanceActor(w http.ResponseWriter, r *http.Request) (course, aid uuid.UUID, a grading.GuidanceActor, ok bool) {
@@ -123,4 +127,85 @@ func (h *Handler) guidanceReflect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusAccepted, e)
+}
+
+func (h *Handler) guidanceDecide(w http.ResponseWriter, r *http.Request) {
+	course, aid, a, ok := guidanceActor(w, r)
+	if !ok {
+		return
+	}
+	iid, err := uuid.Parse(chi.URLParam(r, "iid"))
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	}
+	var in struct {
+		Decision string  `json:"decision" validate:"required,oneof=APPROVE REJECT RETIRE"`
+		Text     *string `json:"text"`
+		Version  *int    `json:"version"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	want, e := httpx.WantedVersion(r, in.Version)
+	if e != nil {
+		apierr.Write(w, r, e)
+		return
+	}
+	v, err := h.Guidance.Decide(r.Context(), a, course, aid, iid, in.Decision, in.Text, want)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, v)
+}
+
+func (h *Handler) guidanceApply(w http.ResponseWriter, r *http.Request) {
+	course, aid, a, ok := guidanceActor(w, r)
+	if !ok {
+		return
+	}
+	var in struct {
+		ExpectedVersion *int `json:"expected_version" validate:"required,min=0"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	v, err := h.Guidance.Apply(r.Context(), a, course, aid, *in.ExpectedVersion)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, v)
+}
+
+func (h *Handler) regradeStale(w http.ResponseWriter, r *http.Request) {
+	course, aid, a, ok := guidanceActor(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Guidance.RegradeStale(r.Context(), a, course, aid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	if out.JobID == nil {
+		httpx.WriteJSON(w, http.StatusOK, out)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, out)
+}
+
+func (h *Handler) guidanceStats(w http.ResponseWriter, r *http.Request) {
+	course, aid, _, ok := guidanceActor(w, r)
+	if !ok {
+		return
+	}
+	v, err := h.Guidance.Stats(r.Context(), course, aid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, v)
 }

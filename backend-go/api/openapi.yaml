@@ -3273,6 +3273,164 @@ paths:
           $ref: "#/components/responses/Conflict"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/assignments/{aid}/guidance/items/{iid}/decide:
+    post:
+      operationId: decideGuidanceItem
+      tags: [assignments]
+      summary: "Quyết định một lưu ý (chỉ TEACHER; TA 403): APPROVE / REJECT từ DRAFT (text sửa kèm theo qua kiểm từ khoá + PII → 422 GUIDANCE_TEXT_REJECTED), RETIRE mục đang hiệu lực (chờ nghỉ tới lần Áp dụng). 409 ITEM_NOT_DRAFT, VERSION_CONFLICT, GUIDANCE_DISABLED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: iid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision, version]
+              additionalProperties: false
+              properties:
+                decision: {type: string, enum: [APPROVE, REJECT, RETIRE]}
+                text: {type: string}
+                version: {type: integer, minimum: 1}
+      responses:
+        "200":
+          description: Lưu ý sau quyết định
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/guidance/apply:
+    post:
+      operationId: applyGuidance
+      tags: [assignments]
+      summary: "Áp dụng = gom mục đã duyệt chờ áp dụng và chờ nghỉ thành phiên bản N+1 (chỉ TEACHER; Idempotency-Key bắt buộc). Một giao dịch khoá bài tập; KHÔNG tự chấm lại. 409 VERSION_CONFLICT (expected_version cũ), NOTHING_TO_APPLY, GUIDANCE_DISABLED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expected_version]
+              additionalProperties: false
+              properties:
+                expected_version: {type: integer, minimum: 0}
+      responses:
+        "200":
+          description: Phiên bản mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceApplied"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/regrade-stale:
+    post:
+      operationId: regradeStaleGuidance
+      tags: [assignments]
+      summary: "Chấm lại các bài NHÁP chấm theo bản lưu ý cũ, chưa ai sửa / duyệt (TEACHER, TA; Idempotency-Key bắt buộc; không thân). Không bao giờ chọn bài đã duyệt, đã sửa tay, đã công bố hay đủ 20 vòng: đếm ở skipped. ≤ REGRADE_MAX_BATCH bài; 202 {job_id, queued, skipped}; không có bài nào → 200 {queued:0, skipped}. 409 GUIDANCE_DISABLED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp hàng chấm lại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceRegraded"
+        "200":
+          description: Không có bài nào cần chấm lại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceRegraded"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/assignments/{aid}/guidance/stats:
+    get:
+      operationId: getGuidanceStats
+      tags: [assignments]
+      summary: "Số đo theo phiên bản ghim của kết quả hiện hành đã duyệt / công bố (TEACHER, TA): n, MAE tiêu chí / tổng, lệch trung bình có dấu (dương = AI cao hơn giảng viên), số tiêu chí sửa; điểm là chuỗi decimal; n < 5 → null"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Số đo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   /api/v1/courses/{id}/submissions/{sid}/grade:
     post:
@@ -3896,11 +4054,19 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [published, skipped]
+                required: [published, skipped, exempt]
                 additionalProperties: false
                 properties:
                   published: {type: integer}
                   skipped: {type: integer}
+                  exempt:
+                    type: object
+                    description: "Bài công bố khi chấm theo bản lưu ý cũ nhưng đã được giảng viên duyệt (miễn so phiên bản): EDITED = có tiêu chí sửa tay, ACCEPTED_AS_IS = duyệt nguyên nháp. 409 MIXED_GUIDANCE khi tập còn bài CHƯA từng duyệt mà lệch bản (lưới an toàn, không công bố gì)"
+                    required: [EDITED, ACCEPTED_AS_IS]
+                    additionalProperties: false
+                    properties:
+                      EDITED: {type: integer}
+                      ACCEPTED_AS_IS: {type: integer}
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -13641,6 +13807,20 @@ components:
       type: object
       required: [result, submission, assignment, criteria, flags, pass_detail, late]
       properties:
+        guidance:
+          type: object
+          description: "Chỉ khi lớp bật «Lưu ý chấm» và bài tập có bản ≥ 1: bản lưu ý đã ghim cho kết quả này (không phải bản hiện hành), lưu ý theo tiêu chí; stale = nháp chưa từng duyệt chấm theo bản cũ"
+          required: [version, current_version, stale, items_by_criterion]
+          additionalProperties: false
+          properties:
+            version: {type: integer}
+            current_version: {type: integer}
+            stale: {type: boolean}
+            items_by_criterion:
+              type: object
+              additionalProperties:
+                type: array
+                items: {type: string}
         appeal:
           type: object
           description: "Phúc khảo của bài (cùng dạng AssignmentAppeal); chỉ có ở GET chi tiết khi sinh viên đã gửi"
@@ -13867,6 +14047,60 @@ components:
       additionalProperties: false
       properties:
         job_id: {type: string, format: uuid}
+    GuidanceApplied:
+      type: object
+      required: [version, stale]
+      additionalProperties: false
+      properties:
+        version: {type: integer}
+        stale:
+          $ref: "#/components/schemas/GuidanceStale"
+    GuidanceStale:
+      type: object
+      required: [count, editing, reviewed, versions]
+      additionalProperties: false
+      properties:
+        count: {type: integer}
+        editing: {type: integer}
+        reviewed: {type: integer}
+        versions:
+          type: array
+          items: {type: integer}
+    GuidanceRegraded:
+      type: object
+      required: [queued, skipped]
+      additionalProperties: false
+      properties:
+        job_id: {type: string, format: uuid}
+        queued: {type: integer}
+        skipped:
+          type: object
+          required: [reviewed, edited, max_round]
+          additionalProperties: false
+          properties:
+            reviewed: {type: integer}
+            edited: {type: integer}
+            max_round: {type: integer}
+    GuidanceStats:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [version, n, mae_criterion, mae_total, bias_total, edited_criteria, edited_rate, criteria_counted]
+            additionalProperties: false
+            properties:
+              version: {type: integer}
+              n: {type: integer}
+              mae_criterion: {type: [string, "null"]}
+              mae_total: {type: [string, "null"]}
+              bias_total: {type: [string, "null"]}
+              edited_criteria: {type: integer}
+              edited_rate: {type: [string, "null"]}
+              criteria_counted: {type: integer}
     UploadSubmissionsJob:
       type: object
       required: [job_id]

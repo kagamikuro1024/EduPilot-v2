@@ -115,4 +115,88 @@ func (r *runner) guidanceScenarios(x examRig) {
 	reviewed(1)
 	r.must(call{method: "POST", path: rf, token: x.gv, headers: x.idem()}, 429)
 	r.must(call{method: "GET", path: gd, token: x.gv}, 200)
+
+	r.guidanceDecideScenarios(x, asg.ID, course, gd, put, fl)
+}
+
+// guidanceDecideScenarios: quyết định / áp dụng / chấm lại / số đo (SRS #5–#8) với mọi status đã khai báo.
+func (r *runner) guidanceDecideScenarios(x examRig, asg, course, gd, put, fl string) {
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	none := "00000000-0000-7000-8000-000000000000"
+	var crit string
+	if err := db.QueryRow(ctx, `select rubric->0->>'id' from assignments where id = $1`, asg).Scan(&crit); err != nil {
+		r.t.Fatal(err)
+	}
+	item := func() string {
+		var id string
+		if err := db.QueryRow(ctx, `insert into grading_guidance_items (course_id, assignment_id, criterion_id, text, direction, support) values ($1, $2, $3, 'Chấm chặt hơn khi chỉ nêu tên.', 'STRICTER', 3) returning id::text`, x.cid, asg, crit).Scan(&id); err != nil {
+			r.t.Fatal(err)
+		}
+		return id
+	}
+	dec := func(id string) string { return gd + "/items/" + id + "/decide" }
+	i1, i2 := item(), item()
+
+	// #5 decide: 200 / 401 / 403 / 404 / 409 / 422
+	r.must(call{method: "POST", path: dec(i1), body: `{"decision":"APPROVE","version":1}`}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "POST", path: dec(i1), token: who, body: `{"decision":"APPROVE","version":1}`}, 403)
+	}
+	r.must(call{method: "POST", path: dec(none), token: x.gv, body: `{"decision":"APPROVE","version":1}`}, 404)
+	r.must(call{method: "POST", path: dec("khong-phai-uuid"), token: x.gv, body: `{"decision":"APPROVE","version":1}`}, 404)
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"APPROVE","version":99}`}, 409) // VERSION_CONFLICT
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"APPROVE","text":"","version":1}`}, 422)
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"LA","version":1}`}, 422)
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"APPROVE","text":"Bản sửa của giảng viên.","version":1}`}, 200)
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"APPROVE","version":2}`}, 409) // ITEM_NOT_DRAFT
+	r.must(call{method: "POST", path: dec(i2), token: x.gv, body: `{"decision":"REJECT","version":1}`}, 200)
+
+	// #6 apply: 200 / 401 / 403 / 404 / 409 / 422
+	ap := gd + "/apply"
+	r.must(call{method: "POST", path: ap, headers: x.idem(), body: `{"expected_version":0}`}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "POST", path: ap, token: who, headers: x.idem(), body: `{"expected_version":0}`}, 403)
+	}
+	r.must(call{method: "POST", path: course + "/assignments/" + none + "/guidance/apply", token: x.gv, headers: x.idem(), body: `{"expected_version":0}`}, 404)
+	r.must(call{method: "POST", path: ap, token: x.gv, headers: x.idem(), body: `{}`}, 422)
+	r.must(call{method: "POST", path: ap, token: x.gv, headers: x.idem(), body: `{"expected_version":5}`}, 409) // VERSION_CONFLICT
+	r.must(call{method: "POST", path: ap, token: x.gv, headers: x.idem(), body: `{"expected_version":0}`}, 200)
+	r.must(call{method: "POST", path: ap, token: x.gv, headers: x.idem(), body: `{"expected_version":1}`}, 409) // NOTHING_TO_APPLY
+
+	// #7 regrade-stale: 200 / 202 / 401 / 403 / 404 / 409
+	rg := course + "/assignments/" + asg + "/regrade-stale"
+	r.must(call{method: "POST", path: rg, headers: x.idem()}, 401)
+	r.must(call{method: "POST", path: rg, token: x.sv, headers: x.idem()}, 403)
+	r.must(call{method: "POST", path: course + "/assignments/" + none + "/regrade-stale", token: x.gv, headers: x.idem()}, 404)
+	r.must(call{method: "POST", path: rg, token: x.gv, headers: x.idem()}, 200) // chưa có bài nháp bản cũ
+	var stu, sub uuid.UUID
+	if err := db.QueryRow(ctx, `insert into users (email, full_name, role) values ($1, 'SV H', 'STUDENT') returning id`, "ct-h-"+uuid.NewString()[:8]+"@example.test").Scan(&stu); err != nil {
+		r.t.Fatal(err)
+	}
+	if _, err := db.Exec(ctx, `insert into enrollments (course_id, user_id, role_in_course, status, joined_via) values ($1, $2, 'STUDENT', 'ACTIVE', 'ADMIN')`, x.cid, stu); err != nil {
+		r.t.Fatal(err)
+	}
+	if err := db.QueryRow(ctx, `insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method)
+		values ($1, $2, $3, 'IN_APP', 1, 'k/'||gen_random_uuid()::text, 'a.txt', 10, 'text/plain', 'x', 'MATCHED', 'IN_APP') returning id`, x.cid, asg, stu).Scan(&sub); err != nil {
+		r.t.Fatal(err)
+	}
+	if _, err := db.Exec(ctx, `insert into grading_results (course_id, submission_id, run_state, status, criteria, ai_scores, ai_total_before_late, total, guidance_version)
+		values ($1, $2, 'DONE', 'DRAFT', jsonb_build_array(jsonb_build_object('id', $3::text, 'score', '2.00', 'comment', '', 'edited', false, 'evidence', '[]'::jsonb)), jsonb_build_object($3::text, '2.00'), 2, 2, 0)`, x.cid, sub, crit); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "POST", path: rg, token: x.gv, headers: x.idem()}, 202)
+	r.must(call{method: "POST", path: rg, token: x.ta, headers: x.idem()}, 200) // TA cũng được; bài đã xếp QUEUED không xếp đôi
+	r.must(call{method: "PUT", path: put, token: x.gv, body: `{"enabled":false,"version":3}`}, 200)
+	r.must(call{method: "POST", path: rg, token: x.gv, headers: x.idem()}, 409) // GUIDANCE_DISABLED
+	r.must(call{method: "PUT", path: put, token: x.gv, body: `{"enabled":true,"version":4}`}, 200)
+
+	// #8 stats: 200 / 401 / 403 / 404
+	st := gd + "/stats"
+	r.must(call{method: "GET", path: st, token: x.gv}, 200)
+	r.must(call{method: "GET", path: st, token: x.ta}, 200)
+	r.must(call{method: "GET", path: st}, 401)
+	r.must(call{method: "GET", path: st, token: x.sv}, 403)
+	r.must(call{method: "GET", path: course + "/assignments/" + none + "/guidance/stats", token: x.gv}, 404)
+	_ = fl
 }

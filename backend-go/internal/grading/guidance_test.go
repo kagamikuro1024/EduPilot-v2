@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	goredis "github.com/redis/go-redis/v9"
@@ -307,4 +308,21 @@ func TestGuidancePinIsVersionUsed(t *testing.T) {
 		require.Contains(t, p, "(bản v1)")
 		require.NotContains(t, p, "Lưu ý v2.")
 	}
+}
+
+// TestFlagsSnapshotSurvivesLostPublish — P-106-6: cờ chỉ PUBLISH Redis (không outbox); mất tin thì ảnh chụp vẫn đúng sau ≤ FlagsPoll (60 s, luật 15). Ở đây rdb = nil (không có tin nào) và Poll nhỏ.
+func TestFlagsSnapshotSurvivesLostPublish(t *testing.T) {
+	require.LessOrEqual(t, grading.FlagsPoll, 60*time.Second)
+	g := newGradeEnv(t, nil)
+	f := grading.NewGuidanceFlags(g.pool, nil)
+	f.Poll = 50 * time.Millisecond
+	require.NoError(t, f.Load(t.Context()))
+	require.False(t, f.On(g.course, grading.FlagThreadSuggest))
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	go f.Watch(ctx, nil)
+	g.exec(`insert into course_guidance_flags (course_id, feature, enabled) values ($1, 'THREAD_SUGGEST', true)`, g.course) // đổi thẳng DB, không PUBLISH
+	require.Eventually(t, func() bool { return f.On(g.course, grading.FlagThreadSuggest) }, 5*time.Second, 25*time.Millisecond)
+	g.exec(`update course_guidance_flags set enabled = false where course_id = $1`, g.course)
+	require.Eventually(t, func() bool { return !f.On(g.course, grading.FlagThreadSuggest) }, 5*time.Second, 25*time.Millisecond)
 }
