@@ -181,9 +181,9 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-09-03 | PASS | API stack |
 | TC-09-04 | PASS | API stack |
 | TC-09-05 | CHƯA CHẠY |  |
-| TC-09-06 | FAIL | L3: cache Hôm nay theo lớp không bị huỷ |
-| TC-09-07 | FAIL | L3: cache Hôm nay theo lớp không bị huỷ |
-| TC-09-08 | FAIL | L3: cache Hôm nay theo lớp không bị huỷ |
+| TC-09-06 | PASS | kiểm lại sau `110ea0de` (L3): việc hiện sau khi lùi `started_at`; biến mất 0,5 s sau khi luyện xong |
+| TC-09-07 | PASS | kiểm lại sau `110ea0de` (L3): việc hiện sau khi lùi `started_at`; biến mất 0,5 s sau khi luyện xong |
+| TC-09-08 | PASS | kiểm lại sau `110ea0de` (L3): việc hiện sau khi lùi `started_at`; biến mất 0,5 s sau khi luyện xong |
 | TC-09-09 | PASS | API stack |
 | TC-09-10 | PASS (không stack) | `TestWrongAnswerSignalsNoIdentity` PASS |
 | TC-09-11 | PASS một phần (mức Go); phần API/E2E chờ stack | `TestWrongAnswerSignalsNoIdentity` PASS (k ≥ 3, không định danh) |

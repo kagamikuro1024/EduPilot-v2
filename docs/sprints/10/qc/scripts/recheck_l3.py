@@ -1,8 +1,8 @@
 # Kiểm lại L3: 'Ôn chủ đề' biến mất ≤ 5 s ở /courses/{id}/today sau khi luyện xong chủ đề
 from pa import *
 U = "sv.nguyco"; sid = sql(f"select id from users where email='{U}@edupilot.local'")[0][0]
-sql(f"update practice_attempts set started_at=started_at-interval '6 days', submitted_at=submitted_at-interval '6 days' where student_id='{sid}' and status<>'IN_PROGRESS'")
-sql(f"update practice_attempts set started_at=started_at-interval '6 days' where student_id='{sid}' and status='IN_PROGRESS'")
+sql(f"update practice_attempts set status='SUBMITTED', submitted_at=now(), correct_count=0, score=0 where student_id='{sid}' and status='IN_PROGRESS'")  # đóng lượt dở để start sau này tạo lượt MỚI
+sql(f"update practice_attempts set started_at=started_at-interval '6 days', submitted_at=submitted_at-interval '6 days' where student_id='{sid}'")
 c, a, _ = start(U, {"mode": "TOPIC", "topic": "Hàm băm và chữ ký", "count": 5}); submit(U, a["id"])  # kích sự kiện, chủ đề không yếu
 top = None
 for _ in range(80):

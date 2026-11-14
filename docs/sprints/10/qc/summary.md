@@ -15,18 +15,18 @@
 | US-P9-06 Luyện theo chủ đề | **FAIL** | AC4 «trích dẫn bấm được» không kiểm được: dữ liệu mẫu không có citations (L4 Trung bình); L15 Thấp (chữ trạng thái lớp rỗng khác TC). Đạt: phản hồi ngay, khoá đáp án, `explain` SSE (byte đầu 11 ms, 1 lời gọi LLM / nhiều lần), `NOT_ANSWERED`, quá tải → `EXPLAIN_FAILED` tại chỗ, submit idempotent, 404 / 403, `MCQ_MULTI` đủ tập; 375 px không tràn, 0 nút < 44 px |
 | US-P9-07 Thi thử có giờ, tự lưu | **PASS** | `server_now`, `deadline` +30 phút, một lượt MOCK, `TAB_TAKEN_OVER`, `VERSION_CONFLICT`, dung sai 60 s (nhận / bỏ + notes / `ATTEMPT_CLOSED`), điểm `6.5`, `6.3`, `3.5`, `4.3` (decimal, nửa lên), worker đóng lượt quá hạn (`EXPIRED`), điểm không vào sổ điểm, không `exam_events`; e2e dev (ngoại tuyến, tải lại, đồng hồ) xanh. k6 hoãn; L13 Thấp ghi nhận |
 | US-P9-08 Tự luận + nhận xét gợi ý | **PASS** | Nhận xét theo tiêu chí, không điểm, không vào sổ điểm; bài chèn lệnh không kéo kết quả; 4.001 ký tự → `422`; `429` ở lần thứ 9 trong lượt thử (trần 10 / giờ theo cửa sổ giờ); GV / TA / ADMIN → 403; 0 `ESSAY` ở MOCK. Quan sát L14 |
-| US-P9-09 Lịch sử, điểm yếu, Hôm nay | **FAIL** | **L3 Trung bình**: «Ôn chủ đề» không biến mất ≤ 5 s ở `/courses/{id}/today`. Đạt: lịch sử phân trang, điểm yếu k ≥ 3, 403 cho staff, lọc theo lớp |
+| US-P9-09 Lịch sử, điểm yếu, Hôm nay | **PASS** (kiểm lại sau `110ea0de`) | L3 đã sửa: «Ôn chủ đề» đổi trong 0,5 s sau khi luyện xong (trước: ≥ 45 s). Đạt: lịch sử phân trang, điểm yếu k ≥ 3, 403 cho staff, lọc theo lớp |
 | US-P9-10 Liêm chính | **PASS** | Bài thi `OPEN` giữ câu → câu bị loại khỏi luyện đề; MOCK đang làm 0 khoá nhạy cảm trong mọi phản hồi; chat khoá khi có lượt bài thi PE (`409 EXAM_IN_PROGRESS`) và mở lại khi nộp; luyện đề không khoá chat; 0 `exam_events`; `NOT_SUBMITTED`; Go: `TestPracticeNoExamLeak`, `TestPracticeNoAnswerLeak`, `TestSearchLibrary*` xanh |
 | US-P9-11 Nhập Forms | **FAIL** | L12 Thấp (ánh xạ theo tên cột trái ví dụ openapi; chữ lỗi tệp sai «PDF, DOCX hoặc PPTX», «50 MB»; ô chọn tệp mặc định). Đạt: ba bước chỉ TEACHER, `PREVIEW_REQUIRED`, khớp email đã xác minh / MSSV, `MISMATCH`, trùng lấy dòng mới nhất, điểm decimal, `replayed`, không đặt `published_at` |
 | US-P9-12 Seed + cổng | **FAIL** | L4 Trung bình (seed không có citations / `EXTRACTED`; Quiz `SCHEDULED`; lớp 2 không có câu). L5 (`check-practice-seed.mjs`) dev đã sửa, đạt. k6 / Lighthouse / axe hoãn |
 
-PASS: 4 / 12 (P9-01, 07, 08, 10). FAIL: 8 / 12.
+PASS: 5 / 12 (P9-01, 07, 08, 09, 10). FAIL: 7 / 12.
 
 ## Lỗi theo mức
 | Mức | Số | Mã |
 | --- | --- | --- |
 | Cao | 1 | L1 trích đề docling thật 0/24 |
-| Trung bình | 2 mở + 1 đã sửa | L3 Hôm nay không huỷ cache theo lớp; L4 dữ liệu mẫu sai spec; L5 script kiểm seed (dev sửa ở `5d9c54e3`, QC kiểm lại: PASS) |
+| Trung bình | 1 mở + 2 đã sửa | L4 dữ liệu mẫu sai spec (mở); L3 Hôm nay không huỷ cache theo lớp (sửa `110ea0de`, kiểm lại PASS); L5 script kiểm seed (sửa `5d9c54e3`, kiểm lại PASS) |
 | Thấp | 11 | L6–L16 |
 | Nghiêm trọng | 0 | |
 
