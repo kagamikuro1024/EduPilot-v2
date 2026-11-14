@@ -1,4 +1,4 @@
-import { test, expect, type Browser, type Page } from "@playwright/test";
+import { test, type Browser, type Page } from "@playwright/test";
 import { execSync } from "child_process";
 import { mkdirSync } from "fs";
 
