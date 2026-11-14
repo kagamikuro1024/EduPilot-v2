@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/text/unicode/norm"
 )
 
 type staticRoster struct {
@@ -223,4 +224,24 @@ func TestDetectWindowedLongText(t *testing.T) {
 	fs, err := d.Detect(t.Context(), uuid.Nil, text)
 	require.NoError(t, err)
 	require.Equal(t, []string{"MSSV:20201234"}, spans(t, text, fs))
+}
+
+// TestRosterDiacriticSubset — P-106-11 «dấu là tập con»: ký tự trong bài khớp ký tự tên roster nếu trùng hẳn HOẶC là dạng không dấu của nó; khác dấu (ụ ≠ ũ) thì không.
+// Bảy cụm thường của KC106 («áp dụng nguyên tắc», «dịch vụ an ninh», «thế trận an ninh»…) không còn bị thay `[[SV_n]]`; tên gõ không dấu / thiếu dấu một phần / HOA / đảo / NFD vẫn bị bắt.
+func TestRosterDiacriticSubset(t *testing.T) {
+	t.Parallel()
+	d, _ := newDetector(map[uuid.UUID][]Member{courseA: {{Name: "Dũng Nguyễn"}, {Name: "Vũ An"}, {Name: "Trần An"}}})
+	for _, text := range []string{
+		"cần áp dụng nguyên tắc đặc quyền tối thiểu", "mô hình dịch vụ an ninh thuê ngoài", "xây dựng một thế trận an ninh mạng", "dụng nguyên", "vụ an", "trận an", "Dụng Nguyên",
+	} {
+		fs, err := d.Detect(t.Context(), courseA, text)
+		require.NoError(t, err)
+		require.Empty(t, spans(t, text, fs), text)
+	}
+	for _, text := range []string{"Dung Nguyen", "dũng nguyen", "DŨNG NGUYỄN", "Nguyễn Dũng", "Dũng Nguyễn", "Nguyen Dung", "nguyễn dung", "Vu An", "Vũ An", "tran an", norm.NFD.String("Dũng Nguyễn")} {
+		fs, err := d.Detect(t.Context(), courseA, "em là "+text+" ạ")
+		require.NoError(t, err)
+		require.Len(t, fs, 1, text)
+		require.Equal(t, KindName, fs[0].Kind, text)
+	}
 }
