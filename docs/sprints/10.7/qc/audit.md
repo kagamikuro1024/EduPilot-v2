@@ -20,7 +20,7 @@
 | H4 | nút cùng hàng tiêu đề (|Δ tâm dọc| ≤ 4, 1440) | **0** | – |
 | H5 | ≤ 1 primary, ≤ 4 nút ở đầu trang | **0** | – |
 | H6 | 0 nút primary ngoài đầu trang khi ≤ 1 vùng | **14** | student/chat, student/practice/history, ta/, teacher/ |
-| H7 | chiều cao đầu trang mỗi nhóm (độ rộng, cao h1, số dòng meta, có hàng nút; TL mục 12, PM 15/11) đúng 1 giá trị (±2) | **12** | student/practice/history, ta/gradebook/scheme, teacher/gradebook/scheme |
+| H7 | chiều cao đầu trang mỗi nhóm (độ rộng, cao h1, số dòng meta, có hàng nút, có hàng quay lại +36/+44; TL 12.1, 14.5) đúng 1 giá trị (±2) | **12** | student/practice/history, ta/gradebook/scheme, teacher/gradebook/scheme |
 | H8 | 375: hàng nút đầu trang ≤ 48 px | **0** | – |
 | P1 | đệm panel 24 (16 ở 375) | **0** | – |
 | P2 | panel cao theo nội dung (chênh ≤ 2; trừ Split fill) | **13** | admin/observability, student/me, ta/analytics, ta/insights, teacher/analytics, teacher/insights |
@@ -227,20 +227,20 @@
 - student/practice/history[empty@1440] primary
 - student/practice/history[empty@375] primary
 
-### H7 — chiều cao đầu trang mỗi nhóm (độ rộng, cao h1, số dòng meta, có hàng nút; TL mục 12, PM 15/11) đúng 1 giá trị (±2) (12)
+### H7 — chiều cao đầu trang mỗi nhóm (độ rộng, cao h1, số dòng meta, có hàng nút, có hàng quay lại +36/+44; TL 12.1, 14.5) đúng 1 giá trị (±2) (12)
 
-- ta/gradebook/scheme[data@1440] 102.4 ≠ 63 (w1440, h1 35px, meta 1 dòng, hàng nút=False)
-- student/practice/history[data@1440] 72 ≠ 36 (w1440, h1 35px, meta 0 dòng, hàng nút=False)
-- student/practice/history[empty@1440] 72 ≠ 36 (w1440, h1 35px, meta 0 dòng, hàng nút=False)
-- ta/gradebook/scheme[empty@1440] 72 ≠ 36 (w1440, h1 35px, meta 0 dòng, hàng nút=False)
-- teacher/gradebook/scheme[empty@1440] 72 ≠ 36 (w1440, h1 35px, meta 0 dòng, hàng nút=True)
-- ta/gradebook/scheme[data@375] 110.4 ≠ 63 (w375, h1 36px, meta 1 dòng, hàng nút=False)
-- student/practice/history[data@375] 80 ≠ 36 (w375, h1 36px, meta 0 dòng, hàng nút=False)
-- student/practice/history[empty@375] 80 ≠ 36 (w375, h1 36px, meta 0 dòng, hàng nút=False)
-- ta/gradebook/scheme[empty@375] 80 ≠ 36 (w375, h1 36px, meta 0 dòng, hàng nút=False)
-- teacher/gradebook/scheme[empty@375] 148 ≠ 104 (w375, h1 36px, meta 0 dòng, hàng nút=True)
-- teacher/gradebook/scheme[data@1440] 102.4 ≠ 63 (w1440, h1 35px, meta 1 dòng, hàng nút=True)
-- teacher/gradebook/scheme[data@375] 178.4 ≠ 131 (w375, h1 36px, meta 1 dòng, hàng nút=True)
+- ta/gradebook/scheme[data@1440] 102.4 ≠ 63 (w1440, h1 35px, meta 1 dòng, hàng nút=False, hàng quay lại=False)
+- student/practice/history[data@1440] 72 ≠ 36 (w1440, h1 35px, meta 0 dòng, hàng nút=False, hàng quay lại=False)
+- student/practice/history[empty@1440] 72 ≠ 36 (w1440, h1 35px, meta 0 dòng, hàng nút=False, hàng quay lại=False)
+- ta/gradebook/scheme[empty@1440] 72 ≠ 36 (w1440, h1 35px, meta 0 dòng, hàng nút=False, hàng quay lại=False)
+- teacher/gradebook/scheme[empty@1440] 72 ≠ 36 (w1440, h1 35px, meta 0 dòng, hàng nút=True, hàng quay lại=False)
+- ta/gradebook/scheme[data@375] 110.4 ≠ 63 (w375, h1 36px, meta 1 dòng, hàng nút=False, hàng quay lại=False)
+- student/practice/history[data@375] 80 ≠ 36 (w375, h1 36px, meta 0 dòng, hàng nút=False, hàng quay lại=False)
+- student/practice/history[empty@375] 80 ≠ 36 (w375, h1 36px, meta 0 dòng, hàng nút=False, hàng quay lại=False)
+- ta/gradebook/scheme[empty@375] 80 ≠ 36 (w375, h1 36px, meta 0 dòng, hàng nút=False, hàng quay lại=False)
+- teacher/gradebook/scheme[empty@375] 148 ≠ 104 (w375, h1 36px, meta 0 dòng, hàng nút=True, hàng quay lại=False)
+- teacher/gradebook/scheme[data@1440] 102.4 ≠ 63 (w1440, h1 35px, meta 1 dòng, hàng nút=True, hàng quay lại=False)
+- teacher/gradebook/scheme[data@375] 178.4 ≠ 131 (w375, h1 36px, meta 1 dòng, hàng nút=True, hàng quay lại=False)
 
 ### L2 — đang tải có khung xương `aria-busy` (≥ 1) (6)
 
