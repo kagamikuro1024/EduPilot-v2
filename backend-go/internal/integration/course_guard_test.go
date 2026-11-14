@@ -143,5 +143,6 @@ func TestNoUnscopedChunkQuery(t *testing.T) {
 	}
 	// P8 thêm các đường đọc hợp lệ (US-P8-01, TLR-2): rag vectơ + từ khoá (một câu), đọc chữ để lập chỉ mục lại. Mỗi đường vẫn bắt buộc có course_ids (kiểm ở trên).
 	// P8-02 thêm thư viện (LibList / LibGet / LibSearchTool), đoạn của Staff (DocChunks / DocChunkLock), thống kê và hỏi theo tài liệu — mỗi câu vẫn lọc course_ids.
-	require.ElementsMatch(t, []string{"ChunksForCourse", "RagSearch", "ListChunkTexts", "DocChunks", "DocChunkLock", "DocStats", "DocDeleteImpact", "LibList", "LibGet", "LibSearchTool", "ChatDocumentUsable"}, reads, "danh sách đường ĐỌC content_chunks được phép")
+	// P9 (US-P9-02 / 03) thêm hai đường đọc đoạn cho trích / sinh câu hỏi (PracticeDocChunks, PracticeChunksByIDs): cùng lọc course_ids, không đọc tài liệu tri thức.
+	require.ElementsMatch(t, []string{"ChunksForCourse", "RagSearch", "ListChunkTexts", "DocChunks", "DocChunkLock", "DocStats", "DocDeleteImpact", "LibList", "LibGet", "LibSearchTool", "ChatDocumentUsable", "PracticeDocChunks", "PracticeChunksByIDs"}, reads, "danh sách đường ĐỌC content_chunks được phép")
 }

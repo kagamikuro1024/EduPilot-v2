@@ -152,9 +152,11 @@ async function setup(page: Page, role: "TEACHER" | "TA" = "TEACHER") {
 /** Dòng danh sách: ≥ 720 px là bảng, < 720 px là danh sách — chỉ một bản hiển thị, nên chọn bản đang thấy. */
 const row = (page: Page, text: string) => page.locator("main").getByText(text).locator("visible=true").first();
 
+// P-10-9: «Soạn tay» là nhóm cha (Câu trắc nghiệm / Bài lập trình); các mục khác ở menu gốc.
 const createMenu = (page: Page, item: string) => async () => {
   await page.getByRole("button", { name: "Tạo câu hỏi" }).first().click();
-  await page.getByRole("menuitem", { name: item }).click();
+  if (item === "Câu trắc nghiệm" || item === "Bài lập trình") await page.getByRole("menuitem", { name: "Soạn tay", exact: true }).click();
+  await page.getByRole("menuitem", { name: item, exact: true }).click();
 };
 
 test("questions bank: bảng, bộ lọc, tạo MCQ (lỗi tại ô → sửa → tạo), câu AI có nhãn, câu đã dùng bị khoá", async ({ page }) => {

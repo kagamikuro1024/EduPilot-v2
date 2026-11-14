@@ -11,6 +11,7 @@ import {
   type Column, type GEntry, type GradebookPage, type GRow, type Incomplete,
 } from "./gradeApi";
 import { FinalizeDialog, SnapshotHistory, UnlockDialog, stamp } from "./FinalizeGrades";
+import { FormsImportDialog } from "./FormsImportDialog";
 import { ImportDialog } from "./ImportDialog";
 import f from "./FinalizeGrades.module.css";
 import s from "./Gradebook.module.css";
@@ -87,6 +88,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     savedTimer.current = setTimeout(() => setSavedCells(new Set()), 400);
   }, []);
   const [importing, setImporting] = useState(false);
+  const [formsImporting, setFormsImporting] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
   const [history, setHistory] = useState(false);
@@ -325,7 +327,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         <OverflowMenu
           label="Thêm hành động"
           items={[
-            ...(teacher && !locked ? [{ label: "Nhập từ XLSX", onSelect: () => setImporting(true) }] : []),
+            ...(teacher && !locked ? [{ label: "Nhập từ XLSX", onSelect: () => setImporting(true) }, { label: "Nhập từ Forms", onSelect: () => setFormsImporting(true) }] : []),
             ...(teacher ? [{ label: "Xuất XLSX", onSelect: () => void download() }] : []),
             ...((first?.state.snapshot_version ?? 0) > 0 ? [{ label: "Lịch sử chốt", onSelect: () => setHistory(true) }] : []),
             ...(teacher && locked ? [{ label: "Mở khoá", onSelect: () => setUnlocking(true) }] : []),
@@ -415,6 +417,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
       {unlocking && <UnlockDialog course={courseId} version={first?.state.snapshot_version ?? 0} students={snaps?.[0]?.students ?? rows.length} onClose={() => setUnlocking(false)} />}
       {history && <SnapshotHistory course={courseId} onClose={() => setHistory(false)} />}
       {importing && <ImportDialog course={courseId} columns={columns} onClose={() => setImporting(false)} />}
+      {formsImporting && <FormsImportDialog course={courseId} columns={columns} onClose={() => setFormsImporting(false)} />}
       <ExplainDrawer courseId={courseId} row={explainOf} onClose={() => setExplainOf(null)} />
       <HistoryDrawer courseId={courseId} row={historyOf} onClose={() => setHistoryOf(null)} />
     </Page>

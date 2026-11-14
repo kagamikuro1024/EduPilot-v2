@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"slices"
 	"time"
 
@@ -78,6 +79,7 @@ type QuestionDetail struct {
 	ReviewStatus string          `json:"review_status"`
 	Options      []Option        `json:"options"`
 	AnswerKey    json.RawMessage `json:"answer_key"`
+	Citations    json.RawMessage `json:"citations"`
 	Code         *CodeDetail     `json:"code,omitempty"`
 	UsedInExams  []ExamRef       `json:"used_in_exams"`
 	ReviewedBy   *uuid.UUID      `json:"reviewed_by"`
@@ -91,6 +93,44 @@ type QuestionDetail struct {
 	Warnings []apierr.FieldError `json:"-"`
 }
 
+// withDocTitles thêm `document_title` vào từng trích dẫn có document_id (nhãn nguồn: «<tên tài liệu>, trang N»). Lỗi đọc → giữ nguyên trích dẫn.
+func withDocTitles(ctx context.Context, q *store.Queries, course uuid.UUID, c json.RawMessage) json.RawMessage {
+	var items []map[string]any
+	if len(c) == 0 || json.Unmarshal(c, &items) != nil || len(items) == 0 {
+		return citationsOrEmpty(c)
+	}
+	var ids []string
+	for _, it := range items {
+		if id, ok := it["document_id"].(string); ok {
+			ids = append(ids, id)
+		}
+	}
+	rows, err := q.QuestionCitationDocTitles(ctx, store.QuestionCitationDocTitlesParams{CourseID: course, Ids: ids})
+	if err != nil {
+		return c
+	}
+	titles := map[string]string{}
+	for _, r := range rows {
+		titles[r.ID.String()] = r.Title
+	}
+	for _, it := range items {
+		if id, ok := it["document_id"].(string); ok && titles[id] != "" {
+			it["document_title"] = titles[id]
+		}
+	}
+	if out, err := json.Marshal(items); err == nil {
+		return out
+	}
+	return c
+}
+
+func citationsOrEmpty(c json.RawMessage) json.RawMessage {
+	if len(c) == 0 {
+		return json.RawMessage(`[]`)
+	}
+	return c
+}
+
 func lockingStatus(st string) bool {
 	return st == "SCHEDULED" || st == "OPEN" || st == "CLOSED" || st == "PUBLISHED"
 }
@@ -98,7 +138,7 @@ func lockingStatus(st string) bool {
 func (s *Service) detail(ctx context.Context, q *store.Queries, row store.QuestionBank) (QuestionDetail, error) {
 	d := QuestionDetail{
 		ID: row.ID, Type: string(row.Type), Title: row.Title, Topic: row.Topic, Difficulty: string(row.Difficulty), Stem: row.Stem, Explanation: row.Explanation,
-		Origin: string(row.Origin), ReviewStatus: string(row.ReviewStatus), AnswerKey: row.AnswerKey, ReviewedBy: row.ReviewedBy, ReviewedAt: row.ReviewedAt,
+		Origin: string(row.Origin), ReviewStatus: string(row.ReviewStatus), AnswerKey: row.AnswerKey, Citations: withDocTitles(ctx, q, row.CourseID, row.Citations), ReviewedBy: row.ReviewedBy, ReviewedAt: row.ReviewedAt,
 		ArchivedAt: row.ArchivedAt, AIJobID: row.AiJobID, Version: int(row.Version), CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt, Options: []Option{}, UsedInExams: []ExamRef{},
 	}
 	opts, err := q.QuestionOptions(ctx, store.QuestionOptionsParams{CourseID: row.CourseID, QuestionID: row.ID})
@@ -203,6 +243,11 @@ func (s *Service) insertQuestion(ctx context.Context, q *store.Queries, courseID
 		}
 	}
 	return row, nil
+}
+
+// InsertDraft ghi một câu đã qua `Validate` do việc nền (trích / sinh, US-P9-02/03) tạo; `origin` EXTRACTED / GENERATED, luôn PENDING.
+func (s *Service) InsertDraft(ctx context.Context, q *store.Queries, courseID, actor uuid.UUID, c Checked, origin store.QuestionOrigin, aiJob *uuid.UUID) (store.QuestionBank, error) {
+	return s.insertQuestion(ctx, q, courseID, actor, c, origin, store.QuestionReviewStatusPENDING, aiJob)
 }
 
 // Get trả câu đầy đủ cho Staff; câu của lớp khác → 404.
@@ -333,6 +378,12 @@ func sameValue(old json.RawMessage, v *bool) bool {
 	return k.Value != nil && v != nil && *k.Value == *v
 }
 
+// sameJSON so hai giá trị JSON theo nội dung (không theo định dạng).
+func sameJSON(a, b []byte) bool {
+	var x, y any
+	return json.Unmarshal(a, &x) == nil && json.Unmarshal(b, &y) == nil && reflect.DeepEqual(x, y)
+}
+
 // Update sửa câu (khoá lạc quan theo `version`). Câu đang được bài thi SCHEDULED+ dùng chỉ cho sửa chủ đề / độ khó / giải thích (409 QUESTION_IN_USE).
 // Sửa đề / đáp án đưa câu APPROVED / REJECTED về DRAFT.
 func (s *Service) Update(ctx context.Context, courseID, id uuid.UUID, in QuestionIn, version int) (QuestionDetail, error) {
@@ -372,6 +423,8 @@ func (s *Service) Update(ctx context.Context, courseID, id uuid.UUID, in Questio
 			same = optionsSame(old, row.AnswerKey, c)
 		case store.QuestionTypeTRUEFALSE:
 			same = sameValue(row.AnswerKey, c.Value)
+		case store.QuestionTypeSHORT, store.QuestionTypeESSAY:
+			same = sameJSON(row.AnswerKey, AnswerKey(c, nil))
 		default:
 			same = true
 		}
@@ -398,7 +451,7 @@ func (s *Service) Update(ctx context.Context, courseID, id uuid.UUID, in Questio
 				}
 			}
 			key = AnswerKey(c, ids)
-		} else if !same && row.Type == store.QuestionTypeTRUEFALSE {
+		} else if !same && (row.Type == store.QuestionTypeTRUEFALSE || row.Type == store.QuestionTypeSHORT || row.Type == store.QuestionTypeESSAY) {
 			key = AnswerKey(c, nil)
 		}
 		upd, err := q.QuestionUpdateContent(ctx, store.QuestionUpdateContentParams{

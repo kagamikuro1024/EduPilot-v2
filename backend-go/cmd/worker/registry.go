@@ -23,6 +23,7 @@ import (
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/practice"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/store"
@@ -43,6 +44,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
 	if bs, ok := d.Blob.(submission.BlobAPI); ok {
 		(&submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}).RegisterZip(runner) // submission.zip (US-P7-04)
+	}
+	if d.LLM != nil {
+		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM}).Register(runner) // question.extract, question.generate (US-P9-02, US-P9-03)
 	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
@@ -89,6 +93,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(thread.TopicUnhidden, outbox.Chain(tn.HandleUnhidden, inv.Handle))
 	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
 	reg.Register(grade.TopicFinalized, (&grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}).HandleFinalized) // US-P6-08: chốt điểm → GRADE_FINALIZED / GRADE_CHANGED (chỉ chuông)
+	reg.Register(practice.TopicUpdated, inv.Handle)                                                                               // US-P9-09: luyện / nộp lượt → PRACTICE_WEAK_TOPIC biến mất
 	reg.Register(grade.TopicSchemeConfirmed, inv.Handle)                                                                          // US-P6-05: xác nhận công thức → GRADE_SCHEME_UNCONFIRMED biến mất
 	asg := &assignment.Service{Pool: d.DB, Log: d.Log, Notify: nt}
 	reg.Register(assignment.TopicPublished, outbox.Chain(asg.HandlePublished, inv.Handle))                                    // US-P7-02: công bố bài → chuông ASSIGNMENT_PUBLISHED + xoá cache "Hôm nay"

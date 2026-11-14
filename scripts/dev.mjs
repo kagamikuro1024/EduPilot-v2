@@ -47,6 +47,7 @@ if (!Number.isInteger(offset) || offset < 0 || offset > 20000) {
 }
 const basePorts = { POSTGRES: 5433, REDIS: 6380, MINIO: 9000, MINIO_CONSOLE: 9001, SMTP: 1025, MAILPIT: 8025, HTTP: 80, HTTPS: 443, FRONTEND: 3000 };
 for (const [k, v] of Object.entries(basePorts)) env[`EP_PORT_${k}`] ||= String(v + offset);
+if (offset) env.BLOB_PUBLIC_ENDPOINT ||= `localhost:${env.EP_PORT_MINIO}`; // URL ký sẵn phải trỏ MinIO của CHÍNH stack này, không phải MinIO cổng 9000 của stack khác
 const project = process.env.COMPOSE_PROJECT_NAME || (offset ? `edupilot${offset}` : "edupilot");
 const httpsPort = Number(env.EP_PORT_HTTPS);
 const origin = httpsPort === 443 ? "https://localhost" : `https://localhost:${httpsPort}`;

@@ -10,6 +10,8 @@ import { Button, type Column, DataTable, Drawer, EmptyState, Field, InlineNotice
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { QuestionForm } from "./QuestionForm";
 import { QuestionReview } from "./QuestionReview";
+import { BulkBar } from "./BulkBar";
+import { ExtractPanel, GeneratePanel } from "./CreateFlows";
 import { SuggestPanel } from "./SuggestPanel";
 import { DIFF_LABEL, ORIGIN_LABEL, qKey, qPath, REVIEW_LABEL, REVIEW_TONE, TYPE_LABEL, type Difficulty, type QType, type QuestionRow, type Review } from "./questionsApi";
 import s from "./Questions.module.css";
@@ -28,7 +30,40 @@ export function QuestionBank() {
   return <Bank courseId={cc.course.id} code={cc.course.class_code} isTeacher={cc.canManage} />;
 }
 
-type Creating = null | "MCQ" | "CODE" | "AI";
+type Creating = null | "MCQ" | "CODE" | "AI" | "EXTRACT" | "GENERATE";
+
+/** Menu Tạo câu hỏi (US-P9-04 AC2): «Soạn tay» là nhóm cha mở ra Câu trắc nghiệm / Bài lập trình; mục chỉ có nhãn. */
+function CreateMenu({ close, pick }: { close: () => void; pick: (c: Creating) => void }) {
+  const [hand, setHand] = useState(false);
+  const go = (c: Creating) => () => {
+    pick(c);
+    close();
+  };
+  if (hand) {
+    return (
+      <MenuList
+        key="hand"
+        autoFocus
+        items={[
+          { label: "Câu trắc nghiệm", onSelect: go("MCQ") },
+          { label: "Bài lập trình", onSelect: go("CODE") },
+        ]}
+      />
+    );
+  }
+  return (
+    <MenuList
+      key="root"
+      autoFocus
+      items={[
+        { label: "Soạn tay", onSelect: () => setHand(true) },
+        { label: "Trích từ đề", onSelect: go("EXTRACT") },
+        { label: "Sinh từ tài liệu", onSelect: go("GENERATE") },
+        { label: "Gợi ý từ AI", onSelect: go("AI") },
+      ]}
+    />
+  );
+}
 
 function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; isTeacher: boolean }) {
   const params = useSearchParams();
@@ -42,6 +77,9 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [creating, setCreating] = useState<Creating>(null);
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const [failed, setFailed] = useState<Map<string, string>>(new Map());
+  const [hidden, setHidden] = useState<Set<string>>(new Set()); // đang chờ gửi "Loại" (cửa sổ hoàn tác)
   const undo = useUndoLine();
 
   useEffect(() => {
@@ -65,6 +103,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
         <span className={s.titleCell}>
           <span className={s.text}>{r.title}</span>
           <span className={s.meta}>{r.topic}</span>
+          {failed.get(r.id) && <span className={s.rowFail} role="alert">{failed.get(r.id)}</span>}
         </span>
       ),
     },
@@ -75,19 +114,8 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
     { key: "used", header: "Dùng trong", width: "110px", align: "end", render: (r) => <span className={s.meta}>{r.used_in_exams > 0 ? `${r.used_in_exams} bài thi` : "—"}</span> },
   ];
 
-  const pending = list.items.filter((r) => r.review_status === "PENDING").length;
-  const createMenu = (close: () => void) => (
-    <MenuList
-      autoFocus
-      onPicked={close}
-      items={[
-        { label: "Câu trắc nghiệm", onSelect: () => setCreating("MCQ") },
-        { label: "Bài lập trình", onSelect: () => setCreating("CODE") },
-        { label: "Gợi ý từ AI", hint: "Soạn nháp, bạn duyệt", onSelect: () => setCreating("AI") },
-      ]}
-    />
-  );
-
+  const rows = useMemo(() => list.items.filter((r) => !hidden.has(r.id)), [list.items, hidden]);
+  const pending = rows.filter((r) => r.review_status === "PENDING").length;
   return (
     <Page width="wide">
       <PageHeader
@@ -103,11 +131,13 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
               </Button>
             )}
           >
-            {createMenu}
+            {(close) => <CreateMenu close={close} pick={setCreating} />}
           </Popover>
         }
       />
       {undo.node}
+      {creating === "EXTRACT" && <ExtractPanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { void list.refetch(); undo.push(n > 0 ? `Đã trích ${n} câu · đang chờ bạn duyệt` : "Chưa trích được câu nào. Xem lý do bên dưới."); }} />}
+      {creating === "GENERATE" && <GeneratePanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { void list.refetch(); undo.push(n > 0 ? `Đã sinh ${n} câu · đang chờ bạn duyệt` : "Chưa sinh được câu nào. Xem lý do bên dưới."); }} />}
       {creating === "AI" && <SuggestPanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { setCreating(null); undo.push(n > 0 ? `AI đã soạn ${n} câu nháp · đang chờ bạn duyệt` : "AI chưa có câu nào hợp lệ — thử đổi chủ đề hoặc thêm văn bản nguồn"); }} />}
 
       <Panel>
@@ -117,8 +147,10 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
         <Field label="Chủ đề">{(id) => <Select id={id} value={topic} onChange={(e) => setTopic(e.target.value)}><option value="">Tất cả</option>{topics.map((t) => <option key={t} value={t}>{t}</option>)}</Select>}</Field>
         <Field label="Độ khó">{(id) => <Select id={id} value={difficulty} onChange={(e) => setDifficulty(e.target.value)}><option value="">Tất cả</option>{(Object.keys(DIFF_LABEL) as Difficulty[]).map((k) => <option key={k} value={k}>{DIFF_LABEL[k]}</option>)}</Select>}</Field>
         <Field label="Loại">{(id) => <Select id={id} value={type} onChange={(e) => setType(e.target.value)}><option value="">Tất cả</option>{(Object.keys(TYPE_LABEL) as QType[]).map((k) => <option key={k} value={k}>{TYPE_LABEL[k]}</option>)}</Select>}</Field>
-        <Field label="Nguồn">{(id) => <Select id={id} value={origin} onChange={(e) => setOrigin(e.target.value)}><option value="">Tất cả</option><option value="MANUAL">Soạn tay</option><option value="AI_DRAFT">AI</option></Select>}</Field>
+        <Field label="Nguồn">{(id) => <Select id={id} value={origin} onChange={(e) => setOrigin(e.target.value)}><option value="">Tất cả</option><option value="MANUAL">Soạn tay</option><option value="AI_DRAFT">AI gợi ý</option><option value="EXTRACTED">Trích từ đề</option><option value="GENERATED">Sinh từ tài liệu</option></Select>}</Field>
       </Toolbar>
+
+      {sel.size > 0 && <BulkBar courseId={courseId} selected={sel} topics={topics} onSelected={setSel} onFailed={setFailed} onHide={setHidden} onChanged={() => void list.refetch()} undo={undo} />}
 
       <PageState
         query={list}
@@ -128,7 +160,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
           filtered ? (
             <EmptyState title="Không có câu hỏi nào khớp bộ lọc" icon={<CircleHelp aria-hidden />}>Bỏ bớt bộ lọc để xem thêm.</EmptyState>
           ) : (
-            <EmptyState title="Chưa có câu hỏi nào" icon={<CircleHelp aria-hidden />} action={<Popover label="Tạo câu hỏi" width={240} trigger={(p) => <Button variant="primary" onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">Tạo câu hỏi</Button>}>{createMenu}</Popover>}>
+            <EmptyState title="Chưa có câu hỏi nào" icon={<CircleHelp aria-hidden />} action={<Popover label="Tạo câu hỏi" width={240} trigger={(p) => <Button variant="primary" onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">Tạo câu hỏi</Button>}>{(close) => <CreateMenu close={close} pick={setCreating} />}</Popover>}>
               Chưa có câu hỏi nào. Tạo câu đầu tiên hoặc nhờ AI gợi ý nháp.
             </EmptyState>
           )
@@ -138,8 +170,9 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
         <DataTable
           caption={`Ngân hàng câu hỏi lớp ${code}`}
           columns={columns}
-          rows={list.items}
+          rows={rows}
           rowKey={(r) => r.id}
+          selection={{ selected: sel, onChange: setSel }}
           onRowClick={(r) => setOpenId(r.id)}
           activeKey={openId ?? undefined}
           mobile="list"

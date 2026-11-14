@@ -25,7 +25,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | P6 Sổ điểm | Xong | 2026-10-31 | 2026-10-31 | ĐẠT kỹ thuật (`sprints/8/qc/gate-P6.md`); tính tay A, B, C của chủ dự án còn nợ | `00016_gradebook`; decimal, không `float64`; AI chỉ trích nháp; snapshot bất biến; MSSV chỉ theo danh sách lớp (#20) |
 | P7 Chấm bài | Xong | 2026-10-31 | 2026-11-01 | ĐẠT kỹ thuật (`sprints/9/qc/gate-P7.md`); nợ G7-23 LCP `/assignments/[id]` 4,7 s | `00017_assignments`; chấm mù hai lượt, kiểm bằng mã; thư chỉ tin khi `dmarc=pass`; Teams qua `mock-graph` |
 | P8 Tài liệu + Lịch | Xong | 2026-10-10 | 2026-10-11 | ĐẠT (`sprints/6/qc/report-GATE-P8.md`) | `docling-serve` (profile `ingest`), tìm lai RRF + `tsv`, lịch UNION, ICS token băm |
-| P9 Luyện đề | Chưa | | | | |
+| P9 Luyện đề | Dev xong, chờ QC | 2026-11-12 | | Chưa có QC (`sprints/10/handoff/`) | `00019_practice`; chấm bằng `quiz` (không LLM); lượt luyện là bản chụp câu; đáp án thi thử chỉ lộ sau nộp; nhập Forms chỉ TEACHER, ghi `QUIZ` không công bố |
 | P10 Đánh giá | Chưa | | | | → vạch bảo vệ |
 | PR Sẵn sàng thí điểm | Chưa | | | | → vạch thí điểm thật |
 

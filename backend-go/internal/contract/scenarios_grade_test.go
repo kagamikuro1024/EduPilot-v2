@@ -272,6 +272,60 @@ func (r *runner) gradeScenarios(x examRig) {
 	garbage := []byte("khong phai xlsx")
 	r.must(imp(x.gv, "preview", upXL(garbage), weekly, "", nil), 422) // FILE_INVALID
 
+	// ---- US-P9-11: nhập kết quả Forms (thao tác 15–16 của SRS FEAT-practice 6): chỉ TEACHER, ba bước tách biệt.
+	if keys, err := r.rig.deps.Redis.Keys(ctx, "ep:rl:upload:*").Result(); err == nil && len(keys) > 0 {
+		r.rig.deps.Redis.Del(ctx, keys...)
+	}
+	presignForms := func(token, name, mime string, data []byte) call {
+		h := sha256.Sum256(data)
+		raw, _ := json.Marshal(map[string]any{"purpose": "forms_import", "filename": name, "mime_type": mime, "size_bytes": len(data), "sha256": hex.EncodeToString(h[:])})
+		return call{method: "POST", path: base + "/uploads/presign", token: token, body: string(raw)}
+	}
+	upForms := func(name, mime string, data []byte) string {
+		_, raw := r.must(presignForms(x.gv, name, mime, data), 200) //nolint:contextcheck // bộ chạy kịch bản gọi qua httptest, không có ctx
+		var p struct {
+			UploadID string `json:"upload_id"`
+			BlobKey  string `json:"blob_key"`
+		}
+		_ = json.Unmarshal(raw, &p)
+		if err := r.rig.deps.Blob.Put(ctx, p.BlobKey, bytes.NewReader(data), int64(len(data)), mime); err != nil {
+			r.t.Fatalf("đặt tệp Forms: %v", err)
+		}
+		return p.UploadID
+	}
+	csvForms := []byte("Email,Q1\nan@example.test,Hà Nội\nvô@danh.test,sai\n")
+	r.must(presignForms(x.ta, "f.csv", "text/csv", csvForms), 403)
+	r.must(presignForms(x.sv, "f.csv", "text/csv", csvForms), 403)
+	r.must(presignForms(x.admin, "f.csv", "text/csv", csvForms), 403)
+	r.must(presignForms("", "f.csv", "text/csv", csvForms), 401)
+	r.must(presignForms(x.gv, "f.pdf", "application/pdf", csvForms), 422)
+	fp, fi := base+"/forms-import/preview", base+"/forms-import"
+	fbody := func(up, item, mapping string) string {
+		return `{"upload_id":"` + up + `","item_id":"` + item + `","answer_source":"MANUAL","mapping":` + mapping + `}`
+	}
+	const fmap = `{"header_row":1,"email_col":"A","questions":[{"col":"B","accepted":["hà nội"]}]}`
+	fup := upForms("f.csv", "text/csv", csvForms)
+	r.must(call{method: "POST", path: fp, token: x.gv, body: `{"upload_id":"` + fup + `"}`}, 200)
+	r.must(call{method: "POST", path: fp, token: x.gv, body: fbody(fup, weekly, fmap)}, 200)
+	r.must(call{method: "POST", path: fp, body: `{"upload_id":"` + fup + `"}`}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "POST", path: fp, token: who, body: `{"upload_id":"` + fup + `"}`}, 403)
+		r.must(call{method: "POST", path: fi, token: who, headers: x.idem(), body: fbody(fup, weekly, fmap)}, 403)
+	}
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/forms-import/preview", token: x.gv, body: `{}`}, 404)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/forms-import", token: x.gv, headers: x.idem(), body: `{}`}, 404)
+	r.must(call{method: "POST", path: fp, token: x.gv, body: `{"upload_id":"00000000-0000-7000-8000-00000000dead"}`}, 404)
+	r.must(call{method: "POST", path: fp, token: x.gv, body: fbody(fup, "00000000-0000-7000-8000-00000000dead", fmap)}, 404)
+	r.must(call{method: "POST", path: fp, token: x.gv, body: fbody(fup, weekly, `{"header_row":1,"questions":[{"col":"B","accepted":["x"]}]}`)}, 422) // thiếu cột định danh
+	r.must(call{method: "POST", path: fp, token: x.gv, body: `{"upload_id":"` + upForms("x.xlsx", xlsxMime, []byte("khong phai xlsx")) + `"}`}, 422)  // FILE_INVALID
+	fresh := upForms("g.csv", "text/csv", []byte("Email,Q1\nan@example.test,Hà Nội\n"))
+	r.must(call{method: "POST", path: fi, token: x.gv, headers: x.idem(), body: fbody(fresh, weekly, fmap)}, 409) // PREVIEW_REQUIRED: chưa xem trước
+	r.must(call{method: "POST", path: fp, token: x.gv, body: `{"upload_id":"` + fresh + `"}`}, 200)
+	r.must(call{method: "POST", path: fi, token: x.gv, body: fbody(fresh, weekly, fmap)}, 422) // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: fi, token: x.gv, headers: x.idem(), body: `{"upload_id":"` + fresh + `"}`}, 422)
+	r.must(call{method: "POST", path: fi, headers: x.idem(), body: fbody(fresh, weekly, fmap)}, 401)
+	r.must(call{method: "POST", path: fi, token: x.gv, headers: x.idem(), body: fbody(fresh, weekly, fmap)}, 201)
+
 	xp := gb + "/export.xlsx"
 	_, xraw := r.must(call{method: "GET", path: xp, token: x.gv}, 200)
 	if !bytes.HasPrefix(xraw, []byte("PK")) {

@@ -57,6 +57,7 @@ const (
 	KindPostReported           Kind = "POST_REPORTED"            // US-P4-06: bài bị báo cáo / tự ẩn chờ duyệt (Giảng viên + TA)
 	KindSessionUnmarked        Kind = "SESSION_UNMARKED"         // US-P5-01: buổi đang diễn ra / vừa kết thúc chưa điểm danh (Giảng viên + TA)
 	KindStudentAttention       Kind = "STUDENT_ATTENTION"        // US-P5-04: sinh viên mới vào diện cần chú ý ≤ 7 ngày (Giảng viên + TA)
+	KindPracticeWeakTopic      Kind = "PRACTICE_WEAK_TOPIC"      // US-P9-09: ôn chủ đề yếu (sinh viên)
 	KindGradeSchemeUnconfirmed Kind = "GRADE_SCHEME_UNCONFIRMED" // US-P6-05: lớp chưa có công thức điểm đã xác nhận (Giảng viên + TA)
 	KindUnmatchedSubmission    Kind = "UNMATCHED_SUBMISSION"     // US-P7-04: bài nộp chưa khớp sinh viên (Giảng viên + TA)
 	KindGradingError           Kind = "GRADING_ERROR"            // US-P7-08: bài chấm lỗi (Giảng viên + TA)
@@ -98,6 +99,7 @@ const (
 	TierStaffAnswerUnread      = 40
 	TierStudentAttention       = 95
 	TierGradeSchemeUnconfirmed = 70
+	TierPracticeWeakTopic      = 85 // SRS FEAT-practice FR-19 (P-10-6): dưới mọi việc có hạn của sinh viên
 	TierUnmatchedSubmission    = 60 // SRS FEAT-assignments 4.12
 	TierGradingError           = 28
 	TierGradingReview          = 30
@@ -116,7 +118,7 @@ const SessionUnmarkedGrace = 24 * time.Hour
 // (hoặc một phase sau đăng ký sai) cũng không làm lộ việc dành cho staff ra cho sinh viên.
 func allowed(role Role, k Kind) bool {
 	switch k {
-	case KindStaffAnswerUnread, KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply, KindAssignmentDue, KindAssignmentGraded, KindAssignmentAppealReply:
+	case KindStaffAnswerUnread, KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply, KindAssignmentDue, KindAssignmentGraded, KindAssignmentAppealReply, KindPracticeWeakTopic:
 		return role == RoleStudent
 	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked, KindPostReported, KindStudentAttention, KindGradeSchemeUnconfirmed, KindUnmatchedSubmission, KindGradingError, KindGradingReview:
 		return role == RoleTeacher || role == RoleTA

@@ -4,6 +4,7 @@ import { loadAudit, runAudit } from "./support/audit";
 import { BASE_URL } from "./support/env";
 import { rgbOf } from "./support/colors";
 import { mockMe } from "./support/meMock";
+import { practiceApi } from "./support/practice-fixtures";
 import { panelViolations as violations } from "./support/panels";
 import { settleGoto } from "./support/hydrate";
 import { ROLES, routesFor } from "./support/routes";
@@ -246,6 +247,7 @@ test.describe("student routes", () => {
     test.setTimeout(180_000);
     await asDemo(context, "student");
     await mockMe(page); // #32(B): /me thật cần ba API me/* giả
+    await practiceApi(page); // /practice, /practice/history là màn thật (sprint 10): gateway giả theo hợp đồng
     await page.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ items: [], next_cursor: null }) }));
     const bad: string[] = [];
     for (const w of [1440, 1024]) {
@@ -268,6 +270,7 @@ test.describe("student mock routes", () => {
     test.setTimeout(120_000);
     await asDemo(context, "student");
     await mockMe(page); // #32(B): /me thật cần ba API me/* giả
+    await practiceApi(page); // /practice, /practice/history là màn thật (sprint 10): gateway giả theo hợp đồng
     await page.goto("/chat");
     await page.locator("[data-part=chat-thread]").waitFor();
     expect(await page.locator("[data-part=chat-thread]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
@@ -282,7 +285,7 @@ test.describe("student mock routes", () => {
     await page.goto(`/threads/${TID}`);
     await page.locator("[data-part=thread-question]").waitFor();
     expect(await page.locator("[data-part=thread-question]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
-    await page.goto("/practice/at-symmetric");
+    await page.goto("/practice/history");
     await page.locator("main [data-ep-panel]:visible").first().waitFor();
     expect((await violations(page)).panels).toBeGreaterThanOrEqual(1);
     await page.goto("/me");
@@ -372,6 +375,7 @@ test.describe("mobile gutter", () => {
       test.setTimeout(180_000);
       await asDemo(context, "student");
       await mockMe(page); // #33: /me thật cần ba API me/* giả
+      await practiceApi(page); // /practice, /practice/history là màn thật (sprint 10): gateway giả theo hợp đồng
       await page.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ items: [], next_cursor: null }) }));
       await page.setViewportSize({ width: w, height: 844 });
       const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();

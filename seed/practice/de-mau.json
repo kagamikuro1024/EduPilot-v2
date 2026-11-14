@@ -1,0 +1,294 @@
+{
+ "title": "ĐỀ MẪU LUYỆN TẬP — MẠNG MÁY TÍNH",
+ "per_page": 6,
+ "questions": [
+  {
+   "number": 1,
+   "page": 1,
+   "stem": "Tầng nào của mô hình OSI chịu trách nhiệm định tuyến gói tin giữa các mạng?",
+   "options": [
+    "Tầng liên kết dữ liệu",
+    "Tầng mạng",
+    "Tầng giao vận",
+    "Tầng phiên"
+   ],
+   "correct": 1
+  },
+  {
+   "number": 2,
+   "page": 1,
+   "stem": "Giao thức nào đảm bảo truyền dữ liệu tin cậy, có thiết lập kết nối?",
+   "options": [
+    "TCP",
+    "ARP",
+    "UDP",
+    "ICMP"
+   ],
+   "correct": 0
+  },
+  {
+   "number": 3,
+   "page": 1,
+   "stem": "Địa chỉ IPv4 có độ dài bao nhiêu bit?",
+   "options": [
+    "48",
+    "128",
+    "16",
+    "32"
+   ],
+   "correct": 3
+  },
+  {
+   "number": 4,
+   "page": 1,
+   "stem": "Thiết bị nào làm việc chủ yếu ở tầng 2 và chuyển khung theo địa chỉ MAC?",
+   "options": [
+    "Modem",
+    "Hub",
+    "Switch",
+    "Repeater"
+   ],
+   "correct": 2
+  },
+  {
+   "number": 5,
+   "page": 1,
+   "stem": "Cổng mặc định của giao thức HTTPS là gì?",
+   "options": [
+    "21",
+    "443",
+    "25",
+    "80"
+   ],
+   "correct": 1
+  },
+  {
+   "number": 6,
+   "page": 1,
+   "stem": "Giao thức DNS dùng để làm gì?",
+   "options": [
+    "Phân giải tên miền thành địa chỉ IP",
+    "Mã hoá đường truyền",
+    "Gửi thư điện tử",
+    "Cấp địa chỉ IP động"
+   ],
+   "correct": 0
+  },
+  {
+   "number": 7,
+   "page": 2,
+   "stem": "Giao thức nào tự động cấp địa chỉ IP cho máy trạm?",
+   "options": [
+    "DNS",
+    "FTP",
+    "SNMP",
+    "DHCP"
+   ],
+   "correct": 3
+  },
+  {
+   "number": 8,
+   "page": 2,
+   "stem": "Địa chỉ MAC dài bao nhiêu bit?",
+   "options": [
+    "128",
+    "32",
+    "48",
+    "64"
+   ],
+   "correct": 2
+  },
+  {
+   "number": 9,
+   "page": 2,
+   "stem": "Mạng bao phủ một toà nhà hoặc khuôn viên nhỏ được gọi là gì?",
+   "options": [
+    "PAN",
+    "LAN",
+    "WAN",
+    "MAN"
+   ],
+   "correct": 1
+  },
+  {
+   "number": 10,
+   "page": 2,
+   "stem": "Giao thức nào dùng để kiểm tra khả năng kết nối bằng lệnh ping?",
+   "options": [
+    "ICMP",
+    "SMTP",
+    "TCP",
+    "HTTP"
+   ],
+   "correct": 0
+  },
+  {
+   "number": 11,
+   "page": 2,
+   "stem": "Mặt nạ mạng 255.255.255.0 tương ứng tiền tố nào?",
+   "options": [
+    "/8",
+    "/30",
+    "/16",
+    "/24"
+   ],
+   "correct": 3
+  },
+  {
+   "number": 12,
+   "page": 2,
+   "stem": "Giao thức nào dùng để nhận thư điện tử từ máy chủ về máy khách?",
+   "options": [
+    "TFTP",
+    "SMTP",
+    "POP3",
+    "SNMP"
+   ],
+   "correct": 2
+  },
+  {
+   "number": 13,
+   "page": 3,
+   "stem": "Tường lửa (firewall) chủ yếu dùng để làm gì?",
+   "options": [
+    "Tăng tốc đường truyền",
+    "Lọc lưu lượng theo quy tắc bảo mật",
+    "Cấp địa chỉ IP",
+    "Nén dữ liệu"
+   ],
+   "correct": 1
+  },
+  {
+   "number": 14,
+   "page": 3,
+   "stem": "Trong TCP, cơ chế bắt tay ba bước dùng để làm gì?",
+   "options": [
+    "Thiết lập kết nối",
+    "Phân giải tên miền",
+    "Định tuyến gói tin",
+    "Mã hoá dữ liệu"
+   ],
+   "correct": 0
+  },
+  {
+   "number": 15,
+   "page": 3,
+   "stem": "Cáp quang truyền tín hiệu bằng gì?",
+   "options": [
+    "Từ trường",
+    "Dòng điện",
+    "Sóng vô tuyến",
+    "Ánh sáng"
+   ],
+   "correct": 3
+  },
+  {
+   "number": 16,
+   "page": 3,
+   "stem": "Giao thức nào truyền tệp và thường dùng cổng 21?",
+   "options": [
+    "DNS",
+    "NTP",
+    "FTP",
+    "SSH"
+   ],
+   "correct": 2
+  },
+  {
+   "number": 17,
+   "page": 3,
+   "stem": "VLAN được dùng để làm gì?",
+   "options": [
+    "Mở rộng vùng phủ sóng Wi-Fi",
+    "Chia một switch thành nhiều mạng logic",
+    "Tăng dung lượng ổ đĩa",
+    "Chuyển đổi tên miền"
+   ],
+   "correct": 1
+  },
+  {
+   "number": 18,
+   "page": 3,
+   "stem": "Địa chỉ nào sau đây là địa chỉ IPv4 riêng (private)?",
+   "options": [
+    "172.16.5.4",
+    "203.0.113.9",
+    "1.1.1.1",
+    "8.8.8.8"
+   ],
+   "correct": 0
+  },
+  {
+   "number": 19,
+   "page": 4,
+   "stem": "Giao thức nào cung cấp truy cập từ xa có mã hoá?",
+   "options": [
+    "TFTP",
+    "RIP",
+    "Telnet",
+    "SSH"
+   ],
+   "correct": 3
+  },
+  {
+   "number": 20,
+   "page": 4,
+   "stem": "Đơn vị dữ liệu ở tầng giao vận của TCP được gọi là gì?",
+   "options": [
+    "Khung",
+    "Gói",
+    "Đoạn (segment)",
+    "Bit"
+   ],
+   "correct": 2
+  },
+  {
+   "number": 21,
+   "page": 4,
+   "stem": "Giao thức định tuyến nào dựa trên số bước nhảy (hop count)?",
+   "options": [
+    "BGP",
+    "RIP",
+    "EIGRP",
+    "OSPF"
+   ],
+   "correct": 1
+  },
+  {
+   "number": 22,
+   "page": 4,
+   "stem": "NAT thường được dùng để làm gì?",
+   "options": [
+    "Dịch địa chỉ IP riêng sang địa chỉ công cộng",
+    "Mã hoá email",
+    "Nén ảnh",
+    "Sao lưu dữ liệu"
+   ],
+   "correct": 0
+  },
+  {
+   "number": 23,
+   "page": 4,
+   "stem": "Độ trễ (latency) của mạng là gì?",
+   "options": [
+    "Số thiết bị trong mạng",
+    "Độ dài của cáp",
+    "Lượng dữ liệu tối đa truyền được",
+    "Thời gian để một gói tin đi từ nguồn đến đích"
+   ],
+   "correct": 3
+  },
+  {
+   "number": 24,
+   "page": 4,
+   "stem": "Giao thức UDP khác TCP ở điểm nào?",
+   "options": [
+    "Chỉ chạy trên Wi-Fi",
+    "Dùng địa chỉ MAC",
+    "Không thiết lập kết nối và không đảm bảo tin cậy",
+    "Luôn mã hoá dữ liệu"
+   ],
+   "correct": 2
+  }
+ ]
+}
