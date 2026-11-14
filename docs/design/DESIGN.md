@@ -159,7 +159,7 @@ If a red element does not express one of these, remove it.
 - High contrast text.
 - Thin rules.
 - Small radii.
-- Disciplined panels: each working region is ONE Panel on `--ep-canvas` (1 px `--ep-panel-border` border and static `--ep-elevation-1`); the region title sits outside the panel; no Panel inside Panel; no KPI wall.
+- Disciplined panels: each working region is ONE Panel on the white page ground (`--ep-canvas` = `--ep-surface` = `#FFFFFF`, P-107-10); the panel is always drawn with BOTH its 1 px `--ep-panel-border` border and its static `--ep-elevation-1`, and no route removes either; the region title sits outside the panel; no Panel inside Panel; no KPI wall.
 - Inside a Panel, use whitespace and 1 px rules before any further container.
 - Use proximity before borders.
 - Use hierarchy before color.
@@ -168,27 +168,29 @@ If a red element does not express one of these, remove it.
 
 ## 4. Color system
 
-Use OKLCH in implementation where supported. Fallback HEX values are supplied only for compatibility.
+Use OKLCH in implementation where supported. Fallback HEX values are supplied only for compatibility. **Exception (P-107-8):** the four colours taken from the HUST brand manual 2026 (pp. 4 and 6: red `#CE1628`, yellow `#F3C108`, black `#231F20`, deep blue `#003366`) are written as HEX so the screen value equals the official RGB.
 
 ### Core palette
 
 | Token | OKLCH intent | Fallback | Use |
 |---|---:|---:|---|
-| `--ep-canvas` | `oklch(95% 0.008 60)` | `#f3ede9` | Page background (darker than panels) |
+| `--ep-canvas` | HEX is the source (white) | `#ffffff` | Page background; same white as `--ep-surface` since 10.7 (P-107-10). Panels separate from it by border + elevation, not by tone |
 | `--ep-surface` | `oklch(100% 0 0)` | `#ffffff` | Panels, inputs, sidebar, top bar |
 | `--ep-surface-subtle` | `oklch(97% 0.008 25)` | `#f9f3f3` | Row hover, table header, grouped secondary region inside a Panel |
 | `--ep-surface-strong` | `oklch(96% 0.012 25)` | `#faefee` | Emphasis cell inside a Panel: 1–3 key numbers/states |
 | `--ep-panel-border` | `var(--ep-rule)` (`oklch(89% 0.012 25)`) | `#e8dddd` | Panel edge |
-| `--ep-ink` | `oklch(19% 0.02 25)` | `#251d1e` | Primary text |
+| `--ep-ink` | HEX is the source (brand black) | `#231f20` | Primary text |
 | `--ep-ink-2` | `oklch(40% 0.018 25)` | `#65595b` | Secondary text |
 | `--ep-ink-3` | `oklch(53% 0.014 25)` | `#746968` | Metadata / disabled labels — hạ từ 58 % (`#958a8c`, 3,9 : 1) để chữ phụ đạt WCAG AA 4,5 : 1 (góp ý #25, PM ACCEPTED) |
 | `--ep-rule` | `oklch(89% 0.012 25)` | `#e8dddd` | Dividers |
-| `--ep-red` | `oklch(54% 0.22 27)` | `#c81d32` | Primary brand/action |
-| `--ep-red-hover` | `oklch(49% 0.22 27)` | `#af1729` | Primary hover |
-| `--ep-red-soft` | `oklch(96% 0.025 25)` | `#fff0f1` | Selected / mild warning context |
+| `--ep-red` | HEX is the source (brand red) | `#ce1628` | Primary brand/action |
+| `--ep-red-hover` | derived (red, 7.5 points darker in L) | `#a81220` | Primary hover |
+| `--ep-red-soft` | derived | `#fdeef0` | Selected / mild warning context; error background |
+| `--ep-yellow` | HEX is the source (brand yellow) | `#f3c108` | NEW. Rare accent only: a 8 px dot, a 3 px bar or a `--ep-yellow-soft` label for "needs attention, not urgent" or "next / open". Never text (1.69 : 1 on white) |
+| `--ep-yellow-soft` | derived | `#fdf4cf` | NEW. Label background for the yellow meaning; text on it is `--ep-ink` (14.76 : 1) |
 | `--ep-green` | `oklch(49% 0.13 145)` | `#287a4a` | Verified / success |
 | `--ep-amber` | `oklch(63% 0.14 75)` | `#a86600` | Needs review / warning |
-| `--ep-blue` | `oklch(51% 0.12 245)` | `#356d9e` | Informational only |
+| `--ep-blue` | HEX is the source (brand deep blue) | `#003366` | Informational only |
 
 ### Color rules
 
@@ -198,6 +200,10 @@ Use OKLCH in implementation where supported. Fallback HEX values are supplied on
 - Semantic colors never compete with red CTA. If warning/error is primary on a screen, primary action can become neutral-dark.
 - Secondary text on a red surface must be tinted from the red/foreground relationship, not generic gray.
 - Never use pure `#000` as body text.
+- Do not paint the top bar or the sidebar red (unlike the school portal); red stays a signal (D28).
+- Yellow is rare: at most 3 yellow elements in one viewport, each ≤ 24 px in one dimension (dot 8 px, bar 3 px, `--ep-yellow-soft` label). It means only "needs attention, not urgent" or "next / open".
+- Yellow is never text, never a lone icon or border, never a button fill, and never touches red (red on yellow 3.30 : 1). A warning pairs the yellow dot with a 1 px `--ep-amber` ring and `--ep-amber` text on white; on a `--ep-yellow-soft` label the text is `--ep-ink` (amber on it is 4.17 : 1, below AA).
+- State colour always comes with a word or a symbol (§10.6). Three states: error = `--ep-red` on `--ep-red-soft`; warning = `--ep-amber` text with a yellow dot; success = `--ep-green`.
 
 ---
 
