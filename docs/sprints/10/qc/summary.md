@@ -8,7 +8,7 @@
 | Story | Kết luận | Ghi chú |
 | --- | --- | --- |
 | US-P9-01 Lược đồ, Quiz Engine, DTO | **PASS** | Không đổi. Chưa chạy `goose down/up` |
-| US-P9-02 Trích đề cũ | **PASS** (phạm vi ưu tiên) | **L1 đã sửa**: seed sạch trích 23 câu `EXTRACTED` từ đề docling thật, đáp án khớp bảng 23/23, mọi câu có trích dẫn `{document_id, page}`; câu 24 bỏ vì trùng stem với câu `PENDING` đã có (`DUPLICATE`, đúng AC5). Đề lỗi câu: INVALID ở 2, 3, 4, NO_ANSWER ở 5. Còn mở: TC-02-14 (`OVERLOADED`) không kiểm được, chờ PM; lỗi schema (TC-02-07b) chưa chạy lại do hạn mức giờ |
+| US-P9-02 Trích đề cũ | **PASS** (phạm vi ưu tiên) | **L1 đã sửa**: seed sạch trích 23 câu `EXTRACTED` từ đề docling thật, đáp án khớp bảng 23/23, mọi câu có trích dẫn `{document_id, page}`; câu 24 bỏ vì trùng stem với câu `PENDING` đã có (`DUPLICATE`, đúng AC5). Đề lỗi câu: INVALID ở 2, 3, 4, NO_ANSWER ở 5. Đề lỗi schema: job `FAILED` `LLM_UNAVAILABLE`, không lưu câu (TC-02-07b PASS). Còn mở: TC-02-14 (`OVERLOADED`) không kiểm được, chờ PM |
 | US-P9-03 Sinh câu | **PASS** | L9 đã sửa (`types:[]` → 422) |
 | US-P9-04 `/questions` + duyệt hàng loạt | **PASS** | L10, L11, L16 đã sửa: bulk trả `CITATION_REQUIRED`; menu «Soạn tay» → «Câu trắc nghiệm» / «Bài lập trình»; nhãn nguồn «Đề mẫu luyện tập — Mạng máy tính, trang 1» |
 | US-P9-05 Dựng đề theo ma trận | **PASS** (có Nợ L6) | L7 đã sửa (409 `{available:0}`), L8 đã sửa (ma trận không `difficulty` bù đủ 10 câu). L6 `count=0` → 201: Nợ sprint 11 |
@@ -39,4 +39,4 @@ PASS: 11 / 12. FAIL: 1 / 12 (P9-12).
 Dựng lại từ trống (`down -v` → `pnpm dev` với `SEED_ON_EMPTY_DB=true`, `57f4cb25`): `scripts/seed.mjs` **mã 0, 334 s** (kể cả docling); chạy lại **mã 0, 21 s**, `question_bank` 129 / `practice_attempts` 42 / `exams` 3 không đổi (idempotent, TC-12-06 PASS). Nội dung: 104 `APPROVED` (14 chủ đề; 60 một đáp án, 12 nhiều đáp án, 20 đúng–sai, 8 trả lời ngắn, 2 tự luận, 2 code; EASY 39, MEDIUM 51, HARD 14), 20 `PENDING` + 5 `AI_DRAFT`, 42 lượt của 13 SV (1 lượt dở). Sai spec: 0 câu có citations, không có `EXTRACTED`, Quiz `SCHEDULED`, lớp 2 không có câu (L4); `node scripts/check-practice-seed.mjs` ở `57f4cb25` lỗi `Không thấy lớp 761987` (L5), sau bản sửa `5d9c54e3` báo `OK: 107 APPROVED, 26 PENDING, Quiz SCHEDULED, 23 lượt của 6 sinh viên mẫu`.
 
 ## Đang dở (tạm dừng theo chủ dự án, 2026-11-14)
-Chưa chạy lại: TC-02-07b (đề lỗi schema, chờ hạn mức `extract` theo giờ), TC-02-14 / 03-08 (`OVERLOADED`, chờ PM), 4 TC PII ở mức lời nhắc (02-06, 02-16, 03-06 chưa có test Go). Stack `ep-qc` còn chạy ở HEAD (dữ liệu seed + dữ liệu thử của QC); gỡ bằng `docker compose -p ep-qc down -v` khi không cần. Script kiểm lại: `qc/scripts/recheck_*.py`.
+Chưa chạy lại: TC-02-14 / 03-08 (`OVERLOADED`, chờ PM), 4 TC PII ở mức lời nhắc (02-06, 02-16, 03-06 chưa có test Go). Stack `ep-qc` còn chạy ở HEAD (dữ liệu seed + dữ liệu thử của QC); gỡ bằng `docker compose -p ep-qc down -v` khi không cần. Script kiểm lại: `qc/scripts/recheck_*.py`.

@@ -287,3 +287,4 @@
 {"tc": "RECHECK-#3 presign trỏ MinIO của chính stack (cổng 9500) khi .env.local mặc định 9000", "st": "PASS", "note": "http://localhost:9500/edupilot"}
 {"tc": "RECHECK-TC-06-08c phản hồi TOPIC có trích dẫn (câu EXTRACTED đã duyệt)", "st": "PASS", "note": "1 trích dẫn"}
 {"tc": "RECHECK-TC-02-07a đề lỗi câu: lưu 1, INVALID ở 2,3,4, NO_ANSWER ở 5", "st": "FAIL", "note": "created=0 skipped=[(1, 'DUPLICATE'), (2, 'INVALID'), (3, 'INVALID'), (4, 'INVALID'), (5, 'NO_ANSWER')]"}
+{"tc": "RECHECK-TC-02-07b lỗi schema: job FAILED LLM_UNAVAILABLE, không câu lưu", "st": "PASS", "note": "status=FAILED error={\"code\": \"LLM_UNAVAILABLE\", \"message\": \"AI chưa phản hồi được, thử lại sau.\"}"}
