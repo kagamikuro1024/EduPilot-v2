@@ -141,7 +141,7 @@ func (p *oaClient) applySchema(prm *openai.ChatCompletionNewParams, schema json.
 	switch p.typ {
 	case "openai", "gemini":
 		if p.typ == "gemini" {
-			dropArrayBounds(sch) // đo thật (9.5): Gemini trả 400 INVALID_ARGUMENT khi schema có minItems/maxItems lồng nhau; Go vẫn kiểm đầy đủ schema ở đầu ra
+			adaptForGemini(sch) // đo thật (9.5): Gemini trả 400 khi có minItems/maxItems lồng nhau và bỏ qua `const` (rule.params ra sai nhánh anyOf); Go vẫn kiểm đầy đủ schema ở đầu ra
 		}
 		prm.ResponseFormat = openai.ChatCompletionNewParamsResponseFormatUnion{OfJSONSchema: &shared.ResponseFormatJSONSchemaParam{
 			JSONSchema: shared.ResponseFormatJSONSchemaJSONSchemaParam{Name: "result", Schema: sch, Strict: openai.Bool(p.typ == "openai")},
@@ -158,18 +158,22 @@ func (p *oaClient) applySchema(prm *openai.ChatCompletionNewParams, schema json.
 	}
 }
 
-// dropArrayBounds xoá minItems / maxItems ở mọi tầng của schema (sửa tại chỗ).
-func dropArrayBounds(n any) {
+// adaptForGemini xoá minItems / maxItems và đổi `const` thành `enum` một phần tử ở mọi tầng của schema (sửa tại chỗ).
+func adaptForGemini(n any) {
 	switch v := n.(type) {
 	case map[string]any:
 		delete(v, "minItems")
 		delete(v, "maxItems")
+		if c, ok := v["const"]; ok {
+			delete(v, "const")
+			v["enum"] = []any{c}
+		}
 		for _, c := range v {
-			dropArrayBounds(c)
+			adaptForGemini(c)
 		}
 	case []any:
 		for _, c := range v {
-			dropArrayBounds(c)
+			adaptForGemini(c)
 		}
 	}
 }

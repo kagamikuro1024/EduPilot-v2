@@ -377,7 +377,7 @@ def score_extraction(draft, fx, pages):
         else:
             cstat["not_found"] += 1
             cstat["not_found_items"].append({"owner": owner, "page": c["page"], "quote": c["quote"][:160]})
-    unclear = [u["code"] or u["source"] for u in draft["unclear_items"]]
+    unclear = [u.get("code") or u["source"] for u in draft["unclear_items"]]
     wsum = sum((dec(c["weight"]) or 0) for c in comps)
     return {"components_ok": comp_ok, "weights_sum": str(wsum), "rules_ok": rule_ok, "invented_rules": invented, "citations": cstat,
             "unclear_codes": unclear, "unclear_llm": [u for u in draft["unclear_items"] if u["source"] == "LLM"]}
