@@ -27,6 +27,7 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/regress"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -74,6 +75,8 @@ type Service struct {
 	Notify *notify.Service
 	// Suggest: M4 «câu tương tự đã xác nhận lúc soạn» (cờ THREAD_SUGGEST, THREAD_SUGGEST_MIN / _RPM); Gate nil = tắt.
 	Suggest SuggestConfig
+	// Regress: cờ REGRESSION_CAPTURE theo lớp (ca hồi quy khi bài đăng bị sửa / loại); nil = tắt.
+	Regress SuggestGate
 }
 
 // Actor là người gọi: danh tính từ JWT, vai TRONG LỚP từ CourseAccessGuard.
@@ -691,6 +694,11 @@ func (s *Service) Decide(ctx context.Context, a Actor, courseID, postID uuid.UUI
 	before, _ := json.Marshal(map[string]any{"state": cur, "version": p.Version})
 	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &courseID, ActorID: &a.UserID, Entity: "forum_post", EntityID: postID.String(), Action: "thread.post." + string(d), Before: before, After: after, TraceID: nonEmptyPtr(a.TraceID)}); err != nil {
 		return PostOut{}, fmt.Errorf("thread: audit: %w", err)
+	}
+	if s.Regress != nil {
+		if err := regress.CaptureThread(ctx, q, s.Regress, courseID, postID, string(target)); err != nil { // M2: ca THREAD_CORRECTED / THREAD_REJECTED
+			return PostOut{}, err
+		}
 	}
 	if err := s.syncKnowledge(ctx, tx, courseID, p.ThreadID, &a.UserID); err != nil { // VERIFY / CORRECT → nạp (embedding NULL), REJECT → gỡ: cùng giao dịch với quyết định
 		return PostOut{}, err

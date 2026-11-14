@@ -57,6 +57,8 @@ type Service struct {
 	Now    func() time.Time   // nil → time.Now; test đặt để kiểm hạn phúc khảo ở biên
 	// Guidance: cờ «Lưu ý chấm» theo lớp (10.6). nil / lớp tắt → công bố như trước (không so phiên bản).
 	Guidance *grading.GuidanceFlags
+	// RegressMinDelta: REGRESSION_MIN_DELTA — độ lệch điểm tiêu chí tối thiểu để ghi ca hồi quy (cờ REGRESSION_CAPTURE).
+	RegressMinDelta decimal.Decimal
 }
 
 func (s *Service) now() time.Time {

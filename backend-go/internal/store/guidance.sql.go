@@ -1014,6 +1014,22 @@ func (q *Queries) QuestionRejectHints(ctx context.Context, arg QuestionRejectHin
 	return items, nil
 }
 
+const regressionAIScores = `-- name: RegressionAIScores :one
+select coalesce(ai_scores, '{}'::jsonb) as ai_scores from grading_results where course_id = $1 and id = $2
+`
+
+type RegressionAIScoresParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+func (q *Queries) RegressionAIScores(ctx context.Context, arg RegressionAIScoresParams) (json.RawMessage, error) {
+	row := q.db.QueryRow(ctx, regressionAIScores, arg.CourseID, arg.ID)
+	var ai_scores json.RawMessage
+	err := row.Scan(&ai_scores)
+	return ai_scores, err
+}
+
 const regressionCaseCount = `-- name: RegressionCaseCount :many
 select kind, count(*)::int as n from grading_regression_cases where course_id = $1 group by kind
 `
@@ -1105,6 +1121,112 @@ func (q *Queries) RegressionCases(ctx context.Context, arg RegressionCasesParams
 			&i.CriterionID,
 			&i.Expected,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const regressionRunCases = `-- name: RegressionRunCases :many
+select c.id, c.kind, c.source_id, c.criterion_id, c.expected, s.extracted_text, a.id as assignment_id, a.title, a.description, a.reference_answer, a.rubric, a.guidance_version
+from grading_regression_cases c
+join grading_results r on r.course_id = c.course_id and r.id = c.source_id
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+where c.course_id = $1 and c.kind in ('GRADING_EDIT', 'GRADING_APPEAL')
+order by c.created_at, c.id limit $2
+`
+
+type RegressionRunCasesParams struct {
+	CourseID  uuid.UUID
+	PageLimit int32
+}
+
+type RegressionRunCasesRow struct {
+	ID              uuid.UUID
+	Kind            string
+	SourceID        uuid.UUID
+	CriterionID     *string
+	Expected        json.RawMessage
+	ExtractedText   *string
+	AssignmentID    uuid.UUID
+	Title           string
+	Description     string
+	ReferenceAnswer *string
+	Rubric          json.RawMessage
+	GuidanceVersion int16
+}
+
+// Ca chấm cùng nội dung ngay trong DB cho `cmd/regress run` (môi trường đo). Văn bản không bao giờ ra khỏi DB trừ khi chạy `export`.
+func (q *Queries) RegressionRunCases(ctx context.Context, arg RegressionRunCasesParams) ([]RegressionRunCasesRow, error) {
+	rows, err := q.db.Query(ctx, regressionRunCases, arg.CourseID, arg.PageLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []RegressionRunCasesRow{}
+	for rows.Next() {
+		var i RegressionRunCasesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Kind,
+			&i.SourceID,
+			&i.CriterionID,
+			&i.Expected,
+			&i.ExtractedText,
+			&i.AssignmentID,
+			&i.Title,
+			&i.Description,
+			&i.ReferenceAnswer,
+			&i.Rubric,
+			&i.GuidanceVersion,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const regressionThreadCases = `-- name: RegressionThreadCases :many
+select c.kind, p.confidence, co.escalation_threshold
+from grading_regression_cases c
+join forum_posts p on p.course_id = c.course_id and p.id = c.source_id
+join courses co on co.id = c.course_id
+where c.course_id = $1 and c.kind in ('THREAD_CORRECTED', 'THREAD_REJECTED')
+order by c.created_at, c.id limit $2
+`
+
+type RegressionThreadCasesParams struct {
+	CourseID  uuid.UUID
+	PageLimit int32
+}
+
+type RegressionThreadCasesRow struct {
+	Kind                string
+	Confidence          decimal.NullDecimal
+	EscalationThreshold decimal.Decimal
+}
+
+// Ca THREAD_* cho chế độ --e2: độ tự tin của bài AI bị sửa / loại so với ngưỡng chuyển giảng viên của lớp.
+// hidden-ok: công cụ vận hành ở môi trường đo (cmd/regress); chỉ đếm độ tự tin của bài đã bị sửa / loại, không hiển thị cho người dùng.
+func (q *Queries) RegressionThreadCases(ctx context.Context, arg RegressionThreadCasesParams) ([]RegressionThreadCasesRow, error) {
+	rows, err := q.db.Query(ctx, regressionThreadCases, arg.CourseID, arg.PageLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []RegressionThreadCasesRow{}
+	for rows.Next() {
+		var i RegressionThreadCasesRow
+		if err := rows.Scan(&i.Kind, &i.Confidence, &i.EscalationThreshold); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

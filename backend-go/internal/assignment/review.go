@@ -17,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/regress"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -663,6 +664,10 @@ func (s *Service) Review(ctx context.Context, a Actor, course, id uuid.UUID, ver
 		}
 		nd, err := s.lockResult(ctx, q, course, id)
 		if err != nil {
+			return err
+		}
+		// M2: tiêu chí lệch ≥ REGRESSION_MIN_DELTA so với điểm AI → ca hồi quy (chỉ tham chiếu + số; cờ lớp REGRESSION_CAPTURE)
+		if err := regress.CaptureGrading(ctx, q, s.Guidance, course, regress.KindGradingEdit, id, nd.Rubric, nd.Criteria, nd.AiScores, s.RegressMinDelta, nil); err != nil {
 			return err
 		}
 		if err := s.resultAudit(ctx, q, a, course, id, "grading_result.review", map[string]any{"status": d.Status}, map[string]any{"status": nd.Status, "total": totalStr(nd.Total), "flags": nd.Flags}); err != nil {

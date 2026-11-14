@@ -204,3 +204,26 @@ where r.course_id = sqlc.arg(course_id) and r.id = sqlc.arg(id);
 -- name: PracticeGenHints :one
 -- Lý do «Tránh» đã dùng cho một lô sinh câu (lưu vào jobs.result lúc chạy, không tính lại).
 select coalesce(result -> 'hints', '[]'::jsonb) as hints from jobs where id = sqlc.arg(job_id) and payload ->> 'course_id' = sqlc.arg(course_id)::text;
+
+-- name: RegressionAIScores :one
+select coalesce(ai_scores, '{}'::jsonb) as ai_scores from grading_results where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
+
+-- name: RegressionRunCases :many
+-- Ca chấm cùng nội dung ngay trong DB cho `cmd/regress run` (môi trường đo). Văn bản không bao giờ ra khỏi DB trừ khi chạy `export`.
+select c.id, c.kind, c.source_id, c.criterion_id, c.expected, s.extracted_text, a.id as assignment_id, a.title, a.description, a.reference_answer, a.rubric, a.guidance_version
+from grading_regression_cases c
+join grading_results r on r.course_id = c.course_id and r.id = c.source_id
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+where c.course_id = sqlc.arg(course_id) and c.kind in ('GRADING_EDIT', 'GRADING_APPEAL')
+order by c.created_at, c.id limit sqlc.arg(page_limit);
+
+-- name: RegressionThreadCases :many
+-- Ca THREAD_* cho chế độ --e2: độ tự tin của bài AI bị sửa / loại so với ngưỡng chuyển giảng viên của lớp.
+-- hidden-ok: công cụ vận hành ở môi trường đo (cmd/regress); chỉ đếm độ tự tin của bài đã bị sửa / loại, không hiển thị cho người dùng.
+select c.kind, p.confidence, co.escalation_threshold
+from grading_regression_cases c
+join forum_posts p on p.course_id = c.course_id and p.id = c.source_id
+join courses co on co.id = c.course_id
+where c.course_id = sqlc.arg(course_id) and c.kind in ('THREAD_CORRECTED', 'THREAD_REJECTED')
+order by c.created_at, c.id limit sqlc.arg(page_limit);
