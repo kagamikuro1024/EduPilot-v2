@@ -1,4 +1,4 @@
-# Sprint UI-R: rà và làm lại khung giao diện toàn bộ (chủ dự án giao PM quyết phạm vi, 2026-11-14)
+# Sprint 10.7 (UI-R): rà và làm lại khung giao diện toàn bộ (chủ dự án giao PM quyết phạm vi, 2026-11-14)
 
 ## Vì sao
 Chủ dự án chụp 3 màn cùng một vai, cùng một lớp: mỗi màn một kiểu panel và đầu trang.
@@ -31,10 +31,10 @@ Không vẽ lại thương hiệu (giữ Red Thread, token `--ep-*`, Be Vietnam 
 | # | Ai | Việc | Ra |
 | --- | --- | --- | --- |
 | 0 | dev | Điều tra (chỉ đọc) lỗi `/insights` hiện báo cáo lớp khác | báo PM |
-| 1 | QC | Script chụp toàn bộ + bảng kiểm chéo hiện trạng (dựa ảnh, không cảm tính) | `docs/sprints/ui-r/qc/audit.md`, `audit.html` |
-| 1 | Tech Lead | Hợp đồng §23 + danh sách thay đổi primitive + luật script | `docs/sprints/ui-r/techlead.md`, nháp §23 |
+| 1 | QC | Script chụp toàn bộ + bảng kiểm chéo hiện trạng (dựa ảnh, không cảm tính) | `docs/sprints/10.7/qc/audit.md`, `audit.html` |
+| 1 | Tech Lead | Hợp đồng §23 + danh sách thay đổi primitive + luật script | `docs/sprints/10.7/techlead.md`, nháp §23 |
 | 2 | dev | (sau hàng sửa 10.6) primitive trước → route sau; nhánh `fix/ui-empty` đổi thành nền của UI-R | commit nhỏ theo nhóm route |
-| 3 | QC | Chụp lại, kiểm chéo, 0 mục còn lại; Playwright + `ui-antipatterns` sạch | `docs/sprints/ui-r/qc/summary.md` |
+| 3 | QC | Chụp lại, kiểm chéo, 0 mục còn lại; Playwright + `ui-antipatterns` sạch | `docs/sprints/10.7/qc/summary.md` |
 | 4 | PM | Báo cáo trước/sau cho chủ dự án | `~/Documents/EduPilot-bao-cao/ui-r.html` |
 
-Thứ tự lộ trình: 10.6 xong → **UI-R** → lượt kiểm + bench chung → 10.7 → 11. UI-R trước lượt kiểm chung để smoke đợt R chạy trên giao diện cuối.
+Thứ tự lộ trình: 10.6 → **10.7 (UI-R)** → lượt kiểm + bench chung → 10.8 điểm danh → 11. UI-R trước lượt kiểm chung để smoke đợt R chạy trên giao diện cuối.
