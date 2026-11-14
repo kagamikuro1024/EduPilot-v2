@@ -19,7 +19,7 @@ def bad(code, r, why=""):
     FAIL.setdefault(code, []).append(f"{tag(r)}{(' ' + why) if why else ''}")
 DESC = {
  "W1": "kiểu trang: đúng 1 `data-ep-page` = work|read", "W2": "bề rộng cột 1440: work 1176; read 800 căn giữa (428→1228)", "W3": "mép panel cấp cao nhất = mép cột (trừ Split)", "W4": "mép trái h1 = mép trái cột; mép phải cụm nút = mép phải cột",
- "W5": "375: cột 12→363, không tràn ngang", "H1": "đúng 1 h1 trong header", "H2": "0 thẻ `p` thừa ở đầu trang", "H3": "meta ≤ 1 dòng, không chứa lớp đang chọn", "H4": "nút cùng hàng tiêu đề (|Δ tâm dọc| ≤ 4, 1440)",
+ "W5": "375: cột 12→363 (rộng 351), không tràn ngang", "H1": "đúng 1 h1 trong header", "H2": "0 thẻ `p` thừa ở đầu trang", "H3": "meta ≤ 1 dòng, không chứa lớp đang chọn", "H4": "nút cùng hàng tiêu đề (|Δ tâm dọc| ≤ 4, 1440)",
  "H5": "≤ 1 primary, ≤ 4 nút ở đầu trang", "H6": "0 nút primary ngoài đầu trang khi ≤ 1 vùng", "H7": "chiều cao đầu trang mỗi nhóm (có/không meta) đúng 1 giá trị (±2)", "H8": "375: hàng nút đầu trang ≤ 48 px",
  "P1": "đệm panel 24 (16 ở 375)", "P2": "panel cao theo nội dung (chênh ≤ 2; trừ Split fill)", "P3": "0 panel lồng", "P4": "h2 có `data-ep-section-title`, 0 `p` ở đầu mục", "P5": "nhịp dọc đầu trang→thân 40 (32@375), mục→mục 48, h2→panel 16",
  "E1": "khối rỗng: 1 tiêu đề + ≤ 1 nút, 0 svg, 0 chữ khác", "E2": "khối rỗng căn giữa |Δ| ≤ 2 px", "E3": "tiêu đề rỗng ≤ 40 ký tự, 1 dòng, không dấu chấm cuối", "E4": "nút rỗng không trùng nút đầu trang / tab / thanh công cụ", "E5": "nút rỗng `secondary`",
@@ -43,7 +43,7 @@ for st in ("data", "empty"):
         if col and h["h1x"] is not None and not near(h["h1x"], col["x"]): bad("W4", r, f"h1.x {h['h1x']} ≠ cột {col['x']}")
         if h["actionsRight"] is not None and abs(h["actionsRight"]) > 1: bad("W4", r, f"nút cách mép phải {h['actionsRight']}")
         if w == 375:
-            if col and not (near(col["x"], 12) and near(col["w"], 363)): bad("W5", r, f"cột {col['x']}+{col['w']}")
+            if col and not (near(col["x"], 12) and near(col["r"], 363)): bad("W5", r, f"cột {col['x']}→{col['r']}")
             if r["overflowX"] > 0: bad("W5", r, f"tràn {r['overflowX']}")
         if h["h1Count"] != 1 or not h["h1InHeader"]: bad("H1", r, f"h1×{h['h1Count']} trong header={h['h1InHeader']}")
         if h["pTags"]: bad("H2", r, f"{h['pTags']} thẻ p")
@@ -141,7 +141,7 @@ for code, v in FAIL.items():
 errs = [r for r in allr if not ok(r)]
 if errs:
     w("## Lượt chụp lỗi\n"); [w(f"- {tag(r)}: {r.get('err') or 'không có <main>'}") for r in errs]
-open(os.path.join(QC, "audit.md"), "w").write("\n".join(L) + "\n")
+open(os.path.join(QC, "audit.md" if PHASE == "sau" else f"audit-{PHASE}.md"), "w").write("\n".join(L) + "\n")
 
 # ---------- html: xếp theo kiểu trang
 H = ["<!doctype html><meta charset=utf-8><title>Audit khung trang 10.7</title><style>body{font:13px system-ui;margin:16px;background:#fff}h2{margin:28px 0 6px}table{border-collapse:collapse}td{vertical-align:top;padding:3px;border:1px solid #ddd}img{display:block;border:1px solid #bbb;background:#fff}.m{color:#555;font-size:11px;max-width:230px}.b{color:#b00020;font-weight:600}.t{font-weight:600;max-width:150px;word-break:break-all}</style><h1>Audit khung trang — «%s» (QC 10.7)</h1><p>Hàng = route (một vai). Cột: dữ liệu 1440 · rỗng 1440 · đang tải 1440 · lỗi 1440 · dữ liệu 375. Đường xanh = mép cột mong đợi. Chữ đỏ = mã lệch.</p>" % PHASE]
@@ -166,5 +166,5 @@ for kind in ("work", "read", "none"):
             H.append(f"<td><img loading=lazy width={230 if wd == 1440 else 110} src='audit/{PHASE}/{x['img']}'><div class=m>{html.escape(cap)}</div></td>")
         H.append("</tr>")
     H.append("</table>")
-open(os.path.join(QC, "audit.html"), "w").write("".join(H))
+open(os.path.join(QC, "audit.html" if PHASE == "sau" else f"audit-{PHASE}.html"), "w").write("".join(H))
 print("audit.md", len(L), "dòng; tổng lệch", tot, {k: len(v) for k, v in FAIL.items()})

@@ -18,12 +18,14 @@ mkdirSync(DIR, { recursive: true });
 const LOG = `${DIR}/audit-${STATE}.jsonl`;
 
 const dyn = (p: string, k: string) => (DYN[k] ? [p.replace("{id}", DYN[k])] : []);
+const RF = process.env.QC_ROUTES ? new RegExp(process.env.QC_ROUTES) : null; // lọc route theo lô, vd. ^/(insights|questions|inbox)$
 const ROUTES: Record<string, string[]> = {
   student: ["/", "/chat", "/threads", "/practice", "/practice/history", "/exams", "/library", "/calendar", "/me", "/settings", ...dyn("/assignments/{id}", "assignment"), ...dyn("/threads/{id}", "thread"), ...dyn("/library/{id}", "doc")],
   ta: ["/", "/inbox", "/students", "/attendance", "/gradebook", "/gradebook/scheme", "/grading", "/questions", "/exams", "/threads", "/documents", "/calendar", "/insights", "/analytics", "/class/members", "/class/settings", "/settings", ...dyn("/students/{id}", "student"), ...dyn("/exams/{id}", "exam"), ...dyn("/grading/{id}", "submission"), ...dyn("/threads/{id}", "thread")],
   teacher: ["/", "/inbox", "/students", "/attendance", "/gradebook", "/gradebook/scheme", "/grading", "/questions", "/exams", "/threads", "/documents", "/calendar", "/insights", "/analytics", "/class/members", "/class/settings", "/observability", "/settings/llm", "/settings/integrations", "/settings", ...dyn("/students/{id}", "student"), ...dyn("/exams/{id}", "exam"), ...dyn("/exams/{id}/results", "exam"), ...dyn("/grading/{id}", "submission"), ...dyn("/threads/{id}", "thread")],
   admin: ["/", "/observability", "/admin/courses", "/admin/users", "/settings/llm", "/settings/integrations", "/settings"],
 };
+for (const k of Object.keys(ROUTES)) if (RF) ROUTES[k] = ROUTES[k].filter((r) => RF.test(r.replace(/[0-9a-f]{8}-[0-9a-f-]{27}/g, "id")));
 const USER: Record<string, string> = { student: "sv.kha", ta: "ta", teacher: "teacher", admin: "admin" };
 // đang tải / lỗi: bố cục không phụ thuộc vai → một vai mỗi route (TL-1 1.1)
 const STUDENT_ONLY = (r: string) => /^\/(chat|practice|library|me|assignments)(\/|$)/.test(r);
@@ -89,7 +91,8 @@ async function probe(page: Page) {
     const sections = Array.from(main.querySelectorAll("[data-ep-section]"));
     const secGaps = sections.slice(1).map((s, i) => +(R(s).y - R(sections[i]).b).toFixed(1));
     const headToPanel = sections.slice(0, 4).map((s) => { const hd = s.querySelector("[data-ep-section-head]"); const pn = s.querySelector("[data-ep-panel]"); return hd && pn ? +(R(pn).y - R(hd).b).toFixed(1) : null; });
-    const hdrToBody = hdr && hdr.nextElementSibling ? +(R(hdr.nextElementSibling).y - R(hdr).b).toFixed(1) : null;
+    let nxt: Element | null = hdr ? hdr.nextElementSibling : null; while (nxt && !((nxt as HTMLElement).offsetHeight > 0 && nxt.getBoundingClientRect().top >= (hdr ? R(hdr).b : 0) - 0.5)) nxt = nxt.nextElementSibling;
+    const hdrToBody = hdr && nxt ? +(R(nxt).y - R(hdr).b).toFixed(1) : null;
     const h2s = Array.from(main.querySelectorAll("h2"));
     const tabs = Array.from(main.querySelectorAll("[role=tab]")).map(txt);
     const toolbarBtns = Array.from(main.querySelectorAll("[data-ep-toolbar] button, [data-ep-toolbar] a")).filter(vis).map((b) => txt(b) || b.getAttribute("aria-label") || "");
@@ -110,7 +113,7 @@ async function probe(page: Page) {
     const fonts = new Set<number>();
     const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
     for (let n = walker.nextNode(); n; n = walker.nextNode()) { const el = n.parentElement; if (el && (n.nodeValue ?? "").trim() && vis(el)) fonts.add(Math.round(parseFloat(getComputedStyle(el).fontSize) * 10) / 10); }
-    const ctrlH = Array.from(main.querySelectorAll("button, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select")).filter(vis).map((c) => Math.round(R(c).h));
+    const ctrlH = Array.from(main.querySelectorAll("button[data-variant], input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]), select")).filter(vis).map((c) => Math.round(R(c).h));
     const rowH = Array.from(main.querySelectorAll("tbody tr")).filter(vis).map((c) => Math.round(R(c).h));
     const icons = Array.from(main.querySelectorAll("svg.lucide-info, svg.lucide-circle-help")).filter((s) => !s.closest("[role=status],[role=alert]")).length;
     const long: Record<string, number> = {}; Array.from(main.querySelectorAll("p,span,li,td,div")).filter((e) => e.children.length === 0).forEach((e) => { const t = txt(e); if (t.length > 30) long[t] = (long[t] || 0) + 1; });
