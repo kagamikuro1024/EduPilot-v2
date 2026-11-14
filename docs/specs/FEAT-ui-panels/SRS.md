@@ -41,7 +41,7 @@ flowchart LR
 
 Điểm dừng duy nhất: **sau B** (US-UI-01 AC5). Dev không chạm `DESIGN.md`, `AGENTS.md`, `ui-antipatterns.sh`, `Panel.tsx`, `tokens.css`, CSS màn nào trước D59 (kiểm bằng quan hệ tổ tiên commit, TLR-10).
 
-**Cấu trúc một trang sau đổi** (mọi route trong `(app)`): canvas → `PageHeader` (h1 + mô tả, ngoài panel) → lặp `Section` { tiêu đề vùng `h2.ep-section-title` ngoài panel → **một** `Panel` { `PanelSection`… ngăn bằng đường kẻ 1 px; ô nhấn `tone="strong"` ≤ 3 } }. `Tabs`, bộ lọc cấp trang, `Toolbar` cấp vùng nằm **ngoài** panel nếu chúng điều khiển nhiều vùng, **trong** panel nếu chỉ điều khiển bảng của panel đó. Lớp nổi (`Dialog`, `Drawer`, `Popover`, `Menu`, bảng "Thêm", `Composer` nổi) là **bề mặt riêng, không phải `Panel`** và không chứa `Panel`.
+**Cấu trúc một trang sau đổi** (mọi route trong `(app)`): canvas → `PageHeader` (h1 + tối đa một dòng meta dữ liệu, không câu mô tả — `DESIGN.md` §23.2, P-107-2; ngoài panel) → lặp `Section` { tiêu đề vùng `h2.ep-section-title` ngoài panel → **một** `Panel` { `PanelSection`… ngăn bằng đường kẻ 1 px; ô nhấn `tone="strong"` ≤ 3 } }. `Tabs`, bộ lọc cấp trang, `Toolbar` cấp vùng nằm **ngoài** panel nếu chúng điều khiển nhiều vùng, **trong** panel nếu chỉ điều khiển bảng của panel đó. Lớp nổi (`Dialog`, `Drawer`, `Popover`, `Menu`, bảng "Thêm", `Composer` nổi) là **bề mặt riêng, không phải `Panel`** và không chứa `Panel`.
 
 ## 4. Yêu cầu chức năng
 

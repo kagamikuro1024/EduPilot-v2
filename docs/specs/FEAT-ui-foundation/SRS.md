@@ -99,7 +99,7 @@ flowchart TD
 | 409 `VERSION_CONFLICT` | `error.conflict` có giá trị hiện tại | Màn hỏi giữ bên nào (phase sở hữu) |
 | 422 `VALIDATION_FAILED` | `fieldErrors` | Lỗi dưới từng ô, nội dung giữ nguyên |
 | 429 / 503 có `retry_after` | Không tự thử nếu > 5 s | "Thử lại sau N giây", nút khoá tới hết giờ |
-| 502 HTML / đứt giữa chừng | `ApiError` `BAD_GATEWAY` / `NETWORK` | "Không kết nối được… dữ liệu của bạn vẫn an toàn" |
+| 502 HTML / đứt giữa chừng | `ApiError` `BAD_GATEWAY` / `NETWORK` | "Không kết nối được tới máy chủ." (một dòng; vế «chữ bạn đã nhập vẫn còn» chỉ khi `PageState unsaved` — P-107-3) |
 | SSE đứt | Nối lại backoff + `Last-Event-ID`; loại trùng theo id | Không thấy gì (hoặc dải mất mạng) |
 | SSE 429 `SSE_LIMIT_REACHED` | Chờ `retry_after`, ≤ 3 lần, rồi `degraded` | "Bạn đang mở nhiều cửa sổ; cập nhật tự động tạm dừng" |
 | Token hết hạn giữa stream (`reconnect token_expired`) | `auth:expired`, không nối tới khi có token | Như 401 |
@@ -479,7 +479,7 @@ Bảng 7.3 là quy ước **chung**; ô nào áp dụng ở 7.2 phải theo dòn
 
 | Loại | Khối | `role="alert"` | Ý bắt buộc | `Thử lại` |
 | --- | --- | --- | --- | --- |
-| Tải / thao tác lỗi | ActionList, DataTable, Layout, CitationList, Dialog, Drawer, Composer, ConfirmIrreversible, UndoLine | có | **ba**: vấn đề, dữ liệu có an toàn không, cách khắc phục | đúng **1** nút `Thử lại` (UndoLine: câu + một `Thử lại`, không lặp) |
+| Tải / thao tác lỗi | ActionList, DataTable, Layout, CitationList, Dialog, Drawer, Composer, ConfirmIrreversible, UndoLine | có | **một dòng** nói chuyện gì hỏng; vế về dữ liệu / chữ đã nhập chỉ khi `PageState unsaved` (P-107-3) | đúng **1** nút `Thử lại` (UndoLine: câu + một `Thử lại`, không lặp) |
 | Lỗi nhập | Field, Checkbox | không bắt buộc | **hai**: vấn đề, cách sửa; `aria-invalid="true"` + `aria-describedby` trỏ câu lỗi | **không** có (không có gì để thử lại) |
 | Thông báo | InlineNotice | có | hai: vấn đề, cách khắc phục | tuỳ nơi dùng (0–1) |
 | Trạng thái chữ | StatusText | có | hai: vấn đề + an toàn ("Chưa lưu — nội dung vẫn ở đây") | **không** có |
