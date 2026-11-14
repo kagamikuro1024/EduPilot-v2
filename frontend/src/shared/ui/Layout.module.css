@@ -66,7 +66,7 @@
   /* tiêu đề, meta, rồi MỘT hàng nút: chính trước và rộng nhất, nút phụ gom vào «Thêm» (§23.2) */
   .actions { width: 100%; }
   .primary { order: -1; flex: 1; }
-  .primary > * { flex: 1; }
+  .primary > *, .primary > div, .primary button, .primary a { flex: 1; width: 100%; justify-content: center; }
   .wide { display: none; }
   .narrow { display: inline-flex; }
   .dlRow { grid-template-columns: 1fr; gap: var(--ep-space-1); }

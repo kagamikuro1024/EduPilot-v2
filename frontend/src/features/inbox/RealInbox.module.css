@@ -16,6 +16,8 @@
   align-content: start;
 }
 
+.bare { display: grid; gap: var(--ep-space-4); } /* rỗng: Panel đã có đệm, không thêm đệm danh sách */
+
 .back {
   display: none;
   justify-self: start;

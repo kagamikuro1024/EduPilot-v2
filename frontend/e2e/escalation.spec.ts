@@ -245,14 +245,14 @@ test("inbox states: rỗng có Xem tất cả, lỗi có Thử lại mà không 
     return mode === "empty" ? r.fulfill(json({ items: [], next_cursor: null })) : r.fulfill(json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500));
   });
   await page.goto("/inbox");
-  await expect(page.getByText("Chưa có câu hỏi nào cần thầy/cô xử lý.")).toBeVisible();
+  await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Xem tất cả" })).toBeVisible();
   mode = "error";
   await page.getByRole("button", { name: "Xem tất cả" }).click();
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
   mode = "empty";
   await page.getByRole("button", { name: "Thử lại" }).click();
-  await expect(page.getByText("Chưa có câu hỏi nào cần thầy/cô xử lý.")).toBeVisible();
+  await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toBeVisible();
 });
 
 test("inbox all courses: chế độ Tất cả lớp của tôi gọi /me/tickets và mỗi dòng ghi mã lớp", async ({ page, context }) => {

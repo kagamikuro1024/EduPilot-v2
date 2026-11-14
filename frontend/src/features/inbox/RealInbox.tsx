@@ -160,7 +160,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
           />
         ) : (
           <Panel>
-            <div className={s.list}>
+            <div className={s.bare}>
               {filterBar}
               <EmptyState title="Chưa có câu hỏi cần xử lý" action={filter !== "all" ? <Button onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button> : undefined} />
             </div>
