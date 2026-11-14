@@ -1,7 +1,7 @@
 # Trạng thái pha 2 theo từng TC — sprint 10 (trên stack thật)
-Cập nhật 2026-11-14 ở `57f4cb25`. Chạy theo thứ tự ưu tiên của PM; TC không có trong bảng «đã chạy» = **chưa chạy** (hết thời gian pha 2), tính FAIL theo `QC.md` nhưng không phải lỗi sản phẩm. Chi tiết lỗi: `report-stack.md`.
+Cập nhật 2026-11-14 (chốt sau merge `main` 83ec3630; bản đầu ở `57f4cb25`, kiểm lại các lỗi đã sửa L1, L3, L4, L7–L12, L15, L16 ở HEAD). Chạy theo thứ tự ưu tiên của PM; TC không có trong bảng «đã chạy» = **chưa chạy** (hết thời gian pha 2), tính FAIL theo `QC.md` nhưng không phải lỗi sản phẩm. Chi tiết lỗi: `report-stack.md`; kết luận: `summary.md`.
 
-Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
+Tổng: PASS 169 (gồm 1 «PASS có Nợ chấp nhận» TC-05-16 và 2 «PASS một phần, mức Go» TC-09-11, TC-11-14), CHƯA CHẠY 74, HOÃN 4 (k6 / Lighthouse / axe, chủ dự án), FAIL 2 (TC-02-14, TC-03-08: KHÔNG KIỂM ĐƯỢC), NGOÀI PHẠM VI 1 (TC-08-08) — tổng 250 = số hàng trong bảng. Không còn TC FAIL do lỗi sản phẩm.
 
 | TC | Trạng thái | Ghi chú |
 | --- | --- | --- |
@@ -25,16 +25,16 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-01-P2 | PASS | API stack |
 | TC-01-P3 | PASS | GV/TA/ADMIN → 403 trên lượt SV |
 | TC-01-P4 | PASS | sv.gioi → 404 |
-| TC-02-01 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
-| TC-02-02 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
-| TC-02-02b | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
-| TC-02-03 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
+| TC-02-01 | PASS | kiểm lại sau L1 (`ac5d41b3`, `recheck_l1.py`): trích đề docling thật → 23 câu `EXTRACTED`, câu 24 `DUPLICATE` |
+| TC-02-02 | PASS | kiểm lại sau L1: 23 câu, mỗi câu đủ phương án + đáp án + trích dẫn `{document_id, page}` |
+| TC-02-02b | PASS | kiểm lại sau L1 (không khoá đáp án → `NO_ANSWER`, 0 câu lưu) |
+| TC-02-03 | PASS | kiểm lại sau L1: danh sách bỏ qua có số câu, trang, lý do |
 | TC-02-04 | PASS | API stack |
-| TC-02-05 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
+| TC-02-05 | PASS | kiểm lại sau L1: đáp án khớp bảng 23/23 |
 | TC-02-06 | CHƯA CHẠY |  |
-| TC-02-07 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
+| TC-02-07 | PASS | kiểm lại sau L1: câu lỗi INVALID ở 2, 3, 4; đề lỗi schema → job `FAILED` `LLM_UNAVAILABLE`, không lưu câu (TC-02-07b PASS) |
 | TC-02-08 | PASS | API stack |
-| TC-02-09 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
+| TC-02-09 | PASS | kiểm lại sau L1: trích lại khoá mới → không thêm câu, toàn bộ `DUPLICATE` |
 | TC-02-10 | PASS | `409 DOCUMENT_NOT_READY` |
 | TC-02-11 | PASS | API stack |
 | TC-02-12 | PASS | tài liệu riêng của lớp khác → 404 |
@@ -43,7 +43,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-02-15 | CHƯA CHẠY |  |
 | TC-02-16 | CHƯA CHẠY |  |
 | TC-02-17 | CHƯA CHẠY |  |
-| TC-02-18 | FAIL | HOÃN theo chủ đề dự án (k6 / Lighthouse / axe) |
+| TC-02-18 | HOÃN | chủ dự án hoãn k6 / Lighthouse / axe (không tính FAIL sản phẩm) |
 | TC-02-19 | PASS | API stack |
 | TC-02-20 | PASS | Go TestExtractPageCap (chưa thử PDF >60 trang trên stack) |
 | TC-02-P1 | PASS | API stack |
@@ -57,7 +57,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-03-04 | PASS | API stack |
 | TC-03-05 | CHƯA CHẠY |  |
 | TC-03-06 | CHƯA CHẠY |  |
-| TC-03-07 | FAIL | L9: types=[] → 202 |
+| TC-03-07 | PASS | kiểm lại sau L9: `types:[]` → `422` |
 | TC-03-08 | FAIL | KHÔNG KIỂM ĐƯỢC (như 02-14) |
 | TC-03-09 | PASS | sinh lại: 4/5 câu `DUPLICATE`; câu thứ 5 được tạo vì bản gốc đã bị QC sửa stem |
 | TC-03-10 | PASS | API stack |
@@ -65,7 +65,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-03-12 | PASS | API stack |
 | TC-03-13 | PASS | API stack |
 | TC-04-01 | CHƯA CHẠY |  |
-| TC-04-02 | FAIL | L11: menu không có «Soạn tay» |
+| TC-04-02 | PASS | kiểm lại sau L11: menu «Soạn tay» → «Câu trắc nghiệm» / «Bài lập trình» (P-10-9) |
 | TC-04-03 | CHƯA CHẠY |  |
 | TC-04-04 | PASS | thanh «Đã chọn 3 · Duyệt · Loại · Gắn nhãn · Bỏ chọn» (chưa thử chặn ở 51 hàng) |
 | TC-04-05 | PASS | API stack (04-05: L10 mã bulk) |
@@ -75,7 +75,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-04-09 | CHƯA CHẠY |  |
 | TC-04-10 | CHƯA CHẠY |  |
 | TC-04-11 | PASS | API stack (04-05: L10 mã bulk) |
-| TC-04-12 | FAIL | L16: nhãn nguồn «Tài liệu, trang 1» thiếu tên tài liệu (liên kết đúng) |
+| TC-04-12 | PASS | kiểm lại sau L16: nhãn nguồn «Đề mẫu luyện tập — Mạng máy tính, trang 1» |
 | TC-04-13 | PASS | API stack (04-05: L10 mã bulk) |
 | TC-04-14 | CHƯA CHẠY |  |
 | TC-04-15 | CHƯA CHẠY |  |
@@ -90,7 +90,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-05-01 | PASS | API stack |
 | TC-05-02 | PASS | API stack |
 | TC-05-03 | PASS | API stack |
-| TC-05-04 | FAIL | L8 |
+| TC-05-04 | PASS | kiểm lại sau L8: ma trận không `difficulty` bù đủ 10 câu |
 | TC-05-05 | PASS | 0 trùng với câu vừa làm đúng (lùi 10 ngày bằng DB) |
 | TC-05-06 | CHƯA CHẠY |  |
 | TC-05-07 | CHƯA CHẠY |  |
@@ -127,7 +127,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-06-20 | PASS | API stack |
 | TC-06-21 | CHƯA CHẠY |  |
 | TC-06-22 | PASS | API stack |
-| TC-06-23 | FAIL | L15: chữ khác TC (hai dòng + liên kết lịch sử) |
+| TC-06-23 | PASS | kiểm lại sau L15: một dòng «Giảng viên chưa mở câu hỏi»; còn liên kết «Lịch sử luyện tập» (ghi nhận, PM đã nhận) |
 | TC-06-24 | CHƯA CHẠY |  |
 | TC-06-25 | CHƯA CHẠY |  |
 | TC-06-25b | PASS | API stack |
@@ -160,7 +160,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-07-22 | CHƯA CHẠY |  |
 | TC-07-23 | CHƯA CHẠY |  |
 | TC-07-24 | PASS | API stack |
-| TC-07-25 | FAIL | HOÃN theo chủ đề dự án (k6 / Lighthouse / axe) |
+| TC-07-25 | HOÃN | chủ dự án hoãn k6 / Lighthouse / axe (không tính FAIL sản phẩm) |
 | TC-07-26 | CHƯA CHẠY |  |
 | TC-08-01 | PASS | API stack |
 | TC-08-02 | PASS | API stack |
@@ -215,7 +215,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-10-16 | CHƯA CHẠY |  |
 | TC-10-17 | PASS | API stack |
 | TC-11-01 | PASS | API stack |
-| TC-11-02 | FAIL | L12: ánh xạ theo tên cột (ví dụ trong openapi) bị từ chối |
+| TC-11-02 | PASS | kiểm lại sau L12: ánh xạ theo tên tiêu đề 3/3 khớp; chữ lỗi «Chỉ nhận tệp Excel (.xlsx) hoặc CSV.» |
 | TC-11-03 | PASS | API stack |
 | TC-11-04 | CHƯA CHẠY |  |
 | TC-11-05 | PASS | API stack |
@@ -234,9 +234,9 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-11-18 | CHƯA CHẠY |  |
 | TC-11-19 | CHƯA CHẠY |  |
 | TC-12-01 | PASS | `seed.mjs` trên stack trống: mã 0, 334 s (kể cả docling) |
-| TC-12-02 | FAIL | 104 APPROVED, 14 chủ đề, đủ độ khó; nhưng 0 câu có citations, không có EXTRACTED trong PENDING (L4) |
-| TC-12-03 | FAIL | 42 lượt của 13 SV (đạt); Quiz `SCHEDULED` thay vì `PUBLISHED` (L4c) |
-| TC-12-04 | FAIL | L4d: lớp 761988 có 0 câu trong ngân hàng (spec: ngân hàng nhỏ khác) |
+| TC-12-02 | PASS | L4 đóng theo P-10-11: 104 `APPROVED` + câu AI (`EXTRACTED` 23, `GENERATED` 4) có citations thật; câu `MANUAL` không cần |
+| TC-12-03 | PASS | 42 lượt của 13 SV; Quiz `PUBLISHED` |
+| TC-12-04 | PASS | lớp 761988 có 20 câu; trùng stem giữa hai lớp hợp lệ (P-10-11) |
 | TC-12-05 | PASS | script đã sửa ở `5d9c54e3`: `OK: 107 APPROVED, 26 PENDING…` (bản `57f4cb25` lỗi, L5) |
 | TC-12-06 | PASS | chạy lại: mã 0, 21 s; `question_bank` 129, `practice_attempts` 42, `exams` 3 không đổi |
 | TC-12-07 | PASS | Go |
@@ -249,9 +249,9 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-12-14 | PASS | contract test xanh (4831150a); 429 ở explain/extract/generate có trong openapi |
 | TC-12-15 | CHƯA CHẠY |  |
 | TC-12-16 | CHƯA CHẠY |  |
-| TC-12-17 | FAIL | HOÃN theo chủ đề dự án (k6 / Lighthouse / axe) |
+| TC-12-17 | HOÃN | chủ dự án hoãn k6 / Lighthouse / axe (không tính FAIL sản phẩm) |
 | TC-12-18 | CHƯA CHẠY |  |
-| TC-12-19 | FAIL | HOÃN theo chủ đề dự án (k6 / Lighthouse / axe) |
+| TC-12-19 | HOÃN | chủ dự án hoãn k6 / Lighthouse / axe (không tính FAIL sản phẩm) |
 | TC-12-20 | CHƯA CHẠY |  |
 | TC-12-21 | CHƯA CHẠY |  |
-| TC-12-22 | PASS có điều kiện; chờ dev | F1 chấp nhận (P-10-8): ngưỡng Hôm nay SV 6 → 7 (1 truy vấn gộp cố định, không N+1). Còn lại sạch (không SKIP / secret / float64 / fetch trần / thư viện mới). **Điều kiện:** commit test phải ghi số P-10-8 — QC kiểm lại khi dev sửa |
+| TC-12-22 | PASS | F1 chấp nhận (P-10-8): ngưỡng Hôm nay SV 6 → 7 (1 truy vấn gộp cố định, không N+1); commit `4831150a` ghi P-10-8. Còn lại sạch (không SKIP / secret / float64 / fetch trần / thư viện mới) |
