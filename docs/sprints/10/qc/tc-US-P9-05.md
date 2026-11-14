@@ -28,3 +28,4 @@ TC-05-14, TC-05-15; staff `POST …/practice/start` → `403` (`reason: role`); 
 
 ## Lịch sử sửa TC
 - 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): TC-05-07, TC-05-16 (ghi mặc định QC được PM chấp nhận: Q9, Q10).
+- 2026-11-14 — P-10-9 (PM chấp nhận): TC-05-04 và TC-05-10 theo AC1/AC4 mới: ô thiếu câu → bù từ chủ đề khác cùng độ khó, rồi mới cắt ngắn kèm `notes`; chỉ cắt ngắn khi cả ngân hàng hết câu đủ điều kiện. Ma trận không có `difficulty` cũng phải bù (L8).
