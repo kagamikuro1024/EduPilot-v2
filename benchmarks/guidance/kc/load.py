@@ -65,6 +65,48 @@ def mail_token(addr, pattern, timeout=90):
     die(f"Không thấy thư tới {addr} ({MAILPIT}); worker gửi thư / MAILPIT_URL đúng chưa?")
 
 
+def ensure_accounts(adm, students):
+    """Roster nhập xong thì mỗi email được MỜI (thư «Bạn được thêm vào lớp», liên kết /invite/<token>): nhận lời mời đặt mật khẩu = tài khoản ACTIVE + vào lớp với đúng MSSV → bài nộp mới khớp sinh viên.
+    Trạng thái lấy từ API Admin, KHÔNG đăng nhập thử: đăng nhập sai bị tính vào giới hạn thất bại theo IP (AUTH_LOGIN_IP_FAIL_PER_15M = 30) và chặn cả lần chạy."""
+    todo = []
+    for s in students:
+        _, r = call("GET", f"/admin/users?q={s['email']}&limit=10", adm)
+        u = next((x for x in r["items"] if x["email"] == s["email"]), None)
+        if u is None:
+            die(f"{s['email']} chưa có tài khoản sau khi nhập roster: roster nhập chưa xong?")
+        if u["status"] == "INVITED":
+            todo.append(s)
+    for s in todo:
+        call("POST", "/auth/accept-invite", body={"token": mail_token(s["email"], r"/invite/([A-Za-z0-9_-]+)"), "password": PASSWORD}, ok=(200, 204))
+    print(f"tài khoản: {len(todo)} nhận lời mời / {len(students)}")
+
+
+def hkey(prefix, body):
+    """Khoá idempotency gắn với nội dung: sửa nội dung rồi chạy lại không đụng IDEMPOTENCY_KEY_REUSED."""
+    return f"{prefix}-{hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()[:10]}"
+
+
+MAILPIT = os.environ.get("MAILPIT_URL", "http://localhost:8025").rstrip("/")
+
+
+def mailpit(route):
+    with urllib.request.urlopen(MAILPIT + route, timeout=30) as r:
+        return json.load(r)
+
+
+def mail_token(addr, pattern, timeout=90):
+    """Token trong thư mới nhất tới `addr` có liên kết khớp `pattern` (Mailpit)."""
+    end = time.time() + timeout
+    while time.time() < end:
+        msgs = mailpit(f"/api/v1/search?query=to:{addr}&limit=20").get("messages") or []
+        for m in sorted(msgs, key=lambda m: m["Created"], reverse=True):
+            mt = re.search(pattern, mailpit(f"/api/v1/message/{m['ID']}").get("Text") or "")
+            if mt:
+                return mt.group(1)
+        time.sleep(0.5)
+    die(f"Không thấy thư tới {addr} ({MAILPIT}); worker gửi thư / MAILPIT_URL đúng chưa?")
+
+
 def ensure_accounts(students):
     """Roster nhập xong thì mỗi email được MỜI (thư «Bạn được thêm vào lớp», liên kết /invite/<token>): nhận lời mời đặt mật khẩu = tài khoản ACTIVE + vào lớp với đúng MSSV → bài nộp mới khớp sinh viên.
     Email chưa có trong roster thì đăng ký + xác minh email như seed."""
@@ -147,7 +189,7 @@ def main():
     sa = bt_students("bt-a")
     plan = [("bt-a", "hoc", sa[:N_LEARN]), ("bt-a", "do", sa[N_LEARN:]), ("bt-b", "doichung", bt_students("bt-b"))]
     plan = [(bt, part, pending(teacher, course, asg[bt], ss, a.limit)) for bt, part, ss in plan]
-    ensure_accounts({s["code"]: s for _, _, todo in plan for s in todo}.values())
+    ensure_accounts(adm, {s["code"]: s for _, _, todo in plan for s in todo}.values())
     for bt, part, todo in plan:
         send_zip(teacher, course, asg[bt], bt, part, todo)
     want = {"bt-a": N_STUDENTS, "bt-b": N_B}
