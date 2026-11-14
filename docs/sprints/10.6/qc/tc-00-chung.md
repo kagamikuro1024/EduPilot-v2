@@ -24,5 +24,7 @@ Viết ở **pha 1** (2026-11-14) từ `docs/specs/FEAT-grading-guidance/{US,SRS
 ## Kiểm chéo áp cho mọi story (pha 2)
 Phân quyền 4 vai + TA chỉ đọc + lớp khác `404`; không PII / văn bản bài trong log, `llm_audit`, payload tới LLM, bảng mới; `POST`/`PUT` có tác dụng phụ nhận `Idempotency-Key` / `version` → 409; danh sách có cursor ≤ 100; mỗi màn có tải / rỗng / lỗi; 375 px; `bash scripts/ui-antipatterns.sh`; không `fetch(` trần; không thư viện / dịch vụ bộ nhớ agent (`go.mod`, `package.json`); không sửa test cũ (`git diff <gốc>... -- '*_test.go' frontend/e2e` chỉ thêm); **mặc định tắt: stack seed sạch không có lời gọi `reflect`, không khối lưu ý trong prompt chấm** cho tới khi QC bật cờ; chữ UI không «AI / nháp / RAG / PII» ở màn lưu ý; tất cả mã lỗi mới có trong `openapi.yaml`.
 
+**Cổng `-run` không rỗng (P-106-7).** Mọi lệnh `go test … -run '<tên>'` trong TC phải chạy ≥ 1 test mỗi tên (`-v` thấy `--- PASS: <tên>`); gói in `[no tests to run]` hoặc thiếu một tên trong danh sách = **FAIL** (không tính là xanh).
+
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-11-14 (P-106-7): thêm «Cổng `-run` không rỗng»; TC-G03-13 sửa ở `tc-US-GD-03-04.md`.

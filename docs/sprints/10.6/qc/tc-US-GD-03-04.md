@@ -17,7 +17,7 @@ Nguồn: US.md + SRS 3.2, 3.3, 4.1, 4.2.5–4.2.10, 6 #3–6; Q-G-4, Q-G-10; P-1
 | TC-G03-10 | AC4 | > 60 ca | `reflect` | Đúng 60 ca mới nhất | API |
 | TC-G03-11 | AC5 | stub `ok` | Kiểm thân phản hồi stub và schema gửi đi | Schema strict: `items[{criterion_id enum, text ≤ 400, direction ∈ {STRICTER,LENIENT,CLARIFY}, case_ids ≥ 2}]`; **không** trường tổng / phạt / làm tròn | API |
 | TC-G03-12 | AC6(i) | stub `bad_criterion` (criterion lạ) | `reflect` | Mục bị bỏ; `dropped` ghi lý do; không `DRAFT` cho nó | API+DB |
-| TC-G03-13 | AC6(ii) | stub `bad_case` (case_id không có trong đầu vào) / `wrong_direction` (STRICTER nhưng ai ≤ teacher) | `reflect` | Ca sai bị loại khi đếm; mục còn `support` do **code đếm** (không lấy số LLM trả); nếu `support < 2` → bỏ | API+DB |
+| TC-G03-13 | AC6(ii), (iii) | stub `bad_case` (mục có `case_id` không có trong đầu vào hoặc thuộc tiêu chí khác; một mục có 3 `case_id`, 1 lạ) / `wrong_direction` (STRICTER nhưng ai ≤ teacher) | `reflect` | `bad_case`: **bỏ cả mục** (`dropped.case`, không `DRAFT`), kể cả khi còn ≥ 2 `case_id` hợp lệ. `wrong_direction`: ca sai chiều chỉ **không được đếm**; mục còn `support` do **code đếm** (không lấy số LLM trả); nếu `support < 2` → bỏ | API+DB |
 | TC-G03-14 | AC6(iii) | stub trả `support:99` giả, chỉ 1 ca hợp lệ | `reflect` | `support` lưu = 1 → bỏ (`< GUIDANCE_MIN_SUPPORT=2`); biên: đúng 2 ca → giữ | API+DB |
 | TC-G03-15 | AC6(iv) | stub `total_keyword` (văn bản chứa «tổng», «trừ muộn», «làm tròn», «phạt», cả biến thể không dấu «TONG», «lam tron») | `reflect` | Mọi mục bị bỏ (so khớp `fold`); mục «tổng hợp» có từ khoá cũng bỏ (nêu ghi nhận: dương tính giả có thể xảy ra, không phải lỗi) | API+DB |
 | TC-G03-16 | AC6(v), AC12 | stub `pii_text`: chứa tên SV của lớp (roster), MSSV, email, SĐT | `reflect` | Bỏ từng mục khớp; `go test … -run TestReflectOutputPII -v` PASS; log không PII | API+GO |
@@ -64,3 +64,4 @@ Pha 2: `docs/sprints/10.6/qc/scripts/gd_reflect.py` (dùng `stub_llm.py` mở r�
 
 ## Lịch sử sửa TC
 - 2026-11-14 (SRS v1.2): TC-G04-07, 14 — `apply` trả `stale:{drafts, edited_drafts, reviewed}`.
+- 2026-11-14 (P-106-7, Q-S106-14): TC-G03-13 — `case_id` lạ → bỏ cả mục (đúng mã và SRS 4.2.8 (ii)); chiều sai chỉ không được đếm.
