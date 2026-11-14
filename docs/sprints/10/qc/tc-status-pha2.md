@@ -37,8 +37,8 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-02-09 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
 | TC-02-10 | CHƯA CHẠY |  |
 | TC-02-11 | PASS | API stack |
-| TC-02-12 | FAIL | L2: tài liệu / bảng đáp án của lớp khác → 202 (cô lập lớp) |
-| TC-02-13 | FAIL | L2: tài liệu / bảng đáp án của lớp khác → 202 (cô lập lớp) |
+| TC-02-12 | PASS | tài liệu riêng của lớp khác → 404 |
+| TC-02-13 | PASS | bảng đáp án riêng của lớp khác → 404; sai loại → 422 |
 | TC-02-14 | FAIL | KHÔNG KIỂM ĐƯỢC: công thức OVERLOADED của dev không làm đầy hàng cho việc nền |
 | TC-02-15 | CHƯA CHẠY |  |
 | TC-02-16 | CHƯA CHẠY |  |

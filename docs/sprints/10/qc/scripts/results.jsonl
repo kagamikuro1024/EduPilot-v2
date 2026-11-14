@@ -248,3 +248,6 @@
 {"tc": "TC-10-08 nộp bài thi xong → exam-lock mở", "st": "PASS", "note": "submit=200 {'locked': False}"}
 {"tc": "TC-10-08b sau thi chat trả lời lại", "st": "PASS", "note": "200"}
 {"tc": "TC-10-02/17 câu thuộc bài thi OPEN (chưa PUBLISHED) không vào đề luyện", "st": "FAIL", "note": "0 đề luyện chủ đề {'Quản trị rủi ro'}, số lần thấy câu bài thi: 0"}
+{"tc": "TC-02-12/13b (sửa sau khi tạo tài liệu riêng của lớp 2) tài liệu / bảng đáp án lớp khác → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-03-11 gen-stats {unchanged:2, edited:1, rejected:2}", "st": "PASS", "note": "200 {'unchanged': 2, 'edited': 1, 'rejected': 2, 'pending': 0}"}
+{"tc": "TC-03-09 sinh lại: câu trùng bị bỏ qua (kể cả REJECTED), không tạo thêm", "st": "FAIL", "note": "created=1 skipped=['DUPLICATE', 'DUPLICATE', 'DUPLICATE', 'DUPLICATE']"}
