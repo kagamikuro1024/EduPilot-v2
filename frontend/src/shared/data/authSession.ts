@@ -11,7 +11,11 @@ const INITIAL: AuthSnapshot = { status: "initializing", user: null };
 let snap: AuthSnapshot = INITIAL;
 const listeners = new Set<() => void>();
 
+/** Đếm số lần phiên đổi (nhận / bỏ). Lời gọi làm mới bắt đầu ở thế hệ nào thì chỉ được áp kết quả nếu thế hệ chưa đổi (P-106-14). */
+let epoch = 0;
+
 function set(next: AuthSnapshot) {
+  epoch++;
   snap = next;
   listeners.forEach((f) => f());
 }
@@ -64,6 +68,9 @@ async function run(): Promise<RefreshResult> {
 }
 
 async function doRefresh(): Promise<RefreshResult> {
+  const startedAt = epoch;
+  // Trong lúc chờ, người dùng đăng nhập (hoặc phiên khác đổi): kết quả làm mới bằng cookie cũ không được ghi đè / xoá phiên mới (P-106-14).
+  const superseded = (): RefreshResult | null => (epoch === startedAt ? null : snap.user ? { ok: true, user: snap.user } : { ok: false, code: "SUPERSEDED" });
   let res: Response;
   try {
     res = await fetch(`${API_BASE}/auth/refresh`, {
@@ -78,6 +85,8 @@ async function doRefresh(): Promise<RefreshResult> {
   if (res.ok) {
     try {
       const body = (await res.json()) as SessionPayload;
+      const newer = superseded();
+      if (newer) return newer;
       acceptSession(body);
       return { ok: true, user: body.user };
     } catch {
@@ -93,6 +102,8 @@ async function doRefresh(): Promise<RefreshResult> {
   } catch {
     /* thân không đọc được: coi như lỗi cổng */
   }
+  const newer = superseded();
+  if (newer) return newer;
   if (res.status === 401) dropSession(code === "SESSION_REVOKED" ? "revoked" : "anonymous", reason);
   return { ok: false, code, reason };
 }

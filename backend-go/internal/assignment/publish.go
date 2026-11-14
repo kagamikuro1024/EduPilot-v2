@@ -35,6 +35,8 @@ type PublishIn struct {
 type ResultsPublishOut struct {
 	Published int `json:"published"`
 	Skipped   int `json:"skipped"`
+	// Exempt: số bài công bố khi chấm theo bản lưu ý cũ nhưng đã được giảng viên duyệt (miễn so phiên bản, P-106-2): EDITED = có tiêu chí sửa tay, ACCEPTED_AS_IS = duyệt nguyên nháp.
+	Exempt map[string]int `json:"exempt"`
 }
 
 func idsDetail(code string, status int, ids []uuid.UUID) *apierr.Error {
@@ -53,7 +55,7 @@ func (s *Service) PublishResults(ctx context.Context, a Actor, course uuid.UUID,
 	case len(in.ResultIDs) > PublishMaxBatch:
 		return ResultsPublishOut{}, apierr.Validation(apierr.FieldError{Field: "result_ids", Code: "max", Message: "Tối đa 200 bài mỗi lần công bố."})
 	}
-	var out ResultsPublishOut
+	out := ResultsPublishOut{Exempt: map[string]int{"EDITED": 0, "ACCEPTED_AS_IS": 0}}
 	var published []store.PublishLockManyRow
 	err := s.tx(ctx, func(tx pgx.Tx, q *store.Queries) error {
 		if err := q.GradebookEnsure(ctx, course); err != nil {
@@ -119,6 +121,29 @@ func (s *Service) PublishResults(ctx context.Context, a Actor, course uuid.UUID,
 				return idsDetail(apierr.LateRecomputed, http.StatusConflict, recomputed)
 			}
 		}
+		// So phiên bản lưu ý (10.6, SRS 4.2.12): bài ĐÃ DUYỆT (first_reviewed_at) miễn; bài CHƯA từng duyệt mà lệch bản → 409 MIXED_GUIDANCE (lưới an toàn), không công bố gì.
+		exemptOf := map[uuid.UUID]string{}
+		if s.Guidance.On(course, grading.FlagGradingGuidance) {
+			counts := map[int]int{}
+			for _, r := range ok {
+				if r.GuidanceVersion == r.AssignmentGuidanceVersion {
+					continue
+				}
+				if r.FirstReviewedAt == nil {
+					counts[int(r.GuidanceVersion)]++
+					continue
+				}
+				reason := "ACCEPTED_AS_IS"
+				if len(changedCriteria(r.Criteria, r.AiScores)) > 0 {
+					reason = "EDITED"
+				}
+				exemptOf[r.ID] = reason
+				out.Exempt[reason]++
+			}
+			if len(counts) > 0 {
+				return apierr.New(http.StatusConflict, apierr.MixedGuidance).WithDetails(map[string]any{"versions": counts})
+			}
+		}
 		for _, r := range ok {
 			sum, _ := criteriaSum(r.Criteria)
 			var dev decimal.Decimal
@@ -134,7 +159,7 @@ func (s *Service) PublishResults(ctx context.Context, a Actor, course uuid.UUID,
 			if n == 0 {
 				return idsDetail(apierr.VersionConflict, http.StatusConflict, []uuid.UUID{r.ID})
 			}
-			if err := s.resultAudit(ctx, q, a, course, r.ID, "grading_result.publish", map[string]any{"status": "REVIEWED"}, map[string]any{"status": "PUBLISHED", "total": totalStr(r.Total), "deviation": dev.StringFixed(2), "changed": changed}); err != nil {
+			if err := s.resultAudit(ctx, q, a, course, r.ID, "grading_result.publish", map[string]any{"status": "REVIEWED"}, map[string]any{"status": "PUBLISHED", "total": totalStr(r.Total), "deviation": dev.StringFixed(2), "changed": changed, "guidance_exempt": exemptOf[r.ID]}); err != nil {
 				return fmt.Errorf("assignment: audit: %w", err)
 			}
 			if _, err := outbox.Write(ctx, tx, TopicResultPublished, map[string]any{"course_id": course, "result_id": r.ID, "student_id": r.StudentID, "user_id": r.StudentID, "assignment_id": r.AssignmentID}); err != nil {

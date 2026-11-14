@@ -234,3 +234,59 @@ func mustRead(t *testing.T, path string) []byte {
 	require.NoError(t, err)
 	return b
 }
+
+// TestEssayPromptUnchangedAtV0 — SRS FEAT-grading-guidance 4.2.2: v0 / không lưu ý → prompt giống TỪNG BYTE bản trước 10.6 (golden `testdata/essay_prompt_v0.golden`).
+// Dựng lại golden: UPDATE_GOLDEN=1 go test ./internal/grading -run TestEssayPromptUnchangedAtV0 (chỉ khi cố ý đổi prompt chấm).
+func TestEssayPromptUnchangedAtV0(t *testing.T) {
+	t.Parallel()
+	var got strings.Builder
+	for _, second := range []bool{false, true} {
+		sys, user := grading.BuildEssayPrompt(promptIn(t, second), "BAI_LAM_FIXED")
+		got.WriteString(sys + "\n=====\n" + user + "\n#####\n")
+	}
+	const path = "testdata/essay_prompt_v0.golden"
+	if os.Getenv("UPDATE_GOLDEN") == "1" {
+		require.NoError(t, os.WriteFile(path, []byte(got.String()), 0o644)) //nolint:gosec // tệp golden
+	}
+	want, err := os.ReadFile(path)
+	require.NoError(t, err)
+	require.Equal(t, string(want), got.String())
+	// Guidance rỗng nhưng GuidanceVersion > 0 (bản không còn mục nào) cũng không ghi gì
+	in := promptIn(t, false)
+	in.GuidanceVersion = 3
+	sys, _ := grading.BuildEssayPrompt(in, "BAI_LAM_FIXED")
+	require.NotContains(t, sys, "Lưu ý của giảng viên")
+}
+
+func guideIn(t *testing.T, second bool) grading.PromptInput {
+	in := promptIn(t, second)
+	in.GuidanceVersion = 2
+	in.Guidance = []grading.GuidanceLine{{CriterionID: "c1", Text: "Chấm chặt hơn khi chỉ nêu tên tác nhân."}, {CriterionID: "c3", Text: "Cần ví dụ cụ thể mới cho điểm tối đa."}}
+	return in
+}
+
+// TestGuidanceBlockDeterministic — khối sau rubric, trước đáp án chuẩn, trong system; cùng đầu vào → cùng byte; lượt 2 đảo thứ tự theo rubric đảo.
+func TestGuidanceBlockDeterministic(t *testing.T) {
+	t.Parallel()
+	a1, u1 := grading.BuildEssayPrompt(guideIn(t, false), "B1")
+	a2, _ := grading.BuildEssayPrompt(guideIn(t, false), "B1")
+	require.Equal(t, a1, a2)
+	require.Contains(t, a1, "Lưu ý của giảng viên (bản v2) — chỉ về điểm từng tiêu chí:\n[c1] Chấm chặt hơn khi chỉ nêu tên tác nhân.\n[c3] Cần ví dụ cụ thể mới cho điểm tối đa.\n")
+	require.Less(t, strings.Index(a1, "RUBRIC (thứ tự chấm)"), strings.Index(a1, "Lưu ý của giảng viên"))
+	require.Less(t, strings.Index(a1, "Lưu ý của giảng viên"), strings.Index(a1, "ĐÁP ÁN CHUẨN"))
+	require.NotContains(t, u1, "Lưu ý của giảng viên", "ngoài khối bài làm")
+	a3, _ := grading.BuildEssayPrompt(guideIn(t, true), "B1")
+	require.Less(t, strings.Index(a3, "[c3] Cần ví dụ"), strings.Index(a3, "[c1] Chấm chặt"), "lượt 2 đảo thứ tự")
+}
+
+// TestGuidanceNoTotalsInPrompt — khối lưu ý không có trường tổng / phạt / làm tròn: chỉ chữ của lưu ý đã qua ForbiddenText.
+func TestGuidanceNoTotalsInPrompt(t *testing.T) {
+	t.Parallel()
+	for _, text := range []string{"Tổng điểm tối đa 10", "Trừ 1 điểm nếu muộn", "Làm tròn lên 0,5", "Phạt nộp trễ", "Tổng quát nhưng trừ điểm", "Tổng điểm quá cao"} {
+		require.True(t, grading.ForbiddenText(text), text)
+	}
+	for _, text := range []string{"Tránh nhận xét trừu tượng", "Cần ví dụ cụ thể", "Chỉ cho điểm tối đa khi có số liệu",
+		"Nhận xét tổng quát chưa đủ", "tổng quan tình huống", "tổng thể bài viết", "tổng hợp các nguồn", "tổng kết cuối bài", "chỉ đạt điểm cao trừ khi có ví dụ", "ngoại trừ phần mở bài", "loại trừ ý lặp"} {
+		require.False(t, grading.ForbiddenText(text), text)
+	}
+}

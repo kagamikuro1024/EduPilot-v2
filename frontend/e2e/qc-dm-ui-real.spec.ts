@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test, type Browser } from "@playwright/test";
 import { mkdirSync } from "fs";
 
 test.skip(!process.env.QC_REAL, "cần stack thật ep-qc: QC_REAL=1 playwright test -c playwright.qc-real.config.ts");
@@ -7,7 +7,7 @@ const PW = process.env.QC_PW ?? "";
 const OUT = process.env.QC_OUT ?? "/tmp/qc-shots";
 mkdirSync(OUT, { recursive: true });
 
-async function login(browser: any, user: string, w: number, h: number) {
+async function login(browser: Browser, user: string, w: number, h: number) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h }, locale: "vi-VN", hasTouch: w < 500, isMobile: w < 500 });
   const page = await ctx.newPage();
   await page.goto("/login");
@@ -32,7 +32,7 @@ for (const [w, h] of [[1440, 900], [375, 812]] as const) {
     console.log(`QCINFO settings@${w} từ cấm: ${/\b(RAG|PII|fallback|trace|cascade|decision)\b/i.test(txt.slice(i2 >= 0 ? i2 : 0, (i2 >= 0 ? i2 : 0) + 1500))}`);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     console.log(`QCINFO settings@${w} tràn ngang: ${overflow}`);
-    const sw = await page.locator("[role=switch]").evaluateAll((els: any[]) => els.map((e) => { const r = e.getBoundingClientRect(); return `${Math.round(r.width)}x${Math.round(r.height)}`; }));
+    const sw = await page.locator("[role=switch]").evaluateAll((els: Element[]) => els.map((e) => { const r = e.getBoundingClientRect(); return `${Math.round(r.width)}x${Math.round(r.height)}`; }));
     console.log(`QCINFO settings@${w} switch sizes: ${sw.join(",")}`);
     await page.screenshot({ path: `${OUT}/settings-llm-admin-${w}.png`, fullPage: true });
     await page.goto("/observability"); await page.waitForTimeout(3000);

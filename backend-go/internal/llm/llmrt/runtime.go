@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	goredis "github.com/redis/go-redis/v9"
 
+	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/llm/budget"
 	"github.com/edupilot/backend-go/internal/llm/fake"
@@ -31,6 +32,7 @@ type Runtime struct {
 	Config    *llmconfig.Service
 	Resolver  *llmconfig.Resolver
 	Decision  *llm.DecisionSnapshot
+	Guidance  *grading.GuidanceFlags // cờ «học từ lần giảng viên sửa» theo lớp (10.6); dùng chung gateway và worker
 	cancel    context.CancelFunc
 }
 
@@ -117,6 +119,11 @@ func NewWithMasker(ctx context.Context, cfg config.Config, pool *pgxpool.Pool, r
 	rt.cancel = cancel
 	go rt.Registry.Watch(wctx, rdb)
 	go rt.Decision.Watch(wctx, rdb)
+	rt.Guidance = grading.NewGuidanceFlags(pool, log)
+	if err := rt.Guidance.Load(ctx); err != nil { // chưa nạp được: mọi cờ tắt (đường cũ), Watch nạp lại sau
+		log.ErrorContext(ctx, "nạp cờ guidance lần đầu thất bại, coi mọi cờ là tắt", "error", err.Error())
+	}
+	go rt.Guidance.Watch(wctx, rdb)
 	return rt, nil
 }
 

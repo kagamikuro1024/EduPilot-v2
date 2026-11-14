@@ -1,0 +1,29 @@
+{
+  "rubric": [
+    {
+      "name": "Luận điểm rõ",
+      "max_score": "2.5",
+      "guidance": "Nêu rõ vấn đề, phạm vi và kết luận chính ngay từ đầu bài."
+    },
+    {
+      "name": "Dẫn chứng / tình huống cụ thể",
+      "max_score": "2.5",
+      "guidance": "Có tình huống hoặc số liệu cụ thể gắn với doanh nghiệp được nêu, không chỉ nói chung chung."
+    },
+    {
+      "name": "Lập luận và biện pháp khả thi",
+      "max_score": "2.5",
+      "guidance": "Biện pháp gắn với nguyên nhân đã phân tích, khả thi với nguồn lực của tổ chức, có thứ tự ưu tiên."
+    },
+    {
+      "name": "Trình bày, thuật ngữ",
+      "max_score": "2.5",
+      "guidance": "Văn phong học thuật, thuật ngữ dùng đúng, bố cục rõ ràng."
+    }
+  ],
+  "topic": {
+    "bt-a": "Phân tích một sự cố lộ dữ liệu giả định ở doanh nghiệp vừa và nhỏ và đề xuất biện pháp phòng ngừa",
+    "bt-b": "So sánh xác thực một yếu tố và đa yếu tố cho một tổ chức 50 người"
+  },
+  "max_score": "10"
+}

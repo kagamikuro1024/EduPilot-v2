@@ -87,6 +87,7 @@ type gradeEnv struct {
 	grader  *grading.Grader
 	prompts []string
 	mu      sync.Mutex
+	aiC1    string // nhận xét gốc của AI cho c1 trong g.reviewed (rỗng → mặc định)
 }
 
 func newGradeEnv(t *testing.T, structured func(g *gradeEnv, req llm.Request) (json.RawMessage, error)) *gradeEnv {

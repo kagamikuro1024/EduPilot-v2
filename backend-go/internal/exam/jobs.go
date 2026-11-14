@@ -32,6 +32,7 @@ type Worker struct {
 	Log     *slog.Logger
 	// RetryWait: chờ giữa các lần thử lại khi cổng AI quá tải (mặc định 2 s, 5 s).
 	RetryWait []time.Duration
+	Hints     *Hints // nil = không khối «Tránh…» (M6)
 }
 
 // Register gắn các loại việc vào `jobs.Runner`.

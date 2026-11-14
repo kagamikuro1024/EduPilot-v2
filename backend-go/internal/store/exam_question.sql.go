@@ -298,7 +298,7 @@ func (q *Queries) CodeProblemUpdate(ctx context.Context, arg CodeProblemUpdatePa
 const questionArchive = `-- name: QuestionArchive :one
 update question_bank set archived_at = coalesce(archived_at, now()), version = version + 1, updated_at = now()
 where course_id = $1 and id = $2
-returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at
+returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at, reject_reason
 `
 
 type QuestionArchiveParams struct {
@@ -330,6 +330,7 @@ func (q *Queries) QuestionArchive(ctx context.Context, arg QuestionArchiveParams
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RejectReason,
 	)
 	return i, err
 }
@@ -341,7 +342,7 @@ set version = version + 1, updated_at = now(),
     reviewed_by = case when review_status in ('APPROVED', 'REJECTED') then null else reviewed_by end,
     reviewed_at = case when review_status in ('APPROVED', 'REJECTED') then null else reviewed_at end
 where course_id = $1 and id = $2
-returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at
+returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at, reject_reason
 `
 
 type QuestionBumpParams struct {
@@ -374,6 +375,7 @@ func (q *Queries) QuestionBump(ctx context.Context, arg QuestionBumpParams) (Que
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RejectReason,
 	)
 	return i, err
 }
@@ -427,7 +429,7 @@ func (q *Queries) QuestionCourseStatus(ctx context.Context, courseID uuid.UUID) 
 }
 
 const questionGet = `-- name: QuestionGet :one
-select id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at from question_bank where course_id = $1 and id = $2
+select id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at, reject_reason from question_bank where course_id = $1 and id = $2
 `
 
 type QuestionGetParams struct {
@@ -459,6 +461,7 @@ func (q *Queries) QuestionGet(ctx context.Context, arg QuestionGetParams) (Quest
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RejectReason,
 	)
 	return i, err
 }
@@ -467,7 +470,7 @@ const questionInsert = `-- name: QuestionInsert :one
 insert into question_bank (course_id, type, title, topic, difficulty, stem, answer_key, explanation, origin, review_status, created_by, ai_job_id)
 values ($1, $2, $3, $4, $5, $6, $7, $8,
         $9, $10, $11, $12)
-returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at
+returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at, reject_reason
 `
 
 type QuestionInsertParams struct {
@@ -522,6 +525,7 @@ func (q *Queries) QuestionInsert(ctx context.Context, arg QuestionInsertParams) 
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RejectReason,
 	)
 	return i, err
 }
@@ -619,7 +623,7 @@ func (q *Queries) QuestionList(ctx context.Context, arg QuestionListParams) ([]Q
 }
 
 const questionLock = `-- name: QuestionLock :one
-select id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at from question_bank where course_id = $1 and id = $2 for update
+select id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at, reject_reason from question_bank where course_id = $1 and id = $2 for update
 `
 
 type QuestionLockParams struct {
@@ -651,6 +655,7 @@ func (q *Queries) QuestionLock(ctx context.Context, arg QuestionLockParams) (Que
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RejectReason,
 	)
 	return i, err
 }
@@ -742,15 +747,16 @@ func (q *Queries) QuestionOptionsDelete(ctx context.Context, arg QuestionOptions
 
 const questionReview = `-- name: QuestionReview :one
 update question_bank
-set review_status = $1, reviewed_by = $2, reviewed_at = $3, version = version + 1, updated_at = now()
-where course_id = $4 and id = $5 and version = $6
-returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at
+set review_status = $1, reviewed_by = $2, reviewed_at = $3, reject_reason = $4, version = version + 1, updated_at = now()
+where course_id = $5 and id = $6 and version = $7
+returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at, reject_reason
 `
 
 type QuestionReviewParams struct {
 	ReviewStatus    QuestionReviewStatus
 	ReviewedBy      *uuid.UUID
 	ReviewedAt      *time.Time
+	RejectReason    *string
 	CourseID        uuid.UUID
 	ID              uuid.UUID
 	ExpectedVersion int32
@@ -761,6 +767,7 @@ func (q *Queries) QuestionReview(ctx context.Context, arg QuestionReviewParams) 
 		arg.ReviewStatus,
 		arg.ReviewedBy,
 		arg.ReviewedAt,
+		arg.RejectReason,
 		arg.CourseID,
 		arg.ID,
 		arg.ExpectedVersion,
@@ -787,6 +794,7 @@ func (q *Queries) QuestionReview(ctx context.Context, arg QuestionReviewParams) 
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RejectReason,
 	)
 	return i, err
 }
@@ -799,7 +807,7 @@ set title = $1, topic = $2, difficulty = $3, stem = $4,
     reviewed_by = case when $7::boolean and review_status in ('APPROVED', 'REJECTED') then null else reviewed_by end,
     reviewed_at = case when $7::boolean and review_status in ('APPROVED', 'REJECTED') then null else reviewed_at end
 where course_id = $8 and id = $9 and version = $10
-returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at
+returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at, reject_reason
 `
 
 type QuestionUpdateContentParams struct {
@@ -851,6 +859,7 @@ func (q *Queries) QuestionUpdateContent(ctx context.Context, arg QuestionUpdateC
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.RejectReason,
 	)
 	return i, err
 }
