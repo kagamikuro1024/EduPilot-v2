@@ -273,3 +273,10 @@ test("landing ảnh không bao giờ trống: giảm chuyển động, không sc
   expect(await visible(p2, "[data-role-shots] img")).toBe(1);
   await noJs.close();
 });
+
+test("landing AC16: có thẻ og:* để chia sẻ liên kết", async ({ page }) => {
+  await anonymous(page);
+  await page.goto("/");
+  for (const p of ["og:title", "og:description", "og:image", "og:type"]) await expect(page.locator(`meta[property="${p}"]`)).toHaveAttribute("content", /.+/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", /EduPilot/);
+});

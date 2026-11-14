@@ -343,12 +343,21 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         ? { label: "Chốt điểm", disabled: true, reason: status.finalize_blocked_reason ?? "Chưa có công thức điểm đã xác nhận" }
         : undefined;
 
+  // MỘT PageHeader cho tải / lỗi / có dữ liệu (TL 14.6): nút cần dữ liệu hiện nhưng khoá, liên kết bấm được
+  const noData = (
+    <PageHeader
+      title="Sổ điểm"
+      primary={teacher ? { label: "Chốt điểm", disabled: true } : undefined}
+      secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
+      more={teacher ? [{ label: "Xuất XLSX", disabled: true }] : []}
+    />
+  );
   return (
     <Page kind="work">
       <PageState
         query={{ isPending: q.isPending, isError: q.isError, error: q.error, data: q.data, refetch: q.refetch }}
-        header={<PageHeader title="Sổ điểm" />}
-        loading={<><PageHeader title="Sổ điểm" /><Panel><Skeleton lines={10} /></Panel></>}
+        header={noData}
+        loading={<>{noData}<Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >
         <PageHeader

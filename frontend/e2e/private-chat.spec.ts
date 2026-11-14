@@ -30,6 +30,14 @@ test("layout / empty: một Panel, gợi ý bấm được, không nút nhờ gi
   expect(w).toBeLessThanOrEqual(840);
 });
 
+test("10.7 X1: danh sách phiên lỗi → đúng một thông báo lỗi có «Thử lại»", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 });
+  await chatApi(page, { "GET /chat/sessions": json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500) });
+  await page.goto("/chat");
+  await expect(page.locator("main [role=alert]")).toHaveCount(1);
+  await expect(page.locator("main [role=alert]").getByRole("button", { name: "Thử lại" })).toBeVisible();
+});
+
 test("US-UX91-13 trạng thái đầu: ≤ 3 gợi ý hàng chữ (1 từ Hôm nay + 2 cố định), bấm chỉ điền ô nhập, không tự gửi", async ({ page, context }) => {
   await page.route("**/api/v1/me/today**", (r) => r.fulfill(json({ no_course: false, email_verified: true, recommended: { id: "a", kind: "ASSIGNMENT_DUE", title: "Nộp Bài tập 02", reason: "Hạn ngày mai", urgency: "high", href: "/assignments", course: null }, timeline: [], continue: [] })));
   const calls = await open(page, context);
@@ -105,6 +113,7 @@ test("low confidence sentence only: một câu nhạt, không nút Nhờ giảng
 test("overloaded retry: có dòng thời gian chờ + Thử lại, không thêm bong bóng người dùng, không nút nhờ giảng viên", async ({ page, context }) => {
   let retried = false;
   await open(page, context, {
+    "GET /chat/sessions": json({ items: [], next_cursor: null }),
     "POST /chat/sessions": json(session(), 201),
     [`POST /chat/sessions/${SID}/messages`]: (r) => r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("error", { code: "OVERLOADED", message: "m", retry_after: 20 }, "1:2-0"))),
     [`POST /chat/messages/${MID}/retry`]: (r) => { retried = true; return r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "2:1-0"), frame("token", { off: 0, t: "Xong." }, "2:2-0"), frame("done", { message_id: MID, citations: [], low_confidence: false, degraded: false }, "2:3-0"))); },

@@ -51,3 +51,23 @@
 - **Bộ kiểm skill** (`consistency.mjs --widths 1440,390 --rhythm-widths 1440,390 --page software`, trên `next start` bản `build:gate`): xem số FAIL cuối ở báo cáo dev; miễn trừ còn lại đúng danh sách 8.4: `scroll-reveal` ×6, `scroll-linked` ×1, `section-air` + `empty-area` (khung ghim hai màn), `copy-headings` ×1; `focus-ring` của `Chart` ngoài lô 9.
 - **Cần ghi nhận**: ở 375 × 812 (không phải 390 × 844) mục «vai» cao 836 > 812 — chuẩn đo là 390 × 844.
 - Ảnh trước/sau lô 3–7: `docs/sprints/10.7/dev/lo3…lo7/index.html` (Playwright, `mockStaffApi` chung; route chưa có dữ liệu mô phỏng hiện trạng thái lỗi vùng — đúng hợp đồng §23.5; ảnh có dữ liệu của màn chính là ảnh mốc `visual.spec` sinh trên CI).
+
+## Sửa theo QC 10.7 (summary @188e648a) và techlead mục 14
+
+| Nhóm | Sửa |
+|---|---|
+| D3 | `DataTable`: ô dọc `space-1`, `line-height 1.35`; bảng dày 44 có đệm dọc 2 px (ô hai dòng vẫn vừa). Thẻ 375 giữ min 56 theo design-23-draft «List row min 56 px» |
+| D1/D2 | `.code` cỡ chữ trang (28); công tắc hộp bấm 36 (44 ở màn nhỏ), đường ray 36×20 vẽ bằng `::before` |
+| P2 | `Panel` bỏ lề đầu/cuối của con; chênh panel − nội dung = 2 px (viền) ở me, analytics, observability, insights |
+| H3 | meta analytics/observability không lặp nhãn lớp |
+| H6/E5/X3 | practice/history rỗng bỏ nút trùng liên kết quay lại; `/practice` giữ Tabs khi lỗi; `ActionList` có `data-ep-action-list` |
+| E6 | documents: danh sách ở Panel riêng (khối rỗng ≤ 320) |
+| E7 | Hôm nay SV, chat phiên, observability bảng rỗng → `EmptyState` |
+| T2 | bỏ câu «Không dùng cho AI của sinh viên» |
+| H7 | `.meta` một cỡ dòng 19,2 (StatusText không đẩy 22,4) |
+| X3 (TL 14.6) | attendance, gradebook, gradebook/scheme: MỘT `PageHeader` cho cả 4 trạng thái; nút cần dữ liệu hiện khoá |
+| X1 chat | danh sách phiên lỗi → `ApiErrorNotice` + Thử lại (sheet chỉ dựng khi mở, tránh 2 alert) |
+| Lỗi dữ liệu | `analytics` lớp ngoài mô phỏng → «Chưa có số liệu»; `isDocOfCourse` chỉ cho 2 lớp mô phỏng; `e2e/mock-courses.spec.ts` |
+| AC16 | `og:*` ở metadata của `/` (+ ca `landing.spec`) |
+
+Không sửa: L2/X1 của `analytics`, `observability` (mô phỏng, chỉ gọi `/api/v1/events`: không áp dụng theo TL 12.2; nối API ở sprint 11, D51). `/settings` (GV) đo lại bằng chặn API cho `busy 2 / alert 2` (hai mục Thiết bị và Mail mỗi mục một thông báo).

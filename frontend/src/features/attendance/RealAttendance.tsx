@@ -52,12 +52,14 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
     </label>
   );
 
-  if (list.isPending) return <Page kind="work"><PageHeader title="Điểm danh" /><Panel><Skeleton lines={10} /></Panel></Page>;
-  if (list.isError) return <Page kind="work"><PageHeader title="Điểm danh" /><PageState query={{ isPending: false, isError: true, error: list.error, data: null, refetch: list.refetch }}>{null}</PageState></Page>;
+  // MỘT PageHeader cho mọi trạng thái (TL 14.6): nút cần dữ liệu hiện nhưng khoá
+  const noData = <PageHeader title="Điểm danh" primary={{ label: "Lưu điểm danh", disabled: true, docked: true }} />;
+  if (list.isPending) return <Page kind="work">{noData}<Panel><Skeleton lines={10} /></Panel></Page>;
+  if (list.isError) return <Page kind="work">{noData}<PageState query={{ isPending: false, isError: true, error: list.error, data: null, refetch: list.refetch }}>{null}</PageState></Page>;
   if (!current) {
     return (
       <Page kind="work">
-        <PageHeader title="Điểm danh" />
+        {noData}
         <Panel>
           <EmptyState title="Lớp chưa có lịch buổi học" action={<ButtonLink href="/calendar">Tạo lịch buổi học</ButtonLink>} />
         </Panel>
@@ -68,8 +70,8 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
     <Page kind="work">
       <PageState
         query={{ isPending: grid.isPending, isError: grid.isError, error: grid.error, data: grid.data, refetch: grid.refetch }}
-        header={<PageHeader title="Điểm danh" />}
-        loading={<><PageHeader title="Điểm danh" /><Panel><Skeleton lines={10} /></Panel></>}
+        header={noData}
+        loading={<>{noData}<Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >
         {grid.data && <Sheet key={current.id} courseId={courseId} userId={userId} classCode={classCode} grid={grid.data} picker={picker} />}

@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { ApiError, apiClient, useAutosaveDraft, useUndoableAction } from "@/shared/data";
 import { CitationList, Markdown } from "@/shared/domain";
 import { useSession } from "@/shared/session/session";
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, Composer, EmptyState, IconButton, OverflowMenu, Page, PageHeader, PageState, Skeleton, Split } from "@/shared/ui";
 import {
   LOCK_KEY,
@@ -214,7 +215,7 @@ export function RealChat({ courseId }: { courseId: string }) {
               <p className={s.historyLabel}>Phiên trước</p>
               <IconButton label="Thu gọn lịch sử" size="sm" onClick={() => setCollapsed(true)}><PanelLeftClose aria-hidden /></IconButton>
             </div>
-            <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />
+            <SessionList items={items} current={sid} loading={sessions.isPending} error={sessions.isError ? sessions.error : null} onRetry={() => void sessions.refetch()} onOpen={open} onDelete={(id) => void del.run(id)} />
             {del.node}</nav>
         }
         aside={
@@ -272,14 +273,15 @@ export function RealChat({ courseId }: { courseId: string }) {
       />
 
       <ChatSessionSheet open={sheet} onClose={() => setSheet(false)} onNew={hasMessages ? () => open(null) : undefined}>
-        <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />
+        {sheet && <SessionList items={items} current={sid} loading={sessions.isPending} error={sessions.isError ? sessions.error : null} onRetry={() => void sessions.refetch()} onOpen={open} onDelete={(id) => void del.run(id)} />}
       </ChatSessionSheet>
     </Page>
   );
 }
 
-function SessionList({ items, current, loading, onOpen, onDelete }: { items: ChatSession[]; current: string | null; loading: boolean; onOpen: (id: string) => void; onDelete: (id: string) => void }) {
+function SessionList({ items, current, loading, error, onRetry, onOpen, onDelete }: { items: ChatSession[]; current: string | null; loading: boolean; error: Error | null; onRetry: () => void; onOpen: (id: string) => void; onDelete: (id: string) => void }) {
   if (loading) return <Skeleton lines={3} />;
+  if (error) return <ApiErrorNotice error={error} onRetry={onRetry} />;
   if (items.length === 0) return <EmptyState title="Chưa có phiên nào" />;
   return (
     <ul className={r.sheetList}>

@@ -141,10 +141,10 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
 test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp", async ({ page }) => {
   const courseCalls = await login(page, "TEACHER", [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")]);
   await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)
-  await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
+  await expect(picker(page)).toContainText("761987"); // lớp ở thanh trên (header không còn lặp lớp, 10.7 H3)
   const panel = await options(page);
   await panel.getByRole("menuitem", { name: /761988 · An ninh mạng/ }).click();
-  await expect(page.getByText(/An ninh mạng – 761988/).first()).toBeVisible();
+  await expect(picker(page)).toContainText("761988");
   await expect(page.getByText(/An ninh mạng – 761987/)).toHaveCount(0);
   expect(courseCalls).toEqual([]);
 });
@@ -153,7 +153,7 @@ test("mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, kh
   await login(page, "TEACHER", [item(C1, "999999", "TEACHER")]);
   await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)
   await expect(picker(page)).toContainText("999999");
-  await expect(page.getByText(/An ninh mạng – 999999/).first()).toBeVisible();
+  await expect(page.getByText("Chưa có số liệu")).toBeVisible(); // không mượn số liệu 761987
   await expect(page.getByText(/An ninh mạng – 761987/)).toHaveCount(0);
 });
 
