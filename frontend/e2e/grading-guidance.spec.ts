@@ -94,6 +94,24 @@ test("ngăn bài tập: sửa chữ khi duyệt gửi text; 422 hiện lỗi t�
   await expect.poll(() => api.calls.some((c) => c.path.endsWith("/regrade-stale"))).toBe(true);
 });
 
+test("sửa chữ lưu ý rồi Duyệt: thẻ hiện NGAY chữ đã sửa (không nháy về chữ gốc), hoàn tác giữ chữ sửa (f)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openDrawer(page, context, () => overview(), {
+    [`POST assignments/:id/guidance/items/${ITEM}/decide`]: async (r) => {
+      await new Promise((res) => setTimeout(res, 1200)); // máy chủ chậm: trong lúc chờ thẻ vẫn phải là chữ đã sửa
+      return r.fulfill(json(item({ status: "APPROVED", version: 2, text: "Mở bài chỉ nêu bối cảnh thì tối đa 1,5/2,5." })));
+    },
+  });
+  const panel = page.locator("[data-part=guidance-panel]");
+  await panel.getByRole("button", { name: "Sửa" }).click();
+  await panel.getByLabel("Chữ lưu ý").fill("Mở bài chỉ nêu bối cảnh thì tối đa 1,5/2,5.");
+  await panel.getByRole("button", { name: "Duyệt" }).click();
+  const card = panel.locator("[data-part=guidance-item]");
+  await expect(card).toContainText("Mở bài chỉ nêu bối cảnh thì tối đa 1,5/2,5.");
+  await expect(card).not.toContainText("Chấm chặt hơn khi chỉ nêu tên tác nhân"); // chữ gốc không được lộ lại
+  await expect(card.getByLabel("Chữ lưu ý")).toHaveCount(0);
+});
+
 test("rút lưu ý xong: dòng «N lưu ý bị loại · tiêu chí: lý do» (P-106-12), mục trùng không tính", async ({ page, context }, info) => {
   desktopOnly(info);
   const JOB = "00000000-0000-7000-8000-0000000e0007";
@@ -170,7 +188,7 @@ test("màn duyệt: lớp tắt tính năng (không có khối guidance) → kh�
   await expect(page.getByText("Bản cũ", { exact: true })).toHaveCount(0);
 });
 
-test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RESET đúng version; menu «Đặt lại» còn sau khi dòng Hoàn tác mất và lưu ý về Chờ duyệt", async ({ page, context }, info) => {
+test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RESET đúng version; nút «Đặt lại» còn sau khi dòng Hoàn tác mất và lưu ý về Chờ duyệt", async ({ page, context }, info) => {
   desktopOnly(info);
   let cur = overview();
   const api = await openDrawer(page, context, () => cur, {
@@ -192,8 +210,7 @@ test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RES
   await panel.getByRole("button", { name: "Bỏ", exact: true }).click();
   await expect(panel.getByText("Đã bỏ", { exact: true })).toBeVisible();
   await expect(page.locator("[data-part=undo-line]")).toHaveCount(0, { timeout: 15000 });
-  await panel.getByRole("button", { name: "Thêm hành động của lưu ý" }).click();
-  await page.getByRole("menuitem", { name: "Đặt lại" }).click();
+  await panel.getByRole("button", { name: "Đặt lại" }).click(); // nút thấy được, không giấu trong menu «…»
   await expect.poll(() => api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`)).length).toBe(4);
   await expect(panel.getByText("Chờ duyệt", { exact: true })).toBeVisible();
 });
@@ -205,7 +222,6 @@ test("Đặt lại sau khi đã áp dụng ở nơi khác: 409 ITEM_NOT_RESETTAB
     [`POST assignments/:id/guidance/items/${ITEM}/decide`]: (r) => r.fulfill(json({ code: "ITEM_NOT_RESETTABLE", message: "m", trace_id: "t" }, 409)),
   });
   const panel = page.locator("[data-part=guidance-panel]");
-  await panel.getByRole("button", { name: "Thêm hành động của lưu ý" }).click();
-  await page.getByRole("menuitem", { name: "Đặt lại" }).click();
+  await panel.getByRole("button", { name: "Đặt lại" }).click(); // nút thấy được, không giấu trong menu «…»
   await expect(panel).toContainText("Đã áp dụng, không hoàn tác được.");
 });

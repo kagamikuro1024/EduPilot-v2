@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, newIdempotencyKey, useAutosaveDraft, useJob, useUndoableAction } from "@/shared/data";
-import { Button, ConfirmIrreversible, InlineNotice, OverflowMenu, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { Button, ConfirmIrreversible, InlineNotice, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import type { Criterion } from "./assignmentApi";
 import {
   DIRECTION_TEXT, applyGuidance, decideGuidance, guidanceKey, reflectGuidance, regradeStale, useGuidance, useGuidanceStats,
@@ -32,10 +32,10 @@ function ItemRow({ courseId, aid, item, teacher, userId, onDecided, onError }: {
   const [editing, setEditing] = useState(false);
   const [rejected, setRejected] = useState(false);
   // lạc quan: trạng thái hiện ngay, hết hiệu lực khi máy chủ trả bản mới của mục (version đổi)
-  const [local, setLocal] = useState<{ act: Act; v: number } | null>(null);
+  const [local, setLocal] = useState<{ act: Act; v: number; text?: string } | null>(null);
   const ver = useRef(item.version); // version mới nhất sau lần ghi gần nhất (để Hoàn tác đúng bản)
   const view: GuidanceItem = local && local.v === item.version
-    ? { ...item, status: local.act === "REJECT" ? "REJECTED" : "APPROVED", pending_retire: local.act === "RETIRE", approved_in_version: item.approved_in_version }
+    ? { ...item, text: local.text ?? item.text, status: local.act === "REJECT" ? "REJECTED" : "APPROVED", pending_retire: local.act === "RETIRE", approved_in_version: item.approved_in_version }
     : item;
   const st = stateOf(view);
   const text = draft.value || item.text;
@@ -43,18 +43,24 @@ function ItemRow({ courseId, aid, item, teacher, userId, onDecided, onError }: {
   const active = view.status === "APPROVED" && view.approved_in_version !== null && !view.pending_retire;
 
   const undo = useUndoableAction<Act>({
-    apply: (act) => setLocal({ act, v: item.version }),
+    // GV-BUG (f): thẻ hiện NGAY chữ đã sửa (không nháy về chữ gốc trong lúc chờ máy chủ); lỗi chữ thì mở lại ô sửa (chữ vẫn trong bản nháp)
+    apply: (act) => {
+      setLocal({ act, v: item.version, text: act === "APPROVE" && text !== item.text ? text : undefined });
+      setEditing(false);
+    },
     rollback: () => setLocal(null),
     commit: async (act) => {
       try {
         const out = await decideGuidance(courseId, aid, item.id, { decision: act, version: item.version, ...(act === "APPROVE" && text !== item.text ? { text } : {}) });
         ver.current = out.version;
         draft.clear();
-        setEditing(false);
         onDecided(item.id);
       } catch (e) {
         setLocal(null);
-        if (e instanceof ApiError && e.code === "GUIDANCE_TEXT_REJECTED") setRejected(true);
+        if (e instanceof ApiError && e.code === "GUIDANCE_TEXT_REJECTED") {
+          setRejected(true);
+          setEditing(true);
+        }
         else if (e instanceof ApiError && (e.code === "VERSION_CONFLICT" || e.code === "ITEM_NOT_DRAFT")) onError(e); // mục đã đổi: báo tại panel, tải lại
         throw e;
       }
@@ -108,7 +114,7 @@ function ItemRow({ courseId, aid, item, teacher, userId, onDecided, onError }: {
               </>
             )}
             {active && <Button size="sm" variant="ghost" disabled={busy} onClick={() => go("RETIRE")}>Cho nghỉ</Button>}
-            {resettable && <OverflowMenu label="Thêm hành động của lưu ý" items={[{ label: "Đặt lại", onSelect: () => void reset() }]} />}
+            {resettable && <Button size="sm" variant="ghost" onClick={() => void reset()}>Đặt lại</Button>}
           </div>
         )}
       </div>
