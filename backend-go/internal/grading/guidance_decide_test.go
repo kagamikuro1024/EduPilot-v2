@@ -328,8 +328,9 @@ func subDec(a, b string) string {
 	return decimal.RequireFromString(a).Sub(decimal.RequireFromString(b)).String()
 }
 
-// TestGuidanceRevert — P-106-8: Duyệt / Bỏ / Cho nghỉ đảo ngược được TRƯỚC khi Áp dụng (trả DRAFT + chữ gốc; chờ nghỉ → đang dùng); mục đã vào phiên bản đã áp dụng thì không.
-func TestGuidanceRevert(t *testing.T) {
+// TestGuidanceItemReset — P-106-8 / US-GD-04 AC3a: Duyệt / Bỏ / Cho nghỉ đảo ngược được TRƯỚC khi Áp dụng (chờ áp dụng / đã bỏ → DRAFT, GIỮ chữ đã sửa; chờ nghỉ → đang dùng); DRAFT idempotent;
+// mục đã vào phiên bản đã áp dụng → 409 ITEM_NOT_RESETTABLE; đua với Áp dụng: một bên thắng.
+func TestGuidanceItemReset(t *testing.T) {
 	g := newGradeEnv(t, nil)
 	svc, _ := newGuidanceSvc(t, g, true)
 	a := grading.GuidanceActor{UserID: g.teacher}
@@ -337,39 +338,50 @@ func TestGuidanceRevert(t *testing.T) {
 	txt := "Bản giảng viên sửa."
 	v, err := svc.Resolve(t.Context(), a, g.course, g.asg, i1, "APPROVE", &txt, 1)
 	require.NoError(t, err)
-	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "REVERT", nil, v.Version)
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RESET", nil, v.Version)
 	require.NoError(t, err)
 	require.Equal(t, "DRAFT", v.Status)
-	require.Equal(t, "Bản gốc của AI.", v.Text, "chữ gốc được trả lại")
-	require.Nil(t, v.TextOriginal)
-	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "REVERT", nil, v.Version)
-	_, code := apiCode(t, err)
-	require.Equal(t, "CONFLICT", code, "đang là nháp: không có gì để hoàn tác")
+	require.Equal(t, txt, v.Text, "chữ đã sửa được giữ")
+	require.NotNil(t, v.TextOriginal)
+	require.Equal(t, "Bản gốc của AI.", *v.TextOriginal)
+	var by *uuid.UUID
+	g.one(&by, `select decided_by from grading_guidance_items where id = $1`, i1)
+	require.Nil(t, by, "xoá người quyết")
+	again, err := svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RESET", nil, 1)
+	require.NoError(t, err, "đang là nháp: idempotent, kể cả version cũ")
+	require.Equal(t, v.Version, again.Version)
 	r, err := svc.Resolve(t.Context(), a, g.course, g.asg, i2, "REJECT", nil, 1)
 	require.NoError(t, err)
-	r, err = svc.Resolve(t.Context(), a, g.course, g.asg, i2, "REVERT", nil, r.Version)
+	r, err = svc.Resolve(t.Context(), a, g.course, g.asg, i2, "RESET", nil, r.Version)
 	require.NoError(t, err)
 	require.Equal(t, "DRAFT", r.Status)
-	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i2, "REVERT", nil, 1)
-	_, code = apiCode(t, err)
-	require.Equal(t, "VERSION_CONFLICT", code)
 
-	// đã áp dụng: không hoàn tác duyệt; hoàn tác «Cho nghỉ» thì được
+	// đã áp dụng: không hoàn tác duyệt; «Cho nghỉ» thì hoàn tác được
 	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "APPROVE", nil, v.Version)
 	require.NoError(t, err)
 	_, err = svc.Apply(t.Context(), a, g.course, g.asg, 0)
 	require.NoError(t, err)
-	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "REVERT", nil, g.itemVersion(i1))
-	_, code = apiCode(t, err)
-	require.Equal(t, "CONFLICT", code, "đã vào phiên bản 1")
+	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RESET", nil, g.itemVersion(i1)+0)
+	st, code := apiCode(t, err)
+	require.Equal(t, 409, st)
+	require.Equal(t, "ITEM_NOT_RESETTABLE", code, "đã vào phiên bản 1")
 	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RETIRE", nil, g.itemVersion(i1))
 	require.NoError(t, err)
 	require.True(t, v.PendingRetire)
-	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "REVERT", nil, v.Version)
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RESET", nil, v.Version)
 	require.NoError(t, err)
 	require.False(t, v.PendingRetire)
 	require.Equal(t, "APPROVED", v.Status)
 	_, err = svc.Apply(t.Context(), a, g.course, g.asg, 1)
 	_, code = apiCode(t, err)
 	require.Equal(t, "NOTHING_TO_APPLY", code, "sau hoàn tác không còn gì chờ áp dụng")
+
+	// chờ nghỉ rồi Áp dụng → đã nghỉ: không đặt lại được
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RETIRE", nil, v.Version)
+	require.NoError(t, err)
+	_, err = svc.Apply(t.Context(), a, g.course, g.asg, 1)
+	require.NoError(t, err)
+	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RESET", nil, g.itemVersion(i1))
+	_, code = apiCode(t, err)
+	require.Equal(t, "ITEM_NOT_RESETTABLE", code)
 }

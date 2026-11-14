@@ -35,6 +35,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   DECISION_REAL_DISABLED: "Chưa được phép dùng bản thật.",
   GUIDANCE_DISABLED: "Lưu ý chấm đang tắt ở lớp này.",
   ITEM_NOT_DRAFT: "Lưu ý này đã được quyết định. Tải lại để xem.",
+  ITEM_NOT_RESETTABLE: "Đã áp dụng, không hoàn tác được.",
   NOTHING_TO_APPLY: "Chưa có lưu ý nào chờ áp dụng.",
   GUIDANCE_TEXT_REJECTED: "Chữ lưu ý không dùng được.",
   MIXED_GUIDANCE: "Còn bài nháp chấm theo bản lưu ý cũ. Chấm lại hoặc duyệt trước khi công bố.",

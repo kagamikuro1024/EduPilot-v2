@@ -55,6 +55,10 @@ test("ngăn bài tập: Duyệt → Chờ áp dụng → Áp dụng gửi expect
   const decide = api.calls.find((c) => c.path.endsWith(`/items/${ITEM}/decide`))!;
   expect(JSON.parse(decide.body)).toEqual({ decision: "APPROVE", version: 1 });
   await panel.getByRole("button", { name: "Áp dụng (1)" }).click();
+  const dlg = page.getByRole("dialog", { name: "Áp dụng bản v2?" });
+  await expect(dlg).toBeVisible();
+  await expect(dlg).toContainText("Thêm 1 lưu ý, cho nghỉ 0");
+  await dlg.getByRole("button", { name: "Áp dụng", exact: true }).click();
   await expect(panel.getByText("Đã áp dụng bản v2")).toBeVisible();
   expect(JSON.parse(api.calls.find((c) => c.path.endsWith("/guidance/apply"))!.body)).toEqual({ expected_version: 1 });
   await expect(panel.getByText("Bản v2", { exact: true })).toBeVisible();
@@ -149,7 +153,7 @@ test("màn duyệt: lớp tắt tính năng (không có khối guidance) → kh�
   await expect(page.getByText("Bản cũ", { exact: true })).toHaveCount(0);
 });
 
-test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi REVERT đúng version và lưu ý về Nháp", async ({ page, context }, info) => {
+test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RESET đúng version; menu «Đặt lại» còn sau khi dòng Hoàn tác mất và lưu ý về Nháp", async ({ page, context }, info) => {
   desktopOnly(info);
   let cur = overview();
   const api = await openDrawer(page, context, () => cur, {
@@ -165,6 +169,26 @@ test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi REV
   await expect(panel.locator("[data-part=undo-line]")).toContainText("Đã bỏ lưu ý");
   await panel.getByRole("button", { name: "Hoàn tác" }).click();
   await expect.poll(() => api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`)).length).toBe(2);
-  expect(JSON.parse(api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`))[1].body)).toEqual({ decision: "REVERT", version: 2 });
+  expect(JSON.parse(api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`))[1].body)).toEqual({ decision: "RESET", version: 2 });
   await expect(panel.getByText("Nháp", { exact: true })).toBeVisible();
+  // dòng Hoàn tác tự mất → vẫn đặt lại được bằng menu của hàng
+  await panel.getByRole("button", { name: "Bỏ", exact: true }).click();
+  await expect(panel.getByText("Đã bỏ", { exact: true })).toBeVisible();
+  await expect(page.locator("[data-part=undo-line]")).toHaveCount(0, { timeout: 15000 });
+  await panel.getByRole("button", { name: "Thêm hành động của lưu ý" }).click();
+  await page.getByRole("menuitem", { name: "Đặt lại" }).click();
+  await expect.poll(() => api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`)).length).toBe(4);
+  await expect(panel.getByText("Nháp", { exact: true })).toBeVisible();
+});
+
+test("Đặt lại sau khi đã áp dụng ở nơi khác: 409 ITEM_NOT_RESETTABLE báo tại chỗ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const rejected = overview({ items: [item({ status: "REJECTED", version: 2 })], counts: { rejected: 1 } });
+  await openDrawer(page, context, () => rejected, {
+    [`POST assignments/:id/guidance/items/${ITEM}/decide`]: (r) => r.fulfill(json({ code: "ITEM_NOT_RESETTABLE", message: "m", trace_id: "t" }, 409)),
+  });
+  const panel = page.locator("[data-part=guidance-panel]");
+  await panel.getByRole("button", { name: "Thêm hành động của lưu ý" }).click();
+  await page.getByRole("menuitem", { name: "Đặt lại" }).click();
+  await expect(panel).toContainText("Đã áp dụng, không hoàn tác được.");
 });

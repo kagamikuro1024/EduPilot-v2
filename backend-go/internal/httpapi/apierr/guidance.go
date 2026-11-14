@@ -4,6 +4,7 @@ package apierr
 const (
 	GuidanceDisabled     = "GUIDANCE_DISABLED"
 	ItemNotDraft         = "ITEM_NOT_DRAFT"
+	ItemNotResettable    = "ITEM_NOT_RESETTABLE"
 	NothingToApply       = "NOTHING_TO_APPLY"
 	GuidanceTextRejected = "GUIDANCE_TEXT_REJECTED"
 	MixedGuidance        = "MIXED_GUIDANCE"
@@ -12,6 +13,7 @@ const (
 var guidanceMessages = map[string]string{ //nolint:gochecknoglobals // bảng lời văn bất biến
 	GuidanceDisabled:     "Tính năng đang tắt.",
 	ItemNotDraft:         "Lưu ý này đã được quyết định.",
+	ItemNotResettable:    "Đã áp dụng, không hoàn tác được.",
 	NothingToApply:       "Chưa có gì để áp dụng.",
 	GuidanceTextRejected: "Chữ lưu ý không hợp lệ.",
 	MixedGuidance:        "Có bài chấm theo bản cũ.",

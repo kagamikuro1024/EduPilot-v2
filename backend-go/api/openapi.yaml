@@ -3277,7 +3277,7 @@ paths:
     post:
       operationId: decideGuidanceItem
       tags: [assignments]
-      summary: "Quyết định một lưu ý (chỉ TEACHER; TA 403): APPROVE / REJECT từ DRAFT (text sửa kèm theo qua kiểm từ khoá + PII → 422 GUIDANCE_TEXT_REJECTED), RETIRE mục đang hiệu lực (chờ nghỉ tới lần Áp dụng), REVERT = hoàn tác trước khi Áp dụng (đã duyệt / bỏ → DRAFT, trả chữ gốc; chờ nghỉ → đang dùng; mục đã vào một phiên bản → 409). 409 ITEM_NOT_DRAFT, VERSION_CONFLICT, GUIDANCE_DISABLED"
+      summary: "Quyết định một lưu ý (chỉ TEACHER; TA 403): APPROVE / REJECT từ DRAFT (text sửa kèm theo qua kiểm từ khoá + PII → 422 GUIDANCE_TEXT_REJECTED), RETIRE mục đang hiệu lực (chờ nghỉ tới lần Áp dụng), RESET = hoàn tác / đặt lại trước khi Áp dụng (chờ áp dụng / đã bỏ → DRAFT, GIỮ chữ đã sửa; chờ nghỉ → đang dùng; đang DRAFT → 200 không đổi; mục đã vào một phiên bản → 409 ITEM_NOT_RESETTABLE). 409 ITEM_NOT_DRAFT, VERSION_CONFLICT, GUIDANCE_DISABLED"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: aid
@@ -3301,7 +3301,7 @@ paths:
               required: [decision, version]
               additionalProperties: false
               properties:
-                decision: {type: string, enum: [APPROVE, REJECT, RETIRE, REVERT]}
+                decision: {type: string, enum: [APPROVE, REJECT, RETIRE, RESET]}
                 text: {type: string}
                 version: {type: integer, minimum: 1}
       responses:
@@ -13120,6 +13120,7 @@ components:
             - NOT_ENOUGH_DATA
             - GUIDANCE_DISABLED
             - ITEM_NOT_DRAFT
+            - ITEM_NOT_RESETTABLE
             - NOTHING_TO_APPLY
             - GUIDANCE_TEXT_REJECTED
             - MIXED_GUIDANCE
