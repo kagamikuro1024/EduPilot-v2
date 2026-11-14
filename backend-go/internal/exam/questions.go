@@ -93,6 +93,37 @@ type QuestionDetail struct {
 	Warnings []apierr.FieldError `json:"-"`
 }
 
+// withDocTitles thêm `document_title` vào từng trích dẫn có document_id (nhãn nguồn: «<tên tài liệu>, trang N»). Lỗi đọc → giữ nguyên trích dẫn.
+func withDocTitles(ctx context.Context, q *store.Queries, course uuid.UUID, c json.RawMessage) json.RawMessage {
+	var items []map[string]any
+	if len(c) == 0 || json.Unmarshal(c, &items) != nil || len(items) == 0 {
+		return citationsOrEmpty(c)
+	}
+	var ids []string
+	for _, it := range items {
+		if id, ok := it["document_id"].(string); ok {
+			ids = append(ids, id)
+		}
+	}
+	rows, err := q.QuestionCitationDocTitles(ctx, store.QuestionCitationDocTitlesParams{CourseID: course, Ids: ids})
+	if err != nil {
+		return c
+	}
+	titles := map[string]string{}
+	for _, r := range rows {
+		titles[r.ID.String()] = r.Title
+	}
+	for _, it := range items {
+		if id, ok := it["document_id"].(string); ok && titles[id] != "" {
+			it["document_title"] = titles[id]
+		}
+	}
+	if out, err := json.Marshal(items); err == nil {
+		return out
+	}
+	return c
+}
+
 func citationsOrEmpty(c json.RawMessage) json.RawMessage {
 	if len(c) == 0 {
 		return json.RawMessage(`[]`)
@@ -107,7 +138,7 @@ func lockingStatus(st string) bool {
 func (s *Service) detail(ctx context.Context, q *store.Queries, row store.QuestionBank) (QuestionDetail, error) {
 	d := QuestionDetail{
 		ID: row.ID, Type: string(row.Type), Title: row.Title, Topic: row.Topic, Difficulty: string(row.Difficulty), Stem: row.Stem, Explanation: row.Explanation,
-		Origin: string(row.Origin), ReviewStatus: string(row.ReviewStatus), AnswerKey: row.AnswerKey, Citations: citationsOrEmpty(row.Citations), ReviewedBy: row.ReviewedBy, ReviewedAt: row.ReviewedAt,
+		Origin: string(row.Origin), ReviewStatus: string(row.ReviewStatus), AnswerKey: row.AnswerKey, Citations: withDocTitles(ctx, q, row.CourseID, row.Citations), ReviewedBy: row.ReviewedBy, ReviewedAt: row.ReviewedAt,
 		ArchivedAt: row.ArchivedAt, AIJobID: row.AiJobID, Version: int(row.Version), CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt, Options: []Option{}, UsedInExams: []ExamRef{},
 	}
 	opts, err := q.QuestionOptions(ctx, store.QuestionOptionsParams{CourseID: row.CourseID, QuestionID: row.ID})

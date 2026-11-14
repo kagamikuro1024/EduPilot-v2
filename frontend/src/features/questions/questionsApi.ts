@@ -37,7 +37,7 @@ export type QuestionDetail = Omit<QuestionRow, "used_in_exams"> & {
   explanation: string | null;
   options: QOption[];
   answer_key: { option_ids?: string[]; value?: boolean; accepted?: string[]; model_answer?: string; rubric?: string } | null;
-  citations: Array<{ document_id?: string; page?: number; chunk_id?: string }>;
+  citations: Array<{ document_id?: string; document_title?: string; page?: number; chunk_id?: string }>;
   code?: CodeDetail;
   used_in_exams: Array<{ id: string; title: string; status: string }>;
   details?: { warnings: Array<{ field: string; code: string; message: string }> };

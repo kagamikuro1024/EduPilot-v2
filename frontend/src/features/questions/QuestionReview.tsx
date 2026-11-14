@@ -127,7 +127,7 @@ export function QuestionReview({ courseId, id, userId, canEditTests, onClose, on
                   <h3 className={s.h3}>Nguồn</h3>
                   <ul className={s.cites}>
                     {(d.citations ?? []).map((c, i) => (
-                      <li key={i}>{c.document_id ? <Link href={`/library/${c.document_id}${c.page ? `?page=${c.page}` : ""}`}>Tài liệu{c.page ? `, trang ${c.page}` : ""}</Link> : "Tài liệu"}</li>
+                      <li key={i}>{c.document_id ? <Link href={`/library/${c.document_id}${c.page ? `?page=${c.page}` : ""}`}>{c.document_title ?? "Tài liệu"}{c.page ? `, trang ${c.page}` : ""}</Link> : "Tài liệu"}</li>
                     ))}
                   </ul>
                 </div>

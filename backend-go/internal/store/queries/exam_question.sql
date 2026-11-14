@@ -177,3 +177,7 @@ where course_id = sqlc.arg(course_id) and problem_id = sqlc.arg(problem_id) and 
 
 -- name: TestcaseIDsByPosition :many
 select id from code_testcases where course_id = sqlc.arg(course_id) and problem_id = sqlc.arg(problem_id) order by position, id;
+
+-- name: QuestionCitationDocTitles :many
+-- Tên tài liệu cho nhãn nguồn của câu EXTRACTED / GENERATED (US-P9-04 AC5).
+select id, title from documents where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]);
