@@ -64,8 +64,10 @@ func (s *Service) EnqueueGenerate(ctx context.Context, owner, courseID uuid.UUID
 	if len(in.DocumentIDs) > genMaxDocuments || len(in.ChunkIDs) > genMaxChunkIDs {
 		bad("document_ids", "max", "Quá nhiều nguồn được chọn.")
 	}
-	if len(in.Types) == 0 {
+	if in.Types == nil { // không gửi → mặc định; gửi `[]` là sai (L9)
 		in.Types = []string{exam.TypeMCQSingle}
+	} else if len(in.Types) == 0 {
+		bad("types", "type", "Chọn ít nhất một loại câu.")
 	}
 	for _, t := range in.Types {
 		if !genTypes[t] {

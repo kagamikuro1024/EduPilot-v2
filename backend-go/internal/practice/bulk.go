@@ -33,7 +33,7 @@ type BulkResult struct {
 }
 
 // Bulk duyệt / loại / gắn nhãn hàng loạt câu hỏi (≤ 50). Mỗi id một giao dịch riêng (dùng lại `exam.Service.Review`, nên có audit + outbox như duyệt tay).
-// APPROVE câu GENERATED chưa có trích dẫn → CITATION_REQUIRED (FR-6).
+// APPROVE câu GENERATED / EXTRACTED chưa có trích dẫn → CITATION_REQUIRED (FR-6).
 func (s *Service) Bulk(ctx context.Context, actor, courseID uuid.UUID, in BulkIn) ([]BulkResult, error) {
 	var errs []apierr.FieldError
 	switch in.Action {
@@ -99,7 +99,7 @@ func (s *Service) bulkOne(ctx context.Context, q *store.Queries, actor, courseID
 	}
 	switch in.Action {
 	case "APPROVE":
-		if b.Origin == "GENERATED" && b.NCitations == 0 {
+		if (b.Origin == "GENERATED" || b.Origin == "EXTRACTED") && b.NCitations == 0 {
 			return apierr.New(http.StatusUnprocessableEntity, apierr.CitationRequired)
 		}
 		_, err = s.Exam.Review(ctx, actor, courseID, id, exam.DecisionApprove, int(b.Version))
