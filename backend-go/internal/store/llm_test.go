@@ -46,6 +46,7 @@ func TestLLMSchema(t *testing.T) {
 			"cost_est": {"numeric(14,4)", nn, "0"}, "status": {"text", nn, ""}, "error_kind": {"text", nl, ""},
 			"degraded": {"boolean", nn, "false"}, "pii_masked_count": {"integer", nn, "0"},
 			"user_id": {"uuid", nl, ""}, "course_id": {"uuid", nl, ""}, "trace_id": {"text", nn, ""}, "created_at": created,
+			"cascade_gate": {"text", nl, ""}, "cascade_path": {"text", nl, ""}, // 00020_decision (D60)
 		},
 		"llm_budgets": {
 			"id": idCol, "scope": {"text", nn, ""}, "course_id": {"uuid", nl, ""},
@@ -176,7 +177,7 @@ func TestLLMConstraints(t *testing.T) {
 	mustExec(`delete from llm_task_routes`)
 	mustExec(`delete from llm_providers where id = $1`, okProv)
 	var n int
-	require.NoError(t, conn.QueryRow(ctx, `select count(*) from llm_models`).Scan(&n))
+	require.NoError(t, conn.QueryRow(ctx, `select count(*) from llm_models where kind <> 'decision'`).Scan(&n)) // 00020 seed mô hình decision của provider «Quyết định» (không có tuyến)
 	require.Zero(t, n)
 }
 
@@ -234,7 +235,7 @@ func TestLLMIndexes(t *testing.T) {
 		got = append(got, s)
 	}
 	require.NoError(t, rows.Err())
-	require.Equal(t, []string{"llm_audit_course_created_idx", "llm_audit_created_idx", "llm_audit_pkey", "llm_audit_task_created_idx", "llm_audit_trace_idx"}, got)
+	require.Equal(t, []string{"llm_audit_course_created_idx", "llm_audit_created_idx", "llm_audit_decide_idx", "llm_audit_pkey", "llm_audit_task_created_idx", "llm_audit_trace_idx"}, got)
 
 	// Chỉ mục duy nhất từng phần của llm_budgets và (task, fallback_order), (provider_id, model).
 	rows2, err := conn.Query(ctx, `select tablename || '.' || indexname from pg_indexes
