@@ -81,7 +81,7 @@ func TestErrorMapping(t *testing.T) {
 		{"404", 404, `{"error":{"message":"The model does not exist"}}`, nil, provider.KindModelNotFound, false, true, false},
 		{"404 Anthropic (code rỗng)", 404, `{"type":"error","error":{"type":"not_found_error","message":"model: x"}}`, nil, provider.KindModelNotFound, false, true, false},
 		{"404 Gemini mảng", 404, `[{"error":{"code":404,"message":"models/x is not found"}}]`, nil, provider.KindModelNotFound, false, true, false},
-		{"429", 429, `{"error":{"message":"rate limit","type":"rate_limit_error"}}`, map[string]string{"Retry-After": "2"}, provider.KindRateLimit, true, true, true},
+		{"429", 429, `{"error":{"message":"rate limit","type":"rate_limit_error"}}`, map[string]string{"Retry-After": "2"}, provider.KindRateLimit, true, true, false},
 		{"408", 408, `{"error":{"message":"timeout"}}`, nil, provider.KindTimeout, true, true, true},
 		{"500", 500, `{"error":{"message":"boom"}}`, nil, provider.KindServer, true, true, true},
 		{"502 HTML", 502, `<html>Bad Gateway</html>`, map[string]string{"Content-Type": "text/html"}, provider.KindServer, true, true, true},

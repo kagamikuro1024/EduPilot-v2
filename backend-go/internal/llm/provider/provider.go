@@ -48,9 +48,10 @@ func (k Kind) NextProvider() bool {
 }
 
 // CountsToBreaker: lỗi tính vào mạch ngắt (SRS 3.2). MODEL_NOT_FOUND không tính (lỗi cấu hình mô hình, nhà vẫn sống).
+// RATE_LIMIT cũng không tính (P-95-8 / TL-2j): 429 là áp lực ngược, nhà vẫn sống; đã có thử lại theo Retry-After và hạn mức RPM của Scheduler.
 func (k Kind) CountsToBreaker() bool {
 	switch k {
-	case KindAuth, KindRateLimit, KindServer, KindTimeout, KindNetwork, KindBadResponse:
+	case KindAuth, KindServer, KindTimeout, KindNetwork, KindBadResponse:
 		return true
 	}
 	return false
