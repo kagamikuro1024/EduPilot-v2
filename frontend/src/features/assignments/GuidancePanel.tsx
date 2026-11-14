@@ -15,7 +15,7 @@ const fmt = (d: string | null) => (d === null ? "—" : d.replace(".", ","));
 const pct = (d: string | null) => (d === null ? "—" : `${Math.round(Number(d) * 100)}%`);
 
 function stateOf(i: GuidanceItem): { text: string; tone: "amber" | "green" | "neutral" | "blue" } {
-  if (i.status === "DRAFT") return { text: "Nháp", tone: "amber" };
+  if (i.status === "DRAFT") return { text: "Chờ duyệt", tone: "amber" };
   if (i.status === "APPROVED" && i.approved_in_version === null) return { text: "Chờ áp dụng", tone: "blue" };
   if (i.status === "APPROVED" && i.pending_retire) return { text: "Chờ nghỉ", tone: "amber" };
   if (i.status === "APPROVED") return { text: `Đang dùng · v${i.approved_in_version}`, tone: "green" };

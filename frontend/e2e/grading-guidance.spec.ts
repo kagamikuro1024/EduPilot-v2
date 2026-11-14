@@ -153,7 +153,7 @@ test("màn duyệt: lớp tắt tính năng (không có khối guidance) → kh�
   await expect(page.getByText("Bản cũ", { exact: true })).toHaveCount(0);
 });
 
-test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RESET đúng version; menu «Đặt lại» còn sau khi dòng Hoàn tác mất và lưu ý về Nháp", async ({ page, context }, info) => {
+test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RESET đúng version; menu «Đặt lại» còn sau khi dòng Hoàn tác mất và lưu ý về Chờ duyệt", async ({ page, context }, info) => {
   desktopOnly(info);
   let cur = overview();
   const api = await openDrawer(page, context, () => cur, {
@@ -170,7 +170,7 @@ test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RES
   await panel.getByRole("button", { name: "Hoàn tác" }).click();
   await expect.poll(() => api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`)).length).toBe(2);
   expect(JSON.parse(api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`))[1].body)).toEqual({ decision: "RESET", version: 2 });
-  await expect(panel.getByText("Nháp", { exact: true })).toBeVisible();
+  await expect(panel.getByText("Chờ duyệt", { exact: true })).toBeVisible();
   // dòng Hoàn tác tự mất → vẫn đặt lại được bằng menu của hàng
   await panel.getByRole("button", { name: "Bỏ", exact: true }).click();
   await expect(panel.getByText("Đã bỏ", { exact: true })).toBeVisible();
@@ -178,7 +178,7 @@ test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi RES
   await panel.getByRole("button", { name: "Thêm hành động của lưu ý" }).click();
   await page.getByRole("menuitem", { name: "Đặt lại" }).click();
   await expect.poll(() => api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`)).length).toBe(4);
-  await expect(panel.getByText("Nháp", { exact: true })).toBeVisible();
+  await expect(panel.getByText("Chờ duyệt", { exact: true })).toBeVisible();
 });
 
 test("Đặt lại sau khi đã áp dụng ở nơi khác: 409 ITEM_NOT_RESETTABLE báo tại chỗ", async ({ page, context }, info) => {
