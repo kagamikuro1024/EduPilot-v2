@@ -35,8 +35,8 @@ test("table: tên, loại, tuần, hai cờ, trạng thái, cập nhật; dải 
 
 test("states: rỗng có Tải tài liệu lên; lỗi có Thử lại", async ({ page, context }) => {
   await open(page, context, { [`GET ${D}`]: list([]), [`GET ${D}/stats`]: json(stats({ total: 0, has_course_policy: false })) });
-  await expect(page.getByText("Lớp chưa có tài liệu.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tải tài liệu lên" })).toHaveCount(2);
+  await expect(page.getByText("Lớp chưa có tài liệu")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tải tài liệu lên" })).toHaveCount(1); // chỉ nút ở đầu trang: rỗng không lặp nút (DESIGN §23.4)
   await page.unroute(`**/api/v1/courses/${COURSE}/documents**`);
   let n = 0;
   await docApi(page, { [`GET ${D}`]: (r) => (++n === 1 ? r.fulfill(err(500, "INTERNAL")) : r.fulfill(list())), [`GET ${D}/stats`]: json(stats()) });

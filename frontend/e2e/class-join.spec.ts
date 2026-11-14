@@ -128,7 +128,6 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
   for (const route of routes) {
     await page.goto(route);
     await expect(page.getByRole("heading", { name: "Bạn chưa vào lớp nào" }), route).toBeVisible();
-    await expect(page.getByText("Nhập mã tham gia do giảng viên cung cấp để dùng tính năng này."), route).toBeVisible();
     await expect(page.locator("main").getByRole("link", { name: "Tham gia lớp bằng mã" }), route).toHaveAttribute("href", "/join");
     await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" }), route).toHaveCount(0);
   }
@@ -150,11 +149,12 @@ test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùn
   expect(courseCalls).toEqual([]);
 });
 
-test("mock course mapping: lớp có class_code lạ dùng lớp mô phỏng đầu", async ({ page }) => {
+test("mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, không mượn lớp mô phỏng 761987 (10.7 lô 1)", async ({ page }) => {
   await login(page, "TEACHER", [item(C1, "999999", "TEACHER")]);
   await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)
   await expect(picker(page)).toContainText("999999");
-  await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
+  await expect(page.getByText(/An ninh mạng – 999999/).first()).toBeVisible();
+  await expect(page.getByText(/An ninh mạng – 761987/)).toHaveCount(0);
 });
 
 // ===== US-P2-08: /admin/courses và chuông thật =====

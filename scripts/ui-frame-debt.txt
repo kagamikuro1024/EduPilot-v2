@@ -1,13 +1,11 @@
 # Route chưa chuyển sang hợp đồng khung (DESIGN.md §23). Mỗi dòng một regex đường dẫn; lô sửa route xoá dòng của mình; hết lô 7 tệp này phải rỗng.
 features/chat/
-features/inbox/
-features/insights/
 features/grading/(SubmissionReview|UnmatchedTab|QueueTab)
 features/admin/admin\.module
 features/members/
 features/exam/
 features/practice/
-features/questions/
+features/questions/Questions\.module
 features/library/RealLibrary\.module
 features/gradebook/GradeScheme\.module
 features/threads/RealThreadDetail

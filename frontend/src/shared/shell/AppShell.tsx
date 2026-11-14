@@ -11,7 +11,7 @@ import { useEnsureClock, useSimNow } from "@/shared/state/clock";
 import { unsavedCount } from "@/shared/lib/unsavedWork";
 import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { useRealNotifications } from "@/shared/session/notifications";
-import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, type NavItem } from "./nav";
+import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { withCourse } from "@/shared/lib/courseHref";
 import { NotificationPopover } from "./NotificationPopover";
 import { StudyTimeTracker } from "./TrackingNotice";
@@ -351,7 +351,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main id="main" className={s.main} tabIndex={-1}>
         {!canOpen(role, pathname) ? (
           <Page kind="read">
-            <PageHeader title="Bạn không có quyền xem màn này" secondary={[{ label: "Về Hôm nay", href: "/" }]} />
+            <PageHeader title="Bạn không có quyền xem màn này" meta={[whoCanOpen(pathname)]} primary={{ label: "Về Hôm nay", href: "/" }} />
           </Page>
         ) : !hasCourse && needsCourse(role, pathname) ? (
           <NoCourse />

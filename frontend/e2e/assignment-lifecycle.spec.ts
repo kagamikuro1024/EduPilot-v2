@@ -742,6 +742,8 @@ test("queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (
   await expect(flag).toHaveAttribute("aria-pressed", "true");
   await flag.click(); // người dùng bỏ lọc
   await expect(flag).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  await expect.poll(() => page.locator("[data-part=queue-row]").count()).toBeGreaterThan(1); // bỏ lọc cờ: hiện cả bài không cờ
   const n = await page.locator("[data-part=queue-row]").count();
   await page.locator("[data-part=queue-row]").first().click();
   await expect(page.locator("[data-part=review-progress]")).toHaveText(`Đã duyệt 0/${n}`);

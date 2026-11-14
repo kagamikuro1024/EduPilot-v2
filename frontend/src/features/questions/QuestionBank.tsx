@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCursorList } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
-import { Button, type Column, DataTable, Drawer, EmptyState, Field, InlineNotice, Input, MenuList, Page, PageHeader, PageState, Panel, Popover, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
+import { Button, type Column, DataTable, Drawer, EmptyState, Field, InlineNotice, Input, MenuList, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { QuestionForm } from "./QuestionForm";
 import { QuestionReview } from "./QuestionReview";
@@ -112,6 +112,14 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
     { key: "used", header: "Dùng trong", width: "110px", align: "end", render: (r) => <span className={s.meta}>{r.used_in_exams > 0 ? `${r.used_in_exams} bài thi` : "—"}</span> },
   ];
 
+  const clearFilters = () => {
+    setText("");
+    setStatus("");
+    setTopic("");
+    setDifficulty("");
+    setType("");
+    setOrigin("");
+  };
   const rows = useMemo(() => list.items.filter((r) => !hidden.has(r.id)), [list.items, hidden]);
   const pending = rows.filter((r) => r.review_status === "PENDING").length;
   return (
@@ -144,9 +152,9 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
         loading={<Skeleton lines={10} />}
         empty={
           filtered ? (
-            <EmptyState title="Không có câu hỏi nào khớp bộ lọc" />
+            <EmptyState title="Không có câu hỏi khớp bộ lọc" action={<Button onClick={clearFilters}>Xoá bộ lọc</Button>} />
           ) : (
-            <EmptyState title="Chưa có câu hỏi nào" action={<Popover label="Tạo câu hỏi" width={240} trigger={(p) => <Button variant="primary" onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">Tạo câu hỏi</Button>}>{(close) => <CreateMenu close={close} pick={setCreating} />}</Popover>} />
+            <EmptyState title="Chưa có câu hỏi" />
           )
         }
         showTechnical

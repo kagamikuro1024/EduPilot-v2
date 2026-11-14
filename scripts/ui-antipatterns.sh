@@ -172,7 +172,7 @@ report "Chiều cao theo màn ngoài shared/" "$(route_css | xargs grep -nE '(mi
 # 26: CSS route với tay vào phần tử của primitive
 report "Với tay vào primitive" "$(route_css | xargs grep -nE 'data-ep-(panel|page|empty|section|split)|\.page\.page' 2>/dev/null || true)"
 # 27: meta của PageHeader lặp lớp đang chọn (thanh trên đã có)
-report "Meta lặp lớp đang chọn" "$(route_tsx | xargs perl -0777 -ne '
+report "Meta lặp lớp đang chọn" "$(route_tsx | xargs perl -CSD -0777 -ne '
   while (/<PageHeader(?=[\s>])((?:[^>"{]|"[^"]*"|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)>/g) {
     my $a = $1; my $at = $-[0];
     if ($a =~ /\bmeta=\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*(?:course(?:Label|Code|Name)|class_?[cC]ode|course\??\.(?:label|code|name|class_code))/ && $a !~ /ui-allow:/) { my $l = 1 + (substr($_, 0, $at) =~ tr/\n//); print "$ARGV:$l: meta lặp lớp\n"; }
@@ -181,7 +181,7 @@ report "Meta lặp lớp đang chọn" "$(route_tsx | xargs perl -0777 -ne '
 # 28: tiêu đề tự dựng (h1 / h2 / lớp tiêu đề) ngoài shared/ui — chỉ PageHeader và Section được vẽ
 report "Tiêu đề tự dựng ngoài shared/ui" "$(route_tsx | xargs grep -nE '<h1\b|<h2\b|ep-page-title|ep-section-title' 2>/dev/null || true)"
 # 29: trong CÙNG tệp, nhãn nút của EmptyState trùng nhãn primary của PageHeader (nút rỗng lặp hành động đầu trang). Trần: không thấy qua ranh giới tệp (đo bằng E4 ở frame.spec).
-report "Nút rỗng trùng nút đầu trang" "$(route_tsx | xargs perl -0777 -ne '
+report "Nút rỗng trùng nút đầu trang" "$(route_tsx | xargs perl -CSD -0777 -ne '
   my %p; while (/primary=\{\{[^}]*?label:\s*"([^"]+)"/g) { $p{$1} = 1 }
   while (/<EmptyState(?=[\s>\/])((?:[^>"{]|"[^"]*"|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)\/?>/g) {
     my $a = $1; my $at = $-[0];
@@ -189,7 +189,7 @@ report "Nút rỗng trùng nút đầu trang" "$(route_tsx | xargs perl -0777 -n
   } continue { close ARGV if eof }
 ' 2>/dev/null || true)"
 # 30: tiêu đề EmptyState tĩnh dài hơn 40 ký tự, có dấu chấm giữa chuỗi, hoặc kết thúc bằng dấu chấm (là câu, không phải tiêu đề)
-report "Tiêu đề rỗng là câu" "$(route_tsx | xargs perl -0777 -ne '
+report "Tiêu đề rỗng là câu" "$(route_tsx | xargs perl -CSD -0777 -ne '
   while (/<EmptyState(?=[\s>\/])((?:[^>"{]|"[^"]*"|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)\/?>/g) {
     my $a = $1; my $at = $-[0];
     if ($a =~ /\btitle="([^"]*)"/ && $a !~ /ui-allow:/) { my $t = $1; if (length($t) > 40 || $t =~ /\.\s/ || $t =~ /\.$/) { my $l = 1 + (substr($_, 0, $at) =~ tr/\n//); print "$ARGV:$l: tiêu đề rỗng là câu\n"; } }

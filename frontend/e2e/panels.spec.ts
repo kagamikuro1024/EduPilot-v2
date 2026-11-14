@@ -57,8 +57,7 @@ test.describe("dom contract", () => {
     const css = (loc: ReturnType<typeof cell>) => loc.locator("[data-ep-panel]").first().evaluate((el) => { const c = getComputedStyle(el); return { bg: c.backgroundColor, bw: c.borderTopWidth, bc: c.borderTopColor, r: c.borderTopLeftRadius, sh: c.boxShadow, pad: c.paddingTop, tag: el.tagName }; });
     const md = await css(cell(page, "md · chỉ nội dung"));
     expect(md).toMatchObject({ bg: surface, bw: "1px", bc: rule, r: "14px", sh: elev, pad: "24px" });
-    expect((await css(cell(page, "lg · chỉ nội dung"))).pad).toBe("32px");
-    expect((await css(cell(page, "none · chỉ nội dung"))).pad).toBe("0px");
+    // P-107-5: Panel chỉ còn MỘT đệm (24 px); `lg` / `none` không còn — sát mép chỉ qua Split (list-detail)
     const secs = cell(page, "md · hai PanelSection").locator("[data-ep-panel-section]");
     const second = await secs.nth(1).evaluate((el) => { const c = getComputedStyle(el); return { bt: c.borderTopWidth, btc: c.borderTopColor, r: c.borderTopLeftRadius, sh: c.boxShadow, bl: c.borderLeftWidth, pt: c.paddingTop }; });
     expect(second).toMatchObject({ bt: "1px", btc: rule, r: "0px", sh: "none", bl: "0px", pt: "24px" });
@@ -320,7 +319,7 @@ test.describe("exams student", () => {
     for (const g of ["Đang mở", "Sắp tới", "Đã có điểm"]) expect(v.h2).toContain(g);
     body = [];
     await page.goto("/exams");
-    await page.getByText("Lớp của bạn chưa có bài thi nào.").waitFor();
+    await page.getByText("Chưa có bài thi", { exact: true }).waitFor();
     expect((await violations(page)).panels).toBe(1);
   });
 });
@@ -487,7 +486,7 @@ test.describe("exams empty", () => {
     await asDemo(sv, "student");
     await sp.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: okCors, body: JSON.stringify({ items: [], next_cursor: null }) }));
     await sp.goto("/exams");
-    await sp.getByText("Lớp của bạn chưa có bài thi nào.").waitFor();
+    await sp.getByText("Chưa có bài thi", { exact: true }).waitFor();
     expect(await violations(sp)).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
     await sv.close();
   });

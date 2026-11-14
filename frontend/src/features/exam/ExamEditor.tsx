@@ -8,8 +8,8 @@ import { ApiError, ApiErrorNotice, apiClient } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
-import { Button, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, type HeaderAction, Page, PageHeader, PageState, Panel, Skeleton, Tabs } from "@/shared/ui";
-import { eKey, ePath, fmtClock, fmtWhen, fromInput, toInput, type ExamDetail, type Problem } from "./examApi";
+import { Button, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, type HeaderAction, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Tabs } from "@/shared/ui";
+import { eKey, ePath, fmtClock, fmtWhen, fromInput, KIND_LABEL, STATUS_LABEL, STATUS_TONE, toInput, type ExamDetail, type Problem } from "./examApi";
 import { ExamInfo } from "./ExamInfo";
 import { ExamItems } from "./ExamItems";
 import { ExamPreview } from "./ExamPreview";
@@ -142,7 +142,13 @@ function Editor({ courseId, id, isTeacher }: { courseId: string; id: string; isT
       <PageHeader
         title={d.title}
         back={{ href: "/exams", label: "Bài thi" }}
-        meta={d.status === "DRAFT" && !isTeacher ? ["Chỉ giảng viên lên lịch được"] : undefined}
+        meta={[
+          <StatusText key="m0" tone={STATUS_TONE[st]}>{STATUS_LABEL[st]}</StatusText>,
+          KIND_LABEL[d.kind],
+          d.opens_at && d.closes_at ? `${fmtClock(d.opens_at)} – ${fmtClock(d.closes_at)}` : undefined,
+          d.attempts.started > 0 ? `${d.attempts.started} sinh viên đã bắt đầu` : undefined,
+          d.status === "DRAFT" && !isTeacher ? "Chỉ giảng viên lên lịch được" : undefined,
+        ]}
         primary={primary}
         more={menu}
       />

@@ -9,7 +9,7 @@ import { withCourse } from "@/shared/lib/courseHref";
 import { ActionList, ActionRow, Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, Section, Skeleton, StatusText } from "@/shared/ui";
 import s from "./Today.module.css";
 import { formatTime, formatWhen } from "@/shared/lib/datetime";
-import { } from "./format";
+import { longDate } from "./format";
 import { useToday, type StudentToday as Data, type TodayItem, type TodaySession } from "./todayApi";
 
 const CTA: Record<string, string> = { VERIFY_EMAIL: "Xác minh email", ASSIGNMENT_GRADED: "Xem điểm", ASSIGNMENT_DUE: "Mở bài tập", ASSIGNMENT_APPEAL_REPLY: "Xem phản hồi" };
@@ -26,7 +26,7 @@ export function StudentToday() {
   const d = q.data;
   return (
     <Page kind="read">
-      <PageHeader title={`Chào ${first}`} />
+      <PageHeader title={`Chào ${first}`} meta={[longDate(new Date()), d?.no_course ? "bạn chưa vào lớp nào" : undefined]} />
       {!d ? (
         q.isError ? <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} title="Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng." /> : <Skeleton lines={4} />
       ) : (

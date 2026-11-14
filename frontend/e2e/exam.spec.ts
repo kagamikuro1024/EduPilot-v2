@@ -276,8 +276,8 @@ test("questions bank: trạng thái rỗng và lỗi có Thử lại", async ({ 
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
   fail = false;
   await page.getByRole("button", { name: "Thử lại" }).click();
-  await expect(page.getByText("Chưa có câu hỏi nào. Tạo câu đầu tiên hoặc nhờ AI gợi ý nháp.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tạo câu hỏi" }).first()).toBeVisible();
+  await expect(page.getByText("Chưa có câu hỏi", { exact: true })).toBeVisible(); // 10.7: rỗng chỉ có tiêu đề; nút «Tạo câu hỏi» là nút chính ở đầu trang
+  await expect(page.getByRole("button", { name: "Tạo câu hỏi" })).toHaveCount(1);
 });
 
 test("questions bank: bố cục ở 1440 / 1024 / 390 — không tràn ngang, không cắt chữ", async ({ page }) => {
@@ -513,7 +513,7 @@ test("exam editor: TA không có nút Lên lịch, kèm câu giải thích; nhâ
   await expect(page.getByRole("button", { name: "Lên lịch" })).toHaveCount(0);
   await expect(page.getByText("Chỉ giảng viên lên lịch được")).toBeVisible();
   // TA không xoá được; nhân bản được
-  await page.getByRole("button", { name: "Thêm hành động cho bài thi" }).click();
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
   await expect(page.getByRole("menuitem", { name: /Xoá bài thi nháp/ })).toHaveCount(0);
   await page.getByRole("menuitem", { name: /Nhân bản bài thi/ }).click();
   await expect(page.getByRole("heading", { name: "Nháp của TA (bản sao)", level: 1 })).toBeVisible();
@@ -527,7 +527,7 @@ test("exam editor: giảng viên xoá bài nháp — hộp xác nhận nêu số
   await page.getByRole("button", { name: "Tạo bài thi" }).click();
   await page.getByRole("form", { name: "Bài thi mới" }).getByLabel("Tiêu đề").fill("Bỏ đi");
   await page.getByRole("button", { name: "Tạo bản nháp" }).click();
-  await page.getByRole("button", { name: "Thêm hành động cho bài thi" }).click();
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
   await page.getByRole("menuitem", { name: /Xoá bài thi nháp/ }).click();
   await expect(page.getByRole("dialog")).toContainText("Bài thi nháp có 0 câu sẽ bị xoá.");
   await page.getByRole("button", { name: "Xoá bài thi" }).click();
@@ -548,7 +548,7 @@ test("exam list: trạng thái rỗng và lỗi có Thử lại", async ({ page 
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
   fail = false;
   await page.getByRole("button", { name: "Thử lại" }).click();
-  await expect(page.getByText("Chưa có bài thi nào. Tạo bài thi đầu tiên từ ngân hàng câu hỏi.")).toBeVisible();
+  await expect(page.getByText("Chưa có bài thi nào", { exact: true })).toBeVisible();
 });
 
 type SV = { id: string; title: string; status: string; my_attempt: Json | null; my_score: string | null; opens_at: string; closes_at: string };
@@ -598,7 +598,7 @@ test("student exam list: mỗi hàng một hành động, nhóm theo trạng th�
 test("student exam list: trạng thái rỗng", async ({ page }) => {
   await studentSetup(page, []);
   await page.goto("/exams");
-  await expect(page.getByText("Lớp của bạn chưa có bài thi nào.")).toBeVisible();
+  await expect(page.getByText("Chưa có bài thi", { exact: true })).toBeVisible();
 });
 
 test("exam route access: sinh viên không mở được trang soạn bài; Staff không mở được trang làm bài", async ({ page }) => {

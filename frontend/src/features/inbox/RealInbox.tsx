@@ -7,7 +7,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ApiError, ApiErrorNotice, apiClient, useAutosaveDraft, useIdempotentMutation, useSSE } from "@/shared/data";
 import { timeAgo } from "@/shared/lib/timeAgo";
 import { useSession } from "@/shared/session/session";
-import { ActionList, ActionRow, Button, Composer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, SegmentedControl, Skeleton, StatusText } from "@/shared/ui";
+import { ActionList, ActionRow, Button, Composer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, SegmentedControl, Skeleton, Split, StatusText } from "@/shared/ui";
 import { KnowledgeBox } from "./KnowledgeBox";
 import { ticketsKey, useTicketDetail, useTicketList, waitLabel, type InboxFilter, type TicketDetail, type TicketRow, type TicketStatus } from "./inboxApi";
 import s from "./RealInbox.module.css";
@@ -36,7 +36,7 @@ const DISMISS: Array<{ value: string; label: string }> = [
 
 /** Hộp thư hỗ trợ thật (SRS FEAT-escalation-notify 7.3): danh sách 380 px | chi tiết; ≤ 1100 px là danh sách → chi tiết qua `?ticket=`. */
 export function RealInbox({ courseId }: { courseId: string }) {
-  const { identity, realCourses } = useSession();
+  const { identity } = useSession();
   const [filter, setFilter] = useState<InboxFilter>("open");
   const router = useRouter();
   const pathname = usePathname();
@@ -57,10 +57,9 @@ export function RealInbox({ courseId }: { courseId: string }) {
   if (found && (found.id !== lastSel?.id || found.status !== lastSel.status)) setLastSel(found); // điều chỉnh state ngay lúc render (mẫu React cho state suy ra)
   const selected = found ?? (!picked || lastSel?.id === picked ? (lastSel ?? undefined) : undefined);
   const detail = useTicketDetail(selected?.course.id, selected?.id);
-  const courseLabel = courseId === "all" ? "Tất cả lớp của tôi" : (realCourses?.find((c) => c.id === courseId)?.class_code ?? "");
 
   function open(id: string) {
-    saved.current = { page: window.scrollY, list: listRef.current?.scrollTop ?? 0 };
+    saved.current = { page: window.scrollY, list: listRef.current?.parentElement?.scrollTop ?? 0 };
     router.push(`${pathname}?ticket=${encodeURIComponent(id)}`, { scroll: false });
   }
   function backToList() {
@@ -72,7 +71,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
       return;
     }
     window.scrollTo({ top: saved.current.page });
-    if (listRef.current) listRef.current.scrollTop = saved.current.list;
+    if (listRef.current?.parentElement) listRef.current.parentElement.scrollTop = saved.current.list; // ngăn cuộn là ngăn danh sách của Split
   }, [picked]);
 
   // J / K chọn dòng kế / trước (không khi đang gõ)
@@ -98,30 +97,38 @@ export function RealInbox({ courseId }: { courseId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows, selected?.id]);
 
+  const filterBar = (
+    <SegmentedControl
+      label="Lọc câu hỏi"
+      value={filter}
+      onChange={(next) => {
+        setLastSel(null); // đổi bộ lọc: không giữ phiếu cũ
+        setFilter(next);
+        if (picked) backToList();
+      }}
+      options={FILTERS}
+    />
+  );
+  const hasRows = rows.length > 0 || !!selected;
+
   return (
     <Page kind="work">
-      <PageHeader title="Hộp thư hỗ trợ" meta={[<span key="m0">{courseLabel}</span>]} />
+      <PageHeader title="Hộp thư hỗ trợ" />
       <PageState
         query={list}
         isEmpty={() => false}
         loading={<Panel><Skeleton lines={10} /></Panel>}
       >
-        <div className={s.work}>
-          <Panel>
-            <div className={[s.split, picked ? s.showDetail : ""].join(" ")}>
+        {hasRows ? (
+          <Split
+            ratio="list-detail"
+            fill
+            detailOpen={!!picked}
+            main={
               <section className={s.list} data-part="inbox-list" aria-label="Danh sách câu hỏi" ref={listRef}>
-                <SegmentedControl
-                  label="Lọc câu hỏi"
-                  value={filter}
-                  onChange={(next) => {
-                    setLastSel(null); // đổi bộ lọc: không giữ phiếu cũ
-                    setFilter(next);
-                    if (picked) backToList();
-                  }}
-                  options={FILTERS}
-                />
+                {filterBar}
                 {rows.length === 0 ? (
-                  <EmptyState title="Chưa có câu hỏi nào cần thầy/cô xử lý." action={filter !== "all" ? <Button variant="ghost" onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button> : undefined} />
+                  <EmptyState title="Không có câu hỏi trong bộ lọc này" action={<Button onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button>} />
                 ) : (
                   <ActionList label="Câu hỏi cần xử lý">
                     {rows.map((t) => (
@@ -133,8 +140,9 @@ export function RealInbox({ courseId }: { courseId: string }) {
                   <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>
                 )}
               </section>
-
-              {(rows.length > 0 || selected) && <section className={s.detail} data-part="inbox-detail" aria-label="Chi tiết câu hỏi">
+            }
+            aside={
+              <section className={s.detail} data-part="inbox-detail" aria-label="Chi tiết câu hỏi">
                 {selected ? (
                   <>
                     <Button className={s.back} variant="text" size="sm" icon={<ArrowLeft aria-hidden />} onClick={backToList}>Hộp thư</Button>
@@ -147,10 +155,17 @@ export function RealInbox({ courseId }: { courseId: string }) {
                 ) : (
                   <EmptyState title="Chọn một câu hỏi để xem" />
                 )}
-              </section>}
+              </section>
+            }
+          />
+        ) : (
+          <Panel>
+            <div className={s.list}>
+              {filterBar}
+              <EmptyState title="Chưa có câu hỏi cần xử lý" action={filter !== "all" ? <Button onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button> : undefined} />
             </div>
           </Panel>
-        </div>
+        )}
       </PageState>
     </Page>
   );
@@ -234,7 +249,7 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
   return (
     <>
       <header className={s.detailHead}>
-        <h3 className="ep-section-title">{t.student.full_name}</h3>
+        <h3 className="ep-item-title">{t.student.full_name}</h3>
         <p className="ep-meta"><StatusText tone={STATUS[t.status].tone}>{STATUS[t.status].label}</StatusText> · {waitLabel(t.age_minutes)}</p>
       </header>
 

@@ -6,7 +6,7 @@ import { ActionList, ActionRow, Button, ButtonLink, EmptyState, InlineNotice, Pa
 import s from "./Today.module.css";
 import { TodayActions } from "./TodayActions";
 import { formatWhen } from "@/shared/lib/datetime";
-import { classLabel } from "./format";
+import { classLabel, longDate } from "./format";
 import { useToday, type StaffToday as Data } from "./todayApi";
 
 /** "Hôm nay" của giảng viên / TA: "N việc cần xử lý hôm nay", việc xếp bằng luật cứng, buổi học sắp tới. Không hero số liệu, không thẻ KPI. */
@@ -17,7 +17,7 @@ export function StaffToday() {
   const scope = "Tất cả lớp của tôi";
   return (
     <Page kind="read">
-      <PageHeader title={d ? (d.count > 0 ? `${d.count} việc cần xử lý hôm nay` : "Không có việc cần xử lý hôm nay.") : "Hôm nay"} />
+      <PageHeader title={d ? (d.count > 0 ? `${d.count} việc cần xử lý hôm nay` : "Không có việc cần xử lý hôm nay.") : "Hôm nay"} meta={q.isAll ? [longDate(new Date()), scope] : [longDate(new Date())]} />
       {!d ? (
         q.isError ? (
           <ApiErrorNotice error={q.error} showTechnical onRetry={() => void q.refetch()} title="Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng." />

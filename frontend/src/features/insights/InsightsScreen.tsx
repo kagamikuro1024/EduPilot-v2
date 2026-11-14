@@ -52,17 +52,11 @@ export function InsightsScreen() {
     undo.push(`Đã thêm buổi ôn tập “${topic.title}” vào lịch lớp ${course.code} — ${slot.label}`, () => setExtras((prev) => prev.filter((e) => e.id !== id)));
   }
 
-  const createButton = (
-    <Button variant="primary" icon={<Sparkles aria-hidden />} loading={step !== null} onClick={() => setStep(0)}>
-      Tạo báo cáo mới
-    </Button>
-  );
-
   // Lớp THẬT ngoài mô phỏng: chưa có báo cáo (màn này chưa nối API — sprint 11, M13)
   if (!report) {
     return (
       <Page kind="read">
-        <PageHeader title="Lỗ hổng kiến thức" meta={[course.label]} />
+        <PageHeader title="Lỗ hổng kiến thức" />
         <Panel>
           <EmptyState title="Chưa có báo cáo" />
         </Panel>
@@ -74,12 +68,8 @@ export function InsightsScreen() {
     <Page kind="read">
       <PageHeader
         title="Lỗ hổng kiến thức"
-        primary={canWrite && !noReport ? { label: "Tạo báo cáo mới", icon: <Sparkles aria-hidden />, busy: step !== null, onClick: () => setStep(0) } : undefined}
-        meta={[
-          course.label,
-          !noReport && `Báo cáo ${fmtLongDate(report.generatedAt)}, ${fmtTime(report.generatedAt)}`,
-          !noReport && `${report.questions} câu hỏi đã nhóm chủ đề · ${report.students} sinh viên`,
-        ]}
+        primary={canWrite ? { label: "Tạo báo cáo mới", icon: <Sparkles aria-hidden />, busy: step !== null, onClick: () => setStep(0) } : undefined}
+        meta={noReport ? undefined : [`Báo cáo ${fmtLongDate(report.generatedAt)}, ${fmtTime(report.generatedAt)}`, `${report.questions} câu hỏi đã nhóm chủ đề · ${report.students} sinh viên`]}
       />
 
       <PageState
@@ -93,7 +83,7 @@ export function InsightsScreen() {
           </Panel>
         }
         empty={
-          <Panel><EmptyState title="Chưa có báo cáo" action={canWrite ? createButton : undefined} /></Panel>
+          <Panel><EmptyState title="Chưa có báo cáo" /></Panel>
         }
         error={{
           problem: "Không tạo được báo cáo lỗ hổng kiến thức.",

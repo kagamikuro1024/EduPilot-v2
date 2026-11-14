@@ -48,6 +48,7 @@ export function RealProfile({ courseId, studentId, userId, canManage }: { course
       <PageHeader
         title={p?.student.full_name ?? "Hồ sơ sinh viên"}
         back={{ href: "/students", label: "Sinh viên" }}
+        meta={[p?.student.student_code ?? undefined]}
         secondary={
           p
             ? [

@@ -55,14 +55,14 @@ export function PanelMatrix() {
     <section id="panel" className={s.root} data-part="panel-matrix" aria-label="Panel">
       <h2 className="ep-section-title">Panel</h2>
       <div className={s.cells}>
-        {(["md", "lg", "none"] as const).map((pad) => (
+        {(["md"] as const).map((pad) => (
           <Cell key={`c-${pad}`} name={`${pad} · chỉ nội dung`}>
             <Panel aria-label={`${pad} · chỉ nội dung`}>
-              <p className={pad === "none" ? s.padText : s.text}>Nội dung một vùng làm việc.</p>
+              <p className={s.text}>Nội dung một vùng làm việc.</p>
             </Panel>
           </Cell>
         ))}
-        {(["md", "lg", "none"] as const).map((pad) => (
+        {(["md"] as const).map((pad) => (
           <Cell key={`s-${pad}`} name={`${pad} · hai PanelSection`}>
             <Panel aria-label={`${pad} · hai PanelSection`}>
               <PanelSection title="Nhóm thứ nhất">

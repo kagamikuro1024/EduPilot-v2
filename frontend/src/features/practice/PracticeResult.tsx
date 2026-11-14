@@ -4,7 +4,7 @@ import { Page, PageHeader, Section, ActionList, ActionRow, BarList, Button, Butt
 import { Markdown } from "@/shared/domain";
 import { EssayFeedbackBlock, ExplainMore } from "./Extras";
 import { answerKeyText, givenText, type PAttempt, type PItem } from "./practiceApi";
-import { } from "@/features/exam/examApi";
+import { fmtWhen } from "@/features/exam/examApi";
 import s from "./Practice.module.css";
 
 const sc = (v: string) => v.replace(".", ",");
@@ -23,6 +23,7 @@ export function PracticeResult({ courseId, attempt, onAgain }: { courseId: strin
       <PageHeader
         title={title}
         back={{ href: "/practice", label: "Luyện đề" }}
+        meta={[name, fmtWhen(attempt.started_at), r ? `quy đổi ${sc(r.score)}/10` : undefined]}
       />
       {r?.expired && <InlineNotice tone="warning" compact>Hết giờ — bài được nộp theo các câu đã lưu.</InlineNotice>}
       {attempt.notes.length > 0 && <InlineNotice compact>{attempt.notes.join(" ")}</InlineNotice>}

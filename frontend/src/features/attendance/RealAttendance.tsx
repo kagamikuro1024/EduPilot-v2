@@ -7,7 +7,7 @@ import { AttendanceGrid, type AttendanceGridRow } from "@/shared/domain/Attendan
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useSchemeStatus, useSchemes } from "../gradebook/gradeApi";
-import { } from "@/shared/lib/datetime";
+import { formatWhen } from "@/shared/lib/datetime";
 import { dayLabel, fmtDM, fmtHM } from "../calendar/calendarApi";
 import { sessionsKey, useSessions, type SessionRow } from "../calendar/sessionsApi";
 import { labelOf, useGrid, type Grid } from "./attendanceApi";
@@ -138,6 +138,7 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
     <div className={s.sheet}>
       <PageHeader
         title="Điểm danh"
+        meta={[`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`]}
         primary={{ label: saved ? "Đã lưu" : "Lưu điểm danh", disabled: saved || a.conflicts.length > 0, onClick: () => void complete(), desktopOnly: true }}
       />
       <Panel>
