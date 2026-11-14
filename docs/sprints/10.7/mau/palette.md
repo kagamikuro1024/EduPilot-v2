@@ -94,5 +94,6 @@ Kiểm bằng máy: xem luật 31 ở `techlead.md` TL-1 mục 4 (cấm `color: 
 | `mau-1.html` | «Hôm nay» giảng viên, 1440 × 900 | `sau-web.png` |
 | `mau-app.html` | App điện thoại sinh viên, điểm danh bằng mã QR (sprint 10.8), 390 × 844 | `sau-app.png` |
 | `khung-trang.html` | Ba màn khung × bốn trạng thái (`?m=work\|read\|split&s=data\|empty\|filtered\|loading\|error`) | `khung/*.png` |
+| `landing.html` | Trang giới thiệu (chưa đăng nhập), sáu mục mỗi mục một màn | `landing-man-dau-1440.png`, `landing-1440.png`, `landing-390.png`; hiện trạng: `landing-truoc-720.png` |
 
-Cả ba là HTML tĩnh tự chứa (phông tải từ Google Fonts), không phải mã sản phẩm.
+Cả bốn là HTML tĩnh tự chứa (phông tải từ Google Fonts), nền trang trắng, không phải mã sản phẩm.

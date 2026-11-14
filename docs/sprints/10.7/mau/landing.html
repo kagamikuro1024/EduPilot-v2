@@ -37,7 +37,7 @@ body { margin: 0; font-size: 1rem; line-height: 1.6; }
 h1, h2, h3, p, dl, dd, ol, ul { margin: 0; padding: 0; } ol, ul { list-style: none; } img, svg { display: block; max-width: 100%; } a { color: inherit; text-decoration: none; } button { font: inherit; cursor: pointer; }
 .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 :focus-visible { outline: 2px solid var(--ep-red); outline-offset: 3px; border-radius: var(--ep-radius-sm); }
-.skip { position: absolute; left: 8px; top: 8px; z-index: 50; padding: 8px 12px; background: var(--ep-ink); color: var(--ep-surface); border-radius: var(--ep-radius-sm); transform: translateY(-200%); }
+.skip { position: absolute; left: 0; top: 14px; z-index: 50; padding: 8px 12px; background: var(--ep-ink); color: var(--ep-surface); border-radius: var(--ep-radius-sm); transform: translateY(-300%); }
 .skip:focus { transform: none; }
 
 /* một khung chứa cho thanh trên, mọi mục và chân trang: mép 80 → 1360 ở 1440 */
@@ -84,7 +84,7 @@ main > section, footer.closing { height: 100svh; min-height: 820px; padding: var
 .chip { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border-radius: var(--ep-radius-sm); font-size: .8125rem; font-weight: 600; white-space: nowrap; }
 .chip--primary { background: var(--ep-red); color: var(--ep-surface); } .chip--ghost { color: var(--ep-ink); } .chip .ic { width: 14px; height: 14px; }
 .facts { display: grid; margin-top: 16px; }
-.fact { display: grid; grid-template-columns: 124px minmax(0, 1fr); column-gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--ep-rule); } .fact:last-child { border-bottom: 1px solid var(--ep-rule); }
+.fact { display: grid; grid-template-columns: 133px minmax(0, 1fr); column-gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--ep-rule); } .fact:last-child { border-bottom: 1px solid var(--ep-rule); }
 .fact b { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; } .fact span { line-height: 1.45; }
 
 /* ---------- 2. ba bước của một bài nộp ---------- */
@@ -148,7 +148,7 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
   .actions .btn { flex: 1; }
   .fact { grid-template-columns: 96px minmax(0, 1fr); } .fact b { font-size: 1.375rem; }
   /* màn đầu vừa đúng một màn điện thoại: một dữ kiện, nhóm việc đầu tiên */
-  .fact:nth-child(n+2), .app > :nth-child(n+6) { display: none; }
+  .fact:nth-child(n+2), .app > :nth-child(n+5) { display: none; }
   #bai-nop, #vai { min-height: 200svh; }
   .card { padding: 24px; }
   .stat { grid-template-columns: 1fr; row-gap: 6px; padding: 16px 0; } .stat__num, .stat__what, .stat__how { grid-column: 1; } .stat__num { font-size: 1.75rem; }
@@ -164,8 +164,8 @@ footer.closing .wrap { height: 100%; display: grid; grid-template-rows: 1fr auto
 </defs></svg>
 
 <header class="nav">
-  <a class="skip" href="#main">Tới nội dung</a>
   <div class="wrap">
+    <a class="skip" href="#main">Tới nội dung</a>
     <a href="#top" aria-label="EduPilot"><svg class="logo" width="188" height="40" viewBox="0 0 188 40" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>EduPilot</title>
   <g>

@@ -311,11 +311,31 @@ Giữ nguyên, không đụng: mọi con số và câu nguồn (146, 30/30, +0,0
 
 Ba chỗ mẫu **đổi lời** so với trang hiện tại, cần chủ dự án gật vì đây là câu chữ đã nghiệm thu ở 9.1 (`FEAT-uiux-91` US-08): `h1` rút gọn; sáu tiêu đề mục đổi tên; dòng «Ví dụ minh hoạ, số liệu mẫu.» dưới ba bước bị bỏ (skill cấm ghi chú «mẫu»; ba thẻ đó là minh hoạ giao diện, không phải số đo).
 
-Kết quả bộ kiểm trên mẫu: xem TL-1 mục 8.3.
-
 ### 8.3 Bộ kiểm chạy trên mẫu
 
-(điền sau khi lượt chạy cuối xong)
+Cùng lệnh với 8.1, chạy trên `mau/landing.html`, 1440 và 390, ngày 2026-11-14. Mẫu được sửa qua ba lượt chạy (42 → 22 → 11 FAIL).
+
+| Công cụ | Trang hiện tại | Mẫu |
+| --- | --- | --- |
+| `consistency.mjs` | 42 FAIL, 20 WARN | **11 FAIL, 25 WARN** |
+| `copy-lint.mjs` | 0 FAIL, 0 WARN | 0 FAIL, 0 WARN |
+| `perf.mjs` | 2 FAIL, 6 WARN | 2 FAIL, 4 WARN |
+
+Đã hết trên mẫu: `container-edges`, `hero-screen`, `section-height`, `copy-fact`, `focus-visible`, `focus-ring`, `scroll-linked` (bản tĩnh không có chuyển động theo cuộn), `loop-pause` (bản tĩnh không có phim).
+
+11 FAIL còn lại, không giấu:
+
+| Mã | Số | Vì sao còn | Xử lý ở lô 9 |
+| --- | --- | --- | --- |
+| `no-visual` | 5 | Hai mục «Ba số đo từ kiểm thử» và «Việc của giảng viên và sinh viên» chỉ có chữ. Lỗi **thật** | Mục vai: thêm ảnh thật của «Hôm nay» giảng viên và sinh viên (đã có ở `frontend/public/landing/`). Mục số đo: gộp ba số vào mục «Bài nộp đi qua ba bước» (mỗi bước mang số đo của nó) hoặc giữ và chấp nhận, chủ dự án chọn khi xem mẫu |
+| `links` | 3 | Mẫu tĩnh: `#register`, `#video` không có đích | Tự hết khi nối `/register` và hộp thoại video thật |
+| `section-gaps` | 2 | Ở 390 hai mục dài được đặt cao đúng hai màn nên dư khoảng trống cuối mục | Cắt lời hoặc chia mục để mỗi mục vừa một màn điện thoại |
+| `one-heading` | 1 | Ở 390 con số «30/30» (28 px) bị tính là tiêu đề thứ hai trong 5,8 % vị trí cuộn (ngưỡng 5 %) | Hạ cỡ số ở điện thoại xuống 24 px |
+| `copy-headings` | 1 | **Do công cụ**: bộ kiểm so tiêu đề với danh sách danh từ tiếng Anh và tên sản phẩm; tiêu đề tiếng Việt không chứa «EduPilot» đều bị đánh (đọc ở `consistency.mjs` dòng 9417–9422) | Không sửa; ghi miễn trừ có lý do |
+
+`perf.mjs` 2 FAIL đều là «8 tệp phông» (ngưỡng của skill là 4). Phông tự host qua `next/font`, subset latin + vietnamese, ≤ 3 độ đậm là điều kiện PM đã nhận ở góp ý #14 sprint 5 (`FEAT-ui-foundation` v1.5); không đổi.
+
+Bộ kiểm bố cục `assets/layout/check.mjs` và cổng `gate.mjs` của skill chưa chạy trên mẫu: chúng đòi trang dựng từ `starter.html` và bộ CSS của skill (xem P-107-9).
 
 ## 9. Rủi ro và cách lùi
 
