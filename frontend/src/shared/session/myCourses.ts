@@ -71,9 +71,15 @@ export function useMyCourses(enabled: boolean) {
   return useQuery({ ...myCoursesQuery(enabled), select: (d) => d.courses });
 }
 
-/** Màn mô phỏng chưa dựng lại dùng lớp mô phỏng tương ứng theo `class_code` (761987 ↔ int1006-1, 761988 ↔ int1006-2); lớp khác → lớp đầu. */
-export function mockCourseFor(classCode: string): Course {
-  return COURSES.find((c) => c.code === classCode) ?? COURSES[0];
+/**
+ * Màn mô phỏng chưa dựng lại dùng lớp mô phỏng tương ứng theo `class_code` (761987 ↔ int1006-1, 761988 ↔ int1006-2).
+ * Lớp thật ngoài mô phỏng giữ id / mã / tên THẬT của nó (không mượn lớp mô phỏng khác); các màn mô phỏng không có dữ liệu cho id đó
+ * nên hiện trạng thái rỗng. ponytail: bỏ khi M13 nối API thật cho các màn còn lại.
+ */
+export function mockCourseFor(real: RealCourse): Course {
+  const mock = COURSES.find((c) => c.code === real.class_code);
+  if (mock) return mock;
+  return { id: real.id, code: real.class_code, name: real.name, label: `${real.name} – ${real.class_code}`, room: "", schedule: "", week: 0, size: 0, state: "active", joinCode: "", requireApproval: false, teacher: "" };
 }
 
 /**

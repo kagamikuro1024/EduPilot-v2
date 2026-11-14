@@ -58,6 +58,18 @@ export function InsightsScreen() {
     </Button>
   );
 
+  // Lớp THẬT ngoài mô phỏng: chưa có báo cáo (màn này chưa nối API — sprint 11, M13)
+  if (!report) {
+    return (
+      <Page>
+        <PageHeader title="Lỗ hổng kiến thức" meta={<span>{course.label}</span>} />
+        <Panel>
+          <EmptyState title="Chưa có báo cáo" />
+        </Panel>
+      </Page>
+    );
+  }
+
   return (
     <Page>
       <PageHeader
@@ -93,13 +105,7 @@ export function InsightsScreen() {
           </Panel>
         }
         empty={
-          <Panel><EmptyState
-            title={`Chưa có báo cáo lỗ hổng kiến thức cho lớp ${course.code}`}
-            action={canWrite ? createButton : undefined}
-            icon={<Sparkles aria-hidden />}
-          >
-            Lớp đã có đủ câu hỏi để nhóm chủ đề. Tạo báo cáo đầu tiên để xem sinh viên đang vướng ở đâu; báo cáo chỉ dùng câu hỏi đã ẩn danh của lớp này.
-          </EmptyState></Panel>
+          <Panel><EmptyState title="Chưa có báo cáo" action={canWrite ? createButton : undefined} /></Panel>
         }
         error={{
           problem: "Không tạo được báo cáo lỗ hổng kiến thức.",
