@@ -694,3 +694,26 @@ X1 viết lại:
 Sửa cách đo: `frame.ts` dòng 119 đang đòi `alerts.length === 1` trên cả trang; đổi theo bảng trên. QC đã chặn `/api/v1` nên đếm được số `GET` hỏng khác nhau ngay trong lượt đo.
 
 `teacher/settings` hiện là `alert×0` trong `qc/audit.md`; đó vẫn là lệch thật như QC ghi, quyết định này chỉ nói kết quả đúng sau khi sửa là hai alert.
+
+### 14.8 D3: «List row min 56» ở 375 là sàn hay cố định
+
+**Quyết: là sàn. Hàng ≥ 56 px là đạt; QC bỏ kiểm trần theo px.**
+
+- §23.6 ghi «min 56», và mã cũng vậy: `min-height: 56px` ở hàng của `ActionList` và ở mục danh sách của `DataTable` dưới 720 px.
+- Dưới 720 px `DataTable` đổi mỗi hàng thành một mục danh sách 2–3 dòng (cột chính đậm + các dòng «Nhãn: giá trị»). Đây là hợp đồng của primitive, không phải lệch. Số QC đo ở `students` khớp đúng hợp đồng đó: 70 px là hai dòng, 92 px là ba dòng.
+- Cố định 56 px thì phải cắt chữ tiếng Việt xuống một dòng hoặc bỏ cột, tệ hơn hàng cao.
+
+Giới hạn nằm ở nội dung, không ở px: một mục danh sách có tối đa ba dòng chữ. Để bắt mục nhồi quá ba dòng mà không cần đếm dòng, QC **liệt kê** (không tính lệch) mục cao hơn 112 px để xem ảnh.
+
+Bảng vẫn là bảng dưới 720 px (`mobile="scroll"`: sổ điểm, bảng quyết định ở Quan sát) cũng là sàn, vì ô nhập ở đó cao 44 px nên hàng không thể còn 48.
+
+D3 viết lại:
+
+| Thứ | ≥ 720 px | < 720 px |
+| --- | --- | --- |
+| Hàng bảng (`tbody tr` đang hiện) | 48, `dense` 44, cố định (±1) | ≥ 48, `dense` ≥ 44 |
+| Mục danh sách (`ActionList`, mục của `DataTable`) | ≥ 56 | ≥ 56; cao hơn 112 thì liệt kê để xem ảnh |
+
+Không đổi `DESIGN.md`: §23.6 đã ghi «min».
+
+Theo đó 7 trong 12 dòng D3 của `qc/audit.md` hết lệch (các dòng ở 375: `students`, `gradebook`, `admin/observability`). 5 dòng ở 1440 vẫn là lệch thật: `grading` 53, `documents` 57, `gradebook` 65. Ở máy tính hàng bảng là giá trị cố định.
