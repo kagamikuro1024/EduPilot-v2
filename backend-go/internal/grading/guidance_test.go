@@ -330,3 +330,17 @@ func TestFlagsSnapshotSurvivesLostPublish(t *testing.T) {
 	g.exec(`update course_guidance_flags set enabled = false where course_id = $1`, g.course)
 	require.Eventually(t, func() bool { return !f.On(g.course, grading.FlagThreadSuggest) }, 5*time.Second, 25*time.Millisecond)
 }
+
+// TestGuidanceFlagsUnknownCourse — GD-BUG-4: ADMIN (không cần thẻ thành viên) gọi cờ của lớp không tồn tại → 404, không phải 500 do khoá ngoại.
+func TestGuidanceFlagsUnknownCourse(t *testing.T) {
+	g := newGradeEnv(t, nil)
+	svc, _ := newGuidanceSvc(t, g, true)
+	admin := grading.GuidanceActor{UserID: g.teacher, Admin: true}
+	_, err := svc.SetFlag(t.Context(), admin, uuid.New(), grading.FlagGradingGuidance, true, 1)
+	st, code := apiCode(t, err)
+	require.Equal(t, 404, st)
+	require.Equal(t, "NOT_FOUND", code)
+	_, err = svc.ListFlags(t.Context(), admin, uuid.New())
+	st, _ = apiCode(t, err)
+	require.Equal(t, 404, st)
+}

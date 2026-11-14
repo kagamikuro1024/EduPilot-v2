@@ -69,8 +69,23 @@ type FlagView struct {
 
 func canEditFlag(feature string, admin bool) bool { return admin || feature != FlagRegressionCapture }
 
+// courseExists: ADMIN không bị chặn bởi thẻ thành viên nên id lớp lạ phải trả 404 (không để khoá ngoại thành 500).
+func (s *GuidanceService) courseExists(ctx context.Context, course uuid.UUID) error {
+	ok, err := store.New(s.Pool).CourseExists(ctx, course)
+	if err != nil {
+		return fmt.Errorf("guidance: kiểm lớp: %w", err)
+	}
+	if !ok {
+		return apierr.New(http.StatusNotFound, apierr.NotFound)
+	}
+	return nil
+}
+
 // ListFlags trả đủ bốn cờ (hàng chưa có = tắt, version 1).
 func (s *GuidanceService) ListFlags(ctx context.Context, a GuidanceActor, course uuid.UUID) ([]FlagView, error) {
+	if err := s.courseExists(ctx, course); err != nil {
+		return nil, err
+	}
 	rows, err := store.New(s.Pool).GuidanceFlagList(ctx, course)
 	if err != nil {
 		return nil, fmt.Errorf("guidance: đọc cờ: %w", err)
@@ -97,6 +112,9 @@ func (s *GuidanceService) SetFlag(ctx context.Context, a GuidanceActor, course u
 	}
 	if !canEditFlag(feature, a.Admin) {
 		return FlagView{}, apierr.New(http.StatusForbidden, apierr.Forbidden)
+	}
+	if err := s.courseExists(ctx, course); err != nil {
+		return FlagView{}, err
 	}
 	if !s.Cfg.Enabled {
 		return FlagView{}, disabled()

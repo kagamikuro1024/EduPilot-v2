@@ -35,6 +35,7 @@ func (r *runner) guidanceScenarios(x examRig) {
 		r.must(call{method: "GET", path: fl, token: who}, 403)
 	}
 	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/guidance-flags", token: x.gv}, 404)
+	r.must(call{method: "GET", path: "/api/v1/courses/" + none + "/guidance-flags", token: x.admin}, 404) // GD-BUG-4: ADMIN + lớp không tồn tại
 
 	// cờ: PUT (200 / 401 / 403 / 404 / 409 / 422)
 	put := fl + "/GRADING_GUIDANCE"
@@ -49,6 +50,7 @@ func (r *runner) guidanceScenarios(x examRig) {
 	r.must(call{method: "PUT", path: fl + "/LA", token: x.gv, body: `{"enabled":true,"version":1}`}, 422)
 	r.must(call{method: "PUT", path: put, token: x.gv, body: `{"version":2}`}, 422)
 	r.must(call{method: "PUT", path: "/api/v1/courses/khong-phai-uuid/guidance-flags/GRADING_GUIDANCE", token: x.gv, body: `{"enabled":true,"version":1}`}, 404)
+	r.must(call{method: "PUT", path: "/api/v1/courses/" + none + "/guidance-flags/GRADING_GUIDANCE", token: x.admin, body: `{"enabled":true,"version":1}`}, 404) // GD-BUG-4
 
 	// tổng quan (200 / 401 / 403 / 404 / 422)
 	r.must(call{method: "GET", path: gd, token: x.gv}, 200)
