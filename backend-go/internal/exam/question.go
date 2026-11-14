@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/quiz"
 )
 
 // Giới hạn của câu hỏi (SRS 4.1.2).
@@ -30,6 +31,14 @@ const (
 	TypeMCQMulti  = "MCQ_MULTI"
 	TypeTrueFalse = "TRUE_FALSE"
 	TypeCode      = "CODE"
+	TypeShort     = "SHORT" // chỉ ngân hàng / luyện đề; KHÔNG vào bài thi tính điểm (P-10-5)
+	TypeEssay     = "ESSAY"
+)
+
+// MaxAccepted, MaxRubric: giới hạn đáp án của câu trả lời ngắn / tự luận.
+const (
+	MaxAccepted = 10
+	MaxRubric   = 2000
 )
 
 // OptionIn là một đáp án lúc gửi lên.
@@ -50,6 +59,10 @@ type QuestionIn struct {
 	Value       *bool      `json:"value"`
 	Explanation *string    `json:"explanation"`
 	Version     *int       `json:"version"`
+	// SHORT: các đáp án chấp nhận. ESSAY: đáp án mẫu + rubric ngắn (sinh viên chỉ thấy sau khi trả lời).
+	Accepted    []string `json:"accepted"`
+	ModelAnswer *string  `json:"model_answer"`
+	Rubric      *string  `json:"rubric"`
 }
 
 // Checked là câu đã qua kiểm hợp lệ: đáp án đã chuẩn hoá, id đáp án CHƯA có (cấp lúc ghi).
@@ -59,6 +72,8 @@ type Checked struct {
 	Options                              []OptionIn
 	CorrectIdx                           []int // chỉ số đáp án đúng (MCQ)
 	Value                                *bool // TRUE_FALSE
+	Accepted                             []string
+	ModelAnswer, Rubric                  string
 }
 
 var compositeRE = regexp.MustCompile(`(?i)^(tất cả|cả |không có|a và|b và|cả hai)`)
@@ -72,9 +87,7 @@ func Validate(in QuestionIn) (Checked, []apierr.FieldError, []apierr.FieldError)
 	c := Checked{Type: in.Type, Title: strings.TrimSpace(in.Title), Topic: strings.TrimSpace(in.Topic), Difficulty: in.Difficulty, Stem: in.Stem, Explanation: in.Explanation}
 
 	switch in.Type {
-	case TypeMCQSingle, TypeMCQMulti, TypeTrueFalse, TypeCode:
-	case "SHORT", "ESSAY":
-		bad("type", "TYPE_NOT_SUPPORTED", "Loại câu này chưa được hỗ trợ.")
+	case TypeMCQSingle, TypeMCQMulti, TypeTrueFalse, TypeCode, TypeShort, TypeEssay:
 	default:
 		bad("type", "INVALID_TYPE", "Loại câu hỏi không hợp lệ.")
 	}
@@ -115,6 +128,41 @@ func Validate(in QuestionIn) (Checked, []apierr.FieldError, []apierr.FieldError)
 	case TypeCode:
 		if len(in.Options) > 0 {
 			bad("options", "OPTION_COUNT", "Bài lập trình không có đáp án lựa chọn.")
+		}
+	case TypeShort:
+		if len(in.Options) > 0 {
+			bad("options", "OPTION_COUNT", "Câu trả lời ngắn không có đáp án lựa chọn.")
+		}
+		seen := map[string]bool{}
+		for _, a := range in.Accepted {
+			a = strings.TrimSpace(a)
+			if n := quiz.NormalizeShort(a); n != "" && !seen[n] && utf8.RuneCountInString(a) <= MaxOptionBody {
+				seen[n] = true
+				c.Accepted = append(c.Accepted, a)
+			}
+		}
+		if len(c.Accepted) == 0 {
+			bad("accepted", "ANSWER_EMPTY", "Cần ít nhất một đáp án chấp nhận (không chỉ dấu câu).")
+		} else if len(c.Accepted) > MaxAccepted {
+			bad("accepted", "LIMIT_OUT_OF_RANGE", "Tối đa 10 đáp án chấp nhận.")
+		}
+	case TypeEssay:
+		if len(in.Options) > 0 {
+			bad("options", "OPTION_COUNT", "Câu tự luận không có đáp án lựa chọn.")
+		}
+		if in.ModelAnswer != nil {
+			c.ModelAnswer = strings.TrimSpace(*in.ModelAnswer)
+		}
+		if in.Rubric != nil {
+			c.Rubric = strings.TrimSpace(*in.Rubric)
+		}
+		if c.ModelAnswer == "" {
+			bad("model_answer", "MODEL_ANSWER_REQUIRED", "Cần đáp án mẫu.")
+		}
+		if c.Rubric == "" {
+			bad("rubric", "RUBRIC_REQUIRED", "Cần rubric ngắn.")
+		} else if utf8.RuneCountInString(c.Rubric) > MaxRubric {
+			bad("rubric", "RUBRIC_TOO_LONG", "Rubric tối đa 2.000 ký tự.")
 		}
 	}
 	return c, errs, warns
@@ -178,6 +226,12 @@ func AnswerKey(c Checked, optionIDs []uuid.UUID) json.RawMessage {
 		return b
 	case TypeTrueFalse:
 		b, _ := json.Marshal(map[string]any{"value": *c.Value})
+		return b
+	case TypeShort:
+		b, _ := json.Marshal(map[string]any{"accepted": c.Accepted})
+		return b
+	case TypeEssay:
+		b, _ := json.Marshal(map[string]any{"model_answer": c.ModelAnswer, "rubric": c.Rubric})
 		return b
 	}
 	return nil

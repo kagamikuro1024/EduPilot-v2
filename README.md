@@ -302,7 +302,7 @@ flowchart LR
 | 9 | ✅ Xong | P7 | Bài tập nộp trong app / ZIP / mail / Teams giả lập, khớp sinh viên an toàn, AI chấm nháp hai lượt có bằng chứng, duyệt cạnh nhau, chỉ giảng viên công bố, phúc khảo |
 | 9.1 | ✅ Xong | UI/UX | Khảo sát 34 màn × 4 vai × 1440 / 375 (27 vấn đề), sửa theo 6 đợt: nút có lý do khoá, giờ ICT, menu tiếng Việt, "Hôm nay" chia nhóm, sổ điểm / duyệt bài gọn, trang giới thiệu v2 + video có phụ đề |
 | 9.5 | | NFR | Seed đầy đủ, đo tải / hiệu năng trên Mac (VPS đã thu hồi), đánh giá LLM thật (Gemini) |
-| 10 | | P9 | Luyện đề (dùng lại ngân hàng câu hỏi của PE), QUIZ |
+| 10 | ✅ Xong | P9 | Luyện đề: ngân hàng câu hỏi (trích từ đề cũ, sinh từ tài liệu có trích dẫn, duyệt hàng loạt), luyện theo chủ đề, thi thử có giờ + tự lưu, tự luận có nhận xét gợi ý, chủ đề cần ôn trên "Hôm nay", liêm chính với bài thi, nhập Google Forms vào sổ điểm |
 | 11 | | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
 
 Chi tiết ghép phase, cổng và mục cắt được khi trễ: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).

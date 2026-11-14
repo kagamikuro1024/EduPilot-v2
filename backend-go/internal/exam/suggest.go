@@ -151,6 +151,10 @@ func (w *Worker) suggestMCQ(ctx context.Context, j jobs.JobCtx, p SuggestPayload
 			res.Dropped = append(res.Dropped, Dropped{Index: i, Reason: "EXTRA"})
 			continue
 		}
+		if a.Type == TypeShort || a.Type == TypeEssay { // gợi ý AI chỉ sinh trắc nghiệm / đúng–sai; SHORT / ESSAY nhập tay hoặc trích từ đề
+			res.Dropped = append(res.Dropped, Dropped{Index: i, Reason: "TYPE_NOT_SUPPORTED"})
+			continue
+		}
 		in := QuestionIn{Type: a.Type, Title: a.Title, Topic: p.Topic, Difficulty: a.Difficulty, Stem: a.Stem, Value: a.Value}
 		if in.Difficulty == "" {
 			in.Difficulty = p.Difficulty

@@ -1761,6 +1761,91 @@ func (ns NullPostVerification) Value() (driver.Value, error) {
 	return string(ns.PostVerification), nil
 }
 
+type PracticeMode string
+
+const (
+	PracticeModeTOPIC PracticeMode = "TOPIC"
+	PracticeModeMOCK  PracticeMode = "MOCK"
+)
+
+func (e *PracticeMode) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PracticeMode(s)
+	case string:
+		*e = PracticeMode(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PracticeMode: %T", src)
+	}
+	return nil
+}
+
+type NullPracticeMode struct {
+	PracticeMode PracticeMode
+	Valid        bool // Valid is true if PracticeMode is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPracticeMode) Scan(value interface{}) error {
+	if value == nil {
+		ns.PracticeMode, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PracticeMode.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPracticeMode) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PracticeMode), nil
+}
+
+type PracticeStatus string
+
+const (
+	PracticeStatusINPROGRESS PracticeStatus = "IN_PROGRESS"
+	PracticeStatusSUBMITTED  PracticeStatus = "SUBMITTED"
+	PracticeStatusEXPIRED    PracticeStatus = "EXPIRED"
+)
+
+func (e *PracticeStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PracticeStatus(s)
+	case string:
+		*e = PracticeStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PracticeStatus: %T", src)
+	}
+	return nil
+}
+
+type NullPracticeStatus struct {
+	PracticeStatus PracticeStatus
+	Valid          bool // Valid is true if PracticeStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPracticeStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.PracticeStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PracticeStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPracticeStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PracticeStatus), nil
+}
+
 type QuestionDifficulty string
 
 const (
@@ -2931,6 +3016,30 @@ type FinalGradeSnapshot struct {
 	CreatedAt    time.Time
 }
 
+type FormsImportBatch struct {
+	ID        uuid.UUID
+	CourseID  uuid.UUID
+	ItemID    uuid.UUID
+	FileHash  string
+	BlobKey   string
+	Mapping   json.RawMessage
+	Matched   int32
+	Unmatched int32
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
+}
+
+type FormsImportRow struct {
+	CourseID         uuid.UUID
+	BatchID          uuid.UUID
+	RowNo            int32
+	StudentID        *uuid.UUID
+	IdentifierMasked string
+	Correct          int32
+	Total            int32
+	Score            decimal.Decimal
+}
+
 type ForumPost struct {
 	ID                uuid.UUID
 	CourseID          uuid.UUID
@@ -3372,6 +3481,52 @@ type PostReport struct {
 	HandledAt  *time.Time
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+}
+
+type PracticeAnswer struct {
+	ID         uuid.UUID
+	CourseID   uuid.UUID
+	AttemptID  uuid.UUID
+	ItemID     uuid.UUID
+	Answer     json.RawMessage
+	IsCorrect  *bool
+	AnsweredAt time.Time
+	Locked     bool
+	Version    int32
+}
+
+type PracticeAttempt struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	StudentID    uuid.UUID
+	Mode         PracticeMode
+	Topic        *string
+	Status       PracticeStatus
+	StartedAt    time.Time
+	DeadlineAt   *time.Time
+	SubmittedAt  *time.Time
+	ItemCount    int32
+	CurrentIndex int32
+	CorrectCount *int32
+	Score        decimal.NullDecimal
+	Matrix       json.RawMessage
+	Notes        json.RawMessage
+	TabID        *string
+	Version      int32
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type PracticeItem struct {
+	ID              uuid.UUID
+	CourseID        uuid.UUID
+	AttemptID       uuid.UUID
+	QuestionID      uuid.UUID
+	Position        int32
+	OptionOrder     json.RawMessage
+	AnswerKey       json.RawMessage
+	Question        json.RawMessage
+	QuestionVersion int32
 }
 
 type QuestionBank struct {

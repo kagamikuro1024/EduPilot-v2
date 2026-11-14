@@ -8,7 +8,7 @@ import { DIFF_LABEL, qPath, TYPE_LABEL, type Difficulty, type QType, type Questi
 import s from "./Questions.module.css";
 
 type OptRow = { body: string; correct: boolean; pinned: boolean };
-type Draft = { type: QType; title: string; topic: string; difficulty: Difficulty; stem: string; explanation: string; options: OptRow[]; value: boolean | null };
+type Draft = { type: QType; title: string; topic: string; difficulty: Difficulty; stem: string; explanation: string; options: OptRow[]; value: boolean | null; accepted: string; modelAnswer: string; rubric: string };
 
 const blank = (type: QType): Draft => ({
   type,
@@ -19,6 +19,9 @@ const blank = (type: QType): Draft => ({
   explanation: "",
   options: type === "MCQ_SINGLE" || type === "MCQ_MULTI" ? [1, 2].map(() => ({ body: "", correct: false, pinned: false })) : [],
   value: null,
+  accepted: "",
+  modelAnswer: "",
+  rubric: "",
 });
 
 function fromDetail(d: QuestionDetail): Draft {
@@ -32,6 +35,9 @@ function fromDetail(d: QuestionDetail): Draft {
     explanation: d.explanation ?? "",
     options: d.options.map((o) => ({ body: o.body, correct: right.has(o.id), pinned: o.pinned_last })),
     value: d.answer_key?.value ?? null,
+    accepted: (d.answer_key?.accepted ?? []).join("\n"),
+    modelAnswer: d.answer_key?.model_answer ?? "",
+    rubric: d.answer_key?.rubric ?? "",
   };
 }
 
@@ -93,6 +99,11 @@ export function QuestionForm({ courseId, userId, detail, createType, onSaved, on
       body.correct = d.options.flatMap((o, i) => (o.correct ? [i] : []));
     }
     if (d.type === "TRUE_FALSE") body.value = d.value;
+    if (d.type === "SHORT") body.accepted = d.accepted.split("\n").map((x) => x.trim()).filter(Boolean);
+    if (d.type === "ESSAY") {
+      body.model_answer = d.modelAnswer;
+      body.rubric = d.rubric;
+    }
     try {
       const r = detail ? await apiClient.put<QuestionDetail>(`${qPath(courseId)}/${detail.id}`, { ...body, version: detail.version }) : await apiClient.post<QuestionDetail>(qPath(courseId), body);
       saved.clear();
@@ -115,7 +126,7 @@ export function QuestionForm({ courseId, userId, detail, createType, onSaved, on
               label="Loại câu hỏi"
               value={d.type}
               onChange={(type) => setD(blank(type as QType))}
-              options={(["MCQ_SINGLE", "MCQ_MULTI", "TRUE_FALSE", "CODE"] as QType[]).filter((t) => createType === "CODE" ? t === "CODE" : t !== "CODE").map((t) => ({ value: t, label: TYPE_LABEL[t] }))}
+              options={(["MCQ_SINGLE", "MCQ_MULTI", "TRUE_FALSE", "SHORT", "ESSAY", "CODE"] as QType[]).filter((t) => createType === "CODE" ? t === "CODE" : t !== "CODE").map((t) => ({ value: t, label: TYPE_LABEL[t] }))}
             />
           )}
         </Field>
@@ -166,8 +177,23 @@ export function QuestionForm({ courseId, userId, detail, createType, onSaved, on
           )}
         </Field>
       )}
+      {d.type === "SHORT" && (
+        <Field label="Đáp án chấp nhận" required error={fe.accepted} helper="Mỗi dòng một đáp án. Không phân biệt hoa thường và dấu câu cuối; giữ dấu tiếng Việt.">
+          {(id, by) => <Textarea id={id} aria-describedby={by} invalid={Boolean(fe.accepted)} rows={3} value={d.accepted} placeholder="Hà Nội" onChange={(e) => patch({ accepted: e.target.value })} />}
+        </Field>
+      )}
+      {d.type === "ESSAY" && (
+        <>
+          <Field label="Đáp án mẫu" required error={fe.model_answer}>
+            {(id, by) => <Textarea id={id} aria-describedby={by} invalid={Boolean(fe.model_answer)} rows={4} value={d.modelAnswer} onChange={(e) => patch({ modelAnswer: e.target.value })} />}
+          </Field>
+          <Field label="Rubric" required error={fe.rubric}>
+            {(id, by) => <Textarea id={id} aria-describedby={by} invalid={Boolean(fe.rubric)} rows={3} value={d.rubric} placeholder="Ý A 5đ; ý B 5đ" onChange={(e) => patch({ rubric: e.target.value })} />}
+          </Field>
+        </>
+      )}
       {d.type !== "CODE" && (
-        <Field label="Giải thích" helper="Hiện cho sinh viên sau khi công bố kết quả (nếu bài thi bật xem đáp án)." error={fe.explanation}>
+        <Field label="Giải thích" helper="Hiện cho sinh viên sau khi trả lời (luyện đề) hoặc khi công bố kết quả (bài thi bật xem đáp án)." error={fe.explanation}>
           {(id, by) => <Textarea id={id} aria-describedby={by} rows={3} value={d.explanation} onChange={(e) => patch({ explanation: e.target.value })} />}
         </Field>
       )}

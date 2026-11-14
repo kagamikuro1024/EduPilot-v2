@@ -378,6 +378,41 @@ func (q *Queries) QuestionBump(ctx context.Context, arg QuestionBumpParams) (Que
 	return i, err
 }
 
+const questionCitationDocTitles = `-- name: QuestionCitationDocTitles :many
+select id, title from documents where course_id = $1 and id = any($2::text[]::uuid[]) and category is distinct from 'THREAD_KNOWLEDGE'
+`
+
+type QuestionCitationDocTitlesParams struct {
+	CourseID uuid.UUID
+	Ids      []string
+}
+
+type QuestionCitationDocTitlesRow struct {
+	ID    uuid.UUID
+	Title string
+}
+
+// Tên tài liệu cho nhãn nguồn của câu EXTRACTED / GENERATED (US-P9-04 AC5).
+func (q *Queries) QuestionCitationDocTitles(ctx context.Context, arg QuestionCitationDocTitlesParams) ([]QuestionCitationDocTitlesRow, error) {
+	rows, err := q.db.Query(ctx, questionCitationDocTitles, arg.CourseID, arg.Ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []QuestionCitationDocTitlesRow{}
+	for rows.Next() {
+		var i QuestionCitationDocTitlesRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const questionCourseStatus = `-- name: QuestionCourseStatus :one
 
 select status from courses where id = $1
