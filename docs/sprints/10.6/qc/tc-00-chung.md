@@ -29,4 +29,4 @@ Phân quyền 4 vai + TA chỉ đọc + lớp khác `404`; không PII / văn b�
 
 ## Lịch sử sửa TC
 - 2026-11-14 (P-106-7): thêm «Cổng `-run` không rỗng»; TC-G03-13 sửa ở `tc-US-GD-03-04.md`.
-- 2026-11-14 (P-106-11, P-106-12, SRS v1.7): thêm `tc-P106-11-12-UX.md` (TC-P11-01…10, TC-P12-01…26, TC-UX-01…19).
+- 2026-11-14 (P-106-11, P-106-12, SRS v1.7): thêm `tc-P106-11-12-UX.md` (TC-P11-01…10, TC-P12-01…26, TC-UX-S21…o, 17…19).
