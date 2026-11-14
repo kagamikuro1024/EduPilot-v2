@@ -77,6 +77,19 @@ Hạn mức: P1 ≈ 650 lời gọi, P2 ≈ 400.
   - Từ container, `http://host.docker.internal:20128/v1/models` trả `200`.
   - 9router còn có model khác họ, ví dụ `ag/claude-sonnet-4-6` và `ag/gpt-oss-120b-medium`. Nếu P2 (Gemini trực tiếp) hết hạn mức hoặc probe chọn trúng 3.8-flash, dùng một trong hai làm P2 (vẫn là `openai_compatible`, chỉ đổi `model`). Nhờ vậy E4 so được hai model khác nhau. Ghi rõ model và lý do vào báo cáo theo AC6.
 
+**Cập nhật theo luật LLM mới của chủ dự án (14/11). Phần này thay mọi chỗ ở trên nói tới "Gemini trực tiếp" để sinh chữ:**
+- **Lời gọi sinh chữ chỉ đi qua 9router:** chat, chấm bài, trích công thức, insight, sinh câu hỏi, eval. Đường gọi là `openai_compatible`, `base_url` `http://host.docker.internal:20128/v1`.
+  - **P1** = `ag/gemini-3.8-flash`.
+  - **P2 (E4)** = một model khác họ **cũng qua 9router**: ưu tiên `ag/claude-sonnet-4-6`, dự phòng `ag/gpt-oss-120b-medium`.
+  - Bỏ `PHASE=probe` / `gemini-chat` của 9.5 cho sinh chữ, bỏ hạn mức RPD của Gemini free tier, bỏ việc chia cửa sổ 15:00 cho P2.
+- **`GEMINI_API_KEY` chỉ dùng cho hai việc:**
+  - `gemini-embed` (`gemini-embedding-001`, 1536 chiều), vì 9router không có embeddings. Pha `PHASE=seed` của `vps-llm.mjs` giữ nguyên;
+  - `gemini-decision-1`, nếu sau này có provider `decision` (P-11-10).
+- `deploy/vps-llm.mjs` pha `live`: chỉ tạo provider 9router (`PROVIDER` không còn nhánh `gemini`) và trỏ cả 6 tuyến sinh chữ về đó.
+- **Chi phí ở E4:** 9router là thuê bao nên không có giá theo token. Báo «token × giá niêm yết của model tương ứng» là chi phí **quy đổi** và ghi rõ như vậy. Lưu ý token vào qua 9router bị đội lên khoảng 2.200 do lời nhắc hệ thống của đường `ag/` (PoC Jev mục 4). Báo cả token đo được lẫn token ước tính khi gọi thẳng.
+- **Trễ ở E4:** số đo gồm cả độ trễ của proxy 9router. Báo cáo phải ghi "qua 9router".
+- **`Structured` qua 9router:** PoC Jev / `gemini-decision-1` đã gửi `response_format: json_schema` tới `ag/gemini-3.8-flash` qua 9router. 298 lời gọi chỉ hỏng 1 lần, do hết giờ. Đường lách cho `openai_compatible` trong `provider/openai.go` (gộp schema vào tin system, ép `stream:false`) vẫn áp dụng.
+
 ---
 
 ## TL-2 (US-P10-08, đợt 3): hướng sửa LCP 7 trang

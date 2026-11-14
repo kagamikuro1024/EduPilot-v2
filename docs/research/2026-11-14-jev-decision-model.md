@@ -154,6 +154,14 @@ Qua 9router, mỗi request bị đội lên khoảng 2.200 token vào do lời n
 
 ## 6. Bổ sung: `gemini-decision-1` (Google) và cascade theo độ tin cậy (P-11-10)
 
+> **Luật LLM mới của chủ dự án (14/11):**
+> - Mọi lời gọi **sinh chữ** đi qua 9router (`openai_compatible`, `ag/gemini-3.8-flash`, dự phòng là model khác của 9router).
+> - `GEMINI_API_KEY` chỉ dùng cho `gemini-decision-1` và `gemini-embedding-001`.
+>
+> PoC dưới đây đã chạy đúng cấu hình này: LLM qua 9router, decision gọi thẳng `createDecision`. Số "Gemini đi thẳng" ở mục 4 (`3.1-flash-lite`) chỉ là tham chiếu độ trễ, không còn là đường được phép.
+>
+> Theo yêu cầu PM, kiến trúc dùng **một provider loại `decision` riêng**, chỉ cho `gemini-decision-1`. Không gắn thêm phương thức vào loại `gemini`. Phần "provider record `gemini-decision` (type `gemini`)" ở 6.3 và 6.6 hiểu là loại `decision`. Chi phí fallback trong 6.4 là quy đổi theo giá niêm yết, vì 9router tính theo thuê bao.
+
 **Kết luận.**
 - `gemini-decision-1` là decision model của Google, cùng loại với Jev:
   - đầu ra là xác suất cho câu hỏi noul / choice / score, không sinh token;
