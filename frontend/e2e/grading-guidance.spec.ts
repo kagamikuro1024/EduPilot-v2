@@ -125,6 +125,18 @@ test("rút lưu ý xong: ĐÚNG MỘT dòng «N lưu ý bị loại» (P-106-13)
   await expect(panel.locator("[data-part=guidance-reflected]")).toHaveText("Đã rút 1 lưu ý chờ duyệt"); // (m) rút xong có báo
 });
 
+test("rút ra 0 lưu ý (API bỏ khoá draft khi 0): hiện «Không có lưu ý mới» + «N lưu ý bị loại» (GD-BUG-13, SRS AC8)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const JOB = "00000000-0000-7000-8000-0000000e0008";
+  await page.route(/\/api\/v1\/jobs\/[^/]+$/, (r) => r.fulfill(json({ id: JOB, status: "SUCCEEDED", progress: 100, result: { drafts: 0, dropped: [{ criterion_id: "c2", reason: "keyword", count: 2 }] } })));
+  await openDrawer(page, context, () => overview({ counts: {}, items: [] }), { "POST assignments/:id/guidance/reflect": (r) => r.fulfill(json({ job_id: JOB }, 202)) });
+  const panel = page.locator("[data-part=guidance-panel]");
+  await panel.getByRole("button", { name: "Rút lưu ý" }).click();
+  await expect(panel.getByText("Không có lưu ý mới", { exact: true })).toBeVisible();
+  await expect(panel.locator("[data-part=guidance-dropped]")).toHaveText("2 lưu ý bị loại");
+  await expect(panel.locator("[data-part=guidance-reflected]")).toHaveCount(0);
+});
+
 test("lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm»", async ({ page, context }, info) => {
   desktopOnly(info);
   await openDrawer(page, context, () => overview({ enabled: false }));

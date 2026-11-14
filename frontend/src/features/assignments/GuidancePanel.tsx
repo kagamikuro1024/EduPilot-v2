@@ -265,7 +265,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
       {job.status === "SUCCEEDED" && ((job.result as { drafts?: number } | undefined)?.drafts ?? 0) > 0 && (
         <p role="status" className={s.stats} data-part="guidance-reflected">{`Đã rút ${(job.result as { drafts: number }).drafts} lưu ý chờ duyệt`}</p>
       )}
-      {job.status === "SUCCEEDED" && d.counts.draft === 0 && <InlineNotice tone="info" compact>Không có lưu ý mới đủ chắc.</InlineNotice>}
+      {job.status === "SUCCEEDED" && ((job.result as { drafts?: number } | undefined)?.drafts ?? 0) === 0 && <InlineNotice tone="info" compact>Không có lưu ý mới</InlineNotice>}
       {job.status === "SUCCEEDED" && droppedLine(job.result) && <p role="status" className={s.stats} data-part="guidance-dropped">{droppedLine(job.result)}</p>}
       {note && <p role="status" className={s.stats}>{note}</p>}
 
