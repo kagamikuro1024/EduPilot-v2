@@ -551,3 +551,60 @@ Bộ kiểm trên @`c072ad12`: **12 FAIL, 15 WARN** (trước: 23 / 8). 11 FAIL 
 - Khác mẫu, nhận: ảnh mặc định là ảnh thứ hai («Duyệt bài»), mẫu là ảnh đầu («Chat riêng»).
 
 Còn một chỗ cùng tệp: `story-gradebook-v1` xuất hiện hai lần trên trang (màn thứ ba của khung ghim và mục số đo, hai mục liền nhau). Nhận, với điều kiện sửa (a): ở mục số đo ảnh cắt vào ngăn «Giải trình», không lặp lại nguyên màn.
+
+## 14. Quyết bốn điểm của QC (`qc/summary.md` @`188e648a`, 2026-11-15)
+
+Căn cứ: `qc/audit.md`, ảnh `qc/audit/sau/`, mã và `DESIGN.md`. Tôi không chạy lại lượt đo nào.
+
+### 14.1 H6: nút «Mở» ở Hôm nay và nút «Gửi» ở chat
+
+**Quyết: cả hai là ngoại lệ hợp lệ, không tính lệch.** Cả hai đã được `DESIGN.md` ghi rõ, và cả hai là nút gắn với một vật chứ không gắn với trang, nên không thể dời lên đầu trang.
+
+| Nút | Căn cứ | Điều kiện để còn hợp lệ |
+| --- | --- | --- |
+| «Gửi» của `Composer` | §10.12: «Composer is a distinct working surface. One primary send action» | ≤ 1 `primary` trong mỗi `form` |
+| «Mở» ở hàng việc đầu tiên | §14 Teacher / TA mục 3: «Exactly one primary (red) button: the first item of the first group. Other rows use a `ghost` button» | Đúng 1 `primary` trong toàn bộ `ActionList` của trang, **và** đầu trang không có `primary` |
+
+H6 viết lại: mỗi vùng làm việc có ≤ 1 nút `primary` đang hiện. Nút đó nằm ở đầu trang, trừ ba chỗ nó gắn với vật: thanh dính đáy (P-107-14), nút gửi của một `form`, hàng đầu của `ActionList`.
+
+Cách đo:
+
+- QC: `qc-ui-audit-real.spec.ts` dòng 90 thêm `!b.closest("form")`, giống `frame.ts` dòng 75 đang làm, và bỏ nút nằm trong `ActionList`; thêm hai phép đếm ở cột «Điều kiện».
+- Dev: `ActionList` thêm móc `data-ep-action-list` trên `ul` (một thuộc tính) để QC và `frame.ts` chọn đúng, không dựa vào `li`.
+
+«Luyện đề» ở `student/practice/history` rỗng vẫn là lệch thật (nút rỗng phải `secondary`, E5), như QC ghi.
+
+### 14.2 X3: vùng lỗi thì meta và số đếm ở đầu trang biến mất
+
+**Quyết: đúng, không tính lệch.** Meta và số đếm là dữ liệu của chính truy vấn vừa hỏng. Giữ lại thì chỉ có hai cách, số cũ hoặc chỗ trống giữ chỗ, và cả hai đều tệ hơn là không hiện. Đầu trang thấp đi một dòng meta (27 px) khi lỗi là chấp nhận được: vùng lỗi thay cả thân trang, không có gì cần gióng theo.
+
+X3 viết lại. Khi lỗi, so với lúc có dữ liệu:
+
+| Phải giữ | Được mất |
+| --- | --- |
+| Đúng một `h1`, cùng vị trí | Dòng meta |
+| Các tab: cùng số tab, cùng nhãn | Số đếm trong nhãn tab («Thành viên30» → «Thành viên») |
+| Nút ở đầu trang: cùng nhãn (được khoá) | Chiều cao đầu trang |
+| Kiểu trang | |
+
+Theo đó, 12 trong 13 dòng X3 hết lệch: `students`, `attendance`, `gradebook`, `gradebook/scheme`, `questions`, `class/members`. `student/practice` vẫn là lệch thật: tab là điều hướng, không phải dữ liệu, không được mất. QC so nhãn tab sau khi bỏ chữ số cuối và bỏ so chiều cao đầu trang.
+
+### 14.3 E7 ×17 «không áp dụng»
+
+**Xác nhận 11, không xác nhận 6.** Tôi xem lại ảnh 1440 của cả 18 route.
+
+| Loại | Số | Route | Vì sao |
+| --- | --- | --- | --- |
+| Không áp dụng | 11 | `settings` (SV, TA, GV), `class/settings` (TA, GV), `settings/llm`, `settings/integrations`, `class/members` (TA, GV), `/` (TA, GV) | Màn biểu mẫu không có trạng thái rỗng; `class/members` luôn có giảng viên; «Hôm nay» ở lớp rỗng vẫn có việc thiết lập lớp |
+| **Lệch thật** | 3 | `student/` (QC đã ghi); `student/chat`; `teacher/observability` | `student/chat`: «Chưa có phiên nào» là thẻ `<p>` tự dựng ở `RealChat.tsx` dòng 283 (cùng câu đó ở `SessionSheet.tsx` dùng `EmptyState`). `teacher/observability`: bảng «Lớp … trong 7 ngày» chỉ có hàng tiêu đề, không có hàng nào và không có khối rỗng; bảng «0 yêu cầu gần nhất» dùng `<p>` tự dựng (`ObservabilityScreen.tsx` dòng 150) |
+| Chưa đo được | 4 | `students` (TA, GV), `analytics` (TA, GV) | `students`: lớp `QCEMPTY` có 1 sinh viên nên chưa bao giờ rỗng. `analytics`: màn mô phỏng đang hiện số của lớp khác; màn này **có** trạng thái rỗng, đo được khi nối API (nợ sprint 11, cùng lỗi dữ liệu QC đã ghi) |
+
+«Chưa đo được» không phải «đạt»: QC ghi riêng, không gộp vào «không áp dụng».
+
+### 14.4 T2: chuỗi lặp là dữ liệu
+
+**Xác nhận.** T2 sinh ra để bắt câu giải thích lặp trên mọi dòng (luật chữ UI), không bắt dữ liệu. Dòng thiết bị «172.21.*.* · Lần cuối: …» và tên bài tập ×6 ở hàng chờ chấm là dữ liệu: không áp dụng.
+
+T2 viết lại: chỉ đếm chuỗi tĩnh, tức chuỗi tìm thấy nguyên văn trong `frontend/src`. QC kiểm bằng `grep` chuỗi đó trong mã; có thì là tĩnh.
+
+«Không dùng cho AI của sinh viên» ×4 ở `documents` là lệch thật như QC ghi: trạng thái bảy chữ lặp mỗi dòng, phải rút về 1–2 chữ dưới một tiêu đề cột.
