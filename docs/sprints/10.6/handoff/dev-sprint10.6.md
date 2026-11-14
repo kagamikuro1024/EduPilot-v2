@@ -64,5 +64,7 @@ Nhánh `sprint/10.6-guidance` (merge từ `sprint/10.5-decision`). Mỗi lát m�
 - **9router chỉ phục vụ họ `ag/gemini-3.8-flash`** (các model khác trả 404): `GEN_MODEL` mặc định `ag/gemini-3.8-flash-low` — CÙNG họ với model chấm của stack (`ag/gemini-3.8-flash`); báo cáo phải ghi rõ giới hạn này (kiem-chung.md muốn model sinh ≠ model chấm).
 - `load.py` cần `MAILPIT_URL` của stack (ep-qc: `http://localhost:8525`) vì tài khoản 60 sinh viên đi qua thư mời sau khi nhập roster. Chạy `load.py` TRƯỚC mọi lần nộp: bài nộp trước khi có tài khoản bị UNMATCHED và nộp lại cùng nội dung bị bỏ qua (băm trùng).
 
-## ĐANG DỞ (tạm dừng theo PM, 2026-11-14)
-`gen.py` dừng ở 56/84 bài: BT-A kc001–kc056 đã sinh (model `ag/gemini-3.8-flash-medium` qua 9router, giữ trong `benchmarks/guidance/kc/data/`, `profile.jsonl` khớp từng bài); còn BT-A kc057–kc060 + BT-B 24 bài. Chạy tiếp: `python3 benchmarks/guidance/kc/gen.py` (tiếp tục được, ~30 s/bài; đặt `GEN_MODEL=ag/gemini-3.8-flash-medium` để cùng model). Sau đó `load.py` vào ep-qc khi QC báo xong (`MAILPIT_URL`, `SEED_DEFAULT_PASSWORD`), `sheet.py` ra `~/kc-giaovien/phieu/`, rồi báo PM.
+## Kiểm chứng giaovien — trạng thái (2026-11-14)
+- `gen.py` xong 84 bài (`ag/gemini-3.8-flash-medium`, cùng họ với model chấm — giới hạn phải ghi vào báo cáo); dữ liệu + `labels.csv` (64 nhãn bước 1, `giaovien` chấm mù) đã commit.
+- `load.py` đã nạp lớp `KC106` vào `ep-qc` (`http://localhost:580/api/v1`): 84/84 MATCHED (BT-A 60, BT-B 24), cờ `GRADING_GUIDANCE` bật, CHƯA chấm. Lưu ý: ĐỪNG đăng nhập thử tài khoản chưa có (đăng nhập sai tính vào `AUTH_LOGIN_IP_FAIL_PER_15M` = 30 → IP bị chặn ~15 phút); `load.py` đọc trạng thái qua API Admin.
+- Tiếp: bước 2 (giaovien `Chấm tất cả`) → bước 3 `measure.py snap b0r1`, `measure.py regrade b0r2`, `measure.py snap b0r2` với `--dir benchmarks/reports/guidance/kc-2026-11-14`.

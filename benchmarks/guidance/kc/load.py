@@ -81,46 +81,6 @@ def ensure_accounts(adm, students):
     print(f"tài khoản: {len(todo)} nhận lời mời / {len(students)}")
 
 
-def hkey(prefix, body):
-    """Khoá idempotency gắn với nội dung: sửa nội dung rồi chạy lại không đụng IDEMPOTENCY_KEY_REUSED."""
-    return f"{prefix}-{hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()[:10]}"
-
-
-MAILPIT = os.environ.get("MAILPIT_URL", "http://localhost:8025").rstrip("/")
-
-
-def mailpit(route):
-    with urllib.request.urlopen(MAILPIT + route, timeout=30) as r:
-        return json.load(r)
-
-
-def mail_token(addr, pattern, timeout=90):
-    """Token trong thư mới nhất tới `addr` có liên kết khớp `pattern` (Mailpit)."""
-    end = time.time() + timeout
-    while time.time() < end:
-        msgs = mailpit(f"/api/v1/search?query=to:{addr}&limit=20").get("messages") or []
-        for m in sorted(msgs, key=lambda m: m["Created"], reverse=True):
-            mt = re.search(pattern, mailpit(f"/api/v1/message/{m['ID']}").get("Text") or "")
-            if mt:
-                return mt.group(1)
-        time.sleep(0.5)
-    die(f"Không thấy thư tới {addr} ({MAILPIT}); worker gửi thư / MAILPIT_URL đúng chưa?")
-
-
-def ensure_accounts(students):
-    """Roster nhập xong thì mỗi email được MỜI (thư «Bạn được thêm vào lớp», liên kết /invite/<token>): nhận lời mời đặt mật khẩu = tài khoản ACTIVE + vào lớp với đúng MSSV → bài nộp mới khớp sinh viên.
-    Email chưa có trong roster thì đăng ký + xác minh email như seed."""
-    todo = []
-    for s in students:
-        st, b = call("POST", "/auth/login", body={"email": s["email"], "password": PASSWORD}, ok=(200, 401, 403, 423, 429))
-        if st == 200:
-            continue
-        todo.append(s)
-    for s in todo:
-        call("POST", "/auth/accept-invite", body={"token": mail_token(s["email"], r"/invite/([A-Za-z0-9_-]+)"), "password": PASSWORD}, ok=(200, 204))
-    print(f"tài khoản: {len(todo)} mới / {len(students)}")
-
-
 def assignment_body(bt, rub):
     due = (datetime.now(timezone.utc) + timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
     return {"title": TITLE[bt], "description": rub["topic"][bt], "type": "ESSAY", "max_score": "10", "due_at": due, "allow_late": False, "late_penalty_per_day": "0", "late_max_days": 0,
