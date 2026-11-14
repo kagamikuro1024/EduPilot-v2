@@ -37,6 +37,7 @@ Rà từng luồng theo câu hỏi "một trường dùng thật thì chỗ nào
 | F5 | AI không chắc → escalate → giảng viên trả lời → mail | SV, GV | M3 | P4 |
 | F6 | Tài liệu: tải lên → xử lý nền → RAG + thư viện | GV, SV | M9, M10 | P8 |
 | F7 | Buổi học → điểm danh → phát biểu → sinh viên tra cứu | GV, SV | M5, M1 | P5 |
+| F7b | Sinh viên tự điểm danh (QR xoay vòng + cờ bất thường), web và app Android | GV, TA, SV | M5 | 10.8 |
 | F8 | Theo dõi sinh viên → ghi chú → can thiệp | GV | M6, M13-C | P5 |
 | F9 | Bài tập: tạo → nộp → chấm nháp → duyệt → công bố | GV, SV | M8 | P7 |
 | F10 | Quy chế môn học → công thức → sổ điểm → chốt → xuất | GV | M7 | P6 |
@@ -103,6 +104,12 @@ Rà từng luồng theo câu hỏi "một trường dùng thật thì chỗ nào
 - **Nhánh:** mất mạng → xếp hàng cục bộ; hai người cùng điểm danh → khoá lạc quan; sửa sau buổi học → được, ghi audit; sinh viên thấy sai → hỏi trong chat → F5 (ticket kèm ngữ cảnh buổi học).
 - **E2E:** `attendance.spec.ts` (có bước ngắt mạng).
 
+### F7b. Sinh viên tự điểm danh (sprint 10.8)
+Spec: `docs/specs/FEAT-attendance-selfcheck/`. Nguyên tắc: **chỉ gắn cờ, không tự phạt; không tự ghi vắng; giảng viên quyết**.
+1. Giảng viên bật **Điểm danh bằng mã** cho lớp (mặc định tắt; vị trí / mạng trường tuỳ chọn) → 2. đến buổi, `/attendance` → `Mở điểm danh` → **màn chiếu** hiện QR đổi mỗi 10 s + số đã điểm danh + đồng hồ → 3. sinh viên quét bằng camera điện thoại → trang `/checkin` (hoặc app Android qua App Links) tự gửi, ký bằng khoá thiết bị → «Đã điểm danh 07:03» → 4. giảng viên (tuỳ) nhập **số đầu người**, mở **vòng 2** bất ngờ (không báo trước), **gọi tên ngẫu nhiên** 5 người → 5. `Đóng` (hoặc hết giờ tự đóng): người đã điểm danh thành **Có mặt / Muộn**, người chưa điểm danh **chưa có dòng** → 6. lưới hiện «Cần xem» (cờ: cùng máy, máy mới, quét trễ, ngoài khu vực, vắng lượt kiểm lại…) → giảng viên xem, `Đã xem` hoặc sửa tay (hoàn tác, `audit_log`) → 7. giảng viên bấm `Đánh vắng các SV chưa điểm danh` (xác nhận) → `Lưu điểm danh` → 8. sinh viên xem ở `/me` (chỉ giờ điểm danh, không thấy cờ) hoặc hỏi AI.
+- **Nhánh:** mã hết hạn / sai → quét lại; cửa sổ đã đóng; không thuộc lớp; gửi lại cùng lượt → trả bản cũ; mất mạng → thử lại; lớp tắt tính năng → điểm danh tay như F7; giảng viên quên đóng → worker tự đóng ≤ 60 s (không ghi vắng); còn người chưa xử lý mà bấm hoàn tất → báo «Còn n sinh viên chưa điểm danh»; chứng thực app hỏng / bootloader mở → vẫn ghi, gắn cờ; từ chối quyền vị trí → vẫn ghi, gắn cờ; dữ liệu thô tự xoá sau 30 ngày.
+- **E2E:** `attendance-checkin.spec.ts`, `attendance-display.spec.ts`; tải `benchmarks/load/checkin.js`; Android: `docs/sprints/10.8/qc/android-checklist.md`.
+
 ### F8. Theo dõi sinh viên
 `/students` lọc "Cần chú ý" → mở hồ sơ → đọc câu nhận định rủi ro + lý do → thêm ghi chú riêng → tuỳ chọn tạo nhận xét AI → hành động: nhắn riêng cho sinh viên qua ticket do giảng viên mở (dùng lại F5 theo chiều ngược), hoặc tạo buổi ôn tập (F13).
 - **Ràng buộc:** sinh viên không bao giờ thấy ghi chú hay nhãn rủi ro của mình; mọi lần xem hồ sơ ghi `audit_log`.
@@ -139,7 +146,7 @@ Mỗi module đăng ký nguồn việc; bảng đầy đủ nguồn việc sau r
 | Vai trò | Nguồn việc |
 | --- | --- |
 | Sinh viên | Chưa có lớp → nhập mã · email chưa xác minh · hạn nộp < 24 h chưa nộp · **bài thi đang làm dở / đang mở / sắp mở trong 48 h (F19)** · QUIZ / thi trong 48 h · điểm vừa công bố · phúc khảo có phản hồi · chủ đề sai nhiều · câu trả lời của giảng viên chưa đọc · tài liệu mới |
-| Giảng viên / TA | Buổi học đang diễn ra chưa điểm danh · ticket chờ (kèm số giờ) · phúc khảo chờ · bài chấm "cần xem kỹ" · bài đã duyệt chưa công bố · câu trả lời AI chờ xác nhận · bài bị báo cáo · bài nộp chưa khớp · yêu cầu vào lớp chờ duyệt · email lệch MSSV chờ duyệt · công thức điểm chưa xác nhận · thiết lập lớp mới · câu hỏi chờ duyệt (từ PE) · phúc khảo bài thi chờ · bài thi chấm xong nhưng đang hoãn công bố · bài code chấm lỗi hệ thống · cặp bài code nghi giống nhau cần xem (F19) · sinh viên mới vào diện cần chú ý |
+| Giảng viên / TA | Buổi học đang diễn ra chưa điểm danh · buổi có lượt điểm danh bằng mã cần xem (cờ chưa bỏ, ≤ 7 ngày) · ticket chờ (kèm số giờ) · phúc khảo chờ · bài chấm "cần xem kỹ" · bài đã duyệt chưa công bố · câu trả lời AI chờ xác nhận · bài bị báo cáo · bài nộp chưa khớp · yêu cầu vào lớp chờ duyệt · email lệch MSSV chờ duyệt · công thức điểm chưa xác nhận · thiết lập lớp mới · câu hỏi chờ duyệt (từ PE) · phúc khảo bài thi chờ · bài thi chấm xong nhưng đang hoãn công bố · bài code chấm lỗi hệ thống · cặp bài code nghi giống nhau cần xem (F19) · sinh viên mới vào diện cần chú ý |
 | Admin | Provider LLM lỗi · sắp chạm trần ngân sách · hàng dead-letter có việc · sao lưu gần nhất thất bại · lớp không có giảng viên hoạt động |
 
 ### F15. Cấu hình LLM, ngân sách, tích hợp
