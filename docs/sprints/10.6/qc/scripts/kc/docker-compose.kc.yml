@@ -1,0 +1,7 @@
+# QC: Caddy thêm site http://localhost (cổng host 580) để trình duyệt agent mở không lỗi chứng chỉ. Dùng thêm -f sau docker-compose.test.yml.
+services:
+  caddy:
+    volumes:
+      - /Users/kuro/Documents/TA_Agent_qc106/docs/sprints/10.6/qc/scripts/kc/Caddyfile.kc:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
