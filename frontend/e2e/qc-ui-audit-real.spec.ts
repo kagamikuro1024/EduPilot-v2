@@ -87,7 +87,10 @@ async function probe(page: Page) {
     const h1r = h1 ? R(h1) : null; const ar = actions ? R(actions) : null; const hr = hdr ? R(hdr) : null;
     const hbtns = actions ? Array.from(actions.querySelectorAll("button,a")).filter(vis) : [];
     const variantOf = (b: Element) => b.getAttribute("data-variant") ?? "link";
-    const primOut = Array.from(main.querySelectorAll("[data-variant=primary]")).filter((b) => vis(b) && !actions?.contains(b) && !b.closest("[data-ep-header-dock]")); // P-107-14: nút trong thanh dính đáy không tính H6
+    const primOut = Array.from(main.querySelectorAll("[data-variant=primary]")).filter((b) => vis(b) && !actions?.contains(b) && !b.closest("[data-ep-header-dock]") && !b.closest("form") && !b.closest("[data-ep-action-list]")); // P-107-14 dock; TL 14.1: nút gửi của form và hàng đầu ActionList là ngoại lệ
+    const formPrim = Math.max(0, ...Array.from(main.querySelectorAll("form")).map((f) => Array.from(f.querySelectorAll("[data-variant=primary]")).filter(vis).length));
+    const alPrim = Array.from(main.querySelectorAll("[data-ep-action-list] [data-variant=primary]")).filter(vis).length;
+    const alCount = main.querySelectorAll("[data-ep-action-list]").length;
     const sections = Array.from(main.querySelectorAll("[data-ep-section]"));
     const secGaps = sections.slice(1).map((s, i) => +(R(s).y - R(sections[i]).b).toFixed(1));
     const headToPanel = sections.slice(0, 4).map((s) => { const hd = s.querySelector("[data-ep-section-head]"); const pn = s.querySelector("[data-ep-panel]"); return hd && pn ? +(R(pn).y - R(hd).b).toFixed(1) : null; });
@@ -128,7 +131,7 @@ async function probe(page: Page) {
       header: { h1Count: h1s.length, h1InHeader: !!hdr && !!hdr.querySelector("h1"), pTags: hdrKids, h1: h1r, h1x: h1r?.x ?? null, hdrH: hr?.h ?? null, hasMeta: !!meta, metaText, metaLines: meta ? Math.max(1, Math.round(R(meta).h / lh(meta))) : 0,
         metaDupClass: !!meta && classTokens.some((t) => metaText.includes(t) && topbar.includes(t)),
         dy: h1r && ar ? +((ar.y + ar.h / 2) - (h1r.y + h1r.h / 2)).toFixed(1) : null, actionsRight: ar && ar.w > 0 && col ? +(col.r - ar.r).toFixed(1) : null, actionsH: ar?.h ?? null, btns: hbtns.map((b) => ({ t: txt(b) || b.getAttribute("aria-label") || "", v: variantOf(b) })) },
-      primaryTotal: primOut.length + hbtns.filter((b) => variantOf(b) === "primary").length, primaryOutside: primOut.map(txt),
+      primaryTotal: primOut.length + hbtns.filter((b) => variantOf(b) === "primary").length, primaryOutside: primOut.map(txt), formPrim, alPrim, alCount,
       sections: sections.length, h2: h2s.length, h2NoHook: h2s.filter((h) => !h.hasAttribute("data-ep-section-title")).length, sectionP: main.querySelectorAll("[data-ep-section-head] p").length,
       secGaps, headToPanel, hdrToBody, tabs, toolbarBtns,
       empties, dupEmpty, alerts, alertCount: main.querySelectorAll("[role=alert]").length, busy: main.querySelectorAll("[aria-busy=true]").length,
