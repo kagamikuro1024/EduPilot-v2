@@ -706,30 +706,58 @@ ap as (
   select p.course_id, count(*)::int as n, min(p.created_at) as oldest, (array_agg(p.submission_id order by p.created_at))[1] as sub, min(a.title) as title
   from grade_appeals p join assignments a on a.course_id = p.course_id and a.id = p.assignment_id
   where p.course_id in (select course_id from ids) and p.status = 'OPEN'
-  group by p.course_id)
+  group by p.course_id),
+gon as (
+  select i.course_id from ids i join course_guidance_flags f on f.course_id = i.course_id and f.feature = 'GRADING_GUIDANCE' and f.enabled
+),
+gdr as (
+  select g.course_id, count(*)::int as n, (array_agg(a.id order by g.created_at))[1] as aid, (array_agg(a.title order by g.created_at))[1] as title
+  from grading_guidance_items g join assignments a on a.course_id = g.course_id and a.id = g.assignment_id
+  where g.course_id in (select course_id from gon) and g.status = 'DRAFT'
+  group by g.course_id
+),
+gst as (
+  select r.course_id, count(*)::int as n, (array_agg(a.id order by r.id))[1] as aid, (array_agg(a.title order by r.id))[1] as title
+  from grading_results r
+  join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+  join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+  where r.course_id in (select course_id from gon) and r.status = 'DRAFT' and r.run_state = 'DONE' and r.first_reviewed_at is null
+    and r.guidance_version < a.guidance_version and r.round < 20 and s.match_status = 'MATCHED'
+    and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
+    and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
+    and not exists (select 1 from jsonb_array_elements(r.criteria) c where (c ->> 'score')::numeric is distinct from (r.ai_scores ->> (c ->> 'id'))::numeric)
+  group by r.course_id
+)
 select ids.course_id, coalesce(unm.n, 0)::int as unmatched, coalesce(cur.err_n, 0)::int as err_n, coalesce(cur.rev_n, 0)::int as rev_n,
        coalesce(cur.err_title, '')::text as err_title, coalesce(cur.rev_title, '')::text as rev_title,
        coalesce(cur.pub_n, 0)::int as pub_n, coalesce(cur.pub_title, '')::text as pub_title,
-       coalesce(ap.n, 0)::int as appeal_n, coalesce(ap.oldest, 'epoch'::timestamptz)::timestamptz as appeal_oldest, coalesce(ap.sub, '00000000-0000-0000-0000-000000000000'::uuid)::uuid as appeal_sub, coalesce(ap.title, '')::text as appeal_title
-from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id left join ap on ap.course_id = ids.course_id
+       coalesce(ap.n, 0)::int as appeal_n, coalesce(ap.oldest, 'epoch'::timestamptz)::timestamptz as appeal_oldest, coalesce(ap.sub, '00000000-0000-0000-0000-000000000000'::uuid)::uuid as appeal_sub, coalesce(ap.title, '')::text as appeal_title,
+       coalesce(gdr.n, 0)::int as guidance_draft_n, coalesce(gdr.title, '')::text as guidance_draft_title,
+       coalesce(gst.n, 0)::int as guidance_stale_n, coalesce(gst.aid, '00000000-0000-0000-0000-000000000000'::uuid)::uuid as guidance_stale_aid, coalesce(gst.title, '')::text as guidance_stale_title
+from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id left join ap on ap.course_id = ids.course_id left join gdr on gdr.course_id = ids.course_id left join gst on gst.course_id = ids.course_id
 `
 
 type TodayStaffAssignmentBatchRow struct {
-	CourseID     uuid.UUID
-	Unmatched    int32
-	ErrN         int32
-	RevN         int32
-	ErrTitle     string
-	RevTitle     string
-	PubN         int32
-	PubTitle     string
-	AppealN      int32
-	AppealOldest time.Time
-	AppealSub    uuid.UUID
-	AppealTitle  string
+	CourseID           uuid.UUID
+	Unmatched          int32
+	ErrN               int32
+	RevN               int32
+	ErrTitle           string
+	RevTitle           string
+	PubN               int32
+	PubTitle           string
+	AppealN            int32
+	AppealOldest       time.Time
+	AppealSub          uuid.UUID
+	AppealTitle        string
+	GuidanceDraftN     int32
+	GuidanceDraftTitle string
+	GuidanceStaleN     int32
+	GuidanceStaleAid   uuid.UUID
+	GuidanceStaleTitle string
 }
 
-// "Hôm nay" của nhân viên: UNMATCHED_SUBMISSION (60), GRADING_ERROR (28), GRADING_REVIEW (30) — MỘT truy vấn tổng hợp cho mọi lớp (SRS 4.12). Chỉ kết quả HIỆN HÀNH của bài nộp MATCHED mới nhất.
+// "Hôm nay" của nhân viên: UNMATCHED_SUBMISSION (60), GRADING_ERROR (28), GRADING_REVIEW (30) — MỘT truy vấn tổng hợp cho mọi lớp (SRS 4.12; 10.6: gộp cả lưu ý chấm chờ duyệt / bài chấm bản cũ của lớp bật cờ GRADING_GUIDANCE để giữ ngân sách truy vấn). Chỉ kết quả HIỆN HÀNH của bài nộp MATCHED mới nhất.
 func (q *Queries) TodayStaffAssignmentBatch(ctx context.Context, courseIds []string) ([]TodayStaffAssignmentBatchRow, error) {
 	rows, err := q.db.Query(ctx, todayStaffAssignmentBatch, courseIds)
 	if err != nil {
@@ -752,6 +780,11 @@ func (q *Queries) TodayStaffAssignmentBatch(ctx context.Context, courseIds []str
 			&i.AppealOldest,
 			&i.AppealSub,
 			&i.AppealTitle,
+			&i.GuidanceDraftN,
+			&i.GuidanceDraftTitle,
+			&i.GuidanceStaleN,
+			&i.GuidanceStaleAid,
+			&i.GuidanceStaleTitle,
 		); err != nil {
 			return nil, err
 		}

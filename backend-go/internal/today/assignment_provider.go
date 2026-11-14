@@ -120,6 +120,21 @@ func (p AssignmentProvider) staffItems(ctx context.Context, v Viewer, sc Scope) 
 			out = append(out, mk(Item{ID: "GRADING_REVIEW:" + c.ID.String(), Kind: KindGradingReview, Tier: TierGradingReview, Course: courseRef(c),
 				Href: "/grading", Title: fmt.Sprintf("%d bài cần xem kỹ · %s", r.RevN, r.RevTitle), Reason: "Xem lại các bài có cờ trước khi duyệt."}))
 		}
+		out = append(out, guidanceItems(v, c, r)...)
 	}
 	return out, nil
+}
+
+// guidanceItems (10.6): «Lưu ý chấm chờ duyệt» (TEACHER) và «N bài chấm theo bản cũ» (Giảng viên + TA); số liệu đã nằm trong truy vấn gộp của staffItems (chỉ lớp bật cờ GRADING_GUIDANCE). Sinh viên không bao giờ thấy.
+func guidanceItems(v Viewer, c CourseRef, r store.TodayStaffAssignmentBatchRow) []Item {
+	var out []Item
+	if r.GuidanceDraftN > 0 && v.Role == RoleTeacher {
+		out = append(out, mk(Item{ID: "GUIDANCE_PENDING:" + c.ID.String(), Kind: KindGuidancePending, Tier: TierGuidancePending, Course: courseRef(c),
+			Href: "/grading?tab=assignments", Title: "Lưu ý chấm chờ duyệt · " + r.GuidanceDraftTitle, Reason: fmt.Sprintf("%d lưu ý — Duyệt hoặc Bỏ.", r.GuidanceDraftN)}))
+	}
+	if r.GuidanceStaleN > 0 {
+		out = append(out, mk(Item{ID: "GUIDANCE_STALE:" + c.ID.String(), Kind: KindGuidanceStale, Tier: TierGuidanceStale, Course: courseRef(c),
+			Href: "/grading?tab=queue&assignment=" + r.GuidanceStaleAid.String(), Title: fmt.Sprintf("%d bài chấm theo bản cũ · %s", r.GuidanceStaleN, r.GuidanceStaleTitle), Reason: "Chấm lại các bài nháp chưa sửa."}))
+	}
+	return out
 }

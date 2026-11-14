@@ -1,156 +1,51 @@
-# Hướng dẫn vận hành: học từ lần giảng viên sửa (D61, D62)
+# Hướng dẫn: học từ lần giảng viên sửa (D61, D62) — sprint 10.6
 
-> **Bản phác (techlead-mem, 2026-11-14).** Dev điền ảnh màn hình và tên nút cuối cùng ở L6. Chỗ ghi `[CHỜ L…]` là phần chưa có mã.
->
-> Nguồn chuẩn: `docs/specs/FEAT-grading-guidance/SRS.md`. Thiết kế mã: `docs/sprints/10.6/techlead.md` TL-1.
+Dành cho giảng viên (dùng) và người vận hành (bật, đo, sự cố). Mỗi lớp bật riêng; mặc định **tắt**; tắt thì hệ thống chạy như trước 10.6. Sinh viên **không thấy gì** về tính năng này.
 
-Người đọc: giảng viên (TEACHER) bật và dùng tính năng; quản trị viên (ADMIN) vận hành và đo.
+## 1. Bốn công tắc theo lớp
+`/class/settings` → nhóm **Học từ lần sửa** (giảng viên; ADMIN thêm «Ca kiểm thử»). Cùng API: `GET|PUT /courses/{id}/guidance-flags[/{feature}]` (`GRADING_GUIDANCE`, `THREAD_SUGGEST`, `QUESTION_HINTS`, `REGRESSION_CAPTURE`). Công tắc cứng toàn hệ thống: `GUIDANCE_ENABLED=false` → API ghi trả `409 GUIDANCE_DISABLED`, không job nào chạy.
+Ảnh chụp cờ nằm trong bộ nhớ gateway + worker; `PUT` ghi DB rồi `PUBLISH` Redis; mất tin thì tự đúng lại sau ≤ 60 s (P-106-6).
 
-Hướng dẫn trả lời sáu câu:
-- tính năng làm gì;
-- bật thế nào;
-- một vòng duyệt lưu ý đi ra sao;
-- chấm lại và công bố thế nào;
-- đọc số đo;
-- quên / xoá và sự cố.
+| Công tắc | Việc nó bật |
+| --- | --- |
+| Lưu ý chấm | M1: rút / duyệt / áp dụng lưu ý, chấm theo bản lưu ý, chấm lại bài nháp cũ |
+| Ca kiểm thử | M2: ghi ca hồi quy (chỉ tham chiếu + số) khi giảng viên sửa điểm / phúc khảo / xử lý bài đăng |
+| Gợi ý câu hỏi tương tự | M4: gợi ý ≤ 3 thread đã xác nhận khi sinh viên soạn câu hỏi |
+| Gợi ý khi sinh câu hỏi | M6: lý do loại câu hỏi → khối «Tránh…» ở lần sinh câu sau |
 
-## 1. Tính năng làm gì
+## 2. Vòng M1 (ngăn bài tập, khối «Lưu ý chấm»)
+1. Duyệt xong ≥ `GUIDANCE_MIN_RESULTS` bài, có ≥ `GUIDANCE_MIN_EDITS` lần sửa lệch ≥ `GUIDANCE_MIN_DELTA` → **Rút lưu ý** (job nền, ≤ `REFLECT_MAX_PER_HOUR` lần / giờ / bài tập). Đầu vào LLM chỉ có điểm AI, điểm giảng viên, nhận xét gốc của AI — không văn bản bài, không tên / MSSV.
+2. Mỗi lưu ý là nháp («Chờ duyệt»): **Duyệt** / **Bỏ** / **Sửa** chữ; có «Hoàn tác» 5 s và **Đặt lại** tới khi Áp dụng. Chữ có điểm tổng, phạt, làm tròn, tên người bị từ chối.
+3. **Áp dụng** (xác nhận, không hoàn tác) gom thành phiên bản N+1; KHÔNG tự chấm lại. Bài chấm sau đó ghim đúng bản lúc chấm.
+4. Bài nháp chấm theo bản cũ chưa ai sửa → **Chấm lại** (`/grading`, ≤ `REGRADE_MAX_BATCH`). Không bao giờ chạm bài đã duyệt, đã sửa tay, đã công bố. Bài đã duyệt chấm bản cũ vẫn công bố được; hộp công bố nêu số bài («a đã sửa tay, b duyệt nguyên nháp»); lưới an toàn `409 MIXED_GUIDANCE` chỉ cho bài chưa từng duyệt.
+5. Số đo: `GET …/guidance/stats` — MAE tiêu chí / tổng, lệch TB có dấu (dương = AI cao hơn giảng viên) theo phiên bản; n < 5 → ẩn. **Cho nghỉ** một lưu ý khi lệch TB đổi dấu quá tay.
 
-Mỗi lần giảng viên sửa điểm nháp của AI, hệ thống đã lưu: điểm AI không sửa được (`ai_scores`), điểm giảng viên chốt (`criteria`). Tính năng dùng lại các lần sửa đó theo bốn cách. Mỗi cách có một công tắc riêng cho từng lớp, **mặc định tắt**.
-
-| Công tắc | Làm gì | Ai bật |
-| --- | --- | --- |
-| `GRADING_GUIDANCE`: Lưu ý chấm | Rút "lưu ý chấm" từ các lần sửa của **một** bài tập. Giảng viên duyệt rồi áp dụng thành **bản** v1, v2… Lượt chấm sau của bài đó dùng các lưu ý đã duyệt | TEACHER, ADMIN |
-| `THREAD_SUGGEST`: Câu tương tự | Khi sinh viên soạn câu hỏi Threads, hiện ≤ 3 thread đã có câu trả lời được xác nhận | TEACHER, ADMIN |
-| `QUESTION_HINTS`: Mẫu câu bị loại | Khi sinh câu hỏi luyện đề / thi, nhắc AI tránh các lỗi mà giảng viên hay loại | TEACHER, ADMIN |
-| `REGRESSION_CAPTURE`: Ca hồi quy | Mỗi lần sửa lớn (≥ 1 điểm) hoặc phúc khảo "Điều chỉnh" thành một ca để chạy lại khi đổi prompt / model | **chỉ ADMIN** |
-
-Ba điều **không** xảy ra:
-- AI không tự áp lưu ý, không tự công bố điểm.
-- Lưu ý không đụng điểm tổng, trừ nộp muộn, làm tròn: những thứ đó là code.
-- Sinh viên không thấy gì của tính năng: không lưu ý, không bản, không công tắc.
-
-Cũng không có "bộ nhớ" theo sinh viên. Lưu ý gắn với bài tập, không gắn với người (D61).
-
-## 2. Bật cho một lớp
-
-1. Kiểm `GUIDANCE_ENABLED=true` ở gateway và worker (mặc định). Đặt `false` để tắt **cứng** cả hệ thống: API ghi trả `409 GUIDANCE_DISABLED`, chấm bài như trước 10.6.
-2. `/class/settings` → khối "Học từ lần sửa" → bật công tắc cần dùng. `[CHỜ L6: ảnh]`
-3. Nên bật **sau** khi lớp đã có ít nhất một bài tự luận được duyệt ≥ 5 bài.
-4. Chỉ để bật lâu dài khi số đo của lớp đạt tiêu chí "bật được" (mục 5). Chưa đạt thì giữ tắt; không nới ngưỡng.
-
-## 3. Một vòng lưu ý chấm (bài tự luận)
-
-```mermaid
-flowchart LR
-  A[AI chấm nháp · bản vN] --> B[GV duyệt, sửa điểm]
-  B --> C{≥ 5 bài duyệt<br>≥ 3 lần sửa ≥ 0,5}
-  C -- chưa --> B
-  C -- đủ --> D[Rút lưu ý]
-  D --> E[GV Duyệt / Bỏ / sửa chữ]
-  E --> F[Áp dụng → bản vN+1]
-  F --> G[Chấm lại bài theo bản cũ]
-  G --> H[Công bố]
-```
-
-1. **Duyệt bài như thường lệ.** Sửa điểm tiêu chí mà AI chấm lệch. Mỗi lần sửa ≥ 0,5 điểm là một tín hiệu.
-2. **Rút lưu ý** (`/assignments/[id]` → khối "Lưu ý chấm"):
-   - Nút khoá khi chưa đủ điều kiện; di chuột lên nút để xem lý do.
-   - Việc chạy nền khoảng vài chục giây; rời trang được.
-   - Tối đa 3 lần / giờ / bài tập.
-   - Kết quả là ≤ 8 lưu ý "Chờ duyệt". Mỗi lưu ý ghi số lần sửa ủng hộ (ít nhất 2).
-   - "Không có lưu ý mới" là kết quả bình thường khi các lần sửa không theo một quy luật.
-3. **Duyệt từng lưu ý.** Giữ những lưu ý mô tả đúng cách mình chấm; `Bỏ` những lưu ý mâu thuẫn rubric hoặc tả sai bài.
-   - Đọc kỹ: hệ thống rút lưu ý từ **nhận xét của AI**, không đọc bài làm. Nhận xét AI tả sai thì lưu ý cũng sai.
-   - PoC đo được đúng lỗi này. Bỏ lưu ý sai là việc làm cho tính năng có ích (research §5.1: duyệt rồi mới áp thì sai số nháp giảm 49 %, tự áp chỉ giảm 17 %).
-   - Có thể sửa chữ lưu ý trước khi `Duyệt`. Chữ có tên / MSSV hoặc nói về tổng / trừ muộn bị từ chối.
-4. **Áp dụng.** Mọi lưu ý đã `Duyệt` (và lưu ý `Cho nghỉ`) vào **một** bản mới. `Duyệt` từng cái không tạo bản; chỉ `Áp dụng` mới tạo.
-5. **Cho nghỉ** một lưu ý không còn đúng: nó chuyển "Chờ nghỉ" và rời bản ở lần `Áp dụng` sau. Lượt chấm cũ vẫn ghi nhận nó, vì mỗi lượt chấm **ghim** bản đã dùng.
-
-**Nếu rubric đổi sau khi có lưu ý:** lưu ý của tiêu chí đã xoá không còn được dùng khi chấm. Cho nghỉ chúng ở lần duyệt sau.
-
-## 4. Chấm lại và công bố
-
-Luật (P-106-2, P-106-5): **điểm giảng viên đã duyệt hoặc đã sửa không bao giờ bị chấm lại hay ghi đè.** Giảng viên được duyệt cả nháp chấm theo bản cũ; đó là quyết định của giảng viên.
-
-| Bài sau khi `Áp dụng` bản mới | Hệ thống làm | Giảng viên nên làm |
-| --- | --- | --- |
-| Nháp chấm theo bản cũ, chưa sửa | Gắn "Bản cũ"; hàng chờ đếm vào "N bài nháp cũ · Chấm lại" | Bấm `Chấm lại` để AI chấm theo bản mới. Vẫn được duyệt nguyên nháp nếu muốn (miễn "duyệt nguyên nháp") |
-| Nháp bản cũ đang sửa dở | Đếm vào "M đang sửa dở"; `Chấm lại` cả lô không đụng | Sửa xong rồi duyệt (miễn "đã sửa tay"). Chấm lại riêng bài này có hộp xác nhận vì mất phần đang sửa |
-| Đã duyệt (kể cả bộ bài dùng để rút lưu ý) | **Miễn**: giữ nguyên điểm, công bố bình thường. Sửa lại rồi duyệt lại cũng vẫn miễn | Không cần làm gì |
-| Đã công bố | Không bao giờ chấm lại | – |
-
-- `Chấm lại` ở hàng chờ chỉ chấm nháp bản cũ **chưa sửa**, và báo số bài bỏ qua (đã duyệt / đã sửa).
-- Mỗi lần ≤ 200 bài. Bài đã chấm lại 20 lần bị bỏ qua và được báo số.
-- **Công bố:** hộp xác nhận ghi "k bài chấm theo bản cũ: a đã sửa tay, b duyệt nguyên nháp". Một lô có thể gồm điểm chốt theo hai bản; đó là quyết định của giảng viên.
-
-Không cần công bố trước khi `Áp dụng`: bộ bài dùng để rút lưu ý đã được duyệt nên được miễn.
-
-## 5. Đọc số đo
-
-Khối "Lưu ý chấm" có bảng nhỏ theo bản. Số tính trên bài đã duyệt / công bố; dưới 5 bài thì hiện `—`.
-
-| Số | Ý nghĩa | Muốn thấy |
-| --- | --- | --- |
-| `mae_criterion`, `mae_total` | sai số trung bình giữa điểm nháp AI và điểm giảng viên chốt (tiêu chí / tổng trước trừ muộn) | giảm sau mỗi bản |
-| `bias_total` (có dấu) | AI chấm cao hơn (+) hay thấp hơn (−) giảng viên | gần 0. **Âm dần là dấu hiệu lưu ý làm AI chấm gắt quá tay** (PoC đã thấy: +0,23 → −0,25) |
-| `edited_rate` | tỉ lệ bài giảng viên phải sửa ít nhất một tiêu chí | giảm |
-
-**Tiêu chí "bật được"** (SRS §9), đo trong **cùng một bài tập**: 20 bài đầu để học, 40 bài sau để đo. Cần đủ cả ba:
-- MAE tổng giảm ≥ 20 %;
-- |lệch TB| không xấu hơn bản 0 quá 0,20 điểm;
-- tiêu chí vốn đúng mà nay sai ≤ 1,5 lần bản 0.
-
-Không đạt thì giữ tắt. Lưu ý chỉ có tác dụng trong bài tập sinh ra nó, nên đo ở bài tập thứ hai không có nghĩa.
-
-## 6. Ca hồi quy (ADMIN)
-
-- Bật `REGRESSION_CAPTURE` cho lớp dùng để đo.
-- Ca lưu **theo tham chiếu**: id kết quả / bài + điểm số, **không** lưu văn bản.
-- Khi đổi prompt chấm, đổi model của tuyến `GRADING` hoặc đổi `BuildEssayPrompt`, chạy trên **stack test** (không phải stack demo):
-
+## 3. Ca hồi quy và `cmd/regress` (M2, môi trường đo)
+Ghi ca trong giao dịch nghiệp vụ khi cờ `REGRESSION_CAPTURE` bật (ADMIN). `expected` chỉ số / enum, chuỗi ≤ 64 ký tự, không văn bản. CLI vận hành, không trong image, CI không chạy:
 ```bash
-cd backend-go && go run ./cmd/regress run --course <id> --baseline ../benchmarks/guidance/baseline.json   # [CHỜ L5]
+cd backend-go
+go run ./cmd/regress run --course <uuid> --write-baseline ../benchmarks/guidance/baseline.json   # lần đầu
+go run ./cmd/regress run --course <uuid> --baseline ../benchmarks/guidance/baseline.json         # thoát 1 nếu «Có lùi»
+go run ./cmd/regress run --course <uuid> --e2                                                   # ca THREAD_*: bài AI bị sửa / loại mà vẫn tự tin
 ```
+Cần `DATABASE_URL`, `REDIS_URL`, cấu hình LLM (9router ở môi trường đo). «Có lùi» = MAE tăng quá `REGRESSION_MAX_REL` (0,10) so baseline, hoặc |lệch TB| xấu thêm > 0,20. `export` từ chối mặc định (`REGRESSION_EXPORT_ALLOWED=false`); khi cho phép chỉ ghi NGOÀI repo, đã che PII, id băm, có `audit_log`.
 
-- Thoát mã khác 0 khi "Có lùi": MAE tăng quá `REGRESSION_MAX_REL`, hoặc lệch TB xấu thêm.
-- `export` mặc định bị từ chối (`REGRESSION_EXPORT_ALLOWED=false`). Đừng bật nếu PM chưa cho phép từng lần.
-- LLM chỉ qua 9router. Không gọi Gemini trực tiếp.
+## 4. Demo và đo
+```bash
+SEED_GUIDANCE_DEMO=1 node scripts/seed.mjs && SEED_GUIDANCE_DEMO=1 node scripts/check-guidance-seed.mjs
+bash benchmarks/guidance/run.sh            # chụp số đo theo phiên bản
+bash benchmarks/guidance/run.sh --cycle    # Rút → Duyệt → Áp dụng → Chấm lại → chụp lại (cần provider sinh chữ)
+```
+Seed ghi thẳng DB (`gateway admin seed-guidance`, chỉ dev | test): bật cờ lớp 761987 + 8 kết quả BT03 đã duyệt, tiêu chí đầu giảng viên luôn thấp hơn AI 1,0. Không gọi Gemini thật.
 
-## 7. Quên / xoá
+## 5. «Hôm nay»
+Giảng viên: «Lưu ý chấm chờ duyệt · <bài>». Giảng viên + TA: «N bài chấm theo bản cũ · <bài>». Chỉ lớp bật cờ; sự kiện `grading_guidance.changed` làm mới ngay.
 
-| Việc | Hệ thống làm |
+## 6. Sự cố nhanh
+| Triệu chứng | Xử lý |
 | --- | --- |
-| Xoá dữ liệu một sinh viên (PR) | Bỏ id kết quả của em khỏi nguồn của lưu ý. Lưu ý còn < 2 lần sửa ủng hộ thì gắn nhãn **"Cần xem lại"**; **không** tự nghỉ, không đổi cách chấm. Xoá ca hồi quy liên quan |
-| Giảng viên muốn bỏ hết lưu ý của một bài | `Cho nghỉ` từng lưu ý → `Áp dụng` (bản mới rỗng) → `Chấm lại` |
-| Tắt công tắc | Lượt chấm mới không dùng lưu ý (ghim bản 0); lưu ý vẫn giữ để bật lại; không còn đếm "bài nháp cũ" hay số bài miễn |
-
-Lưu ý không chứa tên, MSSV, email: hệ thống kiểm lúc rút và lúc sửa chữ.
-
-## 8. Sự cố
-
-| Thấy | Nguyên nhân thường gặp | Làm gì |
-| --- | --- | --- |
-| "Chưa rút được lưu ý" | LLM lỗi hoặc sai dạng sau 3 lần thử | Thử lại sau; xem `/observability` tuyến `GRADING` |
-| `409 NOT_ENOUGH_DATA` | Chưa đủ 5 bài duyệt / 3 lần sửa ≥ 0,5 | Duyệt thêm bài |
-| `429` khi rút | Quá 3 lần / giờ / bài | Chờ |
-| `409 MIXED_GUIDANCE` khi công bố | Lưới an toàn: trong lô có bài chưa có người duyệt mà lệch bản (không xảy ra trong luồng thường) | `Chấm lại` bài đó, hoặc báo quản trị viên |
-| AI chấm gắt hơn hẳn sau khi áp | Lưu ý STRICTER quá rộng | Xem `bias_total`; `Cho nghỉ` lưu ý đó; tắt công tắc nếu cần |
-| Không hiện câu tương tự khi soạn | Công tắc tắt, câu < 3 từ, câu có thông tin cá nhân, hoặc chưa có thread được xác nhận đủ gần | Bình thường; lỗi được bỏ qua im lặng |
-
-## 9. Chi phí
-
-| Việc | Lời gọi LLM |
-| --- | --- |
-| Rút lưu ý | 1 lời gọi `Structured` mỗi lần bấm (≈ 3–6 nghìn token vào), làn chạy nền |
-| Chấm lại | như chấm thường: 2 lượt mỗi bài |
-| Khối lưu ý | +3–6 % token mỗi lượt chấm |
-| Câu tương tự | ≤ 1 lần nhúng mỗi lần ngừng gõ, thường trúng cache của bước kiểm tường lửa |
-| Mẫu câu bị loại | 0 lời gọi thêm |
-
-## 10. Tham chiếu
-
-- Quyết định: `docs/DECISIONS.md` D61, D62; `docs/sprints/10.6/proposals.md` P-106-1…3.
-- Đặc tả: `docs/specs/FEAT-grading-guidance/` (US, SRS, QUESTIONS).
-- Thiết kế mã: `docs/sprints/10.6/techlead.md` TL-1.
-- Research và PoC: `docs/research/2026-11-14-agent-memory.md`, `docs/research/poc/agent-memory/` (nhánh `research/agent-memory`).
+| `Rút lưu ý` mờ | Chưa đủ bài / lần sửa (rê chuột nút xem số hiện có) hoặc cờ lớp tắt |
+| Job rút lưu ý `FAILED` | Xem `jobs.error`; `REFLECT_FAILED` đã thử 3 lần → tin ở `ep:grading.reflect.dead` |
+| Lệch TB đổi dấu sau khi áp dụng | `Cho nghỉ` lưu ý quá tay rồi `Áp dụng`; hoặc tắt «Lưu ý chấm» (chấm mới ghim v0) |
+| Compose không nhận biến | `TestComposeGuidanceEnvReachesGatewayAndWorker` — thêm biến vào cả gateway và worker |
+| Xoá sinh viên | Lưu ý và ca không chứa danh tính nên không cần dọn riêng (`TestGuidanceDeleteStudent`) |

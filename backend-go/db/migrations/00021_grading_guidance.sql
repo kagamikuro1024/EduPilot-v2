@@ -105,6 +105,17 @@ CREATE UNIQUE INDEX grc_unique ON grading_regression_cases (course_id, kind, sou
 CREATE INDEX grc_course_idx ON grading_regression_cases (course_id, kind, created_at);
 CREATE TRIGGER grc_set_updated_at BEFORE UPDATE ON grading_regression_cases FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+-- Xoá kết quả chấm / bài đăng (kể cả cascade khi xoá bài nộp, sinh viên, lớp) thì xoá ca hồi quy tham chiếu nó: không còn tham chiếu mồ côi (US-GD-07 AC7, US-GD-11).
+-- +goose StatementBegin
+CREATE FUNCTION grading_regression_cases_gc() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    DELETE FROM grading_regression_cases WHERE course_id = OLD.course_id AND source_id = OLD.id;
+    RETURN OLD;
+END $$;
+-- +goose StatementEnd
+CREATE TRIGGER grading_results_gc_cases AFTER DELETE ON grading_results FOR EACH ROW EXECUTE FUNCTION grading_regression_cases_gc();
+CREATE TRIGGER forum_posts_gc_cases AFTER DELETE ON forum_posts FOR EACH ROW EXECUTE FUNCTION grading_regression_cases_gc();
+
 -- 5.6 lý do loại câu hỏi
 ALTER TABLE question_bank
     ADD COLUMN reject_reason text NULL
@@ -114,6 +125,9 @@ CREATE INDEX question_bank_rejected_idx ON question_bank (course_id, reviewed_at
     WHERE review_status = 'REJECTED' AND reject_reason IS NOT NULL AND reject_reason <> 'UNSPECIFIED';
 
 -- +goose Down
+DROP TRIGGER IF EXISTS forum_posts_gc_cases ON forum_posts;
+DROP TRIGGER IF EXISTS grading_results_gc_cases ON grading_results;
+DROP FUNCTION IF EXISTS grading_regression_cases_gc();
 DROP INDEX IF EXISTS question_bank_rejected_idx;
 ALTER TABLE question_bank DROP CONSTRAINT question_bank_reject_reason_chk, DROP COLUMN reject_reason;
 DROP TABLE IF EXISTS grading_regression_cases;

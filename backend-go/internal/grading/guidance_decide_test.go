@@ -385,3 +385,31 @@ func TestGuidanceItemReset(t *testing.T) {
 	_, code = apiCode(t, err)
 	require.Equal(t, "ITEM_NOT_RESETTABLE", code)
 }
+
+// TestGuidanceDeleteStudent — US-GD-07 AC7 / US-GD-11: xoá sinh viên (kéo theo bài nộp + kết quả) thì ca hồi quy tham chiếu kết quả đó bị xoá (trigger gc), lưu ý đã rút không chứa danh tính nên còn nguyên.
+func TestGuidanceDeleteStudent(t *testing.T) {
+	g := newGradeEnv(t, nil)
+	canary := "CANARY_XOA_SV"
+	res := g.reviewed("Sinh Vien Bi Xoa", map[string]string{"c1": "2.00"}, map[string]string{"c1": "1.00"}, canary)
+	keep := g.reviewed("Sinh Vien Con Lai", map[string]string{"c1": "2.00"}, map[string]string{"c1": "1.00"}, canary)
+	for _, r := range []uuid.UUID{res, keep} {
+		g.exec(`insert into grading_regression_cases (course_id, kind, source_id, criterion_id, expected) values ($1, 'GRADING_EDIT', $2, 'c1', '{"ai_score":"2.00","teacher_score":"1.00","direction":"STRICTER"}'::jsonb)`, g.course, r)
+	}
+	item := g.draftItem("c1", "Chấm chặt hơn khi chỉ nêu tên.")
+	g.exec(`update grading_guidance_items set source_result_ids = array[$2::uuid] where id = $1`, item, res)
+	var stu uuid.UUID
+	g.one(&stu, `select s.student_id from grading_results r join submissions s on s.id = r.submission_id where r.id = $1`, res)
+	g.exec(`delete from grading_results where submission_id in (select id from submissions where student_id = $1)`, stu) // thứ tự xoá của job xoá dữ liệu sinh viên
+	g.exec(`delete from submissions where student_id = $1`, stu)
+	g.exec(`delete from enrollments where user_id = $1`, stu)
+	g.exec(`delete from users where id = $1`, stu)
+	var n int
+	g.one(&n, `select count(*) from grading_regression_cases where course_id = $1 and source_id = $2`, g.course, res)
+	require.Zero(t, n, "ca của kết quả đã xoá không còn")
+	g.one(&n, `select count(*) from grading_regression_cases where course_id = $1 and source_id = $2`, g.course, keep)
+	require.Equal(t, 1, n, "ca của sinh viên khác giữ nguyên")
+	var items string
+	g.one(&items, `select string_agg(i::text, '|') from grading_guidance_items i where assignment_id = $1`, g.asg)
+	require.NotContains(t, items, stu.String(), "lưu ý không chứa id sinh viên")
+	require.NotContains(t, items, "Sinh Vien Bi Xoa")
+}

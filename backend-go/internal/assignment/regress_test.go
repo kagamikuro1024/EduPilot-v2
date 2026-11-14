@@ -9,6 +9,7 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 
+	"github.com/edupilot/backend-go/internal/assignment"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/regress"
 )
@@ -90,4 +91,39 @@ func TestRegressionCaseAppeal(t *testing.T) {
 	require.Equal(t, "c2", cid)
 	require.Contains(t, exp, `"ai_score": "6.00"`)
 	require.Contains(t, exp, `"teacher_score": "3.00"`)
+}
+
+// TestFirstReviewedWriteOnce — P-106-5 / US-GD-02 AC7a: duyệt → sửa lại (REVIEWED → DRAFT) → duyệt: `first_reviewed_*` giữ nguyên lần đầu, `reviewed_at` đi tiếp; cố ghi đè thẳng DB → lỗi.
+func TestFirstReviewedWriteOnce(t *testing.T) {
+	e := newEnv(t)
+	_, r := e.draft()
+	v := e.detail(r.res).Result.Version
+	_, err := e.review(r.res, v)
+	require.NoError(t, err)
+	var first any
+	var firstBy uuid.UUID
+	var reviewedAt1 time.Time
+	e.one(&first, `select first_reviewed_at from grading_results where id = $1`, r.res)
+	e.one(&firstBy, `select first_reviewed_by from grading_results where id = $1`, r.res)
+	e.one(&reviewedAt1, `select reviewed_at from grading_results where id = $1`, r.res)
+	require.NotNil(t, first)
+	require.Equal(t, e.teacher, firstBy)
+
+	out, err := e.edit(r.res, assignment.EditIn{Version: e.detail(r.res).Result.Version, OverallFeedback: new("Sửa lại sau khi duyệt.")})
+	require.NoError(t, err)
+	require.Equal(t, "DRAFT", out.Result.Status)
+	var firstMid any
+	e.one(&firstMid, `select first_reviewed_at from grading_results where id = $1`, r.res)
+	require.Equal(t, first, firstMid, "sửa lại không xoá dấu «đã duyệt»")
+	time.Sleep(20 * time.Millisecond)
+	_, err = e.review(r.res, out.Result.Version)
+	require.NoError(t, err)
+	var firstAfter any
+	var reviewedAt2 time.Time
+	e.one(&firstAfter, `select first_reviewed_at from grading_results where id = $1`, r.res)
+	e.one(&reviewedAt2, `select reviewed_at from grading_results where id = $1`, r.res)
+	require.Equal(t, first, firstAfter, "duyệt lần hai giữ nguyên lần đầu")
+	require.True(t, reviewedAt2.After(reviewedAt1))
+	_, err = e.pool.Exec(e.ctx, `update grading_results set first_reviewed_at = now() where id = $1`, r.res)
+	require.Error(t, err, "không ghi đè được dấu «đã duyệt»")
 }

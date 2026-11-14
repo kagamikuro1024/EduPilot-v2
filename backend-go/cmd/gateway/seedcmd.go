@@ -24,10 +24,10 @@ var seedEnvs = []string{"dev", "test"} //nolint:gochecknoglobals // danh sách c
 
 // isSeedCmd: tên lệnh con thuộc nhóm seed.
 func isSeedCmd(name string) bool {
-	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity"
+	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity" || name == "seed-guidance"
 }
 
-// runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat|seed-activity`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
+// runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat|seed-activity|seed-guidance`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
 func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdout, stderr io.Writer) int {
 	name := args[0]
 	fail := func(code int, msg string) int {
@@ -89,6 +89,10 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, "không đọc được kế hoạch: "+err.Error())
 		}
 		body = raw
+	case "seed-guidance":
+		if strings.TrimSpace(*assignment) == "" {
+			return fail(2, "thiếu --assignment <submission_code>.")
+		}
 	case "seed-age":
 		modes := 0
 		for _, on := range []bool{*tickets, *activity, strings.TrimSpace(*assignment) != ""} {
@@ -167,6 +171,12 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, err.Error())
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-age: %d dòng\n", n)
+	case "seed-guidance":
+		n, err := seedtool.SeedGuidance(ctx, pool, cid, strings.TrimSpace(*assignment))
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		_, _ = fmt.Fprintf(stdout, "seed-guidance: %d kết quả\n", n)
 	case "crm-risk-run":
 		svc := &crm.Service{Pool: pool, Clock: clock.Real{}, Log: slog.New(slog.NewTextHandler(io.Discard, nil))}
 		if err := svc.RunCourse(ctx, cid, clk); err != nil {

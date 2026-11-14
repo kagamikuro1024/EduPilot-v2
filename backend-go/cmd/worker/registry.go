@@ -65,9 +65,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	// Sự kiện chưa có bên tiêu thụ ở sprint 6 (P4 thông báo gộp, P10 cảnh báo ngân sách): vẫn PHẢI có handler ghi nhận — thiếu thì tin dead-letter sau 4 lần (TestEveryEmittedTopicHasHandler).
 	ack := func(context.Context, outbox.Message) error { return nil }
 	reg.Register(budget.TopicWarn, ack)
-	reg.Register(grading.TopicGuidanceChanged, ack) // lưu ý chấm đổi (10.6); L6 nối vào cache «Hôm nay» của nhân viên
-	thread.RegisterKind(runner, d.Redis)            // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
-	ingest.RegisterKinds(runner, d.Redis)           // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
+	thread.RegisterKind(runner, d.Redis)  // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
+	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
 	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log, Resolvers: map[string]mail.Resolver{}}
 	thread.MailResolver{PublicURL: d.Cfg.AppPublicURL}.Register(mh.Resolvers)
 	assignment.MailResolver{PublicURL: d.Cfg.AppPublicURL}.Register(mh.Resolvers) // assignment_feedback: chi tiết dựng lúc gửi
@@ -76,6 +75,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log, Notify: nt}
 	// "Hôm nay": mỗi sự kiện xoá cache của người bị ảnh hưởng (US-P2-11). Ba topic đã có thông báo được nối chuỗi.
 	inv := today.Invalidator{Pool: d.DB, Redis: d.Redis, Log: d.Log}
+	reg.Register(grading.TopicGuidanceChanged, inv.Handle) // lưu ý chấm đổi (10.6): xoá cache «Hôm nay» của giảng viên + TA
 	reg.Register(course.TopicAssigned, outbox.Chain(cn.HandleAssigned, inv.Handle))
 	reg.Register(course.TopicJoinRequested, outbox.Chain(cn.HandleJoinRequested, inv.Handle))
 	reg.Register(course.TopicJoinDecided, outbox.Chain(cn.HandleJoinDecided, inv.Handle))
