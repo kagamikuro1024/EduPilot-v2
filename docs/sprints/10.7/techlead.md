@@ -469,3 +469,46 @@ Cách làm, nhỏ nhất:
 Áp cùng luật cho `/grading/[id]`: thanh «Đã duyệt N/M · Duyệt bài» (`SubmissionReview.tsx` dòng 573) đã đúng mẫu này, chỉ cần gắn móc. Chưa gom hai thanh thành một primitive: nội dung hai thanh khác nhau (một nút kèm số; tiến độ + hai mũi tên + nút). Route thứ ba cần thanh dưới thì gom.
 
 §23.2 cần thêm một dòng (đã thêm vào `design-23-draft.md`; `DESIGN.md` chờ PM qua P-107-14).
+
+## 13. Xem lại hình mục «Ba số đo» của lô 9 (2026-11-15)
+
+Đo trên bản dev đang chạy ở `localhost:3310` (worktree dev @`cd0b199b`, sạch), 1440 và 390, có và không giảm chuyển động. Ảnh: `mau/so-do-lo9-cd0b199b.png`.
+
+**Kết luận: chưa đạt. Hai hình giữ, sửa nhỏ; hình thứ ba bỏ.**
+
+| Hình | Số nguồn | Đo được | Kết luận |
+| --- | --- | --- | --- |
+| Thanh «recall 0,960» | recall 0,960 trên 200 mẫu (`sprints/6/report.md` dòng 34) | phần tô / rãnh = 0,9600 ở cả hai bề rộng | **Đúng tỉ lệ.** Sai chỗ: thanh rộng 954 px nằm dưới câu «146 yêu cầu gửi AI: 0 lần lộ…», nên 4 % trống đọc thành «4 % bị lộ». Nhãn «recall 0,960» lặp câu ngay trên nó |
+| 30 chấm xanh | 30/30 dòng khớp (`sprints/8/report.md` dòng 24) | 30 chấm 12 px, một hàng ở 1440; 19 + 11 ở 390 | **Đúng.** Nhãn «30 trên 30 sinh viên mẫu» lặp tiêu đề dòng |
+| Hai thanh TTFT | +0,05 % (`sprints/9/report.md` dòng 25) | khai `100%` và `100.05%`, nhưng `max-width: 100%` cắt: cả hai = 1,0000 | **Bỏ.** Hình đang vẽ «+0 %». Vẽ đúng tỉ lệ thì lệch 0,48 px ở 1440 và 0,17 px ở 390, không ai thấy. Nguồn chỉ có số tương đối, không có hai giá trị tuyệt đối để vẽ. Hai thanh đen kín chiều ngang là khối nặng nhất mục mà không mang tin; nhãn «chat khi không chấm · chat khi đang chấm hàng loạt» là câu mới không có trong nguồn (AC9) |
+
+Sửa (ở `Landing.tsx` dòng 125–127 và `Landing.module.css` dòng 122–125):
+
+1. Xoá cả ba `<small>`. Câu của dòng là nhãn của hình.
+2. Thanh recall nằm dưới đúng câu của nó: `grid-column: 9 / span 4` ở 1440 (ở 390 đã nằm ngay dưới câu đó).
+3. Chấm ở 390 chia đều 15 + 15.
+4. Xoá `.viz--pair` và hình của dòng thứ ba.
+
+Màu đã đúng luật: thanh mực, chấm xanh (đã xác nhận), không đỏ, không vàng.
+
+Đối chiếu AC24, phần liên quan tới hình:
+
+| Ý | Đo | Kết quả |
+| --- | --- | --- |
+| (1) mục có hình ở 1440 và 390 | `consistency.mjs`: `no-visual` 0 FAIL | Đạt. Sau khi bỏ hình dòng ba mục vẫn còn hai hình; chưa chạy lại bộ kiểm sau sửa |
+| (3) số lớn ≤ 40 px | 40 px ở 1440, 28 px ở 390 | Đạt |
+| Mục vừa một màn ở 390 | cao 963 px trên màn 844 (mẫu: 844) | **Chưa đạt.** Bốn sửa trên bớt khoảng 130 px, còn khoảng 832 (tính, chưa đo) |
+
+So với `mau/landing.html`: mẫu không có hình ở mục này (hình là phần AC24 thêm). Phần còn lại khớp mẫu: `h2` 48 px, lưới 3 / 5 / 4 cột, ba câu nguyên văn, giảm chuyển động thì 0 animation. Chưa xem số 146 đếm lên.
+
+### 13.1 Ngoài hình: bộ kiểm trên bản dev
+
+`consistency.mjs` trên `localhost:3310`: **23 FAIL, 8 WARN**. Miễn trừ đã ghi ở 8.4 là 8 (`scroll-reveal` 6, `scroll-linked` 1, `copy-headings` 1). Còn 15, nên câu kiểm của AC24 «số FAIL ngoài miễn trừ = 0» chưa đạt.
+
+| Mã | Số | Là gì | Mức |
+| --- | --- | --- | --- |
+| `hidden-content`, `empty-visual` | 4 | **Khung ghim «EduPilot trong ba màn» trống.** Cả ba ảnh `opacity: 0` khi giảm chuyển động, khi không có script, và ở 390 (tôi đo lại: 0 / 0 / 0). Không script thì hai ảnh ở mục vai cũng 0. Trái P-107-12 («giảm chuyển động: tắt hẳn, hiện hình đã xong») và mục 8.3. Mẫu gắn sẵn `is-on` cho ảnh đầu trong HTML | Chặn |
+| `container-edges`, `hero-screen`, `section-height`, `one-heading` | 9 | `footer.closing` không có `.wrap` (mẫu có) và cả trang bọc trong `div.landingRoot`, nên bộ kiểm đọc chân trang thành màn đầu. Sửa hai chỗ cấu trúc đó rồi chạy lại mới biết còn bao nhiêu | Cần chạy lại |
+| trong đó `section-height` ở 390 | – | Lời kết bắt đầu lệch lưới màn 277 px: `#so-do` 963, `#vai` 1003 (màn 844) | Thật |
+| `off-grid` | 1 | «Tạo tài khoản» ở lời kết lệch 17 px | Nhỏ |
+| `focus-ring` | 1 | `.point:focus-visible` của `Chart` bỏ viền focus; không thuộc trang giới thiệu | Ngoài lô 9 |
