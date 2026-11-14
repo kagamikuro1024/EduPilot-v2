@@ -1,7 +1,9 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.2 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.3 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
+
+**v1.3 (P-11-9):** US-P10-12 AC14…AC18 — cờ chèn lệnh bằng `llm.Structured` trong luồng chấm (chỉ cờ, không đổi điểm; bắt ≥ 6/6 bộ 9.5); FR-24.
 
 ## 1. Mục đích và phạm vi
 Hoàn tất M13 (Observation A: `/observability`; B: `/insights`), thống kê điểm thi PE trên `/analytics`, đóng Nợ (UX17-8/9, LCP, L6), đo đạc E1–E6, E2E F1–F17, rà bảo mật và hoàn thiện cho buổi bảo vệ.
@@ -96,6 +98,7 @@ sequenceDiagram
 | FR-20 | `make eval` E1–E6 → JSON + MD + SVG (thư viện chuẩn, P-11-2); chỉ HTTP; `WAITING_HUMAN` khi thiếu chuẩn người | P10-10 |
 | FR-21 | Bảng luồng × spec × kết quả F1–F17; spec bù cho luồng thiếu | P10-11 |
 | FR-22 | Rà bảo mật, README, compose production, visual QA 2 lượt, 10 câu nghiệm thu, demo 15 phút | P10-12 |
+| FR-24 | Gắn cờ `INJECTION_SUSPECTED` bằng `llm.Structured` (gộp lời gọi chấm nếu được, làn `BATCH`, đã che) OR regex; chỉ cờ, không đổi điểm; bài trống không gọi; LLM lỗi → chỉ regex | P10-12 AC14…AC18 |
 | FR-23 | Seed A + B + điểm thi và `check-p10-seed.mjs` idempotent | P10-07 |
 
 ### 4.1 Xếp hạng chủ đề (code thuần, không LLM; hằng số ở cấu hình, đề xuất Q-E-6)
@@ -176,6 +179,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 | Go | `TestStartCountZero` (`internal/practice`) | P10-09 |
 | Contract | `go test ./internal/contract/...` | mọi endpoint mới |
 | E2E | `insights.spec.ts`, `observability.spec.ts`, `analytics-exam.spec.ts`; bảng F1–F17 | P10-05…07, 11 |
+| Go | `TestInjectionFlagLLM` (fake: OR, không đổi điểm, bài trống không gọi, LLM lỗi → regex); chạy tay với LLM thật trên bộ 6 biến thể → ≥ 6/6 | P10-12 AC14…AC18 |
 | Đo | `benchmarks/lighthouse/run.sh`; `make eval` | P10-08, 10 |
 | Seed | `scripts/check-p10-seed.mjs`; idempotent | P10-07 |
 Dữ liệu seed: lớp 1 ≈ 150 câu hỏi (chủ đề A, B lệch + 1 chủ đề đúng 2 sinh viên + 10 `no_context`), lớp 2 ≈ 40 câu (chủ đề C), ≥ 300 dòng `llm_audit` / 7 ngày, ≥ 4 bài thi PE đã công bố, ≥ 1 sinh viên tụt 3 bài liên tiếp, câu hỏi có PII mô phỏng để kiểm che.
@@ -194,4 +198,4 @@ Xem `QUESTIONS.md` (Q-E-1…22). **Đề xuất đổi ARCHITECTURE (PM quyết)
 | M4 (Nợ P-10-10) | F12 | P9 | P10-09 | FR-18 | `TestStartCountZero`, TC-05-16 |
 | E1–E6 | – | P10 L3 | P10-10 | FR-20 | `make eval` |
 | Tất cả | F1–F17 | P10 L3 | P10-11 | FR-21 | Bảng `e2e-matrix.md` |
-| – | – | P10 L4 | P10-12 | FR-22 | Báo cáo rà bảo mật, README, `DEMO_SCRIPT.md` |
+| – | – | P10 L4 (rà bảo mật; P-11-9) | P10-12 | FR-22, FR-24 | Báo cáo rà bảo mật, README, `DEMO_SCRIPT.md` |

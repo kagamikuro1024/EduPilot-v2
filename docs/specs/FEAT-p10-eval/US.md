@@ -274,6 +274,11 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. «Lớp» = `course_id` của đường d�
 - AC11 (kịch bản khớp seed). Given Bước 7 (F17) Then khớp US-P10-04/05 (A, B đứng đầu lớp 1; C lớp 2; chủ đề < 3 SV không câu mẫu); `DEMO_SCRIPT.md` mục «Nhật ký chạy lại» có dòng mới (ngày, commit, thời lượng).
 - AC12 (video). Given video dự phòng Then **chủ dự án quay** (ngoài phạm vi agent); story ghi «chờ chủ dự án», không tính FAIL.
 - AC13 (chữ UI). Given quét luật chữ UI Then `bash scripts/ui-antipatterns.sh` sạch; các màn cũ còn câu mô tả dưới tiêu đề (`/settings/llm`, `/settings/integrations`, khối bảo mật `/settings` — Nợ #42) được dọn **một lượt**.
+- AC14 (cờ chèn lệnh bằng LLM, P-11-9). Given luồng chấm bài tập (P7) When chấm một bài Then ngoài regex hiện có (`grading/injection.go`, giữ làm lớp đầu) có **một** phép gắn cờ bằng `llm.Structured(json_schema)` qua `internal/llm`: **gộp vào lời gọi chấm sẵn có nếu được, không thêm vòng gọi** (không được thì một lời gọi riêng, làn `BATCH`); cờ cuối = regex **OR** LLM; chỉ gắn `INJECTION_SUSPECTED` + tô câu nghi (nếu có), **không** đổi điểm, không xoá chữ khỏi đầu vào, không chặn việc chấm (TLR-4).
+- AC15 (bắt đủ bộ 9.5). Given bộ 6 biến thể chèn lệnh (5 tệp `benchmarks/real-llm/data/injection/v1…v5` + `docs/specs/FEAT-assignments/fixtures/submissions/s6-injection.md`) When chạy với LLM thật (cấu hình ở `/settings/llm`) Then **≥ 6/6** có `INJECTION_SUSPECTED`; ghi nhà cung cấp + model + ngày; regex một mình chỉ bắt 1/6 được ghi làm mốc so sánh. Chạy CI với provider `fake` chỉ kiểm đường mã (OR, không đổi điểm), không kiểm độ bắt.
+- AC16 (không báo nhầm bài trống). Given bài trống / chỉ có khoảng trắng (`EMPTY_SUBMISSION`) Then **không** gọi LLM gắn cờ và **không** có `INJECTION_SUSPECTED`; bài hợp lệ không có lệnh (7 bài fixture khác trong `FEAT-assignments`) → không cờ, kiểm trên bộ đối chứng.
+- AC17 (nhánh lỗi). Given LLM `OVERLOADED` / lỗi / trả sai schema Then cờ chỉ theo regex, việc chấm vẫn hoàn tất, điểm không đổi, không treo; `llm_audit` ghi lỗi.
+- AC18 (riêng tư và phân quyền). Given payload gắn cờ Then qua che danh tính (không tên / MSSV / email) như lượt chấm; sinh viên không thấy cờ (như hiện hành); chỉ TA, TEACHER lớp thấy ở màn duyệt.
 
 ### Ngoài phạm vi của story này
 - Triển khai thật lên máy chủ; kiểm thử trên điện thoại thật (chủ dự án tự kiểm).
