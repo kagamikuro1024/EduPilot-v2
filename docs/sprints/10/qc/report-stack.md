@@ -72,5 +72,8 @@ Kiểm chéo bổ sung (stack sạch): `docker compose logs gateway worker` sau 
 E2E dev (`practice.spec.ts`, `quiz-integrity.spec.ts`, `questions-extract.spec.ts`, `gradebook.spec.ts`, `--project=desktop`, gateway giả): **52 passed** (39 s). `bash scripts/ui-antipatterns.sh` mã 0, 0 dòng lỗi.
 Đọc diff: dev sửa test có sẵn ở `ac2a7aef` (`panels.spec.ts` +4 dòng: ba ca thêm `practiceApi(page)` vì màn đã thật; `today/staff_test.go` 6 → 7 truy vấn theo P-10-8 F1 đã duyệt) và đổi nhãn menu về tên cũ để `exam.spec.ts` xanh (L11). Không thấy `fetch(` trần, `float64` điểm, thư viện lạ, `t.Skip`.
 
-## 5. Seed sạch (TC-12-01…06)
+## 5. Kiểm lại sau các bản sửa
+Xem `summary.md` (bảng story và mục «Đang dở»). Kết quả: L1, L3, L5, L7–L12, L15, L16, #3 đạt; L4 còn hai điểm (citations 3/107; 1 stem trùng lớp 2); L6 Nợ chấp nhận.
+
+## 5b. Seed sạch (TC-12-01…06)
 Xem mục cuối `summary.md` (điền sau lượt dựng lại `down -v` → `pnpm dev` → seed).

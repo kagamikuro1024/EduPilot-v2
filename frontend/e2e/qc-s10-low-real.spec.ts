@@ -32,7 +32,7 @@ test("GV: menu, Drawer, Forms", async ({ browser }) => {
   const soan = page.getByRole("menuitem", { name: /Soạn tay/ });
   if (await soan.count()) { await soan.first().click(); await page.waitForTimeout(400); out.push("sau Soạn tay: " + (await page.getByRole("menuitem").allInnerTexts()).join(" | ")); await page.screenshot({ path: `${OUT}/low-menu-soan-tay-1440.png` }); }
   await page.keyboard.press("Escape");
-  await page.getByRole("row").nth(1).click(); await page.waitForTimeout(800);
+  await page.getByRole("row", { name: /DNS dùng để làm gì/ }).first().click(); await page.waitForTimeout(800);
   const src = page.getByRole("link", { name: /trang \d/ }).first();
   out.push("nguồn: " + (await src.count() ? await src.innerText() : "không có liên kết"));
   await page.screenshot({ path: `${OUT}/low-drawer-1440.png` });

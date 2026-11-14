@@ -270,3 +270,20 @@
 {"tc": "TC-02-10 tài liệu chưa READY → 409 DOCUMENT_NOT_READY", "st": "PASS", "note": "409"}
 {"tc": "RECHECK-L3 'Ôn chủ đề' biến mất ≤ 5 s ở /courses/{id}/today", "st": "FAIL", "note": "sau Nones; kế tiếp: Ôn chủ đề Xác thực và phân quyền"}
 {"tc": "RECHECK-L3 'Ôn chủ đề' biến mất ≤ 5 s ở /courses/{id}/today", "st": "PASS", "note": "sau 0.5250320434570312s; kế tiếp: Ôn chủ đề Mạng và tường lửa"}
+{"tc": "RECHECK-L4a ≥80 APPROVED, mọi câu (trừ CODE/SHORT?) có citations", "st": "FAIL", "note": "APPROVED=107 có citations=3"}
+{"tc": "RECHECK-L4b PENDING có câu EXTRACTED", "st": "PASS", "note": "24"}
+{"tc": "RECHECK-L4c Quiz PUBLISHED", "st": "PASS", "note": "[['PUBLISHED']]"}
+{"tc": "RECHECK-L4d lớp 2 có ngân hàng nhỏ, không trùng lớp 1", "st": "FAIL", "note": "lớp 2=20 câu, trùng=1"}
+{"tc": "RECHECK-L7 chủ đề có câu, 0 đủ điều kiện → 409 NOT_ENOUGH_QUESTIONS {available:0}", "st": "PASS", "note": "409 {\"code\": \"NOT_ENOUGH_QUESTIONS\", \"message\": \"Chưa đủ câu để luyện chủ đề này.\", \"trace_id\": \"66adccb665c9bc0a3688b7e1e1a300ec\", \"details\": {"}
+{"tc": "RECHECK-L7b chủ đề không tồn tại → 422", "st": "PASS", "note": "422"}
+{"tc": "RECHECK-L8 ma trận ô thiếu câu (không difficulty): bù đủ 10", "st": "PASS", "note": "201 items=10 notes=[]"}
+{"tc": "RECHECK-L9 generate types=[] → 422", "st": "PASS", "note": "422"}
+{"tc": "RECHECK-L10 bulk APPROVE EXTRACTED không trích dẫn → code CITATION_REQUIRED", "st": "PASS", "note": "200 {'id': '01a1d8d4-617c-782c-bcd0-85adee3d2a13', 'ok': False, 'code': 'CITATION_REQUIRED'}"}
+{"tc": "RECHECK-L12a ánh xạ theo tên tiêu đề cột (ví dụ openapi) được chấp nhận", "st": "PASS", "note": "200 {\"matched\": 3, \"unmatched\": 0, \"duplicates\": 0, \"items\": [{\"student\": {\"id\": \"01a1d8cf-0fa9-72db-b771-53f8067239e6\", \"full_name\": \"Vũ Minh Long\", \"student_code\""}
+{"tc": "RECHECK-L12b chữ lỗi tệp .txt nhắc XLSX/CSV, không nhắc PDF/DOCX/PPTX", "st": "PASS", "note": "422 Chỉ nhận tệp Excel (.xlsx) hoặc CSV."}
+{"tc": "RECHECK-L12c tệp > 5 MB: chữ nói 5 MB", "st": "PASS", "note": "422 Tệp quá lớn (tối đa 5 MB)."}
+{"tc": "RECHECK-L1 trích 24 câu, đáp án khớp bảng, trích dẫn đúng", "st": "FAIL", "note": "EXTRACTED=23 khớp=23/24 thiếu=1 lệch=0 thiếu citations=0"}
+{"tc": "RECHECK-L1b trích lại: không thêm câu, DUPLICATE", "st": "PASS", "note": "23→23; ['DUPLICATE', 'DUPLICATE', 'DUPLICATE']"}
+{"tc": "RECHECK-#3 presign trỏ MinIO của chính stack (cổng 9500) khi .env.local mặc định 9000", "st": "PASS", "note": "http://localhost:9500/edupilot"}
+{"tc": "RECHECK-TC-06-08c phản hồi TOPIC có trích dẫn (câu EXTRACTED đã duyệt)", "st": "PASS", "note": "1 trích dẫn"}
+{"tc": "RECHECK-TC-02-07a đề lỗi câu: lưu 1, INVALID ở 2,3,4, NO_ANSWER ở 5", "st": "FAIL", "note": "created=0 skipped=[(1, 'DUPLICATE'), (2, 'INVALID'), (3, 'INVALID'), (4, 'INVALID'), (5, 'NO_ANSWER')]"}

@@ -1,8 +1,14 @@
 # Kiểm lại L1: trích đề docling thật → 24 câu EXTRACTED PENDING, đáp án khớp bảng, có citations
 from pb import *
 def get_or_upload(path, title, typ):
-    try: return docid(title)["id"]
-    except KeyError: d = upload(path, title, typ)["document"]["id"]; wait_doc(d); return d
+    # seed mới đã tải sẵn đúng tệp này (sha256 trùng → 409 DOCUMENT_DUPLICATE kèm existing_id)
+    import hashlib
+    b = open(ROOT + path, "rb").read(); sha = hashlib.sha256(b).hexdigest()
+    c, pre, _ = api("teacher", "POST", f"{P}/uploads/presign", {"purpose": "document", "filename": os.path.basename(path), "mime_type": "application/pdf", "size_bytes": len(b), "sha256": sha})
+    urllib.request.urlopen(urllib.request.Request(pre["url"], data=b, method=pre["method"], headers=pre["headers"]), context=CTX).read()
+    c, d, _ = api("teacher", "POST", f"{P}/uploads/complete", {"upload_id": pre["upload_id"], "title": title, "type": typ})
+    if c == 409: return d["details"]["existing_id"]
+    did = d["document"]["id"]; wait_doc(did); return did
 de = get_or_upload("seed/practice/de-mau-trac-nghiem.pdf", "QC Đề mẫu", "EXAM_PAPER"); dk = get_or_upload("seed/practice/dap-an-mau.pdf", "QC Đáp án mẫu", "ANSWER_KEY")
 c, j, _ = api("teacher", "POST", f"{P}/questions/extract", {"document_id": de, "answer_key_document_id": dk}); print(c, j)
 J = wait_job(j["job_id"]); r = J.get("result") or {}; print(J["status"], len(r.get("created", [])), "created;", [(s["number"], s["reason"]) for s in r.get("skipped", [])][:6])
