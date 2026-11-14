@@ -20,6 +20,22 @@ async function open(page: Page, context: Parameters<typeof asDemo>[0], opts: Par
 const rows = (page: Page) => page.locator("[data-part=assignment-row]");
 const drawer = (page: Page) => page.getByRole("dialog");
 
+test("assignments tab: «Đã nộp / Tổng» lấy lại khi cửa sổ lấy lại tiêu điểm — bài nộp tải lên / ZIP vào sau không còn hiện 0 (GV-BUG S2-2)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let n = 0;
+  const base = assignment();
+  await open(page, context, { h: { "GET assignments": (r) => r.fulfill(json({ items: [{ ...base, counts: { submitted: n++ === 0 ? 0 : 60, total: 60, graded: 0, published: 0 } }], next_cursor: null })) } });
+  await expect(rows(page).first()).toContainText("0 / 60");
+  await page.evaluate(() => {
+    // tab ẩn rồi hiện lại: TanStack Query lấy lại danh sách
+    for (const state of ["hidden", "visible"]) {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+      document.dispatchEvent(new Event("visibilitychange", { bubbles: true }));
+    }
+  });
+  await expect(rows(page).first()).toContainText("60 / 60");
+});
+
 test("assignments tab layout: Tabs, một Panel + bảng năm cột, Tạo bài tập chỉ của giảng viên, TA chỉ xem", async ({ page, context, browser }, info) => {
   desktopOnly(info);
   await open(page, context);
