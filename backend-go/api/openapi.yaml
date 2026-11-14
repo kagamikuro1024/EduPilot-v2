@@ -3144,6 +3144,135 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/guidance-flags:
+    get:
+      operationId: listGuidanceFlags
+      tags: [assignments]
+      summary: "Bốn công tắc «Học từ lần sửa» của lớp (TEACHER, ADMIN; TA, sinh viên 403). Hàng chưa có = tắt, version 1; can_edit=false với công tắc khoá (REGRESSION_CAPTURE chỉ ADMIN bật)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Bốn cờ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceFlagList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/guidance-flags/{feature}:
+    put:
+      operationId: putGuidanceFlag
+      tags: [assignments]
+      summary: "Bật / tắt một công tắc theo version (TEACHER: GRADING_GUIDANCE, THREAD_SUGGEST, QUESTION_HINTS; ADMIN: cả bốn). 409 VERSION_CONFLICT, 409 GUIDANCE_DISABLED khi công tắc cứng GUIDANCE_ENABLED=false, 403 khi TEACHER đặt REGRESSION_CAPTURE, 422 công tắc lạ"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: feature
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [enabled, version]
+              additionalProperties: false
+              properties:
+                enabled: {type: boolean}
+                version: {type: integer, minimum: 1}
+      responses:
+        "200":
+          description: Cờ sau khi đặt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceFlag"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/guidance:
+    get:
+      operationId: getGuidanceOverview
+      tags: [assignments]
+      summary: "«Lưu ý chấm» của bài tập (TEACHER, TA): phiên bản hiện hành, danh sách lưu ý (cursor, limit ≤ 100), bộ đếm, số bài chấm theo bản cũ ba nhóm (count = nháp cũ chưa sửa, editing, reviewed), điều kiện Rút lưu ý. Sinh viên, ADMIN 403"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 100}
+        - name: cursor
+          in: query
+          schema: {type: string}
+      responses:
+        "200":
+          description: Tổng quan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceOverview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/guidance/reflect:
+    post:
+      operationId: reflectGuidance
+      tags: [assignments]
+      summary: "Rút lưu ý từ các lần sửa (TEACHER; Idempotency-Key bắt buộc; chỉ nút bấm). 202 {job_id}; hai lần cùng dữ liệu → cùng job_id; 409 NOT_ENOUGH_DATA {results, edits} / GUIDANCE_DISABLED; 429 quá 3 lần / bài tập / giờ. Việc BATCH, không đọc văn bản bài"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp hàng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuidanceReflectAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
 
   /api/v1/courses/{id}/submissions/{sid}/grade:
     post:
@@ -12823,6 +12952,11 @@ components:
             - STUDENT_NOT_IN_COURSE
             - COURSE_HAS_STUDENTS
             - NOT_ENOUGH_DATA
+            - GUIDANCE_DISABLED
+            - ITEM_NOT_DRAFT
+            - NOTHING_TO_APPLY
+            - GUIDANCE_TEXT_REJECTED
+            - MIXED_GUIDANCE
             - OUTREACH_LIMIT
             - STUDENT_NOT_ACTIVE
             - SCHEME_NOT_CONFIRMED
@@ -13657,6 +13791,82 @@ components:
       properties:
         job_id: {type: string, format: uuid}
         queued: {type: integer}
+    GuidanceFlag:
+      type: object
+      required: [feature, enabled, version, can_edit]
+      additionalProperties: false
+      properties:
+        feature: {type: string, enum: [GRADING_GUIDANCE, THREAD_SUGGEST, QUESTION_HINTS, REGRESSION_CAPTURE]}
+        enabled: {type: boolean}
+        version: {type: integer}
+        can_edit: {type: boolean}
+    GuidanceFlagList:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/GuidanceFlag"
+    GuidanceItem:
+      type: object
+      required: [id, criterion_id, text, text_original, direction, support, needs_recheck, status, pending_retire, approved_in_version, retired_in_version, version, created_at]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        criterion_id: {type: string}
+        text: {type: string}
+        text_original: {type: [string, "null"]}
+        direction: {type: string, enum: [STRICTER, LENIENT, CLARIFY]}
+        support: {type: integer}
+        needs_recheck: {type: boolean}
+        status: {type: string, enum: [DRAFT, APPROVED, REJECTED, RETIRED]}
+        pending_retire: {type: boolean}
+        approved_in_version: {type: [integer, "null"]}
+        retired_in_version: {type: [integer, "null"]}
+        version: {type: integer}
+        created_at: {type: string, format: date-time}
+    GuidanceOverview:
+      type: object
+      required: [enabled, current_version, items, next_cursor, counts, stale, reflect]
+      additionalProperties: false
+      properties:
+        enabled: {type: boolean}
+        current_version: {type: integer}
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/GuidanceItem"
+        next_cursor: {type: [string, "null"]}
+        counts:
+          type: object
+          additionalProperties: {type: integer}
+        stale:
+          type: object
+          required: [count, editing, reviewed, versions]
+          additionalProperties: false
+          properties:
+            count: {type: integer}
+            editing: {type: integer}
+            reviewed: {type: integer}
+            versions:
+              type: array
+              items: {type: integer}
+        reflect:
+          type: object
+          required: [eligible, results, edits]
+          additionalProperties: false
+          properties:
+            eligible: {type: boolean}
+            results: {type: integer}
+            edits: {type: integer}
+    GuidanceReflectAccepted:
+      type: object
+      required: [job_id]
+      additionalProperties: false
+      properties:
+        job_id: {type: string, format: uuid}
     UploadSubmissionsJob:
       type: object
       required: [job_id]

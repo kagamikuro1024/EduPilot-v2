@@ -292,7 +292,7 @@ func (q *Queries) GuidanceFlagsAll(ctx context.Context) ([]GuidanceFlagsAllRow, 
 
 const guidanceInsertDraft = `-- name: GuidanceInsertDraft :one
 insert into grading_guidance_items (course_id, assignment_id, criterion_id, text, direction, support, source_result_ids, origin_job)
-values ($1, $2, $3, $4, $5, $6, $7::uuid[], $8)
+values ($1, $2, $3, $4, $5, $6, $7::text[]::uuid[], $8)
 returning id
 `
 
@@ -303,7 +303,7 @@ type GuidanceInsertDraftParams struct {
 	Text            string
 	Direction       string
 	Support         int16
-	SourceResultIds []uuid.UUID
+	SourceResultIds []string
 	OriginJob       *uuid.UUID
 }
 
@@ -516,7 +516,7 @@ func (q *Queries) GuidanceMarkRetire(ctx context.Context, arg GuidanceMarkRetire
 }
 
 const guidanceMaxReviewedAt = `-- name: GuidanceMaxReviewedAt :one
-select max(r.reviewed_at)::timestamptz as at
+select coalesce(max(r.reviewed_at), 'epoch'::timestamptz)::timestamptz as at
 from grading_results r join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 where r.course_id = $1 and s.assignment_id = $2::uuid and r.status in ('REVIEWED', 'PUBLISHED')
 `
@@ -653,7 +653,7 @@ func (q *Queries) GuidanceStaleCandidates(ctx context.Context, arg GuidanceStale
 }
 
 const guidanceStaleRows = `-- name: GuidanceStaleRows :many
-select r.id, r.status, r.criteria, r.ai_scores, r.first_reviewed_at, r.run_state, r.round, r.submission_id
+select r.id, r.status, r.criteria, r.ai_scores, r.first_reviewed_at, r.run_state, r.round, r.submission_id, r.guidance_version
 from grading_results r
 join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
@@ -678,6 +678,7 @@ type GuidanceStaleRowsRow struct {
 	RunState        string
 	Round           int16
 	SubmissionID    uuid.UUID
+	GuidanceVersion int16
 }
 
 // ---- chấm lại và số bài cũ (SRS 4.2.11, §7) ---------------------------------------------------------------------------------------
@@ -700,6 +701,7 @@ func (q *Queries) GuidanceStaleRows(ctx context.Context, arg GuidanceStaleRowsPa
 			&i.RunState,
 			&i.Round,
 			&i.SubmissionID,
+			&i.GuidanceVersion,
 		); err != nil {
 			return nil, err
 		}

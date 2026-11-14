@@ -54,7 +54,7 @@ select * from grading_guidance_items where course_id = sqlc.arg(course_id) and a
 
 -- name: GuidanceInsertDraft :one
 insert into grading_guidance_items (course_id, assignment_id, criterion_id, text, direction, support, source_result_ids, origin_job)
-values (sqlc.arg(course_id), sqlc.arg(assignment_id), sqlc.arg(criterion_id), sqlc.arg(text), sqlc.arg(direction), sqlc.arg(support), sqlc.arg(source_result_ids)::uuid[], sqlc.narg(origin_job))
+values (sqlc.arg(course_id), sqlc.arg(assignment_id), sqlc.arg(criterion_id), sqlc.arg(text), sqlc.arg(direction), sqlc.arg(support), sqlc.arg(source_result_ids)::text[]::uuid[], sqlc.narg(origin_job))
 returning id;
 
 -- APPROVE / REJECT (chỉ từ DRAFT) hoặc RETIRE (mục đang hiệu lực: pending_retire). `text` sửa chỉ ở DRAFT; text_original lưu một lần.
@@ -109,14 +109,14 @@ order by r.reviewed_at desc nulls last, r.id
 limit 200;
 
 -- name: GuidanceMaxReviewedAt :one
-select max(r.reviewed_at)::timestamptz as at
+select coalesce(max(r.reviewed_at), 'epoch'::timestamptz)::timestamptz as at
 from grading_results r join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 where r.course_id = sqlc.arg(course_id) and s.assignment_id = sqlc.arg(assignment_id)::uuid and r.status in ('REVIEWED', 'PUBLISHED');
 
 -- ---- chấm lại và số bài cũ (SRS 4.2.11, §7) ---------------------------------------------------------------------------------------
 -- Kết quả hiện hành chưa công bố có guidance_version cũ: ba nhóm đếm ở Go (cần changedCriteria):
 -- name: GuidanceStaleRows :many
-select r.id, r.status, r.criteria, r.ai_scores, r.first_reviewed_at, r.run_state, r.round, r.submission_id
+select r.id, r.status, r.criteria, r.ai_scores, r.first_reviewed_at, r.run_state, r.round, r.submission_id, r.guidance_version
 from grading_results r
 join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 join assignments a on a.course_id = s.course_id and a.id = s.assignment_id

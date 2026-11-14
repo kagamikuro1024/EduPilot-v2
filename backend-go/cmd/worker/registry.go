@@ -59,9 +59,13 @@ func newRegistry(d Deps) *outbox.Registry {
 	if gq := newGradingQueue(d); gq != nil {
 		gq.RegisterBatch(runner) // grading.batch: chỉ XADD ep:grading (US-P7-07); chấm chạy ở consumer ep:grading
 	}
+	if d.Redis != nil {
+		grading.RegisterReflect(runner, d.Redis.Client) // grading.reflect (10.6): chỉ XADD ep:grading.reflect; rút lưu ý chạy ở consumer riêng
+	}
 	// Sự kiện chưa có bên tiêu thụ ở sprint 6 (P4 thông báo gộp, P10 cảnh báo ngân sách): vẫn PHẢI có handler ghi nhận — thiếu thì tin dead-letter sau 4 lần (TestEveryEmittedTopicHasHandler).
 	ack := func(context.Context, outbox.Message) error { return nil }
 	reg.Register(budget.TopicWarn, ack)
+	reg.Register(grading.TopicGuidanceChanged, ack) // lưu ý chấm đổi (10.6); L6 nối vào cache «Hôm nay» của nhân viên
 	thread.RegisterKind(runner, d.Redis)  // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
 	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
 	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log, Resolvers: map[string]mail.Resolver{}}
