@@ -11,7 +11,7 @@ def fill(schema, val):
     if t == "boolean": return val
     if t in ("integer", "number"): return 0
     if t == "array": return []
-    if "enum" in schema: return schema["enum"][0]
+    if "enum" in schema: return ("yes" if val and "yes" in schema["enum"] else "no" if "no" in schema["enum"] else schema["enum"][0])
     return ""
 
 class H(BaseHTTPRequestHandler):

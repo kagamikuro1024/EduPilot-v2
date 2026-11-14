@@ -5,11 +5,16 @@ from dmlib import *  # raw, tok, api, ok, course, sql
 
 ROOT = os.path.expanduser("~/Documents/TA_Agent_qc5")
 BASE_ENV = dict(os.environ, EP_PORT_OFFSET="500", COMPOSE_PROJECT_NAME="ep-qc", BLOB_PUBLIC_ENDPOINT="localhost:9500",
-                GEMINI_API_KEY="", LLM_DECISION_ALLOW_REAL="false", EP_PORT_MOCK_GRAPH="8590", EP_PORT_MOCK_IMAP="8591")
+                GEMINI_API_KEY="", LLM_DECISION_ALLOW_REAL="false", EP_PORT_MOCK_GRAPH="8590", EP_PORT_MOCK_IMAP="8591",
+                EP_PORT_POSTGRES="5933", EP_PORT_REDIS="6880", EP_PORT_MINIO="9500", EP_PORT_MINIO_CONSOLE="9501", EP_PORT_SMTP="1525",
+                EP_PORT_MAILPIT="8525", EP_PORT_HTTP="580", EP_PORT_HTTPS="943", EP_PORT_FRONTEND="3500",
+                NEXT_PUBLIC_API_URL="https://localhost:943", APP_PUBLIC_URL="https://localhost:943",
+                CORS_ORIGINS="https://localhost:943,http://localhost:3500",
+                RATE_LIMIT_IP_PER_MIN="5000", AUTH_LOGIN_IP_PER_MIN="1000", AUTH_REGISTER_IP_PER_HOUR="1000", AUTH_TOKEN_IP_PER_MIN="1000")
 
 def compose(*args, env=None):
     e = dict(BASE_ENV); e.update(env or {})
-    r = subprocess.run(["docker", "compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-f", os.path.join(os.path.dirname(os.path.abspath(__file__)), "qc-worker-override.yml"), "-p", "ep-qc", *args],
+    r = subprocess.run(["docker", "compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-f", "docker-compose.test.yml", "-p", "ep-qc", *args],
                        capture_output=True, text=True, cwd=ROOT, env=e)
     return r.stdout + r.stderr
 
