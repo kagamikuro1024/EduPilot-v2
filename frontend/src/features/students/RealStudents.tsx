@@ -106,9 +106,9 @@ export function RealStudents({ courseId, classCode }: { courseId: string; classC
             pagination={{ nextCursor: list.hasNextPage ? (list.data?.pages.at(-1)?.next_cursor ?? null) : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage, error: list.isFetchNextPageError ? "Chưa tải được trang kế." : undefined }}
             empty={
               filtered ? (
-                <EmptyState title="Không có sinh viên nào khớp." action={<Button onClick={() => { setText(""); setUrl({ q: "", chips: [] }); }}>Bỏ lọc</Button>} />
+                <EmptyState title="Không có sinh viên nào khớp" action={<Button onClick={() => { setText(""); setUrl({ q: "", chips: [] }); }}>Bỏ lọc</Button>} />
               ) : (
-                <EmptyState title="Lớp này chưa có sinh viên nào." />
+                <EmptyState title="Lớp này chưa có sinh viên nào" />
               )
             }
           />

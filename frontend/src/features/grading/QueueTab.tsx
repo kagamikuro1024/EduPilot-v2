@@ -57,7 +57,7 @@ const subscribeNarrow = (cb: () => void) => {
   return () => m.removeEventListener("change", cb);
 };
 
-export type QueueHeader = { primary?: HeaderAction; secondary?: [HeaderAction?, HeaderAction?]; more?: HeaderAction[] };
+export type QueueHeader = { primary?: HeaderAction; secondary?: [HeaderAction?, HeaderAction?] };
 
 /** Tab `Hàng chờ` của `/grading` (US-P7-08 AC1): bảng ảo hoá, lọc mặc định `Cần xem kỹ` + `Chưa duyệt`. */
 export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; teacher: boolean; /** hành động cấp trang («Chấm tất cả» …) đi lên đầu trang (DESIGN.md §23.2) */ onHeader: (h: QueueHeader | null) => void }) {
@@ -70,10 +70,17 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const askedStatus = params.get("status") as QueueStatus | null;
   const status: QueueStatus = STATUS_OPTIONS.some((o) => o.value === askedStatus) ? (askedStatus as QueueStatus) : "DRAFT";
   const flagOnly = params.has("needs") ? params.get("needs") === "1" : true;
+  // `router.replace` chưa kịp áp thì `params` còn cũ: giữ phần vừa ghi 1 giây để hai lần ghi liền nhau (tự nới lọc + người dùng chọn) không đè nhau.
+  const pend = useRef<Record<string, { v: string; t: number }>>({});
   const patch = (next: Record<string, string>) => {
+    const now = Date.now();
+    for (const [k, v] of Object.entries(next)) pend.current[k] = { v, t: now };
     const q = new URLSearchParams(params);
     q.set("tab", "queue");
-    for (const [k, v] of Object.entries(next)) q.set(k, v);
+    for (const [k, e] of Object.entries(pend.current)) {
+      if (now - e.t > 1000) delete pend.current[k];
+      else q.set(k, e.v);
+    }
     router.replace(`/grading?${q}`, { scroll: false });
   };
   const setAssignmentId = (v: string) => patch({ assignment: v });
@@ -254,9 +261,11 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const students = new Set(chosen.map((r) => r.student?.id).filter(Boolean)).size;
   const oldReviewed = stale && assignmentIds.size === 1 && assignmentIds.has(assignmentId) ? stale.reviewed : 0;
   // Hành động cấp trang đi lên PageHeader: «Chấm tất cả» (chính), «Tải bài lên» + «Công bố» (phụ), «Đồng bộ từ Teams» (menu). Dùng ref để callback luôn mới mà không đẩy lại mỗi lần render.
-  const acts = useRef({ pick: () => {}, grade: () => {}, publish: () => {}, teams: () => {} });
-  acts.current = { pick: () => picker.current?.click(), grade: gradeAllNow, publish: () => setConfirming(true), teams: teamsSync };
-  const hdrKey = [needAssignment, noneToGrade, busy, teacher, chosen.length, teamsChannel, teamsRunning, teamsWait].join("|");
+  const acts = useRef({ pick: () => {}, grade: () => {}, publish: () => {} });
+  useEffect(() => {
+    acts.current = { pick: () => picker.current?.click(), grade: gradeAllNow, publish: () => setConfirming(true) };
+  });
+  const hdrKey = [needAssignment, noneToGrade, busy, teacher, chosen.length].join("|");
   useEffect(() => {
     onHeader({
       primary: { label: "Chấm tất cả", busy, disabled: Boolean(needAssignment || noneToGrade), reason: needAssignment ?? noneToGrade, onClick: () => acts.current.grade() },
@@ -264,7 +273,6 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
         { label: "Tải bài lên", icon: <Upload aria-hidden />, disabled: Boolean(needAssignment) || busy, reason: needAssignment, onClick: () => acts.current.pick() },
         teacher ? { label: "Công bố", disabled: chosen.length === 0, reason: chosen.length === 0 ? "Chọn bài đã duyệt." : undefined, onClick: () => acts.current.publish() } : undefined,
       ],
-      more: teamsChannel ? [{ label: "Đồng bộ từ Teams", disabled: busy || teamsRunning || teamsWait > 0, onClick: () => acts.current.teams() }] : [],
     });
     return () => onHeader(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -383,7 +391,16 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
 
   return (
     <Panel>
-        <Toolbar alignEnd>
+        <Toolbar
+          alignEnd
+          end={
+            teamsChannel ? (
+              <Button disabled={busy || teamsRunning || teamsWait > 0} title={teamsWait > 0 ? `Chờ ${teamsWait} giây nữa` : undefined} onClick={teamsSync}>
+                Đồng bộ từ Teams
+              </Button>
+            ) : undefined
+          }
+        >
           <Field label="Bài tập" className={s.filterField}>
             {(id) => (
               <Select id={id} value={assignmentId} onChange={(e) => setAssignmentId(e.target.value)}>
@@ -477,7 +494,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
       isEmpty={(d) => (d as QueueRow[]).length === 0}
       loading={<Skeleton lines={10} />}
       empty={
-        <EmptyState title={needAssignment ? "Chọn một bài tập" : status === "DRAFT" && flagOnly ? "Chưa có bài nộp" : "Không có bài khớp bộ lọc"} />
+        <EmptyState title={flagOnly ? "Không có bài cần xem kỹ" : `Không có bài ${(STATUS_OPTIONS.find((o) => o.value === status)?.label ?? "").toLowerCase()}`} />
       }
       showTechnical
     >

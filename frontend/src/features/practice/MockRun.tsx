@@ -6,7 +6,8 @@ import { ApiError } from "@/shared/data";
 import { ExamTimer, Markdown } from "@/shared/domain";
 import type { ExamClock } from "@/shared/lib/examClock";
 import { SaveQueue, type QueueState, type Sender } from "@/shared/lib/saveQueue";
-import { Button, ConfirmIrreversible, Drawer, InlineNotice, Panel, StatusText } from "@/shared/ui";
+import { useMinWidth } from "@/shared/lib/useMinWidth";
+import { Button, ConfirmIrreversible, Drawer, InlineNotice, Page, PageHeader, Panel, Split, StatusText } from "@/shared/ui";
 import { QuestionInput, filled } from "./QuestionInput";
 import { newIdempotencyKey, putAnswer, submitAttempt, type Ans, type PAttempt, type PItem } from "./practiceApi";
 import s from "./Practice.module.css";
@@ -145,10 +146,13 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expired]);
 
+  const wide = useMinWidth(1100);
   const offline = qs.status === "offline";
   const status = offline ? "Chưa gửi được" + (qs.pending ? ` ${qs.pending} câu` : "") : qs.pending > 0 ? "Đang lưu…" : qs.savedAt ? `Đã lưu lúc ${hhmmss(qs.savedAt)}` : "Tự lưu";
 
   return (
+    <Page kind="work">
+    <PageHeader title="Thi thử" back={{ href: "/practice", label: "Luyện đề" }} />
     <div className={s.take} data-part="practice-mock">
       <header className={s.bar}>
         <span className={s.barQ}>Câu {index + 1}/{items.length}</span>
@@ -165,10 +169,9 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
         </InlineNotice>
       )}
 
-      <div className={s.layout}>
-        <aside className={s.side} aria-label="Danh sách câu">
-          <Panel><Navigator items={items} done={done} index={index} onGo={go} /></Panel>
-        </aside>
+      <Split
+        ratio="main-aside"
+        main={
         <section className={s.mockQuestion} aria-label="Câu hỏi">
           <Panel>
             <span className={s.qMeta}>Câu {index + 1}</span>
@@ -176,7 +179,13 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
             <QuestionInput q={item.question} value={answers[item.id]} onChange={(v) => choose(item, v)} disabled={!canWrite} />
           </Panel>
         </section>
-      </div>
+        }
+        aside={wide ? (
+          <aside aria-label="Danh sách câu">
+            <Panel><Navigator items={items} done={done} index={index} onGo={go} /></Panel>
+          </aside>
+        ) : null}
+      />
 
       <nav className={s.foot} aria-label="Chuyển câu">
         <Button onClick={() => go(index - 1)} disabled={index === 0}>Câu trước</Button>
@@ -200,6 +209,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
         onConfirm={() => void submit()}
       />
     </div>
+    </Page>
   );
 }
 

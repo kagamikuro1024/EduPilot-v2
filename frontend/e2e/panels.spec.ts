@@ -479,7 +479,7 @@ test.describe("exams empty", () => {
     await page.getByText("Chưa có bài thi nào").first().waitFor();
     expect(await violations(page)).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
     expect(await page.getByText("Chưa có bài thi nào").first().evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
-    expect(await page.getByRole("button", { name: "Tạo bài thi" }).last().evaluate((e) => !!e.closest("[data-ep-panel]")), "nút của EmptyState trong panel").toBe(true);
+    await expect(page.getByRole("button", { name: "Tạo bài thi" }), "chỉ nút ở đầu trang, rỗng không lặp").toHaveCount(1); // §23.2 E4
     await page.unrouteAll({ behavior: "ignoreErrors" });
     const sv = await context.browser()!.newContext({ baseURL: BASE_URL });
     const sp = await sv.newPage();

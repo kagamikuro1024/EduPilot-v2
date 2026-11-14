@@ -133,7 +133,7 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
         loading={<Panel><Skeleton lines={8} /></Panel>}
         empty={
           <Panel>
-            <EmptyState title="Chưa có gì trong lịch." action={staff ? <Button variant="primary" onClick={() => setForm("new")}>Thêm sự kiện</Button> : undefined} />
+            <EmptyState title="Chưa có gì trong lịch" />
           </Panel>
         }
       >
@@ -224,7 +224,7 @@ function MonthView({ first, start, today, items, now }: { first: number; start: 
 }
 
 function ListView({ items, now, onEdit, onDelete }: { items: CalItem[]; now: number; onEdit?: (e: CalItem) => void; onDelete?: (e: CalItem) => void }) {
-  if (items.length === 0) return <Panel><EmptyState title="Không còn sự kiện nào sắp tới." /></Panel>;
+  if (items.length === 0) return <Panel><EmptyState title="Không còn sự kiện nào sắp tới" /></Panel>;
   return (
     <Panel>
       <ActionList label="Sự kiện sắp tới">

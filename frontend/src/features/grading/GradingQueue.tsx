@@ -31,7 +31,6 @@ export function GradingQueue() {
         title="Chấm bài"
         primary={tab === "assignments" && teacher ? { label: "Tạo bài tập", icon: <Plus aria-hidden />, onClick: () => setCreating(true) } : tab === "queue" ? queueHdr?.primary : undefined}
         secondary={tab === "queue" ? queueHdr?.secondary : undefined}
-        more={tab === "queue" ? queueHdr?.more : undefined}
       />
 
       <div className={s.tabsRow}>
@@ -49,7 +48,7 @@ export function GradingQueue() {
 
       {!realCourseId || realCourseId === "all" ? (
         <Panel>
-          <EmptyState title="Chọn một lớp để chấm bài." />
+          <EmptyState title="Chọn một lớp để chấm bài" />
         </Panel>
       ) : tab === "assignments" ? (
         <AssignmentsTab courseId={realCourseId} teacher={teacher} creating={creating} onCreatingChange={setCreating} />

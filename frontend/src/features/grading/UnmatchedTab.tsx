@@ -79,7 +79,7 @@ export function UnmatchedTab({ courseId }: { courseId: string }) {
       query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: rows, refetch: list.refetch }}
       isEmpty={(d) => (d as Unmatched[]).length === 0}
       loading={<Panel><Skeleton lines={8} /></Panel>}
-      empty={<Panel><EmptyState title="Không có bài chưa khớp." /></Panel>}
+      empty={<Panel><EmptyState title="Không có bài chưa khớp" /></Panel>}
       showTechnical
     >
       <Panel>

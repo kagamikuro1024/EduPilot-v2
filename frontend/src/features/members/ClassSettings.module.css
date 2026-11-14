@@ -13,7 +13,7 @@
 .range { flex: 1 1 200px; min-width: 160px; accent-color: var(--ep-red); }
 .thresholdValue { min-width: 3ch; font-variant-numeric: tabular-nums; font-weight: 600; }
 
-.riskRows { display: grid; gap: var(--ep-space-4); max-width: 640px; }
+.riskRows { display: grid; gap: var(--ep-space-4); }
 .riskRow { display: grid; grid-template-columns: minmax(160px, 220px) minmax(120px, 1fr) minmax(6ch, auto); align-items: center; gap: var(--ep-space-4); }
 .riskLabel { margin: 0; font-size: var(--ep-text-body); }
 .riskValue { font-variant-numeric: tabular-nums; font-weight: 600; text-align: end; }

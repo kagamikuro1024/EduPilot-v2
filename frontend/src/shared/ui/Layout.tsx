@@ -226,6 +226,7 @@ export function Split({
   fill = false,
   detailOpen = false,
   listCollapsed = false,
+  only,
 }: {
   main: ReactNode;
   aside: ReactNode;
@@ -236,6 +237,8 @@ export function Split({
   detailOpen?: boolean;
   /** `list-detail`: người dùng thu gọn danh sách (chat); chi tiết chiếm cả bề rộng */
   listCollapsed?: boolean;
+  /** `main-aside` / `half` dưới 1100 px: chỉ hiện một ngăn (màn có tab «Bài làm / Chấm») */
+  only?: "main" | "aside";
 }) {
   if (ratio === "list-detail") {
     return (
@@ -248,7 +251,7 @@ export function Split({
     );
   }
   return (
-    <div className={[s.split, ratio === "half" ? s.half : ""].join(" ")} data-ep-split={ratio}>
+    <div className={[s.split, ratio === "half" ? s.half : ""].join(" ")} data-ep-split={ratio} data-ep-split-fill={fill ? "" : undefined} data-only={only}>
       <div className={s.splitMain}>{main}</div>
       <aside className={s.splitAside}>{aside}</aside>
     </div>

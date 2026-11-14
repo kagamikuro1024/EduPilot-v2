@@ -98,7 +98,7 @@ function Assignments({ courseId, list }: { courseId: string; list: ReturnType<ty
   return (
     <Fold title="Bài tập" part="me-assignments">
       {list.items.length === 0 ? (
-        <EmptyState title="Lớp chưa có bài tập." />
+        <EmptyState title="Lớp chưa có bài tập" />
       ) : (
         <ActionList label="Bài tập">
           {list.items.map((a) => (
@@ -121,7 +121,7 @@ function Attendance({ a }: { a: MyAttendance["attendance"] }) {
   return (
     <Section title="Chuyên cần">
       {a.recorded === 0 ? (
-        <EmptyState title="Chưa có buổi nào được điểm danh." />
+        <EmptyState title="Chưa có buổi nào được điểm danh" />
       ) : (
         <>
           <p className={s.headline}>{attendanceSentence(a)}</p>
@@ -148,7 +148,7 @@ function Participation({ p }: { p: MyParticipation["participation"] }) {
   return (
     <Section title="Điểm cộng đã ghi">
       {p.events.length === 0 && p.speak_count === 0 ? (
-        <EmptyState title="Chưa có điểm cộng nào được ghi." />
+        <EmptyState title="Chưa có điểm cộng nào được ghi" />
       ) : (
         <>
           <p className={s.headline}>{`Phát biểu ${p.speak_count} lần · ${signedPoints(p.points_total)}.`}</p>

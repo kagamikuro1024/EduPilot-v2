@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ApiError, newIdempotencyKey } from "@/shared/data";
-import { Button, ButtonLink, ConfirmIrreversible, Drawer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, PanelSection, Skeleton, StatusText } from "@/shared/ui";
+import { Button, ConfirmIrreversible, Drawer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, PanelSection, Skeleton, Split, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import { CitationPane } from "./CitationPane";
 import { BLOCKS, Blocks, unclearOf, type BlockId } from "./SchemeBlocks";
@@ -62,7 +62,7 @@ function RealGradeScheme({ courseId, teacher }: { courseId: string; classCode: s
   );
 
   return (
-    <Page kind="read">
+    <Page kind="work">
       {teacher && <input ref={picker} type="file" hidden accept=".pdf,.docx,.pptx" data-part="policy-input" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload.start(f); }} />}
       <PageState
         query={{ isPending: base.isPending, isError: base.isError, error: base.error, data: base.data, refetch: base.refetch }}
@@ -73,10 +73,7 @@ function RealGradeScheme({ courseId, teacher }: { courseId: string; classCode: s
         <UploadProgress up={upload} />
         {!draft && !confirmed ? (
           <Panel>
-            <EmptyState
-              title="Lớp chưa có quy chế."
-              action={teacher ? <Button variant="primary" icon={<Upload aria-hidden />} onClick={() => picker.current?.click()}>Tải quy chế</Button> : <ButtonLink href="/gradebook">Về sổ điểm</ButtonLink>}
-            />
+            <EmptyState title="Lớp chưa có quy chế" />
           </Panel>
         ) : draft ? (
           <Review
@@ -135,15 +132,20 @@ function ReadOnly({ courseId, doc }: { courseId: string; doc: SchemeDoc }) {
   const [sel, setSel] = useState<{ block: BlockId; cite: Citation } | null>(null);
   const w = useMemo(() => toWorking(doc), [doc]);
   return (
-    <Panel>
-      <div className={s.review}>
-        <div className={s.main}>
-          <Blocks courseId={courseId} doc={doc} working={w} editable={false} errors={{}} selected={sel?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={() => undefined} />
-        </div>
-        {wide ? <aside className={s.aside}><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={sel?.cite ?? null} /></aside> : null}
-      </div>
+    <>
+      <Split
+        ratio="main-aside"
+        main={
+          <Panel>
+            <div className={s.main}>
+              <Blocks courseId={courseId} doc={doc} working={w} editable={false} errors={{}} selected={sel?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={() => undefined} />
+            </div>
+          </Panel>
+        }
+        aside={wide ? <Panel><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={sel?.cite ?? null} /></Panel> : null}
+      />
       {!wide && sel && <CiteDrawer open onClose={() => setSel(null)} courseId={courseId} doc={doc} cite={sel.cite} />}
-    </Panel>
+    </>
   );
 }
 
@@ -222,8 +224,12 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
   const saving = ed.state === "saving" ? "Đang lưu…" : ed.state === "offline" ? "Chưa lưu" : ed.state === "error" ? "Chưa lưu" : null;
 
   return (
-    <Panel>
-      {ed.notice && <InlineNotice tone="warning" compact action={<Button size="sm" variant="ghost" onClick={ed.dismissNotice}>Đã rõ</Button>}>{ed.notice}</InlineNotice>}
+    <>
+      <Split
+        ratio="main-aside"
+        main={
+          <Panel>
+          {ed.notice && <InlineNotice tone="warning" compact action={<Button size="sm" variant="ghost" onClick={ed.dismissNotice}>Đã rõ</Button>}>{ed.notice}</InlineNotice>}
       <div className={s.bar2}>
         {saving && <span data-part="save-state"><StatusText tone="amber">{saving}</StatusText></span>}
         {confirmed && <Button size="sm" variant="ghost" aria-pressed={compare} onClick={() => onCompare(!compare)}>{compare ? "Bản nháp" : "So sánh"}</Button>}
@@ -233,7 +239,6 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
           </Button>
         )}
       </div>
-      <div className={s.review}>
         <div className={s.main}>
           {compare && diff ? (
             <DiffView diff={diff} />
@@ -242,8 +247,10 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
           )}
           {!compare && <Preview impact={imp} />}
         </div>
-        {wide ? <aside className={s.aside}><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={shown?.cite ?? null} /></aside> : null}
-      </div>
+          </Panel>
+        }
+        aside={wide ? <Panel><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={shown?.cite ?? null} /></Panel> : null}
+      />
       {!wide && sel && <CiteDrawer open onClose={() => setSel(null)} courseId={courseId} doc={doc} cite={sel.cite} />}
       {editable && (
         <ConfirmIrreversible
@@ -258,7 +265,7 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
           error={err ?? undefined}
         />
       )}
-    </Panel>
+    </>
   );
 }
 

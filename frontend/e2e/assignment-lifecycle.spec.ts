@@ -205,8 +205,8 @@ test("assignments tab states: khung xương, rỗng, lỗi kèm Thử lại", as
 
   await assignmentsApi(page, { items: [] });
   await page.reload();
-  await expect(page.getByText("Lớp chưa có bài tập.")).toBeVisible();
-  await expect(page.locator("[data-ep-panel]").getByRole("button", { name: "Tạo bài tập" })).toBeVisible();
+  await expect(page.getByText("Lớp chưa có bài tập")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tạo bài tập" })).toBeVisible();
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
   const api = await assignmentsApi(page, { h: { "GET assignments": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
@@ -466,7 +466,7 @@ test("unmatched states: khung xương, rỗng, lỗi kèm Thử lại", async ({
 
   await unmatchedApi(page, { rows: [] });
   await page.reload();
-  await expect(page.getByText("Không có bài chưa khớp.")).toBeVisible();
+  await expect(page.getByText("Không có bài chưa khớp")).toBeVisible();
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
   const api = await unmatchedApi(page, { h: { "GET submissions": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
@@ -594,16 +594,13 @@ test("grading ta cannot see publish: TA duyệt được nhưng không có nút 
   await expect(page.getByRole("button", { name: "Duyệt bài" })).toBeEnabled();
 });
 
-test("review two columns: trái 52–58 %, phải 42–48 %, tiêu chí phẳng, Duyệt bài cuối cột", async ({ page, context }, info) => {
+test("review two columns: hai nửa bằng nhau, tiêu chí phẳng, Duyệt bài cuối cột", async ({ page, context }, info) => {
   desktopOnly(info);
   await page.setViewportSize({ width: 1440, height: 900 });
   await openReview(page, context);
   const [left, right] = await page.locator("main [data-ep-panel]").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().width));
   const sum = left + right;
-  expect(left / sum).toBeGreaterThan(0.5);
-  expect(left / sum).toBeLessThan(0.6);
-  expect(right / sum).toBeGreaterThan(0.4);
-  expect(right / sum).toBeLessThan(0.5);
+  expect(Math.abs(left / sum - 0.5)).toBeLessThan(0.02); // Split half: hai nửa bằng nhau (§23.4)
   await expect(page.locator("[data-part=submission-text]").getByText("Phiên bản 1")).toBeVisible();
   await expect(page.getByRole("button", { name: "Mở tệp gốc" })).toBeVisible();
   await expect(page.locator("[data-part=criterion]")).toHaveCount(4);
@@ -747,8 +744,9 @@ test("queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (
   const n = await page.locator("[data-part=queue-row]").count();
   await page.locator("[data-part=queue-row]").first().click();
   await expect(page.locator("[data-part=review-progress]")).toHaveText(`Đã duyệt 0/${n}`);
-  await page.goto(QUEUE_URL); // rời hàng chờ rồi vào lại
+  await page.getByRole("link", { name: "Hàng chờ chấm" }).first().click(); // về hàng chờ: bộ lọc đi theo URL
   await expect(page.getByRole("button", { name: "Cần xem kỹ" })).toHaveAttribute("aria-pressed", "false"); // không tự bật lại
+  expect(page.url()).toContain("needs=0");
 });
 
 test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {
@@ -796,7 +794,7 @@ test("grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Th�
 
   await gradingApi(page, { rows: [] });
   await page.reload();
-  await expect(page.getByText("Chưa có bài nộp")).toBeVisible();
+  await expect(page.getByText("Không có bài chưa duyệt")).toBeVisible();
   await expect(page.getByRole("button", { name: "Tải bài lên" }).first()).toBeVisible(); // thanh công cụ + nút trong trạng thái rỗng (US-UX91-05 AC3)
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
@@ -978,7 +976,7 @@ test("demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu ch�
   await page.goto(QUEUE_URL);
   const flagFilter = page.getByRole("button", { name: "Cần xem kỹ" });
   await page.getByLabel("Trạng thái").selectOption("REVIEWED");
-  await expect(page.locator("[data-part=queue-row], main p").filter({ hasText: /Chưa có bài nộp|Trần Thu Uyên/ }).first()).toBeVisible();
+  await expect(page.locator("[data-part=queue-row], main p").filter({ hasText: /Không có bài|Trần Thu Uyên/ }).first()).toBeVisible();
   if ((await flagFilter.getAttribute("aria-pressed")) === "true") await flagFilter.click(); // bài B đã duyệt (hết cờ chờ xem) nên lọc cờ che mất: bỏ lọc
   await qRows(page).first().getByRole("checkbox").check();
   await page.getByRole("button", { name: "Công bố" }).click();

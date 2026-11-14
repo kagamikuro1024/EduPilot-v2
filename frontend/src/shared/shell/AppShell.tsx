@@ -9,7 +9,7 @@ import { ALL_COURSES } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
 import { useEnsureClock, useSimNow } from "@/shared/state/clock";
 import { unsavedCount } from "@/shared/lib/unsavedWork";
-import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
+import { ConfirmIrreversible, Drawer, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { withCourse } from "@/shared/lib/courseHref";
@@ -356,7 +356,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ) : !hasCourse && needsCourse(role, pathname) ? (
           <NoCourse />
         ) : MOCK_SCREENS_OFF && mockBackend(pathname) ? (
-          <NoBackend phase={mockBackend(pathname)!} />
+          <NoBackend />
         ) : (
           children
         )}
@@ -468,11 +468,11 @@ function NoCourse() {
 }
 
 /** Route chưa có backend (build `MOCK_SCREENS=0`): nói thật tiến độ, một nút kế tiếp; mục nav vẫn còn (US-PU-04 AC11). */
-function NoBackend({ phase }: { phase: { phase: string; name: string } }) {
+function NoBackend() {
   return (
     <Page kind="read">
       <div data-part="empty-no-backend">
-        <EmptyState title="Màn này chưa sẵn sàng" action={<ButtonLink href="/">Về Hôm nay</ButtonLink>} />
+        <PageHeader title="Màn này chưa sẵn sàng" primary={{ label: "Về Hôm nay", href: "/" }} />
       </div>
     </Page>
   );

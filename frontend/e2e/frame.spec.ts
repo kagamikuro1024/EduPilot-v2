@@ -6,9 +6,9 @@ import { ROLES, routesFor } from "./support/routes";
 import { asDemo, type DemoRole } from "./support/session";
 
 // Hợp đồng khung trang (DESIGN.md §23, sprint 10.7). Đo DOM qua móc `data-ep-*` trên MỌI route × vai × 1440 / 375 × (có dữ liệu, rỗng).
-// Chế độ báo cáo (mặc định): in và đính kèm bảng độ lệch, KHÔNG làm hỏng test. `FRAME_STRICT=1` (CI sau lô 7): mỗi độ lệch là một lỗi.
+// Mặc định (sau lô 7, nợ khung rỗng): mỗi độ lệch là một lỗi. `FRAME_REPORT=1`: chỉ in và đính kèm bảng độ lệch, KHÔNG làm hỏng test (dùng khi đo).
 // Route mới tự vào ma trận vì `routesFor` duyệt bảng điều hướng `nav.ts`.
-const STRICT = process.env.FRAME_STRICT === "1";
+const STRICT = process.env.FRAME_REPORT !== "1";
 const SIZES = [
   { name: "1440", w: 1440, h: 900, wide: true },
   { name: "375", w: 375, h: 812, wide: false },

@@ -44,7 +44,7 @@ export function RealProfile({ courseId, studentId, userId, canManage }: { course
   const p = q.data;
 
   return (
-    <Page kind="read">
+    <Page kind="work">
       <PageHeader
         title={p?.student.full_name ?? "Hồ sơ sinh viên"}
         back={{ href: "/students", label: "Sinh viên" }}
@@ -122,7 +122,7 @@ function AttendanceTab({ courseId, studentId, name }: { courseId: string; studen
         rows={list.items}
         rowKey={(r) => r.session.id}
         pagination={{ nextCursor: list.hasNextPage ? (list.data?.pages.at(-1)?.next_cursor ?? null) : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
-        empty={list.isError ? <ApiErrorNotice error={list.error} onRetry={() => void list.refetch()} title="Không tải được chuyên cần." /> : <EmptyState title="Chưa có buổi nào được ghi điểm danh." />}
+        empty={list.isError ? <ApiErrorNotice error={list.error} onRetry={() => void list.refetch()} title="Không tải được chuyên cần." /> : <EmptyState title="Chưa có buổi nào được ghi điểm danh" />}
       />
     </Section>
   );
@@ -137,7 +137,7 @@ function GradesTab({ p, courseId, studentId, canManage }: { p: Profile; courseId
       {confirmed ? (
         explain.isPending ? <Skeleton lines={5} /> : explain.data ? <GradeCalculation lines={explain.data.lines} caption={`Giải trình điểm của ${p.student.full_name}`} /> : <ApiErrorNotice error={explain.error} onRetry={() => void explain.refetch()} title="Không tải được giải trình." />
       ) : (
-        <EmptyState title="Lớp chưa có công thức điểm đã xác nhận." action={canManage ? <ButtonLink href="/gradebook">Xác nhận công thức</ButtonLink> : undefined} />
+        <EmptyState title="Lớp chưa có công thức điểm đã xác nhận" action={canManage ? <ButtonLink href="/gradebook">Xác nhận công thức</ButtonLink> : undefined} />
       )}
     </Section>
   );
@@ -149,7 +149,7 @@ function ActivityTab({ p }: { p: Profile }) {
       {p.study.tracked ? (
         <TrendChart label={`Phút học mỗi tuần của ${p.student.full_name}`} points={p.study.weeks.map((w) => ({ x: shortDate(w.week_start), full: `Tuần từ ${shortDate(w.week_start)}`, y: w.minutes }))} format={(v) => `${v} phút`} />
       ) : (
-        <EmptyState title="Không đo thời gian học của sinh viên này." />
+        <EmptyState title="Không đo thời gian học của sinh viên này" />
       )}
       <DefinitionList items={[{ term: "Câu hỏi tuần trước", value: String(p.activity.asks_last_week) }, { term: "Bài đăng tuần trước", value: String(p.activity.posts_last_week) }]} />
     </Section>

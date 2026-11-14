@@ -29,3 +29,17 @@
 - Hàng trống chiếm cao: `EmptyState` đệm dọc `--ep-space-16`; `Split fill` dùng `calc(100dvh − topbar − 12rem)` — chỉnh theo ảnh QC.
 - Landing (8/9) chờ mẫu mới (PM).
 - Chập chờn có sẵn: `landing.spec` «responsive» (axe color-contrast), không do lô này.
+
+## Lô 2–4 (dev, 2026-11-14)
+- **Sửa lệch QC lô 1 ở primitive** (`audit-lo1.md`): điều khiển nhập/chọn cao 36 (nút chữ 30; 44 ở màn nhỏ), `h2` của Dialog có `data-ep-section-title`, `/insights` mục→mục 48, `/questions` mỗi hàng một dòng (cột «Chủ đề» riêng) + lỗi thay cả vùng bằng một `role=alert` rộng đúng cột, `Nhận` ở `/inbox` không còn primary, `PreShell` có móc `data-ep-page` / `data-ep-page-header`.
+  - **Không sửa được ở khung, cần TL quyết:** H7 ở 375 (đầu trang có hàng nút full-width cao hơn đầu trang không có → hai giá trị theo «có nút hay không», không theo «có meta»); L2/X1 của `/insights` (màn mô phỏng, không gọi API: không có trạng thái tải/lỗi thật — hết khi nối API ở sprint 11).
+- **Lô 2** `/chat` `Split list-detail fill`, `/threads` work, `/threads/[id]` read.
+- **Lô 3** `/grading` work: «Chấm tất cả» (chính) + «Tải bài lên» + «Công bố» (phụ) lên `PageHeader` (≤ 2 nút phụ → 390 px một hàng nút); «Đồng bộ từ Teams» ở thanh lọc (mục tiêu của kênh nguồn, giữ nút + khoá + «Chờ N giây»). Bộ lọc hàng chờ (`assignment`, `status`, `needs`) sống trong URL, bỏ `sessionStorage` — gỡ nợ (d); rỗng nói đúng bộ lọc («Không có bài chưa duyệt», «Không có bài cần xem kỹ», «Chọn một bài tập»). `/grading/[id]` = `Split half fill` (hai nửa bằng nhau, mỗi nửa cuộn riêng; thay 55/45 + vh), `Split only` ẩn một ngăn dưới 720 px theo tab «Bài làm / Chấm». `/gradebook/scheme` work + `Split main-aside` (công thức | trích dẫn, hai Panel).
+- **Lô 4** `/exams` read, `/exams/[id]` read, `take` + thi thử `Page work` + `Split main-aside` (danh sách câu thành ngăn phụ **bên phải**, trước là bên trái; dưới 1100 px vẫn nút «Danh sách câu» + Drawer), bỏ `max-width` riêng của khung làm bài; `/me` tiêu đề rỗng không dấu chấm.
+
+## ĐANG DỞ / BƯỚC TIẾP (dev, dừng theo lệnh PM 2026-11-15)
+- **Đã commit nhưng CHƯA kiểm đủ:** lô 3–7 viết xong mã (tsc + eslint 0 lỗi, `ui-antipatterns.sh` sạch với `ui-frame-debt.txt` RỖNG, `--selftest` 31/31). e2e đã chạy xanh theo cụm ở lô 3, 4, 5 (assignment-lifecycle, gradebook, grading-guidance, exam, me, attendance, students, class-join, panels, frame); lô 6 (`/` GV/TA = `Split main-aside`, `/library` read, `/calendar`) và lô 7 (PreShell/AuthShell dùng `PageHeader`, NoBackend, admin, empty không dấu chấm) CHƯA chạy e2e.
+- **Bước tiếp:** `pnpm build:gate` rồi chạy FULL `pnpm exec playwright test --project=desktop --project=mobile --retries=0` (đã bị huỷ giữa chừng). `frame.spec` nay MẶC ĐỊNH chặn (đổi `FRAME_STRICT=1` → `FRAME_REPORT=1` để chỉ báo cáo). Sửa test cũ theo hợp đồng mới (chữ rỗng không dấu chấm; nút rỗng trùng đầu trang bị bỏ; `Split` thay lưới tự dựng; bộ lọc hàng chờ chấm sống trong URL, vào lại bằng liên kết «Hàng chờ chấm» từ màn duyệt).
+- Sau đó: ảnh trước/sau `docs/sprints/10.7/dev/lo3…lo7/`, sinh lại ảnh mốc `visual.spec` trên CI (artifact `e2e-reports-*`), lô 8–9 landing theo `mau/landing.html` (P-107-12, có chuyển động) + AC24 + axe landing (reducedMotion).
+- **Cần TL quyết:** H7 ở 375 (header có/không hàng nút full-width); `/insights` là màn mô phỏng nên L2/X1 chưa đo được; nút lưu điểm danh ở 375 giờ có hai nút cùng việc (primary ở đầu trang + thanh dưới dạng secondary) để H6 sạch.
+- Ảnh trước/sau lô 3–7 CHƯA chụp.
