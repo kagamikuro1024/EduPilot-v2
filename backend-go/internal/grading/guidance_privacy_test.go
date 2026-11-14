@@ -92,7 +92,7 @@ func TestReflectOutputPII(t *testing.T) {
 	res, err := r.Run(t.Context(), uuid.New(), g.teacher, grading.ReflectPayload{CourseID: g.course, AssignmentID: g.asg})
 	require.NoError(t, err)
 	require.Equal(t, 1, res.Drafts)
-	require.Equal(t, 3, res.Dropped.PII)
+	require.Equal(t, 3, res.Dropped.Count("pii"))
 	for _, text := range g.col(`select text from grading_guidance_items where assignment_id = $1`, g.asg) {
 		require.NotContains(t, text, name)
 		require.NotContains(t, text, code)

@@ -102,7 +102,7 @@ func TestReflectRun(t *testing.T) {
 	res, err := r.Run(t.Context(), uuid.New(), g.teacher, grading.ReflectPayload{CourseID: g.course, AssignmentID: g.asg})
 	require.NoError(t, err)
 	require.Equal(t, 1, res.Drafts)
-	require.Equal(t, 1, res.Dropped.Support)
+	require.Equal(t, 1, res.Dropped.Count("support"))
 	for _, m := range seen.Messages {
 		require.NotContains(t, m.Content, canary, "không văn bản bài / nhận xét sửa tay trong lời gọi")
 	}

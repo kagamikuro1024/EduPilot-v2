@@ -130,24 +130,11 @@ function ItemRow({ courseId, aid, item, teacher, userId, onDecided, onError }: {
   );
 }
 
-const DROP_WHY: Record<string, string> = {
-  keyword: "nhắc tổng điểm, trừ điểm hoặc phạt", pii: "chứa tên hoặc mã", support: "ít bài ủng hộ", case: "dẫn bài không khớp", direction: "sai chiều", criterion: "tiêu chí lạ", overflow: "quá số lượng",
-};
-
-/** P-106-12: «N lưu ý bị loại · <tiêu chí>: <lý do>» từ kết quả việc rút lưu ý (chỉ số đếm theo tiêu chí; mục trùng lưu ý đã có không tính). */
-function droppedLine(result: unknown, names: Map<string, string>): string | null {
-  const by = (result as { dropped?: { by_criterion?: Record<string, Record<string, number>> } } | undefined)?.dropped?.by_criterion;
-  if (!by) return null;
-  let n = 0;
-  const parts: string[] = [];
-  for (const [cid, why] of Object.entries(by)) {
-    for (const [reason, c] of Object.entries(why)) {
-      if (reason === "duplicate") continue;
-      n += c;
-      parts.push(`${names.get(cid) ?? cid}: ${DROP_WHY[reason] ?? reason}`);
-    }
-  }
-  return n > 0 ? `${n} lưu ý bị loại · ${parts.join("; ")}` : null;
+/** P-106-13: ĐÚNG MỘT dòng «N lưu ý bị loại» (N = tổng `count` của mảng `dropped`, kể cả trùng); không liệt kê tiêu chí / lý do. */
+function droppedLine(result: unknown): string | null {
+  const dropped = (result as { dropped?: Array<{ count: number }> } | undefined)?.dropped;
+  const n = Array.isArray(dropped) ? dropped.reduce((a, d) => a + (d.count || 0), 0) : 0;
+  return n > 0 ? `${n} lưu ý bị loại` : null;
 }
 
 /**
@@ -276,7 +263,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
       {apiErr && <InlineNotice tone="danger" compact>{apiErr.userMessage}</InlineNotice>}
       {job.status === "FAILED" && <InlineNotice tone="warning" compact>{job.error ?? "Chưa rút được lưu ý."}</InlineNotice>}
       {job.status === "SUCCEEDED" && d.counts.draft === 0 && <InlineNotice tone="info" compact>Không có lưu ý mới đủ chắc.</InlineNotice>}
-      {job.status === "SUCCEEDED" && droppedLine(job.result, names) && <p role="status" className={s.stats} data-part="guidance-dropped">{droppedLine(job.result, names)}</p>}
+      {job.status === "SUCCEEDED" && droppedLine(job.result) && <p role="status" className={s.stats} data-part="guidance-dropped">{droppedLine(job.result)}</p>}
       {note && <p role="status" className={s.stats}>{note}</p>}
 
       {d.stale.count + d.stale.editing > 0 && (

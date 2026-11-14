@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"regexp"
 	"slices"
+	"sort"
 	"strings"
 	"unicode/utf8"
 
@@ -59,54 +60,66 @@ type ReflectPayload struct {
 	GuidanceVersion int       `json:"guidance_version"`
 }
 
-// ReflectDropped đếm số mục bị bỏ theo từng bước kiểm (SRS 4.2.8). Chỉ là số đếm, không có chữ.
-type ReflectDropped struct {
-	Criterion int `json:"criterion"`
-	Case      int `json:"case"`
-	Direction int `json:"direction"`
-	Support   int `json:"support"`
-	Keyword   int `json:"keyword"`
-	PII       int `json:"pii"`
-	Duplicate int `json:"duplicate"`
-	Overflow  int `json:"overflow"`
-	// ByCriterion: tiêu chí → lý do → số mục bị bỏ (P-106-12). Chỉ số đếm + mã tiêu chí của rubric, không chữ lưu ý: giảng viên biết lưu ý của tiêu chí nào bị loại và vì sao.
-	ByCriterion map[string]map[string]int `json:"by_criterion"`
+// DroppedEntry là số mục lưu ý bị bỏ ở một bước kiểm của MỘT tiêu chí (SRS 4.2.14, openapi GuidanceReflectResult). Chỉ số đếm + enum, không chữ.
+type DroppedEntry struct {
+	CriterionID *string `json:"criterion_id"` // id tiêu chí của rubric; null khi Reason = "criterion" (id do LLM bịa không được lặp lại)
+	Reason      string  `json:"reason"`
+	Count       int     `json:"count"`
 }
 
-// addFor ghi một mục bị bỏ ở bước `reason` của tiêu chí `crit` (crit rỗng = không thuộc tiêu chí hợp lệ nào).
-func (d *ReflectDropped) addFor(reason, crit string) {
-	d.add(reason)
-	if crit == "" {
-		return
+// ReflectDropped là danh sách (tiêu chí, lý do) → số mục bị bỏ của một lần rút (SRS 4.2.8).
+type ReflectDropped []DroppedEntry
+
+// add cộng 1 vào cặp (crit, reason); crit rỗng = không thuộc tiêu chí hợp lệ nào (reason "criterion").
+func (d *ReflectDropped) add(reason, crit string) {
+	for i := range *d {
+		e := &(*d)[i]
+		if e.Reason == reason && ((e.CriterionID == nil && crit == "") || (e.CriterionID != nil && *e.CriterionID == crit)) {
+			e.Count++
+			return
+		}
 	}
-	if d.ByCriterion == nil {
-		d.ByCriterion = map[string]map[string]int{}
+	e := DroppedEntry{Reason: reason, Count: 1}
+	if crit != "" {
+		e.CriterionID = &crit
 	}
-	if d.ByCriterion[crit] == nil {
-		d.ByCriterion[crit] = map[string]int{}
-	}
-	d.ByCriterion[crit][reason]++
+	*d = append(*d, e)
 }
 
-func (d *ReflectDropped) add(reason string) {
-	switch reason {
-	case "criterion":
-		d.Criterion++
-	case "case":
-		d.Case++
-	case "direction":
-		d.Direction++
-	case "support":
-		d.Support++
-	case "keyword":
-		d.Keyword++
-	case "pii":
-		d.PII++
-	case "duplicate":
-		d.Duplicate++
-	case "overflow":
-		d.Overflow++
+// Count là tổng số mục bị bỏ vì `reason` ở mọi tiêu chí.
+func (d ReflectDropped) Count(reason string) int {
+	n := 0
+	for _, e := range d {
+		if e.Reason == reason {
+			n += e.Count
+		}
 	}
+	return n
+}
+
+// Total là tổng số mục bị bỏ (kể cả trùng).
+func (d ReflectDropped) Total() int {
+	n := 0
+	for _, e := range d {
+		n += e.Count
+	}
+	return n
+}
+
+// sorted trả bản có thứ tự ổn định (tiêu chí, lý do; null cuối) và KHÔNG nil (JSON `[]`).
+func (d ReflectDropped) sorted() ReflectDropped {
+	out := append(ReflectDropped{}, d...)
+	sort.Slice(out, func(i, j int) bool {
+		a, b := out[i], out[j]
+		if (a.CriterionID == nil) != (b.CriterionID == nil) {
+			return a.CriterionID != nil
+		}
+		if a.CriterionID != nil && *a.CriterionID != *b.CriterionID {
+			return *a.CriterionID < *b.CriterionID
+		}
+		return a.Reason < b.Reason
+	})
+	return out
 }
 
 // ---- ca: điểm AI so điểm giảng viên chốt -------------------------------------------------------------------------------------------------
@@ -366,7 +379,7 @@ func validateItems(ctx context.Context, items []rawItem, refs map[string]caseRef
 	}
 	for _, it := range items {
 		if !inRubric[it.CriterionID] { // (i)
-			drop.add("criterion")
+			drop.add("criterion", "")
 			continue
 		}
 		var ids []uuid.UUID
@@ -382,21 +395,21 @@ func validateItems(ctx context.Context, items []rawItem, refs map[string]caseRef
 			}
 		}
 		if bad {
-			drop.addFor("case", it.CriterionID)
+			drop.add("case", it.CriterionID)
 			continue
 		}
 		ids = uniqUUIDs(ids)
 		if len(ids) < cfg.MinSupport { // (iv) support = số ca hợp lệ cùng chiều (code đếm, không tin số LLM khai)
-			drop.addFor("support", it.CriterionID)
+			drop.add("support", it.CriterionID)
 			continue
 		}
 		text := strings.TrimSpace(it.Text)
 		switch ValidateText(ctx, det, course, text, cfg.TextMax) { // (v) + (vi)
 		case "keyword":
-			drop.addFor("keyword", it.CriterionID)
+			drop.add("keyword", it.CriterionID)
 			continue
 		case "pii", "length":
-			drop.addFor("pii", it.CriterionID)
+			drop.add("pii", it.CriterionID)
 			continue
 		}
 		dup := false
@@ -413,11 +426,11 @@ func validateItems(ctx context.Context, items []rawItem, refs map[string]caseRef
 			}
 		}
 		if dup {
-			drop.addFor("duplicate", it.CriterionID)
+			drop.add("duplicate", it.CriterionID)
 			continue
 		}
 		if len(out) >= cfg.MaxItems { // (viii)
-			drop.addFor("overflow", it.CriterionID)
+			drop.add("overflow", it.CriterionID)
 			continue
 		}
 		out = append(out, GuidanceDraft{CriterionID: it.CriterionID, Text: text, Direction: it.Direction, Support: len(ids), SourceResultIDs: ids})
@@ -514,8 +527,8 @@ func (r *Reflector) Run(ctx context.Context, jobID, owner uuid.UUID, p ReflectPa
 	if err := r.save(ctx, jobID, p, drafts); err != nil {
 		return ReflectResult{}, err
 	}
-	r.log().InfoContext(ctx, "grading.reflect xong", "job_id", jobID.String(), "drafts", len(drafts), "dropped", drop)
-	return ReflectResult{Drafts: len(drafts), Dropped: drop}, nil
+	r.log().InfoContext(ctx, "grading.reflect xong", "job_id", jobID.String(), "drafts", len(drafts), "dropped", drop.Total())
+	return ReflectResult{Drafts: len(drafts), Dropped: drop.sorted()}, nil
 }
 
 // save ghi mọi DRAFT trong MỘT giao dịch kèm outbox; lỗi giữa chừng thì không ghi gì (SRS 3.8: không nháp nửa vời).

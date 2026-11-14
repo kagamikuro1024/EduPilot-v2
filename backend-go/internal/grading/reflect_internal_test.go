@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
+	xnorm "golang.org/x/text/unicode/norm"
 
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/store"
@@ -106,10 +107,10 @@ func TestReflectValidate(t *testing.T) {
 			got, drop := validateItems(t.Context(), []rawItem{tc.it}, refs, rubric, existing, pii, uuid.New(), cfg)
 			var want ReflectDropped
 			if tc.drop == "criterion" {
-				want.add(tc.drop) // tiêu chí lạ: không thuộc rubric nên không có mục theo tiêu chí
+				want.add(tc.drop, "") // tiêu chí lạ: không thuộc rubric nên criterion_id = null
 				require.Empty(t, got)
 			} else if tc.drop != "" {
-				want.addFor(tc.drop, tc.it.CriterionID)
+				want.add(tc.drop, tc.it.CriterionID)
 				require.Empty(t, got)
 			} else {
 				require.Len(t, got, 1)
@@ -126,7 +127,7 @@ func TestReflectValidate(t *testing.T) {
 			{"c1", "Phân biệt nêu tên với phân tích sâu", "STRICTER", []string{"a", "b"}},
 		}, refs, rubric, nil, pii, uuid.New(), c2)
 		require.Len(t, got, 1)
-		require.Equal(t, 1, drop.Overflow)
+		require.Equal(t, 1, drop.Count("overflow"))
 	})
 	t.Run("hai mục trùng nhau trong cùng lượt", func(t *testing.T) {
 		got, drop := validateItems(t.Context(), []rawItem{
@@ -134,7 +135,7 @@ func TestReflectValidate(t *testing.T) {
 			{"c1", "Chấm chặt hơn khi thiếu ví dụ cụ thể", "STRICTER", []string{"a", "b"}},
 		}, refs, rubric, nil, pii, uuid.New(), cfg)
 		require.Len(t, got, 1)
-		require.Equal(t, 1, drop.Duplicate)
+		require.Equal(t, 1, drop.Count("duplicate"))
 	})
 }
 
@@ -153,7 +154,37 @@ func TestReflectDroppedByCriterion(t *testing.T) {
 		{"c9", "Lưu ý", "STRICTER", []string{"a", "b"}},
 	}, refs, rubric, nil, namePII{}, uuid.New(), DefaultGuidanceConfig())
 	require.Len(t, got, 1)
-	require.Equal(t, map[string]map[string]int{"c2": {"keyword": 1}}, drop.ByCriterion, "tiêu chí lạ không vào ByCriterion")
-	require.Equal(t, 1, drop.Keyword)
-	require.Equal(t, 1, drop.Criterion)
+	c2 := "c2"
+	require.ElementsMatch(t, ReflectDropped{{CriterionID: &c2, Reason: "keyword", Count: 1}, {Reason: "criterion", Count: 1}}, drop, "criterion_id = null khi reason = criterion")
+	require.Equal(t, ReflectDropped{{CriterionID: &c2, Reason: "keyword", Count: 1}, {Reason: "criterion", Count: 1}}, drop.sorted(), "tiêu chí trước, null cuối")
+	require.Equal(t, 2, drop.Total())
+	b, err := json.Marshal(ReflectResult{Drafts: 1, Dropped: drop.sorted()})
+	require.NoError(t, err)
+	require.JSONEq(t, `{"drafts":1,"dropped":[{"criterion_id":"c2","reason":"keyword","count":1},{"criterion_id":null,"reason":"criterion","count":1}]}`, string(b))
+	b, err = json.Marshal(ReflectResult{Dropped: ReflectDropped(nil).sorted()})
+	require.NoError(t, err)
+	require.JSONEq(t, `{"drafts":0,"dropped":[]}`, string(b), "không có mục nào bị bỏ = mảng rỗng, không null")
+}
+func TestReflectKeywordExempt(t *testing.T) {
+	t.Parallel()
+	exempt := []string{ // KHÔNG bị loại
+		"Tổng quát hoá luận điểm trước khi nêu ví dụ", "Mở bài nêu tổng quan hiện trạng", "Trình bày tổng thể kiến trúc phòng thủ",
+		"Lập luận tổng hợp nhiều nguồn", "Tổng kết rồi mới kiến nghị", "Chỉ cho điểm tối đa khi có số liệu, trừ khi bài nêu lý do",
+		"Ngoại trừ phần mở bài", "Loại trừ các giả định không có căn cứ",
+		"TỔNG QUÁT", "tong quat", "(tổng quan)", "tổng quát,", "tổng quát.", xnorm.NFD.String("tổng quát"),
+		"tổng quát tổng hợp", "tổng quát, tổng kết", "tổng quan tổng thể", // hai cụm liền nhau dùng chung ranh giới
+		"Ý trừu tượng nhưng có ví dụ", // «trừu» không phải từ khoá «trừ»
+	}
+	for _, s := range exempt {
+		require.False(t, ForbiddenText(s), "phải được miễn: %q", s)
+	}
+	forbiddenCases := []string{ // VẪN bị loại
+		"Tính tổng điểm của các ý", "Trừ điểm khi thiếu ví dụ", "Bài nộp muộn thì hạ bậc", "Làm tròn lên 0,5", "Phạt 10 %",
+		"tổng", "trừ", "Tổng của các ý", "tổng quá", "trừ đi 0,5", "tổng đài viên",
+		"Tổng quát nhưng đừng tính tổng điểm", "tổng quan và trừ 0,5", "trừ khi nộp muộn", "ngoại trừ phần phạt",
+		"tổng kết rồi làm tròn", "loại trừ điểm thưởng và phạt", "tổng quát tổng điểm",
+	}
+	for _, s := range forbiddenCases {
+		require.True(t, ForbiddenText(s), "phải bị loại: %q", s)
+	}
 }
