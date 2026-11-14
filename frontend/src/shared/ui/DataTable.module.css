@@ -28,7 +28,7 @@
   border-bottom: 1px solid var(--ep-rule);
   vertical-align: middle;
 }
-.dense td { height: 44px; }
+.dense td { height: 44px; padding-block: 2px; } /* hàng dày 44: hai dòng chữ vẫn vừa */
 .table td :is(span, p, small, div, a) { line-height: inherit; }
 
 .clickable { transition: background-color var(--ep-fast) var(--ep-ease-standard); }
