@@ -105,7 +105,7 @@ flowchart TD
 | Token hết hạn giữa stream (`reconnect token_expired`) | `auth:expired`, không nối tới khi có token | Như 401 |
 | `resync` | Vô hiệu hoá query đã đăng ký | Dữ liệu tự làm mới |
 | `localStorage` đầy / bị chặn | `status="error"` của nháp, chữ vẫn trong ô | Dòng nhỏ "Chưa lưu được bản nháp" |
-| Route chưa có backend (`MOCK_SCREENS=0`) | `EmptyState` theo phase | "Tính năng này đang được xây ở giai đoạn P3…" |
+| Route chưa có backend (`MOCK_SCREENS=0`) | `EmptyState` chỉ tiêu đề + nút `Về Hôm nay` | "Tính năng chưa mở." (tên phase giữ ở bảng 7.6 cho dev, không hiện trên giao diện) |
 | Vai không được mở route | Màn chặn; không gọi API | "Bạn không có quyền xem màn này" |
 | Lint / ảnh mốc / axe đỏ | CI đỏ, artifact báo cáo | (dev) tên phép / ảnh lệch / nút vi phạm |
 
@@ -448,7 +448,7 @@ Hai khối này **không** nằm trong ma trận `[data-part=primitive]` / `[dat
 | P1 | Panel | D L E R | 4 | H, F, S, X (thành phần không tương tác — `G`) |
 | P2 | PanelSection | D (mặc định và `tone="strong"`) | 1 | H, F, S, X (`G`); L, E, R (do `Panel` chứa nó báo — `C`) |
 
-Cách đo: D = ba độ đệm `md` / `lg` / `none` và hai `PanelSection` ngăn bằng đường kẻ 1 px, ô nhấn `tone="strong"`; L / E / R = `PageState` tải (`aria-busy="true"`, khung xương), rỗng (nói vì sao + đúng 1 hành động), lỗi (`role="alert"`, có `Thử lại`) bên trong `Panel`. Mục `#panel` có ≥ 8 ô, mỗi ô đạt `AUDIT` sạch ở 1440 và 390 px (`FEAT-ui-panels` US-UI-02 AC7). Hợp đồng DOM / CSS của khối: `FEAT-ui-panels/SRS.md` 5.4.
+Cách đo: D = ba độ đệm `md` / `lg` / `none` và hai `PanelSection` ngăn bằng đường kẻ 1 px, ô nhấn `tone="strong"`; L / E / R = `PageState` tải (`aria-busy="true"`, khung xương), rỗng (tiêu đề ngắn + tối đa 1 hành động, không thân chữ), lỗi (`role="alert"`, có `Thử lại`) bên trong `Panel`. Mục `#panel` có ≥ 8 ô, mỗi ô đạt `AUDIT` sạch ở 1440 và 390 px (`FEAT-ui-panels` US-UI-02 AC7). Hợp đồng DOM / CSS của khối: `FEAT-ui-panels/SRS.md` 5.4.
 
 ### 7.3 Quy ước chung cho từng trạng thái (đo được)
 
@@ -459,7 +459,7 @@ Cách đo: D = ba độ đệm `md` / `lg` / `none` và hai `PanelSection` ngăn
 | selected | thuộc tính ARIA (`aria-selected` / `aria-pressed` / `aria-checked` / `aria-current` / `aria-expanded`) + dấu hiệu không chỉ là màu | đọc thuộc tính + so ảnh |
 | disabled | `disabled` hoặc `aria-disabled="true"`; `cursor: not-allowed`; không gọi handler; lý do qua `aria-describedby` nếu có | đếm lần gọi handler = 0 |
 | loading | khung xương đúng hình, `aria-busy="true"`; không spinner giữa trang | `[aria-busy=true]`, không `animate-spin` ngoài Button |
-| empty | nói vì sao rỗng + đúng 1 hành động | đếm `button, a` trong ô = 1 |
+| empty | tiêu đề ngắn + tối đa 1 hành động, không câu giải thích (ui-empty) | đếm `button, a` trong ô ≤ 1; không có đoạn chữ thân ngoài tiêu đề |
 | error | `role="alert"`; vấn đề + an toàn + cách khắc phục; có `Thử lại` | chuỗi không khớp `/^[A-Z_]{3,}$/` |
 
 ### 7.3a Hợp đồng ô `empty` và `error` theo từng khối (trả lời TC-PU02-11 / 12; v1.2)
