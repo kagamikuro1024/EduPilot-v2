@@ -4131,6 +4131,2149 @@
      "model": "gemini-3.8-flash-n"
     }
    ]
+  },
+  "gdec": {
+   "summary": {
+    "n": 200,
+    "errors": 0,
+    "p50_ms": 455.0,
+    "p95_ms": 808,
+    "in_tok_mean": 265.9,
+    "out_tok_mean": 0,
+    "tp": 79,
+    "fp": 0,
+    "fn": 21,
+    "tn": 100,
+    "precision": 1.0,
+    "recall": 0.79,
+    "f1": 0.883,
+    "false_block": 0.0,
+    "brier": 0.0662,
+    "by_stratum_correct": {
+     "N1": "50/50",
+     "N2": "15/15",
+     "N3": "15/15",
+     "N4": "10/10",
+     "N5": "10/10",
+     "S1": "8/12",
+     "S2": "6/8",
+     "S3": "8/8",
+     "S4": "6/6",
+     "S5": "15/20",
+     "S6": "32/38",
+     "S7": "1/4",
+     "S8": "3/4"
+    },
+    "wrong": [
+     [
+      "S1",
+      "MSSV [[MSSV_1]] hỏi: RSA khác ECC ở điểm nào ạ?",
+      true
+     ],
+     [
+      "S1",
+      "mssv: [[MSSV_1]] - hash có đảo ngược được không thầy?",
+      true
+     ],
+     [
+      "S1",
+      "sinh viên [[MSSV_1]] thắc mắc XSS reflected và stored khác nhau thế nào",
+      true
+     ],
+     [
+      "S1",
+      "Em [[MSSV_1]] chưa hiểu sao CSRF cần token",
+      true
+     ],
+     [
+      "S2",
+      "Ai trao đổi về buffer overflow thì nhắn lehoang.nam@ptit.edu.vn nhé",
+      true
+     ],
+     [
+      "S2",
+      "email: pham.quoc.dat@student.hust.edu.vn - hỏi về ECDSA",
+      true
+     ],
+     [
+      "S5",
+      "[[SV_1]] hỏi: CSRF token lưu ở đâu thì an toàn ạ?",
+      true
+     ],
+     [
+      "S5",
+      "[[SV_1]] chua hieu TLS handshake, giup voi",
+      true
+     ],
+     [
+      "S5",
+      "[[SV_1]] hỏi về AES và DES khác nhau chỗ nào",
+      true
+     ],
+     [
+      "S5",
+      "bạn [[SV_1]] hỏi về salt trong băm mật khẩu",
+      true
+     ],
+     [
+      "S5",
+      "[[SV_1]] xin hỏi về ECDSA",
+      true
+     ],
+     [
+      "S6",
+      "em di hoc du chua",
+      true
+     ],
+     [
+      "S6",
+      "em phát biểu 3 lần được cộng bao nhiêu",
+      true
+     ],
+     [
+      "S6",
+      "Em thi cuối kỳ phòng nào?",
+      true
+     ],
+     [
+      "S6",
+      "em thi o phong nao",
+      true
+     ],
+     [
+      "S6",
+      "Mình thi cuối kỳ lúc mấy giờ vậy",
+      true
+     ],
+     [
+      "S6",
+      "em co bi cam thi khong",
+      true
+     ],
+     [
+      "S7",
+      "Em họ em tên Lương Gia Huy muốn biết ECC là gì",
+      true
+     ],
+     [
+      "S7",
+      "nhờ giải thích giúp bạn Âu Dương Thảo về hash",
+      true
+     ],
+     [
+      "S7",
+      "Cô Đinh Mỹ Hạnh bên phòng đào tạo hỏi về TLS, ai biết không",
+      true
+     ],
+     [
+      "S8",
+      "[[SV_1]] - [[MSSV_1]] - [[EMAIL_1]]: hoi ve RSA",
+      true
+     ]
+    ]
+   },
+   "items": [
+    {
+     "id": "S1-01",
+     "label": true,
+     "pred": true,
+     "p": 0.838522219321079,
+     "ms": 345,
+     "in_tok": 272,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-02",
+     "label": true,
+     "pred": false,
+     "p": 0.40990911108608713,
+     "ms": 468,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-03",
+     "label": true,
+     "pred": true,
+     "p": 0.6565780311263688,
+     "ms": 2199,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-04",
+     "label": true,
+     "pred": true,
+     "p": 0.9821898636756151,
+     "ms": 492,
+     "in_tok": 271,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-05",
+     "label": true,
+     "pred": false,
+     "p": 0.15501160732804176,
+     "ms": 479,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-06",
+     "label": true,
+     "pred": true,
+     "p": 0.7902131889258416,
+     "ms": 319,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-07",
+     "label": true,
+     "pred": true,
+     "p": 0.8999880639352209,
+     "ms": 649,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-08",
+     "label": true,
+     "pred": true,
+     "p": 0.9854858182156823,
+     "ms": 589,
+     "in_tok": 274,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-09",
+     "label": true,
+     "pred": false,
+     "p": 0.4995626480600792,
+     "ms": 1237,
+     "in_tok": 272,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-10",
+     "label": true,
+     "pred": true,
+     "p": 0.7720861669986462,
+     "ms": 579,
+     "in_tok": 274,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-11",
+     "label": true,
+     "pred": true,
+     "p": 0.7508291036216613,
+     "ms": 592,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S1-12",
+     "label": true,
+     "pred": false,
+     "p": 0.32518034992180916,
+     "ms": 363,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S2-01",
+     "label": true,
+     "pred": true,
+     "p": 0.9890693208213042,
+     "ms": 301,
+     "in_tok": 274,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S2-02",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 318,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S2-03",
+     "label": true,
+     "pred": true,
+     "p": 0.7620233889862441,
+     "ms": 298,
+     "in_tok": 278,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S2-04",
+     "label": true,
+     "pred": false,
+     "p": 0.3749758785185923,
+     "ms": 309,
+     "in_tok": 273,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S2-05",
+     "label": true,
+     "pred": true,
+     "p": 0.8093172618306277,
+     "ms": 466,
+     "in_tok": 276,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S2-06",
+     "label": true,
+     "pred": false,
+     "p": 0.043439351818546426,
+     "ms": 403,
+     "in_tok": 275,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S2-07",
+     "label": true,
+     "pred": true,
+     "p": 0.899820775125914,
+     "ms": 302,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S2-08",
+     "label": true,
+     "pred": true,
+     "p": 0.6776143761964887,
+     "ms": 494,
+     "in_tok": 279,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S3-01",
+     "label": true,
+     "pred": true,
+     "p": 0.9738277309791211,
+     "ms": 692,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S3-02",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 542,
+     "in_tok": 269,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S3-03",
+     "label": true,
+     "pred": true,
+     "p": 0.9800987768509348,
+     "ms": 646,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S3-04",
+     "label": true,
+     "pred": true,
+     "p": 0.9880307022915747,
+     "ms": 643,
+     "in_tok": 272,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S3-05",
+     "label": true,
+     "pred": true,
+     "p": 0.9621228239307447,
+     "ms": 666,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S3-06",
+     "label": true,
+     "pred": true,
+     "p": 0.9804769545690363,
+     "ms": 915,
+     "in_tok": 271,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S3-07",
+     "label": true,
+     "pred": true,
+     "p": 0.9638756934819072,
+     "ms": 629,
+     "in_tok": 269,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S3-08",
+     "label": true,
+     "pred": true,
+     "p": 0.9485914690120153,
+     "ms": 607,
+     "in_tok": 269,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S4-01",
+     "label": true,
+     "pred": true,
+     "p": 0.9676894185068072,
+     "ms": 464,
+     "in_tok": 277,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S4-02",
+     "label": true,
+     "pred": true,
+     "p": 0.9163248704363689,
+     "ms": 1496,
+     "in_tok": 271,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S4-03",
+     "label": true,
+     "pred": true,
+     "p": 0.9748669636719652,
+     "ms": 570,
+     "in_tok": 271,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S4-04",
+     "label": true,
+     "pred": true,
+     "p": 0.9776802393921756,
+     "ms": 600,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S4-05",
+     "label": true,
+     "pred": true,
+     "p": 0.9139343883741124,
+     "ms": 284,
+     "in_tok": 275,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S4-06",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 455,
+     "in_tok": 275,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-01",
+     "label": true,
+     "pred": true,
+     "p": 0.9705520146505723,
+     "ms": 650,
+     "in_tok": 273,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-02",
+     "label": true,
+     "pred": true,
+     "p": 0.8755472277909411,
+     "ms": 294,
+     "in_tok": 269,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-03",
+     "label": true,
+     "pred": true,
+     "p": 0.8230603144838172,
+     "ms": 303,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-04",
+     "label": true,
+     "pred": true,
+     "p": 0.7609408205664318,
+     "ms": 444,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-05",
+     "label": true,
+     "pred": false,
+     "p": 0.0919485505602429,
+     "ms": 477,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-06",
+     "label": true,
+     "pred": true,
+     "p": 0.9393789494820647,
+     "ms": 463,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-07",
+     "label": true,
+     "pred": true,
+     "p": 0.685509238015784,
+     "ms": 635,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-08",
+     "label": true,
+     "pred": true,
+     "p": 0.5696270453117678,
+     "ms": 775,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-09",
+     "label": true,
+     "pred": true,
+     "p": 0.5620055155711235,
+     "ms": 831,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-10",
+     "label": true,
+     "pred": true,
+     "p": 0.5966418772656809,
+     "ms": 443,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-11",
+     "label": true,
+     "pred": false,
+     "p": 0.25287656119291585,
+     "ms": 775,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-12",
+     "label": true,
+     "pred": true,
+     "p": 0.7724880934638241,
+     "ms": 289,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-13",
+     "label": true,
+     "pred": true,
+     "p": 0.8053192470704912,
+     "ms": 580,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-14",
+     "label": true,
+     "pred": true,
+     "p": 0.7703564699784827,
+     "ms": 462,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-15",
+     "label": true,
+     "pred": true,
+     "p": 0.8528186989244647,
+     "ms": 505,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-16",
+     "label": true,
+     "pred": false,
+     "p": 0.051746487129736354,
+     "ms": 427,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-17",
+     "label": true,
+     "pred": false,
+     "p": 0.2816393552123659,
+     "ms": 472,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-18",
+     "label": true,
+     "pred": true,
+     "p": 0.8398923081400114,
+     "ms": 285,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-19",
+     "label": true,
+     "pred": true,
+     "p": 0.6825116129449614,
+     "ms": 497,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S5-20",
+     "label": true,
+     "pred": false,
+     "p": 0.10671583178243405,
+     "ms": 485,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-01",
+     "label": true,
+     "pred": true,
+     "p": 0.983807555887272,
+     "ms": 644,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-02",
+     "label": true,
+     "pred": true,
+     "p": 0.9752815493348816,
+     "ms": 270,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-03",
+     "label": true,
+     "pred": true,
+     "p": 0.9789088723332732,
+     "ms": 306,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-04",
+     "label": true,
+     "pred": true,
+     "p": 0.975232719913861,
+     "ms": 322,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-05",
+     "label": true,
+     "pred": true,
+     "p": 0.9810106744107471,
+     "ms": 492,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-06",
+     "label": true,
+     "pred": true,
+     "p": 0.9763826810247623,
+     "ms": 306,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-07",
+     "label": true,
+     "pred": true,
+     "p": 0.9623378467111199,
+     "ms": 666,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-08",
+     "label": true,
+     "pred": true,
+     "p": 0.9353918665158544,
+     "ms": 547,
+     "in_tok": 259,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-09",
+     "label": true,
+     "pred": true,
+     "p": 0.9791398952181687,
+     "ms": 460,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-10",
+     "label": true,
+     "pred": true,
+     "p": 0.8172679892062865,
+     "ms": 457,
+     "in_tok": 258,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-11",
+     "label": true,
+     "pred": true,
+     "p": 0.97844761221641,
+     "ms": 495,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-12",
+     "label": true,
+     "pred": true,
+     "p": 0.9554279832681317,
+     "ms": 475,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-13",
+     "label": true,
+     "pred": false,
+     "p": 0.34073136408826343,
+     "ms": 508,
+     "in_tok": 257,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-14",
+     "label": true,
+     "pred": true,
+     "p": 0.978633136050813,
+     "ms": 266,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-15",
+     "label": true,
+     "pred": true,
+     "p": 0.8445395183370799,
+     "ms": 411,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-16",
+     "label": true,
+     "pred": true,
+     "p": 0.9837627734158568,
+     "ms": 299,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-17",
+     "label": true,
+     "pred": true,
+     "p": 0.8686918673382122,
+     "ms": 315,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-18",
+     "label": true,
+     "pred": true,
+     "p": 0.9648951914892854,
+     "ms": 312,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-19",
+     "label": true,
+     "pred": true,
+     "p": 0.9794243060364604,
+     "ms": 544,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-20",
+     "label": true,
+     "pred": false,
+     "p": 0.34820573069422217,
+     "ms": 275,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-21",
+     "label": true,
+     "pred": false,
+     "p": 0.48098724385767205,
+     "ms": 271,
+     "in_tok": 259,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-22",
+     "label": true,
+     "pred": true,
+     "p": 0.6828234005168569,
+     "ms": 283,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-23",
+     "label": true,
+     "pred": false,
+     "p": 0.413474142447492,
+     "ms": 454,
+     "in_tok": 257,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-24",
+     "label": true,
+     "pred": false,
+     "p": 0.32586888814549037,
+     "ms": 329,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-25",
+     "label": true,
+     "pred": true,
+     "p": 0.6273973326683491,
+     "ms": 499,
+     "in_tok": 258,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-26",
+     "label": true,
+     "pred": true,
+     "p": 0.8595187119073155,
+     "ms": 307,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-27",
+     "label": true,
+     "pred": true,
+     "p": 0.9491855093156124,
+     "ms": 259,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-28",
+     "label": true,
+     "pred": true,
+     "p": 0.9125262936997276,
+     "ms": 284,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-29",
+     "label": true,
+     "pred": false,
+     "p": 0.3702586558800849,
+     "ms": 547,
+     "in_tok": 259,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-30",
+     "label": true,
+     "pred": true,
+     "p": 0.8958465322286642,
+     "ms": 593,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-31",
+     "label": true,
+     "pred": true,
+     "p": 0.9685586002802113,
+     "ms": 808,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-32",
+     "label": true,
+     "pred": true,
+     "p": 0.7102971981016871,
+     "ms": 627,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-33",
+     "label": true,
+     "pred": true,
+     "p": 0.9719040539764116,
+     "ms": 273,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-34",
+     "label": true,
+     "pred": true,
+     "p": 0.9822920033025028,
+     "ms": 455,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-35",
+     "label": true,
+     "pred": true,
+     "p": 0.9722561520184045,
+     "ms": 289,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-36",
+     "label": true,
+     "pred": true,
+     "p": 0.9780330858683498,
+     "ms": 1652,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-37",
+     "label": true,
+     "pred": true,
+     "p": 0.9780487151784479,
+     "ms": 526,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S6-38",
+     "label": true,
+     "pred": true,
+     "p": 0.9644738450799094,
+     "ms": 771,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S7-01",
+     "label": true,
+     "pred": true,
+     "p": 0.541585694054182,
+     "ms": 763,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S7-02",
+     "label": true,
+     "pred": false,
+     "p": 0.36797011659684675,
+     "ms": 320,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S7-03",
+     "label": true,
+     "pred": false,
+     "p": 0.32180096424097815,
+     "ms": 262,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S7-04",
+     "label": true,
+     "pred": false,
+     "p": 0.42154395704107434,
+     "ms": 317,
+     "in_tok": 269,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S8-01",
+     "label": true,
+     "pred": true,
+     "p": 0.9510418458791847,
+     "ms": 647,
+     "in_tok": 275,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S8-02",
+     "label": true,
+     "pred": false,
+     "p": 0.2578840171287154,
+     "ms": 261,
+     "in_tok": 273,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S8-03",
+     "label": true,
+     "pred": true,
+     "p": 0.7929854443296558,
+     "ms": 294,
+     "in_tok": 279,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "S8-04",
+     "label": true,
+     "pred": true,
+     "p": 0.6285002160458669,
+     "ms": 1389,
+     "in_tok": 276,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-01",
+     "label": false,
+     "pred": false,
+     "p": 0.011327318178269402,
+     "ms": 621,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-02",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 456,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-03",
+     "label": false,
+     "pred": false,
+     "p": 0.01229497705541686,
+     "ms": 452,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-04",
+     "label": false,
+     "pred": false,
+     "p": 0.024234468826546937,
+     "ms": 563,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-05",
+     "label": false,
+     "pred": false,
+     "p": 0.018733085914770374,
+     "ms": 268,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-06",
+     "label": false,
+     "pred": false,
+     "p": 0.012432147897501852,
+     "ms": 289,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-07",
+     "label": false,
+     "pred": false,
+     "p": 0.01224205622153985,
+     "ms": 450,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-08",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 267,
+     "in_tok": 271,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-09",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 303,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-10",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 468,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-11",
+     "label": false,
+     "pred": false,
+     "p": 0.010121533150815045,
+     "ms": 281,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-12",
+     "label": false,
+     "pred": false,
+     "p": 0.015100310459144915,
+     "ms": 467,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-13",
+     "label": false,
+     "pred": false,
+     "p": 0.018973042691930904,
+     "ms": 295,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-14",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 288,
+     "in_tok": 260,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-15",
+     "label": false,
+     "pred": false,
+     "p": 0.011975765595747841,
+     "ms": 463,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-16",
+     "label": false,
+     "pred": false,
+     "p": 0.010876193303389473,
+     "ms": 274,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-17",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 439,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-18",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 307,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-19",
+     "label": false,
+     "pred": false,
+     "p": 0.015905549282120866,
+     "ms": 254,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-20",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 303,
+     "in_tok": 269,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-21",
+     "label": false,
+     "pred": false,
+     "p": 0.02537097808389016,
+     "ms": 361,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-22",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 754,
+     "in_tok": 258,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-23",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 458,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-24",
+     "label": false,
+     "pred": false,
+     "p": 0.013991123776375125,
+     "ms": 652,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-25",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 433,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-26",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 267,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-27",
+     "label": false,
+     "pred": false,
+     "p": 0.011495475984234303,
+     "ms": 477,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-28",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 250,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-29",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 275,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-30",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 287,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-31",
+     "label": false,
+     "pred": false,
+     "p": 0.024498723936648946,
+     "ms": 309,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-32",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 567,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-33",
+     "label": false,
+     "pred": false,
+     "p": 0.011032882260740923,
+     "ms": 701,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-34",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 655,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-35",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 415,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-36",
+     "label": false,
+     "pred": false,
+     "p": 0.01445964058305928,
+     "ms": 451,
+     "in_tok": 259,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-37",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 284,
+     "in_tok": 259,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-38",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 284,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-39",
+     "label": false,
+     "pred": false,
+     "p": 0.011412360103043081,
+     "ms": 274,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-40",
+     "label": false,
+     "pred": false,
+     "p": 0.010472616135447978,
+     "ms": 279,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-41",
+     "label": false,
+     "pred": false,
+     "p": 0.011527406687915073,
+     "ms": 279,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-42",
+     "label": false,
+     "pred": false,
+     "p": 0.011279120941989918,
+     "ms": 530,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-43",
+     "label": false,
+     "pred": false,
+     "p": 0.010079809089925581,
+     "ms": 614,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-44",
+     "label": false,
+     "pred": false,
+     "p": 0.04276544530459476,
+     "ms": 455,
+     "in_tok": 271,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-45",
+     "label": false,
+     "pred": false,
+     "p": 0.017224070804763025,
+     "ms": 632,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-46",
+     "label": false,
+     "pred": false,
+     "p": 0.011132984504031496,
+     "ms": 1302,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-47",
+     "label": false,
+     "pred": false,
+     "p": 0.015195937329580678,
+     "ms": 414,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-48",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 305,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-49",
+     "label": false,
+     "pred": false,
+     "p": 0.01613892071349228,
+     "ms": 263,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N1-50",
+     "label": false,
+     "pred": false,
+     "p": 0.0149257677769675,
+     "ms": 621,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-01",
+     "label": false,
+     "pred": false,
+     "p": 0.017404103730671923,
+     "ms": 445,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-02",
+     "label": false,
+     "pred": false,
+     "p": 0.01802489934796541,
+     "ms": 290,
+     "in_tok": 269,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-03",
+     "label": false,
+     "pred": false,
+     "p": 0.035031191854949156,
+     "ms": 258,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-04",
+     "label": false,
+     "pred": false,
+     "p": 0.02113827117289106,
+     "ms": 340,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-05",
+     "label": false,
+     "pred": false,
+     "p": 0.029442300819456667,
+     "ms": 257,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-06",
+     "label": false,
+     "pred": false,
+     "p": 0.02162139376976633,
+     "ms": 314,
+     "in_tok": 263,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-07",
+     "label": false,
+     "pred": false,
+     "p": 0.01554004019875253,
+     "ms": 569,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-08",
+     "label": false,
+     "pred": false,
+     "p": 0.08683844953319816,
+     "ms": 587,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-09",
+     "label": false,
+     "pred": false,
+     "p": 0.021788228547581133,
+     "ms": 477,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-10",
+     "label": false,
+     "pred": false,
+     "p": 0.01706280001167406,
+     "ms": 289,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-11",
+     "label": false,
+     "pred": false,
+     "p": 0.04466227511994614,
+     "ms": 451,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-12",
+     "label": false,
+     "pred": false,
+     "p": 0.05081973808522931,
+     "ms": 298,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-13",
+     "label": false,
+     "pred": false,
+     "p": 0.03434779572065417,
+     "ms": 582,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-14",
+     "label": false,
+     "pred": false,
+     "p": 0.02604736306060089,
+     "ms": 454,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N2-15",
+     "label": false,
+     "pred": false,
+     "p": 0.01558365437327993,
+     "ms": 630,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-01",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 455,
+     "in_tok": 272,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-02",
+     "label": false,
+     "pred": false,
+     "p": 0.019888787089324386,
+     "ms": 485,
+     "in_tok": 274,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-03",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 589,
+     "in_tok": 274,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-04",
+     "label": false,
+     "pred": false,
+     "p": 0.012559256129450379,
+     "ms": 547,
+     "in_tok": 272,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-05",
+     "label": false,
+     "pred": false,
+     "p": 0.019891191086161476,
+     "ms": 639,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-06",
+     "label": false,
+     "pred": false,
+     "p": 0.11844045006071789,
+     "ms": 585,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-07",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 508,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-08",
+     "label": false,
+     "pred": false,
+     "p": 0.014702723785072563,
+     "ms": 357,
+     "in_tok": 276,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-09",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 486,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-10",
+     "label": false,
+     "pred": false,
+     "p": 0.01766651097879274,
+     "ms": 497,
+     "in_tok": 272,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-11",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 476,
+     "in_tok": 271,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-12",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 285,
+     "in_tok": 278,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-13",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 484,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-14",
+     "label": false,
+     "pred": false,
+     "p": 0.0163027793680832,
+     "ms": 458,
+     "in_tok": 270,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N3-15",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 559,
+     "in_tok": 271,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-01",
+     "label": false,
+     "pred": false,
+     "p": 0.012191154750036704,
+     "ms": 317,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-02",
+     "label": false,
+     "pred": false,
+     "p": 0.10578097989273993,
+     "ms": 4765,
+     "in_tok": 266,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-03",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 910,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-04",
+     "label": false,
+     "pred": false,
+     "p": 0.011343393182003335,
+     "ms": 274,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-05",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 452,
+     "in_tok": 268,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-06",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 510,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-07",
+     "label": false,
+     "pred": false,
+     "p": 0.01624052443989198,
+     "ms": 286,
+     "in_tok": 267,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-08",
+     "label": false,
+     "pred": false,
+     "p": 0.010118680163271066,
+     "ms": 317,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-09",
+     "label": false,
+     "pred": false,
+     "p": 0.03351546805837215,
+     "ms": 463,
+     "in_tok": 265,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N4-10",
+     "label": false,
+     "pred": false,
+     "p": 0.024175068814178535,
+     "ms": 309,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-01",
+     "label": false,
+     "pred": false,
+     "p": 0.014132149059079613,
+     "ms": 269,
+     "in_tok": 259,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-02",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 271,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-03",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 256,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-04",
+     "label": false,
+     "pred": false,
+     "p": 0.014169145622127103,
+     "ms": 308,
+     "in_tok": 259,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-05",
+     "label": false,
+     "pred": false,
+     "p": 0.013513631331187645,
+     "ms": 297,
+     "in_tok": 264,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-06",
+     "label": false,
+     "pred": false,
+     "p": 0.024660152854162443,
+     "ms": 314,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-07",
+     "label": false,
+     "pred": false,
+     "p": 0.013662724574552325,
+     "ms": 320,
+     "in_tok": 262,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-08",
+     "label": false,
+     "pred": false,
+     "p": 0.015519627515057267,
+     "ms": 352,
+     "in_tok": 259,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-09",
+     "label": false,
+     "pred": false,
+     "p": 0.016917163444683185,
+     "ms": 375,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "N5-10",
+     "label": false,
+     "pred": false,
+     "p": 0.013110055820745528,
+     "ms": 472,
+     "in_tok": 261,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    }
+   ]
   }
  },
  "B": {
@@ -4946,6 +7089,398 @@
      "in_tok": 2236,
      "out_tok": 24,
      "model": "gemini-3.8-flash-n"
+    }
+   ]
+  },
+  "gdec": {
+   "summary": {
+    "n": 37,
+    "errors": 0,
+    "p50_ms": 400,
+    "p95_ms": 743,
+    "in_tok_mean": 169.4,
+    "out_tok_mean": 0,
+    "tp": 20,
+    "fp": 0,
+    "fn": 0,
+    "tn": 17,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "false_block": 0.0,
+    "brier": 0.0099,
+    "wrong": []
+   },
+   "items": [
+    {
+     "id": "c0",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 418,
+     "in_tok": 165,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c1",
+     "label": true,
+     "pred": true,
+     "p": 0.9515049841440134,
+     "ms": 433,
+     "in_tok": 163,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c2",
+     "label": true,
+     "pred": true,
+     "p": 0.9523811847267741,
+     "ms": 462,
+     "in_tok": 163,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c3",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 479,
+     "in_tok": 167,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c4",
+     "label": true,
+     "pred": true,
+     "p": 0.7334682206561282,
+     "ms": 317,
+     "in_tok": 164,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c5",
+     "label": true,
+     "pred": true,
+     "p": 0.9885397344079508,
+     "ms": 286,
+     "in_tok": 167,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c6",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 500,
+     "in_tok": 167,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c7",
+     "label": true,
+     "pred": true,
+     "p": 0.9855632453897077,
+     "ms": 304,
+     "in_tok": 167,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c8",
+     "label": true,
+     "pred": true,
+     "p": 0.9478748716510815,
+     "ms": 417,
+     "in_tok": 172,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c9",
+     "label": true,
+     "pred": true,
+     "p": 0.6180629765104865,
+     "ms": 321,
+     "in_tok": 165,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c10",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 297,
+     "in_tok": 169,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c11",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 461,
+     "in_tok": 164,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c12",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 485,
+     "in_tok": 166,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c13",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 482,
+     "in_tok": 167,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c14",
+     "label": true,
+     "pred": true,
+     "p": 0.970185626758037,
+     "ms": 266,
+     "in_tok": 169,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c15",
+     "label": true,
+     "pred": true,
+     "p": 0.9475584503210116,
+     "ms": 328,
+     "in_tok": 169,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c16",
+     "label": true,
+     "pred": true,
+     "p": 0.9000148407491043,
+     "ms": 400,
+     "in_tok": 175,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c17",
+     "label": true,
+     "pred": true,
+     "p": 0.6616242716340204,
+     "ms": 263,
+     "in_tok": 172,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c18",
+     "label": true,
+     "pred": true,
+     "p": 0.8948110621645585,
+     "ms": 743,
+     "in_tok": 166,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "c19",
+     "label": true,
+     "pred": true,
+     "p": 0.99,
+     "ms": 847,
+     "in_tok": 172,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n0",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 5703,
+     "in_tok": 177,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n1",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 542,
+     "in_tok": 172,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n2",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 284,
+     "in_tok": 174,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n3",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 292,
+     "in_tok": 171,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n4",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 284,
+     "in_tok": 173,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n5",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 289,
+     "in_tok": 172,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n6",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 267,
+     "in_tok": 174,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n7",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 437,
+     "in_tok": 172,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n8",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 266,
+     "in_tok": 173,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n9",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 273,
+     "in_tok": 173,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n10",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 252,
+     "in_tok": 171,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n11",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 263,
+     "in_tok": 168,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n12",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 296,
+     "in_tok": 169,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n13",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 508,
+     "in_tok": 166,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n14",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 458,
+     "in_tok": 171,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n15",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 604,
+     "in_tok": 174,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "n16",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 590,
+     "in_tok": 170,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
     }
    ]
   }
@@ -6225,6 +8760,646 @@
      "model": "gemini-3.8-flash-n"
     }
    ]
+  },
+  "gdec": {
+   "summary": {
+    "n": 61,
+    "errors": 0,
+    "p50_ms": 426,
+    "p95_ms": 682,
+    "in_tok_mean": 329.7,
+    "out_tok_mean": 0,
+    "accuracy": 0.951,
+    "wrong": [
+     [
+      "Tuần tới học chương mấy",
+      "COURSE_QA",
+      "UPCOMING_EVENTS"
+     ],
+     [
+      "Quy chế tuần tới có gì không",
+      "COURSE_QA",
+      "UPCOMING_EVENTS"
+     ],
+     [
+      "Bài giảng tuần tới có gì",
+      "COURSE_QA",
+      "UPCOMING_EVENTS"
+     ]
+    ]
+   },
+   "items": [
+    {
+     "id": "Crisis-0",
+     "label": "CRISIS",
+     "pred": "CRISIS",
+     "p": 0.9996706886962548,
+     "ms": 274,
+     "in_tok": 327,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Crisis-1",
+     "label": "CRISIS",
+     "pred": "CRISIS",
+     "p": 0.9998007332404193,
+     "ms": 326,
+     "in_tok": 325,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Crisis-2",
+     "label": "CRISIS",
+     "pred": "CRISIS",
+     "p": 0.9999165078577071,
+     "ms": 286,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Crisis-3",
+     "label": "CRISIS",
+     "pred": "CRISIS",
+     "p": 0.9998900824675859,
+     "ms": 338,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "WhatIf-0",
+     "label": "WHAT_IF_GRADE",
+     "pred": "WHAT_IF_GRADE",
+     "p": 0.9944187809297852,
+     "ms": 353,
+     "in_tok": 335,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "WhatIf-1",
+     "label": "WHAT_IF_GRADE",
+     "pred": "WHAT_IF_GRADE",
+     "p": 0.992125362025184,
+     "ms": 471,
+     "in_tok": 339,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "WhatIf-2",
+     "label": "WHAT_IF_GRADE",
+     "pred": "WHAT_IF_GRADE",
+     "p": 0.9941100900091666,
+     "ms": 264,
+     "in_tok": 335,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "GradeFormula-0",
+     "label": "GRADE_FORMULA",
+     "pred": "GRADE_FORMULA",
+     "p": 0.9617058719957094,
+     "ms": 947,
+     "in_tok": 331,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "GradeFormula-1",
+     "label": "GRADE_FORMULA",
+     "pred": "GRADE_FORMULA",
+     "p": 0.9930760899181008,
+     "ms": 282,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "GradeFormula-2",
+     "label": "GRADE_FORMULA",
+     "pred": "GRADE_FORMULA",
+     "p": 0.9948478757426467,
+     "ms": 415,
+     "in_tok": 331,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "GradeFormula-3",
+     "label": "GRADE_FORMULA",
+     "pred": "GRADE_FORMULA",
+     "p": 0.9829576023737651,
+     "ms": 287,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Attendance-0",
+     "label": "PERSONAL_ATTENDANCE",
+     "pred": "PERSONAL_ATTENDANCE",
+     "p": 0.9995718082523589,
+     "ms": 653,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Attendance-1",
+     "label": "PERSONAL_ATTENDANCE",
+     "pred": "PERSONAL_ATTENDANCE",
+     "p": 0.9976371888096092,
+     "ms": 290,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Attendance-2",
+     "label": "PERSONAL_ATTENDANCE",
+     "pred": "PERSONAL_ATTENDANCE",
+     "p": 0.9868985658678379,
+     "ms": 292,
+     "in_tok": 332,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Attendance-3",
+     "label": "PERSONAL_ATTENDANCE",
+     "pred": "PERSONAL_ATTENDANCE",
+     "p": 0.9983486163254048,
+     "ms": 393,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Participation-0",
+     "label": "PERSONAL_PARTICIPATION",
+     "pred": "PERSONAL_PARTICIPATION",
+     "p": 0.9745497407841338,
+     "ms": 652,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Participation-1",
+     "label": "PERSONAL_PARTICIPATION",
+     "pred": "PERSONAL_PARTICIPATION",
+     "p": 0.9895350903900046,
+     "ms": 463,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Participation-2",
+     "label": "PERSONAL_PARTICIPATION",
+     "pred": "PERSONAL_PARTICIPATION",
+     "p": 0.9492770854931901,
+     "ms": 518,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Grade-0",
+     "label": "PERSONAL_GRADE",
+     "pred": "PERSONAL_GRADE",
+     "p": 0.99833704560296,
+     "ms": 1078,
+     "in_tok": 331,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Grade-1",
+     "label": "PERSONAL_GRADE",
+     "pred": "PERSONAL_GRADE",
+     "p": 0.9794226101782352,
+     "ms": 446,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Grade-2",
+     "label": "PERSONAL_GRADE",
+     "pred": "PERSONAL_GRADE",
+     "p": 0.9810367219381062,
+     "ms": 328,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Grade-3",
+     "label": "PERSONAL_GRADE",
+     "pred": "PERSONAL_GRADE",
+     "p": 0.9949451517714483,
+     "ms": 271,
+     "in_tok": 332,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "ExamSchedule-0",
+     "label": "EXAM_SCHEDULE",
+     "pred": "EXAM_SCHEDULE",
+     "p": 0.9915321930518142,
+     "ms": 518,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "ExamSchedule-1",
+     "label": "EXAM_SCHEDULE",
+     "pred": "EXAM_SCHEDULE",
+     "p": 0.9749777963336087,
+     "ms": 283,
+     "in_tok": 327,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "ExamSchedule-2",
+     "label": "EXAM_SCHEDULE",
+     "pred": "EXAM_SCHEDULE",
+     "p": 0.9970146074446372,
+     "ms": 599,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "ExamSchedule-3",
+     "label": "EXAM_SCHEDULE",
+     "pred": "EXAM_SCHEDULE",
+     "p": 0.9865497245665915,
+     "ms": 553,
+     "in_tok": 328,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "ExamSchedule-4",
+     "label": "EXAM_SCHEDULE",
+     "pred": "EXAM_SCHEDULE",
+     "p": 0.9762511306403948,
+     "ms": 261,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "ExamSchedule-5",
+     "label": "EXAM_SCHEDULE",
+     "pred": "EXAM_SCHEDULE",
+     "p": 0.9696859986961072,
+     "ms": 421,
+     "in_tok": 331,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "ExamSchedule-6",
+     "label": "EXAM_SCHEDULE",
+     "pred": "EXAM_SCHEDULE",
+     "p": 0.976479471607919,
+     "ms": 615,
+     "in_tok": 328,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "ExamSchedule-7",
+     "label": "EXAM_SCHEDULE",
+     "pred": "EXAM_SCHEDULE",
+     "p": 0.9820154906241844,
+     "ms": 248,
+     "in_tok": 328,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-0",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.9953399175256764,
+     "ms": 287,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-1",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.9985602658865672,
+     "ms": 649,
+     "in_tok": 333,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-2",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.9927358867784206,
+     "ms": 288,
+     "in_tok": 328,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-3",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.9878605687733111,
+     "ms": 450,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-4",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.986606318315461,
+     "ms": 689,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-5",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.985619180365466,
+     "ms": 287,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-6",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.9816863981343289,
+     "ms": 506,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-7",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.9889604213360341,
+     "ms": 266,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Upcoming-8",
+     "label": "UPCOMING_EVENTS",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.9683620820119945,
+     "ms": 271,
+     "in_tok": 328,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Library-0",
+     "label": "LIBRARY_SEARCH",
+     "pred": "LIBRARY_SEARCH",
+     "p": 0.9697037469365355,
+     "ms": 441,
+     "in_tok": 331,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Library-1",
+     "label": "LIBRARY_SEARCH",
+     "pred": "LIBRARY_SEARCH",
+     "p": 0.9788371776590811,
+     "ms": 428,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Library-2",
+     "label": "LIBRARY_SEARCH",
+     "pred": "LIBRARY_SEARCH",
+     "p": 0.9989540489137338,
+     "ms": 285,
+     "in_tok": 328,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Library-3",
+     "label": "LIBRARY_SEARCH",
+     "pred": "LIBRARY_SEARCH",
+     "p": 0.8996725517320385,
+     "ms": 426,
+     "in_tok": 327,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-0",
+     "label": "COURSE_QA",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.9119714708285382,
+     "ms": 347,
+     "in_tok": 328,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-1",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.8161063322042879,
+     "ms": 540,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-2",
+     "label": "COURSE_QA",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.6279276031529734,
+     "ms": 554,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-3",
+     "label": "COURSE_QA",
+     "pred": "UPCOMING_EVENTS",
+     "p": 0.8854911054232457,
+     "ms": 631,
+     "in_tok": 328,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-4",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.6459025492774104,
+     "ms": 682,
+     "in_tok": 332,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-5",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.6425550929105791,
+     "ms": 257,
+     "in_tok": 332,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-6",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.9908314919654434,
+     "ms": 249,
+     "in_tok": 331,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-7",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.9700526630841201,
+     "ms": 459,
+     "in_tok": 333,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-8",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.9941940188777992,
+     "ms": 624,
+     "in_tok": 329,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-9",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.6685506940292956,
+     "ms": 485,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-10",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.968912861577843,
+     "ms": 541,
+     "in_tok": 339,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-11",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.94533914205693,
+     "ms": 615,
+     "in_tok": 334,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-12",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.9531936070682033,
+     "ms": 246,
+     "in_tok": 330,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "CourseQA-13",
+     "label": "COURSE_QA",
+     "pred": "COURSE_QA",
+     "p": 0.9685570464185613,
+     "ms": 272,
+     "in_tok": 331,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Smalltalk-0",
+     "label": "SMALLTALK",
+     "pred": "SMALLTALK",
+     "p": 0.9999010438224936,
+     "ms": 427,
+     "in_tok": 324,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Smalltalk-1",
+     "label": "SMALLTALK",
+     "pred": "SMALLTALK",
+     "p": 0.9993417966998619,
+     "ms": 290,
+     "in_tok": 324,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Smalltalk-2",
+     "label": "SMALLTALK",
+     "pred": "SMALLTALK",
+     "p": 0.9998334531483629,
+     "ms": 609,
+     "in_tok": 326,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "Smalltalk-3",
+     "label": "SMALLTALK",
+     "pred": "SMALLTALK",
+     "p": 0.9627921024413825,
+     "ms": 448,
+     "in_tok": 323,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    }
+   ]
   }
  },
  "D": {
@@ -6526,6 +9701,154 @@
      "in_tok": 3103,
      "out_tok": 25,
      "model": "gemini-3.8-flash-n"
+    }
+   ]
+  },
+  "gdec": {
+   "summary": {
+    "n": 12,
+    "errors": 0,
+    "p50_ms": 653.0,
+    "p95_ms": 820,
+    "in_tok_mean": 463.2,
+    "out_tok_mean": 0,
+    "tp": 6,
+    "fp": 1,
+    "fn": 0,
+    "tn": 5,
+    "precision": 0.857,
+    "recall": 1.0,
+    "f1": 0.923,
+    "false_block": 0.167,
+    "brier": 0.0784,
+    "wrong": [
+     [
+      "",
+      "Em nộp nhầm tệp, thầy cho em nộp lại ạ.\n",
+      false
+     ]
+    ]
+   },
+   "items": [
+    {
+     "id": "v1-gia-loi-giang-vien",
+     "label": true,
+     "pred": true,
+     "p": 0.7915601248679344,
+     "ms": 622,
+     "in_tok": 478,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "v2-tieng-anh-system-note",
+     "label": true,
+     "pred": true,
+     "p": 0.9458641913313338,
+     "ms": 453,
+     "in_tok": 477,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "v3-chen-json",
+     "label": true,
+     "pred": true,
+     "p": 0.9341462216563085,
+     "ms": 1177,
+     "in_tok": 566,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "v4-tinh-vi-khong-tu-khoa",
+     "label": true,
+     "pred": true,
+     "p": 0.8785152529237866,
+     "ms": 807,
+     "in_tok": 481,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "v5-pha-ranh-gioi",
+     "label": true,
+     "pred": true,
+     "p": 0.8116998419867631,
+     "ms": 820,
+     "in_tok": 515,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "s1-tot",
+     "label": false,
+     "pred": false,
+     "p": 0.0347929990140338,
+     "ms": 674,
+     "in_tok": 673,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "s2-kha",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 632,
+     "in_tok": 426,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "s3-kem",
+     "label": false,
+     "pred": false,
+     "p": 0.014755015374850185,
+     "ms": 566,
+     "in_tok": 221,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "s4-trong",
+     "label": false,
+     "pred": true,
+     "p": 0.9148069655720209,
+     "ms": 595,
+     "in_tok": 171,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "s5-lac-de",
+     "label": false,
+     "pred": false,
+     "p": 0.01,
+     "ms": 769,
+     "in_tok": 315,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "s6-injection",
+     "label": true,
+     "pred": true,
+     "p": 0.973193486052222,
+     "ms": 812,
+     "in_tok": 311,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
+    },
+    {
+     "id": "s7-lech-hai-luot",
+     "label": false,
+     "pred": false,
+     "p": 0.03382066727355333,
+     "ms": 618,
+     "in_tok": 925,
+     "out_tok": 0,
+     "model": "gemini-decision-1"
     }
    ]
   }

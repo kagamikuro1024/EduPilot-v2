@@ -169,6 +169,20 @@ def gemini(task, text):
     return {"pred": pred, "p": p, "ms": ms, "in_tok": u.get("prompt_tokens"), "out_tok": u.get("completion_tokens"), "model": out.get("model", GEM_MODEL)}
 
 
+def gdec(task, text):
+    """Gemini Decision 1 qua `POST /v1beta/decisions` (không có đường OpenAI-compatible). Cùng instructions / criteria với Jev."""
+    q = {"type": "choice", "instructions": INSTR["C"], "criteria": INTENTS} if task == "C" else {"type": "noul", "instructions": INSTR[task]}
+    time.sleep(0.25)  # free tier 200 RPM: một luồng + giãn cách
+    out, ms = post("https://generativelanguage.googleapis.com/v1beta/decisions", {"model": "gemini-decision-1", "input": text, "questions": {"q": q}},
+                   {"x-goog-api-key": os.environ["GEMINI_API_KEY"]})
+    if "error" in out:
+        return {"error": out["error"], "ms": ms}
+    a = out["answers"]["q"]
+    pred = a["choice"] if task == "C" else a["noul"] >= 0.5
+    p = a.get("confidence") if task == "C" else a["noul"]
+    return {"pred": pred, "p": p, "ms": ms, "in_tok": out["usage"]["total_input_tokens"], "out_tok": out["usage"]["total_output_tokens"], "model": "gemini-decision-1"}
+
+
 # ---------- chấm ----------
 def summarize(task, rows, res):
     ok = [(r, x) for r, x in zip(rows, res) if "pred" in x]
@@ -200,17 +214,17 @@ def summarize(task, rows, res):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tasks", default="A,B,C")
-    ap.add_argument("--only", choices=["jev", "gemini"])
+    ap.add_argument("--only", choices=["jev", "gemini", "gdec"])
     ap.add_argument("--workers", type=int, default=6)
     a = ap.parse_args()
     data = {"A": masked_e1, "B": crisis, "C": routes, "D": injection}
     prev = json.loads(OUT.read_text()) if OUT.exists() else {}
     for task in a.tasks.split(","):
         rows = data[task]()
-        for name, fn in (("jev", jev), ("gemini", gemini)):
+        for name, fn in (("jev", jev), ("gemini", gemini), ("gdec", gdec)):
             if a.only and a.only != name:
                 continue
-            with ThreadPoolExecutor(a.workers if name == "jev" else 4) as ex:
+            with ThreadPoolExecutor({"jev": a.workers, "gemini": 4, "gdec": 1}[name]) as ex:
                 res = list(ex.map(lambda r: fn(task, r["text"]), rows))
             summ = summarize(task, rows, res)
             prev.setdefault(task, {})[name] = {"summary": summ, "items": [{"id": r["id"], "label": r["label"], **x} for r, x in zip(rows, res)]}
