@@ -522,6 +522,18 @@ test("queue: toàn bài chưa chấm — lọc mặc định không che bài, Ch
   await expect(page.getByRole("button", { name: "Chấm tất cả" })).not.toHaveAttribute("aria-disabled", "true");
 });
 
+test("queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn trang, cuộn tải tiếp) — không còn mù số lượng (GV-BUG S2-3)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const all = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, { rows: all });
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  const n = await page.locator("[data-part=queue-row]").count();
+  await expect(page.locator("[data-part=queue-count]")).toHaveText(`${n} bài`);
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await openQueue(page, context, { rows: all, h: { "GET submissions": (r) => r.fulfill(json({ items: all, next_cursor: "con-tro-1" })) } });
+  await expect(page.locator("[data-part=queue-count]")).toHaveText(`${all.length}+ bài`);
+});
+
 test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openQueue(page, context);

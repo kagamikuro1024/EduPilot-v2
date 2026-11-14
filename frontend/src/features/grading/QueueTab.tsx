@@ -470,6 +470,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
         )}
 
         {tableTitle && <h3 className="ep-item-title" data-part="queue-title">{tableTitle}</h3>}
+        <p className={s.progressText} data-part="queue-count">{`${rows.length}${list.hasNextPage ? "+" : ""} bài`}</p>
         <DataTable
           caption="Hàng chờ chấm bài"
           columns={teacher && reviewable.length > 0 ? [pickCol, ...columns] : columns}
