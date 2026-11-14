@@ -18,7 +18,7 @@ async function open(page: Page, courses: (typeof KC)[]) {
 test("insights: lớp thật ngoài mô phỏng KHÔNG mượn báo cáo 761987 — rỗng, header là lớp thật (10.7 lô 1)", async ({ page }) => {
   await open(page, [KC, MOCKED]);
   await expect(page.getByText("Chưa có báo cáo")).toBeVisible();
-  await expect(page.getByText("Kiểm chứng 10.6 – KC106")).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Chọn lớp, đang xem KC106/ })).toBeVisible(); // lớp thật ở thanh trên (header không còn lặp lớp)
   await expect(page.getByText("Chủ đề nên dạy lại")).toHaveCount(0);
   await expect(page.getByText("An ninh mạng – 761987")).toHaveCount(0);
 });

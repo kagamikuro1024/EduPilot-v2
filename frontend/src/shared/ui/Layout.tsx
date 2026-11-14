@@ -101,7 +101,9 @@ export function PageHeader({
   const second = (secondary ?? []).filter((a): a is HeaderAction => !!a);
   const extra = more ?? [];
   const toItem = (a: HeaderAction): MenuItem => ({ label: a.label, icon: a.icon, danger: a.danger, disabled: a.disabled, onSelect: () => (a.href ? router.push(a.href) : a.onClick?.()) });
-  const folded = [...second, ...extra].map(toItem); // nút «Thêm» dưới 720 px
+  // dưới 720 px: nút chính đứng đầu hàng; không có nút chính thì nút phụ đầu tiên giữ nguyên (không giấu hành động duy nhất của trang), còn lại gom vào «Thêm»
+  const lead = primary ? null : (second[0] ?? null);
+  const folded = [...second.filter((a) => a !== lead), ...extra].map(toItem);
   const metaParts = (meta ?? []).filter((m) => m !== null && m !== undefined && m !== false && m !== "");
   const hasActions = !!primary || second.length > 0 || extra.length > 0;
   return (
@@ -119,7 +121,7 @@ export function PageHeader({
         {hasActions && (
           <div className={s.actions} data-ep-header-actions>
             {second.map((a) => (
-              <span key={a.label} className={s.wide}>
+              <span key={a.label} className={a === lead ? s.lead : s.wide}>
                 <ActionButton a={a} variant="secondary" />
               </span>
             ))}

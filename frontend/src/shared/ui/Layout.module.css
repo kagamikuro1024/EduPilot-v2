@@ -20,7 +20,7 @@
 .headRow h1 { min-width: 0; }
 .meta { font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .actions { display: flex; align-items: center; gap: var(--ep-space-2); flex: none; }
-.wide, .primary { display: inline-flex; }
+.wide, .primary, .lead { display: inline-flex; }
 .narrow { display: none; }
 
 .section { display: grid; gap: var(--ep-space-4); }
@@ -68,6 +68,8 @@
   .primary { order: -1; flex: 1; }
   .primary > *, .primary > div, .primary button, .primary a { flex: 1; width: 100%; justify-content: center; }
   .wide { display: none; }
+  .lead { order: -1; flex: 1; }
+  .lead > *, .lead > div, .lead button, .lead a { flex: 1; width: 100%; justify-content: center; }
   .narrow { display: inline-flex; }
   .dlRow { grid-template-columns: 1fr; gap: var(--ep-space-1); }
   /* công tắc / trạng thái xuống hàng riêng, không đè ô nào (02-AC15) */
