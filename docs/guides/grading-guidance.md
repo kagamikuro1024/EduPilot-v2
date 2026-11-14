@@ -36,7 +36,7 @@ SEED_GUIDANCE_DEMO=1 node scripts/seed.mjs && SEED_GUIDANCE_DEMO=1 node scripts/
 bash benchmarks/guidance/run.sh            # chụp số đo theo phiên bản
 bash benchmarks/guidance/run.sh --cycle    # Rút → Duyệt → Áp dụng → Chấm lại → chụp lại (cần provider sinh chữ)
 ```
-Seed ghi thẳng DB (`gateway admin seed-guidance`, chỉ dev | test): bật cờ lớp 761987 + 8 kết quả BT03 đã duyệt, tiêu chí đầu giảng viên luôn thấp hơn AI 1,0. Không gọi Gemini thật.
+Seed ghi thẳng DB (`gateway admin seed-guidance`, chỉ dev | test): bật cờ lớp 761987 (PUBLISH ngay) + 8 kết quả BT03 đã duyệt, tiêu chí đầu giảng viên luôn thấp hơn AI 1,0 + 2 lưu ý nháp mẫu «Chờ duyệt». Không gọi Gemini thật.
 
 ## 5. «Hôm nay»
 Giảng viên: «Lưu ý chấm chờ duyệt · <bài>». Giảng viên + TA: «N bài chấm theo bản cũ · <bài>». Chỉ lớp bật cờ; sự kiện `grading_guidance.changed` làm mới ngay.

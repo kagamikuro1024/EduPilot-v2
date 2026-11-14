@@ -1334,7 +1334,7 @@ async function stepDecisionDemo() {
 }
 
 // ---- «Học từ lần sửa» (FEAT-grading-guidance, 10.6 L6) ----------------------------------------------------------------
-// SEED_GUIDANCE_DEMO=1: bật cờ GRADING_GUIDANCE cho lớp 761987 và đưa 8 kết quả ĐÃ DUYỆT vào BT03 với «sở thích gắt» ở tiêu chí đầu (giảng viên luôn thấp hơn AI 1,0) → `Rút lưu ý` dùng được.
+// SEED_GUIDANCE_DEMO=1: bật cờ GRADING_GUIDANCE cho lớp 761987 (PUBLISH ngay), đưa 8 kết quả ĐÃ DUYỆT vào BT03 với «sở thích gắt» ở tiêu chí đầu (giảng viên luôn thấp hơn AI 1,0) và 2 lưu ý NHÁP mẫu «Chờ duyệt» → `Rút lưu ý` dùng được, ngăn lưu ý có việc ngay.
 // Ghi thẳng DB bằng `gateway admin seed-guidance` (dev | test) — demo không phụ thuộc LLM thật. Idempotent: đủ 8 kết quả đã duyệt thì không thêm.
 async function stepGuidanceDemo() {
   if (setting("SEED_GUIDANCE_DEMO", "") !== "1") return;

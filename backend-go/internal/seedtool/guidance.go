@@ -17,7 +17,8 @@ const GuidanceDemoResults = 8
 
 // SeedGuidance (10.6 L6, SEED_GUIDANCE_DEMO=1): bật cờ GRADING_GUIDANCE cho lớp và đưa GuidanceDemoResults kết quả ĐÃ DUYỆT vào bài tập `code`:
 // ở tiêu chí ĐẦU TIÊN giảng viên luôn chấm thấp hơn AI 1,0 điểm («sở thích gắt»), các tiêu chí khác giữ nguyên điểm AI. Ghi thẳng DB vì demo không được phụ thuộc LLM thật.
-// Chỉ gọi từ `gateway admin seed-guidance` (dev | test). Idempotent: đủ GuidanceDemoResults kết quả đã duyệt thì không thêm. Trả số kết quả mới.
+// Cũng nạp 2 lưu ý NHÁP mẫu (GD-BUG-12) cho tiêu chí đầu nếu bài tập chưa có lưu ý nào: giảng viên mở ngăn «Lưu ý chấm» là thấy việc «Chờ duyệt» ngay, không cần LLM.
+// Chỉ gọi từ `gateway admin seed-guidance` (dev | test). Idempotent: đủ GuidanceDemoResults kết quả đã duyệt thì không thêm; đã có lưu ý (bất kỳ trạng thái) thì không nạp nháp. Trả số kết quả mới.
 func SeedGuidance(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, code string) (int64, error) {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
@@ -51,6 +52,9 @@ func SeedGuidance(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, c
 	}
 	need := GuidanceDemoResults - have
 	if need <= 0 {
+		if err := seedDraftItems(ctx, tx, courseID, asg, rubric[0].ID); err != nil {
+			return 0, err
+		}
 		return 0, tx.Commit(ctx)
 	}
 	rows, err := tx.Query(ctx, `select s.id from submissions s
@@ -106,8 +110,31 @@ func SeedGuidance(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, c
 			return 0, fmt.Errorf("seed lưu ý: ghi kết quả: %w", err)
 		}
 	}
+	if err := seedDraftItems(ctx, tx, courseID, asg, rubric[0].ID); err != nil {
+		return 0, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return 0, fmt.Errorf("seed lưu ý: %w", err)
 	}
 	return int64(len(subs)), nil
+}
+
+// seedDraftItems nạp 2 lưu ý nháp mẫu (c1: STRICTER support 8, CLARIFY support 4) khi bài tập chưa có lưu ý nào; nguồn = id các kết quả đã duyệt (không có định danh).
+func seedDraftItems(ctx context.Context, tx pgx.Tx, courseID, asg uuid.UUID, criterion string) error {
+	var n int
+	if err := tx.QueryRow(ctx, `select count(*)::int from grading_guidance_items where course_id = $1 and assignment_id = $2`, courseID, asg).Scan(&n); err != nil {
+		return fmt.Errorf("seed lưu ý: đếm lưu ý: %w", err)
+	}
+	if n > 0 {
+		return nil
+	}
+	_, err := tx.Exec(ctx, `insert into grading_guidance_items (course_id, assignment_id, criterion_id, text, direction, support, source_result_ids)
+		select $1, $2, $3, v.text, v.direction, v.support, (select coalesce(array_agg(r.id), '{}') from grading_results r join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+			where r.course_id = $1 and s.assignment_id = $2 and r.status = 'REVIEWED')
+		from (values ('Chấm chặt hơn ở tiêu chí này: chỉ cho điểm cao khi bài nêu rõ luận điểm chính ngay từ đầu, không chỉ nhắc chung chung.', 'STRICTER', 8),
+		             ('Bài chỉ đạt trọn điểm tiêu chí này khi có ví dụ hoặc dẫn chứng cụ thể đi kèm luận điểm.', 'CLARIFY', 4)) as v(text, direction, support)`, courseID, asg, criterion)
+	if err != nil {
+		return fmt.Errorf("seed lưu ý: ghi lưu ý nháp: %w", err)
+	}
+	return nil
 }

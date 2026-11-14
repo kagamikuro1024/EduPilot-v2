@@ -54,9 +54,15 @@ func TestSeedGuidance(t *testing.T) {
 	require.Equal(t, 8, strict, "tiêu chí đầu luôn thấp hơn AI đúng 1,0")
 	require.Equal(t, "8.00", ai) // 2,0 + 2,0 + 4,0
 	require.Equal(t, "7.00", total)
+	var drafts, sources int
+	require.NoError(t, pool.QueryRow(ctx, `select count(*)::int, max(cardinality(source_result_ids))::int from grading_guidance_items where assignment_id = $1 and status = 'DRAFT' and criterion_id = 'c1'`, asg).Scan(&drafts, &sources))
+	require.Equal(t, 2, drafts, "GD-BUG-12: 2 lưu ý nháp mẫu cho tiêu chí đầu")
+	require.Equal(t, 8, sources)
 	n, err = seedtool.SeedGuidance(ctx, pool, course, "BT03")
 	require.NoError(t, err)
 	require.Zero(t, n, "chạy lại không thêm gì")
+	require.NoError(t, pool.QueryRow(ctx, `select count(*)::int from grading_guidance_items where assignment_id = $1`, asg).Scan(&drafts))
+	require.Equal(t, 2, drafts, "chạy lại không nạp thêm lưu ý")
 	_, err = seedtool.SeedGuidance(ctx, pool, course, "KHONG-CO")
 	require.Error(t, err)
 }

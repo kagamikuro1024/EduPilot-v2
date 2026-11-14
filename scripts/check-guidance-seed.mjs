@@ -27,6 +27,7 @@ must(a.ov?.enabled === DEMO, `overview.enabled=${a.ov?.enabled}, cần ${DEMO}`)
 if (DEMO) {
   must(a.ov.current_version === 0, `BT03 phải ở phiên bản 0 (chưa áp dụng lưu ý nào), đang ${a.ov.current_version}`);
   must(a.ov.reflect?.eligible === true && a.ov.reflect.results >= 8 && a.ov.reflect.edits >= 8, `reflect = ${JSON.stringify(a.ov.reflect)}, cần eligible, ≥ 8 bài, ≥ 8 lần sửa`);
+  must((a.ov.counts?.draft ?? 0) >= 2, `lưu ý nháp mẫu: ${a.ov.counts?.draft ?? 0}, cần ≥ 2 (Chờ duyệt)`);
   const v0 = a.stats?.items?.find((x) => x.version === 0);
   must(v0?.n >= 8, `số đo phiên bản 0: n=${v0?.n}, cần ≥ 8`);
   must(v0 && Number(v0.bias_total) >= 0.9, `lệch tổng AI − giảng viên = ${v0?.bias_total}, cần ≈ +1,00 (sở thích gắt)`);
