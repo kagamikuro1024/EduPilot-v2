@@ -959,11 +959,28 @@ func (q *Queries) KnowledgeSimilarPosts(ctx context.Context, arg KnowledgeSimila
 	return items, nil
 }
 
+const practiceGenHints = `-- name: PracticeGenHints :one
+select coalesce(result -> 'hints', '[]'::jsonb) as hints from jobs where id = $1 and payload ->> 'course_id' = $2::text
+`
+
+type PracticeGenHintsParams struct {
+	JobID    uuid.UUID
+	CourseID string
+}
+
+// Lý do «Tránh» đã dùng cho một lô sinh câu (lưu vào jobs.result lúc chạy, không tính lại).
+func (q *Queries) PracticeGenHints(ctx context.Context, arg PracticeGenHintsParams) (interface{}, error) {
+	row := q.db.QueryRow(ctx, practiceGenHints, arg.JobID, arg.CourseID)
+	var hints interface{}
+	err := row.Scan(&hints)
+	return hints, err
+}
+
 const questionRejectHints = `-- name: QuestionRejectHints :many
 select reject_reason, count(*)::int as n from question_bank
 where course_id = $1 and review_status = 'REJECTED' and reject_reason is not null and reject_reason <> 'UNSPECIFIED'
   and reviewed_at >= now() - make_interval(days => $2::int)
-group by reject_reason order by n desc, reject_reason limit 3
+group by reject_reason order by n desc, reject_reason
 `
 
 type QuestionRejectHintsParams struct {

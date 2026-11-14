@@ -132,7 +132,8 @@ func mcqPromptInput(p SuggestPayload) string {
 }
 
 func (w *Worker) suggestMCQ(ctx context.Context, j jobs.JobCtx, p SuggestPayload) (any, error) {
-	raw, err := w.llmCall(ctx, mcqPrompt, mcqPromptInput(p))
+	hint, _ := w.Hints.Of(ctx, w.Pool, p.CourseID)
+	raw, err := w.llmCall(ctx, mcqPrompt, mcqPromptInput(p)+hint)
 	if err != nil {
 		return nil, err
 	}

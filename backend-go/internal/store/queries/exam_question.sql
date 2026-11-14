@@ -72,7 +72,7 @@ returning *;
 
 -- name: QuestionReview :one
 update question_bank
-set review_status = sqlc.arg(review_status), reviewed_by = sqlc.narg(reviewed_by), reviewed_at = sqlc.narg(reviewed_at), version = version + 1, updated_at = now()
+set review_status = sqlc.arg(review_status), reviewed_by = sqlc.narg(reviewed_by), reviewed_at = sqlc.narg(reviewed_at), reject_reason = sqlc.narg(reject_reason), version = version + 1, updated_at = now()
 where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and version = sqlc.arg(expected_version)
 returning *;
 

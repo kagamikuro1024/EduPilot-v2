@@ -60,6 +60,7 @@ type Skipped struct {
 type ExtractResult struct {
 	Created []uuid.UUID `json:"created"`
 	Skipped []Skipped   `json:"skipped"`
+	Hints   []string    `json:"hints,omitempty"` // lý do «Tránh» đã đưa vào prompt (chỉ sinh câu, M6)
 }
 
 // checkDoc: tài liệu thuộc lớp (404 nếu không), loại đúng (422 WRONG_DOCUMENT_TYPE), đã READY (409 DOCUMENT_NOT_READY).
@@ -112,6 +113,7 @@ type Worker struct {
 		Structured(ctx context.Context, r llm.Request, schema json.RawMessage) (json.RawMessage, error)
 	}
 	RetryWait []time.Duration // nil = 2 s, 5 s
+	Hints     *exam.Hints     // nil = không khối «Tránh…» (M6)
 }
 
 // Register đăng ký hai loại việc vào runner.

@@ -51,6 +51,14 @@ func (s *Service) approvalErrors(ctx context.Context, q *store.Queries, row stor
 // Review đổi trạng thái duyệt: REQUEST (DRAFT → PENDING), APPROVE / REJECT (DRAFT | PENDING → APPROVED | REJECTED).
 // Ghi đúng một dòng `audit_log` (`question.review`) và phát `question.reviewed` (xoá cache "Hôm nay") cùng transaction.
 func (s *Service) Review(ctx context.Context, actor, courseID, id uuid.UUID, decision string, version int) (QuestionDetail, error) {
+	return s.ReviewWithReason(ctx, actor, courseID, id, decision, version, nil)
+}
+
+// ReviewWithReason như Review, kèm lý do loại tuỳ ý (chỉ cho REJECT; lý do lạ → 422). M6 FEAT-grading-guidance: lý do gom thành khối «Tránh…» ở lần sinh câu sau.
+func (s *Service) ReviewWithReason(ctx context.Context, actor, courseID, id uuid.UUID, decision string, version int, reason *string) (QuestionDetail, error) {
+	if reason != nil && (decision != DecisionReject || !ValidRejectReason(*reason)) {
+		return QuestionDetail{}, fieldErr("reject_reason", "reject_reason", "Lý do loại không hợp lệ.")
+	}
 	var to store.QuestionReviewStatus
 	switch decision {
 	case DecisionRequest:
@@ -95,7 +103,7 @@ func (s *Service) Review(ctx context.Context, actor, courseID, id uuid.UUID, dec
 				return apierr.Validation(errs...)
 			}
 		}
-		arg := store.QuestionReviewParams{CourseID: courseID, ID: id, ExpectedVersion: row.Version, ReviewStatus: to}
+		arg := store.QuestionReviewParams{CourseID: courseID, ID: id, ExpectedVersion: row.Version, ReviewStatus: to, RejectReason: reason}
 		if to != store.QuestionReviewStatusPENDING {
 			now := s.now()
 			arg.ReviewedBy, arg.ReviewedAt = &actor, &now
@@ -104,8 +112,12 @@ func (s *Service) Review(ctx context.Context, actor, courseID, id uuid.UUID, dec
 		if err != nil {
 			return fmt.Errorf("exam: duyệt câu hỏi: %w", err)
 		}
+		after := map[string]any{"review_status": to, "version": upd.Version}
+		if reason != nil {
+			after["reject_reason"] = *reason
+		}
 		if err := audit(ctx, q, courseID, actor, "question", id, "question.review",
-			map[string]any{"review_status": from, "version": row.Version}, map[string]any{"review_status": to, "version": upd.Version}); err != nil {
+			map[string]any{"review_status": from, "version": row.Version}, after); err != nil {
 			return err
 		}
 		if _, err := outbox.Write(ctx, tx, TopicQuestionReviewed, map[string]any{"course_id": courseID}); err != nil {

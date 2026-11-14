@@ -191,7 +191,7 @@ limit 3;
 select reject_reason, count(*)::int as n from question_bank
 where course_id = sqlc.arg(course_id) and review_status = 'REJECTED' and reject_reason is not null and reject_reason <> 'UNSPECIFIED'
   and reviewed_at >= now() - make_interval(days => sqlc.arg(window_days)::int)
-group by reject_reason order by n desc, reject_reason limit 3;
+group by reject_reason order by n desc, reject_reason;
 
 -- name: GuidanceForResult :one
 -- Phiên bản lưu ý đã ghim của kết quả + phiên bản hiện hành của bài tập (màn duyệt, SRS 4.2.3).
@@ -200,3 +200,7 @@ from grading_results r
 join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
 where r.course_id = sqlc.arg(course_id) and r.id = sqlc.arg(id);
+
+-- name: PracticeGenHints :one
+-- Lý do «Tránh» đã dùng cho một lô sinh câu (lưu vào jobs.result lúc chạy, không tính lại).
+select coalesce(result -> 'hints', '[]'::jsonb) as hints from jobs where id = sqlc.arg(job_id) and payload ->> 'course_id' = sqlc.arg(course_id)::text;

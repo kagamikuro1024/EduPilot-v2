@@ -14634,6 +14634,10 @@ components:
           enum: [REQUEST, APPROVE, REJECT]
         version:
           type: integer
+        reject_reason:
+          description: "Lý do loại (tuỳ ý, chỉ khi decision = REJECT; 422 nếu lạ). Gom thành khối «Tránh…» ở lần sinh câu sau khi lớp bật QUESTION_HINTS"
+          type: string
+          enum: [MO_HO, SAI_DAP_AN, TRUNG_LAP, LAC_DE, KHO_DE_BAT_THUONG, SAI_DINH_DANG, UNSPECIFIED]
     CodeConfigRequest:
       type: object
       additionalProperties: false
@@ -18843,6 +18847,7 @@ components:
           items: {type: string, format: uuid}
         topic: {type: string, minLength: 1, maxLength: 80}
         difficulty: {type: string, enum: [EASY, MEDIUM, HARD]}
+        reason: {type: string, enum: [MO_HO, SAI_DAP_AN, TRUNG_LAP, LAC_DE, KHO_DE_BAT_THUONG, SAI_DINH_DANG, UNSPECIFIED], description: "Lý do loại (tuỳ ý, chỉ action = REJECT)"}
     PracticeBulkResponse:
       type: object
       required: [results]
@@ -18981,3 +18986,7 @@ components:
         edited: {type: integer}
         rejected: {type: integer}
         pending: {type: integer}
+        hints:
+          type: array
+          description: "Lý do «Tránh…» đã đưa vào prompt của lô sinh câu này (chỉ có khi lớp bật QUESTION_HINTS và đủ số câu bị loại)"
+          items: {type: string}

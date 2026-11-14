@@ -41,12 +41,12 @@ func newRegistry(d Deps) *outbox.Registry {
 	nt := notify.New(d.DB, pub, d.Log) // MỘT cửa tạo thông báo (SRS escalation 4.4): ghi dòng + đẩy SSE tới chuông
 	runner := jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
-	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
+	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log, Hints: questionHints(d)}
 	if bs, ok := d.Blob.(submission.BlobAPI); ok {
 		(&submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}).RegisterZip(runner) // submission.zip (US-P7-04)
 	}
 	if d.LLM != nil {
-		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM}).Register(runner) // question.extract, question.generate (US-P9-02, US-P9-03)
+		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM, Hints: questionHints(d)}).Register(runner) // question.extract, question.generate (US-P9-02, US-P9-03)
 	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
@@ -146,4 +146,12 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(judge.TopicDone, cnf.HandleDone) // US-PE-06: kết quả chạy thử / nộp → SSE `exam.run` / `exam.submission` tới chủ bản nộp
 	registerTestKinds(runner)
 	return reg
+}
+
+// questionHints dựng khối «Tránh…» cho hai đường sinh câu hỏi (M6); không có ảnh chụp cờ thì không khối.
+func questionHints(d Deps) *exam.Hints {
+	if d.llmRT == nil || d.llmRT.Guidance == nil {
+		return nil
+	}
+	return &exam.Hints{Gate: d.llmRT.Guidance, MinRejects: d.Cfg.QuestionHintsMinRejects, WindowDays: d.Cfg.QuestionHintsWindowDays}
 }

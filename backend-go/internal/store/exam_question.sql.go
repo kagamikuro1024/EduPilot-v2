@@ -747,8 +747,8 @@ func (q *Queries) QuestionOptionsDelete(ctx context.Context, arg QuestionOptions
 
 const questionReview = `-- name: QuestionReview :one
 update question_bank
-set review_status = $1, reviewed_by = $2, reviewed_at = $3, version = version + 1, updated_at = now()
-where course_id = $4 and id = $5 and version = $6
+set review_status = $1, reviewed_by = $2, reviewed_at = $3, reject_reason = $4, version = version + 1, updated_at = now()
+where course_id = $5 and id = $6 and version = $7
 returning id, course_id, type, title, topic, difficulty, stem, answer_key, explanation, citations, origin, review_status, created_by, reviewed_by, reviewed_at, ai_job_id, archived_at, version, created_at, updated_at, reject_reason
 `
 
@@ -756,6 +756,7 @@ type QuestionReviewParams struct {
 	ReviewStatus    QuestionReviewStatus
 	ReviewedBy      *uuid.UUID
 	ReviewedAt      *time.Time
+	RejectReason    *string
 	CourseID        uuid.UUID
 	ID              uuid.UUID
 	ExpectedVersion int32
@@ -766,6 +767,7 @@ func (q *Queries) QuestionReview(ctx context.Context, arg QuestionReviewParams) 
 		arg.ReviewStatus,
 		arg.ReviewedBy,
 		arg.ReviewedAt,
+		arg.RejectReason,
 		arg.CourseID,
 		arg.ID,
 		arg.ExpectedVersion,

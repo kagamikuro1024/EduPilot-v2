@@ -23,3 +23,9 @@ Nhánh `sprint/10.6-guidance` (merge từ `sprint/10.5-decision`). Mỗi lát m�
 ## Sửa QC L4 (GD-BUG-2, GD-BUG-3)
 - GD-BUG-3: `GuidanceService.Decide` → `Resolve` (không sửa allowlist `TestDecideCallersAllowlist`).
 - GD-BUG-2: `TestRegradeKeepsLatePolicy` (cùng khoản trừ muộn ở round + 1, tổng = tổng AI − trừ) và `TestRegradeNeverOverwritesTeacherScores` (chạy xong round mới, bài đã sửa / duyệt không đổi).
+
+## L5 — M6 «Lý do loại câu hỏi + khối Tránh» (commit `10.6: L5 M6`)
+- `PUT …/questions/{qid}/review {reject_reason?}` và `POST …/questions/bulk {action:"reject", reason?}`: lý do ∈ 7 giá trị SRS 4.5 (lạ / kèm APPROVE → 422); `question_bank.reject_reason`; `audit_log` `question.review.after.reject_reason` chỉ khi có.
+- `exam/hints.go`: `HintsBlock` (≥ `QUESTION_HINTS_MIN_REJECTS` câu có lý do ≠ UNSPECIFIED trong `QUESTION_HINTS_WINDOW_DAYS` ngày → ≤ 3 lý do nhiều nhất, câu cố định theo nhãn), `Hints.Of` (cờ lớp `QUESTION_HINTS` qua ảnh chụp). Gọi ở CẢ hai đường: `practice/generate.go` (nối vào `user`, lý do dùng lưu `jobs.result.hints`) và `exam/suggest.go` (`suggestMCQ`). `GET …/questions/gen-stats` thêm `hints` (omitempty). Worker nhận `Hints` qua `cmd/worker/registry.go questionHints(d)`.
+- UI: `/questions` — sau `Loại` hàng loạt, dãy nhãn lý do (6) cạnh dòng «Hoàn tác»; lệnh gửi sau 5 s kèm `reason` đã chọn; chỉ hiện khi cờ lớp bật (chỉ giảng viên đọc được cờ → TA không thấy nhãn). Chưa có nhãn ở nút `Loại` đơn của ngăn xem câu (API đã nhận `reject_reason`).
+- Test: `TestRejectReasonHints` (practice), spec `question-hints.spec.ts` (3 ca), contract xanh.
