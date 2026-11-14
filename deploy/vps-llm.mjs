@@ -5,6 +5,7 @@
 //   PHASE=seed   (ngay sau khi admin có, TRƯỚC khi seed nạp tài liệu): tuyến sinh chữ → nhà cung cấp `fake` (seed trích quy chế bằng bản ghi demo),
 //                EMBEDDING → Gemini THẬT (tài liệu, thread seed được nhúng bằng Gemini ngay từ đầu).
 //   PHASE=live   (SAU seed): 6 tuyến sinh chữ → `gemini-chat` (MODEL, rồi FALLBACK nếu có); EMBEDDING giữ Gemini.
+//                CHAT_PROVIDER=9router: nhà cung cấp `router-chat` (openai_compatible, ROUTER_BASE mặc định http://host.docker.internal:20128/v1, khoá 9router); GEMINI_API_KEY chỉ còn cho EMBEDDING.
 // Nhà cung cấp (loại `gemini`, không dùng `openai_compatible`; hai nhà cung cấp tách nhau vì Scheduler tính RPM theo nhà cung cấp):
 //   · "gemini-chat"  model MODEL / FALLBACK, rpm_limit = CHAT_RPM (mặc định 5);
 //   · "gemini-embed" gemini-embedding-001 ép `dimensions` = 1536 (khớp cột vector), rpm_limit 60;
@@ -13,6 +14,7 @@
 // SEED_DEFAULT_PASSWORD nếu biến chưa đặt), ADMIN_EMAIL (mặc định admin@edupilot.local), MODEL, FALLBACK, CHAT_RPM.
 // Khoá chỉ đọc từ môi trường / ENV_FILE; không in, không ghi tệp. Idempotent: nhà cung cấp đã có thì dùng lại, chỉ đặt lại tuyến.
 // Từ chối chạy nếu BASE là stack demo (cổng 80 / 443 / 3000).
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { refuseDemo } from "../benchmarks/lib/meta.mjs";
 
@@ -90,6 +92,14 @@ const login = await call("POST", "/auth/login", { json: { email: setting("ADMIN_
 const token = must(login, "đăng nhập admin").access_token;
 const have = must(await call("GET", "/admin/llm/providers", { token }), "danh sách nhà cung cấp").items;
 const ensure = async (name, input) => have.find((p) => p.name === name) ?? must(await call("POST", "/admin/llm/providers", { token, json: input, key: `llm-${name}` }), `tạo ${name}`);
+// Khoá 9router: biến ROUTER_API_KEY, hoặc khoá đang bật đầu tiên trong ~/.9router/db/data.sqlite (không in).
+function routerKey() {
+  if (process.env.ROUTER_API_KEY) return process.env.ROUTER_API_KEY;
+  const db = `${process.env.HOME}/.9router/db/data.sqlite`;
+  const key = execFileSync("sqlite3", [db, "select key from apiKeys where isActive = 1 limit 1"], { encoding: "utf8" }).trim();
+  if (!key) throw new Error("không có khoá 9router đang bật (đặt ROUTER_API_KEY)");
+  return key;
+}
 const price = { price_in: "0", price_out: "0", enabled: true };
 
 const gem = await ensure("gemini-embed", {
@@ -104,9 +114,14 @@ if (PHASE === "seed") {
   label = "chat-gia/fake-chat (pha seed)";
 } else {
   const models = [MODEL, FALLBACK].filter(Boolean);
-  const chat = await ensure("gemini-chat", { type: "gemini", name: "gemini-chat", api_key: GEMINI_KEY, enabled: true, rpm_limit: CHAT_RPM, models: models.map((model) => ({ model, kind: "chat", ...price })) });
+  const via9r = process.env.CHAT_PROVIDER === "9router"; // luật LLM 2026-11-14: sinh chữ đi qua 9router; GEMINI_API_KEY chỉ còn embedding
+  const name = via9r ? "router-chat" : "gemini-chat";
+  const input = via9r
+    ? { type: "openai_compatible", name, base_url: process.env.ROUTER_BASE || "http://host.docker.internal:20128/v1", api_key: routerKey(), enabled: true, rpm_limit: CHAT_RPM, models: models.map((model) => ({ model, kind: "chat", ...price })) }
+    : { type: "gemini", name, api_key: GEMINI_KEY, enabled: true, rpm_limit: CHAT_RPM, models: models.map((model) => ({ model, kind: "chat", ...price })) };
+  const chat = await ensure(name, input);
   chain = models.map((m) => chat.models.find((x) => x.model === m)?.id);
-  label = `gemini-chat/${models.join(" → ")}`;
+  label = `${name}/${models.join(" → ")}`;
 }
 if (chain.some((id) => !id) || !emb) throw new Error("thiếu id mô hình sau khi tạo nhà cung cấp (nhà cung cấp cũ chưa có model này? xoá nó ở /settings/llm rồi chạy lại)");
 
