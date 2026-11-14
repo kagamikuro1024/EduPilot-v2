@@ -71,17 +71,18 @@ flowchart LR
 
 ## 4. Chấm lại và công bố
 
-Luật (P-106-2): **điểm giảng viên đã duyệt không bao giờ bị chấm lại hay ghi đè.** Chỉ bài **chưa từng được duyệt** mới phải theo bản hiện hành.
+Luật (P-106-2, P-106-5): **điểm giảng viên đã duyệt hoặc đã sửa không bao giờ bị chấm lại hay ghi đè.** Giảng viên được duyệt cả nháp chấm theo bản cũ; đó là quyết định của giảng viên.
 
-| Bài sau khi `Áp dụng` bản mới | Hệ thống làm | Giảng viên làm |
+| Bài sau khi `Áp dụng` bản mới | Hệ thống làm | Giảng viên nên làm |
 | --- | --- | --- |
-| Nháp chấm theo bản cũ, chưa từng duyệt | Gắn "Bản cũ"; không cho sửa điểm hay `Duyệt` (`409 MIXED_GUIDANCE`) | Bấm `Chấm lại`, rồi duyệt bản mới |
+| Nháp chấm theo bản cũ, chưa sửa | Gắn "Bản cũ"; hàng chờ đếm vào "N bài nháp cũ · Chấm lại" | Bấm `Chấm lại` để AI chấm theo bản mới. Vẫn được duyệt nguyên nháp nếu muốn (miễn "duyệt nguyên nháp") |
+| Nháp bản cũ đang sửa dở | Đếm vào "M đang sửa dở"; `Chấm lại` cả lô không đụng | Sửa xong rồi duyệt (miễn "đã sửa tay"). Chấm lại riêng bài này có hộp xác nhận vì mất phần đang sửa |
 | Đã duyệt (kể cả bộ bài dùng để rút lưu ý) | **Miễn**: giữ nguyên điểm, công bố bình thường. Sửa lại rồi duyệt lại cũng vẫn miễn | Không cần làm gì |
 | Đã công bố | Không bao giờ chấm lại | – |
 
-- Hàng chờ `/grading` báo **"N bài chấm theo bản cũ · Chấm lại"**. N chỉ đếm nháp chưa từng duyệt. `Chấm lại` chấm đúng các bài đó, không đụng bài đã duyệt.
+- `Chấm lại` ở hàng chờ chỉ chấm nháp bản cũ **chưa sửa**, và báo số bài bỏ qua (đã duyệt / đã sửa).
 - Mỗi lần ≤ 200 bài. Bài đã chấm lại 20 lần bị bỏ qua và được báo số.
-- **Công bố:** hộp xác nhận ghi thêm số bài được miễn theo lý do, ví dụ "5 bài duyệt theo bản cũ". Một lô có thể gồm điểm chốt theo hai bản; đó là quyết định của giảng viên.
+- **Công bố:** hộp xác nhận ghi "k bài chấm theo bản cũ: a đã sửa tay, b duyệt nguyên nháp". Một lô có thể gồm điểm chốt theo hai bản; đó là quyết định của giảng viên.
 
 Không cần công bố trước khi `Áp dụng`: bộ bài dùng để rút lưu ý đã được duyệt nên được miễn.
 
@@ -122,7 +123,7 @@ cd backend-go && go run ./cmd/regress run --course <id> --baseline ../benchmarks
 | --- | --- |
 | Xoá dữ liệu một sinh viên (PR) | Bỏ id kết quả của em khỏi nguồn của lưu ý. Lưu ý còn < 2 lần sửa ủng hộ thì gắn nhãn **"Cần xem lại"**; **không** tự nghỉ, không đổi cách chấm. Xoá ca hồi quy liên quan |
 | Giảng viên muốn bỏ hết lưu ý của một bài | `Cho nghỉ` từng lưu ý → `Áp dụng` (bản mới rỗng) → `Chấm lại` |
-| Tắt công tắc | Lượt chấm mới không dùng lưu ý (ghim bản 0); lưu ý vẫn giữ để bật lại; không còn chặn nháp theo bản cũ |
+| Tắt công tắc | Lượt chấm mới không dùng lưu ý (ghim bản 0); lưu ý vẫn giữ để bật lại; không còn đếm "bài nháp cũ" hay số bài miễn |
 
 Lưu ý không chứa tên, MSSV, email: hệ thống kiểm lúc rút và lúc sửa chữ.
 
@@ -133,7 +134,7 @@ Lưu ý không chứa tên, MSSV, email: hệ thống kiểm lúc rút và lúc 
 | "Chưa rút được lưu ý" | LLM lỗi hoặc sai dạng sau 3 lần thử | Thử lại sau; xem `/observability` tuyến `GRADING` |
 | `409 NOT_ENOUGH_DATA` | Chưa đủ 5 bài duyệt / 3 lần sửa ≥ 0,5 | Duyệt thêm bài |
 | `429` khi rút | Quá 3 lần / giờ / bài | Chờ |
-| `409 MIXED_GUIDANCE` khi sửa / duyệt một bài | Nháp chấm theo bản cũ, chưa từng duyệt | `Chấm lại` bài đó (hoặc cả lô ở hàng chờ) |
+| `409 MIXED_GUIDANCE` khi công bố | Lưới an toàn: trong lô có bài chưa có người duyệt mà lệch bản (không xảy ra trong luồng thường) | `Chấm lại` bài đó, hoặc báo quản trị viên |
 | AI chấm gắt hơn hẳn sau khi áp | Lưu ý STRICTER quá rộng | Xem `bias_total`; `Cho nghỉ` lưu ý đó; tắt công tắc nếu cần |
 | Không hiện câu tương tự khi soạn | Công tắc tắt, câu < 3 từ, câu có thông tin cá nhân, hoặc chưa có thread được xác nhận đủ gần | Bình thường; lỗi được bỏ qua im lặng |
 
