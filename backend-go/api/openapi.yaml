@@ -11963,7 +11963,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [chat, embedding]
+          enum: [chat, embedding, decision]
         dims:
           type: [integer, "null"]
         price_in:
@@ -11997,7 +11997,7 @@ components:
           format: uuid
         type:
           type: string
-          enum: [openai, anthropic, gemini, openai_compatible, fake]
+          enum: [openai, anthropic, gemini, openai_compatible, fake, decision]
         name:
           type: string
         base_url:
@@ -12055,7 +12055,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [chat, embedding]
+          enum: [chat, embedding, decision]
         dims:
           type: integer
         price_in:
@@ -12074,7 +12074,7 @@ components:
       properties:
         type:
           type: string
-          enum: [openai, anthropic, gemini, openai_compatible, fake]
+          enum: [openai, anthropic, gemini, openai_compatible, fake, decision]
         name:
           type: string
         base_url:
@@ -12103,7 +12103,7 @@ components:
       properties:
         type:
           type: string
-          enum: [openai, anthropic, gemini, openai_compatible, fake]
+          enum: [openai, anthropic, gemini, openai_compatible, fake, decision]
         base_url:
           type: string
         api_key:
@@ -12113,7 +12113,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [chat, embedding]
+          enum: [chat, embedding, decision]
     LLMTestOverride:
       type: object
       additionalProperties: false
