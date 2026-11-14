@@ -71,7 +71,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Tên cổng ở giao diện: «Kiểm duy�
 - AC4 (câu chỉ có placeholder). Given nội dung chỉ chứa `[[MSSV_1]]` / `[[SV_1]]` Then luật chặn trước khi tới decision (model đọc không ra placeholder, F1 0,883); `TestPlaceholderOnlyBlockedByRules`.
 - AC5 (không áp lúc gõ). Given sinh viên đang soạn (`POST …/threads/precheck`) Then chỉ chạy luật + embedding như cũ, **không** gọi decision (tiết kiệm hạn mức / độ trễ); giao diện không đổi.
 - AC6 (người dùng thấy gì). Given bài bị chặn (do luật, decision, `Structured` hay fail-closed) Then hộp thoại hai lối như hiện hành («Chuyển sang chat riêng» / «Ẩn thông tin rồi đăng»), **cùng lời**, không nêu nguyên nhân kỹ thuật; chữ đã gõ không mất (`useAutosaveDraft`); lúc chờ > 800 ms hiện chỉ báo «Đang kiểm tra».
-- AC7 (khủng hoảng). Given bài khủng hoảng Then luật xử lý trước và trả `422 CRISIS_SUPPORT` như hiện hành, **không** tới decision / `Structured`; `TestCrisisNeverReachesDecide` (Threads).
+- AC7 (khủng hoảng). Given bài khủng hoảng Then luật xử lý trước và trả `422 CRISIS_SUPPORT` như hiện hành, **không** tới decision / `Structured`; `TestThreadsCrisisNeverReachesDecide` (Threads).
 - AC8 (cổng đo). Given tập `dev` của E1 (provider giả, bản phát lại có nhãn) Then (i) không mẫu dương nào luật đã bắt mà nay lọt, (ii) số dương không do luật bắt được **không giảm** so với luật một mình, (iii) chặn nhầm trên mẫu âm ≤ 0,05, (iv) rò rỉ payload = 0; tập `test` chỉ chạy một lần ở lần chốt. Số đo thật (nếu PM cho phép) ghi nhà cung cấp, model, ngày.
 - AC9 (riêng tư). Given payload Then đã che; `llm_audit` không nội dung; `pii_events` chỉ đếm như hiện hành (không thêm cột văn bản).
 - AC10 (phân quyền). Given cổng chỉ chạy ở lớp được ADMIN bật; STUDENT lớp khác không ảnh hưởng; Teacher / TA đăng bài cũng qua cổng như sinh viên (quy tắc hiện hành của tường lửa).
@@ -81,7 +81,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Tên cổng ở giao diện: «Kiểm duy�
 - Kiểm duyệt nội dung độc hại / spam; chặn ảnh; kiểm lúc gõ.
 
 ### Phụ thuộc
-- US-DM-01, 02; FEAT-private-chat-pii (E1, `internal/privacy`), F4.
+- US-DM-01, 02; FEAT-private-chat-pii (E1, luật ở `internal/privacy`; cổng ở `internal/thread`), F4.
 
 ---
 
@@ -125,7 +125,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Tên cổng ở giao diện: «Kiểm duy�
 - Escalate / độ tin cậy trả lời (chờ nhãn E2); dùng decision để viết lại câu hỏi hay xếp hạng truy xuất.
 
 ### Phụ thuộc
-- US-DM-01, 02; D47 (đã sửa theo D60); `internal/agent/intent.go`, `internal/chat`; `TestOneEmbedPerMessage`.
+- US-DM-01, 02; D47 (đã sửa theo D60); `internal/agent/intent.go` (`agent.routeDecision`), `internal/chat`; `TestOneEmbedPerMessage`.
 
 ---
 
@@ -181,7 +181,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Tên cổng ở giao diện: «Kiểm duy�
 - AC1 (seed). Given stack trống When `node scripts/seed.mjs` Then provider `decision-fake` có sẵn, ba hàng `decision_gates` (`enabled=false`, ngưỡng mặc định); `SEED_DECISION_DEMO=1` bật cả ba cổng cho lớp 1 để demo / E2E; `scripts/check-decision-seed.mjs` xanh; chạy lại idempotent.
 - AC2 (cổng). Given repo When chạy:
   - `cd backend-go && go test ./internal/llm/... -run 'TestDecide|TestCascade' -v`
-  - `cd backend-go && go test ./internal/privacy ./internal/agent ./internal/grading ./internal/chat -run 'TestPrecheckAddOnly|TestPlaceholderOnlyBlockedByRules|TestCrisisNeverReachesDecide|TestRouteDecisionNoOverride|TestDecideCallersAllowlist|TestInjectionOR|TestOneEmbedPerMessage' -v`
+  - `cd backend-go && go test ./internal/llm ./internal/thread ./internal/agent ./internal/grading -run 'TestPrecheckAddOnly|TestPlaceholderOnlyBlockedByRules|TestCrisisNeverReachesDecide|TestThreadsCrisisNeverReachesDecide|TestRouteDecisionNoOverride|TestDecideCallersAllowlist|TestInjectionOR|TestOneEmbedPerMessage|TestCallBudgetPerMessage' -v`
   - `pnpm -C frontend exec playwright test decision-settings.spec.ts decision-observability.spec.ts cascade.spec.ts`
   Then tất cả xanh (provider `fake`, không gọi mạng thật).
 - AC3 (E2E `cascade.spec.ts`). Given provider giả When (a) decision trả lưỡng lự → Threads đi `Structured`; (b) decision lỗi → `Structured`; (c) cả hai lỗi → bài bị chặn; (d) chèn lệnh: decision lỗi → cờ theo regex + `Structured`, điểm không đổi; (e) chat: decision lỗi / dưới τ → trả lời như tắt cổng; (f) tin khủng hoảng → 0 lời gọi decision (đếm ở bộ đếm giả) Then đúng từng nhánh và đúng `cascade_path` ở `llm_audit`.
@@ -204,8 +204,8 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Tên cổng ở giao diện: «Kiểm duy�
 Ưu tiên: Must · Ước lượng: S · Sprint: 10.5 · **xuyên suốt**
 
 ### Tiêu chí nghiệm thu
-- AC1 (danh sách nơi gọi). Given `TestDecideCallersAllowlist` Then `Decide` / `Cascade` chỉ được gọi từ ba nơi: tường lửa Threads (`internal/privacy`), `flagInjectionDecision` (`internal/grading`), định tuyến ý định (`internal/agent`/`internal/chat`); **không** từ `internal/grade`, tính / làm tròn điểm, chọn mức rubric, công thức, escalate, đường khủng hoảng, `internal/rag` truy xuất.
-- AC2 (khủng hoảng). Given tin chat / bài Threads bị `IntentCrisis` bắt Then **không** gửi tới decision, `Structured` hay LLM nào, không `llm_audit`, không log nội dung; `TestCrisisNeverReachesDecide` ở chat **và** Threads.
+- AC1 (danh sách nơi gọi). Given `TestDecideCallersAllowlist` Then `Decide` / `Cascade` chỉ được gọi từ ba nơi: tường lửa Threads (`thread.CheckPublish`, `internal/thread`), `flagInjectionDecision` (`internal/grading`), định tuyến ý định (`internal/agent`/`internal/chat`); **không** từ `internal/grade`, tính / làm tròn điểm, chọn mức rubric, công thức, escalate, đường khủng hoảng, `internal/rag` truy xuất.
+- AC2 (khủng hoảng). Given tin chat / bài Threads bị `IntentCrisis` bắt Then **không** gửi tới decision, `Structured` hay LLM nào, không `llm_audit`, không log nội dung; `TestCrisisNeverReachesDecide` (chat) **và** `TestThreadsCrisisNeverReachesDecide` (Threads).
 - AC3 (riêng tư). Given mọi lời gọi `Decide` Then payload đã che (`TestDecideMasked`), có trần độ dài theo cổng, **không** chứa `student_id`, tên, MSSV, email, điểm; `llm_audit` không nội dung; không bảng nào lưu đầu vào / đầu ra của decision.
 - AC4 (Free Tier). Given gói miễn phí dùng dữ liệu gửi vào để cải thiện sản phẩm Then chỉ dữ liệu mô phỏng đã che được gửi thật; `PRODUCTION_READINESS.md` §1 ghi «triển khai thật dùng gói trả phí» và `LLM_DECISION_ALLOW_REAL` mặc định `false`; hướng dẫn vận hành nhắc điều này ở mục đầu.
 - AC5 (không cổng duy nhất). Given mỗi cổng Then luôn có đường không phụ thuộc decision (luật / `Structured`); tắt decision hoàn toàn (provider tắt, cầu dao mở, khoá trống) → hệ thống hành xử **như trước sprint 10.5**, chỉ riêng Threads dùng `Structured` rồi chặn khi lỗi cả hai; kiểm bằng test «provider decision tắt → mọi cổng như cũ».

@@ -1,7 +1,9 @@
 # SRS FEAT-decision-model Decision model (`gemini-decision-1`) và cascade ba cổng
-Phiên bản 1.1 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; câu không đụng điểm / auth / PII do BA tự chốt, ghi «PM chốt theo đề xuất BA» ở `QUESTIONS.md`)
+Phiên bản 1.2 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; câu không đụng điểm / auth / PII do BA tự chốt, ghi «PM chốt theo đề xuất BA» ở `QUESTIONS.md`)
 
 **v1.1 (P-105-1):** bản giả trả `noul = 0,25` cho đầu vào lạ + `FAKE_DECISION_PROB` (Q-S105-3); bộ đối chứng chèn lệnh = 6 bài (Q-S105-6).
+
+**v1.2 (QC 10.5):** §9 và §11 đối chiếu tên test với mã thật (bỏ 7 tên test không có trong mã; thay bằng tên thật; bộ 6 biến thể chèn lệnh đo bằng `benchmarks/decision/run.py`); cổng Threads nằm ở `internal/thread`.
 
 ## 1. Mục đích và phạm vi
 Đưa **decision model** (mô hình cho xác suất, không sinh chữ) vào làm lớp **thêm** ở ba cổng của EduPilot để nhanh hơn và rẻ hơn chỉ-LLM mà không bỏ sót: kiểm duyệt Threads, cờ chèn lệnh khi chấm, định tuyến câu hỏi chat. Cơ sở: ADR **D60**, P-11-9, P-11-10, P-11-11; số PoC 2026-11-14 (`docs/research/poc/jev-decision/cascade.md`: tường lửa đúng 0,980 so với chỉ-LLM 0,960, p50 464 ms so với 4.642 ms, $0,066 so với $0,328 / 1.000 yêu cầu).
@@ -60,7 +62,7 @@ sequenceDiagram
 sequenceDiagram
   participant U as Sinh viên
   participant T as Handler đăng bài
-  participant R as Luật + embedding (internal/privacy)
+  participant R as Luật + embedding (internal/thread → internal/privacy)
   participant D as Decide (INTERACTIVE, ε)
   participant L as LLM Structured (9router)
   U->>T: Đăng / bình luận / sửa
@@ -124,7 +126,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   participant U as Sinh viên
-  participant Ch as internal/chat
+  participant Ch as internal/chat → internal/agent
   participant K as Luật khủng hoảng
   participant R as Luật ý định + embedding
   participant D as Decide (INTERACTIVE, τ=0,95)
@@ -371,14 +373,14 @@ Dưới bảng 7 ngày: hàng = cổng; cột = số lời gọi, đường nhan
 ## 9. Kiểm thử
 | Cấp | Test | Phủ |
 | --- | --- | --- |
-| Go unit | `TestDecideAudit`, `TestDecideNoSDK`, `TestDecideMasked`, `TestDecideErrorMap`, `TestDecideRealGuard`, `TestDecideFakeDeterministic` | US-DM-01 |
-| Go unit | `TestCascadeTable` (policy × xác suất × lỗi), `TestCascadeFailClosed`, `TestConfigEffective` (toàn hệ thống ∧ lớp, mặc định tắt), `TestConfigSnapshotRefresh` | US-DM-02 |
-| Go | `TestPrecheckAddOnly`, `TestPlaceholderOnlyBlockedByRules`, `TestThreadsDecisionFlow` | US-DM-03 |
-| Go | `TestInjectionOR`, `TestInjectionEmptySkipped`, `TestInjectionScoreUnchanged`, `TestInjectionSet6of6` (bản phát lại) | US-DM-04 |
-| Go | `TestRouteDecisionNoOverride`, `TestRouteFallbackToRules`, `TestOneEmbedPerMessage`, `TestCallBudgetPerMessage` | US-DM-05, 09 |
-| Go | `TestCrisisNeverReachesDecide` (chat + Threads), `TestDecideCallersAllowlist` | US-DM-09 |
-| Go | `TestDecisionRBAC`, `TestDecisionGateVersionConflict`, `TestDecisionAudit` | US-DM-02, 06 |
-| Contract | `go test ./internal/contract/...` | SRS 6 |
+| Go unit | `TestDecideAudit`, `TestDecideMasked`, `TestDecideErrorMap` (`internal/llm`, `…/provider`), `TestDecideNoSDK`, `TestDecideRealGuard`, `TestDecideNotConfigured`, `TestDecideBudgetNoCheapest`, `TestDecideValidate`, `TestDecideInputCeiling`, `TestDecideRejectsBadQuestions`, `TestDecideTimeoutRedirectAndNoGeneration`, `TestDecisionNoulConfidenceIsMax`, `TestDecideBucketAndNoWait` (Scheduler), `TestDecideFakeDeterministic`, `TestDecideFakeOverrides` | US-DM-01 |
+| Go unit | `TestCascadeTable` (policy × xác suất × lỗi), `TestCascadeFailClosed`, `TestCascadeNotUsed`, `TestCascadeTimeout`, `TestConfigEffective` (toàn hệ thống ∧ lớp, mặc định tắt), `TestConfigSnapshotRefresh`, `TestDecisionPGSource` | US-DM-02 |
+| Go | `TestPrecheckAddOnly`, `TestPlaceholderOnlyBlockedByRules`, `TestThreadsDecisionFlow`, `TestThreadsDecisionComment`, `TestThreadsCrisisNeverReachesDecide` (`internal/thread`); `TestCascadeThreadsHTTP` (`internal/contract`) | US-DM-03 |
+| Go | `TestInjectionOR` (`internal/grading`; bảng ca: OR ba tầng, bài ngắn / cổng tắt bỏ qua hai tầng sau, cờ không đổi điểm, tầng decision vắng khi lỗi) · bộ 6 biến thể bắt đủ ≥ 6/6 + 6 đối chứng 0 cờ: đo ở `benchmarks/decision/run.py` kịch bản 3 (không có test Go riêng) | US-DM-04 |
+| Go | `TestRouteDecisionTable` (≥ τ nhận nhãn, dưới τ giữ luật = fallback về luật), `TestRouteDecisionNoOverride`, `TestRouteDecisionParallelWithEmbed`, `TestOneEmbedPerMessage`, `TestCallBudgetPerMessage` (`internal/agent`) | US-DM-05, 09 |
+| Go | `TestCrisisNeverReachesDecide` (chat, `internal/agent`) và `TestThreadsCrisisNeverReachesDecide` (Threads, `internal/thread`), `TestDecideCallersAllowlist` (`internal/llm`: chỉ `thread.CheckPublish`, `grading.flagInjectionDecision`, `agent.routeDecision`) | US-DM-09 |
+| Go | `internal/decision`: `TestDecisionAdminOnly` (RBAC), `TestDecisionOverviewAndGateUpdate` (seed, kiểm phiên bản `409`, khoảng, `audit_log`, làm mới ảnh chụp), `TestDecisionCourseGates` (hiệu lực, theo lớp, tìm + cursor), `TestDecisionObservability`, `TestDecisionFailClosedAlert`; `internal/llmconfig`: `TestDecisionSeed`, `TestDecisionProviderRules` | US-DM-02, 06, 07 |
+| Contract | `go test ./internal/contract/...` — gồm `TestDecisionProviderHTTP`, `TestDecisionProviderContract`, `TestDecisionReplayFile`, `TestCascadeThreadsHTTP` | SRS 6 |
 | E2E | `decision-settings.spec.ts` (bật cổng, theo lớp, khoá, hoàn tác, 403), `decision-observability.spec.ts`, `cascade.spec.ts` (provider giả: a–f ở US-DM-08 AC3) | US-DM-05…08 |
 | Đo | `benchmarks/decision/run.sh` → `decision-before-after.{json,md,svg}`; lượt thật ≤ 300 lời gọi chỉ khi PM cho phép | US-DM-08 |
 
@@ -399,8 +401,8 @@ Xem `QUESTIONS.md` (Q-D-1…14). **Đã chốt (PM, P-11-10, P-11-11):** ba cổ
 | PRD | FLOWS | Phase / quyết định | US | FR | Test |
 | --- | --- | --- | --- | --- | --- |
 | M1 (tường lửa Threads, định tuyến chat) | F3, F4 | D60, D47(2), P-11-10 | DM-03, DM-05 | FR-8, FR-10 | `TestPrecheckAddOnly`, `TestRouteDecisionNoOverride`, `cascade.spec.ts` |
-| M8 (cờ chèn lệnh) | F9 | P-11-9, P-11-10 | DM-04 | FR-9 | `TestInjectionOR`, `TestInjectionSet6of6` |
+| M8 (cờ chèn lệnh) | F9 | P-11-9, P-11-10 | DM-04 | FR-9 | `TestInjectionOR`, `benchmarks/decision/run.py` (6/6) |
 | M12 (cấu hình LLM) | F15 | D60 | DM-01, 02, 06 | FR-1…7, FR-12, FR-13 | `TestDecide*`, `TestCascade*`, `decision-settings.spec.ts` |
 | M13-A (quan sát) | F16 | P-11-10 | DM-07 | FR-14 | `decision-observability.spec.ts` |
-| M1, M8, M13 (ranh giới) | F3, F4, F9 | P-11-11, US-P3-04 AC13 | DM-09 | FR-11, FR-16 | `TestDecideCallersAllowlist`, `TestCrisisNeverReachesDecide` |
+| M1, M8, M13 (ranh giới) | F3, F4, F9 | P-11-11, US-P3-04 AC13 | DM-09 | FR-11, FR-16 | `TestDecideCallersAllowlist`, `TestCrisisNeverReachesDecide`, `TestThreadsCrisisNeverReachesDecide` |
 | NFR hiệu năng, chi phí | – | D60 (6) | DM-08 | FR-15 | `benchmarks/decision/run.sh` |
