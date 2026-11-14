@@ -221,7 +221,7 @@ Căn cứ: plan 9.1 "Hướng chuyển động" (ứng dụng: chỉ chuyển đ
 - AC2 (chi tiết hộp thư). Given ticket đang mở When xem chi tiết Then không còn hai hàng "Đã chờ …" và "Trạng thái …" lặp thông tin; tuổi ticket hiện một lần cạnh tên sinh viên.
 - AC3 (hàng chờ chấm). Given `/grading` chưa có bài nộp When tải xong Then `EmptyState`: "Chưa có bài nộp." + nút `Tải bài lên` (nếu có quyền); không câu giải thích.
 - AC4 (sổ điểm trống). Given lớp chưa có công thức When mở `/gradebook` Then `EmptyState` có một nút chính `Thiết lập công thức`; câu nhỏ "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường." không còn ở trạng thái rỗng (nếu cần, đặt ở chân bảng khi **có** dữ liệu, một dòng `meta`).
-- AC5 (nhánh lỗi tải). Given API lỗi When tải Then thông báo lỗi nêu chuyện gì xảy ra, dữ liệu có an toàn không, nút `Thử lại` (đã có `ApiErrorNotice`); không đổi.
+- AC5 (nhánh lỗi tải). Given API lỗi When tải Then thông báo lỗi là **một dòng** nói chuyện gì xảy ra + nút `Thử lại` (đã có `ApiErrorNotice`; sửa 10.7, P-107-3: bỏ vế «dữ liệu có an toàn không» trừ khi màn đang giữ chữ chưa lưu).
 - AC6 (phân quyền). Given STUDENT mở `/inbox`, `/grading`, `/gradebook` When vào Then vẫn thấy thông báo 403 hiện có, không thấy `EmptyState` của giảng viên.
 - AC7 (di động 375). Given `/inbox` rỗng ở 375 px When xem Then `EmptyState` không tràn; vùng chạm nút ≥ 44 px.
 - AC8 (ảnh mốc). Ảnh mốc đổi: `inbox-*` nếu dữ liệu cố định của `visual.spec` có trạng thái rỗng; ngược lại không đổi — dev ghi.
