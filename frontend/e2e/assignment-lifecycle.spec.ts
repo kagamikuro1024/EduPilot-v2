@@ -665,6 +665,16 @@ test("review key A next: duyệt rồi sang bài kế, có thanh tiến độ", 
   await expect(progress).toHaveText(`Đã duyệt 1/${m}`); // N tăng, M cố định
 });
 
+test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openReview(page, context, { h: { "PUT grading-results/:id": async (r, next) => { await new Promise((res) => setTimeout(res, 600)); return next(r); } } });
+  await page.locator("[data-part=criterion-comment]").first().fill("Nhận xét vừa gõ xong.");
+  await page.getByRole("button", { name: "Duyệt bài" }).click(); // bấm nút làm ô nhận xét blur → lưu đang chạy
+  await expect.poll(() => api.reviews().length, { timeout: 10_000 }).toBe(1);
+  expect(api.puts().length).toBe(1); // không lưu hai lần
+  expect(api.puts()[0].body).toContain("Nhận xét vừa gõ xong.");
+});
+
 test("review approve fails: lỗi hiện ở thanh dưới kèm Thử lại, điểm đã nhập còn nguyên", async ({ page, context }, info) => {
   desktopOnly(info);
   let down = true;

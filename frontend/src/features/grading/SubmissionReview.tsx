@@ -161,7 +161,9 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   };
   const [activeCrit, setActiveCrit] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const running = useRef(false);
+  /** Việc ghi nối đuôi nhau (GV-BUG «Duyệt bài đua với tự lưu»): bấm Duyệt ngay sau khi gõ thì lần lưu nhận xét do blur chạy xong RỒI mới duyệt, không bị bỏ. */
+  const chain = useRef<Promise<void>>(Promise.resolve());
+  const pending = useRef(0);
   const docRef = useRef<HTMLDivElement>(null);
 
   const commentOf = (c: Criterion) => comments[c.id] ?? restored?.comments?.[c.id] ?? c.comment;
@@ -229,22 +231,28 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
     undo.run({ id: c.id, before: was, after: next });
   }
 
-  async function run(job: () => Promise<void>) {
-    if (running.current) return;
-    running.current = true;
-    setBusy(true);
-    try {
-      await job();
-    } catch (e) {
-      handle(e);
-    } finally {
-      running.current = false;
-      setBusy(false);
+  /** `quiet`: lưu nền (blur ô nhận xét) KHÔNG bật `busy` — nếu bật, nút Duyệt thành «đang tải» ngay lúc bấm chuột và cú bấm bị mất. */
+  function run(job: () => Promise<void>, quiet = false): Promise<void> {
+    if (!quiet) {
+      pending.current += 1;
+      setBusy(true);
     }
+    const p = chain.current.then(async () => {
+      try {
+        await job();
+      } catch (e) {
+        handle(e);
+      } finally {
+        if (!quiet) {
+          pending.current -= 1;
+          if (pending.current === 0) setBusy(false);
+        }
+      }
+    });
+    chain.current = p;
+    return p;
   }
 
-  const dirtyComments = view.criteria.filter((c) => commentOf(c) !== c.comment).map((c) => ({ id: c.id, comment: commentOf(c) }));
-  const overallDirty = overallText !== view.result.overall_feedback;
 
   const goto = (i: number) => {
     const id = order[i];
@@ -261,8 +269,10 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
     void run(async () => {
       try {
         let cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
-        if (dirtyComments.length > 0 || overallDirty) {
-          cur = await put({ version: cur.result.version, criteria: dirtyComments, overall_feedback: overallText });
+        // so với bản MỚI NHẤT (lần lưu do blur có thể vừa xong): chỉ gửi phần còn khác
+        const dirty = view.criteria.filter((c) => commentOf(c) !== (cur.criteria.find((x) => x.id === c.id)?.comment ?? c.comment)).map((c) => ({ id: c.id, comment: commentOf(c) }));
+        if (dirty.length > 0 || overallText !== cur.result.overall_feedback) {
+          cur = await put({ version: cur.result.version, criteria: dirty, overall_feedback: overallText });
         }
         await reviewResult(courseId, rid, cur.result.version);
       } catch (e) {
@@ -519,7 +529,15 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                         saveDraft({ comments: { [c.id]: e.target.value } });
                       }}
                       onBlur={() => {
-                        if (commentOf(c) !== c.comment) void run(() => put({ version: view.result.version, criteria: [{ id: c.id, comment: commentOf(c) }] }).then(() => flashSaved(`comment:${c.id}`)));
+                        const text = commentOf(c);
+                        if (text !== c.comment) {
+                          void run(async () => {
+                            const cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
+                            if (text === (cur.criteria.find((x) => x.id === c.id)?.comment ?? c.comment)) return;
+                            await put({ version: cur.result.version, criteria: [{ id: c.id, comment: text }] });
+                            flashSaved(`comment:${c.id}`);
+                          }, true);
+                        }
                       }}
                     />
                   )}
