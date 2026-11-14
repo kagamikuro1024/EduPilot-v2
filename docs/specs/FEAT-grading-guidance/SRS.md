@@ -1,5 +1,7 @@
 # SRS FEAT-grading-guidance Harness học từ lần giảng viên sửa (M1, M2, M4, M6)
-Phiên bản 1.1 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
+Phiên bản 1.2 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
+
+**v1.2 (P-106-2, P-106-3):** công bố **miễn so phiên bản cho bài giảng viên đã duyệt**, `regrade-stale` không còn tham số `scope` và **không bao giờ đụng bài đã duyệt / đã sửa tay** (không ghi đè điểm giảng viên) — US-GD-05 AC3, AC4, AC6, AC6a, AC11, SRS 3.4, 4.2.11, 4.2.12, API #7, #9; `similar-confirmed` đổi `GET ?q=` → `POST {q}` — US-GD-08 AC1, AC7, SRS 3.5, 4.4, API #10; sửa dấu phẩy thừa DDL 5.5.
 
 ## 1. Mục đích và phạm vi
 **Vấn đề.** Điểm nháp của AI lệch chuẩn của giảng viên (9.5 đo MAE tổng 0,94–1,27 / 10). Mỗi lần giảng viên sửa đã được lưu có cấu trúc (`grading_results.ai_scores` bất biến so với `criteria`), nhưng chưa được dùng lại: giảng viên sửa cùng một lỗi nhiều lần.
@@ -66,9 +68,9 @@ sequenceDiagram
   T->>G: Duyệt / Bỏ / sửa chữ từng lưu ý
   T->>G: Áp dụng → bản N+1 (assignments.guidance_version = N+1)
   G-->>T: «k bài chấm theo bản cũ · Chấm lại»
-  T->>G: Chấm lại (lô chưa công bố)
+  T->>G: Chấm lại (bài nháp chưa sửa; bài đã duyệt không bị đụng)
   W->>DB: chấm round+1, ghim N+1
-  T->>G: Công bố (chỉ khi một bản)
+  T->>G: Công bố (bài đã duyệt miễn so phiên bản)
 ```
 
 ### 3.2 Job `grading.reflect`
@@ -111,22 +113,23 @@ sequenceDiagram
   G-->>T: 200 {version: N+1, stale: k}
 ```
 
-### 3.4 Chấm lại lô chưa công bố và chặn công bố lô trộn
+### 3.4 Chấm lại bài nháp chưa sửa và công bố bài đã duyệt (P-106-2)
 ```mermaid
 sequenceDiagram
   participant S as Staff
   participant G as Gateway
   participant DB as Postgres
   participant W as Worker chấm
-  S->>G: regrade-stale {scope} (Idempotency-Key)
-  G->>DB: TX: với kết quả hiện hành CHƯA công bố, guidance_version < hiện hành: INSERT round+1 QUEUED (≤ 200, round ≤ 20)
-  G-->>S: 202 {job_id, queued}
-  W->>DB: nhận việc → ghim guidance_version hiện hành → chấm → DRAFT
+  S->>G: regrade-stale (Idempotency-Key)
+  G->>DB: TX: kết quả hiện hành status=DRAFT, KHÔNG có tiêu chí GV sửa, guidance_version < hiện hành: INSERT round+1 QUEUED (≤ 200, round ≤ 20); bỏ qua REVIEWED / đã sửa
+  G-->>S: 202 {job_id, queued, skipped:{reviewed, edited}}
+  W->>DB: nhận việc → ghim guidance_version hiện hành → chấm → DRAFT mới (round cũ giữ nguyên)
   S->>G: publish {result_ids | ALL_REVIEWED}
-  alt tập công bố có > 1 bản hoặc khác bản hiện hành
+  G->>G: (1) mọi bài REVIEWED? (2) bài đã duyệt: miễn so phiên bản (3) lưới an toàn: bài CHƯA duyệt khác bản → 409
+  alt có bài chưa duyệt khác bản hiện hành (không xảy ra qua đường hiện tại)
     G-->>S: 409 MIXED_GUIDANCE {versions, counts} (không công bố gì)
-  else một bản duy nhất = hiện hành
-    G-->>S: 200 {published, skipped}
+  else
+    G-->>S: 200 {published, skipped, exempt:{EDITED, ACCEPTED_AS_IS}}
   end
 ```
 
@@ -137,7 +140,7 @@ sequenceDiagram
   participant G as Gateway
   participant E as Embed (dùng lại cache)
   participant DB as Postgres (pgvector)
-  U->>G: GET threads/similar-confirmed?q= (debounce 600 ms, ≥ 3 từ)
+  U->>G: POST threads/similar-confirmed {q} (thân yêu cầu, không ở URL; debounce 600 ms, ≥ 3 từ)
   G->>G: cờ bật? rate limit 30/phút
   G->>E: nhúng q (1 lần)
   G->>DB: top 3 chunk knowledge_items(POST) cùng lớp, cosine ≥ 0,80 → thread VERIFIED/CORRECTED, chưa ẩn
@@ -188,10 +191,11 @@ sequenceDiagram
 | `Áp dụng` không có gì đổi | `409 NOTHING_TO_APPLY` | Nút khoá |
 | `Áp dụng` / `PUT` version cũ | `409 VERSION_CONFLICT` | Tải lại + báo tại chỗ |
 | Đang `Áp dụng` ở hai tab | Giao dịch tuần tự; người sau nhận 409 | Báo tại chỗ |
-| Chấm lại, bài đã công bố | Bỏ qua, không bao giờ chấm lại | Không đổi |
+| Chấm lại, bài đã công bố / đã duyệt / đã sửa tay | Bỏ qua, **không bao giờ** chấm lại hàng loạt; đếm vào `skipped` | Không đổi điểm của giảng viên |
 | Chấm lại quá `round` 20 | Bỏ bài đó, báo số bài bỏ | «k bài đã chấm lại tối đa» |
 | Worker chết giữa lô | Việc nhận lại, không chấm đôi (4.7 FEAT-assignments) | Tiến độ tiếp tục |
-| Công bố lô trộn | `409 MIXED_GUIDANCE {versions, counts}` | Dòng báo + `Chấm lại` |
+| Công bố bài đã duyệt chấm theo bản cũ | Được (miễn so phiên bản); phản hồi `exempt{EDITED, ACCEPTED_AS_IS}` | Hộp xác nhận «k bài chấm theo bản cũ: a đã sửa tay, b duyệt nguyên nháp» |
+| Tập công bố có bài **chưa duyệt** khác bản hiện hành (lưới an toàn) | `409 MIXED_GUIDANCE {versions, counts}` | Dòng báo + `Chấm lại` |
 | Gợi ý M4 lỗi nhúng / DB | Bỏ qua im lặng | Không hiện gì |
 | Cờ tắt giữa lúc chạy | Việc chưa nhận chạy với bản hiện hành (0) | Không đổi |
 | `cmd/regress export` khi chưa cho phép | Từ chối, thoát ≠ 0 | – (CLI) |
@@ -241,9 +245,9 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 **4.2.10 `Áp dụng`.** Giao dịch: khoá `assignments` hàng `FOR UPDATE`; kiểm `expected_version = guidance_version` (`409 VERSION_CONFLICT`); có thay đổi (`APPROVED` chờ hoặc chờ nghỉ) hoặc `409 NOTHING_TO_APPLY`; gán `approved_in_version` / `retired_in_version = N+1`; `INSERT grading_guidance_versions`; `UPDATE assignments SET guidance_version = N+1`; `audit_log`. Không tự chấm lại.
 
-**4.2.11 Chấm lại lô.** `regrade-stale {scope ∈ UNREVIEWED | ALL_UNPUBLISHED}`: chọn kết quả **hiện hành** `status ∈ {DRAFT}` (hoặc `{DRAFT,REVIEWED}`) có `guidance_version < assignments.guidance_version`, bài nộp còn là bản mới nhất, `round < 20`; tối đa `REGRADE_MAX_BATCH`; `INSERT round+1 QUEUED` + `jobs` trong một giao dịch rồi `XADD`; idempotent theo `Idempotency-Key` và `UNIQUE (course_id, submission_id, round)`; `REVIEWED` bị chấm lại quay về `DRAFT` mới (round cũ vẫn xem được).
+**4.2.11 Chấm lại lô (P-106-2).** `regrade-stale` (không tham số): chọn kết quả **hiện hành** `status = 'DRAFT'` **và** mọi tiêu chí `edited = false` (`changedCriteria(criteria, ai_scores) = ∅`) **và** `guidance_version < assignments.guidance_version`, bài nộp còn là bản mới nhất, `round < 20`, chưa công bố; tối đa `REGRADE_MAX_BATCH`; `INSERT round+1 QUEUED` + `jobs` trong một giao dịch rồi `XADD`; idempotent theo `Idempotency-Key` và `UNIQUE (course_id, submission_id, round)`. **Không bao giờ** chọn `REVIEWED` hay bài có điểm / nhận xét giảng viên đã sửa: điểm người đã chốt không bị ghi đè; số bị bỏ trả ở `skipped:{reviewed, edited}`. Chấm lại một bài đang sửa dở: đường `POST …/submissions/{sid}/grade` sẵn có (round + 1, điểm đã sửa nằm ở round cũ), kèm `ConfirmIrreversible` ở giao diện.
 
-**4.2.12 Chặn công bố lô trộn.** Trong `publish` (4.8.5 FEAT-assignments) thêm bước sau khi chọn tập: nếu `|DISTINCT guidance_version| > 1` hoặc có giá trị ≠ `assignments.guidance_version` → `409 MIXED_GUIDANCE {versions, counts}` trước mọi ghi. Hiệu lực chỉ khi cờ `GRADING_GUIDANCE` bật cho lớp (cờ tắt: như hiện hành). (Q-G-1, PM xác nhận P-106-1.)
+**4.2.12 So phiên bản khi công bố (P-106-2).** Trong `publish` (4.8.5 FEAT-assignments): (1) giữ `422 NOT_REVIEWED` cho bài không `REVIEWED`; (2) kết quả **đã duyệt** (`reviewed_by` + `reviewed_at`) **miễn so phiên bản** vì điểm cuối là quyết định của giảng viên; đếm lý do miễn: `EDITED` (có tiêu chí giảng viên sửa — `changedCriteria ≠ ∅`) và `ACCEPTED_AS_IS` (duyệt nguyên nháp), trả ở `exempt{}` và ghi `audit_log`; (3) lưới an toàn bất biến: nếu tập còn kết quả **chưa có người duyệt** mà `guidance_version` khác `assignments.guidance_version` (hoặc lẫn nhiều bản) → `409 MIXED_GUIDANCE {versions, counts}` trước mọi ghi. Hiệu lực chỉ khi cờ `GRADING_GUIDANCE` bật cho lớp (cờ tắt: như hiện hành). Hệ quả: bài còn nháp phải chấm lại cho cùng bản; bài đã duyệt (kể cả bộ «học» ghim `v0` đã sửa tay) công bố bình thường sau `Áp dụng`. (Q-G-1, PM xác nhận P-106-1; siết bởi P-106-2.)
 
 **4.2.13 Số đo.** `GET …/guidance/stats`: theo `guidance_version` của kết quả hiện hành `REVIEWED`/`PUBLISHED`: `n`, `mae_criterion`, `mae_total`, `bias_total` (có dấu), `edited_criteria`, `edited_rate`; `decimal`; `n < 5` → `null`. `mae_total = mean(|ai_total_before_late − total_before_late chốt|)`.
 
@@ -256,7 +260,7 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 ### 4.4 M4 — Câu tương tự lúc soạn
 - Nguồn: `knowledge_items` với `source_type='POST'` (+ `content_chunks` đã nhúng) → thread của bài đó; điều kiện: thread công khai cùng lớp, không `hidden`, trả lời AI `VERIFIED`/`CORRECTED`, mục kho chưa lỗi thời. Truy vấn `ORDER BY embedding <=> $q` chỉ theo khoảng cách (dùng HNSW), lọc `course_id` trong cùng truy vấn, `LIMIT 3`, rồi lọc `cosine ≥ THREAD_SUGGEST_MIN` ở ứng dụng. Không `TICKET` (Q-G-5).
-- Một lần nhúng chuỗi đang soạn (cache theo băm chuỗi, TTL 5 phút); 0 lời gọi sinh chữ; rate limit `THREAD_SUGGEST_RPM` (Redis); trả `[]` nếu cờ tắt / lỗi.
+- Gọi bằng `POST …/threads/similar-confirmed {q}`: bản nháp **chưa qua tường lửa** có thể chứa MSSV / tên nên **không** đặt trong URL (access log Caddy ghi nguyên URI, AGENTS cấm log PII); thân không ghi log ở Caddy lẫn ứng dụng. Một lần nhúng chuỗi đang soạn (cache theo băm chuỗi, TTL 5 phút); 0 lời gọi sinh chữ; rate limit `THREAD_SUGGEST_RPM` (Redis); trả `[]` nếu cờ tắt / lỗi.
 
 ### 4.5 M6 — Mẫu âm cho sinh câu hỏi
 - `question_bank.reject_reason` ∈ {`MO_HO`, `SAI_DAP_AN`, `TRUNG_LAP`, `LAC_DE`, `KHO_DE_BAT_THUONG`, `SAI_DINH_DANG`, `UNSPECIFIED`}; chỉ khi `review_status='REJECTED'`.
@@ -273,8 +277,8 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 | FR-5 | Đầu vào không văn bản bài / danh tính; schema strict; kiểm code (support, chiều, từ khoá, PII, trùng) | GD-03 AC4–7 |
 | FR-6 | API duyệt / bỏ / sửa / nghỉ / áp dụng; chỉ TEACHER; `audit_log` | GD-04 |
 | FR-7 | Prompt chấm thêm khối lưu ý của phiên bản ghim, tất định, không đổi kiểm code | GD-05 AC1–2 |
-| FR-8 | `regrade-stale` lô chưa công bố, giới hạn, idempotent | GD-05 AC3–5, 7–9 |
-| FR-9 | Chặn công bố lô trộn `MIXED_GUIDANCE` | GD-05 AC6 |
+| FR-8 | `regrade-stale` chỉ bài nháp chưa sửa, không đụng bài đã duyệt / đã sửa, giới hạn, idempotent | GD-05 AC3–5, 7–9 |
+| FR-9 | Miễn so phiên bản cho bài đã duyệt; lưới an toàn `MIXED_GUIDANCE` cho bài chưa duyệt; đếm lý do miễn | GD-05 AC6 |
 | FR-10 | Số đo theo phiên bản và nhãn tiêu chí ở màn duyệt bài | GD-06 |
 | FR-11 | Ghi ca hồi quy theo tham chiếu; `cmd/regress run/export` | GD-07 |
 | FR-12 | Gợi ý câu tương tự đã xác nhận lúc soạn (chỉ POST công khai) | GD-08 |
@@ -347,7 +351,7 @@ CREATE TABLE grading_regression_cases (
   source_id uuid NOT NULL,
   criterion_id text NULL,
   expected jsonb NOT NULL CHECK (jsonb_typeof(expected) = 'object'),   -- chỉ số / enum, service kiểm không có chuỗi dài
-  created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE UNIQUE INDEX grc_unique ON grading_regression_cases (course_id, kind, source_id, coalesce(criterion_id, ''));
 
@@ -371,10 +375,10 @@ Tiền tố `/api/v1`; `…` = `/courses/{id}`. Mọi `PUT` / quyết định b�
 | 4 | `POST …/assignments/{aid}/guidance/reflect` | TEACHER | 202 `{job_id}`; 409 `NOT_ENOUGH_DATA`, `GUIDANCE_DISABLED`; 429 `RATE_LIMITED` |
 | 5 | `POST …/assignments/{aid}/guidance/items/{iid}/decide` `{decision: APPROVE\|REJECT\|RETIRE, text?, version}` | TEACHER | 409 `ITEM_NOT_DRAFT`, `VERSION_CONFLICT`; 422 `GUIDANCE_TEXT_REJECTED` |
 | 6 | `POST …/assignments/{aid}/guidance/apply` `{expected_version}` | TEACHER | 200 `{version, stale}`; 409 `VERSION_CONFLICT`, `NOTHING_TO_APPLY` |
-| 7 | `POST …/assignments/{aid}/regrade-stale` `{scope}` | TEACHER, TA | 202 `{job_id, queued, skipped}`; 409 `GUIDANCE_DISABLED` |
+| 7 | `POST …/assignments/{aid}/regrade-stale` (không thân) | TEACHER, TA | 202 `{job_id, queued, skipped:{reviewed, edited}}`; 409 `GUIDANCE_DISABLED` |
 | 8 | `GET …/assignments/{aid}/guidance/stats` | TEACHER, TA | theo phiên bản (4.2.13) |
-| 9 | `POST …/grading-results/publish` (đã có) | TEACHER | thêm 409 `MIXED_GUIDANCE {versions, counts}` |
-| 10 | `GET …/threads/similar-confirmed?q=` | thành viên lớp | `[{thread_id, title}]`; `[]` khi tắt / lỗi; 429 |
+| 9 | `POST …/grading-results/publish` (đã có) | TEACHER | phản hồi thêm `exempt{EDITED, ACCEPTED_AS_IS}`; thêm 409 `MIXED_GUIDANCE {versions, counts}` (lưới an toàn, bài chưa duyệt) |
+| 10 | `POST …/threads/similar-confirmed` `{q}` (chỉ đọc; không `Idempotency-Key`; thân không ghi log; `Cache-Control: no-store`; P-106-3) | thành viên lớp | `[{thread_id, title}]`; `[]` khi tắt / lỗi; 429 |
 | 11 | `POST …/questions/bulk {action:"reject", ids[], reason?}` và `PUT …/questions/{id}/review {…, reject_reason?}` (đã có, mở rộng) | TEACHER, TA | 422 lý do lạ |
 | 12 | `GET …/questions/gen-stats?job_id` (đã có) | TEACHER, TA | thêm `hints:[reason]` |
 Mã lỗi mới: `GUIDANCE_DISABLED`, `NOT_ENOUGH_DATA`, `ITEM_NOT_DRAFT`, `NOTHING_TO_APPLY`, `GUIDANCE_TEXT_REJECTED`, `MIXED_GUIDANCE` (đều 409 / 422 như bảng). DTO sinh viên **không đổi**. Tất cả có trong `openapi.yaml`; `go test ./internal/contract/...` xanh. Tiến độ `reflect` / `regrade-stale` qua SSE sự kiện `job.progress`.
@@ -384,7 +388,7 @@ Nguồn: `DESIGN.md` §13, §14; `UX.md` mục 6; luật chữ UI (không dòng 
 | Màn | Khung nhìn đầu | Primitive | Rỗng / tải / lỗi | Mobile 375 px |
 | --- | --- | --- | --- | --- |
 | `/assignments/[id]` (nhân viên) — khối «Lưu ý chấm» dưới rubric | dòng `bản v2 · 3 chờ duyệt` + `Rút lưu ý`; danh sách lưu ý (tiêu chí · chữ · `n lần sửa` · chiều · `Duyệt` / `Bỏ`); `Áp dụng` khi có thay đổi; bảng số đo nhỏ | `Panel`, `Section`, `DataTable` nhẹ, `useUndoableAction`, `useAutosaveDraft`, `InlineNotice` | `EmptyState` một dòng; `PageState` lỗi + `Thử lại`; đang rút: chỉ báo giai đoạn, rời trang được | xếp dọc, nút ≥ 44 px |
-| `/grading` (Hàng chờ) | `InlineNotice`: «N bài chấm theo bản cũ · Chấm lại» (theo bài tập đang lọc); `ConfirmIrreversible` khi `ALL_UNPUBLISHED` | `InlineNotice`, `ConfirmIrreversible` | khi 409 `MIXED_GUIDANCE` báo tại chỗ + `Chấm lại` | như hiện hành |
+| `/grading` (Hàng chờ) | `InlineNotice`: «N bài chấm theo bản cũ · Chấm lại» (N = bài nháp chưa sửa; «M đang sửa dở» nếu có); hộp công bố: «k bài chấm theo bản cũ: a đã sửa tay, b duyệt nguyên nháp»; `ConfirmIrreversible` khi chấm lại một bài đang sửa dở | `InlineNotice`, `ConfirmIrreversible` | khi 409 `MIXED_GUIDANCE` (lưới an toàn) báo tại chỗ + `Chấm lại` | như hiện hành |
 | `/grading/[submissionId]` | phụ đề `meta` trên nhãn tiêu chí «bản v2 · 3 lần sửa»; popover liệt kê lưu ý áp dụng | `Popover` | không phụ đề với `v0` | như hiện hành |
 | `/class/settings` — «Học từ lần sửa» | bốn công tắc | `Field`/switch | tooltip chỉ trên công tắc khoá «Chỉ quản trị viên bật» | công tắc ≥ 44 px |
 | `/threads` (soạn câu hỏi) | danh sách ≤ 3 thread «Đã xác nhận» dưới ô tiêu đề; **không hiện gì khi trống** | danh sách liên kết | lỗi → không hiện | một cột |
@@ -410,10 +414,10 @@ Nhãn: «Lưu ý chấm», `Rút lưu ý`, `Duyệt`, `Bỏ`, `Cho nghỉ`, `Áp
 | --- | --- | --- |
 | Go unit | `TestGuidanceSetAtVersion`, `TestEssayPromptUnchangedAtV0`, `TestGuidanceBlockDeterministic`, `TestGuidanceIsolation`, `TestGuidanceNoTotalsInPrompt`, `TestGuidanceVersionOnlyViaApply` | GD-02, 05, 11 |
 | Go unit | `TestReflectEligibility`, `TestReflectInputNoSubmissionText`, `TestReflectInputNoIdentity`, `TestReflectValidate` (support, chiều, từ khoá, trùng), `TestReflectOutputPII`, `TestReflectIdempotent` | GD-03 |
-| Go | `TestApplyVersion`, `TestRegradeStale`, `TestRegradeKeepsLatePolicy`, `TestPublishMixedGuidance`, `TestGuidanceRBAC`, `TestGuidanceDeleteStudent` | GD-04, 05, 11 |
+| Go | `TestApplyVersion`, `TestRegradeStale`, `TestRegradeKeepsLatePolicy`, `TestRegradeNeverOverwritesTeacherScores`, `TestPublishMixedGuidance` (lưới an toàn + miễn bài đã duyệt + đếm `exempt`), `TestGuidanceRBAC`, `TestGuidanceDeleteStudent` | GD-04, 05, 11 |
 | Go | `TestGuidanceStats` (decimal, n < 5) | GD-06 |
 | Go | `TestRegressionCaseNoText`, `TestRegressionCaseIdempotent`, `TestRegressCLIRefusesExport` | GD-07 |
-| Go | `TestSimilarConfirmed` (chỉ POST, cùng lớp, không ẩn, ngưỡng, rate limit, cờ tắt), `TestRejectReasonHints` | GD-08, 09 |
+| Go | `TestSimilarConfirmed` (nguồn chỉ thread đăng công khai, cùng lớp, không ẩn, ngưỡng, rate limit, cờ tắt), `TestSimilarNoBodyLog`, `TestRejectReasonHints` | GD-08, 09 |
 | Contract | `go test ./internal/contract/...` | SRS 6 |
 | E2E | `grading-guidance.spec.ts`, `thread-suggest.spec.ts`, `question-hints.spec.ts` (provider `fake`) | GD-03…09 |
 | Đo | `benchmarks/guidance/run.py` → `guidance-before-after.{json,md,svg}`; `cmd/regress run` | GD-07, 10 |
@@ -424,7 +428,7 @@ Nhãn: «Lưu ý chấm», `Rút lưu ý`, `Duyệt`, `Bỏ`, `Cho nghỉ`, `Áp
 | Dữ liệu | Bộ E3 (≥ 60 bài BT03, nhãn người; hoặc nhãn «Giáo viên» tạm — ghi rõ nguồn nhãn). Chia theo thứ tự thời gian: 20 bài đầu = «học», 40 bài sau = «đo» (không dùng bài đo để rút lưu ý) |
 | B0 | Chấm 40 bài đo ở `v0` (hai lần lặp); MAE tiêu chí, MAE tổng, lệch TB có dấu, số tiêu chí «vốn đúng» (|Δ| ≤ 0,25) |
 | Học | Người duyệt sửa điểm 20 bài đầu → `Rút lưu ý` → người duyệt `Duyệt` / `Bỏ` → `Áp dụng` (v1) |
-| B1 | Chấm lại 40 bài đo ở `v1` (hai lần lặp); cùng chỉ số |
+| B1 | Chấm lại 40 bài đo ở `v1` (hai lần lặp); cùng chỉ số. 20 bài «học» đã duyệt ở `v0` **không** bị chấm lại và vẫn công bố được (P-106-2) |
 | Báo cáo | MAE trước / sau, lệch TB, số xấu đi / tốt lên, số lưu ý được duyệt / bỏ, số lần sửa tay (đề xuất), nguồn nhãn, cỡ mẫu, nhà cung cấp + model + ngày, «Giới hạn» (mô phỏng, một model, một bài tập) |
 | Quyết định | **Bật được** khi: MAE tổng giảm ≥ 20 %, |lệch TB| không xấu hơn B0 quá 0,20 điểm, tiêu chí vốn đúng nay sai ≤ 1,5× B0; còn lại **Giữ tắt** |
 Chỉ gọi LLM qua 9router; không Gemini trực tiếp; không embedding thật. Lượt đo khi có nhãn người; thiếu nhãn → `WAITING_HUMAN`.
