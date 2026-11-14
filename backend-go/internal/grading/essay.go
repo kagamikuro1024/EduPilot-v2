@@ -94,6 +94,8 @@ type Grader struct {
 	Extract TextExtractor
 	Cfg     EssayConfig
 	Log     *slog.Logger
+	// Decide: tầng decision của cổng INJECTION_FLAG (D60); nil = không có tầng đó.
+	Decide Decider
 }
 
 // Outcome là kết quả của một lần chạy: DONE (DRAFT) hoặc FAILED (đã ghi, mã lỗi vĩnh viễn).
@@ -177,7 +179,14 @@ func (g *Grader) Run(ctx context.Context, courseID, resultID uuid.UUID) (Outcome
 		return g.saveEmpty(ctx, q, c, rubric, hits, append(flags, FlagEmptySubmission), lateDays)
 	}
 
-	p1, p2, perr := g.passes(ctx, c, rubric, cleaned, text)
+	// Cờ chèn lệnh = regex OR Structured (gộp vào lượt chấm) OR decision; hai tầng sau chỉ khi cổng có hiệu lực và bài ≥ 20 từ (AC3). Chỉ gắn cờ, không đổi điểm.
+	tiers := g.Decide != nil && len(strings.Fields(cleaned)) >= minInjectionWords && g.Decide.GateEffective(ctx, llm.GateInjection)
+	var decided chan bool
+	if tiers {
+		decided = make(chan bool, 1)
+		go func() { decided <- g.flagInjectionDecision(ctx, cleaned) }() // song song với lời gọi chấm
+	}
+	p1, p2, perr := g.passes(ctx, c, rubric, cleaned, text, tiers)
 	if perr != nil {
 		var te *TransientError
 		if errors.As(perr, &te) {
@@ -187,6 +196,17 @@ func (g *Grader) Run(ctx context.Context, courseID, resultID uuid.UUID) (Outcome
 	}
 	m := Merge(p1, p2, rubric, g.Cfg.Disagree)
 	flags = append(flags, m.Flags...)
+	if tiers {
+		flagged := p1.LLMInjection || p2.LLMInjection
+		select {
+		case d := <-decided:
+			flagged = flagged || d
+		case <-ctx.Done():
+		}
+		if flagged {
+			flags = append(flags, FlagInjectionSuspected)
+		}
+	}
 	var comments []string
 	for _, r := range rubric {
 		comments = append(comments, p1.Comments[r.ID])
@@ -252,10 +272,13 @@ func (g *Grader) text(ctx context.Context, q *store.Queries, c store.EssayGradeC
 }
 
 // passes chạy hai lượt SONG SONG (lượt 2 đảo thứ tự tiêu chí), mỗi lượt đúng một llm.Structured (task GRADING, làn BATCH, temperature 0).
-func (g *Grader) passes(ctx context.Context, c store.EssayGradeContextRow, rubric []RubricItem, cleaned, text string) (PassResult, PassResult, error) {
+func (g *Grader) passes(ctx context.Context, c store.EssayGradeContextRow, rubric []RubricItem, cleaned, text string, injection bool) (PassResult, PassResult, error) {
 	pctx, cancel := context.WithTimeout(ctx, g.Cfg.AttemptTimeout)
 	defer cancel()
 	schema := EssaySchema(rubric)
+	if injection {
+		schema = EssaySchemaInjection(rubric)
+	}
 	var wg sync.WaitGroup
 	var res [2]PassResult
 	var errs [2]error
@@ -263,7 +286,7 @@ func (g *Grader) passes(ctx context.Context, c store.EssayGradeContextRow, rubri
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			res[i], errs[i] = g.onePass(pctx, c, rubric, cleaned, text, schema, i == 1)
+			res[i], errs[i] = g.onePass(pctx, c, rubric, cleaned, text, schema, i == 1, injection)
 		}()
 	}
 	wg.Wait()
@@ -281,12 +304,12 @@ func (g *Grader) passes(ctx context.Context, c store.EssayGradeContextRow, rubri
 	return res[0], res[1], nil
 }
 
-func (g *Grader) onePass(ctx context.Context, c store.EssayGradeContextRow, rubric []RubricItem, cleaned, text string, schema json.RawMessage, second bool) (PassResult, error) {
+func (g *Grader) onePass(ctx context.Context, c store.EssayGradeContextRow, rubric []RubricItem, cleaned, text string, schema json.RawMessage, second, injection bool) (PassResult, error) {
 	ref := ""
 	if c.ReferenceAnswer != nil {
 		ref = *c.ReferenceAnswer
 	}
-	system, user := BuildEssayPrompt(PromptInput{Title: c.Title, Description: c.Description, Reference: ref, Rubric: rubric, Text: cleaned, Second: second}, NewBoundary(cleaned))
+	system, user := BuildEssayPrompt(PromptInput{Title: c.Title, Description: c.Description, Reference: ref, Rubric: rubric, Text: cleaned, Second: second, FlagInjection: injection}, NewBoundary(cleaned))
 	zero := 0.0
 	lane := llm.LaneBatch
 	req := llm.Request{Task: llm.TaskGrading, Lane: &lane, Params: llm.Params{Temperature: &zero, MaxTokens: 4096},

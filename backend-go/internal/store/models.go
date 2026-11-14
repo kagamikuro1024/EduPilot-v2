@@ -2820,6 +2820,25 @@ type Course struct {
 	AllowStudyTimeOptOut bool
 }
 
+type CourseDecisionGate struct {
+	CourseID  uuid.UUID
+	Gate      string
+	Enabled   bool
+	Version   int32
+	UpdatedBy *uuid.UUID
+	UpdatedAt time.Time
+}
+
+type DecisionGate struct {
+	Gate      string
+	Enabled   bool
+	Threshold decimal.Decimal
+	TimeoutMs int32
+	Version   int32
+	UpdatedBy *uuid.UUID
+	UpdatedAt time.Time
+}
+
 type Document struct {
 	ID                uuid.UUID
 	CourseID          uuid.UUID
@@ -3320,6 +3339,8 @@ type LlmAudit struct {
 	CourseID       *uuid.UUID
 	TraceID        string
 	CreatedAt      time.Time
+	CascadeGate    *string
+	CascadePath    *string
 }
 
 type LlmBudget struct {

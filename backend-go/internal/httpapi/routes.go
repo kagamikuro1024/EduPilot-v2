@@ -11,6 +11,7 @@ import (
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/crm"
+	"github.com/edupilot/backend-go/internal/decision"
 	"github.com/edupilot/backend-go/internal/document"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
@@ -177,7 +178,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.
-			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).Mount(r, RequireIdempotencyKey(d))
+			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).WithDecision(decisionService(d)).Mount(r, RequireIdempotencyKey(d))
 		}
 		if d.DB != nil {
 			(&mailhttp.Handler{Pool: d.DB, Log: d.Log}).Mount(r) // US-P4-04 AC9: thư gửi lỗi (ADMIN)
@@ -267,4 +268,13 @@ func practiceService(d Deps) *practice.Service {
 		s.Blob = d.Blob
 	}
 	return s
+}
+
+// decisionService dựng dịch vụ cấu hình decision (SRS FEAT-decision-model 6) từ Deps; nil nếu thiếu DB.
+func decisionService(d Deps) *decision.Service {
+	if d.DB == nil || d.LLM == nil {
+		return nil
+	}
+	return &decision.Service{Pool: d.DB, Snapshot: d.LLM.Decision, Redis: d.Redis.Client, Circuit: d.LLM.Scheduler.CircuitState,
+		AllowReal: d.Cfg.LLMDecisionAllowReal, EnvKey: d.Cfg.GeminiKey != ""}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/chat"
 	"github.com/edupilot/backend-go/internal/crm"
+	"github.com/edupilot/backend-go/internal/decision"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/grade"
@@ -47,6 +48,7 @@ func newTasks(d Deps) []Task {
 	tasks = append(tasks, examTickTask{&exam.Ticker{Svc: &exam.Service{Pool: d.DB, Clock: clock.Real{}, Jobs: jobs.NewService(d.DB), Attempt: exam.AttemptConfig{Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second}, Redis: d.Redis}, Redis: d.Redis, Log: d.Log, Name: name, Every: d.Cfg.ExamTickInterval}})
 	tasks = append(tasks, reminderTask{&calendar.Reminder{Svc: &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}, Name: name, Every: d.Cfg.ReminderTick, Lead: d.Cfg.ReminderLead, Log: d.Log, Notify: nt}})
 	tasks = append(tasks, slaTask{&escalation.SLAJob{Svc: &escalation.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt, Cfg: escalation.ConfigFrom(d.Cfg)}, Redis: d.Redis, Name: name, Every: d.Cfg.TicketSLATick, Log: d.Log}})
+	tasks = append(tasks, decisionAlertTask{&decision.Alerter{Pool: d.DB, Notify: nt, Redis: d.Redis, Name: name, Every: d.Cfg.DecisionAlertTick, Dedupe: d.Cfg.DecisionAlertDedupe, Log: d.Log}})
 	tasks = append(tasks, rollupTask{&activity.RollupJob{Svc: &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: d.Cfg.RollupTick, Log: d.Log}})
 	tasks = append(tasks, riskTask{&crm.RiskJob{Svc: &crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, At: d.Cfg.RiskJobAt, Every: time.Minute, Log: d.Log}})
 	tasks = append(tasks, practiceCloseTask{&practice.CloseJob{Svc: &practice.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Every: time.Minute, Log: d.Log}})
@@ -98,6 +100,12 @@ type slaTask struct{ j *escalation.SLAJob }
 
 func (slaTask) Name() string                    { return "ticket.sla" }
 func (t slaTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// decisionAlertTask chạy `decision.alert` (US-DM-07 AC4) — một bản nhờ khoá leader Redis.
+type decisionAlertTask struct{ j *decision.Alerter }
+
+func (decisionAlertTask) Name() string                    { return "decision.alert" }
+func (t decisionAlertTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // rollupTask chạy `heartbeat.rollup` (US-P5-03) — một bản nhờ khoá leader Redis.
 type rollupTask struct{ j *activity.RollupJob }

@@ -92,6 +92,8 @@ type PassResult struct {
 	Feedback string
 	// Confidence là độ chắc chắn LLM báo (0–1).
 	Confidence decimal.Decimal
+	// LLMInjection: LLM báo INJECTION_SUSPECTED (chỉ có khi schema cho phép, tức cổng INJECTION_FLAG có hiệu lực). Không vào Flags / Merge: Run quyết OR với các tầng khác.
+	LLMInjection bool
 }
 
 func maxOf(rubric []RubricItem, id string) (decimal.Decimal, bool) {
@@ -175,6 +177,7 @@ func Check(out RawOutput, text string, rubric []RubricItem, lowConf decimal.Deci
 	if slices.Contains(out.Flags, FlagOffTopic) { // LLM chỉ được báo lạc đề; mọi cờ khác do code
 		flags = append(flags, FlagOffTopic)
 	}
+	res.LLMInjection = slices.Contains(out.Flags, FlagInjectionSuspected)
 	res.Flags = uniqSorted(flags)
 	return res
 }

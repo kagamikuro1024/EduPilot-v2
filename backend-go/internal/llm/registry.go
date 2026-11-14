@@ -2,6 +2,7 @@ package llm
 
 import (
 	"context"
+	_ "embed"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -18,6 +19,9 @@ import (
 	"github.com/edupilot/backend-go/internal/llmconfig"
 )
 
+//go:embed testdata/decision-replay.json
+var decisionReplay []byte
+
 // ReloadChannel là kênh pub/sub báo cấu hình đã đổi (SRS 5.5).
 const ReloadChannel = "ep:llm:reload"
 
@@ -30,7 +34,17 @@ type EnvConfig struct {
 	OpenAIKey, AnthropicKey, GeminiKey string
 	DefaultRPM, DefaultTPM             int
 	Fake                               fake.Settings
+	// Decision model (SRS FEAT-decision-model 4.5): cho phép gọi `gemini-decision-1` thật, RPM của bucket riêng provider `decision`, base URL (rỗng = Google).
+	DecisionAllowReal bool
+	DecisionRPM       int
+	DecisionBaseURL   string
 }
+
+// RealDecisionModel là mô hình decision THẬT; chỉ chạy khi EnvConfig.DecisionAllowReal (D60 (6)). Mô hình còn lại của provider `decision` là bản giả.
+const RealDecisionModel = "gemini-decision-1"
+
+// FakeDecisionModel là mô hình decision giả, tất định, mặc định của dev / test / CI / seed / demo / eval.
+const FakeDecisionModel = "decision-fake"
 
 // Target là một mô hình đã dựng sẵn trong chuỗi của tác vụ.
 type Target struct {
@@ -54,6 +68,7 @@ type regState struct {
 	routes   map[Task]Route
 	envOnly  bool
 	cheapest *Target // mô hình chat rẻ nhất đang bật (ngân sách cạn → chat chuyển sang đây)
+	decide   *Target // mô hình decision của provider `decision` duy nhất đang bật; nil = chưa cấu hình / bị chặn (Decide trả not_configured)
 }
 
 // ProviderSpec là đầu vào của Factory.
@@ -93,6 +108,27 @@ func (r *Registry) fire() {
 	}
 }
 
+// DecideTarget trả mô hình decision đang dùng (provider `decision` duy nhất đang bật, mô hình đang bật). false = chưa cấu hình, hoặc là bản thật mà
+// LLM_DECISION_ALLOW_REAL tắt (US-DM-01 AC7, AC10).
+func (r *Registry) DecideTarget() (Target, bool) {
+	st := r.cur.Load()
+	if st == nil || st.decide == nil {
+		return Target{}, false
+	}
+	return *st.decide, true
+}
+
+// SetDecide đặt mô hình decision (test và công cụ đo); nil xoá.
+func (r *Registry) SetDecide(t *Target) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	st := r.cur.Load()
+	if st == nil {
+		st = &regState{routes: map[Task]Route{}}
+	}
+	r.cur.Store(&regState{routes: st.routes, envOnly: st.envOnly, cheapest: st.cheapest, decide: t})
+}
+
 // Cheapest trả mô hình chat rẻ nhất đang bật (price_in + price_out nhỏ nhất, hoà thì theo thứ tự tạo).
 func (r *Registry) Cheapest() (Target, bool) {
 	st := r.cur.Load()
@@ -104,7 +140,13 @@ func (r *Registry) Cheapest() (Target, bool) {
 
 // NewRegistry dựng Registry. res có thể nil (chỉ dùng env — test). factory nil = mặc định.
 func NewRegistry(res *llmconfig.Resolver, env EnvConfig, factory Factory, log *slog.Logger) *Registry {
+	if env.Fake.DecisionReplay == nil {
+		env.Fake.DecisionReplay = decisionReplay
+	}
 	r := &Registry{res: res, env: env, factory: factory, log: log, ctl: fake.NewController(env.Fake)}
+	if r.env.DecisionRPM <= 0 {
+		r.env.DecisionRPM = 150
+	}
 	if r.env.DefaultRPM == 0 {
 		r.env.DefaultRPM = 60
 	}
@@ -119,7 +161,7 @@ func NewRegistry(res *llmconfig.Resolver, env EnvConfig, factory Factory, log *s
 
 // NewStaticRegistry dựng Registry chỉ-bộ-nhớ từ tuyến cho sẵn (không DB, không env) — dùng cho test và công cụ đo.
 func NewStaticRegistry(routes map[Task]Route) *Registry {
-	r := &Registry{ctl: fake.NewController(fake.Settings{})}
+	r := &Registry{ctl: fake.NewController(fake.Settings{DecisionReplay: decisionReplay})}
 	r.cur.Store(&regState{routes: routes})
 	return r
 }
@@ -129,7 +171,7 @@ func (r *Registry) SetRoute(t Task, rt Route) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	st := r.cur.Load()
-	next := &regState{routes: map[Task]Route{}, envOnly: st.envOnly, cheapest: st.cheapest}
+	next := &regState{routes: map[Task]Route{}, envOnly: st.envOnly, cheapest: st.cheapest, decide: st.decide}
 	for k, v := range st.routes {
 		next.routes[k] = v
 	}
@@ -284,6 +326,7 @@ func (r *Registry) build(ctx context.Context) (*regState, error) {
 				}
 			}
 		}
+		r.buildDecide(ctx, snap, st)
 		for taskName, rt := range snap.Routes {
 			var targets []Target
 			for _, e := range rt.Chain {
@@ -310,6 +353,9 @@ func (r *Registry) build(ctx context.Context) (*regState, error) {
 	envRoutes, err := r.envRoutes()
 	if err != nil {
 		return nil, err
+	}
+	if st.decide == nil && r.env.Provider == "fake" { // dev / test không DB: decision giả (D60 (6))
+		st.decide = &Target{ProviderID: "env:decision-fake", ProviderName: "Quyết định", Type: "decision", Model: FakeDecisionModel, RPM: r.env.DecisionRPM, TPM: r.env.DefaultTPM, P: fake.NewNamed(r.ctl, "env:decision-fake", "")}
 	}
 	for t, rt := range envRoutes {
 		if _, ok := st.routes[t]; !ok { // DB thắng; env chỉ lấp tác vụ chưa có tuyến
@@ -416,3 +462,84 @@ func (r *Registry) Watch(ctx context.Context, rdb *goredis.Client) {
 func PublishReload(ctx context.Context, rdb *goredis.Client) error {
 	return rdb.Publish(ctx, ReloadChannel, "1").Err()
 }
+
+// buildDecide chọn mô hình decision từ provider `decision` duy nhất đang bật (chỉ mục unique ở 00020): mô hình giả không cần khoá; mô hình thật cần
+// LLM_DECISION_ALLOW_REAL và khoá (bản ghi mã hoá, hoặc GEMINI_API_KEY khi bản ghi trống — không thêm bên xử lý dữ liệu).
+func (r *Registry) buildDecide(ctx context.Context, snap llmconfig.Snapshot, st *regState) {
+	for _, p := range snap.Providers {
+		if p.Type != "decision" || !p.Enabled {
+			continue
+		}
+		for _, m := range p.Models {
+			if m.Kind != "decision" || !m.Enabled {
+				continue
+			}
+			rpm, tpm := r.env.DecisionRPM, r.env.DefaultTPM
+			if p.RPMLimit != nil {
+				rpm = *p.RPMLimit
+			}
+			if p.TPMLimit != nil {
+				tpm = *p.TPMLimit
+			}
+			var pv provider.Provider
+			switch m.Model {
+			case RealDecisionModel:
+				if !r.env.DecisionAllowReal {
+					r.log.WarnContext(ctx, "provider decision chọn mô hình thật nhưng LLM_DECISION_ALLOW_REAL tắt: không gọi", "provider", p.Name)
+					continue
+				}
+				key := r.env.GeminiKey
+				if p.HasKey {
+					k, err := r.res.DecryptKey(ctx, p.ID)
+					if err != nil {
+						r.log.WarnContext(ctx, "khoá provider decision không đọc được, bỏ qua", "provider", p.Name)
+						continue
+					}
+					key = k
+				}
+				if key == "" {
+					continue // không có khoá: not_configured
+				}
+				base := r.env.DecisionBaseURL
+				if p.BaseURL != nil && *p.BaseURL != "" {
+					base = *p.BaseURL
+				}
+				pv = provider.NewDecision(provider.DecisionConfig{BaseURL: base, APIKey: key})
+			default:
+				pv = fake.NewNamed(r.ctl, p.ID.String(), "")
+			}
+			st.decide = &Target{ProviderID: p.ID.String(), ProviderName: p.Name, Type: p.Type, Model: m.Model, PriceIn: m.PriceIn, PriceOut: m.PriceOut, RPM: rpm, TPM: tpm, P: pv}
+			return
+		}
+	}
+}
+
+// ProbeDecision thử kết nối một mô hình decision bằng MỘT câu `noul` vô hại (POST …/providers/{id}/test). Bản giả: cục bộ, không mạng.
+// Bản thật chỉ khi LLM_DECISION_ALLOW_REAL (ngược lại llmconfig.ErrDecisionRealDisabled — không gọi mạng). key / baseURL rỗng → GEMINI_API_KEY / LLM_DECISION_BASE_URL.
+func (r *Registry) ProbeDecision(ctx context.Context, model, key, baseURL string) error {
+	if model != RealDecisionModel {
+		return nil
+	}
+	if !r.env.DecisionAllowReal {
+		return llmconfig.ErrDecisionRealDisabled
+	}
+	if key == "" {
+		key = r.env.GeminiKey
+	}
+	if key == "" {
+		return &provider.Error{Kind: provider.KindAuth}
+	}
+	if baseURL == "" {
+		baseURL = r.env.DecisionBaseURL
+	}
+	d, ok := provider.NewDecision(provider.DecisionConfig{BaseURL: baseURL, APIKey: key}).(provider.Decider)
+	if !ok {
+		return &provider.Error{Kind: provider.KindBadRequest}
+	}
+	_, err := d.Decide(ctx, provider.DecideOpts{Model: model, Input: "Xin chào", Questions: map[string]provider.DecideQuestion{
+		"q": {Type: provider.QuestionNoul, Instructions: "Đây có phải một lời chào không?"}}})
+	return err
+}
+
+// DecisionAllowReal cho biết bản thật có được phép không (LLM_DECISION_ALLOW_REAL).
+func (r *Registry) DecisionAllowReal() bool { return r.env.DecisionAllowReal }

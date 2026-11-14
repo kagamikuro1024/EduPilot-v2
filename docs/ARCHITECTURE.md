@@ -29,7 +29,7 @@ Không có tiến trình Python nào trong sơ đồ: D46 chốt gateway và wor
 | --- | --- | --- |
 | Go Gateway | `backend-go/cmd/gateway` | REST, SSE, auth, RBAC, nghiệp vụ và AI trong cùng tiến trình |
 | Go Worker | `backend-go/cmd/worker` | Consumer Redis Streams: `grading.jobs`, `mail.inbound`, `mail.outbox`, `reminder.jobs`, `reindex.jobs`, `heartbeat.rollup`; cron; retry 3 lần → dead-letter |
-| LLM Gateway + Scheduler | `internal/llm`, `internal/llm/scheduler` | `Chat`, `Stream`, `Structured(json_schema)`, `Embed` trên `openai-go`; registry provider theo base URL tương thích OpenAI; chọn model theo task từ DB; fallback; ghi `llm_audit`; bọc `mask`/`unmask`. Scheduler: ba làn ưu tiên, token bucket RPM/TPM trên Redis, semaphore, cầu dao, deadline từ `context.Context`, hàng chờ có giới hạn (back pressure), suy giảm sang trả lời trích xuất |
+| LLM Gateway + Scheduler | `internal/llm`, `internal/llm/scheduler` | `Chat`, `Stream`, `Structured(json_schema)`, `Embed` trên `openai-go`; registry provider theo base URL tương thích OpenAI; **`Decide` (D60) trên provider loại `decision` (`gemini-decision-1`, `POST /v1beta/decisions`, `net/http`) + `cascade.go`**; chọn model theo task từ DB; fallback; ghi `llm_audit`; bọc `mask`/`unmask`. Scheduler: ba làn ưu tiên, token bucket RPM/TPM trên Redis, semaphore, cầu dao, deadline từ `context.Context`, hàng chờ có giới hạn (back pressure), suy giảm sang trả lời trích xuất |
 | RAG | `internal/rag` | Chunk, embed, tìm lai vector + từ khoá bằng SQL trên pgvector; truy xuất tất định, không LLM trên đường nóng (D47) |
 | Agent | `internal/agent` | Định tuyến tất định theo ý định đã phân loại → tool Go → đúng một lần sinh chữ; tool dữ liệu cá nhân nhận danh tính từ trusted context. Không vòng lặp agent mở |
 | Blob | `internal/platform/blob` | Giao diện `Put/Get/PresignPut/PresignGet/Delete`; MinIO (dev, tự host) hoặc S3; DB chỉ lưu khoá object |
@@ -128,8 +128,9 @@ Mọi bảng: UUID, `created_at`, `updated_at`; bảng nghiệp vụ có `course
 | 00017 assignments | P7 | **Dạng cuối, một tệp, trong một giao dịch** (`proposals.md` sprint 9 #2 + TLR-11; chi tiết `docs/specs/FEAT-assignments/SRS.md` mục 5): `assignments(course_id, type ESSAY/QUIZ, title, description, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels text[], submission_code, reference_answer, rubric jsonb, teams_class_id, teams_assignment_id, published_at, version)` UNIQUE(course_id, id), UNIQUE(course_id, submission_code); `submissions(course_id, assignment_id NULL, student_id NULL, candidate_student_id, source, version, blob_key, extracted_text, extract_status, external_ref, external_ts, from_email, sender_verified, match_status, match_method, unmatched_reason, dismissed_*, submitted_at, received_at)` (không `is_late`/`late_days`: tính lúc chấm); `grading_results(course_id, submission_id, round, run_state QUEUED/RUNNING/DONE/FAILED, status DRAFT/REVIEWED/PUBLISHED, attempts, not_before, lease_*, criteria jsonb, total, ai_scores (bất biến), flags, needs_review (cột sinh), late_days, late_penalty, deviation, version)` UNIQUE(course_id, submission_id, round); `grade_appeals(course_id, assignment_id, student_id, result_id, criteria_ids, reason, status OPEN/UPHELD/ADJUSTED, score_before/after, response, decided_by, version)` UNIQUE(course_id, assignment_id, student_id) — **không** tạo `escalation_tickets` (TLR-3 A); `mail_inbound(course_id, uidvalidity, message_uid, status ACCEPTED/IGNORED/FAILED, reason, submission_id)`; `integration_configs(course_id, kind IMAP/SMTP/TEAMS, config_public, config_enc, enabled, state, last_ok_at, last_error, version)`. Mọi `id` `uuidv7()`; mọi FK phức hợp có `course_id`; **không** cột `assignments.grade_item_id` (liên kết ở `grade_items.assignment_id`, FK phức hợp thêm bằng `ALTER` có chủ ý); đúng hai `ALTER` có chủ ý: FK đó và `ALTER TYPE reminder_source ADD VALUE 'ASSIGNMENT'` |
 | (không có 00018) | – | Số `00018` **không dùng**: `integration_configs`, `mail_inbound`, `grade_appeals` gộp vào `00017` (`proposals.md` sprint 9 #2); giữ nguyên số `00019+` để khỏi đổi tham chiếu (như `00009`) — không tái dùng |
 | 00019 practice | P9 | `practice_attempts` (mode TOPIC/MOCK, `deadline_at` do máy chủ, `matrix`, `version`), `practice_items` (bản chụp câu `question` + `answer_key` + `option_order` lúc dựng đề), `practice_answers` (UNIQUE `item_id`, `locked`, `version`), `forms_import_batches` + `forms_import_rows` (nhập Forms, US-P9-11). Không tạo `practice_exams` / `assignment_id` (P-10-2); dùng `question_bank` của PE (+ `SHORT` / `ESSAY` ở ngân hàng, không ở bài thi); khoá chat khi làm bài thi tính điểm dùng Redis, không có bảng |
-| 00020 indexes_tuning | P10 | Index phức hợp bắt đầu bằng `course_id`; index HNSW cho `content_chunks.embedding`; index phục vụ báo cáo của P10 |
-| 00021 production | PR | `consents`, `retention_policies`, `data_requests(user_id, kind EXPORT/DELETE, status)`, `course_features(course_id, chat, thread_auto_answer, auto_grading)` |
+| 00020 decision | 10.5 (D60) | **Ngoại lệ có chủ ý cho `ALTER`**: yêu cầu mới, chưa biết lúc viết các migration trước; tiền lệ là `00015`. Nội dung theo `docs/specs/FEAT-decision-model/SRS.md` §5: `llm_providers.type` thêm `decision`, và chỉ được **một** provider `decision` đang bật (unique index một phần); `llm_models.kind` thêm `decision`; `llm_audit` thêm `cascade_gate` (`THREADS_PRECHECK` / `INJECTION_FLAG` / `CHAT_ROUTING`) và `cascade_path` (`FAST` / `FALLBACK` / `FAIL_CLOSED`), kèm index một phần `WHERE task = 'DECIDE'`; bảng mới `decision_gates` (cấu hình toàn hệ thống: `enabled`, `threshold`, `timeout_ms`, `version`) và `course_decision_gates` (bật theo lớp, khoá `(course_id, gate)`). Seed: model `decision-fake` và `gemini-decision-1`, cùng 3 hàng cổng đều tắt. **Không** thêm `DECIDE` vào `llm_task_routes` |
+| 00021 indexes_tuning | P10 | Index phức hợp bắt đầu bằng `course_id`; index HNSW cho `content_chunks.embedding`; index phục vụ báo cáo của P10 *(đổi số từ 00020 vì 10.5 chạy trước)* |
+| 00022 production | PR | `consents`, `retention_policies`, `data_requests(user_id, kind EXPORT/DELETE, status)`, `course_features(course_id, chat, thread_auto_answer, auto_grading)` *(đổi số từ 00021)* |
 
 **Nguyên tắc sở hữu bảng (D45): phase đầu tiên dùng bảng là phase tạo nó, ở dạng cuối cùng.** Số migration tăng dần theo thứ tự phase chạy, bắt đầu từ `00001` — không kế thừa đánh số của Project III; vì PE chèn sau P2 (D54), số của các phase sau lùi theo thứ tự thi công. Số từ `00012` trở đi (P4…PR) là **dự kiến**, đã dời sau sprint 6; số thật ghi ở `PROGRESS.md`. Đã dùng đến `00011`; `00009` bỏ trống có chủ ý. Khi thi công, ghi ánh xạ số thật ↔ hạng mục ở đây vào mục "Ánh xạ migration" trong `PROGRESS.md`.
 
@@ -194,7 +195,7 @@ Mọi API, kể cả nhóm chat/thread/document/analytics, theo quy ước này 
 
 Không còn gRPC và `shared-proto`: AI nằm trong cùng tiến trình Go, gọi bằng hàm chứ không qua mạng nội bộ.
 
-**Registry provider.** Mỗi dòng `llm_providers` là một cặp (base URL tương thích OpenAI, API key). `internal/llm` dựng một `openai-go` client cho mỗi provider; chọn model theo `llm_task_routes.task`, fallback theo `fallback_order`. Thêm provider = thêm một dòng trong bảng, không sửa code.
+**Registry provider.** Mỗi dòng `llm_providers` là một cặp (base URL tương thích OpenAI, API key). `internal/llm` dựng một `openai-go` client cho mỗi provider; chọn model theo `llm_task_routes.task`, fallback theo `fallback_order`. Thêm provider = thêm một dòng trong bảng, không sửa code. **Ngoại lệ có tên duy nhất (D60): loại `decision`**, chỉ cho `gemini-decision-1`. Loại này không đi qua `openai-go`: gọi `POST https://generativelanguage.googleapis.com/v1beta/decisions` bằng `net/http`, header `x-goog-api-key`, cấm SDK. Đường sinh chữ trên Mac (chủ dự án, 2026-11-14): `openai_compatible` → 9router `http://host.docker.internal:20128/v1`, model `ag/gemini-3.8-flash`, dự phòng là model khác của 9router. Khoá Gemini chỉ dùng cho `decision` và embedding (`gemini-embedding-001`).
 
 | Hàm `internal/llm` | Dùng cho |
 | --- | --- |
@@ -202,8 +203,29 @@ Không còn gRPC và `shared-proto`: AI nằm trong cùng tiến trình Go, gọ
 | `Stream(ctx, task, msgs, opts)` | Trả lời chat / thread: đúng một lần sinh chữ mỗi câu hỏi (D47), token đẩy thẳng ra SSE sau khi `unmask_stream` |
 | `Structured(ctx, task, msgs, jsonSchema, out)` | Mọi đầu ra có cấu trúc: chấm theo rubric, trích công thức điểm, sinh câu hỏi, báo cáo lỗ hổng kiến thức. Dùng `response_format: json_schema`; provider nào không hỗ trợ thì hạ xuống `json_object` + validate lại bằng schema, hỏng thì tính là lỗi provider và sang fallback |
 | `Embed(ctx, texts)` | Khoá 1536 chiều; từ chối model khác chiều |
+| `Decide(ctx, DecideRequest)` (D60) | Câu hỏi đóng noul / choice / score, trả xác suất, **0 token ra**. Ghi `llm_audit.task = 'DECIDE'`, nhưng **không** có tuyến trong `llm_task_routes`: dùng hàng provider `type = 'decision'` duy nhất đang bật, không chuỗi dự phòng; fallback nằm trong cascade. Đi cùng đường ống với `Structured`: che PII → giấy phép Scheduler (token bucket riêng `LLM_DECISION_RPM`) → `llm_audit` (`cascade_gate`, `cascade_path`) → cầu dao. **Chỉ** dùng ở ba cổng `THREADS_PRECHECK`, `INJECTION_FLAG`, `CHAT_ROUTING`. **Cấm**: khủng hoảng (regex, 0 lời gọi model), điểm, mức rubric, công thức, escalate |
+
+**Cascade (`internal/llm/cascade.go`, D60; đặc tả: `docs/specs/FEAT-decision-model/SRS.md` §4).**
+
+| Cổng | Policy (mặc định) | Phân vân / lỗi decision | Fallback cũng lỗi → `FAIL_CLOSED` |
+| --- | --- | --- | --- |
+| `THREADS_PRECHECK` | `AddOnly{ε = 0,05}`, `timeout_ms` 800 | LLM `Structured` qua 9router (`THREADS_STRUCTURED_TIMEOUT` 6 s) | **chặn** bài (không lưu), cảnh báo `DECISION_FAIL_CLOSED` |
+| `INJECTION_FLAG` | `AddOnly`, τ 0,5, `timeout_ms` 3.000, làn BATCH | cờ = regex OR `Structured` (P-11-9) OR decision | không thêm cờ; chấm vẫn xong |
+| `CHAT_ROUTING` | `Symmetric{τ = 0,95}`, `timeout_ms` 800 | **bộ định tuyến luật**, không gọi LLM (D47(1)) | giữ kết quả luật |
+
+- `llm_audit.cascade_path` ∈ `FAST` / `FALLBACK` / `FAIL_CLOSED`. Không có cột nội dung; không bảng nào lưu đầu vào / đầu ra của decision.
+- Hiệu lực(cổng, lớp) = `decision_gates.enabled` ∧ `course_decision_gates.enabled` ∧ provider `decision` sẵn sàng. Không có hàng nào thì **tắt**. Cấu hình đọc từ ảnh chụp trong bộ nhớ, làm mới bằng sự kiện `ep:decision:cfg` hoặc sau 60 s; không truy DB trên đường nóng. Mọi thay đổi ghi `audit_log`.
+- Gọi thật `gemini-decision-1` chỉ khi `LLM_DECISION_ALLOW_REAL = true`, và chịu trần `LLM_DECISION_REAL_DAILY_CAP` (300 lời gọi / ngày, UTC+7). Hết trần → fallback.
+- Thiết kế mã: `docs/sprints/10.5/techlead.md` TL-1 (đọc kèm ghi chú "SRS thắng"). Vận hành: `docs/guides/decision-model.md`.
 
 **Provider `fake`.** Một provider giả nằm trong `internal/llm`, bật bằng `LLM_PROVIDER=fake`: độ trễ và tỷ lệ lỗi cấu hình được, có chế độ phát lại (replay) các response đã ghi. Dùng cho CI, test tải và demo; CI không bao giờ gọi provider thật. Vì lớp tương thích OpenAI của mỗi provider mạnh yếu khác nhau, mỗi provider thật có một test hợp đồng đối chiếu với `fake`, chạy tay.
+
+**Decision giả: model `decision-fake` trên provider `type = 'decision'`, giá 0** (SRS §4.6).
+- Phát lại theo khoá `sha256(masked_input) + ":" + question_id`, đọc từ `internal/llm/testdata/decision-replay.json`.
+- Thiếu khoá → `noul = 0,25` (`fake.UnknownNoul`, P-105-1 Q3): dưới ngưỡng "có" 0,5 và trên ε của mọi cổng. Với `choice`, các nhãn chia đều (`confidence = 1/n`, dưới mọi τ). Cả hai đều là lưỡng lự, nên cascade luôn đi fallback. `FAKE_DECISION_PROB` (P-105-1 Q2) ghi đè giá trị này, chỉ cho câu không có trong bản phát lại.
+- Độ trễ log-chuẩn theo `LLM_DECISION_FAKE_P50_MS` / `_P95_MS` (426 / 682).
+- Lỗi theo `LLM_DECISION_FAKE_ERROR_RATE`; chế độ `LLM_DECISION_FAKE_MODE` = `error` / `timeout` / `always_yes` / `always_no` cho E2E.
+- Là mặc định ở dev / test / CI / seed / demo / eval, và không gọi mạng.
 
 **`docling-serve` (hợp đồng cho `internal/ingest`, chốt theo `docs/research/2026-10-10-docling-arm64.md` và `proposals.md` #7).** Container riêng, chỉ HTTP, không trạng thái; image dẫn xuất `infra/docling/Dockerfile` (`FROM docling-serve-cpu:v1.36.0@sha256:…` + `vie.traineddata` của Tesseract); thuộc profile compose `ingest` (`docker compose --profile ingest up -d docling`); `mem_limit: 3g`, `restart: unless-stopped`; env `DOCLING_SERVE_ENG_LOC_NUM_WORKERS=1`, `DOCLING_SERVE_LOAD_MODELS_AT_BOOT=false`, `DOCLING_SERVE_MAX_NUM_PAGES=400`, `DOCLING_SERVE_MAX_FILE_SIZE=52428800`.
 
@@ -287,6 +309,8 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 | `PGBOUNCER_URL`, `DB_MAX_CONNS` | Pool kết nối |
 | `LLM_MAX_CONCURRENCY`, `LLM_BATCH_SHARE`, `LLM_QUEUE_MAX` | Scheduler: luồng đồng thời, phần hạn mức tối đa cho làn BATCH (mặc định 0,5), độ dài hàng chờ INTERACTIVE |
 | `LLM_PROVIDER` (`fake` trên CI), `LLM_REQUEST_TIMEOUT`, `LLM_EMBED_DIMS` (1536) | `internal/llm`: provider mặc định khi bảng trống, thời hạn mỗi lời gọi, số chiều embedding khoá cứng |
+| `LLM_DECISION_TIMEOUT` (`800ms`), `LLM_DECISION_ALLOW_REAL` (`false`), `LLM_DECISION_REAL_DAILY_CAP` (`300`), `LLM_DECISION_RPM` (`150`), `THREADS_STRUCTURED_TIMEOUT` (`6s`) | D60 / `FEAT-decision-model` SRS §8. Thời hạn mặc định của `Decide` (cổng có `timeout_ms` riêng thì ghi đè). Gọi thật `gemini-decision-1` chỉ khi cờ `ALLOW_REAL` bật, và chịu trần lời gọi mỗi ngày (UTC+7). Token bucket riêng của provider `decision`. Hạn nhánh `Structured` của cổng Threads |
+| `LLM_DECISION_FAKE_P50_MS` (`426`), `LLM_DECISION_FAKE_P95_MS` (`682`), `LLM_DECISION_FAKE_ERROR_RATE` (`0`), `LLM_DECISION_FAKE_MODE` (`error` / `timeout` / `always_yes` / `always_no`, mặc định trống) | `decision-fake`: độ trễ log-chuẩn, tỉ lệ lỗi, chế độ ép cho E2E |
 | `DOCLING_URL` | Địa chỉ `docling-serve` cho `internal/ingest` (dev → `http://docling:5001`) |
 | `GRADING_WORKERS`, `INGEST_WORKERS` | Số consumer đồng thời |
 | `APP_PUBLIC_URL` | Deep link mail, ICS |
@@ -296,7 +320,7 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 | `GRAPH_BASE_URL`, `GRAPH_AUTH_URL`, `GRAPH_FILE_HOSTS`, `TEAMS_DOWNLOAD_PARALLEL` | Thật: `https://graph.microsoft.com/v1.0`, `https://login.microsoftonline.com`; `GRAPH_FILE_HOSTS` mặc định = host của `GRAPH_BASE_URL` (Graph thật: thêm host SharePoint); `TEAMS_DOWNLOAD_PARALLEL` = 4. Dev: `http://mock-graph:8090/v1.0`, `http://mock-graph:8090` |
 | `PII_NER_ENABLED` | ~~Tầng NER~~ — cắt theo D46 (không còn NER tiếng Việt); giữ tên biến làm chỗ mở rộng, mặc định tắt |
 | `SEED_ON_EMPTY_DB`, `SEED_DEFAULT_PASSWORD` | Seed |
-| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` | Chỉ dự phòng khi `llm_providers` trống |
+| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` | Chỉ dự phòng khi `llm_providers` trống. Trên Mac (2026-11-14): sinh chữ đi 9router (khoá 9router nằm trong `llm_providers`, mã hoá); `GEMINI_API_KEY` **chỉ** cho provider `decision` và embedding. Môi trường thật dùng gói **trả phí** (`PRODUCTION_READINESS.md` §1) |
 
 ## 9. Seed (`scripts/seed.mjs`, idempotent, gọi API thật theo đúng luồng: Admin mở lớp → gán giảng viên → sinh viên vào lớp)
 

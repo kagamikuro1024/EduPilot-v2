@@ -33,6 +33,8 @@ type AuditRow struct {
 	UserID, CourseID            *uuid.UUID
 	TraceID                     string
 	At                          time.Time
+	// CascadeGate / CascadePath chỉ có ở lời gọi DECIDE (nhãn cổng + đường đi; không nội dung).
+	CascadeGate, CascadePath string
 }
 
 // AuditWriter ghi một lô; mặc định là COPY vào Postgres.
@@ -168,6 +170,12 @@ func PGWriter(db store.DBTX) AuditWriter {
 			}
 			if r.ErrorKind != "" {
 				p.ErrorKind = &r.ErrorKind
+			}
+			if r.CascadeGate != "" {
+				p.CascadeGate = &r.CascadeGate
+			}
+			if r.CascadePath != "" {
+				p.CascadePath = &r.CascadePath
 			}
 			ps = append(ps, p)
 		}

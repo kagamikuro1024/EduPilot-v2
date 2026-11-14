@@ -7,7 +7,8 @@ select * from llm_providers order by created_at, id;
 select * from llm_providers where id = $1;
 
 -- name: CountLLMProviders :one
-select count(*) from llm_providers;
+-- Hạn mức 20 không tính nhà `decision` (hệ thống tự seed, 00020): thêm nhà chat không bị chiếm chỗ.
+select count(*) from llm_providers where type <> 'decision';
 
 -- name: InsertLLMProvider :one
 insert into llm_providers (id, type, name, base_url, api_key_enc, enabled, rpm_limit, tpm_limit, last_test_ok, last_test_at, last_test_error)
@@ -146,8 +147,8 @@ select to_char(created_at at time zone 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD') as key,
 -- Ghi llm_audit theo lô bằng COPY — cổng llm ghi bất đồng bộ, một lần cho cả lô.
 -- name: InsertLLMAudit :copyfrom
 insert into llm_audit (task, lane, provider, model, tokens_in, tokens_out, latency_ms, queue_wait_ms, attempts, fallback_index,
-                       cost_est, status, error_kind, degraded, pii_masked_count, user_id, course_id, trace_id, created_at)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
+                       cost_est, status, error_kind, degraded, pii_masked_count, user_id, course_id, trace_id, created_at, cascade_gate, cascade_path)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21);
 
 -- Ngân sách: tổng chi phí thực tế từ llm_audit để đối soát bộ đếm Redis.
 -- name: LLMCostSum :one

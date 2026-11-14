@@ -74,13 +74,15 @@ Rà từng luồng theo câu hỏi "một trường dùng thật thì chỗ nào
 ### F3. Hỏi riêng tư
 1. Sinh viên gõ câu hỏi trong `/chat` (lớp đang chọn) → 2. gateway gắn `trusted_context` từ phiên → 3. che tên / MSSV → 4. phân loại ý định + guardrails → 5. agent gọi tool cá nhân hoặc RAG → 6. tính độ tin cậy → 7. stream câu trả lời đã khôi phục placeholder → 8. sinh viên bấm Hữu ích / Không hữu ích / `Nhờ giảng viên hỗ trợ`.
 - **Nhánh:** dưới ngưỡng → F5. Hệ thống quá tải → thông báo thời gian chờ + thử lại. Mọi LLM chết → trả lời trích xuất + nhãn. Công thức điểm chưa xác nhận mà hỏi cách tính điểm → nói rõ chưa có thông tin chính thức + F5. Hỏi về người khác → từ chối + ghi log. Mất mạng giữa chừng → tải lại vẫn thấy phần đã sinh.
+- **Định tuyến ý định có decision (sprint 10.5; cờ mặc định tắt):** bước 4 vẫn bắt đầu bằng luật tất định. Chỉ khi luật không khớp ý định cụ thể (rơi về hỏi đáp môn) mới hỏi decision model, **song song** với lần nhúng duy nhất; độ tin cậy ≥ ngưỡng thì dùng nhãn của decision, dưới ngưỡng hoặc decision lỗi / hết hạn thì **giữ kết quả luật**. Luật ý định cụ thể và tin khủng hoảng **không bị ghi đè**. Không thêm lời gọi sinh chữ; sự kiện SSE đầu không đổi (sơ đồ ở «Decision cascade» dưới F19).
 - **Liêm chính học thuật:** câu hỏi trùng nội dung bài tập đang mở → chỉ gợi ý kiểu Socratic, không đưa lời giải. Đang trong phiên làm bài QUIZ tính điểm → chat từ chối câu hỏi nội dung, chỉ trả lời câu hỏi thủ tục (xem F12).
-- **An toàn con người:** tin nhắn cho thấy sinh viên đang khủng hoảng hoặc có ý tự hại → AI không tư vấn chuyên môn, trả lời ngắn gọn ân cần, đưa thông tin hỗ trợ do trường cấu hình (phòng công tác sinh viên / đường dây hỗ trợ), và gợi ý nói chuyện với giảng viên. Không tự động báo cho ai nếu sinh viên không đồng ý, trừ khi trường có chính sách khác được ghi rõ trong thông báo quyền riêng tư.
+- **An toàn con người:** tin nhắn cho thấy sinh viên đang khủng hoảng hoặc có ý tự hại → **chỉ luật tất định xử lý, tin này không rời máy chủ (không decision, không LLM)**; AI không tư vấn chuyên môn, trả lời ngắn gọn ân cần, đưa thông tin hỗ trợ do trường cấu hình (phòng công tác sinh viên / đường dây hỗ trợ), và gợi ý nói chuyện với giảng viên. Không tự động báo cho ai nếu sinh viên không đồng ý, trừ khi trường có chính sách khác được ghi rõ trong thông báo quyền riêng tư.
 - **Quyền của sinh viên với hội thoại:** xoá phiên chat của mình (xoá mềm, xoá hẳn theo chính sách giữ dữ liệu); xuất dữ liệu cá nhân (PR).
 - **E2E:** `private-chat.spec.ts`.
 
 ### F4. Hỏi bài công khai
 1. Soạn bài ở `/threads` → kiểm PII khi đang gõ → 2. bấm đăng → tường lửa; có nội dung cá nhân → hộp thoại hai lối → 3. bài được lưu → 4. AI trả lời kiểu Socratic kèm nguồn, ghi `Chờ xác nhận` → 5. giảng viên / TA nhận thông báo (gộp) → `Xác nhận` / `Chỉnh sửa` / `Loại` → 6. tri thức đã sửa nạp lại vector DB → 7. **người đăng được báo** khi có câu trả lời và khi câu trả lời được xác nhận.
+- **Tường lửa có decision (sprint 10.5; cờ mặc định tắt):** ở bước 2 luật tất định (regex, roster, mẫu câu, embedding) chạy trước và giữ nguyên. Phần luật cho qua được hỏi thêm decision «có phải câu hỏi riêng tư / nêu tên người cụ thể»; chỉ **thêm** chặn, **không bao giờ gỡ** chặn của luật; vùng lưỡng lự → LLM `Structured`. Bài bị chặn đi hộp thoại hai lối như cũ. Decision lỗi / hết hạn → xuống LLM `Structured`; LLM cũng lỗi → **chặn** (fail-closed) và hiện hộp thoại hai lối; kết quả luật không bao giờ bị mất. Đang gõ (precheck) và lúc chuyển sang kênh riêng không gọi decision. Bài khủng hoảng vẫn do luật xử lý trước và không tới decision.
 - **Kiểm duyệt:** ai cũng `Báo cáo` được một bài (lý do chọn sẵn) → việc cho giảng viên; giảng viên / TA `Ẩn bài` (người đăng thấy lý do); sinh viên sửa / xoá bài của mình (sửa thì chạy lại tường lửa); 3 báo cáo → tự ẩn chờ duyệt.
 - **Nhánh:** AI không đủ tin cậy → không tự trả lời, chỉ báo giảng viên. Bài bị `Loại` → biến mất với sinh viên và khỏi RAG.
 - **E2E:** `threads.spec.ts`.
@@ -108,6 +110,7 @@ Rà từng luồng theo câu hỏi "một trường dùng thật thì chỗ nào
 ### F9. Bài tập: tạo → nộp → chấm → công bố
 1. Giảng viên tạo bài ở **Chấm bài → tab Bài tập**: tiêu đề, mô tả, hạn, loại (ESSAY / QUIZ), cho nộp muộn + quy tắc trừ, thành phần điểm liên kết, đáp án chuẩn, rubric (AI gợi ý), kênh nhận bài cho phép → 2. công bố bài → sự kiện lịch + việc trên "Hôm nay" của sinh viên → 3. **sinh viên nộp trong app** ở `/assignments/[id]` (kéo thả file, thấy xác nhận + dấu thời gian + nộp lại được trước hạn); hoặc bài về qua Mail / ZIP / Forms / Teams → 4. khớp sinh viên → 5. `grading.jobs` làn BATCH → kết quả nháp → 6. giảng viên duyệt cạnh nhau → `Duyệt bài` → 7. `Công bố` (TEACHER) → sổ điểm + mail nhận xét + sinh viên thấy điểm, nhận xét theo tiêu chí, bằng chứng trích từ bài mình ở `/assignments/[id]`.
 - **Nhánh:** nộp sau hạn → LATE + trừ theo quy tắc, hoặc bị chặn nếu bài không cho nộp muộn; file sai loại / quá cỡ → báo ngay trước khi tải; không khớp sinh viên → hàng Chưa khớp; AI gắn cờ → lên đầu hàng chờ; worker chết giữa chừng → việc được nhận lại, không chấm đôi; sinh viên KHÔNG BAO GIỜ thấy điểm nháp.
+- **Cờ chèn lệnh có decision (sprint 10.5; cờ mặc định tắt):** ở bước 5, cờ `INJECTION_SUSPECTED` = regex **OR** `Structured` (gộp vào hai lượt chấm) **OR** decision (làn BATCH, bài đã che, bài ≥ 20 từ). Chỉ gắn cờ + tô câu nghi; **không đổi điểm**, không xoá chữ khỏi đầu vào, không chặn việc chấm. Bài trống / ngắn không gọi. Decision lỗi / hết hạn → tầng này vắng, cờ theo hai tầng còn lại; chấm vẫn hoàn tất. Sinh viên không thấy cờ.
 - **E2E:** `assignment-lifecycle.spec.ts`.
 
 ### F10. Sổ điểm
@@ -173,3 +176,25 @@ Yêu cầu của thầy hướng dẫn (D54–D57). Điểm do **máy chấm** (
   - **Mạng / máy chủ khởi động lại giữa giờ thi:** đồng hồ không đổi (tính từ DB); tải lại trang quay đúng câu đang làm.
 - **Liêm chính (không phải giám thị):** khoá chat AI trong giờ làm bài (`ep:exam_lock`), một lượt làm, xáo câu / đáp án, đáp án chỉ hiện sau khi cả lớp đã đóng, log rời tab / dán (chỉ Giảng viên), so độ giống mã sau khi đóng (chỉ gợi ý, không gửi mã ra ngoài). Nói rõ với sinh viên ở màn bắt đầu.
 - **E2E:** `exam.spec.ts` (trắc nghiệm + code, mất mạng giữa chừng, hết giờ tự nộp, xem điểm sau khi đóng, hai tab, rò đáp án).
+
+## Decision cascade (dùng chung F3, F4, F9) — sprint 10.5, P-11-10 / P-11-11
+`gemini-decision-1` là lớp **thêm** xác suất, không bao giờ là cổng duy nhất, **không dùng cho điểm, mức rubric, escalate**; ba cổng: định tuyến chat (F3), tường lửa Threads (F4), cờ chèn lệnh (F9). Mọi cờ mặc định tắt; chỉ dữ liệu đã che; chạy thật khi PM cho phép.
+```mermaid
+flowchart TD
+  I[Tin / bài / bài nộp] --> K{Khủng hoảng?}
+  K -- có --> C[Chỉ luật tất định: không decision, không LLM]
+  K -- không --> R[Luật tất định chạy trước]
+  R --> D[Decision model - Scheduler, đã che]
+  D -->|đủ tin cậy| F[Dùng kết quả decision - FAST]
+  D -->|vùng lưỡng lự| L[LLM Structured hoặc giữ luật - FALLBACK]
+  D -->|lỗi / hết hạn / 400 safety| L
+  L -->|lỗi| X[Fail-closed theo cổng - FAIL_CLOSED]
+```
+| Cổng | Decision hỏi | Đủ tin cậy / lưỡng lự | Fallback | Cả hai lỗi |
+| --- | --- | --- | --- | --- |
+| F3 định tuyến chat | nhãn ý định (khi luật rơi về mặc định) | ≥ ngưỡng → dùng nhãn | giữ kết quả luật (không LLM) | giữ kết quả luật |
+| F4 tường lửa Threads | «riêng tư / nêu tên người» | chỉ thêm chặn; «không» chỉ nhận khi xác suất «có» ≤ ε | LLM `Structured` | **chặn** |
+| F9 cờ chèn lệnh | «bài nộp có chèn lệnh» | chỉ thêm cờ | cờ theo `Structured` (gộp lượt chấm) và regex | cờ theo các tầng còn lại; lỗi không tự gắn cờ (vẫn không đổi điểm) |
+
+**Nhánh lỗi chung:** decision lỗi, hết hạn (theo cổng: `timeout_ms` 800 ms cho chat / Threads, 3 s cho chèn lệnh), hết hạn mức (429), khoá trống, lọc an toàn `400` → coi như «không đủ tin cậy» và đi fallback; không thử lại trên đường chat; chat và việc chấm không treo. Mỗi lần ghi `Path` (`FAST` / `FALLBACK` / `FAIL_CLOSED`) vào nhật ký LLM để Admin xem tỉ lệ ở `/observability`; tỉ lệ `FAIL_CLOSED` cao bất thường → chuông Admin («Quyết định nhanh»).
+**E2E:** `cascade.spec.ts` (provider `fake`: decision lỗi → fallback; cả hai lỗi → chặn Threads; tin khủng hoảng không có lời gọi decision), `TestCascadeThreadsHTTP` (HTTP thật + Postgres, nhánh a, b, c, f + `cascade_path`); chi tiết `docs/specs/FEAT-decision-model/US.md`.

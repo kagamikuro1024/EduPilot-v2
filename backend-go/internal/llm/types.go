@@ -42,12 +42,14 @@ const (
 	TaskQuestionGen Task = "QUESTION_GEN"
 	TaskInsight     Task = "INSIGHT"
 	TaskEmbedding   Task = "EMBEDDING"
+	// TaskDecide là lời gọi decision model (D60): không sinh chữ, không có tuyến trong llm_task_routes (provider `decision` duy nhất).
+	TaskDecide Task = "DECIDE"
 )
 
 // DefaultLane là làn mặc định của tác vụ (SRS 4.3).
 func DefaultLane(t Task) Lane {
 	switch t {
-	case TaskChat:
+	case TaskChat, TaskDecide:
 		return LaneInteractive
 	case TaskClassify, TaskUtility:
 		return LaneNearRealtime
@@ -131,12 +133,13 @@ type EmbedRequest struct {
 	System bool
 }
 
-// Client là cổng LLM: đúng bốn hàm.
+// Client là cổng LLM: đúng năm hàm (D60 thêm Decide).
 type Client interface {
 	Chat(ctx context.Context, r Request) (Response, error)
 	Stream(ctx context.Context, r Request) (<-chan Chunk, error)
 	Structured(ctx context.Context, r Request, schema json.RawMessage) (json.RawMessage, error)
 	Embed(ctx context.Context, r EmbedRequest) ([][]float32, error)
+	Decide(ctx context.Context, r DecideRequest) (DecideResponse, error)
 }
 
 // EmbedDims là số chiều vectơ cố định của hệ thống.
