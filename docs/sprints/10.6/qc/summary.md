@@ -32,11 +32,40 @@ Nhánh `sprint/10.6-guidance`, HEAD kiểm `b9a3bdd5` (L1–L6 + sửa GD-BUG-4/
 | GD-BUG-12 seed demo không nạp nháp lưu ý mẫu | Thấp | **đã sửa** (`975f9541`), kiểm lại PASS trên bản sao DB |
 | Ghi nhận | – | (1) `regrade-stale` của bài tập lớp khác khi cờ lớp đó tắt → `409` trước `404`. (2) Lưu ý một ký tự duyệt được. (3) Đầu ra `reflect` vi phạm schema strict → job `FAILED` và mở cầu dao `GRADING` ~30 s (chấm bài cùng route bị chặn). (4) Q-S106-16 đã giải quyết bằng `regression_cases` ở `stats` (P-106-10) |
 
+## Kiểm lại sau kiểm chứng KC106 (P-106-10…14, HEAD `86defde6`, lớp 761987 — không đụng KC106)
+Tệp TC: `tc-P106-11-12-UX.md`. Stack `ep-qc`: DB giữ, frontend dựng lại ở `86defde6` với **env QC** (`NEXT_PUBLIC_API_URL=http://localhost:580`, 3 tệp compose, override Caddy http) — lần dev build trước dùng env mặc định làm trình duyệt giaovien mất phiên sau tải lại (đã báo PM, đã sửa). Route `GRADING` = 9router thật (không stub); dữ liệu thử: `seed-guidance` + `grade-all` thật (8 bài) + `Chấm lại` thật (8 bài) + 1 `Rút lưu ý` thật. Script `scripts/gd_i.py`, `frontend/e2e/qc-gd-ux-real.spec.ts`, ảnh `shots-ux/`.
+
+| Mục | Kết luận | Căn cứ |
+| --- | --- | --- |
+| P-106-11 PII «dấu là tập con» | **PASS** | Go `TestRosterDiacriticSubset` PASS; stack Threads (roster «Vũ Minh Long»): 7 cụm dương tính giả không bị chặn; «Vu Minh Long», «vũ minh long», «VŨ MINH LONG» → `422 PII_DETECTED`; «Vụ Minh Long» (khác dấu) không chặn |
+| P-106-12 cụm miễn từ khoá | **PASS** | Go `TestReflectKeywordExempt` (mẫu QC, dev thêm đúng nội dung) + `TestReflectDroppedByCriterion` PASS; stack `decide` dùng cùng hàm: 3 chữ miễn → `200`, 3 chữ cấm («tính tổng điểm», «tổng quát nhưng … tổng điểm», «trừ khi nộp muộn…») → `422 GUIDANCE_TEXT_REJECTED` |
+| P-106-13 `dropped` = mảng + một dòng | **PASS** (kèm GD-BUG-13) | job `reflect` thật: `result={drafts, dropped:[{criterion_id,reason,count}]}`, đúng schema, không chữ; UI đúng MỘT dòng «1 lưu ý bị loại» (không tiêu chí / lý do), mất khi job mới |
+| P-106-14 đua refresh / đăng nhập | **PASS** | `account.spec.ts` (e2e dev) 54 pass; **đối chứng QC**: đổi `authSession.ts` về `7d4f8fd6` → 2 test «login lần đầu … SAU khi đăng nhập xong» **đỏ**, về `86defde6` → xanh (test phân biệt được lỗi). Mô phỏng đua thật trên stack (cookie `ep_rt` cũ + refresh trễ 0 / 1,5 / 4 s, 12 lượt): 12/12 vào được và ở lại; **bản cũ cũng 12/12** → mô phỏng này không tái hiện lỗi, bằng chứng chính là e2e mock của dev |
+| UX S2-1 | **PASS** | DRAFT = 0, còn 8 bài chưa chấm: mở `/grading` tự chuyển «Chưa chấm» (8 bài), không «Chưa có bài nộp»; chọn BT03 + «Chưa duyệt» (rỗng) → «Chấm tất cả» **bấm được** |
+| UX S2-2 | **PASS** | tab Bài tập «Đã nộp 16 / 30», SQL 16 sinh viên có bài MATCHED (17 bài, 1 sinh viên nộp hai lần) |
+| UX S2-3 | **PASS** | hàng chờ hiện «8 bài» (dạng «N+ bài» khi còn trang: chưa kiểm) |
+| UX a | **PASS** | 3 / 3 lần: gõ nhận xét rồi bấm «Duyệt bài» ngay → duyệt lần bấm đầu, DB `REVIEWED`, nhận xét đã lưu |
+| UX b, c | **PASS** | sang bài kế kèm «Đã duyệt bài trước · Quay lại»; bộ đếm «Đã duyệt 0/9 → 1/9 → 2/9 → 3/9», mẫu số cố định |
+| UX d | **PASS một phần** | «Cần xem kỹ» không tự bật lại. **Ghi nhận (Thấp):** bộ lọc «Bài tập» của hàng chờ **mất khi rời route** rồi vào lại (trạng thái giữ); đổi tab Hàng chờ ↔ Bài tập thì giữ |
+| UX f, g | CHƯA KIỂM trên stack | nhánh cần lưu ý nháp (không còn nháp); dev e2e (`grading-guidance.spec.ts`) PASS |
+| UX h, i | **PASS** | ngăn lưu ý: «đổi điểm 25%», «8 bài đổi điểm», «Bản v0 · 5 bài đã duyệt · … đổi điểm 25%», «Bản v2 (đang dùng) · chưa đủ bài đã duyệt để đo» |
+| UX j | **PASS** | 4 liên kết thật `…?tab=assignments&open=<id>`; chuột giữa mở tab mới; bấm thường mở ngăn |
+| UX k | **PASS một phần** | «Chấm lại» hiện thanh «Đang chấm 1/8 bài» + «Đã xếp 8 bài chấm lại»; **dòng báo xong chưa quan sát** (dev e2e có) |
+| UX l, n | **PASS** | «Công bố» luôn thấy, khoá kèm lý do «Chọn bài đã duyệt.»; hộp: «Công bố 5 bài · 5 sinh viên nhận thư · không tính vào sổ điểm (bài chưa gắn vào cột điểm) · 5 bài đã duyệt chấm theo bản lưu ý cũ, vẫn công bố được» + «Để sau» / «Công bố» + nút đóng có tên «Đóng» |
+| UX m | **FAIL (Thấp) — GD-BUG-13** | `Rút lưu ý` ra 0 nháp (1 bị loại): ngăn chỉ hiện «1 lưu ý bị loại», **không** «Không có lưu ý mới» (SRS AC8) và không báo xong. Nguyên nhân (mã `GuidancePanel.tsx:268`): `d.counts.draft === 0` nhưng API bỏ khoá `draft` khi 0 nháp → `undefined === 0` sai; thêm chữ khác SRS: «Không có lưu ý mới đủ chắc.» |
+| UX o | CHƯA KIỂM trên stack | cần hai phiên đồng thời; dev e2e PASS |
+
+**Gate:** `-run` không rỗng — các tên mới PASS (`TestReflectKeywordExempt`, `TestReflectDroppedByCriterion`, `TestRosterDiacriticSubset`, `TestListCountsAnySource`, `TestSeedGuidancePublishesFlag`, `TestRejectDefaultsUnspecified`, `TestGuidanceStatsRegressionCases`); `contract` PASS (`-tags testroutes`; một lần đỏ khi chạy song song với test container khác, lần chạy riêng xanh). Test dev chỉ đổi theo hình dạng mới (`Dropped.Count("pii")`…), không nới; `account` / `grading-guidance` / `assignment-lifecycle` / `thread-suggest` / `question-hints`: **117 pass**, 77 bỏ theo thiết kế (mobile / dự án), 0 `test.skip` mới; hai assertion bị thay đều do đổi spec (l: nút «Công bố» luôn thấy; n: thêm «vẫn công bố được»).
+
+**Ghi nhận cho Nợ 10.7 (PM):** `responsive` (landing) axe `color-contrast` chập chờn ~50 % cả trước sửa — không nới test, xử lý khi đổi bộ màu. Persona-eval (P-11-12): xem `docs/sprints/11/qc/persona-poc-triage.md` khi hoàn tất (mục C1, C2, C7, C8 tái hiện được ở bản `c183c3a4`; C2 «đổi tab mất lọc» đã hết ở `7d4f8fd6`+).
+
+**Tổng sau kiểm lại: 11 / 11 story giữ PASS; P-106-11, 12, 13, 14 PASS; UX S2-1…3, a, b, c, h, i, j, l, n PASS; d, k một phần; f, g, o chưa kiểm trên stack (dev e2e xanh); lỗi mới GD-BUG-13 (Thấp, UX m).**
+
 ## Hoãn / chưa kiểm
 Hoãn (PM): `benchmarks/guidance/run.sh`, `cmd/regress run` / `evaluate` thật, `regress export` (chờ phép), nhãn E3, smoke hồi quy toàn bộ (đợt R). Chưa kiểm: G02-14, G03 biên (5 / 3 / 0,49 / 0,50, QUIZ, 60 ca), G05 (250 nháp, round 20, kill worker), G06 UI + hiệu năng, G08 ngưỡng cosine + fixture thread, G09 khối «Tránh…» trên stack, G11-05 / 08.
 
 ## Trạng thái stack
-`ep-qc` giữ ở `975f9541` (gateway / worker / frontend dựng lại, DB giữ nguyên nhưng **bẩn**: lưu ý v0…v4, 4 nháp đã duyệt / loại, 2 ca hồi quy, route `GRADING` trỏ **stub QC** cổng 8777). Muốn kiểm chứng giaovien sạch → dựng lại DB + seed (≈ 9 phút) rồi trả route về mặc định.
+`ep-qc` ở `86defde6` (frontend dựng lại; gateway / worker từ build `7d4f8fd6` của dev, recreate với env QC), http://localhost:580, route chữ → 9router. DB đang chứa KC106 (không đụng) + dữ liệu thử QC trên 761987 (lưu ý v0…v2, 3 luồng thread «QC kiểm PII», `grade-all` / `Chấm lại` thật). Dọn khi PM báo.
 
-## Đang dở (tạm dừng 2026-11-14)
-Không có việc dở. `ep-qc` sạch ở `c183c3a4`, route chữ → 9router, URL `http://localhost:580`, hướng dẫn `~/kc-giaovien/TRUY-CAP.md`; chờ dev nạp lớp KC106. Còn gác: đợt R (smoke hồi quy F1–F19), TC sprint 11 pha 2.
+## Đang dở
+Không việc dở cho 10.6. Gác: audit 10.7 (`docs/sprints/10.7/qc/`: spec `qc-ui-audit-real.spec.ts` + `scripts/audit_report.py` đã soạn, chưa chạy đủ), triage persona-eval (`qc-persona-triage-real.spec.ts`: GV xong, phần SV chưa), đợt R.
