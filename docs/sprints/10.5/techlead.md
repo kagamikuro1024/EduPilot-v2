@@ -2,6 +2,16 @@
 
 ## TL-1 (D60, P-11-10, P-11-11): thiết kế mã chi tiết cho decision model + cascade
 
+> **Ưu tiên (2026-11-14, sau khi BA chốt `docs/specs/FEAT-decision-model/SRS.md`):** chỗ nào TL-1 khác SRS thì **SRS thắng**. Các chỗ khác đã biết:
+> - Tên cổng là `THREADS_PRECHECK` / `INJECTION_FLAG` / `CHAT_ROUTING`, và `cascade_path` có thêm `FAIL_CLOSED`.
+> - Công tắc nằm ở bảng `decision_gates` + `course_decision_gates`, không phải cột `courses.decision_*`. Ngưỡng và `timeout_ms` đặt theo từng cổng trong `decision_gates`, không nằm ở `llm_task_routes.params`.
+> - **Không** có tuyến `DECIDE` trong `llm_task_routes`: dùng provider `type='decision'` duy nhất đang bật.
+> - `decision-fake` là model trên provider `decision`, không phải `type='fake'`. Nó phát lại từ `internal/llm/testdata/decision-replay.json`; thiếu khoá thì lưỡng lự và đi fallback, không trả giá trị trung tính 0,01. Env của nó là `LLM_DECISION_FAKE_*`, thay cho `FAKE_DECISION_LATENCY`.
+> - Gọi thật cần thêm `LLM_DECISION_ALLOW_REAL`, `LLM_DECISION_REAL_DAILY_CAP`, `LLM_DECISION_RPM`.
+> - Threads `FAIL_CLOSED` hiện hộp thoại chặn, không trả 503.
+>
+> ARCHITECTURE / SYSTEM_DESIGN / D60 / guide đã theo SRS.
+
 PM giao (2026-11-14): thiết kế mã chi tiết cho dev. Gồm gói, tệp, hàm, giao diện `Decide()`, schema `createDecision`, timeout 800 ms, làn + token bucket, `llm_audit`, provider giả có độ trễ cấu hình được, cách gộp vào chat / Threads / grading, và các test cần có.
 
 Nguồn đã chốt: D60 + D47(2) (`docs/DECISIONS.md`), `docs/research/poc/jev-decision/cascade.md` (ngưỡng), P-11-10, P-11-11, plan 10.5. Số đo thật chỉ có ở PoC ngày 14/11; mọi việc trong sprint này chạy bằng provider giả, trừ khi PM cho phép (luật chạy của plan).

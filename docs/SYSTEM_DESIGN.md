@@ -87,11 +87,11 @@ Quyết định kiến trúc (và cái bị từ chối):
   - `Decide` đi qua Scheduler như mọi lời gọi, trên **token bucket riêng** của provider `decision`, vì Google tính hạn mức theo model.
   - Làn: `INTERACTIVE` cho định tuyến chat và Threads precheck; `BATCH` cho cờ chèn lệnh.
   - Decision **không** tiêu suất sinh chữ (0 token ra).
-  - Quá `LLM_DECISION_TIMEOUT` (800 ms), lỗi, lọc an toàn (`KindBlocked`) hay cầu dao `decision` mở → cascade đi đường fallback:
+  - Quá thời hạn của cổng (`timeout_ms`, mặc định `LLM_DECISION_TIMEOUT` 800 ms), lỗi, lọc an toàn (`KindBlocked`), hết giấy phép `LLM_DECISION_RPM`, hết trần ngày hay cầu dao `decision` mở → cascade đi đường fallback:
     - chat: về luật;
-    - Threads precheck: về `Structured` qua 9router; nếu `Structured` cũng lỗi → **fail-closed** (503, bài không được lưu, plan 10.5);
+    - Threads precheck: về `Structured` qua 9router (`THREADS_STRUCTURED_TIMEOUT` 6 s). Nếu `Structured` cũng lỗi → `FAIL_CLOSED`: **chặn** bài, không lưu, hiện cùng hộp thoại như khi bị chặn thường, và phát cảnh báo `DECISION_FAIL_CLOSED`;
     - cờ chèn lệnh: bỏ qua lớp decision.
-  - Mỗi cổng có công tắc theo lớp (`courses.decision_*`, mặc định tắt). Cổng tắt thì luồng đúng như trước D60.
+  - Bật / tắt: `decision_gates` (toàn hệ thống) ∧ `course_decision_gates` (theo lớp), mặc định tắt. Đọc từ ảnh chụp trong bộ nhớ, không truy DB trên đường nóng. Cổng tắt thì luồng đúng như trước D60.
 
 **Đường nóng hỏi–đáp theo D47 (sửa theo D60, 2026-11-14).** Luật tốc độ chốt ở `DECISIONS.md` D47 ràng buộc phần này và `internal/rag`/`internal/agent`. Thứ tự xử lý một tin nhắn:
 1. Phát `received` (≤ 300 ms, trước mọi bước phân loại; `chat/gen.go`).
