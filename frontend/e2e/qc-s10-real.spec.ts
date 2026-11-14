@@ -1,4 +1,5 @@
-import { test, expect, type Page, type Browser } from "@playwright/test";
+import { writeFileSync } from "node:fs";
+import { test, type Page, type Browser } from "@playwright/test";
 
 test.skip(!process.env.QC_REAL, "cần stack thật ep-qc: QC_REAL=1 playwright test -c playwright.qc10.config.ts");
 
@@ -63,7 +64,7 @@ for (const w of [1440, 375]) {
     await page.screenshot({ path: `${OUT}/mock-${w}.png` }); await layout(page, "mock câu 1", notes);
     await pick(page); await page.waitForTimeout(1500);
     await page.screenshot({ path: `${OUT}/mock-saved-${w}.png` });
-    require("fs").writeFileSync(`${OUT}/notes-sv-${w}.txt`, notes.join("\n"));
+    writeFileSync(`${OUT}/notes-sv-${w}.txt`, notes.join("\n"));
     await ctx.close();
   });
 }
@@ -81,6 +82,6 @@ test("GV /questions + sổ điểm Forms 1440", async ({ browser }, info) => {
   await page.keyboard.press("Escape");
   await page.goto("/gradebook"); await page.waitForTimeout(1500);
   await page.screenshot({ path: `${OUT}/gradebook-1440.png` });
-  require("fs").writeFileSync(`${OUT}/notes-gv.txt`, notes.join("\n"));
+  writeFileSync(`${OUT}/notes-gv.txt`, notes.join("\n"));
   await ctx.close();
 });
