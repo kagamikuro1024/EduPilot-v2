@@ -38,9 +38,9 @@ func (d *testDecider) Cascade(ctx context.Context, g llm.DecideGate, req llm.Dec
 func yes(v bool) func(context.Context) (json.RawMessage, error) {
 	return func(context.Context) (json.RawMessage, error) {
 		if v {
-			return json.RawMessage(`{"answer":true}`), nil
+			return json.RawMessage(`{"answer":"yes"}`), nil
 		}
-		return json.RawMessage(`{"answer":false}`), nil
+		return json.RawMessage(`{"answer":"no"}`), nil
 	}
 }
 

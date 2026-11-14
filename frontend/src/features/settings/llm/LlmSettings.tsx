@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ApiError, ApiErrorNotice } from "@/shared/data";
 import { InlineNotice, Page, PageHeader, Panel, Section, Skeleton } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
+import { DecisionSection } from "./DecisionSection";
 import { EmbeddingSection } from "./EmbeddingSection";
 import { ProviderSection } from "./ProviderSection";
 import { FallbackSection, RouteTableSection } from "./RoutesSection";
@@ -42,7 +43,7 @@ export function LlmSettings() {
       ) : (
         <>
           <Section panel part="settings-section" title="Kết nối nhà cung cấp" className={s.section}>
-            <ProviderSection key={adding} initialAdd={adding > 0} providers={providers.data?.items ?? []} canEdit={canEdit} envFallback={providers.data?.env_fallback ?? { active: true, providers: [] }} />
+            <ProviderSection key={adding} initialAdd={adding > 0} providers={(providers.data?.items ?? []).filter((p) => p.type !== "decision")} canEdit={canEdit} envFallback={providers.data?.env_fallback ?? { active: true, providers: [] }} />
           </Section>
           <Section panel part="settings-section" title="Mô hình theo tác vụ" className={s.section}>
             <RouteTableSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} onAddProvider={() => setAdding((n) => n + 1)} />
@@ -50,6 +51,11 @@ export function LlmSettings() {
           <Section panel part="settings-section" title="Chuỗi dự phòng" className={s.section}>
             <FallbackSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} />
           </Section>
+          {canEdit && (
+            <Section panel part="settings-section" title="Quyết định nhanh" className={s.section}>
+              <DecisionSection providers={providers.data?.items ?? []} canEdit={canEdit} />
+            </Section>
+          )}
           <Section panel part="settings-section" title="Mô hình tìm kiếm tài liệu" className={`${s.section} ${s.embed}`}>
             {routes.data ? <EmbeddingSection routes={routes.data} providers={providers.data?.items ?? []} canEdit={canEdit} /> : <Skeleton lines={2} />}
           </Section>

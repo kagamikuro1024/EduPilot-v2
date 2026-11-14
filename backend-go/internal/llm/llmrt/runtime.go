@@ -139,6 +139,7 @@ func (r *Runtime) Stats(ctx context.Context, lanes bool) map[string]any {
 		"provider_inflight": st.ProviderInflight,
 		"circuit":           st.Circuit,
 		"fake_calls":        r.Registry.Fake().CallsByProvider(),
+		"fake_decisions":    r.Registry.Fake().Decisions(),
 		"audit":             map[string]int64{"buffer_len": int64(r.Auditor.Pending()), "flushed": r.Auditor.Flushed(), "dropped": r.Auditor.Dropped()},
 	}
 	if lanes {

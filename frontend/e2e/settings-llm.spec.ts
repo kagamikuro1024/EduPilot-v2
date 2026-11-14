@@ -16,11 +16,11 @@ test.beforeEach(async ({}, info) => {
 });
 const putRoutes = (page: Page) => getLog(page, `${P}/routes`).then((l) => l.filter((x) => x.method === "PUT"));
 
-test("sections: 4 phần đúng thứ tự, không lồng, khoảng cách đều, 0 nút primary lúc đầu", async ({ page }) => {
+test("sections: 5 phần đúng thứ tự (thêm «Quyết định nhanh», US-DM-06 AC1), không lồng, khoảng cách đều, 0 nút primary lúc đầu", async ({ page }) => {
   await openLlm(page, "ADMIN");
   await expect(page.getByRole("heading", { name: "Kết nối nhà cung cấp", level: 2 })).toBeVisible();
   const heads = await page.locator("[data-part=settings-section] h2:visible").allTextContents();
-  expect(heads).toEqual(["Kết nối nhà cung cấp", "Mô hình theo tác vụ", "Chuỗi dự phòng", "Mô hình tìm kiếm tài liệu"]);
+  expect(heads).toEqual(["Kết nối nhà cung cấp", "Mô hình theo tác vụ", "Chuỗi dự phòng", "Quyết định nhanh", "Mô hình tìm kiếm tài liệu"]);
   expect(await page.locator("[data-part=settings-section] [data-part=settings-section]").count()).toBe(0);
   const gaps = await page.locator("[data-part=settings-section]").evaluateAll((els) => els.slice(1).map((e, i) => Math.round(e.getBoundingClientRect().top - els[i].getBoundingClientRect().bottom)));
   expect(Math.max(...gaps) - Math.min(...gaps)).toBeLessThanOrEqual(1);
@@ -36,8 +36,8 @@ test("provider row: Test kết nối ở mỗi hàng, lỗi ngay dưới hàng, 
   });
   const rows = page.locator("[data-part=provider-row]");
   await expect(rows).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Test kết nối" })).toHaveCount(2);
-  expect(await page.locator("main").getByRole("button", { name: "Test kết nối" }).evaluateAll((bs) => bs.every((b) => b.closest("[data-part=provider-row]") && b.getAttribute("data-variant") === "secondary"))).toBe(true);
+  await expect(rows.getByRole("button", { name: "Test kết nối" })).toHaveCount(2); // khối «Quyết định nhanh» có nút Test riêng (US-DM-06 AC2)
+  expect(await rows.getByRole("button", { name: "Test kết nối" }).evaluateAll((bs) => bs.every((b) => b.closest("[data-part=provider-row]") && b.getAttribute("data-variant") === "secondary"))).toBe(true);
   await expect(rows.nth(0).locator("[data-part=provider-status]")).toContainText("Đã kết nối");
   await expect(rows.nth(1).locator("[data-part=provider-status]")).toContainText("Lỗi xác thực");
   await rows.nth(1).getByRole("button", { name: "Test kết nối" }).click();
@@ -284,7 +284,7 @@ test("roles: SV / TA bị chặn và 0 request admin/llm; GV chỉ xem; Admin đ
   await expect(page.getByRole("table", { name: "Mức dùng theo tác vụ" })).toBeVisible();
 
   await openLlm(page, "ADMIN");
-  await expect(page.getByRole("button", { name: "Test kết nối" })).toHaveCount(2);
+  await expect(page.getByRole("button", { name: "Test kết nối" })).toHaveCount(3); // 2 nhà cung cấp + hàng «Quyết định» (US-DM-06 AC2)
   await expect(page.locator("main [role=switch], main input[type=checkbox]").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Đổi hạn mức" })).toBeVisible();
 });

@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Pin, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useExamLock } from "@/features/chat/chatApi";
 import { useAutosaveDraft } from "@/shared/data";
 import { useSession } from "@/shared/session/session";
@@ -157,6 +157,7 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
     },
   });
   const empty = !title.value.trim() || !body.value.trim();
+  const slow = useSlow(gate.pending, 800);
   return (
     <form className={r.composer} onSubmit={(e) => { e.preventDefault(); if (!empty && !locked) void gate.submit(false); }} data-part="thread-form">
       <Field label="Tiêu đề" required>{(id) => <Input id={id} value={title.value} onChange={(e) => title.setValue(e.target.value)} maxLength={200} disabled={locked} />}</Field>
@@ -182,10 +183,25 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       <div className={r.actions}>
         <Button type="submit" variant="primary" disabled={empty || locked || gate.pending}>Đăng</Button>
         <Button variant="ghost" onClick={onCancel}>Huỷ</Button>
+        {slow && <StatusText tone="neutral">Đang kiểm tra</StatusText>}
       </div>
       {gate.dialog}
     </form>
   );
+}
+
+/** true khi `on` kéo dài quá `ms` (chỉ báo chờ chỉ hiện khi kiểm duyệt chậm; US-DM-03 AC6). */
+function useSlow(on: boolean, ms: number) {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!on) return;
+    const t = window.setTimeout(() => setSlow(true), ms);
+    return () => {
+      window.clearTimeout(t);
+      setSlow(false);
+    };
+  }, [on, ms]);
+  return on && slow;
 }
 
 export { Composer as ThreadComposer };
