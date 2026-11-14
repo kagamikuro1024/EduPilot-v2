@@ -1,5 +1,6 @@
 # SRS FEAT-practice Ngân hàng câu hỏi mở rộng, luyện đề, thi thử, form trắc nghiệm
-Phiên bản 1.3 · 2026-11-14 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+Phiên bản 1.4 · 2026-11-14 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+**v1.4 (P-10-11):** AC trích dẫn chỉ áp cho câu `GENERATED` / `EXTRACTED`; câu `MANUAL` không bắt buộc — US-P9-06 AC4, US-P9-12 AC1.
 **v1.3 (P-10-9):** một luật bù câu cho `BuildMatrix` — US-P9-05 AC1, AC4, FR-2 (bù từ chủ đề khác cùng độ khó, chỉ cắt ngắn khi cả ngân hàng hết câu); US-P9-04 AC2: `Soạn tay` là nhóm cha (`Câu trắc nghiệm` / `Bài lập trình`), menu không dòng phụ.
 **v1.2 (P-10-8 F3, Q-S10-27):** thêm trần LLM cho `extract` / `generate` — US-P9-02 AC9, US-P9-03 AC8, FR-28, `429` ở API #1, #2.
 **v1.1 (P-10-7):** vá US-P9-01 AC1 (không `practice_exams`), AC2 (mọi dấu câu cuối, không bỏ dấu tiếng Việt), US-P9-07 AC4, AC8, FR-1, FR-17 (dung sai 60 s thống nhất).
