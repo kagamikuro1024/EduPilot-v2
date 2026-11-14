@@ -201,10 +201,18 @@ func (s *Service) Presign(ctx context.Context, actor, course uuid.UUID, in Presi
 		ok = ok && in.MimeType == kind.mime
 	}
 	if !ok {
-		return PresignOut{}, apierr.New(http.StatusUnprocessableEntity, apierr.FileTypeNotAllowed)
+		e := apierr.New(http.StatusUnprocessableEntity, apierr.FileTypeNotAllowed)
+		if in.Purpose == PurposeFormsImport {
+			e = e.WithMessage("Chỉ nhận tệp Excel (.xlsx) hoặc CSV.")
+		}
+		return PresignOut{}, e
 	}
 	if in.SizeBytes <= 0 || in.SizeBytes > limit {
-		return PresignOut{}, apierr.New(http.StatusUnprocessableEntity, apierr.FileTooLarge)
+		e := apierr.New(http.StatusUnprocessableEntity, apierr.FileTooLarge)
+		if in.Purpose == PurposeFormsImport {
+			e = e.WithMessage(fmt.Sprintf("Tệp quá lớn (tối đa %d MB).", FormsImportMaxBytes>>20))
+		}
+		return PresignOut{}, e
 	}
 	if !reHash.MatchString(in.SHA256) {
 		return PresignOut{}, field("sha256", "format", "Mã băm tệp không hợp lệ.")

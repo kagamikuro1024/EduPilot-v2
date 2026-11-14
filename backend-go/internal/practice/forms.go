@@ -480,15 +480,32 @@ func (s *Service) checkMapping(ctx context.Context, q *store.Queries, courseID u
 	if m.HeaderRow < 1 || m.HeaderRow > 100 || m.HeaderRow >= len(grid) {
 		return m, nil, fieldErr("mapping.header_row", "range", "Dòng tiêu đề nằm ngoài tệp.")
 	}
-	colOK := func(c string) bool {
-		n, err := excelize.ColumnNameToNumber(strings.ToUpper(c))
-		return err == nil && n <= formsMaxCols
-	}
-	for field, c := range map[string]string{"email_col": m.EmailCol, "code_col": m.CodeCol, "time_col": m.TimeCol} {
-		if c != "" && !colOK(c) {
-			return m, nil, fieldErr("mapping."+field, "column", "Cột không hợp lệ.")
+	// cột là chữ cái ("A", "C") HOẶC tên ở dòng tiêu đề ("Email", ví dụ ở openapi); chuẩn hoá về chữ cái để phần còn lại dùng một dạng (L12).
+	header := grid[m.HeaderRow-1]
+	letters := func(c string) (string, bool) {
+		c = strings.TrimSpace(c)
+		if n, err := excelize.ColumnNameToNumber(strings.ToUpper(c)); err == nil && n <= formsMaxCols {
+			return strings.ToUpper(c), true
 		}
+		for i, h := range header {
+			if c != "" && strings.EqualFold(strings.TrimSpace(h), c) {
+				name, _ := excelize.ColumnNumberToName(i + 1)
+				return name, true
+			}
+		}
+		return "", false
 	}
+	for field, c := range map[string]*string{"email_col": &m.EmailCol, "code_col": &m.CodeCol, "time_col": &m.TimeCol} {
+		if *c == "" {
+			continue
+		}
+		l, ok := letters(*c)
+		if !ok {
+			return m, nil, fieldErr("mapping."+field, "column", "Không thấy cột này trong tệp.")
+		}
+		*c = l
+	}
+	m.Questions = append([]FormsQuestion(nil), m.Questions...)
 	if m.EmailCol == "" && m.CodeCol == "" {
 		return m, nil, fieldErr("mapping.email_col", "identifier_required", "Chọn cột Email hoặc MSSV.")
 	}
@@ -503,11 +520,13 @@ func (s *Service) checkMapping(ctx context.Context, q *store.Queries, courseID u
 	var ids []string
 	for i, mq := range m.Questions {
 		f := fmt.Sprintf("mapping.questions[%d]", i)
-		n, err := excelize.ColumnNameToNumber(strings.ToUpper(mq.Col))
-		if err != nil || n > formsMaxCols || seen[n] {
-			return m, nil, fieldErr(f+".col", "column", "Cột không hợp lệ hoặc bị chọn hai lần.")
+		l, ok := letters(mq.Col)
+		n, _ := excelize.ColumnNameToNumber(l)
+		if !ok || seen[n] {
+			return m, nil, fieldErr(f+".col", "column", "Không thấy cột này trong tệp, hoặc bị chọn hai lần.")
 		}
 		seen[n] = true
+		m.Questions[i].Col = l
 		qs[i].col = n
 		if in.AnswerSource == "BANK" {
 			if mq.QuestionID == nil {
