@@ -47,8 +47,15 @@ func TestDecisionProviderRules(t *testing.T) {
 	require.Equal(t, "DECISION_ALREADY_ENABLED", inv.Code)
 
 	off := false
-	_, err = r.svc.CreateProvider(r.ctx, llmconfig.ProviderInput{Type: "decision", Name: "Thật", Enabled: &off, Models: []llmconfig.ModelInput{decModel(llmconfig.RealDecisionModel)}})
+	on := true
+	real := decModel(llmconfig.RealDecisionModel)
+	real.Enabled = &on
+	_, err = r.svc.CreateProvider(r.ctx, llmconfig.ProviderInput{Type: "decision", Name: "Thật", Enabled: &off, Models: []llmconfig.ModelInput{real}})
 	require.ErrorIs(t, err, llmconfig.ErrDecisionRealDisabled)
+	// mô hình thật đang TẮT thì lưu được (seed có sẵn; UI «Thêm» gửi cả hai mô hình)
+	real.Enabled = &off
+	_, err = r.svc.CreateProvider(r.ctx, llmconfig.ProviderInput{Type: "decision", Name: "Thật tắt", Enabled: &off, Models: []llmconfig.ModelInput{decModel("decision-fake"), real}})
+	require.NoError(t, err)
 
 	_, err = r.svc.CreateProvider(r.ctx, llmconfig.ProviderInput{Type: "fake", Name: "Chat sai", Models: []llmconfig.ModelInput{decModel("m")}})
 	require.True(t, errors.As(err, &inv), "%v", err)

@@ -134,13 +134,13 @@ func WithDecisionAllowReal(v bool) Option { return func(s *Service) { s.allowRea
 // RealDecisionModel là tên mô hình decision thật (trùng llm.RealDecisionModel; llmconfig không import llm).
 const RealDecisionModel = "gemini-decision-1"
 
-// checkDecision: mô hình thật chỉ lưu được khi ALLOW_REAL bật.
+// checkDecision: mô hình thật chỉ được BẬT khi ALLOW_REAL bật.
 func (s *Service) checkDecision(in ProviderInput) error {
 	if s.allowReal || in.Type != "decision" {
 		return nil
 	}
 	for _, m := range in.Models {
-		if m.Model == RealDecisionModel {
+		if m.Model == RealDecisionModel && (m.Enabled == nil || *m.Enabled) { // mô hình thật đang TẮT được phép lưu (seed có sẵn, UI «Thêm» gửi cả hai)
 			return ErrDecisionRealDisabled
 		}
 	}
