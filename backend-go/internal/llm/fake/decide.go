@@ -124,7 +124,7 @@ func (p *Provider) Decide(ctx context.Context, o provider.DecideOpts) (provider.
 					ans.Confidence = rec.Probabilities[rec.Choice]
 				}
 			}
-			if s.DecisionProb != nil && len(keys) > 1 && !(ok && rec.Choice != "") {
+			if s.DecisionProb != nil && len(keys) > 1 && (!ok || rec.Choice == "") {
 				top := min(max(*s.DecisionProb, 0), 1)
 				ans.Confidence = top
 				for _, k := range keys {
