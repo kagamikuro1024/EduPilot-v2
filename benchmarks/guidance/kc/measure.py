@@ -209,8 +209,28 @@ def compute_v2(snaps, labels):
     eps = max(abs(ag["b0r1"]["mae_total"] - ag["b0r2"]["mae_total"]), abs(ag["b2r1"]["mae_total"] - ag["b2r2"]["mae_total"]))
     m0, m1, m2 = avg(ai["b0r1"], ai["b0r2"]), avg(ai["b1r1"], ai["b1r2"]), avg(ai["b2r1"], ai["b2r2"])
     fix = lambda mm: sum(1 for k in sub for j in range(4) if abs(mm[k][j] - sub[k][j]) >= HALF)
+    # theo tiêu chí: MAE_j của từng bản (TB hai lần chạy); ĐẠT so bản khác khi MAE_j(B2) ≤ MAE_j(bản đó)
+    maec = lambda lab, j: mean(abs(ai[lab][k][j] - sub[k][j]) for k in keys)
+    crit = []
+    for j in range(4):
+        v = {b: mean([maec(b + "r1", j), maec(b + "r2", j)]) for b in ("b0", "b1", "b2")}
+        noise = abs(maec("b2r1", j) - maec("b2r2", j))
+        crit.append({"j": j + 1, "b0": v["b0"], "b1": v["b1"], "b2": v["b2"], "noise_b2": noise, "vs_b0": v["b2"] <= v["b0"], "vs_b1": v["b2"] <= v["b1"]})
+    checks = {"V2_not_worse_than_v1": s2["mae_total"] <= s1["mae_total"] + eps, "V2_better_than_v0": s2["mae_total"] < s0["mae_total"],
+              "V2_every_criterion_vs_b0": all(c["vs_b0"] for c in crit), "V2_every_criterion_vs_b1": all(c["vs_b1"] for c in crit)}
+    # cách ly BT-B sau vòng v2: mọi guidance_version = 0, MAE tổng không lệch quá nền nhiễu BT-B
+    iso = None
+    if "bt-b-after2" in snaps:
+        lb = labels["bt-b"]
+        bad = [i["key"] for i in snaps["bt-b-after2"] if i["bt"] == "bt-b" and i["guidance_version"] != 0]
+        if bad:
+            errs.append(f"bt-b-after2: BT-B có guidance_version ≠ 0 ({', '.join(bad[:3])}…)")
+        gb = lambda lab: aggregate(pick(snaps[lab], "bt-b", set(lb)), lb)["mae_total"]
+        eps_b = abs(gb("b0r1") - gb("b0r2"))
+        iso = {"diff": abs(gb("bt-b-after2") - gb("b0r2")), "epsilon_b": eps_b}
+        checks["BT_B_isolated"] = not bad and iso["diff"] <= max(eps_b, eps)
     return {"n": len(keys), "excluded": dropped, "b0": s0, "b1": s1, "b2": s2, "epsilon": eps, "fix_b0": fix(m0), "fix_b1": fix(m1), "fix_b2": fix(m2), "fix_total": len(keys) * 4,
-            "checks": {"V2_not_worse_than_v1": s2["mae_total"] <= s1["mae_total"] + eps, "V2_better_than_v0": s2["mae_total"] < s0["mae_total"]}}, errs
+            "criteria": crit, "bt_b_isolation": iso, "checks": checks}, errs
 
 
 def md_v2(m, errs):
@@ -221,7 +241,10 @@ def md_v2(m, errs):
                       f"Tập đo bỏ {len(m['excluded'])} bài đã duyệt ({', '.join(m['excluded'])}); B0, B1, B2 tính lại trên cùng {m['n']} bài." if m["excluded"] else "Đủ tập đo.", "",
                       "| Bản | MAE tổng | MAE tiêu chí | Lệch TB | Tiêu chí phải sửa (|Δ| ≥ 0,5) |", "| --- | --- | --- | --- | --- |",
                       row("B0 (v0)", m["b0"], m["fix_b0"]), row("B1 (v1)", m["b1"], m["fix_b1"]), row("B2 (v2)", m["b2"], m["fix_b2"]), "",
-                      f"Nền nhiễu ε = {m['epsilon']:.3f}.", f"Kiểm: {m['checks']}", ""])
+                      "| Tiêu chí | MAE B0 | MAE B1 | MAE B2 | nhiễu B2 | so B0 | so B1 |", "| --- | --- | --- | --- | --- | --- | --- |",
+                      *[f"| c{c['j']} | {c['b0']:.3f} | {c['b1']:.3f} | {c['b2']:.3f} | {c['noise_b2']:.3f} | {'ĐẠT' if c['vs_b0'] else 'KHÔNG'} | {'ĐẠT' if c['vs_b1'] else 'KHÔNG'} |" for c in m["criteria"]], "",
+                      f"Nền nhiễu ε = {m['epsilon']:.3f}." + (f" BT-B sau v2 lệch {m['bt_b_isolation']['diff']:.3f} (nền nhiễu BT-B {m['bt_b_isolation']['epsilon_b']:.3f})." if m["bt_b_isolation"] else ""),
+                      "Kiểm: " + ", ".join(f"{k} {'ĐẠT' if v else 'KHÔNG'}" for k, v in m["checks"].items()), ""])
 
 
 def report_v2(d):
