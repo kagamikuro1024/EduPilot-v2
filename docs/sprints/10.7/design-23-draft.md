@@ -43,10 +43,13 @@ meta · meta · meta                                          row 2, optional, o
 ## 23.3 Body: sections and panels
 
 - One working region = one `Panel`. A `Panel` is always as wide as the page column, as tall as its content, with one padding (`--ep-space-6`; `--ep-space-4` below 720 px). `Panel` has no `padding` and no `className` prop.
+- The page ground and the panel are both white (`--ep-canvas` = `--ep-surface`). A panel is therefore always drawn with its 1 px `--ep-panel-border` and its static `--ep-elevation-1`; no route removes either.
 - A page with one region has no `h2`: the `h1` names it. A page with two or more regions gives each a `Section` whose `h2.ep-section-title` sits outside the panel. `h2` is rendered only by `Section`.
 - A section title has no second line. `Section` has `title` and at most one `action`; the `description` prop does not exist. Data that used to live there moves into the panel or into the header meta.
 - Section → section gap `--ep-space-12`; title → panel gap `--ep-space-4`.
-- Page-level `Tabs` or `Toolbar` (they control the whole body) sit between header and body. A toolbar that controls one table sits inside that table's panel, first.
+- Page-level `Tabs` or `Toolbar` (they control the whole body) sit between header and body. A toolbar that controls one table sits inside that table's panel, first. `Toolbar.end` holds table controls only (a switch, a sort); page actions belong to the header (§23.2).
+- Filter state of page-level `Tabs` and `Toolbar` lives in the URL query, not in `sessionStorage`: leaving the route, reloading and sharing the link all keep it.
+- The result line of a background job ("Đã chấm xong 12 bài") is a quiet confirmation line directly under the region's toolbar, inside the panel. It reads the job state, so a reload shows it again; it never shifts the layout.
 - Side-by-side regions exist only through `Split`:
   - `ratio="main-aside"`: main `1fr`, aside 340 px, gap `--ep-space-6`; stacks below 1100 px.
   - `ratio="list-detail"` with `fill`: one panel, list 380 px + detail, as tall as the viewport (`100dvh − top bar − header`), panes scroll on their own; below 1100 px it becomes list → detail navigation. `fill` applies only while the list has rows. An empty or failed list renders a normal content-height panel.

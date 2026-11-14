@@ -30,7 +30,7 @@ Hai mã tạm ở bản mẫu đầu tiên (`#B41D24`, `#FFD200`, lấy từ CSS
 | `--ep-yellow` | *(chưa có)* | **`#F3C108`** | Sổ tay tr. 4, vàng | **MỚI.** Điểm nhấn hiếm: chấm «cần chú ý», vạch «kế tiếp / đang mở». Chỉ làm nền, chấm, vạch |
 | `--ep-yellow-soft` | *(chưa có)* | **`#FDF4CF`** | Suy ra | **MỚI.** Nền nhãn «cần chú ý», chữ `--ep-ink` |
 | `--ep-ink` | `oklch(19% 0.02 25)` | **`#231F20`** | Sổ tay tr. 4, đen | Chữ chính |
-| `--ep-canvas` | `oklch(95% 0.008 60)` (`#F3EDE9`) | **`#F0EEEC`** = `oklch(95% 0.003 60)` | Suy ra | Nền trang. Giữ L = 95 % của D59 (panel sáng hơn 5 điểm), bớt ám hồng để đọc ra là «trắng» |
+| `--ep-canvas` | `oklch(95% 0.008 60)` (`#F3EDE9`) | **`#FFFFFF`** | Chủ dự án 14/11: «Nền trắng». Sổ tay tr. 6, trắng | Nền trang. Panel cũng trắng, tách khỏi nền bằng viền 1 px `--ep-panel-border` + bóng tĩnh `--ep-elevation-1` (đã có từ D59, phương án (a)). Trái điều «nền trang tối hơn panel 5 điểm L» của D59 → P-107-10 |
 | `--ep-blue` | `oklch(51% 0.12 245)` | **`#003366`** | Sổ tay tr. 6, xanh đậm | Thông tin (6 chỗ dùng) |
 | `--ep-surface` | `#FFFFFF` | giữ | Sổ tay tr. 6, trắng | Panel, ô nhập, thanh bên, thanh trên |
 | `--ep-surface-subtle`, `--ep-surface-strong` | `#F9F3F3`, `#FAEFEE` | giữ | – | Rê hàng, đầu bảng, ô nhấn |
@@ -46,7 +46,7 @@ Ghi mã dạng HEX (không đổi sang OKLCH) cho bốn màu lấy từ sổ tay
 ### Thay đổi nhìn thấy được, nói thật
 
 - **Đỏ gần như không đổi.** Đỏ hiện tại của app (`oklch(54% 0.22 27)`) và đỏ Bách khoa (`#CE1628` = `oklch(54,3% 0,211 25)`) lệch nhau dưới 1 điểm L. Người dùng sẽ không nhận ra khác biệt ở nút và thanh điều hướng.
-- Cái người dùng thấy khác là: **vàng xuất hiện** (trước đây không có), **nền trang bớt hồng**, mục điều hướng đang chọn có nền đỏ nhạt.
+- Cái người dùng thấy khác là: **nền trang trắng** (trước đây be hồng `#F3EDE9`), **vàng xuất hiện** (trước đây không có), mục điều hướng đang chọn có nền đỏ nhạt.
 - Logo EduPilot đang dùng `#C81D32` và `#251D1E` (`frontend/public/brand/*.svg`, 3 tệp). Đề xuất đổi sang `#CE1628` và `#231F20` cho khớp token. Chủ dự án quyết (P-107-8).
 
 ## 3. Tương phản WCAG 2.1 (đã đo, công thức độ chói tương đối)
@@ -58,20 +58,22 @@ Ngưỡng: chữ thường ≥ 4,5 : 1; chữ lớn (≥ 24 px, hoặc ≥ 18,66
 | Trắng trên `--ep-red` (nút chính) | 5,57 | Đạt AA |
 | Trắng trên `--ep-red-hover` | 7,57 | Đạt AA |
 | `--ep-red` trên trắng (chữ đỏ, số việc chờ) | 5,57 | Đạt AA |
-| `--ep-red` trên `--ep-canvas` | 4,81 | Đạt AA |
 | `--ep-red` trên `--ep-red-soft` | 4,95 | Đạt AA |
 | `--ep-red` trên `--ep-surface-subtle` / `-strong` | 5,08 / 4,95 | Đạt AA |
-| `--ep-ink` trên trắng / canvas | 16,30 / 14,09 | Đạt AAA |
+| `--ep-ink` trên trắng | 16,30 | Đạt AAA |
 | `--ep-ink` trên `--ep-yellow` | 9,66 | Đạt AAA |
 | `--ep-ink` trên `--ep-yellow-soft` | 14,76 | Đạt AAA |
-| `--ep-ink-2` trên trắng / canvas / subtle / red-soft | 6,70 / 5,79 / 6,11 / 5,96 | Đạt AA |
-| `--ep-ink-3` trên trắng / canvas / subtle / red-soft | 5,30 / 4,58 / 4,83 / 4,71 | Đạt AA |
-| `--ep-green` trên trắng / canvas | 5,29 / 4,57 | Đạt AA |
-| `--ep-blue` (`#003366`) trên trắng / canvas | 12,61 / 10,90 | Đạt AAA |
+| `--ep-ink-2` trên trắng / subtle / red-soft | 6,70 / 6,11 / 5,96 | Đạt AA |
+| `--ep-ink-3` trên trắng / subtle / red-soft | 5,30 / 4,83 / 4,71 | Đạt AA |
+| `--ep-green` trên trắng | 5,29 | Đạt AA |
+| `--ep-blue` (`#003366`) trên trắng | 12,61 | Đạt AAA |
 | `--ep-amber` trên trắng | 4,60 | Đạt AA |
-| `--ep-amber` trên canvas / `--ep-yellow-soft` | 3,97 / 4,17 | **Không đạt** cho chữ thường. Chữ cảnh báo chỉ đặt trên `--ep-surface` (như hiện nay) |
+| `--ep-amber` trên `--ep-yellow-soft` | 4,17 | **Không đạt** cho chữ thường. Chữ cảnh báo chỉ đặt trên trắng; trên nhãn vàng nhạt dùng chữ `--ep-ink` |
 | `--ep-yellow` trên trắng | 1,69 | **Không đạt.** Cấm chữ vàng, cấm viền / icon vàng đứng một mình |
 | Chấm `--ep-yellow` có viền 1 px `--ep-amber` trên trắng | 4,60 (viền) | Đạt 3 : 1 cho thành phần không phải chữ |
+| Viền panel `--ep-panel-border` (`#E8DDDD`) trên trắng | 1,33 | Không thuộc phạm vi 1.4.11 (khung nhóm nội dung, không phải điều khiển). Vì nền và panel cùng trắng, panel **phải** giữ cả viền lẫn bóng; bỏ một trong hai là mất ranh giới |
+
+Nền trang trắng làm mọi cặp «chữ trên nền trang» bằng đúng cặp «chữ trên trắng» ở bảng trên; không còn cặp nào sát ngưỡng vì nền xám.
 
 Tự đo lại: mở `mau-1.html`, DevTools › Accessibility › Contrast; hoặc chạy `frontend/e2e/contrast.spec.ts` sau khi dev đổi token (spec đã có từ sprint 5.5, cần thêm hai cặp vàng).
 

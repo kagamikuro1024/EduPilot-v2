@@ -77,8 +77,8 @@ Kế thừa ghi chú khảo sát ở trên (số đếm đã kiểm lại trên 
 2. Hợp đồng khung (§23): `Page` đúng 2 kiểu (`work` 1176 px ở 1440, `read` 800 px căn giữa); một mẫu đầu trang; panel rộng đúng cột, cao theo nội dung; trạng thái rỗng = tiêu đề + tối đa 1 nút, căn giữa.
 3. Ba lớp ép: **kiểu TypeScript** (prop bị xoá → build đỏ ở mọi chỗ gọi cũ), **8 luật mới** trong `ui-antipatterns.sh` (24–31), **`frame.spec.ts`** đo hợp đồng trên mọi route × vai × 1440 / 375 × 4 trạng thái. Lớp thứ ba là lớp quyết định: «xong» = 0 độ lệch.
 4. Thứ tự: lô 0 (primitive + sửa máy móc, build xanh) → lô 1 (3 màn chủ dự án chụp, dừng cho duyệt) → lô 2–7 theo nhóm route → lô 8 (bộ màu) → lô 9 (trang giới thiệu). Ước 7 ngày dev cho khung, 1,5 ngày cho màu và trang giới thiệu.
-5. Bộ màu: mã chính thức lấy từ sổ tay nhận diện 2026 của trường (đỏ `#CE1628`, vàng `#F3C108`, đen `#231F20`). **Đỏ gần như trùng đỏ hiện tại**; thay đổi nhìn thấy là vàng điểm nhấn và nền bớt hồng. Mọi cặp chữ / nền đạt AA, trừ chữ vàng (cấm).
-6. Bốn việc phải có quyết định trước khi dev bắt đầu: P-107-1 (cột `read` căn giữa trái 00-AC11), P-107-2 / -3 (trạng thái rỗng và lỗi trái `DESIGN` §15, `UX.md` quy tắc 5), P-107-6 (mẫu «Hôm nay» giảng viên gộp hai vùng phụ vào một panel), P-107-9 (trang giới thiệu: luật nào thắng khi `DESIGN` §11.1 và skill `design-taste-frontend` trái nhau).
+5. Bộ màu: mã chính thức lấy từ sổ tay nhận diện 2026 của trường (đỏ `#CE1628`, vàng `#F3C108`, đen `#231F20`). **Đỏ gần như trùng đỏ hiện tại**; thay đổi nhìn thấy là **nền trang trắng** (chủ dự án 14/11) và vàng điểm nhấn. Mọi cặp chữ / nền đạt AA, trừ chữ vàng (cấm).
+6. Việc phải có quyết định trước khi dev bắt đầu (`proposals.md`): P-107-1 (cột `read` căn giữa trái 00-AC11), P-107-2 / -3 (trạng thái rỗng và lỗi trái `DESIGN` §15, `UX.md` quy tắc 5), P-107-6 (mẫu «Hôm nay» giảng viên gộp hai vùng phụ vào một panel), P-107-9 (trang giới thiệu: luật nào thắng khi `DESIGN` §11.1 và skill `design-taste-frontend` trái nhau), P-107-10 (nền trắng trái D59), P-107-11 (đổi lời trang giới thiệu).
 
 ## 1. Kế hoạch đánh giá
 
@@ -258,6 +258,8 @@ Thêm `&guides=1` vào URL của `khung-trang.html` để thấy hai đường g
 
 Chi tiết: `mau/palette.md`. Tóm tắt: 6 token đổi giá trị (`--ep-red`, `--ep-red-hover`, `--ep-red-soft`, `--ep-ink`, `--ep-canvas`, `--ep-blue`), 2 token mới (`--ep-yellow`, `--ep-yellow-soft`), 9 token giữ nguyên. Nguồn: sổ tay nhận diện 2026 trang 4 và 6. Không dùng logo trường. Không tô đỏ thanh trên (khác `qldt.hust.edu.vn`) vì trái luật «đỏ là tín hiệu»; nếu chủ dự án muốn thanh trên đỏ thì đó là quyết định mở lại D28, ghi ở P-107-8.
 
+**Nền trắng** (chủ dự án, 14/11, sau khi xem mẫu đầu): `--ep-canvas` = `#FFFFFF`. Hệ quả: nền trang và panel cùng trắng, panel chỉ còn tách bằng viền 1 px + bóng tĩnh; điều «nền trang tối hơn panel 5 điểm L» của D59 và phép đo ΔL ở `contrast.spec.ts` / `panels.spec.ts` phải đổi (P-107-10). Mọi mẫu ở mục 6 đã dựng lại trên nền trắng. Vì vậy §23.3 thêm một câu: panel luôn có đủ viền và bóng, không route nào được bỏ.
+
 ## 8. Trang giới thiệu (`/` chưa đăng nhập)
 
 ### 8.1 Hiện trạng đo được
@@ -284,11 +286,36 @@ Chạy bộ kiểm của skill `design-taste-frontend` trên bản đang chạy 
 | `body-size` | WARN | 8 / 12 đoạn chữ chạy 15 px (nên ≥ 16) | Thật |
 | `tap-size`, `skip-link`, `share-meta`, `moment-none` | WARN | Liên kết chân trang 18 px; thiếu liên kết bỏ qua; thiếu thẻ chia sẻ | Thật, nhỏ |
 
-Nhìn bằng mắt (ảnh `mau/landing-truoc-1440.png`): ảnh sản phẩm ở màn đầu chồng chữ lên nhau ở cột phải; con số thứ ba («+0,05 %») không phải lợi ích người dùng hiểu được; toàn trang một màu nền, không có điểm dừng thị giác; lời kêu gọi cuối trang trống.
+Nhìn bằng mắt (ảnh `mau/landing-truoc-720.png`, thu 50 %): ảnh sản phẩm ở màn đầu chồng chữ lên nhau ở cột phải; con số thứ ba («+0,05 %») không phải lợi ích người dùng hiểu được; lời kêu gọi cuối trang trống.
 
 ### 8.2 Hướng sửa
 
-Xem `mau/landing.html`. Viết sau khi dựng mẫu (mục này được cập nhật ở TL-1b).
+Mẫu: `mau/landing.html` (ảnh `landing-1440.png` cả trang, `landing-man-dau-1440.png` màn đầu, `landing-390.png` bốn đoạn ở 390). Dựng theo phương án (a) của P-107-9: token và phông của `DESIGN.md` §11.1, bố cục và lời văn theo skill `design-taste-frontend`, dùng bộ kiểm của skill làm thước đo (không dùng bộ CSS của skill, vì D53).
+
+| Lỗi đo được ở 8.1 | Cách sửa trong mẫu |
+| --- | --- |
+| `container-edges` ×8 | **Một** khung chứa `.wrap` cho thanh trên, sáu mục và chân trang: mép 80 → 1360 ở 1440, 24 → 366 ở 390. Lưới 12 cột, mọi khối bắt đầu và kết thúc trên đường cột |
+| `hero-screen`, `section-height` | Trang là `header` + `main > section` ×5 + `footer.closing`; mỗi mục cao đúng một màn (`100svh`), tiêu đề là nội dung đầu tiên, căn trên |
+| `copy-fact` | Màn đầu có ba dữ kiện cứng, lấy từ trang hiện tại và `frontend/PRODUCT.md`: 146 yêu cầu gửi AI / 0 lần lộ danh tính; 30 / 30 điểm khớp tính tay; tải thiết kế 1.000 sinh viên trên 20 lớp |
+| `copy-headline` (14 từ) | `h1` còn 8 từ: «Vận hành lớp học có trợ lý AI»; nửa sau («bảo vệ dữ liệu cá nhân») chuyển thành câu thứ hai của đoạn dẫn |
+| `copy-headings` ×6 | Tiêu đề gọi tên vật: «Bài nộp đi qua ba bước», «EduPilot trong ba màn», «Ba số đo từ kiểm thử», «Việc của giảng viên và sinh viên», «Lớp của bạn trên EduPilot»; tiêu đề thẻ là động từ + vật («AI chấm nháp theo rubric») |
+| Màn đầu 3 nút | Còn 2 («Đăng nhập», «Xem video»); «Tạo tài khoản» lên thanh trên và xuống lời kết |
+| `body-size` (15 px) | Chữ chạy 16 px, đoạn dẫn 18 px |
+| `tap-size`, `skip-link`, `share-meta` | Liên kết chân trang cao 44 px; có «Tới nội dung»; có thẻ `og:` |
+| `focus-visible` | Vòng focus 2 px `--ep-red` lệch 3 px trên mọi điều khiển của trang |
+| Ảnh màn đầu chồng chữ | Màn đầu dùng **HTML thật** của «Hôm nay» ở cỡ thật (đọc được từng chữ), không dùng ảnh chụp thu nhỏ |
+| Lời kết trống | Lời kết + chân trang là **một** mục: tiêu đề, hai nút, ảnh Sổ điểm, dòng pháp lý |
+| Bộ màu | Nền trắng toàn trang; đỏ chỉ ở nút chính, số bước, vạch bước đang xem; vàng ở 3 chỗ nhỏ (vạch hai màu dưới `h1` và ở lời kết theo tỉ lệ dải đỏ / vàng của nhận diện trường, chấm «cần xem kỹ», nhãn «Nháp») |
+
+Giữ nguyên, không đụng: mọi con số và câu nguồn (146, 30/30, +0,05 %, recall 0,960); khung ghim đổi màn theo cuộn, đoạn phim màn đầu, hộp thoại video (bản tĩnh không dựng, lô 9 giữ mã hiện có); ngân sách §11.1 (LCP, JS ≤ 256 KB, không thư viện chuyển động). Chuyển động vào màn của `h1` chỉ dùng `transform`, không bắt đầu từ `opacity: 0`.
+
+Ba chỗ mẫu **đổi lời** so với trang hiện tại, cần chủ dự án gật vì đây là câu chữ đã nghiệm thu ở 9.1 (`FEAT-uiux-91` US-08): `h1` rút gọn; sáu tiêu đề mục đổi tên; dòng «Ví dụ minh hoạ, số liệu mẫu.» dưới ba bước bị bỏ (skill cấm ghi chú «mẫu»; ba thẻ đó là minh hoạ giao diện, không phải số đo).
+
+Kết quả bộ kiểm trên mẫu: xem TL-1 mục 8.3.
+
+### 8.3 Bộ kiểm chạy trên mẫu
+
+(điền sau khi lượt chạy cuối xong)
 
 ## 9. Rủi ro và cách lùi
 
@@ -303,4 +330,17 @@ Xem `mau/landing.html`. Viết sau khi dựng mẫu (mục này được cập n
 
 ## 10. Việc cần PM / chủ dự án quyết
 
-`proposals.md` P-107-1 … P-107-9. Chặn lô 0: P-107-1, -2, -3, -4, -5. Chặn lô 6: P-107-6. Chặn lô 8: P-107-8. Chặn lô 9: P-107-9.
+`proposals.md` P-107-1 … P-107-11. Chặn lô 0: P-107-1, -2, -3, -4, -5. Chặn lô 6: P-107-6. Chặn lô 8: P-107-8, -10. Chặn lô 9: P-107-9, -11. Không chặn dev: P-107-7 (việc của QC).
+
+## 11. Nợ từ handoff dev đưa vào hợp đồng §23 (PM 14/11)
+
+Nguồn: `handoff/dev-sprint10.7.md` trên nhánh này, và tin PM.
+
+| Nợ | Thuộc §23? | Xử lý | Lô | Đo bằng |
+| --- | --- | --- | --- | --- |
+| **Toolbar 390 px: ba nút xuống 2 dòng** (`/grading` tab Hàng chờ: «Tải bài lên» + «Chấm tất cả» + «Công bố»; `Layout.module.css` `.toolbarEnd` không `flex-wrap`) | Có, §23.2 | Không vá `.toolbarEnd`. Ba nút này là hành động cấp trang, không phải của thanh lọc → chuyển lên `PageHeader`: `primary` = «Chấm tất cả», `secondary` = [«Tải bài lên», «Công bố»]. Dưới 720 px primitive tự gom hai nút phụ vào nút «Thêm», hàng nút còn đúng một dòng. `Toolbar.end` từ nay chỉ chứa điều khiển của bảng (công tắc, sắp xếp). Ảnh chuẩn `grading-queue-390.png` sinh lại trên Linux / CI | 3 | H5, H6, H8 |
+| **(d) Bộ lọc «Bài tập» mất khi rời route** | Không (hành vi, không phải khung) | Ghi vào §23.3 một câu để mọi màn làm giống nhau: trạng thái lọc cấp trang (`Tabs`, `Toolbar`) sống trong **URL** (`?assignment=…&status=…`), không ở `sessionStorage`. Quay lại, tải lại, gửi liên kết đều giữ lọc; danh sách tải sau không ghi đè được vì URL là nguồn. Bỏ khoá `sessionStorage` của 10.6 khi chuyển | 3 | e2e: chọn bài tập → sang `/gradebook` → quay lại → còn lọc; tải lại trang → còn lọc |
+| **(k) Dòng báo xong sau «Chấm lại»** (`Đã chấm xong N bài`) | Một phần: vị trí | Dòng báo việc nền là dòng xác nhận tĩnh lặng (`UndoLine` không nút), nằm ngay dưới `Toolbar` của vùng, trong panel. Không toast, không đẩy bố cục (chỗ đã chừa sẵn một dòng). Nhánh «lô không tới SUCCEEDED» và «tải lại giữa chừng»: dòng đọc trạng thái từ `useJob`, nên tải lại vẫn hiện đúng; lô lỗi hiện `InlineNotice` một dòng + «Thử lại» theo §23.5 | 3 | e2e hiện có của 10.6 + L3 (không nhảy bố cục) |
+| **Landing: axe báo tương phản chập chờn** | Có, mục 8 | `[SUY LUẬN]` chưa tái hiện: chữ đang ở giữa chuyển động theo cuộn có `opacity` < 1 lúc axe lấy mẫu, nên tỉ lệ tương phản tính trên màu đã pha. Mẫu mới chỉ dùng `transform` cho chữ; `opacity` chỉ dùng cho ảnh. Thêm vào `landing.spec.ts`: chạy axe với `reducedMotion: "reduce"` **và** một lượt sau khi cuộn hết trang, cả hai phải 0 lỗi. Nếu còn chập chờn thì nguyên nhân khác, dev báo lại | 9 | axe 0 serious / critical ở 20 lượt liên tiếp |
+
+Nợ «`/insights` và các màn mô phỏng còn `?? X[COURSE_1]`» (trái D51) không thuộc khung; giữ ở sprint 11 như handoff ghi. `frame.spec.ts` chạy được trên màn mô phỏng nên không chặn UI-R.
