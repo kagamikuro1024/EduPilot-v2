@@ -38,3 +38,10 @@ Không vẽ lại thương hiệu (giữ Red Thread, token `--ep-*`, Be Vietnam 
 | 4 | PM | Báo cáo trước/sau cho chủ dự án | `~/Documents/EduPilot-bao-cao/ui-r.html` |
 
 Thứ tự lộ trình: 10.6 → **10.7 (UI-R)** → lượt kiểm + bench chung → 10.8 điểm danh → 11. UI-R trước lượt kiểm chung để smoke đợt R chạy trên giao diện cuối.
+
+## Bổ sung (chủ dự án 2026-11-14 21:37): đổi bộ màu theo nhận diện Đại học Bách khoa Hà Nội + landing page
+- **Bộ màu mới** theo nhận diện thương hiệu HUST (đỏ Bách khoa + vàng điểm nhấn + trắng; tham chiếu cổng `qldt.hust.edu.vn`: thanh trên đỏ đậm, tab/nhãn đang chọn đỏ, ngày hiện tại hình tròn đỏ, vạch vàng cạnh logo). Tech Lead UI tra **mã màu chính thức** (bộ nhận diện / logo HUST), dẫn nguồn; không dùng logo trường trong app trừ khi chủ dự án yêu cầu (giữ logo EduPilot).
+- Đổi ở **một chỗ**: token `--ep-*` (`frontend/src/shared/`) — không màu cứng trong trang. Giữ luật «đỏ là tín hiệu, không phải nền» của DESIGN.md; vàng chỉ làm điểm nhấn hiếm. Kiểm tương phản WCAG AA cho mọi cặp chữ/nền, cả trạng thái lỗi/cảnh báo/thành công.
+- Cập nhật `docs/design/DESIGN.md` (bảng màu, §21 phản mẫu) theo bộ màu mới.
+- **Landing page** (`/` trang giới thiệu, làm ở 9.1) rà lại toàn bộ theo bộ màu + hợp đồng khung + skill `impeccable` và `design-taste-frontend` (chủ dự án yêu cầu dùng cả hai, «làm thật kỹ, UI/UX xấu thì không ai dùng»).
+- Màn mẫu cho chủ dự án duyệt (≤ 3 màn + landing) PHẢI dùng bộ màu mới.
