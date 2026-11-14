@@ -37,3 +37,22 @@
   - Dòng trên hàng chờ BT-A ghi: «40 bài chấm theo bản cũ · Chấm lại» → N = 40 (chữ trên màn là «bài chấm theo bản cũ», không phải «bài nháp cũ»).
   - Bấm «Chấm lại» 20:55:48 → chạy ngay, không có hộp xác nhận; hiện «Đã xếp 40 bài chấm lại · Đã hiểu». Xong sau ≈ 4 ph 37 s (≈ 21:00:25). Sau khi xong: Chấm lỗi 0, Đang chấm 0, Chưa chấm 0; dòng «bài chấm theo bản cũ» biến mất. Số bài bỏ qua: màn hình không báo bài nào bị bỏ qua (0 theo những gì hiển thị). Ảnh: anh/b7-sau-bam-cham-lai.webp.
   - Khó dùng: lần chấm lại này KHÔNG có dòng tiến độ «Đang chấm n/40 bài» như lúc «Chấm tất cả»; danh sách chuyển sang trống («Chưa có bài nộp») nên phải tự đổi lọc sang «Đang chấm» để biết còn bao nhiêu. Khi xong cũng không có thông báo tổng kết (bao nhiêu bài chấm lại, bao nhiêu bỏ qua, điểm đổi thế nào). Trong ~2 phút đầu số bài «Đang chấm» không giảm, dễ tưởng bị treo.
+- Bước 8 (duyệt nguyên 5 bài, xem hộp Công bố, HUỶ): bắt đầu 2026-11-14 21:06.
+- Bước 8: kết thúc 21:08. KHÔNG công bố.
+  - Duyệt nguyên (không sửa điểm, không sửa nhận xét) 5 bài BT-A: kc021, kc022, kc023, kc024, kc025. Điểm tiêu chí AI lúc duyệt (c1/c2/c3/c4): kc021 1,50/2,50/2,25/1,00 · kc022 2,00/2,00/1,75/1,75 · kc023 2,00/2,50/2,50/2,25 · kc024 2,00/2,00/2,25/2,25 · kc025 1,50/2,50/1,75/1,50. Mỗi lần duyệt màn lại tự nhảy sang bài kế (022, 024, 042, 025, 026) — tôi không thao tác gì trên các bài tự mở.
+  - Lạ: điểm tổng ở dòng hàng chờ không bằng tổng 4 ô tiêu chí trên màn duyệt ở 3/5 bài: kc022 dòng ghi 8,00 (4 ô cộng 7,50), kc024 8,75 (8,50), kc025 7,00 (7,25). Tôi không sửa, chỉ ghi lại.
+  - Nút «Công bố» không có sẵn trên hàng chờ: phải lọc «Đã duyệt», tích «Chọn tất cả đã duyệt» thì nút mới hiện — khó tìm.
+  - Hộp «Công bố» — nguyên văn: tiêu đề «Công bố điểm»; nội dung «Công bố 25 bài · 25 sinh viên nhận thư · không tính vào sổ điểm · 20 bài đã duyệt chấm theo bản lưu ý cũ»; nút «Để sau» và «Công bố» (thêm nút «Đóng» ở góc). Không có chữ nào về bài «miễn». Ảnh: anh/b8-cong-bo.webp.
+  - Hộp không có nút tên «Huỷ»; tôi bấm «Để sau» để huỷ. Kiểm lại: không có yêu cầu ghi nào gửi đi, lọc «Đã công bố» trống.
+  - Nhận xét về hộp: ngắn, đủ số (25 bài = 20 + 5 đã duyệt). Câu «20 bài đã duyệt chấm theo bản lưu ý cũ» có ích nhưng không nói tôi nên làm gì (vẫn công bố được? có cần chấm lại?); «không tính vào sổ điểm» không rõ lý do (có lẽ do công thức điểm chưa xác nhận).
+
+## Nhận xét chung
+1. Dễ dùng nhất: «Chấm tất cả» một nút, có tiến độ «Đang chấm n/60», 84 bài không lỗi; màn duyệt để bài và điểm cạnh nhau, có trích dẫn theo tiêu chí, sửa điểm tự lưu và tổng cập nhật ngay.
+2. Hộp xác nhận «Áp dụng bản v1» và «Công bố» ngắn, nói đúng hệ quả bằng số.
+3. Khó dùng nhất: hàng chờ. Lọc mặc định «Chưa duyệt» + nút «Cần xem kỹ» tự bật lại làm danh sách trống hoặc thiếu, «Chấm tất cả» bị khoá mà không rõ vì sao; chỉ hiện 20 dòng, không thấy tổng số hay phân trang; nút «Công bố» ẩn cho tới khi tích chọn.
+4. Khó thứ hai: thiếu phản hồi — «Duyệt bài» lần đầu bấm không ăn mà không báo; «Rút lưu ý» và «Chấm lại» không có thông báo xong, «Chấm lại» không có tiến độ; «Hoàn tác» biến mất sau vài giây.
+5. Các con số không giải thích: «sửa 24%», «lệch tiêu chí 0,18», «Đã duyệt 1/50», tổng dòng hàng chờ khác tổng 4 tiêu chí.
+6. Điểm nháp AI ban đầu rộng tay (nhiều bài 9–10), nhất là tiêu chí Dẫn chứng và Biện pháp; nhận xét AI viết được, nhưng điểm không đi theo nhận xét.
+7. Lưu ý chấm: tin một phần. Hai lưu ý rút ra đúng hướng tôi sửa (tiêu chí 1 và 3), và sau chấm lại thấy tiêu chí 1 có xuống 1,50 ở bài mở đầu yếu (kc021, kc025). Nhưng hệ thống bỏ sót hẳn tiêu chí 2 — chỗ tôi sửa nhiều nhất (12/20 bài) — nên AI vẫn cho 2,0–2,5 với tình huống thiếu số liệu (kc022).
+8. Tôi chưa tự so được điểm trước/sau chấm lại của 40 bài (bước 7 không được mở bài, màn không tóm tắt thay đổi), nên chưa thể nói lưu ý làm AI sát hơn bao nhiêu; cần một dòng «điểm đổi thế nào sau khi chấm lại» để giảng viên tin.
+9. Chữ lưu ý do AI viết còn mơ hồ («không cho mức điểm cao»); giảng viên nên sửa thành mức điểm cụ thể — màn cho sửa dễ.
