@@ -700,6 +700,24 @@ test("review key A next: duyệt rồi sang bài kế, có thanh tiến độ", 
   await expect.poll(() => api.reviews().length).toBe(1);
   await expect(page).toHaveURL(new RegExp(SUB_C));
   await expect(progress).toHaveText(`Đã duyệt 1/${m}`); // N tăng, M cố định
+  // GV-BUG (b): tự sang bài kế thì có chỉ báo rõ + cách ở lại (quay về bài vừa duyệt)
+  await expect(page.locator("[data-part=review-from]")).toHaveText("Đã duyệt bài trước");
+  await expect(page.getByRole("link", { name: "Quay lại" })).toHaveAttribute("href", new RegExp(SUB_B));
+});
+
+test("queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (M = số bài lúc mở, cố định) và lọc «Cần xem kỹ» bỏ đi thì GIỮ khi vào lại (GV-BUG c, d)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const rowsAll = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, { rows: rowsAll });
+  const flag = page.getByRole("button", { name: "Cần xem kỹ" });
+  await expect(flag).toHaveAttribute("aria-pressed", "true");
+  await flag.click(); // người dùng bỏ lọc
+  await expect(flag).toHaveAttribute("aria-pressed", "false");
+  const n = await page.locator("[data-part=queue-row]").count();
+  await page.locator("[data-part=queue-row]").first().click();
+  await expect(page.locator("[data-part=review-progress]")).toHaveText(`Đã duyệt 0/${n}`);
+  await page.goto(QUEUE_URL); // rời hàng chờ rồi vào lại
+  await expect(page.getByRole("button", { name: "Cần xem kỹ" })).toHaveAttribute("aria-pressed", "false"); // không tự bật lại
 });
 
 test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {

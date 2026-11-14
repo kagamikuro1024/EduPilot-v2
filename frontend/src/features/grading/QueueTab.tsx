@@ -38,8 +38,12 @@ const TEAMS_FAIL_TEXT: Record<string, string> = {
 };
 
 /** Liên kết sang màn duyệt mang theo bộ lọc đang xem: màn đó dùng lại đúng hàng chờ để đi bài kế. */
-export const reviewHref = (id: string, f: QueueFilter) => {
+export const reviewHref = (id: string, f: QueueFilter, total?: number) => {
   const p = new URLSearchParams();
+  if (total && total > 0) { // bộ đếm «Đã duyệt N/M»: M cố định = số bài của hàng chờ lúc mở, N bắt đầu từ 0 (không đổi nghĩa giữa chừng)
+    p.set("n", "0");
+    p.set("m", String(total));
+  }
   if (f.assignment_id) p.set("assignment", f.assignment_id);
   if (f.status) p.set("status", f.status);
   if (f.needs_review) p.set("needs", "1");
@@ -71,8 +75,39 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   const [confirming, setConfirming] = useState(false);
   const publishIdem = useRef<string | null>(null);
   const relaxed = useRef(false);
+  const relaxedStatus = useRef(false);
   const [teamsJob, setTeamsJob] = useState<string | null>(null);
   const [teamsWait, setTeamsWait] = useState(0);
+
+  // GV-BUG (d): giữ lựa chọn bộ lọc của người dùng khi rời hàng chờ rồi vào lại (không tự bật lại «Cần xem kỹ»)
+  const filterKey = `ep:grading-queue-filter:${courseId}`;
+  const [filterLoaded, setFilterLoaded] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(filterKey);
+      if (raw) {
+        const f = JSON.parse(raw) as { a?: string; s?: QueueStatus; f?: boolean };
+        /* eslint-disable react-hooks/set-state-in-effect */
+        setAssignmentId(f.a ?? "");
+        setStatus(f.s ?? "DRAFT");
+        setFlagOnly(Boolean(f.f));
+        /* eslint-enable react-hooks/set-state-in-effect */
+        relaxed.current = true;
+        relaxedStatus.current = true;
+      }
+    } catch {
+      /* bộ nhớ phiên không dùng được: giữ mặc định */
+    }
+    setFilterLoaded(true);
+  }, [filterKey]);
+  useEffect(() => {
+    if (!filterLoaded) return;
+    try {
+      sessionStorage.setItem(filterKey, JSON.stringify({ a: assignmentId, s: status, f: flagOnly }));
+    } catch {
+      /* đầy / bị chặn: bỏ qua */
+    }
+  }, [filterLoaded, filterKey, assignmentId, status, flagOnly]);
 
   const filter: QueueFilter = { assignment_id: assignmentId || undefined, status, needs_review: flagOnly };
   const narrow = useSyncExternalStore(subscribeNarrow, () => window.matchMedia(NARROW).matches, () => false);
@@ -90,7 +125,6 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   }, [flagOnly, list.isPending, list.isError, rows.length]);
 
   // Hàng chờ «Chưa duyệt» trống mà còn bài chưa chấm: chuyển MỘT lần sang «Chưa chấm» để giảng viên thấy việc cần làm.
-  const relaxedStatus = useRef(false);
   useEffect(() => {
     if (!relaxedStatus.current && !flagOnly && status === "DRAFT" && !list.isPending && !list.isError && rows.length === 0 && !ungraded.isPending && ungraded.items.length > 0) {
       relaxedStatus.current = true;
@@ -325,7 +359,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       align: "end",
       width: "110px",
       render: (r) => (
-        <Link href={reviewHref(r.id, filter)} className={s.open} onClick={(e) => e.stopPropagation()} aria-label={`Duyệt bài của ${r.student?.full_name ?? "sinh viên"}`}>
+        <Link href={reviewHref(r.id, filter, rows.length)} className={s.open} onClick={(e) => e.stopPropagation()} aria-label={`Duyệt bài của ${r.student?.full_name ?? "sinh viên"}`}>
           Duyệt <ArrowRight aria-hidden />
         </Link>
       ),
@@ -476,8 +510,8 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           columns={teacher && reviewable.length > 0 ? [pickCol, ...columns] : columns}
           rows={rows}
           rowKey={(r) => r.id}
-          onRowClick={(r) => router.push(reviewHref(r.id, filter))}
-          rowHref={(r) => reviewHref(r.id, filter)} /* ở danh sách di động cả hàng là MỘT liên kết (không liên kết lồng liên kết) */
+          onRowClick={(r) => router.push(reviewHref(r.id, filter, rows.length))}
+          rowHref={(r) => reviewHref(r.id, filter, rows.length)} /* ở danh sách di động cả hàng là MỘT liên kết (không liên kết lồng liên kết) */
           rowAttrs={(r) => ({ "data-part": "queue-row", "data-submission-id": r.id })}
           virtual={narrow ? undefined : { height: 560 }}
           mobileRow={(r) => (

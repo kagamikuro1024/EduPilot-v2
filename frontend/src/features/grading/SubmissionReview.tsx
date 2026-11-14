@@ -286,6 +286,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
       const next = new URLSearchParams(params);
       next.set("n", String(done + 1));
       next.set("m", String(total));
+      next.set("from", submissionId); // bài vừa duyệt: trang kế hiện «Đã duyệt bài trước · Quay lại» (GV-BUG b: tự nhảy không báo)
       if (at >= 0 && at + 1 < order.length) router.push(`/grading/${order[at + 1]}?${next}`);
       else {
         router.replace(`/grading/${submissionId}?${next}`);
@@ -347,7 +348,16 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
 
   const otherFlags = view.flags.filter((f) => f !== "NEEDS_REVIEW");
 
+  const fromId = params.get("from");
+  const backParams = new URLSearchParams(params);
+  backParams.delete("from");
   return (
+    <>
+    {fromId && fromId !== submissionId && (
+      <InlineNotice tone="info" compact action={<ButtonLink href={`/grading/${fromId}?${backParams}`} variant="ghost" size="sm">Quay lại</ButtonLink>}>
+        <span data-part="review-from">Đã duyệt bài trước</span>
+      </InlineNotice>
+    )}
     <div className={s.reviewGrid} data-tab={tab}>
       <div className={s.tabs} role="tablist" aria-label="Chế độ xem">
         <button type="button" role="tab" aria-selected={tab === "doc"} onClick={() => setTab("doc")}>Bài làm</button>
@@ -586,5 +596,6 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
       </Panel>
       </div>
     </div>
+    </>
   );
 }
