@@ -30,7 +30,11 @@ func (g *gradeEnv) reviewed(name string, ai, fin map[string]string, canary strin
 	}
 	cj, _ := json.Marshal(crit)
 	aj, _ := json.Marshal(ai)
-	cm, _ := json.Marshal(map[string]any{"criteria": map[string]string{"c1": "AI nhận xét c1", "c2": "AI nhận xét c2", "c3": "x", "c4": "y"}, "overall": "tổng"})
+	c1 := "AI nhận xét c1"
+	if g.aiC1 != "" {
+		c1 = g.aiC1
+	}
+	cm, _ := json.Marshal(map[string]any{"criteria": map[string]string{"c1": c1, "c2": "AI nhận xét c2", "c3": "x", "c4": "y"}, "overall": "tổng"})
 	g.exec(`update grading_results set run_state = 'DONE', criteria = $2, ai_scores = $3, ai_comments = $4, ai_total_before_late = 5 where id = $1`, res, string(cj), string(aj), string(cm))
 	g.exec(`update grading_results set status = 'REVIEWED', reviewed_by = $2, reviewed_at = now(), first_reviewed_by = $2, first_reviewed_at = now() where id = $1`, res, g.teacher)
 	g.exec(`update submissions set extracted_text = $2, extract_status = 'OK' where id = (select submission_id from grading_results where id = $1)`, res, "BÀI LÀM "+canary)

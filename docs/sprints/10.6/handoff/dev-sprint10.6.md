@@ -8,3 +8,13 @@ Nhánh `sprint/10.6-guidance` (merge từ `sprint/10.5-decision`). Mỗi lát m�
   - Lệch TL-1: cờ không ghi outbox, chỉ `PUBLISH` Redis sau COMMIT (+ `audit_log` trong giao dịch); `stale` trả `{count, editing, reviewed, versions}`.
 - **L3** — `Grader` ghim `guidance_version` MỘT lần ở đầu `Run` (bản đã dùng dựng prompt hai lượt; lỗi đọc lưu ý → thử lại, không ghim sai), khối «Lưu ý của giảng viên (bản vN)» sau rubric / trước đáp án chuẩn (`BuildEssayPrompt`, lượt 2 đảo thứ tự), `ai_comments` = nhận xét gốc lượt 1 (bất biến sau DONE), `EssayConfig.GuidanceEnabled`, `Grader.Flags`. Test: `TestEssayPromptUnchangedAtV0` (golden `testdata/essay_prompt_v0.golden`), `TestGuidanceBlockDeterministic`, `TestGuidanceNoTotalsInPrompt`, `TestGuidancePinAndComments`, `TestGuidancePinIsVersionUsed`. Commit chung với L2 (hai lát đan nhau ở `guidance_test.go` và `grading`).
 - **P-106-6** (PM chấp nhận): cờ chỉ `PUBLISH` Redis sau COMMIT, không outbox; lưới an toàn `FlagsPoll` = 60 s + test `TestFlagsSnapshotSurvivesLostPublish`. Chi tiết `docs/sprints/10.6/proposals.md`.
+
+## L4 backend (4f023f57 / b96fb6d9 sau rebase)
+- API #5–#8 (`decide`, `apply`, `regrade-stale`, `guidance/stats`): `internal/grading/guidance_decide.go`, route ở `assignmenthttp/guidance.go`; openapi 318 thao tác. `assignments.guidance_version` chỉ đổi trong `GuidanceSetVersion` (`TestGuidanceVersionOnlyViaApply`).
+- Công bố (`assignment/publish.go`): cờ lớp bật → bài đã duyệt (`first_reviewed_at`) công bố dù bản cũ, đếm `exempt{EDITED, ACCEPTED_AS_IS}` + `audit_log.after.guidance_exempt`; bài chưa từng duyệt lệch bản → `409 MIXED_GUIDANCE {versions}`, không công bố gì (`TestPublishMixedGuidance`).
+- `GET /grading/results/{id}` thêm `guidance{version,current_version,stale,items_by_criterion}` (bản ĐÃ GHIM; chỉ khi cờ bật và bài tập có bản ≥ 1) — `TestResultViewGuidance`.
+- Chấm lại (`TestRegradeStale`): chỉ DRAFT bản cũ, chưa từng duyệt, không tiêu chí sửa, round < 20; điểm / trạng thái bài đã duyệt / sửa không đổi.
+- Chưa làm ở L4: frontend (GuidancePanel, hộp công bố, SubmissionReview, công tắc `/class/settings`), Playwright.
+
+## P-106-7 (4 test đúng tên SRS, commit riêng)
+`TestReflectInputNoIdentity`, `TestReflectOutputPII` (dùng `privacy.Detector` thật: tên + MSSV + email), `TestGuidanceSetAtVersion`, `TestGuidanceIsolation` — `internal/grading/guidance_privacy_test.go`. `-run` khớp đủ 4.
