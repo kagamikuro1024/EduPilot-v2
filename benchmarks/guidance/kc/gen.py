@@ -3,7 +3,7 @@
 
   python3 benchmarks/guidance/kc/gen.py                 sinh đủ 60 bài BT-A + 24 bài BT-B (≈ 95 lời gọi, tuần tự) vào kc/data/
   python3 benchmarks/guidance/kc/gen.py --limit 3 --out /tmp/kc-thu    chạy thử: chỉ sinh 3 bài đầu, ghi chỗ khác
-Biến: ROUTER_URL (http://127.0.0.1:20128/v1), ROUTER_KEY (mặc định đọc ~/.9router/db/data.sqlite, không in ra), GEN_MODEL (ag/gemini-3.8-flash-high — nên KHÁC model chấm của stack; 9router hiện chỉ phục vụ được họ gemini-3.8-flash, các model khác trả 404), GEN_GAP (1.0 s giữa hai lời gọi), GEN_SEED (106).
+Biến: ROUTER_URL (http://127.0.0.1:20128/v1), ROUTER_KEY (mặc định đọc ~/.9router/db/data.sqlite, không in ra), GEN_MODEL (ag/gemini-3.8-flash-medium — nên KHÁC model chấm của stack; 9router hiện chỉ phục vụ được họ gemini-3.8-flash, các model khác trả 404), GEN_GAP (1.0 s giữa hai lời gọi), GEN_SEED (106).
 Chạy lại không sinh lại bài đã có (tiếp tục được). Bài chứa họ tên / email / SĐT / MSSV bị loại và sinh lại ≤ 2 lần, vẫn trượt thì đổi hồ sơ (≤ 2 lần) rồi mới dừng.
 Cấm gọi Gemini trực tiếp: script chỉ biết địa chỉ 9router.
 """
@@ -12,7 +12,7 @@ from pathlib import Path
 from common import DATA, N_B, N_STUDENTS, bt_students, die
 
 ROUTER = os.environ.get("ROUTER_URL", "http://127.0.0.1:20128/v1").rstrip("/")
-MODEL = os.environ.get("GEN_MODEL", "ag/gemini-3.8-flash-high")
+MODEL = os.environ.get("GEN_MODEL", "ag/gemini-3.8-flash-medium")
 GAP = float(os.environ.get("GEN_GAP", "1.0"))
 SEED = os.environ.get("GEN_SEED", "106")
 CRITERIA = ["Luận điểm rõ", "Dẫn chứng / tình huống cụ thể", "Lập luận và biện pháp khả thi", "Trình bày, thuật ngữ"]
