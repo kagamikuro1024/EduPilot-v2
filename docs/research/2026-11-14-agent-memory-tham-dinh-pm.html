@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bộ nhớ cho agent trong EduPilot · Thẩm định và đề xuất · 14/11/2026</title>
+<style>
+:root{--ink:#1c1714;--ink2:#5b524b;--line:#e6dfd6;--bg:#faf8f5;--red:#c8102e;--soft:#fbeef0;--ok:#2f6b3a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 'Be Vietnam Pro',system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:56px 28px 96px}
+h1{font-size:32px;line-height:1.2;margin:0 0 6px;letter-spacing:-.01em}h1+p{color:var(--ink2);margin:0}
+.rule{width:64px;height:3px;background:var(--red);margin:20px 0 36px}
+h2{font-size:22px;margin:56px 0 14px;padding-top:24px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:28px 0 8px}
+table{border-collapse:collapse;width:100%;margin:8px 0 16px;font-size:14px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;color:var(--ink2);font-weight:600}td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi{display:flex;gap:44px;flex-wrap:wrap;margin:8px 0}.kpi div{min-width:150px}.kpi b{display:block;font-size:28px;line-height:1.15}.kpi span{color:var(--ink2);font-size:13px}
+.ask{background:var(--soft);border-left:3px solid var(--red);padding:16px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+.ask ol{margin:6px 0 0;padding-left:20px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid var(--line)}
+.tag.y{color:var(--ok);border-color:#bcd7c1}.tag.n{color:var(--red);border-color:#f0c6cd}.tag.m{color:var(--ink2)}
+ul{padding-left:20px}li{margin:3px 0}code{font-size:13px;background:#f1ece5;padding:1px 5px;border-radius:4px}
+figure{margin:12px 0 20px}figcaption{font-size:13px;color:var(--ink2);margin-top:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px}@media(max-width:760px){.two{grid-template-columns:1fr}}
+small{color:var(--ink2)}
+</style></head><body><main>
+
+<h1>Bộ nhớ cho agent trong EduPilot</h1>
+<p>Thẩm định nghiên cứu của Tech Lead và đề xuất của PM · 14/11/2026 · nguồn: <code>docs/research/2026-11-14-agent-memory.md</code> (nhánh <code>research/agent-memory</code>, commit <code>f960edc7</code>)</p>
+<div class="rule"></div>
+
+<h2 style="margin-top:0;border-top:0;padding-top:0">Kết luận ngắn</h2>
+<div class="kpi">
+  <div><b>Khả thi</b><span>nếu tự làm trong Go, trên Postgres</span></div>
+  <div><b>Không dùng</b><span>Hindsight (tự chạy hay Cloud)</span></div>
+  <div><b>−49 %</b><span>sai số điểm nháp khi có «lưu ý chấm» đã duyệt (PoC)</span></div>
+  <div><b>≈ 1 sprint</b><span>cho phần lõi, cỡ M</span></div>
+</div>
+<ul>
+  <li><b>Có nên làm:</b> có, nhưng không phải một «bộ nhớ chung» kiểu Hindsight. Nên làm một <b>harness học từ lần giảng viên sửa</b>, chạy trên dữ liệu EduPilot đã có sẵn: <b>người duyệt</b>, <b>có phiên bản</b>, <b>đo được</b>.</li>
+  <li><b>Điểm chính:</b> agent trong EduPilot sai nhiều nhất ở <b>chấm tự luận lệch chuẩn của giảng viên</b>. Mỗi lần giảng viên sửa điểm nháp đã được lưu thành tín hiệu có cấu trúc trong DB, chỉ chưa được dùng lại.</li>
+  <li><b>Đề xuất của PM:</b> làm thành <b>sprint 10.6</b> ngay sau 10.5, trước lượt kiểm và bench 1.000 bài chung. Lý do và phạm vi ở mục 6.</li>
+</ul>
+
+<h2>1. Hindsight là gì, vì sao không dùng</h2>
+<p>Hindsight (Vectorize, giấy phép MIT, khoảng 61 nghìn sao trên GitHub) là hệ bộ nhớ cho agent. Có ba thao tác: <code>retain</code> (lưu), <code>recall</code> (tìm lại, 4 nhánh tìm cộng xếp hạng lại) và <code>reflect</code> (một vòng agent tối đa 10 lượt để suy luận). Hệ tự gộp sự kiện thành «nhận định», chạy trên Postgres + pgvector. Benchmark do họ công bố: LongMemEval 94,6 %.</p>
+<table>
+<tr><th>Tiêu chí</th><th>Hindsight tự chạy</th><th>Hindsight Cloud</th><th>Tự làm trong Go</th></tr>
+<tr><td>Luật D46 (chỉ Go + <code>docling-serve</code>)</td><td><span class="tag n">vi phạm</span> máy chủ Python, kèm PyTorch/ONNX</td><td><span class="tag m">không thêm service</span> nhưng thêm phụ thuộc mạng ngoài</td><td><span class="tag y">đạt</span></td></tr>
+<tr><td>Luật 3 / 11 (mọi LLM qua <code>internal/llm</code> + Scheduler, che tên/MSSV, <code>llm_audit</code>)</td><td><span class="tag n">vi phạm</span> tự gọi LLM bên ngoài Scheduler</td><td><span class="tag n">vi phạm</span> LLM chạy ở phía Vectorize</td><td><span class="tag y">đạt</span></td></tr>
+<tr><td>D47 (tốc độ hỏi đáp)</td><td><span class="tag n">rủi ro</span> thêm một bước gọi HTTP, reflect là vòng ≤ 10 lượt</td><td><span class="tag n">rủi ro</span> cộng thêm trễ mạng</td><td><span class="tag y">không chạm</span> chấm bài chạy nền, recall là 1 câu SQL</td></tr>
+<tr><td>Dữ liệu cá nhân</td><td>Lấy thực thể (tên người) làm trung tâm</td><td><span class="tag n">dữ liệu lớp học ra bên thứ ba</span></td><td>Không lưu văn bản bài làm, khoá theo lớp</td></tr>
+<tr><td>Hợp bài toán</td><td colspan="2">Giỏi trí nhớ hội thoại dài hạn theo người và thời gian. EduPilot không cần, và còn cố ý tránh việc này (không theo dõi sinh viên).</td><td>Bài toán của EduPilot là <b>lệch chuẩn chấm theo từng bài tập</b></td></tr>
+</table>
+<p><b>Thẩm định của PM:</b> đồng ý không dùng Hindsight. Dùng nó phải mở lại ba quyết định đã chốt (D46, luật 3, D47), đổi lấy một năng lực mà sản phẩm không cần. Có một ý của Hindsight đáng học lại: <i>«decision model cho các phán đoán nhỏ»</i>. Ý này đã có ở sprint 10.5 (D60).</p>
+
+<h2>2. Agent đang sai ở đâu, tín hiệu sửa sai có sẵn</h2>
+<p>Mọi tín hiệu dưới đây đã nằm trong DB, không cần thu thêm dữ liệu.</p>
+<table>
+<tr><th>Agent / chỗ sai</th><th>Tín hiệu (bảng)</th><th>Độ mạnh</th><th>Đã khép vòng?</th></tr>
+<tr><td><b>Chấm tự luận lệch giảng viên</b>: MAE 0,94–1,27/10 (đo ở 9.5)</td><td><code>grading_results.ai_scores</code> (không sửa được) so với điểm giảng viên chốt</td><td>Mạnh</td><td><span class="tag n">chưa</span></td></tr>
+<tr><td>Điểm đã công bố vẫn sai</td><td><code>grade_appeals = ADJUSTED</code></td><td>Mạnh, hiếm</td><td><span class="tag n">chưa</span></td></tr>
+<tr><td>Trích công thức điểm sai</td><td>bản nháp LLM so với bản <code>CONFIRMED</code></td><td>Mạnh, mỗi lớp một lần</td><td><span class="tag n">chưa</span> (hợp làm ca hồi quy)</td></tr>
+<tr><td>Threads trả lời sai hoặc thiếu</td><td><code>VERIFIED / CORRECTED / REJECTED</code></td><td>Mạnh</td><td><span class="tag y">rồi</span>: vào kho tri thức (sprint 6)</td></tr>
+<tr><td>Chat phải chuyển giảng viên</td><td><code>escalation_tickets</code> + đáp án giảng viên</td><td>Mạnh</td><td><span class="tag y">rồi</span>: giảng viên lưu vào kho</td></tr>
+<tr><td>AI bỏ qua vì thiếu tài liệu</td><td><code>ai_skip_reason = NO_CONTEXT</code></td><td>Vừa</td><td><span class="tag n">chưa</span></td></tr>
+<tr><td>Sinh câu hỏi bị loại</td><td><code>question_bank.review_status = REJECTED</code></td><td>Mạnh</td><td><span class="tag n">chưa</span></td></tr>
+<tr><td>Tường lửa, nhãn rủi ro</td><td>Cố ý không lưu chữ / không có cột phản hồi</td><td>—</td><td>Không nên học tự động</td></tr>
+</table>
+<p><b>Phát hiện của Tech Lead mà PM xác nhận:</b> EduPilot <b>đã có hai bộ nhớ đúng nghĩa</b>, là kho tri thức của lớp và nhật ký sửa điểm. Việc cần làm là <b>khép vòng</b> trên dữ liệu đó, không dựng thêm một hệ mới. Có một lỗ hổng nhỏ: nhận xét gốc của AI bị ghi đè khi giảng viên sửa nhận xét, nên phải lưu bản gốc bất biến (<code>ai_comments</code>).</p>
+
+<h2>3. Thử nghiệm thật (PoC)</h2>
+<p>Gemini 3.8 Flash gọi qua 9router, khoảng 184 lời gọi, chạy offline. Dùng nguyên prompt chấm của sản phẩm trên bài tập BT03. Câu hỏi: nếu đưa «lưu ý rút từ các lần giảng viên đã sửa» vào prompt thì điểm nháp của bài <b>mới</b> có gần điểm giảng viên hơn không?</p>
+<table>
+<tr><th>Nhánh</th><th class="n">MAE tổng /10</th><th class="n">Lệch ≤ 0,5</th><th class="n">Sai ở tiêu chí vốn đang đúng</th><th class="n">Token thêm</th></tr>
+<tr><td>Hôm nay (không lưu ý)</td><td class="n">0,367</td><td class="n">29/32</td><td class="n">0,036</td><td class="n">—</td></tr>
+<tr><td>Lưu ý tự động (chưa ai duyệt)</td><td class="n">0,305</td><td class="n">26/32</td><td class="n" style="color:var(--red)">0,119 (×3)</td><td class="n">+6 %</td></tr>
+<tr><td><b>Lưu ý đã duyệt</b></td><td class="n"><b>0,188 (−49 %)</b></td><td class="n"><b>31/32</b></td><td class="n">0,066</td><td class="n">+3 %</td></tr>
+<tr><td>Đưa bài mẫu đã chấm vào prompt (few-shot)</td><td class="n">0,031*</td><td class="n">32/32</td><td class="n">0,012</td><td class="n">+36 %</td></tr>
+</table>
+<p><small>* Few-shot tốt gần như tuyệt đối là ảo ảnh của dữ liệu mô phỏng: bài thử ghép từ đúng các đoạn đã có trong ví dụ. Cách này còn đưa nguyên văn bài của sinh viên khác vào prompt, nên loại.</small></p>
+<div class="two">
+<div>
+<h3>Đọc số liệu</h3>
+<ul>
+  <li>Lưu ý <b>học được sở thích chấm</b> mà rubric không ghi rõ: sai ở các ô «sở thích riêng» giảm từ 0,29 xuống 0,02–0,03.</li>
+  <li><b>Lưu ý tự động có hại.</b> Có lưu ý lặp lại một nhận xét sai của AI, kéo cả bài tốt xuống, nên sai ở tiêu chí vốn đúng tăng gấp 3. Bỏ đúng lưu ý đó (việc người duyệt sẽ làm) thì sai số tổng giảm 49 %.</li>
+  <li>Trên 6 bài có nhãn độc lập của BA: sai số giảm 1,10 → 0,63, nhưng điểm bị kéo <b>gắt quá tay</b> (lệch trung bình đổi dấu từ +0,23 thành −0,25).</li>
+  <li>Thử đầu độc bằng một câu chèn lệnh trong bài nộp: 0/3 lần bị nhiễm (bằng chứng còn yếu).</li>
+</ul>
+</div>
+<div>
+<h3>Độ tin cậy</h3>
+<ul>
+  <li><b>Cao</b> về ràng buộc và lược đồ: Tech Lead đọc thẳng mã và migration.</li>
+  <li><b>Vừa đến thấp</b> về độ lớn lợi ích:
+    <ul>
+      <li>một model, một bài tập;</li>
+      <li>nhãn giảng viên là mô phỏng;</li>
+      <li>chân nhãn BA chỉ có 6 bài;</li>
+      <li>hai lần chạy lệch nhau khá nhiều.</li>
+    </ul>
+  </li>
+  <li>Kết luận chắc chắn được: <b>có tác dụng theo đúng chiều</b>, và <b>bước giảng viên duyệt là bắt buộc</b>. Muốn có con số đưa vào đồ án thì đo lại trên E3 (≥ 60 bài chấm tay).</li>
+</ul>
+</div>
+</div>
+
+<h2>4. Những cách dùng bộ nhớ khác (có thể anh chưa nghĩ tới)</h2>
+<table>
+<tr><th>#</th><th>Ý</th><th>Lợi cho ai</th><th>Rủi ro</th><th>Cỡ</th><th>PM chấm</th></tr>
+<tr><td>M1</td><td><b>Lưu ý chấm theo bài tập</b> (rubric có phiên bản, giảng viên duyệt)</td><td>Giảng viên ít sửa tay; điểm nháp nhất quán</td><td>Lệch phiên bản giữa sinh viên (đã chặn bằng ghim phiên bản)</td><td>M</td><td><span class="tag y">làm</span></td></tr>
+<tr><td>M2</td><td><b>Mỗi lần sửa thành một ca kiểm thử hồi quy</b> (golden set E2/E3, đã che)</td><td>Đổi prompt/model không bị lùi; đồ án có số đo thật</td><td>Thấp (chỉ xuất bản đã che)</td><td>S</td><td><span class="tag y">làm</span>: đây là «harness» đúng nghĩa</td></tr>
+<tr><td>M3</td><td><b>«Tài liệu còn thiếu»</b>: gom các câu AI không trả lời được theo chủ đề</td><td>Giảng viên biết cần bổ sung tài liệu gì</td><td>Chỉ hiện chủ đề, không hiện câu</td><td>S–M</td><td><span class="tag m">sprint 11</span>, gộp vào Insights</td></tr>
+<tr><td>M4</td><td><b>Threads:</b> gợi ý «câu tương tự đã có đáp án được xác nhận» ngay lúc soạn câu hỏi</td><td>Sinh viên có đáp án ngay; giảng viên ít câu trùng</td><td>Đáp án cũ khi tài liệu đổi (đã có cơ chế làm mới)</td><td>S</td><td><span class="tag y">làm</span> cùng M1</td></tr>
+<tr><td>M5</td><td>Bàn giao giữa kỳ: lưu ý chấm, kho tri thức, công thức đã xác nhận</td><td>Giảng viên dạy lại môn</td><td>Chỉ mang mục không danh tính</td><td>M</td><td><span class="tag m">sau bảo vệ</span></td></tr>
+<tr><td>M6</td><td>Đưa các mẫu câu hỏi bị loại vào prompt sinh câu lần sau</td><td>Tỉ lệ câu được duyệt nguyên cao hơn (E5)</td><td>Thấp</td><td>S</td><td><span class="tag y">làm</span> cùng M1</td></tr>
+<tr><td>M7</td><td>Giọng nhận xét của giảng viên</td><td>Giảng viên</td><td>Thấp</td><td>S</td><td><span class="tag m">đi kèm M1</span></td></tr>
+<tr><td>M8</td><td>Tự hiệu chỉnh ngưỡng của decision model (D60)</td><td>Vận hành</td><td>Chỉ được tự <b>siết</b>; nới phải có người duyệt</td><td>M</td><td><span class="tag m">sau bảo vệ</span></td></tr>
+<tr><td>M11</td><td>Hồ sơ học tập theo từng sinh viên do LLM viết</td><td>—</td><td><b>Cao:</b> thành công cụ giám sát hay nhãn rủi ro trá hình. Phần có ích (chủ đề cần ôn) đã có bằng SQL ở sprint 10</td><td>—</td><td><span class="tag n">không làm</span></td></tr>
+<tr><td>M12</td><td>Nhớ hội thoại chat riêng xuyên phiên (đúng việc Hindsight làm)</td><td>—</td><td><b>Cao</b> về dữ liệu cá nhân, giá trị thấp cho một học phần</td><td>—</td><td><span class="tag n">không làm</span></td></tr>
+</table>
+
+<h2>5. Thiết kế đề xuất: vòng học có người duyệt</h2>
+<figure>
+<svg viewBox="0 0 920 230" width="100%" role="img" aria-label="Vòng học từ lần giảng viên sửa">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#5b524b"/></marker></defs>
+<g font-family="Be Vietnam Pro, system-ui" font-size="13" fill="#1c1714">
+<rect x="10" y="40" width="160" height="64" rx="8" fill="#fff" stroke="#e6dfd6"/><text x="90" y="66" text-anchor="middle">AI chấm nháp</text><text x="90" y="86" text-anchor="middle" fill="#5b524b" font-size="12">ghim lưu ý v(n)</text>
+<rect x="200" y="40" width="160" height="64" rx="8" fill="#fff" stroke="#e6dfd6"/><text x="280" y="66" text-anchor="middle">Giảng viên duyệt</text><text x="280" y="86" text-anchor="middle" fill="#5b524b" font-size="12">sửa điểm tiêu chí</text>
+<rect x="390" y="40" width="170" height="64" rx="8" fill="#fff" stroke="#e6dfd6"/><text x="475" y="66" text-anchor="middle">Job rút lưu ý (nền)</text><text x="475" y="86" text-anchor="middle" fill="#5b524b" font-size="12">≥ 5 bài · không đọc bài làm</text>
+<rect x="590" y="40" width="150" height="64" rx="8" fill="#fbeef0" stroke="#c8102e"/><text x="665" y="66" text-anchor="middle" font-weight="700">Giảng viên duyệt</text><text x="665" y="86" text-anchor="middle" fill="#5b524b" font-size="12">từng lưu ý</text>
+<rect x="770" y="40" width="140" height="64" rx="8" fill="#fff" stroke="#e6dfd6"/><text x="840" y="66" text-anchor="middle">Lưu ý v(n+1)</text><text x="840" y="86" text-anchor="middle" fill="#5b524b" font-size="12">chấm lại bài chưa CB</text>
+<path d="M170 72H198M360 72H388M560 72H588M740 72H768" stroke="#5b524b" fill="none" marker-end="url(#a)"/>
+<path d="M840 104V170H90V106" stroke="#5b524b" fill="none" stroke-dasharray="4 4" marker-end="url(#a)"/>
+<text x="465" y="190" text-anchor="middle" fill="#5b524b" font-size="12">mỗi lần sửa còn thành một ca hồi quy E3 (M2) để đo trước/sau, không cho lùi</text>
+</g></svg>
+<figcaption>Recall là một câu SQL theo bài tập; điểm tổng, trừ muộn, làm tròn vẫn do code tính; bản chấm vẫn là nháp.</figcaption>
+</figure>
+<table>
+<tr><th>Ràng buộc cứng</th><th>Cách đáp ứng</th></tr>
+<tr><td>Không tên/MSSV, không rò giữa lớp hay giữa sinh viên</td><td>Job rút lưu ý chỉ đọc tiêu chí, điểm nháp, nhận xét của AI và điểm giảng viên. <b>Không đọc văn bản bài làm.</b> Đầu ra đi qua bộ dò PII. Khoá <code>(course_id, assignment_id)</code>.</td></tr>
+<tr><td>Tính điểm là code thuần</td><td>Lưu ý chỉ tác động <b>điểm từng tiêu chí</b> trong bản nháp. Tổng, trừ muộn, làm tròn giữ nguyên bằng <code>decimal</code>.</td></tr>
+<tr><td>Giảng viên quyết, AI chỉ nháp</td><td>Lưu ý sinh ra ở trạng thái nháp; chỉ giảng viên duyệt được; <b>không lưu ý nào tự áp dụng</b>.</td></tr>
+<tr><td>Công bằng giữa sinh viên</td><td>Mỗi lượt chấm ghim một phiên bản lưu ý. Đổi phiên bản thì báo «N bài chấm theo bản cũ · Chấm lại». Không công bố một lô trộn hai phiên bản.</td></tr>
+<tr><td>Chống đầu độc</td><td>Không đọc bài làm, phải đủ số lần sửa, có người duyệt, hiện số lần sửa ủng hộ mỗi lưu ý.</td></tr>
+<tr><td>Kiểm toán, xoá</td><td>Lưu ý trỏ về các bản chấm nguồn. Duyệt ghi <code>audit_log</code>. Xoá dữ liệu một sinh viên thì gỡ khỏi nguồn; lưu ý còn ít ủng hộ thì cho nghỉ.</td></tr>
+<tr><td>D46, luật 3, D47</td><td>Chỉ Go + Postgres. Job nền qua Redis Streams, làn BATCH, <code>llm.Structured</code>, LLM qua 9router. Không chạm đường hỏi đáp.</td></tr>
+</table>
+
+<h2>6. Đề xuất của PM</h2>
+<p>Tôi đồng ý với hướng của Tech Lead. Tôi chỉ khác ở <b>thời điểm</b> và <b>gói phạm vi</b>:</p>
+<ul>
+  <li><b>Thời điểm.</b> Tech Lead đề xuất để sau bảo vệ. Tôi đề xuất làm thành <b>sprint 10.6</b>, ngay sau 10.5, trước lượt kiểm và bench 1.000 bài chung, vì ba lý do:
+    <ul>
+      <li>anh muốn chạy chung một lượt kiểm;</li>
+      <li>phần lõi chỉ cỡ M và không đụng đường chat;</li>
+      <li>đồ án có thêm một kết quả mới có số đo: điểm nháp gần giảng viên hơn và đo được.</li>
+    </ul>
+  </li>
+  <li><b>Gói phạm vi «harness»</b>: M1 lưu ý chấm, M2 ca hồi quy, M4 câu tương tự trên Threads, M6 mẫu câu bị loại, và lưu bất biến nhận xét gốc của AI. M3 gộp vào sprint 11 (Insights). M5 và M8 để sau bảo vệ.</li>
+  <li><b>Bật mặc định tắt theo lớp</b>, giống decision model. Muốn lùi thì tắt cờ, prompt chấm quay về như hôm nay.</li>
+  <li><b>Đo bắt buộc trong lượt chung:</b> sai số điểm nháp trước/sau trên bài tập thứ hai của cùng lớp (E3), độ lệch trung bình (chống chấm gắt quá tay), số lần giảng viên phải sửa tay.</li>
+</ul>
+<table>
+<tr><th>Lát (sprint 10.6)</th><th>Nội dung</th><th class="n">Ước</th></tr>
+<tr><td>L1</td><td>Migration <code>grading_guidance</code> + <code>grading_results.guidance_version</code>, <code>ai_comments</code> bất biến</td><td class="n">0,5 ngày</td></tr>
+<tr><td>L2</td><td>Job <code>grading.reflect</code> (BATCH, Structured, bộ dò PII, không đọc bài làm)</td><td class="n">1 ngày</td></tr>
+<tr><td>L3</td><td>Prompt chấm nhận khối lưu ý đã duyệt theo phiên bản ghim</td><td class="n">0,5 ngày</td></tr>
+<tr><td>L4</td><td>Màn Duyệt bài: hàng «Lưu ý chấm · n bản nháp», Duyệt/Bỏ, «Chấm lại N bài»</td><td class="n">1 ngày</td></tr>
+<tr><td>L5</td><td>M2 xuất ca hồi quy (đã che) vào golden set E2/E3; M6 mẫu câu bị loại; M4 câu tương tự trên Threads</td><td class="n">1–1,5 ngày</td></tr>
+<tr><td>L6</td><td>Tài liệu: ADR, ARCHITECTURE, FLOWS (chấm bài, Threads), hướng dẫn vận hành, kiểm thử</td><td class="n">0,5 ngày</td></tr>
+</table>
+
+<div class="ask">
+<b>Cần anh quyết</b>
+<ol>
+  <li><b>Làm sprint 10.6 ngay sau 10.5</b> (đề xuất của PM), hay để sau bảo vệ (đề xuất của Tech Lead)?</li>
+  <li>Duyệt hai ADR:
+    <ul>
+      <li><b>D61</b>: không dùng hệ bộ nhớ agent bên ngoài; bộ nhớ là dữ liệu có cấu trúc cộng người duyệt.</li>
+      <li><b>D62</b>: lưu ý chấm là một phiên bản rubric do giảng viên duyệt, ghim theo lượt chấm.</li>
+    </ul>
+    D62 chạm vào nguyên tắc «AI chỉ nháp, người quyết» và công bằng chấm, nên cần anh duyệt.</li>
+  <li>Phạm vi gói «harness» (M1 + M2 + M4 + M6) có hợp ý anh không, hay chỉ làm M1 + M2?</li>
+</ol>
+</div>
+<p><small>Ghi chú phụ: nhãn bài mẫu S7 đang lệch, <code>expected_grading.json</code> ghi 7,00 còn README ghi giảng viên chốt 8,00. Sprint 9.5 đo theo 7,00. PM sẽ giao BA/QC thống nhất lại. Không làm đổi kết luận ở trên.</small></p>
+</main></body></html>
