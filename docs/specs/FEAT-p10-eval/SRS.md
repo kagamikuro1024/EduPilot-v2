@@ -1,5 +1,5 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.0 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1 và Q-E-21 đụng dữ liệu cá nhân: viết theo phương án **an toàn nhất** và chờ PM xác nhận — `QUESTIONS.md`)
+Phiên bản 1.1 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 ## 1. Mục đích và phạm vi
 Hoàn tất M13 (Observation A: `/observability`; B: `/insights`), thống kê điểm thi PE trên `/analytics`, đóng Nợ (UX17-8/9, LCP, L6), đo đạc E1–E6, E2E F1–F17, rà bảo mật và hoàn thiện cho buổi bảo vệ.
@@ -102,7 +102,7 @@ Với cụm *c*, mỗi tín hiệu chuẩn hoá về [0, 1] bằng chia cho giá
 ## 5. Dữ liệu
 **Không tạo bảng cho báo cáo lỗ hổng:** `insight_reports` đã có (`00015`; `payload` jsonb: `{topics:[{rank,name,why,signals,recommendation,examples,named_by,chapter,week}],uncovered:[],counts,period_days}`; **không** `student_id` / tên / MSSV trong payload).
 
-**Bảng mới (đề xuất đổi ARCHITECTURE, Q-E-1 — chờ PM):** migration kế tiếp sau migration cuối đã merge (số do dev lấy từ nhánh gốc, goose, không sửa file cũ).
+**Bảng mới (đề xuất đổi ARCHITECTURE, Q-E-1, PM xác nhận P-11-1):** migration kế tiếp sau migration cuối đã merge (số do dev lấy từ nhánh gốc, goose, không sửa file cũ).
 ```sql
 llm_request_payloads(
   audit_id    uuid PRIMARY KEY,        -- = llm_audit.id (không FK để dọn độc lập)
@@ -179,7 +179,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 Dữ liệu seed: lớp 1 ≈ 150 câu hỏi (chủ đề A, B lệch + 1 chủ đề đúng 2 sinh viên + 10 `no_context`), lớp 2 ≈ 40 câu (chủ đề C), ≥ 300 dòng `llm_audit` / 7 ngày, ≥ 4 bài thi PE đã công bố, ≥ 1 sinh viên tụt 3 bài liên tiếp, câu hỏi có PII mô phỏng để kiểm che.
 
 ## 10. Câu hỏi mở và quyết định
-Xem `QUESTIONS.md` (Q-E-1…22). **Đề xuất đổi ARCHITECTURE (PM quyết):** (1) bảng `llm_request_payloads` (Q-E-1); (2) `GET …/requests/{id}` → `POST …/requests/{id}/open` (Q-E-4); (3) §5 thêm 5 endpoint thống kê điểm thi + `export` của Insight (US-P10-06); (4) `/analytics` thêm tab «Điểm thi» (§7 route). **Chờ PM:** Q-E-1, Q-E-21 (dữ liệu cá nhân); còn lại đã chốt theo đề xuất BA.
+Xem `QUESTIONS.md` (Q-E-1…22). **Đề xuất đổi ARCHITECTURE (PM quyết):** (1) bảng `llm_request_payloads` (Q-E-1); (2) `GET …/requests/{id}` → `POST …/requests/{id}/open` (Q-E-4); (3) §5 thêm 5 endpoint thống kê điểm thi + `export` của Insight (US-P10-06); (4) `/analytics` thêm tab «Điểm thi» (§7 route). **PM xác nhận P-11-1:** Q-E-1, Q-E-4, Q-E-21; còn lại đã chốt theo đề xuất BA.
 
 ## 11. Truy vết
 | PRD | FLOWS | Phase | US | FR | Test |
