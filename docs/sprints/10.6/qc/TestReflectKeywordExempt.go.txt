@@ -1,0 +1,25 @@
+// Mẫu QC (SRS v1.7, 4.1 GUIDANCE_KEYWORD_EXEMPT / 4.2.8 (v), P-106-12) — dev đưa vào backend-go/internal/grading/reflect_internal_test.go (package grading).
+// Thêm / bớt cụm miễn = sửa SRS 4.1 + test này. Cần import "golang.org/x/text/unicode/norm" cho ca NFD.
+func TestReflectKeywordExempt(t *testing.T) {
+	t.Parallel()
+	exempt := []string{ // KHÔNG bị loại
+		"Tổng quát hoá luận điểm trước khi nêu ví dụ", "Mở bài nêu tổng quan hiện trạng", "Trình bày tổng thể kiến trúc phòng thủ",
+		"Lập luận tổng hợp nhiều nguồn", "Tổng kết rồi mới kiến nghị", "Chỉ cho điểm tối đa khi có số liệu, trừ khi bài nêu lý do",
+		"Ngoại trừ phần mở bài", "Loại trừ các giả định không có căn cứ",
+		"TỔNG QUÁT", "tong quat", "(tổng quan)", "tổng quát,", "tổng quát.", norm.NFD.String("tổng quát"),
+		"tổng quát tổng hợp", "tổng quát, tổng kết", "tổng quan tổng thể", // hai cụm liền nhau dùng chung ranh giới
+		"Ý trừu tượng nhưng có ví dụ", // «trừu» không phải từ khoá «trừ»
+	}
+	for _, s := range exempt {
+		require.False(t, ForbiddenText(s), "phải được miễn: %q", s)
+	}
+	forbiddenCases := []string{ // VẪN bị loại
+		"Tính tổng điểm của các ý", "Trừ điểm khi thiếu ví dụ", "Bài nộp muộn thì hạ bậc", "Làm tròn lên 0,5", "Phạt 10 %",
+		"tổng", "trừ", "Tổng của các ý", "tổng quá", "trừ đi 0,5", "tổng đài viên",
+		"Tổng quát nhưng đừng tính tổng điểm", "tổng quan và trừ 0,5", "trừ khi nộp muộn", "ngoại trừ phần phạt",
+		"tổng kết rồi làm tròn", "loại trừ điểm thưởng và phạt", "tổng quát tổng điểm",
+	}
+	for _, s := range forbiddenCases {
+		require.True(t, ForbiddenText(s), "phải bị loại: %q", s)
+	}
+}

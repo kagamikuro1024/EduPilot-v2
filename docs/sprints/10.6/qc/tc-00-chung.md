@@ -20,6 +20,7 @@ Viết ở **pha 1** (2026-11-14) từ `docs/specs/FEAT-grading-guidance/{US,SRS
 | US-GD-05, 06 (ghim prompt, chấm lại, chặn lô trộn; số đo) | `tc-US-GD-05-06.md` |
 | US-GD-07, 08, 09 (ca hồi quy; câu tương tự Threads; lý do loại câu hỏi) | `tc-US-GD-07-09.md` |
 | US-GD-10, 11 (seed, cổng, đo E3, guide; ranh giới an toàn) | `tc-US-GD-10-11.md` |
+| P-106-11 (PII «dấu là tập con»), P-106-12 (cụm miễn từ khoá, `dropped` theo tiêu chí), UX theo nhật ký giaovien | `tc-P106-11-12-UX.md` (+ mẫu `TestReflectKeywordExempt.go.txt`) |
 
 ## Kiểm chéo áp cho mọi story (pha 2)
 Phân quyền 4 vai + TA chỉ đọc + lớp khác `404`; không PII / văn bản bài trong log, `llm_audit`, payload tới LLM, bảng mới; `POST`/`PUT` có tác dụng phụ nhận `Idempotency-Key` / `version` → 409; danh sách có cursor ≤ 100; mỗi màn có tải / rỗng / lỗi; 375 px; `bash scripts/ui-antipatterns.sh`; không `fetch(` trần; không thư viện / dịch vụ bộ nhớ agent (`go.mod`, `package.json`); không sửa test cũ (`git diff <gốc>... -- '*_test.go' frontend/e2e` chỉ thêm); **mặc định tắt: stack seed sạch không có lời gọi `reflect`, không khối lưu ý trong prompt chấm** cho tới khi QC bật cờ; chữ UI không «AI / nháp / RAG / PII» ở màn lưu ý; tất cả mã lỗi mới có trong `openapi.yaml`.
@@ -28,3 +29,4 @@ Phân quyền 4 vai + TA chỉ đọc + lớp khác `404`; không PII / văn b�
 
 ## Lịch sử sửa TC
 - 2026-11-14 (P-106-7): thêm «Cổng `-run` không rỗng»; TC-G03-13 sửa ở `tc-US-GD-03-04.md`.
+- 2026-11-14 (P-106-11, P-106-12, SRS v1.7): thêm `tc-P106-11-12-UX.md` (TC-P11-01…10, TC-P12-01…26, TC-UX-01…19).

@@ -36,3 +36,10 @@ Phát sinh khi viết TC pha 1 (2026-11-14). Mỗi câu có phương án QC; TC 
 | # | Câu hỏi | Đề xuất QC |
 | --- | --- | --- |
 | Q-S106-16 | US-GD-07 AC6: «Teacher thấy **số ca** của lớp mình ở màn thống kê» — SRS §6 không có endpoint nào trả số ca hồi quy, giao diện cũng chưa hiện. Làm hay bỏ AC? | Thêm `regression_cases:{GRADING_EDIT, …}` vào `GET …/guidance` (hoặc bỏ AC6 phần Teacher); TC-G07-13 tạm ghi «không kiểm được» |
+
+## Hỏi thêm khi viết TC P-106-11 / P-106-12 / UX (2026-11-14)
+| # | Câu hỏi | Đề xuất QC |
+| --- | --- | --- |
+| Q-S106-17 | Nhãn UX «(a)…(m)» của PM chưa có văn bản gốc trong repo; QC ánh xạ theo nhật ký giaovien thành TC-UX-01…16 (a = Duyệt bài sau gõ nhận xét, b = khoá đăng nhập, c = lọc mặc định + «Chấm tất cả» khoá, d = «Đã nộp/Tổng 0/60», e = hàng chờ 20 dòng, f = tự nhảy bài, g = bộ đếm + «Cần xem kỹ», h/i = nhãn số đo, j = Hoàn tác ngắn, k = chữ gốc sau sửa, l = Chấm lại không tiến độ / không tổng kết, m = hộp Công bố). | PM xác nhận / chỉnh danh sách; mục nào PM loại thì QC bỏ TC tương ứng |
+| Q-S106-18 | `dropped` ở mã dev (`16fdf4c9`): đối tượng `{criterion,case,…,by_criterion:{c2:{keyword:1}}}`; SRS v1.7 / openapi: mảng `[{criterion_id,reason,count}]`. UI dev in «N lưu ý bị loại · <tiêu chí>: <lý do>»; SRS: một dòng «N lưu ý bị loại», không liệt kê lý do; N dev bỏ `duplicate`, SRS tính cả `duplicate`. | Theo SRS v1.7 (TC-P12-13, 16, 18 sẽ FAIL nếu giữ mã); nếu PM thích giao diện có tiêu chí + lý do thì BA vá SRS + openapi + luật chữ UI |
+| Q-S106-19 | `TestReflectKeywordExempt` (SRS 4.1, 4.2.8) chưa có trong mã; QC không sửa mã dev. | QC đưa mẫu `TestReflectKeywordExempt.go.txt`; dev thêm vào `reflect_internal_test.go` (gate `-run` P-106-7) |
