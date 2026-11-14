@@ -22,12 +22,14 @@
 }
 .table td {
   height: 48px;
-  padding: var(--ep-space-2) var(--ep-space-3);
+  padding: var(--ep-space-1) var(--ep-space-3); /* hai dòng chữ (tên + phụ) vẫn vừa 48 px: hàng bảng 48 | 44 (§23.6) */
+  line-height: 1.35;
   color: var(--ep-ink);
   border-bottom: 1px solid var(--ep-rule);
   vertical-align: middle;
 }
 .dense td { height: 44px; }
+.table td :is(span, p, small, div, a) { line-height: inherit; }
 
 .clickable { transition: background-color var(--ep-fast) var(--ep-ease-standard); }
 @media (hover: hover) and (pointer: fine) { .clickable { cursor: pointer; } }
