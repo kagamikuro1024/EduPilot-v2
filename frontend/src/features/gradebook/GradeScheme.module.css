@@ -1,7 +1,4 @@
-.review { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ep-space-6); }
-@media (min-width: 1024px) { .review { grid-template-columns: minmax(0, 1fr) 340px; } }
 .main { display: grid; gap: var(--ep-space-4); min-width: 0; }
-.aside { position: sticky; top: var(--ep-space-6); align-self: start; padding-left: var(--ep-space-6); border-left: 1px solid var(--ep-rule); max-height: calc(100vh - var(--ep-space-12)); overflow: auto; }
 
 .bar2 { display: flex; align-items: center; justify-content: flex-end; gap: var(--ep-space-3); flex-wrap: wrap; padding-bottom: var(--ep-space-4); }
 

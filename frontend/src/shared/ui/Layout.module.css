@@ -20,7 +20,7 @@
 .headRow h1 { min-width: 0; }
 .meta { font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .actions { display: flex; align-items: center; gap: var(--ep-space-2); flex: none; }
-.wide, .primary { display: inline-flex; }
+.wide, .primary, .lead { display: inline-flex; }
 .narrow { display: none; }
 
 .section { display: grid; gap: var(--ep-space-4); }
@@ -35,11 +35,18 @@
 .split { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--ep-space-6); align-items: start; }
 .half { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .splitMain, .splitAside { min-width: 0; }
+/* half + fill: hai panel cao đúng phần còn lại của màn, mỗi panel cuộn riêng (duyệt bài: bài làm | chấm) */
+.split[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 12rem); min-height: 28rem; align-items: stretch; }
+.split[data-ep-split-fill] > * { min-height: 0; display: grid; }
+.split[data-ep-split-fill] [data-ep-panel] { overflow-y: auto; min-height: 0; }
+.split[data-ep-split-fill] .splitAside { position: static; }
 .splitAside { position: sticky; top: calc(var(--ep-topbar) + var(--ep-space-6)); }
 
 /* list-detail: một panel sát mép (Panel tự bỏ đệm nhờ :has), danh sách 380 px + chi tiết. `fill` cao đúng phần còn lại của màn; hai ngăn cuộn riêng. */
 .listDetail { display: grid; grid-template-columns: 380px minmax(0, 1fr); min-height: 0; }
 .listDetail[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 12rem); min-height: 28rem; }
+.listDetail[data-list-collapsed] { grid-template-columns: minmax(0, 1fr); }
+.listDetail[data-list-collapsed] .ldList { display: none; }
 .ldList { min-width: 0; min-height: 0; overflow-y: auto; border-right: 1px solid var(--ep-rule); }
 .ldDetail { min-width: 0; min-height: 0; overflow-y: auto; }
 
@@ -52,6 +59,8 @@
 @media (max-width: 1099px) {
   .split, .half { grid-template-columns: 1fr; gap: var(--ep-space-6); }
   .splitAside { position: static; }
+  .split[data-ep-split-fill] { height: auto; min-height: 0; } /* xếp chồng: mỗi panel cao theo nội dung */
+  .split[data-ep-split-fill] [data-ep-panel] { overflow-y: visible; }
   .listDetail { grid-template-columns: 1fr; }
   .listDetail[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 10rem); }
   .ldList { border-right: 0; }
@@ -67,7 +76,10 @@
   .actions { width: 100%; }
   .primary { order: -1; flex: 1; }
   .primary > *, .primary > div, .primary button, .primary a { flex: 1; width: 100%; justify-content: center; }
+  .split[data-only="main"] > .splitAside, .split[data-only="aside"] > .splitMain { display: none; } /* chỉ một ngăn: màn có tab */
   .wide { display: none; }
+  .lead { order: -1; flex: 1; }
+  .lead > *, .lead > div, .lead button, .lead a { flex: 1; width: 100%; justify-content: center; }
   .narrow { display: inline-flex; }
   .dlRow { grid-template-columns: 1fr; gap: var(--ep-space-1); }
   /* công tắc / trạng thái xuống hàng riêng, không đè ô nào (02-AC15) */

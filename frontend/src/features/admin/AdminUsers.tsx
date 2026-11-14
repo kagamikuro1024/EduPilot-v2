@@ -204,7 +204,7 @@ export function AdminUsers() {
           rows={list.items}
           rowKey={(u) => u.id}
           dense
-          empty={<EmptyState title="Chưa có người dùng khớp bộ lọc." />}
+          empty={<EmptyState title="Chưa có người dùng khớp bộ lọc" />}
           pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
         />
       </PageState>

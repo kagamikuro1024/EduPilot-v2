@@ -22,10 +22,10 @@ export function ExamsHome() {
 
 function StaffExams() {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page kind="work"><PageHeader title="Bài thi" /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (cc.state === "loading") return <Page kind="read"><PageHeader title="Bài thi" /><Panel><Skeleton lines={6} /></Panel></Page>;
   if (cc.state === "none")
     return (
-      <Page kind="work">
+      <Page kind="read">
         <PageHeader title="Bài thi" />
         <Panel>
           <EmptyState title="Chưa chọn lớp" />
@@ -46,7 +46,7 @@ function Board({ courseId }: { courseId: string }) {
   const [creating, setCreating] = useState(false);
   const list = useCursorList<ExamRow>(eKey(courseId, "list"), ePath(courseId), { limit: 100 });
   return (
-    <Page kind="work">
+    <Page kind="read">
       <PageHeader title="Bài thi" primary={{ label: "Tạo bài thi", icon: <Plus aria-hidden />, onClick: () => setCreating(true), expanded: creating }} />
       {creating && <NewExam courseId={courseId} onCancel={() => setCreating(false)} />}
       <PageState
@@ -55,7 +55,7 @@ function Board({ courseId }: { courseId: string }) {
         loading={<Panel><ActionList loading={5} label="Đang tải bài thi" /></Panel>}
         empty={
           <Panel>
-            <EmptyState title="Chưa có bài thi nào" action={creating ? undefined : <Button variant="primary" onClick={() => setCreating(true)}>Tạo bài thi</Button>} />
+            <EmptyState title="Chưa có bài thi nào" />
           </Panel>
         }
         showTechnical

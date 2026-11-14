@@ -1,15 +1,7 @@
-.page { display: grid; }
-.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--ep-space-6); align-items: start; }
-.column { display: grid; gap: var(--ep-space-4); width: 100%; max-width: 840px; min-width: 0; justify-self: center; }
-
-/* Lịch sử phiên là một Panel riêng cạnh Panel cuộc trò chuyện (FR-X11, D59): khung do <Panel>, ở đây chỉ định vị. */
-.history {
-  position: sticky;
-  top: calc(var(--ep-topbar) + var(--ep-space-6));
-  max-height: calc(100dvh - var(--ep-topbar) - var(--ep-space-12));
-}
-.history > :global([data-ep-panel]) { display: grid; gap: var(--ep-space-2); align-content: start; max-height: inherit; height: 100%; overflow-y: auto; padding: var(--ep-space-4) var(--ep-space-3); }
-.inner { display: grid; gap: var(--ep-space-4); min-height: 0; height: 100%; grid-template-rows: auto; }
+/* Chat riêng: khung hai ngăn do Split (list-detail, cao theo màn) quyết (DESIGN.md §23.3); ở đây chỉ nội dung. */
+.history { display: grid; gap: var(--ep-space-2); align-content: start; padding: var(--ep-space-4) var(--ep-space-3); }
+.convo { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: var(--ep-space-4); height: 100%; min-height: 0; padding: var(--ep-space-4) var(--ep-space-6); }
+.inner { display: grid; gap: var(--ep-space-4); min-height: 0; grid-template-rows: minmax(0, 1fr) auto; }
 .history ul { list-style: none; margin: 0; padding: 0; display: grid; }
 .historyItem {
   display: grid;
@@ -87,7 +79,7 @@
 .teacherWho svg { width: 15px; height: 15px; }
 
 .sessionNote { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
-.composer { display: grid; gap: var(--ep-space-3); position: sticky; bottom: 0; padding-bottom: var(--ep-space-2); background: var(--ep-surface); }
+.composer { display: grid; gap: var(--ep-space-3); background: var(--ep-surface); }
 .shield { display: inline-flex; align-items: center; gap: var(--ep-space-2); }
 .shield svg { width: 14px; height: 14px; color: var(--ep-green); flex: none; }
 
@@ -115,32 +107,16 @@
 .historyEmpty { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-3); }
 .sessionActions { margin: 0; }
 
-/* ≥ 720px: không gian làm việc cao đúng phần còn lại của màn; hội thoại cuộn bên trong, composer ghim đáy (01-AC11). */
-@media (min-width: 720px) {
-  .page.page { height: calc(100dvh - var(--ep-topbar)); grid-template-rows: auto minmax(0, 1fr); padding-bottom: var(--ep-space-6); }
-  .layout { min-height: 0; height: 100%; align-items: stretch; }
-  .history { position: static; max-height: none; height: 100%; }
-  .column { min-height: 0; height: 100%; grid-template-rows: minmax(0, 1fr); }
-  .column > :global([data-ep-panel]) { min-height: 0; height: 100%; }
-  .inner { grid-template-rows: minmax(0, 1fr) auto; }
-  .thread { min-height: 0; overflow-y: auto; padding-right: var(--ep-space-2); }
-  .composer { position: static; padding-bottom: 0; }
-}
+.thread { min-height: 0; overflow-y: auto; padding-right: var(--ep-space-2); }
 
-/* < 1100px: panel lịch sử thu lại, thay bằng nút `Phiên trước (n)` mở bảng trượt từ đáy (01-AC22). */
+/* < 1100px: lịch sử thu lại, thay bằng nút `Phiên trước (n)` mở bảng trượt từ đáy (01-AC22). */
 @media (max-width: 1099px) {
-  .layout { grid-template-columns: minmax(0, 1fr); gap: var(--ep-space-4); }
-  .history { display: none; }
   .sessionsBtn { display: flex; }
 }
 
-@media (min-width: 720px) and (max-width: 1099px) {
-  .column { grid-template-rows: auto minmax(0, 1fr); }
-}
-
 @media (max-width: 719px) {
-  .thread { gap: var(--ep-space-6); min-height: 42vh; }
-  .composer { position: sticky; bottom: 56px; }
+  .convo { padding: var(--ep-space-3); }
+  .thread { gap: var(--ep-space-6); }
   /* Vùng chạm ≥ 44 px cho nút chữ trong luồng chat (00-AC15). */
   .sourceBtn, .linkBtn { min-height: 44px; }
 }

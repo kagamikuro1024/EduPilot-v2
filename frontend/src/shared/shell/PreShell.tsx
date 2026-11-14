@@ -1,8 +1,7 @@
 import type { RouteIntro } from "./intro";
 import shell from "./AppShell.module.css";
 import pre from "./PreShell.module.css";
-import ls from "@/shared/ui/Layout.module.css";
-import { Panel } from "@/shared/ui";
+import { Page, PageHeader, Panel } from "@/shared/ui";
 
 /**
  * Khung trước phiên (US-PU-06): cùng hình học với AppShell (thanh trên, cột bên, vùng chính) và cùng lớp CSS của PageHeader,
@@ -22,20 +21,14 @@ export function PreShell({ intro }: { intro: RouteIntro }) {
         </div>
       </aside>
       <main id="main" className={shell.main} aria-busy="true">
-        <div className={[ls.page, ls[intro.width ?? "read"]].join(" ")}>
-          <div className={ls.header}>
-            <div className={ls.headRow}>
-              <h1 className="ep-page-title" data-part="page-title">
-                {intro.title}
-              </h1>
-            </div>
-          </div>
+        <Page kind={intro.width ?? "read"}>
+          <PageHeader title={intro.title} />
           {intro.body && (
             <Panel>
               <p className={pre.body}>{intro.body}</p>
             </Panel>
           )}
-        </div>
+        </Page>
       </main>
     </div>
   );

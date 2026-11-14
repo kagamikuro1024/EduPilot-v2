@@ -101,7 +101,7 @@ export function SnapshotHistory({ course, onClose }: { course: string; onClose: 
       {list.isPending ? (
         <Skeleton lines={4} />
       ) : (list.data ?? []).length === 0 ? (
-        <EmptyState title="Chưa chốt lần nào." />
+        <EmptyState title="Chưa chốt lần nào" />
       ) : (
         <div data-part="snapshot-history">
           <ul className={s.versions}>

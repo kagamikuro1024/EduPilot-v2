@@ -59,7 +59,7 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
       <Page kind="work">
         <PageHeader title="Điểm danh" />
         <Panel>
-          <EmptyState title="Lớp chưa có lịch buổi học." action={<ButtonLink href="/calendar" variant="primary">Tạo lịch buổi học</ButtonLink>} />
+          <EmptyState title="Lớp chưa có lịch buổi học" action={<ButtonLink href="/calendar">Tạo lịch buổi học</ButtonLink>} />
         </Panel>
       </Page>
     );
@@ -139,7 +139,7 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
       <PageHeader
         title="Điểm danh"
         meta={[`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`]}
-        primary={{ label: saved ? "Đã lưu" : "Lưu điểm danh", disabled: saved || a.conflicts.length > 0, onClick: () => void complete(), desktopOnly: true }}
+        primary={{ label: saved ? "Đã lưu" : "Lưu điểm danh", disabled: saved || a.conflicts.length > 0, onClick: () => void complete() }}
       />
       <Panel>
         <Toolbar end={<span data-part="att-save-state">{state}</span>}>{picker}</Toolbar>
@@ -169,7 +169,7 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
         {undo.node}
       </Panel>
       <div className={s.saveBar} data-part="att-save-bar">
-        <Button variant="primary" disabled={saved || a.conflicts.length > 0 || q.status === "offline"} onClick={() => void complete()}>
+        <Button disabled={saved || a.conflicts.length > 0 || q.status === "offline"} onClick={() => void complete()}>
           {barState} · {present} có mặt · {absent} vắng
         </Button>
       </div>

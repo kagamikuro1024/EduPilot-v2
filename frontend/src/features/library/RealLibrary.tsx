@@ -30,7 +30,7 @@ export function RealLibrary({ courseId }: { courseId: string }) {
   }
 
   return (
-    <Page kind="work">
+    <Page kind="read">
       <PageHeader title="Thư viện" />
       <div className={r.filters} role="search">
         <Field label="Tìm tài liệu">{(id) => <Input id={id} type="search" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} placeholder="AES, chữ ký số, quy chế…" autoFocus />}</Field>

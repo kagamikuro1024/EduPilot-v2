@@ -30,12 +30,12 @@ test("attendance session picker: mặc định buổi đang diễn ra, gần nh�
   await expect(page.locator("[data-part=att-session-select]")).toHaveValue(sessionRow(1).id);
 });
 
-test("attendance empty no sessions: 'Lớp chưa có lịch buổi học.' và nút về /calendar", async ({ page, context }, info) => {
+test("attendance empty no sessions: 'Lớp chưa có lịch buổi học' và nút về /calendar", async ({ page, context }, info) => {
   desktopOnly(info);
   await asDemo(context, "teacher");
   await attApi(page, { sessions: [] });
   await page.goto("/attendance");
-  await expect(page.getByText("Lớp chưa có lịch buổi học.")).toBeVisible();
+  await expect(page.getByText("Lớp chưa có lịch buổi học")).toBeVisible();
   await expect(page.getByRole("link", { name: "Tạo lịch buổi học" })).toHaveAttribute("href", "/calendar");
 });
 
@@ -281,7 +281,7 @@ test("attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồ
   for (const i of [2, 5, 8]) await mark(i, "Vắng");
   await mark(10, "Muộn");
   await rows.nth(12).getByRole("button", { name: /^Ghi phát biểu/ }).click();
-  await page.getByRole("button", { name: "Lưu điểm danh" }).click();
+  await page.getByRole("button", { name: "Lưu điểm danh", exact: true }).click();
   await expect(page.getByText("Đã lưu điểm danh · 30 sinh viên · vắng 3")).toBeVisible();
   expect(Date.now() - t0).toBeLessThan(15000);
   const last = bodyOf(api.puts().at(-1)!); // tự lưu giữa chừng (nếu có) không tính: lời gọi CUỐI ghi cả lưới

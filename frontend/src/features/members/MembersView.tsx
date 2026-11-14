@@ -255,9 +255,9 @@ function Members({ courseId, canManage }: { courseId: string; canManage: boolean
               selection={tab === "pending" ? { selected, onChange: (next) => setSelected(new Set([...next].filter((id) => items.find((m) => m.user_id === id)?.warning !== "EMAIL_MISMATCH"))) } : undefined}
               empty={
                 tab === "pending" ? (
-                  <EmptyState title="Chưa có yêu cầu nào chờ duyệt." />
+                  <EmptyState title="Chưa có yêu cầu nào chờ duyệt" />
                 ) : (
-                  <EmptyState title="Chưa có thành viên khớp." />
+                  <EmptyState title="Chưa có thành viên khớp" />
                 )
               }
               pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
@@ -332,7 +332,7 @@ function Staff({
       {loading ? (
         <Skeleton lines={3} />
       ) : items.length === 0 ? (
-        <EmptyState title="Lớp chưa có trợ giảng." />
+        <EmptyState title="Lớp chưa có trợ giảng" />
       ) : (
         <DataTable
           caption="Trợ giảng của lớp"

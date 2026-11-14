@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Panel } from "@/shared/ui/Panel";
+import { PageHeader } from "@/shared/ui/Layout";
 import s from "./AuthShell.module.css";
 
 /** Khung của màn tài khoản (`homeLink`: logo là liên kết về trang giới thiệu — chỉ /login) (đăng nhập, đăng ký, quên mật khẩu…): nền canvas, một cột ≤ 440 px, không thanh bên (SRS FEAT-account-security 7.1, FEAT-ui-panels 7.1). */
@@ -27,7 +28,7 @@ export function AuthShell({ children, homeLink }: { children: React.ReactNode; h
 export function AuthPanel({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
   return (
     <>
-      <h1 className="ep-page-title">{title}</h1>
+      <PageHeader title={title} />
       <Panel>
         <div className={s.stack}>{children}</div>
       </Panel>

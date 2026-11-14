@@ -382,9 +382,9 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
             </InlineNotice>
           ))}
           {!hasScheme ? (
-            <EmptyState title="Chưa có công thức điểm." action={teacher ? <ButtonLink href="/gradebook/scheme" variant="primary">Thiết lập công thức</ButtonLink> : undefined} />
+            <EmptyState title="Chưa có công thức điểm" action={teacher ? <ButtonLink href="/gradebook/scheme">Thiết lập công thức</ButtonLink> : undefined} />
           ) : rows.length === 0 ? (
-            <EmptyState title="Lớp chưa có sinh viên." />
+            <EmptyState title="Lớp chưa có sinh viên" />
           ) : (
             <DataTable
               columns={tableCols}

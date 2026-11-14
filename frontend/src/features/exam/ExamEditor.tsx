@@ -20,10 +20,10 @@ type Tab = "info" | "items" | "preview";
 /** `/exams/[id]` (Giảng viên / TA): soạn bài thi nháp, lên lịch, gia hạn khi đang mở (US-PE-04 AC12). */
 export function ExamEditor({ id }: { id: string }) {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page kind="work"><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Panel><Skeleton lines={8} /></Panel></Page>;
+  if (cc.state === "loading") return <Page kind="read"><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Panel><Skeleton lines={8} /></Panel></Page>;
   if (cc.state === "none")
     return (
-      <Page kind="work">
+      <Page kind="read">
         <PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} />
         <Panel><EmptyState title="Chưa chọn lớp" /></Panel>
       </Page>
@@ -110,7 +110,7 @@ function Editor({ courseId, id, isTeacher }: { courseId: string; id: string; isT
 
   if (!d) {
     return (
-      <Page kind="work">
+      <Page kind="read">
         <PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} />
         <PageState query={q} showTechnical loading={<Panel><Skeleton lines={8} /></Panel>}>
           <Panel><Skeleton lines={8} /></Panel>
@@ -138,7 +138,7 @@ function Editor({ courseId, id, isTeacher }: { courseId: string; id: string; isT
           : undefined;
 
   return (
-    <Page kind="work">
+    <Page kind="read">
       <PageHeader
         title={d.title}
         back={{ href: "/exams", label: "Bài thi" }}

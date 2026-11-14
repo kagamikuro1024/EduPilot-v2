@@ -4,6 +4,6 @@
 .rowActions { display: flex; gap: var(--ep-space-2); align-items: center; }
 .detail { display: grid; gap: var(--ep-space-4); }
 .meta { color: var(--ep-ink-3); font-size: var(--ep-text-label); margin: 0; }
-.preview { width: 100%; height: min(70vh, 720px); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-md); }
+.preview { width: 100%; height: 45rem; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-md); }
 .actions { display: flex; gap: var(--ep-space-3); flex-wrap: wrap; }
-@media (max-width: 719px) { .filters { grid-template-columns: minmax(0, 1fr); } .preview { height: 60vh; } }
+@media (max-width: 719px) { .filters { grid-template-columns: minmax(0, 1fr); } .preview { height: 30rem; } }

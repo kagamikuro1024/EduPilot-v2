@@ -107,7 +107,7 @@ function Overlay({
       <div className={s.frame} onTouchStart={sheet ? swipeStart : undefined} onTouchMove={sheet ? swipeMove : undefined}>
         <header className={s.head}>
           <div className={s.headText}>
-            <h2 id={titleId} className="ep-section-title">
+            <h2 id={titleId} className="ep-section-title" data-ep-section-title>
               {title}
             </h2>
             {description && <p id={descId} className={s.desc}>{description}</p>}

@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { EmptyState, Page, PageHeader, Panel, Tabs } from "@/shared/ui";
 import { AssignmentsTab } from "@/features/assignments/AssignmentsTab";
 import { useSession } from "@/shared/session/session";
-import { QueueTab } from "./QueueTab";
+import { QueueTab, type QueueHeader } from "./QueueTab";
 import { UnmatchedTab } from "./UnmatchedTab";
 import s from "./Grading.module.css";
 
@@ -18,6 +18,7 @@ export function GradingQueue() {
   const params = useSearchParams();
   const router = useRouter();
   const [creating, setCreating] = useState(false);
+  const [queueHdr, setQueueHdr] = useState<QueueHeader | null>(null);
 
   const asked = params.get("tab");
   const tab: Tab = asked === "assignments" || asked === "unmatched" ? asked : "queue";
@@ -26,7 +27,11 @@ export function GradingQueue() {
 
   return (
     <Page kind="work">
-      <PageHeader title="Chấm bài" primary={tab === "assignments" && teacher ? { label: "Tạo bài tập", icon: <Plus aria-hidden />, onClick: () => setCreating(true) } : undefined} />
+      <PageHeader
+        title="Chấm bài"
+        primary={tab === "assignments" && teacher ? { label: "Tạo bài tập", icon: <Plus aria-hidden />, onClick: () => setCreating(true) } : tab === "queue" ? queueHdr?.primary : undefined}
+        secondary={tab === "queue" ? queueHdr?.secondary : undefined}
+      />
 
       <div className={s.tabsRow}>
         <Tabs
@@ -43,14 +48,14 @@ export function GradingQueue() {
 
       {!realCourseId || realCourseId === "all" ? (
         <Panel>
-          <EmptyState title="Chọn một lớp để chấm bài." />
+          <EmptyState title="Chọn một lớp để chấm bài" />
         </Panel>
       ) : tab === "assignments" ? (
         <AssignmentsTab courseId={realCourseId} teacher={teacher} creating={creating} onCreatingChange={setCreating} />
       ) : tab === "unmatched" ? (
         <UnmatchedTab courseId={realCourseId} />
       ) : (
-        <QueueTab courseId={realCourseId} teacher={teacher} />
+        <QueueTab courseId={realCourseId} teacher={teacher} onHeader={setQueueHdr} />
       )}
     </Page>
   );

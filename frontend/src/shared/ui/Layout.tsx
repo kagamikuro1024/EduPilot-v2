@@ -101,7 +101,9 @@ export function PageHeader({
   const second = (secondary ?? []).filter((a): a is HeaderAction => !!a);
   const extra = more ?? [];
   const toItem = (a: HeaderAction): MenuItem => ({ label: a.label, icon: a.icon, danger: a.danger, disabled: a.disabled, onSelect: () => (a.href ? router.push(a.href) : a.onClick?.()) });
-  const folded = [...second, ...extra].map(toItem); // nút «Thêm» dưới 720 px
+  // dưới 720 px: nút chính đứng đầu hàng; không có nút chính thì nút phụ đầu tiên giữ nguyên (không giấu hành động duy nhất của trang), còn lại gom vào «Thêm»
+  const lead = primary ? null : (second[0] ?? null);
+  const folded = [...second.filter((a) => a !== lead), ...extra].map(toItem);
   const metaParts = (meta ?? []).filter((m) => m !== null && m !== undefined && m !== false && m !== "");
   const hasActions = !!primary || second.length > 0 || extra.length > 0;
   return (
@@ -119,7 +121,7 @@ export function PageHeader({
         {hasActions && (
           <div className={s.actions} data-ep-header-actions>
             {second.map((a) => (
-              <span key={a.label} className={s.wide}>
+              <span key={a.label} className={a === lead ? s.lead : s.wide}>
                 <ActionButton a={a} variant="secondary" />
               </span>
             ))}
@@ -223,6 +225,8 @@ export function Split({
   ratio = "main-aside",
   fill = false,
   detailOpen = false,
+  listCollapsed = false,
+  only,
 }: {
   main: ReactNode;
   aside: ReactNode;
@@ -231,11 +235,15 @@ export function Split({
   fill?: boolean;
   /** `list-detail` dưới 1100 px: hiện ngăn chi tiết thay cho danh sách */
   detailOpen?: boolean;
+  /** `list-detail`: người dùng thu gọn danh sách (chat); chi tiết chiếm cả bề rộng */
+  listCollapsed?: boolean;
+  /** `main-aside` / `half` dưới 1100 px: chỉ hiện một ngăn (màn có tab «Bài làm / Chấm») */
+  only?: "main" | "aside";
 }) {
   if (ratio === "list-detail") {
     return (
       <Panel>
-        <div className={s.listDetail} data-ep-split="list-detail" data-ep-split-fill={fill ? "" : undefined} data-detail-open={detailOpen ? "" : undefined}>
+        <div className={s.listDetail} data-ep-split="list-detail" data-ep-split-fill={fill ? "" : undefined} data-detail-open={detailOpen ? "" : undefined} data-list-collapsed={listCollapsed ? "" : undefined}>
           <div className={s.ldList}>{main}</div>
           <div className={s.ldDetail}>{aside}</div>
         </div>
@@ -243,7 +251,7 @@ export function Split({
     );
   }
   return (
-    <div className={[s.split, ratio === "half" ? s.half : ""].join(" ")} data-ep-split={ratio}>
+    <div className={[s.split, ratio === "half" ? s.half : ""].join(" ")} data-ep-split={ratio} data-ep-split-fill={fill ? "" : undefined} data-only={only}>
       <div className={s.splitMain}>{main}</div>
       <aside className={s.splitAside}>{aside}</aside>
     </div>

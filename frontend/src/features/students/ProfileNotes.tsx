@@ -147,7 +147,7 @@ export function ProfileNotes({ courseId, studentId, userId, focusSignal }: { cou
       {list.isError && list.items.length === 0 ? (
         <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} title="Không tải được ghi chú." />
       ) : list.items.length === 0 && !list.isPending ? (
-        <EmptyState title="Chưa có ghi chú nào." />
+        <EmptyState title="Chưa có ghi chú nào" />
       ) : (
         <ul className={s.notes}>
           {list.items.map((n) => (

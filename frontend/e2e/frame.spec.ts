@@ -1,3 +1,4 @@
+import { mkdirSync, writeFileSync } from "node:fs";
 import { test } from "@playwright/test";
 import { measureFrame, type FrameRow } from "./support/frame";
 import { settleGoto } from "./support/hydrate";
@@ -5,9 +6,9 @@ import { ROLES, routesFor } from "./support/routes";
 import { asDemo, type DemoRole } from "./support/session";
 
 // Hợp đồng khung trang (DESIGN.md §23, sprint 10.7). Đo DOM qua móc `data-ep-*` trên MỌI route × vai × 1440 / 375 × (có dữ liệu, rỗng).
-// Chế độ báo cáo (mặc định): in và đính kèm bảng độ lệch, KHÔNG làm hỏng test. `FRAME_STRICT=1` (CI sau lô 7): mỗi độ lệch là một lỗi.
+// Mặc định (sau lô 7, nợ khung rỗng): mỗi độ lệch là một lỗi. `FRAME_REPORT=1`: chỉ in và đính kèm bảng độ lệch, KHÔNG làm hỏng test (dùng khi đo).
 // Route mới tự vào ma trận vì `routesFor` duyệt bảng điều hướng `nav.ts`.
-const STRICT = process.env.FRAME_STRICT === "1";
+const STRICT = process.env.FRAME_REPORT !== "1";
 const SIZES = [
   { name: "1440", w: 1440, h: 900, wide: true },
   { name: "375", w: 375, h: 812, wide: false },
@@ -34,6 +35,8 @@ for (const role of ROLES) {
     }
     const bad = rows.filter((r) => r.devs.length);
     const table = rows.map((r) => `${r.devs.length ? "✗" : "✓"} ${role} ${r.route} ${r.size} ${r.state} kind=${r.kind ?? "-"} cột=${r.cols} đầu=${r.headerH ?? "-"}${r.devs.length ? " :: " + r.devs.map((d) => `${d.code} ${d.detail}`).join("; ") : ""}`).join("\n");
+    mkdirSync("test-results/frame", { recursive: true }); // bảng độ lệch cho người đọc (không phụ thuộc trạng thái đạt / đỏ của test)
+    writeFileSync(`test-results/frame/frame-${role}.json`, JSON.stringify(rows, null, 1));
     await info.attach(`frame-${role}.txt`, { body: table, contentType: "text/plain" });
     await info.attach(`frame-${role}.json`, { body: JSON.stringify(rows, null, 1), contentType: "application/json" });
     console.log(`frame ${role}: ${bad.length} / ${rows.length} lượt lệch`);

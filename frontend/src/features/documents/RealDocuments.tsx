@@ -274,7 +274,7 @@ function ChunkList({ courseId, doc, readOnly, onSaved }: { courseId: string; doc
     }
   }
   return (
-    <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Tài liệu chưa có đoạn nào." />}>
+    <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Tài liệu chưa có đoạn nào" />}>
       <div data-part="chunks">
         {q.items.map((c) => (
           <div key={c.id} className={r.chunk}>

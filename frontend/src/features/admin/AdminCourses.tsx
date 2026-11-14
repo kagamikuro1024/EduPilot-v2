@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { ApiError, apiClient, useCursorList } from "@/shared/data";
-import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, StatusText, UndoLine } from "@/shared/ui";
+import { type Column, ConfirmIrreversible, DataTable, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, StatusText, UndoLine } from "@/shared/ui";
 import s from "./admin.module.css";
 import { CoursePanel, type PanelMode } from "./courses/CoursePanel";
 import { COURSES_KEY, sizeText, type AdminCourse } from "./courses/api";
@@ -108,7 +108,7 @@ export function AdminCourses() {
             rows={list.items}
             rowKey={(c) => c.id}
             empty={
-              <EmptyState title="Chưa có lớp nào. Mở lớp đầu tiên." action={panel ? undefined : <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setPanel({ kind: "open" })}>Mở lớp</Button>} />
+              <EmptyState title="Chưa có lớp nào" />
             }
             pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
           />

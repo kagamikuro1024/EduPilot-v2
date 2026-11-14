@@ -102,7 +102,7 @@ test("me states: lớp chưa điểm danh → câu rỗng không nút; lỗi →
   await expect(page.getByText(/Không tải được kết quả của bạn/)).toBeVisible();
   broken = false;
   await page.getByRole("button", { name: "Thử lại" }).click();
-  await expect(page.getByText("Chưa có buổi nào được điểm danh.")).toBeVisible();
+  await expect(page.getByText("Chưa có buổi nào được điểm danh")).toBeVisible();
   await expect(page.locator("main section", { hasText: "Chuyên cần" }).getByRole("button")).toHaveCount(0);
   await expect(page.locator("main section", { hasText: "Chuyên cần" }).getByRole("link")).toHaveCount(0);
 });
@@ -252,7 +252,7 @@ test("grade states: lỗi → nguyên nhân + Thử lại; chưa công bố gì 
   await expect(page.getByText("Bạn có mặt 7/9 buổi, vắng 2.")).toBeVisible();
   broken = false;
   await page.locator("main section", { hasText: "Không tải được điểm của bạn." }).getByRole("button", { name: "Thử lại" }).click();
-  await expect(page.getByText("Chưa có điểm nào được công bố.")).toBeVisible();
+  await expect(page.getByText("Chưa có điểm nào được công bố")).toBeVisible();
 });
 
 test("grade mobile 375: khối điểm một cột, không tràn ngang", async ({ page }) => {

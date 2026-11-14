@@ -13,7 +13,7 @@ export function MeScreen() {
     return (
       <Page kind="read">
         <PageHeader title="Kết quả của tôi" />
-        <Panel><EmptyState title="Chưa có lớp nào." /></Panel>
+        <Panel><EmptyState title="Chưa có lớp nào" /></Panel>
       </Page>
     );
   return <RealMe key={realCourseId} courseId={realCourseId} />;

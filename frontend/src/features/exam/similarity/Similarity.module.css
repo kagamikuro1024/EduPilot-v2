@@ -9,5 +9,5 @@
 .head { display: grid; gap: var(--ep-space-1); }
 .title { margin: 0; font-weight: 600; }
 .meta { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
-.actions { display: grid; gap: var(--ep-space-3); max-width: 640px; }
+.actions { display: grid; gap: var(--ep-space-3); }
 @media (max-width: 1023px) { .side { grid-template-columns: minmax(0, 1fr); } }

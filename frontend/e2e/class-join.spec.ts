@@ -302,7 +302,7 @@ test("admin courses page: sửa và gán lại dùng PUT / assign; rỗng có l�
 test("admin courses page: chưa có lớp → lời mời mở lớp đầu tiên", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop", "bảng dùng chung");
   await openCourses(page, []);
-  await expect(page.getByText("Chưa có lớp nào. Mở lớp đầu tiên.")).toBeVisible();
+  await expect(page.getByText("Chưa có lớp nào")).toBeVisible();
 });
 
 test("admin courses errors: mã lớp trùng tại ô, 422 theo ô giữ chữ, gửi lại cùng khoá, sai version, sai vai, lưu trữ lại", async ({ page }, info) => {
@@ -885,7 +885,7 @@ test("class members page: TA không có nút Duyệt ở hàng email chưa khớ
 test("class members page: rỗng, tab Trợ giảng (thêm / bớt), sinh viên bị chặn, 375 px sạch", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop", "bảng dùng chung");
   const st = await openMembers(page, "TEACHER", [mem("t1", "Trợ Giảng Một", "ACTIVE", { role_in_course: "TA" })], "/class/members?tab=pending");
-  await expect(page.getByText("Chưa có yêu cầu nào chờ duyệt.")).toBeVisible();
+  await expect(page.getByText("Chưa có yêu cầu nào chờ duyệt")).toBeVisible();
   const puts: Json[] = [];
   await page.route(`**/api/v1/courses/${C1}/assistants`, (r) => { puts.push(JSON.parse(r.request().postData() ?? "{}") as Json); return fulfill(r, 200, { teacher: null, assistants: [], changed: { teacher: false, added_ta: [], removed_ta: [] } }); });
   await page.getByRole("tab", { name: "Trợ giảng" }).click();
