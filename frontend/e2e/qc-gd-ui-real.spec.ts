@@ -112,7 +112,7 @@ test("teacher: hàng chờ, màn duyệt, cài đặt lớp @1440", async ({ bro
   await page.goto("/class/settings");
   await page.waitForTimeout(2500);
   const t3 = await page.locator("main").innerText();
-  const labels = ["Lưu ý chấm", "Ca kiểm thử", "Gợi ý câu hỏi tương tự", "Gợi ý khi soạn"];
+  const labels = ["Lưu ý chấm", "Ca kiểm thử", "Gợi ý câu hỏi tương tự", "Gợi ý khi sinh câu hỏi"];
   console.log(`QCINFO cài đặt lớp nhãn: ${labels.map((l) => `${l}=${t3.includes(l)}`).join(", ")}; từ cấm=${BAD.test(t3)}`);
   await page.screenshot({ path: `${OUT}/class-settings-1440.png`, fullPage: true });
   await ctx.close();

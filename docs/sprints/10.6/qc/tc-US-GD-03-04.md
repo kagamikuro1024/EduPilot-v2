@@ -52,16 +52,18 @@ Nguồn: US.md + SRS 3.2, 3.3, 4.1, 4.2.5–4.2.10, 6 #3–6; Q-G-4, Q-G-10; P-1
 | TC-G04-16 | AC10 | 375 px | Mở khối | Xếp dọc; nút vùng chạm ≥ 44 px; không tràn ngang | E2E |
 | TC-G04-17 | AC11 | – | Quét chữ UI; `bash scripts/ui-antipatterns.sh` | Không dòng mô tả dưới tiêu đề, không icon Info, không từ «AI / RAG / PII / nháp» (kể cả trạng thái «Chờ duyệt» thay «Nháp»); script mã 0 | TAY |
 | TC-G04-18 | RBAC | SV `/assignments/[id]` | Mở màn bằng `sv.kha` | Không thấy bất cứ gì về lưu ý (khối, chữ, DOM, mạng) | E2E |
-| TC-G04-19 | P-106-8 | Mục DRAFT, cờ bật | `Duyệt` trên giao diện | Mục sang «Đã duyệt, chờ áp dụng» ngay (lạc quan); hiện một dòng tĩnh «Hoàn tác» tại chỗ (≈ 5 s); **không** hộp xác nhận, **không** toast «Thành công»; chưa có `decide` mới ở API nếu thiết kế hoãn gửi, hoặc đã có nếu thiết kế đặt lại | E2E |
-| TC-G04-20 | P-106-8 | Sau TC-G04-19 | Bấm `Hoàn tác` | Mục về `DRAFT` (`status`, `decided_by NULL`, `approved_in_version NULL`); `grading_guidance_versions` và `assignments.guidance_version` **không đổi**; nếu API đặt lại: `audit_log` đủ cặp quyết định + hoàn tác, `version` tăng; không hộp hỏi | E2E+DB |
-| TC-G04-21 | P-106-8 | Mục DRAFT | `Bỏ` rồi `Hoàn tác` | Như TC-G04-20 nhưng từ `REJECTED` về `DRAFT`; mục không xuất hiện ở `existing` (đầu vào `reflect`) giữa hai bước nếu chưa quá hạn REJECTED | E2E+DB |
-| TC-G04-22 | P-106-8 | Mục vừa `Duyệt` | Chờ quá hạn Hoàn tác (≈ 5 s), tải lại trang | Dòng `Hoàn tác` mất, không còn cách đảo qua giao diện; trạng thái `APPROVED` giữ nguyên sau tải lại (không mất quyết định) | E2E |
-| TC-G04-23 | P-106-8 | Mục đã `APPROVED` rồi `Áp dụng` (thuộc phiên bản đã áp dụng) | Cố đảo bằng API đặt lại (nếu có) / quan sát giao diện | Không có `Hoàn tác`; API từ chối `409` (mã do BA chốt, ví dụ `ITEM_NOT_DRAFT` / `ITEM_APPLIED`); chỉ `Cho nghỉ` (`RETIRE`) → `Áp dụng` | API+E2E |
-| TC-G04-24 | P-106-8 | `Áp dụng` | Quan sát | `Áp dụng` vẫn qua `ConfirmIrreversible` (có xác nhận), **không** có dòng `Hoàn tác` | E2E |
-| TC-G04-25 | P-106-8 | Hai tab cùng teacher: tab A `Duyệt` + `Hoàn tác`; tab B đã `Bỏ` mục đó trước | Bấm `Hoàn tác` ở A | `409 VERSION_CONFLICT`: báo một dòng tại chỗ, hàng tải lại đúng trạng thái; không ghi đè quyết định của B | E2E |
-| TC-G04-26 | P-106-8 | Mục có chữ sửa (`text_original` ≠ NULL) | `Duyệt` (có sửa chữ) → `Hoàn tác` | Hành vi theo Q-S106-15 (đề xuất QC: đảo quyết định, **giữ chữ đã sửa**, `text_original` giữ bản gốc của AI); chữ người dùng gõ không bao giờ mất | E2E+DB |
-| TC-G04-27 | P-106-8 | Ngắt mạng giữa lúc `Hoàn tác` | Bấm `Hoàn tác` khi offline | Giữ trạng thái trước khi bấm, báo lỗi tại chỗ + `Thử lại`; không mất chữ / quyết định; không gửi hai lần khi có mạng lại (idempotent) | E2E |
-| TC-G04-28 | P-106-8 | 375 px | `Duyệt` → quan sát `Hoàn tác` | Vùng chạm ≥ 44 px; dòng không tràn ngang; không che nút kế bên | E2E |
+| TC-G04-19 | AC3, AC3a | Mục DRAFT, cờ bật | `Duyệt` trên giao diện | `decide APPROVE` gửi **ngay**; mục sang «Chờ áp dụng» (lạc quan); hiện một dòng tĩnh «Hoàn tác» tại chỗ (≈ 5 s); **không** hộp xác nhận, **không** toast «Thành công» | E2E |
+| TC-G04-20 | AC3a | Sau TC-G04-19 | Bấm `Hoàn tác` | `POST decide {decision:"RESET", version}` → `200`; mục về `DRAFT` (`decided_by`, `decided_at`, `approved_in_version` NULL); `text`, `text_original` **giữ nguyên**; `grading_guidance_versions` và `assignments.guidance_version` **không đổi**; `audit_log` có quyết định và `RESET`; không hộp hỏi | E2E+DB |
+| TC-G04-21 | AC3a | Mục DRAFT | `Bỏ` rồi `Hoàn tác` | Như TC-G04-20, từ `REJECTED` về `DRAFT` | E2E+DB |
+| TC-G04-22 | AC3a | Mục vừa `Duyệt`, chưa `Áp dụng` | Chờ quá 5 s, tải lại trang | Dòng `Hoàn tác` mất; trạng thái `APPROVED` giữ; menu «Đặt lại» ở hàng vẫn còn cho tới khi `Áp dụng` và gọi `RESET` được (`200`, về `DRAFT`) | E2E+API |
+| TC-G04-23 | AC3a | Mục đã vào phiên bản (`approved_in_version` ≠ NULL), hoặc `RETIRED`, hoặc `Áp dụng` chạy ngay trước ở tab khác | `decide RESET` | `409 ITEM_NOT_RESETTABLE` (**không** `ITEM_NOT_DRAFT`); giao diện: «Đã áp dụng, không hoàn tác được» + tải lại hàng; không còn menu «Đặt lại» / `Hoàn tác` ở mục đã áp dụng; `RESET` trên mục `DRAFT` → `200` không đổi | API+E2E |
+| TC-G04-24 | AC5 | ≥ 1 mục «Chờ áp dụng» | Bấm `Áp dụng` | `ConfirmIrreversible` «Áp dụng bản v{N+1}?» (số mục thêm / nghỉ); chỉ khi xác nhận mới `POST apply`; sau xác nhận **không** có dòng `Hoàn tác` | E2E |
+| TC-G04-25 | AC3a | Hai tab cùng teacher: tab A `Duyệt` (có `Hoàn tác`); tab B đã `Bỏ` mục đó | Bấm `Hoàn tác` ở A | `RESET` với `version` cũ → `409 VERSION_CONFLICT`: một dòng tại chỗ, hàng tải lại đúng trạng thái; không ghi đè quyết định của B | E2E |
+| TC-G04-26 | AC3a (Q-S106-15 b) | Mục đã sửa chữ khi `Duyệt` (`text_original` = chữ AI) | `Hoàn tác` | Mục về `DRAFT`, **giữ chữ đã sửa**, `text_original` giữ bản AI; chữ người dùng gõ không mất | E2E+DB |
+| TC-G04-27 | AC3a | Ngắt mạng giữa lúc `Hoàn tác` | Bấm `Hoàn tác` khi offline | Giữ trạng thái trước khi bấm, báo lỗi tại chỗ + `Thử lại`; không mất chữ / quyết định; không gửi hai lần khi có mạng lại | E2E |
+| TC-G04-28 | AC3a | 375 px | `Duyệt` → quan sát `Hoàn tác` | Vùng chạm ≥ 44 px; dòng không tràn ngang; không che nút kế bên | E2E |
+| TC-G04-29 | AC3a | Mục `Cho nghỉ` (chờ nghỉ, `pending_retire`), chưa `Áp dụng` | `Hoàn tác` / `RESET` | `pending_retire=false`, mục trở lại «Đang dùng» (`APPROVED`, `approved_in_version` giữ); `RESET` mục đã `RETIRED` → `409 ITEM_NOT_RESETTABLE` | E2E+API |
+| TC-G04-30 | AC3a, AC5 | Mục «Chờ áp dụng» | `RESET` đua với `Áp dụng` (hai luồng cùng lúc) | Một thắng, một `409` (`ITEM_NOT_RESETTABLE` hoặc `VERSION_CONFLICT`); không mục nửa vời (không `APPROVED` có `approved_in_version` mà `decided_by` NULL) | API+DB |
 
 ## Nhánh lỗi
 TC-G03-01, 02, 12…18, 21…23; TC-G04-05, 06, 08, 09, 15.
@@ -75,4 +77,4 @@ Pha 2: `docs/sprints/10.6/qc/scripts/gd_reflect.py` (dùng `stub_llm.py` mở r�
 ## Lịch sử sửa TC
 - 2026-11-14 (SRS v1.2): TC-G04-07, 14 — `apply` trả `stale:{drafts, edited_drafts, reviewed}`.
 - 2026-11-14 (P-106-7, Q-S106-14): TC-G03-13 — `case_id` lạ → bỏ cả mục (đúng mã và SRS 4.2.8 (ii)); chiều sai chỉ không được đếm.
-- 2026-11-14 (P-106-8): thêm TC-G04-19…28 (Hoàn tác Duyệt / Bỏ; dev làm ở L5, BA bổ sung AC). Chưa chạy; AC và mã lỗi của API đặt lại do BA chốt (Q-S106-15).
+- 2026-11-14 (P-106-8, Q-S106-15; SRS v1.5): thêm TC-G04-19…30 — Hoàn tác = `decide RESET` (không hoãn gửi), giữ chữ đã sửa, `409 ITEM_NOT_RESETTABLE`, `Áp dụng` qua `ConfirmIrreversible`.

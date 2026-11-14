@@ -2,7 +2,7 @@ import sys, os, json, time
 sys.path.insert(0, os.path.expanduser("~/Documents/TA_Agent_qc106/docs/sprints/10.5/qc/scripts"))
 from dmx import *
 C1 = course("sv.kha", "761987")
-A = "01a1d94b-b77c-7cc9-b4d8-8e985acf447e"   # BT03 lớp 1
+A = sql(f"select id from assignments where course_id='{C1}' and title like 'Bài tập 03%' order by created_at limit 1")[0][0]   # BT03 lớp 1 (id đổi mỗi lần seed)
 G = f"/courses/{C1}/assignments/{A}/guidance"
 FL = f"/courses/{C1}/guidance-flags"
 
@@ -32,7 +32,7 @@ def wait_job(jid, t=60):
     return jobinfo(jid)
 
 def bump():
-    sql(f"update grading_results set reviewed_at=now() where id=(select r.id from grading_results r join submissions s on s.course_id=r.course_id and s.id=r.submission_id where s.assignment_id='{A}' and r.status='REVIEWED' order by r.id limit 1)")
+    sql(f"update grading_results set reviewed_at=now() where id=(select r.id from grading_results r join submissions s on s.course_id=r.course_id and s.id=r.submission_id where s.assignment_id='{A}' and r.status in ('REVIEWED','PUBLISHED') order by r.id limit 1)")
     sql("select 1")
     os.system(f"docker exec ep-qc-redis-1 redis-cli --scan --pattern 'ep:rl:reflect:*' | xargs -r docker exec -i ep-qc-redis-1 redis-cli del >/dev/null 2>&1")
 
