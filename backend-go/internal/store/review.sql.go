@@ -261,7 +261,7 @@ func (q *Queries) MinePublishedResult(ctx context.Context, arg MinePublishedResu
 }
 
 const publishLockMany = `-- name: PublishLockMany :many
-select r.id, r.status, r.run_state, r.version, r.criteria, r.ai_scores, r.ai_total_before_late, r.total, r.late_days, r.late_penalty, r.late_penalty_manual,
+select r.id, r.status, r.run_state, r.version, r.criteria, r.ai_scores, r.ai_total_before_late, r.total, r.late_days, r.late_penalty, r.late_penalty_manual, r.guidance_version, r.first_reviewed_at,
        s.student_id, s.assignment_id, s.submitted_at,
        a.title, a.due_at, a.allow_late, a.late_penalty_per_day, a.late_max_days, a.max_score,
        (exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version))::bool as superseded
@@ -290,6 +290,8 @@ type PublishLockManyRow struct {
 	LateDays          int16
 	LatePenalty       decimal.Decimal
 	LatePenaltyManual bool
+	GuidanceVersion   int16
+	FirstReviewedAt   *time.Time
 	StudentID         *uuid.UUID
 	AssignmentID      *uuid.UUID
 	SubmittedAt       *time.Time
@@ -324,6 +326,8 @@ func (q *Queries) PublishLockMany(ctx context.Context, arg PublishLockManyParams
 			&i.LateDays,
 			&i.LatePenalty,
 			&i.LatePenaltyManual,
+			&i.GuidanceVersion,
+			&i.FirstReviewedAt,
 			&i.StudentID,
 			&i.AssignmentID,
 			&i.SubmittedAt,
@@ -689,7 +693,8 @@ func (q *Queries) ReviewLock(ctx context.Context, arg ReviewLockParams) (ReviewL
 }
 
 const reviewMark = `-- name: ReviewMark :execrows
-update grading_results set status = 'REVIEWED', reviewed_by = $1, reviewed_at = now(), run_state = 'DONE', error_code = null, version = version + 1, updated_at = now()
+update grading_results set status = 'REVIEWED', reviewed_by = $1, reviewed_at = now(), run_state = 'DONE', error_code = null, version = version + 1, updated_at = now(),
+    first_reviewed_at = coalesce(first_reviewed_at, now()), first_reviewed_by = coalesce(first_reviewed_by, $1) -- P-106-5: ghi một lần, không bị ReviewApplyEdit xoá
 where course_id = $2 and id = $3 and version = $4 and status = 'DRAFT'
 `
 
