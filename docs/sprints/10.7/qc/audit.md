@@ -33,21 +33,21 @@
 | E4 | nút rỗng không trùng nút đầu trang / tab / thanh công cụ | **0** | – |
 | E5 | nút rỗng `secondary` | **2** | student/practice/history |
 | E6 | vật chứa khối rỗng ≤ 320 px (1440) | **3** | admin/observability, ta/documents, teacher/documents |
-| E7 | route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh) | **36** | student/, student/chat, student/settings, ta/, ta/analytics, ta/class/members, ta/class/settings, ta/settings … |
+| E7 | route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh) | **6** | student/, student/chat, teacher/observability |
 | L1 | đang tải: h1 cùng toạ độ như có dữ liệu (±2) | **0** | – |
 | L2 | đang tải có khung xương `aria-busy` (≥ 1) | **6** | teacher/analytics, teacher/observability, teacher/settings |
 | L3 | CLS ≤ 0,1 (có dữ liệu) | **0** | – |
 | X1 | lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại» | **8** | student/chat, teacher/analytics, teacher/observability, teacher/settings |
 | X2 | lỗi: không mã trần (4xx/5xx/undefined/Error:) | **0** | – |
-| X3 | lỗi: giữ h1 + tab như có dữ liệu | **13** | student/practice, teacher/attendance, teacher/class/members, teacher/gradebook, teacher/gradebook/scheme, teacher/questions, teacher/students |
+| X3 | lỗi: giữ h1 + tab như có dữ liệu | **7** | student/practice, teacher/attendance, teacher/gradebook, teacher/gradebook/scheme |
 | D1 | cỡ chữ ⊆ {28,24,20,16,15,14,12} | **8** | ta/class/settings, teacher/class/settings |
 | D2 | cao điều khiển 36|30 (1440), ≥ 44 (375) | **11** | student/chat, ta/class/settings, teacher/class/settings, teacher/gradebook |
 | D3 | cao hàng bảng 48|44 | **29** | admin/admin/courses, admin/admin/users, admin/observability, ta/attendance, ta/class/members, ta/documents, ta/gradebook, ta/grading … |
 | T1 | 0 icon giải thích (info / circle-help) ngoài thông báo | **0** | – |
-| T2 | chuỗi > 30 ký tự lặp < 3 lần | **22** | admin/settings, student/settings, ta/documents, ta/grading, ta/settings, teacher/documents, teacher/grading, teacher/settings |
+| T2 | chuỗi > 30 ký tự lặp < 3 lần | **4** | ta/documents, teacher/documents |
 | C3 | vàng: ≤ 3 nền, 0 chữ | **0** | – |
 
-**Tổng lệch: 191** (mục chưa 0 = chưa đạt).
+**Tổng lệch: 137** (mục chưa 0 = chưa đạt).
 
 ## Chữ ký khung (kiểu, h1.left, cột.left, cột.width, có meta, đệm panel, hình khối rỗng)
 
@@ -82,6 +82,11 @@
 | 1 | ('read', 12, 12, 351, True, 16, 'title') | admin/[data] |
 | 1 | ('work', 12, 12, 351, True, 16, 'title') | admin/observability[data] |
 | 1 | ('read', 12, 12, 351, False, 16, 'title+nút') | student/practice/history[empty] |
+
+## Chưa đo / không áp dụng (TL 14)
+
+- **E7 chưa đo:** ta/analytics (empty@1440/empty@375), ta/students (empty@1440/empty@375), teacher/analytics (empty@1440/empty@375), teacher/students (empty@1440/empty@375) — lớp QCEMPTY vẫn có 1 sinh viên; `analytics` là màn mô phỏng (nợ sprint 11).
+- **E7 không áp dụng (11 route):** student/settings, ta/ và teacher/ (Hôm nay), ta/ và teacher/ class/members, class/settings, ta/ và teacher/ settings, teacher/settings/llm, teacher/settings/integrations.
 
 ## Chi tiết lệch
 
@@ -132,31 +137,6 @@
 - teacher/analytics[empty@1440] +17
 - teacher/analytics[empty@375] +17
 
-### T2 — chuỗi > 30 ký tự lặp < 3 lần (22)
-
-- student/settings[data@1440] 172.21.*.* · Lần cuối: Hôm qua, 23:39×4; 172.21.*.* · Lần cuối: Hôm qu
-- student/settings[data@375] 172.21.*.* · Lần cuối: Hôm qua, 23:39×4; 172.21.*.* · Lần cuối: Hôm qu
-- ta/grading[data@1440] Bài tập 03 — Phân tích một vụ tấn công thực tế×6
-- ta/documents[data@1440] Không dùng cho AI của sinh viên×4
-- ta/settings[data@1440] 172.21.*.* · Lần cuối: Hôm qua, 23:38×3
-- ta/grading[data@375] Bài tập 03 — Phân tích một vụ tấn công thực tế×6
-- ta/documents[data@375] Không dùng cho AI của sinh viên×4
-- ta/settings[data@375] 172.21.*.* · Lần cuối: Hôm qua, 23:38×3
-- teacher/grading[data@1440] Bài tập 03 — Phân tích một vụ tấn công thực tế×6
-- teacher/documents[data@1440] Không dùng cho AI của sinh viên×4
-- teacher/settings[data@1440] 172.21.*.* · Lần cuối: Hôm qua, 23:39×5; 172.21.*.* · Lần cuối: Hôm qu
-- teacher/grading[data@375] Bài tập 03 — Phân tích một vụ tấn công thực tế×6
-- teacher/documents[data@375] Không dùng cho AI của sinh viên×4
-- teacher/settings[data@375] 172.21.*.* · Lần cuối: Hôm qua, 23:39×5; 172.21.*.* · Lần cuối: Hôm qu
-- admin/settings[data@1440] 172.21.*.* · Lần cuối: Hôm qua, 23:39×4; 172.21.*.* · Lần cuối: Hôm qu
-- admin/settings[data@375] 172.21.*.* · Lần cuối: Hôm qua, 23:39×4; 172.21.*.* · Lần cuối: Hôm qu
-- student/settings[empty@1440] 172.21.*.* · Lần cuối: Hôm qua, 21:23×3
-- student/settings[empty@375] 172.21.*.* · Lần cuối: Hôm qua, 21:23×3
-- ta/settings[empty@1440] 172.21.*.* · Lần cuối: Hôm qua, 23:38×3
-- ta/settings[empty@375] 172.21.*.* · Lần cuối: Hôm qua, 23:38×3
-- teacher/settings[empty@1440] 172.21.*.* · Lần cuối: Hôm qua, 23:39×5; 172.21.*.* · Lần cuối: Hôm qu
-- teacher/settings[empty@375] 172.21.*.* · Lần cuối: Hôm qua, 23:39×5; 172.21.*.* · Lần cuối: Hôm qu
-
 ### D3 — cao hàng bảng 48|44 (29)
 
 - ta/students[data@1440] [58, 59, 480]
@@ -188,6 +168,13 @@
 - teacher/students[empty@1440] [58]
 - teacher/class/members[empty@1440] [56, 57]
 - teacher/students[empty@375] [81]
+
+### T2 — chuỗi > 30 ký tự lặp < 3 lần (4)
+
+- ta/documents[data@1440] Không dùng cho AI của sinh viên×4
+- ta/documents[data@375] Không dùng cho AI của sinh viên×4
+- teacher/documents[data@1440] Không dùng cho AI của sinh viên×4
+- teacher/documents[data@375] Không dùng cho AI của sinh viên×4
 
 ### H3 — meta ≤ 1 dòng, không chứa lớp đang chọn (12)
 
@@ -226,44 +213,14 @@
 - ta/documents[empty@1440] 454.4
 - teacher/documents[empty@1440] 454.4
 
-### E7 — route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh) (36)
+### E7 — route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh) (6)
 
-- student/[empty@1440]
-- student/chat[empty@1440]
-- student/settings[empty@1440]
-- student/[empty@375]
-- student/chat[empty@375]
-- student/settings[empty@375]
-- ta/[empty@1440]
-- ta/students[empty@1440]
-- ta/analytics[empty@1440]
-- ta/class/members[empty@1440]
-- ta/class/settings[empty@1440]
-- ta/settings[empty@1440]
-- ta/[empty@375]
-- ta/students[empty@375]
-- ta/analytics[empty@375]
-- ta/class/members[empty@375]
-- ta/class/settings[empty@375]
-- ta/settings[empty@375]
-- teacher/[empty@1440]
-- teacher/students[empty@1440]
-- teacher/analytics[empty@1440]
-- teacher/class/members[empty@1440]
-- teacher/class/settings[empty@1440]
-- teacher/observability[empty@1440]
-- teacher/settings/llm[empty@1440]
-- teacher/settings/integrations[empty@1440]
-- teacher/settings[empty@1440]
-- teacher/[empty@375]
-- teacher/students[empty@375]
-- teacher/analytics[empty@375]
-- teacher/class/members[empty@375]
-- teacher/class/settings[empty@375]
-- teacher/observability[empty@375]
-- teacher/settings/llm[empty@375]
-- teacher/settings/integrations[empty@375]
-- teacher/settings[empty@375]
+- student/[empty@1440] tự dựng (TL 14.3)
+- student/chat[empty@1440] tự dựng (TL 14.3)
+- student/[empty@375] tự dựng (TL 14.3)
+- student/chat[empty@375] tự dựng (TL 14.3)
+- teacher/observability[empty@1440] tự dựng (TL 14.3)
+- teacher/observability[empty@375] tự dựng (TL 14.3)
 
 ### E5 — nút rỗng `secondary` (2)
 
@@ -305,19 +262,13 @@
 - teacher/observability[error@375] alert×0
 - student/chat[error@375] alert×0
 
-### X3 — lỗi: giữ h1 + tab như có dữ liệu (13)
+### X3 — lỗi: giữ h1 + tab như có dữ liệu (7)
 
-- teacher/students[error@1440] h1×1 tab [] vs []
-- teacher/attendance[error@1440] h1×1 tab [] vs []
-- teacher/gradebook/scheme[error@1440] h1×1 tab [] vs []
-- teacher/questions[error@1440] h1×1 tab [] vs []
-- teacher/class/members[error@1440] h1×1 tab ['Thành viên', 'Chờ duyệt', 'Trợ giảng', 'Nhập danh sách'] vs ['Thành viên30', 'Chờ duyệt1', 'Trợ giảng', 'Nhập danh sách']
-- student/practice[error@1440] h1×1 tab [] vs ['Theo chủ đề13', 'Thi thử']
-- teacher/students[error@375] h1×1 tab [] vs []
-- teacher/attendance[error@375] h1×1 tab [] vs []
-- teacher/gradebook[error@375] h1×1 tab [] vs []
-- teacher/gradebook/scheme[error@375] h1×1 tab [] vs []
-- teacher/questions[error@375] h1×1 tab [] vs []
-- teacher/class/members[error@375] h1×1 tab ['Thành viên', 'Chờ duyệt', 'Trợ giảng', 'Nhập danh sách'] vs ['Thành viên30', 'Chờ duyệt1', 'Trợ giảng', 'Nhập danh sách']
-- student/practice[error@375] h1×1 tab [] vs ['Theo chủ đề13', 'Thi thử']
+- teacher/attendance[error@1440] nút [] vs ['Lưu điểm danh']
+- teacher/gradebook[error@1440] nút [] vs ['Chốt điểm', 'Thêm hành động', 'Xem công thức']
+- teacher/gradebook/scheme[error@1440] nút [] vs ['Tải quy chế']
+- student/practice[error@1440] tab [] vs ['Theo chủ đề13', 'Thi thử']
+- teacher/gradebook[error@375] nút [] vs ['Chốt điểm', 'Thêm']
+- teacher/gradebook/scheme[error@375] nút [] vs ['Tải quy chế']
+- student/practice[error@375] tab [] vs ['Theo chủ đề13', 'Thi thử']
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """QC 10.7 — audit 'sau' (móc data-ep-*). Đọc audit/<phase>/audit-{data,empty,loading,error}.jsonl (qc-ui-audit-real.spec.ts v2) → audit.md + audit.html.
 Chạy: python3 audit_report.py [phase=sau]. Tiêu chí theo docs/sprints/10.7/techlead.md 1.2 (W/H/P/E/L/X/D/T/C)."""
-import json, os, sys, html, collections
+import json, os, re, sys, html, collections
 HERE = os.path.dirname(os.path.abspath(__file__)); QC = os.path.dirname(HERE)
 PHASE = sys.argv[1] if len(sys.argv) > 1 else "sau"; A = os.path.join(QC, "audit", PHASE)
 ROLES = ["student", "ta", "teacher", "admin"]
@@ -15,6 +15,12 @@ idx = {(r["state"], r["role"], r["route"], r["w"]): r for r in allr}
 tag = lambda r: f"{r['role']}{r['route']}[{r['state']}@{r['w']}]"
 near = lambda a, b, t=1.0: a is not None and abs(a - b) <= t
 FAIL = collections.OrderedDict()
+# E7 theo TL mục 14.3: 3 lệch thật; 4 chưa đo (lớp QCEMPTY vẫn có 1 SV; analytics là màn mô phỏng, nợ sprint 11); 11 không áp dụng
+E7_REAL = {"student/", "student/chat", "teacher/observability"}
+E7_UNMEASURED = {"ta/students", "teacher/students", "ta/analytics", "teacher/analytics"}
+UNMEAS = {}
+_SRC = "".join(open(os.path.join(dp, f), errors="ignore").read() for dp, _, fs in os.walk(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(QC)))), "frontend", "src")) for f in fs if f.endswith((".ts", ".tsx")))
+static_text = lambda t: t.strip() in _SRC
 def bad(code, r, why=""):
     FAIL.setdefault(code, []).append(f"{tag(r)}{(' ' + why) if why else ''}")
 DESC = {
@@ -52,6 +58,10 @@ for st in ("data", "empty"):
         prim = sum(1 for b in h["btns"] if b["v"] == "primary")
         if prim > 1 or len(h["btns"]) > 4: bad("H5", r, f"{prim} primary, {len(h['btns'])} nút")
         if (r["sections"] <= 1 and r["primaryOutside"]) or len(r["primaryOutside"]) > max(1, r["sections"]): bad("H6", r, "; ".join(r["primaryOutside"])[:60])
+        # TL 14.1: ngoại lệ = dock, nút gửi của form (≤ 1 primary mỗi form), hàng đầu ActionList (đúng 1, đầu trang không primary)
+        hdr_prim = sum(1 for b in h["btns"] if b["v"] == "primary")
+        if r.get("formPrim", 0) > 1: bad("H6", r, f"form có {r['formPrim']} primary")
+        if r.get("alPrim", 0) > 1 or (r.get("alPrim", 0) >= 1 and hdr_prim > 0): bad("H6", r, f"ActionList {r['alPrim']} primary, đầu trang {hdr_prim}")
         if h["hdrH"]: hmeta[(w, round((h["h1"] or {}).get("h", 0)), h["metaLines"] if h["hasMeta"] else 0, bool(h["btns"]))].append((h["hdrH"], r))
         if w == 375 and h["actionsH"] and h["actionsH"] > 48: bad("H8", r, f"{h['actionsH']}")
         for p in r["panels"]["list"]:
@@ -72,14 +82,19 @@ for st in ("data", "empty"):
             if any(a["v"] != "secondary" for a in e["actions"]): bad("E5", r, ",".join(a["v"] for a in e["actions"]))
             if w == 1440 and e["parentH"] > 320: bad("E6", r, f"{e['parentH']}")
         if r["dupEmpty"]: bad("E4", r, ", ".join(r["dupEmpty"]))
-        if st == "empty" and not r["empties"] and r["role"] != "admin": bad("E7", r)
+        if st == "empty" and not r["empties"] and r["role"] != "admin":
+            k = r["role"] + r["route"]
+            if k in E7_REAL: bad("E7", r, "tự dựng (TL 14.3)")
+            elif k in E7_UNMEASURED: UNMEAS.setdefault(k, set()).add(f"{r['state']}@{r['w']}")
+            # còn lại: không áp dụng (TL 14.3, 11 route: không có khái niệm rỗng hoặc lớp rỗng vẫn có dữ liệu)
         if not set(r["fonts"]) <= FONTS: bad("D1", r, str(sorted(set(r["fonts"]) - FONTS)))
         okc = (lambda x: x in (36, 30)) if w == 1440 else (lambda x: x >= 44)
         badc = [x for x in r["ctrlH"] if not okc(x)]
         if badc: bad("D2", r, str(badc))
         if r["rowH"] and any(x not in (48, 44) for x in r["rowH"]): bad("D3", r, str(r["rowH"]))
         if r["icons"]: bad("T1", r, f"{r['icons']}")
-        if r["repeats"]: bad("T2", r, "; ".join(r["repeats"])[:70])
+        st2 = [x for x in r["repeats"] if static_text(re.sub(r"×\d+$", "", x))]  # TL 14.4: chỉ chuỗi tĩnh (có nguyên văn trong frontend/src)
+        if st2: bad("T2", r, "; ".join(st2)[:70])
         if r["yellowBg"] > 3 or r["yellowFg"]: bad("C3", r, f"nền {r['yellowBg']} chữ {r['yellowFg']}")
         if st == "data" and r["cls"] > 0.1: bad("L3", r, f"CLS {r['cls']}")
 for (w, h1h, ml, row), lst in hmeta.items():
@@ -100,7 +115,15 @@ for r in rows["error"]:
         bad("X1", r, f"alert×{r['alertCount']}" + (f" rộng {r['alerts'][0]['w']}" if r["alerts"] else "") + (" thiếu Thử lại" if r["alerts"] and not r["alerts"][0]["retry"] else ""))
     if any(a["bare"] for a in r["alerts"]): bad("X2", r, r["alerts"][0]["text"][:60])
     d = idx.get(("data", r["role"], r["route"], r["w"]))
-    if ok(d) and (not r["header"]["h1Count"] or r["tabs"] != d["tabs"] or (d["header"]["hdrH"] and r["header"]["hdrH"] and abs(r["header"]["hdrH"] - d["header"]["hdrH"]) > 2)): bad("X3", r, f"h1×{r['header']['h1Count']} tab {r['tabs']} vs {d['tabs']}")
+    if ok(d):  # TL 14.2: meta và số đếm được mất khi lỗi; phải giữ h1, nhãn tab (bỏ số đếm), nút đầu trang, kiểu trang
+        nt = lambda ts: [re.sub(r"\d+$", "", t) for t in ts]
+        bl = lambda x: sorted(b["t"] for b in x["header"]["btns"])
+        why = []
+        if not r["header"]["h1Count"]: why.append("mất h1")
+        if nt(r["tabs"]) != nt(d["tabs"]): why.append(f"tab {r['tabs']} vs {d['tabs']}")
+        if bl(r) != bl(d): why.append(f"nút {bl(r)} vs {bl(d)}")
+        if r["kind"] != d["kind"]: why.append(f"kiểu {r['kind']} vs {d['kind']}")
+        if why: bad("X3", r, "; ".join(why))
 
 # ---------- md
 L = []; w = L.append
@@ -132,6 +155,9 @@ for wd in (1440, 375):
     for s, v in sorted(S.items(), key=lambda kv: -len(kv[1])): w(f"| {len(v)} | {s} | {', '.join(v[:4])} |")
     w("")
 # chi tiết lệch
+w("## Chưa đo / không áp dụng (TL 14)\n")
+w("- **E7 chưa đo:** " + (", ".join(f"{k} ({'/'.join(sorted(v))})" for k, v in sorted(UNMEAS.items())) or "–") + " — lớp QCEMPTY vẫn có 1 sinh viên; `analytics` là màn mô phỏng (nợ sprint 11).")
+w("- **E7 không áp dụng (11 route):** student/settings, ta/ và teacher/ (Hôm nay), ta/ và teacher/ class/members, class/settings, ta/ và teacher/ settings, teacher/settings/llm, teacher/settings/integrations.\n")
 w("## Chi tiết lệch\n")
 for code, v in FAIL.items():
     w(f"### {code} — {DESC[code]} ({len(v)})\n")
