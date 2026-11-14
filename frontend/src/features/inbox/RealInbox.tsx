@@ -128,7 +128,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
               <section className={s.list} data-part="inbox-list" aria-label="Danh sách câu hỏi" ref={listRef}>
                 {filterBar}
                 {rows.length === 0 ? (
-                  <EmptyState title="Không có câu hỏi trong bộ lọc này" action={<Button onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button>} />
+                  <EmptyState title="Không có câu hỏi trong bộ lọc này" />
                 ) : (
                   <ActionList label="Câu hỏi cần xử lý">
                     {rows.map((t) => (
@@ -162,7 +162,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
           <Panel>
             <div className={s.bare}>
               {filterBar}
-              <EmptyState title="Chưa có câu hỏi cần xử lý" action={filter !== "all" ? <Button onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button> : undefined} />
+              <EmptyState title="Chưa có câu hỏi cần xử lý" />
             </div>
           </Panel>
         )}

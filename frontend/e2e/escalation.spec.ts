@@ -237,7 +237,7 @@ test("inbox send failure keeps draft: lỗi 500 giữ chữ, Thử lại dùng l
   expect(posts[1].headers["idempotency-key"]).toBe(posts[0].headers["idempotency-key"]);
 });
 
-test("inbox states: rỗng có Xem tất cả, lỗi có Thử lại mà không mất dữ liệu", async ({ page, context }) => {
+test("inbox states: rỗng không nút (tab Tất cả đã có), lỗi có Thử lại mà không mất dữ liệu", async ({ page, context }) => {
   await asDemo(context, "teacher");
   let mode: "empty" | "error" = "empty";
   await page.route("**/api/v1/courses/*/tickets**", (r) => {
@@ -246,9 +246,9 @@ test("inbox states: rỗng có Xem tất cả, lỗi có Thử lại mà không 
   });
   await page.goto("/inbox");
   await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Xem tất cả" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Xem tất cả" })).toHaveCount(0); // rỗng không lặp tab «Tất cả» (§23.4)
   mode = "error";
-  await page.getByRole("button", { name: "Xem tất cả" }).click();
+  await page.getByRole("radio", { name: "Tất cả" }).click();
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
   mode = "empty";
   await page.getByRole("button", { name: "Thử lại" }).click();
