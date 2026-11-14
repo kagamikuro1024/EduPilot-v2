@@ -33,9 +33,11 @@ Cần `DATABASE_URL`, `REDIS_URL`, cấu hình LLM (9router ở môi trường �
 ## 4. Demo và đo
 ```bash
 SEED_GUIDANCE_DEMO=1 node scripts/seed.mjs && SEED_GUIDANCE_DEMO=1 node scripts/check-guidance-seed.mjs
-bash benchmarks/guidance/run.sh            # chụp số đo theo phiên bản
-bash benchmarks/guidance/run.sh --cycle    # Rút → Duyệt → Áp dụng → Chấm lại → chụp lại (cần provider sinh chữ)
+bash benchmarks/guidance/run.sh --stats            # chụp số đo theo phiên bản (không cần nhãn)
+bash benchmarks/guidance/run.sh --stats --cycle    # Rút → Duyệt → Áp dụng → Chấm lại → chụp lại (cần provider sinh chữ)
+bash benchmarks/guidance/run.sh --labels <labels.csv>   # giao thức E3 trước / sau trên nhãn người → benchmarks/reports/guidance-before-after.{json,md,svg}; thiếu nhãn → WAITING_HUMAN (thoát 3)
 ```
+Kiểm chứng với giảng viên tạm: `benchmarks/guidance/kc/` (`gen.py` sinh 84 bài qua 9router, `load.py` nạp bằng API, `sheet.py` phiếu chấm mù + `--collect`, `measure.py snap | regrade | report`) theo `docs/sprints/10.6/kiem-chung.md`.
 Seed ghi thẳng DB (`gateway admin seed-guidance`, chỉ dev | test): bật cờ lớp 761987 (PUBLISH ngay) + 8 kết quả BT03 đã duyệt, tiêu chí đầu giảng viên luôn thấp hơn AI 1,0 + 2 lưu ý nháp mẫu «Chờ duyệt». Không gọi Gemini thật.
 
 ## 5. «Hôm nay»

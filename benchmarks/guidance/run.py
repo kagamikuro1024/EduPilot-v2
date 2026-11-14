@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Đo «học từ lần sửa» (FEAT-grading-guidance M1, US-GD-10): số đo theo PHIÊN BẢN lưu ý của một bài tập. Chỉ thư viện chuẩn, chỉ HTTP (D46): chạy như một client ngoài.
+"""Đo «học từ lần sửa» (FEAT-grading-guidance M1, US-GD-10 AC5, AC6, AC10): giao thức E3 trước / sau trên nhãn người (`teacher_label`). Chỉ thư viện chuẩn, chỉ HTTP (D46): chạy như một client ngoài.
 
-  bash benchmarks/guidance/run.sh            chụp số đo hiện có (n, MAE tiêu chí / tổng, lệch TB có dấu, tỉ lệ sửa) theo từng phiên bản
-  bash benchmarks/guidance/run.sh --cycle    chạy một vòng: Rút lưu ý → Duyệt hết → Áp dụng → Chấm lại bài nháp bản cũ, rồi chụp lại (cần provider sinh chữ: 9router ở môi trường đo)
-Biến: API_URL (https://localhost/api/v1), SEED_DEFAULT_PASSWORD (bắt buộc), BENCH_COURSE (761987), BENCH_ASSIGNMENT (BT03), JOB_TIMEOUT (600 s), BENCH_OUT (benchmarks/reports).
-Điều kiện: stack đã dựng + `SEED_GUIDANCE_DEMO=1 node scripts/seed.mjs` (cờ lớp BẬT, 8 kết quả đã duyệt «sở thích gắt»: tiêu chí đầu giảng viên thấp hơn AI 1,0).
-Số đo là chuỗi decimal của máy chủ (`GET …/guidance/stats`); script không tính lại điểm. Mốc đạt (SRS §9): sau một vòng `|lệch TB|` ở phiên bản mới KHÔNG lớn hơn phiên bản cũ.
-So hồi quy theo ca (chấm lại văn bản bài với lưu ý hiện hành): `go run ./cmd/regress run --course <id> --baseline benchmarks/guidance/baseline.json` ở stack đo; lần đầu `--write-baseline`.
-Không gọi nhà cung cấp thật ngoài 9router; thoát mã 2 «Gateway chưa chạy» khi không nối được.
+  bash benchmarks/guidance/run.sh --labels <labels.csv> [--drafts <thư mục>]     báo cáo trước / sau → benchmarks/reports/guidance-before-after.{json,md,svg}; dòng kết luận «Bật được» | «Giữ tắt»
+  bash benchmarks/guidance/run.sh --stats                                          chụp số đo theo phiên bản từ `…/guidance/stats` (n, MAE, lệch TB, tỉ lệ sửa), không cần nhãn
+  bash benchmarks/guidance/run.sh --stats --cycle                                  một vòng Rút → Duyệt hết → Áp dụng → Chấm lại rồi chụp lại (cần provider sinh chữ: 9router)
+Dữ liệu E3 (SRS §9): ≥ 60 bài một bài tập; 20 bài đầu «học», 40 bài sau «đo». `labels.csv` (`bt,code,c1..c4,total,labeled_at`) do người chấm MÙ; `--drafts` chứa `drafts-{b0r1,b0r2,b1r1,b1r2,bt-b-after}.json`
+do `kc/measure.py snap` chụp (mặc định cùng thư mục với labels.csv). Quy trình đầy đủ và script nạp / chấm: `docs/sprints/10.6/kiem-chung.md`, `benchmarks/guidance/kc/`.
+Phép MAE đọc điểm giảng viên từ `teacher_label` (cột c1..c4 của labels.csv); `expected` của ca hồi quy không dùng cho MAE. Số tính bằng decimal.
+Thiếu nhãn người → ghi báo cáo `status: WAITING_HUMAN` kèm lý do, thoát 3, KHÔNG chạy giả và không dùng điểm LLM làm chuẩn. Gateway không chạy → thoát 2 «Gateway chưa chạy», không ghi báo cáo.
+Kết luận (AC6): «Bật được» khi MAE tổng giảm ≥ 20 % VÀ |lệch TB| không xấu hơn B0 quá 0,20 VÀ số tiêu chí vốn đúng nay sai ≤ 1,5× nhiễu của B0; không thì «Giữ tắt» (không nới ngưỡng).
+Biến: API_URL (https://localhost/api/v1), SEED_DEFAULT_PASSWORD (bắt buộc), BENCH_COURSE (761987) / BENCH_ASSIGNMENT (BT03) cho --stats; KC_CLASS (KC106) cho E3; JOB_TIMEOUT (600 s); BENCH_OUT (benchmarks/reports).
+Không gọi nhà cung cấp thật ngoài 9router. So hồi quy theo ca: `go run ./cmd/regress run --course <id> --baseline benchmarks/guidance/baseline.json` ở stack đo; lần đầu `--write-baseline`.
 """
 import json, os, re, ssl, sys, time, urllib.error, urllib.request, uuid
 from datetime import datetime, timezone
+from decimal import Decimal as D
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -80,8 +84,7 @@ def table(rows):
         print(f"v{r['version']:<8} | {r['n']} | {r['mae_criterion']} | {r['mae_total']} | {r['bias_total']} | {r['edited_criteria']} | {r['edited_rate']}")
 
 
-def main():
-    cycle = "--cycle" in sys.argv[1:]
+def stats_main(cycle):
     token = login()
     _, mine = call("GET", "/me/courses?limit=100", token)
     course = next((m["course"]["id"] for m in mine["items"] if m["course"]["class_code"] == CLASS), None)
@@ -127,6 +130,80 @@ def main():
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
     print(f"Báo cáo: {path}")
     sys.exit(1 if report.get("verdict") == "LÙI" else 0)
+
+
+def e3(a):
+    """Giao thức E3 trước / sau trên nhãn người; xem docstring đầu tệp."""
+    sys.path.insert(0, str(ROOT / "benchmarks" / "guidance" / "kc"))
+    import measure
+    from common import find_assignment, find_course, login
+    token, _ = login("teacher")  # gateway không chạy → thoát 2 «Gateway chưa chạy», chưa ghi gì (AC10)
+    labels = Path(a.labels)
+    OUT.mkdir(parents=True, exist_ok=True)
+    stem = OUT / "guidance-before-after"
+    if not labels.exists():
+        reason = f"Chưa có nhãn người (teacher_label): không thấy {labels}. Người chấm mù theo kc/sheet.py rồi `sheet.py --collect`; không dùng điểm LLM làm chuẩn."
+        stem.with_suffix(".json").write_text(json.dumps({"status": "WAITING_HUMAN", "reason": reason, "at": datetime.now(timezone.utc).isoformat()}, ensure_ascii=False, indent=2) + "\n")
+        stem.with_suffix(".md").write_text(f"# Học từ lần sửa — trước / sau\n\n**WAITING_HUMAN.** {reason}\n", encoding="utf8")
+        print("WAITING_HUMAN: " + reason, file=sys.stderr)
+        sys.exit(3)
+    d = Path(a.drafts) if a.drafts else labels.parent
+    snaps = {p.stem.removeprefix("drafts-"): json.loads(p.read_text())["items"] for p in d.glob("drafts-*.json")}
+    order = json.loads((measure.DATA / "order.json").read_text()) if (measure.DATA / "order.json").exists() else None
+    m, errs = measure.compute(snaps, measure.read_labels(labels), order)
+    if errs:
+        die("Số đo không dựng được (HARNESS_LỖI):\n  " + "\n  ".join(errs))
+    b0, b1 = m["b0"], m["b1"]
+    drop = (b0["mae_total"] - b1["mae_total"]) / b0["mae_total"] if b0["mae_total"] else None
+    base = D("1.5") * m["noise_items"] if m["noise_items"] else 4
+    checks = {"mae_total_giam_20pct": drop is not None and drop >= D("0.20"), "lech_tb_khong_xau_hon_0.20": abs(b1["bias_total"]) <= abs(b0["bias_total"]) + D("0.20"), "von_dung_nay_sai_le_1.5x_co_so": m["was_right_now_wrong"] <= base}
+    verdict = "Bật được" if all(checks.values()) else "Giữ tắt"
+    course = find_course(token)
+    _, ov = call("GET", f"/courses/{course}/assignments/{find_assignment(token, course, 'bt-a')['id']}/guidance", token)
+    out = {"status": "DONE", "verdict": verdict, "checks": checks, "mae_total_drop": drop, "label_source": a.label_source, "provider": a.provider, "date": datetime.now().strftime("%Y-%m-%d"),
+           "n_measure": m["n_a"], "guidance_counts": ov.get("counts"), "metrics": m}
+    stem.with_suffix(".json").write_text(json.dumps(measure.jsonable(out), ensure_ascii=False, indent=2) + "\n")
+    stem.with_suffix(".svg").write_text(measure.svg(m), encoding="utf8")
+    c = lambda b: "đạt" if b else "KHÔNG"
+    stem.with_suffix(".md").write_text(f"""# Học từ lần sửa — trước / sau
+
+**Kết luận: {verdict}.**
+
+| Chỉ số (đo, n = {m['n_a']}) | B0 (v0) | B1 (v1) |
+| --- | --- | --- |
+| MAE tổng | {m['b0']['mae_total']:.3f} | {m['b1']['mae_total']:.3f} |
+| MAE tiêu chí | {m['b0']['mae_criterion']:.3f} | {m['b1']['mae_criterion']:.3f} |
+| Lệch TB có dấu (AI − giảng viên) | {m['b0']['bias_total']:.3f} | {m['b1']['bias_total']:.3f} |
+| Tiêu chí phải sửa tay (Δ tuyệt đối ≥ 0,5) | {m['fix_b0']} | {m['fix_b1']} |
+
+Bài tốt lên / xấu đi: {m['better']} / {m['worse']}. Lưu ý (theo trạng thái): {json.dumps(ov.get('counts'), ensure_ascii=False)}.
+
+1. MAE tổng giảm ≥ 20 % ({'—' if drop is None else f'{drop:.1%}'}): {c(checks['mae_total_giam_20pct'])}
+2. |lệch TB| không xấu hơn B0 quá 0,20: {c(checks['lech_tb_khong_xau_hon_0.20'])}
+3. Tiêu chí vốn đúng nay sai ({m['was_right_now_wrong']}) ≤ 1,5× cơ sở (nhiễu {m['noise_items']}): {c(checks['von_dung_nay_sai_le_1.5x_co_so'])}
+
+Nguồn nhãn: {a.label_source}. Nhà cung cấp / model: {a.provider}. Ngày: {out['date']}.
+
+## Giới hạn
+Bài mô phỏng; một model chấm; một bài tập học; n = {m['n_a']}; nhãn từ {a.label_source}, không thay nhãn người thật nếu không phải người.
+""", encoding="utf8")
+    print(f"{verdict} → {stem}.{{json,md,svg}}")
+    sys.exit(0 if verdict == "Bật được" else 1)
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--stats", action="store_true", help="chụp số đo từ API (không cần nhãn)")
+    ap.add_argument("--cycle", action="store_true", help="với --stats: chạy một vòng Rút → Duyệt → Áp dụng → Chấm lại")
+    ap.add_argument("--labels", default=str(OUT / "guidance" / "labels.csv"))
+    ap.add_argument("--drafts")
+    ap.add_argument("--label-source", default="người chấm mù (E3)")
+    ap.add_argument("--provider", default=os.environ.get("BENCH_PROVIDER", "9router (ag/gemini-3.8-flash)"))
+    a = ap.parse_args()
+    if a.cycle and not a.stats:
+        ap.error("--cycle đi kèm --stats")
+    stats_main(a.cycle) if a.stats else e3(a)
 
 
 if __name__ == "__main__":
