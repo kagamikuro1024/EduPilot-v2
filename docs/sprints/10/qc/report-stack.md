@@ -1,0 +1,73 @@
+# QC sprint 10 (FEAT-practice, P9) — kết quả pha 2 trên stack thật
+
+Ngày 2026-11-14. Nhánh `sprint/10-practice` ở `57f4cb25` (gateway, worker, frontend dựng lại ở commit này; migration `00019_practice`). Stack `-p ep-qc` (offset 500, `https://localhost:943`), provider LLM `fake` + `seed/demo/fake_llm.json`, docling thật. Máy: MacBook Apple Silicon, Colima 6 CPU / 10 GB. Theo lệnh chủ dự án: **k6, Lighthouse, axe hoãn** (không chạy: TC-07-25, TC-02-18, TC-12-17, TC-12-19 phần axe). Phạm vi chạy theo thứ tự ưu tiên của PM: (1) 4 lỗi Thấp P-10-8, (2) AC chính + phân quyền + lỗi từng story trên API và màn hình 1440 / 375, (3) e2e của dev.
+
+Script: `qc/scripts/` (`qlib.py` + `pa*.py`, `pb*.py`, `pc.py`, `pd.py`, `pe.py`, `pf*.py`, `pg.py`, `ph.py`, `pi.py`; `results.jsonl` là nhật ký thô, có dòng lặp do chạy lại; **bảng dưới đây mới là kết luận**). E2E thật: `frontend/e2e/qc-s10-real.spec.ts`, `qc-s10-forms-real.spec.ts`, cấu hình `frontend/playwright.qc10.config.ts` (`QC_REAL=1 QC_PW=… playwright test -c playwright.qc10.config.ts`). Ảnh: `qc/shots/`.
+
+## 1. Kiểm lại bốn lỗi Thấp đã sửa (P-10-8)
+| Mã | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| F1 Hôm nay SV 7 truy vấn | PASS | `go test ./internal/today/...` xanh; chú thích ghi P-10-8 |
+| F2 xoá `mock/questions.ts` | PASS | tệp không còn; 0 import `@/mock/practice`, `mock/questions` |
+| F3 / Q-S10-27 trần LLM | PASS (API) | `extract`: việc thứ 6 trong giờ → `429 RATE_LIMITED`, `Retry-After: 307`; `generate`: việc thứ 6 → `429`; không xếp việc khi bị chặn. Trần 60 trang: chỉ có `TestExtractPageCap` (Go, xanh); chưa thử PDF > 60 trang trên stack |
+| F4 `explain` 429 | PASS | 31 lần gọi cần LLM của một SV: 30 lần `200` (`cached:false`), lần 31 `429`; câu đã cache không tính |
+
+## 2. Lỗi tìm thấy (mỗi lỗi có bước tái hiện)
+### Cao
+**L1 — US-P9-02: trích đề trên stack thật (docling) không lưu được câu nào (0/24).**
+Tái hiện: GV `POST /courses/{C1}/uploads/presign` + `complete` `seed/practice/de-mau-trac-nghiem.pdf` (`EXAM_PAPER`) và `dap-an-mau.pdf` (`ANSWER_KEY`), chờ `READY`; `POST /courses/{C1}/questions/extract {"document_id":D,"answer_key_document_id":K}` → `202`; `GET /jobs/{id}` → `SUCCEEDED`, `result = {"created":[],"skipped":[{"page":1,"number":1,"reason":"INVALID"}]}`; `question_bank` không có câu `EXTRACTED`. Lặp lại ở `57f4cb25`: cùng kết quả.
+Nguyên nhân (đọc DB + mã): docling trả 3 chunk (2.040 ký tự) cho PDF 4 trang / 24 câu; dòng «Câu N. …» đầu mỗi chunk nằm ở cột `content_chunks.heading`, không ở `text`; tiêu đề đề thi cũng không có trong `text`. `internal/practice/extract.go:185` (`windows()`) chỉ đưa `c.Text` vào lời nhắc, nên mất đề bài của câu đầu mỗi chunk và provider giả (khớp theo chuỗi «ĐỀ MẪU LUYỆN TẬP — MẠNG MÁY TÍNH») không tìm thấy bản ghi. Test của dev xanh vì dùng chunk dựng tay.
+Hệ quả: luồng F12 (trích đề → duyệt → luyện) không đi được; TC-02-01, 02, 02c, 05, 07a, 09 FAIL; TC-02-07b, 02-14, 03-08 không kiểm được tiếp.
+**L2 — US-P9-02 AC6: tài liệu của lớp khác vẫn trích được (cô lập lớp).**
+Tái hiện: `ta@` (chỉ thuộc lớp 761987) `POST /courses/{lớp 1}/questions/extract {"document_id":<EXAM_PAPER 'Đề tham khảo tuần 5' của lớp 761988>}` → `202`, việc chạy xong `SUCCEEDED`, `llm_audit` +3 dòng `QUESTION_GEN` (nội dung tài liệu lớp 2 đã vào lời nhắc, câu tạo vào ngân hàng lớp 1). Đúng: `404`. Tương tự `answer_key_document_id` của lớp khác → `202` (Q7: `404`). Còn lộ sự tồn tại: tài liệu lớp khác sai loại → `422 WRONG_DOCUMENT_TYPE`, id ngẫu nhiên → `404`. Nghi ngờ: kiểm loại trước, không kiểm `document_courses` theo lớp của đường dẫn (`extract.go` / handler `extract`).
+
+### Trung bình
+**L3 — US-P9-09 AC3: việc «Ôn chủ đề» không biến mất ≤ 5 s ở `GET /courses/{id}/today`.** Tái hiện: SV có chủ đề yếu quá 3 ngày chưa luyện (lùi `started_at` bằng DB), `GET /courses/{C1}/today` → `recommended.kind = PRACTICE_WEAK_TOPIC`; `start` + `submit` lượt TOPIC đúng chủ đề đó → sau 15 s vẫn còn, chỉ đổi sau ≥ 45 s (hết TTL 60 s). Trong khi `GET /me/today` (khoá `all`) đổi ngay. Nguyên nhân: outbox `practice.updated` ghi `{user_id, student_id}` không có `course_id` (handoff mục khác biệt 3), `today/invalidate.go` chỉ xoá `CacheKey(u,"all")`, không xoá `CacheKey(u, course)`. 378 dòng outbox `practice.updated` đã `dispatched`, nên lỗi ở nội dung sự kiện chứ không ở worker.
+**L4 — US-P9-12 AC1: dữ liệu mẫu sai spec.** (a) 0 câu `APPROVED` có `citations` (spec: «có `citations` thật trỏ tài liệu seed»): hộp «Nguồn trong tài liệu» của TC-06-08 không bao giờ hiện trên dữ liệu mẫu; (b) không có câu `EXTRACTED` trong nhóm `PENDING` (spec: «có cả `EXTRACTED`»; chỉ `AI_DRAFT`/`MANUAL`); (c) Quiz ở trạng thái `SCHEDULED` mở sau 7 ngày, spec: bài thi PE đã `PUBLISHED`. `grep citations` trong `scripts/seed.mjs`, `practice-seed-data.mjs` = 0 dòng.
+**L5 — `scripts/check-practice-seed.mjs` không chạy được:** `Error: Không thấy lớp 761987` (dòng 62: `find(c => c.class_code === …)` nhưng `GET /me/courses` trả `items[].course.class_code`). Với bản vá tạm ở bản sao (không commit) script báo `OK: 104 APPROVED, 25 PENDING, Quiz SCHEDULED, 21 lượt của 6 sinh viên mẫu`.
+
+### Thấp
+- **L6** `start {mode:TOPIC,count:0}` → `201` (coi như không gửi). Đúng: `422` (TC-05-16).
+- **L7** Chủ đề có trong ngân hàng nhưng 0 câu đủ điều kiện (chỉ `PENDING`) → `422 UNKNOWN_TOPIC`. Đúng theo P-10-7 Q10: `409 NOT_ENOUGH_QUESTIONS {available:0}`.
+- **L8** Ma trận `MOCK` không có `difficulty` mà ô thiếu câu → không bù (`{Mạng:6, Mật mã công khai:4}` ra 8 câu, `notes:["thiếu câu chủ đề Mạng"]`); có `difficulty` thì bù đủ 10. AC1 («bù từ ô gần nhất») và AC4 («đề ngắn hơn kèm notes») mâu thuẫn nhau: ghi `proposals.md` P-10-9 để PM quyết.
+- **L9** `generate` với `types: []` → `202` (TC-03-07 mong `422`).
+- **L10** `POST …/questions/bulk` `APPROVE` câu `EXTRACTED` không trích dẫn → `ok:false, code: VALIDATION_FAILED` (TC-04-05: `CITATION_REQUIRED`; `PUT …/review` thì đúng: `422` kèm `details[].code=CITATION_REQUIRED`).
+- **L11** Menu «Tạo câu hỏi»: «Câu trắc nghiệm · Bài lập trình · Trích từ đề · Sinh từ tài liệu · Gợi ý từ AI», không có «Soạn tay» (US-P9-04 AC2). Dev trả lại tên cũ để `exam.spec.ts` xanh (handoff, CI đỏ): spec mới và test cũ mâu thuẫn, ghi P-10-9. Mỗi mục có dòng phụ («Đề cũ → câu chờ duyệt», «Có trích dẫn, bạn duyệt»…) trái luật chữ UI của PO (không dòng giải thích).
+- **L12** Nhập Forms: ánh xạ theo tên tiêu đề cột (đúng ví dụ trong `openapi.yaml` `FormsImportRequest.example`: `email_col:"Email"`) → `422 "Cột không hợp lệ"`; chỉ chữ cột Excel (`A`, `B`) được nhận. Lỗi tệp: `.txt` → `FILE_TYPE_NOT_ALLOWED` nhưng chữ «Chỉ nhận tệp PDF, DOCX hoặc PPTX»; tệp > 5 MB bị chặn nhưng chữ «tối đa 50 MB». Hộp thoại: ô chọn tệp là `input[type=file]` mặc định của trình duyệt, tên tệp hiện hai lần (`forms-2-uploaded.png`).
+- **L13** `MOCK` đã quá hạn nhưng worker chưa đóng (≤ 1 phút): `start` trả `200` lượt quá hạn cũ.
+- **L14** (quan sát) `POST …/feedback` trả cho sinh viên trường `injected: true` khi bài chèn lệnh (Q15: SV không thấy cờ; chưa kiểm giao diện có hiển thị hay không).
+
+### Không kiểm được (tính FAIL theo `QC.md`, kèm lý do)
+- TC-02-14, TC-03-08 (`OVERLOADED` cho `extract` / `generate`): làm theo handoff (`LLM_MAX_CONCURRENCY=1 LLM_QUEUE_MAX=1 LLM_QUEUE_WAIT_MAX=1s FAKE_LLM_LATENCY=15000-15000` cho gateway + worker) → việc nền chạy tuần tự nên không bao giờ đầy hàng; 3 việc `generate` đều `SUCCEEDED`. Chỉ `explain` tái hiện được (xem TC-06-20). Cần dev chỉ cách khác (nhiều worker / `docker-compose.test.yml`).
+- TC-06-14, 06-15, 02-06, 02-16, 03-06, 08-12 (đọc payload `llm_audit`): bảng `llm_audit` không có cột payload (`task, lane, provider, model, tokens, status, error_kind, pii_masked_count…`). Cần dev chỉ nơi ADMIN xem payload đã che + `audit_log`.
+- TC-12-06 (seed idempotent): lần chạy lại sau khi QC nhập Forms vào cột Giữa kỳ bị `422 IDEMPOTENCY_KEY_REUSED` ở bước 15 do dữ liệu QC làm đổi điểm (không quy cho seed); chạy lại sạch ở mục 4.
+- Chưa chạy: TC-05-05/06 (cửa sổ 30 ngày), 09-18, 03-03/05/09/11, 02-15, 02-16, 02-17, 02-20 (Go có `TestExtractPageCap`).
+
+## 3. Kết quả theo story (phạm vi ưu tiên)
+Xem `summary.md` (kết luận) và các mục dưới.
+
+| TC (đã chạy trên stack) | Kết quả |
+| --- | --- |
+| TC-01-08 (15 ca chuẩn hoá `SHORT`, kể cả NFD, nhiều dấu câu cuối, «Ha Noi» = 0), 01-09, 01-12a/b, 01-16 ×4, 01-P1, 01-P2, 01-13 (`SHORT` / `ESSAY` vào bài thi → `422 TYPE_NOT_SUPPORTED_IN_EXAM`) | PASS |
+| TC-01-07, 01-10, 01-11, 01-14/15 (mức Go), 04-… `TestExtractQuestions`, `TestBuildMatrix`, `TestPracticeNoAnswerLeak`, `TestPracticeNoExamLeak`, `TestWrongAnswerSignalsNoIdentity`, `go test -race ./internal/quiz/... ./internal/practice/... ./internal/library/... ./internal/exam/... ./internal/today/...`, `go test -tags testroutes ./internal/contract` (ở `4831150a`; `57f4cb25` chỉ đổi lint / nhãn menu / compose) | PASS |
+| TC-05-02, 05-03 (60 lần dựng đề: p50 9 ms, p95 10 ms, max 13 ms), 05-08 (30 lượt, 0 câu DRAFT / PENDING / REJECTED / lưu trữ), 05-10 (6 câu xin 10 → 6 câu + notes), 05-11 / 06-22 (4 câu → `409 NOT_ENOUGH_QUESTIONS`), 05-12 (hai SV: thứ tự câu và phương án khác nhau), 05-13, 05-14, 05-15 (staff, `sv.moi` → 403), 05-16 (trừ count=0, Q10), 05-17 (MOCK 5 và 50 câu; 48/50 vì ESSAY bị loại khỏi MOCK, có notes) | PASS (trừ L6–L8) |
+| TC-06-03, 06-04 (khoá cũ → cùng lượt; khoá mới → 200 lượt dở), 06-05, 06-06, 06-08a/b/d (phản hồi trong cùng response), 06-09 (`409 ANSWER_LOCKED`), 06-11 (`explain` SSE: byte đầu p95 11 ms; 20 lần = 1 lời gọi LLM, còn lại cache), 06-12 (`409 NOT_ANSWERED`), 06-16/17 (submit idempotent, bỏ trống = 0), 06-18 (5/5 → 404), 06-19, 06-20 (quá tải: sự kiện `EXPLAIN_FAILED`, phản hồi đúng/sai giữ nguyên, nộp bình thường), 06-25b (`MCQ_MULTI` chỉ đúng khi trùng tập) | PASS |
+| TC-06-08c (trích dẫn) | FAIL — dữ liệu mẫu không có `citations` (L4) |
+| TC-07-01/01b (`deadline = server_now + 1800 s`), 07-02, 07-06 (`409 TAB_TAKEN_OVER`, tab mới ghi được), 07-07 (`VERSION_CONFLICT`), 07-08 (`422`; `details` mã `INVALID_OPTION_ID`), 07-11/11b/11c/11d/19/19b (dung sai 60 s: `client_ts ≤ hạn` nhận; `> hạn` bỏ + `notes`; quá 60 s → `409 ATTEMPT_CLOSED`), 07-13/14, 07-16 (13/20 → `6.5`), 07-16b (5/8 → `6.3`, 7/20 → `3.5`, 3/7 → `4.3`), 07-17, 07-18 (`grade_entries` không đổi), 07-20 (worker đóng lượt quá hạn: `EXPIRED`, chấm trên câu đã lưu), 07-24 | PASS |
+| TC-08-01, 08-02, 08-04, 08-05/06 (bài chèn lệnh làm dữ liệu), 08-07 (10 lượt MOCK: 0 ESSAY), 08-09a (4.001 ký tự → `422 TOO_LONG`), 08-10 (lần 9 → `429`; trần 10 / giờ ở cửa sổ giờ cố định), 08-12 (GV / TA / ADMIN → 403), 08-14 | PASS |
+| TC-09-01, 09-03 (106 lượt: 6 trang 20/20/20/20/20/6, không trùng, `limit=101` → `422`), 09-04, 09-09, 09-14, 09-17, 09-21 (106 lượt: p95 4 ms; chưa đủ 200 lượt) | PASS |
+| TC-09-06/07 (hiện sau khi lùi `started_at` 5–6 ngày), TC-09-08 | FAIL (L3). Còn: «Hôm nay» chỉ hiện **một** việc (`recommended`), nên «Ôn chủ đề» chỉ lên khi không còn việc cao hơn (seed: mọi SV đều có `EXAM_RESULT` ở trên) — hành vi theo thiết kế bậc 85, ghi nhận |
+| TC-10-02/17 (bài thi `OPEN` giữ 5 câu → số câu luyện được của chủ đề giảm 10 → 4; `NOT_ENOUGH_QUESTIONS`), 10-04 (MOCK đang làm: 0 `answer_key`/`correct`/`explanation`/`citations`/`is_correct` trong mọi phản hồi, kể cả lỗi 409/422/404 và SSE), 10-05a, 10-07 (bài thi PE `OPEN` + lượt đang làm: `/me/exam-lock` `locked:true`, chat `409 EXAM_IN_PROGRESS`, luyện đề vẫn `201`), 10-08 (nộp bài thi → `locked:false`, chat trả lời lại `200`), 10-13 (MOCK đang làm không đổi `exam-lock`), 10-14 (0 dòng `exam_events` mới), 10-15 (MOCK chưa nộp: `409 NOT_SUBMITTED` cho câu đã trả lời; câu chưa trả lời `NOT_ANSWERED`) | PASS |
+| TC-04-05 (id lớp 2 / id lạ → `ok:false NOT_FOUND`, lô không huỷ), 04-06, 04-07 (4 ca `422`), 04-11 (`409 VERSION_CONFLICT`), 04-13 (`422` kèm `CITATION_REQUIRED`), 04-17, 04-P1/P2/P4/P5 | PASS (trừ L10) |
+| TC-04-02 | FAIL (L11) |
+| TC-02-08 (cùng khoá → cùng `job_id`), 02-10 (xem L2: chưa thử khi `PROCESSING`), 02-11, 02-13a, 02-19 (`429`), 02-P1…P5 | PASS ; TC-02-12, 02-13b FAIL (L2) |
+| TC-03-01/01b (5 câu `GENERATED` `PENDING`), 03-02 (5/5 có `{document_id, chunk_id, page}`), 03-04 (`422 WRONG_DOCUMENT_TYPE`), 03-07 (`count=11`; lớp 2), 03-10, 03-12 (`404`), 03-13 (`429` ở việc thứ 6) | PASS ; TC-03-07 `types=[]` FAIL (L9) |
+| TC-11-01 (preview 11 dòng, không ghi), 11-03 (ghi 6 `grade_entries(source=QUIZ)`, `published_at` giữ nguyên), 11-05 (7 khớp: email đã xác minh / MSSV danh sách; `MISMATCH` cho email A + MSSV B; `NOT_FOUND` danh định đã che `99****99`, `sv***@…`), 11-06 (trùng SV: lấy dòng mới nhất), 11-07 (`replayed:true`, không ghi thêm), 11-08 (đúng / tổng và điểm decimal: 0/5 → 0, 1/5 → 2, 4/5 → 8, 5/5 → 10; `mismatch` đếm ô không khớp), 11-09 (thiếu cột định danh → `422 identifier_required`), 11-11 (TA / SV / ADMIN → 403 cả ba bước), 11-12 (`409 PREVIEW_REQUIRED`) | PASS ; chữ lỗi và ánh xạ theo tiêu đề: FAIL (L12) |
+
+## 4. Giao diện (1440 và 375, SV `sv.kha`, GV `teacher`)
+Ảnh: `qc/shots/{practice,topic-q1,topic-feedback,history,home,mock,mock-saved}-{1440,375}.png`, `questions-761987-1440.png`, `questions-create-menu-1440.png`, `gradebook-761987-1440.png`, `forms-{0,1,2}-*.png`. Đo (`notes-sv-*.txt`): `/practice`, câu luyện, phản hồi, `/practice/history`, `/` và thi thử: **không tràn ngang ở 375** (`scrollWidth 375/375`), **0 điều khiển < 44 px ở 375**, không có chữ «AI / RAG / citation / model / LLM / prompt / token / xếp hạng / huy hiệu». Đồng hồ thi thử `29:59`, «Tự lưu»; không phản hồi đúng / sai khi đang thi. Ghi nhận: dòng «Đúng 0» chạy suốt lượt luyện chủ đề; mô tả phụ «10 câu · phản hồi ngay sau mỗi câu» dưới tiêu đề khối; hai điều này đối chiếu với luật chữ UI (không kết luận FAIL, đề nghị PO xem).
+E2E dev (`practice.spec.ts`, `quiz-integrity.spec.ts`, `questions-extract.spec.ts`, `gradebook.spec.ts`, `--project=desktop`, gateway giả): **52 passed** (39 s). `bash scripts/ui-antipatterns.sh` mã 0, 0 dòng lỗi.
+Đọc diff: dev sửa test có sẵn ở `ac2a7aef` (`panels.spec.ts` +4 dòng: ba ca thêm `practiceApi(page)` vì màn đã thật; `today/staff_test.go` 6 → 7 truy vấn theo P-10-8 F1 đã duyệt) và đổi nhãn menu về tên cũ để `exam.spec.ts` xanh (L11). Không thấy `fetch(` trần, `float64` điểm, thư viện lạ, `t.Skip`.
+
+## 5. Seed sạch (TC-12-01…06)
+Xem mục cuối `summary.md` (điền sau lượt dựng lại `down -v` → `pnpm dev` → seed).

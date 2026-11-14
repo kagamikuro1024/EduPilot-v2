@@ -233,3 +233,18 @@
 {"tc": "TC-06-20b phản hồi đúng/sai sẵn có không đổi, nộp bình thường", "st": "PASS", "note": ""}
 {"tc": "TC-02-14 trích khi quá tải: job FAILED OVERLOADED, không câu nửa vời", "st": "FAIL", "note": "status=SUCCEEDED error=null câu trích/sinh 7→7"}
 {"tc": "TC-02-14/03-08 quá tải: có việc FAILED OVERLOADED, không câu nửa vời", "st": "FAIL", "note": "[('gen', 'SUCCEEDED', 'null'), ('gen', 'SUCCEEDED', 'null'), ('gen', 'SUCCEEDED', 'null'), ('ext', 429)]; câu 7→7 (câu mới đến từ việc thành công)"}
+{"tc": "TC-S4 explain 429 sau 30 lượt cần LLM/giờ/SV (P-10-8 F4)", "st": "PASS", "note": "calls=31 cần LLM trước 429=30; (31, 30, '{\"code\":\"RATE_LIMITED\",\"message\":\"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.\",\"trace_id\":\"a6e')"}
+{"tc": "TC-01-13 SHORT vào bài thi → 422 TYPE_NOT_SUPPORTED_IN_EXAM", "st": "FAIL", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"b709af4a41e4ba5292cf616049f95392\", \"details\": [{\"field\": \"version\", \"code\": \"versi"}
+{"tc": "TC-01-13 ESSAY vào bài thi → 422 TYPE_NOT_SUPPORTED_IN_EXAM", "st": "FAIL", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"784e71cb3790afc2e9fee8bff16b039e\", \"details\": [{\"field\": \"version\", \"code\": \"versi"}
+{"tc": "TC-01-13 SHORT vào bài thi → 422 TYPE_NOT_SUPPORTED_IN_EXAM", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"12aaa2a550482d8127236c78ac4ebc06\", \"details\": [{\"field\": \"items[0].question_id\", \""}
+{"tc": "TC-01-13 ESSAY vào bài thi → 422 TYPE_NOT_SUPPORTED_IN_EXAM", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"cbd87820a5f0e31e4add469cd5be6757\", \"details\": [{\"field\": \"items[0].question_id\", \""}
+{"tc": "TC-10-07a đang có lượt bài thi PE: /me/exam-lock khoá", "st": "PASS", "note": "{'locked': True, 'until': '2026-11-14T06:44:29.869833623Z'}"}
+{"tc": "TC-10-07b luyện đề vẫn bắt đầu được khi bài thi đang làm", "st": "PASS", "note": "201"}
+{"tc": "TC-10-07c chat từ chối nội dung môn học trong giờ thi", "st": "PASS", "note": "409 {\"code\": \"EXAM_IN_PROGRESS\", \"message\": \"Chat tạm khóa trong lúc bạn làm bài thi.\", \"trace_id\": \"d2e2a776d3c98103a0f898eac4431a5a\", \"details\": {\"until\": \"2026-11-14T06:44:29Z\"}}"}
+{"tc": "TC-10-08 nộp bài thi xong → exam-lock mở", "st": "FAIL", "note": "{'locked': True, 'until': '2026-11-14T06:44:29.869628528Z'}"}
+{"tc": "TC-10-08b sau thi chat trả lời lại", "st": "FAIL", "note": "409"}
+{"tc": "TC-10-08 nộp bài thi xong → exam-lock mở", "st": "FAIL", "note": "submit=409 {'locked': True, 'until': '2026-11-14T06:44:29.869165397Z'}"}
+{"tc": "TC-10-08b sau thi chat trả lời lại", "st": "FAIL", "note": "409"}
+{"tc": "TC-10-08 nộp bài thi xong → exam-lock mở", "st": "PASS", "note": "submit=200 {'locked': False}"}
+{"tc": "TC-10-08b sau thi chat trả lời lại", "st": "PASS", "note": "200"}
+{"tc": "TC-10-02/17 câu thuộc bài thi OPEN (chưa PUBLISHED) không vào đề luyện", "st": "FAIL", "note": "0 đề luyện chủ đề {'Quản trị rủi ro'}, số lần thấy câu bài thi: 0"}
