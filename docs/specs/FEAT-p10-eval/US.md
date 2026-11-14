@@ -289,6 +289,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. «Lớp» = `course_id` của đường d�
 ---
 
 ## US-P10-13: Đội muốn một cascade «decision model trước, phân vân thì LLM» cho ba cổng (tường lửa Threads, cờ chèn lệnh, định tuyến chat), để nhanh hơn và rẻ hơn mà không bỏ sót
+**⟶ CHUYỂN SANG `FEAT-decision-model` (sprint 10.5, PM 2026-11-14).** Yêu cầu hiện hành ở `docs/specs/FEAT-decision-model/` (US-DM-01…09); nội dung dưới đây giữ để truy vết, **không** còn là yêu cầu của sprint 11.
 Ưu tiên: Should · Ước lượng: L · Sprint: 11 · **Đợt 6** · P-11-10 (PM: chủ dự án muốn tăng tốc bằng decision model) · nguồn: `docs/research/2026-11-14-jev-decision-model.md` mục 6, `docs/research/poc/jev-decision/cascade.md`
 
 **Luật chạy (PM 2026-11-14):** mọi lời gọi LLM sinh chữ chỉ qua 9router; `gemini-decision-1` và embedding thật **không gọi** khi chưa có phép của PM — thiết kế và test đợt 6 bằng provider `fake` (bảng ngưỡng × kết quả giả); các số đo thật trong story này (AC4 iii, AC7, AC9) là điều kiện **chạy khi PM cho phép**, trước đó ghi «chờ phép PM», không chặn merge phần mã.

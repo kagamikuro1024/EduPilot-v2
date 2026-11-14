@@ -197,4 +197,4 @@ flowchart TD
 | F9 cờ chèn lệnh | «bài nộp có chèn lệnh» | chỉ thêm cờ | LLM `Structured`, rồi regex | **gắn cờ** (vẫn không đổi điểm) |
 
 **Nhánh lỗi chung:** decision lỗi, hết hạn (1 s ở làn tương tác), hết hạn mức (429), khoá trống, lọc an toàn `400` → coi như «không đủ tin cậy» và đi fallback; không thử lại trên đường chat; chat và việc chấm không treo. Mỗi lần ghi `Path` (`FAST` / `FALLBACK` / `FAIL_CLOSED`) vào nhật ký LLM để Admin xem tỉ lệ ở `/observability`; tỉ lệ `FAIL_CLOSED` cao bất thường → chuông Admin.
-**E2E:** `cascade.spec.ts` (provider `fake`: decision lỗi → fallback; cả hai lỗi → chặn / gắn cờ; tin khủng hoảng không có lời gọi decision); chi tiết `docs/specs/FEAT-p10-eval/US.md` US-P10-13.
+**E2E:** `cascade.spec.ts` (provider `fake`: decision lỗi → fallback; cả hai lỗi → chặn / gắn cờ; tin khủng hoảng không có lời gọi decision); chi tiết `docs/specs/FEAT-decision-model/US.md`.
