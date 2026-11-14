@@ -1060,8 +1060,8 @@ func TestNoNPlusOne(t *testing.T) {
 	svc := llmconfig.New(pool, r.c)
 	ps, err := svc.ListProviders(r.ctx)
 	require.NoError(t, err)
-	require.Len(t, ps, 20)
-	require.Len(t, ps[0].Models, 10)
+	require.Len(t, ps, 20+1) // +1: nhà `decision` do migration 00020 seed (SRS FEAT-decision-model 5.1), không tính vào hạn mức 20
+	require.Len(t, ps[1].Models, 10)
 	cnt.mu.Lock()
 	defer cnt.mu.Unlock()
 	require.LessOrEqual(t, cnt.n, 3, "GET providers: số truy vấn với 20 nhà × 10 mô hình")

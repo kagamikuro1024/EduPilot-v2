@@ -4,6 +4,7 @@ package llmrt
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	goredis "github.com/redis/go-redis/v9"
@@ -29,6 +30,7 @@ type Runtime struct {
 	Auditor   *llm.Auditor
 	Config    *llmconfig.Service
 	Resolver  *llmconfig.Resolver
+	Decision  *llm.DecisionSnapshot
 	cancel    context.CancelFunc
 }
 
@@ -38,7 +40,10 @@ func EnvFrom(cfg config.Config) llm.EnvConfig {
 		Provider: cfg.LLMProvider, OpenAIKey: cfg.OpenAIKey, AnthropicKey: cfg.AnthropicKey, GeminiKey: cfg.GeminiKey,
 		DefaultRPM: cfg.LLMDefaultRPM, DefaultTPM: cfg.LLMDefaultTPM,
 		Fake: fake.Settings{LatencyMin: cfg.FakeLatencyMin, LatencyMax: cfg.FakeLatencyMax, ErrorRate: cfg.FakeErrorRate,
-			ValidKey: cfg.FakeValidKey, ReplayDir: cfg.LLMReplayDir, DemoFile: cfg.LLMDemoFile},
+			ValidKey: cfg.FakeValidKey, ReplayDir: cfg.LLMReplayDir, DemoFile: cfg.LLMDemoFile,
+			DecisionP50: cfg.FakeDecisionP50, DecisionP95: cfg.FakeDecisionP95, DecisionErrorRate: cfg.FakeDecisionErrorRate,
+			DecisionMode: cfg.FakeDecisionMode, DecisionProb: cfg.FakeDecisionProb},
+		DecisionAllowReal: cfg.LLMDecisionAllowReal, DecisionRPM: cfg.LLMDecisionRPM, DecisionBaseURL: cfg.LLMDecisionBaseURL,
 	}
 }
 
@@ -75,7 +80,7 @@ func NewWithMasker(ctx context.Context, cfg config.Config, pool *pgxpool.Pool, r
 	}
 	rt := &Runtime{}
 	rt.Resolver = llmconfig.NewResolver(pool, cipher)
-	rt.Config = llmconfig.New(pool, cipher, llmconfig.WithOnChange(func(c context.Context) {
+	rt.Config = llmconfig.New(pool, cipher, llmconfig.WithDecisionAllowReal(cfg.LLMDecisionAllowReal), llmconfig.WithOnChange(func(c context.Context) {
 		if rdb != nil {
 			err := llm.PublishReload(context.WithoutCancel(c), rdb)
 			if err == nil {
@@ -98,10 +103,20 @@ func NewWithMasker(ctx context.Context, cfg config.Config, pool *pgxpool.Pool, r
 		}
 	})
 	rt.Auditor = llm.NewAuditor(ctx, llm.PGWriter(pool), log)
-	rt.Gateway = llm.New(llm.Options{Registry: rt.Registry, Gate: rt.Scheduler, Auditor: rt.Auditor, Log: log, RequestTimeout: cfg.LLMRequestTimeout, Masker: masker})
+	rt.Decision = llm.NewDecisionSnapshot(llm.PGDecisionSource(pool), log)
+	if err := rt.Decision.Load(ctx); err != nil { // chưa nạp được: mọi cổng coi là tắt (đường cũ), Watch nạp lại sau
+		log.ErrorContext(ctx, "nạp cấu hình decision lần đầu thất bại, coi mọi cổng là tắt", "error", err.Error())
+	}
+	opts := llm.Options{Registry: rt.Registry, Gate: rt.Scheduler, Auditor: rt.Auditor, Log: log, RequestTimeout: cfg.LLMRequestTimeout, Masker: masker,
+		Decision: rt.Decision, DecisionTimeout: cfg.LLMDecisionTimeout, RealDailyCap: cfg.LLMDecisionRealCap}
+	if rdb != nil {
+		opts.RealCounter = redisCounter{rdb}
+	}
+	rt.Gateway = llm.New(opts)
 	wctx, cancel := context.WithCancel(context.WithoutCancel(ctx))
 	rt.cancel = cancel
 	go rt.Registry.Watch(wctx, rdb)
+	go rt.Decision.Watch(wctx, rdb)
 	return rt, nil
 }
 
@@ -130,4 +145,17 @@ func (r *Runtime) Stats(ctx context.Context, lanes bool) map[string]any {
 		out["inflight_batch"] = st.InflightBatch
 	}
 	return out
+}
+
+// redisCounter đếm lời gọi decision thật theo ngày, dùng chung giữa các gateway.
+type redisCounter struct{ rdb *goredis.Client }
+
+func (c redisCounter) Incr(ctx context.Context, key string, ttl time.Duration) (int64, error) {
+	pipe := c.rdb.Pipeline()
+	n := pipe.Incr(ctx, key)
+	pipe.Expire(ctx, key, ttl)
+	if _, err := pipe.Exec(ctx); err != nil {
+		return 0, err
+	}
+	return n.Val(), nil
 }
