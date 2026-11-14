@@ -6,10 +6,10 @@ Nguồn: US.md + SRS §3.1, 3.5, 3.6, 4.1–4.6, 5, 6; Q-D-1…6, 15. Hộp đen
 | --- | --- | --- | --- | --- | --- |
 | TC-D01-01 | AC1 | Repo | Đọc `internal/llm` (giao diện `Client`, `DecideRequest`, `DecideResponse`) | `Client` có **5** hàm gồm `Decide(ctx, DecideRequest)`; `Questions` là kiểu đóng `noul` / `choice` / `score` (không `map`/JSON tự do/chuỗi chỉ thị từ người dùng); response có `probabilities`, `confidence`, `Usage{TokensIn, TokensOut=0}` | DIFF |
 | TC-D01-02 | AC2 | Repo | `go list -deps ./... \| grep -E 'google.golang.org/genai\|generative-ai-go'`; `git diff <gốc>... -- backend-go/go.mod go.sum` | 0 SDK; không module mới (chỉ `net/http`) | DIFF |
-| TC-D01-03 | AC2 | Máy chủ giả cục bộ làm base URL (Q-S105-1), `ALLOW_REAL=true` **chỉ trong test cục bộ**, khoá giả `test-key` | Một `Decide` thật-đường-mã → bắt yêu cầu | `POST /v1beta/decisions`, header `x-goog-api-key: test-key`, thân `{model:"gemini-decision-1", input, questions}`; không header khác chứa khoá; không gọi ra ngoài | GO/API |
+| TC-D01-03 | AC2 | Máy chủ giả cục bộ làm base URL (cấu hình bằng env hoặc bảng provider, P-105-1 Q1), `ALLOW_REAL=true` **chỉ trong test cục bộ**, khoá giả `test-key` | Một `Decide` thật-đường-mã → bắt yêu cầu | `POST /v1beta/decisions`, header `x-goog-api-key: test-key`, thân `{model:"gemini-decision-1", input, questions}`; không header khác chứa khoá; không gọi ra ngoài | GO/API |
 | TC-D01-04 | AC2 | Cùng | Khoá lấy từ bản ghi `llm_providers` (mã hoá) rồi xoá bản ghi → rơi về `GEMINI_API_KEY` (giả) | Thứ tự đúng; khoá không xuất hiện ở log, `llm_audit`, phản hồi API (`grep`) | API+DB |
 | TC-D01-05 | AC3 | `decision-fake`, đầu vào có trong bản phát lại | Gọi `Decide` 5 lần cùng đầu vào | Kết quả **y hệt** 5 lần (xác suất, nhãn); không mạng (lsof / không DNS) | GO |
-| TC-D01-06 | AC3 | Đầu vào **không** có trong bản phát lại | `Decide` `noul` / `choice` | `noul = 0,5`; `choice` đều nhau (confidence thấp) → ép fallback ở cascade | GO |
+| TC-D01-06 | AC3 | Đầu vào **không** có trong bản phát lại | `Decide` `noul` / `choice` | `noul = 0,25` (P-105-1 Q3: dưới ngưỡng, không phải «có»); `choice` đều nhau (confidence thấp) → ép fallback ở cascade; **không** bị chặn FAST | GO |
 | TC-D01-07 | AC3 | `LLM_DECISION_FAKE_P50_MS=100`, `P95=150`; rồi `ERROR_RATE=0,5` | 200 lời gọi | p50 / p95 `latency_ms` ở `llm_audit` ≈ cấu hình (±20 %); tỉ lệ lỗi ≈ 50 % (±10 điểm); mặc định 426 / 682, lỗi 0 | API+DB |
 | TC-D01-08 | AC3 | `FAKE_MODE=error|timeout|always_yes|always_no` (mỗi chế độ) | 1 lời gọi mỗi chế độ | `error` → lỗi, `timeout` → quá hạn cổng, `always_yes` → P(có)=1, `always_no` → 0; đúng như tên | API |
 | TC-D01-09 | AC4 | Bật cổng THREADS ở lớp 1 | Đăng bài ở lớp 1; đọc `llm_audit` | Có đúng **một** dòng `task='DECIDE'`: `provider`, `model`, `tokens_in`, `latency_ms`, `status`, `error_kind`, `cost_est`, `cascade_gate`, `cascade_path`; **không** cột / trường chứa nội dung | API+DB |
@@ -34,7 +34,7 @@ Nguồn: US.md + SRS §3.1, 3.5, 3.6, 4.1–4.6, 5, 6; Q-D-1…6, 15. Hộp đen
 | TC-D01-28 | SRS §5.1 | DB trống | `goose up`; thử tạo hai provider `type='decision'` cùng `enabled` | Chỉ mục `llm_providers_one_decision` chặn cái thứ hai; `type` `decision` và `kind` `decision` hợp lệ; seed có `decision-fake` + `gemini-decision-1`; `goose down` rồi `up` sạch | DB |
 
 ## US-DM-02 Cascade + cấu hình
-Bảng chính sách dùng `FAKE_MODE` / bản phát lại có nhãn P(có) cho từng ô (Q-S105-2). `AddOnly{ε=0,05}`: P ≥ 0,5 → có (FAST); P ≤ ε → không (FAST); giữa → fallback. `Symmetric{τ=0,95}`: confidence ≥ τ → FAST; dưới → fallback.
+Bảng chính sách dùng `FAKE_MODE` / bản phát lại có nhãn P(có) cho từng ô (bảng ca ở handoff / `FAKE_DECISION_PROB`, P-105-1 Q2). `AddOnly{ε=0,05}`: P ≥ 0,5 → có (FAST); P ≤ ε → không (FAST); giữa → fallback. `Symmetric{τ=0,95}`: confidence ≥ τ → FAST; dưới → fallback.
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- | --- |
 | TC-D02-01 | AC1, AC8 | – | `go test ./internal/llm/... -run 'TestCascadeTable\|TestCascadeFailClosed' -v` | PASS; log nêu các ô policy × xác suất × lỗi; QC đọc bảng test: biên 0,05 (≤ ε nhận), 0,5 (≥ nhận), 0,949 / 0,95 (τ), 0,0499 | GO |
@@ -73,4 +73,4 @@ TC-D01-26; TC-D02-22, 23.
 Pha 2: `docs/sprints/10.5/qc/scripts/dm_core.py`.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-11-14: cập nhật theo P-105-1 (Q1 base URL cấu hình được; Q2 bảng replay + `FAKE_DECISION_PROB`; Q3 bản giả trả 0,25 cho đầu vào lạ; Q6 đối chứng = 6 bài). Spec: BA vá SRS 4.6 / US-DM-04 AC5.

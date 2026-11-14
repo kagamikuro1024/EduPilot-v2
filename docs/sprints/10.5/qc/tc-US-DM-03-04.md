@@ -1,6 +1,6 @@
 # QC test case — US-DM-03 (cổng Threads), US-DM-04 (cổng cờ chèn lệnh)
 Nguồn: US.md + SRS §3.2, 3.3, 4.3; Q-D-3, 7, 8, 10; D60; P-11-9. Hộp đen; quy ước: `tc-00-chung.md`. **Provider giả, không Gemini thật.** `Structured` = LLM qua 9router (hoặc `fake` chat); mỗi TC ghi rõ.
-Cách dựng ca: đầu vào có trong bản phát lại với `P(có)` đã biết (Q-S105-2). Vùng lưỡng lự của `AddOnly` là 0,05 < P < 0,5; **đầu vào ngoài bản phát lại trả P=0,5 theo SRS 4.6 thì với `AddOnly` rơi vào «có» (≥ 0,5), không phải lưỡng lự** — mâu thuẫn SRS cần BA/dev làm rõ (Q-S105-3); TC dùng đầu vào có trong bản phát lại với P = 0,2 cho ca lưỡng lự. Bật cổng: ADMIN `PUT` cổng + lớp 1 (hoặc `SEED_DECISION_DEMO=1`).
+Cách dựng ca: dùng bảng ca ở handoff (đầu vào → `P(có)`) hoặc `FAKE_DECISION_PROB` (P-105-1 Q2). Vùng lưỡng lự của `AddOnly` là 0,05 < P < 0,5; đầu vào ngoài bản phát lại → bản giả trả **0,25** (P-105-1 Q3, SRS 4.6 sửa), tức ép fallback; ca lưỡng lự dùng P = 0,2 hoặc đầu vào lạ. Bật cổng: ADMIN `PUT` cổng + lớp 1 (hoặc `SEED_DECISION_DEMO=1`).
 
 ## US-DM-03 Cổng `THREADS_PRECHECK`
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
@@ -38,7 +38,7 @@ Cờ = regex OR `Structured` OR decision(P≥0,5). Chấm bài tập P7 ở lớ
 | TC-D04-06 | AC3 | – | `go test … -run TestInjectionEmptySkipped -v` | PASS | GO |
 | TC-D04-07 | AC4 | Bài 40.000 ký tự: chèn lệnh ở giữa (vị trí 20.000, **ngoài** 8.000 đầu + 8.000 cuối) và ở đầu | Chấm; bắt thân tới provider giả | Thân gửi decision ≤ 16.000 ký tự = 8.000 đầu + 8.000 cuối (phần giữa cắt, không lưu ở đâu — kiểm DB + log); regex vẫn quét toàn văn → bài chèn lệnh ở giữa vẫn có cờ (regex) | API+DB |
 | TC-D04-08 | AC4 | Bài có dòng tiêu đề danh tính (tên, MSSV) | Bắt thân | Đã bỏ dòng danh tính; placeholder; không tên / MSSV | API |
-| TC-D04-09 | AC5 | Bản phát lại có nhãn; cổng bật | Chấm 6 biến thể + 7 đối chứng (`s1`…`s7` không chèn lệnh gồm `s4-trong`; Q-S105-6 về con số 7) | OR ba tầng bắt **≥ 6/6**; **0 cờ** trên 7 đối chứng; regex một mình 1/6 (mốc, tắt hai tầng kia) | API |
+| TC-D04-09 | AC5 | Bản phát lại có nhãn; cổng bật | Chấm 6 biến thể + **6** đối chứng (`s1`–`s5`, `s7`, gồm `s4-trong`; P-105-1 Q6) | OR ba tầng bắt **≥ 6/6**; **0 cờ** trên 6 đối chứng; regex một mình 1/6 (mốc, tắt hai tầng kia) | API |
 | TC-D04-10 | AC5 | `go test ./internal/grading -run TestInjectionSet6of6 -v` | – | PASS; log từng bài | GO |
 | TC-D04-11 | AC5 | **Chờ phép PM** | Lượt thật ≤ 300 lời gọi | Ghi «KHÔNG KIỂM ĐƯỢC (chờ phép PM)» — không tính FAIL; không chạy | – |
 | TC-D04-12 | AC6 | Cổng bật | `llm_audit` lời gọi `DECIDE` của chấm | Làn `BATCH`; `timeout_ms=3000`; chạy song song với lời gọi chấm (thời gian chấm tổng ≈ max, không cộng) | DB |
@@ -58,4 +58,4 @@ TC-D03-05…07, 19, 20; TC-D04-02, 05, 13, 14.
 TC-D03-17, 18; TC-D04-16, 17.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-11-14: cập nhật theo P-105-1 (Q1 base URL cấu hình được; Q2 bảng replay + `FAKE_DECISION_PROB`; Q3 bản giả trả 0,25 cho đầu vào lạ; Q6 đối chứng = 6 bài). Spec: BA vá SRS 4.6 / US-DM-04 AC5.

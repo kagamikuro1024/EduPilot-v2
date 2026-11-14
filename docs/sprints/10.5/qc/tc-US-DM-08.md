@@ -10,7 +10,7 @@ Nguồn: US.md + SRS §9 («Quy trình đo trước / sau»); Q-D-14, 15; D46 (�
 | TC-D08-05 | AC2 | – | `pnpm -C frontend exec playwright test decision-settings.spec.ts decision-observability.spec.ts cascade.spec.ts` | Xanh với provider `fake`; **không** kết nối mạng ngoài (kiểm TC-D09-11) | E2E |
 | TC-D08-06 | AC3 | `cascade.spec.ts` | Đọc spec (không mock toàn bộ) | Đủ nhánh (a) lưỡng lự → `Structured`; (b) decision lỗi → `Structured`; (c) cả hai lỗi → chặn; (d) chèn lệnh decision lỗi → cờ regex + `Structured`, điểm không đổi; (e) chat dưới τ / lỗi → như tắt; (f) khủng hoảng → 0 lời gọi decision (bộ đếm giả); assert `cascade_path` ở `llm_audit` mỗi nhánh | DIFF |
 | TC-D08-07 | AC3 | – | Tự chạy lại 6 nhánh (a–f) ở stack QC bằng API | Đúng từng nhánh và `cascade_path` | API |
-| TC-D08-08 | AC4 | Repo | Đọc `benchmarks/decision/run.sh` + mã | Python **chuẩn** (không thư viện ngoài), chỉ HTTP, không import mã Go (`grep -r "import.*backend" benchmarks/decision` = 0); ba kịch bản (chat 30 × 3, Threads 40, chèn lệnh 13); bật / tắt cùng seed | DIFF |
+| TC-D08-08 | AC4 | Repo | Đọc `benchmarks/decision/run.sh` + mã | Python **chuẩn** (không thư viện ngoài), chỉ HTTP, không import mã Go (`grep -r "import.*backend" benchmarks/decision` = 0); ba kịch bản (chat 30 × 3, Threads 40, chèn lệnh 12 = 6 biến thể + 6 đối chứng; spec ghi «13 / 7» — BA sửa theo P-105-1 Q6); bật / tắt cùng seed | DIFF |
 | TC-D08-09 | AC4 | Stack chạy, provider giả `426 / 682` | Chạy `run.sh` (QC tự chạy, ghi thời gian) | Mã 0; ghi `benchmarks/reports/decision-before-after.{json,md}` + biểu đồ **SVG** (không PNG; XML hợp lệ); mỗi bảng có cấu hình máy «MacBook Apple Silicon, Colima 6 CPU / 10 GB», độ trễ giả (p50 / p95), cỡ mẫu | TAY |
 | TC-D08-10 | AC4 | Kết quả TC-D08-09 | QC tính lại bằng SQL `llm_audit` + file thô | Chat: TTFT p50 / p95 bật vs tắt, số lời gọi / câu; Threads: độ trễ đăng, chặn đúng / nhầm, `FAST`/`FALLBACK`/`FAIL_CLOSED` (khớp `llm_audit`); chèn lệnh: cờ đúng / nhầm; sai số ≤ 1 % với số trong báo cáo | TAY+DB |
 | TC-D08-11 | AC5 | Báo cáo | Mỗi cổng có dòng «Bật được» / «Giữ tắt» | Theo luật cứng: chat — TTFT p95 ≤ +20 % **và** độ chính xác ≥ luật; Threads — chặn nhầm ≤ 0,05 **và** không lọt thêm; chèn lệnh — 6/6 **và** 0 cờ nhầm trên đối chứng; cổng không đạt giữ **tắt** kèm lý do; QC tự áp luật lên số của mình: kết luận khớp (không «Bật được» khi số không đạt) | TAY |
@@ -37,4 +37,4 @@ Không riêng (script offline). Phân quyền cấu hình ở TC-D02-22, TC-D06-
 `docs/sprints/10.5/qc/scripts/dm_bench_check.py` (tính lại số), `dm_seed_check.sh`.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-11-14: cập nhật theo P-105-1 (Q1 base URL cấu hình được; Q2 bảng replay + `FAKE_DECISION_PROB`; Q3 bản giả trả 0,25 cho đầu vào lạ; Q6 đối chứng = 6 bài). Spec: BA vá SRS 4.6 / US-DM-04 AC5.
