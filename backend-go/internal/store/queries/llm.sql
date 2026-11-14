@@ -145,9 +145,9 @@ select to_char(created_at at time zone 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD') as key,
 
 -- Ghi llm_audit theo lô bằng COPY — cổng llm ghi bất đồng bộ, một lần cho cả lô.
 -- name: InsertLLMAudit :copyfrom
-insert into llm_audit (task, lane, provider, model, tokens_in, tokens_out, latency_ms, queue_wait_ms, attempts, fallback_index,
+insert into llm_audit (id, task, lane, provider, model, tokens_in, tokens_out, latency_ms, queue_wait_ms, attempts, fallback_index,
                        cost_est, status, error_kind, degraded, pii_masked_count, user_id, course_id, trace_id, created_at)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);
 
 -- Ngân sách: tổng chi phí thực tế từ llm_audit để đối soát bộ đếm Redis.
 -- name: LLMCostSum :one
@@ -159,3 +159,7 @@ select coalesce(sum(cost_est), 0)::numeric(14,4) as total
 -- Các lớp có chi phí LLM kể từ một thời điểm (đối soát ngân sách khi Redis về).
 -- name: LLMCoursesWithSpend :many
 select distinct course_id::uuid as course_id from llm_audit where course_id is not null and created_at >= sqlc.arg(since);
+
+-- Bản prompt đã che của lời gọi (quan sát AI; ghi cùng lô với llm_audit, lỗi ghi không làm hỏng lời gọi).
+-- name: InsertLLMPayload :copyfrom
+insert into llm_request_payloads (audit_id, course_id, masked_prompt, tools, created_at) values ($1, $2, $3, $4, $5);

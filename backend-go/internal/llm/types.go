@@ -96,6 +96,7 @@ type Request struct {
 	Shareable      bool // chỉ true cho việc không chứa dữ liệu cá nhân
 	PIIMaskedCount int
 	Passages       []Passage
+	Tools          []string // tên công cụ agent đã chạy cho lượt này (chỉ để quan sát AI)
 }
 
 // Response là kết quả sinh văn bản.

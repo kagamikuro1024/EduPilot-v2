@@ -2,6 +2,7 @@ package llm
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 	"sync"
 	"sync/atomic"
@@ -22,6 +23,7 @@ const (
 
 // AuditRow là MỘT dòng llm_audit; không có trường nội dung (prompt / câu trả lời).
 type AuditRow struct {
+	ID                          uuid.UUID // zero → PGWriter tự sinh; cần cố định khi kèm Prompt (khoá của llm_request_payloads)
 	Task, Lane, Provider, Model string
 	TokensIn, TokensOut         int
 	LatencyMS, QueueWaitMS      int
@@ -33,6 +35,9 @@ type AuditRow struct {
 	UserID, CourseID            *uuid.UUID
 	TraceID                     string
 	At                          time.Time
+	// Prompt là bản prompt ĐÃ CHE (rỗng = không lưu: embedding, hoặc che tắt). Ghi vào llm_request_payloads, KHÔNG vào llm_audit.
+	Prompt string
+	Tools  []string // tên công cụ agent đã chạy cho lượt này
 }
 
 // AuditWriter ghi một lô; mặc định là COPY vào Postgres.
@@ -153,9 +158,17 @@ func PGWriter(db store.DBTX) AuditWriter {
 	q := store.New(db)
 	return func(ctx context.Context, rows []AuditRow) error {
 		ps := make([]store.InsertLLMAuditParams, 0, len(rows))
+		var pp []store.InsertLLMPayloadParams
 		for _, r := range rows {
+			if r.ID == uuid.Nil {
+				r.ID = uuid.Must(uuid.NewV7())
+			}
+			if r.Prompt != "" {
+				tools, _ := json.Marshal(r.Tools) //nolint:errchkjson // []string luôn mã hoá được
+				pp = append(pp, store.InsertLLMPayloadParams{AuditID: r.ID, CourseID: r.CourseID, MaskedPrompt: r.Prompt, Tools: tools, CreatedAt: r.At})
+			}
 			p := store.InsertLLMAuditParams{
-				Task: r.Task, Lane: r.Lane, TokensIn: int32(r.TokensIn), TokensOut: int32(r.TokensOut), //nolint:gosec // đếm token không tràn int32
+				ID: r.ID, Task: r.Task, Lane: r.Lane, TokensIn: int32(r.TokensIn), TokensOut: int32(r.TokensOut), //nolint:gosec // đếm token không tràn int32
 				LatencyMs: int32(r.LatencyMS), QueueWaitMs: int32(r.QueueWaitMS), Attempts: int32(r.Attempts), //nolint:gosec // idem
 				FallbackIndex: int32(r.FallbackIndex), CostEst: r.CostEst, Status: r.Status, Degraded: r.Degraded, //nolint:gosec // idem
 				PiiMaskedCount: int32(r.PIIMaskedCount), UserID: r.UserID, CourseID: r.CourseID, TraceID: r.TraceID, CreatedAt: r.At, //nolint:gosec // idem
@@ -171,7 +184,14 @@ func PGWriter(db store.DBTX) AuditWriter {
 			}
 			ps = append(ps, p)
 		}
-		_, err := q.InsertLLMAudit(ctx, ps)
-		return err
+		if _, err := q.InsertLLMAudit(ctx, ps); err != nil {
+			return err
+		}
+		if len(pp) > 0 { // lỗi ghi payload chỉ log, không làm hỏng lô audit (SRS 5)
+			if _, err := q.InsertLLMPayload(ctx, pp); err != nil {
+				slog.Warn("không ghi được llm_request_payloads", "rows", len(pp), "error", err.Error())
+			}
+		}
+		return nil
 	}
 }

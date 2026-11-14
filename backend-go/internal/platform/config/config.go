@@ -148,6 +148,11 @@ type Config struct {
 	// Đo thời gian học (US-P5-03, SRS FEAT-crm-360 4.1).
 	HeartbeatMaxPerMinute, StudyDailyCap int
 	HeartbeatCounterTTL, RollupTick      time.Duration
+	// Quan sát AI (US-P10-02/03): chu kỳ tính cảnh báo (OBS_ALERT_TICK), chu kỳ dọn payload (OBS_PURGE_TICK), số ngày giữ payload (OBS_PAYLOAD_DAYS),
+	// khoảng khử trùng cảnh báo (OBS_ALERT_DEDUPE), liên kết Jaeger (JAEGER_BASE_URL, rỗng = không có).
+	ObsAlertTick, ObsPurgeTick, ObsAlertDedupe time.Duration
+	ObsPayloadDays                             int
+	JaegerBaseURL                              string
 	// RiskJobAt: giờ chạy `crm.risk` mỗi ngày (RISK_JOB_AT, "HH:MM", múi giờ Asia/Ho_Chi_Minh), tính từ 00:00 (US-P5-04).
 	RiskJobAt time.Duration
 	// Hồ sơ 360 (US-P5-05): AI_SUMMARY_TIMEOUT, AI_SUMMARY_PER_HOUR (lượt / giờ / người), OUTREACH_PER_DAY (tin / ngày tới một sinh viên).
@@ -361,6 +366,11 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.StudyDailyCap = l.num("STUDY_DAILY_CAP", 43200, 3600, 86400)
 	c.HeartbeatCounterTTL = l.durRange("HEARTBEAT_COUNTER_TTL", 192*time.Hour, 48*time.Hour, 30*24*time.Hour)
 	c.RollupTick = l.durRange("ROLLUP_TICK", time.Minute, 10*time.Second, 5*time.Minute)
+	c.ObsAlertTick = l.durRange("OBS_ALERT_TICK", 5*time.Minute, 5*time.Second, time.Hour)
+	c.ObsPurgeTick = l.durRange("OBS_PURGE_TICK", 24*time.Hour, 5*time.Second, 48*time.Hour)
+	c.ObsAlertDedupe = l.durRange("OBS_ALERT_DEDUPE", 6*time.Hour, time.Minute, 48*time.Hour)
+	c.ObsPayloadDays = l.num("OBS_PAYLOAD_DAYS", 30, 1, 365)
+	c.JaegerBaseURL = strings.TrimRight(l.str("JAEGER_BASE_URL", ""), "/")
 	c.RiskJobAt = l.workday("RISK_JOB_AT", "02:00")
 	c.AISummaryTimeout = l.durRange("AI_SUMMARY_TIMEOUT", 20*time.Second, 5*time.Second, 120*time.Second)
 	c.AISummaryPerHour = l.num("AI_SUMMARY_PER_HOUR", 10, 1, 1000)

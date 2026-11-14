@@ -18,6 +18,7 @@ import (
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/notify"
+	"github.com/edupilot/backend-go/internal/observability"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/practice"
@@ -60,6 +61,13 @@ func newTasks(d Deps) []Task {
 	if ys := newImapSyncer(d); ys != nil {
 		tasks = append(tasks, imapTask{ys})
 	}
+	obs := &observability.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}
+	alerter := &observability.Alerter{Svc: obs, Notify: nt, Dedupe: d.Cfg.ObsAlertDedupe}
+	tasks = append(tasks,
+		obsTask{name: "observability.alert", j: &observability.Job{Name: "observability.alert", Holder: name, Redis: d.Redis, Every: d.Cfg.ObsAlertTick, Log: d.Log,
+			Fn: func(ctx context.Context) (int64, error) { n, err := alerter.Tick(ctx); return int64(n), err }}},
+		obsTask{name: "observability.purge", j: &observability.Job{Name: "observability.purge", Holder: name, Redis: d.Redis, Every: d.Cfg.ObsPurgeTick, Log: d.Log,
+			Fn: func(ctx context.Context) (int64, error) { return obs.PurgePayloads(ctx, d.Cfg.ObsPayloadDays) }}})
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
@@ -128,6 +136,15 @@ type orphanTask struct{ j *submission.OrphanJob }
 
 func (orphanTask) Name() string                    { return "submission.orphan_cleanup" }
 func (t orphanTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// obsTask chạy cảnh báo LLM (US-P10-03, mỗi OBS_ALERT_TICK) và dọn payload prompt > OBS_PAYLOAD_DAYS ngày (US-P10-02 AC8, mỗi OBS_PURGE_TICK) — một bản nhờ khoá leader Redis.
+type obsTask struct {
+	name string
+	j    *observability.Job
+}
+
+func (t obsTask) Name() string                  { return t.name }
+func (t obsTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // judgeTask chạy consumer chấm code (chỉ ở bản worker JUDGE_CONSUMER=true).
 type judgeTask struct{ q *judge.Queue }

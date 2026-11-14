@@ -24,7 +24,7 @@ var seedEnvs = []string{"dev", "test"} //nolint:gochecknoglobals // danh sách c
 
 // isSeedCmd: tên lệnh con thuộc nhóm seed.
 func isSeedCmd(name string) bool {
-	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity"
+	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity" || name == "seed-llm-audit"
 }
 
 // runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat|seed-activity`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
@@ -80,6 +80,8 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, "không đọc được hồ sơ: "+err.Error())
 		}
 		body = raw
+	case "seed-llm-audit":
+		// không có đầu vào ngoài --course
 	case "seed-chat", "seed-activity":
 		if *chatPlan != "-" {
 			return fail(2, name+" chỉ nhận --plan - (JSON qua stdin).")
@@ -149,6 +151,12 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, err.Error())
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-activity: %d dòng\n", n)
+	case "seed-llm-audit":
+		n, err := seedtool.SeedLLMAudit(ctx, pool, cid, clk)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		_, _ = fmt.Fprintf(stdout, "seed-llm-audit: %d dòng\n", n)
 	case "seed-age":
 		var n int64
 		switch {

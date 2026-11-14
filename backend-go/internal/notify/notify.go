@@ -31,6 +31,9 @@ const (
 	TypeTicketStale          = "TICKET_STALE"
 	TypeTicketAnswered       = "TICKET_ANSWERED"
 	TypeCourseTicketsStalled = "COURSE_TICKETS_STALLED"
+	// Cảnh báo quan sát AI (US-P10-03): chỉ ADMIN nhận.
+	TypeLLMErrorRate     = "LLM_ERROR_RATE"
+	TypeLLMBudgetReached = "LLM_BUDGET_REACHED"
 )
 
 // Spec là một thông báo cho MỘT người. DedupeKey rỗng = không khử trùng.

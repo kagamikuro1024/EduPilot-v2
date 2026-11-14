@@ -3363,6 +3363,15 @@ type LlmProvider struct {
 	UpdatedAt     time.Time
 }
 
+type LlmRequestPayload struct {
+	AuditID      uuid.UUID
+	CourseID     *uuid.UUID
+	MaskedPrompt string
+	Tools        json.RawMessage
+	Confidence   decimal.NullDecimal
+	CreatedAt    time.Time
+}
+
 type LlmTaskRoute struct {
 	ID            uuid.UUID
 	Task          string

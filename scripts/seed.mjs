@@ -920,6 +920,10 @@ async function step12Chat() {
   }
   const out = gatewayAdmin("seed-chat", ["--course", "761987", "--weeks", "10", "--plan", "-"], JSON.stringify({ sessions }));
   if (!/seed-chat: 0 tin/.test(out)) ctx.changed = true;
+  // Quan sát AI (US-P10-07): ≥ 300 yêu cầu LLM mô phỏng / 7 ngày mỗi lớp (kèm bản prompt đã che); idempotent theo lớp.
+  for (const code of ["761987", "761988"]) {
+    if (!/seed-llm-audit: 0 dòng/.test(gatewayAdmin("seed-llm-audit", ["--course", code], ""))) ctx.changed = true;
+  }
 }
 
 // ---- bước 13: thread lớp (12 + 3) với đủ trạng thái bài AI (US-P3-08 AC2) ---------------------------------------------------

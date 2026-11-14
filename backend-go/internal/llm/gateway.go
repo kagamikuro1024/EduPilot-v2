@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
 	"github.com/edupilot/backend-go/internal/llm/cost"
@@ -111,7 +112,7 @@ func (g *Gateway) begin(ctx context.Context, task Task, want *Lane, pii int) (*c
 	c := &call{g: g, task: task, start: now}
 	id := IdentityFrom(ctx)
 	tid := TraceID(ctx)
-	c.row = AuditRow{Task: string(task), Lane: LaneBatch.String(), Attempts: 0, PIIMaskedCount: pii, UserID: id.UserID, CourseID: id.CourseID, TraceID: tid, At: now}
+	c.row = AuditRow{ID: uuid.Must(uuid.NewV7()), Task: string(task), Lane: LaneBatch.String(), Attempts: 0, PIIMaskedCount: pii, UserID: id.UserID, CourseID: id.CourseID, TraceID: tid, At: now}
 	lane, err := ResolveLane(task, want)
 	if err != nil {
 		return c.fail(ctx, "error", "BAD_LANE", err)
@@ -501,6 +502,7 @@ func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 	if err != nil {
 		return Response{}, err
 	}
+	c.recordPrompt(mk, rm)
 	resp, err := g.chat(c, rm, nil)
 	if errors.Is(err, ErrAllProvidersFailed) {
 		if c.lane == LaneInteractive { // suy giảm có kiểm soát: trích nguyên văn, không sinh (SRS 4.3)
@@ -576,6 +578,7 @@ func (g *Gateway) Structured(ctx context.Context, r Request, schema json.RawMess
 	if err != nil {
 		return nil, err
 	}
+	c.recordPrompt(mk, rm)
 	resp, err := g.chat(c, rm, schema)
 	if errors.Is(err, ErrAllProvidersFailed) {
 		err = &ErrUnavailable{Reason: ReasonAllFailed}

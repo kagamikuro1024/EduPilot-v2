@@ -29,6 +29,7 @@ func (r *iteratorForInsertLLMAudit) Next() bool {
 
 func (r iteratorForInsertLLMAudit) Values() ([]interface{}, error) {
 	return []interface{}{
+		r.rows[0].ID,
 		r.rows[0].Task,
 		r.rows[0].Lane,
 		r.rows[0].Provider,
@@ -57,5 +58,42 @@ func (r iteratorForInsertLLMAudit) Err() error {
 
 // Ghi llm_audit theo lô bằng COPY — cổng llm ghi bất đồng bộ, một lần cho cả lô.
 func (q *Queries) InsertLLMAudit(ctx context.Context, arg []InsertLLMAuditParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"llm_audit"}, []string{"task", "lane", "provider", "model", "tokens_in", "tokens_out", "latency_ms", "queue_wait_ms", "attempts", "fallback_index", "cost_est", "status", "error_kind", "degraded", "pii_masked_count", "user_id", "course_id", "trace_id", "created_at"}, &iteratorForInsertLLMAudit{rows: arg})
+	return q.db.CopyFrom(ctx, []string{"llm_audit"}, []string{"id", "task", "lane", "provider", "model", "tokens_in", "tokens_out", "latency_ms", "queue_wait_ms", "attempts", "fallback_index", "cost_est", "status", "error_kind", "degraded", "pii_masked_count", "user_id", "course_id", "trace_id", "created_at"}, &iteratorForInsertLLMAudit{rows: arg})
+}
+
+// iteratorForInsertLLMPayload implements pgx.CopyFromSource.
+type iteratorForInsertLLMPayload struct {
+	rows                 []InsertLLMPayloadParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForInsertLLMPayload) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForInsertLLMPayload) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].AuditID,
+		r.rows[0].CourseID,
+		r.rows[0].MaskedPrompt,
+		r.rows[0].Tools,
+		r.rows[0].CreatedAt,
+	}, nil
+}
+
+func (r iteratorForInsertLLMPayload) Err() error {
+	return nil
+}
+
+// Bản prompt đã che của lời gọi (quan sát AI; ghi cùng lô với llm_audit, lỗi ghi không làm hỏng lời gọi).
+func (q *Queries) InsertLLMPayload(ctx context.Context, arg []InsertLLMPayloadParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"llm_request_payloads"}, []string{"audit_id", "course_id", "masked_prompt", "tools", "created_at"}, &iteratorForInsertLLMPayload{rows: arg})
 }

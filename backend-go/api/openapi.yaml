@@ -9072,6 +9072,141 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/summary:
+    get:
+      operationId: getObservabilitySummary
+      tags: [observability]
+      summary: "Quan sát AI toàn hệ thống (ADMIN): dải 24 giờ / 7 ngày, bảng 7 ngày theo ngày VN, chi phí theo tác vụ; không nội dung"
+      parameters:
+        - name: window
+          in: query
+          schema:
+            type: string
+            enum: ["24h", "7d"]
+      responses:
+        "200":
+          description: Tổng hợp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObsAdminSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/requests:
+    get:
+      operationId: listObservabilityRequests
+      tags: [observability]
+      summary: "Bảng yêu cầu LLM (ADMIN), phân trang con trỏ (created_at, id) giảm dần; KHÔNG cột nội dung; Cache-Control no-store"
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: [all, problem, privacy]
+        - name: course_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: task
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trang yêu cầu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObsRequestPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/requests/{id}/open:
+    post:
+      operationId: openObservabilityRequest
+      tags: [observability]
+      summary: "Mở nội dung một yêu cầu (ADMIN): lý do 10–200 ký tự, ghi audit_log VIEW_DETAIL cùng giao dịch trước khi trả prompt ĐÃ CHE; mỗi lần mở một dòng; no-store"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObsOpenInput"
+      responses:
+        "200":
+          description: Prompt đã che, công cụ, độ tự tin, trace_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObsDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/observability/summary:
+    get:
+      operationId: getCourseObservabilitySummary
+      tags: [observability]
+      summary: "Tổng hợp 7 ngày của MỘT lớp (TEACHER của lớp; ADMIN mọi lớp): không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp. Giảng viên lớp khác → 404; TA / STUDENT → 403"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Tổng hợp lớp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObsCourseSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/chat/tickets/{id}/followup:
     post:
       operationId: followupTicket
@@ -15796,6 +15931,136 @@ components:
             $ref: "#/components/schemas/FailedMail"
         next_cursor:
           type: [string, "null"]
+    ObsTotals:
+      type: object
+      required: [requests, p50_ms, p95_ms, errors, error_rate, fallbacks, fallback_rate, cost, pii_masked, window_seconds]
+      additionalProperties: false
+      properties:
+        requests: {type: integer}
+        p50_ms: {type: number}
+        p95_ms: {type: number}
+        errors: {type: integer}
+        error_rate: {type: number}
+        fallbacks: {type: integer}
+        fallback_rate: {type: number}
+        cost: {type: string}
+        pii_masked: {type: integer}
+        window_seconds: {type: integer}
+    ObsDayRow:
+      type: object
+      required: [day, requests, p95_ms, errors, escalations, pii_masked, cost]
+      additionalProperties: false
+      properties:
+        day: {type: string, format: date}
+        requests: {type: integer}
+        p95_ms: {type: number}
+        errors: {type: integer}
+        escalations: {type: integer}
+        pii_masked: {type: integer}
+        cost: {type: string}
+    ObsTaskCost:
+      type: object
+      required: [task, requests, cost, tokens_in, tokens_out]
+      additionalProperties: false
+      properties:
+        task: {type: string}
+        requests: {type: integer}
+        cost: {type: string}
+        tokens_in: {type: integer}
+        tokens_out: {type: integer}
+    ObsAdminSummary:
+      type: object
+      required: [window, totals, days, tasks]
+      additionalProperties: false
+      properties:
+        window: {type: string}
+        totals:
+          $ref: "#/components/schemas/ObsTotals"
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObsDayRow"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObsTaskCost"
+    ObsRequestRow:
+      type: object
+      required: [id, at, task, lane, provider, model, latency_ms, status, error_kind, degraded, fallback_index, pii_masked_count, course_id, course_code]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        at: {type: string, format: date-time}
+        task: {type: string}
+        lane: {type: string}
+        provider: {type: [string, "null"]}
+        model: {type: [string, "null"]}
+        latency_ms: {type: integer}
+        status: {type: string}
+        error_kind: {type: [string, "null"]}
+        degraded: {type: boolean}
+        fallback_index: {type: integer}
+        pii_masked_count: {type: integer}
+        course_id: {type: [string, "null"], format: uuid}
+        course_code: {type: [string, "null"]}
+    ObsRequestPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObsRequestRow"
+        next_cursor:
+          type: [string, "null"]
+    ObsOpenInput:
+      type: object
+      required: [reason]
+      additionalProperties: false
+      properties:
+        reason: {type: string, minLength: 10, maxLength: 200}
+    ObsDetail:
+      type: object
+      required: [id, at, task, provider, model, status, trace_id, trace_url, masked_prompt, tools, confidence]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        at: {type: string, format: date-time}
+        task: {type: string}
+        provider: {type: [string, "null"]}
+        model: {type: [string, "null"]}
+        status: {type: string}
+        trace_id: {type: string}
+        trace_url: {type: [string, "null"]}
+        masked_prompt: {type: string}
+        tools:
+          type: array
+          items: {type: string}
+        confidence: {type: [string, "null"]}
+    ObsCourseSummary:
+      type: object
+      required: [course_id, window, requests, error_rate, escalations, pii_masked, helpful, not_helpful, thread_correct, thread_reject, graded_changed, graded_total, change_rate, mean_abs_deviation, days]
+      additionalProperties: false
+      properties:
+        course_id: {type: string, format: uuid}
+        window: {type: string}
+        requests: {type: integer}
+        error_rate: {type: number}
+        escalations: {type: integer}
+        pii_masked: {type: integer}
+        helpful: {type: integer}
+        not_helpful: {type: integer}
+        thread_correct: {type: integer}
+        thread_reject: {type: integer}
+        graded_changed: {type: integer}
+        graded_total: {type: integer}
+        change_rate: {type: number}
+        mean_abs_deviation: {type: string}
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/ObsDayRow"
     StudentList:
       type: object
       required: [items, next_cursor, total]

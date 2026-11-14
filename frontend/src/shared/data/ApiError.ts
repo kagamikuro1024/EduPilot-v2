@@ -22,7 +22,9 @@ export type ServerErrorCode =
   | "ASSIGNMENT_NOT_PUBLISHED" | "ENTRY_UNSAFE" | "ENTRY_TYPE_NOT_ALLOWED" | "ZIP_LIMIT"
   // P9 — luyện đề, thi thử, trích / sinh câu hỏi (backend-go/internal/httpapi/apierr/practice.go)
   | "NOT_ENOUGH_QUESTIONS" | "TAB_TAKEN_OVER" | "ANSWER_LOCKED" | "INVALID_OPTION_ID" | "INVALID_QUESTION" | "NOT_ANSWERED" | "NOT_SUBMITTED" | "WRONG_DOCUMENT_TYPE" | "CITATION_REQUIRED" | "PREVIEW_REQUIRED" | "TOO_LONG" | "TYPE_NOT_SUPPORTED_IN_EXAM" | "ATTEMPT_CLOSED" | "DOCUMENT_NOT_READY";
-export type ApiErrorCode = ServerErrorCode | "BAD_GATEWAY" | "NETWORK" | "ABORTED" | "PARSE_ERROR" | "BAD_TARGET";
+  // P10 — quan sát AI (backend-go/internal/httpapi/apierr/observability.go)
+export type ServerErrorCodeP10 = "REASON_REQUIRED" | "PAYLOAD_EXPIRED";
+export type ApiErrorCode = ServerErrorCodeP10 | ServerErrorCode | "BAD_GATEWAY" | "NETWORK" | "ABORTED" | "PARSE_ERROR" | "BAD_TARGET";
 
 export const AUTH_CODES: readonly string[] = ["TOKEN_EXPIRED", "TOKEN_INVALID", "UNAUTHENTICATED"];
 

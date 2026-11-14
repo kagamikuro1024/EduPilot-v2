@@ -31,6 +31,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/observabilityhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/practicehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
@@ -39,6 +40,7 @@ import (
 	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/mailin"
 	"github.com/edupilot/backend-go/internal/notify"
+	"github.com/edupilot/backend-go/internal/observability"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/crypto"
 	"github.com/edupilot/backend-go/internal/practice"
@@ -181,6 +183,8 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.DB != nil {
 			(&mailhttp.Handler{Pool: d.DB, Log: d.Log}).Mount(r) // US-P4-04 AC9: thư gửi lỗi (ADMIN)
+			// US-P10-01/02: quan sát AI (ADMIN) + bản tổng hợp một lớp (TEACHER của lớp / ADMIN).
+			(&observabilityhttp.Handler{Svc: &observability.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, JaegerBaseURL: d.Cfg.JaegerBaseURL}, Guard: courseGuard, Log: d.Log}).Mount(r)
 		}
 	})
 

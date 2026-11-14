@@ -145,6 +145,7 @@ func (q *Queries) GetLLMProvider(ctx context.Context, id uuid.UUID) (LlmProvider
 }
 
 type InsertLLMAuditParams struct {
+	ID             uuid.UUID
 	Task           string
 	Lane           string
 	Provider       *string
@@ -198,6 +199,14 @@ func (q *Queries) InsertLLMBudget(ctx context.Context, arg InsertLLMBudgetParams
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+type InsertLLMPayloadParams struct {
+	AuditID      uuid.UUID
+	CourseID     *uuid.UUID
+	MaskedPrompt string
+	Tools        json.RawMessage
+	CreatedAt    time.Time
 }
 
 const insertLLMProvider = `-- name: InsertLLMProvider :one
