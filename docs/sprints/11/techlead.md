@@ -69,6 +69,14 @@ Hạn mức: P1 ≈ 650 lời gọi, P2 ≈ 400.
 
 **Đề xuất cho PM:** P-11-2, P-11-3, P-11-4.
 
+**Cập nhật theo quyết định PM (`proposals.md` @2fb37bb7):**
+- **P-11-2 (biểu đồ):** dùng SVG bằng thư viện chuẩn Python: một hàm nhỏ vẽ đường cong E2 (đường gấp khúc) và cột E4/E5 (`<rect>`). Hàm chỉ dùng màu cố định, không dùng font ngoài. `.md` nhúng `![](e2.svg)`. Không dùng `matplotlib`.
+- **P-11-3/4:** báo cáo E1 vẫn có số nhưng ghi `labels:"WAITING_HUMAN"`. Golden set E2 do BA soạn theo định dạng ở bảng trên (`answerable`, `must_contain`).
+- **9router (kiểm 14/11 sau khi bật lại):**
+  - Gọi `GET /v1/models` bằng khoá trong sqlite trả `200`, có đúng `ag/gemini-3.8-flash`.
+  - Từ container, `http://host.docker.internal:20128/v1/models` trả `200`.
+  - 9router còn có model khác họ, ví dụ `ag/claude-sonnet-4-6` và `ag/gpt-oss-120b-medium`. Nếu P2 (Gemini trực tiếp) hết hạn mức hoặc probe chọn trúng 3.8-flash, dùng một trong hai làm P2 (vẫn là `openai_compatible`, chỉ đổi `model`). Nhờ vậy E4 so được hai model khác nhau. Ghi rõ model và lý do vào báo cáo theo AC6.
+
 ---
 
 ## TL-2 (US-P10-08, đợt 3): hướng sửa LCP 7 trang
@@ -147,3 +155,10 @@ res = early ? await early : await fetch(`${API_BASE}/auth/refresh`, { method: "P
 - Số trong bảng U chỉ là ước tính từ một lần đo. Phải chạy lại `benchmarks/lighthouse/run.sh` (3 lượt, trung vị) trên `ep-*`, không dùng stack demo.
 
 **Đề xuất cho PM:** P-11-5, P-11-6.
+
+**Cập nhật theo quyết định PM (`proposals.md` @2fb37bb7):**
+- **P-11-6:** chỉ đi đường (a): U1–U4 cộng sửa từng route. Không SSR, không đổi auth. Route nào sau lượt sửa cuối vẫn trên 2.500 ms thì ghi vào Nợ (route, số đo, phần tử LCP, nguyên nhân), không nới ngưỡng.
+- **P-11-5:** đo ở trạng thái người dùng quay lại.
+  - `benchmarks/lighthouse/auth-ep.cjs`: sau khi đăng nhập vai student, gọi `POST /api/v1/me/tracking-notice/ack` bằng access token lấy từ phản hồi login. Lệnh này idempotent và không đổi dữ liệu T1 nào khác.
+  - Số đo lần đầu chạy riêng một lượt với `LH_FIRST_VISIT=1`, bỏ bước ack, trên một tài khoản T1 chưa từng ack (ví dụ `t1sv0002`). Ghi vào báo cáo dưới nhãn «lần đầu (hộp thoại thời gian học)» và không chấm ngưỡng.
+  - Mặc định `run.sh` và CI đo trạng thái quay lại.
