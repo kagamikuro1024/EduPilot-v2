@@ -14125,9 +14125,10 @@ components:
             max_round: {type: integer}
     GuidanceStats:
       type: object
-      required: [items]
+      required: [items, regression_cases]
       additionalProperties: false
       properties:
+        regression_cases: {type: integer, minimum: 0, description: "Số ca hồi quy chấm (GRADING_EDIT / GRADING_APPEAL) của bài tập; chỉ là số"}
         items:
           type: array
           items:

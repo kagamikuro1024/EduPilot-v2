@@ -1,5 +1,5 @@
 # SRS FEAT-grading-guidance Harness học từ lần giảng viên sửa (M1, M2, M4, M6)
-Phiên bản 1.5 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
+Phiên bản 1.6 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
 
 **v1.2 (P-106-2, P-106-3):** công bố **miễn so phiên bản cho bài giảng viên đã duyệt**, `regrade-stale` không còn tham số `scope` và **không bao giờ đụng bài đã duyệt / đã sửa tay** (không ghi đè điểm giảng viên) — US-GD-05 AC3, AC4, AC6, AC6a, AC11, SRS 3.4, 4.2.11, 4.2.12, API #7, #9; `similar-confirmed` đổi `GET ?q=` → `POST {q}` — US-GD-08 AC1, AC7, SRS 3.5, 4.4, API #10; sửa dấu phẩy thừa DDL 5.5.
 
@@ -8,6 +8,8 @@ Phiên bản 1.5 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; 
 **v1.4 (P-106-7):** mục lưu ý có `case_id` lạ (không có trong đầu vào / thuộc tiêu chí khác) bị bỏ **cả mục** (giữ mã; an toàn trước đầu độc), ca ngược chiều chỉ không đếm — US-GD-03 AC6, SRS 3.2, 3.8, 4.2.8.
 
 **v1.5 (P-106-8):** thêm «Hoàn tác» cho `Duyệt` / `Bỏ` / `Cho nghỉ` trước `Áp dụng` (API `decide RESET`, `ITEM_NOT_RESETTABLE`, menu `Đặt lại`), `Áp dụng` dùng `ConfirmIrreversible` và không Hoàn tác — US-GD-04 AC3a, AC5; SRS 3.8, 4.2.9, §6 #5, §7.
+
+**v1.6 (P-106-10):** số ca hồi quy hiện qua trường `regression_cases` trong response stats (#8), không endpoint mới — US-GD-07 AC6, SRS 4.2.13.
 
 ## 1. Mục đích và phạm vi
 **Vấn đề.** Điểm nháp của AI lệch chuẩn của giảng viên (9.5 đo MAE tổng 0,94–1,27 / 10). Mỗi lần giảng viên sửa đã được lưu có cấu trúc (`grading_results.ai_scores` bất biến so với `criteria`), nhưng chưa được dùng lại: giảng viên sửa cùng một lỗi nhiều lần.
@@ -256,7 +258,7 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 **4.2.12 So phiên bản khi công bố (P-106-2).** Trong `publish` (4.8.5 FEAT-assignments): (1) giữ `422 NOT_REVIEWED` cho bài không `REVIEWED`; (2) kết quả **đã duyệt** — định nghĩa bằng **`first_reviewed_at IS NOT NULL`** (ghi một lần, không bị xoá khi giảng viên sửa lại; **không** dùng `reviewed_at` / `reviewed_by` vì `ReviewApplyEdit` đặt chúng NULL khi `REVIEWED → DRAFT`) — **miễn so phiên bản** vì điểm cuối là quyết định của giảng viên; đếm lý do miễn: `EDITED` (có tiêu chí giảng viên sửa — `changedCriteria ≠ ∅`) và `ACCEPTED_AS_IS` (duyệt nguyên nháp), trả ở `exempt{}` và ghi `audit_log`; (3) lưới an toàn bất biến: nếu tập còn kết quả **chưa từng được duyệt** (`first_reviewed_at IS NULL`) mà `guidance_version` khác `assignments.guidance_version` (hoặc lẫn nhiều bản) → `409 MIXED_GUIDANCE {versions, counts}` trước mọi ghi. Hiệu lực chỉ khi cờ `GRADING_GUIDANCE` bật cho lớp (cờ tắt: như hiện hành). Hệ quả: bài còn nháp phải chấm lại cho cùng bản; bài đã duyệt (kể cả bộ «học» ghim `v0` đã sửa tay) công bố bình thường sau `Áp dụng`. Bước `review` **không** thêm chặn nào (P-106-5, giữ nguyên v1.2). (Q-G-1, PM xác nhận P-106-1; siết bởi P-106-2.)
 
-**4.2.13 Số đo.** `GET …/guidance/stats`: theo `guidance_version` của kết quả hiện hành `REVIEWED`/`PUBLISHED`: `n`, `mae_criterion`, `mae_total`, `bias_total` (có dấu), `edited_criteria`, `edited_rate`; `decimal`; `n < 5` → `null`. `mae_total = mean(|ai_total_before_late − total_before_late chốt|)`.
+**4.2.13 Số đo.** `GET …/guidance/stats`: theo `guidance_version` của kết quả hiện hành `REVIEWED`/`PUBLISHED`: `n`, `mae_criterion`, `mae_total`, `bias_total` (có dấu), `edited_criteria`, `edited_rate`; `decimal`; `n < 5` → `null`. Response thêm trường cấp trên `regression_cases` (integer ≥ 0, P-106-10): `count(*)` ca `grading_regression_cases` có `kind IN ('GRADING_EDIT','GRADING_APPEAL')` và `source_id` là kết quả chấm thuộc bài tập `aid` (join `grading_results → submissions`, lọc `course_id`); không theo phiên bản, không có `n < 5 → null`; chỉ là con số, không trả ca. Ca Threads (`THREAD_*`) thuộc lớp, không tính vào bài tập. `mae_total = mean(|ai_total_before_late − total_before_late chốt|)`.
 
 **4.2.14 Quên / xoá.** Job xoá dữ liệu sinh viên (PR): bỏ id kết quả khỏi `source_result_ids`; mục `support' < GUIDANCE_MIN_SUPPORT` → `needs_recheck = true` (hiện nhãn «Cần xem lại»; **không** tự nghỉ, không đổi hành vi chấm — Q-G-6); xoá ca hồi quy tham chiếu. Xoá lớp → `ON DELETE CASCADE`.
 
@@ -389,7 +391,7 @@ Tiền tố `/api/v1`; `…` = `/courses/{id}`. Mọi `PUT` / quyết định b�
 | 5 | `POST …/assignments/{aid}/guidance/items/{iid}/decide` `{decision: APPROVE\|REJECT\|RETIRE\|RESET, text?, version}` | TEACHER | 409 `ITEM_NOT_DRAFT` (APPROVE / REJECT / RETIRE), `ITEM_NOT_RESETTABLE` (RESET), `VERSION_CONFLICT`; 422 `GUIDANCE_TEXT_REJECTED` |
 | 6 | `POST …/assignments/{aid}/guidance/apply` `{expected_version}` | TEACHER | 200 `{version, stale}`; 409 `VERSION_CONFLICT`, `NOTHING_TO_APPLY` |
 | 7 | `POST …/assignments/{aid}/regrade-stale` (không thân) | TEACHER, TA | 202 `{job_id, queued, skipped:{reviewed, edited}}`; 409 `GUIDANCE_DISABLED` |
-| 8 | `GET …/assignments/{aid}/guidance/stats` | TEACHER, TA | theo phiên bản (4.2.13) |
+| 8 | `GET …/assignments/{aid}/guidance/stats` | TEACHER, TA | `{items: theo phiên bản, regression_cases}` (4.2.13) |
 | 9 | `POST …/grading-results/publish` (đã có) | TEACHER | phản hồi thêm `exempt{EDITED, ACCEPTED_AS_IS}`; thêm 409 `MIXED_GUIDANCE {versions, counts}` (lưới an toàn, bài chưa duyệt) |
 | 10 | `POST …/threads/similar-confirmed` `{q}` (chỉ đọc; không `Idempotency-Key`; thân không ghi log; `Cache-Control: no-store`; P-106-3) | thành viên lớp | `[{thread_id, title}]`; `[]` khi tắt / lỗi; 429 |
 | 11 | `POST …/questions/bulk {action:"reject", ids[], reason?}` và `PUT …/questions/{id}/review {…, reject_reason?}` (đã có, mở rộng) | TEACHER, TA | 422 lý do lạ |
