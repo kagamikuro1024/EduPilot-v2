@@ -6,8 +6,8 @@
 
 .control {
   width: 100%;
-  min-height: 38px;
-  padding: var(--ep-space-2) var(--ep-space-3);
+  min-height: 36px; /* điều khiển 36 px (DESIGN.md §23.6); 44 px ở màn nhỏ / cảm ứng ngay dưới */
+  padding: 0 var(--ep-space-3);
   border: 1px solid var(--ep-rule);
   border-radius: var(--ep-radius-sm);
   background: var(--ep-surface);
@@ -21,7 +21,7 @@
 .control[aria-invalid="true"] { border-color: var(--ep-red); }
 .control:disabled { background: var(--ep-surface-subtle); color: var(--ep-ink-3); }
 
-.textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+.textarea { min-height: 96px; padding: var(--ep-space-2) var(--ep-space-3); resize: vertical; line-height: 1.6; }
 
 .select {
   appearance: none;

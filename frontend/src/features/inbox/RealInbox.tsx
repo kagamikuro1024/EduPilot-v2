@@ -295,7 +295,7 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
           )}
           {t.status === "OPEN" && (
             <div className={s.claimRow}>
-              <Button variant="primary" onClick={() => void act("claim")} disabled={busy}>Nhận</Button>
+              <Button onClick={() => void act("claim")} disabled={busy}>Nhận</Button>
               <Button variant="text" onClick={() => setClosing(!closing)}>Đóng không trả lời</Button>
             </div>
           )}

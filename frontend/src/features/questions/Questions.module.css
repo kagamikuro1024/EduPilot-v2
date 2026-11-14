@@ -1,4 +1,4 @@
-.text { display: block; max-width: 60ch; line-height: 1.5; font-weight: 500; }
+.text { display: block; max-width: 60ch; line-height: 1.5; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* một dòng: hàng bảng cao 48 (§23.6) */
 .titleCell { display: grid; gap: var(--ep-space-1); }
 .meta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .search { min-width: 220px; }

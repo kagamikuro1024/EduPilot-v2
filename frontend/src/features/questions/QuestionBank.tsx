@@ -3,7 +3,7 @@
 import { Plus } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useCursorList } from "@/shared/data";
+import { ApiErrorNotice, useCursorList } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
 import { Button, type Column, DataTable, Drawer, EmptyState, Field, InlineNotice, Input, MenuList, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
@@ -101,10 +101,10 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
       render: (r) => (
         <span className={s.titleCell}>
           <span className={s.text}>{r.title}</span>
-          <span className={s.meta}>{r.topic}</span>
           {failed.get(r.id) && <span className={s.rowFail} role="alert">{failed.get(r.id)}</span>}
         </span>
       ) },
+    { key: "topic", header: "Chủ đề", width: "140px", render: (r) => <span className={s.meta}>{r.topic}</span> },
     { key: "type", header: "Loại", width: "120px", render: (r) => <span className={s.meta}>{TYPE_LABEL[r.type]}</span> },
     { key: "difficulty", header: "Độ khó", width: "90px", render: (r) => <span className={s.meta}>{DIFF_LABEL[r.difficulty]}</span> },
     { key: "status", header: "Trạng thái", width: "130px", render: (r) => <StatusText tone={REVIEW_TONE[r.review_status]}>{REVIEW_LABEL[r.review_status]}</StatusText> },
@@ -134,6 +134,9 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
       {creating === "GENERATE" && <GeneratePanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { void list.refetch(); undo.push(n > 0 ? `Đã sinh ${n} câu · đang chờ bạn duyệt` : "Chưa sinh được câu nào. Xem lý do bên dưới."); }} />}
       {creating === "AI" && <SuggestPanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { setCreating(null); undo.push(n > 0 ? `AI đã soạn ${n} câu nháp · đang chờ bạn duyệt` : "AI chưa có câu nào hợp lệ — thử đổi chủ đề hoặc thêm văn bản nguồn"); }} />}
 
+      {list.isError && list.items.length === 0 ? (
+        <ApiErrorNotice error={list.error} onRetry={() => void list.refetch()} showTechnical />
+      ) : (
       <Panel>
       <Toolbar>
         <Field label="Tìm câu hỏi" className={s.search}>{(id) => <Input id={id} type="search" placeholder="Tiêu đề…" value={text} maxLength={100} onChange={(e) => setText(e.target.value)} />}</Field>
@@ -173,6 +176,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
         {list.hasNextPage && <div className={s.more}><Button onClick={() => void list.fetchNextPage()} loading={list.isFetchingNextPage}>Xem thêm</Button></div>}
       </PageState>
       </Panel>
+      )}
 
       <Drawer open={creating === "MCQ" || creating === "CODE"} wide onClose={() => setCreating(null)} title={creating === "CODE" ? "Bài lập trình mới" : "Câu trắc nghiệm mới"}>
         {(creating === "MCQ" || creating === "CODE") && (
