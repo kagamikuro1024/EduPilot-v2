@@ -1,11 +1,13 @@
 # SRS FEAT-grading-guidance Harness học từ lần giảng viên sửa (M1, M2, M4, M6)
-Phiên bản 1.4 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
+Phiên bản 1.5 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
 
 **v1.2 (P-106-2, P-106-3):** công bố **miễn so phiên bản cho bài giảng viên đã duyệt**, `regrade-stale` không còn tham số `scope` và **không bao giờ đụng bài đã duyệt / đã sửa tay** (không ghi đè điểm giảng viên) — US-GD-05 AC3, AC4, AC6, AC6a, AC11, SRS 3.4, 4.2.11, 4.2.12, API #7, #9; `similar-confirmed` đổi `GET ?q=` → `POST {q}` — US-GD-08 AC1, AC7, SRS 3.5, 4.4, API #10; sửa dấu phẩy thừa DDL 5.5.
 
 **v1.3 (P-106-5):** thêm cột `grading_results.first_reviewed_at` / `first_reviewed_by` (ghi **một lần** ở lần duyệt đầu, không bị xoá khi sửa lại; trigger bất biến); miễn so phiên bản và loại khỏi `regrade-stale` dựa vào cột này vì `ReviewApplyEdit` đặt `reviewed_at` / `reviewed_by` = NULL khi `REVIEWED → DRAFT`. **Không** thêm chặn nào ở bước duyệt (giữ v1.2) — SRS 4.2.11, 4.2.12, §5.3.
 
 **v1.4 (P-106-7):** mục lưu ý có `case_id` lạ (không có trong đầu vào / thuộc tiêu chí khác) bị bỏ **cả mục** (giữ mã; an toàn trước đầu độc), ca ngược chiều chỉ không đếm — US-GD-03 AC6, SRS 3.2, 3.8, 4.2.8.
+
+**v1.5 (P-106-8):** thêm «Hoàn tác» cho `Duyệt` / `Bỏ` / `Cho nghỉ` trước `Áp dụng` (API `decide RESET`, `ITEM_NOT_RESETTABLE`, menu `Đặt lại`), `Áp dụng` dùng `ConfirmIrreversible` và không Hoàn tác — US-GD-04 AC3a, AC5; SRS 3.8, 4.2.9, §6 #5, §7.
 
 ## 1. Mục đích và phạm vi
 **Vấn đề.** Điểm nháp của AI lệch chuẩn của giảng viên (9.5 đo MAE tổng 0,94–1,27 / 10). Mỗi lần giảng viên sửa đã được lưu có cấu trúc (`grading_results.ai_scores` bất biến so với `criteria`), nhưng chưa được dùng lại: giảng viên sửa cùng một lỗi nhiều lần.
@@ -192,6 +194,7 @@ sequenceDiagram
 | Mục chứa PII / từ khoá tổng-muộn / `case_id` lạ / support < 2 / trùng | Bỏ **cả mục**, đếm vào `dropped` (`criterion`, `case`, `support`, `keyword`, `pii`, `duplicate`) | Không thấy (chỉ số ở stats nội bộ) |
 | Sửa chữ lưu ý không qua kiểm | `422 GUIDANCE_TEXT_REJECTED` | Báo tại ô |
 | `Duyệt` mục không còn `DRAFT` | `409 ITEM_NOT_DRAFT` | Tải lại hàng |
+| `Hoàn tác` / `Đặt lại` mục đã vào bản đã áp dụng (kể cả `Áp dụng` chạy ngay trước ở tab khác) | `409 ITEM_NOT_RESETTABLE` | «Đã áp dụng, không hoàn tác được» + tải lại hàng |
 | `Áp dụng` không có gì đổi | `409 NOTHING_TO_APPLY` | Nút khoá |
 | `Áp dụng` / `PUT` version cũ | `409 VERSION_CONFLICT` | Tải lại + báo tại chỗ |
 | Đang `Áp dụng` ở hai tab | Giao dịch tuần tự; người sau nhận 409 | Báo tại chỗ |
@@ -245,7 +248,7 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 **4.2.8 Kiểm bằng code (thứ tự).** (i) `criterion_id` ∈ rubric; (ii) mọi `case_id` ∈ đầu vào **và** thuộc đúng `criterion_id` của mục — **một `case_id` lạ (không có trong đầu vào hoặc thuộc tiêu chí khác) → bỏ CẢ MỤC**, đếm `dropped.case` (P-106-7; không bỏ riêng id lạ rồi đếm tiếp); (iii) chiều: STRICTER ⇔ `ai_score > teacher_score`, LENIENT ⇔ `<`, CLARIFY không ràng buộc; `case_id` hợp lệ nhưng **ngược chiều** chỉ **không được đếm**; **`support` = số `case_id` hợp lệ cùng chiều** (code đếm); (iv) bỏ nếu `support < GUIDANCE_MIN_SUPPORT`; (v) `fold(text)` chứa từ khoá {`tổng`, `trừ`, `muộn`, `làm tròn`, `phạt`} → bỏ; (vi) `privacy.Detect` khớp (roster lớp + regex MSSV / email / SĐT) → bỏ; (vii) Jaccard theo từ ≥ 0,8 với mục cùng tiêu chí đã có (mọi trạng thái trừ REJECTED lâu hơn 30 ngày) → bỏ; (viii) cắt còn `GUIDANCE_MAX_ITEMS`. `source_result_ids` = id kết quả của các ca hợp lệ.
 
-**4.2.9 Trạng thái lưu ý.** `DRAFT` → (`Duyệt`) `APPROVED` chờ áp dụng (`approved_in_version IS NULL`) → (`Áp dụng`) có hiệu lực (`approved_in_version = N+1`) → (`Cho nghỉ`) chờ nghỉ (`pending_retire`) → (`Áp dụng`) `RETIRED` (`retired_in_version = N+1`). `DRAFT` → (`Bỏ`) `REJECTED`. Sửa chữ chỉ khi `DRAFT`; lưu `text_original`.
+**4.2.9 Trạng thái lưu ý.** `DRAFT` → (`Duyệt`) `APPROVED` chờ áp dụng (`approved_in_version IS NULL`) → (`Áp dụng`) có hiệu lực (`approved_in_version = N+1`) → (`Cho nghỉ`) chờ nghỉ (`pending_retire`) → (`Áp dụng`) `RETIRED` (`retired_in_version = N+1`). `DRAFT` → (`Bỏ`) `REJECTED`. **`RESET` (P-106-8):** trước khi `Áp dụng`, `APPROVED` chờ áp dụng và `REJECTED` → `DRAFT` (xoá `decided_by` / `decided_at`, giữ `text`, `text_original`); `APPROVED` có hiệu lực + `pending_retire` → bỏ `pending_retire`; `DRAFT` → không đổi (idempotent); mục đã vào phiên bản đã áp dụng (không chờ nghỉ) hoặc `RETIRED` → `409 ITEM_NOT_RESETTABLE`. `RESET` cạnh tranh với `Áp dụng`: cả hai khoá hàng `assignments` / mục theo thứ tự `FOR UPDATE` nên chỉ một bên thắng; bên sau nhận `409`. Sửa chữ chỉ khi `DRAFT`; lưu `text_original`.
 
 **4.2.10 `Áp dụng`.** Giao dịch: khoá `assignments` hàng `FOR UPDATE`; kiểm `expected_version = guidance_version` (`409 VERSION_CONFLICT`); có thay đổi (`APPROVED` chờ hoặc chờ nghỉ) hoặc `409 NOTHING_TO_APPLY`; gán `approved_in_version` / `retired_in_version = N+1`; `INSERT grading_guidance_versions`; `UPDATE assignments SET guidance_version = N+1`; `audit_log`. Không tự chấm lại.
 
@@ -383,7 +386,7 @@ Tiền tố `/api/v1`; `…` = `/courses/{id}`. Mọi `PUT` / quyết định b�
 | 2 | `PUT …/guidance-flags/{feature}` `{enabled, version}` | TEACHER (3 cờ), ADMIN (cả 4) | 409 `VERSION_CONFLICT`, 403, 422, 409 `GUIDANCE_DISABLED` |
 | 3 | `GET …/assignments/{aid}/guidance` | TEACHER, TA | `{current_version, items[], counts, stale:{count,versions}, reflect:{eligible, results, edits}}` |
 | 4 | `POST …/assignments/{aid}/guidance/reflect` | TEACHER | 202 `{job_id}`; 409 `NOT_ENOUGH_DATA`, `GUIDANCE_DISABLED`; 429 `RATE_LIMITED` |
-| 5 | `POST …/assignments/{aid}/guidance/items/{iid}/decide` `{decision: APPROVE\|REJECT\|RETIRE, text?, version}` | TEACHER | 409 `ITEM_NOT_DRAFT`, `VERSION_CONFLICT`; 422 `GUIDANCE_TEXT_REJECTED` |
+| 5 | `POST …/assignments/{aid}/guidance/items/{iid}/decide` `{decision: APPROVE\|REJECT\|RETIRE\|RESET, text?, version}` | TEACHER | 409 `ITEM_NOT_DRAFT` (APPROVE / REJECT / RETIRE), `ITEM_NOT_RESETTABLE` (RESET), `VERSION_CONFLICT`; 422 `GUIDANCE_TEXT_REJECTED` |
 | 6 | `POST …/assignments/{aid}/guidance/apply` `{expected_version}` | TEACHER | 200 `{version, stale}`; 409 `VERSION_CONFLICT`, `NOTHING_TO_APPLY` |
 | 7 | `POST …/assignments/{aid}/regrade-stale` (không thân) | TEACHER, TA | 202 `{job_id, queued, skipped:{reviewed, edited}}`; 409 `GUIDANCE_DISABLED` |
 | 8 | `GET …/assignments/{aid}/guidance/stats` | TEACHER, TA | theo phiên bản (4.2.13) |
@@ -391,19 +394,19 @@ Tiền tố `/api/v1`; `…` = `/courses/{id}`. Mọi `PUT` / quyết định b�
 | 10 | `POST …/threads/similar-confirmed` `{q}` (chỉ đọc; không `Idempotency-Key`; thân không ghi log; `Cache-Control: no-store`; P-106-3) | thành viên lớp | `[{thread_id, title}]`; `[]` khi tắt / lỗi; 429 |
 | 11 | `POST …/questions/bulk {action:"reject", ids[], reason?}` và `PUT …/questions/{id}/review {…, reject_reason?}` (đã có, mở rộng) | TEACHER, TA | 422 lý do lạ |
 | 12 | `GET …/questions/gen-stats?job_id` (đã có) | TEACHER, TA | thêm `hints:[reason]` |
-Mã lỗi mới: `GUIDANCE_DISABLED`, `NOT_ENOUGH_DATA`, `ITEM_NOT_DRAFT`, `NOTHING_TO_APPLY`, `GUIDANCE_TEXT_REJECTED`, `MIXED_GUIDANCE` (đều 409 / 422 như bảng). DTO sinh viên **không đổi**. Tất cả có trong `openapi.yaml`; `go test ./internal/contract/...` xanh. Tiến độ `reflect` / `regrade-stale` qua SSE sự kiện `job.progress`.
+Mã lỗi mới: `GUIDANCE_DISABLED`, `NOT_ENOUGH_DATA`, `ITEM_NOT_DRAFT`, `ITEM_NOT_RESETTABLE`, `NOTHING_TO_APPLY`, `GUIDANCE_TEXT_REJECTED`, `MIXED_GUIDANCE` (đều 409 / 422 như bảng). DTO sinh viên **không đổi**. Tất cả có trong `openapi.yaml`; `go test ./internal/contract/...` xanh. Tiến độ `reflect` / `regrade-stale` qua SSE sự kiện `job.progress`.
 
 ## 7. Giao diện
 Nguồn: `DESIGN.md` §13, §14; `UX.md` mục 6; luật chữ UI (không dòng giải thích; tooltip chỉ cho cú pháp / lý do khoá / hệ quả). Chỉ primitive `shared/` và token `--ep-*`.
 | Màn | Khung nhìn đầu | Primitive | Rỗng / tải / lỗi | Mobile 375 px |
 | --- | --- | --- | --- | --- |
-| `/assignments/[id]` (nhân viên) — khối «Lưu ý chấm» dưới rubric | dòng `bản v2 · 3 chờ duyệt` + `Rút lưu ý`; danh sách lưu ý (tiêu chí · chữ · `n lần sửa` · chiều · `Duyệt` / `Bỏ`); `Áp dụng` khi có thay đổi; bảng số đo nhỏ | `Panel`, `Section`, `DataTable` nhẹ, `useUndoableAction`, `useAutosaveDraft`, `InlineNotice` | `EmptyState` một dòng; `PageState` lỗi + `Thử lại`; đang rút: chỉ báo giai đoạn, rời trang được | xếp dọc, nút ≥ 44 px |
+| `/assignments/[id]` (nhân viên) — khối «Lưu ý chấm» dưới rubric | dòng `bản v2 · 3 chờ duyệt` + `Rút lưu ý`; danh sách lưu ý (tiêu chí · chữ · `n lần sửa` · chiều · `Duyệt` / `Bỏ`, sau đó dòng «Hoàn tác» và menu `Đặt lại` tới khi `Áp dụng`); `Áp dụng` khi có thay đổi (`ConfirmIrreversible`); bảng số đo nhỏ | `Panel`, `Section`, `DataTable` nhẹ, `useUndoableAction`, `useAutosaveDraft`, `InlineNotice` | `EmptyState` một dòng; `PageState` lỗi + `Thử lại`; đang rút: chỉ báo giai đoạn, rời trang được | xếp dọc, nút ≥ 44 px |
 | `/grading` (Hàng chờ) | `InlineNotice`: «N bài chấm theo bản cũ · Chấm lại» (N = bài nháp chưa sửa; «M đang sửa dở» nếu có); hộp công bố: «k bài chấm theo bản cũ: a đã sửa tay, b duyệt nguyên nháp»; `ConfirmIrreversible` khi chấm lại một bài đang sửa dở | `InlineNotice`, `ConfirmIrreversible` | khi 409 `MIXED_GUIDANCE` (lưới an toàn) báo tại chỗ + `Chấm lại` | như hiện hành |
 | `/grading/[submissionId]` | phụ đề `meta` trên nhãn tiêu chí «bản v2 · 3 lần sửa»; popover liệt kê lưu ý áp dụng | `Popover` | không phụ đề với `v0` | như hiện hành |
 | `/class/settings` — «Học từ lần sửa» | bốn công tắc | `Field`/switch | tooltip chỉ trên công tắc khoá «Chỉ quản trị viên bật» | công tắc ≥ 44 px |
 | `/threads` (soạn câu hỏi) | danh sách ≤ 3 thread «Đã xác nhận» dưới ô tiêu đề; **không hiện gì khi trống** | danh sách liên kết | lỗi → không hiện | một cột |
 | `/questions` (loại câu) | sau `Loại`: dãy nhãn lý do chọn nhanh (bỏ qua được) + «Hoàn tác» | `OverflowMenu`/chip | – | như hiện hành |
-Nhãn: «Lưu ý chấm», `Rút lưu ý`, `Duyệt`, `Bỏ`, `Cho nghỉ`, `Áp dụng`, `Chấm lại`, «bản v2», «Chờ duyệt», «Chờ áp dụng», «Đã áp dụng», «Chờ nghỉ», «Đã bỏ», «Đã nghỉ», «Cần xem lại». Sinh viên: **không thay đổi gì**; không từ «AI / nháp / lưu ý chấm».
+Nhãn: «Lưu ý chấm», `Rút lưu ý`, `Duyệt`, `Bỏ`, `Cho nghỉ`, `Hoàn tác`, `Đặt lại`, `Áp dụng`, `Chấm lại`, «bản v2», «Chờ duyệt», «Chờ áp dụng», «Đã áp dụng», «Chờ nghỉ», «Đã bỏ», «Đã nghỉ», «Cần xem lại». Sinh viên: **không thay đổi gì**; không từ «AI / nháp / lưu ý chấm».
 
 ## 8. Phi chức năng áp dụng
 | Mục | Yêu cầu |
@@ -424,7 +427,7 @@ Nhãn: «Lưu ý chấm», `Rút lưu ý`, `Duyệt`, `Bỏ`, `Cho nghỉ`, `Áp
 | --- | --- | --- |
 | Go unit | `TestGuidanceSetAtVersion`, `TestEssayPromptUnchangedAtV0`, `TestGuidanceBlockDeterministic`, `TestGuidanceIsolation`, `TestGuidanceNoTotalsInPrompt`, `TestGuidanceVersionOnlyViaApply` | GD-02, 05, 11 |
 | Go unit | `TestReflectEligibility`, `TestReflectInputNoSubmissionText`, `TestReflectInputNoIdentity`, `TestReflectValidate` (support, chiều, từ khoá, trùng), `TestReflectOutputPII`, `TestReflectIdempotent` | GD-03 |
-| Go | `TestApplyVersion`, `TestRegradeStale`, `TestRegradeKeepsLatePolicy`, `TestRegradeNeverOverwritesTeacherScores`, `TestFirstReviewedWriteOnce` (duyệt → sửa lại → duyệt: cột giữ nguyên lần đầu; cố ghi đè → lỗi), `TestPublishMixedGuidance` (lưới an toàn + miễn bài đã duyệt + đếm `exempt`), `TestGuidanceRBAC`, `TestGuidanceDeleteStudent` | GD-04, 05, 11 |
+| Go | `TestApplyVersion`, `TestGuidanceItemReset` (Chờ áp dụng / Đã bỏ → `DRAFT`, Chờ nghỉ → Đã áp dụng, idempotent, đã áp dụng → `409`, đua với `Áp dụng`), `TestRegradeStale`, `TestRegradeKeepsLatePolicy`, `TestRegradeNeverOverwritesTeacherScores`, `TestFirstReviewedWriteOnce` (duyệt → sửa lại → duyệt: cột giữ nguyên lần đầu; cố ghi đè → lỗi), `TestPublishMixedGuidance` (lưới an toàn + miễn bài đã duyệt + đếm `exempt`), `TestGuidanceRBAC`, `TestGuidanceDeleteStudent` | GD-04, 05, 11 |
 | Go | `TestGuidanceStats` (decimal, n < 5) | GD-06 |
 | Go | `TestRegressionCaseNoText`, `TestRegressionCaseIdempotent`, `TestRegressCLIRefusesExport` | GD-07 |
 | Go | `TestSimilarConfirmed` (nguồn chỉ thread đăng công khai, cùng lớp, không ẩn, ngưỡng, rate limit, cờ tắt), `TestSimilarNoBodyLog`, `TestRejectReasonHints` | GD-08, 09 |
