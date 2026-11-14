@@ -25,3 +25,4 @@ features/me/RealMe
 features/me/
 features/gradebook/(FinalizeGrades|GradeScheme|Gradebook)
 features/documents/RealDocuments
+shared/shell/AppShell\.tsx
