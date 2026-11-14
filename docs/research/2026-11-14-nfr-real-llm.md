@@ -47,14 +47,23 @@ RAM nghỉ 570 MiB cả stack (postgres 330 MiB), image gateway 17,7 MB, worker 
 ### EXPLAIN và chỉ mục (US-NFR-05)
 Xem `docs/research/2026-11-14-explain.md`.
 ### LLM thật (US-NFR-08)
-**Chưa hoàn tất.** Lý do: `.env.local` không có `GEMINI_API_KEY`. Đã chuẩn bị: `deploy/vps-llm.mjs` (`PHASE=probe|seed|live`, chuỗi model chọn đầu phiên, `gemini-chat` + `gemini-embed`), `benchmarks/real-llm/real_llm.py` (có `--resume`), `benchmarks/real-llm/export-evidence.mjs` (xuất trước `down -v`). Dữ liệu gửi Gemini Free (nội dung có thể được Google dùng để cải thiện sản phẩm) chỉ gồm dữ liệu mô phỏng (D44) đã che tên / MSSV.
+Đo trên **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB**, stack `ep-research` (có `docling`), model `gemini-3.1-flash-lite` (chỉ model qua kiểm đầu phiên, `probe.json`; không có dự phòng) + `gemini-embedding-001` (1536 chiều), khoá **Free Tier** (TL-1 §4; RPM/RPD không công bố). `gemini-chat` đặt `rpm_limit` = 12 cho lượt hợp lệ (đã thử 60: Gemini trả 429, cầu dao mở). Thời gian chờ nhà cung cấp 90 s (`benchmarks/real-llm/stack.yml`). Dữ liệu gửi Gemini Free (nội dung có thể được Google dùng để cải thiện sản phẩm) chỉ gồm dữ liệu mô phỏng (D44) đã che tên / MSSV. 370 lời gọi sinh chữ + nhúng ghi trong `llm_audit` ngày 2026-11-14 (`llm-audit-summary.json`, không payload). Kết quả thô: `benchmarks/reports/real-llm/*.json`. Lượt đầu (cầu dao mở, 429, trích lỗi) giữ ở `real-llm/lan-1-khong-hop-le/`, không dùng.
+
+| # | Phép đo | Kết quả (thật) | Tệp |
+| --- | --- | --- | --- |
+| R1 | Trích công thức từ 2 quy chế, 5 lần mỗi quy chế | 10/10 `SUCCEEDED`, 6,1–27,2 s (trung vị 9,2 s); 55/55 luật đúng kiểu và tham số; 0 luật bịa; 85/85 trích dẫn nằm đúng trang nêu; **trọng số ra thang 0–1 (tổng 1,0) cả 10 lần nên Go luôn cờ `WEIGHT_SUM`** (TL-2i) | `extract.json` |
+| R2 | Chấm tự luận `EVAL03` (12 bài, 3 vòng) và `BT03` lớp 1 (16 bài, 2 vòng) | `EVAL03` vòng 3: QWK 0,857, MAE tổng 1,19, MAE tiêu chí 0,33, trong ±0,5: 3/12, cờ cần xem 1/12; so vòng 2: 9/12 giống hệt, lệch tối đa 0,5. `BT03` vòng 2: QWK 0,911, MAE tổng 0,94, trong ±0,5: 7/16; 12/16 giống hệt giữa hai vòng, lệch tối đa 1,25. 0 bài lỗi | `grade-eval.json`, `grade-bt03.json`, `grade-report.json` |
+| R3 | 15 tình huống che danh tính (M1–M15) qua Gemini thật | 0/15 còn placeholder trong câu trả lời; tên / MSSV / email thật chỉ hiện ở câu trả lời gửi lại đúng người hỏi (đã ghép lại). Gateway không lưu payload gửi nhà cung cấp (giới hạn Q-N-20); `masked-payloads.json` (146 payload) là bản ghi của provider giả quanh cùng luồng | `mask.json`, `masked-payloads.json` |
+| R4 | Chat: 26 tin, phân loại và sinh chữ | phân loại đúng 24/26; sự kiện đầu p95 15 ms; token đầu p50 7,1 s, p95 9,5 s; xong p95 9,7 s; 0 lỗi | `chat.json` |
+| R5 | Threads (3 bài) và việc khác | AI trả lời thread sau 3,4–10,1 s; `suggest_rubric` 3/3 có tổng điểm 10,0; `ai_summary` 3/3 không lộ tên / MSSV | `threads.json`, `misc.json` |
+| R6 | k6 (4 luồng chat, 40 s) khi KHÔNG chấm và khi chấm `BT03` 16 bài | TTFT chat p95 nền 16.916 ms (trung vị 726 ms, 21 mẫu); lúc chấm 6.699 ms (trung vị 427 ms, 27 mẫu); sự kiện đầu p95 20 ms cả hai; `grade-all` xếp 16 bài. Chat không chậm đi khi chấm; p95 nền lớn vì 4 luồng chat chạm hạn mức 12 RPM, mẫu nhỏ | `load-c-baseline-real.json`, `load-c-grading-real.json` |
+
+Về hạn mức: ở 12 RPM chấm 12 bài × 2 lượt mất ~110 s, `BT03` 16 bài ~150 s. Ở 60 RPM Gemini Free trả 429 → cầu dao mở → mọi lời gọi sau bị loại ngay (`circuit_open`), nên một lượt chấm lớn có thể làm hỏng cả chat cùng lúc (TL-2j). Chưa có số trên khoá trả phí. Phát hiện sửa trong đợt này: Gemini bỏ qua `const` của JSON schema nên `rule.params` ra sai nhánh `anyOf` và 10/10 lần trích bị Go loại (TL-2h2; sửa `internal/llm/provider/openai.go`, loại `gemini`: `const` → `enum` một phần tử; test `TestStructuredRequestShape`).
 
 ## Chưa đo được và vì sao
 | Việc | Lý do |
 | --- | --- |
-| Đo LLM thật (R1–R6), chọn model đầu phiên | thiếu khoá Gemini |
-| Seed T0 sạch + `check-*-seed.mjs` (US-NFR-02) | cần stack `ep-research` có docling |
-| Chaos `docling-serve` | cần stack có `ingest` |
+| Đo LLM thật trên khoá trả phí, nhiều provider (E4) | chỉ có khoá Free Tier; thuộc P10 |
 | Judge amd64 có seccomp | không đo được trên arm64 (D58) |
 | E3 chấm tay, E4 nhiều provider | thuộc P10 |
 | Mạng thật / VPS | ngoài phạm vi (CONTEXT mục 4) |

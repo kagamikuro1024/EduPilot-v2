@@ -1,0 +1,167 @@
+{
+ "at": "2026-11-14T07:40:13.325Z",
+ "results": [
+  {
+   "title": "Phân biệt virus và sâu máy tính",
+   "thread_id": "01a1d8ff-651a-7d88-8946-4151da96dce4",
+   "ai_after_s": 10.1,
+   "ai": {
+    "id": "01a1d8ff-843a-7d4a-98ac-0f49b39d4721",
+    "kind": "AI",
+    "author": null,
+    "body": "Sự khác biệt về cách lây lan giữa virus và sâu máy tính như sau:\n\n*   **Virus:** Cần có sự can thiệp của người dùng (user intervention) để lây lan [1]. Nó lây từ máy tính này sang máy tính khác thông qua việc gửi tệp hoặc tệp đính kèm email qua mạng, hoặc thông qua phương tiện lưu trữ rời [1].\n*   **Sâu máy tính (Worm):** Không cần sự can thiệp hay tham gia của người dùng [5]. Nó có khả năng tự sao chép và lây lan cực nhanh qua mạng bằng cách độc lập khai thác các lỗ hổng bảo mật [3], [5].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 51,
+      "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+      "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+     },
+     {
+      "n": 5,
+      "title": "Network Security Threats",
+      "page_no": 54,
+      "snippet": "- – Worms do not require user participation and can spread extremely fast over the network. - In January 2001, the SQL Slammer Worm slowed down global Internet traffic as a result of DoS.",
+      "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+     },
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 53,
+      "snippet": "- Some viruses are programmed to damage the computer by damaging programs, deleting files, or reformatting the hard disk.",
+      "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-14T07:39:46.617622Z",
+    "confidence": "0.680",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "regen": {
+    "after_s": 3.5,
+    "ai": {
+     "id": "01a1d8ff-91f9-71a7-8857-e7940336d333",
+     "kind": "AI",
+     "author": null,
+     "body": "Về cách lây lan, virus và sâu máy tính (worm) có sự khác biệt như sau:\n\n- **Virus:** Cần có sự can thiệp của người dùng (user intervention) để lây lan [2]. Nó lây từ máy này sang máy khác thông qua việc gửi tệp tin, đính kèm email hoặc qua các thiết bị lưu trữ di động [2].\n- **Sâu máy tính (Worm):** Không yêu cầu sự tham gia của người dùng và có khả năng tự nhân bản bằng cách khai thác độc lập các lỗ hổng trên mạng [3], [6].\n\n**Ví dụ:**\n- Về sâu máy tính: SQL Slammer Worm đã làm chậm lưu lượng Internet toàn cầu vào tháng 1/2001 bằng cách khai thác lỗ hổng tràn bộ đệm (buffer overflow) trên Microsoft SQL Server mà không cần sự can thiệp của người dùng [6], [7].",
+     "verification_state": "PENDING",
+     "citations": [
+      {
+       "n": 2,
+       "title": "Network Security Threats",
+       "page_no": 51,
+       "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+       "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+      },
+      {
+       "n": 3,
+       "title": "Network Security Threats",
+       "page_no": 53,
+       "snippet": "- Some viruses are programmed to damage the computer by damaging programs, deleting files, or reformatting the hard disk.",
+       "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+      },
+      {
+       "n": 6,
+       "title": "Network Security Threats",
+       "page_no": 54,
+       "snippet": "- – Worms do not require user participation and can spread extremely fast over the network. - In January 2001, the SQL Slammer Worm slowed down global Internet traffic as a result of DoS.",
+       "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+      },
+      {
+       "n": 7,
+       "title": "Network Security Threats",
+       "page_no": 61,
+       "snippet": "- – Actual damage is done to the system. - – Files can be erased, systems can crash, information can be stolen, and distributed DDoS attacks can be lhd launched.",
+       "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+      }
+     ],
+     "version": 1,
+     "created_at": "2026-11-14T07:39:50.135649Z",
+     "confidence": "0.760",
+     "rejected": false,
+     "hidden": null,
+     "edited": false
+    }
+   }
+  },
+  {
+   "title": "Phishing qua email",
+   "thread_id": "01a1d8ff-ac64-7268-8456-085605bbf83e",
+   "ai_after_s": 3.4,
+   "ai": {
+    "id": "01a1d8ff-b5a8-70fb-9e06-e49c53b1be23",
+    "kind": "AI",
+    "author": null,
+    "body": "Bạn có thể nhận ra email lừa đảo (phishing) qua các dấu hiệu sau dựa trên thông tin được cung cấp:\n\n*   **Mục đích:** Kẻ tấn công sử dụng email để đánh lừa bạn cung cấp các thông tin nhạy cảm như số thẻ tín dụng hoặc mật khẩu [1].\n*   **Cách thức thực hiện:** \n    *   Gửi kèm virus hoặc mã độc Trojan Horse dưới dạng tệp đính kèm [2].\n    *   Sử dụng các yêu cầu khác thường, tạo áp lực về thời gian (tính cấp bách), đe dọa các hậu quả tiêu cực nếu không tuân thủ, hoặc giả mạo người có thẩm quyền [4].\n    *   Sử dụng sự tâng bốc, khen ngợi hoặc các kỹ thuật thao túng tâm lý khác để đạt được mục đích [4].\n    *   Có thể giả danh nhân viên, đối tác, hoặc bộ phận hỗ trợ để gửi phần mềm hoặc bản cập nhật giả mạo [2].\n\nBạn cần lưu ý các dấu hiệu này để bảo vệ tài khoản bạn.",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 24,
+      "snippet": "- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.",
+      "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+     },
+     {
+      "n": 2,
+      "title": "Network Security Threats",
+      "page_no": 129,
+      "snippet": "- Posing as a fellow employee, as an employee of a vendor, partner company, or law enforcement, as someone in authority, as a new employee requesting help, as a vendor or systems manufacturer calling",
+      "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+     },
+     {
+      "n": 4,
+      "title": "Network Security Threats",
+      "page_no": 129,
+      "snippet": "- Dropping a document or file at company mail room for intra-office delivery. - Modifying fax machine heading to appear to come from an internal location.",
+      "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-14T07:39:59.268429Z",
+    "confidence": "0.558",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   }
+  },
+  {
+   "title": "DoS và DDoS",
+   "thread_id": "01a1d8ff-cd42-7e10-8265-f094d3398510",
+   "ai_after_s": 3.4,
+   "ai": {
+    "id": "01a1d8ff-d3dd-70fe-a43b-4ce14e93961f",
+    "kind": "AI",
+    "author": null,
+    "body": "Chào bạn, dựa trên tài liệu được cung cấp, sự khác biệt giữa DoS và DDoS như sau:\n\n- **Quy mô:** DDoS sử dụng các phương thức tấn công tương tự như DoS nhưng hoạt động trên quy mô lớn hơn nhiều [2].\n- **Nguồn tấn công:** Trong khi DoS tấn công từ một nguồn, DDoS thường sử dụng hàng trăm hoặc hàng nghìn điểm tấn công để làm quá tải mục tiêu [2].\n\nCả hai đều gửi số lượng lớn yêu cầu qua mạng làm hệ thống bị quá tải và trở nên không khả dụng với người dùng hợp lệ [1].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 2,
+      "title": "Network Security Threats",
+      "page_no": 101,
+      "snippet": "- DDoS attack risks include: - – Downtime and productivity loss - – Revenue loss from sales and support services - – Lost customer loyalty - – Theft of information - – Extortion - – Stock price",
+      "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+     },
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 99,
+      "snippet": "- A DDoS attack and the simpler version of a DoS attack on a server, send extremely large numbers of requests over a network or the Internet.",
+      "document_id": "01a1d71d-6b6d-7b74-b84b-b95933560ba8"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-14T07:40:07.004106Z",
+    "confidence": "0.600",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   }
+  }
+ ]
+}

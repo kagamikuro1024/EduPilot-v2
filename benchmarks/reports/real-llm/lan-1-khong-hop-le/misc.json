@@ -1,0 +1,156 @@
+{
+ "at": "2026-11-14T07:41:15.413Z",
+ "suggest_rubric": [
+  {
+   "s": 4.0,
+   "n": 4,
+   "sum": "10.0",
+   "criteria": [
+    {
+     "name": "Tác nhân và bề mặt tấn công",
+     "guidance": "Xác định đúng tác nhân là nhóm APT29 (Cozy Bear) với mục tiêu gián điệp. Mô tả chính xác bề mặt tấn công là hệ thống dựng phần mềm (build system) của SolarWinds, nơi mã độc được ký số hợp lệ trước khi phát hành. Đạt tối đa nếu nêu đủ cả hai yếu tố.",
+     "max_score": "2"
+    },
+    {
+     "name": "Chuỗi tấn công",
+     "guidance": "Trình bày đầy đủ 5 bước của chuỗi tấn công: xâm nhập môi trường dựng, cấy backdoor SUNBURST, phát tán bản cập nhật, thời gian chờ (12-14 ngày) và liên lạc C2, cuối cùng là leo thang đặc quyền (TEARDROP/Cobalt Strike/Golden SAML). Mỗi bước thiếu sót sẽ bị trừ điểm tương ứng.",
+     "max_score": "3"
+    },
+    {
+     "name": "Tác động và hậu quả",
+     "guidance": "Phân tích được tác động bao gồm: thiệt hại về niềm tin chuỗi cung ứng, chi phí ứng phó (40 triệu USD), và các biện pháp khắc phục (dựng lại máy chủ, xoay vòng khóa). Chấp nhận lập luận định tính về thời gian gián đoạn.",
+     "max_score": "2.5"
+    },
+    {
+     "name": "Giải pháp phòng thủ",
+     "guidance": "Đề xuất các biện pháp phòng thủ kỹ thuật: phân đoạn mạng, xác thực đa yếu tố, kiểm tra toàn vẹn bản dựng (SBOM), giám sát hành vi bất thường và tư duy không tin tưởng tuyệt đối vào chữ ký số. Đạt tối đa nếu nêu được ít nhất 4 biện pháp.",
+     "max_score": "2.5"
+    }
+   ]
+  },
+  {
+   "s": 2.4,
+   "n": 4,
+   "sum": "10.0",
+   "criteria": [
+    {
+     "name": "Tác nhân và bề mặt tấn công",
+     "guidance": "Xác định đúng tác nhân là nhóm APT29 (Cozy Bear) với mục tiêu gián điệp. Mô tả chính xác bề mặt tấn công là hệ thống dựng phần mềm (build system) của SolarWinds, nơi mã độc được ký số hợp lệ trước khi phát hành. Đạt tối đa nếu nêu đủ cả hai yếu tố.",
+     "max_score": "2"
+    },
+    {
+     "name": "Chuỗi tấn công",
+     "guidance": "Trình bày đầy đủ 5 bước của chuỗi tấn công: xâm nhập môi trường dựng, cấy backdoor SUNBURST, phát tán bản cập nhật, thời gian chờ (12-14 ngày) và liên lạc C2, cuối cùng là leo thang đặc quyền (TEARDROP/Cobalt Strike/Golden SAML). Mỗi bước thiếu sót sẽ bị trừ điểm tương ứng.",
+     "max_score": "3"
+    },
+    {
+     "name": "Tác động và hậu quả",
+     "guidance": "Phân tích được tác động bao gồm: thiệt hại về niềm tin chuỗi cung ứng, chi phí ứng phó (40 triệu USD), và các biện pháp khắc phục (dựng lại máy chủ, xoay vòng khóa). Chấp nhận lập luận định tính về thời gian gián đoạn.",
+     "max_score": "2.5"
+    },
+    {
+     "name": "Giải pháp phòng thủ",
+     "guidance": "Đề xuất các biện pháp phòng thủ kỹ thuật: phân đoạn mạng, xác thực đa yếu tố, kiểm tra toàn vẹn bản dựng (SBOM), giám sát hành vi bất thường và tư duy không tin tưởng tuyệt đối vào chữ ký số. Đạt tối đa nếu nêu được ít nhất 4 biện pháp.",
+     "max_score": "2.5"
+    }
+   ]
+  },
+  {
+   "s": 3.3,
+   "n": 4,
+   "sum": "10.0",
+   "criteria": [
+    {
+     "name": "Tác nhân và bề mặt tấn công",
+     "guidance": "Xác định đúng tác nhân là nhóm APT29 (Cozy Bear) với mục tiêu gián điệp. Mô tả chính xác bề mặt tấn công là hệ thống dựng phần mềm (build system) của SolarWinds, nơi mã độc được ký số hợp lệ trước khi phát hành. Đạt tối đa nếu nêu đủ cả hai yếu tố.",
+     "max_score": "2"
+    },
+    {
+     "name": "Chuỗi tấn công",
+     "guidance": "Trình bày đầy đủ 5 bước của chuỗi tấn công: xâm nhập môi trường dựng, cấy backdoor SUNBURST, phát tán bản cập nhật, thời gian chờ (12-14 ngày) và liên lạc C2, cuối cùng là leo thang đặc quyền (TEARDROP/Cobalt Strike/Golden SAML). Mỗi bước thiếu sót sẽ bị trừ điểm tương ứng.",
+     "max_score": "3"
+    },
+    {
+     "name": "Tác động và hậu quả",
+     "guidance": "Phân tích được tác động bao gồm: thiệt hại về niềm tin chuỗi cung ứng, chi phí ứng phó (40 triệu USD), và các biện pháp khắc phục (dựng lại máy chủ, xoay vòng khóa). Chấp nhận lập luận định tính về thời gian gián đoạn.",
+     "max_score": "2.5"
+    },
+    {
+     "name": "Giải pháp phòng thủ",
+     "guidance": "Đề xuất các biện pháp phòng thủ kỹ thuật: phân đoạn mạng, xác thực đa yếu tố, kiểm tra toàn vẹn bản dựng (SBOM), giám sát hành vi bất thường và tư duy không tin tưởng tuyệt đối vào chữ ký số. Đạt tối đa nếu nêu được ít nhất 4 biện pháp.",
+     "max_score": "2.5"
+    }
+   ]
+  }
+ ],
+ "ai_summary": [
+  {
+   "account": "sv.gioi",
+   "s": 4.6,
+   "draft": {
+    "summary": "Sinh viên có thái độ học tập rất nghiêm túc, thể hiện qua việc tham gia đầy đủ 100% các buổi học và duy trì thời lượng tự học ổn định 300 phút mỗi tuần. Bên cạnh đó, sinh viên cũng rất tích cực trong các hoạt động tương tác với 12 lượt phát biểu. Tuy nhiên, sinh viên cần chủ động hơn trong việc đặt câu hỏi và tham gia các hoạt động thảo luận trực tuyến để làm phong phú thêm quá trình học tập.",
+    "strengths": [
+     "Duy trì sự chuyên cần tuyệt đối với 9/9 buổi học",
+     "Tham gia phát biểu tích cực với 12 lượt trong quá trình học",
+     "Duy trì thời lượng tự học ổn định 300 phút mỗi tuần"
+    ],
+    "concerns": [
+     "Tần suất đặt câu hỏi trong các tuần còn hạn chế",
+     "Chưa có bài đăng thảo luận trên hệ thống"
+    ],
+    "suggestions": [
+     "Tăng cường đặt câu hỏi khi gặp vấn đề khó",
+     "Tham gia thảo luận trên diễn đàn học tập để trao đổi kiến thức"
+    ]
+   },
+   "contains_name": false,
+   "contains_code": false
+  },
+  {
+   "account": "sv.kha",
+   "s": 6.4,
+   "draft": {
+    "summary": "Sinh viên duy trì thời lượng tự học ổn định với 150 phút mỗi tuần trong suốt giai đoạn theo dõi. Về chuyên cần, sinh viên có 6 buổi tham gia đầy đủ trên tổng số 9 buổi, với 2 buổi vắng và 1 buổi đi trễ. Trong các buổi học, sinh viên đã có 2 lần phát biểu, tuy nhiên mức độ tương tác trên diễn đàn và việc đặt câu hỏi hỗ trợ học tập vẫn còn hạn chế.",
+    "strengths": [
+     "Duy trì thời lượng tự học ổn định ở mức 150 phút mỗi tuần.",
+     "Có tham gia phát biểu trong lớp với 2 lần ghi nhận."
+    ],
+    "concerns": [
+     "Tỉ lệ chuyên cần chưa đạt mức tối đa với 2 buổi vắng và 1 buổi đi trễ.",
+     "Mức độ tham gia thảo luận và tương tác trên diễn đàn còn hạn chế.",
+     "Chưa có câu hỏi nào được đặt ra trong quá trình học tập."
+    ],
+    "suggestions": [
+     "Cải thiện sự hiện diện đầy đủ trong các buổi học tiếp theo.",
+     "Tăng cường tương tác và đặt câu hỏi để làm rõ nội dung bài học.",
+     "Tận dụng các kênh hỗ trợ khi gặp khó khăn trong quá trình học."
+    ]
+   },
+   "contains_name": false,
+   "contains_code": false
+  },
+  {
+   "account": "sv.nguyco",
+   "s": 11.2,
+   "draft": {
+    "summary": "Sinh viên hiện có tỷ lệ chuyên cần chưa cao với 5 buổi vắng mặt trên tổng số 9 buổi ghi nhận. Mức độ tham gia đóng góp ý kiến và thời gian tự học hàng tuần còn hạn chế, dẫn đến các chỉ số về hoạt động học tập đang ở mức thấp. Cần cải thiện sự hiện diện và tăng cường cường độ học tập để đạt kết quả tốt hơn.",
+    "strengths": [
+     "Đã có sự hiện diện trong các buổi học",
+     "Có tham gia phát biểu ý kiến trong quá trình học tập"
+    ],
+    "concerns": [
+     "Tỷ lệ chuyên cần thấp với 5 buổi vắng mặt và 1 buổi đi muộn",
+     "Mức độ tham gia thảo luận và tương tác trên lớp còn hạn chế",
+     "Thời gian tự học giảm dần qua các tuần"
+    ],
+    "suggestions": [
+     "Cải thiện tỷ lệ chuyên cần để đảm bảo tiếp thu kiến thức đầy đủ",
+     "Tăng cường thời gian tự học và chủ động đặt câu hỏi khi gặp khó khăn",
+     "Tích cực tham gia các hoạt động tương tác trên lớp"
+    ]
+   },
+   "contains_name": false,
+   "contains_code": false
+  }
+ ]
+}

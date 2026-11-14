@@ -1,0 +1,325 @@
+{
+  "meta": {
+    "commit": "e1f9925f",
+    "timestamp": "2026-11-14T07:57:36.443Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "source": "TestNoPayloadLeak"
+    }
+  },
+  "count": 146,
+  "note": "Payload gửi tới provider sau khi che (roster mô phỏng D44, provider giả ghi lại); không có tên / MSSV / email / SĐT / CCCD thật",
+  "samples": [
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "CHAT",
+      "parts": [
+        "Gọi người dùng là bạn. Hồ sơ: [[SV_1]]",
+        "Em là [[SV_1]], mssv [[MSSV_1]], mail [[EMAIL_1]], sđt [[SDT_1]], cccd [[CCCD_1]]. Hỏi giúp [[SV_2]] ([[MSSV_2]]) và [[SV_2]]: điểm cộng thế nào? mã [[MSSV_2]]",
+        "Chào [[SV_1]], đã ghi nhận.",
+        "Kết quả tool get_my_grades cho [[SV_2]]: 8,5"
+      ]
+    },
+    {
+      "task": "UTILITY",
+      "parts": [
+        "Bài đăng của [[SV_1]] ([[EMAIL_1]]): xin hỏi về Điều 5"
+      ]
+    },
+    {
+      "task": "EMBEDDING",
+      "parts": [
+        "điểm của [[SV_1]]",
+        "mail [[EMAIL_1]] mssv [[MSSV_1]]"
+      ]
+    }
+  ]
+}

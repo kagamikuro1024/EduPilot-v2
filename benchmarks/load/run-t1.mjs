@@ -37,7 +37,7 @@ const count = (svc) => Number(run("docker", ["ps", "-q", "--filter", `label=com.
 const tag = opt("--tag", "");
 const out = `${SCEN.file}${tag ? `-${tag}` : ""}`;
 const senv = SCEN.env(opt);
-const m = { ...meta({ scenario, ...senv, gateways: count("gateway"), workers: count("worker"), provider: "fake", compose_project: project, tag }), k6_cpus: cpus, demo_stack: demo };
+const m = { ...meta({ scenario, ...senv, gateways: count("gateway"), workers: count("worker"), provider: process.env.PROVIDER ?? "fake", compose_project: project, tag }), k6_cpus: cpus, demo_stack: demo };
 mkdirSync(path.join(root, "benchmarks", "reports"), { recursive: true });
 const r = spawnSync("docker", [
   "run", "--rm", "--network", `container:${caddy}`, "--cpus", cpus, "--memory", "1.5g",
