@@ -40,14 +40,14 @@ Nguồn: US.md + SRS 3.2, 3.3, 4.1, 4.2.5–4.2.10, 6 #3–6; Q-G-4, Q-G-10; P-1
 | TC-G04-04 | AC3 | DRAFT i2 | `decision:"REJECT"`; giao diện: `Bỏ` rồi «Hoàn tác» trong 5 s | REJECTED; hoàn tác khôi phục DRAFT; sau 5 s không hoàn tác được | API+E2E |
 | TC-G04-05 | AC3 | i1 đã APPROVED | `decide` lại; `decide` với `version` cũ | `409 ITEM_NOT_DRAFT`; `409 VERSION_CONFLICT` | API |
 | TC-G04-06 | AC4 | DRAFT i3 | `decide APPROVE {text:"mới …"}` với (a) chữ sạch; (b) có MSSV / tên roster; (c) từ khoá «làm tròn»; (d) 401 ký tự | (a) lưu, `text_original` giữ bản gốc; (b), (c) `422 GUIDANCE_TEXT_REJECTED`; (d) `422` | API+DB |
-| TC-G04-07 | AC5 | i1 APPROVED chờ | `POST $G/apply {expected_version:0}` (Idem) | `200 {version:1, stale}`; `assignments.guidance_version=1`; i1 `approved_in_version=1`; hàng `grading_guidance_versions(v1)`; `audit_log`; **không** tự chấm lại (0 việc chấm mới) | API+DB |
+| TC-G04-07 | AC5 | i1 APPROVED chờ | `POST $G/apply {expected_version:0}` (Idem) | `200 {version:1, stale:{drafts, edited_drafts, reviewed}}`; `assignments.guidance_version=1`; i1 `approved_in_version=1`; hàng `grading_guidance_versions(v1)`; `audit_log`; **không** tự chấm lại (0 việc chấm mới) | API+DB |
 | TC-G04-08 | AC5 | – | `apply` lại `expected_version:0`; `apply` khi không còn thay đổi | `409 VERSION_CONFLICT`; `409 NOTHING_TO_APPLY` | API |
 | TC-G04-09 | AC5 | – | Hai `apply` đồng thời cùng `expected_version` | Một thắng, một `409 VERSION_CONFLICT`; không phiên bản trùng (khoá `FOR UPDATE`) | API |
 | TC-G04-10 | AC5 | – | `apply` cùng `Idempotency-Key` lần hai | Trả lại kết quả cũ, không v+1 thêm | API |
 | TC-G04-11 | AC6 | – | `ta@`: `decide`, `apply`, `reflect`; xem danh sách | `403` cả ba; TA xem được danh sách (`GET $G` 200); SV `403`; ADMIN `403`; lớp khác `404` | API |
 | TC-G04-12 | AC6 | TA mở màn | Quan sát | Có danh sách; **không** nút `Duyệt` / `Bỏ` / `Áp dụng` (hoặc khoá, ghi rõ) | E2E |
 | TC-G04-13 | AC7 | i1 đã áp dụng ở v1 | `decide {decision:"RETIRE"}`; `apply` | Mục «Chờ nghỉ» (`pending_retire`), **chưa** đổi hành vi (prompt v1 vẫn có i1); sau `apply` v2: `RETIRED`, `retired_in_version=2`; dựng lại v1 vẫn có i1, v2 không | API+DB |
-| TC-G04-14 | AC8 | Sau `apply` | `/grading` | Hiện «N bài chấm theo bản cũ · Chấm lại» ngay; không tự chấm lại | E2E |
+| TC-G04-14 | AC8 | Sau `apply` | Phản hồi `apply`; `/grading` | `apply` trả `stale:{drafts, edited_drafts, reviewed}` (đếm lại bằng SQL); `/grading` hiện «N bài chấm theo bản cũ · Chấm lại» (N = nháp chưa sửa) ngay; không tự chấm lại | API+E2E |
 | TC-G04-15 | AC9 | Chưa lưu ý; chặn `GET $G` `500`; gõ chữ sửa rồi mất mạng | Mở khối / sửa | `EmptyState` một dòng; `<PageState>` + `Thử lại`; chữ sửa còn sau tải lại (`useAutosaveDraft`) | E2E |
 | TC-G04-16 | AC10 | 375 px | Mở khối | Xếp dọc; nút vùng chạm ≥ 44 px; không tràn ngang | E2E |
 | TC-G04-17 | AC11 | – | Quét chữ UI; `bash scripts/ui-antipatterns.sh` | Không dòng mô tả dưới tiêu đề, không icon Info, không từ «AI / RAG / PII / nháp» (kể cả trạng thái «Chờ duyệt» thay «Nháp»); script mã 0 | TAY |
@@ -63,4 +63,4 @@ TC-G03-24, 25; TC-G04-11, 12, 18.
 Pha 2: `docs/sprints/10.6/qc/scripts/gd_reflect.py` (dùng `stub_llm.py` mở rộng chế độ `reflect_*`), `frontend/e2e/qc-gd-guidance.spec.ts` (1440 + 375).
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-11-14 (SRS v1.2): TC-G04-07, 14 — `apply` trả `stale:{drafts, edited_drafts, reviewed}`.

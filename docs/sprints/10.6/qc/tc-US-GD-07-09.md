@@ -21,27 +21,29 @@ Nguồn: US.md + SRS 3.5–3.7, 4.3–4.5, 6 #10–12; Q-G-3, Q-G-5; P-106-1. H�
 | TC-G07-15 | AC8 | – | `go test ./internal/guidance ./internal/assignment -run 'TestRegressionCaseNoText\|TestRegressionCaseIdempotent\|TestRegressCLIRefusesExport' -v` | PASS (tên test tồn tại thật) | GO |
 
 ## US-GD-08 Câu tương tự lúc soạn (Threads)
-Dữ liệu: thread công khai đã có đáp án AI `VERIFIED` / `CORRECTED` (seed 10.x có ≥ 1; QC dựng thêm nếu thiếu). `SIM=/courses/$C/threads/similar-confirmed?q=`. Embedding giả: độ tương tự cosine tất định (QC dùng cùng chuỗi → 1,0; chuỗi khác hẳn → thấp).
+Dữ liệu: thread công khai đã có đáp án AI `VERIFIED` / `CORRECTED` (seed 10.x có ≥ 1; QC dựng thêm nếu thiếu). `POST /courses/$C/threads/similar-confirmed {q}` (P-106-3: thân yêu cầu, không ở URL; không `Idempotency-Key`). Embedding giả: độ tương tự cosine tất định (QC dùng cùng chuỗi → 1,0; chuỗi khác hẳn → thấp).
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- | --- |
-| TC-G08-01 | AC1 | `THREAD_SUGGEST` bật; thread T1 `VERIFIED` tiêu đề «Công thức tính điểm quá trình» | `GET $SIM` + chính tiêu đề T1 (SV) | ≤ 3 thread công khai cùng lớp, đáp án `VERIFIED` / `CORRECTED`, chưa ẩn / loại, cosine ≥ 0,80; xếp giảm dần; DTO `[{thread_id, title}]` | API |
+| TC-G08-01 | AC1 | `THREAD_SUGGEST` bật; thread T1 `VERIFIED` tiêu đề «Công thức tính điểm quá trình» | `POST similar-confirmed {q: tiêu đề T1}` (SV) | ≤ 3 thread công khai cùng lớp, đáp án `VERIFIED` / `CORRECTED`, chưa ẩn / loại, cosine ≥ 0,80; xếp giảm dần; DTO `[{thread_id, title}]` | API |
 | TC-G08-02 | AC1 | – | `q` dưới 3 từ; `q` rỗng; `q` 5.000 ký tự | Dưới 3 từ: `[]` (hoặc 422, ghi rõ); không `500`; dài: cắt / 422 | API |
-| TC-G08-03 | AC1 | Có 5 thread giống nhau | `GET $SIM` | Đúng 3 (LIMIT 3); thứ tự giảm | API |
+| TC-G08-03 | AC1 | Có 5 thread giống nhau | `POST similar-confirmed {q}` | Đúng 3 (LIMIT 3); thứ tự giảm | API |
 | TC-G08-04 | AC1 | Cosine 0,79 vs 0,81 (chuỗi dựng gần ngưỡng) | `GET` | 0,81 có; 0,79 không | API |
-| TC-G08-05 | AC1 | Thread đáp án `UNVERIFIED` / `REJECTED`; thread `hidden` (Ẩn); thread bị loại | `GET` bằng tiêu đề giống | Không xuất hiện | API |
+| TC-G08-05 | AC1 | Thread đáp án `UNVERIFIED` / `REJECTED`; thread `hidden` (Ẩn); thread bị loại | `POST similar-confirmed` bằng tiêu đề giống | Không xuất hiện | API |
 | TC-G08-06 | AC2 | Có mục kho `source_type='TICKET'` (từ kênh riêng) giống câu soạn | `GET` | **Không** hiện mục từ `TICKET`; chỉ `POST` (Q-G-5). QC dựng: hỏi riêng + escalate + GV trả lời có nội dung chứa chuỗi lạ «ZQ-TK-91»; soạn tiêu đề «ZQ-TK-91» → không lộ | API |
 | TC-G08-07 | AC3 | `/threads` soạn tiêu đề ≥ 3 từ (debounce 600 ms) | Gõ; bắt gói mạng | Danh sách dưới ô tiêu đề: tiêu đề thread (liên kết `/threads/[id]`) + «Đã xác nhận»; không đoạn giải thích; không đẩy ô đăng xuống quá 3 dòng; **không có kết quả → không hiện gì** (không «không tìm thấy»); request sau ~600 ms (không mỗi phím) | E2E |
 | TC-G08-08 | AC4 | – | Bấm đăng khi có gợi ý | Đăng bình thường (không hộp thoại); tường lửa PII + gộp thread tương tự (`THREAD_SIMILAR_MIN`) giữ nguyên (E2E hiện có xanh) | E2E |
 | TC-G08-09 | AC5 | Đếm `llm_audit` / nhúng | 20 lần gợi ý | Đúng **một** lần nhúng chuỗi đang soạn mỗi lần (cùng chuỗi: dùng cache, 0 nhúng thêm); **0** lời gọi sinh chữ (`llm_audit` không dòng chat); một truy vấn SQL theo `course_id` (`log_statement`) | API+DB |
 | TC-G08-10 | AC5 | – | 35 lần / phút (một người) | Từ lần 31: `429` (THREAD_SUGGEST_RPM=30); người khác không bị ảnh hưởng | API |
 | TC-G08-11 | AC5 | – | p95 | ≤ 300 ms với embedding giả (30 lượt) | API |
-| TC-G08-12 | AC5 | Cờ tắt | `GET $SIM` | `[]`; 0 nhúng; 0 SQL tri thức | API+DB |
-| TC-G08-13 | AC6 | Tài liệu nguồn đổi (`document.changed`) → mục kho lỗi thời | `GET` | Không gợi ý mục lỗi thời; ẩn thread (staff) → biến mất khỏi gợi ý ≤ 60 s (đo) | API |
+| TC-G08-12 | AC5 | Cờ tắt | `POST similar-confirmed {q}` | `[]`; 0 nhúng; 0 SQL tri thức | API+DB |
+| TC-G08-13 | AC6 | Tài liệu nguồn đổi (`document.changed`) → mục kho lỗi thời | `POST` | Không gợi ý mục lỗi thời; ẩn thread (staff) → biến mất khỏi gợi ý ≤ 60 s (đo) | API |
 | TC-G08-14 | AC7 | – | Soạn chuỗi chứa «MSSV 20201234»; kiểm `pii_events`, `llm_audit`, bảng khác | Câu đang soạn **không** lưu, không `pii_events`, không gửi LLM; tường lửa `threads/precheck` vẫn chạy độc lập (kết quả như trước) | API+DB |
-| TC-G08-15 | AC7 | Thread lớp 2 tiêu đề giống | SV lớp 1 `GET` | Không lộ thread lớp 2 (cô lập `course_id`; chuỗi lạ «ZQ-L2-…») | API |
-| TC-G08-16 | AC8 | – | SV, TA, teacher lớp: `GET`; SV lớp 2 / `sv.moi`; không token | `200` ×3; `404`; `401` | API |
-| TC-G08-17 | AC9 | Embedding / DB lỗi (dừng `pgbouncer` ngắn / `FAKE` lỗi nhúng) | `GET`; soạn trên giao diện | Giao diện **không hiện lỗi**, đăng vẫn được; API trả `[]` | API+E2E |
+| TC-G08-15 | AC7 | Thread lớp 2 tiêu đề giống | SV lớp 1 `POST` | Không lộ thread lớp 2 (cô lập `course_id`; chuỗi lạ «ZQ-L2-…») | API |
+| TC-G08-16 | AC8 | – | SV, TA, teacher lớp: `POST`; SV lớp 2 / `sv.moi`; không token | `200` ×3; `404`; `401` | API |
+| TC-G08-17 | AC9 | Embedding / DB lỗi (dừng `pgbouncer` ngắn / `FAKE` lỗi nhúng) | `POST`; soạn trên giao diện | Giao diện **không hiện lỗi**, đăng vẫn được; API trả `[]` | API+E2E |
 | TC-G08-18 | AC10 | 375 px | Soạn | Danh sách một cột; vùng chạm ≥ 44 px | E2E |
+| TC-G08-19 | AC7, P-106-3 | Soạn chuỗi chứa «MSSV 20201234» / email | `POST similar-confirmed {q}`; đọc log Caddy + gateway (`docker compose logs caddy gateway`) | Chuỗi đang soạn **không** xuất hiện ở URL / log truy cập / log ứng dụng (`grep` 0); `Cache-Control: no-store`; `TestSimilarNoBodyLog` PASS | API+GO |
+| TC-G08-20 | P-106-3 | – | `GET …/threads/similar-confirmed?q=x` (route cũ) | `404` / `405` (không còn đường GET lộ `q` trong URL) | API |
 
 ## US-GD-09 Lý do loại câu hỏi (mẫu âm)
 Dùng `/courses/$C/questions/bulk`, `PUT …/questions/{id}/review`, `GET …/questions/gen-stats?job_id`, `GenerateQuestions` qua stub (`QUESTION_GEN`).
@@ -67,4 +69,4 @@ TC-G07-08, 09, 11; TC-G08-02, 17; TC-G09-02, 10.
 TC-G07-13; TC-G08-06, 15, 16; TC-G09-11.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-11-14 (P-106-3, SRS v1.2): `similar-confirmed` đổi `GET ?q=` → `POST {q}`; thêm TC-G08-19, 20.
