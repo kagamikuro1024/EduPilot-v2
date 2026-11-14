@@ -16427,13 +16427,18 @@ components:
           type: [string, "null"]
     MeLine:
       type: object
-      required: [label, expr, value]
+      description: "Một dòng giải trình điểm cho SINH VIÊN (P-11-15): text là một câu tiếng Việt do máy chủ dựng, không có hàm / ÷ / ngoặc; chuỗi kiểm máy expr chỉ cho nhân viên (…/gradebook/students/{uid}/explain)"
+      required: [label, text, value]
       additionalProperties: false
       properties:
         label:
           type: string
-        expr:
+        text:
           type: string
+        detail:
+          type: array
+          items:
+            type: string
         value:
           type: string
         source_quote:

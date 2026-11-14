@@ -445,6 +445,8 @@ Mọi màn dùng `shared/` (`PageState`, `DataTableVirtual`, `Panel`, `InlineNot
 
 **7.2 `/grading/[submissionId]`** — hai cột (US-P7-08); đầu cột phải nếu có phúc khảo: khối "Yêu cầu xem lại" (US-P7-10 AC3); phím tắt `A`, `←`/`→`, `↑`/`↓`, `Esc`.
 
+**7.3a `/assignments` (P-11-14)** — STUDENT: danh sách bài đã công bố theo ba nhóm `Section` (Cần nộp · Đã nộp, chờ điểm · Đã có điểm), mỗi nhóm một `Panel`, hàng = tên · hạn · trạng thái (một dòng chữ) · một hành động; rỗng «Chưa có bài tập» (không nút); mục điều hướng «Bài tập» chỉ cho STUDENT (sidebar giữa «Hỏi đáp công khai» và «Luyện đề»; điện thoại đứng đầu «Thêm»); API dùng lại `GET …/assignments` (US-P7-03 AC10, AC11); Staff vào → màn chặn.
+
 **7.3 `/assignments/[id]`** — STUDENT: tiêu đề, hạn (giờ Việt Nam), đề bài, tiêu chí (tên + max), vùng nộp (kéo thả + chọn tệp, đuôi + 20 MiB ghi ở `placeholder`; thanh tiến độ; kết quả `Đã nộp lúc …` + `Nộp lại` nếu chưa duyệt), nhãn nộp muộn, sau công bố: điểm + từng tiêu chí + dòng "Trừ nộp muộn" + `Yêu cầu xem lại`; không hiện từ "nháp"/"AI". TEACHER / TA: thông tin bài, rubric (TEACHER sửa; nút `Gợi ý tiêu chí`), nhóm kênh nộp, `Công bố bài`, số liệu (`stats`), danh sách bài nộp rút gọn dẫn sang `/grading`.
 
 **7.4 `/settings/integrations`** — ba thẻ: IMAP (ADMIN sửa; TEACHER xem), SMTP (chỉ đọc + `Gửi thư thử`), Teams (nhãn "Môi trường giả lập" khi cần); mật khẩu / secret chỉ ghi; trạng thái 1–2 từ ("Đang chạy", "Cần nhập lại mật khẩu", "Chưa bật").

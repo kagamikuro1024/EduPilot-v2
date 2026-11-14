@@ -1,5 +1,6 @@
 # SRS FEAT-gradebook Công thức điểm từ quy chế, Grade Engine, sổ điểm, chốt / mở khoá, điểm của sinh viên và seed sprint 8
 Phiên bản 1.2 · 2026-11-01 (sửa theo `proposals.md` sprint 8 #20: nhập XLSX chỉ tin MSSV của `joined_via ROSTER/ADMIN`, thêm `STUDENT_CODE_UNVERIFIED`) · Trạng thái: **APPROVED** (PM, 2026-10-31; thay đổi sau mốc này chỉ qua `proposals.md`) (đã sửa theo `TL-REVIEW.md` TLR-1…19 — PM chấp nhận cả 19, chủ dự án chốt TLR-1, 2, 7, 17 —, `proposals.md` #3, #4, #5 (sửa: ghim lại số `WATCH`), #6; chủ dự án trả lời Q1–Q6; chờ PM đánh APPROVED)
+**v1.3 (P-11-15, 2026-11-14):** DTO sinh viên `MeLine` bỏ `expr`, thêm `text` / `detail` (4.8.1, 4.8.2, 4.8.2a); Staff `explain` giữ `expr`.
 
 Nguồn: `docs/phases/P6.md` (L1–L4), `docs/sprints/8/plan.md` story 1–11; PRD M7, M13-C, §3, §5; FLOWS F10, F14, F3; `ARCHITECTURE.md` §4 (`00016`), §5, §7, §9; `SYSTEM_DESIGN.md` (job nền, không cache điểm, SLO ghi); `DECISIONS.md` D5, D9, D17, D19, D33, D38, D39, D44, D45, D51, D54, D56; `design/DESIGN.md` §13, §14.9–§14.11; `UX.md` mục 1, 2, 5, 6; `AGENTS.md` luật 2, 5, 7, 10–15.
 
@@ -181,7 +182,7 @@ stateDiagram-v2
 
 **4.3.3 Thiếu điểm.** Thiếu một item của thành phần `c` ⇒ `Status = INCOMPLETE`, `Missing += c`, **không** có `HP` / `letter` (không bịa 0 — Q2). **Ngoại lệ duy nhất, chỉ khi nguồn đã chốt sổ cho item đó (TLR-2, chủ dự án chốt):** nếu `key(c) ∈ MISSING_SCORE.zero_components` thì item thiếu được coi là **0** (dòng giải trình "không dự → 0 theo quy chế") khi (a) item `EXAM`: bài thi `PUBLISHED` mà sinh viên không có lượt `GRADED`; (b) item `MANUAL`/`IMPORT`: cột đã công bố (`published_at`) mà ô trống. Bài thi chưa `PUBLISHED`, hoặc cột nhập tay chưa công bố → **`INCOMPLETE`** (giải trình "Bài thi chưa công bố" / "Cột chưa công bố"), nên giảng viên quên công bố không thể chốt điểm với cột = 0 cho cả lớp. Thiếu cuối kỳ luôn `INCOMPLETE` (không nằm trong `zero_components` của quy chế seed). Các ca: `cases-tong-hop.csv` S13…S15.
 
-**4.3.4 Giải trình.** `Lines[] = {label, expr, value, source_quote, page, filled_by_user}` theo thứ tự: mỗi thành phần (trọng số, điểm) → điểm cộng (`n lần × điểm`, trần) → điểm trừ (số buổi vắng, miễn, mức) → `QT` (kèm "vượt trần/sàn → …" nếu kẹp) → `CK` → `HP_thô` (công thức với số thật) → làm tròn (bước, nửa lên) → điểm chữ (mức) → liệt. `source_quote` lấy từ `grade_rules` / `grade_components` (nguyên văn quy chế); mục giảng viên tự điền → `null`. **Giá trị trong `Lines[]` hiển thị đầy đủ chữ số, không làm tròn**, dấu phẩy, bỏ số 0 thừa (TLR-5; không dùng `StringFixed`/`StringFixedBank` cho số trung gian); chỉ dòng `HP` hiện theo bước làm tròn. Mỗi dòng có `expr` gồm **đúng các số đã hiển thị**: tính lại `expr` bằng decimal ra đúng `value`, và dòng `HP thô` bằng `Result.HPRaw` (TLR-13; kiểm được bằng máy — các dòng là từng bước, không phải số hạng cộng dồn).
+**4.3.4 Giải trình.** `Lines[] = {kind, args, label, expr, value, source_quote, page, filled_by_user}` (`kind`, `args` nội bộ; `expr` chỉ cho Staff — sinh viên nhận `text` dựng từ cùng `args`, 4.8.2a) theo thứ tự: mỗi thành phần (trọng số, điểm) → điểm cộng (`n lần × điểm`, trần) → điểm trừ (số buổi vắng, miễn, mức) → `QT` (kèm "vượt trần/sàn → …" nếu kẹp) → `CK` → `HP_thô` (công thức với số thật) → làm tròn (bước, nửa lên) → điểm chữ (mức) → liệt. `source_quote` lấy từ `grade_rules` / `grade_components` (nguyên văn quy chế); mục giảng viên tự điền → `null`. **Giá trị trong `Lines[]` hiển thị đầy đủ chữ số, không làm tròn**, dấu phẩy, bỏ số 0 thừa (TLR-5; không dùng `StringFixed`/`StringFixedBank` cho số trung gian); chỉ dòng `HP` hiện theo bước làm tròn. Mỗi dòng có `expr` gồm **đúng các số đã hiển thị**: tính lại `expr` bằng decimal ra đúng `value`, và dòng `HP thô` bằng `Result.HPRaw` (TLR-13; kiểm được bằng máy — các dòng là từng bước, không phải số hạng cộng dồn).
 
 **4.3.5 `WhatIf` và `MinFinalFor`.** `WhatIf(s, in, ck)` = `Compute` với `CK = ck` (0–10, decimal), không ghi gì; `ck < value` liệt vẫn áp. `MinFinalFor(s, in, target)` = `ck` nhỏ nhất ∈ {0; 0,01; …; 10} sao cho `letter ≥ target` (theo thứ tự thang) và không liệt; không có → "không đạt được". Hai hàm dùng cùng `Compute` (không đường tính thứ hai).
 
@@ -241,9 +242,28 @@ stateDiagram-v2
 
 ### 4.8 Phía sinh viên, tool, at-risk — FR-47…FR-52
 
-**4.8.1 `GET /courses/{cid}/me/grades`** (STUDENT; qua `CourseAccessGuard`; `user_id` từ JWT; mọi tham số định danh bị bỏ qua; `Cache-Control: no-store`): `{status, scheme?:{scheme_no, confirmed_at, components:[{key,name,grp,weight}]}, components:[{key,name,weight,status:"PUBLISHED"|"PENDING",score?}], bonus:{applied, raw, cap}, penalty:{value, absent, free, per}, qt?, final?:{numeric_grade, letter, failed_reason?, version, locked_at}, calculation:[{label,expr,value,source_quote?,page?}], official_note}`. `status`: `NO_SCHEME` (chỉ trả `status`) · `IN_PROGRESS` · `FINAL` (từ snapshot mới nhất). Quy tắc thấy: item chỉ có `score` khi đã công bố (4.6.6; bài thi `PUBLISHED`); `qt` chỉ khi **mọi** item của thành phần quá trình đã công bố; `final` chỉ sau chốt; điểm cộng / vắng là dữ liệu P5 đã hiển thị ở `/me`. DTO sinh viên là **struct riêng** + allowlist khoá JSON; **không** có `hp_raw`, `breakdown` nội bộ, `unclear_items`, tên người sửa, `drift`, `unlock_reason`.
+**4.8.1 `GET /courses/{cid}/me/grades`** (STUDENT; qua `CourseAccessGuard`; `user_id` từ JWT; mọi tham số định danh bị bỏ qua; `Cache-Control: no-store`): `{status, scheme?:{scheme_no, confirmed_at, components:[{key,name,grp,weight}]}, components:[{key,name,weight,status:"PUBLISHED"|"PENDING",score?}], bonus:{applied, raw, cap}, penalty:{value, absent, free, per}, qt?, final?:{numeric_grade, letter, failed_reason?, version, locked_at}, calculation:[{label,text,value,detail?,source_quote?,page?}] (**không** `expr` — P-11-15, 4.8.2a), official_note}`. `status`: `NO_SCHEME` (chỉ trả `status`) · `IN_PROGRESS` · `FINAL` (từ snapshot mới nhất). Quy tắc thấy: item chỉ có `score` khi đã công bố (4.6.6; bài thi `PUBLISHED`); `qt` chỉ khi **mọi** item của thành phần quá trình đã công bố; `final` chỉ sau chốt; điểm cộng / vắng là dữ liệu P5 đã hiển thị ở `/me`. DTO sinh viên là **struct riêng** + allowlist khoá JSON; **không** có `hp_raw`, `breakdown` nội bộ, `unclear_items`, tên người sửa, `drift`, `unlock_reason`.
 
-**4.8.2 What-if.** `POST /courses/{cid}/me/grades/what-if {final_exam_score? | target_letter?}` (STUDENT, chỉ đọc, không `Idempotency-Key`): chỉ khi `status = IN_PROGRESS` và mọi thành phần quá trình đã công bố (`WhatIf` / `MinFinalFor` của engine); `final_exam_score` ∈ [0;10] (`422` ngoài thang); trả `{hp, letter, failed?, calculation[]}` hoặc `{min_final_exam_score|null}`; không ghi gì; thiếu thành phần → `409 NOT_ENOUGH_GRADES`; `FINAL` → `409 FINAL_ALREADY_LOCKED`.
+**4.8.2 What-if.** `POST /courses/{cid}/me/grades/what-if {final_exam_score? | target_letter?}` (STUDENT, chỉ đọc, không `Idempotency-Key`): chỉ khi `status = IN_PROGRESS` và mọi thành phần quá trình đã công bố (`WhatIf` / `MinFinalFor` của engine); `final_exam_score` ∈ [0;10] (`422` ngoài thang); trả `{hp, letter, failed?, calculation[]}` (`calculation[]` cùng dạng `MeLine` có `text`, không `expr` — P-11-15) hoặc `{min_final_exam_score|null}`; không ghi gì; thiếu thành phần → `409 NOT_ENOUGH_GRADES`; `FINAL` → `409 FINAL_ALREADY_LOCKED`.
+
+**4.8.2a Câu hiển thị cho sinh viên — `text` thay `expr` (P-11-15, PM duyệt đổi hợp đồng 2026-11-14).** `Expr` là chuỗi **kiểm bằng máy** (US-P6-02 AC9), có `min`, `max`, `round`, `÷`, ngoặc: **không bao giờ** trả cho sinh viên. Engine `Line` thêm `Kind` và `Args` (số đã định dạng, nội bộ, không ra JSON); **một hàm theo `Kind`** dựng cả `Expr` (Staff `…/explain` giữ nguyên) và `Text` (sinh viên) từ **cùng** `Args` — không có hai nguồn số. DTO sinh viên `MeLine = {label, text, value, detail?:[string], source_quote?, page?}` (cũng dùng cho `calculation[]` của what-if). Quy tắc `Text`: **một câu tiếng Việt**, số dấu phẩy đủ chữ số như `value`, chỉ dùng `×`, `+`, `=` và `%`; **cấm** tên hàm (`min`, `max`, `round`), `÷`, ngoặc; ≤ 90 ký tự (trừ dòng `HP_RAW`, được xuống dòng); không từ kỹ thuật; không bình luận tốt / xấu.
+
+| `Kind` | `text` | `detail` |
+| --- | --- | --- |
+| `COMPONENT` (một bài) | «{tên}: {điểm}» | – |
+| `COMPONENT` (n ≥ 2 bài) | «{tên}: {điểm} · trung bình {n} bài theo trọng số» | «{bài} {điểm} · trọng số {w}» mỗi bài đã công bố; giao diện mở bằng `Chi tiết`, đóng mặc định |
+| `BONUS` | «Điểm cộng {áp dụng} · tối đa {trần}»; khi có hơn trần: «Điểm cộng {trần} · bạn có {có}, tối đa {trần}» | – |
+| `PENALTY` | «Điểm trừ {giá trị} · vắng {n} buổi, được miễn {m}, mỗi buổi trừ {mức}» (+ «, điểm trừ khác {x}» khi {x} > 0) | – |
+| `QT0` | «Điểm quá trình trước điểm cộng / trừ {v}» | – |
+| `QT` | «Điểm quá trình {v}»; khi bị kẹp: «Điểm quá trình {v} · giữ trong khoảng 0–10» | – |
+| `CK` | «Điểm cuối kỳ {v}»; what-if: «Điểm cuối kỳ giả định {v}» | – |
+| `HP_RAW` | «Điểm học phần thô {v} = {điểm₁} × {w₁}% + {điểm₂} × {w₂}% + …» (mọi thành phần, đúng thứ tự dòng thành phần) | – |
+| `ROUND` | «Làm tròn đến {bước}: {thô} → {HP}» | – |
+| `LETTER` | «Điểm chữ {chữ}» | – |
+| `FAIL` | «Không đạt · điểm chữ F» | – |
+| `MISSING` | «{mục}: {chữ thiếu}» (như `Value` hiện có) | – |
+
+`value`, `source_quote`, `page` (nút `Căn cứ`) **không đổi**. Cách tính (`internal/grade`, `shopspring/decimal`, không LLM) **không đổi**; chỉ đổi hình thức hiển thị cho sinh viên.
 
 **4.8.3 Tool agent.** `get_my_grade_summary()` (không tham số) và `what_if_final_grade({assumed:{final:số}} | {target_letter})` (LLM chỉ cung cấp giả định — không `user_id`, không `student_code`); `user_id`, `course_id` từ `trusted_context`; cài đặt `GradeSource` / `GradeSchemeSource` trong `internal/agent` (gọi `grade.Service`; `grade` không import `agent`); chỉ đăng ký ở `PrivateRegistry`. Một lời gọi LLM sinh chữ (D47), số trong khối dữ liệu do code đưa vào, LLM không tính. Intent `GRADE_FORMULA` khi `CONFIRMED`: khối cấu trúc `{components[], bonus, penalty, rounding, letter_scale}` từ công thức đã xác nhận + nguồn "Quy chế học phần, tr. N".
 
@@ -305,7 +325,7 @@ Mở rộng `scripts/seed.mjs` (HTTP API thật, không ghi DB, idempotent, ch�
 | FR-46 | Giao diện chốt / mở khoá, RBAC | P6-08-AC9, AC10 |
 | FR-47 | `/me/grades` chỉ của mình | P6-09-AC1, AC7 |
 | FR-48 | Không điểm nháp | P6-09-AC2 |
-| FR-49 | `/me`: câu nhận định, giải trình tuyến tính | P6-09-AC3, AC9 |
+| FR-49 | `/me`: câu nhận định, giải trình tuyến tính bằng câu tiếng Việt `text` (không `expr` — P-11-15) | P6-09-AC3, AC9 |
 | FR-50 | What-if không lưu | P6-09-AC4 |
 | FR-51 | Tool + `GRADE_FORMULA` | P6-09-AC5, AC6 |
 | FR-52 | Tín hiệu `GRADE` at-risk | P6-09-AC8 |
@@ -414,7 +434,7 @@ Khung nhìn đầu: tiêu đề "Sổ điểm" + bộ chọn lớp; banner mỏn
 
 ### 7.3 `/me` phần điểm (`DESIGN.md` §14.9; thay khối "chưa có dữ liệu")
 
-Dưới khối Chuyên cần / Điểm cộng đã có: **câu nhận định** một dòng; `GradeCalculation` tuyến tính ("Giữa kỳ 7,5 × 20% + Kiểm tra hằng tuần 8,0 × 20% … = …"; mỗi dòng có `Căn cứ` mở đoạn trích quy chế); **what-if** một dòng "Nếu cuối kỳ được [ 8,0 ], điểm học phần sẽ là…" → kết quả tại chỗ (điểm + điểm chữ + một dòng phép tính) và liên kết `Hỏi trợ lý` mở chat riêng với câu gợi ý; dòng ghi chú cố định. Không streak, xếp hạng, so sánh, vòng tiến độ, huy hiệu, câu động viên; không từ kỹ thuật AI (`DESIGN.md` §13). 375 px: một cột, ô what-if rộng đủ ngón tay.
+Dưới khối Chuyên cần / Điểm cộng đã có: **câu nhận định** một dòng; `GradeCalculation` tuyến tính từ `text` (P-11-15; dòng thô: "Điểm học phần thô 7,2 = Giữa kỳ 7,5 × 20% + Kiểm tra hằng tuần 8,0 × 20% …"; không `min`, `max`, `÷`, ngoặc; mỗi dòng có `Căn cứ` mở đoạn trích quy chế); **what-if** một dòng "Nếu cuối kỳ được [ 8,0 ], điểm học phần sẽ là…" → kết quả tại chỗ (điểm + điểm chữ + một dòng phép tính) và liên kết `Hỏi trợ lý` mở chat riêng với câu gợi ý; dòng ghi chú cố định. Không streak, xếp hạng, so sánh, vòng tiến độ, huy hiệu, câu động viên; không từ kỹ thuật AI (`DESIGN.md` §13). 375 px: một cột, ô what-if rộng đủ ngón tay.
 
 ### 7.4 Khác
 
