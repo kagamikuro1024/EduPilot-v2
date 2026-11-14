@@ -267,3 +267,4 @@
 {"tc": "TC-11-09 forms-nocol.csv → 422 kèm vị trí", "st": "FAIL", "note": "200 {\"columns\": [{\"col\": \"A\", \"header\": \"Họ tên\"}, {\"col\": \"B\", \"header\": \"Điểm\"}], \"rows\": [[\"A\", \"1\"]], \"rows_total\": 1, \"suggested_mapping\": {\"header_row\": 1, \"e"}
 {"tc": "TC-11-09 tệp > 5 MB bị từ chối ở presign", "st": "PASS", "note": "422"}
 {"tc": "TC-05-05 lượt mới sau 10 ngày: ưu tiên câu chưa làm / làm sai, 0 trùng với câu vừa làm đúng", "st": "PASS", "note": "4 câu làm đúng; đề mới 10 câu; trùng 0"}
+{"tc": "TC-02-10 tài liệu chưa READY → 409 DOCUMENT_NOT_READY", "st": "PASS", "note": "409"}

@@ -35,7 +35,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-02-07 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
 | TC-02-08 | PASS | API stack |
 | TC-02-09 | FAIL | L1: trích đề docling thật → 0/24 câu (report-stack mục 2) |
-| TC-02-10 | CHƯA CHẠY |  |
+| TC-02-10 | PASS | `409 DOCUMENT_NOT_READY` |
 | TC-02-11 | PASS | API stack |
 | TC-02-12 | PASS | tài liệu riêng của lớp khác → 404 |
 | TC-02-13 | PASS | bảng đáp án riêng của lớp khác → 404; sai loại → 422 |
@@ -67,7 +67,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-04-01 | CHƯA CHẠY |  |
 | TC-04-02 | FAIL | L11: menu không có «Soạn tay» |
 | TC-04-03 | CHƯA CHẠY |  |
-| TC-04-04 | CHƯA CHẠY |  |
+| TC-04-04 | PASS | thanh «Đã chọn 3 · Duyệt · Loại · Gắn nhãn · Bỏ chọn» (chưa thử chặn ở 51 hàng) |
 | TC-04-05 | PASS | API stack (04-05: L10 mã bulk) |
 | TC-04-06 | PASS | API stack (04-05: L10 mã bulk) |
 | TC-04-07 | PASS | API stack (04-05: L10 mã bulk) |
@@ -75,7 +75,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-04-09 | CHƯA CHẠY |  |
 | TC-04-10 | CHƯA CHẠY |  |
 | TC-04-11 | PASS | API stack (04-05: L10 mã bulk) |
-| TC-04-12 | CHƯA CHẠY |  |
+| TC-04-12 | FAIL | L16: nhãn nguồn «Tài liệu, trang 1» thiếu tên tài liệu (liên kết đúng) |
 | TC-04-13 | PASS | API stack (04-05: L10 mã bulk) |
 | TC-04-14 | CHƯA CHẠY |  |
 | TC-04-15 | CHƯA CHẠY |  |

@@ -10,7 +10,7 @@
 | US-P9-01 Lược đồ, Quiz Engine, DTO | **PASS** | Bảng, enum, FK phức hợp, CHECK, UNIQUE từng phần, chỉ mục đúng; chấm `SHORT` 15 ca + 4 ca; `SHORT`/`ESSAY` bị chặn ở bài thi; DTO sinh viên không rò (Go + quét API); 403 / 404 đúng. Chưa chạy `goose down/up` (TC-01-04) |
 | US-P9-02 Trích đề cũ | **FAIL** | **L1 Cao**: trích trên docling thật ra 0/24 câu (tái hiện cả trên stack sạch). Đạt: idempotency, 429, 403, `WRONG_DOCUMENT_TYPE`, tài liệu / bảng đáp án của lớp khác → 404 |
 | US-P9-03 Sinh câu có trích dẫn | **FAIL** | L9 Thấp (`types:[]` → `202`). Đạt: câu `GENERATED` có `{document_id, chunk_id, page}` 5/5, `ANSWER_KEY` → 422, `count=11` → 422, 403, 429 ở việc thứ 6. `OVERLOADED` không kiểm được |
-| US-P9-04 `/questions` + duyệt hàng loạt | **FAIL** | L11 Thấp (menu không có «Soạn tay»; dòng phụ trái luật chữ), L10 Thấp (mã lỗi bulk). Đạt: bulk 50 / 422 / không huỷ lô / 403, `VERSION_CONFLICT`, `CITATION_REQUIRED` ở `PUT review`, phân trang |
+| US-P9-04 `/questions` + duyệt hàng loạt | **FAIL** | L11 Thấp (menu không có «Soạn tay»; dòng phụ trái luật chữ), L10 Thấp (mã lỗi bulk), L16 Thấp (nhãn nguồn thiếu tên tài liệu). Đạt: bulk 50 / 422 / không huỷ lô / 403, `VERSION_CONFLICT`, `CITATION_REQUIRED` ở `PUT review`, phân trang |
 | US-P9-05 Dựng đề theo ma trận | **FAIL** | L6, L7, L8 (Thấp). Đạt: không lặp, thứ tự ổn định, hai SV khác thứ tự, p95 dựng đề 10 ms, loại câu chưa duyệt / lưu trữ / thuộc bài thi, 403 / 404 |
 | US-P9-06 Luyện theo chủ đề | **FAIL** | AC4 «trích dẫn bấm được» không kiểm được: dữ liệu mẫu không có citations (L4 Trung bình); L15 Thấp (chữ trạng thái lớp rỗng khác TC). Đạt: phản hồi ngay, khoá đáp án, `explain` SSE (byte đầu 11 ms, 1 lời gọi LLM / nhiều lần), `NOT_ANSWERED`, quá tải → `EXPLAIN_FAILED` tại chỗ, submit idempotent, 404 / 403, `MCQ_MULTI` đủ tập; 375 px không tràn, 0 nút < 44 px |
 | US-P9-07 Thi thử có giờ, tự lưu | **PASS** | `server_now`, `deadline` +30 phút, một lượt MOCK, `TAB_TAKEN_OVER`, `VERSION_CONFLICT`, dung sai 60 s (nhận / bỏ + notes / `ATTEMPT_CLOSED`), điểm `6.5`, `6.3`, `3.5`, `4.3` (decimal, nửa lên), worker đóng lượt quá hạn (`EXPIRED`), điểm không vào sổ điểm, không `exam_events`; e2e dev (ngoại tuyến, tải lại, đồng hồ) xanh. k6 hoãn; L13 Thấp ghi nhận |
@@ -27,7 +27,7 @@ PASS: 4 / 12 (P9-01, 07, 08, 10). FAIL: 8 / 12.
 | --- | --- | --- |
 | Cao | 1 | L1 trích đề docling thật 0/24 |
 | Trung bình | 2 mở + 1 đã sửa | L3 Hôm nay không huỷ cache theo lớp; L4 dữ liệu mẫu sai spec; L5 script kiểm seed (dev sửa ở `5d9c54e3`, QC kiểm lại: PASS) |
-| Thấp | 10 | L6–L15 |
+| Thấp | 11 | L6–L16 |
 | Nghiêm trọng | 0 | |
 
 ## Phát hiện về quy trình (cần PM)
