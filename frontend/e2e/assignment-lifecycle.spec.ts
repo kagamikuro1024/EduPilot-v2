@@ -545,6 +545,24 @@ test("queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn tran
   await expect(page.locator("[data-part=queue-count]")).toHaveText(`${all.length}+ bài`);
 });
 
+test("queue: người khác chấm lại — hàng chờ lấy lại khi tab hiện ra lại, không giữ số cũ (GV-BUG o)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let n = 0;
+  const first = defaultRows()[0];
+  const api = await openQueue(page, context, {
+    h: { "GET submissions": (r) => r.fulfill(json({ items: [{ ...first, result: first.result ? { ...first.result, total: n++ === 0 ? "8.00" : "7.50", needs_review: true } : first.result }], next_cursor: null })) },
+  });
+  await expect(page.locator("[data-part=queue-row]").first()).toContainText("8,00");
+  await page.evaluate(() => {
+    for (const state of ["hidden", "visible"]) {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+      document.dispatchEvent(new Event("visibilitychange", { bubbles: true }));
+    }
+  });
+  await expect(page.locator("[data-part=queue-row]").first()).toContainText("7,50");
+  expect(api.calls.filter((c) => c.method === "GET" && c.path.includes("/submissions?")).length).toBeGreaterThanOrEqual(2);
+});
+
 test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openQueue(page, context);
@@ -798,7 +816,8 @@ test("publish bulk confirm: chọn bài đã duyệt, xác nhận hậu quả b�
   await page.getByRole("button", { name: "Cần xem kỹ" }).click(); // bỏ lọc cờ
   await page.getByLabel("Trạng thái").selectOption("REVIEWED");
   await expect(qRows(page)).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Công bố" })).toHaveCount(0); // chưa chọn gì
+  // GV-BUG (l): nút «Công bố» luôn thấy; chưa chọn gì thì khoá kèm lý do ngắn (không phải mò «Chọn tất cả đã duyệt» mới thấy)
+  await expect(page.getByRole("button", { name: "Công bố" })).toHaveAttribute("aria-disabled", "true");
 
   await qRows(page).first().getByRole("checkbox").check();
   await qRows(page).nth(1).getByRole("checkbox").check();

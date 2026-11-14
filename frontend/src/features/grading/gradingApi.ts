@@ -104,6 +104,7 @@ export const queueKey = (course: string, f: QueueFilter) => ["grading-queue", co
 export const useQueue = (course: string, f: QueueFilter) =>
   useCursorList<QueueRow>(queueKey(course, f), `/courses/${course}/submissions`, {
     limit: 50,
+    staleTime: 0, // người khác chấm lại / duyệt: lấy lại khi mở và khi tab lấy lại tiêu điểm (GV-BUG o)
     query: { match_status: "MATCHED", assignment_id: f.assignment_id || undefined, status: f.status, needs_review: f.needs_review || undefined },
   });
 

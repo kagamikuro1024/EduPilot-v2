@@ -122,6 +122,7 @@ test("rút lưu ý xong: ĐÚNG MỘT dòng «N lưu ý bị loại» (P-106-13)
   const panel = page.locator("[data-part=guidance-panel]");
   await panel.getByRole("button", { name: "Rút lưu ý" }).click();
   await expect(panel.locator("[data-part=guidance-dropped]")).toHaveText("4 lưu ý bị loại");
+  await expect(panel.locator("[data-part=guidance-reflected]")).toHaveText("Đã rút 1 lưu ý chờ duyệt"); // (m) rút xong có báo
 });
 
 test("lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm»", async ({ page, context }, info) => {
@@ -134,6 +135,9 @@ test("lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý ch�
 test("hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố bị chặn MIXED_GUIDANCE nói rõ", async ({ page, context }, info) => {
   desktopOnly(info);
   await asDemo(context, "teacher");
+  const JOB = "00000000-0000-7000-8000-0000000e0009";
+  let job: Record<string, unknown> = { id: JOB, status: "RUNNING", progress: 33, result: { done: 1, failed: 0, total: 3 } };
+  await page.route(/\/api\/v1\/jobs\/[^/]+$/, (r) => r.fulfill(json(job)));
   const reviewed = defaultRows().map((r, i) => (i > 0 && r.result ? { ...r, result: { ...r.result, status: "REVIEWED", run_state: "DONE", needs_review: false } } : r));
   const api = await gradingApi(page, {
     rows: reviewed,
@@ -149,12 +153,17 @@ test("hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố b
   await page.getByRole("button", { name: "Chấm lại" }).click();
   await expect(page.getByText("Đã xếp 3 bài chấm lại")).toBeVisible();
   expect(api.calls.some((c) => c.path.endsWith(`/assignments/${A1}/regrade-stale`))).toBe(true);
+  // (k) chấm lại dùng chung thanh tiến độ lô; xong có MỘT dòng báo
+  await expect(page.locator("[data-part=grading-progress]")).toHaveText("Đang chấm 1/3 bài");
+  job = { id: JOB, status: "SUCCEEDED", progress: 100, result: { done: 3, failed: 0, total: 3 } };
+  await expect(page.getByText("Đã chấm xong 3 bài")).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator("[data-part=grading-progress]")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Cần xem kỹ" }).click();
   await page.getByLabel("Trạng thái").selectOption("REVIEWED");
   await page.locator("[data-part=queue-row]").first().getByRole("checkbox").check();
   await page.getByRole("button", { name: "Công bố" }).click();
-  await expect(page.getByRole("dialog")).toContainText("2 bài đã duyệt chấm theo bản lưu ý cũ");
+  await expect(page.getByRole("dialog")).toContainText("2 bài đã duyệt chấm theo bản lưu ý cũ, vẫn công bố được"); // (n)
   await page.getByRole("dialog").getByRole("button", { name: "Công bố" }).click();
   await expect(page.getByText(/Còn bài nháp chấm theo bản lưu ý cũ/)).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);

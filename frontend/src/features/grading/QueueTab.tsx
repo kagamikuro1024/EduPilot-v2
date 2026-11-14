@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ListChecks, Upload } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ApiError, newIdempotencyKey, useJob } from "@/shared/data";
+import { ApiError, newIdempotencyKey, useJob, useSSE } from "@/shared/data";
 import { checkSubmissionBundle, uploadSubmissionBundle } from "@/shared/data/uploadFile";
 import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useAssignments, vi } from "@/features/assignments/assignmentApi";
@@ -138,6 +138,16 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   const batchDone = (batch?.done ?? 0) + (batch?.failed ?? 0);
   const batchTotal = batch?.total ?? job?.queued ?? 0;
   const batchRunning = Boolean(job) && jobState.status !== "SUCCEEDED" && jobState.status !== "FAILED";
+  // Lô xong (chấm tất cả hoặc chấm lại): MỘT dòng báo, làm mới hàng chờ và số «bài chấm theo bản cũ»
+  const batchEnded = useRef<string | null>(null);
+  useEffect(() => {
+    if (!job || (jobState.status !== "SUCCEEDED" && jobState.status !== "FAILED") || batchEnded.current === job.id) return;
+    batchEnded.current = job.id;
+    const failed = batch?.failed ?? 0;
+    setNotice(jobState.status === "FAILED" ? "Chưa chấm xong. Hãy thử lại." : `Đã chấm xong ${batch?.done ?? job.queued} bài${failed > 0 ? ` · ${failed} lỗi` : ""}`);
+    void qc.invalidateQueries({ queryKey: ["grading-queue", courseId] });
+    if (assignmentId) void qc.invalidateQueries({ queryKey: guidanceKey(assignmentId) });
+  }, [job, jobState.status, batch, qc, courseId, assignmentId]);
   const waiting = rows.some((r) => r.result && (r.result.run_state === "QUEUED" || r.result.run_state === "RUNNING"));
   useEffect(() => {
     if (!waiting && !batchRunning) return;
@@ -174,6 +184,15 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   }, [teamsState.status, qc, courseId]);
 
   const refresh = () => void qc.invalidateQueries({ queryKey: ["grading-queue", courseId] });
+  // GV-BUG (o): lô chấm của MÌNH xong ở nơi khác (tab khác, hàng loạt) thì hàng chờ làm mới; người khác chấm lại thì lấy lại khi tab hiện ra lại (staleTime 0)
+  useSSE("job.progress", (e) => {
+    try {
+      const d = JSON.parse(e.data) as { status?: string };
+      if (d.status === "SUCCEEDED" || d.status === "FAILED") refresh();
+    } catch {
+      /* khung hỏng: bỏ qua */
+    }
+  });
   // «Lưu ý chấm» (10.6): chỉ khi chọn một bài tập và lớp bật tính năng; sinh viên không có tab này
   const guide = useGuidance(courseId, assignmentId, assignmentId !== "");
   const stale = guide.data?.enabled ? guide.data.stale : null;
@@ -185,6 +204,8 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       regradeIdem.current = null;
       void qc.invalidateQueries({ queryKey: guidanceKey(assignmentId) });
       refresh();
+      // GV-BUG (k): dùng chung thanh tiến độ «Đang chấm n/N» của lô và dòng báo xong
+      if (r.job_id && r.queued > 0) setJob({ id: r.job_id, queued: r.queued });
       setNotice(r.queued > 0 ? `Đã xếp ${r.queued} bài chấm lại` : "Không có bài nào cần chấm lại");
     });
 
@@ -249,7 +270,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       : undefined;
   const students = new Set(chosen.map((r) => r.student?.id).filter(Boolean)).size;
   const oldReviewed = stale && assignmentIds.size === 1 && assignmentIds.has(assignmentId) ? stale.reviewed : 0;
-  const consequence = `Công bố ${chosen.length} bài · ${students} sinh viên nhận thư · ${column ? `điểm vào sổ điểm cột ${column}` : "không tính vào sổ điểm"}${oldReviewed > 0 ? ` · ${oldReviewed} bài đã duyệt chấm theo bản lưu ý cũ` : ""}`;
+  const consequence = `Công bố ${chosen.length} bài · ${students} sinh viên nhận thư · ${column ? `điểm vào sổ điểm cột ${column}` : `không tính vào sổ điểm (${scheme ? "bài chưa gắn vào cột điểm" : "chưa có công thức điểm"})`}${oldReviewed > 0 ? ` · ${oldReviewed} bài đã duyệt chấm theo bản lưu ý cũ, vẫn công bố được` : ""}`;
 
   const publishNow = () =>
     void run(async () => {
@@ -378,8 +399,8 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
               <Button variant="primary" loading={busy} disabled={Boolean(needAssignment || noneToGrade)} disabledReason={needAssignment ?? noneToGrade} onClick={gradeAllNow}>
                 Chấm tất cả
               </Button>
-              {teacher && chosen.length > 0 && (
-                <Button variant="primary" onClick={() => setConfirming(true)}>
+              {teacher && (
+                <Button variant="primary" disabled={chosen.length === 0} disabledReason={chosen.length === 0 ? "Chọn bài đã duyệt." : undefined} onClick={() => setConfirming(true)}>
                   Công bố
                 </Button>
               )}
