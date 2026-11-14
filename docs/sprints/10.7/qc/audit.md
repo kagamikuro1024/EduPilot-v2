@@ -28,7 +28,7 @@
 | P4 | h2 có `data-ep-section-title`, 0 `p` ở đầu mục | **0** | – |
 | P5 | nhịp dọc đầu trang→thân 40 (32@375), mục→mục 48, h2→panel 16 | **0** | – |
 | E1 | khối rỗng: 1 tiêu đề + ≤ 1 nút, 0 svg, 0 chữ khác | **0** | – |
-| E2 | khối rỗng căn giữa |Δ| ≤ 2 px | **4** | student/chat |
+| E2 | khối rỗng căn giữa |Δ| ≤ 2 px | **1** | student/chat |
 | E3 | tiêu đề rỗng ≤ 40 ký tự, 1 dòng, không dấu chấm cuối | **0** | – |
 | E4 | nút rỗng không trùng nút đầu trang / tab / thanh công cụ | **0** | – |
 | E5 | nút rỗng `secondary` | **0** | – |
@@ -44,10 +44,10 @@
 | D2 | cao điều khiển 36|30 (1440), ≥ 44 (375) | **0** | – |
 | D3 | cao hàng bảng: ≥ 720 px 48|44 (±1); < 720 px là sàn (TL 14.8) | **0** | – |
 | T1 | 0 icon giải thích (info / circle-help) ngoài thông báo | **0** | – |
-| T2 | chuỗi > 30 ký tự lặp < 3 lần | **4** | ta/documents, teacher/documents |
+| T2 | chuỗi > 30 ký tự lặp < 3 lần | **0** | – |
 | C3 | vàng: ≤ 3 nền, 0 chữ | **0** | – |
 
-**Tổng lệch: 8** (mục chưa 0 = chưa đạt).
+**Tổng lệch: 1** (mục chưa 0 = chưa đạt).
 
 ## Chữ ký khung (kiểu, h1.left, cột.left, cột.width, có meta, đệm panel, hình khối rỗng)
 
@@ -63,8 +63,8 @@
 | 5 | ('read', 428, 428, 800, True, 24, '-') | student/[data], ta/insights[data], ta/analytics[data], teacher/insights[data] |
 | 4 | ('read', 428, 428, 800, True, 24, 'title') | admin/[data], student/[empty], ta/analytics[empty], teacher/analytics[empty] |
 | 3 | ('work', 240, 240, 1176, False, 24, 'title+nút') | ta/attendance[empty], teacher/attendance[empty], teacher/gradebook[empty] |
-| 2 | ('work', 240, 240, 1176, False, 0, 'title') | student/chat[data], student/chat[empty] |
 | 2 | ('work', 240, 240, 1176, False, 0, '-') | ta/inbox[data], teacher/inbox[data] |
+| 2 | ('work', 240, 240, 1176, False, 0, 'title') | student/chat[data], student/chat[empty] |
 | 2 | ('work', 240, 240, 1176, True, 24, 'title') | admin/observability[data], teacher/observability[empty] |
 
 ### 375 px — **11** chữ ký (đạt ≤ 2: CHƯA)
@@ -79,8 +79,8 @@
 | 5 | ('read', 12, 12, 351, True, 16, '-') | student/[data], ta/insights[data], ta/analytics[data], teacher/insights[data] |
 | 4 | ('read', 12, 12, 351, True, 16, 'title') | admin/[data], student/[empty], ta/analytics[empty], teacher/analytics[empty] |
 | 3 | ('work', 12, 12, 351, False, 16, 'title+nút') | ta/attendance[empty], teacher/attendance[empty], teacher/gradebook[empty] |
-| 2 | ('work', 12, 12, 351, False, 0, 'title') | student/chat[data], student/chat[empty] |
 | 2 | ('work', 12, 12, 351, False, 0, '-') | ta/inbox[data], teacher/inbox[data] |
+| 2 | ('work', 12, 12, 351, False, 0, 'title') | student/chat[data], student/chat[empty] |
 | 2 | ('work', 12, 12, 351, True, 16, 'title') | admin/observability[data], teacher/observability[empty] |
 
 ## Chưa đo / không áp dụng (TL 14)
@@ -92,17 +92,7 @@
 
 ## Chi tiết lệch
 
-### E2 — khối rỗng căn giữa |Δ| ≤ 2 px (4)
+### E2 — khối rỗng căn giữa |Δ| ≤ 2 px (1)
 
-- student/chat[data@1440] lệch 186
-- student/chat[data@375] lệch -4.1
-- student/chat[empty@1440] lệch -4
-- student/chat[empty@375] lệch -4.1
-
-### T2 — chuỗi > 30 ký tự lặp < 3 lần (4)
-
-- ta/documents[data@1440] Đáp án không hiển thị cho sinh viên×4
-- ta/documents[data@375] Đáp án không hiển thị cho sinh viên×4
-- teacher/documents[data@1440] Đáp án không hiển thị cho sinh viên×4
-- teacher/documents[data@375] Đáp án không hiển thị cho sinh viên×4
+- student/chat[data@1440] lệch 190
 
