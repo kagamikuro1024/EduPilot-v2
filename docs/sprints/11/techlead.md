@@ -89,6 +89,11 @@ Hạn mức: P1 ≈ 650 lời gọi, P2 ≈ 400.
 - **Chi phí ở E4:** 9router là thuê bao nên không có giá theo token. Báo «token × giá niêm yết của model tương ứng» là chi phí **quy đổi** và ghi rõ như vậy. Lưu ý token vào qua 9router bị đội lên khoảng 2.200 do lời nhắc hệ thống của đường `ag/` (PoC Jev mục 4). Báo cả token đo được lẫn token ước tính khi gọi thẳng.
 - **Trễ ở E4:** số đo gồm cả độ trễ của proxy 9router. Báo cáo phải ghi "qua 9router".
 - **`Structured` qua 9router:** PoC Jev / `gemini-decision-1` đã gửi `response_format: json_schema` tới `ag/gemini-3.8-flash` qua 9router. 298 lời gọi chỉ hỏng 1 lần, do hết giờ. Đường lách cho `openai_compatible` trong `provider/openai.go` (gộp schema vào tin system, ép `stream:false`) vẫn áp dụng.
+- **Chủ dự án, 14/11 (dừng gọi Gemini trực tiếp vì tốn tiền):** stack `ep-eval` dùng **embedding giả** (`fake`). Không chạy `PHASE=seed` với `gemini-embed`, không reindex bằng Gemini, trừ khi PM cho phép.
+  - Ảnh hưởng tới E1: bước tương đồng ngữ nghĩa không góp phần, giống lần đo 9.5 (`eval_pii.py:309`). Báo cáo ghi rõ "nhúng giả".
+  - Ảnh hưởng tới E2: truy xuất RAG chạy trên vector giả, nên đường cong ngưỡng phản ánh cấu hình giả. Muốn số E2 có nghĩa với RAG thật thì xin PM một lượt nhúng thật (khoảng 1–2 nghìn lời gọi nhúng).
+  - Mọi phần sinh chữ (E2–E5) vẫn qua 9router như trên.
+  - `gemini-decision-1`: không gọi thêm. Số đo thật chỉ có ở PoC 14/11.
 
 ---
 

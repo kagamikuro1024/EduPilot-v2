@@ -161,6 +161,11 @@ Qua 9router, mỗi request bị đội lên khoảng 2.200 token vào do lời n
 > PoC dưới đây đã chạy đúng cấu hình này: LLM qua 9router, decision gọi thẳng `createDecision`. Số "Gemini đi thẳng" ở mục 4 (`3.1-flash-lite`) chỉ là tham chiếu độ trễ, không còn là đường được phép.
 >
 > Theo yêu cầu PM, kiến trúc dùng **một provider loại `decision` riêng**, chỉ cho `gemini-decision-1`. Không gắn thêm phương thức vào loại `gemini`. Phần "provider record `gemini-decision` (type `gemini`)" ở 6.3 và 6.6 hiểu là loại `decision`. Chi phí fallback trong 6.4 là quy đổi theo giá niêm yết, vì 9router tính theo thuê bao.
+>
+> **Đã chốt (D60, P-11-10, P-11-11):** chỉ ba điểm: Threads precheck (ε = 0,05), cờ chèn lệnh, định tuyến chat (τ = 0,95; dưới ngưỡng **về luật**, không gọi LLM).
+> - Lưới khủng hoảng **không** dùng decision: giữ regex, 0 lời gọi model (US-P3-04 AC13).
+> - Mọi chỗ trong 6.4–6.8 nói tới decision / LLM cho khủng hoảng chỉ còn giá trị tham khảo.
+> - Dev / test chạy bằng provider `decision` giả.
 
 **Kết luận.**
 - `gemini-decision-1` là decision model của Google, cùng loại với Jev:

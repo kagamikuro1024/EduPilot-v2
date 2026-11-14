@@ -83,8 +83,27 @@ Quyết định kiến trúc (và cái bị từ chối):
 - **Thời hạn (deadline):** mọi lời gọi mang deadline từ `context.Context` của request gốc, đi thẳng xuống `internal/llm` — không còn hop mạng nội bộ nào ở giữa. Người dùng đóng tab thì huỷ luồng LLM, không đốt token vô ích.
 - **Suy giảm có kiểm soát:** mọi provider đều chết → chat trả lời trích xuất từ chunk đã truy xuất kèm nhãn "AI tạm thời không khả dụng", và mời escalate.
 - **Giảm cầu:** cache câu trả lời cuối theo lớp cho câu hỏi học thuật; không cache câu hỏi cá nhân; dedupe các yêu cầu giống hệt đang bay.
+- **Decision model (D60):**
+  - `Decide` đi qua Scheduler như mọi lời gọi, trên **token bucket riêng** của provider `decision`, vì Google tính hạn mức theo model.
+  - Làn: `INTERACTIVE` cho định tuyến chat và Threads precheck; `BATCH` cho cờ chèn lệnh.
+  - Decision **không** tiêu suất sinh chữ (0 token ra).
+  - Quá `LLM_DECISION_TIMEOUT` (800 ms), lỗi, hay cầu dao `decision` mở → cascade đi đường fallback: chat về luật; precheck về `Structured`, rồi về luật; cờ chèn lệnh bỏ qua lớp decision. Không lỗi nào của decision chặn được câu trả lời.
 
-**Đường nóng hỏi–đáp theo D47.** Luật tốc độ chốt ở `DECISIONS.md` D47 ràng buộc phần này và `internal/rag`/`internal/agent`: mỗi câu hỏi tiêu đúng **một** suất `INTERACTIVE` sinh chữ có stream; truy xuất là SQL tất định nên không nằm trong hạn mức LLM; phân loại kênh/ý định chỉ một lần mỗi tin nhắn (`NEAR_REALTIME`) rồi mang kết quả xuống dưới; không vòng lặp agent mở, nên số lời gọi mỗi câu hỏi là hằng số và ước lượng hạn mức ở mục 1.2 mới đúng. Truy vấn vector `ORDER BY` chỉ theo khoảng cách để dùng được HNSW, lọc `course_id` trong cùng truy vấn.
+**Đường nóng hỏi–đáp theo D47 (sửa theo D60, 2026-11-14).** Luật tốc độ chốt ở `DECISIONS.md` D47 ràng buộc phần này và `internal/rag`/`internal/agent`. Thứ tự xử lý một tin nhắn:
+1. Phát `received` (≤ 300 ms, trước mọi bước phân loại; `chat/gen.go`).
+2. Luật khủng hoảng (regex, **0 lời gọi model**, P-11-11).
+3. Phân loại một lần: luật + embedding, **song song** với tối đa một lời gọi `Decide` (choice ý định). Nếu `confidence ≥ 0,95` dùng nhãn của decision; dưới ngưỡng hoặc lỗi dùng **luật**, không gọi LLM. Kết quả mang xuống dưới.
+4. Truy xuất SQL tất định, dùng lại lần nhúng ở bước 3.
+5. Đúng **một** suất `INTERACTIVE` sinh chữ có stream.
+
+Số lời gọi mỗi câu hỏi vẫn là hằng số: 1 sinh chữ + ≤ 1 nhúng + ≤ 1 decision. Nhờ vậy ước lượng hạn mức ở mục 1.2 vẫn đúng. Decision chạy song song nên TTFT chỉ tăng nếu decision chậm hơn lần nhúng; phải đo TTFT trước / sau bằng provider `decision` giả có độ trễ thật (426 / 682 ms). Không vòng lặp agent mở. Truy vấn vector `ORDER BY` chỉ theo khoảng cách để dùng được HNSW, lọc `course_id` trong cùng truy vấn.
+
+**Chi phí và hạn mức của decision ở T1** (D60; số PoC 2026-11-14) `[ƯỚC TÍNH]`:
+- Khoảng 330 token vào / lời gọi × $0,10 / 1 triệu token ⇒ ≈ $0,000033 / tin nhắn.
+- Chat T1 ≈ 1 tin / s trong 8 giờ ⇒ ≈ 29.000 lời gọi ≈ **$1 / ngày**.
+- **Free Tier 200 RPM (≈ 3,3 / s) không đủ cho đỉnh 5 QPS** của kịch bản k6 (b); Tier 1 là 1.500 RPM.
+- Free Tier còn dùng dữ liệu gửi vào để cải thiện sản phẩm ⇒ chỉ dùng cho dữ liệu mô phỏng đã che; môi trường thật dùng gói trả phí (`PRODUCTION_READINESS.md` §1).
+- Đo / eval / demo dùng provider `decision` giả (D60 (6)).
 
 ### 3.2. Gateway không trạng thái
 
