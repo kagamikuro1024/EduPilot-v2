@@ -512,3 +512,42 @@ So với `mau/landing.html`: mẫu không có hình ở mục này (hình là ph
 | trong đó `section-height` ở 390 | – | Lời kết bắt đầu lệch lưới màn 277 px: `#so-do` 963, `#vai` 1003 (màn 844) | Thật |
 | `off-grid` | 1 | «Tạo tài khoản» ở lời kết lệch 17 px | Nhỏ |
 | `focus-ring` | 1 | `.point:focus-visible` của `Chart` bỏ viền focus; không thuộc trang giới thiệu | Ngoài lô 9 |
+
+### 13.2 Chốt ba điểm lệch của dev @`c072ad12` (2026-11-15)
+
+Đo trên `localhost:3310` (worktree dev @`c072ad12`, sạch), 1440 và 390; giảm chuyển động, không script, có chuyển động. Ảnh: `mau/so-do-lo9-c072ad12.png` (hiện tại), `mau/so-do-lo9-de-xuat.png` (sau hai sửa dưới đây, thử bằng cách chèn CSS vào trang đang chạy, không sửa mã).
+
+**Đính chính mục 13.** Ở mục 13 tôi ghi «`no-visual` 0 FAIL → đạt» cho thanh + chấm. Sai: lúc đó trang chưa có `<main>` nên bộ kiểm không đọc ra các mục và không xét `no-visual`. Khi dev thêm `<main>`, bộ kiểm đòi hình phủ ≥ 15 % mục (15–25 % là WARN). Thanh 8 px và 30 chấm không thể tới ngưỡng đó, nên yêu cầu «giữ thanh + chấm» của tôi không làm được dưới AC23.
+
+| Điểm | Chốt | Vì sao | Việc còn lại |
+| --- | --- | --- | --- |
+| (a) Bỏ thanh + chấm, hình của mục là ảnh Sổ điểm | **Chấp nhận**, kèm một sửa | Dev đúng (xem đính chính). Ảnh không bịa số. Nhưng đang cắt từ trái: ngăn «Giải trình» bị cụt ở 1440, còn ở 390 chỉ thấy thanh điều hướng của app. Ngăn «Giải trình» mới là thứ gắn với số đo: từng dòng công thức + «Căn cứ · tr. 1», đúng câu «Điểm do mã tính từ quy chế» | `.stats__shot img { object-position: right top; }` |
+| (b) `#so-do` ở 390 cao hai màn | **Chấp nhận hai màn; đòi sửa khoảng trống** | Tôi rút yêu cầu ≤ 844: h2 + ba số đo đã cao 686 px, chỉ còn khoảng 94 px cho hình, dưới ngưỡng 15 %. Nhưng cách làm hiện tại là `min-height: 200svh` + `space-between`: danh sách hết ở 686, ảnh bắt đầu ở 1264, giữa là **578 px trống (68 % một màn)**. Bộ kiểm không bắt, mắt thì thấy nửa màn trắng | Ở ≤ 639 px: `.stats__shot { aspect-ratio: 9 / 16; }` (đang 10 / 11). Đã thử: ảnh 340 × 606, ngăn «Giải trình» hiện trọn và đọc được, phủ 36 % mục |
+| (c) Miễn trừ mới `focus-ring` | **Không nhận; đòi sửa** | AC23 ghi «không miễn trừ nào khác». Đây là lỗi thật của một primitive trong phạm vi sprint: `shared/ui/Chart.module.css` dòng 15 có `outline: none`, điểm trên biểu đồ khi focus chỉ đổi màu tô | Xoá `outline: none` ở dòng 15 (giữ `fill`); viền focus chung sẽ hiện |
+
+Bộ kiểm trên @`c072ad12`: **12 FAIL, 15 WARN** (trước: 23 / 8). 11 FAIL nằm trong danh sách miễn trừ của AC23; FAIL duy nhất ngoài danh sách là `focus-ring`. Sửa (c) xong thì về 0; tôi chưa chạy lại sau sửa.
+
+| Mã | Số | Thuộc miễn trừ AC23 |
+| --- | --- | --- |
+| `scroll-reveal` | 6 | Có |
+| `scroll-linked`, `section-air`, `empty-area` (khung ghim hai màn) | 1 + 2 + 1 | Có, nhưng AC23 ghi tổng 3, thực tế 4 (`section-air` ×2, cùng một nguyên nhân). BA sửa con số |
+| `copy-headings` | 1 | Có |
+| `focus-ring` | 1 | **Không** |
+
+Đã hết so với 13.1: `hidden-content`, `empty-visual`, `container-edges`, `hero-screen`, `section-height`, `one-heading`, `off-grid`.
+
+**Khung ghim mặc định hiện: đạt.**
+
+| Ca | Ảnh khung ghim đang hiện | Ảnh vai đang hiện |
+| --- | --- | --- |
+| Giảm chuyển động, 1440 | 1 / 3 | 1 / 2 |
+| Không script, 1440 | 1 / 3 | 1 / 2 |
+| Giảm chuyển động, 390 | 1 / 3 | 1 / 2 |
+| Có chuyển động, 390 | 1 / 3 | 1 / 2 |
+| Không script, 390 | 1 / 3 | 1 / 2 |
+
+- Ảnh đã tải thật (`naturalWidth` 1280 / 640), không chỉ `opacity: 1`; mục đang tô đỏ trong danh sách khớp ảnh đang hiện.
+- Ca spec «landing ảnh không bao giờ trống» (`landing.spec.ts`) phủ đúng ba ca đã hỏng ở 13.1 (giảm chuyển động, 390, không script) với cùng phép đo. Tôi đọc spec và tự đo lại trên trang đang chạy; không chạy spec.
+- Khác mẫu, nhận: ảnh mặc định là ảnh thứ hai («Duyệt bài»), mẫu là ảnh đầu («Chat riêng»).
+
+Còn một chỗ cùng tệp: `story-gradebook-v1` xuất hiện hai lần trên trang (màn thứ ba của khung ghim và mục số đo, hai mục liền nhau). Nhận, với điều kiện sửa (a): ở mục số đo ảnh cắt vào ngăn «Giải trình», không lặp lại nguyên màn.
