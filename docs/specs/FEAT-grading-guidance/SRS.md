@@ -1,9 +1,11 @@
 # SRS FEAT-grading-guidance Harness học từ lần giảng viên sửa (M1, M2, M4, M6)
-Phiên bản 1.3 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
+Phiên bản 1.4 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; **PM xác nhận P-106-1**: Q-G-1, 2, 3, 5, 6, 10 và nhãn S7 theo đề xuất BA)
 
 **v1.2 (P-106-2, P-106-3):** công bố **miễn so phiên bản cho bài giảng viên đã duyệt**, `regrade-stale` không còn tham số `scope` và **không bao giờ đụng bài đã duyệt / đã sửa tay** (không ghi đè điểm giảng viên) — US-GD-05 AC3, AC4, AC6, AC6a, AC11, SRS 3.4, 4.2.11, 4.2.12, API #7, #9; `similar-confirmed` đổi `GET ?q=` → `POST {q}` — US-GD-08 AC1, AC7, SRS 3.5, 4.4, API #10; sửa dấu phẩy thừa DDL 5.5.
 
 **v1.3 (P-106-5):** thêm cột `grading_results.first_reviewed_at` / `first_reviewed_by` (ghi **một lần** ở lần duyệt đầu, không bị xoá khi sửa lại; trigger bất biến); miễn so phiên bản và loại khỏi `regrade-stale` dựa vào cột này vì `ReviewApplyEdit` đặt `reviewed_at` / `reviewed_by` = NULL khi `REVIEWED → DRAFT`. **Không** thêm chặn nào ở bước duyệt (giữ v1.2) — SRS 4.2.11, 4.2.12, §5.3.
+
+**v1.4 (P-106-7):** mục lưu ý có `case_id` lạ (không có trong đầu vào / thuộc tiêu chí khác) bị bỏ **cả mục** (giữ mã; an toàn trước đầu độc), ca ngược chiều chỉ không đếm — US-GD-03 AC6, SRS 3.2, 3.8, 4.2.8.
 
 ## 1. Mục đích và phạm vi
 **Vấn đề.** Điểm nháp của AI lệch chuẩn của giảng viên (9.5 đo MAE tổng 0,94–1,27 / 10). Mỗi lần giảng viên sửa đã được lưu có cấu trúc (`grading_results.ai_scores` bất biến so với `criteria`), nhưng chưa được dùng lại: giảng viên sửa cùng một lỗi nhiều lần.
@@ -94,7 +96,7 @@ sequenceDiagram
     W->>W: dựng đầu vào: rubric + ≤ 60 ca + lưu ý hiện hành (không văn bản bài, không danh tính)
     W->>L: Structured(schema) — làn BATCH, đã che
     L-->>W: items[]
-    W->>W: kiểm code: tiêu chí ∈ rubric, case_ids ⊂ đầu vào, cùng chiều, support ≥ 2, từ khoá cấm, trùng
+    W->>W: kiểm code: tiêu chí ∈ rubric, case_ids ⊂ đầu vào cùng tiêu chí (id lạ → bỏ cả mục), đếm ca cùng chiều, support ≥ 2, từ khoá cấm, trùng
     W->>P: Detect(text) — khớp → bỏ mục
     W->>W: INSERT DRAFT (support, source_result_ids), llm_audit
     W-->>T: SSE job.progress → DONE {drafts, dropped{…}}
@@ -187,7 +189,7 @@ sequenceDiagram
 | `reflect` thiếu dữ liệu | `409 NOT_ENOUGH_DATA {results, edits}` | «Cần thêm bài đã duyệt» |
 | `reflect` LLM lỗi / sai schema | Thử lại ≤ 3 → dead-letter, job `FAILED`, không nháp nửa vời | «Chưa rút được lưu ý. Thử lại.» |
 | `reflect` 0 mục hợp lệ | Job `DONE {drafts:0, dropped}` | «Không có lưu ý mới» |
-| Mục chứa PII / từ khoá tổng-muộn / support < 2 / trùng | Bỏ mục, đếm vào `dropped` | Không thấy (chỉ số ở stats nội bộ) |
+| Mục chứa PII / từ khoá tổng-muộn / `case_id` lạ / support < 2 / trùng | Bỏ **cả mục**, đếm vào `dropped` (`criterion`, `case`, `support`, `keyword`, `pii`, `duplicate`) | Không thấy (chỉ số ở stats nội bộ) |
 | Sửa chữ lưu ý không qua kiểm | `422 GUIDANCE_TEXT_REJECTED` | Báo tại ô |
 | `Duyệt` mục không còn `DRAFT` | `409 ITEM_NOT_DRAFT` | Tải lại hàng |
 | `Áp dụng` không có gì đổi | `409 NOTHING_TO_APPLY` | Nút khoá |
@@ -241,7 +243,7 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 **4.2.7 Schema đầu ra (strict).** `items:[{criterion_id enum(id rubric), text string ≤ 400, direction enum{STRICTER,LENIENT,CLARIFY}, case_ids:[string] ≥ 2}] ≤ GUIDANCE_MAX_ITEMS`. Không trường tổng / phạt / làm tròn.
 
-**4.2.8 Kiểm bằng code (thứ tự).** (i) `criterion_id` ∈ rubric; (ii) mọi `case_id` ∈ đầu vào; (iii) chiều: STRICTER ⇔ `ai_score > teacher_score`, LENIENT ⇔ `<`, CLARIFY không ràng buộc; **`support` = số `case_id` hợp lệ cùng chiều** (code đếm); (iv) bỏ nếu `support < GUIDANCE_MIN_SUPPORT`; (v) `fold(text)` chứa từ khoá {`tổng`, `trừ`, `muộn`, `làm tròn`, `phạt`} → bỏ; (vi) `privacy.Detect` khớp (roster lớp + regex MSSV / email / SĐT) → bỏ; (vii) Jaccard theo từ ≥ 0,8 với mục cùng tiêu chí đã có (mọi trạng thái trừ REJECTED lâu hơn 30 ngày) → bỏ; (viii) cắt còn `GUIDANCE_MAX_ITEMS`. `source_result_ids` = id kết quả của các ca hợp lệ.
+**4.2.8 Kiểm bằng code (thứ tự).** (i) `criterion_id` ∈ rubric; (ii) mọi `case_id` ∈ đầu vào **và** thuộc đúng `criterion_id` của mục — **một `case_id` lạ (không có trong đầu vào hoặc thuộc tiêu chí khác) → bỏ CẢ MỤC**, đếm `dropped.case` (P-106-7; không bỏ riêng id lạ rồi đếm tiếp); (iii) chiều: STRICTER ⇔ `ai_score > teacher_score`, LENIENT ⇔ `<`, CLARIFY không ràng buộc; `case_id` hợp lệ nhưng **ngược chiều** chỉ **không được đếm**; **`support` = số `case_id` hợp lệ cùng chiều** (code đếm); (iv) bỏ nếu `support < GUIDANCE_MIN_SUPPORT`; (v) `fold(text)` chứa từ khoá {`tổng`, `trừ`, `muộn`, `làm tròn`, `phạt`} → bỏ; (vi) `privacy.Detect` khớp (roster lớp + regex MSSV / email / SĐT) → bỏ; (vii) Jaccard theo từ ≥ 0,8 với mục cùng tiêu chí đã có (mọi trạng thái trừ REJECTED lâu hơn 30 ngày) → bỏ; (viii) cắt còn `GUIDANCE_MAX_ITEMS`. `source_result_ids` = id kết quả của các ca hợp lệ.
 
 **4.2.9 Trạng thái lưu ý.** `DRAFT` → (`Duyệt`) `APPROVED` chờ áp dụng (`approved_in_version IS NULL`) → (`Áp dụng`) có hiệu lực (`approved_in_version = N+1`) → (`Cho nghỉ`) chờ nghỉ (`pending_retire`) → (`Áp dụng`) `RETIRED` (`retired_in_version = N+1`). `DRAFT` → (`Bỏ`) `REJECTED`. Sửa chữ chỉ khi `DRAFT`; lưu `text_original`.
 
