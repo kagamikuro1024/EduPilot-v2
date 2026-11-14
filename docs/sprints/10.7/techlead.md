@@ -397,3 +397,54 @@ Nguồn: `handoff/dev-sprint10.7.md` trên nhánh này, và tin PM.
 | **Landing: axe báo tương phản chập chờn** | Có, mục 8 | `[SUY LUẬN]` chưa tái hiện: chữ đang ở giữa chuyển động theo cuộn có `opacity` < 1 lúc axe lấy mẫu, nên tỉ lệ tương phản tính trên màu đã pha. Mẫu mới chỉ dùng `transform` cho chữ; `opacity` chỉ dùng cho ảnh. Thêm vào `landing.spec.ts`: chạy axe với `reducedMotion: "reduce"` **và** một lượt sau khi cuộn hết trang, cả hai phải 0 lỗi. Nếu còn chập chờn thì nguyên nhân khác, dev báo lại | 9 | axe 0 serious / critical ở 20 lượt liên tiếp |
 
 Nợ «`/insights` và các màn mô phỏng còn `?? X[COURSE_1]`» (trái D51) không thuộc khung; giữ ở sprint 11 như handoff ghi. `frame.spec.ts` chạy được trên màn mô phỏng nên không chặn UI-R.
+
+## 12. Trả lời dev (2026-11-15)
+
+Hai câu ở `handoff/dev-sprint10.7.md` mục «Cần TL quyết». Số lấy từ `qc/audit-lo1.md` và đọc mã; tôi chưa chạy lại lượt đo nào.
+
+### 12.1 H7 ở 375: đầu trang có / không có hàng nút
+
+**Quyết: ở 375 không so tổng chiều cao theo «có meta». Chiều cao chuẩn = tổng các hàng đang có.** Ở 1440 nút nằm cùng hàng tiêu đề (`min-height: 36px`) nên chỉ meta đổi chiều cao; dưới 720 px nút xuống hàng riêng (§23.2), nên «có nút» cũng đổi chiều cao. Tiêu chí cũ thiếu biến này, mã không sai.
+
+```
+H(375) = 36                      tiêu đề một dòng
+       + 67   nếu có hàng nút    (khoảng 24 + nút cao 44; đo được 67)
+       + 8 + 19,2 × số dòng meta nếu có meta (khoảng `--ep-space-2`, chữ 14 px)
+sai số ±2
+```
+
+Công thức khớp cả năm giá trị QC đã đo, kể cả bốn dòng đang bị ghi là lệch:
+
+| Đầu trang ở 375 | Tính | QC đo |
+| --- | --- | --- |
+| Chỉ tiêu đề | 36 | 36 |
+| Tiêu đề + hàng nút (`/questions` rỗng) | 103 | 103 |
+| Tiêu đề + meta 2 dòng (`/insights` TA) | 82,4 | 82,4 |
+| Tiêu đề + hàng nút + meta 1 dòng | 130,2 | 130 |
+| Tiêu đề + hàng nút + meta 2 dòng (`/insights` GV) | 149,4 | 149,4 |
+
+Vậy bốn dòng H7 của `audit-lo1.md` **không phải lệch**; dev không sửa gì ở khung vì H7.
+
+Sửa cách đo:
+
+- H7 ở 375 gom theo `(số dòng tiêu đề, số dòng meta, có hàng nút)`, mỗi nhóm đúng một giá trị (±2). Ở 1440 giữ nguyên `(có meta)`.
+- QC: `qc/scripts/audit_report.py` dòng 55, khoá `(w, hasMeta)` thành `(w, hasMeta)` ở 1440 và `(w, số dòng h1, metaLines, có hàng nút)` ở 375.
+- Thứ vẫn là lỗi ở 375: tiêu đề quá 2 dòng; meta quá 2 dòng (H3 ở 375: ≤ 2 dòng); hàng nút quá một dòng (H8).
+
+Một lệch thật tôi thấy khi đọc mã, không thuộc H7: ở 375 thứ tự đang là tiêu đề → hàng nút → meta (`.actions` nằm trong `.headRow`, meta nằm sau), còn §23.2 ghi tiêu đề → meta → hàng nút. Giữ §23.2: meta thuộc về tiêu đề, đứng dưới nút thì đọc như chú thích của nút. Sửa ở `Layout.module.css` trong khối `max-width: 719px`; giữ khoảng 8 (tiêu đề → meta) và 24 (→ hàng nút) thì tổng chiều cao không đổi, bảng trên vẫn đúng.
+
+### 12.2 `/insights` mô phỏng: L2 / X1
+
+**Quyết: không miễn. Đo ngay ở `frame.spec.ts` trên bản dựng có màn mô phỏng; lượt audit của QC trên stack thật ghi «không áp dụng» cho đến sprint 11.**
+
+Vì sao QC ra lỗi: script QC tạo «đang tải / lỗi» bằng cách chặn `**/api/v1/**` (`qc-ui-audit-real.spec.ts` dòng 192–205). `/insights` đọc `@/mock/core`, không gọi API, nên không bao giờ vào hai trạng thái đó; ở bản dựng thật `?state=` lại bị tắt (`PageState.tsx` dòng 15). «Không có `aria-busy`» và «alert×0» là do cách đo, chưa nói gì về khung.
+
+Đo bằng cách nào:
+
+- Bản dựng có màn mô phỏng đã có sẵn cửa: `?state=loading` và `?state=error`. `InsightsScreen` đã khai cả hai hình: khung xương trong `Panel` (`Skeleton` có `aria-busy="true"`) và khối lỗi một dòng + «Thử lại» (`InlineNotice` `danger` có `role="alert"`).
+- Dev: `frame.spec.ts` dòng 28–29 đang lặp `["data", "empty"]`; thêm `"loading"`, `"error"` và đo L1–L3, X1–X3. Mỗi lượt vào trạng thái bằng **cả hai** đường, `?state=` cùng với chặn `/api/v1/**` như QC làm: route mô phỏng nghe `?state=`, route thật (`PageState query=`) nghe API. Không cần danh sách route mô phỏng.
+- QC: route nào không phát yêu cầu `/api/v1` nào trong lúc bị chặn thì ghi L1–L3, X1–X3 là «không áp dụng (màn mô phỏng)», không tính lỗi. Theo mã hiện có `@/mock/` ở `insights`, `analytics`, `observability`, `calendar`, `library`, `documents`, `threads`, `chat`; phát hiện theo yêu cầu mạng thì không phải giữ danh sách này.
+
+Phần này chứng minh **hình** của hai trạng thái (đúng panel, đúng mép, một `role=alert` rộng bằng cột, có «Thử lại»), tức đúng thứ §23.5 quy định. Phần chưa chứng minh được: lỗi API thật có dẫn tới hai hình đó không. Ghi nợ sprint 11 cùng dòng D51: khi `/insights` nối API, L2 / X1 phải đạt trong lượt audit của QC bằng đường chặn API, và `?state=` của màn đó bị gỡ.
+
+Câu thứ ba trong handoff (điểm danh ở 375 có hai nút cùng việc) PM chưa hỏi nên chưa trả lời ở đây.
