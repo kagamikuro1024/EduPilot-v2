@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ListChecks, Upload } from "lucide-react";
+import { ArrowRight, Upload } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ApiError, newIdempotencyKey, useJob, useSSE } from "@/shared/data";
 import { checkSubmissionBundle, uploadSubmissionBundle } from "@/shared/data/uploadFile";
@@ -34,8 +34,7 @@ const TEAMS_FAIL_TEXT: Record<string, string> = {
   TEAMS_AUTH_FAILED: "Không đăng nhập được vào Teams",
   FILE_TYPE_NOT_ALLOWED: "Loại tệp không nhận",
   FILE_TOO_LARGE: "Tệp quá lớn",
-  FILE_EMPTY: "Tệp trống",
-};
+  FILE_EMPTY: "Tệp trống" };
 
 /** Liên kết sang màn duyệt mang theo bộ lọc đang xem: màn đó dùng lại đúng hàng chờ để đi bài kế. */
 export const reviewHref = (id: string, f: QueueFilter, total?: number) => {
@@ -321,8 +320,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           onClick={(ev) => ev.stopPropagation()}
           onChange={() => setPicked((p) => { const n = new Set(p); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })}
         />
-      ) : null,
-  };
+      ) : null };
 
   const columns: Column<QueueRow>[] = [
     {
@@ -337,8 +335,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           <span className={s.code}>{r.student ? `${r.student.student_code}${r.student.inactive ? " · không còn trong lớp" : ""}` : ""}</span>
           {flagText(r) && <span className={s.flag} data-part="flag-reason">{flagText(r)}</span>}
         </span>
-      ),
-    },
+      ) },
     ...(oneAssignment ? [] : [{ key: "assignment", header: "Bài tập", width: "200px", render: (r: QueueRow) => <span className={s.clip} title={r.assignment.title}>{r.assignment.title}</span> }]),
     { key: "source", header: "Nguồn", width: "130px", render: (r) => SOURCE_LABEL[r.source] ?? r.source },
     {
@@ -351,8 +348,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           {r.result?.total ? vi(r.result.total) : "—"}
           {r.result && r.result.status !== "DRAFT" && <span className={s.sub}> đã duyệt</span>}
         </span>
-      ),
-    },
+      ) },
     {
       key: "state",
       header: "Trạng thái duyệt",
@@ -361,8 +357,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       render: (r) => {
         const text = reviewStateText(r.result);
         return <StatusText tone={reviewTone(text)}>{text}</StatusText>;
-      },
-    },
+      } },
     {
       key: "at",
       header: "Thời gian nộp",
@@ -372,8 +367,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           {fmtLong(r.received_at)}
           {r.late_days > 0 ? ` · muộn ${r.late_days} ngày` : ""}
         </span>
-      ),
-    },
+      ) },
     {
       key: "open",
       header: <span className="ep-sr-only">Duyệt</span>,
@@ -383,8 +377,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
         <Link href={reviewHref(r.id, filter, rows.length)} className={s.open} onClick={(e) => e.stopPropagation()} aria-label={`Duyệt bài của ${r.student?.full_name ?? "sinh viên"}`}>
           Duyệt <ArrowRight aria-hidden />
         </Link>
-      ),
-    },
+      ) },
   ];
 
   return (
@@ -511,11 +504,8 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       empty={
         <EmptyState
           title="Chưa có bài nộp."
-          icon={<ListChecks aria-hidden />}
           action={teacher ? <Button icon={<Upload aria-hidden />} disabled={Boolean(needAssignment) || busy} disabledReason={needAssignment} onClick={() => picker.current?.click()}>Tải bài lên</Button> : undefined}
-        >
-          Sinh viên nộp trong ứng dụng, hoặc thầy/cô tải ZIP lên.
-        </EmptyState>
+         />
       }
       showTechnical
     >
@@ -550,8 +540,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           pagination={{
             nextCursor: list.data?.pages[list.data.pages.length - 1]?.next_cursor ?? null,
             loading: list.isFetchingNextPage,
-            onLoadMore: () => void list.fetchNextPage(),
-          }}
+            onLoadMore: () => void list.fetchNextPage() }}
         />
       </>
     </PageState>

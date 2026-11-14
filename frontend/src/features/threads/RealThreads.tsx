@@ -64,8 +64,8 @@ export function RealThreads({ courseId }: { courseId: string }) {
   );
 
   return (
-    <Page width="full">
-      <PageHeader title="Hỏi đáp công khai" actions={!composing ? <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button> : undefined} />
+    <Page kind="work">
+      <PageHeader title="Hỏi đáp công khai" primary={!composing ? { label: "Đặt câu hỏi", onClick: () => setComposing(true) } : undefined} />
       <div className={r.detail}>
         {staff && <Tabs label="Chế độ xem" value={moderation ? "mod" : "all"} onChange={(v) => setModeration(v === "mod")} options={[{ value: "all", label: "Câu hỏi" }, { value: "mod", label: "Cần xem" }]} />}
         {staff && moderation && <ModerationQueue courseId={courseId} />}
@@ -90,9 +90,7 @@ export function RealThreads({ courseId }: { courseId: string }) {
             isEmpty={() => list.items.length === 0 && pinned.length === 0}
             loading={<Skeleton lines={5} />}
             empty={
-              <EmptyState title={filtered ? "Không có câu hỏi nào khớp." : "Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên."}>
-                {!filtered && !composing && <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button>}
-              </EmptyState>
+              <EmptyState title={filtered ? "Không có câu hỏi nào khớp." : "Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên."} />
             }
           >
             {pendingMajor && <p className={r.majority}>{pendingCount} câu chờ xác nhận</p>}

@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ApiError, apiClient, useAutosaveDraft } from "@/shared/data";
 import { CitationList, Markdown } from "@/shared/domain";
 import { useSession } from "@/shared/session/session";
-import { Button, ButtonLink, Field, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { Button, Field, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import { ANSWER_LABEL, SKIP_LABEL, confidenceLabel, describeReasons, threadKey, useSimilar, useThread, type ThreadPost } from "./threadsApi";
 import { EditForm, HiddenNotice, PostMenu } from "./ThreadModeration";
 import { usePostGate } from "./usePostGate";
@@ -26,8 +26,8 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
   const th = q.data?.thread;
   const locked = q.data?.posts.some((p) => p.kind === "AI" && (p.verification_state === "VERIFIED" || p.verification_state === "CORRECTED")) ?? false;
   return (
-    <Page width="full">
-      <PageHeader title={q.data?.thread.title ?? "Thread"} actions={<ButtonLink href="/threads" variant="ghost">Tất cả câu hỏi</ButtonLink>} />
+    <Page kind="work">
+      <PageHeader title={q.data?.thread.title ?? "Thread"} back={{ href: "/threads", label: "Tất cả câu hỏi" }} />
       <PageState query={q} loading={<Panel><Skeleton lines={5} /></Panel>}>
         {q.data && (
           <div className={r.detail}>
@@ -181,8 +181,7 @@ function Reply({ courseId, threadId, canChat }: { courseId: string; threadId: st
       draft.clear();
       void qc.invalidateQueries({ queryKey: threadKey(courseId, threadId) });
     },
-    onSwitched: () => draft.clear(),
-  });
+    onSwitched: () => draft.clear() });
   return (
     <form className={r.composer} onSubmit={(e) => { e.preventDefault(); if (draft.value.trim()) void gate.submit(false); }} data-part="reply-form">
       <Field label="Bình luận">{(fid) => <Textarea id={fid} rows={3} value={draft.value} onChange={(e) => draft.setValue(e.target.value)} />}</Field>

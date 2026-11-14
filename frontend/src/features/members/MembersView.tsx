@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ApiError, apiClient, useCursorList } from "@/shared/data";
-import { Button, ButtonLink, type Column, DataTable, EmptyState, Field, InlineNotice, Input, OverflowMenu, Page, PageHeader, PageState, Panel, SegmentedControl, Select, Skeleton, Tabs, Toolbar, UndoLine } from "@/shared/ui";
+import { Button, type Column, DataTable, EmptyState, Field, InlineNotice, Input, OverflowMenu, Page, PageHeader, PageState, Panel, SegmentedControl, Select, Skeleton, Tabs, Toolbar, UndoLine } from "@/shared/ui";
 import s from "./MembersView.module.css";
 import { classKey, useClassCourse, type Member, type MemberCounts } from "./classApi";
 import { TODAY_KEY } from "@/features/today/todayApi";
@@ -20,12 +20,12 @@ const MISMATCH = "Email chưa khớp MSSV";
 /** Thành viên lớp, hàng chờ duyệt và trợ giảng (dữ liệu thật). TA xem và duyệt; chỉ giảng viên mời ra, đổi trợ giảng và duyệt hàng "email chưa khớp MSSV". */
 export function MembersView() {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page><PageHeader title="Thành viên lớp" /><Panel><Skeleton lines={5} /></Panel></Page>;
+  if (cc.state === "loading") return <Page kind="read"><PageHeader title="Thành viên lớp" /><Panel><Skeleton lines={5} /></Panel></Page>;
   if (cc.state === "none") {
     return (
-      <Page>
+      <Page kind="read">
         <PageHeader title="Thành viên lớp" />
-        <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên. Quản trị viên mở lớp ở mục Lớp học.</EmptyState></Panel>
+        <Panel><EmptyState title="Chưa chọn lớp" /></Panel>
       </Page>
     );
   }
@@ -56,16 +56,14 @@ function Members({ courseId, canManage }: { courseId: string; canManage: boolean
   const list = useCursorList<Item>(classKey(courseId, "members", listTab, roleFilter ?? "", q), `/courses/${courseId}/members`, {
     limit: 30,
     query: { status, role: roleFilter, q: q || undefined },
-    idOf: (m) => m.user_id,
-  });
+    idOf: (m) => m.user_id });
   // useCursorList gộp theo `id`: dòng thành viên dùng user_id làm khoá
   const items = useMemo(() => list.items.filter((m) => !gone.has(m.user_id)), [list.items, gone]);
 
   const counts = useQuery({
     queryKey: classKey(courseId, "counts"),
     queryFn: async ({ signal }): Promise<MemberCounts> =>
-      (await apiClient.get<{ counts: MemberCounts }>(`/courses/${courseId}/members`, { signal, query: { limit: 1, status: "ACTIVE", role: "STUDENT" } })).data.counts,
-  });
+      (await apiClient.get<{ counts: MemberCounts }>(`/courses/${courseId}/members`, { signal, query: { limit: 1, status: "ACTIVE", role: "STUDENT" } })).data.counts });
   // Việc của mình làm xong thì "Hôm nay" cũng làm mới ngay (máy chủ xoá cache theo sự kiện ≤ 2 s).
   const refresh = async () => {
     await qc.invalidateQueries({ queryKey: classKey(courseId) });
@@ -108,8 +106,7 @@ function Members({ courseId, canManage }: { courseId: string; canManage: boolean
         undo: () => {
           show(ok.map((r) => r.user_id));
           void Promise.allSettled(ok.map((r) => apiClient.post(path(r.user_id, "/undo")))).then(() => refresh());
-        },
-      });
+        } });
     }
     await refresh();
   }
@@ -124,8 +121,7 @@ function Members({ courseId, canManage }: { courseId: string; canManage: boolean
         undo: () => {
           show([m.user_id]);
           void apiClient.post(path(m.user_id, "/undo")).then(() => refresh(), () => refresh());
-        },
-      });
+        } });
     } catch (e) {
       show([m.user_id]);
       setError(fail(e));
@@ -171,18 +167,14 @@ function Members({ courseId, canManage }: { courseId: string; canManage: boolean
           return <OverflowMenu label={`Thao tác cho ${m.full_name}`} items={[{ label: "Mời ra khỏi lớp", danger: true, onSelect: () => void remove(m) }]} />;
         }
         return null;
-      },
-    },
+      } },
   ];
   const cols = tab === "staff" ? columns.filter((c) => c.key !== "code" && c.key !== "via" && c.key !== "action") : columns;
 
   const pendingCount = counts.data?.pending;
   return (
-    <Page width="wide">
-      <PageHeader
-        title="Thành viên lớp"
-        actions={<ButtonLink href="/class/settings">Mã và cài đặt tham gia</ButtonLink>}
-      />
+    <Page kind="work">
+      <PageHeader title="Thành viên lớp" secondary={[{ label: "Mã và cài đặt tham gia", href: "/class/settings" }]} />
       <Tabs
         label="Thành viên lớp"
         value={tab}
@@ -263,9 +255,9 @@ function Members({ courseId, canManage }: { courseId: string; canManage: boolean
               selection={tab === "pending" ? { selected, onChange: (next) => setSelected(new Set([...next].filter((id) => items.find((m) => m.user_id === id)?.warning !== "EMAIL_MISMATCH"))) } : undefined}
               empty={
                 tab === "pending" ? (
-                  <EmptyState title="Chưa có yêu cầu nào chờ duyệt.">Khi sinh viên vào lớp bằng mã mà lớp cần duyệt, yêu cầu sẽ hiện ở đây.</EmptyState>
+                  <EmptyState title="Chưa có yêu cầu nào chờ duyệt." />
                 ) : (
-                  <EmptyState title="Chưa có thành viên khớp.">Chia sẻ mã tham gia ở “Mã và cài đặt tham gia” để sinh viên vào lớp.</EmptyState>
+                  <EmptyState title="Chưa có thành viên khớp." />
                 )
               }
               pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
@@ -287,8 +279,7 @@ function Staff({
   onChanged,
   setLine,
   setError,
-  fail,
-}: {
+  fail }: {
   courseId: string;
   items: Item[];
   loading: boolean;
@@ -301,8 +292,7 @@ function Staff({
   const [pick, setPick] = useState("");
   const cand = useQuery({
     queryKey: classKey(courseId, "candidates", term),
-    queryFn: async ({ signal }) => (await apiClient.get<{ items: Candidate[] }>(`/courses/${courseId}/assistant-candidates`, { signal, query: { q: term || undefined } })).data.items,
-  });
+    queryFn: async ({ signal }) => (await apiClient.get<{ items: Candidate[] }>(`/courses/${courseId}/assistant-candidates`, { signal, query: { q: term || undefined } })).data.items });
   const have = new Set(items.map((m) => m.user_id));
   const options = (cand.data ?? []).filter((c) => !have.has(c.id));
 
@@ -342,7 +332,7 @@ function Staff({
       {loading ? (
         <Skeleton lines={3} />
       ) : items.length === 0 ? (
-        <EmptyState title="Lớp chưa có trợ giảng.">Thêm trợ giảng để họ cùng duyệt yêu cầu và trả lời sinh viên.</EmptyState>
+        <EmptyState title="Lớp chưa có trợ giảng." />
       ) : (
         <DataTable
           caption="Trợ giảng của lớp"
@@ -353,8 +343,7 @@ function Staff({
               header: "",
               align: "end",
               width: "120px",
-              render: (m: Item) => <Button size="sm" variant="ghost" onClick={() => void put(current.filter((x) => x !== m.user_id), `Đã bớt ${m.full_name}`, current)}>Bớt</Button>,
-            },
+              render: (m: Item) => <Button size="sm" variant="ghost" onClick={() => void put(current.filter((x) => x !== m.user_id), `Đã bớt ${m.full_name}`, current)}>Bớt</Button> },
           ]}
           rows={items}
           rowKey={(m) => m.user_id}

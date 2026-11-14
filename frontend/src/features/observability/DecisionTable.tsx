@@ -23,7 +23,6 @@ export function DecisionTable() {
 
   return (
     <Section
-      panel
       title="Quyết định nhanh"
       part="decision-observability"
       action={<SegmentedControl label="Cửa sổ thời gian" value={window} onChange={setWindow} options={[{ value: "24h", label: "24 giờ" }, { value: "7d", label: "7 ngày" }]} />}

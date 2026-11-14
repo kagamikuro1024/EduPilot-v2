@@ -51,14 +51,14 @@ export function PracticeRun({ attemptId }: { attemptId: string }) {
   }, [key, attemptId, nonce]);
 
   const back = { href: "/practice", label: "Luyện đề" };
-  if (c.state === "none") return <Page><PageHeader title="Làm bài" back={back} /><Panel><EmptyState title="Chưa có lớp">Vào lớp bằng mã lớp để luyện đề.</EmptyState></Panel></Page>;
-  if (load.kind === "loading") return <Page><PageHeader title="Làm bài" back={back} /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (c.state === "none") return <Page kind="read"><PageHeader title="Làm bài" back={back} /><Panel><EmptyState title="Chưa có lớp" /></Panel></Page>;
+  if (load.kind === "loading") return <Page kind="read"><PageHeader title="Làm bài" back={back} /><Panel><Skeleton lines={6} /></Panel></Page>;
   if (load.kind === "error") {
     const gone = load.error instanceof ApiError && (load.error.status === 404 || load.error.status === 403);
     return (
-      <Page>
+      <Page kind="read">
         <PageHeader title="Làm bài" back={back} />
-        {gone ? <Panel><EmptyState title="Không tìm thấy lượt luyện">Lượt này không có hoặc không phải của bạn.</EmptyState></Panel> : <ApiErrorNotice error={load.error} onRetry={() => { setLoad({ kind: "loading" }); setNonce((n) => n + 1); }} />}
+        {gone ? <Panel><EmptyState title="Không tìm thấy lượt luyện" /></Panel> : <ApiErrorNotice error={load.error} onRetry={() => { setLoad({ kind: "loading" }); setNonce((n) => n + 1); }} />}
       </Page>
     );
   }

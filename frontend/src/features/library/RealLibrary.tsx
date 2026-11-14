@@ -30,7 +30,7 @@ export function RealLibrary({ courseId }: { courseId: string }) {
   }
 
   return (
-    <Page width="full">
+    <Page kind="work">
       <PageHeader title="Thư viện" />
       <div className={r.filters} role="search">
         <Field label="Tìm tài liệu">{(id) => <Input id={id} type="search" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} placeholder="AES, chữ ký số, quy chế…" autoFocus />}</Field>
@@ -56,7 +56,7 @@ export function RealLibrary({ courseId }: { courseId: string }) {
         query={list}
         isEmpty={() => list.items.length === 0}
         loading={<Panel><Skeleton lines={6} /></Panel>}
-        empty={<Panel><EmptyState title={filtered ? "Không có tài liệu nào khớp." : "Chưa có tài liệu nào."}>{filtered && <Button variant="primary" onClick={() => setF({ q: "", type: "", week: "" })}>Xoá bộ lọc</Button>}</EmptyState></Panel>}
+        empty={<Panel><EmptyState title={filtered ? "Không có tài liệu nào khớp." : "Chưa có tài liệu nào."} /></Panel>}
       >
         <Panel>
           <ActionList label="Tài liệu của lớp">

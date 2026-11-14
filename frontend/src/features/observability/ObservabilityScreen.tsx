@@ -83,14 +83,11 @@ export function ObservabilityScreen() {
   }
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader
         title="Quan sát AI"
         meta={
-          <>
-            <span>Thứ Năm, 29 tháng 10 · 09:20</span>
-            <span>{isAdmin ? "Toàn hệ thống" : course.label}</span>
-          </>
+          [<span key="m0">Thứ Năm, 29 tháng 10 · 09:20</span>, <span key="m1">{isAdmin ? "Toàn hệ thống" : course.label}</span>]
         }
       />
 
@@ -105,16 +102,15 @@ export function ObservabilityScreen() {
             </div>
           </Panel>
         }
-        empty={<Panel><EmptyState title="Chưa có yêu cầu nào trong hôm nay">Khi sinh viên hỏi hoặc việc nền chạy, mỗi yêu cầu gửi tới model sẽ xuất hiện ở đây kèm độ trễ và kết quả.</EmptyState></Panel>}
+        empty={<Panel><EmptyState title="Chưa có yêu cầu nào trong hôm nay" /></Panel>}
         error={{
           problem: "Không đọc được số liệu quan sát trong 5 phút gần nhất.",
-          recovery: "Việc ghi nhật ký vẫn chạy, không mất dữ liệu. Thử lại; nếu vẫn lỗi, xem hàng chờ xử lý lỗi trước khi đổi cấu hình.",
         }}
       >
         <TodayLine items={STATUS_STRIP} />
 
         {!isAdmin && (
-          <Section panel title={`Lớp ${course.code} trong 7 ngày`}>
+          <Section title={`Lớp ${course.code} trong 7 ngày`}>
             <DataTable
               caption="Số liệu 7 ngày của lớp"
               columns={[
@@ -129,7 +125,7 @@ export function ObservabilityScreen() {
           </Section>
         )}
 
-        <Section panel
+        <Section
           title={`${rows.length} yêu cầu gần nhất`}
           action={
             <SegmentedControl

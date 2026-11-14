@@ -58,6 +58,8 @@
   --ep-sidebar: 216px;
   --ep-sidebar-collapsed: 72px;
   --ep-topbar: 56px;
+  --ep-page-work: 100rem; /* trần của Page kind="work" (DESIGN.md §23.1): chỉ ui/Layout.module.css đọc */
+  --ep-page-read: 50rem; /* cột đọc 800 px của Page kind="read", căn giữa */
 
   /* Nền mờ sau hộp thoại — chỉ dùng cho ::backdrop, không dùng cho thanh trên (DESIGN §21). */
   --ep-scrim: color-mix(in oklch, var(--ep-ink) 28%, transparent);

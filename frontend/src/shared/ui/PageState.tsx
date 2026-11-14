@@ -18,14 +18,16 @@ export function useRouteState(): RouteState | null {
 
 /**
  * Bao vùng nội dung của một route. Khi URL có `?state=…` thay `children` bằng trạng thái tương ứng:
- * loading = `loading` (skeleton đúng hình, mặc định 4 dòng), empty = `empty` (câu dạy bước kế + một hành động),
- * error = lỗi chuẩn "vấn đề + cách khắc phục" kèm `Thử lại` (bỏ tham số). Truyền `state` để ép trạng thái thật.
+ * loading = `loading` (skeleton đúng hình, mặc định 5 dòng), empty = `empty` (`EmptyState`: tiêu đề + tối đa một nút, DESIGN.md §23.4),
+ * error = MỘT dòng nói chuyện gì hỏng + `Thử lại` (§23.5; thêm «Chữ bạn đã nhập vẫn còn» chỉ khi màn đang giữ chữ chưa lưu: `unsaved`).
+ * Truyền `state` để ép trạng thái thật.
  */
 export function PageState({
   children,
   loading,
   empty,
   error,
+  unsaved,
   state,
   query,
   isEmpty,
@@ -35,8 +37,10 @@ export function PageState({
   loading?: ReactNode;
   /** nội dung rỗng; thường là <EmptyState title action>…</EmptyState> */
   empty?: ReactNode;
-  /** thay lỗi chuẩn bằng câu riêng của màn: { problem, recovery } */
-  error?: { problem: ReactNode; recovery: ReactNode };
+  /** thay câu lỗi chuẩn bằng câu riêng của màn: một dòng nói chuyện gì hỏng */
+  error?: { problem: ReactNode };
+  /** màn đang giữ chữ người dùng chưa lưu: thêm «Chữ bạn đã nhập vẫn còn» (P-107-3) */
+  unsaved?: boolean;
   state?: RouteState | null;
   /** truy vấn thật (TanStack Query): isPending → khung xương; isError → lỗi chuẩn từ ApiError + Thử lại gọi refetch; rỗng → `empty` */
   query?: { isPending: boolean; isError: boolean; error: unknown; data: unknown; refetch: () => unknown; isRefetching?: boolean };
@@ -52,24 +56,24 @@ export function PageState({
     if (query.isError) {
       return <ApiErrorNotice error={query.error} showTechnical={showTechnical} onRetry={() => void query.refetch()} />;
     }
-    if (isEmpty?.(query.data)) return <>{empty ?? <EmptyState title="Chưa có gì ở đây">Khi có dữ liệu, nó sẽ xuất hiện tại đây.</EmptyState>}</>;
+    if (isEmpty?.(query.data)) return <>{empty ?? <EmptyState title="Chưa có dữ liệu" />}</>;
     return <>{children}</>;
   }
   const s = state === undefined ? fromUrl : state;
   if (s === "loading") return <>{loading ?? <Skeleton lines={5} />}</>;
-  if (s === "empty") return <>{empty ?? <EmptyState title="Chưa có gì ở đây">Khi có dữ liệu, nó sẽ xuất hiện tại đây.</EmptyState>}</>;
+  if (s === "empty") return <>{empty ?? <EmptyState title="Chưa có dữ liệu" />}</>;
   if (s === "error") {
     return (
       <InlineNotice
         tone="danger"
-        title={error?.problem ?? "Không tải được nội dung này."}
+        title={error?.problem ?? "Không tải được nội dung"}
         action={
           <Button size="sm" icon={<RefreshCw aria-hidden />} onClick={() => router.replace(pathname)}>
             Thử lại
           </Button>
         }
       >
-        {error?.recovery ?? "Kết nối vẫn được giữ và chữ bạn đã nhập không bị mất. Thử lại, hoặc quay lại sau ít phút."}
+        {unsaved ? "Chữ bạn đã nhập vẫn còn" : null}
       </InlineNotice>
     );
   }

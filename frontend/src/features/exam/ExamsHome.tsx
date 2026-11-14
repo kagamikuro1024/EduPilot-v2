@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ApiErrorNotice, apiClient, fieldErrors, useCursorList, useIdempotentMutation } from "@/shared/data";
@@ -22,13 +22,13 @@ export function ExamsHome() {
 
 function StaffExams() {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Bài thi" /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (cc.state === "loading") return <Page kind="work"><PageHeader title="Bài thi" /><Panel><Skeleton lines={6} /></Panel></Page>;
   if (cc.state === "none")
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Bài thi" />
         <Panel>
-          <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem bài thi của lớp.</EmptyState>
+          <EmptyState title="Chưa chọn lớp" />
         </Panel>
       </Page>
     );
@@ -46,15 +46,8 @@ function Board({ courseId }: { courseId: string }) {
   const [creating, setCreating] = useState(false);
   const list = useCursorList<ExamRow>(eKey(courseId, "list"), ePath(courseId), { limit: 100 });
   return (
-    <Page width="wide">
-      <PageHeader
-        title="Bài thi"
-        actions={
-          <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setCreating(true)} aria-expanded={creating}>
-            Tạo bài thi
-          </Button>
-        }
-      />
+    <Page kind="work">
+      <PageHeader title="Bài thi" primary={{ label: "Tạo bài thi", icon: <Plus aria-hidden />, onClick: () => setCreating(true), expanded: creating }} />
       {creating && <NewExam courseId={courseId} onCancel={() => setCreating(false)} />}
       <PageState
         query={list}
@@ -62,9 +55,7 @@ function Board({ courseId }: { courseId: string }) {
         loading={<Panel><ActionList loading={5} label="Đang tải bài thi" /></Panel>}
         empty={
           <Panel>
-            <EmptyState title="Chưa có bài thi nào" icon={<ClipboardList aria-hidden />} action={creating ? undefined : <Button variant="primary" onClick={() => setCreating(true)}>Tạo bài thi</Button>}>
-              Chưa có bài thi nào. Tạo bài thi đầu tiên từ ngân hàng câu hỏi.
-            </EmptyState>
+            <EmptyState title="Chưa có bài thi nào" action={creating ? undefined : <Button variant="primary" onClick={() => setCreating(true)}>Tạo bài thi</Button>} />
           </Panel>
         }
         showTechnical
@@ -73,7 +64,7 @@ function Board({ courseId }: { courseId: string }) {
           const rows = list.items.filter(g.of).sort(g.order);
           if (rows.length === 0) return null;
           return (
-            <Section key={g.title} title={g.title} panel>
+            <Section key={g.title} title={g.title}>
               <ActionList label={g.title}>
                 {rows.map((e) => (
                   <ActionRow
@@ -127,19 +118,19 @@ function NewExam({ courseId, onCancel }: { courseId: string; onCancel: () => voi
 
 function StudentExams() {
   const { realCourses, realCourseId } = useSession();
-  if (!realCourses) return <Page><PageHeader title="Bài thi" /><Panel><Skeleton lines={5} /></Panel></Page>;
+  if (!realCourses) return <Page kind="read"><PageHeader title="Bài thi" /><Panel><Skeleton lines={5} /></Panel></Page>;
   const mine = realCourses.filter((c) => c.role_in_course === "STUDENT" && (realCourseId === "all" || realCourseId === c.id || !realCourseId));
   if (mine.length === 0)
     return (
-      <Page>
+      <Page kind="read">
         <PageHeader title="Bài thi" />
         <Panel>
-          <EmptyState title="Chưa có bài thi">Lớp của bạn chưa có bài thi nào.</EmptyState>
+          <EmptyState title="Chưa có bài thi" />
         </Panel>
       </Page>
     );
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader title="Bài thi" />
       {mine.map((c) => (
         <CourseExams key={c.id} courseId={c.id} code={mine.length > 1 ? c.class_code : undefined} />
@@ -178,13 +169,13 @@ function CourseExams({ courseId, code }: { courseId: string; code?: string }) {
       query={list}
       isEmpty={() => list.items.length === 0}
       loading={<Panel><ActionList loading={3} label="Đang tải bài thi" /></Panel>}
-      empty={<Panel><EmptyState title={code ? `Lớp ${code}` : "Chưa có bài thi"}>Lớp của bạn chưa có bài thi nào.</EmptyState></Panel>}
+      empty={<Panel><EmptyState title={code ? `Lớp ${code}` : "Chưa có bài thi"} /></Panel>}
     >
       {STUDENT_GROUPS.map((g) => {
         const rows = list.items.filter(g.of).sort(g.order);
         if (rows.length === 0) return null;
         return (
-          <Section key={g.title} title={code ? `${g.title} · lớp ${code}` : g.title} panel>
+          <Section key={g.title} title={code ? `${g.title} · lớp ${code}` : g.title}>
             <ActionList label={g.title}>
               {rows.map((e) => {
                 const act = actionFor(e);

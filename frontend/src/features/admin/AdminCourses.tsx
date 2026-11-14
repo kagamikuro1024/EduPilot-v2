@@ -78,17 +78,11 @@ export function AdminCourses() {
   ];
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader
         title="Lớp học"
-        meta={list.isPending ? undefined : <span>{running} lớp đang chạy</span>}
-        actions={
-          panel ? undefined : (
-            <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => { setLine(null); setPanel({ kind: "open" }); }}>
-              Mở lớp
-            </Button>
-          )
-        }
+        meta={[list.isPending ? undefined : <span key="m0">{running} lớp đang chạy</span>]}
+        primary={panel ? undefined : { label: "Mở lớp", icon: <Plus aria-hidden />, onClick: () => { setLine(null); setPanel({ kind: "open" }); } }}
       />
 
       {panel && (
@@ -114,9 +108,7 @@ export function AdminCourses() {
             rows={list.items}
             rowKey={(c) => c.id}
             empty={
-              <EmptyState title="Chưa có lớp nào. Mở lớp đầu tiên." action={panel ? undefined : <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setPanel({ kind: "open" })}>Mở lớp</Button>}>
-                Mở lớp rồi gán giảng viên; giảng viên nhận thông báo kèm mã tham gia và tự mời sinh viên.
-              </EmptyState>
+              <EmptyState title="Chưa có lớp nào. Mở lớp đầu tiên." action={panel ? undefined : <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setPanel({ kind: "open" })}>Mở lớp</Button>} />
             }
             pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
           />

@@ -7,8 +7,7 @@
   padding: var(--ep-space-6);
   min-width: 0;
 }
-.lg { padding: var(--ep-space-8); }
-.none { padding: 0; }
+.panel:has(> [data-ep-split="list-detail"]) { padding: 0; overflow: hidden; } /* chia đôi sát mép: chỉ qua Split (DESIGN.md §23.3) */
 
 .section { display: grid; gap: var(--ep-space-4); min-width: 0; }
 .section + .section { border-top: 1px solid var(--ep-rule); margin-top: var(--ep-space-6); padding-top: var(--ep-space-6); }

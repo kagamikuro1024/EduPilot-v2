@@ -201,8 +201,8 @@ export function RealChat({ courseId }: { courseId: string }) {
 
 
   return (
-    <Page width="full" className={s.page}>
-      <PageHeader title="Chat riêng" actions={hasMessages ? <Button onClick={() => open(null)}>Phiên mới</Button> : undefined} />
+    <Page kind="work">
+      <PageHeader title="Chat riêng" secondary={hasMessages ? [{ label: "Phiên mới", onClick: () => open(null) }] : undefined} />
       <div className={`${s.layout} ${r.layout} ${collapsed ? r.collapsed : ""}`}>
         {!collapsed && (
           <nav className={`${s.history} ${r.flat}`} data-part="chat-history" aria-label="Phiên trước">

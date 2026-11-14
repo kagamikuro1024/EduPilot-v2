@@ -99,15 +99,15 @@ export function RealInbox({ courseId }: { courseId: string }) {
   }, [rows, selected?.id]);
 
   return (
-    <Page width="full" className={s.page}>
-      <PageHeader title="Hộp thư hỗ trợ" meta={<span>{courseLabel}</span>} />
+    <Page kind="work">
+      <PageHeader title="Hộp thư hỗ trợ" meta={[<span key="m0">{courseLabel}</span>]} />
       <PageState
         query={list}
         isEmpty={() => false}
         loading={<Panel><Skeleton lines={10} /></Panel>}
       >
         <div className={s.work}>
-          <Panel padding="none">
+          <Panel>
             <div className={[s.split, picked ? s.showDetail : ""].join(" ")}>
               <section className={s.list} data-part="inbox-list" aria-label="Danh sách câu hỏi" ref={listRef}>
                 <SegmentedControl
@@ -121,9 +121,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
                   options={FILTERS}
                 />
                 {rows.length === 0 ? (
-                  <EmptyState title="Chưa có câu hỏi nào cần thầy/cô xử lý." action={filter !== "all" ? <Button variant="ghost" onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button> : undefined}>
-                    Khi AI không đủ chắc chắn hoặc sinh viên nhờ hỗ trợ, câu sẽ hiện ở đây.
-                  </EmptyState>
+                  <EmptyState title="Chưa có câu hỏi nào cần thầy/cô xử lý." action={filter !== "all" ? <Button variant="ghost" onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button> : undefined} />
                 ) : (
                   <ActionList label="Câu hỏi cần xử lý">
                     {rows.map((t) => (

@@ -27,7 +27,7 @@ export function RemindersSection() {
     onError: () => qc.invalidateQueries({ queryKey: KEY }),
   });
   return (
-    <Section title="Nhắc trước 24 giờ" panel>
+    <Section title="Nhắc trước 24 giờ">
       <PageState query={q}>
         {save.isError && <ApiErrorNotice error={save.error} />}
         {ROWS.map(([k, label]) => (

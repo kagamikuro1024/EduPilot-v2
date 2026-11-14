@@ -25,7 +25,7 @@ const columns: Column<FailedMailRow>[] = [
 export function FailedMail() {
   const list = useCursorList<FailedMailRow>(["admin", "failed-mail"], "/admin/observability/failed-mail", { limit: 30 });
   return (
-    <Section panel title="Thư chưa gửi được">
+    <Section title="Thư chưa gửi được">
       <PageState query={list} isEmpty={() => list.items.length === 0} loading={<Skeleton lines={3} />} empty={<EmptyState title="Không có thư lỗi." />}>
         <DataTable caption="Thư chưa gửi được, mới nhất trước" columns={columns} rows={list.items} rowKey={(r) => r.id} dense />
         {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}

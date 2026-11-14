@@ -60,7 +60,7 @@ export function ExamItems({ courseId, detail, onSaved }: { courseId: string; det
     <div className={s.itemsTab}>
       {!draft && <InlineNotice compact>Bài đã lên lịch nên danh sách câu không sửa được. Muốn đổi, nhân bản bài thành bản nháp mới.</InlineNotice>}
       {rows.length === 0 ? (
-        <EmptyState title="Chưa có câu hỏi nào">Chưa có câu nào trong bài. Chọn câu đã duyệt từ ngân hàng câu hỏi.</EmptyState>
+        <EmptyState title="Chưa có câu hỏi nào" />
       ) : (
         <>
           <ol className={s.items} aria-label="Câu hỏi của bài thi">
@@ -153,7 +153,7 @@ function Picker({ courseId, taken, onClose, onPick }: { courseId: string; taken:
         ) : list.isError ? (
           <ApiErrorNotice error={list.error} onRetry={() => void list.refetch()} showTechnical />
         ) : list.items.length === 0 ? (
-          <EmptyState title="Không có câu phù hợp">{q ? "Thử từ khoá khác." : "Chưa có câu nào được duyệt. Duyệt câu ở Ngân hàng câu hỏi trước."}</EmptyState>
+          <EmptyState title="Không có câu phù hợp" />
         ) : (
           <ul className={s.pickList} aria-label="Câu đã duyệt">
             {list.items.filter((r) => r.type !== "SHORT" && r.type !== "ESSAY").map((r) => ( // trả lời ngắn / tự luận chỉ để luyện đề, không vào bài thi tính điểm

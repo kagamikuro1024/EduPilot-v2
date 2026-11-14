@@ -10,8 +10,8 @@ import s from "./Practice.module.css";
 /** Lịch sử luyện tập: nhìn ra chủ đề cần luyện tiếp (DESIGN §14.20). */
 export function PracticeHistory() {
   const c = useStudentCourse();
-  if (c.state === "loading") return <Page><PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} /><Panel><Skeleton lines={6} /></Panel></Page>;
-  if (c.state === "none") return <Page><PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} /><Panel><EmptyState title="Chưa có lớp">Vào lớp bằng mã lớp để luyện đề.</EmptyState></Panel></Page>;
+  if (c.state === "loading") return <Page kind="read"><PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (c.state === "none") return <Page kind="read"><PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} /><Panel><EmptyState title="Chưa có lớp" /></Panel></Page>;
   return <History courseId={c.id} />;
 }
 
@@ -20,16 +20,16 @@ function History({ courseId }: { courseId: string }) {
   const weak = useQuery({ queryKey: pKey(courseId, "weakness"), queryFn: ({ signal }) => getWeakness(courseId, signal) });
   const topics = weak.data?.topics ?? [];
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} />
       <PageState
         query={list}
         isEmpty={() => list.items.length === 0}
         loading={<Panel><Skeleton lines={6} /></Panel>}
-        empty={<Panel><EmptyState title="Chưa có lượt luyện nào" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>Sau lượt đầu tiên, bạn sẽ thấy ở đây mình hay sai chủ đề nào.</EmptyState></Panel>}
+        empty={<Panel><EmptyState title="Chưa có lượt luyện nào" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>} /></Panel>}
       >
         {topics.length > 0 && (
-          <Section panel title="Chủ đề bạn hay sai">
+          <Section title="Chủ đề bạn hay sai">
             <div className={s.weak}>
               <BarList items={topics.map((w) => ({ label: w.topic, value: Math.round((w.wrong / w.answered) * 100), tone: w.wrong / w.answered >= 0.5 ? "red" : "ink" }))} max={100} format={(v) => `${v}% sai`} />
             </div>
@@ -42,7 +42,7 @@ function History({ courseId }: { courseId: string }) {
           </Section>
         )}
 
-        <Section panel title="Các lượt đã làm">
+        <Section title="Các lượt đã làm">
           <ActionList label="Lượt luyện tập">
             {list.items.map((r) => {
               const share = r.correct === null ? null : r.correct / r.item_count;

@@ -45,7 +45,7 @@ export function RealMe({ courseId }: { courseId: string }) {
   const stage = useStages(seen, 2);
   const failed = (!att.data && att.isError) || (!part.data && part.isError);
   return (
-    <Page className={s.stack}>
+    <Page kind="read">
       <PageHeader title="Kết quả của tôi" />
       {failed ? (
         <ApiErrorNotice error={att.error ?? part.error} showTechnical onRetry={retry} title="Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất." />
@@ -82,7 +82,6 @@ function Fold({ title, part, children }: { title: string; part?: string; childre
   const open = wide || (manual ?? false);
   return (
     <Section
-      panel={open}
       title={title}
       part={part}
       action={!wide && <Button size="sm" variant="ghost" aria-expanded={open} onClick={() => setManual(!open)}>{open ? "Gập" : "Mở"}</Button>}
@@ -94,7 +93,7 @@ function Fold({ title, part, children }: { title: string; part?: string; childre
 
 /** Bài tập đã công bố của lớp: tên · hạn · trạng thái bằng chữ, mở sang `/assignments/{id}` (US-P7-03 AC10). */
 function Assignments({ courseId, list }: { courseId: string; list: ReturnType<typeof useMyAssignments> }) {
-  if (list.isPending) return <Section panel title="Bài tập" part="me-assignments"><ActionList label="Bài tập" loading={2} /></Section>;
+  if (list.isPending) return <Section title="Bài tập" part="me-assignments"><ActionList label="Bài tập" loading={2} /></Section>;
   if (list.isError) return null; // lỗi của khối phụ không che các khối đã tải
   return (
     <Fold title="Bài tập" part="me-assignments">
@@ -120,7 +119,7 @@ function Assignments({ courseId, list }: { courseId: string; list: ReturnType<ty
 function Attendance({ a }: { a: MyAttendance["attendance"] }) {
   const missed = a.sessions.filter((x) => x.status !== "PRESENT");
   return (
-    <Section panel title="Chuyên cần">
+    <Section title="Chuyên cần">
       {a.recorded === 0 ? (
         <EmptyState title="Chưa có buổi nào được điểm danh." />
       ) : (
@@ -147,7 +146,7 @@ function groupEvents(events: MyParticipation["participation"]["events"]) {
 
 function Participation({ p }: { p: MyParticipation["participation"] }) {
   return (
-    <Section panel title="Điểm cộng đã ghi">
+    <Section title="Điểm cộng đã ghi">
       {p.events.length === 0 && p.speak_count === 0 ? (
         <EmptyState title="Chưa có điểm cộng nào được ghi." />
       ) : (
@@ -162,7 +161,7 @@ function Participation({ p }: { p: MyParticipation["participation"] }) {
 
 /** Xu hướng 8 tuần chỉ để tham khảo: không "mục tiêu", không so sánh, không tô đỏ tuần thấp (US-P5-06 AC5). */
 function StudyTrend({ t }: { t: MyStudyTime }) {
-  if (!t.tracking.enabled) return <Section panel title="Thời gian học"><p className={s.sub}>Đang tắt</p></Section>;
+  if (!t.tracking.enabled) return <Section title="Thời gian học"><p className={s.sub}>Đang tắt</p></Section>;
   if (t.weeks.length === 0) return null;
   return (
     <Fold title="Thời gian học">

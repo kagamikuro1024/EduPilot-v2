@@ -31,7 +31,7 @@ export function StudyTimeSection() {
   const st = q.data?.study_time;
   if (!st?.acked || st.courses.length === 0) return null;
   return (
-    <Section title="Thời gian học" panel>
+    <Section title="Thời gian học">
       {save.isError && <ApiErrorNotice error={save.error} />}
       {st.courses.map((c) => (
         <Switch

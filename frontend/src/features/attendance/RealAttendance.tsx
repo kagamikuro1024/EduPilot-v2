@@ -7,7 +7,7 @@ import { AttendanceGrid, type AttendanceGridRow } from "@/shared/domain/Attendan
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useSchemeStatus, useSchemes } from "../gradebook/gradeApi";
-import { formatWhen } from "@/shared/lib/datetime";
+import { } from "@/shared/lib/datetime";
 import { dayLabel, fmtDM, fmtHM } from "../calendar/calendarApi";
 import { sessionsKey, useSessions, type SessionRow } from "../calendar/sessionsApi";
 import { labelOf, useGrid, type Grid } from "./attendanceApi";
@@ -52,11 +52,11 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
     </label>
   );
 
-  if (list.isPending) return <Page width="wide"><PageHeader title="Điểm danh" /><Panel><Skeleton lines={10} /></Panel></Page>;
-  if (list.isError) return <Page width="wide"><PageHeader title="Điểm danh" /><PageState query={{ isPending: false, isError: true, error: list.error, data: null, refetch: list.refetch }}>{null}</PageState></Page>;
+  if (list.isPending) return <Page kind="work"><PageHeader title="Điểm danh" /><Panel><Skeleton lines={10} /></Panel></Page>;
+  if (list.isError) return <Page kind="work"><PageHeader title="Điểm danh" /><PageState query={{ isPending: false, isError: true, error: list.error, data: null, refetch: list.refetch }}>{null}</PageState></Page>;
   if (!current) {
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Điểm danh" />
         <Panel>
           <EmptyState title="Lớp chưa có lịch buổi học." action={<ButtonLink href="/calendar" variant="primary">Tạo lịch buổi học</ButtonLink>} />
@@ -65,7 +65,7 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
     );
   }
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageState
         query={{ isPending: grid.isPending, isError: grid.isError, error: grid.error, data: grid.data, refetch: grid.refetch }}
         loading={<><PageHeader title="Điểm danh" /><Panel><Skeleton lines={10} /></Panel></>}
@@ -138,14 +138,7 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
     <div className={s.sheet}>
       <PageHeader
         title="Điểm danh"
-        description={`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`}
-        actions={
-          <span className={s.desktopOnly}>
-            <Button variant={saved ? "secondary" : "primary"} disabled={saved || a.conflicts.length > 0} onClick={() => void complete()}>
-              {saved ? "Đã lưu" : "Lưu điểm danh"}
-            </Button>
-          </span>
-        }
+        primary={{ label: saved ? "Đã lưu" : "Lưu điểm danh", disabled: saved || a.conflicts.length > 0, onClick: () => void complete(), desktopOnly: true }}
       />
       <Panel>
         <Toolbar end={<span data-part="att-save-state">{state}</span>}>{picker}</Toolbar>

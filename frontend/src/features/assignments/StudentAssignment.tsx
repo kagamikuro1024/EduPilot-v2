@@ -34,17 +34,10 @@ export function StudentAssignment({ courseId, id }: { courseId: string; id: stri
   const [now] = useState(() => Date.now());
   const a = q.data?.assignment;
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader
         title={a?.title ?? "Bài tập"}
-        meta={
-          a ? (
-            <>
-              <span>{fmtLong(a.due_at)}</span>
-              <span data-part="due-left">{dueLabel(a.due_at, now)}</span>
-            </>
-          ) : undefined
-        }
+        meta={a ? [<span key="m0">{fmtLong(a.due_at)}</span>, <span key="m1" data-part="due-left">{dueLabel(a.due_at, now)}</span>] : undefined}
       />
       <Panel>
         <PageState query={{ isPending: q.isPending, isError: q.isError, error: q.error, data: q.data, refetch: q.refetch }} loading={<Skeleton lines={8} />}>

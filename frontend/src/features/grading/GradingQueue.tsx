@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
-import { Button, EmptyState, Page, PageHeader, Panel, Tabs } from "@/shared/ui";
+import { EmptyState, Page, PageHeader, Panel, Tabs } from "@/shared/ui";
 import { AssignmentsTab } from "@/features/assignments/AssignmentsTab";
 import { useSession } from "@/shared/session/session";
 import { QueueTab } from "./QueueTab";
@@ -25,17 +25,8 @@ export function GradingQueue() {
   const teacher = role === "teacher";
 
   return (
-    <Page width="wide">
-      <PageHeader
-        title="Chấm bài"
-        actions={
-          tab === "assignments" && teacher ? (
-            <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setCreating(true)}>
-              Tạo bài tập
-            </Button>
-          ) : undefined
-        }
-      />
+    <Page kind="work">
+      <PageHeader title="Chấm bài" primary={tab === "assignments" && teacher ? { label: "Tạo bài tập", icon: <Plus aria-hidden />, onClick: () => setCreating(true) } : undefined} />
 
       <div className={s.tabsRow}>
         <Tabs

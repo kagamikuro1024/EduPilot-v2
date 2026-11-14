@@ -4,7 +4,7 @@ import { Page, PageHeader, Section, ActionList, ActionRow, BarList, Button, Butt
 import { Markdown } from "@/shared/domain";
 import { EssayFeedbackBlock, ExplainMore } from "./Extras";
 import { answerKeyText, givenText, type PAttempt, type PItem } from "./practiceApi";
-import { fmtWhen } from "@/features/exam/examApi";
+import { } from "@/features/exam/examApi";
 import s from "./Practice.module.css";
 
 const sc = (v: string) => v.replace(".", ",");
@@ -19,17 +19,16 @@ export function PracticeResult({ courseId, attempt, onAgain }: { courseId: strin
   const title = total > 0 && right === total ? `Bạn đúng cả ${total} câu` : `Bạn đúng ${right}/${total} câu`;
   const name = attempt.mode === "MOCK" ? "Thi thử" : attempt.topic;
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader
         title={title}
         back={{ href: "/practice", label: "Luyện đề" }}
-        description={`${name} · ${fmtWhen(attempt.started_at)}${r ? ` · quy đổi ${sc(r.score)}/10` : ""}`}
       />
       {r?.expired && <InlineNotice tone="warning" compact>Hết giờ — bài được nộp theo các câu đã lưu.</InlineNotice>}
       {attempt.notes.length > 0 && <InlineNotice compact>{attempt.notes.join(" ")}</InlineNotice>}
 
       {r && r.topics.length > 1 && (
-        <Section panel title="Theo chủ đề">
+        <Section title="Theo chủ đề">
           <div className={s.weak}>
             <BarList items={r.topics.map((t) => ({ label: `${t.topic} · ${t.correct}/${t.total}`, value: Math.round((t.correct / t.total) * 100), tone: t.correct / t.total < 0.5 ? "red" : "ink" }))} max={100} format={(v) => `${v}% đúng`} />
           </div>
@@ -37,7 +36,7 @@ export function PracticeResult({ courseId, attempt, onAgain }: { courseId: strin
       )}
 
       {wrong.length > 0 && (
-        <Section panel title={`Câu cần ôn (${wrong.length})`}>
+        <Section title={`Câu cần ôn (${wrong.length})`}>
           <ol className={s.review}>
             {wrong.map((it) => (
               <Review key={it.id} courseId={courseId} attempt={attempt.id} it={it} no={it.position + 1} />
@@ -47,7 +46,7 @@ export function PracticeResult({ courseId, attempt, onAgain }: { courseId: strin
       )}
 
       {essays.length > 0 && (
-        <Section panel title="Tự luận">
+        <Section title="Tự luận">
           <ol className={s.review}>
             {essays.map((it) => (
               <li key={it.id} className={s.reviewItem}>
@@ -67,7 +66,7 @@ export function PracticeResult({ courseId, attempt, onAgain }: { courseId: strin
         </Section>
       )}
 
-      <Section panel>
+      <Section>
         <div className={s.rowActions}>
           {r?.weakest_topic && wrong.length > 0 ? <ButtonLink href={`/practice?topic=${encodeURIComponent(r.weakest_topic)}`} variant="primary">Luyện {r.weakest_topic}</ButtonLink> : <ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}
           <ButtonLink href="/practice/history">Lịch sử luyện tập</ButtonLink>

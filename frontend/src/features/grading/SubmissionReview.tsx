@@ -64,24 +64,24 @@ function Review({ courseId, submissionId }: { courseId: string; submissionId: st
   const q = useResult(courseId, submissionId);
   const view = q.data ?? null;
   return (
-    <Page width="full">
+    <Page kind="work">
       <PageHeader
         title={view ? view.assignment.title : "Duyệt bài"}
         back={{ href: "/grading", label: "Hàng chờ chấm" }}
         meta={
-          view ? (
-            <>
-              <span>{`Phiên bản ${view.submission.version}`}</span>
-              <span>
-                {`Nộp ${fmtLong(view.submission.received_at)}`}
-                {view.submission.late_days > 0 ? ` · muộn ${view.submission.late_days} ngày` : ""}
-              </span>
-              <StatusText tone={view.result.status === "PUBLISHED" ? "green" : view.result.status === "REVIEWED" ? "blue" : "amber"}>
-                {view.result.status === "PUBLISHED" ? "Đã công bố" : view.result.status === "REVIEWED" ? "Đã duyệt" : "Chưa duyệt"}
-              </StatusText>
-              <GuidanceMeta courseId={courseId} view={view} />
-            </>
-          ) : undefined
+          view
+            ? [
+                <span key="m0">{`Phiên bản ${view.submission.version}`}</span>,
+                <span key="m1">
+                  {`Nộp ${fmtLong(view.submission.received_at)}`}
+                  {view.submission.late_days > 0 ? ` · muộn ${view.submission.late_days} ngày` : ""}
+                </span>,
+                <StatusText key="m2" tone={view.result.status === "PUBLISHED" ? "green" : view.result.status === "REVIEWED" ? "blue" : "amber"}>
+                  {view.result.status === "PUBLISHED" ? "Đã công bố" : view.result.status === "REVIEWED" ? "Đã duyệt" : "Chưa duyệt"}
+                </StatusText>,
+                <GuidanceMeta key="m3" courseId={courseId} view={view} />,
+              ]
+            : undefined
         }
       />
       {view ? (

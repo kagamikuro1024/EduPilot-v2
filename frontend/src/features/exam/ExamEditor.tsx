@@ -8,8 +8,8 @@ import { ApiError, ApiErrorNotice, apiClient } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
-import { Button, ButtonLink, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, type MenuItem, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Tabs } from "@/shared/ui";
-import { eKey, ePath, fmtClock, fmtWhen, fromInput, KIND_LABEL, STATUS_LABEL, STATUS_TONE, toInput, type ExamDetail, type Problem } from "./examApi";
+import { Button, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, type HeaderAction, Page, PageHeader, PageState, Panel, Skeleton, Tabs } from "@/shared/ui";
+import { eKey, ePath, fmtClock, fmtWhen, fromInput, toInput, type ExamDetail, type Problem } from "./examApi";
 import { ExamInfo } from "./ExamInfo";
 import { ExamItems } from "./ExamItems";
 import { ExamPreview } from "./ExamPreview";
@@ -20,12 +20,12 @@ type Tab = "info" | "items" | "preview";
 /** `/exams/[id]` (Giảng viên / TA): soạn bài thi nháp, lên lịch, gia hạn khi đang mở (US-PE-04 AC12). */
 export function ExamEditor({ id }: { id: string }) {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Panel><Skeleton lines={8} /></Panel></Page>;
+  if (cc.state === "loading") return <Page kind="work"><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Panel><Skeleton lines={8} /></Panel></Page>;
   if (cc.state === "none")
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} />
-        <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để mở bài thi.</EmptyState></Panel>
+        <Panel><EmptyState title="Chưa chọn lớp" /></Panel>
       </Page>
     );
   return <Editor courseId={cc.course.id} id={id} isTeacher={cc.canManage} />;
@@ -110,7 +110,7 @@ function Editor({ courseId, id, isTeacher }: { courseId: string; id: string; isT
 
   if (!d) {
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} />
         <PageState query={q} showTechnical loading={<Panel><Skeleton lines={8} /></Panel>}>
           <Panel><Skeleton lines={8} /></Panel>
@@ -121,43 +121,30 @@ function Editor({ courseId, id, isTeacher }: { courseId: string; id: string; isT
 
   const st = d.effective_status;
   const canUnschedule = isTeacher && d.status === "SCHEDULED" && st === "SCHEDULED" && d.attempts.started === 0;
-  const menu: MenuItem[] = [{ label: "Nhân bản bài thi", hint: "Bản nháp mới, không giờ", onSelect: () => void clone() }];
-  if (isTeacher && (st === "SCHEDULED" || st === "OPEN")) menu.push({ label: "Gia hạn", onSelect: () => setExtending(true) });
-  if (canUnschedule) menu.push({ label: "Bỏ lịch", hint: "Về nháp, thu hồi thông báo", onSelect: () => void unschedule() });
-  if (isTeacher && d.status === "DRAFT") menu.push({ label: "Xoá bài thi nháp", danger: true, onSelect: () => setConfirmDelete(true) });
+  const menu: HeaderAction[] = [{ label: "Nhân bản bài thi", onClick: () => void clone() }];
+  if (isTeacher && (st === "SCHEDULED" || st === "OPEN")) menu.push({ label: "Gia hạn", onClick: () => setExtending(true) });
+  if (canUnschedule) menu.push({ label: "Bỏ lịch", onClick: () => void unschedule() });
+  if (isTeacher && d.status === "DRAFT") menu.push({ label: "Xoá bài thi nháp", danger: true, onClick: () => setConfirmDelete(true) });
 
-  const primary =
-    d.status === "DRAFT" ? (
-      isTeacher ? (
-        <Button variant="primary" onClick={() => void schedule()} loading={busy}>Lên lịch</Button>
-      ) : (
-        <span className={s.noSchedule}>Chỉ giảng viên lên lịch được</span>
-      )
-    ) : st === "OPEN" && isTeacher ? (
-      <Button variant="primary" onClick={() => setExtending(true)} aria-expanded={extending}>Gia hạn</Button>
-    ) : st === "CLOSED" || st === "PUBLISHED" ? (
-      <ButtonLink variant="primary" href={`/exams/${id}/results`}>Xem kết quả</ButtonLink>
-    ) : null;
+  const primary: HeaderAction | undefined =
+    d.status === "DRAFT"
+      ? isTeacher
+        ? { label: "Lên lịch", onClick: () => void schedule(), busy }
+        : undefined
+      : st === "OPEN" && isTeacher
+        ? { label: "Gia hạn", onClick: () => setExtending(true), expanded: extending }
+        : st === "CLOSED" || st === "PUBLISHED"
+          ? { label: "Xem kết quả", href: `/exams/${id}/results` }
+          : undefined;
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader
         title={d.title}
         back={{ href: "/exams", label: "Bài thi" }}
-        description={
-          <span className={s.headMeta}>
-            <StatusText tone={STATUS_TONE[st]}>{STATUS_LABEL[st]}</StatusText>
-            <span>{KIND_LABEL[d.kind]}</span>
-            {d.opens_at && d.closes_at && <span>{fmtClock(d.opens_at)} – {fmtClock(d.closes_at)}</span>}
-            {d.attempts.started > 0 && <span>{d.attempts.started} sinh viên đã bắt đầu</span>}
-          </span>
-        }
-        actions={
-          <>
-            {primary}
-            <OverflowMenu items={menu} label="Thêm hành động cho bài thi" />
-          </>
-        }
+        meta={d.status === "DRAFT" && !isTeacher ? ["Chỉ giảng viên lên lịch được"] : undefined}
+        primary={primary}
+        more={menu}
       />
       {undo.node}
       {err !== null && <ApiErrorNotice error={err} showTechnical onRetry={undefined} />}

@@ -32,8 +32,8 @@ export function RealLibraryDetail({ courseId, id }: { courseId: string; id: stri
   }
 
   return (
-    <Page width="full">
-      <PageHeader title={q.data?.title ?? "Tài liệu"} actions={<ButtonLink href="/library" variant="ghost">Thư viện</ButtonLink>} />
+    <Page kind="work">
+      <PageHeader title={q.data?.title ?? "Tài liệu"} back={{ href: "/library", label: "Thư viện" }} />
       {q.error instanceof ApiError && q.error.status === 404 ? (
         <Panel><EmptyState title="Không tìm thấy tài liệu." action={<ButtonLink href="/library" variant="primary">Về thư viện</ButtonLink>} /></Panel>
       ) : (

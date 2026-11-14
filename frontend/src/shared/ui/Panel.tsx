@@ -5,16 +5,15 @@ import s from "./Panel.module.css";
 // (cùng tệp) và kiểm DOM `[data-ep-panel] [data-ep-panel]` = 0 ở e2e/panels.spec.ts (qua ranh giới thành phần). `className` KHÔNG cho truyền: không ai tự chế khung.
 type PanelProps = {
   as?: "div" | "section";
-  padding?: "md" | "lg" | "none";
   "aria-label"?: string;
   children: ReactNode;
   className?: never;
 };
 
 /** Một vùng làm việc = một Panel trên nền `--ep-canvas`. Tiêu đề vùng (`h2`) nằm NGOÀI panel; nhóm bên trong tách bằng `PanelSection`. */
-export function Panel({ as: Tag = "div", padding = "md", children, ...rest }: PanelProps) {
+export function Panel({ as: Tag = "div", children, ...rest }: PanelProps) {
   return (
-    <Tag className={[s.panel, padding === "lg" ? s.lg : padding === "none" ? s.none : ""].join(" ").trim()} data-ep-panel aria-label={rest["aria-label"]}>
+    <Tag className={s.panel} data-ep-panel aria-label={rest["aria-label"]}>
       {children}
     </Tag>
   );

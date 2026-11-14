@@ -30,7 +30,7 @@ export function AppealsPanel({ course, exam, teacher }: { course: string; exam: 
       ) : list.isError ? (
         <ApiErrorNotice error={list.error} onRetry={() => void list.refetch()} />
       ) : list.items.length === 0 ? (
-        <EmptyState title="Chưa có yêu cầu nào">Khi sinh viên gửi yêu cầu xem lại điểm, yêu cầu hiện ở đây.</EmptyState>
+        <EmptyState title="Chưa có yêu cầu nào" />
       ) : (
         <div data-part="appeals">
           {list.items.map((a) => <AppealRow key={a.id} a={a} course={course} exam={exam} teacher={teacher} onDone={refresh} />)}

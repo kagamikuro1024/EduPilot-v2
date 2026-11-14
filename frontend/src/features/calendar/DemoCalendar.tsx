@@ -50,14 +50,8 @@ export function DemoCalendar() {
   const title = view === "month" ? `Tháng ${monthAnchor.getMonth() + 1} năm ${monthAnchor.getFullYear()}` : view === "week" ? `Tuần ${fmtShortDate(weekStart)} – ${fmtShortDate(new Date(weekStart.getTime() + 6 * DAY))}` : "Sắp tới";
 
   return (
-    <Page width="wide">
-      <PageHeader
-        title="Lịch"
-        description={`${course.label} · ${course.schedule} · ${course.room}`}
-        actions={
-          <Button onClick={() => undo.push("Đã sao chép link lịch (mô phỏng)")}>Thêm vào lịch</Button>
-        }
-      />
+    <Page kind="work">
+      <PageHeader title="Lịch" secondary={[{ label: "Thêm vào lịch", onClick: () => undo.push("Đã sao chép link lịch (mô phỏng)") }]} />
       <Toolbar
         end={
           view === "list" ? undefined : (
@@ -95,9 +89,7 @@ export function DemoCalendar() {
       <PageState
         loading={<Skeleton lines={8} />}
         empty={
-          <Panel><EmptyState title="Lớp này chưa có sự kiện nào" action={<ButtonLink href="/" variant="primary">Về Hôm nay</ButtonLink>}>
-            Buổi học, hạn nộp và lịch thi sẽ hiện ở đây khi giảng viên tạo.
-          </EmptyState></Panel>
+          <Panel><EmptyState title="Lớp này chưa có sự kiện nào" action={<ButtonLink href="/" variant="primary">Về Hôm nay</ButtonLink>} /></Panel>
         }
       >
         {view === "week" && <WeekView start={weekStart} events={inWeek} isStudent={isStudent} />}
@@ -123,9 +115,7 @@ function WeekView({ start, events, isStudent }: { start: Date; events: CalEvent[
   const days = Array.from({ length: 7 }, (_, i) => new Date(start.getTime() + i * DAY));
   if (events.length === 0) {
     return (
-      <Panel><EmptyState title="Tuần này không có sự kiện nào" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
-        Không có buổi học hay hạn nộp trong tuần. Dùng thời gian trống để ôn chủ đề bạn hay sai.
-      </EmptyState></Panel>
+      <Panel><EmptyState title="Tuần này không có sự kiện nào" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>} /></Panel>
     );
   }
   return (
@@ -187,9 +177,7 @@ function MonthView({ anchor, events }: { anchor: Date; events: CalEvent[] }) {
 function ListView({ events, isStudent }: { events: CalEvent[]; isStudent: boolean }) {
   if (events.length === 0) {
     return (
-      <Panel><EmptyState title="Không còn sự kiện nào sắp tới" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
-        Học kỳ đã hết lịch. Bạn vẫn luyện đề được bất cứ lúc nào.
-      </EmptyState></Panel>
+      <Panel><EmptyState title="Không còn sự kiện nào sắp tới" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>} /></Panel>
     );
   }
   return (

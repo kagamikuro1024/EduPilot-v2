@@ -61,8 +61,8 @@ export function InsightsScreen() {
   // Lớp THẬT ngoài mô phỏng: chưa có báo cáo (màn này chưa nối API — sprint 11, M13)
   if (!report) {
     return (
-      <Page>
-        <PageHeader title="Lỗ hổng kiến thức" meta={<span>{course.label}</span>} />
+      <Page kind="read">
+        <PageHeader title="Lỗ hổng kiến thức" meta={[course.label]} />
         <Panel>
           <EmptyState title="Chưa có báo cáo" />
         </Panel>
@@ -71,27 +71,15 @@ export function InsightsScreen() {
   }
 
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader
         title="Lỗ hổng kiến thức"
-        actions={canWrite && !noReport ? createButton : undefined}
-        meta={
-          <>
-            <span>{course.label}</span>
-            {!noReport && (
-              <>
-                <span>
-                  Báo cáo {fmtLongDate(report.generatedAt)}, {fmtTime(report.generatedAt)}
-                </span>
-                <span>
-                  {report.questions} câu hỏi đã nhóm chủ đề · {report.students} sinh viên
-                </span>
-                <span>Đã bỏ tên và MSSV · chủ đề dưới 3 sinh viên không hiện câu mẫu</span>
-              </>
-            )}
-            {!canWrite && <span>Trợ giảng xem báo cáo; giảng viên là người tạo báo cáo và mở thread</span>}
-          </>
-        }
+        primary={canWrite && !noReport ? { label: "Tạo báo cáo mới", icon: <Sparkles aria-hidden />, busy: step !== null, onClick: () => setStep(0) } : undefined}
+        meta={[
+          course.label,
+          !noReport && `Báo cáo ${fmtLongDate(report.generatedAt)}, ${fmtTime(report.generatedAt)}`,
+          !noReport && `${report.questions} câu hỏi đã nhóm chủ đề · ${report.students} sinh viên`,
+        ]}
       />
 
       <PageState
@@ -109,11 +97,10 @@ export function InsightsScreen() {
         }
         error={{
           problem: "Không tạo được báo cáo lỗ hổng kiến thức.",
-          recovery: "Việc chạy nền đang xếp hàng chờ. Báo cáo cũ vẫn xem được. Thử lại sau vài phút, hoặc mở Quan sát AI để xem việc có bị kẹt không.",
         }}
       >
         {step !== null ? (
-          <Section panel title="Đang tạo báo cáo">
+          <Section title="Đang tạo báo cáo">
             <ol className={s.steps} aria-live="polite">
               {STEPS.map((text, i) => (
                 <li key={text} className={s.step}>
@@ -125,7 +112,7 @@ export function InsightsScreen() {
           </Section>
         ) : (
           <div className={s.blocks}>
-            <Section panel title="Chủ đề nên dạy lại" description={report.window}>
+            <Section title="Chủ đề nên dạy lại">
               <ol className={s.topics}>
                 {report.topics.map((t, i) => (
                   <li key={t.id} className={s.topic}>
@@ -194,7 +181,7 @@ export function InsightsScreen() {
               {undo.node}
             </Section>
 
-            <Section panel title="Tài liệu chưa đề cập">
+            <Section title="Tài liệu chưa đề cập">
               <ul className={s.gaps}>
                 {report.uncovered.map((g) => (
                   <li key={g.title} className={s.gap}>
@@ -209,7 +196,7 @@ export function InsightsScreen() {
             </Section>
 
             {report.comparison && (
-              <Section panel title="So với báo cáo ngày 22/10">
+              <Section title="So với báo cáo ngày 22/10">
                 <ul className={s.compare}>
                   {report.comparison.map((line) => (
                     <li key={line}>{line}</li>
