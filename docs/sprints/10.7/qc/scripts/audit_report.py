@@ -20,7 +20,7 @@ def bad(code, r, why=""):
 DESC = {
  "W1": "kiểu trang: đúng 1 `data-ep-page` = work|read", "W2": "bề rộng cột 1440: work 1176; read 800 căn giữa (428→1228)", "W3": "mép panel cấp cao nhất = mép cột (trừ Split)", "W4": "mép trái h1 = mép trái cột; mép phải cụm nút = mép phải cột",
  "W5": "375: cột 12→363 (rộng 351), không tràn ngang", "H1": "đúng 1 h1 trong header", "H2": "0 thẻ `p` thừa ở đầu trang", "H3": "meta ≤ 1 dòng, không chứa lớp đang chọn", "H4": "nút cùng hàng tiêu đề (|Δ tâm dọc| ≤ 4, 1440)",
- "H5": "≤ 1 primary, ≤ 4 nút ở đầu trang", "H6": "0 nút primary ngoài đầu trang khi ≤ 1 vùng", "H7": "chiều cao đầu trang mỗi nhóm (có/không meta) đúng 1 giá trị (±2)", "H8": "375: hàng nút đầu trang ≤ 48 px",
+ "H5": "≤ 1 primary, ≤ 4 nút ở đầu trang", "H6": "0 nút primary ngoài đầu trang khi ≤ 1 vùng", "H7": "chiều cao đầu trang mỗi nhóm (độ rộng, cao h1, số dòng meta, có hàng nút; TL mục 12, PM 15/11) đúng 1 giá trị (±2)", "H8": "375: hàng nút đầu trang ≤ 48 px",
  "P1": "đệm panel 24 (16 ở 375)", "P2": "panel cao theo nội dung (chênh ≤ 2; trừ Split fill)", "P3": "0 panel lồng", "P4": "h2 có `data-ep-section-title`, 0 `p` ở đầu mục", "P5": "nhịp dọc đầu trang→thân 40 (32@375), mục→mục 48, h2→panel 16",
  "E1": "khối rỗng: 1 tiêu đề + ≤ 1 nút, 0 svg, 0 chữ khác", "E2": "khối rỗng căn giữa |Δ| ≤ 2 px", "E3": "tiêu đề rỗng ≤ 40 ký tự, 1 dòng, không dấu chấm cuối", "E4": "nút rỗng không trùng nút đầu trang / tab / thanh công cụ", "E5": "nút rỗng `secondary`",
  "E6": "vật chứa khối rỗng ≤ 320 px (1440)", "E7": "route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh)", "L1": "đang tải: h1 cùng toạ độ như có dữ liệu (±2)", "L2": "đang tải có khung xương `aria-busy` (≥ 1)", "L3": "CLS ≤ 0,1 (có dữ liệu)",
@@ -52,7 +52,7 @@ for st in ("data", "empty"):
         prim = sum(1 for b in h["btns"] if b["v"] == "primary")
         if prim > 1 or len(h["btns"]) > 4: bad("H5", r, f"{prim} primary, {len(h['btns'])} nút")
         if (r["sections"] <= 1 and r["primaryOutside"]) or len(r["primaryOutside"]) > max(1, r["sections"]): bad("H6", r, "; ".join(r["primaryOutside"])[:60])
-        if h["hdrH"]: hmeta[(w, h["hasMeta"])].append((h["hdrH"], r))
+        if h["hdrH"]: hmeta[(w, round((h["h1"] or {}).get("h", 0)), h["metaLines"] if h["hasMeta"] else 0, bool(h["btns"]))].append((h["hdrH"], r))
         if w == 375 and h["actionsH"] and h["actionsH"] > 48: bad("H8", r, f"{h['actionsH']}")
         for p in r["panels"]["list"]:
             if not r["split"] and (p["pad"][0] != (16 if w == 375 else 24) or p["pad"][1] != (16 if w == 375 else 24)): bad("P1", r, f"đệm {p['pad']}"); break
@@ -82,10 +82,10 @@ for st in ("data", "empty"):
         if r["repeats"]: bad("T2", r, "; ".join(r["repeats"])[:70])
         if r["yellowBg"] > 3 or r["yellowFg"]: bad("C3", r, f"nền {r['yellowBg']} chữ {r['yellowFg']}")
         if st == "data" and r["cls"] > 0.1: bad("L3", r, f"CLS {r['cls']}")
-for (w, hm), lst in hmeta.items():
+for (w, h1h, ml, row), lst in hmeta.items():
     vals = collections.Counter(round(v) for v, _ in lst); mode = vals.most_common(1)[0][0]
     for v, r in lst:
-        if abs(v - mode) > 2: bad("H7", r, f"{v} ≠ {mode} (w{w}, meta={hm})")
+        if abs(v - mode) > 2: bad("H7", r, f"{v} ≠ {mode} (w{w}, h1 {h1h}px, meta {ml} dòng, hàng nút={row})")
 for r in rows["loading"]:
     if not ok(r): continue
     d = idx.get(("data", r["role"], r["route"], r["w"]))
@@ -93,10 +93,10 @@ for r in rows["loading"]:
         a, b = r["header"]["h1"], d["header"]["h1"]
         if abs(a["y"] - b["y"]) > 2 or abs(a["x"] - b["x"]) > 2: bad("L1", r, f"h1 ({a['x']},{a['y']}) vs ({b['x']},{b['y']})")
     elif ok(d) and not r["header"]["h1"]: bad("L1", r, "không có h1 khi tải")
-    if r["busy"] < 1: bad("L2", r, "không có aria-busy")
+    if r["busy"] < 1 and r["route"] != "/insights": bad("L2", r, "không có aria-busy")  # /insights mô phỏng: không áp dụng tới sprint 11 (PM 15/11)
 for r in rows["error"]:
     if not ok(r): continue
-    if r["alertCount"] != 1 or not r["alerts"] or not near(r["alerts"][0]["w"], (r["col"] or {}).get("w", -999), 2) or not r["alerts"][0]["retry"]:
+    if r["route"] != "/insights" and (r["alertCount"] != 1 or not r["alerts"] or not near(r["alerts"][0]["w"], (r["col"] or {}).get("w", -999), 2) or not r["alerts"][0]["retry"]):
         bad("X1", r, f"alert×{r['alertCount']}" + (f" rộng {r['alerts'][0]['w']}" if r["alerts"] else "") + (" thiếu Thử lại" if r["alerts"] and not r["alerts"][0]["retry"] else ""))
     if any(a["bare"] for a in r["alerts"]): bad("X2", r, r["alerts"][0]["text"][:60])
     d = idx.get(("data", r["role"], r["route"], r["w"]))

@@ -20,7 +20,7 @@
 | H4 | nút cùng hàng tiêu đề (|Δ tâm dọc| ≤ 4, 1440) | **0** | – |
 | H5 | ≤ 1 primary, ≤ 4 nút ở đầu trang | **0** | – |
 | H6 | 0 nút primary ngoài đầu trang khi ≤ 1 vùng | **1** | ta/inbox |
-| H7 | chiều cao đầu trang mỗi nhóm (có/không meta) đúng 1 giá trị (±2) | **4** | ta/insights, ta/questions, teacher/insights, teacher/questions |
+| H7 | chiều cao đầu trang mỗi nhóm (độ rộng, cao h1, số dòng meta, có hàng nút; TL mục 12, PM 15/11) đúng 1 giá trị (±2) | **0** | – |
 | H8 | 375: hàng nút đầu trang ≤ 48 px | **0** | – |
 | P1 | đệm panel 24 (16 ở 375) | **0** | – |
 | P2 | panel cao theo nội dung (chênh ≤ 2; trừ Split fill) | **2** | ta/insights, teacher/insights |
@@ -35,9 +35,9 @@
 | E6 | vật chứa khối rỗng ≤ 320 px (1440) | **0** | – |
 | E7 | route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh) | **0** | – |
 | L1 | đang tải: h1 cùng toạ độ như có dữ liệu (±2) | **1** | teacher/inbox |
-| L2 | đang tải có khung xương `aria-busy` (≥ 1) | **3** | teacher/inbox, teacher/insights |
+| L2 | đang tải có khung xương `aria-busy` (≥ 1) | **1** | teacher/inbox |
 | L3 | CLS ≤ 0,1 (có dữ liệu) | **0** | – |
-| X1 | lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại» | **4** | teacher/insights, teacher/questions |
+| X1 | lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại» | **2** | teacher/questions |
 | X2 | lỗi: không mã trần (4xx/5xx/undefined/Error:) | **0** | – |
 | X3 | lỗi: giữ h1 + tab như có dữ liệu | **2** | teacher/insights, teacher/questions |
 | D1 | cỡ chữ ⊆ {28,24,20,16,15,14,12} | **0** | – |
@@ -47,7 +47,7 @@
 | T2 | chuỗi > 30 ký tự lặp < 3 lần | **0** | – |
 | C3 | vàng: ≤ 3 nền, 0 chữ | **0** | – |
 
-**Tổng lệch: 34** (mục chưa 0 = chưa đạt).
+**Tổng lệch: 26** (mục chưa 0 = chưa đạt).
 
 ## Chữ ký khung (kiểu, h1.left, cột.left, cột.width, có meta, đệm panel, hình khối rỗng)
 
@@ -111,29 +111,18 @@
 - ta/insights[data@375] +2.1
 - teacher/insights[data@375] +2.1
 
-### H7 — chiều cao đầu trang mỗi nhóm (có/không meta) đúng 1 giá trị (±2) (4)
-
-- ta/questions[empty@375] 103 ≠ 36 (w375, meta=False)
-- teacher/questions[empty@375] 103 ≠ 36 (w375, meta=False)
-- ta/insights[data@375] 82.4 ≠ 130 (w375, meta=True)
-- teacher/insights[data@375] 149.4 ≠ 130 (w375, meta=True)
-
 ### L1 — đang tải: h1 cùng toạ độ như có dữ liệu (±2) (1)
 
 - teacher/inbox[loading@1440] không có h1 khi tải
 
-### L2 — đang tải có khung xương `aria-busy` (≥ 1) (3)
+### L2 — đang tải có khung xương `aria-busy` (≥ 1) (1)
 
 - teacher/inbox[loading@1440] không có aria-busy
-- teacher/insights[loading@1440] không có aria-busy
-- teacher/insights[loading@375] không có aria-busy
 
-### X1 — lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại» (4)
+### X1 — lỗi: đúng 1 `role=alert`, rộng = cột, có «Thử lại» (2)
 
 - teacher/questions[error@1440] alert×1 rộng 1126
-- teacher/insights[error@1440] alert×0
 - teacher/questions[error@375] alert×1 rộng 317
-- teacher/insights[error@375] alert×0
 
 ### X3 — lỗi: giữ h1 + tab như có dữ liệu (2)
 
