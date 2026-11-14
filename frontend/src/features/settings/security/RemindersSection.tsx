@@ -26,6 +26,7 @@ export function RemindersSection() {
     onSuccess: (d) => qc.setQueryData(KEY, d),
     onError: () => qc.invalidateQueries({ queryKey: KEY }),
   });
+  if (q.isError) return null; // cùng truy vấn /me/settings với mục «Thư»: một thông báo lỗi ở đó, không lặp (TL 14.7)
   return (
     <Section title="Nhắc trước 24 giờ">
       <PageState query={q}>

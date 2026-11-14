@@ -31,10 +31,10 @@ for (const role of ROLES) {
       for (const route of routesFor(role)) {
         for (const state of ["data", "empty", "loading", "error"] as const) {
           // đang tải / lỗi vào bằng CẢ HAI đường: ?state= (màn mô phỏng) và chặn /api/v1 (màn nối API), như QC (TL-1 §12.2)
-          let calls = 0;
+          const calls = new Set<string>(); // số yêu cầu /api/v1 KHÁC NHAU bị chặn (TL 14.7)
           if (state === "loading" || state === "error") {
             await page.route(/\/api\/v1\/(?!auth\/|me(\?|$)|me\/courses)/, async (r) => {
-              calls++;
+              calls.add(`${r.request().method()} ${new URL(r.request().url()).pathname}`);
               if (state === "error") return r.fulfill({ status: 500, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ code: "INTERNAL", message: "x", trace_id: "t" }) });
               await new Promise((x) => setTimeout(x, 5000));
               return r.abort().catch(() => undefined);
@@ -44,7 +44,7 @@ for (const role of ROLES) {
           await page.locator("main, body").first().waitFor();
           if (state === "loading" || state === "error") await page.waitForTimeout(800);
           else await page.waitForLoadState("networkidle").catch(() => undefined);
-          rows.push({ route, size: size.name, state, ...(await measureFrame(page, { wide: size.wide, state, calls: FORM_ONLY.test(route) ? 0 : calls })) });
+          rows.push({ route, size: size.name, state, ...(await measureFrame(page, { wide: size.wide, state, calls: FORM_ONLY.test(route) ? 0 : calls.size })) });
           await page.unrouteAll({ behavior: "ignoreErrors" });
         }
       }

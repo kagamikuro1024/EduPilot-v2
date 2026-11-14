@@ -116,13 +116,23 @@ export async function measureFrame(page: Page, opts: { wide: boolean; state?: "d
     if (state === "error") {
       const alerts = [...pg.querySelectorAll<HTMLElement>("[role=alert]")].filter(vis);
       if (alerts.length || calls) {
-        if (alerts.length !== 1) add("X1", `${alerts.length} role=alert`);
-        else {
-          const ar = alerts[0].getBoundingClientRect();
-          if (!near(ar.width, colW, 2)) add("X1", `alert rộng ${Math.round(ar.width)} ≠ cột ${Math.round(colW)}`);
-          if (![...pg.querySelectorAll<HTMLElement>("button, a")].some((b) => (b.textContent ?? "").trim() === "Thử lại")) add("X1", "không có «Thử lại»");
-          if (/\b[45]\d\d\b|undefined|Error:/.test(alerts[0].textContent ?? "")) add("X2", "mã trần trong thông báo lỗi");
+        // TL 14.7: một alert cho mỗi TRUY VẤN hỏng, tại chỗ vùng nó nuôi: ≤ 1 alert mỗi mục; trang không mục: đúng 1; tổng ≤ số yêu cầu hỏng khác nhau
+        const secs = [...pg.querySelectorAll<HTMLElement>("[data-ep-section]")];
+        const crowded = secs.filter((sec) => alerts.filter((a) => sec.contains(a)).length > 1).length;
+        if (!alerts.length) add("X1", "0 role=alert");
+        else if (crowded) add("X1", `${crowded} mục có > 1 role=alert`);
+        else if (!secs.length && alerts.length !== 1) add("X1", `${alerts.length} role=alert (trang không mục)`);
+        else if (calls && alerts.length > calls) add("X1", `${alerts.length} role=alert > ${calls} yêu cầu hỏng khác nhau`);
+        for (const al of alerts) {
+          const ar = al.getBoundingClientRect();
+          // trong Split (chat: cột phiên): rộng bằng ruột của khung chứa; ngoài Split: rộng bằng cột trang
+          const par = al.closest("[data-ep-split]") && al.parentElement ? al.parentElement : null;
+          const pcs = par ? getComputedStyle(par) : null;
+          const target = par && pcs ? par.getBoundingClientRect().width - parseFloat(pcs.paddingLeft) - parseFloat(pcs.paddingRight) : colW;
+          if (!near(ar.width, target, 2)) add("X1", `alert rộng ${Math.round(ar.width)} ≠ ${Math.round(target)}`);
+          if (/\b[45]\d\d\b|undefined|Error:/.test(al.textContent ?? "")) add("X2", "mã trần trong thông báo lỗi");
         }
+        if (alerts.length && ![...pg.querySelectorAll<HTMLElement>("button, a")].some((b) => (b.textContent ?? "").trim() === "Thử lại")) add("X1", "không có «Thử lại»");
       }
     }
     // T: chữ thừa
