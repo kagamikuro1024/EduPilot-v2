@@ -12,7 +12,7 @@
 | US-P9-03 Sinh câu có trích dẫn | **FAIL** | L9 Thấp (`types:[]` → `202`). Đạt: câu `GENERATED` có `{document_id, chunk_id, page}` 5/5, `ANSWER_KEY` → 422, `count=11` → 422, 403, 429 ở việc thứ 6. `OVERLOADED` không kiểm được |
 | US-P9-04 `/questions` + duyệt hàng loạt | **FAIL** | L11 Thấp (menu không có «Soạn tay»; dòng phụ trái luật chữ), L10 Thấp (mã lỗi bulk). Đạt: bulk 50 / 422 / không huỷ lô / 403, `VERSION_CONFLICT`, `CITATION_REQUIRED` ở `PUT review`, phân trang |
 | US-P9-05 Dựng đề theo ma trận | **FAIL** | L6, L7, L8 (Thấp). Đạt: không lặp, thứ tự ổn định, hai SV khác thứ tự, p95 dựng đề 10 ms, loại câu chưa duyệt / lưu trữ / thuộc bài thi, 403 / 404 |
-| US-P9-06 Luyện theo chủ đề | **FAIL** | AC4 «trích dẫn bấm được» không kiểm được: dữ liệu mẫu không có citations (L4 Trung bình). Đạt: phản hồi ngay, khoá đáp án, `explain` SSE (byte đầu 11 ms, 1 lời gọi LLM / nhiều lần), `NOT_ANSWERED`, quá tải → `EXPLAIN_FAILED` tại chỗ, submit idempotent, 404 / 403, `MCQ_MULTI` đủ tập; 375 px không tràn, 0 nút < 44 px |
+| US-P9-06 Luyện theo chủ đề | **FAIL** | AC4 «trích dẫn bấm được» không kiểm được: dữ liệu mẫu không có citations (L4 Trung bình); L15 Thấp (chữ trạng thái lớp rỗng khác TC). Đạt: phản hồi ngay, khoá đáp án, `explain` SSE (byte đầu 11 ms, 1 lời gọi LLM / nhiều lần), `NOT_ANSWERED`, quá tải → `EXPLAIN_FAILED` tại chỗ, submit idempotent, 404 / 403, `MCQ_MULTI` đủ tập; 375 px không tràn, 0 nút < 44 px |
 | US-P9-07 Thi thử có giờ, tự lưu | **PASS** | `server_now`, `deadline` +30 phút, một lượt MOCK, `TAB_TAKEN_OVER`, `VERSION_CONFLICT`, dung sai 60 s (nhận / bỏ + notes / `ATTEMPT_CLOSED`), điểm `6.5`, `6.3`, `3.5`, `4.3` (decimal, nửa lên), worker đóng lượt quá hạn (`EXPIRED`), điểm không vào sổ điểm, không `exam_events`; e2e dev (ngoại tuyến, tải lại, đồng hồ) xanh. k6 hoãn; L13 Thấp ghi nhận |
 | US-P9-08 Tự luận + nhận xét gợi ý | **PASS** | Nhận xét theo tiêu chí, không điểm, không vào sổ điểm; bài chèn lệnh không kéo kết quả; 4.001 ký tự → `422`; `429` ở lần thứ 9 trong lượt thử (trần 10 / giờ theo cửa sổ giờ); GV / TA / ADMIN → 403; 0 `ESSAY` ở MOCK. Quan sát L14 |
 | US-P9-09 Lịch sử, điểm yếu, Hôm nay | **FAIL** | **L3 Trung bình**: «Ôn chủ đề» không biến mất ≤ 5 s ở `/courses/{id}/today`. Đạt: lịch sử phân trang, điểm yếu k ≥ 3, 403 cho staff, lọc theo lớp |
@@ -27,7 +27,7 @@ PASS: 4 / 12 (P9-01, 07, 08, 10). FAIL: 8 / 12.
 | --- | --- | --- |
 | Cao | 1 | L1 trích đề docling thật 0/24 |
 | Trung bình | 3 | L3 Hôm nay không huỷ cache theo lớp; L4 dữ liệu mẫu sai spec; L5 script kiểm seed |
-| Thấp | 9 | L6–L14 |
+| Thấp | 10 | L6–L15 |
 | Nghiêm trọng | 0 | |
 
 ## Phát hiện về quy trình (cần PM)

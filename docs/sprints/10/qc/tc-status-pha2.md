@@ -91,7 +91,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-05-02 | PASS | API stack |
 | TC-05-03 | PASS | API stack |
 | TC-05-04 | FAIL | L8 |
-| TC-05-05 | CHƯA CHẠY |  |
+| TC-05-05 | PASS | 0 trùng với câu vừa làm đúng (lùi 10 ngày bằng DB) |
 | TC-05-06 | CHƯA CHẠY |  |
 | TC-05-07 | CHƯA CHẠY |  |
 | TC-05-08 | PASS | API stack |
@@ -127,7 +127,7 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-06-20 | PASS | API stack |
 | TC-06-21 | CHƯA CHẠY |  |
 | TC-06-22 | PASS | API stack |
-| TC-06-23 | CHƯA CHẠY |  |
+| TC-06-23 | FAIL | L15: chữ khác TC (hai dòng + liên kết lịch sử) |
 | TC-06-24 | CHƯA CHẠY |  |
 | TC-06-25 | CHƯA CHẠY |  |
 | TC-06-25b | PASS | API stack |
@@ -226,11 +226,11 @@ Tổng: CHƯA CHẠY 90, FAIL 26, NGOÀI 1, PASS 133 (tổng 250).
 | TC-11-10 | CHƯA CHẠY |  |
 | TC-11-11 | PASS | API stack |
 | TC-11-12 | PASS | API stack |
-| TC-11-13 | CHƯA CHẠY |  |
+| TC-11-13 | PASS | log 0 PII; `audit_log` chỉ có hash / số khớp, chưa khớp |
 | TC-11-14 | PASS một phần (mức Go); phần API/E2E chờ stack | `TestFormsImportNoLLM`, `TestFormsImportScoreDecimal` PASS; `llm_audit` trên stack chờ stack |
 | TC-11-15 | CHƯA CHẠY |  |
 | TC-11-16 | CHƯA CHẠY |  |
-| TC-11-17 | CHƯA CHẠY |  |
+| TC-11-17 | PASS | `audit_log forms_imports/import` |
 | TC-11-18 | CHƯA CHẠY |  |
 | TC-11-19 | CHƯA CHẠY |  |
 | TC-12-01 | PASS | `seed.mjs` trên stack trống: mã 0, 334 s (kể cả docling) |

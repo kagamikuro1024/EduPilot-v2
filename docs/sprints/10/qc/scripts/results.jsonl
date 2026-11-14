@@ -251,3 +251,19 @@
 {"tc": "TC-02-12/13b (sửa sau khi tạo tài liệu riêng của lớp 2) tài liệu / bảng đáp án lớp khác → 404", "st": "PASS", "note": "404"}
 {"tc": "TC-03-11 gen-stats {unchanged:2, edited:1, rejected:2}", "st": "PASS", "note": "200 {'unchanged': 2, 'edited': 1, 'rejected': 2, 'pending': 0}"}
 {"tc": "TC-03-09 sinh lại: câu trùng bị bỏ qua (kể cả REJECTED), không tạo thêm", "st": "FAIL", "note": "created=1 skipped=['DUPLICATE', 'DUPLICATE', 'DUPLICATE', 'DUPLICATE']"}
+{"tc": "TC-11-01a presign forms_import (TEACHER) 200", "st": "PASS", "note": "200"}
+{"tc": "TC-11-01 preview: cột + 20 dòng đầu, không ghi", "st": "PASS", "note": "200 keys=['columns', 'rows', 'rows_total', 'suggested_mapping']"}
+{"tc": "TC-11-12 chưa preview → 409 PREVIEW_REQUIRED", "st": "PASS", "note": "409 {\"code\": \"PREVIEW_REQUIRED\", \"message\": \"Cần xem trước kết quả trước khi xác nhận.\", \"trace_id\": \"6e"}
+{"tc": "TC-11-08 Xem trước kết quả: điểm + đúng/tổng + chưa khớp, chưa ghi", "st": "FAIL", "note": "422"}
+{"tc": "TC-11-03 confirm ghi grade_entries(source=QUIZ), không đổi published_at", "st": "PASS", "note": "201 QUIZ entries 0→6; published_at 2026-11-14 06:22:01.217694+00→2026-11-14 06:22:01.217694+00"}
+{"tc": "TC-11-07 nhập lại cùng tệp/cột (khoá mới) → replayed, không ghi thêm", "st": "PASS", "note": "201 replayed=True"}
+{"tc": "TC-11-11 ta presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 ta preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-11 sv.kha presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 sv.kha preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-11 admin presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 admin preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-09 forms-bad.txt bị từ chối ngay ở presign", "st": "PASS", "note": "presign 422"}
+{"tc": "TC-11-09 forms-nocol.csv → 422 kèm vị trí", "st": "FAIL", "note": "200 {\"columns\": [{\"col\": \"A\", \"header\": \"Họ tên\"}, {\"col\": \"B\", \"header\": \"Điểm\"}], \"rows\": [[\"A\", \"1\"]], \"rows_total\": 1, \"suggested_mapping\": {\"header_row\": 1, \"e"}
+{"tc": "TC-11-09 tệp > 5 MB bị từ chối ở presign", "st": "PASS", "note": "422"}
+{"tc": "TC-05-05 lượt mới sau 10 ngày: ưu tiên câu chưa làm / làm sai, 0 trùng với câu vừa làm đúng", "st": "PASS", "note": "4 câu làm đúng; đề mới 10 câu; trùng 0"}
