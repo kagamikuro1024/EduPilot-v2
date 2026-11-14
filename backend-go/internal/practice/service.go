@@ -167,12 +167,12 @@ func parseSnapshot(raw []byte) (snapshot, error) {
 	return sn, nil
 }
 
-// TopicUpdated: sinh viên vừa bắt đầu / nộp một lượt → "Hôm nay" của chính họ làm mới (PRACTICE_WEAK_TOPIC biến mất ≤ 5 s). Payload {user_id, student_id, course_id}
-// theo khoá của `today.Invalidator`; `course_id` không đưa vào để không làm mới cache của staff mỗi lần có người luyện (lệch SRS FR-19, ghi ở handoff).
+// TopicUpdated: sinh viên vừa bắt đầu / nộp một lượt → "Hôm nay" của chính họ làm mới (PRACTICE_WEAK_TOPIC biến mất ≤ 5 s). Payload {user_id, student_id, course_id} (SRS FR-19);
+// `today.Invalidator` chỉ xoá cache của chính sinh viên (khoá `all` và khoá theo lớp), không xoá cache của staff.
 const TopicUpdated = "practice.updated"
 
-func emitUpdated(ctx context.Context, tx pgx.Tx, userID uuid.UUID) error {
-	if _, err := outbox.Write(ctx, tx, TopicUpdated, map[string]string{"user_id": userID.String(), "student_id": userID.String()}); err != nil {
+func emitUpdated(ctx context.Context, tx pgx.Tx, userID, courseID uuid.UUID) error {
+	if _, err := outbox.Write(ctx, tx, TopicUpdated, map[string]string{"user_id": userID.String(), "student_id": userID.String(), "course_id": courseID.String()}); err != nil {
 		return fmt.Errorf("practice: outbox %s: %w", TopicUpdated, err)
 	}
 	return nil

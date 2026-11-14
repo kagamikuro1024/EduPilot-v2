@@ -153,7 +153,7 @@ func (s *Service) Start(ctx context.Context, userID, courseID uuid.UUID, in Star
 				return err
 			}
 			created = true
-			if err := emitUpdated(ctx, tx, userID); err != nil {
+			if err := emitUpdated(ctx, tx, userID, courseID); err != nil {
 				return err
 			}
 			v, err = s.view(ctx, q, a, uuid.Nil)

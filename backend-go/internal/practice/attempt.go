@@ -420,7 +420,7 @@ func (s *Service) Submit(ctx context.Context, userID, courseID, attemptID uuid.U
 			return err
 		}
 		if att.Status == store.PracticeStatusINPROGRESS {
-			if err := emitUpdated(ctx, tx, userID); err != nil {
+			if err := emitUpdated(ctx, tx, userID, courseID); err != nil {
 				return err
 			}
 			status := store.PracticeStatusSUBMITTED
