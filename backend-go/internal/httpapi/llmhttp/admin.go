@@ -18,6 +18,7 @@ import (
 	"github.com/edupilot/backend-go/internal/decision"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
+	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/llm/budget"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/llmconfig"
@@ -81,6 +82,11 @@ func (a *Admin) fail(w http.ResponseWriter, r *http.Request, err error) {
 	apierr.Write(w, r, apierr.New(http.StatusInternalServerError, apierr.Internal))
 }
 
+func isAdmin(r *http.Request) bool {
+	p, ok := auth.FromContext(r.Context())
+	return ok && p.Role == auth.RoleAdmin
+}
+
 func pathID(r *http.Request) (uuid.UUID, error) { return uuid.Parse(chi.URLParam(r, "id")) }
 
 func notFound(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +111,11 @@ func (a *Admin) listProviders(w http.ResponseWriter, r *http.Request) {
 	}
 	out := providerListView{Items: make([]providerView, 0, len(ps)),
 		EnvFallback: envFallbackView{Active: a.RT.Registry.EnvActive(), Providers: a.RT.Registry.EnvProviders()}}
+	admin := isAdmin(r)
 	for _, p := range ps {
+		if p.Type == "decision" && !admin { // provider decision chỉ ADMIN thấy (SRS FEAT-decision-model 6, AC9 US-DM-02)
+			continue
+		}
 		out.Items = append(out.Items, a.providerView(r.Context(), p))
 	}
 	httpx.WriteJSONETag(w, r, out, "")
@@ -392,7 +402,11 @@ func (a *Admin) usage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out := usageView{From: from, To: to, Group: group, Items: make([]usageItemView, 0, len(rows))}
+	admin := isAdmin(r)
 	for _, u := range rows {
+		if group == "task" && u.Key == string(llm.TaskDecide) && !admin { // tác vụ DECIDE chỉ ADMIN thấy
+			continue
+		}
 		out.Items = append(out.Items, usageItemView{Key: u.Key, Calls: u.Calls, TokensIn: u.TokensIn, TokensOut: u.TokensOut, CostEst: money(u.CostEst),
 			LatencyP50Ms: u.LatencyP50Ms, LatencyP95Ms: u.LatencyP95Ms, Errors: u.Errors, Degraded: u.Degraded})
 	}
