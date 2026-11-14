@@ -447,4 +447,25 @@ Vì sao QC ra lỗi: script QC tạo «đang tải / lỗi» bằng cách chặn
 
 Phần này chứng minh **hình** của hai trạng thái (đúng panel, đúng mép, một `role=alert` rộng bằng cột, có «Thử lại»), tức đúng thứ §23.5 quy định. Phần chưa chứng minh được: lỗi API thật có dẫn tới hai hình đó không. Ghi nợ sprint 11 cùng dòng D51: khi `/insights` nối API, L2 / X1 phải đạt trong lượt audit của QC bằng đường chặn API, và `?state=` của màn đó bị gỡ.
 
-Câu thứ ba trong handoff (điểm danh ở 375 có hai nút cùng việc) PM chưa hỏi nên chưa trả lời ở đây.
+### 12.3 Điểm danh ở 375: hai nút cùng việc
+
+**Quyết: ở 375 chỉ còn một nút lưu, là thanh dưới, kiểu `primary`. Nút ở đầu trang ẩn dưới 720 px.**
+
+Hiện trạng (`RealAttendance.tsx` dòng 139–175): dưới 720 px có cả nút `primary` «Lưu điểm danh» thành một hàng full-width ở đầu trang lẫn thanh dính đáy «Lưu điểm danh · N có mặt · M vắng» kiểu `secondary`. Thanh bị hạ xuống `secondary` chỉ để H6 sạch.
+
+Vì sao:
+
+- `DESIGN.md` §14.8 ghi nút chính của màn này «on mobile a sticky bottom bar»: trên điện thoại nút chính **là** thanh dưới, không phải thêm một nút. US-UX91-12 AC4 cũng đòi thanh đó. Không AC nào đòi nút ở đầu trang tại 375.
+- §23.2 và §23.4 cùng một ý: mỗi việc một nút đang hiện. Hai nút cùng việc là thứ khung này sinh ra để xoá.
+- Thanh dưới là nút duy nhất luôn với tới khi đang lướt 30–60 dòng, lại mang số có mặt / vắng. Bỏ hàng nút ở đầu trang trả lại 67 px cho màn đầu (mục 12.1), khoảng một dòng rưỡi sinh viên.
+- H6 không được sửa bằng cách hạ kiểu nút: đỏ nghĩa là «cần hành động», và hành động đó nằm ở thanh.
+
+Cách làm, nhỏ nhất:
+
+1. `HeaderAction` thêm `docked?: boolean`: dưới 720 px `PageHeader` không vẽ nút đó (và không vẽ hàng nút nếu chỉ còn nó). Không đụng 1440.
+2. Thanh dưới của route mang móc `data-ep-header-dock`; nút trong thanh là `primary`, cùng điều kiện khoá với nút đầu trang.
+3. `e2e/support/frame.ts` dòng 75: nút trong `[data-ep-header-dock]` không tính là «primary ngoài đầu trang» (H6). Thêm một phép đo: route có dock thì ở 375 đầu trang có 0 nút `primary` đang hiện, và ở 1440 dock không hiện.
+
+Áp cùng luật cho `/grading/[id]`: thanh «Đã duyệt N/M · Duyệt bài» (`SubmissionReview.tsx` dòng 573) đã đúng mẫu này, chỉ cần gắn móc. Chưa gom hai thanh thành một primitive: nội dung hai thanh khác nhau (một nút kèm số; tiến độ + hai mũi tên + nút). Route thứ ba cần thanh dưới thì gom.
+
+§23.2 cần thêm một dòng (đã thêm vào `design-23-draft.md`; `DESIGN.md` chờ PM qua P-107-14).

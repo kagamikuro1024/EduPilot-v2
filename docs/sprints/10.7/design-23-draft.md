@@ -38,6 +38,7 @@ meta · meta · meta                                          row 2, optional, o
 - A route with one working region puts its primary action in the header, never in the region's toolbar and never again in the empty state.
 - Row 1 has the same height with or without actions, so the body starts at the same y on every route (two values only: without meta, with meta).
 - Below 720 px: title, then meta, then one action row (primary first, full width; secondary actions collapse into one "Thêm" menu button).
+- Below 720 px a route may dock its primary action in a fixed bar above the bottom navigation (`data-ep-header-dock`; §14.8 attendance, §14 submission review). The dock replaces the header's primary: the header then renders no primary. One action is one visible button at every width.
 - Header → body gap `--ep-space-10` (`--ep-space-8` below 720 px).
 
 ## 23.3 Body: sections and panels
