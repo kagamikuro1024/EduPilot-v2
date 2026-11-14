@@ -1,6 +1,6 @@
 # ui-empty — BA: câu trong trạng thái rỗng có trong SRS / US (2026-11-14)
 
-Nguồn: `docs/sprints/ui-empty/plan.md` (chủ dự án) + luật chữ UI (CLAUDE.md 09/10/2026). Luật chốt: **rỗng = tiêu đề ngắn + tối đa 1 hành động; không câu giải thích**. BA đã vá spec cùng commit này (không cần proposal riêng — theo plan; PM ghi số nếu cần). Dev bỏ câu ở mã đúng theo cột «Sau».
+Nguồn: `docs/sprints/10.7/ui-empty/plan.md` (chủ dự án) + luật chữ UI (CLAUDE.md 09/10/2026). Luật chốt: **rỗng = tiêu đề ngắn + tối đa 1 hành động; không câu giải thích**. BA đã vá spec cùng commit này (không cần proposal riêng — theo plan; PM ghi số nếu cần). Dev bỏ câu ở mã đúng theo cột «Sau».
 
 ## A. Đã vá
 
