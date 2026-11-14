@@ -31,3 +31,8 @@ Phát sinh khi viết TC pha 1 (2026-11-14). Mỗi câu có phương án QC; TC 
 | # | Câu hỏi | Đề xuất QC |
 | --- | --- | --- |
 | Q-S106-15 | Hoàn tác `Duyệt` / `Bỏ`: (a) hoãn gửi `decide` 5 s hay API đặt lại `DRAFT`; (b) mục đã sửa chữ trước khi duyệt: hoàn tác giữ chữ đã sửa hay khôi phục chữ gốc; (c) mã lỗi khi mục đã thuộc phiên bản đã áp dụng | (a) cách nào cũng được, TC-G04-19/20 chấp nhận cả hai; (b) giữ chữ đã sửa, `text_original` giữ bản gốc của AI; (c) `409 ITEM_NOT_DRAFT` (đã có) |
+
+## Hỏi thêm sau khi kiểm L5 / L6 trên stack (2026-11-14)
+| # | Câu hỏi | Đề xuất QC |
+| --- | --- | --- |
+| Q-S106-16 | US-GD-07 AC6: «Teacher thấy **số ca** của lớp mình ở màn thống kê» — SRS §6 không có endpoint nào trả số ca hồi quy, giao diện cũng chưa hiện. Làm hay bỏ AC? | Thêm `regression_cases:{GRADING_EDIT, …}` vào `GET …/guidance` (hoặc bỏ AC6 phần Teacher); TC-G07-13 tạm ghi «không kiểm được» |
