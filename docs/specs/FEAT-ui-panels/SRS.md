@@ -166,13 +166,13 @@ Hệ quả: nếu chọn (b) thì **bắt buộc** hạ `--ep-ink-3` xuống 51 
 ### 5.4 Hợp đồng `Panel` / `PanelSection` (`frontend/src/shared/ui/Panel.tsx`, xuất ở `shared/ui/index.ts`)
 
 ```ts
-type PanelProps = { as?: "div" | "section"; padding?: "md" | "lg" | "none"; "aria-label"?: string; children: ReactNode; className?: never };
+type PanelProps = { as?: "div" | "section"; "aria-label"?: string; children: ReactNode; className?: never };
 type PanelSectionProps = { title?: ReactNode; action?: ReactNode; tone?: "default" | "strong"; children: ReactNode };
 ```
 
 | Phần | DOM / CSS |
 | --- | --- |
-| `Panel` | `<div|section data-ep-panel>`; nền `--ep-surface`; `border: 1px solid var(--ep-panel-border)`; `border-radius: var(--ep-radius-panel)`; `box-shadow: var(--ep-elevation-1)`; padding `--ep-space-6` (`lg`: `--ep-space-8`; `none`: 0); mobile < 720 px: **không `margin`**, padding `--ep-space-4`; lề 12 px tới mép viewport do `.page { padding-inline: var(--ep-space-3) }` (TLR-4) |
+| `Panel` | `<div|section data-ep-panel>`; nền `--ep-surface`; `border: 1px solid var(--ep-panel-border)`; `border-radius: var(--ep-radius-panel)`; `box-shadow: var(--ep-elevation-1)`; một padding duy nhất `--ep-space-6` (không còn `lg` / `none`; sát mép chỉ qua `Split` — P-107-5); mobile < 720 px: **không `margin`**, padding `--ep-space-4`; lề 12 px tới mép viewport do `.page { padding-inline: var(--ep-space-3) }` (TLR-4) |
 | `PanelSection` (default) | `<div data-ep-panel-section>`; tiêu đề (nếu có) = **`h3`** (`ep-item-title`); `PanelSection` đứng sau `PanelSection`: `border-top: 1px solid var(--ep-rule)`, `padding-top`/`margin-top` `--ep-space-6`; không viền / bóng / bo góc riêng |
 | `PanelSection tone="strong"` | thêm `data-tone="strong"`; nền `--ep-surface-strong`; `border-radius: var(--ep-radius-md)`; padding `--ep-space-4`; không viền, không bóng; số liệu dùng thang chữ `ep-section-title` (không cỡ chữ mới) |
 | Luật | **Server Component thuần CSS, 0 byte JS** — không `"use client"`, không `createContext` / `PanelContext` (TLR-2); chặn lồng bằng phép tĩnh 22 + kiểm DOM; `className` **không** cho truyền (chặn "tự chế" khung) |

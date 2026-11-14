@@ -466,7 +466,7 @@ Use shape-matched skeletons, not centered spinners.
 `frontend/src/shared/ui/Panel.tsx` (D59 "disciplined panels"; a Server Component, pure CSS, 0 bytes of JS).
 
 - One working region = ONE `Panel` on `--ep-canvas`. The region title (`h2.ep-section-title`) and the page `h1` sit OUTSIDE the panel.
-- `Panel`: `as` `div | section`, `padding` `md | lg | none` (`--ep-space-6` / `--ep-space-8` / 0), `aria-label?`; `className` is not accepted. Surface `--ep-surface`, 1 px `--ep-panel-border`, `--ep-radius-panel`, static `--ep-elevation-1`. Radius and shadow live ONLY in `Panel.module.css`.
+- `Panel`: `as` `div | section`, `aria-label?`; neither `padding` nor `className` is accepted. One padding (`--ep-space-6`; `--ep-space-4` below 720 px); flush content only through `Split` (§23.3). Surface `--ep-surface`, 1 px `--ep-panel-border`, `--ep-radius-panel`, static `--ep-elevation-1`. Radius and shadow live ONLY in `Panel.module.css`.
 - `PanelSection` (`title?` → `h3`, `action?`, `tone`): groups inside a panel. Two adjacent sections are separated by one 1 px `--ep-rule` plus `--ep-space-6` of whitespace; no border, shadow or radius of its own.
 - `tone="strong"` is an emphasis cell (`--ep-surface-strong`, `--ep-radius-md`, no border, no shadow): only for key numbers or states, at most 3 per panel, never containing a `Panel` or `PanelSection`. 4+ side by side is a KPI wall.
 - No `Panel` inside `Panel`, and none inside `Dialog` / `Drawer` / `Popover` (use `PanelSection`). Enforced by `ui-antipatterns.sh` check 22 (same file) and the DOM assertion `[data-ep-panel] [data-ep-panel]` = 0 in `e2e/panels.spec.ts` (across components).
