@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/shopspring/decimal"
 )
 
 // examHistoryTitles: bốn bài thi PE đã công bố của lớp (mở cách hôm nay 28 / 21 / 14 / 7 ngày); khoá tự nhiên = tiêu đề, dùng cho idempotency.
@@ -127,7 +128,7 @@ func SeedExamHistory(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID
 			raw, _ := json.Marshal(bd) //nolint:errchkjson // kiểu cố định
 			start := opens.Add(10 * time.Minute)
 			if _, err := tx.Exec(ctx, `insert into exam_attempts (course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, auto_score, breakdown, graded_at)
-				values ($1, $2, $3, 'GRADED', $4, $5, $6, 'MANUAL', $7, $8::jsonb, $6)`, courseID, eid, s, start, start.Add(30*time.Minute), start.Add(25*time.Minute), float64(c)*2.5, string(raw)); err != nil {
+				values ($1, $2, $3, 'GRADED', $4, $5, $6, 'MANUAL', $7, $8::jsonb, $6)`, courseID, eid, s, start, start.Add(30*time.Minute), start.Add(25*time.Minute), decimal.NewFromInt(int64(c)).Mul(decimal.RequireFromString("2.5")), string(raw)); err != nil {
 				return 0, fmt.Errorf("seed-exam-history: ghi lượt: %w", err)
 			}
 			n++

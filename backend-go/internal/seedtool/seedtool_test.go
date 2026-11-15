@@ -4,6 +4,9 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"strconv"
 	"testing"
@@ -381,4 +384,16 @@ func TestSeedStudyTimeRerunShiftedCalendar(t *testing.T) {
 			require.ElementsMatch(t, []string{"sv12@edupilot.local", "sv19@edupilot.local"}, watch)
 		})
 	}
+}
+
+// TC-P6-02-15 (luật 5): điểm thi của seed-exam-history không đi qua float — AST của examhistory.go không có float32 / float64 (cùng cách TestNoFloatInGrade quét `grade`).
+func TestSeedExamHistoryNoFloat(t *testing.T) {
+	file, err := parser.ParseFile(token.NewFileSet(), "examhistory.go", nil, 0)
+	require.NoError(t, err)
+	ast.Inspect(file, func(n ast.Node) bool {
+		if id, ok := n.(*ast.Ident); ok {
+			require.NotContains(t, []string{"float32", "float64"}, id.Name, "examhistory.go: %s", id.Name)
+		}
+		return true
+	})
 }
