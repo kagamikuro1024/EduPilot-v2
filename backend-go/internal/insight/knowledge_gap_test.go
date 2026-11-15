@@ -147,6 +147,28 @@ func (r *rig) report() insight.Payload {
 	return out.Report.Payload
 }
 
+// TestKnowledgeGapUncoveredKAnonymity — P-11-31 F-1: «Tài liệu chưa đề cập» chỉ liệt kê câu do ≥ 3 sinh viên KHÁC NHAU hỏi; một người hỏi nhiều lần không hiện.
+func TestKnowledgeGapUncoveredKAnonymity(t *testing.T) {
+	r := newRig(t, 13)
+	for range 5 {
+		r.ask(0, "Em ở KTX khu B phòng 302 xin hoãn bài được không", true, false) // 1 sinh viên × 5 lần
+	}
+	for k := range 2 {
+		r.ask(1+k, "Cách cấu hình quantum router hãy giải thích", true, false) // 2 sinh viên
+	}
+	for k := range 3 {
+		r.ask(3+k, "Hệ thống chấm bài dùng ngôn ngữ nào", true, false) // 3 sinh viên
+	}
+	for k := range 12 { // đủ dữ liệu để chạy báo cáo
+		r.ask(k%6, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k), false, false)
+	}
+	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	p := r.report()
+	require.Len(t, p.Uncovered, 1, "chỉ câu do ≥ 3 sinh viên hỏi")
+	require.Equal(t, "Hệ thống chấm bài dùng ngôn ngữ nào", p.Uncovered[0].Text)
+}
+
 // TestKnowledgeGap — US-P10-04: A, B đứng đầu; chủ đề < 3 sinh viên không có câu mẫu; ngoài tài liệu có mục riêng; không danh tính trong payload.
 func TestKnowledgeGap(t *testing.T) {
 	r := newRig(t, 13)

@@ -616,24 +616,33 @@ func trim(t string) string {
 }
 
 // uncovered: câu AI báo «không có trong tài liệu», gộp câu trùng (bỏ dấu, hoa thường), nhiều lần nhất trước, tối đa 20.
+// k-ẩn danh như câu mẫu (FR-13): chỉ liệt kê câu do ≥ MinStudents sinh viên KHÁC NHAU hỏi — một người hỏi nhiều lần vẫn không hiện (P-11-31 F-1);
+// nếu không, giảng viên / trợ giảng đọc nguyên văn chat riêng của một sinh viên khi chưa escalate. Count vẫn là tổng số lần hỏi.
 func uncovered(items []item) []Uncovered {
-	cnt := map[string]*Uncovered{}
+	type agg struct {
+		u        Uncovered
+		students map[uuid.UUID]struct{}
+	}
+	cnt := map[string]*agg{}
 	var order []string
 	for _, it := range items {
 		if !it.noCtx {
 			continue
 		}
 		k := strings.ToLower(strings.Join(strings.Fields(it.text), " "))
-		if u, ok := cnt[k]; ok {
-			u.Count++
+		if a, ok := cnt[k]; ok {
+			a.u.Count++
+			a.students[it.student] = struct{}{}
 			continue
 		}
-		cnt[k] = &Uncovered{Text: trim(it.text), Count: 1}
+		cnt[k] = &agg{u: Uncovered{Text: trim(it.text), Count: 1}, students: map[uuid.UUID]struct{}{it.student: {}}}
 		order = append(order, k)
 	}
 	out := make([]Uncovered, 0, len(order))
 	for _, k := range order {
-		out = append(out, *cnt[k])
+		if len(cnt[k].students) >= MinStudents {
+			out = append(out, cnt[k].u)
+		}
 	}
 	sort.SliceStable(out, func(i, j int) bool { return out[i].Count > out[j].Count })
 	if len(out) > 20 {
