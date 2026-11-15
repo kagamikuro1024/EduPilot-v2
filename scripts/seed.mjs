@@ -1195,6 +1195,8 @@ async function step17Moderation() {
 const MOCK_IMAP = setting("MOCK_IMAP_URL", "http://localhost:8091").replace(/\/$/, "");
 const MOCK_GRAPH = setting("MOCK_GRAPH_URL", "http://localhost:8090").replace(/\/$/, "");
 const DUE_AHEAD_S = 75;
+// P-11-13: mô tả bài tập ghi «Hạn nộp 23:59» ⇒ hạn BT04 đặt đúng 23:59:00 giờ Việt Nam (+07) của ngày đó. BT03 cần hạn ngắn lúc nộp bài thử rồi được `seed-age` lùi về 23:59 (+07).
+const at2359 = (d) => new Date(`${new Date(d.getTime() + 7 * 3600_000).toISOString().slice(0, 10)}T23:59:00+07:00`);
 const BT03 = "BT03", BT04 = "BT04";
 const IMAP_USER = "nop@edupilot.test";
 
@@ -1276,7 +1278,7 @@ async function step18Assignments() {
   const existing = (await listAll(`/courses/${c1}/assignments`, t)).find((a) => a.submission_code === BT03);
   const dueAt = existing ? new Date(existing.due_at) : new Date(Date.now() + DUE_AHEAD_S * 1000);
   const asg = await ensureAssignment(c1, t, { ...base, due_at: dueAt.toISOString(), channels: ["IN_APP", "UPLOAD", "IMAP"] }, `seed-create-${BT03}`);
-  await ensureAssignment(c1, t, { ...base, title: TEAMS_TITLE_04, submission_code: BT04, channels: ["IN_APP", "TEAMS"], teams_class_id: meta.class_id, teams_assignment_id: meta.assignment_id, due_at: new Date(dueAt.getTime() + 7 * 86400_000).toISOString() }, `seed-create-${BT04}`);
+  await ensureAssignment(c1, t, { ...base, title: TEAMS_TITLE_04, submission_code: BT04, channels: ["IN_APP", "TEAMS"], teams_class_id: meta.class_id, teams_assignment_id: meta.assignment_id, due_at: at2359(new Date(dueAt.getTime() + 7 * 86400_000)).toISOString() }, `seed-create-${BT04}`);
   const due = new Date(asg.due_at);
 
   // 1) trong app, đúng hạn (trừ Sinh viên B, nộp sau hạn)

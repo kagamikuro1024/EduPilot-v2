@@ -213,21 +213,27 @@ func AgeAssignment(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, 
 		return 0, fmt.Errorf("lùi bài tập: %w", err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
+	// P-11-13: hạn sau khi lùi PHẢI là 23:59 giờ Việt Nam (+07) cho khớp mô tả «Hạn nộp 23:59»: lùi ≥ `hours` giờ về 23:59 gần nhất. Mọi mốc cùng lùi một khoảng nên
+	// khoảng cách tương đối (muộn / đúng hạn, kể cả «trễ 2 giây») giữ nguyên.
 	var id uuid.UUID
-	err = tx.QueryRow(ctx, `update assignments set due_at = due_at - make_interval(hours => $3), published_at = published_at - make_interval(hours => $3), created_at = created_at - make_interval(hours => $3)
-where course_id = $1 and submission_code = $2 and due_at > now() - make_interval(hours => $3::int / 2) returning id`, courseID, code, hours).Scan(&id)
+	var due time.Time
+	err = tx.QueryRow(ctx, `select id, due_at from assignments where course_id = $1 and submission_code = $2 and due_at > now() - make_interval(hours => $3::int / 2) for update`, courseID, code, hours).Scan(&id, &due)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return 0, nil // đã lùi rồi (hoặc không có bài)
 	}
 	if err != nil {
 		return 0, fmt.Errorf("lùi bài tập: %w", err)
 	}
+	secs := due.Sub(DueTarget(due, hours)).Seconds()
+	if _, err = tx.Exec(ctx, `update assignments set due_at = due_at - make_interval(secs => $2), published_at = published_at - make_interval(secs => $2), created_at = created_at - make_interval(secs => $2) where id = $1`, id, secs); err != nil {
+		return 0, fmt.Errorf("lùi bài tập: %w", err)
+	}
 	n := int64(1)
 	for _, q := range []string{
-		`update submissions set received_at = received_at - make_interval(hours => $2), submitted_at = submitted_at - make_interval(hours => $2) where course_id = $1 and (assignment_id = $3 or assignment_id is null)`,
-		`update mail_inbound set received_at = received_at - make_interval(hours => $2) where course_id = $1 and $3::uuid is not null`,
+		`update submissions set received_at = received_at - make_interval(secs => $2), submitted_at = submitted_at - make_interval(secs => $2) where course_id = $1 and (assignment_id = $3 or assignment_id is null)`,
+		`update mail_inbound set received_at = received_at - make_interval(secs => $2) where course_id = $1 and $3::uuid is not null`,
 	} {
-		tag, err := tx.Exec(ctx, q, courseID, hours, id)
+		tag, err := tx.Exec(ctx, q, courseID, secs, id)
 		if err != nil {
 			return 0, fmt.Errorf("lùi bài nộp: %w", err)
 		}
@@ -237,6 +243,16 @@ where course_id = $1 and submission_code = $2 and due_at > now() - make_interval
 		return 0, fmt.Errorf("lùi bài tập: %w", err)
 	}
 	return n, nil
+}
+
+// DueTarget: mốc 23:59:00 giờ Việt Nam (+07) muộn nhất không sau `due − hours` giờ.
+func DueTarget(due time.Time, hours int) time.Time {
+	t := due.Add(-time.Duration(hours) * time.Hour).In(ict)
+	target := time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 0, 0, ict)
+	if target.After(t) {
+		target = target.AddDate(0, 0, -1)
+	}
+	return target
 }
 
 // AgeActivity đưa `created_at` của tin chat (USER), thread và bình luận của lớp nằm trong tuần hiện tại về một mốc ngẫu nhiên-nhưng-ổn-định (băm của `id`) trong `weeks` tuần TRƯỚC tuần hiện tại.
