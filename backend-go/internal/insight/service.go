@@ -340,6 +340,7 @@ func (s *Service) generate(ctx context.Context, owner uuid.UUID, p payload, stag
 	}
 	stage(70, "NAME")
 	s.name(ctx, &pl)
+	guardLeaks(&pl) // trước khi lưu (FR-29); export đọc từ bản đã lưu
 	raw, err := json.Marshal(pl)
 	if err != nil {
 		return nil, fmt.Errorf("insight: payload: %w", err)
@@ -672,10 +673,19 @@ func (s *Service) insert(ctx context.Context, p payload, from, to time.Time, raw
 	return row, nil
 }
 
-const leakWords = 6 // ≥ 6 từ liên tiếp trùng một câu dưới ngưỡng k = lộ câu (P-11-32)
+const (
+	leakWords    = 6 // ≥ 6 từ liên tiếp trùng một câu dưới ngưỡng k = lộ câu (P-11-32, FR-29)
+	leakMinWords = 4 // câu dưới ngưỡng ngắn hơn 4 từ bị bỏ (quá ngắn để nhận diện)
+)
 
-// belowGrams: mọi cụm leakWords từ liên tiếp (đã bỏ dấu, chữ thường) của các câu chuẩn hoá do < MinStudents sinh viên khác nhau hỏi.
-func belowGrams(items []item) map[string]struct{} {
+// belowSet: câu chuẩn hoá do < MinStudents sinh viên khác nhau hỏi, dạng dãy từ (vn_fold, chữ thường, tách theo ký tự không phải chữ / số).
+// Câu ≥ leakWords từ: lưu mọi cụm leakWords từ liên tiếp; câu 4–5 từ: lưu nguyên câu (trùng khi văn bản chứa nguyên câu).
+type belowSet struct {
+	grams map[string]struct{}
+	short [][]string
+}
+
+func belowGrams(items []item) belowSet {
 	students := map[string]map[uuid.UUID]struct{}{}
 	words := map[string][]string{}
 	for _, it := range items {
@@ -686,25 +696,46 @@ func belowGrams(items []item) map[string]struct{} {
 		}
 		students[k][it.student] = struct{}{}
 	}
-	out := map[string]struct{}{}
+	out := belowSet{grams: map[string]struct{}{}}
 	for k, w := range words {
-		if len(students[k]) >= MinStudents {
+		if len(students[k]) >= MinStudents || len(w) < leakMinWords {
+			continue
+		}
+		if len(w) < leakWords {
+			out.short = append(out.short, w)
 			continue
 		}
 		for i := 0; i+leakWords <= len(w); i++ {
-			out[strings.Join(w[i:i+leakWords], " ")] = struct{}{}
+			out.grams[strings.Join(w[i:i+leakWords], " ")] = struct{}{}
 		}
 	}
 	return out
 }
 
-// leaks: văn bản do LLM sinh có chép ≥ leakWords từ liên tiếp của một câu dưới ngưỡng k.
-func leaks(text string, below map[string]struct{}) bool {
+// leaks: văn bản (do LLM hoặc code sinh) có ≥ leakWords từ liên tiếp trùng một câu dưới ngưỡng k, hoặc chứa nguyên một câu dưới ngưỡng ngắn.
+func leaks(text string, b belowSet) bool {
 	w := textfold.Words(text)
 	for i := 0; i+leakWords <= len(w); i++ {
-		if _, ok := below[strings.Join(w[i:i+leakWords], " ")]; ok {
+		if _, ok := b.grams[strings.Join(w[i:i+leakWords], " ")]; ok {
 			return true
 		}
 	}
+	for _, sh := range b.short {
+		for i := 0; i+len(sh) <= len(w); i++ {
+			if slices.Equal(w[i:i+len(sh)], sh) {
+				return true
+			}
+		}
+	}
 	return false
+}
+
+// guardLeaks: kiểm tất định name / why / recommendation của mọi chủ đề trước khi lưu (FR-29): trùng câu dưới ngưỡng → name «Chủ đề N» (named_by fallback), why và recommendation "".
+func guardLeaks(pl *Payload) {
+	for i := range pl.Topics {
+		t := &pl.Topics[i]
+		if leaks(t.Name, pl.below) || leaks(t.Why, pl.below) || leaks(t.Recommendation, pl.below) {
+			t.Name, t.Why, t.Recommendation, t.NamedBy = fmt.Sprintf("Chủ đề %d", t.Rank), "", "", namedByFallback
+		}
+	}
 }

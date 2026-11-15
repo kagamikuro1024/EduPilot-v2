@@ -237,32 +237,66 @@ func TestKnowledgeGapExamplesPerQuestion(t *testing.T) {
 	require.NotContains(t, md, "riêng em")
 }
 
-// TestKnowledgeGapNamingNoLeak — P-11-32: đầu vào đặt tên chỉ có câu đạt ngưỡng k; đầu ra LLM chép ≥ 6 từ liên tiếp của câu dưới ngưỡng → thay «Chủ đề N», bỏ khuyến nghị.
-func TestKnowledgeGapNamingNoLeak(t *testing.T) {
+func seedLeakRig(t *testing.T) *rig {
 	r := newRig(t, 13)
-	for k := range 5 {
+	for k := range 5 { // cụm SQL: 5 sinh viên, mỗi câu một người → câu dưới ngưỡng k
 		r.ask(k, fmt.Sprintf("Viết SQL join hai bảng thế nào, riêng em %d bị lỗi mã sinh viên", k), false, false)
 	}
-	for k := range 25 {
+	for k := range 25 { // cụm TCP: mỗi câu 5 sinh viên → câu đạt ngưỡng
 		r.ask(5+k/5, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k%5), false, false)
 	}
-	r.llm.leakName = "Ôn: viết SQL join hai bảng thế nào, riêng"
+	return r
+}
+
+// TestKnowledgeGapPromptOnlyQualified — P-11-32 / FR-29: lời nhắc đặt tên chỉ có câu đạt ngưỡng k + từ khoá; câu dưới ngưỡng không vào.
+func TestKnowledgeGapPromptOnlyQualified(t *testing.T) {
+	r := seedLeakRig(t)
 	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
 	require.NoError(t, err)
-	p := r.report()
-	require.NotEmpty(t, p.Topics)
-	for _, tp := range p.Topics {
-		require.Equal(t, fmt.Sprintf("Chủ đề %d", tp.Rank), tp.Name, "tên chép câu dưới ngưỡng bị thay")
-		require.Equal(t, "fallback", tp.NamedBy)
-		require.Empty(t, tp.Recommendation)
+	require.NotEmpty(t, r.llm.seen)
+	all := strings.Join(r.llm.seen, "\n")
+	require.NotContains(t, all, "riêng em")
+	require.Contains(t, all, "TCP bắt tay ba bước là gì")
+}
+
+// TestKnowledgeGapNameGuard — FR-29: name chép ≥ 6 từ liên tiếp của câu dưới ngưỡng → «Chủ đề N», fallback, why / recommendation rỗng (khoá vẫn có); 5 từ → giữ; từ trùng chỉ ở câu đạt ngưỡng → giữ.
+func TestKnowledgeGapNameGuard(t *testing.T) {
+	cases := []struct {
+		name, leak string
+		replaced   bool
+	}{
+		{"đúng 6 từ liên tiếp", "Ôn: viết SQL join hai bảng thế nào, riêng", true},
+		{"5 từ liên tiếp", "Ôn: viết SQL join hai bảng, riêng", false},
+		{"từ trùng ở câu đạt ngưỡng", "Ôn: TCP bắt tay ba bước là gì", false},
 	}
-	// đầu vào gửi LLM không chứa câu dưới ngưỡng: kiểm bằng lời gọi tiếp theo
-	r.llm.leakName = ""
-	r.llm.seen = nil
-	_, err = r.svc.RunNow(t.Context(), r.teacher, r.course, 14)
-	require.NoError(t, err)
-	for _, m := range r.llm.seen {
-		require.NotContains(t, m, "riêng em")
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			r := seedLeakRig(t)
+			r.llm.leakName = c.leak
+			_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+			require.NoError(t, err)
+			p := r.report()
+			require.NotEmpty(t, p.Topics)
+			for _, tp := range p.Topics {
+				if c.replaced {
+					require.Equal(t, fmt.Sprintf("Chủ đề %d", tp.Rank), tp.Name)
+					require.Equal(t, "fallback", tp.NamedBy)
+					require.Empty(t, tp.Why)
+					require.Empty(t, tp.Recommendation)
+				} else {
+					require.Equal(t, c.leak, tp.Name)
+					require.Equal(t, "llm", tp.NamedBy)
+					require.NotEmpty(t, tp.Recommendation)
+				}
+			}
+			rep, err := r.svc.Latest(t.Context(), r.course)
+			require.NoError(t, err)
+			md, err := r.svc.Export(t.Context(), r.course, rep.Report.ID)
+			require.NoError(t, err)
+			if c.replaced {
+				require.NotContains(t, md, "riêng")
+			}
+		})
 	}
 }
 

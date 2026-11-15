@@ -52,10 +52,6 @@ func (s *Service) name(ctx context.Context, pl *Payload) {
 		}
 		t := &pl.Topics[o.ID-1]
 		rec := strings.TrimSpace(o.Recommendation)
-		if leaks(name, pl.below) || leaks(rec, pl.below) { // chép câu dưới ngưỡng k: bỏ chữ của LLM, giữ tên tạm theo từ khoá, bỏ khuyến nghị (P-11-32)
-			t.Name, t.Recommendation, t.NamedBy = fmt.Sprintf("Chủ đề %d", t.Rank), "", namedByFallback
-			continue
-		}
 		t.Name, t.Recommendation, t.NamedBy = trim(name), trim(rec), namedByLLM
 	}
 }
