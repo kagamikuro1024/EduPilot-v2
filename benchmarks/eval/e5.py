@@ -11,6 +11,7 @@ Không đếm câu đã duyệt sẵn trong seed (chỉ các lô do lệnh này 
 import argparse
 import json
 import os
+import subprocess
 import time
 from datetime import datetime
 
@@ -32,6 +33,13 @@ PLAN = [  # (tài liệu, chủ đề) — chủ đề khác nhau để lô khô
 ]
 
 
+def gateway_started():
+    """`State.StartedAt` của gateway stack đo: đổi giữa lô ⇒ gateway đã khởi động lại."""
+    name = f"{os.environ.get('COMPOSE_PROJECT_NAME', 'ep-qc')}-gateway-1"
+    r = subprocess.run(["docker", "inspect", "-f", "{{.State.StartedAt}}", name], capture_output=True, text=True)
+    return r.stdout.strip() or None
+
+
 def run():
     tok = login(TEACHER)
     cid = lib.course_by_code(tok, lib.CLASS1)
@@ -45,7 +53,7 @@ def run():
     raw["course_id"] = cid
     for i, (doc, topic) in enumerate(PLAN):
         k = f"lo{i + 1:02d}"
-        if raw["jobs"].get(k, {}).get("status") == "SUCCEEDED":
+        if raw["jobs"].get(k, {}).get("t1"):  # lô đã kết thúc (kể cả FAILED / lỗi) giữ nguyên, không chạy lại để lấy số đẹp
             continue
         if doc not in docs:
             raise Fail(f"lớp 1 không có tài liệu «{doc}»")
@@ -60,12 +68,19 @@ def run():
                 return
             if st != 202:
                 raise Fail(f"generate {k} → {st} {j}")
-            raw["jobs"][k] = {"topic": topic, "document": doc, "job_id": j["job_id"], "t0": t0}
+            raw["jobs"][k] = {"topic": topic, "document": doc, "job_id": j["job_id"], "t0": t0, "gateway_started_at": gateway_started()}
             lib.save_raw("e5.json", raw)
-        r = lib.wait_job(login(TEACHER), raw["jobs"][k]["job_id"], timeout=900)
+        try:
+            r = lib.wait_job(login(TEACHER), raw["jobs"][k]["job_id"], timeout=900)
+        except Fail as e:  # gateway mất giữa lô: ghi lô lỗi, dừng
+            raw["jobs"][k].update(status="LOST", error={"code": "HARNESS", "message": str(e)[:200]}, t1=lib.now_iso())
+            lib.save_raw("e5.json", raw)
+            raise
         raw["jobs"][k].update(status=r["status"], result=r.get("result"), error=r.get("error"), t1=lib.now_iso())
+        if gateway_started() != raw["jobs"][k]["gateway_started_at"]:  # gateway khởi động lại giữa lô ⇒ lô lỗi (PM), không chạy lại
+            raw["jobs"][k].update(status=f"{r['status']}_GATEWAY_RESTARTED", error={"code": "GATEWAY_RESTARTED", "message": "gateway khởi động lại giữa lô"})
         lib.save_raw("e5.json", raw)
-        print(f"  {k}: {r['status']} {json.dumps(r.get('result'), ensure_ascii=False)[:160]}")
+        print(f"  {k}: {raw['jobs'][k]['status']} {json.dumps(r.get('result'), ensure_ascii=False)[:160]}")
         time.sleep(8)  # 9router 20 rpm dùng chung với QC: lô tuần tự + nghỉ ⇒ ≪ 8 rpm
     lib.save_raw("e5.json", raw)
 
