@@ -146,6 +146,7 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
     body: body.value,
     payload: { title: title.value, body: body.value, tags: tagList, week_no: week ? Number(week) : null },
     canChat,
+    suggest: true,
     onPosted: () => {
       title.clear();
       body.clear();
@@ -161,6 +162,13 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
   return (
     <form className={r.composer} onSubmit={(e) => { e.preventDefault(); if (!empty && !locked) void gate.submit(false); }} data-part="thread-form">
       <Field label="Tiêu đề" required>{(id) => <Input id={id} value={title.value} onChange={(e) => title.setValue(e.target.value)} maxLength={200} disabled={locked} />}</Field>
+      {gate.similar.length > 0 && (
+        <ul className={r.similar} data-part="similar-confirmed" aria-label="Đã có câu trả lời xác nhận">
+          {gate.similar.map((x) => (
+            <li key={x.thread_id}><Link href={`/threads/${x.thread_id}`}>{x.title}</Link></li>
+          ))}
+        </ul>
+      )}
       <Field label="Nội dung" required>{(id) => <Textarea id={id} rows={5} value={body.value} onChange={(e) => body.setValue(e.target.value)} disabled={locked} />}</Field>
       <div className={r.composerRow}>
         <Field label="Thẻ">{(id) => <Input id={id} value={tags} onChange={(e) => setTags(e.target.value)} placeholder="quy-che, tcp" disabled={locked} />}</Field>

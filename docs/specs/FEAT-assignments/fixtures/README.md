@@ -9,7 +9,7 @@ Dev và QC **không sửa** các tệp này; lệch → ghi `proposals.md` / `QU
 | `rubric-bt03.json` | 4 tiêu chí c1–c4, mỗi tiêu chí tối đa 2,5; Σ = 10; bước 0,25 | US-P7-02, `SuggestRubric` giả |
 | `create-bt03.json` | Body `POST …/assignments` của Bài tập 03 (`due_at` ví dụ; seed đặt hạn đã qua theo `seed-plan.csv`; `id` tiêu chí do máy chủ cấp) | US-P7-02 AC2, seed |
 | `submissions/s1…s7` | 7 mẫu bài làm (tốt, thiếu bằng chứng, tổng sai, trống, lạc đề, chèn lệnh, lệch hai lượt) | US-P7-06 |
-| `expected_grading.json` | Điểm / cờ kỳ vọng của 7 mẫu (S7 = bài Sinh viên B: nháp 7,00 − 0,50 muộn = 6,50; sau giảng viên sửa tiêu chí 2 → 8,00 − 0,50 = 7,50) | US-P7-06, SEED AC2, AC5 |
+| `expected_grading.json` | **`expected` = kỳ vọng của bản NHÁP AI (provider giả) — dùng cho test code; `teacher_label` = nhãn người (điểm giảng viên chốt) — dùng cho mọi phép đo MAE / E3 / ca hồi quy (P-106-1; S7: `8,00`, không phải `7,00`).** Điểm / cờ kỳ vọng của 7 mẫu (S7 = bài Sinh viên B: nháp 7,00 − 0,50 muộn = 6,50; sau giảng viên sửa tiêu chí 2 → 8,00 − 0,50 = 7,50) | US-P7-06, SEED AC2, AC5 |
 | `expected_checks.json` | 13 ca kiểm một lượt (K01–K13) + 4 ca hai lượt (D01–D04) + 6 ca mẫu chèn lệnh (I01–I06, gồm câu SUNBURST thật không bị bắt nhầm) + 2 ca `ANSWER_ECHO` (A01, A02) | US-P7-06 AC5, AC7, AC12 |
 | `seed-plan.csv` | 30 sinh viên × Bài tập 03: mẫu, kênh, giờ so với hạn, khớp ban đầu, điểm công bố giả định | US-S9-SEED AC1, AC4, AC5 |
 | `teams-plan.csv` | 30 bản ghi Graph (25 `submitted` gồm 1 người ngoài lớp, 3 `working`, 2 `returned`) | US-P7-11, mock-graph |

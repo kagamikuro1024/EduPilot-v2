@@ -2,6 +2,8 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { fmtLong } from "@/features/calendar/calendarApi";
 import { useSession } from "@/shared/session/session";
@@ -23,7 +25,7 @@ export function AssignmentsTab({ courseId, teacher, creating, onCreatingChange }
   const { identity } = useSession();
   const qc = useQueryClient();
   const list = useAssignments(courseId);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(useSearchParams().get("open")); // liên kết sâu tới ngăn của một bài tập
   const open = creating ? "new" : openId;
 
   const close = () => {
@@ -33,7 +35,25 @@ export function AssignmentsTab({ courseId, teacher, creating, onCreatingChange }
   const refresh = () => void qc.invalidateQueries({ queryKey: assignmentsKey(courseId) });
 
   const columns: Column<Assignment>[] = [
-    { key: "title", header: "Tiêu đề", primary: true, render: (a) => a.title },
+    {
+      key: "title",
+      header: "Tiêu đề",
+      primary: true,
+      // GV-BUG (j): dòng là LIÊN KẾT THẬT (mở tab mới, chuột giữa, Ctrl-click, bàn phím / trình đọc màn hình); bấm thường mở ngăn bên
+      render: (a) => (
+        <Link
+          href={`/grading?tab=assignments&open=${a.id}`}
+          onClick={(e) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+            e.preventDefault();
+            e.stopPropagation();
+            setOpenId(a.id);
+          }}
+        >
+          {a.title}
+        </Link>
+      ),
+    },
     { key: "due", header: "Hạn", render: (a) => <span className={s.due}>{fmtLong(a.due_at)}</span> },
     {
       key: "state",

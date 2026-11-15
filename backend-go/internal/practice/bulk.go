@@ -2,6 +2,7 @@ package practice
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -23,6 +24,7 @@ type BulkIn struct {
 	IDs        []uuid.UUID `json:"ids" validate:"required"`
 	Topic      *string     `json:"topic"`
 	Difficulty *string     `json:"difficulty"`
+	Reason     *string     `json:"reason"` // lý do loại (chỉ action=reject, tuỳ ý): M6
 }
 
 // BulkResult là kết quả MỘT id: một id lỗi không huỷ cả lô.
@@ -104,7 +106,7 @@ func (s *Service) bulkOne(ctx context.Context, q *store.Queries, actor, courseID
 		}
 		_, err = s.Exam.Review(ctx, actor, courseID, id, exam.DecisionApprove, int(b.Version))
 	case "REJECT":
-		_, err = s.Exam.Review(ctx, actor, courseID, id, exam.DecisionReject, int(b.Version))
+		_, err = s.Exam.ReviewWithReason(ctx, actor, courseID, id, exam.DecisionReject, int(b.Version), in.Reason)
 	default:
 		var n int64
 		var diff *store.QuestionDifficulty
@@ -122,10 +124,11 @@ func (s *Service) bulkOne(ctx context.Context, q *store.Queries, actor, courseID
 
 // GenStats là `GET …/questions/gen-stats?job_id` (US-P9-03 AC7): số liệu thô E5 của một lô.
 type GenStats struct {
-	Unchanged int `json:"unchanged"`
-	Edited    int `json:"edited"`
-	Rejected  int `json:"rejected"`
-	Pending   int `json:"pending"`
+	Hints     []string `json:"hints,omitempty"` // lý do «Tránh» đã dùng cho lô này (lưu lúc chạy)
+	Unchanged int      `json:"unchanged"`
+	Edited    int      `json:"edited"`
+	Rejected  int      `json:"rejected"`
+	Pending   int      `json:"pending"`
 }
 
 // GenStatsOf tính từ `version` lúc duyệt (audit `question.review`) và `review_status`; lô không có câu nào → 404.
@@ -137,5 +140,10 @@ func (s *Service) GenStatsOf(ctx context.Context, courseID, jobID uuid.UUID) (Ge
 	if row.Unchanged+row.Edited+row.Rejected+row.Pending == 0 {
 		return GenStats{}, notFound()
 	}
-	return GenStats{Unchanged: int(row.Unchanged), Edited: int(row.Edited), Rejected: int(row.Rejected), Pending: int(row.Pending)}, nil
+	out := GenStats{Unchanged: int(row.Unchanged), Edited: int(row.Edited), Rejected: int(row.Rejected), Pending: int(row.Pending)}
+	if raw, herr := store.New(s.Pool).PracticeGenHints(ctx, store.PracticeGenHintsParams{JobID: jobID, CourseID: courseID.String()}); herr == nil {
+		b, _ := json.Marshal(raw) // sqlc trả interface{} cho coalesce(jsonb)
+		_ = json.Unmarshal(b, &out.Hints)
+	}
+	return out, nil
 }

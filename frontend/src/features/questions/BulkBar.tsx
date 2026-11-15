@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { ApiError, ApiErrorNotice, apiClient, newIdempotencyKey } from "@/shared/data";
 import { userMessageFor } from "@/shared/i18n/vi";
 import { Button, InlineNotice, Popover, Select, Field, Input } from "@/shared/ui";
+import { useGuidanceFlags } from "@/features/assignments/guidanceApi";
 import { DIFF_LABEL, qPath, type Difficulty } from "./questionsApi";
 import s from "./Questions.module.css";
 
@@ -12,6 +13,34 @@ type Result = { id: string; ok: boolean; code?: string };
 type Undo = { push: (m: React.ReactNode, onUndo?: () => void) => void; clear: () => void };
 const MAX = 50;
 const REJECT_DELAY_MS = 5000;
+const REASONS: Array<{ value: string; label: string }> = [
+  { value: "MO_HO", label: "Mơ hồ" }, { value: "SAI_DAP_AN", label: "Sai đáp án" }, { value: "TRUNG_LAP", label: "Trùng lặp" },
+  { value: "LAC_DE", label: "Lạc đề" }, { value: "KHO_DE_BAT_THUONG", label: "Độ khó lạ" }, { value: "SAI_DINH_DANG", label: "Sai định dạng" },
+];
+
+/** Lý do loại chọn nhanh, bỏ qua được (M6): nằm cạnh dòng «Hoàn tác»; chọn lại cùng nhãn thì bỏ chọn. */
+function ReasonChips({ onPick }: { onPick: (r: string | null) => void }) {
+  const [v, setV] = useState<string | null>(null);
+  return (
+    <span role="group" aria-label="Lý do loại" className={s.reasons}>
+      {REASONS.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          aria-pressed={v === o.value}
+          className={s.reasonChip}
+          onClick={() => {
+            const next = v === o.value ? null : o.value;
+            setV(next);
+            onPick(next);
+          }}
+        >
+          {o.label}
+        </button>
+      ))}
+    </span>
+  );
+}
 /** Lệnh `Loại` đang hoãn 5 s: rời trang / đóng tab (`pagehide`) thì gửi NGAY bằng `fetch keepalive`, không để mất (P-10-8 Q-S10-31). Ở mức module vì BulkBar bị gỡ ngay khi vùng chọn rỗng. */
 const pendingRejects = new Set<(keepalive: boolean) => void>();
 if (typeof window !== "undefined") window.addEventListener("pagehide", () => [...pendingRejects].forEach((run) => run(true)));
@@ -37,6 +66,8 @@ export function BulkBar({ courseId, selected, topics, onSelected, onFailed, onHi
   const key = useRef<string | null>(null);
   const timer = useRef<number | null>(null);
   const last = useRef<{ body: Record<string, unknown>; ids: string[] } | null>(null);
+  const flags = useGuidanceFlags(courseId, true);
+  const hints = flags.data?.some((f) => f.feature === "QUESTION_HINTS" && f.enabled) ?? false; // chỉ giảng viên đọc được cờ: TA không thấy nhãn
   const tooMany = selected.size > MAX;
   const ids = [...selected].slice(0, MAX);
 
@@ -62,16 +93,17 @@ export function BulkBar({ courseId, selected, topics, onSelected, onFailed, onHi
 
   function reject() {
     const sendIds = ids;
+    let reason: string | null = null;
     onHide((p) => new Set([...p, ...sendIds]));
     onSelected(new Set());
     const run = (keepalive: boolean) => {
       pendingRejects.delete(run);
       if (timer.current) window.clearTimeout(timer.current);
-      void send({ action: "REJECT" }, sendIds, keepalive);
+      void send({ action: "REJECT", ...(reason ? { reason } : {}) }, sendIds, keepalive);
     };
     pendingRejects.add(run);
     timer.current = window.setTimeout(() => run(false), REJECT_DELAY_MS);
-    undo.push(`Đã loại ${sendIds.length} câu`, () => {
+    undo.push(hints ? <>{`Đã loại ${sendIds.length} câu`}<ReasonChips onPick={(r) => { reason = r; }} /></> : `Đã loại ${sendIds.length} câu`, () => {
       pendingRejects.delete(run);
       if (timer.current) window.clearTimeout(timer.current);
       onHide((p) => new Set([...p].filter((id) => !sendIds.includes(id))));

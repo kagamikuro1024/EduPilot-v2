@@ -1186,6 +1186,50 @@ func (ns NullGradebookStatus) Value() (driver.Value, error) {
 	return string(ns.GradebookStatus), nil
 }
 
+type GuidanceItemStatus string
+
+const (
+	GuidanceItemStatusDRAFT    GuidanceItemStatus = "DRAFT"
+	GuidanceItemStatusAPPROVED GuidanceItemStatus = "APPROVED"
+	GuidanceItemStatusREJECTED GuidanceItemStatus = "REJECTED"
+	GuidanceItemStatusRETIRED  GuidanceItemStatus = "RETIRED"
+)
+
+func (e *GuidanceItemStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GuidanceItemStatus(s)
+	case string:
+		*e = GuidanceItemStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GuidanceItemStatus: %T", src)
+	}
+	return nil
+}
+
+type NullGuidanceItemStatus struct {
+	GuidanceItemStatus GuidanceItemStatus
+	Valid              bool // Valid is true if GuidanceItemStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGuidanceItemStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.GuidanceItemStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GuidanceItemStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGuidanceItemStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GuidanceItemStatus), nil
+}
+
 type JobStatus string
 
 const (
@@ -2568,6 +2612,7 @@ type Assignment struct {
 	Version           int32
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+	GuidanceVersion   int16
 }
 
 type AttendanceRecord struct {
@@ -2823,6 +2868,15 @@ type Course struct {
 type CourseDecisionGate struct {
 	CourseID  uuid.UUID
 	Gate      string
+	Enabled   bool
+	Version   int32
+	UpdatedBy *uuid.UUID
+	UpdatedAt time.Time
+}
+
+type CourseGuidanceFlag struct {
+	CourseID  uuid.UUID
+	Feature   string
 	Enabled   bool
 	Version   int32
 	UpdatedBy *uuid.UUID
@@ -3218,6 +3272,49 @@ type Gradebook struct {
 	UpdatedAt       time.Time
 }
 
+type GradingGuidanceItem struct {
+	ID                uuid.UUID
+	CourseID          uuid.UUID
+	AssignmentID      uuid.UUID
+	CriterionID       string
+	Text              string
+	TextOriginal      *string
+	Direction         string
+	Support           int16
+	SourceResultIds   []uuid.UUID
+	NeedsRecheck      bool
+	Status            GuidanceItemStatus
+	PendingRetire     bool
+	ApprovedInVersion *int16
+	RetiredInVersion  *int16
+	OriginJob         *uuid.UUID
+	DecidedBy         *uuid.UUID
+	DecidedAt         *time.Time
+	Version           int32
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type GradingGuidanceVersion struct {
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+	Version      int16
+	ItemCount    int16
+	CreatedBy    uuid.UUID
+	CreatedAt    time.Time
+}
+
+type GradingRegressionCase struct {
+	ID          uuid.UUID
+	CourseID    uuid.UUID
+	Kind        string
+	SourceID    uuid.UUID
+	CriterionID *string
+	Expected    json.RawMessage
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
 type GradingResult struct {
 	ID                     uuid.UUID
 	CourseID               uuid.UUID
@@ -3252,6 +3349,10 @@ type GradingResult struct {
 	Version                int32
 	CreatedAt              time.Time
 	UpdatedAt              time.Time
+	GuidanceVersion        int16
+	AiComments             json.RawMessage
+	FirstReviewedAt        *time.Time
+	FirstReviewedBy        *uuid.UUID
 }
 
 type IdempotencyKey struct {
@@ -3571,6 +3672,7 @@ type QuestionBank struct {
 	Version      int32
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	RejectReason *string
 }
 
 type QuestionOption struct {

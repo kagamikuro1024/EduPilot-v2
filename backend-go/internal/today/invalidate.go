@@ -50,6 +50,8 @@ const (
 	TopicSubmissionCreated = "submission.created"
 	// US-P7-04: bài chưa khớp vừa được gán tay / bỏ qua / hoàn tác → mục UNMATCHED_SUBMISSION của Staff đổi (và cache của sinh viên được gán).
 	TopicSubmissionResolved = "submission.resolved"
+	// 10.6: lưu ý chấm đổi (quyết định / áp dụng) → việc GUIDANCE_PENDING / GUIDANCE_STALE của nhân viên đổi. Chuỗi trùng grading.TopicGuidanceChanged; khai lại để gói này không import grading.
+	TopicGuidanceChanged = "grading_guidance.changed"
 	// US-P3-08: thread mới / quyết định về bài AI → việc AI_CONFIRM của Staff đổi.
 	TopicThreadCreated     = "thread.created"
 	TopicThreadPostDecided = "thread.post_decided"
@@ -61,7 +63,7 @@ const (
 func Topics() []string {
 	return []string{TopicJoinRequested, TopicJoinDecided, TopicMemberChanged, TopicAssigned, TopicChanged, TopicUserVerified, TopicRosterImport,
 		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted, TopicSimilarityDone, TopicSimilarityReviewed,
-		TopicAttemptGraded, TopicExamPublished, TopicExamHold, TopicExamRegraded, TopicAppealCreated, TopicAppealAnswered, TopicCalendarChanged, TopicThreadCreated, TopicThreadPostDecided, TopicAssignmentPublished, TopicAssignmentUpdated, TopicSubmissionCreated, TopicSubmissionResolved}
+		TopicAttemptGraded, TopicExamPublished, TopicExamHold, TopicExamRegraded, TopicAppealCreated, TopicAppealAnswered, TopicCalendarChanged, TopicThreadCreated, TopicThreadPostDecided, TopicAssignmentPublished, TopicAssignmentUpdated, TopicSubmissionCreated, TopicSubmissionResolved, TopicGuidanceChanged}
 }
 
 // Invalidator xoá `ep:today:{uid}:{scope}` của những người bị một sự kiện outbox ảnh hưởng. Idempotent (DEL).

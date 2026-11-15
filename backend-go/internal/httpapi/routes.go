@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -144,6 +145,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 					ah.Teams = &submission.TeamsSync{Pool: d.DB, Redis: d.Redis, Cipher: cipher, Jobs: d.Jobs, Log: d.Log, Enabled: d.Cfg.TeamsEnabled, Source: tenv.Source, Timeout: d.Cfg.TeamsSyncTimeout, MinInterval: d.Cfg.SyncNowMinInterval}
 				}
 			}
+			ah.Guidance = guidanceService(d)
 			ah.Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
@@ -231,6 +233,10 @@ func assignmentService(d Deps) *assignment.Service {
 	if d.LLM != nil && d.LLM.Gateway != nil {
 		s.LLM = d.LLM.Gateway
 	}
+	s.RegressMinDelta = d.Cfg.RegressionMinDelta
+	if d.LLM != nil {
+		s.Guidance = d.LLM.Guidance
+	}
 	return s
 }
 
@@ -240,6 +246,23 @@ func submissionService(d Deps) *submission.Service {
 		s.Blob = d.Blob
 	}
 	return s
+}
+
+// guidanceService dựng phía gateway của «Lưu ý chấm» (10.6). Cần Redis (trần giờ / khoá idempotent) và Jobs; thiếu → không có route.
+func guidanceService(d Deps) *grading.GuidanceService {
+	if d.Redis == nil || d.Jobs == nil {
+		return nil
+	}
+	var flags *grading.GuidanceFlags
+	if d.LLM != nil {
+		flags = d.LLM.Guidance
+	}
+	if flags == nil {
+		flags = grading.NewGuidanceFlags(d.DB, d.Log)
+		_ = flags.Load(context.Background())
+	}
+	det := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: d.DB}, Redis: d.Redis, Log: d.Log}}
+	return &grading.GuidanceService{Pool: d.DB, Redis: d.Redis.Client, Jobs: d.Jobs, Flags: flags, Det: det, Cfg: grading.GuidanceConfigFrom(d.Cfg)}
 }
 
 func gradingService(d Deps) *grading.Service {

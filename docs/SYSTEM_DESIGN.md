@@ -92,6 +92,12 @@ Quyết định kiến trúc (và cái bị từ chối):
     - Threads precheck: về `Structured` qua 9router (`THREADS_STRUCTURED_TIMEOUT` 6 s). Nếu `Structured` cũng lỗi → `FAIL_CLOSED`: **chặn** bài, không lưu, hiện cùng hộp thoại như khi bị chặn thường, và phát cảnh báo `DECISION_FAIL_CLOSED`;
     - cờ chèn lệnh: bỏ qua lớp decision.
   - Bật / tắt: `decision_gates` (toàn hệ thống) ∧ `course_decision_gates` (theo lớp), mặc định tắt. Đọc từ ảnh chụp trong bộ nhớ, không truy DB trên đường nóng. Cổng tắt thì luồng đúng như trước D60.
+- **Lưu ý chấm (D62, sprint 10.6):**
+  - `grading.reflect` = **một** `Structured` làn `BATCH`, task `GRADING`, chỉ khi giảng viên bấm; trần 3 lần / giờ / bài tập (`REFLECT_MAX_PER_HOUR`).
+  - Đầu vào ≤ 60 ca (≈ 3–6 nghìn token vào), không có văn bản bài.
+  - `regrade-stale` dùng lại hàng đợi `grading.jobs`, cùng làn và cùng trần như "Chấm tất cả": ≤ 200 bài × 2 lượt mỗi lần bấm (`REGRADE_MAX_BATCH`).
+  - Khối lưu ý thêm ≈ 170–350 token vào mỗi lượt chấm (+3–6 %, PoC research §5.1); `v0` = prompt cũ từng byte.
+  - Không lời gọi nào của tính năng này vào làn `INTERACTIVE`. M4 (gợi ý câu tương tự lúc soạn) chỉ có ≤ 1 lần **nhúng**, dùng lại cache `ep:emb` của precheck tường lửa; M6 có 0 lời gọi thêm.
 
 **Đường nóng hỏi–đáp theo D47 (sửa theo D60, 2026-11-14).** Luật tốc độ chốt ở `DECISIONS.md` D47 ràng buộc phần này và `internal/rag`/`internal/agent`. Thứ tự xử lý một tin nhắn:
 1. Phát `received` (≤ 300 ms, trước mọi bước phân loại; `chat/gen.go`).
@@ -145,6 +151,7 @@ Quy tắc lược đồ để T1 không gãy:
 | `ingest.jobs` | Upload tài liệu | `documents.content_hash` | Thay cho gọi đồng bộ hiện tại |
 | `mail.inbound` | Poller IMAP | `message_uid` | Một poller duy nhất nhờ khoá phân tán Redis |
 | `insight.jobs`, `reindex.jobs`, `reminder.jobs`, `heartbeat.rollup` | API / cron | tự nhiên theo việc | Cron chạy ở worker giữ khoá leader |
+| `ep:grading.reflect` | `POST …/guidance/reflect` (TEACHER) | `(assignment_id, max(reviewed_at), guidance_version)`, khoá Redis NX 1 giờ | Làn BATCH; một lời gọi `Structured`; ghi lưu ý `DRAFT` trong một giao dịch, không có nháp nửa vời (D62) |
 
 Mọi consumer: consumer group, ack sau khi xong, thử lại 3 lần có backoff, quá thì vào `<stream>.dead` và hiện trên `/observability`. Việc dài trả **202 + job id**; tiến độ đẩy qua SSE.
 
@@ -201,4 +208,5 @@ Luật tốc độ D47 (`DECISIONS.md`) là ràng buộc thiết kế để đ�
 | Stream chat tiếp tục được | P3 |
 | Heartbeat write-behind | P5 |
 | `ingest.jobs`, `grading.jobs` làn BATCH | P7, P8 |
+| `ep:grading.reflect`, ghim `guidance_version` vào `grading.jobs`, chặn công bố lô trộn | 10.6 (D62) |
 | `seed-t1`, k6, test hỗn loạn, SLO | P10 (khung k6 dựng từ PG để đo mốc) |

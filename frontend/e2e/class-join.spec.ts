@@ -631,6 +631,38 @@ async function openSettings(page: Page, role: "TEACHER" | "TA", h: { put?: (b: J
   return log;
 }
 
+test("class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng thái Bật/Tắt, lạc quan + Hoàn tác; «Ca kiểm thử» khoá với giảng viên; TA không thấy khối", async ({ page }) => {
+  const flags = ["GRADING_GUIDANCE", "THREAD_SUGGEST", "QUESTION_HINTS", "REGRESSION_CAPTURE"].map((feature) => ({ feature, enabled: false, version: 1, can_edit: feature !== "REGRESSION_CAPTURE" }));
+  const puts: Json[] = [];
+  await openSettings(page, "TEACHER", {
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags`, (r) => fulfill(r, 200, { items: flags }));
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags/*`, (r) => {
+        const b = JSON.parse(r.request().postData() ?? "{}") as Json;
+        puts.push({ path: new URL(r.request().url()).pathname.split("/").pop(), ...b });
+        return fulfill(r, 200, { feature: "GRADING_GUIDANCE", enabled: b.enabled, version: (b.version as number) + 1, can_edit: true });
+      });
+    },
+  });
+  const box = page.locator("[data-part=guidance-flags]");
+  await expect(box.getByRole("switch")).toHaveCount(4);
+  await expect(box.locator("label")).toHaveText(["Lưu ý chấm", "Ca kiểm thử", "Gợi ý câu hỏi tương tự", "Gợi ý khi sinh câu hỏi"]);
+  await expect(box.getByRole("switch", { name: "Ca kiểm thử" })).toBeDisabled();
+  const row = box.locator("[data-feature=GRADING_GUIDANCE]");
+  await expect(row).toContainText("Tắt");
+  await row.getByRole("switch", { name: "Lưu ý chấm" }).click();
+  await expect(row).toContainText("Bật"); // lạc quan
+  await expect(row.locator("[data-part=undo-line]")).toContainText("Đã bật Lưu ý chấm");
+  await row.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect.poll(() => puts.length).toBe(2);
+  expect(puts[0]).toEqual({ path: "GRADING_GUIDANCE", enabled: true, version: 1 });
+  expect(puts[1]).toEqual({ path: "GRADING_GUIDANCE", enabled: false, version: 2 });
+  await expect(row).toContainText("Tắt");
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await openSettings(page, "TA");
+  await expect(page.locator("[data-part=guidance-flags]")).toHaveCount(0);
+});
+
 test("class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   const log = await openSettings(page, "TEACHER");

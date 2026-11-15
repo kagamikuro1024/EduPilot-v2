@@ -49,3 +49,43 @@ func TestComposeDecisionEnvReachesWorker(t *testing.T) {
 		}
 	}
 }
+
+// TestComposeGuidanceEnvReachesGatewayAndWorker — GD-BUG-8: biến của «học từ lần sửa» (FEAT-grading-guidance 4.1) phải tới CẢ gateway (API, ảnh chụp cờ, hạn mức gợi ý) và worker (job reflect,
+// khối «Tránh…», ngưỡng ca hồi quy). Thêm biến mới vào config.go mà quên compose thì test này đỏ.
+func TestComposeGuidanceEnvReachesGatewayAndWorker(t *testing.T) {
+	t.Parallel()
+	raw, err := os.ReadFile("../../../../docker-compose.local.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := os.ReadFile("config.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	svc := regexp.MustCompile(`(?m)^  ([a-z0-9_-]+):\s*$`)
+	idx := svc.FindAllStringSubmatchIndex(string(raw), -1)
+	block := map[string]string{}
+	for i, m := range idx {
+		end := len(raw)
+		if i+1 < len(idx) {
+			end = idx[i+1][0]
+		}
+		block[string(raw[m[2]:m[3]])] = string(raw[m[0]:end])
+	}
+	// mọi biến GUIDANCE_* / REFLECT_* / REGRADE_* / REGRESSION_* / THREAD_SUGGEST_* / QUESTION_HINTS_* đọc trong config.go
+	names := regexp.MustCompile(`"((?:GUIDANCE|REFLECT|REGRADE|REGRESSION|THREAD_SUGGEST|QUESTION_HINTS)_[A-Z_]+)"`).FindAllStringSubmatch(string(cfg), -1)
+	if len(names) < 15 {
+		t.Fatalf("chỉ thấy %d biến trong config.go — bộ quét hỏng?", len(names))
+	}
+	for _, name := range []string{"gateway", "worker"} {
+		b, ok := block[name]
+		if !ok {
+			t.Fatalf("không thấy service %s", name)
+		}
+		for _, m := range names {
+			if !strings.Contains(b, "      "+m[1]+":") {
+				t.Errorf("service %s không nhận %s", name, m[1])
+			}
+		}
+	}
+}

@@ -49,3 +49,8 @@
 .bulkCount { font-weight: 600; margin-right: var(--ep-space-2); }
 .bulkTags { display: grid; gap: var(--ep-space-3); padding: var(--ep-space-3); min-width: 240px; }
 .rowFail { color: var(--ep-red); font-size: var(--ep-text-meta); }
+
+.reasons { display: inline-flex; flex-wrap: wrap; gap: var(--ep-space-2); margin-left: var(--ep-space-3); }
+.reasonChip { font: inherit; font-size: var(--ep-text-label); padding: 0 var(--ep-space-3); min-height: 28px; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-pill); background: transparent; color: var(--ep-ink-2); cursor: pointer; }
+.reasonChip[aria-pressed="true"] { border-color: var(--ep-ink); color: var(--ep-ink); background: var(--ep-surface-subtle); }
+@media (max-width: 719px) { .reasonChip { min-height: 44px; } }

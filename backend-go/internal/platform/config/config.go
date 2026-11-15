@@ -196,6 +196,24 @@ type Config struct {
 	FakeDecisionMode         string
 	FakeDecisionProb         *float64 // FAKE_DECISION_PROB: ghi đè xác suất của bản giả (P-105-1 Q2)
 	FakeValidKey             string
+	// Harness học từ lần giảng viên sửa (SRS FEAT-grading-guidance 4.1; D61 / D62). Điểm là decimal (luật 5).
+	GuidanceEnabled         bool            // GUIDANCE_ENABLED: công tắc cứng toàn hệ thống (cờ lớp vẫn mặc định tắt)
+	GuidanceMinResults      int             // GUIDANCE_MIN_RESULTS
+	GuidanceMinEdits        int             // GUIDANCE_MIN_EDITS
+	GuidanceMinDelta        decimal.Decimal // GUIDANCE_MIN_DELTA
+	GuidanceMinSupport      int             // GUIDANCE_MIN_SUPPORT
+	GuidanceMaxItems        int             // GUIDANCE_MAX_ITEMS
+	GuidanceMaxCases        int             // GUIDANCE_MAX_CASES
+	GuidanceTextMax         int             // GUIDANCE_TEXT_MAX
+	ReflectMaxPerHour       int             // REFLECT_MAX_PER_HOUR
+	RegradeMaxBatch         int             // REGRADE_MAX_BATCH
+	RegressionMinDelta      decimal.Decimal // REGRESSION_MIN_DELTA
+	RegressionMaxRel        float64         // REGRESSION_MAX_REL
+	RegressionExportAllowed bool            // REGRESSION_EXPORT_ALLOWED
+	ThreadSuggestMin        float64         // THREAD_SUGGEST_MIN (cosine)
+	ThreadSuggestRPM        int             // THREAD_SUGGEST_RPM
+	QuestionHintsMinRejects int             // QUESTION_HINTS_MIN_REJECTS
+	QuestionHintsWindowDays int             // QUESTION_HINTS_WINDOW_DAYS
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
 	AppPublicURL string // gốc dựng liên kết trong thư (không có dấu / cuối)
@@ -436,6 +454,23 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 		c.FakeDecisionProb = &v
 	}
 	c.FakeValidKey = l.raw("FAKE_LLM_VALID_KEY")
+	c.GuidanceEnabled = l.boolean("GUIDANCE_ENABLED", true)
+	c.GuidanceMinResults = l.num("GUIDANCE_MIN_RESULTS", 5, 1, 1000)
+	c.GuidanceMinEdits = l.num("GUIDANCE_MIN_EDITS", 3, 1, 1000)
+	c.GuidanceMinDelta = l.points("GUIDANCE_MIN_DELTA", "0.5", 0, 100)
+	c.GuidanceMinSupport = l.num("GUIDANCE_MIN_SUPPORT", 2, 1, 100)
+	c.GuidanceMaxItems = l.num("GUIDANCE_MAX_ITEMS", 8, 1, 50)
+	c.GuidanceMaxCases = l.num("GUIDANCE_MAX_CASES", 60, 1, 200)
+	c.GuidanceTextMax = l.num("GUIDANCE_TEXT_MAX", 400, 20, 400)
+	c.ReflectMaxPerHour = l.num("REFLECT_MAX_PER_HOUR", 3, 1, 1000)
+	c.RegradeMaxBatch = l.num("REGRADE_MAX_BATCH", 200, 1, 1000)
+	c.RegressionMinDelta = l.points("REGRESSION_MIN_DELTA", "1.0", 0, 100)
+	c.RegressionMaxRel = l.rate("REGRESSION_MAX_REL", 0.10)
+	c.RegressionExportAllowed = l.boolean("REGRESSION_EXPORT_ALLOWED", false)
+	c.ThreadSuggestMin = l.rate("THREAD_SUGGEST_MIN", 0.80)
+	c.ThreadSuggestRPM = l.num("THREAD_SUGGEST_RPM", 30, 1, 100_000)
+	c.QuestionHintsMinRejects = l.num("QUESTION_HINTS_MIN_REJECTS", 5, 1, 1000)
+	c.QuestionHintsWindowDays = l.num("QUESTION_HINTS_WINDOW_DAYS", 90, 1, 3650)
 
 	// Thư chỉ do worker gửi: production ở worker bắt buộc APP_PUBLIC_URL https và SMTP_TLS ≠ none; gateway đọc nhẹ tay (không dùng).
 	mailStrict := role == Worker && c.AppEnv == "production"

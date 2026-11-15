@@ -1,0 +1,69 @@
+# Nhật ký
+
+- Bước 1 (chấm mù 64 phiếu): bắt đầu 2026-11-14 20:20.
+- Bước 1: kết thúc 20:22. Đã tự đọc và chấm 64 phiếu (40 BT-A, 24 BT-B), điền c1–c4 dạng 1.75, không sửa phần khác. Ghi chú: nhiều bài có tình huống rất cụ thể nhưng biện pháp chung chung / bất khả thi (SOC, «an toàn tuyệt đối», cấm Internet) → c2 cao, c3 thấp; vài bài luận điểm mạnh nhưng không có số liệu → ngược lại; một số bài văn phong khẩu ngữ, phiên âm thuật ngữ (kc021 BT-A, kc010 BT-B) → trừ c4. Chưa dùng hệ thống, không có lỗi màn hình.
+- Bước 2 (chấm lô trên hệ thống BT-A, BT-B): bắt đầu 2026-11-14 20:22.
+- Bước 2: kết thúc 20:35. Đăng nhập, lớp KC106 đã là mặc định. Không mở/sửa/duyệt bài nào.
+  - BT-A: bấm «Chấm tất cả» 20:25:13 → «Đã xếp hàng chấm 60 bài»; xong lúc ~20:31:30 (≈ 6 ph 17 s). Chấm lỗi 0, Đang chấm 0, Chưa chấm 0.
+  - BT-B: bấm 20:31:57 → «Đã xếp hàng chấm 24 bài»; xong lúc ~20:34:37 (≈ 2 ph 40 s). Chấm lỗi 0, Đang chấm 0, Chưa chấm 0.
+  - Quan sát UX — khoá đăng nhập: ngay lần đăng nhập đầu tiên của tôi đã bị «Bạn đã thử quá nhiều lần. Thử lại sau 00:53.» (ảnh anh/b2-khoa-dang-nhap.webp). Thông báo rõ, có đếm ngược, nút bị khoá; nhưng không nói vì sao bị khoá khi tôi mới thử một lần. Hết đếm ngược bấm lại vào được ngay.
+  - Khó dùng 1: vào /grading, bộ lọc mặc định «Chưa duyệt» → hiện «Chưa có bài nộp» và nút «Chấm tất cả» bị khoá dù có 60 bài chưa chấm; phải tự đổi Trạng thái sang «Chưa chấm» mới bấm được. Sau khi bấm, danh sách lại trống («Chưa có bài nộp») vì bài đã chuyển sang «Đang chấm».
+  - Khó dùng 2: tab «Bài tập» ghi «Đã nộp / Tổng: 0 / 60» cho cả hai bài trong khi hàng chờ có 60 và 24 bài (nguồn «Tải lên»).
+  - Khó dùng 3: hàng chờ chỉ thấy 20 dòng, tôi không thấy tổng số bài hay phân trang rõ ràng; tiến độ «Đang chấm n/60 bài» thì rõ, tự cập nhật.
+  - Lạ: BT-A xếp hàng 60 bài (phiếu bước 1 chỉ có 40). Một số bài có nhãn «Hai lượt chấm lệch hơn 1 điểm», «Tổng điểm chưa khớp». Ảnh cuối: anh/b2-btb-xong.webp.
+- Bước 4 (duyệt 20 bài BT-A kc001–kc020): bắt đầu 2026-11-14 20:42.
+- Bước 4: kết thúc 20:51. Đã đọc, sửa và duyệt đúng 20 bài BT-A kc001–kc020 (kiểm lại ở lọc «Đã duyệt»: 20 bài; kc021+ vẫn «Chưa duyệt»). Sửa 26/80 tiêu chí, mỗi chỗ sửa có một câu lý do ở ô «Nhận xét cho sinh viên» của tiêu chí đó.
+  - Số tiêu chí sửa mỗi bài: kc001 0 · kc002 1 · kc003 1 · kc004 2 · kc005 2 · kc006 2 · kc007 3 · kc008 1 · kc009 2 · kc010 0 · kc011 2 · kc012 1 · kc013 2 · kc014 1 · kc015 0 · kc016 0 · kc017 2 · kc018 2 · kc019 2 · kc020 0.
+  - Tổng sau duyệt: 001 9,75 · 002 9,00 · 003 9,00 · 004 9,00 · 005 8,50 · 006 8,50 · 007 7,50 · 008 7,50 · 009 7,25 · 010 9,50 · 011 6,50 · 012 8,75 · 013 7,25 · 014 7,50 · 015 10,00 · 016 9,75 · 017 8,00 · 018 6,75 · 019 7,25 · 020 9,50.
+  - Nhận xét về điểm nháp AI: nhìn chung rộng tay, nhất là tiêu chí 2 (cho 2,25–2,5 cả với tình huống không có số liệu nào: kc006, 008, 009, 013, 014, 019) và tiêu chí 3 khi biện pháp chung chung / quá sức SME (kc006, 007, 009, 013, 019; kc011 và kc018 AI đã trừ nhưng chưa đủ). Tiêu chí 4 và phần lớn tiêu chí 1 tôi đồng ý (chênh ≤ 0,25 tôi để nguyên). Tôi chỉ sửa khi lệch từ 0,5 trở lên.
+  - Lạ: nhận xét AI ở kc012, kc014 nói bài «còn sót ký tự lỗi / chèn ký tự lạ» nhưng trên màn duyệt tôi không thấy ký tự lạ nào trong bài.
+  - Khó dùng 1: ở bài đầu tiên (kc002), bấm «Duyệt bài» ngay sau khi gõ nhận xét không có tác dụng và không báo gì; bấm lần hai mới duyệt. Các bài sau tôi bấm ra ngoài ô nhập, chờ ~1,5 s rồi mới bấm thì được ngay.
+  - Khó dùng 2: duyệt xong hệ thống tự nhảy sang bài kế trong hàng chờ, không hỏi. Vì vậy sau khi duyệt kc018 và kc020 màn hình tự mở kc032 và kc021 — tôi KHÔNG đọc, sửa hay duyệt hai bài này, rời đi ngay (báo PM vì luật là không mở kc021–060).
+  - Khó dùng 3: bộ đếm «Đã duyệt 1/50 … 1/41» khó hiểu (tử số đứng yên ở 1, mẫu số giảm dần). Nút lọc «Cần xem kỹ» tự bật lại mỗi lần vào hàng chờ, làm danh sách chỉ còn vài bài; hàng chờ chỉ hiện 20 dòng nên kc016, 017, 019, 020 không thấy trong danh sách, phải đi bằng nút «Bài sau».
+  - Ô điểm tự lưu và tổng điểm cập nhật ngay khi sửa — phần này dễ dùng. Không có lỗi màn hình cần chụp.
+- Bước 5 (rút lưu ý chấm BT-A): bắt đầu 2026-11-14 20:52.
+- Bước 5: kết thúc 20:53. Mở BT-A từ tab «Bài tập» (bấm vào dòng mới mở bảng bên; dòng không phải là liên kết). Khối «Lưu ý chấm» ghi «Chưa có bản», «v0 · 20 bài · lệch tiêu chí 0,18 · lệch tổng 0,70 · sửa 24%». Bấm «Rút lưu ý» 20:52:32 → xong trong ≤ 12 s. Kết quả: 2 lưu ý nháp («Chờ duyệt», loại «Chấm chặt hơn»): (1) Luận điểm rõ — 5 bài; (2) Lập luận và biện pháp khả thi — 3 bài. Không có thông báo (toast) nào khi job bắt đầu hay kết thúc; lưu ý tự hiện ra. Ảnh: anh/b5-luu-y-nhap.webp.
+  - Lạ: không có lưu ý nào cho tiêu chí 2 (Dẫn chứng) dù đó là tiêu chí tôi sửa nhiều nhất (12 bài). Lưu ý (2) ghi «3 bài» trong khi tôi sửa tiêu chí 3 ở 8 bài. «sửa 24%» không khớp cách tôi đếm (26/80 tiêu chí = 32,5%); không có giải thích con số này tính thế nào.
+- Bước 6 (xét lưu ý, áp dụng): bắt đầu 20:53.
+- Bước 6: kết thúc 20:55. Kết quả xét 2 lưu ý: duyệt 2 (trong đó 1 duyệt nguyên, 1 sửa chữ rồi duyệt), bỏ 0, cho nghỉ 0. Áp dụng lúc 20:54:47 → phiên bản mới: **v1** («Đã áp dụng bản v1», cả hai lưu ý «Đang dùng · v1»).
+  - Lưu ý (2) tiêu chí 3: duyệt nguyên — đúng với cách tôi chấm (biện pháp vượt nguồn lực / thiếu thứ tự ưu tiên thì hạ điểm).
+  - Lưu ý (1) tiêu chí 1: đồng ý về ý nhưng chữ gốc mơ hồ («không cho mức điểm cao»); sửa thành: «Mở bài chỉ nêu bối cảnh chung hoặc chỉ giới thiệu tình huống mà chưa nêu kết luận chính thì tối đa 1,5/2,5; nêu rõ vấn đề và phạm vi nhưng thiếu kết luận chính thì khoảng 2,0.»
+  - Hộp xác nhận: «Áp dụng bản v1? Thêm 2 lưu ý, cho nghỉ 0. Bài chấm sau này dùng bản mới; bài đã chấm giữ nguyên.» — nút «Để sau» / «Áp dụng». Rõ, ngắn, nói đúng hệ quả (ảnh anh/b6-hop-xac-nhan.webp). Sau áp dụng hiện «40 bài chấm theo bản cũ · Chấm lại» — tôi KHÔNG bấm «Chấm lại» vì chưa được giao (ảnh anh/b6-sau-ap-dung.webp).
+  - Thử «Hoàn tác»: lần 1 (lưu ý 2) — sau khi Duyệt hiện «Đã duyệt lưu ý · Hoàn tác», nhưng chỉ vài giây là biến mất, tôi chưa kịp bấm; muốn hoàn lại phải vào nút «…» (Thêm hành động của lưu ý) → «Đặt lại», khó tìm. Lần 2 (lưu ý 1) — bấm «Hoàn tác» ngay thì được: lưu ý về «Chờ duyệt», chữ đã sửa vẫn giữ, số trên nút «Áp dụng (n)» giảm đúng; Duyệt lại bình thường. Kết luận: dùng được nhưng cửa sổ Hoàn tác quá ngắn.
+  - Lạ: ngay sau khi sửa chữ rồi bấm Duyệt, thẻ lưu ý vẫn hiện chữ GỐC trong vài giây (trông như bản sửa bị mất); sau Hoàn tác / tải lại mới thấy chữ đã sửa.
+  - Khó dùng: «Cho nghỉ» chỉ xuất hiện sau khi đã áp dụng, lúc xét nháp không có. Dòng «v0 · 20 bài · lệch tiêu chí 0,18 · lệch tổng 0,70 · sửa 24%» vẫn ghi v0 sau khi đã lên v1 và không có chú thích.
+- Bước 7 (chấm lại bài nháp cũ BT-A): bắt đầu 2026-11-14 20:55.
+- Bước 7: kết thúc 21:01. Không mở bài nào.
+  - Dòng trên hàng chờ BT-A ghi: «40 bài chấm theo bản cũ · Chấm lại» → N = 40 (chữ trên màn là «bài chấm theo bản cũ», không phải «bài nháp cũ»).
+  - Bấm «Chấm lại» 20:55:48 → chạy ngay, không có hộp xác nhận; hiện «Đã xếp 40 bài chấm lại · Đã hiểu». Xong sau ≈ 4 ph 37 s (≈ 21:00:25). Sau khi xong: Chấm lỗi 0, Đang chấm 0, Chưa chấm 0; dòng «bài chấm theo bản cũ» biến mất. Số bài bỏ qua: màn hình không báo bài nào bị bỏ qua (0 theo những gì hiển thị). Ảnh: anh/b7-sau-bam-cham-lai.webp.
+  - Khó dùng: lần chấm lại này KHÔNG có dòng tiến độ «Đang chấm n/40 bài» như lúc «Chấm tất cả»; danh sách chuyển sang trống («Chưa có bài nộp») nên phải tự đổi lọc sang «Đang chấm» để biết còn bao nhiêu. Khi xong cũng không có thông báo tổng kết (bao nhiêu bài chấm lại, bao nhiêu bỏ qua, điểm đổi thế nào). Trong ~2 phút đầu số bài «Đang chấm» không giảm, dễ tưởng bị treo.
+- Bước 8 (duyệt nguyên 5 bài, xem hộp Công bố, HUỶ): bắt đầu 2026-11-14 21:06.
+- Bước 8: kết thúc 21:08. KHÔNG công bố.
+  - Duyệt nguyên (không sửa điểm, không sửa nhận xét) 5 bài BT-A: kc021, kc022, kc023, kc024, kc025. Điểm tiêu chí AI lúc duyệt (c1/c2/c3/c4): kc021 1,50/2,50/2,25/1,00 · kc022 2,00/2,00/1,75/1,75 · kc023 2,00/2,50/2,50/2,25 · kc024 2,00/2,00/2,25/2,25 · kc025 1,50/2,50/1,75/1,50. Mỗi lần duyệt màn lại tự nhảy sang bài kế (022, 024, 042, 025, 026) — tôi không thao tác gì trên các bài tự mở.
+  - Lạ: điểm tổng ở dòng hàng chờ không bằng tổng 4 ô tiêu chí trên màn duyệt ở 3/5 bài: kc022 dòng ghi 8,00 (4 ô cộng 7,50), kc024 8,75 (8,50), kc025 7,00 (7,25). Tôi không sửa, chỉ ghi lại.
+  - Nút «Công bố» không có sẵn trên hàng chờ: phải lọc «Đã duyệt», tích «Chọn tất cả đã duyệt» thì nút mới hiện — khó tìm.
+  - Hộp «Công bố» — nguyên văn: tiêu đề «Công bố điểm»; nội dung «Công bố 25 bài · 25 sinh viên nhận thư · không tính vào sổ điểm · 20 bài đã duyệt chấm theo bản lưu ý cũ»; nút «Để sau» và «Công bố» (thêm nút «Đóng» ở góc). Không có chữ nào về bài «miễn». Ảnh: anh/b8-cong-bo.webp.
+  - Hộp không có nút tên «Huỷ»; tôi bấm «Để sau» để huỷ. Kiểm lại: không có yêu cầu ghi nào gửi đi, lọc «Đã công bố» trống.
+  - Nhận xét về hộp: ngắn, đủ số (25 bài = 20 + 5 đã duyệt). Câu «20 bài đã duyệt chấm theo bản lưu ý cũ» có ích nhưng không nói tôi nên làm gì (vẫn công bố được? có cần chấm lại?); «không tính vào sổ điểm» không rõ lý do (có lẽ do công thức điểm chưa xác nhận).
+
+## Nhận xét chung
+1. Dễ dùng nhất: «Chấm tất cả» một nút, có tiến độ «Đang chấm n/60», 84 bài không lỗi; màn duyệt để bài và điểm cạnh nhau, có trích dẫn theo tiêu chí, sửa điểm tự lưu và tổng cập nhật ngay.
+2. Hộp xác nhận «Áp dụng bản v1» và «Công bố» ngắn, nói đúng hệ quả bằng số.
+3. Khó dùng nhất: hàng chờ. Lọc mặc định «Chưa duyệt» + nút «Cần xem kỹ» tự bật lại làm danh sách trống hoặc thiếu, «Chấm tất cả» bị khoá mà không rõ vì sao; chỉ hiện 20 dòng, không thấy tổng số hay phân trang; nút «Công bố» ẩn cho tới khi tích chọn.
+4. Khó thứ hai: thiếu phản hồi — «Duyệt bài» lần đầu bấm không ăn mà không báo; «Rút lưu ý» và «Chấm lại» không có thông báo xong, «Chấm lại» không có tiến độ; «Hoàn tác» biến mất sau vài giây.
+5. Các con số không giải thích: «sửa 24%», «lệch tiêu chí 0,18», «Đã duyệt 1/50», tổng dòng hàng chờ khác tổng 4 tiêu chí.
+6. Điểm nháp AI ban đầu rộng tay (nhiều bài 9–10), nhất là tiêu chí Dẫn chứng và Biện pháp; nhận xét AI viết được, nhưng điểm không đi theo nhận xét.
+7. Lưu ý chấm: tin một phần. Hai lưu ý rút ra đúng hướng tôi sửa (tiêu chí 1 và 3), và sau chấm lại thấy tiêu chí 1 có xuống 1,50 ở bài mở đầu yếu (kc021, kc025). Nhưng hệ thống bỏ sót hẳn tiêu chí 2 — chỗ tôi sửa nhiều nhất (12/20 bài) — nên AI vẫn cho 2,0–2,5 với tình huống thiếu số liệu (kc022).
+8. Tôi chưa tự so được điểm trước/sau chấm lại của 40 bài (bước 7 không được mở bài, màn không tóm tắt thay đổi), nên chưa thể nói lưu ý làm AI sát hơn bao nhiêu; cần một dòng «điểm đổi thế nào sau khi chấm lại» để giảng viên tin.
+9. Chữ lưu ý do AI viết còn mơ hồ («không cho mức điểm cao»); giảng viên nên sửa thành mức điểm cụ thể — màn cho sửa dễ.
+- Bước 9 (vòng v2: rút lưu ý, áp dụng, chấm lại): bắt đầu 2026-11-14 21:30.
+- Bước 9: kết thúc 21:38. Không mở bài nào.
+  - Đăng nhập lại: trình duyệt của tôi phải mở lại nên về trang đăng nhập; lần bấm «Đăng nhập» đầu không vào được và không báo lỗi gì (form trống lại), lần hai vào được. Sau đăng nhập lớp mặc định là «QCEMPTY · QC lớp rỗng» chứ không phải KC106 — phải tự chọn lại lớp. Không có thao tác nào bị mất (bước 8 đã xong trước đó).
+  - Rút lưu ý: bấm 21:31:43, xong sau ≈ 15 s; lần này CÓ thông báo «Đã rút 1 lưu ý chờ duyệt». Số lưu ý mới: 1 — tiêu chí 2 «Dẫn chứng / tình huống cụ thể» (Chấm chặt hơn, «6 bài đổi điểm»). Vậy là đã có lưu ý tiêu chí 2. Không thấy dòng «N lưu ý bị loại» nào trên màn. Ảnh: anh/b9-luu-y-v2-nhap.webp.
+  - Chữ gốc của lưu ý mới: «Chấm khắt khe hơn khi đánh giá dẫn chứng: kịch bản chỉ dừng ở mức giả định, thiếu số liệu định lượng cụ thể về thiệt hại hoặc thông số thực tế của doanh nghiệp chỉ nên cho từ 1,0 đến 1,25; ngay cả khi tình huống chi tiết cũng chỉ nên cho tối đa 2,0.»
+  - Xét: SỬA CHỮ rồi Duyệt. Nửa đầu đúng với cách tôi chấm; nửa sau sai — tôi vẫn cho 2,5 với bài đủ quy mô, số liệu và diễn biến (kc001, 010, 011, 015, 016, 018, 020), trần 2,0 sẽ phạt oan bài tốt. Chữ đã sửa: «Tình huống không có số liệu nào gắn với doanh nghiệp (quy mô nhân sự, lượng dữ liệu bị lộ) thì chỉ cho 1,0–1,25; chỉ có một trong hai loại số liệu hoặc số liệu chỉ ước lượng («hàng nghìn», «một lượng lớn») thì 1,75–2,0; có đủ quy mô, số liệu thiệt hại và diễn biến cụ thể thì 2,25–2,5.» Hai lưu ý v1 giữ nguyên, không cho nghỉ. Tổng: duyệt 1 (có sửa), bỏ 0.
+  - Áp dụng 21:32:47: hộp «Áp dụng bản v2? Thêm 1 lưu ý, cho nghỉ 0. Bài chấm sau này dùng bản mới; bài đã chấm giữ nguyên.» → «Đã áp dụng bản v2», lưu ý mới «Đang dùng · v2». Ảnh: anh/b9-hop-ap-dung-v2.webp.
+  - Chấm lại: hàng chờ ghi «35 bài chấm theo bản cũ · Chấm lại» (35 = 60 − 25 đã duyệt). Bấm 21:33:06 → «Đã xếp 35 bài chấm lại»; xong sau ≈ 4 ph 17 s → «Đã chấm xong 35 bài». Chấm lỗi 0, Đang chấm 0, Chưa chấm 0; không báo bài bỏ qua.
+  - Đã tốt hơn vòng trước: có thông báo khi rút xong; chấm lại có tiến độ «Đang chấm n/35 bài» và thông báo «Đã chấm xong 35 bài»; nút «Đặt lại» nằm ngay trên thẻ lưu ý đã duyệt; chữ đã sửa hiện đúng ngay sau khi Duyệt; nhãn đổi thành «n bài đổi điểm» và dòng thống kê tách «Bản v0 … / Bản v1 (đang dùng) …» dễ hiểu hơn; nút «Công bố» có sẵn trên hàng chờ kèm gợi ý «Chọn bài đã duyệt».
+  - Còn khó dùng: lưu ý AI viết vẫn tự đặt mức trần quá tay («tối đa 2,0» cho cả tình huống chi tiết) — giảng viên không đọc kỹ mà Duyệt nguyên thì sẽ chấm oan; lưu ý tiêu chí 3 ghi «3 bài đổi điểm» trong khi tôi sửa 8 bài, không rõ cách đếm; «Đã chấm xong 35 bài» không cho biết điểm đổi thế nào; nút «Cần xem kỹ» vẫn tự bật khi vào hàng chờ; đăng nhập xong không nhớ lớp KC106.
+  - Bổ sung cho mục «Nhận xét chung» (ý 7): sau khi đội sửa, hệ thống đã rút được lưu ý tiêu chí 2 — đúng chỗ tôi sửa nhiều nhất — nên tôi tin lưu ý chấm hơn vòng trước; tuy vậy tôi vẫn chưa xem được điểm sau chấm lại của 35 bài nên chưa tự xác nhận AI đã sát hơn.

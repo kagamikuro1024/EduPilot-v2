@@ -18,3 +18,4 @@
 .riskLabel { margin: 0; font-size: var(--ep-text-body); }
 .riskValue { font-variant-numeric: tabular-nums; font-weight: 600; text-align: end; }
 @media (max-width: 719px) { .riskRow { grid-template-columns: 1fr auto; } .riskRow .range { grid-column: 1 / -1; grid-row: 2; } }
+.flagRow { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-4); }

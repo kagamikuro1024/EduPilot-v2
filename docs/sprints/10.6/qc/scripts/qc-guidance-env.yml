@@ -1,0 +1,8 @@
+# QC 10.6: compose hiện không chuyển GUIDANCE_* tới gateway / worker; file này chuyển để kiểm công tắc cứng (TC-G01-07).
+services:
+  gateway:
+    environment:
+      GUIDANCE_ENABLED: "${GUIDANCE_ENABLED:-true}"
+  worker:
+    environment:
+      GUIDANCE_ENABLED: "${GUIDANCE_ENABLED:-true}"

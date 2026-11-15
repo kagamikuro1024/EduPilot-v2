@@ -41,6 +41,9 @@ type PromptInput struct {
 	Second                        bool // lượt 2: tiêu chí liệt kê theo thứ tự ĐẢO
 	// FlagInjection: thêm luật gắn cờ chèn lệnh (dùng cùng EssaySchemaInjection). Cờ chỉ để giảng viên xem; điểm vẫn theo nội dung.
 	FlagInjection bool
+	// Guidance: lưu ý của giảng viên ở phiên bản đã ghim (SRS FEAT-grading-guidance 4.2.2), đã sắp theo thứ tự rubric gốc; rỗng / v0 → prompt giống từng byte như trước 10.6.
+	Guidance        []GuidanceLine
+	GuidanceVersion int
 }
 
 // NewBoundary sinh chuỗi ranh giới ngẫu nhiên cho MỘT lần gọi; bài làm không chứa được chuỗi này (nếu trùng thì sinh lại).
@@ -81,6 +84,16 @@ Quy tắc:
 	fmt.Fprintf(&s, "\nĐỀ BÀI: %s\n%s\n\nRUBRIC (thứ tự chấm):\n", in.Title, strings.TrimSpace(in.Description))
 	for _, r := range rb {
 		fmt.Fprintf(&s, "- %s — %s (tối đa %s): %s\n", r.ID, r.Name, r.MaxScore, strings.TrimSpace(r.Guidance))
+	}
+	if len(in.Guidance) > 0 { // sau rubric, trước đáp án chuẩn: trong system, ngoài khối bài làm không tin cậy; theo thứ tự rb (lượt 2 đảo) để lưu ý nằm cạnh tiêu chí
+		fmt.Fprintf(&s, "\nLưu ý của giảng viên (bản v%d) — chỉ về điểm từng tiêu chí:\n", in.GuidanceVersion)
+		for _, r := range rb {
+			for _, g := range in.Guidance {
+				if g.CriterionID == r.ID {
+					fmt.Fprintf(&s, "[%s] %s\n", r.ID, strings.TrimSpace(g.Text))
+				}
+			}
+		}
 	}
 	if strings.TrimSpace(in.Reference) != "" {
 		fmt.Fprintf(&s, "\nĐÁP ÁN CHUẨN (chỉ để đối chiếu; tuyệt đối không chép vào nhận xét):\n%s\n", strings.TrimSpace(in.Reference))
