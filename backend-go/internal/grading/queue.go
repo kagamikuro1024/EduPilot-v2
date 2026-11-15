@@ -19,6 +19,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
@@ -48,14 +49,17 @@ type QueueConfig struct {
 	RequeueAfter time.Duration   // GRADING_REQUEUE_AFTER (60 s)
 	Attempts     int             // GRADING_ATTEMPTS (3)
 	Backoff      []time.Duration // GRADING_BACKOFF (5 s, 20 s)
-	Poll         time.Duration   // chờ đọc Stream mỗi vòng
-	Tick         time.Duration   // chu kỳ máy quét
+	// Mất nhà cung cấp LLM không tiêu lượt thử (P-11-22): chờ OutageDelay (> LLM_BREAKER_OPEN 30 s) + nhiễu 0–10 s rồi thử lại, tối đa OutageRetries lần mỗi bài (≈ 10 phút) mới FAILED.
+	OutageDelay   time.Duration // GRADING_OUTAGE_DELAY (35 s)
+	OutageRetries int           // GRADING_OUTAGE_RETRIES (20)
+	Poll          time.Duration // chờ đọc Stream mỗi vòng
+	Tick          time.Duration // chu kỳ máy quét
 }
 
 // DefaultQueueConfig là giá trị mặc định của SRS 4.7.
 func DefaultQueueConfig() QueueConfig {
 	return QueueConfig{Workers: 2, Lease: 60 * time.Second, Heartbeat: 30 * time.Second, RequeueAfter: 60 * time.Second, Attempts: 3,
-		Backoff: []time.Duration{5 * time.Second, 20 * time.Second}, Poll: 500 * time.Millisecond, Tick: 5 * time.Second}
+		Backoff: []time.Duration{5 * time.Second, 20 * time.Second}, OutageDelay: llm.OutageDelay, OutageRetries: llm.OutageMax, Poll: 500 * time.Millisecond, Tick: 5 * time.Second}
 }
 
 // Metrics là bộ đếm KHÔNG PII (SRS 4.7 AC10): chỉ số đếm theo trạng thái, độ sâu, thời lượng. `/observability` (P10) đọc Snapshot.
@@ -136,6 +140,8 @@ func NewQueue(q *Queue) *Queue {
 	c.Heartbeat = cmpOr(c.Heartbeat, d.Heartbeat)
 	c.RequeueAfter = cmpOr(c.RequeueAfter, d.RequeueAfter)
 	c.Attempts = cmpOr(c.Attempts, d.Attempts)
+	c.OutageDelay = cmpOr(c.OutageDelay, d.OutageDelay)
+	c.OutageRetries = cmpOr(c.OutageRetries, d.OutageRetries)
 	c.Poll = cmpOr(c.Poll, d.Poll)
 	c.Tick = cmpOr(c.Tick, d.Tick)
 	if len(c.Backoff) == 0 {
@@ -409,6 +415,13 @@ func (q *Queue) retryOrFail(ctx context.Context, s *store.Queries, course, rid u
 	if errors.As(gerr, &te) {
 		code = te.Code
 	}
+	if te != nil && te.Outage && q.outageBudget(ctx, rid) {
+		d := llm.OutageBackoff(q.Cfg.OutageDelay)
+		if n, _ := s.GradingRequeueOutage(ctx, store.GradingRequeueOutageParams{ID: rid, Owner: &owner, DelaySecs: d.Seconds()}); n > 0 {
+			q.M.inc("outage_retry")
+		}
+		return
+	}
 	if int(attempts) < q.Cfg.Attempts {
 		d := q.Cfg.Backoff[min(int(attempts)-1, len(q.Cfg.Backoff)-1)]
 		if n, _ := s.GradingRequeue(ctx, store.GradingRequeueParams{ID: rid, Owner: &owner, DelaySecs: d.Seconds()}); n > 0 {
@@ -425,6 +438,19 @@ func (q *Queue) retryOrFail(ctx context.Context, s *store.Queries, course, rid u
 	q.touch(ctx, course)
 	q.Redis.XAdd(ctx, &goredis.XAddArgs{Stream: q.Prefix + StreamGradingDead, MaxLen: 10000, Approx: true, Values: map[string]any{"result_id": rid.String(), "code": code}})
 	q.progress(ctx, rid)
+}
+
+// outageBudget đếm số lần bài này được hoãn vì mất nhà cung cấp (Redis, hết hạn sau 2 giờ); còn trong trần thì true. Redis lỗi ⇒ false: rơi về cách tính lượt thử thường.
+func (q *Queue) outageBudget(ctx context.Context, rid uuid.UUID) bool {
+	k := q.Prefix + "grading:outage:" + rid.String()
+	n, err := q.Redis.Incr(ctx, k).Result()
+	if err != nil {
+		return false
+	}
+	if n == 1 {
+		q.Redis.Expire(ctx, k, 2*time.Hour)
+	}
+	return int(n) <= q.Cfg.OutageRetries
 }
 
 // progress cập nhật tiến độ của lô chứa `rid` (nếu có); lô xong thì Complete + (nếu hết ngân sách) MỘT thông báo gộp.

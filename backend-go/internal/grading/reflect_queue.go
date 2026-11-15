@@ -13,6 +13,7 @@ import (
 	goredis "github.com/redis/go-redis/v9"
 
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/llm"
 )
 
 // Hàng đợi việc rút lưu ý (SRS FEAT-grading-guidance §5): handler outbox chỉ XADD rồi ErrDeferred (không gọi LLM trong consumer outbox tuần tự);
@@ -117,8 +118,13 @@ func (q *ReflectQueue) handle(ctx context.Context, m goredis.XMessage) {
 		wait = 2 * time.Second
 	}
 	var last error
+	outage := 0
 	for attempt := 1; attempt <= ReflectAttempts; attempt++ {
 		res, err := q.R.Run(ctx, jobID, owner, p)
+		if llm.AwaitOutage(ctx, err, &outage) { // mất nhà cung cấp: hoãn, không tính lượt (P-11-23)
+			attempt--
+			continue
+		}
 		var ab *ErrReflectAbort
 		switch {
 		case err == nil:

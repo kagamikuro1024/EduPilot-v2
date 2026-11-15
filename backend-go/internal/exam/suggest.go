@@ -69,8 +69,13 @@ func (w *Worker) llmCall(ctx context.Context, system, user string) (json.RawMess
 	if backoff == nil {
 		backoff = []time.Duration{2 * time.Second, 5 * time.Second}
 	}
+	outage := 0
 	for attempt := 0; ; attempt++ {
 		raw, err := w.LLM.Structured(ctx, req, json.RawMessage(schemaOf))
+		if llm.AwaitOutage(ctx, err, &outage) { // mất nhà cung cấp: hoãn, không tính lượt (P-11-23)
+			attempt--
+			continue
+		}
 		var over *llm.ErrOverloaded
 		switch {
 		case err == nil:
