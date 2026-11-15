@@ -13,7 +13,9 @@ type Created = { thread: { id: string } };
 
 /** Nháp thread ghim (mở tại chỗ dưới chủ đề): tiêu đề + nội dung từ khuyến nghị; giảng viên sửa rồi bấm `Đăng`. Không chứa câu hỏi mẫu. */
 export function PinThreadForm({ courseId, topic, onClose }: { courseId: string; topic: Topic; onClose: () => void }) {
-  const [title, setTitle] = useState(`Chủ đề đang vướng: ${topic.name}`);
+  // Tiêu đề và nội dung đều tự lưu (luật UX: không để mất chữ đã gõ); trống thì dùng bản gợi ý
+  const titleDraft = useAutosaveDraft(`insight-thread:${courseId}:${topic.rank}:title`);
+  const title = titleDraft.value || `Chủ đề đang vướng: ${topic.name}`;
   const draft = useAutosaveDraft(`insight-thread:${courseId}:${topic.rank}`);
   const body = draft.value || (topic.recommendation ? `Nhiều bạn đang hỏi về “${topic.name}”. ${topic.recommendation}` : `Nhiều bạn đang hỏi về “${topic.name}”.`);
   const [pending, setPending] = useState(false);
@@ -33,6 +35,7 @@ export function PinThreadForm({ courseId, topic, onClose }: { courseId: string; 
       }
       await apiClient.post(`/courses/${courseId}/threads/${id}/pin`);
       draft.clear();
+      titleDraft.clear();
       setDone(true);
     } catch (e) {
       setError(e instanceof ApiError ? e : new ApiError({ status: 0, code: "NETWORK" }));
@@ -54,7 +57,7 @@ export function PinThreadForm({ courseId, topic, onClose }: { courseId: string; 
   }
   return (
     <div className={s.inline} role="group" aria-label="Tạo thread ghim">
-      <Field label="Tiêu đề">{(id) => <Input id={id} value={title} maxLength={200} onChange={(e) => setTitle(e.target.value)} />}</Field>
+      <Field label="Tiêu đề">{(id) => <Input id={id} value={title} maxLength={200} onChange={(e) => titleDraft.setValue(e.target.value)} />}</Field>
       <Field label="Nội dung">{(id) => <Textarea id={id} rows={6} value={body} onChange={(e) => draft.setValue(e.target.value)} />}</Field>
       {error != null && <ApiErrorNotice error={error} />}
       <div className={s.inlineActions}>

@@ -197,3 +197,16 @@ test("bộ chọn kỳ: mặc định 14, «Toàn kỳ» = 120 có gợi ý trê
   await expect.poll(() => sent.length).toBe(2);
   expect(sent[1]).toEqual({ period_days: 120 });
 });
+
+// Luật UX: không để mất chữ đã gõ — tiêu đề nháp thread ghim cũng tự lưu (cùng nội dung); tải lại còn nguyên.
+test("nháp thread ghim: gõ tiêu đề, tải lại trang, tiêu đề còn nguyên", async ({ page }) => {
+  await open(page, REPORT);
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  let dlg = page.getByRole("group", { name: "Tạo thread ghim" });
+  await dlg.getByLabel("Tiêu đề").fill("Ôn gấp bắt tay ba bước trước buổi kiểm tra");
+  await expect.poll(() => page.evaluate(() => Object.entries(localStorage).filter(([k]) => k.startsWith("ep:draft:") && k.endsWith(":title")).map(([, v]) => v).join(""))).toContain("Ôn gấp bắt tay ba bước");
+  await page.reload();
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  dlg = page.getByRole("group", { name: "Tạo thread ghim" });
+  await expect(dlg.getByLabel("Tiêu đề")).toHaveValue("Ôn gấp bắt tay ba bước trước buổi kiểm tra");
+});
