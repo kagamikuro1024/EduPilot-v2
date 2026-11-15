@@ -218,7 +218,8 @@ func TestNoQueryLinksByStudentCode(t *testing.T) {
 	// ListMembers: ô tìm của GIẢNG VIÊN / TA trong lớp của họ (US-P2-09 AC13: `q` tìm MSSV) — chỉ lọc hiển thị, không nối, không mở dữ liệu (đề xuất #10).
 	// CrmStudentsList, CrmStudentsCount: ô tìm của nhân viên trong lớp họ phụ trách (US-P5-04 AC2: `q` khớp MSSV tiền tố) — chỉ lọc hiển thị, không nối tài khoản, không mở dữ liệu (đề xuất #30).
 	// AssignmentQueue: ô tìm của nhân viên ở hàng chờ chấm (US-P7-08 AC1, `q` khớp tên / MSSV) — chỉ lọc hiển thị trong lớp họ phụ trách, không nối tài khoản, không mở dữ liệu (proposals sprint 9 #13).
-	allowed := map[string]bool{"EnrollmentConflictByStudentCode": true, "RosterStudentCodeConflict": true, "UpdateProfile": true, "ListMembers": true, "CrmStudentsList": true, "CrmStudentsCount": true, "AssignmentQueue": true}
+	// ExamAnalyticsDeclining: cột MSSV hiển thị trong danh sách «điểm giảm 3 bài liên tiếp» cho giảng viên lớp đó (US-P10-06) — chỉ đọc `student_code_snapshot` để hiển thị, không nối tài khoản, không mở dữ liệu.
+	allowed := map[string]bool{"ExamAnalyticsDeclining": true, "EnrollmentConflictByStudentCode": true, "RosterStudentCodeConflict": true, "UpdateProfile": true, "ListMembers": true, "CrmStudentsList": true, "CrmStudentsCount": true, "AssignmentQueue": true}
 	dir := filepath.Join("..", "store", "queries")
 	files, err := filepath.Glob(filepath.Join(dir, "*.sql"))
 	require.NoError(t, err)
