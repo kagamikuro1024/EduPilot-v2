@@ -48,7 +48,7 @@ Nguồn: `docs/FLOWS.md` (nhánh `sprint/11-p10-eval` @`4c919bf5`, có F18, F19)
 ## Luồng thiếu spec (đánh dấu)
 1. **F17**: chỉ 2 ca kiểm «không mượn báo cáo lớp mô phỏng». Không có ca nào cho ba ràng buộc riêng tư của FLOWS (≥ 3 SV, ẩn danh, chỉ lớp đang chọn).
 2. **F18**: không có spec; một phần UI chưa tồn tại (xuất ZIP, nhân bản học kỳ, xoá theo chính sách).
-3. **F16**: trang `/admin/audit`, `/admin/health` chưa có trong `src/app`; FLOWS vẫn liệt kê.
+3. **F16**: `/admin/audit` đã có (US-P10-14; kiểm ở tc-US-P10-14, AUD-1..6); `/admin/health` thuộc phase PR (P-11-30), ngoài phạm vi sprint 11 — không tính FAIL (loại c).
 4. **Nhánh theo thời gian** (F5 24/72 giờ, F13 nhắc 24 giờ, F14 nguồn việc Admin) không có ca ở UI-CI; cần ca worker hoặc đồng hồ giả.
 5. **Mạo danh MSSV** (F1, «quy tắc an toàn số 1»): không có ca đăng ký bằng MSSV người khác; UI chỉ có ca duyệt hàng lệch ở `class-join`; phía API do đợt R kiểm.
 6. **Tin khủng hoảng ở chat riêng** (F3): ca `/chat` = 0; chỉ Threads có.

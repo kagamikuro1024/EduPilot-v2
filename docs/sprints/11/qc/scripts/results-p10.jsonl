@@ -1160,7 +1160,6 @@
 {"tc": "TC-05-18 một dòng meta", "st": "PASS", "note": "INS-1"}
 {"tc": "TC-05-19 SV/ADMIN không có mục /insights", "st": "PASS", "note": "INS-3"}
 {"tc": "TC-05-20 lỗi latest + Thử lại", "st": "PASS", "note": "INS-3"}
-{"tc": "TC-05-21 vùng chạm ≥ 44 px ở 375", "st": "FAIL", "note": "«Câu hỏi mẫu (n)» và «Chủ đề khác (n)» cao 30 px (đo bounding box)"}
 {"tc": "TC-14-82 bộ lọc Người: chọn từ bảng, không dán uuid", "st": "PASS", "note": "dev sửa: bấm tên người ở hàng để lọc, chip «Người: …» (AUD-3)"}
 {"tc": "TC-04-21a lớp mới 19 câu → 409 NOT_ENOUGH_DATA {count:19}", "st": "PASS", "note": "cnt=19 409 {'code': 'NOT_ENOUGH_DATA', 'message': 'Sinh viên này chưa có đủ dữ liệu để nhận xét.', 'trace_id': 'c0ec1d84f9f1ec2853d"}
 {"tc": "TC-04-21b 409 không tạo báo cáo", "st": "PASS", "note": ""}
@@ -1181,18 +1180,12 @@
 {"tc": "TC-02-13 JAEGER trống: trace_id + nút sao chép (b354fd16)", "st": "PASS", "note": "OBS-3 trên build 9303b0e8"}
 {"tc": "TC-02-10 ghi payload lỗi: chat vẫn trả lời, llm_audit vẫn ghi, payload không ghi", "st": "PASS", "note": "audit 928->929 payload 330->330 reply=Theo quy chế của lớp, tỷ lệ điểm như sau:\n- Điểm quá trình ("}
 {"tc": "TC-03-11 worker tắt: chat không chậm/lỗi thêm (p95 ≤ baseline 5,8 s ×1,5), không thông báo nửa vời", "st": "PASS", "note": "worker tắt n=8: [3384, 3514, 3648, 3737, 3991, 4573, 4728, 6584] (baseline p50≈4,0 s p95≈5,8 s); thông báo LLM_* 0->0"}
-{"tc": "TC-01-13 1 triệu hàng «summary 7d»: p95 ≤ 500 ms", "st": "FAIL", "note": "p50=6710 p95=10780 max=11779 ms"}
-{"tc": "TC-01-13 1 triệu hàng «summary 24h»: p95 ≤ 500 ms", "st": "FAIL", "note": "p50=3265 p95=4968 max=6467 ms"}
-{"tc": "TC-01-13 1 triệu hàng «requests limit=50»: p95 ≤ 300 ms", "st": "PASS", "note": "p50=32 p95=106 max=164 ms"}
-{"tc": "TC-01-13 1 triệu hàng «requests problem»: p95 ≤ 300 ms", "st": "PASS", "note": "p50=22 p95=64 max=75 ms"}
 {"tc": "TC-01-13 EXPLAIN «bảng yêu cầu»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_created_idx Execution Time: 0.727 ms"}
 {"tc": "TC-01-13 EXPLAIN «summary 7d»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_task_created_idx Execution Time: 6715.279 ms"}
 {"tc": "TC-01-13 EXPLAIN «problem»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_created_idx Execution Time: 0.486 ms"}
 {"tc": "TC-15a DTO SV: mọi dòng có text, không khoá expr; text không min(/max(/÷/ngoặc", "st": "FAIL", "note": "SV=30 dòng=180 có text=180 expr=0 detail=0 lỗi=[('sv.lech', 403)]"}
 {"tc": "TC-15b staff explain giữ expr", "st": "PASS", "note": "200"}
 {"tc": "TC-14-89 go test ./internal/contract (chốt theo CI run 43739149089 @ec1657c2, xanh toàn bộ; cục bộ đỏ do 404 /_test/llm/fake là khác biệt môi trường)", "st": "PASS", "note": "CI quyết (PM)"}
-{"tc": "TC-01-13 1 triệu hàng rải 60 ngày «summary 7d»: p95 ≤ 500 ms", "st": "FAIL", "note": "p50=1360 p95=8084 max=12090 ms"}
-{"tc": "TC-01-13 1 triệu hàng (11,6 ngày) «summary 24h» 504 / EXPLAIN 7d", "st": "FAIL", "note": "load 25: summary 24h → 504 (Caddy 35 s) một lượt, 7d p50=1,4 s p95=8,1 s; EXPLAIN 7d 605k hàng = 11,2 s (index scan 8,5 s + percentile_cont) khi load 25; 24h 86k hàng = 0,25 s"}
 {"tc": "TC-01-13 (rollup) 1 triệu hàng «summary 7d»: p95 ≤ 500 ms", "st": "PASS", "note": "p50=15 p95=22 max=26 ms, load máy=5.84"}
 {"tc": "TC-01-13 (rollup) «summary 7d» đếm / lỗi / dự phòng / chi phí khớp thô", "st": "FAIL", "note": "api=605540/60488/54982/1495315 sql=605539/60488/54982/1495313.1000"}
 {"tc": "TC-01-13 (rollup) «summary 7d» p50/p95 lệch ≤ 5 %", "st": "PASS", "note": "api p50=2096 p95=3896 sql p50=2098 p95=3899"}
@@ -1208,3 +1201,21 @@
 {"tc": "TC-01-13 (rollup) «summary 24h» p50/p95 lệch ≤ 5 %", "st": "PASS", "note": "api p50=2093 p95=3897 sql p50=2095 p95=3900"}
 {"tc": "TC-01-13 (rollup) «requests limit=50»: p95 ≤ 300 ms", "st": "PASS", "note": "p50=4 p95=15 max=20 ms, load=4.72"}
 {"tc": "TC-01-13 (rollup) 1 triệu hàng «course summary» (7 ngày lịch VN): p95 ≤ 500 ms, số yêu cầu khớp SQL", "st": "PASS", "note": "4 lượt 30 mẫu: p95 692 ms (lượt đầu, cache lạnh) / 402 / 369 / 235; p50 190–256 ms; api=sql=173742, tỉ lệ lỗi 0,0998 = SQL; load máy 4–8. Không dùng bảng cộng gộp (lọc lớp đọc thô qua llm_audit_course_created_idx)."}
+{"tc": "TC-05-21 vùng chạm ≥ 44 px ở 375 (build 8a91416e)", "st": "PASS", "note": "INS-3 xanh sau f25857bb"}
+{"tc": "TC-05-15 SV sh.kha thấy buổi ôn tập (INS-2, build 8a91416e)", "st": "PASS", "note": "INS-2 xanh; lần trước PIN_LIMIT 409 do 3 thread ghim QC còn sót (đã gỡ ghim)"}
+{"tc": "TC-04-13 examples ≤ 5, mỗi câu do ≥ 3 SV khác nhau hỏi; chủ đề <3 SV → examples=[] (P-11-32)", "st": "PASS", "note": "38 chủ đề (4 ≥3 SV), 4 câu mẫu; lệch=[]"}
+{"tc": "TC-04-15 payload gửi LLM đã che; pii_masked_count của lời gọi đặt tên khớp số PII đưa vào", "st": "FAIL", "note": "payload mở bằng open: 0 rò tên/SĐT/email (câu hiện «…học phần, [đã ẩn], SĐT [đã ẩn]») PASS; NHƯNG llm_audit.pii_masked_count của hai lời gọi INSIGHT = 0 dù 3 PII đã che ở bước collect (đếm không ghi vào llm_audit → bộ lọc «Quyền riêng tư» ở /admin/observability không thấy lời gọi insight)"}
+{"tc": "TC-04-20 period_days=30 và 120 sau báo cáo 14: coi là khác tham số, không reused sai", "st": "PASS", "note": "3 báo cáo mới nhất có payload.period_days = 120, 30, 14 (mỗi kỳ một bản ghi, job SUCCEEDED, 202 không reused)"}
+{"tc": "TC-04-04b chọn kỳ ở /insights: 4 lựa chọn 7/14/30/Toàn kỳ", "st": "FAIL", "note": "build 8a91416e: /insights không có bộ chọn kỳ (không có nhãn «7 ngày»/«14 ngày»/«30 ngày»/«Toàn kỳ»); nút «Tạo báo cáo mới» luôn gọi generate mặc định 14. SRS §/insights + FR-9 + US-P10-04 AC1 đòi bộ chọn (INS-4)"}
+{"tc": "TC-05-06 nút nổi bật theo has_new_data", "st": "PASS", "note": "INS-5: has_new_data true → data-variant=primary, false → secondary (cả hai trạng thái)"}
+{"tc": "TC-05-07 job nền: chỉ báo giai đoạn, rời trang, thông báo chuông", "st": "PASS", "note": "INS-6 với 9router thật: «Đang …» hiện, /threads rồi quay lại vẫn xem được, có thông báo mới ở chuông"}
+{"tc": "TC-05-08 không dữ liệu mới → «Chưa có câu hỏi mới từ ngày …», không bản ghi", "st": "PASS", "note": "INS-5 (đúng một dòng, insight_reports không đổi)"}
+{"tc": "TC-05-13 POST threads 500: giữ nháp, báo tại chỗ, tải lại còn", "st": "PASS", "note": "INS-7: nội dung nháp giữ sau lỗi + sau reload; ghi nhận: tiêu đề không tự lưu (chỉ nội dung, useAutosaveDraft)"}
+{"tc": "TC-14-52 các ca 422/lỗi tham số: vl() trước = sau", "st": "PASS", "note": "vl 2682→2682; mã=[422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422]"}
+{"tc": "TC-14-68 entity hiếm (1 dòng/100k) và actor_id lạ: p95 ≤ 300 ms; không quét bảng", "st": "PASS", "note": "entity=auth_session p95=50 ms; actor lạ p95=37 ms; tổng dòng=103759; plan=index"}
+{"tc": "TC-14-84 mở payload → dòng VIEW_DETAIL actor=ADMIN, entity_id, changed_fields=[reason], không lộ chữ lý do", "st": "PASS", "note": "open=200 dòng={'action': 'VIEW_DETAIL', 'changed_fields': ['reason'], 'entity': 'llm_request'}"}
+{"tc": "TC-14-93 hồi quy: /observability mở chi tiết, /admin/users, đăng nhập; dòng audit_log cũ không mất", "st": "PASS", "note": "users=200 audit=200 open=200; qc_audit 318 ≥ 303 (15 dòng thêm do ca QC chèn), không dòng nào mất"}
+{"tc": "TC-14-86 mở qua giao diện rồi lọc /admin/audit: cột «Khoá đổi» = reason (AUD-6)", "st": "PASS", "note": "UI thật: drawer → lý do → Xem chi tiết → /admin/audit entity=llm_request thấy VIEW_DETAIL + «reason», không lộ chữ lý do"}
+{"tc": "TC-14-83 audit.spec.ts của dev", "st": "PASS", "note": "CI run 43739149089 @ec1657c2 xanh toàn bộ (PM xác nhận); QC không chạy lại cục bộ (harness mock của dev)"}
+{"tc": "TC-14-94 F16 trong FLOWS.md + e2e-flows.md", "st": "PASS", "note": "FLOWS F16: /admin/audit thuộc sprint 11; /admin/health thuộc PR (P-11-30, loại c, không tính FAIL)"}
+{"tc": "TC-02-14 payload > 30 ngày → 410 PAYLOAD_EXPIRED + vẫn audit", "st": "PASS", "note": "410 {'code': 'PAYLOAD_EXPIRED', 'message': 'Nội dung đã hết hạn lưu.', 'trace_id': ' audit 2→3"}

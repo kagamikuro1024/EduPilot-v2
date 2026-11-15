@@ -70,6 +70,14 @@ localhost, http://localhost {
 		}
 	}
 
+	# URL ký sẵn của MinIO (BLOB_PUBLIC_ENDPOINT = localhost[:cổng HTTPS], kiểu path-style `/{bucket}/…`): trình duyệt PUT / GET thẳng vào kho tệp qua CÙNG origin với ứng dụng
+	# (CSP connect-src 'self' không cần nguồn ngoài), giống VPS (Caddyfile.vps). Host gốc được giữ nguyên nên chữ ký SigV4 vẫn đúng. Không nén, không giới hạn thân (tệp bài nộp tới 20 MiB).
+	handle /edupilot/* {
+		reverse_proxy minio:9000 {
+			flush_interval -1
+		}
+	}
+
 	handle {
 		encode zstd gzip
 		reverse_proxy frontend:3000

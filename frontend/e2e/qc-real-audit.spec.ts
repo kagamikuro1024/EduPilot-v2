@@ -15,7 +15,7 @@ test("@real AUD-1 cột, bộ lọc, Tải thêm, khớp API (TC-14-69/70/71)", 
   await expect(table(page)).toBeVisible();
   const heads = await table(page).getByRole("columnheader").allInnerTexts();
   expect(heads.map((h) => h.trim())).toEqual(["Thời điểm", "Người", "Thực thể", "Hành động", "Khoá đổi"]);
-  for (const l of ["Thực thể", "Người"]) await expect(page.getByLabel(l, { exact: true })).toBeVisible();
+  for (const l of ["Thực thể"]) await expect(page.getByLabel(l, { exact: true })).toBeVisible();
   await expect(page.getByRole("radiogroup", { name: "Khoảng thời gian" }).or(page.getByText("Khoảng thời gian"))).toBeVisible();
   await shot(page, "audit-1440");
   await page.getByLabel("Thực thể", { exact: true }).fill("qc_audit");
@@ -137,4 +137,23 @@ test("@real AUD-5 375 px, axe 1440 + 375, không before/after ở mạng (TC-14-
   expect(ax2.violations.filter((v) => ["serious", "critical"].includes(v.impact ?? "")).map((v) => `${v.id}:${v.nodes.length}`), "axe 375").toEqual([]);
   expect(small, "vùng chạm < 44 px ở 375").toEqual([]);
   expect(bodies.join(" "), "không khoá before/after ở mạng").not.toMatch(/"(before|after)"\s*:/);
+});
+
+test("@real AUD-6 mở chi tiết ở /observability → dòng ở /admin/audit, cột «Khoá đổi» = reason (TC-14-86)", async ({ page }) => {
+  await uiLogin(page, "admin");
+  await page.goto("/observability");
+  await expect(page.getByRole("heading", { name: "Quan sát AI", level: 1 })).toBeVisible();
+  await page.getByRole("table", { name: /Yêu cầu gửi tới model/ }).locator("tbody tr").first().click();
+  const dlg = page.getByRole("dialog");
+  await dlg.getByRole("textbox").fill("QC TC-14-86 mở qua giao diện");
+  await dlg.getByRole("button", { name: "Xem chi tiết" }).click();
+  await page.waitForTimeout(1500);
+  await page.goto("/admin/audit");
+  await page.getByLabel("Thực thể", { exact: true }).fill("llm_request");
+  await page.keyboard.press("Enter");
+  await expect.poll(async () => (await table(page).innerText()), { timeout: 20_000 }).toMatch(/reason/);
+  const cells = await table(page).getByRole("row").nth(1).innerText();
+  expect(cells).toMatch(/VIEW_DETAIL|Xem chi tiết/);
+  expect(cells).not.toContain("QC TC-14-86");
+  await shot(page, "audit-6-view-detail");
 });

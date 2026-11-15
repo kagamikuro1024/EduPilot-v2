@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { expect, type Page, test } from "@playwright/test";
 import { call, courseId, login, needReal, noOverflow, shot, sql, uiLogin } from "./qc-real-lib";
 
@@ -123,3 +124,86 @@ test("@real INS-3 quyền, lỗi, 375 px (TC-05-19/20/21)", async ({ page, brows
   await shot(page, "ins-375");
   expect.soft(sm, "TC-05-21: vùng chạm ≥ 44 px").toEqual([]);
 });
+
+test("@real INS-4 chọn kỳ (TC-04-04b)", async ({ page }) => {
+  await openInsights(page);
+  const labels = ["7 ngày", "14 ngày", "30 ngày", "Toàn kỳ"];
+  const found: string[] = [];
+  for (const l of labels) if (await page.getByText(l, { exact: true }).filter({ visible: true }).count()) found.push(l);
+  await shot(page, "ins4-period");
+  expect(found, "TC-04-04b: bốn lựa chọn kỳ 7 / 14 / 30 ngày và «Toàn kỳ»").toEqual(labels);
+});
+
+test("@real INS-5 nút nổi bật theo has_new_data (TC-05-06) + không dữ liệu mới (TC-05-08)", async ({ page, request }) => {
+  await openInsights(page);
+  const cid = await courseId(request, "teacher", await shownCode(page));
+  const tk = await login(request, "teacher");
+  const lat = await call(request, tk, "GET", `/courses/${cid}/insights/knowledge-gap/latest`);
+  const has = (lat.json as { has_new_data: boolean }).has_new_data;
+  const btn = page.getByRole("button", { name: "Tạo báo cáo mới" });
+  await expect(btn).toHaveCount(1);
+  const variant = await btn.getAttribute("data-variant");
+  expect.soft(variant === "primary", `TC-05-06: has_new_data=${has} ↔ nút ${variant}`).toBe(has);
+  await shot(page, `ins5-has-new-${has}`);
+  if (!has) {
+    const n0 = Number(sql(`select count(*) from insight_reports where course_id='${cid}'`)[0][0]);
+    await btn.click();
+    await expect(page.getByText(/Chưa có câu hỏi mới từ ngày/)).toBeVisible({ timeout: 20_000 });
+    expect.soft(await page.getByText(/Chưa có câu hỏi mới từ ngày/).count(), "TC-05-08: đúng một dòng").toBe(1);
+    expect.soft(Number(sql(`select count(*) from insight_reports where course_id='${cid}'`)[0][0]), "TC-05-08: không bản ghi mới").toBe(n0);
+    await shot(page, "ins5-no-new-data");
+  }
+});
+
+test("@real INS-6 job chạy nền (TC-05-07)", async ({ page, request }) => {
+  await openInsights(page);
+  const cid = await courseId(request, "teacher", await shownCode(page));
+  const tk = await login(request, "teacher");
+  const unread0 = ((await call(request, tk, "GET", "/notifications?limit=50")).json as { items: { id: string }[] }).items.map((n) => n.id);
+  sql(`update insight_reports set data_watermark = data_watermark - interval '1 day' where course_id='${cid}'`);
+  require_rl_clear();
+  const stages: string[] = [];
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  for (let i = 0; i < 40; i++) {
+    const t = await page.getByRole("status").allInnerTexts();
+    for (const x of t) if (/^Đang /.test(x.trim()) && !stages.includes(x.trim())) stages.push(x.trim());
+    if (stages.length) break;
+    await page.waitForTimeout(250);
+  }
+  expect.soft(stages.length, `TC-05-07: có chỉ báo giai đoạn (${stages.join(" | ")})`).toBeGreaterThan(0);
+  await page.goto("/threads");
+  await expect(page).toHaveURL(/\/threads/);
+  await page.goto("/insights");
+  await expect(page.getByRole("heading", { name: "Lỗ hổng kiến thức", level: 1 })).toBeVisible();
+  expect.soft(await page.getByText("Chủ đề nên dạy lại", { exact: true }).count(), "báo cáo cũ / mới vẫn xem được khi quay lại").toBeGreaterThan(0);
+  await expect.poll(async () => ((await call(request, tk, "GET", "/notifications?limit=50")).json as { items: { id: string; type: string; title: string }[] }).items.filter((n) => !unread0.includes(n.id)).map((n) => `${n.type}:${n.title}`).join(" | "), { timeout: 120_000, intervals: [3_000] }).toMatch(/INSIGHT|báo cáo|Báo cáo|lỗ hổng/i);
+  await shot(page, "ins6-after");
+});
+
+test("@real INS-7 POST threads lỗi 500 giữ nháp (TC-05-13)", async ({ page }) => {
+  await openInsights(page);
+  await page.route("**/api/v1/courses/*/threads", (r) => (r.request().method() === "POST" ? r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "Lỗi hệ thống.", trace_id: "qc" }) }) : r.continue()));
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  const grp = page.getByRole("group", { name: "Tạo thread ghim" });
+  const title = `QC nháp ${Date.now().toString(36)}`;
+  await grp.getByLabel("Tiêu đề").fill(title);
+  const body = (await grp.getByLabel("Nội dung").inputValue()) + " (QC sửa)";
+  await grp.getByLabel("Nội dung").fill(body);
+  await grp.getByRole("button", { name: /Ghim|Đăng/ }).click();
+  await page.waitForTimeout(1500);
+  await expect(grp.getByLabel("Tiêu đề")).toHaveValue(title);
+  expect.soft(await grp.getByLabel("Nội dung").inputValue(), "giữ nháp sau lỗi").toBe(body);
+  expect.soft(await page.getByRole("alert").filter({ visible: true }).count() + (await page.getByText(/Chưa (gửi|tạo|ghim) được|Lỗi/).filter({ visible: true }).count()), "báo lỗi tại chỗ").toBeGreaterThan(0);
+  await shot(page, "ins7-error");
+  await page.unroute("**/api/v1/courses/*/threads");
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Lỗ hổng kiến thức", level: 1 })).toBeVisible();
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  const g2 = page.getByRole("group", { name: "Tạo thread ghim" });
+  await expect.soft(g2.getByLabel("Nội dung"), "TC-05-13: tải lại → nháp (nội dung) còn").toHaveValue(body);
+  // ghi nhận (không phải lỗi): useAutosaveDraft chỉ giữ NỘI DUNG; tiêu đề quay về mặc định sau khi tải lại
+});
+function require_rl_clear() {
+  // bộ đếm tạo báo cáo (3 việc / 60 phút / lớp) làm phép thử thất bại giả
+  execSync("docker exec ep-qc-redis-1 sh -c \"redis-cli --scan --pattern 'ep:rl:insight-generate:*' | xargs -r redis-cli del\"");
+}
