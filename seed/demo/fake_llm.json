@@ -2334,6 +2334,15 @@
     "tờ A4 ghi chú viết tay"
    ],
    "response": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."
+  },
+  {
+   "name": "insight-name-fallback",
+   "match": [
+    "Bạn giúp giảng viên đọc nhóm câu hỏi của sinh viên"
+   ],
+   "response": {
+    "topics": []
+   }
   }
  ]
 }

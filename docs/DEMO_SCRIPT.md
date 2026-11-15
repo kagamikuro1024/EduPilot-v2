@@ -205,7 +205,7 @@ Ba tầng, đi từ trên xuống. Người trình bày (chủ dự án) quyết
   - D1: câu dẫn «đã tra sổ của bạn…» **không nêu số**; số buổi vắng và điểm phát biểu nằm ở khối dữ liệu lấy thẳng từ sổ, không từ LLM.
   - D2 (hỏi hộ bạn khác) là câu từ chối viết sẵn trong mã, không qua LLM.
   - D3: bản ghi là lời «chưa tìm thấy trong tài liệu của lớp»; chính lời này làm đường leo thang tới giảng viên chạy.
-  - Tên chủ đề của `/insights` ở tầng 2: `[CHƯA KIỂM: bản ghi tên chủ đề — làm sau khi dựng lại ep-qc sạch]`. Cách an toàn: tạo báo cáo ở chuẩn bị #4 khi LLM thật còn chạy; ở tầng 2 chỉ **xem** báo cáo đã có, không bấm `Tạo báo cáo mới`.
+  - `/insights` ở tầng 2: bản ghi `insight-name-fallback` trả danh sách tên rỗng → báo cáo vẫn xong, chủ đề mang **tên tạm theo từ khoá** kèm dòng «Chưa đặt được tên chủ đề»; xếp hạng, số liệu, câu mẫu vẫn đúng (do mã, không do LLM). Không có bản ghi tên đẹp vì thứ tự chủ đề hoà điểm phụ thuộc thứ tự dữ liệu. Cách tốt nhất: tạo báo cáo ở chuẩn bị #4 khi LLM thật còn chạy; ở tầng 2 chỉ **xem** báo cáo đã có. `[CHƯA KIỂM trên stack: chạy cùng lượt dựng lại ep-qc sạch]`
 - Đường đi còn nguyên: che tên / MSSV, Scheduler, `llm_audit`, ngưỡng độ tin cậy, escalation, mail. Chỉ lời gọi ra nhà cung cấp bị thay. Vì vậy dòng "Đã ẩn 2 thông tin cá nhân" và ticket ở Bước 3 vẫn sinh thật.
 - Không cần mạng ra ngoài.
 - LLM **chậm** (không lỗi): chat đã có câu trả lời hiện dần; chấm bài và báo cáo chạy nền có thanh tiến độ. Nói lời dẫn («đang chạy nền») rồi sang bước kế, quay lại sau; không đợi quá 20 s ở một chỗ.

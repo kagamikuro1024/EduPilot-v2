@@ -1,10 +1,14 @@
 package insight
 
 import (
+	"encoding/json"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
+
+	"github.com/edupilot/backend-go/internal/llm"
 )
 
 // TestLeaksRules — FR-29: ≥ 6 từ liên tiếp (bỏ dấu, chữ thường, tách theo ký tự không phải chữ / số); câu dưới ngưỡng 4–5 từ trùng khi bị chép nguyên; câu < 4 từ bỏ; why cũng được kiểm.
@@ -51,4 +55,30 @@ func TestLeaksRules(t *testing.T) {
 		require.Empty(t, tp.Why)
 		require.Empty(t, tp.Recommendation)
 	}
+}
+
+// TestDemoNameRecording — DEMO_SCRIPT tầng 2: bản ghi demo cho bước NAME trả danh sách rỗng hợp schema → báo cáo vẫn xong, tên chủ đề là tên tạm theo từ khoá (không «mẫu»).
+func TestDemoNameRecording(t *testing.T) {
+	raw, err := os.ReadFile("../../../seed/demo/fake_llm.json")
+	require.NoError(t, err)
+	var f struct {
+		Recordings []struct {
+			Name     string
+			Match    []string
+			Response json.RawMessage
+		}
+	}
+	require.NoError(t, json.Unmarshal(raw, &f))
+	found := false
+	for _, r := range f.Recordings {
+		if r.Name != "insight-name-fallback" {
+			continue
+		}
+		found = true
+		for _, m := range r.Match {
+			require.Contains(t, nameSystem, m)
+		}
+		require.NoError(t, llm.ValidateJSON(json.RawMessage(nameSchema), r.Response))
+	}
+	require.True(t, found)
 }
