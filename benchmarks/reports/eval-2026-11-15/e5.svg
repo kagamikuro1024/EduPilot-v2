@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" font-family="sans-serif" font-size="12">
+<text x="360.0" y="18" text-anchor="middle" font-size="14">E5 — 100 câu AI sinh: kết quả duyệt (n duyệt = 0)</text>
+<text x="360.0" y="414" text-anchor="middle"></text>
+<text x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">câu</text>
+<line x1="60" y1="350.0" x2="700" y2="350.0" stroke="#ddd"/><text x="54" y="354.0" text-anchor="end">0</text>
+<line x1="60" y1="286.0" x2="700" y2="286.0" stroke="#ddd"/><text x="54" y="290.0" text-anchor="end">23</text>
+<line x1="60" y1="222.0" x2="700" y2="222.0" stroke="#ddd"/><text x="54" y="226.0" text-anchor="end">46</text>
+<line x1="60" y1="158.0" x2="700" y2="158.0" stroke="#ddd"/><text x="54" y="162.0" text-anchor="end">69</text>
+<line x1="60" y1="94.0" x2="700" y2="94.0" stroke="#ddd"/><text x="54" y="98.0" text-anchor="end">92</text>
+<line x1="60" y1="30.0" x2="700" y2="30.0" stroke="#ddd"/><text x="54" y="34.0" text-anchor="end">115</text>
+<rect x="76.0" y="350.0" width="126.0" height="0.0" fill="#b3261e"/><text x="140.0" y="347.0" text-anchor="middle" font-size="10">0</text>
+<text x="140.0" y="366" text-anchor="middle" font-size="12">duyệt nguyên</text>
+<rect x="236.0" y="350.0" width="126.0" height="0.0" fill="#b3261e"/><text x="300.0" y="347.0" text-anchor="middle" font-size="10">0</text>
+<text x="300.0" y="366" text-anchor="middle" font-size="12">sửa nhẹ</text>
+<rect x="396.0" y="350.0" width="126.0" height="0.0" fill="#b3261e"/><text x="460.0" y="347.0" text-anchor="middle" font-size="10">0</text>
+<text x="460.0" y="366" text-anchor="middle" font-size="12">loại</text>
+<rect x="556.0" y="71.7" width="126.0" height="278.3" fill="#b3261e"/><text x="620.0" y="68.7" text-anchor="middle" font-size="10">100</text>
+<text x="620.0" y="366" text-anchor="middle" font-size="12">chờ duyệt</text>
+<line x1="60" y1="350" x2="700" y2="350" stroke="#333"/>
+<rect x="60" y="394" width="12" height="10" fill="#b3261e"/><text x="76" y="403">số câu</text>
+</svg>

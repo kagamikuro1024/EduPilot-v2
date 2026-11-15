@@ -1,0 +1,27 @@
+{
+ "meta": {
+  "commit": "4c919bf5",
+  "timestamp": "2026-11-15T11:13:28.312Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "stack": "ep-qc",
+   "raw": "providers.json"
+  }
+ },
+ "embedding": "giả (fake) — đã trả về sau lượt đo",
+ "P1": {
+  "model": "ag/gemini-3.8-flash",
+  "via": "9router (openai_compatible)",
+  "since": "2026-11-15T11:13:28.298Z"
+ },
+ "embed_real_since": "2026-11-15T09:51:48.511Z",
+ "P2": {
+  "model": "ag/claude-sonnet-4-6",
+  "via": "9router (openai_compatible)",
+  "since": "2026-11-15T10:15:53.476Z"
+ },
+ "embed_real_calls": 395,
+ "embed_real_tokens": 0,
+ "embed_real_until": "2026-11-15T10:27:59.437Z"
+}

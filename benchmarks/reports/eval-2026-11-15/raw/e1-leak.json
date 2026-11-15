@@ -1,0 +1,38 @@
+{
+ "meta": {
+  "commit": "4c919bf5",
+  "timestamp": "2026-11-15T11:16:11.444Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "stack": "ep-qc",
+   "raw": "e1-leak.json"
+  }
+ },
+ "at": "2026-11-15T11:02:34.914Z",
+ "payload_rows": 2723,
+ "by_task": [
+  {
+   "n": 2156,
+   "task": "GRADING"
+  },
+  {
+   "n": 549,
+   "task": "CHAT"
+  },
+  {
+   "n": 17,
+   "task": "QUESTION_GEN"
+  },
+  {
+   "n": 1,
+   "task": "UTILITY"
+  }
+ ],
+ "hits": {
+  "name": 0,
+  "mssv": 0,
+  "email": 0
+ },
+ "probes": 90
+}
