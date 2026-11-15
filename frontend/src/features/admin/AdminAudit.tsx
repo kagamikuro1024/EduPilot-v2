@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCursorList } from "@/shared/data";
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, type Column, DataTable, EmptyState, Field, Input, Page, PageHeader, PageState, Panel, SegmentedControl, Toolbar } from "@/shared/ui";
 import s from "./admin.module.css";
 
@@ -58,7 +59,7 @@ export function AdminAudit() {
   return (
     <Page kind="work">
       <PageHeader title="Nhật ký" />
-      <Panel>
+      <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
         <Toolbar>
           <SegmentedControl label="Khoảng thời gian" value={range} onChange={pick} options={[{ value: "24h", label: "24 giờ" }, { value: "7d", label: "7 ngày" }, { value: "30d", label: "30 ngày" }]} />
           <Field label="Thực thể" error={validEntity ? undefined : "Chữ thường, số, gạch dưới"}>
