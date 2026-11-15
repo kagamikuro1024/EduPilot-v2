@@ -322,3 +322,18 @@
 {"tc": "TC-AS14-09a bash scripts/ui-antipatterns.sh: sạch", "st": "PASS", "note": "qc5 @a1c7ab30"}
 {"tc": "TC-AS04-07 (D-AS-01) cùng khoá WEB_KEY, hai SV cùng lớp: SV thứ hai nhận 503 SERVICE_UNAVAILABLE, KHÔNG có lượt (kỳ vọng 201 + DEVICE_SHARED cả hai)", "st": "FAIL", "note": "tái hiện 3/3 lần; log gateway không có dòng lỗi; xem defects.md"}
 {"tc": "TC-AS04-08 (D-AS-01) đua 4 vòng: luôn 503 ở người thứ hai", "st": "FAIL", "note": "xem TC-AS04-07"}
+{"tc": "ANDROID AC-0 app Capacitor tải web từ APP_SERVER_URL (http://localhost:580 qua adb reverse), native, secure context, plugin EduPilotAttest", "st": "PASS", "note": "emulator Pixel 6 API 35 arm64; APK debug @81051907"}
+{"tc": "ANDROID AC-1 đăng nhập SV trong app (cookie WebView)", "st": "PASS", "note": ""}
+{"tc": "ANDROID AC-3a/AC-4 WebView có BarcodeDetector + qr_code → /checkin hiện nút «Quét mã điểm danh»", "st": "PASS", "note": "13 định dạng, gồm qr_code"}
+{"tc": "ANDROID AC-4b từ chối camera: «Chưa cấp quyền camera.» + ô «Mã điểm danh»", "st": "PASS", "note": "pm revoke + user-fixed"}
+{"tc": "ANDROID AC-6 ErrorPath: máy chủ không tới được → trang «Không kết nối được máy chủ. Thử lại» (US-AS-11 AC6)", "st": "PASS", "note": "thấy ở lần chạy đầu (cleartext chặn http://localhost) và khi offline"}
+{"tc": "ANDROID AC-7 emulator: đăng ký thiết bị bị ATTESTATION_FAILED (422), app vẫn điểm danh bằng khoá Keystore → lượt WEB_KEY chưa chứng thực, mức 2, không DEVICE_UNTRUSTED (P-108-5)", "st": "PASS", "note": "WEB|2|DEVICE_NEW|WEB_KEY|false"}
+{"tc": "ANDROID AC-8 APK ký khoá debug (≠ vân tay) không đạt mức 3", "st": "PASS", "note": "mức 2"}
+{"tc": "ANDROID AC-9 require=APP: lượt từ emulator mang NOT_APP (P-108-6)", "st": "PASS", "note": "DEVICE_NEW,NOT_APP|2"}
+{"tc": "ANDROID AC-10a vị trí emulator = tâm vùng (rotate 10 s): «Đã điểm danh», geo_distance 0 m, accuracy 5 m, không GEO_*", "st": "PASS", "note": "6,4 s từ mở liên kết tới xong"}
+{"tc": "ANDROID AC-10b vị trí ngoài vùng (5302 m): GEO_OUT, vẫn «Đã điểm danh», mức 1", "st": "PASS", "note": ""}
+{"tc": "ANDROID AC-10c từ chối quyền vị trí: GEO_DENIED, vẫn «Đã điểm danh», mức 1", "st": "PASS", "note": ""}
+{"tc": "ANDROID AC-14 token quá hạn trong app: «Mã đã hết hạn…», không refresh/đăng xuất, vẫn ở /checkin", "st": "PASS", "note": "POST@35, không auth sau"}
+{"tc": "ANDROID AC-12 hai tài khoản cùng điện thoại (đợt 2, @81051907): tài khoản thứ hai nhận «Hệ thống đang bận. Thử lại sau ít phút.» (503), không có lượt (D-AS-01)", "st": "FAIL", "note": "tái hiện trong app"}
+{"tc": "ANDROID AC-15 offline: trang «Không kết nối được máy chủ. Thử lại» (WebView tải lại khi mất mạng); gửi lại an toàn chưa đo", "st": "PASS", "note": "ghi nhận; gửi lại khi đã tải xong chưa đo (KHÔNG KIỂM ĐƯỢC phần «Chưa có mạng.»)"}
+{"tc": "ANDROID AC-11 GEO_MOCK: vị trí đặt bằng `adb emu geo fix` KHÔNG bị gắn GEO_MOCK (plugin isMockLocation=false) — ghi nhận, cần máy thật + app GPS giả", "st": "PASS", "note": "NOTE"}
