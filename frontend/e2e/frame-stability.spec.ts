@@ -87,6 +87,7 @@ test("insights: đang tải và lỗi giữ đúng bộ nút đầu trang của 
   });
   await page.goto("/insights");
   await expect(page.locator("[aria-busy=true]").first()).toBeVisible();
+  await expect.poll(() => headerButtons(page).then((l) => l.length)).toBeGreaterThan(0);
   const loading = await headerButtons(page);
   await expect(page.getByText("Chủ đề nên dạy lại")).toBeVisible();
   const data = await headerButtons(page);
@@ -95,7 +96,7 @@ test("insights: đang tải và lỗi giữ đúng bộ nút đầu trang của 
   mode = "fail";
   await page.reload();
   await expect(page.getByRole("alert").first()).toBeVisible();
-  expect(await headerButtons(page)).toEqual(data);
+  await expect.poll(() => headerButtons(page)).toEqual(data);
 });
 
 test("observability (giảng viên) lớp chưa có yêu cầu: khối rỗng nằm trong một Panel cao ≤ 320 px (E6)", async ({ page }) => {
