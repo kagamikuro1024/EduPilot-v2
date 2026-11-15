@@ -56,7 +56,7 @@ Cập nhật theo BA `e6eba277` (SRS v1.8, US-P10-14 AC1/2/3/4/7): Q-S11-23…26
 | TC-14-28b | AC3 | F1 | Lấy `next_cursor` với `entity=qc_audit&actor_id=<ADMIN>&from=$F&to=$T0`; dùng lại **đúng** bộ lọc, `limit` khác (10 → 25) | `200`, trang kế liền mạch (`limit` không nằm trong dấu vân tay) | API |
 | TC-14-28c | AC3 | F1 | Cùng `next_cursor` nhưng đổi bộ lọc: (a) đổi `entity`, (b) thêm `actor_id`, (c) bỏ `actor_id`, (d) đổi `from`, (e) đổi `to`, (f) thêm `from` khi trước đó không có, (g) bỏ `entity` | Cả bảy: `422 INVALID_CURSOR` (không tiếp tục theo bộ lọc mới); `vl()` không đổi | API+DB |
 | TC-14-28d | AC3 | – | Lấy `next_cursor` khi **không** gửi `from` / `to` (mặc định 7 ngày), dùng lại cũng không gửi, sau khi đợi 70 giây | `200` (dấu vân tay «thiếu = thiếu», không dời theo `now`); trang liền mạch | API |
-| TC-14-28e | AC3 | – | Cùng một thời điểm viết khác dạng (`2026-11-14T03:00:00Z` ↔ `2026-11-14T10:00:00+07:00`) giữa hai trang | Ghi quan sát: `422` hoặc `200`; không `500`; báo BA nếu `422` (Q-S11-27) | API (quan sát) |
+| TC-14-28e | AC3 | – | Lấy `next_cursor` với `from=2026-11-14T03:00:00Z&to=2026-11-15T03:00:00Z`; dùng lại với cùng thời điểm viết khác dạng (`from=2026-11-14T10:00:00+07:00&to=2026-11-15T10:00:00+07:00`), và ngược lại (`+07:00` rồi `Z`) | `200`, trang kế liền mạch (Q-S11-27 chốt: dấu vân tay tính trên bộ lọc đã chuẩn hoá UTC; **không** `INVALID_CURSOR`); đổi thật một thời điểm (+1 giây) → `422 INVALID_CURSOR` | API |
 | TC-14-28f | AC4 | – | `from=2026-11-14T10:00:00+07:00` | `VIEW_LIST.after.from` = `2026-11-14T03:00:00Z` (UTC) | API+DB |
 
 ## AC4 / AC5 — xem cũng bị ghi, ghi hỏng thì không trả
@@ -166,7 +166,7 @@ Cập nhật theo BA `e6eba277` (SRS v1.8, US-P10-14 AC1/2/3/4/7): Q-S11-23…26
 | Q-S11-25 (`before`/`after` không phải đối tượng) | Chốt: `[]`, không `500`. Khớp |
 | Q-S11-26 (cursor dùng lại với bộ lọc khác) | Chốt: **`422 INVALID_CURSOR`**, dấu vân tay `(entity, actor_id, from, to)` đúng như client gửi. **Khác** đề xuất QC; TC đổi theo (TC-14-28b…f) |
 | `limit` mặc định | **30** (không phải 50); TC-14-21, 25 đổi theo |
-| Q-S11-27 (mới) | Dấu vân tay «đúng như client gửi»: cùng thời điểm khác dạng chữ (`Z` ↔ `+07:00`) có bị `INVALID_CURSOR` không? Đề xuất QC: chuẩn hoá về UTC trước khi băm để client đổi múi giờ không hỏng phân trang. TC-14-28e ghi quan sát |
+| Q-S11-27 (dấu vân tay và dạng chữ thời điểm) | Chốt (BA `d7f7d0bc`): tính trên bộ lọc đã chuẩn hoá UTC; `Z` và `+07:00` cùng thời điểm = cùng bộ lọc. Khớp đề xuất QC; TC-14-28e kiểm cả hai chiều |
 
 ## Việc QC làm khi dev báo xong
 1. Nạp F1…F7 (INSERT qua psql, ghi lệnh vào `scripts/`), `ANALYZE audit_log`. 2. Chạy `scripts/au_*.py` (API+DB) và `frontend/e2e/qc-real-audit.spec.ts` (UI 1440 / 375, ảnh vào `docs/sprints/11/qc/shots/`). 3. Chạy các lệnh Go (TC-14-20, 38, 43, 55, 67, 88, 89) và `audit.spec.ts` ở nhánh dev. 4. TC-14-36 cần PM / TL cho phép tạo trigger tạm trên DB ep-qc (khôi phục ngay).
