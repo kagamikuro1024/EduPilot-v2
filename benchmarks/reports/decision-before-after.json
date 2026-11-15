@@ -1,8 +1,12 @@
 {
   "meta": {
-    "when": "2026-11-15 12:43",
-    "fake_p50": "426",
-    "fake_p95": "682"
+    "commit": "dd8054dc",
+    "timestamp": "2026-11-15T12:43:28+07:00",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+    }
   },
   "off": {
     "chat": {

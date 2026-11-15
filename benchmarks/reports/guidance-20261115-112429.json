@@ -1,4 +1,13 @@
 {
+  "meta": {
+    "commit": "8719db26",
+    "timestamp": "2026-11-15T04:24:21.289075+00:00",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+    }
+  },
   "at": "2026-11-15T04:24:21.289075+00:00",
   "course": "761987",
   "assignment": "BT03",
