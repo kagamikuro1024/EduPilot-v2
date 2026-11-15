@@ -2741,7 +2741,7 @@ paths:
     post:
       operationId: registerDevice
       tags: [attendance]
-      summary: "Đăng ký khoá thiết bị Android kèm chuỗi chứng thực (chỉ STUDENT): lấy và xoá nonce, kiểm chuỗi tới gốc Google nhúng sẵn, challenge, gói + vân tay APK, mức bảo mật, thu hồi. Khoá đã có → 200 cùng `key_id`. KHÔNG gắn khoá với người dùng. 422 DEVICE_CHALLENGE_INVALID (nonce sai / hết hạn) | ATTESTATION_FAILED (chuỗi giả, APK lạ, bị thu hồi); 503 ATTESTATION_UNAVAILABLE (không tải được danh sách thu hồi và chưa có bản đệm) — app vẫn điểm danh như web"
+      summary: "Đăng ký khoá thiết bị Android kèm chuỗi chứng thực (chỉ STUDENT): lấy và xoá nonce, kiểm chuỗi tới gốc Google nhúng sẵn, challenge, gói + vân tay APK, mức bảo mật, thu hồi. Khoá đã có → 200 cùng `key_id`. KHÔNG gắn khoá với người dùng. 422 DEVICE_CHALLENGE_INVALID (nonce sai / hết hạn) | ATTESTATION_FAILED (chuỗi giả, APK lạ, bị thu hồi, `public_key` khác khoá trong chứng chỉ lá); 503 ATTESTATION_UNAVAILABLE (không tải được danh sách thu hồi và chưa có bản đệm) — app vẫn điểm danh như web"
       requestBody:
         required: true
         content:
