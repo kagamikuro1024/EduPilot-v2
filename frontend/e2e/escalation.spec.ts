@@ -300,8 +300,8 @@ test("inbox shortcuts: J / K đổi ticket, R vào ô soạn, không kích hoạ
 test("bell count: số chưa đọc trên chuông, tối đa 9+", async ({ page }) => {
   await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 15 }) });
   await page.goto("/");
-  await expect(page.locator("[data-part=bell-dot]")).toHaveAttribute("data-count", "9+"); // P-11-38: «9+» vẽ bằng CSS
-  await expect(bell(page)).toHaveAttribute("aria-label", "Thông báo, 15 chưa đọc");
+  await expect(page.locator("[data-part=bell-dot]")).toHaveText("9+");
+  await expect(bell(page)).toHaveAttribute("aria-label", "Thông báo, 9+ chưa đọc"); // P-11-39: nhãn chứa chữ nhìn thấy «9+»
 });
 
 test("bell count small: 3 chưa đọc hiện đúng số 3", async ({ page }) => {
@@ -313,7 +313,7 @@ test("bell count small: 3 chưa đọc hiện đúng số 3", async ({ page }) =
 test("axe: nút đầu trang (tìm nhanh, chuông 9+, tài khoản) có tên chứa chữ nhìn thấy (WCAG 2.5.3; DEF-R5-01)", async ({ page }) => {
   await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 58 }) });
   await page.goto("/");
-  await expect(page.locator("[data-part=bell-dot]")).toHaveAttribute("data-count", "9+");
+  await expect(page.locator("[data-part=bell-dot]")).toHaveText("9+");
   const r = await new AxeBuilder({ page }).withRules(["label-content-name-mismatch"]).analyze();
   expect(r.violations.flatMap((v) => v.nodes.map((n) => n.html.slice(0, 80)))).toEqual([]);
 });

@@ -100,9 +100,8 @@ export function UndoLine({ message, onUndo, onDone }: { message: ReactNode; onUn
   );
 }
 
-/** `glyph`: ký tự vẽ bằng CSS (không thành chữ hiển thị) — dùng trong nút có aria-label để tên nút không lệch chữ nhìn thấy (WCAG 2.5.3). */
-export function Kbd({ children, glyph }: { children?: ReactNode; glyph?: string }) {
-  return glyph ? <kbd className={s.kbd} data-glyph={glyph} /> : <kbd className={s.kbd}>{children}</kbd>;
+export function Kbd({ children }: { children: ReactNode }) {
+  return <kbd className={s.kbd}>{children}</kbd>;
 }
 
 /** Nhãn riêng tư cho nội dung chỉ một số vai trò thấy. */

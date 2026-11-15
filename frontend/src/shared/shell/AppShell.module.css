@@ -121,14 +121,12 @@
 .iconBtn[aria-expanded="true"] { background: var(--ep-surface-subtle); color: var(--ep-ink); }
 @media (hover: hover) and (pointer: fine) { .iconBtn:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); } }
 .iconBtn svg { width: 18px; height: 18px; }
-.unreadDot[data-count]::before { content: attr(data-count); } /* «9+» vẽ bằng CSS: chữ nhìn thấy không lệch aria-label «Thông báo, N chưa đọc» (WCAG 2.5.3, DEF-R5-01); 1–9 là chữ thật, nằm trong nhãn */
 .unreadDot { position: absolute; top: 3px; right: 2px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: var(--ep-radius-pill); background: var(--ep-red); color: var(--ep-surface); border: 1.5px solid var(--ep-surface); font-size: var(--ep-text-meta); font-weight: 700; line-height: 1; }
 
 .profile { display: inline-flex; align-items: center; gap: var(--ep-space-2); height: 36px; padding: 0 var(--ep-space-2) 0 var(--ep-space-1); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; }
 .profile[aria-expanded="true"] { border-color: var(--ep-ink-3); }
 @media (hover: hover) and (pointer: fine) { .profile:hover { border-color: var(--ep-ink-3); } }
 .profile svg { width: 14px; height: 14px; color: var(--ep-ink-2); }
-.initials::before { content: attr(data-initial); } /* chữ cái viết bằng CSS: không vào văn bản hiển thị nên tên nút «Tài khoản: …» chứa đủ chữ nhìn thấy (WCAG 2.5.3) */
 .initials { display: grid; place-items: center; width: 26px; height: 26px; border-radius: var(--ep-radius-xs); background: var(--ep-ink); color: var(--ep-surface); font-size: var(--ep-text-meta); font-weight: 700; }
 
 .who { padding: var(--ep-space-2) var(--ep-space-3) var(--ep-space-3); }
@@ -165,8 +163,9 @@
 @media (max-width: 1099px) {
   .courseBtn { max-width: 240px; }
   .search { width: 36px; padding: 0; justify-content: center; border-color: transparent; background: transparent; }
-  .searchText, .searchKey { display: none; }
-  .profileRole { display: none; }
+  .searchKey { display: none; }
+  /* chữ ẩn bằng clip (không display:none): nút chỉ còn icon / chữ cái vẫn giữ tên truy cập lấy từ nội dung */
+  .searchText, .profileRole { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 }
 
 @media (max-width: 719px) {

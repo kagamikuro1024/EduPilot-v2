@@ -31,9 +31,9 @@ export function NotificationPopover({ items, unread, onRead, failed, stale }: { 
         width={340}
         label="Thông báo"
         trigger={(p) => (
-          <button type="button" className={s.iconBtn} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={unread ? `Thông báo, ${unread} chưa đọc` : "Thông báo"}>
+          <button type="button" className={s.iconBtn} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={unread ? `Thông báo, ${unread > 9 ? "9+" : unread} chưa đọc` : "Thông báo"}>
             <Bell aria-hidden />
-            {unread > 0 && <span className={s.unreadDot} data-part="bell-dot" aria-hidden {...(unread > 9 ? { "data-count": "9+" } : { children: unread })} />}
+            {unread > 0 && <span className={s.unreadDot} data-part="bell-dot" aria-hidden>{unread > 9 ? "9+" : unread}</span>}
           </button>
         )}
       >

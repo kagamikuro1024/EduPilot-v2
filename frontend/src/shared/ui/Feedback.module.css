@@ -87,7 +87,6 @@
   font: 600 var(--ep-text-meta)/1 var(--ep-font);
   color: var(--ep-ink-2);
 }
-.kbd[data-glyph]::before { content: attr(data-glyph); }
 
 .private { display: inline-flex; align-items: center; gap: var(--ep-space-1); font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-2); }
 .private svg { width: 14px; height: 14px; color: var(--ep-green); }

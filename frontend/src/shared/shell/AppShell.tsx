@@ -243,12 +243,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div className={s.topEnd}>
-          <button type="button" className={s.search} onClick={openPalette} aria-label="Tìm nhanh hoặc đi đến">
+          <button type="button" className={s.search} onClick={openPalette}>
             <Search aria-hidden />
             <span className={s.searchText}>Tìm nhanh hoặc đi đến…</span>
             <span className={s.searchKey}>
-              <Kbd glyph="⌘" />
-              <Kbd glyph="K" />
+              <Kbd>⌘</Kbd>
+              <Kbd>K</Kbd>
             </span>
           </button>
 
@@ -264,9 +264,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             width={260}
             label="Tài khoản"
             trigger={(p) => (
-              <button type="button" className={s.profile} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={`Tài khoản: ${personName}`}>
-                <span className={s.initials} data-initial={user.name.split(" ").slice(-1)[0].slice(0, 1)} aria-hidden />
-                <span className={s.profileRole}>{personName}</span>
+              <button type="button" className={s.profile} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">
+                <span className={s.initials} aria-hidden>
+                  {user.name
+                    .split(" ")
+                    .slice(-1)[0]
+                    .slice(0, 1)}
+                </span>
+                <span className={s.profileRole}>
+                  <span className="ep-sr-only">Tài khoản: </span>
+                  {personName}
+                </span>
                 <ChevronDown aria-hidden />
               </button>
             )}
