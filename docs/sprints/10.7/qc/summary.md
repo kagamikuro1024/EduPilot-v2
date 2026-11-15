@@ -1,27 +1,27 @@
 # QC sprint 10.7 (UI-R) — kết luận
 
-Nhánh `sprint/10.7-ui-r`, HEAD kiểm `114a4461` (dev đợt 4). Stack `ep-qc`: chỉ rebuild frontend (env QC: `NEXT_PUBLIC_API_URL=http://localhost:580`), DB giữ nguyên. Chỉ đọc, không sửa mã dev.
+Nhánh `sprint/10.7-ui-r`, HEAD kiểm cuối `8028a1e1` (dev sửa `Esc` của công tắc khoá). Stack `ep-qc`: chỉ rebuild frontend (env QC: `NEXT_PUBLIC_API_URL=http://localhost:580`), DB giữ nguyên. Chỉ đọc, không sửa mã dev.
 
-**Kết luận: gần đạt, còn 10 lượt ở 3 mã đo (lượt đầu 191 lượt, 15 mã), cả ba đều ở `student/chat` và `documents`; chưa đạt «0 lệch».** `ui-antipatterns.sh` sạch (31/31 phép, `--selftest` 31/31); e2e dev liên quan 249 pass, 0 fail. Đạt 0 lệch: toàn bộ nhóm khung (W, H, P, E1, E3–E5, E7, L, X, D1–D3) trừ ba mã dưới đây. Trang giới thiệu và P-107-14, `/settings` sinh viên đều đạt.
+**Kết luận: ĐẠT (UI-R).** Audit khung 310 lượt chụp (4 vai × mọi route × 1440 / 375 × 4 trạng thái): từ 191 lượt lệch ở 15 mã xuống **1 lượt, đã xếp «không áp dụng»** (E2 `student/chat` dữ liệu @1440 = cách đo). `ui-antipatterns.sh` sạch; e2e dev 117 pass, 0 fail; axe 0 serious/critical; `Esc` đã sửa. Còn các ghi chú không tính lệch (AC13 ở 375, E7 chưa đo, mục «Chưa kiểm» cuối tệp). Audit đầy đủ chạy ở `114a4461`; ở `be299a3e` và `8028a1e1` chỉ chụp lại các route dev chạm (`documents`, `student/chat`, `observability` GV và admin), vì hai lượt sau chỉ đổi các tệp đó và `Switch` (`Field`).
 
 ## 1. Verdict
 
 | Hạng mục | Verdict | Căn cứ |
 | --- | --- | --- |
-| Hợp đồng khung §23 — K1 (kiểu trang, độ rộng, panel) | **PASS** | W1–W3, P1–P3 = 0. P2 = 0 (`observability` +17 đã sửa; `/insights` ở 375 +2,1 px chấp nhận, xem 2) |
+| Hợp đồng khung §23 — K1 (kiểu trang, độ rộng, panel) | **PASS** | W1–W3, P1–P3 = 0 (`/insights` ở 375 +2,1 px chấp nhận theo dung sai 0,5 px) |
 | K2 (đầu trang) | **PASS** | W4, H1–H7 = 0 |
 | K3 (tiêu đề mục) | **PASS** | P4 = 0 |
-| K4 / K5 (trạng thái rỗng, nút trùng) | **FAIL (Thấp)** | E1, E3–E5, E7 = 0. E2 (`student/chat` rỗng lệch tâm −4 px) và E6 (`student/chat` panel cao 654 px) còn lệch; xem 2 |
+| K4 / K5 (trạng thái rỗng, nút trùng) | **PASS** | E1–E5, E7 = 0; E6 `student/chat` miễn theo P-107-15; E2 `student/chat` dữ liệu @1440 lệch 190 px là cách đo (khối ở ngăn phải của `Split`), không áp dụng |
 | K6 (375 px) | **PASS** | W5 = 0, 0 tràn ngang, H8 = 0 |
-| Chuẩn đo mới (D1–D3, P5, T2) | **FAIL (Thấp)** | D1–D3, P5 = 0. T2 còn 4 lượt: `documents` lặp «Đáp án không hiển thị cho sinh viên» ×4 (chữ tooltip của công tắc, xem 2 và 6) |
+| Chuẩn đo mới (D1–D3, P5, T2) | **PASS** | 0 lệch (T2 không đếm `role=tooltip`, P-107-15) |
 | Đang tải / lỗi (L1–L3, X1–X3) | **PASS** | 0 lệch (dock `/attendance` 375 giữ khi tải / lỗi; `/settings` GV 2 alert đúng cột; tab `student/practice` giữ) |
 | Lô 1 đo lại (`/insights`, `/questions`, `/inbox`) | **PASS có lệch nhỏ** | `/inbox`, `/questions` 0 lệch. Còn `/insights` ở 375 (P2 +2,1 px). `/insights` ở lớp rỗng: «Chưa có báo cáo», không số liệu lớp khác |
 | Lỗi dữ liệu mô phỏng ở lớp rỗng | **PASS** | `/analytics` ở QCEMPTY: «Chưa có số liệu» (trước đó hiện số liệu lớp 761987) |
 | `/settings` sinh viên khi lỗi API (TL 14.7) | **PASS** | 3 mục: «Mật khẩu» dùng được (ô nhập, nút hiện mật khẩu), «Thiết bị đang đăng nhập» 1 alert, «Thư» 1 alert; «Nhắc 24 giờ» và «Thời gian học» không vẽ gì, không nút/ô nào dùng được trên dữ liệu chưa tải; tổng 2 alert ≤ 4 GET hỏng khác nhau |
 | **P-107-14** thanh dính đáy 375 | **PASS** | xem 3; dock còn khi đang tải / lỗi |
 | **US-UX91-08** trang giới thiệu v2, AC1–24 | **PASS** (đo được) | xem 4; AC18, AC20, AC21 do `landing.spec.ts` của dev (chạy xanh ở HEAD, mục 5) |
-| Bộ màu ĐHBK (P-107-8/10) | **PASS** | C3 = 0 trên mọi lượt; `contrast.spec.ts` của dev chạy xanh ở lượt e2e dưới (QC chạy lại ở HEAD) |
-| `ui-antipatterns.sh` ở `114a4461` | **PASS** | exit 0, 31 phép ✓, `--selftest` 31/31 (`shots/ui-antipatterns-log.txt`) |
+| Bộ màu ĐHBK (P-107-8/10) | **PASS** | C3 = 0; `contrast.spec.ts` xanh ở lượt e2e `114a4461`; không đổi ở `8028a1e1` |
+| `ui-antipatterns.sh` ở `8028a1e1` | **PASS** | exit 0, 31 phép ✓, `--selftest` 31/31 |
 
 ## 2. Lệch còn lại (10 lượt trong `audit.md`)
 
@@ -84,7 +84,7 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `114a4461` (dev đợt 4). Stack `ep-qc`:
 - Landing: `qc-landing-real.spec.ts` (đo DOM ẩn danh), `copy-lint`, `perf --runs 3`, `consistency` 1440 + 390 (HEAD `1935435a` cho `perf.mjs`; HEAD `9a011cd1` cho `copy-lint` và `consistency`). Lighthouse 4G: `lhci collect` throttling `devtools`, 3 lượt mỗi kiểu (`landing/lighthouse.json`). Dock: `qc-dock-real.spec.ts`. `/settings` sinh viên: `qc-settings-sv-real.spec.ts`.
 - E2e dev ở `114a4461` (`pnpm build:gate` + `playwright test` desktop và mobile, `--retries=0`: `documents`, `private-chat`, `frame`, `panels`, `attendance`, `contrast`, `landing`, `class-join`, `settings-error`, `insights-course`, `me`, `decision-observability`): **249 pass, 181 skip (theo dự án), 0 fail** (`shots/dev-e2e-log.txt`).
 - Chưa kiểm: tương phản chữ–nền ngoài `contrast.spec.ts`; `IntersectionObserver` (AC8 sợi chỉ, AC15 độ trễ 1,5 s); ảnh mốc `visual.spec`; `e2e` còn lại của dev ngoài danh sách trên.
-- Dọn: stack `ep-qc` đang chạy (frontend `114a4461`, env QC).
+- Dọn: stack `ep-qc` đang chạy (frontend `8028a1e1`, env QC).
 
 ## 6. Hai điểm PM hỏi thêm
 
@@ -92,9 +92,9 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `114a4461` (dev đợt 4). Stack `ep-qc`:
 
 **`observability` — mục «Lớp … 7 ngày» bị ẩn khi không có số: không đúng §23.4, đề nghị là `EmptyState` của mục.** Căn cứ DESIGN §23.4: «The container keeps its frame: same panel, same width, content height» và §23.5: «Loading, empty and error never change the page kind, the header, or the tabs»; §23.3: trang từ hai vùng trở lên mỗi vùng có `Section` + `h2`. Hiện ở lớp `QCEMPTY` mục biến mất cả tiêu đề (`teacher-empty-_observability-1440.jpg`: chỉ còn «Hôm nay» và «0 yêu cầu gần nhất»), nên giảng viên không phân biệt được «lớp không có số» với «màn không có mục này». Đề xuất: giữ `Section` «Lớp … trong 7 ngày» với `EmptyState` «Chưa có số liệu» (không nút). Đây là màn mô phỏng (nợ sprint 11); loại: **Quyết** (Thấp), không có trong số 10 lượt vì mục ẩn không phải một lượt đo.
 
-## 7. Kiểm lại sau P-107-15 (HEAD `be299a3e`, frontend `ep-qc` rebuild, env QC)
+## 7. Kiểm lại sau P-107-15 và sửa `Esc` (HEAD `8028a1e1`)
 
-- **Audit lại `documents`, `student/chat`, `admin` và `teacher/observability`** (dữ liệu, rỗng, đang tải, lỗi; 1440 và 375): còn **1 lượt**: `student/chat` dữ liệu @1440 E2 lệch 190 px. Đây là cách đo (khối nằm ở ngăn phải của `Split`), **không áp dụng**. E2 −4 px đã hết; E6 `student/chat` miễn theo P-107-15; T2 `documents` hết (không đếm `role=tooltip`). `ui-antipatterns.sh` sạch (31/31, selftest 31/31). axe serious/critical = 0 ở 390 và 1440 trên `observability` (GV, admin), `documents` (GV), `student/chat`; 0 vùng cuộn ngang cần `tabindex`.
-- **`observability`:** mục «Lớp … trong 7 ngày» giữ `Section` + `EmptyState` «Chưa có số liệu» ở lớp `QCEMPTY` (1440 và 375). **PASS** (đúng §23.4).
-- **`documents` công tắc khoá** (`shots/docs-lock-log.txt`, lớp 761987 và 761988): `aria-disabled` (không `disabled`) PASS; Tab/focus mở lý do PASS; bấm / Space / Enter không đổi giá trị, 0 yêu cầu PATCH PASS; chạm (375) mở lý do PASS, chạm ra ngoài đóng PASS; hàng chia sẻ «Chỉ đổi được ở lớp gốc» PASS (lớp 761988, 10 hàng); 0 icon info ngoài `InlineNotice`. **FAIL (Thấp): `Esc` không đóng lý do khi công tắc còn focus** (opacity 1 sau 1 s; chỉ tắt khi Tab ra khỏi công tắc) — PM yêu cầu «Esc đóng».
-- **Dừng giữa chừng (chủ dự án tạm dừng):** chưa chạy e2e dev `a11y.spec.ts`, `documents.spec.ts`, `frame.spec.ts`, `panels.spec.ts`, `private-chat.spec.ts`, `decision-observability.spec.ts` ở `be299a3e` (lượt `114a4461` trước đó: 249 pass, 0 fail). Chưa chốt verdict cuối: còn lệch `Esc` và 4 mục chưa chạy.
+- **Audit lại `documents`, `student/chat`, `admin` và `teacher/observability`** (dữ liệu, rỗng, đang tải, lỗi; 1440, 375): 1 lượt E2 `student/chat` @1440 = cách đo (không áp dụng). E2 −4 px đã hết; E6 `student/chat` miễn (P-107-15); T2 `documents` hết.
+- **`observability`:** mục «Lớp … trong 7 ngày» giữ `Section` + `EmptyState` «Chưa có số liệu» ở lớp `QCEMPTY` (1440, 375). **PASS** (đúng §23.4). axe serious/critical = 0 ở 390 và 1440 trên `observability` (GV, admin), `documents` (GV), `student/chat`; 0 vùng cuộn ngang cần `tabindex`.
+- **`documents` công tắc khoá** (`shots/docs-lock-log.txt`, lớp 761987 và 761988): `aria-disabled` (không `disabled`) PASS; Tab / focus mở lý do PASS; **`Esc` đóng lý do PASS** (lỗi trước đó đã sửa); Space / Enter / bấm không đổi giá trị, 0 yêu cầu PATCH PASS; chạm (375) mở lý do, chạm ra ngoài đóng PASS; hàng chia sẻ «Chỉ đổi được ở lớp gốc» PASS (lớp 761988, 10 hàng); 0 icon info ngoài `InlineNotice`. Hàng chia sẻ chỉ có ở lớp 761988 nên ở lớp 761987 mục này ghi «không có hàng để kiểm».
+- **E2e dev ở `8028a1e1`** (`a11y`, `documents`, `frame`, `panels`, `private-chat`, `decision-observability`; desktop + mobile; `--retries=0 --workers=2`; `shots/dev-e2e-log.txt`): **117 pass, 117 skip (theo dự án), 0 fail**. Hai lượt chạy trước ở `be299a3e` có `frame.spec` và `panels.spec` đỏ hàng loạt khi chạy cùng bộ; `panels.spec` chạy riêng pass (59) và cả bộ pass lại ở `8028a1e1`. QC không tái hiện được nguyên nhân (nghi lượt chạy bị chen lấn tài nguyên với stack); không tính lỗi sản phẩm nhưng ghi để dev biết.
