@@ -19,6 +19,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pgvector/pgvector-go"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
@@ -395,6 +396,9 @@ func (s *Service) collect(ctx context.Context, q *store.Queries, courseID uuid.U
 		return d, fmt.Errorf("insight: câu hỏi chat: %w", err)
 	}
 	for _, r := range chat {
+		if agent.DetectIntent(r.Content) == agent.IntentCrisis { // P-11-34: không nhúng, không từ khoá, không câu mẫu; không cả mốc dữ liệu
+			continue
+		}
 		if t := s.anonymize(ctx, courseID, r.Content); t != "" {
 			d.items = append(d.items, item{student: r.UserID, text: t, low: r.LowConfidence || r.Escalated, nh: r.NotHelpful, noCtx: r.NoContext})
 		}
@@ -407,6 +411,9 @@ func (s *Service) collect(ctx context.Context, q *store.Queries, courseID uuid.U
 		return d, fmt.Errorf("insight: thread: %w", err)
 	}
 	for _, r := range th {
+		if agent.DetectIntent(r.Title+". "+r.Body) == agent.IntentCrisis {
+			continue
+		}
 		if t := s.anonymize(ctx, courseID, r.Title+". "+r.Body); t != "" {
 			d.items = append(d.items, item{student: r.UserID, text: t})
 		}

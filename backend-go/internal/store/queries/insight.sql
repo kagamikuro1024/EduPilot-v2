@@ -12,6 +12,7 @@ join chat_sessions s on s.id = u.session_id and s.deleted_at is null
 join enrollments e on e.course_id = u.course_id and e.user_id = u.user_id and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE'
 left join chat_messages a on a.course_id = u.course_id and a.reply_to = u.id and a.role = 'ASSISTANT'
 where u.course_id = sqlc.arg(course_id) and u.role = 'USER' and u.content <> ''
+  and a.intent is distinct from 'CRISIS' -- tin khủng hoảng không bao giờ vào báo cáo (P-11-34; mã còn kiểm DetectIntent trên chữ gốc)
   and u.created_at >= sqlc.arg(from_ts) and u.created_at < sqlc.arg(to_ts)
 order by u.created_at, u.id
 limit sqlc.arg(max_rows);

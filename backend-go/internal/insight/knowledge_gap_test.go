@@ -29,12 +29,14 @@ type stubLLM struct {
 	leakName             string // khác rỗng: mọi chủ đề được «đặt tên» bằng chuỗi này (mô phỏng LLM chép câu dưới ngưỡng k)
 	structured           int
 	seen                 []string // nội dung user của mọi lời gọi đặt tên
+	embedded             []string // mọi chuỗi gửi đi nhúng
 }
 
 func (s *stubLLM) Embed(_ context.Context, r llm.EmbedRequest) ([][]float32, error) {
 	if s.failEmbed {
 		return nil, errors.New("embed down")
 	}
+	s.embedded = append(s.embedded, r.Inputs...)
 	out := make([][]float32, len(r.Inputs))
 	for i, t := range r.Inputs {
 		v := make([]float32, llm.EmbedDims)
@@ -298,6 +300,38 @@ func TestKnowledgeGapNameGuard(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestKnowledgeGapCrisisExcluded — P-11-34 F1: tin khủng hoảng (chat riêng) không bao giờ vào báo cáo: không nhúng ra ngoài, không từ khoá / tên chủ đề, không câu mẫu / «chưa đề cập» dù ≥ 3 sinh viên gõ cùng câu.
+func TestKnowledgeGapCrisisExcluded(t *testing.T) {
+	r := newRig(t, 13)
+	const canary = "Em không muốn sống nữa, bỏ học luôn canary-khung-hoang"
+	for k := range 4 { // 4 sinh viên cùng một câu khủng hoảng (qua ngưỡng k)
+		r.ask(k, canary, true, false)
+	}
+	// câu trung tính nhưng trợ lý đã gắn intent CRISIS (phòng thủ ở SQL)
+	const marked = "Dạo này em mệt lắm marker-intent-crisis"
+	for k := range 4 {
+		r.ask(4+k, marked, true, false)
+	}
+	r.exec(`update chat_messages set intent = 'CRISIS' where role = 'ASSISTANT' and reply_to in (select id from chat_messages where content = $1)`, marked)
+	for k := range 40 {
+		r.ask(k%6, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k%5), false, false)
+	}
+	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	var payload, all string
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select payload::text from insight_reports where course_id = $1`, r.course).Scan(&payload))
+	all = strings.Join(append(append([]string{payload}, r.llm.embedded...), r.llm.seen...), "\n")
+	for _, canaryText := range []string{"canary-khung-hoang", "sống nữa", "marker-intent-crisis", "canary", "marker"} {
+		require.NotContains(t, strings.ToLower(all), strings.ToLower(canaryText), canaryText)
+	}
+	rep, err := r.svc.Latest(t.Context(), r.course)
+	require.NoError(t, err)
+	md, err := r.svc.Export(t.Context(), r.course, rep.Report.ID)
+	require.NoError(t, err)
+	require.NotContains(t, md, "canary")
+	require.Equal(t, 40, rep.Report.Payload.Counts.Questions, "chỉ 40 câu thường được đếm")
 }
 
 // TestKnowledgeGap — US-P10-04: A, B đứng đầu; chủ đề < 3 sinh viên không có câu mẫu; ngoài tài liệu có mục riêng; không danh tính trong payload.
