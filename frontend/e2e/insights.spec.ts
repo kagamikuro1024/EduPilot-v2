@@ -173,3 +173,27 @@ test("375 px: không tràn ngang, mục gập và nút đủ vùng chạm (AC14)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   for (const b of await page.getByRole("button", { name: /Tạo (thread ghim|buổi ôn tập)/ }).all()) expect((await b.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });
+
+// TC-04-04b (FR-9, US-P10-04 AC1): bộ chọn kỳ 7 / 14 / 30 / Toàn kỳ, mặc định 14; «Tạo báo cáo mới» gửi kỳ đang chọn; «Toàn kỳ» = 120 ngày, gợi ý trên chính nhãn.
+test("bộ chọn kỳ: mặc định 14, «Toàn kỳ» = 120 có gợi ý trên nhãn, «Tạo báo cáo mới» gửi period_days đang chọn", async ({ page }) => {
+  await asJwt(page, "TEACHER");
+  await insightsApi(page, {});
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => fail(r, 404, "NOT_FOUND"));
+  const sent: unknown[] = [];
+  await page.route(GEN, (r) => {
+    sent.push(r.request().postDataJSON());
+    return ok(r, { report_id: REPORT.report.id, reused: true });
+  });
+  await page.goto("/insights");
+  const group = page.getByRole("radiogroup", { name: "Kỳ báo cáo" });
+  await expect(group.getByRole("radio")).toHaveText(["7 ngày", "14 ngày", "30 ngày", "Toàn kỳ"]);
+  await expect(group.getByRole("radio", { name: "14 ngày" })).toBeChecked();
+  await expect(group.getByRole("radio", { name: "Toàn kỳ" })).toHaveAttribute("title", "120 ngày gần nhất");
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect.poll(() => sent.length).toBe(1);
+  expect(sent[0]).toEqual({ period_days: 14 });
+  await group.getByRole("radio", { name: "Toàn kỳ" }).click();
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect.poll(() => sent.length).toBe(2);
+  expect(sent[1]).toEqual({ period_days: 120 });
+});

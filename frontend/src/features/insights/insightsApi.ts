@@ -52,8 +52,11 @@ export function useLatest(course: string | null) {
   });
 }
 
+/** Kỳ báo cáo (ngày): 7 / 14 / 30 / «Toàn kỳ» = 120 (FR-9, US-P10-04 AC1). */
+export type Period = 7 | 14 | 30 | 120;
+
 export function useGenerate(course: string) {
-  return useMutation({ mutationFn: async () => (await apiClient.post<Generated>(`${base(course)}/generate`, {})).data });
+  return useMutation({ mutationFn: async (period: Period) => (await apiClient.post<Generated>(`${base(course)}/generate`, { period_days: period })).data });
 }
 
 export function useRefreshLatest(course: string) {

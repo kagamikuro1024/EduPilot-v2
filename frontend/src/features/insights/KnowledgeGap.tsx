@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { CalendarPlus, Download, Pin, Sparkles } from "lucide-react";
 import { ApiError, useJob } from "@/shared/data";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
-import { Button, EmptyState, type HeaderAction, InlineNotice, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText } from "@/shared/ui";
-import { downloadMarkdown, type Latest, type Topic, useGenerate, useLatest, useRefreshLatest } from "./insightsApi";
+import { Button, EmptyState, type HeaderAction, InlineNotice, Page, PageHeader, PageState, Panel, Section, SegmentedControl, Skeleton, StatusText } from "@/shared/ui";
+import { downloadMarkdown, type Latest, type Period, type Topic, useGenerate, useLatest, useRefreshLatest } from "./insightsApi";
 import { PinThreadForm, ReviewForm } from "./TopicForms";
 import s from "./insights.module.css";
 
@@ -21,6 +21,7 @@ export function KnowledgeGap({ courseId }: { courseId: string }) {
   const refresh = useRefreshLatest(courseId);
   const [jobId, setJobId] = useState<string | null>(null);
   const [reusedAt, setReusedAt] = useState<string | null>(null);
+  const [period, setPeriod] = useState<Period>(14);
   const [open, setOpen] = useState<{ kind: "pin" | "review"; rank: number } | null>(null);
   const job = useJob(jobId);
 
@@ -34,7 +35,7 @@ export function KnowledgeGap({ courseId }: { courseId: string }) {
     setReusedAt(null);
     setJobId(null);
     try {
-      const r = await gen.mutateAsync();
+      const r = await gen.mutateAsync(period);
       if (r.reused) setReusedAt(latest.data ? dmy(latest.data.report.data_watermark) : dmy(new Date().toISOString()));
       else setJobId(r.job_id ?? null);
     } catch {
@@ -59,6 +60,13 @@ export function KnowledgeGap({ courseId }: { courseId: string }) {
         secondary={data && !data.has_new_data ? [create] : undefined}
         more={more}
         meta={data ? [`Báo cáo ${dmy(data.report.created_at)}, ${hm(data.report.created_at)}`, `${data.report.payload.counts.questions} câu hỏi · ${data.report.payload.counts.students} sinh viên`, "Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy"] : undefined}
+      />
+
+      <SegmentedControl
+        label="Kỳ báo cáo"
+        value={String(period) as `${Period}`}
+        onChange={(v) => setPeriod(Number(v) as Period)}
+        options={[{ value: "7", label: "7 ngày" }, { value: "14", label: "14 ngày" }, { value: "30", label: "30 ngày" }, { value: "120", label: "Toàn kỳ", title: "120 ngày gần nhất" }]}
       />
 
       {running && (
