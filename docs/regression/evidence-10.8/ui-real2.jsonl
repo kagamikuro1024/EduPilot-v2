@@ -1,0 +1,8 @@
+{"tc":"TC-AS09-01 mở liên kết có #token → «Đã điểm danh hh:mm» không thao tác","st":"PASS","note":"Đã điểm danh 00:46"}
+{"tc":"TC-AS09-03a không yêu cầu mạng nào chứa token","st":"PASS","note":"31 yêu cầu"}
+{"tc":"TC-AS09-03b sau xong: location.hash rỗng; sessionStorage/localStorage không còn token","st":"PASS","note":" ss={}"}
+{"tc":"TC-AS09-30a 375 px: không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS09-30b nút dock cao ≥ 44 px (nếu có)","st":"PASS","note":"null"}
+{"tc":"TC-AS09-35a CSP có, không unsafe-eval, không nguồn script ngoài; Permissions-Policy camera/geolocation=(self)","st":"PASS","note":"default-src 'self'; script-src 'self' 'unsafe-inline'; style | camera=(self), geolocation=(self)"}
+{"tc":"TC-AS09-35b Referrer-Policy của /checkin","st":"NOTE","note":"header=(không đặt); SRS không yêu cầu; #fragment không bao giờ vào Referer (TC-AS09-03a đã đo)"}
+{"tc":"TC-AS09-39a axe /checkin: 0 lỗi nghiêm trọng","st":"PASS","note":""}

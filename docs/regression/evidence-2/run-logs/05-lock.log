@@ -125,3 +125,16 @@ TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
     ok   nhận được sự kiện mới = [1]
 -- TC-PG05-69 PASS
 TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:22 00:59:59
+== TC-PG05-22
+    ok   có hai bản gateway = [a18f4b5ec3dc1eafa3adff203e811502c98bab99ad098f5e93084f044780b185] (≠ [])
+    ok   ZCARD sau khi A giữ 2 kết nối = [2]
+    ok   mã của stream thứ 3 mở thẳng vào bản B = [429]
+-- TC-PG05-22 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:46 01:00:23
+== TC-PG05-46
+    ok   kết nối ở bản A nhận = [1]
+    ok   kết nối ở bản B nhận = [1]
+-- TC-PG05-46 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0

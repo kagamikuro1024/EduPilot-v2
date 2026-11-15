@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 2 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm A) · Ngày: 2026-11-15
 
-Tổng TC cũ: 527 · Đạt (P): 408 · Trượt (F): 8 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 40 · Chưa chạy — cần PM quyết (X): 71 · Chưa chạy — ngoài mẫu (N): 0   (P+F+K+D+X+N = 527)
+Tổng TC cũ: 527 · Đạt (P): 460 · Trượt (F): 3 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 41 · Chưa chạy — cần PM quyết (X): 23 · Chưa chạy — ngoài mẫu (N): 0   (P+F+K+D+X+N = 527)
 Quy ước: **K(a)** thiết bị không có · **K(b)** cần người thật · **K(c)** ngoài phạm vi đồ án · **D** TC lỗi thời (spec đã đổi hợp lệ, ghi mã đề xuất/quyết định) · **X** chưa chạy vì lệnh phá huỷ/dựng stack thứ hai bị cấm (chờ PM) · **N** chưa chạy: dạng tài liệu, ngoài mẫu smoke «1 chính + 1 lỗi / US».
 Cách chạy:
 - `docs/regression/evidence-2/scripts/{pg01..pg07,gate-pg}.sh` (bản sao của `docs/sprints/2/qc/scripts`, chỉ chỉnh cổng/project sang ep-r: 6133/7080/9700/1143, `-p ep-r`, thêm APP_ENCRYPTION_KEY vào env nhị phân trần — bắt buộc từ sprint 3, proposals#4; docker bọc chặn lệnh phá huỷ). Log: `evidence-2/run-logs/<story>.log`.
@@ -14,13 +14,13 @@ Cách chạy:
 | US | TC tổng | P | F | K(a/b/c) | D | X | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | US-PG-01 | 85 | 80 | 0 | 0 | 5 | 0 | 0 | khung dịch vụ |
-| US-PG-02 | 70 | 59 | 1 | 0 | 9 | 1 | 0 | schema/blob/outbox |
-| US-PG-03 | 108 | 102 | 4 | 0 | 2 | 0 | 0 | idempotency/REST |
-| US-PG-04 | 58 | 54 | 0 | 0 | 2 | 2 | 0 | JWT/auth |
-| US-PG-05 | 74 | 55 | 0 | 0 | 0 | 19 | 0 | SSE |
-| US-PG-06 | 38 | 25 | 3 | 0 | 6 | 4 | 0 | OpenAPI/contract |
-| US-PG-07 | 69 | 31 | 0 | 0 | 16 | 22 | 0 | compose/CI |
-| GATE-PG | 25 | 2 | 0 | 0 | 0 | 23 | 0 | cổng PG |
+| US-PG-02 | 70 | 60 | 0 | 0 | 9 | 1 | 0 | schema/blob/outbox |
+| US-PG-03 | 108 | 106 | 0 | 0 | 2 | 0 | 0 | idempotency/REST |
+| US-PG-04 | 58 | 55 | 0 | 0 | 3 | 0 | 0 | JWT/auth |
+| US-PG-05 | 74 | 72 | 0 | 0 | 0 | 2 | 0 | SSE |
+| US-PG-06 | 38 | 31 | 0 | 0 | 6 | 1 | 0 | OpenAPI/contract |
+| US-PG-07 | 69 | 51 | 1 | 0 | 16 | 1 | 0 | compose/CI |
+| GATE-PG | 25 | 5 | 2 | 0 | 0 | 18 | 0 | cổng PG |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -170,7 +170,7 @@ Cách chạy:
 | TC-PG02-57 | P |  |
 | TC-PG02-58 | P |  |
 | TC-PG02-59 | P |  |
-| TC-PG02-60 | F | CẦN TRIAGE: dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction): thực tế [0] phải ≥ 1 |
+| TC-PG02-60 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG02-61 | P |  |
 | TC-PG02-62 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG02-63 | P |  |
@@ -213,10 +213,10 @@ Cách chạy:
 | TC-PG03-29 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-30 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-31 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG03-32 | F | CẦN TRIAGE: có hai bản gateway: [] không khớp /^.+$/ |
-| TC-PG03-33 | F | CẦN TRIAGE: XFF 203.0.113.7 request thứ 6 bị 429: [] không khớp / 429/ |
+| TC-PG03-32 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG03-33 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-34 | P |  |
-| TC-PG03-35 | F | CẦN TRIAGE: độ trễ thêm so với baseline (ms): thực tế [236] phải ≤ 50 |
+| TC-PG03-35 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-36 | P |  |
 | TC-PG03-37 | P |  |
 | TC-PG03-38 | P |  |
@@ -276,7 +276,7 @@ Cách chạy:
 | TC-PG03-92 | P |  |
 | TC-PG03-93 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-94 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG03-95 | F | CẦN TRIAGE: số dòng _test_items tên qc95 (bảng thử không bị ghi): thực tế [1] ≠ mong đợi [0] |
+| TC-PG03-95 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-96 | P |  |
 | TC-PG03-97 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-98 | D | APP_ENV=production: log lỗi nêu biến production khác, không nêu APP_ENV (kiểm tra production sprint sau) |
@@ -315,7 +315,7 @@ Cách chạy:
 | TC-PG04-22 | P |  |
 | TC-PG04-23 | P |  |
 | TC-PG04-24 | P |  |
-| TC-PG04-25 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG04-25 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG04-26 | P |  |
 | TC-PG04-27 | P |  |
 | TC-PG04-28 | P |  |
@@ -336,7 +336,7 @@ Cách chạy:
 | TC-PG04-43 | P |  |
 | TC-PG04-44 | D | TC đòi 0 đường dẫn /auth/ /me/ /admin/ trong openapi — nay có (US-PU-01…) |
 | TC-PG04-45 | D | GET /api/v1/auth/login → 405 (route auth có thật từ sprint 3), /admin/users → 200 — TC đòi 404 |
-| TC-PG04-46 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG04-46 | D | auth routes (/auth/login, /me, /admin/users…) có thật từ sprint 3 (US-PU-01…) — TC đòi 404 ở chế độ default; cùng lý do TC-PG04-44/45 |
 | TC-PG04-47 | P |  |
 | TC-PG04-48 | P |  |
 | TC-PG04-49 | P |  |
@@ -352,7 +352,7 @@ Cách chạy:
 | **US-PG-05** | | |
 | TC-PG05-01 | P |  |
 | TC-PG05-02 | P |  |
-| TC-PG05-03 | X | lần 1 trượt khi 6 luồng + nhóm khác cùng tải stack; chưa chạy lại riêng để xác nhận |
+| TC-PG05-03 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-04 | P |  |
 | TC-PG05-05 | P |  |
 | TC-PG05-06 | P |  |
@@ -365,35 +365,37 @@ Cách chạy:
 | TC-PG05-13 | P |  |
 | TC-PG05-14 | P |  |
 | TC-PG05-15 | P |  |
-| TC-PG05-16 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG05-16 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-17 | P |  |
 | TC-PG05-18 | P |  |
 | TC-PG05-19 | P |  |
 | TC-PG05-20 | P |  |
 | TC-PG05-21 | P |  |
-| TC-PG05-22 | X | cần gateway=2 (ep-r chạy 1 gateway) — chờ cửa sổ khoá global |
+| TC-PG05-22 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-23 | P |  |
-| TC-PG05-24 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG05-24 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-25 | X | bước tay (chờ 150 s/đo thủ công) — chưa chạy  |
 | TC-PG05-26 | P |  |
 | TC-PG05-27 | X | bước tay (chờ 150 s/đo thủ công) — chưa chạy  |
-| TC-PG05-28 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG05-28 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-29 | P |  |
 | TC-PG05-30 | P |  |
 | TC-PG05-31 | P |  |
 | TC-PG05-32 | P |  |
 | TC-PG05-33 | P |  |
 | TC-PG05-34 | P |  |
-| TC-PG05-35 | X | lần 1 trượt khi 6 luồng + nhóm khác cùng tải stack; chưa chạy lại riêng để xác nhận |
+| TC-PG05-35 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-36 | P |  |
 | TC-PG05-37 | P |  |
 | TC-PG05-38 | P |  |
 | TC-PG05-39 | P |  |
-| TC-PG05-40 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG05-40 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-41 | P |  |
 | TC-PG05-42 | P |  |
 | TC-PG05-43 | P |  |
-| TC-PG05-44…TC-PG05-46 | X | cần gateway=2 (ep-r chạy 1 gateway) — chờ cửa sổ khoá global |
+| TC-PG05-44 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG05-45 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG05-46 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-47 | P |  |
 | TC-PG05-48 | P |  |
 | TC-PG05-49 | P |  |
@@ -407,26 +409,33 @@ Cách chạy:
 | TC-PG05-57 | P |  |
 | TC-PG05-58 | P |  |
 | TC-PG05-59 | P |  |
-| TC-PG05-60…TC-PG05-63 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG05-60 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG05-61 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG05-62 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG05-63 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-64 | P |  |
 | TC-PG05-65 | P |  |
 | TC-PG05-66 | P |  |
-| TC-PG05-67…TC-PG05-69 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG05-67 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG05-68 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG05-69 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-70 | P |  |
 | TC-PG05-71 | P |  |
 | TC-PG05-72 | P |  |
 | TC-PG05-73 | P |  |
 | TC-PG05-74 | P |  |
 | **US-PG-06** | | |
-| TC-PG06-01 | F | DEF-R2-01: redocly lint openapi.yaml 1 lỗi (analytics/exams/compare: parameters null) |
+| TC-PG06-01 | P | RERUN 2026-11-16 sau 816498c6 (DEF-R2-01 đã sửa): `redocly lint backend-go/api/openapi.yaml` rc 0, 0 lỗi (21 cảnh báo) |
 | TC-PG06-02 | P |  |
 | TC-PG06-03 | P |  |
 | TC-PG06-04…TC-PG06-07 | D | openapi.yaml 5 đường dẫn (sprint 2) → 298 đường dẫn / 344 thao tác (sprint 3…11); 2 chữ «_test» trong mô tả |
 | TC-PG06-08 | P |  |
 | TC-PG06-09 | P |  |
-| TC-PG06-10 | F | DEF-R2-02: `go test ./internal/contract` rc 1 (TestStatusParity trượt 2/2 lần) |
-| TC-PG06-11 | F | DEF-R2-02: gồm TestStatusParity |
-| TC-PG06-12…TC-PG06-14 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG06-10 | P | DEF-R2-02 = do tải, đóng: `go test -count=1 -tags testroutes ./internal/contract/...` ok 37 s lúc load ≈ 6 (bản dbf48ed0); thêm TestStatusParity riêng PASS 2/3 lượt (110 s, 46 s); evidence-2/logs-contract-rerun2.log |
+| TC-PG06-11 | P | như TC-PG06-10 (gồm TestStatusParity + TestSpec_EveryDocumentedStatusExercised trong gói contract xanh) |
+| TC-PG06-12 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG06-13 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG06-14 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG06-15 | P |  |
 | TC-PG06-16 | P |  |
 | TC-PG06-17 | P |  |
@@ -453,8 +462,8 @@ Cách chạy:
 | TC-PG06-38 | X | bước tay (chờ 150 s/đo thủ công) — chưa chạy  |
 | **US-PG-07** | | |
 | TC-PG07-01…TC-PG07-02 | D | compose nay 13 service (thêm judge, docling, mock-*, migrate…) — TC đòi 6–8 service, không python/docling |
-| TC-PG07-03 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
-| TC-PG07-04 | X | cần gateway=2 (ep-r chạy 1 gateway) — chờ cửa sổ khoá global |
+| TC-PG07-03 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-04 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-05 | P |  |
 | TC-PG07-06 | P |  |
 | TC-PG07-07 | P |  |
@@ -465,22 +474,26 @@ Cách chạy:
 | TC-PG07-12 | P |  |
 | TC-PG07-13 | P |  |
 | TC-PG07-14 | D | cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
-| TC-PG07-15…TC-PG07-16 | X | cần gateway=2 (ep-r chạy 1 gateway) — chờ cửa sổ khoá global |
+| TC-PG07-15 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-16 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-17 | P |  |
-| TC-PG07-18…TC-PG07-20 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG07-18 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-19 | F | CẦN TRIAGE: sau khi tắt, cùng token (không 401): thực tế [503] ≠ mong đợi [404] |
+| TC-PG07-20 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-21 | P |  |
 | TC-PG07-22 | D | cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
 | TC-PG07-23 | P |  |
 | TC-PG07-24 | P |  |
 | TC-PG07-25 | P |  |
-| TC-PG07-26 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG07-26 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-27 | P |  |
-| TC-PG07-28…TC-PG07-29 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG07-28 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-29 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-30 | P |  |
 | TC-PG07-31 | P |  |
 | TC-PG07-32 | P |  |
 | TC-PG07-33 | P |  |
-| TC-PG07-34 | X | cần gateway=2 (ep-r chạy 1 gateway) — chờ cửa sổ khoá global |
+| TC-PG07-34 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-35 | D | mã sản xuất nay có ghi đĩa (regress, fake llm) / thay đổi FS container worker |
 | TC-PG07-36 | P |  |
 | TC-PG07-37 | D | mã sản xuất nay có ghi đĩa (regress, fake llm) / thay đổi FS container worker |
@@ -488,30 +501,42 @@ Cách chạy:
 | TC-PG07-42 | P |  |
 | TC-PG07-43…TC-PG07-44 | D | bằng chứng là run GitHub Actions của nhánh ci/sqlc-drift (nhánh đã xoá) và ci.yml tái cấu trúc (US-CI-02) |
 | TC-PG07-45 | P |  |
-| TC-PG07-46 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG07-46 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-47 | P |  |
-| TC-PG07-48…TC-PG07-49 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG07-48 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-49 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-50 | P |  |
 | TC-PG07-51 | P |  |
-| TC-PG07-52…TC-PG07-54 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG07-52 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-53 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-54 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-55 | P |  |
 | TC-PG07-56 | D | nay thêm mock-graph/mock-imap công bố cổng (sprint 7/10.8) |
 | TC-PG07-57 | P |  |
 | TC-PG07-58 | D | .env.example có giá trị bí mật không chứa «-dev» (khoá demo sprint sau) |
 | TC-PG07-59 | P |  |
 | TC-PG07-60 | P |  |
-| TC-PG07-61…TC-PG07-62 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG07-61 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-62 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-63 | X | bước tay (chờ 150 s/đo thủ công) — chưa chạy  |
 | TC-PG07-64 | P |  |
 | TC-PG07-65 | P |  |
 | TC-PG07-66 | D | compose nay 13 service (thêm judge, docling, mock-*, migrate…) — TC đòi 6–8 service, không python/docling |
-| TC-PG07-67…TC-PG07-68 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG07-67 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG07-68 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-69 | P |  |
 | **GATE-PG** | | |
 | TC-GATE-01 | P |  |
 | TC-GATE-02 | P |  |
-| TC-GATE-03…TC-GATE-99 | X | chưa chạy (gate: go test toàn bộ/xoá volume — chưa tới lượt) |
+| TC-GATE-03…TC-GATE-04 | X | chưa chạy (gate: go test toàn bộ/xoá volume — chưa tới lượt) |
+| TC-GATE-05 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-06 | F | CẦN TRIAGE: contract không tag rc: thực tế [1] ≠ mong đợi [0] |
+| TC-GATE-07 | F | CẦN TRIAGE: go test -race ./internal/httpapi/... rc: thực tế [1] ≠ mong đợi [0] |
+| TC-GATE-08 | X | chưa chạy (gate: go test toàn bộ/xoá volume — chưa tới lượt) |
+| TC-GATE-09 | P | `pnpm -C frontend build` rc 0 (35 s; chạy ngoài cửa sổ khoá); run-logs/gate-09-j.log |
+| TC-GATE-10 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-11…TC-GATE-99 | X | chưa chạy (gate: go test toàn bộ/xoá volume — chưa tới lượt) |
 
 ## Trượt: bước tái hiện
-### DEF-R2-01 — openapi.yaml không qua `redocly lint` (TC-PG06-01; cũng P0-02/TC-21) — chi tiết `defects-2.md`
-### DEF-R2-02 — `go test ./internal/contract` đỏ (TC-PG06-10, -11) — chi tiết `defects-2.md`
+### DEF-R2-01 — ĐÃ SỬA (816498c6): `redocly lint` hợp lệ, TC-PG06-01 và P0-02/TC-21 đạt — chi tiết `defects-2.md`
+### DEF-R2-02 — ĐÓNG, do tải (rig contract REQUEST_TIMEOUT=1s): gói contract xanh khi máy rảnh, TC-PG06-10, -11 đạt — chi tiết `defects-2.md`

@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+(node:56894) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:56894) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+NOTE (chuẩn bị) B 201,201,201,201,201
+FAIL TC-AS08-15 ngoại lệ: TimeoutError: locator.waitFor: Timeout 20000ms exceeded. Call log:  - waiting for locator('[data-part=window-line][data-state=open]') to be visible 
+PASS TC-AS08-16 Drawer «Gọi ngẫu nhiên»: 5 hàng (tên, MSSV, «Có cờ»/«Ngẫu nhiên») 5 hàng

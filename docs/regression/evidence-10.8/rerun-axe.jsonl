@@ -1,0 +1,4 @@
+{"tc": "TC-AS08-25 1440: axe /attendance 0 lỗi nghiêm trọng", "st": "PASS", "note": "rerun sau sửa P-11-39 (axe-appshell): "}
+{"tc": "TC-AS08-25 375: axe /attendance 0 lỗi nghiêm trọng", "st": "PASS", "note": "rerun sau sửa P-11-39 (axe-appshell): "}
+{"tc": "TC-AS09-36 /checkin: axe 0 lỗi nghiêm trọng; LCP ≤ 2,5 s", "st": "PASS", "note": "rerun sau sửa P-11-39 (axe-appshell): 0; LCP=56 ms"}
+{"tc": "TC-AS09-39a axe /checkin: 0 lỗi nghiêm trọng", "st": "PASS", "note": "rerun sau sửa P-11-39 (axe-appshell): "}

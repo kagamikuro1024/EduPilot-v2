@@ -1,0 +1,7 @@
+{"tc":"TC-AS10-02","st":"FAIL","note":"ngoại lệ: Error: open 404{\"code\":\"NOT_FOUND\",\"message\":\"Không tìm thấy.\",\"trace_id\":\"ab774361d112ee5217ef00884c34f738\"}"}
+{"tc":"TC-AS10-11/AS01-14","st":"FAIL","note":"ngoại lệ: Error: open 404{\"code\":\"NOT_FOUND\",\"message\":\"Không tìm thấy.\",\"trace_id\":\"6cce2fdca20c68b8debe0369c8bbc85c\"}"}
+{"tc":"TC-AS09-32/AS04-16","st":"FAIL","note":"ngoại lệ: Error: open 404{\"code\":\"NOT_FOUND\",\"message\":\"Không tìm thấy.\",\"trace_id\":\"cb75057b07a96ffde29633da59a92698\"}"}
+{"tc":"TC-AS09-36 /checkin: axe 0 lỗi nghiêm trọng; LCP ≤ 2,5 s","st":"PASS","note":"0; LCP=56 ms"}
+{"tc":"TC-AS11-09","st":"FAIL","note":"ngoại lệ: Error: open 404{\"code\":\"NOT_FOUND\",\"message\":\"Không tìm thấy.\",\"trace_id\":\"86a14bd6ddd7baedb38766da5376f313\"}"}
+{"tc":"TC-AS11-14 r108ta (giả native) mở /checkin: màn chặn chuẩn; 0 request dữ liệu; không lưu mật khẩu/token ngoài cookie","st":"PASS","note":"[[\"ep_demo_state\",\"ep_returning\"],[]]"}
+{"tc":"TC-AS11-14 r108t (giả native) mở /checkin: màn chặn chuẩn; 0 request dữ liệu; không lưu mật khẩu/token ngoài cookie","st":"PASS","note":"[[\"ep_demo_state\",\"ep_returning\"],[]]"}

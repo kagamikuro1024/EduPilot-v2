@@ -169,6 +169,7 @@ tc_pg07_18() {  # AC6 — 200 request 10/s, tắt một gateway ở giây 5; l�
 }
 tc_pg07_19() {  # AC6 — không ai mất đăng nhập: cùng token trước và sau khi tắt một bản
   local T c1 c2
+  ensure_mode test >/dev/null 2>&1   # QC2 (SmkJ): cần 2 bản gateway trước khi tắt một bản (baseline ep-r chạy 1)
   T=$(tok STUDENT $U1)
   c1=$(code -H "Authorization: Bearer $T" $GW/api/v1/jobs/$UX)
   docker stop "$($C ps -q gateway | head -1)" >/dev/null 2>&1

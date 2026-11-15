@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+(node:70922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:70922) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+URL https://localhost:1143/attendance?session=01a1e011-d3df-75d9-a1fa-95a329e4d320 TOP QC-AS | · QC điểm danh QC-AS | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 24 thông báo  WL 1 MAIN Điểm danh | Lưu điểm danh | buổi 80 · Chủ Nhật, 31/01/2027 · 00:05–23:50 | Buổi | Buổi 163 · 25/04 · Chưa | Buổi 162 · 24/04 · Chưa | Buổi 161 · 23/04 · Chưa | Buổi 160 · 22/04 · Chưa | Buổi 159 · 21/04 · Chưa | Buổi 158 · 20/04 · Chưa | Buổi 157 · 19/04 · Chư
+PASS TC-AS08-20 mất mạng khi «Đóng»: dòng «Chưa đóng»; có mạng → tự thử lại cùng Idempotency-Key, một cửa sổ đóng queued=1 closed=1 posts=4 keys=1 resp=fail:ep-68a17,fail:ep-68a17,fail:ep-68a17,200:ep-68a17
+  ✓  1 ../docs/regression/evidence-10.8/e2e/qc-r108-def03.spec.ts:68:1 › DEF-03 rerun: TC-AS08-20 (24.4s)
+
+  1 passed (25.0s)

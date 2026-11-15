@@ -178,7 +178,7 @@ test("TC-AS01-13 / TC-AS08-01… giao diện Staff: cài đặt lớp + /attenda
     const { ctx, page } = await login(browser, "r108t", w, h, mobile);
     // chọn lớp QC-AS
     const tb = page.locator("[data-part=topbar]");
-    if (!(await tb.innerText()).includes("QC-AS")) { await tb.locator("button").filter({ hasText: /\d{3,}|QC|KC|EVAL/ }).first().click(); await page.getByText("QC-AS", { exact: true }).first().click(); await page.waitForTimeout(1500); }
+    if (!(await tb.innerText()).includes("QC-AS")) { await tb.locator("button").filter({ hasText: /\d{3,}|QC|KC|EVAL/ }).first().click(); await page.getByRole("menuitem", { name: /^QC-AS · / }).first().click(); await page.waitForTimeout(1500); }
     await page.goto(`${BASE}/class/settings`); await page.getByText("Điểm danh bằng mã").first().waitFor();
     check(`TC-AS01-13a ${w}: cài đặt có «Chu kỳ mã (giây)», «Tính muộn sau (phút)», «Yêu cầu», «Vị trí», «Mạng trường»`, (await Promise.all(["Chu kỳ mã (giây)", "Tính muộn sau (phút)", "Yêu cầu", "Vị trí", "Mạng trường"].map((s) => page.getByText(s).first().isVisible()))).every(Boolean), "");
     check(`TC-AS01-13b ${w}: không tràn ngang`, await noOverflow(page), "");

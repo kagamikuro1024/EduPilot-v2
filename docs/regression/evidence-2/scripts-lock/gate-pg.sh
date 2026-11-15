@@ -114,7 +114,7 @@ tc_gate_21() {  # (2) bỏ một biến bắt buộc: chết NGAY lúc khởi đ
   done; }
 tc_gate_22() {  # (2b) cùng việc ở compose: gateway thật thoát 1 nêu tên biến; service đang phục vụ khác KHÔNG chết
   ensure_mode default; cp .env.local $QC_TMP/env.local.bak; before=$(rc_snapshot)
-  sed -i.bak '/^JWT_SECRET_KEY=/d' .env.local; $C run --rm --no-deps --name qc-gw-noenv gateway serve >$QC_OUT/g22.log 2>&1; rc=$?
+  sed -i.bak '/^JWT_SECRET_KEY=/d' .env.local; env -u JWT_SECRET_KEY timeout 90 $C run --rm --no-deps --name qc-gw-noenv gateway serve >$QC_OUT/g22.log 2>&1; rc=$?   # QC2 (SmkJ): baseline env xuất JWT_SECRET_KEY → gỡ; timeout 90 s để không treo/để .env.local hỏng
   cp $QC_TMP/env.local.bak .env.local; rm -f .env.local.bak
   chk "gateway thiếu JWT_SECRET_KEY: rc" "$rc" 1
   chk "log nêu tên biến" "$(grep '^{' $QC_OUT/g22.log | jq -r 'select(.missing).missing[]' 2>/dev/null | sort -u)" JWT_SECRET_KEY   # QC v2: log của `compose run` có dòng "Container … Creating" không phải JSON
@@ -136,7 +136,7 @@ tc_gate_23() {  # (3a) SSE: rút mạng phía client 10 s rồi nối lại bằ
   chk "dòng đầu stream nối lại" "$(head -1 $f2 | tr -d '\r')" "retry: 3000"; }
 tc_gate_24() {  # (3b) rút mạng THẬT giữa Caddy và mạng compose 10 s (docker network disconnect) rồi cắm lại
   ensure_mode test; T=$(tok STUDENT $U1 --ttl 10m); f1=$QC_OUT/g24.1; f2=$QC_OUT/g24.2; : >$f1; : >$f2
-  net=edupilot_default; cad=$($C ps -q caddy)
+  net=ep-r_default; cad=$($C ps -q caddy)   # QC2 (SmkJ): network của project ep-r (bản gốc edupilot_default)
   docker network inspect $net >/dev/null 2>&1 || { fail_tc "KHÔNG KIỂM ĐƯỢC: không thấy network $net"; return; }
   pid=$(sse_cap $f1 60 "$T"); sleep 1; pub "$T" test.ping '{"n":1}' >/dev/null; pub "$T" test.ping '{"n":2}' >/dev/null; sleep 1
   docker network disconnect $net $cad >/dev/null 2>&1; echo "    mạng đã rút $(date +%T)"; sleep 10
@@ -187,7 +187,7 @@ tc_gate_29() {  # (5b) tắt MỘT gateway KHÔNG mang stream: stream giữ nguy
   ensure_mode test; T=$(tok STUDENT $U1 --ttl 10m); f1=$QC_OUT/g29.1; : >$f1
   for k in 1 2 3 4 5 6; do hdrf=$QC_OUT/g29.h; ( curl -sk -N --max-time 60 -D $hdrf -H "Authorization: Bearer $T" $GW/api/v1/events >$f1 2>/dev/null ) & pid=$!; sleep 1.5
     inst=$(tr -d '\r' <$hdrf | hval x-instance-id); [ -n "$inst" ] && break; done
-  other=$(docker ps -q --filter name=gateway | grep -v "^$inst" | head -1)   # QC v2: X-Instance-Id là id container (12 hex), không phải tên; [ -n "$other" ] || { fail_tc "không thấy bản thứ hai"; return; }
+  other=$(docker ps -q --filter name=ep-r-gateway | grep -v "^$inst" | head -1)   # QC2 (SmkJ): chỉ gateway của ep-r — KHÔNG đụng stack khác; X-Instance-Id là id container (12 hex)
   ( for i in $(seq 200); do code $GW/api/v1/healthz; echo; sleep 0.1; done >$QC_OUT/g29.codes ) & lp=$!
   sleep 5; docker stop -t 30 $other >/dev/null 2>&1; wait $lp
   chk_le "dòng không-200 trong 200 request" "$(grep -vc '^200$' $QC_OUT/g29.codes)" 4

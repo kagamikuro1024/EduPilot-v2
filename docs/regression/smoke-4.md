@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 538 · Đạt: 288 · Trượt: 1 · Không chạy (K, gồm lỗi thời): 249   (P+F+K = 538)
+Tổng TC cũ: 538 · Đạt: 289 · Trượt: 0 · Không chạy (K, gồm lỗi thời): 249   (P+F+K = 538)
 K chia theo loại: chưa chạy (mẫu): 244; (c): 2; lỗi thời: 1; (b): 2. Loại «chưa chạy (mẫu)» / «nền tảng» KHÔNG phải K (a)/(b)/(c) — chờ PM quyết có chạy nốt.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -359,7 +359,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P209-53 | P | go test: 127 pass/0 skip/0 fail |
 | TC-P210-01 | P | dry_run ok-30.csv total=30; bom-semicolon.csv 200 total=5; ok.xlsx 200 total=5 |
 | TC-P210-02 | P | 501 dòng 422; >2MiB 413; thiếu cột 422; thiếu Idempotency-Key 422 |
-| TC-P210-03 | F | tệp `.xlsx` thực là văn bản (text.xlsx) được nhận 200 (server đọc theo nội dung như CSV); fake-ext/png-as/cut.xlsx → 422 UNSUPPORTED_FILE đúng → DEF-R4-02 (DEF-R4-02) |
+| TC-P210-03 | P | RERUN 2026-11-16 sau b6d20a67 (DEF-R4-02 đã sửa): text.xlsx, cut.xlsx, fake-ext.csv, png-as.csv (dry_run) → 422 VALIDATION_FAILED, details[file]=UNSUPPORTED_FILE; ok.xlsx 200 total=5, ok-30.csv 200 |
 | TC-P210-04 | P | zip bomb → 422 sau 0.0s; gateway còn sống (200) |
 | TC-P210-05 | P | go test: 2 pass/0 skip/0 fail; thiếu test ['TestRosterCSVParse', 'TestRosterXLSXParse', 'TestRosterBOMAndSemicolon', 'TestRosterRowLimit500', 'TestRosterMagicBytes', 'TestRosterZipBomb', 'TestRosterMissingColumn'] |
 | TC-P210-06 | P | qc-real-f2: import roster-2-loi.csv báo đúng dòng 7 và 19 (UI) (spec @real ep-r, 4/4 đạt) |

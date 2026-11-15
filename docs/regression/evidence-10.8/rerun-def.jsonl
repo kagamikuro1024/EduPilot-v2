@@ -1,0 +1,2 @@
+{"tc": "TC-AS08-20 mất mạng khi «Đóng»: dòng «Chưa đóng»; có mạng → tự thử lại cùng Idempotency-Key, một cửa sổ đóng", "st": "PASS", "note": "rerun sau sửa b3c039c0: queued=1 closed=1 posts=4 keys=1 resp=fail:ep-68a17,fail:ep-68a17,fail:ep-68a17,200:ep-68a17"}
+{"tc": "TC-AS11-07 qr_code không hỗ trợ: không nút quét; ô nhập mã hiện ngay", "st": "PASS", "note": "rerun sau sửa b3c039c0: "}

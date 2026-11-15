@@ -7,27 +7,16 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | Sprint | Ca | Triệu chứng |
 |---|---|---|
 | 1 | P0-01/TC-07 | DEF-R1-01: DEMO_SCRIPT trích attendance-checkin/-display/checkin-code/audit/insights.spec.ts nhưng FLOWS.md không có mục tương ứng |
-| 10.8 | TC-AS08-20 | FAIL TC-AS08-20 / TC-AS08-20: DEF-R10.8-03: thử lại dùng khoá mới (2–3 khoá khác nhau); server vẫn 1 cửa sổ đóng |
-| 10.8 | TC-AS08-25 | FAIL TC-AS08-25 / TC-AS08-25b: |
-| 10.8 | TC-AS09-36 | FAIL TC-AS09-36 / TC-AS09-36: label-content-name-mismatch:serious:1; LCP=132 ms |
-| 10.8 | TC-AS09-39 | FAIL TC-AS09-39a / TC-AS09-39a: label-content-name-mismatch:serious |
-| 10.8 | TC-AS11-07 | FAIL TC-AS11-07 / TC-AS11-07: DEF-R10.8-04: nút «Quét mã điểm danh» vẫn hiện (chỉ kiểm 'BarcodeDetector' in window) |
 | 10.8 | TC-AS14-11 | FAIL TC-AS14-11 / TC-AS14-11: DEF-R10.8-02: 13 tên không tồn tại |
-| 2 | TC-PG02-60 | CẦN TRIAGE: dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction): thực tế [0] phải ≥ 1 |
-| 2 | TC-PG03-32 | CẦN TRIAGE: có hai bản gateway: [] không khớp /^.+$/ |
-| 2 | TC-PG03-33 | CẦN TRIAGE: XFF 203.0.113.7 request thứ 6 bị 429: [] không khớp / 429/ |
-| 2 | TC-PG03-35 | CẦN TRIAGE: độ trễ thêm so với baseline (ms): thực tế [236] phải ≤ 50 |
-| 2 | TC-PG03-95 | CẦN TRIAGE: số dòng _test_items tên qc95 (bảng thử không bị ghi): thực tế [1] ≠ mong đợi [0] |
-| 2 | TC-PG06-01 | DEF-R2-01: redocly lint openapi.yaml 1 lỗi (analytics/exams/compare: parameters null) |
-| 2 | TC-PG06-10 | DEF-R2-02: `go test ./internal/contract` rc 1 (TestStatusParity trượt 2/2 lần) |
-| 2 | TC-PG06-11 | DEF-R2-02: gồm TestStatusParity |
+| 2 | TC-PG07-19 | CẦN TRIAGE: sau khi tắt, cùng token (không 401): thực tế [503] ≠ mong đợi [404] |
+| 2 | TC-GATE-06 | CẦN TRIAGE: contract không tag rc: thực tế [1] ≠ mong đợi [0] |
+| 2 | TC-GATE-07 | CẦN TRIAGE: go test -race ./internal/httpapi/... rc: thực tế [1] ≠ mong đợi [0] |
 | 3 | TC-GATEPU-01 | lint 5 cảnh báo (TC-PU01-05); pbuild/gbuild rc=0, 0 "Failed to load font" (DEF-R3-03) |
 | 3 | TC-P102-14 | lỗi 503: INTERACTIVE gọi nhà 2 lần (1+1 thử lại), BATCH 15 lần (kỳ vọng 3) (DEF-R3-05) |
 | 3 | TC-P103-19 | sau chuỗi lỗi: circuit=open; lời gọi kế tiếp chặn ngay (503 LLM_UNAVAILABLE, 42242 ms, 0 request tới stub) (DEF-R3-05) |
 | 3 | TC-P103-20 | bán mở sau 30 s: 3 lời gọi đồng thời → stub nhận 6 (≤ 1 thăm dò × 3 lần thử); [503, 503, 503] (DEF-R3-05) |
 | 3 | TC-P105-44 | chữ «EMBEDDING» thô hiện ở bảng «Mức dùng theo tác vụ» (taskLabel không có nhãn cho EMBEDDING) → DEF-R3-01 (DEF-R3-01) |
 | 3 | TC-PU01-05 | pnpm lint rc=0 nhưng 5 cảnh báo (cells.tsx:39, QueueTab.tsx:115/123, Landing.tsx:48, LlmSettings.tsx:13); nền sprint 3 = 0 cảnh báo → DEF-R3-03 (DEF-R3-03) |
-| 4 | TC-P210-03 | tệp `.xlsx` thực là văn bản (text.xlsx) được nhận 200 (server đọc theo nội dung như CSV); fake-ext/png-as/cut.xlsx → 422 UNSUPPORTED_FILE đúng → |
 | 6 | TC-P3-01-49 | Vai DB ứng dụng edupilot rolsuper=t (như BUG-1 gốc); DEF-R6-01 |
 | 6 | TC-P3-06-42 | /threads khi khoá: ô tiêu đề/nội dung vô hiệu, dòng báo là "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." thay vì "Đă |
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
@@ -207,6 +196,7 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Kỳ vọng: 0 lỗi lint · Thực tế: 1 lỗi + 21 cảnh báo; thao tác `compareExamAnalytics` (GET /api/v1/analytics/exams/compare) khai báo `parameters:` rỗng
 - Bằng chứng: evidence-1/run-02-tc21.log · Nghi ngờ mã: backend-go/api/openapi.yaml:10370 (xoá khoá `parameters:` hoặc điền danh sách)
 - Chạy lại lần 2: ổn định
+- **TRẠNG THÁI: ĐÃ SỬA (816498c6)** — rerun 2026-11-16: `pnpm exec redocly lint backend-go/api/openapi.yaml` rc 0, 0 lỗi (21 cảnh báo); TC-PG06-01 và P0-02/TC-21 đạt.
 
 ### DEF-R2-02 — `go test ./internal/contract` đỏ: TestStatusParity / TestSpec_EveryDocumentedStatusExercised
 - Mức: Cao (hợp đồng API↔spec; có một 500 INTERNAL thay vì 404)
@@ -218,6 +208,16 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Chạy lại lần 2: trượt (2/2)
 - **Phân tích SmkJ (23:40, chạy riêng `TestStatusParity` với env CI `TESTCONTAINERS_RYUK_DISABLED=true EP_SKIP_TIMING=1 -race -tags testroutes -count=1`, load máy 18–20, VM Colima load 43–62):** lượt 23:33 trượt ở `scenarios_test.go:501 PUT /admin/llm/routes → 504 DEADLINE_EXCEEDED` (không tới được dòng 606; log gateway của rig bị `io.Discard` ở `rig_test.go`, không có dòng log/stack để trích). Mỗi lượt đỏ ở MỘT yêu cầu khác nhau (441 → 501 → 606; DEF-R10-01 cũng khác endpoint mỗi lần) ⇒ không phải một lỗi xác định. Nguyên nhân gốc đọc từ mã: `rig_test.go:66 REQUEST_TIMEOUT=1s` + Postgres/Redis/MinIO testcontainers DÙNG CHUNG toàn máy (tên cố định, Reuse) với mọi agent đang chạy `go test` ⇒ một câu SQL > 1 s là hết hạn. Hết hạn chưa ghi gì → `timeoutMiddleware` trả 504 (đúng spec); NHƯNG 27 chỗ `apierr.Internal` ở các handler (vd. `examhttp/questions.go:99`, mặc định của `h.fail`) ghi 500 INTERNAL cho mọi lỗi lạ, kể cả `context deadline exceeded` từ DB, TRƯỚC khi middleware kịp xét (`!sw.wrote` sai) ⇒ cùng nguyên nhân cho ra 500 (606, DEF-R10-01: `POST …/report`, `/auth/verify-email`) hoặc 504 (441, 501). Kết luận: **do tải** ở mức kiểm thử (rig 1 s); kèm lỗi nhẹ thật của sản phẩm: lỗi DB do hết hạn bị gói thành 500 thay vì 504 (SRS 3.4) ở handler không dùng ánh xạ `DeadlineExceeded` (chỉ `llmhttp/verify.go`, `observabilityhttp`, `todayhttp` có). Chưa có lượt xanh trên máy rảnh (tải không xuống dưới 8) — lượt kế tiếp: xem mục «lượt chạy» ở smoke-2.md.
 - **Cập nhật SmkJ 23:46:** lượt 2 cùng lệnh, cùng mã, load 14–17: `--- PASS: TestStatusParity (110.74s)`, `ok … internal/contract 113s` (log `/tmp/qc2-j-sp.log`). Lượt 1 (load 18–20) đỏ 504 ở dòng 501 ⇒ cùng mã vừa đỏ vừa xanh ⇒ **do tải (REQUEST_TIMEOUT=1s của rig), không phải lỗi xác định**. Riêng dòng 606/500 chưa bắt lại được (log rig bị nuốt) — [INFERENCE] cùng cơ chế 500-thay-504 ở trên. Mức đề xuất hạ: Thấp (test chập chờn theo tải) + Thấp (ánh xạ hết hạn→500 ở handler).
+- **TRẠNG THÁI: ĐÓNG — do tải.** Lượt 3 (23:57, load 12–13) `TestStatusParity` PASS 46 s; Main chạy `go test -count=1 -tags testroutes ./internal/contract/...` lúc load ≈ 6 trên bản dbf48ed0: ok 37 s (`evidence-2/logs-contract-rerun2.log`). Tổng riêng `TestStatusParity`: 1 đỏ (504, load ≈ 19) / 2 xanh. TC-PG06-10, -11 = P. Còn lại (Thấp, không chặn): lỗi hết hạn DB bị handler ghi 500 INTERNAL thay vì 504 (xem phân tích trên).
+
+### DEF-R2-03 — `go test ./internal/store` đỏ: TestLLMSchema (6 bảng `llm_%` ≠ 9) — ĐÃ SỬA c272d3d3
+- Mức: Trung bình (cổng `go test` đỏ cố định; test cũ không theo migration mới)
+- Sprint gốc: 2 (GATE-PG-03/04; sprint 1 P0-02/TC-20, P0-03/TC-15 cũng gọi `go test ./...`) · Hồi quy do sprint sau?: CÓ (sprint 11 P-11-44, commit eb585556: migration 00027 thêm `llm_audit_hourly`, `llm_audit_hourly_lat`, `llm_audit_rollup_state`)
+- Môi trường: f3d0740e-trước-sửa, `go test -race -tags testroutes -count=1 ./internal/store`, load ≈ 8
+- Bước tái hiện: 1. `cd backend-go && go test -race -tags testroutes -count=1 -run TestLLMSchema ./internal/store` → `llm_test.go:61: expected: 6, actual: 9`.
+- Kỳ vọng: gói store xanh · Thực tế: FAIL 3/3 lượt (ổn định, không do tải)
+- Bằng chứng: /tmp/qc2-j-gate-testroutes/internal_store.json (lượt đỏ) · Nghi mã: backend-go/internal/store/llm_test.go:61
+- **Rerun sau c272d3d3 (2026-11-16 00:5x, bản f3d0740e): `TestLLMSchema` PASS; cả gói `./internal/store` ok (49 s).**
 
 ---
 <!-- defects-3.md -->
@@ -611,6 +611,48 @@ Ghi nhận không phải lỗi sản phẩm: (1) check-practice-seed.mjs đỏ d
 - `go test -tags testroutes ./internal/contract` đỏ ở `TestNoAnswerLeak` khi chạy trong shell đã export `QC_*`/`SEED_DEFAULT_PASSWORD`; chạy trong môi trường sạch: PASS (cả gói 57 s). Do môi trường chạy của QC, không phải lỗi.
 
 ---
+<!-- defects-10.7.md -->
+# Lỗi hồi quy sprint 10.7
+
+### DEF-R10.7-01 — Trang Quan sát quyết định lệch khung (teacher: meta lặp tên lớp, lớp rỗng tự dựng; admin: nhịp mục 24 ≠ 48)
+- Mức: Trung bình
+- Sprint gốc: 10.7 · TC gốc: audit H3, E7, P5 · Hồi quy do sprint sau?: CÓ (nghi sprint 11: khối «bảng theo cổng» của /observability, P-11-xx)
+- Môi trường: ep-r, be0c0d96, teacher / admin, 1440 và 375
+- Bước tái hiện: 1. `cd frontend && QC_REAL=1 QC_BASE=https://localhost:1143 QC_PW=… QC_PHASE=sau3 QC_ROLE=teacher QC_STATE=data pnpm exec playwright test -c playwright.qc-audit.config.ts` 2. `python3 docs/regression/evidence-10.7/scripts/audit_report.py sau3`
+- Kỳ vọng: meta một dòng không chứa lớp đang chọn; lớp rỗng dùng EmptyState (`data-ep-empty`); mục→mục 48 · Thực tế: teacher/observability meta lặp lớp (4 lượt), 0 `data-ep-empty` ở lớp rỗng (2), admin/observability mục→mục [24,48,48,48]
+- Bằng chứng: evidence-10.7/audit-sau3.md, audit/sau3/*.jpg · Nghi ngờ mã: `frontend/src/app/(app)/observability` (khối decision)
+- Chạy lại lần 2: ổn định (sau3 và sau)
+
+### DEF-R10.7-02 — Sổ điểm: đầu trang cao hơn 3,4 px và nút «Chốt điểm» mất khi đang tải / lỗi
+- Mức: Thấp
+- Sprint gốc: 10.7 · TC gốc: audit H7, X3 · Hồi quy do sprint sau?: CÓ (nghi nút «Chốt điểm» thêm ở sprint 8/9 sau khung 10.7)
+- Môi trường: ep-r, be0c0d96, teacher (và ta cho H7), 1440 và 375
+- Bước tái hiện: như DEF-01 với `/gradebook` (audit teacher data, loading, error)
+- Kỳ vọng: cùng nút đầu trang ở cả ba trạng thái; chiều cao đầu trang một giá trị · Thực tế: có dữ liệu có «Chốt điểm», khi tải/lỗi không; 66,4 ≠ 63 (1440), 134,4 ≠ 131 (375)
+- Bằng chứng: evidence-10.7/audit-sau3.md (H7, X3)
+- Chạy lại lần 2: ổn định
+
+### DEF-R10.7-03 — Luyện tập sinh viên: tab «Theo chủ đề / Thi thử» biến mất khi đang tải và khi lỗi (375)
+- Mức: Thấp
+- Sprint gốc: 10.7 · TC gốc: audit X3 · Hồi quy do sprint sau?: KHÔNG RÕ
+- Môi trường: ep-r, be0c0d96, sv.kha, 375
+- Bước tái hiện: audit student, state loading / error, route `/practice`
+- Kỳ vọng: giữ nhãn tab · Thực tế: tab vs [] (2 lượt)
+- Bằng chứng: evidence-10.7/audit-sau3.md (X3)
+- Chạy lại lần 2: ổn định
+
+### DEF-R10.7-04 — /settings/llm: «Máy chủ riêng (tương thích OpenAI)» lặp 7 lần
+- Mức: Thấp
+- Sprint gốc: 10.7 · TC gốc: audit T2 · Hồi quy do sprint sau?: KHÔNG RÕ (phụ thuộc số nhà cung cấp trong ep-r: nhiều bản QC đã được tạo)
+- Môi trường: ep-r, be0c0d96, admin và teacher, 1440 và 375
+- Bước tái hiện: audit admin/teacher data, route `/settings/llm`
+- Kỳ vọng: chuỗi dài lặp < 3 lần · Thực tế: ×7
+- Bằng chứng: evidence-10.7/audit-sau3.md (T2)
+- Chạy lại lần 2: ổn định
+
+Ghi nhận: lượt audit đầu có 45 lệch (nhiều route ta/* và student/chat) do chạy cùng 215 ca e2e nặng; chạy lại riêng cho ta còn 1 (H7), cho student/teacher/admin còn các mục trên. student/chat E2 (lệch 190 px) đã xếp «không áp dụng» ở bản gốc.
+
+---
 <!-- defects-10.8.md -->
 # Lỗi hồi quy sprint 10.8 — be0c0d96 (sprint/11-p10-eval), ep-r, qc2/SmkH (đã phân loại; cập nhật khi còn ca chạy)
 
@@ -623,6 +665,7 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 - Bước tái hiện: đăng nhập GV → mở `/attendance` → `new AxeBuilder({page}).analyze()` (hoặc `qc-as-real.spec.ts` ca «TC-AS08-25»)
 - Kỳ vọng: 0 lỗi serious/critical · Thực tế: 3 nút: `button.search` (`aria-label="Tìm nhanh hoặc đi đến"`, chữ hiển thị «Tìm nhanh hoặc đi đến…»), `button.iconBtn` (`aria-label="Thông báo, 22 chưa đọc"`), `button.profile` (`aria-label="Tài khoản: <tên>"`)
 - Bằng chứng: `evidence-10.8/ui-real.log`, `evidence-10.8/ui-real/ui.jsonl` · Nghi ngờ mã: `frontend/src/shared/shell/AppShell.tsx:245-266` (tên truy cập phải chứa chữ hiển thị)
+- Trạng thái: ĐÃ SỬA (P-11-39, dbf48ed0). Chạy lại trên ep-r sau dựng lại: TC-AS08-25 (1440 và 375) P · TC-AS09-36 P (axe 0, LCP 56 ms) · TC-AS09-39a P (axe 0 ở /checkin 375). Bằng chứng: `evidence-10.8/rerun-axe.jsonl`, `ui-real3.log`, `ui-more7.log`, `ui-real2x/`. Lưu ý: ô chọn lớp đổi nhãn («QC-AS · …»), bản sao `qc-as-real.spec.ts` chọn mục bằng `getByRole("menuitem", {name: /^QC-AS · /})`.
 - Chạy lại lần 2: ổn định ở 1440 (5/6 lượt; lượt `qc-as-ui` ca 25b cho 0 lỗi); ở 375 chỉ `/checkin` còn 1 nút (TC-AS09-36)
 
 ### DEF-R10.8-02 — bảng truy vết SRS §11 trỏ tới 13 tên test không tồn tại
@@ -638,12 +681,14 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 - Kỳ vọng (TC): tự thử lại cùng `Idempotency-Key`, không ghi đôi · Thực tế: 3 lần offline cùng một khoá, rồi sau khi có mạng 1–2 yêu cầu với khoá khác (`keys=2…3`, `resp=fail:ep-b021c×3, 200:ep-1c28a`)
 - Bằng chứng: `evidence-10.8/ui-more4.log` · Nghi ngờ mã: `frontend/src/features/attendance/RealAttendance.tsx:215-243` (`closeWindow` gọi lại `actions.close.mutateAsync`), `checkinApi.ts:101` (`useMutation` thường, khoá mới mỗi lần; cần `useIdempotentMutation`)
 - Chạy lại lần 2: ổn định (3 lượt)
+- Trạng thái DEF-03: ĐÃ SỬA (b3c039c0). Chạy lại sau dựng lại: TC-AS08-20 P (queued=1, closed=1, 4 yêu cầu cùng một khoá, `ui-def03.log`, spec tách `e2e/qc-r108-def03.spec.ts`). Ghi chú: ca gốc trong `qc-r108-more.spec.ts` ca «B /attendance» lượt này đỏ vì `pickClass` chạy trước khi nút chọn lớp hiện (đua giao diện sau dựng lại), không phải lỗi sản phẩm; bản tách đã chờ nút.
 
 ### DEF-R10.8-04 — nút «Quét mã điểm danh» hiện cả khi `qr_code` không được hỗ trợ
 - Mức: Thấp · Sprint gốc: 10.8 · TC gốc: TC-AS11-07 · Hồi quy do sprint sau?: KHÔNG (có sẵn)
 - Bước tái hiện: SV mở `/checkin` với `Capacitor.isNativePlatform()=true` và `BarcodeDetector` có nhưng `getSupportedFormats()` rỗng / hàm dựng ném lỗi (`qc-r108-more2.spec.ts` ca TC-AS11-07)
 - Kỳ vọng: không nút quét, ô «Mã điểm danh» hiện ngay · Thực tế: nút «Quét mã điểm danh» hiện (`btn=1, input=0`); bấm → rơi vào nhánh «từ chối camera»
 - Nghi ngờ mã: `frontend/src/features/checkin/Scanner.tsx:10` (`hasBarcodeDetector` chỉ kiểm `"BarcodeDetector" in window`), `CheckinScreen.tsx:60-61` · Chạy lại lần 2: ổn định
+- Trạng thái DEF-04: ĐÃ SỬA (b3c039c0). Chạy lại sau dựng lại frontend 01:03: TC-AS11-07 P (`ui-more9.log`, `rerun-def.jsonl`).
 
 ## Ghi nhận (không tính lỗi)
 1. `/me/today` mục `CHECKIN_REVIEW` đôi lúc vắng khi máy tải cao (provider «Hôm nay» hạn 60 ms, `today/providers.go:18`): 3 lần vắng / 8 lần đo; chờ cache 60 s hoặc gọi lại thì có. Go test `TestMeAttendanceCheckedAtAndTodayReview` trượt cùng lý do khi tải cao.
@@ -668,5 +713,10 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 | DEF-R10.6-01 (Thấp) 409 trước 404 | TC-G03-24, TC-G05-24 (10.6) | 1c0700e2 | ĐẠT: 404 ASSIGNMENT_NOT_FOUND |
 | DEF-R10.5-01 (Thấp) «Quyết định nhanh» trên bảng 7 ngày | TC-D07-02 (10.5) | 1c0700e2 | ĐẠT: y(7 ngày)=405 < y(Quyết định nhanh)=903 |
 | DEF-R2-02 / R10-01 (contract đỏ) | TC-PG06-10/11 (sprint 2), TC-12-14 (sprint 10) | de20f571 (+ do tải) | ĐẠT lúc tải thấp: `go test -tags testroutes ./internal/contract/...` ok 37 s |
+| DEF-R4-02 (Thấp) text.xlsx nhận 200 | TC-P210-03 (sprint 4) | b6d20a67 | ĐẠT: 4 tệp giả/hỏng → 422 UNSUPPORTED_FILE |
+| DEF-R9.5-01/16 (Thấp) refuseDemo, check-meta | TC-N01-17, N01-12 (9.5) | 6ec47f79 | ĐẠT: 5 biến thể BASE → 1 dòng rc 1 (kể cả [::1], host.docker.internal); demo_stack «unknown» → rc 1 (`evidence-9.5/rerun2.log`) |
+| DEF-R9.5-12 (Cao) real_llm 429/--resume | TC-N08-16/17 (9.5) | 965ca248 | ĐẠT: Retry-After 120 → dừng sau 1 s, «CHƯA HOÀN TẤT — hết hạn mức…», lưu resume.json, rc 3 |
+| DEF-R9.5-02 (Thấp) canary-scan dọn nhà cung cấp | TC-N01-18 (9.5) | 6ec47f79 | MỘT PHẦN: 7 dòng = 0, CN1 xoá; CN0 (tạo 201 vì fake nhận mọi khoá) vẫn còn |
+| DEF-R9.5-19 (Thấp) SEED_DEFAULT_PASSWORD | TC-N02-09/11 (9.5) | 6ec47f79 | MỘT PHẦN: chuỗi trắng bị từ chối (1 dòng); unset / rỗng vẫn rơi về mật khẩu trong `.env.local`/`.env.example` và chạy tiếp — chờ PM: thiết kế fallback hay lỗi |
 
 Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiếp), R7-01 (CI shard — cần chạy CI, K(b) nếu PM không duyệt đẩy nhánh), R4-02 `text.xlsx` (chưa sửa), R10.8-03/04, UX08-50 (landing, ≥ P-11-?).

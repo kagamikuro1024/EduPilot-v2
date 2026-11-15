@@ -34,3 +34,4 @@
 {"tc":"TC-AS11-12 CSP các trang: không nguồn script ngoài; /checkin không unsafe-eval","st":"PASS","note":"= TC-AS09-37 (header CSP /checkin, 0 vi phạm console)"}
 {"tc":"TC-AS09-04 chưa đăng nhập: /login?next, sessionStorage ep.checkin, quay lại tự gửi một lần","st":"PASS","note":"TC-AS09-04a/04b PASS (ui-more4); lần đầu ngoại lệ do kịch bản (đã sửa)"}
 {"tc":"TC-AS09-12 token hết hạn khi phiên còn hạn: không /auth/refresh, không đăng xuất, không về /login","st":"PASS","note":"= TC-AS03-24b (ui-real.log): 0 request auth sau 422"}
+{"tc":"TC-AS14-13 chạy lại audit 10.7 + ui-antipatterns","st":"PASS","note":"audit 10.7 (sau2/sau3): 0 lệch ở /attendance, /checkin, /display; 7 mã lệch còn lại ở observability, gradebook, practice, settings/llm không thuộc 10.8 (DEF-R10.7-01…04); ui-antipatterns 32/32"}

@@ -1,0 +1,8 @@
+{"tc":"TC-AS01-13a 1440: cài đặt có «Chu kỳ mã (giây)», «Tính muộn sau (phút)», «Yêu cầu», «Vị trí», «Mạng trường»","st":"PASS","note":""}
+{"tc":"TC-AS01-13b 1440: không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-01a 1440: /attendance không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-25 1440: axe /attendance 0 lỗi nghiêm trọng","st":"PASS","note":""}
+{"tc":"TC-AS01-13a 375: cài đặt có «Chu kỳ mã (giây)», «Tính muộn sau (phút)», «Yêu cầu», «Vị trí», «Mạng trường»","st":"PASS","note":""}
+{"tc":"TC-AS01-13b 375: không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-01a 375: /attendance không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-25 375: axe /attendance 0 lỗi nghiêm trọng","st":"PASS","note":""}

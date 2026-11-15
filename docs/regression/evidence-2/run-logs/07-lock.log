@@ -212,3 +212,84 @@ TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
     ok   kích thước edupilot-worker-test (byte) = 17119782 (≤ 39999999)
 -- TC-PG07-68 PASS
 TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:19 01:03:23
+== TC-PG07-19
+    ok   trước khi tắt = [404]
+    FAIL sau khi tắt, cùng token (không 401): thực tế [503] ≠ mong đợi [404]
+-- TC-PG07-19 FAIL
+TỔNG story 07: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG07-19
+### 07:46 01:03:45
+== TC-PG07-46
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+    ok   rc của k6 run = [0]
+    ok   số ngưỡng ✗ (không đạt) = [0]
+    ok   số dòng ngưỡng ✓ = 71 (≥ 3)
+-- TC-PG07-46 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:48 01:04:47
+== TC-PG07-48
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+    ok   rc của k6 run (TEST_ROUTES=1, tmode) = [0]
+    ok   số ngưỡng ✗ = [0]
+    ok   có ngưỡng p(95)<500 của kịch bản ghi = 1 (≥ 1)
+-- TC-PG07-48 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:52 01:07:38
+== TC-PG07-52
+    ok   .env.local giống hệt bản gốc
+    ok   danh sách missing trong log ~ /JWT_SECRET_KEY/
+    ok   mã thoát của container gateway ~ /(^|,)1(,|$)/
+-- TC-PG07-52 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:53 01:08:02
+== TC-PG07-53
+    (RestartCount lớn nhất = 3; State.Running = false)
+    ok   RestartCount lớn nhất sau 60 s = 3 (≤ 3)
+    ok   số container gateway còn đang chạy = [0]
+-- TC-PG07-53 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:19 01:21:20
+== TC-PG07-19
+    ok   trước khi tắt = [404]
+    ok   sau khi tắt, cùng token (không 401) = [404]
+-- TC-PG07-19 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0

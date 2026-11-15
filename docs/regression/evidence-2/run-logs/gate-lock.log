@@ -45,3 +45,127 @@ FAIL: TC-GATE-07
     ok   --- PASS: TestRBAC_Matrix
     ok   --- PASS: TestCourseAccessGuard_DefaultDenyAll
     ok   --- PASS: TestBcrypt_Format
+### gate:10 01:09:16
+== TC-GATE-10
+    ok   up -d --scale gateway=2 --wait rc = [0]
+    ok   số container gateway = [2]
+    ok   chế độ = [default]
+    ok   migrate = [migrate exited 0]
+-- TC-GATE-10 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:13 01:11:11
+== TC-GATE-13
+    ok   k6 -e TEST_ROUTES=1 rc = [0]
+              * write: 5.00 iterations/s for 30s (maxVUs: 5-20, exec: write, startTime: 2m0s, gracefulStop: 30s)
+write   • [   0% ] waiting    1m59.0s   
+write   • [   0% ] waiting    1m58.0s   
+    ok   k6 TEST_ROUTES=1 ở bản mặc định phải DỪNG (rc≠0) = [107] (≠ [0])
+    ok   thông báo rõ route thử vắng ~ /_test|testroutes|TEST_ROUTES|404/
+-- TC-GATE-13 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:21 01:14:03
+== TC-GATE-21
+    ok   DATABASE_URL: rc = [1]
+    ok   DATABASE_URL: ms tới khi thoát = 75 (≤ 1000)
+    ok   DATABASE_URL: tên có trong log = [true]
+    ok   REDIS_URL: rc = [1]
+    ok   REDIS_URL: ms tới khi thoát = 61 (≤ 1000)
+    ok   REDIS_URL: tên có trong log = [true]
+    ok   JWT_SECRET_KEY: rc = [1]
+    ok   JWT_SECRET_KEY: ms tới khi thoát = 63 (≤ 1000)
+    ok   JWT_SECRET_KEY: tên có trong log = [true]
+    ok   BLOB_ENDPOINT: rc = [1]
+    ok   BLOB_ENDPOINT: ms tới khi thoát = 56 (≤ 1000)
+    ok   BLOB_ENDPOINT: tên có trong log = [true]
+    ok   BLOB_BUCKET: rc = [1]
+    ok   BLOB_BUCKET: ms tới khi thoát = 63 (≤ 1000)
+    ok   BLOB_BUCKET: tên có trong log = [true]
+    ok   BLOB_ACCESS_KEY: rc = [1]
+    ok   BLOB_ACCESS_KEY: ms tới khi thoát = 72 (≤ 1000)
+    ok   BLOB_ACCESS_KEY: tên có trong log = [true]
+    ok   BLOB_SECRET_KEY: rc = [1]
+    ok   BLOB_SECRET_KEY: ms tới khi thoát = 62 (≤ 1000)
+    ok   BLOB_SECRET_KEY: tên có trong log = [true]
+-- TC-GATE-21 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:22 01:14:10
+== TC-GATE-22
+### gate:28 01:19:41
+== TC-GATE-28
+token: thiếu biến môi trường JWT_SECRET_KEY
+token: thiếu biến môi trường JWT_SECRET_KEY
+token: thiếu biến môi trường JWT_SECRET_KEY
+token: thiếu biến môi trường JWT_SECRET_KEY
+    stream đang ở 5d9bbbf67ced
+    docker stop mất 3251 ms
+    FAIL client nhận event: shutdown: thực tế [0] ≠ mong đợi [1]
+    FAIL shutdown reason: thực tế [] ≠ mong đợi [server_shutdown]
+    FAIL đã nhận 1 2 3 trước khi tắt: thực tế [] ≠ mong đợi [1 2 3]
+    FAIL phiên kế tiếp vẫn chạy (cùng token, không 401): thực tế [401] ≠ mong đợi [404]
+    FAIL nối lại bản còn lại: nhận 4 5 6: thực tế [] ≠ mong đợi [4 5 6]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-28 FAIL
+TỔNG story gate: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-GATE-28
+### gate:29 01:20:10
+== TC-GATE-29
+token: thiếu biến môi trường JWT_SECRET_KEY
+token: thiếu biến môi trường JWT_SECRET_KEY
+token: thiếu biến môi trường JWT_SECRET_KEY
+token: thiếu biến môi trường JWT_SECRET_KEY
+    ok   dòng không-200 trong 200 request = 1 (≤ 4)
+    ok   60 dòng cuối 0 lỗi = [0]
+    FAIL stream cũ vẫn sống và nhận n=99: thực tế [] ≠ mong đợi [99]
+    ok   không có event: shutdown (bản mang stream không bị tắt) = [0]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-29 FAIL
+TỔNG story gate: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-GATE-29
+docs/regression/evidence-2/scripts-lock/gate-pg.sh: line 211: syntax error near unexpected token `}'
+docs/regression/evidence-2/scripts-lock/gate-pg.sh: line 211: `"mọi container không ở trạng thái exited bất ngờ (trừ migrate)" "$($C ps -a --format '{{.Service}} {{.State}}' | grep -v '^migrate ' | grep -vc ' running$')" 0; }'
+### gate:30 01:21:00
+== TC-GATE-30
+ backend-go/internal/httpapi/coursehttp/roster.go   |   3 +
+ backend-go/internal/httpapi/examhttp/analytics.go  | 152 +++++++++++++++++++
+ .../internal/httpapi/examhttp/attempt_code.go      |  13 +-
+ backend-go/internal/httpapi/examhttp/fail_test.go  |  25 +++
+ backend-go/internal/httpapi/examhttp/results.go    |   1 +
+ backend-go/internal/httpapi/insighthttp/handler.go | 118 +++++++++++++++
+ backend-go/internal/httpapi/llmhttp/admin.go       |   7 +-
+ backend-go/internal/httpapi/llmhttp/verify.go      |   7 +-
+ .../internal/httpapi/observabilityhttp/handler.go  | 168 +++++++++++++++++++++
+ backend-go/internal/httpapi/router.go              |   4 +-
+ backend-go/internal/httpapi/routes.go              |  10 ++
+ backend-go/internal/httpapi/sse/handler.go         |   4 +-
+ backend-go/internal/httpapi/sse/revoked_test.go    |  66 ++++++++
+ 19 files changed, 719 insertions(+), 23 deletions(-)
+
+# file sản xuất (không test): 15
+
+# ứng viên (0 = sạch; >0 → đọc từng dòng)
+float64 (cấm cho điểm; auth/httpapi không cần) 0
+OFFSET trong SQL/Go (cấm)                  0
+fmt.Print*/log.Print* (phải slog)          0
+os.Getenv ngoài config                      0
+math/rand (jti/token phải crypto/rand)     0
+InsecureSkipVerify                           0
+so sánh mật khẩu/hash bằng ==         0
+context.Background()/TODO() (mất deadline/trace) 0
+time.Sleep trong mã sản xuất            0
+ghép chuỗi vào SQL                       0
+biến toàn cục có thể đổi (var tên thường ở cấp gói) 1
+    +var observabilityMessages = map[string]string{ //nolint:gochecknoglobals // bảng lời văn bất biến
+panic( (chỉ chấp nhận ở khởi tạo) 0
+ghi file/đĩa cục bộ                    0
+log có token/password/hash/Authorization    0
+header Authorization ghi vào log/response   0
+alg không cố định (None/any method)    0
+tin X-Forwarded-For không qua CIDR          0
+định danh lấy từ body/query (student_code/user_id) 0
+
+# kiểm tay theo checklist (tc-GATE-PG.md TC-GATE-30): lỗi bọc %w; handler mỏng; CourseAccessGuard mặc định từ chối; 5xx/429 không lưu idempotency;
+#   cursor so sánh hàng (created_at,id); ETag băm; recover giữ http.ErrAbortHandler; mọi response lỗi qua một hàm viết lỗi; rate limit fail-open có log hạn chế.
+    MANUAL đọc tay diff theo checklist trong tc-GATE-PG.md (TC-GATE-30); ghi từng phát hiện BUG-n vào report (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-GATE-30 MANUAL
+TỔNG story gate: PASS=0 FAIL=0 MANUAL=1 K=0
+MANUAL: TC-GATE-30

@@ -1,0 +1,18 @@
+N01-17 BASE=http://[::1]:3000 rc=1 lines=1 :: Từ chối: http://[::1]:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+N01-17 BASE=http://host.docker.internal:3000 rc=1 lines=1 :: Từ chối: http://host.docker.internal:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+N01-17 BASE=http://127.0.0.1:3000 rc=1 lines=1 :: Từ chối: http://127.0.0.1:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+N01-17 BASE=http://localhost:3000/ rc=1 lines=1 :: Từ chối: http://localhost:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+N01-17 BASE=https://localhost rc=1 lines=1 :: Từ chối: https://localhost là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+../../../../tmp/qc2-cm/load-d.json: demo_stack «unknown» ∉ stopped|running
+1 tệp không hợp lệ
+rc=1
+[1/20] Admin đầu tiên (gateway admin create)…
+Seed lỗi: fetch failed
+Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).
+N02-09/11 unset rc=1 lines=2 :: [1/20] Admin đầu tiên (gateway admin create)…
+N02-09/11 empty rc=1 lines=2 :: [1/20] Admin đầu tiên (gateway admin create)…
+N02-09/11 blank rc=1 lines=1 :: Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).
+N08-16/17 real_llm 429 Retry-After=120: rc=3 thời gian=1s
+CHƯA HOÀN TẤT — hết hạn mức (GET /me/courses?limit=100 → 429 Retry-After 120s). Chạy tiếp sau 120s: real_llm.py --resume setup
+--resume mentions: 6
+N01-18 canary-scan rerun: 7 dòng đếm = 0 (đạt); CN1 được xoá (sửa id đầu); CN0 (tạo 201 vì nhà cung cấp fake nhận mọi khoá) vẫn còn — QC xoá tay

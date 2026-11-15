@@ -138,3 +138,32 @@ FAIL: TC-PG03-95
     ok   chuỗi /api/v1/_test/ trong binary image test = 1 (≥ 1)
 -- TC-PG03-97 PASS
 TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:32 00:58:34
+== TC-PG03-32
+    ok   có hai bản gateway ~ /^.+$/
+    ok   số 429 trên 6 request chia hai bản = [1]
+-- TC-PG03-32 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:33 00:58:57
+== TC-PG03-33
+    ok   XFF 203.0.113.7 request thứ 6 bị 429 ~ / 429/
+    ok   XFF 203.0.113.8 (bộ đếm khác) không 429 !~ / 429/
+-- TC-PG03-33 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:35 00:59:24
+== TC-PG03-35
+    ok   request thường vẫn 200 khi Redis chết (fail-open) = [200]
+    ok   độ trễ thêm so với baseline (ms) = 35 (≤ 50)
+    ok   dòng log warn về rate limit trong ~13 s (≤ 1/10 s × 2 bản) = 4 (≤ 4)
+    ok   readyz trở lại 200 sau khi bật Redis = [200]
+-- TC-PG03-35 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:95 00:59:41
+== TC-PG03-95
+    ok   POST _test/items = [404]
+    ok   POST _test/jobs = [404]
+    ok   POST _test/events = [404]
+    ok   PUT _test/items/{id} = [404]
+    ok   số dòng _test_items tên qc95 thêm mới (bảng thử không bị ghi) = [0]
+-- TC-PG03-95 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0

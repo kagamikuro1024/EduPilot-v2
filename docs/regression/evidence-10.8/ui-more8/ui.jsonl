@@ -1,0 +1,4 @@
+{"tc":"(chuẩn bị) B","st":"NOTE","note":"201,201,201,201,201"}
+{"tc":"TC-AS08-15","st":"FAIL","note":"ngoại lệ: TimeoutError: locator.waitFor: Timeout 20000ms exceeded. Call log: \u001b[2m - waiting for locator('[data-part=window-line][data-state=open]') to be visible\u001b[22m "}
+{"tc":"TC-AS08-16 Drawer «Gọi ngẫu nhiên»: 5 hàng (tên, MSSV, «Có cờ»/«Ngẫu nhiên»)","st":"PASS","note":"5 hàng"}
+{"tc":"TC-AS08-07/08","st":"FAIL","note":"ngoại lệ: Error: locator.click: Test ended. Call log: \u001b[2m - waiting for getByRole('button', { name: 'Đóng', exact: true })\u001b[22m "}

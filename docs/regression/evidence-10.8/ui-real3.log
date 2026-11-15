@@ -1,0 +1,16 @@
+
+Running 1 test using 1 worker
+
+(node:21879) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS TC-AS01-13a 1440: cài đặt có «Chu kỳ mã (giây)», «Tính muộn sau (phút)», «Yêu cầu», «Vị trí», «Mạng trường» 
+PASS TC-AS01-13b 1440: không tràn ngang 
+PASS TC-AS08-01a 1440: /attendance không tràn ngang 
+PASS TC-AS08-25 1440: axe /attendance 0 lỗi nghiêm trọng 
+PASS TC-AS01-13a 375: cài đặt có «Chu kỳ mã (giây)», «Tính muộn sau (phút)», «Yêu cầu», «Vị trí», «Mạng trường» 
+PASS TC-AS01-13b 375: không tràn ngang 
+PASS TC-AS08-01a 375: /attendance không tràn ngang 
+PASS TC-AS08-25 375: axe /attendance 0 lỗi nghiêm trọng 
+  ✓  1 ../docs/regression/evidence-10.8/e2e/qc-as-real.spec.ts:176:1 › TC-AS01-13 / TC-AS08-01… giao diện Staff: cài đặt lớp + /attendance (1440 và 375) (12.4s)
+
+  1 passed (13.1s)

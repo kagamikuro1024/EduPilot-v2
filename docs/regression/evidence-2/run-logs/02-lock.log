@@ -74,3 +74,18 @@ LOCATION:  _bt_check_unique, nbtinsert.c:666] không khớp /^2$/
 -- TC-PG02-69 FAIL
 TỔNG story 02: PASS=0 FAIL=1 MANUAL=0 K=0
 FAIL: TC-PG02-69
+### 02:60 00:58:09
+== TC-PG02-60
+    ok   POST /_test/jobs trả job id ~ /^[0-9a-f-]{36}$/
+    ok   số dòng jobs = [1]
+    ok   dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction) = 1 (≥ 1)
+-- TC-PG02-60 PASS
+TỔNG story 02: PASS=1 FAIL=0 MANUAL=0 K=0
+### 02:69 00:58:32
+== TC-PG02-69
+    ok   hai người dùng khác nhau dùng cùng khoá: hợp lệ !~ /ERROR/
+    ok   chèn được 2 dòng ~ /^2$/
+    ok   cùng user + cùng endpoint + cùng key → SQLSTATE 23505 ~ /23505:/
+    ok   cùng user + cùng endpoint + cùng key → thông báo ~ /idempotency_keys_user_endpoint_key_key/
+-- TC-PG02-69 PASS
+TỔNG story 02: PASS=1 FAIL=0 MANUAL=0 K=0

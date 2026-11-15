@@ -1,0 +1,16 @@
+
+Running 1 test using 1 worker
+
+(node:22610) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22610) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+FAIL TC-AS10-02 ngoại lệ: Error: open 404{"code":"NOT_FOUND","message":"Không tìm thấy.","trace_id":"ab774361d112ee5217ef00884c34f738"}
+FAIL TC-AS10-11/AS01-14 ngoại lệ: Error: open 404{"code":"NOT_FOUND","message":"Không tìm thấy.","trace_id":"6cce2fdca20c68b8debe0369c8bbc85c"}
+FAIL TC-AS09-32/AS04-16 ngoại lệ: Error: open 404{"code":"NOT_FOUND","message":"Không tìm thấy.","trace_id":"cb75057b07a96ffde29633da59a92698"}
+PASS TC-AS09-36 /checkin: axe 0 lỗi nghiêm trọng; LCP ≤ 2,5 s 0; LCP=56 ms
+FAIL TC-AS11-09 ngoại lệ: Error: open 404{"code":"NOT_FOUND","message":"Không tìm thấy.","trace_id":"86a14bd6ddd7baedb38766da5376f313"}
+PASS TC-AS11-14 r108ta (giả native) mở /checkin: màn chặn chuẩn; 0 request dữ liệu; không lưu mật khẩu/token ngoài cookie [["ep_demo_state","ep_returning"],[]]
+PASS TC-AS11-14 r108t (giả native) mở /checkin: màn chặn chuẩn; 0 request dữ liệu; không lưu mật khẩu/token ngoài cookie [["ep_demo_state","ep_returning"],[]]
+  ✓  1 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:445:1 › F /checkin: vị trí, WebCrypto/IndexedDB vắng, quét giả, native giả, axe (AS10-02,11, AS01-14, AS04-16, AS09-32,36, AS11-09,14) (9.5s)
+
+  1 passed (10.0s)

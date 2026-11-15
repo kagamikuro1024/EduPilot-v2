@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkH) · Ngày: 2026-11-15/16
-Tổng TC cũ: 272 · Đạt: 263 · Trượt: 6 · Không chạy (K, loại a/b/c): 2 · Chưa chạy (N): 1   (P+F+K+N = 272)
+Tổng TC cũ: 272 · Đạt: 269 · Trượt: 1 · Không chạy (K, loại a/b/c): 2 · Chưa chạy (N): 0   (P+F+K+N = 272)
 
 Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,e2e}`, đã trỏ sang ep-r; script cũ không sửa):
 - API: `scripts/as_setup.py` rồi `as_a, as_b, as_c(+c3,c4), as_d(+d4,d5), as_e, as_f, as_g2, as_h, as_i2, as_j3, as_k`, bổ sung mới `as_long` (tự đóng, TOKEN_LATE), `as_more`, `as_more2`, `as_more3` (hộp công cụ: DB/DIFF/LOG, bảng ca tín hiệu, purge 4.320 hàng, ngắt giữa chừng), `as_arch`, `as_fix`, `as_manual`, `as_load` (thu nhỏ 84 SV). Lớp riêng `QC-ASr108`, GV/TG riêng `r108t`/`r108ta`.
@@ -19,13 +19,13 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | US-AS-05 đóng + đánh vắng | 17 | 17 | 0 | 0 | 0 |  |
 | US-AS-06 danh sách + Hôm nay | 12 | 12 | 0 | 0 | 0 |  |
 | US-AS-07 vòng 2, đầu người, gọi tên | 10 | 10 | 0 | 0 | 0 |  |
-| US-AS-08 /attendance + màn chiếu | 43 | 41 | 2 | 0 | 0 | F: AS08-20 (DEF-03), AS08-25 (DEF-01) |
-| US-AS-09 /checkin web | 30 | 27 | 2 | 1 | 0 | F: AS09-36, AS09-39 (DEF-01); K: AS09-34 (a) |
+| US-AS-08 /attendance + màn chiếu | 43 | 43 | 0 | 0 | 0 | F: AS08-20 (DEF-03), AS08-25 (DEF-01) |
+| US-AS-09 /checkin web | 30 | 29 | 0 | 1 | 0 | F: AS09-36, AS09-39 (DEF-01); K: AS09-34 (a) |
 | US-AS-10 vị trí + mạng | 18 | 18 | 0 | 0 | 0 |  |
-| US-AS-11 app Android | 17 | 15 | 1 | 1 | 0 | F: AS11-07 (DEF-04); K: AS11-17 (a) |
+| US-AS-11 app Android | 17 | 16 | 0 | 1 | 0 | F: AS11-07 (DEF-04); K: AS11-17 (a) |
 | US-AS-12 chứng thực thiết bị | 19 | 19 | 0 | 0 | 0 |  |
 | US-AS-13 giữ 30 ngày | 10 | 10 | 0 | 0 | 0 |  |
-| US-AS-14 seed/E2E/tải | 13 | 11 | 1 | 0 | 1 | F: AS14-11 (DEF-02) |
+| US-AS-14 seed/E2E/tải | 13 | 12 | 1 | 0 | 0 | F: AS14-11 (DEF-02) |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -171,12 +171,12 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | TC-AS08-17 | P | TC-AS08-17b: https://localhost:1143/attendance/display?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a |
 | TC-AS08-18 | P | TC-AS08-18: y=233.1875 |
 | TC-AS08-19 | P | TC-AS08-19: {"h":88,"btns":[44,44],"ov":false,"dock":true} moOpenOutside=false |
-| TC-AS08-20 | F | FAIL TC-AS08-20 / TC-AS08-20: DEF-R10.8-03: thử lại dùng khoá mới (2–3 khoá khác nhau); server vẫn 1 cửa sổ đóng |
+| TC-AS08-20 | P | TC-AS08-20: rerun sau sửa b3c039c0: queued=1 closed=1 posts=4 keys=1 resp=fail:ep-68a17,fail:ep-68a17,fail:ep- |
 | TC-AS08-21 | P | TC-AS08-21: codes=200,200 / Đã ghi 0 có mặt · 0 muộn · 12 chưa điểm danh Đánh vắng 12 SV chưa điểm danh / Đã g |
 | TC-AS08-22 | P | TC-AS08-22: req(att)=1 req(display)=0 / Bỏ qua điều hướng  Toàn hệ thống · INT1006  Tìm nhanh hoặc đi đến… ⌘ K |
 | TC-AS08-23 | P | TC-AS08-23: hasOpen=true put=403 |
 | TC-AS08-24 | P | TC-AS08-24: 32/32 phép ✓, selftest 32/32 (evidence-10.7/ui-antipatterns*.log) |
-| TC-AS08-25 | F | FAIL TC-AS08-25 / TC-AS08-25b:  |
+| TC-AS08-25 | P | TC-AS08-25b:  |
 | TC-AS08-30 | P | TC-AS08-30b: EEEAR7 vs PZF Z0E |
 | TC-AS08-31 | P | TC-AS08-31c: overflow=false |
 | TC-AS08-32 | P | TC-AS08-32: https://localhost/checkin?c=01a1df74-adfe-7424-802c-13b603b668d3#01a1e… → 201 |
@@ -221,10 +221,10 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | TC-AS09-33 | P | TC-AS09-33: manifest=200 name=EduPilot display=standalone icons=3 sw=0 |
 | TC-AS09-34 | K | (a) cần iPhone/Safari/PWA thật (WebKit Playwright chỉ kiểm cấu hình; không có thiết bị) |
 | TC-AS09-35 | P | TC-AS09-35a: default-src 'self'; script-src 'self' 'unsafe-inline'; style / camera=(self), geolocation=(self) |
-| TC-AS09-36 | F | FAIL TC-AS09-36 / TC-AS09-36: label-content-name-mismatch:serious:1; LCP=132 ms |
+| TC-AS09-36 | P | TC-AS09-36: rerun sau sửa P-11-39 (axe-appshell): 0; LCP=56 ms |
 | TC-AS09-37 | P | TC-AS09-37: violations=0 |
 | TC-AS09-38 | P | TC-AS09-38: như AS08-24 |
-| TC-AS09-39 | F | FAIL TC-AS09-39a / TC-AS09-39a: label-content-name-mismatch:serious |
+| TC-AS09-39 | P | TC-AS09-39a: rerun sau sửa P-11-39 (axe-appshell):  |
 | TC-AS10-01 | P | TC-AS10-01: ['NO_DEVICE_KEY', '1', '', '', ''] |
 | TC-AS10-02 | P | TC-AS10-02: geolocation=0 |
 | TC-AS10-03 | P | TC-AS10-03: ['NO_DEVICE_KEY', '1', '50', '20', ''] |
@@ -278,7 +278,7 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | TC-AS11-04 | P | TC-AS11-04: openapi: 0 'app-only'; app dùng POST checkins / me/devices |
 | TC-AS11-05 | P | TC-AS11-05: posts=1 stopped=1 |
 | TC-AS11-06 | P | TC-AS11-06: posts=1 |
-| TC-AS11-07 | F | FAIL TC-AS11-07 / TC-AS11-07: DEF-R10.8-04: nút «Quét mã điểm danh» vẫn hiện (chỉ kiểm 'BarcodeDetector' in window) |
+| TC-AS11-07 | P | TC-AS11-07: rerun sau sửa b3c039c0:  |
 | TC-AS11-08 | P | TC-AS11-08: danh  Lớp QD8F3  Chưa cấp quyền camera. Điểm danh Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm |
 | TC-AS11-09 | P | TC-AS11-09: trước=live sau=ended |
 | TC-AS11-10 | P | TC-AS11-10: checkin-native.spec test 1 (dev-e2e-att.log) |
@@ -301,7 +301,7 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | TC-AS14-10 | P | TC-AS14-10: git diff b064f3d4..9bcad074: 12 tệp test cũ chỉ đổi theo hợp đồng mới (env khoá, số thao tác 319→, |
 | TC-AS14-11 | F | FAIL TC-AS14-11 / TC-AS14-11: DEF-R10.8-02: 13 tên không tồn tại |
 | TC-AS14-12 | P | TC-AS14-12: as_manual.py |
-| TC-AS14-13 | N | chưa chạy |
+| TC-AS14-13 | P | TC-AS14-13: audit 10.7 (sau2/sau3): 0 lệch ở /attendance, /checkin, /display; 7 mã lệch còn lại ở observabilit |
 
 ## Trượt: bước tái hiện
 Chi tiết, bước và nghi ngờ mã: `docs/regression/defects-10.8.md`.
