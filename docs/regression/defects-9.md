@@ -6,6 +6,7 @@
 - Kỳ vọng: test được nêu tên tồn tại và PASS · Thực tế: `no tests to run` / không có hàm
 - Bằng chứng: `docs/regression/evidence-9/logs/TC_P7_*_G*.log`
 - Chạy lại lần 2: ổn định
+- **ĐÓNG theo P-11-42 (2026-11-16):** 5/6 hàng đổi tên test trỏ tới theo ánh xạ dev2, chạy lại PASS (`evidence-9/logs/p11-42.log`); TC-P7-03-G03 chờ `TestSubmitIdempotent` (dev2 đang viết).
 
 ### DEF-R9-02 — ĐÃ LOẠI: `go test ./internal/contract/...` đỏ lúc tải cao
 - Chạy lại `go test -count=1 -tags testroutes ./internal/contract/...` lúc máy rảnh: ok (25 PASS, rc=0, logs/contract-rerun.log). Lần đỏ trước do timeout/504 khi tải ~20 → môi trường, không phải lỗi.

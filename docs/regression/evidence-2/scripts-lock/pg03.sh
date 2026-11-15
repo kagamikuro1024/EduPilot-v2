@@ -394,8 +394,8 @@ tc_pg03_31() {  # AC6 — bộ đếm theo người dùng tách khỏi bộ đ�
 tc_pg03_32() {  # AC6 — hai bản gateway dùng chung bộ đếm (3 vào A + 3 vào B, giới hạn 5 → đúng 1 lần 429)
   ensure_mode test; win_wait; rl_env5
   local n1 n2 i r n429=0 f=$QC_OUT/tc-pg03-32.txt
-  n1=$(docker ps --format '{{.Names}}' --filter name=edupilot-gateway 2>/dev/null | sort | sed -n 1p)
-  n2=$(docker ps --format '{{.Names}}' --filter name=edupilot-gateway 2>/dev/null | sort | sed -n 2p)
+  n1=$(docker ps --format '{{.Names}}' --filter name=ep-r-gateway 2>/dev/null | sort | sed -n 1p)   # QC2 (SmkJ): tên container ep-r (bản gốc: edupilot-gateway)
+  n2=$(docker ps --format '{{.Names}}' --filter name=ep-r-gateway 2>/dev/null | sort | sed -n 2p)
   : > "$f"
   for i in 1 2 3; do
     r=$(rawhttp "$n1" 8080 'GET /api/v1/_test/error/404 HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n' 4 | sed -n 1p)
@@ -412,7 +412,7 @@ tc_pg03_32() {  # AC6 — hai bản gateway dùng chung bộ đếm (3 vào A + 
 tc_pg03_33() {  # AC6 — X-Forwarded-For được tin khi nguồn thuộc TRUSTED_PROXY_CIDRS (172.x) → bộ đếm tách theo XFF
   ensure_mode test; win_wait; rl_env5
   local n1 i r last="" other=""
-  n1=$(docker ps --format '{{.Names}}' --filter name=edupilot-gateway 2>/dev/null | sort | sed -n 1p)
+  n1=$(docker ps --format '{{.Names}}' --filter name=ep-r-gateway 2>/dev/null | sort | sed -n 1p)   # QC2 (SmkJ): tên container ep-r
   for i in 1 2 3 4 5 6; do
     last=$(rawhttp "$n1" 8080 'GET /api/v1/_test/error/404 HTTP/1.1\r\nHost: x\r\nX-Forwarded-For: 203.0.113.7\r\nConnection: close\r\n\r\n' 4 | sed -n 1p)
   done
@@ -1173,6 +1173,7 @@ tc_pg03_95() {  # AC18 — image mặc định: POST / PUT vào route thử cũn
   ensure_mode default
   local c A bad=""
   A=$(toka $U1 ADMIN)
+  local n0=0; [ "$(cnt "select count(*) from information_schema.tables where table_name='_test_items'")" = 1 ] && n0=$(cnt "select count(*) from _test_items where name='qc95'")   # QC2 (SmkJ): ep-r đã có 1 dòng qc95 từ lượt chạy ở chế độ test — chấm số dòng TĂNG THÊM
   c=$(code -X POST -H "$A" -H 'Content-Type: application/json' -H 'Idempotency-Key: qc95-aaaaaaa' -d '{"name":"qc95"}' "$GW/api/v1/_test/items")
   chk "POST _test/items" "$c" 404
   c=$(code -X POST -H "$A" -H 'Content-Type: application/json' -d '{"steps":4}' "$GW/api/v1/_test/jobs")
@@ -1183,8 +1184,8 @@ tc_pg03_95() {  # AC18 — image mặc định: POST / PUT vào route thử cũn
   chk "PUT _test/items/{id}" "$c" 404
   local n=0
   [ "$(cnt "select count(*) from information_schema.tables where table_name='_test_items'")" = 1 ] \
-    && n=$(cnt "select count(*) from _test_items where name='qc95'")
-  chk "số dòng _test_items tên qc95 (bảng thử không bị ghi)" "${n:-0}" 0
+    && n=$(( $(cnt "select count(*) from _test_items where name='qc95'") - n0 ))
+  chk "số dòng _test_items tên qc95 thêm mới (bảng thử không bị ghi)" "${n:-0}" 0
 }
 tc_pg03_96() {  # AC18 — go tool nm: binary mặc định 0 symbol internal/testroutes, binary -tags testroutes ≥ 1
   local d t

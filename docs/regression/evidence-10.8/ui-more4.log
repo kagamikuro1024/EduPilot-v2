@@ -1,0 +1,81 @@
+
+Running 6 tests using 1 worker
+
+(node:80207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80207) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+NOTE (chuẩn bị) AS08 kha 201, nguyco(code) 201
+PASS TC-AS08-04 cửa sổ đang mở: «Mở điểm danh» ẩn (không phải disabled); có dòng trạng thái nút=0; Đang mở · 2/12 · còn 09:56 Mở màn chiếu Đóng
+PASS TC-AS08-09 hàng đã điểm danh «Điểm danh lúc hh:mm»; hàng chưa điểm danh «Chưa điểm danh», không mặc định Có mặt 
+PASS TC-AS08-10 chip: «Nhập mã» cho CODE, nhãn cờ «Không xác minh được máy», «Chưa xác minh» (mức 1) thiếu: 
+PASS TC-AS08-11a «Cần xem (k)» → URL có filter=review; chỉ hàng còn cờ https://localhost:1143/attendance?session=01a1dfe4-3eaa-7658-a2e2-56a5a7bb34ae&filter=review
+PASS TC-AS08-11b mục «Hôm nay» CHECKIN_REVIEW (cửa sổ đã đóng) có href ?filter=review /attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1dfe4-3ea5-78d7-b6ee-9be0a5847fc9&filter=review
+PASS TC-AS08-12 «Đã xem» → clear-flags; audit_log +; không nút hoàn tác audit 3→4; undo=0
+PASS TC-AS08-13 sửa ô Vắng→Có mặt: lưu tại chỗ, có «Hoàn tác» (≈5 s) undo=1; Đang lưu…
+PASS TC-AS08-14a sau vòng 1: menu ⋯ có «Mở vòng 2», «Nhập số đầu người», «Gọi ngẫu nhiên 5 người» Mở vòng 2 | Nhập số đầu người | Gọi ngẫu nhiên 5 người
+PASS TC-AS08-14b sau vòng 3: không còn «Mở vòng …» Nhập số đầu người | Gọi ngẫu nhiên 5 người
+PASS TC-AS08-17a lỗi tải cửa sổ: có nguyên nhân + «Thử lại» Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.  Bỏ qua điều hướng QC-AS · QC điểm danh QC-AS Tìm nhanh hoặc đi đến… ⌘ K Có 22 
+PASS TC-AS08-17b mở lúc đã có cửa sổ (409): «Đang có cửa sổ mở» + «Mở màn chiếu» https://localhost:1143/attendance/display?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1dfe4-3eb4-725e-9c5d-1b0e5564a34f | Màn chiếu điểm danh  Mã điểm danh  520 C11  0  còn 09:57  Đóng điểm danh Thoát
+PASS TC-AS08-18 «Lưu điểm danh» còn SV chưa điểm danh: InlineNotice đầu panel «Còn N…» + «Đánh vắng N SV…» y=233.1875
+  ✓  1 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:71:1 › A /attendance: lưới, bộ lọc, Đã xem, sửa ô, hộp xác nhận (AS08-04…14, 17, 18) (25.2s)
+NOTE (chuẩn bị) B 201,201,201,201,201
+PASS TC-AS08-15 «Số đầu người» (0–2000) tự lưu; 2001 không lưu; lượt > dung sai → «Số điểm danh nhiều hơn số người đếm» saved=1; gõ 2001 → lưu 2000 (giới hạn ≤ 2000)
+PASS TC-AS08-16 Drawer «Gọi ngẫu nhiên»: 5 hàng (tên, MSSV, «Có cờ»/«Ngẫu nhiên») 5 hàng
+PASS TC-AS08-07 «Đóng»: không hộp xác nhận; dòng «Đã ghi a có mặt · b muộn · u chưa điểm danh» tại chỗ, không toast; kèm «Đánh vắng u SV…» Đã ghi 5 có mặt · 0 muộn · 7 chưa điểm danh
+PASS TC-AS08-08 «Đánh vắng u SV»: hộp chuẩn «Đánh vắng u sinh viên?», hệ quả, nút «Đánh vắng»; xác nhận → dòng ABSENT Đánh vắng 7 sinh viên?  7 sinh viên chưa điểm danh thành Vắng.  Để sau Đánh vắng
+PASS TC-AS08-08b sau xác nhận: số dòng ABSENT = u ABSENT=7 u=7
+PASS TC-AS08-21 hai tab cùng đóng: không lỗi trần, cả hai về «đóng» codes=200,200 | Đã ghi 0 có mặt · 0 muộn · 12 chưa điểm danh Đánh vắng 12 SV chưa điểm danh | Đã ghi 0 có mặt · 0 muộn · 12 chưa điểm danh Đánh vắng 12 SV chưa điểm danh
+FAIL TC-AS08-20 mất mạng khi «Đóng»: dòng «Chưa đóng»; có mạng → tự thử lại cùng Idempotency-Key, một cửa sổ đóng queued=1 closed=1 posts=4 keys=2 resp=fail:ep-b021c,fail:ep-b021c,fail:ep-b021c,200:ep-1c28a
+  ✓  2 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:164:1 › B /attendance: số đầu người, Gọi ngẫu nhiên, đóng, 375, đua, mất mạng (AS08-07,08,15,16,19,20,21) (39.0s)
+PASS TC-AS08-19 375 px: dòng cửa sổ ≥ 2 dòng, nút ≥ 44 px, «Lưu điểm danh» dock dưới, không tràn ngang {"h":88,"btns":[44,44],"ov":false,"dock":true} moOpenOutside=false
+PASS TC-AS08-22/44 sv.gioi: /attendance và /attendance/display → màn chặn chuẩn, 0 request dữ liệu điểm danh req(att)=1 req(display)=0 | Bỏ qua điều hướng QD8A3 · QC s8core QD8A3 Tìm nhanh hoặc đi đến… ⌘ K Có 66 thông | Bạn không có quyền xem màn này  Trang này dành cho giảng viê
+PASS TC-AS08-22/44 admin: /attendance và /attendance/display → màn chặn chuẩn, 0 request dữ liệu điểm danh req(att)=1 req(display)=0 | Bỏ qua điều hướng  Toàn hệ thống · INT1006  Tìm nhanh hoặc đi đến… ⌘ K Có 6 thôn | Bạn không có quyền xem màn này  Trang này dành cho giảng viê
+PASS TC-AS08-23 TA thấy đủ nút điểm danh; PUT …/settings bằng TA → 403 hasOpen=true put=403
+PASS TC-AS09-14 r108ta mở /checkin: màn chặn chuẩn, 0 request dữ liệu req=0 | Bỏ qua điều hướng QC-AS Có 22 thông báo mới 9+ T Bạn không có quyền xem màn này 
+PASS TC-AS09-14 r108t mở /checkin: màn chặn chuẩn, 0 request dữ liệu req=0 | Bỏ qua điều hướng QC-AS Có 22 thông báo mới 9+ G Bạn không có quyền xem màn này 
+PASS TC-AS09-14 admin mở /checkin: màn chặn chuẩn, 0 request dữ liệu req=0 | Bỏ qua điều hướng  Toàn hệ thống · INT1006  Có 6 thông báo mới 6 N Bạn không có 
+  ✓  3 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:226:1 › C /attendance 375, vai sai, TA (AS08-19, 22, 23, 44, AS09-14) (31.9s)
+(node:82953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS TC-AS08-32 QR chụp màn chiếu → jsQR giải ra URL …#token; token xác thực với API (201) https://localhost/checkin?c=01a1df74-adfe-7424-802c-13b603b668d3#01a1e… → 201
+PASS TC-AS08-35 màn chiếu gọi navigator.wakeLock.request('screen'); lỗi bị bỏ qua (không thông báo lỗi) wakeLock=1; chữ=Màn chiếu điểm danh  Mã điểm danh  NQ3 4JX  0  còn 09:58  Đóng điểm danh Thoát
+PASS TC-AS08-33b rotate=5 s: mã ngắn và QR đổi cùng nhịp (số giá trị khác nhau bằng nhau); ≤ 12 yêu cầu display/phút mã=6 qr=6 req=5/24s
+PASS TC-AS08-34 đồng hồ trang lệch +60 s: vẫn đổi mã theo nhịp máy chủ (≥ 2 mã / 16 s) và hiện hiển thị bình thường mã=4; countdown='còn 09:17'
+PASS TC-AS08-42 hai trình duyệt cùng mở màn chiếu: cùng mã (không chặn) PV29N4 vs PV29N4
+PASS TC-AS08-43 portrait 375: khối xếp dọc (QR → mã → đếm), không tràn ngang {"ov":false,"qr":62.59375,"code":527.28125,"cnt":598.40625}
+PASS TC-AS08-47 màn chiếu mở: axe 0 lỗi nghiêm trọng; LCP ≤ 2,5 s (đo trình duyệt, không Lighthouse) 0; LCP=484 ms
+PASS TC-AS08-41 chặn display lúc tải đầu: «Không tải được mã» + «Thử lại» (đã qua trạng thái khung xương) skeleton=0 | Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.
+PASS TC-AS08-41b «Thử lại» → QR trở lại 
+PASS TC-AS08-39a Esc → về /attendance?course=&session= https://localhost:1143/attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1e011-d3c5-709b-8620-f15f497dc449
+PASS TC-AS08-40 «Đóng điểm danh» → close; màn chuyển «Đã đóng» Màn chiếu điểm danh Đã đóng  1  Thoát
+PASS TC-AS08-39b «Thoát» → về /attendance?course=&session= https://localhost:1143/attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1e011-d3c5-709b-8620-f15f497dc449
+  ✓  4 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:263:1 › D màn chiếu: QR giải mã, nhịp, đồng hồ lệch, wakeLock, Esc/Thoát/Đóng, lỗi tải, hai máy, dọc, axe (AS08-32,34,35,39,40,41,42,43,47) (54.4s)
+PASS TC-AS09-02 sau khi tải: location.hash rỗng; history.length tăng ≤ 2 (đã chuyển trang); Back không quay về URL có token hash='' history 2→3
+PASS TC-AS09-08 IndexedDB edupilot.device.v1 có khoá ECDSA P-256 không trích xuất; POST kèm device WEB_KEY {public_key, signature}; DB assurance=2 {"db":"edupilot.device.v1","keys":1,"extractable":false} WEB_KEY
+PASS TC-AS09-07 đã điểm danh, mở lại cùng U: «Đã điểm danh hh:mm», không lỗi, vẫn 1 lượt Bỏ qua điều hướng QD8A3 Có 66 thông báo mới 9+ T Điểm danh  Đã điểm danh 23:48   rows=1
+PASS TC-AS09-09 cùng trình duyệt, đăng xuất rồi sv.kha: dùng lại khoá ⇒ DEVICE_SHARED ở cả hai lượt ["DEVICE_NEW,DEVICE_SHARED","DEVICE_SHARED,DEVICE_NEW"]
+PASS TC-AS09-04a chưa đăng nhập: /login?next=/checkin…; sessionStorage ep.checkin {c,token,at}; không localStorage url=https://localhost:1143/login?next=%2Fcheckin%3Fc%3D01a1df74-adfe-7424-802c-13b60
+PASS TC-AS09-04b đăng nhập xong quay lại, tự gửi đúng một lần; sessionStorage đã xoá posts=1 stash=null
+PASS TC-AS09-05 đăng nhập > 60 s rồi quay lại: token bị bỏ; «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; không POST posts=0 | Bỏ qua điều hướng QD8B1 Có 50 thông báo mới 9+ H Điểm danh Mã đã hết hạn. Quét l
+FAIL TC-AS09-06/11/13/15 ngoại lệ: TimeoutError: page.waitForURL: Timeout 60000ms exceeded. =========================== logs =========================== waiting for navigation until "load" ============================================================
+FAIL TC-AS09-13 mất mạng rồi «Thử lại»: gửi lại an toàn, đúng một lượt offline-msg='Mã điểm danh  Chưa có mạng.  Lớp QD8F3  Điểm danh Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm' rows=0
+FAIL TC-AS09-23 nhập mã lớp A khi chọn lớp B → «Mã không đúng…»; đổi sang lớp A → thành công Bỏ qua điều hướng QD8F3 Có 55 thông báo mới 9+ H Điểm danh Mã điểm danh  Lớp này
+PASS TC-AS09-24 375×568, chạm ô mã: ô nằm trong khung nhìn, trên thanh dock; nút «Điểm danh» bấm được {"inputBottom":281,"dockTop":451,"vis":true}
+PASS TC-AS09-31 /checkin: h1 «Điểm danh», không meta, không card lồng, không lời mời cài / mẹo {"h1":["Điểm danh"],"panels":1,"meta":false,"nested":false,"css":2}
+PASS TC-AS09-33 manifest: name, display standalone, icon; không service worker; không lời mời cài manifest=200 name=EduPilot display=standalone icons=3 sw=0
+PASS TC-AS09-37 CSP /checkin: không unsafe-eval, không script ngoài; console CSP violation = 0 violations=0
+  ✓  5 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:330:1 › E /checkin: StashGate, thiết bị, lỗi, mạng, hướng dẫn trang (AS09-02,04…09,11,13,15,23,24,31,33,37) (3.0m)
+PASS TC-AS10-02 lớp không bật vị trí: không gọi geolocation, không dòng thông báo vị trí geolocation=0
+PASS TC-AS10-11a/AS01-14 geofence bật: dòng «Lớp này kiểm tra vị trí khi điểm danh.» đã vẽ TRƯỚC lần gọi geolocation đầu calls=1 thấy dòng=true
+PASS TC-AS10-11b từ chối quyền → vẫn «Đã điểm danh», lượt có GEO_DENIED DEVICE_NEW,GEO_DENIED|f
+PASS TC-AS09-32/AS04-16 không WebCrypto / IndexedDB (ngữ cảnh không an toàn, chế độ riêng tư): vẫn «Đã điểm danh», NO_DEVICE_KEY, không lỗi giao diện NO_DEVICE_KEY|1
+FAIL TC-AS09-36 /checkin: axe 0 lỗi nghiêm trọng; LCP ≤ 2,5 s label-content-name-mismatch:serious:1; LCP=132 ms
+FAIL TC-AS11-09 ngoại lệ: TimeoutError: locator.waitFor: Timeout 15000ms exceeded. Call log:  - waiting for getByRole('button', { name: /Quét mã điểm danh/ }) to be visible 
+PASS TC-AS11-14 r108ta (giả native) mở /checkin: màn chặn chuẩn; 0 request dữ liệu; không lưu mật khẩu/token ngoài cookie [["ep_demo_state","ep_returning"],[]]
+PASS TC-AS11-14 r108t (giả native) mở /checkin: màn chặn chuẩn; 0 request dữ liệu; không lưu mật khẩu/token ngoài cookie [["ep_demo_state","ep_returning"],[]]
+  ✓  6 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:445:1 › F /checkin: vị trí, WebCrypto/IndexedDB vắng, quét giả, native giả, axe (AS10-02,11, AS01-14, AS04-16, AS09-32,36, AS11-09,14) (31.9s)
+
+  Slow test file: ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts (6.1m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  6 passed (6.1m)
+exit=0

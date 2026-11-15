@@ -1,0 +1,214 @@
+### 07:03 00:02:32
+== TC-PG07-03
+    (thời gian up --wait: 24 s — xem /tmp/qc2-A-tmp-lock/out/tc-PG07-03.log)
+    ok   rc của up -d --no-deps --scale gateway=2 --wait = [0]
+-- TC-PG07-03 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:04 00:03:44
+== TC-PG07-04
+    ok   số dòng 'gateway running healthy 0' = [2]
+    ok   postgres running healthy 0 = [1]
+    ok   redis running healthy 0 = [1]
+    ok   minio running healthy 0 = [1]
+    ok   mailpit running healthy 0 = [1]
+    ok   pgbouncer running healthy 0 = [1]
+    ok   caddy running healthy 0 = [1]
+    ok   worker running healthy 0 = [1]
+    ok   frontend running healthy 0 = [1]
+    ok   migrate <state> <exit> = [exited 0]
+-- TC-PG07-04 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:15 00:03:46
+== TC-PG07-15
+    ok   số lần mã 200 = [40]
+    ok   số lần mã khác 200 = [0]
+    ok   số giá trị X-Instance-Id khác nhau = [2]
+    ok   số lần của bản ít được chọn nhất = 20 (≥ 1)
+-- TC-PG07-15 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:16 00:03:47
+== TC-PG07-16
+    ok   số bản gateway đang chạy = 2 (≥ 2)
+    ok   X-Instance-Id [7994b906cd1e] khớp container
+    ok   X-Instance-Id [8f09c5eaf646] khớp container
+-- TC-PG07-16 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:18 00:03:48
+== TC-PG07-18
+    vòng 1: không-200 = 1, 60 dòng cuối không-200 = 0 (/tmp/qc2-A-tmp-lock/out/tc-PG07-18-r1.codes)
+    ok   vòng 1: số dòng không-200 (≤ 2 % của 200) = 1 (≤ 4)
+    ok   vòng 1: số dòng không-200 ở 60 dòng cuối (sau ~6 s) = [0]
+    vòng 2: không-200 = 1, 60 dòng cuối không-200 = 0 (/tmp/qc2-A-tmp-lock/out/tc-PG07-18-r2.codes)
+    ok   vòng 2: số dòng không-200 (≤ 2 % của 200) = 1 (≤ 4)
+    ok   vòng 2: số dòng không-200 ở 60 dòng cuối (sau ~6 s) = [0]
+    vòng 3: không-200 = 0, 60 dòng cuối không-200 = 0 (/tmp/qc2-A-tmp-lock/out/tc-PG07-18-r3.codes)
+    ok   vòng 3: số dòng không-200 (≤ 2 % của 200) = 0 (≤ 4)
+    ok   vòng 3: số dòng không-200 ở 60 dòng cuối (sau ~6 s) = [0]
+-- TC-PG07-18 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:19 00:08:23
+== TC-PG07-19
+    ok   trước khi tắt = [404]
+    FAIL sau khi tắt, cùng token (không 401): thực tế [503] ≠ mong đợi [404]
+-- TC-PG07-19 FAIL
+TỔNG story 07: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG07-19
+### 07:20 00:08:49
+== TC-PG07-20
+    ok   số container gateway 'running healthy 0' = [2]
+-- TC-PG07-20 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:26 00:09:01
+== TC-PG07-26
+    ok   env của migrate dùng Postgres trực tiếp ~ /postgres:5432/
+    ok   env của migrate không trỏ PgBouncer !~ /pgbouncer:6432/
+    ok   số lần thấy client migrate trên PgBouncer (12 lần lấy mẫu) = [0]
+    ok   migrate chạy lại vẫn thoát 0 = [exited 0]
+-- TC-PG07-26 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:28 00:09:07
+== TC-PG07-28
+    ok   số request trả 404 (có truy vấn DB) = [1000]
+    ok   số dòng log gateway có lỗi prepared statement / bind message = [0]
+-- TC-PG07-28 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:29 00:09:28
+== TC-PG07-29
+    (build --target gateway: 1 s)
+    ok   rc của docker build --target gateway = [0]
+    (build --target worker: 3 s)
+    ok   rc của docker build --target worker = [0]
+    ok   số dòng FROM trong backend-go/Dockerfile = 8 (≥ 2)
+-- TC-PG07-29 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:34 00:09:33
+== TC-PG07-34
+    ok   số container gateway+worker đã kiểm = 3 (≥ 3)
+    ok   số container KHÔNG read_only = [0]
+-- TC-PG07-34 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:46 00:09:36
+== TC-PG07-46
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+    FAIL rc của k6 run: thực tế [99] ≠ mong đợi [0]
+    FAIL số ngưỡng ✗ (không đạt): thực tế [8] ≠ mong đợi [0]
+    ok   số dòng ngưỡng ✓ = 69 (≥ 3)
+-- TC-PG07-46 FAIL
+TỔNG story 07: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG07-46
+### 07:48 00:10:38
+== TC-PG07-48
+    checks
+    ✓ 'rate>0.99' rate=0.00%
+    ✓ 'p(95)<300' p(95)=0s
+    ✓ 'p(95)<300' p(95)=0s
+    ✓ 'p(95)<300' p(95)=0s
+    ✓ 'p(95)<500' p(95)=0s
+    http_req_failed
+    ✗ 'rate<0.005' rate=100.00%
+    checks_total.......: 0     0/s
+    checks_succeeded...: 0.00% 0 out of 0
+    checks_failed......: 0.00% 0 out of 0
+    http_req_duration........: avg=0s min=0s med=0s max=0s p(90)=0s p(95)=0s
+      { scenario:healthz }...: avg=0s min=0s med=0s max=0s p(90)=0s p(95)=0s
+      { scenario:jobs404 }...: avg=0s min=0s med=0s max=0s p(90)=0s p(95)=0s
+      { scenario:readyz }....: avg=0s min=0s med=0s max=0s p(90)=0s p(95)=0s
+      { scenario:write }.....: avg=0s min=0s med=0s max=0s p(90)=0s p(95)=0s
+    http_req_failed..........: 100.00% 1 out of 1
+    FAIL rc của k6 run (TEST_ROUTES=1, tmode): thực tế [107] ≠ mong đợi [0]
+    FAIL số ngưỡng ✗: thực tế [1] ≠ mong đợi [0]
+    ok   có ngưỡng p(95)<500 của kịch bản ghi = 1 (≥ 1)
+-- TC-PG07-48 FAIL
+TỔNG story 07: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG07-48
+### 07:49 00:11:45
+== TC-PG07-49
+    http_reqs................: 1       169.577751/s
+
+    NETWORK
+    data_received............: 0 B     0 B/s
+    data_sent................: 0 B     0 B/s
+
+
+
+
+Run       [ 100% ] setup()
+healthz   [   0% ]
+readyz    [   0% ]
+jobs404   [   0% ]
+write     [   0% ]
+time="2026-11-16T00:11:58+07:00" level=error msg="GoError: TEST_ROUTES=1 cần stack dựng bằng docker-compose.test.yml\n\tat go.k6.io/k6/v2/internal/js/modules/k6.(*K6).Fail-fm (native)\n\tat setup (file:///Users/kuro/Documents/TA_Agent_qc2/benchmarks/load/smoke.js:60:9(23))\n" hint="script exception" source=stacktrace
+    ok   rc của k6 run (TEST_ROUTES=1, dmode) = [107] (≠ [0])
+    ok   đầu ra chứa đúng chuỗi 'TEST_ROUTES=1 cần stack dựng bằng docker-compose.test.yml' = 1 (≥ 1)
+-- TC-PG07-49 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:52 00:11:58
+== TC-PG07-52
+    ok   .env.local giống hệt bản gốc
+    FAIL danh sách missing trong log: [] không khớp /JWT_SECRET_KEY/
+    FAIL mã thoát của container gateway: [0] không khớp /(^|,)1(,|$)/
+-- TC-PG07-52 FAIL
+TỔNG story 07: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG07-52
+### 07:53 00:12:21
+== TC-PG07-53
+    (RestartCount lớn nhất = 0; State.Running = true)
+    ok   RestartCount lớn nhất sau 60 s = 0 (≤ 3)
+    FAIL số container gateway còn đang chạy: thực tế [1] ≠ mong đợi [0]
+-- TC-PG07-53 FAIL
+TỔNG story 07: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG07-53
+### 07:54 00:13:38
+== TC-PG07-54
+    ok   migrate FinishedAt không đổi = [2026-11-15T17:11:14.140974622Z]
+    ok   trạng thái migrate = [exited 0]
+-- TC-PG07-54 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:61 00:14:04
+== TC-PG07-61
+    (compose volumes: caddy_config caddy_data minio_data postgres_data redis_data)
+    ok   volume postgres = 1 (≥ 1)
+    ok   volume redis = 1 (≥ 1)
+    ok   volume minio = 1 (≥ 1)
+    ok   volume caddy_data = 1 (≥ 1)
+    ok   volume thật của project edupilot = 5 (≥ 4)
+-- TC-PG07-61 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:62 00:14:05
+== TC-PG07-62
+    ok   giá trị khoá sau khi restart redis = [v1]
+-- TC-PG07-62 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:67 00:14:10
+== TC-PG07-67
+    ok   whoami ở image *-test = [200]
+    ok   whoami ở image mặc định = [404]
+-- TC-PG07-67 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0
+### 07:68 00:14:31
+== TC-PG07-68
+    (edupilot-gateway-test = 18251677 byte)
+    ok   kích thước edupilot-gateway-test (byte) = 18251677 (≤ 39999999)
+    (edupilot-worker-test = 17119782 byte)
+    ok   kích thước edupilot-worker-test (byte) = 17119782 (≤ 39999999)
+-- TC-PG07-68 PASS
+TỔNG story 07: PASS=1 FAIL=0 MANUAL=0 K=0

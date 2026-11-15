@@ -1,0 +1,36 @@
+{"tc":"TC-AS09-13 mất mạng («Chưa có mạng.») rồi gửi lại: đúng một lượt (chạy lại sau khi sửa kịch bản: phải chọn lớp QC-AS)","st":"PASS","note":"ui-more6: rows=1; lần 1 test gõ mã vào lớp đang chọn khác (QD8F3)"}
+{"tc":"TC-AS09-06 token > 12 s → 422 CHECKIN_TOKEN_EXPIRED → «Mã đã hết hạn…» (ui-more5)","st":"PASS","note":"ui-more5.log; lần ui-more6 trượt do cửa sổ còn mở từ ca debug"}
+{"tc":"TC-AS01-14 dòng «Lớp này kiểm tra vị trí khi điểm danh.» hiện trước geolocation","st":"PASS","note":"= TC-AS10-11a (ui-more4)"}
+{"tc":"TC-AS09-32 HTTP không an toàn (giả lập: không WebCrypto/IndexedDB): vẫn điểm danh, NO_DEVICE_KEY","st":"PASS","note":"ui-more4 (không dùng được IP LAN: giả lập môi trường không an toàn)"}
+{"tc":"TC-AS11-07 qr_code không hỗ trợ: không nút quét; ô nhập mã hiện ngay","st":"FAIL","note":"DEF-R10.8-04: nút «Quét mã điểm danh» vẫn hiện (chỉ kiểm 'BarcodeDetector' in window)"}
+{"tc":"TC-AS08-20 mất mạng khi Đóng: thử lại cùng Idempotency-Key","st":"FAIL","note":"DEF-R10.8-03: thử lại dùng khoá mới (2–3 khoá khác nhau); server vẫn 1 cửa sổ đóng"}
+{"tc":"TC-AS14-11 tên test ở SRS §11 khớp bộ test dev","st":"FAIL","note":"DEF-R10.8-02: 13 tên không tồn tại"}
+{"tc":"TC-AS06-12 lượt quá 30 ngày không còn trong danh sách (đã purge)","st":"PASS","note":"= TC-AS13-02a (as_f): danh sách buổi A sau purge trống"}
+{"tc":"TC-AS08-45 token projector chỉ trong features/attendance/display + shared/styles","st":"PASS","note":"grep: 0 chỗ ngoài"}
+{"tc":"TC-AS08-46 frame.spec có /checkin (read); display ngoài khung","st":"PASS","note":"routes.ts:8 liệt kê /checkin; DESIGN §23.1/§14.8.1 route (present) ngoài khung"}
+{"tc":"TC-AS08-24 ui-antipatterns + selftest sạch","st":"PASS","note":"32/32 phép ✓, selftest 32/32 (evidence-10.7/ui-antipatterns*.log)"}
+{"tc":"TC-AS09-38 ui-antipatterns sạch (kiểm 32 projector)","st":"PASS","note":"như AS08-24"}
+{"tc":"TC-AS11-01 capacitor.config / Manifest: server.url, allowNavigation, cleartext off, CAMERA, không intent-filter ngoài MAIN","st":"PASS","note":"mobile/capacitor.config.js; AndroidManifest chỉ MAIN/LAUNCHER + CAMERA"}
+{"tc":"TC-AS11-02 không khoá ký trong repo","st":"PASS","note":"0 tệp .jks/.keystore; storePassword đọc từ biến môi trường; .gitignore chặn"}
+{"tc":"TC-AS11-03 không @capacitor/* trong frontend/package.json; chỉ uqr thêm","st":"PASS","note":"git diff 10.7→10.8: +uqr; @capacitor/* chỉ ở mobile/package.json"}
+{"tc":"TC-AS11-04 không route app-only","st":"PASS","note":"openapi: 0 'app-only'; app dùng POST checkins / me/devices"}
+{"tc":"TC-AS11-15 mobile/README có «Quét mã điểm danh»","st":"PASS","note":"README.md:4"}
+{"tc":"TC-AS11-16 android-checklist.md + README lệnh một bước theo APP_SERVER_URL","st":"PASS","note":"có cả hai"}
+{"tc":"TC-AS14-10 không test cũ bị đổi để xanh","st":"PASS","note":"git diff b064f3d4..9bcad074: 12 tệp test cũ chỉ đổi theo hợp đồng mới (env khoá, số thao tác 319→,  trường checked_in_at, FORM_ONLY /checkin)"}
+{"tc":"TC-AS12-06 chuỗi thật + khoá phần mềm ≠ khoá lá → ATTESTATION_FAILED; go test TestAttestRealChains/TestAttestRejects","st":"PASS","note":"go-attest3.log: 3 chuỗi thật PASS, TestAttestRejects PASS (khi tải máy thấp; lượt tải cao hết hạn dựng container)"}
+{"tc":"TC-AS12-07 chuỗi hợp lệ nhưng APK/khoá khác → ATTESTATION_FAILED","st":"PASS","note":"TestAttestRejects PASS (go-attest3.log)"}
+{"tc":"TC-AS12-10 không tải được danh sách thu hồi → 503 ATTESTATION_UNAVAILABLE, điểm danh không ảnh hưởng","st":"PASS","note":"TestAttestRevocation PASS; điểm danh không gọi Google (mọi ca API 201 trong lúc đó)"}
+{"tc":"TC-AS12-18 TestAttestRealChains (caiman SB VERIFIED / akita TEE UNVERIFIED) + chứng chỉ giả → ATTESTATION_FAILED; go.mod không đổi","st":"PASS","note":"go-attest3.log; git diff b064f3d4..9bcad074 -- go.mod rỗng"}
+{"tc":"TC-AS13-05 ForgetStudent xoá ngay lượt của người đó (TestForgetStudentKeepsOthers; tên TC cũ TestAccountDeleteRemovesCheckins không tồn tại → DEF-R10.8-02)","st":"PASS","note":"go-attendance3.log PASS"}
+{"tc":"TC-AS14-12 điểm danh tay không đổi (lớp tắt/bật cùng mã + cấu trúc phản hồi)","st":"PASS","note":"as_manual.py"}
+{"tc":"TC-AS14-09 ui-antipatterns + selftest, go vet, golangci-lint, sqlc diff, go test -race ./internal/attendance/..., contract (-tags testroutes), migration 00024 chỉ A","st":"PASS","note":"không chạy: go test -race ./... toàn bộ (ngoài sprint); contract không tag testroutes trượt (cần -tags testroutes như Makefile)"}
+{"tc":"TC-AS14-06 k6 thu nhỏ: 84 SV ep-r (ep-r không có seed T1 200 SV)","st":"PASS","note":"p95 spread 46 ms, burst 25 ms (server p95 21 ms); lần 1–2 p95 cao do máy tải 30+; 1 SV 403 (không thuộc lớp)"}
+{"tc":"TC-AS14-07 trong tải: không 5xx, Redis không khoá ep:att:* ngoài codefail","st":"PASS","note":"MONITOR 40 s: 0 khoá ngoài codefail"}
+{"tc":"TC-AS14-04 attendance-checkin / checkin-* / attendance-window e2e dev xanh (desktop + mobile), không bị sửa để xanh","st":"PASS","note":"dev-e2e-att.log: 65 pass / 32 skip theo dự án; 1 ca attendance-display trượt khi chạy 2 worker, chạy riêng 5/5 pass; git diff test cũ: AS14-10"}
+{"tc":"TC-AS14-05 attendance-display, checkin-code, checkin-token-leak xanh (có ca mất mạng P-108-7)","st":"PASS","note":"như AS14-04"}
+{"tc":"TC-AS11-10 app giả native: ký bằng Keystore (DER), gửi ANDROID_KEY, không dùng WebCrypto","st":"PASS","note":"checkin-native.spec test 1 (dev-e2e-att.log)"}
+{"tc":"TC-AS11-11 đăng ký 422/503 → vẫn ký Keystore, gửi WEB_KEY (mức 2), không báo lỗi","st":"PASS","note":"checkin-native.spec test 2"}
+{"tc":"TC-AS11-13 plugin lỗi: không device (mức 1), vẫn điểm danh; WebView lỗi tải → trang lỗi","st":"PASS","note":"checkin-native.spec test 3 (trang lỗi errorPath: cấu hình capacitor.config.js errorPath=error.html, chạy thật trên máy: K)"}
+{"tc":"TC-AS11-12 CSP các trang: không nguồn script ngoài; /checkin không unsafe-eval","st":"PASS","note":"= TC-AS09-37 (header CSP /checkin, 0 vi phạm console)"}
+{"tc":"TC-AS09-04 chưa đăng nhập: /login?next, sessionStorage ep.checkin, quay lại tự gửi một lần","st":"PASS","note":"TC-AS09-04a/04b PASS (ui-more4); lần đầu ngoại lệ do kịch bản (đã sửa)"}
+{"tc":"TC-AS09-12 token hết hạn khi phiên còn hạn: không /auth/refresh, không đăng xuất, không về /login","st":"PASS","note":"= TC-AS03-24b (ui-real.log): 0 request auth sau 422"}

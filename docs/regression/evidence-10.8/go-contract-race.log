@@ -1,0 +1,5 @@
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/contract	33.116s
+FAIL
+ok  	github.com/edupilot/backend-go/internal/attendance	18.304s
+ok  	github.com/edupilot/backend-go/internal/attendance/attest	7.571s

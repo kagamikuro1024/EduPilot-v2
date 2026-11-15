@@ -1,0 +1,22 @@
+### 06:12 23:59:36
+== TC-PG06-12
+    ok   số (method, đường dẫn) thử đã gọi = 21 (≥ 15)
+    ok   số phản hồi khác 404 ở image mặc định = [0]
+-- TC-PG06-12 PASS
+TỔNG story 06: PASS=1 FAIL=0 MANUAL=0 K=0
+### 06:13 00:00:54
+== TC-PG06-13
+    ok   GET /api/v1/jobs/{id} không token = [401]
+    ok   code của thân lỗi = [UNAUTHENTICATED]
+    ok   WWW-Authenticate ~ /^Bearer realm="edupilot"/
+    ok   GET /api/v1/events không token = [401]
+    ok   code của thân lỗi (events) = [UNAUTHENTICATED]
+-- TC-PG06-13 PASS
+TỔNG story 06: PASS=1 FAIL=0 MANUAL=0 K=0
+### 06:14 00:01:43
+== TC-PG06-14
+    ok   GET /healthz ẩn danh = [200]
+    ok   GET /api/v1/healthz ẩn danh = [200]
+    ok   GET /api/v1/readyz ẩn danh = [200]
+-- TC-PG06-14 PASS
+TỔNG story 06: PASS=1 FAIL=0 MANUAL=0 K=0

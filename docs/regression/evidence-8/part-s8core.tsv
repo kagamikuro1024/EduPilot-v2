@@ -30,6 +30,7 @@ TC-P6-01-29	P	TestInputsFromP5/ExcusedLateNotAbsent/ActiveOnly/MatchExpectedCRM 
 TC-P6-01-30	P	study_time_daily C = 600 phút/ngày (14 ngày × 3 khu vực, SQL tay): preview 30 SV & giải trình C không đổi (HP 3 · F); không dòng nào nhắc thời gian học; đã
 TC-P6-01-31	P	lớp 2 gradebook 200: 24 dòng (đều thuộc lớp 2), trạng thái NO_POLICY (chưa công thức), không điểm lớp 1
 TC-P6-01-32	P	IDOR: item lớp 1 qua đường dẫn lớp có công thức (QD8A1): PUT grade-entries 404, publish 404; audit_log lớp không tăng 4→4
+TC-P6-01-33	P	Go TestExamFromOtherCourseRejected PASS + probe SQL 11b (item lớp 2→exam lớp 1) 23503; API 422 chưa chạy riêng
 TC-P6-01-34	P	sv30 rời lớp rồi chốt lại: snapshot v1 của sv30 còn nguyên ['7.50', 'B']; v2 chỉ 29 SV, không có dòng v2 cho sv30
 TC-P6-01-35	P	TestCrossCourseIsolation/ExamFromOtherCourseRejected/LeftStudentExcluded Go integration -tags integration (logs/s8core-go-*.log) PASS
 TC-P6-01-36	P	ma trận 20 route × 5 vai: 100 phép thử, 0 lệch
@@ -79,6 +80,8 @@ TC-P6-02-39	P	chỉ có 1 hàm tính điểm Compute(engine.go:115); Preview (gr
 TC-P6-02-40	P	TestZeroWeightGroupNoDivide/BonusNoEffectWarning/PenaltyNotApplicable/PenaltyNotInSchemeWarning/BonusNotApplicable PASS
 TC-P6-02-41	P	w_QT=0: 200, HP = CK (3 mẫu ['10', '6.5', '3']), không NaN/Infinity/chia 0; ghi chú: impact không trả cảnh báo BONUS_NO_EFFECT (có ở TestBonusNoEffectWarni
 TC-P6-02-42	P	w_CK=0 + luật FINAL_BELOW: PUT 200, unclear_items ['PARAM_INVALID'] (mục chưa rõ, chặn xác nhận) — impact trả tính bình thường, mục chưa rõ nằm ở bản nháp
+TC-P6-02-43	P	INCOMPLETE không hp: xem 02-26/02-27 (P)
+TC-P6-02-44	P	lỗi rõ không mặc định: xem 02-23/02-24 (P)
 TC-P6-02-45	P	weight 'abc','-5','101','',1e999 → [('abc', 422), ('-5', 422), ('101', 422), ('', 422), ('inf', 400)]; không 5xx, panic trong log gateway 0→0
 TC-P6-02-46	P	STUDENT preview/explain người khác/impact → 403 403 403
 TC-P6-02-47	P	TA preview 200, finalize 403

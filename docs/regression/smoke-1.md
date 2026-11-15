@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 1 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm A) · Ngày: 2026-11-15
 
-Tổng TC cũ: 68 · Đạt (P): 26 · Trượt (F): 2 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 32 · Chưa chạy — cần PM quyết (X): 5 · Chưa chạy — ngoài mẫu (N): 3   (P+F+K+D+X+N = 68)
+Tổng TC cũ: 68 · Đạt (P): 27 · Trượt (F): 2 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 32 · Chưa chạy — cần PM quyết (X): 5 · Chưa chạy — ngoài mẫu (N): 2   (P+F+K+D+X+N = 68)
 Quy ước: **K(a)** thiết bị không có · **K(b)** cần người thật · **K(c)** ngoài phạm vi đồ án · **D** TC lỗi thời (spec đã đổi hợp lệ, ghi mã đề xuất/quyết định) · **X** chưa chạy vì lệnh phá huỷ/dựng stack thứ hai bị cấm (chờ PM) · **N** chưa chạy: dạng tài liệu, ngoài mẫu smoke «1 chính + 1 lỗi / US».
 Cách chạy:
 - `bash docs/sprints/1/qc/scripts/tc-US-P0-01.sh` (14 TC), `tc-US-P0-02.sh` (tĩnh: 01–09 19 23–27 31 34–38; riêng 18, 21), `tc-US-P0-03.sh TC-04 05 13 14 16` — log ở `evidence-1/run-*.log`.
@@ -13,7 +13,7 @@ Cách chạy:
 | US | TC tổng | P | F | K(a/b/c) | D | X | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | US-P0-01 | 14 | 7 | 1 | 0 | 6 | 0 | 0 | tài liệu DEMO_SCRIPT đã viết lại v2 → 6 ca D |
-| US-P0-02 | 38 | 17 | 1 | 0 | 13 | 5 | 2 | scaffold sprint 1: nhiều ca D vì cây đã đổi; X = `pnpm dev` stack thứ hai |
+| US-P0-02 | 38 | 18 | 1 | 0 | 13 | 5 | 1 | scaffold sprint 1: nhiều ca D vì cây đã đổi; X = `pnpm dev` stack thứ hai |
 | US-P0-03 | 16 | 2 | 0 | 0 | 13 | 0 | 1 | CI sprint 1: bằng chứng run đã đóng, ci.yml tái cấu trúc |
 
 ## Kết quả từng ca
@@ -63,7 +63,7 @@ Cách chạy:
 | P0-02/TC-26 | P |  |
 | P0-02/TC-27 | D | gateway nay thoát 1 khi thiếu DB/Redis (US-PG-01 AC1) — TC đòi /healthz sống |
 | P0-02/TC-28 | X | `pnpm dev:down` project edupilot — cấm chạm/dựng stack thứ hai |
-| P0-02/TC-29 | N | dừng gateway ≤ 8 s exit 0 — phủ bởi TC-PG01-35/38 (PASS, sprint 2); chưa chạy riêng |
+| P0-02/TC-29 | P | container gateway thật (image edupilot-gateway) trên mạng tạm qc2-j: `docker stop` → ExitCode 0, 4,7 s (<8 s), log «gateway stopped»; run-logs/s1-tc29-j.log |
 | P0-02/TC-30 | X | `dev:down` khi đã dừng — như TC-28 |
 | P0-02/TC-31 | D | grep «legacy» trúng testdata/lib `kin-openapi/routers/legacy`, test mask — không phải tham chiếu thư mục legacy |
 | P0-02/TC-32 | P | không mount legacy (chỉ ./seed/demo); `go list ./...` không gói legacy; history image không «legacy» |

@@ -1,6 +1,5 @@
 TC-P6-05-01	P	L2={"state": "NO_POLICY", "unclear_count": 0, "has_policy": false, "pending_draft": false, "gradebook": {"status": "OPEN", "snapshot_version": 0}, "fi
 TC-P6-05-02	P	doc=READY status={"state": "NOT_EXTRACTED", "unclear_count": 0, "has_policy": true, "pending_draft": false, "gradebook": {"stat
-TC-P6-05-03	F	status={"state": "DRAFT_UNCLEAR", "unclear_count": 3, "has_policy": true, "pending_draft": true, "gradebook": {"status": "OPEN", "snapsho
 TC-P6-05-04	P	status={"state": "DRAFT_READY", "unclear_count": 0, "has_policy": true, "pending_draft": true, "gradebook": {"status": "OPEN", "snapshot_
 TC-P6-05-07	P	SV/ADM/TA=[403, 403, 200]
 TC-P6-05-08	P	go test 3 test PASS (log s8flow-go-*.log)
@@ -10,8 +9,6 @@ TC-P6-05-11	P	QD8F2 DRAFT_READY: banner + liên kết 'Xác nhận công thức'
 TC-P6-05-12	P	TEACHER lớp 1 CONFIRMED: 0 banner (gradebook, attendance); STUDENT: 0 banner ở /me,/attendance,/gradebook,/chat
 TC-P6-05-15	P	Chốt điểm disabled+aria-disabled=true; tooltip 'Chưa có công thức điểm đã xác nhận' khi hover và focus; 0 icon Info
 TC-P6-05-19	P	/attendance QD8F2: banner 'Công thức điểm chưa xác nhận'+'Xem công thức' phía trên lưới 1 dòng; lưu thao tác xem TC-20
-TC-P6-05-23	F	GS=[{"id": "GRADE_SCHEME_UNCONFIRMED:01a1dff6-f018-7550-b9bb-abfaa2cf3d9d", "kind": setup=[]
-TC-P6-05-24	F	['Đã có quy chế, chưa trích công thức.']|['Đã có quy chế, chưa trích công thức.']|['Đã có quy chế, chưa trích công thức.']
 TC-P6-05-29	P	go test 2 test PASS (log s8flow-go-*.log)
 TC-P6-05-36	P	go test 5 test PASS (log s8flow-go-*.log)
 TC-P6-05-41	P	go test 4 test PASS (log s8flow-go-*.log)

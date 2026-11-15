@@ -1,0 +1,108 @@
+[WebServer] (node:38422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:38442) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 432 tests using 2 workers
+
+(node:38449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    2 [desktop] › e2e/a11y.spec.ts:32:1 › axe-allow.json: tối đa 3 ngoại lệ, mỗi mục đủ luật / route / lý do / người duyệt (79ms)
+  ✓    1 [desktop] › e2e/class-join.spec.ts:44:1 › course picker: giảng viên 2 lớp thấy cả hai, 'Tất cả lớp của tôi' và 'Quản lý lớp này' (1.4s)
+  ✓    4 [desktop] › e2e/class-join.spec.ts:56:1 › course picker: sinh viên thấy lớp ACTIVE của mình, lớp PENDING không chọn được, không có 'Tất cả lớp' (1.0s)
+  ✓    5 [desktop] › e2e/class-join.spec.ts:67:1 › course picker: sinh viên 1 lớp ACTIVE + 1 PENDING chỉ thấy lớp ACTIVE (1.1s)
+  ✓    6 [desktop] › e2e/class-join.spec.ts:75:1 › course picker: ?course= của lớp không thuộc người này bị bỏ, về lớp đầu (1.0s)
+  ✓    7 [desktop] › e2e/class-join.spec.ts:82:1 › course picker: ?course= của lớp thuộc người này đè lựa chọn và được nhớ ở localStorage (1.9s)
+  ✓    8 [desktop] › e2e/class-join.spec.ts:92:1 › course picker: lớp đã lưu trữ không là mặc định và không được nhớ (US-UX91-06 AC3, P-91-9) (2.4s)
+  ✘    9 [desktop] › e2e/class-join.spec.ts:108:1 › course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390 (128ms)
+(node:38736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   10 [desktop] › e2e/class-join.spec.ts:125:1 › no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 route và không gọi API lớp (1.3s)
+  ✓   11 [desktop] › e2e/class-join.spec.ts:141:1 › mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp (324ms)
+  ✓   12 [desktop] › e2e/class-join.spec.ts:152:1 › mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, không mượn lớp mô phỏng 761987 (10.7 lô 1) (188ms)
+  ✓   13 [desktop] › e2e/class-join.spec.ts:233:1 › admin courses page: bảng đúng cột, một nút chính, khung mở tại chỗ, gửi xong có dòng tĩnh, bấm đúp một lớp, lưu trữ có xác nhận nêu số (1.1s)
+  ✘   14 [desktop] › e2e/class-join.spec.ts:274:1 › admin courses page: sửa và gán lại dùng PUT / assign; rỗng có lời mời mở lớp; không có đường thêm sinh viên; 375 px sạch (656ms)
+(node:38780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   15 [desktop] › e2e/class-join.spec.ts:302:1 › admin courses page: chưa có lớp → lời mời mở lớp đầu tiên (270ms)
+  ✓   16 [desktop] › e2e/class-join.spec.ts:308:1 › admin courses errors: mã lớp trùng tại ô, 422 theo ô giữ chữ, gửi lại cùng khoá, sai version, sai vai, lưu trữ lại (1.7s)
+  ✓   17 [desktop] › e2e/class-join.spec.ts:366:1 › bell real: chấm theo unread_count, mở khung không xoá chấm, bấm mục đánh dấu đã đọc và đi tới link, làm mới 30 s (1.3s)
+  ✓   18 [desktop] › e2e/class-join.spec.ts:417:1 › bell real sse open: không làm mới ở 30 s, làm mới ở 120 s (305ms)
+  ✓   19 [desktop] › e2e/class-join.spec.ts:453:1 › bell real: lỗi tải → dòng 'Chưa tải được thông báo.' không chặn app; hết chưa đọc thì chấm biến (1.8s)
+  ✓   20 [desktop] › e2e/class-join.spec.ts:487:1 › join page: ô nhập tự viết hoa và bỏ ký tự cấm, một nút chính, xem trước rồi tham gia (512ms)
+  ✓   21 [desktop] › e2e/class-join.spec.ts:507:1 › join page: cần duyệt, chờ duyệt, sai mã, đầy lớp, bị giới hạn đếm ngược, chưa xác minh email (608ms)
+  ✓   22 [desktop] › e2e/class-join.spec.ts:547:1 › join page: lớp cần duyệt hiện câu cần duyệt và kết quả chờ duyệt (419ms)
+  ✘   23 [desktop] › e2e/class-join.spec.ts:560:1 › join page: 375 px sạch (tràn ngang, vùng chạm, chữ bị cắt) (64ms)
+(node:39047) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    3 [desktop] › e2e/a11y.spec.ts:57:3 › axe: student (21.1s)
+  ✓   24 [desktop] › e2e/class-join.spec.ts:574:1 › join link login redirect: /join/<mã> chưa đăng nhập → /login?next=… → quay lại, xem trước ngay, mã rời khỏi URL (441ms)
+  ✓   26 [desktop] › e2e/class-join.spec.ts:599:1 › join page: /join/<mã> gửi Referrer-Policy no-referrer và Cache-Control no-store (110ms)
+  ✓   27 [desktop] › e2e/class-join.spec.ts:634:1 › class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng thái Bật/Tắt, lạc quan + Hoàn tác; «Ca kiểm thử» khoá với giảng viên; TA không thấy khối (667ms)
+  ✓   28 [desktop] › e2e/class-join.spec.ts:666:1 › class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính (848ms)
+  ✓   29 [desktop] › e2e/class-join.spec.ts:695:1 › class settings page: lỗi tại ô và xung đột phiên bản (462ms)
+  ✓   30 [desktop] › e2e/class-join.spec.ts:716:1 › class settings page: TA thấy mã nhưng chỉ đọc; sinh viên bị chặn và không gọi join-code (209ms)
+  ✓   31 [desktop] › e2e/class-join.spec.ts:745:1 › threshold slider: kéo đổi giá trị ngay (dấu phẩy), lưu một lần sau khi dừng; 409 nạp lại giá trị của máy chủ (2.0s)
+  ✓   32 [desktop] › e2e/class-join.spec.ts:772:1 › threshold slider: TA chỉ xem, không gửi PUT (241ms)
+  ✓   33 [desktop] › e2e/class-join.spec.ts:780:1 › class settings page: sinh viên → màn chặn quyền, 0 yêu cầu tới join-code (212ms)
+  ✓   34 [desktop] › e2e/class-join.spec.ts:823:1 › class members page: bảng thành viên, tìm, đếm tab, mời ra có Hoàn tác (chỉ giảng viên) (1.2s)
+  ✓   35 [desktop] › e2e/class-join.spec.ts:843:1 › class members page: chọn nhiều → Duyệt N, Hoàn tác gọi undo cho từng người; từ chối; ?tab=pending (679ms)
+  ✓   36 [desktop] › e2e/class-join.spec.ts:862:1 › class members page: hàng email chưa khớp MSSV — giảng viên xác nhận ngắn rồi duyệt; TA không thấy nút Duyệt (334ms)
+  ✓   37 [desktop] › e2e/class-join.spec.ts:876:1 › class members page: TA không có nút Duyệt ở hàng email chưa khớp (264ms)
+  ✘   38 [desktop] › e2e/class-join.spec.ts:885:1 › class members page: rỗng, tab Trợ giảng (thêm / bớt), sinh viên bị chặn, 375 px sạch (550ms)
+(node:39250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   39 [desktop] › e2e/class-join.spec.ts:907:1 › class members page: sinh viên → màn chặn quyền (256ms)
+  ✓   40 [desktop] › e2e/class-join.spec.ts:921:1 › roster import ui: chọn tệp → xem trước đúng dòng 7 và 19 → Nhập 28 sinh viên; TA không thấy tab (573ms)
+  ✓   41 [desktop] › e2e/class-join.spec.ts:953:1 › roster import ui: TA không thấy tab (286ms)
+  ✓   42 [desktop] › e2e/class-join.spec.ts:959:1 › roster import ui: tệp sai loại / quá lớn báo tại vùng thả; mất mạng giữ tệp và Gửi lại dùng cùng khoá (2.1s)
+  -   43 [desktop] › e2e/class-join.spec.ts:998:1 › roster import ui: 375 px không tràn ngang
+  ✓   44 [desktop] › e2e/class-join.spec.ts:1013:1 › share sources section: chỉ hiện khi có nguồn đủ điều kiện; dùng lại tại chỗ, không toast; TA không thấy (655ms)
+  ✓   45 [desktop] › e2e/class-join.spec.ts:1040:1 › share sources section: TA không gọi share-sources và không thấy mục (324ms)
+  -   46 [desktop] › e2e/class-join.spec.ts:1048:1 › @real course picker với seed: GV 2 lớp, SV A 2 lớp, SV B 1 lớp, SV D chưa có lớp
+  -   47 [desktop] › e2e/class-join.spec.ts:1052:1 › @real roster import ui + share sources section (seed): GV lớp 2 nhập roster-2-loi.csv thấy dòng 7 và 19, nút Nhập 28 sinh viên; TA không thấy tab; GV khác học phần không thấy mục chia sẻ
+  -   48 [desktop] › e2e/class-join.spec.ts:1056:1 › @real join flow end to end (375 × 812): D xem trước và vào lớp 2, giảng viên duyệt, tạo lại mã, 6 mã sai ⇒ 429
+  ✓   49 [desktop] › e2e/class-join.spec.ts:1081:1 › risk thresholds: năm dòng nhãn + thanh + giá trị; kéo đổi ngay, lưu MỘT lần sau khi dừng; 409 hoàn lại (2.0s)
+  ✓   50 [desktop] › e2e/class-join.spec.ts:1108:1 › risk thresholds: TA chỉ xem, không gửi PUT (224ms)
+  ✓   51 [desktop] › e2e/class-join.spec.ts:1117:1 › class settings attendance: bật hiện chu kỳ / muộn / yêu cầu; vị trí hiện dòng thông báo; lưu CẢ chính sách; 422 tại ô; TA chỉ xem (4.8s)
+  ✓   52 [desktop] › e2e/class-join.spec.ts:1163:1 › class settings attendance: TA thấy chính sách nhưng mọi ô bị khoá, không gửi PUT (317ms)
+| Chữ \ Nền | --ep-canvas | --ep-surface | --ep-surface-strong | --ep-surface-subtle | --ep-red-soft |
+|---|---|---|---|---|---|
+| --ep-ink | 16.30 | 16.30 | 14.47 | 14.88 | 14.49 |
+| --ep-ink-2 | 9.30 | 9.30 | 8.26 | 8.49 | 8.27 |
+| --ep-ink-3 | 5.30 | 5.30 | 4.70 | 4.84 | 4.71 |
+| --ep-red | 5.57 | 5.57 | 4.95 | 5.08 | 4.95 |
+| --ep-green | 5.89 | 5.89 | 5.23 | 5.38 | 5.24 |
+| --ep-blue | 12.61 | 12.61 | 11.20 | 11.51 | 11.21 |
+| amber trên --ep-surface | 3.59 |
+  ✓   53 [desktop] › e2e/contrast.spec.ts:12:1 › ma trận chữ × nền ≥ 4,5 : 1; amber ≥ 3 : 1 trên panel (296ms)
+  ✓   54 [desktop] › e2e/contrast.spec.ts:28:1 › vàng: chữ ink trên vàng / vàng nhạt ≥ 4,5 : 1; chấm vàng có viền amber ≥ 3 : 1 trên trắng (261ms)
+nhãn nhóm: 5.30 · mục nav: 9.30 · mục đang chọn: 14.88
+  ✓   55 [desktop] › e2e/contrast.spec.ts:39:1 › sidebar: chữ nav và nhãn nhóm ≥ 4,5 : 1 trên nền của chính chúng (234ms)
+  ✓   25 [desktop] › e2e/a11y.spec.ts:57:3 › axe: ta (21.9s)
+Đang dùng: 5.89 · Chờ nhận lời mời: 16.30 · Đã khoá: 16.30
+  ✓   56 [desktop] › e2e/contrast.spec.ts:59:1 › status text trên panel: ≥ 4,5 : 1 ở /admin/users (đang dùng, chờ nhận lời mời, đã khoá) (300ms)
+  ✓   57 [desktop] › e2e/a11y.spec.ts:57:3 › axe: teacher (30.3s)
+  ✓   59 [desktop] › e2e/a11y.spec.ts:57:3 › axe: admin (10.9s)
+  ✓   60 [desktop] › e2e/a11y.spec.ts:67:1 › axe: admin có dữ liệu (/admin/users, /admin/courses, /settings/llm) (4.5s)
+  ✓   61 [desktop] › e2e/a11y.spec.ts:77:1 › axe: giảng viên có dữ liệu (bài thi, soạn, kết quả, giống nhau, câu hỏi, thành viên, cài đặt lớp) (12.9s)
+  ✓   62 [desktop] › e2e/a11y.spec.ts:87:1 › axe: giảng viên /students có dữ liệu (danh sách thật, đủ ba mức rủi ro) (1.9s)
+  ✓   63 [desktop] › e2e/a11y.spec.ts:101:1 › axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước giờ / đang làm / đã công bố) (8.4s)
+  ✓   58 [desktop] › e2e/decision-observability.spec.ts:37:1 › bảng theo cổng: tên đúng bảng, cổng tắt hiện «—», số định dạng, một chỗ cho mỗi số (607ms)
+  ✓   64 [desktop] › e2e/a11y.spec.ts:117:1 › axe: assignment a11y — sinh viên mở bài tập (chưa nộp / đã nộp) (4.5s)
+  ✓   65 [desktop] › e2e/decision-observability.spec.ts:59:1 › chọn cửa sổ 24 giờ / 7 ngày gọi lại với window; chưa có lời gọi → một dòng (531ms)
+  ✓   67 [desktop] › e2e/decision-observability.spec.ts:69:1 › lỗi API → Thử lại (không spinner riêng) (2.1s)
+  ✓   68 [desktop] › e2e/decision-observability.spec.ts:75:1 › TEACHER không thấy bảng và không gọi API decision (AC6) (190ms)
+  ✓   66 [desktop] › e2e/a11y.spec.ts:134:1 › axe: grading a11y — hàng chờ chấm và màn duyệt của giảng viên (3.5s)
+  ✓   69 [desktop] › e2e/documents.spec.ts:25:1 › table: tên, loại, tuần, hai cờ, trạng thái, cập nhật; dải thống kê một dòng (1.0s)
+  ✓   71 [desktop] › e2e/documents.spec.ts:36:1 › table 1440: lý do lỗi rất dài không ép cột Tên còn một ký tự mỗi dòng (D-R-05) (1.0s)
+  ✓   70 [desktop] › e2e/a11y.spec.ts:144:1 › axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): không critical, activedescendant hợp lệ khi dòng ở trong / ngoài cửa sổ (2.5s)
+  ✓   72 [desktop] › e2e/documents.spec.ts:48:1 › states: rỗng có Tải tài liệu lên; lỗi có Thử lại (1.9s)
+  ✓   74 [desktop] › e2e/documents.spec.ts:60:1 › answer key: công tắc Hiện cho sinh viên khoá, lý do ở chính công tắc (không dòng chữ thêm trong hàng) (1.1s)
+  ✓   75 [desktop] › e2e/documents.spec.ts:67:1 › công tắc khoá có lý do: focus bàn phím mở lý do, bấm không đổi giá trị (hàng chia sẻ và đáp án) (2.0s)
+  ✓   73 [desktop] › e2e/a11y.spec.ts:179:1 › axe: tích hợp có dữ liệu (/settings/integrations, admin và giảng viên) (3.6s)
+  ✓   76 [desktop] › e2e/documents.spec.ts:84:1 › course policy reminder: một dòng khi thiếu quy chế, nút mở chọn tệp; có rồi thì biến mất (2.1s)
+  ✓   78 [desktop] › e2e/documents.spec.ts:97:1 › reject before upload: sai loại / quá 50 MB báo ngay, không gọi presign (1.3s)

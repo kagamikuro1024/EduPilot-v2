@@ -1,0 +1,159 @@
+[WebServer] (node:34740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:34823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 98 tests using 2 workers
+
+(node:34825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34824) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › e2e/attendance-checkin.spec.ts:7:1 › checkin web: đã đăng nhập, liên kết QR → gửi MỘT lần, «Đã điểm danh 07:03», hash bị xoá, khoá thiết bị không xuất được, ký đúng chuỗi (378ms)
+  ✓   2 [desktop] › e2e/attendance-checkin.spec.ts:48:1 › checkin web: mở lại cùng liên kết → 200 cùng giờ, không lỗi; lần sau cùng khoá thiết bị (một khoá cho cả trình duyệt) (591ms)
+  ✓   3 [desktop] › e2e/attendance-checkin.spec.ts:62:1 › checkin web: mã hết hạn / không đúng / đã đóng / ngoài lớp → một câu theo US-AS-09 AC4; mất mạng → «Chưa có mạng.» + Thử lại (3.0s)
+  ✓   5 [desktop] › e2e/attendance-checkin.spec.ts:97:1 › checkin web: lớp kiểm tra vị trí → câu «Lớp này kiểm tra vị trí khi điểm danh.» hiện TRƯỚC khi hỏi định vị; từ chối quyền vẫn điểm danh với geo.denied (286ms)
+  ✓   6 [desktop] › e2e/attendance-checkin.spec.ts:115:1 › checkin web: chưa đăng nhập → /login?next= (không có token trong URL), token ở sessionStorage; không có WebCrypto → vẫn điểm danh, không device (374ms)
+  ✓   4 [desktop] › e2e/attendance-checkin.spec.ts:87:1 › checkin web: 429 → «Thử lại sau n giây.» đếm ngược, nút khoá có lý do; rồi tự gửi lại (3.6s)
+  ✓   7 [desktop] › e2e/attendance-checkin.spec.ts:133:1 › checkin web: giảng viên → màn chặn quyền, 0 yêu cầu /courses/{id}/checkins; c không phải UUID → «Liên kết không đúng.» (401ms)
+  ✘   8 [desktop] › e2e/attendance-display.spec.ts:34:1 › attendance display: QR + mã ngắn «ABC 123» + đếm; đổi mã đúng một lần mỗi bước; nút Đóng gọi API và hiện «Đã đóng» với số cuối (5.3s)
+(node:35241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [desktop] › e2e/attendance-display.spec.ts:51:1 › attendance display: mất mạng giữ mã cuối tới hết hạn rồi ô trống «Mất kết nối»; 409 WINDOW_CLOSED → «Đã đóng» (5.8s)
+  ✓  10 [desktop] › e2e/attendance-display.spec.ts:62:1 › attendance display: Esc thoát về /attendance; sinh viên không gây yêu cầu /api/v1 nào (442ms)
+  ✓  11 [desktop] › e2e/attendance-display.spec.ts:84:1 › attendance display: lớp lấy từ URL, không từ lớp đang chọn; lớp ngoài tài khoản → lỗi rõ, 0 yêu cầu cửa sổ (361ms)
+  ✓  13 [desktop] › e2e/attendance-window.spec.ts:49:1 › attendance checkin: lớp chưa mở cửa sổ → «Mở điểm danh» tạo cửa sổ rồi sang màn chiếu; lưới vẫn «Có mặt» mặc định (1.3s)
+  ✓  12 [desktop] › e2e/attendance-display.spec.ts:104:1 › attendance display: axe 0 lỗi nghiêm trọng ở 1280×720 và 1920×1080 (mã đang hiện, và «Đã đóng»); QR vuông, vừa khung, không cuộn (1.6s)
+  ✓  14 [desktop] › e2e/attendance-window.spec.ts:59:1 › attendance checkin: cửa sổ đang mở — dòng «Đang mở · k/n · còn», ô trống + «Chưa điểm danh», «Điểm danh lúc», chip cờ ≤ 2 rồi +n, «Đã xem», lọc «Cần xem» (1.3s)
+  ✓  15 [desktop] › e2e/attendance-window.spec.ts:95:1 › attendance checkin: cửa sổ đã đóng — «Đã ghi a có mặt · b muộn · u chưa điểm danh», số đầu người, «Đánh vắng u SV» qua xác nhận (1.4s)
+  -  17 [desktop] › e2e/attendance-window.spec.ts:138:1 › attendance checkin 375: cảnh báo CHECKIN_UNRESOLVED — chữ ≤ 2 dòng, nút Đánh vắng xếp dưới, full-width, không tràn ngang
+  ✓  16 [desktop] › e2e/attendance-window.spec.ts:114:1 › attendance checkin: Lưu điểm danh bị 422 CHECKIN_UNRESOLVED → cảnh báo vàng đầu panel + nút đánh vắng; không gửi hàng ô trống; ô đã sửa còn nguyên (1.2s)
+  ✓  19 [desktop] › e2e/attendance.spec.ts:33:1 › attendance empty no sessions: 'Lớp chưa có lịch buổi học' và nút về /calendar (979ms)
+  ✓  18 [desktop] › e2e/attendance.spec.ts:22:1 › attendance session picker: mặc định buổi đang diễn ra, gần nhất trước, nhãn Đã điểm danh / Chưa, ?session= chọn buổi (1.9s)
+  ✓  20 [desktop] › e2e/attendance.spec.ts:42:1 › attendance states: tải lưới lỗi nói chuyện gì xảy ra và có Thử lại (1.1s)
+  ✓  21 [desktop] › e2e/attendance.spec.ts:54:1 › attendance grid keyboard: 1–4 đặt trạng thái rồi xuống hàng kế, ↑↓ đổi hàng, Shift+số giữ hàng, P ghi phát biểu; 30 hàng gửi MỘT lần (1.5s)
+  ✓  22 [desktop] › e2e/attendance.spec.ts:74:1 › attendance optimistic undo: đổi ngay, dòng 'Đã đánh Vắng · … Hoàn tác' tại chỗ, không toast, không hộp thoại; Hoàn tác trả trạng thái trước (2.0s)
+  ✓  24 [desktop] › e2e/attendance.spec.ts:102:1 › attendance 5xx keeps changes: PUT lỗi giữ lựa chọn, 'Chưa lưu được. Thử lại' rồi lưu thành công (3.5s)
+  ✓  23 [desktop] › e2e/attendance.spec.ts:85:1 › attendance save indicator: Đang lưu… rồi Đã lưu HH:MM sau 2 s yên lặng, một PUT complete:false với version đúng (6.3s)
+  ✓  25 [desktop] › e2e/attendance.spec.ts:117:1 › attendance complete inline confirm: Lưu điểm danh gửi complete:true một lần, dòng 'Đã lưu điểm danh · 30 sinh viên · vắng 3', nút thành Đã lưu, không toast / hộp thoại (1.4s)
+  ✓  26 [desktop] › e2e/attendance.spec.ts:135:1 › attendance complete không có thay đổi vẫn gửi complete:true cho cả lưới (mặc định mọi người có mặt) (1.2s)
+  ✓  27 [desktop] › e2e/attendance.spec.ts:144:1 › attendance speak plus undo: + phát biểu · +0,25 tăng đếm ngay, POST có client_event_id, ba lần bấm = ba sự kiện, Hoàn tác = DELETE (2.1s)
+  ✓  29 [desktop] › e2e/attendance.spec.ts:187:1 › attendance offline queue sync: mất mạng đánh vắng 3 người → banner 'Chưa có mạng · 3 thay đổi chờ lưu'; có mạng lại tự gửi đủ 3 (1.3s)
+  ✓  28 [desktop] › e2e/attendance.spec.ts:161:1 › attendance two teachers conflict: 409 → 'Thầy Nam vừa đổi 1 dòng', chọn từng dòng, giữ phần còn lại; Lấy của Thầy Nam bỏ bản của mình, Giữ của tôi gửi lại với version mới (3.8s)
+  ✓  30 [desktop] › e2e/attendance.spec.ts:202:1 › attendance offline reload keeps queue: tải lại giữa chừng vẫn thấy lựa chọn và gửi tiếp (2.0s)
+  ✓  32 [desktop] › e2e/attendance.spec.ts:236:1 › attendance switch session keeps changes: đổi buổi khi còn thay đổi chưa lưu thì vẫn gửi phần của buổi cũ (1.2s)
+  ✓  31 [desktop] › e2e/attendance.spec.ts:215:1 › attendance logout asks first: còn thay đổi chưa lưu thì hỏi; Ở lại giữ nguyên, Đăng xuất xoá khoá attendance của người đó ở máy (2.2s)
+  ✓  33 [desktop] › e2e/attendance.spec.ts:246:1 › attendance 375: hàng chỉ có chữ trạng thái, bấm hàng mở bốn lựa chọn ≥ 44 px, đổi một người ≤ 2 chạm, không tràn ngang (1.1s)
+  ✓  34 [desktop] › e2e/attendance.spec.ts:267:1 › attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồi Lưu điểm danh — đúng một PUT cho cả lưới, mỗi chạm phản hồi ≤ 100 ms (1.7s)
+  ✓  35 [desktop] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức NO_POLICY hiện dòng nhắc (1.2s)
+  ✓  36 [desktop] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức DRAFT_READY hiện dòng nhắc (1.1s)
+  -  38 [desktop] › e2e/attendance.spec.ts:322:1 › attendance notice mobile: khối cảnh báo công thức cao ≤ 56 px
+  ✓  37 [desktop] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức CONFIRMED không có dòng nhắc (1.0s)
+  ✓  39 [desktop] › e2e/checkin-code.spec.ts:5:1 › checkin code: ô «Mã điểm danh» (cú pháp ở placeholder) + «Lớp 761988» + nút Điểm danh; gửi mã CHUẨN HOÁ (O→0, I/L→1), ký chuỗi code: (361ms)
+  ✓  40 [desktop] › e2e/checkin-code.spec.ts:32:1 › checkin code: mã sai → lỗi tại ô (một câu), chữ đã gõ giữ nguyên; ký tự ngoài bảng mã không gọi mạng (408ms)
+  ✓  41 [desktop] › e2e/checkin-code.spec.ts:47:1 › checkin code: lớp không bật điểm danh bằng mã → «Lớp này không điểm danh bằng mã.» (không gọi POST) (304ms)
+  ✓  43 [desktop] › e2e/checkin-native.spec.ts:24:1 › checkin app: challenge → registerDevice → POST /me/devices → ký bằng Keystore, gửi ANDROID_KEY; lần sau không đăng ký lại (628ms)
+  ✓  44 [desktop] › e2e/checkin-native.spec.ts:52:1 › checkin app: emulator — đăng ký 422 ATTESTATION_FAILED → vẫn ký Keystore, gửi WEB_KEY (mức 2); không thử lại trong phiên (227ms)
+  ✓  45 [desktop] › e2e/checkin-native.spec.ts:67:1 › checkin app: plugin lỗi → không gửi device (mức 1), vẫn điểm danh; lớp kiểm tra vị trí → geo.mock lấy từ plugin (244ms)
+  ✓  46 [desktop] › e2e/checkin-scan.spec.ts:23:1 › checkin scan: mã lạ bị bỏ qua, mã đúng → gửi token một lần và tắt camera (1.1s)
+  ✓  47 [desktop] › e2e/checkin-scan.spec.ts:35:1 › checkin scan: từ chối camera → «Chưa cấp quyền camera.» + ô nhập mã (331ms)
+  ✓  48 [desktop] › e2e/checkin-token-leak.spec.ts:5:1 › checkin 375: token không ở URL / header / Referer của request nào; hash rỗng sớm; một viewport; nút ≥ 44 px (308ms)
+  ✓  49 [desktop] › e2e/checkin-token-leak.spec.ts:20:1 › checkin 375: ô nhập mã — nút Điểm danh ≥ 44 px, dính đáy trên thanh điều hướng (358ms)
+(node:35787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  50 [mobile] › e2e/attendance-checkin.spec.ts:7:1 › checkin web: đã đăng nhập, liên kết QR → gửi MỘT lần, «Đã điểm danh 07:03», hash bị xoá, khoá thiết bị không xuất được, ký đúng chuỗi (388ms)
+  ✓  51 [mobile] › e2e/attendance-checkin.spec.ts:48:1 › checkin web: mở lại cùng liên kết → 200 cùng giờ, không lỗi; lần sau cùng khoá thiết bị (một khoá cho cả trình duyệt) (671ms)
+checkin latency ms: 161,162,168,174,175,175,175,177,184,190,190,192,192,193,195,213,229,266,284,302 p95=284
+  ✓  42 [desktop] › e2e/checkin-latency.spec.ts:6:1 › checkin latency: goto → «Đã điểm danh» p95 ≤ 1,5 s trên 20 lần (gateway giả) (5.6s)
+(node:35820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  52 [mobile] › e2e/attendance-checkin.spec.ts:62:1 › checkin web: mã hết hạn / không đúng / đã đóng / ngoài lớp → một câu theo US-AS-09 AC4; mất mạng → «Chưa có mạng.» + Thử lại (2.6s)
+  ✓  54 [mobile] › e2e/attendance-checkin.spec.ts:97:1 › checkin web: lớp kiểm tra vị trí → câu «Lớp này kiểm tra vị trí khi điểm danh.» hiện TRƯỚC khi hỏi định vị; từ chối quyền vẫn điểm danh với geo.denied (255ms)
+  ✓  55 [mobile] › e2e/attendance-checkin.spec.ts:115:1 › checkin web: chưa đăng nhập → /login?next= (không có token trong URL), token ở sessionStorage; không có WebCrypto → vẫn điểm danh, không device (441ms)
+  ✓  56 [mobile] › e2e/attendance-checkin.spec.ts:133:1 › checkin web: giảng viên → màn chặn quyền, 0 yêu cầu /courses/{id}/checkins; c không phải UUID → «Liên kết không đúng.» (359ms)
+  -  57 [mobile] › e2e/attendance-display.spec.ts:34:1 › attendance display: QR + mã ngắn «ABC 123» + đếm; đổi mã đúng một lần mỗi bước; nút Đóng gọi API và hiện «Đã đóng» với số cuối
+  -  58 [mobile] › e2e/attendance-display.spec.ts:51:1 › attendance display: mất mạng giữ mã cuối tới hết hạn rồi ô trống «Mất kết nối»; 409 WINDOW_CLOSED → «Đã đóng»
+  -  59 [mobile] › e2e/attendance-display.spec.ts:62:1 › attendance display: Esc thoát về /attendance; sinh viên không gây yêu cầu /api/v1 nào
+  -  60 [mobile] › e2e/attendance-display.spec.ts:84:1 › attendance display: lớp lấy từ URL, không từ lớp đang chọn; lớp ngoài tài khoản → lỗi rõ, 0 yêu cầu cửa sổ
+  -  61 [mobile] › e2e/attendance-display.spec.ts:104:1 › attendance display: axe 0 lỗi nghiêm trọng ở 1280×720 và 1920×1080 (mã đang hiện, và «Đã đóng»); QR vuông, vừa khung, không cuộn
+  -  62 [mobile] › e2e/attendance-window.spec.ts:49:1 › attendance checkin: lớp chưa mở cửa sổ → «Mở điểm danh» tạo cửa sổ rồi sang màn chiếu; lưới vẫn «Có mặt» mặc định
+  -  63 [mobile] › e2e/attendance-window.spec.ts:59:1 › attendance checkin: cửa sổ đang mở — dòng «Đang mở · k/n · còn», ô trống + «Chưa điểm danh», «Điểm danh lúc», chip cờ ≤ 2 rồi +n, «Đã xem», lọc «Cần xem»
+  -  64 [mobile] › e2e/attendance-window.spec.ts:95:1 › attendance checkin: cửa sổ đã đóng — «Đã ghi a có mặt · b muộn · u chưa điểm danh», số đầu người, «Đánh vắng u SV» qua xác nhận
+  -  65 [mobile] › e2e/attendance-window.spec.ts:114:1 › attendance checkin: Lưu điểm danh bị 422 CHECKIN_UNRESOLVED → cảnh báo vàng đầu panel + nút đánh vắng; không gửi hàng ô trống; ô đã sửa còn nguyên
+  ✓  53 [mobile] › e2e/attendance-checkin.spec.ts:87:1 › checkin web: 429 → «Thử lại sau n giây.» đếm ngược, nút khoá có lý do; rồi tự gửi lại (3.6s)
+  -  67 [mobile] › e2e/attendance.spec.ts:22:1 › attendance session picker: mặc định buổi đang diễn ra, gần nhất trước, nhãn Đã điểm danh / Chưa, ?session= chọn buổi
+  -  68 [mobile] › e2e/attendance.spec.ts:33:1 › attendance empty no sessions: 'Lớp chưa có lịch buổi học' và nút về /calendar
+  -  69 [mobile] › e2e/attendance.spec.ts:42:1 › attendance states: tải lưới lỗi nói chuyện gì xảy ra và có Thử lại
+  -  70 [mobile] › e2e/attendance.spec.ts:54:1 › attendance grid keyboard: 1–4 đặt trạng thái rồi xuống hàng kế, ↑↓ đổi hàng, Shift+số giữ hàng, P ghi phát biểu; 30 hàng gửi MỘT lần
+  -  71 [mobile] › e2e/attendance.spec.ts:74:1 › attendance optimistic undo: đổi ngay, dòng 'Đã đánh Vắng · … Hoàn tác' tại chỗ, không toast, không hộp thoại; Hoàn tác trả trạng thái trước
+  -  72 [mobile] › e2e/attendance.spec.ts:85:1 › attendance save indicator: Đang lưu… rồi Đã lưu HH:MM sau 2 s yên lặng, một PUT complete:false với version đúng
+  -  73 [mobile] › e2e/attendance.spec.ts:102:1 › attendance 5xx keeps changes: PUT lỗi giữ lựa chọn, 'Chưa lưu được. Thử lại' rồi lưu thành công
+  -  74 [mobile] › e2e/attendance.spec.ts:117:1 › attendance complete inline confirm: Lưu điểm danh gửi complete:true một lần, dòng 'Đã lưu điểm danh · 30 sinh viên · vắng 3', nút thành Đã lưu, không toast / hộp thoại
+  -  75 [mobile] › e2e/attendance.spec.ts:135:1 › attendance complete không có thay đổi vẫn gửi complete:true cho cả lưới (mặc định mọi người có mặt)
+  -  76 [mobile] › e2e/attendance.spec.ts:144:1 › attendance speak plus undo: + phát biểu · +0,25 tăng đếm ngay, POST có client_event_id, ba lần bấm = ba sự kiện, Hoàn tác = DELETE
+  -  77 [mobile] › e2e/attendance.spec.ts:161:1 › attendance two teachers conflict: 409 → 'Thầy Nam vừa đổi 1 dòng', chọn từng dòng, giữ phần còn lại; Lấy của Thầy Nam bỏ bản của mình, Giữ của tôi gửi lại với version mới
+  ✓  66 [mobile] › e2e/attendance-window.spec.ts:138:1 › attendance checkin 375: cảnh báo CHECKIN_UNRESOLVED — chữ ≤ 2 dòng, nút Đánh vắng xếp dưới, full-width, không tràn ngang (1.1s)
+  -  78 [mobile] › e2e/attendance.spec.ts:187:1 › attendance offline queue sync: mất mạng đánh vắng 3 người → banner 'Chưa có mạng · 3 thay đổi chờ lưu'; có mạng lại tự gửi đủ 3
+  -  80 [mobile] › e2e/attendance.spec.ts:215:1 › attendance logout asks first: còn thay đổi chưa lưu thì hỏi; Ở lại giữ nguyên, Đăng xuất xoá khoá attendance của người đó ở máy
+  -  79 [mobile] › e2e/attendance.spec.ts:202:1 › attendance offline reload keeps queue: tải lại giữa chừng vẫn thấy lựa chọn và gửi tiếp
+  -  82 [mobile] › e2e/attendance.spec.ts:246:1 › attendance 375: hàng chỉ có chữ trạng thái, bấm hàng mở bốn lựa chọn ≥ 44 px, đổi một người ≤ 2 chạm, không tràn ngang
+  -  81 [mobile] › e2e/attendance.spec.ts:236:1 › attendance switch session keeps changes: đổi buổi khi còn thay đổi chưa lưu thì vẫn gửi phần của buổi cũ
+  -  84 [mobile] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức NO_POLICY hiện dòng nhắc
+  -  83 [mobile] › e2e/attendance.spec.ts:267:1 › attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồi Lưu điểm danh — đúng một PUT cho cả lưới, mỗi chạm phản hồi ≤ 100 ms
+  -  85 [mobile] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức CONFIRMED không có dòng nhắc
+  -  86 [mobile] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức DRAFT_READY hiện dòng nhắc
+  ✓  88 [mobile] › e2e/checkin-code.spec.ts:5:1 › checkin code: ô «Mã điểm danh» (cú pháp ở placeholder) + «Lớp 761988» + nút Điểm danh; gửi mã CHUẨN HOÁ (O→0, I/L→1), ký chuỗi code: (304ms)
+  ✓  89 [mobile] › e2e/checkin-code.spec.ts:32:1 › checkin code: mã sai → lỗi tại ô (một câu), chữ đã gõ giữ nguyên; ký tự ngoài bảng mã không gọi mạng (309ms)
+  ✓  90 [mobile] › e2e/checkin-code.spec.ts:47:1 › checkin code: lớp không bật điểm danh bằng mã → «Lớp này không điểm danh bằng mã.» (không gọi POST) (293ms)
+  -  91 [mobile] › e2e/checkin-latency.spec.ts:6:1 › checkin latency: goto → «Đã điểm danh» p95 ≤ 1,5 s trên 20 lần (gateway giả)
+  ✓  87 [mobile] › e2e/attendance.spec.ts:322:1 › attendance notice mobile: khối cảnh báo công thức cao ≤ 56 px (1.1s)
+  ✓  93 [mobile] › e2e/checkin-native.spec.ts:52:1 › checkin app: emulator — đăng ký 422 ATTESTATION_FAILED → vẫn ký Keystore, gửi WEB_KEY (mức 2); không thử lại trong phiên (409ms)
+  ✓  92 [mobile] › e2e/checkin-native.spec.ts:24:1 › checkin app: challenge → registerDevice → POST /me/devices → ký bằng Keystore, gửi ANDROID_KEY; lần sau không đăng ký lại (696ms)
+  ✓  94 [mobile] › e2e/checkin-native.spec.ts:67:1 › checkin app: plugin lỗi → không gửi device (mức 1), vẫn điểm danh; lớp kiểm tra vị trí → geo.mock lấy từ plugin (395ms)
+  ✓  96 [mobile] › e2e/checkin-scan.spec.ts:35:1 › checkin scan: từ chối camera → «Chưa cấp quyền camera.» + ô nhập mã (320ms)
+  ✓  97 [mobile] › e2e/checkin-token-leak.spec.ts:5:1 › checkin 375: token không ở URL / header / Referer của request nào; hash rỗng sớm; một viewport; nút ≥ 44 px (215ms)
+  ✓  98 [mobile] › e2e/checkin-token-leak.spec.ts:20:1 › checkin 375: ô nhập mã — nút Điểm danh ≥ 44 px, dính đáy trên thanh điều hướng (208ms)
+  ✓  95 [mobile] › e2e/checkin-scan.spec.ts:23:1 › checkin scan: mã lạ bị bỏ qua, mã đúng → gửi token một lần và tắt camera (1.2s)
+
+
+  1) [desktop] › e2e/attendance-display.spec.ts:34:1 › attendance display: QR + mã ngắn «ABC 123» + đếm; đổi mã đúng một lần mỗi bước; nút Đóng gọi API và hiện «Đã đóng» với số cuối 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('heading', { name: 'Màn chiếu điểm danh', level: 1 })
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('heading', { name: 'Màn chiếu điểm danh', level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Màn chiếu điểm danh', level: 1 })
+        14 × locator resolved to <h1 class="ep-sr-only">Màn chiếu điểm danh</h1>
+           - unexpected value "visible"
+
+
+      37 |   const log = await mock(page, (n) => json(disp(n, n === 1 ? 1200 : 5000)));
+      38 |   await page.goto(URL_DISPLAY);
+    > 39 |   await expect(page.getByRole("heading", { name: "Màn chiếu điểm danh", level: 1 })).toBeHidden();
+         |                                                                                      ^
+      40 |   await expect(page.getByRole("img", { name: "Mã QR điểm danh" })).toBeVisible();
+      41 |   await expect(page.locator("[data-part=short-code]")).toHaveText("ABC 123");
+      42 |   await expect(page.locator("[data-part=count]")).toHaveText("3 / 40");
+        at /private/tmp/qc2-h-fe/frontend/e2e/attendance-display.spec.ts:39:86
+
+    Error Context: test-results/attendance-display-attenda-fd499--hiện-«Đã-đóng»-với-số-cuối-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/attendance-display-attenda-fd499--hiện-«Đã-đóng»-với-số-cuối-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/attendance-display-attenda-fd499--hiện-«Đã-đóng»-với-số-cuối-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › e2e/attendance-display.spec.ts:34:1 › attendance display: QR + mã ngắn «ABC 123» + đếm; đổi mã đúng một lần mỗi bước; nút Đóng gọi API và hiện «Đã đóng» với số cuối 
+  32 skipped
+  65 passed (49.2s)
+exit=1

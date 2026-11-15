@@ -1,0 +1,127 @@
+### 05:03 23:50:05
+== TC-PG05-03
+    (p50=32 ms · max=406 ms · số liệu: /tmp/qc2-A-tmp-lock/out/tc-pg05-03/all)
+    ok   số kết nối đo được = [50]
+    ok   p95 time_starttransfer (ms) = 291 (≤ 300)
+-- TC-PG05-03 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:16 23:53:12
+== TC-PG05-16
+    ok   số dòng log mức error trong 60 s qua = [0]
+-- TC-PG05-16 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:22 23:53:30
+== TC-PG05-22
+    FAIL có hai bản gateway: thực tế [] không được bằng []
+    ok   ZCARD sau khi A giữ 2 kết nối = [2]
+    FAIL mã của stream thứ 3 mở thẳng vào bản B: thực tế [] ≠ mong đợi [429]
+-- TC-PG05-22 FAIL
+TỔNG story 05: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG05-22
+### 05:24 23:53:48
+== TC-PG05-24
+    ok   ZCARD khi bản A giữ 2 kết nối = [2]
+    ok   ZCARD về 0 trong ≤ 12 s với SSE_CONN_TTL=5 (1 = đúng) = [1]
+    (nếu ZCARD vẫn = 2: hoặc chỗ không hết hạn, hoặc compose không chuyển tiếp SSE_CONN_TTL — xem 'Điểm khó kiểm')
+-- TC-PG05-24 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:28 23:54:24
+== TC-PG05-28
+    ok   reason của event: reconnect = [max_duration]
+    ok   reconnect không mang id: = [0]
+    ok   ready → reconnect (ms) = 5026 (≥ 3500)
+    ok   ready → reconnect (ms) = 5026 (≤ 9000)
+    ok   reconnect → đóng (ms) = 35 (≤ 2000)
+-- TC-PG05-28 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:35 23:55:01
+== TC-PG05-35
+    ok   số sự kiện KHÁC NHAU client nhận = [1000]
+    ok   số id duy nhất = [1000]
+    ok   số id trùng (mỗi sự kiện đúng 1 lần) = [0]
+    ok   id tăng nghiêm ngặt theo thứ tự nhận = [ok]
+    ok   số lần phải resync = [0]
+-- TC-PG05-35 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:40 23:55:28
+== TC-PG05-40
+    ok   TTL ep:sse:conn (giây) > 0 = 149 (≥ 1)
+    ok   TTL ep:sse:conn (giây) ≤ SSE_CONN_TTL 150 = 149 (≤ 150)
+-- TC-PG05-40 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:44 23:55:37
+== TC-PG05-44
+    (stream ở bản [1cf47f542b05]; POST rơi vào: 1410fe262928 1cf47f542b05 )
+    ok   X-Instance-Id của stream = [1cf47f542b05] (≠ [])
+    ok   số bản gateway nhận POST (round_robin của Caddy) = 2 (≥ 2)
+    ok   số POST rơi vào bản KHÁC bản giữ stream = 3 (≥ 1)
+    ok   stream nhận đủ 5 sự kiện dù POST trúng bản nào = [5]
+-- TC-PG05-44 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:45 23:55:41
+== TC-PG05-45
+    ok   tìm được bản KHÁC bản giữ stream = [1cf47f542b05741f19d53b36bb371c97b2a71057b60b5e4b866c2d3a482690eb] (≠ [])
+    ok   stream (ở bản A) nhận sự kiện phát từ bản B = [1]
+    ok   độ trễ chéo bản (ms) đo được = 285 (≥ 0)
+    ok   độ trễ chéo bản ≤ 1 s = 285 (≤ 1000)
+-- TC-PG05-45 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:46 23:56:28
+== TC-PG05-46
+    ok   kết nối ở bản A nhận = [1]
+    FAIL kết nối ở bản B nhận: thực tế [0] ≠ mong đợi [1]
+-- TC-PG05-46 FAIL
+TỔNG story 05: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG05-46
+### 05:60 23:56:42
+== TC-PG05-60
+    ok   xác định được bản giữ stream = [ceecbcf9d8c35b38eaa0bf69ede3ae01ac126336f4ebbdc558d52e4985c4c668] (≠ [])
+    ok   có event: shutdown = [1]
+    ok   reason = [server_shutdown]
+    ok   shutdown không mang id: = [0]
+    ok   shutdown → đóng (ms) đo được = 20 (≥ 0)
+    ok   shutdown → đóng ≤ 1 s = 20 (≤ 1000)
+-- TC-PG05-60 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:61 23:57:00
+== TC-PG05-61
+    ok   mã HTTP khi nối lại bằng token cũ (000/200 = đang stream, không 401) ~ /^(000|200)$/
+    ok   phiên 2 nhận đúng n=3,4,5 theo thứ tự = [3 4 5 ]
+    ok   không nhận lại sự kiện đã nhận (id trùng) = [0]
+    ok   phiên 2 không phải resync = [0]
+-- TC-PG05-61 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:62 23:57:21
+== TC-PG05-62
+    ok   GET /api/v1/jobs/<uuid lạ> sau khi tắt một bản = [404]
+-- TC-PG05-62 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:63 23:57:46
+== TC-PG05-63
+    ok   tìm được bản KHÔNG giữ stream = [d9aba0e232d35a74aa44b22bb15c13897dba3c1cbd23525036f26d4a3f90ca90] (≠ [])
+    ok   stream không nhận shutdown = [0]
+    ok   stream vẫn nhận sự kiện sau khi bản kia tắt = [1]
+-- TC-PG05-63 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:67 23:58:08
+== TC-PG05-67
+    ok   có event: reconnect = [1]
+    ok   reason = [upstream_unavailable]
+    ok   reconnect → đóng (ms) đo được = 1743 (≥ 0)
+    ok   reconnect → đóng ≤ 2 s (không treo) = 1743 (≤ 2000)
+    ok   stream không treo tới hết --max-time 45 s = 2101 (≤ 40000)
+-- TC-PG05-67 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:68 23:58:24
+== TC-PG05-68
+    ok   mã HTTP = [503]
+    ok   code = [SERVICE_UNAVAILABLE]
+    ok   Content-Type là JSON (không mở stream) ~ /^application/json/
+-- TC-PG05-68 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:69 23:58:46
+== TC-PG05-69
+    ok   có event: ready sau khi Redis về = [1]
+    ok   nhận được sự kiện mới = [1]
+-- TC-PG05-69 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0

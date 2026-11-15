@@ -492,6 +492,7 @@ tc_pg02_59() {  # AC13 (hộp đen) — rollback: 0 dòng cả hai, không tin n
 tc_pg02_60() {  # AC13 (hộp đen) — commit: jobs + outbox job.enqueue cùng MỘT transaction (so xmin)
   ensure_mode test
   local id c
+  $C stop worker >/dev/null 2>&1   # QC2 (SmkJ): worker cập nhật cả jobs lẫn outbox (xmin đổi) — dừng worker để đo đúng thời điểm commit
   id=$(curl -sk --max-time 20 -X POST -H "$H" -H 'Content-Type: application/json' -H "Idempotency-Key: qc-pg02-60-$$" \
         -d '{"steps":1,"kind":"test.progress"}' "$GW/api/v1/_test/jobs" | jq -r '.job_id // .id // empty')
   chk_re "POST /_test/jobs trả job id" "$id" '^[0-9a-f-]{36}$'
@@ -499,6 +500,7 @@ tc_pg02_60() {  # AC13 (hộp đen) — commit: jobs + outbox job.enqueue cùng 
   chk "số dòng jobs" "$($PSQL -c "select count(*) from jobs where id='$id'")" 1
   c=$($PSQL -c "select count(*) from outbox o join jobs j on o.xmin::text=j.xmin::text where j.id='$id' and o.topic='job.enqueue'")
   chk_ge "dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction)" "$c" 1
+  $C start worker >/dev/null 2>&1
 }
 
 # ================= AC14 — outbox chạy thường, hai worker =================

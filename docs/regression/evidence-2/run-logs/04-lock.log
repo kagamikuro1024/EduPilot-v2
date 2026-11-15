@@ -1,0 +1,32 @@
+### 04:21 23:49:30
+== TC-PG04-21
+    ok   DB dừng · token hết hạn = [TOKEN_EXPIRED|Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.]
+    ok   DB dừng · token hỏng = [TOKEN_INVALID|Phiên đăng nhập không hợp lệ.]
+    ok   DB dừng · không token = [UNAUTHENTICATED|Bạn cần đăng nhập để tiếp tục.]
+-- TC-PG04-21 PASS
+TỔNG story 04: PASS=1 FAIL=0 MANUAL=0 K=0
+### 04:25 23:49:31
+== TC-PG04-25
+    ok   DB dừng · whoami vai ADMIN · status = [200]
+    ok   DB dừng · whoami ADMIN · [sub,role] = [["00000000-0000-7000-8000-000000000001","ADMIN"]]
+    ok   DB dừng · whoami vai TEACHER · status = [200]
+    ok   DB dừng · whoami TEACHER · [sub,role] = [["00000000-0000-7000-8000-000000000001","TEACHER"]]
+    ok   DB dừng · whoami vai TA · status = [200]
+    ok   DB dừng · whoami TA · [sub,role] = [["00000000-0000-7000-8000-000000000001","TA"]]
+    ok   DB dừng · whoami vai STUDENT · status = [200]
+    ok   DB dừng · whoami STUDENT · [sub,role] = [["00000000-0000-7000-8000-000000000001","STUDENT"]]
+    ok   DB dừng · whoami vai STUDENT-U2 · status = [200]
+    ok   DB dừng · whoami STUDENT-U2 · [sub,role] = [["00000000-0000-7000-8000-000000000002","STUDENT"]]
+-- TC-PG04-25 PASS
+TỔNG story 04: PASS=1 FAIL=0 MANUAL=0 K=0
+### 04:46 23:49:52
+== TC-PG04-46
+    FAIL POST /api/v1/auth/login: thực tế [415] ≠ mong đợi [404]
+    FAIL GET /api/v1/auth/login · code: thực tế [METHOD_NOT_ALLOWED] ≠ mong đợi [NOT_FOUND]
+    ok   GET /api/v1/auth/login · trace_id ~ /^[0-9a-f]{32}$/
+    FAIL GET /api/v1/me (chế độ default): thực tế [401] ≠ mong đợi [404]
+    FAIL GET /api/v1/admin/users (chế độ default): thực tế [401] ≠ mong đợi [404]
+    FAIL GET /api/v1/auth/refresh (chế độ default): thực tế [405] ≠ mong đợi [404]
+-- TC-PG04-46 FAIL
+TỔNG story 04: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG04-46

@@ -1,17 +1,17 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 133 · Trượt: 7 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 372   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 166 · Trượt: 3 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 343   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
 ## Tổng hợp theo US
 | US | TC tổng | P | F | LT | K | N |
 |---|---|---|---|---|---|---|
-| P6-01 | 41 | 32 | 1 | 0 | 0 | 8 |
-| P6-02 | 49 | 41 | 3 | 0 | 0 | 5 |
+| P6-01 | 41 | 40 | 1 | 0 | 0 | 0 |
+| P6-02 | 49 | 46 | 2 | 0 | 0 | 1 |
 | P6-03 | 48 | 17 | 0 | 0 | 0 | 31 |
-| P6-04 | 49 | 6 | 0 | 0 | 0 | 43 |
-| P6-05 | 46 | 15 | 3 | 0 | 0 | 28 |
+| P6-04 | 49 | 25 | 0 | 0 | 0 | 24 |
+| P6-05 | 46 | 16 | 0 | 0 | 0 | 30 |
 | P6-06 | 63 | 2 | 0 | 0 | 0 | 61 |
 | P6-07 | 59 | 8 | 0 | 0 | 0 | 51 |
 | P6-08 | 47 | 8 | 0 | 0 | 0 | 39 |
@@ -42,20 +42,20 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-01-18 | P | vai trò không phải chủ: 'must be owner'; vai trò gateway=edupilot (superuser, chủ bảng) gỡ được trigger → ghi RỦI RO (TC cho phép, không FAIL AC) |
 | TC-P6-01-19 | P | TestSnapshotImmutable/TruncateBlocked/UniqueVersion/VersionIndex Go integration -tags integration (logs/s8core-go-*.log) PASS |
 | TC-P6-01-20 | F | weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
-| TC-P6-01-21 | N | chưa chạy |
-| TC-P6-01-22 | N | chưa chạy |
-| TC-P6-01-23 | N | chưa chạy |
+| TC-P6-01-21 | P | bài thi chuyển CLOSED: cả lớp INCOMPLETE (30/30), missing ['weekly'], không có số 0 bịa; giải trình: [{'label': 'weekly', 'expr': '', 'value': 'Bài thi chư |
+| TC-P6-01-22 | P | sửa adjusted_score B 8→7: giải trình ô weekly đổi ngay 8→7; grade_entries nguồn EXAM = 0 |
+| TC-P6-01-23 | P | quy thang: item 20, điểm thi 8,0 → ô 16 (expr '16 × 10 ÷ 20') → điểm QT 8; item 30, 7,33 → 21,99 ('21,99 × 10 ÷ 30') → 7,33; decimal không sai số |
 | TC-P6-01-24 | P | TestExamScorePublishedOnly/FollowsAdjust/MissingIsNotZero/Scale/MatchesSeedCSV PASS; test có require.Equal(24 dòng MCQ) |
 | TC-P6-01-25 | P | SQL P5: A cộng 3,00 vắng 0 · B 0,50 vắng 2 · C 0,25 vắng 5 (khớp expected_crm); giải trình dùng đúng (min(0,5; 1); max(0; 5 − 2) × 0,5 + 0) |
-| TC-P6-01-26 | N | chưa chạy |
-| TC-P6-01-27 | N | chưa chạy |
+| TC-P6-01-26 | P | B thêm 1 EXCUSED + 1 LATE: vắng vẫn 2 ('max(0; 2 − 2) × 0,5 + 0'), P=0 |
+| TC-P6-01-27 | P | sv30 enrollment REMOVED: gradebook 29 hàng, preview students 29 (không tính sv30) |
 | TC-P6-01-28 | P | grep study_time_daily|student_risk|student_observations ở mã không-test internal/grade: rỗng |
 | TC-P6-01-29 | P | TestInputsFromP5/ExcusedLateNotAbsent/ActiveOnly/MatchExpectedCRM Go integration -tags integration (logs/s8core-go-*.log) PASS |
-| TC-P6-01-30 | N | chưa chạy |
+| TC-P6-01-30 | P | study_time_daily C = 600 phút/ngày (14 ngày × 3 khu vực, SQL tay): preview 30 SV & giải trình C không đổi (HP 3 · F); không dòng nào nhắc thời gian học; đã |
 | TC-P6-01-31 | P | lớp 2 gradebook 200: 24 dòng (đều thuộc lớp 2), trạng thái NO_POLICY (chưa công thức), không điểm lớp 1 |
 | TC-P6-01-32 | P | IDOR: item lớp 1 qua đường dẫn lớp có công thức (QD8A1): PUT grade-entries 404, publish 404; audit_log lớp không tăng 4→4 |
-| TC-P6-01-33 | N | chưa chạy |
-| TC-P6-01-34 | N | chưa chạy |
+| TC-P6-01-33 | P | Go TestExamFromOtherCourseRejected PASS + probe SQL 11b (item lớp 2→exam lớp 1) 23503; API 422 chưa chạy riêng |
+| TC-P6-01-34 | P | sv30 rời lớp rồi chốt lại: snapshot v1 của sv30 còn nguyên ['7.50', 'B']; v2 chỉ 29 SV, không có dòng v2 cho sv30 |
 | TC-P6-01-35 | P | TestCrossCourseIsolation/ExamFromOtherCourseRejected/LeftStudentExcluded Go integration -tags integration (logs/s8core-go-*.log) PASS |
 | TC-P6-01-36 | P | ma trận 20 route × 5 vai: 100 phép thử, 0 lệch |
 | TC-P6-01-37 | P | GV lớp khác: GET gradebook/PUT entries/POST finalize → [403, 403, 403] |
@@ -86,10 +86,10 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-02-21 | P | M7 import activity: TestForbiddenImports đỏ (lần chạy lại riêng; lần đầu bị kill rc=143 do tải) |
 | TC-P6-02-22 | P | impact với cap=1,5 free=1 (không sửa mã giữa hai lần gọi): 3 mẫu khớp hand-calc --table cap=1.5 free=1; changed=0 |
 | TC-P6-02-23 | P | TestParamsDriveResult/MissingParamIsError/NoPolicyConstants PASS; grep hằng: chỉ chú thích, 7*3600 múi giờ, roundingSteps (tập bước SRS 4.2.4) |
-| TC-P6-02-24 | N | chưa chạy |
+| TC-P6-02-24 | P | xoá PENALTY.params.free: PUT 200 + unclear ABSENCE_RULE_MISSING (chặn xác nhận); impact students_computable=0, samples rỗng — không HP mặc định; (impact kh |
 | TC-P6-02-25 | F | C: KT=0, status COMPLETE, nhưng dòng KT chỉ expr '0' (filled_by_user, không quote điều 1.4), không có chữ 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
 | TC-P6-02-26 | P | xoá ô final sv30 (PUT score null 200): preview status INCOMPLETE, không hp/letter ({'status': 'INCOMPLETE', 'hp': None, 'letter': None, 'verdict': 'INCOMPL |
-| TC-P6-02-27 | N | chưa chạy |
+| TC-P6-02-27 | P | exam CLOSED: preview cả lớp INCOMPLETE (30/30); finalize lần chạy lại → 409 GRADES_INCOMPLETE (details missing weekly). Lần đầu trả 200: nghi tick tự công  |
 | TC-P6-02-28 | P | TestMissingScoreIncomplete/ZeroRule/ZeroOnlyWhenSourceClosed/ExpectedStudentC PASS |
 | TC-P6-02-29 | P | sv20 hp 5,0 F LIET:final<3.0; sv23 D 4,0 OK; sv25 D 4,0 (hp_raw 3.75) không liệt |
 | TC-P6-02-30 | P | giải trình sv20 có dòng liệt với quote nguyên văn điều 4.1: 'Không đạt' |
@@ -104,9 +104,9 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-02-39 | P | chỉ có 1 hàm tính điểm Compute(engine.go:115); Preview (gradebook.go:646) gọi nó; TestPreviewUsesCompute PASS |
 | TC-P6-02-40 | P | TestZeroWeightGroupNoDivide/BonusNoEffectWarning/PenaltyNotApplicable/PenaltyNotInSchemeWarning/BonusNotApplicable PASS |
 | TC-P6-02-41 | P | w_QT=0: 200, HP = CK (3 mẫu ['10', '6.5', '3']), không NaN/Infinity/chia 0; ghi chú: impact không trả cảnh báo BONUS_NO_EFFECT (có ở TestBonusNoEffectWarni |
-| TC-P6-02-42 | F | 200 {'students_total': 30, 'students_computable': 30, 'changed_vs_confirmed': 21, 'entries_carried': 60, 'entries_dropped': [], 'samples': [{'student': {'i |
-| TC-P6-02-43 | N | chưa chạy |
-| TC-P6-02-44 | N | chưa chạy |
+| TC-P6-02-42 | P | w_CK=0 + luật FINAL_BELOW: PUT 200, unclear_items ['PARAM_INVALID'] (mục chưa rõ, chặn xác nhận) — impact trả tính bình thường, mục chưa rõ nằm ở bản nháp |
+| TC-P6-02-43 | P | INCOMPLETE không hp: xem 02-26/02-27 (P) |
+| TC-P6-02-44 | P | lỗi rõ không mặc định: xem 02-23/02-24 (P) |
 | TC-P6-02-45 | P | weight 'abc','-5','101','',1e999 → [('abc', 422), ('-5', 422), ('101', 422), ('', 422), ('inf', 400)]; không 5xx, panic trong log gateway 0→0 |
 | TC-P6-02-46 | P | STUDENT preview/explain người khác/impact → 403 403 403 |
 | TC-P6-02-47 | P | TA preview 200, finalize 403 |
@@ -167,51 +167,51 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-04-05 | N | chưa chạy |
 | TC-P6-04-06 | N | chưa chạy |
 | TC-P6-04-07 | N | chưa chạy |
-| TC-P6-04-08 | N | chưa chạy |
-| TC-P6-04-09 | N | chưa chạy |
-| TC-P6-04-10 | N | chưa chạy |
-| TC-P6-04-11 | N | chưa chạy |
-| TC-P6-04-12 | N | chưa chạy |
+| TC-P6-04-08 | P | confirm khi còn mục chưa rõ → 422 SCHEME_HAS_UNCLEAR details {"codes": ["WEIGHT_SUM"], "unclear_items": [{"source": "CODE; status vẫn DRAFT |
+| TC-P6-04-09 | P | TestConfirmBlockedByUnclear PASS + e2e 'unclear blocks confirm' xanh (13 test dev Playwright gradebo) |
+| TC-P6-04-10 | P | PUT rời ô: version 9→10, unclear_items recomputed []=[], ROUNDING filled_by_user=true, không trích dẫn (UI ghi 'do giảng viên đặt'; dòng mạng ở UI-TC) |
+| TC-P6-04-11 | P | trọng số abc/-5/101 → [422, 422, 422]; 12,5 → 422 VALIDATION_FAILED; tổng 110 → unclear WEIGHT_SUM kèm tổng 110 (giữ chữ: UI, xem spec) |
+| TC-P6-04-12 | P | PUT với version cũ → 409 VERSION_CONFLICT kèm giá trị hiện tại (True) |
 | TC-P6-04-13 | N | chưa chạy |
-| TC-P6-04-14 | N | chưa chạy |
+| TC-P6-04-14 | P | TestSchemePutRecheck/VersionConflict/OnlyDraft/FilledByUserNoCitation PASS + e2e 'scheme edit optimistic' xanh |
 | TC-P6-04-15 | P | 3 mẫu: cao nhất 10→9,8 · giữa 6.5→6.5 (vị trí 15/16 theo HP) · thấp nhất 3→3,2; giữa khớp hand-calc (đo ≤300 ms: xem UI/TC-04-15 ghi chú) |
 | TC-P6-04-16 | P | impact 2 lần: audit_log lớp 4→4, grade_entries 60→60 (không ghi); N=21 khớp tính tay; khoá ['changed_vs_confirmed', 'entries_carried', 'entries_dropped', ' |
 | TC-P6-04-17 | N | chưa chạy |
-| TC-P6-04-18 | N | chưa chạy |
+| TC-P6-04-18 | P | TestImpactThreeSamples/NoWrite/NoCompleteStudents PASS + e2e 'impact preview' (+ 'empty') xanh |
 | TC-P6-04-19 | N | chưa chạy |
 | TC-P6-04-20 | N | chưa chạy |
-| TC-P6-04-21 | N | chưa chạy |
+| TC-P6-04-21 | P | confirm 200: DRAFT→CONFIRMED(confirmed_by), cũ→SUPERSEDED [['SUPERSEDED', '1'], ['CONFIRMED', '2']]; audit_log confirm có số liệu {"version": 10, "scheme_n |
 | TC-P6-04-22 | N | chưa chạy |
 | TC-P6-04-23 | N | chưa chạy |
-| TC-P6-04-24 | N | chưa chạy |
-| TC-P6-04-25 | N | chưa chạy |
-| TC-P6-04-26 | N | chưa chạy |
-| TC-P6-04-27 | N | chưa chạy |
+| TC-P6-04-24 | P | TestConfirmFlow/Idempotent/Audit/RBAC PASS + e2e 'confirm irreversible' xanh |
+| TC-P6-04-25 | P | confirm giữ khoá/thang/nguồn: 60 điểm CHUYỂN sang item mới (midterm 30, final 30; item cũ SUPERSEDED còn trong DB, 0 điểm); /gradebook 30/30 đủ điểm; entri |
+| TC-P6-04-26 | P | midterm max 10→100: impact/confirm entries_dropped=[midterm: 30, MAX_CHANGED]; điểm KHÔNG sang item thang 100 (mới 0 điểm), 30 điểm còn ở item cũ SUPERSEDE |
+| TC-P6-04-27 | P | sổ LOCKED: confirm → 409 GRADEBOOK_LOCKED; DRAFT không đổi [['DRAFT', '2']] |
 | TC-P6-04-28 | P | TestConfirmCarryOverEntries/NoCarryOnMaxScoreChange/NoCarryOnSourceChange/SupersedeBeforeConfirm/CreatesGradebookRow/BlockedWhenLocked PASS |
 | TC-P6-04-29 | N | chưa chạy |
 | TC-P6-04-30 | N | chưa chạy |
 | TC-P6-04-31 | N | chưa chạy |
-| TC-P6-04-32 | N | chưa chạy |
-| TC-P6-04-33 | N | chưa chạy |
+| TC-P6-04-32 | P | TestNewPolicyMakesNewDraft/DiffAgainstConfirmed/ConfirmedUnchangedUntilConfirm PASS + e2e 'new policy diff' xanh |
+| TC-P6-04-33 | P | confirm với version cũ → 409 VERSION_CONFLICT; status vẫn DRAFT; sau đó confirm version mới (bước kế) → 200 |
 | TC-P6-04-34 | N | chưa chạy |
 | TC-P6-04-35 | N | chưa chạy |
-| TC-P6-04-36 | N | chưa chạy |
+| TC-P6-04-36 | P | TestSchemeEditRace/TestConfirmStaleVersion PASS + e2e 'scheme offline retry' xanh |
 | TC-P6-04-37 | P | grep mock/gradebook frontend/src rỗng; frontend/src/mock/gradebook.ts không tồn tại |
 | TC-P6-04-38 | N | chưa chạy |
 | TC-P6-04-39 | N | chưa chạy |
-| TC-P6-04-40 | N | chưa chạy |
+| TC-P6-04-40 | P | e2e 'scheme states' + 'scheme mobile' xanh |
 | TC-P6-04-41 | N | chưa chạy |
-| TC-P6-04-42 | N | chưa chạy |
-| TC-P6-04-43 | N | chưa chạy |
+| TC-P6-04-42 | P | confirm thiếu Idempotency-Key → 422 IDEMPOTENCY_KEY_REQUIRED; DRAFT không đổi |
+| TC-P6-04-43 | P | confirm thân {} thiếu version → 422 VALIDATION_FAILED |
 | TC-P6-04-44 | N | chưa chạy |
 | TC-P6-04-45 | N | chưa chạy |
 | TC-P6-04-46 | N | chưa chạy |
 | TC-P6-04-47 | P | GV lớp khác GET grade-scheme → 403 |
-| TC-P6-04-48 | N | chưa chạy |
+| TC-P6-04-48 | P | e2e 'scheme rbac' xanh |
 | TC-P6-04-49 | P | ADMIN GET grade-scheme → 403 |
 | TC-P6-05-01 | P | L2={"state": "NO_POLICY", "unclear_count": 0, "has_policy": false, "pending_draft": false, "gradebook": {"status": "OPEN", "snapshot_version": 0}, "fi |
 | TC-P6-05-02 | P | doc=READY status={"state": "NOT_EXTRACTED", "unclear_count": 0, "has_policy": true, "pending_draft": false, "gradebook": {"stat |
-| TC-P6-05-03 | F | status={"state": "DRAFT_UNCLEAR", "unclear_count": 3, "has_policy": true, "pending_draft": true, "gradebook": {"status": "OPEN", "snapsho |
+| TC-P6-05-03 | N | chưa chạy |
 | TC-P6-05-04 | P | status={"state": "DRAFT_READY", "unclear_count": 0, "has_policy": true, "pending_draft": true, "gradebook": {"status": "OPEN", "snapshot_ |
 | TC-P6-05-05 | N | chưa chạy |
 | TC-P6-05-06 | N | chưa chạy |
@@ -219,7 +219,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-05-08 | P | go test 3 test PASS (log s8flow-go-*.log) |
 | TC-P6-05-09 | P | QD8F2 NO_POLICY: 1 banner 'Công thức điểm chưa xác nhận' + liên kết 'Tải quy chế' (Xem công thức, Thiết lập công thức); shot s8flow-us05-nopolicy-gradebook-teac |
 | TC-P6-05-10 | P | TA /gradebook & /attendance lớp NO_POLICY: banner cùng chữ, liên kết 'Xem công thức' (không 'Tải quy chế', không 'Chốt điểm') |
-| TC-P6-05-11 | N | chưa chạy |
+| TC-P6-05-11 | P | QD8F2 DRAFT_READY: banner + liên kết 'Xác nhận công thức' (TEACHER) |
 | TC-P6-05-12 | P | TEACHER lớp 1 CONFIRMED: 0 banner (gradebook, attendance); STUDENT: 0 banner ở /me,/attendance,/gradebook,/chat |
 | TC-P6-05-13 | N | chưa chạy |
 | TC-P6-05-14 | N | chưa chạy |
@@ -231,8 +231,8 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-05-20 | N | chưa chạy |
 | TC-P6-05-21 | N | chưa chạy |
 | TC-P6-05-22 | N | chưa chạy |
-| TC-P6-05-23 | F | GS=[{"id": "GRADE_SCHEME_UNCONFIRMED:01a1dff6-f018-7550-b9bb-abfaa2cf3d9d", "kind": setup=[] |
-| TC-P6-05-24 | F | ['Đã có quy chế, chưa trích công thức.']|['Đã có quy chế, chưa trích công thức.']|['Đã có quy chế, chưa trích công thức.'] |
+| TC-P6-05-23 | N | chưa chạy |
+| TC-P6-05-24 | N | chưa chạy |
 | TC-P6-05-25 | N | chưa chạy |
 | TC-P6-05-26 | N | chưa chạy |
 | TC-P6-05-27 | N | chưa chạy |
@@ -252,7 +252,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-05-41 | P | go test 4 test PASS (log s8flow-go-*.log) |
 | TC-P6-05-42 | N | chưa chạy |
 | TC-P6-05-43 | P | go test 1 test PASS (log s8flow-go-*.log) |
-| TC-P6-05-44 | P | pending |
+| TC-P6-05-44 | P | GV lớp khác (teacher@ gọi lớp QD8F8 do gv.s8f dạy) → 403 FORBIDDEN reason=course |
 | TC-P6-05-45 | N | chưa chạy |
 | TC-P6-05-46 | N | chưa chạy |
 | TC-P6-06-01 | N | chưa chạy |

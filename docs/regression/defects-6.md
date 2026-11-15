@@ -15,3 +15,11 @@
 - Kỳ vọng (SRS P3-02 AC3 / TC-P3-02-21): cache roster xoá ≤ 5 s sau khi thành viên đổi, tên SV mới bị chặn; Thực tế: cache sống đến hết TTL 1 giờ.
 - Bằng chứng: lệnh trên (chạy hai lần, cùng kết quả); outbox chỉ có `course.member_changed` cho thao tác mời ra · Nghi ngờ mã: `backend-go/internal/course/members.go:222` (approve chỉ ghi `TopicJoinDecided`), `backend-go/internal/course/join.go:185-269` (không ghi sự kiện khi ACTIVE ngay), `cmd/worker/registry.go:129`
 - Chạy lại lần 2: ổn định
+### DEF-R6-C-01 — Dòng khoá ở /threads dùng chữ của chat thay vì "Đăng bài tạm khóa…"
+- Mức: Thấp
+- TC: TC-P3-06-42
+- Hồi quy do sprint sau?: KHÔNG (có từ commit 3f1e376a, US-P3-06)
+- Bước tái hiện: 1. SV có lượt thi IN_PROGRESS. 2. Mở /threads?course=<lớp>, bấm "Đặt câu hỏi". 3. Đọc dòng báo trạng thái trên ô soạn.
+- Kỳ vọng / Thực tế: SRS FEAT-private-chat-pii 472 "Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau {HH:mm}." / hiện "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." (e2e threads.spec.ts:180 cũng khẳng định chữ chat).
+- Nghi ngờ mã: frontend/src/features/threads/RealThreads.tsx:186
+

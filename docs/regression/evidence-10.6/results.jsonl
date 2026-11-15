@@ -307,3 +307,5 @@
 {"tc": "G11-04 bảng guidance_items + regression_cases không chứa tên SV", "st": "PASS", "note": "[]"}
 {"tc": "G07-14 không ca hồi quy mồ côi (source_id không còn kết quả) = 0", "st": "PASS", "note": "0"}
 {"tc": "G11-02 assignments.guidance_version không đổi bởi thao tác đọc / stats (so trước-sau)", "st": "PASS", "note": "4"}
+{"tc": "G03-24r reflect qua lớp 2 → 404", "st": "FAIL", "note": "409 GUIDANCE_DISABLED"}
+{"tc": "G05-24r regrade-stale qua lớp 2 → 404", "st": "FAIL", "note": "409 GUIDANCE_DISABLED"}

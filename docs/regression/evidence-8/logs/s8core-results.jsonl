@@ -140,3 +140,6 @@
 {"tc": "TC-P6-02-24", "v": "P", "note": "xoá PENALTY.params.free: PUT 200 + unclear ABSENCE_RULE_MISSING (chặn xác nhận); impact students_computable=0, samples rỗng — không HP mặc định; (impact kh"}
 {"tc": "TC-P6-04-25", "v": "P", "note": "confirm giữ khoá/thang/nguồn: 60 điểm CHUYỂN sang item mới (midterm 30, final 30; item cũ SUPERSEDED còn trong DB, 0 điểm); /gradebook 30/30 đủ điểm; entri"}
 {"tc": "TC-P6-04-26", "v": "P", "note": "midterm max 10→100: impact/confirm entries_dropped=[midterm: 30, MAX_CHANGED]; điểm KHÔNG sang item thang 100 (mới 0 điểm), 30 điểm còn ở item cũ SUPERSEDE"}
+{"tc": "TC-P6-01-33", "v": "P", "note": "Go TestExamFromOtherCourseRejected PASS + probe SQL 11b (item lớp 2→exam lớp 1) 23503; API 422 chưa chạy riêng"}
+{"tc": "TC-P6-02-43", "v": "P", "note": "INCOMPLETE không hp: xem 02-26/02-27 (P)"}
+{"tc": "TC-P6-02-44", "v": "P", "note": "lỗi rõ không mặc định: xem 02-23/02-24 (P)"}

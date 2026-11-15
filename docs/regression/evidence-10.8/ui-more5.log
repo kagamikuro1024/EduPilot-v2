@@ -1,0 +1,20 @@
+
+Running 1 test using 1 worker
+
+(node:92394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92394) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+PASS TC-AS09-06 token > 12 s: POST → 422 CHECKIN_TOKEN_EXPIRED → «Mã đã hết hạn. Quét lại mã trên màn chiếu.» m danh Mã đã hết hạn. Quét lại mã trên màn chiếu. Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm
+PASS TC-AS09-11 thông báo đúng một câu theo mã: sai / ngoài lớp / đã đóng / tắt (hết hạn: AS09-06; 429: AS09-22) sai:true, ngoài lớp:true, c không UUID:true, đã đóng:true, tắt:true
+PASS TC-AS09-15 c không phải UUID → «Liên kết không đúng.»; lớp lạ → «Bạn không thuộc lớp này.» 
+FAIL TC-AS09-13 mất mạng («Chưa có mạng.») rồi «Thử lại»: gửi lại an toàn, đúng một lượt nút='Điểm danh' rows=0
+PASS TC-AS09-23 nhập mã lớp A khi đang chọn lớp B (bật điểm danh): «Mã không đúng…»; đổi sang lớp A → thành công ng hiện trên màn chiếu.  Lớp QC-ASr108  Điểm danh Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm
+PASS TC-AS11-05 quét giả: mã đúng → xin camera, gửi MỘT POST với token, track.stop() posts=1 stopped=1
+PASS TC-AS11-06 QR lạ (origin khác / path khác / c không UUID / không #token) bị bỏ qua im lặng, không POST thừa posts=1
+PASS TC-AS11-09 đang quét: visibilitychange→hidden → MediaStreamTrack ended trước=live sau=ended
+PASS TC-AS11-08 từ chối camera: ô nhập mã + «Chưa cấp quyền camera.» danh  Lớp QD8F3  Chưa cấp quyền camera. Điểm danh Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm
+FAIL TC-AS11-07 qr_code không hỗ trợ: không nút quét; ô nhập mã hiện ngay 
+  ✓  1 ../docs/regression/evidence-10.8/e2e/qc-r108-more2.spec.ts:71:1 › G /checkin: hết hạn, thông báo theo mã, mất mạng, chọn lớp, quét giả (AS09-06,11,13,23, AS11-05…11,13) (1.4m)
+
+  1 passed (1.4m)
+exit=0

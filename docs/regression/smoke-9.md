@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D, SmkD) · Ngày: 2026-11-15
-Tổng TC cũ: 347 · Đạt: 189 · Trượt: 6 · Không chạy (K): 152   (P+F+K = T). Trong K: **LT (lỗi thời) = 0, K loại a/b/c = 0**, **chưa chạy (mẫu) = 152** (ca dạng tài liệu/đột biến/UI chưa đi tay; PM quyết có chạy nốt).
+Tổng TC cũ: 347 · Đạt: 195 · Trượt: 0 · Không chạy (K): 152   (P+F+K = T). Trong K: **LT = 0, K loại a/b/c = 0**, **chưa chạy (mẫu) = 152**. Sáu hàng `-G` từng F (DEF-R9-01) đã đổi tên test trỏ tới theo **P-11-42**, chạy lại 2026-11-16: cả 6 đạt (log `evidence-9/logs/p11-42.log`).
 
 Cách chạy (script + log ở `docs/regression/evidence-9/`):
 - Hàng `-G` (119): `scripts/run-g-go.py` chạy đúng lệnh `go test` ghi ở TC (testcontainers, tuần tự) + `scripts/fix-g-go.py` (tìm gói thật cho tên test lệch, `-tags integration,testroutes`); Playwright mock `assignment-lifecycle`, `grade-appeal`, `settings-integrations`, `me`, `a11y`, `lcp` trên bản build gate (cổng 3731, `logs/pw-mock.json`).
@@ -10,14 +10,14 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 ## Tổng hợp theo US
 | US | TC tổng | P | F | K | Ghi chú |
 |---|---|---|---|---|---|
-| P7-01 | 25 | 21 | 1 | 3 | |
-| P7-02 | 34 | 23 | 1 | 10 | |
-| P7-03 | 32 | 19 | 2 | 11 | |
+| P7-01 | 25 | 22 | 0 | 3 | G06 theo P-11-42 |
+| P7-02 | 34 | 24 | 0 | 10 | G10 theo P-11-42 |
+| P7-03 | 32 | 21 | 0 | 11 | G07, G03 theo P-11-42 |
 | P7-04 | 29 | 24 | 0 | 5 | |
 | P7-05 | 26 | 19 | 0 | 7 | |
-| P7-06 | 34 | 18 | 1 | 15 | |
+| P7-06 | 34 | 19 | 0 | 15 | G11 theo P-11-42 |
 | P7-07 | 27 | 12 | 0 | 15 | |
-| P7-08 | 28 | 9 | 1 | 18 | |
+| P7-08 | 28 | 10 | 0 | 18 | G08 theo P-11-42 |
 | P7-09 | 34 | 10 | 0 | 24 | |
 | P7-10 | 28 | 11 | 0 | 17 | |
 | P7-11 | 27 | 16 | 0 | 11 | |
@@ -47,7 +47,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-01-G03 | P | go test + Playwright mock xanh |
 | TC-P7-01-G04 | P | go test + Playwright mock xanh |
 | TC-P7-01-G05 | P | go test + Playwright mock xanh |
-| TC-P7-01-G06 | F | TestAssignmentsRBACMatrix không có trong repo (DEF-R9-01); contract -tags testroutes chạy lại lúc máy rảnh: ok 54s (lần đỏ trước = do tải ~20) |
+| TC-P7-01-G06 | P | P-11-42: TestAssignmentsRBACMatrix → httpapi TestStudentCannotCallStaffRoutes + TestReviewRBACMatrix (-tags testroutes), assignment TestPublishRBAC/TestStatsRBAC/TestResultIDOR/TestGuidanceRBAC, integration TestAllCourseRoutesGuarded: PASS hết (p11-42.log) |
 | TC-P7-01-M1…TC-P7-01-M3 | K | MẪU: đột biến mã (QC gốc, /tmp/qc-mut) — ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P7-02-01…TC-P7-02-02 | K | MẪU: dạng tài liệu/UI/hạ tầng, ngoài mẫu smoke — chưa chạy (PM quyết có chạy nốt) |
 | TC-P7-02-03 | P | api-02.log: 4 kiểm |
@@ -76,7 +76,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-02-G07 | P | go test + Playwright mock xanh |
 | TC-P7-02-G08 | P | go test + Playwright mock xanh |
 | TC-P7-02-G09 | P | Playwright mock 3 mẫu -g xanh |
-| TC-P7-02-G10 | F | TestAssignmentsRBACMatrix: không có trong repo |
+| TC-P7-02-G10 | P | P-11-42: như TC-P7-01-G06 (cùng ma trận RBAC): PASS |
 | TC-P7-02-G11 | P | Playwright mock 1 mẫu -g xanh |
 | TC-P7-02-M1…TC-P7-02-M3 | K | MẪU: đột biến mã (QC gốc, /tmp/qc-mut) — ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P7-03-01…TC-P7-03-03 | K | MẪU: dạng tài liệu/UI/hạ tầng, ngoài mẫu smoke — chưa chạy (PM quyết có chạy nốt) |
@@ -97,11 +97,11 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-03-18…TC-P7-03-19 | K | MẪU: dạng tài liệu/UI/hạ tầng, ngoài mẫu smoke — chưa chạy (PM quyết có chạy nốt) |
 | TC-P7-03-G01 | P | Playwright mock 1 mẫu -g xanh |
 | TC-P7-03-G02 | P | Playwright mock 1 mẫu -g xanh |
-| TC-P7-03-G03 | F | TestSubmitIdempotent: không có trong repo; Playwright mock 1 mẫu -g xanh |
+| TC-P7-03-G03 | P | P-11-42: TestSubmitIdempotent (dev2, @4a5e49d7) → internal/contract/submit_idempotent_test.go -tags testroutes: PASS. Playwright mock 1 mẫu -g xanh |
 | TC-P7-03-G04 | P | go test + Playwright mock xanh |
 | TC-P7-03-G05 | P | go test + Playwright mock xanh |
 | TC-P7-03-G06 | P | Playwright mock 3 mẫu -g xanh |
-| TC-P7-03-G07 | F | TestSubmitClosed: không có trong repo |
+| TC-P7-03-G07 | P | P-11-42: TestSubmitClosed → assignment TestClosedAfterCutoff: PASS |
 | TC-P7-03-G08 | P | go test + Playwright mock xanh |
 | TC-P7-03-G09 | P | Playwright mock 2 mẫu -g xanh; Playwright mock 1 mẫu -g xanh |
 | TC-P7-03-G10 | P | Playwright mock 1 mẫu -g xanh |
@@ -176,7 +176,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-06-G08 | P | go test + Playwright mock xanh |
 | TC-P7-06-G09 | P | go test + Playwright mock xanh |
 | TC-P7-06-G10 | P | go test + Playwright mock xanh |
-| TC-P7-06-G11 | F | TestGradingResultsRBAC: không có trong repo; TestNoDraftCanaryToStudent: không có trong repo |
+| TC-P7-06-G11 | P | P-11-42: TestGradingResultsRBAC → assignment TestResultIDOR + grading TestStatusRBAC; TestNoDraftCanaryToStudent → grade TestNoDraftLeak + TestNoDraftLeakQT + integration TestSeedCanaryNotToStudents: PASS |
 | TC-P7-06-G12 | P | go test + Playwright mock xanh |
 | TC-P7-06-M1…TC-P7-06-M5 | K | MẪU: đột biến mã (QC gốc, /tmp/qc-mut) — ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P7-07-01 | K | MẪU: chạy lại — grade-all xếp 3 bài đúng (queued 3) nhưng chấm không xong ≤120 s vì QC fake BAD_RESPONSE/circuit_open trên bài tự dựng; cần bản ghi demo/stub riêng |
@@ -204,7 +204,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-08-G05 | P | Playwright mock 2 mẫu -g xanh |
 | TC-P7-08-G06 | P | Playwright mock 1 mẫu -g xanh |
 | TC-P7-08-G07 | P | Playwright mock 1 mẫu -g xanh |
-| TC-P7-08-G08 | F | TestTAReviewsCannotPublish: không có trong repo; Playwright mock 1 mẫu -g xanh |
+| TC-P7-08-G08 | P | P-11-42: TestTAReviewsCannotPublish → assignment TestPublishRBAC (TA 403) + httpapi TestReviewRBACMatrix: PASS |
 | TC-P7-08-G09 | P | Playwright mock 2 mẫu -g xanh |
 | TC-P7-08-G10 | P | go test + Playwright mock xanh |
 | TC-P7-08-M1…TC-P7-08-M4 | K | MẪU: đột biến mã (QC gốc, /tmp/qc-mut) — ngoài mẫu smoke 1 chính + 1 lỗi / US |
@@ -270,12 +270,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-SEED-M1…TC-P7-SEED-M2 | K | MẪU: đột biến mã (QC gốc, /tmp/qc-mut) — ngoài mẫu smoke 1 chính + 1 lỗi / US |
 
 ## Trượt: bước tái hiện
-- TC-P7-01-G06 → DEF-R9-01: TestAssignmentsRBACMatrix không có trong repo (DEF-R9-01); contract -tags testroutes chạy lại lúc máy rảnh: ok 54s (lần đỏ trước = do tải ~20)
-- TC-P7-02-G10 → DEF-R9-01: TestAssignmentsRBACMatrix: không có trong repo
-- TC-P7-03-G03 → DEF-R9-01: TestSubmitIdempotent: không có trong repo; Playwright mock 1 mẫu -g xanh
-- TC-P7-03-G07 → DEF-R9-01: TestSubmitClosed: không có trong repo
-- TC-P7-06-G11 → DEF-R9-01: TestGradingResultsRBAC: không có trong repo; TestNoDraftCanaryToStudent: không có trong repo
-- TC-P7-08-G08 → DEF-R9-01: TestTAReviewsCannotPublish: không có trong repo; Playwright mock 1 mẫu -g xanh
+Không còn ca trượt. DEF-R9-01 đóng bằng P-11-42.
 
 ## Ca K và lý do
 - K loại a/b/c (thiết bị / người thật / ngoài phạm vi): 0

@@ -30,6 +30,14 @@ async function api(u: string, method: string, path: string, body?: unknown) {
   const t = await r.text();
   return { s: r.status, j: t ? JSON.parse(t) : null };
 }
+import { webcrypto } from "crypto";
+async function codeDev(user: string, code: string) {
+  const kp = await webcrypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]);
+  const spki = Buffer.from(await webcrypto.subtle.exportKey("spki", kp.publicKey)).toString("base64");
+  const id = psql(`select id from users where email='${user}@edupilot.local'`);
+  const sig = Buffer.from(await webcrypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, kp.privateKey, new TextEncoder().encode(`edupilot-checkin-v1|code:${code}|${id}`))).toString("base64");
+  return { kind: "WEB_KEY", public_key: spki, signature: sig };
+}
 let sidIdx = 0;
 const nextSid = () => SIDS[sidIdx++];
 const base = (n: number) => { sidIdx = n; };
@@ -69,7 +77,7 @@ test("A /attendance: lưới, bộ lọc, Đã xem, sửa ô, hộp xác nhận 
   // dữ liệu: sv.gioi (có khoá → không cờ?), sv.kha không khoá (NO_DEVICE_KEY), sv.nguyco bằng mã ngắn; sv04 chưa điểm danh
   const { t, code } = await tokOf(sid, wid);
   const r1 = await api("sv.kha", "POST", `/courses/${C}/checkins`, { token: t });
-  const r2 = await api("sv.nguyco", "POST", `/courses/${C}/checkins`, { code });
+  const r2 = await api("sv.nguyco", "POST", `/courses/${C}/checkins`, { code, device: await codeDev("sv.nguyco", code) });
   rec("(chuẩn bị) AS08", "NOTE", `kha ${r1.s}, nguyco(code) ${r2.s}`);
   await guard("TC-AS08-04", async () => {
     await page.goto(`${BASE}/attendance?session=${sid}`); await page.locator("[data-part=window-line][data-state=open]").waitFor({ timeout: 20_000 });
@@ -157,13 +165,13 @@ test("B /attendance: số đầu người, Gọi ngẫu nhiên, đóng, 375, đu
   base(8);
   const sid = nextSid(); const wid = await openWin(sid);
   const { ctx, page } = await staff(browser);
-  for (const u of ["sv.gioi", "sv.kha", "sv.nguyco", "sv04", "sv05"]) await sv(u, sid, wid);
+  const stB: number[] = []; for (const u of ["sv.gioi", "sv.kha", "sv.nguyco", "sv04", "sv05"]) stB.push((await sv(u, sid, wid)).s); rec("(chuẩn bị) B", "NOTE", stB.join(","));
   await guard("TC-AS08-15", async () => {
     await page.goto(`${BASE}/attendance?session=${sid}`); await page.locator("[data-part=window-line][data-state=open]").waitFor({ timeout: 20_000 });
     await more(page, /Nhập số đầu người/); const hc = page.getByLabel("Số đầu người"); await hc.waitFor();
     await hc.fill("1"); await page.waitForTimeout(2500);
     const saved = (await api("r108t", "GET", `/courses/${C}/sessions/${sid}/checkin-windows`)).j.items[0].headcount;
-    await hc.fill("2001"); await page.waitForTimeout(1500); const savedBad = (await api("r108t", "GET", `/courses/${C}/sessions/${sid}/checkin-windows`)).j.items[0].headcount;
+    await hc.fill("2001"); await page.waitForTimeout(1500); const savedBad = (await api("r108t", "GET", `/courses/${C}/sessions/${sid}/checkin-windows`)).j.items[0].headcount; await hc.fill("1"); await page.waitForTimeout(2000);
     await page.reload(); await page.locator("[data-part=window-line]").waitFor(); await page.waitForTimeout(1500);
     check("TC-AS08-15 «Số đầu người» (0–2000) tự lưu; 2001 không lưu; lượt > dung sai → «Số điểm danh nhiều hơn số người đếm»", saved === 1 && savedBad !== null && savedBad <= 2000 && (await page.locator("[data-part=over-headcount]").count()) > 0, `saved=${saved}; gõ 2001 → lưu ${savedBad} (giới hạn ≤ 2000)`);
   });
@@ -196,9 +204,9 @@ test("B /attendance: số đầu người, Gọi ngẫu nhiên, đóng, 375, đu
     await page.locator("[data-part=window-line][data-state=open]").waitFor({ timeout: 20_000 }); await p2.locator("[data-part=window-line][data-state=open]").waitFor({ timeout: 20_000 });
     const codes: number[] = []; for (const p of [page, p2]) p.on("response", (r) => { if (r.url().endsWith("/close")) codes.push(r.status()); });
     await Promise.all([page.getByRole("button", { name: "Đóng", exact: true }).click(), p2.getByRole("button", { name: "Đóng", exact: true }).click()]);
-    await page.waitForTimeout(4000);
+    await page.locator("[data-part=window-line][data-state=closed]").waitFor({ timeout: 20_000 }).catch(() => {}); await p2.locator("[data-part=window-line][data-state=closed]").waitFor({ timeout: 20_000 }).catch(() => {});
     const s1 = await page.locator("[data-part=window-line]").innerText(); const s2 = await p2.locator("[data-part=window-line]").innerText();
-    check("TC-AS08-21 hai tab cùng đóng: không lỗi trần, cả hai về «đóng»", /Đã đóng|Đã ghi/.test(s1) && /Đã đóng|Đã ghi/.test(s2) && codes.every((c) => c === 200 || c === 409), `codes=${codes} | ${s1.replace(/\n/g, " ")} | ${s2.replace(/\n/g, " ")}`);
+    check("TC-AS08-21 hai tab cùng đóng: không lỗi trần, cả hai về «đóng»", /Đã ghi|Đã đóng/.test(s1) && /Đã ghi|Đã đóng/.test(s2) && codes.every((c) => c === 200 || c === 409), `codes=${codes} | ${s1.replace(/\n/g, " ")} | ${s2.replace(/\n/g, " ")}`);
     await p2.close();
   });
   await guard("TC-AS08-20", async () => {
@@ -256,7 +264,7 @@ test("D màn chiếu: QR giải mã, nhịp, đồng hồ lệch, wakeLock, Esc/
   base(19);
   const sid = nextSid(); await api("r108t", "PUT", `/courses/${C}/settings`, { attendance: { self_checkin: true, rotate_seconds: 5, late_after_min: 10, require: "WEB" }, version: (await api("r108t", "GET", `/courses/${C}`)).j.settings.version }); const wid = await openWin(sid);
   const { ctx, page } = await login(browser, "r108t", 1280, 720, false);
-  await ctx.addInitScript(() => { (window as unknown as { __wl: number }).__wl = 0; (navigator as unknown as { wakeLock: unknown }).wakeLock = { request: () => { (window as unknown as { __wl: number }).__wl++; return Promise.reject(new Error("denied")); } }; });
+  await ctx.addInitScript(() => { (window as unknown as { __wl: number }).__wl = 0; Object.defineProperty(navigator, "wakeLock", { configurable: true, value: { request: () => { (window as unknown as { __wl: number }).__wl++; return Promise.reject(new Error("denied")); } } }); });
   const url = `${BASE}/attendance/display?course=${C}&session=${sid}`;
   await guard("TC-AS08-32", async () => {
     const p = await ctx.newPage(); await p.goto(url); await p.locator("[data-part=display][data-state=live]").waitFor({ timeout: 25_000 });
@@ -265,7 +273,8 @@ test("D màn chiếu: QR giải mã, nhịp, đồng hồ lệch, wakeLock, Esc/
     const tk = out.split("#")[1] ?? ""; const r = await api("sv.gioi", "POST", `/courses/${C}/checkins`, { token: tk });
     check("TC-AS08-32 QR chụp màn chiếu → jsQR giải ra URL …#token; token xác thực với API (201)", out.includes("/checkin?c=") && r.s === 201, `${out.slice(0, 70)}… → ${r.s}`);
     // 35 wakeLock
-    check("TC-AS08-35 màn chiếu gọi navigator.wakeLock.request('screen'); lỗi bị bỏ qua (không thông báo lỗi)", (await p.evaluate(() => (window as unknown as { __wl: number }).__wl)) >= 1 && !(await p.locator("body").innerText()).match(/lỗi|wake/i), "");
+    const wl = await p.evaluate(() => (window as unknown as { __wl: number }).__wl); const bt = await p.locator("body").innerText();
+    check("TC-AS08-35 màn chiếu gọi navigator.wakeLock.request('screen'); lỗi bị bỏ qua (không thông báo lỗi)", wl >= 1 && !/lỗi|wake|denied/i.test(bt), `wakeLock=${wl}; chữ=${bt.replace(/\n/g, " ").slice(0, 80)}`);
     // 33 (nhịp): QR và mã đổi cùng lúc, ≤ 12 request display/phút
     const reqs: number[] = []; p.on("request", (q) => q.url().includes("/display") && reqs.push(Date.now()));
     const seen: Array<[string, string]> = []; const t0 = Date.now();
@@ -360,14 +369,13 @@ test("E /checkin: StashGate, thiết bị, lỗi, mạng, hướng dẫn trang (
     check("TC-AS09-04b đăng nhập xong quay lại, tự gửi đúng một lần; sessionStorage đã xoá", posts.length === 1 && left === null, `posts=${posts.length} stash=${left}`);
     // 05: > 60 s
     const sid3 = nextSid(); const w3 = await openWin(sid3); const y = await tokOf(sid3, w3);
-    await page.context().clearCookies(); await page.evaluate(() => sessionStorage.clear());
-    await page.goto(`${BASE}/checkin?c=${C}#${y.t}`); await page.waitForURL(/\/login/, { timeout: 20_000 });
-    await page.waitForTimeout(65_000); posts.length = 0;
-    await page.locator("input[type=email]").fill("sv.nguyco@edupilot.local"); await page.locator("input[type=password]").fill(PW); await page.keyboard.press("Enter");
-    await page.waitForTimeout(8000); const tx = await page.locator("body").innerText();
+    await ctx.close(); const ctx2 = await browser.newContext({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, ignoreHTTPSErrors: true, locale: "vi-VN" }); const page2 = await ctx2.newPage(); page2.on("request", (q) => q.method() === "POST" && q.url().endsWith("/checkins") && posts.push(q.url()));
+    await page2.goto(`${BASE}/checkin?c=${C}#${y.t}`); await page2.waitForURL(/\/login/, { timeout: 20_000 });
+    await page2.waitForTimeout(65_000); posts.length = 0;
+    await page2.locator("input[type=email]").fill("sv.nguyco@edupilot.local"); await page2.locator("input[type=password]").fill(PW); await page2.keyboard.press("Enter");
+    await page2.waitForTimeout(8000); const tx = await page2.locator("body").innerText();
     check("TC-AS09-05 đăng nhập > 60 s rồi quay lại: token bị bỏ; «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; không POST", /Mã đã hết hạn/.test(tx) && posts.length === 0, `posts=${posts.length} | ${tx.replace(/\n/g, " ").slice(0, 80)}`);
-    // 06: rotate=5, chờ > 12 s ... (token hết hạn khi POST) — cần cửa sổ rotate 5: dùng chính sách 5 s tạm
-    await ctx.close();
+    await ctx2.close();
   });
   await guard("TC-AS09-06/11/13/15", async () => {
     await api("r108t", "PUT", `/courses/${C}/settings`, { attendance: { self_checkin: true, rotate_seconds: 5, late_after_min: 10, require: "WEB" }, version: (await api("r108t", "GET", `/courses/${C}`)).j.settings.version });
@@ -384,11 +392,12 @@ test("E /checkin: StashGate, thiết bị, lỗi, mạng, hướng dẫn trang (
     await page.goto(`${BASE}/checkin?c=00000000-0000-4000-8000-000000000000#${x.t}`); await page.waitForTimeout(5000); msgs.push(["ngoài lớp", /Bạn không thuộc lớp này\./, await page.locator("body").innerText()]);
     await page.goto(`${BASE}/checkin?c=xyz#${x.t}`); await page.waitForTimeout(3000); const t15 = await page.locator("body").innerText();
     check("TC-AS09-15 c không phải UUID → «Liên kết không đúng.» (không POST); lớp lạ → «Bạn không thuộc lớp này.»", /Liên kết không đúng\./.test(t15) && msgs[2][1].test(msgs[2][2]), t15.replace(/\n/g, " ").slice(0, 70));
-    check("TC-AS09-11 thông báo đúng một câu theo mã: sai / đã đóng / ngoài lớp (hết hạn: AS09-06; 429: AS09-22; tắt: dưới)", msgs[0][1].test(msgs[0][2]) && msgs[1][1].test(msgs[1][2]) && msgs[2][1].test(msgs[2][2]), msgs.map((m) => m[0] + ":" + m[1].test(m[2])).join(","));
+    check("TC-AS09-11 thông báo đúng một câu theo mã: sai / đã đóng / ngoài lớp (hết hạn: AS09-06; 429: AS09-22; tắt: dưới)", msgs[0][1].test(msgs[0][2]) && msgs[1][1].test(msgs[1][2]) && msgs[2][1].test(msgs[2][2]), msgs.map((m) => m[0] + ":" + m[1].test(m[2]) + (m[1].test(m[2]) ? "" : "[" + m[2].replace(/\n/g, " ").slice(-90) + "]")).join(","));
     // tắt self_checkin + cửa sổ đóng mới
     await ctx.close();
   });
   await guard("TC-AS09-13", async () => {
+    await api("r108t", "PUT", `/courses/${C}/settings`, { attendance: { self_checkin: true, rotate_seconds: 30, late_after_min: 10, require: "WEB" }, version: (await api("r108t", "GET", `/courses/${C}`)).j.settings.version });
     const sid5 = nextSid(); const w5 = await openWin(sid5); const x = await tokOf(sid5, w5);
     const { ctx, page } = await login(browser, "sv05", 375, 812, true); await ctx.setOffline(false);
     await page.goto(`${BASE}/checkin?c=${C}`); await page.waitForTimeout(1500);
@@ -415,7 +424,7 @@ test("E /checkin: StashGate, thiết bị, lỗi, mạng, hướng dẫn trang (
   await guard("TC-AS09-24", async () => {
     const { ctx, page } = await login(browser, "sv07", 375, 568, true); await page.goto(`${BASE}/checkin?c=${C}`); const input = page.getByLabel("Mã điểm danh"); await input.waitFor({ timeout: 20_000 });
     await page.evaluate(() => { const vv = window.visualViewport; Object.defineProperty(window, "visualViewport", { value: { ...vv, height: 300, addEventListener: () => {}, removeEventListener: () => {} } }); });
-    await input.tap(); await page.waitForTimeout(800);
+    await input.tap(); await input.fill("ABC123"); await page.waitForTimeout(800);
     const g = await page.evaluate(() => { const i = document.querySelector("input")!.getBoundingClientRect(); const dk = document.querySelector("[data-part=checkin-dock]")!.getBoundingClientRect(); return { inputBottom: i.bottom, dockTop: dk.top, vis: i.top >= 0 && i.bottom <= innerHeight }; });
     check("TC-AS09-24 375×568, chạm ô mã: ô nằm trong khung nhìn, trên thanh dock; nút «Điểm danh» bấm được", g.vis && g.inputBottom <= g.dockTop + 1 && (await page.locator("[data-part=checkin-dock] button").isEnabled()), JSON.stringify(g)); await ctx.close();
   });

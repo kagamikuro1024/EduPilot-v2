@@ -1,0 +1,9 @@
+### gate:05 00:15:24
+== TC-GATE-05
+    ok   sqlc diff rc = [0]
+    ok   sqlc diff không in gì = []
+-- TC-GATE-05 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:06 00:15:28
+== TC-GATE-06
+    FAIL contract không tag rc: thực tế [1] ≠ mong đợi [0]

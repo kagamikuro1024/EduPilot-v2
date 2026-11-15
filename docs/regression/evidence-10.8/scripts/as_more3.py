@@ -18,11 +18,12 @@ time.sleep(12)
 api("sv.moi", "POST", "/me/devices/challenge", None)
 c, j, _ = api("sv.moi", "POST", "/me/devices", {"kind": "ANDROID_KEY", "public_key": Key().pub, "attestation_chain": [cert("leaf"), cert("root")]})
 ok("TC-AS12-05 chuỗi X.509 tự ký giả (2 chứng chỉ) → 422 ATTESTATION_FAILED", c == 422 and "ATTESTATION_FAILED" in json.dumps(j), f"{c} {json.dumps(j)[:100]}")
-# ---- AS13-04 / 09: 2.500 lượt quá hạn
+# ---- AS13-04 / 09: 2.500 lượt quá hạn (lớp tải QC-K6r108: 85+ SV)
+C = sql("select id from courses where class_code='QC-K6r108'")[0][0]
 ssn = sessions(TEACHER, C)
 used = {x[0] for x in sql(f"select distinct session_id from checkin_windows where course_id='{C}'")}
-free = [s_["id"] for s_ in ssn if s_["id"] not in used][:90]
-op = uid(TEACHER); students = [x[0] for x in sql("select id from users where email like 'sv%@edupilot.local' and role='STUDENT' order by email limit 40")]
+free = [s_["id"] for s_ in ssn if s_["id"] not in used][:30]
+op = uid(TEACHER); students = [x[0] for x in sql(f"select user_id from enrollments where course_id='{C}' and role_in_course='STUDENT' and status='ACTIVE' limit 40")]
 print("free sessions", len(free), "students", len(students))
 for s_ in free:
     for rd in (1, 2, 3):
@@ -37,7 +38,7 @@ try:
     pr = sh("docker exec -e APP_ENV=production ep-r-gateway-1 /gateway admin purge-checkins")
     http = [raw("POST", p, {}, {"Idempotency-Key": str(uuid.uuid4())}, tok(ADMIN))[0] for p in ("/admin/attendance/purge", "/admin/purge-checkins", f"/courses/{C}/checkins/purge")]
     p1 = subprocess.Popen("docker exec ep-r-gateway-1 /gateway admin purge-checkins", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    time.sleep(6)
+    time.sleep(9)
     sql("select pg_terminate_backend(pid) from pg_stat_activity where query ilike '%attendance_checkins%' and query ilike '%delete%' and pid<>pg_backend_pid()")
     o1 = p1.communicate(timeout=120)
     mid = int(sql(f"select count(*) from attendance_checkins where created_at < now()-interval '39 days' and course_id='{C}'")[0][0])

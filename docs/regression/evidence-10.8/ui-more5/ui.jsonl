@@ -1,0 +1,10 @@
+{"tc":"TC-AS09-06 token > 12 s: POST → 422 CHECKIN_TOKEN_EXPIRED → «Mã đã hết hạn. Quét lại mã trên màn chiếu.»","st":"PASS","note":"m danh Mã đã hết hạn. Quét lại mã trên màn chiếu. Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm"}
+{"tc":"TC-AS09-11 thông báo đúng một câu theo mã: sai / ngoài lớp / đã đóng / tắt (hết hạn: AS09-06; 429: AS09-22)","st":"PASS","note":"sai:true, ngoài lớp:true, c không UUID:true, đã đóng:true, tắt:true"}
+{"tc":"TC-AS09-15 c không phải UUID → «Liên kết không đúng.»; lớp lạ → «Bạn không thuộc lớp này.»","st":"PASS","note":""}
+{"tc":"TC-AS09-13 mất mạng («Chưa có mạng.») rồi «Thử lại»: gửi lại an toàn, đúng một lượt","st":"FAIL","note":"nút='Điểm danh' rows=0"}
+{"tc":"TC-AS09-23 nhập mã lớp A khi đang chọn lớp B (bật điểm danh): «Mã không đúng…»; đổi sang lớp A → thành công","st":"PASS","note":"ng hiện trên màn chiếu.  Lớp QC-ASr108  Điểm danh Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm"}
+{"tc":"TC-AS11-05 quét giả: mã đúng → xin camera, gửi MỘT POST với token, track.stop()","st":"PASS","note":"posts=1 stopped=1"}
+{"tc":"TC-AS11-06 QR lạ (origin khác / path khác / c không UUID / không #token) bị bỏ qua im lặng, không POST thừa","st":"PASS","note":"posts=1"}
+{"tc":"TC-AS11-09 đang quét: visibilitychange→hidden → MediaStreamTrack ended","st":"PASS","note":"trước=live sau=ended"}
+{"tc":"TC-AS11-08 từ chối camera: ô nhập mã + «Chưa cấp quyền camera.»","st":"PASS","note":"danh  Lớp QD8F3  Chưa cấp quyền camera. Điểm danh Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm"}
+{"tc":"TC-AS11-07 qr_code không hỗ trợ: không nút quét; ô nhập mã hiện ngay","st":"FAIL","note":""}

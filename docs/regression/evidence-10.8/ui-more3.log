@@ -40,3 +40,34 @@ PASS TC-AS08-32 QR chụp màn chiếu → jsQR giải ra URL …#token; token x
 FAIL TC-AS08-35 màn chiếu gọi navigator.wakeLock.request('screen'); lỗi bị bỏ qua (không thông báo lỗi) 
 PASS TC-AS08-33b rotate=5 s: mã ngắn và QR đổi cùng nhịp (số giá trị khác nhau bằng nhau); ≤ 12 yêu cầu display/phút mã=6 qr=6 req=5/24s
 PASS TC-AS08-34 đồng hồ trang lệch +60 s: vẫn đổi mã theo nhịp máy chủ (≥ 2 mã / 16 s) và hiện hiển thị bình thường mã=4; countdown='còn 09:11'
+PASS TC-AS08-42 hai trình duyệt cùng mở màn chiếu: cùng mã (không chặn) FKVN54 vs FKVN54
+PASS TC-AS08-43 portrait 375: khối xếp dọc (QR → mã → đếm), không tràn ngang {"ov":false,"qr":62.59375,"code":527.28125,"cnt":598.40625}
+PASS TC-AS08-47 màn chiếu mở: axe 0 lỗi nghiêm trọng; LCP ≤ 2,5 s (đo trình duyệt, không Lighthouse) 0; LCP=704 ms
+PASS TC-AS08-41 chặn display lúc tải đầu: «Không tải được mã» + «Thử lại» (đã qua trạng thái khung xương) skeleton=0 | Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.
+PASS TC-AS08-41b «Thử lại» → QR trở lại 
+PASS TC-AS08-39a Esc → về /attendance?course=&session= https://localhost:1143/attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1dfe4-3efd-736e-b6fe-dc3295a92615
+PASS TC-AS08-40 «Đóng điểm danh» → close; màn chuyển «Đã đóng» Màn chiếu điểm danh Đã đóng  1  Thoát
+PASS TC-AS08-39b «Thoát» → về /attendance?course=&session= https://localhost:1143/attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1dfe4-3efd-736e-b6fe-dc3295a92615
+  ✓  4 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:255:1 › D màn chiếu: QR giải mã, nhịp, đồng hồ lệch, wakeLock, Esc/Thoát/Đóng, lỗi tải, hai máy, dọc, axe (AS08-32,34,35,39,40,41,42,43,47) (1.1m)
+PASS TC-AS09-02 sau khi tải: location.hash rỗng; history.length tăng ≤ 2 (đã chuyển trang); Back không quay về URL có token hash='' history 2→3
+PASS TC-AS09-08 IndexedDB edupilot.device.v1 có khoá ECDSA P-256 không trích xuất; POST kèm device WEB_KEY {public_key, signature}; DB assurance=2 {"db":"edupilot.device.v1","keys":1,"extractable":false} WEB_KEY
+PASS TC-AS09-07 đã điểm danh, mở lại cùng U: «Đã điểm danh hh:mm», không lỗi, vẫn 1 lượt Bỏ qua điều hướng QD8A3 Có 66 thông báo mới 9+ T Điểm danh  Đã điểm danh 23:42   rows=1
+PASS TC-AS09-09 cùng trình duyệt, đăng xuất rồi sv.kha: dùng lại khoá ⇒ DEVICE_SHARED ở cả hai lượt ["DEVICE_SHARED","DEVICE_SHARED,TOKEN_LATE"]
+PASS TC-AS09-04a chưa đăng nhập: /login?next=/checkin…; sessionStorage ep.checkin {c,token,at}; không localStorage url=https://localhost:1143/login?next=%2Fcheckin%3Fc%3D01a1df74-adfe-7424-802c-13b60
+PASS TC-AS09-04b đăng nhập xong quay lại, tự gửi đúng một lần; sessionStorage đã xoá posts=1 stash=null
+FAIL TC-AS09-04/05/06 ngoại lệ: TimeoutError: page.waitForURL: Timeout 20000ms exceeded. =========================== logs =========================== waiting for navigation until "load" ============================================================
+PASS TC-AS09-06 token > 12 s: POST → 422 CHECKIN_TOKEN_EXPIRED → «Mã đã hết hạn. Quét lại mã trên màn chiếu.» Bỏ qua điều hướng QD8F3 Có 54 thông báo mới 9+ L Điểm danh Mã đã hết hạn. Quét lại mã trên
+PASS TC-AS09-15 c không phải UUID → «Liên kết không đúng.» (không POST); lớp lạ → «Bạn không thuộc lớp này.» Bỏ qua điều hướng QD8F3 Có 54 thông báo mới 9+ L Điểm danh Liên kết kh
+FAIL TC-AS09-11 thông báo đúng một câu theo mã: sai / đã đóng / ngoài lớp (hết hạn: AS09-06; 429: AS09-22; tắt: dưới) sai:false,đóng:true,ngoài lớp:true
+FAIL TC-AS09-13 mất mạng rồi «Thử lại»: gửi lại an toàn, đúng một lượt offline-msg='Mã điểm danh  Chưa có mạng.  Lớp QD8F3  Điểm danh Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm' rows=0
+FAIL TC-AS09-23 ngoại lệ: TimeoutError: locator.waitFor: Timeout 15000ms exceeded. Call log:  - waiting for locator('[data-part=checkin][data-state=done]') to be visible 
+FAIL TC-AS09-24 375×568, chạm ô mã: ô nằm trong khung nhìn, trên thanh dock; nút «Điểm danh» bấm được {"inputBottom":281,"dockTop":451,"vis":true}
+PASS TC-AS09-31 /checkin: h1 «Điểm danh», không meta, không card lồng, không lời mời cài / mẹo {"h1":["Điểm danh"],"panels":1,"meta":false,"nested":false,"css":2}
+PASS TC-AS09-33 manifest: name, display standalone, icon; không service worker; không lời mời cài manifest=200 name=EduPilot display=standalone icons=3 sw=0
+PASS TC-AS09-37 CSP /checkin: không unsafe-eval, không script ngoài; console CSP violation = 0 violations=0
+  ✓  5 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:321:1 › E /checkin: StashGate, thiết bị, lỗi, mạng, hướng dẫn trang (AS09-02,04…09,11,13,15,23,24,31,33,37) (2.2m)
+
+  Slow test file: ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts (6.9m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  5 passed (7.0m)
+exit=0

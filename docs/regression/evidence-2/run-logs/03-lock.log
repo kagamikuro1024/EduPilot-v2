@@ -106,3 +106,35 @@ TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
     ok   sau khi bật lại worker = [SUCCEEDED]
 -- TC-PG03-86 PASS
 TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:93 23:48:44
+== TC-PG03-93
+    ok   số đường dẫn trả 404 / 13 = [13]
+    ok   đường dẫn không trả 404 = []
+    ok   code = [NOT_FOUND]
+    ok   chế độ hiện tại = [default]
+-- TC-PG03-93 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:94 23:49:18
+== TC-PG03-94
+    ok   số đường dẫn trả 404 / 13 = [13]
+    ok   đường dẫn không trả 404 (401/403 là lỗi: lộ sự tồn tại) = []
+-- TC-PG03-94 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:95 23:49:23
+== TC-PG03-95
+    ok   POST _test/items = [404]
+    ok   POST _test/jobs = [404]
+    ok   POST _test/events = [404]
+    ok   PUT _test/items/{id} = [404]
+    FAIL số dòng _test_items tên qc95 (bảng thử không bị ghi): thực tế [1] ≠ mong đợi [0]
+-- TC-PG03-95 FAIL
+TỔNG story 03: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG03-95
+### 03:97 23:49:25
+== TC-PG03-97
+    ok   lấy được binary từ image mặc định
+    ok   lấy được binary từ image test
+    ok   chuỗi /api/v1/_test/ trong binary image mặc định = [0]
+    ok   chuỗi /api/v1/_test/ trong binary image test = 1 (≥ 1)
+-- TC-PG03-97 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0

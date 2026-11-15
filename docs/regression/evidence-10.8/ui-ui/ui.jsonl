@@ -1,0 +1,7 @@
+{"tc":"TC-AS08-02a (1440) «Mở điểm danh» → mở cửa sổ rồi chuyển sang /attendance/display?course=…&session=…","st":"PASS","note":"https://localhost:1143/attendance/display?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1e011-d3bf-713a-b251-7ff689f39986"}
+{"tc":"TC-AS08-02 (1440) «Mở điểm danh» → dòng «Đang mở» + API có 1 cửa sổ vòng 1","st":"PASS","note":"[1]"}
+{"tc":"TC-AS08-03 (1440) liên kết «Mở màn chiếu» → /attendance/display?course=…&session=…","st":"PASS","note":"/attendance/display?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1e011-d3bf-713a-b251-7ff689f39986"}
+{"tc":"TC-AS08-05 (1440) đếm «k/n» cập nhật theo lượt (4/…) không tải lại","st":"PASS","note":"· 4/12"}
+{"tc":"TC-AS08-06 (1440) hàng đã điểm danh hiện «Điểm danh lúc» + chip «Không xác minh được máy»","st":"PASS","note":""}
+{"tc":"TC-AS07-10a (1440) «Nhập số đầu người» tự lưu (600 ms) → API headcount=1","st":"PASS","note":""}
+{"tc":"TC-AS07-01 (1440) 4 lượt > 1 + max(2,…)=3 ⇒ «Số điểm danh nhiều hơn số người đếm»","st":"PASS","note":"Đang mở · 4/12 · còn 09:35 · 1 người trong lớp Số điểm danh nhiều hơn số người đếm Mở màn chiếu Đóng"}

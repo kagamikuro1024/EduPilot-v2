@@ -1,0 +1,32 @@
+== ./internal/httpapi
+ok  	github.com/edupilot/backend-go/internal/httpapi	0.805s [no tests to run]
+THIẾU-PASS TestStudentCannotCallStaffRoutes
+THIẾU-PASS TestReviewRBACMatrix
+RESULT: FAIL (./internal/httpapi)
+== ./internal/assignment
+--- PASS: TestPublishRBAC (9.29s)
+--- PASS: TestStatsRBAC (4.33s)
+--- PASS: TestResultIDOR (3.23s)
+--- PASS: TestGuidanceRBAC (4.43s)
+--- PASS: TestClosedAfterCutoff (4.03s)
+ok  	github.com/edupilot/backend-go/internal/assignment	26.143s
+RESULT: PASS (./internal/assignment · 5 test)
+== ./internal/grading
+--- PASS: TestStatusRBAC (9.16s)
+ok  	github.com/edupilot/backend-go/internal/grading	10.107s
+RESULT: PASS (./internal/grading · 1 test)
+== ./internal/grade
+--- PASS: TestNoDraftLeak (4.86s)
+--- PASS: TestNoDraftLeakQT (16.79s)
+ok  	github.com/edupilot/backend-go/internal/grade	22.572s
+RESULT: PASS (./internal/grade · 2 test)
+== ./internal/integration
+--- PASS: TestAllCourseRoutesGuarded (10.31s)
+--- PASS: TestAllCourseRoutesGuardedDetectsMissing (0.00s)
+--- PASS: TestSeedCanaryNotToStudents (4.92s)
+ok  	github.com/edupilot/backend-go/internal/integration	16.083s
+RESULT: PASS (./internal/integration · 2 test)
+ALLDONE
+--- PASS: TestSubmitIdempotent (1.42s)
+ok  	github.com/edupilot/backend-go/internal/contract	2.289s
+RESULT: PASS (./internal/contract · 1 test)

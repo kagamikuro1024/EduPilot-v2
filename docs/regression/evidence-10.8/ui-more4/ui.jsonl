@@ -1,0 +1,62 @@
+{"tc":"(chuẩn bị) AS08","st":"NOTE","note":"kha 201, nguyco(code) 201"}
+{"tc":"TC-AS08-04 cửa sổ đang mở: «Mở điểm danh» ẩn (không phải disabled); có dòng trạng thái","st":"PASS","note":"nút=0; Đang mở · 2/12 · còn 09:56 Mở màn chiếu Đóng"}
+{"tc":"TC-AS08-09 hàng đã điểm danh «Điểm danh lúc hh:mm»; hàng chưa điểm danh «Chưa điểm danh», không mặc định Có mặt","st":"PASS","note":""}
+{"tc":"TC-AS08-10 chip: «Nhập mã» cho CODE, nhãn cờ «Không xác minh được máy», «Chưa xác minh» (mức 1)","st":"PASS","note":"thiếu: "}
+{"tc":"TC-AS08-11a «Cần xem (k)» → URL có filter=review; chỉ hàng còn cờ","st":"PASS","note":"https://localhost:1143/attendance?session=01a1dfe4-3eaa-7658-a2e2-56a5a7bb34ae&filter=review"}
+{"tc":"TC-AS08-11b mục «Hôm nay» CHECKIN_REVIEW (cửa sổ đã đóng) có href ?filter=review","st":"PASS","note":"/attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1dfe4-3ea5-78d7-b6ee-9be0a5847fc9&filter=review"}
+{"tc":"TC-AS08-12 «Đã xem» → clear-flags; audit_log +; không nút hoàn tác","st":"PASS","note":"audit 3→4; undo=0"}
+{"tc":"TC-AS08-13 sửa ô Vắng→Có mặt: lưu tại chỗ, có «Hoàn tác» (≈5 s)","st":"PASS","note":"undo=1; Đang lưu…"}
+{"tc":"TC-AS08-14a sau vòng 1: menu ⋯ có «Mở vòng 2», «Nhập số đầu người», «Gọi ngẫu nhiên 5 người»","st":"PASS","note":"Mở vòng 2 | Nhập số đầu người | Gọi ngẫu nhiên 5 người"}
+{"tc":"TC-AS08-14b sau vòng 3: không còn «Mở vòng …»","st":"PASS","note":"Nhập số đầu người | Gọi ngẫu nhiên 5 người"}
+{"tc":"TC-AS08-17a lỗi tải cửa sổ: có nguyên nhân + «Thử lại»","st":"PASS","note":"Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.  Bỏ qua điều hướng QC-AS · QC điểm danh QC-AS Tìm nhanh hoặc đi đến… ⌘ K Có 22 "}
+{"tc":"TC-AS08-17b mở lúc đã có cửa sổ (409): «Đang có cửa sổ mở» + «Mở màn chiếu»","st":"PASS","note":"https://localhost:1143/attendance/display?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1dfe4-3eb4-725e-9c5d-1b0e5564a34f | Màn chiếu điểm danh  Mã điểm danh  520 C11  0  còn 09:57  Đóng điểm danh Thoát"}
+{"tc":"TC-AS08-18 «Lưu điểm danh» còn SV chưa điểm danh: InlineNotice đầu panel «Còn N…» + «Đánh vắng N SV…»","st":"PASS","note":"y=233.1875"}
+{"tc":"(chuẩn bị) B","st":"NOTE","note":"201,201,201,201,201"}
+{"tc":"TC-AS08-15 «Số đầu người» (0–2000) tự lưu; 2001 không lưu; lượt > dung sai → «Số điểm danh nhiều hơn số người đếm»","st":"PASS","note":"saved=1; gõ 2001 → lưu 2000 (giới hạn ≤ 2000)"}
+{"tc":"TC-AS08-16 Drawer «Gọi ngẫu nhiên»: 5 hàng (tên, MSSV, «Có cờ»/«Ngẫu nhiên»)","st":"PASS","note":"5 hàng"}
+{"tc":"TC-AS08-07 «Đóng»: không hộp xác nhận; dòng «Đã ghi a có mặt · b muộn · u chưa điểm danh» tại chỗ, không toast; kèm «Đánh vắng u SV…»","st":"PASS","note":"Đã ghi 5 có mặt · 0 muộn · 7 chưa điểm danh"}
+{"tc":"TC-AS08-08 «Đánh vắng u SV»: hộp chuẩn «Đánh vắng u sinh viên?», hệ quả, nút «Đánh vắng»; xác nhận → dòng ABSENT","st":"PASS","note":"Đánh vắng 7 sinh viên?  7 sinh viên chưa điểm danh thành Vắng.  Để sau Đánh vắng"}
+{"tc":"TC-AS08-08b sau xác nhận: số dòng ABSENT = u","st":"PASS","note":"ABSENT=7 u=7"}
+{"tc":"TC-AS08-21 hai tab cùng đóng: không lỗi trần, cả hai về «đóng»","st":"PASS","note":"codes=200,200 | Đã ghi 0 có mặt · 0 muộn · 12 chưa điểm danh Đánh vắng 12 SV chưa điểm danh | Đã ghi 0 có mặt · 0 muộn · 12 chưa điểm danh Đánh vắng 12 SV chưa điểm danh"}
+{"tc":"TC-AS08-20 mất mạng khi «Đóng»: dòng «Chưa đóng»; có mạng → tự thử lại cùng Idempotency-Key, một cửa sổ đóng","st":"FAIL","note":"queued=1 closed=1 posts=4 keys=2 resp=fail:ep-b021c,fail:ep-b021c,fail:ep-b021c,200:ep-1c28a"}
+{"tc":"TC-AS08-19 375 px: dòng cửa sổ ≥ 2 dòng, nút ≥ 44 px, «Lưu điểm danh» dock dưới, không tràn ngang","st":"PASS","note":"{\"h\":88,\"btns\":[44,44],\"ov\":false,\"dock\":true} moOpenOutside=false"}
+{"tc":"TC-AS08-22/44 sv.gioi: /attendance và /attendance/display → màn chặn chuẩn, 0 request dữ liệu điểm danh","st":"PASS","note":"req(att)=1 req(display)=0 | Bỏ qua điều hướng QD8A3 · QC s8core QD8A3 Tìm nhanh hoặc đi đến… ⌘ K Có 66 thông | Bạn không có quyền xem màn này  Trang này dành cho giảng viê"}
+{"tc":"TC-AS08-22/44 admin: /attendance và /attendance/display → màn chặn chuẩn, 0 request dữ liệu điểm danh","st":"PASS","note":"req(att)=1 req(display)=0 | Bỏ qua điều hướng  Toàn hệ thống · INT1006  Tìm nhanh hoặc đi đến… ⌘ K Có 6 thôn | Bạn không có quyền xem màn này  Trang này dành cho giảng viê"}
+{"tc":"TC-AS08-23 TA thấy đủ nút điểm danh; PUT …/settings bằng TA → 403","st":"PASS","note":"hasOpen=true put=403"}
+{"tc":"TC-AS09-14 r108ta mở /checkin: màn chặn chuẩn, 0 request dữ liệu","st":"PASS","note":"req=0 | Bỏ qua điều hướng QC-AS Có 22 thông báo mới 9+ T Bạn không có quyền xem màn này "}
+{"tc":"TC-AS09-14 r108t mở /checkin: màn chặn chuẩn, 0 request dữ liệu","st":"PASS","note":"req=0 | Bỏ qua điều hướng QC-AS Có 22 thông báo mới 9+ G Bạn không có quyền xem màn này "}
+{"tc":"TC-AS09-14 admin mở /checkin: màn chặn chuẩn, 0 request dữ liệu","st":"PASS","note":"req=0 | Bỏ qua điều hướng  Toàn hệ thống · INT1006  Có 6 thông báo mới 6 N Bạn không có "}
+{"tc":"TC-AS08-32 QR chụp màn chiếu → jsQR giải ra URL …#token; token xác thực với API (201)","st":"PASS","note":"https://localhost/checkin?c=01a1df74-adfe-7424-802c-13b603b668d3#01a1e… → 201"}
+{"tc":"TC-AS08-35 màn chiếu gọi navigator.wakeLock.request('screen'); lỗi bị bỏ qua (không thông báo lỗi)","st":"PASS","note":"wakeLock=1; chữ=Màn chiếu điểm danh  Mã điểm danh  NQ3 4JX  0  còn 09:58  Đóng điểm danh Thoát"}
+{"tc":"TC-AS08-33b rotate=5 s: mã ngắn và QR đổi cùng nhịp (số giá trị khác nhau bằng nhau); ≤ 12 yêu cầu display/phút","st":"PASS","note":"mã=6 qr=6 req=5/24s"}
+{"tc":"TC-AS08-34 đồng hồ trang lệch +60 s: vẫn đổi mã theo nhịp máy chủ (≥ 2 mã / 16 s) và hiện hiển thị bình thường","st":"PASS","note":"mã=4; countdown='còn 09:17'"}
+{"tc":"TC-AS08-42 hai trình duyệt cùng mở màn chiếu: cùng mã (không chặn)","st":"PASS","note":"PV29N4 vs PV29N4"}
+{"tc":"TC-AS08-43 portrait 375: khối xếp dọc (QR → mã → đếm), không tràn ngang","st":"PASS","note":"{\"ov\":false,\"qr\":62.59375,\"code\":527.28125,\"cnt\":598.40625}"}
+{"tc":"TC-AS08-47 màn chiếu mở: axe 0 lỗi nghiêm trọng; LCP ≤ 2,5 s (đo trình duyệt, không Lighthouse)","st":"PASS","note":"0; LCP=484 ms"}
+{"tc":"TC-AS08-41 chặn display lúc tải đầu: «Không tải được mã» + «Thử lại» (đã qua trạng thái khung xương)","st":"PASS","note":"skeleton=0 | Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng."}
+{"tc":"TC-AS08-41b «Thử lại» → QR trở lại","st":"PASS","note":""}
+{"tc":"TC-AS08-39a Esc → về /attendance?course=&session=","st":"PASS","note":"https://localhost:1143/attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1e011-d3c5-709b-8620-f15f497dc449"}
+{"tc":"TC-AS08-40 «Đóng điểm danh» → close; màn chuyển «Đã đóng»","st":"PASS","note":"Màn chiếu điểm danh Đã đóng  1  Thoát"}
+{"tc":"TC-AS08-39b «Thoát» → về /attendance?course=&session=","st":"PASS","note":"https://localhost:1143/attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1e011-d3c5-709b-8620-f15f497dc449"}
+{"tc":"TC-AS09-02 sau khi tải: location.hash rỗng; history.length tăng ≤ 2 (đã chuyển trang); Back không quay về URL có token","st":"PASS","note":"hash='' history 2→3"}
+{"tc":"TC-AS09-08 IndexedDB edupilot.device.v1 có khoá ECDSA P-256 không trích xuất; POST kèm device WEB_KEY {public_key, signature}; DB assurance=2","st":"PASS","note":"{\"db\":\"edupilot.device.v1\",\"keys\":1,\"extractable\":false} WEB_KEY"}
+{"tc":"TC-AS09-07 đã điểm danh, mở lại cùng U: «Đã điểm danh hh:mm», không lỗi, vẫn 1 lượt","st":"PASS","note":"Bỏ qua điều hướng QD8A3 Có 66 thông báo mới 9+ T Điểm danh  Đã điểm danh 23:48   rows=1"}
+{"tc":"TC-AS09-09 cùng trình duyệt, đăng xuất rồi sv.kha: dùng lại khoá ⇒ DEVICE_SHARED ở cả hai lượt","st":"PASS","note":"[\"DEVICE_NEW,DEVICE_SHARED\",\"DEVICE_SHARED,DEVICE_NEW\"]"}
+{"tc":"TC-AS09-04a chưa đăng nhập: /login?next=/checkin…; sessionStorage ep.checkin {c,token,at}; không localStorage","st":"PASS","note":"url=https://localhost:1143/login?next=%2Fcheckin%3Fc%3D01a1df74-adfe-7424-802c-13b60"}
+{"tc":"TC-AS09-04b đăng nhập xong quay lại, tự gửi đúng một lần; sessionStorage đã xoá","st":"PASS","note":"posts=1 stash=null"}
+{"tc":"TC-AS09-05 đăng nhập > 60 s rồi quay lại: token bị bỏ; «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; không POST","st":"PASS","note":"posts=0 | Bỏ qua điều hướng QD8B1 Có 50 thông báo mới 9+ H Điểm danh Mã đã hết hạn. Quét l"}
+{"tc":"TC-AS09-06/11/13/15","st":"FAIL","note":"ngoại lệ: TimeoutError: page.waitForURL: Timeout 60000ms exceeded. =========================== logs =========================== waiting for navigation until \"load\" ============================================================"}
+{"tc":"TC-AS09-13 mất mạng rồi «Thử lại»: gửi lại an toàn, đúng một lượt","st":"FAIL","note":"offline-msg='Mã điểm danh  Chưa có mạng.  Lớp QD8F3  Điểm danh Hôm nay Chat riêng Hỏi đáp Luyện đề Thêm' rows=0"}
+{"tc":"TC-AS09-23 nhập mã lớp A khi chọn lớp B → «Mã không đúng…»; đổi sang lớp A → thành công","st":"FAIL","note":"Bỏ qua điều hướng QD8F3 Có 55 thông báo mới 9+ H Điểm danh Mã điểm danh  Lớp này"}
+{"tc":"TC-AS09-24 375×568, chạm ô mã: ô nằm trong khung nhìn, trên thanh dock; nút «Điểm danh» bấm được","st":"PASS","note":"{\"inputBottom\":281,\"dockTop\":451,\"vis\":true}"}
+{"tc":"TC-AS09-31 /checkin: h1 «Điểm danh», không meta, không card lồng, không lời mời cài / mẹo","st":"PASS","note":"{\"h1\":[\"Điểm danh\"],\"panels\":1,\"meta\":false,\"nested\":false,\"css\":2}"}
+{"tc":"TC-AS09-33 manifest: name, display standalone, icon; không service worker; không lời mời cài","st":"PASS","note":"manifest=200 name=EduPilot display=standalone icons=3 sw=0"}
+{"tc":"TC-AS09-37 CSP /checkin: không unsafe-eval, không script ngoài; console CSP violation = 0","st":"PASS","note":"violations=0"}
+{"tc":"TC-AS10-02 lớp không bật vị trí: không gọi geolocation, không dòng thông báo vị trí","st":"PASS","note":"geolocation=0"}
+{"tc":"TC-AS10-11a/AS01-14 geofence bật: dòng «Lớp này kiểm tra vị trí khi điểm danh.» đã vẽ TRƯỚC lần gọi geolocation đầu","st":"PASS","note":"calls=1 thấy dòng=true"}
+{"tc":"TC-AS10-11b từ chối quyền → vẫn «Đã điểm danh», lượt có GEO_DENIED","st":"PASS","note":"DEVICE_NEW,GEO_DENIED|f"}
+{"tc":"TC-AS09-32/AS04-16 không WebCrypto / IndexedDB (ngữ cảnh không an toàn, chế độ riêng tư): vẫn «Đã điểm danh», NO_DEVICE_KEY, không lỗi giao diện","st":"PASS","note":"NO_DEVICE_KEY|1"}
+{"tc":"TC-AS09-36 /checkin: axe 0 lỗi nghiêm trọng; LCP ≤ 2,5 s","st":"FAIL","note":"label-content-name-mismatch:serious:1; LCP=132 ms"}
+{"tc":"TC-AS11-09","st":"FAIL","note":"ngoại lệ: TimeoutError: locator.waitFor: Timeout 15000ms exceeded. Call log: \u001b[2m - waiting for getByRole('button', { name: /Quét mã điểm danh/ }) to be visible\u001b[22m "}
+{"tc":"TC-AS11-14 r108ta (giả native) mở /checkin: màn chặn chuẩn; 0 request dữ liệu; không lưu mật khẩu/token ngoài cookie","st":"PASS","note":"[[\"ep_demo_state\",\"ep_returning\"],[]]"}
+{"tc":"TC-AS11-14 r108t (giả native) mở /checkin: màn chặn chuẩn; 0 request dữ liệu; không lưu mật khẩu/token ngoài cookie","st":"PASS","note":"[[\"ep_demo_state\",\"ep_returning\"],[]]"}

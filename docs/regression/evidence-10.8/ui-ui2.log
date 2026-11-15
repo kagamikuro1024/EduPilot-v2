@@ -1,0 +1,53 @@
+
+Running 2 tests using 1 worker
+
+(node:27687) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 ../docs/regression/evidence-10.8/e2e/qc-as-ui.spec.ts:35:3 › /attendance tương tác Staff 1440 px (18.7s)
+(node:28637) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS TC-AS08-02a (375) «Mở điểm danh» → mở cửa sổ rồi chuyển sang /attendance/display?course=…&session=… https://localhost:1143/attendance/display?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1e011-d3c0-74cb-b317-4e0bf058633c
+(node:28637) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+PASS TC-AS08-02 (375) «Mở điểm danh» → dòng «Đang mở» + API có 1 cửa sổ vòng 1 [1]
+PASS TC-AS08-03 (375) liên kết «Mở màn chiếu» → /attendance/display?course=…&session=… /attendance/display?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1e011-d3c0-74cb-b317-4e0bf058633c
+PASS TC-AS08-05 (375) đếm «k/n» cập nhật theo lượt (4/…) không tải lại · 4/12
+PASS TC-AS08-06 (375) hàng đã điểm danh hiện «Điểm danh lúc» + chip «Không xác minh được máy» 
+PASS TC-AS07-10a (375) «Nhập số đầu người» tự lưu (600 ms) → API headcount=1 
+PASS TC-AS07-01 (375) 4 lượt > 1 + max(2,…)=3 ⇒ «Số điểm danh nhiều hơn số người đếm» Đang mở · 4/12 · còn 09:35 · 1 người trong lớp Số điểm danh nhiều hơn số người đếm Mở màn chiếu Đóng
+PASS TC-AS07-10b (375) Drawer «Gọi ngẫu nhiên»: 4 tên + MSSV + «Có cờ» Gọi ngẫu nhiên Vũ Hoàng Giang 20229001 Có cờ Bùi Thanh Khải 20229002 Có cờ Ngô Ngọc Cẩm 20229003 Có cờ Vũ Minh Long 2022
+NOTE TC-AS05-17a0 (375) độ trễ cập nhật «Đã ghi…» sau khi bấm Đóng 3 ms → Đã ghi 4 có mặt · 0 muộn · 8 chưa điểm danh
+PASS TC-AS05-17a (375) đóng bằng lưới: «Đã ghi a có mặt · b muộn · u chưa điểm danh» tại chỗ Đã ghi 4 có mặt · 0 muộn · 8 chưa điểm danh
+PASS TC-AS05-10c (375) «Lưu điểm danh» khi còn SV chưa điểm danh → 422 CHECKIN_UNRESOLVED hiện «Còn N sinh viên chưa điểm danh» + nút «Đánh vắng N SV…» N=8; số nút «Đánh vắng N SV…» cùng lúc: 1
+PASS TC-AS08-UX1 (375) D-AS-05: «Còn N sinh viên chưa điểm danh» không xuống dòng từng chữ (≤ 2 dòng, rộng ≥ 150 px) {"x":72,"y":269.1875,"width":261,"height":21.6875}
+PASS TC-AS08-UX2 (375) sau đóng, đã có vòng: không còn nút «Mở điểm danh» cạnh «Mở vòng 2»; chỉ một «Lưu điểm danh» chính Lưu điểm danh · 4 có mặt · 8 vắng
+PASS TC-AS05-17b (375) hộp xác nhận chuẩn nêu số người: «Đánh vắng 8 sinh viên?» + hệ quả + nút «Đánh vắng» Đánh vắng 8 sinh viên?  8 sinh viên chưa điểm danh thành Vắng.  Để sau Đánh vắng
+PASS TC-AS05-07c (375) xác nhận → 8 dòng ABSENT, thông báo «Còn…» biến mất 
+PASS TC-AS05-11b (375) sau đánh vắng, «Lưu điểm danh» hoàn tất («Đã lưu điểm danh · N sinh viên · vắng M») Đã lưu điểm danh · 12 sinh viên · vắng 8
+PASS TC-AS07-10c (375) «Mở vòng 2» → «Vòng 2» 
+PASS TC-AS08-25b (375) axe /attendance có cửa sổ: 0 lỗi nghiêm trọng 
+PASS TC-AS08-01b (375) không tràn ngang 
+  ✓  2 ../docs/regression/evidence-10.8/e2e/qc-as-ui.spec.ts:35:3 › /attendance tương tác Staff 375 px (34.4s)
+
+
+  1) ../docs/regression/evidence-10.8/e2e/qc-as-ui.spec.ts:35:3 › /attendance tương tác Staff 1440 px 
+
+    TimeoutError: page.waitForURL: Timeout 15000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      40 |     // mở điểm danh (mở xong tự chuyển sang màn chiếu)
+      41 |     if (await page.getByRole("button", { name: "Mở điểm danh" }).count()) await page.getByRole("button", { name: "Mở điểm danh" }).first().click(); else await more(page, /^Mở điểm danh$/);
+    > 42 |     await page.waitForURL(/\/attendance\/display/, { timeout: 15_000 });
+         |                ^
+      43 |     check(`TC-AS08-02a (${tag}) «Mở điểm danh» → mở cửa sổ rồi chuyển sang /attendance/display?course=…&session=…`, page.url().includes(`session=${sid}`) && page.url().includes(`course=${C}`), page.url());
+      44 |     await page.goto(`${BASE}/attendance?session=${sid}`);
+      45 |     await page.locator("[data-part=window-line][data-state=open]").waitFor({ timeout: 10_000 });
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/e2e/qc-as-ui.spec.ts:42:16
+
+    Error Context: ../../../../../tmp/qc2-pw-SmkH2/qc-as-ui--attendance-tương-tác-Staff-1440-px/error-context.md
+
+  1 failed
+    ../docs/regression/evidence-10.8/e2e/qc-as-ui.spec.ts:35:3 › /attendance tương tác Staff 1440 px 
+  1 passed (54.3s)
+exit=1

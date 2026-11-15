@@ -1,4 +1,4 @@
-# Lỗi hồi quy tổng hợp — qc2, mã sprint/11-p10-eval, 2026-11-15
+# Lỗi hồi quy tổng hợp — qc2, mã sprint/11-p10-eval, 2026-11-16
 
 Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md` (từng ca). Mỗi lỗi ghi: mức, sprint gốc, có phải hồi quy do sprint sau không.
 
@@ -14,8 +14,18 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 10.5 | TC-D07-02 | bảng «Quyết định nhanh» nằm TRÊN bảng «7 ngày qua» (AdminView.tsx:58 trước :65); US-DM-07 AC1: dưới bảng 7 ngày · **DEF-R10.5-01** |
 | 10.6 | TC-G03-24 | TA/SV/ADMIN 403, không token 401, cờ tắt 409 đúng; nhưng reflect qua đường lớp 2 (cờ lớp 2 tắt) → 409 GUIDANCE_DISABLED trước 404 (ghi nhận 1 c |
 | 10.6 | TC-G05-24 | SV regrade 403, TA 202; qua đường lớp 2 → 409 GUIDANCE_DISABLED (cờ lớp 2 tắt) thay vì 404 — ghi nhận 1 của summary 10.6, có sẵn · **DEF-R10.6-01 |
+| 10.8 | TC-AS08-20 | FAIL TC-AS08-20 / TC-AS08-20: DEF-R10.8-03: thử lại dùng khoá mới (2–3 khoá khác nhau); server vẫn 1 cửa sổ đóng |
+| 10.8 | TC-AS08-25 | FAIL TC-AS08-25 / TC-AS08-25b: |
+| 10.8 | TC-AS09-36 | FAIL TC-AS09-36 / TC-AS09-36: label-content-name-mismatch:serious:1; LCP=132 ms |
+| 10.8 | TC-AS09-39 | FAIL TC-AS09-39a / TC-AS09-39a: label-content-name-mismatch:serious |
+| 10.8 | TC-AS11-07 | FAIL TC-AS11-07 / TC-AS11-07: DEF-R10.8-04: nút «Quét mã điểm danh» vẫn hiện (chỉ kiểm 'BarcodeDetector' in window) |
+| 10.8 | TC-AS14-11 | FAIL TC-AS14-11 / TC-AS14-11: DEF-R10.8-02: 13 tên không tồn tại |
 | 10 | TC-12-14 | DEF-R10-01: go test ./internal/contract/... không xanh (7 test đỏ; 500 INTERNAL ở POST …/posts/{id}/report, /auth/verify-email, thiếu quan sát); ngoài phạm  |
 | 2 | TC-PG02-60 | CẦN TRIAGE: dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction): thực tế [0] phải ≥ 1 |
+| 2 | TC-PG03-32 | CẦN TRIAGE: có hai bản gateway: [] không khớp /^.+$/ |
+| 2 | TC-PG03-33 | CẦN TRIAGE: XFF 203.0.113.7 request thứ 6 bị 429: [] không khớp / 429/ |
+| 2 | TC-PG03-35 | CẦN TRIAGE: độ trễ thêm so với baseline (ms): thực tế [236] phải ≤ 50 |
+| 2 | TC-PG03-95 | CẦN TRIAGE: số dòng _test_items tên qc95 (bảng thử không bị ghi): thực tế [1] ≠ mong đợi [0] |
 | 2 | TC-PG06-01 | DEF-R2-01: redocly lint openapi.yaml 1 lỗi (analytics/exams/compare: parameters null) |
 | 2 | TC-PG06-10 | DEF-R2-02: `go test ./internal/contract` rc 1 (TestStatusParity trượt 2/2 lần) |
 | 2 | TC-PG06-11 | DEF-R2-02: gồm TestStatusParity |
@@ -29,16 +39,94 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 4 | TC-P208-02 | class_code trùng(hoa-thường) 201; còn lại [422, 422, 422, 422, 422, 422] (DEF-R4-01) |
 | 4 | TC-P210-03 | tệp `.xlsx` thực là văn bản (text.xlsx) được nhận 200 (server đọc theo nội dung như CSV); fake-ext/png-as/cut.xlsx → 422 UNSUPPORTED_FILE đúng → |
 | 6 | TC-P3-01-49 | Vai DB ứng dụng edupilot rolsuper=t (như BUG-1 gốc); DEF-R6-01 |
-| 6 | TC-P3-02-21 | Duyệt/vào lớp không vô hiệu ep:roster (chỉ member_changed khi mời ra/hoàn tác) → tên SV mới không bị chặn ≤1 giờ; DEF-R6-02 |
-| 7 | TC-P4-02-03 | go test FAIL: ok  	github.com/edupilot/backend-go/internal/calendar	(cached) FAIL |
+| 6 | TC-P3-02-21 | vẫn F trên ảnh ep-r hiện chạy (tạo 2026-11-15 19:38, trước fix afbd433e): vào mã/duyệt không xoá ep:roster; retest sau fix chờ Main dựng lại ả |
+| 6 | TC-P3-06-42 | /threads khi khoá: ô tiêu đề/nội dung vô hiệu, dòng báo là "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." thay vì "Đă |
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
 | 8 | TC-P6-01-20 | weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
 | 8 | TC-P6-02-15 | quét float64: internal/seedtool/examhistory.go:130 đưa điểm thi qua float64(c)*2.5 (seed tool); mã sản phẩm sạch |
 | 8 | TC-P6-02-25 | C: KT=0, status COMPLETE, nhưng dòng KT chỉ expr '0' (filled_by_user, không quote điều 1.4), không có chữ 'không dự → 0 theo quy chế' (DEF-R8-s8core-01 |
-| 8 | TC-P6-02-42 | 200 {'students_total': 30, 'students_computable': 30, 'changed_vs_confirmed': 21, 'entries_carried': 60, 'entries_dropped': [], 'samples': [{'student': {'i |
-| 8 | TC-P6-05-03 | status={"state": "DRAFT_UNCLEAR", "unclear_count": 3, "has_policy": true, "pending_draft": true, "gradebook": {"status": "OPEN", "snapsho |
-| 8 | TC-P6-05-23 | GS=[{"id": "GRADE_SCHEME_UNCONFIRMED:01a1dff6-f018-7550-b9bb-abfaa2cf3d9d", "kind": setup=[] |
-| 8 | TC-P6-05-24 | ['Đã có quy chế, chưa trích công thức.'] |
+| 9.1 | TC-UX04-3 | 9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02 |
+| 9.1 | TC-UX04-12 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX04-13 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX04-14 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX01-1 | spec w2-real: 2 lượt đỏ / 16 xanh (xem logs/) |
+| 9.1 | TC-UX01-5 | spec w12c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX01-10 | spec w2-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX06-2 | spec w12b-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX06-3 | spec w2-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX06-4 | spec w2-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX06-5 | spec w2-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX06-6 | spec w12c-real,w2-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX06-7 | spec w12c-real,w2-real,w5r-real: 3 lượt đỏ / 2 xanh (xem logs/) |
+| 9.1 | TC-UX06-PQ | spec w12c-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX07-8 | còn 1 chuỗi hiển thị «Kiểm duyệt Threads»: frontend/src/features/settings/llm/decisionApi.ts:17 (nhãn cổng THREADS_PRECHECK cho admin, thêm ở sprint 10 |
+| 9.1 | TC-UX07-15 | spec w2-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-1 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-2 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-3 | spec w4b-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-4 | spec w4-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX14-5 | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-6 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-7 | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-9 | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-10 | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-11 | spec w4-real,w4b-real: 3 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-PQ | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX14-PG | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-1 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-2 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-3 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-4 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-6 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-7 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-8 | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-9 | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-10 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-11 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-12 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-13 | spec w4-real,w4b-real,w4c-real: 3 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-14 | spec w4c-real,w4g-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-15 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-16 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-17 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX15-18 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX16-5 | spec w4-real,w4f-real: 1 lượt đỏ / 2 xanh (xem logs/) |
+| 9.1 | TC-UX16-15 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX16-16 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX16-19 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX16-20 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX16-24 | spec w4d-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-1 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-2 | spec w4-real,w4b-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX12-3 | spec w4-real,w4b-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX12-4 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-5 | spec w4-real,w4b-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX12-6 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-7 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-9 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-10 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-11 | spec w4-real,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX12-13 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-14 | spec w4-real,w4b-real,w4c-real,w4f-real: 1 lượt đỏ / 3 xanh (xem logs/) |
+| 9.1 | TC-UX12-15 | spec w4-real,w4b-real,w4c-real,w4f-real: 1 lượt đỏ / 3 xanh (xem logs/) |
+| 9.1 | TC-UX12-18 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-19 | spec w4-real,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX12-20 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX13-14 | spec w5a-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX13-18 | spec w5a-real,w5g-real: 1 lượt đỏ / 2 xanh (xem logs/) |
+| 9.1 | TC-UX13-21 | spec w5a-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX13-22 | spec w5a-real,w5c-real,w5g-real: 1 lượt đỏ / 3 xanh (xem logs/) |
+| 9.1 | TC-UX13-23 | spec w5a-real,w5c-real,w5g-real: 1 lượt đỏ / 3 xanh (xem logs/) |
+| 9.1 | TC-UX13-24 | spec w5a-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX13-25 | spec w5a-real: 1 lượt đỏ / 2 xanh (xem logs/) |
+| 9.1 | TC-UX19-6 | spec w5f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX19-12 | spec w5f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX08-5 | luật :hover màu (border-color/color/background) ở Landing.module.css:35,39,40,73,97,144,226 nằm ngoài @media (hover: hover) and (pointer: fine) → hover dính tr |
+| 9.1 | TC-UX08-28 | spec w6-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX08-48 | spec w6-real: 3 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX08-50 | spec w6-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX09-11 | spec w6-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX09-13 | spec w6-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.5 | TC-N01-12 | DEF-R9.5-16: check-meta nêu đúng tên 7 trường thiếu nhưng `demo_stack:"unknown"` vẫn «meta đủ» (không kiểm giá trị) |
 | 9.5 | TC-N01-17 | DEF-R9.5-01: BASE=http://[::1]:3000 và host.docker.internal:3000 KHÔNG bị refuseDemo (chỉ lỗi kết nối) |
 | 9.5 | TC-N02-02 | DEF-R9.5-17: trên ep-r 4/7 check-*-seed đạt (chat, crm, docs, grade ×3); assignments/exam/knowledge đỏ do dữ liệu bị ca khác thêm (BT03 đã chấm, 10 c� |
@@ -63,12 +151,6 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 9.5 | TC-N09-13 | DEF-R9.5-14: FAIL «1.000 bài lần 1» (322/1000, 678 FAILED) và run1 không có ở bảng tổng của research report (bảng ghi «chưa có kết quả») |
 | 9.5 | TC-N10-06 | DEF-R9.5-06: PROGRESS.md không có dòng Nợ TL-2c/d/e/f dù techlead.md ghi «chuyển Nợ» |
 | 9.5 | TC-N10-10 | DEF-R9.5-05: 9.5 sửa test có sẵn (bf9aa0bb 2 test guard; 811afebd kỳ vọng 429) |
-| 9 | TC-P7-01-G06 | TestAssignmentsRBACMatrix không có trong repo (DEF-R9-01); contract -tags testroutes chạy lại lúc máy rảnh: ok 54s (lần đỏ trước = do tải ~20) |
-| 9 | TC-P7-02-G10 | TestAssignmentsRBACMatrix: không có trong repo |
-| 9 | TC-P7-03-G03 | TestSubmitIdempotent: không có trong repo; Playwright mock 1 mẫu -g xanh |
-| 9 | TC-P7-03-G07 | TestSubmitClosed: không có trong repo |
-| 9 | TC-P7-06-G11 | TestGradingResultsRBAC: không có trong repo; TestNoDraftCanaryToStudent: không có trong repo |
-| 9 | TC-P7-08-G08 | TestTAReviewsCannotPublish: không có trong repo; Playwright mock 1 mẫu -g xanh |
 | 9.5 | TC-N01-12 | DEF-R9.5-16: check-meta nêu đúng tên 7 trường thiếu nhưng `demo_stack:"unknown"` vẫn «meta đủ» (không kiểm giá trị) |
 | 9.5 | TC-N01-17 | DEF-R9.5-01: BASE=http://[::1]:3000 và host.docker.internal:3000 KHÔNG bị refuseDemo (chỉ lỗi kết nối) |
 | 9.5 | TC-N02-02 | DEF-R9.5-17: trên ep-r 4/7 check-*-seed đạt (chat, crm, docs, grade ×3); assignments/exam/knowledge đỏ do dữ liệu bị ca khác thêm (BT03 đã chấm, 10 c� |
@@ -146,6 +228,7 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Bằng chứng: /tmp/qc2-A-statusparity.log; evidence-2/run-logs/06.log · Nghi ngờ mã: backend-go/internal/contract/scenarios_exam_test.go:606 (500 thay vì 404 ở submissions mã lập trình), contract/exempt.go (thiếu miễn trừ cho route mới)
 - Chạy lại lần 2: trượt (2/2)
 - **Phân tích SmkJ (23:40, chạy riêng `TestStatusParity` với env CI `TESTCONTAINERS_RYUK_DISABLED=true EP_SKIP_TIMING=1 -race -tags testroutes -count=1`, load máy 18–20, VM Colima load 43–62):** lượt 23:33 trượt ở `scenarios_test.go:501 PUT /admin/llm/routes → 504 DEADLINE_EXCEEDED` (không tới được dòng 606; log gateway của rig bị `io.Discard` ở `rig_test.go`, không có dòng log/stack để trích). Mỗi lượt đỏ ở MỘT yêu cầu khác nhau (441 → 501 → 606; DEF-R10-01 cũng khác endpoint mỗi lần) ⇒ không phải một lỗi xác định. Nguyên nhân gốc đọc từ mã: `rig_test.go:66 REQUEST_TIMEOUT=1s` + Postgres/Redis/MinIO testcontainers DÙNG CHUNG toàn máy (tên cố định, Reuse) với mọi agent đang chạy `go test` ⇒ một câu SQL > 1 s là hết hạn. Hết hạn chưa ghi gì → `timeoutMiddleware` trả 504 (đúng spec); NHƯNG 27 chỗ `apierr.Internal` ở các handler (vd. `examhttp/questions.go:99`, mặc định của `h.fail`) ghi 500 INTERNAL cho mọi lỗi lạ, kể cả `context deadline exceeded` từ DB, TRƯỚC khi middleware kịp xét (`!sw.wrote` sai) ⇒ cùng nguyên nhân cho ra 500 (606, DEF-R10-01: `POST …/report`, `/auth/verify-email`) hoặc 504 (441, 501). Kết luận: **do tải** ở mức kiểm thử (rig 1 s); kèm lỗi nhẹ thật của sản phẩm: lỗi DB do hết hạn bị gói thành 500 thay vì 504 (SRS 3.4) ở handler không dùng ánh xạ `DeadlineExceeded` (chỉ `llmhttp/verify.go`, `observabilityhttp`, `todayhttp` có). Chưa có lượt xanh trên máy rảnh (tải không xuống dưới 8) — lượt kế tiếp: xem mục «lượt chạy» ở smoke-2.md.
+- **Cập nhật SmkJ 23:46:** lượt 2 cùng lệnh, cùng mã, load 14–17: `--- PASS: TestStatusParity (110.74s)`, `ok … internal/contract 113s` (log `/tmp/qc2-j-sp.log`). Lượt 1 (load 18–20) đỏ 504 ở dòng 501 ⇒ cùng mã vừa đỏ vừa xanh ⇒ **do tải (REQUEST_TIMEOUT=1s của rig), không phải lỗi xác định**. Riêng dòng 606/500 chưa bắt lại được (log rig bị nuốt) — [INFERENCE] cùng cơ chế 500-thay-504 ở trên. Mức đề xuất hạ: Thấp (test chập chờn theo tải) + Thấp (ánh xạ hết hạn→500 ở handler).
 
 ---
 <!-- defects-3.md -->
@@ -259,6 +342,14 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Kỳ vọng (SRS P3-02 AC3 / TC-P3-02-21): cache roster xoá ≤ 5 s sau khi thành viên đổi, tên SV mới bị chặn; Thực tế: cache sống đến hết TTL 1 giờ.
 - Bằng chứng: lệnh trên (chạy hai lần, cùng kết quả); outbox chỉ có `course.member_changed` cho thao tác mời ra · Nghi ngờ mã: `backend-go/internal/course/members.go:222` (approve chỉ ghi `TopicJoinDecided`), `backend-go/internal/course/join.go:185-269` (không ghi sự kiện khi ACTIVE ngay), `cmd/worker/registry.go:129`
 - Chạy lại lần 2: ổn định
+### DEF-R6-C-01 — Dòng khoá ở /threads dùng chữ của chat thay vì "Đăng bài tạm khóa…"
+- Mức: Thấp
+- TC: TC-P3-06-42
+- Hồi quy do sprint sau?: KHÔNG (có từ commit 3f1e376a, US-P3-06)
+- Bước tái hiện: 1. SV có lượt thi IN_PROGRESS. 2. Mở /threads?course=<lớp>, bấm "Đặt câu hỏi". 3. Đọc dòng báo trạng thái trên ô soạn.
+- Kỳ vọng / Thực tế: SRS FEAT-private-chat-pii 472 "Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau {HH:mm}." / hiện "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." (e2e threads.spec.ts:180 cũng khẳng định chữ chat).
+- Nghi ngờ mã: frontend/src/features/threads/RealThreads.tsx:186
+
 
 ---
 <!-- defects-7.md -->
@@ -273,10 +364,23 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 
 ---
 <!-- defects-8.md -->
+### DEF-R8-s8core-01 — Giải trình không có dòng «không dự → 0 theo quy chế»
+- Mức: Trung bình
+- Sprint gốc: 8 · TC gốc: TC-P6-01-20, TC-P6-02-25 · Hồi quy do sprint sau? KHÔNG (engine.go chưa từng sinh chữ này từ 859ca52d; báo cáo gốc PASS chỉ dựa test Go không kiểm chữ)
+- Bước tái hiện: GET /courses/{lớp}/gradebook/students/{sv.nguyco}/explain (lớp 761987 hoặc QD8A1), xem dòng «Kiểm tra hằng tuần (20%)».
+- Kỳ vọng: dòng 0 với giải trình «không dự → 0 theo quy chế» + source_quote điều 1.4 (SRS 4.3.3, US-P6-02 AC7). Thực tế: expr «0», value «0», filled_by_user=true, không quote, không chữ «không dự».
+- Bằng chứng: docs/regression/evidence-8/logs/s8core-a1-p1.log, /tmp tạo từ a1cache (script scripts/s8core-a1-p1.py).
+- Nghi ngờ mã: backend-go/internal/grade/engine.go:198-204 (nhánh closed && zero[c.Key] chỉ thêm 0 vào scores, không thêm Line/Text; comment engine.go:251).
 
+### DEF-R8-s8core-02 — float64 chuyển điểm thi trong seed tool
+- Mức: Thấp
+- Sprint gốc: 8 (luật 5) · TC gốc: TC-P6-02-15 · Hồi quy do sprint sau? CÓ (commit 2e041190, sprint 11 đợt 2)
+- Bước tái hiện: grep -rln 'grade\|score' backend-go/internal --include=*.go | xargs grep -n float64 (loại các từ khoá không liên quan).
+- Kỳ vọng: không float64 chạm điểm. Thực tế: backend-go/internal/seedtool/examhistory.go:130 `float64(c)*2.5` ghi điểm thi (đúng chính xác, chỉ ở công cụ seed; mã sản phẩm sạch).
+- Bằng chứng: docs/regression/evidence-8/logs/s8core-static.log (mục 02-15).
 
-### DEF-R8-00 — (SmkD) Xem trước sổ lớp 1 lệch 7/30 — xem S8Core để kết luận
-- Triệu chứng: `p6-preview-vs-csv.py --by-account` 23/30 (sv10 qt 8,5 vs 6,0; sv23 hp_raw 4,1 vs 4,0). hand-calc 30/30 và go test grade xanh.
+### Ghi chú điều tra (không phải DEF): lớp 761987 lệch 8/30 so expected_final_grades.csv
+Công thức không đổi (1 bản CONFIRMED v3, scheme_no 1). Nguyên nhân là dữ liệu bị nhóm QC/sprint khác ghi đè trên lớp seed: midterm của sv04,05,06,07,09,10 = 0,2,4,6,8,10 nguồn QUIZ v2 (nhập Forms, 12:41:45 hôm nay); điểm cộng SPEAK 0,25 thêm cho sv22 (14:15) và sv23 (13:13). Tính tay Fraction từ đầu vào thật khớp preview 30/30 (logs/s8core-drift.log); bản sao sạch QD8A1 khớp CSV 30/30.
 
 ---
 <!-- defects-9.md -->
@@ -288,10 +392,35 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Kỳ vọng: test được nêu tên tồn tại và PASS · Thực tế: `no tests to run` / không có hàm
 - Bằng chứng: `docs/regression/evidence-9/logs/TC_P7_*_G*.log`
 - Chạy lại lần 2: ổn định
+- **ĐÓNG theo P-11-42 (2026-11-16):** 5/6 hàng đổi tên test trỏ tới theo ánh xạ dev2, chạy lại PASS (`evidence-9/logs/p11-42.log`); TC-P7-03-G03 chờ `TestSubmitIdempotent` (dev2 đang viết).
 
 ### DEF-R9-02 — ĐÃ LOẠI: `go test ./internal/contract/...` đỏ lúc tải cao
 - Chạy lại `go test -count=1 -tags testroutes ./internal/contract/...` lúc máy rảnh: ok (25 PASS, rc=0, logs/contract-rerun.log). Lần đỏ trước do timeout/504 khi tải ~20 → môi trường, không phải lỗi.
 
+
+---
+<!-- defects-9.1.md -->
+# Lỗi hồi quy sprint 9.1 — qc2, be0c0d96
+
+### DEF-R9.1-01 — luật `:hover` ngoài `@media (hover: hover) and (pointer: fine)` (TC-UX04-3, TC-UX08-5)
+- Mức: Thấp · Sprint gốc: 9.1 (US-04 AC2) · Hồi quy do sprint sau?: CÓ (Gradebook.module.css:7; Landing.module.css:40,73,97,144,226 — landing viết lại ở 10.7)
+- Bước tái hiện: `node docs/sprints/9.1/qc/scripts/hover-check.mjs` → liệt kê tệp:dòng. Kỳ vọng 0 vi phạm · Thực tế: các dòng trên.
+- Bằng chứng: evidence-9.1/logs/grep-batch.log · Chạy lại lần 2: ổn định
+
+### DEF-R9.1-02 — chuỗi «Kiểm duyệt Threads» hiển thị (TC-UX07-8)
+- Mức: Thấp · Sprint gốc: 9.1 (US-07 AC4) · Hồi quy do sprint sau?: CÓ (sprint 10.5, `frontend/src/features/.../decisionApi.ts:17`)
+- Bước tái hiện: `rg -n -w "Threads" frontend/src --glob '!**/*.test.*'` rồi loại tên biến/đường dẫn → còn chuỗi hiển thị «Kiểm duyệt Threads». Kỳ vọng 0 · Thực tế 1.
+- Chạy lại lần 2: ổn định
+
+### DEF-R9.1-03 — axe color-contrast trên `/` ngay sau tải (TC-UX08-50)
+- Mức: Thấp · Hồi quy do sprint sau?: CÓ (landing 10.7, Landing.module.css) — nghi artefact hiện-theo-cuộn (opacity đang chuyển tiếp)
+- Môi trường: ep-r, 375 px (ổn định 2/2, 12 nút) và 1440 px (1/2 lượt, 2 nút), axe +700 ms sau load.
+- Phần tử/màu (375): `.step:nth-child(2) > .card > h3` #aeadad/#b9b8b8 trên #fff = 2,23/1,97; `.step:nth-child(2) .spec[data-ui] p > span|b` #adaaaa/#b8b5b5 trên #fdfbfa = 2,23/1,97; `b > s` #cbc5c4 trên #fdfbfa = 1,65; `.tag--done` #aeccb1 trên #fff = 1,73; `.stat:nth-child(3)` (.stat__num/h3/p) #f9f9f9 trên #fff = 1,05. (1440): `.step:nth-child(2) .card h3`, `> p` #e0e0e0 trên #fff = 1,32.
+- Kỳ vọng AC16: 0 serious/critical · Thực tế: như trên; cuộn hết trang rồi chạy axe = 0 vi phạm. Đề xuất: (a) QC cuộn trước khi axe, hoặc (b) giữ opacity 1 (chỉ dịch transform).
+- Bằng chứng: frontend/e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts
+
+### Ghi nhận chưa thành lỗi
+Phần tử LCP của landing ở 375 px là `p.lead` (không phải h1). Nhóm F nghi môi trường (không phải lỗi mã): G3 54 ca, G4 18 ca, G5 4 ca — xem triage.md.
 
 ---
 <!-- defects-9.5.md -->
@@ -493,15 +622,40 @@ Ghi nhận không phải lỗi sản phẩm: (1) check-practice-seed.mjs đỏ d
 
 ---
 <!-- defects-10.8.md -->
-# Lỗi hồi quy sprint 10.8 (tạm, cập nhật dần) — be0c0d96, ep-r, qc2/SmkH
+# Lỗi hồi quy sprint 10.8 — be0c0d96 (sprint/11-p10-eval), ep-r, qc2/SmkH (đã phân loại; cập nhật khi còn ca chạy)
 
-Chưa có lỗi sản phẩm nào được xác nhận (trượt 2 lần). Các lượt F đã gặp và đã quy về môi trường / dữ liệu lặp, chạy lại đều ra P (không phải lỗi):
+Phân loại các lượt F thô: không còn F do môi trường — mọi lượt F ban đầu của AS12-03/13/14/15, AS06-06/08, AS13-01a/03, AS02-15, AS03-07, AS03-18, AS04-10, AS10-08b… đã chạy lại ra P (nguyên nhân bảng cuối). Lỗi thật xác nhận (trượt 2 lần, ổn định):
 
-| TC | Triệu chứng lần đầu | Nguyên nhân | Chạy lại |
-| --- | --- | --- | --- |
-| TC-AS03-07 | (c) trả `422 CHECKIN_TOKEN_INVALID` thay vì `409 SELF_CHECKIN_DISABLED` | lớp thử còn một cửa sổ đang mở; theo D-AS-06 (US-AS-01 AC5) cửa sổ đang mở vẫn nhận lượt dù tắt chính sách — hành vi đúng | P trên lớp không có cửa sổ mở |
-| TC-AS03-18 | `me/attendance` rỗng | chưa đóng cửa sổ nên chưa có `attendance_records` | P sau khi đóng |
-| TC-AS04-10 | K2 đầu tiên bị `DEVICE_NEW` ở lượt chạy 2 | dùng lại SV đã có khoá từ lượt chạy 1 | P với SV mới |
-| TC-AS10-08b | grep log khớp `10.77` | khớp nhầm mili-giây của dấu thời gian | P với mẫu chính xác (0 dòng) |
-| TC-AS12-15, TC-AS12-12…14 | 422 / dòng DB rỗng | token xoay 5 s hết hạn vì stack chậm, hoặc PostgreSQL đang phục hồi sau sự cố (nhóm khác) | P khi chạy lại |
-| TC-AS06-06/08 | `/me/today` không có mục | cache Hôm nay 60 s + fixture SQL không xoá cache; mục tính trong hạn 60 ms của provider | P sau chờ hết TTL |
+### DEF-R10.8-01 — `label-content-name-mismatch` (axe, serious) ở ba nút thanh trên của khung ứng dụng
+- Mức: Trung bình (WCAG 2.5.3 Label in Name; xuất hiện ở mọi màn có khung, kể cả `/attendance` và `/checkin`)
+- Sprint gốc: 10.8 · TC gốc: TC-AS08-25, TC-AS09-36, TC-AS09-39 (axe 0 lỗi nghiêm trọng) · Hồi quy do sprint sau?: KHÔNG RÕ — mã nút từ 10-2026 (`AppShell.tsx` dòng 245/266, blame 09bef60ed, f7a15c7d6), QC gốc đo axe 0; nghi do phiên bản axe-core 4.14.0 hiện tại hoặc chữ hiển thị đổi (số «22» chưa đọc)
+- Môi trường: ep-r, be0c0d96, GV `r108t`, 1440 (và 375 theo `qc-as-real`)
+- Bước tái hiện: đăng nhập GV → mở `/attendance` → `new AxeBuilder({page}).analyze()` (hoặc `qc-as-real.spec.ts` ca «TC-AS08-25»)
+- Kỳ vọng: 0 lỗi serious/critical · Thực tế: 3 nút: `button.search` (`aria-label="Tìm nhanh hoặc đi đến"`, chữ hiển thị «Tìm nhanh hoặc đi đến…»), `button.iconBtn` (`aria-label="Thông báo, 22 chưa đọc"`), `button.profile` (`aria-label="Tài khoản: <tên>"`)
+- Bằng chứng: `evidence-10.8/ui-real.log`, `evidence-10.8/ui-real/ui.jsonl` · Nghi ngờ mã: `frontend/src/shared/shell/AppShell.tsx:245-266` (tên truy cập phải chứa chữ hiển thị)
+- Chạy lại lần 2: ổn định ở 1440 (5/6 lượt; lượt `qc-as-ui` ca 25b cho 0 lỗi); ở 375 chỉ `/checkin` còn 1 nút (TC-AS09-36)
+
+### DEF-R10.8-02 — bảng truy vết SRS §11 trỏ tới 13 tên test không tồn tại
+- Mức: Thấp (tài liệu) · TC gốc: TC-AS14-11, TC-AS13-05 · Hồi quy do sprint sau?: KHÔNG (có sẵn từ 10.8: tên đổi khi viết test)
+- Bước tái hiện: `grep -rn "func TestWindow\|TestDisplayNoStore\|TestAssuranceLevels\|TestDeviceSharedRace\|TestAbsentUnchecked\|TestClearFlagsAudit\|TestTodayCheckinReview\|TestOverHeadcount\|TestFlagRecheckMiss\|TestFlagGeo\|TestFlagCampus\|TestNoCoordsOrIPStored\|TestAccountDeleteRemovesCheckins" backend-go --include=*_test.go` → 0 kết quả
+- Kỳ vọng: tên test ở SRS §11 khớp mã · Thực tế: test thật tên khác (`TestGeoFlagsAndAssurance`, `TestRoundsRecheckAndLimit`, `TestSpotCheckPrefersFlagged`, `TestForgetStudentKeepsOthers`, …); TC-AS13-05 chạy test thật
+- Nghi ngờ mã: `docs/specs/FEAT-attendance-selfcheck/SRS.md` §11 · Chạy lại lần 2: ổn định
+
+### DEF-R10.8-03 — «Đóng» khi mất mạng thử lại bằng Idempotency-Key mới
+- Mức: Thấp (không ghi đôi: server chỉ 1 cửa sổ đóng, hai yêu cầu cùng 200) · Sprint gốc: 10.8 · TC gốc: TC-AS08-20 · Hồi quy do sprint sau?: KHÔNG (có sẵn)
+- Môi trường: ep-r, GV `r108t`, 1440, Playwright `context.setOffline`
+- Bước tái hiện: mở `/attendance?session=…` có cửa sổ đang mở → `setOffline(true)` → bấm «Đóng» (dòng «Chưa đóng») → `setOffline(false)` → quan sát các `POST …/close` (`e2e/qc-r108-more.spec.ts` ca TC-AS08-20)
+- Kỳ vọng (TC): tự thử lại cùng `Idempotency-Key`, không ghi đôi · Thực tế: 3 lần offline cùng một khoá, rồi sau khi có mạng 1–2 yêu cầu với khoá khác (`keys=2…3`, `resp=fail:ep-b021c×3, 200:ep-1c28a`)
+- Bằng chứng: `evidence-10.8/ui-more4.log` · Nghi ngờ mã: `frontend/src/features/attendance/RealAttendance.tsx:215-243` (`closeWindow` gọi lại `actions.close.mutateAsync`), `checkinApi.ts:101` (`useMutation` thường, khoá mới mỗi lần; cần `useIdempotentMutation`)
+- Chạy lại lần 2: ổn định (3 lượt)
+
+### DEF-R10.8-04 — nút «Quét mã điểm danh» hiện cả khi `qr_code` không được hỗ trợ
+- Mức: Thấp · Sprint gốc: 10.8 · TC gốc: TC-AS11-07 · Hồi quy do sprint sau?: KHÔNG (có sẵn)
+- Bước tái hiện: SV mở `/checkin` với `Capacitor.isNativePlatform()=true` và `BarcodeDetector` có nhưng `getSupportedFormats()` rỗng / hàm dựng ném lỗi (`qc-r108-more2.spec.ts` ca TC-AS11-07)
+- Kỳ vọng: không nút quét, ô «Mã điểm danh» hiện ngay · Thực tế: nút «Quét mã điểm danh» hiện (`btn=1, input=0`); bấm → rơi vào nhánh «từ chối camera»
+- Nghi ngờ mã: `frontend/src/features/checkin/Scanner.tsx:10` (`hasBarcodeDetector` chỉ kiểm `"BarcodeDetector" in window`), `CheckinScreen.tsx:60-61` · Chạy lại lần 2: ổn định
+
+## Ghi nhận (không tính lỗi)
+1. `/me/today` mục `CHECKIN_REVIEW` đôi lúc vắng khi máy tải cao (provider «Hôm nay» hạn 60 ms, `today/providers.go:18`): 3 lần vắng / 8 lần đo; chờ cache 60 s hoặc gọi lại thì có. Go test `TestMeAttendanceCheckedAtAndTodayReview` trượt cùng lý do khi tải cao.
+2. `backend-go/internal/attendance/token.go:65,88` còn chú thích tên cũ `TOKEN_INVALID`/`TOKEN_EXPIRED` (mã chạy đúng `CHECKIN_TOKEN_*`).
+3. Go: `TestAttestRealChains`, `TestCheckinFlow`, `TestCheckinFlags`, `TestPurgeKeepsRecords`, `TestMeAttendanceCheckedAtAndTodayReview` hết hạn / trượt khi máy tải 30+; chạy lại khi tải thấp: toàn bộ PASS (`go-attendance3.log`, `go-attest3.log`, `-race` ok). `go test ./internal/contract` cần `-tags testroutes` (Makefile:17).

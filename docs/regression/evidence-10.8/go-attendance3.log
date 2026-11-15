@@ -1,0 +1,44 @@
+=== RUN   TestCheckinFlow
+2026/11/16 00:03:17 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 66866326b3d74be9a7ce2ceee6f695cf82949d52ef0ff44688a92f2b69dcb635
+  Test ProcessID: 5d8ac131-af6b-4c65-9408-e659f8d0589e
+2026/11/16 00:03:17 ✅ Container started: 68f6ff853df5
+2026/11/16 00:03:17 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/16 00:03:17 🔔 Container is ready: 68f6ff853df5
+2026/11/16 00:03:18 ✅ Container started: 5636bc78d64d
+2026/11/16 00:03:18 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/16 00:03:18 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestCheckinFlow (1.26s)
+=== RUN   TestCheckinFlags
+--- PASS: TestCheckinFlags (1.03s)
+=== RUN   TestMeAttendanceCheckedAtAndTodayReview
+--- PASS: TestMeAttendanceCheckedAtAndTodayReview (1.21s)
+=== RUN   TestPurgeKeepsRecords
+2026/11/16 00:03:22 INFO attendance.purge checkins=1 devices=1
+--- PASS: TestPurgeKeepsRecords (2.12s)
+=== RUN   TestCheckinWindowSurvivesPolicyOff
+--- PASS: TestCheckinWindowSurvivesPolicyOff (1.05s)
+=== RUN   TestGeoFlagsAndAssurance
+--- PASS: TestGeoFlagsAndAssurance (0.80s)
+=== RUN   TestRoundsRecheckAndLimit
+--- PASS: TestRoundsRecheckAndLimit (0.93s)
+=== RUN   TestSpotCheckPrefersFlagged
+--- PASS: TestSpotCheckPrefersFlagged (0.78s)
+=== RUN   TestCheckinsListCursor
+--- PASS: TestCheckinsListCursor (0.59s)
+=== RUN   TestForgetStudentKeepsOthers
+--- PASS: TestForgetStudentKeepsOthers (1.08s)
+=== RUN   TestLogsNoCheckinSecrets
+--- PASS: TestLogsNoCheckinSecrets (0.59s)
+=== RUN   TestSeedCheckinDemo
+--- PASS: TestSeedCheckinDemo (0.75s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/attendance	13.029s
+exit=0

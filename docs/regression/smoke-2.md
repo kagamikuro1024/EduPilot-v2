@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 2 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm A) · Ngày: 2026-11-15
 
-Tổng TC cũ: 527 · Đạt (P): 397 · Trượt (F): 4 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 39 · Chưa chạy — cần PM quyết (X): 87 · Chưa chạy — ngoài mẫu (N): 0   (P+F+K+D+X+N = 527)
+Tổng TC cũ: 527 · Đạt (P): 408 · Trượt (F): 8 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 40 · Chưa chạy — cần PM quyết (X): 71 · Chưa chạy — ngoài mẫu (N): 0   (P+F+K+D+X+N = 527)
 Quy ước: **K(a)** thiết bị không có · **K(b)** cần người thật · **K(c)** ngoài phạm vi đồ án · **D** TC lỗi thời (spec đã đổi hợp lệ, ghi mã đề xuất/quyết định) · **X** chưa chạy vì lệnh phá huỷ/dựng stack thứ hai bị cấm (chờ PM) · **N** chưa chạy: dạng tài liệu, ngoài mẫu smoke «1 chính + 1 lỗi / US».
 Cách chạy:
 - `docs/regression/evidence-2/scripts/{pg01..pg07,gate-pg}.sh` (bản sao của `docs/sprints/2/qc/scripts`, chỉ chỉnh cổng/project sang ep-r: 6133/7080/9700/1143, `-p ep-r`, thêm APP_ENCRYPTION_KEY vào env nhị phân trần — bắt buộc từ sprint 3, proposals#4; docker bọc chặn lệnh phá huỷ). Log: `evidence-2/run-logs/<story>.log`.
@@ -14,9 +14,9 @@ Cách chạy:
 | US | TC tổng | P | F | K(a/b/c) | D | X | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | US-PG-01 | 85 | 80 | 0 | 0 | 5 | 0 | 0 | khung dịch vụ |
-| US-PG-02 | 70 | 57 | 1 | 0 | 8 | 4 | 0 | schema/blob/outbox |
-| US-PG-03 | 108 | 94 | 0 | 0 | 2 | 12 | 0 | idempotency/REST |
-| US-PG-04 | 58 | 53 | 0 | 0 | 2 | 3 | 0 | JWT/auth |
+| US-PG-02 | 70 | 59 | 1 | 0 | 9 | 1 | 0 | schema/blob/outbox |
+| US-PG-03 | 108 | 102 | 4 | 0 | 2 | 0 | 0 | idempotency/REST |
+| US-PG-04 | 58 | 54 | 0 | 0 | 2 | 2 | 0 | JWT/auth |
 | US-PG-05 | 74 | 55 | 0 | 0 | 0 | 19 | 0 | SSE |
 | US-PG-06 | 38 | 25 | 3 | 0 | 6 | 4 | 0 | OpenAPI/contract |
 | US-PG-07 | 69 | 31 | 0 | 0 | 16 | 22 | 0 | compose/CI |
@@ -149,7 +149,9 @@ Cách chạy:
 | TC-PG02-36 | P |  |
 | TC-PG02-37 | P |  |
 | TC-PG02-38 | P |  |
-| TC-PG02-39…TC-PG02-41 | X | `migrate down` xoá schema ep-r dùng chung — cấm chạy trên stack chung |
+| TC-PG02-39 | P | chạy trên Postgres tạm qc2-j-pg (không chạm ep-r): down→up, pg_dump -s trước/sau giống hệt (7333 dòng); run-logs/02-j.log |
+| TC-PG02-40 | P | Postgres tạm qc2-j-pg: sau down 0/5 bảng nền, extension vector giữ, up khôi phục 5 bảng; run-logs/02-j.log |
+| TC-PG02-41 | D | Postgres tạm: `migrate up` lần hai rc 0 và goose_db_version không thêm dòng (AC6 đạt); chỉ ý «đúng 5 bảng+goose» lỗi thời: nay 80 bảng (schema 00001→00025, sprint 3…11); run-logs/02-j.log |
 | TC-PG02-42 | D | goose version mới nhất 25 (TC đòi 1) |
 | TC-PG02-43 | P |  |
 | TC-PG02-44 | X | `pnpm dev:down` + xoá volume + `pnpm dev` project edupilot — cấm (stack thứ hai / xoá dữ liệu chung) |
@@ -210,9 +212,11 @@ Cách chạy:
 | TC-PG03-28 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-29 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-30 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG03-31…TC-PG03-33 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG03-31 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG03-32 | F | CẦN TRIAGE: có hai bản gateway: [] không khớp /^.+$/ |
+| TC-PG03-33 | F | CẦN TRIAGE: XFF 203.0.113.7 request thứ 6 bị 429: [] không khớp / 429/ |
 | TC-PG03-34 | P |  |
-| TC-PG03-35 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG03-35 | F | CẦN TRIAGE: độ trễ thêm so với baseline (ms): thực tế [236] phải ≤ 50 |
 | TC-PG03-36 | P |  |
 | TC-PG03-37 | P |  |
 | TC-PG03-38 | P |  |
@@ -243,8 +247,9 @@ Cách chạy:
 | TC-PG03-63 | P |  |
 | TC-PG03-64 | P |  |
 | TC-PG03-65 | P |  |
-| TC-PG03-66…TC-PG03-67 | X | lần 1 trượt khi 6 luồng + nhóm khác cùng tải stack; chưa chạy lại riêng để xác nhận |
-| TC-PG03-68 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG03-66 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG03-67 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG03-68 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-69 | P |  |
 | TC-PG03-70 | P |  |
 | TC-PG03-71 | P |  |
@@ -262,16 +267,18 @@ Cách chạy:
 | TC-PG03-83 | P |  |
 | TC-PG03-84 | P |  |
 | TC-PG03-85 | P |  |
-| TC-PG03-86 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG03-86 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-87 | P |  |
 | TC-PG03-88 | P |  |
 | TC-PG03-89 | P |  |
 | TC-PG03-90 | P |  |
 | TC-PG03-91 | P |  |
 | TC-PG03-92 | P |  |
-| TC-PG03-93…TC-PG03-95 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG03-93 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG03-94 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-PG03-95 | F | CẦN TRIAGE: số dòng _test_items tên qc95 (bảng thử không bị ghi): thực tế [1] ≠ mong đợi [0] |
 | TC-PG03-96 | P |  |
-| TC-PG03-97 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG03-97 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-98 | D | APP_ENV=production: log lỗi nêu biến production khác, không nêu APP_ENV (kiểm tra production sprint sau) |
 | TC-PG03-99 | P |  |
 | TC-PG03-100 | P |  |
@@ -304,7 +311,7 @@ Cách chạy:
 | TC-PG04-18 | P |  |
 | TC-PG04-19 | P |  |
 | TC-PG04-20 | P |  |
-| TC-PG04-21 | X | cần lệnh phá huỷ/scale trên ep-r (dừng postgres/redis, gateway=2, chế độ default) — chưa chạy trong cửa sổ khoá global |
+| TC-PG04-21 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG04-22 | P |  |
 | TC-PG04-23 | P |  |
 | TC-PG04-24 | P |  |

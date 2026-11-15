@@ -1,0 +1,4 @@
+PASS TC-AS12-05 chuỗi X.509 tự ký giả (2 chứng chỉ) → 422 ATTESTATION_FAILED 422 {"code": "ATTESTATION_FAILED", "message": "Kh\u00f4ng x\u00e1c minh \u0111\u01b0\u1ee3c thi\u1ebft b
+free sessions 30 students 40
+FAIL TC-AS13-09 production bị từ chối; không route HTTP purge (404); ngắt giữa chừng: lô đã xoá giữ nguyên, chạy lại xoá nốt prod rc=1 'admin purge-checkins: chỉ chạy khi APP_ENV thuộc dev, test (hiện: "production")'; http=[404, 404, 404]; trước=3600 giữa=3600
+PASS TC-AS13-04 2.500+ lượt quá hạn: xoá hết một lần chạy theo lô (SQL có LIMIT 1000), log tổng số hàng 3600→0; 'purge-checkins: 3600 lượt, 0 thiết bị'; lô: limit 1000

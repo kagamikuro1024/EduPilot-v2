@@ -1,0 +1,6 @@
+SV: 85
+joined 84
+{"name": "spread", "n": 84, "ok": 83, "non201": [403], "rows": 83, "p95": 1959.2, "p99": 1988.1, "mx": 1988.1, "disp": [[200, 20.106077194213867], [200, 1962.5091552734375], [200, 6.804943084716797]], "secs": 32.0, "stats": "ep-r-gateway-1 0.57% 20.75MiB / 9.69GiB | ep-r-postgres-1 16.43% 362.2MiB / 9.69GiB | ep-r-redis-1 2.11% 13.27MiB / 9.69GiB"}
+{"name": "burst", "n": 84, "ok": 83, "non201": [403], "rows": 83, "p95": 4048.5, "p99": 4547.4, "mx": 4547.4, "disp": [[200, 4.536151885986328]], "secs": 8.9, "stats": "ep-r-gateway-1 0.20% 13.97MiB / 9.69GiB | ep-r-postgres-1 6.31% 363.1MiB / 9.69GiB | ep-r-redis-1 0.37% 11.77MiB / 9.69GiB"}
+FAIL TC-AS14-06 (thu nhỏ ≤ 100 SV) spread 30 s và burst 5 s: p95 POST ≤ 500 ms, lỗi 0 %, đúng N hàng, display ≤ 300 ms [{"name": "spread", "n": 84, "ok": 83, "rows": 83, "p95": 1959.2, "p99": 1988.1, "mx": 1988.1, "secs": 32.0}, {"name": "burst", "n": 84, "ok"
+FAIL TC-AS14-07 trong tải: không 5xx; Redis không dùng khoá ep:att:* ngoài codefail trên đường nóng (MONITOR mẫu); docker stats ghi nhận ep:att ngoài codefail=0; ep-r-gateway-1 0.57% 20.75MiB / 9.69GiB | ep-r-postgres-1 16.43% 362.2MiB / 9.69GiB | ep-r-redis-1
