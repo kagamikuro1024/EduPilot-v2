@@ -20,6 +20,25 @@ Chưa đo trên stack T1 Docker đầy đủ: số có thể lệch vài trăm m
 
 Ngưỡng `lighthouserc*.json` giữ 2.500. TBT (devtools) 17–31 ms mọi route.
 
+## Trung thực về LCP: phần lớn mức giảm là do ĐỔI phần tử lớn nhất, không phải dữ liệu hiện sớm hơn
+`/gradebook`, `/me`, `/settings/llm` đạt vì chữ dài sau phiên (nhỏ hơn / bằng `h1` thì không còn là ứng viên LCP) bị bỏ theo luật chữ UI: LCP chuyển sang chữ PreShell (≈ 1,5 s). **Dữ liệu chính vẫn hiện muộn.** Đo thêm thời điểm dữ liệu chính hiện (puppeteer, cùng throttle devtools: 562,5 ms / 1,474 Mbps / CPU 4×, tắt cache, 5 lượt mỗi ô, trung vị, bản HEAD trước đợt 3 `2f033ba1` đối với bản sau, cùng stack): thời điểm = lúc phần tử đánh dấu đầu tiên xuất hiện trong DOM (`input[data-cell]` của lưới sổ điểm; `[data-part=grade-sentence]` của `/me`; tiêu đề phần «Mô hình theo tác vụ» của `/settings/llm`, chỉ dựng sau khi providers + routes về).
+| Route | LCP trước → sau (ms) | Dữ liệu chính hiện trước → sau (ms) | Giảm thật |
+| --- | --- | --- | --- |
+| `/gradebook` | 6.156 → 2.072 | 6.791 → 6.055 | −0,74 s (U1 + U2 + U4) |
+| `/me` | 7.032 → 1.568 | 6.996 → 5.274 | −1,72 s (U1 + U2 + U4) |
+| `/settings/llm` | 5.436 → 4.700 (dữ liệu) | 5.384 → 4.700 | −0,68 s (U1 + U2 + U4) |
+(LCP của cột này đo bằng puppeteer nên cao hơn Lighthouse vài trăm ms vì tính cả logo; kết luận cùng chiều với bảng Lighthouse ở trên.)
+Hệ quả: người dùng thấy trang nhanh hơn 0,7–1,7 s thật, nhưng thấy DỮ LIỆU sau ≈ 4,7–6 s dưới throttle này. Con số «LCP ≤ 2,5 s» của ba route này nói về chữ khung, không phải về dữ liệu. Muốn dữ liệu hiện < 2,5 s chỉ có SSR (b).
+
+## U1 đổi hành vi phiên phía client (QC kiểm)
+Trước: `AuthProvider` gọi `POST /auth/refresh` trong `useEffect` sau khi React hydrate (≈ 3,5 s dưới throttle). Sau: `<script>` nội tuyến trong `<head>` (`shared/data/earlyRefresh.ts`, gắn ở `app/layout.tsx`) gọi ngay khi HTML được phân tích, đặt promise lên `window.__epRefresh`; `authSession.doRefresh` lấy đúng MỘT lần rồi `delete`.
+- Điều kiện gọi giữ nguyên: `/` mà máy chưa từng đăng nhập (`ep_returning` ≠ `1`) thì KHÔNG gọi; mọi route khác gọi (kể cả `/login`).
+- Cùng khoá `navigator.locks` `ep-refresh` như trước: hai tab tải cùng lúc không bao giờ có hai làm mới chạy chồng (cookie xoay vòng: token cũ dùng lại ⇒ gateway thu hồi phiên `REFRESH_REUSE`). Trình duyệt không có `navigator.locks`: chạy thẳng (như nhánh dự phòng cũ).
+- Hết thời gian 15 s như cũ (`AbortSignal.timeout`). Lỗi mạng ở lời gọi sớm → `NETWORK` như trước (không đăng xuất). Header `X-Request-Id` không còn gửi ở lời gọi sớm (gateway không đòi).
+- Token vẫn chỉ ở bộ nhớ; không đổi cookie, không đổi gateway, không đổi mô hình auth. CSP `script-src 'unsafe-inline'` (10.8) cho phép script nội tuyến.
+- Rủi ro đã biết: nếu `__epRefresh` bị tạo mà AuthProvider không bao giờ gọi `refreshSession` (không có đường như vậy hôm nay: cùng điều kiện), cookie vẫn xoay vòng một lần — không hại.
+**Test e2e cho QC** (`frontend/e2e/early-refresh.spec.ts`, desktop): (1) một lần tải = đúng một `POST /auth/refresh`, `window.__epRefresh` bị xoá; (2) `/` khách = 0 lần; (3) **hai tab tải cùng lúc** `/me`: `maxActive = 1` (không chạy chồng) và mỗi tab đúng một lần. QC nên thêm: đăng nhập thật ở hai tab (stack Docker, không mock) tải lại cùng lúc ×20, 0 lần `SESSION_REVOKED`.
+
 ## Nguyên nhân (waterfall `/me`, throttle devtools)
 HTML 0–0,9 s → làm mới phiên 0,7–1,9 s (sau U1; trước đó chỉ bắt đầu khi JS chạy, ≈ 3,5 s) → các chunk JS tải thành nhiều đợt, tới 3,5 s → `/me/courses` 3,5–4,8 s → 5 truy vấn dữ liệu 5,1–5,7 s → vẽ. FCP 0,84 s nhờ PreShell. **Chuỗi này không rút được dưới 2,5 s chỉ bằng sửa phía client** (JS xong ≈ 3,5 s dưới throttle), đúng như TL-2: cách duy nhất là để chữ lớn nhất sau phiên không vượt `h1` của PreShell (đường (a)). U1–U4 chỉ cắt 0,1–0,35 s mỗi route (tăng tốc thật, không đủ để đạt).
 Phát hiện: LCP là **diện tích hộp chữ** (một đoạn xuống dòng ở 412 px chiếm cả bề rộng); mọi đoạn chữ sau phiên phải nhỏ hơn `h1` (≈ 9.000 px² với «Kết quả của tôi», ≈ 4.800 px² với «Sổ điểm»).
