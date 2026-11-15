@@ -1,0 +1,38 @@
+{"tc":"TC-AS08-02a (1440) «Mở điểm danh» → mở cửa sổ rồi chuyển sang /attendance/display?course=…&session=…","st":"PASS","note":"http://localhost:580/attendance/display?course=01a1dde0-8183-7634-aff7-27d408aa4c58&session=01a1ddfa-b09a-74e3-a62c-39a8699aa1dc"}
+{"tc":"TC-AS08-02 (1440) «Mở điểm danh» → dòng «Đang mở» + API có 1 cửa sổ vòng 1","st":"PASS","note":"[1]"}
+{"tc":"TC-AS08-03 (1440) liên kết «Mở màn chiếu» → /attendance/display?course=…&session=…","st":"PASS","note":"/attendance/display?course=01a1dde0-8183-7634-aff7-27d408aa4c58&session=01a1ddfa-b09a-74e3-a62c-39a8699aa1dc"}
+{"tc":"TC-AS08-05 (1440) đếm «k/n» cập nhật theo lượt (4/…) không tải lại","st":"PASS","note":"· 4/10"}
+{"tc":"TC-AS08-06 (1440) hàng đã điểm danh hiện «Điểm danh lúc» + chip «Không xác minh được máy»","st":"PASS","note":""}
+{"tc":"TC-AS07-10a (1440) «Nhập số đầu người» tự lưu (600 ms) → API headcount=1","st":"PASS","note":""}
+{"tc":"TC-AS07-01 (1440) 4 lượt > 1 + max(2,…)=3 ⇒ «Số điểm danh nhiều hơn số người đếm»","st":"PASS","note":"Đang mở · 4/10 · còn 09:50 · 1 người trong lớp Số điểm danh nhiều hơn số người đếm Mở màn chiếu Đóng"}
+{"tc":"TC-AS07-10b (1440) Drawer «Gọi ngẫu nhiên»: 4 tên + MSSV + «Có cờ»","st":"PASS","note":"Gọi ngẫu nhiên Vũ Hoàng Giang 20229001 Có cờ Bùi Thanh Khải 20229002 Có cờ Ngô Ngọc Cẩm 20229003 Có cờ Vũ Minh Long 2022"}
+{"tc":"TC-AS05-17a0 (1440) độ trễ cập nhật «Đã ghi…» sau khi bấm Đóng","st":"NOTE","note":"104 ms → Đã ghi 4 có mặt · 0 muộn · 6 chưa điểm danh"}
+{"tc":"TC-AS05-17a (1440) đóng bằng lưới: «Đã ghi a có mặt · b muộn · u chưa điểm danh» tại chỗ","st":"PASS","note":"Đã ghi 4 có mặt · 0 muộn · 6 chưa điểm danh"}
+{"tc":"TC-AS05-10c (1440) «Lưu điểm danh» khi còn SV chưa điểm danh → 422 CHECKIN_UNRESOLVED hiện «Còn N sinh viên chưa điểm danh» + nút «Đánh vắng N SV…»","st":"PASS","note":"N=6; số nút «Đánh vắng N SV…» cùng lúc: 1"}
+{"tc":"TC-AS08-UX1 (1440) D-AS-05: «Còn N sinh viên chưa điểm danh» không xuống dòng từng chữ (≤ 2 dòng, rộng ≥ 150 px)","st":"PASS","note":"{\"x\":308,\"y\":233.1875,\"width\":839.140625,\"height\":21.6875}"}
+{"tc":"TC-AS08-UX2 (1440) sau đóng, đã có vòng: không còn nút «Mở điểm danh» cạnh «Mở vòng 2»; chỉ một «Lưu điểm danh» chính","st":"PASS","note":"Lưu điểm danh"}
+{"tc":"TC-AS05-17b (1440) hộp xác nhận chuẩn nêu số người: «Đánh vắng 6 sinh viên?» + hệ quả + nút «Đánh vắng»","st":"PASS","note":"Đánh vắng 6 sinh viên?  6 sinh viên chưa điểm danh thành Vắng.  Để sau Đánh vắng"}
+{"tc":"TC-AS05-07c (1440) xác nhận → 6 dòng ABSENT, thông báo «Còn…» biến mất","st":"PASS","note":""}
+{"tc":"TC-AS05-11b (1440) sau đánh vắng, «Lưu điểm danh» hoàn tất («Đã lưu điểm danh · N sinh viên · vắng M»)","st":"PASS","note":"Đã lưu điểm danh · 10 sinh viên · vắng 6"}
+{"tc":"TC-AS07-10c (1440) «Mở vòng 2» → «Vòng 2»","st":"PASS","note":""}
+{"tc":"TC-AS08-25b (1440) axe /attendance có cửa sổ: 0 lỗi nghiêm trọng","st":"PASS","note":""}
+{"tc":"TC-AS08-01b (1440) không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-02a (375) «Mở điểm danh» → mở cửa sổ rồi chuyển sang /attendance/display?course=…&session=…","st":"PASS","note":"http://localhost:580/attendance/display?course=01a1dde0-8183-7634-aff7-27d408aa4c58&session=01a1ddfa-b09a-7737-8c8c-f19c50da53df"}
+{"tc":"TC-AS08-02 (375) «Mở điểm danh» → dòng «Đang mở» + API có 1 cửa sổ vòng 1","st":"PASS","note":"[1]"}
+{"tc":"TC-AS08-03 (375) liên kết «Mở màn chiếu» → /attendance/display?course=…&session=…","st":"PASS","note":"/attendance/display?course=01a1dde0-8183-7634-aff7-27d408aa4c58&session=01a1ddfa-b09a-7737-8c8c-f19c50da53df"}
+{"tc":"TC-AS08-05 (375) đếm «k/n» cập nhật theo lượt (4/…) không tải lại","st":"PASS","note":"· 4/10"}
+{"tc":"TC-AS08-06 (375) hàng đã điểm danh hiện «Điểm danh lúc» + chip «Không xác minh được máy»","st":"PASS","note":""}
+{"tc":"TC-AS07-10a (375) «Nhập số đầu người» tự lưu (600 ms) → API headcount=1","st":"PASS","note":""}
+{"tc":"TC-AS07-01 (375) 4 lượt > 1 + max(2,…)=3 ⇒ «Số điểm danh nhiều hơn số người đếm»","st":"PASS","note":"Đang mở · 4/10 · còn 09:50 · 1 người trong lớp Số điểm danh nhiều hơn số người đếm Mở màn chiếu Đóng"}
+{"tc":"TC-AS07-10b (375) Drawer «Gọi ngẫu nhiên»: 4 tên + MSSV + «Có cờ»","st":"PASS","note":"Gọi ngẫu nhiên Vũ Hoàng Giang 20229001 Có cờ Bùi Thanh Khải 20229002 Có cờ Ngô Ngọc Cẩm 20229003 Có cờ Vũ Minh Long 2022"}
+{"tc":"TC-AS05-17a0 (375) độ trễ cập nhật «Đã ghi…» sau khi bấm Đóng","st":"NOTE","note":"106 ms → Đã ghi 4 có mặt · 0 muộn · 6 chưa điểm danh"}
+{"tc":"TC-AS05-17a (375) đóng bằng lưới: «Đã ghi a có mặt · b muộn · u chưa điểm danh» tại chỗ","st":"PASS","note":"Đã ghi 4 có mặt · 0 muộn · 6 chưa điểm danh"}
+{"tc":"TC-AS05-10c (375) «Lưu điểm danh» khi còn SV chưa điểm danh → 422 CHECKIN_UNRESOLVED hiện «Còn N sinh viên chưa điểm danh» + nút «Đánh vắng N SV…»","st":"PASS","note":"N=6; số nút «Đánh vắng N SV…» cùng lúc: 1"}
+{"tc":"TC-AS08-UX1 (375) D-AS-05: «Còn N sinh viên chưa điểm danh» không xuống dòng từng chữ (≤ 2 dòng, rộng ≥ 150 px)","st":"PASS","note":"{\"x\":72,\"y\":269.1875,\"width\":261,\"height\":21.6875}"}
+{"tc":"TC-AS08-UX2 (375) sau đóng, đã có vòng: không còn nút «Mở điểm danh» cạnh «Mở vòng 2»; chỉ một «Lưu điểm danh» chính","st":"PASS","note":"Lưu điểm danh · 4 có mặt · 6 vắng"}
+{"tc":"TC-AS05-17b (375) hộp xác nhận chuẩn nêu số người: «Đánh vắng 6 sinh viên?» + hệ quả + nút «Đánh vắng»","st":"PASS","note":"Đánh vắng 6 sinh viên?  6 sinh viên chưa điểm danh thành Vắng.  Để sau Đánh vắng"}
+{"tc":"TC-AS05-07c (375) xác nhận → 6 dòng ABSENT, thông báo «Còn…» biến mất","st":"PASS","note":""}
+{"tc":"TC-AS05-11b (375) sau đánh vắng, «Lưu điểm danh» hoàn tất («Đã lưu điểm danh · N sinh viên · vắng M»)","st":"PASS","note":"Đã lưu điểm danh · 10 sinh viên · vắng 6"}
+{"tc":"TC-AS07-10c (375) «Mở vòng 2» → «Vòng 2»","st":"PASS","note":""}
+{"tc":"TC-AS08-25b (375) axe /attendance có cửa sổ: 0 lỗi nghiêm trọng","st":"PASS","note":""}
+{"tc":"TC-AS08-01b (375) không tràn ngang","st":"PASS","note":""}
