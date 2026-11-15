@@ -1,21 +1,21 @@
 {
   "meta": {
     "commit": "5ea7cdef",
-    "timestamp": "2026-11-15T04:27:44.633Z",
+    "timestamp": "2026-11-15T09:04:47.270Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
-      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git) | P-11-27: chạy lại 2026-11-15 sau khi sửa phép đo so trích dẫn (bỏ «- » đầu mục)"
     }
   },
-  "at": "2026-11-15T04:27:44.633Z",
+  "at": "2026-11-15T09:04:47.270Z",
   "runs": [
     {
       "doc": "quy-che-lop1.md",
       "run": 1,
       "job_status": "SUCCEEDED",
       "job_error": null,
-      "wall_s": 12.4,
+      "wall_s": 15.3,
       "audit": {
         "calls": 1,
         "status": {
@@ -29,22 +29,22 @@
         "fallback_used": 0,
         "latency_ms": {
           "n": 1,
-          "p50": 10200,
-          "p90": 10200,
-          "p95": 10200,
-          "max": 10200,
-          "mean": 10200
+          "p50": 12263,
+          "p90": 12263,
+          "p95": 12263,
+          "max": 12263,
+          "mean": 12263
         },
         "queue_wait_ms": {
           "n": 1,
-          "p50": 1,
-          "p90": 1,
-          "p95": 1,
-          "max": 1,
-          "mean": 1
+          "p50": 0,
+          "p90": 0,
+          "p95": 0,
+          "max": 0,
+          "mean": 0
         },
-        "tokens_in": 5843,
-        "tokens_out": 962
+        "tokens_in": 6147,
+        "tokens_out": 980
       },
       "score": {
         "components_ok": {
@@ -88,7 +88,7 @@
         "unclear_llm": []
       },
       "draft": {
-        "id": "01a1dd73-7f3b-7d3b-bd3c-5dbd380ed486",
+        "id": "01a1de71-211c-7549-8f03-a61d30478c59",
         "scheme_no": 1,
         "status": "DRAFT",
         "version": 1,
@@ -111,7 +111,7 @@
             "citations": [
               {
                 "page": 1,
-                "quote": "1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
+                "quote": "- 1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
               }
             ],
             "filled_by_user": false
@@ -132,7 +132,7 @@
             "citations": [
               {
                 "page": 1,
-                "quote": "1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
+                "quote": "- 1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
               }
             ],
             "filled_by_user": false
@@ -153,7 +153,7 @@
             "citations": [
               {
                 "page": 1,
-                "quote": "1.5. Điểm thi cuối kỳ có trọng số 60% của điểm học phần."
+                "quote": "- 1.5. Điểm thi cuối kỳ có trọng số 60% của điểm học phần."
               }
             ],
             "filled_by_user": false
@@ -171,7 +171,7 @@
             "citations": [
               {
                 "page": 1,
-                "quote": "2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm."
+                "quote": "- 2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm."
               }
             ],
             "filled_by_user": false
@@ -187,7 +187,7 @@
             "citations": [
               {
                 "page": 1,
-                "quote": "2.2. Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ."
+                "quote": "- 2.2. Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ."
               }
             ],
             "filled_by_user": false
@@ -202,7 +202,7 @@
             "citations": [
               {
                 "page": 2,
-                "quote": "3.1. Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn."
+                "quote": "- 3.1. Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn."
               }
             ],
             "filled_by_user": false
@@ -217,7 +217,7 @@
             "citations": [
               {
                 "page": 2,
-                "quote": "4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
+                "quote": "- 4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
               }
             ],
             "filled_by_user": false
@@ -232,7 +232,7 @@
             "citations": [
               {
                 "page": 2,
-                "quote": "4.2. Sinh viên vắng không phép từ 7 buổi trở lên thì bị điểm F."
+                "quote": "- 4.2. Sinh viên vắng không phép từ 7 buổi trở lên thì bị điểm F."
               }
             ],
             "filled_by_user": false
@@ -283,7 +283,7 @@
             "citations": [
               {
                 "page": 2,
-                "quote": "3.2. Điểm chữ xác định theo điểm học phần đã làm tròn: từ 9,0 đến 10 là A+; từ 8,5 đến dưới 9,0 là A; từ 8,0 đến dưới 8,5 là B+; từ 7,0 đến dưới 8,0 là B; từ 6,5 đến dưới 7,0 là C+; từ 5,5 đến dưới 6,5 là C; từ 5,0 đến dưới 5,5 là D+; từ 4,0 đến dưới 5,0 là D; dưới 4,0 là F."
+                "quote": "- 3.2. Điểm chữ xác định theo điểm học phần đã làm tròn: từ 9,0 đến 10 là A+; từ 8,5 đến dưới 9,0 là A; từ 8,0 đến dưới 8,5 là B+; từ 7,0 đến dưới 8,0 là B; từ 6,5 đến dưới 7,0 là C+; từ 5,5 đến dưới 6,5 là C; từ 5,0 đến dưới 5,5 là D+; từ 4,0 đến dưới 5,0 là D; dưới 4,0 là F."
               }
             ],
             "filled_by_user": false
@@ -299,7 +299,7 @@
             "citations": [
               {
                 "page": 1,
-                "quote": "1.4. Sinh viên không dự bài kiểm tra hằng tuần được tính 0 điểm bài đó."
+                "quote": "- 1.4. Sinh viên không dự bài kiểm tra hằng tuần được tính 0 điểm bài đó."
               }
             ],
             "filled_by_user": false
@@ -314,7 +314,7 @@
       "run": 2,
       "job_status": "SUCCEEDED",
       "job_error": null,
-      "wall_s": 12.2,
+      "wall_s": 15.1,
       "audit": {
         "calls": 1,
         "status": {
@@ -328,22 +328,22 @@
         "fallback_used": 0,
         "latency_ms": {
           "n": 1,
-          "p50": 8597,
-          "p90": 8597,
-          "p95": 8597,
-          "max": 8597,
-          "mean": 8597
+          "p50": 12145,
+          "p90": 12145,
+          "p95": 12145,
+          "max": 12145,
+          "mean": 12145
         },
         "queue_wait_ms": {
           "n": 1,
-          "p50": 1,
-          "p90": 1,
-          "p95": 1,
-          "max": 1,
-          "mean": 1
+          "p50": 0,
+          "p90": 0,
+          "p95": 0,
+          "max": 0,
+          "mean": 0
         },
-        "tokens_in": 4880,
-        "tokens_out": 956
+        "tokens_in": 5829,
+        "tokens_out": 1511
       },
       "score": {
         "components_ok": {
@@ -387,7 +387,7 @@
         "unclear_llm": []
       },
       "draft": {
-        "id": "01a1dd73-bd48-7e5d-9149-b98c29cb7ba0",
+        "id": "01a1de71-70b6-7946-a3a1-64571e7d7dad",
         "scheme_no": 1,
         "status": "DRAFT",
         "version": 1,
@@ -627,11 +627,11 @@
         "fallback_used": 0,
         "latency_ms": {
           "n": 1,
-          "p50": 12610,
-          "p90": 12610,
-          "p95": 12610,
-          "max": 12610,
-          "mean": 12610
+          "p50": 13296,
+          "p90": 13296,
+          "p95": 13296,
+          "max": 13296,
+          "mean": 13296
         },
         "queue_wait_ms": {
           "n": 1,
@@ -641,8 +641,8 @@
           "max": 0,
           "mean": 0
         },
-        "tokens_in": 6479,
-        "tokens_out": 980
+        "tokens_in": 6051,
+        "tokens_out": 1508
       },
       "score": {
         "components_ok": {
@@ -677,67 +677,16 @@
         "invented_rules": [],
         "citations": {
           "total": 10,
-          "on_stated_page": 0,
+          "on_stated_page": 10,
           "other_page": 0,
-          "not_found": 10,
-          "not_found_items": [
-            {
-              "owner": "component:kiem_tra_giua_ky",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
-            },
-            {
-              "owner": "component:kiem_tra_hang_tuan",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
-            },
-            {
-              "owner": "component:thi_cuoi_ky",
-              "page": 1,
-              "quote": "- 1.5. Điểm thi cuối kỳ có trọng số 60% của điểm học phần."
-            },
-            {
-              "owner": "rule:BONUS",
-              "page": 1,
-              "quote": "- 2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm."
-            },
-            {
-              "owner": "rule:PENALTY",
-              "page": 1,
-              "quote": "- 2.2. Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ."
-            },
-            {
-              "owner": "rule:ROUNDING",
-              "page": 2,
-              "quote": "- 3.1. Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn."
-            },
-            {
-              "owner": "rule:FAIL_CONDITION",
-              "page": 2,
-              "quote": "- 4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
-            },
-            {
-              "owner": "rule:FAIL_CONDITION",
-              "page": 2,
-              "quote": "- 4.2. Sinh viên vắng không phép từ 7 buổi trở lên thì bị điểm F."
-            },
-            {
-              "owner": "rule:LETTER_SCALE",
-              "page": 2,
-              "quote": "- 3.2. Điểm chữ xác định theo điểm học phần đã làm tròn: từ 9,0 đến 10 là A+; từ 8,5 đến dưới 9,0 là A; từ 8,0 đến dưới 8,5 là B+; từ 7,0 đến dưới 8,0 là B; từ "
-            },
-            {
-              "owner": "rule:MISSING_SCORE",
-              "page": 1,
-              "quote": "- 1.4. Sinh viên không dự bài kiểm tra hằng tuần được tính 0 điểm bài đó."
-            }
-          ]
+          "not_found": 0,
+          "not_found_items": []
         },
         "unclear_codes": [],
         "unclear_llm": []
       },
       "draft": {
-        "id": "01a1dd74-0f5f-75d3-bb71-c39fba94ff7c",
+        "id": "01a1de71-c35e-7732-bfee-8ffc192de270",
         "scheme_no": 1,
         "status": "DRAFT",
         "version": 1,
@@ -746,13 +695,13 @@
         "components": [
           {
             "key": "kiem_tra_giua_ky",
-            "name": "Điểm kiểm tra giữa kỳ",
+            "name": "Kiểm tra giữa kỳ",
             "grp": "QT",
             "weight": "20",
             "items": [
               {
                 "key": "kiem_tra_giua_ky",
-                "name": "Điểm kiểm tra giữa kỳ",
+                "name": "Kiểm tra giữa kỳ",
                 "max_score": "10",
                 "source": "MANUAL"
               }
@@ -767,13 +716,13 @@
           },
           {
             "key": "kiem_tra_hang_tuan",
-            "name": "Điểm kiểm tra hằng tuần",
+            "name": "Kiểm tra hằng tuần",
             "grp": "QT",
             "weight": "20",
             "items": [
               {
                 "key": "kiem_tra_hang_tuan",
-                "name": "Điểm kiểm tra hằng tuần",
+                "name": "Kiểm tra hằng tuần",
                 "max_score": "10",
                 "source": "MANUAL"
               }
@@ -788,13 +737,13 @@
           },
           {
             "key": "thi_cuoi_ky",
-            "name": "Điểm thi cuối kỳ",
+            "name": "Thi cuối kỳ",
             "grp": "CK",
             "weight": "60",
             "items": [
               {
                 "key": "thi_cuoi_ky",
-                "name": "Điểm thi cuối kỳ",
+                "name": "Thi cuối kỳ",
                 "max_score": "10",
                 "source": "MANUAL"
               }
@@ -977,22 +926,22 @@
         "fallback_used": 0,
         "latency_ms": {
           "n": 1,
-          "p50": 12171,
-          "p90": 12171,
-          "p95": 12171,
-          "max": 12171,
-          "mean": 12171
+          "p50": 13653,
+          "p90": 13653,
+          "p95": 13653,
+          "max": 13653,
+          "mean": 13653
         },
         "queue_wait_ms": {
           "n": 1,
-          "p50": 0,
-          "p90": 0,
-          "p95": 0,
-          "max": 0,
-          "mean": 0
+          "p50": 1,
+          "p90": 1,
+          "p95": 1,
+          "max": 1,
+          "mean": 1
         },
-        "tokens_in": 5851,
-        "tokens_out": 954
+        "tokens_in": 5071,
+        "tokens_out": 1497
       },
       "score": {
         "components_ok": {
@@ -1036,357 +985,7 @@
         "unclear_llm": []
       },
       "draft": {
-        "id": "01a1dd74-5da7-7ed6-a4c0-08e8ff1c3e1b",
-        "scheme_no": 1,
-        "status": "DRAFT",
-        "version": 1,
-        "source_title": "EVAL quy-che-lop1.pdf",
-        "source_document_id": "01a1dd73-1876-7d85-9409-d878bd898bda",
-        "components": [
-          {
-            "key": "giua_ky",
-            "name": "Kiểm tra giữa kỳ",
-            "grp": "QT",
-            "weight": "20",
-            "items": [
-              {
-                "key": "giua_ky",
-                "name": "Kiểm tra giữa kỳ",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "key": "kiem_tra_hang_tuan",
-            "name": "Kiểm tra hằng tuần",
-            "grp": "QT",
-            "weight": "20",
-            "items": [
-              {
-                "key": "kiem_tra_hang_tuan",
-                "name": "Kiểm tra hằng tuần",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "key": "thi_cuoi_ky",
-            "name": "Thi cuối kỳ",
-            "grp": "CK",
-            "weight": "60",
-            "items": [
-              {
-                "key": "thi_cuoi_ky",
-                "name": "Thi cuối kỳ",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "1.5. Điểm thi cuối kỳ có trọng số 60% của điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          }
-        ],
-        "rules": [
-          {
-            "kind": "BONUS",
-            "applicable": true,
-            "params": {
-              "cap": "1.0",
-              "source": "PARTICIPATION",
-              "per_speak": "0.25"
-            },
-            "citations": [
-              {
-                "page": 1,
-                "quote": "2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "PENALTY",
-            "applicable": true,
-            "params": {
-              "per": "0.5",
-              "free": 2,
-              "source": "ABSENCE"
-            },
-            "citations": [
-              {
-                "page": 1,
-                "quote": "2.2. Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "ROUNDING",
-            "applicable": true,
-            "params": {
-              "mode": "HALF_UP",
-              "step": "0.5"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "3.1. Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "FAIL_CONDITION",
-            "applicable": true,
-            "params": {
-              "kind": "FINAL_BELOW",
-              "value": "3.0"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "FAIL_CONDITION",
-            "applicable": true,
-            "params": {
-              "kind": "ABSENT_AT_LEAST",
-              "value": "7"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "4.2. Sinh viên vắng không phép từ 7 buổi trở lên thì bị điểm F."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "LETTER_SCALE",
-            "applicable": true,
-            "params": {
-              "bands": [
-                {
-                  "min": "9.0",
-                  "letter": "A+"
-                },
-                {
-                  "min": "8.5",
-                  "letter": "A"
-                },
-                {
-                  "min": "8.0",
-                  "letter": "B+"
-                },
-                {
-                  "min": "7.0",
-                  "letter": "B"
-                },
-                {
-                  "min": "6.5",
-                  "letter": "C+"
-                },
-                {
-                  "min": "5.5",
-                  "letter": "C"
-                },
-                {
-                  "min": "5.0",
-                  "letter": "D+"
-                },
-                {
-                  "min": "4.0",
-                  "letter": "D"
-                },
-                {
-                  "min": "0",
-                  "letter": "F"
-                }
-              ]
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "3.2. Điểm chữ xác định theo điểm học phần đã làm tròn: từ 9,0 đến 10 là A+; từ 8,5 đến dưới 9,0 là A; từ 8,0 đến dưới 8,5 là B+; từ 7,0 đến dưới 8,0 là B; từ 6,5 đến dưới 7,0 là C+; từ 5,5 đến dưới 6,5 là C; từ 5,0 đến dưới 5,5 là D+; từ 4,0 đến dưới 5,0 là D; dưới 4,0 là F."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "MISSING_SCORE",
-            "applicable": true,
-            "params": {
-              "zero_components": [
-                "kiem_tra_hang_tuan"
-              ]
-            },
-            "citations": [
-              {
-                "page": 1,
-                "quote": "1.4. Sinh viên không dự bài kiểm tra hằng tuần được tính 0 điểm bài đó."
-              }
-            ],
-            "filled_by_user": false
-          }
-        ],
-        "unclear_items": [],
-        "warnings": []
-      }
-    },
-    {
-      "doc": "quy-che-lop1.md",
-      "run": 5,
-      "job_status": "SUCCEEDED",
-      "job_error": null,
-      "wall_s": 12.1,
-      "audit": {
-        "calls": 1,
-        "status": {
-          "ok": 1
-        },
-        "error_kind": {},
-        "models": {
-          "9router/ag/gemini-3.8-flash": 1
-        },
-        "attempts_gt1": 0,
-        "fallback_used": 0,
-        "latency_ms": {
-          "n": 1,
-          "p50": 9742,
-          "p90": 9742,
-          "p95": 9742,
-          "max": 9742,
-          "mean": 9742
-        },
-        "queue_wait_ms": {
-          "n": 1,
-          "p50": 0,
-          "p90": 0,
-          "p95": 0,
-          "max": 0,
-          "mean": 0
-        },
-        "tokens_in": 4988,
-        "tokens_out": 974
-      },
-      "score": {
-        "components_ok": {
-          "midterm": true,
-          "weekly": true,
-          "final": true
-        },
-        "weights_sum": "100",
-        "rules_ok": {
-          "BONUS": {
-            "ok": true
-          },
-          "PENALTY": {
-            "ok": true
-          },
-          "ROUNDING": {
-            "ok": true
-          },
-          "LETTER_SCALE": {
-            "ok": true
-          },
-          "FAIL_CONDITION:FINAL_BELOW": {
-            "ok": true
-          },
-          "FAIL_CONDITION:ABSENT_AT_LEAST": {
-            "ok": true
-          },
-          "MISSING_SCORE": {
-            "ok": true
-          }
-        },
-        "invented_rules": [],
-        "citations": {
-          "total": 10,
-          "on_stated_page": 0,
-          "other_page": 0,
-          "not_found": 10,
-          "not_found_items": [
-            {
-              "owner": "component:kt_giua_ky",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
-            },
-            {
-              "owner": "component:kt_hang_tuan",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
-            },
-            {
-              "owner": "component:thi_cuoi_ky",
-              "page": 1,
-              "quote": "- 1.5. Điểm thi cuối kỳ có trọng số 60% của điểm học phần."
-            },
-            {
-              "owner": "rule:BONUS",
-              "page": 1,
-              "quote": "- 2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm."
-            },
-            {
-              "owner": "rule:PENALTY",
-              "page": 1,
-              "quote": "- 2.2. Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ."
-            },
-            {
-              "owner": "rule:ROUNDING",
-              "page": 2,
-              "quote": "- 3.1. Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn."
-            },
-            {
-              "owner": "rule:FAIL_CONDITION",
-              "page": 2,
-              "quote": "- 4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
-            },
-            {
-              "owner": "rule:FAIL_CONDITION",
-              "page": 2,
-              "quote": "- 4.2. Sinh viên vắng không phép từ 7 buổi trở lên thì bị điểm F."
-            },
-            {
-              "owner": "rule:LETTER_SCALE",
-              "page": 2,
-              "quote": "- 3.2. Điểm chữ xác định theo điểm học phần đã làm tròn: từ 9,0 đến 10 là A+; từ 8,5 đến dưới 9,0 là A; từ 8,0 đến dưới 8,5 là B+; từ 7,0 đến dưới 8,0 là B; từ "
-            },
-            {
-              "owner": "rule:MISSING_SCORE",
-              "page": 1,
-              "quote": "- 1.4. Sinh viên không dự bài kiểm tra hằng tuần được tính 0 điểm bài đó."
-            }
-          ]
-        },
-        "unclear_codes": [],
-        "unclear_llm": []
-      },
-      "draft": {
-        "id": "01a1dd74-a23d-7175-ace2-9da4151612f4",
+        "id": "01a1de72-14e4-70dd-a794-5eedd6dd605d",
         "scheme_no": 1,
         "status": "DRAFT",
         "version": 1,
@@ -1395,13 +994,13 @@
         "components": [
           {
             "key": "kt_giua_ky",
-            "name": "Điểm kiểm tra giữa kỳ",
+            "name": "Kiểm tra giữa kỳ",
             "grp": "QT",
             "weight": "20",
             "items": [
               {
                 "key": "kt_giua_ky",
-                "name": "Điểm kiểm tra giữa kỳ",
+                "name": "Kiểm tra giữa kỳ",
                 "max_score": "10",
                 "source": "MANUAL"
               }
@@ -1416,13 +1015,13 @@
           },
           {
             "key": "kt_hang_tuan",
-            "name": "Điểm kiểm tra hằng tuần",
+            "name": "Kiểm tra hằng tuần",
             "grp": "QT",
             "weight": "20",
             "items": [
               {
                 "key": "kt_hang_tuan",
-                "name": "Điểm kiểm tra hằng tuần",
+                "name": "Kiểm tra hằng tuần",
                 "max_score": "10",
                 "source": "MANUAL"
               }
@@ -1437,13 +1036,13 @@
           },
           {
             "key": "thi_cuoi_ky",
-            "name": "Điểm thi cuối kỳ",
+            "name": "Thi cuối kỳ",
             "grp": "CK",
             "weight": "60",
             "items": [
               {
                 "key": "thi_cuoi_ky",
-                "name": "Điểm thi cuối kỳ",
+                "name": "Thi cuối kỳ",
                 "max_score": "10",
                 "source": "MANUAL"
               }
@@ -1608,6 +1207,287 @@
       }
     },
     {
+      "doc": "quy-che-lop1.md",
+      "run": 5,
+      "job_status": "SUCCEEDED",
+      "job_error": null,
+      "wall_s": 15.1,
+      "audit": {
+        "calls": 0,
+        "status": {},
+        "error_kind": {},
+        "models": {},
+        "attempts_gt1": 0,
+        "fallback_used": 0,
+        "latency_ms": {},
+        "queue_wait_ms": {},
+        "tokens_in": 0,
+        "tokens_out": 0
+      },
+      "score": {
+        "components_ok": {
+          "midterm": true,
+          "weekly": true,
+          "final": true
+        },
+        "weights_sum": "100",
+        "rules_ok": {
+          "BONUS": {
+            "ok": true
+          },
+          "PENALTY": {
+            "ok": true
+          },
+          "ROUNDING": {
+            "ok": true
+          },
+          "LETTER_SCALE": {
+            "ok": true
+          },
+          "FAIL_CONDITION:FINAL_BELOW": {
+            "ok": true
+          },
+          "FAIL_CONDITION:ABSENT_AT_LEAST": {
+            "ok": true
+          },
+          "MISSING_SCORE": {
+            "ok": true
+          }
+        },
+        "invented_rules": [],
+        "citations": {
+          "total": 10,
+          "on_stated_page": 10,
+          "other_page": 0,
+          "not_found": 0,
+          "not_found_items": []
+        },
+        "unclear_codes": [],
+        "unclear_llm": []
+      },
+      "draft": {
+        "id": "01a1de72-66bd-7bd2-bc84-288432540f23",
+        "scheme_no": 1,
+        "status": "DRAFT",
+        "version": 1,
+        "source_title": "EVAL quy-che-lop1.pdf",
+        "source_document_id": "01a1dd73-1876-7d85-9409-d878bd898bda",
+        "components": [
+          {
+            "key": "kiem_tra_giua_ky",
+            "name": "Điểm kiểm tra giữa kỳ",
+            "grp": "QT",
+            "weight": "20",
+            "items": [
+              {
+                "key": "kiem_tra_giua_ky",
+                "name": "Điểm kiểm tra giữa kỳ",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "key": "kiem_tra_hang_tuan",
+            "name": "Điểm kiểm tra hằng tuần",
+            "grp": "QT",
+            "weight": "20",
+            "items": [
+              {
+                "key": "kiem_tra_hang_tuan",
+                "name": "Điểm kiểm tra hằng tuần",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "1.2. Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "key": "thi_cuoi_ky",
+            "name": "Điểm thi cuối kỳ",
+            "grp": "CK",
+            "weight": "60",
+            "items": [
+              {
+                "key": "thi_cuoi_ky",
+                "name": "Điểm thi cuối kỳ",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "1.5. Điểm thi cuối kỳ có trọng số 60% của điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          }
+        ],
+        "rules": [
+          {
+            "kind": "BONUS",
+            "applicable": true,
+            "params": {
+              "cap": "1.0",
+              "source": "PARTICIPATION",
+              "per_speak": "0.25"
+            },
+            "citations": [
+              {
+                "page": 1,
+                "quote": "2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "PENALTY",
+            "applicable": true,
+            "params": {
+              "per": "0.5",
+              "free": 2,
+              "source": "ABSENCE"
+            },
+            "citations": [
+              {
+                "page": 1,
+                "quote": "2.2. Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "ROUNDING",
+            "applicable": true,
+            "params": {
+              "mode": "HALF_UP",
+              "step": "0.5"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "3.1. Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "FAIL_CONDITION",
+            "applicable": true,
+            "params": {
+              "kind": "FINAL_BELOW",
+              "value": "3.0"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "FAIL_CONDITION",
+            "applicable": true,
+            "params": {
+              "kind": "ABSENT_AT_LEAST",
+              "value": "7"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "4.2. Sinh viên vắng không phép từ 7 buổi trở lên thì bị điểm F."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "LETTER_SCALE",
+            "applicable": true,
+            "params": {
+              "bands": [
+                {
+                  "min": "9.0",
+                  "letter": "A+"
+                },
+                {
+                  "min": "8.5",
+                  "letter": "A"
+                },
+                {
+                  "min": "8.0",
+                  "letter": "B+"
+                },
+                {
+                  "min": "7.0",
+                  "letter": "B"
+                },
+                {
+                  "min": "6.5",
+                  "letter": "C+"
+                },
+                {
+                  "min": "5.5",
+                  "letter": "C"
+                },
+                {
+                  "min": "5.0",
+                  "letter": "D+"
+                },
+                {
+                  "min": "4.0",
+                  "letter": "D"
+                },
+                {
+                  "min": "0",
+                  "letter": "F"
+                }
+              ]
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "3.2. Điểm chữ xác định theo điểm học phần đã làm tròn: từ 9,0 đến 10 là A+; từ 8,5 đến dưới 9,0 là A; từ 8,0 đến dưới 8,5 là B+; từ 7,0 đến dưới 8,0 là B; từ 6,5 đến dưới 7,0 là C+; từ 5,5 đến dưới 6,5 là C; từ 5,0 đến dưới 5,5 là D+; từ 4,0 đến dưới 5,0 là D; dưới 4,0 là F."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "MISSING_SCORE",
+            "applicable": true,
+            "params": {
+              "zero_components": [
+                "kiem_tra_hang_tuan"
+              ]
+            },
+            "citations": [
+              {
+                "page": 1,
+                "quote": "1.4. Sinh viên không dự bài kiểm tra hằng tuần được tính 0 điểm bài đó."
+              }
+            ],
+            "filled_by_user": false
+          }
+        ],
+        "unclear_items": [],
+        "warnings": []
+      }
+    },
+    {
       "doc": "quy-che-lop2.md",
       "run": 1,
       "job_status": "SUCCEEDED",
@@ -1626,11 +1506,11 @@
         "fallback_used": 0,
         "latency_ms": {
           "n": 1,
-          "p50": 10841,
-          "p90": 10841,
-          "p95": 10841,
-          "max": 10841,
-          "mean": 10841
+          "p50": 9131,
+          "p90": 9131,
+          "p95": 9131,
+          "max": 9131,
+          "mean": 9131
         },
         "queue_wait_ms": {
           "n": 1,
@@ -1640,8 +1520,8 @@
           "max": 0,
           "mean": 0
         },
-        "tokens_in": 4581,
-        "tokens_out": 1084
+        "tokens_in": 3939,
+        "tokens_out": 1093
       },
       "score": {
         "components_ok": {
@@ -1667,46 +1547,10 @@
         "invented_rules": [],
         "citations": {
           "total": 7,
-          "on_stated_page": 0,
+          "on_stated_page": 7,
           "other_page": 0,
-          "not_found": 7,
-          "not_found_items": [
-            {
-              "owner": "component:giua_ky",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-            },
-            {
-              "owner": "component:thuc_hanh",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-            },
-            {
-              "owner": "component:cuoi_ky",
-              "page": 1,
-              "quote": "- 1.3. Điểm thi cuối kỳ chiếm 50% điểm học phần."
-            },
-            {
-              "owner": "rule:BONUS",
-              "page": 2,
-              "quote": "- 2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
-            },
-            {
-              "owner": "rule:PENALTY",
-              "page": 2,
-              "quote": "- 2.2. Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
-            },
-            {
-              "owner": "rule:FAIL_CONDITION",
-              "page": 2,
-              "quote": "- 4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
-            },
-            {
-              "owner": "rule:LETTER_SCALE",
-              "page": 2,
-              "quote": "- 3.1. Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
-            }
-          ]
+          "not_found": 0,
+          "not_found_items": []
         },
         "unclear_codes": [
           "ROUNDING_MISSING",
@@ -1717,17 +1561,17 @@
           {
             "source": "LLM",
             "target": "ROUNDING",
-            "message": "Quy chế không nêu quy định làm tròn điểm học phần."
+            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần."
           },
           {
             "source": "LLM",
             "target": "MISSING_SCORE",
-            "message": "Quy chế không nêu quy định xử lý khi vắng thi hoặc thiếu điểm thành phần."
+            "message": "Quy chế không quy định xử lý vắng thi hoặc không nộp bài cho các thành phần điểm."
           }
         ]
       },
       "draft": {
-        "id": "01a1dd74-eaf3-7383-bd06-6ca797a87fe4",
+        "id": "01a1de72-a14c-73f1-92de-a9082c2caa3b",
         "scheme_no": 1,
         "status": "DRAFT",
         "version": 1,
@@ -1892,12 +1736,12 @@
           {
             "source": "LLM",
             "target": "ROUNDING",
-            "message": "Quy chế không nêu quy định làm tròn điểm học phần."
+            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần."
           },
           {
             "source": "LLM",
             "target": "MISSING_SCORE",
-            "message": "Quy chế không nêu quy định xử lý khi vắng thi hoặc thiếu điểm thành phần."
+            "message": "Quy chế không quy định xử lý vắng thi hoặc không nộp bài cho các thành phần điểm."
           }
         ],
         "warnings": []
@@ -1908,7 +1752,7 @@
       "run": 2,
       "job_status": "SUCCEEDED",
       "job_error": null,
-      "wall_s": 15.1,
+      "wall_s": 9.1,
       "audit": {
         "calls": 1,
         "status": {
@@ -1922,11 +1766,11 @@
         "fallback_used": 0,
         "latency_ms": {
           "n": 1,
-          "p50": 13246,
-          "p90": 13246,
-          "p95": 13246,
-          "max": 13246,
-          "mean": 13246
+          "p50": 8362,
+          "p90": 8362,
+          "p95": 8362,
+          "max": 8362,
+          "mean": 8362
         },
         "queue_wait_ms": {
           "n": 1,
@@ -1936,8 +1780,8 @@
           "max": 0,
           "mean": 0
         },
-        "tokens_in": 5295,
-        "tokens_out": 1090
+        "tokens_in": 4518,
+        "tokens_out": 679
       },
       "score": {
         "components_ok": {
@@ -1963,46 +1807,10 @@
         "invented_rules": [],
         "citations": {
           "total": 7,
-          "on_stated_page": 0,
+          "on_stated_page": 7,
           "other_page": 0,
-          "not_found": 7,
-          "not_found_items": [
-            {
-              "owner": "component:kiem_tra_giua_ky",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-            },
-            {
-              "owner": "component:bai_thuc_hanh",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-            },
-            {
-              "owner": "component:thi_cuoi_ky",
-              "page": 1,
-              "quote": "- 1.3. Điểm thi cuối kỳ chiếm 50% điểm học phần."
-            },
-            {
-              "owner": "rule:BONUS",
-              "page": 2,
-              "quote": "- 2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
-            },
-            {
-              "owner": "rule:PENALTY",
-              "page": 2,
-              "quote": "- 2.2. Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
-            },
-            {
-              "owner": "rule:FAIL_CONDITION",
-              "page": 2,
-              "quote": "- 4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
-            },
-            {
-              "owner": "rule:LETTER_SCALE",
-              "page": 2,
-              "quote": "- 3.1. Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
-            }
-          ]
+          "not_found": 0,
+          "not_found_items": []
         },
         "unclear_codes": [
           "ROUNDING_MISSING",
@@ -2013,17 +1821,17 @@
           {
             "source": "LLM",
             "target": "ROUNDING",
-            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần."
+            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần"
           },
           {
             "source": "LLM",
             "target": "MISSING_SCORE",
-            "message": "Quy chế không quy định quy tắc xử lý khi sinh viên vắng thi hoặc thiếu cột điểm."
+            "message": "Quy chế không quy định xử lý khi vắng thi hoặc thiếu cột điểm"
           }
         ]
       },
       "draft": {
-        "id": "01a1dd75-36b1-7d71-9404-527ad49812e6",
+        "id": "01a1de72-e0b7-7d9a-8366-8b445fbf0b00",
         "scheme_no": 1,
         "status": "DRAFT",
         "version": 1,
@@ -2032,13 +1840,13 @@
         "components": [
           {
             "key": "kiem_tra_giua_ky",
-            "name": "Điểm kiểm tra giữa kỳ",
+            "name": "Kiểm tra giữa kỳ",
             "grp": "QT",
             "weight": "25",
             "items": [
               {
                 "key": "kiem_tra_giua_ky",
-                "name": "Điểm kiểm tra giữa kỳ",
+                "name": "Kiểm tra giữa kỳ",
                 "max_score": "10",
                 "source": "MANUAL"
               }
@@ -2053,13 +1861,13 @@
           },
           {
             "key": "bai_thuc_hanh",
-            "name": "Điểm bài thực hành",
+            "name": "Bài thực hành",
             "grp": "QT",
             "weight": "25",
             "items": [
               {
                 "key": "bai_thuc_hanh",
-                "name": "Điểm bài thực hành",
+                "name": "Bài thực hành",
                 "max_score": "10",
                 "source": "MANUAL"
               }
@@ -2074,12 +1882,532 @@
           },
           {
             "key": "thi_cuoi_ky",
-            "name": "Điểm thi cuối kỳ",
+            "name": "Thi cuối kỳ",
             "grp": "CK",
             "weight": "50",
             "items": [
               {
                 "key": "thi_cuoi_ky",
+                "name": "Thi cuối kỳ",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "- 1.3. Điểm thi cuối kỳ chiếm 50% điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          }
+        ],
+        "rules": [
+          {
+            "kind": "BONUS",
+            "applicable": true,
+            "params": {
+              "cap": "1.5",
+              "source": "PARTICIPATION",
+              "per_speak": "0.25"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "- 2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "PENALTY",
+            "applicable": true,
+            "params": {
+              "per": "0.5",
+              "free": 1,
+              "source": "ABSENCE"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "- 2.2. Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "FAIL_CONDITION",
+            "applicable": true,
+            "params": {
+              "kind": "FINAL_BELOW",
+              "value": "3.0"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "- 4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "LETTER_SCALE",
+            "applicable": true,
+            "params": {
+              "bands": [
+                {
+                  "min": "8.5",
+                  "letter": "A"
+                },
+                {
+                  "min": "7.0",
+                  "letter": "B"
+                },
+                {
+                  "min": "5.5",
+                  "letter": "C"
+                },
+                {
+                  "min": "4.0",
+                  "letter": "D"
+                },
+                {
+                  "min": "0",
+                  "letter": "F"
+                }
+              ]
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "- 3.1. Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
+              }
+            ],
+            "filled_by_user": false
+          }
+        ],
+        "unclear_items": [
+          {
+            "source": "CODE",
+            "code": "ROUNDING_MISSING",
+            "target": "rules.ROUNDING",
+            "message": "Quy chế chưa nêu cách làm tròn: điền bước làm tròn."
+          },
+          {
+            "source": "LLM",
+            "target": "ROUNDING",
+            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần"
+          },
+          {
+            "source": "LLM",
+            "target": "MISSING_SCORE",
+            "message": "Quy chế không quy định xử lý khi vắng thi hoặc thiếu cột điểm"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "doc": "quy-che-lop2.md",
+      "run": 3,
+      "job_status": "SUCCEEDED",
+      "job_error": null,
+      "wall_s": 12.1,
+      "audit": {
+        "calls": 1,
+        "status": {
+          "ok": 1
+        },
+        "error_kind": {},
+        "models": {
+          "9router/ag/gemini-3.8-flash": 1
+        },
+        "attempts_gt1": 0,
+        "fallback_used": 0,
+        "latency_ms": {
+          "n": 1,
+          "p50": 10402,
+          "p90": 10402,
+          "p95": 10402,
+          "max": 10402,
+          "mean": 10402
+        },
+        "queue_wait_ms": {
+          "n": 1,
+          "p50": 0,
+          "p90": 0,
+          "p95": 0,
+          "max": 0,
+          "mean": 0
+        },
+        "tokens_in": 4705,
+        "tokens_out": 682
+      },
+      "score": {
+        "components_ok": {
+          "midterm": true,
+          "lab": true,
+          "final": true
+        },
+        "weights_sum": "100",
+        "rules_ok": {
+          "BONUS": {
+            "ok": true
+          },
+          "PENALTY": {
+            "ok": true
+          },
+          "LETTER_SCALE": {
+            "ok": true
+          },
+          "FAIL_CONDITION:FINAL_BELOW": {
+            "ok": true
+          }
+        },
+        "invented_rules": [],
+        "citations": {
+          "total": 7,
+          "on_stated_page": 7,
+          "other_page": 0,
+          "not_found": 0,
+          "not_found_items": []
+        },
+        "unclear_codes": [
+          "ROUNDING_MISSING",
+          "LLM",
+          "LLM"
+        ],
+        "unclear_llm": [
+          {
+            "source": "LLM",
+            "target": "ROUNDING",
+            "message": "Quy chế không nêu quy định làm tròn điểm học phần."
+          },
+          {
+            "source": "LLM",
+            "target": "MISSING_SCORE",
+            "message": "Quy chế không nêu quy định xử lý điểm khi vắng/thi thiếu đầu điểm."
+          }
+        ]
+      },
+      "draft": {
+        "id": "01a1de73-2158-795f-8833-e3d8bf2182a4",
+        "scheme_no": 1,
+        "status": "DRAFT",
+        "version": 1,
+        "source_title": "EVAL quy-che-lop2.pdf",
+        "source_document_id": "01a1dd73-1890-7710-9fb5-f74cb0c6d6b7",
+        "components": [
+          {
+            "key": "kiem_tra_giua_ky",
+            "name": "Kiểm tra giữa kỳ",
+            "grp": "QT",
+            "weight": "25",
+            "items": [
+              {
+                "key": "kiem_tra_giua_ky",
+                "name": "Kiểm tra giữa kỳ",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "key": "bai_thuc_hanh",
+            "name": "Bài thực hành",
+            "grp": "QT",
+            "weight": "25",
+            "items": [
+              {
+                "key": "bai_thuc_hanh",
+                "name": "Bài thực hành",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "key": "thi_cuoi_ky",
+            "name": "Thi cuối kỳ",
+            "grp": "CK",
+            "weight": "50",
+            "items": [
+              {
+                "key": "thi_cuoi_ky",
+                "name": "Thi cuối kỳ",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "- 1.3. Điểm thi cuối kỳ chiếm 50% điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          }
+        ],
+        "rules": [
+          {
+            "kind": "BONUS",
+            "applicable": true,
+            "params": {
+              "cap": "1.5",
+              "source": "PARTICIPATION",
+              "per_speak": "0.25"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "- 2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "PENALTY",
+            "applicable": true,
+            "params": {
+              "per": "0.5",
+              "free": 1,
+              "source": "ABSENCE"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "- 2.2. Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "FAIL_CONDITION",
+            "applicable": true,
+            "params": {
+              "kind": "FINAL_BELOW",
+              "value": "3.0"
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "- 4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "kind": "LETTER_SCALE",
+            "applicable": true,
+            "params": {
+              "bands": [
+                {
+                  "min": "8.5",
+                  "letter": "A"
+                },
+                {
+                  "min": "7.0",
+                  "letter": "B"
+                },
+                {
+                  "min": "5.5",
+                  "letter": "C"
+                },
+                {
+                  "min": "4.0",
+                  "letter": "D"
+                },
+                {
+                  "min": "0",
+                  "letter": "F"
+                }
+              ]
+            },
+            "citations": [
+              {
+                "page": 2,
+                "quote": "- 3.1. Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
+              }
+            ],
+            "filled_by_user": false
+          }
+        ],
+        "unclear_items": [
+          {
+            "source": "CODE",
+            "code": "ROUNDING_MISSING",
+            "target": "rules.ROUNDING",
+            "message": "Quy chế chưa nêu cách làm tròn: điền bước làm tròn."
+          },
+          {
+            "source": "LLM",
+            "target": "ROUNDING",
+            "message": "Quy chế không nêu quy định làm tròn điểm học phần."
+          },
+          {
+            "source": "LLM",
+            "target": "MISSING_SCORE",
+            "message": "Quy chế không nêu quy định xử lý điểm khi vắng/thi thiếu đầu điểm."
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "doc": "quy-che-lop2.md",
+      "run": 4,
+      "job_status": "SUCCEEDED",
+      "job_error": null,
+      "wall_s": 12.1,
+      "audit": {
+        "calls": 1,
+        "status": {
+          "ok": 1
+        },
+        "error_kind": {},
+        "models": {
+          "9router/ag/gemini-3.8-flash": 1
+        },
+        "attempts_gt1": 0,
+        "fallback_used": 0,
+        "latency_ms": {
+          "n": 1,
+          "p50": 9770,
+          "p90": 9770,
+          "p95": 9770,
+          "max": 9770,
+          "mean": 9770
+        },
+        "queue_wait_ms": {
+          "n": 1,
+          "p50": 0,
+          "p90": 0,
+          "p95": 0,
+          "max": 0,
+          "mean": 0
+        },
+        "tokens_in": 3844,
+        "tokens_out": 1170
+      },
+      "score": {
+        "components_ok": {
+          "midterm": true,
+          "lab": true,
+          "final": true
+        },
+        "weights_sum": "100",
+        "rules_ok": {
+          "BONUS": {
+            "ok": true
+          },
+          "PENALTY": {
+            "ok": true
+          },
+          "LETTER_SCALE": {
+            "ok": true
+          },
+          "FAIL_CONDITION:FINAL_BELOW": {
+            "ok": true
+          }
+        },
+        "invented_rules": [],
+        "citations": {
+          "total": 7,
+          "on_stated_page": 7,
+          "other_page": 0,
+          "not_found": 0,
+          "not_found_items": []
+        },
+        "unclear_codes": [
+          "ROUNDING_MISSING",
+          "LLM",
+          "LLM"
+        ],
+        "unclear_llm": [
+          {
+            "source": "LLM",
+            "target": "ROUNDING",
+            "message": "Quy chế không quy định nguyên tắc làm tròn điểm học phần."
+          },
+          {
+            "source": "LLM",
+            "target": "MISSING_SCORE",
+            "message": "Quy chế không quy định xử lý điểm khi sinh viên vắng thi hoặc không tham gia thành phần đánh giá."
+          }
+        ]
+      },
+      "draft": {
+        "id": "01a1de73-6144-7e76-aeb1-a0f66f0b5d1f",
+        "scheme_no": 1,
+        "status": "DRAFT",
+        "version": 1,
+        "source_title": "EVAL quy-che-lop2.pdf",
+        "source_document_id": "01a1dd73-1890-7710-9fb5-f74cb0c6d6b7",
+        "components": [
+          {
+            "key": "diem_kiem_tra_giua_ky",
+            "name": "Điểm kiểm tra giữa kỳ",
+            "grp": "QT",
+            "weight": "25",
+            "items": [
+              {
+                "key": "diem_kiem_tra_giua_ky",
+                "name": "Điểm kiểm tra giữa kỳ",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "key": "diem_bai_thuc_hanh",
+            "name": "Điểm bài thực hành",
+            "grp": "QT",
+            "weight": "25",
+            "items": [
+              {
+                "key": "diem_bai_thuc_hanh",
+                "name": "Điểm bài thực hành",
+                "max_score": "10",
+                "source": "MANUAL"
+              }
+            ],
+            "citations": [
+              {
+                "page": 1,
+                "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
+              }
+            ],
+            "filled_by_user": false
+          },
+          {
+            "key": "diem_thi_cuoi_ky",
+            "name": "Điểm thi cuối kỳ",
+            "grp": "CK",
+            "weight": "50",
+            "items": [
+              {
+                "key": "diem_thi_cuoi_ky",
                 "name": "Điểm thi cuối kỳ",
                 "max_score": "10",
                 "source": "MANUAL"
@@ -2188,12 +2516,12 @@
           {
             "source": "LLM",
             "target": "ROUNDING",
-            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần."
+            "message": "Quy chế không quy định nguyên tắc làm tròn điểm học phần."
           },
           {
             "source": "LLM",
             "target": "MISSING_SCORE",
-            "message": "Quy chế không quy định quy tắc xử lý khi sinh viên vắng thi hoặc thiếu cột điểm."
+            "message": "Quy chế không quy định xử lý điểm khi sinh viên vắng thi hoặc không tham gia thành phần đánh giá."
           }
         ],
         "warnings": []
@@ -2201,7 +2529,7 @@
     },
     {
       "doc": "quy-che-lop2.md",
-      "run": 3,
+      "run": 5,
       "job_status": "SUCCEEDED",
       "job_error": null,
       "wall_s": 9.1,
@@ -2254,18 +2582,18 @@
         "unclear_llm": [
           {
             "source": "LLM",
-            "target": "rules.ROUNDING",
-            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần"
+            "target": "ROUNDING",
+            "message": "Quy chế không nêu quy tắc làm tròn điểm học phần."
           },
           {
             "source": "LLM",
-            "target": "rules.MISSING_SCORE",
-            "message": "Quy chế không quy định xử lý điểm đối với các bài kiểm tra/thi vắng mặt"
+            "target": "MISSING_SCORE",
+            "message": "Quy chế không nêu cách xử lý điểm khi sinh viên vắng kiểm tra/thi."
           }
         ]
       },
       "draft": {
-        "id": "01a1dd75-749c-7ff9-bc2e-30802fd266d5",
+        "id": "01a1de73-a062-7197-86fc-15e5e2999cd3",
         "scheme_no": 1,
         "status": "DRAFT",
         "version": 1,
@@ -2273,13 +2601,13 @@
         "source_document_id": "01a1dd73-1890-7710-9fb5-f74cb0c6d6b7",
         "components": [
           {
-            "key": "kiem_tra_giua_ky",
+            "key": "kt_giua_ky",
             "name": "Điểm kiểm tra giữa kỳ",
             "grp": "QT",
             "weight": "25",
             "items": [
               {
-                "key": "kiem_tra_giua_ky",
+                "key": "kt_giua_ky",
                 "name": "Điểm kiểm tra giữa kỳ",
                 "max_score": "10",
                 "source": "MANUAL"
@@ -2288,7 +2616,7 @@
             "citations": [
               {
                 "page": 1,
-                "quote": "1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
+                "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
               }
             ],
             "filled_by_user": false
@@ -2309,7 +2637,7 @@
             "citations": [
               {
                 "page": 1,
-                "quote": "1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
+                "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
               }
             ],
             "filled_by_user": false
@@ -2322,302 +2650,6 @@
             "items": [
               {
                 "key": "thi_cuoi_ky",
-                "name": "Điểm thi cuối kỳ",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "1.3. Điểm thi cuối kỳ chiếm 50% điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          }
-        ],
-        "rules": [
-          {
-            "kind": "BONUS",
-            "applicable": true,
-            "params": {
-              "cap": "1.5",
-              "source": "PARTICIPATION",
-              "per_speak": "0.25"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "PENALTY",
-            "applicable": true,
-            "params": {
-              "per": "0.5",
-              "free": 1,
-              "source": "ABSENCE"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "2.2. Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "FAIL_CONDITION",
-            "applicable": true,
-            "params": {
-              "kind": "FINAL_BELOW",
-              "value": "3.0"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "LETTER_SCALE",
-            "applicable": true,
-            "params": {
-              "bands": [
-                {
-                  "min": "8.5",
-                  "letter": "A"
-                },
-                {
-                  "min": "7.0",
-                  "letter": "B"
-                },
-                {
-                  "min": "5.5",
-                  "letter": "C"
-                },
-                {
-                  "min": "4.0",
-                  "letter": "D"
-                },
-                {
-                  "min": "0",
-                  "letter": "F"
-                }
-              ]
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "3.1. Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
-              }
-            ],
-            "filled_by_user": false
-          }
-        ],
-        "unclear_items": [
-          {
-            "source": "CODE",
-            "code": "ROUNDING_MISSING",
-            "target": "rules.ROUNDING",
-            "message": "Quy chế chưa nêu cách làm tròn: điền bước làm tròn."
-          },
-          {
-            "source": "LLM",
-            "target": "rules.ROUNDING",
-            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần"
-          },
-          {
-            "source": "LLM",
-            "target": "rules.MISSING_SCORE",
-            "message": "Quy chế không quy định xử lý điểm đối với các bài kiểm tra/thi vắng mặt"
-          }
-        ],
-        "warnings": []
-      }
-    },
-    {
-      "doc": "quy-che-lop2.md",
-      "run": 4,
-      "job_status": "SUCCEEDED",
-      "job_error": null,
-      "wall_s": 12.1,
-      "audit": {
-        "calls": 1,
-        "status": {
-          "ok": 1
-        },
-        "error_kind": {},
-        "models": {
-          "9router/ag/gemini-3.8-flash": 1
-        },
-        "attempts_gt1": 0,
-        "fallback_used": 0,
-        "latency_ms": {
-          "n": 1,
-          "p50": 9513,
-          "p90": 9513,
-          "p95": 9513,
-          "max": 9513,
-          "mean": 9513
-        },
-        "queue_wait_ms": {
-          "n": 1,
-          "p50": 0,
-          "p90": 0,
-          "p95": 0,
-          "max": 0,
-          "mean": 0
-        },
-        "tokens_in": 5075,
-        "tokens_out": 681
-      },
-      "score": {
-        "components_ok": {
-          "midterm": true,
-          "lab": true,
-          "final": true
-        },
-        "weights_sum": "100",
-        "rules_ok": {
-          "BONUS": {
-            "ok": true
-          },
-          "PENALTY": {
-            "ok": true
-          },
-          "LETTER_SCALE": {
-            "ok": true
-          },
-          "FAIL_CONDITION:FINAL_BELOW": {
-            "ok": true
-          }
-        },
-        "invented_rules": [],
-        "citations": {
-          "total": 7,
-          "on_stated_page": 0,
-          "other_page": 0,
-          "not_found": 7,
-          "not_found_items": [
-            {
-              "owner": "component:giua_ky",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-            },
-            {
-              "owner": "component:thuc_hanh",
-              "page": 1,
-              "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-            },
-            {
-              "owner": "component:cuoi_ky",
-              "page": 1,
-              "quote": "- 1.3. Điểm thi cuối kỳ chiếm 50% điểm học phần."
-            },
-            {
-              "owner": "rule:BONUS",
-              "page": 2,
-              "quote": "- 2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
-            },
-            {
-              "owner": "rule:PENALTY",
-              "page": 2,
-              "quote": "- 2.2. Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
-            },
-            {
-              "owner": "rule:FAIL_CONDITION",
-              "page": 2,
-              "quote": "- 4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
-            },
-            {
-              "owner": "rule:LETTER_SCALE",
-              "page": 2,
-              "quote": "- 3.1. Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
-            }
-          ]
-        },
-        "unclear_codes": [
-          "ROUNDING_MISSING",
-          "LLM",
-          "LLM"
-        ],
-        "unclear_llm": [
-          {
-            "source": "LLM",
-            "target": "ROUNDING",
-            "message": "Quy chế không nêu quy tắc làm tròn điểm học phần."
-          },
-          {
-            "source": "LLM",
-            "target": "MISSING_SCORE",
-            "message": "Quy chế không quy định xử lý điểm đối với trường hợp vắng mặt hoặc thiếu đầu điểm."
-          }
-        ]
-      },
-      "draft": {
-        "id": "01a1dd75-aee8-71d4-84ca-8b8dd2b7a88c",
-        "scheme_no": 1,
-        "status": "DRAFT",
-        "version": 1,
-        "source_title": "EVAL quy-che-lop2.pdf",
-        "source_document_id": "01a1dd73-1890-7710-9fb5-f74cb0c6d6b7",
-        "components": [
-          {
-            "key": "giua_ky",
-            "name": "Điểm kiểm tra giữa kỳ",
-            "grp": "QT",
-            "weight": "25",
-            "items": [
-              {
-                "key": "giua_ky",
-                "name": "Điểm kiểm tra giữa kỳ",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "key": "thuc_hanh",
-            "name": "Điểm bài thực hành",
-            "grp": "QT",
-            "weight": "25",
-            "items": [
-              {
-                "key": "thuc_hanh",
-                "name": "Điểm bài thực hành",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "- 1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "key": "cuoi_ky",
-            "name": "Điểm thi cuối kỳ",
-            "grp": "CK",
-            "weight": "50",
-            "items": [
-              {
-                "key": "cuoi_ky",
                 "name": "Điểm thi cuối kỳ",
                 "max_score": "10",
                 "source": "MANUAL"
@@ -2731,267 +2763,7 @@
           {
             "source": "LLM",
             "target": "MISSING_SCORE",
-            "message": "Quy chế không quy định xử lý điểm đối với trường hợp vắng mặt hoặc thiếu đầu điểm."
-          }
-        ],
-        "warnings": []
-      }
-    },
-    {
-      "doc": "quy-che-lop2.md",
-      "run": 5,
-      "job_status": "SUCCEEDED",
-      "job_error": null,
-      "wall_s": 12.1,
-      "audit": {
-        "calls": 1,
-        "status": {
-          "ok": 1
-        },
-        "error_kind": {},
-        "models": {
-          "9router/ag/gemini-3.8-flash": 1
-        },
-        "attempts_gt1": 0,
-        "fallback_used": 0,
-        "latency_ms": {
-          "n": 1,
-          "p50": 9136,
-          "p90": 9136,
-          "p95": 9136,
-          "max": 9136,
-          "mean": 9136
-        },
-        "queue_wait_ms": {
-          "n": 1,
-          "p50": 0,
-          "p90": 0,
-          "p95": 0,
-          "max": 0,
-          "mean": 0
-        },
-        "tokens_in": 4232,
-        "tokens_out": 659
-      },
-      "score": {
-        "components_ok": {
-          "midterm": true,
-          "lab": true,
-          "final": true
-        },
-        "weights_sum": "100",
-        "rules_ok": {
-          "BONUS": {
-            "ok": true
-          },
-          "PENALTY": {
-            "ok": true
-          },
-          "LETTER_SCALE": {
-            "ok": true
-          },
-          "FAIL_CONDITION:FINAL_BELOW": {
-            "ok": true
-          }
-        },
-        "invented_rules": [],
-        "citations": {
-          "total": 7,
-          "on_stated_page": 7,
-          "other_page": 0,
-          "not_found": 0,
-          "not_found_items": []
-        },
-        "unclear_codes": [
-          "ROUNDING_MISSING",
-          "LLM",
-          "LLM"
-        ],
-        "unclear_llm": [
-          {
-            "source": "LLM",
-            "target": "ROUNDING",
-            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần"
-          },
-          {
-            "source": "LLM",
-            "target": "MISSING_SCORE",
-            "message": "Quy chế không quy định xử lý khi vắng thi hoặc thiếu cột điểm"
-          }
-        ]
-      },
-      "draft": {
-        "id": "01a1dd75-f1c2-78e1-a154-b28341d46f9b",
-        "scheme_no": 1,
-        "status": "DRAFT",
-        "version": 1,
-        "source_title": "EVAL quy-che-lop2.pdf",
-        "source_document_id": "01a1dd73-1890-7710-9fb5-f74cb0c6d6b7",
-        "components": [
-          {
-            "key": "giua_ky",
-            "name": "Kiểm tra giữa kỳ",
-            "grp": "QT",
-            "weight": "25",
-            "items": [
-              {
-                "key": "giua_ky",
-                "name": "Kiểm tra giữa kỳ",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "key": "thuc_hanh",
-            "name": "Bài thực hành",
-            "grp": "QT",
-            "weight": "25",
-            "items": [
-              {
-                "key": "thuc_hanh",
-                "name": "Bài thực hành",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "1.2. Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "key": "cuoi_ky",
-            "name": "Thi cuối kỳ",
-            "grp": "CK",
-            "weight": "50",
-            "items": [
-              {
-                "key": "cuoi_ky",
-                "name": "Thi cuối kỳ",
-                "max_score": "10",
-                "source": "MANUAL"
-              }
-            ],
-            "citations": [
-              {
-                "page": 1,
-                "quote": "1.3. Điểm thi cuối kỳ chiếm 50% điểm học phần."
-              }
-            ],
-            "filled_by_user": false
-          }
-        ],
-        "rules": [
-          {
-            "kind": "BONUS",
-            "applicable": true,
-            "params": {
-              "cap": "1.5",
-              "source": "PARTICIPATION",
-              "per_speak": "0.25"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "2.1. Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "PENALTY",
-            "applicable": true,
-            "params": {
-              "per": "0.5",
-              "free": 1,
-              "source": "ABSENCE"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "2.2. Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "FAIL_CONDITION",
-            "applicable": true,
-            "params": {
-              "kind": "FINAL_BELOW",
-              "value": "3.0"
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "4.1. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
-              }
-            ],
-            "filled_by_user": false
-          },
-          {
-            "kind": "LETTER_SCALE",
-            "applicable": true,
-            "params": {
-              "bands": [
-                {
-                  "min": "8.5",
-                  "letter": "A"
-                },
-                {
-                  "min": "7.0",
-                  "letter": "B"
-                },
-                {
-                  "min": "5.5",
-                  "letter": "C"
-                },
-                {
-                  "min": "4.0",
-                  "letter": "D"
-                },
-                {
-                  "min": "0",
-                  "letter": "F"
-                }
-              ]
-            },
-            "citations": [
-              {
-                "page": 2,
-                "quote": "3.1. Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
-              }
-            ],
-            "filled_by_user": false
-          }
-        ],
-        "unclear_items": [
-          {
-            "source": "CODE",
-            "code": "ROUNDING_MISSING",
-            "target": "rules.ROUNDING",
-            "message": "Quy chế chưa nêu cách làm tròn: điền bước làm tròn."
-          },
-          {
-            "source": "LLM",
-            "target": "ROUNDING",
-            "message": "Quy chế không quy định quy tắc làm tròn điểm học phần"
-          },
-          {
-            "source": "LLM",
-            "target": "MISSING_SCORE",
-            "message": "Quy chế không quy định xử lý khi vắng thi hoặc thiếu cột điểm"
+            "message": "Quy chế không nêu cách xử lý điểm khi sinh viên vắng kiểm tra/thi."
           }
         ],
         "warnings": []

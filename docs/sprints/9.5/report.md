@@ -52,7 +52,7 @@ Tất cả rc=0. Tệp ở `benchmarks/reports/real-llm/`.
 
 | | Số đo | Ghi chú |
 | --- | --- | --- |
-| **R1 trích công thức** (`extract.json`, 2 quy chế × 5 lần) | 10/10 SUCCEEDED; 12,7 s TB mỗi việc; trễ LLM 8,6–13,2 s; đủ thành phần điểm, `weights_sum` 100, 0 luật bịa, mọi luật `rules_ok` | **5/10 lần MỌI trích dẫn «not_found»** (lớp 1 lần 3, 5: 10/10; lớp 2 lần 1, 2, 4: 7/7); 5 lần còn lại 100 % đúng trang. Câu trích bắt đầu bằng «- » (gạch đầu dòng Markdown) `[SUY LUẬN: lệch chuẩn hoá khi so khớp]`. Công thức vẫn đúng; xem Giới hạn |
+| **R1 trích công thức** (`extract.json`, 2 quy chế × 5 lần; ĐÍNH CHÍNH P-11-25(3)) | 10/10 SUCCEEDED; 9–15 s mỗi việc; đủ thành phần điểm, `weights_sum` 100, 0 luật bịa, mọi luật `rules_ok`; **trích dẫn 10/10 và 7/7 đúng trang ở cả 10 lần** | lần đo đầu ghi «5/10 lần mọi trích dẫn not_found» — LỖI PHÉP ĐO: docling dựng đoạn thành mục «- 1.2. …», LLM trích đúng chữ đó, script so với tệp gốc không có «- ». Đã sửa script và chạy lại; sản phẩm vốn không ghi `CITATION_NOT_FOUND` ở các lần đó |
 | **R2 chấm bài eval ×3 vòng** (`grade-eval.json`, 12 bài) | MAE tổng 0,792 → 0,729 → 0,688; MAE tiêu chí ≈ 0,25; QWK 0,905–0,913; trong ±0,5: 6/12 → 7/12 → 9/12; 0 bài hỏng | ổn định: 7/12 bài giống hệt giữa các vòng, lệch TB 0,229, lớn nhất 1,0. Trễ LLM TB 12,5–13,3 s, p95 17–19 s; cả lô 91–102 s |
 | **Chèn lệnh** (6 biến thể mỗi vòng) | mỗi vòng CHỈ 1/6 biến thể (S6) gắn cờ `INJECTION_SUSPECTED` (điểm 5,0 / 4,5 / 4,25 vs đúng 4,5); 5 biến thể còn lại không cờ | điểm 5,0–5,5 so với mốc 5,75: không bị đẩy lên, nhưng cờ không bắt được 5/6 `[GIỚI HẠN]` |
 | **R3 chấm BT03** (`grade-bt03.json`, 16 bài, ĐÍNH CHÍNH P-11-25(2)) | **8 bài AI chấm** (8 bài còn lại là kết quả REVIEWED có sẵn từ seed, attempts 0, KHÔNG phải đầu ra AI, đã loại): MAE tổng 1,188, MAE tiêu chí 0,297, QWK 0,916, trong ±0,5: 2/8; 0 hỏng. S5 (lạc đề), S4 (rỗng) đúng 0; S7 mốc 7,0 AI chấm 10,0 (cao 3 điểm) | báo cáo ban đầu ghi MAE 1,812, QWK 0,764, 2/16 và «lọt chèn lệnh 8,0 vs 4,5» — SAI, do 8 hàng seed lẫn vào; hàng «S6 8,0» là kết quả seed, không phải AI |
@@ -79,7 +79,6 @@ Chạy trên ep-qc, provider decision GIẢ (p50 426 / p95 682 ms, log-chuẩn).
 
 - **Embedding trên ep-qc là giả** (`fake-embed-qcR`): ngưỡng `RAG_SIM_FLOOR/CEIL` không khớp ⇒ truy xuất ra `LOW_SCORE`, trợ lý từ chối, AI Threads bỏ qua. R4 (câu hỏi giáo trình) và R5 vì vậy KHÔNG đo được chất lượng trả lời có truy xuất. Việc xếp hàng: **P-11-19** (hiệu chỉnh ngưỡng theo model nhúng thật).
 - Độ trễ LLM lần 2 của 1.000 bài không có (mục 2).
-- R1: 5/10 lần mọi trích dẫn «not_found» dù công thức đúng; cần điều tra chuẩn hoá khi so câu trích với văn bản gốc trước khi giảng viên dựa vào nút «xem trích dẫn».
 - Cờ chèn lệnh R2 chỉ bắt 1/6 biến thể: ScanInjection có 6 mẫu từ khoá, 5 biến thể v1–v5 viết KHÔNG từ khoá (0/5 khớp); phát hiện ngữ nghĩa là việc của INJECTION_FLAG (đang tắt). Điểm 5 biến thể 5,0–5,5 so với mốc 5,75 không chèn: hai lượt chấm không bị dắt.
 - R3 (BT03, đã đính chính): chỉ 8 bài AI thật; S7 chấm cao 3 điểm so với mốc. Bộ sạch EVAL03 (12 bài) là số tham chiếu. Không có bằng chứng chèn lệnh lọt điểm.
 - Lighthouse LCP trượt 6/8 route (TL-2f), TL-2d (Redis tắt ⇒ chat treo ≈ 19 s), TL-2e (đăng bài chờ embedding ≈ 317 ms) vẫn mở; xem `handoff/dev-lat-2.md`.
