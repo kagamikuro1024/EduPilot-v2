@@ -4,7 +4,7 @@
 # Tự kiểm: bash scripts/ci-changes.sh --selftest
 set -euo pipefail
 
-FE='^(frontend/|pnpm-lock\.yaml$|package\.json$|pnpm-workspace\.yaml$|scripts/ui-antipatterns\.sh$|scripts/lint-selftest\.sh$|\.github/)'
+FE='^(frontend/|pnpm-lock\.yaml$|package\.json$|pnpm-workspace\.yaml$|scripts/ui-antipatterns\.sh$|scripts/lint-selftest\.sh$|mobile/scripts/|\.github/)'
 # Go: ngoài backend-go/ còn các tệp mà test Go đọc bằng đường dẫn tương đối (.env.example, benchmarks/pii, nguồn frontend của exam/integrity_test) và image dựng từ deploy/.
 GO='^(backend-go/|deploy/|\.env\.example$|benchmarks/pii/|frontend/src/features/exam/|frontend/src/shared/i18n/vi\.ts$|\.github/)'
 
@@ -28,7 +28,8 @@ if [ "${1:-}" = "--selftest" ]; then
   t "fe=true go=true" "frontend/src/features/exam/a.tsx"
   t "fe=false go=true" ".env.example"
   t "fe=true go=false" "pnpm-lock.yaml"
-  echo "ci-changes selftest: 8/8"
+  t "fe=true go=false" "mobile/scripts/prepare.mjs"
+  echo "ci-changes selftest: 9/9"
   exit 0
 fi
 

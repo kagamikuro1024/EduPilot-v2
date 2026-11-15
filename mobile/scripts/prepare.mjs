@@ -6,9 +6,16 @@ if (!url) {
   console.error("Đặt APP_SERVER_URL trước (vd. APP_SERVER_URL=https://edupilot.example.com).");
   process.exit(1);
 }
-const u = new URL(url);
-if (u.protocol !== "https:" && !["localhost", "127.0.0.1", "10.0.2.2"].includes(u.hostname)) {
-  console.error("APP_SERVER_URL phải là HTTPS (getUserMedia và WebCrypto cần ngữ cảnh an toàn).");
+let u;
+try {
+  u = new URL(url);
+} catch {
+  console.error(`APP_SERVER_URL không phải URL hợp lệ: ${url}`);
+  process.exit(1);
+}
+// capacitor.config.js đặt cleartext:false nên http:// (kể cả localhost, 10.0.2.2) luôn ra trang «Không kết nối được máy chủ»; getUserMedia và WebCrypto cũng cần ngữ cảnh an toàn.
+if (u.protocol !== "https:") {
+  console.error(`APP_SERVER_URL phải là HTTPS (nhận ${u.protocol}//${u.host}). Chưa có HTTPS thì mở tunnel: cloudflared tunnel --url http://localhost:<cổng> rồi đặt APP_SERVER_URL=https://<host>.trycloudflare.com.`);
   process.exit(1);
 }
 mkdirSync("www", { recursive: true });

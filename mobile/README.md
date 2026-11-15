@@ -20,7 +20,7 @@ cd mobile && npm ci
 APP_SERVER_URL=https://<host-demo> npm run install:device
 ```
 
-`APP_SERVER_URL` bị đóng vào APK: đổi host thì phải chạy lại lệnh trên (dựng lại APK, cài lại). Host phải là HTTPS (`getUserMedia` và WebCrypto cần ngữ cảnh an toàn); `localhost`, `127.0.0.1`, `10.0.2.2` được phép khi thử.
+`APP_SERVER_URL` bị đóng vào APK: đổi host thì phải chạy lại lệnh trên (dựng lại APK, cài lại). Chỉ nhận HTTPS (`getUserMedia` và WebCrypto cần ngữ cảnh an toàn; APK không bật cleartext), kể cả khi thử trên emulator: dùng tunnel HTTPS (`cloudflared tunnel --url http://localhost:<cổng>`).
 
 Chỉ dựng: `APP_SERVER_URL=… npm run build` → `android/app/build/outputs/apk/release/app-release.apk`.
 
