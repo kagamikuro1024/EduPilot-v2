@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Đánh giá LLM thật trên stack đã deploy (OPS-VPS): client NGOÀI, chỉ gọi HTTP API của gateway (AGENTS.md: không SDK provider).
+"""Đánh giá LLM thật trên stack đã deploy (sprint 9.5): client NGOÀI, chỉ gọi HTTP API của gateway (AGENTS.md: không SDK provider).
 
 Lệnh (chạy theo thứ tự; mỗi lệnh ghi JSON vào $OUT, mặc định benchmarks/reports/real-llm/):
   setup                  lớp đo EVALLLM (ADMIN mở, gán giảng viên seed) + nạp 2 quy chế + 12 sinh viên seed vào lớp đo
@@ -182,7 +182,7 @@ def sql(q):
     cmd = os.environ.get("AUDIT_PSQL")
     if not cmd:
         return None
-    wrapped = f"begin read only; select coalesce(json_agg(t), '[]') from ({q}) t; rollback;"
+    wrapped = f"begin read only; select coalesce(jsonb_agg(t), '[]'::jsonb) from ({q}) t; rollback;"
     r = subprocess.run(shlex.split(cmd), input=wrapped, capture_output=True, text=True, timeout=60)
     if r.returncode != 0:
         raise Fail(f"AUDIT_PSQL lỗi: {r.stderr[:300]}")
@@ -289,7 +289,7 @@ def wait_job(api, job, auth, timeout=600):
 
 
 def upload_doc(api, course, path, title, dtype):
-    b = path.read_bytes()
+    b = path.read_bytes() + b"\n%EVAL-LLM\n"  # hậu tố chú thích PDF: khác sha256 với tệp seed, nếu không gateway từ chối DOCUMENT_DUPLICATE_ELSEWHERE
     p = api.req("POST", f"/courses/{course}/uploads/presign", {"purpose": "document", "filename": path.name, "mime_type": "application/pdf",
                                                                "size_bytes": len(b), "sha256": hashlib.sha256(b).hexdigest()}, auth="teacher")
     api.put_blob(p["url"], p["headers"], b)
@@ -377,7 +377,7 @@ def score_extraction(draft, fx, pages):
         else:
             cstat["not_found"] += 1
             cstat["not_found_items"].append({"owner": owner, "page": c["page"], "quote": c["quote"][:160]})
-    unclear = [u["code"] or u["source"] for u in draft["unclear_items"]]
+    unclear = [u.get("code") or u["source"] for u in draft["unclear_items"]]
     wsum = sum((dec(c["weight"]) or 0) for c in comps)
     return {"components_ok": comp_ok, "weights_sum": str(wsum), "rules_ok": rule_ok, "invented_rules": invented, "citations": cstat,
             "unclear_codes": unclear, "unclear_llm": [u for u in draft["unclear_items"] if u["source"] == "LLM"]}
@@ -472,19 +472,22 @@ def cmd_grade_run(api, a):
     ids = list(q)
     rounds = []
     for rnd in range(1, a.rounds + 1):
-        t0 = now()
+        t0, win_end = now(), None
         if rnd == 1 and any(not s.get("result") for s in q.values()):
             r = api.req("POST", f"/courses/{course}/assignments/{aid}/grade-all", {}, auth="teacher", idem=True)
             print(f"vòng 1: grade-all xếp {r['queued']} bài")
         elif rnd > 1 or all(s.get("result") for s in q.values()):
             if rnd == 1:
                 print("vòng 1: đã có kết quả (chấm trước đó) — lấy nguyên")
+                w = (sql(f"select min(created_at) a, max(created_at) b from llm_audit where course_id = {lit(course)} and task = 'GRADING'") or [{}])[0]
+                if w.get("a"):  # cửa sổ audit của lần chấm trước, không phải cửa sổ của lần chạy này
+                    t0, win_end = datetime.fromisoformat(w["a"]), datetime.fromisoformat(w["b"])
             else:
                 for sid in ids:
                     api.req("POST", f"/courses/{course}/submissions/{sid}/grade", {}, auth="teacher", idem=True)
                 print(f"vòng {rnd}: xếp chấm lại {len(ids)} bài")
         q = wait_queue(api, course, aid, ids)
-        t1 = now()
+        t1 = win_end if win_end else now()
         details = {}
         for sid, s in q.items():
             details[sid] = api.req("GET", f"/courses/{course}/grading-results/{s['result']['id']}", auth="teacher")
@@ -622,7 +625,7 @@ def chat_once(api, account, course, text):
 def class1_people(api, st):
     m = {x["email"].split("@")[0]: x for x in st.get("c1_members") or members(api, st["c1"])}
     return {"A": m["sv.gioi"]["full_name"], "B": m["sv.kha"]["full_name"], "B_CODE": m["sv.kha"]["student_code"], "B_EMAIL": m["sv.kha"]["email"],
-            "C": m["sv.nguyco"]["full_name"]}
+            "C": m["sv.nguyco"]["full_name"], "A_CODE": m["sv.gioi"]["student_code"], "C_CODE": m["sv.nguyco"]["student_code"]}
 
 
 def fill(text, people):

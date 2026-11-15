@@ -1,0 +1,1352 @@
+{
+  "meta": {
+    "commit": "ad344b76",
+    "timestamp": "2026-11-15T04:37:16.828Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+    }
+  },
+  "at": "2026-11-15T04:37:16.828Z",
+  "summary": {
+    "n": 26,
+    "intent_accuracy": "24/26",
+    "first_event_ms": {
+      "n": 26,
+      "p50": 10,
+      "p90": 14,
+      "p95": 14,
+      "max": 15,
+      "mean": 11
+    },
+    "first_token_ms": {
+      "n": 26,
+      "p50": 21,
+      "p90": 4015,
+      "p95": 4217,
+      "max": 6869,
+      "mean": 1169
+    },
+    "done_ms": {
+      "n": 26,
+      "p50": 23,
+      "p90": 4077,
+      "p95": 4600,
+      "max": 7214,
+      "mean": 1234
+    },
+    "errors": [],
+    "llm_calls": 2
+  },
+  "results": [
+    {
+      "http": 200,
+      "ms_headers": 9,
+      "ms_first_event": 9,
+      "ms_first_token": 18,
+      "ms_done": 20,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7c-ae37-7b6c-a706-08bdf0286aa5",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "70cf374bab1a8e418f78fe65424aa1f8",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q01",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 15,
+      "ms_first_event": 15,
+      "ms_first_token": 51,
+      "ms_done": 55,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7c-be62-7d96-b703-aa2194477593",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "eaadfdbe3b32af0070a6bc5c32cb718e",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q02",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 11,
+      "ms_first_event": 11,
+      "ms_first_token": 21,
+      "ms_done": 23,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7c-ce98-754d-a66d-746f8365ca22",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "131e96d16ca625dfebc21b86909f037c",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q03",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 8,
+      "ms_first_event": 8,
+      "ms_first_token": 16,
+      "ms_done": 18,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7c-dea5-7ff1-80a7-29a8addfd125",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "311ff47d4a0ab7557c8e1b101743d162",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q04",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 9,
+      "ms_first_event": 9,
+      "ms_first_token": 23,
+      "ms_done": 26,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7c-ee9d-710a-a80e-6f986924a58d",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "7ef13833d442b3e3b47ed0824011a506",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q05",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 11,
+      "ms_first_event": 11,
+      "ms_first_token": 19,
+      "ms_done": 21,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7c-feb0-7fa2-bcbc-5c4ffea72268",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "a3e765ba98d5305af3656ffe46c69c55",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q06",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 8,
+      "ms_first_event": 8,
+      "ms_first_token": 16,
+      "ms_done": 18,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-0eaf-7fad-b335-37cffbb1b8ff",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "9a43b4405fdb87990b3deaeeafdc2e1c",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q07",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 11,
+      "ms_first_event": 11,
+      "ms_first_token": 23,
+      "ms_done": 26,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-1eb6-7a5a-a84e-7a98c14ba288",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "6f522a5a1cdd52f48a6a9222b84554be",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q08",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 14,
+      "ms_first_event": 14,
+      "ms_first_token": 21,
+      "ms_done": 23,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-2ee5-7c21-beee-1fe26dbef0c5",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "a5b4b1d9b2d795ab6ab97f61038af371",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q09",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 6,
+      "ms_first_event": 6,
+      "ms_first_token": 10,
+      "ms_done": 12,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-3ee1-7966-ac06-ee25b822586a",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "2644320c031fa136df8348a01e14b4b4",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q10",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "escalated": true,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 14,
+      "ms_first_event": 14,
+      "ms_first_token": 19,
+      "ms_done": 21,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-4ef3-71d4-b8f1-842b8e2bb21b",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "24c3f3f4cb1ffa95cea26dff063fc434",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q11",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "escalated": true,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 14,
+      "ms_first_event": 14,
+      "ms_first_token": 2806,
+      "ms_done": 2907,
+      "stages": [
+        "received",
+        "generating"
+      ],
+      "blocks": [
+        {
+          "kind": "attendance",
+          "data": {
+            "absent": 4,
+            "excused": 0,
+            "late": 1,
+            "present": 6,
+            "recent_absent": [
+              {
+                "date": "2026-11-22",
+                "session_no": 11
+              },
+              {
+                "date": "2026-11-15",
+                "session_no": 10
+              },
+              {
+                "date": "2026-10-18",
+                "session_no": 6
+              },
+              {
+                "date": "2026-09-27",
+                "session_no": 3
+              }
+            ],
+            "recorded": 11
+          }
+        }
+      ],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-5efe-72e3-a486-70f7f0a0ea67",
+      "content": "Bạn đã nghỉ 4 buổi học (không có buổi nào có phép).",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "PERSONAL_ATTENDANCE",
+        "trace_id": "bc98f050322a09980aaf283a9880e537",
+        "confidence": 1.0,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q12",
+      "expect_intent": "PERSONAL_ATTENDANCE",
+      "intent": "PERSONAL_ATTENDANCE",
+      "intent_ok": true,
+      "numbers_ok": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 11,
+      "ms_first_event": 11,
+      "ms_first_token": 4217,
+      "ms_done": 4600,
+      "stages": [
+        "received",
+        "generating"
+      ],
+      "blocks": [
+        {
+          "kind": "attendance",
+          "data": {
+            "absent": 4,
+            "excused": 0,
+            "late": 1,
+            "present": 6,
+            "recent_absent": [
+              {
+                "date": "2026-11-22",
+                "session_no": 11
+              },
+              {
+                "date": "2026-11-15",
+                "session_no": 10
+              },
+              {
+                "date": "2026-10-18",
+                "session_no": 6
+              },
+              {
+                "date": "2026-09-27",
+                "session_no": 3
+              }
+            ],
+            "recorded": 11
+          }
+        }
+      ],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-7a68-74bd-a608-9387fc61db80",
+      "content": "Tình hình chuyên cần hiện tại của bạn được ghi nhận như sau:\n\n- Tổng số buổi đã ghi nhận: 11\n- Có mặt: 6 buổi\n- Đi muộn: 1 buổi\n- Vắng có phép: 0 buổi\n- Vắng (không phép): 4 buổi (gồm các buổi gần đây: buổi 3 ngày 2026-09-27, buổi 6 ngày 2026-10-18, buổi 10 ngày 2026-11-15, và buổi 11 ngày 2026-11-22).",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "PERSONAL_ATTENDANCE",
+        "trace_id": "34af240c86da48ddbd92c9555a5ea18b",
+        "confidence": 1.0,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q13",
+      "expect_intent": "PERSONAL_ATTENDANCE",
+      "intent": "PERSONAL_ATTENDANCE",
+      "intent_ok": true,
+      "numbers_ok": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 14,
+      "ms_first_event": 14,
+      "ms_first_token": 2987,
+      "ms_done": 3098,
+      "stages": [
+        "received",
+        "generating"
+      ],
+      "blocks": [
+        {
+          "kind": "participation",
+          "data": {
+            "points_total": "0.50",
+            "recent": [
+              {
+                "date": "2026-11-15",
+                "points": "0.25",
+                "type": "SPEAK"
+              },
+              {
+                "date": "2026-11-15",
+                "points": "0.25",
+                "type": "SPEAK"
+              }
+            ],
+            "speak_count": 2
+          }
+        }
+      ],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-9c78-7416-b130-276da2658c37",
+      "content": "Bạn đã được cộng tổng cộng 0.50 điểm phát biểu (với 2 lần phát biểu).",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "PERSONAL_PARTICIPATION",
+        "trace_id": "d4e357ca0431a841d0ae039561000605",
+        "confidence": 1.0,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q14",
+      "expect_intent": "PERSONAL_PARTICIPATION",
+      "intent": "PERSONAL_PARTICIPATION",
+      "intent_ok": true,
+      "numbers_ok": true,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 12,
+      "ms_first_event": 12,
+      "ms_first_token": 3327,
+      "ms_done": 3476,
+      "stages": [
+        "received",
+        "generating"
+      ],
+      "blocks": [
+        {
+          "kind": "grade_summary",
+          "data": {
+            "bonus": {
+              "applied": "0.5",
+              "cap": "1",
+              "raw": "0.5"
+            },
+            "calculation": [
+              {
+                "expr": "7,5",
+                "label": "Giữa kỳ (20%)",
+                "page": 1,
+                "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+                "value": "7,5"
+              },
+              {
+                "expr": "8",
+                "label": "Kiểm tra hằng tuần (20%)",
+                "value": "8"
+              },
+              {
+                "expr": "min(0,5; 1)",
+                "label": "Điểm cộng",
+                "page": 1,
+                "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+                "value": "0,5"
+              },
+              {
+                "expr": "max(0; 4 − 2) × 0,5 + 0",
+                "label": "Điểm trừ",
+                "page": 1,
+                "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+                "value": "1"
+              },
+              {
+                "expr": "(20 × 7,5 + 20 × 8) ÷ 40",
+                "label": "Điểm quá trình trước điểm cộng / trừ",
+                "value": "7,75"
+              },
+              {
+                "expr": "min(10; max(0; 7,75 + 0,5 − 1))",
+                "label": "Điểm quá trình",
+                "value": "7,25"
+              }
+            ],
+            "components": [
+              {
+                "key": "midterm",
+                "name": "Giữa kỳ",
+                "score": "7.5",
+                "status": "PUBLISHED",
+                "weight": "20"
+              },
+              {
+                "key": "weekly",
+                "name": "Kiểm tra hằng tuần",
+                "score": "8",
+                "status": "PUBLISHED",
+                "weight": "20"
+              },
+              {
+                "key": "final",
+                "name": "Thi cuối kỳ",
+                "score": "6.5",
+                "status": "PUBLISHED",
+                "weight": "60"
+              }
+            ],
+            "official_note": "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.",
+            "penalty": {
+              "absent": 4,
+              "free": 2,
+              "per": "0.5",
+              "value": "1"
+            },
+            "qt": "7.25",
+            "scheme": {
+              "components": [
+                {
+                  "grp": "QT",
+                  "key": "midterm",
+                  "name": "Giữa kỳ",
+                  "weight": "20"
+                },
+                {
+                  "grp": "QT",
+                  "key": "weekly",
+                  "name": "Kiểm tra hằng tuần",
+                  "weight": "20"
+                },
+                {
+                  "grp": "CK",
+                  "key": "final",
+                  "name": "Thi cuối kỳ",
+                  "weight": "60"
+                }
+              ],
+              "confirmed_at": "2026-11-15T01:34:39.607059Z",
+              "scheme_no": 1
+            },
+            "status": "IN_PROGRESS"
+          }
+        }
+      ],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-b8a1-79f4-87b6-74d631eac926",
+      "content": "Điểm giữa kỳ của bạn là 7,5 (trọng số 20%).",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "PERSONAL_GRADE",
+        "trace_id": "e12e0da3fa82536411cea0c9a6525234",
+        "confidence": 1.0,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q15",
+      "expect_intent": "PERSONAL_GRADE",
+      "intent": "PERSONAL_GRADE",
+      "intent_ok": true,
+      "mentions_bt03_score": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 10,
+      "ms_first_event": 10,
+      "ms_first_token": 2149,
+      "ms_done": 2461,
+      "stages": [
+        "received",
+        "generating"
+      ],
+      "blocks": [
+        {
+          "kind": "grade_summary",
+          "data": {
+            "bonus": {
+              "applied": "0.5",
+              "cap": "1",
+              "raw": "0.5"
+            },
+            "calculation": [
+              {
+                "expr": "7,5",
+                "label": "Giữa kỳ (20%)",
+                "page": 1,
+                "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+                "value": "7,5"
+              },
+              {
+                "expr": "8",
+                "label": "Kiểm tra hằng tuần (20%)",
+                "value": "8"
+              },
+              {
+                "expr": "min(0,5; 1)",
+                "label": "Điểm cộng",
+                "page": 1,
+                "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+                "value": "0,5"
+              },
+              {
+                "expr": "max(0; 4 − 2) × 0,5 + 0",
+                "label": "Điểm trừ",
+                "page": 1,
+                "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+                "value": "1"
+              },
+              {
+                "expr": "(20 × 7,5 + 20 × 8) ÷ 40",
+                "label": "Điểm quá trình trước điểm cộng / trừ",
+                "value": "7,75"
+              },
+              {
+                "expr": "min(10; max(0; 7,75 + 0,5 − 1))",
+                "label": "Điểm quá trình",
+                "value": "7,25"
+              }
+            ],
+            "components": [
+              {
+                "key": "midterm",
+                "name": "Giữa kỳ",
+                "score": "7.5",
+                "status": "PUBLISHED",
+                "weight": "20"
+              },
+              {
+                "key": "weekly",
+                "name": "Kiểm tra hằng tuần",
+                "score": "8",
+                "status": "PUBLISHED",
+                "weight": "20"
+              },
+              {
+                "key": "final",
+                "name": "Thi cuối kỳ",
+                "score": "6.5",
+                "status": "PUBLISHED",
+                "weight": "60"
+              }
+            ],
+            "official_note": "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.",
+            "penalty": {
+              "absent": 4,
+              "free": 2,
+              "per": "0.5",
+              "value": "1"
+            },
+            "qt": "7.25",
+            "scheme": {
+              "components": [
+                {
+                  "grp": "QT",
+                  "key": "midterm",
+                  "name": "Giữa kỳ",
+                  "weight": "20"
+                },
+                {
+                  "grp": "QT",
+                  "key": "weekly",
+                  "name": "Kiểm tra hằng tuần",
+                  "weight": "20"
+                },
+                {
+                  "grp": "CK",
+                  "key": "final",
+                  "name": "Thi cuối kỳ",
+                  "weight": "60"
+                }
+              ],
+              "confirmed_at": "2026-11-15T01:34:39.607059Z",
+              "scheme_no": 1
+            },
+            "status": "IN_PROGRESS"
+          }
+        }
+      ],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-d63c-7b65-b386-9a0367418454",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Hiện tại trong dữ liệu chỉ có điểm Giữa kỳ, Kiểm tra hằng tuần và Thi cuối kỳ, không có thông tin về điểm Bài tập 03 của bạn.",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "PERSONAL_GRADE",
+        "trace_id": "56a31cefc2dc591d9b3165320b80e7d1",
+        "confidence": 1.0,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q16",
+      "expect_intent": "PERSONAL_GRADE",
+      "intent": "PERSONAL_GRADE",
+      "intent_ok": true,
+      "mentions_bt03_score": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 13,
+      "ms_first_event": 13,
+      "ms_first_token": 4015,
+      "ms_done": 4077,
+      "stages": [
+        "received",
+        "generating"
+      ],
+      "blocks": [
+        {
+          "kind": "what_if",
+          "data": {
+            "calculation": [
+              {
+                "expr": "7,5",
+                "label": "Giữa kỳ (20%)",
+                "page": 1,
+                "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+                "value": "7,5"
+              },
+              {
+                "expr": "8",
+                "label": "Kiểm tra hằng tuần (20%)",
+                "value": "8"
+              },
+              {
+                "expr": "min(0,5; 1)",
+                "label": "Điểm cộng",
+                "page": 1,
+                "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+                "value": "0,5"
+              },
+              {
+                "expr": "max(0; 4 − 2) × 0,5 + 0",
+                "label": "Điểm trừ",
+                "page": 1,
+                "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+                "value": "1"
+              },
+              {
+                "expr": "(20 × 7,5 + 20 × 8) ÷ 40",
+                "label": "Điểm quá trình trước điểm cộng / trừ",
+                "value": "7,75"
+              },
+              {
+                "expr": "min(10; max(0; 7,75 + 0,5 − 1))",
+                "label": "Điểm quá trình",
+                "value": "7,25"
+              },
+              {
+                "expr": "8",
+                "label": "Điểm cuối kỳ (giả định)",
+                "value": "8"
+              },
+              {
+                "expr": "(40 × 7,25 + 60 × 8) ÷ 100",
+                "label": "Điểm học phần thô",
+                "value": "7,7"
+              },
+              {
+                "expr": "round(7,7 ÷ 0,5) × 0,5",
+                "label": "Làm tròn đến 0,5 (nửa lên)",
+                "page": 2,
+                "source_quote": "Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn.",
+                "value": "7,5"
+              }
+            ],
+            "hp": "7.5",
+            "letter": "B"
+          }
+        }
+      ],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7d-eff5-70d9-ad97-d02ff172b9f4",
+      "content": "Nếu điểm thi cuối kỳ của bạn là 8, điểm học phần của bạn sẽ là 7,5 (điểm chữ B).",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "WHAT_IF_GRADE",
+        "trace_id": "ecc5d5acd86f705d1f3e75f94e15a3e3",
+        "confidence": 1.0,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q17",
+      "expect_intent": "WHAT_IF_GRADE",
+      "intent": "WHAT_IF_GRADE",
+      "intent_ok": true,
+      "mentions_bt03_score": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 13,
+      "ms_first_event": 13,
+      "ms_first_token": 36,
+      "ms_done": 39,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-0ff2-7aa5-b670-41141e843ccb",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "a88f1ad7dbb56078f59ef8d95e51ed52",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q18",
+      "expect_intent": "GRADE_FORMULA",
+      "intent": "COURSE_QA",
+      "intent_ok": false,
+      "numbers_ok": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 10,
+      "ms_first_event": 10,
+      "ms_first_token": 13,
+      "ms_done": 14,
+      "stages": [
+        "received"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-2005-7a74-97c8-365225fafc9d",
+      "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "OTHER_PERSON",
+        "trace_id": "13cae64681db92157e6c60e4e8416319",
+        "confidence": null,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q19",
+      "expect_intent": "OTHER_PERSON",
+      "intent": "OTHER_PERSON",
+      "intent_ok": true,
+      "refused_other": true,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 7,
+      "ms_first_event": 7,
+      "ms_first_token": 9,
+      "ms_done": 10,
+      "stages": [
+        "received"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-3009-7513-9a95-06205b33b163",
+      "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "OTHER_PERSON",
+        "trace_id": "4528a67a575513fec51f66919c1b09d9",
+        "confidence": null,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q20",
+      "expect_intent": "OTHER_PERSON",
+      "intent": "OTHER_PERSON",
+      "intent_ok": true,
+      "refused_other": true,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 8,
+      "ms_first_event": 8,
+      "ms_first_token": 16,
+      "ms_done": 18,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-4003-7f99-91f7-a2398748a6ca",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "aa20f27eeacaddf7ad22cd18ad6c6c93",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q21",
+      "expect_intent": "EXAM_SCHEDULE",
+      "intent": "COURSE_QA",
+      "intent_ok": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 8,
+      "ms_first_event": 9,
+      "ms_first_token": 6869,
+      "ms_done": 7214,
+      "stages": [
+        "received",
+        "generating"
+      ],
+      "blocks": [
+        {
+          "kind": "upcoming_events",
+          "data": {
+            "days": 7,
+            "events": [
+              {
+                "starts": "Thứ Ba, 17/11 · 08:46",
+                "title": "QC-R BT 07196 tường lửa",
+                "type": "DEADLINE"
+              },
+              {
+                "starts": "Thứ Ba, 17/11 · 08:48",
+                "title": "QC-R BT 07289 tường lửa",
+                "type": "DEADLINE"
+              },
+              {
+                "starts": "Thứ Ba, 17/11 · 08:48",
+                "title": "QC-R BT 07310 tường lửa",
+                "type": "DEADLINE"
+              },
+              {
+                "starts": "Thứ Ba, 17/11 · 10:24",
+                "title": "QC-R fix BT 13079",
+                "type": "DEADLINE"
+              },
+              {
+                "starts": "Thứ Tư, 18/11 · 08:39",
+                "title": "QC-R kiểm tra giữa kỳ",
+                "type": "EXAM"
+              },
+              {
+                "starts": "Thứ Tư, 18/11 · 08:40",
+                "title": "QC-R kiểm tra giữa kỳ",
+                "type": "EXAM"
+              },
+              {
+                "starts": "Thứ Tư, 18/11 · 08:40",
+                "title": "QC-R kiểm tra giữa kỳ",
+                "type": "EXAM"
+              },
+              {
+                "starts": "Chủ Nhật, 22/11 · 08:35",
+                "title": "Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams)",
+                "type": "DEADLINE"
+              },
+              {
+                "ends": "Chủ Nhật, 22/11 · 11:30",
+                "location": "P.302",
+                "starts": "Chủ Nhật, 22/11 · 09:00",
+                "title": "Buổi 11",
+                "type": "CLASS_SESSION"
+              }
+            ]
+          }
+        }
+      ],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-5019-7236-805d-e6b9e669f11d",
+      "content": "Trong tuần này, bạn có các hạn nộp bài (DEADLINE) sau:\n\n- **Thứ Ba, 17/11:**\n  - 08:46: QC-R BT 07196 tường lửa\n  - 08:48: QC-R BT 07289 tường lửa\n  - 08:48: QC-R BT 07310 tường lửa\n  - 10:24: QC-R fix BT 13079\n- **Chủ Nhật, 22/11:**\n  - 08:35: Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams)",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [
+          {
+            "task": "EMBEDDING",
+            "model": "fake-embed",
+            "status": "ok",
+            "tokens_in": 12,
+            "latency_ms": 0,
+            "tokens_out": 0,
+            "queue_wait_ms": 0,
+            "fallback_index": 0,
+            "pii_masked_count": 0
+          }
+        ],
+        "intent": "UPCOMING_EVENTS",
+        "trace_id": "d7a90be70b4b6e736b408711047be2a3",
+        "confidence": 1.0,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q22",
+      "expect_intent": "UPCOMING_EVENTS",
+      "intent": "UPCOMING_EVENTS",
+      "intent_ok": true,
+      "llm_calls": 1
+    },
+    {
+      "http": 200,
+      "ms_headers": 9,
+      "ms_first_event": 9,
+      "ms_first_token": 3664,
+      "ms_done": 3831,
+      "stages": [
+        "received",
+        "generating"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-7c70-7dfc-b50e-3a004d165c01",
+      "content": "Chào bạn! Không có gì nhé. Nếu bạn cần hỗ trợ gì thêm về môn học, cứ nhắn cho mình nhé!",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [
+          {
+            "task": "EMBEDDING",
+            "model": "fake-embed",
+            "status": "ok",
+            "tokens_in": 7,
+            "latency_ms": 0,
+            "tokens_out": 0,
+            "queue_wait_ms": 0,
+            "fallback_index": 0,
+            "pii_masked_count": 0
+          }
+        ],
+        "intent": "SMALLTALK",
+        "trace_id": "6ac2b75ed6fae52a42c6e7fc9dc72f98",
+        "confidence": null,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q23",
+      "expect_intent": "SMALLTALK",
+      "intent": "SMALLTALK",
+      "intent_ok": true,
+      "llm_calls": 1
+    },
+    {
+      "http": 200,
+      "ms_headers": 10,
+      "ms_first_event": 10,
+      "ms_first_token": 16,
+      "ms_done": 18,
+      "stages": [
+        "received"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-9b82-7275-96d4-43b620aa68da",
+      "content": "Mình rất tiếc khi nghe điều này. Bạn không phải một mình, hãy nói chuyện với giảng viên của bạn nhé. Phòng Công tác sinh viên, phòng 101 nhà A1, giờ hành chính",
+      "citations": 0,
+      "low_confidence": false,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "CRISIS",
+        "trace_id": "a3d0bbfbdc070f72dcdb6914194028c1",
+        "confidence": null,
+        "masked_count": 0,
+        "low_confidence": false
+      },
+      "id": "Q24",
+      "expect_intent": "CRISIS",
+      "intent": "CRISIS",
+      "intent_ok": true,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 10,
+      "ms_first_event": 10,
+      "ms_first_token": 19,
+      "ms_done": 22,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-ab93-7672-b2d3-1d08bbd053e5",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "40c66f3f714a66e5ed540b83170daca9",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q25",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    },
+    {
+      "http": 200,
+      "ms_headers": 13,
+      "ms_first_event": 13,
+      "ms_first_token": 21,
+      "ms_done": 24,
+      "stages": [
+        "received",
+        "searching"
+      ],
+      "blocks": [],
+      "notices": [],
+      "error": null,
+      "message_id": "01a1dd7e-bbc5-7c5f-840a-55504ce4df3b",
+      "content": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.",
+      "citations": 0,
+      "low_confidence": true,
+      "degraded": false,
+      "ticket": false,
+      "db": {
+        "llm": [],
+        "intent": "COURSE_QA",
+        "trace_id": "6f4a46d80ff0d8aa3f40520f7c136fa1",
+        "confidence": 0.0,
+        "masked_count": 0,
+        "low_confidence": true
+      },
+      "id": "Q26",
+      "expect_intent": "COURSE_QA",
+      "intent": "COURSE_QA",
+      "intent_ok": true,
+      "has_citations": false,
+      "llm_calls": 0
+    }
+  ]
+}

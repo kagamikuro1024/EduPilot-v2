@@ -25,6 +25,12 @@ CTX = ssl._create_unverified_context() if re.match(r"https://(localhost|127\.0\.
 ORIGIN = re.match(r"(https?://[^/]+)", API).group(1)
 
 
+def jwt_sub(tok):
+    import base64
+    seg = tok.split(".")[1]
+    return json.loads(base64.urlsafe_b64decode(seg + "=" * (-len(seg) % 4)))["sub"]
+
+
 def die(msg, code=1):
     print(msg, file=sys.stderr)
     sys.exit(code)
@@ -276,8 +282,7 @@ def scenario_grading(c1, tag):
     # student.id của hàng nộp = id người dùng: lấy bằng GET /me của chính tài khoản
     ids = {}
     for acct in STUDENTS:
-        s, me = call("GET", "/me", token(acct))
-        ids[acct] = me["id"]
+        ids[acct] = jwt_sub(token(acct))  # API không có GET /me: id người dùng = `sub` của access token
     tp = sum(flagged.get(ids[a_], False) for a_, (_, y) in expect.items() if y)
     fp = sum(flagged.get(ids[a_], False) for a_, (_, y) in expect.items() if not y)
     return {"graded": len(rows), "of": len(corpus), "flag_correct": tp, "flag_expected": sum(y for _, y in expect.values()), "flag_false": fp,
@@ -358,7 +363,7 @@ def main():
     prov = ov.get("provider") or {}
     if not prov.get("fake"):
         die("Provider decision không phải bản giả: lượt thật cần phép PM (AC6). Dừng.")
-    tag = time.strftime("%m%d%H%M%S")
+    tag = time.strftime("%d%H%M")  # submission_code ≤ 12 ký tự: «DM» + chế độ + 6 chữ số
     results, paths = {}, {}
     for mode in ("off", "on"):
         set_mode(c1, mode == "on")

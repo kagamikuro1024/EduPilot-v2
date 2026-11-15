@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "commit": "868cce5b",
+    "timestamp": "2026-11-13T19:23:44.155Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "thresholds": {
+        "lcp_ms_devtools": 2500,
+        "tbt_ms_simulate": 200,
+        "cls": 0.1,
+        "script_kb": 250
+      }
+    }
+  },
+  "simulate": {
+    "/": {
+      "runs": 3,
+      "lcp_ms": 2857,
+      "tbt_ms": 28,
+      "cls": 0,
+      "script_kb": 190
+    },
+    "/chat": {
+      "runs": 3,
+      "lcp_ms": 3459,
+      "tbt_ms": 32,
+      "cls": 0.007,
+      "script_kb": 225
+    },
+    "/threads": {
+      "runs": 3,
+      "lcp_ms": 3161,
+      "tbt_ms": 33,
+      "cls": 0,
+      "script_kb": 216
+    },
+    "/inbox": {
+      "runs": 3,
+      "lcp_ms": 3159,
+      "tbt_ms": 32,
+      "cls": 0,
+      "script_kb": 215
+    },
+    "/gradebook": {
+      "runs": 3,
+      "lcp_ms": 3458,
+      "tbt_ms": 29,
+      "cls": 0,
+      "script_kb": 248
+    },
+    "/me": {
+      "runs": 3,
+      "lcp_ms": 3458,
+      "tbt_ms": 35,
+      "cls": 0,
+      "script_kb": 223
+    },
+    "/settings/llm": {
+      "runs": 3,
+      "lcp_ms": 3009,
+      "tbt_ms": 32,
+      "cls": 0,
+      "script_kb": 228
+    },
+    "/assignments/01a1d5ea-1e45-79d8-84f8-f7cbb5d8336c": {
+      "runs": 3,
+      "lcp_ms": 3308,
+      "tbt_ms": 36,
+      "cls": 0.028,
+      "script_kb": 222
+    }
+  },
+  "devtools": {
+    "/": {
+      "runs": 3,
+      "lcp_ms": 1574,
+      "tbt_ms": 32,
+      "cls": 0,
+      "script_kb": 191
+    },
+    "/chat": {
+      "runs": 3,
+      "lcp_ms": 1554,
+      "tbt_ms": 29,
+      "cls": 0.01,
+      "script_kb": 225
+    },
+    "/threads": {
+      "runs": 3,
+      "lcp_ms": 4896,
+      "tbt_ms": 29,
+      "cls": 0,
+      "script_kb": 216
+    },
+    "/inbox": {
+      "runs": 3,
+      "lcp_ms": 6717,
+      "tbt_ms": 30,
+      "cls": 0,
+      "script_kb": 215
+    },
+    "/gradebook": {
+      "runs": 3,
+      "lcp_ms": 5887,
+      "tbt_ms": 27,
+      "cls": 0,
+      "script_kb": 248
+    },
+    "/me": {
+      "runs": 3,
+      "lcp_ms": 6256,
+      "tbt_ms": 28,
+      "cls": 0,
+      "script_kb": 223
+    },
+    "/settings/llm": {
+      "runs": 3,
+      "lcp_ms": 4786,
+      "tbt_ms": 32,
+      "cls": 0,
+      "script_kb": 228
+    },
+    "/assignments/01a1d5ea-1e45-79d8-84f8-f7cbb5d8336c": {
+      "runs": 3,
+      "lcp_ms": 4639,
+      "tbt_ms": 0,
+      "cls": 0.028,
+      "script_kb": 222
+    }
+  }
+}
