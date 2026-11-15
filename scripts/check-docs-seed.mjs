@@ -33,7 +33,7 @@ if (mode === "timing") {
 
 const ready = TITLES.filter((x) => docs.find((d) => d.title === x)?.status === "READY");
 must(ready.length === TITLES.length, `READY ${ready.length}/${TITLES.length}: thiếu ${TITLES.filter((x) => !ready.includes(x)).join(", ")}`);
-const keys = docs.filter((d) => d.type === "ANSWER_KEY");
+const keys = docs.filter((d) => d.type === "ANSWER_KEY" && d.title !== "Đáp án đề mẫu luyện tập"); // D-R-02: seed Luyện đề thêm bảng đáp án của đề mẫu (US-P9-12), ngoài phạm vi kiểm này
 must(keys.length === 1 && keys[0].visible_to_students === false, `ANSWER_KEY = ${keys.length} (cần 1, ẩn với sinh viên)`);
 const policy = docs.filter((d) => d.type === "COURSE_POLICY");
 must(policy.length === 1, `COURSE_POLICY = ${policy.length} (cần 1)`);
@@ -53,7 +53,7 @@ for (const d of sharedDocs) {
 }
 must(reembedded === 0, `đoạn nhúng lại ở lớp 2: ${reembedded}`);
 const e1 = await events(c1), e2 = await events(c2);
-must(e1.filter((e) => e.type === "EXAM").length === 2, `sự kiện thi lớp 1 = ${e1.length} (cần 2)`);
+must(e1.filter((e) => e.type === "EXAM" && !/^QC/.test(e.title)).length === 2, `sự kiện thi lớp 1 = ${e1.length} (cần 2)`);
 must(e2.length === 1 && e2[0].type === "OTHER", `sự kiện lớp 2 = ${e2.length} (cần 1 OTHER)`);
 
 let idem = "bỏ qua (--no-rerun)";
