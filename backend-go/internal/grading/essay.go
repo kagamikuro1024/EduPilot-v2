@@ -117,6 +117,8 @@ type Outcome struct {
 type TransientError struct {
 	Code string
 	Err  error
+	// Outage: nhà cung cấp LLM không dùng được (mạch mở / mọi nhà cung cấp lỗi). Hàng đợi KHÔNG tính lượt thử mà chờ qua cửa sổ mở mạch (P-11-22).
+	Outage bool
 }
 
 func (e *TransientError) Error() string {
@@ -368,7 +370,7 @@ func classify(err error) error {
 	case errors.Is(err, llm.ErrMaskFailed):
 		return errors.New(ErrInternal)
 	}
-	return &TransientError{Code: ErrLLMUnavailable, Err: err}
+	return &TransientError{Code: ErrLLMUnavailable, Err: err, Outage: llm.IsOutage(err)}
 }
 
 type critJSON struct {

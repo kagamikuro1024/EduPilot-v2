@@ -378,6 +378,26 @@ func (q *Queries) GradingRequeue(ctx context.Context, arg GradingRequeueParams) 
 	return result.RowsAffected(), nil
 }
 
+const gradingRequeueOutage = `-- name: GradingRequeueOutage :execrows
+update grading_results set run_state = 'QUEUED', attempts = greatest(attempts - 1, 0), not_before = now() + make_interval(secs => $1::float8), lease_owner = null, lease_until = null, updated_at = now()
+where id = $2 and run_state = 'RUNNING' and lease_owner = $3
+`
+
+type GradingRequeueOutageParams struct {
+	DelaySecs float64
+	ID        uuid.UUID
+	Owner     *string
+}
+
+// Mất nhà cung cấp LLM (mạch mở, mọi nhà cung cấp lỗi): QUEUED lại và HOÀN lượt thử vừa nhận (attempts - 1): sự cố của nhà cung cấp không được làm bài hết lượt (P-11-22, luật 12).
+func (q *Queries) GradingRequeueOutage(ctx context.Context, arg GradingRequeueOutageParams) (int64, error) {
+	result, err := q.db.Exec(ctx, gradingRequeueOutage, arg.DelaySecs, arg.ID, arg.Owner)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const gradingResultState = `-- name: GradingResultState :one
 select r.id, r.run_state, r.status, r.submission_id, r.round, r.error_code from grading_results r where r.course_id = $1 and r.id = $2
 `
