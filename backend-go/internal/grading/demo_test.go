@@ -139,7 +139,7 @@ func TestDemoFileProdForbidden(t *testing.T) {
 	env := map[string]string{
 		"DATABASE_URL": "postgres://u:p@h/db", "REDIS_URL": "redis://h", "JWT_SECRET_KEY": "grading-test-secret-0123456789abcdef-dev",
 		"BLOB_ENDPOINT": "127.0.0.1:9", "BLOB_BUCKET": "x", "BLOB_ACCESS_KEY": "x", "BLOB_SECRET_KEY": "x",
-		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": "production", "LLM_DEMO_FILE": "/x.json",
+		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": "production", "ATTENDANCE_TOKEN_KEY": "ZWR1cGlsb3QtcHJvZC1hdHRlbmRhbmNlLXRva2VuLWs=", "LLM_DEMO_FILE": "/x.json",
 	}
 	_, err := config.Load(func(k string) string { return env[k] }, config.Gateway)
 	require.ErrorContains(t, err, "LLM_DEMO_FILE")

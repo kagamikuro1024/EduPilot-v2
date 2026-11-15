@@ -524,7 +524,10 @@ func TestDevTokenNoSid(t *testing.T) {
 }
 
 func TestDevTokenRejectedInProduction(t *testing.T) {
-	r := newSessRig(t, func(e map[string]string) { e["APP_ENV"] = "production" })
+	r := newSessRig(t, func(e map[string]string) {
+		e["APP_ENV"] = "production"
+		e["ATTENDANCE_TOKEN_KEY"] = "ZWR1cGlsb3QtcHJvZC1hdHRlbmRhbmNlLXRva2VuLWs="
+	})
 	res := r.api(r.devToken(uuid.NewString()))
 	require.Equal(t, http.StatusUnauthorized, res.code)
 	require.Equal(t, "TOKEN_INVALID", res.errCode())
