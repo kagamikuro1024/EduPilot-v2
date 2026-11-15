@@ -313,9 +313,9 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     { key: "qt", header: "Quá trình", align: "end", width: "92px", part: "col-qt", render: (r) => calc(r, r.result?.qt, dec.qt) },
     { key: "hp", header: "Điểm học phần", align: "end", width: "112px", part: "col-hp", render: (r) => calc(r, r.result?.hp, dec.hp) },
     { key: "letter", header: "Điểm chữ", align: "center", width: "88px", part: "col-letter", render: (r) => (pending.has(r.student.id) ? "…" : r.result?.letter ?? "—") },
-    ...(showStatus ? [{ key: "status", header: "Trạng thái", width: "130px", part: "col-status", render: (r: GRow) => {
+    ...(showStatus ? [{ key: "status", header: "Trạng thái", width: rows.some((r) => r.drift) ? "184px" : "130px", part: "col-status", render: (r: GRow) => {
       const t = pending.has(r.student.id) ? "…" : statusText(r);
-      return <span data-part="row-status">{t === "Thiếu điểm" && <i className={s.missDot} aria-hidden />}{t}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span>;
+      return <span className={s.rowStatus} data-part="row-status">{t === "Thiếu điểm" && <i className={s.missDot} aria-hidden />}{t}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span>;
     } }] : []),
     {
       key: "menu", header: <span className="ep-sr-only">Hành động</span>, width: "56px", align: "end",
