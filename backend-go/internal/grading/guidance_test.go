@@ -188,6 +188,14 @@ func TestReflectIdempotent(t *testing.T) {
 	st, code = apiCode(t, err)
 	require.Equal(t, http.StatusConflict, st)
 	require.Equal(t, "GUIDANCE_DISABLED", code)
+	// DEF-R10.6-01: bài tập không thuộc lớp → 404 dù cờ tắt (không lộ khác biệt giữa lớp tắt / bật cờ)
+	_, err = off.Reflect(t.Context(), a, g.course, uuid.New())
+	st, code = apiCode(t, err)
+	require.Equal(t, http.StatusNotFound, st)
+	require.Equal(t, "ASSIGNMENT_NOT_FOUND", code)
+	_, err = off.RegradeStale(t.Context(), a, g.course, uuid.New())
+	st, _ = apiCode(t, err)
+	require.Equal(t, http.StatusNotFound, st)
 }
 
 // TestGuidanceFlags — GET đủ bốn cờ; REGRESSION_CAPTURE chỉ ADMIN; version cũ → 409; hàng chưa có là version 1; công tắc cứng tắt → 409.

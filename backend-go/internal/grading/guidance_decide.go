@@ -55,8 +55,8 @@ func changed(ctx context.Context, tx pgx.Tx, course, assignment uuid.UUID) error
 // Resolve quyết định một lưu ý (SRS 4.2.9, #5): APPROVE / REJECT chỉ từ DRAFT (`text` sửa kèm theo phải qua kiểm từ khoá + PII), RETIRE chỉ từ mục đang hiệu lực (chờ nghỉ tới lần Áp dụng).
 // Chỉ TEACHER (route). Mỗi quyết định ghi `audit_log` (chữ + ủng hộ, không id sinh viên).
 func (s *GuidanceService) Resolve(ctx context.Context, a GuidanceActor, course, assignment, item uuid.UUID, decision string, text *string, version int) (ItemView, error) {
-	if !s.on(course) {
-		return ItemView{}, disabled()
+	if err := s.gate(ctx, course, assignment); err != nil {
+		return ItemView{}, err
 	}
 	if text != nil {
 		if decision == "RETIRE" || decision == "RESET" {
@@ -152,8 +152,8 @@ type ApplyOut struct {
 // Apply gom các mục đã duyệt chờ áp dụng (và chờ nghỉ) thành phiên bản N+1 (SRS 4.2.10, #6). Một giao dịch; KHÔNG tự chấm lại.
 // Đây là nơi DUY NHẤT đổi assignments.guidance_version (TestGuidanceVersionOnlyViaApply).
 func (s *GuidanceService) Apply(ctx context.Context, a GuidanceActor, course, assignment uuid.UUID, expected int) (ApplyOut, error) {
-	if !s.on(course) {
-		return ApplyOut{}, disabled()
+	if err := s.gate(ctx, course, assignment); err != nil {
+		return ApplyOut{}, err
 	}
 	var out ApplyOut
 	err := s.tx(ctx, func(q *store.Queries, tx pgx.Tx) error {
@@ -224,8 +224,8 @@ type RegradeOut struct {
 // RegradeStale xếp chấm lại (round + 1) CÁC BÀI NHÁP bản cũ chưa ai sửa / duyệt (SRS 4.2.11, #7). Không bao giờ đụng bài đã duyệt, đã sửa tay hay đã công bố: điểm người đã chốt không bị ghi đè.
 // Tối đa RegradeMaxBatch bài mỗi lần; idempotent nhờ UNIQUE (course, submission, round); việc đi làn BATCH như chấm thường.
 func (s *GuidanceService) RegradeStale(ctx context.Context, a GuidanceActor, course, assignment uuid.UUID) (RegradeOut, error) {
-	if !s.on(course) {
-		return RegradeOut{}, disabled()
+	if err := s.gate(ctx, course, assignment); err != nil {
+		return RegradeOut{}, err
 	}
 	var out RegradeOut
 	b := &Batches{Pool: s.Pool, Jobs: s.Jobs}
