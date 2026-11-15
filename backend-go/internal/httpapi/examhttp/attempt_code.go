@@ -1,6 +1,7 @@
 package examhttp
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -70,19 +71,19 @@ func (h *Handler) saveDraft(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) runCode(w http.ResponseWriter, r *http.Request) {
-	h.codeAction(w, r, func(c reqCtx, eid, aid, item, tab uuid.UUID, in exam.CodeRunIn) (any, error) {
-		return h.Svc.RunCode(r.Context(), c.actor, c.course, eid, aid, item, tab, in)
+	h.codeAction(w, r, func(ctx context.Context, c reqCtx, eid, aid, item, tab uuid.UUID, in exam.CodeRunIn) (any, error) {
+		return h.Svc.RunCode(ctx, c.actor, c.course, eid, aid, item, tab, in)
 	})
 }
 
 func (h *Handler) submitCode(w http.ResponseWriter, r *http.Request) {
-	h.codeAction(w, r, func(c reqCtx, eid, aid, item, tab uuid.UUID, in exam.CodeRunIn) (any, error) {
-		return h.Svc.SubmitCode(r.Context(), c.actor, c.course, eid, aid, item, tab, in)
+	h.codeAction(w, r, func(ctx context.Context, c reqCtx, eid, aid, item, tab uuid.UUID, in exam.CodeRunIn) (any, error) {
+		return h.Svc.SubmitCode(ctx, c.actor, c.course, eid, aid, item, tab, in)
 	})
 }
 
 // codeAction là phần chung của `run` / `submit`: đọc id, `X-Exam-Tab`, thân; trả 202.
-func (h *Handler) codeAction(w http.ResponseWriter, r *http.Request, do func(c reqCtx, eid, aid, item, tab uuid.UUID, in exam.CodeRunIn) (any, error)) {
+func (h *Handler) codeAction(w http.ResponseWriter, r *http.Request, do func(ctx context.Context, c reqCtx, eid, aid, item, tab uuid.UUID, in exam.CodeRunIn) (any, error)) {
 	c, eid, aid, ok := h.attemptIDs(w, r)
 	if !ok {
 		return
@@ -100,7 +101,7 @@ func (h *Handler) codeAction(w http.ResponseWriter, r *http.Request, do func(c r
 	if !httpx.DecodeJSON(w, r, &in) {
 		return
 	}
-	v, err := do(c, eid, aid, item, tab, in)
+	v, err := do(r.Context(), c, eid, aid, item, tab, in)
 	if err != nil {
 		h.fail(w, r, err)
 		return

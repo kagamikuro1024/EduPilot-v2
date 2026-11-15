@@ -94,7 +94,7 @@ jobs:
         run: sqlc diff
 
   go-test:
-    # TL-CI #5: `course` và `auth` mỗi gói một dòng (dài nhất, kèm bước đo thời gian); hai dòng `rest-1` / `rest-2` = MỌI gói còn lại (gói lẻ / chẵn theo thứ tự `go list`), tính lúc chạy
+    # TL-CI #5: `course` và `auth` mỗi gói một dòng (dài nhất, kèm bước đo thời gian); ba dòng `rest-1` / `rest-2` / `rest-3` (DEF-R7-01: hai dòng 10–11 phút) = MỌI gói còn lại (gói lẻ / chẵn theo thứ tự `go list`), tính lúc chạy
     # từ `go list` nên gói mới không bao giờ bị rơi; tách đôi để mỗi dòng ≤ 10 phút (BUG-S7-01 BUG-2). Dòng nào không có gói nào thì đỏ (tránh `go test` chạy nhầm thư mục hiện tại).
     name: Go test (${{ matrix.name }})
     needs: changes
@@ -109,6 +109,7 @@ jobs:
           - { name: auth, timing: ./internal/auth/ }
           - { name: rest-1, save: true }
           - { name: rest-2 }
+          - { name: rest-3 }
     defaults:
       run:
         shell: bash
@@ -141,7 +142,7 @@ jobs:
       - name: go test -race (testroutes)
         # internal/testutil dùng chung container (tên cố định, Reuse) giữa các gói test chạy song song. Ryuk giết container khi
         # tiến trình ĐÃ TẠO ra nó thoát — các gói còn lại gặp "connection refused" giữa chừng (CI đỏ ngẫu nhiên). Runner dùng một lần nên tắt Ryuk.
-        # -v để đếm test đã chạy mỗi dòng (cuối bước in tổng; tổng ba dòng = số test cấp cao nhất của cả cây).
+        # -v để đếm test đã chạy mỗi dòng (cuối bước in tổng; tổng các dòng = số test cấp cao nhất của cả cây).
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           EP_SKIP_TIMING: "1"
@@ -151,8 +152,9 @@ jobs:
           case "$ROW" in
             course) pkgs=$(grep -E '/internal/course(/|$)' <<<"$all" || true) ;;
             auth) pkgs=$(grep -E '/internal/auth(/|$)' <<<"$all" || true) ;;
-            rest-1) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%2==1' || true) ;;
-            rest-2) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%2==0' || true) ;;
+            rest-1) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%3==1' || true) ;;
+            rest-2) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%3==2' || true) ;;
+            rest-3) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%3==0' || true) ;;
             *) echo "dòng $ROW không có trong bảng"; exit 1 ;;
           esac
           [ -n "$pkgs" ] || { echo "dòng $ROW không có gói nào"; exit 1; }
