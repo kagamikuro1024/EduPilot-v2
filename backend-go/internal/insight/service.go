@@ -39,12 +39,12 @@ const (
 	MaxRows         = 3000 // trần số câu hỏi mỗi nguồn / kỳ
 	MinStudents     = 3    // chủ đề < 3 sinh viên: không câu mẫu (k-ẩn danh, FR-13)
 	MaxExamples     = 5
-	TopRanked       = 8   // `/insights` hiển thị tối đa 8 chủ đề đầu
-	DefaultPeriod   = 14  // Q-E-7: kỳ ∈ {7, 14, 30, toàn kỳ}, mặc định 14
-	WholeTerm       = 120 // «toàn kỳ» ≈ một học kỳ: ponytail — số cố định, lớp không có ngày bắt đầu / kết thúc kỳ trong schema
-	RatePerHour     = 3   // việc generate / 60 phút / lớp
-	DefaultTau      = 0.80
-	EmbedBatch      = 50 // chuỗi / lời gọi nhúng
+	TopRanked       = 8    // `/insights` hiển thị tối đa 8 chủ đề đầu
+	DefaultPeriod   = 14   // Q-E-7: kỳ ∈ {7, 14, 30, toàn kỳ}, mặc định 14
+	WholeTerm       = 120  // «toàn kỳ» ≈ một học kỳ: ponytail — số cố định, lớp không có ngày bắt đầu / kết thúc kỳ trong schema
+	RatePerHour     = 3    // việc generate / 60 phút / lớp
+	DefaultTau      = 0.52 // liên kết trung bình (cluster.go); gemini-embedding-001: nền ≈ 0,43–0,50 giữa chủ đề, ≈ 0,55–0,63 trong chủ đề — xem commit P-11-49
+	EmbedBatch      = 50   // chuỗi / lời gọi nhúng
 	practiceTau     = 0.75
 	namedByLLM      = "llm"
 	namedByFallback = "fallback"
@@ -61,7 +61,7 @@ type Service struct {
 	Notify *notify.Service
 	Clock  clock.Clock
 	Log    *slog.Logger
-	// Tau: ngưỡng cosine gom cụm (0 = DefaultTau). Phụ thuộc mô hình embedding: hiệu chỉnh cùng P-11-19.
+	// Tau: ngưỡng cosine TRUNG BÌNH để hai cụm hợp nhất (0 = DefaultTau). Phụ thuộc mô hình embedding: hiệu chỉnh cùng P-11-19.
 	Tau float64
 	// EmbedPause: nghỉ giữa hai lô nhúng (0 = không nghỉ; worker đặt 400 ms).
 	EmbedPause time.Duration

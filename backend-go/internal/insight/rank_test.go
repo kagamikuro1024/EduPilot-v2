@@ -1,7 +1,10 @@
 package insight_test
 
 import (
+	"fmt"
 	"math"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -58,4 +61,41 @@ func TestClusterSeparatesTopics(t *testing.T) {
 func TestKeywords(t *testing.T) {
 	got := insight.Keywords([]string{"TCP và UDP khác nhau thế nào?", "Phân biệt TCP với UDP", "UDP dùng khi nào"}, 2)
 	require.Equal(t, []string{"udp", "tcp"}, got)
+}
+
+// P-11-49 / TC-04-11: kết quả gom KHÔNG phụ thuộc thứ tự câu (gom tham lam theo tâm ra 4 kết quả khác nhau cho cùng sáu vectơ này).
+func TestClusterOrderIndependent(t *testing.T) {
+	angles := []float64{20, 35, 55, 75, 85, 90}
+	tau := 0.8
+	perm := make([]int, len(angles))
+	var run func(k int, used int)
+	run = func(k, used int) {
+		if k == len(angles) {
+			vs := make([][]float32, len(angles))
+			for i, p := range perm {
+				a := angles[p] * math.Pi / 180
+				vs[i] = vec(float32(math.Cos(a)), float32(math.Sin(a)))
+			}
+			var groups []string
+			for _, g := range insight.Cluster(vs, tau) {
+				var as []float64
+				for _, i := range g {
+					as = append(as, angles[perm[i]])
+				}
+				sort.Float64s(as)
+				groups = append(groups, fmt.Sprint(as))
+			}
+			sort.Strings(groups)
+			got := strings.Join(groups, "|")
+			require.Equal(t, "[20 35 55]|[75 85 90]", got, "thứ tự %v", perm)
+			return
+		}
+		for i := range angles {
+			if used&(1<<i) == 0 {
+				perm[k] = i
+				run(k+1, used|1<<i)
+			}
+		}
+	}
+	run(0, 0)
 }
