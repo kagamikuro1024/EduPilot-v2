@@ -142,6 +142,8 @@ type detail struct {
 	AllowStudyTimeOptOut bool      `json:"allow_study_time_opt_out"`
 	Counts               *counts   `json:"counts,omitempty"`
 	Settings             *settings `json:"settings,omitempty"`
+	// Attendance: Staff đủ chính sách; sinh viên chỉ self_checkin, require, geo_check (10.8, P-108-3).
+	Attendance any `json:"attendance,omitempty"`
 }
 
 type settings struct {
@@ -185,5 +187,6 @@ func detailOf(d course.Detail) detail {
 	if d.Settings != nil {
 		out.Settings = &settings{EscalationThreshold: d.Settings.EscalationThreshold, Version: d.Settings.Version, Risk: d.Settings.Risk}
 	}
+	out.Attendance = d.Attendance
 	return out
 }
