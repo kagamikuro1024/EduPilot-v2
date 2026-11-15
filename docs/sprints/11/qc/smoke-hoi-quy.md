@@ -29,6 +29,12 @@ Kết luận chỉ PASS / FAIL; mục không chạy được ghi rõ lý do.
 `qc-ui-audit-real.spec.ts` (khung 10.7): mọi route × SV, TA, GV, ADMIN × 1440 + 375, trạng thái «dữ liệu» — **8/8 lượt chạy**, 108 trang không lỗi tải. Lệch 5: E2 chat SV (đã N/A từ 10.7) + 4 D3 (`/documents`, `/grading` × GV, TA) → D-R-05 (TB), D-R-06 (Thấp). Ảnh: `audit-r/*.jpg`.
 `ui-antipatterns.sh` sạch, `--selftest` 31/31.
 
+## Full Playwright (bộ dev, `--project=desktop --project=mobile --retries=0`, main `6b98a36e`)
+- Lần 1–3 (workers=2/1): đỏ hàng loạt vì **tranh tài nguyên máy** (RAM trống ~100 MB, server Next/API giả bị chết → `ERR_CONNECTION_REFUSED`; lần 1 còn lẫn spec `qc-*-real` do shell đang đặt `QC_REAL`) — **không tính**; spec đỏ chạy riêng thì xanh (vd. `grade-appeal` 8/8).
+- Lần 4 (`--workers=1`, dừng `ep-qc-docling` để nhả 1,3 GB, bỏ biến `QC_*`): **926 pass, 78 fail, 1.034 skip** (26,9 phút). 78 fail = `visual.spec` 26 + 52 spec còn lại.
+- Chạy lại riêng 52 spec còn lại (`today`, `tokens`, `ui-foundation`, `insights-course`, `mock-courses`, `settings-error`, `threads-moderation`, `frame`, `exam`, `qc-uiux91-w1`) với `--workers=1`: **171 pass, 0 fail** ⇒ đỏ lần 4 là tranh tài nguyên.
+- `visual.spec` **26/26 lệch ảnh mốc cả khi chạy riêng** (0,01 % điểm ảnh): ảnh mốc đã sinh lại từ **CI Linux** (commit `6829cc70`, CI xanh) nên khác khử răng cưa trên macOS — **KHÔNG KIỂM ĐƯỢC trên máy này**, không tính FAIL.
+
 ## check-*-seed
 Đạt: assignments-seed, assignments-v2, chat-seed (lúc dựng), decision-seed, grade-seed, guidance-seed, knowledge-seed, practice-seed. Đỏ: `check-docs-seed` (ANSWER_KEY = 2), `check-exam-seed bank|demo` → D-R-02 (Thấp, script lệch seed hiện hành). `check-crm-seed` (tickets 5→6) và `check-chat-seed` (160 ≠ 150±5) đỏ **do QC ghi thêm dữ liệu sau khi seed** (ticket, tin chat) — không tính lỗi.
 
