@@ -1,0 +1,521 @@
+{
+  "meta": {
+    "commit": "5ea7cdef",
+    "timestamp": "2026-11-14T15:02:41+07:00",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+    }
+  },
+  "eval": "01a1dd73-1833-7fdb-8cea-cb0a7f9e029b",
+  "c1": "01a1dcd2-8f1c-7169-8c8f-08690ac2f1f0",
+  "c2": "01a1dcd2-8f2c-7573-b5b5-2e49c911cb99",
+  "doc_lop1": "01a1dd73-1876-7d85-9409-d878bd898bda",
+  "doc_lop2": "01a1dd73-1890-7710-9fb5-f74cb0c6d6b7",
+  "doc_lop1_status": "READY",
+  "doc_lop2_status": "READY",
+  "roster_import": {
+    "total": 12,
+    "created_users": 0,
+    "linked_existing": 12,
+    "already_member": 0,
+    "pending_unverified": 0,
+    "skipped_removed": 0,
+    "errors": [],
+    "dry_run": false
+  },
+  "students": [
+    {
+      "account": "sv04",
+      "user_id": "01a1dcd2-91c1-7828-a640-ab8da2fdd09e",
+      "full_name": "Vũ Minh Long",
+      "student_code": "20224786"
+    },
+    {
+      "account": "sv05",
+      "user_id": "01a1dcd2-91c2-7cfe-8c12-f00ce7528819",
+      "full_name": "Nguyễn Anh Linh",
+      "student_code": "20223869"
+    },
+    {
+      "account": "sv06",
+      "user_id": "01a1dcd2-91c4-78be-997f-7730f3b2e64d",
+      "full_name": "Đỗ Bảo Hải",
+      "student_code": "20226862"
+    },
+    {
+      "account": "sv07",
+      "user_id": "01a1dcd2-91c6-71d7-bc89-708a568755c4",
+      "full_name": "Bùi Thu Việt",
+      "student_code": "20226980"
+    },
+    {
+      "account": "sv08",
+      "user_id": "01a1dcd2-91c7-7217-92eb-d46352669f7c",
+      "full_name": "Dương Minh Yến",
+      "student_code": "20222003"
+    },
+    {
+      "account": "sv09",
+      "user_id": "01a1dcd2-91c8-72a0-9239-4998b4cdd3ca",
+      "full_name": "Huỳnh Hoàng Hương",
+      "student_code": "20226004"
+    },
+    {
+      "account": "sv10",
+      "user_id": "01a1dcd2-91c9-718e-9cad-87be2683b9fb",
+      "full_name": "Võ Thanh Trang",
+      "student_code": "20227825"
+    },
+    {
+      "account": "sv11",
+      "user_id": "01a1dcd2-91c9-7cab-a7b3-f1a2c71062d7",
+      "full_name": "Ngô Văn Hà",
+      "student_code": "20224349"
+    },
+    {
+      "account": "sv12",
+      "user_id": "01a1dcd2-91ca-7ad8-81a8-1feb7196012f",
+      "full_name": "Võ Thị An",
+      "student_code": "20229049"
+    },
+    {
+      "account": "sv13",
+      "user_id": "01a1dcd2-91cb-792d-86a4-327c75013454",
+      "full_name": "Dương Tuấn Giang",
+      "student_code": "20224852"
+    },
+    {
+      "account": "sv14",
+      "user_id": "01a1dcd2-91cc-76c8-9423-5e9875fd0a28",
+      "full_name": "Ngô Văn Hải",
+      "student_code": "20227769"
+    },
+    {
+      "account": "sv15",
+      "user_id": "01a1dcd2-91cd-7405-9e3a-f3ce66cca440",
+      "full_name": "Phạm Mai Chi",
+      "student_code": "20226712"
+    }
+  ],
+  "eval_assignment": "01a1dd76-1d96-7df3-b944-ef08f54bf8fb",
+  "bt03": "01a1dcd7-9f76-7a8a-a3a9-8dc786a9adb6",
+  "eval_subs": [
+    {
+      "sample": "S1",
+      "file": "docs/specs/FEAT-assignments/fixtures/submissions/s1-tot.md",
+      "student_id": "01a1dcd2-91c1-7828-a640-ab8da2fdd09e",
+      "submission_id": "01a1dd76-29c9-78f2-9ece-5eb9b67359d3"
+    },
+    {
+      "sample": "S2",
+      "file": "docs/specs/FEAT-assignments/fixtures/submissions/s2-kha.md",
+      "student_id": "01a1dcd2-91c2-7cfe-8c12-f00ce7528819",
+      "submission_id": "01a1dd76-30bb-724b-b590-f2e379df619f"
+    },
+    {
+      "sample": "S3",
+      "file": "docs/specs/FEAT-assignments/fixtures/submissions/s3-kem.md",
+      "student_id": "01a1dcd2-91c4-78be-997f-7730f3b2e64d",
+      "submission_id": "01a1dd76-35a1-7db7-ad7a-a04c3178a786"
+    },
+    {
+      "sample": "S4",
+      "file": "docs/specs/FEAT-assignments/fixtures/submissions/s4-trong.md",
+      "student_id": "01a1dcd2-91c6-71d7-bc89-708a568755c4",
+      "submission_id": "01a1dd76-3a8f-796a-b894-311bfc180a99"
+    },
+    {
+      "sample": "S5",
+      "file": "docs/specs/FEAT-assignments/fixtures/submissions/s5-lac-de.md",
+      "student_id": "01a1dcd2-91c7-7217-92eb-d46352669f7c",
+      "submission_id": "01a1dd76-3f8d-7e67-9eb9-f3851b425ac9"
+    },
+    {
+      "sample": "S6",
+      "file": "docs/specs/FEAT-assignments/fixtures/submissions/s6-injection.md",
+      "student_id": "01a1dcd2-91c8-72a0-9239-4998b4cdd3ca",
+      "submission_id": "01a1dd76-447d-7885-b866-4d4cbb054bee"
+    },
+    {
+      "sample": "S7",
+      "file": "docs/specs/FEAT-assignments/fixtures/submissions/s7-lech-hai-luot.md",
+      "student_id": "01a1dcd2-91c9-718e-9cad-87be2683b9fb",
+      "submission_id": "01a1dd76-4971-78ca-92f8-3d1214cb3527"
+    },
+    {
+      "sample": "INJ:v1-gia-loi-giang-vien",
+      "file": "benchmarks/real-llm/data/injection/v1-gia-loi-giang-vien.md",
+      "student_id": "01a1dcd2-91c9-7cab-a7b3-f1a2c71062d7",
+      "submission_id": "01a1dd76-4e57-7464-8467-47d5d9a75df7"
+    },
+    {
+      "sample": "INJ:v2-tieng-anh-system-note",
+      "file": "benchmarks/real-llm/data/injection/v2-tieng-anh-system-note.md",
+      "student_id": "01a1dcd2-91ca-7ad8-81a8-1feb7196012f",
+      "submission_id": "01a1dd76-534d-7141-b32d-b50a97ba4867"
+    },
+    {
+      "sample": "INJ:v3-chen-json",
+      "file": "benchmarks/real-llm/data/injection/v3-chen-json.md",
+      "student_id": "01a1dcd2-91cb-792d-86a4-327c75013454",
+      "submission_id": "01a1dd76-5838-79c8-afef-df19578b3df7"
+    },
+    {
+      "sample": "INJ:v4-tinh-vi-khong-tu-khoa",
+      "file": "benchmarks/real-llm/data/injection/v4-tinh-vi-khong-tu-khoa.md",
+      "student_id": "01a1dcd2-91cc-76c8-9423-5e9875fd0a28",
+      "submission_id": "01a1dd76-5d13-78ab-9d40-b45f4a33f7cc"
+    },
+    {
+      "sample": "INJ:v5-pha-ranh-gioi",
+      "file": "benchmarks/real-llm/data/injection/v5-pha-ranh-gioi.md",
+      "student_id": "01a1dcd2-91cd-7405-9e3a-f3ce66cca440",
+      "submission_id": "01a1dd76-620a-707f-9b48-4e53fe4f8490"
+    }
+  ],
+  "c1_members": [
+    {
+      "user_id": "01a1dcd3-0f94-7ba3-82e6-01db9338708c",
+      "full_name": "Dương Quang Lệch",
+      "email": "sv.lech@edupilot.local",
+      "student_code": "20229002",
+      "role_in_course": "STUDENT",
+      "status": "PENDING",
+      "joined_via": "CODE",
+      "warning": "EMAIL_MISMATCH",
+      "status_changed_at": "2026-11-15T01:29:43.296931Z"
+    },
+    {
+      "user_id": "01a1dcd2-91bc-74ef-91c6-1f807461e7a4",
+      "full_name": "Vũ Hoàng Giang",
+      "email": "sv.gioi@edupilot.local",
+      "student_code": "20229001",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91be-7d2b-ac40-28279f643e92",
+      "full_name": "Bùi Thanh Khải",
+      "email": "sv.kha@edupilot.local",
+      "student_code": "20229002",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c0-7360-a4d2-b29e7a15910a",
+      "full_name": "Ngô Ngọc Cẩm",
+      "email": "sv.nguyco@edupilot.local",
+      "student_code": "20229003",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c1-7828-a640-ab8da2fdd09e",
+      "full_name": "Vũ Minh Long",
+      "email": "sv04@edupilot.local",
+      "student_code": "20224786",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c2-7cfe-8c12-f00ce7528819",
+      "full_name": "Nguyễn Anh Linh",
+      "email": "sv05@edupilot.local",
+      "student_code": "20223869",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c4-78be-997f-7730f3b2e64d",
+      "full_name": "Đỗ Bảo Hải",
+      "email": "sv06@edupilot.local",
+      "student_code": "20226862",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c6-71d7-bc89-708a568755c4",
+      "full_name": "Bùi Thu Việt",
+      "email": "sv07@edupilot.local",
+      "student_code": "20226980",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c7-7217-92eb-d46352669f7c",
+      "full_name": "Dương Minh Yến",
+      "email": "sv08@edupilot.local",
+      "student_code": "20222003",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c8-72a0-9239-4998b4cdd3ca",
+      "full_name": "Huỳnh Hoàng Hương",
+      "email": "sv09@edupilot.local",
+      "student_code": "20226004",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c9-718e-9cad-87be2683b9fb",
+      "full_name": "Võ Thanh Trang",
+      "email": "sv10@edupilot.local",
+      "student_code": "20227825",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91c9-7cab-a7b3-f1a2c71062d7",
+      "full_name": "Ngô Văn Hà",
+      "email": "sv11@edupilot.local",
+      "student_code": "20224349",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91ca-7ad8-81a8-1feb7196012f",
+      "full_name": "Võ Thị An",
+      "email": "sv12@edupilot.local",
+      "student_code": "20229049",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91cb-792d-86a4-327c75013454",
+      "full_name": "Dương Tuấn Giang",
+      "email": "sv13@edupilot.local",
+      "student_code": "20224852",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91cc-76c8-9423-5e9875fd0a28",
+      "full_name": "Ngô Văn Hải",
+      "email": "sv14@edupilot.local",
+      "student_code": "20227769",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91cd-7405-9e3a-f3ce66cca440",
+      "full_name": "Phạm Mai Chi",
+      "email": "sv15@edupilot.local",
+      "student_code": "20226712",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91ce-70b7-add1-c228d9c05cb2",
+      "full_name": "Ngô Thu Khoa",
+      "email": "sv16@edupilot.local",
+      "student_code": "20227130",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91ce-7cc1-b888-64e7848800f3",
+      "full_name": "Phan Hoàng Nam",
+      "email": "sv17@edupilot.local",
+      "student_code": "20223354",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91cf-795b-9be9-0171f8c4163c",
+      "full_name": "Dương Quốc Hương",
+      "email": "sv18@edupilot.local",
+      "student_code": "20224019",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d0-7ba5-b99d-d732836facf8",
+      "full_name": "Võ Gia Linh",
+      "email": "sv19@edupilot.local",
+      "student_code": "20226009",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d1-7ae0-afa6-39d740cc618a",
+      "full_name": "Huỳnh Đức Dũng",
+      "email": "sv20@edupilot.local",
+      "student_code": "20229602",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d2-795f-a53b-43c24e1bb6c3",
+      "full_name": "Bùi Khánh Việt",
+      "email": "sv21@edupilot.local",
+      "student_code": "20227706",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d3-76d4-bd1e-14061f2bf156",
+      "full_name": "Đỗ Khánh Hà",
+      "email": "sv22@edupilot.local",
+      "student_code": "20223050",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d4-7601-8b2e-fa4e5debda68",
+      "full_name": "Bùi Minh Yến",
+      "email": "sv23@edupilot.local",
+      "student_code": "20221975",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d5-75dc-85a5-7097f97d0c71",
+      "full_name": "Lê Thanh Hải",
+      "email": "sv24@edupilot.local",
+      "student_code": "20227053",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d6-7694-b704-a7d7803d5c3c",
+      "full_name": "Hồ Đức Thảo",
+      "email": "sv25@edupilot.local",
+      "student_code": "20225401",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d7-7643-ba20-cc173701620c",
+      "full_name": "Huỳnh Thu Long",
+      "email": "sv26@edupilot.local",
+      "student_code": "20223579",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d8-73e1-a35b-a0646ce2fe05",
+      "full_name": "Võ Hữu Bình",
+      "email": "sv27@edupilot.local",
+      "student_code": "20223575",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91d9-76a6-be94-6e2cc6f9c5c8",
+      "full_name": "Phan Ngọc Lan",
+      "email": "sv28@edupilot.local",
+      "student_code": "20226611",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91da-7896-a56a-2afafad43f43",
+      "full_name": "Hồ Thu Chi",
+      "email": "sv29@edupilot.local",
+      "student_code": "20222839",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    },
+    {
+      "user_id": "01a1dcd2-91db-7511-bf5d-56302d015a70",
+      "full_name": "Phan Thu Hà",
+      "email": "sv30@edupilot.local",
+      "student_code": "20224880",
+      "role_in_course": "STUDENT",
+      "status": "ACTIVE",
+      "joined_via": "ROSTER",
+      "warning": null,
+      "status_changed_at": "2026-11-15T01:29:09.819762Z"
+    }
+  ]
+}

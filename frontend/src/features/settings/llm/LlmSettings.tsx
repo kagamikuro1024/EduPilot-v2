@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ApiError, ApiErrorNotice } from "@/shared/data";
 import { InlineNotice, Page, PageHeader, Panel, Section, Skeleton } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
+import { DecisionSection } from "./DecisionSection";
 import { EmbeddingSection } from "./EmbeddingSection";
 import { ProviderSection } from "./ProviderSection";
 import { FallbackSection, RouteTableSection } from "./RoutesSection";
@@ -30,7 +31,7 @@ export function LlmSettings() {
   const pending = !notConfigured && (providers.isPending || routes.isPending);
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader title="Cấu hình LLM" />
       {!canEdit && <InlineNotice tone="info">Chỉ quản trị viên được thay đổi cấu hình.</InlineNotice>}
       {pending ? (
@@ -41,19 +42,24 @@ export function LlmSettings() {
         <ApiErrorNotice error={failed.error} title="Chưa tải được cấu hình." context="Cấu hình hiện có không bị ảnh hưởng." showTechnical onRetry={() => void failed.refetch()} />
       ) : (
         <>
-          <Section panel part="settings-section" title="Kết nối nhà cung cấp" className={s.section}>
-            <ProviderSection key={adding} initialAdd={adding > 0} providers={providers.data?.items ?? []} canEdit={canEdit} envFallback={providers.data?.env_fallback ?? { active: true, providers: [] }} />
+          <Section part="settings-section" title="Kết nối nhà cung cấp">
+            <ProviderSection key={adding} initialAdd={adding > 0} providers={(providers.data?.items ?? []).filter((p) => p.type !== "decision")} canEdit={canEdit} envFallback={providers.data?.env_fallback ?? { active: true, providers: [] }} />
           </Section>
-          <Section panel part="settings-section" title="Mô hình theo tác vụ" className={s.section}>
+          <Section part="settings-section" title="Mô hình theo tác vụ">
             <RouteTableSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} onAddProvider={() => setAdding((n) => n + 1)} />
           </Section>
-          <Section panel part="settings-section" title="Chuỗi dự phòng" className={s.section}>
+          <Section part="settings-section" title="Chuỗi dự phòng">
             <FallbackSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} />
           </Section>
-          <Section panel part="settings-section" title="Mô hình tìm kiếm tài liệu" className={`${s.section} ${s.embed}`}>
+          {canEdit && (
+            <Section part="settings-section" title="Quyết định nhanh">
+              <DecisionSection providers={providers.data?.items ?? []} canEdit={canEdit} />
+            </Section>
+          )}
+          <Section part="settings-section" title="Mô hình tìm kiếm tài liệu">
             {routes.data ? <EmbeddingSection routes={routes.data} providers={providers.data?.items ?? []} canEdit={canEdit} /> : <Skeleton lines={2} />}
           </Section>
-          <Section panel part="usage-section" title="Mức dùng và ngân sách" className={s.section}>
+          <Section part="usage-section" title="Mức dùng và ngân sách">
             <UsageSection canEdit={canEdit} />
           </Section>
         </>

@@ -48,6 +48,8 @@ func (r iteratorForInsertLLMAudit) Values() ([]interface{}, error) {
 		r.rows[0].CourseID,
 		r.rows[0].TraceID,
 		r.rows[0].CreatedAt,
+		r.rows[0].CascadeGate,
+		r.rows[0].CascadePath,
 	}, nil
 }
 
@@ -57,5 +59,5 @@ func (r iteratorForInsertLLMAudit) Err() error {
 
 // Ghi llm_audit theo lô bằng COPY — cổng llm ghi bất đồng bộ, một lần cho cả lô.
 func (q *Queries) InsertLLMAudit(ctx context.Context, arg []InsertLLMAuditParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"llm_audit"}, []string{"task", "lane", "provider", "model", "tokens_in", "tokens_out", "latency_ms", "queue_wait_ms", "attempts", "fallback_index", "cost_est", "status", "error_kind", "degraded", "pii_masked_count", "user_id", "course_id", "trace_id", "created_at"}, &iteratorForInsertLLMAudit{rows: arg})
+	return q.db.CopyFrom(ctx, []string{"llm_audit"}, []string{"task", "lane", "provider", "model", "tokens_in", "tokens_out", "latency_ms", "queue_wait_ms", "attempts", "fallback_index", "cost_est", "status", "error_kind", "degraded", "pii_masked_count", "user_id", "course_id", "trace_id", "created_at", "cascade_gate", "cascade_path"}, &iteratorForInsertLLMAudit{rows: arg})
 }

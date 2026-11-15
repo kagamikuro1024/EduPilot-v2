@@ -38,7 +38,7 @@ export function DevicesSection() {
   }
 
   return (
-    <Section title="Thiết bị đang đăng nhập" panel>
+    <Section title="Thiết bị đang đăng nhập" fault={q.isError ? <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} /> : null}>
       <PageState query={q}>
         {failed != null && <ApiErrorNotice error={failed} />}
         <ul className={s.list}>

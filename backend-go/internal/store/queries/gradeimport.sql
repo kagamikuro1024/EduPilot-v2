@@ -20,11 +20,11 @@ with input as (
   for update of e
 ), ups as (
   insert into grade_entries (course_id, item_id, student_id, score, source, entered_by)
-  select sqlc.arg(course_id), sqlc.arg(item_id), i.student_id, i.score, 'IMPORT', sqlc.arg(actor_id)
+  select sqlc.arg(course_id), sqlc.arg(item_id), i.student_id, i.score, sqlc.arg(source)::grade_entry_source, sqlc.arg(actor_id)
   from input i left join old o on o.student_id = i.student_id
   where o.id is null or o.score is distinct from i.score
   on conflict (item_id, student_id) do update
-    set score = excluded.score, source = 'IMPORT', entered_by = excluded.entered_by, version = grade_entries.version + 1, updated_at = now()
+    set score = excluded.score, source = excluded.source, entered_by = excluded.entered_by, version = grade_entries.version + 1, updated_at = now()
   returning student_id, score, version, (xmax = 0) as inserted
 ), aud as (
   insert into audit_log (course_id, actor_id, entity, entity_id, action, before, after)

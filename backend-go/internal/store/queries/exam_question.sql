@@ -72,7 +72,7 @@ returning *;
 
 -- name: QuestionReview :one
 update question_bank
-set review_status = sqlc.arg(review_status), reviewed_by = sqlc.narg(reviewed_by), reviewed_at = sqlc.narg(reviewed_at), version = version + 1, updated_at = now()
+set review_status = sqlc.arg(review_status), reviewed_by = sqlc.narg(reviewed_by), reviewed_at = sqlc.narg(reviewed_at), reject_reason = sqlc.narg(reject_reason), version = version + 1, updated_at = now()
 where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and version = sqlc.arg(expected_version)
 returning *;
 
@@ -177,3 +177,7 @@ where course_id = sqlc.arg(course_id) and problem_id = sqlc.arg(problem_id) and 
 
 -- name: TestcaseIDsByPosition :many
 select id from code_testcases where course_id = sqlc.arg(course_id) and problem_id = sqlc.arg(problem_id) order by position, id;
+
+-- name: QuestionCitationDocTitles :many
+-- Tên tài liệu cho nhãn nguồn của câu EXTRACTED / GENERATED (US-P9-04 AC5).
+select id, title from documents where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]) and category is distinct from 'THREAD_KNOWLEDGE';

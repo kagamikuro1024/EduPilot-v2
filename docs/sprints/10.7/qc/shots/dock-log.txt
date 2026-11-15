@@ -1,0 +1,11 @@
+QCAC P14-att375-dock PASS dock=true; nút chính trong dock=[{"t":"Lưu điểm danh · 30 có mặ","h":44,"w":343}]; nút primary ở đầu trang=[]
+QCAC P14-att375-sticky PASS position=fixed; cách đáy khung nhìn=56px = cao thanh điều hướng dưới (57px); cao 61
+QCAC P14-att375-touch PASS cao nút 44
+QCAC P14-att375-scroll PASS sau cuộn cách đáy 56px (thanh dưới 57px)
+QCAC P14-att375-nocover PASS cuối trang: đỉnh dock 695; số dòng chữ nằm sau dock 0
+QCAC P14-rev375-dock PASS dock=true; nút trong dock=[{"t":"Duyệt bài","h":44,"w":125}]; primary ở đầu trang=[]
+QCAC P14-rev375-sticky PASS position=fixed; cách đáy=56px (thanh dưới 57px)
+QCAC P14-rev375-touch PASS cao 44
+QCAC P14-rev375-scroll PASS sau cuộn 56px (thanh dưới 57px)
+QCAC P14-att1440 PASS đầu trang primary=["Lưu điểm danh"]; dock=[] (không hai nút cùng việc)
+  1 passed (14.7s)

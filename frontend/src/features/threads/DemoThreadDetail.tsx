@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, Pin, Sparkles } from "lucide-react";
+import { MessageSquare, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CHAT_DRAFT_KEY } from "@/features/chat/draftKey";
@@ -14,8 +14,7 @@ import {
   findThread,
   postAgo,
   type ThreadPost,
-  type ThreadsLive,
-} from "@/mock/threads";
+  type ThreadsLive } from "@/mock/threads";
 import { STAFF } from "@/mock/core";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
@@ -37,8 +36,7 @@ import {
   saveDraft,
   setMod,
   stopAi,
-  type Actor,
-} from "./threadsActions";
+  type Actor } from "./threadsActions";
 import s from "./Threads.module.css";
 
 const NOTICE_MS = 8000;
@@ -110,12 +108,10 @@ export function DemoThreadDetail({ id }: { id: string }) {
 
   if (!view || !courses.some((c) => c.id === view.courseId)) {
     return (
-      <Page>
+      <Page kind="read">
         <PageHeader title="Thread" back={{ href: "/threads", label: "Hỏi đáp công khai" }} />
         <Panel>
-          <EmptyState title="Không tìm thấy thread này" action={<ButtonLink href="/threads" variant="primary">Về Hỏi đáp công khai</ButtonLink>}>
-            Thread có thể đã bị xoá, hoặc thuộc lớp khác lớp bạn đang xem.
-          </EmptyState>
+          <EmptyState title="Không tìm thấy thread này" action={<ButtonLink href="/threads" variant="primary">Về Hỏi đáp công khai</ButtonLink>} />
         </Panel>
       </Page>
     );
@@ -200,20 +196,10 @@ export function DemoThreadDetail({ id }: { id: string }) {
   }
 
   return (
-    <Page>
-      <PageHeader
-        title={view.title}
-        back={{ href: "/threads", label: "Hỏi đáp công khai" }}
-        meta={
-          view.pinned ? (
-            <span className={s.pinNote}>
-              <Pin aria-hidden /> Ghim
-            </span>
-          ) : undefined
-        }
-      />
+    <Page kind="read">
+      <PageHeader title={view.title} back={{ href: "/threads", label: "Hỏi đáp công khai" }} meta={view.pinned ? ["Đã ghim"] : undefined} />
 
-      <PageState loading={<Skeleton lines={8} />} empty={<EmptyState title="Thread này chưa có nội dung">Nội dung sẽ hiện khi người đăng gửi câu hỏi.</EmptyState>}>
+      <PageState loading={<Skeleton lines={8} />} empty={<EmptyState title="Thread này chưa có nội dung" />}>
         <div className={s.detailContainer}>
           <Panel>
           {/* 1. Câu hỏi gốc */}
@@ -287,7 +273,7 @@ export function DemoThreadDetail({ id }: { id: string }) {
           </Panel>
 
           {/* 3. MỘT vùng thảo luận, ô soạn ở cuối chính vùng này */}
-          <Section title={`Thảo luận (${view.discussion.length})`} id="discussion" panel>
+          <Section title={`Thảo luận (${view.discussion.length})`} id="discussion">
             {view.discussion.length > 0 && (
               <ol className={s.posts}>
                 {view.discussion.map((p) => (

@@ -33,6 +33,14 @@ type Settings struct {
 	StreamDelay            time.Duration // cách nhau giữa các từ; mặc định 20 ms
 	ReplayDir              string        // khác rỗng: chế độ phát lại
 	DemoFile               string        // khác rỗng: tệp bản ghi demo (DEMO_MODE): yêu cầu chứa đủ chuỗi `match` thì trả `response`
+
+	// Decision model giả (SRS FEAT-decision-model 4.6). Độ trễ log-chuẩn theo p50 / p95; Mode: "" | error | timeout | always_yes | always_no.
+	DecisionP50, DecisionP95 time.Duration
+	DecisionErrorRate        float64
+	DecisionMode             string
+	// DecisionProb != nil: thay giá trị mặc định cho câu KHÔNG có trong bản phát lại: `noul` = p, nhãn đứng đầu của `choice` có confidence p (FAKE_DECISION_PROB; P-105-1 Q2).
+	DecisionProb   *float64
+	DecisionReplay []byte // JSON bản phát lại (xem decide.go); rỗng = mọi đầu vào lưỡng lự
 }
 
 // Controller chia sẻ Settings và bộ đếm giữa mọi provider fake của một Registry.
@@ -48,6 +56,10 @@ type Controller struct {
 	payloads []Payload
 	demo     []demoRec
 	demoErr  error
+
+	decisions atomic.Int64
+	replay    map[string]DecisionRecord
+	replayErr error
 }
 
 // NewController dựng Controller với Settings ban đầu.
@@ -57,6 +69,7 @@ func NewController(s Settings) *Controller {
 	if c.s.DemoFile != "" {
 		c.demo, c.demoErr = loadDemo(c.s.DemoFile)
 	}
+	c.replay, c.replayErr = parseReplay(c.s.DecisionReplay)
 	return c
 }
 
@@ -314,6 +327,9 @@ func (p *Provider) Stream(ctx context.Context, o provider.ChatOpts) (<-chan prov
 		return nil, err
 	}
 	text := answer(o)
+	if d, ok := p.c.demoMatch(o); ok { // bản ghi demo dạng chuỗi JSON cũng áp cho luồng (giải thích luyện đề, P-10-8 Q29)
+		text = d
+	}
 	if s.ReplayDir != "" {
 		r, rerr := replayChat(s.ReplayDir, o)
 		if rerr != nil {
@@ -429,6 +445,12 @@ next:
 		for _, m := range r.Match {
 			if !strings.Contains(prompt, m) {
 				continue next
+			}
+		}
+		if r.Response[0] == '"' { // response là chuỗi JSON: văn bản thuần (luồng), không phải đối tượng có cấu trúc
+			var s string
+			if json.Unmarshal(r.Response, &s) == nil {
+				return s, true
 			}
 		}
 		return string(r.Response), true

@@ -1,0 +1,14 @@
+{
+  "gen_model": "ag/gemini-3.8-flash-medium",
+  "router": "http://127.0.0.1:20128/v1",
+  "seed": "106",
+  "calls": 8,
+  "regenerated": 1,
+  "profile_changed": 0,
+  "note": "Cả 84 bài đều do gen_model sinh qua nhiều lần chạy (tiếp tục được); calls / regenerated chỉ là của lần chạy cuối. Tổng cộng ≈ 84 bài + 47 lần sinh lại (bộ lọc PII: họ tên giả dương như tên thuật ngữ tiếng Anh, đã thêm vào danh sách cho phép) qua 9router. Khoảng 12 bài thử bằng ag/gemini-3.8-flash-high đã bỏ, không nằm trong bộ này. Cùng họ ag/gemini-3.8-flash với model chấm của stack (9router chỉ phục vụ họ này): giới hạn của phép đo.",
+  "words": {
+    "min": 294,
+    "max": 512,
+    "mean": 421
+  }
+}

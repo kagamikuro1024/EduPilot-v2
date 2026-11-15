@@ -34,7 +34,7 @@ test("layout: ô tìm kiếm trước, dòng gọn có dấu loại tệp bằng
 
 test("states: rỗng, bộ lọc không khớp, lỗi có Thử lại", async ({ page, context }) => {
   await open(page, context, { [`GET ${L}`]: list([]) });
-  await expect(page.getByText("Chưa có tài liệu nào.")).toBeVisible();
+  await expect(page.getByText("Chưa có tài liệu nào")).toBeVisible();
   await page.unroute(`**/api/v1/courses/${COURSE}/library**`);
   let n = 0;
   await docApi(page, { [`GET ${L}`]: (r) => (++n === 1 ? r.fulfill(err(500, "INTERNAL")) : r.fulfill(list())) });
@@ -89,7 +89,7 @@ test("detail: không tìm thấy → câu báo; tệp mất → Tệp này khôn
   await page.getByRole("button", { name: "Tải xuống" }).click();
   await expect(page.getByText("Tệp này không còn nữa.")).toBeVisible();
   await page.goto("/library/00000000-0000-7000-8000-0000000000ff");
-  await expect(page.getByText("Không tìm thấy tài liệu.")).toBeVisible();
+  await expect(page.getByText("Không tìm thấy tài liệu")).toBeVisible();
 });
 
 test("375: danh sách không tràn ngang, vùng chạm ≥ 44 px", async ({ page, context }) => {

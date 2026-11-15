@@ -20,11 +20,11 @@ async function open(page: Page, context: Parameters<typeof asDemo>[0], opts: Par
 const block = (page: Page, id: string) => page.locator(`[data-block=${id}]`);
 const confirmBtn = (page: Page) => page.getByRole("button", { name: "Xác nhận công thức" });
 
-test("scheme review layout: một Panel, sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả", async ({ page, context }, info) => {
+test("scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả", async ({ page, context }, info) => {
   desktopOnly(info);
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page, context);
-  await expect(page.locator("main [data-ep-panel]")).toHaveCount(1);
+  await expect(page.locator("main [data-ep-panel]")).toHaveCount(2);
   await expect(page.locator("[data-block] h3")).toHaveText(["Thành phần", "Điểm cộng", "Điểm trừ", "Làm tròn", "Thang chữ", "Liệt"]);
   const pane = page.locator("[data-part=citation-pane]");
   await expect(pane).toBeVisible();
@@ -185,7 +185,7 @@ test("scheme rbac: TA đọc được nhưng không có nút xác nhận, tải 
 test("scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại", async ({ page, context }, info) => {
   desktopOnly(info);
   await open(page, context, { draft: null, confirmed: null });
-  await expect(page.getByText("Lớp chưa có quy chế.")).toBeVisible();
+  await expect(page.getByText("Lớp chưa có quy chế")).toBeVisible();
   await expect(page.getByRole("button", { name: "Tải quy chế" }).first()).toBeVisible();
 
   let n = 0;
@@ -412,7 +412,7 @@ test("type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn 
 test("gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại", async ({ page, context }, info) => {
   desktopOnly(info);
   await sheet(page, context, { scheme: false });
-  await expect(page.getByText("Chưa có công thức điểm.")).toBeVisible();
+  await expect(page.getByText("Chưa có công thức điểm", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Thiết lập công thức" })).toBeVisible();
   await expect(page.getByText("Công thức điểm chưa xác nhận")).toBeVisible();
   await expect(page.locator("input[data-cell]")).toHaveCount(0);
@@ -420,7 +420,7 @@ test("gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại"
   const p2 = await context.newPage();
   await gradebookApi(p2, { students: 0 });
   await p2.goto("/gradebook");
-  await expect(p2.getByText("Lớp chưa có sinh viên.")).toBeVisible();
+  await expect(p2.getByText("Lớp chưa có sinh viên")).toBeVisible();
 
   const p3 = await context.newPage();
   let n = 0;
@@ -539,6 +539,47 @@ test("import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đ
   expect(JSON.parse(commit.body)).toMatchObject({ skip_errors: false, mapping: { header_row: 1, student_code_col: "A", score_col: "C" } });
   expect(api.calls.some((c) => c.path.endsWith("/publish"))).toBe(false);
   await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+});
+
+const FORMS = { name: "ket-qua.csv", mimeType: "text/csv", buffer: Buffer.from("Email,MSSV,Completion time,Q1,Q2\nan@x.test,20220001,2026-11-01 10:00:00,B,A\n") };
+
+test("forms import flow: ba bước, xem trước có bảng điểm + dòng chưa khớp, ghi không công bố, xác nhận cần Idempotency-Key (US-P9-11)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context);
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await page.getByRole("menuitem", { name: "Nhập từ Forms" }).click();
+  const dlg = page.getByRole("dialog", { name: "Nhập kết quả từ Forms" });
+  await dlg.locator("[data-part=forms-input]").setInputFiles(FORMS);
+  await dlg.getByRole("button", { name: "Tiếp tục" }).click();
+  // bước 2: gợi ý cột theo tên tiêu đề; mỗi câu một cột + một câu của ngân hàng
+  await expect(dlg.getByLabel("Cột Email")).toHaveValue("A");
+  await expect(dlg.getByLabel("Cột MSSV")).toHaveValue("B");
+  await expect(dlg.getByRole("button", { name: "Xem trước" })).toBeDisabled();
+  await dlg.getByRole("button", { name: "Lấy hết cột còn lại" }).click();
+  await expect(dlg.locator("[data-part=forms-question]")).toHaveCount(2);
+  await dlg.getByLabel("Câu hỏi 1").selectOption({ label: "AES là gì" });
+  await expect(dlg.getByRole("button", { name: "Xem trước" })).toBeDisabled(); // còn câu 2 chưa chọn
+  await dlg.getByLabel("Câu hỏi 2").selectOption({ label: "RSA dùng khoá nào" });
+  await dlg.getByRole("button", { name: "Xem trước" }).click();
+  // bước 3: chưa ghi gì
+  await expect(dlg.locator("[data-part=forms-summary]")).toHaveText("2 khớp · 1 chưa khớp · 1 dòng trùng · 1 ô không khớp lựa chọn");
+  await expect(dlg.locator("[data-part=forms-unmatched]")).toContainText("Dòng 4 · vô***@danh.test · Không có trong lớp");
+  await expect(dlg.getByRole("button", { name: "Nhập ở Sổ điểm" })).toBeVisible();
+  await expect(dlg.locator("[data-part=forms-sample]")).toContainText("6,67");
+  expect(api.calls.some((c) => c.method === "POST" && c.path.endsWith("/forms-import"))).toBe(false);
+  await dlg.getByRole("button", { name: "Ghi 2 điểm" }).click();
+  await expect(dlg).toHaveCount(0);
+  const commit = api.calls.find((c) => c.method === "POST" && c.path.endsWith("/forms-import"))!;
+  expect(commit.idem).not.toBe("");
+  expect(JSON.parse(commit.body)).toMatchObject({ answer_source: "BANK", mapping: { header_row: 1, email_col: "A", code_col: "B", time_col: "C", questions: [{ col: "D", question_id: "00000000-0000-7000-8000-0000000000b1" }, { col: "E", question_id: "00000000-0000-7000-8000-0000000000b2" }] } });
+  expect(api.calls.some((c) => c.path.endsWith("/publish"))).toBe(false); // không tự công bố
+  await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+});
+
+test("forms import teacher only: TA không có menu nhập nào", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context, {}, "ta");
+  await expect(page.getByRole("button", { name: "Thêm hành động" })).toHaveCount(0);
 });
 
 test("import errors listed: dòng lỗi theo hàng bằng chữ tiếng Việt, nút Bỏ qua N dòng lỗi và ghi M dòng gửi skip_errors", async ({ page, context }, info) => {

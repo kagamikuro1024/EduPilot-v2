@@ -1,0 +1,173 @@
+[
+ {
+  "q": "Ping of death là kiểu tấn công gì và nó làm gì với máy đích?",
+  "answer": "Chào bạn, theo tài liệu được cung cấp:\n\n* **Loại tấn công:** Ping of death là một dạng tấn công từ chối dịch vụ (Denial of Service - DoS) [2].\n* **Tác động đến máy đích:** Kiểu tấn công này gửi một yêu cầu echo (echo request) trong gói tin IP lớn hơn kích thước tối đa là 65.535 byte; việc gửi một gói ping với kích thước này có thể làm sập (crash) máy tính đích [1]. Một biến thể của cuộc tấn công này có thể làm sập hệ thống bằng cách gửi các phân mảnh ICMP làm đầy các bộ đệm tái hợp (reassembly buffers) của mục tiêu [1].",
+  "conf": 0.68,
+  "hits": [
+   {
+    "n": 1,
+    "title": "Network Security Threats",
+    "text": "- Legacy attack that sent an echo request in an IP packet larger than the maximum packet size of 65,535 bytes.\n- – Sending a ping of this size can crash the target computer.\n- A variant of this attack is to crash a system by sending ICMP fragments, which fill the reassembly buffers of the target.\n-  This attack sends a large number of ICMP requests to directed broadcast addresses, all with spoofed source addresses on the same network as the respective directed broadcast.\n- – If the routing device delivering traffic to those broadcast addresses forwards the directed broadcasts, all hosts on the destination networks send ICMP replies, multiplying the traffic by the number of hosts on the networks.\n- – On a multi - access broadcast network, hundreds of machines might reply to each packet.",
+    "heading": "DoS Attacks"
+   },
+   {
+    "n": 2,
+    "title": "Network Security Threats",
+    "text": "- There are four categories of attacks:\n- – Malicious Code: Viruses, Worms and Trojan Horses\n- – Reconnaissance Attacks\n- – Access Attacks\n- – Denial of Service (DoS) Attacks\nLet ' s focus on DoS attacks\n- Among the most difficult to completely eliminate because they require so little effort to execute .\n- Types of DoS attacks include:\n- – Ping of death\n- – Smurf Attack\n- – TCP SYN flood attack\n- Others include packet fragmentation and reassembly, E-mail bombs, CPU hogging, Malicious applets, Misconfiguring routers, the chargen attack, out-of-band attacks such as WinNuke , Land.c , T Teardrop.c , and Targa.c .",
+    "heading": "DoS Attacks"
+   }
+  ]
+ },
+ {
+  "q": "Code Red gây ra hậu quả gì cho máy chủ bị nhiễm?",
+  "answer": "Chào bạn, theo tài liệu được cung cấp, sâu Code Red gây ra các hậu quả sau đối với máy chủ bị nhiễm:\n\n- **Bị thay đổi giao diện (deface) trang web** [1]: Ở biến thể ban đầu, tất cả các trang web được yêu cầu từ máy chủ đều bị đổi thành thông báo: *\"HELLO! Welcome to http://www.worm.com! Hacked By Chinese!\"* [6].\n- **Làm gián đoạn truy cập:** Gây gián đoạn truy cập vào các máy chủ bị nhiễm và mạng cục bộ lưu trữ máy chủ, khiến chúng trở nên rất chậm hoặc không thể sử dụng được [1].\n- **Bị lợi dụng làm cửa sau (back door):** Sâu sử dụng cổng TCP 80 để điều khiển máy chủ chưa được vá lỗi thực thi kết nối TFTP từ chính máy chủ đó [5].\n- **Bị kiểm soát hoạt động theo thời gian hệ thống** [6]:\n  - *Từ ngày 1 đến ngày 19:* Máy chủ bị nhiễm liên tục kết nối tới cổng TCP 80 của các IP ngẫu nhiên để tiếp tục nhân bản và phát tán sâu [1, 6].\n  - *Từ ngày 20 đến ngày 27:* Máy chủ bị lợi dụng để phát động cuộc tấn công từ chối dịch vụ (packet-flooding DoS) nhắm vào một địa chỉ IP cố định [6].\n  - *Từ ngày 28 đến cuối tháng:* Sâu rơi vào trạng thái \"ngủ\", dừng các kết nối và ngưng tấn công DoS [6].",
+  "conf": 0.644,
+  "hits": [
+   {
+    "n": 1,
+    "title": "Network Security Threats",
+    "text": "- Code Red:\n- – Defaced web pages.\n- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.\n- Network professionals responded slowly to system patches which only exacerbated the problem.\n- The \"Code Red\" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.\n- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .\n- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.\n- – However, depending on the configuration of the host which receives this request, there are varied consequences.",
+    "heading": "Modern Network Security Threats"
+   },
+   {
+    "n": 5,
+    "title": "Network Security Threats",
+    "text": "- Back doors:\n- – Provide a way back into the system if the front door is locked.\n- – The way into the system that is not likely to be detected.\n- Back doors may use reverse trafficking:\n- – Example: Code Red which used TCP port 80 to instruct unpatched web servers to execute a TFTP connection from the server.\n- Port redirectors:\n- – Port redirectors can help bypass port filters, routers, and firewalls and may even be encrypted over an SSL tunnel to evade intrusion detection devices.",
+    "heading": "· Switched infrastructure"
+   },
+   {
+    "n": 6,
+    "title": "Network Security Threats",
+    "text": "- If the exploit was successful, the worm began executing on the victim host.\n- – In the earlier variant of the worm, victim hosts experienced the following defacement on all pages requested from the server:\nHELLO! Welcome to http://www.worm.com! Hacked By Chinese!\n- Actual worm activity on a compromised machine was time sensitive and different activity occurred based on the date of the system clock:\n- – Day 1 - 19: The infected host will attempt to connect to TCP port 80 of randomly chosen IP addresses in order to further propagate the worm.\n- – Day 20 - 27: A packet-flooding denial of service attack will be launched against a particular fixed IP address.\n- – Day 28 - end of the month: The worm \"sleeps\"; no active connections or denial of service.",
+    "heading": "Modern Network Security Threats"
+   }
+  ]
+ },
+ {
+  "q": "Spear phishing nhắm vào ai? ransomware và DDoS khác nhau thế nào?",
+  "answer": "Chào bạn, hiện tại ngữ cảnh được cung cấp chưa đủ thông tin để trả lời câu hỏi của bạn vì tài liệu không có thông tin về \"spear phishing\" cũng như \"ransomware\" (tài liệu chỉ cung cấp thông tin liên quan đến tấn công DDoS [4], [5]).",
+  "conf": 0.596,
+  "hits": [
+   {
+    "n": 4,
+    "title": "Network Security Threats",
+    "text": "- DDoS attack risks include:\n- – Downtime and productivity loss\n- – Revenue loss from sales and support services\n- – Lost customer loyalty\n- – Theft of information\n- – Extortion\n- – Stock price manipulation\n- – Malicious competition\n- DDoS attacks are designed to saturate network links with spurious data which can overwhelm a link causing legitimate traffic to be dropped.\n- – DDoS uses attack methods similar to standard DoS attacks but operates on a much larger scale.\n- – Typically hundreds or thousands of attack points attempt to overwhelm a target.\n- Examples of DDoS attacks include the following:\n- – Tribe Flood Network (TFN)\n- – Stacheldraht\nMitigating Attacks",
+    "heading": "DoS Attacks"
+   },
+   {
+    "n": 5,
+    "title": "Network Security Threats",
+    "text": "- A DDoS attack and the simpler version of a DoS attack on a server, send extremely large numbers of requests over a network or the Internet.\n- – These many requests cause the target server to run well below optimum speeds.\n- – Consequently, the attacked server becomes unavailable for legitimate access and use.\n- – By overloading system resources, DoS and DDoS attacks crash applications and processes by executing exploits or a combination of exploits.\n- – DoS and DDoS attacks are the most publicized form of attack and are among the most difficult to completely eliminate.",
+    "heading": "DoS Attacks"
+   }
+  ]
+ },
+ {
+  "q": "Code Red gây ra hậu quả gì cho máy chủ?",
+  "answer": "Chào bạn, theo tài liệu của lớp, sâu Code Red gây ra các hậu quả sau cho máy chủ:\n\n- Làm thay đổi giao diện các trang web (defaced web pages) [1], cụ thể ở biến thể ban đầu, các trang được yêu cầu từ máy chủ đều hiển thị thông điệp \"HELLO! Welcome to http://www.worm.com! Hacked By Chinese!\" [6].\n- Làm gián đoạn truy cập vào các máy chủ bị nhiễm và mạng cục bộ lưu trữ máy chủ, khiến chúng trở nên rất chậm hoặc không thể sử dụng được [1].\n- Tùy thuộc vào cấu hình của máy chủ nhận yêu cầu mà có các hậu quả khác nhau [1].\n- Máy chủ bị xâm nhập sẽ bị sâu điều khiển hoạt động theo thời gian: từ ngày 1 đến 19 cố gắng kết nối tới cổng TCP 80 của các IP ngẫu nhiên để tiếp tục lây lan; từ ngày 20 đến 27 bị dùng để thực hiện tấn công từ chối dịch vụ (DoS) bằng cách làm tràn ngập gói tin (packet-flooding) vào một địa chỉ IP cố định [6].",
+  "conf": 0.657,
+  "hits": [
+   {
+    "n": 1,
+    "title": "Network Security Threats",
+    "text": "- Code Red:\n- – Defaced web pages.\n- – Disrupted access to the infected servers and local networks hosting the servers, making them very slow or unusable.\n- Network professionals responded slowly to system patches which only exacerbated the problem.\n- The \"Code Red\" worm attempted to connect to TCP port 80 on a randomly chosen host assuming that a web server will be found.\n- – Upon a successful connection to port 80, the attacking host sends a crafted HTTP GET request to the victim, attempting to exploit a buffer overflow in the Indexing Service .\n- The same exploit (HTTP GET request) is sent to other randomly chosen hosts due to the self - propagating nature of the worm.\n- – However, depending on the configuration of the host which receives this request, there are varied consequences.",
+    "heading": "Modern Network Security Threats"
+   },
+   {
+    "n": 6,
+    "title": "Network Security Threats",
+    "text": "- If the exploit was successful, the worm began executing on the victim host.\n- – In the earlier variant of the worm, victim hosts experienced the following defacement on all pages requested from the server:\nHELLO! Welcome to http://www.worm.com! Hacked By Chinese!\n- Actual worm activity on a compromised machine was time sensitive and different activity occurred based on the date of the system clock:\n- – Day 1 - 19: The infected host will attempt to connect to TCP port 80 of randomly chosen IP addresses in order to further propagate the worm.\n- – Day 20 - 27: A packet-flooding denial of service attack will be launched against a particular fixed IP address.\n- – Day 28 - end of the month: The worm \"sleeps\"; no active connections or denial of service.",
+    "heading": "Modern Network Security Threats"
+   }
+  ]
+ },
+ {
+  "q": "Tấn công từ chối dịch vụ DoS là gì?",
+  "answer": "Chào bạn, theo tài liệu của lớp, tấn công từ chối dịch vụ (DoS) trên máy chủ là hình thức gửi một lượng cực lớn các yêu cầu qua mạng hoặc Internet [1]. \n\nĐặc điểm và tác động của tấn công DoS gồm:\n- Làm cho máy chủ mục tiêu hoạt động kém xa tốc độ tối ưu, dẫn đến việc máy chủ không còn khả dụng cho các truy cập và sử dụng hợp lệ [1].\n- Làm quá tải tài nguyên hệ thống, khiến các ứng dụng và tiến trình bị sập do việc thực thi một hoặc kết hợp nhiều khai thác (exploits) [1].\n- Đây là một trong những dạng tấn công khó loại bỏ hoàn toàn nhất vì kẻ tấn công chỉ cần rất ít nỗ lực để thực hiện [1, 2].",
+  "conf": 0.6,
+  "hits": [
+   {
+    "n": 1,
+    "title": "Network Security Threats",
+    "text": "- A DDoS attack and the simpler version of a DoS attack on a server, send extremely large numbers of requests over a network or the Internet.\n- – These many requests cause the target server to run well below optimum speeds.\n- – Consequently, the attacked server becomes unavailable for legitimate access and use.\n- – By overloading system resources, DoS and DDoS attacks crash applications and processes by executing exploits or a combination of exploits.\n- – DoS and DDoS attacks are the most publicized form of attack and are among the most difficult to completely eliminate.",
+    "heading": "DoS Attacks"
+   }
+  ]
+ },
+ {
+  "q": "Sâu (worm) khác virus ở điểm nào theo bài giảng?",
+  "answer": "Theo bài giảng, sâu (worm) khác với virus ở các điểm chính sau:\n\n- **Sự can thiệp của người dùng:** Virus cần có sự can thiệp của người dùng (user intervention) để lây lan [1]. Ngược lại, sâu không đòi hỏi sự tham gia của người dùng mà tự nhân bản bằng cách độc lập khai thác các lỗ hổng mạng [2, 3].\n- **Cơ chế gắn kết và lây lan:** \n  - Virus đính kèm vào một chương trình khác [1], lây qua mạng dưới dạng tệp tin/email hoặc thiết bị lưu trữ rời [1], và thường có xu hướng khai thác lỗi tràn bộ đệm cục bộ (local root buffer overflows) [8].\n  - Sâu tự thực thi mã tùy ý, cài đặt bản sao vào bộ nhớ máy tính để lây nhiễm các máy chủ khác [1], khai thác lỗi tràn bộ đệm từ xa (remote root buffer overflows) [8], lây lan cực nhanh và thường làm chậm mạng [2, 3].",
+  "conf": 0.6,
+  "hits": [
+   {
+    "n": 1,
+    "title": "Network Security Threats",
+    "text": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.\n- A worm executes arbitrary code and installs copies of itself in the infected computer ' s memory, which infects other hosts.\n- A Trojan horse is different only in that the entire application was written to look like something else, when in fact it is an attack tool.\n- A computer virus is a malicious computer program (executable file) that can copy itself and infect a computer without permission or knowledge of the user.\n- A virus can only spread from one computer to another by:\n- – Sending it over a network as a file or as an email payload.\n- – Carrying it on a removable medium.\n- Viruses need USER INTERVENTION to spread …",
+    "heading": "· Phisher"
+   },
+   {
+    "n": 8,
+    "title": "Network Security Threats",
+    "text": "- – Actual damage is done to the system.\n- – Files can be erased, systems can crash, information can be stolen, and distributed DDoS attacks can be\nlhd launched.\n- A majority of the software vulnerabilities that are discovered relate to buffer overflows.\n- – Buffer overflows are usually the primary conduit through which viruses, worms, and Trojan Horses do their damage.\n- Viruses and Trojan Horses tend to take advantage of local root buffer overflows.\n- – A root buffer overflow is intended to attain root privileges to a system.\n- Worms such as SQL Slammer and Code Red exploit remote root buffer overflows.\n- – Remote root buffer overflows are similar to local root buffer overflows, except that local end user or system intervention is not required.",
+    "heading": "· Paralyze phase:"
+   }
+  ]
+ },
+ {
+  "q": "Reconnaissance attack là gì?",
+  "answer": "Reconnaissance (tấn công do thám hay thu thập thông tin) là hành vi phát hiện và lập bản đồ trái phép về các hệ thống, dịch vụ hoặc lỗ hổng bảo mật [1]. \n\nTrong hầu hết các trường hợp, dạng tấn công này thường diễn ra trước một cuộc tấn công truy cập (access attack) hoặc tấn công từ chối dịch vụ (DoS attack) [1]. Một cuộc tấn công do thám có thể bao gồm: các truy vấn thông tin Internet, ping sweeps, port scans và packet sniffers [1].",
+  "conf": 0.733,
+  "hits": [
+   {
+    "n": 1,
+    "title": "Network Security Threats",
+    "text": "- Reconnaissance also known as information gathering is the unauthorized discovery and mapping of systems, services, or vulnerabilities.\n- – In most cases, precedes an access or DoS attack.\n- Reconnaissance attacks can consist of the following:\n- – Internet information queries\n- – Ping sweeps\n- – Port scans\n- – Packet sniffers\n- DNS queries can reveal information such as who owns a particular domain and what addresses have been assigned to that domain.\n- – Use tools such as whois , nslookup , …\n- A ping sweep, or ICMP sweep, scans to determine which range of IP addresses map to live hosts.\n- A port scan consists of sending a message to each port, one port at a time.\n- – Response received indicates whether the port is used and can therefore be probed for weakness.",
+    "heading": "· Treatment Phase:"
+   }
+  ]
+ },
+ {
+  "q": "Trojan Horse hoạt động ra sao?",
+  "answer": "Theo tài liệu của lớp, Trojan Horse hoạt động như sau:\n\n- Toàn bộ ứng dụng được viết để ngụy trang trông giống như một phần mềm hữu ích, thú vị hoặc vô hại với người dùng, nhưng thực chất nó là một công cụ tấn công [2], [4].\n- Khi được thực thi, Trojan Horse gây hại và tạo điều kiện cho việc truy cập trái phép vào hệ thống máy tính của bạn [2]. \n- Khác với virus và worm, Trojan Horse không có khả năng tự nhân bản [2].\n- Tùy vào từng loại Trojan Horse cụ thể, nó có thể thực hiện các hành vi như: cho phép truy cập từ xa trái phép, gửi dữ liệu nhạy cảm (như mật khẩu) cho kẻ tấn công, xóa hoặc làm hỏng tệp tin, biến máy tính thành proxy server, vô hiệu hóa phần mềm bảo mật (antivirus, tường lửa), hoặc làm chậm/ngừng trệ hoạt động mạng [1].",
+  "conf": 0.68,
+  "hits": [
+   {
+    "n": 1,
+    "title": "Network Security Threats",
+    "text": "- Remote - access Trojan Horse\n- – Enables unauthorized remote access\n- Data sending Trojan Horse\n- – Provides the attacker with sensitive data such as passwords\n- Destructive Trojan Horse\n- – Corrupts or deletes files\n- Proxy Trojan Horse\n- – User's computer functions as a proxy server\n- FTP Trojan Horse (opens port 21)\n- – Security software disabler Trojan Horse (stops anti-virus programs or firewalls from functioning)\n- Denial of Service Trojan Horse (slows or halts network activity)",
+    "heading": "Excerpt from the article at:"
+   },
+   {
+    "n": 2,
+    "title": "Network Security Threats",
+    "text": "http://www.cbc.ca/technology/story/2009/12/16/f-forbes-adobe-hacked-software.html\n- A Trojan horse is a program that appears, to the user, to perform a desirable function but, in fact, facilitates unauthorized access to the user's computer system.\n- Trojan horses may appear to be useful or interesting programs, or at the very least harmless to an unsuspecting user, but are actually harmful when executed.\n- Trojan horses are not self-replicating which distinguishes them from viruses and worms.",
+    "heading": "Excerpt from the article at:"
+   },
+   {
+    "n": 4,
+    "title": "Network Security Threats",
+    "text": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.\n- A worm executes arbitrary code and installs copies of itself in the infected computer ' s memory, which infects other hosts.\n- A Trojan horse is different only in that the entire application was written to look like something else, when in fact it is an attack tool.\n- A computer virus is a malicious computer program (executable file) that can copy itself and infect a computer without permission or knowledge of the user.\n- A virus can only spread from one computer to another by:\n- – Sending it over a network as a file or as an email payload.\n- – Carrying it on a removable medium.\n- Viruses need USER INTERVENTION to spread …",
+    "heading": "· Phisher"
+   }
+  ]
+ },
+ {
+  "q": "Tấn công smurf là gì?",
+  "answer": "Chào bạn, theo tài liệu của lớp:\n\n- Tấn công Smurf (Smurf Attack) là một dạng tấn công Từ chối dịch vụ (DoS) [1].\n- Cuộc tấn công này gửi một lượng lớn các yêu cầu ICMP (ICMP requests) đến các địa chỉ broadcast có hướng (directed broadcast addresses), tất cả đều mang địa chỉ nguồn giả mạo trên cùng mạng với broadcast đó [3].\n- Khi thiết bị định tuyến chuyển tiếp lưu lượng này, tất cả các máy chủ trên mạng đích sẽ gửi lại phản hồi ICMP, làm nhân lượng lưu lượng lên gấp nhiều lần theo số lượng máy chủ (trên mạng multi-access broadcast, hàng trăm máy có thể cùng phản hồi cho mỗi gói tin) gây quá tải mục tiêu [3].",
+  "conf": 0.6,
+  "hits": [
+   {
+    "n": 1,
+    "title": "Network Security Threats",
+    "text": "- There are four categories of attacks:\n- – Malicious Code: Viruses, Worms and Trojan Horses\n- – Reconnaissance Attacks\n- – Access Attacks\n- – Denial of Service (DoS) Attacks\nLet ' s focus on DoS attacks\n- Among the most difficult to completely eliminate because they require so little effort to execute .\n- Types of DoS attacks include:\n- – Ping of death\n- – Smurf Attack\n- – TCP SYN flood attack\n- Others include packet fragmentation and reassembly, E-mail bombs, CPU hogging, Malicious applets, Misconfiguring routers, the chargen attack, out-of-band attacks such as WinNuke , Land.c , T Teardrop.c , and Targa.c .",
+    "heading": "DoS Attacks"
+   },
+   {
+    "n": 3,
+    "title": "Network Security Threats",
+    "text": "- Legacy attack that sent an echo request in an IP packet larger than the maximum packet size of 65,535 bytes.\n- – Sending a ping of this size can crash the target computer.\n- A variant of this attack is to crash a system by sending ICMP fragments, which fill the reassembly buffers of the target.\n-  This attack sends a large number of ICMP requests to directed broadcast addresses, all with spoofed source addresses on the same network as the respective directed broadcast.\n- – If the routing device delivering traffic to those broadcast addresses forwards the directed broadcasts, all hosts on the destination networks send ICMP replies, multiplying the traffic by the number of hosts on the networks.\n- – On a multi - access broadcast network, hundreds of machines might reply to each packet.",
+    "heading": "DoS Attacks"
+   }
+  ]
+ }
+]

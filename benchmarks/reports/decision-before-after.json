@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "commit": "dd8054dc",
+    "timestamp": "2026-11-15T12:43:28+07:00",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+    }
+  },
+  "off": {
+    "chat": {
+      "requests": 90,
+      "errors": 65,
+      "cached_excluded": 0,
+      "ttft": {
+        "n": 25,
+        "p50_ms": 9.9,
+        "p95_ms": 5439.7
+      },
+      "first_event": {
+        "n": 25,
+        "p50_ms": 6.4,
+        "p95_ms": 11.6
+      },
+      "accuracy": 0.8,
+      "by_stratum": {
+        "rules": {
+          "n": 10,
+          "accuracy": 1.0
+        },
+        "course_qa": {
+          "n": 10,
+          "accuracy": 1.0
+        },
+        "paraphrase": {
+          "n": 5,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "threads": {
+      "posts": 40,
+      "latency": {
+        "n": 40,
+        "p50_ms": 7.3,
+        "p95_ms": 11.8
+      },
+      "false_block": 0,
+      "false_block_rate": 0.0,
+      "caught": 11,
+      "missed": 9,
+      "caught_by_stratum": {
+        "private": 1,
+        "rules": 10
+      }
+    },
+    "grading": {
+      "graded": 12,
+      "of": 12,
+      "flag_correct": 1,
+      "flag_expected": 6,
+      "flag_false": 0,
+      "controls": 6,
+      "wall_s": 88.2,
+      "avg_s_per_essay": 7.3
+    }
+  },
+  "on": {
+    "chat": {
+      "requests": 90,
+      "errors": 67,
+      "cached_excluded": 0,
+      "ttft": {
+        "n": 23,
+        "p50_ms": 2010.6,
+        "p95_ms": 3968.8
+      },
+      "first_event": {
+        "n": 23,
+        "p50_ms": 6.9,
+        "p95_ms": 11.5
+      },
+      "accuracy": 1.0,
+      "by_stratum": {
+        "rules": {
+          "n": 10,
+          "accuracy": 1.0
+        },
+        "course_qa": {
+          "n": 10,
+          "accuracy": 1.0
+        },
+        "paraphrase": {
+          "n": 3,
+          "accuracy": 1.0
+        }
+      }
+    },
+    "threads": {
+      "posts": 40,
+      "latency": {
+        "n": 40,
+        "p50_ms": 3867.1,
+        "p95_ms": 6348.1
+      },
+      "false_block": 1,
+      "false_block_rate": 0.05,
+      "caught": 20,
+      "missed": 0,
+      "caught_by_stratum": {
+        "private": 10,
+        "rules": 10
+      }
+    },
+    "grading": {
+      "graded": 12,
+      "of": 12,
+      "flag_correct": 6,
+      "flag_expected": 6,
+      "flag_false": 0,
+      "controls": 6,
+      "wall_s": 84.9,
+      "avg_s_per_essay": 7.1
+    }
+  },
+  "paths_on": {
+    "THREADS_PRECHECK": {
+      "calls": 29,
+      "fast": 0,
+      "fallback": 27,
+      "fail_closed": 2
+    },
+    "INJECTION_FLAG": {
+      "calls": 11,
+      "fast": 6,
+      "fallback": 5,
+      "fail_closed": 0
+    },
+    "CHAT_ROUTING": {
+      "calls": 13,
+      "fast": 13,
+      "fallback": 0,
+      "fail_closed": 0
+    }
+  },
+  "verdict": {
+    "CHAT_ROUTING": {
+      "result": "Bật được",
+      "why": "TTFT p95 ×0.73 (≤ 1,20), độ chính xác 0.8 → 1.0"
+    },
+    "THREADS_PRECHECK": {
+      "result": "Bật được",
+      "why": "chặn nhầm 0.05 (≤ 0,05), lọt 9 → 0"
+    },
+    "INJECTION_FLAG": {
+      "result": "Bật được",
+      "why": "cờ đúng 6/6, cờ nhầm 0/6"
+    }
+  }
+}

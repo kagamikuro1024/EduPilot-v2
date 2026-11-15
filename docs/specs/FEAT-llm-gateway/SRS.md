@@ -531,6 +531,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 | `GRADING` | Chấm bài | Chạy nền |
 | `QUESTION_GEN` | Sinh câu hỏi | Chạy nền |
 | `INSIGHT` | Tóm tắt lớp học | Chạy nền |
+| `DECIDE` (D60, chỉ ADMIN thấy) | Quyết định nhanh | Trả lời ngay (chat, Threads) / Chạy nền (cờ chèn lệnh) |
 | `EMBEDDING` (phần 4) | Mô hình tìm kiếm tài liệu | — |
 
 ### 7.4 Khác biệt giữa mock 1.5 và bản thật (D51: spec thật thắng)

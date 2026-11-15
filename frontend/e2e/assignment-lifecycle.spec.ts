@@ -20,6 +20,33 @@ async function open(page: Page, context: Parameters<typeof asDemo>[0], opts: Par
 const rows = (page: Page) => page.locator("[data-part=assignment-row]");
 const drawer = (page: Page) => page.getByRole("dialog");
 
+test("assignments tab: «Đã nộp / Tổng» lấy lại khi cửa sổ lấy lại tiêu điểm — bài nộp tải lên / ZIP vào sau không còn hiện 0 (GV-BUG S2-2)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let n = 0;
+  const base = assignment();
+  await open(page, context, { h: { "GET assignments": (r) => r.fulfill(json({ items: [{ ...base, counts: { submitted: n++ === 0 ? 0 : 60, total: 60, graded: 0, published: 0 } }], next_cursor: null })) } });
+  await expect(rows(page).first()).toContainText("0 / 60");
+  await page.evaluate(() => {
+    // tab ẩn rồi hiện lại: TanStack Query lấy lại danh sách
+    for (const state of ["hidden", "visible"]) {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+      document.dispatchEvent(new Event("visibilitychange", { bubbles: true }));
+    }
+  });
+  await expect(rows(page).first()).toContainText("60 / 60");
+});
+
+test("assignments tab: dòng bài tập là LIÊN KẾT thật (href sâu), bấm thường mở ngăn, mở thẳng bằng ?open= (GV-BUG j)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await open(page, context);
+  const link = rows(page).first().getByRole("link");
+  await expect(link).toHaveAttribute("href", `/grading?tab=assignments&open=${A1}`);
+  await link.click();
+  await expect(drawer(page)).toBeVisible();
+  await page.goto(`${URL}&open=${A1}`);
+  await expect(drawer(page)).toBeVisible(); // liên kết sâu mở đúng ngăn
+});
+
 test("assignments tab layout: Tabs, một Panel + bảng năm cột, Tạo bài tập chỉ của giảng viên, TA chỉ xem", async ({ page, context, browser }, info) => {
   desktopOnly(info);
   await open(page, context);
@@ -178,8 +205,8 @@ test("assignments tab states: khung xương, rỗng, lỗi kèm Thử lại", as
 
   await assignmentsApi(page, { items: [] });
   await page.reload();
-  await expect(page.getByText("Lớp chưa có bài tập.")).toBeVisible();
-  await expect(page.locator("[data-ep-panel]").getByRole("button", { name: "Tạo bài tập" })).toBeVisible();
+  await expect(page.getByText("Lớp chưa có bài tập")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tạo bài tập" })).toBeVisible();
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
   const api = await assignmentsApi(page, { h: { "GET assignments": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
@@ -439,7 +466,7 @@ test("unmatched states: khung xương, rỗng, lỗi kèm Thử lại", async ({
 
   await unmatchedApi(page, { rows: [] });
   await page.reload();
-  await expect(page.getByText("Không có bài chưa khớp.")).toBeVisible();
+  await expect(page.getByText("Không có bài chưa khớp")).toBeVisible();
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
   const api = await unmatchedApi(page, { h: { "GET submissions": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
@@ -497,6 +524,45 @@ async function openReview(page: Page, context: Parameters<typeof asDemo>[0], opt
   return api;
 }
 
+test("queue: toàn bài chưa chấm — lọc mặc định không che bài, Chấm tất cả bấm được (GV-BUG lọc mặc định + khoá Chấm tất cả)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openQueue(page, context, { rows: defaultRows().map((r) => ({ ...r, result: null })) });
+  await page.getByLabel("Bài tập").selectOption({ index: 1 });
+  await expect(page.getByLabel("Trạng thái")).toHaveValue("NONE"); // tự chuyển khỏi «Chưa duyệt» trống
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Chấm tất cả" })).not.toHaveAttribute("aria-disabled", "true");
+});
+
+test("queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn trang, cuộn tải tiếp) — không còn mù số lượng (GV-BUG S2-3)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const all = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, { rows: all });
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  const n = await page.locator("[data-part=queue-row]").count();
+  await expect(page.locator("[data-part=queue-count]")).toHaveText(`${n} bài`);
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await openQueue(page, context, { rows: all, h: { "GET submissions": (r) => r.fulfill(json({ items: all, next_cursor: "con-tro-1" })) } });
+  await expect(page.locator("[data-part=queue-count]")).toHaveText(`${all.length}+ bài`);
+});
+
+test("queue: người khác chấm lại — hàng chờ lấy lại khi tab hiện ra lại, không giữ số cũ (GV-BUG o)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let n = 0;
+  const first = defaultRows()[0];
+  const api = await openQueue(page, context, {
+    h: { "GET submissions": (r) => r.fulfill(json({ items: [{ ...first, result: first.result ? { ...first.result, total: n++ === 0 ? "8.00" : "7.50", needs_review: true } : first.result }], next_cursor: null })) },
+  });
+  await expect(page.locator("[data-part=queue-row]").first()).toContainText("8,00");
+  await page.evaluate(() => {
+    for (const state of ["hidden", "visible"]) {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+      document.dispatchEvent(new Event("visibilitychange", { bubbles: true }));
+    }
+  });
+  await expect(page.locator("[data-part=queue-row]").first()).toContainText("7,50");
+  expect(api.calls.filter((c) => c.method === "GET" && c.path.includes("/submissions?")).length).toBeGreaterThanOrEqual(2);
+});
+
 test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openQueue(page, context);
@@ -508,6 +574,9 @@ test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + C
   await expect(qRows(page).first()).toContainText("Chưa duyệt");
   await expect(qRows(page).first()).toContainText("Hai lượt chấm lệch hơn 1 điểm");
   await expect(qRows(page).first()).toContainText("Nghi chèn lệnh");
+  // D-R-06: hàng có cờ vẫn 48 px (mã sinh viên + lý do cờ chung một dòng), không 67 px như khi lý do xuống dòng riêng
+  const rowBox = await qRows(page).first().boundingBox();
+  expect(rowBox!.height).toBeLessThanOrEqual(48.5);
   const first = api.calls.find((c) => c.path.includes("/submissions?"))!;
   expect(first.path).toContain("needs_review=true");
   expect(first.path).toContain("status=DRAFT");
@@ -528,16 +597,13 @@ test("grading ta cannot see publish: TA duyệt được nhưng không có nút 
   await expect(page.getByRole("button", { name: "Duyệt bài" })).toBeEnabled();
 });
 
-test("review two columns: trái 52–58 %, phải 42–48 %, tiêu chí phẳng, Duyệt bài cuối cột", async ({ page, context }, info) => {
+test("review two columns: hai nửa bằng nhau, tiêu chí phẳng, Duyệt bài cuối cột", async ({ page, context }, info) => {
   desktopOnly(info);
   await page.setViewportSize({ width: 1440, height: 900 });
   await openReview(page, context);
   const [left, right] = await page.locator("main [data-ep-panel]").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().width));
   const sum = left + right;
-  expect(left / sum).toBeGreaterThan(0.5);
-  expect(left / sum).toBeLessThan(0.6);
-  expect(right / sum).toBeGreaterThan(0.4);
-  expect(right / sum).toBeLessThan(0.5);
+  expect(Math.abs(left / sum - 0.5)).toBeLessThan(0.02); // Split half: hai nửa bằng nhau (§23.4)
   await expect(page.locator("[data-part=submission-text]").getByText("Phiên bản 1")).toBeVisible();
   await expect(page.getByRole("button", { name: "Mở tệp gốc" })).toBeVisible();
   await expect(page.locator("[data-part=criterion]")).toHaveCount(4);
@@ -663,6 +729,37 @@ test("review key A next: duyệt rồi sang bài kế, có thanh tiến độ", 
   await expect.poll(() => api.reviews().length).toBe(1);
   await expect(page).toHaveURL(new RegExp(SUB_C));
   await expect(progress).toHaveText(`Đã duyệt 1/${m}`); // N tăng, M cố định
+  // GV-BUG (b): tự sang bài kế thì có chỉ báo rõ + cách ở lại (quay về bài vừa duyệt)
+  await expect(page.locator("[data-part=review-from]")).toHaveText("Đã duyệt bài trước");
+  await expect(page.getByRole("link", { name: "Quay lại" })).toHaveAttribute("href", new RegExp(SUB_B));
+});
+
+test("queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (M = số bài lúc mở, cố định) và lọc «Cần xem kỹ» bỏ đi thì GIỮ khi vào lại (GV-BUG c, d)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const rowsAll = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, { rows: rowsAll });
+  const flag = page.getByRole("button", { name: "Cần xem kỹ" });
+  await expect(flag).toHaveAttribute("aria-pressed", "true");
+  await flag.click(); // người dùng bỏ lọc
+  await expect(flag).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("[data-part=queue-row]").first()).toBeVisible();
+  await expect.poll(() => page.locator("[data-part=queue-row]").count()).toBeGreaterThan(1); // bỏ lọc cờ: hiện cả bài không cờ
+  const n = await page.locator("[data-part=queue-row]").count();
+  await page.locator("[data-part=queue-row]").first().click();
+  await expect(page.locator("[data-part=review-progress]")).toHaveText(`Đã duyệt 0/${n}`);
+  await page.getByRole("link", { name: "Hàng chờ chấm" }).first().click(); // về hàng chờ: bộ lọc đi theo URL
+  await expect(page.getByRole("button", { name: "Cần xem kỹ" })).toHaveAttribute("aria-pressed", "false"); // không tự bật lại
+  expect(page.url()).toContain("needs=0");
+});
+
+test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openReview(page, context, { h: { "PUT grading-results/:id": async (r, next) => { await new Promise((res) => setTimeout(res, 600)); return next(r); } } });
+  await page.locator("[data-part=criterion-comment]").first().fill("Nhận xét vừa gõ xong.");
+  await page.getByRole("button", { name: "Duyệt bài" }).click(); // bấm nút làm ô nhận xét blur → lưu đang chạy
+  await expect.poll(() => api.reviews().length, { timeout: 10_000 }).toBe(1);
+  expect(api.puts().length).toBe(1); // không lưu hai lần
+  expect(api.puts()[0].body).toContain("Nhận xét vừa gõ xong.");
 });
 
 test("review approve fails: lỗi hiện ở thanh dưới kèm Thử lại, điểm đã nhập còn nguyên", async ({ page, context }, info) => {
@@ -700,7 +797,7 @@ test("grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Th�
 
   await gradingApi(page, { rows: [] });
   await page.reload();
-  await expect(page.getByText("Chưa có bài nộp")).toBeVisible();
+  await expect(page.getByText("Không có bài chưa duyệt")).toBeVisible();
   await expect(page.getByRole("button", { name: "Tải bài lên" }).first()).toBeVisible(); // thanh công cụ + nút trong trạng thái rỗng (US-UX91-05 AC3)
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
@@ -722,7 +819,8 @@ test("publish bulk confirm: chọn bài đã duyệt, xác nhận hậu quả b�
   await page.getByRole("button", { name: "Cần xem kỹ" }).click(); // bỏ lọc cờ
   await page.getByLabel("Trạng thái").selectOption("REVIEWED");
   await expect(qRows(page)).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Công bố" })).toHaveCount(0); // chưa chọn gì
+  // GV-BUG (l): nút «Công bố» luôn thấy; chưa chọn gì thì khoá kèm lý do ngắn (không phải mò «Chọn tất cả đã duyệt» mới thấy)
+  await expect(page.getByRole("button", { name: "Công bố" })).toHaveAttribute("aria-disabled", "true");
 
   await qRows(page).first().getByRole("checkbox").check();
   await qRows(page).nth(1).getByRole("checkbox").check();
@@ -881,7 +979,7 @@ test("demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu ch�
   await page.goto(QUEUE_URL);
   const flagFilter = page.getByRole("button", { name: "Cần xem kỹ" });
   await page.getByLabel("Trạng thái").selectOption("REVIEWED");
-  await expect(page.locator("[data-part=queue-row], main p").filter({ hasText: /Chưa có bài nộp|Trần Thu Uyên/ }).first()).toBeVisible();
+  await expect(page.locator("[data-part=queue-row], main p").filter({ hasText: /Không có bài|Trần Thu Uyên/ }).first()).toBeVisible();
   if ((await flagFilter.getAttribute("aria-pressed")) === "true") await flagFilter.click(); // bài B đã duyệt (hết cờ chờ xem) nên lọc cờ che mất: bỏ lọc
   await qRows(page).first().getByRole("checkbox").check();
   await page.getByRole("button", { name: "Công bố" }).click();

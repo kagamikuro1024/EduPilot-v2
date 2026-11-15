@@ -254,8 +254,9 @@ func (h *Handler) duplicate(w http.ResponseWriter, r *http.Request) {
 }
 
 type reviewIn struct {
-	Decision string `json:"decision" validate:"required"`
-	Version  *int   `json:"version"`
+	Decision     string  `json:"decision" validate:"required"`
+	Version      *int    `json:"version"`
+	RejectReason *string `json:"reject_reason"`
 }
 
 func (h *Handler) review(w http.ResponseWriter, r *http.Request) {
@@ -272,7 +273,7 @@ func (h *Handler) review(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, aerr)
 		return
 	}
-	d, err := h.Svc.Review(r.Context(), c.actor, c.course, c.question, in.Decision, ver)
+	d, err := h.Svc.ReviewWithReason(r.Context(), c.actor, c.course, c.question, in.Decision, ver, in.RejectReason)
 	if err != nil {
 		h.fail(w, r, err)
 		return

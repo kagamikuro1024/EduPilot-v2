@@ -58,12 +58,14 @@ func TestDemoModeRecordingsCoverPolicies(t *testing.T) {
 		case strings.HasSuffix(r.Name, "suggest-rubric"):
 			require.NoError(t, llm.ValidateJSON(grading.SuggestSchema, r.Response), r.Name)
 			got["suggest"]++
+		case strings.HasPrefix(r.Name, "practice-"): // luyện đề: kiểm ở internal/practice (demo_fixture_test.go)
+			continue
 		default: // bt03-sN-p1|p2: bản chấm mẫu của BA (sprint 9)
 			require.NoError(t, llm.ValidateJSON(grading.EssaySchema(rubric), r.Response), r.Name)
 			got["grading"]++
 		}
 	}
-	require.Equal(t, map[string]int{"quy-che": 3, "suggest": 1, "grading": 12}, got) // 3 quy chế (v2, lớp 1, lớp 2); 6 mẫu × 2 lượt
+	require.Equal(t, map[string]int{"quy-che": 3, "suggest": 1, "grading": 14}, got) // 3 quy chế (v2, lớp 1, lớp 2); 6 mẫu × 2 lượt + 2 bản của seed-t1 (9.5)
 	e := newEnv(t, demoLLM(t))
 	res, err := e.run(e.policyDoc("quy-che-lop1.md"), false, 0)
 	require.NoError(t, err)

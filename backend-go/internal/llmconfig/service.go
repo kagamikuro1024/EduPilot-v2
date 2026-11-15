@@ -32,7 +32,7 @@ const (
 
 // ProviderTypes là các loại nhà cung cấp hợp lệ (SRS 5.4).
 func ProviderTypes() []string {
-	return []string{"openai", "anthropic", "gemini", "openai_compatible", "fake"}
+	return []string{"openai", "anthropic", "gemini", "openai_compatible", "fake", "decision"}
 }
 
 // Tasks là 7 tác vụ LLM (SRS 5.4), theo thứ tự hiển thị.
@@ -121,10 +121,31 @@ type Service struct {
 	cipher   *crypto.Cipher
 	clock    clock.Clock
 	onChange func(context.Context)
+	// allowReal: LLM_DECISION_ALLOW_REAL; tắt thì không cho lưu mô hình decision thật (D60 (6)).
+	allowReal bool
 }
 
 // Option tuỳ chỉnh Service.
 type Option func(*Service)
+
+// WithDecisionAllowReal đặt LLM_DECISION_ALLOW_REAL.
+func WithDecisionAllowReal(v bool) Option { return func(s *Service) { s.allowReal = v } }
+
+// RealDecisionModel là tên mô hình decision thật (trùng llm.RealDecisionModel; llmconfig không import llm).
+const RealDecisionModel = "gemini-decision-1"
+
+// checkDecision: mô hình thật chỉ được BẬT khi ALLOW_REAL bật.
+func (s *Service) checkDecision(in ProviderInput) error {
+	if s.allowReal || in.Type != "decision" {
+		return nil
+	}
+	for _, m := range in.Models {
+		if m.Model == RealDecisionModel && (m.Enabled == nil || *m.Enabled) { // mô hình thật đang TẮT được phép lưu (seed có sẵn, UI «Thêm» gửi cả hai)
+			return ErrDecisionRealDisabled
+		}
+	}
+	return nil
+}
 
 // WithClock thay đồng hồ (test).
 func WithClock(c clock.Clock) Option { return func(s *Service) { s.clock = c } }
@@ -381,8 +402,11 @@ func validateProvider(in ProviderInput) error {
 			return invalid(f+".model", "DUPLICATE", "trùng tên mô hình trong cùng nhà cung cấp")
 		}
 		seen[m.Model] = true
-		if m.Kind != "chat" && m.Kind != "embedding" {
-			return invalid(f+".kind", "INVALID_KIND", "loại mô hình là chat hoặc embedding")
+		if m.Kind != "chat" && m.Kind != "embedding" && m.Kind != "decision" {
+			return invalid(f+".kind", "INVALID_KIND", "loại mô hình là chat, embedding hoặc decision")
+		}
+		if (m.Kind == "decision") != (in.Type == "decision") { // nhà `decision` chỉ có mô hình decision và ngược lại
+			return invalid(f+".kind", "INVALID_KIND", "loại mô hình không khớp loại nhà cung cấp")
 		}
 		if m.Kind == "embedding" && (m.Dims == nil || *m.Dims <= 0) {
 			return invalid(f+".dims", "REQUIRED", "mô hình nhúng cần số chiều")
@@ -452,6 +476,9 @@ func (s *Service) CreateProvider(ctx context.Context, in ProviderInput) (Provide
 	if err := validateProvider(in); err != nil {
 		return Provider{}, err
 	}
+	if err := s.checkDecision(in); err != nil {
+		return Provider{}, err
+	}
 	id, err := uuid.NewV7()
 	if err != nil {
 		return Provider{}, fmt.Errorf("llmconfig: sinh id: %w", err)
@@ -477,6 +504,9 @@ func (s *Service) CreateProvider(ctx context.Context, in ProviderInput) (Provide
 		if _, err := q.InsertLLMProvider(ctx, arg); err != nil {
 			if isUnique(err, "llm_providers_name_uq") {
 				return ErrDuplicateName
+			}
+			if isUnique(err, "llm_providers_one_decision") {
+				return invalid("enabled", "DECISION_ALREADY_ENABLED", "chỉ một nhà cung cấp decision được bật")
 			}
 			return fmt.Errorf("llmconfig: chèn nhà cung cấp: %w", err)
 		}
@@ -527,6 +557,9 @@ func (s *Service) UpdateProvider(ctx context.Context, id uuid.UUID, in ProviderI
 	if err := validateProvider(in); err != nil {
 		return Provider{}, err
 	}
+	if err := s.checkDecision(in); err != nil {
+		return Provider{}, err
+	}
 	var out Provider
 	err = s.inTx(ctx, func(q *store.Queries) error {
 		before, err := s.getProvider(ctx, q, id)
@@ -562,6 +595,8 @@ func (s *Service) UpdateProvider(ctx context.Context, id uuid.UUID, in ProviderI
 				return &ErrVersionConflict{Current: int(cur.Version)}
 			case isUnique(err, "llm_providers_name_uq"):
 				return ErrDuplicateName
+			case isUnique(err, "llm_providers_one_decision"):
+				return invalid("enabled", "DECISION_ALREADY_ENABLED", "chỉ một nhà cung cấp decision được bật")
 			}
 			return fmt.Errorf("llmconfig: sửa nhà cung cấp: %w", err)
 		}

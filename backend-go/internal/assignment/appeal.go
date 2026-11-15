@@ -18,6 +18,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/regress"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -184,6 +185,9 @@ func (s *Service) DecideAppeal(ctx context.Context, a Actor, course, id uuid.UUI
 			if scoreAfter, err = s.adjustPublished(ctx, q, course, ap, in.CriteriaScores); err != nil {
 				return err
 			}
+			if err := s.captureAppeal(ctx, q, course, ap); err != nil { // M2: tiêu chí đã sửa ở phúc khảo → ca hồi quy GRADING_APPEAL
+				return err
+			}
 		}
 		n, err := q.GradeAppealDecide(ctx, store.GradeAppealDecideParams{Status: in.Decision, Response: &resp, ScoreAfter: scoreAfter, DecidedBy: &a.UserID, CourseID: course, ID: id, Version: in.Version})
 		if err != nil {
@@ -256,6 +260,22 @@ func (s *Service) adjustPublished(ctx context.Context, q *store.Queries, course 
 		return decimal.NullDecimal{}, apierr.New(http.StatusConflict, apierr.VersionConflict)
 	}
 	return decimal.NullDecimal{Decimal: total, Valid: true}, nil
+}
+
+// captureAppeal ghi ca GRADING_APPEAL cho các tiêu chí vừa đổi điểm (cờ REGRESSION_CAPTURE bật; so với điểm AI gốc).
+func (s *Service) captureAppeal(ctx context.Context, q *store.Queries, course uuid.UUID, ap store.GradeAppealLockRow) error {
+	if !s.Guidance.On(course, regress.Feature) {
+		return nil
+	}
+	after, err := q.GradeAppealLock(ctx, store.GradeAppealLockParams{CourseID: course, ID: ap.ID})
+	if err != nil {
+		return fmt.Errorf("assignment: đọc điểm sau phúc khảo: %w", err)
+	}
+	ai, err := regress.AIScores(ctx, q, course, ap.ResultID)
+	if err != nil {
+		return err
+	}
+	return regress.CaptureGrading(ctx, q, s.Guidance, course, regress.KindGradingAppeal, ap.ResultID, ap.Rubric, after.Criteria, ai, s.RegressMinDelta, regress.ChangedCriteria(ap.Criteria, after.Criteria))
 }
 
 func (s *Service) appealAudit(ctx context.Context, q *store.Queries, a Actor, course, id uuid.UUID, action string, before, after any) error {

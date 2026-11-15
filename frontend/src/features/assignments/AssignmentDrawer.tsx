@@ -10,6 +10,7 @@ import {
   type Assignment, type AssignmentInput, type Channel, type RubricIn,
 } from "./assignmentApi";
 import { useAssignmentStats } from "@/features/grading/gradingApi";
+import { GuidancePanel } from "./GuidancePanel";
 import s from "./Assignments.module.css";
 
 type Row = { id?: string; name: string; max: string; guidance: string };
@@ -399,6 +400,8 @@ export function AssignmentDrawer({ courseId, teacher, id, userId, onClose, onSav
             </div>
 
             {published && <Stats courseId={courseId} id={id!} />}
+
+            {!creating && detail?.type === "ESSAY" && <GuidancePanel courseId={courseId} aid={id} teacher={teacher} userId={userId} rubric={detail.rubric} />}
 
             {!creating && (
               <p className={s.link} data-part="grade-link">

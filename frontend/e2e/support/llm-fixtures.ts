@@ -61,12 +61,33 @@ export const getLog = async (page: Page, path?: string): Promise<Entry[]> => {
   return path ? j.log.filter((l) => l.path === path) : j.log;
 };
 
+// Decision model (SRS FEAT-decision-model 6): GET /admin/llm/decision và danh sách lớp theo cổng.
+export const DEC = { prov: id(31), mFake: id(32), mReal: id(33) };
+export const decisionProvider = (over: Record<string, unknown> = {}) =>
+  provider({
+    id: DEC.prov, type: "decision", name: "Quyết định", last_test: { ok: null, at: null, error_kind: null }, version: 1,
+    models: [
+      { id: DEC.mFake, model: "decision-fake", kind: "decision", dims: null, price_in: "0.0000", price_out: "0.0000", enabled: true },
+      { id: DEC.mReal, model: "gemini-decision-1", kind: "decision", dims: null, price_in: "2600.0000", price_out: "0.0000", enabled: false },
+    ],
+    ...over,
+  });
+const gate = (g: string, over: Record<string, unknown> = {}) => ({ gate: g, enabled: false, threshold: "0.050", timeout_ms: 800, version: 1, courses_enabled: 0, courses_total: 12, ...over });
+export const decision = (over: { provider?: Record<string, unknown> | null; gates?: Array<Record<string, unknown>>; real_allowed?: boolean } = {}) => ({
+  provider: over.provider === undefined ? { id: DEC.prov, model: "decision-fake", status: "fake", fake: true } : over.provider,
+  gates: over.gates ?? [gate("CHAT_ROUTING", { threshold: "0.950" }), gate("INJECTION_FLAG", { threshold: "0.500", timeout_ms: 3000 }), gate("THREADS_PRECHECK")],
+  real_allowed: over.real_allowed ?? false,
+});
+export const decisionGate = gate;
+export const decisionCourse = (n: number, over: Record<string, unknown> = {}) => ({ course_id: id(100 + n), name: `Lớp ${n}`, class_code: `IT${n}00`, enabled: false, version: 0, ...over });
+
 const P = "/api/v1/admin/llm";
 export const base = (over: Record<string, Step[]> = {}): Record<string, Step[]> => ({
   [`GET ${P}/providers`]: [{ body: providers() }],
   [`GET ${P}/routes`]: [{ body: routes() }],
   [`GET ${P}/budget`]: [{ body: budget() }],
   [`GET ${P}/usage`]: [{ body: usage() }],
+  [`GET ${P}/decision`]: [{ body: decision() }],
   ...over,
 });
 

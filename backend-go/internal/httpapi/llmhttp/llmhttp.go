@@ -51,6 +51,8 @@ func FromConfig(err error) (*apierr.Error, bool) {
 		return apierr.New(http.StatusForbidden, apierr.Forbidden).WithDetails(map[string]string{"reason": "role"}), true
 	case errors.Is(err, llmconfig.ErrNotFound):
 		return apierr.New(http.StatusNotFound, apierr.NotFound), true
+	case errors.Is(err, llmconfig.ErrDecisionRealDisabled):
+		return apierr.New(http.StatusConflict, apierr.DecisionRealDisabled), true
 	case errors.Is(err, llmconfig.ErrDuplicateName):
 		return apierr.New(http.StatusConflict, apierr.Conflict).WithMessage("Đã có nhà cung cấp trùng tên."), true
 	case errors.As(err, &lim):

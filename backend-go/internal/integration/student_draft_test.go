@@ -3,6 +3,7 @@ package integration_test
 import (
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -58,7 +59,7 @@ func TestStudentNeverSeesDraftGrade(t *testing.T) {
 		"/courses/" + cid + "/today",
 		"/courses/" + cid + "/calendar?from=" + time.Now().UTC().Add(-24*time.Hour).Format(time.RFC3339) + "&to=" + time.Now().UTC().Add(30*24*time.Hour).Format(time.RFC3339),
 	}
-	bad := []string{canaryText, canaryScore, strings.Replace(canaryScore, ".", ",", 1), "HDAN-RIENG", `"flags"`, `"confidence"`, `"run_state"`, `"needs_review"`, `"ai_scores"`, "NEEDS_REVIEW", "INJECTION_SUSPECTED", "pass_detail"}
+	bad := []string{canaryText, "HDAN-RIENG", `"flags"`, `"confidence"`, `"run_state"`, `"needs_review"`, `"ai_scores"`, "NEEDS_REVIEW", "INJECTION_SUSPECTED", "pass_detail"}
 	for _, st := range states {
 		t.Run(st.name, func(t *testing.T) {
 			mustExec := func(sql string, args ...any) {
@@ -80,6 +81,7 @@ func TestStudentNeverSeesDraftGrade(t *testing.T) {
 				for _, b := range bad {
 					require.NotContains(t, string(res.body), b, "%s (%s): lộ %q", path, st.name, b)
 				}
+				require.False(t, leaksNumber(res.body, canaryScore), "%s (%s): lộ điểm nháp %s", path, st.name, canaryScore)
 				if strings.HasSuffix(path, "/mine") && res.code == http.StatusOK {
 					j := res.json()
 					require.Equal(t, st.wantState, j["state"], st.name)
@@ -93,11 +95,41 @@ func TestStudentNeverSeesDraftGrade(t *testing.T) {
 			for _, b := range bad {
 				require.NotContains(t, string(raw), b, "tool tóm tắt điểm lộ %q", b)
 			}
+			require.False(t, leaksNumber(raw, canaryScore), "tool tóm tắt điểm lộ điểm nháp %s", canaryScore)
 			var n int
 			require.NoError(t, r.pool.QueryRow(ctx, `select count(*)::int from mail_outbox where template = 'assignment_feedback'`).Scan(&n))
 			require.Zero(t, n, "chưa công bố: không thư nhận xét")
 			require.NoError(t, r.pool.QueryRow(ctx, `select count(*)::int from notifications where user_id = $1 and type = 'GRADE_PUBLISHED'`, stuID).Scan(&n))
 			require.Zero(t, n)
 		})
+	}
+}
+
+// leaksNumber: `score` ("6.37") xuất hiện như MỘT SỐ đứng riêng (cũng thử dấu phẩy "6,37"). Khác so chuỗi con thô: số không được dính chữ số hoặc dấu chấm ở hai đầu,
+// nên "…07:44:46.379254Z" (dấu thời gian) hay "16.37", "6.375" không bị tính là lộ (P-105-2: dương tính giả phụ thuộc giờ chạy); "6.37", 6.37, "điểm 6.37" vẫn bị bắt.
+func leaksNumber(body []byte, score string) bool {
+	re := regexp.MustCompile(`(?:^|[^0-9.,])` + regexp.QuoteMeta(score) + `(?:$|[^0-9])|(?:^|[^0-9.,])` + regexp.QuoteMeta(strings.Replace(score, ".", ",", 1)) + `(?:$|[^0-9])`)
+	return re.Match(body)
+}
+
+// TestLeaksNumber chứng minh phép kiểm đủ chặt (bắt lộ thật) mà không báo nhầm dấu thời gian chứa chuỗi "6.37" (P-105-2).
+func TestLeaksNumber(t *testing.T) {
+	for _, tc := range []struct {
+		body string
+		want bool
+	}{
+		{`{"confirmed_at":"2026-11-14T07:44:46.379254Z"}`, false}, // đúng ca CI main 83ec3630
+		{`{"at":"2026-11-14T07:44:46.37Z"}`, false},
+		{`{"x":16.37}`, false},
+		{`{"x":6.375}`, false},
+		{`{"x":"1.6.37"}`, false},
+		{`{"total":6.37}`, true},
+		{`{"total":"6.37"}`, true},
+		{`{"note":"được 6.37 điểm"}`, true},
+		{`{"total":"6,37"}`, true},
+		{`6.37`, true},
+		{`{"a":"2026-11-14T07:44:46.379254Z","total":6.37}`, true}, // dấu thời gian vô hại không che lộ thật
+	} {
+		require.Equal(t, tc.want, leaksNumber([]byte(tc.body), "6.37"), tc.body)
 	}
 }

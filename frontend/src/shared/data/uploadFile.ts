@@ -35,6 +35,16 @@ export function checkGradeImportFile(f: File): string | null {
 }
 export const uploadGradeImportFile = (courseId: string, file: File, signal?: AbortSignal) => uploadFile(courseId, file, "grade_import", signal);
 
+/** Kết quả Forms (.xlsx / .csv ≤ 5 MiB): `purpose = forms_import`; chỉ TEACHER (US-P9-11). */
+export const FORMS_IMPORT_MAX_BYTES = 5 * 1024 * 1024;
+export function checkFormsFile(f: File): string | null {
+  if (!/\.(xlsx|csv)$/i.test(f.name)) return `${f.name}: chỉ nhận XLSX hoặc CSV. Hãy chọn tệp khác.`;
+  if (f.size > FORMS_IMPORT_MAX_BYTES) return `${f.name}: quá 5 MB. Hãy tách tệp.`;
+  if (f.size === 0) return `${f.name}: tệp rỗng.`;
+  return null;
+}
+export const uploadFormsFile = (courseId: string, file: File, signal?: AbortSignal) => uploadFile(courseId, file, "forms_import", signal);
+
 // ---- nộp bài tập (US-P7-03 AC2, AC3): .pdf .docx .txt .md, ≤ 20 MiB ------------------------------------------------------
 export const ASSIGN_MAX_BYTES = 20 * 1024 * 1024;
 const ASSIGN_EXT = /\.(pdf|docx|txt|md)$/i;
@@ -80,8 +90,9 @@ export function checkSubmissionBundle(f: File): string | null {
 }
 export const uploadSubmissionBundle = (courseId: string, file: File, signal?: AbortSignal) => uploadFile(courseId, file, "submission_upload", signal);
 
-async function uploadFile(courseId: string, file: File, purpose: "document" | "grade_import" | "submission_upload", signal?: AbortSignal): Promise<string> {
-  const mime = purpose === "grade_import" ? XLSX_MIME : (MIME[file.name.split(".").pop()!.toLowerCase()] ?? file.type);
+async function uploadFile(courseId: string, file: File, purpose: "document" | "grade_import" | "forms_import" | "submission_upload", signal?: AbortSignal): Promise<string> {
+  const ext = file.name.split(".").pop()!.toLowerCase();
+  const mime = purpose === "grade_import" ? XLSX_MIME : purpose === "forms_import" ? (ext === "csv" ? "text/csv" : XLSX_MIME) : (MIME[ext] ?? file.type);
   const sha256 = await sha256Hex(file);
   const p = await apiClient.post<{ upload_id: string; method: string; url: string; headers: Record<string, string> }>(`/courses/${courseId}/uploads/presign`, { purpose, filename: file.name, mime_type: mime, size_bytes: file.size, sha256 }, { signal });
   let res: Response;

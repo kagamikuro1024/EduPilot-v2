@@ -196,8 +196,9 @@ func TestSlowQueryLog_NoArgs(t *testing.T) {
 	}
 	t.Cleanup(pool.Close)
 
-	const secret = "0.37"
-	if _, err := pool.Exec(ctx, "-- name: TestSleepArg :exec\nselect pg_sleep($1::float)", secret); err != nil {
+	// Giá trị tham số phải là chuỗi không thể trùng ngẫu nhiên với trường khác của dòng log (timestamp, duration_ms, trace_id…): số kiểu "0.37" trùng "…20.3772…" của `time`.
+	const secret = "tham-so-bi-mat-7f3a91"
+	if _, err := pool.Exec(ctx, "-- name: TestSleepArg :exec\nselect pg_sleep(0.3), $1::text", secret); err != nil {
 		t.Fatalf("truy vấn: %v", err)
 	}
 	lines := slowLines(t, buf.String())

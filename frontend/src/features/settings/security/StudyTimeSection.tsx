@@ -28,10 +28,10 @@ export function StudyTimeSection() {
     onSuccess: (d) => qc.setQueryData<Settings>(KEY, (cur) => ({ ...d, study_time: d.study_time ?? cur?.study_time })),
     onError: () => qc.invalidateQueries({ queryKey: KEY }),
   });
-  const st = q.data?.study_time;
+  const st = q.data?.study_time; // lỗi tải: mục «Thư» (cùng truy vấn) đã báo một lần
   if (!st?.acked || st.courses.length === 0) return null;
   return (
-    <Section title="Thời gian học" panel>
+    <Section title="Thời gian học">
       {save.isError && <ApiErrorNotice error={save.error} />}
       {st.courses.map((c) => (
         <Switch

@@ -17,6 +17,8 @@ type Work struct {
 	ProviderID string
 	RPM, TPM   int // hạn mức hiệu lực của nhà cung cấp (đã áp mặc định)
 	EstTokens  int
+	// NoWait: hết giấy phép thì từ chối NGAY (ErrOverloaded), không xếp hàng — Decide ở làn INTERACTIVE (SRS FEAT-decision-model 4.5).
+	NoWait bool
 }
 
 // Permit là chỗ đã được cấp; phải gọi Done đúng một lần.

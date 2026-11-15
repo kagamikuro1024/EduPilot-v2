@@ -6,7 +6,7 @@ import { cleanCode } from "@/features/join/JoinScreen";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useSession } from "@/shared/session/session";
 import { withCourse } from "@/shared/lib/courseHref";
-import { ActionList, ActionRow, Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, Section, Skeleton, StatusText } from "@/shared/ui";
+import { ActionList, EmptyState, ActionRow, Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, Section, Skeleton, StatusText } from "@/shared/ui";
 import s from "./Today.module.css";
 import { formatTime, formatWhen } from "@/shared/lib/datetime";
 import { longDate } from "./format";
@@ -16,8 +16,7 @@ const CTA: Record<string, string> = { VERIFY_EMAIL: "Xác minh email", ASSIGNMEN
 const STATE: Record<TodaySession["state"], { label: string; tone: "green" | "amber" | "neutral" }> = {
   NOW: { label: "Đang diễn ra", tone: "green" },
   NEXT: { label: "Sắp tới", tone: "amber" },
-  DONE: { label: "Đã xong", tone: "neutral" },
-};
+  DONE: { label: "Đã xong", tone: "neutral" } };
 
 /** "Hôm nay" của sinh viên: MỘT việc nên làm, dòng thời gian hôm nay, chỗ học dở. Không thẻ số liệu, không biểu đồ. */
 export function StudentToday() {
@@ -26,8 +25,8 @@ export function StudentToday() {
   const first = user.name.split(" ").slice(-1)[0];
   const d = q.data;
   return (
-    <Page>
-      <PageHeader title={`Chào ${first}`} description={`${longDate(new Date())}${d?.no_course ? " · bạn chưa vào lớp nào" : ""}`} />
+    <Page kind="read">
+      <PageHeader title={`Chào ${first}`} meta={[longDate(new Date()), d?.no_course ? "bạn chưa vào lớp nào" : undefined]} />
       {!d ? (
         q.isError ? <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} title="Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng." /> : <Skeleton lines={4} />
       ) : (
@@ -51,24 +50,24 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
         </InlineNotice>
       )}
       {rowRec && (
-        <Section title="Việc nên làm tiếp" panel>
+        <Section title="Việc nên làm tiếp">
           <ActionList label="Việc nên làm">
             <Recommended item={rowRec} courseId={realCourseId} />
           </ActionList>
         </Section>
       )}
       {d.no_course && (
-        <Section panel title={rowRec ? "Vào lớp bằng mã" : "Nhập mã tham gia lớp"} description={rowRec ? undefined : "Bạn chưa vào lớp nào. Nhập mã do giảng viên cung cấp để bắt đầu."}>
+        <Section title={rowRec ? "Vào lớp bằng mã" : "Nhập mã tham gia lớp"}>
           <JoinCodeBox primary={!rowRec?.href} />
         </Section>
       )}
       {calm && (
-        <Section title="Việc nên làm tiếp" panel>
-          <p className={s.calm}>Hôm nay bạn không có việc gấp.</p>
+        <Section title="Việc nên làm tiếp">
+          <EmptyState title="Hôm nay bạn không có việc gấp" />
         </Section>
       )}
       {d.timeline.length > 0 && (
-        <Section title="Hôm nay" panel>
+        <Section title="Hôm nay">
           <ActionList label="Lịch hôm nay">
             {d.timeline.map((t) => (
               <ActionRow
@@ -84,7 +83,7 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
         </Section>
       )}
       {recent.length > 0 && (
-        <Section title="Tiếp tục học" panel>
+        <Section title="Tiếp tục học">
           <ActionList label="Tiếp tục học">
             {recent.map((c) => (
               <ActionRow key={c.id} title={c.title} context={`Lớp ${c.course.class_code} · ${formatWhen(c.at)}`} href={c.href} />

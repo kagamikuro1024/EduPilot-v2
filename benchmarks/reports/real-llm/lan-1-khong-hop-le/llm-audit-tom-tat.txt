@@ -1,0 +1,10 @@
+GRADING|ok||59
+UTILITY|circuit_open|circuit_open|32
+EMBEDDING|ok||109
+CHAT|degraded|SERVER|1
+UTILITY|error|BAD_RESPONSE|10
+CHAT|degraded|RATE_LIMIT|7
+CHAT|ok||59
+GRADING|rate_limited|RATE_LIMIT|19
+UTILITY|ok||24
+GRADING|circuit_open|circuit_open|126

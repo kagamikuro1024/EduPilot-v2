@@ -351,6 +351,9 @@ func (s *Scheduler) Admit(ctx context.Context, w llm.Work) (llm.Permit, error) {
 		}
 		elig, changed := s.q.eligible(wt)
 		if !elig {
+			if w.NoWait {
+				return nil, &llm.ErrOverloaded{RetryAfter: RetryAfter(s.q.depth()[w.Lane], s.cfg.MaxConcurrency, s.avgLatency(w.ProviderID))}
+			}
 			select {
 			case <-changed:
 			case <-ctx.Done():
@@ -362,6 +365,9 @@ func (s *Scheduler) Admit(ctx context.Context, w llm.Work) (llm.Permit, error) {
 		granted, hint := s.tryGrant(ctx, w, member, batchCap, rpm, tpm)
 		if granted {
 			return &permit{s: s, prov: w.ProviderID, member: member, est: w.EstTokens, tpm: tpm, wait: time.Since(start), granted: time.Now()}, nil
+		}
+		if w.NoWait { // hết giấy phép: từ chối ngay để cascade đi fallback (không xếp hàng)
+			return nil, &llm.ErrOverloaded{RetryAfter: max(hint, time.Second)}
 		}
 		d := s.pollEvery()
 		if hint > d {

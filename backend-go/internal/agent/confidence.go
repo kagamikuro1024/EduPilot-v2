@@ -51,8 +51,27 @@ func (m ResponseMetadata) ShouldEscalate(intent Intent) (bool, string) {
 	return false, ""
 }
 
+// refusalCore: lõi của câu mẫu ReplyNoContext, đã bỏ dấu + chữ thường. Câu trả lời của LLM chứa lõi này (ở bất kỳ đâu, không phân biệt dấu) là LỜI TỪ CHỐI: ngữ cảnh
+// không trả lời được câu hỏi (P-11-18, D-R-07). SystemPrompt bảo mô hình mở đầu đúng bằng câu này khi không đủ ngữ cảnh.
+var refusalCore = auth.Fold(strings.ToLower("chưa tìm thấy nội dung này trong tài liệu của lớp")) //nolint:gochecknoglobals // hằng dẫn xuất từ câu mẫu
+
+// IsRefusal cho biết văn bản là lời từ chối "chưa tìm thấy trong tài liệu" (thuần, không LLM).
+func IsRefusal(s string) bool { return strings.Contains(auth.Fold(strings.ToLower(s)), refusalCore) }
+
+// hasCitation: câu trả lời có ít nhất một dấu [n] trỏ tới một đoạn trong hits (n ∈ [1, nHits]); [n] lạ không tính (như ExtractCitations).
+func hasCitation(answer string, nHits int) bool {
+	for _, m := range reMarker.FindAllStringSubmatch(answer, -1) {
+		for _, n := range markerNums(m[1]) {
+			if n >= 1 && n <= nHits {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 var (
-	reCiteMark = regexp.MustCompile(`\[\d+\]`)
+	reCiteMark = regexp.MustCompile(`\[\d{1,3}(?:\s*,\s*\d{1,3})*\]`)
 	reSentence = regexp.MustCompile(`[.!?;\n]+(?:\s|$)`)
 	reWord     = regexp.MustCompile(`[\p{L}\p{M}\p{N}]+`)
 )
@@ -85,11 +104,17 @@ func Retrieval(cosTop1 float64) decimal.Decimal {
 	return decimal.Min(decimal.NewFromInt(1), decimal.Max(decimal.Zero, r)).Round(3)
 }
 
-// Groundedness là tỷ lệ "nhận định" (câu ≥ 4 từ nội dung, bỏ stop-words) có ≥ 40 % từ xuất hiện trong hợp các đoạn đưa vào lời nhắc.
-// Không câu nào đủ 4 từ nội dung (ví dụ "Có.") → 0: không có căn cứ để chống đỡ (nghiêng về low_confidence, #11).
+// Groundedness là tỷ lệ "nhận định" (câu ≥ 4 từ nội dung, bỏ stop-words) có căn cứ. Một nhận định có căn cứ khi:
+//
+//	(a) ≥ 40 % từ nội dung của nó có trong hợp các đoạn đưa vào lời nhắc (cùng ngôn ngữ), HOẶC
+//	(b) nó mang dấu [n] hợp lệ và chia sẻ ≥ 1 mỏ neo (xem `anchors`) với CHÍNH đoạn n — đường cho câu trả lời tiếng Việt dựa trên nguồn tiếng Anh, nơi (a) ≈ 0
+//	    dù trả lời đúng (P-11-21). (b) tắt khi câu trả lời tự thú thiếu thông tin (`hedged`): một câu «chưa đủ thông tin» vẫn có thể dẫn [n] và trùng thuật ngữ.
+//
+// Không câu nào đủ 4 từ nội dung (ví dụ "Có.") → 0: không có căn cứ để chống đỡ (nghiêng về low_confidence, #11). Thuần, không LLM.
 func Groundedness(answer string, hits []rag.Hit) decimal.Decimal {
 	ctx := map[string]bool{}
-	for _, h := range hits {
+	chunk := make([]map[string]bool, len(hits)) // từ thô (chữ thường) của từng đoạn, cho mỏ neo (b)
+	for i, h := range hits {
 		head := ""
 		if h.Heading != nil {
 			head = *h.Heading
@@ -97,11 +122,17 @@ func Groundedness(answer string, hits []rag.Hit) decimal.Decimal {
 		for _, w := range contentWords(h.Title + " " + head + " " + h.Text) {
 			ctx[w] = true
 		}
+		chunk[i] = map[string]bool{}
+		for _, w := range reWord.FindAllString(strings.ToLower(h.Title+" "+head+" "+h.Text), -1) {
+			chunk[i][w] = true
+		}
 	}
+	allowAnchor := !hedged(answer)
 	claims, ok := 0, 0
-	for _, s := range reSentence.Split(reCiteMark.ReplaceAllString(answer, " "), -1) {
+	for _, raw := range reSentence.Split(answer, -1) {
+		s := reCiteMark.ReplaceAllString(raw, " ")
 		ws := contentWords(s)
-		if len(ws) < groundMinWords {
+		if len(ws) < groundMinWords || IsRefusal(s) { // câu từ chối không phải một nhận định cần căn cứ (P-11-18 c)
 			continue
 		}
 		claims++
@@ -113,12 +144,82 @@ func Groundedness(answer string, hits []rag.Hit) decimal.Decimal {
 		}
 		if float64(in) >= groundSupported*float64(len(ws)) {
 			ok++
+			continue
+		}
+		if allowAnchor && anchoredToCited(raw, s, chunk) {
+			ok++
 		}
 	}
 	if claims == 0 {
 		return decimal.Zero
 	}
 	return decimal.NewFromInt(int64(ok)).Div(decimal.NewFromInt(int64(claims))).Round(3)
+}
+
+// anchoredToCited: câu `raw` (có dấu [n]) và bản `plain` (đã bỏ dấu) — có [n] ∈ [1, len(chunk)] mà đoạn n chứa một mỏ neo của câu.
+func anchoredToCited(raw, plain string, chunk []map[string]bool) bool {
+	an := anchors(plain)
+	if len(an) == 0 {
+		return false
+	}
+	for _, m := range reMarker.FindAllStringSubmatch(raw, -1) {
+		for _, n := range markerNums(m[1]) {
+			if n < 1 || n > len(chunk) {
+				continue
+			}
+			for _, a := range an {
+				if chunk[n-1][a] {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+// Mỏ neo: token không phụ thuộc ngôn ngữ nên còn nguyên khi câu trả lời tiếng Việt dịch nguồn tiếng Anh: số (≥ 2 chữ số), chữ + số trộn (wpa3, ipv6; ≥ 3 ký tự),
+// từ Latin chỉ gồm chữ không dấu ≥ 4 ký tự (exploits, internet, trojan). Loại âm tiết tiếng Việt thanh ngang không dấu (trong, theo, khi, cho, sau, thanh, chung…):
+// chúng cũng là ASCII thuần nhưng không mang nghĩa kỹ thuật nào, và một câu Việt bất kỳ đầy chúng.
+var (
+	reASCIIWord = regexp.MustCompile(`^[a-z0-9]+$`)
+	reDigits    = regexp.MustCompile(`^[0-9]+$`)
+	reHasDigit  = regexp.MustCompile(`[0-9]`)
+	reHasLetter = regexp.MustCompile(`[a-z]`)
+	// reVNSyllable: [phụ âm đầu] + vần chỉ gồm nguyên âm không mũ/móc + [phụ âm cuối]: dạng của mọi âm tiết tiếng Việt viết không dấu.
+	reVNSyllable = regexp.MustCompile(`^(?:ngh|ng|gh|gi|kh|nh|ph|th|tr|ch|qu|[bcdghklmnpqrstvx])?(?:oai|oay|uay|uai|oa|oe|uy|ai|ao|au|ay|eo|ia|iu|oi|ua|ui|a|e|i|o|u|y)(?:ch|ng|nh|c|m|n|p|t)?$`)
+)
+
+func anchors(s string) []string {
+	var out []string
+	for _, w := range reWord.FindAllString(strings.ToLower(s), -1) {
+		switch {
+		case !reASCIIWord.MatchString(w):
+		case reDigits.MatchString(w):
+			if len(w) >= 2 {
+				out = append(out, w)
+			}
+		case reHasDigit.MatchString(w) && reHasLetter.MatchString(w):
+			if len(w) >= 3 {
+				out = append(out, w)
+			}
+		case len(w) >= 4 && !reVNSyllable.MatchString(w):
+			out = append(out, w)
+		}
+	}
+	return out
+}
+
+// hedgeCores: cụm tự thú thiếu thông tin (đã bỏ dấu, chữ thường) mà mô hình dùng khi KHÔNG theo câu mẫu ReplyNoContext («Chào bạn, hiện tại ngữ cảnh được cung cấp chưa đủ thông tin…»).
+var hedgeCores = []string{"chua du thong tin", "khong du thong tin", "chua co thong tin", "khong co thong tin", "khong tim thay", "chua tim thay", "khong duoc de cap", "chua duoc de cap"} //nolint:gochecknoglobals // bảng tra cứu bất biến
+
+func hedged(answer string) bool {
+	f := auth.Fold(strings.ToLower(answer))
+	for _, c := range hedgeCores {
+		if strings.Contains(f, c) {
+			return true
+		}
+	}
+	return false
 }
 
 // Score = round(0,6·retr + 0,4·ground, 3).
@@ -161,8 +262,16 @@ func (o Outcome) Metadata(answer string, threshold decimal.Decimal, degraded boo
 		m.RetrievalScore, m.Groundedness = one, one
 		m.Confidence = decimal.NullDecimal{Decimal: one.Round(3), Valid: true}
 	case o.Plan == IntentCourseQA && len(o.Hits) > 0:
+		refused := IsRefusal(answer)
 		m.RetrievalScore, m.Groundedness = Retrieval(BestCosine(o.Hits)), Groundedness(answer, o.Hits)
+		if refused || !hasCitation(answer, len(o.Hits)) { // không dẫn nguồn nào = không có căn cứ (P-11-18 d); từ chối = chưa trả lời được (b)
+			m.Groundedness = decimal.Zero
+		}
 		m.Confidence = decimal.NullDecimal{Decimal: Score(m.RetrievalScore, m.Groundedness), Valid: true}
+		if refused { // lời từ chối luôn là "chưa chắc", kể cả khi ngưỡng của lớp thấp
+			m.LowConfidence = true
+			return m
+		}
 	default:
 		return m
 	}

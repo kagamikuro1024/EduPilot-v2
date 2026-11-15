@@ -8,6 +8,7 @@ import { CrisisSupportDialog, PIIChannelDialog } from "./PIIChannelDialog";
 import { countReasons, type Precheck, type Reason } from "./threadsApi";
 
 type Blocked = { reasons: Reason[]; personal_question: boolean };
+export type SimilarConfirmed = { thread_id: string; title: string };
 
 /**
  * Cổng đăng bài công khai (SRS 4.9): precheck khi ngừng gõ 800 ms (một dòng báo loại thông tin, không mở hộp thoại), đăng với khoá MỚI sau mọi 4xx và khi thân đổi
@@ -27,31 +28,47 @@ export function usePostGate<T>(o: {
   onPosted: (r: T) => void;
   /** nháp đã chuyển sang chat riêng → xoá nháp phía Threads */
   onSwitched: () => void;
-}): { check: Precheck | null; submit: (redact?: boolean) => Promise<void>; pending: boolean; error: ApiError | null; dialog: ReactNode } {
+  /** M4: sau precheck sạch (allowed, không riêng tư) hỏi «câu tương tự đã xác nhận»; chỉ khi đăng câu hỏi mới */
+  suggest?: boolean;
+}): { check: Precheck | null; similar: SimilarConfirmed[]; submit: (redact?: boolean) => Promise<void>; pending: boolean; error: ApiError | null; dialog: ReactNode } {
   const router = useRouter();
   const { identity } = useSession();
   const [check, setCheck] = useState<Precheck | null>(null);
+  const [similar, setSimilar] = useState<SimilarConfirmed[]>([]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [blocked, setBlocked] = useState<Blocked | null>(null);
   const [crisis, setCrisis] = useState<string | null>(null);
   const key = useRef<{ sig: string; key: string } | null>(null);
   const title = o.title ?? "";
+  const suggest = o.suggest === true;
 
   useEffect(() => {
     if (!title.trim() && !o.body.trim()) {
       setCheck(null); // eslint-disable-line react-hooks/set-state-in-effect -- xoá hết chữ thì dòng báo biến mất
+      setSimilar([]);
       return;
     }
     const c = new AbortController();
     const t = setTimeout(() => {
-      apiClient.post<Precheck>(`/courses/${o.courseId}/threads/precheck`, { title, body: o.body }, { signal: c.signal }).then((r) => setCheck(r.data), () => undefined);
+      apiClient.post<Precheck>(`/courses/${o.courseId}/threads/precheck`, { title, body: o.body }, { signal: c.signal }).then(
+        (r) => {
+          setCheck(r.data);
+          // M4: chữ đang soạn đi trong THÂN (chưa qua tường lửa, không đặt trong URL); lỗi → không hiện gì
+          if (!suggest || !r.data.allowed || r.data.personal_question) return setSimilar([]);
+          return apiClient.post<SimilarConfirmed[]>(`/courses/${o.courseId}/threads/similar-confirmed`, { q: `${title}\n${o.body}`.trim() }, { signal: c.signal }).then(
+            (s) => setSimilar(s.data),
+            () => setSimilar([]),
+          );
+        },
+        () => undefined,
+      );
     }, 800);
     return () => {
       clearTimeout(t);
       c.abort();
     };
-  }, [title, o.body, o.courseId]);
+  }, [title, o.body, o.courseId, suggest]);
 
   async function submit(redact = false) {
     setError(null);
@@ -109,5 +126,5 @@ export function usePostGate<T>(o: {
     />
     </>
   );
-  return { check, submit, pending, error, dialog };
+  return { check, similar, submit, pending, error, dialog };
 }

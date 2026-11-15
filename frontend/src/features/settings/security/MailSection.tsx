@@ -27,7 +27,7 @@ export function MailSection({ role }: { role: "student" | "ta" | "teacher" }) {
     onError: () => qc.invalidateQueries({ queryKey: KEY }),
   });
   return (
-    <Section title="Thư" panel>
+    <Section title="Thư" fault={q.isError ? <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} /> : null}>
       <PageState query={q}>
         {save.isError && <ApiErrorNotice error={save.error} />}
         <Switch label={role === "student" ? "Mail khi giảng viên trả lời" : "Mail báo ticket mới"} checked={q.data?.[flag] ?? false} onChange={(v) => save.mutate(v)} />

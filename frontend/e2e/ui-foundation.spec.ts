@@ -212,6 +212,7 @@ test.describe("keyboard-only", () => {
       const a = await runAudit(page, AUDIT_SRC);
       expect(a, `${route} AUDIT`).toMatchObject({ ox: 0, cut: [], ell: [] });
     }
+    await chatApi(page, { "GET /chat/sessions": json({ items: [session()], next_cursor: null }) }); // có phiên → có nút «Phiên trước»
     await page.goto("/chat");
     const hist = page.locator("[data-part=chat-sessions-button]");
     await tabTo(page, hist);

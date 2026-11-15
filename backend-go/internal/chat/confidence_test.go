@@ -47,7 +47,7 @@ func TestStudentNeverSeesConfidence(t *testing.T) {
 	sse := h.sendHTTP("hỏi 1")
 	require.NotRegexp(t, numbers, sse)
 	require.Contains(t, sse, `"low_confidence":true`)
-	h.qaWith(0.65, "Sinh viên được thi lại tối đa một lần đối với mỗi học phần.") // 1,000
+	h.qaWith(0.65, "Sinh viên được thi lại tối đa một lần đối với mỗi học phần [1].") // 1,000 (có dẫn nguồn: P-11-18 d)
 	sse2 := h.sendHTTP("hỏi 2")
 	require.NotRegexp(t, numbers, sse2)
 	require.Contains(t, sse2, `"low_confidence":false`)

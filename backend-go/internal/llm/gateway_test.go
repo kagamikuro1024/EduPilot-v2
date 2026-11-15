@@ -26,6 +26,8 @@ func TestClientSurface(t *testing.T) {
 		"Stream":     reflect.TypeOf(func(context.Context, llm.Request) (<-chan llm.Chunk, error) { return nil, nil }),
 		"Structured": reflect.TypeOf(func(context.Context, llm.Request, json.RawMessage) (json.RawMessage, error) { return nil, nil }),
 		"Embed":      reflect.TypeOf(func(context.Context, llm.EmbedRequest) ([][]float32, error) { return nil, nil }),
+		// D60 / SRS FEAT-decision-model 4.1: hàm thứ năm; bốn hàm cũ giữ nguyên chữ ký.
+		"Decide": reflect.TypeOf(func(context.Context, llm.DecideRequest) (llm.DecideResponse, error) { return llm.DecideResponse{}, nil }),
 	}
 	if typ.NumMethod() != len(want) {
 		t.Fatalf("Client có %d hàm, muốn %d", typ.NumMethod(), len(want))
@@ -213,6 +215,23 @@ func TestAllFailed(t *testing.T) {
 	rows := cap.all(t, g)
 	if len(rows) != 1 || rows[0].Attempts != 6 || rows[0].ErrorKind != "SERVER" {
 		t.Errorf("audit = %+v (muốn 1 dòng, 6 lần thử = 3×2 nhà)", rows)
+	}
+}
+
+// P-11-23: hạ tầng nhà cung cấp lỗi ⇒ Outage (việc nền hoãn, không tính lượt); mọi nhà trả sai định dạng ⇒ KHÔNG phải outage.
+func TestAllFailedOutageFlag(t *testing.T) {
+	t.Parallel()
+	for kind, want := range map[provider.Kind]bool{provider.KindServer: true, provider.KindNetwork: true, provider.KindRateLimit: true, provider.KindBadResponse: false} {
+		bad := func(n string) *stub {
+			return &stub{name: n, chat: func(int, provider.ChatOpts) (provider.Result, error) { return provider.Result{}, perr(kind, 500) }}
+		}
+		g, _ := newGateway(t, bad("A"), bad("B"))
+		lane := llm.LaneBatch
+		_, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskInsight, Lane: &lane, Messages: userMsg("x")})
+		var un *llm.ErrUnavailable
+		if !errors.As(err, &un) || un.Outage != want || llm.IsOutage(err) != want {
+			t.Errorf("%s: err=%v outage=%v, muốn %v", kind, err, llm.IsOutage(err), want)
+		}
 	}
 }
 
@@ -424,5 +443,24 @@ func TestOwnDeadlineNotCountedToBreaker(t *testing.T) {
 	defer bg2.mu.Unlock()
 	if len(bg2.reports) == 0 || bg2.reports[0] != provider.KindServer {
 		t.Fatalf("lỗi 503 thật phải tính vào mạch: %v", bg2.reports)
+	}
+}
+
+// P-95-8 / TL-2j: 429 là áp lực ngược, không tính lỗi cho cầu dao (nếu không một đợt vượt RPM làm mạch mở cứng và mọi lời gọi sau bị loại).
+func TestRateLimitNotCountedToBreaker(t *testing.T) {
+	t.Parallel()
+	limited := &stub{name: "A", chat: func(int, provider.ChatOpts) (provider.Result, error) {
+		return provider.Result{}, &provider.Error{Kind: provider.KindRateLimit, Status: 429, RetryAfter: time.Second}
+	}}
+	bg := &breakerGate{}
+	g, _ := newGatewayWithGate(t, bg, limited)
+	lane := llm.LaneBatch
+	if _, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskInsight, Lane: &lane, Messages: userMsg("x")}); err == nil {
+		t.Fatal("muốn lỗi")
+	}
+	bg.mu.Lock()
+	defer bg.mu.Unlock()
+	if len(bg.reports) != 0 {
+		t.Fatalf("429 bị tính vào mạch ngắt: %v", bg.reports)
 	}
 }

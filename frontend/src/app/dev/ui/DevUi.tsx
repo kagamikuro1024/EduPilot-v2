@@ -90,7 +90,7 @@ function ClsDemo() {
   }, []);
   return (
     <div className={s.layer} data-part="cls-demo" data-loaded={ready || undefined}>
-      <Section title="Danh sách việc" description={ready ? "3 việc cần làm hôm nay" : "\u00a0"}>
+      <Section title="Danh sách việc">
         {ready ? (
           <ActionList label="Việc hôm nay">
             {[1, 2, 3].map((i) => (
@@ -129,11 +129,8 @@ export default function DevUi() {
   }
   return (
     <div className={s.wrap} style={{ "--w": `${w}px` } as React.CSSProperties}>
-      <PageHeader
-        title="Thư viện thành phần"
-        description="25 khối × 8 trạng thái, chỉ có ở bản dev."
-        actions={<SegmentedControl label="Bề rộng xem thử" value={w} onChange={setW} options={WIDTHS.map((x) => ({ value: x, label: `${x}` }))} />}
-      />
+      <PageHeader title="Thư viện thành phần" />
+      <SegmentedControl label="Bề rộng xem thử" value={w} onChange={setW} options={WIDTHS.map((x) => ({ value: x, label: `${x}` }))} />
 
       <main className={s.sub} data-part="matrix">
         {REGISTRY.map((b) => (

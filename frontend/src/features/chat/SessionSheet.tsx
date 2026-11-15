@@ -61,7 +61,7 @@ export function SessionSheet({
           Vuốt xuống để đóng
         </p>
         {sessions.length === 0 ? (
-          <EmptyState title="Chưa có phiên nào">Phiên chat của bạn sẽ hiện ở đây sau lần hỏi đầu tiên.</EmptyState>
+          <EmptyState title="Chưa có phiên nào" />
         ) : (
           <ActionList label="Phiên trước">
             {sessions.map((c) => (

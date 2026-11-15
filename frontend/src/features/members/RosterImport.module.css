@@ -1,4 +1,4 @@
-.stack { display: grid; gap: var(--ep-space-5); max-width: 720px; }
+.stack { display: grid; gap: var(--ep-space-5); }
 .drop { display: grid; gap: var(--ep-space-3); justify-items: start; padding: var(--ep-space-6); border: 1px dashed var(--ep-rule); border-radius: var(--ep-radius-md); background: var(--ep-surface-subtle); }
 .drop[data-over="true"] { border-color: var(--ep-red); background: var(--ep-surface); }
 .drop[data-invalid="true"] { border-color: var(--ep-red); }

@@ -1,0 +1,16 @@
+1. Mã QR xoay vòng (Rotate = 10 s)
+  mã=019a8c2e-7f00-7000-8000-000000000001.0.WLQI32KNTTM7TTDV  URL QR=82 ký tự
+  quét ngay (4 s)              → err=<nil> tuổi=4s
+  quét ở bước sau (14 s)       → err=<nil> tuổi=14s
+  ảnh gửi bạn, dùng sau 21 s   → err=TOKEN_EXPIRED tuổi=0s
+  sửa MAC                      → err=TOKEN_INVALID tuổi=0s
+  bước tương lai               → err=TOKEN_EXPIRED tuổi=0s
+  mã của cửa sổ khác           → err=TOKEN_INVALID tuổi=0s
+2. Chữ ký khoá thiết bị P-256 (DER và r||s)
+  DER ok=true  r||s ok=true  chữ ký đem sang tài khoản B ok=false
+3. Android Key Attestation (gốc từ android.googleapis.com/attestation/root)
+  caiman_sdk36_SB_EC_RKP.pem       chain→GoogleRoot=true  level=STRONG_BOX  boot=VERIFIED locked=true  challenge="7ccac1ea-4845-482e-858d-f6fa9aa8c295"  pkg=com.google.android.attestation  sigs=1
+  akita_sdk34_TEE_EC_NONE.pem      chain→GoogleRoot=true  level=TRUSTED_ENVIRONMENT  boot=UNVERIFIED locked=false  challenge="challenge"  pkg=com.google.wireless.android.security.attestationverifier.collector  sigs=1
+  chứng chỉ tự ký giả làm 'thiết bị': chain→GoogleRoot=false (x509: certificate signed by unknown authority)
+4. Tải: 200 lượt check-in song song (kiểm mã + chữ ký), lặp 50 lần
+  200 lượt: 1.699458ms (tốt nhất trong 50 lần) → phần mật mã không phải nút cổ chai; chi phí thật là 1 INSERT / lượt

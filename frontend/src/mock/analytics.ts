@@ -156,6 +156,9 @@ function trendPoints(daily: number[], range: AnalyticsRange) {
  * `stats` là ảnh chụp hộp thư lúc này (`ticketStats`, SRS 4.8 N1): "Câu chờ quá 24 giờ" và số câu
  * đã chuyển giảng viên đều lấy từ đó, nên hai màn /inbox và /analytics không bao giờ lệch nhau.
  */
+/** Lớp có số liệu mô phỏng (761987, 761988). Lớp khác: màn hiện rỗng, không mượn số của lớp khác. */
+export const hasAnalytics = (courseId: string) => courseId in SEED;
+
 export function analyticsFor(courseId: string, range: AnalyticsRange, stats: TicketStats): Analytics {
   const s = SEED[courseId] ?? SEED[COURSE_1];
   const i = range === "7" ? 0 : 1;

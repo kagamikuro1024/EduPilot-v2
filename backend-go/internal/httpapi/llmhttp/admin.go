@@ -15,8 +15,10 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/decision"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
+	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/llm/budget"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/llmconfig"
@@ -26,10 +28,12 @@ import (
 // Admin là API cấu hình LLM (US-P1-04; SRS FEAT-llm-gateway 6.2–6.3): 8 đường dẫn, 13 thao tác.
 // Handler mỏng: logic và SQL ở internal/llmconfig; kiểm tra kết nối ở verify.go.
 type Admin struct {
-	RT    *llmrt.Runtime
-	Redis *goredis.Client
-	Log   *slog.Logger
-	Clock clock.Clock
+	// Decision: API cấu hình decision (nil = không gắn route decision).
+	Decision *decision.Service
+	RT       *llmrt.Runtime
+	Redis    *goredis.Client
+	Log      *slog.Logger
+	Clock    clock.Clock
 }
 
 // NewAdmin dựng Admin; clk nil → đồng hồ hệ thống.
@@ -61,6 +65,7 @@ func (a *Admin) Mount(r chi.Router, idem func(http.Handler) http.Handler) {
 	// Hợp đồng PG-phase (07-AC, bất biến): ADMIN-only, KHÔNG qua CourseAccessGuard — id không phải uuid → 422, không phải 404 (proposal #7).
 	r.With(admin).Get("/courses/{id}/llm-budget", a.getCourseBudget)
 	r.With(admin).Put("/courses/{id}/llm-budget", a.putCourseBudget)
+	a.mountDecision(r)
 }
 
 // fail đổi lỗi của dịch vụ cấu hình sang lỗi API; lỗi lạ → 500 INTERNAL (chi tiết chỉ vào log, không có khoá / thân nhà cung cấp).
@@ -75,6 +80,11 @@ func (a *Admin) fail(w http.ResponseWriter, r *http.Request, err error) {
 	}
 	a.Log.ErrorContext(r.Context(), "API cấu hình LLM lỗi", "error", err.Error(), "path", r.URL.Path)
 	apierr.Write(w, r, apierr.New(http.StatusInternalServerError, apierr.Internal))
+}
+
+func isAdmin(r *http.Request) bool {
+	p, ok := auth.FromContext(r.Context())
+	return ok && p.Role == auth.RoleAdmin
 }
 
 func pathID(r *http.Request) (uuid.UUID, error) { return uuid.Parse(chi.URLParam(r, "id")) }
@@ -101,7 +111,11 @@ func (a *Admin) listProviders(w http.ResponseWriter, r *http.Request) {
 	}
 	out := providerListView{Items: make([]providerView, 0, len(ps)),
 		EnvFallback: envFallbackView{Active: a.RT.Registry.EnvActive(), Providers: a.RT.Registry.EnvProviders()}}
+	admin := isAdmin(r)
 	for _, p := range ps {
+		if p.Type == "decision" && !admin { // provider decision chỉ ADMIN thấy (SRS FEAT-decision-model 6, AC9 US-DM-02)
+			continue
+		}
 		out.Items = append(out.Items, a.providerView(r.Context(), p))
 	}
 	httpx.WriteJSONETag(w, r, out, "")
@@ -109,7 +123,7 @@ func (a *Admin) listProviders(w http.ResponseWriter, r *http.Request) {
 
 type modelReq struct {
 	Model    string           `json:"model" validate:"required"`
-	Kind     string           `json:"kind" validate:"required,oneof=chat embedding"`
+	Kind     string           `json:"kind" validate:"required,oneof=chat embedding decision"`
 	Dims     *int             `json:"dims" validate:"omitnil,min=1"`
 	PriceIn  *decimal.Decimal `json:"price_in" validate:"required"`
 	PriceOut *decimal.Decimal `json:"price_out" validate:"required"`
@@ -117,7 +131,7 @@ type modelReq struct {
 }
 
 type providerReq struct {
-	Type       string            `json:"type" validate:"required,oneof=openai anthropic gemini openai_compatible fake"`
+	Type       string            `json:"type" validate:"required,oneof=openai anthropic gemini openai_compatible fake decision"`
 	Name       string            `json:"name" validate:"required"`
 	BaseURL    *string           `json:"base_url"`
 	APIKey     *llmconfig.Secret `json:"api_key"`
@@ -388,7 +402,11 @@ func (a *Admin) usage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out := usageView{From: from, To: to, Group: group, Items: make([]usageItemView, 0, len(rows))}
+	admin := isAdmin(r)
 	for _, u := range rows {
+		if group == "task" && u.Key == string(llm.TaskDecide) && !admin { // tác vụ DECIDE chỉ ADMIN thấy
+			continue
+		}
 		out.Items = append(out.Items, usageItemView{Key: u.Key, Calls: u.Calls, TokensIn: u.TokensIn, TokensOut: u.TokensOut, CostEst: money(u.CostEst),
 			LatencyP50Ms: u.LatencyP50Ms, LatencyP95Ms: u.LatencyP95Ms, Errors: u.Errors, Degraded: u.Degraded})
 	}

@@ -30,7 +30,11 @@ const (
 )
 
 // ErrUnavailable: không có nhà cung cấp dùng được (503 LLM_UNAVAILABLE).
-type ErrUnavailable struct{ Reason string }
+type ErrUnavailable struct {
+	Reason string
+	// Outage: lý do là hạ tầng nhà cung cấp (mạch mở, mạng, quá hạn, 5xx, 429), không phải đầu ra sai schema / sai khoá. Việc nền hoãn rồi thử lại thay vì tính lượt (P-11-23).
+	Outage bool
+}
 
 func (e *ErrUnavailable) Error() string { return "llm: không khả dụng: " + e.Reason }
 
@@ -38,6 +42,12 @@ func (e *ErrUnavailable) Error() string { return "llm: không khả dụng: " + 
 func (e *ErrUnavailable) Is(target error) bool {
 	return target == ErrAllProvidersFailed && e.Reason == ReasonAllFailed
 }
+
+// allFailed là ErrAllProvidersFailed kèm cờ outage; errors.Is(err, ErrAllProvidersFailed) vẫn đúng.
+type allFailed struct{ outage bool }
+
+func (e *allFailed) Error() string        { return ErrAllProvidersFailed.Error() }
+func (e *allFailed) Is(target error) bool { return target == ErrAllProvidersFailed }
 
 // ErrDimsMismatch: vectơ trả về khác 1536 chiều (422 MODEL_DIMS_MISMATCH).
 type ErrDimsMismatch struct{ Expected, Actual int }

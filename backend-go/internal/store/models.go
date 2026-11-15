@@ -1186,6 +1186,50 @@ func (ns NullGradebookStatus) Value() (driver.Value, error) {
 	return string(ns.GradebookStatus), nil
 }
 
+type GuidanceItemStatus string
+
+const (
+	GuidanceItemStatusDRAFT    GuidanceItemStatus = "DRAFT"
+	GuidanceItemStatusAPPROVED GuidanceItemStatus = "APPROVED"
+	GuidanceItemStatusREJECTED GuidanceItemStatus = "REJECTED"
+	GuidanceItemStatusRETIRED  GuidanceItemStatus = "RETIRED"
+)
+
+func (e *GuidanceItemStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GuidanceItemStatus(s)
+	case string:
+		*e = GuidanceItemStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GuidanceItemStatus: %T", src)
+	}
+	return nil
+}
+
+type NullGuidanceItemStatus struct {
+	GuidanceItemStatus GuidanceItemStatus
+	Valid              bool // Valid is true if GuidanceItemStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGuidanceItemStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.GuidanceItemStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GuidanceItemStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGuidanceItemStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GuidanceItemStatus), nil
+}
+
 type JobStatus string
 
 const (
@@ -1759,6 +1803,91 @@ func (ns NullPostVerification) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.PostVerification), nil
+}
+
+type PracticeMode string
+
+const (
+	PracticeModeTOPIC PracticeMode = "TOPIC"
+	PracticeModeMOCK  PracticeMode = "MOCK"
+)
+
+func (e *PracticeMode) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PracticeMode(s)
+	case string:
+		*e = PracticeMode(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PracticeMode: %T", src)
+	}
+	return nil
+}
+
+type NullPracticeMode struct {
+	PracticeMode PracticeMode
+	Valid        bool // Valid is true if PracticeMode is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPracticeMode) Scan(value interface{}) error {
+	if value == nil {
+		ns.PracticeMode, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PracticeMode.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPracticeMode) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PracticeMode), nil
+}
+
+type PracticeStatus string
+
+const (
+	PracticeStatusINPROGRESS PracticeStatus = "IN_PROGRESS"
+	PracticeStatusSUBMITTED  PracticeStatus = "SUBMITTED"
+	PracticeStatusEXPIRED    PracticeStatus = "EXPIRED"
+)
+
+func (e *PracticeStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PracticeStatus(s)
+	case string:
+		*e = PracticeStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PracticeStatus: %T", src)
+	}
+	return nil
+}
+
+type NullPracticeStatus struct {
+	PracticeStatus PracticeStatus
+	Valid          bool // Valid is true if PracticeStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPracticeStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.PracticeStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PracticeStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPracticeStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PracticeStatus), nil
 }
 
 type QuestionDifficulty string
@@ -2483,6 +2612,7 @@ type Assignment struct {
 	Version           int32
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+	GuidanceVersion   int16
 }
 
 type AttendanceRecord struct {
@@ -2735,6 +2865,34 @@ type Course struct {
 	AllowStudyTimeOptOut bool
 }
 
+type CourseDecisionGate struct {
+	CourseID  uuid.UUID
+	Gate      string
+	Enabled   bool
+	Version   int32
+	UpdatedBy *uuid.UUID
+	UpdatedAt time.Time
+}
+
+type CourseGuidanceFlag struct {
+	CourseID  uuid.UUID
+	Feature   string
+	Enabled   bool
+	Version   int32
+	UpdatedBy *uuid.UUID
+	UpdatedAt time.Time
+}
+
+type DecisionGate struct {
+	Gate      string
+	Enabled   bool
+	Threshold decimal.Decimal
+	TimeoutMs int32
+	Version   int32
+	UpdatedBy *uuid.UUID
+	UpdatedAt time.Time
+}
+
 type Document struct {
 	ID                uuid.UUID
 	CourseID          uuid.UUID
@@ -2931,6 +3089,30 @@ type FinalGradeSnapshot struct {
 	CreatedAt    time.Time
 }
 
+type FormsImportBatch struct {
+	ID        uuid.UUID
+	CourseID  uuid.UUID
+	ItemID    uuid.UUID
+	FileHash  string
+	BlobKey   string
+	Mapping   json.RawMessage
+	Matched   int32
+	Unmatched int32
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
+}
+
+type FormsImportRow struct {
+	CourseID         uuid.UUID
+	BatchID          uuid.UUID
+	RowNo            int32
+	StudentID        *uuid.UUID
+	IdentifierMasked string
+	Correct          int32
+	Total            int32
+	Score            decimal.Decimal
+}
+
 type ForumPost struct {
 	ID                uuid.UUID
 	CourseID          uuid.UUID
@@ -3090,6 +3272,49 @@ type Gradebook struct {
 	UpdatedAt       time.Time
 }
 
+type GradingGuidanceItem struct {
+	ID                uuid.UUID
+	CourseID          uuid.UUID
+	AssignmentID      uuid.UUID
+	CriterionID       string
+	Text              string
+	TextOriginal      *string
+	Direction         string
+	Support           int16
+	SourceResultIds   []uuid.UUID
+	NeedsRecheck      bool
+	Status            GuidanceItemStatus
+	PendingRetire     bool
+	ApprovedInVersion *int16
+	RetiredInVersion  *int16
+	OriginJob         *uuid.UUID
+	DecidedBy         *uuid.UUID
+	DecidedAt         *time.Time
+	Version           int32
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type GradingGuidanceVersion struct {
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+	Version      int16
+	ItemCount    int16
+	CreatedBy    uuid.UUID
+	CreatedAt    time.Time
+}
+
+type GradingRegressionCase struct {
+	ID          uuid.UUID
+	CourseID    uuid.UUID
+	Kind        string
+	SourceID    uuid.UUID
+	CriterionID *string
+	Expected    json.RawMessage
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
 type GradingResult struct {
 	ID                     uuid.UUID
 	CourseID               uuid.UUID
@@ -3124,6 +3349,10 @@ type GradingResult struct {
 	Version                int32
 	CreatedAt              time.Time
 	UpdatedAt              time.Time
+	GuidanceVersion        int16
+	AiComments             json.RawMessage
+	FirstReviewedAt        *time.Time
+	FirstReviewedBy        *uuid.UUID
 }
 
 type IdempotencyKey struct {
@@ -3211,6 +3440,8 @@ type LlmAudit struct {
 	CourseID       *uuid.UUID
 	TraceID        string
 	CreatedAt      time.Time
+	CascadeGate    *string
+	CascadePath    *string
 }
 
 type LlmBudget struct {
@@ -3374,6 +3605,52 @@ type PostReport struct {
 	UpdatedAt  time.Time
 }
 
+type PracticeAnswer struct {
+	ID         uuid.UUID
+	CourseID   uuid.UUID
+	AttemptID  uuid.UUID
+	ItemID     uuid.UUID
+	Answer     json.RawMessage
+	IsCorrect  *bool
+	AnsweredAt time.Time
+	Locked     bool
+	Version    int32
+}
+
+type PracticeAttempt struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	StudentID    uuid.UUID
+	Mode         PracticeMode
+	Topic        *string
+	Status       PracticeStatus
+	StartedAt    time.Time
+	DeadlineAt   *time.Time
+	SubmittedAt  *time.Time
+	ItemCount    int32
+	CurrentIndex int32
+	CorrectCount *int32
+	Score        decimal.NullDecimal
+	Matrix       json.RawMessage
+	Notes        json.RawMessage
+	TabID        *string
+	Version      int32
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type PracticeItem struct {
+	ID              uuid.UUID
+	CourseID        uuid.UUID
+	AttemptID       uuid.UUID
+	QuestionID      uuid.UUID
+	Position        int32
+	OptionOrder     json.RawMessage
+	AnswerKey       json.RawMessage
+	Question        json.RawMessage
+	QuestionVersion int32
+}
+
 type QuestionBank struct {
 	ID           uuid.UUID
 	CourseID     uuid.UUID
@@ -3395,6 +3672,7 @@ type QuestionBank struct {
 	Version      int32
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	RejectReason *string
 }
 
 type QuestionOption struct {

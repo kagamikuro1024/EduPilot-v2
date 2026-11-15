@@ -1,0 +1,40 @@
+== class 761987
+QCAC DOC-1440-aria-disabled PASS 2 công tắc aria-disabled; thuộc tính disabled thật = 0 (phải 0 để nhận focus)
+QCAC DOC-1440-icons PASS icon info/circle-help = 0
+QCAC DOC-1440-focus PASS focus=true; lý do hiện=true «Đáp án không hiển thị cho sinh viên»
+QCAC DOC-1440-esc PASS sau Esc lý do hiện=false
+QCAC DOC-1440-no-toggle-kbd PASS aria-checked false→false; PATCH=0
+QCAC DOC-1440-tab PASS Shift+Tab rồi Tab quay lại công tắc khoá
+QCAC DOC-1440-shared FAIL không có hàng «Chia sẻ từ» trong lớp 761987 (KHÔNG KIỂM ĐƯỢC)
+QCAC DOC-375-aria-disabled PASS 2 công tắc aria-disabled; thuộc tính disabled thật = 0 (phải 0 để nhận focus)
+QCAC DOC-375-icons PASS icon info/circle-help = 0
+QCAC DOC-375-tap PASS chạm: lý do hiện=true «Đáp án không hiển thị cho sinh viên»
+QCAC DOC-375-no-toggle-tap PASS aria-checked false→false; PATCH=0
+QCAC DOC-375-tap-outside PASS chạm ra ngoài: lý do hiện=false
+QCAC DOC-375-shared FAIL không có hàng «Chia sẻ từ» trong lớp 761987 (KHÔNG KIỂM ĐƯỢC)
+  2 passed (16.4s)
+== class 761988
+QCAC DOC-1440-aria-disabled PASS 10 công tắc aria-disabled; thuộc tính disabled thật = 0 (phải 0 để nhận focus)
+QCAC DOC-1440-icons PASS icon info/circle-help = 0
+QCAC DOC-1440-focus PASS focus=true; lý do hiện=true «Chỉ đổi được ở lớp gốc»
+QCAC DOC-1440-esc PASS sau Esc lý do hiện=false
+QCAC DOC-1440-no-toggle-kbd PASS aria-checked true→true; PATCH=0
+QCAC DOC-1440-tab PASS Shift+Tab rồi Tab quay lại công tắc khoá
+QCAC DOC-1440-shared PASS aria-disabled=true; lý do «Chỉ đổi được ở lớp gốc»
+QCAC DOC-375-aria-disabled PASS 10 công tắc aria-disabled; thuộc tính disabled thật = 0 (phải 0 để nhận focus)
+QCAC DOC-375-icons PASS icon info/circle-help = 0
+QCAC DOC-375-tap PASS chạm: lý do hiện=true «Chỉ đổi được ở lớp gốc»
+QCAC DOC-375-no-toggle-tap PASS aria-checked true→true; PATCH=0
+QCAC DOC-375-tap-outside PASS chạm ra ngoài: lý do hiện=false
+QCAC DOC-375-shared PASS aria-disabled=true; lý do «Chỉ đổi được ở lớp gốc»
+  2 passed (16.3s)
+== axe
+QCAC AXE-teacher/observability@390 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-teacher/documents@390 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-teacher/observability@1440 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-teacher/documents@1440 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-admin/observability@390 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-admin/observability@1440 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-student/chat@390 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-student/chat@1440 PASS serious/critical=[] vùng cuộn ngang=[]
+  6 passed (42.3s)

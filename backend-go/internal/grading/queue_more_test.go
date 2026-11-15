@@ -61,6 +61,43 @@ func TestRetryThreeThenDead(t *testing.T) {
 	require.Equal(t, 6, int(r.calls.Load()), "ba lần chạy, mỗi lần hai lượt")
 }
 
+// TestOutageDoesNotConsumeAttempts — P-11-23: mạch LLM mở (mất nhà cung cấp) 60 s ⇒ 0 bài FAILED; hết sự cố thì chấm xong, attempts ≈ 1.
+// Mô phỏng 60 s bằng 12 lần lỗi liên tiếp > Attempts (3) với OutageDelay rút ngắn.
+func TestOutageDoesNotConsumeAttempts(t *testing.T) {
+	r := newQRig(t)
+	for range 3 {
+		r.sub(uuid.Nil, 1, "MATCHED")
+	}
+	var down atomic.Int64
+	down.Store(12)
+	r.llmErr.Store(func(int) error {
+		if down.Add(-1) >= 0 {
+			return &llm.ErrUnavailable{Reason: llm.ReasonAllFailed, Outage: true}
+		}
+		return nil
+	})
+	e := r.gradeAll(false)
+	r.start(r.queue(func(c *grading.QueueConfig) { c.OutageDelay = 20 * time.Millisecond }))
+	r.deliver(*e.JobID)
+	r.eventually(func() bool { return r.states()["DONE"] == 3 }, "cả 3 bài chấm xong sau sự cố")
+	require.Zero(t, r.states()["FAILED"])
+	var maxAtt int
+	r.one(&maxAtt, `select max(attempts)::int from grading_results where course_id = $1`, r.course)
+	require.LessOrEqual(t, maxAtt, 2, "hoãn vì sự cố hoàn lượt thử")
+}
+
+// TestOutageCapThenFailed — hết OutageRetries mà nhà cung cấp vẫn chết ⇒ FAILED (không hoãn vô hạn).
+func TestOutageCapThenFailed(t *testing.T) {
+	r := newQRig(t)
+	r.sub(uuid.Nil, 1, "MATCHED")
+	r.llmErr.Store(func(int) error { return &llm.ErrUnavailable{Reason: llm.ReasonAllFailed, Outage: true} })
+	e := r.gradeAll(false)
+	r.start(r.queue(func(c *grading.QueueConfig) { c.OutageDelay = 10 * time.Millisecond; c.OutageRetries = 4 }))
+	r.deliver(*e.JobID)
+	r.eventually(func() bool { return r.states()["FAILED"] == 1 }, "FAILED sau trần hoãn")
+	require.Equal(t, 3, r.attempts(r.onlyResult()), "4 lần hoãn rồi 3 lượt thường")
+}
+
 // TestBackoffUsesNotBefore — AC4: thử lại giãn cách bằng not_before (consumer không ngủ): sau lần lỗi đầu hàng QUEUED, not_before ở tương lai, không có lời gọi LLM mới.
 func TestBackoffUsesNotBefore(t *testing.T) {
 	r := newQRig(t)

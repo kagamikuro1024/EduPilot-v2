@@ -7,6 +7,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/practice"
 )
 
 // TestExamErrorCodes — US-PE-01 AC13: 12 mã lỗi mới của SRS FEAT-weekly-exam 6.1 có trong enum `Error.code` của openapi.yaml,
@@ -43,6 +44,9 @@ func TestExamRoutesNotAheadOfSpec(t *testing.T) {
 			p = "/api/v1" + r.Path
 		}
 		known[r.Method+" "+normalizeParams(p)] = true
+	}
+	for _, r := range practice.Routes() { // extract / generate / bulk / gen-stats nằm dưới /questions nhưng thuộc P9 (practice.Routes)
+		known[r.Method+" "+normalizeParams("/api/v1/courses/{id}"+r.Path)] = true
 	}
 	for path, item := range prod.Doc.Paths.Map() {
 		isExam := containsAny(path, "/questions", "/exams", "/exam-lock")
@@ -82,4 +86,23 @@ func normalizeParams(p string) string {
 		}
 	}
 	return string(out)
+}
+
+// TestPracticeErrorCodes — 12 mã lỗi mới của SRS FEAT-practice 6.1 có trong enum `Error.code` và có lời văn riêng.
+func TestPracticeErrorCodes(t *testing.T) {
+	prod, _ := loadBoth(t)
+	enum := map[string]bool{}
+	for _, v := range prod.Doc.Components.Schemas["Error"].Value.Properties["code"].Value.Enum {
+		enum[v.(string)] = true
+	}
+	codes := []string{apierr.NotEnoughQuestions, apierr.TabTakenOver, apierr.AnswerLocked, apierr.InvalidOptionID, apierr.InvalidQuestion, apierr.NotAnswered,
+		apierr.NotSubmitted, apierr.WrongDocumentType, apierr.CitationRequired, apierr.PreviewRequired, apierr.TooLong, apierr.TypeNotSupportedExam}
+	seen := map[string]bool{}
+	for _, c := range codes {
+		require.True(t, enum[c], "%s thiếu trong enum Error.code", c)
+		msg := apierr.DefaultMessage(c)
+		require.NotEmpty(t, msg, c)
+		require.False(t, seen[msg], "lời văn trùng: %s", msg)
+		seen[msg] = true
+	}
 }

@@ -1,15 +1,8 @@
-.reviewGrid {
-  display: grid;
-  grid-template-columns: 55% minmax(0, 45%);
-  gap: var(--ep-space-6);
-  align-items: start;
-}
+.reviewGrid { display: grid; gap: var(--ep-space-4); } /* tab «Bài làm / Chấm» (< 720 px) + Split half fill */
 
 .doc {
   display: grid;
   gap: var(--ep-space-4);
-  max-height: calc(100vh - var(--ep-topbar) - 130px - var(--ep-space-12));
-  overflow-y: auto;
 }
 
 .docMeta {
@@ -55,8 +48,6 @@
 .panel {
   display: grid;
   gap: var(--ep-space-5);
-  max-height: calc(100vh - var(--ep-topbar) - 130px - var(--ep-space-12));
-  overflow-y: auto;
 }
 
 .total {
@@ -215,7 +206,6 @@
 /* US-P7-10: khối phúc khảo ở đầu cột phải */
 .appeal { display: grid; gap: var(--ep-space-3); padding-bottom: var(--ep-space-5); border-bottom: 1px solid var(--ep-rule); }
 .appealActions { display: flex; gap: var(--ep-space-2); flex-wrap: wrap; }
-.docCol, .gradeCol { min-width: 0; }
 .tabs { display: none; }
 .evidence svg { width: 14px; height: 14px; flex: none; margin-top: 4px; color: var(--ep-ink-3); }
 .evNote { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
@@ -226,8 +216,7 @@
   .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ep-space-1); }
   .tabs button { min-height: 44px; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 500; }
   .tabs button[aria-selected="true"] { border-color: var(--ep-ink); background: var(--ep-ink); color: var(--ep-surface); font-weight: 650; }
-  .reviewGrid[data-tab="doc"] .gradeCol, .reviewGrid[data-tab="grade"] .docCol { display: none; }
   .foot { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); margin: 0; padding: var(--ep-space-2) var(--ep-space-4); }
   .footText { max-width: none; }
-  .gradeCol { padding-bottom: calc(88px + 56px); }
+  .panel { padding-bottom: calc(88px + 56px); }
 }

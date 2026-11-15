@@ -3,7 +3,7 @@ import { Page, PageHeader } from "@/shared/ui";
 /** Trang tạm cho route chưa dựng nội dung (US-PROTO-01…04 thay thế). Giữ điều hướng, chặn quyền, ⌘K chạy được. */
 export function RouteStub({ title }: { title: string }) {
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader title={title} />
     </Page>
   );

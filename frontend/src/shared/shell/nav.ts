@@ -216,7 +216,6 @@ const MOCK_BACKEND: Array<[string, Backend]> = [
   ["/documents", { phase: "P8", name: "Tài liệu, thư viện, lịch" }],
   ["/library", { phase: "P8", name: "Tài liệu, thư viện, lịch" }],
   ["/calendar", { phase: "P8", name: "Tài liệu, thư viện, lịch" }],
-  ["/practice", { phase: "P9", name: "Luyện đề" }],
   ["/insights", { phase: "P10", name: "Hiểu lớp học" }],
   ["/analytics", { phase: "P10", name: "Hiểu lớp học" }],
   ["/observability", { phase: "P10", name: "Hiểu lớp học" }],
@@ -229,6 +228,7 @@ export function mockBackend(pathname: string): Backend | null {
   if (pathname === "/join" || pathname.startsWith("/join/") || pathname.startsWith("/class/")) return null; // US-P2-09: màn thật
   if (pathname === "/") return null; // US-P2-11: "Hôm nay" thật
   if (pathname === "/questions" || pathname === "/exams" || pathname.startsWith("/exams/")) return null; // US-PE-03 / PE-04: màn thật
+  if (pathname === "/practice" || pathname.startsWith("/practice/")) return null; // US-P9-05…09: màn thật
   const hit = MOCK_BACKEND.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
   return hit ? hit[1] : null;
 }

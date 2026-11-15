@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, apiClient, newIdempotencyKey, useJob } from "@/shared/data";
@@ -103,17 +104,11 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
 
   const cols: Column<DocRow>[] = [
     {
-      key: "title", header: "Tên", primary: true, width: "28%",
+      key: "title", header: "Tên", primary: true, width: "24%",
       render: (d) => (
         <div>
           <button type="button" className={r.name} onClick={() => setOpen(d)}>{d.title}</button>
           {d.shared_from && <div className={r.meta}>Chia sẻ từ {d.shared_from}</div>}
-          {d.type === "ANSWER_KEY" && (
-            <div className={r.keyNote}>
-              <span>Không hiển thị cho sinh viên</span>
-              <span>Không dùng cho AI của sinh viên</span>
-            </div>
-          )}
         </div>
       ),
     },
@@ -129,21 +124,21 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
     { key: "week", header: "Tuần", width: "8%", render: (d) => (d.week_no ? `Tuần ${d.week_no}` : "—") },
     {
       key: "ai", header: "Dùng cho AI", width: "11%",
-      render: (d) => <Switch checked={d.use_for_rag} disabled={Boolean(d.shared_from)} onChange={(v) => void patch(d, { use_for_rag: v }, "cờ Dùng cho AI")} label={<span className="ep-sr-only">Dùng cho AI: {d.use_for_rag ? "bật" : "tắt"} · {d.title}</span>} />,
+      render: (d) => <Switch checked={d.use_for_rag} disabled={Boolean(d.shared_from)} title={d.shared_from ? "Chỉ đổi được ở lớp gốc" : undefined} onChange={(v) => void patch(d, { use_for_rag: v }, "cờ Dùng cho AI")} label={<span className="ep-sr-only">Dùng cho AI: {d.use_for_rag ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "vis", header: "Hiện cho sinh viên", width: "13%",
-      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.visible_to_students ? "bật" : "tắt"} · {d.title}</span>} />,
+      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} title={d.type === "ANSWER_KEY" ? "Đáp án không hiển thị cho sinh viên" : d.shared_from ? "Chỉ đổi được ở lớp gốc" : undefined} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.visible_to_students ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "status", header: "Trạng thái", width: "12%",
       render: (d) => (
         <StatusText tone={d.status === "READY" ? "green" : d.status === "FAILED" ? "red" : "amber"}>
-          {STATUS_LABEL[d.status]}{d.status === "FAILED" && d.error ? ` — ${d.error}` : ""}
+          {d.status === "FAILED" && d.error ? <span className={r.statusClip} title={d.error}>{STATUS_LABEL[d.status]} — {d.error}</span> : STATUS_LABEL[d.status]}
         </StatusText>
       ),
     },
-    { key: "updated", header: "Cập nhật", width: "11%", render: (d) => formatWhen(d.updated_at) },
+    { key: "updated", header: "Cập nhật", width: "15%", nowrap: true, render: (d) => formatWhen(d.updated_at) },
     {
       key: "more", header: <span className="ep-sr-only">Thao tác</span>, width: "4%", align: "end",
       render: (d) => {
@@ -163,10 +158,10 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
   const filtered = filter.type !== "" || filter.status !== "" || filter.q !== "";
 
   return (
-    <Page width="full">
-      <PageHeader title="Tài liệu" actions={<Button variant="primary" onClick={() => pick("LECTURE")}>Tải tài liệu lên</Button>} />
+    <Page kind="work">
+      <PageHeader title="Tài liệu" primary={{ label: "Tải tài liệu lên", onClick: () => pick("LECTURE") }} />
       <input ref={picker} type="file" hidden multiple accept=".pdf,.docx,.pptx" data-part="file-input" onChange={(e) => { if (e.target.files) add(e.target.files, pendingType); e.target.value = ""; }} />
-      <Panel>
+      <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
         <div className={r.stack}>
           {stats.data && !stats.data.has_course_policy && (
             <InlineNotice tone="info" compact action={<Button size="sm" onClick={() => pick("COURSE_POLICY")}>Tải quy chế môn học</Button>}>Lớp chưa có quy chế môn học.</InlineNotice>
@@ -216,11 +211,16 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
           </div>
           {failed && <InlineNotice tone="danger" compact action={failed.retry && <Button size="sm" onClick={failed.retry}>Thử lại</Button>}>{failed.text}</InlineNotice>}
           {undo.node}
+        </div>
+      </Panel>
+      {/* danh sách ở panel riêng: khối rỗng nằm trong vật chứa thấp (E6 ≤ 320 px); lỗi đã được panel trên thay bằng MỘT thông báo */}
+      <Panel fault={list.isError && list.items.length === 0 ? <></> : null}>
+        <div className={r.stack}>
           <PageState
             query={list}
             isEmpty={() => rows.length === 0}
             loading={<Skeleton lines={5} />}
-            empty={<EmptyState title={filtered ? "Không có tài liệu nào khớp." : "Lớp chưa có tài liệu."}>{!filtered && <Button variant="primary" onClick={() => pick("LECTURE")}>Tải tài liệu lên</Button>}</EmptyState>}
+            empty={<EmptyState title={filtered ? "Không có tài liệu nào khớp" : "Lớp chưa có tài liệu"} />}
           >
             <DataTable columns={cols} rows={rows} rowKey={(d) => d.id} caption="Tài liệu của lớp" rowAttrs={(d) => ({ "data-part": "doc-row", "data-doc-id": d.id })} />
             {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}
@@ -274,7 +274,7 @@ function ChunkList({ courseId, doc, readOnly, onSaved }: { courseId: string; doc
     }
   }
   return (
-    <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Tài liệu chưa có đoạn nào." />}>
+    <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Tài liệu chưa có đoạn nào" />}>
       <div data-part="chunks">
         {q.items.map((c) => (
           <div key={c.id} className={r.chunk}>

@@ -5,8 +5,11 @@ package thread
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
+	"time"
+	"unicode"
 
 	"github.com/google/uuid"
 
@@ -40,6 +43,20 @@ type Firewall struct {
 	Classifier *privacy.Classifier
 	// Embed nhúng một chuỗi (làn INTERACTIVE, cache ep:emb); nil = chỉ luật.
 	Embed func(ctx context.Context, text string) ([]float32, error)
+	// Decider: cổng THREADS_PRECHECK (D60); nil = chỉ luật. StructuredTimeout: THREADS_STRUCTURED_TIMEOUT (0 = 6 s).
+	Decider           Decider
+	StructuredTimeout time.Duration
+}
+
+var placeholderRe = regexp.MustCompile(`\[\[\s*[A-Za-z]+(?:_\d+)?\s*\]\]`)
+
+// placeholderOnly: có ít nhất một placeholder (`[[MSSV_1]]`, `[[SV_1]]`…) và không còn chữ / số nào khác.
+func placeholderOnly(text string) bool {
+	if !placeholderRe.MatchString(text) {
+		return false
+	}
+	rest := placeholderRe.ReplaceAllString(text, "")
+	return strings.IndexFunc(rest, func(r rune) bool { return unicode.IsLetter(r) || unicode.IsDigit(r) }) < 0
 }
 
 // CheckPost: `Detect` trên tiêu đề và nội dung (từng phần, chỉ số rune của chính phần đó) + `Classify` câu hỏi cá nhân.
@@ -88,6 +105,9 @@ func (f *Firewall) CheckPost(ctx context.Context, courseID uuid.UUID, title, bod
 		if r == privacy.ReasonPattern || r == privacy.ReasonSimilarty {
 			v.Personal = true
 		}
+	}
+	if placeholderOnly(body) { // nội dung chỉ là placeholder: mô hình không đọc ra được → luật chặn, không tới decision (US-DM-03 AC4)
+		v.Personal = true
 	}
 	if v.Personal {
 		counts["PERSONAL_QUESTION"] = 1

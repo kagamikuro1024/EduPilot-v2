@@ -3,9 +3,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ChevronLeft, ChevronRight, FileSearch, Quote } from "lucide-react";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, useAutosaveDraft, useUndoableAction } from "@/shared/data";
-import { Button, ButtonLink, Field, InlineNotice, Input, Kbd, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { Button, ButtonLink, Field, InlineNotice, Input, Kbd, Page, PageHeader, PageState, Panel, Skeleton, Split, StatusText, Textarea } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import { fromUnits, toUnits, vi } from "@/features/assignments/assignmentApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
@@ -15,11 +15,20 @@ import {
   type Criterion, type QueueStatus, type ResultView,
 } from "./gradingApi";
 import { AppealPanel } from "./AppealPanel";
+import { GuidanceMeta } from "./GuidanceMeta";
 import s from "./SubmissionReview.module.css";
 
 type Draft = { overall: string; comments: Record<string, string> };
 
 /** Đoạn văn kèm vị trí trong `extracted_text` (offset UTF-16 như máy chủ). */
+/** Về hàng chờ mang đúng bộ lọc đang xem (lọc sống trong URL, DESIGN.md §23.3). */
+function queueHref(params: URLSearchParams) {
+  const q = new URLSearchParams({ tab: "queue" });
+  for (const k of ["assignment", "status"]) if (params.get(k)) q.set(k, params.get(k)!);
+  if (params.has("status") || params.has("assignment") || params.has("needs")) q.set("needs", params.get("needs") === "1" ? "1" : "0");
+  return `/grading?${q}`;
+}
+
 function paragraphs(text: string) {
   const out: Array<{ start: number; end: number; text: string }> = [];
   const re = /\n{2,}/g;
@@ -60,26 +69,28 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
 }
 
 function Review({ courseId, submissionId }: { courseId: string; submissionId: string }) {
+  const params = useSearchParams();
   const q = useResult(courseId, submissionId);
   const view = q.data ?? null;
   return (
-    <Page width="full">
+    <Page kind="work">
       <PageHeader
         title={view ? view.assignment.title : "Duyệt bài"}
-        back={{ href: "/grading", label: "Hàng chờ chấm" }}
+        back={{ href: queueHref(params), label: "Hàng chờ chấm" }}
         meta={
-          view ? (
-            <>
-              <span>{`Phiên bản ${view.submission.version}`}</span>
-              <span>
-                {`Nộp ${fmtLong(view.submission.received_at)}`}
-                {view.submission.late_days > 0 ? ` · muộn ${view.submission.late_days} ngày` : ""}
-              </span>
-              <StatusText tone={view.result.status === "PUBLISHED" ? "green" : view.result.status === "REVIEWED" ? "blue" : "amber"}>
-                {view.result.status === "PUBLISHED" ? "Đã công bố" : view.result.status === "REVIEWED" ? "Đã duyệt" : "Chưa duyệt"}
-              </StatusText>
-            </>
-          ) : undefined
+          view
+            ? [
+                <span key="m0">{`Phiên bản ${view.submission.version}`}</span>,
+                <span key="m1">
+                  {`Nộp ${fmtLong(view.submission.received_at)}`}
+                  {view.submission.late_days > 0 ? ` · muộn ${view.submission.late_days} ngày` : ""}
+                </span>,
+                <StatusText key="m2" tone={view.result.status === "PUBLISHED" ? "green" : view.result.status === "REVIEWED" ? "blue" : "amber"}>
+                  {view.result.status === "PUBLISHED" ? "Đã công bố" : view.result.status === "REVIEWED" ? "Đã duyệt" : "Chưa duyệt"}
+                </StatusText>,
+                <GuidanceMeta key="m3" courseId={courseId} view={view} />,
+              ]
+            : undefined
         }
       />
       {view ? (
@@ -114,19 +125,6 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   const done = Number(params.get("n")) || 0;
   const total = Number(params.get("m")) || order.length;
   const [footErr, setFootErr] = useState<string | null>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  // cột phải cao vừa phần khung nhìn còn lại sau đầu trang: thanh dưới luôn thấy khi mở bài (AC3)
-  useLayoutEffect(() => {
-    const el = panelRef.current;
-    if (!el) return;
-    const fit = () => {
-      const wide = window.matchMedia("(min-width: 1100px)").matches;
-      el.style.maxHeight = wide ? `${Math.max(320, window.innerHeight - (el.getBoundingClientRect().top + window.scrollY) - 56)}px` : "";
-    };
-    fit();
-    window.addEventListener("resize", fit);
-    return () => window.removeEventListener("resize", fit);
-  }, []);
 
   const draft = useAutosaveDraft(`grading:${rid}`, { userId: identity?.sub });
   const restored = useMemo<Draft | null>(() => {
@@ -159,7 +157,9 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   };
   const [activeCrit, setActiveCrit] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const running = useRef(false);
+  /** Việc ghi nối đuôi nhau (GV-BUG «Duyệt bài đua với tự lưu»): bấm Duyệt ngay sau khi gõ thì lần lưu nhận xét do blur chạy xong RỒI mới duyệt, không bị bỏ. */
+  const chain = useRef<Promise<void>>(Promise.resolve());
+  const pending = useRef(0);
   const docRef = useRef<HTMLDivElement>(null);
 
   const commentOf = (c: Criterion) => comments[c.id] ?? restored?.comments?.[c.id] ?? c.comment;
@@ -227,22 +227,28 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
     undo.run({ id: c.id, before: was, after: next });
   }
 
-  async function run(job: () => Promise<void>) {
-    if (running.current) return;
-    running.current = true;
-    setBusy(true);
-    try {
-      await job();
-    } catch (e) {
-      handle(e);
-    } finally {
-      running.current = false;
-      setBusy(false);
+  /** `quiet`: lưu nền (blur ô nhận xét) KHÔNG bật `busy` — nếu bật, nút Duyệt thành «đang tải» ngay lúc bấm chuột và cú bấm bị mất. */
+  function run(job: () => Promise<void>, quiet = false): Promise<void> {
+    if (!quiet) {
+      pending.current += 1;
+      setBusy(true);
     }
+    const p = chain.current.then(async () => {
+      try {
+        await job();
+      } catch (e) {
+        handle(e);
+      } finally {
+        if (!quiet) {
+          pending.current -= 1;
+          if (pending.current === 0) setBusy(false);
+        }
+      }
+    });
+    chain.current = p;
+    return p;
   }
 
-  const dirtyComments = view.criteria.filter((c) => commentOf(c) !== c.comment).map((c) => ({ id: c.id, comment: commentOf(c) }));
-  const overallDirty = overallText !== view.result.overall_feedback;
 
   const goto = (i: number) => {
     const id = order[i];
@@ -259,8 +265,10 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
     void run(async () => {
       try {
         let cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
-        if (dirtyComments.length > 0 || overallDirty) {
-          cur = await put({ version: cur.result.version, criteria: dirtyComments, overall_feedback: overallText });
+        // so với bản MỚI NHẤT (lần lưu do blur có thể vừa xong): chỉ gửi phần còn khác
+        const dirty = view.criteria.filter((c) => commentOf(c) !== (cur.criteria.find((x) => x.id === c.id)?.comment ?? c.comment)).map((c) => ({ id: c.id, comment: commentOf(c) }));
+        if (dirty.length > 0 || overallText !== cur.result.overall_feedback) {
+          cur = await put({ version: cur.result.version, criteria: dirty, overall_feedback: overallText });
         }
         await reviewResult(courseId, rid, cur.result.version);
       } catch (e) {
@@ -274,6 +282,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
       const next = new URLSearchParams(params);
       next.set("n", String(done + 1));
       next.set("m", String(total));
+      next.set("from", submissionId); // bài vừa duyệt: trang kế hiện «Đã duyệt bài trước · Quay lại» (GV-BUG b: tự nhảy không báo)
       if (at >= 0 && at + 1 < order.length) router.push(`/grading/${order[at + 1]}?${next}`);
       else {
         router.replace(`/grading/${submissionId}?${next}`);
@@ -335,13 +344,26 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
 
   const otherFlags = view.flags.filter((f) => f !== "NEEDS_REVIEW");
 
+  const fromId = params.get("from");
+  const backParams = new URLSearchParams(params);
+  backParams.delete("from");
   return (
+    <>
+    {fromId && fromId !== submissionId && (
+      <InlineNotice tone="info" compact action={<ButtonLink href={`/grading/${fromId}?${backParams}`} variant="ghost" size="sm">Quay lại</ButtonLink>}>
+        <span data-part="review-from">Đã duyệt bài trước</span>
+      </InlineNotice>
+    )}
     <div className={s.reviewGrid} data-tab={tab}>
       <div className={s.tabs} role="tablist" aria-label="Chế độ xem">
         <button type="button" role="tab" aria-selected={tab === "doc"} onClick={() => setTab("doc")}>Bài làm</button>
         <button type="button" role="tab" aria-selected={tab === "grade"} onClick={() => setTab("grade")}>Chấm</button>
       </div>
-      <div className={s.docCol}>
+      <Split
+        ratio="half"
+        fill
+        only={tab === "doc" ? "main" : "aside"}
+        main={
       <Panel>
         <div className={s.doc} ref={docRef} data-part="submission-text">
           <div className={s.docMeta}>
@@ -371,11 +393,10 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
           ))}
         </div>
       </Panel>
-      </div>
-
-      <div className={s.gradeCol}>
+        }
+        aside={
       <Panel>
-        <div className={s.panel} ref={panelRef}>
+        <div className={s.panel}>
           {view.appeal && <AppealPanel courseId={courseId} submissionId={submissionId} view={view} appeal={view.appeal} teacher={identity?.role === "teacher"} />}
           <div className={s.total} data-part="total">
             <span className={s.totalLabel}>Tổng điểm</span>
@@ -517,7 +538,15 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                         saveDraft({ comments: { [c.id]: e.target.value } });
                       }}
                       onBlur={() => {
-                        if (commentOf(c) !== c.comment) void run(() => put({ version: view.result.version, criteria: [{ id: c.id, comment: commentOf(c) }] }).then(() => flashSaved(`comment:${c.id}`)));
+                        const text = commentOf(c);
+                        if (text !== c.comment) {
+                          void run(async () => {
+                            const cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
+                            if (text === (cur.criteria.find((x) => x.id === c.id)?.comment ?? c.comment)) return;
+                            await put({ version: cur.result.version, criteria: [{ id: c.id, comment: text }] });
+                            flashSaved(`comment:${c.id}`);
+                          }, true);
+                        }
                       }}
                     />
                   )}
@@ -541,7 +570,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
             )}
           </Field>
 
-          <div className={s.foot} data-part="review-bar">
+          <div className={s.foot} data-part="review-bar" data-ep-header-dock>
             {footErr && (
               <div className={s.footErr}>
                 <InlineNotice tone="danger" compact action={<Button size="sm" onClick={approve}>Thử lại</Button>}>
@@ -559,12 +588,14 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
               <Kbd>A</Kbd>
             </span>
           </div>
-          <ButtonLink href="/grading" variant="ghost" size="sm">
+          <ButtonLink href={queueHref(params)} variant="ghost" size="sm">
             Về hàng chờ chấm
           </ButtonLink>
         </div>
       </Panel>
-      </div>
+        }
+      />
     </div>
+    </>
   );
 }

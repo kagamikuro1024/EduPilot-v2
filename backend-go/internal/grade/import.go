@@ -400,7 +400,7 @@ func (s *Service) Import(ctx context.Context, actor, courseID uuid.UUID, in Impo
 		for i, r := range p.apply {
 			ids[i], scores[i] = r.student.String(), r.score.Round(2).String()
 		}
-		res, err := tq.GradeImportApply(ctx, store.GradeImportApplyParams{CourseID: courseID, ItemID: in.ItemID, ItemKey: item.Key, ActorID: actor, StudentIds: ids, Scores: scores})
+		res, err := tq.GradeImportApply(ctx, store.GradeImportApplyParams{CourseID: courseID, ItemID: in.ItemID, ItemKey: item.Key, ActorID: actor, StudentIds: ids, Scores: scores, Source: store.GradeEntrySourceIMPORT})
 		if err != nil {
 			return ImportOut{}, fmt.Errorf("grade: ghi điểm nhập: %w", err)
 		}

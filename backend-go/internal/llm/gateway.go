@@ -42,6 +42,13 @@ type Options struct {
 
 	RequestTimeout time.Duration // INTERACTIVE, NEAR_REALTIME khi ctx không có hạn (mặc định 30 s)
 	BatchTimeout   time.Duration // BATCH (mặc định 120 s)
+
+	// Decision model (SRS FEAT-decision-model): ảnh chụp cấu hình cổng (nil = mọi cổng tắt), thời hạn mặc định của Decide (mặc định 800 ms),
+	// trần lời gọi THẬT mỗi ngày UTC+7 (mặc định 300) và bộ đếm dùng chung giữa các gateway (nil = đếm trong tiến trình).
+	Decision        *DecisionSnapshot
+	DecisionTimeout time.Duration
+	RealDailyCap    int
+	RealCounter     CapCounter
 }
 
 // Gateway cài Client.
@@ -73,6 +80,15 @@ func New(o Options) *Gateway {
 	if o.Log == nil {
 		o.Log = slog.Default()
 	}
+	if o.DecisionTimeout <= 0 {
+		o.DecisionTimeout = 800 * time.Millisecond
+	}
+	if o.RealDailyCap <= 0 {
+		o.RealDailyCap = 300
+	}
+	if o.RealCounter == nil {
+		o.RealCounter = &memCounter{}
+	}
 	g := o.Gate
 	if g == nil {
 		g = nopGate{}
@@ -103,6 +119,8 @@ type call struct {
 	row    AuditRow
 	maxRet int // số lần thử lại tối đa cùng nhà (làn + params.retries)
 	logged bool
+	// noWait: hết giấy phép thì từ chối ngay, không xếp hàng (Decide ở làn INTERACTIVE).
+	noWait bool
 }
 
 // begin giải làn, tuyến, hạn chót, danh tính; mọi lỗi sớm vẫn ghi MỘT dòng audit.
@@ -311,6 +329,7 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 	var zero chosen[T]
 	targets := c.route.Targets
 	lastKind := provider.Kind("")
+	outage := false // có nhà cung cấp lỗi do hạ tầng (mạch mở, mạng, quá hạn, 5xx, 429), khác đầu ra sai / sai khoá
 	for idx, t := range targets {
 		if err := c.ctx.Err(); err != nil {
 			return zero, c.ctxErr(err)
@@ -318,11 +337,12 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 		c.row.Provider, c.row.Model, c.row.FallbackIndex = t.ProviderName, t.Model, idx
 		if !c.g.gate.BreakerAllow(c.ctx, t.ProviderID) {
 			lastKind = "circuit_open"
+			outage = true
 			c.row.ErrorKind = "circuit_open"
 			c.warnFallback(targets, idx, "circuit_open")
 			continue
 		}
-		permit, err := c.g.gate.Admit(c.ctx, Work{Lane: c.lane, Task: c.task, ProviderID: t.ProviderID, RPM: t.RPM, TPM: t.TPM, EstTokens: est(t)})
+		permit, err := c.g.gate.Admit(c.ctx, Work{Lane: c.lane, Task: c.task, ProviderID: t.ProviderID, RPM: t.RPM, TPM: t.TPM, EstTokens: est(t), NoWait: c.noWait})
 		if err != nil {
 			return zero, c.admitErr(err)
 		}
@@ -335,6 +355,7 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 		}
 		permit.Done(-1)
 		lastKind = ar.kind
+		outage = outage || ar.kind.Retryable()
 		c.row.ErrorKind = string(ar.kind)
 		if ar.perr != nil && ar.perr.Detail != "" {
 			c.g.o.Log.DebugContext(c.ctx, "lỗi nhà cung cấp LLM", "provider", t.ProviderName, "kind", string(ar.kind), "detail", ar.perr.Detail)
@@ -356,7 +377,7 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 	if err := c.ctx.Err(); err != nil {
 		return zero, c.ctxErr(err)
 	}
-	return zero, ErrAllProvidersFailed
+	return zero, &allFailed{outage: outage}
 }
 
 // dimsOf lấy số chiều thật đã gắn vào Detail của lỗi DIMS_MISMATCH ("n").
@@ -405,11 +426,19 @@ func (c *call) admitErr(err error) error {
 
 // finish ghi dòng audit cuối cùng (đúng một dòng mỗi lời gọi) và huỷ ctx con.
 func (c *call) finish(resp *Response, err error) {
+	if c.seal(resp, err) {
+		c.g.o.Auditor.Record(c.row)
+	}
+}
+
+// seal chốt các trường của dòng audit và huỷ ctx con NHƯNG chưa ghi; false = đã chốt trước đó. Decide dùng riêng để gắn `cascade_path` sau khi
+// biết đường đi (trễ của dòng vẫn là trễ của lời gọi decision, không tính fallback).
+func (c *call) seal(resp *Response, err error) bool {
 	if c.cancel != nil {
 		defer c.cancel()
 	}
 	if c.logged {
-		return
+		return false
 	}
 	c.logged = true
 	c.row.LatencyMS = int(c.g.o.Now().Sub(c.start) / time.Millisecond)
@@ -425,7 +454,7 @@ func (c *call) finish(resp *Response, err error) {
 	default:
 		c.row.Status = statusOf(err, c.row.ErrorKind)
 	}
-	c.g.o.Auditor.Record(c.row)
+	return true
 }
 
 func statusOf(err error, kind string) string {
@@ -508,7 +537,7 @@ func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 			c.finish(&resp, nil)
 			return resp, nil
 		}
-		err = &ErrUnavailable{Reason: ReasonAllFailed}
+		err = &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err)}
 	}
 	if err == nil {
 		resp.Text = mk.unmask(resp.Text)
@@ -578,7 +607,7 @@ func (g *Gateway) Structured(ctx context.Context, r Request, schema json.RawMess
 	}
 	resp, err := g.chat(c, rm, schema)
 	if errors.Is(err, ErrAllProvidersFailed) {
-		err = &ErrUnavailable{Reason: ReasonAllFailed}
+		err = &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err)}
 	}
 	var out json.RawMessage
 	if err == nil { // schema đã được kiểm trên đầu ra thô (trong g.chat); chỉ khi đó mới khôi phục chuỗi giá trị

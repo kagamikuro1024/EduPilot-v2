@@ -3,7 +3,11 @@
 .code { font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
 .score { font-variant-numeric: tabular-nums; font-weight: 600; }
 .sub { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+/* Mã sinh viên và lý do cờ chung MỘT dòng (hàng bảng 48 px, §23.6; D-R-06): lý do dài cắt bằng …, đủ chữ ở title. */
+.sub2 { display: flex; align-items: baseline; gap: var(--ep-space-2); min-width: 0; }
+.sub2 .code { flex: none; }
 .flag { color: var(--ep-ink-2); font-size: var(--ep-text-label); line-height: 1.4; }
+.sub2 .flag { font-size: var(--ep-text-meta); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .progressText { font-size: var(--ep-text-label); color: var(--ep-ink-2); font-variant-numeric: tabular-nums; }
 .tabsRow { margin-bottom: var(--ep-space-6); }
@@ -13,6 +17,7 @@
 .clip { display: block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .open { display: inline-flex; align-items: center; gap: var(--ep-space-1); min-height: 44px; padding-inline: var(--ep-space-2); color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 600; text-decoration: none; }
 .open svg { width: 14px; height: 14px; }
+@media (min-width: 720px) { .open { min-height: 36px; } } /* hàng bảng 48 | 44 (D3): hàng đã bấm được cả dòng */
 @media (hover: hover) and (pointer: fine) { .open:hover { color: var(--ep-ink); } }
 .open:focus-visible, .mOpen:focus-visible { outline: none; box-shadow: var(--ep-focus); border-radius: var(--ep-radius-xs); }
 .mItem { display: grid; gap: var(--ep-space-1); font-weight: 400; }

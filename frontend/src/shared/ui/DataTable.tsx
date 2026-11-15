@@ -39,6 +39,8 @@ export type Column<T> = {
   /** cột cố định bên trái khi cuộn ngang (tên sinh viên…) */
   frozen?: boolean;
   /** bề rộng ở màn < 720px (chế độ bảng cuộn); mặc định = `width`. Không cột nào bị ẩn: cột thừa cuộn ngang hoặc thành dòng phụ. */
+  /** không xuống dòng (ngày giờ, số): giữ hàng 48 | 44 */
+  nowrap?: boolean;
   mobileWidth?: string;
   /** nhãn dòng phụ ở chế độ danh sách; mặc định dùng `header` nếu là chữ */
   mobileLabel?: string;
@@ -185,7 +187,7 @@ export function DataTable<T>({
               <th
                 key={c.key}
                 scope="col"
-                style={{ "--w": c.width, "--wm": c.mobileWidth ?? c.width, textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" } as CSSProperties}
+                style={{ "--w": c.width, "--wm": c.mobileWidth ?? c.width, ...(c.primary ? { minWidth: 160 } : {}), textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" } as CSSProperties}
                 className={[s.th, c.frozen ? s.frozen : ""].join(" ")}
                 data-part={c.part}
               >
@@ -227,7 +229,7 @@ export function DataTable<T>({
                   <td
                     key={c.key}
                     style={{ textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}
-                    className={c.frozen ? s.frozen : undefined}
+                    className={[c.frozen ? s.frozen : "", c.nowrap ? s.nowrap : ""].filter(Boolean).join(" ") || undefined}
                     data-part={c.part}
                   >
                     {c.render(row)}
