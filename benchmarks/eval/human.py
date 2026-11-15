@@ -33,7 +33,7 @@ def pack():
     pick = [it for s in sorted(by) for it in spread(by[s], 4 if s.startswith("S") else 5)]
     random.Random(1011).shuffle(pick)
     p1 = lib.OUT / "e1-soat-nhan.csv"
-    with p1.open("w", newline="", encoding="utf-8-sig") as f:
+    with p1.open("w", newline="", encoding="utf-8") as f:  # như e3-cham-tay.csv; bản điền đọc bằng utf-8-sig nên có BOM cũng được
         w = csv.writer(f)
         w.writerow(["stt", "ma", "van_ban", "nhan_chu_du_an (CHẶN / CHO QUA)", "ghi_chu"])
         for i, it in enumerate(pick, 1):
@@ -42,7 +42,7 @@ def pack():
     gold = [json.loads(x) for x in E2_DATA.read_text(encoding="utf-8").splitlines() if x.strip()]
     rows = [g for g in gold if int(g["id"].split("-")[1]) % 5 == 0]
     p2 = lib.OUT / "e2-soat-nhan.csv"
-    with p2.open("w", newline="", encoding="utf-8-sig") as f:
+    with p2.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["stt", "id", "cau_hoi", "tra_loi_duoc", "phai_chua (moi nhom it nhat 1 bien the)", "nguon", "trang", "bang_chung",
                     "ket_luan (Đúng / Sai nhãn / Câu hỏi mơ hồ)", "ghi_chu"])
