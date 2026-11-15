@@ -182,7 +182,8 @@ report "Meta lặp lớp đang chọn" "$(route_tsx | xargs perl -CSD -Mutf8 -07
   } continue { close ARGV if eof }
 ' 2>/dev/null || true)"
 # 28: tiêu đề tự dựng (h1 / h2 / lớp tiêu đề) ngoài shared/ui — chỉ PageHeader và Section được vẽ
-report "Tiêu đề tự dựng ngoài shared/ui" "$(route_tsx | xargs grep -nE '<h1\b|<h2\b|ep-page-title|ep-section-title' 2>/dev/null || true)"
+# Ngoại lệ có chủ đích: màn chiếu ngoài khung (DESIGN §14.8.1, P-108-8) tự có `h1` vì không có PageHeader.
+report "Tiêu đề tự dựng ngoài shared/ui" "$(route_tsx | grep -v 'features/attendance/display/' | xargs grep -nE '<h1\b|<h2\b|ep-page-title|ep-section-title' 2>/dev/null || true)"
 # 29: trong CÙNG tệp, nhãn nút của EmptyState trùng nhãn primary của PageHeader (nút rỗng lặp hành động đầu trang). Trần: không thấy qua ranh giới tệp (đo bằng E4 ở frame.spec).
 report "Nút rỗng trùng nút đầu trang" "$(route_tsx | xargs perl -CSD -Mutf8 -0777 -ne '
   my %p; while (/primary=\{\{[^}]*?label:\s*"([^"]+)"/g) { $p{$1} = 1 }
