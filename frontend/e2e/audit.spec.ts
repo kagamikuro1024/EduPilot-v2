@@ -70,7 +70,7 @@ test("khoảng không có dòng → EmptyState một dòng", async ({ page }) =>
 
 test("API lỗi → một thông báo + Thử lại", async ({ page }) => {
   await open(page, (r) => r.fulfill(json(500, { code: "INTERNAL", message: "Lỗi", trace_id: "t" })));
-  await expect(page.getByRole("alert")).toHaveCount(1);
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
 });
 
