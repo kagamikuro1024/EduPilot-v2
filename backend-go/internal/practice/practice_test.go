@@ -44,7 +44,7 @@ func TestStartTopic(t *testing.T) {
 		require.Len(t, it.Question.Options, 3)
 	}
 	// làm tiếp: cùng chủ đề → 200 cùng lượt; chủ đề khác → lượt mới
-	again, created, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 20}, uuid.Nil)
+	again, created, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(20)}, uuid.Nil)
 	require.NoError(t, err)
 	require.False(t, created)
 	require.Equal(t, v.ID, again.ID)
@@ -59,8 +59,8 @@ func TestStartTopic(t *testing.T) {
 	require.Equal(t, 409, status(t, err))
 	_, _, err = r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Không có"}, uuid.Nil)
 	require.Equal(t, "VALIDATION_FAILED", code(t, err))
-	for _, c := range []int{4, 51} {
-		_, _, err = r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: c}, uuid.Nil)
+	for _, c := range []int{0, -1, 4, 51} { // 0 có mặt trong thân ⇒ 422, không coi như thiếu (P-10-10)
+		_, _, err = r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(c)}, uuid.Nil)
 		require.Equal(t, "VALIDATION_FAILED", code(t, err), "count %d", c)
 	}
 	_, _, err = r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "OTHER"}, uuid.Nil)
@@ -87,7 +87,7 @@ func TestTopicAnswerFeedback(t *testing.T) {
 	sv := r.student()
 	r.approved("Mạng", 6)
 	ctx := t.Context()
-	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 5}, uuid.Nil)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(5)}, uuid.Nil)
 	require.NoError(t, err)
 
 	it := v.Items[0]
@@ -148,7 +148,7 @@ func TestMockFlow(t *testing.T) {
 	r.approved("Mạng", 8)
 	ctx := t.Context()
 	tab1, tab2 := uuid.New(), uuid.New()
-	v, created, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: 6, DurationMinutes: 20}, tab1)
+	v, created, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: new(6), DurationMinutes: 20}, tab1)
 	require.NoError(t, err)
 	require.True(t, created)
 	require.NotNil(t, v.DeadlineAt)
@@ -215,7 +215,7 @@ func TestMockFlow(t *testing.T) {
 	require.Equal(t, raw(t, res.Result), raw(t, again.Result))
 
 	// lượt mới: hết giờ trên máy chủ
-	v2, created, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: 5}, tab1)
+	v2, created, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: new(5)}, tab1)
 	require.NoError(t, err)
 	require.True(t, created, "lượt cũ đã đóng nên tạo lượt mới")
 	r.exec(`update practice_attempts set deadline_at = now() - interval '2 minutes' where id = $1`, v2.ID)
@@ -231,7 +231,7 @@ func TestMockOfflineTolerance(t *testing.T) {
 	r.approved("Mạng", 6)
 	ctx := t.Context()
 	tab := uuid.New()
-	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: 5}, tab)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK", Count: new(5)}, tab)
 	require.NoError(t, err)
 	// quá hạn 20 s (trong dung sai 60 s)
 	r.exec(`update practice_attempts set deadline_at = now() - interval '20 seconds' where id = $1`, v.ID)
@@ -300,7 +300,7 @@ func TestAnswerTypes(t *testing.T) {
 	_, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "MOCK"}, uuid.New())
 	require.Equal(t, "NOT_ENOUGH_QUESTIONS", code(t, err), "ESSAY không vào MOCK: chỉ còn 4 câu đủ điều kiện")
 
-	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Hỗn hợp", Count: 6}, uuid.Nil)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Hỗn hợp", Count: new(6)}, uuid.Nil)
 	require.NoError(t, err)
 	var shortOK, tfOK, essays int
 	for _, it := range v.Items {
@@ -332,7 +332,7 @@ func TestAnswerTypes(t *testing.T) {
 	require.Equal(t, "7.5", res.Result.Score)
 	// quá dài: 422 TOO_LONG, không tốn lời gọi nào
 	sv2 := r.student()
-	v, _, err = r.svc.Start(ctx, sv2, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Hỗn hợp", Count: 6}, uuid.Nil)
+	v, _, err = r.svc.Start(ctx, sv2, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Hỗn hợp", Count: new(6)}, uuid.Nil)
 	require.NoError(t, err)
 	for _, it := range v.Items {
 		if it.Question.Type == "ESSAY" {
@@ -365,7 +365,7 @@ func TestOverviewWeakness(t *testing.T) {
 	require.Empty(t, w.Topics, "chưa đủ dữ liệu")
 
 	do := func(topic string, n int, rightEvery int) {
-		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: topic, Count: n}, uuid.Nil)
+		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: topic, Count: &n}, uuid.Nil)
 		require.NoError(t, err)
 		for i, it := range v.Items {
 			o := r.wrongOption(it.ID) //nolint:contextcheck // helper của rig dùng t.Context()
@@ -408,7 +408,7 @@ func TestTodayWeakTopic(t *testing.T) {
 	sv := r.student()
 	ctx := t.Context()
 	r.approved("Mạng", 10)
-	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 10}, uuid.Nil)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: new(10)}, uuid.Nil)
 	require.NoError(t, err)
 	for _, it := range v.Items {
 		_, err := r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, uuid.Nil, opt(r.wrongOption(it.ID)))

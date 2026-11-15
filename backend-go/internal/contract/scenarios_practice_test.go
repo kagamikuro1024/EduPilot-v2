@@ -82,6 +82,7 @@ func (r *runner) practiceScenarios(x examRig) {
 	r.must(call{method: "POST", path: bad + "/start", token: x.sv, headers: x.idem(), body: start}, 404)
 	r.must(call{method: "POST", path: p + "/start", token: x.sv, body: start}, 422)                                                                   // thiếu Idempotency-Key
 	r.must(call{method: "POST", path: p + "/start", token: x.sv, headers: x.idem(), body: `{"mode":"TOPIC","topic":"` + topic + `","count":3}`}, 422) // count ngoài [5, 50]
+	r.must(call{method: "POST", path: p + "/start", token: x.sv, headers: x.idem(), body: `{"mode":"TOPIC","topic":"` + topic + `","count":0}`}, 422) // count=0 có mặt ⇒ 422, không coi như thiếu (P-10-10)
 	r.must(call{method: "POST", path: p + "/start", token: x.sv, headers: x.idem(), body: `{"mode":"TOPIC","topic":"` + few + `","count":5}`}, 409)   // NOT_ENOUGH_QUESTIONS
 	r.must(call{method: "POST", path: "/api/v1/courses/" + x.arch + "/practice/start", token: x.sv, headers: x.idem(), body: start}, 409)             // COURSE_ARCHIVED
 
