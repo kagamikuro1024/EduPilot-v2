@@ -2444,7 +2444,7 @@ paths:
     get:
       operationId: listCheckinWindows
       tags: [attendance]
-      summary: "Các cửa sổ của một buổi (giảng viên / TA): tối đa 3 (một buổi có tối đa 3 vòng), vòng tăng dần, không phân trang. Không chứa mã"
+      summary: "Các cửa sổ của một buổi (giảng viên / TA): tối đa 3 (một buổi có tối đa 3 vòng; trần ở schema `maxItems`, service, DB CHECK/UNIQUE và `LIMIT 3`), vòng tăng dần, không phân trang. Không chứa mã"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - $ref: "#/components/parameters/SessionId"
@@ -2527,7 +2527,7 @@ paths:
     post:
       operationId: closeCheckinWindow
       tags: [attendance]
-      summary: "Đóng cửa sổ và ghi `attendance_records` từ các lượt (giảng viên / TA): một câu INSERT, bỏ qua dòng đã có (không ghi đè điểm tay), KHÔNG bao giờ tạo ABSENT. Idempotent tự nhiên: đóng lần hai → 200 kết quả cũ; `Idempotency-Key` tuỳ chọn (client gửi lại khi mất mạng). Vòng ≥ 2 thêm cờ RECHECK_MISS. Lớp lưu trữ → 409 COURSE_ARCHIVED"
+      summary: "Đóng cửa sổ và ghi `attendance_records` từ các lượt (giảng viên / TA): một câu INSERT, bỏ qua dòng đã có (không ghi đè điểm tay), KHÔNG bao giờ tạo ABSENT. Idempotent tự nhiên: đóng lần hai → 200 cùng kết quả đã lưu, không ghi, không audit, không outbox lần hai; `Idempotency-Key` tuỳ chọn (client gửi lại khi mất mạng). Vòng ≥ 2 thêm cờ RECHECK_MISS. Lớp lưu trữ → 409 COURSE_ARCHIVED"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - $ref: "#/components/parameters/CheckinWindowId"

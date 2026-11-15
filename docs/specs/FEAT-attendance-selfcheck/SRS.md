@@ -137,7 +137,7 @@ stateDiagram-v2
 | Chữ ký hỏng / không có WebCrypto | `201`, cờ `DEVICE_UNTRUSTED` / `NO_DEVICE_KEY` | Giống hệt |
 | Mở cửa sổ khi đã có cửa sổ mở | `409 WINDOW_ALREADY_OPEN {window_id}` | «Đang có cửa sổ mở» + `Mở màn chiếu` |
 | Mở vòng thứ 4 | `409 ROUND_LIMIT` | Nút ẩn / báo một dòng |
-| `close` lần hai | `200` kết quả cũ | Như lần đầu |
+| `close` lần hai | `200` kết quả cũ; không ghi, không audit, không outbox | Như lần đầu |
 | `absent-unchecked` khi còn cửa sổ mở / chưa có cửa sổ | `409 WINDOW_OPEN` / `409 NO_WINDOW` | Một dòng tại nút |
 | `PUT …/attendance complete:true` còn SV chưa có dòng (buổi có cửa sổ) | `422 CHECKIN_UNRESOLVED {count}` | `InlineNotice` «Còn {n} sinh viên chưa điểm danh» + `Đánh vắng {n} SV chưa điểm danh` |
 | Lưới: `version` cũ | `409 VERSION_CONFLICT` (như cũ) | Giữ / lấy theo từng dòng (như cũ) |
@@ -198,9 +198,9 @@ stateDiagram-v2
 
 **FR-4 (màn chiếu).** `GET …/checkin-windows/{wid}/display` → `{qr_url, short_code, step_expires_at, server_time, rotate_seconds, round, checked_in, headcount, closes_at}`; `qr_url = APP_PUBLIC_URL + "/checkin?c=" + courseId + "#" + token`; `checked_in` = `count(distinct student_id)` của cửa sổ; `no-store`; cửa sổ đã đóng / quá hạn → `409 WINDOW_CLOSED`; hạn mức `DISPLAY_RATE_PER_MIN`. Không SSE. → US-AS-02 AC4, AC8.
 
-**FR-5 (số đầu người, liệt kê).** `PATCH …/checkin-windows/{wid} {headcount}`; `GET …/sessions/{sid}/checkin-windows`; `over_headcount` tính khi đọc. → US-AS-02 AC5–AC6; US-AS-07 AC1.
+**FR-5 (số đầu người, liệt kê).** `PATCH …/checkin-windows/{wid} {headcount}`; `GET …/sessions/{sid}/checkin-windows` (không cursor; trần ba tầng — schema `maxItems: 3`, service `CHECKIN_MAX_ROUNDS`, DB `CHECK (round BETWEEN 1 AND 3)` + `UNIQUE (course_id, session_id, round)`, truy vấn `LIMIT 3` — P-108-3); `over_headcount` tính khi đọc. → US-AS-02 AC5–AC6; US-AS-07 AC1.
 
-**FR-6 (đóng).** `close(wid)`: `SELECT … FROM class_sessions WHERE course_id AND id FOR UPDATE` (cùng thứ tự khoá với `PUT …/attendance`), khoá hàng cửa sổ; đã đóng → trả kết quả đã lưu; chưa → đặt `closed_at`, `closed_by`; chạy **một câu**:
+**FR-6 (đóng).** `close(wid)`: `SELECT … FROM class_sessions WHERE course_id AND id FOR UPDATE` (cùng thứ tự khoá với `PUT …/attendance`), khoá hàng cửa sổ; đã đóng → trả kết quả đã lưu (`200`, không ghi, không audit, **không outbox lần hai**; P-108-3); chưa → đặt `closed_at`, `closed_by`; chạy **một câu**:
 
 ```sql
 INSERT INTO attendance_records (course_id, session_id, student_id, status, marked_by, version)
