@@ -210,6 +210,17 @@ test("usage|budget: 7 cột, số căn phải tabular-nums, cảnh báo 80 %, kh
   await expect(page.getByText("Chưa có lượt gọi nào trong khoảng này")).toBeVisible();
 });
 
+// DEF-R3-01 (TC-P105-44): mọi tác vụ trong «Mức dùng theo tác vụ» có nhãn tiếng Việt; EMBEDDING không hiện chữ thô.
+test("usage: tác vụ EMBEDDING / INSIGHT / QUESTION_GEN có nhãn tiếng Việt, không chữ kỹ thuật thô", async ({ page }) => {
+  const row = (key: string) => ({ key, calls: 5, tokens_in: 10, tokens_out: 0, cost_est: "0.0000", latency_p50_ms: 10, latency_p95_ms: 20, errors: 0, degraded: 0 });
+  await openLlm(page, "ADMIN", { [`GET ${P}/usage`]: [{ body: usage([row("EMBEDDING"), row("INSIGHT"), row("QUESTION_GEN")]) }] });
+  const table = page.getByRole("table", { name: "Mức dùng theo tác vụ" });
+  await expect(table).toBeVisible();
+  const firstCol = await table.locator("tbody tr td:first-child").allTextContents();
+  expect(firstCol).toEqual(["Đánh chỉ mục tài liệu", "Tóm tắt lớp học", "Sinh câu hỏi"]);
+  expect(firstCol.join(" ")).not.toMatch(/\b(RAG|PII|trace|fallback|embedding|prompt)\b/i);
+});
+
 test("errors: tải lỗi 503 ⇒ thông báo chuẩn + Thử lại 1 request; LLM_NOT_CONFIGURED ⇒ mặc định + Thêm nhà cung cấp", async ({ page }) => {
   await openLlm(page, "ADMIN", { [`GET ${P}/providers`]: [err(503, "NOT_READY"), err(503, "NOT_READY"), err(503, "NOT_READY"), { body: providers() }] });
   const alert = page.getByRole("alert").filter({ hasText: "Chưa tải được cấu hình." });
