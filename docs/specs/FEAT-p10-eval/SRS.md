@@ -1,5 +1,5 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.11 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.12 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
@@ -12,6 +12,8 @@ Phiên bản 1.11 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền;
 **v1.6 (sprint 10.5):** US-P10-13 và FR-25…27 chuyển sang `FEAT-decision-model` (US-DM-01…09); `llm_audit.path` → `cascade_path` + `cascade_gate` ở đó.
 
 **v1.8 (P-11-30, QC Q-S11-23…26):** FR-28 và US-P10-14 chốt: thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, cursor gắn bộ lọc (khác → `422 INVALID_CURSOR`), `limit` mặc định 30 (sửa 50 → khớp `httpx.DefaultLimit`).
+
+**v1.12 (P-11-32 bổ sung):** FR-29 — lời nhắc `NAME` chỉ nhận câu đạt ngưỡng; kiểm sau sinh ≥ 6 từ liên tiếp trùng câu dưới ngưỡng → «Chủ đề N» / bỏ `why`, `recommendation` (US-P10-04 AC15).
 
 **v1.11 (P-11-32):** câu mẫu của chủ đề xét k ≥ 3 theo từng câu chuẩn hoá, không theo cụm (FR-13, US-P10-04 AC5, US-P10-05 AC3, US-P10-07 AC2); chủ đề không câu nào đạt chỉ có tên + số SV + số câu.
 
@@ -82,6 +84,7 @@ sequenceDiagram
 | `generate`, không dữ liệu mới | `200 reused:true`, 0 lời gọi LLM | «Chưa có câu hỏi mới từ ngày …» |
 | `generate`, < 20 câu hỏi | `409 NOT_ENOUGH_DATA` | «Chưa đủ câu hỏi để gom (cần ≥ 20)» |
 | LLM lỗi khi đặt tên | Tên tạm từ từ khoá cụm, `named_by:"fallback"` | «Chưa đặt được tên chủ đề» |
+| Chữ LLM sinh chứa ≥ 6 từ liên tiếp trùng một câu dưới ngưỡng (P-11-32) | `name` = «Chủ đề N», `named_by:"fallback"`; `why` / `recommendation` = `""` | Hiện «Chủ đề N», không dòng vì sao / khuyến nghị |
 | LLM lỗi trước `NAME` | Job `FAILED`, không bản ghi báo cáo | «Chưa tạo được báo cáo. Thử lại.» |
 | `generate` vượt trần | `429 RATE_LIMITED` + `Retry-After` | Thông báo tại chỗ |
 | Lớp chưa có báo cáo | `404` ở `latest` | `EmptyState` + `Tạo báo cáo mới` |
@@ -122,6 +125,7 @@ sequenceDiagram
 | FR-26 | *(chuyển sang FEAT-decision-model)*  Áp cascade cho **ba** cổng: tường lửa Threads (chỉ thêm chặn), cờ chèn lệnh (regex OR `Structured` OR decision), định tuyến chat (ngưỡng; dưới ngưỡng giữ kết quả luật; cổng TTFT); tin khủng hoảng **không bao giờ** tới decision / LLM; **không** cho điểm / rubric / escalate | P10-13 AC4…8 |
 | FR-27 | *(chuyển sang FEAT-decision-model)*  Đo + hiển thị tỉ lệ đường nhanh theo tác vụ (Admin), báo cáo `cascade.md`; cờ mặc định tắt | P10-13 AC9, AC13 |
 | FR-28 | `GET /admin/audit` (ADMIN): lọc AND `entity` / `actor_id` / `from`–`to` (không có cả hai → `[now − 7 ngày, now]`; chỉ `from` → `to = now`; chỉ `to` → `from = to − 7 ngày`; tối đa 90 ngày trên khoảng đã áp dụng; tham số rỗng = bỏ qua như `httpx.ParsePageParams`), phân trang con trỏ `(created_at, id)` giảm dần, `limit` 1–100 (mặc định 30), **cursor gắn dấu vân tay `(entity, actor_id, from, to)` đã chuẩn hoá** (`from` / `to` quy về UTC; `Z` và `+07:00` cùng thời điểm = cùng bộ lọc; `entity` / `actor_id` như đã kiểm; thiếu = thiếu, không quy ra mặc định) — khác bộ lọc → `422 INVALID_CURSOR` (mở rộng `cursorJSON` với trường tuỳ chọn `f`; Q-S11-26, Q-S11-27); trả `{id, at, actor_*, entity, entity_id, action, course_id, trace_id, changed_fields[]}` (`before` / `after` không phải đối tượng → `[]`, không `500`), **không bao giờ** `before` / `after`; trong **một giao dịch** ghi `audit_log(entity='audit_log', entity_id=actor_id, action='VIEW_LIST', after={entity, actor_id, from, to (khoảng đã áp dụng), has_cursor, returned})` rồi mới trả (ghi hỏng → `500`, không trả dữ liệu); `Cache-Control: no-store`; migration `00025_audit_log_indexes` thêm hai chỉ mục `(created_at DESC, id DESC)`, `(entity, created_at DESC, id DESC)` | P10-14 |
+| FR-29 | Bước `NAME` chỉ đưa vào lời nhắc từ khoá cụm + câu đạt ngưỡng k ≥ 3 (FR-13); câu dưới ngưỡng không vào lời nhắc. Kiểm sau sinh trên `name` / `why` / `recommendation`: ≥ 6 từ liên tiếp trùng câu dưới ngưỡng của lớp trong kỳ (chuẩn hoá `vn_fold`; câu ngắn: chứa nguyên câu, bỏ câu < 4 từ) → `name` = «Chủ đề N», `why` / `recommendation` = `""`; chạy trước lưu và trước `export` (P-11-32) | P10-04 AC15 |
 | FR-23 | Seed A + B + điểm thi và `check-p10-seed.mjs` idempotent | P10-07 |
 
 ### 4.1 Xếp hạng chủ đề (code thuần, không LLM; hằng số ở cấu hình, đề xuất Q-E-6)
@@ -199,7 +203,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 ## 9. Kiểm thử
 | Cấp | Test | Phủ |
 | --- | --- | --- |
-| Go unit | `TestKnowledgeGap` (seed lệch → A, B đứng đầu; câu mẫu không tên / MSSV; lớp 1 ∌ câu lớp 2; k ≥ 3; watermark không gọi LLM; tên tạm khi LLM lỗi), `TestKnowledgeGapUncoveredMinStudents`, `TestKnowledgeGapExamplesPerSentenceK` | P10-04 |
+| Go unit | `TestKnowledgeGap` (seed lệch → A, B đứng đầu; câu mẫu không tên / MSSV; lớp 1 ∌ câu lớp 2; k ≥ 3; watermark không gọi LLM; tên tạm khi LLM lỗi), `TestKnowledgeGapUncoveredMinStudents`, `TestKnowledgeGapExamplesPerSentenceK`, `TestKnowledgeGapPromptOnlyQualified`, `TestKnowledgeGapNameGuard` | P10-04 |
 | Go | `TestObservabilityDetailNoPII`, `TestObservabilityAuditEveryOpen`, `TestAlertDedup`, `TestObservabilityRBAC` | P10-01…03 |
 | Go | `TestAuditListNoValues`, `TestAuditViewIsAudited`, `TestAuditViewWriteFailClosed`, `TestAuditRBAC`, `TestAuditListFilters`, `TestAuditCursor`, `TestAuditListUsesIndex` (`internal/audit`) | P10-14 |
 | Go | `TestPayloadStoresMaskedOnly` (`internal/llm`) | P10-02 AC10 |
