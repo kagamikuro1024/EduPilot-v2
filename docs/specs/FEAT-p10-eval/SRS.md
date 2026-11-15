@@ -13,7 +13,7 @@ Phiên bản 1.14 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền;
 
 **v1.8 (P-11-30, QC Q-S11-23…26):** FR-28 và US-P10-14 chốt: thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, cursor gắn bộ lọc (khác → `422 INVALID_CURSOR`), `limit` mặc định 30 (sửa 50 → khớp `httpx.DefaultLimit`).
 
-**v1.14 (P-11-35):** người ngoài lớp / lớp khác → `403` `reason=course` theo guard chung, không `404` (§2, §6 #4–#5, NFR, US-P10-01 AC6, US-P10-04 AC12, US-P10-11 AC3); seed làm rõ không đòi ≥ 20 câu trong 7 ngày.
+**v1.14 (P-11-35, chỉnh lại sau 7c459d34):** người ngoài lớp / lớp khác (lớp tồn tại) → `403` `reason=course` theo guard chung; `{id}` sai dạng và (ADMIN) lớp không tồn tại vẫn `404` (§2, §6 #4–#5, NFR, US-P10-01 AC6, US-P10-04 AC12, US-P10-11 AC3); seed làm rõ không đòi ≥ 20 câu trong 7 ngày.
 
 **v1.13 (P-11-34):** `collect` loại tin khủng hoảng (FR-13, US-P10-04 AC16); `payload.schema = 2`, báo cáo cũ không phục vụ (FR-29, AC17); `KnowledgeGapPayload.schema`.
 
@@ -51,7 +51,7 @@ Nguyên tắc nền: giảng viên **không** đọc chat riêng chưa escalate;
 | So sánh nhiều lớp | – | ✓ (lớp mình dạy) | 403 | 403 |
 | `make eval`, `seed`, bảo mật, LCP | việc của đội (không phải tính năng sản phẩm) | | | |
 
-Người ngoài lớp (sinh viên chưa vào lớp, sinh viên / giảng viên / TA lớp khác) và lớp không tồn tại → `403 FORBIDDEN` `reason=course` theo `CourseAccessGuard` chung (`FEAT-course-foundation` 4.1; P-11-35); `404` chỉ cho tài nguyên con không tồn tại (`rid`, `exam_id`) và `latest` chưa có báo cáo. Mọi handler lớp học qua `CourseAccessGuard`.
+Người ngoài lớp (sinh viên chưa vào lớp, sinh viên / giảng viên / TA lớp khác) (lớp **tồn tại** mà người gọi không thuộc) → `403 FORBIDDEN` `reason=course` theo `CourseAccessGuard` chung (`FEAT-course-foundation` 4.1; P-11-35). `404` còn cho: `{id}` lớp không phải uuid (guard); lớp không tồn tại khi người gọi đã qua guard (chỉ ADMIN ở route cho ADMIN, ví dụ #4); tài nguyên con không tồn tại (`rid`, `exam_id`); `latest` chưa có báo cáo. Lưu ý: uuid hợp lệ nhưng lớp không tồn tại, người gọi không phải ADMIN → `403` như người ngoài lớp (guard không lộ lớp có hay không, `FEAT-course-foundation` 4.1). Mọi handler lớp học qua `CourseAccessGuard`.
 
 ## 3. Luồng chính và nhánh lỗi
 ```mermaid
@@ -168,8 +168,8 @@ Tiền tố `/api/v1`. Ghi chú: cursor / `limit` ≤ 100.
 | 1 | `GET /admin/observability/summary?window=24h\|7d` | ADMIN | 403 |
 | 2 | `GET /admin/observability/requests?filter&course_id&task&from&to&cursor&limit` | ADMIN | 403, 422 |
 | 3 | `POST /admin/observability/requests/{id}/open {reason}` | ADMIN | 403, 404, 410 `PAYLOAD_EXPIRED`, 422 `REASON_REQUIRED` |
-| 4 | `GET /courses/{id}/observability/summary` | TEACHER lớp mình, ADMIN | 403 |
-| 5 | `POST /courses/{id}/insights/knowledge-gap/generate {period_days}` (`Idempotency-Key` bắt buộc) | TA, TEACHER | 202 `{job_id}`; 200 `{report_id,reused:true}`; 409 `NOT_ENOUGH_DATA`; 422 (`period_days` ngoài {7, 14, 30, 120}); 429; 403 (gồm người ngoài lớp) |
+| 4 | `GET /courses/{id}/observability/summary` | TEACHER lớp mình, ADMIN | 403; 404 (`{id}` sai dạng; ADMIN + lớp không tồn tại) |
+| 5 | `POST /courses/{id}/insights/knowledge-gap/generate {period_days}` (`Idempotency-Key` bắt buộc) | TA, TEACHER | 202 `{job_id}`; 200 `{report_id,reused:true}`; 409 `NOT_ENOUGH_DATA`; 422 (`period_days` ngoài {7, 14, 30, 120}); 429; 403 (gồm người ngoài lớp); 404 (`{id}` sai dạng) |
 | 6 | `GET /courses/{id}/insights/knowledge-gap/latest` | TA, TEACHER | 404 (chưa có) |
 | 7 | `GET /courses/{id}/insights/knowledge-gap/{rid}/export?format=md` | TA, TEACHER | 404 |
 | 8 | `GET /courses/{id}/analytics/exams/overview?exam_id=\|week=` | TA, TEACHER; ADMIN chỉ tổng | 403, 404 |
@@ -202,7 +202,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 | Idempotency | `generate` + `Idempotency-Key`; cảnh báo khử trùng; mở chi tiết **không** idempotent có chủ ý (mỗi lần một dòng) |
 | Phân trang | Cursor cho #2, #10, #11; cấm `OFFSET` trên `llm_audit` |
 | Cache | Không cache điểm phía máy chủ (AGENTS #15); báo cáo vô hiệu theo `data_watermark`, không theo TTL |
-| Truy cập lớp | `CourseAccessGuard`; lớp khác / người ngoài lớp → `403` `reason=course` |
+| Truy cập lớp | `CourseAccessGuard`; lớp khác / người ngoài lớp → `403` `reason=course`; `{id}` sai dạng → `404` |
 | Đo | Ghi cấu hình «MacBook Apple Silicon, Colima 6 CPU / 10 GB» |
 
 ## 9. Kiểm thử
