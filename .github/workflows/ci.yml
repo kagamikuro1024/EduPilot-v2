@@ -187,12 +187,17 @@ jobs:
           key: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-rest-${{ github.run_id }}
 
   go-test-default:
-    # P-11-50: lệnh chuẩn `go test` KHÔNG tag phải xanh ở các gói có hai bản dựng (route thử chỉ có khi có tag): hợp đồng, gateway, httpapi. Các dòng `go-test` chạy toàn bộ cây CÓ tag.
-    name: Go test (không tag testroutes)
+    # P-11-50: lệnh chuẩn trong AGENTS.md là `go test ./...` KHÔNG tag; mọi gói phải xanh ở bản dựng mặc định (route thử chỉ có khi có tag). Các dòng `go-test` chạy cả cây CÓ tag, -race.
+    # Không -race cho nhanh; chia bốn dòng theo thời gian bằng cùng scripts/go-shard.sh (trọng số: backend-go/ci-shard-weights.txt).
+    name: Go test không tag (${{ matrix.shard }}/4)
     needs: changes
     if: needs.changes.outputs.go == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     defaults:
       run:
         shell: bash
@@ -202,11 +207,15 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: backend-go/go.mod
-      - name: go test (không tag)
+      - name: go test ./... (không tag)
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           EP_SKIP_TIMING: "1"
-        run: go test -count=1 ./internal/contract/ ./cmd/gateway/ ./internal/httpapi/
+        run: |
+          pkgs=$(go list ./... | ../scripts/go-shard.sh "${{ matrix.shard }}" 4)
+          [ -n "$pkgs" ] || { echo "dòng ${{ matrix.shard }} không có gói nào"; exit 1; }
+          echo "gói: $(wc -l <<<"$pkgs")"
+          go test -count=1 $pkgs
 
   judge-attacks:
     name: Judge attacks (amd64, seccomp bật)
