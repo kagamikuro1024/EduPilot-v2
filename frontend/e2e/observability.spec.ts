@@ -117,3 +117,32 @@ test("TEACHER: chỉ tổng hợp 7 ngày của lớp mình, không bảng yêu 
   await expect(page.getByRole("table", { name: /Yêu cầu gửi tới model/ })).toHaveCount(0);
   expect((await getLog(page, "/api/v1/admin/observability")).length).toBe(0);
 });
+
+// DEF-R10.7-01 (khung §23): ADMIN — mọi mục cách nhau 48 px; GV — meta không lặp lớp đang chọn, lớp chưa có yêu cầu dùng EmptyState.
+test("ADMIN: các mục kề nhau cách đều 48 px (mục → mục), dòng «24 giờ qua» nằm trong mục 7 ngày (DEF-R10.7-01)", async ({ page }) => {
+  await openAdmin(page);
+  await expect(page.getByRole("heading", { name: "Yêu cầu", level: 2 })).toBeVisible();
+  await expect(page.locator("[data-part=obs-today]")).toBeVisible();
+  const gaps = await page.locator("main [data-ep-section]").evaluateAll((els) => els.slice(1).map((e, i) => Math.round(e.getBoundingClientRect().top - els[i].getBoundingClientRect().bottom)));
+  expect(gaps.length).toBeGreaterThanOrEqual(3);
+  expect(gaps).toEqual(gaps.map(() => 48));
+});
+
+async function openTeacher(page: Page, summaryBody: Record<string, unknown>) {
+  await reset(page);
+  await script(page, {
+    "GET /api/v1/me/courses": [{ body: { items: [{ course: { id: COURSE, class_code: "761987", subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" }, role_in_course: "TEACHER", enrollment_status: "ACTIVE" }], next_cursor: null } }],
+    [`GET /api/v1/courses/${COURSE}/observability/summary`]: [{ body: { course_id: COURSE, window: "7d", ...summaryBody } }],
+  } as never);
+  await asJwt(page, "TEACHER", { email: "gv@ptit.edu.vn" });
+  await page.goto("/observability");
+}
+const ZERO = { requests: 0, error_rate: 0, escalations: 0, pii_masked: 0, helpful: 0, not_helpful: 0, thread_correct: 0, thread_reject: 0, graded_changed: 0, graded_total: 0, change_rate: 0, mean_abs_deviation: "0", days: [] };
+
+test("TEACHER: meta đầu trang không lặp lớp đang chọn; lớp chưa có yêu cầu AI → EmptyState (DEF-R10.7-01)", async ({ page }) => {
+  await openTeacher(page, ZERO);
+  await expect(page.getByRole("heading", { name: "Quan sát AI", level: 1 })).toBeVisible();
+  await expect(page.locator("main [data-ep-empty]")).toHaveCount(1);
+  await expect(page.locator("main [data-ep-empty]")).toContainText("Chưa có yêu cầu AI nào");
+  await expect(page.locator("[data-ep-header-meta]")).toHaveCount(0); // bộ chọn lớp ở topbar đã nêu lớp; đầu trang không lặp lại
+});
