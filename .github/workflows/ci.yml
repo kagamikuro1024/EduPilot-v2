@@ -303,6 +303,12 @@ jobs:
           echo "CHROME_PATH=$CHROME_PATH"
           args=()
           for p in $URL_PATHS; do args+=("--collect.url=http://localhost:3310$p"); done
+          if [ "$CONFIG" = lighthouserc.json ]; then
+            # P-11-46: multiplier CPU của lượt simulate theo tốc độ máy chạy (4 × 4200 / benchmarkIndex, kẹp [2, 8]); benchmarkIndex đo ngay đây và in ra log. Ngưỡng không đổi.
+            M="$(pnpm -C frontend exec node lighthouse-multiplier.cjs)"
+            echo "cpuSlowdownMultiplier=$M"
+            args+=("--collect.settings.throttling.cpuSlowdownMultiplier=$M")
+          fi
           pnpm -C frontend exec lhci autorun --config="$CONFIG" "${args[@]}"
       - name: lighthouse benchmark (chẩn đoán máy chạy)
         if: always()
