@@ -33,6 +33,7 @@ type stubLLM struct {
 	structured           int
 	seen                 []string // nội dung user của mọi lời gọi đặt tên
 	embedded             []string // mọi chuỗi gửi đi nhúng
+	batches              []int    // cỡ từng lời gọi nhúng
 	piiSeen              []int    // PIIMaskedCount của mọi lời gọi đặt tên
 }
 
@@ -42,6 +43,7 @@ func (s *stubLLM) Embed(_ context.Context, r llm.EmbedRequest) ([][]float32, err
 	}
 	s.mu.Lock()
 	s.embedded = append(s.embedded, r.Inputs...)
+	s.batches = append(s.batches, len(r.Inputs))
 	s.mu.Unlock()
 	out := make([][]float32, len(r.Inputs))
 	for i, t := range r.Inputs {
@@ -576,4 +578,21 @@ func TestKnowledgeGapPIICountOnNameCall(t *testing.T) {
 	for _, s := range r.llm.seen {
 		require.NotContains(t, s, "Sinh Viên Số11")
 	}
+}
+
+// P-11-48 / TC-04-11: nhúng chia lô ≤ 50 chuỗi và giãn nhịp giữa các lô (kỳ 120 ngày nhiều câu không dồn một lượt làm provider trả 429).
+func TestKnowledgeGapEmbedBatches(t *testing.T) {
+	r := newRig(t, 14)
+	r.seed()
+	const pause = 40 * time.Millisecond
+	r.svc.EmbedPause = pause
+	t0 := time.Now()
+	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	took := time.Since(t0)
+	require.Greater(t, len(r.llm.batches), 1, "đủ nhiều câu để phải chia lô")
+	for _, n := range r.llm.batches {
+		require.LessOrEqual(t, n, insight.EmbedBatch)
+	}
+	require.GreaterOrEqual(t, took, time.Duration(len(r.llm.batches)-1)*pause, "giữa hai lô phải nghỉ")
 }

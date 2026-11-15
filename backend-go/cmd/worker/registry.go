@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/edupilot/backend-go/internal/calendar"
+	"time"
 
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/assignment"
@@ -48,8 +49,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	}
 	if d.LLM != nil {
 		det := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: d.DB}, Redis: d.Redis, Log: d.Log}}
-		(&insight.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, LLM: d.LLM, Det: det, Notify: nt}).Register(runner)    // insight.knowledge_gap (US-P10-04)
-		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM, Hints: questionHints(d)}).Register(runner) // question.extract, question.generate (US-P9-02, US-P9-03)
+		(&insight.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, LLM: d.LLM, Det: det, Notify: nt, EmbedPause: 400 * time.Millisecond}).Register(runner) // insight.knowledge_gap (US-P10-04)
+		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM, Hints: questionHints(d)}).Register(runner)                                  // question.extract, question.generate (US-P9-02, US-P9-03)
 	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
