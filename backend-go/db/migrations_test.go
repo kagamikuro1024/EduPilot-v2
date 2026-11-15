@@ -2,11 +2,16 @@ package db_test
 
 import (
 	"context"
+	"database/sql"
 	"io"
+	"io/fs"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/db"
@@ -106,4 +111,44 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.Contains(t, out.String(), "00002_llm.sql")
 	require.Contains(t, out.String(), "00003_course_foundation.sql")
 	require.Contains(t, out.String(), "00004_auth_hardening.sql")
+}
+
+// P-11-48: DB đã áp 00024 / 00025… mà THIẾU 00022 (nhánh sprint đánh số 22 merge sau) → `up` áp 22 không lỗi, không đổi tên tệp.
+func TestMigrations_UpAppliesMissingOlder(t *testing.T) {
+	t.Parallel()
+	url := testutil.PostgresURL(t)
+	ctx := t.Context()
+
+	// dựng DB như thiếu 00022: áp mọi bản trừ 00022 bằng một cây tệp đã lọc
+	filtered := fstest.MapFS{}
+	require.NoError(t, fs.WalkDir(db.FS(), ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || strings.HasPrefix(d.Name(), "00022_") {
+			return err
+		}
+		b, rerr := fs.ReadFile(db.FS(), p)
+		filtered[p] = &fstest.MapFile{Data: b}
+		return rerr
+	}))
+	sqlDB, err := sql.Open("pgx", url)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = sqlDB.Close() })
+	prov, err := goose.NewProvider(goose.DialectPostgres, sqlDB, filtered)
+	require.NoError(t, err)
+	_, err = prov.Up(ctx)
+	require.NoError(t, err)
+
+	conn, err := pgx.Connect(ctx, url)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = conn.Close(context.WithoutCancel(ctx)) })
+	var has bool
+	require.NoError(t, conn.QueryRow(ctx, `select to_regclass('public.llm_request_payloads') is not null`).Scan(&has))
+	require.False(t, has, "tiền điều kiện: 00022 chưa áp")
+
+	require.NoError(t, db.Migrate(ctx, url, "up", io.Discard), "up phải áp 00022 dù đã có phiên bản cao hơn")
+	require.NoError(t, conn.QueryRow(ctx, `select to_regclass('public.llm_request_payloads') is not null`).Scan(&has))
+	require.True(t, has, "00022 đã áp")
+	var applied int
+	require.NoError(t, conn.QueryRow(ctx, `select count(*) from goose_db_version where version_id = 22 and is_applied`).Scan(&applied))
+	require.Equal(t, 1, applied)
+	require.NoError(t, db.Migrate(ctx, url, "up", io.Discard), "up lần hai là no-op")
 }
