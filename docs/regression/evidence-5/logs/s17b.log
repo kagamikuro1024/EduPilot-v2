@@ -1,0 +1,17 @@
+E30 PUBLISHED
+F TC-PE08-01 E30 (30 SV; 20 nộp tay, 10 để hết giờ): submit_reason TIMEOUT|10; MANUAL|20; outbox exam.closed = 1 dòng (1); khoá chat Redis còn: 0 (0); điểm 30 lượt
+P TC-PE08-02 sau đóng: bắt đầu 409 ['ATTEMPT_ALREADY_SUBMITTED']; lưu 409 ['ATTEMPT_ALREADY_SUBMITTED']
+P TC-PE08-07 câu code không có bản nộp: earned=['0', '0', '0'] (0, không IE); IE trong bài: 0
+P TC-PE08-36 progress ['absent', 'graded', 'grading', 'in_progress', 'not_started']; flags: GV có, TA không có khoá; sort=score giảm ✓ ([Decimal('9.00'), Decimal('
+F TC-PE08-40 30 lượt GRADED: distribution (khoảng 1 điểm) hệ thống [5, 3, 7, 2, 2, 3, 5, 0, 0, 3] = tính tay [5, 0, 3, 7, 4, 0, 3, 5, 0, 3]; mean 3.51 = 4.18; medi
+F TC-PE08-42 CSV: Content-Type text/csv; charset=utf-8; BOM EF BB BF; phân cách ";"; tiêu đề ['mssv', 'ho_ten', 'trang_thai', 'diem_tu_dong', 'diem_chinh_thuc', 'n
+P TC-PE08-46 sửa điểm: score 101/8,505/thiếu lý do/lý do 501 → [422, 422, 422, 422] (422); sai version → 409 ['VERSION_CONFLICT']; hợp lệ → 200: adjusted_score|aut
+P TC-PE08-47 sau công bố sửa 8,5: TA 403; SV nhận EXAM_REGRADED ×1; SV thấy điểm 8.50 (adjusted=True)
+F TC-PE08-52 regrade scope=ALL có lý do: 422 ['INVALID', 'VALIDATION_FAILED']; chấm lại bản nộp cuối: 0 lời gọi /run của judge (mỗi bản nộp có code cần 1 biên dịch
+F TC-PE08-53 gọi lại cùng khoá → 422 (idempotent); khoá khác (không đổi test) → 422; số lần judge nhận /run trong lượt gọi lại = 0 (lượt đầu 0; idempotent theo (su
+P TC-PE08-55 phúc khảo: 201; lần hai 409 ['APPEAL_EXISTS']; reason rỗng/1001 → 422/422; appeal_days=0 → 409 ['APPEAL_WINDOW_CLOSED']; published_at lùi 8 ngày (DB f
+P TC-PE08-60 SV gọi result/mine/exam/danh sách/me/exam-lock của chính mình ở trạng thái PUBLISHED trên E30 (3 SV × 5 endpoint): canary test ẩn / reference / answer
+P TC-PE08-61 docker logs gateway+worker+judge: dòng chứa canary test ẩn/giải thích = 0
+P TC-PE08-29 bài CLOSED chưa công bố: GET result → 409 ['RESULT_NOT_PUBLISHED']; thân 117 byte, có điểm/đáp án: False
+P TC-PE08-22 hold=true: 200; sau đóng +40 s chấm xong bài vẫn CLOSED|f (không tự công bố); Today GV có EXAM_PUBLISH_HOLD=True; hold=false → 200, sau 12 s PUBLISHED
+P TC-PE08-23 hold sau PUBLISHED: 409 ['EXAM_LOCKED']; TA 403; sai version 409 ['EXAM_LOCKED']

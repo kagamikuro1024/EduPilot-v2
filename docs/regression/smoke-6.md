@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm E) · Ngày: 2026-11-15
-Tổng TC cũ: 536 · Đạt: 297 · Trượt: 2 · Không chạy K (a/b/c): 1 · Lỗi thời (T, tính vào cột K của brief): 6 · Chưa chạy (mẫu) N: 230   (P+F+K+T+N = 536 = 536). TC-P3-02-21 đã đạt trên bản dựng có fix afbd433e (xem dòng ca).
+Tổng TC cũ: 536 · Đạt: 297 · Trượt: 1 · Không chạy K (a/b/c): 2 · Lỗi thời (T, tính vào cột K của brief): 6 · Chưa chạy (mẫu) N: 230   (P+F+K+T+N = 536 = 536). TC-P3-02-21 đã đạt trên bản dựng có fix afbd433e (xem dòng ca); TC-P3-01-49 → K(c) theo PM (DEF-R6-01 là nợ phase PR, D44).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -81,7 +81,7 @@ Cách chạy:
 | TC-P3-01-46 | P | go test ok (2 test/ca con, ~8s) |
 | TC-P3-01-47 | P | canary xuất hiện ngoài chat_messages: [] |
 | TC-P3-01-48 | P | go test ok (1 test/ca con, ~13s) |
-| TC-P3-01-49 | F | Vai DB ứng dụng edupilot rolsuper=t (như BUG-1 gốc); DEF-R6-01 |
+| TC-P3-01-49 | K(c) | Vai DB ứng dụng edupilot rolsuper=t (có sẵn từ BUG-1 sprint 6; trigger append-only vẫn chặn 42501). PM: DEF-R6-01 là nợ phase PR theo D44 (PROGRESS.md dòng 72) → ngoài phạm vi đồ án = K(c) |
 | TC-P3-01-50 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P3-02-01 | P | 2 mẫu đúng |
 | TC-P3-02-02 | P | p602 --set mssv: mã chữ-số bị chặn (14 mẫu mssv/email/phone/cccd đạt) |
@@ -439,7 +439,7 @@ Cách chạy:
 | TC-id | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 
 ## Trượt: bước tái hiện
-### DEF-R6-01 — Vai DB của ứng dụng là siêu quyền (TC-P3-01-49): `rolsuper=t` ở ep-r (cùng BUG-1 gốc của sprint 6; trigger append-only vẫn chặn 42501). Chi tiết `defects-6.md`.
+### DEF-R6-01 — K(c): nợ phase PR theo D44 (PROGRESS.md dòng 72); TC-P3-01-49 không tính trượt. Chi tiết `defects-6.md`.
 ### DEF-R6-02 — ĐÃ SỬA (afbd433e) — rerun 2026-11-16: vào bằng mã / duyệt / mời ra đều xoá `ep:roster` ≤ 3 s; TC-P3-02-21 đạt. Chi tiết `defects-6.md`.
 ### DEF-R6-C-01 — Dòng khoá ở /threads khi đang thi dùng chữ của chat (TC-P3-06-42). Chi tiết `defects-6.md`.
 

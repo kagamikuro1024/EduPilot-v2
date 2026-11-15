@@ -19,5 +19,13 @@
 | DEF-R9.5-12 (Cao) real_llm 429/--resume | TC-N08-16/17 (9.5) | 965ca248 | ĐẠT: Retry-After 120 → dừng sau 1 s, «CHƯA HOÀN TẤT — hết hạn mức…», lưu resume.json, rc 3 |
 | DEF-R9.5-02 (Thấp) canary-scan dọn nhà cung cấp | TC-N01-18 (9.5) | 6ec47f79 | MỘT PHẦN: 7 dòng = 0, CN1 xoá; CN0 (tạo 201 vì fake nhận mọi khoá) vẫn còn |
 | DEF-R9.5-19 (Thấp) SEED_DEFAULT_PASSWORD | TC-N02-09/11 (9.5) | 6ec47f79 | MỘT PHẦN: chuỗi trắng bị từ chối (1 dòng); unset / rỗng vẫn rơi về mật khẩu trong `.env.local`/`.env.example` và chạy tiếp — chờ PM: thiết kế fallback hay lỗi |
+| DEF-R8 TC-P6-06-11 (HIGH) PUT điểm chuỗi trắng xoá ô | TC-P6-06-11 (sprint 8) | 78e3d92d | ĐẠT: 11 chuỗi sai (gồm ' ', tab) → 422, DB giữ 9.00 v2 |
+| DEF-R8 TC-P6-07-11 điểm âm XLSX | TC-P6-07-11 | cc1703f9 | ĐẠT: SCORE_OUT_OF_RANGE |
+| DEF-R8-s8core-01 giải trình «không dự → 0 theo quy chế» | TC-P6-01-20, TC-P6-02-25 | d3ac89fc | ĐẠT: /me/grades text «Kiểm tra hằng tuần: 0 · không dự → 0 theo quy chế» + quote điều 1.4 |
+| DEF-R8-s8core-02 float64 trong seedtool | TC-P6-02-15 | 1dea359f | ĐẠT: seedtool hết float64, go test PASS |
+| TC-P6-09-49 target_letter ngoài thang | TC-P6-09-49 | 3eb6afe3 (P-11-55) | ĐẠT: 'Z', 'a+' → 422 |
+| /me/grades final.locked_at 0001-01-01 | TC-P6-09-04 | 7b62e715 | ĐẠT: locked_at = 2026-11-15T19:01:38Z |
+| TC-P6-06-56 (TC sai, P-11-54) | TC-P6-06-56 a/b/c | — | ĐẠT: (a) version chữ 422; (b) thiếu/null trên ô có điểm → 409, DB không đổi; (c) ô mới → 200 |
+| TC-P6-09-40 (reseed sạch) | TC-P6-09-40 | — | ĐẠT: TestSeedRiskAfterGradebook + TestSeedGradebookExpected trên DB seed mới PASS; mức sống lệch do cửa sổ lịch [INFERENCE] |
 
 Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiếp), R7-01 (CI shard — cần chạy CI, K(b) nếu PM không duyệt đẩy nhánh), R4-02 `text.xlsx` (chưa sửa), R10.8-03/04, UX08-50 (landing, ≥ P-11-?).

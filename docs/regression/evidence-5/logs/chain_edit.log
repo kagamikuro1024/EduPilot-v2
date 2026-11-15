@@ -1,0 +1,4 @@
+hold C 200
+trạng thái: {'SCHEDULED': 'SCHEDULED', 'OPEN': 'OPEN', 'CLOSED': 'CLOSED', 'PUBLISHED': 'PUBLISHED'}
+F TC-PE04-21 4 trạng thái ({'SCHEDULED': 'SCHEDULED', 'OPEN': 'OPEN', 'CLOSED': 'CLOSED', 'PUBLISHED': 'PUBLISHED'}) × 12 trường + closes_at/extend/unschedule/xoá 
+F TC-PE04-20 unschedule bài đã tới giờ mở (OPEN): 409 reason=status; bài SCHEDULED nhưng đã có lượt (QC chèn 1 dòng exam_attempts vào fixture của mình): 409 reason

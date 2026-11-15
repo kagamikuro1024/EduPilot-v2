@@ -1,0 +1,2 @@
+P TC-PE05-02 bài đóng sau 125 s, duration 2 phút (TC gốc đặt duration 45 > khung 10 phút — DB/API chặn "duration > khung" nên dùng duration = khung): SV bắt đầu kh
+P TC-PE05-29 SV còn làm khi bài đóng: GRADED|CLOSED (CLOSED, không TIMEOUT); khoá chat Redis trước=1 sau=0; mine={"id": "01a1e137-1214-712a-8cbd-3d9c59dc1027", "st

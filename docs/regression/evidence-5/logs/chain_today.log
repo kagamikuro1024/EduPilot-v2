@@ -1,0 +1,5 @@
+upcoming: []
+{"no_course": false, "email_verified": true, "recommended": {"id": "EXAM_OPEN:01a1e111-8e72-7821-aab2-2edf0fde109a", "kind": "EXAM_OPEN", "title": "Bài thi R5 07 A đang mở", "reason": "Mở đến 05:06 16/11. Bạn có 20 phút để làm.", "urgency": "high", "href": "/exams/01a1e111-8e72-7821-aab2-2edf0fde109a/take", "course": {"id": "01a1df30-523a-7d7a-a240-c120dbd57ac3", "class_code": "R5C1"}, "estimate_minutes": 20}, "timeline": [], "continue": []}
+open: []
+in_progress: [{"id": "EXAM_IN_PROGRESS:01a1e13d-a150-7aa8-b610-1fec8f7cfd43", "kind": "EXAM_IN_PROGRESS", "title": "Bài thi R5L 04-39 open đang làm dở", "reason": "Còn 30 phút. Làm tiếp.", "urgency": "high", "href": "/exams/01a1e13d-a150-7aa8-b610-1fec8f7cfd43/take", "course": {"id": "01a1df30-523a-7d7a-a240-c120dbd57ac3", "class_code": "R5C1"}, "estimate_minutes": 30}]
+sau nộp: []

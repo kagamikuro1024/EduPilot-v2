@@ -1,23 +1,21 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 332 · Trượt: 7 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 173   (P+F+LT+K+N = T)
-
-Phạm vi lượt này: P6-01/02 (lượt trước), P6-06/07/08/09 phần API + dev e2e + UI thật (06), P6-05 một phần; CHƯA chạy được (N còn lại, không thuộc nhóm K a/b/c — hết ngân sách lượt chạy): P6-03 (trích công thức, cần khoá global + stub `scripts/s8r-stub.py`, `scripts/s8r-03.py` đã viết nhưng chưa chạy), P6-04 UI, P6-05 job nhắc/Hôm nay/chat, P6-07 UI (44–48,59), P6-08 UI (10,36,38), P6-09 UI/chat (13–15,23,25–30,32,33,46), S8-SEED, S8-UI; UI 06-31/32/33 (LOAD1000 ảo hoá) và 06-53/54 phần UI (spec `frontend/e2e/qc2-r8/real-06b.spec.ts` chưa ổn định). Spec UI: `frontend/e2e/qc2-r8/*`, harness API: `scripts/s8r-*.py`. Chỉ ca đã chạy ra P/F mới được ghi.
+Tổng TC cũ: 512 · Đạt: 339 · Trượt: 0 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 173   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
 ## Tổng hợp theo US
 | US | TC tổng | P | F | LT | K | N |
 |---|---|---|---|---|---|---|
-| P6-01 | 41 | 40 | 1 | 0 | 0 | 0 |
-| P6-02 | 49 | 46 | 2 | 0 | 0 | 1 |
+| P6-01 | 41 | 41 | 0 | 0 | 0 | 0 |
+| P6-02 | 49 | 48 | 0 | 0 | 0 | 1 |
 | P6-03 | 48 | 17 | 0 | 0 | 0 | 31 |
 | P6-04 | 49 | 25 | 0 | 0 | 0 | 24 |
 | P6-05 | 46 | 19 | 0 | 0 | 0 | 27 |
-| P6-06 | 63 | 57 | 1 | 0 | 0 | 5 |
-| P6-07 | 59 | 51 | 1 | 0 | 0 | 7 |
+| P6-06 | 63 | 58 | 0 | 0 | 0 | 5 |
+| P6-07 | 59 | 52 | 0 | 0 | 0 | 7 |
 | P6-08 | 47 | 44 | 0 | 0 | 0 | 3 |
-| P6-09 | 50 | 33 | 2 | 0 | 0 | 15 |
+| P6-09 | 50 | 35 | 0 | 0 | 0 | 15 |
 | P6-SEED | 37 | 0 | 0 | 0 | 0 | 37 |
 | S8-UI | 23 | 0 | 0 | 0 | 0 | 23 |
 
@@ -43,7 +41,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-01-17 | P | 10.000 dòng: Index Scan using final_grade_snapshots_version_idx (200 dòng planner chọn Seq Scan vì bảng nhỏ — như báo cáo gốc) |
 | TC-P6-01-18 | P | vai trò không phải chủ: 'must be owner'; vai trò gateway=edupilot (superuser, chủ bảng) gỡ được trigger → ghi RỦI RO (TC cho phép, không FAIL AC) |
 | TC-P6-01-19 | P | TestSnapshotImmutable/TruncateBlocked/UniqueVersion/VersionIndex Go integration -tags integration (logs/s8core-go-*.log) PASS |
-| TC-P6-01-20 | F | weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
+| TC-P6-01-20 | P | sau d3ac89fc: /me/grades của C (sv.nguyco): text có «không dự → 0 theo quy chế»=True; trích MISSING_SCORE (điều 1.4)=True |
 | TC-P6-01-21 | P | bài thi chuyển CLOSED: cả lớp INCOMPLETE (30/30), missing ['weekly'], không có số 0 bịa; giải trình: [{'label': 'weekly', 'expr': '', 'value': 'Bài thi chư |
 | TC-P6-01-22 | P | sửa adjusted_score B 8→7: giải trình ô weekly đổi ngay 8→7; grade_entries nguồn EXAM = 0 |
 | TC-P6-01-23 | P | quy thang: item 20, điểm thi 8,0 → ô 16 (expr '16 × 10 ÷ 20') → điểm QT 8; item 30, 7,33 → 21,99 ('21,99 × 10 ÷ 30') → 7,33; decimal không sai số |
@@ -79,7 +77,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-02-12 | P | impact step 0.1: samples 9,8 / 6.5 / 3,2 khớp hand-calc step=0.1; step 1 khớp hand-calc step=1 (6,5→7) |
 | TC-P6-02-13 | P | TestDivRoundNoDrift + TestEngineCases/S16-chia-khong-het PASS (hp_raw 6,25 → 6,5) |
 | TC-P6-02-14 | P | grep float/math.Round/ParseFloat/RoundBank/StringFixedBank + Sscanf/%f ở mã không-test internal/grade: rỗng (rc grep=1) |
-| TC-P6-02-15 | F | quét float64: internal/seedtool/examhistory.go:130 đưa điểm thi qua float64(c)*2.5 (seed tool); mã sản phẩm sạch |
+| TC-P6-02-15 | P | Sau 1dea359f (DEF-R8-s8core-02): quét float64 ở grade/grading/seedtool/exam: seedtool hết float64 (go test ./internal/seedtool PASS 7 s, test AST); còn float64 ở grading/ |
 | TC-P6-02-16 | P | preview: số JSON chỉ ở ['A', 'A+', 'B', 'B+', 'C', 'C+', 'D', 'D+', 'F', 'complete', 'incomplete', 'liet', 'students']; điểm đều là chuỗi decimal (8 giá tr |
 | TC-P6-02-17 | P | go vet ./internal/grade/... ./internal/grading/... rc=0; golangci-lint run ./internal/grade/...: 0 issues; TestNoFloatInGrade PASS (logs/s8core-go2.log) |
 | TC-P6-02-18 | P | M6 thêm float64: TestNoFloatInGrade đỏ; grep cổng P6 có dòng (cổng đỏ) |
@@ -89,7 +87,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-02-22 | P | impact với cap=1,5 free=1 (không sửa mã giữa hai lần gọi): 3 mẫu khớp hand-calc --table cap=1.5 free=1; changed=0 |
 | TC-P6-02-23 | P | TestParamsDriveResult/MissingParamIsError/NoPolicyConstants PASS; grep hằng: chỉ chú thích, 7*3600 múi giờ, roundingSteps (tập bước SRS 4.2.4) |
 | TC-P6-02-24 | P | xoá PENALTY.params.free: PUT 200 + unclear ABSENCE_RULE_MISSING (chặn xác nhận); impact students_computable=0, samples rỗng — không HP mặc định; (impact kh |
-| TC-P6-02-25 | F | C: KT=0, status COMPLETE, nhưng dòng KT chỉ expr '0' (filled_by_user, không quote điều 1.4), không có chữ 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
+| TC-P6-02-25 | P | sau d3ac89fc: dòng KT của C: text «không dự → 0 theo quy chế»=True, quote điều 1.4=True, filled_by_user=false (staff explain) |
 | TC-P6-02-26 | P | xoá ô final sv30 (PUT score null 200): preview status INCOMPLETE, không hp/letter ({'status': 'INCOMPLETE', 'hp': None, 'letter': None, 'verdict': 'INCOMPL |
 | TC-P6-02-27 | P | exam CLOSED: preview cả lớp INCOMPLETE (30/30); finalize lần chạy lại → 409 GRADES_INCOMPLETE (details missing weekly). Lần đầu trả 200: nghi tick tự công  |
 | TC-P6-02-28 | P | TestMissingScoreIncomplete/ZeroRule/ZeroOnlyWhenSourceClosed/ExpectedStudentC PASS |
@@ -267,7 +265,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-06-08 | P | UI thật ep-r: Enter / Tab / Esc — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-09 | P | UI thật ep-r: lỗi tại ô, chuỗi sai, xoá ô — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-10 | P | UI thật ep-r: lỗi tại ô, chuỗi sai, xoá ô — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
-| TC-P6-06-11 | P | UI thật ep-r: lỗi tại ô, chuỗi sai, xoá ô — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
+| TC-P6-06-11 | P | sau 78e3d92d: 11 chuỗi sai (gồm ' ', tab, 2 dấu cách) → [422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422]; DB trước/sau [['9.00', '2']]/[['9.00', '2']] |
 | TC-P6-06-12 | P | UI thật ep-r: lỗi tại ô, chuỗi sai, xoá ô — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-13 | P | UI thật ep-r: ô EXAM không sửa được — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-14 | P | Go 5 test PASS; dev e2e ['cell edit keys'] xanh (logs/s8r-dev-gradebook-me.log); |
@@ -312,7 +310,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-06-53 | P | API: lớp QD8R6P (PENALTY.applicable=false + 1 điểm trừ ghi tay) → GET gradebook warnings=['PENALTY_NOT_IN_SCHEME']; lớp sạch không có warnings (UI InlineNotice: dev e2e ' |
 | TC-P6-06-54 | P | API: lớp QD8R6Q (BONUS.applicable=false) → warnings=['BONUS_NOT_IN_SCHEME'], bonus=0 ở mọi hàng (B=0 trong giải trình) |
 | TC-P6-06-55 | P | Go 1 test PASS; dev e2e ['penalty not in scheme notice'] xanh (logs/s8r-dev-gradebook-me.log); |
-| TC-P6-06-56 | F | version kiểu chữ → 422 VALIDATION_FAILED đúng; NHƯNG thiếu version: ô chưa có → 200 (tạo ô, version=0 ngầm); ô đã có → 409 VERSION_CONFLICT (không phải 422 VALIDATIO |
+| TC-P6-06-56 | P | TC sửa theo P-11-54, chạy lại 3 ca trên lớp riêng: (a) version chữ → 422 VALIDATION_FAILED; (b) thiếu/null trên ô có điểm → 409 VERSION_CONFLICT, DB giữ 9.00 v2 (không đổ |
 | TC-P6-06-57 | P | PUT cho sinh viên ngoài lớp → 422 VALIDATION_FAILED; số dòng grade_entries giữ 60 |
 | TC-P6-06-58 | P | score số JSON 5 → 422; 8.333 → 422 VALIDATION_FAILED; '5.005' → 422; 0.1+0.2 → 422; DB ('7.00', 1) |
 | TC-P6-06-59 | P | 20 PUT song song cùng version 1: 200×1, 409×19, khác []; audit +1; version 2 |
@@ -330,7 +328,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-07-08 | P | preview midterm.xlsx → rows_total 30, rows_ok 30, overwrites 0, unchanged 30, errors [], sample 0 (≤20); grade_entries 60→60, audit_log 3→3 không đổi |
 | TC-P6-07-09 | N | chưa chạy |
 | TC-P6-07-10 | P | go test 2 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-11 | F | {2: 'STUDENT_NOT_IN_COURSE', 4: 'DUPLICATE_IN_FILE', 5: 'SCORE_OUT_OF_RANGE', 6: 'SCORE_PRECISION', 7: 'SCORE_NOT_NUMBER', 10: 'SCORE_NOT_NUMBER'} vs {2: 'STUDENT_NO |
+| TC-P6-07-11 | P | errors.xlsx → 6 lỗi {2: 'STUDENT_NOT_IN_COURSE', 4: 'DUPLICATE_IN_FILE', 5: 'SCORE_OUT_OF_RANGE', 6: 'SCORE_PRECISION', 7: 'SCORE_NOT_NUMBER', 10: 'SCORE_OUT_OF_RANG |
 | TC-P6-07-12 | P | formula.xlsx: dòng B (=22/3 định dạng 0.00 → '7.33') hợp lệ; dòng C (=22/3 chung) → {3: 'SCORE_PRECISION'}; rows_ok 1 |
 | TC-P6-07-13 | P | MSSV ô số thực 20229002.0 → rows_ok 1, 0 lỗi (khớp B: điểm 6 vs hiện có 7,5 → overwrites 1) |
 | TC-P6-07-14 | P | X.users.student_code = MSSV của Y nhưng snapshot X = XSELF0001; dòng '20229555, 9' → điểm vào Y (snapshot khớp, ROSTER) = 9.00, X = None (không nhận) |
@@ -429,7 +427,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-01 | P | B /me/grades → 200, Cache-Control no-store, status IN_PROGRESS, qt 8.25 (tay 8,25); khoá ['bonus', 'calculation', 'components', 'official_note', 'penalty', 'qt', 'sc |
 | TC-P6-09-02 | P | GET ?student_id=C&user_id=C → vẫn dữ liệu của B (qt 8.25, không 1,25); POST {student_id:C} → 405 (route không nhận POST) |
 | TC-P6-09-03 | P | lớp NO_POLICY (QD8F3), sinh viên sv.gioi: 200 {'status': 'NO_SCHEME'} (chỉ có status) |
-| TC-P6-09-04 | P | sau chốt: status FINAL, final={"numeric_grade": "7", "letter": "B", "version": 2, "locked_at": "0001-01-01T00:00:00Z"} (7,0 B, từ snapshot); sau mở khoá + sửa 8,0 +  |
+| TC-P6-09-04 | P | sau 7b62e715: /me/grades final={'numeric_grade': '8', 'letter': 'B+', 'version': 3, 'locked_at': '2026-11-15T19:01:38.081856Z'} |
 | TC-P6-09-05 | P | sinh viên ngoài lớp (sv.moi) → 403 |
 | TC-P6-09-06 | P | go test 4 test PASS (log s8flow-go-*.log) |
 | TC-P6-09-07 | P | giữa kỳ chưa công bố (B=7,77): components.midterm = {'key': 'midterm', 'name': 'Giữa kỳ', 'weight': '20', 'status': 'PENDING'} (không score) |
@@ -465,7 +463,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-37 | P | STUDENT (sv.gioi) gọi 19 route Staff (đọc + ghi, mọi route P6) → 403 hết |
 | TC-P6-09-38 | P | sau chốt, B gọi snapshots/1, snapshots/<id của A>, 20 id lân cận → chỉ [403]; không rò dòng của A |
 | TC-P6-09-39 | P | go test 3 test PASS (log s8flow-go-*.log) |
-| TC-P6-09-40 | F | lớp 761987 hiện: A/B/C = {'sv.gioi': 'NONE', 'sv.kha': 'NONE', 'sv.nguyco': 'AT_RISK'} (khớp kỳ vọng NONE/NONE/AT_RISK) nhưng 10/30 dòng lệch expected_risk.csv, vd [ |
+| TC-P6-09-40 | P | Reseed sạch = TestSeedRiskAfterGradebook + TestSeedGradebookExpected trên DB seed mới (testcontainers): PASS 12 s (qt_current / grade_signal khớp expected_risk.csv, sv26  |
 | TC-P6-09-41 | P | C: student_risk.reasons có GRADE_LOW qt_milli=1250 (1,25/10); hồ sơ Staff GET students/C → 404; /me/grades của C không có nhãn/lý do risk; UI hồ sơ: s8r-ui-09 |
 | TC-P6-09-42 | P | lớp 2 (761988, công thức chưa CONFIRMED): 24 dòng student_risk, 0 dòng có GRADE_LOW |
 | TC-P6-09-43 | P | QD8R71: grade_low_below 5,0→6,0 (PUT settings 200): số SV có GRADE_LOW 6→11 (crm.risk chạy lại riêng lớp); ngưỡng 10,5 / 5,3 / -1 / abc → [422, 422, 422, 422] |
@@ -474,7 +472,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-46 | N | chưa chạy |
 | TC-P6-09-47 | P | dev e2e ['grade states\\|grade mobile 375'] xanh (logs/s8r-dev-gradebook-me.log); grep mock ở features/me rỗng |
 | TC-P6-09-48 | P | {} → 422 VALIDATION_FAILED; cả hai trường → 422 VALIDATION_FAILED |
-| TC-P6-09-49 | F | (200, {'reachable': False}) (200, {'reachable': False}) |
+| TC-P6-09-49 | P | target_letter 'Z' → 422, 'a+' → 422 |
 | TC-P6-09-50 | P | B rời lớp (REMOVED): GET me/grades → 403; GET snapshots/1 → 403; snapshot cũ của B vẫn còn trong DB cho Staff |
 | TC-P6-SEED-01 | N | chưa chạy |
 | TC-P6-SEED-02 | N | chưa chạy |

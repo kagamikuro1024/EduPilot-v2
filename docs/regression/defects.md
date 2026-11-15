@@ -18,16 +18,12 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 3 | TC-P103-20 | bán mở sau 30 s: 3 lời gọi đồng thời → stub nhận 6 (≤ 1 thăm dò × 3 lần thử); [503, 503, 503] (DEF-R3-05) |
 | 3 | TC-P105-44 | chữ «EMBEDDING» thô hiện ở bảng «Mức dùng theo tác vụ» (taskLabel không có nhãn cho EMBEDDING) → DEF-R3-01 (DEF-R3-01) |
 | 3 | TC-PU01-05 | pnpm lint rc=0 nhưng 5 cảnh báo (cells.tsx:39, QueueTab.tsx:115/123, Landing.tsx:48, LlmSettings.tsx:13); nền sprint 3 = 0 cảnh báo → DEF-R3-03 (DEF-R3-03) |
-| 6 | TC-P3-01-49 | Vai DB ứng dụng edupilot rolsuper=t (như BUG-1 gốc); DEF-R6-01 |
+| 5 | TC-PE02-27 | hàng nộp có 60 bài chờ/đang chạy (gửi 60 bài trong 4s); SV khác Chạy thử: 202, xong sau 8.42s (≤5); verdict run None |
+| 5 | TC-PE02-46 | JUDGE_PARALLELISM=2 (cấu hình ep-r hiện tại; mức 4 cần đổi cấu hình toàn cục): 60 bài bits/stdc++.h × 10 test gửi cùng lúc, tới DONE cuối 21 |
+| 5 | TC-PE03-49 | Drawer: câu nháp nút [Đóng/Lưu cấu hình/Thêm test/Kiểm tra zip/Nhập zip/Gợi ý đầu vào từ AI/Chạy lời giải mẫu/Duyệt/Gửi duyệt/Chỉnh |
+| 5 | TC-PE03-51 | bàn phím: Tab tới hàng (sau 31 lần), Enter mở Drawer=false, focus trong Drawer=false, tới nút Duyệt/Chỉnh sửa=false, Esc trả focus=true; AUDIT (ox/cut |
 | 6 | TC-P3-06-42 | /threads khi khoá: ô tiêu đề/nội dung vô hiệu, dòng báo là "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." thay vì "Đă |
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
-| 8 | TC-P6-01-20 | weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
-| 8 | TC-P6-02-15 | quét float64: internal/seedtool/examhistory.go:130 đưa điểm thi qua float64(c)*2.5 (seed tool); mã sản phẩm sạch |
-| 8 | TC-P6-02-25 | C: KT=0, status COMPLETE, nhưng dòng KT chỉ expr '0' (filled_by_user, không quote điều 1.4), không có chữ 'không dự → 0 theo quy chế' (DEF-R8-s8core-01 |
-| 8 | TC-P6-06-56 | version kiểu chữ → 422 VALIDATION_FAILED đúng; NHƯNG thiếu version: ô chưa có → 200 (tạo ô, version=0 ngầm); ô đã có → 409 VERSION_CONFLICT (kh |
-| 8 | TC-P6-07-11 | {2: 'STUDENT_NOT_IN_COURSE', 4: 'DUPLICATE_IN_FILE', 5: 'SCORE_OUT_OF_RANGE', 6: 'SCORE_PRECISION', 7: 'SCORE_NOT_NUMBER', 10: 'SCORE_NOT_NUMBER'} vs {2: 'STUDENT_NO |
-| 8 | TC-P6-09-40 | lớp 761987 hiện: A/B/C = {'sv.gioi': 'NONE', 'sv.kha': 'NONE', 'sv.nguyco': 'AT_RISK'} (khớp kỳ vọng NONE/NONE/AT_RISK) nhưng 10/30 dòng lệch expected_risk. |
-| 8 | TC-P6-09-49 | (200, {'reachable': False}) (200, {'reachable': False}) |
 | 9.1 | TC-UX04-3 | 9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02 |
 | 9.1 | TC-UX04-12 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX04-13 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
@@ -315,6 +311,28 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Bước tái hiện: 1. SV mở bài MIXED, chuyển tới câu code, bấm `Chạy thử`. 2. axe → `scrollable-region-focusable` ×1 (vùng cuộn của khối kết quả / soạn mã không có `tabindex=0`).
 - Kỳ vọng: 0 serious · Thực tế: 1 vùng cuộn không tới được bằng Tab. · Bằng chứng: `evidence-5/logs` (ui_pe, lượt SV 1440) · Nghi ngờ mã: khối kết quả chạy thử / editor ở `frontend/src/features/exam` (chưa định vị dòng)
 - Chạy lại lần 2: ổn định
+
+### DEF-R5-03 — Ngân hàng câu hỏi: nháp tự lưu nhưng KHÔNG khôi phục khi mở lại (mất chữ gõ dở)
+- Mức: Trung bình (S2: vi phạm luật "không bao giờ mất chữ", AC13 US-PE-03)
+- Sprint gốc: 5 · TC gốc: TC-PE03-49 · Hồi quy do sprint sau?: KHÔNG — lỗi từ b8e30b42 (2026-10-09, US-PE-03 frontend)
+- Môi trường: ep-r, GV r5t, Chrome 1440, /questions lớp R5C1 · script `evidence-5/ui/ui_q2.cjs` (ONLY=gv)
+- Bước tái hiện: 1. Mở câu AI "Chờ duyệt" → Chỉnh sửa. 2. Gõ thêm chữ vào Đề bài, đợi 3 s (localStorage `ep:draft:<uid>:question:<id>` có ghi). 3. Đóng tab đột ngột, mở tab mới, vào lại câu → Chỉnh sửa.
+- Kỳ vọng: banner "Đã khôi phục phần bạn đang sửa dở" + chữ còn. · Thực tế: không banner, ô về bản máy chủ; chữ gõ dở mất (khoá nháp vẫn nằm trong localStorage).
+- Nghi ngờ mã: `QuestionForm.tsx` tính `restored = useMemo(..., [])` từ `saved.value` ngay lần render đầu, nhưng `useAutosaveDraft` chỉ nạp giá trị trong `useEffect` (value = "" lúc đầu) ⇒ `restored` luôn null.
+- Chạy lại lần 2: ổn định.
+
+### DEF-R5-04 — Ngân hàng câu hỏi: Enter trên hàng mở Drawer rồi Drawer đóng ngay (bàn phím không dùng được)
+- Mức: Trung bình (S2: luồng chính chỉ bàn phím, AC13)
+- Sprint gốc: 5 · TC gốc: TC-PE03-51 · Hồi quy do sprint sau?: KHÔNG RÕ (DataTable + Dialog từ sprint 2)
+- Môi trường: ep-r, GV r5t, Chrome 1440 (`ui_q2.cjs` ONLY=gv2)
+- Bước tái hiện: Tab tới hàng (`tr[tabindex=0]`) → Enter. Drawer mở rồi đóng trong cùng một lần nhấn (MutationObserver: dialog[open] 1 → 0; focus về body). Click chuột mở bình thường.
+- Nghi ngờ: `onKeyDown` của hàng mở Drawer và chuyển focus tới nút "Đóng"; sự kiện keypress của chính phím Enter đó bấm luôn nút "Đóng". [INFERENCE: Chrome thật cũng vậy; đã tái hiện bằng Playwright keyboard.press.]
+- Các phần khác của TC đạt: 5 mốc bề rộng 1440/1024/720/719/390 không tràn ngang, không cắt chữ, ≥720 bảng, <720 danh sách.
+
+### DEF-R5-05 — `go test ./internal/contract/...` không tag testroutes đỏ (lệnh trong TC tổng và `scripts/gate-pe.sh`)
+- Mức: Thấp (script/tài liệu; CI chạy với `-tags testroutes` nên xanh)
+- TC gốc: TC-PE01-39, PE02-57 (và các TC tổng PE03-55…PE08-68 cùng lệnh) · Hồi quy do sprint sau?: CÓ (contract_test cần bản dựng testroutes sau P3/P10)
+- Thực tế: 4 test đỏ khi thiếu tag; với `-tags testroutes` ok (31 s) và `-race` ok (80 s). Khuyến nghị: thêm `-tags testroutes` vào gate-pe.sh + TC.
 
 ## Ghi nhận không tính lỗi
 - Go `TestRunningNotCancelled` đỏ 1 lần khi máy tải nặng (lease 30 s hết hạn), PASS 2/2 khi chạy riêng — chập chờn do tải.
@@ -731,5 +749,13 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 | DEF-R9.5-12 (Cao) real_llm 429/--resume | TC-N08-16/17 (9.5) | 965ca248 | ĐẠT: Retry-After 120 → dừng sau 1 s, «CHƯA HOÀN TẤT — hết hạn mức…», lưu resume.json, rc 3 |
 | DEF-R9.5-02 (Thấp) canary-scan dọn nhà cung cấp | TC-N01-18 (9.5) | 6ec47f79 | MỘT PHẦN: 7 dòng = 0, CN1 xoá; CN0 (tạo 201 vì fake nhận mọi khoá) vẫn còn |
 | DEF-R9.5-19 (Thấp) SEED_DEFAULT_PASSWORD | TC-N02-09/11 (9.5) | 6ec47f79 | MỘT PHẦN: chuỗi trắng bị từ chối (1 dòng); unset / rỗng vẫn rơi về mật khẩu trong `.env.local`/`.env.example` và chạy tiếp — chờ PM: thiết kế fallback hay lỗi |
+| DEF-R8 TC-P6-06-11 (HIGH) PUT điểm chuỗi trắng xoá ô | TC-P6-06-11 (sprint 8) | 78e3d92d | ĐẠT: 11 chuỗi sai (gồm ' ', tab) → 422, DB giữ 9.00 v2 |
+| DEF-R8 TC-P6-07-11 điểm âm XLSX | TC-P6-07-11 | cc1703f9 | ĐẠT: SCORE_OUT_OF_RANGE |
+| DEF-R8-s8core-01 giải trình «không dự → 0 theo quy chế» | TC-P6-01-20, TC-P6-02-25 | d3ac89fc | ĐẠT: /me/grades text «Kiểm tra hằng tuần: 0 · không dự → 0 theo quy chế» + quote điều 1.4 |
+| DEF-R8-s8core-02 float64 trong seedtool | TC-P6-02-15 | 1dea359f | ĐẠT: seedtool hết float64, go test PASS |
+| TC-P6-09-49 target_letter ngoài thang | TC-P6-09-49 | 3eb6afe3 (P-11-55) | ĐẠT: 'Z', 'a+' → 422 |
+| /me/grades final.locked_at 0001-01-01 | TC-P6-09-04 | 7b62e715 | ĐẠT: locked_at = 2026-11-15T19:01:38Z |
+| TC-P6-06-56 (TC sai, P-11-54) | TC-P6-06-56 a/b/c | — | ĐẠT: (a) version chữ 422; (b) thiếu/null trên ô có điểm → 409, DB không đổi; (c) ô mới → 200 |
+| TC-P6-09-40 (reseed sạch) | TC-P6-09-40 | — | ĐẠT: TestSeedRiskAfterGradebook + TestSeedGradebookExpected trên DB seed mới PASS; mức sống lệch do cửa sổ lịch [INFERENCE] |
 
 Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiếp), R7-01 (CI shard — cần chạy CI, K(b) nếu PM không duyệt đẩy nhánh), R4-02 `text.xlsx` (chưa sửa), R10.8-03/04, UX08-50 (landing, ≥ P-11-?).

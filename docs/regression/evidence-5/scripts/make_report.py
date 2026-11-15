@@ -61,6 +61,10 @@ ov = {
  'TC-PU06-01': ('LT', 'cấu hình lhci đổi sau sprint 5 (9 URL, LCP off)'),
 }
 for k, v in ov.items(): res[k] = v
+import os
+if os.path.exists(EV + '/results-q2.jsonl'):  # lượt bù SmkL (qc2): bản ghi cuối của mỗi TC thắng
+    for l in open(EV + '/results-q2.jsonl'):
+        r = json.loads(l); res[r['tc']] = (r['r'], r['note'])
 T5 = tcs(5)
 # cột PU06 id format
 def key_ok(k): return k in res
@@ -71,7 +75,7 @@ for tc, us in T5.items():
     if r == 'K': r = 'S'
     cnt[r] += 1; byus[us][r] += 1; rows.append((tc, r, note))
 tot = len(T5)
-L = [f'# Smoke hồi quy sprint 5 — kết quả', 'Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkC) · Ngày: 2026-11-15',
+L = [f'# Smoke hồi quy sprint 5 — kết quả', 'Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkC, SmkL bổ sung) · Ngày: 2026-11-16',
  f'Tổng TC cũ: {tot} · Đạt: {cnt["P"]} · Trượt: {cnt["F"]} · Không chạy K (a/b/c): 0 · Lỗi thời LT: {cnt["LT"]} · Chưa chạy (mẫu) S: {cnt["S"]}   (P+F+K+LT+S = {sum(cnt.values())})', '',
  'Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.', '',
  '**Ca đã chạy ở cấu hình ep-r khác mặc định (ghi chú):** EXAM_MIN_DURATION_MINUTES=1, EXAM_MIN_LEAD_SECONDS=5, EXAM_SAVE_RATE_PER_MIN=2000, EXAM_GRACE_SECONDS=10, judge `-no-seccomp` (arm64, D58).', '',
@@ -79,7 +83,7 @@ L = [f'# Smoke hồi quy sprint 5 — kết quả', 'Mã đã chạy: be0c0d96 (
 for us, c in byus.items(): L.append(f'| {us} | {sum(c.values())} | {c["P"]} | {c["F"]} | {c["LT"]} | {c["S"]} | |')
 L += ['', '## Kết quả từng ca', '| TC | KQ | Ghi chú |', '| --- | --- | --- |']
 for tc, r, n in rows: L.append(f'| {tc} | {r} | {n.replace("|", "/").replace(chr(10), " ")[:260]} |')
-L += ['', '## Trượt: bước tái hiện', '### DEF-R5-01 — Nút đầu trang AppShell vi phạm axe `label-content-name-mismatch` (serious) ở mọi màn đăng nhập (TC-PE03-52, PE04-45, PE05-48, PE06-08)', 'Xem `defects-5.md`.', '### DEF-R5-02 — Vùng cuộn ở màn làm bài code không focus được bằng bàn phím (TC-PE06-08)', 'Xem `defects-5.md`.',
+L += ['', '## Trượt: bước tái hiện', '**Ca trượt mới (SmkL):** TC-PE03-49 → DEF-R5-03 (nháp câu hỏi không khôi phục), TC-PE03-51 → DEF-R5-04 (Enter mở Drawer rồi đóng), TC-PE01-39/PE02-57 → DEF-R5-05 (contract không tag testroutes); TC-PE02-27/46 trượt khi tải máy 13 (docker load 14) — chạy lại ở tải <8 (xem dòng kết quả); chi tiết `defects-5.md`.', '### DEF-R5-01 — Nút đầu trang AppShell vi phạm axe `label-content-name-mismatch` (serious) ở mọi màn đăng nhập (TC-PE03-52, PE04-45, PE05-48, PE06-08)', 'Xem `defects-5.md`.', '### DEF-R5-02 — Vùng cuộn ở màn làm bài code không focus được bằng bàn phím (TC-PE06-08)', 'Xem `defects-5.md`.',
  '', '## Ca không đạt/khác ghi nhận không tính lỗi', '- TC-PE02-37: fork bomb A8 nay ra `WA` (FORKED=0, fork bị chặn, 0 tiến trình mồ côi) thay vì `TLE` như gốc — bất biến an toàn thoả.', '- TC-PE02-42: ptrace(TRACEME) và unshare(CLONE_NEWUSER) thành công (arm64, -no-seccomp) — như cảnh báo L1 gốc; chưa kiểm được seccomp bật (cần amd64/CI).', '- TC-PE03-10: trần bộ nhớ nay 512 MiB (#5 sprint 5), TC gốc ghi 1024.', '- go `TestRunningNotCancelled` đỏ 1 lần khi máy tải nặng, PASS 2/2 khi chạy riêng.',
  '- Today: provider `staff`/`assignment` bị bỏ do quá hạn khi stack dùng chung chậm (log "today: bỏ Provider lỗi") — thiết kế degrade, ghi nhận.', '', '## Ca K và lý do', 'K (a/b/c) = 0. Ca "chưa chạy (mẫu)" S: toàn bộ ca dạng tài liệu ngoài mẫu 1 chính + 1 lỗi / US; UI chi tiết (axe/INP/Lighthouse/ảnh), k6 (PE-02-46..49, PE-05-25, PE-09-15..19), `go test -race ./...` toàn bộ (…-39/50/55/60/47/48/68), TC-PE08 phần phát hành đôi (kill -9 hai bộ lập lịch), TC cần cửa sổ khoá global nếu chưa chạy (xem cuối tệp).']
 open(R + '/regression/smoke-5.md', 'w').write('\n'.join(L) + '\n' + open(EV + '/smoke-5-tail.md', encoding='utf-8').read())

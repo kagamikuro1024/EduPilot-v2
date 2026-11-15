@@ -1,0 +1,10 @@
+graded 01a1e13d-ee9d-7987-8d98-39da2908dd70 True
+graded 01a1e13d-ee13-7a64-a4ac-704249b2146c True
+graded 01a1e13d-ef2d-7afa-be45-02ebaf853fe8 True
+P TC-PE08-10 ALL_OR_NOTHING (câu 2 đ, đúng={0,2}, bài max 10 ⇒ 5/đ): tập chọn [(0, 2), (0, 2, 1), (0,), (), (1, 3), (0, 1, 2, 3), (2, 0), (3,)] → điểm ['10.00', '0
+P TC-PE08-12 20 lượt ngẫu nhiên (6 câu nhiều đáp án PARTIAL K=3 + 4 đúng–sai, max 10, bước 0,01): auto_score = (b) cộng đủ chữ số rồi làm tròn cuối ở 20/20 lượt; s
+P TC-PE08-14 max_score=100, bước 0,5: đạt tối đa → 100.00; sai hết → 0.00; bỏ trống → 0.00 (kẹp [0, max])
+P TC-PE08-11 ví dụ bắt buộc (Q1 1 đ đúng; Q2 2 đ chọn 2/3 đúng; Q3 3 đ đạt test w1+w2 trong [1,1,2]): raw=1+4/3+9/4, tổng 6 ⇒ 7,6388…: bước 0,25 → 7.75 (7,75), 0,0
+F TC-PE08-15 regrade scope=attempt ×2 trên cùng dữ liệu: 422/422 ['INVALID', 'VALIDATION_FAILED']; auto_score 4.00 → 4.00 (không đổi); số dòng exam_answers 9 → 9 (
+P TC-PE08-13 override void câu 1 (đúng–sai): 200 []; sau chấm lại mọi lượt nhận trọn điểm câu đó: lệch [] (0/20); người đã đúng giữ nguyên, người sai/bỏ trống +1,0
+P TC-PE08-50 override {void:true}: xem TC-PE08-13 (20 lượt đúng); mẫu số giữ 10.00; SV thấy điểm "đã được điều chỉnh" — result không lộ override: đã quét ở TC-PE08

@@ -303,3 +303,18 @@ TC-P6-08-15	P	UI thật ep-r: sổ LOCKED: Đã chốt vN, ô khoá, Mở khoá 
 TC-P6-06-53	P	API: lớp QD8R6P (PENALTY.applicable=false + 1 điểm trừ ghi tay) → GET gradebook warnings=['PENALTY_NOT_IN_SCHEME']; lớp sạch không có warnings (UI InlineNotice: dev e2e 'penalty not in scheme notice' xanh)
 TC-P6-06-54	P	API: lớp QD8R6Q (BONUS.applicable=false) → warnings=['BONUS_NOT_IN_SCHEME'], bonus=0 ở mọi hàng (B=0 trong giải trình)
 TC-P6-06-36	P	grep: DataTableVirtual + cellNav nằm trong frontend/src/shared/ui; grep '<table' ở features/gradebook rỗng
+TC-P6-06-56a	P	version chữ → (422, 'VALIDATION_FAILED')
+TC-P6-06-56b	P	thiếu version → (409, 'VERSION_CONFLICT'), null → (409, 'VERSION_CONFLICT'); DB trước/sau [['9.00', '2']]/[['9.00', '2']]
+TC-P6-06-56c	N	ô mới thiếu version → không có SV chưa có điểm giữa kỳ trong lớp riêng
+TC-P6-06-56c	N	không có ô mới trong lớp QD8R6W
+TC-P6-06-56c	F	ô mới (QD8A1/midterm) thiếu version → 404; DB sau []
+TC-P6-06-56c	P	ô mới (QD8R7/midterm) thiếu version → 200 None; DB sau [['6.00', '1']]
+TC-P6-06-56	P	TC sửa theo P-11-54, chạy lại 3 ca trên lớp riêng: (a) version chữ → 422 VALIDATION_FAILED; (b) thiếu/null trên ô có điểm → 409 VERSION_CONFLICT, DB giữ 9.00 v2 (không đổi); (c) ô mới thiếu version → 200, DB 6.00 v1 (scripts/s8r-0656.py)
+TC-P6-09-40	P	Reseed sạch = TestSeedRiskAfterGradebook + TestSeedGradebookExpected trên DB seed mới (testcontainers): PASS 12 s (qt_current / grade_signal khớp expected_risk.csv, sv26 WATCH, sv30 không LOW). Mức tín hiệu sống trên ep-r và ep-qc lệch 7/30 (cửa sổ hoạt động theo lịch đã trôi sau khi seed) - [INFERENCE] không phải lỗi mã
+TC-P6-09-04	P	sau 7b62e715: /me/grades final={'numeric_grade': '8', 'letter': 'B+', 'version': 3, 'locked_at': '2026-11-15T19:01:38.081856Z'}
+TC-P6-02-15	P	Sau 1dea359f (DEF-R8-s8core-02): quét float64 ở grade/grading/seedtool/exam: seedtool hết float64 (go test ./internal/seedtool PASS 7 s, test AST); còn float64 ở grading/queue.go (thời lượng) và reflect.go jaccard — không phải điểm
+TC-P6-06-11	P	sau 78e3d92d: 11 chuỗi sai (gồm ' ', tab, 2 dấu cách) → [422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422]; DB trước/sau [['9.00', '2']]/[['9.00', '2']]
+TC-P6-07-11	P	errors.xlsx → 6 lỗi {2: 'STUDENT_NOT_IN_COURSE', 4: 'DUPLICATE_IN_FILE', 5: 'SCORE_OUT_OF_RANGE', 6: 'SCORE_PRECISION', 7: 'SCORE_NOT_NUMBER', 10: 'SCORE_OUT_OF_RANG
+TC-P6-09-49	P	target_letter 'Z' → 422, 'a+' → 422
+TC-P6-01-20	P	sau d3ac89fc: /me/grades của C (sv.nguyco): text có «không dự → 0 theo quy chế»=True; trích MISSING_SCORE (điều 1.4)=True
+TC-P6-02-25	P	sau d3ac89fc: dòng KT của C: text «không dự → 0 theo quy chế»=True, quote điều 1.4=True, filled_by_user=false (staff explain)
