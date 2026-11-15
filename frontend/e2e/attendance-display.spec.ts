@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { COURSE, err, json } from "./support/att-fixtures";
 import { asDemo } from "./support/session";
@@ -98,4 +99,25 @@ test("attendance display: lớp lấy từ URL, không từ lớp đang chọn; 
   await expect(page.getByText("Lớp này không có trong tài khoản của bạn")).toBeVisible();
   await expect(page.locator("[data-part=short-code]")).toHaveCount(0);
   expect(asked.length).toBe(before);
+});
+
+test("attendance display: axe 0 lỗi nghiêm trọng ở 1280×720 và 1920×1080 (mã đang hiện, và «Đã đóng»); QR vuông, vừa khung, không cuộn", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "đo một lần");
+  await asDemo(context, "teacher");
+  await mock(page, (n) => json(disp(n, 20000, 10)));
+  for (const [w, h] of [[1280, 720], [1920, 1080]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(URL_DISPLAY);
+    await expect(page.getByRole("img", { name: "Mã QR điểm danh" })).toBeVisible();
+    const box = await page.getByRole("img", { name: "Mã QR điểm danh" }).boundingBox();
+    expect(Math.abs(box!.width - box!.height)).toBeLessThan(2); // vuông
+    expect(box!.height).toBeLessThanOrEqual(h);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1 && document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    const res = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+    expect(res.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => v.id)).toEqual([]);
+    await page.getByRole("button", { name: "Đóng điểm danh" }).click();
+    await expect(page.locator("[data-part=closed]")).toHaveText("Đã đóng");
+    const res2 = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+    expect(res2.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => v.id)).toEqual([]);
+  }
 });
