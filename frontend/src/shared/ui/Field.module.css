@@ -52,6 +52,7 @@
 }
 .switchRow:focus-within .tip, .switchRow:active .tip, .switchRow[data-tip-open] .tip { opacity: 1; }
 @media (hover: hover) and (pointer: fine) { .switchRow:hover .tip { opacity: 1; } }
+.switchRow[data-tip-dismissed] .tip.tip { opacity: 0; }
 .switch {
   flex: none;
   position: relative;

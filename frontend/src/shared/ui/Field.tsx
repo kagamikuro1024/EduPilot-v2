@@ -96,10 +96,11 @@ export function Switch({
   const id = useId();
   const tipId = useId();
   const [tipOpen, setTipOpen] = useState(false);
+  const [dismissed, setDismissed] = useState(false); // Esc: đóng lý do dù còn focus / rê chuột (WCAG 1.4.13)
   // Khoá có lý do: dùng aria-disabled (không `disabled`) để công tắc vẫn nhận focus bàn phím và chạm → mở được lý do; bấm không đổi giá trị
   const locked = Boolean(disabled && title);
   return (
-    <div className={s.switchRow} data-tip-open={tipOpen ? "" : undefined}>
+    <div className={s.switchRow} data-tip-open={tipOpen ? "" : undefined} data-tip-dismissed={dismissed ? "" : undefined} onMouseLeave={() => setDismissed(false)}>
       <div>
         <label htmlFor={id} className={s.label}>
           {label}
@@ -116,8 +117,8 @@ export function Switch({
         aria-disabled={locked || undefined}
         className={s.switch}
         onClick={() => (locked ? setTipOpen((v) => !v) : onChange(!checked))}
-        onBlur={() => setTipOpen(false)}
-        onKeyDown={(e) => { if (e.key === "Escape") setTipOpen(false); }}
+        onBlur={() => { setTipOpen(false); setDismissed(false); }}
+        onKeyDown={(e) => { if (e.key === "Escape" && title) { setTipOpen(false); setDismissed(true); } }}
       >
         <span className={s.knob} />
       </button>

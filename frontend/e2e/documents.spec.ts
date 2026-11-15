@@ -60,6 +60,9 @@ test("công tắc khoá có lý do: focus bàn phím mở lý do, bấm không �
     await sw.focus();
     await expect(sw).toHaveAccessibleDescription(reason);
     await expect(sw.locator("xpath=following-sibling::span[@role='tooltip']")).toHaveCSS("opacity", "1");
+    await page.keyboard.press("Escape"); // Esc đóng lý do dù còn focus
+    await expect(sw).toBeFocused();
+    await expect(sw.locator("xpath=following-sibling::span[@role='tooltip']")).toHaveCSS("opacity", "0");
     const before = calls.length;
     await sw.click({ force: true });
     expect(calls.length).toBe(before); // không PATCH
