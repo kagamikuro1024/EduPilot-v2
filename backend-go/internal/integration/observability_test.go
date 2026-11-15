@@ -312,3 +312,27 @@ func TestAuditRBAC(t *testing.T) {
 	require.Equal(t, http.StatusUnprocessableEntity, get(w.adm.access, "?cursor=rac").code)
 	require.Equal(t, 1, views(), "lỗi tham số không ghi VIEW_LIST")
 }
+
+// TestAnalyticsExamRBAC — US-P10-06 AC7: staff lớp đọc được; ADMIN chỉ số tổng (overview) và 403 ở danh sách có danh tính; STUDENT 403;
+// giảng viên lớp khác không đọc được lớp này; compare chỉ TEACHER.
+func TestAnalyticsExamRBAC(t *testing.T) {
+	w := newObsWorld(t)
+	get := func(bearer, path string) resp { return w.r.do(req{method: http.MethodGet, path: path, bearer: bearer}) }
+	base := "/courses/" + w.course.String() + "/analytics/exams/"
+	for _, p := range []string{"overview", "trend", "hard-items", "declining"} {
+		require.Equal(t, http.StatusOK, get(w.gv.access, base+p).code, "teacher "+p)
+		require.Equal(t, http.StatusOK, get(w.ta.access, base+p).code, "ta "+p)
+		require.Equal(t, http.StatusForbidden, get(w.sv.access, base+p).code, "student "+p)
+		require.Equal(t, http.StatusUnauthorized, get("", base+p).code, p)
+		require.Contains(t, []int{http.StatusForbidden, http.StatusNotFound}, get(w.gv2.access, base+p).code, "giảng viên lớp khác "+p)
+	}
+	require.Equal(t, http.StatusOK, get(w.adm.access, base+"overview").code)
+	require.Equal(t, http.StatusOK, get(w.adm.access, base+"trend").code)
+	require.Equal(t, http.StatusForbidden, get(w.adm.access, base+"hard-items").code)
+	require.Equal(t, http.StatusForbidden, get(w.adm.access, base+"declining").code)
+	require.Equal(t, "private, no-cache", get(w.gv.access, base+"overview").hdr.Get("Cache-Control"))
+	require.Equal(t, http.StatusOK, get(w.gv.access, "/analytics/exams/compare").code)
+	for name, s := range map[string]session{"ta": w.ta, "student": w.sv, "admin": w.adm} {
+		require.Equal(t, http.StatusForbidden, get(s.access, "/analytics/exams/compare").code, name)
+	}
+}

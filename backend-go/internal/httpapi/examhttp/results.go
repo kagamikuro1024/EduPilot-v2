@@ -29,6 +29,7 @@ func (h *Handler) MountResults(r chi.Router) {
 	r.With(teacher).Put(e+"/items/{itemId}/override", h.overrideItem)
 	r.With(teacher, h.Idem).Post(e+"/regrade", h.regrade)
 	r.With(staff).Get(e+"/stats", h.examStats)
+	h.MountAnalytics(r) // US-P10-06: thống kê điểm thi theo lớp / tuần
 	r.With(staff).Get(e+"/appeals", h.listAppeals)
 	r.With(teacher, h.OptIdem).Post(e+"/appeals/{pid}/answer", h.answerAppeal)
 }

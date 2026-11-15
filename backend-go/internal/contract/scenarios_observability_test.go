@@ -143,3 +143,42 @@ func (r *runner) insightScenarios(x examRig) {
 	r.must(call{method: "GET", path: base + "/khong-phai-uuid/export", token: x.gv}, 404)
 	r.must(call{method: "GET", path: ex + "?format=pdf", token: x.gv}, 422)
 }
+
+// examAnalyticsScenarios: thống kê điểm thi (US-P10-06): mọi status đã khai báo; lớp chưa có bài PUBLISHED trả cấu trúc rỗng, không 500.
+func (r *runner) examAnalyticsScenarios(x examRig) {
+	none := "00000000-0000-7000-8000-000000000000"
+	base := "/api/v1/courses/" + x.cid + "/analytics/exams"
+	for _, p := range []string{"/overview", "/trend"} { // staff + ADMIN (chỉ tổng)
+		r.must(call{method: "GET", path: base + p, token: x.gv}, 200)
+		r.must(call{method: "GET", path: base + p, token: x.ta}, 200)
+		r.must(call{method: "GET", path: base + p, token: x.admin}, 200)
+		r.must(call{method: "GET", path: base + p}, 401)
+		r.must(call{method: "GET", path: base + p, token: x.sv}, 403)
+	}
+	for _, p := range []string{"/hard-items", "/declining"} { // staff; ADMIN 403
+		r.must(call{method: "GET", path: base + p + "?limit=5", token: x.gv}, 200)
+		r.must(call{method: "GET", path: base + p, token: x.ta}, 200)
+		r.must(call{method: "GET", path: base + p}, 401)
+		for _, who := range []string{x.sv, x.admin} {
+			r.must(call{method: "GET", path: base + p, token: who}, 403)
+		}
+		r.must(call{method: "GET", path: base + p + "?limit=0", token: x.gv}, 422)
+		r.must(call{method: "GET", path: base + p + "?cursor=rac", token: x.gv}, 422)
+	}
+	r.must(call{method: "GET", path: base + "/overview?exam_id=" + none, token: x.gv}, 404)
+	r.must(call{method: "GET", path: base + "/hard-items?exam_id=" + none, token: x.gv}, 404)
+	r.must(call{method: "GET", path: base + "/overview?week=tuan-truoc", token: x.gv}, 422)
+	r.must(call{method: "GET", path: base + "/overview?week=2026-W45&exam_id=" + none, token: x.gv}, 422)
+	r.must(call{method: "GET", path: base + "/overview?week=2026-W45", token: x.gv}, 200)
+	r.must(call{method: "GET", path: base + "/overview?exam_id=khong-phai-uuid", token: x.gv}, 422)
+	for _, p := range []string{"overview", "trend", "hard-items", "declining"} {
+		r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/analytics/exams/" + p, token: x.gv}, 404)
+	}
+
+	cmp := "/api/v1/analytics/exams/compare"
+	r.must(call{method: "GET", path: cmp, token: x.gv}, 200)
+	r.must(call{method: "GET", path: cmp}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "GET", path: cmp, token: who}, 403)
+	}
+}

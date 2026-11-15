@@ -9871,6 +9871,150 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/analytics/exams/overview:
+    get:
+      operationId: getExamAnalyticsOverview
+      tags: [exam]
+      summary: "Tổng quan điểm thi của một bài PUBLISHED (mặc định mới nhất) hoặc gộp theo tuần `week` (YYYY-Www hoặc một ngày YYYY-MM-DD; thứ Hai → Chủ nhật giờ +07). Có cả exam_id và week → 422. Chỉ bài PUBLISHED, điểm chính thức; ngưỡng đạt 50 % điểm tối đa. Giảng viên / TA: đủ số liệu; ADMIN: chỉ số bài nộp + tỉ lệ đạt (mean / median / distribution = null). Không có bài → exams rỗng. Cache-Control: private, no-cache"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: exam_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: week
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsOverview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/analytics/exams/trend:
+    get:
+      operationId: getExamAnalyticsTrend
+      tags: [exam]
+      summary: "Xu hướng qua các bài PUBLISHED (cũ → mới): số bài nộp, tỉ lệ đạt, trung bình, trung vị. ADMIN: chỉ số bài nộp + tỉ lệ đạt"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsTrend"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/analytics/exams/hard-items:
+    get:
+      operationId: listExamAnalyticsHardItems
+      tags: [exam]
+      summary: "Câu sai nhiều nhất của một bài PUBLISHED (mặc định mới nhất), sai nhiều → ít; trắc nghiệm (MCQ) và bài code (CODE, kèm ce_rate); phân trang con trỏ. Giảng viên / TA; ADMIN 403"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: exam_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsHardItems"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/analytics/exams/declining:
+    get:
+      operationId: listExamAnalyticsDeclining
+      tags: [exam]
+      summary: "Sinh viên có điểm giảm nghiêm ngặt ở 3 bài PUBLISHED liên tiếp (bộ ba mới nhất); phân trang con trỏ theo tên. Giảng viên / TA; ADMIN 403. Không đổi điểm rủi ro"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsDeclining"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/analytics/exams/compare:
+    get:
+      operationId: compareExamAnalytics
+      tags: [exam]
+      summary: "So sánh các lớp giảng viên đang dạy: số bài, bài nộp, trung bình, trung vị, tỉ lệ đạt; lớp dưới 5 bài nộp enough=false và không có số. Chỉ TEACHER; TA / STUDENT / ADMIN 403"
+      parameters:
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnalyticsCompare"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
   /api/v1/chat/tickets/{id}/followup:
     post:
       operationId: followupTicket
@@ -14854,6 +14998,131 @@ components:
                     type: integer
                   to:
                     type: integer
+    ExamAnalyticsOverview:
+      type: object
+      required: [scope, exams, submissions, pass_rate, mean, median, distribution]
+      additionalProperties: false
+      properties:
+        scope:
+          type: string
+          enum: [exam, week]
+        exams:
+          type: array
+          items:
+            type: object
+            required: [id, title, opens_at, max_score]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              title: {type: string}
+              opens_at: {type: string, format: date-time}
+              max_score: {type: string}
+        submissions: {type: integer}
+        pass_rate: {type: [string, "null"]}
+        mean: {type: [string, "null"]}
+        median: {type: [string, "null"]}
+        distribution:
+          type: [array, "null"]
+          items:
+            type: object
+            required: [from, to, count]
+            additionalProperties: false
+            properties:
+              from: {type: string}
+              to: {type: string}
+              count: {type: integer}
+    ExamAnalyticsTrend:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [exam_id, title, opens_at, submissions, pass_rate, mean, median]
+            additionalProperties: false
+            properties:
+              exam_id: {type: string, format: uuid}
+              title: {type: string}
+              opens_at: {type: string, format: date-time}
+              submissions: {type: integer}
+              pass_rate: {type: [string, "null"]}
+              mean: {type: [string, "null"]}
+              median: {type: [string, "null"]}
+    ExamAnalyticsHardItems:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [item_id, exam_id, position, type, title, topic, attempts, wrong_rate, ce_rate]
+            additionalProperties: false
+            properties:
+              item_id: {type: string, format: uuid}
+              exam_id: {type: string, format: uuid}
+              position: {type: integer}
+              type: {type: string, enum: [MCQ, CODE]}
+              title: {type: string}
+              topic: {type: string}
+              attempts: {type: integer}
+              wrong_rate: {type: string}
+              ce_rate: {type: [string, "null"]}
+        next_cursor: {type: [string, "null"]}
+    ExamAnalyticsDeclining:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [student_id, name, student_code, scores]
+            additionalProperties: false
+            properties:
+              student_id: {type: string, format: uuid}
+              name: {type: string}
+              student_code: {type: [string, "null"]}
+              scores:
+                type: array
+                minItems: 3
+                maxItems: 3
+                items:
+                  type: object
+                  required: [exam_id, title, score]
+                  additionalProperties: false
+                  properties:
+                    exam_id: {type: string, format: uuid}
+                    title: {type: string}
+                    score: {type: string}
+        next_cursor: {type: [string, "null"]}
+    ExamAnalyticsCompare:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [course_id, class_code, name, exams, submissions, enough, mean, median, pass_rate]
+            additionalProperties: false
+            properties:
+              course_id: {type: string, format: uuid}
+              class_code: {type: string}
+              name: {type: string}
+              exams: {type: integer}
+              submissions: {type: integer}
+              enough: {type: boolean}
+              mean: {type: [string, "null"]}
+              median: {type: [string, "null"]}
+              pass_rate: {type: [string, "null"]}
     JobAccepted:
       type: object
       required: [job_id]
