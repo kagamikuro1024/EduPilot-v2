@@ -1,0 +1,54 @@
+{
+  "at": "2026-11-15T04:24:21.289075+00:00",
+  "course": "761987",
+  "assignment": "BT03",
+  "before": {
+    "version": 0,
+    "stats": [
+      {
+        "version": 0,
+        "n": 8,
+        "mae_criterion": "0.25",
+        "mae_total": "1.00",
+        "bias_total": "1.00",
+        "edited_criteria": 8,
+        "edited_rate": "0.25",
+        "criteria_counted": 32
+      }
+    ]
+  },
+  "reflect": {
+    "status": "SUCCEEDED",
+    "result": {
+      "drafts": 1,
+      "dropped": []
+    }
+  },
+  "applied": {
+    "version": 1,
+    "items": 3,
+    "stale": {
+      "count": 0,
+      "editing": 0,
+      "reviewed": 8,
+      "versions": [
+        0
+      ]
+    }
+  },
+  "after": {
+    "version": 1,
+    "stats": [
+      {
+        "version": 0,
+        "n": 8,
+        "mae_criterion": "0.25",
+        "mae_total": "1.00",
+        "bias_total": "1.00",
+        "edited_criteria": 8,
+        "edited_rate": "0.25",
+        "criteria_counted": 32
+      }
+    ]
+  }
+}

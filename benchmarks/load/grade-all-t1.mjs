@@ -2,7 +2,7 @@
 // US-NFR-04 AC9: chấm 1.000 bài THỜI GIAN THẬT (không ngoại suy): "Chấm tất cả" BT4 của cả 20 lớp T1 (20 × 50 bài), provider giả của WORKER trễ K6_GRADE_LAT (20 s mỗi lượt), hai lượt mỗi bài, 5 luồng BATCH.
 // Chạy song song với `run-t1.mjs grading-baseline --duration 150m --tag 1000` (chat giữ nguyên độ trễ 300 ms ở gateway) để so TTFT chat lúc chấm với lúc nền.
 //   COMPOSE_PROJECT_NAME=ep-t1 EP_PORT_HTTPS=843 SEED_DEFAULT_PASSWORD=… node benchmarks/load/grade-all-t1.mjs [--max-hours 4]
-// Ghi benchmarks/reports/load-c-1000.json (khối `meta` đủ trường, tiến độ mỗi phút); thoát 0 khi mọi bài DONE.
+// Ghi benchmarks/reports/${OUT_NAME:-load-c-1000}.json (GRADE_PROVIDER ghi nhà cung cấp thật, vd. «9router ag/gemini-3.8-flash») (khối `meta` đủ trường, tiến độ mỗi phút); thoát 0 khi mọi bài DONE.
 import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { meta } from "../lib/meta.mjs";
@@ -41,7 +41,7 @@ const last = progress.at(-1);
 const twice = Number(psql(`select count(*) from (select submission_id, round from grading_results where ${where} group by 1, 2 having count(*) > 1) x`));
 const hours = Number(((Date.now() - started) / 3.6e6).toFixed(2));
 const demo = spawnSync("docker", ["ps", "-q", "--filter", "label=com.docker.compose.project=edupilot"], { encoding: "utf8" }).stdout.trim() ? "running" : "stopped";
-const out = { meta: { ...meta({ scenario: "grade-1000", courses: targets.length, provider: "fake", worker_fake_latency: process.env.K6_GRADE_LAT ?? "(xem docker compose)", grading_workers: process.env.GRADING_WORKERS ?? "2 (mặc định)", compose_project: project }), k6_cpus: "1.5", demo_stack: demo }, queued, hours, done: last.DONE ?? 0, failed: last.FAILED ?? 0, orphan: (last.QUEUED ?? 0) + (last.RUNNING ?? 0), graded_twice: twice, slo_hours: 3, pass: (last.DONE ?? 0) === queued && hours <= 3 && twice === 0, progress };
-writeFileSync("benchmarks/reports/load-c-1000.json", JSON.stringify(out, null, 2));
+const out = { meta: { ...meta({ scenario: "grade-1000", courses: targets.length, provider: process.env.GRADE_PROVIDER ?? "fake", worker_fake_latency: process.env.K6_GRADE_LAT ?? "(xem docker compose)", grading_workers: process.env.GRADING_WORKERS ?? "2 (mặc định)", compose_project: project }), k6_cpus: "1.5", demo_stack: demo }, queued, hours, done: last.DONE ?? 0, failed: last.FAILED ?? 0, orphan: (last.QUEUED ?? 0) + (last.RUNNING ?? 0), graded_twice: twice, slo_hours: 3, pass: (last.DONE ?? 0) === queued && hours <= 3 && twice === 0, progress };
+writeFileSync(`benchmarks/reports/${process.env.OUT_NAME ?? "load-c-1000"}.json`, JSON.stringify(out, null, 2));
 console.log(JSON.stringify({ ...out, progress: undefined }));
 process.exit(out.pass ? 0 : 1);
