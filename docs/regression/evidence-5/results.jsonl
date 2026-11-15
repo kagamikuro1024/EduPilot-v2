@@ -272,3 +272,9 @@
 {"tc": "TC-PE02-14", "r": "P", "note": "đường chấm thật: ok=AC, wa=WA, ce=CE, tle=TLE, re=RE, MLE(a05/a06), OLE(a03/a04), a07/a18=RE", "suite": "final"}
 {"tc": "TC-PE02-50", "r": "P", "note": "canary QCR5CANARY/QCHID: 0 lần ở log gateway/worker/judge; compile_log dùng main.cpp, không đường dẫn tuyệt đối", "suite": "final"}
 {"tc": "TC-PE02-55", "r": "P", "note": "TestSandboxAttacks (go_tests, -tags integration, judge thật): ok; xem TC-PE02-45", "suite": "final"}
+{"tc": "TC-PE05-56", "r": "P", "note": "lớp lưu trữ: SV thành viên bắt đầu 409 ['COURSE_ARCHIVED']; SV không thuộc lớp 403/course (start), mine 403", "suite": "api2"}
+{"tc": "TC-PE08-28", "r": "P", "note": "reveal_answers=false: result 200; canary giải thích 0; khoá đáp án/đúng-sai: []; điểm hiện 0.00", "suite": "api2"}
+{"tc": "TC-PE05-59", "r": "P", "note": "sau công bố reveal=false: result + mine không có canary giải thích / answer_key; trước công bố đã quét ở PE05-14/16/53 (0 canary)", "suite": "api2"}
+{"tc": "TC-PE07-03", "r": "P", "note": "2 lượt (hạn 20p/40p): TTL 2410s khoá=B(40p); nộp B → TTL 1208s khoá=A; nộp A → Redis exists=0", "suite": "api2"}
+{"tc": "TC-PE07-44", "r": "P", "note": "sau extend + takeover: |TTL khoá − (deadline−now+grace)| lớn nhất 3.1s (≤10); deadline_at không đổi khi gia hạn: ''", "suite": "api2"}
+{"tc": "TC-PE07-10", "r": "P", "note": "chat-gate ×300 (stack dùng chung, qua Caddy HTTPS): p95 phía gateway (log duration_ms, n=300) = 1.0 ms; p95 phía client 7.4 ms", "suite": "api2"}

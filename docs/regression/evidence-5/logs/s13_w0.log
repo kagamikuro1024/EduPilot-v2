@@ -1,0 +1,6 @@
+approve qa True
+A 202 01a1e117-ddc5-795d-a5a5-2bdf682b732b []
+Z 202 01a1e117-ddce-7320-b279-0a1a9ea1e92f []
+F TC-PE02-21 test chưa duyệt (approved=True, w=5) không vào kết quả: tests chấm=[None, None, None], verdict/passed/total=DONE|AC|8|8|0.252707; Σweight=0 (mọi test 
+P TC-PE02-47 Chạy thử ×20 (biên dịch + 2 test mẫu, 10 SV × 2, máy load 6.7): p50=0.64s p95=0.95s max=0.97s; thành công 20/20
+P TC-PE02-19 bài nộp DONE: lời gọi POST /run vào judge = 4 (1 biên dịch + 3 test đã duyệt = 4); DELETE /file sau chấm = 1; không có lệnh checker thứ hai (so khớp t

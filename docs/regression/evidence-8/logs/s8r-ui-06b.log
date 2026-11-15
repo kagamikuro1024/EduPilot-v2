@@ -1,0 +1,9 @@
+LOAD1000 hàng ban đầu 21 scroller {"h":4894,"c":600}
+NO_POLICY: Sổ điểm Xem công thức Chốt điểm Chưa có công thức điểm đã xác nhận Công thức điểm chưa xác nhận Tải quy chế Chưa có công thức điểm Thiết lập công thức
+0 SV: Sổ điểm Xem công thức Chốt điểm Lớp chưa có sinh viên
+LOCKED: Sổ điểm Xem công thức Đã chốt v3 · Hôm nay, 01:45 Bảng điểm của lớp Sinh viên Giữa kỳ Kiểm tra hằng tuần Thi cuối kỳ Điểm cộng Điểm trừ Quá trình Điểm học phần Điểm chữ Trạng thái Hành động Bùi Khánh Việt 20227706 5,00 —
+ô sửa được: 0
+menu LOCKED: ["Xuất XLSX","Lịch sử chốt","Mở khoá"]
+hộp thoại mở khoá: Mở khoá Mở khoá bản chốt v3 của 30 sinh viên. Bản v3 vẫn được giữ nguyên. Nhập lý do 10–500 ký tự. Lý do Để sau Mở khoá
+lý do ngắn → nút disabled=true
+lý do đủ dài → nút disabled=false

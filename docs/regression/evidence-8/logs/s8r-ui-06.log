@@ -1,0 +1,73 @@
+menu ⋯: ["Nhập từ XLSX","Nhập từ Forms","Xuất XLSX"]
+menu ⋯: ["Nhập từ XLSX","Nhập từ Forms","Xuất XLSX"]
+A: Vũ Hoàng Giang 20229001 — 1,00 0,00 10,000 9,50 A+ 
+B: Bùi Thanh Khải 20229002 — 0,50 0,00 8,250 7,00 B 
+C: Ngô Ngọc Cẩm 20229003 — 0,25 1,50 1,250 3,00 F 
+note y=848.1875 table bottom=1694
+PUT body {"item_id":"01a1e10b-df65-7555-93f9-f1e02e7b1731","student_id":"01a1df27-6542-7d57-9e5d-b61d2133eccc","score":"8.5","version":1}
+trước 5,00
+chuỗi 'abc' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=abc
+chuỗi '-1' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=-1
+chuỗi '1e2' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=1e2
+chuỗi '8,,5' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=8,,5
+chuỗi '1000' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=1000
+xoá ô: status Thiếu điểm
+ô EXAM: <span title="Điểm lấy từ bài thi, sửa ở bài thi">—</span>
+tooltip ô EXAM: [] title=Điểm lấy từ bài thi, sửa ở bài thi
+đang chờ: Bùi Thanh Khải 20229002 — … … … … … … 
+xong: Bùi Thanh Khải 20229002 — 0,50 0,00 8,250 8,00 B+ 
+giải trình B: Giữa kỳ (20%) 7,5 Căn cứ · tr. 1 = 7,5 Kiểm tra hằng tuần (20%) 8 do giảng viên đặt = 8 Thi cuối kỳ (60%) 6,5 Căn cứ · tr. 1 = 6,5 Điểm cộng min(0,5; 1) Căn cứ · tr. 1 = 0,5 Điểm trừ max(0; 2 − 2) × 0,5 + 0 Căn cứ · tr. 1 = 0 Điểm quá trình trước điểm cộng / trừ (20 × 7,5 + 20 × 8) ÷ 40 = 7,75 Điểm quá trình min(10; max(0; 7,75 + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 6,5) ÷ 60 = 6,5 Điểm học phần thô (40 × 8,25 + 60 × 6,5) ÷ 100 = 7,2 Làm tròn đến 0,5 (nửa lên) round(7,2 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 7 Điểm chữ Căn cứ · tr. 2 B
+lịch sử B: Lịch sử · Bùi Thanh Khải Hôm nay, 04:18 · TS. Lê Thu Hà final: 8 → 6,5 Hôm nay, 04:18 · TS. Lê Thu Hà final: 6,5 → 8
+menu cột GK: ["Gỡ công bố"]
+tiêu đề GK: Giữa kỳ Gỡ công bố
+skeleton khi tải: 0
+TA menu dòng: ["Giải trình","Lịch sử"]
+popover: TS. Lê Thu Hà vừa nhập 7,5 · vừa xong Giữ của tôi Dùng của họ
+sau Giữ của tôi: cell 6,00
+giải trình B: Giữa kỳ (20%) 7,5 Căn cứ · tr. 1 = 7,5 Kiểm tra hằng tuần (20%) 8 do giảng viên đặt = 8 Thi cuối kỳ (60%) 8 Căn cứ · tr. 1 = 8 Điểm cộng min(0,5; 1) Căn cứ · tr. 1 = 0,5 Điểm trừ max(0; 2 − 2) × 0,5 + 0 Căn cứ · tr. 1 = 0 Điểm quá trình trước điểm cộng / trừ (20 × 7,5 + 20 × 8) ÷ 40 = 7,75 Điểm quá trình min(10; max(0; 7,75 + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 8) ÷ 60 = 8 Điểm học phần thô (40 × 8,25 + 60 × 8) ÷ 100 = 8,1 Làm tròn đến 0,5 (nửa lên) round(8,1 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 8 Điểm chữ Căn cứ · tr. 2 B+
+offline: nhãn ["Chưa lưu","Chưa lưu"]
+skeleton khi tải: 0
+popover: TS. Lê Thu Hà vừa nhập 7,5 · vừa xong Giữ của tôi Dùng của họ
+sau Giữ của tôi: cell 6,00
+giải trình B: Giữa kỳ (20%) 7,5 Căn cứ · tr. 1 = 7,5 Kiểm tra hằng tuần (20%) 8 do giảng viên đặt = 8 Thi cuối kỳ (60%) 8 Căn cứ · tr. 1 = 8 Điểm cộng min(0,5; 1) Căn cứ · tr. 1 = 0,5 Điểm trừ max(0; 2 − 2) × 0,5 + 0 Căn cứ · tr. 1 = 0 Điểm quá trình trước điểm cộng / trừ (20 × 7,5 + 20 × 8) ÷ 40 = 7,75 Điểm quá trình min(10; max(0; 7,75 + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 8) ÷ 60 = 8 Điểm học phần thô (40 × 8,25 + 60 × 8) ÷ 100 = 8,1 Làm tròn đến 0,5 (nửa lên) round(8,1 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 8 Điểm chữ Căn cứ · tr. 2 B+
+skeleton khi tải: 1
+lỗi: Sổ điểm Xem công thức Chốt điểm Có lỗi xảy ra. Dữ liệu của bạn vẫn an toàn. Thử lại sau ít phút. Chi tiết kỹ thuật Thử lại
+popover: TS. Lê Thu Hà vừa nhập 7,5 · vừa xong Giữ của tôi Dùng của họ
+sau Giữ của tôi: ô 6,00
+giải trình B: Giữa kỳ (20%) 7,5 Căn cứ · tr. 1 = 7,5 Kiểm tra hằng tuần (20%) 8 do giảng viên đặt = 8 Thi cuối kỳ (60%) 8 Căn cứ · tr. 1 = 8 Điểm cộng min(0,5; 1) Căn cứ · tr. 1 = 0,5 Điểm trừ max(0; 2 − 2) × 0,5 + 0 Căn cứ · tr. 1 = 0 Điểm quá trình trước điểm cộng / trừ (20 × 7,5 + 20 × 8) ÷ 40 = 7,75 Điểm quá trình min(10; max(0; 7,75 + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 8) ÷ 60 = 8 Điểm học phần thô (40 × 8,25 + 60 × 8) ÷ 100 = 8,1 Làm tròn đến 0,5 (nửa lên) round(8,1 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 8 Điểm chữ Căn cứ · tr. 2 B+
+popover: TS. Lê Thu Hà vừa nhập 7,5 · vừa xong Giữ của tôi Dùng của họ
+sau Giữ của tôi: ô 6,00
+giải trình B: Giữa kỳ (20%) 7,5 Căn cứ · tr. 1 = 7,5 Kiểm tra hằng tuần (20%) 8 do giảng viên đặt = 8 Thi cuối kỳ (60%) 8 Căn cứ · tr. 1 = 8 Điểm cộng min(0,5; 1) Căn cứ · tr. 1 = 0,5 Điểm trừ max(0; 2 − 2) × 0,5 + 0 Căn cứ · tr. 1 = 0 Điểm quá trình trước điểm cộng / trừ (20 × 7,5 + 20 × 8) ÷ 40 = 7,75 Điểm quá trình min(10; max(0; 7,75 + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 8) ÷ 60 = 8 Điểm học phần thô (40 × 8,25 + 60 × 8) ÷ 100 = 8,1 Làm tròn đến 0,5 (nửa lên) round(8,1 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 8 Điểm chữ Căn cứ · tr. 2 B+
+popover: TS. Lê Thu Hà vừa nhập 7,5 · vừa xong Giữ của tôi Dùng của họ
+sau Giữ của tôi: ô 6,00
+giải trình B: Giữa kỳ (20%) 7,5 Căn cứ · tr. 1 = 7,5 Kiểm tra hằng tuần (20%) 8 do giảng viên đặt = 8 Thi cuối kỳ (60%) 6,5 Căn cứ · tr. 1 = 6,5 Điểm cộng min(0,5; 1) Căn cứ · tr. 1 = 0,5 Điểm trừ max(0; 2 − 2) × 0,5 + 0 Căn cứ · tr. 1 = 0 Điểm quá trình trước điểm cộng / trừ (20 × 7,5 + 20 × 8) ÷ 40 = 7,75 Điểm quá trình min(10; max(0; 7,75 + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 6,5) ÷ 60 = 6,5 Điểm học phần thô (40 × 8,25 + 60 × 6,5) ÷ 100 = 7,2 Làm tròn đến 0,5 (nửa lên) round(7,2 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 7 Điểm chữ Căn cứ · tr. 2 B
+Căn cứ: ["Căn cứ · tr. 1","Căn cứ · tr. 1","Căn cứ · tr. 1","Căn cứ · tr. 1","Căn cứ · tr. 2","Căn cứ · tr. 2"]
+quote: + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 6,5) ÷ 60 = 6,5 Điểm học phần thô (40 × 8,25 + 60 × 6,5) ÷ 100 = 7,2 Làm tròn đến 0,5 (nửa lên) round(7,2 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 7 Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn. Điểm chữ Căn cứ · tr. 2 B
+menu ⋯: ["Nhập từ XLSX","Nhập từ Forms","Xuất XLSX"]
+A: Vũ Hoàng Giang 20229001 — 1,00 0,00 10,000 9,50 A+ 
+B: Bùi Thanh Khải 20229002 — 0,50 0,00 8,250 7,00 B 
+C: Ngô Ngọc Cẩm 20229003 — 0,25 1,50 1,250 3,00 F 
+note y=848.1875 table bottom=1694
+chuỗi 'abc' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=abc
+chuỗi '-1' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=-1
+chuỗi '1e2' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=1e2
+chuỗi '8,,5' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=8,,5
+chuỗi '1000' → alert: ["Nhập một số","Sổ điểm · EduPilot"] value=1000
+xoá ô: status Thiếu điểm
+ô EXAM: <span title="Điểm lấy từ bài thi, sửa ở bài thi">—</span>
+tooltip ô EXAM: [] title=Điểm lấy từ bài thi, sửa ở bài thi
+đang chờ: Bùi Thanh Khải 20229002 — … … … … … … 
+xong: Bùi Thanh Khải 20229002 — 0,50 0,00 8,250 8,00 B+ 
+popover: TS. Lê Thu Hà vừa nhập 7,5 · vừa xong Giữ của tôi Dùng của họ
+sau Giữ của tôi: ô 6,00
+giải trình B: Giữa kỳ (20%) 7,5 Căn cứ · tr. 1 = 7,5 Kiểm tra hằng tuần (20%) 8 do giảng viên đặt = 8 Thi cuối kỳ (60%) 6,5 Căn cứ · tr. 1 = 6,5 Điểm cộng min(0,5; 1) Căn cứ · tr. 1 = 0,5 Điểm trừ max(0; 2 − 2) × 0,5 + 0 Căn cứ · tr. 1 = 0 Điểm quá trình trước điểm cộng / trừ (20 × 7,5 + 20 × 8) ÷ 40 = 7,75 Điểm quá trình min(10; max(0; 7,75 + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 6,5) ÷ 60 = 6,5 Điểm học phần thô (40 × 8,25 + 60 × 6,5) ÷ 100 = 7,2 Làm tròn đến 0,5 (nửa lên) round(7,2 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 7 Điểm chữ Căn cứ · tr. 2 B
+Căn cứ: ["Căn cứ · tr. 1","Căn cứ · tr. 1","Căn cứ · tr. 1","Căn cứ · tr. 1","Căn cứ · tr. 2","Căn cứ · tr. 2"]
+quote: + 0,5 − 0)) = 8,25 Điểm cuối kỳ (60 × 6,5) ÷ 60 = 6,5 Điểm học phần thô (40 × 8,25 + 60 × 6,5) ÷ 100 = 7,2 Làm tròn đến 0,5 (nửa lên) round(7,2 ÷ 0,5) × 0,5 Căn cứ · tr. 2 = 7 Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn. Điểm chữ Căn cứ · tr. 2 B
+lịch sử B: Lịch sử · Bùi Thanh Khải Hôm nay, 04:31 · TS. Lê Thu Hà final: 5 → 6,5 Hôm nay, 04:31 · TS. Lê Thu Hà final: 6 → 5 Hôm nay, 04:31 · TS. Lê Thu Hà final: 7,5 → 6 Hôm nay, 04:31 · TS. Lê Thu Hà final: 6,5 → 7,5 Hôm nay, 04:31 · TS. Lê Thu Hà final: 8 → 6,5 Hôm nay, 04:31 · TS. Lê Thu Hà final: 6,5 → 8 Hôm nay, 04:30 · TS. Lê Thu Hà final: 5 → 6,5 Hôm nay, 04:30 · TS. Lê Thu Hà final: 6 → 5 Hôm nay, 
+offline: nhãn ["Chưa lưu","Chưa lưu"]
+skeleton khi tải: 1
+lỗi: Sổ điểm Xem công thức Chốt điểm Có lỗi xảy ra. Dữ liệu của bạn vẫn an toàn. Thử lại sau ít phút. Chi tiết kỹ thuật Thử lại
+TA menu dòng: ["Giải trình","Lịch sử"]
+PUT body {"item_id":"01a1e10b-df65-7555-93f9-f1e02e7b1731","student_id":"01a1df27-6542-7d57-9e5d-b61d2133eccc","score":"7.5","version":6}
+PUT body {"item_id":"01a1e10b-df65-7555-93f9-f1e02e7b1731","student_id":"01a1df27-6542-7d57-9e5d-b61d2133eccc","score":"8.5","version":7}
+trước 7,50

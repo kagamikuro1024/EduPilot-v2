@@ -1,0 +1,7 @@
+P TC-PE03-35 suggest MCQ ×5: 202; job SUCCEEDED; tạo 5 câu: ['AI_DRAFT/PENDING/true'] (created_by = GV bấm); llm_audit QUESTION_GEN: 1|QUESTION_GEN|BATCH (1 dòng, 
+P TC-PE03-37 prompt đã che lưu ở llm_request_payloads (provider fake chạy trong worker nên /_test/llm/payloads của gateway không thấy; 1 prompt chứa chủ đề của QC)
+P TC-PE03-38 đưa câu AI PENDING vào bài: 422 ['ITEM_NOT_APPROVED', 'VALIDATION_FAILED']; SV đọc câu AI: 403; bản xem trước (đúng định dạng SV) có trường origin: Fa
+P TC-PE03-40 suggest CODE_TESTS ×5: 202, job SUCCEEDED; 5 test mới source=AI_DRAFT approved=[False]; expected = đầu ra lời giải mẫu (QC tự tính a+b ngoài hệ thống)
+câu sau AI tests: APPROVED {'total': 2, 'samples': 1, 'hidden': 1, 'total_weight': 3}
+P TC-PE03-41 trước duyệt: 5 test AI không có trong kết quả, total_weight=3 (['DONE', 'AC', '3']); sau POST testcases/approve (5 test AI, trước khi câu vào bài; duy
+P TC-PE02-21 câu có 2 test đã duyệt (w=1+2) + 4 test AI chưa duyệt (approved=false): chấm DONE|AC|3|3|2 (verdict|passed|total|số test trong kết quả) → chỉ test duy

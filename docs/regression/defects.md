@@ -24,9 +24,10 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 8 | TC-P6-01-20 | weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
 | 8 | TC-P6-02-15 | quét float64: internal/seedtool/examhistory.go:130 đưa điểm thi qua float64(c)*2.5 (seed tool); mã sản phẩm sạch |
 | 8 | TC-P6-02-25 | C: KT=0, status COMPLETE, nhưng dòng KT chỉ expr '0' (filled_by_user, không quote điều 1.4), không có chữ 'không dự → 0 theo quy chế' (DEF-R8-s8core-01 |
-| 8 | TC-P6-06-11 | 8/9 chuỗi sai bị từ chối 4xx (abc,-1,1e2,8,,5,1000,8,5x,+5,٥) nhưng ' ' (một dấu cách) → 200 và XOÁ điểm (coi như rỗng); không có 5xx |
 | 8 | TC-P6-06-56 | version kiểu chữ → 422 VALIDATION_FAILED đúng; NHƯNG thiếu version: ô chưa có → 200 (tạo ô, version=0 ngầm); ô đã có → 409 VERSION_CONFLICT (kh |
 | 8 | TC-P6-07-11 | {2: 'STUDENT_NOT_IN_COURSE', 4: 'DUPLICATE_IN_FILE', 5: 'SCORE_OUT_OF_RANGE', 6: 'SCORE_PRECISION', 7: 'SCORE_NOT_NUMBER', 10: 'SCORE_NOT_NUMBER'} vs {2: 'STUDENT_NO |
+| 8 | TC-P6-09-40 | lớp 761987 hiện: A/B/C = {'sv.gioi': 'NONE', 'sv.kha': 'NONE', 'sv.nguyco': 'AT_RISK'} (khớp kỳ vọng NONE/NONE/AT_RISK) nhưng 10/30 dòng lệch expected_risk. |
+| 8 | TC-P6-09-49 | (200, {'reachable': False}) (200, {'reachable': False}) |
 | 9.1 | TC-UX04-3 | 9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02 |
 | 9.1 | TC-UX04-12 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX04-13 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |

@@ -101,7 +101,9 @@ async function probe(page: Page) {
     const tabs = Array.from(main.querySelectorAll("[role=tab]")).map(txt);
     const toolbarBtns = Array.from(main.querySelectorAll("[data-ep-toolbar] button, [data-ep-toolbar] a")).filter(vis).map((b) => txt(b) || b.getAttribute("aria-label") || "");
     const empties = Array.from(main.querySelectorAll("[data-ep-empty]")).map((e) => {
-      const r = R(e); const par = e.closest("[data-ep-panel]") ?? pg ?? main; const pr = R(par);
+      // P-11-52: khối rỗng trong Split đo theo ngăn con chứa nó (như W3/P5), không theo cả thẻ Split (gồm rail «Phiên trước»)
+      const sp = e.closest("[data-ep-split]"); const pane = sp ? Array.from(sp.children).find((c) => c.contains(e)) : null;
+      const r = R(e); const par = pane ?? e.closest("[data-ep-panel]") ?? pg ?? main; const pr = R(par);
       const pEls = Array.from(e.querySelectorAll("p")); const titleEl = e.querySelector(".ep-item-title") ?? pEls[0] ?? null;
       const btns = Array.from(e.querySelectorAll("button,a"));
       const svgs = Array.from(e.querySelectorAll("svg")).filter((s) => !s.closest("button,a"));

@@ -7,9 +7,10 @@ for code in sys.argv[1:]:
     c0 = cid(code)
     if not c0: continue
     d = {"id": c0, "items": {r[0]: r[1] for r in sql(f"select key,id from grade_items where course_id='{c0}'")}, "students": {}}
+    d["names"] = {}
     for a, r in CSVR.items():
         u = sq1(f"select u.id from users u join enrollments e on e.user_id=u.id where e.course_id='{c0}' and u.student_code='{r['student_code']}' limit 1")
-        if u: d["students"][a] = u
+        if u: d["students"][a] = u; d["names"][a] = sq1(f"select full_name from users where id='{u}'")
     out[code] = d
 old = json.load(open("/tmp/qc2-s8r/ids.json")) if os.path.exists("/tmp/qc2-s8r/ids.json") else {}
 old.update(out); json.dump(old, open("/tmp/qc2-s8r/ids.json", "w"), ensure_ascii=False, indent=1); print(list(old))

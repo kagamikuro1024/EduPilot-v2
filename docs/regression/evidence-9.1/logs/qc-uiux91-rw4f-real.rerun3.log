@@ -1,0 +1,59 @@
+
+Running 4 tests using 1 worker
+
+(node:34748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO chọn: Ngô Ngọc Cẩm, Ngô Thu Khoa | thanh trước: Đã lưu · 29 có mặt · 1 vắng
+INFO thanh sau 2 lần chạm: Lưu điểm danh · 27 có mặt · 3 vắng
+INFO sau lưu: Đã lưu · 27 có mặt · 3 vắng | hộp thoại: 0 | confirm(): 0 | 3 s
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:27:1 › TC-UX12-11/19 điểm danh 375: chạm 2 SV sang Vắng, lưu ≤ 60 s, không hộp thoại (12.3s)
+INFO khối cảnh báo 375: {"h":46,"t":"Công thức chưa xác nhận Xem"}
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:68:1 › TC-UX12-14/15 cảnh báo công thức 375 (lớp 761988): một khối ≤ 56 px (7.0s)
+INFO ô nhập (không focus): []
+  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:85:1 › TC-UX16-1/5 sổ điểm 1440: ô nhập đệm 0 khi không focus, giá trị thô khi focus; ⋯ tiêu đề chỉ hiện khi rê / focus (7.5s)
+(node:35340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO ô nhập 375: {"ov":false,"inp":[]}
+  ✘  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:120:1 › TC-UX16-21 sổ điểm 375: ô nhập cao ≥ 44, cuộn ngang trong bảng, không tràn trang (7.6s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:85:1 › TC-UX16-1/5 sổ điểm 1440: ô nhập đệm 0 khi không focus, giá trị thô khi focus; ⋯ tiêu đề chỉ hiện khi rê / focus 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      90 |   const vals = await page.locator("main tbody tr input").evaluateAll((es) => es.map((e) => (e as HTMLInputElement).value).filter((v) => v !== ""));
+      91 |   console.log("INFO ô nhập (không focus):", JSON.stringify([...new Set(vals)]));
+    > 92 |   expect(vals.length).toBeGreaterThan(0);
+         |                       ^
+      93 |   for (const v of vals) expect(v, "ít nhất 2 chữ số thập phân, dấu phẩy").toMatch(/^\d+,\d{2,}$/);
+      94 |   const first = page.locator("main tbody tr input").first();
+      95 |   await first.focus();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:92:23
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w4f/qc2-r91-qc-uiux91-rw4f-rea-dd931-êu-đề-chỉ-hiện-khi-rê-focus-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:120:1 › TC-UX16-21 sổ điểm 375: ô nhập cao ≥ 44, cuộn ngang trong bảng, không tràn trang 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      129 |   console.log("INFO ô nhập 375:", JSON.stringify(r));
+      130 |   expect(r.ov).toBe(false);
+    > 131 |   expect(r.inp.length).toBeGreaterThan(0);
+          |                        ^
+      132 |   for (const h of r.inp) expect(h).toBeGreaterThanOrEqual(44);
+      133 |   await ctx.close();
+      134 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:131:24
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w4f/qc2-r91-qc-uiux91-rw4f-rea-fb28b-trong-bảng-không-tràn-trang-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:85:1 › TC-UX16-1/5 sổ điểm 1440: ô nhập đệm 0 khi không focus, giá trị thô khi focus; ⋯ tiêu đề chỉ hiện khi rê / focus 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4f-real.spec.ts:120:1 › TC-UX16-21 sổ điểm 375: ô nhập cao ≥ 44, cuộn ngang trong bảng, không tràn trang 
+  2 passed (35.3s)

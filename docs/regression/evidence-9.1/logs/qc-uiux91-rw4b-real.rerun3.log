@@ -1,36 +1,36 @@
 
 Running 4 tests using 1 worker
 
-(node:58943) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:27837) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 INFO hàng: {"tab":-1,"role":null,"onkey":false,"focusables":["A:Duyệt:0"]}
-INFO Enter trên liên kết trong hàng → https://localhost:1143/grading/01a1df2c-03f8-70e9-bc5d-d31ada2fdeaf?n=0&m=17&assignment=01a1df2b-f786-72db-85e8-a10086f68b3d&status=DRAFT&needs=1
+INFO Enter trên liên kết trong hàng → https://localhost:1143/grading/01a1df2b-fb91-79e1-ae27-32a58ba75709?n=0&m=12&assignment=01a1df2b-f786-72db-85e8-a10086f68b3d&status=DRAFT&needs=1
 INFO ô Bài tập: {"w":456,"text":409,"pad":"12px/32px"}
-INFO 375: {"links":[{"t":"Duyệt","x":0,"y":0,"w":0,"h":0,"vis":"visible:inline-flex"},{"t":"Duyệt","x":0,"y":0,"w":0,"h":0,"vis":"visible:inline-flex"},{"t":"Duyệt","x":0,"y":0,"w":0,"h":0,"vis":"visible:inline-flex"}],"rowDisplay":"table-row","rowH":0,"tds":["Ngô Văn Hà20224349Trích @0","Thư@0","5,75@0","Chưa duyệt@0","Thứ Ba, 10/11 · 08:58@0","Duyệt @0"],"nameBox":0}
-  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:36:1 › TC-UX14-3/5/7/11 hàng chờ bổ sung: Enter khi focus, 375 px, rộng ô Bài tập (18.3s)
-(node:59474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+INFO 375: {"links":[{"t":"Duyệt","x":0,"y":0,"w":0,"h":0,"vis":"visible:inline-flex"},{"t":"Duyệt","x":0,"y":0,"w":0,"h":0,"vis":"visible:inline-flex"},{"t":"Duyệt","x":0,"y":0,"w":0,"h":0,"vis":"visible:inline-flex"}],"rowDisplay":"table-row","rowH":0,"tds":["Huỳnh Hoàng Hương2022600@0","Trong EduPilot@0","5,50@0","Chưa duyệt@0","Thứ Ba, 10/11 · 23:57@0","Duyệt @0"],"nameBox":0}
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:36:1 › TC-UX14-3/5/7/11 hàng chờ bổ sung: Enter khi focus, 375 px, rộng ô Bài tập (17.9s)
+(node:28231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
-INFO DRAFT: 22 REVIEWED: 0
-INFO tiến độ: Đã duyệt 0/22
-INFO sau bấm Duyệt bài: URL https://localhost:1143/grading/01a1df2c-0406-79c6-829f-d6300f00f611?n=1&m=22&from=01a1df2c-03f8-70e9-bc5d-d31ada2fdeaf | tiến độ Đã duyệt 1/22 | ghi: ["POST /api/v1/courses/‹id›/grading-results/‹id›/review {\"version\":2}"]
-INFO REVIEWED: 0 → 1
-INFO phím A: URL https://localhost:1143/grading/01a1df2c-0406-79c6-829f-d6300f00f611?n=1&m=22&from=01a1df2c-03f8-70e9-bc5d-d31ada2fdeaf → https://localhost:1143/grading/01a1df2c-0401-7f20-af99-435ac132d8c5?n=2&m=22&from=01a1df2c-0406-79c6-829f-d6300f00f611 | tiến độ Đã duyệt 2/22 | ghi: ["POST /api/v1/courses/‹id›/grading-results/‹id›/review {\"version\":2}"] | REVIEWED 1 → 2
+INFO DRAFT: 17 REVIEWED: 5
+INFO tiến độ: Đã duyệt 0/17
+INFO sau bấm Duyệt bài: URL https://localhost:1143/grading/01a1df2b-fca6-7b8b-9737-c6f6dd466dfd?n=1&m=17&from=01a1df2b-fb91-79e1-ae27-32a58ba75709 | tiến độ Đã duyệt 1/17 | ghi: ["POST /api/v1/courses/‹id›/grading-results/‹id›/review {\"version\":4}"]
+INFO REVIEWED: 5 → 6
+INFO phím A: URL https://localhost:1143/grading/01a1df2b-fca6-7b8b-9737-c6f6dd466dfd?n=1&m=17&from=01a1df2b-fb91-79e1-ae27-32a58ba75709 → https://localhost:1143/grading/01a1df2b-fe8a-7318-b5d3-a6dd104fe05d?n=2&m=17&from=01a1df2b-fca6-7b8b-9737-c6f6dd466dfd | tiến độ Đã duyệt 2/17 | ghi: ["POST /api/v1/courses/‹id›/grading-results/‹id›/review {\"version\":2}"] | REVIEWED 6 → 7
 INFO hoạt cảnh ngay sau ›: []
-  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:77:1 › TC-UX15-8/9/13 bắt mạng khi bấm Duyệt bài / phím A; trạng thái bài; hoạt cảnh sau › (13.5s)
-INFO API: hàng 30 | chưa đủ: 0 | drift: 0
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:77:1 › TC-UX15-8/9/13 bắt mạng khi bấm Duyệt bài / phím A; trạng thái bài; hoạt cảnh sau › (13.2s)
+INFO API: hàng 30 | chưa đủ: 0 | drift: 1
 INFO UX16-3: so 63 ô, lệch 0 
 INFO tiêu đề phụ: null | cột Trạng thái: true | chú giải đã công bố: true | chấm công bố ở tiêu đề: 2
-  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm (6.9s)
-(node:59895) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm (6.7s)
+(node:28777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 INFO màu LATE: {"self":"rgb(206, 22, 40)|lab(100 0 0)","before":"rgba(0, 0, 0, 0)","after":"rgba(0, 0, 0, 0)","lab":"rgb(35, 31, 32)","checked":true}
 INFO màu ABSENT: {"self":"rgb(206, 22, 40)|lab(100 0 0)","before":"rgba(0, 0, 0, 0)","after":"rgba(0, 0, 0, 0)","lab":"rgb(35, 31, 32)","checked":true}
 INFO hàng Vắng text: Dương Tuấn Giang 20224852 · Vắng Có mặt — Dương Tuấn Giang Muộn — Dương Tuấn Giang Vắng phép — Dương Tuấn Giang Vắng — Dương Tuấn Giang 
 INFO radio: ["Có mặt — Dương Tuấn Giang:false","Muộn — Dương Tuấn Giang:false","Vắng phép — Dương Tuấn Giang:false","Vắng — Dương Tuấn Giang:true"]
-INFO phím P đổi nội dung bảng: true | hàng 5 ô cuối: +1 · +0,25×1 | hàng đang chọn: eccc
+INFO phím P đổi nội dung bảng: true | hàng 5 ô cuối: +3 · +0,25×3 | hàng đang chọn: eccc
 INFO 761988 cảnh báo: {"t":"Điểm danh Mở điểm danh Lưu điểm danh buổi 4 · Hôm qua, 13:30–16:00 · P.405 Buổi Buổi 6 · 29/11 · Chưa Buổi 5 · 22/11 · C","h":993,"btn":true} | số dòng cảnh báo: 2 | Xem công thức: 1
 INFO 375 điểm danh: {"trs":[":table-row:0","student-row:table-row:0","student-row:table-row:0"],"radioCnt":120,"radioBox":[0,0,0],"save":null,"ov":false,"iH":812}
-  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:185:1 › TC-UX12-2/3/5/14/15 điểm danh bổ sung: màu Vắng, nhãn, phím P, cảnh báo công thức (761988), 375 px (21.5s)
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:185:1 › TC-UX12-2/3/5/14/15 điểm danh bổ sung: màu Vắng, nhãn, phím P, cảnh báo công thức (761988), 375 px (21.1s)
 
 
   1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:36:1 › TC-UX14-3/5/7/11 hàng chờ bổ sung: Enter khi focus, 375 px, rộng ô Bài tập 

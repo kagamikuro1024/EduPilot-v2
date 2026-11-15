@@ -1,0 +1,2 @@
+F TC-PE02-27 hàng nộp có 60 bài chờ/đang chạy (gửi 60 bài trong 4s); SV khác Chạy thử: 202, xong sau 8.42s (≤5); verdict run None
+F TC-PE02-46 JUDGE_PARALLELISM=2 (cấu hình ep-r hiện tại; mức 4 cần đổi cấu hình toàn cục): 60 bài bits/stdc++.h × 10 test gửi cùng lúc, tới DONE cuối 212s từ lúc 

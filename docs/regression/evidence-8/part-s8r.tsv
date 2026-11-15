@@ -263,3 +263,43 @@ TC-P6-09-43	F	422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa h�
 TC-P6-09-43	F	200 200 {'id': '01a1e007-d4cd-719b-a5af-d7fc009559a8', 'class_code': 'QD8A1', 'subject_code': 'QCD', 'name': 'QC s8core QD8A1', 'semester': '2026-2027-HK1', 'status'
 TC-P6-09-43	P	QD8R71: grade_low_below 5,0→6,0 (PUT settings 200): số SV có GRADE_LOW 6→11 (crm.risk chạy lại riêng lớp); ngưỡng 10,5 / 5,3 / -1 / abc → [422, 422, 422, 422]
 TC-P6-09-44	P	sv26: nhập study_time_daily 40.000 s/ngày × 7 ngày rồi chạy lại crm.risk: qt_milli GRADE_LOW 2125 → 2125 (vẫn 2,125: thời gian học không vào điểm)
+TC-P6-06-01	P	UI thật ep-r: bố cục, hàng A/B/C, ghi chú chính thức — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-02	P	UI thật ep-r: bố cục, hàng A/B/C, ghi chú chính thức — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-04	P	UI thật ep-r: bố cục, hàng A/B/C, ghi chú chính thức — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-06	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 1 Received: 0 Call Log: - Timeout 10000ms exceede
+TC-P6-06-07	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 1 Received: 0 Call Log: - Timeout 10000ms exceede
+TC-P6-06-08	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 1 Received: 0 Call Log: - Timeout 10000ms exceede
+TC-P6-06-09	P	UI thật ep-r: lỗi tại ô, chuỗi sai, xoá ô — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-10	P	UI thật ep-r: lỗi tại ô, chuỗi sai, xoá ô — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-11	P	UI thật ep-r: lỗi tại ô, chuỗi sai, xoá ô — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-12	P	UI thật ep-r: lỗi tại ô, chuỗi sai, xoá ô — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-13	P	UI thật ep-r: ô EXAM không sửa được — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-15	P	UI thật ep-r: ô tính hiện … trong lúc chờ — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-18	P	UI thật ep-r: xung đột 409: Giữ của tôi / Dùng của họ — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-19	P	UI thật ep-r: xung đột 409: Giữ của tôi / Dùng của họ — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-20	P	UI thật ep-r: xung đột 409: Giữ của tôi / Dùng của họ — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-23	P	UI thật ep-r: Giải trình B + Căn cứ — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-24	P	UI thật ep-r: Giải trình B + Căn cứ — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-28	P	UI thật ep-r: Lịch sử ở menu dòng — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-47	P	UI thật ep-r: công bố cột giữa kỳ (chấm tròn Đã công bố) / cột EXAM không có menu — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-48	P	UI thật ep-r: công bố cột giữa kỳ (chấm tròn Đã công bố) / cột EXAM không có menu — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-39	P	UI thật ep-r: offline: xếp hàng rồi tự gửi lại — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-41	P	UI thật ep-r: lỗi 500 / chậm: skeleton rồi lỗi + Thử lại — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-60	P	UI thật ep-r: TA: chỉ đọc — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-06	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 1 Received: 0 Call Log: - Timeout 10000ms exceede
+TC-P6-06-07	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 1 Received: 0 Call Log: - Timeout 10000ms exceede
+TC-P6-06-08	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 1 Received: 0 Call Log: - Timeout 10000ms exceede
+TC-P6-06-06	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 2 Received: 1 Call Log: - Timeout 10000ms exceede
+TC-P6-06-07	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 2 Received: 1 Call Log: - Timeout 10000ms exceede
+TC-P6-06-08	F	UI thật: Enter / Tab / Esc — Error: expect(received).toBe(expected) // Object.is equality Expected: 2 Received: 1 Call Log: - Timeout 10000ms exceede
+TC-P6-06-06	P	UI thật ep-r: Enter / Tab / Esc — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-07	P	UI thật ep-r: Enter / Tab / Esc — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-08	P	UI thật ep-r: Enter / Tab / Esc — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts)
+TC-P6-06-37	P	UI thật ep-r: lớp NO_POLICY: EmptyState + Thiết lập công thức, không cột điểm — xanh (frontend/e2e/qc2-r8/real-06b.spec.ts)
+TC-P6-06-38	P	UI thật ep-r: lớp có công thức, 0 sinh viên — xanh (frontend/e2e/qc2-r8/real-06b.spec.ts)
+TC-P6-06-40	P	UI thật ep-r: sổ LOCKED: Đã chốt vN, ô khoá, Mở khoá ở menu, hộp thoại mở khoá, không toast — xanh (frontend/e2e/qc2-r8/real-06b.spec.ts)
+TC-P6-08-37	P	UI thật ep-r: sổ LOCKED: Đã chốt vN, ô khoá, Mở khoá ở menu, hộp thoại mở khoá, không toast — xanh (frontend/e2e/qc2-r8/real-06b.spec.ts)
+TC-P6-08-15	P	UI thật ep-r: sổ LOCKED: Đã chốt vN, ô khoá, Mở khoá ở menu, hộp thoại mở khoá, không toast — xanh (frontend/e2e/qc2-r8/real-06b.spec.ts)
+TC-P6-06-53	P	API: lớp QD8R6P (PENALTY.applicable=false + 1 điểm trừ ghi tay) → GET gradebook warnings=['PENALTY_NOT_IN_SCHEME']; lớp sạch không có warnings (UI InlineNotice: dev e2e 'penalty not in scheme notice' xanh)
+TC-P6-06-54	P	API: lớp QD8R6Q (BONUS.applicable=false) → warnings=['BONUS_NOT_IN_SCHEME'], bonus=0 ở mọi hàng (B=0 trong giải trình)
+TC-P6-06-36	P	grep: DataTableVirtual + cellNav nằm trong frontend/src/shared/ui; grep '<table' ở features/gradebook rỗng

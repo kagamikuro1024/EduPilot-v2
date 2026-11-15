@@ -1,0 +1,15 @@
+
+Running 1 test using 1 worker
+
+(node:66786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX13-19 phiên trống → tải lại, nháp: "nháp QC hai giây"
+INFO UX13-19b phiên cũ 24-541e-78c5-a3cd-180ebbca8f03 → tải lại, nháp: "nháp trong phiên cũ"
+INFO UX13-20 dải mất mạng: "Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng." | sau nối lại, cuối hội thoại: "iểm quá trình (QT) gồm 2 phần: Giữa kỳ (chiếm 20%) và Kiểm tra hằng tuần (chiếm 20%). Lớp không có cột điểm chuyên cần riêng, chỉ có quy định trừ điểm vắng: bạn được nghỉ tối đa 2 buổi không bị phạt, từ các buổi vắng sau đó sẽ bị trừ 0.5 điểm cho mỗi buổi. Hữu ích Không hữu ích Nhờ giảng viên hỗ trợ" | Thử lại: 0
+INFO số phiên SV A: 13
+INFO UX13-23 SV B đọc phiên SV A: ["404","404","404"]
+INFO UX13-22 GV: API phiên SV ["403","403"] | /chat: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên."
+INFO UX13-22 TA: API phiên SV ["403","403"] | /chat: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên."
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5c-real.spec.ts:24:1 › TC-UX13-19/20/22/23 nháp 2 s, mất mạng giữa stream, phân quyền (48.6s)
+
+  1 passed (49.2s)

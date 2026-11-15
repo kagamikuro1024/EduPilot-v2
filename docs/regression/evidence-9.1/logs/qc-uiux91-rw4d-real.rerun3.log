@@ -1,10 +1,10 @@
 
 Running 1 test using 1 worker
 
-(node:58898) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:35533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 INFO khớp 25/30; lệch: 20226980: API 8/B+ ≠ CSV 9.0/A+ ; 20226862: API 8.5/A ≠ CSV 10.0/A+ ; 20223869: API 6/C ≠ CSV 7.0/B ; 20227825: API 6.5/C+ ≠ CSV 5.5/C ; 20224786: API 5/D+ ≠ CSV 6.5/C+
-  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv (1.6s)
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv (1.3s)
 
 
   1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv 

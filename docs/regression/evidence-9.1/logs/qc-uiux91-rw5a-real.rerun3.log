@@ -1,7 +1,7 @@
 
 Running 4 tests using 1 worker
 
-(node:5945) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:40602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 INFO UX13-9 nút «Phiên mới» khi phiên trống: 0
 INFO UX13-11 gợi ý: ["Tôi nên làm gì với “Giảng viên đã trả lời câu hỏi của bạn”?","Điểm quá trình của tôi hiện là bao nhiêu?","Tuần này tôi có những buổi học nào?"]
@@ -14,24 +14,24 @@ INFO UX13-4 hàng lịch sử: 0 []
 INFO UX13-4 nút trên hàng: []
 INFO UX13-12 ô nhập sau bấm gợi ý: "Điểm quá trình của tôi hiện là bao nhiêu?" | POST mới: 0
   ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII (4.0m)
-(node:15829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:46667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 INFO UX13-18 nút Dừng từng hiện: 1 | gõ được: true
 INFO UX13-19 sau tải lại, nháp: "nháp QC 2 giây"
 INFO UX13-21 sau lỗi: ô nhập "Tin QC kiểm gửi lại" | Gửi lại: 1 | alert: ["Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.\nGửi lại",""]
-INFO UX13-21 khoá idempotency: ["2e890d73-38bd-4477-9997-721b6edab785","2e890d73-38bd-4477-9997-721b6edab785"] | cùng khoá: true
+INFO UX13-21 khoá idempotency: ["3a237c45-6ce4-4c57-86ce-816849b9791a","3a237c45-6ce4-4c57-86ce-816849b9791a"] | cùng khoá: true
 INFO UX13-21 số tin «Tin QC kiểm gửi lại» đã ghi: 0
 INFO UX13-23 SV khác đọc phiên của SV A: ["404:ok","404:ok","404:ok"]
 INFO UX13-22 GV: API phiên SV ["403","403"] | /chat: Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên.
 INFO UX13-22 TA: API phiên SV ["403","403"] | /chat: Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên.
-  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền (44.2s)
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền (45.5s)
 INFO UX13-24 tràn ngang: {"sw":375,"cw":375} | nút Phiên trước: 1 {"x":25,"y":161,"width":325,"height":44}
 INFO UX13-24 ô nhập {"x":25,"y":614,"width":325,"height":59} | thanh dưới {"x":0,"y":755,"width":375,"height":57}
 INFO UX13-14 từ kỹ thuật 375: null | «chỉ bạn đọc»: true
 INFO UX13-24 khi khung nhìn thấp 480: ô nhập {"x":25,"y":466,"width":325,"height":59}
 INFO UX13-24 bảng phiên: 1 {"x":0,"y":642.921875,"width":375,"height":169.078125} | hàng: 4
 INFO UX13-24 vùng chạm trong bảng: [":44x44","Tuần này tôi có nh:273x65",":44x44"]
-  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh (7.9s)
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh (8.5s)
 INFO UX13-25 hoạt cảnh (reduce=false): [{"name":"RealChat-module__lbRsKG__msgIn","prop":"","dur":160,"kf":"transform+opacity | transform+opacity"},{"name":"ChatScreen-module__YhGRVW__blink","prop":"","dur":1000,"kf":"opacity | opacity"}] | số luật :active có scale: 8
 INFO UX13-26 hoạt cảnh (reduce=true): [{"name":"ChatScreen-module__YhGRVW__blink","prop":"","dur":1,"kf":"opacity | opacity"}] | số luật :active có scale: 8
   ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:232:1 › TC-UX13-25/26 hoạt cảnh tin mới và reduce (25.0s)
@@ -59,4 +59,4 @@ INFO UX13-26 hoạt cảnh (reduce=true): [{"name":"ChatScreen-module__YhGRVW__b
 
   1 failed
     [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII 
-  3 passed (5.3m)
+  3 passed (5.4m)
