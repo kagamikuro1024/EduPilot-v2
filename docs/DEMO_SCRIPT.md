@@ -14,19 +14,18 @@ Mạch truyện: một tuần của **Sinh viên B** (lớp 761987) và giảng 
 | Phần | Luồng | Bắt đầu | Thời lượng |
 | --- | --- | --- | --- |
 | Mở đầu | – | 00:00 | 0:30 |
-| Bước 1. Mở lớp → vào lớp | F2 | 00:30 | 1:45 |
-| Bước 2. Hỏi riêng tư | F3 | 02:15 | 2:00 |
-| Bước 3. Cần giảng viên hỗ trợ | F5 | 04:15 | 2:15 |
-| Bước 4. Điểm danh bằng QR và phát biểu | F7 | 06:30 | 2:30 |
-| Bước 5. Duyệt và công bố bài tập | F9 | 09:00 | 2:00 |
-| Bước 6. Công thức điểm và sổ điểm | F10 | 11:00 | 2:00 |
-| Bước 7. Báo cáo lỗ hổng kiến thức | F17 | 13:00 | 1:15 |
-| Bước 8. Nhật ký quản trị | – | 14:15 | 0:30 |
-| Kết | – | 14:45 | 0:15 |
-| Hết kịch bản, **không còn dự trữ** | – | 15:00 | – |
+| Bước 1. Mở lớp → vào lớp | F2 | 00:30 | 1:30 |
+| Bước 2. Hỏi riêng tư | F3 | 02:00 | 1:30 |
+| Bước 3. Cần giảng viên hỗ trợ | F5 | 03:30 | 1:45 |
+| Bước 4. Điểm danh bằng QR và phát biểu | F7 | 05:15 | 2:15 |
+| Bước 5. Duyệt và công bố bài tập | F9 | 07:30 | 1:30 |
+| Bước 6. Công thức điểm và sổ điểm | F10 | 09:00 | 1:30 |
+| Bước 7. Báo cáo lỗ hổng kiến thức | F17 | 10:30 | 1:00 |
+| Bước 8. Nhật ký quản trị | – | 11:30 | 0:30 |
+| Kết | – | 12:00 | 0:15 |
+| Hết kịch bản (12:15); dự trữ 2:45 trong khung 15 phút | – | 12:15 | – |
 
-Quy tắc giữ giờ: trễ quá 30 s so với mốc của một bước thì bỏ các hàng ghi "(tuỳ chọn)" của bước đó và các bước kế. Không cắt bước. Hàng tuỳ chọn có sẵn để bỏ: Bước 1 mốc 01:55; Bước 2 mốc 03:45; Bước 3 mốc 06:10; Bước 4 mốc 08:45; Bước 6 mốc 12:45; Bước 7 mốc 14:05. Nếu hội đồng cho 20 phút thì thêm phần «Nếu hội đồng hỏi» của từng bước.
-
+Giới hạn cứng: kịch bản chính **≤ 13:30**, dự trữ **≥ 1:30**. Quy tắc giữ giờ: trễ quá 30 s so với mốc của một bước thì bỏ hàng nào trễ nhất của bước đó, không cắt bước. Còn sớm hơn mốc thì thêm các hàng ở «Nếu còn giờ» (mục 4), tối đa tới 13:30. Nếu hội đồng cho 20 phút thì thêm phần «Nếu hội đồng hỏi» của từng bước.
 
 ## 2. Chuẩn bị (T−30 phút, không tính vào 15 phút)
 
@@ -65,7 +64,7 @@ Người trình bày gõ (hoặc dán) đúng các chuỗi này. Tầng 2 (mục
 
 > "EduPilot là nền tảng vận hành lớp học có AI cho một học phần. Dữ liệu hôm nay là dữ liệu mô phỏng: một giảng viên, hai lớp An ninh mạng, mỗi lớp 30 sinh viên. Lớp 1 đang ở tuần 10; lớp 2 vừa được phân công."
 
-### Bước 1. Mở lớp → vào lớp — F2 (00:30–02:15)
+### Bước 1. Mở lớp → vào lớp — F2 (00:30–02:00)
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
@@ -73,111 +72,118 @@ Người trình bày gõ (hoặc dán) đúng các chuỗi này. Tầng 2 (mục
 | 00:50 | Giảng viên | `/` (Hôm nay) | Mở chuông thông báo | "Bạn được phân công lớp An ninh mạng – 761988" kèm mã tham gia `BX4P9TW`; danh sách việc có "Thiết lập lớp mới" ghi tên lớp 2 | P2 (khung PU) |
 | 01:10 | Sinh viên D (375 px) | `/join/BX4P9TW` | Mở link → đọc phần xem trước → `Tham gia lớp` | Xem trước: tên lớp, mã lớp 761988, giảng viên, học kỳ. Sau khi bấm: báo đang chờ giảng viên duyệt (lớp 2 bật yêu cầu duyệt) | P2 |
 | 01:35 | Giảng viên | `/class/members` (bộ chọn lớp → "Quản lý lớp này") | Duyệt yêu cầu của Sinh viên D | Sinh viên D chuyển sang thành viên; 3 yêu cầu seed khác vẫn chờ | P2 |
-| 01:55 | Sinh viên D (375 px) | `/` | Tải lại trang | Bộ chọn lớp có lớp 761988; không còn ô nhập mã tham gia | P2 |
 
 Nếu hội đồng hỏi (ngoài 15 phút): nhập sai mã → cùng một thông báo cho mọi trường hợp, khoá sau 5 lần / 10 phút; tạo lại mã → mã cũ bị từ chối. E2E: `class-join.spec.ts`.
 
-### Bước 2. Hỏi riêng tư — F3 (02:15–04:15)
+### Bước 2. Hỏi riêng tư — F3 (02:00–03:30)
 
 > "Sinh viên hỏi điểm của chính mình. Tên và MSSV được ẩn trước khi câu hỏi rời hệ thống; danh tính lấy từ phiên đăng nhập, không từ nội dung câu hỏi."
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 02:15 | Sinh viên B (375 px) | `/chat`, lớp 1 | Gõ D1, gửi | Dòng "Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI"; câu trả lời hiện dần; khối gọn nêu số buổi vắng (2) và điểm cộng phát biểu đúng số trong sổ; không thấy mã thay thế kiểu `[[SV_1]]` | P3 (số liệu: P5, P6) |
-| 03:05 | Sinh viên B (375 px) | `/chat` | Bấm `Hữu ích` | Nút đổi trạng thái tại chỗ, không có thông báo nổi | P3 |
-| 03:15 | Sinh viên B (375 px) | `/chat` | Gõ D2, gửi | Từ chối lịch sự: chỉ trả lời được thông tin của chính bạn; không có con số nào về Sinh viên C | P3 |
-| 03:45 | Sinh viên B (375 px) | `/chat` | (tuỳ chọn) Mở `Nguồn tham khảo` dưới câu trả lời D1 | Nguồn mở ngay dưới câu trả lời | P3 |
+| 02:00 | Sinh viên B (375 px) | `/chat`, lớp 1 | Gõ D1, gửi | Dòng "Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI"; câu trả lời hiện dần; khối gọn nêu số buổi vắng (2) và điểm cộng phát biểu đúng số trong sổ; không thấy mã thay thế kiểu `[[SV_1]]` | P3 (số liệu: P5, P6) |
+| 02:45 | Sinh viên B (375 px) | `/chat` | Bấm `Hữu ích` | Nút đổi trạng thái tại chỗ, không có thông báo nổi | P3 |
+| 02:55 | Sinh viên B (375 px) | `/chat` | Gõ D2, gửi | Từ chối lịch sự: chỉ trả lời được thông tin của chính bạn; không có con số nào về Sinh viên C | P3 |
 
 Nếu hội đồng hỏi: mất mạng giữa lúc đang trả lời → tải lại vẫn thấy phần đã hiện; mọi dịch vụ AI hỏng → câu trả lời trích từ tài liệu kèm nhãn. E2E: `private-chat.spec.ts`.
 
-### Bước 3. Cần giảng viên hỗ trợ — F5 (04:15–06:30)
+### Bước 3. Cần giảng viên hỗ trợ — F5 (03:30–05:15)
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 04:15 | Sinh viên B (375 px) | `/chat`, lớp 1 | Gõ D3, gửi | "AI chưa đủ chắc chắn về câu này"; câu hỏi được chuyển cho giảng viên, trạng thái "Đang chờ giảng viên · vừa gửi" (xem Q3 về việc có cần bấm `Nhờ giảng viên hỗ trợ`) | P4 (chat: P3) |
-| 04:45 | Giảng viên | `/` → `/inbox` | Mở việc "Cần xử lý" mới nhất | Ticket ở lọc Open: câu hỏi gốc, thời gian chờ, lý do (độ tin cậy thấp) | P4 |
-| 05:00 | Giảng viên | `/inbox` | `Nhận` | Trạng thái Claimed, ghi tên người nhận | P4 |
-| 05:10 | Giảng viên | `/inbox` | Gõ D4 → `Gửi trả lời` | Ticket chuyển Answered | P4 |
-| 05:35 | Sinh viên B (375 px) | `/chat` | Mở chuông | Câu trả lời của giảng viên nằm ngay trong phiên chat, có nhãn người trả lời là giảng viên | P4 |
-| 05:55 | Người trình bày | `http://localhost:8025` (Mailpit, công cụ dev, không phải màn sản phẩm) | Mở thư mới nhất | Thư tới `sv.kha@edupilot.local` chứa câu trả lời và link về app | P4 (Mailpit: P0 L1) |
-| 06:10 | Sinh viên B (375 px) | `/chat` | Xác nhận đã rõ | Câu hỏi được đóng | P4 |
+| 03:30 | Sinh viên B (375 px) | `/chat`, lớp 1 | Gõ D3, gửi | "AI chưa đủ chắc chắn về câu này"; câu hỏi được chuyển cho giảng viên, trạng thái "Đang chờ giảng viên · vừa gửi" (xem Q3 về việc có cần bấm `Nhờ giảng viên hỗ trợ`) | P4 (chat: P3) |
+| 04:00 | Giảng viên | `/` → `/inbox` | Mở việc "Cần xử lý" mới nhất | Ticket ở lọc Open: câu hỏi gốc, thời gian chờ, lý do (độ tin cậy thấp) | P4 |
+| 04:15 | Giảng viên | `/inbox` | `Nhận` | Trạng thái Claimed, ghi tên người nhận | P4 |
+| 04:25 | Giảng viên | `/inbox` | Gõ D4 → `Gửi trả lời` | Ticket chuyển Answered | P4 |
+| 04:50 | Sinh viên B (375 px) | `/chat` | Mở chuông | Câu trả lời của giảng viên nằm ngay trong phiên chat, có nhãn người trả lời là giảng viên | P4 |
+| 05:05 | Người trình bày | `http://localhost:8025` (Mailpit, công cụ dev, không phải màn sản phẩm) | Mở thư mới nhất | Thư tới `sv.kha@edupilot.local` chứa câu trả lời và link về app | P4 (Mailpit: P0 L1) |
 
 Nếu hội đồng hỏi: hai người cùng `Nhận` → người sau thấy ai đã nhận (409); mail lỗi → thử lại 3 lần, trả lời trong app không ảnh hưởng; không ai nhận 72 giờ → nổi lên đầu "Hôm nay". E2E: `escalation.spec.ts`.
 
-### Bước 4. Điểm danh bằng QR và phát biểu — F7 (06:30–09:00)
+### Bước 4. Điểm danh bằng QR và phát biểu — F7 (05:15–07:30)
 
 > "Điểm danh không cần giảng viên gọi tên: sinh viên quét mã trên màn chiếu, mã đổi mỗi 10 giây nên chụp ảnh gửi bạn không dùng được."
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 06:30 | Giảng viên | `/` | Chạm việc "Điểm danh buổi đang diễn ra – 761987" | Mở `/attendance` đúng buổi hôm nay (Q1) | P5 (Hôm nay: P2) |
-| 06:40 | Giảng viên | `/attendance` | `Mở điểm danh` → `Mở màn chiếu` | Cửa sổ mới `/attendance/display`: QR, **mã ngắn 6 ký tự** ngay dưới QR, số đã điểm danh, đồng hồ đếm ngược; QR và mã đổi cùng nhịp | 10.8 `[CHƯA KIỂM]` |
-| 06:55 | 2 sinh viên (375 px) | camera hệ thống → `/checkin?c=…` | Quét QR trên màn chiếu | Màn «Đã điểm danh hh:mm»; không nút nào; số đã điểm danh trên màn chiếu tăng | 10.8 `[CHƯA KIỂM]` |
-| 07:15 | Sinh viên khác (375 px) | `/checkin` | (tuỳ chọn) không quét được: nhập mã ngắn dưới QR | «Đã điểm danh»; dòng ở `/attendance` có chip «Nhập mã» | 10.8 `[CHƯA KIỂM]` |
-| 07:25 | Giảng viên (375 px) | `/attendance` | `Đóng`; dòng trạng thái đổi sang đã đóng. Chạm `Vắng` cho các sinh viên chưa quét, `Muộn` cho 1; ghi phát biểu +0,25 cho Sinh viên B ngay trên dòng | Mỗi dòng có «Điểm danh lúc»; sinh viên chưa quét ghi «Chưa điểm danh»; toàn bộ thao tác dưới 60 s | P5 + 10.8 |
-| 08:05 | Giảng viên (375 px) | `/attendance` | `Lưu điểm danh` | Xác nhận đã lưu tại chỗ, không có thông báo nổi "Thành công"; còn sinh viên chưa có dòng thì báo «Còn n sinh viên chưa điểm danh» (422 `CHECKIN_UNRESOLVED`) | P5 + 10.8 |
-| 08:25 | Sinh viên B (375 px) | `/me` | Mở | Hàng buổi hôm nay có «Điểm danh lúc hh:mm»; chuyên cần và điểm cộng có thêm +0,25; giải trình điểm dạng phép tính | P5 (giải trình: P6) |
-| 08:45 | Giảng viên (375 px) | `/attendance` | (tuỳ chọn) Tắt mạng điện thoại → chạm một ô → bật mạng | Thay đổi xếp hàng rồi tự đồng bộ, không mất | P5 |
+| 05:15 | Giảng viên | `/` | Chạm việc "Điểm danh buổi đang diễn ra – 761987" | Mở `/attendance` đúng buổi hôm nay (Q1) | P5 (Hôm nay: P2) |
+| 05:25 | Giảng viên | `/attendance` | `Mở điểm danh` → `Mở màn chiếu` | Cửa sổ mới `/attendance/display`: QR, **mã ngắn 6 ký tự** ngay dưới QR, số đã điểm danh, đồng hồ đếm ngược; QR và mã đổi cùng nhịp | 10.8 `[CHƯA KIỂM]` |
+| 05:40 | 2 sinh viên (375 px) | camera hệ thống → `/checkin?c=…` | Quét QR trên màn chiếu | Màn «Đã điểm danh hh:mm»; không nút nào; số đã điểm danh trên màn chiếu tăng | 10.8 `[CHƯA KIỂM]` |
+| 06:00 | Giảng viên (375 px) | `/attendance` | `Đóng`; dòng trạng thái đổi sang đã đóng. Chạm `Vắng` cho các sinh viên chưa quét, `Muộn` cho 1; ghi phát biểu +0,25 cho Sinh viên B ngay trên dòng | Mỗi dòng có «Điểm danh lúc»; sinh viên chưa quét ghi «Chưa điểm danh»; toàn bộ thao tác dưới 60 s | P5 + 10.8 |
+| 06:40 | Giảng viên (375 px) | `/attendance` | `Lưu điểm danh` | Xác nhận đã lưu tại chỗ, không có thông báo nổi "Thành công"; còn sinh viên chưa có dòng thì báo «Còn n sinh viên chưa điểm danh» (422 `CHECKIN_UNRESOLVED`) | P5 + 10.8 |
+| 06:55 | Sinh viên B (375 px) | `/me` | Mở | Hàng buổi hôm nay có «Điểm danh lúc hh:mm»; chuyên cần và điểm cộng có thêm +0,25; giải trình điểm dạng phép tính | P5 (giải trình: P6) |
 
 Nếu hội đồng hỏi: mã cũ hết hạn sau 2 chu kỳ → «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; sinh viên không thuộc lớp → bị từ chối, không lộ lý do; hai sinh viên cùng một điện thoại → dòng bị gắn cờ «Cần xem»; hai người cùng điểm danh → khoá lạc quan; sửa sau buổi học → ghi nhật ký (Bước 8). E2E: `attendance.spec.ts`, `attendance-checkin.spec.ts`, `attendance-display.spec.ts`, `checkin-code.spec.ts` (nhánh `sprint/10.8-attendance`).
 
 
-### Bước 5. Duyệt và công bố bài tập — F9 (09:00–11:00)
+### Bước 5. Duyệt và công bố bài tập — F9 (07:30–09:00)
 
 > Bài đã được nộp và chấm nháp ở bước chuẩn bị #3. Phần tạo bài và nộp bài có trong video phụ và E2E (xem Q4).
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 09:00 | Sinh viên B (375 px) | `/assignments/[id]` (Bài tập 03, mở từ `/me`) | Mở | Đã nộp, có dấu thời gian, nhãn nộp muộn; phần điểm ghi đang chấm — **không có điểm nháp** | P7 |
-| 09:15 | Giảng viên | `/grading` (tab Hàng chờ chấm) | Giữ lọc mặc định `Cần xem kỹ` + `Chưa duyệt` | Bài của Sinh viên B ở đầu, lý do cờ: hai lượt chấm lệch hơn 1 điểm | P7 |
-| 09:35 | Giảng viên | `/grading/[submissionId]` | Đọc bài bên trái, tiêu chí bên phải; sửa điểm tiêu chí bị lệch; sửa một câu nhận xét | Thông báo vàng tại tiêu chí lệch; mỗi tiêu chí có đoạn trích từ bài làm; tổng điểm tính lại ngay | P7 |
-| 10:05 | Giảng viên | `/grading/[submissionId]` | `Duyệt bài` | Trạng thái đã duyệt | P7 |
-| 10:15 | Giảng viên | `/grading` | Chọn bài vừa duyệt → `Công bố` | Trạng thái đã công bố; chỉ TEACHER thấy hành động này | P7 |
-| 10:35 | Sinh viên B (375 px) | `/assignments/[id]` | Tải lại | Điểm, nhận xét theo từng tiêu chí, đoạn trích từ bài của chính mình làm bằng chứng | P7 |
+| 07:30 | Sinh viên B (375 px) | `/assignments/[id]` (Bài tập 03, mở từ `/me`) | Mở | Đã nộp, có dấu thời gian, nhãn nộp muộn; phần điểm ghi đang chấm — **không có điểm nháp** | P7 |
+| 07:40 | Giảng viên | `/grading` (tab Hàng chờ chấm) | Giữ lọc mặc định `Cần xem kỹ` + `Chưa duyệt` | Bài của Sinh viên B ở đầu, lý do cờ: hai lượt chấm lệch hơn 1 điểm | P7 |
+| 07:55 | Giảng viên | `/grading/[submissionId]` | Đọc bài bên trái, tiêu chí bên phải; sửa điểm tiêu chí bị lệch; sửa một câu nhận xét | Thông báo vàng tại tiêu chí lệch; mỗi tiêu chí có đoạn trích từ bài làm; tổng điểm tính lại ngay | P7 |
+| 08:25 | Giảng viên | `/grading/[submissionId]` | `Duyệt bài` | Trạng thái đã duyệt | P7 |
+| 08:35 | Giảng viên | `/grading` | Chọn bài vừa duyệt → `Công bố` | Trạng thái đã công bố; chỉ TEACHER thấy hành động này | P7 |
+| 08:45 | Sinh viên B (375 px) | `/assignments/[id]` | Tải lại | Điểm, nhận xét theo từng tiêu chí, đoạn trích từ bài của chính mình làm bằng chứng | P7 |
 
 Nếu hội đồng hỏi: nộp sau hạn khi bài không cho nộp muộn → bị chặn; worker chết giữa chừng → việc được nhận lại, không chấm đôi. E2E: `assignment-lifecycle.spec.ts`.
 
-### Bước 6. Công thức điểm và sổ điểm — F10 (11:00–13:00)
+### Bước 6. Công thức điểm và sổ điểm — F10 (09:00–10:30)
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 11:00 | Giảng viên | `/gradebook`, lớp 2 | Đổi lớp ở bộ chọn lớp | Banner cố định "công thức điểm chưa xác nhận"; `Chốt điểm` bị khoá, lý do hiện khi rê chuột / focus | P6 |
-| 11:15 | Giảng viên | `/gradebook/scheme`, lớp 2 | Tải `seed/demo/quy-che-lop2.pdf` | Tiến độ xử lý nền; bản nháp: thành phần, trọng số, điểm cộng, mỗi mục cạnh đoạn trích có số trang; mục "chưa rõ: quy tắc làm tròn" chặn nút xác nhận | P6 |
-| 11:55 | Giảng viên | `/gradebook/scheme` | Điền D5 → `Xác nhận công thức` → xác nhận trong hộp thoại nêu hậu quả | Trạng thái đã xác nhận | P6 |
-| 12:15 | Giảng viên | `/gradebook`, lớp 2 | Quay lại | Banner biến mất; `Chốt điểm` mở | P6 |
-| 12:25 | Giảng viên | `/gradebook`, lớp 1 | Đổi lớp, mở giải trình dòng Sinh viên B | Thành phần điểm có +0,25 từ bước 4 và điểm Bài tập 03 từ bước 5; dòng ghi chú "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường" | P6 (dữ liệu: P5, P7) |
-| 12:45 | Giảng viên | `/gradebook`, lớp 1 | Xuất XLSX (menu) | File tải về có cột theo mẫu và dòng ghi chú điểm chính thức | P6 |
+| 09:00 | Giảng viên | `/gradebook`, lớp 2 | Đổi lớp ở bộ chọn lớp | Banner cố định "công thức điểm chưa xác nhận"; `Chốt điểm` bị khoá, lý do hiện khi rê chuột / focus | P6 |
+| 09:10 | Giảng viên | `/gradebook/scheme`, lớp 2 | Tải `seed/demo/quy-che-lop2.pdf` | Tiến độ xử lý nền; bản nháp: thành phần, trọng số, điểm cộng, mỗi mục cạnh đoạn trích có số trang; mục "chưa rõ: quy tắc làm tròn" chặn nút xác nhận | P6 |
+| 09:50 | Giảng viên | `/gradebook/scheme` | Điền D5 → `Xác nhận công thức` → xác nhận trong hộp thoại nêu hậu quả | Trạng thái đã xác nhận | P6 |
+| 10:10 | Giảng viên | `/gradebook`, lớp 2 | Quay lại | Banner biến mất; `Chốt điểm` mở | P6 |
+| 10:20 | Giảng viên | `/gradebook`, lớp 1 | Đổi lớp, mở giải trình dòng Sinh viên B | Thành phần điểm có +0,25 từ bước 4 và điểm Bài tập 03 từ bước 5; dòng ghi chú "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường" | P6 (dữ liệu: P5, P7) |
 
 `Chốt điểm` lớp 1 không làm trực tiếp trong 15 phút (xem Q5).
 
 Nếu hội đồng hỏi: hai người sửa cùng ô → 409 và chọn giữ bên nào; mở khoá sau chốt cần lý do. E2E: `gradebook.spec.ts`.
 
-### Bước 7. Báo cáo lỗ hổng kiến thức — F17 (13:00–14:15)
+### Bước 7. Báo cáo lỗ hổng kiến thức — F17 (10:30–11:30)
 
 > "Hệ thống gom câu hỏi sinh viên đã gửi thành chủ đề và xếp hạng bằng công thức cố định; AI chỉ đặt tên chủ đề. Câu hỏi hiện ra đã ẩn danh."
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 13:00 | Giảng viên | `/insights`, lớp 761987 | Mở trang (báo cáo đã tạo ở chuẩn bị #4); nếu có dữ liệu mới bấm `Tạo báo cáo mới` | Danh sách «Chủ đề nên dạy lại» xếp hạng: chủ đề mã độc / tấn công (A) và quy chế học vụ (B) đứng đầu; mỗi chủ đề có số sinh viên hỏi, số câu và gợi ý «Nên làm» | P10 |
-| 13:20 | Giảng viên | `/insights` | Mở «Câu hỏi mẫu» của chủ đề A | 3–5 câu đã ẩn danh, không có tên hay MSSV; chủ đề chỉ có dưới 3 sinh viên hỏi («Ít người hỏi») không có câu mẫu | P10 |
-| 13:40 | Giảng viên | `/insights` | `Tạo thread ghim` của chủ đề A → xác nhận ngay tại chỗ | Form mở tại chỗ (không hộp thoại); thread ghim mới xuất hiện ở `/threads` của lớp | P10 (Threads: P4) |
-| 13:55 | Giảng viên | `/insights`, lớp 761988 | (tuỳ chọn) Đổi lớp | Chủ đề TCP / UDP (C) đứng đầu — dữ liệu hai lớp không lẫn | P10 |
-| 14:05 | Giảng viên | `/insights` | (tuỳ chọn) Menu `⋯` → xuất Markdown | Tệp tải về: bảng chủ đề, không có tên hay MSSV | P10 |
+| 10:30 | Giảng viên | `/insights`, lớp 761987 | Mở trang (báo cáo đã tạo ở chuẩn bị #4); nếu có dữ liệu mới bấm `Tạo báo cáo mới` | Danh sách «Chủ đề nên dạy lại» xếp hạng: chủ đề mã độc / tấn công (A) và quy chế học vụ (B) đứng đầu; mỗi chủ đề có số sinh viên hỏi, số câu và gợi ý «Nên làm» | P10 |
+| 10:45 | Giảng viên | `/insights` | Mở «Câu hỏi mẫu» của chủ đề A | 3–5 câu đã ẩn danh, không có tên hay MSSV; chủ đề chỉ có dưới 3 sinh viên hỏi («Ít người hỏi») không có câu mẫu | P10 |
+| 11:00 | Giảng viên | `/insights` | `Tạo thread ghim` của chủ đề A → xác nhận ngay tại chỗ | Form mở tại chỗ (không hộp thoại); thread ghim mới xuất hiện ở `/threads` của lớp | P10 (Threads: P4) |
 
 Nếu hội đồng hỏi: lớp chưa đủ câu hỏi → «Chưa đủ dữ liệu» kèm số câu hiện có và số cần có (409); khoảng thời gian chọn 7 / 14 / 30 ngày hoặc toàn kỳ; mỗi lớp tối đa 3 báo cáo mỗi giờ; hai người cùng bấm tạo → chỉ một báo cáo chạy. E2E: `insights.spec.ts`; Go: `TestKnowledgeGap`.
 
-### Bước 8. Nhật ký quản trị (14:15–14:45)
+### Bước 8. Nhật ký quản trị (11:30–12:00)
 
 > "Mọi thay đổi về điểm, điểm danh và cấu hình đều có dấu vết. Nhật ký chỉ ghi ai đổi gì và khoá nào bị đổi, không ghi giá trị."
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 14:15 | Admin | `/admin/audit` | Mở (khoảng 24 giờ) | Các dòng vừa tạo ở Bước 4–6: `attendance`, `assignments` (publish), `grade_entries` (set); mỗi dòng có thời điểm, người làm kèm vai, thực thể, hành động, khoá đổi; không có giá trị cũ / mới | P10 (P-11-30) |
-| 14:30 | Admin | `/admin/audit` | Ô «Thực thể» gõ `grade_entries` | Chỉ còn các dòng sổ điểm của Bước 6 | P10 |
+| 11:30 | Admin | `/admin/audit` | Mở (khoảng 24 giờ) | Các dòng vừa tạo ở Bước 4–6: `attendance`, `assignments` (publish), `grade_entries` (set); mỗi dòng có thời điểm, người làm kèm vai, thực thể, hành động, khoá đổi; không có giá trị cũ / mới | P10 (P-11-30) |
+| 11:45 | Admin | `/admin/audit` | Ô «Thực thể» gõ `grade_entries` | Chỉ còn các dòng sổ điểm của Bước 6 | P10 |
 
 Nếu hội đồng hỏi: chỉ Admin vào được (giảng viên / TA / sinh viên 403); chính việc mở nhật ký cũng được ghi lại. E2E: `audit.spec.ts`; Go: `TestAuditRBAC`.
 
-### Kết (14:45–15:00)
+### Nếu còn giờ (dự trữ, chỉ khi đang sớm hơn mốc)
+
+Thêm theo thứ tự này; dừng khi tới mốc 13:30.
+
+| Bước | Vai trò | Route | Thao tác | Kết quả phải thấy |
+| --- | --- | --- | --- | --- |
+| Bước 1 | Sinh viên D (375 px) | `/` | Tải lại trang | Bộ chọn lớp có lớp 761988; không còn ô nhập mã tham gia |
+| Bước 2 | Sinh viên B (375 px) | `/chat` | Mở `Nguồn tham khảo` dưới câu trả lời D1 | Nguồn mở ngay dưới câu trả lời |
+| Bước 3 | Sinh viên B (375 px) | `/chat` | Xác nhận đã rõ | Câu hỏi được đóng |
+| Bước 4 | Sinh viên khác (375 px) | `/checkin` | không quét được: nhập mã ngắn dưới QR | «Đã điểm danh»; dòng ở `/attendance` có chip «Nhập mã» |
+| Bước 4 | Giảng viên (375 px) | `/attendance` | Tắt mạng điện thoại → chạm một ô → bật mạng | Thay đổi xếp hàng rồi tự đồng bộ, không mất |
+| Bước 6 | Giảng viên | `/gradebook`, lớp 1 | Xuất XLSX (menu) | File tải về có cột theo mẫu và dòng ghi chú điểm chính thức |
+| Bước 7 | Giảng viên | `/insights`, lớp 761988 | Đổi lớp | Chủ đề TCP / UDP (C) đứng đầu — dữ liệu hai lớp không lẫn |
+| Bước 7 | Giảng viên | `/insights` | Menu `⋯` → xuất Markdown | Tệp tải về: bảng chủ đề, không có tên hay MSSV |
+
+### Kết (12:00–12:15)
 
 > "Tám phần vừa xem đi qua cùng một dữ liệu: câu hỏi của sinh viên, câu trả lời của giảng viên, điểm danh, bài chấm và công thức điểm đều đổ về cùng một sổ điểm. Mọi quyết định về điểm do giảng viên bấm; AI chỉ soạn nháp."
 
