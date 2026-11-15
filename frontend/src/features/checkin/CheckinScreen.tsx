@@ -230,6 +230,7 @@ export function CheckinScreen() {
                     maxLength={12}
                     placeholder="ABC 123"
                     invalid={Boolean(view.error)}
+                    onFocus={(e) => e.currentTarget.scrollIntoView({ block: "center" })} // bàn phím ảo mở: ô nằm TRÊN thanh dock (TC-AS09-24)
                   />
                 )}
               </Field>
