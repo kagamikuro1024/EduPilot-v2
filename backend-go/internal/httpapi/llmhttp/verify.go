@@ -296,12 +296,7 @@ func (a *Admin) testSaved(w http.ResponseWriter, r *http.Request) {
 		}
 		base = in.BaseURL
 	}
-	key := ""
-	if in.APIKey != nil {
-		key = in.APIKey.Reveal()
-	} else if k, kerr := a.RT.Resolver.DecryptKey(ctx, id); kerr == nil {
-		key = k // thiếu / không giải mã được → thử với khoá rỗng: nhà cung cấp tự báo AUTH
-	}
+	key := a.RT.Resolver.KeyForVerify(ctx, id, in.APIKey) // thiếu / không giải mã được → khoá rỗng: nhà cung cấp tự báo AUTH
 	c := pickStored(p.Models)
 	if in.Model != "" {
 		c = &candidate{model: in.Model, kind: "chat"}
