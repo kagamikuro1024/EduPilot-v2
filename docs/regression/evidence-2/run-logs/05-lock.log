@@ -138,3 +138,17 @@ TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
     ok   kết nối ở bản B nhận = [1]
 -- TC-PG05-46 PASS
 TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:25 01:50:42
+== TC-PG05-25
+    ok   thời gian chỗ hết hạn (ms) = 149279 (≥ 140000)
+    ok   thời gian chỗ hết hạn (ms) = 149279 (≤ 160000)
+-- TC-PG05-25 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:27 01:53:36
+== TC-PG05-27
+    ok   số lần 'reason":"max_duration' = [1]
+    ok   ready → reconnect (ms) = 120003 (≥ 115000)
+    ok   ready → reconnect (ms) = 120003 (≤ 130000)
+    ok   reconnect → đóng kết nối (ms) = 16 (≤ 2000)
+-- TC-PG05-27 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0

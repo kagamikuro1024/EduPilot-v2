@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.7 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkH) · Ngày: 2026-11-15
-Tổng TC cũ: 86 · Đạt: 78 · Trượt: 7 · Không chạy (K): 0 · Chưa kết luận (N): 1   (P+F+K+N = 86)
+Tổng TC cũ: 86 · Đạt: 79 · Trượt: 7 · Không chạy (K): 0 · Chưa kết luận (N): 0   (P+F+K+N = 86)
 
 Sprint 10.7 không có tệp `tc-*.md`; tập kiểm tự định nghĩa từ bộ kiểm của chính sprint (audit khung `qc-ui-audit-real`, thanh dính, trang giới thiệu 24 AC, tương phản, ui-antipatterns, e2e dev): 37 mã audit + 5 điểm dock + 24 AC landing + 1 tương phản + 2 antipatterns + 12 spec dev + 5 điểm riêng = 86. Route động không đo.
 
@@ -88,7 +88,7 @@ Cách chạy:
 | LANDING-AC20 | P | landing.spec dev (17 ca) xanh trên bản dựng gate |
 | LANDING-AC21 | P | landing.spec dev (17 ca) xanh trên bản dựng gate |
 | LANDING-AC22 | P | màn đầu có một dữ kiện «146» và không «1.000 sinh viên» (landing-extra2.log; đối chiếu landing.spec dev) |
-| LANDING-AC23 | N | copy-lint 0 FAIL / 0 WARN; consistency.mjs INCOMPLETE (không chụp được màn ở ep-r) — chưa đạt kết luận |
+| LANDING-AC23 | P | RERUN 2026-11-16: lần trước lỗi chứng chỉ Caddy (ERR_CERT_AUTHORITY_INVALID) = môi trường; chạy lại trên FE http://localhost:3700 (`consistency.mjs --widths 1440,390 --rhythm-widths 1440,390 --page software`): 1440 = 8 FAIL, 390 = 3 FAIL (tổng 11) đều thuộc danh sách miễn trừ AC23 (scroll-reveal, scroll-linked, section-air, empty-area, copy-headings) — khớp báo cáo dev; copy-lint 0 FAIL (evidence-10.7/landing-consistency-r2.log) |
 | LANDING-AC24 | P | AC24-1:mục số đo có 1 ảnh; AC24-390:mục số đo cao 1688px; khoảng trống liền giữa danh sách và ản |
 | COLOR-contrast.spec (ma trận chữ × nền, vàng, sidebar, status) | P | dev-e2e-107.log: 4/4 |
 | ANTI-ui-antipatterns.sh | P | 32 phép ✓, exit 0 |
@@ -115,4 +115,11 @@ Cách chạy:
 Bốn lỗi, xem `defects-10.7.md`: DEF-R10.7-01 (observability), -02 (gradebook), -03 (student/practice khi tải), -04 (settings/llm lặp chữ).
 
 ## Chưa kết luận (N)
-- LANDING-AC23: copy-lint 0 FAIL / 0 WARN; `consistency.mjs` báo INCOMPLETE (không chụp được màn ở 1440 / 390 trên ep-r) nên chưa kết luận. Không có ca K.
+- Không còn. LANDING-AC23 đã chạy lại → đạt (xem dòng ca).
+
+## Chạy lại sau lô sửa 9c346b86 (audit `sau4`, 2026-11-16, ep-r dựng lại từ 9c346b86)
+Audit 4 vai × 1440/375 × dữ liệu/rỗng/đang tải/lỗi (`evidence-10.7/audit/sau4`, `audit-sau4.md`): 16 lệch (lượt `sau3`: ~24). Đã hết: DEF-R10.7-03 (practice mất tab khi tải), DEF-R10.7-04 (T2 lặp «Máy chủ riêng»), DEF-R10.7-01 phần meta lặp tên lớp + P5 nhịp 24≠48.
+Còn lệch: **H7 gradebook** đầu trang 66,4 ≠ 63 (1440) và 134,4 ≠ 131 (375) — DEF-R10.7-02 chưa hết; **X3 gradebook** loading/error có «Chốt điểm» còn trạng thái dữ liệu thì không (lớp 761987 đã Chốt nên khung dữ liệu không có nút này — cần lớp chưa chốt để kết luận); **X3 teacher/insights** loading/error không có nút đầu trang («Tạo báo cáo mới», «Thêm hành động») trong khi trạng thái dữ liệu có — MỚI; **D3 gradebook** cao hàng [48, 66] — MỚI; **E6 teacher/observability[rỗng]** vật chứa 346,4 > 320 px; **E2 student/chat** lệch 190 (có sẵn từ sau3).
+Các mục này chưa đổi trạng thái F của DEF-R10.7-01/-02 (còn mở một phần); -03 và -04 đã sửa.
+
+Đo lại sổ điểm trên lớp CHƯA chốt, ít dữ liệu (QCEMPTY, GV `teacher`, `audit/sau5`, `audit-sau5.md`): H7 và D3 KHÔNG lệch (hai lệch trên 761987 phụ thuộc dữ liệu: lớp đã Chốt, nhiều cột/hàng); X3 VẪN lệch (1440): đang tải / lỗi hiện [«Xem công thức», «Thêm hành động», «Chốt điểm»] còn trạng thái dữ liệu chỉ có [«Xem công thức», «Chốt điểm»] — nút menu «Thêm hành động» ở khung chờ thừa so với khung dữ liệu của lớp ít dữ liệu. ⇒ X3 gradebook là lệch thật (giao dev2, P-11-51).

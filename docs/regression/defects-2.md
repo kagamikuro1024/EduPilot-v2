@@ -28,3 +28,11 @@
 - Kỳ vọng: gói store xanh · Thực tế: FAIL 3/3 lượt (ổn định, không do tải)
 - Bằng chứng: /tmp/qc2-j-gate-testroutes/internal_store.json (lượt đỏ) · Nghi mã: backend-go/internal/store/llm_test.go:61
 - **Rerun sau c272d3d3 (2026-11-16 00:5x, bản f3d0740e): `TestLLMSchema` PASS; cả gói `./internal/store` ok (49 s).**
+
+### DEF-R2-04 — `go test ./internal/contract` KHÔNG có `-tags testroutes` đỏ cố định
+- Mức: Trung bình (cổng PG.md ghi «contract không tag» và `go test -race ./...` thuần; Makefile/CI chỉ chạy bản có tag nên không ai thấy)
+- Sprint gốc: 2 (GATE-PG-03/06; sprint 1 P0-02/TC-20, P0-03/TC-15) · Hồi quy do sprint sau?: CÓ (sprint 7: `scenarios_assignment_test.go:91` gọi `POST /api/v1/_test/llm/fake` nhưng tệp không có build tag; bản mặc định không có route thử → 404)
+- Môi trường: f3d0740e, máy load ≈ 6–9, lặp 3 lượt trong gate từng gói + 1 lượt chạy tay
+- Bước tái hiện: 1. `cd backend-go && go test -count=1 ./internal/contract` → FAIL: `TestChatThreadsContract` («POST /api/v1/_test/llm/fake → 404 (cần 200)»), `TestContract_ResponsesMatchSpec` («chỉ có 0 quan sát»), `TestSpec_EveryDocumentedStatusExercised` (hàng trăm trạng thái «không test nào sinh ra»). 2. Cùng lệnh thêm `-tags testroutes` → ok.
+- Kỳ vọng: gói contract xanh ở cả hai bản dựng (hoặc các kịch bản dùng route thử có `//go:build testroutes`) · Thực tế: đỏ ở bản mặc định
+- Bằng chứng: /tmp/qc2-j-gate-notag/internal_contract.json · Nghi mã: backend-go/internal/contract/scenarios_assignment_test.go:91 (và mọi kịch bản dùng route `_test`), contract_test.go:114/174. Đề xuất: PM quyết — thêm `//go:build testroutes` cho các tệp kịch bản (khi đó cổng «không tag» xanh) hoặc xác nhận `-tags testroutes` là cách chạy chuẩn (khi đó GATE-03/06, P0-02/TC-20, P0-03/TC-15 chuyển LT).

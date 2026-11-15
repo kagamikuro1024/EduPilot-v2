@@ -1,0 +1,31 @@
+
+Running 8 tests using 1 worker
+
+(node:37185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO chat@1440 H=906 :: Chat riêng ⏎ Hỏi bất cứ điều gì về lớp này ⏎ Phiên chat này chỉ bạn đọc được. ⏎ Tôi nên làm gì với “Giảng viên đã trả lời câu hỏi của bạn”? ⏎ Điểm quá trình của tôi hiện là bao nhiêu? ⏎ Tuần này tôi có những buổi học nào? ⏎ Gửi
+INFO chat@375 H=946 :: Chat riêng ⏎ Hỏi bất cứ điều gì về lớp này ⏎ Phiên chat này chỉ bạn đọc được. ⏎ Tôi nên làm gì với “Giảng viên đã trả lời câu hỏi của bạn”? ⏎ Điểm quá trình của tôi hiện là bao nhiêu? ⏎ Tuần này tôi có những buổi học nào? ⏎ Gửi
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5x-real.spec.ts:27:3 › X chat (11.7s)
+INFO threads-sv@1440 H=900 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Tìm theo tiêu đề ⏎ Chủ đề ⏎ Tuần ⏎ Mọi tuần ⏎ Tuần 1 ⏎ Tuần 2 ⏎ Tuần 3 ⏎ Tuần 4 ⏎ Tuần 5 ⏎ Tuần 6 ⏎ Tuần 7 ⏎ Tuần 8 ⏎ Tuần 9 ⏎ Tuần 10 ⏎ Tuần 11 ⏎ Tuần 12 ⏎ Tuần 13 ⏎ Tuần 14 ⏎ Tuần 15 ⏎ Tuần 16 ⏎ Tuần 17 ⏎ Tuần 18 ⏎ Tuần 19 ⏎ Tuần 20 ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Chờ xác nhận ⏎ Đã xác nhận ⏎ Chưa có câu trả lời ⏎ Chưa có câu hỏi nào
+INFO threads-sv@375 H=812 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Bộ lọc ⏎ Chưa có câu hỏi nào
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5x-real.spec.ts:27:3 › X threads-sv (11.7s)
+INFO threads-gv@1440 H=900 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Câu hỏi ⏎ Cần xem ⏎ Tìm theo tiêu đề ⏎ Chủ đề ⏎ Tuần ⏎ Mọi tuần ⏎ Tuần 1 ⏎ Tuần 2 ⏎ Tuần 3 ⏎ Tuần 4 ⏎ Tuần 5 ⏎ Tuần 6 ⏎ Tuần 7 ⏎ Tuần 8 ⏎ Tuần 9 ⏎ Tuần 10 ⏎ Tuần 11 ⏎ Tuần 12 ⏎ Tuần 13 ⏎ Tuần 14 ⏎ Tuần 15 ⏎ Tuần 16 ⏎ Tuần 17 ⏎ Tuần 18 ⏎ Tuần 19 ⏎ Tuần 20 ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Chờ xác nhận ⏎ Đã xác nhận ⏎ Chưa có câu trả lời ⏎ Chưa có câu hỏi nào
+INFO threads-gv@375 H=812 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Câu hỏi ⏎ Cần xem ⏎ Bộ lọc ⏎ Chưa có câu hỏi nào
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5x-real.spec.ts:27:3 › X threads-gv (11.7s)
+INFO me@1440 H=1573 :: Kết quả của tôi ⏎ Điểm ⏎ Điểm quá trình 8,25 / 10 ⏎ Giữa kỳ · 20 % ⏎ Căn cứ · tr. 1 ⏎ 7,5 ⏎ Kiểm tra hằng tuần · 20 % ⏎ 8 ⏎ Thi cuối kỳ · 60 % ⏎ 6,5 ⏎ Điểm cộng 0,5 · tối đa 1 ⏎ Căn cứ · tr. 1 ⏎ Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5 ⏎ Căn cứ · tr. 1 ⏎ Điểm quá trình trước điểm cộng / trừ 7,75 ⏎ Điểm quá trình 8,25 ⏎ Nếu cuối kỳ được ⏎ Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường. ⏎ Chuyên cần ⏎ Bạn có mặt 7/9 buổi, vắng 2. ⏎ Buổi 6 · 18/10 ⏎ Vắng ⏎ Buổi 4 · 04/10 ⏎ Muộn ⏎ Buổi 3 · 27/09 ⏎ Vắng ⏎ Điểm cộng đã ghi ⏎ Phát biểu 2 lần · +0,50. ⏎ Phát biểu +0,25 ⏎ 15/11, 15/11 ⏎ Bài tập ⏎ Lớp chưa có bài tập
+INFO me@375 H=1424 :: Kết quả của tôi ⏎ Điểm ⏎ Điểm quá trình 8,25 / 10 ⏎ Giữa kỳ · 20 % ⏎ Căn cứ · tr. 1 ⏎ 7,5 ⏎ Kiểm tra hằng tuần · 20 % ⏎ 8 ⏎ Thi cuối kỳ · 60 % ⏎ 6,5 ⏎ Điểm cộng 0,5 · tối đa 1 ⏎ Căn cứ · tr. 1 ⏎ Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5 ⏎ Căn cứ · tr. 1 ⏎ Điểm quá trình trước điểm cộng / trừ 7,75 ⏎ Điểm quá trình 8,25 ⏎ Nếu cuối kỳ được ⏎ Điểm chính thức nằm ở hệ thống quản lý đào tạ
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw5x-real.spec.ts:27:3 › X me (11.7s)
+INFO me-nguyco@1440 H=1715 :: Kết quả của tôi ⏎ Điểm ⏎ Điểm quá trình 1,25 / 10 ⏎ Giữa kỳ · 20 % ⏎ Căn cứ · tr. 1 ⏎ 5 ⏎ Kiểm tra hằng tuần · 20 % ⏎ 0 ⏎ Thi cuối kỳ · 60 % ⏎ 4,5 ⏎ Điểm cộng 0,25 · tối đa 1 ⏎ Căn cứ · tr. 1 ⏎ Điểm trừ 1,5 · vắng 5 buổi, được miễn 2, mỗi buổi trừ 0,5 ⏎ Căn cứ · tr. 1 ⏎ Điểm quá trình trước điểm cộng / trừ 2,5 ⏎ Điểm quá trình 1,25 ⏎ Nếu cuối kỳ được ⏎ Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường. ⏎ Chuyên cần ⏎ Bạn có mặt 4/9 buổi, vắng 5. ⏎ Buổi 9 · 08/11 ⏎ Vắng ⏎ Buổi 8 · 01/11 ⏎ Vắng ⏎ Buổi 7 · 25/10 ⏎ Vắng ⏎ Buổi 5 · 11/10 ⏎ Vắng ⏎ Buổi 3 · 27/09 ⏎ Muộn ⏎ Buổi 2 · 20/09 ⏎ Vắng ⏎ Điểm cộng đã ghi ⏎ Phát biểu 1 lần · +0,25. ⏎ Phát biểu +0,25 ⏎ 15/11 ⏎ Bài tập ⏎ Lớp chưa có bài tập
+INFO me-nguyco@375 H=1519 :: Kết quả của tôi ⏎ Điểm ⏎ Điểm quá trình 1,25 / 10 ⏎ Giữa kỳ · 20 % ⏎ Căn cứ · tr. 1 ⏎ 5 ⏎ Kiểm tra hằng tuần · 20 % ⏎ 0 ⏎ Thi cuối kỳ · 60 % ⏎ 4,5 ⏎ Điểm cộng 0,25 · tối đa 1 ⏎ Căn cứ · tr. 1 ⏎ Điểm trừ 1,5 · vắng 5 buổi, được miễn 2, mỗi buổi trừ 0,5 ⏎ Căn cứ · tr. 1 ⏎ Điểm quá trình trước điểm cộng / trừ 2,5 ⏎ Điểm quá trình 1,25 ⏎ Nếu cuối kỳ được ⏎ Điểm chính thức nằm ở hệ thống quản lý đào tạ
+  ✓  5 [desktop] › e2e/qc2-r91/qc-uiux91-rw5x-real.spec.ts:27:3 › X me-nguyco (11.7s)
+INFO documents@1440 H=900 :: Tài liệu ⏎ Tải tài liệu lên ⏎ Lớp chưa có quy chế môn học. ⏎ Tải quy chế môn học ⏎ 0 tài liệu ⏎ Kéo thả hoặc chọn tệp ⏎ Tìm theo tên ⏎ Loại ⏎ Mọi loại ⏎ Bài giảng ⏎ Quy chế môn học ⏎ Đề tham khảo ⏎ Đáp án ⏎ Tài liệu khác ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Sẵn sàng ⏎ Đang xử lý ⏎ Lỗi ⏎ Lớp chưa có tài liệu
+INFO documents@375 H=1156 :: Tài liệu ⏎ Tải tài liệu lên ⏎ Lớp chưa có quy chế môn học. ⏎ Tải quy chế môn học ⏎ 0 tài liệu ⏎ Kéo thả hoặc chọn tệp ⏎ Tìm theo tên ⏎ Loại ⏎ Mọi loại ⏎ Bài giảng ⏎ Quy chế môn học ⏎ Đề tham khảo ⏎ Đáp án ⏎ Tài liệu khác ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Sẵn sàng ⏎ Đang xử lý ⏎ Lỗi ⏎ Lớp chưa có tài liệu
+  ✓  6 [desktop] › e2e/qc2-r91/qc-uiux91-rw5x-real.spec.ts:27:3 › X documents (11.6s)
+INFO insights@1440 H=900 :: Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới
+INFO insights@375 H=812 :: Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới
+  ✓  7 [desktop] › e2e/qc2-r91/qc-uiux91-rw5x-real.spec.ts:27:3 › X insights (11.7s)
+INFO observability@1440 H=900 :: Quan sát AI ⏎ QC s8core QD8R71 – QD8R71 ⏎ 7 ngày qua ⏎ Yêu cầu ⏎ 0 ⏎ Tỷ lệ lỗi ⏎ 0% ⏎ Chuyển giảng viên ⏎ 0 ⏎ Lần che thông tin ⏎ 0 ⏎ Hữu ích / Chưa hữu ích ⏎ 0 / 0 ⏎ Hỏi đáp công khai: đúng / loại ⏎ 0 / 0 ⏎ Điểm AI bị sửa ⏎ —
+INFO observability@375 H=970 :: Quan sát AI ⏎ QC s8core QD8R71 – QD8R71 ⏎ 7 ngày qua ⏎ Yêu cầu ⏎ 0 ⏎ Tỷ lệ lỗi ⏎ 0% ⏎ Chuyển giảng viên ⏎ 0 ⏎ Lần che thông tin ⏎ 0 ⏎ Hữu ích / Chưa hữu ích ⏎ 0 / 0 ⏎ Hỏi đáp công khai: đúng / loại ⏎ 0 / 0 ⏎ Điểm AI bị sửa ⏎ —
+  ✓  8 [desktop] › e2e/qc2-r91/qc-uiux91-rw5x-real.spec.ts:27:3 › X observability (11.5s)
+
+  8 passed (1.6m)

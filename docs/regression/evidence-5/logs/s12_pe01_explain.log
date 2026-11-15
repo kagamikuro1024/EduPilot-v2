@@ -1,0 +1,104 @@
+INSERT 0 100
+INSERT 0 20000
+INSERT 0 20
+INSERT 0 20
+INSERT 0 2000
+INSERT 0 20000
+ANALYZE
+rows|20014|2003|20005
+== 1_cau_review
+  ->  Index Scan using question_bank_course_review_idx on question_bank  (cost=0.41..1207.79 rows=5000 width=233) (actual rows=30.00 loops=1)
+Planning:
+Planning Time: 0.793 ms
+Execution Time: 0.066 ms
+-- không ép (planner tự chọn):
+  ->  Index Scan using question_bank_course_review_idx on question_bank  (cost=0.41..1207.79 rows=5000 width=233) (actual rows=30.00 loops=1)
+Execution Time: 0.057 ms
+== 2_cau_topic
+Index Scan using question_bank_course_topic_idx on question_bank  (cost=0.29..101.25 rows=56 width=233) (actual rows=166.00 loops=1)
+Planning:
+Planning Time: 0.364 ms
+Execution Time: 0.535 ms
+-- không ép (planner tự chọn):
+Index Scan using question_bank_course_topic_idx on question_bank  (cost=0.29..101.25 rows=56 width=233) (actual rows=166.00 loops=1)
+Execution Time: 0.612 ms
+== 3_luot_exam_student
+Index Scan using exam_attempts_exam_student_key on exam_attempts  (cost=9.84..17.86 rows=1 width=692) (actual rows=1.00 loops=1)
+    ->  Seq Scan on exams  (cost=0.00..1.40 rows=1 width=16) (actual rows=1.00 loops=1)
+    ->  Index Scan using users_email_key on users  (cost=0.14..8.16 rows=1 width=16) (actual rows=1.00 loops=1)
+Planning:
+Planning Time: 0.692 ms
+Execution Time: 0.076 ms
+-- không ép (planner tự chọn):
+Index Scan using exam_attempts_exam_student_key on exam_attempts  (cost=4.94..12.96 rows=1 width=692) (actual rows=1.00 loops=1)
+    ->  Seq Scan on exams  (cost=0.00..1.40 rows=1 width=16) (actual rows=1.00 loops=1)
+    ->  Seq Scan on users  (cost=0.00..3.26 rows=1 width=16) (actual rows=1.00 loops=1)
+Execution Time: 0.095 ms
+== 4_luot_dang_lam
+Bitmap Heap Scan on exam_attempts  (cost=12.49..32.02 rows=7 width=692) (actual rows=7.00 loops=1)
+    ->  Index Scan using users_email_key on users  (cost=0.14..8.16 rows=1 width=16) (actual rows=1.00 loops=1)
+  ->  Bitmap Index Scan on exam_attempts_running_idx  (cost=0.00..4.33 rows=7 width=0) (actual rows=7.00 loops=1)
+Planning:
+Planning Time: 0.809 ms
+Execution Time: 0.224 ms
+-- không ép (planner tự chọn):
+Bitmap Heap Scan on exam_attempts  (cost=7.59..27.12 rows=7 width=692) (actual rows=7.00 loops=1)
+    ->  Seq Scan on users  (cost=0.00..3.26 rows=1 width=16) (actual rows=1.00 loops=1)
+  ->  Bitmap Index Scan on exam_attempts_running_idx  (cost=0.00..4.33 rows=7 width=0) (actual rows=7.00 loops=1)
+Execution Time: 0.145 ms
+== 5_luot_den_han
+Index Scan using exam_attempts_due_idx on exam_attempts  (cost=0.15..36.83 rows=667 width=16) (actual rows=667.00 loops=1)
+Planning:
+Planning Time: 0.591 ms
+Execution Time: 0.250 ms
+-- không ép (planner tự chọn):
+Index Scan using exam_attempts_due_idx on exam_attempts  (cost=0.15..36.83 rows=667 width=16) (actual rows=667.00 loops=1)
+Execution Time: 0.284 ms
+== 6_bai_nop_cuoi
+          ->  Index Only Scan using exam_attempts_pkey on exam_attempts  (cost=0.28..115.32 rows=2003 width=16) (actual rows=1.00 loops=1)
+          ->  Index Only Scan using exam_items_course_id_key on exam_items  (cost=0.14..12.50 rows=24 width=16) (actual rows=1.00 loops=1)
+  ->  Index Scan using code_submissions_attempt_item_idx on code_submissions  (cost=0.41..8.43 rows=1 width=407) (actual rows=0.00 loops=1)
+Planning:
+Planning Time: 0.878 ms
+Execution Time: 0.110 ms
+-- không ép (planner tự chọn):
+          ->  Seq Scan on exam_attempts  (cost=0.00..62.03 rows=2003 width=16) (actual rows=1.00 loops=1)
+          ->  Seq Scan on exam_items  (cost=0.00..1.24 rows=24 width=16) (actual rows=1.00 loops=1)
+  ->  Index Scan using code_submissions_attempt_item_idx on code_submissions  (cost=0.41..8.43 rows=1 width=407) (actual rows=0.00 loops=1)
+Execution Time: 0.080 ms
+== 7_hang_cho
+  ->  Index Only Scan using code_submissions_queue_idx on code_submissions  (cost=0.28..327.73 rows=201 width=24) (actual rows=50.00 loops=1)
+Planning:
+Planning Time: 0.286 ms
+Execution Time: 0.082 ms
+-- không ép (planner tự chọn):
+  ->  Index Only Scan using code_submissions_queue_idx on code_submissions  (cost=0.28..327.73 rows=201 width=24) (actual rows=50.00 loops=1)
+Execution Time: 0.063 ms
+== 8_bang_diem
+    ->  Seq Scan on exams  (cost=0.00..1.40 rows=1 width=16) (actual rows=1.00 loops=1)
+        ->  Bitmap Heap Scan on exam_attempts  (cost=4.94..48.47 rows=58 width=692) (actual rows=66.00 loops=1)
+              ->  Bitmap Index Scan on exam_attempts_exam_student_key  (cost=0.00..4.93 rows=87 width=0) (actual rows=100.00 loops=1)
+Planning:
+Planning Time: 0.580 ms
+Execution Time: 0.100 ms
+-- không ép (planner tự chọn):
+    ->  Seq Scan on exams  (cost=0.00..1.40 rows=1 width=16) (actual rows=1.00 loops=1)
+        ->  Bitmap Heap Scan on exam_attempts  (cost=4.94..48.47 rows=58 width=692) (actual rows=66.00 loops=1)
+              ->  Bitmap Index Scan on exam_attempts_exam_student_key  (cost=0.00..4.93 rows=87 width=0) (actual rows=100.00 loops=1)
+Execution Time: 0.087 ms
+== 9a_bai_den_han_mo
+Index Only Scan using exams_course_status_idx on exams  (cost=0.14..8.22 rows=4 width=16) (actual rows=4.00 loops=1)
+Planning:
+Planning Time: 0.357 ms
+Execution Time: 0.051 ms
+-- không ép (planner tự chọn):
+Seq Scan on exams  (cost=0.00..1.56 rows=4 width=16) (actual rows=4.00 loops=1)
+Execution Time: 0.013 ms
+== 9b_bai_den_han_dong
+Index Scan using exams_course_status_idx on exams  (cost=0.14..8.36 rows=7 width=16) (actual rows=8.00 loops=1)
+Planning:
+Planning Time: 0.638 ms
+Execution Time: 0.052 ms
+-- không ép (planner tự chọn):
+Seq Scan on exams  (cost=0.00..1.56 rows=7 width=16) (actual rows=8.00 loops=1)
+Execution Time: 0.032 ms

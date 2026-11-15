@@ -7,10 +7,11 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | Sprint | Ca | Triệu chứng |
 |---|---|---|
 | 1 | P0-01/TC-07 | DEF-R1-01: DEMO_SCRIPT trích attendance-checkin/-display/checkin-code/audit/insights.spec.ts nhưng FLOWS.md không có mục tương ứng |
-| 10.8 | TC-AS14-11 | FAIL TC-AS14-11 / TC-AS14-11: DEF-R10.8-02: 13 tên không tồn tại |
-| 2 | TC-PG07-19 | CẦN TRIAGE: sau khi tắt, cùng token (không 401): thực tế [503] ≠ mong đợi [404] |
-| 2 | TC-GATE-06 | CẦN TRIAGE: contract không tag rc: thực tế [1] ≠ mong đợi [0] |
-| 2 | TC-GATE-07 | CẦN TRIAGE: go test -race ./internal/httpapi/... rc: thực tế [1] ≠ mong đợi [0] |
+| 1 | P0-02/TC-20 | DEF-R2-04 (xem defects-2.md): `go vet ./...` rc 0; `go test -race ./...` không tag: contract đỏ cố định; bản `-tags testroutes` xanh (3424 PASS, 0 FAIL) |
+| 1 | P0-03/TC-15 | DEF-R2-04: lệnh Go `go test -race ./...` không tag đỏ ở internal/contract; FE: install --frozen-lockfile/lint/build/antipatterns rc 0; bản -tags testroutes xanh |
+| 2 | TC-PG07-63 | DEF-R2-04: cổng GATE-PG chạy trọn còn 2 ca đỏ (GATE-03, GATE-06: contract không tag); 01–02, 04–24, 26, 28–29 đạt; GATE-25/27 (trình duyệt), GATE-2 |
+| 2 | TC-GATE-03 | DEF-R2-04: `go test -race ./...` KHÔNG tag: 98 gói xanh (3360 PASS) nhưng `internal/contract` đỏ cố định (TestChatThreadsContract: POST /_test/llm/fake → 404 |
+| 2 | TC-GATE-06 | DEF-R2-04: contract KHÔNG tag rc 1 (cố định, lặp 3 lượt + go test trực tiếp); có tag PASS |
 | 3 | TC-GATEPU-01 | lint 5 cảnh báo (TC-PU01-05); pbuild/gbuild rc=0, 0 "Failed to load font" (DEF-R3-03) |
 | 3 | TC-P102-14 | lỗi 503: INTERACTIVE gọi nhà 2 lần (1+1 thử lại), BATCH 15 lần (kỳ vọng 3) (DEF-R3-05) |
 | 3 | TC-P103-19 | sau chuỗi lỗi: circuit=open; lời gọi kế tiếp chặn ngay (503 LLM_UNAVAILABLE, 42242 ms, 0 request tới stub) (DEF-R3-05) |
@@ -23,6 +24,9 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 8 | TC-P6-01-20 | weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
 | 8 | TC-P6-02-15 | quét float64: internal/seedtool/examhistory.go:130 đưa điểm thi qua float64(c)*2.5 (seed tool); mã sản phẩm sạch |
 | 8 | TC-P6-02-25 | C: KT=0, status COMPLETE, nhưng dòng KT chỉ expr '0' (filled_by_user, không quote điều 1.4), không có chữ 'không dự → 0 theo quy chế' (DEF-R8-s8core-01 |
+| 8 | TC-P6-06-11 | 8/9 chuỗi sai bị từ chối 4xx (abc,-1,1e2,8,,5,1000,8,5x,+5,٥) nhưng ' ' (một dấu cách) → 200 và XOÁ điểm (coi như rỗng); không có 5xx |
+| 8 | TC-P6-06-56 | version kiểu chữ → 422 VALIDATION_FAILED đúng; NHƯNG thiếu version: ô chưa có → 200 (tạo ô, version=0 ngầm); ô đã có → 409 VERSION_CONFLICT (kh |
+| 8 | TC-P6-07-11 | {2: 'STUDENT_NOT_IN_COURSE', 4: 'DUPLICATE_IN_FILE', 5: 'SCORE_OUT_OF_RANGE', 6: 'SCORE_PRECISION', 7: 'SCORE_NOT_NUMBER', 10: 'SCORE_NOT_NUMBER'} vs {2: 'STUDENT_NO |
 | 9.1 | TC-UX04-3 | 9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02 |
 | 9.1 | TC-UX04-12 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX04-13 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
@@ -218,6 +222,14 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Kỳ vọng: gói store xanh · Thực tế: FAIL 3/3 lượt (ổn định, không do tải)
 - Bằng chứng: /tmp/qc2-j-gate-testroutes/internal_store.json (lượt đỏ) · Nghi mã: backend-go/internal/store/llm_test.go:61
 - **Rerun sau c272d3d3 (2026-11-16 00:5x, bản f3d0740e): `TestLLMSchema` PASS; cả gói `./internal/store` ok (49 s).**
+
+### DEF-R2-04 — `go test ./internal/contract` KHÔNG có `-tags testroutes` đỏ cố định
+- Mức: Trung bình (cổng PG.md ghi «contract không tag» và `go test -race ./...` thuần; Makefile/CI chỉ chạy bản có tag nên không ai thấy)
+- Sprint gốc: 2 (GATE-PG-03/06; sprint 1 P0-02/TC-20, P0-03/TC-15) · Hồi quy do sprint sau?: CÓ (sprint 7: `scenarios_assignment_test.go:91` gọi `POST /api/v1/_test/llm/fake` nhưng tệp không có build tag; bản mặc định không có route thử → 404)
+- Môi trường: f3d0740e, máy load ≈ 6–9, lặp 3 lượt trong gate từng gói + 1 lượt chạy tay
+- Bước tái hiện: 1. `cd backend-go && go test -count=1 ./internal/contract` → FAIL: `TestChatThreadsContract` («POST /api/v1/_test/llm/fake → 404 (cần 200)»), `TestContract_ResponsesMatchSpec` («chỉ có 0 quan sát»), `TestSpec_EveryDocumentedStatusExercised` (hàng trăm trạng thái «không test nào sinh ra»). 2. Cùng lệnh thêm `-tags testroutes` → ok.
+- Kỳ vọng: gói contract xanh ở cả hai bản dựng (hoặc các kịch bản dùng route thử có `//go:build testroutes`) · Thực tế: đỏ ở bản mặc định
+- Bằng chứng: /tmp/qc2-j-gate-notag/internal_contract.json · Nghi mã: backend-go/internal/contract/scenarios_assignment_test.go:91 (và mọi kịch bản dùng route `_test`), contract_test.go:114/174. Đề xuất: PM quyết — thêm `//go:build testroutes` cho các tệp kịch bản (khi đó cổng «không tag» xanh) hoặc xác nhận `-tags testroutes` là cách chạy chuẩn (khi đó GATE-03/06, P0-02/TC-20, P0-03/TC-15 chuyển LT).
 
 ---
 <!-- defects-3.md -->

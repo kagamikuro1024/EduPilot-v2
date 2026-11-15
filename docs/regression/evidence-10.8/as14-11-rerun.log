@@ -1,0 +1,3 @@
+./internal/attendance: ok  	github.com/edupilot/backend-go/internal/attendance	16.666s
+./internal/attendance/attest: ok  	github.com/edupilot/backend-go/internal/attendance/attest	5.072s
+./internal/agent: ok  	github.com/edupilot/backend-go/internal/agent	0.576s

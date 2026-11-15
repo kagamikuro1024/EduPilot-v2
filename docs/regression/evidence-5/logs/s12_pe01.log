@@ -1,0 +1,8 @@
+INSERT 0 1
+INSERT 0 1
+
+nền: OK
+item code: OK
+BAD: 119 ca, đúng SQLSTATE 119
+GOOD: 29 ca, thành công 29
+đếm bảng sau ca xấu+lành: {'question_bank': '14', 'exams': '12', 'exam_attempts': '3', 'code_submissions': '5'}

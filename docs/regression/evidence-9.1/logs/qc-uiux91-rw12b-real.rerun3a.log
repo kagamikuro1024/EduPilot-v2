@@ -1,0 +1,28 @@
+
+Running 7 tests using 1 worker
+
+(node:55774) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO teacher /assignments: —
+INFO teacher /insights: —
+INFO teacher /calendar: 16/11,22/11
+INFO teacher /exams: —
+INFO teacher /library: —
+INFO sv.gioi /assignments: —
+INFO sv.gioi /calendar: 16/11,22/11,16/11
+INFO sv.gioi /exams: —
+INFO sv.gioi /library: —
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw12b-real.spec.ts:20:1 › TC-UX02-5 chỉ ngày: không dạng cũ, có dd/MM hoặc dd/MM/yyyy (GV + SV) (25.8s)
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw12b-real.spec.ts:36:1 › TC-UX02-PQ SV /documents, /inbox → 403 như cũ (6.8s)
+INFO /: 0 hoạt cảnh, delay khác nhau:  ; 
+INFO /inbox: 0 hoạt cảnh, delay khác nhau:  ; 
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw12b-real.spec.ts:50:1 › TC-UX04-17 không so le: mọi hoạt cảnh bắt đầu cùng lúc khi tải `/` và `/inbox` (1.9s)
+INFO TA thấy nút Tải bài lên: 1
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw12b-real.spec.ts:67:1 › TC-UX05-6 TA /grading: nút Tải bài lên theo quyền (có nút ⇔ không khoá vì quyền) (3.8s)
+  ✓  5 [desktop] › e2e/qc2-r91/qc-uiux91-rw12b-real.spec.ts:79:1 › TC-UX05-8 Sổ điểm lớp có điểm: câu «Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.» ở chân bảng (4.8s)
+  ✓  6 [desktop] › e2e/qc2-r91/qc-uiux91-rw12b-real.spec.ts:94:1 › TC-UX06-2 chọn A rồi B, tải lại → vẫn B (4.9s)
+INFO sidebar thu gọn: [{"t":"Hôm nay","al":"Hôm nay","ti":"Hôm nay","w":55},{"t":"Hộp thư hỗ trợ","al":"Hộp thư hỗ trợ","ti":"Hộp thư hỗ trợ","w":55},{"t":"Sinh viên","al":"Sinh viên","ti":"Sinh viên","w":55},{"t":"Điểm danh","al":"Điểm danh","ti":"Điểm danh","w":55}]
+INFO thanh dưới 375: [{"t":"Hôm nay","cut":false},{"t":"Chat riêng","cut":false},{"t":"Hỏi đáp","cut":false},{"t":"Luyện đề","cut":false}]
+  ✓  7 [desktop] › e2e/qc2-r91/qc-uiux91-rw12b-real.spec.ts:113:1 › TC-UX07-10/12/13 SV: khối hoạt động không còn Threads; sidebar thu gọn có aria-label; thanh dưới 375 không cắt nhãn (5.2s)
+
+  7 passed (53.7s)

@@ -1,0 +1,27 @@
+7.00, 8.56, 10.00
+## ./internal/assignment TestQueueP95Under300ms
+--- PASS: TestQueueP95Under300ms (1.24s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	3.069s
+## ./internal/auth TestRegisterTimingEqualized|TestForgotTimingEqualized|TestLoginTimingEqualized
+--- PASS: TestRegisterTimingEqualized (26.19s)
+--- PASS: TestForgotTimingEqualized (3.40s)
+--- PASS: TestLoginTimingEqualized (28.17s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/auth	59.575s
+## ./internal/course TestJoinFailureTimingEqualized
+--- PASS: TestJoinFailureTimingEqualized (2.50s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/course	4.316s
+## ./internal/grade TestFinalize1000Under3s|TestPutEntryUnder300ms|TestGradebookPageP95|TestImport1000Under3s|TestExport1000Under3s
+--- PASS: TestFinalize1000Under3s (1.33s)
+--- PASS: TestPutEntryUnder300ms (0.94s)
+--- PASS: TestGradebookPageP95 (0.97s)
+--- PASS: TestImport1000Under3s (1.19s)
+--- PASS: TestExport1000Under3s (0.91s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	7.144s
+## ./internal/privacy TestDetectLinearTime
+--- PASS: TestDetectLinearTime (0.67s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/privacy	2.219s

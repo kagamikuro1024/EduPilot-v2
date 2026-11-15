@@ -1,0 +1,55 @@
+
+Running 4 tests using 1 worker
+
+(node:17832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX19 pending=17/20: [{"title":"T1","prev":"Hướng dẫn nộp bài","meta":"Tác giả 1 | Tuần 3 | Chủ Nhật, 08/11 · 15:10"},{"title":"T2","prev":"Phisher - Individual uses email…","meta":"Tác giả 2 | Tuần 3 | Chủ Nhật, 08/11 · 15:10"},{"title":"T3","prev":"Ví dụ","meta":"Tác giả 3 | Tuần 3 | Chủ Nhật, 08/11 · 15:10"},{"title":"T4","prev":"Tiêu đề lớn","meta":"Tác giả 4 | Tuần 3 | Chủ Nhật, 08/11 · 15:10"},{"title":"T5","prev":"trích dẫn","meta":"Tác giả 5 | Tuần 3 | Chủ Nhật, 08/11 · 15:10"},{"title":"T6","prev":"","meta":"Tác giả 6 | Tuần 3 | Chủ Nhật, 08/11 · 15:10"},{"title":"T7","prev":"Dòng một của đoạn dài. Dòng hai chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ…","meta":"Tác giả 7 | Tuần 3 | Chủ Nhật, 08/11 · 15:10"}]
+INFO UX19 pending=17 T8–T10: [{"title":"T8 xác nhận","prev":"đã xác nhận","meta":"Tác giả 101 | Tuần 3 | Đã được giảng viên xác nhận | Chủ Nhật, 08/11 · 15:10"},{"title":"T9 sửa","prev":"đã sửa","meta":"Tác giả 102 | Tuần 3 | Đã sửa bởi giảng viên | Chủ Nhật, 08/11 · 15:10"},{"title":"T10 loại","prev":"đã loại","meta":"Tác giả 103 | Tuần 3 | Đã loại | Chủ Nhật, 08/11 · 15:10"}]
+INFO UX19 pending=17 dòng đầu: ["17 câu chờ xác nhận"] | số hàng có «Chờ xác nhận»: 0 | nhãn khác: ["T8 xác nhận","T9 sửa","T10 loại"]
+INFO UX19-2 T7: 140 "Dòng một của đoạn dài. Dòng ha" true
+INFO UX19 pending=10/13: [{"title":"T1","prev":"Hướng dẫn nộp bài","meta":"Tác giả 1 | Tuần 3 | Chờ xác nhận | Chủ Nhật, 08/11 · 15:10"},{"title":"T2","prev":"Phisher - Individual uses email…","meta":"Tác giả 2 | Tuần 3 | Chờ xác nhận | Chủ Nhật, 08/11 · 15:10"},{"title":"T3","prev":"Ví dụ","meta":"Tác giả 3 | Tuần 3 | Chờ xác nhận | Chủ Nhật, 08/11 · 15:10"},{"title":"T4","prev":"Tiêu đề lớn","meta":"Tác giả 4 | Tuần 3 | Chờ xác nhận | Chủ Nhật, 08/11 · 15:10"},{"title":"T5","prev":"trích dẫn","meta":"Tác giả 5 | Tuần 3 | Chờ xác nhận | Chủ Nhật, 08/11 · 15:10"},{"title":"T6","prev":"","meta":"Tác giả 6 | Tuần 3 | Chờ xác nhận | Chủ Nhật, 08/11 · 15:10"},{"title":"T7","prev":"Dòng một của đoạn dài. Dòng hai chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ chữ…","meta":"Tác giả 7 | Tuần 3 | Chờ xác nhận | Chủ Nhật, 08/11 · 15:10"}]
+INFO UX19 pending=10 T8–T10: [{"title":"T8 xác nhận","prev":"đã xác nhận","meta":"Tác giả 101 | Tuần 3 | Đã được giảng viên xác nhận | Chủ Nhật, 08/11 · 15:10"},{"title":"T9 sửa","prev":"đã sửa","meta":"Tác giả 102 | Tuần 3 | Đã sửa bởi giảng viên | Chủ Nhật, 08/11 · 15:10"},{"title":"T10 loại","prev":"đã loại","meta":"Tác giả 103 | Tuần 3 | Đã loại | Chủ Nhật, 08/11 · 15:10"}]
+INFO UX19 pending=10 dòng đầu: null | số hàng có «Chờ xác nhận»: 10 | nhãn khác: ["T8 xác nhận","T9 sửa","T10 loại"]
+INFO UX19-2 T7: 140 "Dòng một của đoạn dài. Dòng ha" true
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5b-real.spec.ts:40:1 › TC-UX19 giảng viên: đoạn trích, nhãn đa số, nhãn từng thread (dữ liệu giả) (10.1s)
+INFO UX19-1 thật: đoạn trích: []
+INFO UX19-1 bắt đầu bằng ký tự thừa: []
+INFO UX19-8 thời gian: [] | dạng cũ: false
+INFO UX19-PG request: ["?limit=30"]
+INFO UX19-13 h1: ["Hỏi đáp công khai"]
+INFO UX19-7 nút: 1 {"x":12,"y":216,"width":101.984375,"height":44} | svg: 1 | chữ: Bộ lọc
+INFO UX19-7 bảng: {"x":0,"y":203,"width":375,"height":609} | viewport h 812
+INFO UX19-7 số ô lọc: 2
+INFO UX19-7 sau đặt 2 bộ lọc: "Bộ lọc · 2" {"x":12,"y":216,"width":121.703125,"height":44}
+INFO UX19-6 SV: danh sách có nội dung AI chưa xác nhận? "(rỗng sau lọc)"
+INFO UX19-12 hộp thoại: 1 "Bài này có thông tin cá nhân Hỏi đáp công khai là nơi cả lớp cùng đọc. Chúng tôi tìm thấy: 1 email, 1 MSSV. Chuyển sang chat riêng Ẩn thông tin rồi đăng" | status: ["Phát hiện Email, MSSV, Câu hỏi riêng tư"]
+INFO UX19-11 SV không thuộc lớp: 403 403
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5b-real.spec.ts:62:1 › TC-UX19 thật: giảng viên, SV 375 bộ lọc, thời gian, phân trang, 403, PII (21.6s)
+INFO UX20-3 API me/grades: {"status":"FINAL","scheme":{"scheme_no":1,"confirmed_at":"2026-11-15T12:26:01.756495Z","components":[{"key":"midterm","name":"Giữa kỳ","grp":"QT","weight":"20"},{"key":"weekly","name":"Kiểm tra hằng tuần","grp":"QT","weight":"20"},{"key":"final","name":"Thi cuối kỳ","grp":"CK","weight":"60"}]},"components":[{"key":"midterm","name":"Giữa kỳ","weight":"20","status":"PUBLISHED","score":"7.5"},{"key":"weekly","name":"Kiểm tra hằng tuần","weight":"20","status":"PUBLISHED","score":"8"},{"key":"final","name":"Thi cuối kỳ","weight":"60","status":"PUBLISHED","score":"6.5"}],"bonus":{"applied":"0.5","raw":"0.5","cap":"1"},"penalty":{"value":"0","absent":2,"free":2,"per":"0.5"},"qt":"8.25","final":{"numeric_grade":"7","letter":"B","version":1,"locked_at":"0001-01-01T00:00:00Z"},"calculation":[{"label":"Giữa kỳ (20%)","text":"Giữa kỳ: 7,5","value":"7,5","source_quote":"Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.","page":1},{"label":"Kiểm tra hằng tuần (20%)","text":"Kiểm tra hằng tuần: 8","value":"8"},{"label":"Thi cuối kỳ (60%)","text":"Thi cuối kỳ: 6,5","value":"6,5","source_quote":"
+INFO UX20-1 DOM: {"h1":["Kết quả của tôi"],"h2":["Điểm","Chuyên cần","Điểm cộng đã ghi","Bài tập","Thời gian học"],"dl":2,"panels":5,"lis":["Giữa kỳ · 20 % ⏎ Căn cứ · tr. 1 ⏎ 7,5","Kiểm tra hằng tuần · 20 % ⏎ 8","Thi cuối kỳ · 60 % ⏎ 6,5","Điểm cộng 0,5 · tối đa 1 ⏎ Căn cứ · tr. 1","Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5 ⏎ Căn cứ · tr. 1","Điểm quá trình trước điểm cộng / trừ 7,75","Điểm quá trình 8,25"],"buttons":["Căn cứ · tr. 1","Căn cứ · tr. 1","Căn cứ · tr. 1"],"sub":[]}
+INFO UX20-1 «Căn cứ» số lần: 3 | «Giữa kỳ · 20 %» lặp: 1 | mã lớp trần: false | đã công bố nút xem lại: null
+INFO UX20-4 từ nháp / rủi ro / ghi chú: null
+INFO UX20-6 sv.moi /me: "Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Bạn có mặt 4/4 buổi, vắng 0. ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Lớp chưa có bài tập"
+INFO UX20-8 sv.moi lớp: ["QC-K6r108"]
+INFO UX20-8 mẫu SV B uid: 01a1df27-651a-7710-9d22-1bc37fec90bb | keys: ["student","attendance","participation","study","activity","risk"]
+INFO UX20-8 SV A gọi explain của B: 403 | me/grades?user_id=B: 200 {"status":"FINAL","scheme":{"scheme_no":1,"confirmed_at":"2026-11-15T12:26:01.75
+INFO UX20-9 375: scrollHeight 1516 | tràn ngang: 0
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5b-real.spec.ts:132:1 › TC-UX20 Kết quả của tôi: một khối, số khớp API, chưa công bố, 375 (19.0s)
+INFO UX18-1 @1440 Loại: ["Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197"]
+INFO UX18-2 @1440 «Chia sẻ từ»: ["—","—","—","—","—","—","—","—","—","—","—"]
+INFO UX18-4 @1440 công tắc: [{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":"true","w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"0.55"},{"name":"","on":"false","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":"true","w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"0.55"},{"name":"","on":"false","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":"true","w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"0.55"},{"name":"","on":"false","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"}]
+INFO UX18-7 công tắc: true → true | lỗi: ["Chưa lưu được.\nThử lại",""] | Thử lại: 1
+INFO UX18-7 sau Thử lại: false
+INFO UX18 tài liệu API: [["QC r10 đáp án riên","ANSWER_KEY","",null,false],["QC r10 đề riêng lớ","EXAM_PAPER","",null,true],["Đáp án đề tham khả","ANSWER_KEY","761987",null,false],["Đề tham khảo tuần ","EXAM_PAPER","761987",null,true],["Quy chế học vụ","OTHER","761987",null,true],["Forecasting (QMB c","LECTURE","761987",null,true],["Network Security T","LECTURE","761987",null,true]]
+  ✘  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw5b-real.spec.ts:183:1 › TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, lớp lạ (3.0m)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw5b-real.spec.ts:183:1 › TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, lớp lạ 
+
+    Test timeout of 180000ms exceeded.
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w5b/qc2-r91-qc-uiux91-rw5b-rea-d7f98-ẻ-từ-công-tắc-375-SV-lớp-lạ-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw5b-real.spec.ts:183:1 › TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, lớp lạ 
+  3 passed (3.9m)

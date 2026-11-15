@@ -1,0 +1,35 @@
+
+Running 3 tests using 1 worker
+
+(node:35966) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX19-10 lỗi: "Hỏi đáp công khai Đặt câu hỏi Câu hỏi Cần xem Tìm theo tiêu đề Chủ đề Tuần Mọi tuần Tuần 1 Tuần 2 Tuần 3 Tuần 4 Tuần 5 Tuần 6 Tuần 7 Tuần 8 Tuần 9 Tuần 10 Tuần 11 Tuần 12 Tuần 13 Tuần 14 Tuần 15 Tuần " | Thử lại: 1
+INFO UX19-10 sau Thử lại: số hàng 0
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:23:1 › TC-UX19-10 danh sách lỗi → ApiErrorNotice + Thử lại (9.4s)
+INFO UX20-8 qt của A: 8.25 | qt của B: 10 | A gọi ?user_id=B: 200 8.25 | bằng của A: true
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:38:1 › TC-UX20-8 tham số user_id không đổi danh tính (4.7s)
+INFO UX13-1 trước thu gọn: {"x":240,"r":1416,"w":1176,"mainL":216,"mainR":1440}
+  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài (15.7s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Thu gọn lịch sử' })
+
+
+      57 |   const panel = () => page.locator("[data-part=chat-inner]").evaluate((e) => { const p = e.closest("[class*=Panel-module]") as HTMLElement; const r = p.getBoundingClientRect(); const m = document.querySelector("main")!.getBoundingClientRect(); return { x: Math.round(r.x), r: Math.round(r.right), w: Math.round(r.width), mainL: Math.round(m.x), mainR: Math.round(m.right) }; });
+      58 |   console.log("INFO UX13-1 trước thu gọn:", JSON.stringify(await panel()));
+    > 59 |   await page.getByRole("button", { name: "Thu gọn lịch sử" }).click(); await page.waitForTimeout(900);
+         |                                                               ^
+      60 |   console.log("INFO UX13-3 sau thu gọn:", JSON.stringify(await panel()));
+      61 |   await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/chat-collapsed-1440.png" });
+      62 |   await page.getByRole("button", { name: /^Phiên trước/ }).first().click().catch(() => undefined);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:59:63
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w5i/qc2-r91-qc-uiux91-rw5i-rea-c7ab2-sử-vị-trí-Panel-tiêu-đề-dài-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài 
+  2 passed (30.3s)

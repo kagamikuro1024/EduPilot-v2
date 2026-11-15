@@ -1,0 +1,214 @@
+
+Running 19 tests using 1 worker
+
+(node:79359) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO DRAFT: Bùi Thu Việt, Vũ Minh Long, Huỳnh Hoàng Hương, Võ Thanh Trang, Võ Thị An, Ngô Văn Hải, Ngô Thu Khoa, Võ Gia Linh, Hồ Đức Thảo, Dương Tuấn Giang, Dương Quốc Hương, Lê Thanh Hải, Bùi Thanh Khải, Dương Minh Yến, Phạm Mai Chi, Vũ Hoàng Giang, Đỗ Bảo Hải, Đỗ Khánh Hà, Nguyễn Anh Linh
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:48:1 › SETUP chấm nháp thêm bài (Bài tập 03) để có bài chờ duyệt (2.6s)
+INFO th một bài: ["Sinh viên","Nguồn","Điểm","Trạng thái duyệt","Thời gian nộp","Duyệt"]
+INFO số 'Bài tập 03' trên trang: 2
+INFO th tất cả bài: ["Sinh viên","Bài tập","Nguồn","Điểm","Trạng thái duyệt","Thời gian nộp","Duyệt"]
+INFO ô Bài tập: {"ws":"nowrap","to":"ellipsis","ov":"hidden","w":200,"txt":"Bài tập 03 — Phân tích một vụ tấn công t"}
+INFO đáy: {"chip":331,"sels":[332,332]}
+INFO ô Bài tập rộng: {"w":456,"longest":54}
+INFO liên kết Duyệt: 1
+INFO cursor hàng: pointer
+INFO nền hàng: rgba(0, 0, 0, 0)|lab(100 0 0)|rgba(0, 0, 0, 0) → rgba(0, 0, 0, 0)|lab(96.4467 2.44418 1.31345)|lab(96.4467 2.44418 1.31345)
+INFO URL sau Enter: https://localhost:1143/grading/01a1df2c-03ee-790a-88cc-afca76c2e823?n=0&m=14&assignment=01a1df2b-f786-72db-85e8-a10086f68b3d&status=DRAFT&needs=1
+INFO request danh sách: ?match_status=MATCHED&status=DRAFT&needs_review=true&limit=50 | ?match_status=MATCHED&status=NONE&limit=50 | ?match_status=MATCHED&assignment_id=01a1df2b-f786-72db-85e8-a10086f68b3d&status=DRAFT&needs_review=true&limit=50
+  ✓   2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:62:1 › TC-UX14-1/2/4/5/6/7 hàng chờ: cột Bài tập, lý do cờ, hàng bấm được, căn đáy chip (13.7s)
+INFO hàng: [{"h":48,"kids":[{"t":"Bùi Thu Việt","top":426},{"t":"20226980","top":447},{"t":"Trích dẫn không có trong bài","top":447}]},{"h":48,"kids":[{"t":"Vũ Minh Long","top":474},{"t":"20224786","top":495},{"t":"Trích dẫn không có trong bài","top":495}]},{"h":48,"kids":[{"t":"Huỳnh Hoàng Hương","top":522},{"t":"20226004","top":543},{"t":"Trích dẫn không có trong bài","top":543}]},{"h":48,"kids":[{"t":"Võ Thanh Trang","top":570},{"t":"20227825","top":591},{"t":"Tổng điểm chưa khớp","top":591}]},{"h":48,"kids":[{"t":"Võ Thị An","top":618},{"t":"20229049","top":639},{"t":"Trích dẫn không có trong bài","top":639}]}]
+INFO có lý do cờ: 14; không: 0
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:130:1 › TC-UX14-4 lý do cờ dưới tên sinh viên, hàng không cờ gọn (7.3s)
+INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Chi tiết kỹ thuật Thử lại
+  ✘   4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit (1.5m)
+(node:82693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO 375 hàng chờ: {"ov":false,"row":{"rowH":0,"link":{"t":"Duyệt","w":0,"h":0},"text":"Bùi Thu Việt20226980Trích dẫn không có trong bàiThư5,75Chưa duyệtThứ Ba, 10/11 · 14:58Duyệt "}} | liên kết Duyệt: {"w":309,"height":44}
+  ✓   5 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:206:1 › TC-UX14-11 375 px: hàng xếp dọc, Duyệt riêng ≥ 44 px, không tràn (7.7s)
+INFO tiêu chí 1440: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":462,"inTop":462,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":770,"inTop":770,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1085,"inTop":1085,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1370,"inTop":1370,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false}]
+INFO số lần câu ghi chú trích: 1 | cũ: 0
+INFO thanh dưới lúc mở: {"top":804,"bottom":873,"pos":"sticky","text":"Đã duyệt 0/19 Duyệt bài A","innerH":900}
+INFO nút đỏ: ["Duyệt bài"]
+INFO nút Duyệt bài sau khi cuộn: {"top":693,"bottom":729,"innerH":900}
+INFO tiêu chí 1100: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":462,"inTop":462,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":798,"inTop":798,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1135,"inTop":1135,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1443,"inTop":1443,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false}]
+  ✓   6 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt (13.3s)
+INFO reduce=false: tô sáng từ 71 ms đến 1079 ms; mẫu cường độ: 71:17 227:17 386:17 553:17 714:17 874:17 1028:17
+INFO reduce=true: tô sáng từ 61 ms đến 1073 ms; mẫu cường độ: 61:17 219:17 377:17 533:17 696:17 857:17 1019:17
+  ✓   7 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:285:1 › TC-UX15-4 tô sáng đoạn trích: giữ ≈ 1 s rồi mờ ≤ 200 ms (và reduce tắt tức thì) (20.2s)
+INFO bản nháp khả dụng: 18
+INFO tiến độ trước: Đã duyệt 0/19
+INFO URL sau A: https://localhost:1143/grading/01a1df2c-03ee-790a-88cc-afca76c2e823 → https://localhost:1143/grading/01a1df2b-f9a2-7387-a715-a435ce7c2f2d?n=1&m=19&from=01a1df2c-03ee-790a-88cc-afca76c2e823
+INFO yêu cầu ghi: []
+INFO yêu cầu duyệt: 0
+INFO trạng thái bài đã A: {"id":"01a1df2c-03ee-790a-88cc-afca76c2e823","assignment":{"id":"01a1df2b-f786-72db-85e8-a10086f68b3d","title":"Bài tập 03 — Phân tích một vụ tấn công thực tế"}
+INFO tiến độ sau: Đã duyệt 1/19
+INFO sau ›: https://localhost:1143/grading/01a1df2b-f9a2-7387-a715-a435ce7c2f2d?n=1&m=19&from=01a1df2c-03ee-790a-88cc-afca76c2e823 → https://localhost:1143/grading/01a1df2b-fb91-79e1-ae27-32a58ba75709?n=1&m=19&from=01a1df2c-03ee-790a-88cc-afca76c2e823 | hoạt cảnh ngay sau: 2
+  ✓   8 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:329:1 › TC-UX15-8/9/10 phím A duyệt rồi sang bài kế; ‹ › đổi bài không hoạt cảnh; nhấn đúp chỉ một lần (11.6s)
+INFO sau reload: điểm 1,50 → nhập 1,25 → còn 1,25; ghi chú: QC ghi chú tự lưu 9.1
+INFO thanh dưới sau lỗi: Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Thử lại Đã duyệt 0/18 Duyệt bài A
+  ✓   9 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:365:1 › TC-UX15-12/13 tự lưu điểm + nháp khôi phục; lỗi duyệt báo tại thanh dưới, điểm còn (15.2s)
+INFO SV /assignments: Bài tập Chưa có bài tập
+INFO TA thấy nút Duyệt bài: 1
+  ✓  10 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:401:1 › TC-UX15-15/16/17/18 SV chưa thấy điểm; STUDENT 403; TA duyệt được (17.9s)
+INFO 375 duyệt bài: {"tabs":["Bài làm","Chấm"],"btn":{"top":704,"bottom":748,"h":44},"navTop":755,"ov":false,"innerH":812,"navFound":true}
+  ✓  11 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:427:1 › TC-UX14-11/UX15-19 375 px: hai tab Bài làm / Chấm, thanh duyệt dính đáy ≥ 44 px trên thanh điều hướng (6.1s)
+INFO đầu bảng: [{"t":"Sinh viên","h":45,"pos":"sticky","lines":1},{"t":"Giữa kỳ","h":45,"pos":"sticky","lines":1},{"t":"Kiểm tra hằng tuần","h":45,"pos":"sticky","lines":1},{"t":"Thi cuối kỳ","h":45,"pos":"sticky","lines":1},{"t":"Điểm cộng","h":45,"pos":"sticky","lines":1},{"t":"Điểm trừ","h":45,"pos":"sticky","lines":1},{"t":"Quá trình","h":45,"pos":"sticky","lines":1},{"t":"Điểm học phần","h":45,"pos":"sticky","lines":1},{"t":"Điểm chữ","h":45,"pos":"sticky","lines":1},{"t":"Trạng thái","h":45,"pos":"sticky","lines":1},{"t":"Hành động","h":45,"pos":"sticky","lines":1}]
+INFO hàng: [["Bùi Khánh Việt\n20227706","5,00","—","5,00","0,50","0,00","6,000","5,50","C","Đã chốt v1",""],["Bùi Minh Yến\n20221975","3,00","—","3,00","0,25","0,00","5,750","4,00","D","Đã chốt v1",""],["Bùi Thanh Khải\n20229002","7,50","—","6,50","0,50","0,00","8,250","7,00","B","Đã chốt v1",""]]
+INFO cuộn: [{"h":600,"top":227,"cls":"DataTable-module__PUx__a__vscr"}] căn: right tabular-nums cột tên: sticky | đầu trang: Sổ điểm Xem công thức Đã chốt v1 · Hôm qua, 23:27 Bảng điểm của lớp Sinh viên Giữa kỳ Kiểm tra hằng tuần Thi cuối kỳ Điểm cộng Điểm trừ Quá trình Điểm học phần Điểm chữ Trạng thái Hành động Bùi Khánh Việt 20227706 5,00 — 5,00 0,50 0,00 6,000 5,50 C Đã chốt v1  | chân: 7769 7,25 — 7,75 0,50 0,00 7,125 7,50 B Đã chốt v1 Nguyễn Anh Linh 20223869 2,00 — 6,50 0,75 0,00 4,750 6,00 C Đã chốt v1 Phạm Mai Chi 20226712 4,25 — 4,50 0,00 0,00 5,125 5,00 D+ Đã chốt v1 đã công bố Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.
+INFO thiếu: null | cột Trạng thái: true
+INFO UX16-3: kiểm 0 ô số, lệch 0
+  ✓  12 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:450:1 › TC-UX16-2/3/4/5/6/7/9/10/11 sổ điểm thật: số khớp API, tiêu đề một dòng, một vùng cuộn, Thiếu điểm (6.6s)
+  ✘  13 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:500:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được (4.0m)
+(node:95012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO 375 sổ điểm: {"ov":false,"inner":true,"cell":53,"input":null,"nameSticky":"sticky"}
+  ✓  14 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:549:1 › TC-UX16-21 375 px: cuộn ngang trong bảng, cột tên dính, không tràn trang, ô ≥ 44 px (7.6s)
+INFO chấm mặc định (3 hàng): [{"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"},{"st":"LATE","cols":["lab(100 0 0)","rgb(206, 22, 40)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"},{"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"}]
+INFO đỏ sau khi đổi: ["1:LATE","8:ABSENT","10:LATE"] | Có mặt đỏ: 0 | mẫu LATE: {"st":"LATE","cols":["lab(100 0 0)","rgb(206, 22, 40)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"} | mẫu PRESENT: {"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"}
+  ✘  15 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:577:1 › TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ cho Muộn / Vắng phép / Vắng; phát biểu + (7.1s)
+(node:95453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO P: Đỗ Khánh Hà 20223050 Có mặt — Đỗ Khánh Hà Muộn — Đỗ Khánh Hà Vắng phép — Đỗ Khánh Hà Vắng — Đỗ Khánh Hà +1 · +0,25×1 → Đỗ Khánh Hà 20223050 Có mặt — Đỗ Khánh Hà Muộn — Đỗ Khánh Hà Vắng phép — Đỗ Khánh Hà Vắng — Đỗ Khánh Hà +2 · +0,25×2
+  ✓  16 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:622:1 › TC-UX12-5b phím P ghi phát biểu cho hàng đang chọn (7.4s)
+  ✘  17 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:639:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms (6.5s)
+(node:95746) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO số SV: 30
+  ✘  18 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:675:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại (1.5m)
+(node:159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:720:1 › TC-UX12-12/PQ lưu hai lần nhanh: một bản ghi; lớp lạ không ghi (1.5m)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.inputValue: Test ended.
+    Call log:
+      - waiting for getByLabel('Trạng thái')
+
+
+      163 |   console.log("INFO lỗi:", t.replace(/\s+/g, " ").slice(0, 200));
+      164 |   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible({ timeout: 15_000 });
+    > 165 |   expect(await page.getByLabel("Trạng thái").inputValue(), "bộ lọc còn nguyên").not.toBe("");
+          |                                              ^
+      166 |   const selVal = await page.getByLabel("Bài tập").evaluate((s: HTMLSelectElement) => s.selectedOptions[0].text);
+      167 |   expect(selVal).toMatch(/Bài tập 03/);
+      168 |   fail = false;
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:165:46
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w4/qc2-r91-qc-uiux91-rw4-real-5e95e-403-TA-mở-được-lớp-lạ-limit-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:500:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.hover: Target page, context or browser has been closed
+
+      507 |   const menuBtn = th.getByRole("button").first();
+      508 |   const op0 = await menuBtn.evaluate((e) => getComputedStyle(e).opacity).catch(() => "n/a");
+    > 509 |   await th.hover();
+          |            ^
+      510 |   await page.waitForTimeout(400);
+      511 |   const op1 = await menuBtn.evaluate((e) => getComputedStyle(e).opacity).catch(() => "n/a");
+      512 |   console.log("INFO menu cột: opacity", op0, "→", op1);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:509:12
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w4/qc2-r91-qc-uiux91-rw4-real-f1273-DENT-403-TA-không-chốt-được-desktop/error-context.md
+
+  3) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:577:1 › TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ cho Muộn / Vắng phép / Vắng; phát biểu + 
+
+    Error: UX12-2: số chấm đỏ = số hàng khác Có mặt
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 4
+    Received: 3
+
+      593 |   console.log("INFO đỏ sau khi đổi:", JSON.stringify(redIdx), "| Có mặt đỏ:", presentRed, "| mẫu LATE:", JSON.stringify(after[1]), "| mẫu PRESENT:", JSON.stringify(after[0]));
+      594 |   expect(presentRed, "UX12-1: Có mặt không đỏ").toBe(0);
+    > 595 |   expect(redIdx.length, "UX12-2: số chấm đỏ = số hàng khác Có mặt").toBe(after.filter((r) => r.st !== "PRESENT").length);
+          |                                                                     ^
+      596 |   expect(after.filter((r) => r.st !== "PRESENT" && !isRed(r.cols)).map((r) => r.st), "UX12-2: mọi hàng Muộn / Vắng phép / Vắng đỏ").toEqual([]);
+      597 |   // UX12-3: nhãn chữ trạng thái + radio có tên
+      598 |   const txt = await rows.nth(8).innerText();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:595:69
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w4/qc2-r91-qc-uiux91-rw4-real-c7205-n-Vắng-phép-Vắng-phát-biểu--desktop/error-context.md
+
+  4) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:639:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms 
+
+    Error: page.evaluate: TypeError: Cannot read properties of undefined (reading 'getBoundingClientRect')
+        at eval (eval at evaluate (:370:30), <anonymous>:5:21)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at eval (eval at evaluate (:370:30), <anonymous>:5:21)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:644:24
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w4/qc2-r91-qc-uiux91-rw4-real-98faa-UDENT-403-đổi-chấm-≤-100-ms-desktop/error-context.md
+
+  5) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:675:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.scrollIntoViewIfNeeded: Test ended.
+    Call log:
+      - attempting scroll into view action
+        2 × waiting for element to be stable
+          - element is not visible
+        - retrying scroll into view action
+        - waiting 20ms
+        2 × waiting for element to be stable
+          - element is not visible
+        - retrying scroll into view action
+          - waiting 100ms
+        161 × waiting for element to be stable
+            - element is not visible
+          - retrying scroll into view action
+            - waiting 500ms
+        - waiting for element to be stable
+
+
+      682 |   const n = await rows.count();
+      683 |   console.log("INFO số SV:", n);
+    > 684 |   await rows.nth(Math.min(19, n - 1)).scrollIntoViewIfNeeded();
+          |                                       ^
+      685 |   await rows.nth(Math.min(19, n - 1)).locator("input[data-status=ABSENT]").check({ force: true });
+      686 |   await rows.nth(Math.min(20, n - 1)).locator("input[data-status=ABSENT]").check({ force: true });
+      687 |   await page.waitForTimeout(500);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:684:39
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w4/qc2-r91-qc-uiux91-rw4-real-e2f36-Vắng-≤-60-s-không-hộp-thoại-desktop/error-context.md
+
+  6) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:720:1 › TC-UX12-12/PQ lưu hai lần nhanh: một bản ghi; lớp lạ không ghi 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.dblclick: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: /Lưu điểm danh/ }).first()
+
+
+      728 |   await rows.nth(10).locator("input[data-status=LATE]").check({ force: true });
+      729 |   const save = page.getByRole("button", { name: /Lưu điểm danh/ }).first();
+    > 730 |   await save.dblclick();
+          |              ^
+      731 |   await page.waitForTimeout(2500);
+      732 |   console.log("INFO yêu cầu ghi:", JSON.stringify(posts));
+      733 |   expect(posts.length, "hai lần bấm không nhân đôi yêu cầu ghi").toBeLessThanOrEqual(1);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:730:14
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w4/qc2-r91-qc-uiux91-rw4-real-a1b95-ột-bản-ghi-lớp-lạ-không-ghi-desktop/error-context.md
+
+  6 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:500:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:577:1 › TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ cho Muộn / Vắng phép / Vắng; phát biểu + 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:639:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:675:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:720:1 › TC-UX12-12/PQ lưu hai lần nhanh: một bản ghi; lớp lạ không ghi 
+  13 passed (11.1m)

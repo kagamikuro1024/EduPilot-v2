@@ -1,0 +1,140 @@
+consistency  http://localhost:3700/
+
+1440x900  9 screens, 1 held section  8 FAIL  9 WARN
+  FAIL scroll-linked   section#ba-man > div.Landing-module__H_TZ-W__wrap.Landing-module__H_TZ-W__story  "EduPilot trong ba màn Chat riêng có nguồ"
+       held on screen for 1 screen of scroll (position: sticky), and 6 parts inside change as the page scrolls through it (colour, moves, opacity): h3.Landing-module__H_TZ-W__h3, h3.Landing-module__H_TZ-W__h3, img:nth-of-type(1), img:nth-of-type(2), ...  [1440-10-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-reveal   section#bai-nop  "Bài nộp đi qua ba bước 1 AI chấm nháp th"
+       animates in when scrolled into view (rises 16px)  [1440-01-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#so-do  "Ba số đo trên dữ liệu mô phỏng 146 yêu c"
+       animates in when scrolled into view (rises 12px)  [1440-07-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.Landing-module__H_TZ-W__landingRoot > div.Landing-module__H_TZ-W__page > footer.Landing-module__H_TZ-W__sec.Landing-module__H_TZ-W__closing  "Lớp của bạn trên EduPilot Đăng nhập Tạo "
+       starts "transform" (0.7 s) the moment it is scrolled into view (an IntersectionObserver) on span.Landing-module__H_TZ-W__stripe  [1440-09-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL copy-headings   h2#flow-title  "Bài nộp đi qua ba bước"
+       "Bài nộp đi qua ba bước" names no product, part, place or section (6 headings like it; at most one brand line per page) (and 5 more like it: "Chat riêng có nguồn", "Duyệt bài AI chấm nháp", "Sổ điểm có giải trình", "Ba số đo trên dữ liệu mô", ...)  [1440-02-copy-headings.jpg]
+       fix: name the thing in every heading: the product, a part, the place or a section noun
+  FAIL empty-area      section#ba-man  "EduPilot trong ba màn"
+       57% of the section is empty: 96px above its first content, 944px under its last (img:nth-of-type(2)), in its 1800px of rows (WARN over 35%, FAIL over 50%)  [1440-05-empty-area.jpg]
+       fix: fill the section: a picture or a second column beside the words, or more of its own content; the section stays one or two screens tall (T-height)
+  WARN cta             section#ba-man  "EduPilot trong ba màn"
+       a section over 1.5 screens long with no link or button in it  [1440-04-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  WARN copy-headings   ol.Landing-module__H_TZ-W__steps3 > li.Landing-module__H_TZ-W__step:nth-of-type(1) > div.Landing-module__H_TZ-W__card > h3.Landing-module__H_TZ-W__h3  "AI chấm nháp theo rubric"
+       the card title "AI chấm nháp theo rubric" names no product, part, place or section (2 card titles like it) (and 1 more like it: "Giảng viên sửa và duyệt")  [1440-03-copy-headings.jpg]
+       fix: name the thing in every heading: the product, a part, the place or a section noun
+  WARN copy-buttons    div.Landing-module__H_TZ-W__page > header.Landing-module__H_TZ-W__nav.nav > div.Landing-module__H_TZ-W__wrap.wrap > a.Landing-module__H_TZ-W__skip  "Tới nội dung"
+       "Tới nội dung" does not start with a verb (book, buy, try, start, get, see...) (and 3 more like it: "Đăng nhập", "Xem video", "Tạo tài khoản")
+       fix: label buttons with a verb and what the visitor gets ("Book a room", "Start free trial")
+  WARN copy-actions    (the page)
+       the main action "Tới nội dung" does not read word for word the same in the closing section
+       fix: few actions, one wording: at most 2 in the hero, the main action word for word in nav, hero and close
+  WARN section-gaps    section#ba-man / section#so-do
+       189px between these sections, -40% against the median 313px  [1440-06-section-gaps.jpg]
+       fix: use one gap between sections (all within 25% of each other)
+  WARN copy-length     section#vai  "Việc của giảng viên và sinh viên"
+       1 section over 90 words a screen outside the UI mocks ("Việc của giảng viên và s" 93); 60 words a screen across the page (360 words in 6 screens): a tech page says it in about 80 or fewer  [1440-08-copy-length.jpg]
+       fix: cut every section to its heading, one line and the product UI: the UI says the rest; no second paragraph, no list of feature sentences
+  WARN moment-none     (the page)
+       a software page (--type) deals no moment: every kind carries one, two on a long page (moments.md)
+       fix: deal one (moments.mjs pick --page software) and mount it in its own section
+  WARN skip-link       div.Landing-module__H_TZ-W__page > header.Landing-module__H_TZ-W__nav.nav > div.Landing-module__H_TZ-W__wrap.wrap > a.Landing-module__H_TZ-W__skip:nth-of-type(1)  "Tới nội dung"
+       the first Tab stop is "Tới nội dung", not a skip link: a keyboard user tabs through the whole nav on every visit
+       fix: add the starter's skip link as the header's first child: <a class="skip-link" href="#top">Skip to content</a>
+  WARN share-meta      head
+       the head lacks theme-color: a shared link shows no picture or title of its own
+       fix: copy the head block of starter.html: og tags, twitter:card, the icon and theme-color (references/system.md, Head)
+  FAIL section-air     section#ba-man / section#so-do
+       1089px of air between the content of these two sections: 128-480px (64-600px WARN) (SR-3)  [1440-rhythm-01-section-air.jpg]
+       fix: keep 128-480px of air between the content of neighbouring sections (112-420px on a phone): the sections' padding (--padt, --padb)
+  FAIL section-air     section#ba-man  "EduPilot trong ba mànChat riêng có nguồn"
+       the content fills 39.5% of the section's height (712 of 1800px): 55% or more (40% WARN) (SR-3)  [1440-rhythm-02-section-air.jpg]
+       fix: fill the section to 55%: more content, a picture or a background layer, or merge it into the section above as its last block
+
+390x844  10 screens  3 FAIL  5 WARN
+  FAIL scroll-reveal   section#bai-nop  "Bài nộp đi qua ba bước 1 AI chấm nháp th"
+       animates in when scrolled into view (rises 16px)  [390-02-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#so-do  "Ba số đo trên dữ liệu mô phỏng 146 yêu c"
+       animates in when scrolled into view (rises 12px)  [390-04-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.Landing-module__H_TZ-W__landingRoot > div.Landing-module__H_TZ-W__page > footer.Landing-module__H_TZ-W__sec.Landing-module__H_TZ-W__closing  "Lớp của bạn trên EduPilot Đăng nhập Tạo "
+       starts "transform" (0.7 s) the moment it is scrolled into view (an IntersectionObserver) on span.Landing-module__H_TZ-W__stripe  [390-07-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  WARN tap-size        div.Landing-module__H_TZ-W__page > header.Landing-module__H_TZ-W__nav.nav > div.Landing-module__H_TZ-W__wrap.wrap > a:nth-of-type(2)
+       a 169x36px tap target: under the 44px a phone needs  [390-01-tap-size.jpg]
+       fix: make every link and control outside running text 44px tall on a phone: display: inline-flex; align-items: center; min-height: 44px (a footer list then needs no gap), a 44px small button, or a transparent ::before laid past the box
+  WARN no-visual       section#vai  "Việc của giảng viên và sinh viên"
+       pictures, effects and mocks cover 22% of this section; a feature section needs a visual (about 25% or more)  [390-06-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  WARN cta             section#bai-nop  "Bài nộp đi qua ba bước"
+       a section over 1.5 screens long with no link or button in it  [390-03-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  WARN cta             section#so-do  "Ba số đo trên dữ liệu mô phỏng"
+       a section over 1.5 screens long with no link or button in it  [390-05-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  WARN section-gaps    section#top / section#bai-nop
+       234px between these sections, +31% against the median 179px  [390-08-section-gaps.jpg]
+       fix: use one gap between sections (all within 25% of each other)
+
+first screen at 1280, 1152, 1024, 896, 768  0 FAIL  0 WARN
+
+the page at 320x640, walked for what runs past the screen's edge  0 FAIL
+  WARN tap-size        [320] div.Landing-module__H_TZ-W__page > header.Landing-module__H_TZ-W__nav.nav > div.Landing-module__H_TZ-W__wrap.wrap > a:nth-of-type(2)
+       a 151x36px tap target: under the 44px a phone needs  [narrow-320-01-tap-size.jpg]
+       fix: make every link and control outside running text 44px tall on a phone: display: inline-flex; align-items: center; min-height: 44px (a footer list then needs no gap), a 44px small button, or a transparent ::before laid past the box
+
+checks
+  PASS assets                 PASS shader-lint            PASS gl-fallback            
+  PASS empty-visual           PASS hero-fill              PASS flush                  
+  PASS placeholder            PASS sample-label           PASS caption                
+  PASS credit-wall            PASS nav                    PASS nav-covers             
+  PASS spill                  PASS off-viewport           PASS fold-card              
+  PASS hover-spill            PASS overlap-text           PASS collide                
+  WARN tap-size               PASS row-gap                PASS cut-text               
+  PASS fold-cut               PASS marquee                FAIL scroll-linked          
+  FAIL scroll-reveal          PASS pinned                 PASS loop-pause             
+  PASS reduced-motion         PASS hidden-content         PASS webgl                  
+  WARN no-visual              PASS text-only              PASS card-visual            
+  PASS hidden-visual          PASS card-family            PASS card-layout            
+  PASS nesting                PASS effect-repeat          PASS ui-fit                 
+  PASS ui-centre              PASS dark-ground            PASS button-styles          
+  PASS button-shape           PASS same-action            PASS button-picture         
+  WARN cta                    PASS pricing-tiers          PASS copy-headline          
+  PASS copy-fact              FAIL copy-headings          WARN copy-buttons           
+  WARN copy-actions           PASS heading-scale          PASS stagger                
+  PASS top-stagger            PASS off-grid               PASS col-edge               
+  PASS right-edge             PASS centre-axis            PASS tilt                   
+  PASS contrast               PASS text-contrast          PASS body-size              
+  PASS busy-ground            WARN section-gaps           PASS proximity              
+  PASS hole                   PASS links                  PASS forms                  
+  PASS photo-upscale          PASS photo-set              PASS photo-credit           
+  PASS nav-family             PASS nav-labels             PASS link-styles            
+  PASS heading-align          PASS label-centre           PASS fake-button            
+  PASS stranded-action        PASS orphan                 PASS unit-break             
+  PASS tab-wrap               PASS effects-fit            PASS fade-cut               
+  PASS photo-weight           WARN copy-length            PASS nav-current            
+  PASS progress-bar           PASS photo-repeat           PASS button-contrast        
+  PASS photo-print            PASS grounds                PASS split-align            
+  PASS fact-agree             PASS fold-action            PASS action-count           
+  PASS one-screen             PASS hover                  PASS hover-move             
+  PASS product-shown          PASS same-object            PASS font-load              
+  PASS visual-caption         PASS visual-empty           PASS effect-kind            
+  PASS hero-enter             WARN moment-none            PASS street-number          
+  PASS postcode               PASS coordinates            PASS company-number         
+  PASS phone-number           PASS hero-screen            PASS section-height         
+  FAIL section-air            PASS one-section            PASS one-heading            
+  PASS container-edges        PASS row-lines              PASS split-pair             
+  PASS motion-layer           PASS count-text             PASS loop-cycle             
+  PASS section-tile           FAIL empty-area             PASS a11y-name              
+  PASS img-alt                PASS field-label            PASS heading-order          
+  PASS tabindex               PASS focus-ring             PASS focus-visible          
+  PASS focus-hidden           WARN skip-link              PASS menu-toggle            
+  PASS lang                   PASS page-meta              WARN share-meta             
+  PASS action-repeat          PASS map-link               PASS open-now               
+  PASS assumed                PASS run-on                 PASS form-fields            
+  PASS form-send              
+
+total  11 FAIL  15 WARN  (crops and report.json in /tmp/qc2-cons)

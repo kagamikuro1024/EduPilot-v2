@@ -1,0 +1,23 @@
+
+Running 19 tests using 1 worker
+
+(node:97577) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO DRAFT: Vũ Minh Long, Huỳnh Hoàng Hương, Võ Thanh Trang, Võ Thị An, Ngô Văn Hải, Ngô Thu Khoa, Võ Gia Linh, Hồ Đức Thảo, Dương Tuấn Giang, Dương Quốc Hương, Lê Thanh Hải, Bùi Thanh Khải, Dương Minh Yến, Phạm Mai Chi, Vũ Hoàng Giang, Đỗ Bảo Hải, Đỗ Khánh Hà, Nguyễn Anh Linh
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:48:1 › SETUP chấm nháp thêm bài (Bài tập 03) để có bài chờ duyệt (4.2s)
+INFO th một bài: ["Sinh viên","Nguồn","Điểm","Trạng thái duyệt","Thời gian nộp","Duyệt"]
+INFO số 'Bài tập 03' trên trang: 2
+INFO th tất cả bài: ["Sinh viên","Bài tập","Nguồn","Điểm","Trạng thái duyệt","Thời gian nộp","Duyệt"]
+INFO ô Bài tập: {"ws":"nowrap","to":"ellipsis","ov":"hidden","w":200,"txt":"Bài tập 03 — Phân tích một vụ tấn công t"}
+INFO đáy: {"chip":331,"sels":[332,332]}
+INFO ô Bài tập rộng: {"w":456,"longest":54}
+INFO liên kết Duyệt: 1
+INFO cursor hàng: pointer
+INFO nền hàng: rgba(0, 0, 0, 0)|lab(100 0 0)|rgba(0, 0, 0, 0) → rgba(0, 0, 0, 0)|lab(96.4467 2.44418 1.31345)|lab(96.4467 2.44418 1.31345)
+INFO URL sau Enter: https://localhost:1143/grading/01a1df2b-f9a2-7387-a715-a435ce7c2f2d?n=0&m=13&assignment=01a1df2b-f786-72db-85e8-a10086f68b3d&status=DRAFT&needs=1
+INFO request danh sách: ?match_status=MATCHED&status=DRAFT&needs_review=true&limit=50 | ?match_status=MATCHED&status=NONE&limit=50 | ?match_status=MATCHED&assignment_id=01a1df2b-f786-72db-85e8-a10086f68b3d&status=DRAFT&needs_review=true&limit=50
+  ✓   2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:62:1 › TC-UX14-1/2/4/5/6/7 hàng chờ: cột Bài tập, lý do cờ, hàng bấm được, căn đáy chip (15.5s)
+INFO hàng: [{"h":48,"kids":[{"t":"Vũ Minh Long","top":426},{"t":"20224786","top":447},{"t":"Trích dẫn không có trong bài","top":447}]},{"h":48,"kids":[{"t":"Huỳnh Hoàng Hương","top":474},{"t":"20226004","top":495},{"t":"Trích dẫn không có trong bài","top":495}]},{"h":48,"kids":[{"t":"Võ Thanh Trang","top":522},{"t":"20227825","top":543},{"t":"Tổng điểm chưa khớp","top":543}]},{"h":48,"kids":[{"t":"Võ Thị An","top":570},{"t":"20229049","top":591},{"t":"Trích dẫn không có trong bài","top":591}]},{"h":48,"kids":[{"t":"Ngô Văn Hải","top":618},{"t":"20227769","top":639},{"t":"Nghi chèn lệnh","top":639}]}]
+INFO có lý do cờ: 13; không: 0
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:130:1 › TC-UX14-4 lý do cờ dưới tên sinh viên, hàng không cờ gọn (8.1s)
+INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Chi tiết kỹ thuật Thử lại

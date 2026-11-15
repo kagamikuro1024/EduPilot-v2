@@ -1,0 +1,17 @@
+pkgs 100 {'pass': 3424, 'fail': 0, 'skip': 14}
+BAD []
+SKIPS 14
+  internal_assignment TestQueueP95Under300ms
+  internal_auth TestRegisterTimingEqualized
+  internal_auth TestForgotTimingEqualized
+  internal_auth TestLoginTimingEqualized
+  internal_course TestJoinFailureTimingEqualized
+  internal_grade TestFinalize1000Under3s
+  internal_grade TestPutEntryUnder300ms
+  internal_grade TestGradebookPageP95
+  internal_grade TestImport1000Under3s
+  internal_grade TestExport1000Under3s
+  internal_llm TestProviderContract/anthropic
+  internal_llm TestRecordReplay
+  internal_privacy TestDetectLinearTime
+  internal_privacy TestQCRedisMapping

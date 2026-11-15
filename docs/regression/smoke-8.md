@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 166 · Trượt: 3 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 343   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 290 · Trượt: 6 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 216   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -11,11 +11,11 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | P6-02 | 49 | 46 | 2 | 0 | 0 | 1 |
 | P6-03 | 48 | 17 | 0 | 0 | 0 | 31 |
 | P6-04 | 49 | 25 | 0 | 0 | 0 | 24 |
-| P6-05 | 46 | 16 | 0 | 0 | 0 | 30 |
-| P6-06 | 63 | 2 | 0 | 0 | 0 | 61 |
-| P6-07 | 59 | 8 | 0 | 0 | 0 | 51 |
-| P6-08 | 47 | 8 | 0 | 0 | 0 | 39 |
-| P6-09 | 50 | 4 | 0 | 0 | 0 | 46 |
+| P6-05 | 46 | 19 | 0 | 0 | 0 | 27 |
+| P6-06 | 63 | 42 | 2 | 0 | 0 | 19 |
+| P6-07 | 59 | 51 | 1 | 0 | 0 | 7 |
+| P6-08 | 47 | 42 | 0 | 0 | 0 | 5 |
+| P6-09 | 50 | 8 | 0 | 0 | 0 | 42 |
 | P6-SEED | 37 | 0 | 0 | 0 | 0 | 37 |
 | S8-UI | 23 | 0 | 0 | 0 | 0 | 23 |
 
@@ -222,15 +222,15 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-05-11 | P | QD8F2 DRAFT_READY: banner + liên kết 'Xác nhận công thức' (TEACHER) |
 | TC-P6-05-12 | P | TEACHER lớp 1 CONFIRMED: 0 banner (gradebook, attendance); STUDENT: 0 banner ở /me,/attendance,/gradebook,/chat |
 | TC-P6-05-13 | N | chưa chạy |
-| TC-P6-05-14 | N | chưa chạy |
+| TC-P6-05-14 | P | dev e2e ['banner unconfirmed'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-05-15 | P | Chốt điểm disabled+aria-disabled=true; tooltip 'Chưa có công thức điểm đã xác nhận' khi hover và focus; 0 icon Info |
 | TC-P6-05-16 | N | chưa chạy |
 | TC-P6-05-17 | N | chưa chạy |
-| TC-P6-05-18 | N | chưa chạy |
+| TC-P6-05-18 | P | dev e2e ['finalize locked reason'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-05-19 | P | /attendance QD8F2: banner 'Công thức điểm chưa xác nhận'+'Xem công thức' phía trên lưới 1 dòng; lưu thao tác xem TC-20 |
 | TC-P6-05-20 | N | chưa chạy |
 | TC-P6-05-21 | N | chưa chạy |
-| TC-P6-05-22 | N | chưa chạy |
+| TC-P6-05-22 | P | dev e2e ['attendance notice'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-05-23 | N | chưa chạy |
 | TC-P6-05-24 | N | chưa chạy |
 | TC-P6-05-25 | N | chưa chạy |
@@ -256,174 +256,174 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-05-45 | N | chưa chạy |
 | TC-P6-05-46 | N | chưa chạy |
 | TC-P6-06-01 | N | chưa chạy |
-| TC-P6-06-02 | N | chưa chạy |
-| TC-P6-06-03 | N | chưa chạy |
+| TC-P6-06-02 | P | API sổ: A ('1', '0', '10', '9.5', 'A+', 'COMPLETE'); B ('0.5', '0', '8.25', '7', 'B', 'COMPLETE'); C ('0.25', '1.5', '1.25', '3', 'F', 'COMPLETE') khớp bảng tay (UI: |
+| TC-P6-06-03 | P | dev e2e ['gradebook layout'] xanh (logs/s8r-dev-gradebook-me.log); ui-antipatterns rc=0 |
 | TC-P6-06-04 | N | chưa chạy |
-| TC-P6-06-05 | N | chưa chạy |
+| TC-P6-06-05 | P | dev e2e ['official note'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-06-06 | N | chưa chạy |
 | TC-P6-06-07 | N | chưa chạy |
 | TC-P6-06-08 | N | chưa chạy |
-| TC-P6-06-09 | N | chưa chạy |
-| TC-P6-06-10 | N | chưa chạy |
-| TC-P6-06-11 | N | chưa chạy |
-| TC-P6-06-12 | N | chưa chạy |
-| TC-P6-06-13 | N | chưa chạy |
-| TC-P6-06-14 | N | chưa chạy |
-| TC-P6-06-15 | N | chưa chạy |
-| TC-P6-06-16 | N | chưa chạy |
-| TC-P6-06-17 | P | go test 2 test PASS (log s8flow-go-*.log) |
-| TC-P6-06-18 | N | chưa chạy |
-| TC-P6-06-19 | N | chưa chạy |
+| TC-P6-06-09 | P | PUT 10.5 → 422 SCORE_OUT_OF_RANGE; DB giữ 9.00 v2 |
+| TC-P6-06-10 | P | PUT 8.333 → 422 SCORE_PRECISION (Điểm có quá 2 chữ số thập phân.); DB không đổi, không làm tròn 8,33 |
+| TC-P6-06-11 | F | 8/9 chuỗi sai bị từ chối 4xx (abc,-1,1e2,8,,5,1000,8,5x,+5,٥) nhưng ' ' (một dấu cách) → 200 và XOÁ điểm (coi như rỗng); không có 5xx |
+| TC-P6-06-12 | P | PUT score null → 200; DB sau: (None, None); trạng thái sinh viên: INCOMPLETE (thiếu điểm) |
+| TC-P6-06-13 | P | PUT vào item EXAM (weekly) → 409 ITEM_NOT_EDITABLE |
+| TC-P6-06-14 | P | Go 5 test PASS; dev e2e ['cell edit keys'] xanh (logs/s8r-dev-gradebook-me.log); |
+| TC-P6-06-15 | P | B cuối kỳ 6,5→8,0: row_result qt 8.25 hp 8 B+ (tay 8,25 / 8,10→8,0 B+); khoá trình bày '…' xem UI s8r-ui-06 |
+| TC-P6-06-16 | P | 30 PUT tuần tự (lượt 1/4 khi máy tải ~10): p50 91 ms, p95 169 ms, max 349 ms (≤300); phản hồi có row_result; grep công thức trong features/gradebook: chỉ phép nhân t |
+| TC-P6-06-17 | P | Go TestPutEntryReturnsRowResult/Under300ms PASS (logs/s8flow-go-results.json) + đo thật p95 169 ms |
+| TC-P6-06-18 | P | phiên 2 cùng version → 409 VERSION_CONFLICT, current {'score': '7.5', 'updated_at': '2026-11-15T18:39:59.009766Z', 'updated_by': {'name': 'TS. Lê Thu Hà'}, 'version' |
+| TC-P6-06-19 | P | Giữ của tôi: gửi lại với version 2 → 200; DB ('6.00', 3); audit_log có dòng set 7,5 (1); UI nút: s8r-ui-06 |
 | TC-P6-06-20 | N | chưa chạy |
-| TC-P6-06-21 | N | chưa chạy |
-| TC-P6-06-22 | N | chưa chạy |
-| TC-P6-06-23 | N | chưa chạy |
-| TC-P6-06-24 | N | chưa chạy |
-| TC-P6-06-25 | N | chưa chạy |
-| TC-P6-06-26 | N | chưa chạy |
-| TC-P6-06-27 | N | chưa chạy |
-| TC-P6-06-28 | N | chưa chạy |
+| TC-P6-06-21 | P | TA thấy updated_by='TS. Lê Thu Hà'; /me/grades của sinh viên không có khoá updated_by (HTTP 200) |
+| TC-P6-06-22 | P | Go 1 test PASS; dev e2e ['cell conflict choose'] xanh (logs/s8r-dev-gradebook-me.log); |
+| TC-P6-06-23 | P | giải trình B: thứ tự ['Giữa kỳ (20%)', 'Kiểm tra hằng tuần (20%)', 'Thi cuối kỳ (60%)']…; bonus 0,5; QT 8,25; HP thô 7,2 → ['7'] → B |
+| TC-P6-06-24 | P | Căn cứ: làm tròn → tr.2 (quote 3.1), điểm cộng → tr.1; dòng do GV đặt: filled_by_user của 'Kiểm tra hằng tuần'=True; UI 'do giảng viên đặt': s8r-ui-06 |
+| TC-P6-06-25 | P | sv20: HP 5 (không 0), F; dòng liệt 'Không đạt'=F kèm trích điều 4.1 tr.2 «dưới 3,0»; verdict LIET:final<3.0; dòng không viết số 2,75 trong expr (đúng ở dòng Thi cuối |
+| TC-P6-06-26 | P | explain 30/30 sinh viên: Điểm quá trình, HP, chữ khớp cột qt/hp/letter của expected_final_grades.csv |
+| TC-P6-06-27 | P | dev e2e ['explain student B'] xanh (logs/s8r-dev-gradebook-me.log); |
+| TC-P6-06-28 | P | history sv04: 3 mục, mục đầu {"at": "2026-11-15T18:40:06.490124Z", "by": "TS. Lê Thu Hà", "action": "set", "item": "midterm", "from": "7", "to": "6.25"}; next_cursor |
 | TC-P6-06-29 | P | go test 1 test PASS (log s8flow-go-*.log) |
-| TC-P6-06-30 | N | chưa chạy |
+| TC-P6-06-30 | P | LOAD1000 trang đầu limit=100 ×20: p50 20 ms, p95 51 ms (≤500); limit=101 → 422; thứ tự vn_fold(tên),id đúng trên lớp 30 SV có dấu: True |
 | TC-P6-06-31 | N | chưa chạy |
 | TC-P6-06-32 | N | chưa chạy |
 | TC-P6-06-33 | N | chưa chạy |
-| TC-P6-06-34 | N | chưa chạy |
-| TC-P6-06-35 | N | chưa chạy |
+| TC-P6-06-34 | P | LOAD1000 limit=100: seq_scan +0 trên grade_entries/participation_events/attendance_records (pg_stat_user_tables, min 3 lượt); đếm câu SQL không đo được qua log DB dù |
+| TC-P6-06-35 | P | Go 3 test PASS; dev e2e ['virtualized 1000\\|type then scroll keeps text'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-06-36 | N | chưa chạy |
 | TC-P6-06-37 | N | chưa chạy |
 | TC-P6-06-38 | N | chưa chạy |
 | TC-P6-06-39 | N | chưa chạy |
-| TC-P6-06-40 | N | chưa chạy |
+| TC-P6-06-40 | P | PUT khi LOCKED → 409 GRADEBOOK_LOCKED; state {'status': 'LOCKED', 'snapshot_version': 1} (UI 'Đã chốt v1', menu Mở khoá: s8r-ui-08) |
 | TC-P6-06-41 | N | chưa chạy |
-| TC-P6-06-42 | N | chưa chạy |
-| TC-P6-06-43 | N | chưa chạy |
-| TC-P6-06-44 | N | chưa chạy |
-| TC-P6-06-45 | N | chưa chạy |
+| TC-P6-06-42 | P | Go 1 test PASS; dev e2e ['gradebook states\\|offline cell'] xanh (logs/s8r-dev-gradebook-me.log); |
+| TC-P6-06-43 | P | audit mới nhất: grade_entries/set before {"score": "6.75", "item_id": "01a1e082-05b2-7b42-9ba4-ee1046 after {"score": "6", "item_id": "01a1e082-05b2-7b42-9ba4-ee1046 |
+| TC-P6-06-44 | P | audit_log chặn INSERT (trigger riêng lớp, thay vì đổi tên bảng dùng chung) → PUT 500; điểm không ghi: ('6.75', 1) = ('6.75', 1); đã gỡ trigger |
+| TC-P6-06-45 | P | Go 2 test PASS (logs/s8r-dev-gradebook-me.log); grep mock/gradebook rỗng |
 | TC-P6-06-46 | N | chưa chạy |
-| TC-P6-06-47 | N | chưa chạy |
-| TC-P6-06-48 | N | chưa chạy |
-| TC-P6-06-49 | N | chưa chạy |
-| TC-P6-06-50 | N | chưa chạy |
-| TC-P6-06-51 | N | chưa chạy |
-| TC-P6-06-52 | N | chưa chạy |
+| TC-P6-06-47 | P | publish true → 200, published_at có; gọi lại cùng thân → 200 (idempotent), audit 2→2 |
+| TC-P6-06-48 | P | publish false → 200, published_at NULL; audit grade_items có dòng |
+| TC-P6-06-49 | P | publish cột EXAM → 409 ITEM_NOT_PUBLISHABLE |
+| TC-P6-06-50 | P | nhập 8 cho sv.kha khi cột đã công bố → /me/grades hiện 8 ngay không thao tác thêm; khôi phục 7.50 |
+| TC-P6-06-51 | P | khi LOCKED: GV publish → 409 GRADEBOOK_LOCKED; TA publish → 403 (UI TA không thấy menu: s8r-ui-06) |
+| TC-P6-06-52 | P | Go 4 test PASS; dev e2e ['publish column'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-06-53 | N | chưa chạy |
 | TC-P6-06-54 | N | chưa chạy |
-| TC-P6-06-55 | N | chưa chạy |
-| TC-P6-06-56 | N | chưa chạy |
-| TC-P6-06-57 | N | chưa chạy |
-| TC-P6-06-58 | N | chưa chạy |
-| TC-P6-06-59 | N | chưa chạy |
+| TC-P6-06-55 | P | Go 1 test PASS; dev e2e ['penalty not in scheme notice'] xanh (logs/s8r-dev-gradebook-me.log); |
+| TC-P6-06-56 | F | version kiểu chữ → 422 VALIDATION_FAILED đúng; NHƯNG thiếu version: ô chưa có → 200 (tạo ô, version=0 ngầm); ô đã có → 409 VERSION_CONFLICT (không phải 422 VALIDATIO |
+| TC-P6-06-57 | P | PUT cho sinh viên ngoài lớp → 422 VALIDATION_FAILED; số dòng grade_entries giữ 60 |
+| TC-P6-06-58 | P | score số JSON 5 → 422; 8.333 → 422 VALIDATION_FAILED; '5.005' → 422; 0.1+0.2 → 422; DB ('7.00', 1) |
+| TC-P6-06-59 | P | 20 PUT song song cùng version 1: 200×1, 409×19, khác []; audit +1; version 2 |
 | TC-P6-06-60 | N | chưa chạy |
-| TC-P6-06-61 | N | chưa chạy |
-| TC-P6-06-62 | N | chưa chạy |
+| TC-P6-06-61 | P | PUT bằng TA/STUDENT/ADMIN → {'ta': 403, 'sv.gioi': 403, 'admin': 403}; DB không đổi |
+| TC-P6-06-62 | P | GV lớp khác GET gradebook → 403; STUDENT → 403; không token → 401 |
 | TC-P6-06-63 | N | chưa chạy |
-| TC-P6-07-01 | N | chưa chạy |
-| TC-P6-07-02 | N | chưa chạy |
-| TC-P6-07-03 | N | chưa chạy |
-| TC-P6-07-04 | N | chưa chạy |
-| TC-P6-07-05 | N | chưa chạy |
-| TC-P6-07-06 | N | chưa chạy |
+| TC-P6-07-01 | P | presign → 200 upload_id + URL ký (kho MinIO :9700), PUT thành công; `docker diff` gateway: tệp .xlsx mới 0→0 (không ghi đĩa cục bộ) |
+| TC-P6-07-02 | P | đuôi .pdf / .csv / .xlsx+mime pdf → [(422, 'FILE_TYPE_NOT_ALLOWED'), (422, 'FILE_TYPE_NOT_ALLOWED'), (422, 'FILE_TYPE_NOT_ALLOWED')] |
+| TC-P6-07-03 | P | 11 MiB khai thật → 422 FILE_TOO_LARGE; khai 2000 B nhưng PUT 11 MiB → kho MinIO từ chối (ngắt kết nối) |
+| TC-P6-07-04 | P | 11 presign trong ~1 s (teacher): [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 429]; lần 11 = 429; GV khác (gv.s8f) cùng lúc → 200 (không bị ảnh hưởng) |
+| TC-P6-07-05 | P | presign khai sha256 sai + PUT tệp thật → preview 422 FILE_INVALID; không ghi (grade_entries 60) |
+| TC-P6-07-06 | P | TA/STUDENT/ADMIN × (presign, preview, commit) → [403, 403, 403, 403, 403, 403, 403, 403, 403] |
 | TC-P6-07-07 | P | go test 3 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-08 | N | chưa chạy |
+| TC-P6-07-08 | P | preview midterm.xlsx → rows_total 30, rows_ok 30, overwrites 0, unchanged 30, errors [], sample 0 (≤20); grade_entries 60→60, audit_log 3→3 không đổi |
 | TC-P6-07-09 | N | chưa chạy |
 | TC-P6-07-10 | P | go test 2 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-11 | N | chưa chạy |
-| TC-P6-07-12 | N | chưa chạy |
-| TC-P6-07-13 | N | chưa chạy |
-| TC-P6-07-14 | N | chưa chạy |
-| TC-P6-07-15 | N | chưa chạy |
-| TC-P6-07-16 | N | chưa chạy |
+| TC-P6-07-11 | F | {2: 'STUDENT_NOT_IN_COURSE', 4: 'DUPLICATE_IN_FILE', 5: 'SCORE_OUT_OF_RANGE', 6: 'SCORE_PRECISION', 7: 'SCORE_NOT_NUMBER', 10: 'SCORE_NOT_NUMBER'} vs {2: 'STUDENT_NO |
+| TC-P6-07-12 | P | formula.xlsx: dòng B (=22/3 định dạng 0.00 → '7.33') hợp lệ; dòng C (=22/3 chung) → {3: 'SCORE_PRECISION'}; rows_ok 1 |
+| TC-P6-07-13 | P | MSSV ô số thực 20229002.0 → rows_ok 1, 0 lỗi (khớp B: điểm 6 vs hiện có 7,5 → overwrites 1) |
+| TC-P6-07-14 | P | X.users.student_code = MSSV của Y nhưng snapshot X = XSELF0001; dòng '20229555, 9' → điểm vào Y (snapshot khớp, ROSTER) = 9.00, X = None (không nhận) |
+| TC-P6-07-15 | P | 2 SV ROSTER cùng snapshot 20229666 → preview ['AMBIGUOUS_STUDENT_CODE'] |
+| TC-P6-07-16 | P | '00123456' (chuỗi) khớp đúng người (điểm 7.00); '123456' → {3: 'STUDENT_NOT_IN_COURSE'} (không mất số 0) |
 | TC-P6-07-17 | P | go test 8 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-18 | N | chưa chạy |
-| TC-P6-07-19 | N | chưa chạy |
-| TC-P6-07-20 | N | chưa chạy |
-| TC-P6-07-21 | N | chưa chạy |
-| TC-P6-07-22 | N | chưa chạy |
-| TC-P6-07-23 | N | chưa chạy |
-| TC-P6-07-24 | N | chưa chạy |
-| TC-P6-07-25 | N | chưa chạy |
+| TC-P6-07-18 | P | 3 ô bị sửa tay → commit midterm.xlsx: 200 (ok 30, overwrites 3, unchanged 27); 3 ô đổi version+1 source IMPORT; 27 ô giống cũ không version mới; audit mới {'import': |
+| TC-P6-07-19 | P | commit lần hai cùng tệp, khoá mới: unchanged 30 = rows_ok 30; 0 version mới; audit 11→11 (0 dòng mới) |
+| TC-P6-07-20 | P | commit lại cùng Idempotency-Key → 200, phản hồi y hệt lần đầu; version/audit không đổi |
+| TC-P6-07-21 | P | errors.xlsx commit không skip_errors → 409 IMPORT_HAS_ERRORS; không ghi dòng nào (kể cả dòng hợp lệ): version/entries/audit giữ nguyên |
+| TC-P6-07-22 | P | skip_errors:true → 200: ghi 2 dòng hợp lệ (B=7, sv06=8,5) trong một lô, bỏ 6 dòng lỗi; ô khác không đổi (đổi: 2); UI nút 'Bỏ qua N dòng lỗi và ghi M dòng': dev e2e ' |
+| TC-P6-07-23 | P | item EXAM làm đích: preview 409 ITEM_NOT_EDITABLE, commit 409 ITEM_NOT_EDITABLE |
+| TC-P6-07-24 | P | sổ LOCKED: commit → 409 GRADEBOOK_LOCKED (preview 200) |
+| TC-P6-07-25 | P | 6 vòng commit(10 ô) ∥ finalize: (commit, finalize, lý do) = [(409, 200, 'GRADEBOOK_LOCKED'), (409, 200, 'GRADEBOOK_LOCKED'), (409, 200, 'GRADEBOOK_LOCKED'), (409, 20 |
 | TC-P6-07-26 | P | go test 6 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-27 | N | chưa chạy |
+| TC-P6-07-27 | P | DB trống GK/CK → nhập midterm.xlsx + final.xlsx (commit): 60 ô; từng giá trị khớp inputs CSV (0 lệch); preview 30/30 khớp expected_final_grades.csv (hp, letter, verd |
 | TC-P6-07-28 | P | go test 1 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-29 | N | chưa chạy |
-| TC-P6-07-30 | N | chưa chạy |
-| TC-P6-07-31 | N | chưa chạy |
-| TC-P6-07-32 | N | chưa chạy |
-| TC-P6-07-33 | N | chưa chạy |
+| TC-P6-07-29 | P | zipbomb.xlsx (170 KiB nén, XML ~64 MiB) → 422 FILE_INVALID; RSS gateway 19→19 MiB (tăng <100); không restart (StartedAt giữ) |
+| TC-P6-07-30 | P | 5.000 dòng → 200 rows_total 5000 (lỗi 5000 mục, ghi 0); 5.001 dòng → 422 TOO_MANY_ROWS |
+| TC-P6-07-31 | P | corrupt.xlsx / notxlsx.xlsx (MIME khai đúng) → [(422, 'FILE_INVALID'), (422, 'FILE_INVALID')]; log gateway 2 phút gần nhất: 'panic' 0 |
+| TC-P6-07-32 | P | formula.xlsx + inject.xlsx preview → [200, 200] (không thực thi công thức: 22/3 đọc theo giá trị đã định dạng); log gateway 2 phút: tên tệp gốc/nội dung ô độc xuất h |
+| TC-P6-07-33 | P | preview OK (200); thay đối tượng trong kho bằng tệp B cùng độ dài (1625 B): PUT lại → 200; commit → 422 FILE_INVALID; sum(version) giữ 81→81 |
 | TC-P6-07-34 | P | go test 5 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-35 | N | chưa chạy |
-| TC-P6-07-36 | N | chưa chạy |
-| TC-P6-07-37 | N | chưa chạy |
-| TC-P6-07-38 | N | chưa chạy |
-| TC-P6-07-39 | N | chưa chạy |
-| TC-P6-07-40 | N | chưa chạy |
+| TC-P6-07-35 | P | export OPEN → 200; Cache-Control no-store; Content-Disposition attachment; filename="so-diem-QD8R7.xlsx"; 8445 B mở được |
+| TC-P6-07-36 | P | export OPEN: hàng đầu [tên lớp, mã QD8R7, thời điểm, 'Bản xem trước — chưa chốt']; hàng tiêu đề MSSV,Họ tên,Giữa kỳ,Kiểm tra hằng tuần,Thi cuối kỳ,Điểm cộng,Điểm trừ |
+| TC-P6-07-37 | P | export khi LOCKED v1 sau khi nguồn sống đổi: hàng đầu 'QC s8core QD8R8 QD8R8 16/11/2026 01:44 Bản chốt v1'; HP sv04 trong tệp 6.5 = snapshot 6.5 (sống 5) |
+| TC-P6-07-38 | P | 4 sinh viên tên bắt đầu = + - @ → export có 4 ô tên đúng chữ gốc, <f> trong sheet = 0 (không công thức); ô kiểu inlineStr/s |
+| TC-P6-07-39 | P | audit_log action='export': 1 dòng; mới nhất {"rows": 30, "locked": false, "version": 0} |
+| TC-P6-07-40 | P | export bởi TA/STUDENT/ADMIN → [403, 403, 403] |
 | TC-P6-07-41 | P | go test 5 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-42 | N | chưa chạy |
+| TC-P6-07-42 | P | LOAD1000 (5 lần, max): xuất 0.08s (≤3), xem trước 1.000 dòng 0.04s (≤2), ghi 1.000 dòng 0.08s (≤3); số câu SQL 1.000 dòng = 10 dòng: TestImportNoNPlusOne (test Go đế |
 | TC-P6-07-43 | P | go test 3 test PASS (log s8flow-go-*.log) |
 | TC-P6-07-44 | N | chưa chạy |
 | TC-P6-07-45 | N | chưa chạy |
 | TC-P6-07-46 | N | chưa chạy |
 | TC-P6-07-47 | N | chưa chạy |
 | TC-P6-07-48 | N | chưa chạy |
-| TC-P6-07-49 | N | chưa chạy |
-| TC-P6-07-50 | N | chưa chạy |
-| TC-P6-07-51 | N | chưa chạy |
-| TC-P6-07-52 | N | chưa chạy |
-| TC-P6-07-53 | N | chưa chạy |
-| TC-P6-07-54 | N | chưa chạy |
-| TC-P6-07-55 | N | chưa chạy |
-| TC-P6-07-56 | N | chưa chạy |
-| TC-P6-07-57 | N | chưa chạy |
-| TC-P6-07-58 | N | chưa chạy |
+| TC-P6-07-49 | P | dev e2e ['import xlsx flow\\|import errors listed'] xanh (logs/s8r-dev-gradebook-me.log); |
+| TC-P6-07-50 | P | upload_id lớp khác → 404 UPLOAD_NOT_FOUND; upload_id không tồn tại → 404; không ghi |
+| TC-P6-07-51 | P | item_id của lớp khác → 404 NOT_FOUND |
+| TC-P6-07-52 | P | commit thiếu Idempotency-Key → 422 IDEMPOTENCY_KEY_REQUIRED; không ghi |
+| TC-P6-07-53 | P | mapping cột điểm = cột MSSV → 200; rows_ok 0; mã lỗi ['SCORE_NOT_NUMBER']; không 500 |
+| TC-P6-07-54 | P | 2 commit song song (khoá khác nhau) → [200, 200]; sau cùng bằng một lần commit: 2 ô đổi, mỗi ô version+1 (không đôi); không 5xx/deadlock |
+| TC-P6-07-55 | P | Z (CODE, tự khai 20229777): preview {2: 'STUDENT_CODE_UNVERIFIED'}; commit không skip → 409 IMPORT_HAS_ERRORS; skip_errors → 200, ghi B=6, entries của Z 0→0 |
+| TC-P6-07-56 | P | 20229888 có ROSTER (R) + CODE (Z2): preview không lỗi/AMBIGUOUS; điểm vào R=8.00, Z2=None |
+| TC-P6-07-57 | P | 20229999 joined_via=ADMIN → khớp, điểm 7.00 |
+| TC-P6-07-58 | P | PUT tay cho Z (CODE) → 200, điểm 6.50; sổ vẫn liệt kê Z (39 dòng) |
 | TC-P6-07-59 | N | chưa chạy |
-| TC-P6-08-01 | N | chưa chạy |
-| TC-P6-08-02 | N | chưa chạy |
-| TC-P6-08-03 | N | chưa chạy |
-| TC-P6-08-04 | N | chưa chạy |
+| TC-P6-08-01 | P | finalize → 200 {'version': 1, 'students': 30, 'locked_at': '2026-11-15T18:43:09.999815Z'}; snapshot v1 30 dòng; gradebooks LOCKED v1; scheme_id/locked_by/locked_at c |
+| TC-P6-08-02 | P | snapshot v1 30/30 khớp expected_final_grades.csv (hp↔numeric_grade, letter, verdict↔failed_reason; sv20 5,0 F kèm lý do liệt) |
+| TC-P6-08-03 | P | numeric_grade của snapshot = hp trong preview lưu trước khi chốt, 30/30 |
+| TC-P6-08-04 | P | gửi lại cùng Idempotency-Key → 200, phản hồi giống hệt; count(*)=30, snapshot_version=1 |
 | TC-P6-08-05 | P | go test 5 test PASS (log s8flow-go-*.log) |
-| TC-P6-08-06 | N | chưa chạy |
-| TC-P6-08-07 | N | chưa chạy |
-| TC-P6-08-08 | N | chưa chạy |
-| TC-P6-08-09 | N | chưa chạy |
+| TC-P6-08-06 | P | finalize lớp NO_POLICY (QD8F3) → 409 SCHEME_NOT_CONFIRMED |
+| TC-P6-08-07 | P | xoá cuối kỳ sv30, sv27 → finalize 409 GRADES_INCOMPLETE total=2 students=[{"id": "01a1df27-6553-7c98-bc34-a0c697597f85", "missing": ["final"]}, {"id": "01a1df27-654e |
+| TC-P6-08-08 | P | LOAD1000 thiếu 40 ô cuối kỳ → finalize 409 GRADES_INCOMPLETE: details.total=40, students.length=30 (≤30) |
+| TC-P6-08-09 | P | finalize lần hai khoá mới → 409 GRADEBOOK_LOCKED |
 | TC-P6-08-10 | N | chưa chạy |
 | TC-P6-08-11 | P | go test 3 test PASS (log s8flow-go-*.log) |
-| TC-P6-08-12 | N | chưa chạy |
-| TC-P6-08-13 | N | chưa chạy |
+| TC-P6-08-12 | P | khi LOCKED: PUT/publish/confirm → {'put': 409, 'publish': 409, 'import': 404, 'confirm': 409} (['GRADEBOOK_LOCKED', 'GRADEBOOK_LOCKED', 'GRADEBOOK_LOCKED']); import  |
+| TC-P6-08-13 | P | sửa điểm bài thi sv04 (nguồn sống 6→0): băm SNAP(1) không đổi; hàng sv04 drift=true & locked.version=1 (xem trước sống HP 5 ≠ snapshot 6.5); chỉ 1 hàng drift; STUDEN |
 | TC-P6-08-14 | P | go test 3 test PASS (log s8flow-go-*.log) |
 | TC-P6-08-15 | N | chưa chạy |
-| TC-P6-08-16 | N | chưa chạy |
-| TC-P6-08-17 | N | chưa chạy |
-| TC-P6-08-18 | N | chưa chạy |
-| TC-P6-08-19 | N | chưa chạy |
-| TC-P6-08-20 | N | chưa chạy |
-| TC-P6-08-21 | N | chưa chạy |
-| TC-P6-08-22 | N | chưa chạy |
-| TC-P6-08-23 | N | chưa chạy |
-| TC-P6-08-24 | N | chưa chạy |
+| TC-P6-08-16 | P | unlock → 200; gradebooks OPEN, unlock_reason đúng, unlocked_by=teacher, unlocked_at có; audit unlock +1; SNAP(1) không đổi |
+| TC-P6-08-17 | P | thiếu/''/9/501/10 dấu cách → 422 VALIDATION_FAILED (5/5), sổ vẫn LOCKED; biên 10 ký tự → 200, 500 ký tự → 200 |
+| TC-P6-08-18 | P | unlock khi OPEN → 409 NOT_LOCKED |
+| TC-P6-08-19 | P | TA/SV/ADMIN finalize+unlock → {'ta': (403, 403), 'sv.gioi': (403, 403), 'admin': (403, 403)}; GV lớp khác → (403, 403); 0 snapshot |
+| TC-P6-08-20 | P | Go 4 test PASS; dev e2e ['unlock reason'] xanh (logs/s8r-dev-gradebook-me.log); |
+| TC-P6-08-21 | P | sv08 cuối kỳ 8.25→9,25 (200) xem trước HP 9 A+ (tay 9,0 A+); sv04 giữa kỳ 6.25→7,25 (200) HP 6.5 C+ (tay 6,5 C+ không đổi) |
+| TC-P6-08-22 | P | finalize lần hai → 200 version 2; snapshot v2 30 dòng, unlock_reason = 'Phúc khảo sv04: sửa điểm giữa kỳ'; gradebooks LOCKED v2 |
+| TC-P6-08-23 | P | băm md5 SNAP(1) trước = sau chốt lại v2: 6adad003 = 6adad003 |
+| TC-P6-08-24 | P | gradebook state LOCKED v2; export hàng đầu '26 01:45 Bản chốt v2', sv08 9 A+; snapshots list 200, snapshots/1 200; UI 'Lịch sử chốt' + chọn v1 (8,5 A): s8r-ui-08 |
 | TC-P6-08-25 | P | go test 3 test PASS (log s8flow-go-*.log) |
-| TC-P6-08-26 | N | chưa chạy |
-| TC-P6-08-27 | N | chưa chạy |
-| TC-P6-08-28 | N | chưa chạy |
+| TC-P6-08-26 | P | GRADE_CHANGED: đúng 1 thông báo (sv08, đến sau ~0,5 s qua outbox); nội dung 'Điểm học phần lớp QD8R8 đã được cập nhật.' không có số/chữ điểm; sv04 (HP không đổi) và  |
+| TC-P6-08-27 | P | GRADE_FINALIZED = 30 cho cả lớp 30 sau lần chốt đầu; gửi lại cùng khoá không thêm (08-04: vẫn 30 snapshot) |
+| TC-P6-08-28 | P | Mailpit: 0 thư có 'điểm học phần'; thông báo chỉ nằm bảng notifications (chuông); mục 'Hôm nay' sinh viên: kiểm ở 09/UI |
 | TC-P6-08-29 | P | go test 4 test PASS (log s8flow-go-*.log) |
-| TC-P6-08-30 | N | chưa chạy |
-| TC-P6-08-31 | N | chưa chạy |
+| TC-P6-08-30 | P | 2 finalize song song (khoá khác nhau) → [200, 409] (409 = GRADEBOOK_LOCKED); count(distinct version)=1, 30 dòng |
+| TC-P6-08-31 | P | 20 vòng (mở khoá→finalize ∥ PUT sv05): PUT 200 trước chốt 0 lần (giá trị có trong snapshot), 409 GRADEBOOK_LOCKED 20 lần (snapshot không có); 20/20 snapshot khớp gra |
 | TC-P6-08-32 | P | go test 3 test PASS (log s8flow-go-*.log) |
-| TC-P6-08-33 | N | chưa chạy |
-| TC-P6-08-34 | N | chưa chạy |
+| TC-P6-08-33 | P | LOAD1000 finalize ×3 (max): 0.22s (≤3); đọc bản chốt trang đầu snapshots/3?limit=100: p90 14 ms (≤500), 100 dòng; số câu SQL 1.000 = 30 SV: TestFinalizeNoNPlusOne (t |
+| TC-P6-08-34 | P | đọc bản chốt LOAD1000 limit=100: seq_scan final_grade_snapshots tăng [0, 0, 0] (min 0 = dùng chỉ mục final_grade_snapshots_version_idx); EXPLAIN truy vấn: TestFinali |
 | TC-P6-08-35 | P | go test 2 test PASS (log s8flow-go-*.log) |
 | TC-P6-08-36 | N | chưa chạy |
 | TC-P6-08-37 | N | chưa chạy |
 | TC-P6-08-38 | N | chưa chạy |
-| TC-P6-08-39 | N | chưa chạy |
-| TC-P6-08-40 | N | chưa chạy |
-| TC-P6-08-41 | N | chưa chạy |
+| TC-P6-08-39 | P | dev e2e ['finalize flow\\|finalize incomplete list'] xanh (logs/s8r-dev-gradebook-me.log); |
+| TC-P6-08-40 | P | sau chốt: finalize bởi TA/SV/ADMIN/GV lớp khác → {'ta': 403, 'sv.gioi': 403, 'admin': 403, 'g7t': 403} |
+| TC-P6-08-41 | P | sinh viên B GET snapshots / snapshots/{1,2,3} → [403, 403, 403, 403]; đoán snapshot_id (A + 20 id) → [403]: không dòng nào lộ |
 | TC-P6-08-42 | P | go test 1 test PASS (log s8flow-go-*.log) |
-| TC-P6-08-43 | N | chưa chạy |
-| TC-P6-08-44 | N | chưa chạy |
-| TC-P6-08-45 | N | chưa chạy |
-| TC-P6-08-46 | N | chưa chạy |
-| TC-P6-08-47 | N | chưa chạy |
+| TC-P6-08-43 | P | finalize/unlock thiếu Idempotency-Key → 422/422 (IDEMPOTENCY_KEY_REQUIRED); sổ vẫn OPEN, 0 snapshot |
+| TC-P6-08-44 | P | sv12 rời lớp → chốt lại v3: 29 snapshot (29, không có sv12); snapshot cũ của sv12 còn 2 (v1,v2); thông báo GRADE* của sv12 1→1 (không nhận mới) |
+| TC-P6-08-45 | P | đưa bài thi tuần 9 về CLOSED (chưa công bố) → finalize 409 GRADES_INCOMPLETE (total 30, missing ['weekly']), không phải chốt cả lớp 0 |
+| TC-P6-08-46 | P | audit_log chặn INSERT (trigger riêng lớp này, thay REVOKE để không ảnh hưởng nhóm khác) → finalize 500; không snapshot mới (89→89), sổ vẫn OPEN; đã gỡ trigger |
+| TC-P6-08-47 | P | v1→v2→v3 liên tiếp: version 1,2,3 không nhảy/trùng; v3 mang unlock_reason của lần mở trước nó; v1, v2 giữ nguyên băm; (v2 mang 'Phúc khảo sv04: sửa điểm giữa kỳ') |
 | TC-P6-09-01 | N | chưa chạy |
 | TC-P6-09-02 | N | chưa chạy |
 | TC-P6-09-03 | N | chưa chạy |
@@ -439,7 +439,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-13 | N | chưa chạy |
 | TC-P6-09-14 | N | chưa chạy |
 | TC-P6-09-15 | N | chưa chạy |
-| TC-P6-09-16 | N | chưa chạy |
+| TC-P6-09-16 | P | dev e2e ['grade section\\|calculation linear\\|no gamify'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-09-17 | N | chưa chạy |
 | TC-P6-09-18 | N | chưa chạy |
 | TC-P6-09-19 | N | chưa chạy |
@@ -454,14 +454,14 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-28 | N | chưa chạy |
 | TC-P6-09-29 | N | chưa chạy |
 | TC-P6-09-30 | N | chưa chạy |
-| TC-P6-09-31 | N | chưa chạy |
+| TC-P6-09-31 | P | Go 5 test PASS; dev e2e ['my grade question'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-09-32 | N | chưa chạy |
 | TC-P6-09-33 | N | chưa chạy |
 | TC-P6-09-34 | P | go test 1 test PASS (log s8flow-go-*.log) |
 | TC-P6-09-35 | N | chưa chạy |
 | TC-P6-09-36 | N | chưa chạy |
 | TC-P6-09-37 | N | chưa chạy |
-| TC-P6-09-38 | N | chưa chạy |
+| TC-P6-09-38 | P | sau chốt, B gọi snapshots/1, snapshots/<id của A>, 20 id lân cận → chỉ [403]; không rò dòng của A |
 | TC-P6-09-39 | P | go test 3 test PASS (log s8flow-go-*.log) |
 | TC-P6-09-40 | N | chưa chạy |
 | TC-P6-09-41 | N | chưa chạy |
@@ -470,7 +470,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-44 | N | chưa chạy |
 | TC-P6-09-45 | N | chưa chạy |
 | TC-P6-09-46 | N | chưa chạy |
-| TC-P6-09-47 | N | chưa chạy |
+| TC-P6-09-47 | P | dev e2e ['grade states\\|grade mobile 375'] xanh (logs/s8r-dev-gradebook-me.log); grep mock ở features/me rỗng |
 | TC-P6-09-48 | N | chưa chạy |
 | TC-P6-09-49 | N | chưa chạy |
 | TC-P6-09-50 | N | chưa chạy |

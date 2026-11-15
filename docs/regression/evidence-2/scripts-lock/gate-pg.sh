@@ -69,7 +69,7 @@ tc_gate_10() {  # up -d --no-deps --scale gateway=2 với image MẶC ĐỊNH
   chk "chế độ" "$(mode_now)" default
   chk "migrate" "$($C ps -a --format '{{.Service}} {{.State}} {{.ExitCode}}' | grep '^migrate ')" "migrate exited 0"; }
 tc_gate_11() {  # curl -fsSk healthz qua Caddy, 200 ở CẢ HAI bản
-  out=$(curl -fsSk $GW/api/v1/healthz); chk "curl -fsSk healthz" "$out" '{"status":"ok"}'
+  ensure_mode default >/dev/null 2>&1; out=$(curl -fsSk $GW/api/v1/healthz); chk "curl -fsSk healthz" "$out" '{"status":"ok"}'   # QC2 (SmkJ): cần 2 bản gateway (baseline ep-r chạy 1)
   tab=$(inst_ids 40); echo "$tab"
   chk "số X-Instance-Id khác nhau" "$(echo "$tab" | wc -l | tr -d ' ')" 2
   chk "mọi bản được chọn (đếm > 0)" "$(echo "$tab" | awk '$1>0' | wc -l | tr -d ' ')" 2

@@ -169,3 +169,143 @@ tin X-Forwarded-For không qua CIDR          0
 -- TC-GATE-30 MANUAL
 TỔNG story gate: PASS=0 FAIL=0 MANUAL=1 K=0
 MANUAL: TC-GATE-30
+### gate:11 01:43:29
+== TC-GATE-11
+    ok   curl -fsSk healthz = [{"status":"ok"}]
+  40 8ee9448bf7d0
+    FAIL số X-Instance-Id khác nhau: thực tế [1] ≠ mong đợi [2]
+    FAIL mọi bản được chọn (đếm > 0): thực tế [1] ≠ mong đợi [2]
+    ok   40 lần 200 = [40]
+-- TC-GATE-11 FAIL
+TỔNG story gate: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-GATE-11
+### gate:12 01:43:33
+== TC-GATE-12
+    ok   k6 rc = [0]
+    ok   số dòng p(95)<300 trong smoke.js = 3 (≥ 3)
+    ok   không ngưỡng lớn hơn SLO (chỉ 300 và 500) = [p(95)<300 p(95)<500]
+    ok   k6 không có ngưỡng ✗ !~ /./
+    ok   RestartCount/StartedAt gateway+worker không đổi khi chạy k6 = [/ep-r-gateway-1 0 2026-11-15T18:21:58.374426934Z
+/ep-r-worker-1 0 2026-11-15T18:21:58.47621461Z]
+-- TC-GATE-12 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:22 01:45:01
+== TC-GATE-22
+    ok   gateway thiếu JWT_SECRET_KEY: rc = [1]
+    ok   log nêu tên biến = [JWT_SECRET_KEY]
+    ok   cổng 8080 không mở / không phục vụ (readyz của bản thiếu env không tồn tại) = [0]
+    ok   bản đang phục vụ không bị ảnh hưởng (RestartCount/StartedAt) = [/ep-r-gateway-1 0 2026-11-15T18:45:07.230666417Z
+/ep-r-gateway-2 0 2026-11-15T18:45:07.441716192Z
+/ep-r-worker-1 0 2026-11-15T18:45:07.343106762Z]
+    ok   readyz vẫn 200 = [200]
+    ok   .env.local khôi phục = [y]
+-- TC-GATE-22 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:23 01:45:14
+== TC-GATE-23
+    ok   đã nhận id e5 ~ /^[0-9]+-[0-9]+$/
+    ok   đã nhận n 1..5 = [1 2 3 4 5]
+    ok   sau nối lại nhận đúng 6..12 theo thứ tự = [6 7 8 9 10 11 12]
+    ok   không nhận lại e5 = [0]
+    ok   không trùng = [0]
+    ok   không có resync = [0]
+    ok   dòng đầu stream nối lại = [retry: 3000]
+-- TC-GATE-23 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:24 01:45:44
+== TC-GATE-24
+    mạng đã rút 01:45:48
+    mạng đã cắm 01:45:59
+    ok   gateway nhận lại qua Caddy ≤ 40 s sau khi cắm = [200]
+    ok   đã nhận trước khi rút: 1 2 = [1 2]
+    ok   nối lại nhận 3 4 (không lặp 2) = [3 4]
+    ok   gateway/worker không restart = [0]
+-- TC-GATE-24 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:26 01:46:27
+== TC-GATE-26
+    hai tab: 201 / 201
+    ok   một bản ghi duy nhất = [1]
+    ok   hai thân giống hệt (byte) = [same]
+    ok   hai status giống nhau = [201]
+    ok   đúng một response có Idempotent-Replayed: true = [1]
+    ok   hai Content-Type giống nhau = [content-type: application/json; charset=utf-8]
+-- TC-GATE-26 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:28 01:46:31
+== TC-GATE-28
+    stream đang ở d4bf00b7d99b
+    docker stop mất 3197 ms
+    ok   client nhận event: shutdown = [1]
+    ok   shutdown reason = [server_shutdown]
+    ok   đã nhận 1 2 3 trước khi tắt = [1 2 3]
+    ok   phiên kế tiếp vẫn chạy (cùng token, không 401) = [404]
+    ok   nối lại bản còn lại: nhận 4 5 6 = [4 5 6]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-28 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:29 01:47:24
+== TC-GATE-29
+    ok   dòng không-200 trong 200 request = 1 (≤ 4)
+    ok   60 dòng cuối 0 lỗi = [0]
+    ok   stream cũ vẫn sống và nhận n=99 = [99]
+    ok   không có event: shutdown (bản mang stream không bị tắt) = [0]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-29 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
+### gate:30 01:48:13
+== TC-GATE-30
+ backend-go/internal/httpapi/coursehttp/roster.go   |   3 +
+ backend-go/internal/httpapi/examhttp/analytics.go  | 152 +++++++++++++++++++
+ .../internal/httpapi/examhttp/attempt_code.go      |  13 +-
+ backend-go/internal/httpapi/examhttp/fail_test.go  |  25 +++
+ backend-go/internal/httpapi/examhttp/results.go    |   1 +
+ backend-go/internal/httpapi/insighthttp/handler.go | 118 +++++++++++++++
+ backend-go/internal/httpapi/llmhttp/admin.go       |   7 +-
+ backend-go/internal/httpapi/llmhttp/verify.go      |   7 +-
+ .../internal/httpapi/observabilityhttp/handler.go  | 168 +++++++++++++++++++++
+ backend-go/internal/httpapi/router.go              |   4 +-
+ backend-go/internal/httpapi/routes.go              |  10 ++
+ backend-go/internal/httpapi/sse/handler.go         |   4 +-
+ backend-go/internal/httpapi/sse/revoked_test.go    |  66 ++++++++
+ 19 files changed, 719 insertions(+), 23 deletions(-)
+
+# file sản xuất (không test): 15
+
+# ứng viên (0 = sạch; >0 → đọc từng dòng)
+float64 (cấm cho điểm; auth/httpapi không cần) 0
+OFFSET trong SQL/Go (cấm)                  0
+fmt.Print*/log.Print* (phải slog)          0
+os.Getenv ngoài config                      0
+math/rand (jti/token phải crypto/rand)     0
+InsecureSkipVerify                           0
+so sánh mật khẩu/hash bằng ==         0
+context.Background()/TODO() (mất deadline/trace) 0
+time.Sleep trong mã sản xuất            0
+ghép chuỗi vào SQL                       0
+biến toàn cục có thể đổi (var tên thường ở cấp gói) 1
+    +var observabilityMessages = map[string]string{ //nolint:gochecknoglobals // bảng lời văn bất biến
+panic( (chỉ chấp nhận ở khởi tạo) 0
+ghi file/đĩa cục bộ                    0
+log có token/password/hash/Authorization    0
+header Authorization ghi vào log/response   0
+alg không cố định (None/any method)    0
+tin X-Forwarded-For không qua CIDR          0
+định danh lấy từ body/query (student_code/user_id) 0
+
+# kiểm tay theo checklist (tc-GATE-PG.md TC-GATE-30): lỗi bọc %w; handler mỏng; CourseAccessGuard mặc định từ chối; 5xx/429 không lưu idempotency;
+#   cursor so sánh hàng (created_at,id); ETag băm; recover giữ http.ErrAbortHandler; mọi response lỗi qua một hàm viết lỗi; rate limit fail-open có log hạn chế.
+    MANUAL đọc tay diff theo checklist trong tc-GATE-PG.md (TC-GATE-30); ghi từng phát hiện BUG-n vào report (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-GATE-30 MANUAL
+TỔNG story gate: PASS=0 FAIL=0 MANUAL=1 K=0
+MANUAL: TC-GATE-30
+### gate:11 01:55:40
+== TC-GATE-11
+    ok   curl -fsSk healthz = [{"status":"ok"}]
+  20 eb56ff761ccb
+  20 ec06fef9e5b4
+    ok   số X-Instance-Id khác nhau = [2]
+    ok   mọi bản được chọn (đếm > 0) = [2]
+    ok   40 lần 200 = [40]
+-- TC-GATE-11 PASS
+TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0

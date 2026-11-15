@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkH) · Ngày: 2026-11-15/16
-Tổng TC cũ: 272 · Đạt: 269 · Trượt: 1 · Không chạy (K, loại a/b/c): 2 · Chưa chạy (N): 0   (P+F+K+N = 272)
+Tổng TC cũ: 272 · Đạt: 270 · Trượt: 0 · Không chạy (K, loại a/b/c): 2 · Chưa chạy (N): 0   (P+F+K+N = 272)
 
 Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,e2e}`, đã trỏ sang ep-r; script cũ không sửa):
 - API: `scripts/as_setup.py` rồi `as_a, as_b, as_c(+c3,c4), as_d(+d4,d5), as_e, as_f, as_g2, as_h, as_i2, as_j3, as_k`, bổ sung mới `as_long` (tự đóng, TOKEN_LATE), `as_more`, `as_more2`, `as_more3` (hộp công cụ: DB/DIFF/LOG, bảng ca tín hiệu, purge 4.320 hàng, ngắt giữa chừng), `as_arch`, `as_fix`, `as_manual`, `as_load` (thu nhỏ 84 SV). Lớp riêng `QC-ASr108`, GV/TG riêng `r108t`/`r108ta`.
@@ -299,14 +299,14 @@ Cách chạy (bản sao script/spec ở `docs/regression/evidence-10.8/{scripts,
 | TC-AS14-08 | P | TC-AS14-08b:  |
 | TC-AS14-09 | P | TC-AS14-09: không chạy: go test -race ./... toàn bộ (ngoài sprint); contract không tag testroutes trượt (cần - |
 | TC-AS14-10 | P | TC-AS14-10: git diff b064f3d4..9bcad074: 12 tệp test cũ chỉ đổi theo hợp đồng mới (env khoá, số thao tác 319→, |
-| TC-AS14-11 | F | FAIL TC-AS14-11 / TC-AS14-11: DEF-R10.8-02: 13 tên không tồn tại |
+| TC-AS14-11 | P | RERUN 2026-11-16 sau P-11-43 (BA vá SRS §11) + b8c43df8/c2867084 (dev viết đủ 13 test): cả 35 tên test ở SRS §11 tồn tại trong backend-go (thiếu 0) và PASS (attendance, attendance/attest, agent; evidence-10.8/as14-11-rerun.log) |
 | TC-AS14-12 | P | TC-AS14-12: as_manual.py |
 | TC-AS14-13 | P | TC-AS14-13: audit 10.7 (sau2/sau3): 0 lệch ở /attendance, /checkin, /display; 7 mã lệch còn lại ở observabilit |
 
 ## Trượt: bước tái hiện
 Chi tiết, bước và nghi ngờ mã: `docs/regression/defects-10.8.md`.
 - DEF-R10.8-01 axe `label-content-name-mismatch` (TC-AS08-25, AS09-36, AS09-39) — Trung bình; khung ứng dụng, 1440.
-- DEF-R10.8-02 SRS §11 ghi 13 tên test không tồn tại (TC-AS14-11) — Thấp.
+- DEF-R10.8-02 — ĐÃ SỬA (P-11-43, b8c43df8, c2867084), rerun 2026-11-16: TC-AS14-11 đạt.
 - DEF-R10.8-03 «Đóng» khi mất mạng thử lại bằng Idempotency-Key mới (TC-AS08-20) — Thấp.
 - DEF-R10.8-04 nút «Quét mã điểm danh» vẫn hiện khi `qr_code` không được hỗ trợ (TC-AS11-07) — Thấp.
 

@@ -1,0 +1,52 @@
+
+Running 2 tests using 1 worker
+
+(node:34816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX18 761987 hàng: [{"title":"QC Đáp án thiếu","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"QC Đề lỗi schema","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"QC Đề lỗi câu","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"Đáp án đề mẫu luyện tập","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"Đề mẫu luyện tập — Mạng máy tính","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"Quy chế học phần","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"Đáp án đề tham khảo tuần 5","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"Đề tham khảo tuần 5","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"Quy chế học vụ","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"Forecasting (QMB ch. 6b)","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"},{"title":"Network Security Threats","type":"Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác","sw":"197/197"}]
+INFO UX18-4 công tắc 761987: [{"name":"","on":"true","dis":null,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":"true","bg":"rgba(0, 0, 0, 0)","op":"0.55"},{"name":"","on":"false","dis":null,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":null,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":"true","bg":"rgba(0, 0, 0, 0)","op":"0.55"}] | tên truy cập: ["","","","","",""]
+INFO UX18-4 tên: ["","",""]
+INFO UX18-7 công tắc: true → true | lỗi: ["Chưa lưu được.\nThử lại",""] | Thử lại: 1
+INFO UX18-7 sau Thử lại: false
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5e-real.spec.ts:23:1 › TC-UX18 Tài liệu lớp 761987 (tài liệu của chính lớp): công tắc, lỗi + Thử lại, bấm nhanh (21.2s)
+(node:35444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX19-7 khung: [{"tag":"DIALOG","cls":"Dialog-module__rUw9Ha__overlay","y":0,"b":0,"h":0,"radius":"12px"},{"tag":"DIV","cls":"Dialog-module__rUw9Ha__frame","y":0,"b":0,"h":0,"radius":"0px"},{"tag":"HEADER","cls":"Dialog-module__rUw9Ha__head","y":0,"b":0,"h":0,"radius":"0px"}]
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5e-real.spec.ts:72:1 › TC-UX19-7 bảng bộ lọc 375: trượt từ đáy (6.8s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw5e-real.spec.ts:23:1 › TC-UX18 Tài liệu lớp 761987 (tài liệu của chính lớp): công tắc, lỗi + Thử lại, bấm nhanh 
+
+    TimeoutError: locator.click: Timeout 8000ms exceeded.
+    Call log:
+      - waiting for getByRole('switch').nth(1)
+        - locator resolved to <button id="_r_i_" type="button" role="switch" aria-checked="false" aria-disabled="true" aria-describedby="_r_j_" class="Field-module__M16HFW__switch">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        15 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      51 |   const sw2 = page.getByRole("switch").nth(1);
+      52 |   const b2 = await sw2.getAttribute("aria-checked");
+    > 53 |   for (let i = 0; i < 5; i++) await sw2.click({ delay: 10, timeout: 8000 });
+         |                                         ^
+      54 |   await page.waitForTimeout(3500);
+      55 |   const fin = await sw2.getAttribute("aria-checked");
+      56 |   await page.reload(); await page.waitForTimeout(4500);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw5e-real.spec.ts:53:41
+
+    Error Context: ../../../../../tmp/qc2-pw-s91-w5e/qc2-r91-qc-uiux91-rw5e-rea-c23e9-g-tắc-lỗi-Thử-lại-bấm-nhanh-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw5e-real.spec.ts:23:1 › TC-UX18 Tài liệu lớp 761987 (tài liệu của chính lớp): công tắc, lỗi + Thử lại, bấm nhanh 
+  1 passed (29.3s)

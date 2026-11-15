@@ -1,14 +1,14 @@
 # Smoke hồi quy sprint 2 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm A) · Ngày: 2026-11-15
 
-Tổng TC cũ: 527 · Đạt (P): 460 · Trượt (F): 3 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 41 · Chưa chạy — cần PM quyết (X): 23 · Chưa chạy — ngoài mẫu (N): 0   (P+F+K+D+X+N = 527)
+Tổng TC cũ: 527 · Đạt (P): 476 · Trượt (F): 3 · Không chạy K (a/b/c): 1 · Lỗi thời (D): 43 · Chưa chạy — cần PM quyết (X): 4 · Chưa chạy — ngoài mẫu (N): 0   (P+F+K+D+X+N = 527)
 Quy ước: **K(a)** thiết bị không có · **K(b)** cần người thật · **K(c)** ngoài phạm vi đồ án · **D** TC lỗi thời (spec đã đổi hợp lệ, ghi mã đề xuất/quyết định) · **X** chưa chạy vì lệnh phá huỷ/dựng stack thứ hai bị cấm (chờ PM) · **N** chưa chạy: dạng tài liệu, ngoài mẫu smoke «1 chính + 1 lỗi / US».
 Cách chạy:
 - `docs/regression/evidence-2/scripts/{pg01..pg07,gate-pg}.sh` (bản sao của `docs/sprints/2/qc/scripts`, chỉ chỉnh cổng/project sang ep-r: 6133/7080/9700/1143, `-p ep-r`, thêm APP_ENCRYPTION_KEY vào env nhị phân trần — bắt buộc từ sprint 3, proposals#4; docker bọc chặn lệnh phá huỷ). Log: `evidence-2/run-logs/<story>.log`.
 - Lượt 1: 7 story chạy tuần tự/song song nhẹ trên ep-r (1 gateway, bản test). Ca cần dừng/scale/recreate (gateway=2, kill, stop postgres/redis/minio, chế độ default) chạy ở các cửa sổ khoá global (`scripts-lock/`, ≤ 400 s mỗi cửa sổ, khôi phục baseline sau mỗi cửa sổ): `run-logs/<story>-lock.log`.
 - Ca trượt lượt 1 chạy lại lần 2 riêng (`*.rerun2.log`, `*.rerun3.log`).
 - Go contract: `go test -race -tags testroutes ./internal/contract` (qua `gt`), thêm chạy riêng TestStatusParity.
-- X (chờ chạy): ca còn trong chuỗi cửa sổ khoá hoặc cần xoá schema/volume ep-r dùng chung (02-39/40/41/44, gate-20) — xin PM quyết (chạy được khi không còn nhóm khác dùng ep-r).
+- 02-39/40/41 (migrate down/up) chạy trên Postgres TẠM `qc2-j-pg` (docker run, cổng 6199) — `scripts-j/pg02-j.sh`, log `run-logs/02-j.log`; KHÔNG chạm ep-r. Cổng Go: `go vet` + `go test -race` TỪNG GÓI (-timeout 280 s, env CI: TESTCONTAINERS_RYUK_DISABLED=true EP_SKIP_TIMING=1; 12 test đo thời gian chạy lại riêng không đặt EP_SKIP_TIMING). 02-44 và GATE-20 (`pnpm dev` từ volume trống) = X: cần stack `edupilot` mặc định (đang chạy, của nhóm khác) dừng/xoá volume — chỉ làm khi mọi nhóm dừng; bằng chứng một phần: `migrate up` trên PG trống rc 0 (`run-logs/02-44-j.log`). Ca scripts-lock sửa cho ep-r (tên container `ep-r-gateway`, BASE k6 = $GW, ensure_mode ≥2 gateway, bỏ JWT khỏi env baseline): xem chú thích «QC2 (SmkJ)» trong `scripts-lock/*.sh`.
 
 ## Tổng hợp theo US
 | US | TC tổng | P | F | K(a/b/c) | D | X | N | Ghi chú |
@@ -17,10 +17,10 @@ Cách chạy:
 | US-PG-02 | 70 | 60 | 0 | 0 | 9 | 1 | 0 | schema/blob/outbox |
 | US-PG-03 | 108 | 106 | 0 | 0 | 2 | 0 | 0 | idempotency/REST |
 | US-PG-04 | 58 | 55 | 0 | 0 | 3 | 0 | 0 | JWT/auth |
-| US-PG-05 | 74 | 72 | 0 | 0 | 0 | 2 | 0 | SSE |
-| US-PG-06 | 38 | 31 | 0 | 0 | 6 | 1 | 0 | OpenAPI/contract |
-| US-PG-07 | 69 | 51 | 1 | 0 | 16 | 1 | 0 | compose/CI |
-| GATE-PG | 25 | 5 | 2 | 0 | 0 | 18 | 0 | cổng PG |
+| US-PG-05 | 74 | 74 | 0 | 0 | 0 | 0 | 0 | SSE |
+| US-PG-06 | 38 | 31 | 0 | 0 | 7 | 0 | 0 | OpenAPI/contract |
+| US-PG-07 | 69 | 52 | 1 | 0 | 16 | 0 | 0 | compose/CI |
+| GATE-PG | 25 | 18 | 2 | 1 | 1 | 3 | 0 | cổng PG |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -154,7 +154,7 @@ Cách chạy:
 | TC-PG02-41 | D | Postgres tạm: `migrate up` lần hai rc 0 và goose_db_version không thêm dòng (AC6 đạt); chỉ ý «đúng 5 bảng+goose» lỗi thời: nay 80 bảng (schema 00001→00025, sprint 3…11); run-logs/02-j.log |
 | TC-PG02-42 | D | goose version mới nhất 25 (TC đòi 1) |
 | TC-PG02-43 | P |  |
-| TC-PG02-44 | X | `pnpm dev:down` + xoá volume + `pnpm dev` project edupilot — cấm (stack thứ hai / xoá dữ liệu chung) |
+| TC-PG02-44 | X | cần `pnpm dev` từ volume trống = dừng + xoá volume của stack `edupilot` MẶC ĐỊNH đang chạy (13 service healthy, của nhóm khác) — chạy khi mọi nhóm dừng. Bằng chứng một phần: `migrate up` trên Postgres trống rc 0, 1 container exited 0, không thao tác tay (run-logs/02-44-j.log); `docker compose config` rc 0 |
 | TC-PG02-45 | P |  |
 | TC-PG02-46 | P |  |
 | TC-PG02-47 | P |  |
@@ -374,9 +374,9 @@ Cách chạy:
 | TC-PG05-22 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-23 | P |  |
 | TC-PG05-24 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG05-25 | X | bước tay (chờ 150 s/đo thủ công) — chưa chạy  |
+| TC-PG05-25 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-26 | P |  |
-| TC-PG05-27 | X | bước tay (chờ 150 s/đo thủ công) — chưa chạy  |
+| TC-PG05-27 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-28 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG05-29 | P |  |
 | TC-PG05-30 | P |  |
@@ -459,7 +459,7 @@ Cách chạy:
 | TC-PG06-35 | P |  |
 | TC-PG06-36 | P |  |
 | TC-PG06-37 | P |  |
-| TC-PG06-38 | X | bước tay (chờ 150 s/đo thủ công) — chưa chạy  |
+| TC-PG06-38 | D | handoff sprint 2 (dev-US-PG-06.md): `exempt.go` «rỗng»; nay 24 mục miễn trừ do sprint 3…11 thêm (mỗi mục có lý do trong tệp) — danh sách đối chiếu cũ không còn đúng |
 | **US-PG-07** | | |
 | TC-PG07-01…TC-PG07-02 | D | compose nay 13 service (thêm judge, docling, mock-*, migrate…) — TC đòi 6–8 service, không python/docling |
 | TC-PG07-03 | P | cửa sổ khoá global (gateway=2/chaos) |
@@ -478,7 +478,7 @@ Cách chạy:
 | TC-PG07-16 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-17 | P |  |
 | TC-PG07-18 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG07-19 | F | CẦN TRIAGE: sau khi tắt, cùng token (không 401): thực tế [503] ≠ mong đợi [404] |
+| TC-PG07-19 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-20 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-21 | P |  |
 | TC-PG07-22 | D | cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
@@ -518,7 +518,7 @@ Cách chạy:
 | TC-PG07-60 | P |  |
 | TC-PG07-61 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-62 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG07-63 | X | bước tay (chờ 150 s/đo thủ công) — chưa chạy  |
+| TC-PG07-63 | F | DEF-R2-04: cổng GATE-PG chạy trọn còn 2 ca đỏ (GATE-03, GATE-06: contract không tag); 01–02, 04–24, 26, 28–29 đạt; GATE-25/27 (trình duyệt), GATE-20 (pnpm dev) chưa chạy |
 | TC-PG07-64 | P |  |
 | TC-PG07-65 | P |  |
 | TC-PG07-66 | D | compose nay 13 service (thêm judge, docling, mock-*, migrate…) — TC đòi 6–8 service, không python/docling |
@@ -528,15 +528,31 @@ Cách chạy:
 | **GATE-PG** | | |
 | TC-GATE-01 | P |  |
 | TC-GATE-02 | P |  |
-| TC-GATE-03…TC-GATE-04 | X | chưa chạy (gate: go test toàn bộ/xoá volume — chưa tới lượt) |
+| TC-GATE-03 | F | DEF-R2-04: `go test -race ./...` KHÔNG tag: 98 gói xanh (3360 PASS) nhưng `internal/contract` đỏ cố định (TestChatThreadsContract: POST /_test/llm/fake → 404; TestContract_ResponsesMatchSpec «0 quan sát»; TestSpec_EveryDocumentedStatusExercised) — kịch bản contract từ sprint 7 cần route thử (`-tags testroutes`); Makefile/CI chỉ chạy bản có tag |
+| TC-GATE-04 | P | `go vet -tags testroutes ./...` rc 0; `go test -race -count=1 -tags testroutes` TỪNG GÓI (100 gói, -timeout 280 s, nhiều tay ngoài cổng): 3424 test PASS, 0 FAIL; 14 skip = 12 test đo thời gian (EP_SKIP_TIMING=1 của CI) đã chạy lại riêng không đặt biến: cả 12 PASS, + 2 test llm «BLOCKED: cần khoá API thật» (sprint 3+, K(b)); sửa DEF-R2-03 (TestLLMSchema, c272d3d3) rồi store/privacy/grading chạy lại xanh; /tmp/qc2-j-gate-testroutes/ |
 | TC-GATE-05 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-06 | F | CẦN TRIAGE: contract không tag rc: thực tế [1] ≠ mong đợi [0] |
-| TC-GATE-07 | F | CẦN TRIAGE: go test -race ./internal/httpapi/... rc: thực tế [1] ≠ mong đợi [0] |
-| TC-GATE-08 | X | chưa chạy (gate: go test toàn bộ/xoá volume — chưa tới lượt) |
+| TC-GATE-06 | F | DEF-R2-04: contract KHÔNG tag rc 1 (cố định, lặp 3 lượt + go test trực tiếp); có tag PASS |
+| TC-GATE-07 | P | 10/10 test nêu tên PASS + mọi gói `internal/httpapi/...` (-race, testroutes) PASS khi chạy từng gói (không gộp 1 lệnh 20 phút) |
+| TC-GATE-08 | P | 6/6 test SSE + 5/5 test auth nêu tên PASS; gói internal/httpapi/sse và internal/auth (-race, testroutes) PASS từng gói |
 | TC-GATE-09 | P | `pnpm -C frontend build` rc 0 (35 s; chạy ngoài cửa sổ khoá); run-logs/gate-09-j.log |
 | TC-GATE-10 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-11…TC-GATE-99 | X | chưa chạy (gate: go test toàn bộ/xoá volume — chưa tới lượt) |
+| TC-GATE-11 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-12 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-13 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-20 | X | cần `pnpm dev` từ volume trống = dừng + xoá volume của stack `edupilot` MẶC ĐỊNH đang chạy (13 service healthy, của nhóm khác) — chạy khi mọi nhóm dừng. Bằng chứng một phần: `migrate up` trên Postgres trống rc 0, 1 container exited 0, không thao tác tay (run-logs/02-44-j.log); `docker compose config` rc 0 |
+| TC-GATE-21 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-22 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-23 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-24 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-25 | X | cần trình duyệt thật (Playwright qua eval `sse-browser-cut.mjs` / `idem-two-tabs.mjs`, ≥ 1 cửa sổ khoá) — chưa chạy; phần tương đương bằng curl (GATE-23/24/26) đạt |
+| TC-GATE-26 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-27 | X | cần trình duyệt thật (Playwright qua eval `sse-browser-cut.mjs` / `idem-two-tabs.mjs`, ≥ 1 cửa sổ khoá) — chưa chạy; phần tương đương bằng curl (GATE-23/24/26) đạt |
+| TC-GATE-28 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-29 | P | cửa sổ khoá global (gateway=2/chaos) |
+| TC-GATE-30 | Kb | đọc tay toàn bộ diff internal/auth + internal/httpapi theo checklist — cần người đọc (script gom ứng viên đã chạy rc 0: run-logs/gate-lock.log) |
+| TC-GATE-99 | D | dọn cuối của cổng cũ (trả stack về image mặc định, 2 gateway): nay baseline ep-r do PM đặt là 1 gateway + image edupilot-*-test; mọi cửa sổ khoá đã khôi phục baseline đó, readyz 200 |
 
 ## Trượt: bước tái hiện
 ### DEF-R2-01 — ĐÃ SỬA (816498c6): `redocly lint` hợp lệ, TC-PG06-01 và P0-02/TC-21 đạt — chi tiết `defects-2.md`
 ### DEF-R2-02 — ĐÓNG, do tải (rig contract REQUEST_TIMEOUT=1s): gói contract xanh khi máy rảnh, TC-PG06-10, -11 đạt — chi tiết `defects-2.md`
+### DEF-R2-03 — ĐÃ SỬA (c272d3d3): TestLLMSchema 6→9 bảng `llm_%` (migration 00027, sprint 11) làm go test đỏ ở GATE-03/04, P0-02/TC-20, P0-03/TC-15 — chi tiết `defects-2.md`
