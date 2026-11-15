@@ -10367,7 +10367,6 @@ paths:
       operationId: compareExamAnalytics
       tags: [exam]
       summary: "So sánh các lớp giảng viên đang dạy: số bài, bài nộp, trung bình, trung vị, tỉ lệ đạt; lớp dưới 5 bài nộp enough=false và không có số. Chỉ TEACHER; TA / STUDENT / ADMIN 403"
-      parameters:
       responses:
         "200":
           description: Thống kê
