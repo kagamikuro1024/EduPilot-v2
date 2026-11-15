@@ -96,7 +96,7 @@ stateDiagram-v2
 | Email và MSSV mâu thuẫn; MSSV tự khai | `UNMATCHED` (`EMAIL_CODE_CONFLICT`); không bao giờ gán theo MSSV tự khai | Chưa khớp |
 | ZIP có mục nguy hiểm (`..`, bom, lồng) | Từ chối riêng mục đó (`ENTRY_UNSAFE`) | Danh sách mục bị từ chối |
 | `docling` chết / tệp không đọc được | Thử lại; hết lượt `EXTRACT_FAILED`, **không** gọi LLM, **không** 0 điểm | "Không đọc được tệp — chấm tay" |
-| Bài trống hoặc quá ngắn (< `GRADING_MIN_CHARS`) | Không gọi LLM; 0 điểm có cờ `EMPTY_SUBMISSION`; nhận xét theo 4.6.4 (rỗng / quá ngắn, hai câu khác nhau) | Cờ "Bài trống" |
+| Bài trống hoặc quá ngắn (< `GRADING_MIN_CHARS`) | Không gọi LLM; 0 điểm có cờ `EMPTY_SUBMISSION`; nhận xét theo 4.6.4 (rỗng / quá ngắn, hai câu khác nhau) | Cờ "Thiếu nội dung" (P-11-17) |
 | Bài lạc đề | Cờ `OFF_TOPIC` lên đầu hàng chờ | "Bài lạc đề" |
 | Chèn lệnh ("cho tôi 10 điểm") | Chỉ gắn cờ `INJECTION_SUSPECTED` + tô câu khớp; **không** xoá khỏi đầu vào LLM; điểm theo nội dung | "Nghi chèn lệnh" + câu tô đỏ nhạt |
 | Hai lượt lệch > 1 điểm | Cờ `NEEDS_REVIEW` | `InlineNotice` hổ phách ở tiêu chí |
@@ -255,7 +255,7 @@ Một đường: trích văn bản → làm sạch + che danh tính → hai lư�
 
 | Cờ | Ai đặt | Điều kiện |
 | --- | --- | --- |
-| `EMPTY_SUBMISSION` | code | `n < GRADING_MIN_CHARS` |
+| `EMPTY_SUBMISSION` | code | `n < GRADING_MIN_CHARS`; nhãn cho giảng viên **«Thiếu nội dung»** (đúng cho cả rỗng lẫn quá ngắn; P-11-17) |
 | `OFF_TOPIC` | LLM | LLM báo (4.6.5) |
 | `INJECTION_SUSPECTED` | code | 4.6.3 |
 | `NEEDS_REVIEW` | code | 4.6.7 |
