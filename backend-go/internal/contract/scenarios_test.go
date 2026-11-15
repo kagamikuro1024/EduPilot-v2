@@ -1266,6 +1266,7 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "PUT", path: ls + "/" + uuid.NewString() + "/attendance", token: gv, body: `{"records":[]}`}, 404)
 	r.must(call{method: "PUT", path: "/api/v1/courses/" + cid + "/sessions/" + uuid.NewString() + "/attendance", token: gv, body: `{"records":[]}`}, 409) // lớp đã lưu trữ
 	r.must(call{method: "PUT", path: att, token: gv, body: `{"records":[],"complete":true}`}, 200)
+	r.checkinScenarios(db, c2, gv, ta, svIn, admin)
 
 	pp := "/api/v1/courses/" + c2 + "/participation"
 	ev := uuid.NewString()

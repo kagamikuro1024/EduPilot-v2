@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/edupilot/backend-go/internal/attendance"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/crm"
@@ -340,10 +341,11 @@ func courseIDOf(w http.ResponseWriter, r *http.Request) (uuid.UUID, bool) {
 }
 
 type thresholdBody struct {
-	Version              *int        `json:"version"`
-	EscalationThreshold  *string     `json:"escalation_threshold"`
-	AllowStudyTimeOptOut *bool       `json:"allow_study_time_opt_out"`
-	Risk                 *crm.RiskIn `json:"risk"`
+	Version              *int                 `json:"version"`
+	EscalationThreshold  *string              `json:"escalation_threshold"`
+	AllowStudyTimeOptOut *bool                `json:"allow_study_time_opt_out"`
+	Risk                 *crm.RiskIn          `json:"risk"`
+	Attendance           *attendance.PolicyIn `json:"attendance"`
 }
 
 // putSettings là `PUT /courses/{id}/settings {escalation_threshold?, allow_study_time_opt_out?, version}` (chỉ giảng viên của lớp; TA / sinh viên / Admin → 403 ở guard).
@@ -365,11 +367,11 @@ func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, aerr)
 		return
 	}
-	if b.EscalationThreshold == nil && b.AllowStudyTimeOptOut == nil && b.Risk == nil {
+	if b.EscalationThreshold == nil && b.AllowStudyTimeOptOut == nil && b.Risk == nil && b.Attendance == nil {
 		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "escalation_threshold", Code: "required", Message: "Thiếu ngưỡng."}))
 		return
 	}
-	d, err := h.Courses.PutSettings(r.Context(), actor, id, version, course.SettingsIn{EscalationThreshold: b.EscalationThreshold, AllowStudyTimeOptOut: b.AllowStudyTimeOptOut, Risk: b.Risk})
+	d, err := h.Courses.PutSettings(r.Context(), actor, id, version, course.SettingsIn{EscalationThreshold: b.EscalationThreshold, AllowStudyTimeOptOut: b.AllowStudyTimeOptOut, Risk: b.Risk, Attendance: b.Attendance})
 	if errors.Is(err, course.ErrHasStudents) {
 		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.CourseHasStudents))
 		return

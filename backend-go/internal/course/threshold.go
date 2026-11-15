@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/shopspring/decimal"
 
+	"github.com/edupilot/backend-go/internal/attendance"
 	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
@@ -34,6 +35,8 @@ type SettingsIn struct {
 	EscalationThreshold  *string
 	AllowStudyTimeOptOut *bool
 	Risk                 *crm.RiskIn // ngưỡng at-risk (US-P5-04): lưu vào `courses.settings.risk`, rồi outbox `course.settings_changed`
+	// Attendance: chính sách điểm danh tự phục vụ (10.8 FR-1) — THAY TOÀN BỘ `courses.settings.attendance`; audit_log không có toạ độ.
+	Attendance *attendance.PolicyIn
 }
 
 // PutSettings đặt `courses.escalation_threshold`, `courses.allow_study_time_opt_out` và / hoặc `courses.settings.risk` trong MỘT giao dịch (chỉ giảng viên của lớp; guard ở route).
@@ -52,6 +55,11 @@ func (s Service) PutSettings(ctx context.Context, actor, courseID uuid.UUID, ver
 	if in.Risk != nil { // kiểm khoảng trước khi mở giao dịch: trộn lên settings rỗng chỉ để bắt trường sai
 		if _, _, _, err := crm.MergeRisk(nil, *in.Risk); err != nil {
 			return Detail{}, riskInvalid(err)
+		}
+	}
+	if in.Attendance != nil {
+		if _, _, _, _, err := attendance.Merge(s.Attendance, nil, *in.Attendance); err != nil {
+			return Detail{}, attendanceInvalid(err)
 		}
 	}
 	tx, err := s.Pool.Begin(ctx)
@@ -111,14 +119,29 @@ func (s Service) PutSettings(ctx context.Context, actor, courseID uuid.UUID, ver
 			return Detail{}, fmt.Errorf("course: outbox %s: %w", crm.TopicSettingsChanged, err)
 		}
 	}
+	if in.Attendance != nil {
+		_, merged, was, now, err := attendance.Merge(s.Attendance, upd.Settings, *in.Attendance)
+		if err != nil {
+			return Detail{}, attendanceInvalid(err)
+		}
+		if upd, err = q.UpdateCourseSettings(ctx, store.UpdateCourseSettingsParams{ID: courseID, Settings: merged}); err != nil {
+			return Detail{}, fmt.Errorf("course: đặt chính sách điểm danh: %w", err)
+		}
+		before["attendance"], after["attendance"] = was, now // «vị trí bật, bán kính»: không lat / lng
+		if _, err := outbox.Write(ctx, tx, crm.TopicSettingsChanged, map[string]string{"course_id": courseID.String()}); err != nil {
+			return Detail{}, fmt.Errorf("course: outbox %s: %w", crm.TopicSettingsChanged, err)
+		}
+	}
 	after["version"] = upd.Version
 	action := "course_threshold_updated"
 	switch {
 	case in.EscalationThreshold != nil:
 	case in.AllowStudyTimeOptOut != nil:
 		action = "course_study_time_opt_out_updated"
-	default:
+	case in.Risk != nil:
 		action = "course_risk_updated"
+	default:
+		action = "course_attendance_updated"
 	}
 	if err := s.audit(ctx, q, courseID, actor, courseID.String(), action, before, after); err != nil {
 		return Detail{}, err
@@ -134,6 +157,15 @@ func riskInvalid(err error) error {
 	var re *crm.RiskError
 	if errors.As(err, &re) {
 		return invalid("risk."+re.Field, "range", re.Message)
+	}
+	return err
+}
+
+// attendanceInvalid đổi lỗi chính sách điểm danh thành 422 theo trường (`attendance.<tên>`); lỗi khác giữ nguyên.
+func attendanceInvalid(err error) error {
+	var pe *attendance.PolicyError
+	if errors.As(err, &pe) {
+		return invalid("attendance."+pe.Field, "range", pe.Message)
 	}
 	return err
 }

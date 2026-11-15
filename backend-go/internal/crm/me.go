@@ -33,9 +33,20 @@ func (s *Service) MyAttendance(ctx context.Context, courseID, studentID uuid.UUI
 	if err != nil {
 		return out, wrap("buổi điểm danh của tôi", err)
 	}
+	checked, err := q.AttMyCheckins(ctx, store.AttMyCheckinsParams{CourseID: courseID, StudentID: studentID}) // 10.8: chỉ giờ, không cờ
+	if err != nil {
+		return out, wrap("giờ điểm danh của tôi", err)
+	}
+	at := make(map[uuid.UUID]time.Time, len(checked))
+	for _, c := range checked {
+		at[c.SessionID] = c.CheckedInAt
+	}
 	out.Sessions = make([]AttendanceItem, len(rows))
 	for i, r := range rows {
 		out.Sessions[i] = AttendanceItem{SessionID: r.SessionID, SessionNo: int(r.SessionNo), StartsAt: r.StartsAt, Status: string(r.Status)} // không Note
+		if t, ok := at[r.SessionID]; ok {
+			out.Sessions[i].CheckedInAt = &t
+		}
 	}
 	return out, nil
 }

@@ -70,7 +70,7 @@ backend-go/
     contract/     # contract test: response khớp api/openapi.yaml
     chat/ thread/ document/ analytics/ assignment/ user/
     course/ crm/ grade/ quiz/ submission/ escalation/ notify/ mail/
-    calendar/ library/ insight/ llmconfig/ activity/ observability/ today/
+    calendar/ library/ insight/ llmconfig/ activity/ observability/ today/ attendance/
   db/migrations/  # goose, từ 00001 (D45: không kế thừa schema Project III)
   api/openapi.yaml
   sqlc.yaml  Dockerfile  Makefile
@@ -100,7 +100,8 @@ Mỗi module: `handler.go` (mỏng) · `service.go` (logic, transaction, audit) 
 | Object storage | `minio/minio-go` v7 (tương thích S3) |
 | Test | `testing` + `testify` + `testcontainers-go` (+ `moby/moby/api`: kiểu `HostConfig` cho container sandbox go-judge trong test; **chỉ test**, từ sprint 6, không vào binary gateway / worker) + REST API Mailpit |
 
-Frontend giữ: Next.js, React, zustand (chỉ trạng thái UI + phiên), tailwind, recharts; thêm `@tanstack/react-query`, `@tanstack/react-virtual`, `lucide-react` (thư viện icon DUY NHẤT), font Be Vietnam Pro qua `next/font`, Playwright, `@axe-core/playwright`, Lighthouse CI.
+Frontend giữ: Next.js, React, zustand (chỉ trạng thái UI + phiên), tailwind, recharts; thêm `@tanstack/react-query`, `@tanstack/react-virtual`, `lucide-react` (thư viện icon DUY NHẤT), font Be Vietnam Pro qua `next/font`, Playwright, `@axe-core/playwright`, Lighthouse CI; `uqr` 0.1.x (MIT, vẽ QR ra SVG, chỉ ở màn chiếu điểm danh — P-108-1 Q4).
+App Android (sprint 10.8, P-108-1): thư mục `mobile/` riêng với `@capacitor/core`, `@capacitor/cli`, `@capacitor/android` 8.x (MIT); `frontend/` không import gói Capacitor nào (§11.7).
 Hạ tầng thêm trong compose: Caddy, PgBouncer, MinIO, Mailpit, `docling-serve` (trích PDF/DOCX cho worker), mock-graph (chỉ local). Test tải: k6.
 Python chỉ xuất hiện ở `benchmarks/` cho script đánh giá offline (D46); không có thư viện Python nào nằm trong đường chạy của sản phẩm.
 
@@ -131,12 +132,17 @@ Mọi bảng: UUID, `created_at`, `updated_at`; bảng nghiệp vụ có `course
 | 00019 practice | P9 | `practice_attempts` (mode TOPIC/MOCK, `deadline_at` do máy chủ, `matrix`, `version`), `practice_items` (bản chụp câu `question` + `answer_key` + `option_order` lúc dựng đề), `practice_answers` (UNIQUE `item_id`, `locked`, `version`), `forms_import_batches` + `forms_import_rows` (nhập Forms, US-P9-11). Không tạo `practice_exams` / `assignment_id` (P-10-2); dùng `question_bank` của PE (+ `SHORT` / `ESSAY` ở ngân hàng, không ở bài thi); khoá chat khi làm bài thi tính điểm dùng Redis, không có bảng |
 | 00020 decision | 10.5 (D60) | **Ngoại lệ có chủ ý cho `ALTER`**: yêu cầu mới, chưa biết lúc viết các migration trước; tiền lệ là `00015`. Nội dung theo `docs/specs/FEAT-decision-model/SRS.md` §5: `llm_providers.type` thêm `decision`, và chỉ được **một** provider `decision` đang bật (unique index một phần); `llm_models.kind` thêm `decision`; `llm_audit` thêm `cascade_gate` (`THREADS_PRECHECK` / `INJECTION_FLAG` / `CHAT_ROUTING`) và `cascade_path` (`FAST` / `FALLBACK` / `FAIL_CLOSED`), kèm index một phần `WHERE task = 'DECIDE'`; bảng mới `decision_gates` (cấu hình toàn hệ thống: `enabled`, `threshold`, `timeout_ms`, `version`) và `course_decision_gates` (bật theo lớp, khoá `(course_id, gate)`). Seed: model `decision-fake` và `gemini-decision-1`, cùng 3 hàng cổng đều tắt. **Không** thêm `DECIDE` vào `llm_task_routes` |
 | 00021 grading_guidance | 10.6 (D61, D62) | **Ngoại lệ có chủ ý cho `ALTER`** (tiền lệ `00015`, `00020`). Nội dung theo `docs/specs/FEAT-grading-guidance/SRS.md` §5 (TL-1 §1 `docs/sprints/10.6/techlead.md` sửa TLR-3, TLR-4). `grading_guidance_items(course_id, assignment_id, criterion_id, text ≤ 400, text_original, direction STRICTER/LENIENT/CLARIFY, support, source_result_ids uuid[], needs_recheck, status DRAFT/APPROVED/REJECTED/RETIRED, pending_retire, approved_in_version, retired_in_version, origin_job, decided_by/at, version)`; `grading_guidance_versions(course_id, assignment_id, version, item_count, created_by)` PK(course_id, assignment_id, version); `course_guidance_flags(course_id, feature GRADING_GUIDANCE/REGRESSION_CAPTURE/THREAD_SUGGEST/QUESTION_HINTS, enabled, version)` PK(course_id, feature), không có hàng = tắt; `grading_regression_cases(course_id, kind GRADING_EDIT/GRADING_APPEAL/THREAD_CORRECTED/THREAD_REJECTED, source_id, criterion_id, expected jsonb chỉ số / enum)` UNIQUE(course_id, kind, source_id, coalesce(criterion_id,'')). `ALTER`: `assignments.guidance_version`; `grading_results.guidance_version`, `ai_comments jsonb`, `first_reviewed_at`, `first_reviewed_by` (P-106-2: dấu "giảng viên đã duyệt" không bị xoá khi sửa lại; cả ba bất biến bằng `CREATE OR REPLACE` thân trigger `grading_results_ai_immutable` của `00017`); `question_bank.reject_reason` (7 nhãn, chỉ khi `REJECTED`). Không bảng nào lưu văn bản bài hay đầu vào / đầu ra thô của LLM. `course_guidance_flags` **khác** `course_features` mà PR dự kiến: khi làm PR, gộp hai bảng (khoá–giá trị) thay vì tạo bảng cờ thứ ba |
-| 00022 indexes_tuning | P10 | Index phức hợp bắt đầu bằng `course_id`; index HNSW cho `content_chunks.embedding` (kiểm truy vấn M4 `KnowledgeSimilarPosts` với HNSW + lọc chọn lọc: dùng `hnsw.iterative_scan`, TL-1 10.6 TLR-6); index phục vụ báo cáo của P10 *(đổi số hai lần: 00020 → 00021 vì 10.5, → 00022 vì 10.6)* |
-| 00023 production | PR | `consents`, `retention_policies`, `data_requests(user_id, kind EXPORT/DELETE, status)`, `course_features(course_id, chat, thread_auto_answer, auto_grading)` *(đổi số 00021 → 00022 → 00023)*. Job xoá dữ liệu sinh viên phải gọi bước "quên" của lưu ý chấm và ca hồi quy (SRS FEAT-grading-guidance 4.2.14) |
+| 00022 llm_request_payloads | P10 (đã dùng) | Bảng `llm_request_payloads` (`FEAT-p10-eval` §5, P-11-1a). Hạng mục `indexes_tuning` từng đứng ở số này **chưa có số**, lấy số tiếp theo còn trống khi làm; nội dung giữ nguyên: Index phức hợp bắt đầu bằng `course_id`; index HNSW cho `content_chunks.embedding` (kiểm truy vấn M4 `KnowledgeSimilarPosts` với HNSW + lọc chọn lọc: dùng `hnsw.iterative_scan`, TL-1 10.6 TLR-6); index phục vụ báo cáo của P10 *(đổi số hai lần: 00020 → 00021 vì 10.5, → 00022 vì 10.6)* |
+| 00023 *(bỏ trống)* | – | Số này không dùng nữa; không tái dùng. |
+| 00024 attendance_checkin | 10.8 | §11.2 |
+| 00025 audit_log_indexes | 11 (P-11-30) | `audit_log (created_at DESC, id DESC)` và `audit_log (entity, created_at DESC, id DESC)` cho `GET /admin/audit` (US-P10-14 AC9); chỉ `CREATE INDEX`, không sửa migration đã merge |
+| *(số tiếp theo còn trống)* production | PR | `consents`, `retention_policies`, `data_requests(user_id, kind EXPORT/DELETE, status)`, `course_features(course_id, chat, thread_auto_answer, auto_grading)` *(đổi số 00021 → 00022 → 00023 → số tiếp theo còn trống)*. Job xoá dữ liệu sinh viên phải gọi bước "quên" của lưu ý chấm và ca hồi quy (SRS FEAT-grading-guidance 4.2.14) |
 
 **Nguyên tắc sở hữu bảng (D45): phase đầu tiên dùng bảng là phase tạo nó, ở dạng cuối cùng.** Số migration tăng dần theo thứ tự phase chạy, bắt đầu từ `00001` — không kế thừa đánh số của Project III; vì PE chèn sau P2 (D54), số của các phase sau lùi theo thứ tự thi công. Số từ `00012` trở đi (P4…PR) là **dự kiến**, đã dời sau sprint 6; số thật ghi ở `PROGRESS.md`. Đã dùng đến `00011`; `00009` bỏ trống có chủ ý. Khi thi công, ghi ánh xạ số thật ↔ hạng mục ở đây vào mục "Ánh xạ migration" trong `PROGRESS.md`.
 
 Mã hoá: `APP_ENCRYPTION_KEY` (32 byte base64), AES-256-GCM, IV ngẫu nhiên mỗi bản ghi, cho `api_key_enc` và `config_enc`.
+
+Số migration thật (chốt 2026-11-15, P-11-30): `00022` = `llm_request_payloads` (P10, đã dùng); `00023` **bỏ trống, không dùng nữa** (không tái dùng); `00024_attendance_checkin` (sprint 10.8, §11.2); `00025_audit_log_indexes` (sprint 11, US-P10-14); phase PR và mọi việc sau lấy **số tiếp theo còn trống** (từ `00026`), ghi số thật ở `PROGRESS.md`.
 
 ## 5. REST (dưới `/api/v1`, phần lớp dưới `/courses/{courseId}`)
 
@@ -150,6 +156,7 @@ Mã hoá: `APP_ENCRYPTION_KEY` (32 byte base64), AES-256-GCM, IV ngẫu nhiên m
 | Tham gia lớp | `POST /courses/join/preview {code}` → `{name, class_code, teacher, semester}`; `POST /courses/join {code}` (idempotent; 5 lần / 10 phút; lỗi đồng nhất `JOIN_CODE_INVALID`) | STUDENT |
 | Buổi học | `POST …/sessions/generate {weekdays, start_time, end_time, room, from, to, exclude_dates[]}` (`?dry_run=true` xem trước, không đòi `Idempotency-Key`; chạy thật bắt buộc), `PUT/DELETE …/sessions/{sid}` | TA, TEACHER |
 | Điểm danh | `GET/PUT …/sessions/{sid}/attendance` (cả lưới, một giao dịch, `409` tất cả-hoặc-không), `GET …/students/{uid}/attendance`; sinh viên: `GET /courses/{id}/me/attendance`, `GET /courses/{id}/me/participation` | TA, TEACHER (`…/me/*`: STUDENT, chỉ của mình) |
+| Điểm danh tự phục vụ (10.8) | `POST …/sessions/{sid}/checkin-windows`, `GET …/sessions/{sid}/checkin-windows`, `GET …/sessions/{sid}/checkin-windows/{wid}/display`, `PATCH …/checkin-windows/{wid}`, `POST …/checkin-windows/{wid}/close`, `POST …/checkin-windows/{wid}/spot-check`, `POST …/sessions/{sid}/absent-unchecked`, `GET …/sessions/{sid}/checkins`, `POST …/checkins/{cid}/clear-flags`; sinh viên: `POST /courses/{id}/checkins`, `POST /me/devices/challenge`, `POST /me/devices`. Chi tiết: SRS `FEAT-attendance-selfcheck` §6, hợp đồng kỹ thuật §11 | TA, TEACHER; STUDENT chỉ của mình |
 | Tham gia | `POST/GET …/participation`, `DELETE …/participation/{id}` | TA, TEACHER |
 | Observation SV | `POST/GET …/students/{uid}/observations`, `PUT/DELETE …/observations/{oid}` (tác giả), `POST …/students/{uid}/ai-summary`, `POST …/students/{uid}/outreach {body}` | TA, TEACHER |
 | Hôm nay | `GET /me/today`, `GET …/today` | – |
@@ -262,6 +269,8 @@ Tool agent (`internal/agent`, chỉ kênh chat riêng): `get_my_attendance`, `ge
 | `/inbox` | Hàng chờ escalation, trả lời trong app | TA, TEACHER | P4 |
 | `/students`, `/students/[id]` | CRM + hồ sơ 360 (gộp `/at-risk`) | TA, TEACHER | P5 |
 | `/attendance` | Lưới điểm danh + ghi phát biểu | TA, TEACHER | P5 |
+| `/attendance/display` | Màn chiếu điểm danh: QR xoay + mã ngắn + số đã điểm danh; ngoài khung ứng dụng (`app/(present)/`) | TA, TEACHER | 10.8 |
+| `/checkin` | Sinh viên tự điểm danh: tự gửi khi có `#token`, quét trong app, nhập mã ngắn (`app/(checkin)/`) | STUDENT | 10.8 |
 | `/me` | Điểm, chuyên cần, điểm cộng, thời gian học, giải trình điểm | STUDENT | P5, P6 |
 | `/gradebook`, `/gradebook/scheme` | Sổ điểm; xác nhận công thức từ quy chế | TEACHER | P6 |
 | `/grading`, `/grading/[submissionId]` | Hai tab: **Bài tập** (tạo / sửa / công bố bài) và **Hàng chờ chấm** (khớp tay, duyệt cạnh nhau, công bố điểm, phúc khảo) | TA, TEACHER | P7 |
@@ -329,6 +338,7 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 | `PII_NER_ENABLED` | ~~Tầng NER~~ — cắt theo D46 (không còn NER tiếng Việt); giữ tên biến làm chỗ mở rộng, mặc định tắt |
 | `SEED_ON_EMPTY_DB`, `SEED_DEFAULT_PASSWORD` | Seed |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` | Chỉ dự phòng khi `llm_providers` trống. Trên Mac (2026-11-14): sinh chữ đi 9router (khoá 9router nằm trong `llm_providers`, mã hoá); `GEMINI_API_KEY` **chỉ** cho provider `decision` và embedding. Môi trường thật dùng gói **trả phí** (`PRODUCTION_READINESS.md` §1) |
+| `ATTENDANCE_*`, `CHECKIN_*`, `ATTESTATION_*`, `APP_SERVER_URL` | Điểm danh tự phục vụ: bảng ở SRS `FEAT-attendance-selfcheck` §4.1, cách dùng ở §11 |
 
 ## 9. Seed (`scripts/seed.mjs`, idempotent, gọi API thật theo đúng luồng: Admin mở lớp → gán giảng viên → sinh viên vào lớp)
 
@@ -390,3 +400,145 @@ Dữ liệu của **lớp 1** (lớp 2 có phiên bản rút gọn 3 tuần):
 | UX | `@axe-core/playwright`, Lighthouse CI (mobile), Playwright ở 375 px và mạng 3G chậm | Cổng UX ở `UX.md` mục 6 |
 
 Test gọi provider LLM thật nằm sau build tag `llm`, không chạy trên CI. CI sau PG: `go vet`, `golangci-lint`, `go test -race ./...`, `sqlc diff`, frontend lint + build.
+
+## 11. Điểm danh tự phục vụ (sprint 10.8, `FEAT-attendance-selfcheck`)
+
+Nghiệp vụ ở SRS; mục này chỉ là hợp đồng kỹ thuật (TL-2, `docs/sprints/10.8/techlead.md`). Không có service mới, không có thư viện Go mới (D46). Đường nóng `POST …/checkins` không gọi dịch vụ ngoài, không LLM; Redis chỉ cho hạn mức.
+
+### 11.1. Package
+
+```text
+internal/attendance/
+  token.go     # K_w, token, mã ngắn, step: hàm thuần, không I/O
+  window.go    # mở / display / headcount / close / spot-check / absent-unchecked
+  checkin.go   # POST …/checkins: kiểm, chữ ký, cờ, assurance, ghi
+  flags.go     # mã cờ + nhãn tiếng Việt (SRS 4.4)
+  device.go    # WEB_KEY / ANDROID_KEY, upsert user_devices
+  attest/      # Key Attestation: chuỗi, KeyDescription, thu hồi; roots.pem nhúng bằng //go:embed
+  jobs.go      # SweepJob, PurgeJob (chạy trong cmd/worker)
+internal/httpapi/attendancehttp/   # handler mỏng
+```
+
+`internal/grade` không đọc bảng nào ở đây (chỉ `attendance_records` như cũ). Chặn `CHECKIN_UNRESOLVED` nằm trong `internal/crm` (`PUT …/attendance`), gọi một hàm đọc của `internal/attendance`.
+
+### 11.2. Migration `00024_attendance_checkin.sql`
+
+Một tệp, một giao dịch, chỉ `CREATE`, đúng nguyên văn SRS §5: `checkin_windows`, `user_devices` (không có `user_id`), `attendance_checkins` (không toạ độ, không IP). Chính sách lớp nằm ở `courses.settings.attendance` (jsonb có sẵn), không thêm bảng.
+
+Các câu SQL mà dev hay viết sai:
+
+| Việc | Câu chọn | Vì sao |
+| --- | --- | --- |
+| Ghi khoá web | `INSERT INTO user_devices … ON CONFLICT (key_sha256) DO UPDATE SET key_sha256 = EXCLUDED.key_sha256 RETURNING id, kind, attested, boot_verified, public_key` | `DO NOTHING` không trả hàng đã có và không khoá hàng. `DO UPDATE` rỗng trả `id` ở cả hai nhánh và giữ khoá hàng tới hết giao dịch. Khoá này tuần tự hoá `DEVICE_SHARED` (FR-12) và chặn purge xoá máy đang được dùng |
+| Khoá app | `SELECT … FROM user_devices WHERE key_sha256 = $1 FOR UPDATE` | Cùng lý do |
+| Đóng cửa sổ | `class_sessions … FOR UPDATE` rồi mới đến `checkin_windows … FOR UPDATE`; đã đóng → trả kết quả đã lưu | Cùng thứ tự khoá với `PUT …/attendance`, tránh deadlock (US-AS-05 AC8) |
+| Purge lượt | `DELETE FROM attendance_checkins c USING checkin_windows w WHERE c.course_id = w.course_id AND c.window_id = w.id AND w.closed_at < now() - make_interval(days => $1) AND c.id IN (… LIMIT 1000)`; lặp tới khi 0 hàng | Nối bằng `(course_id, window_id)` để dùng khoá duy nhất có sẵn; `checkin_windows_purge_idx` lọc cửa sổ |
+| Purge máy | `DELETE FROM user_devices WHERE id IN (SELECT d.id FROM user_devices d WHERE d.created_at < now() - make_interval(days => $1) AND NOT EXISTS (SELECT 1 FROM attendance_checkins c WHERE c.device_id = d.id) LIMIT 1000 FOR UPDATE SKIP LOCKED)` | `SKIP LOCKED` bỏ qua máy đang được một lượt điểm danh giữ khoá (dòng 1). `NOT EXISTS` ra hash anti-join trên ≤ 30 ngày lượt, chạy mỗi ngày một lần |
+| Quên một sinh viên | `DELETE FROM attendance_checkins WHERE course_id = ANY($courses) AND student_id = $uid` | Hàm `attendance.ForgetStudent(ctx, tx, uid)`; job xoá dữ liệu cá nhân của phase PR gọi nó (P-108-10) |
+
+### 11.3. Mã QR, mã ngắn, chữ ký
+
+- `K_root` = `base64.StdEncoding.DecodeString(ATTENDANCE_TOKEN_KEY)`. Phải đúng 32 byte, nếu không gateway không khởi động và nêu tên biến. Compose dev đặt một giá trị cố định; production phải khác.
+- `K_w = HMAC-SHA256(K_root, "att-v1|" + window_id)`, tính lại mỗi request (một HMAC), không đệm.
+- `step = unix_s / rotate_seconds`. `step_expires_at = (step + 1) × rotate_seconds`. Nhận `step ∈ {s, s−1}`. Bước tương lai hoặc cũ hơn → `TOKEN_EXPIRED` (PoC §7).
+- `token = window_id + "." + step + "." + mac`, với `mac = base32.StdEncoding.WithPadding(NoPadding)(HMAC(K_w, decimal(step)))[:16]` (80 bit). So sánh bằng `hmac.Equal`.
+- Mã ngắn = 30 bit đầu của `HMAC(K_w, "short|" + decimal(step))`, mã hoá Crockford `0123456789ABCDEFGHJKMNPQRSTVWXYZ`, 6 ký tự. So sánh bằng `subtle.ConstantTimeCompare` sau khi chuẩn hoá (SRS FR-3a).
+- Chuỗi ký: `edupilot-checkin-v1|{token}|{user_id}`; đường mã ngắn: `edupilot-checkin-v1|code:{MÃ_CHUẨN_HOÁ}|{user_id}`.
+  - Kiểm ECDSA P-256 / SHA-256.
+  - Chữ ký 64 byte `r‖s` (WebCrypto) → `ecdsa.Verify`; DER (Keystore) → `ecdsa.VerifyASN1`.
+  - `public_key` là SPKI DER ≤ 512 byte: `x509.ParsePKIXPublicKey`, phải là `*ecdsa.PublicKey` trên `elliptic.P256()`.
+- `assurance` tính từ chữ ký, không từ cờ:
+  - 1 = không có chữ ký hợp lệ;
+  - 2 = chữ ký hợp lệ (`WEB_KEY`, hoặc `ANDROID_KEY` có `boot_verified=false`);
+  - 3 = `ANDROID_KEY` đã chứng thực, `boot_verified=true`, không `GEO_MOCK`.
+
+  Sau đó hạ về 1 nếu lớp bật vị trí và có `GEO_OUT` / `GEO_WEAK` / `GEO_DENIED`; hạ 3 → 2 nếu `GEO_MOCK` (US-AS-12 AC5, P-108-5).
+- PoC `docs/research/poc/attendance-checkin/`: 200 lượt kiểm mã + chữ ký song song mất 1,70 ms trên MacBook Apple Silicon.
+
+### 11.4. Khoá Redis
+
+| Khoá | Kiểu | TTL | Ghi / đọc | Redis chết |
+| --- | --- | --- | --- | --- |
+| `ep:rl:checkin:{uid}:{phút}` | `INCR` | 120 s | `POST …/checkins`, 10 / phút (theo tiền lệ `ep:rl:upload:{uid}:{phút}`, `internal/document/upload.go`) | cho qua, như middleware hạn mức |
+| `ep:att:codefail:{uid}` | `INCR` + `EXPIRE … NX` 60 | 60 s | chỉ lần nhập **sai** mã ngắn; ≥ 5 → `429` | cho qua; 30 bit vẫn không đoán nổi qua HTTP |
+| `ep:rl:display:{uid}:{phút}` | `INCR` | 120 s | `GET …/display`, 30 / phút | cho qua |
+| `ep:rl:devchal:{uid}:{phút}` | `INCR` | 120 s | `POST /me/devices/challenge`, 5 / phút | cho qua |
+| `ep:dev:chal:{uid}` | chuỗi 32 byte | 300 s | `SET` (ghi đè) ở challenge; `GETDEL` ở đăng ký | `503` (chỉ đăng ký thiết bị; điểm danh không bị ảnh hưởng) |
+| `ep:att:revoked` | SET số serial (hex thường) + phần tử canh `_` | `ATTESTATION_REVOCATION_TTL_H` | đăng ký thiết bị: hụt → tải lại; dùng chung cho mọi gateway | hụt + tải lỗi → `503 ATTESTATION_UNAVAILABLE` |
+| `ep:lock:att.revoked` | `SETNX` | 10 s | chỉ một gateway tải danh sách thu hồi tại một thời điểm | – |
+| `ep:idem:…` | có sẵn | 24 h | mở cửa sổ, `absent-unchecked` | như mọi route `Idempotency-Key` |
+| `ep:lock:attendance.purge`, `attendance.purge:done:{yyyymmdd}` | leader + `SETNX` | 2 × tick / 48 h | `PurgeJob`, như `crm.RiskJob` | tick sau chạy lại |
+
+`SweepJob` không dùng Redis: đóng cửa sổ idempotent, nên N worker cùng chạy cũng an toàn.
+
+### 11.5. Kiểm Key Attestation (chỉ thư viện chuẩn: `crypto/x509`, `encoding/asn1`)
+
+Thứ tự kiểm ở `POST /me/devices`. Mọi bước hỏng trả `422 ATTESTATION_FAILED`, trừ khi ghi khác.
+
+1. Thân: 2–6 chứng chỉ, tổng ≤ 16 KB; quá thì `422 VALIDATION_FAILED`.
+2. `GETDEL ep:dev:chal:{uid}`. Không có → `422 DEVICE_CHALLENGE_INVALID`.
+3. `x509.ParseCertificate` từng chứng chỉ; `leaf = chain[0]`.
+4. `leaf.Verify(x509.VerifyOptions{Roots: googleRoots, Intermediates: rest, CurrentTime: now, KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageAny}})`.
+   - `googleRoots` lấy từ `attest/roots.pem`, chép từ `android.googleapis.com/attestation/root`, gồm cả gốc mới ký từ 01/02/2026.
+   - `ExtKeyUsageAny` là bắt buộc: lá Keystore không mang EKU.
+5. Thu hồi: số serial của mọi chứng chỉ trong chuỗi (`strings.ToLower(c.SerialNumber.Text(16))`) không nằm trong `ep:att:revoked`.
+   - Hụt đệm → `GET https://android.googleapis.com/attestation/status` (`net/http`, hạn 3 s), lấy các khoá của `entries`.
+   - Đo 2026-11-15: 181 KB, 1.775 mục, `cache-control: max-age=86400`.
+6. `KeyDescription` (OID `1.3.6.1.4.1.11129.2.1.17`) trên lá:
+   - `attestationSecurityLevel` ∈ {1 TEE, 2 StrongBox};
+   - `attestationChallenge` = nonce, so bằng `subtle.ConstantTimeCompare`.
+7. `attestationApplicationId` (thẻ 709, `softwareEnforced`): tên gói = `ATTESTATION_PACKAGE`, và có một digest chữ ký = `ATTESTATION_CERT_SHA256`.
+8. `rootOfTrust` (thẻ 704, `hardwareEnforced`): `boot_verified = verifiedBootState == 0 && deviceLocked`. `UNVERIFIED` vẫn đăng ký, với `boot_verified=false`.
+9. Ràng khoá (P-108-4): `public_key` trong thân phải trùng byte với `leaf.RawSubjectPublicKeyInfo` và là P-256. Thiếu bước này thì một chuỗi thật có thể đi kèm một khoá phần mềm bất kỳ và đạt mức 3.
+10. Upsert `user_devices {kind: ANDROID_KEY, attested: true, boot_verified, security_level}`. `key_id` = base64url của `key_sha256`.
+
+Dữ liệu test:
+- Hai chuỗi thật `caiman…` (StrongBox, `VERIFIED`) và `akita…` (TEE, `UNVERIFIED`) từ `github.com/android/keyattestation/testdata` (Apache-2.0, giữ ghi chú nguồn trong `testdata/README`).
+- Một chứng chỉ tự ký.
+- Một serial giả trong danh sách thu hồi.
+
+Emulator chỉ có gốc chứng thực phần mềm nên bước 4 hỏng. Cách app xử lý ở P-108-5.
+
+### 11.6. Việc nền (`cmd/worker/tasks.go`)
+
+| Task | Nhịp | Làm | Đồng thời |
+| --- | --- | --- | --- |
+| `attendance.SweepJob` | `CHECKIN_SWEEP_INTERVAL_S` (60 s) | `SELECT id FROM checkin_windows WHERE closed_at IS NULL AND closes_at < now() ORDER BY closes_at LIMIT 100` (dùng `checkin_windows_sweep_idx`, không khoá), rồi gọi `Service.Close(ctx, wid, nil)` trong giao dịch riêng cho từng cửa sổ | Không leader. `Close` tự khoá theo thứ tự buổi → cửa sổ và trả kết quả cũ nếu đã đóng. Không dùng `FOR UPDATE SKIP LOCKED` ở câu chọn: khoá cửa sổ trước buổi là ngược thứ tự với `PUT …/attendance`, dễ deadlock |
+| `attendance.PurgeJob` | mỗi phút kiểm, chạy một lần mỗi ngày lúc 03:00 ICT | lô ≤ 1.000 (§11.2), lặp tới 0; log chỉ số hàng | leader `ep:lock:attendance.purge` + khoá ngày, như `crm.RiskJob` |
+
+Lệnh dev / test (`APP_ENV ∈ {dev, test}`): `gateway admin seed-checkin-demo --course <mã lớp>`, `gateway admin purge-checkins`.
+
+### 11.7. Frontend và app
+
+- Route:
+  - `/attendance/display` ở `app/(present)/attendance/display/`: ngoài `AppShell`, vẫn qua `AuthGate`.
+  - `/checkin` ở `app/(checkin)/checkin/`: layout riêng cất `#token` vào `sessionStorage` rồi mới bọc `AuthGate` + `AppShell`, vì `AuthGate` chuyển `/login?next=` chỉ giữ path + query.
+  - Bố cục: `DESIGN.md` §14.8.1, §14.8.2.
+- `uqr` chỉ được import trong route màn chiếu. Kích thước First Load JS của các route khác không đổi.
+- Khoá web:
+  - `crypto.subtle.generateKey({name: "ECDSA", namedCurve: "P-256"}, false, ["sign"])`; cặp khoá cất nguyên trong IndexedDB `edupilot.device.v1` (structured clone giữ `extractable=false`).
+  - Gửi khoá công khai `exportKey("spki")`. Gọi `navigator.storage.persist()`.
+  - Không có WebCrypto / IndexedDB → gửi không `device`.
+- Cầu nối app không cần thư viện:
+  - `native-bridge.ts` của Capacitor core 8.6.2 (dòng 915–920, 1114) gắn `window.Capacitor.isNativePlatform()`, `isPluginAvailable(name)`, `nativePromise(plugin, method, opts)` vào mọi trang mà WebView nạp.
+  - Trang gọi `window.Capacitor.nativePromise("EduPilotAttest", "sign" | "registerDevice" | "isMockLocation", …)`. `frontend/package.json` không có `@capacitor/*`.
+- `mobile/`:
+  - `package.json` riêng (Capacitor 8). `capacitor.config.ts`: `server.url = APP_SERVER_URL` (đọc lúc `cap sync`), `allowNavigation` = host của ứng dụng, `android.allowMixedContent = false`.
+  - Quyền `CAMERA`; không intent filter `autoVerify`, không `assetlinks.json`.
+  - Plugin Kotlin `EduPilotAttest`: khoá Keystore `edupilot.checkin.v1` (EC P-256, `PURPOSE_SIGN`, SHA-256, `setAttestationChallenge(nonce)`, thử `setIsStrongBoxBacked(true)` rồi lùi về TEE); trả chữ ký DER và chuỗi chứng chỉ (base64 DER).
+  - Kho khoá ký APK nằm ngoài repo.
+  - `APP_SERVER_URL` bị đóng vào APK: đổi host thì phải dựng lại APK (P-108-9).
+- Header (thêm vào `headers()` sẵn có của `frontend/next.config.ts`, chỉ khi không phải `next dev`):
+  - Repo chưa có CSP nào (`grep` 2026-11-15). Áp cho mọi route, vì mọi trang trên tên miền đều gọi được plugin (US-AS-11 AC5):
+    - `Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' {NEXT_PUBLIC_API_URL}; media-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'`.
+    - `'unsafe-inline'` vì App Router chèn script nội tuyến khi hydrate; nonce thì buộc mọi trang kết xuất theo request. Không `unsafe-eval`, không nguồn script ngoài.
+  - `Permissions-Policy: camera=(self), geolocation=(self)` cho mọi route.
+  - `/checkin` vào danh sách trang liên kết một lần đã có (`Referrer-Policy: no-referrer`, `Cache-Control: no-store`).
+
+### 11.8. Tải và SLO
+
+T1 = 200 SV / 30 s ≈ 7 req/s, dồn 5 s ≈ 40 req/s. Mỗi lượt có:
+- JWT + 1 HMAC (+ 1 ECDSA);
+- ≤ 6 câu SQL trong một giao dịch, câu nào cũng theo chỉ mục: đọc cửa sổ, đọc lượt cũ, upsert máy, 2 `SELECT` cho `DEVICE_SHARED` / `DEVICE_NEW`, `INSERT` lượt. Thêm `UPDATE` cờ khi có `DEVICE_SHARED`.
+
+Màn chiếu poll 1 req / 10 s, 20 lớp ≈ 2 req/s. Mục tiêu `POST …/checkins` p95 ≤ 500 ms, đo bằng `benchmarks/load/checkin.js` ở L7.

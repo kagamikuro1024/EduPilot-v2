@@ -1063,7 +1063,7 @@ paths:
     get:
       operationId: getMyAttendance
       tags: [crm]
-      summary: "Chuyên cần của CHÍNH sinh viên (theo user_id JWT): tổng + buổi mới nhất trước, cursor; không ghi chú, người điểm"
+      summary: "Chuyên cần của CHÍNH sinh viên (theo user_id JWT): tổng + buổi mới nhất trước, cursor; mỗi buổi có `checked_in_at` (giờ tự điểm danh hoặc null); không ghi chú, người điểm, cờ, mức tin cậy"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: limit
@@ -2110,7 +2110,7 @@ paths:
     get:
       operationId: getMyToday
       tags: [today]
-      summary: '"Hôm nay" của chính tôi, tất cả lớp. Dạng theo VAI trong JWT (sinh viên / giảng viên-TA / admin), không theo tham số'
+      summary: '"Hôm nay" của chính tôi, tất cả lớp. Dạng theo VAI trong JWT (sinh viên / giảng viên-TA / admin), không theo tham số. Giảng viên / TA có thêm mục CHECKIN_REVIEW (bậc 13) khi buổi có cửa sổ đã đóng ≤ 7 ngày và còn lượt có cờ chưa bỏ; sinh viên không bao giờ có'
       responses:
         "200":
           description: Việc kế tiếp, xếp bằng luật cứng; ETag + `Cache-Control private, no-cache`
@@ -2371,7 +2371,7 @@ paths:
     put:
       operationId: putSessionAttendance
       tags: [crm]
-      summary: "Ghi cả lưới bằng MỘT giao dịch (giảng viên / TA). Hàng giống hệt DB bỏ qua; hàng đổi cần `version` đúng, sai → 409 VERSION_CONFLICT kèm `details.conflicts` và KHÔNG ghi gì. `complete:true` điền Có mặt cho sinh viên còn thiếu và đặt đã hoàn tất. Gửi lại cùng nội dung → 200, không audit mới"
+      summary: "Ghi cả lưới bằng MỘT giao dịch (giảng viên / TA). Hàng giống hệt DB bỏ qua; hàng đổi cần `version` đúng, sai → 409 VERSION_CONFLICT kèm `details.conflicts` và KHÔNG ghi gì. `complete:true`: buổi KHÔNG có cửa sổ điểm danh → điền Có mặt cho sinh viên còn thiếu và đặt đã hoàn tất (như cũ); buổi CÓ ≥ 1 cửa sổ mà sau khi áp thân vẫn còn sinh viên ACTIVE chưa có dòng → 422 CHECKIN_UNRESOLVED (`details.count`), ROLLBACK, không điền gì (dùng `absent-unchecked` hoặc điểm tay rồi hoàn tất lại). Gửi lại cùng nội dung → 200, không audit mới"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: sid
@@ -2401,6 +2401,370 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/sessions/{sid}/checkin-windows:
+    post:
+      operationId: createCheckinWindow
+      tags: [attendance]
+      summary: "Mở cửa sổ điểm danh (giảng viên / TA; Idempotency-Key bắt buộc, cùng khoá → cùng cửa sổ). `minutes` 1–60, mặc định 10 (vòng 1) / 3 (vòng ≥ 2); `rotate_seconds` ghim từ chính sách lớp. Cửa sổ trước đã quá hạn mà chưa đóng thì được đóng trong cùng giao dịch. 409 SELF_CHECKIN_DISABLED | WINDOW_ALREADY_OPEN (`details.window_id`) | ROUND_LIMIT (đã 3 vòng) | COURSE_ARCHIVED; 422 `minutes` ngoài miền. Vòng ≥ 2 không gửi thông báo nào cho sinh viên"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/SessionId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckinWindowOpenInput"
+      responses:
+        "201":
+          description: Cửa sổ vừa mở
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinWindowOpened"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    get:
+      operationId: listCheckinWindows
+      tags: [attendance]
+      summary: "Các cửa sổ của một buổi (giảng viên / TA): tối đa 3 (một buổi có tối đa 3 vòng; trần ở schema `maxItems`, service, DB CHECK/UNIQUE và `LIMIT 3`), vòng tăng dần, không phân trang. Không chứa mã"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Danh sách cửa sổ (rỗng nếu buổi chưa mở vòng nào)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinWindowList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/sessions/{sid}/checkin-windows/{wid}/display:
+    get:
+      operationId: getCheckinWindowDisplay
+      tags: [attendance]
+      summary: "Dữ liệu màn chiếu (giảng viên / TA): `qr_url` và `short_code` của bước hiện tại, cùng bước thì cùng giá trị. no-store, không SSE (màn chiếu poll theo `step_expires_at`). Cửa sổ đã đóng / quá hạn → 409 WINDOW_CLOSED; quá `DISPLAY_RATE_PER_MIN` → 429 RATE_LIMITED + Retry-After"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/CheckinWindowId"
+      responses:
+        "200":
+          description: Màn chiếu
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinWindowDisplay"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/checkin-windows/{wid}:
+    patch:
+      operationId: updateCheckinWindow
+      tags: [attendance]
+      summary: "Ghi số đầu người đếm tay của cửa sổ (mở hoặc đã đóng; giảng viên / TA); audit_log `checkin_window.headcount`. `over_headcount` tính khi đọc. 422 ngoài 0–2000; lớp lưu trữ 409 COURSE_ARCHIVED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/CheckinWindowId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckinHeadcountInput"
+      responses:
+        "200":
+          description: Cửa sổ sau khi đặt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinWindow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/checkin-windows/{wid}/close:
+    post:
+      operationId: closeCheckinWindow
+      tags: [attendance]
+      summary: "Đóng cửa sổ và ghi `attendance_records` từ các lượt (giảng viên / TA): một câu INSERT, bỏ qua dòng đã có (không ghi đè điểm tay), KHÔNG bao giờ tạo ABSENT. Idempotent tự nhiên: đóng lần hai → 200 cùng kết quả đã lưu, không ghi, không audit, không outbox lần hai; `Idempotency-Key` tuỳ chọn (client gửi lại khi mất mạng). Vòng ≥ 2 thêm cờ RECHECK_MISS. Lớp lưu trữ → 409 COURSE_ARCHIVED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/CheckinWindowId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Cửa sổ đã đóng và số dòng đã ghi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinCloseResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/checkin-windows/{wid}/spot-check:
+    post:
+      operationId: spotCheckCheckinWindow
+      tags: [attendance]
+      summary: "Chọn sinh viên để gọi tên kiểm tra (giảng viên / TA): ưu tiên lượt còn cờ chưa bỏ, bù ngẫu nhiên (crypto/rand), không trùng; `n` 1–10 mặc định 5; `n` lớn hơn số lượt thì trả hết. Không ghi, không audit. 422 `n` ngoài miền"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/CheckinWindowId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckinSpotCheckInput"
+      responses:
+        "200":
+          description: Danh sách gọi tên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinSpotCheckResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/sessions/{sid}/absent-unchecked:
+    post:
+      operationId: markAbsentUnchecked
+      tags: [attendance]
+      summary: "Đánh vắng mọi sinh viên ACTIVE chưa có dòng điểm danh trong buổi (giảng viên / TA; Idempotency-Key bắt buộc). INSERT … ON CONFLICT DO NOTHING, không ghi đè. 409 NO_WINDOW (buổi chưa có cửa sổ nào) | WINDOW_OPEN (còn cửa sổ mở) | COURSE_ARCHIVED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/SessionId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Số dòng ABSENT vừa tạo (gọi lại cùng khoá → cùng kết quả)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AbsentUncheckedResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/sessions/{sid}/checkins:
+    get:
+      operationId: listSessionCheckins
+      tags: [attendance]
+      summary: "Lượt điểm danh của một buổi kèm cờ và mức tin cậy (giảng viên / TA; sinh viên KHÔNG BAO GIỜ thấy). Sắp (created_at, id); cursor, mặc định 50, tối đa 100 (quá → 422); `flagged=true` chỉ lượt còn cờ chưa bỏ; `round` lọc theo vòng. no-store. Lượt quá 30 ngày đã bị xoá nên không còn trong danh sách"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/SessionId"
+        - name: flagged
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: round
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 3
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang lượt điểm danh
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/checkins/{cid}/clear-flags:
+    post:
+      operationId: clearCheckinFlags
+      tags: [attendance]
+      summary: "Đánh dấu đã xem cờ của một lượt (giảng viên / TA): đặt `flags_cleared_by/at`, cờ KHÔNG bị xoá khỏi hàng; audit_log `checkin.clear_flags` (mã cờ, student_id, không tên). Idempotent: gọi lại → 200 không đổi. Lớp lưu trữ → 409 COURSE_ARCHIVED; lượt của lớp khác → 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/CheckinId"
+      responses:
+        "200":
+          description: Lượt sau khi đánh dấu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinRow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/checkins:
+    post:
+      operationId: createCheckin
+      tags: [attendance]
+      summary: "Sinh viên tự điểm danh (CHỈ STUDENT ACTIVE của lớp; `student_id` lấy từ JWT, `student_id` / `user_id` trong thân → 422 VALIDATION_FAILED, details[].code = unknown). Đúng MỘT trong `token`, `code` (cả hai / không có → 422 VALIDATION_FAILED). Tín hiệu bất thường (không chữ ký, máy dùng chung, ngoài vùng…) KHÔNG bao giờ làm từ chối: vẫn 201 và ghi cờ; thân phản hồi giống hệt khi có hoặc không có cờ. Idempotent theo khoá tự nhiên (course, cửa sổ, sinh viên): gửi lại → 200 cùng `{checked_in_at, round}`, không đổi cờ. Lỗi: 403 FORBIDDEN lý do `course` (không phải sinh viên ACTIVE của lớp: PENDING, đã mời ra, ngoài lớp, nhân viên; cả nhánh đua khoá ngoại; không có mã NOT_IN_COURSE); 409 SELF_CHECKIN_DISABLED | WINDOW_CLOSED | COURSE_ARCHIVED; 422 CHECKIN_TOKEN_INVALID (mã sai / cửa sổ lạ / lớp khác / mã ngắn không khớp, không phân biệt) | CHECKIN_TOKEN_EXPIRED (MAC đúng, bước ngoài hai bước) | VALIDATION_FAILED; 429 RATE_LIMITED + Retry-After (10 lượt / phút / người; riêng `code`: từ lần nhập sai thứ 6 trong 1 phút, kể cả khi mã đúng sau đó)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckinInput"
+      responses:
+        "200":
+          description: Đã điểm danh trước đó trong cửa sổ này; trả lại lượt đầu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinResult"
+        "201":
+          description: Lượt mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/me/devices/challenge:
+    post:
+      operationId: createDeviceChallenge
+      tags: [attendance]
+      summary: "Cấp nonce 32 byte để app Android đăng ký khoá có chứng thực (chỉ STUDENT; ghi đè nonce cũ; Redis TTL 300 s, dùng một lần). Quá 5 lần / phút / người → 429 RATE_LIMITED + Retry-After"
+      responses:
+        "200":
+          description: Nonce
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceChallenge"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/me/devices:
+    post:
+      operationId: registerDevice
+      tags: [attendance]
+      summary: "Đăng ký khoá thiết bị Android kèm chuỗi chứng thực (chỉ STUDENT): lấy và xoá nonce, kiểm chuỗi tới gốc Google nhúng sẵn, challenge, gói + vân tay APK, mức bảo mật, thu hồi. Khoá đã có → 200 cùng `key_id`. KHÔNG gắn khoá với người dùng. 422 DEVICE_CHALLENGE_INVALID (nonce sai / hết hạn) | ATTESTATION_FAILED (chuỗi giả, APK lạ, bị thu hồi, `public_key` khác khoá trong chứng chỉ lá); 503 ATTESTATION_UNAVAILABLE (không tải được danh sách thu hồi và chưa có bản đệm) — app vẫn điểm danh như web"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceRegisterInput"
+      responses:
+        "200":
+          description: Khoá đã đăng ký từ trước
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceRegistered"
+        "201":
+          description: Khoá mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceRegistered"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
         "503":
@@ -11272,7 +11636,445 @@ components:
       schema:
         type: string
         format: uuid
+    SessionId:
+      name: sid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CheckinWindowId:
+      name: wid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CheckinId:
+      name: cid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
+    AttendancePolicy:
+      type: object
+      description: "Chính sách điểm danh tự phục vụ của lớp. Giảng viên / TA thấy đủ trường; sinh viên chỉ thấy `self_checkin`, `require`, `geo_check` (không có `rotate_seconds`, `late_after_min`, `geofence`, `campus_cidrs`). `geo_check` = lớp có khai `geofence` hoặc `campus_cidrs` (để giao diện hiện câu thông báo dùng vị trí trước khi xin quyền)"
+      required: [self_checkin, require, geo_check]
+      additionalProperties: false
+      properties:
+        self_checkin:
+          type: boolean
+        require:
+          type: string
+          enum: [WEB, APP]
+        geo_check:
+          type: boolean
+        rotate_seconds:
+          type: integer
+          minimum: 5
+          maximum: 60
+        late_after_min:
+          type: integer
+          minimum: 0
+          maximum: 120
+        geofence:
+          oneOf:
+            - $ref: "#/components/schemas/CheckinGeofence"
+            - type: "null"
+        campus_cidrs:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+    CheckinGeofence:
+      type: object
+      required: [lat, lng, radius_m]
+      additionalProperties: false
+      properties:
+        lat:
+          type: number
+          minimum: -90
+          maximum: 90
+        lng:
+          type: number
+          minimum: -180
+          maximum: 180
+        radius_m:
+          type: integer
+          minimum: 20
+          maximum: 2000
+    AttendancePolicyInput:
+      type: object
+      description: "Thay TOÀN BỘ chính sách điểm danh của lớp (không gộp từng trường): trường vắng lấy mặc định (`rotate_seconds` 10, `late_after_min` 15, `require` WEB, không `geofence`, không `campus_cidrs`). Sai miền / CIDR sai cú pháp hoặc /0 / hơn 10 CIDR → 422 VALIDATION_FAILED kèm tên trường. Toạ độ không vào audit_log"
+      required: [self_checkin]
+      additionalProperties: false
+      properties:
+        self_checkin:
+          type: boolean
+        rotate_seconds:
+          type: integer
+          minimum: 5
+          maximum: 60
+        late_after_min:
+          type: integer
+          minimum: 0
+          maximum: 120
+        require:
+          type: string
+          enum: [WEB, APP]
+        geofence:
+          oneOf:
+            - $ref: "#/components/schemas/CheckinGeofence"
+            - type: "null"
+        campus_cidrs:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+    CheckinWindowOpenInput:
+      type: object
+      additionalProperties: false
+      properties:
+        minutes:
+          type: integer
+          minimum: 1
+          maximum: 60
+    CheckinWindowOpened:
+      type: object
+      required: [id, round, rotate_seconds, closes_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        round:
+          type: integer
+          minimum: 1
+          maximum: 3
+        rotate_seconds:
+          type: integer
+        closes_at:
+          type: string
+          format: date-time
+    CheckinWindow:
+      type: object
+      required: [id, round, opened_at, closes_at, closed_at, headcount, checked_in, over_headcount]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        round:
+          type: integer
+          minimum: 1
+          maximum: 3
+        opened_at:
+          type: string
+          format: date-time
+        closes_at:
+          type: string
+          format: date-time
+        closed_at:
+          type: [string, "null"]
+          format: date-time
+        headcount:
+          type: [integer, "null"]
+        checked_in:
+          type: integer
+          description: Số sinh viên khác nhau đã điểm danh trong cửa sổ này
+        over_headcount:
+          type: boolean
+          description: "Số sinh viên khác nhau đã điểm danh trong buổi > headcount + max(2, ⌈5 % × headcount⌉); `false` khi chưa có headcount"
+    CheckinWindowList:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/CheckinWindow"
+    CheckinWindowDisplay:
+      type: object
+      required: [qr_url, short_code, step_expires_at, server_time, rotate_seconds, round, checked_in, headcount, closes_at]
+      additionalProperties: false
+      properties:
+        qr_url:
+          type: string
+          description: "`{APP_PUBLIC_URL}/checkin?c={courseId}#{token}`; mã nằm sau `#`"
+        short_code:
+          type: string
+          description: Mã ngắn 6 ký tự (Crockford base32), đổi cùng nhịp với `qr_url`
+        step_expires_at:
+          type: string
+          format: date-time
+        server_time:
+          type: string
+          format: date-time
+        rotate_seconds:
+          type: integer
+        round:
+          type: integer
+        checked_in:
+          type: integer
+        headcount:
+          type: [integer, "null"]
+        closes_at:
+          type: string
+          format: date-time
+    CheckinHeadcountInput:
+      type: object
+      required: [headcount]
+      additionalProperties: false
+      properties:
+        headcount:
+          type: integer
+          minimum: 0
+          maximum: 2000
+    CheckinCloseResult:
+      type: object
+      required: [window, written, unchecked, skipped_existing]
+      additionalProperties: false
+      properties:
+        window:
+          $ref: "#/components/schemas/CheckinWindow"
+        written:
+          type: object
+          required: [present, late]
+          additionalProperties: false
+          properties:
+            present:
+              type: integer
+            late:
+              type: integer
+        unchecked:
+          type: integer
+          description: Sinh viên ACTIVE chưa có lượt điểm danh nào và chưa có dòng điểm danh (chưa bị đánh vắng)
+        skipped_existing:
+          type: integer
+          description: Sinh viên có lượt nhưng đã có dòng điểm danh (giữ nguyên)
+    CheckinSpotCheckInput:
+      type: object
+      additionalProperties: false
+      properties:
+        n:
+          type: integer
+          minimum: 1
+          maximum: 10
+    CheckinSpotCheckResult:
+      type: object
+      required: [students]
+      additionalProperties: false
+      properties:
+        students:
+          type: array
+          maxItems: 10
+          items:
+            type: object
+            required: [student_id, full_name, student_code, reason]
+            additionalProperties: false
+            properties:
+              student_id:
+                type: string
+                format: uuid
+              full_name:
+                type: string
+              student_code:
+                type: string
+              reason:
+                type: string
+                enum: [FLAGGED, RANDOM]
+    AbsentUncheckedResult:
+      type: object
+      required: [marked]
+      additionalProperties: false
+      properties:
+        marked:
+          type: integer
+    CheckinFlag:
+      type: object
+      required: [code, label]
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          enum: [DEVICE_SHARED, DEVICE_NEW, NO_DEVICE_KEY, DEVICE_UNTRUSTED, TOKEN_LATE, GEO_OUT, GEO_WEAK, GEO_DENIED, GEO_MOCK, OFF_CAMPUS, NOT_APP, RECHECK_MISS]
+        label:
+          type: string
+          description: Nhãn tiếng Việt cho giảng viên, không chứa từ kỹ thuật (SRS 4.4.1)
+    CheckinRow:
+      type: object
+      description: Chỉ giảng viên / TA; không bao giờ có ở route của sinh viên
+      required: [id, window_id, round, student, created_at, channel, assurance, flags, cleared]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        window_id:
+          type: string
+          format: uuid
+        round:
+          type: integer
+        student:
+          type: object
+          required: [id, full_name, student_code]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+            student_code:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        channel:
+          type: string
+          enum: [WEB, APP, CODE]
+        assurance:
+          type: integer
+          minimum: 1
+          maximum: 3
+        flags:
+          type: array
+          items:
+            $ref: "#/components/schemas/CheckinFlag"
+        cleared:
+          type: boolean
+        geo_distance_m:
+          type: [integer, "null"]
+        in_campus:
+          type: [boolean, "null"]
+    CheckinPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CheckinRow"
+        next_cursor:
+          type: [string, "null"]
+    CheckinInput:
+      type: object
+      description: "Đúng MỘT trong `token`, `code`. Trường lạ (`student_id`, `user_id`…) bị bỏ qua. `geo` chỉ được xét khi lớp khai `geofence` / `campus_cidrs`, nếu không bị bỏ qua và không lưu. Chuỗi ký của `device.signature`: `edupilot-checkin-v1|{token}|{user_id}` (đường `code`: `edupilot-checkin-v1|code:{CODE_CHUẨN_HOÁ}|{user_id}`)"
+      oneOf:
+        - required: [token]
+        - required: [code]
+      properties:
+        token:
+          type: string
+          maxLength: 256
+        code:
+          type: string
+          maxLength: 16
+        device:
+          $ref: "#/components/schemas/CheckinDevice"
+        geo:
+          $ref: "#/components/schemas/CheckinGeo"
+        app:
+          type: object
+          description: Chỉ để chẩn đoán, không đổi quyết định
+          additionalProperties: false
+          properties:
+            version:
+              type: string
+              maxLength: 32
+    CheckinDevice:
+      oneOf:
+        - type: object
+          required: [kind, public_key, signature]
+          additionalProperties: false
+          properties:
+            kind:
+              type: string
+              const: WEB_KEY
+            public_key:
+              type: string
+              description: SPKI, base64; ≤ 512 byte sau giải mã
+            signature:
+              type: string
+              description: ECDSA P-256, base64 (r‖s 64 byte hoặc DER)
+        - type: object
+          required: [kind, key_id, signature]
+          additionalProperties: false
+          properties:
+            kind:
+              type: string
+              const: ANDROID_KEY
+            key_id:
+              type: string
+              description: base64url của sha256 khoá công khai (trả ở `POST /me/devices`)
+            signature:
+              type: string
+              description: ECDSA, base64 (DER hoặc r‖s)
+    CheckinGeo:
+      type: object
+      additionalProperties: false
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+        accuracy_m:
+          type: number
+        mock:
+          type: boolean
+        denied:
+          type: boolean
+    CheckinResult:
+      type: object
+      description: Không có cờ, mức tin cậy, thiết bị hay vị trí (thân giống hệt với mọi lượt)
+      required: [checked_in_at, round]
+      additionalProperties: false
+      properties:
+        checked_in_at:
+          type: string
+          format: date-time
+        round:
+          type: integer
+    DeviceChallenge:
+      type: object
+      required: [nonce]
+      additionalProperties: false
+      properties:
+        nonce:
+          type: string
+          description: 32 byte ngẫu nhiên, base64url
+    DeviceRegisterInput:
+      type: object
+      required: [kind, public_key, attestation_chain]
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum: [ANDROID_KEY]
+        public_key:
+          type: string
+          description: SPKI, base64
+        attestation_chain:
+          type: array
+          minItems: 2
+          maxItems: 6
+          description: Chuỗi chứng thực Key Attestation, 2–6 chứng chỉ (lá + trung gian + gốc), tổng ≤ 16 KB; sai số lượng → 422 VALIDATION_FAILED (ARCHITECTURE 11.5 bước 1)
+          items:
+            type: string
+            description: Chứng chỉ X.509 DER, base64; lá trước
+    DeviceRegistered:
+      type: object
+      required: [key_id]
+      additionalProperties: false
+      properties:
+        key_id:
+          type: string
+          description: base64url của sha256 khoá công khai
     LoginRequest:
       type: object
       required: [email, password]
@@ -11489,7 +12291,7 @@ components:
           type: [string, "null"]
     CourseDetail:
       type: object
-      required: [id, class_code, subject_code, name, semester, status, teachers, my_role, allow_study_time_opt_out]
+      required: [id, class_code, subject_code, name, semester, status, teachers, my_role, allow_study_time_opt_out, attendance]
       additionalProperties: false
       properties:
         id:
@@ -11520,6 +12322,8 @@ components:
         my_role:
           type: string
           enum: [ADMIN, TEACHER, TA, STUDENT]
+        attendance:
+          $ref: "#/components/schemas/AttendancePolicy"
         settings:
           type: object
           description: Chỉ GV / TA của lớp (TA chỉ đọc)
@@ -12119,7 +12923,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED, ASSIGNMENT_DUE, UNMATCHED_SUBMISSION, GRADING_ERROR, GRADING_REVIEW, PUBLISH_PENDING, ASSIGNMENT_GRADED, APPEAL, ASSIGNMENT_APPEAL_REPLY]
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED, ASSIGNMENT_DUE, UNMATCHED_SUBMISSION, GRADING_ERROR, GRADING_REVIEW, PUBLISH_PENDING, ASSIGNMENT_GRADED, APPEAL, ASSIGNMENT_APPEAL_REPLY, CHECKIN_REVIEW]
         title:
           type: string
         reason:
@@ -13626,6 +14430,18 @@ components:
             - PREVIEW_REQUIRED
             - TOO_LONG
             - TYPE_NOT_SUPPORTED_IN_EXAM
+            - SELF_CHECKIN_DISABLED
+            - CHECKIN_TOKEN_INVALID
+            - CHECKIN_TOKEN_EXPIRED
+            - WINDOW_ALREADY_OPEN
+            - WINDOW_CLOSED
+            - WINDOW_OPEN
+            - NO_WINDOW
+            - ROUND_LIMIT
+            - CHECKIN_UNRESOLVED
+            - DEVICE_CHALLENGE_INVALID
+            - ATTESTATION_FAILED
+            - ATTESTATION_UNAVAILABLE
         message:
           type: string
         trace_id:
@@ -17762,7 +18578,7 @@ components:
               type: array
               items:
                 type: object
-                required: [session_no, starts_at, status]
+                required: [session_no, starts_at, status, checked_in_at]
                 additionalProperties: false
                 properties:
                   session_no:
@@ -17773,6 +18589,10 @@ components:
                   status:
                     type: string
                     enum: [PRESENT, LATE, EXCUSED, ABSENT]
+                  checked_in_at:
+                    type: [string, "null"]
+                    format: date-time
+                    description: Giờ sinh viên tự điểm danh buổi này (lượt đầu), null nếu chưa. Không kèm cờ, mức tin cậy hay thiết bị
         next_cursor:
           type: [string, "null"]
     MyParticipation:
@@ -19067,6 +19887,8 @@ components:
         allow_study_time_opt_out:
           type: boolean
           description: Chỉ đổi được khi lớp chưa có sinh viên ghi danh (mọi trạng thái); đã có → 409 COURSE_HAS_STUDENTS
+        attendance:
+          $ref: "#/components/schemas/AttendancePolicyInput"
         version:
           type: integer
     FollowupInput:

@@ -5,12 +5,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AttendanceGrid, type AttendanceGridRow } from "@/shared/domain/AttendanceGrid";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
-import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
+import { ActionList, ActionRow, Button, ButtonLink, ConfirmIrreversible, Drawer, EmptyState, FilterChips, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar, type HeaderAction } from "@/shared/ui";
+import { ApiError } from "@/shared/data";
 import { useSchemeStatus, useSchemes } from "../gradebook/gradeApi";
 import { formatWhen } from "@/shared/lib/datetime";
 import { dayLabel, fmtDM, fmtHM } from "../calendar/calendarApi";
 import { sessionsKey, useSessions, type SessionRow } from "../calendar/sessionsApi";
-import { labelOf, useGrid, type Grid } from "./attendanceApi";
+import { gridKey, labelOf, useGrid, type Grid } from "./attendanceApi";
+import { CheckinWindowLine } from "./CheckinWindowLine";
+import { isOpen, useCheckinActions, useCheckins, useCoursePolicy, useWindows, windowsKey, type CheckinRow, type CheckinWindow } from "./checkinApi";
 import { useAttendance } from "./useAttendance";
 import s from "./RealAttendance.module.css";
 
@@ -38,6 +41,16 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
   const sessions = useMemo(() => [...list.items].sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime()), [list.items]);
   const current = sessions.find((x) => x.id === picked) ?? defaultSession(sessions);
   const grid = useGrid(courseId, current?.id);
+  // điểm danh bằng mã (10.8): chỉ khi lớp bật; chưa biết chính sách / cửa sổ thì chưa dựng lưới (ô trống hay «Có mặt» phụ thuộc vào đó)
+  const policy = useCoursePolicy(courseId);
+  const selfCheckin = policy.data?.self_checkin === true;
+  const windows = useWindows(courseId, current?.id, selfCheckin, policy.data?.rotate_seconds ?? 10);
+  // chốt «đã biết» theo từng buổi: tải lại nền (mạng về, hết hạn) KHÔNG được đưa lưới về khung xương, vì Sheet dựng lại sẽ gửi hàng đợi hai lần
+  const knownNow = !policy.isPending && !(selfCheckin && windows.isPending);
+  const [knownFor, setKnownFor] = useState<string | null>(null);
+  if (knownNow && current && knownFor !== current.id) setKnownFor(current.id);
+  const checkinReady = knownNow || (current !== undefined && knownFor === current.id);
+  const windowsFailed = (policy.isError && !policy.data) || (selfCheckin && windows.isError && !windows.data);
 
   const picker = current && (
     <label className={s.picker}>
@@ -75,12 +88,24 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
   return (
     <Page kind="work">
       <PageState
-        query={{ isPending: grid.isPending, isError: grid.isError, error: grid.error, data: grid.data, refetch: grid.refetch }}
+        query={{ isPending: grid.isPending || !checkinReady, isError: grid.isError || windowsFailed, error: grid.error ?? policy.error ?? windows.error, data: grid.data && !windowsFailed ? grid.data : null, refetch: () => void Promise.all([grid.refetch(), policy.refetch(), windows.refetch()]) }}
         header={noData}
         loading={<>{noData}<Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >
-        {grid.data && <Sheet key={current.id} courseId={courseId} userId={userId} classCode={classCode} grid={grid.data} picker={picker} />}
+        {grid.data && checkinReady && (
+          <Sheet
+            key={`${current.id}:${grid.dataUpdatedAt}:${selfCheckin && (windows.data?.length ?? 0) > 0}`}
+            courseId={courseId}
+            userId={userId}
+            classCode={classCode}
+            grid={grid.data}
+            picker={picker}
+            selfCheckin={selfCheckin}
+            rotate={policy.data?.rotate_seconds ?? 10}
+            windows={selfCheckin ? (windows.data ?? []) : []}
+          />
+        )}
       </PageState>
       {!grid.data && noDock}
     </Page>
@@ -88,9 +113,11 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
 }
 
 /** Một buổi đã tải. `key` là mã buổi nên đổi buổi dựng lại hàng đợi riêng; phần đang chờ của buổi cũ vẫn được gửi (xem `useAttendance`). */
-function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string; userId: string; classCode: string; grid: Grid; picker: React.ReactNode }) {
+function Sheet({ courseId, userId, classCode, grid, picker, selfCheckin, rotate, windows }: { courseId: string; userId: string; classCode: string; grid: Grid; picker: React.ReactNode; selfCheckin: boolean; rotate: number; windows: CheckinWindow[] }) {
   const qc = useQueryClient();
-  const a = useAttendance({ course: courseId, userId, grid });
+  const router = useRouter();
+  const hasWindow = selfCheckin && windows.length > 0;
+  const a = useAttendance({ course: courseId, userId, grid, blank: hasWindow });
   const undo = useUndoLine();
   const st = grid.session;
   const scheme = useSchemeStatus(courseId).data;
@@ -103,12 +130,13 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
   const byName = a.conflicts[0]?.current.marked_by.full_name;
   const q = a.qstate;
 
-  function setMark(id: string, status: AttendanceGridRow["status"]) {
+  function setMark(id: string, status: NonNullable<AttendanceGridRow["status"]>) {
     const row = a.rows.find((r) => r.id === id);
     if (!row || row.status === status) return;
     dirty.current.add(id);
     a.setMark(id, status);
-    undo.push(`Đã đánh ${labelOf(status)} · ${row.name}`, () => a.setMark(id, row.status));
+    const before = row.status;
+    undo.push(`Đã đánh ${labelOf(status)} · ${row.name}`, () => (before === null ? a.unmark(id) : a.setMark(id, before)));
   }
   function speak(id: string) {
     const row = a.rows.find((r) => r.id === id);
@@ -121,6 +149,118 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
     await a.complete();
     void qc.invalidateQueries({ queryKey: sessionsKey(courseId) });
     undo.clear();
+  }
+
+  // ---- điểm danh bằng mã (10.8) ----
+  const open = windows.find((w) => isOpen(w)) ?? null;
+  const latest = windows.reduce<CheckinWindow | null>((m, w) => (!m || w.round > m.round ? w : m), null);
+  const acts = useCheckinActions(courseId, st.id);
+  const checkins = useCheckins(courseId, st.id, hasWindow, open ? rotate * 1000 : false);
+  const filter: "all" | "review" = useSearchParams().get("filter") === "review" ? "review" : "all";
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [closeQueued, setCloseQueued] = useState(false);
+  const [editingHeadcount, setEditingHeadcount] = useState(false);
+  const [spotOpen, setSpotOpen] = useState(false);
+  const [absentOpen, setAbsentOpen] = useState(false);
+  const displayHref = `/attendance/display?course=${courseId}&session=${st.id}`;
+  const refreshGrid = () => qc.invalidateQueries({ queryKey: gridKey(courseId, st.id) });
+
+  const perStudent = useMemo(() => {
+    type Entry = { at: string; flags: Map<string, string>; rows: CheckinRow[]; unverified: boolean; code: boolean };
+    const m = new Map<string, Entry>();
+    for (const r of checkins.data ?? []) {
+      const e: Entry = m.get(r.student.id) ?? { at: r.created_at, flags: new Map(), rows: [], unverified: false, code: false };
+      if (r.created_at < e.at) e.at = r.created_at;
+      if (r.channel === "CODE") e.code = true;
+      if (!r.cleared) {
+        if (r.assurance === 1) e.unverified = true;
+        for (const f of r.flags) e.flags.set(f.code, f.label);
+        if (r.flags.length > 0) e.rows.push(r);
+      }
+      m.set(r.student.id, e);
+    }
+    return m;
+  }, [checkins.data]);
+
+  const needsReview = (id: string) => (perStudent.get(id)?.flags.size ?? 0) > 0;
+  const reviewCount = hasWindow ? rows.filter((r) => needsReview(r.id)).length : 0;
+  const gridRows: AttendanceGridRow[] = (hasWindow && filter === "review" ? rows.filter((r) => needsReview(r.id)) : rows).map((r) => {
+    const e = hasWindow ? perStudent.get(r.id) : undefined;
+    if (!e) return r;
+    const chips: Array<{ label: string; tone: "warn" | "neutral" }> = [...e.flags.values()].map((label) => ({ label, tone: "warn" as const }));
+    if (e.unverified) chips.push({ label: "Chưa xác minh", tone: "warn" });
+    if (e.code) chips.push({ label: "Nhập mã", tone: "neutral" });
+    return { ...r, checkin: { at: fmtHM(e.at), chips, review: e.flags.size > 0 ? () => void review(r.id) : undefined } };
+  });
+
+  // cửa sổ vừa đóng (người khác đóng / hết giờ / sweep): bản ghi có mặt - muộn do máy chủ ghi lúc đóng, tải lại lưới
+  const wasOpen = useRef(false);
+  const openId = open?.id ?? null;
+  useEffect(() => {
+    if (wasOpen.current && openId === null) void refreshGrid();
+    wasOpen.current = openId !== null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openId]);
+
+  async function openWindow() {
+    setActionError(null);
+    try {
+      await acts.open.mutateAsync();
+      router.push(displayHref);
+    } catch (e) {
+      if (e instanceof ApiError && e.code === "WINDOW_ALREADY_OPEN") return void router.push(displayHref);
+      setActionError(e instanceof ApiError ? e.userMessage : "Chưa mở được. Thử lại.");
+    }
+  }
+  async function closeWindow() {
+    if (!open) return;
+    setActionError(null);
+    try {
+      await acts.close.mutateAsync(open.id);
+      setCloseQueued(false);
+      void refreshGrid();
+    } catch (e) {
+      if (e instanceof ApiError && e.status >= 400 && e.status < 500 && e.status !== 408 && e.status !== 429) {
+        setCloseQueued(false);
+        setActionError(e.userMessage);
+        void qc.invalidateQueries({ queryKey: windowsKey(courseId, st.id) });
+      } else setCloseQueued(true); // offline / 5xx: «Chưa đóng», thử lại tự động
+    }
+  }
+  const retryClose = useRef(closeWindow);
+  useEffect(() => {
+    retryClose.current = closeWindow;
+  });
+  useEffect(() => {
+    if (!closeQueued) return;
+    const run = () => void retryClose.current();
+    const t = setInterval(run, 5000);
+    window.addEventListener("online", run);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener("online", run);
+    };
+  }, [closeQueued]);
+
+  async function confirmAbsent() {
+    try {
+      await acts.absent.mutateAsync();
+      a.clearUnresolved();
+      setAbsentOpen(false);
+      void refreshGrid();
+    } catch {
+      /* lỗi hiện trong hộp xác nhận */
+    }
+  }
+  async function review(id: string) {
+    const e = perStudent.get(id);
+    if (!e) return;
+    await Promise.all(e.rows.map((r) => acts.clear.mutateAsync(r.id).catch(() => undefined)));
+  }
+  function openSpot() {
+    if (!latest) return;
+    setSpotOpen(true);
+    acts.spot.mutate(latest.id);
   }
 
   const qSavedAt = q.savedAt;
@@ -144,6 +284,14 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
   const absent = rows.length - present;
   const barState = q.status === "offline" ? "Chờ mạng" : saved ? "Đã lưu" : "Lưu điểm danh";
   const locked = saved || a.conflicts.length > 0 || q.status === "offline";
+  const moreActions: HeaderAction[] = [];
+  if (hasWindow && !open && windows.length < 3) moreActions.push({ label: `Mở vòng ${(latest?.round ?? 0) + 1}`, onClick: () => void openWindow() });
+  if (hasWindow) {
+    moreActions.push({ label: "Nhập số đầu người", onClick: () => setEditingHeadcount(true) });
+    moreActions.push({ label: "Gọi ngẫu nhiên 5 người", onClick: openSpot });
+  }
+  const unchecked = rows.filter((r) => r.status === null).length;
+  const absentCount = a.unresolved ?? unchecked;
 
   return (
     <div className={s.sheet}>
@@ -151,9 +299,54 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
         title="Điểm danh"
         meta={[`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`]}
         primary={{ label: saved ? "Đã lưu" : "Lưu điểm danh", disabled: locked, onClick: () => void complete(), docked: true }}
+        secondary={[selfCheckin && !hasWindow ? { label: "Mở điểm danh", onClick: () => void openWindow(), busy: acts.open.isPending } : undefined]}
+        more={moreActions}
       />
       <Panel>
-        <Toolbar end={<span data-part="att-save-state">{state}</span>}>{picker}</Toolbar>
+        {a.unresolved !== null && (
+          <InlineNotice tone="warning" compact action={<Button size="sm" onClick={() => setAbsentOpen(true)}>Đánh vắng {a.unresolved} SV chưa điểm danh</Button>}>
+            Còn {a.unresolved} sinh viên chưa điểm danh
+          </InlineNotice>
+        )}
+        <Toolbar end={<span data-part="att-save-state">{state}</span>}>
+          {picker}
+          {hasWindow && (
+            <FilterChips
+              label="Lọc điểm danh"
+              value={[filter]}
+              onChange={(v) => {
+                const next = v.find((x) => x !== filter) ?? filter;
+                router.replace(`/attendance?session=${st.id}${next === "review" ? "&filter=review" : ""}`);
+              }}
+              options={[
+                { value: "all", label: "Tất cả" },
+                { value: "review", label: `Cần xem (${reviewCount})` },
+              ]}
+            />
+          )}
+        </Toolbar>
+        {hasWindow && (
+          <CheckinWindowLine
+            open={open}
+            latest={latest}
+            checkedIn={perStudent.size}
+            active={rows.length}
+            summary={{ present: rows.filter((r) => r.status === "PRESENT").length, late: rows.filter((r) => r.status === "LATE").length, unchecked }}
+            closeQueued={closeQueued}
+            closing={acts.close.isPending}
+            displayHref={displayHref}
+            editingHeadcount={editingHeadcount}
+            onHeadcount={(v) => latest && acts.headcount.mutate({ wid: (open ?? latest).id, headcount: v })}
+            onClose={() => void closeWindow()}
+            onAbsent={() => setAbsentOpen(true)}
+            absentInNotice={a.unresolved !== null}
+            onExpire={() => {
+              void qc.invalidateQueries({ queryKey: windowsKey(courseId, st.id) });
+              void refreshGrid();
+            }}
+          />
+        )}
+        {actionError && <InlineNotice tone="warning" compact>{actionError}</InlineNotice>}
         {scheme && scheme.state !== "CONFIRMED" && (
           <InlineNotice tone="warning" compact action={<span className={s.warnAction}><ButtonLink href={`/gradebook/scheme?course=${courseId}`} size="sm" aria-label="Xem công thức"><span className={s.longText}>Xem công thức</span><span className={s.shortText}>Xem</span></ButtonLink></span>}>
             <span className={s.longText}>Công thức điểm chưa xác nhận</span>
@@ -176,7 +369,7 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
             Đã lưu điểm danh · {a.completed.total} sinh viên · vắng {a.completed.absent}
           </InlineNotice>
         )}
-        <AttendanceGrid rows={rows} caption={`Điểm danh buổi ${st.session_no} lớp ${classCode}`} speakBonus={speakBonus} stickyHeight="calc(100dvh - 18rem)" onSet={setMark} onSpeak={speak} onResolve={a.resolve} />
+        <AttendanceGrid rows={gridRows} caption={`Điểm danh buổi ${st.session_no} lớp ${classCode}`} speakBonus={speakBonus} stickyHeight="calc(100dvh - 18rem)" onSet={setMark} onSpeak={speak} onResolve={a.resolve} />
         {undo.node}
       </Panel>
       <div className={s.saveBar} data-part="att-save-bar" data-ep-header-dock>
@@ -184,6 +377,23 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
           {barState} · {present} có mặt · {absent} vắng
         </Button>
       </div>
+      <ConfirmIrreversible
+        open={absentOpen}
+        onClose={() => setAbsentOpen(false)}
+        onConfirm={() => void confirmAbsent()}
+        title={`Đánh vắng ${absentCount} sinh viên?`}
+        consequence={`${absentCount} sinh viên chưa điểm danh thành Vắng.`}
+        confirmLabel="Đánh vắng"
+        loading={acts.absent.isPending}
+        error={acts.absent.error ? (acts.absent.error instanceof ApiError ? acts.absent.error.userMessage : "Chưa đánh vắng được. Thử lại.") : undefined}
+      />
+      <Drawer open={spotOpen} onClose={() => setSpotOpen(false)} title="Gọi ngẫu nhiên">
+        <ActionList label="Gọi ngẫu nhiên" loading={acts.spot.isPending ? 5 : undefined}>
+          {(acts.spot.data ?? []).map((x) => (
+            <ActionRow key={x.student_id} tone="neutral" title={x.full_name} context={x.student_code} meta={x.reason === "FLAGGED" ? "Có cờ" : "Ngẫu nhiên"} />
+          ))}
+        </ActionList>
+      </Drawer>
     </div>
   );
 }

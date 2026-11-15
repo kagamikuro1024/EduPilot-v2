@@ -188,6 +188,15 @@ type StaffProvider struct {
 	Pool *pgxpool.Pool
 	SLA  workhours.SLA   // mốc quá hạn của mục TICKET (Overdue tự tính từ waiting_since)
 	Attn AttentionSource // US-P5-04: nil = không có STUDENT_ATTENTION / khối attention
+	// ReviewDays = CHECKIN_REVIEW_DAYS (10.8): mục CHECKIN_REVIEW tồn tại tối đa bấy nhiêu ngày sau khi đóng cửa sổ; 0 = 7.
+	ReviewDays int
+}
+
+func (p StaffProvider) reviewDays() int {
+	if p.ReviewDays > 0 {
+		return p.ReviewDays
+	}
+	return 7
 }
 
 // Name implements Provider.
@@ -200,7 +209,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 		return nil, nil // không tốn truy vấn cho vai khác
 	}
 	q := store.New(p.Pool)
-	pend, err := q.TodayStaffPending(ctx, store.TodayStaffPendingParams{CourseIds: ids(courses), UserID: &v.UserID, NowAt: v.Now, GraceSecs: int32(SessionUnmarkedGrace / time.Second)})
+	pend, err := q.TodayStaffPending(ctx, store.TodayStaffPendingParams{CourseIds: ids(courses), UserID: &v.UserID, NowAt: v.Now, GraceSecs: int32(SessionUnmarkedGrace / time.Second), ReviewDays: int32(p.reviewDays())})
 	if err != nil {
 		return nil, fmt.Errorf("today: yêu cầu chờ duyệt: %w", err)
 	}
@@ -238,6 +247,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			out = append(out, mk(it))
 		}
 		out = append(out, sessionUnmarkedItems(c, r.Unmarked, v.Now)...) // US-P5-01 (bậc 12, Giảng viên + TA)
+		out = append(out, checkinReviewItems(c, r.CheckinReview)...)     // 10.8 (bậc 13, Giảng viên + TA)
 		if r.Questions > 0 {                                             // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
 			age := v.Now.Sub(r.QuestionsOldest)
 			out = append(out, mk(Item{
@@ -501,6 +511,28 @@ func sessionUnmarkedItems(c CourseRef, raw []byte, now time.Time) []Item {
 			ID: "SESSION_UNMARKED:" + r.ID.String(), Kind: KindSessionUnmarked, Tier: TierSessionUnmarked, Course: courseRef(c), Overdue: !running,
 			Href:  fmt.Sprintf("/attendance?course=%s&session=%s", c.ID, r.ID),
 			Title: title, Reason: reason, AgeMinutes: int(now.Sub(r.StartsAt) / time.Minute),
+		}))
+	}
+	return out
+}
+
+// checkinReviewItems dựng mục CHECKIN_REVIEW từ cột `checkin_review` (≤ 3 buổi mỗi lớp): «Buổi {no}: {k} lượt điểm danh cần xem · {mã lớp}» (SRS FR-18).
+func checkinReviewItems(c CourseRef, raw []byte) []Item {
+	var rows []struct {
+		ID        uuid.UUID `json:"id"`
+		SessionNo int       `json:"session_no"`
+		Flagged   int       `json:"flagged"`
+		ClosedAt  time.Time `json:"closed_at"`
+	}
+	if json.Unmarshal(raw, &rows) != nil {
+		return nil
+	}
+	out := make([]Item, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, mk(Item{
+			ID: "CHECKIN_REVIEW:" + r.ID.String(), Kind: KindCheckinReview, Tier: TierCheckinReview, Course: courseRef(c),
+			Href:  fmt.Sprintf("/attendance?course=%s&session=%s&filter=review", c.ID, r.ID),
+			Title: fmt.Sprintf("Buổi %d: %d lượt điểm danh cần xem · %s", r.SessionNo, r.Flagged, c.ClassCode),
 		}))
 	}
 	return out

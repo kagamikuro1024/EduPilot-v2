@@ -1,0 +1,19 @@
+{
+  "name": "edupilot-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vỏ Android (Capacitor 8) cho EduPilot: nạp ứng dụng web từ APP_SERVER_URL, thêm plugin EduPilotAttest (khoá Keystore + chứng thực) cho điểm danh bằng mã",
+  "scripts": {
+    "prepare:app": "node scripts/prepare.mjs",
+    "sync": "node scripts/prepare.mjs && cap sync android",
+    "build": "npm run sync && cd android && ./gradlew assembleRelease",
+    "install:device": "npm run build && node scripts/install.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/core": "8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}

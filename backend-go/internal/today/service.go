@@ -52,6 +52,9 @@ type Option func(*StaffProvider)
 // WithSLA đặt khung giờ làm việc và mốc quá hạn mà mục `TICKET` dùng để tự tính `Overdue` (không phụ thuộc job `ticket.sla`).
 func WithSLA(s workhours.SLA) Option { return func(p *StaffProvider) { p.SLA = s } }
 
+// WithReviewDays đặt CHECKIN_REVIEW_DAYS cho mục CHECKIN_REVIEW (10.8); không gọi = 7 ngày.
+func WithReviewDays(n int) Option { return func(p *StaffProvider) { p.ReviewDays = n } }
+
 // NewService dựng Service với bộ gộp mặc định: Provider sinh viên, staff và admin của P2. llm có thể nil.
 func NewService(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, log *slog.Logger, llm LLMSignals, opts ...Option) *Service {
 	agg := &Aggregator{Log: log}

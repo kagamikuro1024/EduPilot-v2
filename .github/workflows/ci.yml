@@ -226,6 +226,8 @@ jobs:
         run: bash scripts/ui-antipatterns.sh
       - name: lint selftest
         run: bash scripts/lint-selftest.sh
+      - name: mobile prepare.mjs (chỉ nhận HTTPS)
+        run: node --test mobile/scripts/prepare.test.mjs
       - name: build (như production)
         run: pnpm -C frontend build
 

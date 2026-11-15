@@ -7,7 +7,7 @@ export type MyAttendance = {
     late: number;
     excused: number;
     absent: number;
-    sessions: Array<{ session_no: number; starts_at: string; status: "PRESENT" | "LATE" | "EXCUSED" | "ABSENT" }>;
+    sessions: Array<{ session_no: number; starts_at: string; status: "PRESENT" | "LATE" | "EXCUSED" | "ABSENT"; checked_in_at?: string | null }>;
   };
   next_cursor: string | null;
 };

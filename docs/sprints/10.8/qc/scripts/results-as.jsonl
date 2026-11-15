@@ -1,0 +1,379 @@
+{"tc": "TC-AS01-01a lớp chưa bật: attendance thiếu hoặc self_checkin=false", "st": "PASS", "note": "{'self_checkin': False, 'rotate_seconds': 10, 'late_after_min': 15, 'require': 'WEB', 'geo_check': False}"}
+{"tc": "TC-AS01-02a Staff GET có self_checkin, require, geo_check, rotate_seconds, late_after_min", "st": "PASS", "note": "{'self_checkin': True, 'rotate_seconds': 10, 'late_after_min': 15, 'require': 'WEB', 'geo_check': False}"}
+{"tc": "TC-AS01-02b PUT chính sách 200, version+1", "st": "PASS", "note": "200 v8->9"}
+{"tc": "TC-AS01-03a bật geofence+CIDR 200", "st": "PASS", "note": "200"}
+{"tc": "TC-AS01-03b audit_log: geofence chỉ «bật + bán kính», không toạ độ", "st": "PASS", "note": "{\"version\": 10, \"attendance\": {\"require\": \"WEB\", \"geofence\": {\"enabled\": true, \"radius_m\": 200}, \"campus_cidrs\": 1, \"self_checkin\": true, \"late_after_min\": 15, "}
+{"tc": "TC-AS01-04 13 ca sai đều 422 và version không đổi", "st": "PASS", "note": "[422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422]"}
+{"tc": "TC-AS01-05 trường vắng = mặc định (late 15, require WEB)", "st": "PASS", "note": "{'self_checkin': True, 'rotate_seconds': 10, 'late_after_min': 15, 'require': 'WEB', 'geo_check': False}"}
+{"tc": "TC-AS01-06 biên hợp lệ đều 200", "st": "PASS", "note": "[200, 200, 200, 200, 200, 200, 200]"}
+{"tc": "TC-AS01-07 version cũ 409", "st": "PASS", "note": "409"}
+{"tc": "TC-AS01-08 hai PUT song song: một 200, một 409, version +1", "st": "PASS", "note": "[409, 200] v19->20"}
+{"tc": "TC-AS01-11 TA/SV/ADMIN/sv.moi đều 403; sv.moi reason=course", "st": "PASS", "note": "{'ta': 403, 'sv.gioi': 403, 'admin': 403, 'sv.moi': 403}{\"code\": \"FORBIDDEN\", \"message\": \"Bạn không có quyền thực hiện thao tác này.\", \"trace_id\": \"2fc2a3e1042cf35ce3ddf41c30ea"}
+{"tc": "TC-AS01-12a SV chỉ thấy self_checkin, require, geo_check", "st": "PASS", "note": "{'self_checkin': True, 'require': 'WEB', 'geo_check': True}"}
+{"tc": "TC-AS01-12b SV: không toạ độ / CIDR trong toàn phản hồi", "st": "PASS", "note": ""}
+{"tc": "TC-AS01-12c TA thấy đủ", "st": "PASS", "note": ""}
+{"tc": "TC-AS01-15 thân không có attendance: không xoá chính sách (Q-S108-11)", "st": "PASS", "note": "200 {'self_checkin': True, 'rotate_seconds': 5, 'late_after_min': 10, 'require': 'WEB', 'geo_check': False}"}
+{"tc": "TC-AS02-01 mở cửa sổ 201 round 1 rotate 5", "st": "PASS", "note": "{'closes_at': '2026-11-15T06:35:00.25325Z', 'id': '01a1dde1-6b61-7a17-a5fc-83d50ca685c6', 'rotate_seconds': 5, 'round': 1}"}
+{"tc": "TC-AS02-01b closes_at ≈ now+10 phút", "st": "PASS", "note": "600s"}
+{"tc": "TC-AS02-02 cùng Idempotency-Key: cùng id, 1 hàng", "st": "PASS", "note": "201 n=1"}
+{"tc": "TC-AS02-06 mở lại 409 WINDOW_ALREADY_OPEN {window_id}", "st": "PASS", "note": "{\"code\": \"WINDOW_ALREADY_OPEN\", \"message\": \"\\u0110ang c\\u00f3 c\\u1eeda s\\u1ed5 m\\u1edf.\", \"trace_id\": \"838a1475d5d512afef98f8e46307565e\", \"details\": {\"window_id\": \"01a1dde1-6b61-7a17-a5fc-83d50ca685c6"}
+{"tc": "TC-AS02-10 display: 9 trường, qr_url đúng dạng, short_code 6 ký tự Crockford, cùng bước cùng mã", "st": "FAIL", "note": "{'short_code': '2RH 9NK', 'step_expires_at': '2026-11-15T06:25:05Z', 'server_time': '2026-11-15T06:25:00.519455704Z', 'rotate_seconds': 5, 'round': 1, 'checked_in': 0, 'headcount': None, 'closes_at': '2026-11-15T06:35:00.25325Z'} https://localhost/checkin?c=01a1dde0-8183-7634-aff7-27d408aa"}
+{"tc": "TC-AS02-11 qua bước: qr_url và short_code đổi", "st": "PASS", "note": ""}
+{"tc": "TC-AS02-13 list cửa sổ: ≤3, không token/short_code", "st": "PASS", "note": "{\"items\": [{\"id\": \"01a1dde1-6b61-7a17-a5fc-83d50ca685c6\", \"round\": 1, \"opened_at\": \"2026-11-15T06:25:00.25325Z\", \"closes_at\": \"2026-11-15T06:35:00.25325Z\", \"closed_at\": null, \"headcount\": null, \"check"}
+{"tc": "TC-AS02-04 minutes 0/61/-1/'x' → 422", "st": "FAIL", "note": "[201, 422, 422, 422]"}
+{"tc": "TC-AS02-04b không tạo cửa sổ", "st": "FAIL", "note": "1"}
+{"tc": "TC-AS02-07 6 vòng đua: mỗi vòng một 201 + một 409, ≤1 cửa sổ mở", "st": "PASS", "note": "[([201, 409], '1'), ([201, 409], '1'), ([201, 409], '1')]"}
+{"tc": "TC-AS02-05a minutes=1 → 201", "st": "PASS", "note": ""}
+{"tc": "TC-AS02-03 vòng 2 mặc định ≈ 3 phút", "st": "PASS", "note": "round 2 180s"}
+{"tc": "TC-AS02-05b vòng 3 minutes=60", "st": "PASS", "note": ""}
+{"tc": "TC-AS02-08 vòng 4 → 409 ROUND_LIMIT", "st": "PASS", "note": "{\"code\": \"ROUND_LIMIT\", \"message\": \"\\u0110\\u00e3 m\\u1edf \\u0111\\u1ee7 s\\u1ed1 v\\u00f2ng \\u0111i\\u1ec3m danh.\", \"trace_id"}
+{"tc": "TC-AS02-13b 3 cửa sổ", "st": "PASS", "note": ""}
+{"tc": "TC-AS02-15a PATCH headcount 10 → 200", "st": "PASS", "note": "{\"id\": \"01a1dde1-9b9c-7dbf-bd84-2d2c7aca90b7\", \"round\": 1, \"opened_at\": \"2026-11-15T06:25:12.603871Z\", \"closes_at\": \"2026-11-15T06:35:12.603871Z\", \"closed_at\": "}
+{"tc": "TC-AS02-16 headcount -1/2001/'a' → 422", "st": "PASS", "note": "[422, 422, 422]"}
+{"tc": "TC-AS02-17 PATCH khi đã đóng → 200", "st": "PASS", "note": ""}
+{"tc": "TC-AS02-21 display cửa sổ đã đóng → 409 WINDOW_CLOSED", "st": "PASS", "note": "{\"code\": \"WINDOW_CLOSED\", \"message\": \"\\u0110\\u00e3 \\u0111\\u00f3ng \\u0111i\\u1ec3m danh.\", \"trace_id\":"}
+{"tc": "TC-AS02-20a wid không tồn tại → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-AS02-20b UUID hỏng → 422", "st": "FAIL", "note": "404"}
+{"tc": "TC-AS02-24a STUDENT/ADMIN/sv.moi: mọi route Staff 403", "st": "PASS", "note": "{'sv.gioi': (403, 403, 403), 'admin': (403, 403, 403), 'sv.moi': (403, 403, 403)}"}
+{"tc": "TC-AS02-24b sv.moi reason=course", "st": "PASS", "note": "{\"code\": \"FORBIDDEN\", \"message\": \"B\\u1ea1n kh\\u00f4ng c\\u00f3 quy\\u1ec1n th\\u1ef1c hi\\u1ec7n thao t\\u00e1c n\\u00e0y.\", \"trace_id\": \"d3874f0f"}
+{"tc": "TC-AS02-24c TA display 200", "st": "PASS", "note": ""}
+{"tc": "TC-AS02-24d không JWT 401", "st": "PASS", "note": "401"}
+{"tc": "TC-AS02-22 display: ≥1 lần 429 trong ≤ 33 lần/phút (cap 30/phút)", "st": "PASS", "note": "429 đầu tiên ở lần 26"}
+{"tc": "TC-AS02-25 mỗi buổi một cửa sổ mở (hai buổi mở cùng lúc)", "st": "PASS", "note": ""}
+{"tc": "TC-AS02-04 (chạy lại) minutes 0/61/-1/'x' → 422, không tạo cửa sổ", "st": "PASS", "note": "[422, 422, 422, 422] n=0"}
+{"tc": "TC-AS02-04 (chạy lại) minutes 0/61/-1/'x' → 422, không tạo cửa sổ", "st": "PASS", "note": "[422, 422, 422, 422] n=0"}
+{"tc": "TC-AS02-10 (chạy lại) short_code nhóm 3+3, không I L O U", "st": "PASS", "note": "26N S60"}
+{"tc": "TC-AS03-01 SV điểm danh bằng token: 201 {checked_in_at, round:1}; 1 hàng WEB", "st": "PASS", "note": "201 {'checked_in_at': '2026-11-15T06:27:48.233426Z', 'round': 1} [['sv.gioi@edupilot.local', 'WEB', '1', 'NO_DEVICE_KEY', '3233']]"}
+{"tc": "TC-AS03-02a thân có cả token+code / thân rỗng → 422", "st": "PASS", "note": "422 422"}
+{"tc": "TC-AS03-02b student_id/user_id trong thân bị bỏ qua: hàng ghi cho người gọi (JWT)", "st": "FAIL", "note": "422 ['sv.gioi@edupilot.local']"}
+{"tc": "TC-AS03-14a gửi lại: 200 cùng checked_in_at/round", "st": "PASS", "note": "200 {'checked_in_at': '2026-11-15T06:27:48.233426Z', 'round': 1} vs {'checked_in_at': '2026-11-15T06:27:48.233426Z', 'round': 1}"}
+{"tc": "TC-AS03-14b 8 yêu cầu song song: toàn 200 hoặc 429, đúng 1 hàng", "st": "PASS", "note": "[429, 200, 200, 200, 200, 200, 200, 200] n=1"}
+{"tc": "TC-AS03-16 phản hồi hai SV (có / không chữ ký) cùng dạng; không flags/assurance/device/geo", "st": "PASS", "note": "{'checked_in_at': '2026-11-15T06:27:52.173395Z', 'round': 1} {'checked_in_at': '2026-11-15T06:27:53.307715Z', 'round': 1}"}
+{"tc": "TC-AS03-18 me/attendance: buổi đã điểm danh có checked_in_at; không cờ/mức/thiết bị", "st": "FAIL", "note": "[] keys=['attendance', 'next_cursor']"}
+{"tc": "TC-AS04-01 WEB_KEY r‖s hợp lệ: 201", "st": "FAIL", "note": "429"}
+{"tc": "TC-AS04-02 chữ ký DER hợp lệ: 201", "st": "PASS", "note": "201"}
+{"tc": "TC-AS04-05 không device: 201", "st": "PASS", "note": ""}
+{"tc": "TC-AS04-06a chữ ký sai: vẫn 201", "st": "PASS", "note": "201"}
+{"tc": "TC-AS04-06b public_key hỏng: 201 hoặc 422 (ghi nhận)", "st": "PASS", "note": "201 {\"checked_in_at\": \"2026-11-15T06:27:54.934366Z\", \"round\": 1}"}
+{"tc": "TC-AS04-01c sv.gioi assurance 2, không cờ", "st": "FAIL", "note": "None"}
+{"tc": "TC-AS04-02c sv.kha (DER) assurance 2", "st": "PASS", "note": "('2', '')"}
+{"tc": "TC-AS04-05c không device: NO_DEVICE_KEY, mức 1", "st": "PASS", "note": "('1', 'NO_DEVICE_KEY')"}
+{"tc": "TC-AS04-06c chữ ký sai: DEVICE_UNTRUSTED, mức 1", "st": "PASS", "note": "('1', 'DEVICE_UNTRUSTED')"}
+{"tc": "TC-AS04-06d public_key hỏng: có cờ (NO_DEVICE_KEY|DEVICE_UNTRUSTED), mức 1", "st": "PASS", "note": "('1', 'DEVICE_UNTRUSTED')"}
+{"tc": "TC-AS02-18 tự đóng ≤ 125 s sau mở: closed_by NULL, audit auto_close", "st": "PASS", "note": "86s audit=[['checkin_window.open'], ['checkin_window.auto_close']] records=[['sv.gioi@edupilot.local', 'PRESENT']]"}
+{"tc": "TC-AS02-18b ghi attendance_records cho SV đã điểm danh, không ABSENT", "st": "PASS", "note": "[['sv.gioi@edupilot.local', 'PRESENT']]"}
+{"tc": "TC-AS03-01 SV điểm danh bằng token: 201 {checked_in_at, round:1}; 1 hàng WEB", "st": "PASS", "note": "201 {'checked_in_at': '2026-11-15T06:28:27.423767Z', 'round': 1} [['sv.gioi@edupilot.local', 'WEB', '1', 'NO_DEVICE_KEY', '2423']]"}
+{"tc": "TC-AS03-02a thân có cả token+code / thân rỗng → 422", "st": "PASS", "note": "422 422"}
+{"tc": "TC-AS03-02b student_id/user_id trong thân bị bỏ qua (hợp đồng: bỏ qua; thực tế 422 'unknown')", "st": "FAIL", "note": "422 ['sv.gioi@edupilot.local']"}
+{"tc": "TC-AS03-02c thân chỉ có token: 201, hàng ghi cho người gọi", "st": "PASS", "note": "201 ['sv.gioi@edupilot.local', 'sv.kha@edupilot.local']"}
+{"tc": "TC-AS03-14a gửi lại: 200 cùng checked_in_at/round", "st": "PASS", "note": "200 {'checked_in_at': '2026-11-15T06:28:27.423767Z', 'round': 1} vs {'checked_in_at': '2026-11-15T06:28:27.423767Z', 'round': 1}"}
+{"tc": "TC-AS03-14b 8 yêu cầu song song: toàn 200 hoặc 429, đúng 1 hàng", "st": "PASS", "note": "[200, 200, 200, 200, 200, 200, 200, 200] n=1"}
+{"tc": "TC-AS03-16 phản hồi hai SV (có / không chữ ký) cùng dạng; không flags/assurance/device/geo", "st": "FAIL", "note": "{'checked_in_at': '2026-11-15T06:28:32.24977Z', 'round': 1} {'checked_in_at': '2026-11-15T06:28:33.429955Z', 'round': 1}"}
+{"tc": "TC-AS03-18 me/attendance: buổi đã điểm danh có checked_in_at; không cờ/mức/thiết bị", "st": "PASS", "note": "[{'session_no': 16, 'starts_at': '2026-11-27T17:05:00Z', 'status': 'PRESENT', 'checked_in_at': '2026-11-15T06:26:33.130083Z'}] keys=['session_no', 'starts_at', 'status', 'checked_in_at'] n_checked=1"}
+{"tc": "TC-AS04-01 WEB_KEY r‖s hợp lệ: 201", "st": "PASS", "note": "201"}
+{"tc": "TC-AS04-02 chữ ký DER hợp lệ: 201", "st": "PASS", "note": "201"}
+{"tc": "TC-AS04-05 không device: 201", "st": "PASS", "note": ""}
+{"tc": "TC-AS04-06a chữ ký sai: vẫn 201", "st": "PASS", "note": "201"}
+{"tc": "TC-AS04-06b public_key hỏng: 201 hoặc 422 (ghi nhận)", "st": "PASS", "note": "201 {\"checked_in_at\": \"2026-11-15T06:29:36.362327Z\", \"round\": 1}"}
+{"tc": "TC-AS04-01c sv.gioi assurance 2, không cờ", "st": "PASS", "note": "('2', '')"}
+{"tc": "TC-AS04-02c sv.kha (DER) assurance 2", "st": "PASS", "note": "('2', 'DEVICE_NEW')"}
+{"tc": "TC-AS04-05c không device: NO_DEVICE_KEY, mức 1", "st": "PASS", "note": "('1', 'NO_DEVICE_KEY')"}
+{"tc": "TC-AS04-06c chữ ký sai: DEVICE_UNTRUSTED, mức 1", "st": "PASS", "note": "('1', 'DEVICE_UNTRUSTED')"}
+{"tc": "TC-AS04-06d public_key hỏng: có cờ (NO_DEVICE_KEY|DEVICE_UNTRUSTED), mức 1", "st": "PASS", "note": "('1', 'DEVICE_UNTRUSTED')"}
+{"tc": "TC-AS04-07 cùng khoá hai SV: cả hai lượt DEVICE_SHARED (cờ gắn cả lượt trước)", "st": "FAIL", "note": "{'sv.gioi': 'DEVICE_NEW'}"}
+{"tc": "TC-AS04-07b DB: một device_id cho hai SV", "st": "PASS", "note": ""}
+{"tc": "TC-AS02-19 hai nhịp quét sau đó không đổi gì", "st": "PASS", "note": "2->2"}
+{"tc": "TC-AS04-08 đua 4 vòng: luôn cả hai DEVICE_SHARED", "st": "FAIL", "note": "[False, False, False, False]"}
+{"tc": "TC-AS03-01 SV điểm danh bằng token: 201 {checked_in_at, round:1}; 1 hàng WEB", "st": "PASS", "note": "201 {'checked_in_at': '2026-11-15T06:31:21.988038Z', 'round': 1} [['sv.gioi@edupilot.local', 'WEB', '1', 'NO_DEVICE_KEY', '1988']]"}
+{"tc": "TC-AS03-02a thân có cả token+code / thân rỗng → 422", "st": "PASS", "note": "422 422"}
+{"tc": "TC-AS03-02b student_id/user_id trong thân bị bỏ qua (hợp đồng: bỏ qua; thực tế 422 'unknown')", "st": "FAIL", "note": "422 ['sv.gioi@edupilot.local']"}
+{"tc": "TC-AS03-02c thân chỉ có token: 201, hàng ghi cho người gọi", "st": "PASS", "note": "201 ['sv.gioi@edupilot.local', 'sv.kha@edupilot.local']"}
+{"tc": "TC-AS03-14a gửi lại: 200 cùng checked_in_at/round", "st": "PASS", "note": "200 {'checked_in_at': '2026-11-15T06:31:21.988038Z', 'round': 1} vs {'checked_in_at': '2026-11-15T06:31:21.988038Z', 'round': 1}"}
+{"tc": "TC-AS03-14b 8 yêu cầu song song: toàn 200 hoặc 429, đúng 1 hàng", "st": "PASS", "note": "[200, 200, 200, 200, 200, 200, 200, 200] n=1"}
+{"tc": "TC-AS03-16 phản hồi hai SV (có / không chữ ký) cùng dạng; không flags/assurance/device/geo", "st": "PASS", "note": "{'checked_in_at': '2026-11-15T06:31:23.494902Z', 'round': 1} {'checked_in_at': '2026-11-15T06:31:23.921317Z', 'round': 1}"}
+{"tc": "TC-AS03-18 me/attendance: buổi đã điểm danh có checked_in_at; không cờ/mức/thiết bị", "st": "PASS", "note": "[{'session_no': 16, 'starts_at': '2026-11-27T17:05:00Z', 'status': 'PRESENT', 'checked_in_at': '2026-11-15T06:26:33.130083Z'}] keys=['session_no', 'starts_at', 'status', 'checked_in_at'] n_checked=1"}
+{"tc": "TC-AS04-01 WEB_KEY r‖s hợp lệ: 201", "st": "PASS", "note": "201"}
+{"tc": "TC-AS04-02 chữ ký DER hợp lệ: 201", "st": "PASS", "note": "201"}
+{"tc": "TC-AS04-05 không device: 201", "st": "PASS", "note": ""}
+{"tc": "TC-AS04-06a chữ ký sai: vẫn 201", "st": "PASS", "note": "201"}
+{"tc": "TC-AS04-06b public_key hỏng: 201 hoặc 422 (ghi nhận)", "st": "PASS", "note": "201 {\"checked_in_at\": \"2026-11-15T06:32:26.72154Z\", \"round\": 1}"}
+{"tc": "TC-AS04-01c sv.gioi assurance 2, không cờ", "st": "FAIL", "note": "('2', 'DEVICE_NEW')"}
+{"tc": "TC-AS04-02c sv.kha (DER) assurance 2", "st": "PASS", "note": "('2', 'DEVICE_NEW')"}
+{"tc": "TC-AS04-05c không device: NO_DEVICE_KEY, mức 1", "st": "PASS", "note": "('1', 'NO_DEVICE_KEY')"}
+{"tc": "TC-AS04-06c chữ ký sai: DEVICE_UNTRUSTED, mức 1", "st": "PASS", "note": "('1', 'DEVICE_UNTRUSTED')"}
+{"tc": "TC-AS04-06d public_key hỏng: có cờ (NO_DEVICE_KEY|DEVICE_UNTRUSTED), mức 1", "st": "PASS", "note": "('1', 'DEVICE_UNTRUSTED')"}
+{"tc": "TC-AS04-07 cùng khoá hai SV: cả hai lượt DEVICE_SHARED (cờ gắn cả lượt trước)", "st": "FAIL", "note": "{'sv.gioi': 'DEVICE_NEW'}"}
+{"tc": "TC-AS04-07b DB: một device_id cho hai SV", "st": "PASS", "note": ""}
+{"tc": "TC-AS04-08 đua 4 vòng: luôn cả hai DEVICE_SHARED", "st": "FAIL", "note": "[False, False, False, False]"}
+{"tc": "TC-AS04-09 cùng khoá ở hai lớp: không DEVICE_SHARED", "st": "PASS", "note": "201 201 flags='DEVICE_NEW'"}
+{"tc": "TC-AS04-09 cùng khoá ở hai lớp: không DEVICE_SHARED", "st": "PASS", "note": "201 201 flags='DEVICE_NEW'"}
+{"tc": "TC-AS04-09 cùng khoá ở hai lớp: không DEVICE_SHARED", "st": "PASS", "note": "201 201 flags='DEVICE_NEW'"}
+{"tc": "TC-AS04-10 DEVICE_NEW: K1 lần đầu không cờ; K2 đầu: DEVICE_NEW; K2 sau: không", "st": "FAIL", "note": "'DEVICE_NEW' 'DEVICE_NEW' '-'"}
+{"tc": "TC-AS04-17a route SV: không flags/assurance/device_id/geo_/in_campus", "st": "FAIL", "note": ""}
+{"tc": "TC-AS04-17b GET checkins: STUDENT/ADMIN 403; TA/TEACHER 200", "st": "PASS", "note": "[403, 403, 200, 200]"}
+{"tc": "TC-AS04-15 nhãn cờ tiếng Việt, không từ kỹ thuật", "st": "FAIL", "note": "{}"}
+{"tc": "TC-AS03-19a geo.lat chuỗi → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-AS03-19b signature không phải base64: 422 hoặc 200 (ghi nhận)", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"D\\u1eef li\\u1ec7u ch\\u01b0a h\\u1ee3p l\\u1ec7.\", "}
+{"tc": "TC-AS04-09 cùng khoá ở hai lớp: không DEVICE_SHARED", "st": "PASS", "note": "201 201 flags='DEVICE_NEW'"}
+{"tc": "TC-AS04-10 DEVICE_NEW: K1 lần đầu không cờ; K2 đầu: DEVICE_NEW; K2 sau: không", "st": "PASS", "note": "'-' 'DEVICE_NEW' '-'"}
+{"tc": "TC-AS04-17a route SV: không flags/assurance/device_id/geo_/in_campus", "st": "PASS", "note": ""}
+{"tc": "TC-AS04-17b GET checkins: STUDENT/ADMIN 403; TA/TEACHER 200", "st": "PASS", "note": "[403, 403, 200, 200]"}
+{"tc": "TC-AS04-15 nhãn cờ tiếng Việt, không từ kỹ thuật", "st": "FAIL", "note": "{'DEVICE_NEW': 'Máy mới'}"}
+{"tc": "TC-AS03-19a geo.lat chuỗi → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-AS03-19b signature không phải base64: 422 hoặc 200 (ghi nhận)", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"D\\u1eef li\\u1ec7u ch\\u01b0a h\\u1ee3p l\\u1ec7.\", "}
+{"tc": "TC-AS05-13a absent-unchecked khi còn cửa sổ mở → 409 WINDOW_OPEN", "st": "PASS", "note": "409 {\"code\": \"WINDOW_OPEN\", \"message\": \"C\\u00f2n c\\u1eeda s\\u1ed5 \\u0111i\\u1ec3m danh \\u0111an"}
+{"tc": "TC-AS05-13b buổi chưa từng có cửa sổ → 409 NO_WINDOW", "st": "PASS", "note": "409 {\"code\": \"NO_WINDOW\", \"message\": \"Bu\\u1ed5i n\\u00e0y ch\\u01b0a m\\u1edf c\\u1eeda s\\u1ed5 \\u"}
+{"tc": "TC-AS05-16 STUDENT/ADMIN/sv.moi: close + absent-unchecked → 403", "st": "PASS", "note": "{'sv.gioi': (403, 403), 'admin': (403, 403), 'sv.moi': (403, 403)}"}
+{"tc": "TC-AS05-01 đóng: 200 {window, written, unchecked, skipped_existing}", "st": "FAIL", "note": "{\"window\": {\"id\": \"01a1ddea-5372-7cef-9b99-505fe4290dd1\", \"round\": 1, \"opened_at\": \"2026-11-15T06:34:43.953903Z\", \"closes_at\": \"2026-11-15T06:44:43.953903Z\", \"closed_at\": \"2026-11-15T06:34:45.154399Z\", \"headcount\": null,"}
+{"tc": "TC-AS05-02a lượt trong ≤10 phút sau starts_at → PRESENT, version 1", "st": "PASS", "note": "{'sv.kha': ('PRESENT', '1'), 'sv.gioi': ('PRESENT', '1')}"}
+{"tc": "TC-AS05-04 SV không lượt: không tạo ABSENT; unchecked = 4", "st": "PASS", "note": "{'sv.kha': ('PRESENT', '1'), 'sv.gioi': ('PRESENT', '1')}"}
+{"tc": "TC-AS05-06 close lần 2/3: 200 cùng kết quả; records/audit/outbox không thêm", "st": "PASS", "note": "('2', '114', '1392')->('2', '114', '1392')"}
+{"tc": "TC-AS05-07 absent-unchecked: 200 {marked:4}; 4 dòng ABSENT", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '30353fbc51147f7973fedc8a68cfdd21', 'details': [{'field': 'Idempotency-Key', 'code': 'format', 'message': 'Khoá phải dài 8–128 ký tự trong [A-Za-z0-9._:-].'}]}"}
+{"tc": "TC-AS05-07b audit_log absent_unchecked (số đếm)", "st": "FAIL", "note": "[]"}
+{"tc": "TC-AS05-08 lặp cùng khoá → 200 cùng kết quả; khoá mới → {marked:0}", "st": "FAIL", "note": "{'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '9351915fe96976553b1a215521ca1210', 'details': [{'field': 'Idempotency-Key', 'code': 'format', 'message': 'Khoá phải dài 8–128 ký tự trong [A-Za-z0-9._:-].'}]} {'marked': 5}"}
+{"tc": "TC-AS05-13a absent-unchecked khi còn cửa sổ mở → 409 WINDOW_OPEN", "st": "PASS", "note": "409 {\"code\": \"WINDOW_OPEN\", \"message\": \"C\\u00f2n c\\u1eeda s\\u1ed5 \\u0111i\\u1ec3m danh \\u0111an"}
+{"tc": "TC-AS05-13b buổi chưa từng có cửa sổ → 409 NO_WINDOW", "st": "PASS", "note": "409 {\"code\": \"NO_WINDOW\", \"message\": \"Bu\\u1ed5i n\\u00e0y ch\\u01b0a m\\u1edf c\\u1eeda s\\u1ed5 \\u"}
+{"tc": "TC-AS05-16 STUDENT/ADMIN/sv.moi: close + absent-unchecked → 403", "st": "PASS", "note": "{'sv.gioi': (403, 403), 'admin': (403, 403), 'sv.moi': (403, 403)}"}
+{"tc": "TC-AS05-01 đóng: 200 {window, written, unchecked, skipped_existing}", "st": "FAIL", "note": "{\"window\": {\"id\": \"01a1ddea-950e-73a0-b02e-2c00879265de\", \"round\": 1, \"opened_at\": \"2026-11-15T06:35:00.749123Z\", \"closes_at\": \"2026-11-15T06:45:00.749123Z\", \"closed_at\": \"2026-11-15T06:35:01.987625Z\", \"headcount\": null,"}
+{"tc": "TC-AS05-02a lượt trong ≤10 phút sau starts_at → PRESENT, version 1", "st": "PASS", "note": "{'sv.kha': ('PRESENT', '1'), 'sv.gioi': ('PRESENT', '1')}"}
+{"tc": "TC-AS05-04 SV không lượt: không tạo ABSENT; unchecked = N-2", "st": "PASS", "note": "{'sv.kha': ('PRESENT', '1'), 'sv.gioi': ('PRESENT', '1')}"}
+{"tc": "TC-AS05-06 close lần 2/3: 200 cùng kết quả; records/audit/outbox không thêm", "st": "PASS", "note": "('2', '119', '1397')->('2', '119', '1397')"}
+{"tc": "TC-AS05-07 absent-unchecked: 200 {marked:N-2}; N-2 dòng ABSENT", "st": "FAIL", "note": "200 {'marked': 5}"}
+{"tc": "TC-AS05-07b audit_log absent_unchecked (số đếm)", "st": "PASS", "note": "[['absent_unchecked', '{\"marked\": 5, \"changes\": [{\"to\": \"ABSENT\", \"student_id\": \"01a1dcd2-91c0-7360-a4d2-b29e7a15910a\"}, {\"to\": \"ABSENT\", \"student_id\": \"01a1dcd2-91c1-7828-a640-ab8da2']]"}
+{"tc": "TC-AS05-08 lặp cùng khoá → 200 cùng kết quả; khoá mới → {marked:0}", "st": "FAIL", "note": "{'marked': 5} {'marked': 0}"}
+{"tc": "TC-AS05-09 sửa ABSENT → PRESENT bằng lưới theo version", "st": "PASS", "note": "200 {\"records\": [{\"student_id\": \"01a1dcd2-91c6-71d7-bc89-708a568755c4\", \"status\": \"PRESENT\", \"version\": 2}], \"done_at\": null}"}
+{"tc": "TC-AS05-02b lượt trễ > starts_at+10 phút → LATE", "st": "PASS", "note": "{'sv.kha': ('LATE', '1'), 'sv.nguyco': ('ABSENT', '1'), 'sv.gioi': ('LATE', '1')}"}
+{"tc": "TC-AS05-03 dòng GV sửa tay giữ nguyên (ABSENT), skipped_existing=1", "st": "PASS", "note": "{\"window\": {\"id\": \"01a1ddea-9ef9-753c-b0ad-e69a3d338fa7\", \"round\": 1, \"opened_at\": \"2026-11-15T06:35:03.288888Z\", \"closes_at\": \"2026-11-15T06:45:03.288888Z\", \"closed_at\": \"2026-11-15T06:35:03.662569Z\""}
+{"tc": "TC-AS05-10 complete:true khi còn SV chưa có dòng → 422 CHECKIN_UNRESOLVED {count:N-3}", "st": "FAIL", "note": "422 {\"code\": \"CHECKIN_UNRESOLVED\", \"message\": \"C\\u00f2n sinh vi\\u00ean ch\\u01b0a \\u0111i\\u1ec3m danh.\", \"trace_id\": \"1de549f95f6aee7ae465e1e1543d64f1\", \"details\": {\"count\": 4}}"}
+{"tc": "TC-AS05-10b 422 không ghi gì", "st": "PASS", "note": "{'sv.kha': ('LATE', '1'), 'sv.nguyco': ('ABSENT', '1'), 'sv.gioi': ('LATE', '1')}"}
+{"tc": "TC-AS05-11 phủ hết rồi complete:true → 200", "st": "PASS", "note": "200 {\"records\": [{\"student_id\": \"01a1dcd2-91c1-7828-a640-ab8da2fdd09e\", \"status\": \"ABSENT\", \"version\": 1"}
+{"tc": "TC-AS05-12 buổi KHÔNG có cửa sổ: complete:true điền PRESENT như trước sprint", "st": "FAIL", "note": "200 7"}
+{"tc": "TC-AS05-14a close cửa sổ của lớp khác → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-AS07-04 đóng vòng 1: không RECHECK_MISS", "st": "PASS", "note": "[['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY']]"}
+{"tc": "TC-AS07-01 headcount=1, 5 lượt → over_headcount=true", "st": "PASS", "note": "{\"id\": \"01a1ddea-a4e7-72fa-a249-2b196b9dd68f\", \"round\": 1, \"opened_at\": \"2026-11-15T06:35:04.806299Z\", \"closes_at\": \"2026-11-15T06:45:04.806299Z\", \"closed_at\": \"2026-11-15T06:35:05.395139Z\", \"headcoun"}
+{"tc": "TC-AS07-02a hai SV vắng vòng 2: RECHECK_MISS ở lượt VÒNG 1", "st": "PASS", "note": "{'sv.gioi': 'NO_DEVICE_KEY', 'sv.kha': 'NO_DEVICE_KEY', 'sv.nguyco': 'NO_DEVICE_KEY', 'sv04': 'NO_DEVICE_KEY,RECHECK_MISS', 'sv05': 'NO_DEVICE_KEY,RECHECK_MISS'}"}
+{"tc": "TC-AS07-02b attendance_records không đổi sau vòng 2", "st": "PASS", "note": ""}
+{"tc": "TC-AS07-03 đóng vòng 2 lần hai: RECHECK_MISS không nhân đôi", "st": "PASS", "note": "NO_DEVICE_KEY,RECHECK_MISS"}
+{"tc": "TC-AS06-01 phân trang cursor limit=2: đủ 8 lượt (5+3), không trùng", "st": "PASS", "note": "8"}
+{"tc": "TC-AS06-01b phần tử có id, window_id, round, student{id,full_name,student_code}, created_at, channel, assurance, flags, cleared", "st": "PASS", "note": "['assurance', 'channel', 'cleared', 'created_at', 'flags', 'id', 'round', 'student', 'window_id']"}
+{"tc": "TC-AS06-02a round=2 → 3 lượt", "st": "PASS", "note": "3"}
+{"tc": "TC-AS05-13a absent-unchecked khi còn cửa sổ mở → 409 WINDOW_OPEN", "st": "PASS", "note": "409 {\"code\": \"WINDOW_OPEN\", \"message\": \"C\\u00f2n c\\u1eeda s\\u1ed5 \\u0111i\\u1ec3m danh \\u0111an"}
+{"tc": "TC-AS05-13b buổi chưa từng có cửa sổ → 409 NO_WINDOW", "st": "PASS", "note": "409 {\"code\": \"NO_WINDOW\", \"message\": \"Bu\\u1ed5i n\\u00e0y ch\\u01b0a m\\u1edf c\\u1eeda s\\u1ed5 \\u"}
+{"tc": "TC-AS05-16 STUDENT/ADMIN/sv.moi: close + absent-unchecked → 403", "st": "PASS", "note": "{'sv.gioi': (403, 403), 'admin': (403, 403), 'sv.moi': (403, 403)}"}
+{"tc": "TC-AS05-01 đóng: 200 {window, written, unchecked, skipped_existing}", "st": "PASS", "note": "{\"window\": {\"id\": \"01a1ddea-cffa-7ca2-bee0-08cbb211b638\", \"round\": 1, \"opened_at\": \"2026-11-15T06:35:15.834288Z\", \"closes_at\": \"2026-11-15T06:45:15.834288Z\", \"closed_at\": \"2026-11-15T06:35:17.148779Z\", \"headcount\": null,"}
+{"tc": "TC-AS05-02a lượt trong ≤10 phút sau starts_at → PRESENT, version 1", "st": "PASS", "note": "{'sv.kha': ('PRESENT', '1'), 'sv.gioi': ('PRESENT', '1')}"}
+{"tc": "TC-AS05-04 SV không lượt: không tạo ABSENT; unchecked = N-2", "st": "PASS", "note": "{'sv.kha': ('PRESENT', '1'), 'sv.gioi': ('PRESENT', '1')}"}
+{"tc": "TC-AS05-06 close lần 2/3: 200 cùng kết quả; records/audit/outbox không thêm", "st": "PASS", "note": "('2', '137', '1409')->('2', '137', '1409')"}
+{"tc": "TC-AS05-07 absent-unchecked: 200 {marked:N-2}; N-2 dòng ABSENT", "st": "PASS", "note": "200 {'marked': 5}"}
+{"tc": "TC-AS05-07b audit_log absent_unchecked (số đếm)", "st": "PASS", "note": "[['absent_unchecked', '{\"marked\": 5, \"changes\": [{\"to\": \"ABSENT\", \"student_id\": \"01a1dcd2-91c0-7360-a4d2-b29e7a15910a\"}, {\"to\": \"ABSENT\", \"student_id\": \"01a1dcd2-91c1-7828-a640-ab8da2']]"}
+{"tc": "TC-AS05-08 lặp cùng khoá → 200 cùng kết quả; khoá mới → {marked:0}", "st": "PASS", "note": "{'marked': 5} {'marked': 0}"}
+{"tc": "TC-AS05-09 sửa ABSENT → PRESENT bằng lưới theo version", "st": "PASS", "note": "200 {\"records\": [{\"student_id\": \"01a1dcd2-91c6-71d7-bc89-708a568755c4\", \"status\": \"PRESENT\", \"version\": 2}], \"done_at\": null}"}
+{"tc": "TC-AS05-02b lượt trễ > starts_at+10 phút → LATE", "st": "PASS", "note": "{'sv.kha': ('LATE', '1'), 'sv.gioi': ('LATE', '1'), 'sv.nguyco': ('ABSENT', '1')}"}
+{"tc": "TC-AS05-03 dòng GV sửa tay giữ nguyên (ABSENT), skipped_existing=1", "st": "PASS", "note": "{\"window\": {\"id\": \"01a1ddea-da7f-7c4d-9861-4eb73cda580b\", \"round\": 1, \"opened_at\": \"2026-11-15T06:35:18.527055Z\", \"closes_at\": \"2026-11-15T06:45:18.527055Z\", \"closed_at\": \"2026-11-15T06:35:19.045962Z\""}
+{"tc": "TC-AS05-10 complete:true khi còn SV chưa có dòng → 422 CHECKIN_UNRESOLVED {count:N-3}", "st": "PASS", "note": "422 {\"code\": \"CHECKIN_UNRESOLVED\", \"message\": \"C\\u00f2n sinh vi\\u00ean ch\\u01b0a \\u0111i\\u1ec3m danh.\", \"trace_id\": \"943fb99b7ca10447dbf9c7e539ec0beb\", \"details\": {\"count\": 4}}"}
+{"tc": "TC-AS05-10b 422 không ghi gì", "st": "PASS", "note": "{'sv.kha': ('LATE', '1'), 'sv.gioi': ('LATE', '1'), 'sv.nguyco': ('ABSENT', '1')}"}
+{"tc": "TC-AS05-11 phủ hết rồi complete:true → 200", "st": "PASS", "note": "200 {\"records\": [{\"student_id\": \"01a1dcd2-91c1-7828-a640-ab8da2fdd09e\", \"status\": \"ABSENT\", \"version\": 1"}
+{"tc": "TC-AS05-12 buổi KHÔNG có cửa sổ: complete:true điền PRESENT như trước sprint", "st": "PASS", "note": "200 7"}
+{"tc": "TC-AS05-14a close cửa sổ của lớp khác → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-AS07-04 đóng vòng 1: không RECHECK_MISS", "st": "PASS", "note": "[['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY']]"}
+{"tc": "TC-AS07-01 headcount=1, 5 lượt → over_headcount=true", "st": "PASS", "note": "{\"id\": \"01a1ddea-e10b-7739-9ede-6edab541ccb3\", \"round\": 1, \"opened_at\": \"2026-11-15T06:35:20.202917Z\", \"closes_at\": \"2026-11-15T06:45:20.202917Z\", \"closed_at\": \"2026-11-15T06:35:20.734569Z\", \"headcoun"}
+{"tc": "TC-AS07-02a hai SV vắng vòng 2: RECHECK_MISS ở lượt VÒNG 1", "st": "PASS", "note": "{'sv.gioi': 'NO_DEVICE_KEY', 'sv.kha': 'NO_DEVICE_KEY', 'sv.nguyco': 'NO_DEVICE_KEY', 'sv04': 'NO_DEVICE_KEY,RECHECK_MISS', 'sv05': 'NO_DEVICE_KEY,RECHECK_MISS'}"}
+{"tc": "TC-AS07-02b attendance_records không đổi sau vòng 2", "st": "PASS", "note": ""}
+{"tc": "TC-AS07-03 đóng vòng 2 lần hai: RECHECK_MISS không nhân đôi", "st": "PASS", "note": "NO_DEVICE_KEY,RECHECK_MISS"}
+{"tc": "TC-AS06-01 phân trang cursor limit=2: đủ 8 lượt (5+3), không trùng", "st": "PASS", "note": "8"}
+{"tc": "TC-AS06-01b phần tử có id, window_id, round, student{id,full_name,student_code}, created_at, channel, assurance, flags, cleared", "st": "PASS", "note": "['assurance', 'channel', 'cleared', 'created_at', 'flags', 'id', 'round', 'student', 'window_id']"}
+{"tc": "TC-AS06-02a round=2 → 3 lượt", "st": "PASS", "note": "3"}
+{"tc": "TC-AS06-02b limit=101 → 422; cursor hỏng → 422", "st": "PASS", "note": "422 422"}
+{"tc": "TC-AS06-02c flagged=true: chỉ lượt còn cờ chưa bỏ", "st": "PASS", "note": "8"}
+{"tc": "TC-AS06-04 clear-flags: 200, cờ không bị xoá, flags_cleared_by đặt", "st": "PASS", "note": "200 ['t', '1'] {\"id\": \"01a1ddea-e118-7d53-be2a-ce0741f54609\", \"window_id\": \"01a1ddea-e10b-7739-9ede-6edab541ccb3\", \"round\": 0, \"student"}
+{"tc": "TC-AS06-05 gọi lại: 200, không audit mới", "st": "PASS", "note": "1->1"}
+{"tc": "TC-AS06-04b audit không chứa tên SV", "st": "PASS", "note": "{\"cleared\": true}"}
+{"tc": "TC-AS07-06 spot-check n=None: ≤ 5 người, không trùng, đủ trường", "st": "PASS", "note": "200 5"}
+{"tc": "TC-AS07-06 spot-check n=10: ≤ 8 người, không trùng, đủ trường", "st": "PASS", "note": "200 5"}
+{"tc": "TC-AS07-06 spot-check n=3: ≤ 3 người, không trùng, đủ trường", "st": "PASS", "note": "200 3"}
+{"tc": "TC-AS07-07 12 lần gọi n=2: ≥ 3 tập khác nhau (ngẫu nhiên, hoặc tất cả đều có cờ → FLAGGED cố định)", "st": "PASS", "note": "1 tập"}
+{"tc": "TC-AS07-08a n=0/11/'a' → 422", "st": "PASS", "note": "[422, 422, 422]"}
+{"tc": "TC-AS07-08b wid lớp khác → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-AS07-09 spot-check: SV/ADMIN/sv.moi 403, TA 200", "st": "PASS", "note": "{'sv.gioi': 403, 'admin': 403, 'sv.moi': 403, 'ta': 200}"}
+{"tc": "TC-AS06-06 /me/today (TEACHER) có mục CHECKIN_REVIEW", "st": "FAIL", "note": "[]"}
+{"tc": "TC-AS06-09 SV /me/today không có CHECKIN_REVIEW", "st": "PASS", "note": "0"}
+{"tc": "TC-AS06-07 bỏ cờ hết (k=0) → mục của lớp QC-AS biến mất", "st": "PASS", "note": "đã bỏ 75 cờ, còn 0"}
+{"tc": "TC-AS06-11 SV/ADMIN/sv.moi: GET checkins + clear-flags → 403", "st": "PASS", "note": "{'sv.gioi': (403, 403), 'admin': (403, 403), 'sv.moi': (403, 403)}"}
+{"tc": "TC-AS06-10a buổi lớp khác → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-AS06-07a hết cờ → không có mục CHECKIN_REVIEW của lớp QC-AS", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-06 TEACHER /me/today: CHECKIN_REVIEW, «3 lượt điểm danh cần xem», href ?filter=review", "st": "FAIL", "note": "[]"}
+{"tc": "TC-AS06-06b TA cũng thấy", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-09 SV không thấy CHECKIN_REVIEW", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-06c bỏ cờ 1 lượt → còn «2 lượt»", "st": "PASS", "note": "Buổi 65: 2 lượt điểm danh cần xem · QC-AS"}
+{"tc": "TC-AS06-08 cửa sổ đóng > 7 ngày → mục biến mất", "st": "FAIL", "note": ""}
+{"tc": "TC-AS06-08b (đối chứng) đóng 2 ngày trước → mục còn", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-07 bỏ cờ hết → mục biến mất", "st": "FAIL", "note": ""}
+{"tc": "TC-AS06-07a hết cờ → không có mục CHECKIN_REVIEW của lớp QC-AS", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-06 TEACHER /me/today: CHECKIN_REVIEW, «3 lượt điểm danh cần xem», href ?filter=review", "st": "FAIL", "note": "[{\"id\": \"CHECKIN_REVIEW:01a1dde9-7137-797a-9afb-b0657ab27222\", \"kind\": \"CHECKIN_REVIEW\", \"title\": \"Buổi 67: 1 lượt điểm danh cần xem · QC-AS\", \"reason\": \"\", \"urgency\": \"high\", \"href\": \"/attendance?course=01a1dde0-8183-7634-aff7-27d408aa4c58&session=01a1dde9-7137-797a-9afb-b0657ab27222&filter=review\""}
+{"tc": "TC-AS06-06b TA cũng thấy", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-09 SV không thấy CHECKIN_REVIEW", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-06c bỏ cờ 1 lượt → còn «2 lượt»", "st": "FAIL", "note": ""}
+{"tc": "TC-AS06-08 cửa sổ đóng > 7 ngày → mục biến mất", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-08b (đối chứng) đóng 2 ngày trước → mục còn", "st": "FAIL", "note": ""}
+{"tc": "TC-AS06-07 bỏ cờ hết → mục biến mất", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-07a hết cờ → không có mục CHECKIN_REVIEW của lớp QC-AS", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-06 TEACHER /me/today: CHECKIN_REVIEW, «3 lượt điểm danh cần xem», href ?filter=review", "st": "PASS", "note": "[{\"id\": \"CHECKIN_REVIEW:01a1dde9-7138-7758-9013-79a412d12c79\", \"kind\": \"CHECKIN_REVIEW\", \"title\": \"Buổi 69: 3 lượt điểm danh cần xem · QC-AS\", \"reason\": \"\", \"urgency\": \"high\", \"href\": \"/attendance?course=01a1dde0-8183-7634-aff7-27d408aa4c58&session=01a1dde9-7138-7758-9013-79a412d12c79&filter=review\""}
+{"tc": "TC-AS06-06b TA cũng thấy", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-09 SV không thấy CHECKIN_REVIEW", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-06c bỏ cờ 1 lượt → còn «2 lượt»", "st": "PASS", "note": "Buổi 69: 2 lượt điểm danh cần xem · QC-AS"}
+{"tc": "TC-AS06-08 cửa sổ đóng > 7 ngày → mục biến mất", "st": "FAIL", "note": ""}
+{"tc": "TC-AS06-08b (đối chứng) đóng 2 ngày trước → mục còn", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-07 bỏ cờ hết → mục biến mất", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-08 cửa sổ đóng > 7 ngày (fixture SQL) → mục biến mất sau TTL cache Hôm nay (~15–29 s; SQL không kích hoạt invalidation)", "st": "PASS", "note": "đo: còn sau 12 s, hết trước 29 s"}
+{"tc": "TC-AS03-04 token > 2 bước → 422 CHECKIN_TOKEN_EXPIRED (không TOKEN_EXPIRED)", "st": "PASS", "note": "422 CHECKIN_TOKEN_EXPIRED"}
+{"tc": "TC-AS03-11 mã ngắn hết hạn → 422 CHECKIN_TOKEN_INVALID", "st": "PASS", "note": "422 CHECKIN_TOKEN_INVALID"}
+{"tc": "TC-AS03-05 5 kiểu token sai đều 422 CHECKIN_TOKEN_INVALID, cùng dạng phản hồi", "st": "PASS", "note": "{'mac': (422, '\"CHECKIN_TOKEN_INVALID\"', 2), 'wid_lạ': (422, '\"CHECKIN_TOKEN_INVALID\"', 2), 'rác': (422, '\"CHECKIN_TOKEN_INVALID\"', 2), 'lớp_khác': (422, '\"CHECKIN_TOKEN_INVALID\"', 2), 'cụt': (422, '\"CHECKIN_TOKEN_INVALID\"', 2)}"}
+{"tc": "TC-AS03-06 cửa sổ đã đóng, token đúng → 409 WINDOW_CLOSED", "st": "PASS", "note": "409 WINDOW_CLOSED"}
+{"tc": "TC-AS03-07 thứ tự kiểm: 401 → 403 → 409 SELF_CHECKIN_DISABLED → (đóng+MAC sai)", "st": "PASS", "note": "401 403 409:SELF_CHECKIN_DISABLED | đóng+MAC sai → 409:WINDOW_CLOSED"}
+{"tc": "TC-AS03-03 token của bước trước (≤ 1 bước) → 201", "st": "PASS", "note": "201 None"}
+{"tc": "TC-AS03-08/09 mã ngắn: chữ thường / gạch / khoảng trắng / 0→O,1→I đều 201, channel=CODE", "st": "PASS", "note": "[201, 201, 201, 201] {'sv.gioi': 'CODE', 'sv.kha': 'CODE', 'sv.nguyco': 'CODE', 'sv05': 'CODE'} code=TR8 1F0"}
+{"tc": "TC-AS03-12a 5 lần sai → 422; lần 6 → 429 + Retry-After; nhập đúng trong phút đó vẫn 429", "st": "PASS", "note": "[422, 422, 422, 422, 422] 429 429 hd={'Retry-After': '60'}"}
+{"tc": "TC-AS03-12b sau hết phút: nhập đúng → 201", "st": "PASS", "note": "201 {'checked_in_at': '2026-11-15T06:42:23.517106Z', 'round': 1}"}
+{"tc": "TC-AS03-20 11 lượt/phút (token sai): lượt thứ 11 → 429", "st": "PASS", "note": "[422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 429]"}
+{"tc": "TC-AS03-21 TA/TEACHER/ADMIN/sv.moi POST checkins → 403; sv.moi reason=course; 401 không JWT", "st": "PASS", "note": "{'ta': 403, 'teacher': 403, 'admin': 403, 'sv.moi': 403}"}
+{"tc": "TC-AS03-15 vòng 2: cùng SV điểm danh lại → 201 round 2, hàng thứ hai", "st": "PASS", "note": "201 {'checked_in_at': '2026-11-15T06:44:26.48348Z', 'round': 2}"}
+{"tc": "TC-AS01-09/02-23/03-19/05-14/07-… lớp lưu trữ: mọi ghi → 409 COURSE_ARCHIVED", "st": "FAIL", "note": "{'checkin': (409, 'COURSE_ARCHIVED'), 'settings': (409, 'COURSE_ARCHIVED'), 'open': (409, 'COURSE_ARCHIVED'), 'close': (409, 'COURSE_ARCHIVED'), 'absent': (409, 'COURSE_ARCHIVED'), 'headcount': (409, 'COURSE_ARCHIVED'), 'spot': (200, None)}"}
+{"tc": "TC-AS06-10 lớp lưu trữ: đọc danh sách cửa sổ + lượt → 200", "st": "PASS", "note": "{'windows': 200, 'checkins': 200, 'display': 200}"}
+{"tc": "TC-AS01-09/02-23/03-19/05-14 lớp lưu trữ: checkin, settings, open, close, absent-unchecked, headcount, clear-flags → 409 COURSE_ARCHIVED", "st": "PASS", "note": "đo trực tiếp 7/7 (spot-check chỉ đọc nên 200 — hợp lý)"}
+{"tc": "TC-AS07-08c spot-check lớp lưu trữ: 200 (không ghi gì)", "st": "PASS", "note": "ghi nhận"}
+{"tc": "TC-AS13-01a xoá lượt của cửa sổ closed_at > 30 ngày (A: 3 → 0); B (29 ngày) giữ 4; C (đang mở) giữ 2", "st": "PASS", "note": "A=0 B=4 C=2 | purge-checkins: 3 lượt, 2 thiết bị"}
+{"tc": "TC-AS13-01b thiết bị chỉ cửa sổ A dùng (mồ côi quá 30 ngày) bị xoá; thiết bị còn dùng ở B (Kboth) giữ", "st": "PASS", "note": "a_only còn 0"}
+{"tc": "TC-AS13-01c cửa sổ A vẫn còn (giữ headcount; không dữ liệu cá nhân)", "st": "PASS", "note": ""}
+{"tc": "TC-AS13-03 chạy purge lần 2 và 2 tiến trình song song: không lỗi, kết quả không đổi, cửa sổ mở/B giữ nguyên", "st": "PASS", "note": "purge-checkins: 0 lượt, 0 thiết bị | ['purge-checkins: 0 lượt, 0 thiết bị', 'purge-checkins: 0 lượt, 0 thiết bị']"}
+{"tc": "TC-AS13-02a Staff danh sách lượt của buổi A (đã purge) trống", "st": "PASS", "note": "0"}
+{"tc": "TC-AS13-08 log purge chỉ có số hàng; không student_id / tên", "st": "PASS", "note": "(không có dòng log purge trong gateway/worker — CLI in ra stdout)"}
+{"tc": "TC-AS13-07 không cột toạ độ / IP / tên máy ở attendance_checkins, user_devices", "st": "PASS", "note": "[]"}
+{"tc": "TC-AS10-01 lớp không khai geofence: geo bị bỏ qua (không geo_*, in_campus NULL, không GEO_*)", "st": "PASS", "note": "['NO_DEVICE_KEY', '1', '', '', '']"}
+{"tc": "TC-AS10-03 D(50) acc20: geo_distance_m≈50, geo_accuracy_m=20, không cờ", "st": "PASS", "note": "['NO_DEVICE_KEY', '1', '50', '20', '']"}
+{"tc": "TC-AS10-04 D(260) acc50: GEO_OUT, vẫn 201 (đã ghi)", "st": "PASS", "note": "['NO_DEVICE_KEY,GEO_OUT', '1', '260', '50', '']"}
+{"tc": "TC-AS10-05 biên D(249.5) acc50: KHÔNG GEO_OUT", "st": "PASS", "note": "['NO_DEVICE_KEY', '1', '249', '50', '']"}
+{"tc": "TC-AS10-06 acc=101: GEO_WEAK", "st": "PASS", "note": "['NO_DEVICE_KEY,GEO_WEAK', '1', '10', '101', '']"}
+{"tc": "TC-AS10-07 denied=true và không có geo: GEO_DENIED (cả hai)", "st": "PASS", "note": "['NO_DEVICE_KEY,GEO_DENIED', '1', '', '', ''] ['NO_DEVICE_KEY,GEO_DENIED', '1', '', '', '']"}
+{"tc": "TC-AS10-04b lượt cờ GEO có assurance 1", "st": "PASS", "note": "1"}
+{"tc": "TC-AS10-06b acc=100: không GEO_WEAK", "st": "PASS", "note": "['NO_DEVICE_KEY', '1', '30', '100', '']"}
+{"tc": "TC-AS10-18 khoảng cách haversine: sai số ≤ 1 m so với tham chiếu (8 điểm)", "st": "PASS", "note": "[0, 0, 0, 0, 0, 0, 0, 0]"}
+{"tc": "TC-AS10-14 lat=91 / lng=-181 / acc=-1 / lat chuỗi → 422", "st": "PASS", "note": "[422, 422, 422, 422]"}
+{"tc": "TC-AS10-16a Staff thấy geo_distance_m & in_campus", "st": "PASS", "note": "{\"id\": \"01a1ddf3-c33d-73c3-ba8d-d7476965270c\", \"window_id\": \"01a1ddf3-c32d-7e44-9e1b-3e3fdc1502cf\", \"round\": 1, \"student\": {\"id\": \"01a1dcd2-91bc-74ef-91c6-1f807461e7a4\", \"full_name\": \"Vũ Hoàng Giang\", \"student_code\": \"20229001\"}, \"created_at\": \"2026-"}
+{"tc": "TC-AS10-17 tắt geofence giữa buổi: lượt trước giữ geo_*, lượt sau không lưu", "st": "PASS", "note": "['NO_DEVICE_KEY', '1', '10', '10', ''] / ['NO_DEVICE_KEY', '1', '', '', '']"}
+{"tc": "TC-AS10-09 mạng trường: IP nội bộ (bridge Docker) → in_campus=true, không OFF_CAMPUS; CIDR khác → false + OFF_CAMPUS", "st": "PASS", "note": "['NO_DEVICE_KEY', '1', '', '', 't'] / ['NO_DEVICE_KEY,OFF_CAMPUS', '1', '', '', 'f']"}
+{"tc": "TC-AS10-10 ngoài cả hai: GEO_OUT + OFF_CAMPUS", "st": "PASS", "note": "['NO_DEVICE_KEY,GEO_OUT,OFF_CAMPUS', '1', '1000', '10', 'f']"}
+{"tc": "TC-AS10-08a bảng điểm danh không có cột toạ độ / IP / tên máy", "st": "PASS", "note": "[]"}
+{"tc": "TC-AS10-08b log gateway không chứa toạ độ đã gửi", "st": "PASS", "note": "0"}
+{"tc": "TC-AS12-01 challenge: 200 {nonce}; Redis có khoá, TTL ≤ 300", "st": "PASS", "note": "200 len(nonce)=44 ttl=120 key=…7461e7a4"}
+{"tc": "TC-AS12-01b gọi lại: nonce mới", "st": "PASS", "note": ""}
+{"tc": "TC-AS12-02 6 lần/phút: có 429 (đã 2 lần + 5 = 7)", "st": "PASS", "note": "[200, 200, 200, 429, 429]"}
+{"tc": "TC-AS12-03 chuỗi rác → 422 ATTESTATION_FAILED", "st": "FAIL", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"D\\u1eef li\\u1ec7u ch\\u01b0a h\\u1ee3p l\\u1ec7.\", \"trace_id\""}
+{"tc": "TC-AS12-03b nonce đã bị xoá (GETDEL): lần hai → 422 DEVICE_CHALLENGE_INVALID", "st": "FAIL", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"D\\u1eef li\\u1ec7u ch\\u01b0a h\\u1ee3p l\\u1ec7.\", \"trace_id\""}
+{"tc": "TC-AS12-04 chưa xin nonce → 422 DEVICE_CHALLENGE_INVALID", "st": "FAIL", "note": "422"}
+{"tc": "TC-AS12-09 TA/TEACHER/ADMIN → 403; không JWT → 401", "st": "PASS", "note": "{'ta': (403, 403), 'teacher': (403, 403), 'admin': (403, 403)} 401"}
+{"tc": "TC-AS12-08 chuỗi vượt maxItems (11 phần tử) → 413/422, không treo", "st": "PASS", "note": "422"}
+{"tc": "TC-AS12-12 ANDROID_KEY attested+boot_verified, chữ ký đúng: assurance=3, không cờ", "st": "FAIL", "note": "201 ['DEVICE_NEW', '3', '', '', ''] {\"checked_in_at\": \"2026-11-15T06:48:23.007548Z\", \"round\": 1}"}
+{"tc": "TC-AS12-13 boot_verified=false: mức 2 + DEVICE_UNTRUSTED", "st": "PASS", "note": "201 ['DEVICE_UNTRUSTED,DEVICE_NEW', '2', '', '', '']"}
+{"tc": "TC-AS12-14 geo.mock=true: GEO_MOCK, assurance ≤ 2, vẫn 201", "st": "FAIL", "note": "201 ['', '3', '', '', '']"}
+{"tc": "TC-AS12-15 key_id chưa đăng ký: DEVICE_UNTRUSTED, mức 1, 201", "st": "PASS", "note": "201 ['DEVICE_UNTRUSTED', '1', '', '', '']"}
+{"tc": "TC-AS04-13a require=APP + WEB_KEY hợp lệ: NOT_APP, mức 2", "st": "PASS", "note": "['DEVICE_NEW,NOT_APP', '2', '', '', '']"}
+{"tc": "TC-AS12-03 chuỗi rác (2 phần tử) → 422 ATTESTATION_FAILED", "st": "PASS", "note": "422 {\"code\": \"ATTESTATION_FAILED\", \"message\": \"Kh\\u00f4ng x\\u00e1c minh \\u0111\\u01b0\\u1ee3c thi\\u1ebft b"}
+{"tc": "TC-AS12-03b nonce đã bị xoá (GETDEL): lần hai → 422 DEVICE_CHALLENGE_INVALID", "st": "PASS", "note": "422 {\"code\": \"DEVICE_CHALLENGE_INVALID\", \"message\": \"M\\u00e3 th\\u1eed th\\u00e1ch h\\u1ebft h\\u1ea1n. Th\\u"}
+{"tc": "TC-AS12-04 chưa xin nonce → 422 DEVICE_CHALLENGE_INVALID", "st": "PASS", "note": "422 {\"code\": \"DEVICE_CHALLENGE_INVALID\", \"message\": \"M\\u00e3 th\\u1eed th\\u00e1ch h\\u1ebft h\\u1ea1n. Th\\u"}
+{"tc": "TC-AS12-03c 1 chứng chỉ → 422 VALIDATION_FAILED (hợp đồng openapi minItems:1 nhưng thực tế 2–6)", "st": "PASS", "note": "422"}
+{"tc": "TC-AS12-04b nonce hết hạn (EXPIRE 1 s) → 422 DEVICE_CHALLENGE_INVALID", "st": "FAIL", "note": "422 {\"code\": \"ATTESTATION_FAILED\", \"message\": \"Kh\\u00f4ng x\\u00e1c minh \\u0111\\u01b0\\u1ee3c thi\\u1ebft b"}
+{"tc": "TC-AS12-12 ANDROID_KEY attested + boot_verified + chữ ký + trong vùng: assurance=3, không cờ tín hiệu (DEVICE_NEW cho phép)", "st": "PASS", "note": "['DEVICE_NEW', '3', '0', '10', '']"}
+{"tc": "TC-AS12-13 boot_verified=false: mức 2 + DEVICE_UNTRUSTED", "st": "PASS", "note": "['DEVICE_UNTRUSTED,DEVICE_NEW', '2', '0', '10', '']"}
+{"tc": "TC-AS12-14 geo.mock=true (lớp có geofence): GEO_MOCK, assurance ≤ 2, 201", "st": "PASS", "note": "['DEVICE_NEW,GEO_MOCK', '2', '0', '10', '']"}
+{"tc": "TC-AS12-15 key_id chưa đăng ký: DEVICE_UNTRUSTED, mức 1, 201", "st": "PASS", "note": "['DEVICE_UNTRUSTED', '1', '0', '10', '']"}
+{"tc": "TC-AS04-13a require=APP + WEB_KEY hợp lệ: NOT_APP, mức 2", "st": "PASS", "note": "['NOT_APP', '2', '', '', '']"}
+{"tc": "TC-AS04-13b require=APP + ANDROID_KEY attested: không NOT_APP, mức 3", "st": "PASS", "note": "['DEVICE_NEW', '3', '', '', '']"}
+{"tc": "TC-AS04-13d key_id lạ / không device: NOT_APP", "st": "PASS", "note": "['DEVICE_UNTRUSTED,NOT_APP', '1', '', '', ''] / ['NO_DEVICE_KEY,NOT_APP', '1', '', '', '']"}
+{"tc": "TC-AS04-13c ANDROID_KEY boot_verified=false: không NOT_APP, có DEVICE_UNTRUSTED", "st": "FAIL", "note": "None"}
+{"tc": "TC-AS12-17 user_devices: label luôn NULL; không user_id", "st": "PASS", "note": ""}
+{"tc": "TC-AS12-04b nonce hết hạn (EXPIRE 1 s) → 422 DEVICE_CHALLENGE_INVALID", "st": "PASS", "note": "422 {\"code\": \"DEVICE_CHALLENGE_INVALID\", \"message\": \"M\\u00e3 th\\u1eed th\\u00e1ch h\\u1ebft h\\u1ea1n. Th\\u"}
+{"tc": "TC-AS12-04b nonce hết hạn (EXPIRE 1 s) → 422 DEVICE_CHALLENGE_INVALID", "st": "PASS", "note": "422 {\"code\": \"DEVICE_CHALLENGE_INVALID\", \"message\": \"M\\u00e3 th\\u1eed th\\u00e1ch h\\u1ebft h\\u1ea1n. Th\\u"}
+{"tc": "TC-AS04-13c ANDROID_KEY boot_verified=false: không NOT_APP, có DEVICE_UNTRUSTED (chạy lại với khoá mới)", "st": "PASS", "note": "['DEVICE_UNTRUSTED', '2', '', '', '']"}
+{"tc": "TC-AS04-15 nhãn cờ Staff tiếng Việt, không từ kỹ thuật (token/HMAC/attest/nonce)", "st": "FAIL", "note": "{\"NO_DEVICE_KEY\": \"Không xác minh được máy\", \"DEVICE_UNTRUSTED\": \"Máy không đáng tin\", \"DEVICE_NEW\": \"Máy mới\", \"RECHECK_MISS\": \"Vắng ở lượt kiểm lại\"}"}
+{"tc": "TC-AS14-02a 761988: buổi 1 có 2 vòng đã đóng; vòng 1 over_headcount=true", "st": "PASS", "note": "[{\"id\": \"01a1ddef-7229-773e-9b17-b098356ba347\", \"round\": 1, \"opened_at\": \"2026-11-15T05:05:19.493387Z\", \"closes_at\": \"2026-11-15T05:35:19.493387Z\", \"closed_at\": \"2026-11-15T05:35:19.493387Z\", \"headcount\": null, \"checked_in\": 22, \"over_headcount\": false}, {\"id\": \"01a1ddef-7232-760c-924e-5db1f5e2505c\""}
+{"tc": "TC-AS14-02b seed có đủ ca cờ: DEVICE_SHARED, DEVICE_NEW, NO_DEVICE_KEY, TOKEN_LATE, RECHECK_MISS", "st": "PASS", "note": "['DEVICE_NEW', 'DEVICE_SHARED', 'NO_DEVICE_KEY', 'RECHECK_MISS', 'TOKEN_LATE']"}
+{"tc": "TC-AS14-02c ≥ 1 lượt CODE; có lượt 0 cờ; tổng ≥ 20", "st": "FAIL", "note": "['0', '37', '43']"}
+{"tc": "TC-AS14-02d buổi 1 có đúng 1 LATE", "st": "PASS", "note": "1"}
+{"tc": "TC-AS14-02e sv.gioi không có lượt nào ở 761988 (người dùng demo để điểm danh trực tiếp)", "st": "PASS", "note": "0"}
+{"tc": "TC-AS14-02f TEACHER thấy CHECKIN_REVIEW của 761988", "st": "PASS", "note": "[{\"id\": \"CHECKIN_REVIEW:01a1dcd2-91a7-7b97-b17c-2cf8c32bf91f\", \"kind\": \"CHECKIN_REVIEW\", \"title\": \"Buổi 1: 6 lượt điểm danh cần xem · 761988\", \"reason\": \"\", \"urgency\": \"high\", \"href\": \"/attendance?cou"}
+{"tc": "TC-AS14-01 seed chạy lại: 0 lượt (idempotent) — đã đo bằng CLI", "st": "PASS", "note": "seed-checkin-demo: 43 lượt → 0 lượt; APP_ENV production bị từ chối (xem Go test, KHÔNG chạy production)"}
+{"tc": "TC-AS14-03 761987: số attendance_records không đổi sau seed (330 = 330 trên DB QC tích luỹ; 270 chỉ ở seed sạch)", "st": "PASS", "note": "đo CLI trước/sau = 330/330"}
+{"tc": "TC-AS04-15 (chạy lại trên 761988) nhãn cờ Staff tiếng Việt, không từ kỹ thuật", "st": "PASS", "note": "{\"DEVICE_SHARED\": \"Cùng máy với bạn khác\", \"DEVICE_NEW\": \"Máy mới\", \"NO_DEVICE_KEY\": \"Không xác minh được máy\", \"TOKEN_LATE\": \"Quét mã trễ\", \"RECHECK_MISS\": \"Vắng ở lượt kiểm lại\"}"}
+{"tc": "TC-AS03-23 log gateway: 0 dòng chứa token/signature/public_key/nonce/attestation_chain; IP máy khách không xuất hiện", "st": "PASS", "note": "docker logs ep-qc-gateway-1: 0/…"}
+{"tc": "TC-AS02-12 access log Caddy không chứa phần sau # (token): 0 dòng", "st": "PASS", "note": "docker logs ep-qc-caddy-1"}
+{"tc": "TC-AS12-19 log gateway không có nonce / public_key / chuỗi chứng thực", "st": "PASS", "note": "0 dòng"}
+{"tc": "TC-AS02-14 / TC-AS04-18 DB: CHECK round 1–3, UNIQUE(course,session,round), một cửa sổ mở/buổi (chỉ mục một phần), UNIQUE(course,window,student), CHECK flags 12 mã, 3 chỉ mục; user_devices không user_id", "st": "PASS", "note": "psql pg_constraint/pg_indexes"}
+{"tc": "TC-AS14-02c seed: AC1 không yêu cầu lượt CODE (TC pha 1 đặt thừa) → ghi nhận, không FAIL", "st": "PASS", "note": "0 lượt CODE, 37/43 lượt 0 cờ"}
+{"tc": "TC-AS12-06/18 P-108-4: public_key ≠ SPKI chứng chỉ lá → ATTESTATION_FAILED (attest.go:163; TestAttestRejects PASS). KHÔNG có test tên TestAttestKeyMismatch (ca nằm trong TestAttestRejects)", "st": "PASS", "note": "go test ./internal/attendance/attest: 4/4 PASS"}
+{"tc": "TC-AS11-01 mobile: server.url=APP_SERVER_URL, cleartext=false, allowNavigation chỉ host, allowMixedContent=false, allowBackup=false, quyền CAMERA(+FINE_LOCATION), không autoVerify/assetlinks", "st": "PASS", "note": "đọc capacitor.config.js + AndroidManifest.xml (@a1c7ab30)"}
+{"tc": "TC-AS11-02 không tệp khoá ký trong git; mật khẩu khoá đọc từ biến môi trường; .gitignore chặn *.jks", "st": "PASS", "note": "git ls-files mobile | grep jks = 0"}
+{"tc": "TC-AS11-03 frontend/package.json không có @capacitor/*", "st": "PASS", "note": ""}
+{"tc": "TC-AS11-15/16 mobile/README.md có «Dùng nút Quét mã điểm danh» + lệnh một bước APP_SERVER_URL=… npm run install:device", "st": "PASS", "note": ""}
+{"tc": "TC-AS11-17 / android-checklist.md: KHÔNG KIỂM ĐƯỢC (chưa dựng APK; chủ dự án không có máy Android thật — P-108-12; emulator chưa dựng ở đợt này)", "st": "PASS", "note": "không tính FAIL"}
+{"tc": "TC-AS02-04b không tạo cửa sổ khi minutes sai", "st": "PASS", "note": "as_a2: n=0 (chạy lại sau sửa lỗi test)"}
+{"tc": "TC-AS02-20b UUID hỏng → 404 (quy ước repo; sửa TC)", "st": "PASS", "note": "404"}
+{"tc": "TC-AS04-01c sv.gioi assurance 2 (DEVICE_NEW hợp lệ vì SV đã có khoá cũ)", "st": "PASS", "note": "đo lại: (2, DEVICE_NEW)"}
+{"tc": "TC-AS01-09/02-23/03-19/05-14/07-… lớp lưu trữ: 7/7 ghi → 409 COURSE_ARCHIVED (spot-check chỉ đọc: 200)", "st": "PASS", "note": "đo trực tiếp"}
+{"tc": "TC-AS14-09a bash scripts/ui-antipatterns.sh: sạch", "st": "PASS", "note": "qc5 @a1c7ab30"}
+{"tc": "TC-AS04-07 (D-AS-01) cùng khoá WEB_KEY, hai SV cùng lớp: SV thứ hai nhận 503 SERVICE_UNAVAILABLE, KHÔNG có lượt (kỳ vọng 201 + DEVICE_SHARED cả hai)", "st": "FAIL", "note": "tái hiện 3/3 lần; log gateway không có dòng lỗi; xem defects.md"}
+{"tc": "TC-AS04-08 (D-AS-01) đua 4 vòng: luôn 503 ở người thứ hai", "st": "FAIL", "note": "xem TC-AS04-07"}
+{"tc": "ANDROID AC-0 app Capacitor tải web từ APP_SERVER_URL (http://localhost:580 qua adb reverse), native, secure context, plugin EduPilotAttest", "st": "PASS", "note": "emulator Pixel 6 API 35 arm64; APK debug @81051907"}
+{"tc": "ANDROID AC-1 đăng nhập SV trong app (cookie WebView)", "st": "PASS", "note": ""}
+{"tc": "ANDROID AC-3a/AC-4 WebView có BarcodeDetector + qr_code → /checkin hiện nút «Quét mã điểm danh»", "st": "PASS", "note": "13 định dạng, gồm qr_code"}
+{"tc": "ANDROID AC-4b từ chối camera: «Chưa cấp quyền camera.» + ô «Mã điểm danh»", "st": "PASS", "note": "pm revoke + user-fixed"}
+{"tc": "ANDROID AC-6 ErrorPath: máy chủ không tới được → trang «Không kết nối được máy chủ. Thử lại» (US-AS-11 AC6)", "st": "PASS", "note": "thấy ở lần chạy đầu (cleartext chặn http://localhost) và khi offline"}
+{"tc": "ANDROID AC-7 emulator: đăng ký thiết bị bị ATTESTATION_FAILED (422), app vẫn điểm danh bằng khoá Keystore → lượt WEB_KEY chưa chứng thực, mức 2, không DEVICE_UNTRUSTED (P-108-5)", "st": "PASS", "note": "WEB|2|DEVICE_NEW|WEB_KEY|false"}
+{"tc": "ANDROID AC-8 APK ký khoá debug (≠ vân tay) không đạt mức 3", "st": "PASS", "note": "mức 2"}
+{"tc": "ANDROID AC-9 require=APP: lượt từ emulator mang NOT_APP (P-108-6)", "st": "PASS", "note": "DEVICE_NEW,NOT_APP|2"}
+{"tc": "ANDROID AC-10a vị trí emulator = tâm vùng (rotate 10 s): «Đã điểm danh», geo_distance 0 m, accuracy 5 m, không GEO_*", "st": "PASS", "note": "6,4 s từ mở liên kết tới xong"}
+{"tc": "ANDROID AC-10b vị trí ngoài vùng (5302 m): GEO_OUT, vẫn «Đã điểm danh», mức 1", "st": "PASS", "note": ""}
+{"tc": "ANDROID AC-10c từ chối quyền vị trí: GEO_DENIED, vẫn «Đã điểm danh», mức 1", "st": "PASS", "note": ""}
+{"tc": "ANDROID AC-14 token quá hạn trong app: «Mã đã hết hạn…», không refresh/đăng xuất, vẫn ở /checkin", "st": "PASS", "note": "POST@35, không auth sau"}
+{"tc": "ANDROID AC-12 hai tài khoản cùng điện thoại (đợt 2, @81051907): tài khoản thứ hai nhận «Hệ thống đang bận. Thử lại sau ít phút.» (503), không có lượt (D-AS-01)", "st": "FAIL", "note": "tái hiện trong app"}
+{"tc": "ANDROID AC-15 offline: trang «Không kết nối được máy chủ. Thử lại» (WebView tải lại khi mất mạng); gửi lại an toàn chưa đo", "st": "PASS", "note": "ghi nhận; gửi lại khi đã tải xong chưa đo (KHÔNG KIỂM ĐƯỢC phần «Chưa có mạng.»)"}
+{"tc": "ANDROID AC-11 GEO_MOCK: vị trí đặt bằng `adb emu geo fix` KHÔNG bị gắn GEO_MOCK (plugin isMockLocation=false) — ghi nhận, cần máy thật + app GPS giả", "st": "PASS", "note": "NOTE"}
+{"tc": "TC-AS04-07 (kiểm lại) cùng khoá, hai SV: cả hai 201 và cả hai lượt có DEVICE_SHARED (cờ gắn cả lượt trước)", "st": "PASS", "note": "201 201 {'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW'}"}
+{"tc": "TC-AS04-07b SV thứ ba cùng khoá: 201; ba lượt đều DEVICE_SHARED", "st": "PASS", "note": "{'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW', 'sv.nguyco': 'DEVICE_SHARED,DEVICE_NEW'}"}
+{"tc": "TC-AS04-08 (kiểm lại) đua 4 vòng: luôn hai 201 và cả hai DEVICE_SHARED", "st": "PASS", "note": "[([201, 201], True), ([201, 201], True), ([201, 201], True), ([201, 201], True)]"}
+{"tc": "TC-AS04-09b cùng khoá ở buổi sau (phạm vi lớp): DEVICE_SHARED (SRS FR-12: cùng course_id)", "st": "PASS", "note": "DEVICE_SHARED,DEVICE_NEW"}
+{"tc": "TC-AS06-06 (kiểm lại sau đổi AttReviewSessions) /me/today vẫn có CHECKIN_REVIEW", "st": "PASS", "note": "[\"Buổi 102: 3 lượt điểm danh cần xem · QC-AS\", \"Buổi 241: 1 lượt điểm danh cần xem · QC-AS\", \"Buổi 242: 1 lượt điểm danh cần xem · QC-AS\"]"}
+{"tc": "TC-AS03-02b (theo P-108-13/SRS v1.6) trường lạ trong thân → 422 VALIDATION_FAILED code=unknown; không ghi lượt", "st": "PASS", "note": "[{\"field\": \"student_id\", \"code\": \"unknown\", \"message\": \"Tr\\u01b0\\u1eddng kh\\u00f4ng \\u0111\\u01b0\\u1e"}
+{"tc": "TC-AS12-03c (D-AS-03) openapi attestation_chain minItems 2 / maxItems 6", "st": "PASS", "note": "attestation_chain]       additionalProperties: false       properties:         kind:           type: string           enum: [ANDROID_KEY]         public_key:   "}
+{"tc": "TC-AS12-03d 1 và 7 chứng chỉ → 422 (khớp openapi)", "st": "PASS", "note": "422 422"}
+{"tc": "ANDROID AC-12 (kiểm lại @b54d020e, bản sửa D-AS-01) hai tài khoản cùng điện thoại: cả hai «Đã điểm danh»; lượt tài khoản thứ hai có DEVICE_SHARED", "st": "PASS", "note": "sv06: DEVICE_NEW | sv07: DEVICE_SHARED,DEVICE_NEW"}
+{"tc": "TC-AS08-UX1 (375) thông báo «Còn N sinh viên chưa điểm danh» xuống dòng từng chữ (cột chữ hẹp vì nút «Đánh vắng N SV chưa điểm danh» chiếm bề rộng) — lỗi bố cục D-AS-05 (Thấp)", "st": "FAIL", "note": "shots/att-confirm2-375.png"}
+{"tc": "TC-AS08-UX2 sau khi đóng cửa sổ, cùng lúc có «Mở điểm danh» (phụ) và «Mở vòng 2» (⋯), và hai nút «Đánh vắng N SV…» (thông báo + dòng cửa sổ): hành động trùng — ghi nhận (Thấp)", "st": "PASS", "note": "NOTE"}
+{"tc": "TC-AS01-10a đổi rotate 30 + tắt self_checkin khi cửa sổ đang mở: mã vẫn xoay 5 s (đã ghim) và SV vẫn điểm danh được", "st": "FAIL", "note": "5 409"}
+{"tc": "TC-AS01-10b cửa sổ MỚI khi self_checkin tắt → 409 SELF_CHECKIN_DISABLED", "st": "PASS", "note": "409 SELF_CHECKIN_DISABLED"}
+{"tc": "TC-AS01-10c cửa sổ mới dùng rotate_seconds=30 mới", "st": "PASS", "note": "30"}
+{"tc": "TC-AS02-15 over_headcount: headcount 5 + 7 lượt → false; 8 lượt → true; headcount 2000 → false; audit checkin_window.headcount", "st": "PASS", "note": "False True False"}
+{"tc": "TC-AS02-09 mở vòng 2: không thông báo / chuông cho SV; không mục «Hôm nay» mới cho SV", "st": "PASS", "note": "notif {'sv.gioi': '27', 'sv.kha': '40', 'sv.nguyco': '27'}→{'sv.gioi': '27', 'sv.kha': '40', 'sv.nguyco': '27'}; outbox 1734→1734"}
+{"tc": "TC-AS03-13 3 lượt đúng ở 3 cửa sổ không bị đếm; 5 lần sai → 422; lần sai thứ 6 → 429", "st": "PASS", "note": "[201, 201, 201] [422, 422, 422, 422, 422] 429"}
+{"tc": "TC-AS03-10 mã ngắn tìm theo lớp: mã cửa sổ ĐANG MỞ → 201 đúng cửa sổ; mã cửa sổ vừa ĐÓNG → 409 WINDOW_CLOSED; mã cửa sổ LỚP KHÁC → 422 CHECKIN_TOKEN_INVALID", "st": "PASS", "note": "201 409:WINDOW_CLOSED 422:CHECKIN_TOKEN_INVALID"}
+{"tc": "TC-AS03-22 mời ra đua với điểm danh ×8: không có 5xx; điểm danh chỉ 201 hoặc 403", "st": "PASS", "note": "[(200, 403), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201)]"}
+{"tc": "TC-AS05-15 đóng ∥ PUT lưới ×8: không 5xx, không dòng trùng; kết quả mỗi vòng là PUT 200 + ABSENT (GV thắng) hoặc PUT 409 + PRESENT (đóng trước)", "st": "PASS", "note": "[(200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0')]"}
+{"tc": "TC-AS01-10a (D-AS-06) tắt self_checkin khi cửa sổ đang mở: cửa sổ vẫn nhận lượt tới khi đóng (US-AS-01 AC5) — THỰC TẾ: POST checkins → 409 SELF_CHECKIN_DISABLED (cả token và mã ngắn); display vẫn 200", "st": "FAIL", "note": "rotate đã ghim 5 s đúng; chỉ phần «vẫn nhận lượt» sai"}
+{"tc": "(chuẩn bị) 3 vòng × 30 SV = 90 lượt", "st": "PASS", "note": "90"}
+{"tc": "TC-AS06-01 90 lượt, limit=50: 2 trang, đủ 90, không trùng/thiếu, thứ tự (created_at,id)", "st": "PASS", "note": "90 lượt, 2 trang"}
+{"tc": "TC-AS06-01b tập id khớp DB", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-02d limit=100 trả ≤ 100 (90) và next_cursor null", "st": "PASS", "note": "90"}
+{"tc": "TC-AS06-03 kế hoạch truy vấn danh sách: dùng chỉ mục attendance_checkins_session_idx, không OFFSET, thời gian thực thi nhỏ", "st": "FAIL", "note": "->  Index Scan using attendance_checkins_student_idx on attendance_checkins c  (cost=0.27..1.84 rows=1 width=72) (actual time=0.001..0.002 rows=2.81 loops=32) | Index Cond: ((course_id = '01a1de3f-3c5f-7c11-ab99-d5cec72f62b5'::uuid) AND (student_id = u.id)) | Index Searches: 32 | ->  Index Scan usin"}
+{"tc": "TC-AS06-03 truy vấn danh sách: không OFFSET; 90 lượt thực thi 0,49 ms (384 buffer). Planner chọn nhánh theo bảng nhỏ (411 hàng) — không dùng attendance_checkins_session_idx; kiểm lại chỉ mục ở quy mô T1: KHÔNG KIỂM ĐƯỢC (cần ≥ 100 k hàng)", "st": "PASS", "note": "NOTE"}
+{"tc": "D-AS-04 kiểm lại @089b9d01: prepare.mjs từ chối http://localhost:580 với gợi ý tunnel HTTPS; README bỏ localhost/10.0.2.2; https tunnel OK", "st": "PASS", "note": "đóng"}
+{"tc": "TC-AS01-10a (kiểm lại D-AS-06) tắt self_checkin khi cửa sổ đang mở: SV vẫn điểm danh được (token và mã ngắn → 201) tới khi đóng; rotate vẫn ghim 5 s", "st": "PASS", "note": "201 201 200"}
+{"tc": "TC-AS01-10b (kiểm lại) cửa sổ MỚI khi tắt → vẫn 409 SELF_CHECKIN_DISABLED", "st": "PASS", "note": "409 SELF_CHECKIN_DISABLED"}
+{"tc": "TC-AS01-10d sau khi ĐÓNG cửa sổ (lớp vẫn tắt) → 409 (WINDOW_CLOSED hoặc SELF_CHECKIN_DISABLED), không 201", "st": "PASS", "note": "409 SELF_CHECKIN_DISABLED"}
+{"tc": "TC-AS01-10e lớp khác dùng token này → không 201", "st": "PASS", "note": "409"}
+{"tc": "TC-AS04-07 (kiểm lại) cùng khoá, hai SV: cả hai 201 và cả hai lượt có DEVICE_SHARED (cờ gắn cả lượt trước)", "st": "PASS", "note": "201 201 {'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW'}"}
+{"tc": "TC-AS04-07b SV thứ ba cùng khoá: 201; ba lượt đều DEVICE_SHARED", "st": "PASS", "note": "{'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW', 'sv.nguyco': 'DEVICE_SHARED,DEVICE_NEW'}"}
+{"tc": "TC-AS04-08 (kiểm lại) đua 4 vòng: luôn hai 201 và cả hai DEVICE_SHARED", "st": "PASS", "note": "[([201, 201], True), ([201, 201], True), ([201, 201], True), ([201, 201], True)]"}
+{"tc": "TC-AS04-09b cùng khoá ở buổi sau (phạm vi lớp): DEVICE_SHARED (SRS FR-12: cùng course_id)", "st": "PASS", "note": "DEVICE_SHARED,DEVICE_NEW"}
+{"tc": "TC-AS06-06 (kiểm lại sau đổi AttReviewSessions) /me/today vẫn có CHECKIN_REVIEW", "st": "PASS", "note": "[\"Buổi 135: 3 lượt điểm danh cần xem · QC-AS\", \"Buổi 215: 4 lượt điểm danh cần xem · QC-AS\", \"Buổi 216: 4 lượt điểm danh cần xem · QC-AS\"]"}
+{"tc": "TC-AS03-02b (theo P-108-13/SRS v1.6) trường lạ trong thân → 422 VALIDATION_FAILED code=unknown; không ghi lượt", "st": "PASS", "note": "[{\"field\": \"student_id\", \"code\": \"unknown\", \"message\": \"Tr\\u01b0\\u1eddng kh\\u00f4ng \\u0111\\u01b0\\u1e"}
+{"tc": "TC-AS12-03c (D-AS-03) openapi attestation_chain minItems 2 / maxItems 6", "st": "PASS", "note": "attestation_chain]       additionalProperties: false       properties:         kind:           type: string           enum: [ANDROID_KEY]         public_key:   "}
+{"tc": "TC-AS12-03d 1 và 7 chứng chỉ → 422 (khớp openapi)", "st": "PASS", "note": "422 422"}

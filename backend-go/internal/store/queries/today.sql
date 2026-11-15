@@ -37,7 +37,8 @@ select c.course_id::uuid as course_id,
        coalesce(k.n_over, 0)::int as tk_over,
        coalesce(u.sessions, '[]'::jsonb)::jsonb as unmarked,
        coalesce(rp.n, 0)::int as reported,
-       coalesce(rp.oldest, 'epoch'::timestamptz)::timestamptz as reported_oldest
+       coalesce(rp.oldest, 'epoch'::timestamptz)::timestamptz as reported_oldest,
+       coalesce(cr.sessions, '[]'::jsonb)::jsonb as checkin_review
 from unnest(sqlc.arg(course_ids)::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -138,7 +139,24 @@ left join (
         group by z.course_id, z.target_id
     ) y
     group by y.course_id
-) rp on rp.course_id = c.course_id;
+) rp on rp.course_id = c.course_id
+left join (
+    -- 10.8 CHECKIN_REVIEW: buổi có cửa sổ điểm danh đã đóng trong `review_days` ngày và còn lượt có cờ chưa bỏ (tối đa 3 mỗi lớp, mới nhất trước) — GỘP vào cùng truy vấn.
+    select z.course_id, jsonb_agg(jsonb_build_object('id', z.id, 'session_no', z.session_no, 'flagged', z.flagged, 'closed_at', z.closed_at) order by z.closed_at desc) as sessions
+    from (
+        select x.course_id, s.id, s.session_no, x.flagged, x.closed_at, row_number() over (partition by x.course_id order by x.closed_at desc) as rn
+        from (
+            select ck.course_id, ck.session_id, count(*)::int as flagged, max(w.closed_at) as closed_at
+            from attendance_checkins ck
+            join checkin_windows w on w.course_id = ck.course_id and w.id = ck.window_id and w.closed_at is not null
+                 and w.closed_at >= sqlc.arg(now_at)::timestamptz - (sqlc.arg(review_days)::int * interval '1 day')
+            where ck.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and cardinality(ck.flags) > 0 and ck.flags_cleared_at is null
+            group by ck.course_id, ck.session_id
+        ) x join class_sessions s on s.course_id = x.course_id and s.id = x.session_id
+    ) z
+    where z.rn <= 3
+    group by z.course_id
+) cr on cr.course_id = c.course_id;
 
 -- name: TodaySetup :many
 -- Bốn bước "Thiết lập lớp mới" tự tick theo dữ liệu (SRS 4.7); dismissed = mốc giảng viên bỏ qua.

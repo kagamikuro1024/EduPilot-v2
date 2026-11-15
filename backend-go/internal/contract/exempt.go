@@ -33,6 +33,9 @@ func Exemptions() []Exemption {
 		{"POST /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback", 200, "Nhận xét cần LLM trả đúng schema nhận xét; nhà cung cấp `fake` của bộ hợp đồng không có bản ghi đó. `practice.TestEssayFeedback` kiểm 200 với LLM giả có schema."},
 		{"POST /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback", 429, "Hạn mức 10 lần / giờ / sinh viên cần 11 lời gọi LLM; `practice.TestEssayFeedback` kiểm 429 và không tốn lời gọi."},
 		{"POST /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback", 503, "503 khi LLM lỗi / sai schema; kịch bản hợp đồng dùng `fake` nên không dựng được lỗi có kiểm soát."},
+		{"POST /api/v1/me/devices", 200, "Cần chuỗi Key Attestation thật còn hạn (chuỗi Google sống ~9 ngày) nên không dựng được trong bộ hợp đồng; `attest.TestAttestRealChains` đăng ký lại cùng khoá → Created=false (200) với chuỗi thật của github.com/android/keyattestation và đồng hồ giả."},
+		{"POST /api/v1/me/devices", 201, "Như trên: `attest.TestAttestRealChains` kiểm đường tạo mới (201)."},
+		{"POST /api/v1/me/devices", 503, "503 ATTESTATION_UNAVAILABLE chỉ khi không tải được danh sách thu hồi của Google và chưa có bản đệm; `attest.TestAttestRevocation` dựng bằng máy chủ giả."},
 	}
 }
 

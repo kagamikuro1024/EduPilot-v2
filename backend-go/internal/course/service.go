@@ -14,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/edupilot/backend-go/internal/attendance"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/platform/clock"
@@ -53,6 +54,8 @@ type Service struct {
 	Log   *slog.Logger
 	// PublicURL dựng `join_url` (APP_PUBLIC_URL, không có dấu / cuối).
 	PublicURL string
+	// Attendance: cấu hình điểm danh tự phục vụ (giá trị mặc định / miền của chính sách lớp, 10.8 FR-1).
+	Attendance attendance.Config
 
 	genCode func() (string, error) // thay được trong test để tiêm mã trùng; nil = NewJoinCode
 	// warned: mốc log "Redis lỗi" gần nhất của giới hạn đoán mã, chung cho mọi yêu cầu (≤ 1 dòng / 30 s). NewService cấp; nil = theo từng yêu cầu.
@@ -139,6 +142,8 @@ type Detail struct {
 	Counts               *Counts // chỉ TA / Giảng viên
 	// Settings: ngưỡng chuyển cho giảng viên + version (chỉ TA / Giảng viên; TA chỉ đọc).
 	Settings *Settings
+	// Attendance: chính sách điểm danh tự phục vụ. Staff: đủ trường (attendance.Policy); sinh viên: self_checkin, require, geo_check (attendance.ForStudent). P-108-3.
+	Attendance any
 }
 
 // Settings là cài đặt lớp mà giảng viên chỉnh (US-P4-05).
@@ -169,6 +174,13 @@ func (s Service) Get(ctx context.Context, id uuid.UUID, myRole string, staff boo
 		return Detail{}, fmt.Errorf("course: đọc giảng viên: %w", err)
 	}
 	d := Detail{Brief: Brief{ID: c.ID, ClassCode: c.ClassCode, SubjectCode: c.SubjectCode, Name: c.Name, Semester: c.Semester, Status: string(c.Status)}, Teachers: names, MyRole: myRole, AllowStudyTimeOptOut: c.AllowStudyTimeOptOut}
+	if !staff { // sinh viên cũng thấy `attendance.self_checkin|require|geo_check` (không toạ độ, không CIDR, không chu kỳ)
+		full, err := q.GetCourse(ctx, id)
+		if err != nil {
+			return Detail{}, fmt.Errorf("course: đọc cài đặt lớp: %w", err)
+		}
+		d.Attendance = attendance.PolicyOf(s.Attendance, full.Settings).Student()
+	}
 	if staff {
 		n, err := q.CountCourseStudents(ctx, id)
 		if err != nil {
@@ -180,6 +192,7 @@ func (s Service) Get(ctx context.Context, id uuid.UUID, myRole string, staff boo
 			return Detail{}, fmt.Errorf("course: đọc cài đặt lớp: %w", err)
 		}
 		d.Settings = &Settings{EscalationThreshold: full.EscalationThreshold.StringFixed(2), Version: full.Version, Risk: crm.ThresholdsFrom(full.Settings).Values()}
+		d.Attendance = attendance.PolicyOf(s.Attendance, full.Settings).Staff()
 	}
 	return d, nil
 }

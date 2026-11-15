@@ -8,6 +8,8 @@ import (
 	"github.com/edupilot/backend-go/internal/activity"
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/assignment"
+	"github.com/edupilot/backend-go/internal/attendance"
+	"github.com/edupilot/backend-go/internal/attendance/attest"
 	"github.com/edupilot/backend-go/internal/audit"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/calendar"
@@ -21,6 +23,7 @@ import (
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/activityhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/assignmenthttp"
+	"github.com/edupilot/backend-go/internal/httpapi/attendancehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/audithttp"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
@@ -115,19 +118,20 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.DB != nil {
 			// US-P2-07 — lớp của tôi và chi tiết lớp.
-			svc := course.NewService(course.Service{Pool: d.DB, Production: d.Cfg.AppEnv == "production", Clock: d.Clock, Redis: d.Redis, Log: d.Log, PublicURL: d.Cfg.AppPublicURL})
+			svc := course.NewService(course.Service{Pool: d.DB, Production: d.Cfg.AppEnv == "production", Clock: d.Clock, Redis: d.Redis, Log: d.Log, PublicURL: d.Cfg.AppPublicURL, Attendance: d.Cfg.Attendance})
 			var sig today.LLMSignals
 			if d.LLM != nil {
 				sig = todayLLM{rt: d.LLM}
 			}
-			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA), today.WithAttention(crmService(d)))
+			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA), today.WithAttention(crmService(d)), today.WithReviewDays(d.Cfg.Attendance.ReviewDays))
 			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
 			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
-			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)                                          // US-P5-02: điểm danh, phát biểu
-			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                                                                    // US-P5-03: heartbeat, ack, đọc thời gian học
-			(&practicehttp.Handler{Svc: practiceService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)                                // US-P9-05…09: luyện đề, thi thử
-			(&audithttp.Handler{Svc: &audit.Service{Pool: d.DB, Clock: d.Clock}, Log: d.Log}).Mount(r)                                                                                                   // US-P10-14: nhật ký kiểm toán
-			(&insighthttp.Handler{Svc: &insight.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, Redis: d.Redis, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P10-04: báo cáo lỗ hổng kiến thức
+			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)                                                                            // US-P5-02: điểm danh, phát biểu
+			(&attendancehttp.Handler{Svc: attendanceService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), PublicURL: d.Cfg.AppPublicURL, ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r) // 10.8: điểm danh tự phục vụ
+			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                                                                                                      // US-P5-03: heartbeat, ack, đọc thời gian học
+			(&practicehttp.Handler{Svc: practiceService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)                                                                  // US-P9-05…09: luyện đề, thi thử
+			(&audithttp.Handler{Svc: &audit.Service{Pool: d.DB, Clock: d.Clock}, Log: d.Log}).Mount(r)                                                                                                                                     // US-P10-14: nhật ký kiểm toán
+			(&insighthttp.Handler{Svc: &insight.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, Redis: d.Redis, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)                                   // US-P10-04: báo cáo lỗ hổng kiến thức
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {
@@ -215,6 +219,10 @@ func authOptions(d Deps) []auth.MiddlewareOption {
 func activityService(d Deps) *activity.Service {
 	return &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log,
 		Cfg: activity.Config{MaxPerMinute: d.Cfg.HeartbeatMaxPerMinute, DailyCap: d.Cfg.StudyDailyCap, CounterTTL: d.Cfg.HeartbeatCounterTTL}}
+}
+
+func attendanceService(d Deps) *attendance.Service {
+	return &attendance.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log, Cfg: d.Cfg.Attendance, Attest: &attest.Verifier{Pool: d.DB, Redis: d.Redis, Cfg: d.Cfg.Attendance, Log: d.Log}}
 }
 
 func crmService(d Deps) *crm.Service {

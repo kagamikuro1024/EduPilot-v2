@@ -106,6 +106,8 @@ type AttendanceItem struct {
 	StartsAt  time.Time
 	Status    string
 	Note      *string
+	// CheckedInAt: giờ điểm danh bằng mã sớm nhất của buổi (10.8 FR-17); chỉ GET …/me/attendance điền. Không cờ, không mức tin cậy.
+	CheckedInAt *time.Time
 }
 
 // StudentAttendance trả buổi đã có dòng điểm danh của sinh viên, mới nhất trước, phân trang con trỏ (starts_at, id). Sinh viên không ACTIVE → 404.

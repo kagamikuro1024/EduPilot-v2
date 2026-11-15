@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/edupilot/backend-go/internal/attendance"
 	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/platform/clock"
@@ -26,7 +27,7 @@ var seedEnvs = []string{"dev", "test"} //nolint:gochecknoglobals // danh sách c
 
 // isSeedCmd: tên lệnh con thuộc nhóm seed.
 func isSeedCmd(name string) bool {
-	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity" || name == "seed-guidance" || name == "seed-llm-audit" || name == "seed-exam-history"
+	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity" || name == "seed-guidance" || name == "seed-llm-audit" || name == "seed-exam-history" || name == "seed-checkin-demo" || name == "purge-checkins"
 }
 
 // runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat|seed-activity|seed-guidance`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
@@ -54,7 +55,7 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 	if !slices.Contains(seedEnvs, getenv("APP_ENV")) { // kiểm TRƯỚC mọi việc khác, kể cả đọc DATABASE_URL
 		return fail(1, fmt.Sprintf("chỉ chạy khi APP_ENV thuộc %s (hiện: %q)", strings.Join(seedEnvs, ", "), getenv("APP_ENV")))
 	}
-	if strings.TrimSpace(*course) == "" {
+	if strings.TrimSpace(*course) == "" && name != "purge-checkins" {
 		return fail(2, "thiếu --course.")
 	}
 	clk := time.Now()
@@ -122,6 +123,15 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 		return fail(1, "DATABASE_URL không hợp lệ")
 	}
 	defer pool.Close()
+	if name == "purge-checkins" { // toàn hệ thống: xoá lượt thô / thiết bị quá 30 ngày (như job `attendance.purge`, nhưng chạy ngay)
+		svc := &attendance.Service{Pool: pool, Clock: clock.Real{}, Cfg: attendance.Config{RawRetentionDays: 30}}
+		rows, devs, err := svc.PurgeCheckins(ctx)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		_, _ = fmt.Fprintf(stdout, "purge-checkins: %d lượt, %d thiết bị\n", rows, devs)
+		return 0
+	}
 	cid, err := seedtool.CourseID(ctx, pool, strings.TrimSpace(*course))
 	if err != nil {
 		return fail(1, err.Error())
@@ -187,6 +197,12 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, err.Error())
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-age: %d dòng\n", n)
+	case "seed-checkin-demo":
+		n, err := seedtool.SeedCheckinDemo(ctx, pool, cid)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		_, _ = fmt.Fprintf(stdout, "seed-checkin-demo: %d lượt\n", n)
 	case "seed-guidance":
 		n, err := seedtool.SeedGuidance(ctx, pool, cid, strings.TrimSpace(*assignment))
 		if err != nil {

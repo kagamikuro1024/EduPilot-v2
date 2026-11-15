@@ -41,6 +41,8 @@ type myAttendanceSession struct {
 	SessionNo int       `json:"session_no"`
 	StartsAt  time.Time `json:"starts_at"`
 	Status    string    `json:"status"`
+	// CheckedInAt: giờ điểm danh bằng mã (10.8 FR-17), null nếu buổi không điểm danh bằng mã. Không cờ.
+	CheckedInAt *time.Time `json:"checked_in_at"`
 }
 
 type myAttendanceOut struct {
@@ -81,7 +83,7 @@ func (h *Handler) myAttendance(w http.ResponseWriter, r *http.Request) {
 	a.Recorded, a.Present, a.Late, a.Excused, a.Absent = res.Recorded, res.Present, res.Late, res.Excused, res.Absent
 	a.Sessions = make([]myAttendanceSession, len(page.Items))
 	for i, x := range page.Items {
-		a.Sessions[i] = myAttendanceSession{SessionNo: x.SessionNo, StartsAt: x.StartsAt, Status: x.Status}
+		a.Sessions[i] = myAttendanceSession{SessionNo: x.SessionNo, StartsAt: x.StartsAt, Status: x.Status, CheckedInAt: x.CheckedInAt}
 	}
 	out.NextCursor = page.NextCursor
 	w.Header().Set("Cache-Control", "no-store") // luật 15: điểm danh không cache

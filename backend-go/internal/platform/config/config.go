@@ -3,6 +3,7 @@
 package config
 
 import (
+	"encoding/base64"
 	"fmt"
 	"math"
 	"net/mail"
@@ -27,6 +28,40 @@ const (
 	Gateway Role = "gateway"
 	Worker  Role = "worker"
 )
+
+// Attendance là cấu hình điểm danh tự phục vụ (SRS 4.1).
+type Attendance struct {
+	Enabled                  bool   // ATTENDANCE_SELF_CHECKIN_ENABLED
+	TokenKey                 []byte // ATTENDANCE_TOKEN_KEY (32 byte, base64); bắt buộc khi Enabled ở gateway
+	RotateDefault            int    // CHECKIN_ROTATE_DEFAULT / _MIN / _MAX (giây)
+	RotateMin                int
+	RotateMax                int
+	WindowMinutesR1          int // CHECKIN_WINDOW_MINUTES_R1 / _R2 / _MAX
+	WindowMinutesR2          int
+	WindowMinutesMax         int
+	MaxRounds                int // CHECKIN_MAX_ROUNDS
+	LateAfterDefaultMin      int // CHECKIN_LATE_AFTER_DEFAULT_MIN
+	TokenLateExtraMs         int // TOKEN_LATE_EXTRA_MS
+	GeoMaxAccuracyM          int // GEO_MAX_ACCURACY_M
+	GeoRadiusMin             int // GEO_RADIUS_MIN_M / _MAX_M
+	GeoRadiusMax             int
+	CampusCIDRMax            int // CAMPUS_CIDR_MAX
+	SpotCheckDefault         int // SPOT_CHECK_DEFAULT / _MAX
+	SpotCheckMax             int
+	RatePerMin               int           // CHECKIN_RATE_PER_MIN
+	CodeLen                  int           // CHECKIN_CODE_LEN
+	CodeFailPerMin           int           // CHECKIN_CODE_FAIL_PER_MIN
+	CodeLookbackMin          int           // CHECKIN_CODE_LOOKBACK_MIN
+	DisplayRatePerMin        int           // DISPLAY_RATE_PER_MIN
+	DeviceChallengeRate      int           // DEVICE_CHALLENGE_RATE_PER_MIN
+	DeviceChallengeTTL       time.Duration // DEVICE_CHALLENGE_TTL_S
+	SweepInterval            time.Duration // CHECKIN_SWEEP_INTERVAL_S
+	ReviewDays               int           // CHECKIN_REVIEW_DAYS
+	RawRetentionDays         int           // CHECKIN_RAW_RETENTION_DAYS
+	AttestationPackage       string        // ATTESTATION_PACKAGE
+	AttestationCertSHA256    string        // ATTESTATION_CERT_SHA256 (hex)
+	AttestationRevocationTTL time.Duration // ATTESTATION_REVOCATION_TTL_H
+}
 
 // Config là cấu hình hiệu lực của một tiến trình.
 type Config struct {
@@ -123,6 +158,9 @@ type Config struct {
 	ExamEventsMax         int
 	SimilarityMinPermille int
 	SimilarityCapPermille int // SIMILARITY_CAP = 0,90 → 900‰: trần của ngưỡng tương đối
+
+	// Điểm danh tự phục vụ (FEAT-attendance-selfcheck SRS 4.1; ARCHITECTURE §11). Sai kiểu → tiến trình không chạy và nêu tên biến.
+	Attendance Attendance
 
 	// Cổng LLM (SRS FEAT-llm-gateway 4.3, 8.1).
 	LLMMaxConcurrency int
@@ -376,6 +414,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ExamSubmitCooldown = l.durRange("EXAM_SUBMIT_COOLDOWN", 15*time.Second, time.Second, time.Hour)
 	c.ExamSubmissionCap = l.num("EXAM_SUBMISSION_CAP", 30, 1, 1000)
 	c.ExamEventsMax = l.num("EXAM_EVENTS_MAX", 500, 1, 100000)
+	c.Attendance = l.attendance(gw, c.AppEnv == "production")
 	c.SimilarityMinPermille = int(math.Round(l.fraction("SIMILARITY_MIN", 0.60) * 1000))
 	c.SimilarityCapPermille = int(math.Round(l.fraction("SIMILARITY_CAP", 0.90) * 1000))
 
@@ -666,6 +705,63 @@ func (l *loader) publicURL(name string, strict bool) string {
 		l.bad(name, "chỉ gốc (scheme://host[:port]), không đường dẫn")
 	}
 	return strings.TrimRight(v, "/")
+}
+
+// devAttendanceKey: ATTENDANCE_TOKEN_KEY mặc định ở dev / test (32 byte "edupilot-dev-attendance-token-ke", base64). KHÔNG dùng ở production.
+const devAttendanceKey = "ZWR1cGlsb3QtZGV2LWF0dGVuZGFuY2UtdG9rZW4ta2U="
+
+// attendance đọc nhóm biến điểm danh tự phục vụ. ATTENDANCE_TOKEN_KEY: 32 byte base64; bắt buộc ở gateway khi cờ bật, sai kiểu thì nêu tên biến (không in giá trị).
+func (l *loader) attendance(gw, production bool) Attendance {
+	a := Attendance{
+		Enabled:                  l.boolean("ATTENDANCE_SELF_CHECKIN_ENABLED", true),
+		RotateDefault:            l.num("CHECKIN_ROTATE_DEFAULT", 10, 1, 600),
+		RotateMin:                l.num("CHECKIN_ROTATE_MIN", 5, 1, 600),
+		RotateMax:                l.num("CHECKIN_ROTATE_MAX", 60, 1, 600),
+		WindowMinutesR1:          l.num("CHECKIN_WINDOW_MINUTES_R1", 10, 1, 600),
+		WindowMinutesR2:          l.num("CHECKIN_WINDOW_MINUTES_R2", 3, 1, 600),
+		WindowMinutesMax:         l.num("CHECKIN_WINDOW_MINUTES_MAX", 60, 1, 600),
+		MaxRounds:                l.num("CHECKIN_MAX_ROUNDS", 3, 1, 3),
+		LateAfterDefaultMin:      l.num("CHECKIN_LATE_AFTER_DEFAULT_MIN", 15, 0, 120),
+		TokenLateExtraMs:         l.num("TOKEN_LATE_EXTRA_MS", 5000, 0, 600000),
+		GeoMaxAccuracyM:          l.num("GEO_MAX_ACCURACY_M", 100, 1, 100000),
+		GeoRadiusMin:             l.num("GEO_RADIUS_MIN_M", 20, 1, 100000),
+		GeoRadiusMax:             l.num("GEO_RADIUS_MAX_M", 2000, 1, 100000),
+		CampusCIDRMax:            l.num("CAMPUS_CIDR_MAX", 10, 1, 100),
+		SpotCheckDefault:         l.num("SPOT_CHECK_DEFAULT", 5, 1, 100),
+		SpotCheckMax:             l.num("SPOT_CHECK_MAX", 10, 1, 100),
+		RatePerMin:               l.num("CHECKIN_RATE_PER_MIN", 10, 1, 10000),
+		CodeLen:                  l.num("CHECKIN_CODE_LEN", 6, 4, 8),
+		CodeFailPerMin:           l.num("CHECKIN_CODE_FAIL_PER_MIN", 5, 1, 1000),
+		CodeLookbackMin:          l.num("CHECKIN_CODE_LOOKBACK_MIN", 15, 1, 1440),
+		DisplayRatePerMin:        l.num("DISPLAY_RATE_PER_MIN", 30, 1, 10000),
+		DeviceChallengeRate:      l.num("DEVICE_CHALLENGE_RATE_PER_MIN", 5, 1, 1000),
+		DeviceChallengeTTL:       time.Duration(l.num("DEVICE_CHALLENGE_TTL_S", 300, 10, 3600)) * time.Second,
+		SweepInterval:            time.Duration(l.num("CHECKIN_SWEEP_INTERVAL_S", 60, 1, 3600)) * time.Second,
+		ReviewDays:               l.num("CHECKIN_REVIEW_DAYS", 7, 1, 90),
+		RawRetentionDays:         l.num("CHECKIN_RAW_RETENTION_DAYS", 30, 1, 3650),
+		AttestationPackage:       l.str("ATTESTATION_PACKAGE", ""),
+		AttestationCertSHA256:    strings.ToLower(strings.ReplaceAll(l.str("ATTESTATION_CERT_SHA256", ""), ":", "")),
+		AttestationRevocationTTL: time.Duration(l.num("ATTESTATION_REVOCATION_TTL_H", 24, 1, 720)) * time.Hour,
+	}
+	raw := l.raw("ATTENDANCE_TOKEN_KEY")
+	if raw == "" && !production {
+		raw = devAttendanceKey // dev / test: giá trị cố định (compose dev); production bắt buộc đặt khác
+	}
+	if raw != "" || (gw && a.Enabled) {
+		key, err := base64.StdEncoding.DecodeString(raw)
+		if err != nil || len(key) != 32 {
+			l.bad("ATTENDANCE_TOKEN_KEY", "cần 32 byte mã hoá base64")
+		} else {
+			a.TokenKey = key
+		}
+	}
+	if a.RotateMin > a.RotateDefault || a.RotateDefault > a.RotateMax {
+		l.bad("CHECKIN_ROTATE_DEFAULT", "phải nằm giữa CHECKIN_ROTATE_MIN và CHECKIN_ROTATE_MAX")
+	}
+	if a.SpotCheckDefault > a.SpotCheckMax {
+		l.bad("SPOT_CHECK_DEFAULT", "không được lớn hơn SPOT_CHECK_MAX")
+	}
+	return a
 }
 
 func (l *loader) raw(name string) string { return strings.TrimSpace(l.getenv(name)) }
