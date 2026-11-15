@@ -107,6 +107,21 @@ for (const width of [1440, 375]) {
   });
 }
 
+// UX08-50: có chuyển động, đo axe 700 ms sau khi tải — chữ chưa vào khung không được mờ (opacity luôn 1, chỉ dịch transform).
+for (const width of [1440, 375]) {
+  test(`landing axe lúc tải (có chuyển động) ${width}: không vi phạm tương phản`, async ({ page }) => {
+    await anonymous(page);
+    await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
+    await page.goto("/", { waitUntil: "load" });
+    await page.waitForTimeout(700);
+    expect(await page.evaluate(() => document.documentElement.classList.contains("m-on"))).toBe(true);
+    const res = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+    expect(res.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
+    const faded = await page.evaluate(() => [...document.querySelectorAll("[data-part=landing] *")].filter((e) => getComputedStyle(e).opacity !== "1" && e.textContent?.trim() && !e.closest("[data-demo],[aria-hidden=true]")).map((e) => e.className).slice(0, 5));
+    expect(faded).toEqual([]);
+  });
+}
+
 test("landing video đầy đủ: không tải khi chưa bấm; `Xem video` mở hộp thoại, Esc đóng; có lời thay cho video không tiếng", async ({ page }) => {
   const media: string[] = [];
   page.on("request", (q) => /\/landing\/gioi-thieu-v1\.(mp4|webm)/.test(q.url()) && media.push(new URL(q.url()).pathname));
@@ -165,22 +180,27 @@ test("landing đoạn sản phẩm: chạy khi có chuyển động, Tạm dừn
   await reduced.close();
 });
 
-test("landing hiện theo cuộn: ba số đo ẩn tới khi cuộn tới; 146 đếm lên rồi đứng; reduce hiện đủ ngay (AC9, AC14, AC15)", async ({ page }) => {
+test("landing hiện theo cuộn: ba số đo chỉ dịch tới khi cuộn tới (opacity luôn 1); 146 đếm lên rồi đứng; reduce hiện đủ ngay (AC9, AC14, AC15, P-11-40)", async ({ page }) => {
   await anonymous(page);
   await page.goto("/");
   const stat = page.locator("[data-part=landing] li").filter({ hasText: "yêu cầu gửi AI" }).first();
   const num = stat.locator("p").first();
-  const opacity = () => stat.locator(":scope > div").evaluate((e) => Number(getComputedStyle(e).opacity)); // khối chữ của số đo
-  await expect(page.locator("html")).toHaveClass(/m-armed/); // bộ quan sát đã gắn: từ đây khối mới bị ẩn (AC15)
-  await expect.poll(opacity).toBe(0); // ẩn (có chuyển tiếp 1 → 0 ngay sau khi gắn)
+  const block = stat.locator(":scope > div"); // khối chữ của số đo
+  const opacity = () => block.evaluate((e) => Number(getComputedStyle(e).opacity));
+  const shifted = () => block.evaluate((e) => getComputedStyle(e).transform !== "none");
+  await expect(page.locator("html")).toHaveClass(/m-armed/); // bộ quan sát đã gắn: từ đây khối mới bị dịch xuống (AC15)
+  await expect.poll(shifted).toBe(true);
+  expect(await opacity()).toBe(1); // không bao giờ mờ: chữ chưa vào khung vẫn đủ tương phản (UX08-50)
   await stat.scrollIntoViewIfNeeded();
-  await expect.poll(opacity).toBe(1);
+  await expect.poll(shifted).toBe(false);
+  expect(await opacity()).toBe(1);
   await expect(num).toHaveText("146");
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.reload();
   await expect(page.locator("[data-part=landing]")).toBeVisible();
   expect(await opacity()).toBe(1);
+  expect(await shifted()).toBe(false);
   await expect(num).toHaveText("146");
 });
 
