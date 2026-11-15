@@ -26,6 +26,15 @@
 | TC-P6-09-49 target_letter ngoài thang | TC-P6-09-49 | 3eb6afe3 (P-11-55) | ĐẠT: 'Z', 'a+' → 422 |
 | /me/grades final.locked_at 0001-01-01 | TC-P6-09-04 | 7b62e715 | ĐẠT: locked_at = 2026-11-15T19:01:38Z |
 | TC-P6-06-56 (TC sai, P-11-54) | TC-P6-06-56 a/b/c | — | ĐẠT: (a) version chữ 422; (b) thiếu/null trên ô có điểm → 409, DB không đổi; (c) ô mới → 200 |
-| TC-P6-09-40 (reseed sạch) | TC-P6-09-40 | — | ĐẠT: TestSeedRiskAfterGradebook + TestSeedGradebookExpected trên DB seed mới PASS; mức sống lệch do cửa sổ lịch [INFERENCE] |
+| TC-P6-09-40 | TC-P6-09-40 | — | ĐẠT: crm-risk-run --now theo buổi neo (P-11-48) → AT_RISK 1, WATCH 3, 30/30 khớp expected_risk.csv; lệch 7/30 ở đồng hồ thật = trôi lịch (đã kiểm) |
 
 Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiếp), R7-01 (CI shard — cần chạy CI, K(b) nếu PM không duyệt đẩy nhánh), R4-02 `text.xlsx` (chưa sửa), R10.8-03/04, UX08-50 (landing, ≥ P-11-?).
+
+## Đợt chạy lại 2026-11-16 (sau merge ≥ 80e90d1b)
+- **DEF-R3-02** (d6de360f): ĐÓNG. `node --test scripts/tokens-sync.test.mjs` PASS (mọi khai báo của kit có y nguyên ở tokens.css). TC-PU01-01 vẫn K (lỗi thời, đã ghi).
+- **DEF-R9.1-02** (25cd3352, P-11-57): ĐÓNG. Quét `frontend/src/**/*.css`: 0 luật `:hover` ngoài `@media (hover: hover)` → TC-UX04-3 P (smoke-9.1).
+- **DEF-R9.1-03 / UX07-8** : ĐÓNG. grep «Kiểm duyệt Threads» trong `frontend/src` = 0 → P.
+- **TC-P6-03 (sprint 8)**: chạy lại với stub UTILITY: 01/02/03/07/08/10/13/25/32/38 PASS (03-10 lần đầu F do kịch bản đọc nhầm khoá citations; 03-13 lần đầu F do stub lớp 2 trả unclear_items có khoá `source` → BAD_RESPONSE đúng thiết kế schema; đã sửa stub).
+- **DEF-R3-05**: nguyên nhân của số 15/42 s và 12 yêu cầu (kỳ vọng 3) đã tìm ra ở phía QC: `evidence-3/scripts/lib.py` hàm `call()` TỰ THỬ LẠI 502/503 tới 5 lần cách 8 s. llm_audit của lần đo cũ: 4 dòng GRADING cách nhau ~9 s, MỖI dòng `attempts=3`, `queue_wait_ms` 0–1; rồi 2 dòng `circuit_open` (attempts=0, 2–6 ms). Tức mỗi lời gọi = 3 lần thử đúng như TestBatchOutageEndToEnd; nhiễu do kịch bản QC. Lượt sạch (dùng `_call` không thử lại, `p10x3.py`) đang chờ cửa sổ không đo tải.
+- **DEF-R6-C-01** (a081590a): mã đã có `THREAD_LOCK_TEXT` «Đăng bài tạm khóa trong lúc bạn làm bài thi.»; chạy UI thật (`evidence-3/scripts/r6c01.mjs`) chưa xong do lệnh dừng Playwright của PM.
+- **DEF-R5-02** (d1374b09): chưa chạy lại (cần Playwright).

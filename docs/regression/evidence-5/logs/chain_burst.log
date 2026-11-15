@@ -1,0 +1,4 @@
+P TC-PE02-27 hàng nộp có 56 bài chờ/đang chạy (gửi 60 bài trong 0s); SV khác Chạy thử: 202, xong sau 1.26s (≤5); verdict run None
+P TC-PE02-46 JUDGE_PARALLELISM=2 (cấu hình ep-r hiện tại; mức 4 cần đổi cấu hình toàn cục): 60 bài bits/stdc++.h × 10 test gửi cùng lúc, tới DONE cuối 27s từ lúc g
+P TC-PE02-27 hàng nộp có 56 bài chờ/đang chạy (gửi 60 bài trong 0s); SV khác Chạy thử: 202, xong sau 1.56s (≤5); verdict run None
+P TC-PE02-46 JUDGE_PARALLELISM=2 (cấu hình ep-r hiện tại; mức 4 cần đổi cấu hình toàn cục): 60 bài bits/stdc++.h × 10 test gửi cùng lúc, tới DONE cuối 25s từ lúc g

@@ -1,0 +1,3 @@
+dialog: Thời gian học trên EduPilot |  | EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công 
+P TC-PE05-38 điện thoại 375 chọn đáp án (lên máy chủ: 1); laptop 1440 cùng phiên mở sau: dải "Bài đang mở ở nơi khác", chỉ đọc(radio disabled)=true; bấm Làm tiếp ở đây → chọ
+F TC-PE05-37 hai nơi cùng phiên (như hai tab, ep-r thật): tab sau mở: "Bài đang mở ở nơi khác" + chỉ đọc=true; bấm "Làm tiếp ở đây" → tab đầu: không đổi (chỉ đọc/disabled=fa

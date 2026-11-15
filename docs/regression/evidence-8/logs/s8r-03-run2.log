@@ -1,0 +1,14 @@
+setroute 200
+P TC-P6-03-01 extract → 202 job_id; job SUCCEEDED
+P TC-P6-03-02 llm_audit của lần trích: 1 dòng, task UTILITY, lane NEAR_REALTIME
+P TC-P6-03-03 log gateway+worker trong lúc trích: 0 lần nội dung quy chế ('Điều 1', 'Điểm thi cuối kỳ')
+draft keys ['id', 'scheme_no', 'status', 'version', 'source_title', 'source_document_id', 'components', 'rules', 'unclear_items', 'warnings'] unclear []
+P TC-P6-03-07 draft lớp 1: 3 thành phần [('final', '60'), ('midterm', '20'), ('weekly', '20')], 7 luật, unclear_items []
+P TC-P6-03-08 so khớp fixture extraction-lop1.json: thành phần True, luật+tham số True (chỉ khác id/version/status)
+F TC-P6-03-10 0/0 trích dẫn đúng
+P TC-P6-03-25 sau trích: grade_schemes [['DRAFT', 't', 't']]
+F TC-P6-03-13 {}
+P TC-P6-03-38 extract hai lần cùng khoá → job_id giống; grade_schemes mới 1
+P TC-P6-03-32 extract với document khác COURSE_POLICY → 404 NOT_FOUND
+draft version 1 ['id', 'scheme_no', 'status', 'version', 'source_title', 'source_document_id', 'components', 'rules', 'unclear_items', 'warnings']
+restore 200

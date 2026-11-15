@@ -1,0 +1,7 @@
+dialog: Thời gian học trên EduPilot |  | EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công 
+P TC-PE05-12 timer 05:58,05:57,05:56…; bề rộng khối đồng hồ khi số đổi: 89 px (1 giá trị); aria-live: {"timer":"off","timerRole":"timer","secs":[],"bannerLive":null}; CLS hi
+S TC-PE05-46 phím: 'b' chọn=0, → Câu2=1, ← Câu1=1; gợi ý nhiều đáp án: Chọn tất cả đáp án đúng. Chọn sai sẽ bị trừ vào điểm của câu này (không xuống dưới 0).
+axe 1440 [] {"ox":0,"h1":["R5L UI 6 phút"],"primary":[],"small":20}
+P TC-PE05-46 phím tắt: 'b' chọn=0, ArrowRight→Câu 2=1, ArrowLeft→Câu 1=1; gợi ý nhiều đáp án: "Chọn tất cả đáp án đúng. Chọn sai sẽ bị trừ vào điểm của câu này (không xuống 
+P TC-PE05-50 hộp xác nhận: "Nộp bài thi? |  | Bạn đã trả lời 0/4 câu. Còn 4 câu chưa trả lời. Sau khi nộp bạn không sửa được. |  | Làm tiếp | Nộp bài"; nút [, Làm tiếp, Nộp 
+P TC-PE05-51 sau nộp: "Bài thi | R5L UI 6 phút |  | Đã nộp lúc 05:28:49. |  | Điểm sẽ hiện khi bài thi đóng với cả lớp (Thứ Hai, 06:10 16/11)."

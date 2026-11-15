@@ -4,8 +4,8 @@
 "rg còn 5 dòng ngoài 13 tệp liệt kê: shared/lib/datetime.ts (mô-đun định dạng), insights/KnowledgeGap.tsx:14-15, observability/AdminView.tsx:19,46 (hai tệp không thuộc 13 tệp của AC1); 13 tệp đã sạch. logs/grep-batch.log / grep-batch2.log; so sánh với main bằng `git diff 2c15dfce^1 2c15dfce` (1b72f54 không có merge-base với HEAD)"
 ],
 "TC-UX04-3": [
-"F",
-"9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02"
+"P",
+"RERUN 2026-11-16 sau 25cd3352 (P-11-57, DEF-R9.1-02): quét frontend/src/**/*.css: 0 luật :hover ngoài @media (hover: hover)"
 ],
 "TC-UX04-5": [
 "P",
@@ -64,8 +64,8 @@
 "bash scripts/ui-antipatterns.sh trên cây HEAD: exit 0, không ✗"
 ],
 "TC-UX07-8": [
-"F",
-"còn 1 chuỗi hiển thị «Kiểm duyệt Threads»: frontend/src/features/settings/llm/decisionApi.ts:17 (nhãn cổng THREADS_PRECHECK cho admin, thêm ở sprint 10.5 commit acb704cc) → DEF-R9.1-03"
+"P",
+"RERUN 2026-11-16 sau 7322ac62 (DEF-R9.1-01): grep \"Kiểm duyệt Threads\" frontend/src = 0"
 ],
 "TC-UX07-14": [
 "P",

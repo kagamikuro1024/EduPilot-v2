@@ -1,0 +1,3 @@
+P TC-PE07-08 Redis dừng giữa giờ thi: chat-gate ×20 → [(200, 'False')] (trước: {'allowed': False}); sau Redis lên khoá nạp lại: key=1
+P TC-PE07-45 restart Redis (mất khoá): chat-gate allowed=False (nhờ DB); khoá nạp lại ở yêu cầu kế: EXISTS=1
+F TC-PE07-09 dừng Redis + Postgres: chat-gate ×3 → [(200, 'False', []), (200, 'False', []), (200, 'False', [])] (không có allowed:true)

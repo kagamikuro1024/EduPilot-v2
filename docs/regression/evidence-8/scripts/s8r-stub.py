@@ -30,6 +30,9 @@ class H(BaseHTTPRequestHandler):
         if k == "fail503": return self._send(503, {"error": {"message": "down"}})
         if k == "invalid": content = "đây không phải JSON {"
         elif k == "custom": content = json.dumps(m["custom"], ensure_ascii=False)
-        else: content = open(f"{FX}/extraction-{k}.json", encoding="utf-8").read()
+        else:
+            content = open(f"{FX}/extraction-{k}.json", encoding="utf-8").read()
+            if k == "lop2":  # fixture lop2 có unclear_items kèm khoá 'source' (do máy chủ thêm); đầu ra thô của mô hình không có → bỏ để qua schema (additionalProperties:false)
+                d = json.loads(content); d["unclear_items"] = []; content = json.dumps(d, ensure_ascii=False)
         return self._send(200, {"id": "c", "object": "chat.completion", "created": 1, "model": j.get("model", "m-ext"), "choices": [{"index": 0, "message": {"role": "assistant", "content": content}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}})
 ThreadingHTTPServer(("0.0.0.0", int(sys.argv[1])), H).serve_forever()

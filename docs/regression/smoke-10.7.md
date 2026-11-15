@@ -123,3 +123,8 @@ Còn lệch: **H7 gradebook** đầu trang 66,4 ≠ 63 (1440) và 134,4 ≠ 131 
 Các mục này chưa đổi trạng thái F của DEF-R10.7-01/-02 (còn mở một phần); -03 và -04 đã sửa.
 
 Đo lại sổ điểm trên lớp CHƯA chốt, ít dữ liệu (QCEMPTY, GV `teacher`, `audit/sau5`, `audit-sau5.md`): H7 và D3 KHÔNG lệch (hai lệch trên 761987 phụ thuộc dữ liệu: lớp đã Chốt, nhiều cột/hàng); X3 VẪN lệch (1440): đang tải / lỗi hiện [«Xem công thức», «Thêm hành động», «Chốt điểm»] còn trạng thái dữ liệu chỉ có [«Xem công thức», «Chốt điểm»] — nút menu «Thêm hành động» ở khung chờ thừa so với khung dữ liệu của lớp ít dữ liệu. ⇒ X3 gradebook là lệch thật (giao dev2, P-11-51).
+
+## Chạy lại sau P-11-51 (80e90d1b + 4 commit; ep-r dựng lại, 2026-11-16)
+- **Lớp 761987 (đã chốt), audit đầy đủ `sau7`** (4 vai × 1440/375 × dữ liệu/rỗng/đang tải/lỗi): **4 lệch**, đều X3 gradebook (teacher, loading/error × 1440/375): khung chờ có [«Xem công thức», «Chốt điểm»] còn trạng thái dữ liệu của lớp đã chốt có [«Xem công thức», «Thêm hành động»]. HẾT: H7 và D3 gradebook, X3 insights, E6 observability rỗng, E2 student/chat.
+- **Lớp QCEMPTY (chưa chốt, ít dữ liệu), audit `sau8`** (ta/teacher × gradebook/insights/observability × dữ liệu/đang tải/lỗi): **4 lệch**, đều X3 teacher/insights (loading/error × 1440/375): khung chờ có [«Tạo báo cáo mới», «Thêm hành động»] còn trạng thái dữ liệu của lớp chưa có báo cáo không có nút đầu trang. Gradebook trên QCEMPTY: 0 lệch.
+- Nhận xét: các lệch còn lại phụ thuộc dữ liệu lớp (khung chờ không biết lớp đã chốt / đã có báo cáo) — mỗi lớp lệch ở một trang khác nhau; không còn lệch bố cục (H7, D3, E2, E6).

@@ -1,0 +1,8 @@
+dialog: Thời gian học trên EduPilot |  | EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công 
+P TC-PE06-04 bài MIXED ở 390/1023/1024/1440: ô soạn mã (textarea) = 0,0,1,1; đề đọc được ở 390/1023: true/true; dải: "Bài lập trình cần màn hình rộng hơn (từ 1.024 px). Hãy 
+dialog: Thời gian học trên EduPilot |  | EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công 
+P TC-PE06-07 dán 65.536 ký tự: bộ đếm "65.536/65.536"; gõ thêm 'Z' → độ dài ô 65536 (≤65.536; chữ báo: "(không thấy)"); 21.845×'ệ' (3 byte): "65.535/65.536" (đếm theo byte);
+P TC-PE06-14 gõ khi offline 30 s: khoá localStorage ["exam-code:01a1e15f-a382-787a-96b4-7b2aa015fe1d:01a1e14f-5bb7-7778-a992-1f6610422fde:c11"]; sau online 12 s bản nháp máy
+F TC-PE06-27 nộp code → trạng thái hiện lần lượt:  (QUEUED "Đã nhận, đang xếp hàng" → "Đang chấm" → kết quả; không từ kỹ thuật)
+dialog: Thời gian học trên EduPilot |  | EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công 
+F TC-PE06-42 chặn kênh SSE (route abort /events): kết quả vẫn hiện sau null s qua truy vấn lại 2 s; số yêu cầu /events thử = 8 (≤2/người ×phiên; spec 'sse drop' kiểm hiện đú

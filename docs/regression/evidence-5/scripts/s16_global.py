@@ -27,6 +27,12 @@ def ctxs(eid, users):
     return out
 def codeitem(c): return [i for i in c['items'] if i['type'] == 'CODE'][0]['item_id']
 def readyz(): s, j, t = call('GET', '/readyz'); return s, t
+if stage in ('g4', 'g1'):  # Main xếp hàng khoá: nhường tới khi thấy cả hai dòng UNLOCK (rebuild + US-P6-03) SAU lượt g3 của SmkL
+    _t = time.time()
+    while time.time() - _t < 3000:
+        _txt = open(LOG, encoding='utf-8', errors='ignore').read(); _i = _txt.rfind('SmkL: UNLOCK — g3'); _new = _txt[_i:] if _i >= 0 else _txt
+        if 'UNLOCK rebuild' in _new and 'UNLOCK — US-P6-03' in _new: break
+        time.sleep(15)
 t_w = time.time()
 while True:
     try: os.mkdir(LOCK); break
@@ -40,7 +46,12 @@ try:
         q10 = mkcode(70, tests=[('s1', '1 2\n', '3\n', True, 1)] + [(f'h{i}', f'{i} {i}\n', f'{2*i}\n', False, 1) for i in range(1, 10)], ref=SUM)
         eA, _ = mkexam(open_s=8, win=200, dur=3, items=[mkq(1), q10], title='R5L g1 judge'); time.sleep(10)
         gv = ACT[:3]; cx = ctxs(eA, gv); a1, a2, a3 = (cx[u] for u in gv)
-        t0 = time.time(); logc('docker stop judge'); dk('stop', '-t', '2', 'ep-r-judge-1'); time.sleep(3); tmark = time.strftime('%Y-%m-%dT%H:%M:%S')
+        t0 = time.time(); logc('docker stop judge'); dk('stop', '-t', '2', 'ep-r-judge-1'); t_down = None
+        for _ in range(90):
+            rzz = readyz()
+            if '"judge":"down"' in rzz[1].replace(' ', ''): t_down = time.time() - t0; break
+            time.sleep(1)
+        tmark = time.strftime('%Y-%m-%dT%H:%M:%S')
         t1 = time.time(); r_run = S('POST', f'{a1["base"]}/code/{codeitem(a1)}/run', a1['t'], dict(language='cpp17', source=SUM), {**a1['H'], **idem()}); d_run = time.time() - t1
         t1 = time.time(); r_sub = S('POST', f'{a2["base"]}/code/{codeitem(a2)}/submit', a2['t'], dict(language='cpp17', source=SUM), {**a2['H'], **idem()}); d_sub = time.time() - t1; sid = r_sub[1].get('submission_id')
         rz = readyz(); hz = call('GET', '/healthz')
@@ -53,7 +64,7 @@ try:
             time.sleep(1)
         dead1 = rds('XLEN', 'judge.submit.dead'); msg = subprocess.run(['docker', 'exec', 'ep-r-redis-1', 'redis-cli', 'XREVRANGE', 'judge.submit.dead', '+', '-', 'COUNT', '1'], capture_output=True, text=True).stdout
         warn = int(subprocess.run("(docker logs --since %ds ep-r-gateway-1 2>&1; docker logs --since %ds ep-r-worker-1 2>&1) | grep -i 'judge' | grep -ci '\"level\":\"warn\"\\|level=WARN'" % (int(time.time() - t0) + 2, int(time.time() - t0) + 2), shell=True, capture_output=True, text=True).stdout.strip() or 0)
-        R('TC-PE02-31', r_run[0] == 503 and 'JUDGE_UNAVAILABLE' in codes(r_run[1]) and d_run <= 3 and 5 <= (r_run[1].get('retry_after') or 0) <= 30 and r_sub[0] == 202, f'judge dừng: Chạy thử {r_run[0]} {codes(r_run[1])} retry_after={r_run[1].get("retry_after")} sau {d_run:.2f}s (≤3); nộp {r_sub[0]} QUEUED ({d_sub:.2f}s)')
+        R('TC-PE02-31', t_down is not None and r_run[0] == 503 and 'JUDGE_UNAVAILABLE' in codes(r_run[1]) and d_run <= 3 and 5 <= (r_run[1].get('retry_after') or 0) <= 30 and r_sub[0] == 202, f'judge dừng (readyz báo judge:down sau {t_down and round(t_down,1)} s): Chạy thử {r_run[0]} {codes(r_run[1])} retry_after={r_run[1].get("retry_after")} sau {d_run:.2f}s (≤3); nộp {r_sub[0]} QUEUED ({d_sub:.2f}s)')
         R('TC-PE06-19', r_run[0] == 503 and d_run <= 3, f'(phần judge chết) run → 503 JUDGE_UNAVAILABLE retry_after={r_run[1].get("retry_after")} trong {d_run:.2f}s; phần hàng đầy + run ≤5s: TC-PE02-27 (s13_judge.py burst)')
         R('TC-PE02-52', hz[0] == 200 and rz[0] == 200 and 'down' in rz[1], f'judge dừng: healthz {hz[0]}; readyz {rz[0]} {rz[1][:100]}; log warn liên quan judge trong {int(time.time()-t0)} s: {warn}')
         sj = json.dumps(prog)

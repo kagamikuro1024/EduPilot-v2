@@ -1,0 +1,10 @@
+setroute 200
+P TC-P6-03-01 extract → 202 job_id; job SUCCEEDED
+P TC-P6-03-02 llm_audit của lần trích: 1 dòng, task UTILITY, lane NEAR_REALTIME
+P TC-P6-03-03 log gateway+worker trong lúc trích: 0 lần nội dung quy chế ('Điều 1', 'Điểm thi cuối kỳ')
+restore 200
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-8/scripts/s8r-03.py", line 46, in <module>
+    dr = d_[1].get("draft") or {}
+         ~~^^^
+KeyError: 1

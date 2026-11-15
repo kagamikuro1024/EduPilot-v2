@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 339 · Trượt: 0 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 173   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 349 · Trượt: 0 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 163   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -9,7 +9,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 |---|---|---|---|---|---|---|
 | P6-01 | 41 | 41 | 0 | 0 | 0 | 0 |
 | P6-02 | 49 | 48 | 0 | 0 | 0 | 1 |
-| P6-03 | 48 | 17 | 0 | 0 | 0 | 31 |
+| P6-03 | 48 | 27 | 0 | 0 | 0 | 21 |
 | P6-04 | 49 | 25 | 0 | 0 | 0 | 24 |
 | P6-05 | 46 | 19 | 0 | 0 | 0 | 27 |
 | P6-06 | 63 | 58 | 0 | 0 | 0 | 5 |
@@ -112,19 +112,19 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-02-47 | P | TA preview 200, finalize 403 |
 | TC-P6-02-48 | P | ADMIN preview 403 |
 | TC-P6-02-49 | P | TestPreviewRBAC PASS (Go integration -tags integration, logs/s8core-go-*.log) |
-| TC-P6-03-01 | N | chưa chạy |
-| TC-P6-03-02 | N | chưa chạy |
-| TC-P6-03-03 | N | chưa chạy |
+| TC-P6-03-01 | P | extract → 202 job_id; job SUCCEEDED |
+| TC-P6-03-02 | P | llm_audit của lần trích: 1 dòng, task UTILITY, lane NEAR_REALTIME |
+| TC-P6-03-03 | P | log gateway+worker trong lúc trích: 0 lần nội dung quy chế ('Điều 1', 'Điểm thi cuối kỳ') |
 | TC-P6-03-04 | P | grep: 3 file ngoài internal/llm chỉ chứa tên enum 'openai anthropic' trong validate/oneof (llmhttp, llmconfig); không SDK/endpoint |
 | TC-P6-03-05 | P | TestExtractOneStructuredCall/TaskAndLane/PromptHasPages/SchemaStrictCompatible/AttemptTimeout PASS |
 | TC-P6-03-06 | N | chưa chạy |
-| TC-P6-03-07 | N | chưa chạy |
-| TC-P6-03-08 | N | chưa chạy |
+| TC-P6-03-07 | P | draft lớp 1: 3 thành phần [('final', '60'), ('midterm', '20'), ('weekly', '20')], 7 luật, unclear_items [] |
+| TC-P6-03-08 | P | so khớp fixture extraction-lop1.json: thành phần True, luật+tham số True (chỉ khác id/version/status) |
 | TC-P6-03-09 | P | TestExtractGradeScheme PASS |
-| TC-P6-03-10 | N | chưa chạy |
+| TC-P6-03-10 | P | p6-citation-check trên citations gộp từ components+rules của draft: 11/11 trích dẫn đúng (11 trích dẫn) rc=0 |
 | TC-P6-03-11 | N | chưa chạy |
 | TC-P6-03-12 | N | chưa chạy |
-| TC-P6-03-13 | N | chưa chạy |
+| TC-P6-03-13 | P | lớp 2: thành phần [('final', '50'), ('lab', '25'), ('midterm', '25')], luật ['BONUS', 'FAIL_CONDITION', 'LETTER_SCALE', 'PENALTY'], unclear ['ROUNDING_MISSING']; BON |
 | TC-P6-03-14 | P | PDF quy-che-lop2 (pypdf, 2 trang): 0 lần làm tròn/quy tròn/bước điểm; md có 1 dòng là chú thích HTML nói về chính điều đó |
 | TC-P6-03-15 | P | TestExtractLop2OneUnclear PASS |
 | TC-P6-03-16 | P | 8 test TestChecker* PASS (WeightSum, NoComponents, Bonus, BonusCap, Absence, Rounding, LetterScale, ParamInvalid) |
@@ -136,20 +136,20 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-03-22 | N | chưa chạy |
 | TC-P6-03-23 | N | chưa chạy |
 | TC-P6-03-24 | P | TestCitationVerified/NotFound/PageMissing/OCRTolerance/ComparedAfterUnmask PASS; không có hàm vnFold tự viết ở Go (vn_fold dùng ở SQL/textfold) |
-| TC-P6-03-25 | N | chưa chạy |
+| TC-P6-03-25 | P | sau trích: grade_schemes [['DRAFT', 't', 't']] |
 | TC-P6-03-26 | P | ConfirmScheme: định nghĩa confirm.go:31 + 1 lời gọi gradehttp/handler.go:202; không ở job/seed/agent |
 | TC-P6-03-27 | P | TestExtractNeverConfirms (grading) + TestConfirmOnlyFromHandler (grade) PASS |
 | TC-P6-03-28 | P | seed.mjs xác nhận qua POST …/grade-scheme/confirm bằng token TEACHER; không UPDATE grade_schemes. (seed-t1.mjs là seed tải DB riêng edupilot_t1, INSERT thẳ |
 | TC-P6-03-29 | P | TestPromptDelimitsDocument/NoInstructionFollowing/ExtractUsesPrivacyMask PASS |
 | TC-P6-03-30 | N | chưa chạy |
 | TC-P6-03-31 | N | chưa chạy |
-| TC-P6-03-32 | N | chưa chạy |
+| TC-P6-03-32 | P | extract với document khác COURSE_POLICY → 404 NOT_FOUND |
 | TC-P6-03-33 | N | chưa chạy |
 | TC-P6-03-34 | N | chưa chạy |
 | TC-P6-03-35 | N | chưa chạy |
 | TC-P6-03-36 | N | chưa chạy |
 | TC-P6-03-37 | N | chưa chạy |
-| TC-P6-03-38 | N | chưa chạy |
+| TC-P6-03-38 | P | extract hai lần cùng khoá → job_id giống; grade_schemes mới 1 |
 | TC-P6-03-39 | N | chưa chạy |
 | TC-P6-03-40 | N | chưa chạy |
 | TC-P6-03-41 | N | chưa chạy |
@@ -463,7 +463,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-37 | P | STUDENT (sv.gioi) gọi 19 route Staff (đọc + ghi, mọi route P6) → 403 hết |
 | TC-P6-09-38 | P | sau chốt, B gọi snapshots/1, snapshots/<id của A>, 20 id lân cận → chỉ [403]; không rò dòng của A |
 | TC-P6-09-39 | P | go test 3 test PASS (log s8flow-go-*.log) |
-| TC-P6-09-40 | P | Reseed sạch = TestSeedRiskAfterGradebook + TestSeedGradebookExpected trên DB seed mới (testcontainers): PASS 12 s (qt_current / grade_signal khớp expected_risk.csv, sv26  |
+| TC-P6-09-40 | P | Chạy crm-risk-run lớp 761987 với --now theo buổi neo (buổi 10, 2026-11-15; anchorNowIso P-11-48): AT_RISK 1, WATCH 3 và 30/30 khớp seed/expected_risk.csv (A,B NONE; C AT_ |
 | TC-P6-09-41 | P | C: student_risk.reasons có GRADE_LOW qt_milli=1250 (1,25/10); hồ sơ Staff GET students/C → 404; /me/grades của C không có nhãn/lý do risk; UI hồ sơ: s8r-ui-09 |
 | TC-P6-09-42 | P | lớp 2 (761988, công thức chưa CONFIRMED): 24 dòng student_risk, 0 dòng có GRADE_LOW |
 | TC-P6-09-43 | P | QD8R71: grade_low_below 5,0→6,0 (PUT settings 200): số SV có GRADE_LOW 6→11 (crm.risk chạy lại riêng lớp); ngưỡng 10,5 / 5,3 / -1 / abc → [422, 422, 422, 422] |

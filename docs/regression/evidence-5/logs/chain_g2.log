@@ -1,0 +1,5 @@
+P TC-PE04-25 2 worker (['ep-r-worker-2', 'ep-r-worker-1']); ep:exam:tick:leader=judge-13dbc45cb99b (PTTL 12235 ms ≤ 15000): 1 người giữ; outbox exam.opened của bài
+P TC-PE04-25 2 worker (['ep-r-worker-2', 'ep-r-worker-1']); leader=judge-13dbc45cb99b (PTTL 12235 ms ≤ 15 s), outbox exam.opened = 1 dòng (1); kill -9 leader ep-r-
+P TC-PE04-24 worker tắt qua closes_at+grace: GET exam effective_status=CLOSED (cột status=OPEN); lưu 409 ['ATTEMPT_CLOSED']; nộp 409 ['ATTEMPT_CLOSED']
+P TC-PE05-31 worker tắt qua hạn: lưu 409 ['ATTEMPT_CLOSED'] (cột status vẫn IN_PROGRESS); bật worker → lượt tự nộp sau 5.4s: GRADED|TIMEOUT
+P TC-PE04-26 bài SCHEDULED (opens_at đã qua? không — worker tắt từ trước giờ mở, closes_at đã qua): trước bật worker SCHEDULED; sau: PUBLISHED; outbox exam.opened=

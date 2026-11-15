@@ -7,7 +7,7 @@ def put(tcs, kq, note):
         ov["TC-" + t] = [kq, note]
 G = "logs/grep-batch.log / grep-batch2.log; so sánh với main bằng `git diff 2c15dfce^1 2c15dfce` (1b72f54 không có merge-base với HEAD)"
 put("UX02-1", "P", "rg còn 5 dòng ngoài 13 tệp liệt kê: shared/lib/datetime.ts (mô-đun định dạng), insights/KnowledgeGap.tsx:14-15, observability/AdminView.tsx:19,46 (hai tệp không thuộc 13 tệp của AC1); 13 tệp đã sạch. " + G)
-put("UX04-3", "F", "9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02")
+put("UX04-3", "P", "RERUN 2026-11-16 sau 25cd3352 (P-11-57, DEF-R9.1-02): quét frontend/src/**/*.css: 0 luật :hover ngoài @media (hover: hover)")
 put("UX04-5", "P", "tokens.css:73-75 --ep-fast 140ms, --ep-normal 200ms, --ep-slow 200ms (≤ 200)")
 put("UX04-7", "P", "DESIGN.md:492 «- Drawer/dialog: ≤ 200ms.» đúng một dòng (không có khoảng trắng quanh «/» so với mẫu rg)")
 put("UX04-8", "P", "rg `transition: width` trong frontend/src: 0 kết quả")
@@ -22,7 +22,7 @@ put("UX01-13", "P", "logs/antipatterns.log: PageHeader description tĩnh > 40 k�
 put("UX01-14", "P", "logs/antipatterns.log: description={\"abc\"} và description={dynamicVar} → không ✗, exit 0")
 put("UX01-15", "P", "logs/antipatterns.log: --selftest = 32 / 32 phép bắt được (có phép «Câu mô tả tĩnh dưới tiêu đề»)")
 put("UX10-9", "P", "bash scripts/ui-antipatterns.sh trên cây HEAD: exit 0, không ✗")
-put("UX07-8", "F", "còn 1 chuỗi hiển thị «Kiểm duyệt Threads»: frontend/src/features/settings/llm/decisionApi.ts:17 (nhãn cổng THREADS_PRECHECK cho admin, thêm ở sprint 10.5 commit acb704cc) → DEF-R9.1-03")
+put("UX07-8", "P", "RERUN 2026-11-16 sau 7322ac62 (DEF-R9.1-01): grep \"Kiểm duyệt Threads\" frontend/src = 0")
 put("UX07-14", "P", "diff shell.spec.ts của merge 9.1: chỉ đổi nhãn nav + chuyển sang toHaveText tự thử lại; không xoá/nới assertion")
 put("UX07-16", "P", "rg DESIGN.md: còn duy nhất dòng 42 «Hỏi đáp công khai (Threads)» là ghi chú đổi tên có chủ ý")
 put("UX12-8", "P", "rg \"0[,.]25\" frontend/src/features/attendance: 0 kết quả")

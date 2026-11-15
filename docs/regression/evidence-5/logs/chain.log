@@ -9,3 +9,44 @@ rc=0 scoring done 05:07:17
 ### supersede 05:07:17
 rc=0 supersede done 05:09:32
 ### g1 05:09:32
+rc=0 g1 done 05:15:16
+### g2 05:15:16
+rc=0 g2 done 05:18:12
+### g3 05:18:12
+rc=0 g3 done 05:20:12
+### g4 05:20:12
+g3 finished 05:20:16
+### fixture 05:20:16
+rc=0 fixture done 05:20:19
+rc=143 g4 done 05:20:29
+### burst 05:22:59
+### ui_take6 05:23:00
+rc=0 burst done 05:23:55
+### fixture 05:23:55
+rc=0 fixture done 05:23:57
+### ui_skew 05:23:58
+rc=0 ui_skew done 05:25:28
+### ui_take6 05:25:28
+rc=0 ui_take6 done 05:28:52
+### ui_skew 05:28:53
+rc=0 ui_skew done 05:33:30
+### ui_phone 05:33:30
+rc=0 ui_phone done 05:34:00
+### ui_offline 05:34:00
+rc=0 ui_offline done 05:34:26
+### ui_late 05:34:26
+rc=0 ui_late done 05:36:05
+### ui_flaky 05:36:05
+rc=0 ui_flaky done 05:36:33
+### ui_code1 05:36:33
+rc=0 ui_code1 done 05:44:15
+### ui_code2 05:44:15
+rc=0 ui_code2 done 05:45:26
+### burst 05:45:26
+rc=0 burst done 05:46:18
+### g4 05:46:19
+rc=124 g4 done 06:01:19
+ALLDONE
+### g1b 06:01:22
+rc=143 g1b
+### regrade 06:07:43

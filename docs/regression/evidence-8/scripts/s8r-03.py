@@ -43,8 +43,8 @@ try:
     C("TC-P6-03-02", len(rows) == 1 and rows[0][0] == "UTILITY" and rows[0][1] == "NEAR_REALTIME", f"llm_audit của lần trích: {len(rows)} dòng, task {rows[0][0] if rows else None}, lane {rows[0][1] if rows else None}", str(rows))
     lg = subprocess.run(f"docker logs --since {lg0} ep-r-gateway-1 2>&1; docker logs --since {lg0} ep-r-worker-1 2>&1", shell=True, capture_output=True, text=True).stdout
     C("TC-P6-03-03", len(re.findall(r"điều 1|quy chế|Điểm thi cuối kỳ", lg, re.I)) == 0, f"log gateway+worker trong lúc trích: 0 lần nội dung quy chế ('Điều 1', 'Điểm thi cuối kỳ')", f"{len(lg)}")
-    dr = d_[1].get("draft") or {}
-    open("/tmp/qc2-s8r/c1.json", "w").write(json.dumps(dr.get("citations") or d_[1].get("citations") or [], ensure_ascii=False))
+    dr = d_.get("draft") or {}
+    open("/tmp/qc2-s8r/c1.json", "w").write(json.dumps({"citations": [x for it in (dr.get("components", []) + dr.get("rules", [])) for x in it.get("citations", [])]}, ensure_ascii=False))
     print("draft keys", list(dr.keys()), "unclear", dr.get("unclear_items"))
     # 03-07/08 so với fixture
     def comp(x): return sorted([(c_["key"], str(c_.get("weight")).rstrip("0").rstrip(".") if "." in str(c_.get("weight")) else str(c_.get("weight"))) for c_ in x["components"]])

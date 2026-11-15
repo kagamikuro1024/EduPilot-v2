@@ -1,0 +1,7 @@
+TC-P102-14 F stub: INTERACTIVE=2 (kỳ vọng 2), BATCH=0 (kỳ vọng 3); llm_audit CHAT: ''; GRADING: 'circuit_open/circuit_open/att=0/qwait=0/lat=0'; GRADING 
+window s 1.8693902492523193
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-3/scripts/p10x3.py", line 53, in <module>
+    stubreset(); t3=datetime.datetime.utcnow(); s,j,ms,_=chat('CHAT'); time.sleep(0.5)
+                                                ^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
