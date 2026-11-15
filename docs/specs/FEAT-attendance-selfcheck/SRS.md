@@ -1,5 +1,5 @@
 # SRS FEAT-attendance-selfcheck Điểm danh tự phục vụ chống gian lận (web + app Android)
-Phiên bản 1.7 · 2026-11-16 · Trạng thái: **DRAFT** (**v1.7 (P-11-43, DEF-R10.8-02):** §9 + §11 + US.md trỏ test thật trong `internal/attendance`; test chưa có liệt kê ở hai bảng cuối §11; PM đã chốt Q-A-1, Q-A-2, Q-A-4 ở **P-108-2**; chờ PM duyệt toàn bộ). **v1.1 (P-108-2):** xoá hẳn lượt thô sau 30 ngày; `CHECKIN_UNRESOLVED` cho buổi có cửa sổ; **bỏ App Links** — trong app quét bằng `BarcodeDetector` trong WebView, thiếu thì nhập **mã ngắn** hiện dưới QR (FR-3a, FR-10, FR-22). **v1.2 (P-108-3):** hợp đồng API (`CourseDetail.attendance`, thay toàn bộ chính sách, trần 3 cửa sổ, `close` lần hai không audit / outbox). **v1.3 (P-108-4…10):** FR-20 ràng `public_key` với chứng chỉ lá (P-108-4); app chưa chứng thực ký Keystore gửi `WEB_KEY` → mức 2 (P-108-5); `NOT_APP` theo chữ ký `ANDROID_KEY` của khoá `attested` (P-108-6); màn chiếu giữ QR tới hạn hiệu lực theo giờ máy chủ (P-108-7); dựng lại APK một lệnh khi đổi host (P-108-9); `attendance.ForgetStudent` (P-108-10). P-108-8 (DESIGN §23.1) làm sau khi 10.7 vào main.
+Phiên bản 1.7 · 2026-11-16 · Trạng thái: **DRAFT** (**v1.7 (P-11-43, DEF-R10.8-02):** §9 + §11 + US.md trỏ test thật; 13 test còn thiếu đã được viết (bảng «Chưa có test» bỏ); PM đã chốt Q-A-1, Q-A-2, Q-A-4 ở **P-108-2**; chờ PM duyệt toàn bộ). **v1.1 (P-108-2):** xoá hẳn lượt thô sau 30 ngày; `CHECKIN_UNRESOLVED` cho buổi có cửa sổ; **bỏ App Links** — trong app quét bằng `BarcodeDetector` trong WebView, thiếu thì nhập **mã ngắn** hiện dưới QR (FR-3a, FR-10, FR-22). **v1.2 (P-108-3):** hợp đồng API (`CourseDetail.attendance`, thay toàn bộ chính sách, trần 3 cửa sổ, `close` lần hai không audit / outbox). **v1.3 (P-108-4…10):** FR-20 ràng `public_key` với chứng chỉ lá (P-108-4); app chưa chứng thực ký Keystore gửi `WEB_KEY` → mức 2 (P-108-5); `NOT_APP` theo chữ ký `ANDROID_KEY` của khoá `attested` (P-108-6); màn chiếu giữ QR tới hạn hiệu lực theo giờ máy chủ (P-108-7); dựng lại APK một lệnh khi đổi host (P-108-9); `attendance.ForgetStudent` (P-108-10). P-108-8 (DESIGN §23.1) làm sau khi 10.7 vào main.
 
 Nguồn: `US.md` (US-AS-01…14), PRD M5, FLOWS F7 + F7b, `docs/sprints/10.8/techlead.md` TL-1, `docs/research/2026-11-14-attendance-anti-cheat.md` (viết tắt «research»), **P-108-1**. Phần lệch có chủ đích so với research ghi ở mục 10.
 
@@ -447,7 +447,7 @@ Tech Lead bổ sung `DESIGN.md` §14 cho `/attendance/display` và `/checkin` (n
 - Thiết bị: `TestAttestRealChains` (`caiman…` / `akita…`), `TestAttestRejects` (tự ký, khoá thân ≠ khoá lá, vân tay / gói APK sai, chứng chỉ hết hạn), `TestAttestRevocation`, `TestDeviceChallengeOnce`.
 - Dữ liệu: `TestPurgeKeepsRecords` (mốc 30 ngày), `TestForgetStudentKeepsOthers` (gọi thẳng `ForgetStudent`), `TestLogsNoCheckinSecrets`, `TestMeAttendanceCheckedAtAndTodayReview`, `TestSeedCheckinDemo`.
 - Hợp đồng (`internal/contract`): `checkin_scenarios_test.go` gọi mọi status khai báo của 12 route, gồm `429` sau 5 mã sai; `TestSpec_*` / `TestStatusParity` kiểm khớp `openapi.yaml`.
-- Còn thiếu: bảng «Chưa có test» ở mục 11.
+- Bổ sung P-11-43 / DEF-R10.8-02 (đã có, CI xanh): `rules_test.go` (`TestWindowOpenRules`, `TestOverHeadcount`, `TestDisplayNoStore`, `TestDeviceSharedRace`, `TestFlagCampus`, `TestNoCoordsOrIPStored`), `plan_test.go` (`TestCheckinRejectsUnknownBody`, `TestFlagTokenLate`, `TestCheckinRace`, `TestCloseVsGridRace`, `TestPurgeSkipsOpenWindow`, `TestCheckinByCodeIsolation`), `internal/agent/checkin_privacy_test.go` (`TestAgentToolNoCheckinFlags`).
 
 **Tích hợp:** kiểm migration `00024` chạy trên DB sạch + DB đã có dữ liệu; `sqlc diff` sạch.
 
@@ -479,39 +479,16 @@ Tech Lead bổ sung `DESIGN.md` §14 cho `/attendance/display` và `/checkin` (n
 | PRD | FLOWS | Phase | US | FR | Test |
 | --- | --- | --- | --- | --- | --- |
 | M5 (AC mới) | F7b | P5 mở rộng / 10.8 L1 | US-AS-01 | FR-1 | `TestSettingsAttendance` |
-| M5 | F7b | L1 | US-AS-02 | FR-2, 4, 5, 7 | `TestCheckinFlow` (NO_WINDOW, WINDOW_ALREADY_OPEN), `TestRoundsRecheckAndLimit` (vòng, ROUND_LIMIT), `TestSweepAutoCloseAndLate` (tự đóng); hợp đồng: `internal/contract/checkin_scenarios_test.go` |
-| M5 | F7b | L1 | US-AS-03 | FR-3, 10, 17 | `TestTokenRoundTripAndTamper`, `TestTokenStepWindow`, `TestShortCodeNormalize`, `TestCheckinFlow`, `TestCheckinWindowSurvivesPolicyOff`, `TestMeAttendanceCheckedAtAndTodayReview` |
-| M5 | F7b | L1 | US-AS-04 | FR-11, 12, 15 | `TestCheckinFlags` (DEVICE_SHARED, DEVICE_NEW), `TestGeoFlagsAndAssurance` (mức tin cậy) |
-| M5 | F7, F7b | L1 | US-AS-05 | FR-6, 8, 9 | `TestCloseAbsentComplete` (đóng, đánh vắng người chưa điểm danh, CHECKIN_UNRESOLVED, hoàn tất) |
+| M5 | F7b | L1 | US-AS-02 | FR-2, 4, 5, 7 | `TestCheckinFlow` (NO_WINDOW, WINDOW_ALREADY_OPEN), `TestRoundsRecheckAndLimit` (vòng, ROUND_LIMIT), `TestSweepAutoCloseAndLate` (tự đóng), `TestWindowOpenRules` (`minutes`, mở song song, vòng ≥ 2 không outbox), `TestOverHeadcount` (`PATCH headcount`, công thức), `TestDisplayNoStore` (`no-store`, `409` / `429` ở `display`); hợp đồng: `internal/contract/checkin_scenarios_test.go` |
+| M5 | F7b | L1 | US-AS-03 | FR-3, 10, 17 | `TestTokenRoundTripAndTamper`, `TestTokenStepWindow`, `TestShortCodeNormalize`, `TestCheckinFlow`, `TestCheckinWindowSurvivesPolicyOff`, `TestMeAttendanceCheckedAtAndTodayReview`, `TestCheckinRace` (song song cùng lượt), `TestCheckinByCodeIsolation` (mã ngắn), `TestCheckinRejectsUnknownBody` (khoá lạ → `422`), `TestAgentToolNoCheckinFlags` (`internal/agent`) |
+| M5 | F7b | L1 | US-AS-04 | FR-11, 12, 15 | `TestCheckinFlags` (DEVICE_SHARED, DEVICE_NEW), `TestGeoFlagsAndAssurance` (mức tin cậy), `TestDeviceSharedRace`, `TestFlagTokenLate` |
+| M5 | F7, F7b | L1 | US-AS-05 | FR-6, 8, 9 | `TestCloseAbsentComplete` (đóng, đánh vắng người chưa điểm danh, CHECKIN_UNRESOLVED, hoàn tất), `TestCloseVsGridRace` |
 | M5, F14 | F14, F7b | L1 | US-AS-06 | FR-16, 18 | `TestCheckinsListCursor`, `TestCheckinFlags` (bỏ cờ + audit), `TestMeAttendanceCheckedAtAndTodayReview` (mục «Hôm nay») |
-| M5 | F7b | L1 + L2 | US-AS-07 | FR-5, 14, 16 | `TestRoundsRecheckAndLimit` (RECHECK_MISS), `TestSpotCheckPrefersFlagged` |
+| M5 | F7b | L1 + L2 | US-AS-07 | FR-5, 14, 16 | `TestRoundsRecheckAndLimit` (RECHECK_MISS), `TestSpotCheckPrefersFlagged`, `TestOverHeadcount` |
 | M5 | F7b | L2 | US-AS-08 | FR-23 | `attendance-display.spec.ts`, `attendance-checkin.spec.ts` |
 | M5 | F7b | L3 | US-AS-09 | FR-23 | `attendance-checkin.spec.ts`, `checkin-token-leak.spec.ts` |
-| M5, §5 riêng tư | F7b | L4 | US-AS-10 | FR-13 | `TestGeoFlagsAndAssurance` (GEO_*), `TestLogsNoCheckinSecrets` (không toạ độ trong log / audit) |
+| M5, §5 riêng tư | F7b | L4 | US-AS-10 | FR-13 | `TestGeoFlagsAndAssurance` (GEO_*), `TestFlagCampus` (OFF_CAMPUS, `in_campus`), `TestNoCoordsOrIPStored` (không toạ độ, không IP), `TestLogsNoCheckinSecrets` (không toạ độ trong log / audit) |
 | M5 | F7b | L5 | US-AS-11 | FR-22 | `docs/sprints/10.8/qc/android-checklist.md` |
 | M5 | F7b | L5 | US-AS-12 | FR-19, 20 | `TestAttestRealChains`, `TestAttestRejects`, `TestAttestRevocation`, `TestDeviceChallengeOnce` |
-| §5 riêng tư | F7b | L1 + L7 | US-AS-13 | FR-21 | `TestPurgeKeepsRecords`, `TestForgetStudentKeepsOthers` (hàm xoá theo người; job xoá tài khoản nối ở phase PR) |
+| §5 riêng tư | F7b | L1 + L7 | US-AS-13 | FR-21 | `TestPurgeKeepsRecords`, `TestPurgeSkipsOpenWindow`, `TestForgetStudentKeepsOthers` (hàm xoá theo người; job xoá tài khoản nối ở phase PR) |
 | M5 | F7b | L7 | US-AS-14 | FR-24, 25 | seed, E2E, k6, contract |
-
-**Chưa có test (P-11-43; dev viết, tên là đích danh để bảng trên bổ sung sau):**
-
-| Tên đích | Phủ | Hiện có gì |
-| --- | --- | --- |
-| `TestWindowOpenRules` | US-AS-02 AC1–3, AC8: `minutes` ngoài [1,60] → 422, mặc định 10 / 3; hai yêu cầu mở song song khác `Idempotency-Key` → đúng một `201` và một `409`; mở vòng ≥ 2 không sinh sự kiện outbox tới sinh viên | chỉ ca mở tuần tự → `WINDOW_ALREADY_OPEN` (`TestCheckinFlow`) |
-| `TestOverHeadcount` | US-AS-02 AC6 + US-AS-07 AC1: `PATCH headcount` 0…2000, `audit_log` `checkin_window.headcount`, `over_headcount` đúng công thức `> headcount + max(2, ⌈5 %·headcount⌉)` (cả hai phía biên) | chỉ đếm gián tiếp trong `TestSeedCheckinDemo` |
-| `TestDisplayNoStore` | US-AS-02 AC4 + AC8: `display` có `Cache-Control: no-store`; cửa sổ đã đóng → `409 WINDOW_CLOSED`; quá 30 lần / phút / người → `429` | `no-store` mới kiểm ở lượt điểm danh và danh sách lượt, chưa ở `display` |
-| `TestDeviceSharedRace` | US-AS-04: hai sinh viên điểm danh đồng thời cùng một khoá → cả hai lượt mang `DEVICE_SHARED`, không mất cờ | `TestCheckinFlags` chỉ kiểm tuần tự |
-| `TestFlagCampus` | US-AS-10 AC mạng: `campus_cidrs` → `OFF_CAMPUS` / `in_campus`; không lưu IP | không có test nào chạm `OFF_CAMPUS` |
-| `TestNoCoordsOrIPStored` | US-AS-10: không toạ độ **và không IP** trong DB, log, audit | toạ độ ở log / audit đã có (`TestLogsNoCheckinSecrets`); IP chưa kiểm; kiểm DB trong `TestGeoFlagsAndAssurance` (`geo_distance_m < 0`) không bắt được gì, nên viết lại |
-
-**Kế hoạch cũ chưa có test (P-11-43; PM chọn giao dev hoặc bỏ khỏi kế hoạch):**
-
-| Tên đích | Phủ | Hiện có gì |
-| --- | --- | --- |
-| `TestCheckinRejectsUnknownBody` | US-AS-03 AC9 (P-108-13): thân có `student_id` / `user_id` / khoá lạ → `422 VALIDATION_FAILED` `details[].code=unknown`; danh tính chỉ từ JWT | không có test nào gửi khoá lạ |
-| `TestAgentToolNoCheckinFlags` | US-AS-06 AC: tool `get_my_attendance` không nhận trường mới | không test nào ở `internal/agent` chạm điểm danh tự phục vụ |
-| `TestFlagTokenLate` | FR-12: lượt dùng token cũ một bước mang `TOKEN_LATE` | chỉ đếm trong `TestSeedCheckinDemo`; `TestCheckinFlow` kiểm nhận lượt, không kiểm cờ |
-| `TestCheckinRace` | US-AS-03: F5 / hai tab / yêu cầu song song cùng lượt → đúng một bản ghi | gửi lại tuần tự (`TestCheckinFlow`) |
-| `TestCloseVsGridRace` | US-AS-05: đóng cửa sổ đồng thời với lưu lưới điểm danh không mất dòng | không có |
-| `TestPurgeSkipsOpenWindow` | US-AS-13: purge không xoá lượt của cửa sổ còn mở | `TestPurgeKeepsRecords` chỉ kiểm cửa sổ đã đóng |
-| `TestCheckinByCodeIsolation` | US-AS-03: mã ngắn hết hạn / cửa sổ đóng / nhiều cửa sổ; hai lớp trùng mã không lẫn | `TestCheckinFlow` kiểm mã đúng / sai |
