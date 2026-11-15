@@ -67,18 +67,32 @@ async function run(): Promise<RefreshResult> {
   return doRefresh();
 }
 
+/** Tên thuộc tính `window` giữ lời gọi làm mới sớm do `<script>` trong `<head>` của root layout bắt đầu (U1). Dùng đúng MỘT lần. */
+export const EARLY_REFRESH_KEY = "__epRefresh";
+
+/** Lấy lời gọi làm mới sớm (nếu có) và xoá khỏi `window`: mỗi token làm mới chỉ được dùng một lần. */
+function takeEarlyRefresh(): Promise<Response> | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as Record<string, Promise<Response> | undefined>;
+  const p = w[EARLY_REFRESH_KEY];
+  delete w[EARLY_REFRESH_KEY];
+  return p ?? null;
+}
+
 async function doRefresh(): Promise<RefreshResult> {
   const startedAt = epoch;
   // Trong lúc chờ, người dùng đăng nhập (hoặc phiên khác đổi): kết quả làm mới bằng cookie cũ không được ghi đè / xoá phiên mới (P-106-14).
   const superseded = (): RefreshResult | null => (epoch === startedAt ? null : snap.user ? { ok: true, user: snap.user } : { ok: false, code: "SUPERSEDED" });
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}/auth/refresh`, {
-      method: "POST",
-      credentials: "include",
-      headers: { Accept: "application/json", "Content-Type": "application/json", "X-Request-Id": crypto.randomUUID() },
-      signal: AbortSignal.timeout(15_000),
-    });
+    res =
+      (await takeEarlyRefresh()) ??
+      (await fetch(`${API_BASE}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+        headers: { Accept: "application/json", "Content-Type": "application/json", "X-Request-Id": crypto.randomUUID() },
+        signal: AbortSignal.timeout(15_000),
+      }));
   } catch {
     return { ok: false, code: "NETWORK" }; // không rõ phiên còn hay mất: giữ nguyên trạng thái
   }
