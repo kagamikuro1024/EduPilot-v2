@@ -24,9 +24,12 @@ const body = (over: Record<string, unknown>[] = []) => ({
   ],
 });
 
+const SUMMARY = { window: "24h", totals: { requests: 10, p50_ms: 900, p95_ms: 2000, errors: 0, error_rate: 0, fallbacks: 0, fallback_rate: 0, cost: "100", pii_masked: 0, window_seconds: 86400 }, days: [], tasks: [] };
+
 async function openObs(page: Page, scripts: Record<string, unknown[]>, role: "ADMIN" | "TEACHER" = "ADMIN") {
   await reset(page);
-  await script(page, scripts as never);
+  // dải «24 giờ qua» của màn thật cần số tổng hợp để hiện (AC2 kiểm bảng này không lặp ở dải đó)
+  await script(page, { "GET /api/v1/admin/observability/summary": [{ body: SUMMARY }], "GET /api/v1/admin/observability/requests": [{ body: { items: [], next_cursor: null } }], ...scripts } as never);
   await asJwt(page, role, { email: "admin@ptit.edu.vn" });
   await page.goto("/observability");
 }

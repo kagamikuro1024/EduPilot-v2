@@ -54,7 +54,8 @@ test("điều hướng: «Bài tập» đứng giữa «Hỏi đáp công khai»
     await expect(links.first()).toHaveText(/Bài tập/);
     return;
   }
-  const names = await page.getByRole("navigation", { name: /điều hướng|chính/i }).first().getByRole("link").allInnerTexts();
+  await expect(page.locator("#sidebar-nav").getByRole("link", { name: "Bài tập" })).toBeVisible();
+  const names = await page.locator("#sidebar-nav").getByRole("link").allInnerTexts();
   const i = names.findIndex((n) => n.includes("Bài tập"));
   expect(i).toBeGreaterThan(0);
   expect(names[i - 1]).toContain("Hỏi đáp");
@@ -64,7 +65,7 @@ test("điều hướng: «Bài tập» đứng giữa «Hỏi đáp công khai»
 test("Staff mở /assignments: màn chặn, không gọi API bài tập", async ({ page, context }) => {
   await asDemo(context, "teacher");
   const calls: string[] = [];
-  page.on("request", (r) => /\/assignments(\?|$)/.test(new URL(r.url()).pathname) && calls.push(r.url()));
+  page.on("request", (r) => r.url().includes("/api/v1/") && /\/assignments(\?|$)/.test(new URL(r.url()).pathname) && calls.push(r.url()));
   await page.goto("/assignments");
   await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" })).toBeVisible();
   expect(calls).toEqual([]);

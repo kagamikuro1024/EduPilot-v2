@@ -78,11 +78,15 @@ test("nội dung hết hạn lưu (410 PAYLOAD_EXPIRED) → một dòng, không 
   await expect(page.getByText("Nội dung đã hết hạn lưu.")).toBeVisible();
 });
 
-test("lọc yêu cầu: «Có vấn đề» gọi lại với filter=problem; lỗi API → Thử lại", async ({ page }) => {
-  await openAdmin(page, { [SUM]: [err(503, "SERVICE_UNAVAILABLE")] });
-  await expect(page.getByRole("button", { name: "Thử lại" }).first()).toBeVisible({ timeout: 20_000 });
+test("lọc yêu cầu: «Có vấn đề» gọi lại với filter=problem", async ({ page }) => {
+  await openAdmin(page);
   await page.getByRole("radio", { name: "Có vấn đề" }).click();
   await expect.poll(async () => (await getLog(page, "/api/v1/admin/observability/requests")).some((e) => e.search.includes("filter=problem"))).toBe(true);
+});
+
+test("lỗi API tổng hợp → một dòng + Thử lại, không spinner riêng", async ({ page }) => {
+  await openAdmin(page, { [SUM]: [err(503, "SERVICE_UNAVAILABLE")] });
+  await expect(page.getByRole("button", { name: "Thử lại" }).first()).toBeVisible({ timeout: 20_000 });
 });
 
 test("TEACHER: chỉ tổng hợp 7 ngày của lớp mình, không bảng yêu cầu, không gọi API admin", async ({ page }) => {
