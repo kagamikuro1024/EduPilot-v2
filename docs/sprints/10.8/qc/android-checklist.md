@@ -53,3 +53,6 @@ Người chạy: QC + chủ dự án (máy thật). Mỗi bước ghi **PASS / F
 - Mức 3 **chỉ** chứng minh được bằng chuỗi chứng chỉ thật (máy thật hoặc `testdata` của Go test); emulator không đạt mức 3 và **không** là lỗi.
 - Không có máy thật ⇒ AC-5, AC-6, AC-9b, AC-11, AC-13, AC-19 ghi **KHÔNG KIỂM ĐƯỢC** (không tính FAIL), kèm lý do; US-AS-11 vẫn có thể PASS theo AC8 của chính nó.
 - iOS / Play Store / ML Kit / BLE / NFC ngoài phạm vi.
+
+## Chốt (P-108-12, PM)
+Chủ dự án **không có máy Android thật**: AC-5, AC-5b, AC-6, AC-9b, AC-11, AC-13, AC-17, AC-19 ghi **KHÔNG KIỂM ĐƯỢC** (không FAIL). Mức 3 kiểm bằng fixture `user_devices` + chuỗi chứng thực mẫu ở `docs/research/poc/attendance-checkin/testdata` (Go test); emulator vẫn kiểm mức 2 (AC-0, 1–4, 7, 8, 9, 12, 14–16, 18).
