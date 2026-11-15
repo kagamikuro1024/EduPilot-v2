@@ -54,7 +54,7 @@ func TestSSE_RevokedSessionAndRequireSession(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer resp.Body.Close()
+			defer func() { _ = resp.Body.Close() }()
 			if resp.StatusCode != http.StatusUnauthorized {
 				t.Fatalf("mã HTTP = %d, muốn 401", resp.StatusCode)
 			}
