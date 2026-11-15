@@ -750,7 +750,7 @@ Applies only when the course has `self_checkin = true`. Otherwise the route is u
 Header actions (§23.2):
 - Primary stays `Lưu điểm danh` (docked below 720 px).
 - Secondary `Mở điểm danh`: shown only while the selected session has NO window yet; hidden (not disabled) as soon as round 1 exists (later rounds live in the overflow `⋯`; one job, one button, §23). It opens the window (`Idempotency-Key`) and then navigates to `/attendance/display?course=&session=` in the same tab. Below 720 px it sits in the "Thêm" menu like every secondary.
-- Overflow `⋯`, once round 1 exists: `Mở vòng {r+1}` (r < 3), `Nhập số đầu người`, `Gọi ngẫu nhiên 5 người`.
+- Overflow `⋯`, once round 1 exists: `Mở vòng {r+1}` (only while no window is open and r < 3; same flow as `Mở điểm danh`: open, then the projector), `Nhập số đầu người`, `Gọi ngẫu nhiên 5 người`.
 
 Window line: one quiet line inside the panel, directly under the toolbar (the §23.3 job-result slot). Never a second panel, never a toast.
 
