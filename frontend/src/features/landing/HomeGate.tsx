@@ -14,6 +14,8 @@ const AuthedHome = dynamic(loadAuthed, { loading: () => null });
  * `/`: đã đăng nhập → khung ứng dụng + "Hôm nay"; còn lại → giới thiệu (máy chủ đã vẽ sẵn, truyền vào dạng `landing`) hoặc khung "Hôm nay" chờ phiên (`pre`) cho người quay lại.
  * Hai khung cùng nằm trong HTML; CSS chọn khung nào hiện theo `html[data-returning]` (đặt bởi script trước khi vẽ). Phiên xác định là chưa đăng nhập thì gỡ dấu → giới thiệu hiện.
  */
+const TODAY_TITLE = "Hôm nay · EduPilot";
+
 export function HomeGate({ landing, pre }: { landing: React.ReactNode; pre: React.ReactNode }) {
   const auth = useAuth();
   const anonymous = auth.status === "anonymous" || auth.status === "revoked";
@@ -24,7 +26,15 @@ export function HomeGate({ landing, pre }: { landing: React.ReactNode; pre: Reac
     if (isReturning()) void loadAuthed();
   }, []);
   useEffect(() => {
-    if (auth.status === "authenticated") document.title = "Hôm nay · EduPilot";
+    if (auth.status !== "authenticated") return;
+    // Metadata của `/` (tiêu đề trang giới thiệu) có thể được Next áp SAU lúc phiên đến (phiên sớm U1 đến nhanh hơn): giữ tiêu đề «Hôm nay» chừng nào còn ở `/`.
+    const want = () => {
+      if (location.pathname === "/" && document.title !== TODAY_TITLE) document.title = TODAY_TITLE;
+    };
+    want();
+    const mo = new MutationObserver(want);
+    mo.observe(document.head, { childList: true, subtree: true, characterData: true });
+    return () => mo.disconnect();
   }, [auth.status]);
 
   if (auth.status === "authenticated") {
