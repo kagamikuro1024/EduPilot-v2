@@ -80,13 +80,16 @@ function takeEarlyRefresh(): Promise<Response> | null {
 }
 
 async function doRefresh(): Promise<RefreshResult> {
-  const startedAt = epoch;
+  const early = takeEarlyRefresh();
+  // Lời gọi sớm được gửi lúc tải trang (epoch 0), trước mọi đăng nhập / đăng xuất trong trang này: dù doRefresh chỉ bắt đầu sau khi chờ khoá `ep-refresh`, kết quả của nó
+  // vẫn là của THỜI ĐIỂM GỬI — đăng nhập xong rồi mới nhận 401 cũ thì phải bị coi là lỗi thời, không được xoá phiên mới (P-106-14).
+  const startedAt = early ? 0 : epoch;
   // Trong lúc chờ, người dùng đăng nhập (hoặc phiên khác đổi): kết quả làm mới bằng cookie cũ không được ghi đè / xoá phiên mới (P-106-14).
   const superseded = (): RefreshResult | null => (epoch === startedAt ? null : snap.user ? { ok: true, user: snap.user } : { ok: false, code: "SUPERSEDED" });
   let res: Response;
   try {
     res =
-      (await takeEarlyRefresh()) ??
+      (await early) ??
       (await fetch(`${API_BASE}/auth/refresh`, {
         method: "POST",
         credentials: "include",

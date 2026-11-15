@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { asDemo, sessionBody } from "./support/session";
-import { BASE_URL } from "./support/env";
+import { API_URL, BASE_URL } from "./support/env";
 
 // US-P10-08 U1: `/auth/refresh` bắt đầu từ <script> trong <head> (song song với tải JS) nhưng vẫn ĐÚNG MỘT lần mỗi lần tải trang, và tuần tự giữa các tab
 // (cookie xoay vòng: dùng lại token cũ là bị thu hồi phiên).
@@ -12,6 +12,8 @@ const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Cr
 test("early refresh: một tải trang = đúng một POST /auth/refresh; lời gọi sớm được dùng một lần rồi xoá khỏi window", async ({ page, context }) => {
   await asDemo(context, "student");
   let calls = 0;
+  const urls: string[] = [];
+  page.on("request", (r) => { if (r.url().includes("/auth/refresh")) urls.push(r.url()); });
   await page.route("**/api/v1/auth/refresh", (route) => {
     calls++;
     return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody("STUDENT", {})) });
@@ -20,6 +22,7 @@ test("early refresh: một tải trang = đúng một POST /auth/refresh; lời 
   await expect(page.locator("[data-part=bottom-nav] a, [data-part=sidebar] a").first()).toBeVisible({ timeout: 30_000 });
   await page.waitForTimeout(1500);
   expect(calls).toBe(1);
+  expect(urls).toEqual([`${API_URL}/api/v1/auth/refresh`]); // lời gọi sớm đi tới API_BASE (NEXT_PUBLIC_API_URL), không phải đường dẫn tương đối của Next
   expect(await page.evaluate(() => "__epRefresh" in window)).toBe(false);
 });
 
