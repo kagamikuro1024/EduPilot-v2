@@ -19,7 +19,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. «Lớp» = `course_id` của đường d�
 - AC5 (TEACHER). Given Teacher mở `/observability` Then chỉ thấy bản tổng hợp của MỘT lớp mình phụ trách (số yêu cầu, tỷ lệ lỗi, chuyển giảng viên, lần che thông tin, Helpful / Not helpful, tỷ lệ sửa điểm AI); không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp. `/admin/observability/*` → `403`.
 - AC6 (phân quyền). Given TA / STUDENT When `GET …/observability/summary` hoặc `/admin/observability/*` Then `403`; Teacher lớp khác và người ngoài lớp → `403 FORBIDDEN` `reason=course` (guard chung; P-11-35); `{id}` không phải uuid → `404`; Admin xem tổng hợp lớp nào cũng được, lớp không tồn tại → `404`.
 - AC7 (nhánh rỗng / lỗi). Given chưa có yêu cầu nào Then `EmptyState` một dòng, không bảng; API lỗi → `<PageState>` lỗi + `Thử lại`; thư gửi lỗi (`FailedMail`) vẫn hiện như prototype 9.1 và lấy từ `mail_outbox` thật.
-- AC8 (hiệu năng). Given bảng `llm_audit` ≥ 1 triệu hàng (T1) Then `summary` p95 ≤ 500 ms, trang bảng ≤ 300 ms (dùng chỉ mục `created_at`, `course_id, created_at`; không `OFFSET`).
+- AC8 (hiệu năng). Given bảng `llm_audit` ≥ 1 triệu hàng (T1) Then `summary` p95 ≤ 500 ms, trang bảng ≤ 300 ms (dùng chỉ mục `created_at`, `course_id, created_at`; không `OFFSET`); `summary` toàn hệ thống đọc bảng cộng gộp theo giờ + phần lẻ thô (P-11-44): số đếm / chi phí / lần che PII chính xác, p50 / p95 xấp xỉ sai số tương đối ≤ 5 %; `summary` một lớp đọc thô.
 - AC9 (di động). Given 375 px Then dải thành các dòng xếp dọc, bảng cuộn trong khung của nó, không tràn trang.
 
 ### Ngoài phạm vi của story này
