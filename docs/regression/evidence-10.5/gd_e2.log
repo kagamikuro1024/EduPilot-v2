@@ -1,0 +1,3 @@
+flags khi GUIDANCE_ENABLED=false: 200 {"items": [{"feature": "GRADING_GUIDANCE", "enabled": false, "version": 10, "can_edit": true}, {"feature": "THREAD_SUGGEST", "enabled": true, "version": 4, "can_edit": true}, {"feature": "QUESTION_HIN
+PASS G01-07 GUIDANCE_ENABLED=false: ghi cờ → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G01-07 reflect → 409, 0 job mới 409

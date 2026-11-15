@@ -1,0 +1,44 @@
+$ go test -tags integration ./internal/assignment -run 'TestStatsAppealRates|TestStatsNullWhenZero' -v
+=== RUN   TestStatsAppealRates
+2026/11/15 20:27:46 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 454bcb620cc5285736ac311a19ca34021e7b60a92160333dd4db7bdc9315b218
+  Test ProcessID: a4d17314-55c0-47b5-9677-e87767d1a8c6
+2026/11/15 20:27:46 ✅ Container started: 68f6ff853df5
+2026/11/15 20:27:46 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:27:46 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestStatsAppealRates (6.63s)
+=== RUN   TestStatsNullWhenZero
+--- PASS: TestStatsNullWhenZero (5.29s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	12.529s
+
+rc=0
+$ go test -tags integration ./internal/assignment -run 'TestStatsAppealRates|TestStatsNullWhenZero' -v
+=== RUN   TestStatsAppealRates
+2026/11/15 20:28:16 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 7e2aa8218dfc6420249a2baa4c86c7d1e8d74811b12946667036677c802bec88
+  Test ProcessID: b7cdd151-99a2-49e1-ac87-d6966f35a090
+2026/11/15 20:28:16 ✅ Container started: 68f6ff853df5
+2026/11/15 20:28:16 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:28:17 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestStatsAppealRates (3.65s)
+=== RUN   TestStatsNullWhenZero
+--- PASS: TestStatsNullWhenZero (2.38s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	6.563s
+
+rc=0

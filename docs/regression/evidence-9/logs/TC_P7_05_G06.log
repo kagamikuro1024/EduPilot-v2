@@ -1,0 +1,32 @@
+$ go test -tags integration ./internal/integration -run 'TestImapBackoff|TestImapNoMailLostOnOutage|TestImapAuthFailPausesPoll|TestImapBadMimeSkipped' -v
+=== RUN   TestImapBackoff
+2026/11/15 19:44:09 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 4773148cbbb9431daaa7197011843587a0fe5286868a16c8a2b1d0df6d9ba7bd
+  Test ProcessID: ede042db-fc57-4bab-bc92-c5c62e652cc4
+2026/11/15 19:44:09 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:09 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:10 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:44:13 ✅ Container started: 5636bc78d64d
+2026/11/15 19:44:13 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:44:13 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:44:13 ✅ Container started: b8d9c357e377
+2026/11/15 19:44:13 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:44:13 🔔 Container is ready: b8d9c357e377
+--- PASS: TestImapBackoff (4.04s)
+=== RUN   TestImapNoMailLostOnOutage
+--- PASS: TestImapNoMailLostOnOutage (1.66s)
+=== RUN   TestImapAuthFailPausesPoll
+--- PASS: TestImapAuthFailPausesPoll (0.99s)
+=== RUN   TestImapBadMimeSkipped
+--- PASS: TestImapBadMimeSkipped (1.11s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	8.372s
+
+rc=0

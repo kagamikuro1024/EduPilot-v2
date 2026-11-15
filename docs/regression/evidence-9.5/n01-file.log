@@ -1,0 +1,69 @@
+## N01-01
+1:# Đo trên Mac
+## N01-02
+benchmarks/README.md:24:## LLM thật (9router)
+benchmarks/README.md:26:PHASE=probe node deploy/vps-llm.mjs                                  # đầu phiên: chọn MODEL / FALLBACK qua 9router (≤ 9 lời gọi; cần `9router -n -t`)
+benchmarks/README.md:27:BASE=https://localhost:<cổng HTTPS> PHASE=seed node deploy/vps-llm.mjs    # trước khi seed nạp tài liệu: chat giả, embedding giả
+benchmarks/README.md:28:BASE=… MODEL=… FALLBACK=… PHASE=live node deploy/vps-llm.mjs             # sau seed
+benchmarks/README.md:30:Sinh chữ luôn qua 9router (`http://host.docker.internal:20128/v1`, khoá đọc từ `ROUTER_API_KEY` hoặc `~/.9router/db/data.sqlite`; không in). Không gọi Gemini trực tiếp; `GEMINI_API_KEY` chỉ khi `EMBED_PROVIDER=gemini` (PM cho phép). Không bật LLM thật ở stack demo.
+benchmarks/real-llm/README.md:1:# Đo LLM thật (9router, sprint 9.5)
+benchmarks/real-llm/README.md:3:Script `real_llm.py` là client ngoài: chỉ gọi HTTP API của gateway, chỉ dùng thư viện chuẩn của Python. Mô hình đo là mô hình stack đang cấu hình (`router-chat` openai_compatible qua 9router, model `ag/gemini-3.8-flash`…, chọn đầu phiên bằng `PHASE=probe node deploy/vps-llm.mjs`; embedding `fake`).
+benchmarks/real-llm/README.md:5:- Dữ liệu gửi qua 9router tới nhà cung cấp phía sau chỉ gồm dữ liệu mô phỏng (D44) đã che tên / MSSV.
+benchmarks/real-llm/README.md:7:**Chạy trên Mac, stack `-p ep-research`, cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; không dùng stack demo.** Không gọi Gemini trực tiếp. Khoá 9router đọc từ `ROUTER_API_KEY` hoặc `~/.9router/db/data.sqlite` (không in, không commit). `CHAT_RPM` mặc định 10; gặp `429` có `Retry-After` > 60 s thì dừng lượt và ghi lý do, chạy tiếp bằng `--resume`.
+rc=0
+## N01-05
+rc=1
+7:**Chạy trên Mac, stack `-p ep-research`, cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; không dùng stack demo.** Không gọi Gemini trực tiếp. Khoá 9router đọc từ `ROUTER_API_KEY` hoặc `~/.9router/db/data.sqlite` (không in, không commit). `CHAT_RPM` mặc định 10; gặp `429` có `Retry-After` > 60 s thì dừng lượt và ghi lý do, chạy tiếp bằng `--resume`.
+9:Dựng stack như `benchmarks/README.md` (project `ep-research`, `EP_PORT_OFFSET=300`), `PHASE=seed` → `node scripts/seed.mjs` (cần `--profile ingest`) → `PHASE=live`.
+11:**Trước khi `down -v` stack đo** (P-95-7 Q20) bắt buộc: `node benchmarks/real-llm/export-evidence.mjs` — gom kết quả thô, `llm_audit` tổng hợp (không payload) và ≥ 15 mẫu che danh tính vào `benchmarks/reports/real-llm/`; lệnh thoát mã ≠ 0 nếu thiếu.
+14:export BASE=https://localhost:<443+offset của ep-research> NODE_TLS_REJECT_UNAUTHORIZED=0
+16:export AUDIT_PSQL="docker exec -i ep-research-postgres-1 psql -U edupilot -d edupilot -tA -v ON_ERROR_STOP=1"
+22:#   COMPOSE_PROJECT_NAME=ep-research node benchmarks/load/run-t1.mjs grading-baseline --vus 4 --course <eval> --assignment <eval_assignment>
+33:## Dữ liệu đo tạo ra (chỉ trên `ep-research`, mất khi `down -v`)
+## N01-06
+101:// Khoá 9router: biến ROUTER_API_KEY, hoặc khoá đang bật đầu tiên trong ~/.9router/db/data.sqlite (không in).
+104:  const db = `${process.env.HOME}/.9router/db/data.sqlite`;
+105:  const key = execFileSync("sqlite3", [db, "select key from apiKeys where isActive = 1 limit 1"], { encoding: "utf8" }).trim();
+rc=0
+21:process.env.ENV_FILE
+## N01-10
+.gitignore:3:.env.local	.env.local
+rc=0
+0
+## N01-11
+meta đủ
+rc=0
+## N01-18
+scripts/canary-scan.sh: line 7: A: đặt A=Authorization: Bearer <token ADMIN> (go run ./cmd/gateway token --role ADMIN)
+rc=1
+rc=1
+benchmarks/chaos.mjs:33:async function api(path, tok, init = {}) { const r = await fetch(`${BASE}${path}`, { ...init, headers: { "Content-Type": "application/json", ...(tok ? { Authorization: `Bearer 
+benchmarks/check-t1-api.mjs:11:const api = async (path, tok, init = {}) => fetch(`${BASE}/api/v1${path}`, { ...init, headers: { "Content-Type": "application/json", ...(tok ? { Authorization: `Bearer $
+benchmarks/decision/run.py:42:        h["Authorization"] = f"Bearer {token}"
+benchmarks/decision/run.py:145:    h = {"Accept": "text/event-stream", "Authorization": f"Bearer {sv}", "Content-Type": "application/json", "Origin": ORIGIN, "Idempotency-Key": str(uuid.uuid4())}
+benchmarks/eval/lib.py:66:        h["Authorization"] = "Bearer " + token
+benchmarks/eval_pii.py:180:    req = urllib.request.Request(api + path, data=data, method=method, headers={"Content-Type": "application/json", **({"Authorization": f"Bearer {token}"} if token else {})
+benchmarks/guidance/kc/common.py:42:        h["Authorization"] = f"Bearer {token}"
+benchmarks/guidance/kc/gen.py:113:        req = urllib.request.Request(ROUTER + "/chat/completions", data=body, headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"})
+benchmarks/guidance/run.py:39:        h["Authorization"] = f"Bearer {token}"
+benchmarks/lighthouse/auth-ep.cjs:20:    const ack = await page.evaluate(async (t) => (await fetch("/api/v1/me/tracking-notice/ack", { method: "POST", credentials: "include", headers: { Authorization:
+benchmarks/load/baseline.js:20:const H = (t, extra) => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${t}`, ...extra });
+benchmarks/load/chat.js:68:const json = (token) => ({ 'Content-Type': 'application/json', Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) });
+benchmarks/load/checkin.js:58:const hdr = (t, extra = {}) => ({ 'Content-Type': 'application/json', Accept: 'application/json', ...(t ? { Authorization: `Bearer ${t}` } : {}), ...extra });
+benchmarks/load/exam-submit.js:77:const auth = (t) => ({ Authorization: `Bearer ${t}`, 'Content-Type': 'application/json', Origin: BASE });
+benchmarks/load/grade-all-t1.mjs:17:const api = (path, tok, init = {}) => fetch(`${BASE}${path}`, { ...init, headers: { "Content-Type": "application/json", ...(tok ? { Authorization: `Bearer ${tok}` }
+benchmarks/load/grading-vs-chat.js:60:const json = (token) => ({ 'Content-Type': 'application/json', Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) });
+benchmarks/load/heartbeat.js:30:  const res = http.post(`${BASE}/api/v1/activity/heartbeat`, body, { headers: { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json' } });
+benchmarks/load/practice-mock.js:27:  const h = (extra) => ({ headers: Object.assign({ Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'X-Practice-Tab': tab }, extra || {}) });
+benchmarks/load/smoke.js:11:const AUTH = { headers: { Authorization: `Bearer ${TOKEN}` } };
+benchmarks/load/smoke.js:84:      Authorization: `Bearer ${TOKEN}`,
+benchmarks/load/t1.js:45:const hdr = (t) => ({ 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${t}` });
+benchmarks/load/today.js:10:const AUTH = { headers: { Authorization: `Bearer ${TOKEN}` } };
+benchmarks/real-llm/real_llm.py:105:            h["Authorization"] = "Bearer " + self.tokens[self.login(auth)]
+benchmarks/real-llm/real_llm.py:124:                    h["Authorization"] = "Bearer " + self.tokens[self.login(auth)]
+benchmarks/real-llm/real_llm.py:136:        h = {"Content-Type": "application/json", "Accept": "text/event-stream", "Authorization": "Bearer " + self.tokens[self.login(auth)],
+benchmarks/real-llm/real_llm.py:331:        "Content-Type": f"multipart/form-data; boundary={boundary}", "Authorization": "Bearer " + api.tokens[api.login("teacher")], "Idempotency-Key": str(uuid.uuid
+docs/research/poc/agent-memory/poc.py:55:                                     {"Authorization": f"Bearer {KEY}", "Content-Type": "application/json"})
+docs/research/poc/jev-decision/poc.py:139:                   {"Authorization": "Bearer " + os.environ["TYPESAFE_API_KEY"]})
+docs/research/poc/jev-decision/poc.py:158:    out, ms = post(f"{ROUTER}/chat/completions", body, {"Authorization": "Bearer " + os.environ["ROUTER_KEY"]})
+docs/research/poc/persona-eval/router_shim.py:85:                                     {"Authorization": f"Bearer {key()}", "Content-Type": "application/json"})

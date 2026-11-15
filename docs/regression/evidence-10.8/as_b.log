@@ -1,0 +1,30 @@
+mẫu token (độ dài): 63 01a1df… | code: M72 PKW
+PASS TC-AS03-01 SV điểm danh bằng token: 201 {checked_in_at, round:1}; 1 hàng WEB 201 {'checked_in_at': '2026-11-15T12:33:13.167704Z', 'round': 1} [['sv.gioi@edupilot.local', 'WEB', '1', 'NO_DEVICE_KEY', '3167']]
+PASS TC-AS03-02a thân có cả token+code / thân rỗng → 422 422 422
+FAIL TC-AS03-02b student_id/user_id trong thân bị bỏ qua (hợp đồng: bỏ qua; thực tế 422 'unknown') 422 ['sv.gioi@edupilot.local']
+PASS TC-AS03-02c thân chỉ có token: 201, hàng ghi cho người gọi 201 ['sv.gioi@edupilot.local', 'sv.kha@edupilot.local']
+PASS TC-AS03-14a gửi lại: 200 cùng checked_in_at/round 200 {'checked_in_at': '2026-11-15T12:33:13.167704Z', 'round': 1} vs {'checked_in_at': '2026-11-15T12:33:13.167704Z', 'round': 1}
+PASS TC-AS03-14b 8 yêu cầu song song: toàn 200 hoặc 429, đúng 1 hàng [200, 200, 200, 200, 200, 200, 200, 200] n=1
+PASS TC-AS03-16 phản hồi hai SV (có / không chữ ký) cùng dạng; không flags/assurance/device/geo {'checked_in_at': '2026-11-15T12:33:17.16817Z', 'round': 1} {'checked_in_at': '2026-11-15T12:33:18.104577Z', 'round': 1}
+FAIL TC-AS03-18 me/attendance: buổi đã điểm danh có checked_in_at; không cờ/mức/thiết bị [] keys=['attendance', 'next_cursor'] n_checked=0
+PASS TC-AS04-01 WEB_KEY r‖s hợp lệ: 201 201
+PASS TC-AS04-02 chữ ký DER hợp lệ: 201 201
+PASS TC-AS04-05 không device: 201 
+PASS TC-AS04-06a chữ ký sai: vẫn 201 201
+PASS TC-AS04-06b public_key hỏng: 201 hoặc 422 (ghi nhận) 201 {"checked_in_at": "2026-11-15T12:34:22.725509Z", "round": 1}
+PASS TC-AS04-01c sv.gioi assurance 2, không cờ tín hiệu (DEVICE_NEW cho phép: SV đã có khoá cũ từ lần chạy trước) ('2', '')
+PASS TC-AS04-02c sv.kha (DER) assurance 2 ('2', '')
+PASS TC-AS04-05c không device: NO_DEVICE_KEY, mức 1 ('1', 'NO_DEVICE_KEY')
+PASS TC-AS04-06c chữ ký sai: DEVICE_UNTRUSTED, mức 1 ('1', 'DEVICE_UNTRUSTED')
+PASS TC-AS04-06d public_key hỏng: có cờ (NO_DEVICE_KEY|DEVICE_UNTRUSTED), mức 1 ('1', 'DEVICE_UNTRUSTED')
+PASS TC-AS04-07 cùng khoá hai SV: cả hai lượt DEVICE_SHARED (cờ gắn cả lượt trước) {'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW'}
+PASS TC-AS04-07b DB: một device_id cho hai SV 
+PASS TC-AS04-08 đua 4 vòng: luôn cả hai DEVICE_SHARED [True, True, True, True]
+PASS TC-AS04-09 cùng khoá ở hai lớp: không DEVICE_SHARED 201 201 flags='DEVICE_NEW'
+PASS TC-AS04-10 DEVICE_NEW: K1 lần đầu không cờ; K2 đầu: DEVICE_NEW; K2 sau: không '-' 'DEVICE_NEW' '-'
+PASS TC-AS04-17a route SV: không flags/assurance/device_id/geo_/in_campus 
+PASS TC-AS04-17b GET checkins: STUDENT/ADMIN 403; TA/TEACHER 200 [403, 403, 200, 200]
+FAIL TC-AS04-15 nhãn cờ tiếng Việt, không từ kỹ thuật {'DEVICE_NEW': 'Máy mới'}
+PASS TC-AS03-19a geo.lat chuỗi → 422 422
+PASS TC-AS03-19b signature không phải base64: 422 hoặc 200 (ghi nhận) 422 {"code": "CHECKIN_TOKEN_EXPIRED", "message": "M\u00e3 \u0111\u00e3 h\u1ebft h\u1ea1n. Qu\u
+lớp C2 bật: 422

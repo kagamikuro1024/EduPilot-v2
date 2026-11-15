@@ -1,0 +1,28 @@
+
+Running 1 test using 1 worker
+
+(node:61306) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc-s10-forms-real.spec.ts:7:1 › Nhập từ Forms: hộp thoại (13.2s)
+
+
+  1) [desktop] › e2e/qc-s10-forms-real.spec.ts:7:1 › Nhập từ Forms: hộp thoại ──────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-part=topbar]').getByText(/76198\d/).first()
+
+
+      16 |   await page.waitForTimeout(1000);
+      17 |   const sw = page.locator("[data-part=topbar]").getByText(/76198\d/).first();
+    > 18 |   if (!(await page.locator("[data-part=topbar]").getByText("761987").count())) { await sw.click(); await page.getByText("761987").first().click(); await page.waitForTimeout(800); }
+         |                                                                                           ^
+      19 |   await page.goto("/questions"); await page.waitForTimeout(1500); await page.screenshot({ path: `${OUT}/questions-761987-1440.png` });
+      20 |   await page.goto("/gradebook"); await page.waitForTimeout(1500); await page.screenshot({ path: `${OUT}/gradebook-761987-1440.png` });
+      21 |   const names = await page.getByRole("button").evaluateAll((els) => els.map((e) => (e.getAttribute("aria-label") ?? e.textContent ?? "").trim()).slice(0, 40));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-s10-forms-real.spec.ts:18:91
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-forms-real/qc-s10-forms-real-Nhập-từ-Forms-hộp-thoại-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-s10-forms-real.spec.ts:7:1 › Nhập từ Forms: hộp thoại ───────────────────────

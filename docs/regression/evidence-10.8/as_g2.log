@@ -1,0 +1,8 @@
+PASS TC-AS04-15 nhãn cờ Staff tiếng Việt, không từ kỹ thuật (761988) {"DEVICE_SHARED": "Cùng máy với bạn khác", "DEVICE_NEW": "Máy mới", "NO_DEVICE_KEY": "Không xác minh được máy", "TOKEN_LATE": "Quét mã trễ", "RECHECK_MISS": "Vắng ở lượt kiểm lại"}
+PASS TC-AS14-02a 761988: buổi 1 có 2 vòng đã đóng; vòng 1 over_headcount=true [{"id": "01a1df3d-c4eb-71b4-ad41-658d07a0cda5", "round": 1, "opened_at": "2026-11-15T11:10:29.684527Z", "closes_at": "2026-11-15T11:40:29.684527Z", "closed_at": "2026-11-15T11:40:29.
+PASS TC-AS14-02b seed có đủ ca cờ: DEVICE_SHARED, DEVICE_NEW, NO_DEVICE_KEY, TOKEN_LATE, RECHECK_MISS ['DEVICE_NEW', 'DEVICE_SHARED', 'NO_DEVICE_KEY', 'RECHECK_MISS', 'TOKEN_LATE']
+FAIL TC-AS14-02c ≥ 1 lượt CODE; có lượt 0 cờ; tổng ≥ 20 ['0', '37', '43']
+PASS TC-AS14-02d buổi 1 có đúng 1 LATE 1
+PASS TC-AS14-02e sv.gioi không có lượt nào ở 761988 0
+PASS TC-AS14-01 seed chạy lại 2 lần: không nhân đôi lượt rc=0,0 out='seed-checkin-demo: 0 lượt' 'seed-checkin-demo: 0 lượt' lượt 43->43 err=
+PASS TC-AS14-03 761987: attendance_records không đổi sau seed (đo thật) 270 -> 270

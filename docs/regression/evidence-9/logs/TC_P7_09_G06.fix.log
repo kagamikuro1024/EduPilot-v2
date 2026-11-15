@@ -1,0 +1,40 @@
+$ go test -count=1 -v -tags integration,testroutes ./internal/grade -run ^TestStudentViewSharedByToolAndMeGrades$
+=== RUN   TestStudentViewSharedByToolAndMeGrades
+2026/11/15 20:36:30 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 4031c00e60903316813ccd12f21e48f370426cd0580276dc9e369b57e53d70c0
+  Test ProcessID: 92e3c7e5-085b-4301-946a-985c86e33e20
+2026/11/15 20:36:30 ✅ Container started: 68f6ff853df5
+2026/11/15 20:36:30 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:36:30 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestStudentViewSharedByToolAndMeGrades (2.21s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	2.929s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/grade -run ^TestMeGradesShowsAssignmentComponent$
+=== RUN   TestMeGradesShowsAssignmentComponent
+2026/11/15 20:36:35 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: a088e7eaca6da3efddefdec81c63ff7086080e38b72f014173f2e6c374360d32
+  Test ProcessID: 2c7b892b-063d-402e-ad9d-ba8552ee7c4a
+2026/11/15 20:36:35 ✅ Container started: 68f6ff853df5
+2026/11/15 20:36:35 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:36:35 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestMeGradesShowsAssignmentComponent (1.21s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	1.672s
+
+rc=0

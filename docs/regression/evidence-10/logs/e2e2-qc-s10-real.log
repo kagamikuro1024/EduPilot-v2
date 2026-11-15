@@ -1,0 +1,34 @@
+
+Running 3 tests using 1 worker
+
+(node:90488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/qc2-r10/qc-s10-real.spec.ts:38:3 › SV luyện đề 1440px (19.7s)
+  ✘  2 [desktop] › e2e/qc2-r10/qc-s10-real.spec.ts:38:3 › SV luyện đề 375px (23.9s)
+(node:93749) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [desktop] › e2e/qc2-r10/qc-s10-real.spec.ts:73:1 › GV /questions + sổ điểm Forms 1440 (5.9s)
+
+
+  1) [desktop] › e2e/qc2-r10/qc-s10-real.spec.ts:38:3 › SV luyện đề 375px ──────────────────────────
+
+    TimeoutError: locator.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('textbox').first()
+
+
+      25 |   if (await list.count()) await list.getByRole("button").first().click();
+      26 |   else if (await page.getByRole("button", { name: "Đúng", exact: true }).count()) await page.getByRole("button", { name: "Đúng", exact: true }).click();
+    > 27 |   else await page.getByRole("textbox").first().fill("đáp án thử");
+         |                                                ^
+      28 | }
+      29 | async function layout(page: Page, tag: string, notes: string[]) {
+      30 |   const m = await page.evaluate(() => {
+        at pick (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r10/qc-s10-real.spec.ts:27:48)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r10/qc-s10-real.spec.ts:66:5
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-real/qc2-r10-qc-s10-real-SV-luyện-đề-375px-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r10/qc-s10-real.spec.ts:38:3 › SV luyện đề 375px ───────────────────────────
+  2 passed (56.5s)

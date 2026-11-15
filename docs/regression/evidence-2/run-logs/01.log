@@ -1,0 +1,369 @@
+== TC-PG01-04
+    ok   rc = [1]
+    ok   ms = 767 (≤ 1000)
+    ok   missing của worker (nguyên văn AC1) = [["DATABASE_URL"]]
+-- TC-PG01-04 PASS
+== TC-PG01-11
+    ok   rc khi JWT_EXPIRATION sai = [1]
+    ok   ms khi JWT_EXPIRATION sai = 91 (≤ 1000)
+    FAIL dòng lỗi mức error nêu JWT_EXPIRATION: thực tế [0] phải ≥ 1
+    ok   log không in giá trị của JWT_EXPIRATION = [0]
+-- TC-PG01-11 FAIL
+== TC-PG01-14
+    ok   độ dài khoá hợp lệ = [32]
+    ok   độ dài khoá lỗi = [31]
+    ok   32 byte: số dòng error nêu JWT_SECRET_KEY = [0]
+    FAIL 32 byte: đi tới bước chờ phụ thuộc (ms ≈ STARTUP_TIMEOUT 2s): thực tế [115] phải ≥ 1500
+    ok   31 byte: rc = [1]
+    ok   31 byte: ms = 102 (≤ 1000)
+    ok   31 byte: dòng error nêu JWT_SECRET_KEY = 2 (≥ 1)
+-- TC-PG01-14 FAIL
+== TC-PG01-15
+    ok   DB_MAX_CONNS=1: số dòng error nêu biến = [0]
+    FAIL DB_MAX_CONNS=1: đi tới bước chờ phụ thuộc (ms): thực tế [77] phải ≥ 1500
+    ok   DB_MAX_CONNS=100: số dòng error nêu biến = [0]
+    FAIL DB_MAX_CONNS=100: đi tới bước chờ phụ thuộc (ms): thực tế [69] phải ≥ 1500
+    ok   DB_MAX_CONNS=101: rc = [1]
+    ok   DB_MAX_CONNS=101: ms = 87 (≤ 1000)
+    ok   DB_MAX_CONNS=101: dòng error nêu biến = 2 (≥ 1)
+-- TC-PG01-15 FAIL
+== TC-PG01-16
+    ok   APP_ENV=dev: số dòng error nêu APP_ENV = [0]
+    FAIL APP_ENV=dev: đi tới bước chờ phụ thuộc (ms): thực tế [103] phải ≥ 1500
+    ok   APP_ENV=test: số dòng error nêu APP_ENV = [0]
+    FAIL APP_ENV=test: đi tới bước chờ phụ thuộc (ms): thực tế [69] phải ≥ 1500
+    ok   APP_ENV=production: số dòng error nêu APP_ENV = [0]
+    FAIL APP_ENV=production: đi tới bước chờ phụ thuộc (ms): thực tế [67] phải ≥ 1500
+-- TC-PG01-16 FAIL
+== TC-PG01-19
+    FAIL số dòng 'config loaded': thực tế [0] ≠ mong đợi [1]
+    FAIL db_max_conns (kiểu JSON): thực tế [] ≠ mong đợi [number]
+    FAIL db_max_conns (mặc định dev): thực tế [] ≠ mong đợi [10]
+    FAIL request_timeout (chuỗi thời lượng): thực tế [] ≠ mong đợi [30s]
+    FAIL sse_heartbeat (chuỗi thời lượng): thực tế [] ≠ mong đợi [25s]
+    FAIL app_env (mặc định dev): thực tế [] ≠ mong đợi [dev]
+    FAIL cors_origins (mặc định SRS 8.1): thực tế [] ≠ mong đợi [http://localhost:3000,https://localhost]
+    FAIL db_via (không đặt PGBOUNCER_URL): thực tế [] ≠ mong đợi [direct]
+    FAIL secrets: thực tế [] ≠ mong đợi [[redacted]]
+    FAIL số khoá bí mật bị in (database_url/redis_url/pgbouncer_url/jwt_secret_key/blob_access_key/blob_secret_key): thực tế [] ≠ mong đợi [0]
+    ok   dòng không chứa khoá JWT thật = [0]
+    ok   dòng không chứa mật khẩu Postgres = [0]
+-- TC-PG01-19 FAIL
+== TC-PG01-26
+    ok   go test ./internal/platform/log ./internal/platform/otel -run 'TestHandler_AlwaysTraceID|TestStartupHasTrace' rc = [0]
+    ok   --- PASS: TestHandler_AlwaysTraceID
+    ok   --- PASS: TestStartupHasTrace
+-- TC-PG01-26 PASS
+== TC-PG01-27
+    ok   trace_id trong thân lỗi = [4bf92f3577b34da6a3ce929d0e0e4736]
+    ok   mã = [404]
+    ok   code lỗi = [NOT_FOUND]
+    ok   có header X-Request-Id ~ /.+/
+-- TC-PG01-27 PASS
+== TC-PG01-28
+    ok   số dòng log mang trace_id của request = 3 (≥ 1)
+-- TC-PG01-28 PASS
+== TC-PG01-29
+    ok   trace_id tự sinh 32 hex ~ /^[0-9a-f]{32}$/
+    ok   trace_id khác toàn 0 = [d707e9277548be2b87a1b1196d753a00] (≠ [00000000000000000000000000000000])
+    ok   trace_id khác trace của TC-27 = [d707e9277548be2b87a1b1196d753a00] (≠ [4bf92f3577b34da6a3ce929d0e0e4736])
+    ok   X-Request-Id = trace_id = [d707e9277548be2b87a1b1196d753a00]
+-- TC-PG01-29 PASS
+== TC-PG01-30
+    ok   go test ./internal/httpapi -run 'TestTraceID_InErrorBodyAndLogs' rc = [0]
+    ok   --- PASS: TestTraceID_InErrorBodyAndLogs
+-- TC-PG01-30 PASS
+== TC-PG01-31
+    ok   go test ./internal/platform/redis -run 'TestKeys|TestTTLConstants' rc = [0]
+    ok   --- PASS: TestKeys
+    ok   --- PASS: TestTTLConstants
+-- TC-PG01-31 PASS
+== TC-PG01-32
+    ok   có khoá ep:idem:* = 1007 (≥ 1)
+    ok   có khoá ep:rl:* = 12 (≥ 1)
+    ok   có khoá ep:sse:conn:* = 1 (≥ 1)
+    ok   có khoá ep:sse:buf:* = 52 (≥ 1)
+    ok   số khoá ep:* không có TTL = [0]
+-- TC-PG01-32 PASS
+== TC-PG01-33
+-- TC-PG01-33 PASS
+== TC-PG01-34
+    FAIL số khoá Redis ngoài quy ước: thực tế [2] ≠ mong đợi [0]
+-- TC-PG01-34 FAIL
+== TC-PG01-35
+    ok   mã của request chậm = [200]
+-- TC-PG01-35 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-36
+    ok   mã thoát của mọi bản gateway = [0]
+    ok   thời gian tắt (ms) = 17 (≤ 25000)
+-- TC-PG01-36 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-37
+    FAIL mã readyz khi đang tắt: thực tế [200] ≠ mong đợi [503]
+    FAIL code: thực tế [] ≠ mong đợi [NOT_READY]
+    FAIL details.draining (SRS 6.1): thực tế [] ≠ mong đợi [true]
+-- TC-PG01-37 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-38
+    FAIL số dòng 'event: shutdown' trong stream: thực tế [0] ≠ mong đợi [1]
+    FAIL thời gian đóng kết nối sau SIGTERM (ms; AC 1000 + 200 sai số đo): thực tế [11066] phải ≤ 1200
+-- TC-PG01-38 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-39
+    FAIL kết nối mới KHÔNG được 2xx: [200] không được khớp /^2/
+    FAIL mã của kết nối mới (503 / từ chối): [200] không khớp /^(000|502|503)$/
+-- TC-PG01-39 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-40
+    FAIL mã thoát khi cắt request quá hạn: thực tế [0] ≠ mong đợi [1]
+    ok   thời gian tắt (ms) ≈ SHUTDOWN_TIMEOUT 2 s = 15 (≤ 8000)
+    FAIL số dòng msg="forced shutdown": thực tế [0] phải ≥ 1
+    FAIL mức log của dòng forced shutdown: thực tế [] ≠ mong đợi [warn]
+    FAIL cancelled_requests là số nguyên: thực tế [] ≠ mong đợi [nguyên]
+    FAIL cancelled_requests: thực tế [] phải ≥ 1
+-- TC-PG01-40 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-41
+    ok   go test ./cmd/gateway ./internal/httpapi -run 'TestGracefulShutdown|TestShutdown_ForcedAfterTimeout' rc = [0]
+    ok   --- PASS: TestGracefulShutdown
+    ok   --- PASS: TestShutdown_ForcedAfterTimeout
+-- TC-PG01-41 PASS
+== TC-PG01-42
+    ok   mã = [413]
+    ok   code = [PAYLOAD_TOO_LARGE]
+    ok   details.max_bytes (SRS 6.1) = [1048576]
+-- TC-PG01-42 PASS
+== TC-PG01-43
+    ok   kích thước thân = [1048576]
+    ok   mã KHÔNG phải 413 (thân hợp lệ JSON nên có thể 2xx hoặc 422) !~ /^413$/
+    ok   mã nằm trong dải hợp lệ ~ /^(200|201|202|400|415|422)$/
+-- TC-PG01-43 PASS
+== TC-PG01-44
+    ok   kích thước thân = [1048577]
+    ok   mã = [413]
+    ok   code (413 thắng IDEMPOTENCY_KEY_REQUIRED — SRS 3.1) = [PAYLOAD_TOO_LARGE]
+-- TC-PG01-44 PASS
+== TC-PG01-45
+    ok   không nhận được trả lời 2xx !~ /^HTTP/1\.1 2/
+    ok   thời gian tới lúc đóng (ms) = 5200 (≥ 3000)
+    ok   thời gian tới lúc đóng (ms) = 5200 (≤ 11000)
+-- TC-PG01-45 PASS
+== TC-PG01-46
+    ok   dòng trạng thái ~ /^HTTP/1\.1 431/
+-- TC-PG01-46 PASS
+== TC-PG01-47
+    ok   không nhận được trả lời 2xx !~ /^HTTP/1\.1 2/
+    ok   thời gian tới lúc đóng (ms) = 15168 (≥ 12000)
+    ok   thời gian tới lúc đóng (ms) = 15168 (≤ 24000)
+-- TC-PG01-47 PASS
+== TC-PG01-48
+    ok   số trường hợp lệ = tổng số trường = [4]
+    ok   trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message tiếng Việt, không lộ nội bộ ~ /.+/
+    ok   message không chứa đường dẫn/SQL !~ /(/[a-z]+/[a-z]+\.go|select |insert )/
+-- TC-PG01-48 PASS
+== TC-PG01-49
+    ok   go test ./internal/httpapi -run 'TestServerLimits|TestServerLimits_SlowHeader|TestServerLimits_HugeHeader' rc = [0]
+    ok   --- PASS: TestServerLimits
+    ok   --- PASS: TestServerLimits_SlowHeader
+    ok   --- PASS: TestServerLimits_HugeHeader
+-- TC-PG01-49 PASS
+== TC-PG01-50
+    FAIL mã: thực tế [200] ≠ mong đợi [504]
+    FAIL code: thực tế [] ≠ mong đợi [DEADLINE_EXCEEDED]
+    FAIL thời gian trả lời (ms): thực tế [5253] phải ≤ 1600
+-- TC-PG01-50 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-51
+    ok   số truy vấn pg_sleep còn chạy = [0]
+-- TC-PG01-51 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-52
+    FAIL mã: thực tế [200] ≠ mong đợi [504]
+    FAIL code: thực tế [] ≠ mong đợi [DEADLINE_EXCEEDED]
+    ok   số client Redis còn blocked (cmd=blpop) = [0]
+-- TC-PG01-52 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-53
+    ok   số truy vấn pg_sleep trước khi gọi = [0]
+    ok   số truy vấn pg_sleep 1,5 s sau khi client ngắt = [0]
+-- TC-PG01-53 PASS
+== TC-PG01-54
+    ok   go test ./internal/httpapi -run 'TestDeadline_DB|TestDeadline_Redis|TestDeadline_ClientCancel' rc = [0]
+    ok   --- PASS: TestDeadline_DB
+    ok   --- PASS: TestDeadline_Redis
+    ok   --- PASS: TestDeadline_ClientCancel
+-- TC-PG01-54 PASS
+== TC-PG01-55
+    ok   go test ./internal/platform/db -run 'TestPool_MaxConns|TestPool_AcquireHonorsDeadline' rc = [0]
+    ok   --- PASS: TestPool_MaxConns
+    ok   --- PASS: TestPool_AcquireHonorsDeadline
+-- TC-PG01-55 PASS
+== TC-PG01-56
+    ok   số bản gateway lúc đo = [1]
+    FAIL số client PgBouncer của gateway lớn nhất (≤ DB_MAX_CONNS × số bản): thực tế [10] phải ≤ 3
+    ok   đã quan sát được ≥ 1 client của gateway (không đo rỗng) = 10 (≥ 1)
+-- TC-PG01-56 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-57
+    FAIL số request trả 504: thực tế [0] ≠ mong đợi [5]
+    ok   tổng thời gian 5 request song song (ms; không treo) = 5561 (≤ 6000)
+-- TC-PG01-57 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-58
+    ok   số dòng 'slow query' của request = [1]
+    ok   mức log = [warn]
+    ok   duration_ms (kiểu JSON) = [number]
+    ok   duration_ms = 254 (≥ 200)
+    ok   trace_id của dòng log = [000001a1df3ffc81000000003d350451]
+    ok   query_name (tên sqlc, chuỗi khác rỗng) = [có]
+-- TC-PG01-58 PASS
+== TC-PG01-59
+    ok   số dòng 'slow query' của truy vấn 50 ms = [0]
+-- TC-PG01-59 PASS
+== TC-PG01-60
+    ok   có dòng slow query để kiểm ~ /slow query/
+    ok   số lần xuất hiện giá trị tham số 0.37 = [0]
+-- TC-PG01-60 PASS
+== TC-PG01-61
+    ok   go test ./internal/platform/db -run 'TestSlowQueryLog|TestSlowQueryLog_NoArgs' rc = [0]
+    ok   --- PASS: TestSlowQueryLog
+    ok   --- PASS: TestSlowQueryLog_NoArgs
+-- TC-PG01-61 PASS
+== TC-PG01-62
+    ok   dòng trạng thái ~ /^HTTP/1\.1 200/
+-- TC-PG01-62 PASS
+== TC-PG01-63
+    ok   healthcheck gọi -healthcheck ~ /healthcheck/
+    ok   Health của worker = [healthy]
+    ok   FailingStreak = [0]
+-- TC-PG01-63 PASS
+== TC-PG01-64
+    ok   số dòng outbox đã được worker nhặt trong ≤ 5 s = 1 (≥ 1)
+-- TC-PG01-64 PASS
+== TC-PG01-65
+    ok   mã thoát của worker = [0]
+    ok   thời gian tắt worker (ms) = 46 (≤ 10000)
+-- TC-PG01-65 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-66
+    ok   go test ./cmd/worker -run 'TestWorker_Health|TestWorker_Shutdown' rc = [0]
+    ok   --- PASS: TestWorker_Health
+    ok   --- PASS: TestWorker_Shutdown
+-- TC-PG01-66 PASS
+== TC-PG01-67
+    ok   mục tiêu Makefile thiếu = []
+-- TC-PG01-67 PASS
+== TC-PG01-68
+    FAIL số lần RYUK_DISABLED=true: thực tế [2] ≠ mong đợi [1]
+    ok   có cờ -race = 2 (≥ 1)
+    ok   chạy toàn bộ gói (./...) = 1 (≥ 1)
+-- TC-PG01-68 FAIL
+== TC-PG01-69
+    ok   có DOCKER_HOST = 2 (≥ 1)
+    ok   trỏ tới socket colima = 2 (≥ 1)
+-- TC-PG01-69 PASS
+== TC-PG01-70
+    FAIL mã readyz: thực tế [200] ≠ mong đợi [503]
+    FAIL code: thực tế [] ≠ mong đợi [NOT_READY]
+    FAIL details.redis: thực tế [] ≠ mong đợi [down]
+    FAIL số giây tới khi readyz báo down: thực tế [99] phải ≤ 10
+    ok   mã healthz khi Redis chết = [200]
+-- TC-PG01-70 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-71
+    ok   mã readyz sau khi Redis trở lại = [200]
+    ok   số giây tới khi readyz 200 = 0 (≤ 10)
+-- TC-PG01-71 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-72
+    ok   RestartCount|StartedAt|Pid|Running trước = sau = [0|2026-11-15T12:49:24.553816017Z|2094245|true]
+    ok   tiến trình vẫn chạy ~ /true$/
+-- TC-PG01-72 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-73
+    FAIL mã readyz: thực tế [200] ≠ mong đợi [503]
+    FAIL code: thực tế [] ≠ mong đợi [NOT_READY]
+    FAIL details.db: thực tế [] ≠ mong đợi [down]
+    FAIL số giây tới khi readyz báo down: thực tế [99] phải ≤ 10
+    ok   mã healthz khi Postgres chết = [200]
+-- TC-PG01-73 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-74
+    FAIL mã readyz: thực tế [200] ≠ mong đợi [503]
+    FAIL details.db: thực tế [] ≠ mong đợi [down]
+    FAIL details.redis: thực tế [] ≠ mong đợi [down]
+    ok   RestartCount|Running trước = sau = [0|true]
+-- TC-PG01-74 K (cần lệnh phá huỷ trên stack chung: compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f /t)
+== TC-PG01-75
+    ok   rc = [1]
+    FAIL ms ≈ STARTUP_TIMEOUT 3 s: thực tế [301] phải ≥ 2500
+    ok   ms = 301 (≤ 9000)
+    FAIL số dòng warn msg="dependency not ready" (mỗi giây một dòng): thực tế [0] phải ≥ 2
+    ok   số dòng warn msg="dependency not ready" = 0 (≤ 6)
+    FAIL dependency ở các dòng warn: thực tế [] ≠ mong đợi [db]
+    FAIL số dòng error msg="dependency not ready": thực tế [0] phải ≥ 1
+    FAIL dependency ở dòng error: thực tế [] ≠ mong đợi [db]
+-- TC-PG01-75 FAIL
+== TC-PG01-76
+    ok   rc = [1]
+    FAIL ms ≈ STARTUP_TIMEOUT 3 s: thực tế [107] phải ≥ 2500
+    ok   ms = 107 (≤ 9000)
+    FAIL số dòng warn msg="dependency not ready": thực tế [0] phải ≥ 2
+    FAIL dependency ở các dòng warn: thực tế [] ≠ mong đợi [redis]
+    FAIL số dòng error msg="dependency not ready": thực tế [0] phải ≥ 1
+    FAIL dependency ở dòng error: thực tế [] ≠ mong đợi [redis]
+-- TC-PG01-76 FAIL
+== TC-PG01-77
+    ok   go test ./internal/httpapi -run 'TestReadyz_DependencyDown|TestStartup_WaitsForDeps' rc = [0]
+    ok   --- PASS: TestReadyz_DependencyDown
+    ok   --- PASS: TestStartup_WaitsForDeps
+-- TC-PG01-77 PASS
+== TC-PG01-78
+    ok   số dòng khớp bí mật trong repo = [0]
+-- TC-PG01-78 PASS
+== TC-PG01-79
+    ok   .env.example tồn tại
+    ok   có khai báo DATABASE_URL = 1 (≥ 1)
+    ok   có khai báo REDIS_URL = 1 (≥ 1)
+    ok   có khai báo JWT_SECRET_KEY = 1 (≥ 1)
+    ok   có khai báo BLOB_ENDPOINT = 1 (≥ 1)
+    ok   có khai báo BLOB_BUCKET = 1 (≥ 1)
+    ok   có khai báo BLOB_ACCESS_KEY = 1 (≥ 1)
+    ok   có khai báo BLOB_SECRET_KEY = 1 (≥ 1)
+    ok   JWT_SECRET_KEY ở .env.example là giá trị dev giả (có -dev) ~ /-dev/
+    ok   BLOB_SECRET_KEY ở .env.example là giá trị dev giả (có -dev) ~ /-dev/
+    ok   POSTGRES_PASSWORD ở .env.example là giá trị dev giả (có -dev) ~ /-dev/
+    ok   .env.local bị git bỏ qua
+-- TC-PG01-79 PASS
+== TC-PG01-80
+    ok   số dòng log chứa giá trị JWT_SECRET_KEY = [0]
+    ok   số dòng log chứa giá trị BLOB_SECRET_KEY = [0]
+    ok   số dòng log chứa giá trị POSTGRES_PASSWORD = [0]
+    ok   số dòng log chứa giá trị PGBOUNCER_STATS_PASSWORD = [0]
+-- TC-PG01-80 PASS
+== TC-PG01-81
+    ok   worker: số dòng log có .missing (JWT/BLOB_* không bắt buộc) = [0]
+    ok   worker: đã qua kiểm cấu hình, chờ phụ thuộc tới STARTUP_TIMEOUT=2s (ms) = 2294 (≥ 1500)
+    ok   worker: rc (thoát vì phụ thuộc chưa lên, không phải vì thiếu biến) = [1]
+    ok   worker: dependency ở dòng error = [db]
+    ok   gateway: rc khi chỉ có 2 biến = [1]
+    ok   gateway: ms = 836 (≤ 1000)
+    ok   gateway: missing (vẫn đòi đủ 7 biến) = [["BLOB_ACCESS_KEY","BLOB_BUCKET","BLOB_ENDPOINT","BLOB_SECRET_KEY","JWT_SECRET_KEY"]]
+-- TC-PG01-81 PASS
+== TC-PG01-82
+    ok   rc khi BCRYPT_COST sai = [1]
+    ok   ms khi BCRYPT_COST sai = 205 (≤ 1000)
+    ok   dòng lỗi mức error nêu BCRYPT_COST = 2 (≥ 1)
+    ok   BCRYPT_COST=3: số dòng 'config loaded' (không kẹp, không chạy tiếp) = [0]
+    ok   rc khi BCRYPT_COST sai = [1]
+    ok   ms khi BCRYPT_COST sai = 92 (≤ 1000)
+    ok   dòng lỗi mức error nêu BCRYPT_COST = 2 (≥ 1)
+    ok   log không in giá trị của BCRYPT_COST = [0]
+    ok   BCRYPT_COST=abc: số dòng 'config loaded' = [0]
+-- TC-PG01-82 PASS
+== TC-PG01-83
+    ok   BCRYPT_COST=4: số dòng error nêu biến = [0]
+    FAIL BCRYPT_COST=4: đi tới bước chờ phụ thuộc (ms): thực tế [451] phải ≥ 1500
+    ok   BCRYPT_COST=14: số dòng error nêu biến = [0]
+    FAIL BCRYPT_COST=14: đi tới bước chờ phụ thuộc (ms): thực tế [138] phải ≥ 1500
+-- TC-PG01-83 FAIL
+== TC-PG01-84
+    ok   kích thước thân = [1048577]
+    ok   mã = [413]
+    ok   code = [PAYLOAD_TOO_LARGE]
+-- TC-PG01-84 PASS
+== TC-PG01-85
+    FAIL số lần gọi golangci-lint: thực tế [3] ≠ mong đợi [2]
+    ok   số lần golangci-lint chạy với tag testroutes = [1]
+-- TC-PG01-85 FAIL
+TỔNG story 01: PASS=38 FAIL=11 MANUAL=0 K=17
+K: TC-PG01-35 TC-PG01-36 TC-PG01-37 TC-PG01-38 TC-PG01-39 TC-PG01-40 TC-PG01-50 TC-PG01-51 TC-PG01-52 TC-PG01-56 TC-PG01-57 TC-PG01-65 TC-PG01-70 TC-PG01-71 TC-PG01-72 TC-PG01-73 TC-PG01-74
+FAIL: TC-PG01-11 TC-PG01-14 TC-PG01-15 TC-PG01-16 TC-PG01-19 TC-PG01-34 TC-PG01-68 TC-PG01-75 TC-PG01-76 TC-PG01-83 TC-PG01-85
+docs/regression/evidence-2/scripts/pg01.sh: line 899: unexpected EOF while looking for matching `''
+docs/regression/evidence-2/scripts/pg01.sh: line 902: syntax error: unexpected end of file

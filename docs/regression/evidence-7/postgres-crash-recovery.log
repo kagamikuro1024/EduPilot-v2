@@ -1,0 +1,7 @@
+2:This user must also own the server process.
+29:2026-11-15 12:20:37.951 UTC [52] LOG:  database system is ready to accept connections
+56:2026-11-15 12:20:38.284 UTC [1] LOG:  database system is ready to accept connections
+8457:2026-11-15 12:59:54.463 UTC [1] LOG:  terminating any other active server processes
+8462:2026-11-15 12:59:57.590 UTC [1] LOG:  all server processes terminated; reinitializing
+8548:2026-11-15 13:00:10.972 UTC [25396] LOG:  database system was not properly shut down; automatic recovery in progress
+9753:2026-11-15 13:02:01.009 UTC [1] LOG:  database system is ready to accept connections

@@ -1,0 +1,46 @@
+SV ACTIVE: 7
+PASS TC-AS05-13a absent-unchecked khi còn cửa sổ mở → 409 WINDOW_OPEN 409 {"code": "WINDOW_OPEN", "message": "C\u00f2n c\u1eeda s\u1ed5 \u0111i\u1ec3m danh \u0111an
+PASS TC-AS05-13b buổi chưa từng có cửa sổ → 409 NO_WINDOW 409 {"code": "NO_WINDOW", "message": "Bu\u1ed5i n\u00e0y ch\u01b0a m\u1edf c\u1eeda s\u1ed5 \u
+PASS TC-AS05-16 STUDENT/ADMIN/sv.moi: close + absent-unchecked → 403 {'sv.gioi': (403, 403), 'admin': (403, 403), 'sv.moi': (403, 403)}
+PASS TC-AS05-01 đóng: 200 {window, written, unchecked, skipped_existing} {"window": {"id": "01a1df35-8af9-747d-bcc9-cf388f858cfb", "round": 1, "opened_at": "2026-11-15T12:36:30.580608Z", "closes_at": "2026-11-15T12:46:30.580608Z", "closed_at": "2026-11-15T12:3
+PASS TC-AS05-02a lượt trong ≤10 phút sau starts_at → PRESENT, version 1 {'sv.kha': ('PRESENT', '1'), 'sv.gioi': ('PRESENT', '1')}
+PASS TC-AS05-04 SV không lượt: không tạo ABSENT; unchecked = N-2 {'sv.kha': ('PRESENT', '1'), 'sv.gioi': ('PRESENT', '1')}
+PASS TC-AS05-06 close lần 2/3: 200 cùng kết quả; records/audit/outbox không thêm ('2', '76', '1168')->('2', '76', '1168')
+PASS TC-AS05-07 absent-unchecked: 200 {marked:N-2}; N-2 dòng ABSENT 200 {'marked': 5}
+PASS TC-AS05-07b audit_log absent_unchecked (số đếm) [['absent_unchecked', '{"marked": 5, "changes": [{"to": "ABSENT", "student_id": "01a1df27-651a-7710-9d22-1bc37fec90bb"}, {"to": "ABSENT", "student_id": "01a1df27-651e-7d21-b754-e08594']]
+PASS TC-AS05-08 lặp cùng khoá → 200 cùng kết quả; khoá mới → {marked:0} {'marked': 5} {'marked': 0}
+PASS TC-AS05-09 sửa ABSENT → PRESENT bằng lưới theo version 200 {"records": [{"student_id": "01a1df27-6524-7041-a0dd-d5d2965e782a", "status": "PRESENT", "version": 2}], "done_at": null}
+tay 200
+PASS TC-AS05-02b lượt trễ > starts_at+10 phút → LATE {'sv.kha': ('LATE', '1'), 'sv.gioi': ('LATE', '1'), 'sv.nguyco': ('ABSENT', '1')}
+PASS TC-AS05-03 dòng GV sửa tay giữ nguyên (ABSENT), skipped_existing=1 {"window": {"id": "01a1df35-a1a2-72eb-b451-87fd1ab69f70", "round": 1, "opened_at": "2026-11-15T12:36:36.384072Z", "closes_at": "2026-11-15T12:46:36.384072Z", "closed_at": "2026-11-15T12:36
+PASS TC-AS05-10 complete:true khi còn SV chưa có dòng → 422 CHECKIN_UNRESOLVED {count:N-3} 422 {"code": "CHECKIN_UNRESOLVED", "message": "C\u00f2n sinh vi\u00ean ch\u01b0a \u0111i\u1ec3m danh.", "trace_id": "cb314e20918b7cd8a50ef80849104750", "details": {"coun
+PASS TC-AS05-10b 422 không ghi gì {'sv.kha': ('LATE', '1'), 'sv.gioi': ('LATE', '1'), 'sv.nguyco': ('ABSENT', '1')}
+PASS TC-AS05-11 phủ hết rồi complete:true → 200 200 {"records": [{"student_id": "01a1df27-651e-7d21-b754-e08594004f6a", "status": "ABSENT", "version": 1
+PASS TC-AS05-12 buổi KHÔNG có cửa sổ: complete:true điền PRESENT như trước sprint 200 7
+PASS TC-AS05-14a close cửa sổ của lớp khác → 404 404
+PASS TC-AS07-04 đóng vòng 1: không RECHECK_MISS [['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY'], ['NO_DEVICE_KEY']]
+PASS TC-AS07-01 headcount=1, 5 lượt → over_headcount=true {"id": "01a1df35-acd7-77f2-b473-50d13b869e09", "round": 1, "opened_at": "2026-11-15T12:36:39.248965Z", "closes_at": "2026-11-15T12:46:39.248965Z", "closed_at": "2026-11-15T12:36:40.762662Z", "headcoun
+PASS TC-AS07-02a hai SV vắng vòng 2: RECHECK_MISS ở lượt VÒNG 1 {'sv.kha': 'NO_DEVICE_KEY', 'sv.gioi': 'NO_DEVICE_KEY', 'sv04': 'NO_DEVICE_KEY,RECHECK_MISS', 'sv.nguyco': 'NO_DEVICE_KEY', 'sv05': 'NO_DEVICE_KEY,RECHECK_MISS'}
+PASS TC-AS07-02b attendance_records không đổi sau vòng 2 
+PASS TC-AS07-03 đóng vòng 2 lần hai: RECHECK_MISS không nhân đôi NO_DEVICE_KEY,RECHECK_MISS
+PASS TC-AS06-01 phân trang cursor limit=2: đủ 8 lượt (5+3), không trùng 8
+PASS TC-AS06-01b phần tử có id, window_id, round, student{id,full_name,student_code}, created_at, channel, assurance, flags, cleared ['assurance', 'channel', 'cleared', 'created_at', 'flags', 'id', 'round', 'student', 'window_id']
+PASS TC-AS06-02a round=2 → 3 lượt 3
+PASS TC-AS06-02b limit=101 → 422; cursor hỏng → 422 422 422
+PASS TC-AS06-02c flagged=true: chỉ lượt còn cờ chưa bỏ 8
+PASS TC-AS06-04 clear-flags: 200, cờ không bị xoá, flags_cleared_by đặt 200 ['t', '1'] {"id": "01a1df35-ad03-711c-bc4d-eb9fe9c26ba2", "window_id": "01a1df35-acd7-77f2-b473-50d13b869e09", "round": 0, "student
+PASS TC-AS06-05 gọi lại: 200, không audit mới 1->1
+PASS TC-AS06-04b audit không chứa tên SV {"cleared": true}
+PASS TC-AS07-06 spot-check n=None: ≤ 5 người, không trùng, đủ trường 200 5
+PASS TC-AS07-06 spot-check n=10: ≤ 8 người, không trùng, đủ trường 200 5
+PASS TC-AS07-06 spot-check n=3: ≤ 3 người, không trùng, đủ trường 200 3
+PASS TC-AS07-07 12 lần gọi n=2: ≥ 3 tập khác nhau (ngẫu nhiên, hoặc tất cả đều có cờ → FLAGGED cố định) 1 tập
+  lý do: ['FLAGGED', 'FLAGGED', 'FLAGGED', 'FLAGGED', 'RANDOM']
+PASS TC-AS07-08a n=0/11/'a' → 422 [422, 422, 422]
+PASS TC-AS07-08b wid lớp khác → 404 404
+PASS TC-AS07-09 spot-check: SV/ADMIN/sv.moi 403, TA 200 {'sv.gioi': 403, 'admin': 403, 'sv.moi': 403, 'r108ta': 200}
+FAIL TC-AS06-06 /me/today (TEACHER) có mục CHECKIN_REVIEW []
+PASS TC-AS06-09 SV /me/today không có CHECKIN_REVIEW 0
+PASS TC-AS06-07 bỏ cờ hết (k=0) → mục của lớp QC-AS biến mất đã bỏ 33 cờ, còn 0
+PASS TC-AS06-11 SV/ADMIN/sv.moi: GET checkins + clear-flags → 403 {'sv.gioi': (403, 403), 'admin': (403, 403), 'sv.moi': (403, 403)}
+PASS TC-AS06-10a buổi lớp khác → 404 404

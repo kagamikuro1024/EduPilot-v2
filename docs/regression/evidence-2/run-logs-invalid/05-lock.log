@@ -1,0 +1,15 @@
+### 05:16 20:42:55
+== TC-PG05-16
+    ok   số dòng log mức error trong 60 s qua = [0]
+-- TC-PG05-16 PASS
+TỔNG story 05: PASS=1 FAIL=0 MANUAL=0 K=0
+### 05:22 20:43:05
+== TC-PG05-22
+    ok   có hai bản gateway = [e0e6195512fcdcc24f8439b61148a261a3fd65ceb4cdba9cffaf6c0b739b753e] (≠ [])
+    FAIL ZCARD sau khi A giữ 2 kết nối: thực tế [0] ≠ mong đợi [2]
+    FAIL mã của stream thứ 3 mở thẳng vào bản B: thực tế [503] ≠ mong đợi [429]
+-- TC-PG05-22 FAIL
+TỔNG story 05: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG05-22
+### 05:24 20:43:19
+== TC-PG05-24

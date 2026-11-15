@@ -1,0 +1,95 @@
+### 01:35 20:20:26
+== TC-PG01-35
+    ok   mã của request chậm = [200]
+-- TC-PG01-35 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:36 20:20:57
+== TC-PG01-36
+    ok   mã thoát của mọi bản gateway = [0]
+    ok   thời gian tắt (ms) = 3663 (≤ 25000)
+-- TC-PG01-36 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:37 20:21:10
+== TC-PG01-37
+    ok   mã readyz khi đang tắt = [503]
+    ok   code = [NOT_READY]
+    ok   details.draining (SRS 6.1) = [true]
+-- TC-PG01-37 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:38 20:21:44
+== TC-PG01-38
+    ok   số dòng 'event: shutdown' trong stream = [1]
+    ok   thời gian đóng kết nối sau SIGTERM (ms; AC 1000 + 200 sai số đo) = 276 (≤ 1200)
+-- TC-PG01-38 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:39 20:22:13
+== TC-PG01-39
+    ok   kết nối mới KHÔNG được 2xx !~ /^2/
+    ok   mã của kết nối mới (503 / từ chối) ~ /^(000|502|503)$/
+-- TC-PG01-39 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:40 20:22:44
+== TC-PG01-40
+    ok   mã thoát khi cắt request quá hạn = [1]
+    ok   thời gian tắt (ms) ≈ SHUTDOWN_TIMEOUT 2 s = 4268 (≤ 8000)
+    ok   số dòng msg="forced shutdown" = 1 (≥ 1)
+    ok   mức log của dòng forced shutdown = [warn]
+    ok   cancelled_requests là số nguyên = [nguyên]
+    ok   cancelled_requests = 1 (≥ 1)
+-- TC-PG01-40 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:50 20:23:29
+== TC-PG01-50
+    ok   mã = [504]
+    ok   code = [DEADLINE_EXCEEDED]
+    ok   thời gian trả lời (ms) = 1174 (≤ 1600)
+-- TC-PG01-50 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:51 20:24:17
+== TC-PG01-51
+    ok   số truy vấn pg_sleep còn chạy = [0]
+-- TC-PG01-51 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:52 20:25:04
+== TC-PG01-52
+    ok   mã = [504]
+    ok   code = [DEADLINE_EXCEEDED]
+    ok   số client Redis còn blocked (cmd=blpop) = [0]
+-- TC-PG01-52 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:56 20:25:45
+== TC-PG01-56
+    ok   số bản gateway lúc đo = [1]
+    ok   số client PgBouncer của gateway lớn nhất (≤ DB_MAX_CONNS × số bản) = 3 (≤ 3)
+    ok   đã quan sát được ≥ 1 client của gateway (không đo rỗng) = 3 (≥ 1)
+-- TC-PG01-56 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:57 20:26:57
+== TC-PG01-57
+    ok   số request trả 504 = [5]
+    ok   tổng thời gian 5 request song song (ms; không treo) = 4755 (≤ 6000)
+-- TC-PG01-57 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:65 22:44:01
+== TC-PG01-65
+    ok   mã thoát của worker = [0]
+    ok   thời gian tắt worker (ms) = 2422 (≤ 10000)
+-- TC-PG01-65 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:70 22:44:16
+== TC-PG01-70
+    ok   mã readyz = [503]
+    ok   code = [NOT_READY]
+    ok   details.redis = [down]
+    ok   số giây tới khi readyz báo down = 0 (≤ 10)
+    ok   mã healthz khi Redis chết = [200]
+-- TC-PG01-70 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:71 22:44:24
+== TC-PG01-71
+    ok   mã readyz sau khi Redis trở lại = [200]
+    ok   số giây tới khi readyz 200 = 1 (≤ 10)
+-- TC-PG01-71 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:72 22:44:30
+== TC-PG01-72

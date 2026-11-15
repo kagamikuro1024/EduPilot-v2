@@ -1,0 +1,32 @@
+=== RUN   TestStudentNeverSeesConfidence
+2026/11/15 20:14:23 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 30e980d3f75d687f29373ef23790701c54d4fe9edd7c383034d83aa37f501a5f
+  Test ProcessID: bbf68446-8a50-4cbe-aa8c-a386cc14686d
+2026/11/15 20:14:23 ✅ Container started: 68f6ff853df5
+2026/11/15 20:14:23 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:14:23 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:15:07 ✅ Container started: 5636bc78d64d
+2026/11/15 20:15:07 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:15:08 🔔 Container is ready: 5636bc78d64d
+2026/11/15 20:15:10 ✅ Container started: b8d9c357e377
+2026/11/15 20:15:10 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 20:15:10 🔔 Container is ready: b8d9c357e377
+    scenarios_thread_test.go:247: POST /api/v1/courses/01a1df59-8e42-7d72-b235-7de3e1ecd35a/posts/01a1df5a-6418-7fa6-9df2-c867ea44313b/report → 500 (cần 201): {"code":"INTERNAL","message":"Đã xảy ra lỗi. Hãy thử lại sau.","trace_id":"0682c6aedbdbde78abffa6070c9dd5e2"}
+--- FAIL: TestStudentNeverSeesConfidence (143.30s)
+=== RUN   TestNoAnswerLeak
+leak_matrix 20x6 clean (221 lời gọi; PUBLISHED chạy hai lần reveal_answers)
+    exam_results_http_test.go:321: leak_matrix 20x6 clean (221 lời gọi)
+--- PASS: TestNoAnswerLeak (36.98s)
+=== RUN   TestGolden_Auth
+--- PASS: TestGolden_Auth (1.53s)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/contract	186.825s
+FAIL
+done

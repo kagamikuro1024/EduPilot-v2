@@ -1,0 +1,31 @@
+[
+ {
+  "tc": "tc_03_06 TA /grading",
+  "ok": false,
+  "snip": "Bỏ qua điều hướng QD9T · QC nhóm D QD9T Tìm nhanh hoặc đi đến… ⌘ K Có 26 thông báo mới 9+ B Phạm Quốc Bảo Làm việc Hôm nay Hộp thư hỗ trợ Sinh viên Điểm danh Đá"
+ },
+ {
+  "tc": "tc_04_04 GV /settings/llm Test kết nối=0",
+  "ok": true,
+  "n": 0
+ },
+ {
+  "tc": "tc_04_03 GV /observability không [[SV_",
+  "ok": true,
+  "snip": "Bỏ qua điều hướng QD9T · QC nhóm D QD9T Tìm nhanh hoặc đi đến… ⌘ K Có 9 thông báo mới 9 H TS. Lê Thu"
+ },
+ {
+  "tc": "tc_04_02 GV /insights không MSSV",
+  "ok": true,
+  "snip": "Bỏ qua điều hướng QD9T · QC nhóm D QD9T Tìm nhanh hoặc đi đến… ⌘ K Có 9 thông báo mới 9 H TS. Lê Thu Hà Làm việc Hôm nay Hộp thư hỗ trợ Sinh"
+ },
+ {
+  "tc": "GV / mở (h1)",
+  "ok": true,
+  "snip": "Bỏ qua điều hướng QD9T · QC nhóm D QD9T Tìm nhanh hoặc đi đến… ⌘ K Có 10 thông báo mới 9+ H TS. Lê T"
+ },
+ {
+  "tc": "SV /me mở",
+  "ok": true
+ }
+]

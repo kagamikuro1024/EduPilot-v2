@@ -1,0 +1,15 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 202 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+LECTURE Forecasting (QMB ch. 6b) 2
+PASS TC-03-01 generate → 202 202 {'job_id': '01a1df35-ce0a-76af-a92c-4866a2d41323'}
+GENJOB {"id": "01a1df35-ce0a-76af-a92c-4866a2d41323", "kind": "question.generate", "status": "SUCCEEDED", "progress": 100, "result": {"created": ["01a1df35-e998-7b72-8604-e096c50fb33e", "01a1df35-e9a3-756e-9954-31057575e064", "01a1df35-e9a5-75cd-b1e5-10cfcb7aa698", "01a1df35-e9a6-7d6c-b9ec-5860204c6058", "01a1df35-e9ad-787e-9133-5dcdf5dc2ffc"], "skipped": []}, "created_at": "2026-11-15T12:36:47.754229Z",
+FAIL TC-03-01b câu GENERATED PENDING 9 câu; created=5 skipped=[]
+PASS TC-03-02 mỗi câu sinh có trích dẫn {document_id,chunk_id,page} thiếu: 0/9
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10/scripts/pb4.py", line 16, in <module>
+    dk = docid("QC Đáp án mẫu")["id"]
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10/scripts/pb.py", line 34, in docid
+    c, j, _ = api("teacher", "GET", f"{P}/documents?limit=100"); return {d["title"]: d for d in j["items"]}[title]
+                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'QC Đáp án mẫu'

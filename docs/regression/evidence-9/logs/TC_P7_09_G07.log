@@ -1,0 +1,39 @@
+$ go test ./internal/integration -run TestStudentNeverSeesDraftGrade -v
+=== RUN   TestStudentNeverSeesDraftGrade
+2026/11/15 20:13:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 707495f29b68653e80c46a2ead53758ff34bc6321a7ed6ee2d2850b2ba2112bd
+  Test ProcessID: 0c09816b-bd50-4557-bb8e-8d05464b9f90
+2026/11/15 20:13:34 ✅ Container started: 68f6ff853df5
+2026/11/15 20:13:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:13:35 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:13:57 ✅ Container started: 5636bc78d64d
+2026/11/15 20:13:57 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:13:58 🔔 Container is ready: 5636bc78d64d
+=== RUN   TestStudentNeverSeesDraftGrade/a_chưa_chấm
+=== RUN   TestStudentNeverSeesDraftGrade/b_QUEUED
+=== RUN   TestStudentNeverSeesDraftGrade/b_RUNNING
+=== RUN   TestStudentNeverSeesDraftGrade/c_DRAFT_chưa_cờ
+=== RUN   TestStudentNeverSeesDraftGrade/d_DRAFT_NEEDS_REVIEW
+=== RUN   TestStudentNeverSeesDraftGrade/d_DRAFT_INJECTION_SUSPECTED
+=== RUN   TestStudentNeverSeesDraftGrade/e_REVIEWED_chưa_công_bố
+=== RUN   TestStudentNeverSeesDraftGrade/f_FAILED
+--- PASS: TestStudentNeverSeesDraftGrade (39.18s)
+    --- PASS: TestStudentNeverSeesDraftGrade/a_chưa_chấm (1.43s)
+    --- PASS: TestStudentNeverSeesDraftGrade/b_QUEUED (0.34s)
+    --- PASS: TestStudentNeverSeesDraftGrade/b_RUNNING (0.77s)
+    --- PASS: TestStudentNeverSeesDraftGrade/c_DRAFT_chưa_cờ (0.77s)
+    --- PASS: TestStudentNeverSeesDraftGrade/d_DRAFT_NEEDS_REVIEW (0.75s)
+    --- PASS: TestStudentNeverSeesDraftGrade/d_DRAFT_INJECTION_SUSPECTED (0.32s)
+    --- PASS: TestStudentNeverSeesDraftGrade/e_REVIEWED_chưa_công_bố (0.49s)
+    --- PASS: TestStudentNeverSeesDraftGrade/f_FAILED (0.33s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	40.011s
+
+rc=0

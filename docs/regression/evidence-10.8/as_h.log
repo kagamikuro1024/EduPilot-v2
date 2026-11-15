@@ -1,0 +1,8 @@
+PASS TC-AS04-07 (kiểm lại) cùng khoá, hai SV: cả hai 201 và cả hai lượt có DEVICE_SHARED (cờ gắn cả lượt trước) 201 201 {'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW'}
+PASS TC-AS04-07b SV thứ ba cùng khoá: 201; ba lượt đều DEVICE_SHARED {'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW', 'sv.nguyco': 'DEVICE_SHARED,DEVICE_NEW'}
+PASS TC-AS04-08 (kiểm lại) đua 4 vòng: luôn hai 201 và cả hai DEVICE_SHARED [([201, 201], True), ([201, 201], True), ([201, 201], True), ([201, 201], True)]
+PASS TC-AS04-09b cùng khoá ở buổi sau (phạm vi lớp): DEVICE_SHARED (SRS FR-12: cùng course_id) DEVICE_SHARED,DEVICE_NEW
+FAIL TC-AS06-06 (kiểm lại sau đổi AttReviewSessions) /me/today vẫn có CHECKIN_REVIEW []
+PASS TC-AS03-02b (theo P-108-13/SRS v1.6) trường lạ trong thân → 422 VALIDATION_FAILED code=unknown; không ghi lượt [{"field": "student_id", "code": "unknown", "message": "Tr\u01b0\u1eddng kh\u00f4ng \u0111\u01b0\u1e
+PASS TC-AS12-03c (D-AS-03) openapi attestation_chain minItems 2 / maxItems 6 attestation_chain]       additionalProperties: false       properties:         kind:           type: string           enum: [ANDROID_KEY]         public_key:   
+PASS TC-AS12-03d 1 và 7 chứng chỉ → 422 (khớp openapi) 422 422

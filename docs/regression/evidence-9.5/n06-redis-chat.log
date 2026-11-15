@@ -1,0 +1,6 @@
+bình thường: chat (200, 0.4)
+Redis tắt: readyz (503, 1.8)
+Redis tắt: /me/today (200, 0.5)
+Redis tắt: tạo phiên chat (503, 1.9)
+Redis tắt: gửi chat 200 39.5 s b': ok\n\nevent: snapshot\ndata: {"off":0,"t":""}\n\nevent: token\ndata: {"off":0,"t":"\xc4\x90\xc3\xa2y l\xc3\xa0 c\xc3\xa2u "}\n\nevent: token\ndata: {"o'
+Redis bật lại: readyz (200, 0.0)

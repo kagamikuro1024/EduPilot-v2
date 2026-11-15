@@ -1,0 +1,23 @@
+reflect: SUCCEEDED {"drafts": 8, "dropped": []}
+PASS G04-F0 có ≥ 6 DRAFT 8
+PASS G04-19 APPROVE (có sửa chữ) → 200 APPROVED 200
+PASS G04-20 RESET → 200, về DRAFT 200 {"id": "01a1df3a-aeed-7cd8-9baf-97705b69a3b7", "criterion_id": "c3", "text": "\u01afu ti\u00ean v\u00ed d\u1ee5 th\u1ef1c t\u1ebf \u0111\u00
+PASS G04-20 decided_by NULL, approved_in_version NULL ['DRAFT', 't', '', 'f', 'Ưu tiên ví dụ thực tế đã sửa tay khi chấm tiêu chí này.', 'Cần nêu rõ tác nhân và phạm vi ảnh hưởng ở c3. Mẫu 1.']
+PASS G04-26 giữ chữ đã sửa; text_original = bản AI Ưu tiên ví dụ thực tế đã sửa tay khi chấ | Cần nêu rõ tác nhân và phạm vi ảnh hưởng
+PASS G04-20 phiên bản không đổi (assignments, grading_guidance_versions) 3 3
+INFO audit: grading_guidance.edit_approve,grading_guidance.reset
+PASS G04-20 audit_log có approve + reset grading_guidance.edit_approve,grading_guidance.reset
+PASS G04-21 REJECT → 200 200
+PASS G04-21 RESET từ REJECTED → DRAFT 200
+PASS G04-23 RESET trên DRAFT → 200 không đổi 200 {"id": "01a1df3a-aeed-7502-b670-f1cee9b5868d", "criterion_id": "c3", "text": "\u01afu ti\u00ean b\u1
+PASS G04-22 sau 6 s RESET vẫn 200 (Đặt lại cho tới khi Áp dụng) 200
+PASS G04-25 RESET version cũ → 409 VERSION_CONFLICT, không ghi đè quyết định của tab B 409 VERSION_CONFLICT REJECTED
+PASS G04-RBAC TA RESET → 403 403
+PASS G04-RBAC SV RESET → 403 403
+PASS G04-RBAC ADMIN RESET → 403 403
+PASS G04-RESET decision lạ → 422 422
+INFO đua RESET/apply: 200 None | 409 NOTHING_TO_APPLY
+PASS G04-30 đua RESET × Áp dụng: không mục nửa vời; kết quả nhất quán reset=200 apply=409 trạng thái=['DRAFT', 't', '', 'f']
+PASS G04-23 RESET mục đã áp dụng → 409 ITEM_NOT_RESETTABLE (không phải ITEM_NOT_DRAFT) 409 ITEM_NOT_RESETTABLE
+PASS G04-29 RETIRE → chờ nghỉ 200
+PASS G04-29 RESET chờ nghỉ → pending_retire=false, vẫn APPROVED, approved_in_version giữ 200 ['APPROVED', 'f', '4', 'f']

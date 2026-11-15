@@ -1,0 +1,61 @@
+### check-assignments-seed bt03
+(node:28818) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+OK 22/22 khớp ngay + 3 chưa khớp + 6 không nộp; bản ghi: IN_APP 13 · IMAP 8 (kèm sv29 + thư lạ) · UPLOAD 5 (kèm sv30)
+
+  ✗ chưa khớp: 6 (IMAP:NO_ASSIGNMENT_CODE, IMAP:SENDER_UNVERIFIED, IMAP:SENDER_UNVERIFIED, IMAP:SENDER_UNVERIFIED, IMAP:STUDENT_NOT_IN_COURSE, UPLOAD:NO_STUDENT_SIGNAL), cần 3
+  ✗ chưa khớp theo kênh sai: IMAP:NO_ASSIGNMENT_CODE, IMAP:SENDER_UNVERIFIED, IMAP:SENDER_UNVERIFIED, IMAP:SENDER_UNVERIFIED, IMAP:STUDENT_NOT_IN_COURSE, UPLOAD:NO_STUDENT_SIGNAL
+  ✗ mail_inbound: 14, cần 8
+  ✗ cần đúng 2 bài tập đã công bố
+  ✗ seed không được chạy chấm (chưa có grading_results)
+rc=1
+### check-assignments-seed counts --no-rerun
+(node:28929) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+counts {"assignments":8,"matched":22,"unmatched":6,"inApp":13,"inbound":14,"documents":10,"imap":true,"teams":true} (không đổi sau seed lần hai)
+
+  ✗ số bản ghi sai: {"assignments":8,"matched":22,"unmatched":6,"inApp":13,"inbound":14,"documents":10,"imap":true,"teams":true}
+rc=1
+### check-chat-seed --no-rerun
+(node:28942) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+chat=151 sessions=34 outside=10 threads=12/3 states={"PENDING":4,"REJECTED":1,"CORRECTED":2,"VERIFIED":3,"SKIPPED":2} idempotent=bỏ qua (--no-rerun)
+rc=0
+### check-crm-seed --no-rerun
+(node:29474) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+attendance=270 absent=21 speak=65 risk={"AT_RISK":1,"WATCH":3,"NONE":26} tickets=5 {"OPEN":2,"CLAIMED":1,"ANSWERED":1,"CLOSED":1} queue=2 idempotent=bỏ qua (--no-rerun)
+rc=0
+### check-docs-seed --no-rerun
+(node:29659) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+docs=10 READY=5 answer_key=1 shared=5 reembedded=0 events=2/1 idempotent=bỏ qua (--no-rerun)
+rc=0
+### check-exam-seed bank
+(node:29714) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✗ bank:
+  - MCQ_MULTI APPROVED ≠ 12 (4 + 8)
+rc=1
+### check-grade-seed preview
+(node:29808) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+30/30 OK
+rc=0
+### check-grade-seed abc
+(node:29823) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+A B C OK
+rc=0
+### check-grade-seed counts --no-rerun
+(node:29842) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+counts {"docs":10,"columns":3,"entries":60} — bỏ qua (--no-rerun)
+rc=0
+### check-knowledge-seed 
+(node:29867) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+tri thức=6 (POST 5, TICKET 1) có trích dẫn=4
+  ✗ POST "Câu hỏi: ▪ Example: Auger's Plumbing Ser…": không có trích dẫn tri thức (429)
+  ✗ TICKET "Câu hỏi: Nộp bài muộn bị trừ điểm thế nà…": không có trích dẫn tri thức (429)
+rc=1

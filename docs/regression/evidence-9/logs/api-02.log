@@ -1,0 +1,61 @@
+PASS 03 tạo BT03 từ fixtures → 201 
+   id 01a1df36-1a4c-7891-9e53-00c681c3292d keys ['allow_late', 'appeal_days', 'channels', 'created_at', 'description', 'due_at', 'id', 'late_max_days', 'late_penalty_per_day', 'late_rule_locked', 'max_score', 'published_at', 'reference_answer', 'rubric', 'rubric_locked', 'submission_code', 'teams_assignment_id', 'teams_class_id', 'title', 'type', 'version']
+PASS 03 tiêu chí c1…c4 do máy chủ cấp, version 1, chưa công bố 
+PASS 03 Idempotency-Key: cùng khoá → cùng bài 
+PASS 03 chỉ một bài IDEM1 trong DB 
+PASS 04 title rỗng → 422 
+PASS 04 title 201 ký tự → 422 
+PASS 04 description 8001 → 422 
+PASS 04 mã nộp 1 ký tự → 422 
+PASS 04 mã nộp 13 ký tự → 422 
+PASS 04 mã nộp chữ thường → 422 
+PASS 04 mã nộp trùng → 422 
+PASS 04 max_score 0 → 422 
+PASS 04 max_score 100,25 → 422 
+PASS 04 max_score 10,1 (bước) → 422 
+PASS 04 late_penalty âm → 422 
+PASS 04 late_max_days 15 → 422 
+PASS 04 allow_late + 0 ngày → 422 
+PASS 04 appeal_days 31 → 422 
+PASS 04 channels lạ → 422 
+PASS 04 TEAMS thiếu id → 422 
+PASS 04 reference_answer 20001 → 422 
+PASS 04 type QUIZ → 422 
+PASS 06 rubric tổng 9,75 → 422 
+PASS 06 rubric tổng 10,25 → 422 
+PASS 06 rubric bước 2,3 → 422 
+PASS 06 rubric tổng đúng → 200 
+   suggest trên stack (provider giả, chưa có bản ghi demo): 200 {'criteria': [{'name': 'Tác nhân và bề mặt tấn công', 'guidance': 'Cần nêu rõ tác nhân tấn công là A
+PASS 08 rubric/suggest (TEACHER) không 5xx, không lọt 403 
+PASS 08 suggest: Σ max_score = 10 và bội 0,25 
+PASS 08 rubric/suggest (TA) không 403 
+PASS 10 publish → 200/201 
+PASS 10 thông báo ASSIGNMENT_PUBLISHED = 8 sinh viên ACTIVE 
+PASS 11 publish lần hai → 409 hoặc idempotent 
+PASS 11 không thông báo lần hai 
+PASS 19 đáp án chuẩn của fixtures có canary 
+PASS 19 sv.gioi GET …/assignments → không reference_answer / guidance / canary 
+PASS 19 sv.gioi GET …/assignments/01a1df36-1a4c-7891-9e53-00c681c3292d → không reference_answer / guidance / canary 
+PASS 19 sv.gioi GET …/assignments/01a1df36-1a4c-7891-9e53-00c681c3292d/mine → không reference_answer / guidance / canary 
+PASS 19 sv.kha GET …/assignments → không reference_answer / guidance / canary 
+PASS 19 sv.kha GET …/assignments/01a1df36-1a4c-7891-9e53-00c681c3292d → không reference_answer / guidance / canary 
+PASS 19 sv.kha GET …/assignments/01a1df36-1a4c-7891-9e53-00c681c3292d/mine → không reference_answer / guidance / canary 
+PASS 19 TA GET chi tiết → có đáp án (chỉ đọc) 
+PASS 19 ADMIN → 403 
+PASS 19 TA POST tạo → 403 
+PASS 19 STUDENT POST tạo → 403 
+PASS 19 ADMIN POST tạo → 403 
+PASS 19 TA PUT → 403 
+PASS 19 TA DELETE → 403 
+PASS 19 TA publish → 403 
+PASS 19 STUDENT suggest → 403 
+PASS 10 lịch sinh viên có DEADLINE source assignment (một dòng) 
+   today sv: []
+PASS 12 PUT đổi hạn sau công bố (chưa chấm) → 200 
+PASS 15 PUT sai version → 409 VERSION_CONFLICT 
+PASS 12 lịch đổi theo hạn mới ≤ 5 s 
+PASS 13 PUT đổi max_score sau công bố → bị khoá (4xx) 
+PASS 16 DELETE bài đã công bố, sạch → 204 
+PASS 16 lịch không còn dòng sau xoá ≤ 5 s 
+RESULT: PASS (0 lỗi)
+rc=0

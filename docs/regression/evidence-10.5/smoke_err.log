@@ -1,0 +1,5 @@
+PASS D03-05 decision lỗi, stub allow → 201; DECIDE error → FALLBACK 201 [['THREADS_PRECHECK', 'FALLBACK', 'error', 'SERVER', 'INTERACTIVE']]
+PASS D03-06 cả hai lỗi → 422 FAIL_CLOSED 422 PII_DETECTED [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]
+PASS D03-06b Structured sai JSON → 422 FAIL_CLOSED 422 PII_DETECTED [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]
+PASS D03-07 Structured chậm 12 s → 422 trong ≈ 6–8 s 422 6926ms [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]
+PASS D05-06 decision lỗi: chat vẫn trả lời (200), ≤ 1 DECIDE 200 ttfb=35ms [['DECIDE', 'error', 'CHAT_ROUTING', 'FALLBACK']] cl=[]

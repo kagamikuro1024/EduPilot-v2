@@ -1,0 +1,6 @@
+PASS TC-PE04-23 OPEN +2.217834s sau opens_at; CLOSED +1.987164s sau closes_at (≤10 s); outbox: exam.closed|1, exam.opened|1, exam.published|1, exam.scheduled|1
+PASS TC-PE04-31 DELETE draft 204; DELETE scheduled 409 ['EXAM_LOCKED']; TA delete 403; TA clone 201 DRAFT R5 04 del (bản sao)
+PASS TC-PE04-33 GV thấy ['DRAFT', 'OPEN', 'PUBLISHED', 'SCHEDULED']; SV thấy ['OPEN', 'PUBLISHED', 'SCHEDULED'] (không có DRAFT)
+PASS TC-PE04-34 status=OPEN limit=2 -> 2 dòng, cursor True
+PASS TC-PE04-36 hai PUT cùng version: [409, 200]
+PASS TC-PE04-37 10 lượt schedule ∥ REJECT: 0 lần ra bài SCHEDULED chứa câu REJECTED (mẫu 10/30)

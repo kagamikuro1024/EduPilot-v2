@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:60534) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+TEXT 1440 "Luyện đề\nLịch sử luyện tập\n\nGiảng viên chưa mở câu hỏi"
+  ✓  1 [desktop] › e2e/qc-s10-empty-real.spec.ts:8:3 › practice lớp rỗng 1440 (6.4s)
+TEXT 375 "Luyện đề\nLịch sử luyện tập\nNên luyện ngay\nLuyện An toàn đám mây\n10 câu · phản hồi ngay sau mỗi câu\nLuyện 10 câu\nChọn cách luyện\nTheo chủ đề\n2\nThi thử\nAn toàn đám mây\n10 câu\nLuyện 10 câu\nBảo mật email\n10 câu\nLuyện 10 câu"
+  ✓  2 [desktop] › e2e/qc-s10-empty-real.spec.ts:8:3 › practice lớp rỗng 375 (5.0s)
+
+  2 passed (12.5s)

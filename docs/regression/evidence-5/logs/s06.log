@@ -1,0 +1,19 @@
+FAIL TC-PE06-01 khoá code: ['drafts', 'language', 'languages', 'memory_limit_mb', 'samples', 'starter_code', 'time_limit_ms']; samples 2; 0 canary test ẩn / lời giải
+PASS TC-PE06-16 {'ok': (202, ['AC', 'AC']), 'wa': (202, ['WA', 'WA']), 'ce': (202, 'CE'), 'tle': (202, ['TLE', 'TLE']), 're': (202, ['RE', 'RE'])}; stdout/hidden: HID trong kết quả: False
+PASS TC-PE06-17 lần 6–12: [202, 202, 202, 202, 202, 429, 429]+429; lần thứ 11 → 429 (RATE_LIMITED) retry_after=585
+FAIL TC-PE06-18 [(422, ['IDEMPOTENCY_KEY_REQUIRED']), (422, ['VALIDATION_FAILED', 'required']), (422, ['VALIDATION_FAILED', 'max']), (422, ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED'])]; chạy vào lượt người khác 404
+PASS TC-PE06-23 202; kind/sha256 đúng; outbox judge.enqueue 1
+PASS TC-PE06-24 lần hai trong 15 s: 429 ['RATE_LIMITED'] retry_after=15
+PASS TC-PE06-26 sau 15 s nộp ok 202; lần 1 DONE (lần 1 nộp wa trước khi lần 2 vào hàng: DONE); lần 2 DONE is_final=True
+PASS TC-PE06-29 khoá: ['compile_ok', 'created_at', 'id', 'is_final', 'language', 'samples', 'source', 'status']; 0 canary test ẩn; ẩn chỉ đếm? hidden-khoá: []
+PASS TC-PE06-30 CE: compile_log "main.cpp: In function 'int main()':\nmain.cpp:1:13: error: 'undefined_fn' was not declared "
+PASS TC-PE06-32 limit=2 → 2, mới nhất trước, cursor có; SV khác đọc lịch sử: 404/403
+PASS TC-PE06-34 nộp bài thi → SUBMIT cuối (wa): verdict WA|SUBMIT|f
+PASS TC-PE06-35 draft 200 rev=1; nộp bài thi → code_submissions: SUBMIT|t|AC
+PASS TC-PE06-36 có SUBMIT + nháp khác: số auto/tổng = 0|1 (không tạo SUBMIT auto)
+PASS TC-PE06-37 không nháp, không nộp: 0 code_submissions (earned=0 khi chấm: xem PE-08)
+FAIL TC-PE06-11 rev 1→2; 64KiB 200; +1 422 ['VALIDATION_FAILED', 'max']
+PASS TC-PE06-12 base_rev cũ: 409 ['DRAFT_CONFLICT']
+PASS TC-PE06-09 mỗi ngôn ngữ nháp riêng: c11|// c11;cpp17|// cpp; java 422 ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED']
+PASS TC-PE06-44 0 canary test ẩn/lời giải/giải thích ở mine/run/submissions (ở trạng thái đang làm)
+PASS TC-PE06-45 [404, 404, 403, 403, 403]

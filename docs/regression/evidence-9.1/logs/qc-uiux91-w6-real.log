@@ -1,0 +1,635 @@
+
+Running 54 tests using 1 worker
+
+(node:58127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:28:1 › TC-UX08-1 cấu trúc: h1, dòng dẫn, thứ tự h2 (8.9s)
+(node:58671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO màu nút: [["Tạo tài khoản","rgba(0, 0, 0, 0)",[0,0,0]],["Đăng nhập","rgb(206, 22, 40)",[206,22,40]],["Đăng nhập","rgb(206, 22, 40)",[206,22,40]],["Xem video","lab(100 0 0)",[255,255,255]]]
+  ✘   2 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:38:1 › TC-UX08-3/4 màn đầu: đúng 1 nút đỏ, ≤ 2 nút phụ, :active 0,97 (930ms)
+(node:58677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO LCP: SPAN||Vận hành lớp học
+  ✘   3 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:59:1 › TC-UX08-6/7/8 clip: LCP là poster, clip tải SAU load, thuộc tính, ≤ 1 MB, đang phát (3.9s)
+(node:58778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO tab ẩn: request trước/sau khi hiện: 0 0 đang phát: false
+  ✘   4 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:86:1 › TC-UX08-9/10/11/12 reduce / Save-Data / tab ẩn / lỗi tải clip (10.4s)
+(node:58894) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:141:1 › TC-UX08-14/15 nút Tạm dừng / Phát: ≥ 44 px, aria-pressed, bàn phím, nhớ trong phiên (6.9s)
+(node:59128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO nguồn video khi mở: {"src":null,"srcs":["/landing/gioi-thieu-v1.mp4","/landing/gioi-thieu-v1.webm"],"cur":"https://localhost:1143/landing/gioi-thieu-v1.mp4"}
+INFO sau khi đóng: {"cur":"","attr":null,"srcs":0}
+  ✓   6 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:163:1 › TC-UX08-16/17/18/21 Xem video: không tải trước, hộp thoại, focus trap, Esc, bỏ nguồn; reduce mở tức thì (4.3s)
+INFO video đầy đủ (trước khi mở): {"controls":true,"preload":"none","pl":true,"poster":true,"auto":false}
+  ✓   7 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:197:1 › TC-UX08-8b/19 video đầy đủ: thuộc tính; #video-loi; không rãnh âm (ffprobe ở shell) (833ms)
+  ✘   8 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:215:1 › TC-UX08-22/23/24/25 khung ghim ≥ 1100: sticky, đổi ảnh theo bước, ảnh ≤ 90 KB, chỉ transform/opacity (8.8s)
+(node:59310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:264:1 › TC-UX08-26/27 không ghim ở 1024 px và khi reduce; đủ chữ + ảnh (1.5m)
+(node:60693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:277:1 › TC-UX08-29/30/31/32 sơ đồ và số đo: thông số hoạt cảnh, nội dung HTML thật, số đếm (1.5m)
+(node:61990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:300:1 › TC-UX08-33/34 chữ ba số đo khớp nguồn, không «mọi/toàn bộ», có chú thích mô phỏng (1.5m)
+(node:63258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:315:1 › TC-UX08-35/36 hai cột vai, không tab; xếp dọc < 720 (1.5m)
+(node:64638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO cỡ chữ 1440 {"h1":72,"h2":48,"small":["16px «146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV tron»","16px «Giảng viên sửa từng tiêu chí, duyệt, rồi mới công »","16px «Công thức trích từ quy chế, giảng viên xác nhận; m»","16px «Điểm do mã tính từ quy chế; AI chỉ trích công thức»"],"pads":["120/72","120/72","0/0","120/72","120/72"]}
+  ✘  13 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:336:1 › TC-UX08-38/39 chữ lớn, khoảng thở, một h2 mỗi khung nhìn (898ms)
+(node:64717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:372:1 › TC-UX08-40/41/42 chiều sâu: bóng họ popover, nâng ≤ 6 px, chỉ hover; cảm ứng / reduce không nâng (1.5m)
+(node:66033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO khối ẩn khi tắt JS: IMG«» ; IMG«» ; IMG«»
+  ✘  15 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:391:1 › TC-UX08-46/48 reduce: không clip, không ghim, số cuối ngay, 0 animation; JS tắt vẫn đủ nội dung (6.2s)
+(node:66052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:409:3 › TC-UX08-50 axe 1440 px và thứ bậc tiêu đề (1.3s)
+(node:66062) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  17 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:409:3 › TC-UX08-50 axe 375 px và thứ bậc tiêu đề (1.2s)
+(node:66154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:66154) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  18 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:423:1 › TC-UX08-51/54 không rò mật khẩu / tài khoản; CTA đúng đích (944ms)
+INFO kích thước ảnh khi lỗi: 
+  ✘  19 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:441:1 › TC-UX08-53 lỗi ảnh / clip / video đầy đủ: khung giữ kích thước, không lỗi (837ms)
+(node:66240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:461:1 › TC-UX08-52 người đã đăng nhập mở `/` thấy Hôm nay, không nháy trang giới thiệu (772ms)
+  ✘  21 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:482:3 › TC-UX08-28/48 webkit: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn (2ms)
+(node:66245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  22 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:482:3 › TC-UX08-28/48 firefox: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn (7ms)
+(node:66246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:512:1 › TC-UX09-10 #video-loi có đủ 7 câu phụ đề theo thứ tự, ẩn trực quan, aria-describedby (829ms)
+INFO video 375: {"w":327,"ov":false,"controls":true}
+INFO tua 30 s chromium: {"ct":31.963,"paused":false,"src":"gioi-thieu-v1.mp4"}
+  ✘  24 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:523:1 › TC-UX09-11/13 375 cảm ứng: hộp thoại vừa khung, video không tràn; tua 30 s phát tiếp (Chromium + WebKit) (5.3s)
+(node:66334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO webm rỗng: {"src":"gioi-thieu-v1.mp4","paused":true}
+  ✘  25 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:553:1 › TC-UX09-17/18 canPlayType: webm rỗng → MP4 phát; cả hai rỗng → poster + liên kết tải, không console.error (3.9s)
+(node:66352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:575:1 › TC-UX09-19 reduce: clip không phát; video đầy đủ không tự phát (4.9s)
+  ✘  27 [desktop] › e2e/qc-uiux91-w6-real.spec.ts:587:1 › TC-UX08-29/30/31 sơ đồ và số đếm theo cuộn: thứ tự hiện, vạch scaleX, đếm 0 → 146, có chạy lại khi cuộn ngược không (1.5m)
+(node:67659) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  28 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:28:1 › TC-UX08-1 cấu trúc: h1, dòng dẫn, thứ tự h2
+  -  29 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:38:1 › TC-UX08-3/4 màn đầu: đúng 1 nút đỏ, ≤ 2 nút phụ, :active 0,97
+  -  30 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:59:1 › TC-UX08-6/7/8 clip: LCP là poster, clip tải SAU load, thuộc tính, ≤ 1 MB, đang phát
+  -  31 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:86:1 › TC-UX08-9/10/11/12 reduce / Save-Data / tab ẩn / lỗi tải clip
+  -  32 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:141:1 › TC-UX08-14/15 nút Tạm dừng / Phát: ≥ 44 px, aria-pressed, bàn phím, nhớ trong phiên
+  -  33 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:163:1 › TC-UX08-16/17/18/21 Xem video: không tải trước, hộp thoại, focus trap, Esc, bỏ nguồn; reduce mở tức thì
+  -  34 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:197:1 › TC-UX08-8b/19 video đầy đủ: thuộc tính; #video-loi; không rãnh âm (ffprobe ở shell)
+  -  35 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:215:1 › TC-UX08-22/23/24/25 khung ghim ≥ 1100: sticky, đổi ảnh theo bước, ảnh ≤ 90 KB, chỉ transform/opacity
+  -  36 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:264:1 › TC-UX08-26/27 không ghim ở 1024 px và khi reduce; đủ chữ + ảnh
+  -  37 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:277:1 › TC-UX08-29/30/31/32 sơ đồ và số đo: thông số hoạt cảnh, nội dung HTML thật, số đếm
+  -  38 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:300:1 › TC-UX08-33/34 chữ ba số đo khớp nguồn, không «mọi/toàn bộ», có chú thích mô phỏng
+  -  39 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:315:1 › TC-UX08-35/36 hai cột vai, không tab; xếp dọc < 720
+  -  40 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:336:1 › TC-UX08-38/39 chữ lớn, khoảng thở, một h2 mỗi khung nhìn
+  -  41 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:372:1 › TC-UX08-40/41/42 chiều sâu: bóng họ popover, nâng ≤ 6 px, chỉ hover; cảm ứng / reduce không nâng
+  -  42 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:391:1 › TC-UX08-46/48 reduce: không clip, không ghim, số cuối ngay, 0 animation; JS tắt vẫn đủ nội dung
+  -  43 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:409:3 › TC-UX08-50 axe 1440 px và thứ bậc tiêu đề
+  -  44 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:409:3 › TC-UX08-50 axe 375 px và thứ bậc tiêu đề
+  -  45 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:423:1 › TC-UX08-51/54 không rò mật khẩu / tài khoản; CTA đúng đích
+  -  46 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:441:1 › TC-UX08-53 lỗi ảnh / clip / video đầy đủ: khung giữ kích thước, không lỗi
+  -  47 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:461:1 › TC-UX08-52 người đã đăng nhập mở `/` thấy Hôm nay, không nháy trang giới thiệu
+  -  48 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:482:3 › TC-UX08-28/48 webkit: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn
+  -  49 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:482:3 › TC-UX08-28/48 firefox: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn
+  -  50 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:512:1 › TC-UX09-10 #video-loi có đủ 7 câu phụ đề theo thứ tự, ẩn trực quan, aria-describedby
+  -  51 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:523:1 › TC-UX09-11/13 375 cảm ứng: hộp thoại vừa khung, video không tràn; tua 30 s phát tiếp (Chromium + WebKit)
+  -  52 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:553:1 › TC-UX09-17/18 canPlayType: webm rỗng → MP4 phát; cả hai rỗng → poster + liên kết tải, không console.error
+  -  53 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:575:1 › TC-UX09-19 reduce: clip không phát; video đầy đủ không tự phát
+  -  54 [mobile] › e2e/qc-uiux91-w6-real.spec.ts:587:1 › TC-UX08-29/30/31 sơ đồ và số đếm theo cuộn: thứ tự hiện, vạch scaleX, đếm 0 → 146, có chạy lại khi cuộn ngược không
+
+
+  1) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:28:1 › TC-UX08-1 cấu trúc: h1, dòng dẫn, thứ tự h2 ──
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân"
+    Received: "Vận hành lớp học có trợ lý AI"
+    Timeout:  8000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 8000ms
+      - waiting for getByRole('heading', { level: 1 })
+        20 × locator resolved to <h1 id="hero-title" class="Landing-module__H_TZ-W__h1">…</h1>
+           - unexpected value "Vận hành lớp học có trợ lý AI"
+
+
+      29 |   desktop(info);
+      30 |   const { ctx, page } = await open(browser);
+    > 31 |   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân");
+         |                                                         ^
+      32 |   await expect(page.locator("main, body").first()).toContainText("AI soạn nháp. Giảng viên quyết. Điểm do mã tính.");
+      33 |   const h2 = await page.locator("h2").allInnerTexts();
+      34 |   expect(h2.map((s) => s.trim())).toEqual(H2);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:31:57
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08-1-cấu-trúc-h1-dòng-dẫn-thứ-tự-h2-desktop/error-context.md
+
+  2) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:38:1 › TC-UX08-3/4 màn đầu: đúng 1 nút đỏ, ≤ 2 nút phụ, :active 0,97 
+
+    Error: nút đỏ ở màn đầu
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+      Array [
+        "Đăng nhập",
+    +   "Đăng nhập",
+      ]
+
+      47 |   console.log("INFO màu nút:", JSON.stringify(btns.map((b, i) => [b.t, b.bg, rgb[i]])));
+      48 |   const red = btns.filter((_, i) => rgb[i][0] > 170 && rgb[i][1] < 70 && rgb[i][2] < 80);
+    > 49 |   expect(red.map((b) => b.t), "nút đỏ ở màn đầu").toEqual(["Đăng nhập"]);
+         |                                                   ^
+      50 |   const login = page.getByRole("link", { name: "Đăng nhập" }).first();
+      51 |   await login.hover();
+      52 |   await page.mouse.down();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:49:51
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--bb305--đỏ-≤-2-nút-phụ-active-0-97-desktop/error-context.md
+
+  3) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:59:1 › TC-UX08-6/7/8 clip: LCP là poster, clip tải SAU load, thuộc tính, ≤ 1 MB, đang phát 
+
+    Error: có tải clip
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      66 |   console.log("INFO LCP:", lcp);
+      67 |   const clipReq = reqs.filter((r) => isClip(r.url));
+    > 68 |   expect(clipReq.length, "có tải clip").toBeGreaterThan(0);
+         |                                         ^
+      69 |   expect(clipReq[0].t, "clip tải sau sự kiện load").toBeGreaterThanOrEqual(loadAt() - 5);
+      70 |   const v = page.locator("video[muted], video").first();
+      71 |   const a = await v.evaluate((e: HTMLVideoElement) => ({ muted: e.muted, loop: e.loop, pl: e.hasAttribute("playsinline"), aria: e.getAttribute("aria-hidden"), controls: e.controls, src: [...e.querySelectorAll("source")].map((s) => s.type), paused: e.paused }));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:68:41
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--ba505-thuộc-tính-≤-1-MB-đang-phát-desktop/error-context.md
+
+  4) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:86:1 › TC-UX08-9/10/11/12 reduce / Save-Data / tab ẩn / lỗi tải clip 
+
+    Error: AC3: ẩn lúc tải, hiện lại → clip tải (P-91-5 Q5)
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      113 |     console.log("INFO tab ẩn: request trước/sau khi hiện:", before, after, "đang phát:", playing);
+      114 |     expect(before, "tab ẩn: không tải clip").toBe(0);
+    > 115 |     expect.soft(after, "AC3: ẩn lúc tải, hiện lại → clip tải (P-91-5 Q5)").toBeGreaterThan(0);
+          |                                                                            ^
+      116 |     expect.soft(playing, "AC3: ẩn lúc tải, hiện lại → phát").toBe(true);
+      117 |     await ctx.close();
+      118 |   }
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:115:76
+
+    Error: AC3: ẩn lúc tải, hiện lại → phát
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      114 |     expect(before, "tab ẩn: không tải clip").toBe(0);
+      115 |     expect.soft(after, "AC3: ẩn lúc tải, hiện lại → clip tải (P-91-5 Q5)").toBeGreaterThan(0);
+    > 116 |     expect.soft(playing, "AC3: ẩn lúc tải, hiện lại → phát").toBe(true);
+          |                                                              ^
+      117 |     await ctx.close();
+      118 |   }
+      119 |   {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:116:62
+
+    Error: đang phát
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      121 |     await page.waitForTimeout(2500);
+      122 |     const st = async () => page.locator("video").first().evaluate((e: HTMLVideoElement) => !e.paused);
+    > 123 |     expect(await st(), "đang phát").toBe(true);
+          |                                     ^
+      124 |     await page.evaluate(() => { const w = window as unknown as { __v: string }; w.__v = "hidden"; Object.defineProperty(document, "visibilityState", { configurable: true, get: () => w.__v }); Object.defineProperty(document, "hidden", { configurable: true, get: () => w.__v === "hidden" }); document.dispatchEvent(new Event("visibilitychange", { bubbles: true })); });
+      125 |     await page.waitForTimeout(600);
+      126 |     expect(await st(), "tab ẩn → dừng").toBe(false);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:123:37
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--dedf0-ve-Data-tab-ẩn-lỗi-tải-clip-desktop/error-context.md
+
+  5) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:141:1 › TC-UX08-14/15 nút Tạm dừng / Phát: ≥ 44 px, aria-pressed, bàn phím, nhớ trong phiên 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 43
+    Received:    32
+
+      146 |   await expect(btn).toBeVisible();
+      147 |   const bb = (await btn.boundingBox())!;
+    > 148 |   expect(bb.width).toBeGreaterThanOrEqual(43);
+          |                    ^
+      149 |   expect(bb.height).toBeGreaterThanOrEqual(43);
+      150 |   expect(await btn.getAttribute("aria-pressed")).not.toBeNull();
+      151 |   await btn.focus();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:148:20
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--4a336-ed-bàn-phím-nhớ-trong-phiên-desktop/error-context.md
+
+  6) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:215:1 › TC-UX08-22/23/24/25 khung ghim ≥ 1100: sticky, đổi ảnh theo bước, ảnh ≤ 90 KB, chỉ transform/opacity 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('section').filter({ has: getByRole('heading', { name: 'Xem EduPilot làm việc', level: 2 }) }).first()
+    Expected: visible
+    Timeout: 8000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('section').filter({ has: getByRole('heading', { name: 'Xem EduPilot làm việc', level: 2 }) }).first() with timeout 8000ms
+      - waiting for locator('section').filter({ has: getByRole('heading', { name: 'Xem EduPilot làm việc', level: 2 }) }).first()
+
+
+      217 |   const { ctx, page } = await open(browser);
+      218 |   const sec = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: H2[0] }) }).first();
+    > 219 |   await expect(sec).toBeVisible();
+          |                     ^
+      220 |   const h3 = await sec.locator("h3").allInnerTexts();
+      221 |   expect(h3.length, "ba bước h3").toBe(3);
+      222 |   const imgs = sec.locator("img");
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:219:21
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--c9378-90-KB-chỉ-transform-opacity-desktop/error-context.md
+
+  7) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:264:1 › TC-UX08-26/27 không ghim ở 1024 px và khi reduce; đủ chữ + ảnh 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.evaluate: Test ended.
+    Call log:
+      - waiting for locator('section').filter({ has: getByRole('heading', { name: 'Xem EduPilot làm việc', level: 2 }) }).first()
+
+
+      267 |     const { ctx, page } = await open(browser, o);
+      268 |     const sec = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: H2[0] }) }).first();
+    > 269 |     expect(await sec.evaluate((s) => [...s.querySelectorAll("*")].some((e) => getComputedStyle(e).position === "sticky")), JSON.stringify(o)).toBe(false);
+          |                      ^
+      270 |     expect(await sec.locator("h3").count()).toBe(3);
+      271 |     const vis = await sec.locator("img").evaluateAll((l) => l.filter((i) => { const c = getComputedStyle(i); return c.display !== "none" && Number(c.opacity) > 0.5; }).length);
+      272 |     expect(vis, "ảnh hiện cho mọi bước").toBeGreaterThanOrEqual(3);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:269:22
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--323a8-px-và-khi-reduce-đủ-chữ-ảnh-desktop/error-context.md
+
+  8) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:277:1 › TC-UX08-29/30/31/32 sơ đồ và số đo: thông số hoạt cảnh, nội dung HTML thật, số đếm 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.evaluate: Test ended.
+    Call log:
+      - waiting for locator('section').filter({ has: getByRole('heading', { name: 'AI soạn nháp, giảng viên quyết, mã tính điểm', level: 2 }) }).first()
+
+
+      279 |   const { ctx, page } = await open(browser);
+      280 |   const diag = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: H2[1] }) }).first();
+    > 281 |   const steps = await diag.evaluate((s) => [...s.querySelectorAll("li, [data-step]")].slice(0, 6).map((e) => ({ t: (e as HTMLElement).innerText.slice(0, 20).replace(/\n/g, " "), d: getComputedStyle(e).animationDelay, du: getComputedStyle(e).animationDuration, tl: getComputedStyle(e).getPropertyValue("animation-timeline") })));
+          |                            ^
+      282 |   console.log("INFO bước sơ đồ:", JSON.stringify(steps));
+      283 |   await expect(diag).toContainText("AI soạn nháp");
+      284 |   await expect(diag).toContainText("Giảng viên duyệt");
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:281:28
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--d3309-h-nội-dung-HTML-thật-số-đếm-desktop/error-context.md
+
+  9) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:300:1 › TC-UX08-33/34 chữ ba số đo khớp nguồn, không «mọi/toàn bộ», có chú thích mô phỏng 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.innerText: Test ended.
+    Call log:
+      - waiting for locator('section').filter({ has: getByRole('heading', { name: 'Khác biệt, có số đo', level: 2 }) }).first()
+
+
+      302 |   const { ctx, page } = await open(browser);
+      303 |   const num = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: H2[2] }) }).first();
+    > 304 |   const t = (await num.innerText()).replace(/\s+/g, " ");
+          |                        ^
+      305 |   console.log("INFO khối số đo:", t);
+      306 |   expect(t).toContain("146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp");
+      307 |   expect(t).toMatch(/recall 0,960 trên 200 mẫu tự soạn/);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:304:24
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--139e1-n-bộ»-có-chú-thích-mô-phỏng-desktop/error-context.md
+
+  10) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:315:1 › TC-UX08-35/36 hai cột vai, không tab; xếp dọc < 720 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.evaluate: Test ended.
+    Call log:
+      - waiting for locator('section').filter({ has: getByRole('heading', { name: 'Cho giảng viên và sinh viên', level: 2 }) }).first()
+
+
+      318 |   const sec = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: H2[3] }) }).first();
+      319 |   await expect(sec.locator("[role=tablist], [role=tab]")).toHaveCount(0);
+    > 320 |   const cols = await sec.evaluate((s) => [...s.querySelectorAll("h3")].map((h) => { const c = h.closest("div, article, section, li")!; const r = c.getBoundingClientRect(); return { t: (h as HTMLElement).innerText, top: Math.round(r.top), left: Math.round(r.left), items: c.querySelectorAll("li, dt, h4").length }; }));
+          |                          ^
+      321 |   console.log("INFO cột vai:", JSON.stringify(cols));
+      322 |   expect(cols.map((c) => c.t)).toEqual(expect.arrayContaining(["Giảng viên", "Sinh viên"]));
+      323 |   const [a, b] = [cols.find((c) => c.t === "Giảng viên")!, cols.find((c) => c.t === "Sinh viên")!];
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:320:26
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--96739-t-vai-không-tab-xếp-dọc-720-desktop/error-context.md
+
+  11) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:336:1 › TC-UX08-38/39 chữ lớn, khoảng thở, một h2 mỗi khung nhìn 
+
+    Error: đoạn chữ thân < 18px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   "16px «146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV tron»",
+    +   "16px «Giảng viên sửa từng tiêu chí, duyệt, rồi mới công »",
+    +   "16px «Công thức trích từ quy chế, giảng viên xác nhận; m»",
+    +   "16px «Điểm do mã tính từ quy chế; AI chỉ trích công thức»",
+    + ]
+
+      353 |     expect(m.h1).toBeGreaterThanOrEqual(min.h1);
+      354 |     expect(m.h2).toBeGreaterThanOrEqual(min.h2);
+    > 355 |     expect(m.small, `đoạn chữ thân < ${min.body}px`).toEqual([]);
+          |                                                      ^
+      356 |     const spaces = m.pads.slice(1).map((p, i) => Number(p.split("/")[0]) + Number(m.pads[i].split("/")[1]));
+      357 |     expect(Math.min(...spaces), `khoảng giữa các mục ≥ ${min.gap}: ${m.pads.join(" ")}`).toBeGreaterThanOrEqual(min.gap - 1);
+      358 |     if (vp.width === 1440) {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:355:54
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--09fb2-g-thở-một-h2-mỗi-khung-nhìn-desktop/error-context.md
+
+  12) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:372:1 › TC-UX08-40/41/42 chiều sâu: bóng họ popover, nâng ≤ 6 px, chỉ hover; cảm ứng / reduce không nâng 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.scrollIntoViewIfNeeded: Test ended.
+    Call log:
+      - waiting for locator('section').filter({ has: getByRole('heading', { name: 'Xem EduPilot làm việc', level: 2 }) }).first().locator('img').first()
+
+
+      375 |   const sec = page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name: H2[0] }) }).first();
+      376 |   const fr = sec.locator("img").first();
+    > 377 |   await fr.scrollIntoViewIfNeeded();
+          |            ^
+      378 |   const sh = await fr.evaluate((e) => { let n: Element | null = e; for (let i = 0; i < 4 && n; i++, n = n.parentElement) { const s = getComputedStyle(n).boxShadow; if (s !== "none") return s; } return "none"; });
+      379 |   const tokens = await page.evaluate(() => [...document.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } }).flatMap((r) => (r as CSSStyleRule).style ? [...(r as CSSStyleRule).style].filter((p) => p.startsWith("--ep-") && /shadow|elev/.test(p)).map((p) => `${p}=${(r as CSSStyleRule).style.getPropertyValue(p).trim()}`) : []));
+      380 |   console.log("INFO bóng khung:", sh, "| token:", tokens.slice(0, 8).join(" ; "));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:377:12
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--ce5f3-r-cảm-ứng-reduce-không-nâng-desktop/error-context.md
+
+  13) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:391:1 › TC-UX08-46/48 reduce: không clip, không ghim, số cuối ngay, 0 animation; JS tắt vẫn đủ nội dung 
+
+    Error: khối ẩn vĩnh viễn khi tắt JS (sau khi cuộn qua)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "IMG«»",
+    +   "IMG«»",
+    +   "IMG«»",
+    + ]
+
+      402 |   const hidden = await nj.page.evaluate(() => [...document.querySelectorAll("h2, h3, p, li, img")].filter((e) => { const c = getComputedStyle(e); let n: Element | null = e; let op = 1; while (n) { op *= Number(getComputedStyle(n).opacity); n = n.parentElement; } const r = e.getBoundingClientRect(); return (op < 0.05 || c.visibility === "hidden") && r.width > 0 && getComputedStyle(e).display !== "none"; }).map((e) => `${e.tagName}«${(e as HTMLElement).innerText?.slice(0, 30) ?? (e as HTMLImageElement).getAttribute("src")}»`));
+      403 |   console.log("INFO khối ẩn khi tắt JS:", hidden.join(" ; "));
+    > 404 |   expect(hidden, "khối ẩn vĩnh viễn khi tắt JS (sau khi cuộn qua)").toEqual([]);
+          |                                                                     ^
+      405 |   await nj.ctx.close();
+      406 | });
+      407 |
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:404:69
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--f60a3-tion-JS-tắt-vẫn-đủ-nội-dung-desktop/error-context.md
+
+  14) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:409:3 › TC-UX08-50 axe 1440 px và thứ bậc tiêu đề ──
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast ×5",
+    + ]
+
+      412 |     const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      413 |     const bad = r.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => `${v.id} ×${v.nodes.length}`);
+    > 414 |     expect(bad).toEqual([]);
+          |                 ^
+      415 |     const lv = await page.evaluate(() => [...document.querySelectorAll("h1,h2,h3,h4")].map((h) => Number(h.tagName[1])));
+      416 |     for (let i = 1; i < lv.length; i++) expect(lv[i] - lv[i - 1], `nhảy cấp tiêu đề ở #${i}`).toBeLessThanOrEqual(1);
+      417 |     const noAlt = await page.evaluate(() => [...document.querySelectorAll("img")].filter((i) => i.getAttribute("alt") === null).length);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:414:17
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08-50-axe-1440-px-và-thứ-bậc-tiêu-đề-desktop/error-context.md
+
+  15) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:409:3 › TC-UX08-50 axe 375 px và thứ bậc tiêu đề ───
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast ×12",
+    + ]
+
+      412 |     const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      413 |     const bad = r.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => `${v.id} ×${v.nodes.length}`);
+    > 414 |     expect(bad).toEqual([]);
+          |                 ^
+      415 |     const lv = await page.evaluate(() => [...document.querySelectorAll("h1,h2,h3,h4")].map((h) => Number(h.tagName[1])));
+      416 |     for (let i = 1; i < lv.length; i++) expect(lv[i] - lv[i - 1], `nhảy cấp tiêu đề ở #${i}`).toBeLessThanOrEqual(1);
+      417 |     const noAlt = await page.evaluate(() => [...document.querySelectorAll("img")].filter((i) => i.getAttribute("alt") === null).length);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:414:17
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08-50-axe-375-px-và-thứ-bậc-tiêu-đề-desktop/error-context.md
+
+  16) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:441:1 › TC-UX08-53 lỗi ảnh / clip / video đầy đủ: khung giữ kích thước, không lỗi 
+
+    Error: ảnh đang hiện
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 3
+    Received:    0
+
+      448 |   console.log("INFO kích thước ảnh khi lỗi:", boxes.join(","));
+      449 |   const shown = boxes.filter((b) => b !== "0x0");
+    > 450 |   expect(shown.length, "ảnh đang hiện").toBeGreaterThanOrEqual(3);
+          |                                         ^
+      451 |   expect(new Set(shown).size, "ảnh lỗi giữ kích thước như ảnh tốt").toBe(1);
+      452 |   await page.getByRole("button", { name: "Xem video" }).or(page.getByRole("link", { name: "Xem video" })).first().click();
+      453 |   await page.waitForTimeout(1200);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:450:41
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--11f2b-ng-giữ-kích-thước-không-lỗi-desktop/error-context.md
+
+  17) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:482:3 › TC-UX08-28/48 webkit: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/kuro/Library/Caches/ms-playwright/webkit-2388/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+      482 |   test(`TC-UX08-28/48 ${name}: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn`, async ({}, info) => {
+      483 |     desktop(info);
+    > 484 |     const b = await bt.launch();
+          |                        ^
+      485 |     const { ctx, page } = await open(b);
+      486 |     const sup = await page.evaluate(() => CSS.supports("animation-timeline: view()"));
+      487 |     console.log(`INFO ${name} animation-timeline:`, sup);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:484:24
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--f8ef3-m-đủ-nội-dung-không-khối-ẩn-desktop/error-context.md
+
+  18) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:482:3 › TC-UX08-28/48 firefox: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/kuro/Library/Caches/ms-playwright/firefox-1572/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+      482 |   test(`TC-UX08-28/48 ${name}: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn`, async ({}, info) => {
+      483 |     desktop(info);
+    > 484 |     const b = await bt.launch();
+          |                        ^
+      485 |     const { ctx, page } = await open(b);
+      486 |     const sup = await page.evaluate(() => CSS.supports("animation-timeline: view()"));
+      487 |     console.log(`INFO ${name} animation-timeline:`, sup);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:484:24
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--224c2-m-đủ-nội-dung-không-khối-ẩn-desktop/error-context.md
+
+  19) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:523:1 › TC-UX09-11/13 375 cảm ứng: hộp thoại vừa khung, video không tràn; tua 30 s phát tiếp (Chromium + WebKit) 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/kuro/Library/Caches/ms-playwright/webkit-2388/pw_run.sh
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+      533 |   await m.ctx.close();
+      534 |   for (const [name, bt] of [["chromium", null], ["webkit", webkit]] as const) {
+    > 535 |     const b = bt ? await bt.launch() : browser;
+          |                             ^
+      536 |     const { ctx, page } = await open(b);
+      537 |     await openVideo(page);
+      538 |     const res = await page.evaluate(async () => {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:535:29
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX09--891f8--phát-tiếp-Chromium-WebKit--desktop/error-context.md
+
+  20) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:553:1 › TC-UX09-17/18 canPlayType: webm rỗng → MP4 phát; cả hai rỗng → poster + liên kết tải, không console.error 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      559 |   console.log("INFO webm rỗng:", JSON.stringify(r));
+      560 |   expect(r.src).toMatch(/\.mp4$/);
+    > 561 |   expect(r.paused).toBe(false);
+          |                    ^
+      562 |   await a.ctx.close();
+      563 |   const none = async (p: Page) => { await p.addInitScript(() => { HTMLMediaElement.prototype.canPlayType = () => ""; }); };
+      564 |   const b = await open(browser, {}, none);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:561:20
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX09--951a7-kết-tải-không-console-error-desktop/error-context.md
+
+  21) [desktop] › e2e/qc-uiux91-w6-real.spec.ts:587:1 › TC-UX08-29/30/31 sơ đồ và số đếm theo cuộn: thứ tự hiện, vạch scaleX, đếm 0 → 146, có chạy lại khi cuộn ngược không 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.evaluate: Test ended.
+    Call log:
+      - waiting for locator('section').filter({ has: getByRole('heading', { name: 'AI soạn nháp, giảng viên quyết, mã tính điểm', level: 2 }) }).first()
+
+
+      594 |     return { li, line, top: Math.round(s.getBoundingClientRect().top) };
+      595 |   });
+    > 596 |   const top0 = (await diag.evaluate((s) => s.getBoundingClientRect().top + scrollY)) as number;
+          |                            ^
+      597 |   const down: string[] = [];
+      598 |   for (let k = -500; k <= 300; k += 100) { await page.evaluate((y) => window.scrollTo(0, y), top0 + k); await page.waitForTimeout(250); const r = await snap(); down.push(`${k}:${r.li.join("/")}:${r.line.slice(0, 22)}`); }
+      599 |   console.log("INFO sơ đồ cuộn xuống:", down.join(" | "));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w6-real.spec.ts:596:28
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-real/qc-uiux91-w6-real-TC-UX08--a6dfa-ạy-lại-khi-cuộn-ngược-không-desktop/error-context.md
+
+  21 failed
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:28:1 › TC-UX08-1 cấu trúc: h1, dòng dẫn, thứ tự h2 ───
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:38:1 › TC-UX08-3/4 màn đầu: đúng 1 nút đỏ, ≤ 2 nút phụ, :active 0,97 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:59:1 › TC-UX08-6/7/8 clip: LCP là poster, clip tải SAU load, thuộc tính, ≤ 1 MB, đang phát 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:86:1 › TC-UX08-9/10/11/12 reduce / Save-Data / tab ẩn / lỗi tải clip 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:141:1 › TC-UX08-14/15 nút Tạm dừng / Phát: ≥ 44 px, aria-pressed, bàn phím, nhớ trong phiên 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:215:1 › TC-UX08-22/23/24/25 khung ghim ≥ 1100: sticky, đổi ảnh theo bước, ảnh ≤ 90 KB, chỉ transform/opacity 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:264:1 › TC-UX08-26/27 không ghim ở 1024 px và khi reduce; đủ chữ + ảnh 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:277:1 › TC-UX08-29/30/31/32 sơ đồ và số đo: thông số hoạt cảnh, nội dung HTML thật, số đếm 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:300:1 › TC-UX08-33/34 chữ ba số đo khớp nguồn, không «mọi/toàn bộ», có chú thích mô phỏng 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:315:1 › TC-UX08-35/36 hai cột vai, không tab; xếp dọc < 720 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:336:1 › TC-UX08-38/39 chữ lớn, khoảng thở, một h2 mỗi khung nhìn 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:372:1 › TC-UX08-40/41/42 chiều sâu: bóng họ popover, nâng ≤ 6 px, chỉ hover; cảm ứng / reduce không nâng 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:391:1 › TC-UX08-46/48 reduce: không clip, không ghim, số cuối ngay, 0 animation; JS tắt vẫn đủ nội dung 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:409:3 › TC-UX08-50 axe 1440 px và thứ bậc tiêu đề ────
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:409:3 › TC-UX08-50 axe 375 px và thứ bậc tiêu đề ─────
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:441:1 › TC-UX08-53 lỗi ảnh / clip / video đầy đủ: khung giữ kích thước, không lỗi 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:482:3 › TC-UX08-28/48 webkit: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:482:3 › TC-UX08-28/48 firefox: không có animation-timeline → không ghim, đủ nội dung, không khối ẩn 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:523:1 › TC-UX09-11/13 375 cảm ứng: hộp thoại vừa khung, video không tràn; tua 30 s phát tiếp (Chromium + WebKit) 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:553:1 › TC-UX09-17/18 canPlayType: webm rỗng → MP4 phát; cả hai rỗng → poster + liên kết tải, không console.error 
+    [desktop] › e2e/qc-uiux91-w6-real.spec.ts:587:1 › TC-UX08-29/30/31 sơ đồ và số đếm theo cuộn: thứ tự hiện, vạch scaleX, đếm 0 → 146, có chạy lại khi cuộn ngược không 
+  27 skipped
+  6 passed (10.4m)

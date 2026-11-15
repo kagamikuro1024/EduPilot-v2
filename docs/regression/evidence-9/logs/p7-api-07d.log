@@ -1,0 +1,29 @@
+   BT QC7A 01a1df53-03ef-73bf-9e4a-151fee70e6c8
+PASS 01 grade-all → 202 queued 3 + job_id 
+PASS 01 đúng 3 dòng grading_results round 1 
+PASS 03 cùng Idempotency-Key → cùng job_id 
+PASS 03 10 request song song (khoá khác) → không dòng trùng, tổng vẫn 3 
+PASS 03 song song: tổng queued của các request = 0 (đã xếp hết) 
+PASS 12 STUDENT grade-all → 403 
+PASS 12 ADMIN grade-all → 403 
+PASS 12 TA grade-all → 200/202 
+PASS 12 GET /jobs/{id} TEACHER → 200 
+PASS 12 GET /jobs/{id} TA → 200 
+PASS 12 GET /jobs/{id} STUDENT → 404 
+PASS 12 GET /jobs/{id} ADMIN → 404 
+   trạng thái cuối: QUEUED:-,QUEUED:-,QUEUED:- | còn chạy: 3
+FAIL 01 cả 3 bài kết thúc (DONE / FAILED) ≤ 120 s 3
+   FAILED: 0
+PASS 10 FAILED: tiêu chí NULL, không điểm 0, không grade_entries 
+PASS 07 lỗi vĩnh viễn → attempts = 1 (không thử lại) 
+PASS 08 mọi lời gọi chấm làn BATCH (llm_audit) 
+   (không có kết quả DONE — provider giả chưa có bản ghi chấm; grade-REVIEWED kiểm bằng Go TestRegradeOnlyDraftOrFailed)
+PASS 10 grade-all v1 khi worker dừng → 202 queued 1 
+PASS 10 nộp v2 khi v1 đang QUEUED → 201 
+   v1: FAILED:SUPERSEDED
+PASS 10 v1 kết thúc FAILED SUPERSEDED 
+PASS 10 grade-all sau đó chỉ xếp v2 (queued 1) 
+PASS 13 log gateway + worker không chứa canary văn bản bài 
+PASS 13 log không chứa MSSV / email sinh viên 
+RESULT: FAIL (1 lỗi)
+rc=1

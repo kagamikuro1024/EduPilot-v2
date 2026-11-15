@@ -1,0 +1,93 @@
+{"tc": "TC-PE01-06", "r": "P", "note": "store pass=1 skip=0 fail=0", "pat": "TestExamSchema"}
+{"tc": "TC-PE01-09", "r": "P", "note": "store pass=1 skip=0 fail=0", "pat": "TestExamConstraints"}
+{"tc": "TC-PE01-11", "r": "P", "note": "store pass=1 skip=0 fail=0", "pat": "TestExamIndexes"}
+{"tc": "TC-PE01-15", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestExamGuardMatrix|TestExamAdminDenied|TestExamStudentRouteRoleOnly"}
+{"tc": "TC-PE01-20", "r": "F", "note": "kh\u00f4ng t\u00ecm th\u1ea5y test: TestExamIsolation,TestAllExamRoutesGuarded", "pat": "TestExamIsolation|TestAllExamRoutesGuarded"}
+{"tc": "TC-PE01-22", "r": "P", "note": "quiz pass=3 skip=0 fail=0", "pat": "TestQuizGrade|TestQuizPartialFormula|TestQuizInvalidOption"}
+{"tc": "TC-PE01-26", "r": "P", "note": "exam pass=1 skip=0 fail=0", "pat": "TestScoringDecimal"}
+{"tc": "TC-PE01-32", "r": "F", "note": "exam pass=1 skip=0 fail=0; document pass=1 skip=0 fail=0; thread pass=1 skip=0 fail=0; thiếu test: TestListNoNPlusOne", "pat": "TestListCursor|TestListNoNPlusOne"}
+{"tc": "TC-PE01-34", "r": "F", "note": "kh\u00f4ng t\u00ecm th\u1ea5y test: TestAuditRowsPerAction,TestAuditNoContent", "pat": "TestAuditRowsPerAction|TestAuditNoContent"}
+{"tc": "TC-PE01-36", "r": "F", "note": "kh\u00f4ng t\u00ecm th\u1ea5y test: TestArchivedCourseWrites409,TestArchivedCourseSubmitStillWorks", "pat": "TestArchivedCourseWrites409|TestArchivedCourseSubmitStillWorks"}
+{"tc": "TC-PE01-38", "r": "F", "note": "contract pass=1 skip=0 fail=0; thiếu test: TestExamContract", "pat": "TestExamContract|TestExamErrorCodes"}
+{"tc": "TC-PE02-10", "r": "P", "note": "judge pass=2 skip=0 fail=0; auth pass=1 skip=0 fail=0", "pat": "TestClientRequiresToken|TestTokenNeverLogged"}
+{"tc": "TC-PE02-11", "r": "P", "note": "judge pass=4 skip=0 fail=0", "pat": "TestClientCompileRequest|TestClientRunRequest|TestClientDeletesCachedFile|TestClientDeadlineAndSemaphore"}
+{"tc": "TC-PE02-16", "r": "P", "note": "judge pass=1 skip=0 fail=0", "pat": "TestVerdictMapping"}
+{"tc": "TC-PE02-18", "r": "P", "note": "judge pass=3 skip=0 fail=0", "pat": "TestCheckerExact|TestCheckerTokens|TestCheckerFloatEps"}
+{"tc": "TC-PE02-22", "r": "P", "note": "judge pass=4 skip=0 fail=0", "pat": "TestSubmissionResultAssembly|TestNoEarlyStop|TestZeroTotalWeight|TestOnlyApprovedTests"}
+{"tc": "TC-PE02-28", "r": "P", "note": "judge pass=4 skip=0 fail=0", "pat": "TestJudgeConsumerIdempotent|TestJudgeRetryThenDead|TestJudgeKillWorkerMidRun|TestJudgeRunLaneReserved"}
+{"tc": "TC-PE02-30", "r": "F", "note": "judge pass=1 skip=0 fail=TestRunningNotCancelled", "pat": "TestSupersedeQueued|TestRunningNotCancelled"}
+{"tc": "TC-PE02-32", "r": "F", "note": "kh\u00f4ng t\u00ecm th\u1ea5y test: TestRunWhenJudgeDown503,TestSubmitWhenJudgeDownQueued,TestIENeverScoresZero", "pat": "TestRunWhenJudgeDown503|TestSubmitWhenJudgeDownQueued|TestIENeverScoresZero"}
+{"tc": "TC-PE02-45", "r": "P", "note": "judge pass=1 skip=0 fail=0", "pat": "TestSandboxAttacks"}
+{"tc": "TC-PE02-51", "r": "P", "note": "judge pass=2 skip=0 fail=0", "pat": "TestNoSourceInLogs|TestCompileLogScrubbed"}
+{"tc": "TC-PE02-54", "r": "P", "note": "judge pass=1 skip=0 fail=0; worker pass=1 skip=0 fail=0", "pat": "TestJudgeProbe|TestReadyzJudgeInfoOnly"}
+{"tc": "TC-PE03-06", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestCreateMCQValid|TestCreateMCQInvalid|TestStemStoredRaw|TestPinnedWarning"}
+{"tc": "TC-PE03-08", "r": "F", "note": "exam pass=1 skip=0 fail=0; thiếu test: TestTypeNotSupportedYet", "pat": "TestCreateTrueFalse|TestTypeNotSupportedYet"}
+{"tc": "TC-PE03-12", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestCodeProblemDefaults|TestCodeProblemValidation|TestCodeProblemBumpsTestsVersion"}
+{"tc": "TC-PE03-16", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestTestcaseCRUD|TestTestcaseLimits|TestTestcaseBlobSpill|TestTestcaseBumpsVersion"}
+{"tc": "TC-PE03-22", "r": "P", "note": "exam pass=5 skip=0 fail=0", "pat": "TestTestZipImport|TestTestZipSlip|TestTestZipBomb|TestTestZipAtomic|TestTestZipManifest"}
+{"tc": "TC-PE03-26", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestVerifyReferenceAllPass|TestVerifyReferenceMismatch|TestVerifyReferenceJudgeDown"}
+{"tc": "TC-PE03-30", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestReviewApprove|TestReviewCodeNeedsVerifiedReference|TestAIDraftNeverAutoApproved|TestReviewAudit"}
+{"tc": "TC-PE03-34", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestQuestionInUseLocked|TestTestsEditAfterCloseNeedsRegrade|TestArchiveKeepsHistory|TestTAcannotEditUsedTests"}
+{"tc": "TC-PE03-39", "r": "P", "note": "exam pass=5 skip=0 fail=0", "pat": "TestSuggestMCQ|TestSuggestDropsInvalid|TestSuggestNotConfigured|TestSuggestPromptHasNoStudentData|TestSuggestUsesBatchLane"}
+{"tc": "TC-PE03-42", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestSuggestTestsExpectedFromReference|TestSuggestedTestsNotJudgedUntilApproved|TestSuggestTestsNeedsReference"}
+{"tc": "TC-PE03-45", "r": "P", "note": "exam pass=2 skip=0 fail=0; contract pass=1 skip=0 fail=0", "pat": "TestQuestionListFilters|TestQuestionListPermissionMatrix|TestQuestionDetailStaffOnly"}
+{"tc": "TC-PE03-47", "r": "P", "note": "exam pass=1 skip=0 fail=0", "pat": "TestDuplicateQuestion"}
+{"tc": "TC-PE03-54", "r": "P", "note": "today pass=2 skip=0 fail=0", "pat": "TestQuestionReviewProvider|TestQuestionReviewInvalidates"}
+{"tc": "TC-PE04-05", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestCreateExamDefaults|TestExamValidation|TestExamKindDerived"}
+{"tc": "TC-PE04-09", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestPutItems|TestPutItemsRejects|TestPutItemsLockedWhenScheduled"}
+{"tc": "TC-PE04-12", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestPreviewNoAttemptCreated|TestPreviewShapeEqualsStudent"}
+{"tc": "TC-PE04-18", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestScheduleValidationsAll|TestScheduleEffects|TestScheduleIdempotent|TestScheduleTeacherOnly"}
+{"tc": "TC-PE04-22", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestUnscheduleRules|TestEditLockMatrix"}
+{"tc": "TC-PE04-27", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestExamStateMachine|TestEffectiveStatus|TestTickIdempotent|TestTickSkipsToClosed"}
+{"tc": "TC-PE04-30", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestExtendOnlyLater|TestExtendRecomputesRunningDeadlines|TestExtendAfterCloseRejected"}
+{"tc": "TC-PE04-32", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestDeleteOnlyDraft|TestCloneExam"}
+{"tc": "TC-PE04-35", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestExamListStaffVsStudent|TestExamDetailStudentProjection|TestStudentNeverSeesDraft"}
+{"tc": "TC-PE04-38", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestScheduleRaceWithQuestionReject|TestExamEditVersionConflict"}
+{"tc": "TC-PE04-41", "r": "P", "note": "today pass=2 skip=0 fail=0", "pat": "TestExamProvidersStudent|TestExamTodayInvalidation"}
+{"tc": "TC-PE05-06", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestStartAttemptOK|TestStartAttemptNotOpenReasons|TestStartAttemptIdempotent|TestStartAttemptDeadlineMin"}
+{"tc": "TC-PE05-10", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestResumeSameAttempt|TestClockNotResetOnReload|TestOneAttemptRaceStart|TestStartAfterSubmit409"}
+{"tc": "TC-PE05-17", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestAttemptPayloadWhitelist|TestAttemptPayloadNoAnswerCanary"}
+{"tc": "TC-PE05-21", "r": "P", "note": "exam pass=6 skip=0 fail=0", "pat": "TestShuffleDeterministic|TestShuffleDiffersAcrossStudents|TestShufflePermutationComplete|TestShufflePinnedLast|TestShuffleOffKeepsOrder|TestGradeIndependentOfShuffle"}
+{"tc": "TC-PE05-26", "r": "P", "note": "exam pass=5 skip=0 fail=0", "pat": "TestSaveAnswersDiff|TestSaveAnswersValidation|TestSaveRateLimit|TestSaveAfterDeadlineGrace|TestSaveOtherUsersAttempt404"}
+{"tc": "TC-PE05-30", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestAutoSubmitOnTimeout|TestAutoSubmitOnClose|TestGraceAcceptsLastSave|TestAutoSubmitGradesMCQ"}
+{"tc": "TC-PE05-34", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestSubmitManual|TestSubmitIdempotentReplay|TestSubmitTwiceDifferentKey409|TestSubmitNoScoreInResponse"}
+{"tc": "TC-PE05-39", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestSingleWriterTab|TestTakeoverFlipsWriter|TestStaleTabCannotOverwrite|TestWriterSeenThrottle"}
+{"tc": "TC-PE05-44", "r": "F", "note": "kh\u00f4ng t\u00ecm th\u1ea5y test: TestSaveIdempotentRetry`;", "pat": "TestSaveIdempotentRetry`;"}
+{"tc": "TC-PE05-55", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestAfterSubmitSummaryOnly|TestResultBeforePublish409|TestOtherStudentAttempt404"}
+{"tc": "TC-PE05-58", "r": "P", "note": "contract pass=2 skip=0 fail=0", "pat": "TestStudentGuardStates|TestRemovedMidExam403"}
+{"tc": "TC-PE06-03", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestCodeItemPayloadWhitelist|TestHiddenTestsNeverInPayload"}
+{"tc": "TC-PE06-10", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestDraftPerLanguage|TestLanguageNotAllowed"}
+{"tc": "TC-PE06-15", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestDraftRevIncrements|TestDraftConflict409|TestDraftAfterDeadline"}
+{"tc": "TC-PE06-20", "r": "F", "note": "judge pass=1 skip=0 fail=0; exam pass=1 skip=0 fail=0; thiếu test: TestRunLaneNotBlockedBySubmitBacklog,TestRunDoesNotAffectScore", "pat": "TestRunSamplesOnly|TestRunRateLimit10Per10Min|TestRunLaneNotBlockedBySubmitBacklog|TestRunDoesNotAffectScore"}
+{"tc": "TC-PE06-28", "r": "F", "note": "exam pass=4 skip=0 fail=0; thiếu test: TestSubmitSupersedes", "pat": "TestSubmitCodeEnqueues|TestSubmitCooldown|TestSubmitCap30|TestLastSubmissionCounts|TestSubmitSupersedes"}
+{"tc": "TC-PE06-31", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestSubmissionStudentViewHidesHidden|TestSubmissionViewCE|TestSubmissionViewIE"}
+{"tc": "TC-PE06-33", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestSubmissionsListOwnOnly|TestSubmissionsListCursor"}
+{"tc": "TC-PE06-38", "r": "F", "note": "exam pass=3 skip=0 fail=0; thiếu test: TestFinalPicksLastSubmit", "pat": "TestFinalPicksLastSubmit|TestAutoSubmitDraftWhenNone|TestNoAutoSubmitWhenSubmitExists|TestEmptyDraftNoSubmit"}
+{"tc": "TC-PE06-46", "r": "P", "note": "exam pass=1 skip=0 fail=0", "pat": "TestNoAnswerLeakCodeEndpoints"}
+{"tc": "TC-PE07-05", "r": "P", "note": "exam pass=5 skip=0 fail=0", "pat": "TestLockSetOnStart|TestLockTTLEqualsRemaining|TestLockClearedOnSubmit|TestLockClearedOnClose|TestLockMultipleAttemptsLatestDeadline"}
+{"tc": "TC-PE07-12", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestExamLockContract|TestLockerRedisMissFallsBackDB|TestLockerRedisDownUsesDB|TestLockerBothDownDeniesChat"}
+{"tc": "TC-PE07-17", "r": "P", "note": "exam pass=5 skip=0 fail=0", "pat": "TestEventsWhitelistMeta|TestEventsNoContentStored|TestEventsCapPerAttempt|TestEventsBatchLimit|TestEventsNeverBreakSave"}
+{"tc": "TC-PE07-22", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestEventsTeacherOnlyMatrix|TestResultsHideIntegrityFromTA"}
+{"tc": "TC-PE07-26", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestScoreIgnoresIntegritySignals|TestNoPenaltyColumns|TestNoAccusatoryCopy"}
+{"tc": "TC-PE07-33", "r": "P", "note": "similarity pass=7 skip=0 fail=0", "pat": "TestWinnowingRenameReformat|TestWinnowingDifferentSolution|TestWinnowingSymmetric|TestWinnowingDeterministic|TestWinnowingStarterSubtracted|TestWinnowingShortSkipped|TestLexerCpp"}
+{"tc": "TC-PE07-38", "r": "P", "note": "exam pass=3 skip=0 fail=0; similarity pass=2 skip=0 fail=0", "pat": "TestSimilarityJobTopPairs|TestSimilarityFlagRelativeThreshold|TestFlagSmallClassCap|TestSimilarityRerunNewRunID|TestSimilarityScale1000"}
+{"tc": "TC-PE07-41", "r": "P", "note": "exam pass=2 skip=0 fail=0; today pass=1 skip=0 fail=0", "pat": "TestSimilarityReviewStates|TestSimilarityTeacherOnly|TestSimilarityTodayProvider"}
+{"tc": "TC-PE07-43", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestIntegrityDataMinimal|TestEventsCascadeDelete"}
+{"tc": "TC-PE07-46", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestLockFollowsExtend|TestLockSurvivesRedisRestart"}
+{"tc": "TC-PE08-03", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestCloseForceSubmitsAll|TestCloseBlocksNewWrites|TestClosedOutboxOnce"}
+{"tc": "TC-PE08-08", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestGradeMCQSync|TestGradeCodeWaitsForJudge|TestIEKeepsGrading|TestNoSubmissionNoDraftZero"}
+{"tc": "TC-PE08-16", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestComputeScoreStores|TestRecomputeIdempotent"}
+{"tc": "TC-PE08-21", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestAutoPublishOnce|TestAutoPublishWaitsForRegrade|TestPublishNotificationsOnce"}
+{"tc": "TC-PE08-24", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestPublishHoldBlocksAuto|TestReleaseHoldPublishes|TestHoldAfterPublished409|TestHoldTeacherOnly"}
+{"tc": "TC-PE08-30", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestResultPayloadWhitelist|TestResultRevealAnswersToggle|TestResultHiddenOnlyCounts|TestResultOfficialScore"}
+{"tc": "TC-PE08-35", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestAbsentStudentRow|TestAbsentCannotAppeal"}
+{"tc": "TC-PE08-37", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestResultsStaffPayload|TestResultsProgressWhileOpen|TestResultsFlagsTeacherOnly|TestResultsCursorStable"}
+{"tc": "TC-PE08-41", "r": "P", "note": "exam pass=3 skip=0 fail=0", "pat": "TestStatsDistribution|TestStatsHardest|TestStatsMatchesResults"}
+{"tc": "TC-PE08-45", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestCSVFormat|TestCSVFormulaInjection|TestCSVAbsent|TestCSVStreams"}
+{"tc": "TC-PE08-48", "r": "P", "note": "exam pass=5 skip=0 fail=0", "pat": "TestAdjustScore|TestAdjustKeepsAutoScore|TestAdjustAudit|TestAdjustAfterPublishNotifies|TestAdjustTeacherOnly"}
+{"tc": "TC-PE08-51", "r": "P", "note": "exam pass=4 skip=0 fail=0", "pat": "TestOverrideAnswerKeyRecomputes|TestOverrideVoidGivesFullPoints|TestOverrideLargeUsesJob|TestOverrideNotifiesAfterPublish"}
+{"tc": "TC-PE08-54", "r": "P", "note": "exam pass=5 skip=0 fail=0", "pat": "TestRegradeAllNewTestsVersion|TestRegradeErrorsOnly|TestRegradeIdempotent|TestRegradeAfterPublishNotifies|TestRegradeWhileOpenRejected"}
+{"tc": "TC-PE08-57", "r": "P", "note": "exam pass=5 skip=0 fail=0; assignment pass=2 skip=0 fail=0", "pat": "TestAppealCreate|TestAppealWindow|TestAppealOnlyOnce|TestAppealNotPublished|TestAppealNoLLM"}
+{"tc": "TC-PE08-62", "r": "P", "note": "exam pass=1 skip=0 fail=0; contract pass=1 skip=0 fail=0", "pat": "TestNoAnswerLeak"}
+{"tc": "TC-PE08-64", "r": "P", "note": "exam pass=1 skip=0 fail=0; contract pass=1 skip=0 fail=0", "pat": "TestResultsPermissionMatrix"}
+{"tc": "TC-PE08-66", "r": "P", "note": "exam pass=2 skip=0 fail=0", "pat": "TestPublishFlowConcurrency|TestPublishFlowWorkerKilled"}

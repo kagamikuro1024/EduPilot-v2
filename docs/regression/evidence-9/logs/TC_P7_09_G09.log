@@ -1,0 +1,27 @@
+$ go test -tags integration ./internal/assignment -run 'TestPublishRBAC|TestStatsRBAC|TestResultIDOR' -v
+=== RUN   TestPublishRBAC
+2026/11/15 20:16:16 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 2dd644236f4440810003f172e69e1d86cc5016b4894f1070a472d3373a2049a3
+  Test ProcessID: 988411f4-aa5d-4f0a-90c6-98cd1be6aa50
+2026/11/15 20:16:17 ✅ Container started: 68f6ff853df5
+2026/11/15 20:16:17 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:16:17 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:16:26 ✅ Container started: 5636bc78d64d
+2026/11/15 20:16:26 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:16:26 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestPublishRBAC (11.67s)
+=== RUN   TestStatsRBAC
+--- PASS: TestStatsRBAC (22.23s)
+=== RUN   TestResultIDOR
+--- PASS: TestResultIDOR (26.11s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	60.613s
+
+rc=0

@@ -1,0 +1,7 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 200 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+202 {'job_id': '01a1df33-3d17-73c5-8e3f-b32464fd72c0'}
+loi-cau SUCCEEDED 0 [(1, 'NO_ANSWER'), (2, 'NO_ANSWER'), (3, 'NO_ANSWER'), (4, 'NO_ANSWER'), (5, 'NO_ANSWER')]
+FAIL RECHECK-TC-02-07a đề lỗi câu: lưu 1, INVALID ở 2,3,4, NO_ANSWER ở 5 created=0 skipped=[(1, 'NO_ANSWER'), (2, 'NO_ANSWER'), (3, 'NO_ANSWER'), (4, 'NO_ANSWER'), (5, 'NO_ANSWER')]
+loi-schema SUCCEEDED None
+FAIL RECHECK-TC-02-07b lỗi schema: job FAILED, không câu nào lưu status=SUCCEEDED error=null

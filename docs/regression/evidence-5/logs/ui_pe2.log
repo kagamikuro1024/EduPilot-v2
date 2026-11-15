@@ -1,0 +1,7 @@
+FAIL TC-PE03-48 /questions 1440: ox=0 primary=[] h1= lỗi console=4
+PASS TC-PE03-52 axe 1440 /questions serious/critical: []
+FAIL TC-PE04-42 /exams 1440 GV: primary=[] nhóm: ; axe []
+ERR TimeoutError: locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByText('R5 UI bài thi').first()
+

@@ -1,0 +1,9 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 188 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+PASS TC-05-16 topic lạ (không có trong ngân hàng) → 422 422 UNKNOWN_TOPIC (đọc lại ở lượt 1: đúng như TC)
+PASS TC-05-16 chủ đề có câu nhưng 0 đủ điều kiện → 409 {available:0} 409 {"code": "NOT_ENOUGH_QUESTIONS", "message": "Chưa đủ câu để luyện chủ đề này.", "trace_id": "ef2e7aaa87458e6eadf02cf164434a2c", "details": {"available": 0}}
+PASS TC-05-16 count=0 → 422 422 (201 = mã coi 0 như không gửi, dùng mặc định)
+PASS TC-05-17 MOCK count=5 201 items=5 ma trận tổng 5 notes=[]
+PASS TC-05-17 MOCK count=50 201 items=50 ma trận tổng 50 notes=[]
+INFO ma trận 6 câu + count=5: 201 6
+INFO MOCK matrix có type ESSAY: 201 {'id': '01a1df2f-ff16-744d-907f-c09f5a451786', 'mode': 'MOCK', 'topic': None, 'status': 'IN_PROGRESS', 'started_at': '2026-11-15T12:30:27.089441Z', 'd

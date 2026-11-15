@@ -1,0 +1,23 @@
+$ go test -tags integration ./internal/integration -run 'TestSeedGradeAllMatchesExpected' -v
+=== RUN   TestSeedGradeAllMatchesExpected
+2026/11/15 20:33:24 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 236fbd66c952710640de7ad8d2a26b3799a7172395fdf32b6b683e1459148a99
+  Test ProcessID: 8a2841d0-453b-4828-b754-619975824c0b
+2026/11/15 20:33:24 ✅ Container started: 68f6ff853df5
+2026/11/15 20:33:24 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:33:24 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:33:33 ✅ Container started: 5636bc78d64d
+2026/11/15 20:33:33 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:33:33 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSeedGradeAllMatchesExpected (11.84s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	12.559s
+
+rc=0

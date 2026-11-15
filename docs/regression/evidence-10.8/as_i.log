@@ -1,0 +1,17 @@
+PASS TC-AS01-10a đổi rotate 30 + tắt self_checkin khi cửa sổ đang mở: mã vẫn xoay 5 s (đã ghim) và SV vẫn điểm danh được 5 201
+PASS TC-AS01-10b cửa sổ MỚI khi self_checkin tắt → 409 SELF_CHECKIN_DISABLED 409 SELF_CHECKIN_DISABLED
+PASS TC-AS01-10c cửa sổ mới dùng rotate_seconds=30 mới 30
+FAIL TC-AS02-15 over_headcount: headcount 5 + 7 lượt → false; 8 lượt → true; headcount 2000 → false; audit checkin_window.headcount False False False
+PASS TC-AS02-09 mở vòng 2: không thông báo / chuông cho SV; không mục «Hôm nay» mới cho SV notif {'sv.gioi': '57', 'sv.kha': '50', 'sv.nguyco': '45'}→{'sv.gioi': '57', 'sv.kha': '50', 'sv.nguyco': '45'}; outbox 3259→3259
+PASS TC-AS03-13 3 lượt đúng ở 3 cửa sổ không bị đếm; 5 lần sai → 422; lần sai thứ 6 → 429 [201, 201, 201] [422, 422, 422, 422, 422] 429
+PASS TC-AS03-10 mã ngắn tìm theo lớp: mã cửa sổ ĐANG MỞ → 201 đúng cửa sổ; mã cửa sổ vừa ĐÓNG → 409 WINDOW_CLOSED; mã cửa sổ LỚP KHÁC → 422 CHECKIN_TOKEN_INVALID 201 409:WINDOW_CLOSED 422:CHECKIN_TOKEN_INVALID
+FAIL TC-AS03-22 mời ra đua với điểm danh ×8: không có 5xx; điểm danh chỉ 201 hoặc 403 [(404, 403), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201)]
+member sv10 ACTIVE? [['ACTIVE']]
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/scripts/as_i.py", line 66, in <module>
+    s_, w_, d_ = neww(C); t_ = tokenof(d_)
+                 ^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/scripts/asl.py", line 71, in neww
+    s = fresh_session(cid); c, j, _ = openw(cid, s, minutes=minutes, user=user); assert c == 201, (c, j)
+                                                                                        ^^^^^^^^
+AssertionError: (503, None)

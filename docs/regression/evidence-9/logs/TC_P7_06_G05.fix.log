@@ -1,0 +1,58 @@
+$ go test -count=1 -v -tags integration,testroutes ./internal/textfold -run ^TestFoldParitySQL$
+=== RUN   TestFoldParitySQL
+2026/11/15 20:13:30 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8904dccb4ab09b0d65f247a634938913c7f86cc088c5e8d2359772b824438b54
+  Test ProcessID: 0fb83966-7e41-4b87-9033-625fe13b1062
+2026/11/15 20:13:30 ✅ Container started: 68f6ff853df5
+2026/11/15 20:13:30 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:13:31 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestFoldParitySQL (28.74s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/textfold	29.311s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/textfold -run ^TestQuoteOffsetsUTF16$
+=== RUN   TestQuoteOffsetsUTF16
+=== PAUSE TestQuoteOffsetsUTF16
+=== CONT  TestQuoteOffsetsUTF16
+--- PASS: TestQuoteOffsetsUTF16 (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/textfold	0.217s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/textfold -run ^TestFoldParitySQL$
+=== RUN   TestFoldParitySQL
+2026/11/15 20:36:04 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 291abdf3e6277231a077edb91763d5df9c9a946b39e399c95f135976b1548c69
+  Test ProcessID: 22283d09-5094-4e76-a81c-d2a361387b44
+2026/11/15 20:36:04 ✅ Container started: 68f6ff853df5
+2026/11/15 20:36:04 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:36:04 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestFoldParitySQL (1.16s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/textfold	1.544s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/textfold -run ^TestQuoteOffsetsUTF16$
+=== RUN   TestQuoteOffsetsUTF16
+=== PAUSE TestQuoteOffsetsUTF16
+=== CONT  TestQuoteOffsetsUTF16
+--- PASS: TestQuoteOffsetsUTF16 (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/textfold	0.176s
+
+rc=0

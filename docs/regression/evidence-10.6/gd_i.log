@@ -1,0 +1,22 @@
+seed-guidance: 0 kết quả
+trạng thái bài: [['DRAFT', '12'], ['PUBLISHED', '16']]
+overview: 200 {"enabled": true, "current_version": 4, "reflect": {"eligible": true, "results": 16, "edits": 13}}
+nháp mẫu: 2
+PASS P12-09 decide text miễn → 200: Tổng quát hoá luận điểm trước  200 
+PASS P12-09 decide text miễn → 200: Lập luận tổng hợp nhiều nguồn  200 
+PASS P12-09 decide text miễn → 200: Chỉ cho điểm tối đa khi có số  200 
+PASS P12-09 decide text cấm → 422 GUIDANCE_TEXT_REJECTED: Tính tổng điểm của các ý 422 GUIDANCE_TEXT_REJECTED
+PASS P12-09 decide text cấm → 422 GUIDANCE_TEXT_REJECTED: Tổng quát nhưng đừng tính tổng 422 GUIDANCE_TEXT_REJECTED
+PASS P12-09 decide text cấm → 422 GUIDANCE_TEXT_REJECTED: Trừ khi nộp muộn thì phạt 422 GUIDANCE_TEXT_REJECTED
+PASS P11 Threads «Cần áp dụng nguyên tắc đặc quyền tối thiểu» → không chặn 201 
+PASS P11 Threads «Em hỏi Vu Minh Long có tham gia nhóm không» → bị chặn 422 PII_DETECTED
+PASS P11 Threads «vũ minh long làm bài này» → bị chặn 422 PII_DETECTED
+PASS P11 Threads «VŨ MINH LONG» → bị chặn 422 PII_DETECTED
+PASS P11 Threads «Em hỏi Vụ Minh Long ở nhóm khác» → không chặn 201 
+reflect: 202 {'job_id': '01a1df45-bfc0-7c97-8c9b-6b9e773602cc'}
+job: SUCCEEDED {"drafts": 0, "dropped": [{"count": 1, "reason": "case", "criterion_id": "c1"}]} 
+PASS P13 result.dropped là MẢNG list
+PASS P13 chỉ khoá {drafts, dropped} ['drafts', 'dropped']
+PASS P13 mỗi phần tử {criterion_id, reason, count≥1} + reason ∈ enum [{"count": 1, "reason": "case", "criterion_id": "c1"}]
+PASS P13 criterion_id null khi reason=criterion; còn lại thuộc rubric 
+PASS P13 không chữ / case_id trong result 

@@ -1,0 +1,397 @@
+=== RUN   TestNoFloatInGrade
+--- PASS: TestNoFloatInGrade (0.18s)
+=== RUN   TestForbiddenImports
+--- PASS: TestForbiddenImports (0.26s)
+=== RUN   TestEngineIsPure
+--- PASS: TestEngineIsPure (0.01s)
+=== RUN   TestNoPolicyConstants
+--- PASS: TestNoPolicyConstants (0.01s)
+=== RUN   TestAdjustedUpdatesResultInPlace
+2026/11/15 20:11:08 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: a3e7ec9dc0e25b542103d9014591a25607265749c033601c8e0a2bc72008fa1f
+  Test ProcessID: 46950293-dcfe-48f5-999e-999c2a1febb0
+2026/11/15 20:11:08 ✅ Container started: 68f6ff853df5
+2026/11/15 20:11:08 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:11:09 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAdjustedUpdatesResultInPlace (6.77s)
+=== RUN   TestAdjustedWhenLockedKeepsSnapshot
+--- PASS: TestAdjustedWhenLockedKeepsSnapshot (6.66s)
+=== RUN   TestAdjustedShowsDriftWhenLocked
+--- PASS: TestAdjustedShowsDriftWhenLocked (4.90s)
+=== RUN   TestAdjustedAfterUnlockThenRefinalizeNotifies
+--- PASS: TestAdjustedAfterUnlockThenRefinalizeNotifies (8.17s)
+=== RUN   TestAdjustedSerializesWithFinalize
+--- PASS: TestAdjustedSerializesWithFinalize (10.76s)
+=== RUN   TestAssignmentItemReadsPublishedLatest
+--- PASS: TestAssignmentItemReadsPublishedLatest (14.89s)
+=== RUN   TestUnmatchedBlocksZeroScore
+--- PASS: TestUnmatchedBlocksZeroScore (34.04s)
+=== RUN   TestNoSubmissionZeroOnlyWhenNoUnmatched
+--- PASS: TestNoSubmissionZeroOnlyWhenNoUnmatched (49.43s)
+=== RUN   TestFinalizeIncompleteWhenUnmatched
+--- PASS: TestFinalizeIncompleteWhenUnmatched (34.47s)
+=== RUN   TestAssignmentOpenIsIncomplete
+--- PASS: TestAssignmentOpenIsIncomplete (87.04s)
+=== RUN   TestIgnoredMailBlocksZeroScore
+--- PASS: TestIgnoredMailBlocksZeroScore (24.55s)
+=== RUN   TestAssignmentItemReadsPublishedDirect
+--- PASS: TestAssignmentItemReadsPublishedDirect (23.39s)
+=== RUN   TestPublishWritesNoGradeEntries
+--- PASS: TestPublishWritesNoGradeEntries (12.86s)
+=== RUN   TestAssignmentItemBatchNoNPlusOne
+--- PASS: TestAssignmentItemBatchNoNPlusOne (59.25s)
+=== RUN   TestAssignmentItemEqualsStudentView
+--- PASS: TestAssignmentItemEqualsStudentView (38.76s)
+=== RUN   TestAssignmentItemLateLinkAfterPublish
+--- PASS: TestAssignmentItemLateLinkAfterPublish (63.23s)
+=== RUN   TestAssignmentItemNotEditable
+--- PASS: TestAssignmentItemNotEditable (39.14s)
+=== RUN   TestAssignmentItemNotPublishable
+--- PASS: TestAssignmentItemNotPublishable (24.13s)
+=== RUN   TestExpectedFinalGradesUnchanged
+--- PASS: TestExpectedFinalGradesUnchanged (0.01s)
+=== RUN   TestPublishWhenLockedKeepsSnapshot
+--- PASS: TestPublishWhenLockedKeepsSnapshot (14.92s)
+=== RUN   TestPublishShowsDriftWhenLocked
+--- PASS: TestPublishShowsDriftWhenLocked (18.65s)
+=== RUN   TestPublishThenUnlockRefinalizeNotifies
+--- PASS: TestPublishThenUnlockRefinalizeNotifies (1.74s)
+=== RUN   TestPublishSerializesWithFinalize
+--- PASS: TestPublishSerializesWithFinalize (1.54s)
+=== RUN   TestAssignmentItemLinkValidation
+--- PASS: TestAssignmentItemLinkValidation (1.33s)
+=== RUN   TestStudentViewSharedByToolAndMeGrades
+--- PASS: TestStudentViewSharedByToolAndMeGrades (1.85s)
+=== RUN   TestMeGradesShowsAssignmentComponent
+--- PASS: TestMeGradesShowsAssignmentComponent (2.11s)
+=== RUN   TestConfirmRBAC
+2026/11/15 20:20:54 ✅ Container started: 5636bc78d64d
+2026/11/15 20:20:54 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:20:54 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestConfirmRBAC (1.80s)
+=== RUN   TestConfirmIdempotent
+--- PASS: TestConfirmIdempotent (2.25s)
+=== RUN   TestConfirmOnlyFromHandler
+--- PASS: TestConfirmOnlyFromHandler (0.03s)
+=== RUN   TestEngineExpected30
+=== RUN   TestEngineExpected30/sv.gioi
+=== RUN   TestEngineExpected30/sv.kha
+=== RUN   TestEngineExpected30/sv.nguyco
+=== RUN   TestEngineExpected30/sv04
+=== RUN   TestEngineExpected30/sv05
+=== RUN   TestEngineExpected30/sv06
+=== RUN   TestEngineExpected30/sv07
+=== RUN   TestEngineExpected30/sv08
+=== RUN   TestEngineExpected30/sv09
+=== RUN   TestEngineExpected30/sv10
+=== RUN   TestEngineExpected30/sv11
+=== RUN   TestEngineExpected30/sv12
+=== RUN   TestEngineExpected30/sv13
+=== RUN   TestEngineExpected30/sv14
+=== RUN   TestEngineExpected30/sv15
+=== RUN   TestEngineExpected30/sv16
+=== RUN   TestEngineExpected30/sv17
+=== RUN   TestEngineExpected30/sv18
+=== RUN   TestEngineExpected30/sv19
+=== RUN   TestEngineExpected30/sv20
+=== RUN   TestEngineExpected30/sv21
+=== RUN   TestEngineExpected30/sv22
+=== RUN   TestEngineExpected30/sv23
+=== RUN   TestEngineExpected30/sv24
+=== RUN   TestEngineExpected30/sv25
+=== RUN   TestEngineExpected30/sv26
+=== RUN   TestEngineExpected30/sv27
+=== RUN   TestEngineExpected30/sv28
+=== RUN   TestEngineExpected30/sv29
+=== RUN   TestEngineExpected30/sv30
+--- PASS: TestEngineExpected30 (0.01s)
+    --- PASS: TestEngineExpected30/sv.gioi (0.00s)
+    --- PASS: TestEngineExpected30/sv.kha (0.00s)
+    --- PASS: TestEngineExpected30/sv.nguyco (0.00s)
+    --- PASS: TestEngineExpected30/sv04 (0.00s)
+    --- PASS: TestEngineExpected30/sv05 (0.00s)
+    --- PASS: TestEngineExpected30/sv06 (0.00s)
+    --- PASS: TestEngineExpected30/sv07 (0.00s)
+    --- PASS: TestEngineExpected30/sv08 (0.00s)
+    --- PASS: TestEngineExpected30/sv09 (0.00s)
+    --- PASS: TestEngineExpected30/sv10 (0.00s)
+    --- PASS: TestEngineExpected30/sv11 (0.00s)
+    --- PASS: TestEngineExpected30/sv12 (0.00s)
+    --- PASS: TestEngineExpected30/sv13 (0.00s)
+    --- PASS: TestEngineExpected30/sv14 (0.00s)
+    --- PASS: TestEngineExpected30/sv15 (0.00s)
+    --- PASS: TestEngineExpected30/sv16 (0.00s)
+    --- PASS: TestEngineExpected30/sv17 (0.00s)
+    --- PASS: TestEngineExpected30/sv18 (0.00s)
+    --- PASS: TestEngineExpected30/sv19 (0.00s)
+    --- PASS: TestEngineExpected30/sv20 (0.00s)
+    --- PASS: TestEngineExpected30/sv21 (0.00s)
+    --- PASS: TestEngineExpected30/sv22 (0.00s)
+    --- PASS: TestEngineExpected30/sv23 (0.00s)
+    --- PASS: TestEngineExpected30/sv24 (0.00s)
+    --- PASS: TestEngineExpected30/sv25 (0.00s)
+    --- PASS: TestEngineExpected30/sv26 (0.00s)
+    --- PASS: TestEngineExpected30/sv27 (0.00s)
+    --- PASS: TestEngineExpected30/sv28 (0.00s)
+    --- PASS: TestEngineExpected30/sv29 (0.00s)
+    --- PASS: TestEngineExpected30/sv30 (0.00s)
+=== RUN   TestEngineCases
+=== RUN   TestEngineCases/S01-san-QT
+=== RUN   TestEngineCases/S02-tran-cong-dung-1.00
+=== RUN   TestEngineCases/S03-tran-cong-1.25
+=== RUN   TestEngineCases/S04-vang-2-mien
+=== RUN   TestEngineCases/S05-vang-3-tru-0.5
+=== RUN   TestEngineCases/S06-su-kien-PENALTY
+=== RUN   TestEngineCases/S07-liet-vang-7
+=== RUN   TestEngineCases/S08-vang-6-chua-liet
+=== RUN   TestEngineCases/S09-thieu-cuoi-ky
+=== RUN   TestEngineCases/S10-lam-tron-0.1-nua-len
+=== RUN   TestEngineCases/S11-lam-tron-0.5-duoi-1-chut
+=== RUN   TestEngineCases/S12-A-khong-len-A+
+=== RUN   TestEngineCases/S13-bai-thi-chua-cong-bo
+=== RUN   TestEngineCases/S14-item-tay-trong-chua-cong-bo
+=== RUN   TestEngineCases/S15-item-tay-trong-da-cong-bo
+=== RUN   TestEngineCases/S16-chia-khong-het
+=== RUN   TestEngineCases/S17-nhom-QT-bang-0
+=== RUN   TestEngineCases/S18-PENALTY-khong-ap-dung
+--- PASS: TestEngineCases (0.02s)
+    --- PASS: TestEngineCases/S01-san-QT (0.00s)
+    --- PASS: TestEngineCases/S02-tran-cong-dung-1.00 (0.00s)
+    --- PASS: TestEngineCases/S03-tran-cong-1.25 (0.00s)
+    --- PASS: TestEngineCases/S04-vang-2-mien (0.00s)
+    --- PASS: TestEngineCases/S05-vang-3-tru-0.5 (0.00s)
+    --- PASS: TestEngineCases/S06-su-kien-PENALTY (0.00s)
+    --- PASS: TestEngineCases/S07-liet-vang-7 (0.00s)
+    --- PASS: TestEngineCases/S08-vang-6-chua-liet (0.00s)
+    --- PASS: TestEngineCases/S09-thieu-cuoi-ky (0.00s)
+    --- PASS: TestEngineCases/S10-lam-tron-0.1-nua-len (0.00s)
+    --- PASS: TestEngineCases/S11-lam-tron-0.5-duoi-1-chut (0.00s)
+    --- PASS: TestEngineCases/S12-A-khong-len-A+ (0.00s)
+    --- PASS: TestEngineCases/S13-bai-thi-chua-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S14-item-tay-trong-chua-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S15-item-tay-trong-da-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S16-chia-khong-het (0.00s)
+    --- PASS: TestEngineCases/S17-nhom-QT-bang-0 (0.00s)
+    --- PASS: TestEngineCases/S18-PENALTY-khong-ap-dung (0.00s)
+=== RUN   TestRoundHalfUpTable
+=== RUN   TestRoundHalfUpTable/0.5/6.25
+=== RUN   TestRoundHalfUpTable/0.5/6.75
+=== RUN   TestRoundHalfUpTable/0.5/6.5
+=== RUN   TestRoundHalfUpTable/0.5/6.249
+=== RUN   TestRoundHalfUpTable/0.5/6.251
+=== RUN   TestRoundHalfUpTable/0.5/8.25
+=== RUN   TestRoundHalfUpTable/0.5/5.75
+=== RUN   TestRoundHalfUpTable/0.5/0.25
+=== RUN   TestRoundHalfUpTable/0.1/7.25
+=== RUN   TestRoundHalfUpTable/0.1/7.35
+=== RUN   TestRoundHalfUpTable/0.1/7.24
+=== RUN   TestRoundHalfUpTable/1/6.5
+=== RUN   TestRoundHalfUpTable/1/6.49
+=== RUN   TestRoundHalfUpTable/0.25/6.125
+--- PASS: TestRoundHalfUpTable (0.01s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.25 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.75 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.5 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.249 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/6.251 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/8.25 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/5.75 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.5/0.25 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.1/7.25 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.1/7.35 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.1/7.24 (0.00s)
+    --- PASS: TestRoundHalfUpTable/1/6.5 (0.00s)
+    --- PASS: TestRoundHalfUpTable/1/6.49 (0.00s)
+    --- PASS: TestRoundHalfUpTable/0.25/6.125 (0.00s)
+=== RUN   TestNoIntermediateRounding
+--- PASS: TestNoIntermediateRounding (0.00s)
+=== RUN   TestDivRoundNoDrift
+--- PASS: TestDivRoundNoDrift (0.00s)
+=== RUN   TestMissingScoreIncomplete
+--- PASS: TestMissingScoreIncomplete (0.00s)
+=== RUN   TestMissingScoreZeroRule
+--- PASS: TestMissingScoreZeroRule (0.00s)
+=== RUN   TestMissingScoreZeroOnlyWhenSourceClosed
+--- PASS: TestMissingScoreZeroOnlyWhenSourceClosed (0.00s)
+=== RUN   TestExpectedStudentC
+--- PASS: TestExpectedStudentC (0.00s)
+=== RUN   TestFailConditions
+--- PASS: TestFailConditions (0.00s)
+=== RUN   TestFinalExactlyThreeNotFail
+--- PASS: TestFinalExactlyThreeNotFail (0.00s)
+=== RUN   TestZeroWeightGroupNoDivide
+--- PASS: TestZeroWeightGroupNoDivide (0.00s)
+=== RUN   TestBonusNoEffectWarning
+--- PASS: TestBonusNoEffectWarning (0.00s)
+=== RUN   TestPenaltyNotApplicable
+--- PASS: TestPenaltyNotApplicable (0.00s)
+=== RUN   TestPenaltyNotInSchemeWarning
+--- PASS: TestPenaltyNotInSchemeWarning (0.00s)
+=== RUN   TestBonusNotApplicable
+--- PASS: TestBonusNotApplicable (0.00s)
+=== RUN   TestParamsDriveResult
+--- PASS: TestParamsDriveResult (0.00s)
+=== RUN   TestMissingParamIsError
+=== RUN   TestMissingParamIsError/thiếu_cap
+=== RUN   TestMissingParamIsError/khoá_lạ
+=== RUN   TestMissingParamIsError/cap_là_số_JSON
+=== RUN   TestMissingParamIsError/cap_âm
+=== RUN   TestMissingParamIsError/bước_lạ
+=== RUN   TestMissingParamIsError/thang_hở
+=== RUN   TestMissingParamIsError/thang_không_giảm
+=== RUN   TestMissingParamIsError/liệt_loại_lạ
+=== RUN   TestMissingParamIsError/free_không_nguyên
+--- PASS: TestMissingParamIsError (0.00s)
+    --- PASS: TestMissingParamIsError/thiếu_cap (0.00s)
+    --- PASS: TestMissingParamIsError/khoá_lạ (0.00s)
+    --- PASS: TestMissingParamIsError/cap_là_số_JSON (0.00s)
+    --- PASS: TestMissingParamIsError/cap_âm (0.00s)
+    --- PASS: TestMissingParamIsError/bước_lạ (0.00s)
+    --- PASS: TestMissingParamIsError/thang_hở (0.00s)
+    --- PASS: TestMissingParamIsError/thang_không_giảm (0.00s)
+    --- PASS: TestMissingParamIsError/liệt_loại_lạ (0.00s)
+    --- PASS: TestMissingParamIsError/free_không_nguyên (0.00s)
+=== RUN   TestExplainOrderAndQuotes
+--- PASS: TestExplainOrderAndQuotes (0.00s)
+=== RUN   TestExplainUserFilledHasNoQuote
+--- PASS: TestExplainUserFilledHasNoQuote (0.00s)
+=== RUN   TestExplainExprRecomputesValue
+--- PASS: TestExplainExprRecomputesValue (0.03s)
+=== RUN   TestExplainFullPrecision
+--- PASS: TestExplainFullPrecision (0.01s)
+=== RUN   TestWhatIfNoWrite
+--- PASS: TestWhatIfNoWrite (0.00s)
+=== RUN   TestMinFinalFor
+--- PASS: TestMinFinalFor (0.44s)
+=== RUN   TestLineTextSameNumbersNoCode
+--- PASS: TestLineTextSameNumbersNoCode (0.05s)
+=== RUN   TestFinalizeSnapshotsAll
+--- PASS: TestFinalizeSnapshotsAll (1.58s)
+=== RUN   TestFinalizeEqualsPreview
+--- PASS: TestFinalizeEqualsPreview (1.84s)
+=== RUN   TestFinalizeIdempotent
+--- PASS: TestFinalizeIdempotent (1.75s)
+=== RUN   TestFinalizeOneTxAndAudit
+--- PASS: TestFinalizeOneTxAndAudit (1.41s)
+=== RUN   TestFinalizeLop1MatchesExpected
+--- PASS: TestFinalizeLop1MatchesExpected (2.99s)
+=== RUN   TestFinalizeNotConfirmed
+panic: test timed out after 10m0s
+	running tests:
+		TestFinalizeNotConfirmed (1s)
+
+goroutine 3172 [running]:
+testing.(*M).startAlarm.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2959 +0x490
+created by time.goFunc
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/time/sleep.go:182 +0x44
+
+goroutine 1 [chan receive]:
+testing.(*T).Run(0xc0006ec488, {0x106214c2e, 0x18}, 0x107ffa128)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2266 +0x7dc
+testing.runTests.func1(0xc0006ec488)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2742 +0x78
+testing.tRunner(0xc0006ec488, 0xc0005eda28)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0x168
+testing.runTests({0x106224e8c, 0x1e}, {0x106248749, 0x2d}, 0xc00011e138, {0x10816f910, 0xd5, 0xd5}, {0x0?, 0xc0001698f0?, ...})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2740 +0x7a4
+testing.(*M).Run(0xc0006e57c0)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2600 +0xb3c
+main.main()
+	_testmain.go:474 +0x104
+
+goroutine 3132 [select]:
+database/sql.(*DB).connectionOpener(0xc0007d3ba0, {0x107feb300, 0xc0005618b0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/sql.go:1266 +0xbc
+created by database/sql.OpenDB in goroutine 3130
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/sql.go:846 +0x250
+
+goroutine 3130 [IO wait]:
+internal/poll.runtime_pollWait(0x11792a000, 0x72)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/netpoll.go:351 +0xa0
+internal/poll.(*pollDesc).wait(0xc0001f98a0, 0x72, 0x0)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/internal/poll/fd_poll_runtime.go:84 +0xb8
+internal/poll.(*pollDesc).waitRead(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/internal/poll/fd_poll_runtime.go:89
+internal/poll.(*FD).Read(0xc0001f9880, {0xc0006b0000, 0x2000, 0x2000})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/internal/poll/fd_unix.go:170 +0x350
+net.(*netFD).Read(0xc0001f9880, {0xc0006b0000, 0x2000, 0x2000})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/fd_posix.go:68 +0x48
+net.(*conn).Read(0xc0001867a0, {0xc0006b0000, 0x2000, 0x2000})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/net.go:196 +0x88
+github.com/jackc/pgx/v5/pgconn/internal/bgreader.(*BGReader).Read(0xc000ab9080, {0xc0006b0000, 0x2000, 0x2000})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgconn/internal/bgreader/bgreader.go:100 +0x138
+io.ReadAtLeast({0x107fd7248, 0xc000ab9080}, {0xc0006b0000, 0x2000, 0x2000}, 0x5)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/io/io.go:335 +0xb8
+github.com/jackc/pgx/v5/pgproto3.(*chunkReader).Next(0xc0007ab140, 0x5)
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgproto3/chunkreader.go:80 +0x620
+github.com/jackc/pgx/v5/pgproto3.(*Frontend).Receive(0xc0006b2008)
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgproto3/frontend.go:313 +0x60
+github.com/jackc/pgx/v5/pgconn.(*PgConn).peekMessage(0xc0002e1608)
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgconn/pgconn.go:643 +0x17c
+github.com/jackc/pgx/v5/pgconn.(*MultiResultReader).NextResult(0xc0002e1740)
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgconn/pgconn.go:1638 +0x70
+github.com/jackc/pgx/v5.(*Conn).execSimpleProtocol(0xc000287540, {0x107feb338, 0xc0001265b0}, {0xc000648150, 0x6c}, {0x1081ac780, 0x0, 0x0})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/conn.go:598 +0x10c
+github.com/jackc/pgx/v5.(*Conn).exec(0xc000287540, {0x107feb338, 0xc0001265b0}, {0xc000648150, 0x6c}, {0x1081ac780, 0x0, 0x0})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/conn.go:583 +0x868
+github.com/jackc/pgx/v5.(*Conn).Exec(0xc000287540, {0x107feb338, 0xc0001265b0}, {0xc000648150, 0x6c}, {0x1081ac780, 0x0, 0x0})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/conn.go:490 +0x184
+github.com/jackc/pgx/v5/stdlib.(*Conn).ExecContext(0xc00067c1e0, {0x107feb338, 0xc0001265b0}, {0xc000648150, 0x6c}, {0x1081ac780, 0x0, 0xc0002e1608?})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/stdlib/sql.go:509 +0x204
+database/sql.ctxDriverExec({0x107feb338, 0xc0001265b0}, {0x117ffc9f0, 0xc00067c1e0}, {0x0, 0x0}, {0xc000648150, 0x6c}, {0x1081ac780, 0x0, ...})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/ctxutil.go:31 +0xa4
+database/sql.(*DB).execDC.func2()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/sql.go:1718 +0x188
+database/sql.withLock({0x107fdeb20, 0xc0001f9900}, 0xc000502b58)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/sql.go:3621 +0x90
+database/sql.(*DB).execDC(0xc000172510?, {0x107feb338, 0xc0001265b0}, 0xc0001f9900, 0xc0005de1f0, {0xc000648150, 0x6c}, {0x0, 0x0, 0x0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/sql.go:1713 +0x284
+database/sql.(*Tx).ExecContext(0xc000172510, {0x107feb338, 0xc0001265b0}, {0xc000648150, 0x6c}, {0x0, 0x0, 0x0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/sql.go:2521 +0xc4
+github.com/pressly/goose/v3.(*Provider).runSQL(0xc0001dbce0, {0x107feb338, 0xc0001265b0}, {0x107fea808, 0xc000172510}, 0xc00024eb60, 0x1)
+	/Users/kuro/go/pkg/mod/github.com/pressly/goose/v3@v3.28.0/provider_run.go:530 +0x3f4
+github.com/pressly/goose/v3.(*Provider).runMigration(0xc0001dbce0, {0x107feb338, 0xc0001265b0}, {0x107fea808, 0xc000172510}, 0xc00024eb60, 0x1)
+	/Users/kuro/go/pkg/mod/github.com/pressly/goose/v3@v3.28.0/provider_run.go:471 +0xf0
+github.com/pressly/goose/v3.(*Provider).runIndividually.func1(0xc000172510)
+	/Users/kuro/go/pkg/mod/github.com/pressly/goose/v3@v3.28.0/provider_run.go:215 +0x6c
+github.com/pressly/goose/v3.beginTx({0x107feb338, 0xc0001265b0}, 0xc0000406e0, 0xc000503168)
+	/Users/kuro/go/pkg/mod/github.com/pressly/goose/v3@v3.28.0/provider_run.go:271 +0xb0
+github.com/pressly/goose/v3.(*Provider).runIndividually(0xc0001dbce0, {0x107feb338, 0xc0001265b0}, 0xc0000406e0, 0xc00024eb60, 0x1)
+	/Users/kuro/go/pkg/mod/github.com/pressly/goose/v3@v3.28.0/provider_run.go:214 +0x344
+github.com/pressly/goose/v3.(*Provider).runMigrations(0xc0001dbce0, {0x107feb338, 0xc0001265b0}, 0xc0000406e0, {0xc00013c400, 0x16, 0x7fffffffffffffff?}, {0x1061d9cf0, 0x2}, 0x0)
+	/Users/kuro/go/pkg/mod/github.com/pressly/goose/v3@v3.28.0/provider_run.go:158 +0xb5c
+github.com/pressly/goose/v3.(*Provider).up(0xc0001dbce0, {0x107feb338, 0xc0001265b0}, 0x0, 0x7fffffffffffffff)
+	/Users/kuro/go/pkg/mod/github.com/pressly/goose/v3@v3.28.0/provider.go:409 +0x98c
+github.com/pressly/goose/v3.(*Provider).Up(0xc0001dbce0, {0x107feb338, 0xc0001265b0})
+	/Users/kuro/go/pkg/mod/github.com/pressly/goose/v3@v3.28.0/provider.go:252 +0x60
+github.com/edupilot/backend-go/db.Migrate({0x107feb338, 0xc0001265b0}, {0xc00013a2a0, 0x56}, {0x1061d9cf0, 0x2}, {0x107fd5788, 0x1081ac780})
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/db/embed.go:48 +0x3e8
+github.com/edupilot/backend-go/internal/testutil.MigratedPostgresURL({0x107ff6540, 0xc0007e4488})
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/testutil/migrated.go:21 +0xc0
+github.com/edupilot/backend-go/internal/testutil.RuntimePool({0x107ff6540, 0xc0007e4488})
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/testutil/migrated.go:31 +0x44
+github.com/edupilot/backend-go/internal/grade_test.newTDB(0xc0007e4488)
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/grade/helpers_test.go:27 +0x50
+github.com/edupilot/backend-go/internal/grade_test.TestFinalizeNotConfirmed(0xc0007e4488)
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/grade/finalize_test.go:270 +0x34
+testing.tRunner(0xc0007e4488, 0x107ffa128)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0x168
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x7c0
+
+goroutine 3171 [chan receive]:
+database/sql.(*Tx).awaitDone(0xc000172510)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/sql.go:2217 +0x4c
+created by database/sql.(*DB).beginDC in goroutine 3130
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/database/sql/sql.go:1930 +0x33c
+FAIL	github.com/edupilot/backend-go/internal/grade	600.961s
+FAIL
+rc=1

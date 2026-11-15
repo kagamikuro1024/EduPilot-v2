@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+(node:69546) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:36:1 › TC-UX02-PQ SV /documents, /inbox → 403 như cũ (6.3s)
+INFO /: 0 hoạt cảnh, delay khác nhau:  ; 
+INFO /inbox: 0 hoạt cảnh, delay khác nhau:  ; 
+  ✓  2 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:50:1 › TC-UX04-17 không so le: mọi hoạt cảnh bắt đầu cùng lúc khi tải `/` và `/inbox` (1.9s)
+  ✓  3 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:94:1 › TC-UX06-2 chọn A rồi B, tải lại → vẫn B (5.0s)
+
+  3 passed (13.6s)

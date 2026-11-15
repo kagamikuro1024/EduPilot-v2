@@ -1,0 +1,17 @@
+$ go test -tags integration ./internal/grading -run 'TestSuggestRubricOneCall|TestSuggestRubricLargestRemainder|TestSuggestRubricNoWrite|TestSuggestRubricInvalid|TestSuggestRubricNeedsAnswer|TestSuggestRubricLLMDown' -v
+=== RUN   TestSuggestRubricOneCall
+--- PASS: TestSuggestRubricOneCall (0.00s)
+=== RUN   TestSuggestRubricLargestRemainder
+--- PASS: TestSuggestRubricLargestRemainder (0.00s)
+=== RUN   TestSuggestRubricNoWrite
+--- PASS: TestSuggestRubricNoWrite (0.00s)
+=== RUN   TestSuggestRubricInvalid
+--- PASS: TestSuggestRubricInvalid (0.00s)
+=== RUN   TestSuggestRubricNeedsAnswer
+--- PASS: TestSuggestRubricNeedsAnswer (0.00s)
+=== RUN   TestSuggestRubricLLMDown
+--- PASS: TestSuggestRubricLLMDown (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	0.773s
+
+rc=0

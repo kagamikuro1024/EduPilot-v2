@@ -1,0 +1,46 @@
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestCreateIdempotent$
+=== RUN   TestCreateIdempotent
+2026/11/15 20:10:55 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8e10bc3d4ebabcb73dd41a90a3424c2c1aed20e57cb885071110293e0817aa9e
+  Test ProcessID: 887529a7-f17b-4cdd-9343-899509088a52
+2026/11/15 20:10:55 ✅ Container started: 68f6ff853df5
+2026/11/15 20:10:55 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:10:55 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:11:02 ✅ Container started: 5636bc78d64d
+2026/11/15 20:11:02 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:11:02 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestCreateIdempotent (7.49s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	8.838s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestCreateIdempotent$
+=== RUN   TestCreateIdempotent
+2026/11/15 20:35:28 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 991ba02a45b3c38d27a3f5f8c1576adf08550d3848072b9208d9e33ee7bec6f2
+  Test ProcessID: d785c328-7e86-4549-816f-16e698126fed
+2026/11/15 20:35:28 ✅ Container started: 68f6ff853df5
+2026/11/15 20:35:28 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:35:28 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:35:31 ✅ Container started: 5636bc78d64d
+2026/11/15 20:35:31 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:35:31 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestCreateIdempotent (3.46s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	4.559s
+
+rc=0

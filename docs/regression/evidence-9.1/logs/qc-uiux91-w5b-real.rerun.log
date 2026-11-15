@@ -1,0 +1,22 @@
+
+Running 1 test using 1 worker
+
+(node:89101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX18-1 @1440 Loại: ["Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197","Bài giảng\nQuy chế môn học\nĐề tham khảo\nĐáp án\nTài liệu khác:197/197"]
+INFO UX18-2 @1440 «Chia sẻ từ»: ["—","—","—","—","—","—","—","—","—","—","—"]
+INFO UX18-4 @1440 công tắc: [{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":"true","w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"0.55"},{"name":"","on":"false","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":"true","w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"0.55"},{"name":"","on":"false","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"false","dis":"true","w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"0.55"},{"name":"","on":"false","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"},{"name":"","on":"true","dis":null,"w":36,"h":36,"bg":"rgba(0, 0, 0, 0)","op":"1"}]
+INFO UX18-7 công tắc: true → true | lỗi: ["Chưa lưu được.\nThử lại",""] | Thử lại: 1
+INFO UX18-7 sau Thử lại: false
+INFO UX18 tài liệu API: [["QC r10 đáp án riên","ANSWER_KEY","",null,false],["QC r10 đề riêng lớ","EXAM_PAPER","",null,true],["Đáp án đề tham khả","ANSWER_KEY","761987",null,false],["Đề tham khảo tuần ","EXAM_PAPER","761987",null,true],["Quy chế học vụ","OTHER","761987",null,true],["Forecasting (QMB c","LECTURE","761987",null,true],["Network Security T","LECTURE","761987",null,true]]
+  ✘  1 [desktop] › e2e/qc-uiux91-w5b-real.spec.ts:183:1 › TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, lớp lạ (3.0m)
+
+
+  1) [desktop] › e2e/qc-uiux91-w5b-real.spec.ts:183:1 › TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, lớp lạ 
+
+    Test timeout of 180000ms exceeded.
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5b-real/qc-uiux91-w5b-real-TC-UX18-70cd9-ẻ-từ-công-tắc-375-SV-lớp-lạ-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-uiux91-w5b-real.spec.ts:183:1 › TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, lớp lạ 

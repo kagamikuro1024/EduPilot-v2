@@ -1,0 +1,8 @@
+PUT 200 W/"v4"
+GET chain [('SmkB-S1', 'm-ok')] 4
+0 200 SmkB-S1 m-ok 745 0.74
+1 200 SmkB-S1 m-ok 1037 1.04
+2 200 SmkB-S1 m-ok 439 0.44
+3 200 SmkB-S1 m-ok 185 0.19
+4 200 SmkB-S1 m-ok 156 0.16
+5 200 SmkB-S1 m-ok 324 0.32

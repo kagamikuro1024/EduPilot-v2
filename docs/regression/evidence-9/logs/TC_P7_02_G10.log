@@ -1,0 +1,20 @@
+$ go test -tags integration ./internal/assignment -run 'TestAssignmentsRBACMatrix|TestReferenceAnswerNeverToStudent' -v
+=== RUN   TestReferenceAnswerNeverToStudent
+2026/11/15 19:36:36 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 49b01576070da138c917b78e0b2055d0f4350bbb473e6294f84805075db06d0d
+  Test ProcessID: 263334e5-d4f0-450a-86b6-9292b10e97e3
+2026/11/15 19:36:36 ✅ Container started: 68f6ff853df5
+2026/11/15 19:36:36 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:36:36 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestReferenceAnswerNeverToStudent (7.48s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	7.963s
+
+rc=0

@@ -1,0 +1,36 @@
+### G10-15 docs D61/D62/F9/F4/F12/PROGRESS
+docs/ARCHITECTURE.md D61=4 D62=4 guidance=5
+docs/SYSTEM_DESIGN.md D61=0 D62=3 guidance=3
+docs/DECISIONS.md D61=1 D62=2 guidance=2
+docs/FLOWS.md D61=1 D62=1 guidance=2
+docs/PROGRESS.md D61=1 D62=1 guidance=1
+### G11-11 googleapis logs
+gateway: 0
+worker: 0
+caddy: 0
+### G11-10 audit actions
+grading_guidance.apply|7
+grading_guidance.approve|10
+grading_guidance.edit_approve|10
+grading_guidance.reject|5
+grading_guidance.reset|9
+grading_guidance.retire|3
+guidance_flag.set|20
+question.review|499
+### G11-09 go.mod/package.json 10.6 vs gốc
+(rỗng = không đổi)
+### G10-09 grep teacher_label
+benchmarks/guidance/run.py:2:"""Đo «học từ lần sửa» (FEAT-grading-guidance M1, US-GD-10 AC5, AC6, AC10): giao thức E3 trước / sau trê
+benchmarks/guidance/run.py:9:Phép MAE đọc điểm giảng viên từ `teacher_label` (cột c1..c4 của labels.csv); `expected` của ca hồi qu
+benchmarks/guidance/run.py:145:        reason = f"Chưa có nhãn người (teacher_label): không thấy {labels}. Người chấm mù theo kc/sheet.
+### G10-04 ui-antipatterns
+exit=0
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+### G10-16 run.py gateway tắt
+Gateway chưa chạy: <urlopen error [Errno 61] Connection refused>
+exit=0
+### G10-11 run.py thiếu nhãn
+WAITING_HUMAN: Chưa có nhãn người (teacher_label): không thấy /tmp/qc2-g/none.csv. Người chấm mù theo kc/sheet.py rồi `sheet.py --collect`; không dùng điểm LLM làm chuẩn.
+exit=3

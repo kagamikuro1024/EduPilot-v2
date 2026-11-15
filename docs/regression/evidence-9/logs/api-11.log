@@ -1,0 +1,35 @@
+PASS 10 GET ADMIN → 200, thẻ Teams đã cấu hình bởi seed 
+PASS 06 ADMIN lưu secret canary → 200, phản hồi không có secret 
+PASS 06 GET ADMIN → 200, không có secret / đuôi secret 
+PASS 06 GET TEACHER → 200, không có secret / đuôi secret 
+PASS 10 TA GET teams → 403 
+PASS 10 STUDENT GET teams → 403 
+PASS 10 TEACHER PUT teams → 403 
+PASS 10 TEACHER teams/test → 403 
+PASS 10 TA PUT teams → 403 
+PASS 10 TA teams/test → 403 
+PASS 10 STUDENT PUT teams → 403 
+PASS 10 STUDENT teams/test → 403 
+PASS 06 config_enc là bản mã; không có canary dạng rõ ở DB / audit_log 
+PASS 06 Kiểm tra kết nối (happy) → ok:true 
+PASS 06 no_consent → ok:false kind TEAMS_CONSENT_REQUIRED 
+PASS 06 unauthorized → ok:false kind TEAMS_AUTH_FAILED 
+   no_consent: 202 FAILED||{"code": "TEAMS_CONSENT_REQUIRED", "message": "Cần quản trị Microsoft 365 của trường cấp quyền đọc bài tập và danh sách lớp."}
+PASS 03 no_consent → job FAILED TEAMS_CONSENT_REQUIRED, không bài, không khoá treo 
+   unauthorized: 202 FAILED||{"code": "TEAMS_AUTH_FAILED", "message": "Không đăng nhập được vào Teams. Kiểm tra lại Tenant, Client ID và Client secret."}
+PASS 03 unauthorized → job FAILED TEAMS_AUTH_FAILED, token xin ≤ 2 lần (không vòng lặp) 
+   partial_failure: 202 SUCCEEDED|{"failed": [{"code": "FILE_DOWNLOAD_FAILED", "graph_submission_id": "27e9d2f7-3c3e-502f-bde2-888d3511b0c1"}], "created": 24, "deduped": 0, "fetched": 24, "unmatched": 1}|
+PASS 03 partial_failure → SUCCEEDED, có failed[] nêu mục lỗi, các bài còn lại vẫn về 
+   slow: 202 32.4s SUCCEEDED|{"failed": [], "created": 25, "deduped": 0, "fetched": 25, "unmatched": 1}|
+PASS 03 slow → không hết thời gian oan, đủ 25 bài 
+PASS 03 happy → 24 khớp + 1 chưa khớp (email ngoài lớp) 
+PASS 08 không ghi ngược về Graph: chỉ POST token + GET (không PATCH / PUT / POST khác) 
+   sync liền hai lần: 429 429
+PASS 07 sync lần hai trong 30 s → 429 (hoặc trả job đang chạy) 
+PASS 10 ADMIN teams/sync → 403 
+PASS 10 STUDENT teams/sync → 403 
+   tạo bài lớp 2: 201
+PASS 10 lớp 2 (chưa cấu hình Teams) không kéo được bài bằng cấu hình lớp 1 
+PASS log không chứa client secret (canary / thật) và không chứa token mock 
+RESULT: PASS (0 lỗi)
+rc=0

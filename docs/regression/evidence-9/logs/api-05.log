@@ -1,0 +1,37 @@
+PASS 01 chưa cấu hình: GET ADMIN 200, configured false 
+PASS 01 lần đầu thiếu mật khẩu → 422 
+PASS 01 ADMIN lưu cấu hình → 200 
+PASS 01 phản hồi PUT không chứa mật khẩu 
+PASS 01 GET ADMIN → 200, không có mật khẩu / đuôi mật khẩu 
+PASS 01 GET TEACHER → 200, không có mật khẩu / đuôi mật khẩu 
+PASS 08 TA GET imap → 403 
+PASS 08 STUDENT GET imap → 403 
+PASS 08 TEACHER PUT imap → 403 
+PASS 08 TEACHER test → 403 
+PASS 08 TA PUT imap → 403 
+PASS 08 TA test → 403 
+PASS 08 STUDENT PUT imap → 403 
+PASS 08 STUDENT test → 403 
+PASS 01 config_enc có giá trị, config_public không chứa mật khẩu 
+PASS 01 config_enc là bản mã (không có canary dạng rõ) 
+PASS 01 audit_log không chứa mật khẩu 
+PASS 01 sai version → 409 
+PASS 01 password trống = giữ cũ → 200 
+   security NONE ở APP_ENV hiện tại: 409
+PASS 02 test kết nối tới máy chủ không tồn tại → 200 {ok:false, kind}, ≤ 12 s 
+PASS 06 sau lỗi: status ERROR / last_error là mã ngắn (không lộ máy chủ / mật khẩu) 
+PASS 08 lớp 2 không thấy cấu hình lớp 1 
+PASS 08 TEACHER (cũng dạy lớp 2 theo seed) đọc lớp 2: không thấy cấu hình lớp 1 
+   sync-now TA: 202 {'job_id': '01a1df3a-020c-7ebb-9c10-bc9718005cb3'}
+PASS 07 sync-now TA → 202 (hoặc 409 chưa kết nối được) 
+PASS 07 lần hai trong 30 s → 429 + retry_after (hoặc job cũ) 
+PASS 08 ADMIN sync-now → 403 
+PASS 08 STUDENT sync-now → 403 
+PASS 08 TA GET mail-inbound → 200 
+PASS 08 TEACHER GET mail-inbound → 200 
+PASS 08 STUDENT GET mail-inbound → 403 
+PASS 08 ADMIN GET mail-inbound → 403 
+PASS Q7 SMTP chỉ đọc, không mật khẩu 
+PASS log gateway + worker không chứa mật khẩu IMAP 
+RESULT: PASS (0 lỗi)
+rc=0

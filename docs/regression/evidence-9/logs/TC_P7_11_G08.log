@@ -1,0 +1,36 @@
+$ go test -tags integration ./internal/integration -run 'TestTeamsSecretWriteOnly|TestTeamsTokenNeverLogged|TestTeamsNoWriteBack|TestTeamsDownloadHostAllowlist|TestTeamsRedirectOnlyListedHosts|TestTeamsNoAuthHeaderToForeignHost' -v
+=== RUN   TestTeamsSecretWriteOnly
+2026/11/15 20:28:42 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8edb1ee09a8b108b5afae477b84bab519848066924891b631c3bb75e580337c9
+  Test ProcessID: f12ceb50-e08c-4ac8-be05-ec1dd7c824a1
+2026/11/15 20:28:42 ✅ Container started: 68f6ff853df5
+2026/11/15 20:28:42 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:28:42 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:28:59 ✅ Container started: 5636bc78d64d
+2026/11/15 20:28:59 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:28:59 🔔 Container is ready: 5636bc78d64d
+2026/11/15 20:28:59 ✅ Container started: b8d9c357e377
+2026/11/15 20:28:59 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 20:28:59 🔔 Container is ready: b8d9c357e377
+--- PASS: TestTeamsSecretWriteOnly (22.84s)
+=== RUN   TestTeamsTokenNeverLogged
+--- PASS: TestTeamsTokenNeverLogged (35.57s)
+=== RUN   TestTeamsNoWriteBack
+--- PASS: TestTeamsNoWriteBack (31.21s)
+=== RUN   TestTeamsDownloadHostAllowlist
+--- PASS: TestTeamsDownloadHostAllowlist (0.01s)
+=== RUN   TestTeamsRedirectOnlyListedHosts
+--- PASS: TestTeamsRedirectOnlyListedHosts (0.01s)
+=== RUN   TestTeamsNoAuthHeaderToForeignHost
+--- PASS: TestTeamsNoAuthHeaderToForeignHost (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	90.520s
+
+rc=0

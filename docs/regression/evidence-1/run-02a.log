@@ -1,0 +1,267 @@
+xargs: unterminated quote
+FAIL TC-01: gốc repo — got [] want [.claude .dockerignore .env.example .gitattributes .github .gitignore AGENTS.md CLAUDE.md backend-go docker-compose.local.yml docs frontend legacy package.json pnpm-lock.yaml pnpm-workspace.yaml scripts seed]
+PASS TC-02: mọi file Project III có ở legacy/
+PASS TC-03: không còn 492218d5 (kể cả legacy/)
+PASS TC-04: seed/documents
+PASS TC-04: không còn data/ ở gốc
+PASS TC-04: PDF Mordern_Network_Security_Threats nguyên vẹn (cùng blob)
+PASS TC-04: PDF QMB12ch6b nguyên vẹn (cùng blob)
+PASS TC-04: PDF Quyche nguyên vẹn (cùng blob)
+FAIL TC-05: tokens.css + 3 brand — got [6] want [4]
+FAIL TC-05: brand không đổi so với base
+FAIL TC-05: tokens.css chỉ khác base ở chú thích ui-allow (proposals #8) — got [41] want [0]
+PASS TC-06: lịch sử còn (4)
+info: legacy/src/main.py -> 6 commit (nếu file không tồn tại, bỏ qua)
+FAIL TC-07: legacy/ có file đổi nội dung hoặc mới
+C093	.env.example	legacy/.env.example
+R084	backend-java/aitrogiang/src/main/resources/application.yaml	legacy/backend-java/aitrogiang/src/main/resources/application.yaml
+R083	docker-compose.hf.yml	legacy/docker-compose.hf.yml
+R098	docker-compose.prod.yml	legacy/docker-compose.prod.yml
+R098	docker-compose.yml	legacy/docker-compose.yml
+PASS TC-08: có commit dời (#85)
+FAIL TC-08: commit dời lẫn mã mới: 78bfeb6a0c9fb86adb726c65fed87b5b628c0b69
+FAIL TC-08: mã mới (#28) trước/cùng commit dời (#85)
+FAIL TC-09: đúng 6 service — got [caddy frontend gateway judge mailpit migrate minio mock-graph mock-imap pgbouncer postgres redis worker] want [frontend gateway mailpit minio postgres redis]
+FAIL TC-09: mọi service có healthcheck — got [1] want [0]
+FAIL TC-09: image ghim tag (không :latest/không tag) — got [5] want [0]
+PASS TC-09: postgres image
+PASS TC-09: redis image
+PASS TC-09: mailpit image
+FAIL TC-09: cổng host — got [caddy 443,caddy 80,frontend 3000,mailpit 1025,mailpit 8025,minio 9000,minio 9001,mock-graph 8090,mock-imap 8091,postgres 5433,redis 6380] want [frontend 3000,gateway 8080,mailpit 1025,mailpit 8025,minio 9000,minio 9001,postgres 5433,redis 6380]
+PASS TC-09: cổng trong của postgres,redis
+FAIL TC-09: gateway phụ thuộc postgres, redis healthy — got [migrate:service_completed_successfully,minio:service_healthy,mock-graph:service_healthy,pgbouncer:service_healthy,redis:service_healthy] want [postgres:service_healthy,redis:service_healthy]
+PASS TC-09: ≥ 3 volume có tên
+PASS TC-09: không service Python/AI
+PASS TC-19: go.mod go 1.27
+PASS TC-19: next 16
+PASS TC-19: react 19
+PASS TC-19: packageManager pnpm
+PASS TC-19: frontend Dockerfile node:24
+FAIL TC-19: không có dep ngoài phạm vi (tailwind/zustand/tanstack) — got [1] want [0]
+✓ Màu viết cứng ngoài shared/styles
+✓ Màu viết cứng trong style của .tsx
+✓ Xám chung chung của Tailwind
+✓ Bo góc kiểu SaaS / số cứng
+✓ Bóng ngoài Popover/Dialog/Menu/Drawer/Composer
+✓ Cỡ chữ tuỳ ý ngoài thang vai trò
+✓ z-index số cứng
+✓ fetch / XMLHttpRequest / axios ngoài shared/data
+✓ confirm / alert
+✓ Spinner riêng hoặc toàn trang
+✓ <table> thô ngoài DataTable
+✓ Hiệu ứng bị cấm (glass, chữ gradient, nảy)
+✓ Gamification (streak, leaderboard, confetti)
+✓ Khung vỏ dùng nền đặc
+✓ Từ kỹ thuật trong màn sinh viên
+✓ Dialog ngoài danh sách việc cần bảo vệ
+✓ Emoji làm icon chức năng
+✓ Token / bí mật ghi vào storage
+✓ Tailwind / @theme
+✓ Bóng elevation ngoài Panel
+✓ Bo góc panel ngoài Panel
+✓ Panel lồng Panel (cùng tệp)
+✓ Câu mô tả tĩnh dưới tiêu đề
+✓ Khung tự đặt độ rộng
+✓ Chiều cao theo màn ngoài shared/
+✓ Với tay vào primitive
+✓ Meta lặp lớp đang chọn
+✓ Tiêu đề tự dựng ngoài shared/ui
+✓ Nút rỗng trùng nút đầu trang
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+PASS TC-23: ui-antipatterns
+2:import { Be_Vietnam_Pro } from "next/font/google";
+3:import "@/shared/styles/tokens.css";
+11:// className: --ep-font ở tokens.css (có "Noto Sans" dự phòng) mới là chuỗi font duy nhất của trang.
+12:const beVietnamPro = Be_Vietnam_Pro({
+PASS TC-24: có cả hai
+PASS TC-24: subset vietnamese+latin
+PASS TC-24: <html lang="vi">
+PASS TC-25: thiếu cả hai: exit
+1
+1
+PASS TC-25: không panic/goroutine
+PASS TC-25: đúng 1 dòng log mức ERROR (slog JSON)
+PASS TC-25: cả hai tên cùng một dòng
+PASS TC-26: chỉ có DATABASE_URL: exit
+PASS TC-26: nêu REDIS_URL
+PASS TC-26: không nêu DATABASE_URL (đã có)
+PASS TC-26: không log giá trị env
+PASS TC-26: chỉ có REDIS_URL: exit
+PASS TC-26: nêu DATABASE_URL
+PASS TC-26: không nêu REDIS_URL (đã có)
+PASS TC-26: không log giá trị env
+PASS TC-26: không panic
+PASS TC-26: cả hai rỗng/khoảng trắng: exit 1 (FR-4 v2)
+PASS TC-26: đúng 1 dòng ERROR
+PASS TC-26: nêu cả hai biến
+PASS TC-26: không panic
+PASS TC-26: DATABASE_URL khoảng trắng, REDIS_URL hợp lệ: exit 1
+PASS TC-26: nêu DATABASE_URL
+PASS TC-26: không nêu biến đã có, không lộ giá trị
+curl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server
+FAIL TC-27: đủ env, DB/Redis không tồn tại: /healthz vẫn ok (chỉ kiểm sống) — got [] want [{"status":"ok"}]
+PASS TC-27: không ghi file ra đĩa
+docs/sprints/1/qc/scripts/tc-US-P0-02.sh: line 160: kill: (21744) - No such process
+PASS TC-27: SIGTERM: thoát trong 0.0s
+FAIL TC-27: SIGTERM: thoát mã 0 (FR-5 v2) — got [1] want [0]
+PASS TC-27: không panic khi dừng
+PASS TC-31: compose config không nhắc legacy
+PASS TC-31: workspace/package.json/go.mod
+PASS TC-31: .dockerignore có dòng legacy
+FAIL TC-31: frontend/ backend-go/ compose, dev.mjs không nhắc legacy — got [4] want [0]
+PASS TC-35: commit US-P0-02 chỉ đụng vùng story
+PASS TC-35: scripts/team-up.sh không bị commit US-P0-02 đụng
+PASS TC-35: scripts/ui-antipatterns.sh không bị commit US-P0-02 đụng
+PASS TC-35: CLAUDE.md không bị commit US-P0-02 đụng
+PASS TC-35: AGENTS.md không bị commit US-P0-02 đụng
+PASS TC-35: .claude không bị commit US-P0-02 đụng
+PASS TC-35: .gitattributes không bị commit US-P0-02 đụng
+PASS TC-35: .github/workflows/keep-huggingface-space-awake.yml không bị commit US-P0-02 đụng
+docs/ đổi bởi commit US-P0-02 (xem tay):
+docs/sprints/1/handoff/dev-US-P0-02.md
+docs/sprints/1/proposals.md
+FAIL TC-36: nghi secret
+194409:+	if got := provider.Redact("x sk-ABCDEFGH12345 y Bearer abc.def z"); str
+203675:+		"FullName": "Nguyễn Văn An", "Link": "https://localhost/x?token=AAAAAA
+203803:+https://localhost/x?token=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+203815:+https://localhost/x?token=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+203837:+https://localhost/x?token=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+--- go.mod require (đối chiếu ARCHITECTURE §3 bằng mắt):
+require (
+	github.com/emersion/go-imap/v2 v2.0.0-beta.8
+	github.com/emersion/go-message v0.18.2
+	github.com/exaring/otelpgx v0.12.0
+	github.com/getkin/kin-openapi v0.149.0
+	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-playground/validator/v10 v10.30.5
+	github.com/golang-jwt/jwt/v5 v5.3.1
+	github.com/google/uuid v1.6.0
+	github.com/jackc/pgx/v5 v5.11.0
+	github.com/minio/minio-go/v7 v7.3.0
+	github.com/moby/moby/api v1.55.0
+	github.com/moby/moby/client v0.5.1
+	github.com/openai/openai-go/v3 v3.71.1
+	github.com/pgvector/pgvector-go v0.4.1
+	github.com/pressly/goose/v3 v3.28.0
+	github.com/redis/go-redis/v9 v9.22.0
+	github.com/shopspring/decimal v1.4.0
+	github.com/stretchr/testify v1.12.1
+	github.com/testcontainers/testcontainers-go v0.44.0
+	github.com/wneessen/go-mail v0.8.1
+	github.com/xuri/excelize/v2 v2.11.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.71.0
+	go.opentelemetry.io/otel v1.46.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.46.0
+	go.opentelemetry.io/otel/sdk v1.46.0
+	go.opentelemetry.io/otel/trace v1.46.0
+	golang.org/x/crypto v0.57.0
+	golang.org/x/text v0.42.0
+)
+require (
+	dario.cat/mergo v1.0.2 // indirect
+	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
+	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
+	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/coder/websocket v1.8.15 // indirect
+	github.com/containerd/errdefs v1.0.0 // indirect
+	github.com/containerd/errdefs/pkg v0.3.0 // indirect
+	github.com/containerd/log v0.1.0 // indirect
+	github.com/containerd/platforms v0.2.1 // indirect
+	github.com/cpuguy83/dockercfg v0.3.2 // indirect
+	github.com/distribution/reference v0.6.0 // indirect
+	github.com/docker/go-connections v0.8.1 // indirect
+	github.com/docker/go-units v0.5.0 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/ebitengine/purego v0.10.1 // indirect
+	github.com/emersion/go-sasl v0.0.0-20241020182733-b788ff22d5a6 // indirect
+	github.com/felixge/httpsnoop v1.1.0 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.15 // indirect
+	github.com/go-logr/logr v1.4.4 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-ole/go-ole v1.3.0 // indirect
+	github.com/go-openapi/jsonpointer v1.0.0 // indirect
+	github.com/go-playground/locales v0.14.1 // indirect
+	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/klauspost/compress v1.19.2 // indirect
+	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
+	github.com/klauspost/crc32 v1.3.0 // indirect
+	github.com/leodido/go-urn v1.5.0 // indirect
+	github.com/lufia/plan9stats v0.0.0-20260330125221-c963978e514e // indirect
+	github.com/magiconair/properties v1.8.10 // indirect
+	github.com/mfridman/interpolate v0.0.2 // indirect
+	github.com/minio/crc64nvme v1.1.1 // indirect
+	github.com/minio/md5-simd v1.1.2 // indirect
+	github.com/moby/docker-image-spec v1.3.1 // indirect
+	github.com/moby/go-archive v0.2.0 // indirect
+	github.com/moby/patternmatcher v0.6.1 // indirect
+	github.com/moby/sys/sequential v0.7.0 // indirect
+	github.com/moby/sys/user v0.4.0 // indirect
+	github.com/moby/sys/userns v0.1.0 // indirect
+	github.com/moby/term v0.5.2 // indirect
+	github.com/oasdiff/yaml v0.1.1 // indirect
+	github.com/oasdiff/yaml3 v0.0.14 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.1.1 // indirect
+	github.com/philhofer/fwd v1.2.0 // indirect
+	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
+	github.com/richardlehane/mscfb v1.0.7 // indirect
+	github.com/richardlehane/msoleps v1.0.6 // indirect
+	github.com/rs/xid v1.6.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
+	github.com/sethvargo/go-retry v0.4.0 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.6 // indirect
+	github.com/sirupsen/logrus v1.9.4 // indirect
+	github.com/tidwall/gjson v1.19.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
+	github.com/tiendc/go-deepcopy v1.7.2 // indirect
+	github.com/tinylib/msgp v1.6.4 // indirect
+	github.com/tklauser/go-sysconf v0.4.0 // indirect
+	github.com/tklauser/numcpus v0.12.0 // indirect
+	github.com/xuri/efp v0.0.1 // indirect
+	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
+	github.com/yusufpapurcu/wmi v1.2.4 // indirect
+	github.com/zeebo/xxh3 v1.1.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.46.0 // indirect
+	go.opentelemetry.io/otel/metric v1.46.0 // indirect
+	go.opentelemetry.io/proto/otlp v1.11.0 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	golang.org/x/net v0.58.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260831171406-18b4a7587f8a // indirect
+	google.golang.org/grpc v1.83.2 // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
+	gopkg.in/ini.v1 v1.67.3 // indirect
+)
+--- frontend deps (đối chiếu ARCHITECTURE §3):
+{"dependencies":{"@tanstack/react-query":"^5.104.0","@tanstack/react-virtual":"^3.14.13","lucide-react":"^1.49.0","next":"^16.3.7","react":"^19.3.0","react-dom":"^19.3.0","uqr":"0.1.3"},"devDependencies":{"@axe-core/playwright":"^4.13.0","@lhci/cli":"^0.15.1","@playwright/test":"^1.63.0","@types/node":"^24.19.0","@types/react":"^19.3.0","@types/react-dom":"^19.3.0","eslint":"^9.39.5","eslint-config-next":"^16.3.7","typescript":"^5.9.3"}}
+PASS TC-37: frontend/src không có fetch trần
+PASS TC-37: frontend/src không màu viết cứng ngoài tokens.css
+FAIL TC-37: gateway không ghi đĩa (luật 10) — got [21] want [0]
+PASS TC-37: không float64 trong backend-go (luật 5; nghi ngờ thì xem tay)
+PASS TC-38: không còn requirements.txt ở gốc
+PASS TC-38: không còn requirements.dev.txt ở gốc
+PASS TC-38: không còn Dockerfile ở gốc
+PASS TC-38: không còn Dockerfile.ai ở gốc
+PASS TC-38: không còn src ở gốc
+PASS TC-38: không còn shared-proto ở gốc
+PASS TC-38: không còn data_pipeline ở gốc
+PASS TC-38: không còn backend-java ở gốc
+FAIL TC-38: còn benchmarks ở gốc
+PASS TC-38: không còn db ở gốc
+PASS TC-38: không còn huggingface ở gốc
+FAIL TC-38: không file Python ngoài legacy/docs — got [20] want [0]

@@ -1,0 +1,64 @@
+
+Running 6 tests using 1 worker
+
+(node:47809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX19-10 lỗi: "Hỏi đáp công khai Đặt câu hỏi Câu hỏi Cần xem Tìm theo tiêu đề Chủ đề Tuần Mọi tuần Tuần 1 Tuần 2 Tuần 3 Tuần 4 Tuần 5 Tuần 6 Tuần 7 Tuần 8 Tuần 9 Tuần 10 Tuần 11 Tuần 12 Tuần 13 Tuần 14 Tuần 15 Tuần " | Thử lại: 1
+INFO UX19-10 sau Thử lại: số hàng 0
+  ✓  1 [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:23:1 › TC-UX19-10 danh sách lỗi → ApiErrorNotice + Thử lại (10.1s)
+  ✘  2 [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:38:1 › TC-UX20-8 tham số user_id không đổi danh tính (10.4s)
+(node:48666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài (10.4s)
+(node:49236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  4 [mobile] › e2e/qc-uiux91-w5i-real.spec.ts:23:1 › TC-UX19-10 danh sách lỗi → ApiErrorNotice + Thử lại
+  -  5 [mobile] › e2e/qc-uiux91-w5i-real.spec.ts:38:1 › TC-UX20-8 tham số user_id không đổi danh tính
+  -  6 [mobile] › e2e/qc-uiux91-w5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài
+
+
+  1) [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:38:1 › TC-UX20-8 tham số user_id không đổi danh tính 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+       9 |   await page.locator("input[type=password]").fill(PW);
+      10 |   await page.keyboard.press("Enter");
+    > 11 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+         |              ^
+      12 |   await page.locator("[data-part=topbar]").waitFor();
+      13 | }
+      14 | const api = (page: Page, path: string) =>
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5i-real.spec.ts:11:14)
+        at fresh (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5i-real.spec.ts:21:267)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5i-real.spec.ts:41:25
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5i-real/qc-uiux91-w5i-real-TC-UX20-a3a3e-user-id-không-đổi-danh-tính-desktop/error-context.md
+
+  2) [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+       9 |   await page.locator("input[type=password]").fill(PW);
+      10 |   await page.keyboard.press("Enter");
+    > 11 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+         |              ^
+      12 |   await page.locator("[data-part=topbar]").waitFor();
+      13 | }
+      14 | const api = (page: Page, path: string) =>
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5i-real.spec.ts:11:14)
+        at fresh (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5i-real.spec.ts:21:267)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5i-real.spec.ts:55:25
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5i-real/qc-uiux91-w5i-real-TC-UX13-59b2a-sử-vị-trí-Panel-tiêu-đề-dài-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:38:1 › TC-UX20-8 tham số user_id không đổi danh tính 
+    [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài 
+  3 skipped
+  1 passed (32.8s)

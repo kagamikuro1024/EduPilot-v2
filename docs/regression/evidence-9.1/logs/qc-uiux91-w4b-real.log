@@ -1,0 +1,95 @@
+
+Running 8 tests using 1 worker
+
+(node:67611) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:36:1 › TC-UX14-3/5/7/11 hàng chờ bổ sung: Enter khi focus, 375 px, rộng ô Bài tập (1.5m)
+(node:71959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO DRAFT: 0 REVIEWED: 0
+  ✘  2 [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:77:1 › TC-UX15-8/9/13 bắt mạng khi bấm Duyệt bài / phím A; trạng thái bài; hoạt cảnh sau › (4.5s)
+(node:72136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO API: hàng 30 | chưa đủ: 0 | drift: 0
+INFO UX16-3: so 63 ô, lệch 0 
+INFO tiêu đề phụ: null | cột Trạng thái: true | chú giải đã công bố: true | chấm công bố ở tiêu đề: 2
+  ✘  3 [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm (8.7s)
+(node:72380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO màu LATE: {"self":"lab(45.3509 4.28858 2.31123)|lab(100 0 0)","before":"rgba(0, 0, 0, 0)","after":"rgba(0, 0, 0, 0)","lab":"rgb(35, 31, 32)","checked":true}
+INFO màu ABSENT: {"self":"rgb(206, 22, 40)|lab(100 0 0)","before":"rgba(0, 0, 0, 0)","after":"rgba(0, 0, 0, 0)","lab":"rgb(35, 31, 32)","checked":true}
+INFO hàng Vắng text: Dương Tuấn Giang 20224852 · Vắng Có mặt — Dương Tuấn Giang Muộn — Dương Tuấn Giang Vắng phép — Dương Tuấn Giang Vắng — Dương Tuấn Giang 
+INFO radio: ["Có mặt — Dương Tuấn Giang:false","Muộn — Dương Tuấn Giang:false","Vắng phép — Dương Tuấn Giang:false","Vắng — Dương Tuấn Giang:true"]
+INFO phím P đổi nội dung bảng: true | hàng 5 ô cuối:  | hàng đang chọn: 3642
+INFO 761988 cảnh báo: {"t":"Điểm danh Mở điểm danh Lưu điểm danh buổi 4 · Hôm nay, 13:30–16:00 · P.405 Buổi Buổi 6 · 29/11 · Chưa Buổi 5 · 22/11 · C","h":993,"btn":true} | số dòng cảnh báo: 2 | Xem công thức: 1
+INFO 375 điểm danh: {"trs":[":table-row:0","student-row:table-row:0","student-row:table-row:0"],"radioCnt":120,"radioBox":[0,0,0],"save":null,"ov":false,"iH":812}
+  ✓  4 [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:185:1 › TC-UX12-2/3/5/14/15 điểm danh bổ sung: màu Vắng, nhãn, phím P, cảnh báo công thức (761988), 375 px (25.7s)
+(node:73660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  5 [mobile] › e2e/qc-uiux91-w4b-real.spec.ts:36:1 › TC-UX14-3/5/7/11 hàng chờ bổ sung: Enter khi focus, 375 px, rộng ô Bài tập
+  -  6 [mobile] › e2e/qc-uiux91-w4b-real.spec.ts:77:1 › TC-UX15-8/9/13 bắt mạng khi bấm Duyệt bài / phím A; trạng thái bài; hoạt cảnh sau ›
+  -  7 [mobile] › e2e/qc-uiux91-w4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm
+  -  8 [mobile] › e2e/qc-uiux91-w4b-real.spec.ts:185:1 › TC-UX12-2/3/5/14/15 điểm danh bổ sung: màu Vắng, nhãn, phím P, cảnh báo công thức (761988), 375 px
+
+
+  1) [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:36:1 › TC-UX14-3/5/7/11 hàng chờ bổ sung: Enter khi focus, 375 px, rộng ô Bài tập 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.evaluate: Test ended.
+    Call log:
+      - waiting for locator('main tbody tr').first()
+
+
+      42 |   await page.getByLabel("Trạng thái").selectOption({ label: "Chưa duyệt" });
+      43 |   await page.waitForTimeout(2200);
+    > 44 |   const row0 = await page.locator("main tbody tr").first().evaluate((e) => ({ tab: (e as HTMLElement).tabIndex, role: e.getAttribute("role"), onkey: !!(e as HTMLElement).onkeydown, focusables: [...e.querySelectorAll("a,button,[tabindex]")].map((x) => `${x.tagName}:${(x as HTMLElement).innerText.trim().slice(0, 14)}:${(x as HTMLElement).tabIndex}`) }));
+         |                                                            ^
+      45 |   console.log("INFO hàng:", JSON.stringify(row0));
+      46 |   // Tab tới phần tử đầu tiên trong hàng rồi Enter
+      47 |   await page.locator("main tbody tr").first().locator("a").first().focus();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w4b-real.spec.ts:44:60
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w4b-real/qc-uiux91-w4b-real-TC-UX14-e61ac-focus-375-px-rộng-ô-Bài-tập-desktop/error-context.md
+
+  2) [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:77:1 › TC-UX15-8/9/13 bắt mạng khi bấm Duyệt bài / phím A; trạng thái bài; hoạt cảnh sau › 
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      84 |   const writes: string[] = [];
+      85 |   page.on("request", (r) => { if (r.method() !== "GET" && r.url().includes("/api/v1/") && !/auth|events/.test(r.url())) writes.push(`${r.method()} ${new URL(r.url()).pathname.replace(/[0-9a-f-]{36}/g, "‹id›")} ${(r.postData() ?? "").slice(0, 80)}`); });
+    > 86 |   await page.goto(`/grading/${d[0].id}?course=${c}`);
+         |                                    ^
+      87 |   await page.waitForTimeout(3500);
+      88 |   const prog = () => page.evaluate(() => (document.querySelector("main") as HTMLElement).innerText.match(/Đã duyệt \d+\/\d+/)?.[0]);
+      89 |   console.log("INFO tiến độ:", await prog());
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w4b-real.spec.ts:86:36
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w4b-real/qc-uiux91-w4b-real-TC-UX15-b1348-ng-thái-bài-hoạt-cảnh-sau-›-desktop/error-context.md
+
+  3) [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm 
+
+    Error: UX16-10 ẩn cột khi không ai thiếu
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      146 |   expect(bad, "UX16-3 UI khớp API từng ô").toEqual([]);
+      147 |   if (inc > 0) expect(ui.thieu, "UX16-9 tiêu đề phụ Thiếu điểm: N").toContain(`Thiếu điểm: ${inc} sinh viên`);
+    > 148 |   else expect(ui.heads.includes("Trạng thái"), "UX16-10 ẩn cột khi không ai thiếu").toBe(false);
+          |                                                                                     ^
+      149 |   // menu cột
+      150 |   const th = page.locator("main thead th").filter({ hasText: "Kiểm tra hằng tuần" }).first();
+      151 |   const mb = th.locator("button").first();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w4b-real.spec.ts:148:85
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w4b-real/qc-uiux91-w4b-real-TC-UX16-e4695-i-menu-cột-khi-rê-Chốt-điểm-desktop/error-context.md
+
+  3 failed
+    [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:36:1 › TC-UX14-3/5/7/11 hàng chờ bổ sung: Enter khi focus, 375 px, rộng ô Bài tập 
+    [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:77:1 › TC-UX15-8/9/13 bắt mạng khi bấm Duyệt bài / phím A; trạng thái bài; hoạt cảnh sau › 
+    [desktop] › e2e/qc-uiux91-w4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm 
+  4 skipped
+  1 passed (2.3m)

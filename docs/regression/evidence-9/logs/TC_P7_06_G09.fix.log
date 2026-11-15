@@ -1,0 +1,40 @@
+$ go test -count=1 -v -tags integration,testroutes ./internal/assignment -run ^TestLatePenaltyEditableByStaff$
+=== RUN   TestLatePenaltyEditableByStaff
+2026/11/15 20:14:09 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 306a7832cca22c121a6d0ad3985e2437af2996f17f0caf21e7aaba42fa4fe198
+  Test ProcessID: 0e414dcf-ce93-4a44-9c6e-043f61c31dd1
+2026/11/15 20:14:10 ✅ Container started: 68f6ff853df5
+2026/11/15 20:14:10 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:14:10 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestLatePenaltyEditableByStaff (36.02s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	36.749s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/assignment -run ^TestLatePenaltyEditableByStaff$
+=== RUN   TestLatePenaltyEditableByStaff
+2026/11/15 20:36:10 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e98f2c4aafa108b347e8b79a05013eb5a8d6bbb5bf84a8fbf979b5e565003fc9
+  Test ProcessID: 373d8cc9-03f5-4cfa-ae69-876812c8de0c
+2026/11/15 20:36:10 ✅ Container started: 68f6ff853df5
+2026/11/15 20:36:10 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:36:10 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestLatePenaltyEditableByStaff (1.30s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	1.974s
+
+rc=0

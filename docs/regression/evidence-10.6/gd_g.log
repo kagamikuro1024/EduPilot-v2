@@ -1,0 +1,56 @@
+PASS G09-00 có ≥ 12 câu PENDING 14
+PASS G09-01 REJECT reject_reason=MO_HO → lưu đúng 200 ['REJECTED', 'MO_HO']
+PASS G09-01 REJECT reject_reason=SAI_DAP_AN → lưu đúng 200 ['REJECTED', 'SAI_DAP_AN']
+PASS G09-01 REJECT reject_reason=TRUNG_LAP → lưu đúng 200 ['REJECTED', 'TRUNG_LAP']
+PASS G09-01 REJECT reject_reason=LAC_DE → lưu đúng 200 ['REJECTED', 'LAC_DE']
+PASS G09-01 REJECT reject_reason=KHO_DE_BAT_THUONG → lưu đúng 200 ['REJECTED', 'KHO_DE_BAT_THUONG']
+PASS G09-01 REJECT reject_reason=SAI_DINH_DANG → lưu đúng 200 ['REJECTED', 'SAI_DINH_DANG']
+PASS G09-01 REJECT reject_reason=UNSPECIFIED → lưu đúng 200 ['REJECTED', 'UNSPECIFIED']
+PASS G09-01 REJECT không gửi lý do → UNSPECIFIED (US-GD-09 AC1) 200 lưu = UNSPECIFIED
+PASS G09-02 lý do lạ → 422 422
+PASS G09-02 reject_reason kèm APPROVE → 422 422 VALIDATION_FAILED
+PASS G09-02 DB CHECK: reject_reason chỉ khi REJECTED 
+INFO bulk reject: 200 {"results": [{"id": "01a1df2d-2931-7da2-a3c2-1f0f14b654cf", "ok": true}, {"id": "01a1df2d-293a-7110-9027-cd9dd546614c", "ok": true}, {"id": "01a1df2d-2940-7ab7-82aa-e58ee7bd45de", "ok": true}]}
+PASS G09-02 bulk reject + reason → lưu lý do cho cả lô 200
+PASS G09-02 bulk reason lạ → 422 hoặc từng id ok:false (không loại câu) 200 {"results": [{"id": "01a1df2d-2946-7c1c-9635-0709760a4343", "ok": false, "code": "VALIDATION_FAILED"}]}
+PASS G09-11 SV GET questions → 403 403
+PASS G09-11 SV gen-stats → 403 403
+PASS G09-11 không token → 401 401
+INFO teacher lớp 2 (là GV lớp 2): 200
+PASS G09-11 DTO SV không có reject_reason 0
+INFO thread có tri thức POST: ['ĐẠI HỌC QUỐC GIA HÀ NỘI TRƯỜNG QUÓC TÉ )', 'HIỆU TRƯỞNG TRƯỜNG QUỐC TẾ', 'ĐẠI HỌC QUỐC GIA HÀ NỘI TRƯỜNG QUỐC TẾ', 'Linear Trend Projection', "▪ Example: Auger's Plumbing Service"]
+PASS G08-01 q = đúng chữ đã nhúng của thread xác nhận → có thread đó (≤ 3, DTO {thread_id,title}) 200 [{"thread_id": "01a1df2b-84af-727b-8376-48033a0186ff", "title": "\u0110\u1ea0I H\u1eccC QU\u1ed0C GIA H\u00c0 N\u1ed8I TR\u01af\u1edcNG QU\u00d3C T\u00c9 )C Q
+PASS G08-02 q < 3 từ → [] hoặc 422, không 500 200 []
+PASS G08-02 q rỗng → không 500 200
+PASS G08-02 q 6.000 ký tự → không 500 422
+PASS G08-15 chuỗi lạ → [] (không lộ lớp khác) 200 []
+PASS G08-16 SV lớp 1 gọi qua lớp 2 → 404/403 403
+PASS G08-16 SV chỉ lớp 2 gọi lớp 1 → 404/403 403
+PASS G08-16 ta → 200 200
+PASS G08-16 teacher → 200 200
+PASS G08-16 không token → 401 401
+PASS G08-20 route GET cũ → 404/405 404
+PASS G08-09 20 lần gợi ý: nhúng ≤ 11 (cùng chuỗi dùng cache), 0 lời gọi sinh chữ nhúng=10 sinh chữ=0
+PASS G08-11 p95 ≤ 300 ms (20 lượt, embedding giả) p95=70 ms p50=19
+PASS G08-19 chữ đang soạn không có trong log gateway / Caddy 
+PASS G08-14 không ghi pii_events cho chuỗi đang soạn 0
+PASS G08-19 Cache-Control: no-store {'Cache-Control': 'no-store'}
+PASS G08-10 35 lần / phút: có 429 28×200 7×429
+PASS G08-10 người khác không bị ảnh hưởng 200
+FAIL G08-12 cờ tắt → [] và 0 nhúng 200 []
+INFO ứng viên: [['01a1df33-93a0-7801-9bab-e94712cb60c7', '1.00', '1.00'], ['01a1df3a-2a79-716d-8b69-9d7a0164c67d', '1.00', '1.00'], ['01a1df3a-2a7b-70c4-b66a-c939e989416a', '1.00', '1.00'], ['01a1df3a-2a80-7423-8aa6-e6cd3070e304', '1.00', '1.00']]
+PASS G07-04 cờ tắt: review có sửa 1,0 → 0 hàng ca 200 []
+INFO ca: [['GRADING_EDIT', 'c2', '{"ai_score": "1.00", "direction": "STRICTER", "rubric_hash": "31422fb3e765ea434f0c262fe760928800b76d0748ce5dbbad8776959be85405", "teacher_score": "0.00"}', '01a1df3a-2a79-716d-8b69-9d7a0164c67d']]
+PASS G07-01 lệch đúng 1,0 ghi 1 hàng GRADING_EDIT (c2); lệch 0,5 (c3) không ghi 200 [['GRADING_EDIT', 'c2', '{"ai_score": "1.00", "direction": "STRICTER", "rubric_hash": "31422fb3e765ea434f0c262fe760928800b76d0748ce5dbbad8776959be85405", "teacher_score": "0.00
+FAIL G07-03 expected chỉ số / enum, không chuỗi ≥ 40 ký tự, không văn bản {"ai_score": "1.00", "direction": "STRICTER", "rubric_hash": "31422fb3e765ea434f0c262fe760928800b76d0748ce5dbbad8776959be85405", "teacher_score": "0.00"}
+INFO expected: {'ai_score': '1.00', 'direction': 'STRICTER', 'rubric_hash': '31422fb3e765ea434f0c262fe760928800b76d0748ce5dbbad8776959be85405', 'teacher_score': '0.00'}
+INFO sửa lại sau review: 200 None
+PASS G07-05 sửa lại cùng tiêu chí: vẫn 1 hàng 1
+PASS G07-01 bài thứ hai → tổng 2 hàng 2
+INFO GET a346-5c602a43e2f9/regression-cases 404 {"code": "NOT_FOUND", "message": "Kh\u00f4ng t\u00ecm th\u1ea5y.", "trace_id": "adc406fd3c0cb4faa1ca
+INFO GET 6-5c602a43e2f9/guidance/regression 404 {"code": "NOT_FOUND", "message": "Kh\u00f4ng t\u00ecm th\u1ea5y.", "trace_id": "30750da9da84a14af613
+INFO GET b-85e8-a10086f68b3d/guidance/stats 200 {"items": [{"version": 0, "n": 16, "mae_criterion": "0.17", "mae_total": "0.56", "bias_total": "0.44
+PASS G07-11 `regress export` mặc định từ chối (thoát ≠ 0) exit status 3
+INFO regress export: export bị từ chối: REGRESSION_EXPORT_ALLOWED=false (ca chứa văn bản bài của sinh viên; chỉ bật khi có quyết định của quản trị viên)
+exit status 3
+exit=1

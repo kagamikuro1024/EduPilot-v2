@@ -1,0 +1,8 @@
+FAIL TC-AS06-07a hết cờ → không có mục CHECKIN_REVIEW của lớp QC-AS 
+PASS TC-AS06-06 TEACHER /me/today: CHECKIN_REVIEW, «3 lượt điểm danh cần xem», href ?filter=review [{"id": "CHECKIN_REVIEW:01a1df31-6918-7aba-8b60-2b0280ca76bb", "kind": "CHECKIN_REVIEW", "title": "Buổi 33: 3 lượt điểm danh cần xem · QC-ASr108", "reason": "", 
+PASS TC-AS06-06b TA cũng thấy 
+PASS TC-AS06-09 SV không thấy CHECKIN_REVIEW 
+PASS TC-AS06-06c bỏ cờ 1 lượt → còn «2 lượt» Buổi 33: 2 lượt điểm danh cần xem · QC-ASr108
+FAIL TC-AS06-08 cửa sổ đóng > 7 ngày → mục biến mất 
+PASS TC-AS06-08b (đối chứng) đóng 2 ngày trước → mục còn 
+PASS TC-AS06-07 bỏ cờ hết → mục biến mất 

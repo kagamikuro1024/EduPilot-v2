@@ -1,0 +1,55 @@
+   BT03 01a1df38-09d3-76ff-bdde-8eddd220265a
+PASS 06 tệp lẻ md hợp lệ (TA) → 200, created 1 
+FAIL 01 BT03_20229001 → MATCHED, sv.gioi (MSSV từ tên tệp, danh sách lớp) [['BT03_20229001.md', 'UNMATCHED', '', 'CODE_NOT_VERIFIED', '', '']]
+PASS 06 .exe → 422 hoặc rejected FILE_TYPE 
+PASS 06 tệp rỗng → 422 / FILE_EMPTY 
+PASS 01 không có mã bài / MSSV → UNMATCHED 
+PASS 01 BT03 + MSSV ngoài lớp → UNMATCHED 
+FAIL 03 MSSV 20229002 (sv.lech tự khai trùng B) → chỉ gán B theo danh sách lớp, KHÔNG sv.lech [['BT03_20229002.md', 'UNMATCHED', '', 'CODE_NOT_VERIFIED', '', '']] 
+PASS 03 không có hàng nào của sv.lech 
+PASS 05 grep users.student_code ở internal/submission rỗng 
+   ZIP → 200 {"created": 2, "deduped": [], "matched": 0, "rejected": [{"code": "ENTRY_UNSAFE", "entry": "../../etc/passwd.txt"}, {"code": "ENTRY_UNSAFE", "entry": "/abs.txt"}, {"code": "ENTRY_UNSAFE", "entry": "nested.zip"}, {"code": "ENTRY_TYPE_NOT_ALLOWED", "entry": "x.exe"}, {"code": "FILE_EMPTY", "entry": "rong.md"}], "unmatched": 2}
+PASS 07 ZIP: 2 tệp hợp lệ tạo bản, thư mục / __MACOSX / .DS_Store bị bỏ im 
+PASS 07 `..` / tuyệt đối / zip lồng → ENTRY_UNSAFE; x.exe → ENTRY_TYPE_NOT_ALLOWED; 0 byte → FILE_EMPTY 
+PASS 07 không tạo tệp ngoài kho (không có bản ghi tên passwd/abs) 
+PASS 08 created + unmatched + rejected + deduped = số mục (kèm hợp lệ) 
+   ZIP lần 2 → 200 {"created": 0, "deduped": ["BT03_20229003.md", "BT03_20229001.md"], "matched": 0, "rejected": [{"code": "ENTRY_UNSAFE", "entry": "../../etc/passwd.txt"}, {"code": "ENTRY_UNSAFE", "entry": "/abs.txt"}, {"code": "ENTRY_UNSAFE", "entry": "nested.zip"}, {"code": "ENTRY_TYPE_NOT_ALLOWED", "entry": "x.exe
+PASS 11 tải lại cùng ZIP → deduped, không bản mới 
+PASS 11 ZIP sửa một tệp → chỉ tệp đổi tạo phiên bản kế 
+FAIL 11 phiên bản của sv.nguyco = 1,2 
+   bom 305891 byte nén
+PASS 07 ZIP bom 300 MiB giải nén → từ chối (ZIP_LIMIT / 422), không bản ghi mới 
+   201 mục → 200 {'created': 200, 'deduped': [], 'matched': 0, 'rejected': [{'code': 'ZIP_LIMIT', 'entry': '*'}], 'unmatched': 200}
+PASS 07 ZIP 201 mục → 202 + job, hoặc bị chặn ZIP_LIMIT (giới hạn 200 mục) 
+PASS 12 bài chưa công bố → 409 ASSIGNMENT_NOT_PUBLISHED 
+PASS 12 kênh UPLOAD tắt → 409 CHANNEL_NOT_ALLOWED 
+FAIL 13 tệp mới cho sinh viên đã REVIEWED → UNMATCHED ALREADY_REVIEWED + ứng viên, không đè điểm 200 {'created': 1, 'matched': 1, 'unmatched': 0, 'deduped': [], 'rejected': []} []
+PASS 14 STUDENT presign submission_upload → 403 
+PASS 14 ADMIN presign → 403 
+PASS 14 STUDENT GET submissions?match_status=UNMATCHED → 403 
+PASS 14 ADMIN GET submissions?match_status=UNMATCHED → 403 
+PASS 14 TA GET submissions?match_status=UNMATCHED → 200 
+PASS 14 TEACHER GET submissions?match_status=UNMATCHED → 200 
+PASS 14 STUDENT upload → 403 
+   UNMATCHED: 3 [('BT03_20229002.md', None), ('BT03_99999999.md', None), ('ghi-chu.md', None)]
+PASS 14 TEACHER lấy URL tệp ký 
+PASS 14 STUDENT B lấy URL tệp → 403 
+PASS 14 ADMIN lấy URL tệp → 403 
+PASS 10 gán cho sinh viên chưa vào lớp → 422 
+PASS 10 sai version → 409 VERSION_CONFLICT 
+FAIL 10 gán cho B đã REVIEWED → 409 ALREADY_REVIEWED 200 {'id': '01a1df38-7a18-737c-bfca-bdab3ec239f4', 'assignment_id': '01a1df38-09d3-76ff-bdde-8eddd220265a', 'student_id': '01a1df27-6513-7e2b-8949-19e226a24332', 'version': 2}
+FAIL 09/10 TA gán bài chưa công bố điểm → 200, version = max+1 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.', 'trace_id': '366bc2691a486e03217bf563b03a3851'} mx=0
+PASS 09 match_method=MANUAL + audit_log 
+PASS 10 gán lần hai cùng version cũ → 409 
+   thông báo điểm cho sv.nguyco sau khi gán: 0
+PASS 16 dismiss lý do 0 ký tự → 422 
+PASS 16 dismiss lý do 201 ký tự → 422 
+PASS 16 dismiss hợp lệ → 200/204, bản ghi + tệp còn 
+PASS 16 biến khỏi danh sách Chưa khớp 
+PASS 16 hoàn tác dismiss → 200/204, trở lại danh sách 
+   today TEACHER UNMATCHED_SUBMISSION: [{"id": "UNMATCHED_SUBMISSION:01a1df34-e683-758b-a9e0-aa237cb7b66f", "kind": "UNMATCHED_SUBMISSION", "title": "2 bài nộp chưa khớp sinh viên · lớp QD9A", "reason": "Gán cho sinh viên hoặc bỏ qua.", "urgency": "normal", "href": "/grading?tab=unmatched&course=01a1df34-e683-758b-a9e0-aa237cb7b66f", "co
+PASS 15 TEACHER và TA có đúng một mục UNMATCHED_SUBMISSION, href đúng 
+PASS 15 STUDENT / ADMIN không có mục 
+PASS 15 hết chưa khớp → mục biến mất ≤ 6 s 
+RESULT: FAIL (6 lỗi)
+rc=1

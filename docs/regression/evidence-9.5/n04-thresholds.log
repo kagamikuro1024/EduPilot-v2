@@ -1,0 +1,28 @@
+thresholds recomputed: 87 label mismatches: [] order violations: []
+-- load-a.json
+   http_req_duration{kind:write} {'p(95)<500': True} {'med': 2.7, 'p(95)': 4.9, 'p(99)': 7.9}
+   http_req_failed {'rate<0.005': True} {'rate': 0}
+   forbidden_403 {'count>=100': True} {'rate': 0.7, 'count': 300}
+   forbidden_leak {'count==0': True} {'rate': 0, 'count': 0}
+   sse_first_ms {'p(95)<300': True, 'max>0': True} {'med': 5.4, 'p(95)': 97.5, 'p(99)': 108.6}
+   http_req_duration{kind:read} {'p(95)<300': True} {'med': 4.2, 'p(95)': 11.5, 'p(99)': 158.8}
+-- load-a-x2.json
+   forbidden_403 {'count>=100': True} {'rate': 0.7, 'count': 301}
+   http_req_duration{kind:write} {'p(95)<500': True} {'med': 2.7, 'p(95)': 4.9, 'p(99)': 7.1}
+   http_req_failed {'rate<0.005': True} {'rate': 0}
+   sse_first_ms {'p(95)<300': True, 'max>0': True} {'med': 8.3, 'p(95)': 144.2, 'p(99)': 165.9}
+   forbidden_leak {'count==0': True} {'rate': 0, 'count': 0}
+   http_req_duration{kind:read} {'p(95)<300': True} {'med': 4.2, 'p(95)': 11.4, 'p(99)': 232.6}
+-- load-b-first_event.json
+   first_event_ms {'p(95)<300': True} {'med': 8.7, 'p(95)': 66.9, 'p(99)': 79.8}
+   http_req_failed {'rate<0.01': True} {'rate': 0}
+   first_event_samples {'count>0': True} {'rate': 3.5, 'count': 301}
+-- load-b-ttft.json
+   ttft_cache_ms {'p(95)<1500': True} {'med': 25.2, 'p(95)': 103.8, 'p(99)': 159.9}
+   ttft_rag_ms {'p(95)<4000': True} {'med': 338.9, 'p(95)': 634.0, 'p(99)': 654.7}
+   ttft_rag_samples {'count>0': True} {'rate': 2.4, 'count': 166}
+   http_req_failed {'rate<0.01': True} {'rate': 0}
+   ttft_cache_samples {'count>0': True} {'rate': 2.4, 'count': 167}
+-- load-d.json
+   http_req_duration {'p(95)<3000': True} {'med': 7.7, 'p(95)': 18.3, 'p(99)': 33.3}
+   http_req_failed {'rate<0.005': True} {'rate': 0}

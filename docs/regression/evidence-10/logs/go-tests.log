@@ -1,0 +1,17 @@
+## TestBuildMatrix
+      8 pass
+## quiz deps llm
+0
+## float64
+## sqlc diff
+exit 0
+## agent SearchLibrary
+## SKIP in practice tests
+0
+## contract
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/contract	115.036s
+FAIL
+## practice all
+ok  	github.com/edupilot/backend-go/internal/practice	67.320s
+ok  	github.com/edupilot/backend-go/internal/quiz	(cached)

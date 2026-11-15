@@ -1,0 +1,25 @@
+{"tc": "TC-P7-01-G06", "names": ["TestAssignmentsRBACMatrix"], "absent": true}
+{"tc": "TC-P7-01-G06", "pkg": "./internal/integration", "names": ["TestAllCourseRoutesGuarded"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 23}
+{"tc": "TC-P7-02-G02", "pkg": "./internal/httpapi", "names": ["TestCreateIdempotent"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 11}
+{"tc": "TC-P7-02-G10", "names": ["TestAssignmentsRBACMatrix"], "absent": true}
+{"tc": "TC-P7-03-G03", "names": ["TestSubmitIdempotent"], "absent": true}
+{"tc": "TC-P7-03-G07", "names": ["TestSubmitClosed"], "absent": true}
+{"tc": "TC-P7-03-G08", "pkg": "./internal/httpapi", "names": ["TestStudentRoutesNoStore"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 9}
+{"tc": "TC-P7-03-G08", "pkg": "./internal/httpapi", "names": ["TestMineIgnoresStudentParam"], "tags": "integration,testroutes", "rc": -15, "missing": ["TestMineIgnoresStudentParam"], "skipped": [], "secs": 1}
+{"tc": "TC-P7-03-G08", "pkg": "./internal/httpapi", "names": ["TestStudentCannotCallStaffRoutes"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 8}
+{"tc": "TC-P7-04-G07", "pkg": "./internal/httpapi", "names": ["TestUploadRBAC"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 4}
+{"tc": "TC-P7-04-G07", "pkg": "./internal/httpapi", "names": ["TestUnmatchedListRBAC"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 5}
+{"tc": "TC-P7-06-G05", "pkg": "./internal/textfold", "names": ["TestFoldParitySQL"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 2}
+{"tc": "TC-P7-06-G05", "pkg": "./internal/textfold", "names": ["TestQuoteOffsetsUTF16"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 1}
+{"tc": "TC-P7-06-G09", "pkg": "./internal/assignment", "names": ["TestLatePenaltyEditableByStaff"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 5}
+{"tc": "TC-P7-06-G11", "names": ["TestGradingResultsRBAC"], "absent": true}
+{"tc": "TC-P7-06-G11", "names": ["TestNoDraftCanaryToStudent"], "absent": true}
+{"tc": "TC-P7-08-G08", "pkg": "./internal/httpapi", "names": ["TestReviewRBACMatrix"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 4}
+{"tc": "TC-P7-08-G08", "names": ["TestTAReviewsCannotPublish"], "absent": true}
+{"tc": "TC-P7-08-G08", "pkg": "./internal/httpapi", "names": ["TestSignedGetFileRole"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 9}
+{"tc": "TC-P7-09-G06", "pkg": "./internal/grade", "names": ["TestStudentViewSharedByToolAndMeGrades"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 6}
+{"tc": "TC-P7-09-G06", "pkg": "./internal/grade", "names": ["TestMeGradesShowsAssignmentComponent"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 3}
+{"tc": "TC-P7-11-G01", "names": ["Teams"], "absent": true}
+{"tc": "TC-P7-11-G01", "names": ["Teams"], "absent": true}
+{"tc": "TC-P7-10-G06", "names": ["TestProviderAppeal"], "absent": true}
+{"tc": "TC-P7-03-G08", "pkg": "./internal/httpapi", "names": ["TestMineIgnoresStudentParam"], "tags": "integration,testroutes", "rc": 0, "missing": [], "skipped": [], "secs": 0}

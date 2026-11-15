@@ -1,0 +1,27 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 200 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+PASS TC-07-07 version cũ → 409 VERSION_CONFLICT 409 {"code": "VERSION_CONFLICT", "message": "Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.", "trace_id": "97
+PASS TC-07-08 option_id lạ → 422 INVALID_OPTION_ID 422 {"code": "INVALID_OPTION_ID", "message": "Đáp án chọn không thuộc câu hỏi.", "trace_id": "f973d10410da090c7a4f1bb7ba7032a1"}
+PASS TC-07-08b lượt không tồn tại → 404 404
+PASS TC-07-08c itemId lạ → 404/422 404 {"code": "NOT_FOUND", "message": "Không tìm thấy.", "trace_id": "d88555135ba730c7382979bb9e9f4b8a"}
+PASS TC-07-14 PATCH current_index=-1 422
+PASS TC-07-14 PATCH current_index=20 422
+PASS TC-07-14 PATCH current_index=99 422
+PASS TC-07-13 PATCH current_index=7 lưu 200
+PASS TC-07-13b GET lại current_index=7, deadline không đổi 
+PASS TC-07-06 tab cũ ghi sau khi tab mới mở → 409 TAB_TAKEN_OVER 409 {"code": "TAB_TAKEN_OVER", "message": "Bài này đang được làm ở tab khác.", "trace_id": "61bd683a42b372580fff3ee73e15955f
+PASS TC-07-06b tab mới ghi được; câu đã lưu còn 200
+PASS TC-07-06c thiếu X-Practice-Tab khi ghi MOCK → 4xx 
+PASS TC-10-13 MOCK đang làm không đổi exam-lock {"locked": false} → {"locked": false}
+PASS TC-07-16 13/20 → correct=13, score=6.5 200 {"correct": 13, "total": 20, "score": "6.5", "topics": [{"topic": "An toàn ứng dụng web", "correct": 3, "total": 3}, {"topic": "Hàm băm", "correct": 1, "total": 1}, {"topic": "Hàm băm và chữ ký", "correct": 2, "t
+PASS TC-07-17 submit lần 2 cùng kết quả 
+PASS TC-07-16c sau nộp lộ đáp án + giải thích từng câu 20/20 câu có phản hồi
+PASS TC-07-18 điểm luyện không vào sổ điểm (grade_entries không đổi) 60
+PASS TC-07-16b 5/8 → 6.3 correct=5 (mong 5) total=8 score=6.3
+PASS TC-07-16b 7/20 → 3.5 correct=7 (mong 7) total=20 score=3.5
+PASS TC-07-16b 3/7 → 4.3 correct=3 (mong 3) total=7 score=4.3
+PASS TC-07-11/19b client_ts ≤ hạn, trong 60 s → nhận 200 {"version": 1, "locked": false, "feedback": null}
+PASS TC-07-11b client_ts > hạn → bỏ (200), notes ghi lý do, không lưu câu 200 notes=['Một số lựa chọn gửi sau giờ làm bài đã không được tính.'] answer câu 3=None
+PASS TC-07-11d thiếu client_ts quá hạn (trong 60 s) → 409 ATTEMPT_CLOSED 409 {"code": "ATTEMPT_CLOSED", "message": "Đã hết thời gian làm bài.", "trace_id": "48e5f430c80b911ad30d
+PASS TC-07-11c/19 sau hạn > 60 s → 409 ATTEMPT_CLOSED (kể cả client_ts ≤ hạn) 409 {"code": "ATTEMPT_CLOSED", "message": "Đã hết thời gian làm bài.", "trace_id": "2f9563445a7f51c37a19
+FAIL TC-10-14/07-23 không có exam_events mới 0→1

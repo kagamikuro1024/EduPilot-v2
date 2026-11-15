@@ -1,0 +1,7 @@
+PASS TC-AS02-15 over_headcount: headcount 5 + 7 lượt → false; 8 lượt → true; headcount 2000 → false; audit checkin_window.headcount False True False
+PASS TC-AS02-09 mở vòng 2: không thông báo / chuông cho SV; không mục «Hôm nay» mới cho SV notif {'sv.gioi': '61', 'sv.kha': '54', 'sv.nguyco': '46'}→{'sv.gioi': '61', 'sv.kha': '54', 'sv.nguyco': '46'}; outbox 4112→4112
+PASS TC-AS03-13 3 lượt đúng ở 3 cửa sổ không bị đếm; 5 lần sai → 422; lần sai thứ 6 → 429 [201, 201, 201] [422, 422, 422, 422, 422] 429
+PASS TC-AS03-10 mã ngắn tìm theo lớp: mã cửa sổ ĐANG MỞ → 201 đúng cửa sổ; mã cửa sổ vừa ĐÓNG → 409 WINDOW_CLOSED; mã cửa sổ LỚP KHÁC → 422 CHECKIN_TOKEN_INVALID 201 409:WINDOW_CLOSED 422:CHECKIN_TOKEN_INVALID
+PASS TC-AS03-22 mời ra đua với điểm danh ×8: không có 5xx; điểm danh chỉ 201 hoặc 403 [(200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201)]
+member sv10 ACTIVE? [['ACTIVE']]
+PASS TC-AS05-15 đóng ∥ PUT lưới ×8: không 5xx, không dòng trùng; kết quả mỗi vòng là PUT 200 + ABSENT (GV thắng) hoặc PUT 409 + PRESENT (đóng trước) [(200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0')

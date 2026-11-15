@@ -1,0 +1,17 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 207 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+PASS TC-09-01 history 200, giảm dần theo thời gian 200 n=20 keys=['id', 'mode', 'topic', 'status', 'started_at', 'submitted_at', 'item_count', 'correct']
+PASS TC-09-03 duyệt cursor đến hết: không trùng 90 lượt, trang [20, 20, 20, 20, 10]
+PASS TC-09-03b limit=101 → cắt ≤100 hoặc 422 422 
+PASS TC-09-21 history p95 ≤ 300 ms n=60 p50=10 p95=30 ms; 90 lượt của sv.kha (không đạt 200 lượt)
+WEAK {"topics": [{"topic": "Mạng và tường lửa", "answered": 23, "wrong": 22, "documents": []}, {"topic": "Mật mã công khai", "answered": 735, "wrong": 695, "documents": []}, {"topic": "QC-ShortB", "answered": 14, "wrong": 13, "documents": []}]}
+PASS TC-09-04 weakness ≤3 chủ đề, mỗi chủ đề ≥3 câu, xếp theo tỉ lệ sai [('Mạng và tường lửa', 22, 23), ('Mật mã công khai', 695, 735), ('QC-ShortB', 13, 14)]
+PASS TC-09-sv.moi weakness → 403/404 403
+PASS TC-09-17 lịch sử lớp 2 không chứa lượt lớp 1 200 lớp1=39 lớp2=0
+TODAY {"no_course": false, "email_verified": true, "recommended": {"id": "ASSIGNMENT_DUE:01a1df34-f04c-74ea-94a5-feee2d4eb882", "kind": "ASSIGNMENT_DUE", "title": "Bài tập 03 — Phân tích một vụ tấn công thực tế", "reason": "Đang nộp muộn — Nộp bài", "urgency": "high", "href": "/assignments/01a1df34-f04c-74ea-94a5-feee2d4eb882", "course": {"id": "01a1df27-62b5-7775-a346-5c602a43e2f9", "class_code": "761987"}, "estimate_minutes": 30}, "timeline": [{"at": "2026-11-15T02:00:00Z", "ends_at": "2026-11-15T04:30:00Z", "title": "Buổi 10 · An ninh mạng", "place": "P.302", "state": "DONE", "course": {"id": "01
+PRACTICE items []
+PASS TC-09-09 today teacher không có PRACTICE_WEAK_TOPIC 200
+PASS TC-09-09 today ta không có PRACTICE_WEAK_TOPIC 200
+PASS TC-09-09 today admin không có PRACTICE_WEAK_TOPIC 403
+FAIL TC-09-06 today SV có PRACTICE_WEAK_TOPIC 0 việc: []
+FAIL TC-09-15 Hồ sơ 360 không chứa dữ liệu luyện đề 404 khớp: []

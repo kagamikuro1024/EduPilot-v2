@@ -1,0 +1,18 @@
+$ eslint .
+
+/private/tmp/qc2-b-ws/frontend/src/app/dev/ui/cells.tsx
+  39:67  warning  'text' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/private/tmp/qc2-b-ws/frontend/src/features/grading/QueueTab.tsx
+  115:6  warning  React Hook useEffect has a missing dependency: 'setFlagOnly'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  123:6  warning  React Hook useEffect has a missing dependency: 'setStatus'. Either include it or remove the dependency array    react-hooks/exhaustive-deps
+
+/private/tmp/qc2-b-ws/frontend/src/features/landing/Landing.tsx
+  48:42  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/private/tmp/qc2-b-ws/frontend/src/features/settings/llm/LlmSettings.tsx
+  13:8  warning  's' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 5 problems (0 errors, 5 warnings)
+
+rc=0

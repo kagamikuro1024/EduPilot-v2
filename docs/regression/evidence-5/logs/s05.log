@@ -1,0 +1,24 @@
+PASS TC-PE05-03 DRAFT 409 reason=not_scheduled; SCHEDULED chưa tới 409 reason=not_yet; trước giờ 409 not_yet
+PASS TC-PE05-01 201 IN_PROGRESS deadline 2026-11-15T13:27:02.665032Z (started+20 phút); DB 
+PASS TC-PE05-05 cùng key 201/201 cùng id; key khác 200 cùng id True
+PASS TC-PE05-07 start lại 200; started_at/deadline_at không đổi 2026-11-15T13:27:02.665032Z
+PASS TC-PE05-04 thiếu key 422; PENDING/REMOVED/ngoài [(403, 'course'), (403, 'course'), (403, 'course')]; TA/GV/ADMIN [(403, 'role'), (403, 'role'), (403, 'course')]
+PASS TC-PE05-08 20 POST song song / 10 SV: mã [200, 201]; lượt/SV khác nhau: 12|12
+PASS TC-PE05-14 0 canary; khoá cấm []; khoá lượt: ['answer', 'attempt', 'body', 'closes_at', 'code', 'deadline_at', 'duration_minutes', 'exam', 'exam_id', 'id', 'instructions', 'is_you', 'item_id', 'items', 'kind', '
+PASS TC-PE05-15 id đáp án là uuid riêng mỗi lượt; không cờ nào lộ vị trí gốc
+PASS TC-PE05-16 200 khoá: ['deadline_at', 'saved_at', 'server_time']
+PASS TC-PE05-22 1 câu/lô/xoá: (200, 200, 200); id lạ 422 ['INVALID_OPTION_ID', 'VALIDATION_FAILED']; MCQ_SINGLE 2 id 422
+PASS TC-PE05-23 SV khác lưu vào lượt của SV1: 404
+PASS TC-PE05-35 tab2 ngay: 409 ['ATTEMPT_OTHER_TAB']; takeover 200; tab1 sau takeover 409 ['ATTEMPT_OTHER_TAB']
+PASS TC-PE05-36 T1 gửi bản cũ sau takeover → 409 (không ghi đè); T2 ghi 200
+PASS TC-PE05-32 nộp 200 ['answered', 'status', 'submitted_at', 'total']; replay cùng thân; key khác 409 ['ATTEMPT_ALREADY_SUBMITTED']; lưu sau nộp 409 ['ATTEMPT_ALREADY_SUBMITTED']
+FAIL TC-PE05-33 answered=3 total=5
+PASS TC-PE05-09 409 ['ATTEMPT_ALREADY_SUBMITTED']
+PASS TC-PE05-53 mine 200 khoá ['attempt', 'exam'] ['id', 'status', 'submit_reason', 'submitted_at']; result trước công bố 409 ['RESULT_NOT_PUBLISHED']
+PASS TC-PE05-54 [404, 404, 403, 403, 403]
+PASS TC-PE05-57 REMOVED giữa chừng → PUT answers 403 reason=course; lượt còn nguyên 1 (đã khôi phục ghi danh)
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s05.py", line 84, in <module>
+    jj = S('GET', EX + '/attempts/mine', login(u))[1]; orders[u] = [ (x['stem'], tuple(o['body'] for o in x.get('options', []))) for x in jj['items']]
+                                                                                                                                          ~~^^^^^^^^^
+KeyError: 'items'

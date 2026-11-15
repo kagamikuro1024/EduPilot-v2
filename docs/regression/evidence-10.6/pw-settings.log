@@ -1,0 +1,63 @@
+
+Running 2 tests using 1 worker
+
+(node:94188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+QCINFO @1440 nhãn «Lưu ý chấm»: false
+QCINFO @1440 nhãn «Ca kiểm thử»: false
+QCINFO @1440 nhãn «Gợi ý câu hỏi tương tự»: false
+QCINFO @1440 nhãn «Gợi ý khi sinh câu hỏi»: false
+QCINFO @1440 nhóm «Học từ lần sửa»: false
+QCINFO @1440 công tắc: []
+QCINFO @1440 tràn ngang: false
+QCINFO @1440 câu mô tả (dòng > 60 ký tự dưới nhóm): []
+  ✘  1 [desktop] › ../docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:22:3 › teacher /class/settings @1440 (2.0m)
+(node:99449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › ../docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:22:3 › teacher /class/settings @375 (2.0m)
+
+
+  1) [desktop] › ../docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:22:3 › teacher /class/settings @1440 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.getAttribute: Test ended.
+    Call log:
+      - waiting for getByRole('switch', { name: /Gợi ý khi sinh câu hỏi/ })
+
+
+      35 |     if (w === 1440) {
+      36 |       // G01-14: đổi công tắc «Gợi ý khi sinh câu hỏi» rồi Hoàn tác
+    > 37 |       const t = page.getByRole("switch", { name: /Gợi ý khi sinh câu hỏi/ }); const before = await t.getAttribute("aria-checked");
+         |                                                                                                      ^
+      38 |       await t.click(); await page.waitForTimeout(500);
+      39 |       const after = await t.getAttribute("aria-checked"); const body = await page.locator("body").innerText();
+      40 |       info("G01-14 đổi công tắc", { before, after, hoanTac: /Hoàn tác/.test(body), toastThanhCong: /Thành công|thành công/.test(body), hopXacNhan: (await page.getByRole("dialog").count()) > 0 });
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:37:102
+
+    Error Context: ../../../../../tmp/qc2-pw-g6/qc2g-class-settings-teacher-class-settings-1440-desktop/error-context.md
+
+  2) [desktop] › ../docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:22:3 › teacher /class/settings @375 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      12 |   await page.locator("input[type=password]").fill(PW);
+      13 |   await page.keyboard.press("Enter");
+    > 14 |   await page.waitForURL((u: URL) => !u.pathname.startsWith("/login"));
+         |              ^
+      15 |   await page.locator("[data-part=topbar]").waitFor();
+      16 |   const tb = page.locator("[data-part=topbar]");
+      17 |   const cb = tb.locator("button").filter({ hasText: /\d{3,}/ });
+        at login (/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:14:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:24:27
+
+    Error Context: ../../../../../tmp/qc2-pw-g6/qc2g-class-settings-teacher-class-settings-375-desktop/error-context.md
+
+  2 failed
+    [desktop] › ../docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:22:3 › teacher /class/settings @1440 
+    [desktop] › ../docs/regression/evidence-10.6/specs/qc2g-class-settings.spec.ts:22:3 › teacher /class/settings @375 

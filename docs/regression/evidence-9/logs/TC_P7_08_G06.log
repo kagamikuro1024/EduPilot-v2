@@ -1,0 +1,26 @@
+$ go test -tags integration ./internal/assignment -run 'TestReviewSetsReviewed|TestReviewNeedsScores|TestReviewKeepsFlagsHistory|TestReviewIdempotent' -v
+=== RUN   TestReviewSetsReviewed
+2026/11/15 20:05:43 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 47e9aa9e28c23b7bba47ab9ff1e97325be9415c7e395335de7a34009b7c68dde
+  Test ProcessID: fbb13abe-b406-4f8a-ba7e-9a61ba181bb1
+2026/11/15 20:05:43 ✅ Container started: 68f6ff853df5
+2026/11/15 20:05:43 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:05:43 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestReviewSetsReviewed (13.69s)
+=== RUN   TestReviewNeedsScores
+--- PASS: TestReviewNeedsScores (27.58s)
+=== RUN   TestReviewKeepsFlagsHistory
+--- PASS: TestReviewKeepsFlagsHistory (11.78s)
+=== RUN   TestReviewIdempotent
+--- PASS: TestReviewIdempotent (17.74s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	71.407s
+
+rc=0

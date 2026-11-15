@@ -1,0 +1,76 @@
+2,6c2,6
+< assignments|23
+< attendance_checkins|57
+< attendance_records|306
+< audit_log|1394
+< auth_sessions|638
+---
+> assignments|24
+> attendance_checkins|60
+> attendance_records|309
+> audit_log|1433
+> auth_sessions|757
+10,11c10,11
+< chat_sessions|67
+< checkin_windows|53
+---
+> chat_sessions|69
+> checkin_windows|54
+15c15
+< code_submissions|68
+---
+> code_submissions|71
+20c20
+< courses|14
+---
+> courses|16
+24c24
+< enrollments|141
+---
+> enrollments|158
+28,29c28,29
+< exam_attempts|120
+< exam_events|14
+---
+> exam_attempts|122
+> exam_events|16
+45,46c45,46
+< grading_guidance_items|8
+< grading_guidance_versions|3
+---
+> grading_guidance_items|0
+> grading_guidance_versions|4
+49c49
+< idempotency_keys|1166
+---
+> idempotency_keys|1210
+52c52
+< jobs|90
+---
+> jobs|93
+54c54
+< llm_audit|841
+---
+> llm_audit|863
+58c58
+< llm_request_payloads|366
+---
+> llm_request_payloads|378
+60c60
+< login_attempts|610
+---
+> login_attempts|729
+63,64c63,64
+< notifications|752
+< outbox|1726
+---
+> notifications|766
+> outbox|1759
+68c68
+< practice_answers|1283
+---
+> practice_answers|1292
+78c78
+< submissions|76
+---
+> submissions|77

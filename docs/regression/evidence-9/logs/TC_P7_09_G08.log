@@ -1,0 +1,24 @@
+$ go test -race -tags integration ./internal/assignment -run 'TestPublishConcurrentOnce|TestPublishVersionConflict|TestPublishOutboxReplayNoDuplicate' -v
+=== RUN   TestPublishConcurrentOnce
+2026/11/15 20:14:27 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8f28374ad8e4ba8b2a9baa1be97779478099e5c62431584aa679da4879e9b0f4
+  Test ProcessID: c3d06ce5-521e-420b-b7ff-5327e1acaedd
+2026/11/15 20:14:27 ✅ Container started: 68f6ff853df5
+2026/11/15 20:14:27 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:14:29 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPublishConcurrentOnce (50.71s)
+=== RUN   TestPublishVersionConflict
+--- PASS: TestPublishVersionConflict (25.01s)
+=== RUN   TestPublishOutboxReplayNoDuplicate
+--- PASS: TestPublishOutboxReplayNoDuplicate (25.27s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	103.024s
+
+rc=0

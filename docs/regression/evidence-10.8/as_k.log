@@ -1,0 +1,4 @@
+PASS TC-AS01-10a (kiểm lại D-AS-06) tắt self_checkin khi cửa sổ đang mở: SV vẫn điểm danh được (token và mã ngắn → 201) tới khi đóng; rotate vẫn ghim 5 s 201 201 200
+PASS TC-AS01-10b (kiểm lại) cửa sổ MỚI khi tắt → vẫn 409 SELF_CHECKIN_DISABLED 409 SELF_CHECKIN_DISABLED
+PASS TC-AS01-10d sau khi ĐÓNG cửa sổ (lớp vẫn tắt) → 409 (WINDOW_CLOSED hoặc SELF_CHECKIN_DISABLED), không 201 409 WINDOW_CLOSED
+PASS TC-AS01-10e lớp khác dùng token này → không 201 422

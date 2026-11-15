@@ -1,0 +1,44 @@
+$ go test -race -tags integration ./internal/assignment -run 'TestAppealDecideConcurrent|TestAppealFileDoubleClick' -v
+=== RUN   TestAppealFileDoubleClick
+2026/11/15 20:28:08 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 14879085843e5aae1ca2569f89c0d40e5203b3c5346728096d9059768205807f
+  Test ProcessID: fb2a8fee-493d-43c4-8855-ea282ed2c41c
+2026/11/15 20:28:08 ✅ Container started: 68f6ff853df5
+2026/11/15 20:28:08 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:28:08 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealFileDoubleClick (4.59s)
+=== RUN   TestAppealDecideConcurrent
+--- PASS: TestAppealDecideConcurrent (3.71s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	10.266s
+
+rc=0
+$ go test -race -tags integration ./internal/assignment -run 'TestAppealDecideConcurrent|TestAppealFileDoubleClick' -v
+=== RUN   TestAppealFileDoubleClick
+2026/11/15 20:28:30 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: a42ef53b3ac6d0dba3ec192aea0d3c227e93db757f54c5c2c0a9946abf3231d9
+  Test ProcessID: 28a3bd2c-0cb6-40a6-b8ca-1067b3556ab6
+2026/11/15 20:28:30 ✅ Container started: 68f6ff853df5
+2026/11/15 20:28:30 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:28:30 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealFileDoubleClick (5.84s)
+=== RUN   TestAppealDecideConcurrent
+--- PASS: TestAppealDecideConcurrent (16.74s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	24.300s
+
+rc=0

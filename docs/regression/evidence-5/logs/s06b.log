@@ -1,0 +1,7 @@
+PASS TC-PE06-01 items[].code = {languages,time_limit_ms,memory_limit_mb,starter_code,samples[{name,input,expected}],language,drafts} (language/drafts để khôi phục nháp — như báo cáo gốc), 0 canary QC-HID/QC-REF, khôn
+PASS TC-PE06-18 thiếu key → 422 IDEMPOTENCY_KEY_REQUIRED; source rỗng/64KiB+1 → 422 VALIDATION_FAILED (required/max, như lệch L2 gốc); language lạ → 422 LANGUAGE_NOT_ALLOWED; SV khác → 404
+PASS TC-PE06-11 rev tăng 1→2; 64 KiB nhận 200; 64 KiB+1 → 422 VALIDATION_FAILED(max) (như L2 gốc); phản hồi không chứa source
+problem 01a1df57-0af0-7af9-a1f7-604528b9fb79
+inserted 29
+PASS TC-PE06-25 (29 dòng SUBMIT chèn bằng SQL để khỏi chờ cooldown 15 s) lần 30: 202; lần 31: 409 ['SUBMISSION_LIMIT_REACHED'] cap={"cap": 30}
+PASS TC-PE06-40 nháp nhận tới +9.5s, từ chối từ +10.5s (grace 10 s ep-r); GRADED|TIMEOUT; SUBMIT auto từ bản nháp cuối: SUBMIT|t|103

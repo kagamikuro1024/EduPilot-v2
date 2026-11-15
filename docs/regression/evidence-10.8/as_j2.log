@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/scripts/as_j2.py", line 12, in <module>
+    c, j, _ = openw(C4, s); assert c == 201, (c, j); w = j["id"]; t = tokenof(display(C4, s, w)[1])
+                                   ^^^^^^^^
+AssertionError: (409, {'code': 'ROUND_LIMIT', 'message': 'Đã mở đủ số vòng điểm danh.', 'trace_id': '0964ddc881e4d5996171344f2bb431c8'})

@@ -1,0 +1,42 @@
+   kết quả: {'sv.gioi@edupilot.local': '01a1df56', 'sv.kha@edupilot.local': '01a1df56'}
+FAIL 00 nhập điểm tay A (tổng 10) 409 {'code': 'NOT_READY', 'message': 'Hệ thống chưa sẵn sàng.', 'trace_id': '7136c6162411be57c25279be3b191678'}
+FAIL 00 nhập điểm tay B (tổng 4) 409 {'code': 'NOT_READY', 'message': 'Hệ thống chưa sẵn sàng.', 'trace_id': '90d8ab8dafe2e74a733df1d4a825d368'}
+PASS 01 công bố bài DRAFT → 422 NOT_REVIEWED kèm ids 
+PASS 07 DRAFT: mine.result null cho sinh viên 
+PASS 01 all-or-nothing: A REVIEWED + B DRAFT → 422 NOT_REVIEWED [B], không bài nào PUBLISHED 
+   today TEACHER: ['GRADING_ERROR']
+FAIL 10 'Hôm nay' TEACHER có PUBLISH_PENDING khi có bài REVIEWED chưa công bố ['GRADING_ERROR', 'EMAIL_MISMATCH', 'GRADE_SCHEME_UNCONFIRMED', 'COURSE_SETUP']
+PASS 10 TA không có PUBLISH_PENDING (chỉ TEACHER) 
+PASS 09 TA công bố → 403 
+PASS 09 STUDENT công bố → 403 
+PASS 09 ADMIN công bố → 403 
+PASS 09 STUDENT GET stats → 403 
+PASS 09 ADMIN GET stats → 403 
+FAIL 01 TEACHER công bố 2 bài REVIEWED → 200 published 2 422 {'code': 'NOT_REVIEWED', 'message': 'Bài chưa được duyệt.', 'trace_id': '6651c29d03d90cfde3e6f88cbe69d492', 'details': {'ids': ['01a1df56-4832-7144-ba16-553a26d
+FAIL 01 cùng Idempotency-Key → cùng kết quả, không thông báo thêm 422 {'code': 'NOT_REVIEWED', 'message': 'Bài chưa được duyệt.', 'trace_id': '6651c29d03d90cfde3e6f88cbe69d492', 'details': {
+FAIL 01 công bố lại bài đã PUBLISHED → 409 ALREADY_PUBLISHED 422 {'code': 'NOT_REVIEWED', 'message': 'Bài chưa được duyệt.', 'trace_id': '140fb34f14cff4f2a49a8499dcbd67d5', 'details': {'ids': ['01a1df56-48
+PASS 05 độ lệch lưu lúc công bố (A: AI NULL → có cột deviation) 
+   cột độ lệch: deviation,teacher_changed_criteria
+PASS 02 không ghi grade_entries cho bài tập 
+FAIL 04 A nhận đúng 1 chuông GRADE_PUBLISHED 0
+FAIL 04 B nhận đúng 1 chuông GRADE_PUBLISHED 0
+FAIL 04 tổng chuông mới = 2 (không ai nhận bài của người khác) 
+   thư công bố: []
+FAIL 04 đúng 2 thư công bố, tới sv.gioi@ và sv.kha@ (email đã xác minh), mỗi người một thư []
+FAIL 04 đọc thư Mailpit list index out of range
+FAIL 06 mine.result của B có tổng 4 / 10, bốn tiêu chí, nhãn duyệt 200 {"assignment": {"id": "01a1df56-470a-7b5d-a374-bda3e0854fa2", "title": "Bài tập 03 — Phân tích một vụ tấn công thực tế", "description": "<!-- NỘI DUNG GỐC của Bài tập 03 lớp 1 (761987). BA sở hữu; seed dùng nguyên văn (`assignments.title`, `description`). Dữ liệu mô phỏng (D44). -->\n\n# Bài tập
+PASS 07 mine của B không khoá nháp / độ lệch / canary của A 
+FAIL 06 A thấy kết quả của A (có canary nhận xét của chính mình), không thấy của B 
+PASS 07 B GET …/me/grades không lộ canary / nháp của A 
+PASS 07 B GET …/assignments không lộ canary / nháp của A 
+PASS 07 B GET …/assignments/01a1df56-470a-7b5d-a374-bda3e0854fa2 không lộ canary / nháp của A 
+   stats: {"submitted": 2, "graded": 0, "reviewed": 0, "published": 0, "mean_abs_deviation": null, "teacher_changed_rate": null, "appealed": 0, "appeal_rate": null, "adjusted": 0, "appeal_success_rate": null}
+FAIL 05 stats TEACHER: published 2, tỷ lệ là chuỗi decimal / null 200 {'submitted': 2, 'graded': 0, 'reviewed': 0, 'published': 0, 'mean_abs_deviation': None, 'teacher_changed_rate': None, 'appealed': 0, 'appeal_rate': None, 'adjusted': 0, 'appeal_success_rate': None}
+FAIL 08 sửa sau công bố → 409 RESULT_PUBLISHED 409 {'code': 'NOT_READY', 'message': 'Hệ thống chưa sẵn sàng.', 'trace_id': 'e541ca3768a987a8c3c4c040924ecd3b'}
+FAIL 08 chấm lại bài đã công bố → 409 ALREADY_REVIEWED 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.', 'trace_id': 'd8
+   today B: []
+FAIL 10 'Hôm nay' của B có ASSIGNMENT_GRADED []
+PASS 10 PUBLISH_PENDING biến mất sau khi công bố hết 
+PASS 11 log gateway + worker không chứa canary nhận xét 
+RESULT: FAIL (17 lỗi)
+rc=1

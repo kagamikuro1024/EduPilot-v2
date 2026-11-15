@@ -1,0 +1,81 @@
+
+Running 16 tests using 1 worker
+
+(node:52589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X chat (2.0m)
+(node:55296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO threads-sv@1440 H=900 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Tìm theo tiêu đề ⏎ Chủ đề ⏎ Tuần ⏎ Mọi tuần ⏎ Tuần 1 ⏎ Tuần 2 ⏎ Tuần 3 ⏎ Tuần 4 ⏎ Tuần 5 ⏎ Tuần 6 ⏎ Tuần 7 ⏎ Tuần 8 ⏎ Tuần 9 ⏎ Tuần 10 ⏎ Tuần 11 ⏎ Tuần 12 ⏎ Tuần 13 ⏎ Tuần 14 ⏎ Tuần 15 ⏎ Tuần 16 ⏎ Tuần 17 ⏎ Tuần 18 ⏎ Tuần 19 ⏎ Tuần 20 ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Chờ xác nhận ⏎ Đã xác nhận ⏎ Chưa có câu trả lời ⏎ Chưa có câu hỏi nào
+INFO threads-sv@375 H=812 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Bộ lọc ⏎ Chưa có câu hỏi nào
+  ✓   2 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X threads-sv (11.9s)
+INFO threads-gv@1440 H=900 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Câu hỏi ⏎ Cần xem ⏎ Tìm theo tiêu đề ⏎ Chủ đề ⏎ Tuần ⏎ Mọi tuần ⏎ Tuần 1 ⏎ Tuần 2 ⏎ Tuần 3 ⏎ Tuần 4 ⏎ Tuần 5 ⏎ Tuần 6 ⏎ Tuần 7 ⏎ Tuần 8 ⏎ Tuần 9 ⏎ Tuần 10 ⏎ Tuần 11 ⏎ Tuần 12 ⏎ Tuần 13 ⏎ Tuần 14 ⏎ Tuần 15 ⏎ Tuần 16 ⏎ Tuần 17 ⏎ Tuần 18 ⏎ Tuần 19 ⏎ Tuần 20 ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Chờ xác nhận ⏎ Đã xác nhận ⏎ Chưa có câu trả lời ⏎ Chưa có câu hỏi nào
+INFO threads-gv@375 H=812 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Câu hỏi ⏎ Cần xem ⏎ Bộ lọc ⏎ Chưa có câu hỏi nào
+  ✓   3 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X threads-gv (11.6s)
+INFO me@1440 H=1242 :: Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Chưa có buổi nào được điểm danh ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Lớp chưa có bài tập
+INFO me@375 H=1090 :: Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Chưa có buổi nào được điểm danh ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Mở
+  ✓   4 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X me (12.1s)
+INFO me-nguyco@1440 H=1114 :: Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Bạn có mặt 1/1 buổi, vắng 0. ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Lớp chưa có bài tập
+INFO me-nguyco@375 H=962 :: Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Bạn có mặt 1/1 buổi, vắng 0. ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Mở
+  ✓   5 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X me-nguyco (11.7s)
+INFO documents@1440 H=900 :: Tài liệu ⏎ Tải tài liệu lên ⏎ Lớp chưa có quy chế môn học. ⏎ Tải quy chế môn học ⏎ 0 tài liệu ⏎ Kéo thả hoặc chọn tệp ⏎ Tìm theo tên ⏎ Loại ⏎ Mọi loại ⏎ Bài giảng ⏎ Quy chế môn học ⏎ Đề tham khảo ⏎ Đáp án ⏎ Tài liệu khác ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Sẵn sàng ⏎ Đang xử lý ⏎ Lỗi ⏎ Lớp chưa có tài liệu
+INFO documents@375 H=1156 :: Tài liệu ⏎ Tải tài liệu lên ⏎ Lớp chưa có quy chế môn học. ⏎ Tải quy chế môn học ⏎ 0 tài liệu ⏎ Kéo thả hoặc chọn tệp ⏎ Tìm theo tên ⏎ Loại ⏎ Mọi loại ⏎ Bài giảng ⏎ Quy chế môn học ⏎ Đề tham khảo ⏎ Đáp án ⏎ Tài liệu khác ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Sẵn sàng ⏎ Đang xử lý ⏎ Lỗi ⏎ Lớp chưa có tài liệu
+  ✓   6 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X documents (11.7s)
+INFO insights@1440 H=900 :: Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới
+INFO insights@375 H=812 :: Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới
+  ✓   7 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X insights (11.8s)
+INFO observability@1440 H=900 :: Quan sát AI ⏎ QC nhóm D QD8C – QD8C ⏎ 7 ngày qua ⏎ Yêu cầu ⏎ 0 ⏎ Tỷ lệ lỗi ⏎ 0% ⏎ Chuyển giảng viên ⏎ 0 ⏎ Lần che thông tin ⏎ 0 ⏎ Hữu ích / Chưa hữu ích ⏎ 0 / 0 ⏎ Hỏi đáp công khai: đúng / loại ⏎ 0 / 0 ⏎ Điểm AI bị sửa ⏎ —
+INFO observability@375 H=970 :: Quan sát AI ⏎ QC nhóm D QD8C – QD8C ⏎ 7 ngày qua ⏎ Yêu cầu ⏎ 0 ⏎ Tỷ lệ lỗi ⏎ 0% ⏎ Chuyển giảng viên ⏎ 0 ⏎ Lần che thông tin ⏎ 0 ⏎ Hữu ích / Chưa hữu ích ⏎ 0 / 0 ⏎ Hỏi đáp công khai: đúng / loại ⏎ 0 / 0 ⏎ Điểm AI bị sửa ⏎ —
+  ✓   8 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X observability (11.7s)
+(node:56527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO chat@1440 H=906 :: Chat riêng ⏎ Hỏi bất cứ điều gì về lớp này ⏎ Phiên chat này chỉ bạn đọc được. ⏎ Tôi nên làm gì với “Giảng viên đã trả lời câu hỏi của bạn”? ⏎ Điểm quá trình của tôi hiện là bao nhiêu? ⏎ Tuần này tôi có những buổi học nào? ⏎ Gửi
+INFO chat@375 H=946 :: Chat riêng ⏎ Hỏi bất cứ điều gì về lớp này ⏎ Phiên chat này chỉ bạn đọc được. ⏎ Tôi nên làm gì với “Giảng viên đã trả lời câu hỏi của bạn”? ⏎ Điểm quá trình của tôi hiện là bao nhiêu? ⏎ Tuần này tôi có những buổi học nào? ⏎ Gửi
+  ✓   9 [mobile] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X chat (11.8s)
+INFO threads-sv@1440 H=900 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Tìm theo tiêu đề ⏎ Chủ đề ⏎ Tuần ⏎ Mọi tuần ⏎ Tuần 1 ⏎ Tuần 2 ⏎ Tuần 3 ⏎ Tuần 4 ⏎ Tuần 5 ⏎ Tuần 6 ⏎ Tuần 7 ⏎ Tuần 8 ⏎ Tuần 9 ⏎ Tuần 10 ⏎ Tuần 11 ⏎ Tuần 12 ⏎ Tuần 13 ⏎ Tuần 14 ⏎ Tuần 15 ⏎ Tuần 16 ⏎ Tuần 17 ⏎ Tuần 18 ⏎ Tuần 19 ⏎ Tuần 20 ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Chờ xác nhận ⏎ Đã xác nhận ⏎ Chưa có câu trả lời ⏎ Chưa có câu hỏi nào
+INFO threads-sv@375 H=812 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Bộ lọc ⏎ Chưa có câu hỏi nào
+  ✓  10 [mobile] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X threads-sv (11.7s)
+INFO threads-gv@1440 H=900 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Câu hỏi ⏎ Cần xem ⏎ Tìm theo tiêu đề ⏎ Chủ đề ⏎ Tuần ⏎ Mọi tuần ⏎ Tuần 1 ⏎ Tuần 2 ⏎ Tuần 3 ⏎ Tuần 4 ⏎ Tuần 5 ⏎ Tuần 6 ⏎ Tuần 7 ⏎ Tuần 8 ⏎ Tuần 9 ⏎ Tuần 10 ⏎ Tuần 11 ⏎ Tuần 12 ⏎ Tuần 13 ⏎ Tuần 14 ⏎ Tuần 15 ⏎ Tuần 16 ⏎ Tuần 17 ⏎ Tuần 18 ⏎ Tuần 19 ⏎ Tuần 20 ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Chờ xác nhận ⏎ Đã xác nhận ⏎ Chưa có câu trả lời ⏎ Chưa có câu hỏi nào
+INFO threads-gv@375 H=812 :: Hỏi đáp công khai ⏎ Đặt câu hỏi ⏎ Câu hỏi ⏎ Cần xem ⏎ Bộ lọc ⏎ Chưa có câu hỏi nào
+  ✓  11 [mobile] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X threads-gv (11.8s)
+INFO me@1440 H=1242 :: Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Chưa có buổi nào được điểm danh ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Lớp chưa có bài tập
+INFO me@375 H=1090 :: Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Chưa có buổi nào được điểm danh ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Mở
+  ✓  12 [mobile] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X me (11.8s)
+INFO me-nguyco@1440 H=1114 :: Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Bạn có mặt 1/1 buổi, vắng 0. ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Lớp chưa có bài tập
+INFO me-nguyco@375 H=962 :: Kết quả của tôi ⏎ Điểm ⏎ Lớp chưa có công thức điểm chính thức. ⏎ Chuyên cần ⏎ Bạn có mặt 1/1 buổi, vắng 0. ⏎ Điểm cộng đã ghi ⏎ Chưa có điểm cộng nào được ghi ⏎ Bài tập ⏎ Mở
+  ✓  13 [mobile] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X me-nguyco (11.8s)
+INFO documents@1440 H=900 :: Tài liệu ⏎ Tải tài liệu lên ⏎ Lớp chưa có quy chế môn học. ⏎ Tải quy chế môn học ⏎ 0 tài liệu ⏎ Kéo thả hoặc chọn tệp ⏎ Tìm theo tên ⏎ Loại ⏎ Mọi loại ⏎ Bài giảng ⏎ Quy chế môn học ⏎ Đề tham khảo ⏎ Đáp án ⏎ Tài liệu khác ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Sẵn sàng ⏎ Đang xử lý ⏎ Lỗi ⏎ Lớp chưa có tài liệu
+INFO documents@375 H=1156 :: Tài liệu ⏎ Tải tài liệu lên ⏎ Lớp chưa có quy chế môn học. ⏎ Tải quy chế môn học ⏎ 0 tài liệu ⏎ Kéo thả hoặc chọn tệp ⏎ Tìm theo tên ⏎ Loại ⏎ Mọi loại ⏎ Bài giảng ⏎ Quy chế môn học ⏎ Đề tham khảo ⏎ Đáp án ⏎ Tài liệu khác ⏎ Trạng thái ⏎ Mọi trạng thái ⏎ Sẵn sàng ⏎ Đang xử lý ⏎ Lỗi ⏎ Lớp chưa có tài liệu
+  ✓  14 [mobile] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X documents (11.8s)
+INFO insights@1440 H=900 :: Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới
+INFO insights@375 H=812 :: Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới
+  ✓  15 [mobile] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X insights (11.6s)
+INFO observability@1440 H=900 :: Quan sát AI ⏎ QC nhóm D QD8C – QD8C ⏎ 7 ngày qua ⏎ Yêu cầu ⏎ 0 ⏎ Tỷ lệ lỗi ⏎ 0% ⏎ Chuyển giảng viên ⏎ 0 ⏎ Lần che thông tin ⏎ 0 ⏎ Hữu ích / Chưa hữu ích ⏎ 0 / 0 ⏎ Hỏi đáp công khai: đúng / loại ⏎ 0 / 0 ⏎ Điểm AI bị sửa ⏎ —
+INFO observability@375 H=970 :: Quan sát AI ⏎ QC nhóm D QD8C – QD8C ⏎ 7 ngày qua ⏎ Yêu cầu ⏎ 0 ⏎ Tỷ lệ lỗi ⏎ 0% ⏎ Chuyển giảng viên ⏎ 0 ⏎ Lần che thông tin ⏎ 0 ⏎ Hữu ích / Chưa hữu ích ⏎ 0 / 0 ⏎ Hỏi đáp công khai: đúng / loại ⏎ 0 / 0 ⏎ Điểm AI bị sửa ⏎ —
+  ✓  16 [mobile] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X observability (11.7s)
+
+
+  1) [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X chat ──────────────────────────────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+       9 |   await page.locator("input[type=password]").fill(PW);
+      10 |   await page.keyboard.press("Enter");
+    > 11 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+         |              ^
+      12 |   await page.locator("[data-part=topbar]").waitFor();
+      13 | }
+      14 |
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5x-real.spec.ts:11:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5x-real.spec.ts:32:7
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5x-real/qc-uiux91-w5x-real-X-chat-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X chat ───────────────────────────────────────
+  15 passed (5.0m)

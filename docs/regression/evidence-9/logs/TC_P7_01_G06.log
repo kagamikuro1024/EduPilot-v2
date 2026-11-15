@@ -1,0 +1,166 @@
+$ go test -tags integration ./internal/assignment -run 'TestAssignmentsRBACMatrix' -v
+testing: warning: no tests to run
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	0.529s [no tests to run]
+
+rc=0
+$ go test ./internal/httpapi -run 'TestAllCourseRoutesGuarded' -v
+testing: warning: no tests to run
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	0.753s [no tests to run]
+
+rc=0
+$ go test ./internal/contract/... -v
+)
+    contract_test.go:174: PUT /api/v1/courses/{id}/guidance-flags/{feature} khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/imap khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/imap khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/imap khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/imap khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/imap khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/teams khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/teams khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/teams khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/teams khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/integrations/teams khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/join-settings khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/join-settings khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/join-settings khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/join-settings khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/join-settings khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/join-settings khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/llm-budget khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/llm-budget khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/llm-budget khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/llm-budget khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/llm-budget khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid} khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid} khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid} khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid} khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid} khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid} khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid}/correct khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid}/correct khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid}/correct khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid}/correct khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid}/correct khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/posts/{pid}/correct khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/practice/attempts/{aid}/answers/{itemId} khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/practice/attempts/{aid}/answers/{itemId} khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/practice/attempts/{aid}/answers/{itemId} khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/practice/attempts/{aid}/answers/{itemId} khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/practice/attempts/{aid}/answers/{itemId} khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/practice/attempts/{aid}/answers/{itemId} khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid} khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid} khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid} khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid} khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid} khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid} khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/code khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/code khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/code khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/code khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/code khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/code khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/review khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/review khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/review khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/review khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/review khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/review khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid} khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid} khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid} khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid} khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid} khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid} khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid} khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid} khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid} khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid} khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid} khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid} khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid}/attendance khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid}/attendance khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid}/attendance khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid}/attendance khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid}/attendance khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/sessions/{sid}/attendance khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/settings khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/settings khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/settings khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/settings khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/settings khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/students/{uid}/observations/{oid} khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/students/{uid}/observations/{oid} khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/students/{uid}/observations/{oid} khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/students/{uid}/observations/{oid} khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/students/{uid}/observations/{oid} khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/students/{uid}/observations/{oid} khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/submissions/{sid}/match khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/submissions/{sid}/match khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/submissions/{sid}/match khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/submissions/{sid}/match khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/submissions/{sid}/match khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/submissions/{sid}/match khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/threads/{tid} khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/threads/{tid} khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/threads/{tid} khai báo status 403 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/threads/{tid} khai báo status 404 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/threads/{tid} khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/courses/{id}/threads/{tid} khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/me/profile khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/me/profile khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/me/profile khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/me/profile khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/me/settings khai báo status 200 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/me/settings khai báo status 401 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/me/settings khai báo status 409 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+    contract_test.go:174: PUT /api/v1/me/settings khai báo status 422 nhưng không test nào sinh ra (thêm kịch bản hoặc miễn trừ có lý do ở exempt.go)
+--- FAIL: TestSpec_EveryDocumentedStatusExercised (0.26s)
+=== RUN   TestValidator_RejectsBadResponses
+--- PASS: TestValidator_RejectsBadResponses (0.28s)
+=== RUN   TestValidator_UUIDFormat
+--- PASS: TestValidator_UUIDFormat (0.18s)
+=== RUN   TestSpec_SecurityDeclared
+--- PASS: TestSpec_SecurityDeclared (0.27s)
+=== RUN   TestContract_UnauthenticatedMatchesSpec
+--- PASS: TestContract_UnauthenticatedMatchesSpec (1.54s)
+=== RUN   TestStudentNeverSeesConfidence
+    contract_test.go:564: kịch bản chỉ có 0 lời gọi chat / Threads — kiểm không đủ
+--- FAIL: TestStudentNeverSeesConfidence (0.00s)
+=== RUN   TestDecisionProviderHTTP
+--- PASS: TestDecisionProviderHTTP (0.51s)
+=== RUN   TestDecisionReplayFile
+--- PASS: TestDecisionReplayFile (0.01s)
+=== RUN   TestDefaultBuild_TestPathsAre404
+--- PASS: TestDefaultBuild_TestPathsAre404 (0.23s)
+=== RUN   TestStudentGuardStates
+--- PASS: TestStudentGuardStates (1.01s)
+=== RUN   TestRemovedMidExam403
+--- PASS: TestRemovedMidExam403 (1.59s)
+=== RUN   TestExamErrorCodes
+--- PASS: TestExamErrorCodes (0.28s)
+=== RUN   TestExamRoutesNotAheadOfSpec
+--- PASS: TestExamRoutesNotAheadOfSpec (0.35s)
+=== RUN   TestPracticeErrorCodes
+--- PASS: TestPracticeErrorCodes (0.34s)
+=== RUN   TestQuestionListPermissionMatrix
+--- PASS: TestQuestionListPermissionMatrix (3.14s)
+=== RUN   TestNoAnswerLeak
+leak_matrix 20x6 clean (221 lời gọi; PUBLISHED chạy hai lần reveal_answers)
+    exam_results_http_test.go:321: leak_matrix 20x6 clean (221 lời gọi)
+--- PASS: TestNoAnswerLeak (28.94s)
+=== RUN   TestResultsPermissionMatrix
+--- PASS: TestResultsPermissionMatrix (5.19s)
+=== RUN   TestGolden_Auth
+--- PASS: TestGolden_Auth (0.68s)
+=== RUN   TestGolden_LLM
+--- PASS: TestGolden_LLM (1.05s)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/contract	133.109s
+FAIL
+
+rc=1

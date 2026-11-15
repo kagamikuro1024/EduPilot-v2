@@ -1,0 +1,24 @@
+$ go test ./cmd/mock-graph/... -run 'TestMockGraphMatchesDocs|TestMockTokenExpires60s|TestMockDataFromPlan' -v
+?   	github.com/edupilot/backend-go/cmd/mock-graph	[no test files]
+=== RUN   TestMockGraphMatchesDocs
+--- PASS: TestMockGraphMatchesDocs (0.01s)
+=== RUN   TestMockTokenExpires60s
+--- PASS: TestMockTokenExpires60s (0.00s)
+=== RUN   TestMockDataFromPlan
+--- PASS: TestMockDataFromPlan (0.01s)
+PASS
+ok  	github.com/edupilot/backend-go/cmd/mock-graph/server	0.391s
+
+rc=0
+$ go test ./cmd/mock-graph/... -run 'TestMockGraphMatchesDocs|TestMockTokenExpires60s|TestMockDataFromPlan' -v
+?   	github.com/edupilot/backend-go/cmd/mock-graph	[no test files]
+=== RUN   TestMockGraphMatchesDocs
+--- PASS: TestMockGraphMatchesDocs (0.01s)
+=== RUN   TestMockTokenExpires60s
+--- PASS: TestMockTokenExpires60s (0.01s)
+=== RUN   TestMockDataFromPlan
+--- PASS: TestMockDataFromPlan (0.01s)
+PASS
+ok  	github.com/edupilot/backend-go/cmd/mock-graph/server	0.372s
+
+rc=0

@@ -1,0 +1,21 @@
+PASS TC-PE01-01 13 bảng PE có đủ; phiên bản migration hiện tại 25 (gốc "5": sau sprint 5 có thêm migration — lệch dự kiến)
+PASS TC-PE01-03 bảng có course_id đều ≥1 chỉ mục bắt đầu course_id; ngoại lệ ghi: []; bảng con không course_id: []
+K TC-PE01-04 LỖI THỜI: migration PE nay là 00006_weekly_exam (không còn 00005); 4 migration đầu có 3 commit sau sprint 4; ALTER bảng cũ trong 00005/00006: backend-go/db/migrations/00006_weekly_exam.sql:0 backend-g
+FAIL TC-PE01-12 91 ô (13 route × 7 danh tính); lệch: ["GET 3e-51dd-791a-b4af-f5e7a7ec11dd STU -> 404/None (exp ('ok', None))", "PUT d-791a-b4af-f5e7a7ec11dd/items TA -> 409/None (exp (403, 'role'))", "GET -791a-b4af-
+PASS TC-PE01-13 id không phải uuid 404, uuid không tồn tại 403
+PASS TC-PE01-14 ADMIN/SV(ngoài C2→ dùng C1 SV: 403 role) /me/exam-lock ADMIN 200
+PASS TC-PE01-16 [('GET', 404), ('PUT', 404), ('GET', 404), ('PUT', 404), ('POST', 404), ('GET', 404), ('DELETE', 404)]
+PASS TC-PE01-17 422 ['QUESTION_NOT_IN_COURSE', 'VALIDATION_FAILED']
+PASS TC-PE01-18 [403, 403, 403, 403]
+PASS TC-PE01-19 canary lớp 2 không xuất hiện ở danh sách câu/bài/CSV lớp 1
+PASS TC-PE01-28 sai version 409 details=['current', 'current_version']; thiếu version 422 ['VALIDATION_FAILED', 'version']
+FAIL TC-PE01-28b hai PUT song song: [422, 422]
+PASS TC-PE01-29 SV PUT 403; 409 cho GV có current (answer_key kèm: True)
+PASS TC-PE01-30 default 30; limit=101 422/0; limit=0 422; -1 422; cursor rác 422 ['INVALID_CURSOR']; lật hết 100 dòng không trùng
+PASS TC-PE01-33 canary trong audit_log: 0; dòng audit exam/question: 141
+PASS TC-PE01-35 ghi 409/409; đọc 200/200; nộp lượt đang chạy 200
+PASS TC-PE01-37 53 path questions/exams trong openapi; message không lộ SQL/tên bảng (3 mã lỗi thử)
+PASS TC-PE01-40 SQL ngoài store/: 0
+PASS TC-PE01-27 deps llm=0; tệp exam import llm: internal/exam/score.go
+internal/exam/suggest.go
+K TC-PE01-26 phần grep float: 0 dòng (gốc 0); phần TestScoringDecimal chạy ở bước Go; tính tay 10 dòng chưa làm (xem TC-PE01-23..25 qua F19)

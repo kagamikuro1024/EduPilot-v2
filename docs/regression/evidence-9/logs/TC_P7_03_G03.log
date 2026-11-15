@@ -1,0 +1,36 @@
+$ go test -tags integration ./internal/assignment -run 'TestSubmitFlow|TestSubmitIdempotent|TestSubmitIdentityFromJWT|TestSubmitNoLocalDisk|TestPresignRateLimit|TestPresignChecksumSigned|TestSubmitVersionAdvisoryLock' -v
+=== RUN   TestPresignChecksumSigned
+2026/11/15 19:37:26 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 01774ed8b18de70226ca6ac5992f55101cd986d0f5971e3a157703b825859e6a
+  Test ProcessID: aeddd6d6-ba76-4d0a-a5a7-6847195af363
+2026/11/15 19:37:26 ✅ Container started: 68f6ff853df5
+2026/11/15 19:37:26 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:37:26 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:37:32 ✅ Container started: 5636bc78d64d
+2026/11/15 19:37:32 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:37:32 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:37:32 ✅ Container started: b8d9c357e377
+2026/11/15 19:37:32 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:37:32 🔔 Container is ready: b8d9c357e377
+--- PASS: TestPresignChecksumSigned (7.69s)
+=== RUN   TestSubmitFlow
+--- PASS: TestSubmitFlow (6.74s)
+=== RUN   TestSubmitIdentityFromJWT
+--- PASS: TestSubmitIdentityFromJWT (5.84s)
+=== RUN   TestSubmitNoLocalDisk
+--- PASS: TestSubmitNoLocalDisk (2.94s)
+=== RUN   TestPresignRateLimit
+--- PASS: TestPresignRateLimit (2.28s)
+=== RUN   TestSubmitVersionAdvisoryLock
+--- PASS: TestSubmitVersionAdvisoryLock (2.31s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	28.312s
+
+rc=0

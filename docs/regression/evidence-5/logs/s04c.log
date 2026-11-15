@@ -1,0 +1,10 @@
+PASS TC-PE04-02 đủ mã lỗi (TITLE_LENGTH, INSTRUCTIONS_TOO_LONG, LIMIT_OUT_OF_RANGE 301, DURATION_EXCEEDS_WINDOW, CLOSES_BEFORE_OPENS), biên 4000/300 qua; ep-r chạy EXAM_MIN_DURATION_MINUTES=1 (mặc định 5): duration 0
+PASS TC-PE04-15 ep-r EXAM_MIN_LEAD_SECONDS=5 (mặc định 60): opens_at=now+2s -> <function <lambda> at 0x10a09bce0>; +20s ->  (ngưỡng 59/61 s mặc định phủ bởi TestScheduleValidationsAll)
+FAIL TC-PE04-23 OPEN +-1.3s sau opens_at; CLOSED +4.1s sau closes_at (≤10 s); outbox: exam.closed|1, exam.opened|1, exam.published|1, exam.scheduled|1
+PASS TC-PE04-28 extend 200; deadline_at SV trước 2026-11-15T13:11:05.099239Z sau 2026-11-15T13:11:05.099239Z (started+5p cố định nếu < closes_at)
+PASS TC-PE04-29 bằng 422 ['CLOSES_NOT_LATER', 'VALIDATION_FAILED']; ngắn hơn 422; >24h 422; TA 403
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s04c.py", line 33, in <module>
+    eD = mke()[1]['id']; d1 = S('DELETE', f'{E}/{eD}'); d2 = S('DELETE', f'{E}/{eS}')
+                                                                                ^^
+NameError: name 'eS' is not defined. Did you mean: 'S'?

@@ -1,0 +1,50 @@
+$ go test -race ./internal/submission/source/... -run Teams -v
+=== RUN   TestTeamsAdapterCallOrder
+--- PASS: TestTeamsAdapterCallOrder (0.05s)
+=== RUN   TestTeamsAdapterPagesAndNextLinkHost
+--- PASS: TestTeamsAdapterPagesAndNextLinkHost (0.09s)
+=== RUN   TestTeamsAdapterThrottleWaitsRetryAfter
+--- PASS: TestTeamsAdapterThrottleWaitsRetryAfter (0.05s)
+=== RUN   TestTeamsAdapterExpiredTokenRenewsOnce
+--- PASS: TestTeamsAdapterExpiredTokenRenewsOnce (0.05s)
+=== RUN   TestTeamsAdapterConsentRequired
+--- PASS: TestTeamsAdapterConsentRequired (0.00s)
+=== RUN   TestTeamsAdapterDownloadParallelBound
+--- PASS: TestTeamsAdapterDownloadParallelBound (0.12s)
+=== RUN   TestTeamsAdapterFileRetryThenPerItemFailure
+--- PASS: TestTeamsAdapterFileRetryThenPerItemFailure (0.11s)
+=== RUN   TestTeamsAdapterInvalidJSON
+--- PASS: TestTeamsAdapterInvalidJSON (0.01s)
+=== RUN   TestTeamsAdapterUnreachableAndTimeout
+--- PASS: TestTeamsAdapterUnreachableAndTimeout (0.40s)
+=== RUN   TestTeamsAdapterHasNoMockBranch
+--- PASS: TestTeamsAdapterHasNoMockBranch (0.02s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission/source	2.232s
+
+rc=0
+$ go test -race ./internal/submission/source/... -run Teams -v
+=== RUN   TestTeamsAdapterCallOrder
+--- PASS: TestTeamsAdapterCallOrder (0.05s)
+=== RUN   TestTeamsAdapterPagesAndNextLinkHost
+--- PASS: TestTeamsAdapterPagesAndNextLinkHost (0.09s)
+=== RUN   TestTeamsAdapterThrottleWaitsRetryAfter
+--- PASS: TestTeamsAdapterThrottleWaitsRetryAfter (0.05s)
+=== RUN   TestTeamsAdapterExpiredTokenRenewsOnce
+--- PASS: TestTeamsAdapterExpiredTokenRenewsOnce (0.05s)
+=== RUN   TestTeamsAdapterConsentRequired
+--- PASS: TestTeamsAdapterConsentRequired (0.00s)
+=== RUN   TestTeamsAdapterDownloadParallelBound
+--- PASS: TestTeamsAdapterDownloadParallelBound (0.12s)
+=== RUN   TestTeamsAdapterFileRetryThenPerItemFailure
+--- PASS: TestTeamsAdapterFileRetryThenPerItemFailure (0.10s)
+=== RUN   TestTeamsAdapterInvalidJSON
+--- PASS: TestTeamsAdapterInvalidJSON (0.01s)
+=== RUN   TestTeamsAdapterUnreachableAndTimeout
+--- PASS: TestTeamsAdapterUnreachableAndTimeout (0.41s)
+=== RUN   TestTeamsAdapterHasNoMockBranch
+--- PASS: TestTeamsAdapterHasNoMockBranch (0.02s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission/source	2.394s
+
+rc=0

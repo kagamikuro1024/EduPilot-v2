@@ -1,0 +1,18 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 190 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+khoá 95
+PASS TC-06-04 201/201/200 cùng id=True
+PASS TC-10-05a chưa trả lời: 0 khoá nhạy cảm []
+PASS TC-06-05 chủ đề khác → 201 201
+PASS TC-06-12 explain chưa trả lời → 409 NOT_ANSWERED 409 {"code":"NOT_ANSWERED","message":"Hãy trả lời câu này trước.","trace_id":"987830319f0e41afb2a3bf3cc77a3b11"}
+
+FAIL TC-06-08a TOPIC phản hồi ngay 422 correct=None key=thiếu citations=0 locked=None
+PASS TC-06-08b câu 2 đúng True
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10/scripts/pa2.py", line 43, in <module>
+    cit = [x for c_, j_ in fb for x in (j_["feedback"].get("citations") or [])]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10/scripts/pa2.py", line 43, in <listcomp>
+    cit = [x for c_, j_ in fb for x in (j_["feedback"].get("citations") or [])]
+                                        ~~^^^^^^^^^^^^
+KeyError: 'feedback'

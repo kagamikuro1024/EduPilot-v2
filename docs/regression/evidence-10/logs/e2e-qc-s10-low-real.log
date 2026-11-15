@@ -1,0 +1,35 @@
+
+Running 2 tests using 1 worker
+
+(node:62050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc-s10-low-real.spec.ts:23:1 › GV: menu, Drawer, Forms (2.0m)
+(node:67088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › e2e/qc-s10-low-real.spec.ts:42:1 › SV lớp chưa có câu (5.7s)
+
+
+  1) [desktop] › e2e/qc-s10-low-real.spec.ts:23:1 › GV: menu, Drawer, Forms ────────────────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      14 |   await page.locator("input[type=password]").fill(PW);
+      15 |   await page.keyboard.press("Enter");
+    > 16 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+         |              ^
+      17 |   await page.waitForTimeout(800);
+      18 |   return { ctx, page };
+      19 | }
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-s10-low-real.spec.ts:16:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-s10-low-real.spec.ts:26:25
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-low-real/qc-s10-low-real-GV-menu-Drawer-Forms-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-s10-low-real.spec.ts:23:1 › GV: menu, Drawer, Forms ─────────────────────────
+  1 passed (2.1m)

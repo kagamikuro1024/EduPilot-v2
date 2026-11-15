@@ -1,0 +1,26 @@
+   thẻ IMAP: CONNECTED {'host': 'mock-imap', 'port': 1143, 'security': 'NONE', 'username': 'nop@edupilot.test', 'mailbox': 'INBOX', 'poll_seconds': 60}
+PASS thẻ IMAP của seed: CONNECTED hoặc đã có lịch sử, không lộ mật khẩu 
+PASS 02 Test kết nối tới mock-imap thật → ok:true 
+   đã thêm 6 thư; Đồng bộ ngay …
+   sync-now: 202 {'job_id': '01a1df42-e5e3-7e1d-aa0e-c1960a39c578'}
+PASS A hợp lệ (dmarc=pass mặc định): mail_inbound = ['ACCEPTED', ''] 
+PASS B giả From: không có header xác thực: mail_inbound = ['ACCEPTED', ''] 
+PASS C dmarc=fail: mail_inbound = ['ACCEPTED', ''] 
+PASS D authserv-id lạ: mail_inbound = ['ACCEPTED', ''] 
+PASS E tự động trả lời: mail_inbound = ['IGNORED', 'AUTO_REPLY'] 
+PASS F không đính kèm: mail_inbound = ['IGNORED', 'NO_ATTACHMENT'] 
+   submissions IMAP:
+   sv.gioi@edupilot.local|MATCHED|
+PASS A: MATCHED về sv.gioi 
+   UNMATCHED: ban.la@example.org|NO_ASSIGNMENT_CODE ; ban.la@example.org|NO_ASSIGNMENT_CODE ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv04@edupilot.local|SENDER_UNVERIFIED ; sv07@edupilot.local|NO_ASSIGNMENT_CODE ; sv07@edupilot.local|NO_ASSIGNMENT_CODE ; sv08@edupilot.local|NO_ASSIGNMENT_CODE ; sv08@edupilot.local|NO_ASSIGNMENT_CODE ; sv11@edupilot.local|NO_ASSIGNMENT_CODE ; sv11@edupilot.local|NO_ASSIGNMENT_CODE ; sv15@edupilot.local|NO_ASSIGNMENT_CODE ; sv15@edupilot.local|NO_ASSIGNMENT_CODE ; sv20@edupilot.local|NO_ASSIGNMENT_CODE ; sv20@edupilot.local|NO_ASSIGNMENT_CODE ; sv27@edupilot.local|NO_ASSIGNMENT_CODE ; sv27@edupilot.local|NO_ASSIGNMENT_CODE ; sv29.ca-nhan@mail.example|NO_ASSIGNMENT_CODE ; sv29.ca-nhan@mail.example|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.gioi@edupilot.local|NO_ASSIGNMENT_CODE ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.kha@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED ; sv.nguyco@edupilot.local|SENDER_UNVERIFIED
+PASS B/C/D sv.kha: UNMATCHED SENDER_UNVERIFIED, KHÔNG gán cho sv.kha 
+PASS B/C/D sv.nguyco: UNMATCHED SENDER_UNVERIFIED, KHÔNG gán cho sv.nguyco 
+PASS B/C/D sv04: UNMATCHED SENDER_UNVERIFIED, KHÔNG gán cho sv04 
+PASS E tự động: không có bài nộp; F không đính kèm: không có bài nộp 
+   E: IGNORED:AUTO_REPLY | F: IGNORED:NO_ATTACHMENT
+   chuông biên nhận: sv.gioi@edupilot.local|1
+PASS biên nhận chỉ tới sv.gioi (đúng người đã khớp), không tới sv.kha / sv.nguyco / sv04 
+   Chưa khớp (API): 29
+PASS log không chứa mật khẩu IMAP seed / văn bản bài 
+RESULT: PASS (0 lỗi)
+rc=0

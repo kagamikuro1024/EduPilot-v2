@@ -1,0 +1,54 @@
+
+Running 2 tests using 1 worker
+
+(node:94787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc2-r10/qc-s10-empty-real.spec.ts:8:3 › practice lớp rỗng 1440 (1.5m)
+(node:98221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › e2e/qc2-r10/qc-s10-empty-real.spec.ts:8:3 › practice lớp rỗng 375 (1.5m)
+
+
+  1) [desktop] › e2e/qc2-r10/qc-s10-empty-real.spec.ts:8:3 › practice lớp rỗng 1440 ────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      14 |     await page.locator("input[type=password]").fill(process.env.QC_PW ?? "");
+      15 |     await page.keyboard.press("Enter");
+    > 16 |     await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+         |                ^
+      17 |     await page.getByRole("button", { name: /Chọn lớp/ }).click();
+      18 |     await page.getByText("761988").first().click();
+      19 |     await page.waitForTimeout(800);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r10/qc-s10-empty-real.spec.ts:16:16
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-empty-real/qc2-r10-qc-s10-empty-real-practice-lớp-rỗng-1440-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r10/qc-s10-empty-real.spec.ts:8:3 › practice lớp rỗng 375 ─────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      14 |     await page.locator("input[type=password]").fill(process.env.QC_PW ?? "");
+      15 |     await page.keyboard.press("Enter");
+    > 16 |     await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+         |                ^
+      17 |     await page.getByRole("button", { name: /Chọn lớp/ }).click();
+      18 |     await page.getByText("761988").first().click();
+      19 |     await page.waitForTimeout(800);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r10/qc-s10-empty-real.spec.ts:16:16
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-empty-real/qc2-r10-qc-s10-empty-real-practice-lớp-rỗng-375-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r10/qc-s10-empty-real.spec.ts:8:3 › practice lớp rỗng 1440 ─────────────────
+    [desktop] › e2e/qc2-r10/qc-s10-empty-real.spec.ts:8:3 › practice lớp rỗng 375 ──────────────────

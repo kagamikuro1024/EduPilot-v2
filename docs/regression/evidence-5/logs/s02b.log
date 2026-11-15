@@ -1,0 +1,20 @@
+positions {1: '01a1df39-8488-7061-8931-306249dca882', 2: '01a1df39-8493-760b-aead-6c9544aa486e', 3: '01a1df39-8498-7f66-b859-3fa7a0283592', 4: '01a1df39-849a-76f3-b400-ea4aaed30cdf'}
+True 1:'hello\r\n'->AC(AC)
+True 1:'hello  \n'->AC(AC)
+True 1:'hello'->AC(AC)
+True 1:'hello\n\n\n'->AC(AC)
+True 1:'Hello\n'->WA(WA)
+True 2:'a   b\tc\n'->AC(AC)
+False 2:'a\xa0b\u2003c\n'->WA(AC)
+True 2:'a b\n'->WA(WA)
+True 3:'1000.0009\n'->AC(AC)
+False 3:'1000.002\n'->NA:{"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây l(WA)
+False 3:'NaN\n'->NA:{"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây l(WA)
+FAIL TC-PE02-17 1:'hello\r\n'->AC(AC); 1:'hello  \n'->AC(AC); 1:'hello'->AC(AC); 1:'hello\n\n\n'->AC(AC); 1:'Hello\n'->WA(WA); 2:'a   b\tc\n'->AC(AC); 2:'a\xa0b\u2003c\n'->WA(AC); 2:'a b\n'->WA(WA); 3:'1000.0009\n'->
+submit 202 {"submission_id":"01a1df3a-f396-7706-a1eb-7e694d7cdede"}
+
+DONE|TLE|4|7|t|9|6 [(1, 'AC', 1), (2, 'AC', 1), (3, 'TLE', 1), (4, 'AC', 2), (5, 'WA', 0), (6, 'RE', 2)]
+PASS TC-PE02-20 DONE|TLE|4|7|t|9|6 {1: 'AC', 2: 'AC', 3: 'TLE', 4: 'AC', 5: 'WA', 6: 'RE'}
+PASS TC-PE02-23 outbox topic/payload: exam.submission_done|1
+judge.enqueue|1; xinfo groups ok
+PASS TC-PE02-24 giao lại tin 2 lần: judged_at không đổi 1|2026-11-15 12:42:27.317014+00 -> 1|2026-11-15 12:42:27.317014+00

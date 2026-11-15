@@ -1,0 +1,32 @@
+TC-P203-23 F login 200; me/courses 200 rỗng; preview 422 VALIDATION_FAILED; join 422 VALIDATION_FAILED
+TC-P202-29 P token A(sub) + sid phiên B (ký đúng secret) → 200, dữ liệu vẫn của A (không đoạt phiên B); sid ngẫu nhiên ký đúng secret → 200 (kiểm thu hồi
+TC-P202-05 P trung vị email không tồn tại 1100 ms vs mật khẩu sai 486 ms (tỉ lệ 2.26); 12 mẫu/loại, máy đang tải nặng
+TC-P202-43 P {'admin': 200, 'teacher': 403, 'ta': 403, 'student': 403}
+TC-P202-45 P IDOR chéo vai: SV/GV/TA → 403
+TC-P205-23 P register: {'1234567890': (422, ['PASSWORD_COMMON']), 'matkhau12345': (422, ['PASSWORD_COMMON']), 'password1234': (422, ['PASSWORD_COMMON']),
+TC-P205-24 P common_passwords.txt: 22344 dòng, 0 mục ngắn hơn 10
+TC-P205-27 P tiền tố bcrypt $2a$12$
+TC-P205-30 P outcome: UNKNOWN_EMAIL:16,SUCCESS:1552,BAD_PASSWORD:12,THROTTLED:14; 0 email rõ trong email_hash
+TC-P205-31 P API đọc login_attempts: [404, 404]
+TC-P205-37 P đường mở khoá thủ công: [404, 422]
+TC-P204-01 P 3 loại email → cùng 202 + thân; thời gian [0.1, 0.09, 0.09]
+TC-P204-04 P reset 200; đăng nhập mật khẩu mới 200, cũ 401; token preview 200 ['valid', 'kind', 'expires_at']
+TC-P204-05 P dùng lại token → 410 {'reason': 'used'}
+TC-P204-07 P sau reset: refresh A/B 401/401; access cũ A/B 401/401; revoked_reason=PASSWORD_RESET
+TC-P204-15 P hai jar: refresh → 401 cả hai
+TC-P204-09 P token rõ/mật khẩu mới ở DB+log gateway: 0
+TC-P204-39 P log gateway không chứa mật khẩu
+TC-P204-06 P 30 song song: {200: 1, 410: 29}
+TC-P204-11 P mật khẩu yếu [422, 422, 422, 422] (token còn hiệu lực sau 422?); token lạ 410
+TC-P204-17 F POST /me/password 204; phiên hiện tại giữ (refresh 200); phiên khác bị thu hồi (refresh 401)
+TC-P204-18 P sai hiện tại 422 [{'field': 'current_password', 'code': 'WRONG_PASSWORD', 'message': 'Mật khẩu hiện tại chưa đúng.'}]; mới=cũ 422; yếu 422; 
+TC-P204-20 P khoá ['created_at', 'current', 'device_label', 'id', 'ip_masked', 'last_used_at']; không UA thô/refresh
+TC-P204-21 P sv.gioi 50 phiên, sv.kha 50 phiên, không giao nhau
+TC-P204-23 P IDOR DELETE phiên của người khác 404; id lạ 404; "abc" 404; Admin 404; phiên nạn nhân vẫn dùng được (200)
+TC-P204-25 P DELETE phiên khác 204; (máy bị đăng xuất ≤1 s: kiểm refresh dưới)
+TC-P204-25b P có 1 cookie bị thu hồi
+TC-P204-33 P không JWT: [401, 401, 401]
+TC-P204-35 F preview token đã/ chưa dùng 200; sai kind 422/422; 24 lần liên tiếp: {410: 24}
+TC-P205-35 P 12 lần sai, mỗi lần X-Forwarded-For khác: [401, 401, 401, 401, 401, 429, 429, 429, 429, 429, 429, 429]
+TC-P205-18 F login 10/phút/IP: [429, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429, 429]
+done 86b0d

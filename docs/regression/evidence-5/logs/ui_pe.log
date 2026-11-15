@@ -1,0 +1,150 @@
+PASS TC-PE03-48 /questions 1440: ox=0 primary=["Tạo câu hỏi"] h1=Ngân hàng câu hỏi lỗi console=1
+FAIL TC-PE03-52 axe 1440 /questions serious/critical: ["label-content-name-mismatch:2"]
+PASS TC-PE04-42 /exams 1440 GV: primary=["Tạo bài thi"] nhóm: Đang mở,Sắp tới,Đã đóng,Nháp; axe ["label-content-name-mismatch:2"]
+PASS TC-PE04-43 /exams/[id] GV: Thông tin,Câu hỏi,Xem trước,Gia hạn; axe ["label-content-name-mismatch:2"]
+FAIL TC-PE04-44 TA /exams/[nháp]: nút "Lên lịch" ẩn=true; chữ "Chỉ giảng viên lên lịch được": false
+PASS TC-PE04-47 /exams 390 SV: ox=0; vùng chạm <40px: 0; nhóm: Đang mở,Sắp tới,Đã có điểm; axe []
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByText('R5 UI bài thi').first()
+    - locator resolved to <span class="ActionList-module__1xx9La__title">R5 UI bài thi</span>
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+  - retrying click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <footer class="Dialog-module__rUw9Ha__foot">…</footer> from <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> subtree intercepts pointer events
+  - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    14 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <footer class="Dialog-module__rUw9Ha__foot">…</footer> from <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <footer class="Dialog-module__rUw9Ha__foot">…</footer> from <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> subtree intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+
+    at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/ui/ui_pe.cjs:40:48 {
+  log: [
+    "  - waiting for getByText('R5 UI bài thi').first()",
+    '    - locator resolved to <span class="ActionList-module__1xx9La__title">R5 UI bài thi</span>',
+    '  - attempting click action',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <footer class="Dialog-module__rUw9Ha__foot">…</footer> from <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> subtree intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is visible, enabled and stable',
+    '      - scrolling into view if needed',
+    '      - done scrolling',
+    '      - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events',
+    '    - retrying click action',
+    '      - waiting 100ms',
+    '    14 × waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms',
+    '       - waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <footer class="Dialog-module__rUw9Ha__foot">…</footer> from <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> subtree intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms',
+    '       - waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms',
+    '       - waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting 500ms',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <footer class="Dialog-module__rUw9Ha__foot">…</footer> from <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> subtree intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.21.0

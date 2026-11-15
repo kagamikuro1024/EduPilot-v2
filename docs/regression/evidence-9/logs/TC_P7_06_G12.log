@@ -1,0 +1,13 @@
+$ go test ./internal/grading -run 'TestAnswerEchoTable|TestAnswerEchoNoFalsePositiveOnSamples' -v
+=== RUN   TestAnswerEchoTable
+=== PAUSE TestAnswerEchoTable
+=== RUN   TestAnswerEchoNoFalsePositiveOnSamples
+=== PAUSE TestAnswerEchoNoFalsePositiveOnSamples
+=== CONT  TestAnswerEchoTable
+=== CONT  TestAnswerEchoNoFalsePositiveOnSamples
+--- PASS: TestAnswerEchoTable (0.00s)
+--- PASS: TestAnswerEchoNoFalsePositiveOnSamples (0.01s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	0.759s
+
+rc=0

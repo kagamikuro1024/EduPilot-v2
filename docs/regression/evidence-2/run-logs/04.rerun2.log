@@ -1,0 +1,18 @@
+== TC-PG04-41
+    ok   BCRYPT_COST=3 · rc = [1]
+    ok   BCRYPT_COST=3 · log nêu tên biến
+    ok   BCRYPT_COST=3 · không kẹp rồi chạy tiếp (không mở cổng) = [0]
+    ok   BCRYPT_COST=15 · rc = [1]
+    ok   BCRYPT_COST=15 · log nêu tên biến
+    ok   BCRYPT_COST=15 · không kẹp rồi chạy tiếp (không mở cổng) = [0]
+    ok   BCRYPT_COST=abc · rc = [1]
+    ok   BCRYPT_COST=abc · log nêu tên biến
+    ok   BCRYPT_COST=abc · không kẹp rồi chạy tiếp (không mở cổng) = [0]
+    ok   BCRYPT_COST=12.5 · rc = [1]
+    ok   BCRYPT_COST=12.5 · log nêu tên biến
+    ok   BCRYPT_COST=12.5 · không kẹp rồi chạy tiếp (không mở cổng) = [0]
+    ok   BCRYPT_COST=abc · không in giá trị = [0]
+    ok   BCRYPT_COST=4 (biên hợp lệ) · tiến trình không thoát vì cấu hình (sống sau 3 s) = [1]
+    ok   BCRYPT_COST=14 (biên hợp lệ) · tiến trình không thoát vì cấu hình (sống sau 3 s) = [1]
+-- TC-PG04-41 PASS
+TỔNG story 04: PASS=1 FAIL=0 MANUAL=0 K=0

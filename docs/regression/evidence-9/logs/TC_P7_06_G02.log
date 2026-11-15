@@ -1,0 +1,52 @@
+$ go test ./internal/grading -run 'TestBlindStripsHeaderLines|TestNoOwnPlaceholders|TestPromptHasNoStudentID|TestWorkerSetsIdentityCourseID|TestMaskFailedNoLLMCall|TestAuditHasNoSubmissionText|TestQuoteCheckedAfterUnmask|TestClassmateNameMaskedByGateway' -v
+=== RUN   TestClassmateNameMaskedByGateway
+2026/11/15 19:45:38 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8caebc63d132b08789accb08b0327c700e5c23ee293edf4c797041b5cf4cb69f
+  Test ProcessID: 2ad277b0-42c8-4285-a1e0-c3efe416673a
+2026/11/15 19:45:39 ✅ Container started: 68f6ff853df5
+2026/11/15 19:45:39 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:45:39 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:45:40 ✅ Container started: 5636bc78d64d
+2026/11/15 19:45:40 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:45:40 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestClassmateNameMaskedByGateway (5.11s)
+=== RUN   TestMaskFailedNoLLMCall
+--- PASS: TestMaskFailedNoLLMCall (6.05s)
+=== RUN   TestBlindStripsHeaderLines
+=== PAUSE TestBlindStripsHeaderLines
+=== RUN   TestNoOwnPlaceholders
+=== PAUSE TestNoOwnPlaceholders
+=== RUN   TestPromptHasNoStudentID
+=== PAUSE TestPromptHasNoStudentID
+=== RUN   TestAuditHasNoSubmissionText
+--- PASS: TestAuditHasNoSubmissionText (5.41s)
+=== RUN   TestWorkerSetsIdentityCourseID
+--- PASS: TestWorkerSetsIdentityCourseID (3.02s)
+=== RUN   TestQuoteCheckedAfterUnmask
+--- PASS: TestQuoteCheckedAfterUnmask (3.45s)
+=== CONT  TestBlindStripsHeaderLines
+--- PASS: TestBlindStripsHeaderLines (0.00s)
+=== CONT  TestPromptHasNoStudentID
+--- PASS: TestPromptHasNoStudentID (0.00s)
+=== CONT  TestNoOwnPlaceholders
+--- PASS: TestNoOwnPlaceholders (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	23.814s
+
+rc=0
+$ go test ./internal/llm -run TestMaskOnlyInLLMGateway -v
+=== RUN   TestMaskOnlyInLLMGateway
+=== PAUSE TestMaskOnlyInLLMGateway
+=== CONT  TestMaskOnlyInLLMGateway
+--- PASS: TestMaskOnlyInLLMGateway (0.26s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm	0.925s
+
+rc=0

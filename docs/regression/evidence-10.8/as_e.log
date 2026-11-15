@@ -1,0 +1,13 @@
+PASS TC-AS03-04 token > 2 bước → 422 CHECKIN_TOKEN_EXPIRED (không TOKEN_EXPIRED) 422 CHECKIN_TOKEN_EXPIRED
+PASS TC-AS03-11 mã ngắn hết hạn → 422 CHECKIN_TOKEN_INVALID 422 CHECKIN_TOKEN_INVALID
+PASS TC-AS03-05 5 kiểu token sai đều 422 CHECKIN_TOKEN_INVALID, cùng dạng phản hồi {'mac': (422, '"CHECKIN_TOKEN_INVALID"', 2), 'wid_lạ': (422, '"CHECKIN_TOKEN_INVALID"', 2), 'rác': (422, '"CHECKIN_TOKEN_INVALID"', 2), 'lớp_khác': (422, '"CHECKIN_TOKEN_INVALID
+PASS TC-AS03-06 cửa sổ đã đóng, token đúng → 409 WINDOW_CLOSED 409 WINDOW_CLOSED
+FAIL TC-AS03-07 thứ tự kiểm: 401 → 403 → 409 SELF_CHECKIN_DISABLED → (đóng+MAC sai) 401 403 422:CHECKIN_TOKEN_INVALID | đóng+MAC sai → 422:CHECKIN_TOKEN_INVALID
+PASS TC-AS03-03 token của bước trước (≤ 1 bước) → 201 201 None
+PASS TC-AS03-08/09 mã ngắn: chữ thường / gạch / khoảng trắng / 0→O,1→I đều 201, channel=CODE [201, 201, 201, 201] {'sv.gioi': 'CODE', 'sv.kha': 'CODE', 'sv.nguyco': 'CODE', 'sv05': 'CODE'} code=F7A B62
+PASS TC-AS03-12a 5 lần sai → 422; lần 6 → 429 + Retry-After; nhập đúng trong phút đó vẫn 429 [422, 422, 422, 422, 422] 429 429 hd={'Retry-After': '60'}
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/scripts/as_e.py", line 40, in <module>
+    cool(); good = display(C, s, w)[1]["short_code"]; r8 = checkin("sv.kha", C, {"code": good})
+                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable

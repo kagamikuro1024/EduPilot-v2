@@ -1,0 +1,10 @@
+US-NFR-01|Guard demo, meta, secret chạy thật; ca README Mac sạch/ep-qc chưa chạy
+US-NFR-02|ep-r nhiễu (DEF-17); seed sạch trên DB riêng chưa xong → các ca RUN còn lại CM
+US-NFR-03|seed-t1 1.000 SV chạy thật trên postgres riêng; API/403/guard đạt; ngắt postgres giữa seed chưa chạy
+US-NFR-04|File tính lại 87 ngưỡng; 403 ×100, k6 container, (d) rerun đạt
+US-NFR-05|Không có 00018 (P-95-8) → LT; EXPLAIN rerun tái hiện TL-2c
+US-NFR-06|kill -9 worker, Redis 70 s đạt; Redis tắt + chat 39,5 s (DEF-20); docling chưa chạy
+US-NFR-07|File đạt (trừ DEF-08); rerun RAM/khởi động lạnh/Lighthouse CM
+US-NFR-08|Tính lại R1/R2 khớp; harness 429 trượt (DEF-12); RUN fake chưa chạy
+US-NFR-09|Báo cáo research lệch nguồn (DEF-14)
+US-NFR-10|DIFF đạt, sửa test có sẵn (DEF-05); go test -race chỉ gói llm

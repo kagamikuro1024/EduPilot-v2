@@ -1,0 +1,24 @@
+
+Running 2 tests using 1 worker
+
+(node:46402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO X4 liên kết điều hướng: ["/","/chat","/threads","/practice"]
+INFO X4 nhãn thanh dưới: ["Hôm nay","Chat riêng","Hỏi đáp","Luyện đề"]
+INFO X4 nhãn «Thêm»: "Thêm | Bài tập | Bài thi | Thư viện | Lịch | Kết quả của tôi"
+INFO X4 /: sạch (591 ký tự)
+INFO X4 /chat: sạch (326 ký tự)
+INFO X4 /threads: sạch (151 ký tự)
+INFO X4 /exams: sạch (118 ký tự)
+INFO X4 /library: sạch (1903 ký tự)
+INFO X4 /calendar: sạch (142 ký tự)
+INFO X4 /me: sạch (234 ký tự)
+INFO X4 /practice: sạch (142 ký tự)
+INFO X4 tổng hợp: []
+  ✓  1 [desktop] › e2e/qc-uiux91-w5h-real.spec.ts:16:1 › TC-UX91-X4 SV 375: quét chữ mọi route, nhãn điều hướng (23.0s)
+(node:47659) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  2 [mobile] › e2e/qc-uiux91-w5h-real.spec.ts:16:1 › TC-UX91-X4 SV 375: quét chữ mọi route, nhãn điều hướng
+
+  1 skipped
+  1 passed (25.3s)

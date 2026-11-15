@@ -1,0 +1,50 @@
+## login 4 vai + sai mật khẩu
+admin token_len=424
+teacher token_len=429
+ta token_len=416
+sv.kha token_len=428
+sv.gioi token_len=429
+sv.moi token_len=428
+sai mk: 401
+## me/today theo vai
+--- admin
+{"keys":["actions","count"],"n":0,"kinds":[]}
+--- teacher
+{"keys":["actions","attention","attention_total","count","upcoming"],"n":0,"kinds":[]}
+--- ta
+{"keys":["actions","attention","attention_total","count","upcoming"],"n":0,"kinds":[]}
+--- sv.kha
+{"keys":["continue","email_verified","no_course","recommended","timeline"],"n":0,"kinds":[]}
+--- sv.gioi
+{"keys":["continue","email_verified","no_course","recommended","timeline"],"n":0,"kinds":[]}
+--- sv.moi
+{"keys":["continue","email_verified","no_course","recommended","timeline"],"n":0,"kinds":[]}
+{"id":"01a1df36-ad67-799f-ad4a-2effb941afcc","code":"QC196964","role":null}
+{"id":"01a1df36-ad4b-79f7-8694-ce1bebab8356","code":"QC117283","role":null}
+{"id":"01a1df35-0a7b-7db7-aee1-3655db91cec0","code":"QD9B","role":null}
+{"id":"01a1df34-e683-758b-a9e0-aa237cb7b66f","code":"QD9A","role":null}
+{"id":"01a1df34-52e5-7fee-8c47-16a67d430e8e","code":"E6C2","role":null}
+{"id":"01a1df34-4fd1-7f3e-ab8c-51963c095082","code":"E6C1","role":null}
+{"id":"01a1df2f-b6d1-7a7e-b919-05996a9baa83","code":"QC-ASr108-bo2","role":null}
+{"id":"01a1df2f-af84-7e1d-ab30-1807dcd4273d","code":"QC-ASr108-bo1","role":null}
+{"id":"01a1df27-62c2-7138-be74-2842f052e7fb","code":"761988","role":null}
+{"id":"01a1df27-62b5-7775-a346-5c602a43e2f9","code":"761987","role":null}
+--- admin
+{"count":0,"actions":[]}
+--- teacher
+{"count":36,"actions":["TICKET","SESSION_UNMARKED","SESSION_UNMARKED","SESSION_UNMARKED","SESSION_UNMARKED","SESSION_UNMARKED","GRADING_REVIEW","PUBLISH_PENDING","GUIDANCE_STALE","EMAIL_MISMATCH","EMAIL_MISMATCH","JOIN_REQUEST","POST_REPORTED","AI_CONFIRM","AI_CONFIRM","EXAM_SIMILARITY","UNMATCHED_SUBMISSION","UNMATCHED_SUBMISSION","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","COURSE_SETUP","COURSE_SETUP","COURSE_SETUP","COUR
+--- ta
+{"count":19,"actions":["TICKET","SESSION_UNMARKED","SESSION_UNMARKED","SESSION_UNMARKED","SESSION_UNMARKED","GRADING_REVIEW","GUIDANCE_STALE","POST_REPORTED","AI_CONFIRM","UNMATCHED_SUBMISSION","UNMATCHED_SUBMISSION","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","GRADE_SCHEME_UNCONFIRMED","QUESTION_REVIEW","STUDENT_ATTENTION"],"attention":["?"],"attention_total":1,"upcoming":["?","?","?","?","?","?","?","?","?","?"]}
+--- sv.kha
+{"no_course":false,"email_verified":true,"recommended":{"id":"ASSIGNMENT_DUE:01a1df34-f04c-74ea-94a5-feee2d4eb882","kind":"ASSIGNMENT_DUE","title":"Bài tập 03 — Phân tích một vụ tấn công thực tế","reason":"Đang nộp muộn — Nộp bài","urgency":"high","href":"/assignments/01a1df34-f04c-74ea-94a5-feee2d4eb882","course":{"id":"01a1df27-62b5-7775-a346-5c602a43e2f9","class_code":"761987"},"estimate_minutes":30},"timeline":["?","?","?","?","?","?","?","?"],"continue":[]}
+--- sv.gioi
+{"no_course":false,"email_verified":true,"recommended":{"id":"ASSIGNMENT_DUE:01a1df34-f04c-74ea-94a5-feee2d4eb882","kind":"ASSIGNMENT_DUE","title":"Bài tập 03 — Phân tích một vụ tấn công thực tế","reason":"Đang nộp muộn — Nộp bài","urgency":"high","href":"/assignments/01a1df34-f04c-74ea-94a5-feee2d4eb882","course":{"id":"01a1df27-62b5-7775-a346-5c602a43e2f9","class_code":"761987"},"estimate_minutes":30},"timeline":["?","?","?","?","?","?","?","?"],"continue":["CHAT","CHAT","CHAT"]}
+--- sv.moi
+{"no_course":true,"email_verified":true,"recommended":{"id":"JOIN_CODE","kind":"JOIN_CODE","title":"Nhập mã tham gia lớp","reason":"Bạn chưa vào lớp nào. Nhập mã do giảng viên cung cấp để bắt đầu.","urgency":"high","href":"/join","course":null,"estimate_minutes":1},"timeline":[],"continue":[]}
+## courses/{c1}/today
+teacher: {"count":12,"actions":[{"id":"TICKET:01a1df27-62b5-7775-a346-5c602a43e2f9","kind":"TICKET","title":"Câu hỏi chờ giảng viên · lớp 761987","reason":"1 câu hỏi chờ quá 72 giờ làm việc · lâu nhất 120 giờ","urgency":"overdue","href":"/inbox?course=01a1df27-62b5-7775-a346-5c602
+ta: {"count":9,"actions":[{"id":"TICKET:01a1df27-62b5-7775-a346-5c602a43e2f9","kind":"TICKET","title":"Câu hỏi chờ giảng viên · lớp 761987","reason":"1 câu hỏi chờ quá 72 giờ làm việc · lâu nhất 120 giờ","urgency":"overdue","href":"/inbox?course=01a1df27-62b5-7775-a346-5c602a
+sv.kha: {"no_course":false,"email_verified":true,"recommended":{"id":"ASSIGNMENT_DUE:01a1df34-f04c-74ea-94a5-feee2d4eb882","kind":"ASSIGNMENT_DUE","title":"Bài tập 03 — Phân tích một vụ tấn công thực tế","reason":"Đang nộp muộn — Nộp bài","urgency":"high","href":"/assignments/01a
+sv.gioi: {"no_course":false,"email_verified":true,"recommended":{"id":"ASSIGNMENT_DUE:01a1df34-f04c-74ea-94a5-feee2d4eb882","kind":"ASSIGNMENT_DUE","title":"Bài tập 03 — Phân tích một vụ tấn công thực tế","reason":"Đang nộp muộn — Nộp bài","urgency":"high","href":"/assignments/01a
+sv.moi: {"code":"FORBIDDEN","message":"Bạn không có quyền thực hiện thao tác này.","trace_id":"0b936cb449bd77cdacd13ec2cce78912","details":{"reason":"course"}}
+admin: {"code":"FORBIDDEN","message":"Bạn không có quyền thực hiện thao tác này.","trace_id":"87ef8698d0b3633671c3b8d7950572f9","details":{"reason":"course"}}

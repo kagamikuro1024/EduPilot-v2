@@ -1,0 +1,9 @@
+LỆCH sv04 {'qt': '3.5', 'hp_raw': '5', 'hp': '5', 'letter': 'D+', 'verdict': 'OK'} BA: {'qt': '6.625', 'hp_raw': '6.2500', 'hp': '6.5', 'letter': 'C+', 'verdict': 'OK'}
+LỆCH sv05 {'qt': '4.75', 'hp_raw': '5.8', 'hp': '6', 'letter': 'C', 'verdict': 'OK'} BA: {'qt': '7.125', 'hp_raw': '6.7500', 'hp': '7.0', 'letter': 'B', 'verdict': 'OK'}
+LỆCH sv06 {'qt': '6.75', 'hp_raw': '8.55', 'hp': '8.5', 'letter': 'A', 'verdict': 'OK'} BA: {'qt': '9.750', 'hp_raw': '9.7500', 'hp': '10.0', 'letter': 'A+', 'verdict': 'OK'}
+LỆCH sv07 {'qt': '6.5', 'hp_raw': '8.15', 'hp': '8', 'letter': 'B+', 'verdict': 'OK'} BA: {'qt': '8.000', 'hp_raw': '8.7500', 'hp': '9.0', 'letter': 'A+', 'verdict': 'OK'}
+LỆCH sv09 {'qt': '8.415', 'hp_raw': '8.166', 'hp': '8', 'letter': 'B+', 'verdict': 'OK'} BA: {'qt': '8.165', 'hp_raw': '8.0660', 'hp': '8.0', 'letter': 'B+', 'verdict': 'OK'}
+LỆCH sv10 {'qt': '8.5', 'hp_raw': '6.25', 'hp': '6.5', 'letter': 'C+', 'verdict': 'OK'} BA: {'qt': '6.000', 'hp_raw': '5.2500', 'hp': '5.5', 'letter': 'C', 'verdict': 'OK'}
+LỆCH sv23 {'qt': '5.75', 'hp_raw': '4.1', 'hp': '4', 'letter': 'D', 'verdict': 'OK'} BA: {'qt': '5.500', 'hp_raw': '4.0000', 'hp': '4.0', 'letter': 'D', 'verdict': 'OK'}
+23/30 khớp theo account (so qt, hp_raw, hp, letter, verdict)
+rc=1

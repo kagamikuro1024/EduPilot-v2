@@ -1,0 +1,6 @@
+$ go test -tags integration ./internal/assignment -run 'TestReviewRBACMatrix|TestTAReviewsCannotPublish|TestSignedGetFileRole' -v
+testing: warning: no tests to run
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	0.535s [no tests to run]
+
+rc=0

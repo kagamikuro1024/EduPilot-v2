@@ -1,0 +1,22 @@
+
+Running 4 tests using 1 worker
+
+(node:68797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO teacher: {"h1":"2 việc cần xử lý hôm nay","h3":["Hôm nay · 2"],"rows":["GRADE_SCHEME_UNCONFIRMED: Công thức điểm chưa xác nhận Lớp chưa có quy chế môn học. Mở","COURSE_SETUP: Thiết lập lớp mới 1/4 bước xong: chia sẻ mã lớp → tải quy chế môn học "]}
+INFO teacher nút đỏ: 1
+INFO sau khi bấm hàng đầu: https://localhost:1143/gradebook/scheme ["background-color:140"]
+INFO ta: {"h1":"1 việc cần xử lý hôm nay","h3":["Hôm nay · 1"],"rows":["GRADE_SCHEME_UNCONFIRMED: Công thức điểm chưa xác nhận Lớp chưa có quy chế môn học. Mở"]}
+INFO admin: {"h1":"1 việc cần xử lý hôm nay","h3":["Gấp · 1"],"rows":["COURSE_NO_TEACHER: Lớp SJ20D91 chưa có giảng viên Hãy gán giảng viên để lớp nhận thông bá"]}
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-w3-real.spec.ts:22:1 › TC-UX10 thật: GV / TA / admin chia nhóm; ảnh sau 1440 + 375 (24.2s)
+INFO sv.gioi: Chào Trung@97 | Việc nên làm tiếp@199
+INFO tiếp tục học: []
+INFO sv.moi: Chào Linh@97 | Nhập mã tham gia lớp@199
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-w3-real.spec.ts:47:1 › TC-UX11 thật: SV sv.gioi thứ tự + sv.moi + ảnh sau (15.3s)
+(node:69396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  3 [mobile] › e2e/qc2-r91/qc-uiux91-w3-real.spec.ts:22:1 › TC-UX10 thật: GV / TA / admin chia nhóm; ảnh sau 1440 + 375
+  -  4 [mobile] › e2e/qc2-r91/qc-uiux91-w3-real.spec.ts:47:1 › TC-UX11 thật: SV sv.gioi thứ tự + sv.moi + ảnh sau
+
+  2 skipped
+  2 passed (40.2s)

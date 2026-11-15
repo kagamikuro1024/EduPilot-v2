@@ -1,0 +1,643 @@
+{
+  "config": {
+    "argv": [
+      "/opt/homebrew/Cellar/node@24/24.21.0/bin/node",
+      "/Users/kuro/Documents/TA_Agent_qc2/frontend/node_modules/@playwright/test/cli.js",
+      "test",
+      "-c",
+      "playwright.qc-d9.config.ts",
+      "--workers=1",
+      "--output=/tmp/qc2-pw-d9"
+    ],
+    "configFile": "/private/tmp/qc2-d-ws/frontend/playwright.qc-d9.config.ts",
+    "rootDir": "/private/tmp/qc2-d-ws/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/qc2-pw-d9",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/private/tmp/qc2-d-ws/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/qc-d9-ui\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/tmp/qc2-pw-d9",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/private/tmp/qc2-d-ws/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/qc-d9-ui\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/tmp/qc2-pw-d9",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/private/tmp/qc2-d-ws/frontend/e2e",
+        "snapshotDir": "/private/tmp/qc2-d-ws/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 120000,
+        "use": {
+          "baseURL": "https://localhost:1143",
+          "ignoreHTTPSErrors": true,
+          "locale": "vi-VN",
+          "timezoneId": "Asia/Ho_Chi_Minh",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/tmp/qc2-pw-d9",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/private/tmp/qc2-d-ws/frontend/e2e",
+        "snapshotDir": "/private/tmp/qc2-d-ws/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 120000,
+        "use": {
+          "baseURL": "https://localhost:1143",
+          "ignoreHTTPSErrors": true,
+          "locale": "vi-VN",
+          "timezoneId": "Asia/Ho_Chi_Minh",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-9/logs/pw-ui.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.65.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "qc-d9-ui.spec.ts",
+      "file": "qc-d9-ui.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "D9-01 SV chưa nộp (C): trang bài tập — tên, hạn, đề, tiêu chí, vùng nộp, không tràn ngang",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10299,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Bài tập 03/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Bài tập 03/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:15:63",
+                    "location": {
+                      "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                      "column": 63,
+                      "line": 15
+                    },
+                    "snippet": "  13 | test(\"D9-01 SV chưa nộp (C): trang bài tập — tên, hạn, đề, tiêu chí, vùng nộp, không tràn ngang\", async ({ page }, info) => {\n  14 |   await login(page, \"sv.nguyco\"); await page.goto(`/assignments/${A3}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500);\n> 15 |   const t = await dump(page, \"01-student-c\", info); expect(t).toMatch(/Bài tập 03/); expect(t).toMatch(/Chưa nộp/i); await noOverflow(page);\n     |                                                               ^\n  16 |   const dz = page.locator(\"[data-part=dropzone], [aria-label*='thả' i], [aria-label*='tệp' i]\").first(); const box = await dz.boundingBox().catch(() => null);\n  17 |   fs.writeFileSync(`${D}/01-dz-${info.project.name}.txt`, JSON.stringify(box)); expect(box, \"không thấy vùng thả\").not.toBeNull(); expect(box!.height).toBeGreaterThanOrEqual(48);\n  18 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                        "column": 63,
+                        "line": 15
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Bài tập 03/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n\n  13 | test(\"D9-01 SV chưa nộp (C): trang bài tập — tên, hạn, đề, tiêu chí, vùng nộp, không tràn ngang\", async ({ page }, info) => {\n  14 |   await login(page, \"sv.nguyco\"); await page.goto(`/assignments/${A3}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500);\n> 15 |   const t = await dump(page, \"01-student-c\", info); expect(t).toMatch(/Bài tập 03/); expect(t).toMatch(/Chưa nộp/i); await noOverflow(page);\n     |                                                               ^\n  16 |   const dz = page.locator(\"[data-part=dropzone], [aria-label*='thả' i], [aria-label*='tệp' i]\").first(); const box = await dz.boundingBox().catch(() => null);\n  17 |   fs.writeFileSync(`${D}/01-dz-${info.project.name}.txt`, JSON.stringify(box)); expect(box, \"không thấy vùng thả\").not.toBeNull(); expect(box!.height).toBeGreaterThanOrEqual(48);\n  18 | });\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:15:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:03:53.332Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/qc2-pw-d9/qc-d9-ui-D9-01-SV-chưa-nộp-1549c-í-vùng-nộp-không-tràn-ngang-desktop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                    "column": 63,
+                    "line": 15
+                  }
+                }
+              ],
+              "status": "unexpected"
+            },
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8451,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Bài tập 03/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Bài tập 03/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:15:63",
+                    "location": {
+                      "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                      "column": 63,
+                      "line": 15
+                    },
+                    "snippet": "  13 | test(\"D9-01 SV chưa nộp (C): trang bài tập — tên, hạn, đề, tiêu chí, vùng nộp, không tràn ngang\", async ({ page }, info) => {\n  14 |   await login(page, \"sv.nguyco\"); await page.goto(`/assignments/${A3}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500);\n> 15 |   const t = await dump(page, \"01-student-c\", info); expect(t).toMatch(/Bài tập 03/); expect(t).toMatch(/Chưa nộp/i); await noOverflow(page);\n     |                                                               ^\n  16 |   const dz = page.locator(\"[data-part=dropzone], [aria-label*='thả' i], [aria-label*='tệp' i]\").first(); const box = await dz.boundingBox().catch(() => null);\n  17 |   fs.writeFileSync(`${D}/01-dz-${info.project.name}.txt`, JSON.stringify(box)); expect(box, \"không thấy vùng thả\").not.toBeNull(); expect(box!.height).toBeGreaterThanOrEqual(48);\n  18 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                        "column": 63,
+                        "line": 15
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Bài tập 03/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n\n  13 | test(\"D9-01 SV chưa nộp (C): trang bài tập — tên, hạn, đề, tiêu chí, vùng nộp, không tràn ngang\", async ({ page }, info) => {\n  14 |   await login(page, \"sv.nguyco\"); await page.goto(`/assignments/${A3}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500);\n> 15 |   const t = await dump(page, \"01-student-c\", info); expect(t).toMatch(/Bài tập 03/); expect(t).toMatch(/Chưa nộp/i); await noOverflow(page);\n     |                                                               ^\n  16 |   const dz = page.locator(\"[data-part=dropzone], [aria-label*='thả' i], [aria-label*='tệp' i]\").first(); const box = await dz.boundingBox().catch(() => null);\n  17 |   fs.writeFileSync(`${D}/01-dz-${info.project.name}.txt`, JSON.stringify(box)); expect(box, \"không thấy vùng thả\").not.toBeNull(); expect(box!.height).toBeGreaterThanOrEqual(48);\n  18 | });\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:15:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:06:48.158Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/qc2-pw-d9/qc-d9-ui-D9-01-SV-chưa-nộp-1549c-í-vùng-nộp-không-tràn-ngang-mobile/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                    "column": 63,
+                    "line": 15
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ceca32ae48cc542410a7-6fd512363c39777bee29",
+          "file": "qc-d9-ui.spec.ts",
+          "line": 13,
+          "column": 1
+        },
+        {
+          "title": "D9-02 SV đã nộp, đang chấm (B): chỉ 'Đang chấm', không điểm nháp / cờ / tiến độ",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9930,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Đang chấm|Đã nộp/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Đang chấm|Đã nộp/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:22:13",
+                    "location": {
+                      "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                      "column": 13,
+                      "line": 22
+                    },
+                    "snippet": "  20 |   await login(page, \"sv.kha\"); await page.goto(`/assignments/${A3}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500);\n  21 |   const t = await dump(page, \"02-student-b\", info); const body = t + (await page.evaluate(() => JSON.stringify(localStorage) + document.title));\n> 22 |   expect(t).toMatch(/Đang chấm|Đã nộp/); expect(body).not.toMatch(/CANARY|ai_scores|INJECTION|NEEDS_REVIEW|EVIDENCE_NOT_FOUND|LOW_CONFIDENCE/); await noOverflow(page);\n     |             ^\n  23 | });\n  24 | test(\"D9-03 GV: /grading ba tab đúng thứ tự, hàng chờ có dữ liệu\", async ({ page }, info) => {\n  25 |   await login(page, \"teacher\"); await page.goto(\"/grading\"); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500); const t = await dump(page, \"03-grading\", info);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                        "column": 13,
+                        "line": 22
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Đang chấm|Đã nộp/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n\n  20 |   await login(page, \"sv.kha\"); await page.goto(`/assignments/${A3}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500);\n  21 |   const t = await dump(page, \"02-student-b\", info); const body = t + (await page.evaluate(() => JSON.stringify(localStorage) + document.title));\n> 22 |   expect(t).toMatch(/Đang chấm|Đã nộp/); expect(body).not.toMatch(/CANARY|ai_scores|INJECTION|NEEDS_REVIEW|EVIDENCE_NOT_FOUND|LOW_CONFIDENCE/); await noOverflow(page);\n     |             ^\n  23 | });\n  24 | test(\"D9-03 GV: /grading ba tab đúng thứ tự, hàng chờ có dữ liệu\", async ({ page }, info) => {\n  25 |   await login(page, \"teacher\"); await page.goto(\"/grading\"); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500); const t = await dump(page, \"03-grading\", info);\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:22:13"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:04:05.015Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/qc2-pw-d9/qc-d9-ui-D9-02-SV-đã-nộp-đ-da4c5--không-điểm-nháp-cờ-tiến-độ-desktop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                    "column": 13,
+                    "line": 22
+                  }
+                }
+              ],
+              "status": "unexpected"
+            },
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9441,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Đang chấm|Đã nộp/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Đang chấm|Đã nộp/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:22:13",
+                    "location": {
+                      "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                      "column": 13,
+                      "line": 22
+                    },
+                    "snippet": "  20 |   await login(page, \"sv.kha\"); await page.goto(`/assignments/${A3}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500);\n  21 |   const t = await dump(page, \"02-student-b\", info); const body = t + (await page.evaluate(() => JSON.stringify(localStorage) + document.title));\n> 22 |   expect(t).toMatch(/Đang chấm|Đã nộp/); expect(body).not.toMatch(/CANARY|ai_scores|INJECTION|NEEDS_REVIEW|EVIDENCE_NOT_FOUND|LOW_CONFIDENCE/); await noOverflow(page);\n     |             ^\n  23 | });\n  24 | test(\"D9-03 GV: /grading ba tab đúng thứ tự, hàng chờ có dữ liệu\", async ({ page }, info) => {\n  25 |   await login(page, \"teacher\"); await page.goto(\"/grading\"); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500); const t = await dump(page, \"03-grading\", info);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                        "column": 13,
+                        "line": 22
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Đang chấm|Đã nộp/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n\n  20 |   await login(page, \"sv.kha\"); await page.goto(`/assignments/${A3}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500);\n  21 |   const t = await dump(page, \"02-student-b\", info); const body = t + (await page.evaluate(() => JSON.stringify(localStorage) + document.title));\n> 22 |   expect(t).toMatch(/Đang chấm|Đã nộp/); expect(body).not.toMatch(/CANARY|ai_scores|INJECTION|NEEDS_REVIEW|EVIDENCE_NOT_FOUND|LOW_CONFIDENCE/); await noOverflow(page);\n     |             ^\n  23 | });\n  24 | test(\"D9-03 GV: /grading ba tab đúng thứ tự, hàng chờ có dữ liệu\", async ({ page }, info) => {\n  25 |   await login(page, \"teacher\"); await page.goto(\"/grading\"); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500); const t = await dump(page, \"03-grading\", info);\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:22:13"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:06:58.396Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/qc2-pw-d9/qc-d9-ui-D9-02-SV-đã-nộp-đ-da4c5--không-điểm-nháp-cờ-tiến-độ-mobile/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                    "column": 13,
+                    "line": 22
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ceca32ae48cc542410a7-5d724dfd43018c32987e",
+          "file": "qc-d9-ui.spec.ts",
+          "line": 19,
+          "column": 1
+        },
+        {
+          "title": "D9-03 GV: /grading ba tab đúng thứ tự, hàng chờ có dữ liệu",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15900,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:04:16.222Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14384,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:07:10.082Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ceca32ae48cc542410a7-55cdd08a913449960013",
+          "file": "qc-d9-ui.spec.ts",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "D9-04 GV: màn duyệt bài — hai cột (≥1024 px), cột trái 52–58 %",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13466,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Duyệt bài/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Duyệt bài/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:32:13",
+                    "location": {
+                      "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                      "column": 13,
+                      "line": 32
+                    },
+                    "snippet": "  30 |   test.skip(info.project.name !== \"desktop\", \"hai cột chỉ ≥ 1024 px\");\n  31 |   await login(page, \"teacher\"); await page.goto(`/grading/${SUBB}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500); const t = await dump(page, \"04-review\", info);\n> 32 |   expect(t).toMatch(/Duyệt bài/); const cols = await page.evaluate(() => { const r = [...document.querySelectorAll(\"main [data-part], main section, main aside\")].map((e) => (e as HTMLElement).getBoundingClientRect()).filter((b) => b.width > 300 && b.height > 300).slice(0, 4).map((b) => ({ x: Math.round(b.x), w: Math.round(b.width) })); return r; });\n     |             ^\n  33 |   fs.writeFileSync(`${D}/04-cols.json`, JSON.stringify(cols));\n  34 | });\n  35 | test(\"D9-05 ADMIN: /settings/integrations — SMTP · IMAP · Teams, không lộ bí mật\", async ({ page }, info) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                        "column": 13,
+                        "line": 32
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Duyệt bài/\u001b[39m\nReceived string:  \u001b[31m\"Đăng nhập EduPilot\u001b[39m\n\u001b[31mEmail\u001b[39m\n\u001b[31mMật khẩu\u001b[39m\n\u001b[31mĐăng nhập·\u001b[39m\n\u001b[31mQuên mật khẩu?\u001b[39m\n\u001b[31mChưa có tài khoản? Đăng ký·\u001b[39m\n\u001b[31mCần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.\"\u001b[39m\n\n  30 |   test.skip(info.project.name !== \"desktop\", \"hai cột chỉ ≥ 1024 px\");\n  31 |   await login(page, \"teacher\"); await page.goto(`/grading/${SUBB}`); await page.locator(\"main\").waitFor(); await page.waitForTimeout(2500); const t = await dump(page, \"04-review\", info);\n> 32 |   expect(t).toMatch(/Duyệt bài/); const cols = await page.evaluate(() => { const r = [...document.querySelectorAll(\"main [data-part], main section, main aside\")].map((e) => (e as HTMLElement).getBoundingClientRect()).filter((b) => b.width > 300 && b.height > 300).slice(0, 4).map((b) => ({ x: Math.round(b.x), w: Math.round(b.width) })); return r; });\n     |             ^\n  33 |   fs.writeFileSync(`${D}/04-cols.json`, JSON.stringify(cols));\n  34 | });\n  35 | test(\"D9-05 ADMIN: /settings/integrations — SMTP · IMAP · Teams, không lộ bí mật\", async ({ page }, info) => {\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:32:13"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:04:32.580Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/qc2-pw-d9/qc-d9-ui-D9-04-GV-màn-duyệ-e23f2-ột-≥1024-px-cột-trái-52–58--desktop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                    "column": 13,
+                    "line": 32
+                  }
+                }
+              ],
+              "status": "unexpected"
+            },
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "hai cột chỉ ≥ 1024 px",
+                  "location": {
+                    "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                    "line": 30,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 306,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:07:27.214Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "hai cột chỉ ≥ 1024 px",
+                      "location": {
+                        "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                        "line": 30,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "ceca32ae48cc542410a7-0dd937407651bdb7cf5e",
+          "file": "qc-d9-ui.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "D9-05 ADMIN: /settings/integrations — SMTP · IMAP · Teams, không lộ bí mật",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 120130,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts",
+                        "column": 14,
+                        "line": 8
+                      },
+                      "message": "Error: page.waitForURL: Test timeout of 120000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n   6 | async function login(page: Page, u: string) {\n   7 |   await page.goto(\"/login\"); await page.locator(\"input[type=email]\").fill(`${u}@edupilot.local`); await page.locator(\"input[type=password]\").fill(PW); await page.keyboard.press(\"Enter\");\n>  8 |   await page.waitForURL((x) => !x.pathname.startsWith(\"/login\")); await page.locator(\"[data-part=topbar]\").waitFor(); await page.waitForTimeout(1500);\n     |              ^\n   9 | }\n  10 | const dump = async (page: Page, name: string, info: any) => { const t = await page.locator(\"main\").innerText().catch(() => page.locator(\"body\").innerText()); fs.writeFileSync(`${D}/${name}-${info.project.name}.txt`, t); await page.screenshot({ path: `${D}/${name}-${info.project.name}.png`, fullPage: false }); return t; };\n  11 | const noOverflow = async (page: Page) => { const m = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth })); expect(m.sw, `tràn ngang ${m.sw}/${m.cw}`).toBeLessThanOrEqual(m.cw); };\n    at login (/private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:8:14)\n    at /private/tmp/qc2-d-ws/frontend/e2e/qc-d9-ui.spec.ts:36:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:04:46.847Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/qc2-pw-d9/qc-d9-ui-D9-05-ADMIN-setti-a5753-MAP-·-Teams-không-lộ-bí-mật-desktop/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            },
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6601,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T13:07:27.547Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ceca32ae48cc542410a7-f647da8ff19ceaf71206",
+          "file": "qc-d9-ui.spec.ts",
+          "line": 35,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T13:03:52.412Z",
+    "duration": 221878.161,
+    "expected": 3,
+    "skipped": 1,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

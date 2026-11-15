@@ -1,0 +1,57 @@
+$ go test -tags integration ./internal/assignment ./internal/calendar -run 'TestUpdateAfterPublish|TestUpdateLockedFields|TestRubricLockedAfterGrading|TestLateRuleLockedAfterPublish|TestDueChangeRecomputesLateBeforePublish|TestDueExtensionClearsLatePenalty|TestDueChangeCalendarAndToday|TestUpdateVersionConflict' -v
+=== RUN   TestUpdateAfterPublish
+2026/11/15 19:35:47 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 415d222cc74f32ac45756344fe3b22449f82c053891edabea077650fb5a47ecb
+  Test ProcessID: d570285b-d56d-41d7-9dc2-0be31f9dffd5
+2026/11/15 19:35:47 ✅ Container started: 68f6ff853df5
+2026/11/15 19:35:47 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:35:48 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestUpdateAfterPublish (7.94s)
+=== RUN   TestUpdateLockedFields
+--- PASS: TestUpdateLockedFields (3.66s)
+=== RUN   TestRubricLockedAfterGrading
+--- PASS: TestRubricLockedAfterGrading (2.74s)
+=== RUN   TestLateRuleLockedAfterPublish
+--- PASS: TestLateRuleLockedAfterPublish (1.72s)
+=== RUN   TestUpdateVersionConflict
+--- PASS: TestUpdateVersionConflict (2.00s)
+=== RUN   TestDueChangeRecomputesLateBeforePublish
+--- PASS: TestDueChangeRecomputesLateBeforePublish (2.71s)
+=== RUN   TestDueExtensionClearsLatePenalty
+--- PASS: TestDueExtensionClearsLatePenalty (2.33s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	23.823s
+=== RUN   TestDueChangeCalendarAndToday
+=== PAUSE TestDueChangeCalendarAndToday
+=== CONT  TestDueChangeCalendarAndToday
+2026/11/15 19:35:49 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 415d222cc74f32ac45756344fe3b22449f82c053891edabea077650fb5a47ecb
+  Test ProcessID: a4e160fa-55a4-480b-be36-ca00d9cb9eaa
+2026/11/15 19:35:49 ✅ Container started: 68f6ff853df5
+2026/11/15 19:35:49 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:35:49 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:35:55 ✅ Container started: 5636bc78d64d
+2026/11/15 19:35:55 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:35:55 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:35:55 ✅ Container started: b8d9c357e377
+2026/11/15 19:35:55 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:35:56 🔔 Container is ready: b8d9c357e377
+--- PASS: TestDueChangeCalendarAndToday (7.50s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/calendar	8.244s
+
+rc=0

@@ -1,0 +1,30 @@
+$ go test -tags integration ./internal/submission -run 'TestUploadIdempotentBySha|TestUploadDifferentContentNewVersion|TestReuploadAfterManualMatch' -v
+=== RUN   TestUploadIdempotentBySha
+2026/11/15 19:40:28 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 926d90af0676eae1e64cb710a607afb6bf0226bfbdeaa39eaab73bfdf066b3e3
+  Test ProcessID: 3825960d-06c5-43c6-913a-3e5b3589dce7
+2026/11/15 19:40:28 ✅ Container started: 68f6ff853df5
+2026/11/15 19:40:28 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:40:28 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:40:31 ✅ Container started: 5636bc78d64d
+2026/11/15 19:40:31 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:40:31 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:40:32 ✅ Container started: b8d9c357e377
+2026/11/15 19:40:32 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:40:32 🔔 Container is ready: b8d9c357e377
+--- PASS: TestUploadIdempotentBySha (4.14s)
+=== RUN   TestUploadDifferentContentNewVersion
+--- PASS: TestUploadDifferentContentNewVersion (2.71s)
+=== RUN   TestReuploadAfterManualMatch
+--- PASS: TestReuploadAfterManualMatch (4.01s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission	11.285s
+
+rc=0

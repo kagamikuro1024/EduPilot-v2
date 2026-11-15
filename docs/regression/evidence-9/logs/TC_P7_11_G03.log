@@ -1,0 +1,80 @@
+$ go test ./internal/integration -run TestTeamsSyncAgainstMockGraph -v
+=== RUN   TestTeamsSyncAgainstMockGraph
+=== RUN   TestTeamsSyncAgainstMockGraph/happy
+2026/11/15 20:23:46 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 840bdc7bda64d89c75054f2469528b5c791e504781ee2792cc818e5e4d3fd802
+  Test ProcessID: bb3938f7-7bea-4595-8072-f7844cd7eed3
+2026/11/15 20:23:46 ✅ Container started: 68f6ff853df5
+2026/11/15 20:23:46 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:23:47 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:24:28 ✅ Container started: 5636bc78d64d
+2026/11/15 20:24:28 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:24:29 🔔 Container is ready: 5636bc78d64d
+2026/11/15 20:24:29 ✅ Container started: b8d9c357e377
+2026/11/15 20:24:29 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 20:24:29 🔔 Container is ready: b8d9c357e377
+=== RUN   TestTeamsSyncAgainstMockGraph/paged
+=== RUN   TestTeamsSyncAgainstMockGraph/throttle
+=== RUN   TestTeamsSyncAgainstMockGraph/expired_token
+=== RUN   TestTeamsSyncAgainstMockGraph/no_consent
+=== RUN   TestTeamsSyncAgainstMockGraph/slow
+=== RUN   TestTeamsSyncAgainstMockGraph/partial_failure
+--- PASS: TestTeamsSyncAgainstMockGraph (266.71s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/happy (56.07s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/paged (28.17s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/throttle (19.34s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/expired_token (98.86s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/no_consent (23.86s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/slow (35.17s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/partial_failure (5.23s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	267.484s
+
+rc=0
+$ go test ./internal/integration -run TestTeamsSyncAgainstMockGraph -v
+=== RUN   TestTeamsSyncAgainstMockGraph
+=== RUN   TestTeamsSyncAgainstMockGraph/happy
+2026/11/15 20:31:19 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 6b6dfe3a530a2f6d3195a20ad5eb092a26a287514df74b9198dc2bf2c726d3b7
+  Test ProcessID: cb34d6d9-aaf8-4d95-8c1a-93112f901ef1
+2026/11/15 20:31:20 ✅ Container started: 68f6ff853df5
+2026/11/15 20:31:20 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:31:21 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:31:33 ✅ Container started: 5636bc78d64d
+2026/11/15 20:31:33 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:31:33 🔔 Container is ready: 5636bc78d64d
+2026/11/15 20:31:34 ✅ Container started: b8d9c357e377
+2026/11/15 20:31:34 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 20:31:34 🔔 Container is ready: b8d9c357e377
+=== RUN   TestTeamsSyncAgainstMockGraph/paged
+=== RUN   TestTeamsSyncAgainstMockGraph/throttle
+=== RUN   TestTeamsSyncAgainstMockGraph/expired_token
+=== RUN   TestTeamsSyncAgainstMockGraph/no_consent
+=== RUN   TestTeamsSyncAgainstMockGraph/slow
+=== RUN   TestTeamsSyncAgainstMockGraph/partial_failure
+--- PASS: TestTeamsSyncAgainstMockGraph (188.50s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/happy (25.69s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/paged (29.27s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/throttle (36.01s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/expired_token (34.14s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/no_consent (9.66s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/slow (36.11s)
+    --- PASS: TestTeamsSyncAgainstMockGraph/partial_failure (17.61s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	189.139s
+
+rc=0

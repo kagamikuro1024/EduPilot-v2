@@ -1,0 +1,67 @@
+PASS TC-PE03-01 201 DRAFT key={'option_ids': ['01a1df42-c13b-7429-8deb-ff4733200bd5']}
+PASS TC-PE03-02 [('1 đáp án', 422, ['OPTION_COUNT', 'VALIDATION_FAILED']), ('9 đáp án', 422, ['OPTION_COUNT', 'VALIDATION_FAILED']), ('body rỗng', 422, ['OPTION_BODY_INVALID', 'VALIDATION_FAILED']), ('trùng', 422, ['
+PASS TC-PE03-03 [201, 201, 201, 201, 422]
+PASS TC-PE03-04 API trả nguyên văn (phần hiển thị UI: S)
+PASS TC-PE03-05 4 cảnh báo; pinned_last không cảnh báo. mẫu: \u00e1p \u00e1n tr\u00ean\" n\u00ean \u0111\u01b0\u1ee3c ghim \u1edf cu\u1ed1i \u0111\u1ec3 kh\u00f4ng v\u1ee1 ngh\u0129a khi x\u00e1o tr\u1ed9n."}]}}
+PASS TC-PE03-07 201 {'value': True}; thiếu 422; options thừa 422; SHORT 422 ['ANSWER_EMPTY', 'VALIDATION_FAILED']; ESSAY 422; XYZ 422
+LT TC-PE03-08 SHORT 422
+PASS TC-PE03-09 200 [1000, 256, 1024, 'EXACT', 1]
+FAIL TC-PE03-10 tl [422, 200, 200, 422] mem(16..512 theo #5/v1.6; TC gốc ghi 1024 = lỗi thời một phần) [422, 200, 200, 422] out [422, 200, 200, 422] [(422, ['FLOAT_EPS_REQUIRED', 'VALIDATION_FAILED']), (200, []), (42
+PASS TC-PE03-11 tests_version sau đổi: [10, 11, 12, 12] (starter_code không tăng)
+PASS TC-PE03-13 default weight 1; weights [(-1, 422), (1001, 422), (1.5, 422), (0, 201), (1000, 201)]; name [422, 422, 201]; 64KiB+1 201
+PASS TC-PE03-14 POST test: tests_version 17->18
+PASS TC-PE03-15 [403, 403, 403, 404, 200, 200]
+PASS TC-PE03-17 dry 200 {"would_create":5,"created":0,"errors":[]}
+ (ghi 0); thật 201, +5, sample ['sample1']
+PASS TC-PE03-18 [('thiếu cặp', 422), ('trùng', 422), ('lồng', 422), ('../evil', 422), ('/abs', 422), ('không UTF-8', 422)] 101 test 422; số test không đổi 11->11
+FAIL TC-PE03-19 zip-slip 422; tệp ngoài DB: host "" container "OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+OCI runtime exec failed: exec fai
+PASS TC-PE03-20 bom 60MiB(61351B nén) 422 ['TEST_TOO_LARGE', 'VALIDATION_FAILED', 'ZIP_MISSING_PAIR'] 0.9s; zip 11MiB 413
+PASS TC-PE03-21 replace 201: còn 2 test (mong 2)
+PASS TC-PE03-23 verified_version 7 = tests_version 7
+PASS TC-PE03-24 verify lệch: 202 {"ok": false, "per_test": [{"name": "s", "test_id": "01a1df43-ac32-7519-b0e5-86660e5ac848", "time_ms": 1, "verdict": "AC"}, {"name": "h", "test_id": "01a1df43-ac94-7754-83ed-e3507dbf1
+PASS TC-PE03-25 cùng key cùng job; thiếu key 422 ['IDEMPOTENCY_KEY_REQUIRED'] (nhánh judge dừng: xem PE-02 nhóm judge-down)
+PASS TC-PE03-27 [200, 409, 403, 403, 200] APPROVED
+PASS TC-PE03-28 không test (422, ['CODE_TESTS_MISSING', 'REFERENCE_NOT_VERIFIED', 'TOTAL_WEIGHT_ZERO', 'VALIDATION_FAILED']); chỉ mẫu (422, ['CODE_TESTS_MISSING', 'REFERENCE_NOT_VERIFIED', 'VALIDATION_FAILED']); Σwei
+FAIL TC-PE03-29 AI_DRAFT chưa duyệt: 5; UPDATE trực tiếp: 
+FAIL TC-PE03-31 sửa stem/đáp án khi bài đã lên lịch: 422 ['TYPE_IMMUTABLE', 'VALIDATION_FAILED']; sửa topic/difficulty/explanation: 422 ['TYPE_IMMUTABLE', 'VALIDATION_FAILED']; archive 200
+PASS TC-PE03-32 archive câu đang dùng: 200
+S TC-PE03-33 sửa test sau đóng + regrade: gộp PE-08 (regrade)
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s03.py", line 120, in <module>
+    l = S('GET', Q + '?review_status=APPROVED&type=MCQ_SINGLE&limit=100')[1]['items']; lq = S('GET', Q + '?q=' + 'x' * 101); lh = S('GET', Q + '?q=ĐÁP')
+                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s03.py", line 4, in S
+    def S(m, p, tk=T, b=None, **k): return call(m, p, tk, b, **k)
+                                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 15, in call
+    try: r = urllib.request.urlopen(rq, context=CTX, timeout=timeout); s, t, hh = r.status, r.read().decode(), dict(r.headers)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 1404, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 1361, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 1351, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 1362, in _send_request
+    self.putrequest(method, url, **skips)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 1200, in putrequest
+    self._output(self._encode_request(request))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 1280, in _encode_request
+    return request.encode('ascii')
+           ^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'ascii' codec can't encode characters in position 69-70: ordinal not in range(128)

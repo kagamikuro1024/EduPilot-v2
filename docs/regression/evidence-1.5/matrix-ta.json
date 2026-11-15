@@ -1,0 +1,519 @@
+{
+ "redirect": [],
+ "matrix": [
+  {
+   "v": "ta",
+   "r": "(login)",
+   "ok": true,
+   "url": "/"
+  },
+  {
+   "v": "ta",
+   "r": "/",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/",
+   "h1": "Hôm nay"
+  },
+  {
+   "v": "ta",
+   "r": "/chat",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/chat",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/practice",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/practice",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/practice/history",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/practice/history",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/library",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/library",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/me",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/me",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/join",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/join",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/threads",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/threads",
+   "h1": "Hỏi đáp công khai"
+  },
+  {
+   "v": "ta",
+   "r": "/calendar",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/calendar",
+   "h1": "Lịch"
+  },
+  {
+   "v": "ta",
+   "r": "/inbox",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/inbox",
+   "h1": "Hộp thư hỗ trợ"
+  },
+  {
+   "v": "ta",
+   "r": "/students",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/students",
+   "h1": "Sinh viên"
+  },
+  {
+   "v": "ta",
+   "r": "/attendance",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/attendance",
+   "h1": "Điểm danh"
+  },
+  {
+   "v": "ta",
+   "r": "/class/members",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/class/members",
+   "h1": "Thành viên lớp"
+  },
+  {
+   "v": "ta",
+   "r": "/gradebook",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/gradebook",
+   "h1": "Sổ điểm"
+  },
+  {
+   "v": "ta",
+   "r": "/gradebook/scheme",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/gradebook/scheme",
+   "h1": "Công thức điểm"
+  },
+  {
+   "v": "ta",
+   "r": "/grading",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/grading?tab=queue&needs=0&status=NONE",
+   "h1": "Chấm bài"
+  },
+  {
+   "v": "ta",
+   "r": "/questions",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/questions",
+   "h1": "Ngân hàng câu hỏi"
+  },
+  {
+   "v": "ta",
+   "r": "/documents",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/documents",
+   "h1": "Tài liệu"
+  },
+  {
+   "v": "ta",
+   "r": "/insights",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/insights",
+   "h1": "Lỗ hổng kiến thức"
+  },
+  {
+   "v": "ta",
+   "r": "/analytics",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/analytics",
+   "h1": "Số liệu lớp học"
+  },
+  {
+   "v": "ta",
+   "r": "/observability",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/observability",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/settings/llm",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/settings/llm",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/settings/integrations",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/settings/integrations",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/admin/courses",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/admin/courses",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "ta",
+   "r": "/admin/users",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/admin/users",
+   "h1": "Bạn không có quyền xem màn này"
+  }
+ ],
+ "overflow": [
+  {
+   "v": "ta",
+   "r": "/",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/chat",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/practice",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/practice/history",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/library",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/me",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/join",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/threads",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/calendar",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/inbox",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/students",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/attendance",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/class/members",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/gradebook",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/gradebook/scheme",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/grading",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/questions",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/documents",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/insights",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/analytics",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/observability",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/settings/llm",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/settings/integrations",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/admin/courses",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/admin/users",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/",
+   "w": 375,
+   "ov": 24
+  },
+  {
+   "v": "ta",
+   "r": "/chat",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/practice",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/practice/history",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/library",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/me",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/join",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/threads",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/calendar",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/inbox",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/students",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/attendance",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/class/members",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/gradebook",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/gradebook/scheme",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/grading",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/questions",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/documents",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/insights",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/analytics",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/observability",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/settings/llm",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/settings/integrations",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/admin/courses",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "ta",
+   "r": "/admin/users",
+   "w": 375,
+   "ov": 0
+  }
+ ],
+ "notfound": [
+  {
+   "r": "/khong-co-trang ta",
+   "text": "Đăng nhập EduPilot Email Mật khẩu Đăng nhập Quên mật khẩu? Chưa có tài khoản? Đăng ký Cần giúp? Liên"
+  }
+ ]
+}

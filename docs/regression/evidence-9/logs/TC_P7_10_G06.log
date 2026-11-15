@@ -1,0 +1,48 @@
+$ go test -tags integration ./internal/today ./internal/assignment -run 'TestProviderAppeal|TestAppealReplyNotifiesStudent|TestAppealReplyMailContent|TestAppealBellAggregatedForTeacher' -v
+=== RUN   TestProviderAppealTeacherOnly
+2026/11/15 20:27:28 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 25390707e02bec6d6ffe37d9aa09a6fb218f1cdde95766d1e704ec0fc791fa4c
+  Test ProcessID: 1702118c-7e1d-4b05-b857-5a87180e5f1b
+2026/11/15 20:27:28 ✅ Container started: 68f6ff853df5
+2026/11/15 20:27:28 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:27:29 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:27:35 ✅ Container started: 5636bc78d64d
+2026/11/15 20:27:35 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:27:35 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestProviderAppealTeacherOnly (9.27s)
+=== RUN   TestProviderAppealOverdue48h
+--- PASS: TestProviderAppealOverdue48h (4.09s)
+=== RUN   TestProviderAppealReplyStudentOnly
+--- PASS: TestProviderAppealReplyStudentOnly (5.53s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/today	19.855s
+=== RUN   TestAppealReplyNotifiesStudent
+2026/11/15 20:27:27 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 25390707e02bec6d6ffe37d9aa09a6fb218f1cdde95766d1e704ec0fc791fa4c
+  Test ProcessID: 2d615ac9-490d-4ca8-bc42-9f3097bf6a41
+2026/11/15 20:27:27 ✅ Container started: 68f6ff853df5
+2026/11/15 20:27:27 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:27:28 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealReplyNotifiesStudent (8.28s)
+=== RUN   TestAppealReplyMailContent
+--- PASS: TestAppealReplyMailContent (4.21s)
+=== RUN   TestAppealBellAggregatedForTeacher
+--- PASS: TestAppealBellAggregatedForTeacher (3.90s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	17.060s
+
+rc=0

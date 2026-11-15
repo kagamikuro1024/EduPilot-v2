@@ -1,0 +1,31 @@
+$ go test -tags integration ./internal/today -run 'TestProviderGradingError|TestProviderGradingReview|TestProviderStaffAggregatedOneQuery|TestProviderStudentAggregatedOneQuery|TestTodayQueryBudget' -v
+=== RUN   TestProviderGradingError
+2026/11/15 20:07:43 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: aa7df3e4afdb03e41bc2c153ed6e0d56316af43300d3cdad965dc388f8c385eb
+  Test ProcessID: c97f7129-f095-42d9-94ac-ad4fb577fd0f
+2026/11/15 20:07:43 ✅ Container started: 68f6ff853df5
+2026/11/15 20:07:43 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:07:43 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:07:55 ✅ Container started: 5636bc78d64d
+2026/11/15 20:07:55 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:07:55 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestProviderGradingError (14.51s)
+=== RUN   TestProviderGradingReview
+--- PASS: TestProviderGradingReview (17.03s)
+=== RUN   TestProviderStaffAggregatedOneQuery
+--- PASS: TestProviderStaffAggregatedOneQuery (8.20s)
+=== RUN   TestProviderStudentAggregatedOneQuery
+--- PASS: TestProviderStudentAggregatedOneQuery (7.06s)
+=== RUN   TestTodayQueryBudget
+--- PASS: TestTodayQueryBudget (7.88s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/today	55.539s
+
+rc=0

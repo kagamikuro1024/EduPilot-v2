@@ -1,0 +1,365 @@
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+  kq  |                              name                              | want  |  got  |              cons               
+------+----------------------------------------------------------------+-------+-------+---------------------------------
+ PASS | 00 không có cột late_days / is_late ở submissions              | ok    | ok    | 
+ PASS | 04 allow_late + late_max_days 0                                | 23514 | 23514 | assignments_allow_late_chk
+ PASS | 04 allow_late + late_max_days 14                               | ok    | ok    | 
+ PASS | 04 appeal_days 0                                               | ok    | ok    | 
+ PASS | 04 appeal_days 30                                              | ok    | ok    | 
+ PASS | 04 appeal_days 31                                              | 23514 | 23514 | assignments_appeal_days_chk
+ PASS | 04 channels lạ                                                 | 23514 | 23514 | assignments_channels_chk
+ PASS | 04 channels rỗng                                               | 23514 | 23514 | assignments_channels_chk
+ PASS | 04 hợp lệ                                                      | ok    | ok    | 
+ PASS | 04 id Teams khi KHÔNG có kênh TEAMS (DB chặt hơn spec: Q-01-b) | 23514 | 23514 | assignments_teams_chk
+ PASS | 04 late_max_days 15                                            | 23514 | 23514 | assignments_late_max_days_chk
+ PASS | 04 late_penalty âm                                             | 23514 | 23514 | assignments_late_penalty_chk
+ PASS | 04 mã nộp thư 13 ký tự                                         | 23514 | 23514 | assignments_code_chk
+ PASS | 04 mã nộp thư 1 ký tự                                          | 23514 | 23514 | assignments_code_chk
+ PASS | 04 mã nộp thư chữ thường                                       | 23514 | 23514 | assignments_code_chk
+ PASS | 04 mã nộp thư trùng cùng lớp                                   | 23505 | 23505 | assignments_code_key
+ PASS | 04 mã nộp thư trùng KHÁC lớp                                   | ok    | ok    | 
+ PASS | 04 max_score 0                                                 | 23514 | 23514 | assignments_max_score_chk
+ PASS | 04 max_score 0,25 (biên dưới)                                  | ok    | ok    | 
+ PASS | 04 max_score 100,25                                            | 23514 | 23514 | assignments_max_score_chk
+ PASS | 04 max_score 100 (biên trên)                                   | ok    | ok    | 
+ PASS | 04 max_score 10,1 (không bội 0,25)                             | 23514 | 23514 | assignments_max_score_chk
+ PASS | 04 TEAMS đủ id                                                 | ok    | ok    | 
+ PASS | 04 TEAMS thiếu id                                              | 23514 | 23514 | assignments_teams_chk
+ PASS | 04 type lạ                                                     | 23514 | 23514 | assignments_type_chk
+ PASS | 04 type QUIZ ở DB                                              | ok    | ok    | 
+ PASS | 05 bài tập lớp khác (FK phức hợp)                              | 23503 | 23503 | submissions_assignment_fkey
+ PASS | 05 đổi blob_key bài nộp                                        | P0001 | P0001 | 
+ PASS | 05 đổi sha256 bài nộp                                          | P0001 | P0001 | 
+ PASS | 05 external_ref trùng (source, ref, ts)                        | 23505 | 23505 | submissions_external_key
+ PASS | 05 extracted_text lần đầu (từ NULL)                            | ok    | ok    | 
+ PASS | 05 extracted_text lần hai đổi                                  | P0001 | P0001 | 
+ PASS | 05 file_size 0                                                 | 23514 | 23514 | submissions_file_size_chk
+ PASS | 05 file_size 20 MiB + 1                                        | 23514 | 23514 | submissions_file_size_chk
+ PASS | 05 file_size 20 MiB (biên)                                     | ok    | ok    | 
+ PASS | 05 MATCHED đủ v1                                               | ok    | ok    | 
+ PASS | 05 MATCHED thiếu student_id                                    | 23514 | 23514 | submissions_matched_chk
+ PASS | 05 sinh viên ngoài lớp (FK phức hợp)                           | 23503 | 23503 | submissions_student_fkey
+ PASS | 05 trùng (assignment, student, version)                        | 23505 | 23505 | submissions_matched_version_key
+ PASS | 05 UNMATCHED lần 1                                             | ok    | ok    | 
+ PASS | 05 UNMATCHED lần 2 giống hệt (không bị chặn)                   | ok    | ok    | 
+ PASS | 05 UNMATCHED thiếu lý do                                       | 23514 | 23514 | submissions_unmatched_chk
+ PASS | 05 version 2 cùng sinh viên                                    | ok    | ok    | 
+ PASS | 06 cờ lạ                                                       | 23514 | 23514 | grading_results_flags_chk
+ PASS | 06 ghi needs_review trực tiếp                                  | 428C9 | 428C9 | 
+ PASS | 06 kết quả trỏ bài nộp lớp khác                                | 23503 | 23503 | grading_results_submission_fkey
+ PASS | 06 needs_review cột sinh: NEEDS_REVIEW → true                  | ok    | ok    | 
+ PASS | 06 PUBLISHED thiếu published_at                                | 23514 | 23514 | grading_results_published_chk
+ PASS | 06 REVIEWED khi QUEUED                                         | 23514 | 23514 | grading_results_done_chk
+ PASS | 06 round 2                                                     | ok    | ok    | 
+ PASS | 06 round trùng                                                 | 23505 | 23505 | grading_results_round_key
+ PASS | 10 ai_scores lần đầu từ NULL                                   | ok    | ok    | 
+ PASS | 10 đổi ai_scores                                               | P0001 | P0001 | 
+ PASS | 10 đổi ai_total_before_late                                    | P0001 | P0001 | 
+ PASS | 10 sửa criteria, total, status                                 | ok    | ok    | 
+ PASS | 11 ghi lại cùng giá trị ai_scores                              | ok    | ok    | 
+ PASS | 12 grade_items lớp 1 trỏ bài tập lớp 2                         | 23503 | 23503 | grade_items_assignment_fkey
+ PASS | 12 grade_items trỏ bài tập lớp 1                               | ok    | ok    | 
+ PASS | 12 xoá bài tập đang được grade_items trỏ tới                   | 23503 | 23503 | grade_items_assignment_fkey
+ PASS | 12 xoá bài tập sạch                                            | ok    | ok    | 
+(60 rows)
+
+RESULT: PASS

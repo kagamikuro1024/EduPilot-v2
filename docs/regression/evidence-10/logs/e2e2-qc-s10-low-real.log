@@ -1,0 +1,32 @@
+
+Running 2 tests using 1 worker
+
+(node:2983) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc2-r10/qc-s10-low-real.spec.ts:24:1 › GV: menu, Drawer, Forms (15.2s)
+(node:3334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › e2e/qc2-r10/qc-s10-low-real.spec.ts:43:1 › SV lớp chưa có câu (10.5s)
+
+
+  1) [desktop] › e2e/qc2-r10/qc-s10-low-real.spec.ts:24:1 › GV: menu, Drawer, Forms ────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('row', { name: /DNS dùng để làm gì/ }).first()
+
+
+      34 |   if (await soan.count()) { await soan.first().click(); await page.waitForTimeout(400); out.push("sau Soạn tay: " + (await page.getByRole("menuitem").allInnerTexts()).join(" | ")); await page.screenshot({ path: `${OUT}/low-menu-soan-tay-1440.png` }); }
+      35 |   await page.keyboard.press("Escape");
+    > 36 |   await page.getByRole("row", { name: /DNS dùng để làm gì/ }).first().click(); await page.waitForTimeout(800);
+         |                                                                       ^
+      37 |   const src = page.getByRole("link", { name: /trang \d/ }).first();
+      38 |   out.push("nguồn: " + (await src.count() ? await src.innerText() : "không có liên kết"));
+      39 |   await page.screenshot({ path: `${OUT}/low-drawer-1440.png` });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r10/qc-s10-low-real.spec.ts:36:71
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-low-real/qc2-r10-qc-s10-low-real-GV-menu-Drawer-Forms-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r10/qc-s10-low-real.spec.ts:24:1 › GV: menu, Drawer, Forms ─────────────────
+  1 passed (28.4s)

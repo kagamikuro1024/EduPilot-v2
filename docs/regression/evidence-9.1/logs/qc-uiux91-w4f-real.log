@@ -1,0 +1,26 @@
+
+Running 8 tests using 1 worker
+
+(node:78855) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO chọn: Ngô Ngọc Cẩm, Ngô Thu Khoa | thanh trước: Đã lưu · 29 có mặt · 1 vắng
+INFO thanh sau 2 lần chạm: Lưu điểm danh · 27 có mặt · 3 vắng
+INFO sau lưu: Đã lưu · 27 có mặt · 3 vắng | hộp thoại: 0 | confirm(): 0 | 3 s
+  ✓  1 [desktop] › e2e/qc-uiux91-w4f-real.spec.ts:27:1 › TC-UX12-11/19 điểm danh 375: chạm 2 SV sang Vắng, lưu ≤ 60 s, không hộp thoại (13.7s)
+INFO khối cảnh báo 375: {"h":46,"t":"Công thức chưa xác nhận Xem"}
+  ✓  2 [desktop] › e2e/qc-uiux91-w4f-real.spec.ts:68:1 › TC-UX12-14/15 cảnh báo công thức 375 (lớp 761988): một khối ≤ 56 px (8.8s)
+INFO ô nhập (không focus): ["5,00","3,00","7,50","6,50","6,00","9,25","4,00","9,75","9,00","8,00","8,25","4,50","8,75","2,25","7,75","8,50","2,75","3,75","5,25","5,75","7,25","2,00","4,25"]
+INFO ô nhập focus: 5
+INFO ⋯ tiêu đề: trước [0,0] | rê 1 | focus 1
+  ✓  3 [desktop] › e2e/qc-uiux91-w4f-real.spec.ts:85:1 › TC-UX16-1/5 sổ điểm 1440: ô nhập đệm 0 khi không focus, giá trị thô khi focus; ⋯ tiêu đề chỉ hiện khi rê / focus (10.3s)
+INFO ô nhập 375: {"ov":false,"inp":[44,44]}
+  ✓  4 [desktop] › e2e/qc-uiux91-w4f-real.spec.ts:120:1 › TC-UX16-21 sổ điểm 375: ô nhập cao ≥ 44, cuộn ngang trong bảng, không tràn trang (9.2s)
+(node:81044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  5 [mobile] › e2e/qc-uiux91-w4f-real.spec.ts:27:1 › TC-UX12-11/19 điểm danh 375: chạm 2 SV sang Vắng, lưu ≤ 60 s, không hộp thoại
+  -  6 [mobile] › e2e/qc-uiux91-w4f-real.spec.ts:68:1 › TC-UX12-14/15 cảnh báo công thức 375 (lớp 761988): một khối ≤ 56 px
+  -  7 [mobile] › e2e/qc-uiux91-w4f-real.spec.ts:85:1 › TC-UX16-1/5 sổ điểm 1440: ô nhập đệm 0 khi không focus, giá trị thô khi focus; ⋯ tiêu đề chỉ hiện khi rê / focus
+  -  8 [mobile] › e2e/qc-uiux91-w4f-real.spec.ts:120:1 › TC-UX16-21 sổ điểm 375: ô nhập cao ≥ 44, cuộn ngang trong bảng, không tràn trang
+
+  4 skipped
+  4 passed (44.6s)

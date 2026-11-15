@@ -1,0 +1,19 @@
+PASS TC-PE08-09 12 lượt: điểm hệ thống = điểm tính tay (Decimal; MCQ_SINGLE/MULTI PARTIAL, code theo trọng số 6/4/0, TF bỏ trống=0): lệch []
+PASS TC-PE01-21 PARTIAL: TP/FP 12 tổ hợp khớp tay (qua API); không điểm âm
+PASS TC-PE01-23 ví dụ qua F19: 1 + 3 + 0 + 5 = 9.00 (làm tròn 0,01)
+PASS TC-PE01-24 r5s02: 0+2+0+3,3333 → 5.33 (làm tròn một lần ở cuối; từng câu 3.33+2 cũng 5.33 nên chỉ minh hoạ)
+PASS TC-PE08-17 công bố PUBLISHED|13:21:53.759 (đóng 13:21:47; chấm xong tới 13:21:53.699); published_at đặt 1 lần
+PASS TC-PE08-21 thông báo công bố: EXAM_PUBLISHED|12, EXAM_SCHEDULED|12 (SV có lượt = 12; SV vắng 2 không nhận)
+PASS TC-PE08-25 result SV: 200; 0 canary test ẩn/lời giải; khoá câu code: ['answer', 'compile_log', 'correct', 'earned', 'explanation', 'final_submission', 'hidden', 'item_id', 'max', 'mine', 'options', 'overridden',
+PASS TC-PE08-27 test ẩn chỉ đếm: {"passed": 2, "total": 2}
+PASS TC-PE08-26 reveal_answers=true: khoá hiển thị câu MCQ ['answer', 'compile_log', 'correct', 'earned', 'explanation', 'final_submission', 'hidden', 'item_id', 'max', 'mine', 'options', 'overridden', 'position', 's
+PASS TC-PE08-63 results: TA/ADMIN/SV/ngoài lớp = [200, 403, 403, 403]; CSV GV/ADMIN [200, 403]
+PASS TC-PE08-43 CSV 15 dòng (12 làm + 2 vắng + tiêu đề); đầu: '\ufeffmssv;ho_ten;trang_thai;diem_tu_dong;diem_chinh_thuc;nop_luc;ly_do_nop;cau_1;cau_2;cau_3;cau_4'; vắng: 'R5S0013;R5 SV 13;ABSENT;;;;;;;;'
+PASS TC-PE08-39 stats: mean 2.72 median 2.00 hardest r5-2
+PASS TC-PE08-48 TA sửa điểm: 403
+PASS TC-PE08-57 phúc khảo 201; lần hai 409 ['APPEAL_EXISTS']
+FAIL TC-PE08-58 GV trả lời 422 ['INVALID', 'VALIDATION_FAILED']; SV thấy 2.00 adjusted=False appeal={'status': 'OPEN', 'response': None}; audit 0
+PASS TC-PE08-49 thiếu lý do 422; có lý do 200; auto_score giữ 0.00
+PASS TC-PE08-51 override void: 200; r5s06 6.00 → 7.00 (+1 cho người bỏ/sai); r5s05 1.00 → 1.00
+FAIL TC-PE08-54 regrade ALL: 422 ['INVALID', 'VALIDATION_FAILED']
+similarity 503 {}

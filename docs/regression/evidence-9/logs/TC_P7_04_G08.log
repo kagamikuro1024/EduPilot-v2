@@ -1,0 +1,25 @@
+$ go test -tags integration ./internal/today -run 'TestProviderUnmatchedSubmission|TestProviderUnmatchedCleared' -v
+=== RUN   TestProviderUnmatchedSubmission
+2026/11/15 19:42:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 0008fdf8ca0486a6932bb904e498877de29e72dca9ac3ef2ce9ec21596a638c1
+  Test ProcessID: 35c1d9be-9254-428a-9575-8780c2f014fb
+2026/11/15 19:42:35 ✅ Container started: 68f6ff853df5
+2026/11/15 19:42:35 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:42:35 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:42:37 ✅ Container started: 5636bc78d64d
+2026/11/15 19:42:37 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:42:37 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestProviderUnmatchedSubmission (2.83s)
+=== RUN   TestProviderUnmatchedCleared
+--- PASS: TestProviderUnmatchedCleared (2.12s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/today	5.536s
+
+rc=0

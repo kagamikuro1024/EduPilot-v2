@@ -1,0 +1,10 @@
+PASS G02-03a retired_in_version <= approved_in_version bị CHECK chặn ERROR:  new row for relation "grading_guidance_items" violates check constraint "grading_guidance_items_check1" DETAIL:  Failing row contains (01a1df48-ecf9-7c31-bac7-c29409f59a9f, 01a1df27-6
+PASS G02-03b APPROVED không có decided_by bị CHECK chặn ERROR:  new row for relation "grading_guidance_items" violates check constraint "grading_guidance_items_check" DETAIL:  Failing row contains (01a1df48-f0c6-72a0-ac10-c8982d307caa, 01a1df27-62b5-7775-a346-
+PASS G02-03c reject_reason khi review_status<>'REJECTED' bị CHECK chặn ERROR:  new row for relation "question_bank" violates check constraint "question_bank_reject_reason_chk" DETAIL:  Failing row contains (01a1df2f-ab16-777f-883c-176e82634862, 01a1df27-62b5-7
+PASS G02-07 UPDATE ai_scores của kết quả DONE bị trigger chặn ERROR:  ai draft is immutable CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 4 at RAISE 
+PASS G02-07 UPDATE ai_comments của kết quả DONE bị trigger chặn ERROR:  ai draft is immutable CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 11 at RAISE 
+PASS G02-07 UPDATE guidance_version của kết quả DONE bị trigger chặn ERROR:  ai draft is immutable CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 11 at RAISE 
+PASS G02-07 UPDATE cột khác vẫn được 
+PASS G02-09 ai_comments dạng {criteria:{id:chữ}, overall} ['overall', 'criteria']
+INFO kết quả DONE không có ai_comments: 5
+PASS G07 UNIQUE (course,kind,source,criterion) chặn trùng ERROR:  duplicate key value violates unique constraint "grc_unique" DETAIL:  Key (course_id, kind, source_id, COALESCE(criterion_id, ''::text))=(01a1df27-62b5-7775-a346-5c602a43e2f9, GRADING_EDIT, 01a1d

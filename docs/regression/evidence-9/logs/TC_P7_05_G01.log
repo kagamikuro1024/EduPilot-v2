@@ -1,0 +1,32 @@
+$ go test -tags integration ./internal/integration -run 'TestImapConfigSecretWriteOnly|TestImapConfigEncrypted|TestImapConfigVersionConflict|TestImapConfigAuditNoSecret' -v
+=== RUN   TestImapConfigSecretWriteOnly
+2026/11/15 19:42:55 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 44ccf2e7f70e1212eac3f494c8f951a761cafbe1ca8f8861c757fc485ddec64c
+  Test ProcessID: e09d2afb-f67d-46b4-93f8-62205678b796
+2026/11/15 19:42:55 ✅ Container started: 68f6ff853df5
+2026/11/15 19:42:55 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:42:56 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:42:58 ✅ Container started: 5636bc78d64d
+2026/11/15 19:42:58 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:42:58 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:42:58 ✅ Container started: b8d9c357e377
+2026/11/15 19:42:58 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:42:58 🔔 Container is ready: b8d9c357e377
+--- PASS: TestImapConfigSecretWriteOnly (3.26s)
+=== RUN   TestImapConfigEncrypted
+--- PASS: TestImapConfigEncrypted (2.49s)
+=== RUN   TestImapConfigVersionConflict
+--- PASS: TestImapConfigVersionConflict (1.82s)
+=== RUN   TestImapConfigAuditNoSecret
+--- PASS: TestImapConfigAuditNoSecret (1.96s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	10.311s
+
+rc=0

@@ -1,0 +1,22 @@
+$ go test -tags integration ./internal/assignment -run 'TestGradeItemLinkDisplay|TestNoGradeItemColumn' -v
+=== RUN   TestGradeItemLinkDisplay
+2026/11/15 19:36:26 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: cd2a42f9ddb6d7b42c71645359e07fc8452501331d76be9d9a9be5a3fb4374c6
+  Test ProcessID: e1ef9d4e-a3e5-48af-95f2-0541c1a1ff59
+2026/11/15 19:36:26 ✅ Container started: 68f6ff853df5
+2026/11/15 19:36:26 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:36:26 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestGradeItemLinkDisplay (4.14s)
+=== RUN   TestNoGradeItemColumn
+--- PASS: TestNoGradeItemColumn (2.21s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	6.847s
+
+rc=0

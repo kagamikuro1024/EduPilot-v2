@@ -1,0 +1,321 @@
+{"tc": "TC-01-12a", "st": "PASS", "note": "SHORT 201 DRAFT"}
+{"tc": "TC-01-12b", "st": "PASS", "note": "ESSAY 201"}
+{"tc": "TC-01-16 []", "st": "PASS", "note": "422 ['ANSWER_EMPTY']"}
+{"tc": "TC-01-16 [\"\"]", "st": "PASS", "note": "422 ['ANSWER_EMPTY']"}
+{"tc": "TC-01-16 [\"  \"]", "st": "PASS", "note": "422 ['ANSWER_EMPTY']"}
+{"tc": "TC-01-16 [\"...\",\"?!\"]", "st": "PASS", "note": "422 ['ANSWER_EMPTY']"}
+{"tc": "TC-01-P1", "st": "PASS", "note": "403"}
+{"tc": "TC-01-P2", "st": "PASS", "note": "201"}
+{"tc": "TC-S1 ESSAY thiếu model_answer/rubric → 422", "st": "PASS", "note": "422 ['MODEL_ANSWER_REQUIRED', 'RUBRIC_REQUIRED']"}
+{"tc": "TC-01-08", "st": "PASS", "note": "15 ca; lệch: []"}
+{"tc": "TC-01-09", "st": "PASS", "note": "[('tcp/ip.', 1, True, 200), ('TCP-IP', 0, False, 200), ('tcp ip', 1, True, 200), ('', 0, False, 200)]"}
+{"tc": "TC-06-03 overview", "st": "PASS", "note": "200 15 chủ đề"}
+{"tc": "TC-05-02 TOPIC 10 câu không trùng", "st": "PASS", "note": "201 10 câu"}
+{"tc": "TC-05-13", "st": "PASS", "note": "thứ tự câu + phương án ổn định qua 3 lần GET"}
+{"tc": "TC-05-12", "st": "PASS", "note": "cùng tập câu=False, thứ tự câu khác=True, thứ tự phương án khác=True"}
+{"tc": "TC-05-16 count=4", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '7f045368f163e233d13fc871dd741c19', 'details': [{'field': 'count', 'code': 'LIMIT_OUT_OF_RANGE', 'message': 'Số câu từ 5 đến 50.'}]}"}
+{"tc": "TC-05-16 count=51", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '1c8ff2e7c91b1ad481ef33f80ef7dbbc', 'details': [{'field': 'count', 'code': 'LIMIT_OUT_OF_RANGE', 'message': 'Số câu từ 5 đến 50.'}]}"}
+{"tc": "TC-05-16 count=0", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'c3807c255b17dbf84d66240299f74b6d', 'details': [{'field': 'count', 'code': 'LIMIT_OUT_OF_RANGE', 'message': 'Số câu từ 5 đến 50.'}]}"}
+{"tc": "TC-05-16 count=\"abc\"", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'a1d643a496431816c9b1cd8dcc170706', 'details': [{'field': 'count', 'code': 'type', 'message': 'Giá trị không đúng kiểu dữ liệu.'}]}"}
+{"tc": "TC-05-16 topic lạ", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '16b22a8420aeace9622a203a96625e95', 'details': [{'field': 'topic', 'code': 'UNKNOWN_TOPIC', 'message': 'Chủ đề này chưa có câu hỏi.'}]}"}
+{"tc": "TC-05-16 mode lạ", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '5968a43fcb4f06c717d2b2a19c7ceca4', 'details': [{'field': 'mode', 'code': 'INVALID_MODE', 'message': 'Chế độ phải là TOPIC hoặc MOCK.'}]}"}
+{"tc": "TC-05-16 TOPIC thiếu topic", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3b2fab77b36f0a9581aae94459393720', 'details': [{'field': 'topic', 'code': 'VALUE_REQUIRED', 'message': 'Chọn một chủ đề.'}]}"}
+{"tc": "TC-06-06 thiếu Idempotency-Key", "st": "PASS", "note": "422"}
+{"tc": "TC-05-14 sv lớp 1 start ở lớp 2", "st": "PASS", "note": "403"}
+{"tc": "TC-05-P staff teacher start", "st": "PASS", "note": "403"}
+{"tc": "TC-05-P staff ta start", "st": "PASS", "note": "403"}
+{"tc": "TC-05-P staff admin start", "st": "PASS", "note": "403"}
+{"tc": "TC-05-P sv.moi start", "st": "PASS", "note": "403"}
+{"tc": "TC-05-11/06-22 4 câu → 409 NOT_ENOUGH_QUESTIONS", "st": "PASS", "note": "409 {\"code\": \"NOT_ENOUGH_QUESTIONS\", \"message\": \"Chưa đủ câu để luyện chủ đề này.\", \"trace_id\": \"74d0743a0ff731704c65455bdc3bde44\", \"details\": {\"available"}
+{"tc": "TC-05-10 6 câu xin 10 → 6 câu + notes", "st": "PASS", "note": "201 items=6 notes=['thiếu câu chủ đề QC-Few6']"}
+{"tc": "TC-05-08", "st": "PASS", "note": "30 lượt; câu DRAFT/PENDING/REJECTED/archived xuất hiện: set(); lệnh archive=200"}
+{"tc": "TC-05-17 MOCK count=5", "st": "FAIL", "note": "201 items=15 notes=[]"}
+{"tc": "TC-05-17 MOCK count=50", "st": "FAIL", "note": "201 items=45 notes=[]"}
+{"tc": "TC-05-03 dựng đề p95 ≤ 3 s", "st": "PASS", "note": "n=60 p50=8 p95=13 max=22 ms"}
+{"tc": "TC-05-16 topic lạ (không có trong ngân hàng) → 422", "st": "PASS", "note": "422 UNKNOWN_TOPIC (đọc lại ở lượt 1: đúng như TC)"}
+{"tc": "TC-05-16 chủ đề có câu nhưng 0 đủ điều kiện → 409 {available:0}", "st": "PASS", "note": "409 {\"code\": \"NOT_ENOUGH_QUESTIONS\", \"message\": \"Chưa đủ câu để luyện chủ đề này.\", \"trace_id\": \"ef2e7aaa87458e6eadf02cf164434a2c\", \"details\": {\"available\": 0}}"}
+{"tc": "TC-05-16 count=0 → 422", "st": "PASS", "note": "422 (201 = mã coi 0 như không gửi, dùng mặc định)"}
+{"tc": "TC-05-17 MOCK count=5", "st": "PASS", "note": "201 items=5 ma trận tổng 5 notes=[]"}
+{"tc": "TC-05-17 MOCK count=50", "st": "PASS", "note": "201 items=50 ma trận tổng 50 notes=[]"}
+{"tc": "TC-06-04", "st": "PASS", "note": "201/201/200 cùng id=True"}
+{"tc": "TC-10-05a chưa trả lời: 0 khoá nhạy cảm", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-05 chủ đề khác → 201", "st": "PASS", "note": "201"}
+{"tc": "TC-06-12 explain chưa trả lời → 409 NOT_ANSWERED", "st": "PASS", "note": "409 {\"code\":\"NOT_ANSWERED\",\"message\":\"Hãy trả lời câu này trước.\",\"trace_id\":\"987830319f0e41afb2a3bf3cc77a3b11\"}\n"}
+{"tc": "TC-06-08a TOPIC phản hồi ngay", "st": "FAIL", "note": "422 correct=None key=thiếu citations=0 locked=None"}
+{"tc": "TC-06-08b câu 2 đúng", "st": "PASS", "note": "True"}
+{"tc": "TC-07-01 MOCK mặc định count=20 duration=30", "st": "PASS", "note": "201 items=20 deadline=2026-11-15T13:00:31.582694Z server_now=2026-11-15T12:30:31.594886243Z"}
+{"tc": "TC-07-01b deadline = server_now + 30 phút (±2 s)", "st": "PASS", "note": "1800.0 s"}
+{"tc": "TC-07-02 start MOCK lần 2 → 200 cùng lượt", "st": "PASS", "note": "200"}
+{"tc": "TC-07-02b DB 1 lượt MOCK IN_PROGRESS", "st": "PASS", "note": ""}
+{"tc": "TC-10-04 MOCK đang làm: 0 khoá nhạy cảm trong mọi phản hồi (kể cả lỗi)", "st": "PASS", "note": "[]"}
+{"tc": "TC-10-15 explain MOCK chưa nộp → 409 NOT_SUBMITTED", "st": "PASS", "note": "409 {\"code\":\"NOT_SUBMITTED\",\"message\":\"Nộp bài xong mới xem được giải thích.\",\"trace_id\":\"15b73583774330"}
+{"tc": "TC-07-07 version cũ → 409 VERSION_CONFLICT", "st": "PASS", "note": "409 {\"code\": \"VERSION_CONFLICT\", \"message\": \"Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.\", \"trace_id\": \"17"}
+{"tc": "TC-07-08 option_id lạ → 422 INVALID_OPTION_ID", "st": "PASS", "note": "422 {\"code\": \"INVALID_OPTION_ID\", \"message\": \"Đáp án chọn không thuộc câu hỏi.\", \"trace_id\": \"2aec3a9e5a434c6a94e9f96c1622ec4e\"}"}
+{"tc": "TC-07-08b lượt không tồn tại → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-07-08c itemId lạ → 404/422", "st": "PASS", "note": "404 {\"code\": \"NOT_FOUND\", \"message\": \"Không tìm thấy.\", \"trace_id\": \"426e58c31ce3fbc8be937d958015f3f3\"}"}
+{"tc": "TC-07-14 PATCH current_index=-1", "st": "PASS", "note": "422"}
+{"tc": "TC-07-14 PATCH current_index=20", "st": "PASS", "note": "422"}
+{"tc": "TC-07-14 PATCH current_index=99", "st": "PASS", "note": "422"}
+{"tc": "TC-07-13 PATCH current_index=7 lưu", "st": "PASS", "note": "200"}
+{"tc": "TC-07-13b GET lại current_index=7, deadline không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-07-06 tab cũ ghi sau khi tab mới mở → 409 TAB_TAKEN_OVER", "st": "PASS", "note": "409 {\"code\": \"TAB_TAKEN_OVER\", \"message\": \"Bài này đang được làm ở tab khác.\", \"trace_id\": \"9a445fda3c7c5027713b9378f99144af"}
+{"tc": "TC-07-06b tab mới ghi được; câu đã lưu còn", "st": "PASS", "note": "200"}
+{"tc": "TC-07-06c thiếu X-Practice-Tab khi ghi MOCK → 4xx", "st": "PASS", "note": ""}
+{"tc": "TC-10-13 MOCK đang làm không đổi exam-lock", "st": "PASS", "note": "{\"locked\": false} → {\"locked\": false}"}
+{"tc": "TC-07-16 13/20 → correct=13, score=6.5", "st": "PASS", "note": "200 {\"correct\": 13, \"total\": 20, \"score\": \"6.5\", \"topics\": [{\"topic\": \"An toàn ứng dụng web\", \"correct\": 2, \"total\": 2}, {\"topic\": \"Hàm băm\", \"correct\": 1, \"total\": 1}, {\"topic\": \"Hàm băm và chữ ký\", \"correct\": 3, \"total\": 4}, {\"topic\": \"Mạng và tường lửa\", \"corre"}
+{"tc": "TC-07-17 submit lần 2 cùng kết quả", "st": "PASS", "note": ""}
+{"tc": "TC-07-16c sau nộp lộ đáp án + giải thích từng câu", "st": "PASS", "note": "20/20 câu có phản hồi"}
+{"tc": "TC-07-18 điểm luyện không vào sổ điểm (grade_entries không đổi)", "st": "PASS", "note": "60"}
+{"tc": "TC-07-16b 5/8 → 6.3", "st": "PASS", "note": "correct=5 (mong 5) total=8 score=6.3"}
+{"tc": "TC-07-16b 7/20 → 3.5", "st": "PASS", "note": "correct=7 (mong 7) total=20 score=3.5"}
+{"tc": "TC-07-16b 3/7 → 4.3", "st": "PASS", "note": "correct=3 (mong 3) total=7 score=4.3"}
+{"tc": "TC-07-11/19b client_ts ≤ hạn, trong 60 s → nhận", "st": "PASS", "note": "200 {\"version\": 1, \"locked\": false, \"feedback\": null}"}
+{"tc": "TC-07-11b client_ts > hạn → bỏ (200), notes ghi lý do, không lưu câu", "st": "PASS", "note": "200 notes=['Một số lựa chọn gửi sau giờ làm bài đã không được tính.'] answer câu 3=None"}
+{"tc": "TC-07-11d thiếu client_ts quá hạn (trong 60 s) → 409 ATTEMPT_CLOSED", "st": "PASS", "note": "409 {\"code\": \"ATTEMPT_CLOSED\", \"message\": \"Đã hết thời gian làm bài.\", \"trace_id\": \"240cc36957bbe811f802"}
+{"tc": "TC-07-11c/19 sau hạn > 60 s → 409 ATTEMPT_CLOSED (kể cả client_ts ≤ hạn)", "st": "PASS", "note": "409 {\"code\": \"ATTEMPT_CLOSED\", \"message\": \"Đã hết thời gian làm bài.\", \"trace_id\": \"7331f2de491fbd2e1857"}
+{"tc": "TC-10-14/07-23 không có exam_events mới", "st": "PASS", "note": "0→0"}
+{"tc": "TC-06-04", "st": "FAIL", "note": "200/200/200 cùng id=True"}
+{"tc": "TC-10-05a chưa trả lời: 0 khoá nhạy cảm", "st": "FAIL", "note": "['\"correct\"', 'explanation', 'citations', '\"correct\"', 'explanation', 'citations', '\"correct\"', 'explanation', 'citations', '\"correct\"', 'explanation', 'citations', '\"correct\"', 'explanation', 'citations', '\"correct\"', 'explanation', 'citations', '\"correct\"', 'explanation', 'citations', '\"correct\"', 'explanation', 'citations', '\"correct\"', 'explanation', 'citations']"}
+{"tc": "TC-06-05 chủ đề khác → 201", "st": "FAIL", "note": "200"}
+{"tc": "TC-06-12 explain chưa trả lời → 409 NOT_ANSWERED", "st": "PASS", "note": "409 {\"code\":\"NOT_ANSWERED\",\"message\":\"Hãy trả lời câu này trước.\",\"trace_id\":\"2d418d68feb1326c4ba678caa9d03912\"}\n"}
+{"tc": "TC-06-08a TOPIC phản hồi ngay", "st": "PASS", "note": "200 correct=False key=có citations=0 locked=True"}
+{"tc": "TC-06-08b câu 2 đúng", "st": "PASS", "note": "True"}
+{"tc": "TC-06-08c có trích dẫn (nguồn)", "st": "FAIL", "note": "0 trích dẫn; mẫu []"}
+{"tc": "TC-06-09 đổi đáp án đã khoá → 409 ANSWER_LOCKED", "st": "PASS", "note": "409 {\"code\": \"ANSWER_LOCKED\", \"message\": \"Câu này đã trả lời, không đổi được.\", \"trace_id\": \"60f3a8e8ff6e7521fcb5397ecf80167"}
+{"tc": "TC-06-08d p95 PUT answers ≤ 500 ms", "st": "PASS", "note": "n=10 p50=27 p95=217 ms (cỡ mẫu nhỏ; thêm ở TC-06-08e)"}
+{"tc": "TC-06-11 explain SSE 200, byte đầu ≤ 300 ms", "st": "FAIL", "note": "codes={200} p95 byte đầu=338 ms; mẫu: 'event: ready\\ndata: {\"cached\":false}\\n\\nevent: token\\ndata: {\"text\":\"Đáp án đúng là Forward secrecy vì đây chính là thuật ngữ chỉ tính chất bảo\"}\\n\\nevent: token\\ndata'"}
+{"tc": "TC-06-16/17 submit idempotent; câu bỏ trống = 0", "st": "PASS", "note": "200/200/200 kết quả {\"correct\": 9, \"total\": 10, \"score\": \"9.0\", \"topics\": [{\"topic\": \"Mật mã công khai\", \"correct\": 9, \"total\": 10}], \"weakest_topic\": \"Mật mã công khai\", \"expired\": false} (đã đúng 9/10, sai 1)"}
+{"tc": "TC-06-16b không điểm/xếp hạng ở TOPIC", "st": "PASS", "note": "result keys=['correct', 'total', 'score', 'topics', 'weakest_topic', 'expired']"}
+{"tc": "TC-06-18 sv.gioi trên lượt của sv.kha → 404 cả 5", "st": "PASS", "note": "[404, 404, 404, 404, 404]"}
+{"tc": "TC-06-19/01-P3 teacher trên lượt SV → 403", "st": "PASS", "note": "[403, 403, 403, 403]"}
+{"tc": "TC-09-14 teacher overview/history/weakness → 403", "st": "PASS", "note": ""}
+{"tc": "TC-06-19/01-P3 ta trên lượt SV → 403", "st": "PASS", "note": "[403, 403, 403, 403]"}
+{"tc": "TC-09-14 ta overview/history/weakness → 403", "st": "PASS", "note": ""}
+{"tc": "TC-06-19/01-P3 admin trên lượt SV → 403", "st": "PASS", "note": "[403, 403, 403, 403]"}
+{"tc": "TC-09-14 admin overview/history/weakness → 403", "st": "PASS", "note": ""}
+{"tc": "TC-06-25b MCQ_MULTI trùng tập mới đúng", "st": "FAIL", "note": "[(['2', '4', '6'], True), (['2', '4'], False), (['2', '4', '6', '7'], False), (['2', '7'], False), ([], 422)]"}
+{"tc": "TC-06-25b đúng/tổng nguyên", "st": "PASS", "note": "{\"correct\": 1, \"total\": 5, \"score\": \"2.0\", \"topics\": [{\"topic\": \"QC-Multi\", \"correct\": 1, \"total\": 5}], \"weakest_topic\": \"QC-Multi\", \"expired\": false}"}
+{"tc": "TC-07-01 MOCK mặc định count=20 duration=30", "st": "PASS", "note": "201 items=20 deadline=2026-11-15T13:01:21.96856Z server_now=2026-11-15T12:31:22.019572407Z"}
+{"tc": "TC-07-01b deadline = server_now + 30 phút (±2 s)", "st": "PASS", "note": "1799.9 s"}
+{"tc": "TC-07-02 start MOCK lần 2 → 200 cùng lượt", "st": "PASS", "note": "200"}
+{"tc": "TC-07-02b DB 1 lượt MOCK IN_PROGRESS", "st": "PASS", "note": ""}
+{"tc": "TC-07-01 MOCK mặc định count=20 duration=30", "st": "FAIL", "note": "200 items=20 deadline=2026-11-15T13:01:21.96856Z server_now=2026-11-15T12:31:28.256655533Z"}
+{"tc": "TC-07-01b deadline = server_now + 30 phút (±2 s)", "st": "FAIL", "note": "1793.7 s"}
+{"tc": "TC-07-02 start MOCK lần 2 → 200 cùng lượt", "st": "PASS", "note": "200"}
+{"tc": "TC-07-02b DB 1 lượt MOCK IN_PROGRESS", "st": "PASS", "note": ""}
+{"tc": "TC-10-04 MOCK đang làm: 0 khoá nhạy cảm trong mọi phản hồi (kể cả lỗi)", "st": "PASS", "note": "[]"}
+{"tc": "TC-10-15 explain MOCK chưa nộp → 409 NOT_SUBMITTED", "st": "PASS", "note": "409 {\"code\":\"NOT_SUBMITTED\",\"message\":\"Nộp bài xong mới xem được giải thích.\",\"trace_id\":\"4d2e82bb70fc32"}
+{"tc": "TC-06-04", "st": "PASS", "note": "201/201/200 cùng id=True"}
+{"tc": "TC-10-05a chưa trả lời: 0 khoá nhạy cảm", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-05 chủ đề khác → 201", "st": "PASS", "note": "201"}
+{"tc": "TC-06-12 explain chưa trả lời → 409 NOT_ANSWERED", "st": "PASS", "note": "409 {\"code\":\"NOT_ANSWERED\",\"message\":\"Hãy trả lời câu này trước.\",\"trace_id\":\"b491381992bffd772f0e2ab3e8f1f914\"}\n"}
+{"tc": "TC-06-08a TOPIC phản hồi ngay", "st": "PASS", "note": "200 correct=False key=có citations=0 locked=True"}
+{"tc": "TC-06-08b câu 2 đúng", "st": "PASS", "note": "True"}
+{"tc": "TC-06-08c có trích dẫn (nguồn)", "st": "FAIL", "note": "0 trích dẫn; mẫu []"}
+{"tc": "TC-06-09 đổi đáp án đã khoá → 409 ANSWER_LOCKED", "st": "PASS", "note": "409 {\"code\": \"ANSWER_LOCKED\", \"message\": \"Câu này đã trả lời, không đổi được.\", \"trace_id\": \"a96cb34cf83962aeab2151387db6f9a"}
+{"tc": "TC-06-08d p95 PUT answers ≤ 500 ms", "st": "PASS", "note": "n=10 p50=34 p95=45 ms (cỡ mẫu nhỏ; thêm ở TC-06-08e)"}
+{"tc": "TC-06-11 explain SSE 200, byte đầu ≤ 300 ms", "st": "PASS", "note": "codes={200} p95 byte đầu=161 ms; mẫu: 'event: ready\\ndata: {\"cached\":false}\\n\\nevent: token\\ndata: {\"text\":\"Đáp án A đúng vì PKI chính là hạ tầng bao gồm CA, chứng thư và quy trình quản lý khoá công khai'"}
+{"tc": "TC-06-16/17 submit idempotent; câu bỏ trống = 0", "st": "PASS", "note": "200/200/200 kết quả {\"correct\": 8, \"total\": 10, \"score\": \"8.0\", \"topics\": [{\"topic\": \"Mật mã công khai\", \"correct\": 8, \"total\": 10}], \"weakest_topic\": \"Mật mã công khai\", \"expired\": false} (đã đúng 9/10, sai 1)"}
+{"tc": "TC-06-16b không điểm/xếp hạng ở TOPIC", "st": "PASS", "note": "result keys=['correct', 'total', 'score', 'topics', 'weakest_topic', 'expired']"}
+{"tc": "TC-06-18 sv.gioi trên lượt của sv.kha → 404 cả 5", "st": "PASS", "note": "[404, 404, 404, 404, 404]"}
+{"tc": "TC-06-19/01-P3 teacher trên lượt SV → 403", "st": "PASS", "note": "[403, 403, 403, 403]"}
+{"tc": "TC-09-14 teacher overview/history/weakness → 403", "st": "PASS", "note": ""}
+{"tc": "TC-06-19/01-P3 ta trên lượt SV → 403", "st": "PASS", "note": "[403, 403, 403, 403]"}
+{"tc": "TC-09-14 ta overview/history/weakness → 403", "st": "PASS", "note": ""}
+{"tc": "TC-06-19/01-P3 admin trên lượt SV → 403", "st": "PASS", "note": "[403, 403, 403, 403]"}
+{"tc": "TC-09-14 admin overview/history/weakness → 403", "st": "PASS", "note": ""}
+{"tc": "TC-06-25b MCQ_MULTI trùng tập mới đúng", "st": "FAIL", "note": "[(['2', '4', '6'], True), (['2', '4'], False), (['2', '4', '6', '7'], False), (['2', '7'], False), ([], 422)]"}
+{"tc": "TC-06-25b đúng/tổng nguyên", "st": "PASS", "note": "{\"correct\": 1, \"total\": 5, \"score\": \"2.0\", \"topics\": [{\"topic\": \"QC-Multi\", \"correct\": 1, \"total\": 5}], \"weakest_topic\": \"QC-Multi\", \"expired\": false}"}
+{"tc": "TC-07-01 MOCK mặc định count=20 duration=30", "st": "PASS", "note": "201 items=20 deadline=2026-11-15T13:01:58.569523Z server_now=2026-11-15T12:31:58.598328253Z"}
+{"tc": "TC-07-01b deadline = server_now + 30 phút (±2 s)", "st": "PASS", "note": "1800.0 s"}
+{"tc": "TC-07-02 start MOCK lần 2 → 200 cùng lượt", "st": "PASS", "note": "200"}
+{"tc": "TC-07-02b DB 1 lượt MOCK IN_PROGRESS", "st": "PASS", "note": ""}
+{"tc": "TC-07-01 MOCK mặc định count=20 duration=30", "st": "PASS", "note": "201 items=20 deadline=2026-11-15T13:02:08.113527Z server_now=2026-11-15T12:32:08.130653443Z"}
+{"tc": "TC-07-01b deadline = server_now + 30 phút (±2 s)", "st": "PASS", "note": "1800.0 s"}
+{"tc": "TC-07-02 start MOCK lần 2 → 200 cùng lượt", "st": "PASS", "note": "200"}
+{"tc": "TC-07-02b DB 1 lượt MOCK IN_PROGRESS", "st": "PASS", "note": ""}
+{"tc": "TC-10-04 MOCK đang làm: 0 khoá nhạy cảm trong mọi phản hồi (kể cả lỗi)", "st": "PASS", "note": "[]"}
+{"tc": "TC-10-15 explain MOCK chưa nộp → 409 NOT_SUBMITTED", "st": "PASS", "note": "409 {\"code\":\"NOT_SUBMITTED\",\"message\":\"Nộp bài xong mới xem được giải thích.\",\"trace_id\":\"1472d2bd198eb3"}
+{"tc": "TC-07-07 version cũ → 409 VERSION_CONFLICT", "st": "PASS", "note": "409 {\"code\": \"VERSION_CONFLICT\", \"message\": \"Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.\", \"trace_id\": \"97"}
+{"tc": "TC-07-08 option_id lạ → 422 INVALID_OPTION_ID", "st": "PASS", "note": "422 {\"code\": \"INVALID_OPTION_ID\", \"message\": \"Đáp án chọn không thuộc câu hỏi.\", \"trace_id\": \"f973d10410da090c7a4f1bb7ba7032a1\"}"}
+{"tc": "TC-07-08b lượt không tồn tại → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-07-08c itemId lạ → 404/422", "st": "PASS", "note": "404 {\"code\": \"NOT_FOUND\", \"message\": \"Không tìm thấy.\", \"trace_id\": \"d88555135ba730c7382979bb9e9f4b8a\"}"}
+{"tc": "TC-07-14 PATCH current_index=-1", "st": "PASS", "note": "422"}
+{"tc": "TC-07-14 PATCH current_index=20", "st": "PASS", "note": "422"}
+{"tc": "TC-07-14 PATCH current_index=99", "st": "PASS", "note": "422"}
+{"tc": "TC-07-13 PATCH current_index=7 lưu", "st": "PASS", "note": "200"}
+{"tc": "TC-07-13b GET lại current_index=7, deadline không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-07-06 tab cũ ghi sau khi tab mới mở → 409 TAB_TAKEN_OVER", "st": "PASS", "note": "409 {\"code\": \"TAB_TAKEN_OVER\", \"message\": \"Bài này đang được làm ở tab khác.\", \"trace_id\": \"61bd683a42b372580fff3ee73e15955f"}
+{"tc": "TC-07-06b tab mới ghi được; câu đã lưu còn", "st": "PASS", "note": "200"}
+{"tc": "TC-07-06c thiếu X-Practice-Tab khi ghi MOCK → 4xx", "st": "PASS", "note": ""}
+{"tc": "TC-10-13 MOCK đang làm không đổi exam-lock", "st": "PASS", "note": "{\"locked\": false} → {\"locked\": false}"}
+{"tc": "TC-07-16 13/20 → correct=13, score=6.5", "st": "PASS", "note": "200 {\"correct\": 13, \"total\": 20, \"score\": \"6.5\", \"topics\": [{\"topic\": \"An toàn ứng dụng web\", \"correct\": 3, \"total\": 3}, {\"topic\": \"Hàm băm\", \"correct\": 1, \"total\": 1}, {\"topic\": \"Hàm băm và chữ ký\", \"correct\": 2, \"total\": 3}, {\"topic\": \"Mạng\", \"correct\": 2, \"tota"}
+{"tc": "TC-07-17 submit lần 2 cùng kết quả", "st": "PASS", "note": ""}
+{"tc": "TC-07-16c sau nộp lộ đáp án + giải thích từng câu", "st": "PASS", "note": "20/20 câu có phản hồi"}
+{"tc": "TC-07-18 điểm luyện không vào sổ điểm (grade_entries không đổi)", "st": "PASS", "note": "60"}
+{"tc": "TC-07-16b 5/8 → 6.3", "st": "PASS", "note": "correct=5 (mong 5) total=8 score=6.3"}
+{"tc": "TC-07-16b 7/20 → 3.5", "st": "PASS", "note": "correct=7 (mong 7) total=20 score=3.5"}
+{"tc": "TC-07-16b 3/7 → 4.3", "st": "PASS", "note": "correct=3 (mong 3) total=7 score=4.3"}
+{"tc": "TC-07-11/19b client_ts ≤ hạn, trong 60 s → nhận", "st": "PASS", "note": "200 {\"version\": 1, \"locked\": false, \"feedback\": null}"}
+{"tc": "TC-07-11b client_ts > hạn → bỏ (200), notes ghi lý do, không lưu câu", "st": "PASS", "note": "200 notes=['Một số lựa chọn gửi sau giờ làm bài đã không được tính.'] answer câu 3=None"}
+{"tc": "TC-07-11d thiếu client_ts quá hạn (trong 60 s) → 409 ATTEMPT_CLOSED", "st": "PASS", "note": "409 {\"code\": \"ATTEMPT_CLOSED\", \"message\": \"Đã hết thời gian làm bài.\", \"trace_id\": \"48e5f430c80b911ad30d"}
+{"tc": "TC-07-11c/19 sau hạn > 60 s → 409 ATTEMPT_CLOSED (kể cả client_ts ≤ hạn)", "st": "PASS", "note": "409 {\"code\": \"ATTEMPT_CLOSED\", \"message\": \"Đã hết thời gian làm bài.\", \"trace_id\": \"2f9563445a7f51c37a19"}
+{"tc": "TC-10-14/07-23 không có exam_events mới", "st": "FAIL", "note": "0→1"}
+{"tc": "RECHECK-L1 trích 24 câu, đáp án khớp bảng, trích dẫn đúng", "st": "PASS", "note": "EXTRACTED=24 khớp=24/24 thiếu=0 lệch=0 thiếu citations=0"}
+{"tc": "RECHECK-L1b trích lại: không thêm câu, DUPLICATE", "st": "PASS", "note": "24→24; ['DUPLICATE', 'DUPLICATE', 'DUPLICATE']"}
+{"tc": "RECHECK-TC-02-07a đề lỗi câu: lưu 1, INVALID ở 2,3,4, NO_ANSWER ở 5", "st": "FAIL", "note": "created=0 skipped=[(1, 'NO_ANSWER'), (2, 'NO_ANSWER'), (3, 'NO_ANSWER'), (4, 'NO_ANSWER'), (5, 'NO_ANSWER')]"}
+{"tc": "RECHECK-TC-02-07b lỗi schema: job FAILED, không câu nào lưu", "st": "FAIL", "note": "status=SUCCEEDED error=null"}
+{"tc": "RECHECK-L3", "st": "FAIL", "note": "không dựng được điều kiện (không có việc 'Ôn chủ đề')"}
+{"tc": "RECHECK-L4a ≥80 APPROVED, mọi câu (trừ CODE/SHORT?) có citations", "st": "FAIL", "note": "APPROVED=143 có citations=3"}
+{"tc": "RECHECK-L4b PENDING có câu EXTRACTED", "st": "PASS", "note": "24"}
+{"tc": "RECHECK-L4c Quiz PUBLISHED", "st": "PASS", "note": "[['PUBLISHED']]"}
+{"tc": "RECHECK-L4d lớp 2 có ngân hàng nhỏ, không trùng lớp 1", "st": "FAIL", "note": "lớp 2=20 câu, trùng=1"}
+{"tc": "RECHECK-L7 chủ đề có câu, 0 đủ điều kiện → 409 NOT_ENOUGH_QUESTIONS {available:0}", "st": "PASS", "note": "409 {\"code\": \"NOT_ENOUGH_QUESTIONS\", \"message\": \"Chưa đủ câu để luyện chủ đề này.\", \"trace_id\": \"c970932a3c2efa0245f965f77dd338ca\", \"details\": {"}
+{"tc": "RECHECK-L7b chủ đề không tồn tại → 422", "st": "PASS", "note": "422"}
+{"tc": "RECHECK-L8 ma trận ô thiếu câu (không difficulty): bù đủ 10", "st": "PASS", "note": "201 items=10 notes=[]"}
+{"tc": "RECHECK-L9 generate types=[] → 422", "st": "PASS", "note": "422"}
+{"tc": "RECHECK-L10 bulk APPROVE EXTRACTED không trích dẫn → code CITATION_REQUIRED", "st": "PASS", "note": "200 {'id': '01a1df2d-4c22-7646-979c-70ad349c4052', 'ok': False, 'code': 'CITATION_REQUIRED'}"}
+{"tc": "RECHECK-L12a ánh xạ theo tên tiêu đề cột (ví dụ openapi) được chấp nhận", "st": "PASS", "note": "200 {\"matched\": 3, \"unmatched\": 0, \"duplicates\": 0, \"items\": [{\"student\": {\"id\": \"01a1df27-651e-7d21-b754-e08594004f6a\", \"full_name\": \"Vũ Minh Long\", \"student_code\""}
+{"tc": "RECHECK-L12b chữ lỗi tệp .txt nhắc XLSX/CSV, không nhắc PDF/DOCX/PPTX", "st": "PASS", "note": "422 Chỉ nhận tệp Excel (.xlsx) hoặc CSV."}
+{"tc": "RECHECK-L12c tệp > 5 MB: chữ nói 5 MB", "st": "PASS", "note": "422 Tệp quá lớn (tối đa 5 MB)."}
+{"tc": "TC-04-05 bulk APPROVE: 2 ok, lớp 2/id lạ ok:false (không huỷ lô)", "st": "PASS", "note": "200 [(True, None), (True, None), (False, 'NOT_FOUND'), (False, 'NOT_FOUND')]"}
+{"tc": "TC-04-13 duyệt câu AI-origin không trích dẫn → 422 CITATION_REQUIRED", "st": "FAIL", "note": "origin=EXTRACTED citations=1 → 200 {\"id\": \"01a1df2d-4c21-75e5-ad80-189d74a5e363\", \"type\": \"MCQ_SINGLE\", \"title\": \"Độ trễ (latency) của mạng là gì?\", \"topic"}
+{"tc": "TC-04-05b bulk APPROVE câu AI-origin không trích dẫn → ok:false CITATION_REQUIRED", "st": "FAIL", "note": "200 [{'id': '01a1df2d-4c21-75e5-ad80-189d74a5e363', 'ok': False, 'code': 'CONFLICT'}]"}
+{"tc": "TC-04-07a SET_TAGS 3 câu đúng topic/difficulty", "st": "PASS", "note": "200 [('QC-Tag', 'HARD'), ('QC-Tag', 'HARD'), ('QC-Tag', 'HARD')]"}
+{"tc": "TC-04-07 ids rỗng → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-07 51 ids → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-07 action lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-07 SET_TAGS thiếu topic/difficulty → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-06 bulk REJECT 3 câu", "st": "PASS", "note": "200"}
+{"tc": "TC-04-P bulk sv.kha → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-P bulk admin → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-P bulk ta → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-P4 bulk với id lớp 1 trên đường dẫn lớp 2 → ok:false/403/404", "st": "PASS", "note": "200 [(False, 'NOT_FOUND')]"}
+{"tc": "TC-04-11 version cũ → 409 VERSION_CONFLICT", "st": "FAIL", "note": "422/422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"db553aa901fca239b31ab062efa54caf\", \"details\": [{\"field\": \"accepted\", \"code\": \"ANSW"}
+{"tc": "TC-04-17a theo cursor đến hết, không trùng", "st": "PASS", "note": "202 câu / 3 trang"}
+{"tc": "TC-04-17b limit=101 cắt ≤100 hoặc 422", "st": "PASS", "note": "422 n=-"}
+{"tc": "TC-04-P1 STUDENT /questions* → 403", "st": "PASS", "note": "[403, 403, 403, 403]"}
+{"tc": "TC-04-P5 ADMIN /questions → 403", "st": "PASS", "note": ""}
+{"tc": "TC-03-01 generate → 202", "st": "PASS", "note": "202 {'job_id': '01a1df35-ce0a-76af-a92c-4866a2d41323'}"}
+{"tc": "TC-03-01b câu GENERATED PENDING", "st": "FAIL", "note": "9 câu; created=5 skipped=[]"}
+{"tc": "TC-03-02 mỗi câu sinh có trích dẫn {document_id,chunk_id,page}", "st": "PASS", "note": "thiếu: 0/9"}
+{"tc": "TC-08-14 ESSAY bỏ trống → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-08-09a 4.001 ký tự → 422 TOO_LONG", "st": "PASS", "note": "422 {\"code\": \"TOO_LONG\", \"message\": \"Nội dung quá dài.\", \"trace_id\": \"87f2a49d44128cb18f4777d359fe03ff\"}"}
+{"tc": "TC-08-01 ESSAY Trả lời: lưu, hiện đáp án mẫu+rubric, không đúng/sai", "st": "PASS", "note": "200 correct=None key={\"rubric\": \"Mô tả ECB (3đ); mô tả CBC và IV (3đ); giải thích lộ mẫu (4đ).\", \"model_answer\": \"ECB mã hoá từng khối độc lập nên các khối bản rõ giống nhau cho bản"}
+{"tc": "TC-08-02 feedback 200: nhận xét theo tiêu chí kèm bằng chứng, không số điểm", "st": "FAIL", "note": "503 0 tiêu chí; keys=['code', 'message', 'trace_id']"}
+{"tc": "TC-08-03 đúng 1 lời gọi LLM cho nhận xét", "st": "FAIL", "note": "llm_audit +0: [['GRADING', 'BATCH'], ['QUESTION_GEN', 'BATCH']]"}
+{"tc": "TC-08-04 grade_entries không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-08-06 bài chèn lệnh: không 10 điểm/khen hết, không lộ prompt, không cờ cho SV", "st": "FAIL", "note": "503 injected=None"}
+{"tc": "TC-08-12 teacher GET lượt của SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-08-12 ta GET lượt của SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-08-12 admin GET lượt của SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-09-01 history 200, giảm dần theo thời gian", "st": "PASS", "note": "200 n=20 keys=['id', 'mode', 'topic', 'status', 'started_at', 'submitted_at', 'item_count', 'correct']"}
+{"tc": "TC-09-03 duyệt cursor đến hết: không trùng", "st": "PASS", "note": "90 lượt, trang [20, 20, 20, 20, 10]"}
+{"tc": "TC-09-03b limit=101 → cắt ≤100 hoặc 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-09-21 history p95 ≤ 300 ms", "st": "PASS", "note": "n=60 p50=10 p95=30 ms; 90 lượt của sv.kha (không đạt 200 lượt)"}
+{"tc": "TC-09-04 weakness ≤3 chủ đề, mỗi chủ đề ≥3 câu, xếp theo tỉ lệ sai", "st": "PASS", "note": "[('Mạng và tường lửa', 22, 23), ('Mật mã công khai', 695, 735), ('QC-ShortB', 13, 14)]"}
+{"tc": "TC-09-sv.moi weakness → 403/404", "st": "PASS", "note": "403"}
+{"tc": "TC-09-17 lịch sử lớp 2 không chứa lượt lớp 1", "st": "PASS", "note": "200 lớp1=39 lớp2=0"}
+{"tc": "TC-09-09 today teacher không có PRACTICE_WEAK_TOPIC", "st": "PASS", "note": "200"}
+{"tc": "TC-09-09 today ta không có PRACTICE_WEAK_TOPIC", "st": "PASS", "note": "200"}
+{"tc": "TC-09-09 today admin không có PRACTICE_WEAK_TOPIC", "st": "PASS", "note": "403"}
+{"tc": "TC-09-06 today SV có PRACTICE_WEAK_TOPIC", "st": "FAIL", "note": "0 việc: []"}
+{"tc": "TC-09-15 Hồ sơ 360 không chứa dữ liệu luyện đề", "st": "FAIL", "note": "404 khớp: []"}
+{"tc": "TC-11-01a presign forms_import (TEACHER) 200", "st": "PASS", "note": "200"}
+{"tc": "TC-11-01 preview: cột + 20 dòng đầu, không ghi", "st": "PASS", "note": "200 keys=['columns', 'rows', 'rows_total', 'suggested_mapping']"}
+{"tc": "TC-11-12 chưa preview → 409 PREVIEW_REQUIRED", "st": "PASS", "note": "409 {\"code\": \"PREVIEW_REQUIRED\", \"message\": \"Cần xem trước kết quả trước khi xác nhận.\", \"trace_id\": \"5e"}
+{"tc": "TC-11-08 Xem trước kết quả: điểm + đúng/tổng + chưa khớp, chưa ghi", "st": "PASS", "note": "200"}
+{"tc": "TC-11-03 confirm ghi grade_entries(source=QUIZ), không đổi published_at", "st": "PASS", "note": "201 QUIZ entries 0→6; published_at 2026-11-15 12:26:01.828624+00→2026-11-15 12:26:01.828624+00"}
+{"tc": "TC-11-07 nhập lại cùng tệp/cột (khoá mới) → replayed, không ghi thêm", "st": "PASS", "note": "201 replayed=True"}
+{"tc": "TC-11-11 ta presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 ta preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-11 sv.kha presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 sv.kha preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-11 admin presign forms_import → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-11-11 admin preview/confirm → 403", "st": "PASS", "note": "403/403"}
+{"tc": "TC-11-09 forms-bad.txt bị từ chối ngay ở presign", "st": "PASS", "note": "presign 422"}
+{"tc": "TC-11-09 forms-nocol.csv → 422 kèm vị trí", "st": "FAIL", "note": "200 {\"columns\": [{\"col\": \"A\", \"header\": \"Họ tên\"}, {\"col\": \"B\", \"header\": \"Điểm\"}], \"rows\": [[\"A\", \"1\"]], \"rows_total\": 1, \"suggested_mapping\": {\"header_row\": 1, \"e"}
+{"tc": "TC-11-09 tệp > 5 MB bị từ chối ở presign", "st": "PASS", "note": "422"}
+{"tc": "TC-01-13 SHORT vào bài thi → 422 TYPE_NOT_SUPPORTED_IN_EXAM", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"07c838323c6378f581e8711616fa9138\", \"details\": [{\"field\": \"items[0].question_id\", \""}
+{"tc": "TC-01-13 ESSAY vào bài thi → 422 TYPE_NOT_SUPPORTED_IN_EXAM", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"2516d20d34a46b5aeedcb098d1c151b2\", \"details\": [{\"field\": \"items[0].question_id\", \""}
+{"tc": "TC-10-07a đang có lượt bài thi PE: /me/exam-lock khoá", "st": "PASS", "note": "{'locked': True, 'until': '2026-11-15T13:16:48.100283887Z'}"}
+{"tc": "TC-10-07b luyện đề vẫn bắt đầu được khi bài thi đang làm", "st": "PASS", "note": "201"}
+{"tc": "TC-03-11 gen-stats {unchanged:2, edited:1, rejected:2}", "st": "PASS", "note": "200 {'unchanged': 2, 'edited': 1, 'rejected': 2, 'pending': 0}"}
+{"tc": "TC-03-09 sinh lại: câu trùng bị bỏ qua (kể cả REJECTED), không tạo thêm", "st": "FAIL", "note": "created=5 skipped=[]"}
+{"tc": "TC-03-01 generate → 202", "st": "PASS", "note": "202 {'job_id': '01a1df3f-f429-754f-85a4-106cde8939d1'}"}
+{"tc": "TC-03-01b câu GENERATED PENDING", "st": "FAIL", "note": "24 câu; created=5 skipped=[]"}
+{"tc": "TC-03-02 mỗi câu sinh có trích dẫn {document_id,chunk_id,page}", "st": "PASS", "note": "thiếu: 0/24"}
+{"tc": "TC-03-04 sinh từ ANSWER_KEY → 422", "st": "PASS", "note": "422 {\"code\": \"WRONG_DOCUMENT_TYPE\", \"message\": \"Tài liệu này không đúng loại cần dùng.\", \"trace_id\": \"00"}
+{"tc": "TC-03-07 count=11 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"627443e4f4bb89ad33e34c"}
+{"tc": "TC-03-07 types=[] → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"e9a0640771f844c0a60670"}
+{"tc": "TC-03-07 document_ids lớp 2 → 422", "st": "PASS", "note": "422 {\"code\": \"WRONG_DOCUMENT_TYPE\", \"message\": \"Tài liệu này không đúng loại cần dùng.\", \"trace_id\": \"29"}
+{"tc": "TC-03-10 STUDENT generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-03-12 gen-stats job lạ → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-06-20 explain khi LLM quá tải: có luồng nhận lỗi tại chỗ (event error), không treo", "st": "FAIL", "note": "[('exp0', 200, False), ('exp1', 200, False), ('exp2', 200, False)]"}
+{"tc": "TC-06-20b phản hồi đúng/sai sẵn có không đổi, nộp bình thường", "st": "PASS", "note": ""}
+{"tc": "TC-02-14 trích khi quá tải: job FAILED OVERLOADED, không câu nửa vời", "st": "FAIL", "note": "status=SUCCEEDED error=null câu trích/sinh 72→72"}
+{"tc": "TC-02-14/03-08 quá tải: có việc FAILED OVERLOADED, không câu nửa vời", "st": "FAIL", "note": "[('gen', 'SUCCEEDED', 'null'), ('gen', 'SUCCEEDED', 'null'), ('gen', 'SUCCEEDED', 'null'), ('ext', 'SUCCEEDED', 'null')]; câu 72→81 (câu mới đến từ việc thành công)"}
+{"tc": "TC-10-07c chat từ chối nội dung môn học trong giờ thi", "st": "PASS", "note": "409 {\"code\": \"EXAM_IN_PROGRESS\", \"message\": \"Chat tạm khóa trong lúc bạn làm bài thi.\", \"trace_id\": \"3c85c0cb04452a16cbe8d8b"}
+{"tc": "TC-10-08 nộp bài thi xong → exam-lock mở", "st": "FAIL", "note": "submit=409 {'locked': True, 'until': '2026-11-15T13:26:02.959118627Z'}"}
+{"tc": "TC-10-08b sau thi chat trả lời lại (nhận tin nhắn)", "st": "FAIL", "note": "409 {\"code\": \"EXAM_IN_PROGRESS\", \"message\": \"Chat tạm khóa trong lúc bạn làm bài thi.\", \"trace_id\": \"f28"}
+{"tc": "TC-10-07c chat từ chối nội dung môn học trong giờ thi", "st": "PASS", "note": "409 {\"code\": \"EXAM_IN_PROGRESS\", \"message\": \"Chat tạm khóa trong lúc bạn làm bài thi.\", \"trace_id\": \"c567a6eccf1372be3c3368b"}
+{"tc": "TC-10-08 nộp bài thi xong → exam-lock mở", "st": "PASS", "note": "submit=200 {'locked': False}"}
+{"tc": "TC-10-08b sau thi chat trả lời lại (nhận tin nhắn)", "st": "PASS", "note": "200 \": ok\\n\\nid: 1:1794747442882-0\\nevent: status\\ndata: {\\\"message_id\\\":\\\"01a1df48-a68f-7821-98c7-8fe69"}
+{"tc": "TC-02-11 LECTURE → 422 WRONG_DOCUMENT_TYPE", "st": "PASS", "note": "422 {\"code\": \"WRONG_DOCUMENT_TYPE\", \"message\": \"Tài liệu này không đúng loại cần dùng.\", \"trace_id\": \"593638da07e35d49d24182"}
+{"tc": "TC-02-13a answer_key sai loại → 422 WRONG_DOCUMENT_TYPE", "st": "PASS", "note": "422"}
+{"tc": "TC-02-12 document_id lạ → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-12 tài liệu lớp 2 từ lớp 1 → 404 (không lộ)", "st": "FAIL", "note": "422"}
+{"tc": "TC-02-13b answer_key lớp khác → 404", "st": "FAIL", "note": "202"}
+{"tc": "TC-02-P1 STUDENT → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-02-P2 ADMIN → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-02-P4 thiếu Idempotency-Key → 4xx", "st": "PASS", "note": "422"}
+{"tc": "TC-02-P5 GV lớp 1 gọi trên lớp 2 / tài liệu lớp 1", "st": "PASS", "note": "404"}
+{"tc": "TC-02-01 extract → 202 {job_id}", "st": "PASS", "note": "202 {'job_id': '01a1df48-e915-7ad1-948a-641816373358'}"}
+{"tc": "TC-02-08 cùng Idempotency-Key → cùng job_id", "st": "PASS", "note": "202 {'job_id': '01a1df48-e915-7ad1-948a-641816373358'}"}
+{"tc": "TC-02-01b job xong: created+skipped=24", "st": "PASS", "note": "status=SUCCEEDED created=0 skipped=24"}
+{"tc": "TC-02-02 ≥20 câu EXTRACTED PENDING", "st": "FAIL", "note": "23 câu"}
+{"tc": "TC-02-05 đáp án đúng khớp bảng 24/24 theo số câu", "st": "FAIL", "note": "khớp 23/24, thiếu 1, lệch []"}
+{"tc": "TC-02-02c mọi câu có trích dẫn {document_id=đề, page nguyên}", "st": "PASS", "note": "câu thiếu/ sai trích dẫn: 0/23"}
+{"tc": "TC-02-09 trích lại khoá mới: không thêm câu; skipped DUPLICATE", "st": "PASS", "note": "202 EXTRACTED 23→23; skipped=24 reasons={'DUPLICATE'}"}
+{"tc": "TC-02-07a đề lỗi câu: 1 câu lưu, skipped INVALID/NO_ANSWER", "st": "FAIL", "note": "created=0 skipped=[(1, 'NO_ANSWER'), (2, 'NO_ANSWER'), (3, 'NO_ANSWER'), (4, 'NO_ANSWER'), (5, 'NO_ANSWER')]"}
+{"tc": "TC-02-07b lỗi schema: job FAILED, 0 câu lưu", "st": "FAIL", "note": "status=SUCCEEDED error=null"}
+{"tc": "TC-02-19 việc thứ 6+ trong giờ → 429 RATE_LIMITED", "st": "FAIL", "note": "202 {\"job_id\": \"01a1df4a-aa39-77fd-a56a-41eff4fdaeae\"}"}
+{"tc": "TC-02-12 EXAM_PAPER riêng lớp 2 gọi từ lớp 1 → 404", "st": "PASS", "note": "404 {\"code\": \"NOT_FOUND\", \"message\": \"Không tìm thấy.\", \"trace_id\": \"856f04d4fe196b3891492dd894889e3b\"}"}
+{"tc": "TC-02-13b answer_key riêng lớp 2 → 404", "st": "PASS", "note": "404 {\"code\": \"NOT_FOUND\", \"message\": \"Không tìm thấy.\", \"trace_id\": \"e91cddd5aa6f9469969563da5af69b32\"}"}
+{"tc": "TC-08-14 ESSAY bỏ trống → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-08-09a 4.001 ký tự → 422 TOO_LONG", "st": "PASS", "note": "422 {\"code\": \"TOO_LONG\", \"message\": \"Nội dung quá dài.\", \"trace_id\": \"a7a4cd056375df7dcabb33b5ff17382f\"}"}
+{"tc": "TC-08-01 ESSAY Trả lời: lưu, hiện đáp án mẫu+rubric, không đúng/sai", "st": "PASS", "note": "200 correct=None key={\"rubric\": \"Mô tả ECB (3đ); mô tả CBC và IV (3đ); giải thích lộ mẫu (4đ).\", \"model_answer\": \"ECB mã hoá từng khối độc lập nên các khối bản rõ giống nhau cho bản"}
+{"tc": "TC-08-02 feedback 200: nhận xét theo tiêu chí kèm bằng chứng, không số điểm", "st": "PASS", "note": "200 3 tiêu chí; keys=['overall', 'criteria', 'injected']"}
+{"tc": "TC-08-03 đúng 1 lời gọi LLM cho nhận xét", "st": "PASS", "note": "llm_audit +1: [['GRADING', 'BATCH'], ['EMBEDDING', 'INTERACTIVE']]"}
+{"tc": "TC-08-04 grade_entries không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-08-06 bài chèn lệnh: không 10 điểm/khen hết, không lộ prompt, không cờ cho SV", "st": "PASS", "note": "200 injected=False"}
+{"tc": "TC-08-12 teacher GET lượt của SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-08-12 ta GET lượt của SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-08-12 admin GET lượt của SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-01-01 bảng practice_attempts/items/answers, không practice_exams; enum", "st": "PASS", "note": "['practice_answers', 'practice_attempts', 'practice_items'] {'practice_mode': ['TOPIC,MOCK'], 'practice_status': ['IN_PROGRESS,SUBMITTED,EXPIRED']}"}
+{"tc": "TC-01-02 FK phức hợp course_id, CHECK MOCK/deadline, UNIQUE từng phần, chỉ mục", "st": "PASS", "note": "thiếu: []"}
+{"tc": "TC-01-03 SV chưa vào lớp → 23503", "st": "FAIL", "note": "ERROR:  null value in column \"item_count\" of relation \"practice_attempts\" violates not-null constraint\nDETAIL:  Failing row contains (01a1df62-0aef-79"}
+{"tc": "TC-01-06 trùng lượt dở cùng chủ đề → 23505; khác chủ đề được", "st": "FAIL", "note": "ERROR:  null value in column \"item_count\" of relation \"practice_attempts\" violat | ERROR:  null value in column \"item_count\" of relation \"pract"}
+{"tc": "TC-01-P3 teacher GET lượt SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-01-P3 ta GET lượt SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-01-P3 admin GET lượt SV → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-01-P4 sv.gioi GET lượt sv.kha → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-P3 TA extract → 202", "st": "PASS", "note": "202"}
+{"tc": "TC-04-P1 SV GET /questions → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-P1 SV POST /questions → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-P1 SV POST /questions/bulk → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-P1 SV GET /questions/gen-stats → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-P2 TA bulk APPROVE → 200", "st": "PASS", "note": "200 {\"results\": [{\"id\": \"01a1df45-1b96-7b21-8f15-3d8e9536a9e5\", \"ok\": true}]}"}
+{"tc": "TC-04-P3 SV overview chỉ có chủ đề có câu APPROVED (chủ đề toàn PENDING/REJECTED không hiện)", "st": "PASS", "note": "20 chủ đề; chủ đề không APPROVED ngoài overview: 7"}
+{"tc": "TC-04-P4 bulk ở lớp 2 trên câu lớp 1 → ok:false hoặc 403/404", "st": "PASS", "note": "200 {\"results\": [{\"id\": \"01a1df45-1b8a-7160-923f-37e3b497a07f\", \"ok\": false, \"code\": \"NOT_FOUND\"}]}"}
+{"tc": "TC-04-P5 ADMIN GET /questions → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-P5 ADMIN POST /questions/bulk → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-01-03 SV chưa vào lớp → 23503", "st": "PASS", "note": "ERROR:  insert or update on table \"practice_attempts\" violates foreign key constraint \"practice_attempts_student_fkey\"\nDETAIL:  Key (course_id, studen"}
+{"tc": "TC-01-06 trùng lượt dở cùng chủ đề → 23505; khác chủ đề được", "st": "FAIL", "note": "ERROR:  duplicate key value violates unique constraint \"practice_attempts_open_key\"\nDETAIL | "}
+{"tc": "RECHECK-L3 'Ôn chủ đề' biến mất ≤ 5 s ở /courses/{id}/today", "st": "PASS", "note": "sau 0.03528714179992676s; kế tiếp: Ôn chủ đề Mật mã khối"}
+{"tc": "TC-09-15 Hồ sơ SV (/profile) không chứa dữ liệu luyện đề", "st": "PASS", "note": "200 len=895 khớp=[]"}
+{"tc": "TC-04-11 version cũ → 409 VERSION_CONFLICT", "st": "PASS", "note": "200/409 {\"code\": \"VERSION_CONFLICT\", \"message\": \"Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.\", \"trace_id\": \"84c5d0838e41fcecb7aec39749aa08c2\", \"detail"}
+{"tc": "TC-04-15a GV có việc QUESTION_REVIEW khi có câu PENDING", "st": "FAIL", "note": "200 487 ký tự; có QUESTION_REVIEW=False"}
+{"tc": "TC-04-15a /me/today GV có QUESTION_REVIEW lớp 761987 khi có câu PENDING", "st": "FAIL", "note": "[]"}
+{"tc": "TC-S4 explain 429 sau 30 lượt cần LLM/giờ/SV (P-10-8 F4)", "st": "PASS", "note": "calls=50 cần LLM trước 429=30; (50, 30, '{\"code\":\"RATE_LIMITED\",\"message\":\"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.\",\"trace_id\":\"634')"}
+{"tc": "TC-02-19 việc extract vượt 5/lớp/giờ → 429 RATE_LIMITED + Retry-After", "st": "PASS", "note": "429 retry-after=1263 RATE_LIMITED"}

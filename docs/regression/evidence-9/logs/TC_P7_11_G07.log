@@ -1,0 +1,32 @@
+$ go test -tags integration ./internal/submission -run 'TestTeamsSyncJobProgress|TestTeamsSyncNoOverlap|TestTeamsSyncRateLimit|TestTeamsSyncPartialListed' -v
+=== RUN   TestTeamsSyncJobProgress
+2026/11/15 20:28:18 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 2ab3d1ada690e29a869f0f9c0a6b0f09180f84f4f92fa3bfb5a2570e343f67ae
+  Test ProcessID: 8e4ec09e-78dc-4248-ac9f-c33e0d59a21b
+2026/11/15 20:28:18 ✅ Container started: 68f6ff853df5
+2026/11/15 20:28:18 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:28:18 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:28:20 ✅ Container started: 5636bc78d64d
+2026/11/15 20:28:20 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:28:20 🔔 Container is ready: 5636bc78d64d
+2026/11/15 20:28:21 ✅ Container started: b8d9c357e377
+2026/11/15 20:28:21 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 20:28:21 🔔 Container is ready: b8d9c357e377
+--- PASS: TestTeamsSyncJobProgress (3.31s)
+=== RUN   TestTeamsSyncNoOverlap
+--- PASS: TestTeamsSyncNoOverlap (4.13s)
+=== RUN   TestTeamsSyncRateLimit
+--- PASS: TestTeamsSyncRateLimit (4.46s)
+=== RUN   TestTeamsSyncPartialListed
+--- PASS: TestTeamsSyncPartialListed (6.43s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission	19.015s
+
+rc=0

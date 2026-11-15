@@ -1,0 +1,8 @@
+PASS TC-34: .env.example không có khoá thật
+khoá trong .env.example: ACCESS_TOKEN_TTL ANTHROPIC_API_KEY APP_ENCRYPTION_KEY APP_ENV APP_PUBLIC_URL ATTENDANCE_TOKEN_KEY AUTH_CHANGE_PW_FAIL_PER_10M AUTH_FORGOT_EMAIL_PER_HOUR AUTH_FORGOT_IP_PER_HOUR AUTH_LOGIN_IP_FAI
+FAIL TC-34: có biến ngoài FR-10
+PASS TC-34: đủ nhóm biến FR-10
+LỘ giá trị từ legacy/.env.example: 8640…
+FAIL TC-34: dùng lại secret cũ
+PASS TC-34: .env/.env.local không bị track
+PASS TC-34: mật khẩu dev giả edupilot-dev

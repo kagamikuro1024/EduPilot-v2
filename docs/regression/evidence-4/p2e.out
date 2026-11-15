@@ -1,0 +1,30 @@
+TC-P209-01 P preview chữ thường 200 state=OPEN; có khoảng trắng 200; thân ['class_code', 'name', 'semester', 'state', 'teachers']
+TC-P209-02 P join 200 {'already_member': False, 'course_id': '01a1df57-fc09-769e-8f5d-3d3989668510', 'status': 'ACTIVE'}; DB ACTIVE|CODE
+TC-P209-05 P join lần hai already_member=True; 10 song song → {200: 10}; enrollments: 1/1
+TC-P209-18 P GV tạo lại 200 mã mới 7 ký tự; mã cũ → 404 JOIN_CODE_INVALID; TA/SV [403, 403]; ADMIN 200
+TC-P209-07 P 3/6 nguyên nhân (không tồn tại, mã cũ, tắt) → (404, 'JOIN_CODE_INVALID', 'Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên.'); g
+TC-P209-11 P 5 mã sai [404, 404, 404, 404, 404]; mã đúng lần 6 → 429 RATE_LIMITED Retry-After=600
+TC-P209-21 P GET join-code {'TA': 200, 'GV': 200, 'ADMIN': 200, 'SV': 403}
+TC-P209-21b P expires_at quá khứ 422, >400 ngày 422
+TC-P209-24 P bật duyệt 200; join → 200 PENDING; PENDING gọi members 403, today 403
+TC-P209-26 P TA duyệt 200; GV từ chối 200; TA mời ra → 403 (kỳ vọng 403)
+TC-P209-28 P trước 200; GV mời ra 200; access cũ gọi ngay → 403
+TC-P209-35 P {'unverified': 403, 'GV': 403, 'TA': 403, 'ADMIN': 403, 'none': 401}
+TC-P209-37 P SV (ACTIVE) → route quản lý: đều 403  (4/9 thao tác)
+TC-P209-38 F GV lớp mới thao tác uid lớp 2: approve 404, DELETE 404; SV DELETE: 403; dữ liệu lớp 2 nguyên vẹn
+TC-P209-54 P SV gọi members [403, 403, 403]
+TC-P209-40 P limit=101 → 422; khoá thành viên ['email', 'full_name', 'joined_via', 'role_in_course', 'status', 'status_changed_at', 'student_code', 'user
+TC-P209-52 P mã tham gia trong log gateway+worker: 0
+TC-P210-06 P dry_run loi-2.csv → 200 dòng lỗi [7, 19]; thân ['already_member', 'created_users', 'dry_run', 'errors', 'linked_existing', 'pending_unverifi
+TC-P210-07 P dry_run: users/enrollments/mail_outbox/audit_log trước 122|257|417|2798 sau 122|257|417|2798
+TC-P210-08 F import thật 200 {'total': 30, 'created_users': 28, 'linked_existing': 0, 'already_member': 0, 'pending_unverified': 0, 'skipped_removed': 0,
+TC-P210-22 P import: {'GV': 422, 'TA': 403, 'ADMIN': 403, 'SV': 403, 'none': 401} (GV dùng tệp thiếu cột → 422 là qua quyền)
+TC-P210-02 P 501 dòng 422; >2MiB 413; thiếu cột 422; thiếu Idempotency-Key 422
+Traceback (most recent call last):
+  File "/private/tmp/qc2-b/p2e.py", line 132, in <module>
+    rec('TC-P210-03','P' if all(v[0]==422 and v[1].get('details',{}).get('code','UNSUPPORTED_FILE')=='UNSUPPORTED_FILE' or v[0]==422 for v in mg.values()) else 'F',f'tệp giả: { {k:(v[0],v[1].get("details")) for k,v in mg.items()} }')
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/qc2-b/p2e.py", line 132, in <genexpr>
+    rec('TC-P210-03','P' if all(v[0]==422 and v[1].get('details',{}).get('code','UNSUPPORTED_FILE')=='UNSUPPORTED_FILE' or v[0]==422 for v in mg.values()) else 'F',f'tệp giả: { {k:(v[0],v[1].get("details")) for k,v in mg.items()} }')
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'

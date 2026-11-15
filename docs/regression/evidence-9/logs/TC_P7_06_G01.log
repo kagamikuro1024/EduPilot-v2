@@ -1,0 +1,32 @@
+$ go test -tags integration ./internal/grading -run 'TestExtractDocx|TestExtractPdfViaDocling|TestExtractPlainText|TestExtractTooLong|TestExtractFailedNoLLM|TestExtractFailedNotZero' -v
+=== RUN   TestExtractDocx
+2026/11/15 19:45:07 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: c2befd4203bb4f3daf615bf976e7a49582ca091de4486d5d39e99cd80b0b114f
+  Test ProcessID: d9a436ac-7e7b-4f73-96ca-1f5d2a0a4031
+2026/11/15 19:45:07 ✅ Container started: 68f6ff853df5
+2026/11/15 19:45:07 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:45:07 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestExtractDocx (5.79s)
+=== RUN   TestExtractFailedNotZero
+--- PASS: TestExtractFailedNotZero (2.34s)
+=== RUN   TestExtractPlainText
+--- PASS: TestExtractPlainText (2.61s)
+=== RUN   TestExtractPdfViaDocling
+--- PASS: TestExtractPdfViaDocling (7.71s)
+=== RUN   TestExtractTooLongEssay
+--- PASS: TestExtractTooLongEssay (2.71s)
+=== RUN   TestExtractFailedNoLLM
+--- PASS: TestExtractFailedNoLLM (2.74s)
+=== RUN   TestExtractTooLong
+--- PASS: TestExtractTooLong (3.11s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	27.828s
+
+rc=0

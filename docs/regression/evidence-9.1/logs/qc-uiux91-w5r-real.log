@@ -1,0 +1,49 @@
+
+Running 6 tests using 1 worker
+
+(node:49377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX01-4 trước focus {"id":"_r_h_","text":"Người được gán nhận thông báo kèm mã tham gia.","role":"tooltip","opacity":"0","title":null} disabled: false aria-disabled: null
+INFO UX01-4 focus {"id":"_r_h_","text":"Người được gán nhận thông báo kèm mã tham gia.","role":"tooltip","opacity":"1","title":null}
+INFO UX01-4 hover {"id":"_r_h_","text":"Người được gán nhận thông báo kèm mã tham gia.","role":"tooltip","opacity":"1","title":null} từ: 10
+  ✓  1 [desktop] › e2e/qc-uiux91-w5r-real.spec.ts:22:1 › TC-UX01-4 #3 nút «Mở lớp»: tooltip hiện khi focus / rê (3.1s)
+INFO UX01-11 trước {"id":"_r_g_","text":"Sinh viên vào bằng mã sẽ chờ bạn duyệt.","role":"tooltip","opacity":"0","title":null} | focus {"id":"_r_g_","text":"Sinh viên vào bằng mã sẽ chờ bạn duyệt.","role":"tooltip","opacity":"1","title":null} | focused: true
+INFO UX01-11 hover {"id":"_r_g_","text":"Sinh viên vào bằng mã sẽ chờ bạn duyệt.","role":"tooltip","opacity":"1","title":null}
+  ✓  2 [desktop] › e2e/qc-uiux91-w5r-real.spec.ts:53:1 › TC-UX01-11 #34 Switch «Cần giảng viên duyệt»: tooltip thật, hiện khi focus bàn phím (4.3s)
+INFO UX06-7 lớp của teacher: [["01a1df70-a457-7600-a7dc-3bcd48903377","QFMWHVUFAZVI","ARCHIVED"],["01a1df6e-44b9-77c7-843c-93c6cd3c36ad","QD8C","ACTIVE"],["01a1df6e-1fab-7667-87aa-99da0398810a","QD8B","ACTIVE"],["01a1df54-1ade-7adc-8a4f-16fdf13b13bf","SK20D91","ARCHIVED"],["01a1df43-b1ff-7665-8f5b-ed08c7700ec2","QD9T","ACTIVE"],["01a1df3c-5ae4-714d-9b0e-6d8061761e63","QD9E","ACTIVE"],["01a1df3b-68ec-796e-8ef0-348a563d68f1","QD9D","ACTIVE"],["01a1df3b-2e7f-7d66-9536-e50a16dca892","QD9C","ACTIVE"],["01a1df36-ad67-799f-ad4a-2effb941afcc","QC196964","ARCHIVED"],["01a1df36-ad4b-79f7-8694-ce1bebab8356","QC117283","ACTIVE"],["01a1df35-0a7b-7db7-aee1-3655db91cec0","QD9B","ACTIVE"],["01a1df34-e683-758b-a9e0-aa237cb7b66f","QD9A","ACTIVE"],["01a1df34-52e5-7fee-8c47-16a67d430e8e","E6C2","ACTIVE"],["01a1df34-4fd1-7f3e-ab8c-51963c095082","E6C1","ACTIVE"],["01a1df2f-b6d1-7a7e-b919-05996a9baa83","QC-ASr108-bo2","ACTIVE"],["01a1df2f-af84-7e1d-ab30-1807dcd4273d","QC-ASr108-bo1","ACTIVE"],["01a1df27-62c2-7138-be74-2842f052e7fb","761988","ACTIVE"],["01a1df27-62b5-7775-a346-5c602a43e2f9","761987","ACTIVE"]]
+INFO UX06-7 sau nạp: ep:ui:course = null | nhãn: Chọn lớp, đang xem QD8C · QC nhóm D QD8C
+INFO UX06-7 bộ chọn có mục lớp lưu trữ: 1
+INFO UX06-7 sau chọn tay: nhãn Chọn lớp, đang xem QFMWHVUFAZVI · QC luồng F2 mwhvufazvi | stored null
+  ✘  3 [desktop] › e2e/qc-uiux91-w5r-real.spec.ts:84:1 › TC-UX06-7 lớp ARCHIVED không được nhớ / không là lớp mặc định (1.5m)
+(node:52535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  4 [mobile] › e2e/qc-uiux91-w5r-real.spec.ts:22:1 › TC-UX01-4 #3 nút «Mở lớp»: tooltip hiện khi focus / rê
+  -  5 [mobile] › e2e/qc-uiux91-w5r-real.spec.ts:53:1 › TC-UX01-11 #34 Switch «Cần giảng viên duyệt»: tooltip thật, hiện khi focus bàn phím
+  -  6 [mobile] › e2e/qc-uiux91-w5r-real.spec.ts:84:1 › TC-UX06-7 lớp ARCHIVED không được nhớ / không là lớp mặc định
+
+
+  1) [desktop] › e2e/qc-uiux91-w5r-real.spec.ts:84:1 › TC-UX06-7 lớp ARCHIVED không được nhớ / không là lớp mặc định 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.getAttribute: Test ended.
+    Call log:
+      - waiting for locator('[data-part=topbar]').getByRole('button', { name: /Chọn lớp/ }).first()
+
+
+       95 |   const arch = courses.find((c: string[]) => c[2] === "ARCHIVED");
+       96 |   expect(arch, "cần lớp ARCHIVED của teacher (QC196964)").toBeTruthy();
+    >  97 |   const label = () => page.locator("[data-part=topbar]").getByRole("button", { name: /Chọn lớp/ }).first().getAttribute("aria-label");
+          |                                                                                                            ^
+       98 |   await page.evaluate((id) => localStorage.setItem("ep:ui:course", id), arch[0]);
+       99 |   await page.goto("/");
+      100 |   await page.waitForTimeout(3500);
+        at label (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5r-real.spec.ts:97:108)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5r-real.spec.ts:117:23
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5r-real/qc-uiux91-w5r-real-TC-UX06-34838-c-nhớ-không-là-lớp-mặc-định-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-uiux91-w5r-real.spec.ts:84:1 › TC-UX06-7 lớp ARCHIVED không được nhớ / không là lớp mặc định 
+  3 skipped
+  2 passed (1.6m)

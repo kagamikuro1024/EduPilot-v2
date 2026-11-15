@@ -1,0 +1,13 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 202 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10/scripts/pb2.py", line 4, in <module>
+    D = {t: docid(t) for t in ["QC Đề mẫu", "QC Đáp án mẫu", "QC Đáp án thiếu", "QC Đề lỗi câu", "QC Đề lỗi schema"]}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10/scripts/pb2.py", line 4, in <dictcomp>
+    D = {t: docid(t) for t in ["QC Đề mẫu", "QC Đáp án mẫu", "QC Đáp án thiếu", "QC Đề lỗi câu", "QC Đề lỗi schema"]}
+            ^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10/scripts/pb.py", line 34, in docid
+    c, j, _ = api("teacher", "GET", f"{P}/documents?limit=100"); return {d["title"]: d for d in j["items"]}[title]
+                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'QC Đề mẫu'

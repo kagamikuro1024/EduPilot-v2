@@ -1,0 +1,103 @@
+
+Running 8 tests using 1 worker
+
+(node:84449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX13-9 nút «Phiên mới» khi phiên trống: 0
+INFO UX13-11 gợi ý: ["Tôi nên làm gì với “Bài thi QC khoá chat đang mở”?","Điểm quá trình của tôi hiện là bao nhiêu?","Tuần này tôi có những buổi học nào?"]
+INFO UX13-11 kiểu gợi ý: {"tag":"BUTTON","radius":"0px","bg":"rgba(0, 0, 0, 0)","border":"1px 0px","h":44}
+INFO UX13-17 có «chỉ bạn đọc được» trong main: true | body: true
+INFO UX13-14 từ kỹ thuật 1440: null
+INFO UX13-1 inner {"x":265,"y":189,"w":1126,"h":519.390625,"r":1391,"b":708.390625,"radius":"0px","shadow":"none","bg":"rgba(0, 0, 0, 0)","bl":"0px","br":"0px","bt":"0px","bb":"0px","ff":"DIV"} | main {"x":216,"r":1440} | history {"x":0,"y":0,"w":0,"h":0,"r":0,"b":0,"radius":"0px","shadow":"none","bg":"rgba(0, 0, 0, 0)","bl":"0px","br":"0px","bt":"0px","bb":"0px","ff":"NAV"} | tổ tiên [{"cls":"ChatScreen-module__YhGRVW__convo","w":1174,"x":241,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Layout-module__rM7QnW__ldDetail","w":1174,"x":241,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Layout-module__rM7QnW__listDetail","w":1174,"x":241,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Panel-module__zFMaDG__panel","w":1176,"x":240,"radius":"14px","bw":"1px","shadow":"shadow"},{"cls":"Layout-module__rM7QnW__page Layout-modul","w":1224,"x":216,"radius":"0px","bw":"0px","shadow":"none"}]
+INFO UX13-13 gap trên ô nhập 72 / khung 519 = 0.14
+INFO UX13-4 hàng lịch sử: 0 []
+INFO UX13-4 nút trên hàng: []
+INFO UX13-12 ô nhập sau bấm gợi ý: "Điểm quá trình của tôi hiện là bao nhiêu?" | POST mới: 0
+  ✘  1 [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII (4.0m)
+(node:98747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền (4.0m)
+(node:6455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh (3.0m)
+(node:10746) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX13-25 hoạt cảnh (reduce=false): [{"name":"RealChat-module__lbRsKG__msgIn","prop":"","dur":160,"kf":"transform+opacity | transform+opacity"}] | số luật :active có scale: 8
+INFO UX13-26 hoạt cảnh (reduce=true): [{"name":"ChatScreen-module__YhGRVW__blink","prop":"","dur":1,"kf":"opacity | opacity"}] | số luật :active có scale: 8
+  ✓  4 [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:232:1 › TC-UX13-25/26 hoạt cảnh tin mới và reduce (26.4s)
+(node:11335) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  5 [mobile] › e2e/qc-uiux91-w5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII
+  -  6 [mobile] › e2e/qc-uiux91-w5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền
+  -  7 [mobile] › e2e/qc-uiux91-w5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh
+  -  8 [mobile] › e2e/qc-uiux91-w5a-real.spec.ts:232:1 › TC-UX13-25/26 hoạt cảnh tin mới và reduce
+
+
+  1) [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: 'Thu gọn lịch sử' })
+
+
+      64 |   await page.evaluate(() => { (window as any).__cls = 0; new PerformanceObserver((l) => { for (const e of l.getEntries() as any[]) if (!e.hadRecentInput) (window as any).__cls += e.value; }).observe({ type: "layout-shift", buffered: false }); });
+      65 |   const wBefore = (await rect(page.locator("[data-part=chat-inner]"))).w;
+    > 66 |   await page.getByRole("button", { name: "Thu gọn lịch sử" }).click();
+         |                                                               ^
+      67 |   await page.waitForTimeout(900);
+      68 |   const wAfter = (await rect(page.locator("[data-part=chat-inner]"))).w;
+      69 |   console.log("INFO UX13-3 thu gọn: rộng", Math.round(wBefore), "→", Math.round(wAfter), "| CLS", await page.evaluate(() => (window as any).__cls), "| nút mở lại:", await page.getByRole("button", { name: /^Phiên trước/ }).count());
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5a-real.spec.ts:66:63
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5a-real/qc-uiux91-w5a-real-TC-UX13-9c78b-iên-mới-xoá-có-hoàn-tác-PII-desktop/error-context.md
+
+  2) [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.fill: Test ended.
+    Call log:
+      - waiting for getByRole('textbox', { name: 'Câu hỏi của bạn' })
+
+
+      16 | const composer = (p: Page) => p.getByRole("textbox", { name: "Câu hỏi của bạn" });
+      17 | const send = async (p: Page, text: string) => {
+    > 18 |   await composer(p).fill(text);
+         |                     ^
+      19 |   await p.getByRole("button", { name: "Gửi", exact: true }).click();
+      20 | };
+      21 | const rect = (l: ReturnType<Page["locator"]>) => l.evaluate((e) => { const r = e.getBoundingClientRect(); const c = getComputedStyle(e); return { x: r.x, y: r.y, w: r.width, h: r.height, r: r.right, b: r.bottom, radius: c.borderTopLeftRadius, shadow: c.boxShadow, bg: c.backgroundColor, bl: c.borderLeftWidth, br: c.borderRightWidth, bt: c.borderTopWidth, bb: c.borderBottomWidth, ff: e.tagName }; });
+        at send (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5a-real.spec.ts:18:21)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5a-real.spec.ts:128:9
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5a-real/qc-uiux91-w5a-real-TC-UX13-202d0--Idempotency-Key-phân-quyền-desktop/error-context.md
+
+  3) [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |   await page.locator("input[type=password]").fill(PW);
+      12 |   await page.keyboard.press("Enter");
+    > 13 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+         |              ^
+      14 |   await page.locator("[data-part=topbar]").waitFor();
+      15 | }
+      16 | const composer = (p: Page) => p.getByRole("textbox", { name: "Câu hỏi của bạn" });
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5a-real.spec.ts:13:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5a-real.spec.ts:203:3
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5a-real/qc-uiux91-w5a-real-TC-UX13-bd6be--ô-nhập-vùng-chạm-hoạt-cảnh-desktop/error-context.md
+
+  3 failed
+    [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII 
+    [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền 
+    [desktop] › e2e/qc-uiux91-w5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh 
+  4 skipped
+  1 passed (11.6m)

@@ -1,0 +1,30 @@
+$ go test -tags integration ./internal/assignment -run 'TestPublishBulkOnlyReviewed|TestPublishAllOrNothingExplicit|TestPublishScopeSkips|TestPublishIdempotent|TestPublishOnlyFromHandler|TestPublishOneTx' -v
+=== RUN   TestPublishBulkOnlyReviewed
+2026/11/15 20:08:43 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 0cf052d6f31437012a9c141a3fa3045d381fdb5b9d1297e5b03c497fa7573325
+  Test ProcessID: e577f32c-3098-4567-85aa-d7a1d789a569
+2026/11/15 20:08:43 ✅ Container started: 68f6ff853df5
+2026/11/15 20:08:43 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:08:44 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPublishBulkOnlyReviewed (5.57s)
+=== RUN   TestPublishAllOrNothingExplicit
+--- PASS: TestPublishAllOrNothingExplicit (4.02s)
+=== RUN   TestPublishScopeSkips
+--- PASS: TestPublishScopeSkips (3.10s)
+=== RUN   TestPublishIdempotent
+--- PASS: TestPublishIdempotent (3.98s)
+=== RUN   TestPublishOnlyFromHandler
+--- PASS: TestPublishOnlyFromHandler (0.20s)
+=== RUN   TestPublishOneTx
+--- PASS: TestPublishOneTx (3.96s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	21.368s
+
+rc=0

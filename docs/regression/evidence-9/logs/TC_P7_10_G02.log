@@ -1,0 +1,36 @@
+$ go test -tags integration ./internal/assignment -run 'TestAppealWindowClosed|TestAppealAlreadyFiled|TestAppealDisabled|TestAppealNotPublished|TestAppealUnknownCriterion|TestAppealWindowBoundaryTable' -v
+=== RUN   TestAppealNotPublished
+2026/11/15 20:20:53 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: cbd2a1d34aa3ae960af92cb4ef20243dc4b945f0871a4be4f450d0fc8b236c45
+  Test ProcessID: 03f765d2-fe02-4a5c-8cce-a44f9eea0180
+2026/11/15 20:20:53 ✅ Container started: 68f6ff853df5
+2026/11/15 20:20:53 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:20:53 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealNotPublished (1.47s)
+=== RUN   TestAppealUnknownCriterion
+--- PASS: TestAppealUnknownCriterion (1.34s)
+=== RUN   TestAppealAlreadyFiled
+--- PASS: TestAppealAlreadyFiled (1.58s)
+=== RUN   TestAppealDisabled
+--- PASS: TestAppealDisabled (0.98s)
+=== RUN   TestAppealWindowClosed
+--- PASS: TestAppealWindowClosed (1.18s)
+=== RUN   TestAppealWindowBoundaryTable
+=== RUN   TestAppealWindowBoundaryTable/quá_hạn_1_phút
+=== RUN   TestAppealWindowBoundaryTable/trước_hạn_1_phút
+=== RUN   TestAppealWindowBoundaryTable/đúng_hạn
+--- PASS: TestAppealWindowBoundaryTable (3.70s)
+    --- PASS: TestAppealWindowBoundaryTable/quá_hạn_1_phút (1.40s)
+    --- PASS: TestAppealWindowBoundaryTable/trước_hạn_1_phút (1.55s)
+    --- PASS: TestAppealWindowBoundaryTable/đúng_hạn (0.76s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	10.759s
+
+rc=0

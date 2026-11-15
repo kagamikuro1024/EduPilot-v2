@@ -1,0 +1,15 @@
+== bank
+(node:37555) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✗ bank:
+  - MCQ_MULTI APPROVED ≠ 12 (4 + 8)
+  - AI_DRAFT PENDING ≠ 5 (có 5)
+== scores
+(node:37637) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+matched 30/30
+OK scores
+== demo
+(node:37642) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+OK demo

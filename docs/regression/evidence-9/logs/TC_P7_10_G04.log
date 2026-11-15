@@ -1,0 +1,45 @@
+$ go test -tags integration ./internal/assignment ./internal/grade -run 'TestAdjustedUpdatesResultInPlace|TestAdjustedWhenLockedKeepsSnapshot|TestAdjustedShowsDriftWhenLocked|TestAdjustedAfterUnlockThenRefinalizeNotifies|TestAdjustedSerializesWithFinalize' -v
+=== RUN   TestAdjustedUpdatesResultInPlace
+2026/11/15 20:22:50 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 79e1916aca2f49898ac878b6be0c53183fa39a327e4175c0c5776b730aab51f3
+  Test ProcessID: 2ab72c75-4cdf-487b-b1df-bec705e7cb86
+2026/11/15 20:22:50 ✅ Container started: 68f6ff853df5
+2026/11/15 20:22:50 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:22:51 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAdjustedUpdatesResultInPlace (38.02s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	38.893s
+=== RUN   TestAdjustedUpdatesResultInPlace
+2026/11/15 20:22:51 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 79e1916aca2f49898ac878b6be0c53183fa39a327e4175c0c5776b730aab51f3
+  Test ProcessID: fa02fbcd-a8e8-41d1-b1bc-fcac53624dcf
+2026/11/15 20:22:51 ✅ Container started: 68f6ff853df5
+2026/11/15 20:22:51 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:22:52 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAdjustedUpdatesResultInPlace (39.53s)
+=== RUN   TestAdjustedWhenLockedKeepsSnapshot
+--- PASS: TestAdjustedWhenLockedKeepsSnapshot (57.34s)
+=== RUN   TestAdjustedShowsDriftWhenLocked
+--- PASS: TestAdjustedShowsDriftWhenLocked (37.36s)
+=== RUN   TestAdjustedAfterUnlockThenRefinalizeNotifies
+--- PASS: TestAdjustedAfterUnlockThenRefinalizeNotifies (18.89s)
+=== RUN   TestAdjustedSerializesWithFinalize
+--- PASS: TestAdjustedSerializesWithFinalize (26.63s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	180.855s
+
+rc=0

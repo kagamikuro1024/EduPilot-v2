@@ -1,0 +1,24 @@
+## N08-19 AIza/sk- toàn repo (trừ node_modules/.git)
+./docs/sprints/9.5/qc/tc-US-NFR-01.md:12:| TC-N01-07 | AC2 | Stack `-p ep-qc` (cổng lệch), admin đăng nhập được | `BASE=<api ep-qc> PHASE=live MODEL
+rc-hits above
+## N08-21
+53:Đo trên **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB**, stack `ep-research` (có `docling`), model `gemini-3.1-flash-lite` (chỉ model qua kiểm đầu phiên, `probe.json`; không có d
+64:Về hạn mức: ở 12 RPM chấm 12 bài × 2 lượt mất ~110 s, `BT03` 16 bài ~150 s. Ở 60 RPM Gemini Free trả 429 → cầu dao mở → mọi lời gọi sau bị loại ngay (`circui
+## N08-23
+## N09-08
+## N07-08 lighthouserc
+ls: cannot access 'lighthouserc*.json': No such file or directory
+## N07-10 nhiễu
+docs/research/2026-11-14-nfr-real-llm.md:11:- **Chưa đo / hoãn:** chấm 1.000 bài thời gian thật (lượt 2 **dừng theo chủ dự án** ở 235/1.000), đo lại R1–R
+docs/research/2026-11-14-nfr-real-llm.md:51:**Cấu hình LLM áp dụng từ 2026-11-14 (luật của chủ dự án):** sinh chữ (chat, chấm, trích công thức, insight, ev
+## N10-01 bằng chứng test -f
+## N10-03 test của TL-2h2
+Date:   Sat Nov 14 14:42:18 2026 +0700
+
+    9.5: Gemini bỏ qua const → đổi thành enum (TL-2h2; trích công thức 10/10), sửa chấm điểm trích
+
+ backend-go/internal/llm/provider/openai.go        | 14 +++++++++-----
+ backend-go/internal/llm/provider/provider_test.go |  5 ++++-
+ benchmarks/real-llm/real_llm.py                   |  2 +-
+ 3 files changed, 14 insertions(+), 7 deletions(-)
+go version go1.27.1 darwin/arm64

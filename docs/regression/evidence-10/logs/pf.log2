@@ -1,0 +1,10 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 247 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+extract 202 {'job_id': '01a1df44-56a7-7f0c-bab6-04de569547bd'}
+exp0 200 758ms 5779ms event: ready | data: {"cached":false} |  | event: token | data: {"text":"Đáp án A đúng vì RSA là hệ mật dựa trên độ kh
+exp1 200 674ms 674ms event: ready | data: {"cached":true} |  | event: token | data: {"text":"Đáp án đúng là Sai. Bản chất an toàn của RSA p
+exp2 200 424ms 442ms event: ready | data: {"cached":true} |  | event: token | data: {"text":"Đáp án Đúng là chính xác vì hệ mật khoá công k
+FAIL TC-06-20 explain khi LLM quá tải: có luồng nhận lỗi tại chỗ (event error), không treo [('exp0', 200, False), ('exp1', 200, False), ('exp2', 200, False)]
+PASS TC-06-20b phản hồi đúng/sai sẵn có không đổi, nộp bình thường 
+EXTRACT JOB SUCCEEDED null {"created": [], "skipped": [{"page": 1, "number": 1, "reason": "DUPLICATE"}, {"page": 1, "number": 2, "reason": "DUPLICATE"}, {"page": 1, "number": 3, "reason": "DUPLICATE"}, {"page": 1, "number": 4,  10s
+FAIL TC-02-14 trích khi quá tải: job FAILED OVERLOADED, không câu nửa vời status=SUCCEEDED error=null câu trích/sinh 72→72

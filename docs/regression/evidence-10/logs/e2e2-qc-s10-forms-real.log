@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+(node:2483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+BUTTONS ["Chọn lớp, đang xem 761987 · An ninh mạng","Tìm nhanh hoặc đi đến","Thông báo, 9 chưa đọc","Tài khoản: TS. Lê Thu Hà","Thu gọn thanh bên","Thêm hành động","Chốt điểm","Cột Giữa kỳ","Cột Thi cuối kỳ","Hành động — Bùi Khánh Việt","Hành động — Bùi Minh Yến","Hành động — Bùi Thanh Khải","Hành động — Bùi Thu Việt","Hành động — Đỗ Bảo Hải","Hành động — Đỗ Khánh Hà","Hành động — Dương Minh Yến","Hành động — Dương Quốc Hương","Hành động — Dương Tuấn Giang","Hành động — Hồ Đức Thảo","Hành động — Hồ Thu Chi","Hành động — Huỳnh Đức Dũng","Hành động — Huỳnh Hoàng Hương","Hành động — Huỳnh Thu Long","Hành động — Lê Thanh Hải","Hành động — Ngô Ngọc Cẩm","Hành động — Ngô Thu Khoa","Hành động — Ngô Văn Hà","Hành động — Ngô Văn Hải","Hành động — Nguyễn Anh Linh","Hành động — Phạm Mai Chi"]
+  ✓  1 [desktop] › e2e/qc2-r10/qc-s10-forms-real.spec.ts:7:1 › Nhập từ Forms: hộp thoại (11.2s)
+
+  1 passed (13.0s)

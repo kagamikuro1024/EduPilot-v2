@@ -1,0 +1,19 @@
+users: 0 s
+courses: 0 s
+enrollments: 1 s
+class_sessions: 0 s
+attendance_records: 1 s
+participation_events: 0 s
+study_time_daily: 74 s
+chat_sessions: 2 s
+chat_messages: 37 s
+grade_schemes: 3 s
+grade_entries: 2 s
+assignments: 1 s
+submissions: 6 s
+documents: 12 s
+content_chunks: 208 s
+Xong sau 371 s, 404 MB → docs/regression/evidence-9.5/seed-t1-r95.json
+real 374.45
+user 1.05
+sys 1.04

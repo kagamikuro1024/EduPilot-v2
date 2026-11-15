@@ -1,0 +1,11 @@
+PASS TC-PE03-10 time 99✗/100✓/10000✓/10001✗; memory 15✗/16✓/512✓/513✗ (trần 512 theo #5 sprint 5, TC gốc 1024 = lỗi thời một phần); output 0✗/1✓/16384✓/16385✗; FLOAT_EPS thiếu eps ✗ FLOAT_EPS_REQUIRED; EXACT+eps nhận
+PASS TC-PE03-19 zip-slip 422 (ZIP_PATH_INVALID); docker diff gateway/worker + find host: ['0', '0', '0']
+PASS TC-PE03-29 UPDATE APPROVED thiếu reviewed_by: ERROR:  new row for relation "question_bank" violates check constraint "question_bank_revi; SV duyệt 403; SV xem danh sách câu 403
+422 ['VALIDATION_FAILED', 'type'] {"code": "VALIDATION_FAILED", "message": "D\u1eef li\u1ec7u ch\u01b0a h\u1ee3p l\u1ec7.", "trace_id": "ee8ada95f285379b040fe74d9b0b6fac", "details": [{"field": "correct.0", "code": "type", "message": "Gi\u00e1 tr\u1ecb kh\u00f4ng \u0111\u00fang ki\u1ec3u d\u1eef li\u1ec7u."}]}
+422 ['VALIDATION_FAILED', 'type'] {"code": "VALIDATION_FAILED", "message": "D\u1eef li\u1ec7u ch\u01b0a h\u1ee3p l\u1ec7.", "trace_id": "6d6268643e35f500fc5f6a2a5c53aed2", "details": [{"field": "correct.0", "code": "type", "message": "Gi\u00e1 tr\u1ecb kh\u00f4ng \u0111\u00fang ki\u1ec3u d\u1eef li\u1ec7u."}]}
+FAIL TC-PE03-31 sửa stem 422 ['VALIDATION_FAILED', 'type']; sửa đáp án 409; sửa topic/difficulty/explanation 422 ['VALIDATION_FAILED', 'type']
+FAIL TC-PE03-43 lọc 15 khớp; q 101 ký tự 422; q "ĐÁP" (hoa/thường) 0 kết quả; lưu trữ 30; mặc định ẩn câu lưu trữ
+PASS TC-PE03-44 {'SV': [403, 403, 403], 'ADMIN': [403, 403, 403], 'NGOÀI': [403, 403, 403], 'TA': [200, 200, 201], 'GV': [200, 200, 201]}
+PASS TC-PE03-46 201 r5-40 (bản sao) DRAFT
+PASS TC-PE03-47 SV nhân bản 403
+FAIL TC-PE03-53 GV có QUESTION_REVIEW: False; TA False; SV False

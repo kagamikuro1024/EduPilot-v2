@@ -1,0 +1,28 @@
+$ go test -tags integration ./internal/submission -run 'TestUploadRBAC|TestUnmatchedListRBAC|TestSignedGetChecksRole' -v
+=== RUN   TestSignedGetChecksRole
+2026/11/15 19:41:05 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e7c1794007df58ca58d1702c27ad1b431f0129e02dfedc670bd83b9de7d596a3
+  Test ProcessID: 650be7d9-5bec-48c9-b002-db0450d173e5
+2026/11/15 19:41:06 ✅ Container started: 68f6ff853df5
+2026/11/15 19:41:06 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:41:06 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:42:21 ✅ Container started: 5636bc78d64d
+2026/11/15 19:42:21 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:42:21 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:42:22 ✅ Container started: b8d9c357e377
+2026/11/15 19:42:22 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:42:22 🔔 Container is ready: b8d9c357e377
+--- PASS: TestSignedGetChecksRole (78.31s)
+=== RUN   TestUploadRBACService
+--- PASS: TestUploadRBACService (3.57s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission	82.400s
+
+rc=0

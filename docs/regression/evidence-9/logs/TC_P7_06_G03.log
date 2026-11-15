@@ -1,0 +1,25 @@
+$ go test ./internal/grading -run 'TestPromptStructure|TestPromptDelimiterRandomPerCall|TestPromptDelimiterNotInSubmission|TestPromptSecondPassReversedOrder|TestPromptReferenceAnswerOnlyInSystem' -v
+=== RUN   TestPromptStructure
+=== PAUSE TestPromptStructure
+=== RUN   TestPromptReferenceAnswerOnlyInSystem
+=== PAUSE TestPromptReferenceAnswerOnlyInSystem
+=== RUN   TestPromptSecondPassReversedOrder
+=== PAUSE TestPromptSecondPassReversedOrder
+=== RUN   TestPromptDelimiterRandomPerCall
+=== PAUSE TestPromptDelimiterRandomPerCall
+=== RUN   TestPromptDelimiterNotInSubmission
+=== PAUSE TestPromptDelimiterNotInSubmission
+=== CONT  TestPromptStructure
+=== CONT  TestPromptDelimiterRandomPerCall
+=== CONT  TestPromptSecondPassReversedOrder
+=== CONT  TestPromptDelimiterNotInSubmission
+--- PASS: TestPromptDelimiterNotInSubmission (0.00s)
+=== CONT  TestPromptReferenceAnswerOnlyInSystem
+--- PASS: TestPromptReferenceAnswerOnlyInSystem (0.00s)
+--- PASS: TestPromptStructure (0.00s)
+--- PASS: TestPromptSecondPassReversedOrder (0.00s)
+--- PASS: TestPromptDelimiterRandomPerCall (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	0.832s
+
+rc=0

@@ -1,0 +1,46 @@
+## N04-04 thresholds trong k6
+35:    thresholds: { 'http_req_duration{kind:read}': ['p(95)<300'], 'http_req_duration{kind:write}': ['p(95)<500'], sse_first_ms: ['p(95)<300', 'max>0'], http_req_failed: ['rate<0.005'], forbidden_leak: ['count==0'], forbidden_403: ['count>=100'] },
+39:    thresholds: { http_req_duration: ['p(95)<3000'], http_req_failed: ['rate<0.005'] },
+43-export const options = { insecureSkipTLSVerify: true, summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'], setupTimeout: '10m', ...OPTIONS };
+125:  return { [out]: JSON.stringify({ meta: m, scenario: SCENARIO, metrics: data.metrics, thresholds: Object.fromEntries(Object.entries(data.metrics).filter(([, v]) => v.thresholds).map(([k, v]) => [k, v.thresholds])) }, null, 2), stdout: `\n${SCENARIO}: xem ${out}\n` };
+--- nới ngưỡng qua commit? (dòng +/- có p(9 | rate< )
+fatal: --follow requires exactly one pathspec
+## N04-05
+baseline e3ca8377 2026-11-13T17:41:13.296Z {'ttft_ms': 409.1}
+grading e3ca8377 2026-11-13T17:42:01.204Z {'ttft_ms': 381.1}
+## N04-06 diff mã giữa cột x1 và x2
+868cce5b..868cce5b: 0 commit đổi mã SP
+e006e845..6402ddff: 1 commit đổi mã SP
+e3ca8377..6402ddff: 1 commit đổi mã SP
+## N04-14 demo-stack.json
+{"keys":["events","meta"]}
+{"note":"Bằng chứng dừng / chạy lại stack demo (project `edupilot`) quanh các lượt đo 9.5"}
+## N04-19
+# Override CHỈ cho `chat.js` (US-P3-08 AC5) và `checkin.js` (US-AS-14 AC3): nới hạn mức theo IP / người và cho provider `fake` trễ đúng như từng kịch bản. Chỉ gateway; không dùng ở production.
+#   K6_LAT=5000-15000 (first_event) | K6_LAT=300-300 (ttft)
+# gate-p3.sh (GATE_K6=1) tự tạo lại gateway bằng tệp này cho từng kịch bản rồi trả về cấu hình dev thường.
+services:
+  gateway:
+    environment:
+      RATE_LIMIT_IP_PER_MIN: "300000"
+      RATE_LIMIT_USER_PER_MIN: "100000"
+      AUTH_LOGIN_IP_PER_MIN: "1000"
+      AUTH_REGISTER_IP_PER_HOUR: "1000"
+      AUTH_TOKEN_IP_PER_MIN: "1000"
+      LLM_MAX_CONCURRENCY: "100"
+      LLM_DEFAULT_RPM: "100000"
+      LLM_DEFAULT_TPM: "100000000"
+      FAKE_LLM_LATENCY: "${K6_LAT:-300-300}"
+      DISPLAY_RATE_PER_MIN: "120" # checkin.js: 3 giảng viên T1 poll màn chiếu của 20 lớp (≈ 7 lớp / người, 1 lượt / 10 s ≈ 42 / phút); mặc định 30 / người / phút là cho một giảng viên một lớp
+  # Chấm bài chạy ở worker: độ trễ provider giả RIÊNG cho việc chấm (chat ở gateway giữ K6_LAT). K6_GRADE_LAT=20000-20000 cho lượt chấm 1.000 bài thời gian thật (US-NFR-04 AC9).
+  worker:
+    environment:
+      LLM_MAX_CONCURRENCY: "100"
+      LLM_DEFAULT_RPM: "100000"
+      LLM_DEFAULT_TPM: "100000000"
+      FAKE_LLM_LATENCY: "${K6_GRADE_LAT:-0-0}"
+docker-compose.local.yml:210:      LLM_MAX_CONCURRENCY: ${LLM_MAX_CONCURRENCY:-}
+docker-compose.local.yml:226:      FAKE_LLM_LATENCY: ${FAKE_LLM_LATENCY:-}
+docker-compose.local.yml:340:      LLM_MAX_CONCURRENCY: ${LLM_MAX_CONCURRENCY:-}
+docker-compose.local.yml:343:      FAKE_LLM_LATENCY: ${FAKE_LLM_LATENCY:-}
+## N04-20

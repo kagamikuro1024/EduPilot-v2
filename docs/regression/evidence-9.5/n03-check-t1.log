@@ -1,0 +1,15 @@
+OK   sinh viên: 1000 (đích 1000 ±10 %)
+OK   lớp: 20 (đích 20 ±10 %)
+OK   TA: 5 (đích 5 ±10 %)
+OK   giảng viên: 3 (đích 3 ±10 %)
+OK   chat_messages: 90000 (đích 90000 ±10 %)
+OK   study_time_daily: 525000 (đích 525000 ±10 %)
+OK   bài nộp: 4000 (đích 4000 ±10 %)
+OK   submissions → assignments: 0 dòng lệch lớp
+OK   grade_entries → grade_items: 0 dòng lệch lớp
+OK   attendance_records → class_sessions: 0 dòng lệch lớp
+OK   chat_messages → chat_sessions: 0 dòng lệch lớp
+OK   content_chunks → documents: đoạn nằm ngoài lớp của tài liệu: 0
+OK   lớp mồ côi: mọi lớp có giảng viên
+OK   mật khẩu: một bản băm bcrypt dùng chung, không có mật khẩu rõ
+DB: 404 MB; chỉ mục: 136 MB

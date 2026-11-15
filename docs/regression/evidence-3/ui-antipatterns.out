@@ -1,0 +1,33 @@
+✓ Màu viết cứng ngoài shared/styles
+✓ Màu viết cứng trong style của .tsx
+✓ Xám chung chung của Tailwind
+✓ Bo góc kiểu SaaS / số cứng
+✓ Bóng ngoài Popover/Dialog/Menu/Drawer/Composer
+✓ Cỡ chữ tuỳ ý ngoài thang vai trò
+✓ z-index số cứng
+✓ fetch / XMLHttpRequest / axios ngoài shared/data
+✓ confirm / alert
+✓ Spinner riêng hoặc toàn trang
+✓ <table> thô ngoài DataTable
+✓ Hiệu ứng bị cấm (glass, chữ gradient, nảy)
+✓ Gamification (streak, leaderboard, confetti)
+✓ Khung vỏ dùng nền đặc
+✓ Từ kỹ thuật trong màn sinh viên
+✓ Dialog ngoài danh sách việc cần bảo vệ
+✓ Emoji làm icon chức năng
+✓ Token / bí mật ghi vào storage
+✓ Tailwind / @theme
+✓ Bóng elevation ngoài Panel
+✓ Bo góc panel ngoài Panel
+✓ Panel lồng Panel (cùng tệp)
+✓ Câu mô tả tĩnh dưới tiêu đề
+✓ Khung tự đặt độ rộng
+✓ Chiều cao theo màn ngoài shared/
+✓ Với tay vào primitive
+✓ Meta lặp lớp đang chọn
+✓ Tiêu đề tự dựng ngoài shared/ui
+✓ Nút rỗng trùng nút đầu trang
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+rc=0

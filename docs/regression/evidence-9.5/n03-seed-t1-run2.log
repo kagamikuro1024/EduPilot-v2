@@ -1,0 +1,21 @@
+--reset: xoá dữ liệu T1…
+users: 1 s
+courses: 1 s
+enrollments: 1 s
+class_sessions: 2 s
+attendance_records: 3 s
+participation_events: 1 s
+study_time_daily: 39 s
+chat_sessions: 1 s
+chat_messages: 23 s
+grade_schemes: 2 s
+grade_entries: 3 s
+assignments: 1 s
+submissions: 4 s
+documents: 4 s
+Lỗi khi ghi content_chunks (dữ liệu dở dang — chạy lại với --reset):
+WARNING:  terminating connection because of crash of another server process
+DETAIL:  The postmaster has commanded this server process to roll back the current transaction and exit, because another server process exited abnormally and possibly corrupted shared memory.
+HINT:  In a moment you should be able to reconnect to the database and repeat your command.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally

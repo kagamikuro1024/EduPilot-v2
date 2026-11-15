@@ -1,0 +1,129 @@
+PASS TC-01: thứ tự luồng F2→F3→F5→F7→F9→F10→F17
+FAIL TC-01: đúng 7 tiêu đề '### Bước' — got [8] want [7]
+FAIL TC-01: số bước liên tục 1..7 — got [1 2 3 4 5 6 7 8] want [1 2 3 4 5 6 7]
+PASS TC-01: lệnh nguyên văn của AC1 ra đúng
+PASS TC-02: mọi hàng có đúng 6 cột (NF=8)
+PASS TC-02: ≥ 30 hàng (35)
+PASS TC-02: không ô nào trống
+FAIL TC-02: 7 bảng, mỗi bước một bảng đúng 6 tiêu đề cột — got [8] want [7]
+PASS TC-02: Bước 1 có ≥ 3 hàng
+PASS TC-02: Bước 2 có ≥ 3 hàng
+PASS TC-02: Bước 3 có ≥ 3 hàng
+PASS TC-02: Bước 4 có ≥ 3 hàng
+PASS TC-02: Bước 5 có ≥ 3 hàng
+PASS TC-02: Bước 6 có ≥ 3 hàng
+PASS TC-02: Bước 7 có ≥ 3 hàng
+PASS TC-03: mốc không giảm (lệnh AC3)
+PASS TC-03: không hai hàng trùng mốc (kỹ hơn AC: tăng chặt)
+PASS TC-03: hàng cuối 11:45 < 15:00
+PASS TC-03: tổng thời lượng bảng mục 1 = 12:15 ≤ 15:00
+FAIL TC-03: tổng khớp mốc 'Hết kịch bản' 13:45 (825 s trừ mở đầu = 13:45 tính cả 0:30) — got [735] want [825]
+FAIL TC-03: không thấy dòng 'Hết kịch bản'
+PASS TC-03: Bước 1: hàng 00:30…01:35 nằm trong 00:30–02:00
+PASS TC-03: Bước 2: hàng 02:00…02:55 nằm trong 02:00–03:30
+PASS TC-03: Bước 3: hàng 03:30…05:05 nằm trong 03:30–05:15
+PASS TC-03: Bước 4: hàng 05:15…06:55 nằm trong 05:15–07:30
+PASS TC-03: Bước 5: hàng 07:30…08:45 nằm trong 07:30–09:00
+PASS TC-03: Bước 6: hàng 09:00…10:20 nằm trong 09:00–10:30
+PASS TC-03: Bước 7: hàng 10:30…11:00 nằm trong 10:30–11:30
+PASS TC-04: 16 route khác nhau được trích
+THIẾU /checkin?c=…
+FAIL TC-04: route bịa (lệnh AC4)
+NGOÀI §14/§7: /checkin?c=…
+FAIL TC-04: route chỉ xuất hiện ngoài §14/§7 (xem tay)
+FAIL TC-04: vai trò chỉ gồm Admin / Giảng viên / Sinh viên (+ A–D) / Người trình bày (chỉ cho Mailpit, công cụ dev) — got [2 sinh viên Admin Giảng viên Người trình bày Sinh viên] want [Admin Giảng viên Người trình bày Sinh viên]
+PASS TC-05: lệnh AC5: không từ cấm
+PASS TC-05: có ≥ 5 hàng vai Sinh viên để kiểm
+xem tay (có thể là câu 'không thấy' hợp lệ):
+2:| 02:00 | Sinh viên B (375 px) | `/chat`, lớp 1 | Gõ D1, gửi | Dòng "Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI"; câu trả lời hiện dần; khối gọn nêu số buổi vắng (2) và điểm cộng phát biểu đúng số trong sổ; không thấy mã thay thế kiểu
+5:| 03:30 | Sinh viên B (375 px) | `/chat`, lớp 1 | Gõ D3, gửi | "AI chưa đủ chắc chắn về câu này"; câu hỏi được chuyển cho giảng viên, trạng thái "Đang chờ giảng viên · vừa gửi" (xem Q3 về việc có cần bấm `Nhờ giảng viên hỗ trợ`) | P4 (cha
+8:| 07:30 | Sinh viên B (375 px) | `/assignments/[id]` (Bài tập 03, mở từ `/me`) | Mở | Đã nộp, có dấu thời gian, nhãn nộp muộn; phần điểm ghi đang chấm — **không có điểm nháp** | P7 |
+PASS TC-05: dùng đúng cụm DESIGN §13 'Cần giảng viên hỗ trợ'
+PASS TC-05: dùng đúng cụm 'Đã ẩn … thông tin cá nhân'
+THIẾU DEMO_MODE=true
+THIẾU Ai bật
+THIẾU lỗi 2 lần
+FAIL TC-06: lệnh AC6
+THIẾU trong mục 5: DEMO_MODE=true
+THIẾU trong mục 5: Ai bật
+THIẾU trong mục 5: lỗi 2 lần
+FAIL TC-06: khoá không nằm trong mục 5
+PASS TC-06: 3 tầng 1/2/3
+PASS TC-06: lệnh bật tầng 2 khớp stack US-P0-02 (--env-file .env.local -f docker-compose.local.yml -p edupilot)
+PASS TC-06: ghi ai bật (Chủ dự án)
+info: ARCHITECTURE §8 chưa có DEMO_MODE (kịch bản nói P1 thêm — mục 6)
+PASS TC-07: ≥ 5 dòng 'Nếu hội đồng hỏi' (8)
+THIẾU audit.spec.ts
+THIẾU checkin-code.spec.ts
+THIẾU insights.spec.ts
+FAIL TC-07: spec E2E không có trong FLOWS
+PASS TC-07: Bước 1 (F2) có 'Nếu hội đồng hỏi'
+PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
+PASS TC-07: Bước 1 nêu spec E2E: class-join.spec.ts
+PASS TC-07:   class-join.spec.ts nằm trong mục F2 của FLOWS
+PASS TC-07: Bước 2 (F3) có 'Nếu hội đồng hỏi'
+PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
+PASS TC-07: Bước 2 nêu spec E2E: private-chat.spec.ts
+PASS TC-07:   private-chat.spec.ts nằm trong mục F3 của FLOWS
+PASS TC-07: Bước 3 (F5) có 'Nếu hội đồng hỏi'
+PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
+PASS TC-07: Bước 3 nêu spec E2E: escalation.spec.ts
+PASS TC-07:   escalation.spec.ts nằm trong mục F5 của FLOWS
+PASS TC-07: Bước 4 (F7) có 'Nếu hội đồng hỏi'
+PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
+PASS TC-07: Bước 4 nêu spec E2E: attendance-checkin.spec.ts attendance-display.spec.ts attendance.spec.ts checkin-code.spec.ts
+FAIL TC-07:   attendance-checkin.spec.ts không nằm trong mục F7 của FLOWS
+FAIL TC-07:   attendance-display.spec.ts không nằm trong mục F7 của FLOWS
+PASS TC-07:   attendance.spec.ts nằm trong mục F7 của FLOWS
+FAIL TC-07:   checkin-code.spec.ts không nằm trong mục F7 của FLOWS
+PASS TC-07: Bước 5 (F9) có 'Nếu hội đồng hỏi'
+PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
+PASS TC-07: Bước 5 nêu spec E2E: assignment-lifecycle.spec.ts
+PASS TC-07:   assignment-lifecycle.spec.ts nằm trong mục F9 của FLOWS
+PASS TC-07: Bước 6 (F10) có 'Nếu hội đồng hỏi'
+PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
+PASS TC-07: Bước 6 nêu spec E2E: gradebook.spec.ts
+PASS TC-07:   gradebook.spec.ts nằm trong mục F10 của FLOWS
+FAIL TC-07: mục 5 không nêu mạng/API LLM lỗi
+PASS TC-07: mục 5: tầng 3 khi stack không lên / tầng 2 lỗi
+PASS TC-07: mục 5: tầng 2 không cần mạng ngoài
+PASS TC-08: Bước 2 (hàng bảng): sinh viên hỏi người khác bị từ chối
+PASS TC-08: Bước 5 (hàng bảng): sinh viên không thấy điểm nháp
+PASS TC-08: Bước 5/6 (hàng bảng): chỉ TEACHER công bố
+PASS TC-08: Bước 5/6 (hàng bảng): 'Chốt điểm' bị khoá khi công thức chưa xác nhận
+PASS TC-08: lệnh AC8: 4 ≥ 4
+PASS TC-08: Bước 6 có thao tác xác nhận công thức (chỉ giảng viên làm — CLAUDE.md cấm tự xác nhận)
+PASS TC-08: Bước 5: giảng viên là người công bố
+PASS TC-09: lệnh AC9: 8 hàng P1..P7,P10
+PASS TC-09: đúng 1 mục 7 nhật ký
+PASS TC-09: mục 6 liệt kê đúng P1–P7, P10
+PASS TC-09: mục 7 có bảng nhật ký đủ 6 cột
+PASS TC-09: mọi phase trong cột Phase (P10 P2 P3 P4 P5 P6 P7) đều có yêu cầu ở mục 6
+PASS TC-09: docs/phases/P10.md tồn tại
+PASS TC-09: docs/phases/P2.md tồn tại
+PASS TC-09: docs/phases/P3.md tồn tại
+PASS TC-09: docs/phases/P4.md tồn tại
+PASS TC-09: docs/phases/P5.md tồn tại
+PASS TC-09: docs/phases/P6.md tồn tại
+PASS TC-09: docs/phases/P7.md tồn tại
+PASS TC-10: mọi email thuộc tên miền giả @edupilot.local
+PASS TC-10: không chuỗi giống MSSV 8–10 số (xem tay nếu >0)
+PASS TC-10: không khoá thật
+PASS TC-10: mật khẩu chỉ được nhắc bằng tên biến SEED_DEFAULT_PASSWORD, không giá trị
+PASS TC-11: mọi đường dẫn file được trích đều tồn tại (seed/demo/* do P1+ tạo thì liệt kê ở trên)
+PASS TC-12: mã lớp trong kịch bản có ở ARCHITECTURE
+PASS TC-12: mã tham gia (7 ký tự) có ở tài liệu khác
+PASS TC-12: FLOWS có mục F2
+PASS TC-12: FLOWS có mục F3
+PASS TC-12: FLOWS có mục F5
+PASS TC-12: FLOWS có mục F7
+PASS TC-12: FLOWS có mục F9
+PASS TC-12: FLOWS có mục F10
+PASS TC-12: FLOWS có mục F17
+PASS TC-13: không placeholder TODO/TBD/lorem
+FAIL TC-13: thiếu dòng phiên bản
+PASS TC-13: QUESTIONS.md tồn tại (Q1–Q9 không chặn)
+PASS TC-14: mọi tài khoản seed trong kịch bản khớp ARCHITECTURE §9
+PASS TC-14: sv.kha = Sinh viên B (khớp ARCHITECTURE)
+PASS TC-14: sv.moi = Sinh viên D
+PASS TC-14: sv.nguyco = Sinh viên C

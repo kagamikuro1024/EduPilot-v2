@@ -1,0 +1,11 @@
+rag_hybrid: 68.831 ms · 7161 buffers · seq: Seq Scan(content_chunks), Seq Scan(documents)
+students_list_360: 11.075 ms · 309 buffers · seq: Seq Scan(users), Seq Scan(courses), Seq Scan(user_settings)
+students_count_360: 4.468 ms · 176 buffers · seq: -
+participation_events: 2.476 ms · 205 buffers · seq: Seq Scan(users)
+study_time_weekly: 4.226 ms · 532 buffers · seq: -
+roster_page: 0.883 ms · 64 buffers · seq: Seq Scan(users)
+attendance_me: 0.278 ms · 63 buffers · seq: Seq Scan(class_sessions)
+today_assignments: 0.398 ms · 51 buffers · seq: Seq Scan(assignments)
+library_list: 1.054 ms · 47 buffers · seq: Seq Scan(documents), Seq Scan(document_courses)
+gradebook_signals: 0.561 ms · 226 buffers · seq: -
+rc=0

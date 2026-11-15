@@ -1,0 +1,79 @@
+== TC-PG01-14
+    ok   độ dài khoá hợp lệ = [32]
+    ok   độ dài khoá lỗi = [31]
+    ok   32 byte: số dòng error nêu JWT_SECRET_KEY = [0]
+    ok   32 byte: đi tới bước chờ phụ thuộc (ms ≈ STARTUP_TIMEOUT 2s) = 2689 (≥ 1500)
+    ok   31 byte: rc = [1]
+    ok   31 byte: ms = 83 (≤ 1000)
+    ok   31 byte: dòng error nêu JWT_SECRET_KEY = 2 (≥ 1)
+-- TC-PG01-14 PASS
+== TC-PG01-15
+    ok   DB_MAX_CONNS=1: số dòng error nêu biến = [0]
+    ok   DB_MAX_CONNS=1: đi tới bước chờ phụ thuộc (ms) = 2496 (≥ 1500)
+    ok   DB_MAX_CONNS=100: số dòng error nêu biến = [0]
+    ok   DB_MAX_CONNS=100: đi tới bước chờ phụ thuộc (ms) = 2467 (≥ 1500)
+    ok   DB_MAX_CONNS=101: rc = [1]
+    ok   DB_MAX_CONNS=101: ms = 70 (≤ 1000)
+    ok   DB_MAX_CONNS=101: dòng error nêu biến = 2 (≥ 1)
+-- TC-PG01-15 PASS
+== TC-PG01-16
+    ok   APP_ENV=dev: số dòng error nêu APP_ENV = [0]
+    ok   APP_ENV=dev: đi tới bước chờ phụ thuộc (ms) = 2535 (≥ 1500)
+    ok   APP_ENV=test: số dòng error nêu APP_ENV = [0]
+    ok   APP_ENV=test: đi tới bước chờ phụ thuộc (ms) = 2501 (≥ 1500)
+    ok   APP_ENV=production: số dòng error nêu APP_ENV = [0]
+    FAIL APP_ENV=production: đi tới bước chờ phụ thuộc (ms): thực tế [75] phải ≥ 1500
+-- TC-PG01-16 FAIL
+== TC-PG01-19
+    ok   số dòng 'config loaded' = [1]
+    ok   db_max_conns (kiểu JSON) = [number]
+    ok   db_max_conns (mặc định dev) = [10]
+    ok   request_timeout (chuỗi thời lượng) = [30s]
+    ok   sse_heartbeat (chuỗi thời lượng) = [25s]
+    ok   app_env (mặc định dev) = [dev]
+    ok   cors_origins (mặc định SRS 8.1) = [http://localhost:3000,https://localhost]
+    ok   db_via (không đặt PGBOUNCER_URL) = [direct]
+    ok   secrets = [[redacted]]
+    ok   số khoá bí mật bị in (database_url/redis_url/pgbouncer_url/jwt_secret_key/blob_access_key/blob_secret_key) = [0]
+    ok   dòng không chứa khoá JWT thật = [0]
+    ok   dòng không chứa mật khẩu Postgres = [0]
+-- TC-PG01-19 PASS
+== TC-PG01-34
+    FAIL số khoá Redis ngoài quy ước: thực tế [43] ≠ mong đợi [0]
+-- TC-PG01-34 FAIL
+== TC-PG01-68
+    FAIL số lần RYUK_DISABLED=true: thực tế [2] ≠ mong đợi [1]
+    ok   có cờ -race = 2 (≥ 1)
+    ok   chạy toàn bộ gói (./...) = 1 (≥ 1)
+-- TC-PG01-68 FAIL
+== TC-PG01-75
+    ok   rc = [1]
+    ok   ms ≈ STARTUP_TIMEOUT 3 s = 3073 (≥ 2500)
+    ok   ms = 3073 (≤ 9000)
+    ok   số dòng warn msg="dependency not ready" (mỗi giây một dòng) = 3 (≥ 2)
+    ok   số dòng warn msg="dependency not ready" = 3 (≤ 6)
+    ok   dependency ở các dòng warn = [db]
+    ok   số dòng error msg="dependency not ready" = 1 (≥ 1)
+    ok   dependency ở dòng error = [db]
+-- TC-PG01-75 PASS
+== TC-PG01-76
+    ok   rc = [1]
+    ok   ms ≈ STARTUP_TIMEOUT 3 s = 3458 (≥ 2500)
+    ok   ms = 3458 (≤ 9000)
+    ok   số dòng warn msg="dependency not ready" = 3 (≥ 2)
+    ok   dependency ở các dòng warn = [redis]
+    ok   số dòng error msg="dependency not ready" = 1 (≥ 1)
+    ok   dependency ở dòng error = [redis]
+-- TC-PG01-76 PASS
+== TC-PG01-83
+    ok   BCRYPT_COST=4: số dòng error nêu biến = [0]
+    ok   BCRYPT_COST=4: đi tới bước chờ phụ thuộc (ms) = 2460 (≥ 1500)
+    ok   BCRYPT_COST=14: số dòng error nêu biến = [0]
+    ok   BCRYPT_COST=14: đi tới bước chờ phụ thuộc (ms) = 2471 (≥ 1500)
+-- TC-PG01-83 PASS
+== TC-PG01-85
+    FAIL số lần gọi golangci-lint: thực tế [3] ≠ mong đợi [2]
+    ok   số lần golangci-lint chạy với tag testroutes = [1]
+-- TC-PG01-85 FAIL
+TỔNG story 01: PASS=6 FAIL=4 MANUAL=0 K=0
+FAIL: TC-PG01-16 TC-PG01-34 TC-PG01-68 TC-PG01-85

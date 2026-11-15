@@ -1,0 +1,23 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 202 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+pending 6 {'MANUAL'}
+200 {"results": [{"id": "01a1df35-2037-7a1b-9c02-91c6b333620e", "ok": true}, {"id": "01a1df35-2006-7b01-97c8-bde8b289b610", "ok": true}, {"id": "01a1df2d-2a2e-7449-b706-c318b616cfad", "ok": false, "code": "NOT_FOUND"}, {"id": "db26cf27-4050-4872-b379-b721a32084fb", "ok": false, "code": "NOT_FOUND"}]}
+PASS TC-04-05 bulk APPROVE: 2 ok, lớp 2/id lạ ok:false (không huỷ lô) 200 [(True, None), (True, None), (False, 'NOT_FOUND'), (False, 'NOT_FOUND')]
+AI-origin pending [('EXTRACTED', 'Độ trễ (latency) của'), ('EXTRACTED', 'NAT thường được dùng'), ('EXTRACTED', 'Giao thức định tuyến'), ('EXTRACTED', 'Đơn vị dữ liệu ở tần'), ('EXTRACTED', 'Giao thức nào cung c')]
+FAIL TC-04-13 duyệt câu AI-origin không trích dẫn → 422 CITATION_REQUIRED origin=EXTRACTED citations=1 → 200 {"id": "01a1df2d-4c21-75e5-ad80-189d74a5e363", "type": "MCQ_SINGLE", "title": "Độ trễ (latency) của mạng là gì?", "topic
+FAIL TC-04-05b bulk APPROVE câu AI-origin không trích dẫn → ok:false CITATION_REQUIRED 200 [{'id': '01a1df2d-4c21-75e5-ad80-189d74a5e363', 'ok': False, 'code': 'CONFLICT'}]
+PASS TC-04-07a SET_TAGS 3 câu đúng topic/difficulty 200 [('QC-Tag', 'HARD'), ('QC-Tag', 'HARD'), ('QC-Tag', 'HARD')]
+PASS TC-04-07 ids rỗng → 422 422
+PASS TC-04-07 51 ids → 422 422
+PASS TC-04-07 action lạ → 422 422
+PASS TC-04-07 SET_TAGS thiếu topic/difficulty → 422 422
+PASS TC-04-06 bulk REJECT 3 câu 200
+PASS TC-04-P bulk sv.kha → 403 403
+PASS TC-04-P bulk admin → 403 403
+PASS TC-04-P bulk ta → 200 200
+PASS TC-04-P4 bulk với id lớp 1 trên đường dẫn lớp 2 → ok:false/403/404 200 [(False, 'NOT_FOUND')]
+FAIL TC-04-11 version cũ → 409 VERSION_CONFLICT 422/422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "db553aa901fca239b31ab062efa54caf", "details": [{"field": "accepted", "code": "ANSW
+PASS TC-04-17a theo cursor đến hết, không trùng 202 câu / 3 trang
+PASS TC-04-17b limit=101 cắt ≤100 hoặc 422 422 n=-
+PASS TC-04-P1 STUDENT /questions* → 403 [403, 403, 403, 403]
+PASS TC-04-P5 ADMIN /questions → 403 

@@ -1,0 +1,31 @@
+PASS A0 admin GET providers 200
+PASS A1 có đúng 1 provider type=decision 1
+provider: {"id": "01a1df27-14df-7147-9812-e8fd54302729", "name": "Quyết định", "type": "decision", "enabled": true, "base_url": null, "version": 1, "key_hint": null, "has_key": false} [('decision-fake', True), ('gemini-decision-1', False)]
+PASS A1b decision-fake bật, gemini-decision-1 không bật 
+PASS D01-19 chọn gemini-decision-1 khi ALLOW_REAL=false → 409 DECISION_REAL_DISABLED 409 {"code": "DECISION_REAL_DISABLED", "message": "Chưa được phép dùng bản thật.", "trace_id": "823c06c0b1e261156b3c912eb8c6418a"}
+PASS D01-19b mô hình KHÔNG đổi sau 409 
+audit_log provider rows since: 0
+PASS D01-28b tạo provider decision thứ hai bị từ chối (4xx, không 5xx) 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "4fa5fa27d13c7bd5d6c8e1ae16e71bb2", "details": [{"field": "enab
+INFO D01-26 teacher: GET providers → 200; thấy provider decision: False
+PASS D01-26 teacher không thấy provider decision (403 hoặc ẩn) 200 vis=False
+PASS D01-26b teacher PUT provider decision → 403 403
+PASS D01-26c teacher POST test → 403 403
+INFO D01-26 ta: GET providers → 403; thấy provider decision: None
+PASS D01-26 ta không thấy provider decision (403 hoặc ẩn) 403 vis=None
+PASS D01-26b ta PUT provider decision → 403 403
+PASS D01-26c ta POST test → 403 403
+INFO D01-26 sv.kha: GET providers → 403; thấy provider decision: None
+PASS D01-26 sv.kha không thấy provider decision (403 hoặc ẩn) 403 vis=None
+PASS D01-26b sv.kha PUT provider decision → 403 403
+PASS D01-26c sv.kha POST test → 403 403
+PASS D01-26d không token → 401 401
+PASS D01-27 test kết nối decision-fake → 200 ok:true (cục bộ, không mạng) 200 19ms {"ok": true, "latency_ms": 0}
+INFO tổng dòng DECIDE sau test kết nối: 0
+PASS D02-13 mặc định ba cổng tắt, ngưỡng đúng [['CHAT_ROUTING', 'f', '0.950', '800'], ['INJECTION_FLAG', 'f', '0.500', '3000'], ['THREADS_PRECHECK', 'f', '0.050', '800']]
+PASS D02-06 không hàng course_decision_gates bật 
+PASS D01-19c lưu hai mô hình (thật TẮT) → 200 200 {"id": "01a1df27-14df-7147-9812-e8fd54302729", "type": "decision", "name": "Quyết định", "base_url":
+PASS D01-19 BẬT gemini-decision-1 khi ALLOW_REAL=false → 409 DECISION_REAL_DISABLED 409 {"code": "DECISION_REAL_DISABLED", "message": "Chưa được phép dùng bản thật.", "trace_id": "c2b3b391be5267708661a1443c83de4a"}
+PASS D01-19d sau 409 mô hình thật vẫn tắt 
+INFO teacher routes 200 ['CHAT', 'CLASSIFY', 'UTILITY', 'GRADING', 'QUESTION_GEN', 'INSIGHT', 'EMBEDDING']
+PASS D01-26e teacher không thấy tác vụ DECIDE ở routes 
+INFO admin routes ['CHAT', 'CLASSIFY', 'UTILITY', 'GRADING', 'QUESTION_GEN', 'INSIGHT', 'EMBEDDING']

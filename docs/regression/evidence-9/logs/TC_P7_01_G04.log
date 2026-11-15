@@ -1,0 +1,26 @@
+$ go test ./internal/store -run 'TestGradeItemAssignmentFK|TestAssignmentDeleteRestrictedByGradeItem' -v
+=== RUN   TestGradeItemAssignmentFK
+=== PAUSE TestGradeItemAssignmentFK
+=== RUN   TestAssignmentDeleteRestrictedByGradeItem
+=== PAUSE TestAssignmentDeleteRestrictedByGradeItem
+=== CONT  TestGradeItemAssignmentFK
+=== CONT  TestAssignmentDeleteRestrictedByGradeItem
+2026/11/15 19:31:47 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: c7f57081f34dfcc2dbdb8a3d58f76fb9e1deb7b4364920f866064e10be7f9bfe
+  Test ProcessID: c3fe58e8-5e77-440d-90fa-2bf943fa564d
+2026/11/15 19:31:47 ✅ Container started: 68f6ff853df5
+2026/11/15 19:31:47 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:31:47 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAssignmentDeleteRestrictedByGradeItem (2.26s)
+--- PASS: TestGradeItemAssignmentFK (2.30s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/store	2.490s
+
+rc=0

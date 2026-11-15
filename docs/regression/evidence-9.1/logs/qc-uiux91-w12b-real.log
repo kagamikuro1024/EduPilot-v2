@@ -1,0 +1,125 @@
+
+Running 14 tests using 1 worker
+
+(node:55985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO teacher /assignments: —
+INFO teacher /insights: —
+INFO teacher /calendar: —
+INFO teacher /exams: —
+INFO teacher /library: —
+INFO sv.gioi /assignments: —
+INFO sv.gioi /calendar: —
+INFO sv.gioi /exams: —
+INFO sv.gioi /library: —
+  ✓   1 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:20:1 › TC-UX02-5 chỉ ngày: không dạng cũ, có dd/MM hoặc dd/MM/yyyy (GV + SV) (28.9s)
+  ✘   2 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:36:1 › TC-UX02-PQ SV /documents, /inbox → 403 như cũ (4.4s)
+(node:58635) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO /: 21 hoạt cảnh, delay khác nhau: 0,80,250,100,160,220,1200,400 ; Landing-module__H_TZ-W__rise,Landing-module__H_TZ-W__draw,Landing-module__H_TZ-W__lift,Landing-module__H_TZ-W__settle,Landing-module__H_TZ-W__dim,Landing-module__H_TZ-W__out23,Landing-module__H_TZ-W__in23,Landing-module__H_TZ-W__out53,Landing-module__H_TZ-W__in53,Landing-module__H_TZ-W__tap53,Landing-module__H_TZ-W__ptr,Landing-module__H_TZ-W__ring,Landing-module__H_TZ-W__press
+  ✘   3 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:50:1 › TC-UX04-17 không so le: mọi hoạt cảnh bắt đầu cùng lúc khi tải `/` và `/inbox` (1.9s)
+(node:58879) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO TA thấy nút Tải bài lên: 0
+  ✓   4 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:67:1 › TC-UX05-6 TA /grading: nút Tải bài lên theo quyền (có nút ⇔ không khoá vì quyền) (4.2s)
+  ✓   5 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:79:1 › TC-UX05-8 Sổ điểm lớp có điểm: câu «Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.» ở chân bảng (5.9s)
+  ✘   6 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:94:1 › TC-UX06-2 chọn A rồi B, tải lại → vẫn B (1.5m)
+(node:66422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO thanh dưới 375: [{"t":"Hôm nay","cut":false},{"t":"Chat riêng","cut":false},{"t":"Hỏi đáp","cut":false},{"t":"Luyện đề","cut":false}]
+  ✓   7 [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:113:1 › TC-UX07-10/12/13 SV: khối hoạt động không còn Threads; sidebar thu gọn có aria-label; thanh dưới 375 không cắt nhãn (7.0s)
+(node:67294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   8 [mobile] › e2e/qc-uiux91-w12b-real.spec.ts:20:1 › TC-UX02-5 chỉ ngày: không dạng cũ, có dd/MM hoặc dd/MM/yyyy (GV + SV)
+  -   9 [mobile] › e2e/qc-uiux91-w12b-real.spec.ts:36:1 › TC-UX02-PQ SV /documents, /inbox → 403 như cũ
+  -  10 [mobile] › e2e/qc-uiux91-w12b-real.spec.ts:50:1 › TC-UX04-17 không so le: mọi hoạt cảnh bắt đầu cùng lúc khi tải `/` và `/inbox`
+  -  11 [mobile] › e2e/qc-uiux91-w12b-real.spec.ts:67:1 › TC-UX05-6 TA /grading: nút Tải bài lên theo quyền (có nút ⇔ không khoá vì quyền)
+  -  12 [mobile] › e2e/qc-uiux91-w12b-real.spec.ts:79:1 › TC-UX05-8 Sổ điểm lớp có điểm: câu «Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.» ở chân bảng
+  -  13 [mobile] › e2e/qc-uiux91-w12b-real.spec.ts:94:1 › TC-UX06-2 chọn A rồi B, tải lại → vẫn B
+  -  14 [mobile] › e2e/qc-uiux91-w12b-real.spec.ts:113:1 › TC-UX07-10/12/13 SV: khối hoạt động không còn Threads; sidebar thu gọn có aria-label; thanh dưới 375 không cắt nhãn
+
+
+  1) [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:36:1 › TC-UX02-PQ SV /documents, /inbox → 403 như cũ 
+
+    Error: /documents
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Bạn không có quyền xem màn này"
+    Received string:    "Đăng nhập EduPilot
+    Email
+    Mật khẩu
+    Đăng nhập·
+    Quên mật khẩu?
+    Chưa có tài khoản? Đăng ký·
+    Cần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn."
+
+      42 |     await settle(page, r);
+      43 |     const t = await main(page);
+    > 44 |     expect(t, r).toContain("Bạn không có quyền xem màn này");
+         |                  ^
+      45 |     expect(t, r).not.toMatch(/\d{2}\/\d{2}|\d{2}:\d{2}/);
+      46 |   }
+      47 |   await ctx.close();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12b-real.spec.ts:44:18
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12b-real/qc-uiux91-w12b-real-TC-UX0-8689b-ocuments-inbox-→-403-như-cũ-desktop/error-context.md
+
+  2) [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:50:1 › TC-UX04-17 không so le: mọi hoạt cảnh bắt đầu cùng lúc khi tải `/` và `/inbox` 
+
+    Error: /: delay > 0 (so le)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 9
+
+    - Array []
+    + Array [
+    +   80,
+    +   250,
+    +   100,
+    +   160,
+    +   220,
+    +   1200,
+    +   400,
+    + ]
+
+      60 |     const uniq = [...new Set(starts.map((s) => s.d))];
+      61 |     console.log(`INFO ${r}: ${starts.length} hoạt cảnh, delay khác nhau: ${uniq.join(",")} ; ${[...new Set(starts.map((s) => s.n))].join(",")}`);
+    > 62 |     expect(uniq.filter((d) => d > 0), `${r}: delay > 0 (so le)`).toEqual([]);
+         |                                                                  ^
+      63 |   }
+      64 |   await ctx.close();
+      65 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12b-real.spec.ts:62:66
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12b-real/qc-uiux91-w12b-real-TC-UX0-20003--cùng-lúc-khi-tải-và-inbox--desktop/error-context.md
+
+  3) [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:94:1 › TC-UX06-2 chọn A rồi B, tải lại → vẫn B ────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.waitFor: Test ended.
+    Call log:
+      - waiting for locator('[data-part=topbar]') to be visible
+        173 × locator resolved to hidden <header data-part="topbar" class="AppShell-module__f1vhnG__topbar">…</header>
+
+
+      106 |   await pick("761987"); expect(await cur()).toBe("761987");
+      107 |   await pick("761988"); expect(await cur()).toBe("761988");
+    > 108 |   await page.reload(); await page.locator("[data-part=topbar]").waitFor(); await page.waitForTimeout(1500);
+          |                                                                 ^
+      109 |   expect(await cur()).toBe("761988");
+      110 |   await ctx.close();
+      111 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12b-real.spec.ts:108:65
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12b-real/qc-uiux91-w12b-real-TC-UX06-2-chọn-A-rồi-B-tải-lại-→-vẫn-B-desktop/error-context.md
+
+  3 failed
+    [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:36:1 › TC-UX02-PQ SV /documents, /inbox → 403 như cũ 
+    [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:50:1 › TC-UX04-17 không so le: mọi hoạt cảnh bắt đầu cùng lúc khi tải `/` và `/inbox` 
+    [desktop] › e2e/qc-uiux91-w12b-real.spec.ts:94:1 › TC-UX06-2 chọn A rồi B, tải lại → vẫn B ─────
+  7 skipped
+  4 passed (2.5m)

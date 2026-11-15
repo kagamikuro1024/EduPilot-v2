@@ -1,0 +1,160 @@
+
+Running 12 tests using 1 worker
+
+(node:67672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO #3 Mở lớp: null
+INFO #4 gửi lời mời: null
+INFO #34 nhãn: null switch: null
+INFO #29 placeholder: null
+  ✘   1 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:26:1 › TC-UX01-4/11 tooltip thay câu mô tả: có chữ, ≤ 12 từ, aria-describedby (hoặc title) trỏ tới (22.6s)
+(node:69602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO #48 dòng phụ /students: 
+  ✘   2 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) (6.6s)
+(node:70038) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO /students: CLS=0.000 phần tử kế h1: null
+INFO /class/members: CLS=0.000 phần tử kế h1: null
+  ✓   3 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:91:1 › TC-UX01-16 meta rỗng: CLS ≤ 0,05 khi chuyển khung máy chủ → màn thật (/students, /class/members) (10.8s)
+  ✘   4 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:109:1 › TC-UX06-6/7/PQ ep:ui:course là lớp không còn / không thuộc mình → bỏ giá trị, chọn lớp theo AC2; SV chỉ lớp của mình (6.7s)
+(node:71476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO teacher: 0 thông báo; loại: 
+INFO ta: 0 thông báo; loại: 
+INFO sv.gioi: 0 thông báo; loại: 
+  ✓   5 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:154:1 › TC-UX07-9 thông báo của giảng viên / SV không còn «Threads» / «Insights» / «Analytics» (13.0s)
+  ✘   6 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course (3.2s)
+(node:72203) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   7 [mobile] › e2e/qc-uiux91-w12c-real.spec.ts:26:1 › TC-UX01-4/11 tooltip thay câu mô tả: có chữ, ≤ 12 từ, aria-describedby (hoặc title) trỏ tới
+  -   8 [mobile] › e2e/qc-uiux91-w12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48)
+  -   9 [mobile] › e2e/qc-uiux91-w12c-real.spec.ts:91:1 › TC-UX01-16 meta rỗng: CLS ≤ 0,05 khi chuyển khung máy chủ → màn thật (/students, /class/members)
+  -  10 [mobile] › e2e/qc-uiux91-w12c-real.spec.ts:109:1 › TC-UX06-6/7/PQ ep:ui:course là lớp không còn / không thuộc mình → bỏ giá trị, chọn lớp theo AC2; SV chỉ lớp của mình
+  -  11 [mobile] › e2e/qc-uiux91-w12c-real.spec.ts:154:1 › TC-UX07-9 thông báo của giảng viên / SV không còn «Threads» / «Insights» / «Analytics»
+  -  12 [mobile] › e2e/qc-uiux91-w12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course
+
+
+  1) [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:26:1 › TC-UX01-4/11 tooltip thay câu mô tả: có chữ, ≤ 12 từ, aria-describedby (hoặc title) trỏ tới 
+
+    Error: #3 tooltip nút Mở lớp
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /mã tham gia/
+    Received string:  ""
+
+      62 |   console.log("INFO " + out.join("\nINFO "));
+      63 |   const txt = (x: { title: string | null; desc: string } | null) => (x ? x.desc || x.title || "" : "");
+    > 64 |   expect.soft(txt(t3), "#3 tooltip nút Mở lớp").toMatch(/mã tham gia/);
+         |                                                 ^
+      65 |   expect.soft(words(txt(t3)), "#3 ≤ 12 từ").toBeLessThanOrEqual(12);
+      66 |   expect.soft(txt(t4), "#4 tooltip gửi lời mời").toMatch(/72 giờ/);
+      67 |   expect.soft(t34?.desc ?? "", "#34 aria-describedby trỏ tới chữ").toMatch(/chờ bạn duyệt/);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:64:49
+
+    Error: #4 tooltip gửi lời mời
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /72 giờ/
+    Received string:  ""
+
+      64 |   expect.soft(txt(t3), "#3 tooltip nút Mở lớp").toMatch(/mã tham gia/);
+      65 |   expect.soft(words(txt(t3)), "#3 ≤ 12 từ").toBeLessThanOrEqual(12);
+    > 66 |   expect.soft(txt(t4), "#4 tooltip gửi lời mời").toMatch(/72 giờ/);
+         |                                                  ^
+      67 |   expect.soft(t34?.desc ?? "", "#34 aria-describedby trỏ tới chữ").toMatch(/chờ bạn duyệt/);
+      68 |   expect(ph, "#29 placeholder").toBe("AN7K2MQ");
+      69 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:66:50
+
+    Error: #34 aria-describedby trỏ tới chữ
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /chờ bạn duyệt/
+    Received string:  ""
+
+      65 |   expect.soft(words(txt(t3)), "#3 ≤ 12 từ").toBeLessThanOrEqual(12);
+      66 |   expect.soft(txt(t4), "#4 tooltip gửi lời mời").toMatch(/72 giờ/);
+    > 67 |   expect.soft(t34?.desc ?? "", "#34 aria-describedby trỏ tới chữ").toMatch(/chờ bạn duyệt/);
+         |                                                                    ^
+      68 |   expect(ph, "#29 placeholder").toBe("AN7K2MQ");
+      69 | });
+      70 |
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:67:68
+
+    Error: #29 placeholder
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "AN7K2MQ"
+    Received: null
+
+      66 |   expect.soft(txt(t4), "#4 tooltip gửi lời mời").toMatch(/72 giờ/);
+      67 |   expect.soft(t34?.desc ?? "", "#34 aria-describedby trỏ tới chữ").toMatch(/chờ bạn duyệt/);
+    > 68 |   expect(ph, "#29 placeholder").toBe("AN7K2MQ");
+         |                                 ^
+      69 | });
+      70 |
+      71 | test("TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48)", async ({ browser }, info) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:68:33
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12c-real/qc-uiux91-w12c-real-TC-UX0-33ce2-cribedby-hoặc-title-trỏ-tới-desktop/error-context.md
+
+  2) [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /^\d+ sinh viên$/
+    Received string:  ""
+
+      78 |   const sub = t1.match(/\d+ sinh viên[^\n]*/)?.[0] ?? "";
+      79 |   console.log("INFO #48 dòng phụ /students:", sub);
+    > 80 |   expect(sub).toMatch(/^\d+ sinh viên$/);
+         |               ^
+      81 |   expect(t1).toMatch(/\b\d{8}\b/);
+      82 |   await settle(p, "/attendance");
+      83 |   const t2 = (await p.locator("main").innerText()).replace(/\n/g, " ");
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:80:15
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12c-real/qc-uiux91-w12c-real-TC-UX0-b8304-mã-lớp-ở-dòng-phụ-11-47-48--desktop/error-context.md
+
+  3) [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:109:1 › TC-UX06-6/7/PQ ep:ui:course là lớp không còn / không thuộc mình → bỏ giá trị, chọn lớp theo AC2; SV chỉ lớp của mình 
+
+    TypeError: Cannot read properties of undefined (reading 'map')
+
+      120 |       const v = await p.evaluate(() => localStorage.getItem("ep:ui:course"));
+      121 |       const mine = ((await api(p, "/me/courses")).body as { items: Array<{ course: { id: string; class_code: string } }> }).items;
+    > 122 |       console.log(`INFO ${user}: ep:ui:course sau đăng nhập = ${v}; lớp của tôi = ${mine.map((m) => m.course.class_code).join(",")}`);
+          |                                                                                          ^
+      123 |       expect(errs, `${user} không pageerror`).toEqual([]);
+      124 |       expect(v, `${user} giá trị lạ phải bị xoá hoặc thay`).not.toBe(stale);
+      125 |       if (v) expect(mine.map((m) => m.course.id), `${user} chỉ lớp của mình`).toContain(v);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:122:90
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12c-real/qc-uiux91-w12c-real-TC-UX0-b5c08-heo-AC2-SV-chỉ-lớp-của-mình-desktop/error-context.md
+
+  4) [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course 
+
+    TypeError: Cannot read properties of undefined (reading 'find')
+
+      183 |   await login(pa, "admin");
+      184 |   const users = ((await api(pa, "/admin/users?limit=100")).body as { items: Array<{ id: string; email: string }> }).items;
+    > 185 |   const teacher = users.find((u) => u.email === "teacher@edupilot.local")!;
+          |                         ^
+      186 |   const code = `QC${Date.now().toString().slice(-6)}`;
+      187 |   const mk = await post(pa, "/admin/courses", { subject_code: "INT1006", class_code: code, name: "Lớp thử QC", semester: "2026-2027-HK1", teacher_id: teacher.id });
+      188 |   console.log("INFO tạo lớp:", mk.status, code);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:185:25
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12c-real/qc-uiux91-w12c-real-TC-UX0-e8768-c-→-bỏ-giá-trị-ep-ui-course-desktop/error-context.md
+
+  4 failed
+    [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:26:1 › TC-UX01-4/11 tooltip thay câu mô tả: có chữ, ≤ 12 từ, aria-describedby (hoặc title) trỏ tới 
+    [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) 
+    [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:109:1 › TC-UX06-6/7/PQ ep:ui:course là lớp không còn / không thuộc mình → bỏ giá trị, chọn lớp theo AC2; SV chỉ lớp của mình 
+    [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course 
+  6 skipped
+  2 passed (1.2m)

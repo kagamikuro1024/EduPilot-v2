@@ -1,0 +1,17 @@
+2026/11/15 20:06:52 OK   00024_attendance_checkin.sql (111.17ms)
+2026/11/15 20:06:52 OK   00025_audit_log_indexes.sql (24.93ms)
+2026/11/15 20:06:52 goose: successfully migrated database to version: 25
+--down1
+2026/11/15 20:06:53     Sun Nov 15 13:06:51 2026 -- 00016_gradebook.sql
+2026/11/15 20:06:53     Sun Nov 15 13:06:52 2026 -- 00017_assignments.sql
+2026/11/15 20:06:53     Sun Nov 15 13:06:52 2026 -- 00024_attendance_checkin.sql
+2026/11/15 20:06:53     Sun Nov 15 13:06:52 2026 -- 00025_audit_log_indexes.sql
+2026/11/15 20:07:00 OK   00019_practice.sql (220.62ms)
+2026/11/15 20:07:01 OK   00017_assignments.sql (529.47ms)
+2026/11/15 20:07:01 goose: no migrations to run. current version: 16
+tables after down-to16: 
+fk: 0
+2026/11/15 20:07:05 OK   00025_audit_log_indexes.sql (18.27ms)
+2026/11/15 20:07:05 goose: successfully migrated database to version: 25
+1
+tables after up: assignments,grade_appeals,grading_results,mail_inbound,submissions

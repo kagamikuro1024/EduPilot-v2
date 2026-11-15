@@ -1,0 +1,34 @@
+$ go test -tags integration ./internal/submission -run 'TestUploadUnpublished|TestUploadArchivedCourse|TestUploadChannelOff|TestUploadAlreadyReviewed|TestIngestAlreadyReviewedAllSources' -v
+=== RUN   TestUploadUnpublished
+2026/11/15 19:40:43 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 0b5944607d30ed4df009920a3d75a27c6f5b68e740a24c4c7dd6c5b66518cb79
+  Test ProcessID: 213174f1-b7db-4318-9788-1916a613c407
+2026/11/15 19:40:43 ✅ Container started: 68f6ff853df5
+2026/11/15 19:40:43 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:40:43 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:40:45 ✅ Container started: 5636bc78d64d
+2026/11/15 19:40:45 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:40:45 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:40:45 ✅ Container started: b8d9c357e377
+2026/11/15 19:40:45 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:40:45 🔔 Container is ready: b8d9c357e377
+--- PASS: TestUploadUnpublished (2.53s)
+=== RUN   TestUploadArchivedCourse
+--- PASS: TestUploadArchivedCourse (3.04s)
+=== RUN   TestUploadChannelOff
+--- PASS: TestUploadChannelOff (3.08s)
+=== RUN   TestUploadAlreadyReviewed
+--- PASS: TestUploadAlreadyReviewed (4.16s)
+=== RUN   TestIngestAlreadyReviewedAllSources
+--- PASS: TestIngestAlreadyReviewedAllSources (2.44s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission	15.750s
+
+rc=0

@@ -1,0 +1,5 @@
+TC-P203-23 P login 200 email_verified=False; me/courses rỗng; preview 403 EMAIL_NOT_VERIFIED; join 403 EMAIL_NOT_VERIFIED
+TC-P204-12 F 25 lần preview token lạ từ 1 IP: {410: 25} (kỳ vọng 429 sau 20/phút/IP; không trúng token)
+TC-P205-18 F login 10/phút/IP (cô lập): [401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401]
+TC-P203-18 F 25 token đoán verify-email từ 1 IP: {410: 25}
+TC-P205-18b P forgot-password 5/giờ/IP: [202, 202, 202, 202, 202, 429, 429]

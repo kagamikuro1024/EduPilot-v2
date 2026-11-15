@@ -1,0 +1,54 @@
+$ go test ./internal/store -run 'TestSchemaAssignments|TestAssignmentsChecks|TestSubmissionsMatchedChecks|TestGradingResultsChecks|TestAppealsUnique|TestAssignmentsCrossCourseFK|TestIndexesStartWithCourseID_Assignments|TestMigration00017Transactional|TestUuidv7Defaults' -v
+=== RUN   TestSchemaAssignments
+=== PAUSE TestSchemaAssignments
+=== RUN   TestUuidv7Defaults
+=== PAUSE TestUuidv7Defaults
+=== RUN   TestMigration00017Transactional
+=== PAUSE TestMigration00017Transactional
+=== RUN   TestAssignmentsChecks
+=== PAUSE TestAssignmentsChecks
+=== RUN   TestSubmissionsMatchedChecks
+=== PAUSE TestSubmissionsMatchedChecks
+=== RUN   TestGradingResultsChecks
+=== PAUSE TestGradingResultsChecks
+=== RUN   TestAppealsUnique
+=== PAUSE TestAppealsUnique
+=== RUN   TestAssignmentsCrossCourseFK
+=== PAUSE TestAssignmentsCrossCourseFK
+=== RUN   TestIndexesStartWithCourseID_Assignments
+=== PAUSE TestIndexesStartWithCourseID_Assignments
+=== CONT  TestSchemaAssignments
+=== CONT  TestGradingResultsChecks
+=== CONT  TestIndexesStartWithCourseID_Assignments
+=== CONT  TestAssignmentsCrossCourseFK
+=== CONT  TestAppealsUnique
+=== CONT  TestSubmissionsMatchedChecks
+=== CONT  TestMigration00017Transactional
+=== CONT  TestUuidv7Defaults
+=== CONT  TestAssignmentsChecks
+2026/11/15 19:31:04 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: d8fae7c2ca12877b22076c0381ecdc7443e5b851442f5508c0cb2cb80782fed6
+  Test ProcessID: 57562af5-90fb-4165-a27c-0c1e746649ac
+2026/11/15 19:31:04 ✅ Container started: 68f6ff853df5
+2026/11/15 19:31:04 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:31:04 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestIndexesStartWithCourseID_Assignments (29.63s)
+--- PASS: TestSubmissionsMatchedChecks (29.98s)
+--- PASS: TestSchemaAssignments (30.03s)
+--- PASS: TestAssignmentsCrossCourseFK (30.10s)
+--- PASS: TestUuidv7Defaults (30.13s)
+--- PASS: TestGradingResultsChecks (30.13s)
+--- PASS: TestAssignmentsChecks (30.16s)
+--- PASS: TestAppealsUnique (30.16s)
+--- PASS: TestMigration00017Transactional (36.80s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/store	37.290s
+
+rc=0

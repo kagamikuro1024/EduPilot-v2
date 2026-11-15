@@ -1,0 +1,51 @@
+   grading_results trước: 22
+   đã chấm sẵn — chỉ đối chiếu
+PASS 22 kết quả, 22 sinh viên MATCHED 
+PASS sv.gioi S1: Σ 9.00 (chờ 9.0), trước muộn 9.00 (chờ 9.00), tiêu chí AI khớp 
+PASS sv.gioi S1: cờ [] (chờ []) 
+PASS sv.kha S7: Σ 6.50 (chờ 6.5), trước muộn 7.00 (chờ 7.00), tiêu chí AI khớp 
+PASS sv.kha S7: cờ ['NEEDS_REVIEW'] (chờ ['NEEDS_REVIEW']) 
+PASS sv04 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv04 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv05 S1: Σ 9.00 (chờ 9.0), trước muộn 9.00 (chờ 9.00), tiêu chí AI khớp 
+PASS sv05 S1: cờ [] (chờ []) 
+PASS sv06 S1: Σ 9.00 (chờ 9.0), trước muộn 9.00 (chờ 9.00), tiêu chí AI khớp 
+PASS sv06 S1: cờ [] (chờ []) 
+PASS sv07 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv07 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv08 S2: Σ 4.75 (chờ 4.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv08 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv09 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv09 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv10 S3: Σ 3.00 (chờ 3.0), trước muộn 3.00 (chờ 3.00), tiêu chí AI khớp 
+PASS sv10 S3: cờ ['TOTAL_MISMATCH'] (chờ ['TOTAL_MISMATCH']) 
+PASS sv11 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv11 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv12 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv12 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv13 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv13 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv14 S6: Σ 4.50 (chờ 4.5), trước muộn 4.50 (chờ 4.50), tiêu chí AI khớp 
+PASS sv14 S6: cờ ['INJECTION_SUSPECTED'] (chờ ['INJECTION_SUSPECTED']) 
+PASS sv15 S1: Σ 9.00 (chờ 9.0), trước muộn 9.00 (chờ 9.00), tiêu chí AI khớp 
+PASS sv15 S1: cờ [] (chờ []) 
+PASS sv16 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv16 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv18 S3: Σ 3.00 (chờ 3.0), trước muộn 3.00 (chờ 3.00), tiêu chí AI khớp 
+PASS sv18 S3: cờ ['TOTAL_MISMATCH'] (chờ ['TOTAL_MISMATCH']) 
+PASS sv19 S5: Σ 0.00 (chờ 0.0), trước muộn 0.00 (chờ 0.00), tiêu chí AI khớp 
+PASS sv19 S5: cờ ['OFF_TOPIC'] (chờ ['OFF_TOPIC']) 
+PASS sv20 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv20 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv22 S1: Σ 9.00 (chờ 9.0), trước muộn 9.00 (chờ 9.00), tiêu chí AI khớp 
+PASS sv22 S1: cờ [] (chờ []) 
+PASS sv24 S4 trống: DONE/ 
+PASS sv25 S2: Σ 5.75 (chờ 5.75), trước muộn 5.75 (chờ 5.75), tiêu chí AI khớp 
+PASS sv25 S2: cờ ['EVIDENCE_NOT_FOUND'] (chờ ['EVIDENCE_NOT_FOUND']) 
+PASS sv27 S3: Σ 3.00 (chờ 3.0), trước muộn 3.00 (chờ 3.00), tiêu chí AI khớp 
+PASS sv27 S3: cờ ['TOTAL_MISMATCH'] (chờ ['TOTAL_MISMATCH']) 
+PASS so ô: đã đối chiếu ≥ 20 bài 
+   lời gọi LLM mới: 0
+FAIL sv24 (S4 trống) 0 lời gọi LLM; số lời gọi = 2 × (số bài có chữ) ± bài hỏng 0
+FAIL mọi lời gọi chấm làn BATCH 
+RESULT: FAIL (2 lỗi)

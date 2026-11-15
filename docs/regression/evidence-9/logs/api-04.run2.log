@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-9/scripts/p7-api-04.py", line 46, in <module>
+    A = mk("BT03"); print("   BT03", A)
+        ^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-9/scripts/p7-api-04.py", line 27, in mk
+    s, a, _ = call("POST", f"{Q}/assignments", T, b, idem()); a = a.get("assignment", a); aid = a["id"]
+                                                                                                ~^^^^^^
+KeyError: 'id'
+rc=1

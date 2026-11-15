@@ -1,0 +1,5 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 207 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+create exam 201 {"id": "01a1df3e-bcb2-7abd-8f63-dedfa2f946d7", "title": "QC bài thi nháp", "kind": "MCQ", "status": "DRAFT", "effective_status": "DRAFT", "opens_at": 
+PASS TC-01-13 SHORT vào bài thi → 422 TYPE_NOT_SUPPORTED_IN_EXAM 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "07c838323c6378f581e8711616fa9138", "details": [{"field": "items[0].question_id", "
+PASS TC-01-13 ESSAY vào bài thi → 422 TYPE_NOT_SUPPORTED_IN_EXAM 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "2516d20d34a46b5aeedcb098d1c151b2", "details": [{"field": "items[0].question_id", "

@@ -1,0 +1,67 @@
+## UX04-3 hover
+  frontend/src/features/landing/Landing.module.css:40 .btn--secondary:hover
+  frontend/src/features/landing/Landing.module.css:73 .pause:hover
+  frontend/src/features/landing/Landing.module.css:97 .card:hover
+  frontend/src/features/landing/Landing.module.css:144 .legal a:hover
+  frontend/src/features/landing/Landing.module.css:226 .card:hover
+## UX04-5 tokens
+frontend/src/shared/styles/tokens.css:73:  --ep-fast: 140ms;
+frontend/src/shared/styles/tokens.css:74:  --ep-normal: 200ms;
+frontend/src/shared/styles/tokens.css:75:  --ep-slow: 200ms; /* ≤ 200 ms: luật chuyển động của ứng dụng (FEAT-uiux-91 US-04) */
+## UX04-7
+## UX04-8 width
+## UX04-15
+commit
+## UX04-18
+frontend/src/features/grading/SubmissionReview.tsx:498:                          className={[s.scoreInput, savedKey === `score:${c.id}` ? "ep-saved ep-motion-safe" : ""].join(" ")}
+frontend/src/features/grading/SubmissionReview.tsx:534:                      className={savedKey === `comment:${c.id}` ? "ep-saved ep-motion-safe" : undefined}
+frontend/src/shared/domain/AttendanceGrid.tsx:123:        <span className={[s.name, r.saved ? "ep-saved ep-motion-safe" : ""].join(" ")}>
+rg: frontend/src/**/base.css: No such file or directory (os error 2)
+frontend/src/shared/styles/base.css:52:  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+## UX01-15 selftest
+32 / 32 phép bắt được
+## UX10-9 antipatterns
+exit 0
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+## UX12-8
+## UX08-49 IO
+frontend/src/features/landing/LandingMotion.tsx:143:      const io = new IntersectionObserver(
+## UX08-45 deps
+diff --git a/frontend/package.json b/frontend/package.json
+index 22d790ff..f1b66dda 100644
+--- a/frontend/package.json
++++ b/frontend/package.json
+@@ -6,39 +6,28 @@
+     "dev": "next dev",
+     "build": "next build",
+     "start": "next start",
+-    "lint": "eslint",
+-    "test": "vitest run"
++    "lint": "eslint .",
++    "build:gate": "NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_BLOB_ORIGIN=http://blob.test NEXT_PUBLIC_API_URL=http://localhost:${E2E_API_PORT:-3312} next build",
++    "e2e": "playwright test"
+   },
+   "dependencies": {
+-    "axios": "^1.15.0",
+-    "embla-carousel-autoplay": "^8.6.0",
+-    "embla-carousel-react": "^8.6.0",
+-    "framer-motion": "^12.38.0",
+-    "js-cookie": "^3.0.5",
+-    "lucide-react": "^1.8.0",
+-    "next": "16.2.6",
+-    "react": "19.2.4",
+-    "react-dom": "19.2.4",
+-    "react-markdown": "^10.1.0",
+-    "recharts": "^3.8.1",
+-    "remark-gfm": "^4.0.1",
+-    "sharp": "^0.34.5",
+-    "sonner": "^2.0.7",
+-    "zustand": "^5.0.12"
+## X3 migrations/fetch
+frontend/src/shared/data/apiClient.ts:145:      res = await fetch(url, { method: upper, headers, body: !hasBody ? undefined : body instanceof FormData ? body : JSON.stringify(body), credentials: "include", signal, keepalive: opts.keepalive });
+frontend/src/shared/data/authSession.ts:93:      (await fetch(`${API_BASE}/auth/refresh`, {
+frontend/src/shared/data/chatStream.ts:31:    res = await fetch(`${API_BASE}${o.path}`, { method: o.method, headers, body: o.body === undefined ? undefined : JSON.stringify(o.body), credentials: "include", signal: o.signal });
+frontend/src/shared/data/earlyRefresh.ts:9:export const EARLY_REFRESH_SCRIPT = `try{if(location.pathname!=="/"||localStorage.getItem(${JSON.stringify(RETURNING_KEY)})==="1"){var f=function(){return fetch(${JSON.stringify(`${API_BASE}/auth/refresh`)},{method:"POST",credentials:"include",headers:{Accept:"application/json","Content-Type":"application/json"},signal:AbortSignal.timeout(15000)})};window[${JSON.stringify(EARLY_REFRESH_KEY)}]=navigator.locks?navigator.locks.request("ep-refresh",f):f()}}catch(e){}`;
+frontend/src/shared/data/sse.ts:131:      res = await fetch(URL_EVENTS, { headers, credentials: "include", signal: ctrl.signal });

@@ -1,0 +1,1 @@
+PASS D01-08 decision timeout: DECIDE timeout rồi FALLBACK; stub allow → 201 201 900ms [['THREADS_PRECHECK', 'FALLBACK', 'timeout', 'TIMEOUT', 'INTERACTIVE']]

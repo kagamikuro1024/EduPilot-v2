@@ -1,0 +1,4 @@
+PASS TC-AS06-07a hết cờ → không có mục CHECKIN_REVIEW của lớp QC-AS (chờ TTL) 
+[201, 201, 201]
+PASS TC-AS06-06 (chờ TTL) TEACHER /me/today: CHECKIN_REVIEW, «3 lượt điểm danh cần xem», href ?filter=review [{"id": "CHECKIN_REVIEW:01a1df31-6919-724a-b667-67956a83fff3", "kind": "CHECKIN_REVIEW", "title": "Buổi 37: 3 lượt điểm d
+FAIL TC-AS06-08 (fixture SQL, chờ TTL) cửa sổ đóng > 7 ngày → mục biến mất 

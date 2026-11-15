@@ -1,0 +1,17 @@
+$ go test ./internal/submission -run 'TestMatchTable|TestMatchEmailVerifiedOnly|TestMatchCodeFromRoster|TestMatchCodeJoinedRowNotVerified|TestMatchConflictUnmatched|TestMatchAmbiguous' -v
+=== RUN   TestMatchTable
+--- PASS: TestMatchTable (0.00s)
+=== RUN   TestMatchEmailVerifiedOnly
+--- PASS: TestMatchEmailVerifiedOnly (0.00s)
+=== RUN   TestMatchCodeFromRoster
+--- PASS: TestMatchCodeFromRoster (0.00s)
+=== RUN   TestMatchCodeJoinedRowNotVerified
+--- PASS: TestMatchCodeJoinedRowNotVerified (0.00s)
+=== RUN   TestMatchConflictUnmatched
+--- PASS: TestMatchConflictUnmatched (0.00s)
+=== RUN   TestMatchAmbiguous
+--- PASS: TestMatchAmbiguous (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission	0.617s
+
+rc=0

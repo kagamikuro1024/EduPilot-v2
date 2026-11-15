@@ -1,0 +1,36 @@
+3,5c3,5
+< attendance_checkins|0
+< attendance_records|270
+< audit_log|691
+---
+> attendance_checkins|43
+> attendance_records|292
+> audit_log|696
+9c9
+< checkin_windows|0
+---
+> checkin_windows|2
+46c46
+< llm_audit|914
+---
+> llm_audit|927
+48,49c48,49
+< llm_request_payloads|396
+< mail_inbound|26
+---
+> llm_request_payloads|408
+> mail_inbound|32
+54,56c54,56
+< practice_answers|1311
+< practice_attempts|133
+< practice_items|1314
+---
+> practice_answers|1567
+> practice_attempts|165
+> practice_items|1569
+64,65c64,65
+< submissions|45
+< v_attendance_summary|30
+---
+> submissions|49
+> v_attendance_summary|52

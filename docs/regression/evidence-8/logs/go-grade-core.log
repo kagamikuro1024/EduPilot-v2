@@ -1,0 +1,109 @@
+=== RUN   TestNoFloatInGrade
+--- PASS: TestNoFloatInGrade (0.03s)
+=== RUN   TestForbiddenImports
+--- PASS: TestForbiddenImports (0.44s)
+=== RUN   TestConfirmOnlyFromHandler
+--- PASS: TestConfirmOnlyFromHandler (0.07s)
+=== RUN   TestEngineExpected30
+=== RUN   TestEngineExpected30/sv.gioi
+=== RUN   TestEngineExpected30/sv.kha
+=== RUN   TestEngineExpected30/sv.nguyco
+=== RUN   TestEngineExpected30/sv04
+=== RUN   TestEngineExpected30/sv05
+=== RUN   TestEngineExpected30/sv06
+=== RUN   TestEngineExpected30/sv07
+=== RUN   TestEngineExpected30/sv08
+=== RUN   TestEngineExpected30/sv09
+=== RUN   TestEngineExpected30/sv10
+=== RUN   TestEngineExpected30/sv11
+=== RUN   TestEngineExpected30/sv12
+=== RUN   TestEngineExpected30/sv13
+=== RUN   TestEngineExpected30/sv14
+=== RUN   TestEngineExpected30/sv15
+=== RUN   TestEngineExpected30/sv16
+=== RUN   TestEngineExpected30/sv17
+=== RUN   TestEngineExpected30/sv18
+=== RUN   TestEngineExpected30/sv19
+=== RUN   TestEngineExpected30/sv20
+=== RUN   TestEngineExpected30/sv21
+=== RUN   TestEngineExpected30/sv22
+=== RUN   TestEngineExpected30/sv23
+=== RUN   TestEngineExpected30/sv24
+=== RUN   TestEngineExpected30/sv25
+=== RUN   TestEngineExpected30/sv26
+=== RUN   TestEngineExpected30/sv27
+=== RUN   TestEngineExpected30/sv28
+=== RUN   TestEngineExpected30/sv29
+=== RUN   TestEngineExpected30/sv30
+--- PASS: TestEngineExpected30 (0.01s)
+    --- PASS: TestEngineExpected30/sv.gioi (0.00s)
+    --- PASS: TestEngineExpected30/sv.kha (0.00s)
+    --- PASS: TestEngineExpected30/sv.nguyco (0.00s)
+    --- PASS: TestEngineExpected30/sv04 (0.00s)
+    --- PASS: TestEngineExpected30/sv05 (0.00s)
+    --- PASS: TestEngineExpected30/sv06 (0.00s)
+    --- PASS: TestEngineExpected30/sv07 (0.00s)
+    --- PASS: TestEngineExpected30/sv08 (0.00s)
+    --- PASS: TestEngineExpected30/sv09 (0.00s)
+    --- PASS: TestEngineExpected30/sv10 (0.00s)
+    --- PASS: TestEngineExpected30/sv11 (0.00s)
+    --- PASS: TestEngineExpected30/sv12 (0.00s)
+    --- PASS: TestEngineExpected30/sv13 (0.00s)
+    --- PASS: TestEngineExpected30/sv14 (0.00s)
+    --- PASS: TestEngineExpected30/sv15 (0.00s)
+    --- PASS: TestEngineExpected30/sv16 (0.00s)
+    --- PASS: TestEngineExpected30/sv17 (0.00s)
+    --- PASS: TestEngineExpected30/sv18 (0.00s)
+    --- PASS: TestEngineExpected30/sv19 (0.00s)
+    --- PASS: TestEngineExpected30/sv20 (0.00s)
+    --- PASS: TestEngineExpected30/sv21 (0.00s)
+    --- PASS: TestEngineExpected30/sv22 (0.00s)
+    --- PASS: TestEngineExpected30/sv23 (0.00s)
+    --- PASS: TestEngineExpected30/sv24 (0.00s)
+    --- PASS: TestEngineExpected30/sv25 (0.00s)
+    --- PASS: TestEngineExpected30/sv26 (0.00s)
+    --- PASS: TestEngineExpected30/sv27 (0.00s)
+    --- PASS: TestEngineExpected30/sv28 (0.00s)
+    --- PASS: TestEngineExpected30/sv29 (0.00s)
+    --- PASS: TestEngineExpected30/sv30 (0.00s)
+=== RUN   TestEngineCases
+=== RUN   TestEngineCases/S01-san-QT
+=== RUN   TestEngineCases/S02-tran-cong-dung-1.00
+=== RUN   TestEngineCases/S03-tran-cong-1.25
+=== RUN   TestEngineCases/S04-vang-2-mien
+=== RUN   TestEngineCases/S05-vang-3-tru-0.5
+=== RUN   TestEngineCases/S06-su-kien-PENALTY
+=== RUN   TestEngineCases/S07-liet-vang-7
+=== RUN   TestEngineCases/S08-vang-6-chua-liet
+=== RUN   TestEngineCases/S09-thieu-cuoi-ky
+=== RUN   TestEngineCases/S10-lam-tron-0.1-nua-len
+=== RUN   TestEngineCases/S11-lam-tron-0.5-duoi-1-chut
+=== RUN   TestEngineCases/S12-A-khong-len-A+
+=== RUN   TestEngineCases/S13-bai-thi-chua-cong-bo
+=== RUN   TestEngineCases/S14-item-tay-trong-chua-cong-bo
+=== RUN   TestEngineCases/S15-item-tay-trong-da-cong-bo
+=== RUN   TestEngineCases/S16-chia-khong-het
+=== RUN   TestEngineCases/S17-nhom-QT-bang-0
+=== RUN   TestEngineCases/S18-PENALTY-khong-ap-dung
+--- PASS: TestEngineCases (0.01s)
+    --- PASS: TestEngineCases/S01-san-QT (0.00s)
+    --- PASS: TestEngineCases/S02-tran-cong-dung-1.00 (0.00s)
+    --- PASS: TestEngineCases/S03-tran-cong-1.25 (0.00s)
+    --- PASS: TestEngineCases/S04-vang-2-mien (0.00s)
+    --- PASS: TestEngineCases/S05-vang-3-tru-0.5 (0.00s)
+    --- PASS: TestEngineCases/S06-su-kien-PENALTY (0.00s)
+    --- PASS: TestEngineCases/S07-liet-vang-7 (0.00s)
+    --- PASS: TestEngineCases/S08-vang-6-chua-liet (0.00s)
+    --- PASS: TestEngineCases/S09-thieu-cuoi-ky (0.00s)
+    --- PASS: TestEngineCases/S10-lam-tron-0.1-nua-len (0.00s)
+    --- PASS: TestEngineCases/S11-lam-tron-0.5-duoi-1-chut (0.00s)
+    --- PASS: TestEngineCases/S12-A-khong-len-A+ (0.00s)
+    --- PASS: TestEngineCases/S13-bai-thi-chua-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S14-item-tay-trong-chua-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S15-item-tay-trong-da-cong-bo (0.00s)
+    --- PASS: TestEngineCases/S16-chia-khong-het (0.00s)
+    --- PASS: TestEngineCases/S17-nhom-QT-bang-0 (0.00s)
+    --- PASS: TestEngineCases/S18-PENALTY-khong-ap-dung (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	1.311s
+rc=0

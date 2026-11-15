@@ -1,0 +1,92 @@
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestUploadRBAC$
+=== RUN   TestUploadRBAC
+2026/11/15 20:11:53 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 699e1c09290e07e47ec3a5eb9f00c61d208edbe588df9f375b9ec2fd505ad716
+  Test ProcessID: 1b58268c-5473-45e3-bede-b64f4d90acc4
+2026/11/15 20:11:53 ✅ Container started: 68f6ff853df5
+2026/11/15 20:11:53 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:11:55 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:12:13 ✅ Container started: 5636bc78d64d
+2026/11/15 20:12:13 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:12:13 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestUploadRBAC (21.96s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	36.007s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestUnmatchedListRBAC$
+=== RUN   TestUnmatchedListRBAC
+2026/11/15 20:12:38 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 573bfe5aacea0c07b48254771a7910bba877d98d3c8d9a17aad988acfde929a5
+  Test ProcessID: e3b5935a-3ec1-4b09-a48a-eea12d65edb9
+2026/11/15 20:12:38 ✅ Container started: 68f6ff853df5
+2026/11/15 20:12:38 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:12:39 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:13:19 ✅ Container started: 5636bc78d64d
+2026/11/15 20:13:19 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:13:19 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestUnmatchedListRBAC (42.80s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	47.965s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestUploadRBAC$
+=== RUN   TestUploadRBAC
+2026/11/15 20:35:55 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 7d9830a90e224f90c3efb24a87bea8c6119d84c7372a3965b0a3c9d073d15b61
+  Test ProcessID: 71426e7d-e9a4-4097-a6a0-650961fb0578
+2026/11/15 20:35:55 ✅ Container started: 68f6ff853df5
+2026/11/15 20:35:55 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:35:55 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:35:57 ✅ Container started: 5636bc78d64d
+2026/11/15 20:35:57 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:35:57 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestUploadRBAC (1.60s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	2.302s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestUnmatchedListRBAC$
+=== RUN   TestUnmatchedListRBAC
+2026/11/15 20:35:59 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f3df7c0b83c5621f9914e9ce61cb0badf49ca8b647e1b35ba3f1345726ea1ff2
+  Test ProcessID: 0283003a-c38e-435f-ad5b-1efb92d0b694
+2026/11/15 20:35:59 ✅ Container started: 68f6ff853df5
+2026/11/15 20:35:59 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:36:00 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:36:02 ✅ Container started: 5636bc78d64d
+2026/11/15 20:36:02 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:36:02 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestUnmatchedListRBAC (2.54s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	3.184s
+
+rc=0

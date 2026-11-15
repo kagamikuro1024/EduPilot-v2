@@ -1,0 +1,86 @@
+stub CLASSIFY 200 5
+=== gd_e1 (cờ tắt, SV không lộ) 20:02:30
+PASS G01-18 SV: 6 phản hồi không có guidance / ai_comments / first_reviewed 0
+PASS G01-09 cờ tắt: reflect → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G01-09 cờ tắt: apply → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G01-09 cờ tắt: regrade-stale → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G01-09 cờ tắt: overview enabled=false (dữ liệu cũ còn trong DB) 200 False
+PASS G01-09 dữ liệu lưu ý cũ còn trong DB 2
+PASS G01-09 cờ tắt: màn duyệt không có khối guidance ['result', 'submission', 'assignment', 'criteria', 'flags', 'pass_detail', 'late']
+=== cfg1: P=0.9 GUIDANCE_ENABLED=false
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+flags khi GUIDANCE_ENABLED=false: 200 {"items": [{"feature": "GRADING_GUIDANCE", "enabled": false, "version": 10, "can_edit": true}, {"feature": "THREAD_SUGGEST", "enabled": true, "version": 4, "can_edit": true}, {"featu
+PASS G01-07 GUIDANCE_ENABLED=false: ghi cờ → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G01-07 reflect → 409, 0 job mới 409
+PASS D03-02 P=0,9: 422, 1 DECIDE FAST, 0 CLASSIFY 422 PII_DETECTED [['THREADS_PRECHECK', 'FAST', 'ok', '', 'INTERACTIVE']] cl=0
+FAIL D05-02 P=0,9 (<τ 0,95) vague: 1 DECIDE FALLBACK + CLASSIFY 200 ttfb=314ms [['DECIDE', 'ok', 'CHAT_ROUTING', 'FALLBACK']] cl=[]
+PASS D05-03 specific: 0 DECIDE 200 []
+PASS D05-04/D09 khủng hoảng: 0 DECIDE 200 []
+=== cfg p01: P=0.01 20:04:41
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+PASS D03-03 P=0,01 ≤ ε: 201, FAST, 0 CLASSIFY 201 None [['THREADS_PRECHECK', 'FAST', 'ok', '', 'INTERACTIVE']] cl=0
+=== cfg p20: P=0.2 20:05:24
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+PASS D03-04a P=0,2: FALLBACK + 1 CLASSIFY, stub allow → 201 201 None [['THREADS_PRECHECK', 'FALLBACK', 'ok', '', 'INTERACTIVE']] cl=1
+PASS D03-04b P=0,2: stub block → 422 422 PII_DETECTED [['THREADS_PRECHECK', 'FALLBACK', 'ok', '', 'INTERACTIVE']]
+=== cfg p97: P=0.97 20:06:09
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+FAIL D05-01 P=0,97 (≥τ): 1 DECIDE FAST, 0 CLASSIFY 200 ttfb=184ms [['DECIDE', 'ok', 'CHAT_ROUTING', 'FAST']] cl=[]
+=== cfg unk (mặc định) 20:07:00
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+PASS D01-06/D03-04 đầu vào lạ → 0,25 FALLBACK + Structured 201 [['THREADS_PRECHECK', 'FALLBACK', 'ok', '', 'INTERACTIVE']] cl=1
+FAIL D05-05 P lạ vague: FALLBACK + CLASSIFY 200 [['DECIDE', 'ok', 'CHAT_ROUTING', 'FALLBACK']] cl=[]
+PASS D03-off/D02-06 cổng tắt: đăng được, 0 DECIDE 201 []
+PASS D05-off cổng chat tắt: 0 DECIDE 200 []
+tổng 344s
+=== cleanup
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+restore CLASSIFY 200 6

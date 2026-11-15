@@ -1,0 +1,2 @@
+PASS D01-06/D03-04 đầu vào lạ → 0,25 FALLBACK + Structured 201 [['THREADS_PRECHECK', 'FALLBACK', 'ok', '', 'INTERACTIVE']] cl=1
+FAIL D05-05 P lạ vague: FALLBACK + CLASSIFY 200 [['DECIDE', 'ok', 'CHAT_ROUTING', 'FALLBACK']] cl=[]

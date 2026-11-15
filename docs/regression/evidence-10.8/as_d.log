@@ -1,0 +1,33 @@
+PASS TC-AS10-01 lớp không khai geofence: geo bị bỏ qua (không geo_*, in_campus NULL, không GEO_*) ['NO_DEVICE_KEY', '1', '', '', '']
+PASS TC-AS10-03 D(50) acc20: geo_distance_m≈50, geo_accuracy_m=20, không cờ ['NO_DEVICE_KEY', '1', '50', '20', '']
+PASS TC-AS10-04 D(260) acc50: GEO_OUT, vẫn 201 (đã ghi) ['NO_DEVICE_KEY,GEO_OUT', '1', '260', '50', '']
+PASS TC-AS10-05 biên D(249.5) acc50: KHÔNG GEO_OUT ['NO_DEVICE_KEY', '1', '249', '50', '']
+PASS TC-AS10-06 acc=101: GEO_WEAK ['NO_DEVICE_KEY,GEO_WEAK', '1', '10', '101', '']
+PASS TC-AS10-07 denied=true và không có geo: GEO_DENIED (cả hai) ['NO_DEVICE_KEY,GEO_DENIED', '1', '', '', ''] ['NO_DEVICE_KEY,GEO_DENIED', '1', '', '', '']
+PASS TC-AS10-04b lượt cờ GEO có assurance 1 1
+PASS TC-AS10-06b acc=100: không GEO_WEAK ['NO_DEVICE_KEY', '1', '30', '100', '']
+PASS TC-AS10-18 khoảng cách haversine: sai số ≤ 1 m so với tham chiếu (8 điểm) [0, 0, 0, 0, 0, 0, 0, 0]
+PASS TC-AS10-14 lat=91 / lng=-181 / acc=-1 / lat chuỗi → 422 [422, 422, 422, 422]
+PASS TC-AS10-16a Staff thấy geo_distance_m & in_campus {"id": "01a1df3e-3918-7489-9e41-a2793c0dd3c2", "window_id": "01a1df3e-38e7-7eeb-8903-b77751f64b35", "round": 1, "student": {"id": "01a1df27-6508-7d9b-8577-7497e45a2315", "full_name": "Vũ Hoàng Giang", "stu
+PASS TC-AS10-17 tắt geofence giữa buổi: lượt trước giữ geo_*, lượt sau không lưu ['NO_DEVICE_KEY', '1', '10', '10', ''] / ['NO_DEVICE_KEY', '1', '', '', '']
+PASS TC-AS10-09 mạng trường: IP nội bộ (bridge Docker) → in_campus=true, không OFF_CAMPUS; CIDR khác → false + OFF_CAMPUS ['NO_DEVICE_KEY', '1', '', '', 't'] / ['NO_DEVICE_KEY,OFF_CAMPUS', '1', '', '', 'f']
+PASS TC-AS10-10 ngoài cả hai: GEO_OUT + OFF_CAMPUS ['NO_DEVICE_KEY,GEO_OUT,OFF_CAMPUS', '1', '1000', '10', 'f']
+PASS TC-AS10-08a bảng điểm danh không có cột toạ độ / IP / tên máy []
+FAIL TC-AS10-08b log gateway không chứa toạ độ đã gửi 3
+PASS TC-AS12-01 challenge: 200 {nonce}; Redis có khoá, TTL ≤ 300 200 len(nonce)=44 ttl=300 key=…29912448
+PASS TC-AS12-01b gọi lại: nonce mới 
+PASS TC-AS12-02 6 lần/phút: có 429 (đã 2 lần + 5 = 7) [200, 200, 200, 429, 429]
+FAIL TC-AS12-03 chuỗi rác → 422 ATTESTATION_FAILED 503 null
+FAIL TC-AS12-03b nonce đã bị xoá (GETDEL): lần hai → 422 DEVICE_CHALLENGE_INVALID 503 null
+FAIL TC-AS12-04 chưa xin nonce → 422 DEVICE_CHALLENGE_INVALID 422
+PASS TC-AS12-09 TA/TEACHER/ADMIN → 403; không JWT → 401 {'r108ta': (403, 403), 'r108t': (403, 403), 'admin': (403, 403)} 401
+PASS TC-AS12-08 chuỗi vượt maxItems (11 phần tử) → 413/422, không treo 422
+FAIL TC-AS12-12 ANDROID_KEY attested+boot_verified, chữ ký đúng: assurance=3, không cờ 201 ['DEVICE_NEW', '3', '', '', ''] {"checked_in_at": "2026-11-15T12:50:09.672766Z", "round": 1}
+PASS TC-AS12-13 boot_verified=false: mức 2 + DEVICE_UNTRUSTED 201 ['DEVICE_UNTRUSTED,DEVICE_NEW', '2', '', '', '']
+FAIL TC-AS12-14 geo.mock=true: GEO_MOCK, assurance ≤ 2, vẫn 201 201 ['', '3', '', '', '']
+PASS TC-AS12-15 key_id chưa đăng ký: DEVICE_UNTRUSTED, mức 1, 201 201 ['DEVICE_UNTRUSTED', '1', '', '', '']
+PASS TC-AS04-13a require=APP + WEB_KEY hợp lệ: NOT_APP, mức 2 ['DEVICE_NEW,NOT_APP,DEVICE_SHARED', '2', '', '', '']
+PASS TC-AS04-13b require=APP + ANDROID_KEY attested + chữ ký đúng: không NOT_APP, mức 3 ['DEVICE_SHARED,DEVICE_NEW', '3', '', '', '']
+PASS TC-AS04-13c ANDROID_KEY boot_verified=false: không NOT_APP (có DEVICE_UNTRUSTED) ['DEVICE_UNTRUSTED,DEVICE_SHARED,DEVICE_NEW', '2', '', '', '']
+PASS TC-AS04-13d key_id chưa đăng ký / không device: NOT_APP ['DEVICE_UNTRUSTED,NOT_APP', '1', '', '', ''] / ['NO_DEVICE_KEY,NOT_APP', '1', '', '', '']
+PASS TC-AS12-17 user_devices: label luôn NULL; không user_id 

@@ -1,0 +1,180 @@
+== TC-PG01-01
+    ok   rc khi thiếu DATABASE_URL = [1]
+    ok   ms khi thiếu DATABASE_URL = 80 (≤ 1000)
+    ok   missing nêu DATABASE_URL = [true]
+    ok   mức log khi thiếu DATABASE_URL = [error]
+    ok   rc khi thiếu REDIS_URL = [1]
+    ok   ms khi thiếu REDIS_URL = 242 (≤ 1000)
+    ok   missing nêu REDIS_URL = [true]
+    ok   mức log khi thiếu REDIS_URL = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu REDIS_URL = [0]
+    ok   rc khi thiếu JWT_SECRET_KEY = [1]
+    ok   ms khi thiếu JWT_SECRET_KEY = 97 (≤ 1000)
+    ok   missing nêu JWT_SECRET_KEY = [true]
+    ok   mức log khi thiếu JWT_SECRET_KEY = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu JWT_SECRET_KEY = [0]
+    ok   rc khi thiếu BLOB_ENDPOINT = [1]
+    ok   ms khi thiếu BLOB_ENDPOINT = 197 (≤ 1000)
+    ok   missing nêu BLOB_ENDPOINT = [true]
+    ok   mức log khi thiếu BLOB_ENDPOINT = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu BLOB_ENDPOINT = [0]
+    ok   rc khi thiếu BLOB_BUCKET = [1]
+    ok   ms khi thiếu BLOB_BUCKET = 122 (≤ 1000)
+    ok   missing nêu BLOB_BUCKET = [true]
+    ok   mức log khi thiếu BLOB_BUCKET = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu BLOB_BUCKET = [0]
+    ok   rc khi thiếu BLOB_ACCESS_KEY = [1]
+    ok   ms khi thiếu BLOB_ACCESS_KEY = 84 (≤ 1000)
+    ok   missing nêu BLOB_ACCESS_KEY = [true]
+    ok   mức log khi thiếu BLOB_ACCESS_KEY = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu BLOB_ACCESS_KEY = [0]
+    ok   rc khi thiếu BLOB_SECRET_KEY = [1]
+    ok   ms khi thiếu BLOB_SECRET_KEY = 112 (≤ 1000)
+    ok   missing nêu BLOB_SECRET_KEY = [true]
+    ok   mức log khi thiếu BLOB_SECRET_KEY = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu BLOB_SECRET_KEY = [0]
+-- TC-PG01-01 PASS
+== TC-PG01-02
+    ok   số lần cổng 127.0.0.1:18080 trả lời = [0]
+    ok   rc = [1]
+-- TC-PG01-02 PASS
+== TC-PG01-03
+    ok   rc = [1]
+    ok   ms = 176 (≤ 1000)
+    ok   missing (đã sắp xếp) = [["BLOB_ACCESS_KEY","BLOB_BUCKET","BLOB_ENDPOINT","BLOB_SECRET_KEY","DATABASE_URL","JWT_SECRET_KEY","REDIS_URL"]]
+    ok   số dòng stdout = [1]
+    ok   số dòng có .missing = [1]
+-- TC-PG01-03 PASS
+== TC-PG01-04
+    ok   rc = [1]
+    FAIL ms: thực tế [1029] phải ≤ 1000
+    ok   missing của worker (nguyên văn AC1) = [["DATABASE_URL"]]
+-- TC-PG01-04 FAIL
+== TC-PG01-05
+    ok   rc = [1]
+    ok   ms = 121 (≤ 1000)
+    ok   missing của worker = [["REDIS_URL"]]
+-- TC-PG01-05 PASS
+== TC-PG01-06
+    ok   rc = [1]
+    ok   ms = 84 (≤ 1000)
+    ok   missing của worker (đã sắp xếp) = [["DATABASE_URL","REDIS_URL"]]
+    ok   số dòng stdout = [1]
+-- TC-PG01-06 PASS
+== TC-PG01-07
+    ok   rc (JWT_SECRET_KEY ba dấu cách) = [1]
+    ok   missing nêu JWT_SECRET_KEY = [true]
+    ok   rc (BLOB_BUCKET tab+cách) = [1]
+    ok   missing nêu BLOB_BUCKET = [true]
+-- TC-PG01-07 PASS
+== TC-PG01-08
+    ok   go test ./internal/platform/config -run 'TestLoad_MissingEnv|TestLoad_Worker' rc = [0]
+    ok   --- PASS: TestLoad_MissingEnv
+    ok   --- PASS: TestLoad_Worker
+-- TC-PG01-08 PASS
+== TC-PG01-09
+    ok   rc khi JWT_SECRET_KEY sai = [1]
+    ok   ms khi JWT_SECRET_KEY sai = 235 (≤ 1000)
+    ok   dòng lỗi mức error nêu JWT_SECRET_KEY = 2 (≥ 1)
+    ok   log không in giá trị của JWT_SECRET_KEY = [0]
+-- TC-PG01-09 PASS
+== TC-PG01-10
+    ok   rc khi DB_MAX_CONNS sai = [1]
+    ok   ms khi DB_MAX_CONNS sai = 78 (≤ 1000)
+    ok   dòng lỗi mức error nêu DB_MAX_CONNS = 2 (≥ 1)
+-- TC-PG01-10 PASS
+== TC-PG01-11
+    ok   rc khi JWT_EXPIRATION sai = [1]
+    ok   ms khi JWT_EXPIRATION sai = 64 (≤ 1000)
+    FAIL dòng lỗi mức error nêu JWT_EXPIRATION: thực tế [0] phải ≥ 1
+    ok   log không in giá trị của JWT_EXPIRATION = [0]
+-- TC-PG01-11 FAIL
+== TC-PG01-12
+    ok   rc khi CORS_ORIGINS sai = [1]
+    ok   ms khi CORS_ORIGINS sai = 76 (≤ 1000)
+    ok   dòng lỗi mức error nêu CORS_ORIGINS = 2 (≥ 1)
+-- TC-PG01-12 PASS
+== TC-PG01-13
+    ok   rc khi APP_ENV sai = [1]
+    ok   ms khi APP_ENV sai = 131 (≤ 1000)
+    ok   dòng lỗi mức error nêu APP_ENV = 2 (≥ 1)
+    ok   log không in giá trị của APP_ENV = [0]
+-- TC-PG01-13 PASS
+== TC-PG01-14
+    ok   độ dài khoá hợp lệ = [32]
+    ok   độ dài khoá lỗi = [31]
+    ok   32 byte: số dòng error nêu JWT_SECRET_KEY = [0]
+    FAIL 32 byte: đi tới bước chờ phụ thuộc (ms ≈ STARTUP_TIMEOUT 2s): thực tế [76] phải ≥ 1500
+    ok   31 byte: rc = [1]
+    ok   31 byte: ms = 103 (≤ 1000)
+    ok   31 byte: dòng error nêu JWT_SECRET_KEY = 2 (≥ 1)
+-- TC-PG01-14 FAIL
+== TC-PG01-15
+    ok   DB_MAX_CONNS=1: số dòng error nêu biến = [0]
+    FAIL DB_MAX_CONNS=1: đi tới bước chờ phụ thuộc (ms): thực tế [104] phải ≥ 1500
+    ok   DB_MAX_CONNS=100: số dòng error nêu biến = [0]
+    FAIL DB_MAX_CONNS=100: đi tới bước chờ phụ thuộc (ms): thực tế [89] phải ≥ 1500
+    ok   DB_MAX_CONNS=101: rc = [1]
+    ok   DB_MAX_CONNS=101: ms = 86 (≤ 1000)
+    ok   DB_MAX_CONNS=101: dòng error nêu biến = 2 (≥ 1)
+-- TC-PG01-15 FAIL
+== TC-PG01-16
+    ok   APP_ENV=dev: số dòng error nêu APP_ENV = [0]
+    FAIL APP_ENV=dev: đi tới bước chờ phụ thuộc (ms): thực tế [64] phải ≥ 1500
+    ok   APP_ENV=test: số dòng error nêu APP_ENV = [0]
+    FAIL APP_ENV=test: đi tới bước chờ phụ thuộc (ms): thực tế [84] phải ≥ 1500
+    ok   APP_ENV=production: số dòng error nêu APP_ENV = [0]
+    FAIL APP_ENV=production: đi tới bước chờ phụ thuộc (ms): thực tế [120] phải ≥ 1500
+-- TC-PG01-16 FAIL
+== TC-PG01-17
+    ok   go test ./internal/platform/config -run 'TestLoad_Invalid' rc = [0]
+    ok   --- PASS: TestLoad_Invalid
+-- TC-PG01-17 PASS
+== TC-PG01-18
+    ok   RestartCount của b0ba1f2b4211 (tiền điều kiện: không restart) = [0]
+    ok   số dòng 'config loaded' của b0ba1f2b4211 = [1]
+    ok   dòng có "secrets":"[redacted]" = 1 (≥ 1)
+    ok   RestartCount của 9efe275b409d (tiền điều kiện: không restart) = [0]
+    ok   số dòng 'config loaded' của 9efe275b409d = [1]
+    ok   dòng có "secrets":"[redacted]" = 1 (≥ 1)
+-- TC-PG01-18 PASS
+== TC-PG01-19
+    FAIL số dòng 'config loaded': thực tế [0] ≠ mong đợi [1]
+    FAIL db_max_conns (kiểu JSON): thực tế [] ≠ mong đợi [number]
+    FAIL db_max_conns (mặc định dev): thực tế [] ≠ mong đợi [10]
+    FAIL request_timeout (chuỗi thời lượng): thực tế [] ≠ mong đợi [30s]
+    FAIL sse_heartbeat (chuỗi thời lượng): thực tế [] ≠ mong đợi [25s]
+    FAIL app_env (mặc định dev): thực tế [] ≠ mong đợi [dev]
+    FAIL cors_origins (mặc định SRS 8.1): thực tế [] ≠ mong đợi [http://localhost:3000,https://localhost]
+    FAIL db_via (không đặt PGBOUNCER_URL): thực tế [] ≠ mong đợi [direct]
+    FAIL secrets: thực tế [] ≠ mong đợi [[redacted]]
+    FAIL số khoá bí mật bị in (database_url/redis_url/pgbouncer_url/jwt_secret_key/blob_access_key/blob_secret_key): thực tế [] ≠ mong đợi [0]
+    ok   dòng không chứa khoá JWT thật = [0]
+    ok   dòng không chứa mật khẩu Postgres = [0]
+-- TC-PG01-19 FAIL
+== TC-PG01-20
+    ok   số dòng log chứa bí mật = [0]
+-- TC-PG01-20 PASS
+== TC-PG01-21
+    ok   go test ./internal/platform/config -run 'TestLoad_Defaults|TestConfig_NoSecretInLog' rc = [0]
+    ok   --- PASS: TestLoad_Defaults
+    ok   --- PASS: TestConfig_NoSecretInLog
+-- TC-PG01-21 PASS
+== TC-PG01-22
+    ok   mọi dòng log đạt (JSON + 6 trường + trace_id 32 hex ≠ 0) = [true]
+    ok   số dòng log đã kiểm = 25 (≥ 10)
+-- TC-PG01-22 PASS
+== TC-PG01-23
+    ok   service trong log gateway = [gateway]
+    ok   service trong log worker = [worker]
+    ok   số instance khác nhau trong log gateway = [2]
+-- TC-PG01-23 PASS
+== TC-PG01-24
+    ok   mọi dòng log quanh lúc dừng đạt = [true]
+    ok   số dòng log quanh lúc dừng = 1 (≥ 1)
+-- TC-PG01-24 PASS
+== TC-PG01-25
+    ok   số dòng log chứa email mồi = [0]
+    ok   số dòng log chứa chữ ký token = [0]
+-- TC-PG01-25 PASS
+== TC-PG01-26

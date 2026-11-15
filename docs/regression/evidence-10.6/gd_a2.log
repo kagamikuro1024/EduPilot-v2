@@ -1,0 +1,21 @@
+FAIL G01-01 teacher: 4 cờ, mặc định tắt, can_edit đúng {"GRADING_GUIDANCE": [true, true], "THREAD_SUGGEST": [false, true], "QUESTION_HINTS": [false, true], "REGRESSION_CAPTURE": [false, false]}
+PASS G01-01 admin: can_edit cả 4 200
+PASS G01-05/06 TA GET cờ → 403 403
+PASS G01-05/06 TA PUT cờ → 403 403
+PASS G01-05/06 SV GET cờ → 403 403
+PASS G01-05/06 SV PUT cờ → 403 403
+PASS G01-05 không token → 401 401
+INFO sv.nguyco (SV lớp 1) 403
+FAIL G01-05 lớp lạ → 404 403
+PASS G01-02 teacher bật GRADING_GUIDANCE → 200, version+1 200 {"feature": "GRADING_GUIDANCE", "enabled": true, "version": 5, "can_edit": true}
+INFO audit_log mới nhất: [['guidance_flag.set', '{"enabled": true}', '{"enabled": true}'], ['imap.put', '{"host": "imap.invalid.example", "port": 993, "mai', '{"config": {"host": "imap.invalid.example", "port"']]
+PASS G01-16 version cũ → 409 409
+PASS G01-16 thiếu enabled → 422 422
+PASS G01-16 enabled sai kiểu → 422 422
+PASS G01-16 cờ lạ → 4xx 422
+PASS G01-04 teacher PUT REGRESSION_CAPTURE → 403 403
+PASS G01-04 admin PUT REGRESSION_CAPTURE → 200 200
+FAIL G03-25 overview: enabled, eligible=false khi 0 bài duyệt {"eligible": true, "results": 8, "edits": 7}
+kết quả hiện hành: 22 {'PUBLISHED', 'DRAFT'}
+đã duyệt: 8 [('01a1df31-54eb-7d81-9907-fffe9ea8926a', ['c2']), ('01a1df31-54ec-71bf-8d6c-62d79b5d2398', ['c3']), ('01a1df31-54ec-760d-9374-3ea97b4ff8f1', ['c2']), ('01a1df31-54ec-7a37-9e8d-e6c258eb0489', ['c2']), ('01a1df31-54ec-7eb6-b529-e2a1a86690f1', ['c2']), ('01a1df31-54ed-7198-8779-2b80f52c3c32', ['c3']), ('01a1df31-54ed-7502-83fa-9645cae7ae63', []), ('01a1df31-54ed-786e-8646-0ae945909568', [])]
+overview: {"eligible": true, "results": 16, "edits": 13} {"count": 0, "editing": 0, "reviewed": 0, "versions": []} {}

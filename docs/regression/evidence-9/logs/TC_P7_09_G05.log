@@ -1,0 +1,24 @@
+$ go test -tags integration ./internal/assignment -run 'TestDeviationStoredAtPublish|TestStatsEndpoint|TestDeviationDemoStudentB' -v
+=== RUN   TestDeviationStoredAtPublish
+2026/11/15 20:11:35 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 392dbeb6f2e30725d843c37ffeadbe979084fd06627fa108a7f2d9b0b2d7015d
+  Test ProcessID: dac9aa6b-b6eb-4bd2-b5cc-abb4921d8bfc
+2026/11/15 20:11:35 ✅ Container started: 68f6ff853df5
+2026/11/15 20:11:35 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:11:35 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDeviationStoredAtPublish (9.79s)
+=== RUN   TestDeviationDemoStudentB
+--- PASS: TestDeviationDemoStudentB (6.99s)
+=== RUN   TestStatsEndpoint
+--- PASS: TestStatsEndpoint (26.78s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	44.090s
+
+rc=0

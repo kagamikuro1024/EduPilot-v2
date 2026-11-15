@@ -1,0 +1,40 @@
+baseline 22.95MiB / 2GiB|22 procs 5
+  a01-infinite-loop.c          TLE    3.1s [{"name": "mau1", "verdict": "TLE", "time_ms": 1041, "memory_kb": 512}, {"name": "mau2", "verdict": "TLE", "time_ms": 1034, "memor 23.24MiB / 2GiB|22
+  a02-print-forever.c          TLE    7.5s [{"name": "mau1", "verdict": "TLE", "time_ms": 1024, "memory_kb": 664}, {"name": "mau2", "verdict": "TLE", "time_ms": 1050, "memor 26.19MiB / 2GiB|22
+  a03-print-5mb.c              OLE    1.2s [{"name": "mau1", "verdict": "OLE", "time_ms": 22, "memory_kb": 464}, {"name": "mau2", "verdict": "OLE", "time_ms": 30, "memory_kb 26.33MiB / 2GiB|22
+  a04-print-1gb.c              OLE    5.6s [{"name": "mau1", "verdict": "OLE", "time_ms": 691, "memory_kb": 1548}, {"name": "mau2", "verdict": "OLE", "time_ms": 429, "memory 26.42MiB / 2GiB|22
+  a05-alloc-gradual-512m.c     MLE    2.2s [{"name": "mau1", "verdict": "MLE", "time_ms": 315, "memory_kb": 262160}, {"name": "mau2", "verdict": "MLE", "time_ms": 172, "memo 26.51MiB / 2GiB|22
+  a06-alloc-2g.c               MLE    3.3s [{"name": "mau1", "verdict": "MLE", "time_ms": 545, "memory_kb": 262160}, {"name": "mau2", "verdict": "MLE", "time_ms": 342, "memo 26.45MiB / 2GiB|22
+  a07-null-deref.c             RE     1.1s [{"name": "mau1", "verdict": "RE", "time_ms": 0, "memory_kb": 320}, {"name": "mau2", "verdict": "RE", "time_ms": 7, "memory_kb": 3 21.6MiB / 2GiB|22
+  a18-stack-overflow.c         RE     1.1s [{"name": "mau1", "verdict": "RE", "time_ms": 4, "memory_kb": 8440}, {"name": "mau2", "verdict": "RE", "time_ms": 2, "memory_kb":  21.62MiB / 2GiB|22
+  a08-fork-bomb.c              WA     1.9s [{"name": "mau1", "verdict": "WA", "time_ms": 107, "memory_kb": 12060, "input": "1 2\n", "expected": "3\n", "got": "FORKED=0\n"},  21.65MiB / 2GiB|22
+  a13-write-1gb-file.c         MLE    2.2s [{"name": "mau1", "verdict": "MLE", "time_ms": 361, "memory_kb": 262160}, {"name": "mau2", "verdict": "MLE", "time_ms": 270, "memo 22.07MiB / 2GiB|22
+  a19-sleep-forever.c          TLE    7.4s [{"name": "mau1", "verdict": "TLE", "time_ms": 2, "memory_kb": 280}, {"name": "mau2", "verdict": "TLE", "time_ms": 2, "memory_kb": 21.89MiB / 2GiB|22
+  a20-stdin-hang.c             TLE    3.4s [{"name": "mau1", "verdict": "TLE", "time_ms": 1037, "memory_kb": 280}, {"name": "mau2", "verdict": "TLE", "time_ms": 1012, "memor 21.66MiB / 2GiB|22
+  a11-include-dev-random.c     CE     4.2s [] 21.7MiB / 2GiB|22
+  a12-compile-bomb.cpp         CE    15.9s [] 23.66MiB / 2GiB|22
+  x09-read-files.c             WA     1.1s [{"name": "mau1", "verdict": "WA", "time_ms": 1, "memory_kb": 352, "input": "1 2\n", "expected": "3\n", "got": "LEAK2\n"}, {"name" 23.73MiB / 2GiB|22
+  x10-sockets.c                AC     1.1s [{"name": "mau1", "verdict": "AC", "time_ms": 0, "memory_kb": 280}, {"name": "mau2", "verdict": "AC", "time_ms": 0, "memory_kb": 2 23.8MiB / 2GiB|22
+  x14-exec.c                   AC     1.6s [{"name": "mau1", "verdict": "AC", "time_ms": 0, "memory_kb": 456}, {"name": "mau2", "verdict": "AC", "time_ms": 1, "memory_kb": 5 23.98MiB / 2GiB|22
+  x15w.c                       AC     1.1s [{"name": "mau1", "verdict": "AC", "time_ms": 0, "memory_kb": 320}, {"name": "mau2", "verdict": "AC", "time_ms": 0, "memory_kb": 3 23.98MiB / 2GiB|22
+  x15r.c                       AC     1.2s [{"name": "mau1", "verdict": "AC", "time_ms": 0, "memory_kb": 284}, {"name": "mau2", "verdict": "AC", "time_ms": 1, "memory_kb": 3 21.21MiB / 2GiB|22
+  x16-priv.c                   WA     1.1s [{"name": "mau1", "verdict": "WA", "time_ms": 2, "memory_kb": 280, "input": "1 2\n", "expected": "3\n", "got": "LEAK\n"}, {"name": 21.31MiB / 2GiB|22
+  x17-thr.c                    AC     1.1s [{"name": "mau1", "verdict": "AC", "time_ms": 13, "memory_kb": 364}, {"name": "mau2", "verdict": "AC", "time_ms": 7, "memory_kb":  21.34MiB / 2GiB|22
+innocent after bomb AC 2.3s
+after 30s 24.74MiB / 2GiB|22 procs 5 restart 0 0
+disk 4	/tmp
+0	/dev/shm
+21072	/opt
+
+PASS TC-PE02-33 a01=TLE(3s); a02=TLE(7s) 
+PASS TC-PE02-34 a03=OLE(1s); a04=OLE(6s) 
+PASS TC-PE02-35 a05=MLE(2s); a06=MLE(3s) 
+PASS TC-PE02-36 a07=RE(1s); a18=RE(1s) 
+FAIL TC-PE02-37 a08=WA(2s); x17=AC(1s) procPeak/FORKED không quan sát được qua API (verdict an toàn + 0 tiến trình mồ côi: host procs 5→5)
+FAIL TC-PE02-38 x09=WA(1s) (a09 qua biến thể in LEAK nếu đọc được)
+PASS TC-PE02-39 x10=AC(1s) (36 cặp ip:port, không connect nào thành công)
+PASS TC-PE02-40 a11=CE 4s a12=CE 16s
+PASS TC-PE02-41 a13=MLE(2s); x15r.c=AC(1s) x15w ghi rồi x15r đọc: AC = không rò chéo
+FAIL TC-PE02-42 x14=AC(2s); x16=WA(1s) 
+PASS TC-PE02-43 a19=TLE(7s); a20=TLE(3s) 
+PASS TC-PE02-44 bài đúng sau fork bomb AC 2.3s; RestartCount 0->0; mem30 24.74MiB / 2GiB|22; procs 5->5

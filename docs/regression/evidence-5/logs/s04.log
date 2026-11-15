@@ -1,0 +1,8 @@
+PASS TC-PE04-01 201 DRAFT shuffle True/True max 10.00 step 0.01 PARTIAL appeal 7
+PASS TC-PE04-02 {'title rỗng': (422, ['TITLE_LENGTH', 'VALIDATION_FAILED']), 'title 121': (422, ['TITLE_LENGTH', 'VALIDATION_FAILED']), 'instr 4001': (422, ['INSTRUCTIONS_TOO_LONG', 'VALIDATION_FAILED']), 'dur 301': 
+PASS TC-PE04-03 +07:00 = Z: True (2026-12-01T01:00:00Z); TA/SV/ADMIN/ngoài lớp: [201, 403, 403, 403]
+PASS TC-PE04-04 cùng key cùng id; khác thân 422 ['IDEMPOTENCY_KEY_REUSED']
+PASS TC-PE04-06 kind MIXED -> MCQ sau thay toàn bộ (items_count 5)
+PASS TC-PE04-07 {'draft': (422, ['ITEM_NOT_APPROVED', 'VALIDATION_FAILED']), 'rejected': (422, ['ITEM_NOT_APPROVED', 'VALIDATION_FAILED']), 'other': (422, ['QUESTION_NOT_IN_COURSE', 'VALIDATION_FAILED']), 'dup': (422
+PASS TC-PE04-08 schedule 200; PUT items khi SCHEDULED 409 ['EXAM_LOCKED'] reason=status
+FAIL TC-PE04-13 audit exam.schedule 1 dòng; thông báo EXAM_SCHEDULED: 

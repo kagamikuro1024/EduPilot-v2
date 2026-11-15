@@ -1,0 +1,94 @@
+fake GRADING 200 25
+=== reset BT03 + grade-all sạch 20:45:32
+grade-all 202 {'job_id': '01a1df74-c2e5-7c52-b30e-c9b27e03179c', 'queued': 1}
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['QUEUED', '1']]
+[['FAILED', '1']]
+=== cfg P=0.9 + ALERT_TICK=10s 20:49:48
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+=== dm_c p90 (chờ ≤ 5 phút) 20:50:03
+xếp hàng chấm lại: 24 / 24
+[p90] regraded=24 states=['DONE', 'FAILED', 'QUEUED']
+  tổng điểm đổi so với round 1: [('sv07@edupilot.local', '4.75', '5.75'), ('sv09@edupilot.local', '4.75', '5.75'), ('sv10@edupilot.local', '3.50', '3.00'), ('sv11@edupilot.local', '5.25', '5.75'), ('sv12@edupilot.local', '4.75', '5.75'), ('sv14@edupilot.local', '3.50', '4.50'), ('sv15@edupilot.local', '8.00', '9.00'), ('sv16@edupilot.local', '4.75', '5.75'), ('sv19@edupilot.local', '0.50', '0.00'), ('sv20@edupilot.local', '4.75', '5.75'), ('sv.gioi@edupilot.local', '8.50', ''), ('sv.gioi@edupilo
+  cờ INJECTION mới: []
+  mất cờ regex: []
+  DECIDE: [['INJECTION_FLAG', 'FALLBACK', 'cancelled', 'BATCH', '24'], ['INJECTION_FLAG', 'FALLBACK', 'ok', 'BATCH', '20'], ['INJECTION_FLAG', 'FAST', 'ok', 'BATCH', '6']]
+  s4(sv24) cờ: ['{EMPTY_SUBMISSION}']  s6(sv14): ['{INJECTION_SUSPECTED}']
+=== dm_f seed2 + alerts 20:53:12
+seeded2
+notifications: 2
+  ['admin@edupilot.local', 'DECISION_FAIL_CLOSED', '13:53:23', '6% lời gọi bị chặn an toàn trong 1 giờ qua (19 / 316).']
+  ['admin@edupilot.local', 'DECISION_FAIL_CLOSED', '13:53:23', '24% lời gọi bị chặn an toàn trong 1 giờ qua (19 / 80).']
+PASS D07-10 teacher không nhận DECISION_FAIL_CLOSED 200
+PASS D07-10 ta không nhận DECISION_FAIL_CLOSED 200
+PASS D07-10 sv.kha không nhận DECISION_FAIL_CLOSED 200
+admin DECISION items: [('DECISION_FAIL_CLOSED', 'Quyết định nhanh: Kiểm duyệt Threads đang chặn nhiều'), ('DECISION_FAIL_CLOSED', 'Quyết định nhanh: Cờ chèn lệnh khi chấm đang chặn nhiều')]
+notifications: 2
+tổng 549s
+=== cleanup
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+restore GRADING 200 26

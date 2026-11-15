@@ -1,0 +1,26 @@
+$ go test -tags integration ./internal/integration -run TestImapToDraftGrade -v
+=== RUN   TestImapToDraftGrade
+2026/11/15 19:44:02 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 2ce327433f2dab390f556e3735e02f836fb9273b88dbe7f27124166d21dfa3e9
+  Test ProcessID: b446c558-c65a-4e8a-9b93-c1d06e3eb82e
+2026/11/15 19:44:02 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:02 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:03 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:44:06 ✅ Container started: 5636bc78d64d
+2026/11/15 19:44:06 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:44:06 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:44:06 ✅ Container started: b8d9c357e377
+2026/11/15 19:44:06 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:44:06 🔔 Container is ready: b8d9c357e377
+--- PASS: TestImapToDraftGrade (4.40s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	5.062s
+
+rc=0

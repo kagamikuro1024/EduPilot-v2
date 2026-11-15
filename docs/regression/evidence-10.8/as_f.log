@@ -1,0 +1,9 @@
+trước: 3 4 2 devices A∪B: 3
+purge-checkins: 3 lượt, 2 thiết bị 2026/11/15 13:34:47 INFO attendance.purge checkins=3 devices=2
+PASS TC-AS13-01a xoá lượt của cửa sổ closed_at > 30 ngày (A: 3 → 0); B (29 ngày) giữ 4; C (đang mở) giữ 2 A=0 B=4 C=2 | purge-checkins: 3 lượt, 2 thiết bị
+PASS TC-AS13-01b thiết bị chỉ cửa sổ A dùng (mồ côi quá 30 ngày) bị xoá; thiết bị còn dùng ở B (Kboth) giữ a_only còn 0
+PASS TC-AS13-01c cửa sổ A vẫn còn (giữ headcount; không dữ liệu cá nhân) 
+PASS TC-AS13-03 chạy purge lần 2 và 2 tiến trình song song: không lỗi, kết quả không đổi, cửa sổ mở/B giữ nguyên purge-checkins: 0 lượt, 0 thiết bị | ['purge-checkins: 0 lượt, 0 thiết bị', 'purge-checkins: 0 lượt, 0 thiết bị']
+PASS TC-AS13-02a Staff danh sách lượt của buổi A (đã purge) trống 0
+PASS TC-AS13-08 log purge chỉ có số hàng; không student_id / tên (không có dòng log purge trong gateway/worker — CLI in ra stdout)
+PASS TC-AS13-07 không cột toạ độ / IP / tên máy ở attendance_checkins, user_devices []

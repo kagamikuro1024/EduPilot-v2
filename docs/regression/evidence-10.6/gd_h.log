@@ -1,0 +1,16 @@
+PASS B9-0 tắt qua API → overview.enabled=false 
+seed-guidance: 0 kết quả
+PASS B9-1 ngay sau seed-guidance: overview.enabled=true (không chờ 60 s) True sau 2.41s
+PASS B9-2 hàng cờ DB 
+PASS B10-0 có ≥ 4 câu PENDING 4
+PASS B10-1 REJECT đơn không lý do → UNSPECIFIED 200 ['REJECTED', 'UNSPECIFIED']
+PASS B10-2 bulk REJECT không reason → UNSPECIFIED cả lô 200 [['REJECTED', 'UNSPECIFIED'], ['REJECTED', 'UNSPECIFIED']]
+PASS B10-3 có lý do → giữ nguyên MO_HO 200 ['REJECTED', 'MO_HO']
+PASS B10-4 audit chỉ có reject_reason là enum (không chữ tự do) [None, None, 'UNSPECIFIED', 'MO_HO']
+PASS B10-5 SV không thấy reject_reason 403
+PASS RC-1 teacher: stats.regression_cases = SQL (2) 200 2
+PASS RC-1 ta: stats.regression_cases = SQL (2) 200 2
+PASS RC-2 SV 403 403
+PASS RC-2 ADMIN 403 403
+tổng ca theo loại: [['GRADING_EDIT', '2']]
+stats: {"items": [{"version": 0, "n": 16, "mae_criterion": "0.17", "mae_total": "0.56", "bias_total": "0.44", "edited_criteria": 13, "edited_rate": "0.20", "criteria_counted": 64}, {"version": 3, "n": 2, "ma

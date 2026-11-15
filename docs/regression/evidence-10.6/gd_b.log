@@ -1,0 +1,13 @@
+PASS G03-04/11/19 [rf_ok] job=SUCCEEDED drafts=2 (kỳ vọng 2) dropped={} 
+PASS G03-19 DRAFT có support = số id kết quả, source_result_ids không trùng users.id [['01a1df33-b191-7f9b-9776-61a3f3213dc3', 'c2', 'STRICTER', '5', 'Chấm chặt hơn khi bài chỉ nêu khái niệm chung mà chưa có ví dụ hay số ', '5', '01a1df33-a9fd-79e7-9648-d9a256
+PASS G03-13a [rf_bad_case] job=SUCCEEDED drafts=0 (kỳ vọng 0) dropped={'case': 1} 
+PASS G03-13b [rf_wrong_direction] job=SUCCEEDED drafts=0 (kỳ vọng 0) dropped={'support': 1} 
+FAIL G03-14b [rf_low_support] job=FAILED drafts=0 (kỳ vọng 0) dropped={} {"code": "REFLECT_FAILED", "message": "Chưa rút được lưu ý. Thử lại."}
+PASS G03-15 [rf_total_keyword] job=SUCCEEDED drafts=0 (kỳ vọng 0) dropped={'keyword': 6} 
+FAIL G03-16 [rf_pii_text] job=SUCCEEDED drafts=1 (kỳ vọng 0) dropped={'pii': 3} 
+FAIL G03-18 [rf_many] job=SUCCEEDED drafts=8 (kỳ vọng 8) dropped={} 
+PASS G03-21 [rf_empty] job=SUCCEEDED drafts=0 (kỳ vọng 0) dropped={} 
+PASS G03-17 [rf_dup_text] job=SUCCEEDED drafts=2 (kỳ vọng 2) dropped={'duplicate': 1} 
+FAIL G03-22 [error] job FAILED, 0 DRAFT, thử lại RUNNING err= llm_audit lỗi 3 phút=5
+FAIL G03-22 [invalid] job FAILED, 0 DRAFT, thử lại RUNNING err= llm_audit lỗi 3 phút=18
+PASS G03-12 criterion lạ: schema strict chặn trước (job FAILED, 0 DRAFT, không 500) {"code": "REFLECT_FAILED", "message": "Chưa rút được lưu ý. Thử lại."}

@@ -1,0 +1,38 @@
+
+Running 10 tests using 1 worker
+
+(node:43211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX20-6 rỗng: "Kết quả của tôi Điểm Chưa có điểm nào được công bố Chuyên cần Bạn có mặt 1/1 buổi, vắng 0. Điểm cộng đã ghi Chưa có điểm cộng nào được ghi Bài tập Lớp chưa có bài tập"
+INFO UX20-7 lỗi: "Kết quả của tôi Điểm Không tải được điểm của bạn. Thử lại Chuyên cần Bạn có mặt 1/1 buổi, vắng 0. Điểm cộng đã ghi Chưa có điểm cộng nào được ghi Bài tập Lớp chưa có bài tập" | Thử lại: 1
+  ✓   1 [desktop] › e2e/qc-uiux91-w5g-real.spec.ts:25:1 › TC-UX20-6/7 /me rỗng và lỗi (11.4s)
+INFO số phiên SV A: 13
+INFO UX13-23 SV B đọc phiên SV A: ["404","404","404"]
+INFO UX13-22 GV: API phiên SV ["403","403"] | /chat: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên."
+INFO UX13-22 TA: API phiên SV ["403","403"] | /chat: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên."
+  ✓   2 [desktop] › e2e/qc-uiux91-w5g-real.spec.ts:43:1 › TC-UX13-18/22/23 chat: kéo cuộn khi stream; phân quyền (12.5s)
+INFO UX13-20 dải mất mạng: "Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng." | cuối hội thoại: "Bạn Giải thích chi tiết quy chế điểm quá trình và cách tính điểm chuyên cần của lớp này Trợ lý AI Lớp chưa có công thức điểm chính thức do giảng viên xác nhận. Hữu ích Không hữu ích Đang chờ giảng viên · vừa gửi" | Thử lại: 0
+  ✓   3 [desktop] › e2e/qc-uiux91-w5g-real.spec.ts:67:1 › TC-UX13-20 mất mạng giữa stream (17.1s)
+INFO UX17-9 lớp QC117283: "Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới" | nút: ["Tạo báo cáo mới"]
+INFO UX17-8 admin /observability: "Quan sát AI Toàn hệ thống Thư chưa gửi được Thư chưa gửi được, mới nhất trước Thư Người nhận Số lần thử Lỗi Lúc seed_observability_failed k***@example.invalid 4 SMTP 550 hộp thư không tồn tại 1 giờ tr" | hàng: 50
+INFO UX17-8 sau chọn hàng: 1 undefined
+  ✓   4 [desktop] › e2e/qc-uiux91-w5g-real.spec.ts:86:1 › TC-UX17-8/9 admin xem prompt; lớp chưa có báo cáo (14.0s)
+INFO UX18-4 thuộc tính tên: ["","","","","","","","","",""]
+INFO UX18-4 công tắc có tên «Dùng cho AI: bật/tắt»: 11 | «Hiện cho sinh viên: …»: 11 | tổng: 22
+INFO UX18-4 aria-label: [null,null,null,null]
+INFO UX18-1 ô Loại (select): {"sw":171,"cw":171,"w":173,"val":"Đáp án","opts":["Bài giảng","Quy chế môn học","Đề tham khảo","Đáp án","Tài liệu khác"]}
+INFO UX18-8 SV /documents: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO UX18-8 SV API documents: 403
+INFO UX18-6 SV /library: 274 | có «Đáp án»: false | có «Đề tham khảo tuần 5»: false | "Thư viện Tìm tài liệu Loại Mọi loại Bài giảng Quy chế môn học Đề tham khảo Tài liệu khác Tuần Mọi tuần Tuần 1 Tuần 2 Tuần 3 Tuần 4 Tuần 5 Tuần 6 Tuần 7 Tuần 8 T"
+INFO UX18-PQ TA /documents lớp lạ: 403
+  ✓   5 [desktop] › e2e/qc-uiux91-w5g-real.spec.ts:104:1 › TC-UX18-4/6/8/PQ tên công tắc, thư viện SV, quyền (20.1s)
+(node:46365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   6 [mobile] › e2e/qc-uiux91-w5g-real.spec.ts:25:1 › TC-UX20-6/7 /me rỗng và lỗi
+  -   7 [mobile] › e2e/qc-uiux91-w5g-real.spec.ts:43:1 › TC-UX13-18/22/23 chat: kéo cuộn khi stream; phân quyền
+  -   8 [mobile] › e2e/qc-uiux91-w5g-real.spec.ts:67:1 › TC-UX13-20 mất mạng giữa stream
+  -   9 [mobile] › e2e/qc-uiux91-w5g-real.spec.ts:86:1 › TC-UX17-8/9 admin xem prompt; lớp chưa có báo cáo
+  -  10 [mobile] › e2e/qc-uiux91-w5g-real.spec.ts:104:1 › TC-UX18-4/6/8/PQ tên công tắc, thư viện SV, quyền
+
+  5 skipped
+  5 passed (1.3m)

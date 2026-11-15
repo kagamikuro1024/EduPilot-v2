@@ -1,0 +1,30 @@
+$ go test -tags integration ./internal/assignment -run 'TestQueueDefaultFilter|TestQueueNeedsReviewFirst|TestQueueCursorPagination|TestQueueP95Under300ms|TestQueueExplainNoSeqScan|TestNeedsReviewGeneratedColumn' -v
+=== RUN   TestQueueP95Under300ms
+2026/11/15 20:01:05 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 11d38dbea89ada2ca68e1c0c55a654f6a748a092345d347000b610809d945fda
+  Test ProcessID: 5fdb60c3-da98-44d5-b985-4ed20960d54f
+2026/11/15 20:01:05 ✅ Container started: 68f6ff853df5
+2026/11/15 20:01:05 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:01:06 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestQueueP95Under300ms (15.55s)
+=== RUN   TestQueueExplainNoSeqScan
+--- PASS: TestQueueExplainNoSeqScan (25.12s)
+=== RUN   TestQueueDefaultFilter
+--- PASS: TestQueueDefaultFilter (10.82s)
+=== RUN   TestQueueNeedsReviewFirst
+--- PASS: TestQueueNeedsReviewFirst (11.91s)
+=== RUN   TestQueueCursorPagination
+--- PASS: TestQueueCursorPagination (51.10s)
+=== RUN   TestNeedsReviewGeneratedColumn
+--- PASS: TestNeedsReviewGeneratedColumn (19.13s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	134.555s
+
+rc=0

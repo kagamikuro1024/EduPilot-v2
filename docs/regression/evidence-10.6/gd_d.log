@@ -1,0 +1,36 @@
+ND drafts 6
+assignment guidance_version: 3
+hiện hành theo (status, gv): [['DRAFT', '0', '5'], ['DRAFT', '3', '1'], ['PUBLISHED', '0', '8'], ['REVIEWED', '0', '8']]
+FAIL G05-05 stale.count = số nháp chưa sửa bản cũ (8); reviewed = 8; editing = 0 {"count": 5, "editing": 0, "reviewed": 8, "versions": [0]}
+stats: {"items": [{"version": 0, "n": 16, "mae_criterion": "0.17", "mae_total": "0.56", "bias_total": "0.44", "edited_criteria": 13, "edited_rate": "0.20", "criteria_counted": 64}], "regression_cases": 0}
+PASS G06-01 số đo v0 khớp SQL độc lập (n, MAE tiêu chí, MAE tổng, lệch, tiêu chí sửa, tỉ lệ) api=(16, '0.17', '0.56', '0.44', 13, '0.20') sql=(16, '0.17', '0.56', '0.44', 13, '0.20')
+INFO mae_total theo total+late_penalty = 0.56 (api 0.56) — khác nhau chỉ khi có trừ muộn / chỉnh tổng tay
+PASS G05-24 SV regrade → 403 403
+FAIL G05-24 qua lớp 2 → 404 409
+FAIL G05-06/24 TA regrade → 202 {job_id, queued:8, skipped:{reviewed:8}} 202 {"job_id": "01a1df3a-2a87-7e81-a949-4708a5287614", "queued": 5, "skipped": {"reviewed": 8, "edited": 0, "max_round": 0}}
+round mới: [('2', 'DONE', '3', 't', 'DRAFT'), ('2', 'DONE', '3', 't', 'DRAFT'), ('2', 'DONE', '3', 't', 'DRAFT')] 6
+FAIL G05-06 8 kết quả round+1, DONE, ghim guidance_version = bản hiện hành, có ai_comments 6
+PASS G05-08/13 bài REVIEWED / PUBLISHED không đổi (điểm, tiêu chí, round, ghim, ai_scores) 
+PASS G05-21 round cũ giữ nguyên ai_scores / ai_comments / guidance_version 
+PASS G05-06 chạy lại: 200 queued 0 (không còn bài bản cũ chưa sửa) 200 {"queued": 0, "skipped": {"reviewed": 8, "edited": 0, "max_round": 0}}
+PASS G05-20 không round trùng (UNIQUE) 0
+lời gọi chấm tới stub: 8
+PASS G05-01 mọi lời gọi chấm lại có khối «Lưu ý của giảng viên (bản v3)» 8/8
+PASS G05-04 khối lưu ý giống hệt giữa các bài cùng bản (lượt 1) 1
+--- khối lưu ý mẫu ---
+Lưu ý của giảng viên (bản v3) — chỉ về điểm từng tiêu chí:
+[c2] Ưu tiên bằng chứng cụ thể khi chấm tiêu chí này.
+[c2] x
+[c2] Phân biệt rõ giả định với kết luận trong c2. Mẫu 4.
+
+PASS G05-01 khối nằm sau RUBRIC, trước ĐÁP ÁN CHUẨN, trong system 
+PASS G05-01 khối chỉ là chữ lưu ý đang hiệu lực v3 (không mục RETIRED/DRAFT/REJECTED) 
+PASS G05-27 khối không chứa số điểm tổng / cụm trừ / làm tròn 
+REVIEWED hiện hành: 8
+PUBLISH cờ tắt: 200 {"published": 2, "skipped": 0, "exempt": {"ACCEPTED_AS_IS": 0, "EDITED": 0}}
+PASS G05-18 cờ tắt: 200, không 409, exempt rỗng/0 {"ACCEPTED_AS_IS": 0, "EDITED": 0}
+PUBLISH cờ bật: 200 {"published": 6, "skipped": 0, "exempt": {"ACCEPTED_AS_IS": 2, "EDITED": 4}}
+PASS G05-14 cờ bật: bài đã duyệt ghim v0 vẫn công bố, KHÔNG 409 MIXED_GUIDANCE; exempt đếm đúng EDITED / ACCEPTED_AS_IS api={'ACCEPTED_AS_IS': 2, 'EDITED': 4} kỳ vọng EDITED=4 AS_IS=2
+INFO audit publish: {"total": "5.75", "status": "PUBLISHED", "changed": [], "deviation": "0.00", "guidance_exempt": "ACCEPTED_AS_IS"}
+PASS G05-14 audit_log có guidance_exempt 
+PASS G05-15 công bố bài nháp → 422 NOT_REVIEWED 422 {"code": "NOT_REVIEWED", "message": "B\u00e0i ch\u01b0a \u0111\u01b0\u1ee3c duy\u1ec7t.", "trace_id"

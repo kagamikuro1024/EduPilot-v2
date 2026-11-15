@@ -1,0 +1,390 @@
+# Smoke hồi quy sprint 6 — kết quả
+Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm E) · Ngày: 2026-11-15
+Tổng TC cũ: 536 · Đạt: 241 · Trượt: 2 · Không chạy K (a/b/c): 1 · Lỗi thời (T, tính vào cột K của brief): 2 · Chưa chạy (mẫu) N: 290   (P+F+K+T+N = 536 = 536)
+
+Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
+
+Cách chạy:
+- Go: `go test [-tags integration] <gói> -run …` đúng lệnh trong tc-*.md cho 49 ca G (store, privacy, llm, agent, chat, thread, integration, contract `-tags testroutes`) — chạy trong `backend-go` (testcontainers), log `/tmp/qc2e/gorun6.log`.
+- API (python/urllib, kèm lib ở `/tmp/qc2e`): `s6_p301*.py` (ràng buộc DB trong giao dịch ROLLBACK), `s6_p302.py` (precheck PII), `s6_chat*.py` (chat riêng, SSE, idempotency, phân quyền), `s6_thr*.py` (Threads + AI trả lời + xác nhận/sửa/loại), `s6_p8*.py` (presign/PUT/complete DOCX, ingest docling, thư viện, chunk, phân quyền), `s6_cal.py` (lịch/ICS), `s6_misc.py`, `s6_today.py`, `s6_reg.py` (P-106-11, P-11-16).
+- Script cũ: `p602-attacks.py` (--set mssv,email,phone,cccd / negatives / redact, gw=https://localhost:1143), `benchmarks/eval_pii.py` (E1: recall 0,960, false_block 0,000), `scan-pii-leak.sh` (COMPOSE shim cho ep-r; 5 bảng ERR do lỗi tách `::` của script → quét lại toàn bảng bằng Python: PII chỉ nằm ở bảng được phép).
+- Dữ liệu: lớp riêng E6C1/E6C2 (GV `teacher`, TA `ta`, SV sv07–sv09, sv20, sv.gioi, sv.kha) — không sửa seed 761987/761988 (chỉ thêm/xoá mềm vài thread `[qc-e6]` ở 761987 đã dọn). Mẹo RAG với embedding giả: nhúng tài liệu DOCX có đoạn trùng đúng `tiêu đề\nnội dung` thread/tin chat → truy xuất cosine = 1, AI trả lời thật qua 9router (tuần tự).
+- UI: `docs/regression/evidence-6/scripts/ui-smoke.mjs` (Playwright, https://localhost:1143) — 1440 px: /chat, /threads, /library, /calendar (SV), /documents, /calendar, /threads (GV) tải được, 0 tràn ngang, 0 lỗi 5xx; 375 px chạy lại sau khi xoá `ep:rl:auth*`: cả 7 trang đạt (0 tràn ngang).
+- Môi trường: Postgres ep-r bị crash-recovery ~5 phút giữa phiên (gateway 500 `conn closed`), đã chờ phục hồi, dữ liệu nguyên vẹn; không tính vào kết quả.
+- Bổ sung: D60 — `GET /admin/llm/decision`: cả 3 cổng (CHAT_ROUTING, INJECTION_FLAG, THREADS_PRECHECK) `enabled=false`, `courses_enabled=0/27`; sau hàng trăm tin chat/precheck ở lớp E6C1, `llm_audit` task='DECIDE' của lớp E6* = 0 ⇒ mặc định TẮT đúng. (`/admin/llm/decision/courses` trả 404 — route thật là `/api/v1/courses/{id}/decision-gates`.)
+- Postgres ep-r crash-recovery: 12:59:54 UTC «terminating any other active server processes» → 13:00:10 «not properly shut down; automatic recovery» → 13:02:01 ready (~7 phút gateway 500). Container không OOMKilled, RestartCount 0; nghi một tiến trình Postgres bị giết do áp lực RAM trên VM Colima 9,69 GiB dùng chung 8 nhóm (load average 17–23). Log: `evidence-7/postgres-crash-recovery.log`.
+
+## Tổng hợp theo US
+| US | TC tổng | P | F | K | T | N | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| US-P3-01 | 51 | 37 | 1 | 0 | 0 | 13 |  |
+| US-P3-02 | 61 | 34 | 1 | 0 | 0 | 26 |  |
+| US-P3-03 | 36 | 16 | 0 | 0 | 1 | 19 |  |
+| US-P3-04 | 55 | 27 | 0 | 0 | 1 | 27 |  |
+| US-P3-05 | 59 | 24 | 0 | 0 | 0 | 35 |  |
+| US-P3-06 | 49 | 33 | 0 | 0 | 0 | 16 |  |
+| US-P3-07 | 25 | 7 | 0 | 0 | 0 | 18 |  |
+| US-P3-08 | 29 | 8 | 0 | 0 | 0 | 21 |  |
+| US-P8-01 | 62 | 15 | 0 | 0 | 0 | 47 |  |
+| US-P8-02 | 49 | 16 | 0 | 0 | 0 | 33 |  |
+| US-P8-03 | 60 | 24 | 0 | 1 | 0 | 35 |  |
+
+## Kết quả từng ca
+(Mỗi ca P/F/K/T một dòng. Ca N liền nhau cùng lý do được gom một dòng.)
+| TC | KQ | Ghi chú |
+|---|---|---|
+| TC-P3-01-01 | P | goose up trên DB trống tới version 25 (gồm 00007, 00008), không Pending |
+| TC-P3-01-02 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
+| TC-P3-01-03 | P | db/migrations/00007_chat_threads.sql:0 db/migrations/00008_privacy.sql:0 |
+| TC-P3-01-04 … TC-P3-01-07 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-01-08 | P | {STREAMING,DONE,FAILED,CANCELLED} {USER,ASSISTANT} {PRIVATE,PUBLIC} |
+| TC-P3-01-09 | P | SQLSTATE 23505 |
+| TC-P3-01-10 | P | SQLSTATE 23514 |
+| TC-P3-01-11 | P | SQLSTATE 23514 |
+| TC-P3-01-12 | P | SQLSTATE 23514 |
+| TC-P3-01-13 | P | SQLSTATE 23514 |
+| TC-P3-01-14 | P | updated_at tăng sau update (trigger) |
+| TC-P3-01-15 | P | SQLSTATE 23514 |
+| TC-P3-01-16 | P | go test ok (1 test/ca con, ~8s) |
+| TC-P3-01-17 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-01-18 | P | SQLSTATE 23505 |
+| TC-P3-01-19 | P | SQLSTATE 23514 |
+| TC-P3-01-20 | P | SQLSTATE 23514 |
+| TC-P3-01-21 | P | SQLSTATE 23514 |
+| TC-P3-01-22 | P | 6 vi phạm đều 23514 |
+| TC-P3-01-23 | P | go test ok (1 test/ca con, ~7s) |
+| TC-P3-01-24 | P | SQLSTATE 23503 |
+| TC-P3-01-25 | P | SQLSTATE 23503 |
+| TC-P3-01-26 | P | SQLSTATE 23503 |
+| TC-P3-01-27 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-01-28 | P | delete ok, document_id→NULL |
+| TC-P3-01-29 | P | SQLSTATE 23502 |
+| TC-P3-01-30 | P | updated_at tăng |
+| TC-P3-01-31 | P | go test ok (5 test/ca con, ~15s) |
+| TC-P3-01-32 | P | id,course_id,session_id,user_id,channel,pii_type,count,action,created_at |
+| TC-P3-01-33 | P |  |
+| TC-P3-01-34 | P | ERROR:  42501: audit_log is append-only CONTEXT:  PL/pgSQL function audit_log_bl |
+| TC-P3-01-35 | P |  |
+| TC-P3-01-36 | P | {MSSV,EMAIL,PHONE,CCCD,NAME,PERSONAL_QUESTION,OTHER_PERSON} {BLOCKED,REDACTED,SWITCHED,MASKED} |
+| TC-P3-01-37 | P | go test ok (2 test/ca con, ~11s) |
+| TC-P3-01-38 | P | 18 chỉ mục không-pkey (≥11) |
+| TC-P3-01-39 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-01-40 | P | go test ok (1 test/ca con, ~13s) |
+| TC-P3-01-41 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-01-42 | P | go test ok (34 test/ca con, ~30s) |
+| TC-P3-01-43 … TC-P3-01-45 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-01-46 | P | go test ok (2 test/ca con, ~8s) |
+| TC-P3-01-47 | P | canary xuất hiện ngoài chat_messages: [] |
+| TC-P3-01-48 | P | go test ok (1 test/ca con, ~13s) |
+| TC-P3-01-49 | F | Vai DB ứng dụng edupilot rolsuper=t (như BUG-1 gốc); DEF-R6-01 |
+| TC-P3-01-50 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-01 | P | 2 mẫu đúng |
+| TC-P3-02-02 | P | p602 --set mssv: mã chữ-số bị chặn (14 mẫu mssv/email/phone/cccd đạt) |
+| TC-P3-02-03 | P | 3 mẫu đúng |
+| TC-P3-02-04 | P | 3 mẫu đúng |
+| TC-P3-02-05 | P | 4 mẫu đúng |
+| TC-P3-02-06 | P | 2 mẫu đúng |
+| TC-P3-02-07 | P | p602-attacks.py --set negatives-number: 15 mẫu cho qua |
+| TC-P3-02-08 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-09 | P | 1 mẫu đúng |
+| TC-P3-02-10 | P | go test ok (2 test/ca con, ~3s) |
+| TC-P3-02-11 | P | 1 mẫu đúng |
+| TC-P3-02-12 | P | 1 mẫu đúng |
+| TC-P3-02-13 | P | 1 mẫu đúng |
+| TC-P3-02-14 | P | 2 mẫu đúng |
+| TC-P3-02-15 | P | 1 mẫu đúng |
+| TC-P3-02-16 | P | p602-attacks.py --set negatives-name: cho qua đúng |
+| TC-P3-02-17 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-18 | P | go test ok (3 test/ca con, ~2s) |
+| TC-P3-02-19 | P | 2 mẫu đúng |
+| TC-P3-02-20 | P | exists=1 ttl=3597 type=string |
+| TC-P3-02-21 | F | Duyệt/vào lớp không vô hiệu ep:roster (chỉ member_changed khi mời ra/hoàn tác) → tên SV mới không bị chặn ≤1 giờ; DEF-R6-02 |
+| TC-P3-02-22 | P | mời ra → cache xoá 0,5 s, tên không còn bị chặn |
+| TC-P3-02-23 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-24 | P | 2 mẫu đúng |
+| TC-P3-02-25 | P | go test ok (3 test/ca con, ~37s) |
+| TC-P3-02-26 | P | [đã ẩn] [đã ẩn] [đã ẩn] [đã ẩn] |
+| TC-P3-02-27 | P | redact idempotent |
+| TC-P3-02-28 | P | p602-attacks.py --set redact: idempotent + văn bản sạch giữ nguyên |
+| TC-P3-02-29 | P | go test ok (2 test/ca con, ~5s) |
+| TC-P3-02-30 … TC-P3-02-39 (10 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-40 | P | go test ok (3 test/ca con, ~3s) |
+| TC-P3-02-41 … TC-P3-02-47 (7 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-48 | P | go test ok (4 test/ca con, ~2s) |
+| TC-P3-02-49 … TC-P3-02-50 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-51 | P | go test ok (2 test/ca con, ~2s) |
+| TC-P3-02-52 … TC-P3-02-53 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-54 | P | go test ok (1 test/ca con, ~2s) |
+| TC-P3-02-55 | P | 30 lượt 4.000 ký tự: p95=176 ms |
+| TC-P3-02-56 | P | precheck 8000 ký tự a1: 0.02s (200) |
+| TC-P3-02-57 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-58 | P | SV ngoài lớp precheck → 403 |
+| TC-P3-02-59 | P | ADMIN precheck → 403 |
+| TC-P3-02-60 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-02-61 | P | TA 403, TCH 403 |
+| TC-P3-03-01 | P | go test ok (1 test/ca con, ~6s) |
+| TC-P3-03-02 … TC-P3-03-04 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-03-05 | P | tin có tên+MSSV+email+SĐT: llm_request_payloads.masked_prompt chỉ còn [[SV_1]] [[MSSV_1]] [[EMAIL_1]] [[SDT_1]], 0 PII thô, pii_masked_count=8 |
+| TC-P3-03-06 … TC-P3-03-09 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-03-10 | P | COURSE_QA có ngữ cảnh (đoạn tài liệu chứa PII) → payload che sạch; câu trả lời gốc được khôi phục cho chủ phiên |
+| TC-P3-03-11 | P | go test ok (2 test/ca con, ~3s) |
+| TC-P3-03-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-03-13 | P | llm_audit.pii_masked_count=8 khớp số thực thể |
+| TC-P3-03-14 | P | go test ok (1 test/ca con, ~4s) |
+| TC-P3-03-15 | P | SSE token/done không còn dạng [[SV_…]] (khôi phục đủ) |
+| TC-P3-03-16 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-03-17 | P | go test ok (2 test/ca con, ~3s) |
+| TC-P3-03-18 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-03-19 | P | llm_audit chứa PII/placeholder: 0 |
+| TC-P3-03-20 | P | go test ok (3 test/ca con, ~19s) |
+| TC-P3-03-21 | P | go test ok (1 test/ca con, ~17s) |
+| TC-P3-03-22 … TC-P3-03-24 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-03-25 | P | go test ok (2 test/ca con, ~4s) |
+| TC-P3-03-26 … TC-P3-03-28 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-03-29 | P | go test ok (1 test/ca con, ~2s) |
+| TC-P3-03-30 | P | admin: [200, 200], rò: [] |
+| TC-P3-03-31 | T | LỖI THỜI: `GET /admin/llm/usage` nay cho ADMIN **và TEACHER** (openapi «ADMIN, TEACHER», đổi từ sprint 9/10); TA/SV vẫn 403 |
+| TC-P3-03-32 | P | go test ok (1 test/ca con, ~15s) |
+| TC-P3-03-33 … TC-P3-03-35 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-03-36 | P | ADMIN vào route chat của SV → [403, 403, 403] |
+| TC-P3-04-01 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-02 | P | go test ok (1 test/ca con, ~6s) |
+| TC-P3-04-03 | P | intent=PERSONAL_GRADE embed+=0 |
+| TC-P3-04-04 … TC-P3-04-06 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-07 | P | go test ok (3 test/ca con, ~3s) |
+| TC-P3-04-08 … TC-P3-04-10 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-11 | P | go test ok (1 test/ca con, ~2s) |
+| TC-P3-04-12 … TC-P3-04-13 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-14 | P | go test ok (1 test/ca con, ~3s) |
+| TC-P3-04-15 | P | go test ok (1 test/ca con, ~2s) |
+| TC-P3-04-16 … TC-P3-04-17 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-18 | P | POST thêm user_id → 422 |
+| TC-P3-04-19 | P | go test ok (2 test/ca con, ~10s) |
+| TC-P3-04-20 | P | go test ok (2 test/ca con, ~4s) |
+| TC-P3-04-21 … TC-P3-04-23 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-24 | P | intents=['OTHER_PERSON', 'OTHER_PERSON', 'OTHER_PERSON', 'OTHER_PERSON'] llm+=0 |
+| TC-P3-04-25 | P | pii_events +4 |
+| TC-P3-04-26 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-27 | P | intent=PERSONAL_ATTENDANCE Hệ thống chưa có dữ liệu điểm danh của bạn. |
+| TC-P3-04-28 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-29 | P | go test ok (3 test/ca con, ~2s) |
+| TC-P3-04-30 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-31 | P | MSSV của SVB → OTHER_PERSON, câu từ chối, không lộ dữ liệu (kỳ vọng AC9) |
+| TC-P3-04-32 | P | go test ok (1 test/ca con, ~3s) |
+| TC-P3-04-33 | P | ['PERSONAL_ATTENDANCE', 'PERSONAL_PARTICIPATION', 'PERSONAL_GRADE', 'GRADE_FORMULA'] |
+| TC-P3-04-34 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-35 | P | go test ok (2 test/ca con, ~2s) |
+| TC-P3-04-36 … TC-P3-04-37 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-38 | P | go test ok (1 test/ca con, ~3s) |
+| TC-P3-04-39 | P | ep:ans 4→4 |
+| TC-P3-04-40 … TC-P3-04-43 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-44 | P | go test ok (3 test/ca con, ~3s) |
+| TC-P3-04-45 | T | LỖI THỜI (US-P4-07 2026-10-14: khủng hoảng hai tầng, câu mẫu đổi, "tu tu" không dấu không còn là khoá); kiểm lại ở sprint 7 |
+| TC-P3-04-46 | P | lần đầu lệch do nhóm khác ghi chung (đếm toàn cục); chạy lại theo lớp E6C1: tickets/notifications/pii_events không đổi, 0 lời gọi LLM, intent=CRISIS lưu (xem TC-P4-07-09) |
+| TC-P3-04-47 | P | go test ok (2 test/ca con, ~2s) |
+| TC-P3-04-48 … TC-P3-04-49 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-50 | P | Mình chưa tìm thấy nội dung này trong tài liệu của lớp. |
+| TC-P3-04-51 | P | go test ok (3 test/ca con, ~3s) |
+| TC-P3-04-52 | P | TA/TCH/ADM tạo phiên → 403/403/403 |
+| TC-P3-04-53 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-04-54 | P | SVB gửi vào phiên SVA → 404 |
+| TC-P3-04-55 | P | SV ngoài lớp tạo phiên → 403 |
+| TC-P3-05-01 | P | go test ok (2 test/ca con, ~22s) |
+| TC-P3-05-02 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-03 | P | status=200, khung đầu 0.054s, các khung=['done', 'status', 'token'] |
+| TC-P3-05-04 | P | chuỗi khung: ['status', 'status', 'token']…done, 4 khung |
+| TC-P3-05-05 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-06 | P | go test ok (1 test/ca con, ~13s) |
+| TC-P3-05-07 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-08 | P | go test ok (3 test/ca con, ~14s) |
+| TC-P3-05-09 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-10 | P | GET stream sau done → 200, 4 khung |
+| TC-P3-05-11 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-12 | P | go test ok (1 test/ca con, ~12s) |
+| TC-P3-05-13 … TC-P3-05-14 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-15 | P | cancel 2 lần → 204,204 |
+| TC-P3-05-16 | P | SV khác cancel → 404 |
+| TC-P3-05-17 … TC-P3-05-27 (11 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-28 | P | 2 lần cùng key → 200/200, hàng USER=1 |
+| TC-P3-05-29 | P | key khác → hàng USER=2 |
+| TC-P3-05-30 | P | 10 yêu cầu song song cùng key → hàng USER=1, mã=[200] |
+| TC-P3-05-31 | P | rỗng/khoảng trắng → 422/422 |
+| TC-P3-05-32 | P | 4100 ký tự → 422 {'code': 'MESSAGE_TOO_LONG', 'message': 'Tin nhắn quá dài.', |
+| TC-P3-05-33 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-34 | P | (a) phiên đã xoá→404 (b) khác chủ→404 (d) không auth→401 |
+| TC-P3-05-35 … TC-P3-05-38 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-39 | P | scan-pii-leak.sh + TestNoPayloadLeak ok; quét lại toàn bảng: PII chỉ ở chat_messages/users/enrollments/hộp thư mời (được phép) |
+| TC-P3-05-40 … TC-P3-05-42 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-43 | P | chủ phiên 204, SV khác 404 |
+| TC-P3-05-44 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-45 | P | limit=2→200 2 mục, cursor=True; limit 0/101→422/422 |
+| TC-P3-05-46 | P | delete lặp→404, restore→200, đọc lại→200 |
+| TC-P3-05-47 | P | danh sách TA/TCH/ADM [403, 403, 403], tin [403, 403, 403] |
+| TC-P3-05-48 | P | SV A trên phiên SV B → [404, 404, 404, 404, 404] |
+| TC-P3-05-49 | P | SV ngoài lớp: list→403, from-draft→422 |
+| TC-P3-05-50 … TC-P3-05-51 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-05-52 | P | UI 1440: /chat «Chat riêng» tải, 0 tràn, 0 5xx |
+| TC-P3-05-53 | P | UI 375: /chat «Chat riêng» tải, scrollWidth-innerWidth = 0, 0 lỗi 5xx (chạy lại sau xoá ep:rl:auth*) |
+| TC-P3-05-54 … TC-P3-05-57 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-07-07 … TC-P3-07-05 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-06-01 | P | 6 trang, 16 thread duy nhất |
+| TC-P3-06-02 | P | các bộ lọc → [200, 200, 200, 200, 200] |
+| TC-P3-06-03 | P | SV 16 / GV 16 |
+| TC-P3-06-04 | P | allowed=True, số thread không đổi |
+| TC-P3-06-05 | P | [{'type': 'EMAIL', 'count': 1}, {'type': 'MSSV', 'count': 1}, {'type': 'PHONE', 'count': 1}] |
+| TC-P3-06-06 … TC-P3-06-09 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-06-10 | P | pii_events: không cột văn bản (xem TC-P3-01-33) |
+| TC-P3-06-11 … TC-P3-06-14 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-06-15 | P | 422 PII_DETECTED |
+| TC-P3-06-16 | P | PII ở tiêu đề→422, ở bình luận→422 |
+| TC-P3-06-17 | P | 422 PII_DETECTED |
+| TC-P3-06-18 | P | không dấu → 422 PII_DETECTED |
+| TC-P3-06-19 | P | ai_state=ANSWERED/; số bài AI=1 |
+| TC-P3-06-20 | P | 1 bài AI mỗi thread (UNIQUE) — giao lại outbox không thực hiện (không sửa outbox) |
+| TC-P3-06-21 | P | thread ngoài ngữ cảnh → SKIPPED/LOW_SCORE |
+| TC-P3-06-22 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-06-23 | P | SV có confidence=False; GV có=True |
+| TC-P3-06-24 | P | verify 200, lặp lại 200 |
+| TC-P3-06-25 | P | correct → 200 |
+| TC-P3-06-26 | P | reject → 200; bài AI còn thấy với SV=False |
+| TC-P3-06-27 | P | verify 2 lần → đúng 1 THREAD_VERIFIED (dedupe decided:…:VERIFIED:2) |
+| TC-P3-06-28 | P | correct sai version → 409 |
+| TC-P3-06-29 | P | có THREAD_ANSWERED, THREAD_VERIFIED, THREAD_REPLY cho tác giả; không báo người hành động |
+| TC-P3-06-30 | P | similar → 200 2 mục |
+| TC-P3-06-31 | P | SV verify → 403; TA verify → 200 |
+| TC-P3-06-32 | P | SV ngoài lớp list→403, chi tiết→403 |
+| TC-P3-06-33 | P | {'full_name': 'Vũ Hoàng Giang', 'role': 'STUDENT', 'is_me': False} |
+| TC-P3-06-34 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-06-35 | P | 10 yêu cầu song song cùng key → 1 thread, mã [201] |
+| TC-P3-06-36 | P | UI 1440: /threads «Hỏi đáp công khai» tải (SV & GV), 0 tràn, 0 5xx |
+| TC-P3-06-37 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-06-38 | P | UI 375: /threads tải (SV & GV), 0 tràn ngang |
+| TC-P3-06-39 | P | go test ok (1 test/ca con, ~3s) |
+| TC-P3-06-40 … TC-P3-06-43 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-06-44 | P | bỏ sót []; personal_question=True reasons=[{'type': 'PERSONAL_QUESTION', 'count': 1}] |
+| TC-P3-06-45 | P | 5 mẫu âm, chặn nhầm: [] |
+| TC-P3-06-46 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-06-47 | P | như TC-P3-05-39 (thread/forum_posts/pii_events/outbox/audit_log sạch) |
+| TC-P3-06-48 | P | ai_state=SKIPPED/LOW_SCORE; bài AI chứa canary=0 |
+| TC-P3-06-49 | P | duyệt con trỏ 6 trang không trùng |
+| TC-P3-07-01 | P | go test ok (3 test/ca con, ~3s) |
+| TC-P3-07-02 … TC-P3-07-11 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-07-12 | P | eval_pii.py --validate: 200 mẫu, strata đúng |
+| TC-P3-07-13 | P | số mẫu theo strata khớp EXPECTED_COUNTS (validate) |
+| TC-P3-07-14 … TC-P3-07-15 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-07-16 | P | E1 trên ep-r: recall 0,960 / false_block 0,000 (4 FN / 0 FP) đạt ngưỡng; ghi `e1out/e1.json` |
+| TC-P3-07-17 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-07-18 | P | mã thoát 0 với ngưỡng 0,95 / 0,05 |
+| TC-P3-07-19 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-07-20 | P | API không tới → mã thoát 2 |
+| TC-P3-07-21 | P | token sai vai/hết hạn → mã thoát 2, từ chối |
+| TC-P3-07-22 … TC-P3-07-27 (6 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-08-01 … TC-P3-08-06 (6 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-08-07 | P | me/today SV có continue: 3 mục |
+| TC-P3-08-08 | P | SV chưa vào lớp: continue=[] |
+| TC-P3-08-09 | P | continue của sv07 ⊂ phiên của sv07: 3/3 |
+| TC-P3-08-10 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-08-11 | P | /courses/{id}/today: GV & TA có AI_CONFIRM (/me/today gom bị cắt 12 mục, bị GRADE_SCHEME_UNCONFIRMED lấn — không phải lỗi) |
+| TC-P3-08-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-08-13 | P | SV/ADMIN không có AI_CONFIRM |
+| TC-P3-08-14 … TC-P3-08-21 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-08-22 | P | `go test -tags testroutes ./internal/contract -run TestChatThreadsContract` ok (lệnh gốc thiếu `-tags testroutes` nên lần đầu 404 `_test/llm/fake`) |
+| TC-P3-08-23 … TC-P3-08-27 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P3-08-28 | P | fetch( ngoài shared/: 0; OFFSET trong store/queries: 1 dòng chỉ là chú thích «không OFFSET» |
+| TC-P3-08-29 | P | ui-antipatterns.sh rc=0 |
+| TC-P8-01-01 | P | presign hợp lệ → 200 |
+| TC-P8-01-02 | P | 422 FILE_TYPE_NOT_ALLOWED |
+| TC-P8-01-03 | P | size 52428801/0/-1 → [422, 422, 422] |
+| TC-P8-01-04 | P | sha ngắn/có G, tên 256 ký tự, ../ → [422, 422, 422, 422] |
+| TC-P8-01-05 … TC-P8-01-06 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-01-07 | P | PUT sai kích thước → 403, đúng → 200 (mốc hết hạn 10 phút: không chờ) |
+| TC-P8-01-08 | P | complete → 202 |
+| TC-P8-01-09 | P | 3 lần cùng key → [202, 202, 202], thân giống, số tài liệu=1 |
+| TC-P8-01-10 … TC-P8-01-14 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-01-15 | P | READY/1 sau 69s |
+| TC-P8-01-16 … TC-P8-01-20 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-01-21 | P | vector_dims=1536 |
+| TC-P8-01-22 | P | chunks/emb/min_len=1/1/119 |
+| TC-P8-01-23 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-01-24 | P | PATCH ẩn → 200; audience ALL→STAFF |
+| TC-P8-01-25 … TC-P8-01-44 (20 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-01-45 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
+| TC-P8-01-46 … TC-P8-01-57 (12 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-01-58 | P | {'sv.gioi': [403, 403, 403, 403], 'ta': [422, 422, 409, 202], 'teacher': [422, 422, 409, 202], 'admin': [403, 403, 403, 403]} |
+| TC-P8-01-59 | P | reindex cả lớp: TA 403, TEACHER 202 |
+| TC-P8-01-60 | P | staff lớp khác/SV ngoài → [403, 403, 403]; xem job người khác → 404 |
+| TC-P8-01-61 … TC-P8-01-62 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-01 | P | UI: GV /documents «Tài liệu» tải ở 1440 và 375, 0 tràn |
+| TC-P8-02-02 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-03 | P | limit=1 → 1 mục; limit 0/101 → 422/422 |
+| TC-P8-02-04 … TC-P8-02-11 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-12 | P | PATCH lần 1 → 200; version cũ → 409 VERSION_CONFLICT |
+| TC-P8-02-13 | P | thư viện SV: hiện 1 → ẩn 0 (ngay yêu cầu kế tiếp) |
+| TC-P8-02-14 | P | document.patch,document.patch,document.patch |
+| TC-P8-02-15 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-16 | P | đọc chunks 200, sửa 200, DB đã đổi=True |
+| TC-P8-02-17 | P | text rỗng/4001 → 422/422 |
+| TC-P8-02-18 | P | {'total': 1, 'by_type': {'LECTURE': 1}, 'by_status': {'READY': 1}, 'chunks': 1, 'embedded_chunks': 1 |
+| TC-P8-02-19 … TC-P8-02-20 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-21 | P | TA xoá tài liệu → 403 |
+| TC-P8-02-22 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-23 | P | library q → [200, 200, 200] |
+| TC-P8-02-24 … TC-P8-02-25 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-26 | P | limit=1 ok, 101 → 422 |
+| TC-P8-02-27 | P | chi tiết → 200, download → 200; keys=['id', 'title', 'type', 'file_kind', 'category', 'week_no', 'updated_at', 'snippet'] |
+| TC-P8-02-28 … TC-P8-02-36 (9 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-37 | P | UI 375: /library «Thư viện» tải, 0 tràn ngang (lần đầu 5xx thoáng qua do tải, lần chạy lại ổn) |
+| TC-P8-02-38 … TC-P8-02-44 (7 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-45 | P | {'sv.gioi': [403, 403, 403, 403], 'ta': [200, 200, 200, 200], 'teacher': [200, 200, 200, 200], 'admin': [403, 403, 403, 403]} |
+| TC-P8-02-46 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-02-47 | P | {'ta': 403, 'teacher': 403, 'admin': 403, 'sv.gioi': 200} |
+| TC-P8-02-48 | P | SV ngoài lớp: library 403, download 403 |
+| TC-P8-02-49 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-01 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
+| TC-P8-03-02 … TC-P8-03-03 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-04 | P | 200 0 mục |
+| TC-P8-03-05 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-06 | P | thiếu to/khoảng >: [422, 422, 422] |
+| TC-P8-03-07 | P | limit=101 → 422; limit=1 → 200 0 mục |
+| TC-P8-03-08 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-09 | P | tạo → 201 |
+| TC-P8-03-10 | P | GV lớp khác tạo ở lớp này → 403 |
+| TC-P8-03-11 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-12 | P | ETag=W/"4PgGAwvHxDQ8RGzv" → If-None-Match → 304 |
+| TC-P8-03-13 | P | sau sửa sự kiện, ETag cũ → 200 |
+| TC-P8-03-14 … TC-P8-03-17 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-18 | P | tạo token 201; url có token=True |
+| TC-P8-03-19 | P | token cũ sau xoay → 404; token mới → 200 |
+| TC-P8-03-20 | P | thu hồi → 204; token sau thu hồi → 404 |
+| TC-P8-03-21 | P | ics_token DB: 1/1 |
+| TC-P8-03-22 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-23 | P | 200 VEVENT=50 ctype=text/calendar; charset=utf-8 |
+| TC-P8-03-24 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-25 | P | dòng dài nhất 75 byte (≤75) |
+| TC-P8-03-26 | P | DESCRIPTION: 0 |
+| TC-P8-03-27 | P | ETag=W/"2BfbuFxVMOB0cmQU", cache=private, max-age=300, If-None-Match→304 |
+| TC-P8-03-28 | K | (b) cần người thật: dán URL feed vào Google Calendar ("Bạn tự kiểm"); phần HTTP/ICS đã chạy (TC-18…29) |
+| TC-P8-03-29 | P | 62 yêu cầu liên tiếp → 429 xuất hiện ở lần 54 |
+| TC-P8-03-30 … TC-P8-03-48 (19 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-49 | P | UI 375: /calendar (SV & GV) tải, 0 tràn ngang |
+| TC-P8-03-50 … TC-P8-03-51 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-52 | P | tiêu đề rỗng/kết thúc<bắt đầu/type sai → [422, 422, 422] |
+| TC-P8-03-53 | P | PUT 200; version cũ 409 |
+| TC-P8-03-54 | P | token rỗng/sai/không tồn tại → [404, 404, 404] |
+| TC-P8-03-55 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P8-03-56 | P | {'sv08': 200, 'ta': 200, 'teacher': 200, 'admin': 403, 'sv.moi': 403, 'r5t': 403} |
+| TC-P8-03-57 | P | SV tạo → 403, ADMIN → 403 |
+| TC-P8-03-58 | P | ?user_id bị bỏ qua: token vẫn của chính mình (201) |
+| TC-P8-03-59 … TC-id (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+
+## Trượt: bước tái hiện
+### DEF-R6-01 — Vai DB của ứng dụng là siêu quyền (TC-P3-01-49): `rolsuper=t` ở ep-r (cùng BUG-1 gốc của sprint 6; trigger append-only vẫn chặn 42501). Chi tiết `defects-6.md`.
+### DEF-R6-02 — Bộ nhớ đệm roster PII không vô hiệu khi SV vào lớp (TC-P3-02-21): duyệt / vào bằng mã không phát `course.member_changed`, tên SV mới không bị che tới 1 giờ. Chi tiết `defects-6.md`.
+
+## Ca K / T / N và lý do
+- T: TC-P3-03-31 (usage mở cho TEACHER) và TC-P3-04-45 (khủng hoảng hai tầng, câu mẫu đổi — US-P4-07 2026-10-14; kiểm lại hành vi mới ở sprint 7: 20/20 dương, 17/17 âm).
+- K(b): TC-P8-03-28 (Google Calendar).
+- N (chưa chạy mẫu): phần còn lại — chủ yếu ca Playwright-CLI/375 px/UI, k6 (TC-P3-05-02, 08-14/15, P8-01-47), kill worker/docling (P8-01-26/44/51), khoá giờ thi (P3-05-22…27, 06-40…43: tài khoản sv.gioi đang trong lượt thi của nhóm khác), goose down/up (không có `goose` trên máy), chờ tick nhắc lịch (P8-03-34…43: `reminder-tick` chưa gọi), đồng hồ 10 phút của URL presign, đo tải 1.000 SV.
+
+## Độ phủ P/F theo US (lượt cuối)
+P3-01 75% · P3-02 57% · P3-03 44% · P3-04 49% · P3-05 41% · P3-06 67% · P3-07 28% · P3-08 28% · P8-01 24% · P8-02 33% · P8-03 40%. US dưới 40%: P3-07, P3-08, P8-01, P8-02 (chưa chạy tiếp được do hết ngân sách yêu cầu).

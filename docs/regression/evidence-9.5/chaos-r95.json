@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "commit": "be0c0d96",
+    "timestamp": "2026-11-15T13:17:59.169Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "compose_project": "ep-r95",
+      "note": "tải: chấm 150 bài (3 lớp × BT4) + chat; provider giả trễ 2 s mỗi lượt chấm (K6_GRADE_LAT=2000-2000)"
+    }
+  },
+  "scenarios": {
+    "worker_kill9": {
+      "at": "2026-11-15T13:18:28.586Z",
+      "queued": 150,
+      "workers_before": 3,
+      "in": 150,
+      "done": 150,
+      "failed_dead_letter": 0,
+      "orphan": 0,
+      "graded_twice": 0,
+      "never_enqueued": 0,
+      "xpending": 0,
+      "dead_stream_new": 0,
+      "waited_seconds": 279,
+      "pass": true
+    },
+    "redis_down_70s": {
+      "at": "2026-11-15T13:23:31.247Z",
+      "queued": 150,
+      "statuses_during_outage": [
+        200
+      ],
+      "status_5xx_raw_during": 0,
+      "in": 150,
+      "done": 150,
+      "failed_dead_letter": 0,
+      "orphan": 0,
+      "graded_twice": 0,
+      "never_enqueued": 0,
+      "xpending": 0,
+      "dead_stream_new": 0,
+      "waited_seconds": 271,
+      "pass": true
+    }
+  },
+  "demo_stack": {
+    "before": "n/a (QC2: stack riêng ep-r95-*)",
+    "after": "n/a (QC2: stack riêng ep-r95-*)",
+    "note": "trạng thái các container của project edupilot trước / sau chaos (không bị đụng)"
+  }
+}

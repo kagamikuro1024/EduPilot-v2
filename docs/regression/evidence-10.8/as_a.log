@@ -1,0 +1,43 @@
+PASS TC-AS01-01a lớp chưa bật: attendance thiếu hoặc self_checkin=false {'self_checkin': False, 'rotate_seconds': 10, 'late_after_min': 15, 'require': 'WEB', 'geo_check': False}
+PASS TC-AS01-02a Staff GET có self_checkin, require, geo_check, rotate_seconds, late_after_min {'self_checkin': True, 'rotate_seconds': 5, 'late_after_min': 15, 'require': 'WEB', 'geo_check': False}
+PASS TC-AS01-02b PUT chính sách 200, version+1 200 v2->3
+
+PASS TC-AS01-03a bật geofence+CIDR 200 200
+PASS TC-AS01-03b audit_log: geofence chỉ «bật + bán kính», không toạ độ {"version": 4, "attendance": {"require": "WEB", "geofence": {"enabled": true, "radius_m": 200}, "campus_cidrs": 1, "self_checkin": true, "late_after_min": 15, "
+PASS TC-AS01-04 13 ca sai đều 422 và version không đổi [422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422, 422]
+PASS TC-AS01-05 trường vắng = mặc định (late 15, require WEB) {'self_checkin': True, 'rotate_seconds': 10, 'late_after_min': 15, 'require': 'WEB', 'geo_check': False}
+PASS TC-AS01-06 biên hợp lệ đều 200 [200, 200, 200, 200, 200, 200, 200]
+PASS TC-AS01-07 version cũ 409 409
+PASS TC-AS01-08 hai PUT song song: một 200, một 409, version +1 [200, 409] v13->14
+PASS TC-AS01-11 TA/SV/ADMIN/sv.moi đều 403; sv.moi reason=course {'r108ta': 403, 'sv.gioi': 403, 'admin': 403, 'sv.moi': 403}{"code": "FORBIDDEN", "message": "Bạn không có quyền thực hiện thao tác này.", "trace_id": "5cc5f4cf1b40d0e46f7542e0c021
+PASS TC-AS01-12a SV chỉ thấy self_checkin, require, geo_check {'self_checkin': True, 'require': 'WEB', 'geo_check': True}
+PASS TC-AS01-12b SV: không toạ độ / CIDR trong toàn phản hồi 
+PASS TC-AS01-12c TA thấy đủ 
+PASS TC-AS01-15 thân không có attendance: không xoá chính sách (Q-S108-11) 200 {'self_checkin': True, 'rotate_seconds': 5, 'late_after_min': 10, 'require': 'WEB', 'geo_check': False}
+PASS TC-AS02-01 mở cửa sổ 201 round 1 rotate 5 {'closes_at': '2026-11-15T12:42:17.817668Z', 'id': '01a1df31-afa0-7a0b-a73e-07e8e367632d', 'rotate_seconds': 5, 'round': 1}
+PASS TC-AS02-01b closes_at ≈ now+10 phút 600s
+PASS TC-AS02-02 cùng Idempotency-Key: cùng id, 1 hàng 201 n=1
+PASS TC-AS02-06 mở lại 409 WINDOW_ALREADY_OPEN {window_id} {"code": "WINDOW_ALREADY_OPEN", "message": "\u0110ang c\u00f3 c\u1eeda s\u1ed5 m\u1edf.", "trace_id": "68995d0a59e506622f149a7d499d5aba", "details": {"window_id": "01a1df31-afa0-7a0b-a73e-07e8e367632d
+PASS TC-AS02-10 display: 9 trường, qr_url đúng dạng, short_code 6 ký tự Crockford, cùng bước cùng mã {'short_code': 'REM K1Y', 'step_expires_at': '2026-11-15T12:32:20Z', 'server_time': '2026-11-15T12:32:18.441910871Z', 'rotate_seconds': 5, 'round': 1, 'checked
+PASS TC-AS02-11 qua bước: qr_url và short_code đổi 
+PASS TC-AS02-13 list cửa sổ: ≤3, không token/short_code {"items": [{"id": "01a1df31-afa0-7a0b-a73e-07e8e367632d", "round": 1, "opened_at": "2026-11-15T12:32:17.817668Z", "closes_at": "2026-11-15T12:42:17.817668Z", "closed_at": null, "headcount": null, "che
+PASS TC-AS02-04 minutes 0/61/-1/'x' → 422 [422, 422, 422, 422]
+PASS TC-AS02-04b không tạo cửa sổ 0
+PASS TC-AS02-07 6 vòng đua: mỗi vòng một 201 + một 409, ≤1 cửa sổ mở [([201, 409], '1'), ([201, 409], '1'), ([201, 409], '1')]
+PASS TC-AS02-05a minutes=1 → 201 
+PASS TC-AS02-03 vòng 2 mặc định ≈ 3 phút round 2 180s
+PASS TC-AS02-05b vòng 3 minutes=60 
+PASS TC-AS02-08 vòng 4 → 409 ROUND_LIMIT {"code": "ROUND_LIMIT", "message": "\u0110\u00e3 m\u1edf \u0111\u1ee7 s\u1ed1 v\u00f2ng \u0111i\u1ec3m danh.", "trace_id
+PASS TC-AS02-13b 3 cửa sổ 
+PASS TC-AS02-15a PATCH headcount 10 → 200 {"id": "01a1df31-edd9-7bce-9582-0e29d1e81945", "round": 1, "opened_at": "2026-11-15T12:32:33.75155Z", "closes_at": "2026-11-15T12:42:33.75155Z", "closed_at": nu
+PASS TC-AS02-16 headcount -1/2001/'a' → 422 [422, 422, 422]
+PASS TC-AS02-17 PATCH khi đã đóng → 200 
+PASS TC-AS02-21 display cửa sổ đã đóng → 409 WINDOW_CLOSED {"code": "WINDOW_CLOSED", "message": "\u0110\u00e3 \u0111\u00f3ng \u0111i\u1ec3m danh.", "trace_id":
+PASS TC-AS02-20a wid không tồn tại → 404 404
+PASS TC-AS02-20b UUID hỏng → 404 (quy ước repo: GET /courses/xyz cũng 404) 404
+PASS TC-AS02-24a STUDENT/ADMIN/sv.moi: mọi route Staff 403 {'sv.gioi': (403, 403, 403), 'admin': (403, 403, 403), 'sv.moi': (403, 403, 403)}
+PASS TC-AS02-24b sv.moi reason=course {"code": "FORBIDDEN", "message": "B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n th\u1ef1c hi\u1ec7n thao t\u00e1c n\u00e0y.", "trace_id": "bdb1546a
+PASS TC-AS02-24c TA display 200 
+PASS TC-AS02-24d không JWT 401 401
+PASS TC-AS02-22 display: ≥1 lần 429 trong ≤ 33 lần/phút (cap 30/phút) 429 đầu tiên ở lần 26
+PASS TC-AS02-25 mỗi buổi một cửa sổ mở (hai buổi mở cùng lúc) 

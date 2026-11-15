@@ -1,0 +1,21 @@
+PASS G01-01 teacher: 4 cờ, mặc định tắt, can_edit đúng {"GRADING_GUIDANCE": [false, true], "THREAD_SUGGEST": [false, true], "QUESTION_HINTS": [false, true], "REGRESSION_CAPTURE": [false, false]}
+PASS G01-01 admin: can_edit cả 4 200
+PASS G01-05/06 TA GET cờ → 403 403
+PASS G01-05/06 TA PUT cờ → 403 403
+PASS G01-05/06 SV GET cờ → 403 403
+PASS G01-05/06 SV PUT cờ → 403 403
+PASS G01-05 không token → 401 401
+INFO sv.nguyco (SV lớp 1) 403
+FAIL G01-05 lớp lạ → 404 403
+PASS G01-02 teacher bật GRADING_GUIDANCE → 200, version+1 200 {"feature": "GRADING_GUIDANCE", "enabled": true, "version": 2, "can_edit": true}
+INFO audit_log mới nhất: [['guidance_flag.set', '{"enabled": false}', '{"enabled": true}'], ['set', '{"version": 3, "model_ids": ["01a1df2d-a8d7-76a5-9', '{"models": ["QC stub g/stub-chat"], "params": {},']]
+PASS G01-16 version cũ → 409 409
+PASS G01-16 thiếu enabled → 422 422
+PASS G01-16 enabled sai kiểu → 422 422
+PASS G01-16 cờ lạ → 4xx 422
+PASS G01-04 teacher PUT REGRESSION_CAPTURE → 403 403
+PASS G01-04 admin PUT REGRESSION_CAPTURE → 200 200
+PASS G03-25 overview: enabled, eligible=false khi 0 bài duyệt {"eligible": false, "results": 0, "edits": 0}
+kết quả hiện hành: 22 {'DRAFT'}
+đã duyệt: 8 [('01a1df31-54d9-78f5-b60d-6a29e76ba7ee', ['c2']), ('01a1df31-54df-7af7-987e-3abba60c619b', ['c2', 'c3']), ('01a1df31-54e0-7de8-adf5-5ec8526552af', []), ('01a1df31-54e2-7a42-a276-a2831a754f69', ['c2']), ('01a1df31-54e7-7a37-aae3-4da98f0096c9', ['c2']), ('01a1df31-54ea-7491-9b88-509329a430c6', ['c2', 'c3']), ('01a1df31-54eb-7317-880c-c8a3c68ed8e5', []), ('01a1df31-54eb-7a1c-baf3-d6fcbdae86f0', [])]
+overview: {"eligible": true, "results": 8, "edits": 7} {"count": 0, "editing": 0, "reviewed": 0, "versions": []} {}

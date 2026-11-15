@@ -1,0 +1,31 @@
+$ go test -tags integration ./internal/assignment -run 'TestAppealCreate|TestAppealCreatesNoTicket|TestAppealIdempotent|TestAppealReasonBounds|TestAppealCriteriaSubset' -v
+=== RUN   TestAppealCreate
+2026/11/15 20:19:57 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 4dfa9cad21356f55eccc8a311224b7fac502d421deef1529b4a64cb19f872f8c
+  Test ProcessID: ac9c68cb-07f6-4027-8940-02bd2e130eca
+2026/11/15 20:19:57 ✅ Container started: 68f6ff853df5
+2026/11/15 20:19:57 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:19:58 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealCreate (17.29s)
+=== RUN   TestAppealCreatesNoTicket
+--- PASS: TestAppealCreatesNoTicket (16.03s)
+=== RUN   TestAppealCriteriaSubset
+--- PASS: TestAppealCriteriaSubset (14.32s)
+=== RUN   TestAppealReasonBounds
+--- PASS: TestAppealReasonBounds (1.36s)
+=== RUN   TestAppealIdempotent
+2026/11/15 20:20:46 ✅ Container started: 5636bc78d64d
+2026/11/15 20:20:46 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:20:46 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestAppealIdempotent (0.86s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	50.610s
+
+rc=0

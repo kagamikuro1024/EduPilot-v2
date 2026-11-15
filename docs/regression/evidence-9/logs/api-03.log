@@ -1,0 +1,49 @@
+   BT QC3A 01a1df36-e290-71ce-86b5-eb8344a0e761
+PASS 03 presign đuôi .exe → 422 FILE_TYPE_NOT_ALLOWED 
+PASS 03 presign 20 MiB + 1 → 422 FILE_TOO_LARGE 
+PASS 03 presign rỗng → 422 FILE_EMPTY 
+PASS 03 đuôi .PDF hoa được nhận 
+PASS 04 .pdf nội dung MZ → 422 FILE_CONTENT_MISMATCH 
+PASS 04 .txt có NUL → 422 
+PASS 04 .docx không phải zip → 422 
+PASS 05 nộp lần 1 → 201, PUT 200 
+PASS 07 gửi lại cùng Idempotency-Key → cùng kết quả 
+PASS 05 đúng 1 phiên bản, source IN_APP, MATCHED, student = B 
+PASS 05 submitted_at do máy chủ (≈ now) 
+PASS 05 sinh viên của bài = B (từ JWT) 
+PASS 10 nộp lại → phiên bản 2, bản 1 còn 
+PASS 17 mine: no-store 
+PASS 17 mine: không khoá nháp / đáp án 
+   mine keys: ['assignment', 'result', 'state', 'submission']
+PASS 16 mine bỏ qua ?student_id (vẫn của B) 
+PASS 16 TA gọi mine → 403 
+PASS 16 TEACHER gọi mine → 403 
+PASS 16 ADMIN gọi mine → 403 
+PASS 16 STUDENT gọi submissions → 403 
+PASS 17 DRAFT có canary → B GET …/assignments/01a1df36-e290-71ce-86b5-eb8344a0e761/mine không lộ 
+PASS 17 DRAFT có canary → B GET …/assignments không lộ 
+PASS 17 DRAFT có canary → B GET …/assignments/01a1df36-e290-71ce-86b5-eb8344a0e761 không lộ 
+PASS 17 DRAFT có canary → B GET …/me/grades không lộ 
+   nộp lại khi DRAFT → 201 {"submission": {"id": "01a1df37-de53-7185-bb64-cd84b69dfdd4", "version": 3, "received_at": "2026-11-15T12:39:02.994454Z", "late_days": 0, "f
+   nộp lại khi REVIEWED → 409 {"code": "SUBMISSION_LOCKED", "message": "Bài của bạn đang được xử lý, chưa nộp lại được.", "trace_id": "c6adc4b6fc42876eb1eb7ddbeb8a71a6"}
+   nộp lại khi PUBLISHED → 409 {"code": "SUBMISSION_LOCKED", "message": "Bài của bạn đang được xử lý, chưa nộp lại được.", "trace_id": "f424fcbd44cf90db79cd453a2386cdaa"}
+PASS 11 DRAFT: nộp lại được (v3) 
+PASS 11 REVIEWED / PUBLISHED → 409 SUBMISSION_LOCKED 
+PASS 11 câu lỗi CHUNG (không nêu duyệt / chấm / điểm / trạng thái) 
+PASS 12 trễ 8 hours 11 minutes → LATE1 
+PASS 12 trễ 40 hours → LATE2 
+PASS 12 trễ 47 hours 59 minutes → LATE2 
+PASS 12 trễ 48 hours 1 minute → CLOSED 
+PASS 12 trễ 1 minute → LATE1 
+PASS 12 allow_late = false sau hạn → 409 SUBMISSION_CLOSED, không bản ghi 
+PASS 13 gia hạn hạn nộp → late_days hiển thị 0 (tính lại) 
+PASS 13 submissions không có cột late_days / is_late 
+PASS 15 bài chưa công bố → 404 ASSIGNMENT_NOT_FOUND 
+PASS 15 kênh IN_APP tắt → 409 CHANNEL_NOT_ALLOWED 
+PASS 15 B gọi route lớp 2 (không thuộc) → 403 
+PASS 15 sinh viên chưa vào lớp → 403 
+PASS 08 presign 10 lượt / phút / người: có 429 sau lượt thứ 10 
+   người khác không bị ảnh hưởng (B): 200
+   today sv.gioi kinds: []
+RESULT: PASS (0 lỗi)
+rc=0

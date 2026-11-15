@@ -1,0 +1,61 @@
+PASS E1 admin GET decision → 200 {provider, gates[3], real_allowed=false} 200 {"provider": {"id": "01a1df27-14df-7147-9812-e8fd54302729", "model": "decision-fake", "status": "fake", "fake": true}, "gates": [{"gate": "CHAT_ROUTING", "enabled": false, "threshold
+INFO provider: {"id": "01a1df27-14df-7147-9812-e8fd54302729", "model": "decision-fake", "status": "fake", "fake": true}
+PASS D02-13 mặc định THREADS ε0,05/800, INJECTION τ0,5/3000, CHAT τ0,95/800, tắt {"CHAT_ROUTING": {"gate": "CHAT_ROUTING", "enabled": false, "threshold": "0.95", "timeout_ms": 800, "version": 1, "courses_enabled": 0, "courses_total": 20}, "INJECTION_FLAG": {"g
+PASS D02-22 teacher GET /admin/llm/decision → 403 403
+PASS D02-22 teacher PUT /admin/llm/decision/gates/THREADS_PRECHECK → 403 403
+PASS D02-22 teacher GET /admin/llm/decision/courses → 403 403
+PASS D02-22 teacher GET /admin/observability/decision → 403 403
+PASS D02-22 teacher GET /courses/{id}/decision-gates → 403 403
+PASS D02-22 teacher PUT /courses/{id}/decision-gates/THREADS_PRECHECK → 403 403
+PASS D02-22 ta GET /admin/llm/decision → 403 403
+PASS D02-22 ta PUT /admin/llm/decision/gates/THREADS_PRECHECK → 403 403
+PASS D02-22 ta GET /admin/llm/decision/courses → 403 403
+PASS D02-22 ta GET /admin/observability/decision → 403 403
+PASS D02-22 ta GET /courses/{id}/decision-gates → 403 403
+PASS D02-22 ta PUT /courses/{id}/decision-gates/THREADS_PRECHECK → 403 403
+PASS D02-22 sv.kha GET /admin/llm/decision → 403 403
+PASS D02-22 sv.kha PUT /admin/llm/decision/gates/THREADS_PRECHECK → 403 403
+PASS D02-22 sv.kha GET /admin/llm/decision/courses → 403 403
+PASS D02-22 sv.kha GET /admin/observability/decision → 403 403
+PASS D02-22 sv.kha GET /courses/{id}/decision-gates → 403 403
+PASS D02-22 sv.kha PUT /courses/{id}/decision-gates/THREADS_PRECHECK → 403 403
+PASS D02-22 không token → 401 401
+PASS D02-11 THREADS_PRECHECK threshold=0.01 → 200 200 {"gate": "THREADS_PRECHECK", "enabled": false, "threshold": "0.01", "timeout_ms": 800, "version": 2, "courses_
+PASS D02-11 THREADS_PRECHECK threshold=0.2 → 200 200 {"gate": "THREADS_PRECHECK", "enabled": false, "threshold": "0.2", "timeout_ms": 800, "version": 3, "courses_e
+PASS D02-11 THREADS_PRECHECK threshold=0.009 → 422 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "4f1c035d2d5f9c7e756f01f51f31b352
+PASS D02-11 THREADS_PRECHECK threshold=0.201 → 422 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "e063d631e5d31cc580b928fad54e153d
+PASS D02-11 CHAT_ROUTING threshold=0.7 → 200 200 {"gate": "CHAT_ROUTING", "enabled": false, "threshold": "0.7", "timeout_ms": 800, "version": 2, "courses_enabl
+PASS D02-11 CHAT_ROUTING threshold=0.99 → 200 200 {"gate": "CHAT_ROUTING", "enabled": false, "threshold": "0.99", "timeout_ms": 800, "version": 3, "courses_enab
+PASS D02-11 CHAT_ROUTING threshold=0.69 → 422 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "36239b83eee1aa027b8f22d79008eecf
+PASS D02-11 CHAT_ROUTING threshold=0.991 → 422 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "e98a875dbb260a6c4002d1e3c5d50d07
+PASS D02-11 INJECTION_FLAG threshold=0.3 → 200 200 {"gate": "INJECTION_FLAG", "enabled": false, "threshold": "0.3", "timeout_ms": 3000, "version": 2, "courses_en
+PASS D02-11 INJECTION_FLAG threshold=0.9 → 200 200 {"gate": "INJECTION_FLAG", "enabled": false, "threshold": "0.9", "timeout_ms": 3000, "version": 3, "courses_en
+PASS D02-11 INJECTION_FLAG threshold=0.29 → 422 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "85668c983ad49f02a86933ee4ae7cb2a
+PASS D02-11 INJECTION_FLAG threshold=0.91 → 422 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "802346a02c37819d638db38d44798f02
+PASS D02-11 THREADS_PRECHECK timeout_ms=200 → 200 200 {"gate": "THREADS_PRECHECK", "enabled": false, "threshold": "0.2", "timeout_ms": 200, "version": 4, "courses_e
+PASS D02-11 THREADS_PRECHECK timeout_ms=5000 → 200 200 {"gate": "THREADS_PRECHECK", "enabled": false, "threshold": "0.2", "timeout_ms": 5000, "version": 5, "courses_
+PASS D02-11 THREADS_PRECHECK timeout_ms=199 → 422 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "0259da5dcb03fca63121538b1500bb16
+PASS D02-11 THREADS_PRECHECK timeout_ms=5001 → 422 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "ac35ebcc6bdc058a1f838f9e43c74e9d
+PASS D02-12 gate lạ → 404 404
+PASS D02-12 thân chuỗi → 4xx không 5xx 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "e6
+PASS D02-12 thân rỗng → 4xx không 5xx 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "fe
+PASS D02-12 thân enabled chuỗi → 4xx không 5xx 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "5f
+PASS D02-17 PUT đổi enabled → 200, version+1 200 {"gate": "CHAT_ROUTING", "enabled": true, "threshold": "0.95", "timeout_ms": 800, "version": 5, "cou
+PASS D02-18 version cũ → 409 VERSION_CONFLICT 409
+PASS D02-17 audit_log(entity='decision_gate') có dòng [['decision_gate', 'UPDATE', 't']]
+PASS D02-24 GET course gates: 3 cổng {enabled, effective, version} 200 {"items": [{"gate": "CHAT_ROUTING", "enabled": false, "effective": false, "version": 0}, {"gate": "INJECTION_FLAG", "enabled": false, "effective": false, "version": 0}, {"gate": "THREADS_PR
+INFO PUT course gate version=0 200 {"gate": "THREADS_PRECHECK", "enabled": true, "effective": false, "version": 1}
+PASS D02-19 PUT lớp → 200 200 {"gate": "THREADS_PRECHECK", "enabled": true, "effective": false, "version": 2}
+PASS D02-19 version cũ → 409 409
+PASS D02-19 lớp lạ → 404 404
+PASS D02-19 UUID rác → 4xx không 5xx 422
+INFO lớp 1 THREADS: {"gate": "THREADS_PRECHECK", "enabled": true, "effective": false, "version": 2}
+PASS D02-24 effective=false khi chưa bật hệ thống dù lớp bật 
+PASS D02-25 cursor duyệt hết, không trùng 6 lớp
+PASS D02-25 limit=500 → kẹp 100 hoặc 422 422
+PASS D06-10 tìm theo mã 
+PASS D07-01 window=24h → 200, 3 cổng 200 {"gates": [{"gate": "CHAT_ROUTING", "state": "off", "courses_enabled": 0, "courses_total": 20, "calls": 0, "fast_pct": 0, "fallback_pct": 0, "fail_closed_pct": 
+PASS D07-14 no-store (24h) no-store
+PASS D07-01 window=7d → 200, 3 cổng 200 {"gates": [{"gate": "CHAT_ROUTING", "state": "off", "courses_enabled": 0, "courses_total": 20, "calls": 0, "fast_pct": 0, "fallback_pct": 0, "fail_closed_pct": 
+PASS D07-14 no-store (7d) no-store
+PASS D07 window lạ → 422 422

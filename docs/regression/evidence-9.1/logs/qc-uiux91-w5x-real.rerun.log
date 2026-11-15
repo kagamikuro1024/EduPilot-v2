@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:94931) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO chat@1440 H=906 :: Chat riêng ⏎ Phiên trước ⏎ Em muốn hỏi một câu rất dài về cách tính điểm quá trình, điể ⏎ Hôm nay, 21:32 ⏎ Tuần này tôi có những buổi học nào? ⏎ Hôm nay, 21:25 ⏎ Hỏi bất cứ điều gì về lớp này ⏎ Phiên chat này chỉ bạn đọc được. ⏎ Tôi nên làm gì với “Giảng viên đã trả lời câu hỏi của bạn”? ⏎ Điểm quá trình của tôi hiện là bao nhiêu? ⏎ Tuần này tôi có những buổi học nào? ⏎ Gửi
+INFO chat@375 H=946 :: Chat riêng ⏎ Phiên trước (2) ⏎ Hỏi bất cứ điều gì về lớp này ⏎ Phiên chat này chỉ bạn đọc được. ⏎ Tôi nên làm gì với “Giảng viên đã trả lời câu hỏi của bạn”? ⏎ Điểm quá trình của tôi hiện là bao nhiêu? ⏎ Tuần này tôi có những buổi học nào? ⏎ Gửi
+  ✓  1 [desktop] › e2e/qc-uiux91-w5x-real.spec.ts:27:3 › X chat (11.7s)
+
+  1 passed (12.0s)

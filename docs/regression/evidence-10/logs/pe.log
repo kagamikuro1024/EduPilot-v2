@@ -1,0 +1,29 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 207 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+[['sv04@edupilot.local', '20224786'], ['sv05@edupilot.local', '20223869'], ['sv06@edupilot.local', '20226862'], ['sv07@edupilot.local', '20226980'], ['sv08@edupilot.local', '20222003'], ['sv09@edupilot.local', '20226004'], ['sv10@edupilot.local', '20227825'], ['sv11@edupilot.local', '20224349']]
+cột Giữa kỳ True
+PASS TC-11-01a presign forms_import (TEACHER) 200 200
+PREVIEW 200 {"columns": [{"col": "A", "header": "Email"}, {"col": "B", "header": "Mã số sinh viên"}, {"col": "C", "header": "Completion time"}, {"col": "D", "header": "Câu 1"}, {"col": "E", "header": "Câu 2"}, {"col": "F", "header": "Câu 3"}, {"col": "G", "header": "Câu 4"}, {"col": "H", "header": "Câu 5"}], "rows": [["sv04@edupilot.local", "20224786", "2026-11-10 10:00:00", "Số thiết bị trong mạng", "Cấp địa
+PASS TC-11-01 preview: cột + 20 dòng đầu, không ghi 200 keys=['columns', 'rows', 'rows_total', 'suggested_mapping']
+PASS TC-11-12 chưa preview → 409 PREVIEW_REQUIRED 409 {"code": "PREVIEW_REQUIRED", "message": "Cần xem trước kết quả trước khi xác nhận.", "trace_id": "5e
+PREVIEW2 200 {"columns": [{"col": "A", "header": "Email"}, {"col": "B", "header": "Mã số sinh viên"}, {"col": "C", "header": "Completion time"}, {"col": "D", "header": "Câu 1"}, {"col": "E", "header": "Câu 2"}, {"col": "F", "header": "Câu 3"}, {"col": "G", "header": "Câu 4"}, {"col": "H", "header": "Câu 5"}], "rows": [["sv04@edupilot.local", "20224786", "2026-11-10 10:00:00", "Số thiết bị trong mạng", "Cấp địa chỉ IP", "Tầng vật lý", "Repeater", "Khả năng một mối đe doạ khai thác điểm yếu gây thiệt hại"], ["sv05@edupilot.local", "20223869", "2026-11-11 10:01:00", "Thời gian để một gói tin đi từ nguồn đến đích", "Cấp địa chỉ IP", "Tầng vật lý", "Repeater", "Khả năng một mối đe doạ khai thác điểm yếu gây thiệt hại"], ["sv06@edupilot.local", "20226862", "2026-11-12 10:02:00", "Thời gian để một gói tin đi từ nguồn đến đích", "Phân giải tên miền", "Tầng vật lý", "Repeater", "Khả năng một mối đe doạ khai t
+PASS TC-11-08 Xem trước kết quả: điểm + đúng/tổng + chưa khớp, chưa ghi 200
+PREVIEW3 200 {'columns': 8, 'rows': 11, 'rows_total': 11, 'suggested_mapping': 5, 'result': 7}
+   rows_total 11
+   suggested_mapping {"header_row": 1, "email_col": "A", "code_col": "", "time_col": "C", "questions": []}
+   result {"matched": 7, "unmatched": 3, "duplicates": 1, "items": [{"student": {"id": "01a1df27-651e-7d21-b754-e08594004f6a", "full_name": "Vũ Minh Long", "student_code": "20224786"}, "correct": 0, "total": 5, "score": "0", "mismatch": 0}, {"student": {"id": "01a1df27-6521-74bd-9190-c9fa66142b2c", "full_name": "Nguyễn Anh Linh", "student_code": "20223869"}, "correct": 1, "total": 5, "score": "2", "mismatch": 0}, {"student": {"id": "01a1df27-6522-7d7f-b39d-decc5475ad57", "full_name": "Đỗ Bảo Hải", "student_code": "20226862"}, "correct": 2, "total": 5, "score": "4", "mismatch": 0}, {"student": {"id": "01a1df27-6524-7041-a0dd-d5d2965e782a", "full_name": "Bùi Thu Việt", "student_code": "20226980"}, "corr
+ITEMS [('20224786', 0, 5, '0', 0), ('20223869', 1, 5, '2', 0), ('20226862', 2, 5, '4', 0), ('20226980', 3, 5, '6', 0), ('20222003', 4, 5, '8', 0), ('20226004', 4, 5, '8', 1), ('20227825', 5, 5, '10', 0)]
+OTHER {'matched': 7, 'unmatched': 3, 'duplicates': 1, 'unmatched_rows': [{'row': 9, 'identifier': '99****99', 'reason': 'NOT_FOUND', 'correct': 5, 'total': 5, 'score': '10'}, {'row': 10, 'identifier': 'kh***@x.vn', 'reason': 'NOT_FOUND', 'correct': 5, 'total': 5, 'score': '10'}, {'row': 11, 'identifier': 'sv***@edupilot.local', 'reason': 'MISMATCH', 'correct': 5, 'total': 5, 'score': '10'}], 'written': 0, 'replayed': False}
+CONFIRM 201 {"matched": 7, "unmatched": 3, "duplicates": 1, "items": [{"student": {"id": "01a1df27-651e-7d21-b754-e08594004f6a", "full_name": "Vũ Minh Long", "student_code": "20224786"}, "correct": 0, "total": 5, "score": "0", "mismatch": 0}, {"student": {"id": "01a1df27-6521-74bd-9190-c9fa66142b2c", "full_name": "Nguyễn Anh Linh", "student_code": "20223869"}, "correct": 1, "total": 5, "score": "2", "mismatch": 0}, {"student": {"id": "01a1df27-6522-7d7f-b39d-decc5475ad57", "full_name": "Đỗ Bảo Hải", "studen
+PASS TC-11-03 confirm ghi grade_entries(source=QUIZ), không đổi published_at 201 QUIZ entries 0→6; published_at 2026-11-15 12:26:01.828624+00→2026-11-15 12:26:01.828624+00
+PASS TC-11-07 nhập lại cùng tệp/cột (khoá mới) → replayed, không ghi thêm 201 replayed=True
+PASS TC-11-11 ta presign forms_import → 403 403
+PASS TC-11-11 ta preview/confirm → 403 403/403
+PASS TC-11-11 sv.kha presign forms_import → 403 403
+PASS TC-11-11 sv.kha preview/confirm → 403 403/403
+PASS TC-11-11 admin presign forms_import → 403 403
+PASS TC-11-11 admin preview/confirm → 403 403/403
+PASS TC-11-09 forms-bad.txt bị từ chối ngay ở presign presign 422
+FAIL TC-11-09 forms-nocol.csv → 422 kèm vị trí 200 {"columns": [{"col": "A", "header": "Họ tên"}, {"col": "B", "header": "Điểm"}], "rows": [["A", "1"]], "rows_total": 1, "suggested_mapping": {"header_row": 1, "e
+NOCOL 200 {"columns": [{"col": "A", "header": "Họ tên"}, {"col": "B", "header": "Điểm"}], "rows": [["A", "1"]], "rows_total": 1, "suggested_mapping": {"header_row": 1, "email_col": "", "code_col": "", "time_col
+PASS TC-11-09 tệp > 5 MB bị từ chối ở presign 422

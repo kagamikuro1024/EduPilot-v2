@@ -1,0 +1,33 @@
+$ go test -tags integration ./internal/grading -run 'TestRetryThreeThenDead|TestBackoffUsesNotBefore|TestPermanentErrorNoRetry|TestDeadLetterVisible|TestRetryEndpointRequeues|TestOneFailureDoesNotBlockBatch' -v
+=== RUN   TestRetryThreeThenDead
+2026/11/15 19:52:49 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f1418581a31da9256328f1bb8490bb259f9f1ab7ffcd4b84f9e9a21600548dee
+  Test ProcessID: afe49e0c-899c-45de-be6a-6acc836922dc
+2026/11/15 19:52:50 ✅ Container started: 68f6ff853df5
+2026/11/15 19:52:50 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:52:51 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:53:16 ✅ Container started: 5636bc78d64d
+2026/11/15 19:53:16 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:53:17 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestRetryThreeThenDead (31.82s)
+=== RUN   TestBackoffUsesNotBefore
+--- PASS: TestBackoffUsesNotBefore (17.24s)
+=== RUN   TestPermanentErrorNoRetry
+--- PASS: TestPermanentErrorNoRetry (17.43s)
+=== RUN   TestDeadLetterVisible
+--- PASS: TestDeadLetterVisible (25.97s)
+=== RUN   TestRetryEndpointRequeues
+--- PASS: TestRetryEndpointRequeues (16.69s)
+=== RUN   TestOneFailureDoesNotBlockBatch
+--- PASS: TestOneFailureDoesNotBlockBatch (12.07s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	122.007s
+
+rc=0

@@ -1,0 +1,62 @@
+stub CLASSIFY 200 15
+stub GRADING 200 20
+=== gd_k 20:17:27
+PASS G03-24 ta reflect → 403 403
+PASS G03-24 sv.kha reflect → 403 403
+PASS G03-24 admin reflect → 403 403
+FAIL G03-24 qua đường lớp 2 → 404 409
+PASS G03-24 không token → 401 401
+PASS G03-24 cờ tắt → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G03-01 chưa đủ bài duyệt → 409 NOT_ENOUGH_DATA, không job 409 {"code": "NOT_ENOUGH_DATA", "message": "Cần thêm bài đã duyệt.", "trace_id": "f5afec0db6a6fdcf807e409a425db7ce", "detail loại=ESSAY
+PASS G03-04 reflect đủ dữ liệu → 202 job_id 202 {'job_id': '01a1df5b-1bf8-71a4-88dd-ed9d37ce1fba'}
+PASS G03-04 job SUCCEEDED, DRAFT sinh ra SUCCEEDED {"drafts": 2, "dropped": []}
+PASS G03-08 đầu vào chỉ {rubric, cases[], existing}; ca có đúng khoá keys=['cases', 'existing', 'rubric'] case_keys=['ai_comment', 'ai_score', 'case_id', 'criterion_id', 'teacher_score'] n=13
+FAIL G03-09 đầu vào reflect không có tên / MSSV / email SV, không submission_id leak=['R', 'R', 'R']
+PASS G03-05a cùng Idempotency-Key → cùng job_id 202 {'job_id': '01a1df5b-1bf8-71a4-88dd-ed9d37ce1fba'}
+INFO G03-05b khoá mới, không bài duyệt thêm: 202 {'job_id': '01a1df5b-1bf8-71a4-88dd-ed9d37ce1fba'}
+PASS G03-05b khoá mới + không dữ liệu mới → không sinh nháp lần hai (job cũ / 4xx / drafts:0) 202 {'job_id': '01a1df5b-1bf8-71a4-88dd-ed9d37ce1fba'}
+PASS G03-06 duyệt thêm → khoá mới → job mới 202 {'job_id': '01a1df5b-302f-75db-b5e4-46ecf02ccd02'}
+PASS G03-08b chạy 2 lần → case_id khác nhau (ngẫu nhiên theo lần) 0 trùng
+PASS G03-20 llm_audit reflect: task GRADING, lane BATCH [['GRADING', 'BATCH', 'ok', '0']]
+PASS G03-07 không tự kích: số job reflect = số lần QC bấm (không job tự sinh) jobs mới=2 (2 lần chủ ý)
+PASS G05-07 scope ALL_UNPUBLISHED: 200/202 bỏ qua hoặc 422; REVIEWED/PUBLISHED không bị chấm lại 202 {"job_id": "01a1df5b-386f-7473-8995-dcb62cc04b69", "queued": 3, "skipped": {"reviewed": 0, "edited":
+PASS G03-23 4 lần/giờ/bài tập: lần 4 → 429 RATE_LIMITED [202, 202, 202, 429, 429]
+=== cfg err: LLM_DECISION_FAKE_MODE=error 20:18:04
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+PASS D03-05 decision lỗi, stub allow → 201; DECIDE error → FALLBACK 201 [['THREADS_PRECHECK', 'FALLBACK', 'error', 'SERVER', 'INTERACTIVE']]
+PASS D03-06 cả hai lỗi → 422 FAIL_CLOSED 422 PII_DETECTED [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]
+PASS D03-06b Structured sai JSON → 422 FAIL_CLOSED 422 PII_DETECTED [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]
+PASS D03-07 Structured chậm 12 s → 422 trong ≈ 6–8 s 422 6926ms [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]
+PASS D05-06 decision lỗi: chat vẫn trả lời (200), ≤ 1 DECIDE 200 ttfb=35ms [['DECIDE', 'error', 'CHAT_ROUTING', 'FALLBACK']] cl=[]
+=== cfg timeout 20:19:20
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+PASS D01-08 decision timeout: DECIDE timeout rồi FALLBACK; stub allow → 201 201 900ms [['THREADS_PRECHECK', 'FALLBACK', 'timeout', 'TIMEOUT', 'INTERACTIVE']]
+tổng 153s
+=== cleanup
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+restore GRADING 200 21
+restore CLASSIFY 200 16

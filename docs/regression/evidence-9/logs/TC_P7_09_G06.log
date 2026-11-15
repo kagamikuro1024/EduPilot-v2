@@ -1,0 +1,22 @@
+$ go test -tags integration ./internal/assignment -run 'TestMinePublishedFields|TestMineDTOAllowlist|TestStudentViewSharedByToolAndMeGrades|TestMeGradesShowsAssignmentComponent' -v
+=== RUN   TestMinePublishedFields
+2026/11/15 20:12:28 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 72a2d14fa7a07b862124a7c6311a4ea8503c6d13a96f8f26abdc25520101d0a2
+  Test ProcessID: 669e2d91-dc09-4758-bc6f-d644ec879c65
+2026/11/15 20:12:28 ✅ Container started: 68f6ff853df5
+2026/11/15 20:12:28 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:12:29 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestMinePublishedFields (55.66s)
+=== RUN   TestMineDTOAllowlist
+--- PASS: TestMineDTOAllowlist (0.01s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	56.576s
+
+rc=0

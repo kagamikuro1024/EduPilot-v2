@@ -1,0 +1,16 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 207 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+[('Mật mã khối', 'Tự luận — Chế độ ECB và CBC'), ('An toàn ứng dụng web', 'Tự luận — SQL injection')]
+essay item True
+PASS TC-08-14 ESSAY bỏ trống → 422 422
+PASS TC-08-09a 4.001 ký tự → 422 TOO_LONG 422 {"code": "TOO_LONG", "message": "Nội dung quá dài.", "trace_id": "87f2a49d44128cb18f4777d359fe03ff"}
+PASS TC-08-01 ESSAY Trả lời: lưu, hiện đáp án mẫu+rubric, không đúng/sai 200 correct=None key={"rubric": "Mô tả ECB (3đ); mô tả CBC và IV (3đ); giải thích lộ mẫu (4đ).", "model_answer": "ECB mã hoá từng khối độc lập nên các khối bản rõ giống nhau cho bản
+FEEDBACK 503 {"code": "SERVICE_UNAVAILABLE", "message": "Dịch vụ tạm thời không khả dụng. Hãy thử lại sau.", "trace_id": "51b301ed2db8d47312bcc43275d617dd"}
+FAIL TC-08-02 feedback 200: nhận xét theo tiêu chí kèm bằng chứng, không số điểm 503 0 tiêu chí; keys=['code', 'message', 'trace_id']
+FAIL TC-08-03 đúng 1 lời gọi LLM cho nhận xét llm_audit +0: [['GRADING', 'BATCH'], ['QUESTION_GEN', 'BATCH']]
+PASS TC-08-04 grade_entries không đổi 
+INJ 503 {"code": "SERVICE_UNAVAILABLE", "message": "Dịch vụ tạm thời không khả dụng. Hãy thử lại sau.", "trace_id": "0ab942c673fcfd493ce2f33acf7fe139"}
+FAIL TC-08-06 bài chèn lệnh: không 10 điểm/khen hết, không lộ prompt, không cờ cho SV 503 injected=None
+PASS TC-08-12 teacher GET lượt của SV → 403 403
+PASS TC-08-12 ta GET lượt của SV → 403 403
+PASS TC-08-12 admin GET lượt của SV → 403 403

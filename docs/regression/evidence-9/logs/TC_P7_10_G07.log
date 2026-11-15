@@ -1,0 +1,86 @@
+$ go test -tags integration ./internal/assignment ./internal/escalation -run 'TestAppealWritesNoEscalationRows|TestAppealNotInInboxOrMeTickets|TestAppealNotCountedInTicketCap|TestAdminStalledIgnoresAppeal|TestAppealNotInKnowledge' -v
+=== RUN   TestAppealWritesNoEscalationRows
+2026/11/15 20:26:09 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 11c24f21c9c640f669839510c96377d5722d6be29af19ef494a90546642afbbb
+  Test ProcessID: 2df2f066-ae87-4e85-bef9-2fb832f5fe74
+2026/11/15 20:26:09 ✅ Container started: 68f6ff853df5
+2026/11/15 20:26:09 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:26:10 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealWritesNoEscalationRows (48.09s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	48.759s
+=== RUN   TestAppealNotInInboxOrMeTickets
+2026/11/15 20:26:10 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 11c24f21c9c640f669839510c96377d5722d6be29af19ef494a90546642afbbb
+  Test ProcessID: 004b1676-24ad-4352-ba13-f8cb378bbc16
+2026/11/15 20:26:10 ✅ Container started: 68f6ff853df5
+2026/11/15 20:26:10 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:26:11 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealNotInInboxOrMeTickets (47.70s)
+=== RUN   TestAppealNotCountedInTicketCap
+--- PASS: TestAppealNotCountedInTicketCap (27.55s)
+=== RUN   TestAdminStalledIgnoresAppeal
+--- PASS: TestAdminStalledIgnoresAppeal (10.14s)
+=== RUN   TestAppealNotInKnowledge
+--- PASS: TestAppealNotInKnowledge (4.25s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/escalation	90.417s
+
+rc=0
+$ go test -tags integration ./internal/assignment ./internal/escalation -run 'TestAppealWritesNoEscalationRows|TestAppealNotInInboxOrMeTickets|TestAppealNotCountedInTicketCap|TestAdminStalledIgnoresAppeal|TestAppealNotInKnowledge' -v
+=== RUN   TestAppealWritesNoEscalationRows
+2026/11/15 20:27:51 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3d93ab28314b934626abad7e43519cb71e4ac0f1acb51825079aa32116ac75af
+  Test ProcessID: f5352623-5667-4565-bdf8-9e18ac427118
+2026/11/15 20:27:51 ✅ Container started: 68f6ff853df5
+2026/11/15 20:27:51 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:27:51 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealWritesNoEscalationRows (6.06s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	6.600s
+=== RUN   TestAppealNotInInboxOrMeTickets
+2026/11/15 20:27:50 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3d93ab28314b934626abad7e43519cb71e4ac0f1acb51825079aa32116ac75af
+  Test ProcessID: 3c1ea2f3-011b-48bd-9b53-1f2eb45c6fc3
+2026/11/15 20:27:51 ✅ Container started: 68f6ff853df5
+2026/11/15 20:27:51 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:27:51 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealNotInInboxOrMeTickets (5.84s)
+=== RUN   TestAppealNotCountedInTicketCap
+--- PASS: TestAppealNotCountedInTicketCap (5.43s)
+=== RUN   TestAdminStalledIgnoresAppeal
+--- PASS: TestAdminStalledIgnoresAppeal (4.87s)
+=== RUN   TestAppealNotInKnowledge
+--- PASS: TestAppealNotInKnowledge (2.84s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/escalation	19.457s
+
+rc=0

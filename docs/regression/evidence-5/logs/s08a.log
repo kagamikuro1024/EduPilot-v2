@@ -1,0 +1,15 @@
+eid 01a1df5b-8f6f-77cd-b7f9-364834fa96d6 đóng lúc 2026-11-15 13:21:47+00:00
+r5s01 save 200 code 202 ok 9.00
+r5s02 save 200 code 202 small 6.33
+r5s03 save 200 code 202 wa 3.00
+r5s04 save 200 code 202 ce 0.00
+r5s05 save 200 code - none 2.00
+r5s06 save 200 code 202 ok 7.00
+r5s07 save 200 code 202 small 4.33
+r5s08 save 200 code 202 wa 3.00
+r5s09 save 200 code 202 p507 3.00
+r5s10 save 200 code 202 p507 0.00
+r5s11 save 200 code 202 p507 2.00
+r5s12 save 200 code 202 p507 1.00
+r5s01 nộp 200; r5s02 nộp 200; r5s03 nộp 200; r5s04 nộp 200; r5s05 nộp 200; r5s06 nộp 200; r5s07 nộp 200; r5s08 nộp 200; r5s09 nộp 200; r5s10 nộp 200; 
+r5s11, r5s12: để hết giờ (đóng ép nộp)

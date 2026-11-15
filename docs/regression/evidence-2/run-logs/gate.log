@@ -1,0 +1,10 @@
+== TC-GATE-01
+    ok   go vet ./... rc = [0]
+    ok   go vet -tags testroutes ./... rc = [0]
+    ok   go vet: không in cảnh báo = [0]
+-- TC-GATE-01 PASS
+== TC-GATE-02
+    ok   golangci-lint run rc = [0]
+    ok   golangci-lint run --build-tags testroutes rc = [0]
+-- TC-GATE-02 PASS
+== TC-GATE-03

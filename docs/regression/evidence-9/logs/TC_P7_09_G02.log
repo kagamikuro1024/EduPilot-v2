@@ -1,0 +1,37 @@
+$ go test -tags integration ./internal/assignment ./internal/grade -run 'TestAssignmentItemReadsPublishedDirect|TestAssignmentItemBatchNoNPlusOne|TestAssignmentItemEqualsStudentView|TestAssignmentItemLateLinkAfterPublish|TestPublishWritesNoGradeEntries|TestAssignmentItemNotEditable|TestAssignmentItemNotPublishable|TestExpectedFinalGradesUnchanged' -v
+testing: warning: no tests to run
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	0.590s [no tests to run]
+=== RUN   TestAssignmentItemReadsPublishedDirect
+2026/11/15 20:09:10 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: d8c9c7b54ba86f726438fda58507f9c2eb5707349d519d07510cc99d30145502
+  Test ProcessID: 33470cf7-efb1-472f-a9c9-0132a6713168
+2026/11/15 20:09:10 ✅ Container started: 68f6ff853df5
+2026/11/15 20:09:10 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:09:10 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAssignmentItemReadsPublishedDirect (4.16s)
+=== RUN   TestPublishWritesNoGradeEntries
+--- PASS: TestPublishWritesNoGradeEntries (7.26s)
+=== RUN   TestAssignmentItemBatchNoNPlusOne
+--- PASS: TestAssignmentItemBatchNoNPlusOne (10.14s)
+=== RUN   TestAssignmentItemEqualsStudentView
+--- PASS: TestAssignmentItemEqualsStudentView (3.37s)
+=== RUN   TestAssignmentItemLateLinkAfterPublish
+--- PASS: TestAssignmentItemLateLinkAfterPublish (3.71s)
+=== RUN   TestAssignmentItemNotEditable
+--- PASS: TestAssignmentItemNotEditable (15.95s)
+=== RUN   TestAssignmentItemNotPublishable
+--- PASS: TestAssignmentItemNotPublishable (14.89s)
+=== RUN   TestExpectedFinalGradesUnchanged
+--- PASS: TestExpectedFinalGradesUnchanged (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	60.285s
+
+rc=0

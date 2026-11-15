@@ -1,0 +1,26 @@
+$ go test -tags integration ./internal/grading ./internal/rag -run 'TestGradingResultsRBAC|TestNoDraftCanaryToStudent|TestNoPublicGradingSearch|TestNoSubmissionTextInLogs' -v
+=== RUN   TestNoSubmissionTextInLogs
+2026/11/15 19:48:29 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e06aecac7dc44a28b5658bc9f63f452adde30a80583dcfd8b38d0b9ceb4eeb1e
+  Test ProcessID: 62a9fb63-6304-405b-aae6-7b309c0a4ae4
+2026/11/15 19:48:30 ✅ Container started: 68f6ff853df5
+2026/11/15 19:48:30 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:48:30 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestNoSubmissionTextInLogs (20.98s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	21.697s
+=== RUN   TestNoPublicGradingSearch
+=== PAUSE TestNoPublicGradingSearch
+=== CONT  TestNoPublicGradingSearch
+--- PASS: TestNoPublicGradingSearch (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/rag	0.606s
+
+rc=0

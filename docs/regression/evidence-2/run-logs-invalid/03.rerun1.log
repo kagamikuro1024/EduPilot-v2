@@ -1,0 +1,7 @@
+== TC-PG03-51
+    FAIL số dòng có OFFSET (ngoài _test.go): thực tế [11] ≠ mong đợi [0]
+-- TC-PG03-51 FAIL
+== TC-PG03-66
+    ok   TTL khoá :lock ≤ 30 = -2 (≤ 30)
+    FAIL TTL khoá :lock ≥ 1: thực tế [-2] phải ≥ 1
+    ok   có ≥ 1 phản hồi 409 hoặc replay (chứng tỏ có khoá chạy-dở) = 1 (≥ 1)

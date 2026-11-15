@@ -1,0 +1,29 @@
+
+Running 1 test using 1 worker
+
+(node:94104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+TOOLBAR ["Đã chọn 3\nDuyệt\nLoại\nGắn nhãn\nBỏ chọn"]
+  ✘  1 [desktop] › e2e/qc2-r10/qc-s10-bank-real.spec.ts:7:1 › bank bulk + drawer (15.4s)
+
+
+  1) [desktop] › e2e/qc2-r10/qc-s10-bank-real.spec.ts:7:1 › bank bulk + drawer ─────────────────────
+
+    TimeoutError: locator.evaluate: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByText(/Tài liệu, trang/).first()
+
+
+      29 |   await page.screenshot({ path: `${OUT}/bank-drawer-1440.png` });
+      30 |   const src = page.getByText(/Tài liệu, trang/).first();
+    > 31 |   console.log("SRC", await src.evaluate((e) => ({ tag: e.tagName, href: (e.closest("a") as HTMLAnchorElement | null)?.href ?? null, parent: e.parentElement?.outerHTML.slice(0, 200) })));
+         |                                ^
+      32 |   await ctx.close();
+      33 | });
+      34 |
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r10/qc-s10-bank-real.spec.ts:31:32
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-bank-real/qc2-r10-qc-s10-bank-real-bank-bulk-drawer-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r10/qc-s10-bank-real.spec.ts:7:1 › bank bulk + drawer ──────────────────────

@@ -1,0 +1,18 @@
+$ go test ./internal/submission/source -run 'TestTeamsAdapterHasNoMockBranch|TestMockGraphNotImported' -v
+=== RUN   TestTeamsAdapterHasNoMockBranch
+--- PASS: TestTeamsAdapterHasNoMockBranch (0.00s)
+=== RUN   TestMockGraphNotImported
+--- PASS: TestMockGraphNotImported (0.72s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission/source	1.042s
+
+rc=0
+$ go test ./internal/submission/source -run 'TestTeamsAdapterHasNoMockBranch|TestMockGraphNotImported' -v
+=== RUN   TestTeamsAdapterHasNoMockBranch
+--- PASS: TestTeamsAdapterHasNoMockBranch (0.00s)
+=== RUN   TestMockGraphNotImported
+--- PASS: TestMockGraphNotImported (0.83s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission/source	1.198s
+
+rc=0

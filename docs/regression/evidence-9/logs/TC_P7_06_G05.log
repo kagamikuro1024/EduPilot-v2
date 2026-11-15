@@ -1,0 +1,51 @@
+$ go test -race ./internal/grading/... -run 'TestCheckTable|TestMergeTable|TestNoFloatInGrading|TestFoldParitySQL|TestQuoteOffsetsUTF16' -v
+=== RUN   TestCheckTable
+=== PAUSE TestCheckTable
+=== RUN   TestMergeTable
+=== PAUSE TestMergeTable
+=== RUN   TestNoFloatInGrading
+=== PAUSE TestNoFloatInGrading
+=== CONT  TestCheckTable
+=== CONT  TestMergeTable
+=== CONT  TestNoFloatInGrading
+=== RUN   TestCheckTable/K01
+=== RUN   TestCheckTable/K02
+=== RUN   TestCheckTable/K03
+=== RUN   TestCheckTable/K04
+=== RUN   TestCheckTable/K05
+=== RUN   TestCheckTable/K06
+=== RUN   TestMergeTable/D01
+=== RUN   TestMergeTable/D02
+=== RUN   TestMergeTable/D03
+=== RUN   TestMergeTable/D04
+--- PASS: TestNoFloatInGrading (0.01s)
+--- PASS: TestMergeTable (0.01s)
+    --- PASS: TestMergeTable/D01 (0.00s)
+    --- PASS: TestMergeTable/D02 (0.00s)
+    --- PASS: TestMergeTable/D03 (0.00s)
+    --- PASS: TestMergeTable/D04 (0.00s)
+=== RUN   TestCheckTable/K07
+=== RUN   TestCheckTable/K08
+=== RUN   TestCheckTable/K09
+=== RUN   TestCheckTable/K10
+=== RUN   TestCheckTable/K11
+=== RUN   TestCheckTable/K12
+=== RUN   TestCheckTable/K13
+--- PASS: TestCheckTable (0.02s)
+    --- PASS: TestCheckTable/K01 (0.00s)
+    --- PASS: TestCheckTable/K02 (0.00s)
+    --- PASS: TestCheckTable/K03 (0.00s)
+    --- PASS: TestCheckTable/K04 (0.00s)
+    --- PASS: TestCheckTable/K05 (0.00s)
+    --- PASS: TestCheckTable/K06 (0.00s)
+    --- PASS: TestCheckTable/K07 (0.00s)
+    --- PASS: TestCheckTable/K08 (0.00s)
+    --- PASS: TestCheckTable/K09 (0.00s)
+    --- PASS: TestCheckTable/K10 (0.00s)
+    --- PASS: TestCheckTable/K11 (0.00s)
+    --- PASS: TestCheckTable/K12 (0.00s)
+    --- PASS: TestCheckTable/K13 (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	2.112s
+
+rc=0

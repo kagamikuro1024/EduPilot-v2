@@ -1,0 +1,2 @@
+# Mẫu so độ giống mã do QC tự viết (US-PE-07 AC7)
+`A-original` gốc; `B-renamed-reformatted` = A đổi tên biến + định dạng + chú thích (kỳ vọng ≥ 0,95); `C-different-algorithm` cùng đề, thuật toán chia để trị (kỳ vọng ≤ 0,35); `Aprime-reordered` = A đổi thứ tự 4 hàm độc lập (kỳ vọng ≥ 0,60); `short.cpp` < 30 token (phải bị bỏ qua). Nộp qua đường thật; QC cũng tự cài winnowing (k=5, w=4, FNV-1a) bằng Python để đối chiếu độ giống, không dùng mã của dev.

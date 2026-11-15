@@ -1,0 +1,30 @@
+
+Running 3 tests using 1 worker
+
+(node:66985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+QCINFO settings@1440 vị trí: tác vụ=946 quyết định=5484 tìm kiếm=5718 đúng thứ tự=true
+QCINFO settings@1440 có «Kiểm duyệt Threads»: true
+QCINFO settings@1440 có «Cờ chèn lệnh khi chấm»: true
+QCINFO settings@1440 có «Định tuyến câu hỏi chat»: true
+QCINFO settings@1440 từ cấm: true
+QCINFO settings@1440 tràn ngang: false
+QCINFO settings@1440 switch sizes: 36x36,36x36,36x36,36x36,36x36,36x36,36x36,36x36,36x36,36x36,36x36
+QCINFO observability@1440 có «Quyết định nhanh»: true; vị trí sau bảng 7 ngày: false
+QCINFO observability@1440 tràn ngang: false
+  ✓  1 [desktop] › e2e/qc-dm-ui-real.spec.ts:23:3 › admin settings/llm + observability @1440 (9.2s)
+QCINFO settings@375 vị trí: tác vụ=946 quyết định=5484 tìm kiếm=5718 đúng thứ tự=true
+QCINFO settings@375 có «Kiểm duyệt Threads»: true
+QCINFO settings@375 có «Cờ chèn lệnh khi chấm»: true
+QCINFO settings@375 có «Định tuyến câu hỏi chat»: true
+QCINFO settings@375 từ cấm: true
+QCINFO settings@375 tràn ngang: false
+QCINFO settings@375 switch sizes: 44x44,44x44,44x44,44x44,44x44,44x44,44x44,44x44,44x44,44x44,44x44
+QCINFO observability@375 có «Quyết định nhanh»: true; vị trí sau bảng 7 ngày: false
+QCINFO observability@375 tràn ngang: false
+  ✓  2 [desktop] › e2e/qc-dm-ui-real.spec.ts:23:3 › admin settings/llm + observability @375 (8.6s)
+QCINFO teacher settings: có «Quyết định nhanh»: false; url=https://localhost:1143/settings/llm
+QCINFO teacher observability: có «Quyết định nhanh»: false; url=https://localhost:1143/observability
+  ✓  3 [desktop] › e2e/qc-dm-ui-real.spec.ts:48:1 › teacher không thấy khối / bảng decision (6.7s)
+
+  3 passed (26.2s)

@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "commit": "be0c0d96",
+    "timestamp": "2026-11-15T12:54:32.046Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "scale": 1,
+      "students": 1000,
+      "courses": 20,
+      "per_course": 50,
+      "vectors": true,
+      "seed_rng": "20261029",
+      "db": "edupilot_t1",
+      "provider": "none",
+      "compose_project": "ep-r"
+    }
+  },
+  "seconds_total": 371,
+  "seconds_by_step": {
+    "users": 0,
+    "courses": 0,
+    "enrollments": 1,
+    "class_sessions": 0,
+    "attendance_records": 1,
+    "participation_events": 0,
+    "study_time_daily": 74,
+    "chat_sessions": 2,
+    "chat_messages": 37,
+    "grade_schemes": 3,
+    "grade_entries": 2,
+    "assignments": 1,
+    "submissions": 6,
+    "documents": 12,
+    "content_chunks": 208
+  },
+  "rows": {
+    "courses": 20,
+    "grade_components": 60,
+    "documents": 100,
+    "class_sessions": 300,
+    "assignments": 80,
+    "enrollments": 1040,
+    "users": 1009,
+    "participation_events": 1856,
+    "grading_results": 3000,
+    "grade_entries": 3000,
+    "chat_sessions": 5000,
+    "submissions": 4000,
+    "content_chunks": 20000,
+    "attendance_records": 15000,
+    "study_time_daily": 525000,
+    "chat_messages": 90000
+  },
+  "db_mb": 404,
+  "postgres_mem": "281.9MiB / 9.69GiB",
+  "note": "Quy mô T1 đầy đủ."
+}

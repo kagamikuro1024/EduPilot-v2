@@ -1,0 +1,16 @@
+PASS TC-PE04-02 đủ mã lỗi (TITLE_LENGTH, INSTRUCTIONS_TOO_LONG, LIMIT_OUT_OF_RANGE 301, DURATION_EXCEEDS_WINDOW, CLOSES_BEFORE_OPENS), biên 4000/300 qua; ep-r chạy EXAM_MIN_DURATION_MINUTES=1 (mặc định 5): duration 0
+PASS TC-PE04-15 ep-r EXAM_MIN_LEAD_SECONDS=5 (mặc định 60): opens_at=now+2s -> <function <lambda> at 0x107e53ce0>; +20s ->  (ngưỡng 59/61 s mặc định phủ bởi TestScheduleValidationsAll)
+PASS TC-PE04-14 422 ['NO_ITEMS', 'OPENS_IN_PAST', 'VALIDATION_FAILED'] (trả toàn bộ lỗi)
+PASS TC-PE04-15 ep-r EXAM_MIN_LEAD_SECONDS=5 (mặc định 60 — cấu hình test khác mặc định): +2s -> 422 ['OPENS_IN_PAST', 'VALIDATION_FAILED']; +30s -> 200
+PASS TC-PE04-13 thông báo EXAM_SCHEDULED 12 (SV ACTIVE=12), audit exam.schedule 1
+PASS TC-PE04-16 TA 403/role; lần 2 200; thông báo 12->12; audit 1->1
+PASS TC-PE04-17 409 ['COURSE_ARCHIVED']
+PASS TC-PE04-19 200 -> DRAFT; audit exam.unschedule 1
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s04b.py", line 35, in <module>
+    eT, _ = mkexam(open_s=12, win=45, dur=1, schedule=True, title='R5 04 tick'); op = dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=12); cl = op + dt.timedelta(seconds=45)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 96, in mkexam
+    s, j, _ = call('POST', base_e, T, b, idem()); assert s == 201, (s, j); eid = j['id']
+                                                         ^^^^^^^^
+AssertionError: (422, {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'a28b2b668b2f01cb940e9e4b8abe1716', 'details': [{'field': 'duration_minutes', 'code': 'DURATION_EXCEEDS_WINDOW', 'message': 'Thời lượng dài hơn khung giờ mở bài.'}]})

@@ -1,0 +1,2 @@
+LỖI: GET /me/courses?limit=100 → 401 {"code":"UNAUTHENTICATED","message":"giả"}
+rc=2

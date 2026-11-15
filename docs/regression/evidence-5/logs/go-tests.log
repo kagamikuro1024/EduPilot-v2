@@ -1,0 +1,2683 @@
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/store ['TestExamSchema']
+=== RUN   TestExamSchema
+=== PAUSE TestExamSchema
+=== CONT  TestExamSchema
+2026/11/15 19:38:41 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 566a02543e04e92e3ac8f223e083359735c5bab542daa45905524180a548ecef
+  Test ProcessID: d08b7b78-37b9-4323-bc00-e635eb65398b
+2026/11/15 19:38:41 ✅ Container started: 68f6ff853df5
+2026/11/15 19:38:41 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:38:41 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestExamSchema (2.08s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/store	2.468s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/store ['TestExamConstraints']
+=== RUN   TestExamConstraints
+=== PAUSE TestExamConstraints
+=== CONT  TestExamConstraints
+2026/11/15 19:38:44 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3f25d2cfbf838d1f2e03ebe7673d71578b8a7f951be362db44f0511f3cbf2f3c
+  Test ProcessID: eb7a36c6-8f70-474a-a092-4cddeaa7afd9
+2026/11/15 19:38:44 ✅ Container started: 68f6ff853df5
+2026/11/15 19:38:44 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:38:44 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestExamConstraints (2.37s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/store	2.564s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/store ['TestExamIndexes']
+=== RUN   TestExamIndexes
+=== PAUSE TestExamIndexes
+=== CONT  TestExamIndexes
+2026/11/15 19:38:47 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: b90effaa925ef551e67c76d5217497cddfd0d00fa4c9a401327f10efc28ec9f8
+  Test ProcessID: 06f6e69f-3b8a-4ab8-97fc-19f6ee0fbad1
+2026/11/15 19:38:47 ✅ Container started: 68f6ff853df5
+2026/11/15 19:38:47 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:38:48 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestExamIndexes (5.27s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/store	5.478s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestExamGuardMatrix', 'TestExamAdminDenied', 'TestExamStudentRouteRoleOnly']
+=== RUN   TestExamGuardMatrix
+=== PAUSE TestExamGuardMatrix
+=== RUN   TestExamAdminDenied
+=== PAUSE TestExamAdminDenied
+=== RUN   TestExamStudentRouteRoleOnly
+=== PAUSE TestExamStudentRouteRoleOnly
+=== CONT  TestExamGuardMatrix
+=== CONT  TestExamStudentRouteRoleOnly
+=== CONT  TestExamAdminDenied
+--- PASS: TestExamStudentRouteRoleOnly (0.01s)
+--- PASS: TestExamAdminDenied (0.03s)
+--- PASS: TestExamGuardMatrix (0.09s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	0.695s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/quiz ['TestQuizGrade', 'TestQuizPartialFormula', 'TestQuizInvalidOption']
+=== RUN   TestQuizGrade
+=== PAUSE TestQuizGrade
+=== RUN   TestQuizPartialFormula
+=== PAUSE TestQuizPartialFormula
+=== RUN   TestQuizInvalidOption
+=== PAUSE TestQuizInvalidOption
+=== CONT  TestQuizGrade
+=== CONT  TestQuizInvalidOption
+=== CONT  TestQuizPartialFormula
+--- PASS: TestQuizInvalidOption (0.00s)
+--- PASS: TestQuizGrade (0.00s)
+--- PASS: TestQuizPartialFormula (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/quiz	0.316s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestScoringDecimal']
+=== RUN   TestScoringDecimal
+=== PAUSE TestScoringDecimal
+=== CONT  TestScoringDecimal
+    score_test.go:82: matched 45/45
+--- PASS: TestScoringDecimal (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	0.415s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestListCursor']
+=== RUN   TestListCursor
+=== PAUSE TestListCursor
+=== CONT  TestListCursor
+2026/11/15 19:39:03 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 9fabd30d5b2b84637cf43a8d450c76005af00cd5d7cb8e9399b93b3c4ac7fef2
+  Test ProcessID: 2483567a-4a20-4218-9132-2506f34e3b5c
+2026/11/15 19:39:04 ✅ Container started: 68f6ff853df5
+2026/11/15 19:39:04 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:39:04 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestListCursor (3.83s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	4.250s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/document ['TestListCursor']
+=== RUN   TestListCursor
+=== PAUSE TestListCursor
+=== CONT  TestListCursor
+2026/11/15 19:39:12 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 15535fe99098f5807578c0f15dfe069361be36a27a61fba7921b119ae5e030cb
+  Test ProcessID: 014afd5f-5096-4484-a806-b2adcdd61f4c
+2026/11/15 19:39:12 ✅ Container started: 68f6ff853df5
+2026/11/15 19:39:12 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:39:12 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:39:16 ✅ Container started: 5636bc78d64d
+2026/11/15 19:39:16 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:39:17 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:39:17 ✅ Container started: b8d9c357e377
+2026/11/15 19:39:17 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:39:17 🔔 Container is ready: b8d9c357e377
+--- PASS: TestListCursor (7.16s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/document	7.872s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/thread ['TestListCursor']
+=== RUN   TestListCursor
+=== PAUSE TestListCursor
+=== CONT  TestListCursor
+2026/11/15 19:39:23 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 48a9e69801e93f58759f32eed382ede3b869ad02cc79d51ff48b1135f66298b2
+  Test ProcessID: 41eff6c6-849d-4f18-ab25-3fcd7038f292
+2026/11/15 19:39:23 ✅ Container started: 68f6ff853df5
+2026/11/15 19:39:23 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:39:23 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:39:29 ✅ Container started: 5636bc78d64d
+2026/11/15 19:39:29 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:39:29 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestListCursor (7.50s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/thread	8.226s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/contract ['TestExamErrorCodes']
+=== RUN   TestExamErrorCodes
+--- PASS: TestExamErrorCodes (0.49s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/contract	1.392s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestClientRequiresToken', 'TestTokenNeverLogged']
+=== RUN   TestClientRequiresToken
+=== PAUSE TestClientRequiresToken
+=== RUN   TestTokenNeverLogged
+=== PAUSE TestTokenNeverLogged
+=== CONT  TestClientRequiresToken
+=== CONT  TestTokenNeverLogged
+--- PASS: TestTokenNeverLogged (0.00s)
+--- PASS: TestClientRequiresToken (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	0.520s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/auth ['TestTokenNeverLogged']
+=== RUN   TestTokenNeverLogged
+2026/11/15 19:39:51 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 7b4c4ded93755088f2371c4f5b271a6a0ac7190ce4d613baad83523a85d4cef4
+  Test ProcessID: 5d980f5a-8a85-447f-a82f-df4903bf1313
+2026/11/15 19:39:51 ✅ Container started: 68f6ff853df5
+2026/11/15 19:39:51 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:39:51 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestTokenNeverLogged (4.62s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/auth	5.370s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestClientCompileRequest', 'TestClientRunRequest', 'TestClientDeletesCachedFile', 'TestClientDeadlineAndSemaphore']
+=== RUN   TestClientCompileRequest
+=== PAUSE TestClientCompileRequest
+=== RUN   TestClientRunRequest
+=== PAUSE TestClientRunRequest
+=== RUN   TestClientDeletesCachedFile
+=== PAUSE TestClientDeletesCachedFile
+=== RUN   TestClientDeadlineAndSemaphore
+=== PAUSE TestClientDeadlineAndSemaphore
+=== CONT  TestClientCompileRequest
+=== CONT  TestClientDeadlineAndSemaphore
+=== CONT  TestClientDeletesCachedFile
+=== CONT  TestClientRunRequest
+--- PASS: TestClientRunRequest (0.00s)
+--- PASS: TestClientCompileRequest (0.01s)
+--- PASS: TestClientDeletesCachedFile (0.02s)
+--- PASS: TestClientDeadlineAndSemaphore (3.01s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	3.312s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestVerdictMapping']
+=== RUN   TestVerdictMapping
+=== PAUSE TestVerdictMapping
+=== CONT  TestVerdictMapping
+--- PASS: TestVerdictMapping (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	0.301s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestCheckerExact', 'TestCheckerTokens', 'TestCheckerFloatEps']
+=== RUN   TestCheckerExact
+=== PAUSE TestCheckerExact
+=== RUN   TestCheckerTokens
+=== PAUSE TestCheckerTokens
+=== RUN   TestCheckerFloatEps
+=== PAUSE TestCheckerFloatEps
+=== CONT  TestCheckerExact
+=== CONT  TestCheckerFloatEps
+=== CONT  TestCheckerTokens
+--- PASS: TestCheckerExact (0.00s)
+--- PASS: TestCheckerFloatEps (0.00s)
+--- PASS: TestCheckerTokens (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	0.278s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestSubmissionResultAssembly', 'TestNoEarlyStop', 'TestZeroTotalWeight', 'TestOnlyApprovedTests']
+=== RUN   TestSubmissionResultAssembly
+=== PAUSE TestSubmissionResultAssembly
+=== RUN   TestNoEarlyStop
+=== PAUSE TestNoEarlyStop
+=== RUN   TestZeroTotalWeight
+=== PAUSE TestZeroTotalWeight
+=== RUN   TestOnlyApprovedTests
+=== PAUSE TestOnlyApprovedTests
+=== CONT  TestSubmissionResultAssembly
+=== CONT  TestZeroTotalWeight
+=== CONT  TestNoEarlyStop
+=== CONT  TestOnlyApprovedTests
+--- PASS: TestOnlyApprovedTests (0.01s)
+--- PASS: TestZeroTotalWeight (0.01s)
+--- PASS: TestNoEarlyStop (0.01s)
+--- PASS: TestSubmissionResultAssembly (0.01s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	0.443s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestJudgeConsumerIdempotent', 'TestJudgeRetryThenDead', 'TestJudgeKillWorkerMidRun', 'TestJudgeRunLaneReserved']
+=== RUN   TestJudgeConsumerIdempotent
+2026/11/15 19:40:08 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e2a8a28e4a0fa562d0a4b3ea79ba20c5f15636884a8da46563dde73caa7f488b
+  Test ProcessID: 738bc0b5-6b43-44e5-9b4a-eaa5c931affa
+2026/11/15 19:40:08 ✅ Container started: 68f6ff853df5
+2026/11/15 19:40:08 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:40:08 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:40:11 ✅ Container started: 5636bc78d64d
+2026/11/15 19:40:11 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:40:11 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestJudgeConsumerIdempotent (3.84s)
+=== RUN   TestJudgeRetryThenDead
+--- PASS: TestJudgeRetryThenDead (2.67s)
+=== RUN   TestJudgeKillWorkerMidRun
+--- PASS: TestJudgeKillWorkerMidRun (18.30s)
+=== RUN   TestJudgeRunLaneReserved
+--- PASS: TestJudgeRunLaneReserved (6.83s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	31.962s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestSupersedeQueued', 'TestRunningNotCancelled']
+=== RUN   TestSupersedeQueued
+2026/11/15 19:40:42 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: d51261e505caf7a6fe7de2af1ae675ed0aa732ffd205b74a3a307ad7a139f125
+  Test ProcessID: c667cc18-e3dc-4008-acad-c9d55f00f537
+2026/11/15 19:40:42 ✅ Container started: 68f6ff853df5
+2026/11/15 19:40:42 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:40:43 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:40:45 ✅ Container started: 5636bc78d64d
+2026/11/15 19:40:45 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:40:45 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSupersedeQueued (3.10s)
+=== RUN   TestRunningNotCancelled
+    queue_integration_test.go:395: 
+        	Error Trace:	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge/queue_integration_test.go:179
+        	            				/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge/queue_integration_test.go:395
+        	Error:      	Condition never satisfied
+        	Test:       	TestRunningNotCancelled
+        	Messages:   	bản nộp 01a1df39-7798-7fb1-b266-7d6e7a036b87 chưa tới DONE (đang )
+    queue_integration_test.go:105: log của consumer c1:
+        {"time":"2026-11-15T19:40:49.123747+07:00","level":"WARN","msg":"bản khác đã sở hữu bản nộp — bỏ kết quả","submission_id":"01a1df39-7798-7fb1-b266-7d6e7a036b87"}
+        {"time":"2026-11-15T19:40:49.325842+07:00","level":"WARN","msg":"bản khác đã sở hữu bản nộp — bỏ kết quả","submission_id":"01a1df39-7817-7030-b5d7-a5bcdfabdeb8"}
+        {"time":"2026-11-15T19:40:49.650463+07:00","level":"WARN","msg":"thuê hết hạn — đưa bản nộp về hàng đợi","count":1}
+        {"time":"2026-11-15T19:40:49.669475+07:00","level":"INFO","msg":"bản nộp bị thay bằng bản mới hơn","submission_id":"01a1df39-7798-7fb1-b266-7d6e7a036b87"}
+        {"time":"2026-11-15T19:40:49.719419+07:00","level":"WARN","msg":"thuê hết hạn — đưa bản nộp về hàng đợi","count":1}
+        {"time":"2026-11-15T19:40:51.018505+07:00","level":"INFO","msg":"đã chấm","submission_id":"01a1df39-7817-7030-b5d7-a5bcdfabdeb8","attempt_id":"01a1df39-778e-738a-8ed1-a7c5ab6109dc","exam_id":"01a1df39-7783-73e6-97eb-dc78524dc280","verdict":"WA"}
+--- FAIL: TestRunningNotCancelled (18.03s)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/judge	21.415s
+FAIL
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestSandboxAttacks']
+iner started: 6d0661480f11
+2026/11/15 19:42:20 ⏳ Waiting for container id 6d0661480f11 image: edupilot-judge:test. Waiting for: HTTP GET request on port 5050 path "/version"
+2026/11/15 19:42:20 🔔 Container is ready: 6d0661480f11
+A1 TLE vòng lặp vô hạn (1.4s; bài khác AC trong 0.2s)
+    attacks_integration_test.go:140: A1 TLE vòng lặp vô hạn (1.4s; bài khác AC trong 0.2s)
+A2 TLE in vô hạn: stdout cắt ở giới hạn (3.4s; bài khác AC trong 0.2s)
+    attacks_integration_test.go:140: A2 TLE in vô hạn: stdout cắt ở giới hạn (3.4s; bài khác AC trong 0.2s)
+A3 OLE in hữu hạn 5 MB (0.7s; bài khác AC trong 0.4s)
+    attacks_integration_test.go:140: A3 OLE in hữu hạn 5 MB (0.7s; bài khác AC trong 0.4s)
+A4 OLE in 1 GB (0.7s; bài khác AC trong 0.2s)
+    attacks_integration_test.go:140: A4 OLE in 1 GB (0.7s; bài khác AC trong 0.2s)
+A5 MLE cấp phát dần tới 512 MiB (1.1s; bài khác AC trong 0.2s)
+    attacks_integration_test.go:140: A5 MLE cấp phát dần tới 512 MiB (1.1s; bài khác AC trong 0.2s)
+A6 MLE cấp phát 2 GB một lần (0.6s; bài khác AC trong 0.3s)
+    attacks_integration_test.go:140: A6 MLE cấp phát 2 GB một lần (0.6s; bài khác AC trong 0.3s)
+A7 RE con trỏ NULL (0.5s; bài khác AC trong 0.2s)
+    attacks_integration_test.go:140: A7 RE con trỏ NULL (0.5s; bài khác AC trong 0.2s)
+A8 TLE fork bomb (bất biến thật: procPeak == 1, kiểm bên dưới; #19) (1.5s; bài khác AC trong 0.2s) · procPeak=1, bộ nhớ 23816 KiB
+    attacks_integration_test.go:140: A8 TLE fork bomb (bất biến thật: procPeak == 1, kiểm bên dưới; #19) (1.5s; bài khác AC trong 0.2s) · procPeak=1, bộ nhớ 23816 KiB
+A9 AC 5 đường tệp hệ thống bị chặn (0.4s; bài khác AC trong 0.1s)
+    attacks_integration_test.go:140: A9 AC 5 đường tệp hệ thống bị chặn (0.4s; bài khác AC trong 0.1s)
+A10 AC connect 1.1.1.1:53 (0.6s; bài khác AC trong 0.3s)
+    attacks_integration_test.go:140: A10 AC connect 1.1.1.1:53 (0.6s; bài khác AC trong 0.3s)
+A10b AC connect tới cổng nội bộ / IP dịch vụ (0.8s; bài khác AC trong 0.5s)
+    attacks_integration_test.go:140: A10b AC connect tới cổng nội bộ / IP dịch vụ (0.8s; bài khác AC trong 0.5s)
+A11 CE #include "/dev/random" (2.5s; bài khác AC trong 0.2s)
+    attacks_integration_test.go:140: A11 CE #include "/dev/random" (2.5s; bài khác AC trong 0.2s)
+A12 CE bom biên dịch constexpr (1.2s; bài khác AC trong 0.3s)
+    attacks_integration_test.go:140: A12 CE bom biên dịch constexpr (1.2s; bài khác AC trong 0.3s)
+A13 WA ghi 1 GB vào /tmp (0.4s; bài khác AC trong 0.1s)
+    attacks_integration_test.go:140: A13 WA ghi 1 GB vào /tmp (0.4s; bài khác AC trong 0.1s)
+A14 AC system() không tạo được tiến trình con (0.4s; bài khác AC trong 0.1s) · procPeak=1, bộ nhớ 516 KiB
+    attacks_integration_test.go:140: A14 AC system() không tạo được tiến trình con (0.4s; bài khác AC trong 0.1s) · procPeak=1, bộ nhớ 516 KiB
+A6 đồng thời x2 [MLE MLE] container sống
+A15 AC CHAN×2 (lượt 2 không thấy dữ liệu lượt 1)
+--- PASS: TestSandboxAttacks (91.39s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	91.733s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestNoSourceInLogs', 'TestCompileLogScrubbed']
+=== RUN   TestCompileLogScrubbed
+=== PAUSE TestCompileLogScrubbed
+=== RUN   TestNoSourceInLogs
+2026/11/15 19:42:41 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 221562f0988cdbccedaebfda90111e38e6c5c49d511c201ef05213e2e3782369
+  Test ProcessID: ea2bff71-4021-4f29-9306-aa3946c2bb54
+2026/11/15 19:42:41 ✅ Container started: 68f6ff853df5
+2026/11/15 19:42:41 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:42:41 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:42:43 ✅ Container started: 5636bc78d64d
+2026/11/15 19:42:43 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:42:43 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestNoSourceInLogs (4.25s)
+=== CONT  TestCompileLogScrubbed
+--- PASS: TestCompileLogScrubbed (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	4.588s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestJudgeProbe']
+=== RUN   TestJudgeProbe
+2026/11/15 19:42:47 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3adb482982ad2c8bf7e5d47b1153f1de055ba0919684d08ac6752c4796514224
+  Test ProcessID: 3607bc1e-f9e7-4c49-87bc-fcba4ee5a812
+2026/11/15 19:42:47 ✅ Container started: 68f6ff853df5
+2026/11/15 19:42:47 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:42:47 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:42:49 ✅ Container started: 5636bc78d64d
+2026/11/15 19:42:49 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:42:50 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestJudgeProbe (2.44s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	2.712s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/cmd/worker ['TestReadyzJudgeInfoOnly']
+=== RUN   TestReadyzJudgeInfoOnly
+=== PAUSE TestReadyzJudgeInfoOnly
+=== CONT  TestReadyzJudgeInfoOnly
+2026/11/15 19:42:55 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: b69fb4740eca3c6d9ee1553cd31b493f16521de40b096b9dd86499901aaa028d
+  Test ProcessID: 5d0c94ab-b7f2-4ac0-b98d-c43b3cd0b518
+2026/11/15 19:42:55 ✅ Container started: 68f6ff853df5
+2026/11/15 19:42:55 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:42:55 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:42:56 ✅ Container started: 5636bc78d64d
+2026/11/15 19:42:56 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:42:56 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestReadyzJudgeInfoOnly (0.53s)
+PASS
+ok  	github.com/edupilot/backend-go/cmd/worker	1.299s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestCreateMCQValid', 'TestCreateMCQInvalid', 'TestStemStoredRaw', 'TestPinnedWarning']
+=== RUN   TestCreateMCQInvalid
+=== PAUSE TestCreateMCQInvalid
+=== RUN   TestCreateMCQValid
+=== PAUSE TestCreateMCQValid
+=== RUN   TestStemStoredRaw
+=== PAUSE TestStemStoredRaw
+=== RUN   TestPinnedWarning
+=== PAUSE TestPinnedWarning
+=== CONT  TestCreateMCQInvalid
+=== CONT  TestStemStoredRaw
+=== CONT  TestPinnedWarning
+--- PASS: TestCreateMCQInvalid (0.00s)
+=== CONT  TestCreateMCQValid
+2026/11/15 19:42:58 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 19e9f57cb57a68d2b042972f727a6c83f3d20c7dc837d269249738aa8567e69e
+  Test ProcessID: ea59c9f8-e28d-45ef-ad3e-13aabbc11e0a
+2026/11/15 19:42:59 ✅ Container started: 68f6ff853df5
+2026/11/15 19:42:59 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:42:59 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestCreateMCQValid (2.56s)
+--- PASS: TestPinnedWarning (2.60s)
+--- PASS: TestStemStoredRaw (2.62s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	3.043s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestCreateTrueFalse']
+=== RUN   TestCreateTrueFalse
+=== PAUSE TestCreateTrueFalse
+=== CONT  TestCreateTrueFalse
+2026/11/15 19:43:03 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 01a896137bdd76829a6a9917556f3eab50148f110f5fc861d9612617fed97f5c
+  Test ProcessID: 9648b0ed-a8ca-4435-a911-04c9d626769c
+2026/11/15 19:43:03 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:03 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:03 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestCreateTrueFalse (2.10s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	2.507s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestCodeProblemDefaults', 'TestCodeProblemValidation', 'TestCodeProblemBumpsTestsVersion']
+=== RUN   TestCodeProblemDefaults
+=== PAUSE TestCodeProblemDefaults
+=== RUN   TestCodeProblemValidation
+=== PAUSE TestCodeProblemValidation
+=== RUN   TestCodeProblemBumpsTestsVersion
+=== PAUSE TestCodeProblemBumpsTestsVersion
+=== CONT  TestCodeProblemDefaults
+=== CONT  TestCodeProblemBumpsTestsVersion
+=== CONT  TestCodeProblemValidation
+2026/11/15 19:43:09 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 0b3950524ddf86f1c132ebbf01707bf9884e9aaee024918ccff192a5861cc9bd
+  Test ProcessID: 82c2b8d0-5271-4606-abd5-44c22f7ca60b
+2026/11/15 19:43:09 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:09 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:09 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestCodeProblemDefaults (2.08s)
+--- PASS: TestCodeProblemValidation (2.12s)
+--- PASS: TestCodeProblemBumpsTestsVersion (2.16s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	2.512s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestTestcaseCRUD', 'TestTestcaseLimits', 'TestTestcaseBlobSpill', 'TestTestcaseBumpsVersion']
+=== RUN   TestTestcaseCRUD
+=== PAUSE TestTestcaseCRUD
+=== RUN   TestTestcaseLimits
+=== PAUSE TestTestcaseLimits
+=== RUN   TestTestcaseBlobSpill
+=== PAUSE TestTestcaseBlobSpill
+=== RUN   TestTestcaseBumpsVersion
+=== PAUSE TestTestcaseBumpsVersion
+=== CONT  TestTestcaseCRUD
+=== CONT  TestTestcaseBlobSpill
+=== CONT  TestTestcaseBumpsVersion
+=== CONT  TestTestcaseLimits
+2026/11/15 19:43:15 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 27ff812c88d7284f9cd5f5708c933e1d7b0d2123402d76e7aaed6cd0de6e6039
+  Test ProcessID: 3faa4935-513d-4226-9cd1-daa13c7c9993
+2026/11/15 19:43:15 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:15 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:15 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestTestcaseBlobSpill (2.18s)
+--- PASS: TestTestcaseCRUD (2.18s)
+--- PASS: TestTestcaseBumpsVersion (2.23s)
+--- PASS: TestTestcaseLimits (4.44s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	4.831s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestTestZipImport', 'TestTestZipSlip', 'TestTestZipBomb', 'TestTestZipAtomic', 'TestTestZipManifest']
+=== RUN   TestTestZipImport
+=== PAUSE TestTestZipImport
+=== RUN   TestTestZipSlip
+=== PAUSE TestTestZipSlip
+=== RUN   TestTestZipBomb
+=== PAUSE TestTestZipBomb
+=== RUN   TestTestZipAtomic
+=== PAUSE TestTestZipAtomic
+=== RUN   TestTestZipManifest
+=== PAUSE TestTestZipManifest
+=== CONT  TestTestZipImport
+=== CONT  TestTestZipAtomic
+=== CONT  TestTestZipManifest
+=== CONT  TestTestZipBomb
+=== CONT  TestTestZipSlip
+2026/11/15 19:43:25 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: b6fb695fcb8c876f19732a21f8fa0d8146d0636c5a9321810752ba8717af23b8
+  Test ProcessID: 56085f23-0e0a-4eee-be6f-351b5e7b87d7
+2026/11/15 19:43:25 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:25 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:26 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestTestZipAtomic (5.31s)
+--- PASS: TestTestZipBomb (5.32s)
+--- PASS: TestTestZipImport (5.36s)
+--- PASS: TestTestZipSlip (5.40s)
+--- PASS: TestTestZipManifest (5.44s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	5.875s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestVerifyReferenceAllPass', 'TestVerifyReferenceMismatch', 'TestVerifyReferenceJudgeDown']
+=== RUN   TestVerifyReferenceAllPass
+=== PAUSE TestVerifyReferenceAllPass
+=== RUN   TestVerifyReferenceMismatch
+=== PAUSE TestVerifyReferenceMismatch
+=== RUN   TestVerifyReferenceJudgeDown
+=== PAUSE TestVerifyReferenceJudgeDown
+=== CONT  TestVerifyReferenceAllPass
+=== CONT  TestVerifyReferenceMismatch
+=== CONT  TestVerifyReferenceJudgeDown
+2026/11/15 19:43:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: b33ce0084671fdd2a58371150ec169007810795e8ddfa21be371daa518752aab
+  Test ProcessID: f206b29f-d787-44eb-bf6a-c44f9818dfd2
+2026/11/15 19:43:34 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:34 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestVerifyReferenceMismatch (2.36s)
+--- PASS: TestVerifyReferenceAllPass (2.38s)
+--- PASS: TestVerifyReferenceJudgeDown (2.39s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	2.774s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestReviewApprove', 'TestReviewCodeNeedsVerifiedReference', 'TestAIDraftNeverAutoApproved', 'TestReviewAudit']
+=== RUN   TestReviewApprove
+=== PAUSE TestReviewApprove
+=== RUN   TestReviewCodeNeedsVerifiedReference
+=== PAUSE TestReviewCodeNeedsVerifiedReference
+=== RUN   TestAIDraftNeverAutoApproved
+=== PAUSE TestAIDraftNeverAutoApproved
+=== RUN   TestReviewAudit
+=== PAUSE TestReviewAudit
+=== CONT  TestReviewApprove
+=== CONT  TestAIDraftNeverAutoApproved
+=== CONT  TestReviewAudit
+=== CONT  TestReviewCodeNeedsVerifiedReference
+2026/11/15 19:43:39 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 32b37a535d23707268b250883397e77b6a2ac02927c8919151ae35dcf0eb0594
+  Test ProcessID: 11ad392a-3c3c-43b0-9995-cf23eb5b0080
+2026/11/15 19:43:39 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:39 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:39 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestReviewAudit (3.39s)
+--- PASS: TestAIDraftNeverAutoApproved (3.41s)
+--- PASS: TestReviewApprove (3.45s)
+--- PASS: TestReviewCodeNeedsVerifiedReference (3.52s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	3.950s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestQuestionInUseLocked', 'TestTestsEditAfterCloseNeedsRegrade', 'TestArchiveKeepsHistory', 'TestTAcannotEditUsedTests']
+=== RUN   TestQuestionInUseLocked
+=== PAUSE TestQuestionInUseLocked
+=== RUN   TestTestsEditAfterCloseNeedsRegrade
+=== PAUSE TestTestsEditAfterCloseNeedsRegrade
+=== RUN   TestTAcannotEditUsedTests
+=== PAUSE TestTAcannotEditUsedTests
+=== RUN   TestArchiveKeepsHistory
+=== PAUSE TestArchiveKeepsHistory
+=== CONT  TestQuestionInUseLocked
+=== CONT  TestTAcannotEditUsedTests
+=== CONT  TestArchiveKeepsHistory
+=== CONT  TestTestsEditAfterCloseNeedsRegrade
+2026/11/15 19:43:45 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 03f8776521f06278e93bc94fcc35421d4a2b43cdfdc6e7e161fdb01d910a7783
+  Test ProcessID: 03826a38-cdb1-4d51-be0e-a8d5bff89dfc
+2026/11/15 19:43:45 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:45 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:46 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestArchiveKeepsHistory (2.54s)
+--- PASS: TestTestsEditAfterCloseNeedsRegrade (2.57s)
+--- PASS: TestTAcannotEditUsedTests (2.57s)
+--- PASS: TestQuestionInUseLocked (2.58s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	3.001s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSuggestMCQ', 'TestSuggestDropsInvalid', 'TestSuggestNotConfigured', 'TestSuggestPromptHasNoStudentData', 'TestSuggestUsesBatchLane']
+=== RUN   TestSuggestMCQ
+=== PAUSE TestSuggestMCQ
+=== RUN   TestSuggestDropsInvalid
+=== PAUSE TestSuggestDropsInvalid
+=== RUN   TestSuggestNotConfigured
+=== PAUSE TestSuggestNotConfigured
+=== RUN   TestSuggestPromptHasNoStudentData
+=== PAUSE TestSuggestPromptHasNoStudentData
+=== RUN   TestSuggestUsesBatchLane
+=== PAUSE TestSuggestUsesBatchLane
+=== CONT  TestSuggestMCQ
+=== CONT  TestSuggestNotConfigured
+=== CONT  TestSuggestDropsInvalid
+=== CONT  TestSuggestPromptHasNoStudentData
+=== CONT  TestSuggestUsesBatchLane
+2026/11/15 19:43:53 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 5030f8e92bbd0576ac55d9d8f57ca9858716d2351d668fcc7de7dcba3fdcb45d
+  Test ProcessID: 591c4a5c-17f8-4e58-a629-136a17686e4c
+2026/11/15 19:43:53 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:53 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:53 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSuggestNotConfigured (2.83s)
+--- PASS: TestSuggestMCQ (2.86s)
+--- PASS: TestSuggestPromptHasNoStudentData (2.87s)
+--- PASS: TestSuggestUsesBatchLane (2.91s)
+--- PASS: TestSuggestDropsInvalid (2.92s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	3.308s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSuggestTestsExpectedFromReference', 'TestSuggestedTestsNotJudgedUntilApproved', 'TestSuggestTestsNeedsReference']
+=== RUN   TestSuggestTestsExpectedFromReference
+=== PAUSE TestSuggestTestsExpectedFromReference
+=== RUN   TestSuggestedTestsNotJudgedUntilApproved
+=== PAUSE TestSuggestedTestsNotJudgedUntilApproved
+=== RUN   TestSuggestTestsNeedsReference
+=== PAUSE TestSuggestTestsNeedsReference
+=== CONT  TestSuggestTestsExpectedFromReference
+=== CONT  TestSuggestTestsNeedsReference
+=== CONT  TestSuggestedTestsNotJudgedUntilApproved
+2026/11/15 19:43:58 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: cbca0fb4663e64103d41ad6b31787b784fe22617122f22bd4978c94c2b9977c0
+  Test ProcessID: db59a9c2-3502-4019-ad78-f3add4929212
+2026/11/15 19:43:58 ✅ Container started: 68f6ff853df5
+2026/11/15 19:43:58 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:43:58 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSuggestTestsNeedsReference (2.69s)
+--- PASS: TestSuggestTestsExpectedFromReference (2.74s)
+--- PASS: TestSuggestedTestsNotJudgedUntilApproved (2.81s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	3.393s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestQuestionListFilters', 'TestQuestionDetailStaffOnly']
+=== RUN   TestQuestionListFilters
+=== PAUSE TestQuestionListFilters
+=== RUN   TestQuestionDetailStaffOnly
+=== PAUSE TestQuestionDetailStaffOnly
+=== CONT  TestQuestionListFilters
+=== CONT  TestQuestionDetailStaffOnly
+2026/11/15 19:44:04 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3ea87f6d0ef1431c5dfd1c274844d9fbda6b95b87312df17b3cd82f515c6f575
+  Test ProcessID: 80e0726c-0003-4dbc-a708-2002449ed782
+2026/11/15 19:44:04 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:04 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:04 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestQuestionListFilters (3.69s)
+--- PASS: TestQuestionDetailStaffOnly (6.54s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	6.945s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/contract ['TestQuestionListPermissionMatrix']
+=== RUN   TestQuestionListPermissionMatrix
+2026/11/15 19:44:14 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 990fd619f0b481b9b06a53425f92411fbbe094c3d9b85a36eb4b9e4273187a5d
+  Test ProcessID: c765893b-a203-411e-977c-e5f1a3739dc6
+2026/11/15 19:44:14 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:14 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:14 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:44:15 ✅ Container started: 5636bc78d64d
+2026/11/15 19:44:15 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:44:15 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:44:15 ✅ Container started: b8d9c357e377
+2026/11/15 19:44:15 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:44:16 🔔 Container is ready: b8d9c357e377
+--- PASS: TestQuestionListPermissionMatrix (2.23s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/contract	2.947s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestDuplicateQuestion']
+=== RUN   TestDuplicateQuestion
+=== PAUSE TestDuplicateQuestion
+=== CONT  TestDuplicateQuestion
+2026/11/15 19:44:19 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e30ecb3f0d823529e9070b4bb1219d3888b199f14c6c42c228df067dee911eab
+  Test ProcessID: adc61c22-3c54-4c9a-bc58-1fa0c2c89069
+2026/11/15 19:44:19 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:19 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:19 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDuplicateQuestion (1.59s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	1.996s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/today ['TestQuestionReviewProvider', 'TestQuestionReviewInvalidates']
+=== RUN   TestQuestionReviewProvider
+2026/11/15 19:44:23 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: adaab62c39f26ff9c7377d395051021572794b5df14a850298d99febce4e6756
+  Test ProcessID: 8025ee7f-a35a-4916-8636-653e8d56b1cb
+2026/11/15 19:44:23 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:23 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:24 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:44:26 ✅ Container started: 5636bc78d64d
+2026/11/15 19:44:26 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:44:26 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestQuestionReviewProvider (4.32s)
+=== RUN   TestQuestionReviewInvalidates
+--- PASS: TestQuestionReviewInvalidates (2.32s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/today	7.495s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestCreateExamDefaults', 'TestExamValidation', 'TestExamKindDerived']
+=== RUN   TestCreateExamDefaults
+=== PAUSE TestCreateExamDefaults
+=== RUN   TestExamValidation
+=== PAUSE TestExamValidation
+=== RUN   TestExamKindDerived
+=== PAUSE TestExamKindDerived
+=== CONT  TestCreateExamDefaults
+=== CONT  TestExamKindDerived
+=== CONT  TestExamValidation
+2026/11/15 19:44:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 826bb09002285035cdebcef2ca8803e628e2c82f99029b48c07e364d68115387
+  Test ProcessID: a095ba51-b0f4-4afd-a958-ef4319feb397
+2026/11/15 19:44:34 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:34 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestExamValidation (5.28s)
+--- PASS: TestCreateExamDefaults (6.35s)
+--- PASS: TestExamKindDerived (7.02s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	7.397s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestPutItems', 'TestPutItemsRejects', 'TestPutItemsLockedWhenScheduled']
+=== RUN   TestPutItems
+=== PAUSE TestPutItems
+=== RUN   TestPutItemsRejects
+=== PAUSE TestPutItemsRejects
+=== RUN   TestPutItemsLockedWhenScheduled
+=== PAUSE TestPutItemsLockedWhenScheduled
+=== CONT  TestPutItems
+=== CONT  TestPutItemsLockedWhenScheduled
+=== CONT  TestPutItemsRejects
+2026/11/15 19:44:49 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 2b484cb48cc34f3535f8d8019997696508e9537c6492f0386b6610af8cd12bf2
+  Test ProcessID: ac0e4950-c504-4cf0-b9a5-d38adfddc519
+2026/11/15 19:44:49 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:49 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:50 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPutItemsLockedWhenScheduled (4.10s)
+--- PASS: TestPutItemsRejects (4.10s)
+--- PASS: TestPutItems (7.04s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	7.423s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestPreviewNoAttemptCreated', 'TestPreviewShapeEqualsStudent']
+=== RUN   TestPreviewNoAttemptCreated
+=== PAUSE TestPreviewNoAttemptCreated
+=== RUN   TestPreviewShapeEqualsStudent
+=== PAUSE TestPreviewShapeEqualsStudent
+=== CONT  TestPreviewNoAttemptCreated
+=== CONT  TestPreviewShapeEqualsStudent
+2026/11/15 19:44:58 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 305189c29d31293ee3e5dd2591d843c7195b262ce3f4e458cd95e6daf9659baa
+  Test ProcessID: 3293a64e-9a2d-4893-8aa5-5c289aebf1ca
+2026/11/15 19:44:58 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:58 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:58 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPreviewNoAttemptCreated (2.13s)
+--- PASS: TestPreviewShapeEqualsStudent (2.38s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	2.763s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestScheduleValidationsAll', 'TestScheduleEffects', 'TestScheduleIdempotent', 'TestScheduleTeacherOnly']
+=== RUN   TestScheduleValidationsAll
+=== PAUSE TestScheduleValidationsAll
+=== RUN   TestScheduleEffects
+=== PAUSE TestScheduleEffects
+=== RUN   TestScheduleIdempotent
+=== PAUSE TestScheduleIdempotent
+=== RUN   TestScheduleTeacherOnly
+=== PAUSE TestScheduleTeacherOnly
+=== CONT  TestScheduleValidationsAll
+=== CONT  TestScheduleEffects
+=== CONT  TestScheduleTeacherOnly
+=== CONT  TestScheduleIdempotent
+--- PASS: TestScheduleTeacherOnly (0.00s)
+2026/11/15 19:45:03 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 5751e140c7c9e84e29f90909e9dc185c51baa95f1b3bfad178ce49ca5c387845
+  Test ProcessID: 5adbcdcf-70b9-4f4d-9b69-ed79e8b862a0
+2026/11/15 19:45:03 ✅ Container started: 68f6ff853df5
+2026/11/15 19:45:03 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:45:03 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestScheduleEffects (2.48s)
+--- PASS: TestScheduleIdempotent (2.54s)
+--- PASS: TestScheduleValidationsAll (3.08s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	3.511s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestUnscheduleRules', 'TestEditLockMatrix']
+=== RUN   TestUnscheduleRules
+=== PAUSE TestUnscheduleRules
+=== RUN   TestEditLockMatrix
+=== PAUSE TestEditLockMatrix
+=== CONT  TestUnscheduleRules
+=== CONT  TestEditLockMatrix
+2026/11/15 19:45:09 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8fd89134027bd0e9c036c695b5fad086e2d2e0cff26c9596e1adebb253af1cd2
+  Test ProcessID: 4fd4fab1-f3db-4eeb-9519-c2398644d14c
+2026/11/15 19:45:10 ✅ Container started: 68f6ff853df5
+2026/11/15 19:45:10 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:45:10 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestUnscheduleRules (4.66s)
+--- PASS: TestEditLockMatrix (6.29s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	6.898s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestExamStateMachine', 'TestEffectiveStatus', 'TestTickIdempotent', 'TestTickSkipsToClosed']
+=== RUN   TestEffectiveStatus
+=== PAUSE TestEffectiveStatus
+=== RUN   TestExamStateMachine
+=== PAUSE TestExamStateMachine
+=== RUN   TestTickIdempotent
+=== PAUSE TestTickIdempotent
+=== RUN   TestTickSkipsToClosed
+=== PAUSE TestTickSkipsToClosed
+=== CONT  TestEffectiveStatus
+--- PASS: TestEffectiveStatus (0.00s)
+=== CONT  TestTickSkipsToClosed
+=== CONT  TestTickIdempotent
+=== CONT  TestExamStateMachine
+2026/11/15 19:45:18 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 6130d82d280e0fc5d9bc98993964c8527e30d84d03572696e20273536fa7bc4f
+  Test ProcessID: 900882ed-f6ba-4ca3-8986-d390201a1f80
+2026/11/15 19:45:18 ✅ Container started: 68f6ff853df5
+2026/11/15 19:45:18 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:45:18 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestTickSkipsToClosed (8.52s)
+--- PASS: TestTickIdempotent (8.53s)
+--- PASS: TestExamStateMachine (8.57s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	8.960s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestExtendOnlyLater', 'TestExtendRecomputesRunningDeadlines', 'TestExtendAfterCloseRejected']
+=== RUN   TestExtendOnlyLater
+=== PAUSE TestExtendOnlyLater
+=== RUN   TestExtendRecomputesRunningDeadlines
+=== PAUSE TestExtendRecomputesRunningDeadlines
+=== RUN   TestExtendAfterCloseRejected
+=== PAUSE TestExtendAfterCloseRejected
+=== CONT  TestExtendOnlyLater
+=== CONT  TestExtendRecomputesRunningDeadlines
+=== CONT  TestExtendAfterCloseRejected
+2026/11/15 19:45:32 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 7a64a676c3876e0a825b0336c066f63d8f6429dd9bcbdac322507fead0b2e515
+  Test ProcessID: 909968f1-1aa2-4c4c-b02a-23da47cf8f70
+2026/11/15 19:45:32 ✅ Container started: 68f6ff853df5
+2026/11/15 19:45:32 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:45:32 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestExtendRecomputesRunningDeadlines (2.98s)
+--- PASS: TestExtendOnlyLater (3.00s)
+--- PASS: TestExtendAfterCloseRejected (3.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	3.378s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestDeleteOnlyDraft', 'TestCloneExam']
+=== RUN   TestDeleteOnlyDraft
+=== PAUSE TestDeleteOnlyDraft
+=== RUN   TestCloneExam
+=== PAUSE TestCloneExam
+=== CONT  TestDeleteOnlyDraft
+=== CONT  TestCloneExam
+2026/11/15 19:45:38 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: fc485fefe524c34177d80444fa9e011dc230df15ef24a4db9909df190a3ea209
+  Test ProcessID: 270e27d3-c06b-4a97-8c99-585c49b83aa2
+2026/11/15 19:45:38 ✅ Container started: 68f6ff853df5
+2026/11/15 19:45:38 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:45:38 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestCloneExam (2.34s)
+--- PASS: TestDeleteOnlyDraft (2.37s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	2.824s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestExamListStaffVsStudent', 'TestExamDetailStudentProjection', 'TestStudentNeverSeesDraft']
+=== RUN   TestExamListStaffVsStudent
+=== PAUSE TestExamListStaffVsStudent
+=== RUN   TestExamDetailStudentProjection
+=== PAUSE TestExamDetailStudentProjection
+=== RUN   TestStudentNeverSeesDraft
+=== PAUSE TestStudentNeverSeesDraft
+=== CONT  TestExamListStaffVsStudent
+=== CONT  TestStudentNeverSeesDraft
+=== CONT  TestExamDetailStudentProjection
+2026/11/15 19:45:49 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 73a42a4edc0cda341a8178342338b78940fe2ebb5065b940ae8df6da86fd102b
+  Test ProcessID: a6ac1505-582b-42d6-8465-e745bf69c171
+2026/11/15 19:45:49 ✅ Container started: 68f6ff853df5
+2026/11/15 19:45:49 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:45:49 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestExamListStaffVsStudent (6.08s)
+--- PASS: TestStudentNeverSeesDraft (6.17s)
+--- PASS: TestExamDetailStudentProjection (6.25s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	6.692s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestScheduleRaceWithQuestionReject', 'TestExamEditVersionConflict']
+=== RUN   TestExamEditVersionConflict
+=== PAUSE TestExamEditVersionConflict
+=== RUN   TestScheduleRaceWithQuestionReject
+=== PAUSE TestScheduleRaceWithQuestionReject
+=== CONT  TestExamEditVersionConflict
+=== CONT  TestScheduleRaceWithQuestionReject
+2026/11/15 19:46:00 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: d6c2bb99ee503e508eccfdb27a2c5f45f0a05c5e91d3ffb59a066b75d3fd834b
+  Test ProcessID: 646900f0-972a-49ae-b445-5730f418c484
+2026/11/15 19:46:00 ✅ Container started: 68f6ff853df5
+2026/11/15 19:46:00 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:46:01 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestExamEditVersionConflict (4.20s)
+--- PASS: TestScheduleRaceWithQuestionReject (5.10s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	5.521s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/today ['TestExamProvidersStudent', 'TestExamTodayInvalidation']
+=== RUN   TestExamProvidersStudent
+2026/11/15 19:46:10 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: b27007834dbb7d4288a20ba87c36ae56357a5343339ac2dbad16ffc9bffdd536
+  Test ProcessID: fce93d5f-6389-465c-932c-1520bf349958
+2026/11/15 19:46:10 ✅ Container started: 68f6ff853df5
+2026/11/15 19:46:10 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:46:10 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:46:12 ✅ Container started: 5636bc78d64d
+2026/11/15 19:46:12 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:46:12 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestExamProvidersStudent (3.68s)
+=== RUN   TestExamTodayInvalidation
+--- PASS: TestExamTodayInvalidation (6.15s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/today	10.691s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestStartAttemptOK', 'TestStartAttemptNotOpenReasons', 'TestStartAttemptIdempotent', 'TestStartAttemptDeadlineMin']
+=== RUN   TestStartAttemptOK
+=== PAUSE TestStartAttemptOK
+=== RUN   TestStartAttemptNotOpenReasons
+=== PAUSE TestStartAttemptNotOpenReasons
+=== RUN   TestStartAttemptIdempotent
+=== PAUSE TestStartAttemptIdempotent
+=== RUN   TestStartAttemptDeadlineMin
+=== PAUSE TestStartAttemptDeadlineMin
+=== CONT  TestStartAttemptOK
+=== CONT  TestStartAttemptIdempotent
+=== CONT  TestStartAttemptDeadlineMin
+=== CONT  TestStartAttemptNotOpenReasons
+2026/11/15 19:46:26 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e3cf5deec847f21e117063bb0d98e0f013b949f511ecd6e03c839d9aa889869b
+  Test ProcessID: 6df0bd27-b4b6-4848-90b8-0407554574bd
+2026/11/15 19:46:26 ✅ Container started: 68f6ff853df5
+2026/11/15 19:46:26 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:46:26 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestStartAttemptIdempotent (2.67s)
+--- PASS: TestStartAttemptDeadlineMin (2.70s)
+--- PASS: TestStartAttemptNotOpenReasons (2.72s)
+--- PASS: TestStartAttemptOK (2.72s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	3.139s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestResumeSameAttempt', 'TestClockNotResetOnReload', 'TestOneAttemptRaceStart', 'TestStartAfterSubmit409']
+=== RUN   TestResumeSameAttempt
+=== PAUSE TestResumeSameAttempt
+=== RUN   TestClockNotResetOnReload
+=== PAUSE TestClockNotResetOnReload
+=== RUN   TestOneAttemptRaceStart
+=== PAUSE TestOneAttemptRaceStart
+=== RUN   TestStartAfterSubmit409
+=== PAUSE TestStartAfterSubmit409
+=== CONT  TestResumeSameAttempt
+=== CONT  TestOneAttemptRaceStart
+=== CONT  TestStartAfterSubmit409
+=== CONT  TestClockNotResetOnReload
+2026/11/15 19:46:32 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3818b5c0ca5f12fae8ab9ba05120107786b93222b0742b04c7cf07104db3cb8c
+  Test ProcessID: a386af75-2f30-49c7-aee5-d54ea3df8f16
+2026/11/15 19:46:32 ✅ Container started: 68f6ff853df5
+2026/11/15 19:46:32 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:46:33 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestClockNotResetOnReload (7.45s)
+--- PASS: TestOneAttemptRaceStart (7.47s)
+--- PASS: TestResumeSameAttempt (7.65s)
+--- PASS: TestStartAfterSubmit409 (7.83s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	8.220s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestAttemptPayloadWhitelist', 'TestAttemptPayloadNoAnswerCanary']
+=== RUN   TestAttemptPayloadWhitelist
+=== PAUSE TestAttemptPayloadWhitelist
+=== RUN   TestAttemptPayloadNoAnswerCanary
+=== PAUSE TestAttemptPayloadNoAnswerCanary
+=== CONT  TestAttemptPayloadWhitelist
+=== CONT  TestAttemptPayloadNoAnswerCanary
+2026/11/15 19:46:46 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: bd026184cd404653c01b2cf74f27df06a410700a5a589ede6e4e028356b47636
+  Test ProcessID: 59f300d0-2dd6-472a-b389-a1e2c228810b
+2026/11/15 19:46:46 ✅ Container started: 68f6ff853df5
+2026/11/15 19:46:46 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:46:46 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAttemptPayloadWhitelist (4.97s)
+--- PASS: TestAttemptPayloadNoAnswerCanary (6.41s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	6.873s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestShuffleDeterministic', 'TestShuffleDiffersAcrossStudents', 'TestShufflePermutationComplete', 'TestShufflePinnedLast', 'TestShuffleOffKeepsOrder', 'TestGradeIndependentOfShuffle']
+=== RUN   TestShuffleDeterministic
+=== PAUSE TestShuffleDeterministic
+=== RUN   TestShuffleDiffersAcrossStudents
+=== PAUSE TestShuffleDiffersAcrossStudents
+=== RUN   TestShufflePermutationComplete
+=== PAUSE TestShufflePermutationComplete
+=== RUN   TestShufflePinnedLast
+=== PAUSE TestShufflePinnedLast
+=== RUN   TestShuffleOffKeepsOrder
+=== PAUSE TestShuffleOffKeepsOrder
+=== RUN   TestGradeIndependentOfShuffle
+=== PAUSE TestGradeIndependentOfShuffle
+=== CONT  TestShuffleDeterministic
+=== CONT  TestShufflePinnedLast
+=== CONT  TestShufflePermutationComplete
+=== CONT  TestShuffleDiffersAcrossStudents
+=== CONT  TestGradeIndependentOfShuffle
+=== CONT  TestShuffleOffKeepsOrder
+2026/11/15 19:46:57 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 6dd460eea5b31d2c9ee3632694098bb3f25e13d02d1e2013d93df980c68d26be
+  Test ProcessID: 454a3f92-0f01-4613-adcc-9208ed803d08
+2026/11/15 19:46:57 ✅ Container started: 68f6ff853df5
+2026/11/15 19:46:57 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:46:57 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestShuffleOffKeepsOrder (5.33s)
+--- PASS: TestShuffleDeterministic (5.45s)
+--- PASS: TestGradeIndependentOfShuffle (5.71s)
+--- PASS: TestShufflePinnedLast (5.74s)
+--- PASS: TestShufflePermutationComplete (5.76s)
+--- PASS: TestShuffleDiffersAcrossStudents (7.15s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	7.532s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSaveAnswersDiff', 'TestSaveAnswersValidation', 'TestSaveRateLimit', 'TestSaveAfterDeadlineGrace', 'TestSaveOtherUsersAttempt404']
+=== RUN   TestSaveAnswersDiff
+=== PAUSE TestSaveAnswersDiff
+=== RUN   TestSaveAnswersValidation
+=== PAUSE TestSaveAnswersValidation
+=== RUN   TestSaveRateLimit
+=== PAUSE TestSaveRateLimit
+=== RUN   TestSaveAfterDeadlineGrace
+=== PAUSE TestSaveAfterDeadlineGrace
+=== RUN   TestSaveOtherUsersAttempt404
+=== PAUSE TestSaveOtherUsersAttempt404
+=== CONT  TestSaveAnswersDiff
+=== CONT  TestSaveAfterDeadlineGrace
+=== CONT  TestSaveRateLimit
+=== CONT  TestSaveAnswersValidation
+=== CONT  TestSaveOtherUsersAttempt404
+2026/11/15 19:47:08 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: b1c8469854d4bb8044597873785a8d7ef769c64d46bec306bfa70b101af40bea
+  Test ProcessID: 2bd0a25f-e22f-4053-b7b1-1c5f9baa2fb5
+2026/11/15 19:47:08 ✅ Container started: 68f6ff853df5
+2026/11/15 19:47:08 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:47:08 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:47:14 ✅ Container started: 5636bc78d64d
+2026/11/15 19:47:14 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:47:14 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSaveAfterDeadlineGrace (6.33s)
+--- PASS: TestSaveOtherUsersAttempt404 (6.58s)
+--- PASS: TestSaveAnswersDiff (6.70s)
+--- PASS: TestSaveRateLimit (6.75s)
+--- PASS: TestSaveAnswersValidation (6.78s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	7.238s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestAutoSubmitOnTimeout', 'TestAutoSubmitOnClose', 'TestGraceAcceptsLastSave', 'TestAutoSubmitGradesMCQ']
+=== RUN   TestGraceAcceptsLastSave
+=== PAUSE TestGraceAcceptsLastSave
+=== RUN   TestAutoSubmitOnTimeout
+=== PAUSE TestAutoSubmitOnTimeout
+=== RUN   TestAutoSubmitOnClose
+=== PAUSE TestAutoSubmitOnClose
+=== RUN   TestAutoSubmitGradesMCQ
+=== PAUSE TestAutoSubmitGradesMCQ
+=== CONT  TestGraceAcceptsLastSave
+=== CONT  TestAutoSubmitOnClose
+=== CONT  TestAutoSubmitGradesMCQ
+=== CONT  TestAutoSubmitOnTimeout
+2026/11/15 19:47:22 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: bd34dfeeee030ab585101fd62bbe51851cd0babf1d05a9fbfb8fea8b22926b0e
+  Test ProcessID: 33ffa64b-7ccc-46bb-ad39-3b8715d31cce
+2026/11/15 19:47:22 ✅ Container started: 68f6ff853df5
+2026/11/15 19:47:22 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:47:23 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestGraceAcceptsLastSave (13.15s)
+--- PASS: TestAutoSubmitOnClose (14.05s)
+--- PASS: TestAutoSubmitOnTimeout (15.08s)
+--- PASS: TestAutoSubmitGradesMCQ (18.08s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	18.638s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSubmitManual', 'TestSubmitIdempotentReplay', 'TestSubmitTwiceDifferentKey409', 'TestSubmitNoScoreInResponse']
+=== RUN   TestSubmitManual
+=== PAUSE TestSubmitManual
+=== RUN   TestSubmitIdempotentReplay
+=== PAUSE TestSubmitIdempotentReplay
+=== RUN   TestSubmitTwiceDifferentKey409
+=== PAUSE TestSubmitTwiceDifferentKey409
+=== RUN   TestSubmitNoScoreInResponse
+=== PAUSE TestSubmitNoScoreInResponse
+=== CONT  TestSubmitManual
+=== CONT  TestSubmitNoScoreInResponse
+=== CONT  TestSubmitIdempotentReplay
+=== CONT  TestSubmitTwiceDifferentKey409
+2026/11/15 19:47:45 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: de72a17a3f5888f2864e0eff300976c0c200bce1f6f8d1a03957cf869c373650
+  Test ProcessID: 6bbf0d62-b9ca-4099-8383-1e0bc672b6ae
+2026/11/15 19:47:45 ✅ Container started: 68f6ff853df5
+2026/11/15 19:47:45 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:47:46 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSubmitTwiceDifferentKey409 (9.06s)
+--- PASS: TestSubmitManual (9.10s)
+--- PASS: TestSubmitNoScoreInResponse (9.13s)
+--- PASS: TestSubmitIdempotentReplay (9.15s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	9.624s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSingleWriterTab', 'TestTakeoverFlipsWriter', 'TestStaleTabCannotOverwrite', 'TestWriterSeenThrottle']
+=== RUN   TestSingleWriterTab
+=== PAUSE TestSingleWriterTab
+=== RUN   TestTakeoverFlipsWriter
+=== PAUSE TestTakeoverFlipsWriter
+=== RUN   TestStaleTabCannotOverwrite
+=== PAUSE TestStaleTabCannotOverwrite
+=== RUN   TestWriterSeenThrottle
+=== PAUSE TestWriterSeenThrottle
+=== CONT  TestSingleWriterTab
+=== CONT  TestStaleTabCannotOverwrite
+=== CONT  TestWriterSeenThrottle
+=== CONT  TestTakeoverFlipsWriter
+2026/11/15 19:47:59 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 127a65d9a003aef78cf308340a81fb3daa8debcead463d72f390a89fa0500ca6
+  Test ProcessID: c02e43ba-7bc6-4f65-8b3a-e5b163c2ded6
+2026/11/15 19:47:59 ✅ Container started: 68f6ff853df5
+2026/11/15 19:47:59 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:47:59 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSingleWriterTab (4.99s)
+--- PASS: TestTakeoverFlipsWriter (5.02s)
+--- PASS: TestStaleTabCannotOverwrite (5.02s)
+--- PASS: TestWriterSeenThrottle (5.12s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	5.573s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestAfterSubmitSummaryOnly', 'TestResultBeforePublish409', 'TestOtherStudentAttempt404']
+=== RUN   TestAfterSubmitSummaryOnly
+=== PAUSE TestAfterSubmitSummaryOnly
+=== RUN   TestResultBeforePublish409
+=== PAUSE TestResultBeforePublish409
+=== RUN   TestOtherStudentAttempt404
+=== PAUSE TestOtherStudentAttempt404
+=== CONT  TestAfterSubmitSummaryOnly
+=== CONT  TestOtherStudentAttempt404
+=== CONT  TestResultBeforePublish409
+2026/11/15 19:48:09 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: ee30acbcc9ed55c314946fac607b3647bf8c9259daff5d756d9519edc8b35b90
+  Test ProcessID: afdb009c-3d34-43f4-8e2c-b25891eeb655
+2026/11/15 19:48:09 ✅ Container started: 68f6ff853df5
+2026/11/15 19:48:09 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:48:09 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestOtherStudentAttempt404 (6.40s)
+--- PASS: TestResultBeforePublish409 (6.60s)
+--- PASS: TestAfterSubmitSummaryOnly (6.61s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	7.042s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/contract ['TestStudentGuardStates', 'TestRemovedMidExam403']
+=== RUN   TestStudentGuardStates
+2026/11/15 19:48:23 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 824f2eccd20effcd241d9fc1c698b5601fae273393f6e3a1ae17969242af1edb
+  Test ProcessID: c12952f3-f51e-4ff8-a525-66eca089dd61
+2026/11/15 19:48:23 ✅ Container started: 68f6ff853df5
+2026/11/15 19:48:23 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:48:23 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:48:25 ✅ Container started: 5636bc78d64d
+2026/11/15 19:48:25 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:48:25 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:48:26 ✅ Container started: b8d9c357e377
+2026/11/15 19:48:26 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:48:26 🔔 Container is ready: b8d9c357e377
+--- PASS: TestStudentGuardStates (4.83s)
+=== RUN   TestRemovedMidExam403
+--- PASS: TestRemovedMidExam403 (1.44s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/contract	8.067s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestCodeItemPayloadWhitelist', 'TestHiddenTestsNeverInPayload']
+=== RUN   TestCodeItemPayloadWhitelist
+=== PAUSE TestCodeItemPayloadWhitelist
+=== RUN   TestHiddenTestsNeverInPayload
+=== PAUSE TestHiddenTestsNeverInPayload
+=== CONT  TestCodeItemPayloadWhitelist
+=== CONT  TestHiddenTestsNeverInPayload
+2026/11/15 19:48:41 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: b59317575db5ec6672bd1977a4393c1941747914bd5711cc7d827ee0efb60842
+  Test ProcessID: 2d2d0258-d81c-4db1-9e78-5d743486b5f8
+2026/11/15 19:48:42 ✅ Container started: 68f6ff853df5
+2026/11/15 19:48:42 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:48:42 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestHiddenTestsNeverInPayload (13.85s)
+--- PASS: TestCodeItemPayloadWhitelist (14.08s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	14.569s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestDraftPerLanguage', 'TestLanguageNotAllowed']
+=== RUN   TestDraftPerLanguage
+=== PAUSE TestDraftPerLanguage
+=== RUN   TestLanguageNotAllowed
+=== PAUSE TestLanguageNotAllowed
+=== CONT  TestDraftPerLanguage
+=== CONT  TestLanguageNotAllowed
+2026/11/15 19:49:05 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 0fbff64c18d7bdce35ae330e699ef136cadebd8d59b50e5809b07326495f609f
+  Test ProcessID: 6c1ba56a-2362-4bf8-ab20-f69e37a948a6
+2026/11/15 19:49:05 ✅ Container started: 68f6ff853df5
+2026/11/15 19:49:05 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:49:06 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDraftPerLanguage (22.44s)
+--- PASS: TestLanguageNotAllowed (22.58s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	23.223s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestDraftRevIncrements', 'TestDraftConflict409', 'TestDraftAfterDeadline']
+=== RUN   TestDraftRevIncrements
+=== PAUSE TestDraftRevIncrements
+=== RUN   TestDraftConflict409
+=== PAUSE TestDraftConflict409
+=== RUN   TestDraftAfterDeadline
+=== PAUSE TestDraftAfterDeadline
+=== CONT  TestDraftRevIncrements
+=== CONT  TestDraftAfterDeadline
+=== CONT  TestDraftConflict409
+2026/11/15 19:49:39 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: c4e7c75054083d2dd2d254bbcdeed72fe9543c7bfb07c840e5d959cdd05cfa56
+  Test ProcessID: a68acdfc-0606-4d79-86ce-4eeaa80263a9
+2026/11/15 19:49:39 ✅ Container started: 68f6ff853df5
+2026/11/15 19:49:39 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:49:40 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDraftConflict409 (44.79s)
+--- PASS: TestDraftAfterDeadline (46.20s)
+--- PASS: TestDraftRevIncrements (46.27s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	46.812s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/judge ['TestRunSamplesOnly']
+=== RUN   TestRunSamplesOnly
+2026/11/15 19:50:44 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 47209741b96efb54a56749ba66d550b633a279a3c0c78b71c32f3beb95553fa5
+  Test ProcessID: e97918a6-87bf-4050-8ed7-4dccfbd31694
+2026/11/15 19:50:44 ✅ Container started: 68f6ff853df5
+2026/11/15 19:50:44 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:50:54 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:51:12 ✅ Container started: 5636bc78d64d
+2026/11/15 19:51:12 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:51:12 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestRunSamplesOnly (42.33s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/judge	43.010s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestRunRateLimit10Per10Min']
+=== RUN   TestRunRateLimit10Per10Min
+=== PAUSE TestRunRateLimit10Per10Min
+=== CONT  TestRunRateLimit10Per10Min
+2026/11/15 19:51:33 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 61f48a718a81e012e2433730b60a3f5b814bb446c25abdfc8bb8df45be1da2c2
+  Test ProcessID: 4096ca42-d584-4e68-84aa-3dc5d446c4a5
+2026/11/15 19:51:36 ✅ Container started: 68f6ff853df5
+2026/11/15 19:51:36 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:51:39 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:52:01 ✅ Container started: 5636bc78d64d
+2026/11/15 19:52:01 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:52:02 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestRunRateLimit10Per10Min (30.32s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	30.921s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSubmitCodeEnqueues', 'TestSubmitCooldown', 'TestSubmitCap30', 'TestLastSubmissionCounts']
+=== RUN   TestSubmitCodeEnqueues
+=== PAUSE TestSubmitCodeEnqueues
+=== RUN   TestSubmitCooldown
+=== PAUSE TestSubmitCooldown
+=== RUN   TestSubmitCap30
+=== PAUSE TestSubmitCap30
+=== RUN   TestLastSubmissionCounts
+=== PAUSE TestLastSubmissionCounts
+=== CONT  TestSubmitCodeEnqueues
+=== CONT  TestSubmitCap30
+=== CONT  TestLastSubmissionCounts
+=== CONT  TestSubmitCooldown
+2026/11/15 19:52:09 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: ac1db6c32bd835d7c2dd9aa794943adc7178a55aa1112a01aa17527e4d1e4b4d
+  Test ProcessID: 5491fa61-7553-4e68-9552-f0dbc81ab8aa
+2026/11/15 19:52:10 ✅ Container started: 68f6ff853df5
+2026/11/15 19:52:10 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:52:10 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSubmitCodeEnqueues (19.52s)
+--- PASS: TestLastSubmissionCounts (19.91s)
+2026/11/15 19:52:28 ✅ Container started: 5636bc78d64d
+2026/11/15 19:52:28 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:52:29 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSubmitCap30 (20.71s)
+--- PASS: TestSubmitCooldown (23.70s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	24.283s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSubmissionStudentViewHidesHidden', 'TestSubmissionViewCE', 'TestSubmissionViewIE']
+=== RUN   TestSubmissionStudentViewHidesHidden
+=== PAUSE TestSubmissionStudentViewHidesHidden
+=== RUN   TestSubmissionViewCE
+=== PAUSE TestSubmissionViewCE
+=== RUN   TestSubmissionViewIE
+=== PAUSE TestSubmissionViewIE
+=== CONT  TestSubmissionStudentViewHidesHidden
+=== CONT  TestSubmissionViewIE
+=== CONT  TestSubmissionViewCE
+2026/11/15 19:52:44 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 2a9692ba56c1599a1a403a7ddb3e45c7bd312bbb7950423630681cc85809ffe1
+  Test ProcessID: c595828b-88fb-45ac-bb31-f79df62634f5
+2026/11/15 19:52:44 ✅ Container started: 68f6ff853df5
+2026/11/15 19:52:44 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:52:44 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSubmissionStudentViewHidesHidden (25.68s)
+--- PASS: TestSubmissionViewIE (26.57s)
+--- PASS: TestSubmissionViewCE (26.74s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	27.434s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSubmissionsListOwnOnly', 'TestSubmissionsListCursor']
+=== RUN   TestSubmissionsListOwnOnly
+=== PAUSE TestSubmissionsListOwnOnly
+=== RUN   TestSubmissionsListCursor
+=== PAUSE TestSubmissionsListCursor
+=== CONT  TestSubmissionsListOwnOnly
+=== CONT  TestSubmissionsListCursor
+2026/11/15 19:53:23 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 79ecc38df817f35960a36c4cf947f772bb2391781f2433a665e506258240a7c2
+  Test ProcessID: cb4e6d79-8126-4ab5-9b69-3efd9fe3d224
+2026/11/15 19:53:24 ✅ Container started: 68f6ff853df5
+2026/11/15 19:53:24 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:53:25 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSubmissionsListCursor (16.79s)
+--- PASS: TestSubmissionsListOwnOnly (17.10s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	17.720s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestAutoSubmitDraftWhenNone', 'TestNoAutoSubmitWhenSubmitExists', 'TestEmptyDraftNoSubmit']
+=== RUN   TestAutoSubmitDraftWhenNone
+=== PAUSE TestAutoSubmitDraftWhenNone
+=== RUN   TestNoAutoSubmitWhenSubmitExists
+=== PAUSE TestNoAutoSubmitWhenSubmitExists
+=== RUN   TestEmptyDraftNoSubmit
+=== PAUSE TestEmptyDraftNoSubmit
+=== CONT  TestAutoSubmitDraftWhenNone
+=== CONT  TestEmptyDraftNoSubmit
+=== CONT  TestNoAutoSubmitWhenSubmitExists
+2026/11/15 19:53:52 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 1d353b986621cb8126e8300bd0869397c1489528485cda6343be195a1869f293
+  Test ProcessID: 8f783bd5-409d-422d-8ca1-9443231b0d6e
+2026/11/15 19:53:53 ✅ Container started: 68f6ff853df5
+2026/11/15 19:53:53 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:53:55 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestEmptyDraftNoSubmit (30.42s)
+--- PASS: TestNoAutoSubmitWhenSubmitExists (30.56s)
+--- PASS: TestAutoSubmitDraftWhenNone (30.63s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	31.266s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestNoAnswerLeakCodeEndpoints']
+=== RUN   TestNoAnswerLeakCodeEndpoints
+=== PAUSE TestNoAnswerLeakCodeEndpoints
+=== CONT  TestNoAnswerLeakCodeEndpoints
+2026/11/15 19:54:35 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e6cc8cd6412a60eb7b143a69607da01fe6e331df22f33f2b28ece8d9d7d1910b
+  Test ProcessID: a666069a-d978-4c62-89a8-b49eaf74c168
+2026/11/15 19:54:36 ✅ Container started: 68f6ff853df5
+2026/11/15 19:54:36 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:54:37 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestNoAnswerLeakCodeEndpoints (15.51s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	16.243s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestLockSetOnStart', 'TestLockTTLEqualsRemaining', 'TestLockClearedOnSubmit', 'TestLockClearedOnClose', 'TestLockMultipleAttemptsLatestDeadline']
+=== RUN   TestLockSetOnStart
+=== PAUSE TestLockSetOnStart
+=== RUN   TestLockTTLEqualsRemaining
+=== PAUSE TestLockTTLEqualsRemaining
+=== RUN   TestLockClearedOnSubmit
+=== PAUSE TestLockClearedOnSubmit
+=== RUN   TestLockClearedOnClose
+=== PAUSE TestLockClearedOnClose
+=== RUN   TestLockMultipleAttemptsLatestDeadline
+=== PAUSE TestLockMultipleAttemptsLatestDeadline
+=== CONT  TestLockSetOnStart
+=== CONT  TestLockClearedOnClose
+=== CONT  TestLockClearedOnSubmit
+=== CONT  TestLockTTLEqualsRemaining
+=== CONT  TestLockMultipleAttemptsLatestDeadline
+2026/11/15 19:55:05 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: eaa83f5ea37cf720cb535576d33052d34622e43828545f11fe1fa5f49e4806a0
+  Test ProcessID: 9aa6b3fc-3de4-4081-9ec7-e9866998bd1a
+2026/11/15 19:55:06 ✅ Container started: 68f6ff853df5
+2026/11/15 19:55:06 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:55:07 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:55:21 ✅ Container started: 5636bc78d64d
+2026/11/15 19:55:21 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:55:22 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestLockTTLEqualsRemaining (24.83s)
+--- PASS: TestLockSetOnStart (24.83s)
+--- PASS: TestLockClearedOnSubmit (24.86s)
+--- PASS: TestLockClearedOnClose (25.31s)
+--- PASS: TestLockMultipleAttemptsLatestDeadline (25.62s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	26.129s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestExamLockContract', 'TestLockerRedisMissFallsBackDB', 'TestLockerRedisDownUsesDB', 'TestLockerBothDownDeniesChat']
+=== RUN   TestExamLockContract
+=== PAUSE TestExamLockContract
+=== RUN   TestLockerRedisMissFallsBackDB
+=== PAUSE TestLockerRedisMissFallsBackDB
+=== RUN   TestLockerRedisDownUsesDB
+=== PAUSE TestLockerRedisDownUsesDB
+=== RUN   TestLockerBothDownDeniesChat
+=== PAUSE TestLockerBothDownDeniesChat
+=== CONT  TestExamLockContract
+=== CONT  TestLockerRedisDownUsesDB
+=== CONT  TestLockerRedisMissFallsBackDB
+=== CONT  TestLockerBothDownDeniesChat
+2026/11/15 19:55:41 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3579c84f4b577f8e9b2cb277b12637aa94b3732d5036aef10e5ae3e1f438ae00
+  Test ProcessID: f94b8e43-ef9a-41ef-9e3a-584da70719b2
+2026/11/15 19:55:42 ✅ Container started: 68f6ff853df5
+2026/11/15 19:55:42 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:55:44 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:55:55 ✅ Container started: 5636bc78d64d
+2026/11/15 19:55:55 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:55:55 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestLockerBothDownDeniesChat (16.36s)
+--- PASS: TestLockerRedisMissFallsBackDB (16.43s)
+--- PASS: TestLockerRedisDownUsesDB (16.54s)
+--- PASS: TestExamLockContract (16.62s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	17.116s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestEventsWhitelistMeta', 'TestEventsNoContentStored', 'TestEventsCapPerAttempt', 'TestEventsBatchLimit', 'TestEventsNeverBreakSave']
+=== RUN   TestEventsWhitelistMeta
+=== PAUSE TestEventsWhitelistMeta
+=== RUN   TestEventsNoContentStored
+=== PAUSE TestEventsNoContentStored
+=== RUN   TestEventsCapPerAttempt
+=== PAUSE TestEventsCapPerAttempt
+=== RUN   TestEventsBatchLimit
+=== PAUSE TestEventsBatchLimit
+=== RUN   TestEventsNeverBreakSave
+=== PAUSE TestEventsNeverBreakSave
+=== CONT  TestEventsWhitelistMeta
+=== CONT  TestEventsBatchLimit
+=== CONT  TestEventsCapPerAttempt
+=== CONT  TestEventsNeverBreakSave
+=== CONT  TestEventsNoContentStored
+2026/11/15 19:56:07 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 7f046b0f88fa5291e436357f3684f004a628becb5e1bc075a1d7aa8e29972af2
+  Test ProcessID: bce7fd9c-43fc-4f66-a666-5b38946c8cae
+2026/11/15 19:56:08 ✅ Container started: 68f6ff853df5
+2026/11/15 19:56:08 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:56:10 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestEventsCapPerAttempt (16.07s)
+--- PASS: TestEventsBatchLimit (16.35s)
+--- PASS: TestEventsWhitelistMeta (16.35s)
+--- PASS: TestEventsNeverBreakSave (16.40s)
+--- PASS: TestEventsNoContentStored (16.42s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	16.966s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestEventsTeacherOnlyMatrix', 'TestResultsHideIntegrityFromTA']
+=== RUN   TestResultsHideIntegrityFromTA
+=== PAUSE TestResultsHideIntegrityFromTA
+=== RUN   TestEventsTeacherOnlyMatrix
+=== PAUSE TestEventsTeacherOnlyMatrix
+=== CONT  TestResultsHideIntegrityFromTA
+=== CONT  TestEventsTeacherOnlyMatrix
+--- PASS: TestEventsTeacherOnlyMatrix (0.00s)
+2026/11/15 19:56:29 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 4786cf70d464d3918bf115739997a7d862788b3b782c0141e27f21972af1219f
+  Test ProcessID: a3623f57-0912-4ba0-a16b-21a2143c20f0
+2026/11/15 19:56:29 ✅ Container started: 68f6ff853df5
+2026/11/15 19:56:29 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:56:29 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestResultsHideIntegrityFromTA (7.61s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	8.039s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestScoreIgnoresIntegritySignals', 'TestNoPenaltyColumns', 'TestNoAccusatoryCopy']
+=== RUN   TestScoreIgnoresIntegritySignals
+=== PAUSE TestScoreIgnoresIntegritySignals
+=== RUN   TestNoPenaltyColumns
+=== PAUSE TestNoPenaltyColumns
+=== RUN   TestNoAccusatoryCopy
+=== PAUSE TestNoAccusatoryCopy
+=== CONT  TestScoreIgnoresIntegritySignals
+=== CONT  TestNoPenaltyColumns
+=== CONT  TestNoAccusatoryCopy
+--- PASS: TestNoAccusatoryCopy (0.02s)
+2026/11/15 19:56:40 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 98014857d5219dda8f9fbe766c844744ba7769eab691db556ef456ac1b28b9ed
+  Test ProcessID: 4cd12000-a31d-4b45-9d76-489aec63badc
+2026/11/15 19:56:40 ✅ Container started: 68f6ff853df5
+2026/11/15 19:56:40 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:56:40 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestNoPenaltyColumns (4.67s)
+2026/11/15 19:56:44 WARN lô sự kiện liêm chính vượt giới hạn: bỏ phần dư attempt_id=01a1df48-126f-7fc6-a799-b3ac68ccf22c dropped=50
+2026/11/15 19:56:44 WARN lô sự kiện liêm chính vượt giới hạn: bỏ phần dư attempt_id=01a1df48-126f-7fc6-a799-b3ac68ccf22c dropped=50
+--- PASS: TestScoreIgnoresIntegritySignals (4.84s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	5.265s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam/similarity ['TestWinnowingRenameReformat', 'TestWinnowingDifferentSolution', 'TestWinnowingSymmetric', 'TestWinnowingDeterministic', 'TestWinnowingStarterSubtracted', 'TestWinnowingShortSkipped', 'TestLexerCpp']
+=== RUN   TestLexerCpp
+=== PAUSE TestLexerCpp
+=== RUN   TestWinnowingRenameReformat
+=== PAUSE TestWinnowingRenameReformat
+=== RUN   TestWinnowingDifferentSolution
+=== PAUSE TestWinnowingDifferentSolution
+=== RUN   TestWinnowingSymmetric
+=== PAUSE TestWinnowingSymmetric
+=== RUN   TestWinnowingDeterministic
+=== PAUSE TestWinnowingDeterministic
+=== RUN   TestWinnowingStarterSubtracted
+=== PAUSE TestWinnowingStarterSubtracted
+=== RUN   TestWinnowingShortSkipped
+=== PAUSE TestWinnowingShortSkipped
+=== CONT  TestLexerCpp
+--- PASS: TestLexerCpp (0.00s)
+=== CONT  TestWinnowingShortSkipped
+--- PASS: TestWinnowingShortSkipped (0.00s)
+=== CONT  TestWinnowingStarterSubtracted
+--- PASS: TestWinnowingStarterSubtracted (0.00s)
+=== CONT  TestWinnowingDeterministic
+=== CONT  TestWinnowingDifferentSolution
+    similarity_test.go:227: A ~ C = 123‰
+--- PASS: TestWinnowingDifferentSolution (0.00s)
+=== CONT  TestWinnowingSymmetric
+--- PASS: TestWinnowingSymmetric (0.00s)
+=== CONT  TestWinnowingRenameReformat
+    similarity_test.go:219: A ~ B = 1000‰
+--- PASS: TestWinnowingRenameReformat (0.00s)
+--- PASS: TestWinnowingDeterministic (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam/similarity	0.335s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSimilarityJobTopPairs', 'TestSimilarityRerunNewRunID', 'TestSimilarityScale1000']
+=== RUN   TestSimilarityJobTopPairs
+=== PAUSE TestSimilarityJobTopPairs
+=== RUN   TestSimilarityRerunNewRunID
+=== PAUSE TestSimilarityRerunNewRunID
+=== RUN   TestSimilarityScale1000
+=== PAUSE TestSimilarityScale1000
+=== CONT  TestSimilarityJobTopPairs
+=== CONT  TestSimilarityScale1000
+=== CONT  TestSimilarityRerunNewRunID
+2026/11/15 19:56:53 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f77da1481facf7ad1b765a82c69dff8f32db80fd3e64cbc0a6671afaec0636f5
+  Test ProcessID: 882b2789-917c-40dc-994a-7833b69fc49c
+2026/11/15 19:56:53 ✅ Container started: 68f6ff853df5
+2026/11/15 19:56:53 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:56:53 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSimilarityRerunNewRunID (9.63s)
+--- PASS: TestSimilarityJobTopPairs (9.69s)
+=== NAME  TestSimilarityScale1000
+    similarity_svc_test.go:187: 1.000 bài: 2.158276583s, 200 cặp, 200 gắn cờ
+--- PASS: TestSimilarityScale1000 (42.63s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	43.072s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam/similarity ['TestSimilarityFlagRelativeThreshold', 'TestFlagSmallClassCap']
+=== RUN   TestSimilarityFlagRelativeThreshold
+=== PAUSE TestSimilarityFlagRelativeThreshold
+=== RUN   TestFlagSmallClassCap
+=== PAUSE TestFlagSmallClassCap
+=== CONT  TestSimilarityFlagRelativeThreshold
+=== CONT  TestFlagSmallClassCap
+--- PASS: TestFlagSmallClassCap (0.00s)
+--- PASS: TestSimilarityFlagRelativeThreshold (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam/similarity	0.139s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestSimilarityReviewStates', 'TestSimilarityTeacherOnly']
+=== RUN   TestSimilarityReviewStates
+=== PAUSE TestSimilarityReviewStates
+=== RUN   TestSimilarityTeacherOnly
+=== PAUSE TestSimilarityTeacherOnly
+=== CONT  TestSimilarityReviewStates
+=== CONT  TestSimilarityTeacherOnly
+--- PASS: TestSimilarityTeacherOnly (0.00s)
+2026/11/15 19:57:50 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: a9b783063b6941612fc45b4a7ccf6415b7983c288cfd5d5464e415bc19ab6613
+  Test ProcessID: 3a1a9d79-4a47-457c-bda8-424c34a9eed4
+2026/11/15 19:57:50 ✅ Container started: 68f6ff853df5
+2026/11/15 19:57:50 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:57:51 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSimilarityReviewStates (25.36s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	26.380s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/today ['TestSimilarityTodayProvider']
+=== RUN   TestSimilarityTodayProvider
+2026/11/15 19:58:39 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 28412e5aeac2c5be0c5cd620c3cebfe5eeeb73ef68da9c39c928f7ac7a6b2160
+  Test ProcessID: 03c5d71d-2292-4845-a51a-3f094e67a611
+2026/11/15 19:58:39 ✅ Container started: 68f6ff853df5
+2026/11/15 19:58:39 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:58:39 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:59:15 ✅ Container started: 5636bc78d64d
+2026/11/15 19:59:15 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:59:16 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestSimilarityTodayProvider (52.89s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/today	54.199s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestIntegrityDataMinimal', 'TestEventsCascadeDelete']
+=== RUN   TestIntegrityDataMinimal
+=== PAUSE TestIntegrityDataMinimal
+=== RUN   TestEventsCascadeDelete
+=== PAUSE TestEventsCascadeDelete
+=== CONT  TestIntegrityDataMinimal
+=== CONT  TestEventsCascadeDelete
+2026/11/15 19:59:54 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 9f81246c54061143b86a20eb226440a58d9e415fd021e6f963713274b3728515
+  Test ProcessID: 38bcb1d0-847c-49d8-aa52-71375e9248c8
+2026/11/15 19:59:55 ✅ Container started: 68f6ff853df5
+2026/11/15 19:59:55 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:59:55 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestIntegrityDataMinimal (44.30s)
+--- PASS: TestEventsCascadeDelete (45.59s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	46.419s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestLockFollowsExtend', 'TestLockSurvivesRedisRestart']
+=== RUN   TestLockFollowsExtend
+=== PAUSE TestLockFollowsExtend
+=== RUN   TestLockSurvivesRedisRestart
+=== PAUSE TestLockSurvivesRedisRestart
+=== CONT  TestLockFollowsExtend
+=== CONT  TestLockSurvivesRedisRestart
+2026/11/15 20:00:52 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 886755b3b8a59f4db3c5bfe77d81ffa38f75c5a93dd94a79655c68189f49eef6
+  Test ProcessID: 7f010dc1-9f2b-4096-a443-04d777449574
+2026/11/15 20:00:52 ✅ Container started: 68f6ff853df5
+2026/11/15 20:00:52 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:00:52 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:01:08 ✅ Container started: 5636bc78d64d
+2026/11/15 20:01:08 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:01:08 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestLockSurvivesRedisRestart (20.53s)
+--- PASS: TestLockFollowsExtend (20.58s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	21.366s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestCloseForceSubmitsAll', 'TestCloseBlocksNewWrites', 'TestClosedOutboxOnce']
+=== RUN   TestCloseForceSubmitsAll
+=== PAUSE TestCloseForceSubmitsAll
+=== RUN   TestCloseBlocksNewWrites
+=== PAUSE TestCloseBlocksNewWrites
+=== RUN   TestClosedOutboxOnce
+=== PAUSE TestClosedOutboxOnce
+=== CONT  TestCloseForceSubmitsAll
+=== CONT  TestClosedOutboxOnce
+=== CONT  TestCloseBlocksNewWrites
+2026/11/15 20:01:21 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: a474d1416ef667f27045fc63225e10072c90e558555f92d20ddab7f49de7ca0f
+  Test ProcessID: f7a42e2e-2929-41f0-8740-c392f9fae32e
+2026/11/15 20:01:21 ✅ Container started: 68f6ff853df5
+2026/11/15 20:01:21 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:01:22 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestClosedOutboxOnce (21.50s)
+--- PASS: TestCloseBlocksNewWrites (22.10s)
+--- PASS: TestCloseForceSubmitsAll (22.11s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	22.777s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestGradeMCQSync', 'TestGradeCodeWaitsForJudge', 'TestIEKeepsGrading', 'TestNoSubmissionNoDraftZero']
+=== RUN   TestIEKeepsGrading
+=== PAUSE TestIEKeepsGrading
+=== RUN   TestGradeMCQSync
+=== PAUSE TestGradeMCQSync
+=== RUN   TestGradeCodeWaitsForJudge
+=== PAUSE TestGradeCodeWaitsForJudge
+=== RUN   TestNoSubmissionNoDraftZero
+=== PAUSE TestNoSubmissionNoDraftZero
+=== CONT  TestIEKeepsGrading
+=== CONT  TestGradeMCQSync
+=== CONT  TestNoSubmissionNoDraftZero
+=== CONT  TestGradeCodeWaitsForJudge
+2026/11/15 20:01:59 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 912ee2685f1dd5447d4b82aeb2d80a410b19242bc0c1a77b7dce32289b32aa14
+  Test ProcessID: 19a7db3b-afa6-44d1-a71b-ab3b180b82e8
+2026/11/15 20:02:00 ✅ Container started: 68f6ff853df5
+2026/11/15 20:02:00 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:02:00 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestGradeMCQSync (45.00s)
+--- PASS: TestGradeCodeWaitsForJudge (45.95s)
+--- PASS: TestIEKeepsGrading (46.03s)
+--- PASS: TestNoSubmissionNoDraftZero (46.86s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	47.645s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestComputeScoreStores', 'TestRecomputeIdempotent']
+=== RUN   TestComputeScoreStores
+=== PAUSE TestComputeScoreStores
+=== RUN   TestRecomputeIdempotent
+=== PAUSE TestRecomputeIdempotent
+=== CONT  TestComputeScoreStores
+=== CONT  TestRecomputeIdempotent
+2026/11/15 20:02:59 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: c47dc2c46a750177610e5107ac1ae0c58bff247b11a4ec67d29692fff22e5973
+  Test ProcessID: e7d5c867-0f2d-443d-bc0d-4f3bd55ba0dd
+2026/11/15 20:02:59 ✅ Container started: 68f6ff853df5
+2026/11/15 20:02:59 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:03:00 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestComputeScoreStores (22.42s)
+--- PASS: TestRecomputeIdempotent (22.73s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	23.234s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestAutoPublishOnce', 'TestAutoPublishWaitsForRegrade', 'TestPublishNotificationsOnce']
+=== RUN   TestAutoPublishOnce
+=== PAUSE TestAutoPublishOnce
+=== RUN   TestPublishNotificationsOnce
+=== PAUSE TestPublishNotificationsOnce
+=== RUN   TestAutoPublishWaitsForRegrade
+=== PAUSE TestAutoPublishWaitsForRegrade
+=== CONT  TestAutoPublishOnce
+=== CONT  TestAutoPublishWaitsForRegrade
+=== CONT  TestPublishNotificationsOnce
+2026/11/15 20:03:31 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 17992fe8a66248390c1f732e70d6a06fe4ffd911685f3458d32ee28e9eb56ff1
+  Test ProcessID: bfde9c46-aac5-4bbf-810b-8caea2de1ae3
+2026/11/15 20:03:32 ✅ Container started: 68f6ff853df5
+2026/11/15 20:03:32 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:03:32 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAutoPublishOnce (32.44s)
+--- PASS: TestPublishNotificationsOnce (32.56s)
+--- PASS: TestAutoPublishWaitsForRegrade (32.57s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	33.272s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestPublishHoldBlocksAuto', 'TestReleaseHoldPublishes', 'TestHoldAfterPublished409', 'TestHoldTeacherOnly']
+=== RUN   TestPublishHoldBlocksAuto
+=== PAUSE TestPublishHoldBlocksAuto
+=== RUN   TestReleaseHoldPublishes
+=== PAUSE TestReleaseHoldPublishes
+=== RUN   TestHoldAfterPublished409
+=== PAUSE TestHoldAfterPublished409
+=== RUN   TestHoldTeacherOnly
+=== PAUSE TestHoldTeacherOnly
+=== CONT  TestPublishHoldBlocksAuto
+=== CONT  TestHoldAfterPublished409
+=== CONT  TestHoldTeacherOnly
+=== CONT  TestReleaseHoldPublishes
+--- PASS: TestHoldTeacherOnly (0.00s)
+2026/11/15 20:04:15 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 456c1e381c8d17da4d0f70b14a438fd62790d18a9dae06728ec6457c08a98f89
+  Test ProcessID: ac86b6c1-2f64-4135-8565-3121903033f6
+2026/11/15 20:04:15 ✅ Container started: 68f6ff853df5
+2026/11/15 20:04:15 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:04:16 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestReleaseHoldPublishes (33.97s)
+--- PASS: TestHoldAfterPublished409 (35.32s)
+--- PASS: TestPublishHoldBlocksAuto (35.50s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	36.040s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestResultPayloadWhitelist', 'TestResultRevealAnswersToggle', 'TestResultHiddenOnlyCounts', 'TestResultOfficialScore']
+=== RUN   TestResultPayloadWhitelist
+=== PAUSE TestResultPayloadWhitelist
+=== RUN   TestResultRevealAnswersToggle
+=== PAUSE TestResultRevealAnswersToggle
+=== RUN   TestResultHiddenOnlyCounts
+=== PAUSE TestResultHiddenOnlyCounts
+=== RUN   TestResultOfficialScore
+=== PAUSE TestResultOfficialScore
+=== CONT  TestResultPayloadWhitelist
+=== CONT  TestResultOfficialScore
+=== CONT  TestResultRevealAnswersToggle
+=== CONT  TestResultHiddenOnlyCounts
+2026/11/15 20:04:56 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 97addcc15206bca8f489bc1144ab2de1aa7cb778100def9293eed3767a70982b
+  Test ProcessID: 59f4ec85-622b-4bde-bf26-92dc8d96897b
+2026/11/15 20:04:56 ✅ Container started: 68f6ff853df5
+2026/11/15 20:04:56 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:04:56 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestResultPayloadWhitelist (13.14s)
+--- PASS: TestResultHiddenOnlyCounts (13.25s)
+--- PASS: TestResultRevealAnswersToggle (14.56s)
+--- PASS: TestResultOfficialScore (14.87s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	15.547s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestAbsentStudentRow', 'TestAbsentCannotAppeal']
+=== RUN   TestAbsentStudentRow
+=== PAUSE TestAbsentStudentRow
+=== RUN   TestAbsentCannotAppeal
+=== PAUSE TestAbsentCannotAppeal
+=== CONT  TestAbsentStudentRow
+=== CONT  TestAbsentCannotAppeal
+2026/11/15 20:05:15 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: a8ea2eb315359ebac269ef7a9971d8cb1e0ea5100da41150bf184bceb034cd37
+  Test ProcessID: 3a5cd033-a5d6-47d9-bcd9-2f9eb31b7896
+2026/11/15 20:05:15 ✅ Container started: 68f6ff853df5
+2026/11/15 20:05:15 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:05:15 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAbsentCannotAppeal (13.86s)
+--- PASS: TestAbsentStudentRow (13.96s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	14.433s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestResultsStaffPayload', 'TestResultsProgressWhileOpen', 'TestResultsFlagsTeacherOnly', 'TestResultsCursorStable']
+=== RUN   TestResultsStaffPayload
+=== PAUSE TestResultsStaffPayload
+=== RUN   TestResultsProgressWhileOpen
+=== PAUSE TestResultsProgressWhileOpen
+=== RUN   TestResultsFlagsTeacherOnly
+=== PAUSE TestResultsFlagsTeacherOnly
+=== RUN   TestResultsCursorStable
+=== PAUSE TestResultsCursorStable
+=== CONT  TestResultsStaffPayload
+=== CONT  TestResultsProgressWhileOpen
+=== CONT  TestResultsCursorStable
+=== CONT  TestResultsFlagsTeacherOnly
+2026/11/15 20:05:39 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 5f0013cf202c637c1236aabd4e616d001c94f3ad0061b57e2dcb9413a72495e2
+  Test ProcessID: eca36521-0dad-4bd9-9118-827bce3dc342
+2026/11/15 20:05:39 ✅ Container started: 68f6ff853df5
+2026/11/15 20:05:39 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:05:40 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestResultsStaffPayload (17.03s)
+--- PASS: TestResultsCursorStable (17.27s)
+--- PASS: TestResultsFlagsTeacherOnly (17.45s)
+--- PASS: TestResultsProgressWhileOpen (17.47s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	18.499s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestStatsDistribution', 'TestStatsHardest', 'TestStatsMatchesResults']
+=== RUN   TestStatsDistribution
+=== PAUSE TestStatsDistribution
+=== RUN   TestStatsHardest
+=== PAUSE TestStatsHardest
+=== RUN   TestStatsMatchesResults
+=== PAUSE TestStatsMatchesResults
+=== CONT  TestStatsDistribution
+=== CONT  TestStatsMatchesResults
+=== CONT  TestStatsHardest
+2026/11/15 20:06:03 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f2c7f1c819bd005af2f0ccb00fa07098f2c0c469a49d78ff0e6bca55e51208bd
+  Test ProcessID: b00fd3a8-8304-4db0-9241-9ee5b30ae360
+2026/11/15 20:06:03 ✅ Container started: 68f6ff853df5
+2026/11/15 20:06:03 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:06:04 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestStatsHardest (27.63s)
+--- PASS: TestStatsDistribution (27.72s)
+--- PASS: TestStatsMatchesResults (28.04s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	28.550s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestCSVFormat', 'TestCSVFormulaInjection', 'TestCSVAbsent', 'TestCSVStreams']
+=== RUN   TestCSVFormat
+=== PAUSE TestCSVFormat
+=== RUN   TestCSVFormulaInjection
+=== PAUSE TestCSVFormulaInjection
+=== RUN   TestCSVAbsent
+=== PAUSE TestCSVAbsent
+=== RUN   TestCSVStreams
+=== PAUSE TestCSVStreams
+=== CONT  TestCSVFormat
+=== CONT  TestCSVAbsent
+=== CONT  TestCSVStreams
+=== CONT  TestCSVFormulaInjection
+2026/11/15 20:06:39 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 158c9b17e47f6510aa3730554e7010e0c53ee1efe0a4168ea8082d113f1b55e5
+  Test ProcessID: 8b2d9298-9533-4d0e-afa4-ca1773222a30
+2026/11/15 20:06:39 ✅ Container started: 68f6ff853df5
+2026/11/15 20:06:39 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:06:41 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestCSVFormulaInjection (23.27s)
+--- PASS: TestCSVAbsent (23.31s)
+--- PASS: TestCSVFormat (23.38s)
+--- PASS: TestCSVStreams (23.85s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	24.353s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestAdjustScore', 'TestAdjustKeepsAutoScore', 'TestAdjustAudit', 'TestAdjustAfterPublishNotifies', 'TestAdjustTeacherOnly']
+=== RUN   TestAdjustScore
+=== PAUSE TestAdjustScore
+=== RUN   TestAdjustKeepsAutoScore
+=== PAUSE TestAdjustKeepsAutoScore
+=== RUN   TestAdjustAudit
+=== PAUSE TestAdjustAudit
+=== RUN   TestAdjustAfterPublishNotifies
+=== PAUSE TestAdjustAfterPublishNotifies
+=== RUN   TestAdjustTeacherOnly
+=== PAUSE TestAdjustTeacherOnly
+=== CONT  TestAdjustScore
+=== CONT  TestAdjustAfterPublishNotifies
+=== CONT  TestAdjustTeacherOnly
+=== CONT  TestAdjustAudit
+=== CONT  TestAdjustKeepsAutoScore
+--- PASS: TestAdjustTeacherOnly (0.00s)
+2026/11/15 20:07:07 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: cb630f9d145a32c87969a1589af89d23973bc16b82a3705c0f22bd23b4f7ff3c
+  Test ProcessID: 80032b49-1141-4c7a-a40a-095863b7fc32
+2026/11/15 20:07:07 ✅ Container started: 68f6ff853df5
+2026/11/15 20:07:07 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:07:08 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAdjustAudit (22.78s)
+--- PASS: TestAdjustAfterPublishNotifies (23.31s)
+--- PASS: TestAdjustScore (23.39s)
+--- PASS: TestAdjustKeepsAutoScore (23.44s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	23.956s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestOverrideAnswerKeyRecomputes', 'TestOverrideVoidGivesFullPoints', 'TestOverrideLargeUsesJob', 'TestOverrideNotifiesAfterPublish']
+=== RUN   TestOverrideLargeUsesJob
+=== PAUSE TestOverrideLargeUsesJob
+=== RUN   TestOverrideAnswerKeyRecomputes
+=== PAUSE TestOverrideAnswerKeyRecomputes
+=== RUN   TestOverrideVoidGivesFullPoints
+=== PAUSE TestOverrideVoidGivesFullPoints
+=== RUN   TestOverrideNotifiesAfterPublish
+=== PAUSE TestOverrideNotifiesAfterPublish
+=== CONT  TestOverrideLargeUsesJob
+=== CONT  TestOverrideAnswerKeyRecomputes
+=== CONT  TestOverrideVoidGivesFullPoints
+=== CONT  TestOverrideNotifiesAfterPublish
+2026/11/15 20:07:37 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: cad071f9014022e941f96fe1a21317c14e276d426a71da769baca305af27ee92
+  Test ProcessID: ecfdd789-5e60-4a71-9844-c3bd01812419
+2026/11/15 20:07:37 ✅ Container started: 68f6ff853df5
+2026/11/15 20:07:37 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:07:38 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestOverrideLargeUsesJob (16.64s)
+--- PASS: TestOverrideVoidGivesFullPoints (16.64s)
+--- PASS: TestOverrideNotifiesAfterPublish (16.69s)
+--- PASS: TestOverrideAnswerKeyRecomputes (16.69s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	17.229s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestRegradeAllNewTestsVersion', 'TestRegradeErrorsOnly', 'TestRegradeIdempotent', 'TestRegradeAfterPublishNotifies', 'TestRegradeWhileOpenRejected']
+=== RUN   TestRegradeIdempotent
+=== PAUSE TestRegradeIdempotent
+=== RUN   TestRegradeAllNewTestsVersion
+=== PAUSE TestRegradeAllNewTestsVersion
+=== RUN   TestRegradeErrorsOnly
+=== PAUSE TestRegradeErrorsOnly
+=== RUN   TestRegradeAfterPublishNotifies
+=== PAUSE TestRegradeAfterPublishNotifies
+=== RUN   TestRegradeWhileOpenRejected
+=== PAUSE TestRegradeWhileOpenRejected
+=== CONT  TestRegradeIdempotent
+=== CONT  TestRegradeAfterPublishNotifies
+=== CONT  TestRegradeWhileOpenRejected
+=== CONT  TestRegradeErrorsOnly
+=== CONT  TestRegradeAllNewTestsVersion
+2026/11/15 20:08:01 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 15affb94c0d157e10d37bca6cfb30543212b11eb067e8199e008ecbf270d1e7b
+  Test ProcessID: e34d23c9-822d-41cc-b5d6-44b8daeda3ec
+2026/11/15 20:08:01 ✅ Container started: 68f6ff853df5
+2026/11/15 20:08:01 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:08:02 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestRegradeWhileOpenRejected (18.67s)
+--- PASS: TestRegradeAfterPublishNotifies (18.93s)
+--- PASS: TestRegradeErrorsOnly (18.94s)
+--- PASS: TestRegradeIdempotent (18.97s)
+--- PASS: TestRegradeAllNewTestsVersion (18.98s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	19.512s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestAppealCreate', 'TestAppealWindow', 'TestAppealOnlyOnce', 'TestAppealNotPublished', 'TestAppealNoLLM']
+=== RUN   TestAppealWindow
+=== PAUSE TestAppealWindow
+=== RUN   TestAppealCreate
+=== PAUSE TestAppealCreate
+=== RUN   TestAppealOnlyOnce
+=== PAUSE TestAppealOnlyOnce
+=== RUN   TestAppealNotPublished
+=== PAUSE TestAppealNotPublished
+=== RUN   TestAppealNoLLM
+=== PAUSE TestAppealNoLLM
+=== CONT  TestAppealWindow
+=== CONT  TestAppealNotPublished
+=== CONT  TestAppealNoLLM
+=== CONT  TestAppealOnlyOnce
+=== CONT  TestAppealCreate
+--- PASS: TestAppealNoLLM (0.00s)
+2026/11/15 20:08:25 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 10a678925eaad67e039314088ad0d0fcccf76c2c34fb053bda49aeb365e6e8c4
+  Test ProcessID: b96443fa-d988-4519-89c6-5e67a42f3f38
+2026/11/15 20:08:25 ✅ Container started: 68f6ff853df5
+2026/11/15 20:08:25 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:08:26 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealWindow (9.85s)
+--- PASS: TestAppealCreate (9.93s)
+--- PASS: TestAppealNotPublished (9.97s)
+--- PASS: TestAppealOnlyOnce (10.01s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	10.490s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/assignment ['TestAppealCreate', 'TestAppealNotPublished']
+=== RUN   TestAppealCreate
+2026/11/15 20:08:43 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3c4355c6075739ac63ebb84f6fdfa32f83fc7a2b268ffe83a386511078fc0d74
+  Test ProcessID: 83c2808a-4d6e-4beb-8c83-8a0d12521443
+2026/11/15 20:08:43 ✅ Container started: 68f6ff853df5
+2026/11/15 20:08:43 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:08:43 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealCreate (4.89s)
+=== RUN   TestAppealNotPublished
+--- PASS: TestAppealNotPublished (4.53s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	9.976s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestNoAnswerLeak']
+=== RUN   TestNoAnswerLeak
+2026/11/15 20:08:59 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 522a3b2432e3783dd05fe1382c86434d5b836f2c29d4014e39119f5575db7c06
+  Test ProcessID: f04397bf-23d8-4913-837e-8caf97f0cc9e
+2026/11/15 20:08:59 ✅ Container started: 68f6ff853df5
+2026/11/15 20:08:59 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:08:59 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:09:06 ✅ Container started: 5636bc78d64d
+2026/11/15 20:09:06 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:09:06 🔔 Container is ready: 5636bc78d64d
+leak_matrix 20x6 clean (216 lời gọi: 17 endpoint + Hôm nay + SSE × 6 tình huống, PUBLISHED hai lần)
+--- PASS: TestNoAnswerLeak (7.87s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	8.273s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/contract ['TestNoAnswerLeak']
+=== RUN   TestNoAnswerLeak
+2026/11/15 20:09:12 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 29ec8be206be4f7eedca18927f4c46c810314fe4670e8074efba48d41b93aecc
+  Test ProcessID: 4e131267-08c2-4da2-989f-8bbc1b533b4c
+2026/11/15 20:09:12 ✅ Container started: 68f6ff853df5
+2026/11/15 20:09:12 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:09:12 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:09:16 ✅ Container started: 5636bc78d64d
+2026/11/15 20:09:16 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:09:16 🔔 Container is ready: 5636bc78d64d
+2026/11/15 20:09:16 ✅ Container started: b8d9c357e377
+2026/11/15 20:09:16 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 20:09:16 🔔 Container is ready: b8d9c357e377
+leak_matrix 20x6 clean (221 lời gọi; PUBLISHED chạy hai lần reveal_answers)
+    exam_results_http_test.go:321: leak_matrix 20x6 clean (221 lời gọi)
+--- PASS: TestNoAnswerLeak (24.88s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/contract	26.196s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestResultsPermissionMatrix']
+=== RUN   TestResultsPermissionMatrix
+=== PAUSE TestResultsPermissionMatrix
+=== CONT  TestResultsPermissionMatrix
+--- PASS: TestResultsPermissionMatrix (0.03s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	0.428s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/contract ['TestResultsPermissionMatrix']
+=== RUN   TestResultsPermissionMatrix
+2026/11/15 20:09:44 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e13f9753fc1b021fffbc8744e0ad4dd0357e2597ce9b17b5caadf7c75562ef95
+  Test ProcessID: 2cfc3c7b-31df-44e2-b5c7-91ef55984fbd
+2026/11/15 20:09:44 ✅ Container started: 68f6ff853df5
+2026/11/15 20:09:44 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:09:44 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:09:57 ✅ Container started: 5636bc78d64d
+2026/11/15 20:09:57 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:09:57 🔔 Container is ready: 5636bc78d64d
+2026/11/15 20:09:57 ✅ Container started: b8d9c357e377
+2026/11/15 20:09:57 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 20:09:57 🔔 Container is ready: b8d9c357e377
+--- PASS: TestResultsPermissionMatrix (16.22s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/contract	18.263s
+
+### /Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/exam ['TestPublishFlowConcurrency', 'TestPublishFlowWorkerKilled']
+=== RUN   TestPublishFlowConcurrency
+=== PAUSE TestPublishFlowConcurrency
+=== RUN   TestPublishFlowWorkerKilled
+=== PAUSE TestPublishFlowWorkerKilled
+=== CONT  TestPublishFlowConcurrency
+=== CONT  TestPublishFlowWorkerKilled
+2026/11/15 20:10:09 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 45b8f4b29af09d51c7f3c21f73eb41b138ef740f6c84476fa5bbab5ccacdc6a7
+  Test ProcessID: 8af3ae8f-e59d-44b0-bf37-a2b0427678c1
+2026/11/15 20:10:09 ✅ Container started: 68f6ff853df5
+2026/11/15 20:10:09 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:10:10 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPublishFlowWorkerKilled (30.36s)
+--- PASS: TestPublishFlowConcurrency (31.11s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	31.698s
+

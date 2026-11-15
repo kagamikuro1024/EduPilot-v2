@@ -1,0 +1,22 @@
+$ go test -tags integration ./internal/assignment -run 'TestReviewWhileRunningRejected|TestReviewSupersededRejected' -v
+=== RUN   TestReviewWhileRunningRejected
+2026/11/15 20:07:00 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 7adcb41661d8d70c6033ea687f543d82f196cf8f7823964b38ea242472919b35
+  Test ProcessID: 860d1579-a819-4d02-acf6-7208b5f29784
+2026/11/15 20:07:01 ✅ Container started: 68f6ff853df5
+2026/11/15 20:07:01 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:07:01 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestReviewWhileRunningRejected (24.07s)
+=== RUN   TestReviewSupersededRejected
+--- PASS: TestReviewSupersededRejected (9.19s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	34.145s
+
+rc=0

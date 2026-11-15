@@ -1,0 +1,27 @@
+### 03:26 20:41:54
+== TC-PG03-26
+    ok   X-RateLimit-Limit = 5 (compose có chuyển tiếp RATE_LIMIT_IP_PER_MIN?) = [5]
+    ok   code khi 429 = [RATE_LIMITED]
+    ok   code khi 429 = [RATE_LIMITED]
+    ok   số request không-429 trong 7 = [5]
+    ok   số request 429 trong 7 = [2]
+-- TC-PG03-26 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:27 20:42:26
+== TC-PG03-27
+    ok   có đạt 429 = [429]
+    ok   retry_after ≥ 1 = 19 (≥ 1)
+    ok   retry_after ≤ 60 = 19 (≤ 60)
+    ok   header Retry-After = retry_after = [19]
+-- TC-PG03-27 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:28 20:42:52
+== TC-PG03-28
+    ok   X-RateLimit-Limit là số ~ /^[0-9]+$/
+    ok   X-RateLimit-Remaining request 1 là số ~ /^[0-9]+$/
+    ok   X-RateLimit-Remaining request 2 là số ~ /^[0-9]+$/
+    ok   Remaining giảm (r2 < r1) = 1 (≤ 2)
+-- TC-PG03-28 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:29 20:43:26
+== TC-PG03-29

@@ -1,0 +1,17 @@
+### T1_PSQL -d edupilot (script gốc, --reset)
+Từ chối: DB phải tên edupilot_t1 (dựng stack đo với POSTGRES_DB=edupilot_t1).
+rc=1
+### T1_PSQL -d postgres (script gốc, --reset)
+Từ chối: DB phải tên edupilot_t1 (dựng stack đo với POSTGRES_DB=edupilot_t1).
+rc=1
+### T1_PSQL -d edupilot_t1_r95 (script gốc, --reset)
+Từ chối: DB phải tên edupilot_t1 (dựng stack đo với POSTGRES_DB=edupilot_t1).
+rc=1
+users edupilot trước=81 sau=81
+### --scale lỗi
+--scale phải trong (0, 1].
+### không --reset khi đã có dữ liệu (patched r95)
+Đã có 20 lớp T1. Dùng --reset để xoá và sinh lại.
+Lỗi khi ghi kiểm DB (dữ liệu dở dang — chạy lại với --reset):
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  database "edupilot_t1" does not exist
+

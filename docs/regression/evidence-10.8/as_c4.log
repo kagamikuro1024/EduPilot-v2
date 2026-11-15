@@ -1,0 +1,1 @@
+PASS TC-AS06-08 (fixture SQL, chờ TTL 63 s) cửa sổ đóng > 7 ngày → mục biến mất; đối chứng cửa sổ 2 còn [{"id": "CHECKIN_REVIEW:01a1df31-6919-78ad-9e65-4c2cf8c477d8", "kind": "CHECKIN_REVIEW", "title": "Buổi 40: 2 lượt điểm danh cần xem · QC-ASr108", "reason":

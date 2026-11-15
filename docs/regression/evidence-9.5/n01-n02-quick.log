@@ -1,0 +1,27 @@
+## N01-12 check-meta bản sao thiếu trường
+commit: ../../../../tmp/qc2-m/commit/load-d.json: thiếu commit 1 tệp không hợp lệ rc=0
+timestamp: ../../../../tmp/qc2-m/timestamp/load-d.json: thiếu timestamp 1 tệp không hợp lệ rc=0
+machine: ../../../../tmp/qc2-m/machine/load-d.json: thiếu machine 1 tệp không hợp lệ rc=0
+runs: ../../../../tmp/qc2-m/runs/load-d.json: thiếu runs 1 tệp không hợp lệ rc=0
+config: ../../../../tmp/qc2-m/config/load-d.json: thiếu config 1 tệp không hợp lệ rc=0
+k6_cpus: ../../../../tmp/qc2-m/k6_cpus/load-d.json: thiếu k6_cpus 1 tệp không hợp lệ rc=0
+demo_stack: ../../../../tmp/qc2-m/demo_stack/load-d.json: thiếu demo_stack 1 tệp không hợp lệ rc=0
+demo_stack=unknown: meta đủ rc=0
+## N02-09 chưa đặt mật khẩu
+[1/20] Admin đầu tiên (gateway admin create)…
+Seed lỗi: fetch failed
+rc=1
+## N02-10 stack tắt
+[1/20] Admin đầu tiên (gateway admin create)…
+Seed lỗi: fetch failed
+
+real	0m0.113s
+user	0m0.110s
+sys	0m0.037s
+## N02-11 mật khẩu rỗng/khoảng trắng
+[1/20] Admin đầu tiên (gateway admin create)…
+Seed lỗi: fetch failed
+rc=1
+[1/20] Admin đầu tiên (gateway admin create)…
+Seed lỗi: fetch failed
+rc=1

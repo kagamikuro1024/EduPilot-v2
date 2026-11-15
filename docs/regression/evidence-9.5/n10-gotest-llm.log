@@ -1,0 +1,9 @@
+ok  	github.com/edupilot/backend-go/internal/llm	24.335s
+?   	github.com/edupilot/backend-go/internal/llm/budget	[no test files]
+ok  	github.com/edupilot/backend-go/internal/llm/cost	1.402s
+ok  	github.com/edupilot/backend-go/internal/llm/fake	1.731s
+?   	github.com/edupilot/backend-go/internal/llm/llmrt	[no test files]
+?   	github.com/edupilot/backend-go/internal/llm/llmtest	[no test files]
+ok  	github.com/edupilot/backend-go/internal/llm/provider	1.777s
+ok  	github.com/edupilot/backend-go/internal/llm/scheduler	15.884s
+test rc=0

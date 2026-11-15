@@ -1,0 +1,31 @@
+$ go test -tags integration ./internal/assignment ./internal/mail -run 'TestPublishNotifiesOnlyOwner|TestFeedbackMailContent|TestFeedbackMailNoDraftNoFlags|TestFeedbackMailToVerifiedEmail|TestFeedbackMailSMTPDownDoesNotBlock' -v
+=== RUN   TestPublishNotifiesOnlyOwner
+2026/11/15 20:11:04 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: c455a7a32071f39d6d61a7474acde581d5287c76907dc7627aa1c98256bbf3f3
+  Test ProcessID: bc774d89-ed07-4b91-986f-c2a6acf5f607
+2026/11/15 20:11:04 ✅ Container started: 68f6ff853df5
+2026/11/15 20:11:04 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:11:04 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPublishNotifiesOnlyOwner (5.77s)
+=== RUN   TestFeedbackMailContent
+--- PASS: TestFeedbackMailContent (5.07s)
+=== RUN   TestFeedbackMailNoDraftNoFlags
+--- PASS: TestFeedbackMailNoDraftNoFlags (5.83s)
+=== RUN   TestFeedbackMailToVerifiedEmail
+--- PASS: TestFeedbackMailToVerifiedEmail (4.67s)
+=== RUN   TestFeedbackMailSMTPDownDoesNotBlock
+--- PASS: TestFeedbackMailSMTPDownDoesNotBlock (4.06s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	26.047s
+testing: warning: no tests to run
+PASS
+ok  	github.com/edupilot/backend-go/internal/mail	0.565s [no tests to run]
+
+rc=0

@@ -1,0 +1,7 @@
+n=      85
+hi=84 d3ff9795: ok  	github.com/edupilot/backend-go/internal/contract	16.042s 
+mid=42 a7c36e30: ok  	github.com/edupilot/backend-go/internal/contract	16.532s 
+mid=63 e6eba277: ok  	github.com/edupilot/backend-go/internal/contract	16.022s 
+mid=73 e217523d: ok  	github.com/edupilot/backend-go/internal/contract	16.372s 
+mid=78 bc0467ce: ok  	github.com/edupilot/backend-go/internal/contract	15.645s 
+mid=81 e9f5ec64: ok  	github.com/edupilot/backend-go/internal/contract	15.512s 

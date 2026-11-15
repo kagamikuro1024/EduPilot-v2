@@ -1,0 +1,33 @@
+TC-P206-01 P 201 ['email', 'full_name', 'id', 'last_login_at', 'role', 'status', 'version'] status=INVITED
+TC-P206-02 P 9 vai/trường lạ → 422, 0 user mới
+TC-P206-03 P email trùng 409/409(hoa-thường); idem replay=true; thiếu key 422
+TC-P206-04 P thư mời tới GV: 'Lời mời tham gia EduPilot'
+TC-P206-05 P accept-invite 200; DB TEACHER|ACTIVE|t; preview 200
+TC-P206-06 P dùng lại token mời → 410 {'reason': 'used'}
+TC-P206-07 P 30 song song {410: 29, 200: 1}; phiên=1
+TC-P206-09 P token mời không ở DB (chỉ băm)
+TC-P206-13 P resend 200,429; người ACTIVE 409; TEACHER 403
+TC-P206-15 P PATCH DISABLED 200; access cũ 401 SESSION_REVOKED; revoked_reason=ACCOUNT_DISABLED
+TC-P206-16 P mật khẩu đúng → 403 ACCOUNT_DISABLED; sai → 401
+TC-P206-17 P mở khoá 200, đăng nhập lại 200; sai version 409
+TC-P206-19 P TEACHER→TA 200; →ADMIN 422; →STUDENT 422; tự khoá 409; tự đổi vai 409; admin còn ACTIVE
+TC-P206-21 P 4 thao tác × 4 danh tính: chỉ ADMIN []
+TC-P206-22 P JWT STUDENT + DB role=ADMIN → /admin/users 403 (vai trong JWT thắng); đã trả vai về STUDENT
+TC-P206-23 P token giả [401, 401]
+TC-P206-24 P IDOR [403, 403, 403]
+TC-P206-26 P đi hết 107 người (4 trang, không trùng); limit=101 → 422; lọc role+q 0
+TC-P206-27 P khoá ['email', 'full_name', 'id', 'last_login_at', 'role', 'status', 'version']
+TC-P206-31 P register role ADMIN 422; admin/users role ADMIN 422
+TC-P206-42 P email GV/token/mật khẩu trong log gateway+worker: 0/0/0
+TC-P208-01 P 201; replay=true; count=1; join_code=None 
+TC-P208-02 F class_code trùng(hoa-thường) 201; còn lại [422, 422, 422, 422, 422, 422]
+TC-P208-03 P 10 song song cùng class_code: {409: 9, 201: 1}
+TC-P208-12 P assign hợp lệ 200; sai vai/rác → 422 trừ []
+TC-P208-13 F GV1 trước 200; gán GV2 422; GV1 (access cũ) sau 200; GV2 403
+TC-P208-17 F thông báo COURSE_ASSIGNED sau 44.7s: count=0; tiêu đề []
+TC-P208-23 F SV đọc thông báo của GV2 → 404; id lạ → 404
+TC-P208-26 P 5 thao tác × 4 danh tính []; GV của lớp tự assign 403
+TC-P208-09 P sửa 200; sai version 409 VERSION_CONFLICT; archive 200; lần hai 200
+TC-P208-10 F ghi vào lớp đã lưu trữ: [409, 409, 403] (kỳ vọng 409 COURSE_ARCHIVED)
+TC-P208-40 F đường Admin thêm SV: [404, 404, 404]
+ok 20d91 SK20D91

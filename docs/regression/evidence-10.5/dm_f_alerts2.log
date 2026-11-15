@@ -1,0 +1,8 @@
+notifications: 2
+  ['admin@edupilot.local', 'DECISION_FAIL_CLOSED', '13:53:23', '6% lời gọi bị chặn an toàn trong 1 giờ qua (19 / 316).']
+  ['admin@edupilot.local', 'DECISION_FAIL_CLOSED', '13:53:23', '24% lời gọi bị chặn an toàn trong 1 giờ qua (19 / 80).']
+PASS D07-10 teacher không nhận DECISION_FAIL_CLOSED 200
+PASS D07-10 ta không nhận DECISION_FAIL_CLOSED 200
+PASS D07-10 sv.kha không nhận DECISION_FAIL_CLOSED 200
+admin DECISION items: [('DECISION_FAIL_CLOSED', 'Quyết định nhanh: Kiểm duyệt Threads đang chặn nhiều'), ('DECISION_FAIL_CLOSED', 'Quyết định nhanh: Cờ chèn lệnh khi chấm đang chặn nhiều')]
+notifications: 2

@@ -1,0 +1,9 @@
+PASS TC-PE08-58 GV trả lời ADJUSTED 200; SV thấy 3.50 adjusted=True appeal=ADJUSTED; audit: exam.score_adjust|1
+PASS TC-PE08-59 thông báo phúc khảo gửi SV: 3
+PASS TC-PE08-54 regrade all: 202; sau chấm lại: [('01', '9.00'), ('06', '7.00'), ('02', '6.33'), ('07', '4.33')] (không đổi điểm đã chỉnh tay)
+18 [(('R5 SV 1', 'R5 SV 6'), ('1', True)), (('R5 SV 3', 'R5 SV 8'), ('1', True)), (('R5 SV 2', 'R5 SV 7'), ('1', True)), (('R5 SV 9', 'R5 SV 10'), ('1', True)), (('R5 SV 10', 'R5 SV 12'), ('0.987', True)), (('R5 SV 9', 'R5 SV 12'), ('0.987', True)), (('R5 SV 6', 'R5 SV 8'), ('0.769', False)), (('R5 SV 3', 'R5 SV 6'), ('0.769', False))]
+FAIL TC-PE07-31 A~B (SV9~SV10, đổi tên+định dạng) ('1', True); A~C (khác thuật toán) None; A~A' (đổi thứ tự) ('0.987', True); QC winnowing: 1,000 / 0,051 / 0,947 (hệ thống gốc 0,986)
+PASS TC-PE07-35 cặp gắn cờ: [('R5 SV 1', 'R5 SV 6'), ('R5 SV 3', 'R5 SV 8'), ('R5 SV 2', 'R5 SV 7'), ('R5 SV 9', 'R5 SV 10'), ('R5 SV 10', 'R5 SV 12'), ('R5 SV 9', 'R5 SV 12')]
+PASS TC-PE07-40 TA xem similarity 403; TA review 403
+PASS TC-PE07-34 GV chạy lại: 202 job SUCCEEDED; số cặp 18; run_id mới True
+PASS TC-PE07-39 chi tiết cặp 200 khoá ['a', 'b', 'pair']

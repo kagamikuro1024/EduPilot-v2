@@ -1,0 +1,7 @@
+PASS G01-18 SV: 6 phản hồi không có guidance / ai_comments / first_reviewed 0
+PASS G01-09 cờ tắt: reflect → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G01-09 cờ tắt: apply → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G01-09 cờ tắt: regrade-stale → 409 GUIDANCE_DISABLED 409 GUIDANCE_DISABLED
+PASS G01-09 cờ tắt: overview enabled=false (dữ liệu cũ còn trong DB) 200 False
+PASS G01-09 dữ liệu lưu ý cũ còn trong DB 2
+PASS G01-09 cờ tắt: màn duyệt không có khối guidance ['result', 'submission', 'assignment', 'criteria', 'flags', 'pass_detail', 'late']

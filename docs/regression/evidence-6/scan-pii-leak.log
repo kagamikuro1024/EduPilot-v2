@@ -1,0 +1,60 @@
+== log compose (payload gửi provider giả + mọi log dịch vụ) ==
+log: Vũ Hoàng Giang        : 0
+log: Vu Hoang Giang          : 0
+log: 20229001                : 0
+log: sv.gioi@edupilot.local  : 0
+log: 0912345678              : 0
+log: 001099012345            : 0
+log: placeholder [[SV_       : 0
+
+== bảng không bao giờ được chứa chữ thô ==
+llm_audit ← Vũ Hoàng Giang : 0
+forum_threads ← Vũ Hoàng Giang : 0
+forum_posts ← Vũ Hoàng Giang : ERR
+pii_events ← Vũ Hoàng Giang : ERR
+outbox ← Vũ Hoàng Giang  : ERR
+jobs ← Vũ Hoàng Giang    : ERR
+audit_log ← Vũ Hoàng Giang : ERR
+llm_audit ← Vu Hoang Giang : 0
+forum_threads ← Vu Hoang Giang : 0
+forum_posts ← Vu Hoang Giang : ERR
+pii_events ← Vu Hoang Giang : ERR
+outbox ← Vu Hoang Giang    : ERR
+jobs ← Vu Hoang Giang      : ERR
+audit_log ← Vu Hoang Giang : ERR
+llm_audit ← 20229001       : 0
+forum_threads ← 20229001   : 0
+forum_posts ← 20229001     : ERR
+pii_events ← 20229001      : ERR
+outbox ← 20229001          : ERR
+jobs ← 20229001            : ERR
+audit_log ← 20229001       : ERR
+llm_audit ← sv.gioi@edupilot.local : 0
+forum_threads ← sv.gioi@edupilot.local : 0
+forum_posts ← sv.gioi@edupilot.local : ERR
+pii_events ← sv.gioi@edupilot.local : ERR
+outbox ← sv.gioi@edupilot.local : ERR
+jobs ← sv.gioi@edupilot.local : ERR
+audit_log ← sv.gioi@edupilot.local : ERR
+llm_audit ← 0912345678     : 0
+forum_threads ← 0912345678 : 0
+forum_posts ← 0912345678   : ERR
+pii_events ← 0912345678    : ERR
+outbox ← 0912345678        : ERR
+jobs ← 0912345678          : ERR
+audit_log ← 0912345678     : ERR
+llm_audit ← 001099012345   : 0
+forum_threads ← 001099012345 : 0
+forum_posts ← 001099012345 : ERR
+pii_events ← 001099012345  : ERR
+outbox ← 001099012345      : ERR
+jobs ← 001099012345        : ERR
+audit_log ← 001099012345   : ERR
+
+== được phép (chat riêng của chính sinh viên giữ chữ thô; chỉ in để đối chiếu) ==
+chat_messages ← Vũ Hoàng Giang : 1
+chat_messages ← 20229001   : 1
+
+== placeholder không được lọt ra chữ người dùng thấy ==
+chat_messages placeholder    : 1
+forum_posts placeholder      : 0

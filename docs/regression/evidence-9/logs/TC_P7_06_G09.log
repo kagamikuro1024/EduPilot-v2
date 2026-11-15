@@ -1,0 +1,17 @@
+$ go test ./internal/grading -run 'TestLatePenaltyDecimal|TestLatePenaltyFloorZero|TestLatePenaltyCappedByMaxDays|TestLatePenaltyEditableByStaff' -v
+=== RUN   TestLatePenaltyDecimal
+=== PAUSE TestLatePenaltyDecimal
+=== RUN   TestLatePenaltyCappedByMaxDays
+=== PAUSE TestLatePenaltyCappedByMaxDays
+=== RUN   TestLatePenaltyFloorZero
+=== PAUSE TestLatePenaltyFloorZero
+=== CONT  TestLatePenaltyDecimal
+--- PASS: TestLatePenaltyDecimal (0.00s)
+=== CONT  TestLatePenaltyFloorZero
+--- PASS: TestLatePenaltyFloorZero (0.00s)
+=== CONT  TestLatePenaltyCappedByMaxDays
+--- PASS: TestLatePenaltyCappedByMaxDays (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	0.626s
+
+rc=0

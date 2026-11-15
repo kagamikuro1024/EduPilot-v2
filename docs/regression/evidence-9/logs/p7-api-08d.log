@@ -1,0 +1,15 @@
+PASS 01 hàng chờ mặc định (DRAFT) không có bài FAILED 
+FAIL 01 status=FAILED → 3 bài, chỉ bản MATCHED mới nhất 200 0
+FAIL 01 phân trang con trỏ: limit 2 → next_cursor, trang kế còn 1 {'items': [], 'next_cursor': None}
+PASS 01 q chứa % được thoát (không khớp tất cả) 
+FAIL 01 q theo tên → 1 dòng 200 0
+PASS 08 STUDENT GET hàng chờ → 403 
+PASS 08 ADMIN GET hàng chờ → 403 
+PASS 08 TA GET hàng chờ → 200 
+PASS 08 TEACHER GET hàng chờ → 200 
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-9/scripts/p7-api-08d.py", line 29, in <module>
+    r0 = items[0]["result"]; rid = r0["id"]; sub = items[0]["id"]
+         ~~~~~^^^
+IndexError: list index out of range
+rc=1

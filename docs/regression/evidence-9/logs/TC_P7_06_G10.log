@@ -1,0 +1,26 @@
+$ go test -tags integration ./internal/grading -run 'TestLLMDownFailedNotZero|TestBudgetExhaustedNoRetry|TestInvalidOutputFailedNotZero|TestFailedResultManualGradable' -v
+=== RUN   TestLLMDownFailedNotZero
+2026/11/15 19:48:08 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: d430e3da6adf3e21c051e0cf95227eb6e476ed9bd14733622ccdd1c3d730a1ff
+  Test ProcessID: 0791967a-43dc-48d3-bb67-fb3bfd668dda
+2026/11/15 19:48:08 ✅ Container started: 68f6ff853df5
+2026/11/15 19:48:08 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:48:08 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestLLMDownFailedNotZero (4.31s)
+=== RUN   TestBudgetExhaustedNoRetry
+--- PASS: TestBudgetExhaustedNoRetry (6.32s)
+=== RUN   TestInvalidOutputFailedNotZero
+--- PASS: TestInvalidOutputFailedNotZero (3.63s)
+=== RUN   TestFailedResultManualGradable
+--- PASS: TestFailedResultManualGradable (1.62s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	16.580s
+
+rc=0

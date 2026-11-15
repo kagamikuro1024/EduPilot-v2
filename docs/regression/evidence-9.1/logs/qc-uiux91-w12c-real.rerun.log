@@ -1,0 +1,61 @@
+
+Running 4 tests using 1 worker
+
+(node:69751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO #3 Mở lớp: {"title":null,"desc":"Người được gán nhận thông báo kèm mã tham gia.","label":null}
+INFO #4 gửi lời mời: {"title":null,"desc":"Liên kết đặt mật khẩu dùng trong 72 giờ.","label":null}
+INFO #34 nhãn: {"title":null,"desc":null} switch: {"title":null,"desc":"Sinh viên vào bằng mã sẽ chờ bạn duyệt.","label":null}
+INFO #29 placeholder: AN7K2MQ
+  ✓  1 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:26:1 › TC-UX01-4/11 tooltip thay câu mô tả: có chữ, ≤ 12 từ, aria-describedby (hoặc title) trỏ tới (20.0s)
+INFO #48 dòng phụ /students: 3 sinh viên
+INFO #11 /attendance: Điểm danh Lưu điểm danh  Lớp chưa có lịch buổi học  Tạo lịch buổi học
+  ✘  2 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) (8.0s)
+(node:70076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO teacher: ep:ui:course sau đăng nhập = null; lớp của tôi = QFMWHVUFAZVI,QD8C,QD8B,SK20D91,QD9T,QD9E,QD9D,QD9C,QC196964,QC117283,QD9B,QD9A,E6C2,E6C1,QC-ASr108-bo2,QC-ASr108-bo1,761988,761987
+INFO sv.gioi: ep:ui:course sau đăng nhập = null; lớp của tôi = QC-AS,QC-AS7r108,QD8C,QD8B,QC-AS6r108,QC-AS5r108,QC-AS4r108,QD9T,QC-AS3r108,QD9E,QD9D,QD9C,QD9B,QD9A,E6C1,QC-AS2r108,QC-ASr108,QC-ASr108-bo2,QC-ASr108-bo1,761988,761987
+INFO lớp SV không thuộc: SHSACDD0 | tất cả: SHSACDD0,SHRACDD0,SHAACDD0,QC-AS,QFMWHVUFAZVI,SHSF9A39,SHRF9A39,SHAF9A39,QC-AS7r108,QD8C,QD8B,QC-AS6r108,SHSA0940,SHRA0940,SHAA0940,QC-AS5r108,SK0E3F71,SK9E3F71,SJ20D91,sk20d91,SK20D91,QC-AS4r108,QD9T,QC-AS3r108,R5C3,QD9E,QD9D,QD9C,QC196964,QC117283,QD9B,QD9A,E6C2,E6C1,QC-AS2r108,QC-ASr108,R5C2,R5C1,QC-ASr108-bo2,QC-ASr108-bo1,761988,761987
+INFO SV với lớp lạ → ep:ui:course = null
+  ✓  3 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:109:1 › TC-UX06-6/7/PQ ep:ui:course là lớp không còn / không thuộc mình → bỏ giá trị, chọn lớp theo AC2; SV chỉ lớp của mình (18.5s)
+  ✘  4 [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course (2.8s)
+
+
+  1) [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) 
+
+    Error: dòng phụ buổi học
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not ""
+
+      84 |   const line = t2.match(/buổi \d+ · [^·]*\d{2}:\d{2}[–-]\d{2}:\d{2} · P\.\d+/i)?.[0] ?? "";
+      85 |   console.log("INFO #11 /attendance:", line || t2.slice(0, 160));
+    > 86 |   expect(line, "dòng phụ buổi học").not.toBe("");
+         |                                         ^
+      87 |   expect(line).not.toMatch(/\b76198[78]\b/);
+      88 |   await ctx.close();
+      89 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:86:41
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12c-real/qc-uiux91-w12c-real-TC-UX0-b8304-mã-lớp-ở-dòng-phụ-11-47-48--desktop/error-context.md
+
+  2) [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course 
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      185 |   const teacher = users.find((u) => u.email === "teacher@edupilot.local")!;
+      186 |   const code = `QC${Date.now().toString().slice(-6)}`;
+    > 187 |   const mk = await post(pa, "/admin/courses", { subject_code: "INT1006", class_code: code, name: "Lớp thử QC", semester: "2026-2027-HK1", teacher_id: teacher.id });
+          |                                                                                                                                                               ^
+      188 |   console.log("INFO tạo lớp:", mk.status, code);
+      189 |   expect(mk.status).toBeLessThan(300);
+      190 |   const id = (mk.body as { id?: string; course?: { id: string } }).id ?? (mk.body as { course: { id: string } }).course.id;
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w12c-real.spec.ts:187:159
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w12c-real/qc-uiux91-w12c-real-TC-UX0-e8768-c-→-bỏ-giá-trị-ep-ui-course-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) 
+    [desktop] › e2e/qc-uiux91-w12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course 
+  2 passed (50.1s)

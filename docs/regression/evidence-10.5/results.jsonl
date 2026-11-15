@@ -1,0 +1,115 @@
+{"tc": "A0 admin GET providers", "st": "PASS", "note": "200"}
+{"tc": "A1 có đúng 1 provider type=decision", "st": "PASS", "note": "1"}
+{"tc": "A1b decision-fake bật, gemini-decision-1 không bật", "st": "PASS", "note": ""}
+{"tc": "D01-19 chọn gemini-decision-1 khi ALLOW_REAL=false → 409 DECISION_REAL_DISABLED", "st": "PASS", "note": "409 {\"code\": \"DECISION_REAL_DISABLED\", \"message\": \"Chưa được phép dùng bản thật.\", \"trace_id\": \"823c06c0b1e261156b3c912eb8c6418a\"}"}
+{"tc": "D01-19b mô hình KHÔNG đổi sau 409", "st": "PASS", "note": ""}
+{"tc": "D01-28b tạo provider decision thứ hai bị từ chối (4xx, không 5xx)", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"4fa5fa27d13c7bd5d6c8e1ae16e71bb2\", \"details\": [{\"field\": \"enab"}
+{"tc": "D01-26 teacher không thấy provider decision (403 hoặc ẩn)", "st": "PASS", "note": "200 vis=False"}
+{"tc": "D01-26b teacher PUT provider decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26c teacher POST test → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26 ta không thấy provider decision (403 hoặc ẩn)", "st": "PASS", "note": "403 vis=None"}
+{"tc": "D01-26b ta PUT provider decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26c ta POST test → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26 sv.kha không thấy provider decision (403 hoặc ẩn)", "st": "PASS", "note": "403 vis=None"}
+{"tc": "D01-26b sv.kha PUT provider decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26c sv.kha POST test → 403", "st": "PASS", "note": "403"}
+{"tc": "D01-26d không token → 401", "st": "PASS", "note": "401"}
+{"tc": "D01-27 test kết nối decision-fake → 200 ok:true (cục bộ, không mạng)", "st": "PASS", "note": "200 19ms {\"ok\": true, \"latency_ms\": 0}"}
+{"tc": "D02-13 mặc định ba cổng tắt, ngưỡng đúng", "st": "PASS", "note": "[['CHAT_ROUTING', 'f', '0.950', '800'], ['INJECTION_FLAG', 'f', '0.500', '3000'], ['THREADS_PRECHECK', 'f', '0.050', '800']]"}
+{"tc": "D02-06 không hàng course_decision_gates bật", "st": "PASS", "note": ""}
+{"tc": "D01-19c lưu hai mô hình (thật TẮT) → 200", "st": "PASS", "note": "200 {\"id\": \"01a1df27-14df-7147-9812-e8fd54302729\", \"type\": \"decision\", \"name\": \"Quyết định\", \"base_url\":"}
+{"tc": "D01-19 BẬT gemini-decision-1 khi ALLOW_REAL=false → 409 DECISION_REAL_DISABLED", "st": "PASS", "note": "409 {\"code\": \"DECISION_REAL_DISABLED\", \"message\": \"Chưa được phép dùng bản thật.\", \"trace_id\": \"c2b3b391be5267708661a1443c83de4a\"}"}
+{"tc": "D01-19d sau 409 mô hình thật vẫn tắt", "st": "PASS", "note": ""}
+{"tc": "D01-26e teacher không thấy tác vụ DECIDE ở routes", "st": "PASS", "note": ""}
+{"tc": "E1 admin GET decision → 200 {provider, gates[3], real_allowed=false}", "st": "PASS", "note": "200 {\"provider\": {\"id\": \"01a1df27-14df-7147-9812-e8fd54302729\", \"model\": \"decision-fake\", \"status\": \"fake\", \"fake\": true}, \"gates\": [{\"gate\": \"CHAT_ROUTING\", \"enabled\": false, \"threshold\": \"0.95\", \"timeou"}
+{"tc": "D02-13 mặc định THREADS ε0,05/800, INJECTION τ0,5/3000, CHAT τ0,95/800, tắt", "st": "PASS", "note": "{\"CHAT_ROUTING\": {\"gate\": \"CHAT_ROUTING\", \"enabled\": false, \"threshold\": \"0.95\", \"timeout_ms\": 800, \"version\": 1, \"courses_enabled\": 0, \"courses_total\": 20}, \"INJECTION_FLAG\": {\"gate\": \"INJECTION_FLAG"}
+{"tc": "D02-22 teacher GET /admin/llm/decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 teacher PUT /admin/llm/decision/gates/THREADS_PRECHECK → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 teacher GET /admin/llm/decision/courses → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 teacher GET /admin/observability/decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 teacher GET /courses/{id}/decision-gates → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 teacher PUT /courses/{id}/decision-gates/THREADS_PRECHECK → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 ta GET /admin/llm/decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 ta PUT /admin/llm/decision/gates/THREADS_PRECHECK → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 ta GET /admin/llm/decision/courses → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 ta GET /admin/observability/decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 ta GET /courses/{id}/decision-gates → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 ta PUT /courses/{id}/decision-gates/THREADS_PRECHECK → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 sv.kha GET /admin/llm/decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 sv.kha PUT /admin/llm/decision/gates/THREADS_PRECHECK → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 sv.kha GET /admin/llm/decision/courses → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 sv.kha GET /admin/observability/decision → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 sv.kha GET /courses/{id}/decision-gates → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 sv.kha PUT /courses/{id}/decision-gates/THREADS_PRECHECK → 403", "st": "PASS", "note": "403"}
+{"tc": "D02-22 không token → 401", "st": "PASS", "note": "401"}
+{"tc": "D02-11 THREADS_PRECHECK threshold=0.01 → 200", "st": "PASS", "note": "200 {\"gate\": \"THREADS_PRECHECK\", \"enabled\": false, \"threshold\": \"0.01\", \"timeout_ms\": 800, \"version\": 2, \"courses_"}
+{"tc": "D02-11 THREADS_PRECHECK threshold=0.2 → 200", "st": "PASS", "note": "200 {\"gate\": \"THREADS_PRECHECK\", \"enabled\": false, \"threshold\": \"0.2\", \"timeout_ms\": 800, \"version\": 3, \"courses_e"}
+{"tc": "D02-11 THREADS_PRECHECK threshold=0.009 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"4f1c035d2d5f9c7e756f01f51f31b352"}
+{"tc": "D02-11 THREADS_PRECHECK threshold=0.201 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"e063d631e5d31cc580b928fad54e153d"}
+{"tc": "D02-11 CHAT_ROUTING threshold=0.7 → 200", "st": "PASS", "note": "200 {\"gate\": \"CHAT_ROUTING\", \"enabled\": false, \"threshold\": \"0.7\", \"timeout_ms\": 800, \"version\": 2, \"courses_enabl"}
+{"tc": "D02-11 CHAT_ROUTING threshold=0.99 → 200", "st": "PASS", "note": "200 {\"gate\": \"CHAT_ROUTING\", \"enabled\": false, \"threshold\": \"0.99\", \"timeout_ms\": 800, \"version\": 3, \"courses_enab"}
+{"tc": "D02-11 CHAT_ROUTING threshold=0.69 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"36239b83eee1aa027b8f22d79008eecf"}
+{"tc": "D02-11 CHAT_ROUTING threshold=0.991 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"e98a875dbb260a6c4002d1e3c5d50d07"}
+{"tc": "D02-11 INJECTION_FLAG threshold=0.3 → 200", "st": "PASS", "note": "200 {\"gate\": \"INJECTION_FLAG\", \"enabled\": false, \"threshold\": \"0.3\", \"timeout_ms\": 3000, \"version\": 2, \"courses_en"}
+{"tc": "D02-11 INJECTION_FLAG threshold=0.9 → 200", "st": "PASS", "note": "200 {\"gate\": \"INJECTION_FLAG\", \"enabled\": false, \"threshold\": \"0.9\", \"timeout_ms\": 3000, \"version\": 3, \"courses_en"}
+{"tc": "D02-11 INJECTION_FLAG threshold=0.29 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"85668c983ad49f02a86933ee4ae7cb2a"}
+{"tc": "D02-11 INJECTION_FLAG threshold=0.91 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"802346a02c37819d638db38d44798f02"}
+{"tc": "D02-11 THREADS_PRECHECK timeout_ms=200 → 200", "st": "PASS", "note": "200 {\"gate\": \"THREADS_PRECHECK\", \"enabled\": false, \"threshold\": \"0.2\", \"timeout_ms\": 200, \"version\": 4, \"courses_e"}
+{"tc": "D02-11 THREADS_PRECHECK timeout_ms=5000 → 200", "st": "PASS", "note": "200 {\"gate\": \"THREADS_PRECHECK\", \"enabled\": false, \"threshold\": \"0.2\", \"timeout_ms\": 5000, \"version\": 5, \"courses_"}
+{"tc": "D02-11 THREADS_PRECHECK timeout_ms=199 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"0259da5dcb03fca63121538b1500bb16"}
+{"tc": "D02-11 THREADS_PRECHECK timeout_ms=5001 → 422", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"ac35ebcc6bdc058a1f838f9e43c74e9d"}
+{"tc": "D02-12 gate lạ → 404", "st": "PASS", "note": "404"}
+{"tc": "D02-12 thân chuỗi → 4xx không 5xx", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"e6"}
+{"tc": "D02-12 thân rỗng → 4xx không 5xx", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"fe"}
+{"tc": "D02-12 thân enabled chuỗi → 4xx không 5xx", "st": "PASS", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"5f"}
+{"tc": "D02-17 PUT đổi enabled → 200, version+1", "st": "PASS", "note": "200 {\"gate\": \"CHAT_ROUTING\", \"enabled\": true, \"threshold\": \"0.95\", \"timeout_ms\": 800, \"version\": 5, \"cou"}
+{"tc": "D02-18 version cũ → 409 VERSION_CONFLICT", "st": "PASS", "note": "409"}
+{"tc": "D02-17 audit_log(entity='decision_gate') có dòng", "st": "PASS", "note": "[['decision_gate', 'UPDATE', 't']]"}
+{"tc": "D02-24 GET course gates: 3 cổng {enabled, effective, version}", "st": "PASS", "note": "200 {\"items\": [{\"gate\": \"CHAT_ROUTING\", \"enabled\": false, \"effective\": false, \"version\": 0}, {\"gate\": \"INJECTION_FLAG\", \"enabled\": false, \"effective\": false, \"version\": 0}, {\"gate\": \"THREADS_PRECHECK\", \"e"}
+{"tc": "D02-19 PUT lớp → 200", "st": "PASS", "note": "200 {\"gate\": \"THREADS_PRECHECK\", \"enabled\": true, \"effective\": false, \"version\": 2}"}
+{"tc": "D02-19 version cũ → 409", "st": "PASS", "note": "409"}
+{"tc": "D02-19 lớp lạ → 404", "st": "PASS", "note": "404"}
+{"tc": "D02-19 UUID rác → 4xx không 5xx", "st": "PASS", "note": "422"}
+{"tc": "D02-24 effective=false khi chưa bật hệ thống dù lớp bật", "st": "PASS", "note": ""}
+{"tc": "D02-25 cursor duyệt hết, không trùng", "st": "PASS", "note": "6 lớp"}
+{"tc": "D02-25 limit=500 → kẹp 100 hoặc 422", "st": "PASS", "note": "422"}
+{"tc": "D06-10 tìm theo mã", "st": "PASS", "note": ""}
+{"tc": "D07-01 window=24h → 200, 3 cổng", "st": "PASS", "note": "200 {\"gates\": [{\"gate\": \"CHAT_ROUTING\", \"state\": \"off\", \"courses_enabled\": 0, \"courses_total\": 20, \"calls\": 0, \"fast_pct\": 0, \"fallback_pct\": 0, \"fail_closed_pct\": "}
+{"tc": "D07-14 no-store (24h)", "st": "PASS", "note": "no-store"}
+{"tc": "D07-01 window=7d → 200, 3 cổng", "st": "PASS", "note": "200 {\"gates\": [{\"gate\": \"CHAT_ROUTING\", \"state\": \"off\", \"courses_enabled\": 0, \"courses_total\": 20, \"calls\": 0, \"fast_pct\": 0, \"fallback_pct\": 0, \"fail_closed_pct\": "}
+{"tc": "D07-14 no-store (7d)", "st": "PASS", "note": "no-store"}
+{"tc": "D07 window lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "D03-02 P=0,9: 422, 1 DECIDE FAST, 0 CLASSIFY", "st": "PASS", "note": "422 PII_DETECTED [['THREADS_PRECHECK', 'FAST', 'ok', '', 'INTERACTIVE']] cl=0"}
+{"tc": "D05-02 P=0,9 (<τ 0,95) vague: 1 DECIDE FALLBACK + CLASSIFY", "st": "FAIL", "note": "200 ttfb=314ms [['DECIDE', 'ok', 'CHAT_ROUTING', 'FALLBACK']] cl=[]"}
+{"tc": "D05-03 specific: 0 DECIDE", "st": "PASS", "note": "200 []"}
+{"tc": "D05-04/D09 khủng hoảng: 0 DECIDE", "st": "PASS", "note": "200 []"}
+{"tc": "D03-03 P=0,01 ≤ ε: 201, FAST, 0 CLASSIFY", "st": "PASS", "note": "201 None [['THREADS_PRECHECK', 'FAST', 'ok', '', 'INTERACTIVE']] cl=0"}
+{"tc": "D03-04a P=0,2: FALLBACK + 1 CLASSIFY, stub allow → 201", "st": "PASS", "note": "201 None [['THREADS_PRECHECK', 'FALLBACK', 'ok', '', 'INTERACTIVE']] cl=1"}
+{"tc": "D03-04b P=0,2: stub block → 422", "st": "PASS", "note": "422 PII_DETECTED [['THREADS_PRECHECK', 'FALLBACK', 'ok', '', 'INTERACTIVE']]"}
+{"tc": "D05-01 P=0,97 (≥τ): 1 DECIDE FAST, 0 CLASSIFY", "st": "FAIL", "note": "200 ttfb=184ms [['DECIDE', 'ok', 'CHAT_ROUTING', 'FAST']] cl=[]"}
+{"tc": "D01-06/D03-04 đầu vào lạ → 0,25 FALLBACK + Structured", "st": "PASS", "note": "201 [['THREADS_PRECHECK', 'FALLBACK', 'ok', '', 'INTERACTIVE']] cl=1"}
+{"tc": "D05-05 P lạ vague: FALLBACK + CLASSIFY", "st": "FAIL", "note": "200 [['DECIDE', 'ok', 'CHAT_ROUTING', 'FALLBACK']] cl=[]"}
+{"tc": "D03-off/D02-06 cổng tắt: đăng được, 0 DECIDE", "st": "PASS", "note": "201 []"}
+{"tc": "D05-off cổng chat tắt: 0 DECIDE", "st": "PASS", "note": "200 []"}
+{"tc": "D07-01 CHAT_ROUTING số khớp SQL (calls, FAST%, FALLBACK%, FAIL_CLOSED%)", "st": "PASS", "note": "api=(43, 72.1, 23.3, 4.7) sql=(43, 72.1, 23.3, 4.7) p50=300 p95=386.3999999999998 err%=4.651162790697675 cost=0 state=off"}
+{"tc": "D07-01 INJECTION_FLAG số khớp SQL (calls, FAST%, FALLBACK%, FAIL_CLOSED%)", "st": "PASS", "note": "api=(19, 0, 0, 100) sql=(19, 0.0, 0.0, 100.0) p50=300 p95=300 err%=100 cost=0 state=off"}
+{"tc": "D07-01 THREADS_PRECHECK số khớp SQL (calls, FAST%, FALLBACK%, FAIL_CLOSED%)", "st": "PASS", "note": "api=(35, 62.9, 28.6, 8.6) sql=(35, 62.9, 28.6, 8.6) p50=300 p95=489.4 err%=8.571428571428571 cost=0 state=off"}
+{"tc": "D07-10 teacher không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D07-10 ta không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D07-10 sv.kha không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D03-05 decision lỗi, stub allow → 201; DECIDE error → FALLBACK", "st": "PASS", "note": "201 [['THREADS_PRECHECK', 'FALLBACK', 'error', 'SERVER', 'INTERACTIVE']]"}
+{"tc": "D03-06 cả hai lỗi → 422 FAIL_CLOSED", "st": "PASS", "note": "422 PII_DETECTED [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]"}
+{"tc": "D03-06b Structured sai JSON → 422 FAIL_CLOSED", "st": "PASS", "note": "422 PII_DETECTED [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]"}
+{"tc": "D03-07 Structured chậm 12 s → 422 trong ≈ 6–8 s", "st": "PASS", "note": "422 6926ms [['THREADS_PRECHECK', 'FAIL_CLOSED', 'error', 'SERVER', 'INTERACTIVE']]"}
+{"tc": "D05-06 decision lỗi: chat vẫn trả lời (200), ≤ 1 DECIDE", "st": "PASS", "note": "200 ttfb=35ms [['DECIDE', 'error', 'CHAT_ROUTING', 'FALLBACK']] cl=[]"}
+{"tc": "D01-08 decision timeout: DECIDE timeout rồi FALLBACK; stub allow → 201", "st": "PASS", "note": "201 900ms [['THREADS_PRECHECK', 'FALLBACK', 'timeout', 'TIMEOUT', 'INTERACTIVE']]"}
+{"tc": "D03-01 luật chặn → 0 DECIDE", "st": "PASS", "note": "422 []"}
+{"tc": "D03-09 chỉ placeholder → chặn bởi luật, 0 DECIDE", "st": "PASS", "note": "422 []"}
+{"tc": "D03-10 precheck (lúc gõ): 0 DECIDE", "st": "PASS", "note": "[]"}
+{"tc": "D03-14 khủng hoảng → 422 CRISIS_SUPPORT, 0 DECIDE, 0 CLASSIFY", "st": "FAIL", "note": "503 [] []"}
+{"tc": "D07-10 teacher không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D07-10 ta không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D07-10 sv.kha không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D07-10 teacher không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D07-10 ta không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D07-10 sv.kha không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}

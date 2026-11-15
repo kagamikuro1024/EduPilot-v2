@@ -1,0 +1,43 @@
+
+Running 4 tests using 1 worker
+
+(node:81219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc-uiux91-w4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập (3.4s)
+(node:81749) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO người kia PUT: 200 {"entry":{"item_id":"01a1df2b-f28b-7d9b-b0f5-a255a14b9b32","student_id":"01a1df27-6542-7d57-9e5d-b61d2133eccc","score":"
+INFO hộp xung đột: TS. Lê Thu Hà vừa nhập 6 · vừa xong Giữ của tôi Dùng của họ | ô: 9,50
+INFO sau «Giữ của tôi»: điểm lưu = 9.5 | tôi nhập 9,50
+INFO khôi phục ô về 5.00 : 200
+  ✓  2 [desktop] › e2e/qc-uiux91-w4g-real.spec.ts:74:1 › TC-UX16-12 xung đột ô sổ điểm thật: hiện giá trị người kia, Giữ của tôi / Dùng của họ, không mất số đã nhập (21.2s)
+(node:84137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  3 [mobile] › e2e/qc-uiux91-w4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập
+  -  4 [mobile] › e2e/qc-uiux91-w4g-real.spec.ts:74:1 › TC-UX16-12 xung đột ô sổ điểm thật: hiện giá trị người kia, Giữ của tôi / Dùng của họ, không mất số đã nhập
+
+
+  1) [desktop] › e2e/qc-uiux91-w4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập 
+
+    Error: có bài DRAFT
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      30 |   const aid = as.body.items.find((a: { title: string }) => /Bài tập 03/.test(a.title)).id as string;
+      31 |   const dr = await api(`/courses/${c}/submissions?limit=100&assignment_id=${aid}&status=DRAFT`);
+    > 32 |   expect(dr.body.items.length, "có bài DRAFT").toBeGreaterThan(0);
+         |                                                ^
+      33 |   const sid = dr.body.items[0].id as string;
+      34 |   let rid = "";
+      35 |   page.on("response", async (r) => { const m = r.url().match(/grading-results\/([0-9a-f-]{36})$/); if (m && r.request().method() === "GET") rid = m[1]; });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w4g-real.spec.ts:32:48
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w4g-real/qc-uiux91-w4g-real-TC-UX15-9ad11--nào-không-mất-điểm-đã-nhập-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-uiux91-w4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập 
+  2 skipped
+  1 passed (27.7s)

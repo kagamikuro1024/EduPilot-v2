@@ -1,0 +1,118 @@
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestStudentRoutesNoStore$
+=== RUN   TestStudentRoutesNoStore
+2026/11/15 20:11:12 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 62c6057b6d57ddf5bcfef65fe7e54475b62e524f0018bf16f3462a6924ec56f4
+  Test ProcessID: df8d05a7-6e31-481f-8e5e-060abe3a30a4
+2026/11/15 20:11:12 ✅ Container started: 68f6ff853df5
+2026/11/15 20:11:12 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:11:13 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:11:16 ✅ Container started: 5636bc78d64d
+2026/11/15 20:11:16 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:11:17 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestStudentRoutesNoStore (4.69s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	5.894s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestMineIgnoresStudentParam$
+=== RUN   TestMineIgnoresStudentParam
+2026/11/15 20:11:24 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 33286dd4e79d6c599a28421edaecacfdb463370970925ac1f9f5ff4034d65108
+  Test ProcessID: 843805f1-d208-437b-a023-f83759652bb9
+2026/11/15 20:11:24 ✅ Container started: 68f6ff853df5
+2026/11/15 20:11:24 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:11:24 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:11:27 ✅ Container started: 5636bc78d64d
+2026/11/15 20:11:27 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:11:27 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestMineIgnoresStudentParam (4.18s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	5.136s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestStudentCannotCallStaffRoutes$
+=== RUN   TestStudentCannotCallStaffRoutes
+2026/11/15 20:11:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 6f0eae8ef4b1984aceed58e68ee61a32e254d9d946bbc137671c885c4674fe9b
+  Test ProcessID: 8484941d-5dca-43e2-9b54-13bf8e115be5
+2026/11/15 20:11:34 ✅ Container started: 68f6ff853df5
+2026/11/15 20:11:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:11:34 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:11:42 ✅ Container started: 5636bc78d64d
+2026/11/15 20:11:42 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:11:42 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestStudentCannotCallStaffRoutes (8.90s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	10.291s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestStudentRoutesNoStore$
+=== RUN   TestStudentRoutesNoStore
+2026/11/15 20:35:35 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 1a4c333156865c508e27e04b58bb7cd6f27bdca2e50e4f890e5f619637cc5c30
+  Test ProcessID: e57600f9-4f50-49df-9cf9-d2bba4d20f4d
+2026/11/15 20:35:35 ✅ Container started: 68f6ff853df5
+2026/11/15 20:35:35 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:35:35 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:35:40 ✅ Container started: 5636bc78d64d
+2026/11/15 20:35:40 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:35:41 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestStudentRoutesNoStore (5.77s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	6.685s
+
+rc=0
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestMineIgnoresStudentParam$
+
+rc=-15
+$ go test -count=1 -v -tags integration,testroutes ./internal/httpapi -run ^TestStudentCannotCallStaffRoutes$
+=== RUN   TestStudentCannotCallStaffRoutes
+2026/11/15 20:35:48 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 84580cdc1c2548ec2521d2ebfa55604c4fd2910e38f9f7b9862ff17e1b23af58
+  Test ProcessID: 1e8c99f8-ff86-4173-937b-340e5b151f20
+2026/11/15 20:35:48 ✅ Container started: 68f6ff853df5
+2026/11/15 20:35:48 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:35:48 🔔 Container is ready: 68f6ff853df5
+2026/11/15 20:35:51 ✅ Container started: 5636bc78d64d
+2026/11/15 20:35:51 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:35:51 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestStudentCannotCallStaffRoutes (3.75s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/httpapi	4.802s
+
+rc=0

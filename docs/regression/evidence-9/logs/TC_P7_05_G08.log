@@ -1,0 +1,28 @@
+$ go test -tags integration ./internal/integration -run 'TestIntegrationsRBACMatrix|TestImapCourseIsolation' -v
+=== RUN   TestImapCourseIsolation
+2026/11/15 19:44:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 384d7c63b8c24756123052a72c426fac6d90db5c9c8819a9a47862e986770af8
+  Test ProcessID: 5a75b6fc-8dfd-4509-9a70-e5f49f38c9fb
+2026/11/15 19:44:34 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:34 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:44:38 ✅ Container started: 5636bc78d64d
+2026/11/15 19:44:38 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:44:38 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:44:38 ✅ Container started: b8d9c357e377
+2026/11/15 19:44:38 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:44:38 🔔 Container is ready: b8d9c357e377
+--- PASS: TestImapCourseIsolation (5.81s)
+=== RUN   TestIntegrationsRBACMatrix
+--- PASS: TestIntegrationsRBACMatrix (10.69s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	17.123s
+
+rc=0

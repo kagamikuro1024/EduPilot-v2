@@ -1,0 +1,297 @@
+{"tc": "G01-01 teacher: 4 cờ, mặc định tắt, can_edit đúng", "st": "PASS", "note": "{\"GRADING_GUIDANCE\": [false, true], \"THREAD_SUGGEST\": [false, true], \"QUESTION_HINTS\": [false, true], \"REGRESSION_CAPTURE\": [false, false]}"}
+{"tc": "G01-01 admin: can_edit cả 4", "st": "PASS", "note": "200"}
+{"tc": "G01-05/06 TA GET cờ → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-05/06 TA PUT cờ → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-05/06 SV GET cờ → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-05/06 SV PUT cờ → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-05 không token → 401", "st": "PASS", "note": "401"}
+{"tc": "G01-05 lớp lạ → 404", "st": "FAIL", "note": "403"}
+{"tc": "G01-02 teacher bật GRADING_GUIDANCE → 200, version+1", "st": "PASS", "note": "200 {\"feature\": \"GRADING_GUIDANCE\", \"enabled\": true, \"version\": 2, \"can_edit\": true}"}
+{"tc": "G01-16 version cũ → 409", "st": "PASS", "note": "409"}
+{"tc": "G01-16 thiếu enabled → 422", "st": "PASS", "note": "422"}
+{"tc": "G01-16 enabled sai kiểu → 422", "st": "PASS", "note": "422"}
+{"tc": "G01-16 cờ lạ → 4xx", "st": "PASS", "note": "422"}
+{"tc": "G01-04 teacher PUT REGRESSION_CAPTURE → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-04 admin PUT REGRESSION_CAPTURE → 200", "st": "PASS", "note": "200"}
+{"tc": "G03-25 overview: enabled, eligible=false khi 0 bài duyệt", "st": "PASS", "note": "{\"eligible\": false, \"results\": 0, \"edits\": 0}"}
+{"tc": "G04-00 có ≥ 6 DRAFT để thao tác", "st": "PASS", "note": "8"}
+{"tc": "G04-11 TA decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 TA apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 SV decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 SV apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 ADMIN decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 ADMIN apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 TA xem danh sách → 200", "st": "PASS", "note": "200"}
+{"tc": "G04-11 SV GET → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 bài tập của lớp 1 qua đường lớp 2 → 404", "st": "PASS", "note": "404"}
+{"tc": "G04-03 APPROVE → 200 APPROVED chờ áp dụng", "st": "PASS", "note": "200 {\"id\": \"01a1df33-235e-7b63-8279-743b425a598f\", \"criterion_id\": \"c2\", \"text\": \"\\u01afu ti\\u00ean b\\u1eb1ng ch\\u1ee9ng \\u0111\\u1ecbnh l\\u01b0\\"}
+{"tc": "G04-05 version cũ → 409", "st": "PASS", "note": "409 VERSION_CONFLICT"}
+{"tc": "G04-05 APPROVE lại → 409 ITEM_NOT_DRAFT", "st": "PASS", "note": "409 ITEM_NOT_DRAFT"}
+{"tc": "G04-04 REJECT → 200 REJECTED", "st": "PASS", "note": "200"}
+{"tc": "G04-06a sửa chữ hợp lệ → 200, text_original = bản gốc", "st": "PASS", "note": "200 {\"id\": \"01a1df33-2362-75b2-b517-e29a9c9e7fef\", \"criterion_id\": \"c2\", \"text\": \"\\u01afu ti\\u00ean b\\u1eb1ng ch\\u1ee9ng c\\u1ee5 th\\u1ec3 khi ch\\u1ea5m ti\\u00eau ch"}
+{"tc": "G04-06b từ khoá «tổng» → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06c PII (tên) → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06c2 PII (MSSV) → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06d rỗng → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06d dài > 400 → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-07 apply expected 0 → 200 {version:1, stale}", "st": "PASS", "note": "200 {\"version\": 1, \"stale\": {\"count\": 14, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-07 assignments.guidance_version = 1", "st": "PASS", "note": "1"}
+{"tc": "G04-07 2 mục approved_in_version=1", "st": "FAIL", "note": "3"}
+{"tc": "G04-07 hàng grading_guidance_versions v1 (item_count=2)", "st": "FAIL", "note": "[['3']]"}
+{"tc": "G04-07 không tự chấm lại (0 việc chấm)", "st": "PASS", "note": "0"}
+{"tc": "G04-10 cùng Idempotency-Key → trả lại kết quả cũ", "st": "PASS", "note": "200 {\"version\": 1, \"stale\": {\"count\": 14, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-08 expected 0 lại → 409 VERSION_CONFLICT", "st": "PASS", "note": "409 VERSION_CONFLICT"}
+{"tc": "G04-08 không còn gì → 409 NOTHING_TO_APPLY", "st": "PASS", "note": "409 NOTHING_TO_APPLY"}
+{"tc": "G04-08 thiếu expected_version → 422", "st": "PASS", "note": "422"}
+{"tc": "G04-09 hai apply đồng thời: một 200, một 409", "st": "PASS", "note": "[200, 409]"}
+{"tc": "G04-09 phiên bản không trùng (v1, v2)", "st": "PASS", "note": "[['1'], ['2']]"}
+{"tc": "G04-13 RETIRE mục đã áp dụng → 200 pending_retire", "st": "PASS", "note": "200 {\"id\": \"01a1df33-235e-7b63-8279-743b425a598f\", \"criterion_id\": \"c2\", \"text\": \"\\u01afu ti\\u00ean b\\u1eb1ng ch\\u1ee9ng \\u0111\\u1ecbnh l\\u01b0\\"}
+{"tc": "G04-13 apply → v3, mục RETIRED retired_in_version=3", "st": "PASS", "note": "200 {\"version\": 3, \"stale\": {\"count\": 14, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-06e RETIRE kèm text → 422", "st": "PASS", "note": "422"}
+{"tc": "G03-04/11/19 [rf_ok] job=SUCCEEDED drafts=2 (kỳ vọng 2) dropped={}", "st": "PASS", "note": ""}
+{"tc": "G03-19 DRAFT có support = số id kết quả, source_result_ids không trùng users.id", "st": "PASS", "note": "[['01a1df33-b191-7f9b-9776-61a3f3213dc3', 'c2', 'STRICTER', '5', 'Chấm chặt hơn khi bài chỉ nêu khái niệm chung mà chưa có ví dụ hay số ', '5', '01a1df33-a9fd-79e7-9648-d9a25694af47']]"}
+{"tc": "G03-13a [rf_bad_case] job=SUCCEEDED drafts=0 (kỳ vọng 0) dropped={'case': 1}", "st": "PASS", "note": ""}
+{"tc": "G03-13b [rf_wrong_direction] job=SUCCEEDED drafts=0 (kỳ vọng 0) dropped={'support': 1}", "st": "PASS", "note": ""}
+{"tc": "G03-14b [rf_low_support] job=FAILED drafts=0 (kỳ vọng 0) dropped={}", "st": "FAIL", "note": "{\"code\": \"REFLECT_FAILED\", \"message\": \"Chưa rút được lưu ý. Thử lại.\"}"}
+{"tc": "G03-15 [rf_total_keyword] job=SUCCEEDED drafts=0 (kỳ vọng 0) dropped={'keyword': 6}", "st": "PASS", "note": ""}
+{"tc": "G03-16 [rf_pii_text] job=SUCCEEDED drafts=1 (kỳ vọng 0) dropped={'pii': 3}", "st": "FAIL", "note": ""}
+{"tc": "G03-18 [rf_many] job=SUCCEEDED drafts=8 (kỳ vọng 8) dropped={}", "st": "FAIL", "note": ""}
+{"tc": "G03-21 [rf_empty] job=SUCCEEDED drafts=0 (kỳ vọng 0) dropped={}", "st": "PASS", "note": ""}
+{"tc": "G03-17 [rf_dup_text] job=SUCCEEDED drafts=2 (kỳ vọng 2) dropped={'duplicate': 1}", "st": "PASS", "note": ""}
+{"tc": "G03-22 [error] job FAILED, 0 DRAFT, thử lại", "st": "FAIL", "note": "RUNNING err= llm_audit lỗi 3 phút=5"}
+{"tc": "G03-22 [invalid] job FAILED, 0 DRAFT, thử lại", "st": "FAIL", "note": "RUNNING err= llm_audit lỗi 3 phút=18"}
+{"tc": "G03-12 criterion lạ: schema strict chặn trước (job FAILED, 0 DRAFT, không 500)", "st": "PASS", "note": "{\"code\": \"REFLECT_FAILED\", \"message\": \"Chưa rút được lưu ý. Thử lại.\"}"}
+{"tc": "G04-00 có ≥ 6 DRAFT để thao tác", "st": "PASS", "note": "8"}
+{"tc": "G04-11 TA decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 TA apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 SV decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 SV apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 ADMIN decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 ADMIN apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 TA xem danh sách → 200", "st": "PASS", "note": "200"}
+{"tc": "G04-11 SV GET → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 bài tập của lớp 1 qua đường lớp 2 → 404", "st": "PASS", "note": "404"}
+{"tc": "G04-03 APPROVE → 200 APPROVED chờ áp dụng", "st": "PASS", "note": "200 {\"id\": \"01a1df39-70c7-73f3-8869-77310bc5a73c\", \"criterion_id\": \"c2\", \"text\": \"\\u01afu ti\\u00ean b\\u1eb1ng ch\\u1ee9ng \\u0111\\u1ecbnh l\\u01b0\\"}
+{"tc": "G04-05 version cũ → 409", "st": "PASS", "note": "409 VERSION_CONFLICT"}
+{"tc": "G04-05 APPROVE lại → 409 ITEM_NOT_DRAFT", "st": "PASS", "note": "409 ITEM_NOT_DRAFT"}
+{"tc": "G04-04 REJECT → 200 REJECTED", "st": "PASS", "note": "200"}
+{"tc": "G04-06a sửa chữ hợp lệ → 200, text_original = bản gốc", "st": "PASS", "note": "200 {\"id\": \"01a1df39-70ca-7d8e-8682-9aba21bbfd21\", \"criterion_id\": \"c2\", \"text\": \"\\u01afu ti\\u00ean b\\u1eb1ng ch\\u1ee9ng c\\u1ee5 th\\u1ec3 khi ch\\u1ea5m ti\\u00eau ch"}
+{"tc": "G04-06b từ khoá «tổng» → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06c PII (tên) → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06c2 PII (MSSV) → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06d rỗng → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06d dài > 400 → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-07 apply expected 0 → 200 {version:1, stale}", "st": "PASS", "note": "200 {\"version\": 1, \"stale\": {\"count\": 14, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-07 assignments.guidance_version = 1", "st": "FAIL", "note": "0"}
+{"tc": "G04-07 2 mục approved_in_version=1", "st": "FAIL", "note": "0"}
+{"tc": "G04-07 hàng grading_guidance_versions v1 (item_count=2)", "st": "FAIL", "note": "[]"}
+{"tc": "G04-07 không tự chấm lại (0 việc chấm)", "st": "PASS", "note": "0"}
+{"tc": "G04-10 cùng Idempotency-Key → trả lại kết quả cũ", "st": "PASS", "note": "200 {\"version\": 1, \"stale\": {\"count\": 14, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-08 expected 0 lại → 409 VERSION_CONFLICT", "st": "PASS", "note": "409 VERSION_CONFLICT"}
+{"tc": "G04-08 không còn gì → 409 NOTHING_TO_APPLY", "st": "PASS", "note": "409 NOTHING_TO_APPLY"}
+{"tc": "G04-08 thiếu expected_version → 422", "st": "PASS", "note": "422"}
+{"tc": "G04-09 hai apply đồng thời: một 200, một 409", "st": "PASS", "note": "[200, 409]"}
+{"tc": "G04-09 phiên bản không trùng (v1, v2)", "st": "FAIL", "note": "[]"}
+{"tc": "G04-13 RETIRE mục đã áp dụng → 200 pending_retire", "st": "FAIL", "note": "409 {\"code\": \"ITEM_NOT_DRAFT\", \"message\": \"L\\u01b0u \\u00fd n\\u00e0y \\u0111\\u00e3 \\u0111\\u01b0\\u1ee3c quy\\u1ebft \\u0111\\u1ecbnh.\", \"trace_id\": \"0"}
+{"tc": "G04-13 apply → v3, mục RETIRED retired_in_version=3", "st": "FAIL", "note": "200 {\"version\": 3, \"stale\": {\"count\": 14, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-06e RETIRE kèm text → 422", "st": "PASS", "note": "422"}
+{"tc": "G05-05 stale.count = số nháp chưa sửa bản cũ (8); reviewed = 8; editing = 0", "st": "FAIL", "note": "{\"count\": 0, \"editing\": 0, \"reviewed\": 0, \"versions\": []}"}
+{"tc": "G06-01 số đo v0 khớp SQL độc lập (n, MAE tiêu chí, MAE tổng, lệch, tiêu chí sửa, tỉ lệ)", "st": "PASS", "note": "api=(8, '0.19', '0.50', '0.50', 7, '0.22') sql=(8, '0.19', '0.50', '0.50', 7, '0.22')"}
+{"tc": "G05-24 SV regrade → 403", "st": "PASS", "note": "403"}
+{"tc": "G05-24 qua lớp 2 → 404", "st": "FAIL", "note": "409"}
+{"tc": "G05-06/24 TA regrade → 202 {job_id, queued:8, skipped:{reviewed:8}}", "st": "FAIL", "note": "200 {\"queued\": 0, \"skipped\": {\"reviewed\": 0, \"edited\": 0, \"max_round\": 0}}"}
+{"tc": "G05-06 8 kết quả round+1, DONE, ghim guidance_version = bản hiện hành, có ai_comments", "st": "FAIL", "note": "1"}
+{"tc": "G05-08/13 bài REVIEWED / PUBLISHED không đổi (điểm, tiêu chí, round, ghim, ai_scores)", "st": "PASS", "note": ""}
+{"tc": "G05-21 round cũ giữ nguyên ai_scores / ai_comments / guidance_version", "st": "PASS", "note": ""}
+{"tc": "G05-06 chạy lại: 200 queued 0 (không còn bài bản cũ chưa sửa)", "st": "PASS", "note": "200 {\"queued\": 0, \"skipped\": {\"reviewed\": 0, \"edited\": 0, \"max_round\": 0}}"}
+{"tc": "G05-20 không round trùng (UNIQUE)", "st": "PASS", "note": "0"}
+{"tc": "G05-01 mọi lời gọi chấm lại có khối «Lưu ý của giảng viên (bản v0)»", "st": "FAIL", "note": "0/0"}
+{"tc": "G05-04 khối lưu ý giống hệt giữa các bài cùng bản (lượt 1)", "st": "PASS", "note": "0"}
+{"tc": "G05-18 cờ tắt: 200, không 409, exempt rỗng/0", "st": "PASS", "note": "{\"ACCEPTED_AS_IS\": 0, \"EDITED\": 0}"}
+{"tc": "G05-14 cờ bật: bài đã duyệt ghim v0 vẫn công bố, KHÔNG 409 MIXED_GUIDANCE; exempt đếm đúng EDITED / ACCEPTED_AS_IS", "st": "FAIL", "note": "api={'ACCEPTED_AS_IS': 0, 'EDITED': 0} kỳ vọng EDITED=3 AS_IS=3"}
+{"tc": "G05-14 audit_log có guidance_exempt", "st": "PASS", "note": ""}
+{"tc": "G05-15 công bố bài nháp → 422 NOT_REVIEWED", "st": "PASS", "note": "422 {\"code\": \"NOT_REVIEWED\", \"message\": \"B\\u00e0i ch\\u01b0a \\u0111\\u01b0\\u1ee3c duy\\u1ec7t.\", \"trace_id\""}
+{"tc": "G01-01 teacher: 4 cờ, mặc định tắt, can_edit đúng", "st": "FAIL", "note": "{\"GRADING_GUIDANCE\": [true, true], \"THREAD_SUGGEST\": [false, true], \"QUESTION_HINTS\": [false, true], \"REGRESSION_CAPTURE\": [false, false]}"}
+{"tc": "G01-01 admin: can_edit cả 4", "st": "PASS", "note": "200"}
+{"tc": "G01-05/06 TA GET cờ → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-05/06 TA PUT cờ → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-05/06 SV GET cờ → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-05/06 SV PUT cờ → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-05 không token → 401", "st": "PASS", "note": "401"}
+{"tc": "G01-05 lớp lạ → 404", "st": "FAIL", "note": "403"}
+{"tc": "G01-02 teacher bật GRADING_GUIDANCE → 200, version+1", "st": "PASS", "note": "200 {\"feature\": \"GRADING_GUIDANCE\", \"enabled\": true, \"version\": 5, \"can_edit\": true}"}
+{"tc": "G01-16 version cũ → 409", "st": "PASS", "note": "409"}
+{"tc": "G01-16 thiếu enabled → 422", "st": "PASS", "note": "422"}
+{"tc": "G01-16 enabled sai kiểu → 422", "st": "PASS", "note": "422"}
+{"tc": "G01-16 cờ lạ → 4xx", "st": "PASS", "note": "422"}
+{"tc": "G01-04 teacher PUT REGRESSION_CAPTURE → 403", "st": "PASS", "note": "403"}
+{"tc": "G01-04 admin PUT REGRESSION_CAPTURE → 200", "st": "PASS", "note": "200"}
+{"tc": "G03-25 overview: enabled, eligible=false khi 0 bài duyệt", "st": "FAIL", "note": "{\"eligible\": true, \"results\": 8, \"edits\": 7}"}
+{"tc": "G04-00 có ≥ 6 DRAFT để thao tác", "st": "PASS", "note": "8"}
+{"tc": "G04-11 TA decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 TA apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 SV decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 SV apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 ADMIN decide → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 ADMIN apply → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 TA xem danh sách → 200", "st": "PASS", "note": "200"}
+{"tc": "G04-11 SV GET → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-11 bài tập của lớp 1 qua đường lớp 2 → 404", "st": "PASS", "note": "404"}
+{"tc": "G04-03 APPROVE → 200 APPROVED chờ áp dụng", "st": "PASS", "note": "200 {\"id\": \"01a1df3a-12ab-72a8-92af-7abd501c0c25\", \"criterion_id\": \"c2\", \"text\": \"\\u01afu ti\\u00ean b\\u1eb1ng ch\\u1ee9ng \\u0111\\u1ecbnh l\\u01b0\\"}
+{"tc": "G04-05 version cũ → 409", "st": "PASS", "note": "409 VERSION_CONFLICT"}
+{"tc": "G04-05 APPROVE lại → 409 ITEM_NOT_DRAFT", "st": "PASS", "note": "409 ITEM_NOT_DRAFT"}
+{"tc": "G04-04 REJECT → 200 REJECTED", "st": "PASS", "note": "200"}
+{"tc": "G04-06a sửa chữ hợp lệ → 200, text_original = bản gốc", "st": "PASS", "note": "200 {\"id\": \"01a1df3a-12ad-7283-a0f5-25a9d3a2951b\", \"criterion_id\": \"c2\", \"text\": \"\\u01afu ti\\u00ean b\\u1eb1ng ch\\u1ee9ng c\\u1ee5 th\\u1ec3 khi ch\\u1ea5m ti\\u00eau ch"}
+{"tc": "G04-06b từ khoá «tổng» → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06c PII (tên) → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06c2 PII (MSSV) → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06d rỗng → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-06d dài > 400 → 422", "st": "PASS", "note": "422 GUIDANCE_TEXT_REJECTED"}
+{"tc": "G04-07 apply expected 0 → 200 {version:1, stale}", "st": "PASS", "note": "200 {\"version\": 1, \"stale\": {\"count\": 5, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-07 assignments.guidance_version = 1", "st": "PASS", "note": "1"}
+{"tc": "G04-07 2 mục approved_in_version=1", "st": "FAIL", "note": "3"}
+{"tc": "G04-07 hàng grading_guidance_versions v1 (item_count=2)", "st": "FAIL", "note": "[['3']]"}
+{"tc": "G04-07 không tự chấm lại (0 việc chấm)", "st": "PASS", "note": "0"}
+{"tc": "G04-10 cùng Idempotency-Key → trả lại kết quả cũ", "st": "PASS", "note": "200 {\"version\": 1, \"stale\": {\"count\": 5, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-08 expected 0 lại → 409 VERSION_CONFLICT", "st": "PASS", "note": "409 VERSION_CONFLICT"}
+{"tc": "G04-08 không còn gì → 409 NOTHING_TO_APPLY", "st": "PASS", "note": "409 NOTHING_TO_APPLY"}
+{"tc": "G04-08 thiếu expected_version → 422", "st": "PASS", "note": "422"}
+{"tc": "G04-09 hai apply đồng thời: một 200, một 409", "st": "PASS", "note": "[200, 409]"}
+{"tc": "G04-09 phiên bản không trùng (v1, v2)", "st": "PASS", "note": "[['1'], ['2']]"}
+{"tc": "G04-13 RETIRE mục đã áp dụng → 200 pending_retire", "st": "PASS", "note": "200 {\"id\": \"01a1df3a-12ab-72a8-92af-7abd501c0c25\", \"criterion_id\": \"c2\", \"text\": \"\\u01afu ti\\u00ean b\\u1eb1ng ch\\u1ee9ng \\u0111\\u1ecbnh l\\u01b0\\"}
+{"tc": "G04-13 apply → v3, mục RETIRED retired_in_version=3", "st": "PASS", "note": "200 {\"version\": 3, \"stale\": {\"count\": 5, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}}"}
+{"tc": "G04-06e RETIRE kèm text → 422", "st": "PASS", "note": "422"}
+{"tc": "G05-05 stale.count = số nháp chưa sửa bản cũ (8); reviewed = 8; editing = 0", "st": "FAIL", "note": "{\"count\": 5, \"editing\": 0, \"reviewed\": 8, \"versions\": [0]}"}
+{"tc": "G06-01 số đo v0 khớp SQL độc lập (n, MAE tiêu chí, MAE tổng, lệch, tiêu chí sửa, tỉ lệ)", "st": "PASS", "note": "api=(16, '0.17', '0.56', '0.44', 13, '0.20') sql=(16, '0.17', '0.56', '0.44', 13, '0.20')"}
+{"tc": "G05-24 SV regrade → 403", "st": "PASS", "note": "403"}
+{"tc": "G05-24 qua lớp 2 → 404", "st": "FAIL", "note": "409"}
+{"tc": "G05-06/24 TA regrade → 202 {job_id, queued:8, skipped:{reviewed:8}}", "st": "FAIL", "note": "202 {\"job_id\": \"01a1df3a-2a87-7e81-a949-4708a5287614\", \"queued\": 5, \"skipped\": {\"reviewed\": 8, \"edited\": 0, \"max_round\": 0}}"}
+{"tc": "G05-06 8 kết quả round+1, DONE, ghim guidance_version = bản hiện hành, có ai_comments", "st": "FAIL", "note": "6"}
+{"tc": "G05-08/13 bài REVIEWED / PUBLISHED không đổi (điểm, tiêu chí, round, ghim, ai_scores)", "st": "PASS", "note": ""}
+{"tc": "G05-21 round cũ giữ nguyên ai_scores / ai_comments / guidance_version", "st": "PASS", "note": ""}
+{"tc": "G05-06 chạy lại: 200 queued 0 (không còn bài bản cũ chưa sửa)", "st": "PASS", "note": "200 {\"queued\": 0, \"skipped\": {\"reviewed\": 8, \"edited\": 0, \"max_round\": 0}}"}
+{"tc": "G05-20 không round trùng (UNIQUE)", "st": "PASS", "note": "0"}
+{"tc": "G05-01 mọi lời gọi chấm lại có khối «Lưu ý của giảng viên (bản v3)»", "st": "PASS", "note": "8/8"}
+{"tc": "G05-04 khối lưu ý giống hệt giữa các bài cùng bản (lượt 1)", "st": "PASS", "note": "1"}
+{"tc": "G05-01 khối nằm sau RUBRIC, trước ĐÁP ÁN CHUẨN, trong system", "st": "PASS", "note": ""}
+{"tc": "G05-01 khối chỉ là chữ lưu ý đang hiệu lực v3 (không mục RETIRED/DRAFT/REJECTED)", "st": "PASS", "note": ""}
+{"tc": "G05-27 khối không chứa số điểm tổng / cụm trừ / làm tròn", "st": "PASS", "note": ""}
+{"tc": "G05-18 cờ tắt: 200, không 409, exempt rỗng/0", "st": "PASS", "note": "{\"ACCEPTED_AS_IS\": 0, \"EDITED\": 0}"}
+{"tc": "G05-14 cờ bật: bài đã duyệt ghim v0 vẫn công bố, KHÔNG 409 MIXED_GUIDANCE; exempt đếm đúng EDITED / ACCEPTED_AS_IS", "st": "PASS", "note": "api={'ACCEPTED_AS_IS': 2, 'EDITED': 4} kỳ vọng EDITED=4 AS_IS=2"}
+{"tc": "G05-14 audit_log có guidance_exempt", "st": "PASS", "note": ""}
+{"tc": "G05-15 công bố bài nháp → 422 NOT_REVIEWED", "st": "PASS", "note": "422 {\"code\": \"NOT_REVIEWED\", \"message\": \"B\\u00e0i ch\\u01b0a \\u0111\\u01b0\\u1ee3c duy\\u1ec7t.\", \"trace_id\""}
+{"tc": "G04-F0 có ≥ 6 DRAFT", "st": "PASS", "note": "8"}
+{"tc": "G04-19 APPROVE (có sửa chữ) → 200 APPROVED", "st": "PASS", "note": "200"}
+{"tc": "G04-20 RESET → 200, về DRAFT", "st": "PASS", "note": "200 {\"id\": \"01a1df3a-aeed-7cd8-9baf-97705b69a3b7\", \"criterion_id\": \"c3\", \"text\": \"\\u01afu ti\\u00ean v\\u00ed d\\u1ee5 th\\u1ef1c t\\u1ebf \\u0111\\u00"}
+{"tc": "G04-20 decided_by NULL, approved_in_version NULL", "st": "PASS", "note": "['DRAFT', 't', '', 'f', 'Ưu tiên ví dụ thực tế đã sửa tay khi chấm tiêu chí này.', 'Cần nêu rõ tác nhân và phạm vi ảnh hưởng ở c3. Mẫu 1.']"}
+{"tc": "G04-26 giữ chữ đã sửa; text_original = bản AI", "st": "PASS", "note": "Ưu tiên ví dụ thực tế đã sửa tay khi chấ | Cần nêu rõ tác nhân và phạm vi ảnh hưởng"}
+{"tc": "G04-20 phiên bản không đổi (assignments, grading_guidance_versions)", "st": "PASS", "note": "3 3"}
+{"tc": "G04-20 audit_log có approve + reset", "st": "PASS", "note": "grading_guidance.edit_approve,grading_guidance.reset"}
+{"tc": "G04-21 REJECT → 200", "st": "PASS", "note": "200"}
+{"tc": "G04-21 RESET từ REJECTED → DRAFT", "st": "PASS", "note": "200"}
+{"tc": "G04-23 RESET trên DRAFT → 200 không đổi", "st": "PASS", "note": "200 {\"id\": \"01a1df3a-aeed-7502-b670-f1cee9b5868d\", \"criterion_id\": \"c3\", \"text\": \"\\u01afu ti\\u00ean b\\u1"}
+{"tc": "G04-22 sau 6 s RESET vẫn 200 (Đặt lại cho tới khi Áp dụng)", "st": "PASS", "note": "200"}
+{"tc": "G04-25 RESET version cũ → 409 VERSION_CONFLICT, không ghi đè quyết định của tab B", "st": "PASS", "note": "409 VERSION_CONFLICT REJECTED"}
+{"tc": "G04-RBAC TA RESET → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-RBAC SV RESET → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-RBAC ADMIN RESET → 403", "st": "PASS", "note": "403"}
+{"tc": "G04-RESET decision lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "G04-30 đua RESET × Áp dụng: không mục nửa vời; kết quả nhất quán", "st": "PASS", "note": "reset=200 apply=409 trạng thái=['DRAFT', 't', '', 'f']"}
+{"tc": "G04-23 RESET mục đã áp dụng → 409 ITEM_NOT_RESETTABLE (không phải ITEM_NOT_DRAFT)", "st": "PASS", "note": "409 ITEM_NOT_RESETTABLE"}
+{"tc": "G04-29 RETIRE → chờ nghỉ", "st": "PASS", "note": "200"}
+{"tc": "G04-29 RESET chờ nghỉ → pending_retire=false, vẫn APPROVED, approved_in_version giữ", "st": "PASS", "note": "200 ['APPROVED', 'f', '4', 'f']"}
+{"tc": "G03-16 [rf_pii_text, roster thật] bỏ mọi mục PII (0 DRAFT)", "st": "PASS", "note": "SUCCEEDED drafts=0 {\"drafts\": 0, \"dropped\": [{\"count\": 4, \"reason\": \"pii\", \"criterion_id\": \"c2\"}]}"}
+{"tc": "G03-18 [rf_many] tối đa 8 DRAFT", "st": "PASS", "note": "SUCCEEDED drafts=8"}
+{"tc": "G09-00 có ≥ 12 câu PENDING", "st": "PASS", "note": "14"}
+{"tc": "G09-01 REJECT reject_reason=MO_HO → lưu đúng", "st": "PASS", "note": "200 ['REJECTED', 'MO_HO']"}
+{"tc": "G09-01 REJECT reject_reason=SAI_DAP_AN → lưu đúng", "st": "PASS", "note": "200 ['REJECTED', 'SAI_DAP_AN']"}
+{"tc": "G09-01 REJECT reject_reason=TRUNG_LAP → lưu đúng", "st": "PASS", "note": "200 ['REJECTED', 'TRUNG_LAP']"}
+{"tc": "G09-01 REJECT reject_reason=LAC_DE → lưu đúng", "st": "PASS", "note": "200 ['REJECTED', 'LAC_DE']"}
+{"tc": "G09-01 REJECT reject_reason=KHO_DE_BAT_THUONG → lưu đúng", "st": "PASS", "note": "200 ['REJECTED', 'KHO_DE_BAT_THUONG']"}
+{"tc": "G09-01 REJECT reject_reason=SAI_DINH_DANG → lưu đúng", "st": "PASS", "note": "200 ['REJECTED', 'SAI_DINH_DANG']"}
+{"tc": "G09-01 REJECT reject_reason=UNSPECIFIED → lưu đúng", "st": "PASS", "note": "200 ['REJECTED', 'UNSPECIFIED']"}
+{"tc": "G09-01 REJECT không gửi lý do → UNSPECIFIED (US-GD-09 AC1)", "st": "PASS", "note": "200 lưu = UNSPECIFIED"}
+{"tc": "G09-02 lý do lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "G09-02 reject_reason kèm APPROVE → 422", "st": "PASS", "note": "422 VALIDATION_FAILED"}
+{"tc": "G09-02 DB CHECK: reject_reason chỉ khi REJECTED", "st": "PASS", "note": ""}
+{"tc": "G09-02 bulk reject + reason → lưu lý do cho cả lô", "st": "PASS", "note": "200"}
+{"tc": "G09-02 bulk reason lạ → 422 hoặc từng id ok:false (không loại câu)", "st": "PASS", "note": "200 {\"results\": [{\"id\": \"01a1df2d-2946-7c1c-9635-0709760a4343\", \"ok\": false, \"code\": \"VALIDATION_FAILED\"}]}"}
+{"tc": "G09-11 SV GET questions → 403", "st": "PASS", "note": "403"}
+{"tc": "G09-11 SV gen-stats → 403", "st": "PASS", "note": "403"}
+{"tc": "G09-11 không token → 401", "st": "PASS", "note": "401"}
+{"tc": "G09-11 DTO SV không có reject_reason", "st": "PASS", "note": "0"}
+{"tc": "G08-01 q = đúng chữ đã nhúng của thread xác nhận → có thread đó (≤ 3, DTO {thread_id,title})", "st": "PASS", "note": "200 [{\"thread_id\": \"01a1df2b-84af-727b-8376-48033a0186ff\", \"title\": \"\\u0110\\u1ea0I H\\u1eccC QU\\u1ed0C GIA H\\u00c0 N\\u1ed8I TR\\u01af\\u1edcNG QU\\u00d3C T\\u00c9 )C QU\\u1ed0C GIA H\\u00c0 N\\u1ed8I \\u01af\\u1edc"}
+{"tc": "G08-02 q < 3 từ → [] hoặc 422, không 500", "st": "PASS", "note": "200 []"}
+{"tc": "G08-02 q rỗng → không 500", "st": "PASS", "note": "200"}
+{"tc": "G08-02 q 6.000 ký tự → không 500", "st": "PASS", "note": "422"}
+{"tc": "G08-15 chuỗi lạ → [] (không lộ lớp khác)", "st": "PASS", "note": "200 []"}
+{"tc": "G08-16 SV lớp 1 gọi qua lớp 2 → 404/403", "st": "PASS", "note": "403"}
+{"tc": "G08-16 SV chỉ lớp 2 gọi lớp 1 → 404/403", "st": "PASS", "note": "403"}
+{"tc": "G08-16 ta → 200", "st": "PASS", "note": "200"}
+{"tc": "G08-16 teacher → 200", "st": "PASS", "note": "200"}
+{"tc": "G08-16 không token → 401", "st": "PASS", "note": "401"}
+{"tc": "G08-20 route GET cũ → 404/405", "st": "PASS", "note": "404"}
+{"tc": "G08-09 20 lần gợi ý: nhúng ≤ 11 (cùng chuỗi dùng cache), 0 lời gọi sinh chữ", "st": "PASS", "note": "nhúng=10 sinh chữ=0"}
+{"tc": "G08-11 p95 ≤ 300 ms (20 lượt, embedding giả)", "st": "PASS", "note": "p95=70 ms p50=19"}
+{"tc": "G08-19 chữ đang soạn không có trong log gateway / Caddy", "st": "PASS", "note": ""}
+{"tc": "G08-14 không ghi pii_events cho chuỗi đang soạn", "st": "PASS", "note": "0"}
+{"tc": "G08-19 Cache-Control: no-store", "st": "PASS", "note": "{'Cache-Control': 'no-store'}"}
+{"tc": "G08-10 35 lần / phút: có 429", "st": "PASS", "note": "28×200 7×429"}
+{"tc": "G08-10 người khác không bị ảnh hưởng", "st": "PASS", "note": "200"}
+{"tc": "G08-12 cờ tắt → [] và 0 nhúng", "st": "FAIL", "note": "200 []"}
+{"tc": "G07-04 cờ tắt: review có sửa 1,0 → 0 hàng ca", "st": "PASS", "note": "200 []"}
+{"tc": "G07-01 lệch đúng 1,0 ghi 1 hàng GRADING_EDIT (c2); lệch 0,5 (c3) không ghi", "st": "PASS", "note": "200 [['GRADING_EDIT', 'c2', '{\"ai_score\": \"1.00\", \"direction\": \"STRICTER\", \"rubric_hash\": \"31422fb3e765ea434f0c262fe760928800b76d0748ce5dbbad8776959be85405\", \"teacher_score\": \"0.00\"}', '01a1df3a-2a79-716d-8b69-9d7a0164c67d']]"}
+{"tc": "G07-03 expected chỉ số / enum, không chuỗi ≥ 40 ký tự, không văn bản", "st": "FAIL", "note": "{\"ai_score\": \"1.00\", \"direction\": \"STRICTER\", \"rubric_hash\": \"31422fb3e765ea434f0c262fe760928800b76d0748ce5dbbad8776959be85405\", \"teacher_score\": \"0.00\"}"}
+{"tc": "G07-05 sửa lại cùng tiêu chí: vẫn 1 hàng", "st": "PASS", "note": "1"}
+{"tc": "G07-01 bài thứ hai → tổng 2 hàng", "st": "PASS", "note": "2"}
+{"tc": "G07-11 `regress export` mặc định từ chối (thoát ≠ 0)", "st": "PASS", "note": "exit status 3"}
+{"tc": "G03-22 [error] retry rồi job FAILED, 0 DRAFT (chờ ≤ 300 s)", "st": "FAIL", "note": "RUNNING  llm_audit lỗi 5ph=13"}
+{"tc": "G02-03a retired_in_version <= approved_in_version bị CHECK chặn", "st": "FAIL", "note": "DETAIL:  Failing row contains (01a1df48-92b2-7c2f-92be-c5fee5a0f76e, 01a1df27-62b5-7775-a346-5c602a43e2f9, 01a1df2b-f786"}
+{"tc": "G02-03b APPROVED không có decided_by bị CHECK chặn", "st": "FAIL", "note": "DETAIL:  Failing row contains (01a1df48-954b-7559-a532-869453ecdf01, 01a1df27-62b5-7775-a346-5c602a43e2f9, 01a1df2b-f786"}
+{"tc": "G02-03c reject_reason khi review_status<>'REJECTED' bị CHECK chặn", "st": "FAIL", "note": "DETAIL:  Failing row contains (01a1df2f-ab16-777f-883c-176e82634862, 01a1df27-62b5-7775-a346-5c602a43e2f9, SHORT, QC sho"}
+{"tc": "G02-07 UPDATE ai_scores của kết quả DONE bị trigger chặn", "st": "PASS", "note": "CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 4 at RAISE"}
+{"tc": "G02-07 UPDATE ai_comments của kết quả DONE bị trigger chặn", "st": "PASS", "note": "CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 11 at RAISE"}
+{"tc": "G02-07 UPDATE guidance_version của kết quả DONE bị trigger chặn", "st": "PASS", "note": "CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 11 at RAISE"}
+{"tc": "G02-07 UPDATE cột khác vẫn được", "st": "PASS", "note": ""}
+{"tc": "G02-09 ai_comments dạng {criteria:{id:chữ}, overall}", "st": "PASS", "note": "['overall', 'criteria']"}
+{"tc": "G07 UNIQUE (course,kind,source,criterion) chặn trùng", "st": "FAIL", "note": "DETAIL:  Key (course_id, kind, source_id, COALESCE(criterion_id, ''::text))=(01a1df27-62b5-7775-a346-5c602a43e2f9, GRADI"}
+{"tc": "G02-03a retired_in_version <= approved_in_version bị CHECK chặn", "st": "PASS", "note": "ERROR:  new row for relation \"grading_guidance_items\" violates check constraint \"grading_guidance_items_check1\" DETAIL:  Failing row contains (01a1df48-ecf9-7c31-bac7-c29409f59a9f, 01a1df27-62b5-7775-a346-5c602a43e2f9, 01a1df2b-f786-72db-85e8-a10086f68b3d, c2, x, null, STRICTER, 2, {}, f, RETIRED, f, 2, 2, null, 01a1df27-5bfd-746a-acbf-411de5ffccb2, null, 1, 2026-11-15 12:57:40.800098+00, 2026-11-15 12:57:40.800098+00). "}
+{"tc": "G02-03b APPROVED không có decided_by bị CHECK chặn", "st": "PASS", "note": "ERROR:  new row for relation \"grading_guidance_items\" violates check constraint \"grading_guidance_items_check\" DETAIL:  Failing row contains (01a1df48-f0c6-72a0-ac10-c8982d307caa, 01a1df27-62b5-7775-a346-5c602a43e2f9, 01a1df2b-f786-72db-85e8-a10086f68b3d, c2, x, null, STRICTER, 2, {}, f, APPROVED, f, null, null, null, null, null, 1, 2026-11-15 12:57:41.829268+00, 2026-11-15 12:57:41.829268+00). "}
+{"tc": "G02-03c reject_reason khi review_status<>'REJECTED' bị CHECK chặn", "st": "PASS", "note": "ERROR:  new row for relation \"question_bank\" violates check constraint \"question_bank_reject_reason_chk\" DETAIL:  Failing row contains (01a1df2f-ab16-777f-883c-176e82634862, 01a1df27-62b5-7775-a346-5c602a43e2f9, SHORT, QC short 1, QC-tmp, EASY, Thủ đô của Việt Nam?, {\"accepted\": [\"Hà Nội\"]}, null, [], MANUAL, DRAFT, 01a1df27-5bfd-746a-acbf-411de5ffccb2, null, null, null, null, 1, 2026-11-15 12:30:05.590116+00, 2026-11-15 12:57:49.22496+00, MO_HO). "}
+{"tc": "G02-07 UPDATE ai_scores của kết quả DONE bị trigger chặn", "st": "PASS", "note": "ERROR:  ai draft is immutable CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 4 at RAISE "}
+{"tc": "G02-07 UPDATE ai_comments của kết quả DONE bị trigger chặn", "st": "PASS", "note": "ERROR:  ai draft is immutable CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 11 at RAISE "}
+{"tc": "G02-07 UPDATE guidance_version của kết quả DONE bị trigger chặn", "st": "PASS", "note": "ERROR:  ai draft is immutable CONTEXT:  PL/pgSQL function grading_results_ai_immutable() line 11 at RAISE "}
+{"tc": "G02-07 UPDATE cột khác vẫn được", "st": "PASS", "note": ""}
+{"tc": "G02-09 ai_comments dạng {criteria:{id:chữ}, overall}", "st": "PASS", "note": "['overall', 'criteria']"}
+{"tc": "G07 UNIQUE (course,kind,source,criterion) chặn trùng", "st": "PASS", "note": "ERROR:  duplicate key value violates unique constraint \"grc_unique\" DETAIL:  Key (course_id, kind, source_id, COALESCE(criterion_id, ''::text))=(01a1df27-62b5-7775-a346-5c602a43e2f9, GRADING_EDIT, 01a1df3a-2a79-716d-8b69-9d7a0164c67d, c2) already exists. "}
+{"tc": "G01-18 SV: 6 phản hồi không có guidance / ai_comments / first_reviewed", "st": "PASS", "note": "0"}
+{"tc": "G01-09 cờ tắt: reflect → 409 GUIDANCE_DISABLED", "st": "PASS", "note": "409 GUIDANCE_DISABLED"}
+{"tc": "G01-09 cờ tắt: apply → 409 GUIDANCE_DISABLED", "st": "PASS", "note": "409 GUIDANCE_DISABLED"}
+{"tc": "G01-09 cờ tắt: regrade-stale → 409 GUIDANCE_DISABLED", "st": "PASS", "note": "409 GUIDANCE_DISABLED"}
+{"tc": "G01-09 cờ tắt: overview enabled=false (dữ liệu cũ còn trong DB)", "st": "PASS", "note": "200 False"}
+{"tc": "G01-09 dữ liệu lưu ý cũ còn trong DB", "st": "PASS", "note": "2"}
+{"tc": "G01-09 cờ tắt: màn duyệt không có khối guidance", "st": "PASS", "note": "['result', 'submission', 'assignment', 'criteria', 'flags', 'pass_detail', 'late']"}
+{"tc": "G01-07 GUIDANCE_ENABLED=false: ghi cờ → 409 GUIDANCE_DISABLED", "st": "PASS", "note": "409 GUIDANCE_DISABLED"}
+{"tc": "G01-07 reflect → 409, 0 job mới", "st": "PASS", "note": "409"}
+{"tc": "G03-24 ta reflect → 403", "st": "PASS", "note": "403"}
+{"tc": "G03-24 sv.kha reflect → 403", "st": "PASS", "note": "403"}
+{"tc": "G03-24 admin reflect → 403", "st": "PASS", "note": "403"}
+{"tc": "G03-24 qua đường lớp 2 → 404", "st": "FAIL", "note": "409"}
+{"tc": "G03-24 không token → 401", "st": "PASS", "note": "401"}
+{"tc": "G03-24 cờ tắt → 409 GUIDANCE_DISABLED", "st": "PASS", "note": "409 GUIDANCE_DISABLED"}
+{"tc": "G03-01 chưa đủ bài duyệt → 409 NOT_ENOUGH_DATA, không job", "st": "PASS", "note": "409 {\"code\": \"NOT_ENOUGH_DATA\", \"message\": \"Cần thêm bài đã duyệt.\", \"trace_id\": \"f5afec0db6a6fdcf807e409a425db7ce\", \"detail loại=ESSAY"}
+{"tc": "G03-04 reflect đủ dữ liệu → 202 job_id", "st": "PASS", "note": "202 {'job_id': '01a1df5b-1bf8-71a4-88dd-ed9d37ce1fba'}"}
+{"tc": "G03-04 job SUCCEEDED, DRAFT sinh ra", "st": "PASS", "note": "SUCCEEDED {\"drafts\": 2, \"dropped\": []}"}
+{"tc": "G03-08 đầu vào chỉ {rubric, cases[], existing}; ca có đúng khoá", "st": "PASS", "note": "keys=['cases', 'existing', 'rubric'] case_keys=['ai_comment', 'ai_score', 'case_id', 'criterion_id', 'teacher_score'] n=13"}
+{"tc": "G03-09 đầu vào reflect không có tên / MSSV / email SV, không submission_id", "st": "FAIL", "note": "leak=['R', 'R', 'R']"}
+{"tc": "G03-05a cùng Idempotency-Key → cùng job_id", "st": "PASS", "note": "202 {'job_id': '01a1df5b-1bf8-71a4-88dd-ed9d37ce1fba'}"}
+{"tc": "G03-05b khoá mới + không dữ liệu mới → không sinh nháp lần hai (job cũ / 4xx / drafts:0)", "st": "PASS", "note": "202 {'job_id': '01a1df5b-1bf8-71a4-88dd-ed9d37ce1fba'}"}
+{"tc": "G03-06 duyệt thêm → khoá mới → job mới", "st": "PASS", "note": "202 {'job_id': '01a1df5b-302f-75db-b5e4-46ecf02ccd02'}"}
+{"tc": "G03-08b chạy 2 lần → case_id khác nhau (ngẫu nhiên theo lần)", "st": "PASS", "note": "0 trùng"}
+{"tc": "G03-20 llm_audit reflect: task GRADING, lane BATCH", "st": "PASS", "note": "[['GRADING', 'BATCH', 'ok', '0']]"}
+{"tc": "G03-07 không tự kích: số job reflect = số lần QC bấm (không job tự sinh)", "st": "PASS", "note": "jobs mới=2 (2 lần chủ ý)"}
+{"tc": "G05-07 scope ALL_UNPUBLISHED: 200/202 bỏ qua hoặc 422; REVIEWED/PUBLISHED không bị chấm lại", "st": "PASS", "note": "202 {\"job_id\": \"01a1df5b-386f-7473-8995-dcb62cc04b69\", \"queued\": 3, \"skipped\": {\"reviewed\": 0, \"edited\":"}
+{"tc": "G03-23 4 lần/giờ/bài tập: lần 4 → 429 RATE_LIMITED", "st": "PASS", "note": "[202, 202, 202, 429, 429]"}
+{"tc": "G03-09 đầu vào reflect (≥ 4 ký tự): không tên / MSSV / email SV, không submission_id / student_id, không SĐT/email", "st": "FAIL", "note": "leak=[] sid=21 phones=[] emails=[] (n=377 mẫu PII)"}
+{"tc": "G08-12 cờ THREAD_SUGGEST tắt → [] và 0 lượt nhúng của người gọi", "st": "PASS", "note": "200 [] nhúng(user)=0"}
+{"tc": "G01-10 cờ tắt: similar-confirmed → [], 0 nhúng mới", "st": "PASS", "note": "200 [] nhúng=0"}

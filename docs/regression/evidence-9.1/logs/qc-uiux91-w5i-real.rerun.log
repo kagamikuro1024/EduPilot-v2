@@ -1,0 +1,13 @@
+
+Running 2 tests using 1 worker
+
+(node:94488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX20-8 qt của A: 8.25 | qt của B: 10 | A gọi ?user_id=B: 200 8.25 | bằng của A: true
+  ✓  1 [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:38:1 › TC-UX20-8 tham số user_id không đổi danh tính (2.5s)
+INFO UX13-1 trước thu gọn: {"x":240,"r":1416,"w":1176,"mainL":216,"mainR":1440}
+INFO UX13-3 sau thu gọn: {"x":240,"r":1416,"w":1176,"mainL":216,"mainR":1440}
+INFO UX13-4 hàng: "Em muốn hỏi một câu rất dài về cách tính điểm quá trình, điể ⏎ Hôm nay, 21:32" {"lh":"24px","h":83,"clamp":"none","ov":"visible"}
+  ✓  2 [desktop] › e2e/qc-uiux91-w5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài (14.6s)
+
+  2 passed (17.5s)

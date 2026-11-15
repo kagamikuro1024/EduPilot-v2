@@ -1,0 +1,75 @@
+
+Running 3 tests using 1 worker
+
+(node:46102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc-s10-real.spec.ts:37:3 › SV luyện đề 1440px (18.4s)
+(node:47453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › e2e/qc-s10-real.spec.ts:37:3 › SV luyện đề 375px (18.3s)
+(node:48141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › e2e/qc-s10-real.spec.ts:72:1 › GV /questions + sổ điểm Forms 1440 (3.0m)
+
+
+  1) [desktop] › e2e/qc-s10-real.spec.ts:37:3 › SV luyện đề 1440px ─────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /^Luyện 10 câu/ }).first()
+
+
+      44 |     await page.screenshot({ path: `${OUT}/practice-${w}.png` }); await layout(page, "/practice", notes);
+      45 |     // luyện chủ đề: khối khuyến nghị
+    > 46 |     await page.getByRole("button", { name: /^Luyện 10 câu/ }).first().click();
+         |                                                                       ^
+      47 |     await page.waitForURL(/\/practice\/[0-9a-f-]{36}/);
+      48 |     await page.waitForTimeout(800);
+      49 |     await page.screenshot({ path: `${OUT}/topic-q1-${w}.png` }); await layout(page, "topic câu 1", notes);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-s10-real.spec.ts:46:71
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-real/qc-s10-real-SV-luyện-đề-1440px-desktop/error-context.md
+
+  2) [desktop] › e2e/qc-s10-real.spec.ts:37:3 › SV luyện đề 375px ──────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /^Luyện 10 câu/ }).first()
+
+
+      44 |     await page.screenshot({ path: `${OUT}/practice-${w}.png` }); await layout(page, "/practice", notes);
+      45 |     // luyện chủ đề: khối khuyến nghị
+    > 46 |     await page.getByRole("button", { name: /^Luyện 10 câu/ }).first().click();
+         |                                                                       ^
+      47 |     await page.waitForURL(/\/practice\/[0-9a-f-]{36}/);
+      48 |     await page.waitForTimeout(800);
+      49 |     await page.screenshot({ path: `${OUT}/topic-q1-${w}.png` }); await layout(page, "topic câu 1", notes);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-s10-real.spec.ts:46:71
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-real/qc-s10-real-SV-luyện-đề-375px-desktop/error-context.md
+
+  3) [desktop] › e2e/qc-s10-real.spec.ts:72:1 › GV /questions + sổ điểm Forms 1440 ─────────────────
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      16 |   await page.locator("input[type=password]").fill(PW);
+      17 |   await page.keyboard.press("Enter");
+    > 18 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+         |              ^
+      19 |   await page.locator("[data-part=topbar]").waitFor();
+      20 |   return { ctx, page };
+      21 | }
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-s10-real.spec.ts:18:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-s10-real.spec.ts:76:25
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-s10-real/qc-s10-real-GV-questions-sổ-điểm-Forms-1440-desktop/error-context.md
+
+  3 failed
+    [desktop] › e2e/qc-s10-real.spec.ts:37:3 › SV luyện đề 1440px ──────────────────────────────────
+    [desktop] › e2e/qc-s10-real.spec.ts:37:3 › SV luyện đề 375px ───────────────────────────────────
+    [desktop] › e2e/qc-s10-real.spec.ts:72:1 › GV /questions + sổ điểm Forms 1440 ──────────────────

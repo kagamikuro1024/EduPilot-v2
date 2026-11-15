@@ -1,0 +1,5 @@
+FAIL (chuẩn bị) 3 vòng × 30 SV = 90 lượt 88
+FAIL TC-AS06-01 90 lượt, limit=50: 2 trang, đủ 90, không trùng/thiếu, thứ tự (created_at,id) 88 lượt, 2 trang
+PASS TC-AS06-01b tập id khớp DB 
+FAIL TC-AS06-02d limit=100 trả ≤ 100 (90) và next_cursor null 88
+PASS TC-AS06-03 kế hoạch truy vấn danh sách: dùng chỉ mục attendance_checkins_session_idx, không OFFSET, thời gian thực thi nhỏ ->  Index Scan using attendance_checkins_session_idx on attendance_checkins c  (cost=0.27..8.29 rows=1 width=72) (actual time=0.024.

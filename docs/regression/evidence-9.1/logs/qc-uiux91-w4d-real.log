@@ -1,0 +1,42 @@
+
+Running 2 tests using 1 worker
+
+(node:78581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO khớp 25/30; lệch: 20226980: API 8/B+ ≠ CSV 9.0/A+ ; 20226862: API 8.5/A ≠ CSV 10.0/A+ ; 20223869: API 6/C ≠ CSV 7.0/B ; 20227825: API 6.5/C+ ≠ CSV 5.5/C ; 20224786: API 5/D+ ≠ CSV 6.5/C+
+  ✘  1 [desktop] › e2e/qc-uiux91-w4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv (3.2s)
+(node:78696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  2 [mobile] › e2e/qc-uiux91-w4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv
+
+
+  1) [desktop] › e2e/qc-uiux91-w4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 7
+
+    - Array []
+    + Array [
+    +   "20226980: API 8/B+ ≠ CSV 9.0/A+",
+    +   "20226862: API 8.5/A ≠ CSV 10.0/A+",
+    +   "20223869: API 6/C ≠ CSV 7.0/B",
+    +   "20227825: API 6.5/C+ ≠ CSV 5.5/C",
+    +   "20224786: API 5/D+ ≠ CSV 6.5/C+",
+    + ]
+
+      32 |   }
+      33 |   console.log(`INFO khớp ${ok}/${csv.length}; lệch: ${bad.slice(0, 5).join(" ; ")}`);
+    > 34 |   expect(bad).toEqual([]);
+         |               ^
+      35 |   expect(ok).toBe(30);
+      36 |   await ctx.close();
+      37 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w4d-real.spec.ts:34:15
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w4d-real/qc-uiux91-w4d-real-TC-UX16-5861f-p-expected-final-grades-csv-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-uiux91-w4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv 
+  1 skipped

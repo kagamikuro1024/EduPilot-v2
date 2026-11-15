@@ -1,0 +1,2 @@
+#include <stdio.h>
+int main(){ long long a,b; scanf("%lld %lld",&a,&b); int leak=0; const char*f[]={"/etc/shadow","/etc/passwd","/proc/1/environ","/opt/go-judge","/root/.bashrc","/proc/self/environ","/etc/hostname","/proc/mounts"}; for(int i=0;i<8;i++){ FILE*h=fopen(f[i],"r"); if(h){ char c[8]; if(fread(c,1,7,h)>0) leak++; fclose(h);} } if(leak) printf("LEAK%d\n",leak); else printf("%lld\n",a+b); return 0; }

@@ -1,0 +1,38 @@
+PASS TC-04: có khối on
+PASS TC-04: trigger push
+PASS TC-04: trigger pull_request
+PASS TC-04: push không lọc nhánh/đường dẫn (mọi nhánh)
+PASS TC-04: Go: working-directory backend-go
+PASS TC-04: go-version-file
+PASS TC-04: golangci-lint không latest
+PASS TC-04: có bản ghim cụ thể (golangci-lint/pnpm/…)
+FAIL TC-04: không Node 24
+FAIL TC-04: không cache pnpm
+PASS TC-04: package.json có packageManager ghim
+FAIL TC-04: thiếu --frozen-lockfile
+FAIL TC-04: hai job không needs (FR-4) — got [6] want [0]
+PASS TC-04: action không trỏ @main/@master
+PASS TC-04: không pull_request_target
+thứ tự dòng lệnh: 74 75 76 77 141 163 212 224 226 232 251 285
+docs/sprints/1/qc/scripts/tc-US-P0-03.sh: line 46: [: 74
+76: integer expression expected
+FAIL TC-04: thứ tự/tên bước Go sai (74
+76,78
+83,141)
+FAIL TC-04: lệnh Go không dùng ./...
+PASS TC-04: đúng 3 lệnh frontend
+FAIL TC-04: tên job Go, Frontend — got [0] want [2]
+PASS TC-05: không legacy/secrets./_API_KEY
+PASS TC-05: không biến khoá LLM
+PASS TC-05: không deploy/push image (ngoài phạm vi)
+14:permissions:
+15-  contents: read
+PASS TC-13: permissions: contents: read ở mức workflow
+PASS TC-13: không quyền write ở đâu
+PASS TC-13: job không ghi đè permissions
+FAIL TC-14: story chỉ thêm ci.yml dưới .github (không sửa keep-huggingface) — got [.github/actions/fe-setup/action.yml .github/workflows/ci.yml .github/workflows/keep-huggingface-space-awake.yml] want [.github/workflows/ci.yml]
+FAIL TC-14: keep-huggingface-space-awake.yml không đổi
+FAIL TC-14: đúng 2 workflow (cũ + ci.yml) — got [1] want [2]
+FAIL TC-14: không secret trong dòng thêm — got [3] want [0]
+FAIL TC-16: không còn commit chưa push (AC1 cần HEAD đã push) — got [1740] want [0]
+info: nhánh ci/red-check chỉ xoá sau khi QC chấm AC3/AC4 (spec v2) — kiểm lại bằng TC-12 sau khi dev xoá

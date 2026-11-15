@@ -1,0 +1,11 @@
+PASS TC-AS04-09 cùng khoá ở hai lớp: không DEVICE_SHARED 201 201 flags='DEVICE_NEW'
+K1 (201, {'checked_in_at': '2026-11-15T12:35:48.382375Z', 'round': 1})
+K2 (201, {'checked_in_at': '2026-11-15T12:35:49.139597Z', 'round': 1})
+K2b (201, {'checked_in_at': '2026-11-15T12:35:49.72036Z', 'round': 1})
+FAIL TC-AS04-10 DEVICE_NEW: K1 lần đầu không cờ; K2 đầu: DEVICE_NEW; K2 sau: không 'DEVICE_NEW' 'DEVICE_NEW' '-'
+PASS TC-AS04-17a route SV: không flags/assurance/device_id/geo_/in_campus 
+PASS TC-AS04-17b GET checkins: STUDENT/ADMIN 403; TA/TEACHER 200 [403, 403, 200, 200]
+FAIL TC-AS04-15 nhãn cờ tiếng Việt, không từ kỹ thuật {'DEVICE_NEW': 'Máy mới'}
+PASS TC-AS03-19a geo.lat chuỗi → 422 422
+PASS TC-AS03-19b signature không phải base64: 422 hoặc 200 (ghi nhận) 422 {"code": "VALIDATION_FAILED", "message": "D\u1eef li\u1ec7u ch\u01b0a h\u1ee3p l\u1ec7.", 
+lớp C2 bật: 422

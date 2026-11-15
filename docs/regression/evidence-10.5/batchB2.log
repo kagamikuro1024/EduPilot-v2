@@ -1,0 +1,90 @@
+fake GRADING 200 22
+=== dm_c off 20:28:06
+regrade sv11@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "b0a827529aabcb1ec820f03d10844d54"}
+regrade sv.gioi@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "af3e5fbc61f8cae9b3b1baa3047b5c7f"}
+regrade sv10@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "5a486d7e11030d9c5d9cc7e285dddd59"}
+regrade sv15@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "c1a7bb0daa211501c628076b2628ea5b"}
+regrade sv14@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "d655c8def3f67594a4ee31cce92378ae"}
+regrade sv25@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "2d54d5ff4513ee961144f7b86d437c6c"}
+regrade sv27@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "b49b6a0ad7c4b80732c85c30ae1e1a39"}
+regrade sv20@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "9a484a6f67459e1183660a8d86b2b267"}
+regrade sv07@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "6213229cb20b2dd09b7ad2910629d64f"}
+regrade sv04@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "1db170a0a9f2b48ce555fb6f1fb95c85"}
+regrade sv06@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "e3b1d66ccee8f890890c3c8fd46f12ed"}
+regrade sv09@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "2a1806892bbd58490809893b161dab40"}
+regrade sv12@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "72521c78f30f279c2ef2265ce842dd2b"}
+regrade sv16@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "3b87e3054ccd00f85b23869f6ec1b844"}
+regrade sv19@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "b1593662ce0a1a6fc8c722bcbe8d4037"}
+regrade sv22@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "8a02d6b475ee269f6da9c1d999a6c5e9"}
+regrade sv.kha@edupilot.local 409 {"code": "ALREADY_REVIEWED", "message": "Bài này đã được duyệt.", "trace_id": "ebba829be93062b3431bdab7c72c8bce"}
+[off] regraded=7 states=['DONE', 'FAILED']
+  tổng điểm đổi so với round 1: [('sv.kha@edupilot.local', '', '6.50')]
+  cờ INJECTION mới: []
+  mất cờ regex: []
+  DECIDE: []
+  s4(sv24) cờ: ['{EMPTY_SUBMISSION}']  s6(sv14): []
+=== dm_c p90: worker+gateway FAKE_DECISION_PROB=0.9 20:31:26
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+xếp hàng chấm lại: 24 / 24
+[p90] regraded=24 states=['DONE', 'QUEUED']
+  tổng điểm đổi so với round 1: [('sv07@edupilot.local', '4.75', '5.75'), ('sv09@edupilot.local', '4.75', '5.75'), ('sv10@edupilot.local', '3.50', '3.00'), ('sv11@edupilot.local', '5.25', '5.75'), ('sv12@edupilot.local', '4.75', '5.75'), ('sv14@edupilot.local', '3.50', '4.50'), ('sv15@edupilot.local', '8.00', '9.00'), ('sv16@edupilot.local', '4.75', '5.75'), ('sv19@edupilot.local', '0.50', '0.00')
+  cờ INJECTION mới: []
+  mất cờ regex: []
+  DECIDE: [['INJECTION_FLAG', 'FALLBACK', 'cancelled', 'BATCH', '7'], ['INJECTION_FLAG', 'FALLBACK', 'ok', 'BATCH', '20'], ['INJECTION_FLAG', 'FAST', 'ok', 'BATCH', '4']]
+  s4(sv24) cờ: ['{EMPTY_SUBMISSION}']  s6(sv14): ['{INJECTION_SUSPECTED}']
+=== dm_c p01 20:35:10
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+regrade sv.kha@edupilot.local 409 {"code": "VERSION_CONFLICT", "message": "Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.", "trace_id": "53
+regrade sv.gioi@edupilot.local 409 {"code": "VERSION_CONFLICT", "message": "Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.", "trace_id": "47
+xếp hàng chấm lại: 22 / 24
+[p01] regraded=22 states=['DONE']
+  tổng điểm đổi so với round 1: [('sv07@edupilot.local', '4.75', '5.75'), ('sv09@edupilot.local', '4.75', '5.75'), ('sv10@edupilot.local', '3.50', '3.00'), ('sv11@edupilot.local', '5.25', '5.75'), ('sv12@edupilot.local', '4.75', '5.75'), ('sv14@edupilot.local', '3.50', '4.50'), ('sv15@edupilot.local', '8.00', '9.00'), ('sv16@edupilot.local', '4.75', '5.75'), ('sv19@edupilot.local', '0.50', '0.00')
+  cờ INJECTION mới: []
+  mất cờ regex: []
+  DECIDE: [['INJECTION_FLAG', 'FALLBACK', 'cancelled', 'BATCH', '25'], ['INJECTION_FLAG', 'FALLBACK', 'ok', 'BATCH', '22'], ['INJECTION_FLAG', 'FAST', 'ok', 'BATCH', '1']]
+  s4(sv24) cờ: ['{EMPTY_SUBMISSION}']  s6(sv14): ['{INJECTION_SUSPECTED}']
+=== dm_c err 20:38:03
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+xếp hàng chấm lại: 24 / 24
+[err] regraded=24 states=['DONE', 'QUEUED']
+  tổng điểm đổi so với round 1: [('sv07@edupilot.local', '4.75', '5.75'), ('sv09@edupilot.local', '4.75', '5.75'), ('sv10@edupilot.local', '3.50', '3.00'), ('sv11@edupilot.local', '5.25', '5.75'), ('sv12@edupilot.local', '4.75', '5.75'), ('sv14@edupilot.local', '3.50', '4.50'), ('sv15@edupilot.local', '8.00', '9.00'), ('sv16@edupilot.local', '4.75', '5.75'), ('sv19@edupilot.local', '0.50', '0.00')
+  cờ INJECTION mới: []
+  mất cờ regex: []
+  DECIDE: [['INJECTION_FLAG', 'FALLBACK', 'cancelled', 'BATCH', '5'], ['INJECTION_FLAG', 'FALLBACK', 'circuit_open', 'BATCH', '20'], ['INJECTION_FLAG', 'FALLBACK', 'error', 'BATCH', '6']]
+  s4(sv24) cờ: ['{EMPTY_SUBMISSION}']  s6(sv14): ['{INJECTION_SUSPECTED}']
+tổng 813s
+=== cleanup
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+restore GRADING 200 23

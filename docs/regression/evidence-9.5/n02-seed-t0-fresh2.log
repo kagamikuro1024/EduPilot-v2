@@ -1,0 +1,7 @@
+[1/20] Admin đầu tiên (gateway admin create)…
+[2/20] Mời giảng viên và trợ giảng, nhận lời mời…
+Seed lỗi: POST /admin/users/01a1df4a-6443-7254-9a73-9bce6e7b0017/resend-invite → 500 INTERNAL
+real 50.28
+user 0.23
+sys 0.12
+rc=1

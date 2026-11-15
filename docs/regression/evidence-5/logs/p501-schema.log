@@ -1,0 +1,5 @@
+enum kiểm: 16
+LỆCH question_bank: cột thừa so với bảng SRS ['reject_reason']
+LỆCH code_testcases: cột thừa so với bảng SRS ['expected', 'expected_blob_key', 'input', 'input_blob_key']
+LỆCH code_submissions.source_sha256 kiểu enum/khác: SRS char(64) / DB character/bpchar
+bảng kiểm: 13; cột kiểm: 192; lệch: 3

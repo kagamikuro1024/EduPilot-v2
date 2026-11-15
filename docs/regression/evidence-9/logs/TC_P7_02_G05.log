@@ -1,0 +1,28 @@
+$ go test -tags integration ./internal/assignment -run 'TestPublishAssignment|TestPublishIdempotent|TestPublishNeedsRubric|TestPublishTwice|TestPublishNotifiesStudents' -v
+=== RUN   TestPublishAssignment
+2026/11/15 19:35:18 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: a161a0285cafae33346ef0ae73087bdc630b0010947472e4aa1baa5d13f1dd2d
+  Test ProcessID: 16323dd3-9efa-4a91-a3ad-16468ca8bef0
+2026/11/15 19:35:19 ✅ Container started: 68f6ff853df5
+2026/11/15 19:35:19 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:35:19 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPublishAssignment (5.93s)
+=== RUN   TestPublishNeedsRubric
+--- PASS: TestPublishNeedsRubric (4.06s)
+=== RUN   TestPublishTwice
+--- PASS: TestPublishTwice (4.12s)
+=== RUN   TestPublishNotifiesStudents
+--- PASS: TestPublishNotifiesStudents (6.46s)
+=== RUN   TestPublishIdempotent
+--- PASS: TestPublishIdempotent (4.37s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	25.519s
+
+rc=0

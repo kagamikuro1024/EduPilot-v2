@@ -1,0 +1,32 @@
+$ go test -tags integration ./internal/assignment -run 'TestEditScoreRange|TestEditScoreStep|TestEditScorePrecision|TestEditRecomputesTotal|TestEditVersionConflict|TestEditKeepsAiScores|TestEditPublishedRejected' -v
+=== RUN   TestEditScoreRange
+2026/11/15 20:03:33 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 2c5ccae46010d6da4cef30a3bca3c3d0bd243c9c314c4e3c6552cea07a5f2020
+  Test ProcessID: b864de57-06f3-40bc-ac67-d588b15efaf0
+2026/11/15 20:03:33 ✅ Container started: 68f6ff853df5
+2026/11/15 20:03:33 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:03:33 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestEditScoreRange (31.14s)
+=== RUN   TestEditScoreStep
+--- PASS: TestEditScoreStep (25.08s)
+=== RUN   TestEditScorePrecision
+--- PASS: TestEditScorePrecision (22.86s)
+=== RUN   TestEditRecomputesTotal
+--- PASS: TestEditRecomputesTotal (15.31s)
+=== RUN   TestEditKeepsAiScores
+--- PASS: TestEditKeepsAiScores (8.48s)
+=== RUN   TestEditVersionConflict
+--- PASS: TestEditVersionConflict (13.54s)
+=== RUN   TestEditPublishedRejected
+--- PASS: TestEditPublishedRejected (6.98s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	124.052s
+
+rc=0

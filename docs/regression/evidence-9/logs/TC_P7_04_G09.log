@@ -1,0 +1,49 @@
+$ go test -tags integration ./internal/submission ./internal/grade -run 'TestDismissUnmatched|TestDismissedNotCountedAsPending|TestUnmatchedBlocksZeroScore|TestNoSubmissionZeroOnlyWhenNoUnmatched|TestFinalizeIncompleteWhenUnmatched' -v
+=== RUN   TestDismissUnmatched
+2026/11/15 19:42:42 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: d14d3385dabb781d9b1803d8ccc9731f68d9b82929c04ef70ec51da2917a43c1
+  Test ProcessID: 9b4ce34e-2930-4820-ba54-0e2263841498
+2026/11/15 19:42:42 ✅ Container started: 68f6ff853df5
+2026/11/15 19:42:42 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:42:42 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:42:45 ✅ Container started: 5636bc78d64d
+2026/11/15 19:42:45 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:42:45 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:42:45 ✅ Container started: b8d9c357e377
+2026/11/15 19:42:45 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:42:45 🔔 Container is ready: b8d9c357e377
+--- PASS: TestDismissUnmatched (2.94s)
+=== RUN   TestDismissedNotCountedAsPending
+--- PASS: TestDismissedNotCountedAsPending (2.26s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/submission	5.683s
+=== RUN   TestUnmatchedBlocksZeroScore
+2026/11/15 19:42:43 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: d14d3385dabb781d9b1803d8ccc9731f68d9b82929c04ef70ec51da2917a43c1
+  Test ProcessID: a00672f4-e1ba-4c48-bb7f-5bba2ad3ab3f
+2026/11/15 19:42:43 ✅ Container started: 68f6ff853df5
+2026/11/15 19:42:43 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:42:43 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestUnmatchedBlocksZeroScore (2.90s)
+=== RUN   TestNoSubmissionZeroOnlyWhenNoUnmatched
+--- PASS: TestNoSubmissionZeroOnlyWhenNoUnmatched (2.20s)
+=== RUN   TestFinalizeIncompleteWhenUnmatched
+--- PASS: TestFinalizeIncompleteWhenUnmatched (2.63s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	8.495s
+
+rc=0

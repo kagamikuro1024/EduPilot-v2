@@ -1,0 +1,50 @@
+$ go test -tags integration ./internal/assignment -run 'TestAppealsRBACMatrix|TestAppealOwnOnly' -v
+=== RUN   TestAppealOwnOnly
+2026/11/15 20:28:20 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e811e83dfbef1e7275860accb21a50d0a3e2d150bee95c0cd5bf91a125a7bd21
+  Test ProcessID: 6bfb67d8-5407-4ee7-9d8d-b690a756c60d
+2026/11/15 20:28:20 ✅ Container started: 68f6ff853df5
+2026/11/15 20:28:20 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:28:20 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealOwnOnly (2.75s)
+=== RUN   TestAppealsRBACMatrix
+2026/11/15 20:28:26 ✅ Container started: 5636bc78d64d
+2026/11/15 20:28:26 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:28:26 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestAppealsRBACMatrix (4.02s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	7.229s
+
+rc=0
+$ go test -tags integration ./internal/assignment -run 'TestAppealsRBACMatrix|TestAppealOwnOnly' -v
+=== RUN   TestAppealOwnOnly
+2026/11/15 20:29:03 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 1dceb5cd8313eabfc7fabd6179af50b1052827c30a82a873f95d159af235da3a
+  Test ProcessID: 5bcc2c65-4c52-4de3-ac3b-bc6bc53ef37d
+2026/11/15 20:29:03 ✅ Container started: 68f6ff853df5
+2026/11/15 20:29:03 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:29:03 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestAppealOwnOnly (27.89s)
+=== RUN   TestAppealsRBACMatrix
+2026/11/15 20:29:58 ✅ Container started: 5636bc78d64d
+2026/11/15 20:29:58 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 20:29:58 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestAppealsRBACMatrix (37.40s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	65.862s
+
+rc=0

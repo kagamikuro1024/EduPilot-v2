@@ -1,0 +1,103 @@
+FAIL GET grade-scheme [SVA] mong 403 thật 503
+FAIL GET grade-scheme [TA_] mong qua cổng quyền, thật 502
+FAIL GET grade-scheme [TCH] mong qua cổng quyền, thật 401
+FAIL GET grade-scheme [ADM] mong 403 thật 401
+PASS GET grade-scheme [không đăng nhập] (401)
+PASS GET grade-scheme/status [SVA] (403)
+FAIL GET grade-scheme/status [TA_] mong qua cổng quyền, thật 401
+FAIL GET grade-scheme/status [TCH] mong qua cổng quyền, thật 401
+FAIL GET grade-scheme/status [ADM] mong 403 thật 401
+PASS GET grade-scheme/status [không đăng nhập] (401)
+PASS POST grade-scheme/impact [SVA] (403)
+FAIL POST grade-scheme/impact [TA_] mong qua cổng quyền, thật 401
+FAIL POST grade-scheme/impact [TCH] mong qua cổng quyền, thật 401
+FAIL POST grade-scheme/impact [ADM] mong 403 thật 401
+PASS POST grade-scheme/impact [không đăng nhập] (401)
+PASS GET gradebook [SVA] (403)
+FAIL GET gradebook [TA_] mong qua cổng quyền, thật 401
+FAIL GET gradebook [TCH] mong qua cổng quyền, thật 401
+FAIL GET gradebook [ADM] mong 403 thật 401
+PASS GET gradebook [không đăng nhập] (401)
+PASS GET gradebook/preview [SVA] (403)
+FAIL GET gradebook/preview [TA_] mong qua cổng quyền, thật 401
+FAIL GET gradebook/preview [TCH] mong qua cổng quyền, thật 401
+FAIL GET gradebook/preview [ADM] mong 403 thật 401
+FAIL GET gradebook/preview [không đăng nhập] mong 401 thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/explain [SVA] mong 403 thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/explain [TA_] mong qua cổng quyền, thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/explain [TCH] mong qua cổng quyền, thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/explain [ADM] mong 403 thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/explain [không đăng nhập] mong 401 thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/history [SVA] mong 403 thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/history [TA_] mong qua cổng quyền, thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/history [TCH] mong qua cổng quyền, thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/history [ADM] mong 403 thật 503
+FAIL GET gradebook/students/01a1df27-6513-7e2b-8949-19e226a24332/history [không đăng nhập] mong 401 thật 503
+FAIL GET gradebook/snapshots [SVA] mong 403 thật 503
+FAIL GET gradebook/snapshots [TA_] mong qua cổng quyền, thật 503
+FAIL GET gradebook/snapshots [TCH] mong qua cổng quyền, thật 503
+FAIL GET gradebook/snapshots [ADM] mong 403 thật 503
+FAIL GET gradebook/snapshots [không đăng nhập] mong 401 thật 503
+FAIL PUT grade-scheme [SVA] mong 403 thật 503
+FAIL PUT grade-scheme [TA_] mong 403 thật 503
+FAIL PUT grade-scheme [TCH] mong qua cổng quyền, thật 503
+FAIL PUT grade-scheme [ADM] mong 403 thật 503
+FAIL PUT grade-scheme [không đăng nhập] mong 401 thật 503
+FAIL POST grade-scheme/extract [SVA] mong 403 thật 503
+FAIL POST grade-scheme/extract [TA_] mong 403 thật 503
+FAIL POST grade-scheme/extract [TCH] mong qua cổng quyền, thật 401
+FAIL POST grade-scheme/extract [ADM] mong 403 thật 401
+PASS POST grade-scheme/extract [không đăng nhập] (401)
+PASS POST grade-scheme/confirm [SVA] (403)
+FAIL POST grade-scheme/confirm [TA_] mong 403 thật 401
+FAIL POST grade-scheme/confirm [TCH] mong qua cổng quyền, thật 401
+FAIL POST grade-scheme/confirm [ADM] mong 403 thật 401
+PASS POST grade-scheme/confirm [không đăng nhập] (401)
+PASS PUT grade-entries [SVA] (403)
+FAIL PUT grade-entries [TA_] mong 403 thật 401
+FAIL PUT grade-entries [TCH] mong qua cổng quyền, thật 401
+FAIL PUT grade-entries [ADM] mong 403 thật 401
+PASS PUT grade-entries [không đăng nhập] (401)
+PASS POST grade-entries/import [SVA] (403)
+FAIL POST grade-entries/import [TA_] mong 403 thật 401
+FAIL POST grade-entries/import [TCH] mong qua cổng quyền, thật 401
+FAIL POST grade-entries/import [ADM] mong 403 thật 401
+PASS POST grade-entries/import [không đăng nhập] (401)
+PASS POST uploads/presign [SVA] (403)
+FAIL POST uploads/presign [TA_] mong 403 thật 401
+FAIL POST uploads/presign [TCH] mong qua cổng quyền, thật 401
+FAIL POST uploads/presign [ADM] mong 403 thật 401
+PASS POST uploads/presign [không đăng nhập] (401)
+PASS POST grade-items/00000000-0000-0000-0000-000000000001/publish [SVA] (403)
+FAIL POST grade-items/00000000-0000-0000-0000-000000000001/publish [TA_] mong 403 thật 401
+FAIL POST grade-items/00000000-0000-0000-0000-000000000001/publish [TCH] mong qua cổng quyền, thật 401
+FAIL POST grade-items/00000000-0000-0000-0000-000000000001/publish [ADM] mong 403 thật 401
+PASS POST grade-items/00000000-0000-0000-0000-000000000001/publish [không đăng nhập] (401)
+PASS POST gradebook/finalize [SVA] (403)
+FAIL POST gradebook/finalize [TA_] mong 403 thật 401
+FAIL POST gradebook/finalize [TCH] mong qua cổng quyền, thật 401
+FAIL POST gradebook/finalize [ADM] mong 403 thật 401
+PASS POST gradebook/finalize [không đăng nhập] (401)
+PASS POST gradebook/unlock [SVA] (403)
+FAIL POST gradebook/unlock [TA_] mong 403 thật 401
+FAIL POST gradebook/unlock [TCH] mong qua cổng quyền, thật 401
+FAIL POST gradebook/unlock [ADM] mong 403 thật 401
+PASS POST gradebook/unlock [không đăng nhập] (401)
+PASS GET gradebook/export.xlsx [SVA] (403)
+FAIL GET gradebook/export.xlsx [TA_] mong 403 thật 401
+FAIL GET gradebook/export.xlsx [TCH] mong qua cổng quyền, thật 401
+FAIL GET gradebook/export.xlsx [ADM] mong 403 thật 401
+PASS GET gradebook/export.xlsx [không đăng nhập] (401)
+PASS GET me/grades [SVA] (200)
+FAIL GET me/grades [TA_] mong 403 thật 401
+FAIL GET me/grades [TCH] mong 403 thật 401
+FAIL GET me/grades [ADM] mong 403 thật 401
+PASS GET me/grades [không đăng nhập] (401)
+PASS POST me/grades/what-if [SVA] (422)
+FAIL POST me/grades/what-if [TA_] mong 403 thật 401
+FAIL POST me/grades/what-if [TCH] mong 403 thật 401
+FAIL POST me/grades/what-if [ADM] mong 403 thật 401
+PASS POST me/grades/what-if [không đăng nhập] (401)
+
+RBAC: FAIL
+rc=1

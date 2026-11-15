@@ -1,0 +1,24 @@
+
+Running 1 test using 1 worker
+
+(node:3650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-w6-shots-real.spec.ts:8:1 › TC-UX08-56 ảnh mốc 1440 / 390 (1.7s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-w6-shots-real.spec.ts:8:1 › TC-UX08-56 ảnh mốc 1440 / 390 ───
+
+    Error: page.evaluate: TypeError: Cannot read properties of undefined (reading 'getBoundingClientRect')
+        at eval (eval at evaluate (:370:30), <anonymous>:3:30)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at eval (eval at evaluate (:370:30), <anonymous>:3:30)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at top (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-w6-shots-real.spec.ts:17:18)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-w6-shots-real.spec.ts:21:13
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w6-shots-real/qc2-r91-qc-uiux91-w6-shots-real-TC-UX08-56-ảnh-mốc-1440-390-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-w6-shots-real.spec.ts:8:1 › TC-UX08-56 ảnh mốc 1440 / 390 ────

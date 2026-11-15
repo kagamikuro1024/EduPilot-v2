@@ -1,0 +1,192 @@
+
+Running 15 tests using 1 worker
+
+(node:2912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+QCINFO teacher@1440 Hôm nay: [] tràn ngang=false
+  ✓   1 [desktop] › e2e/qc-gd-today-real.spec.ts:29:5 › hôm nay teacher @1440 (6.7s)
+QCINFO teacher@375 Hôm nay: [] tràn ngang=false
+  ✓   2 [desktop] › e2e/qc-gd-today-real.spec.ts:29:5 › hôm nay teacher @375 (8.0s)
+QCINFO ta@1440 Hôm nay: [] tràn ngang=false
+  ✓   3 [desktop] › e2e/qc-gd-today-real.spec.ts:29:5 › hôm nay ta @1440 (15.3s)
+QCINFO ta@375 Hôm nay: [] tràn ngang=false
+  ✓   4 [desktop] › e2e/qc-gd-today-real.spec.ts:29:5 › hôm nay ta @375 (6.6s)
+QCINFO @1440 hàng bài tập: 1 ["Bài tập 03 — Phân tích một vụ tấn công t"]
+QCINFO @1440 guidance-panel có: 0
+QCINFO @1440 tràn ngang: false
+  ✓   5 [desktop] › e2e/qc-gd-ui-real.spec.ts:32:3 › teacher: ngăn bài tập @1440 (10.7s)
+QCINFO @375 hàng bài tập: 0 []
+QCINFO @375 url sau chạm: https://localhost:1143/grading?tab=assignments
+QCINFO @375 guidance-panel có: 0
+QCINFO @375 tràn ngang: false
+  ✓   6 [desktop] › e2e/qc-gd-ui-real.spec.ts:32:3 › teacher: ngăn bài tập @375 (17.6s)
+QCINFO hàng chờ: «bản cũ»=false Chấm lại=false ""
+QCINFO hàng chờ options: ["Tất cả bài tập","Bài tập 03 — Phân tích một vụ tấn công thực tế"]
+QCINFO hàng chờ sau chọn BT03: «bản cũ»=false "" Chấm lại=false
+QCINFO màn duyệt: "" chip «Bản cũ»=false
+QCINFO cài đặt lớp nhãn: Lưu ý chấm=true, Ca kiểm thử=true, Gợi ý câu hỏi tương tự=true, Gợi ý khi sinh câu hỏi=true; từ cấm=false
+  ✓   7 [desktop] › e2e/qc-gd-ui-real.spec.ts:85:1 › teacher: hàng chờ, màn duyệt, cài đặt lớp @1440 (19.8s)
+QCINFO SV: «Lưu ý chấm»=false request guidance=0
+  ✓   8 [desktop] › e2e/qc-gd-ui-real.spec.ts:121:1 › sinh viên: không thấy lưu ý @1440 (12.8s)
+QCINFO @1440 số mục chờ duyệt: 0
+  ✘   9 [desktop] › e2e/qc-gd-undo-real.spec.ts:34:3 › undo Duyệt / Bỏ @1440 (3.0m)
+(node:27533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 [desktop] › e2e/qc-gd-undo-real.spec.ts:34:3 › undo Duyệt / Bỏ @375 (3.0m)
+(node:40068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+QCINFO S2-1 lọc trạng thái lúc mở (DRAFT=0, còn bài chưa chấm): {"chon":"Chưa chấm"}
+QCINFO S2-1 «Chưa có bài nộp» có không: false
+QCINFO S2-3 dòng tổng: ["24 bài"]
+QCINFO S2-1 «Chấm tất cả» khi đã chọn BT03 + xem «Chưa duyệt» (rỗng): {"khoa":false,"danhSach":""}
+QCINFO d bộ lọc sau khi rời / vào lại: {"canXemKy":{"truoc":"false","sau":"true"},"baiTapGiu":false,"trangThai":"Chưa duyệt"}
+QCINFO S2-2 tab Bài tập (đầu bảng): Tiêu đề	Hạn	Trạng thái	Đã nộp / Tổng	Đã chấm / Đã công bố | Bài tập 03 — Phân tích một vụ tấn công thực tế	Thứ Tư, 18/11 · 19:53	 | Đã công bố	24 / 24	0 / 0
+ERROR:  invalid input syntax for type uuid: ""
+LINE 1: ...ect count(*) from submissions where assignment_id='' and mat...
+                                                             ^
+  ✘  11 [desktop] › e2e/qc-gd-ux-real.spec.ts:34:1 › pha1 S2-1/S2-2/S2-3/d/j/l/n — hàng chờ, tab Bài tập, Công bố (19.7s)
+(node:40694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ERROR:  invalid input syntax for type uuid: ""
+LINE 1: ...id and s.id=r.submission_id where s.assignment_id='' and r.s...
+                                                             ^
+  ✘  12 [desktop] › e2e/qc-gd-ux-real.spec.ts:101:1 › pha2 a/b/c — Duyệt ngay sau gõ nhận xét, tự sang bài kế, bộ đếm (7.7s)
+(node:41350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 [desktop] › e2e/qc-gd-ux-real.spec.ts:135:1 › pha1b l/n/C2 — Công bố và lọc bài tập qua đổi tab (16.2s)
+(node:42904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+QCINFO h/i ngăn «Lưu ý chấm»: 
+QCINFO h/i nhãn: {"doiDiem":false,"baiDoiDiem":false,"BanVDangDung":false,"sua24":false,"baiDaDuyet":false}
+  ✘  14 [desktop] › e2e/qc-gd-ux-real.spec.ts:175:1 › pha2a h/i/m/k/n — ngăn lưu ý, Rút lưu ý, Chấm lại, hộp Công bố bản cũ (36.5s)
+(node:44636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+QCINFO P-106-14 kết quả: [{"kichBan":"không trễ","vaoDuocVaOLai":"6/6"},{"kichBan":"refresh trễ 1,5 s (đua có chủ ý)","vaoDuocVaOLai":"3/4"},{"kichBan":"refresh trễ 4 s","vaoDuocVaOLai":"2/2"}]
+  ✓  15 [desktop] › e2e/qc-gd-ux-real.spec.ts:234:1 › P-106-14 — cookie ep_rt cũ/hết hạn, mở /login, đăng nhập ngay ⇒ vào được, không bị đẩy về (1.7m)
+
+
+  1) [desktop] › e2e/qc-gd-undo-real.spec.ts:34:3 › undo Duyệt / Bỏ @1440 ──────────────────────────
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.innerText: Test ended.
+    Call log:
+      - waiting for locator('[data-part=guidance-panel]').locator('[data-part=guidance-item]').filter({ has: getByRole('button', { name: 'Duyệt' }) }).first()
+
+
+      40 |     const dialogs0 = await page.getByRole("dialog").count();
+      41 |     const first = draft.first();
+    > 42 |     const text0 = (await first.innerText()).split("\n")[0];
+         |                                ^
+      43 |     await first.getByRole("button", { name: "Duyệt" }).click();
+      44 |     await page.waitForTimeout(600);
+      45 |     const undo = panel.getByRole("button", { name: "Hoàn tác" });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-undo-real.spec.ts:42:32
+
+    Error Context: ../../../../../tmp/qc2-pw-g/qc-gd-undo-real-undo-Duyệt-Bỏ-1440-desktop/error-context.md
+
+  2) [desktop] › e2e/qc-gd-undo-real.spec.ts:34:3 › undo Duyệt / Bỏ @375 ───────────────────────────
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      15 |   await page.locator("input[type=password]").fill(PW);
+      16 |   await page.keyboard.press("Enter");
+    > 17 |   await page.waitForURL((u: URL) => !u.pathname.startsWith("/login"));
+         |              ^
+      18 |   await page.locator("[data-part=topbar]").waitFor();
+      19 |   if ((await page.locator("[data-part=topbar]").innerText()).includes("761988")) {
+      20 |     await page.locator("[data-part=topbar]").getByText("761988").first().click();
+        at open (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-undo-real.spec.ts:17:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-undo-real.spec.ts:37:34
+
+    Error Context: ../../../../../tmp/qc2-pw-g/qc-gd-undo-real-undo-Duyệt-Bỏ-375-desktop/error-context.md
+
+  3) [desktop] › e2e/qc-gd-ux-real.spec.ts:34:1 › pha1 S2-1/S2-2/S2-3/d/j/l/n — hàng chờ, tab Bài tập, Công bố 
+
+    Error: Command failed: docker exec ep-qc-postgres-1 psql -U edupilot -d edupilot -Atc "select count(*) from submissions where assignment_id='' and match_status='MATCHED'"
+    ERROR:  invalid input syntax for type uuid: ""
+    LINE 1: ...ect count(*) from submissions where assignment_id='' and mat...
+                                                                 ^
+
+
+      11 | mkdirSync(OUT, { recursive: true });
+      12 | const info = (k: string, v: unknown) => console.log(`QCINFO ${k}: ${typeof v === "string" ? v : JSON.stringify(v)}`);
+    > 13 | const sql = (q: string) => execSync(`docker exec ep-qc-postgres-1 psql -U edupilot -d edupilot -Atc "${q.replace(/"/g, '\\"')}"`).toString().trim();
+         |                            ^
+      14 |
+      15 | async function login(browser: Browser, user: string, w = 1440, h = 900) {
+      16 |   const ctx = await browser.newContext({ viewport: { width: w, height: h }, locale: "vi-VN", hasTouch: w < 500, isMobile: w < 500 });
+        at sql (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-ux-real.spec.ts:13:28)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-ux-real.spec.ts:70:47
+
+    Error Context: ../../../../../tmp/qc2-pw-g/qc-gd-ux-real-pha1-S2-1-S2-03ba9-àng-chờ-tab-Bài-tập-Công-bố-desktop/error-context.md
+
+  4) [desktop] › e2e/qc-gd-ux-real.spec.ts:101:1 › pha2 a/b/c — Duyệt ngay sau gõ nhận xét, tự sang bài kế, bộ đếm 
+
+    Error: Command failed: docker exec ep-qc-postgres-1 psql -U edupilot -d edupilot -Atc "select r.id from grading_results r join submissions s on s.course_id=r.course_id and s.id=r.submission_id where s.assignment_id='' and r.status='DRAFT' order by r.id"
+    ERROR:  invalid input syntax for type uuid: ""
+    LINE 1: ...id and s.id=r.submission_id where s.assignment_id='' and r.s...
+                                                                 ^
+
+
+      11 | mkdirSync(OUT, { recursive: true });
+      12 | const info = (k: string, v: unknown) => console.log(`QCINFO ${k}: ${typeof v === "string" ? v : JSON.stringify(v)}`);
+    > 13 | const sql = (q: string) => execSync(`docker exec ep-qc-postgres-1 psql -U edupilot -d edupilot -Atc "${q.replace(/"/g, '\\"')}"`).toString().trim();
+         |                            ^
+      14 |
+      15 | async function login(browser: Browser, user: string, w = 1440, h = 900) {
+      16 |   const ctx = await browser.newContext({ viewport: { width: w, height: h }, locale: "vi-VN", hasTouch: w < 500, isMobile: w < 500 });
+        at sql (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-ux-real.spec.ts:13:28)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-ux-real.spec.ts:106:15
+
+    Error Context: ../../../../../tmp/qc2-pw-g/qc-gd-ux-real-pha2-a-b-c-—-c2a41-n-xét-tự-sang-bài-kế-bộ-đếm-desktop/error-context.md
+
+  5) [desktop] › e2e/qc-gd-ux-real.spec.ts:135:1 › pha1b l/n/C2 — Công bố và lọc bài tập qua đổi tab 
+
+    TimeoutError: locator.getAttribute: Timeout 6000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /^Công bố/ }).first()
+
+
+      142 |   const optIn = async (word: string) => { const n = await sels().count(); for (let i = 0; i < n; i++) if ((await sels().nth(i).locator("option", { hasText: word }).count()) > 0) return sels().nth(i); return null; };
+      143 |   const pub = page.getByRole("button", { name: /^Công bố/ }).first();
+    > 144 |   const did = await pub.getAttribute("aria-describedby");
+          |                         ^
+      145 |   info("l lý do khoá (aria-describedby)", did ? await page.locator(`[id="${did}"]`).innerText().catch(() => "(không đọc được)") : null);
+      146 |   const btSel = await optIn("Bài tập 03");
+      147 |   const v = await btSel!.locator("option", { hasText: "Bài tập 03" }).first().getAttribute("value");
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-ux-real.spec.ts:144:25
+
+    Error Context: ../../../../../tmp/qc2-pw-g/qc-gd-ux-real-pha1b-l-n-C2-c1126--và-lọc-bài-tập-qua-đổi-tab-desktop/error-context.md
+
+  6) [desktop] › e2e/qc-gd-ux-real.spec.ts:175:1 › pha2a h/i/m/k/n — ngăn lưu ý, Rút lưu ý, Chấm lại, hộp Công bố bản cũ 
+
+    TimeoutError: locator.click: Timeout 8000ms exceeded.
+    Call log:
+      - waiting for locator('[data-part=guidance-panel]').first().getByRole('button', { name: /Rút lưu ý/ })
+
+
+      188 |   // m: Rút lưu ý
+      189 |   const t0 = Date.now();
+    > 190 |   await panel.getByRole("button", { name: /Rút lưu ý/ }).click();
+          |                                                          ^
+      191 |   let msg = "";
+      192 |   for (let i = 0; i < 60; i++) { await page.waitForTimeout(2000); const x = (await panel.innerText()).replace(/\n+/g, " | "); const m = x.match(/Đã rút[^|]*|Không có lưu ý mới[^|]*|\d+ lưu ý bị loại/g); if (m) { msg = m.join(" ; "); break; } }
+      193 |   info("m sau Rút lưu ý", { giay: Math.round((Date.now() - t0) / 1000), thongBao: msg });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-gd-ux-real.spec.ts:190:58
+
+    Error Context: ../../../../../tmp/qc2-pw-g/qc-gd-ux-real-pha2a-h-i-m--a4d90-Chấm-lại-hộp-Công-bố-bản-cũ-desktop/error-context.md
+
+  6 failed
+    [desktop] › e2e/qc-gd-undo-real.spec.ts:34:3 › undo Duyệt / Bỏ @1440 ───────────────────────────
+    [desktop] › e2e/qc-gd-undo-real.spec.ts:34:3 › undo Duyệt / Bỏ @375 ────────────────────────────
+    [desktop] › e2e/qc-gd-ux-real.spec.ts:34:1 › pha1 S2-1/S2-2/S2-3/d/j/l/n — hàng chờ, tab Bài tập, Công bố 
+    [desktop] › e2e/qc-gd-ux-real.spec.ts:101:1 › pha2 a/b/c — Duyệt ngay sau gõ nhận xét, tự sang bài kế, bộ đếm 
+    [desktop] › e2e/qc-gd-ux-real.spec.ts:135:1 › pha1b l/n/C2 — Công bố và lọc bài tập qua đổi tab 
+    [desktop] › e2e/qc-gd-ux-real.spec.ts:175:1 › pha2a h/i/m/k/n — ngăn lưu ý, Rút lưu ý, Chấm lại, hộp Công bố bản cũ 
+  9 passed (10.9m)

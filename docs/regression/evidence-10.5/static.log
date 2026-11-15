@@ -1,0 +1,40 @@
+### D01-02 go list -deps genai
+0
+### D01-22 env defaults
+35:GEMINI_API_KEY=
+54:LLM_DECISION_ALLOW_REAL=false
+231:      LLM_DECISION_ALLOW_REAL: ${LLM_DECISION_ALLOW_REAL:-}
+346:      LLM_DECISION_ALLOW_REAL: ${LLM_DECISION_ALLOW_REAL:-}
+### D01-23 llm_models decision
+decision-fake|decision|0.0000|0.0000
+gemini-decision-1|decision|2600.0000|0.0000
+### D09-01 .Decide( callers
+backend-go/internal/httpapi/threadhttp/thread.go:273:		out, err := h.Svc.Decide(r.Context(), x.a, x.course, pid, d, in.Body, in.Version)
+### D09-06 schema scan (cột chứa nội dung decision)
+course_decision_gates.course_id
+course_decision_gates.enabled
+course_decision_gates.gate
+course_decision_gates.updated_at
+course_decision_gates.updated_by
+course_decision_gates.version
+decision_gates.enabled
+decision_gates.gate
+decision_gates.threshold
+decision_gates.timeout_ms
+decision_gates.updated_at
+decision_gates.updated_by
+decision_gates.version
+id task lane provider model tokens_in tokens_out latency_ms queue_wait_ms attempts fallback_index cost_est status error_kind degraded pii_masked_count user_id course_id trace_id created_at cascade_gate cascade_path 
+### D09-09 diff go.mod/package.json 10.5
+ docs/ARCHITECTURE.md | 54 ++++++++++++++++++++++++++++------------------------
+ 1 file changed, 29 insertions(+), 25 deletions(-)
+### D08-19 migration 20 cũ không sửa
+### D08-22 AIza
+./docs/sprints/9.5/qc/tc-US-NFR-01.md
+### D09-11 googleapis in logs
+gateway: 0
+worker: 0
+caddy: 0
+### env LLM_DECISION_ALLOW_REAL
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH

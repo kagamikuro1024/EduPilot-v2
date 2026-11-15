@@ -1,0 +1,241 @@
+{"tc": "TC-PE02-33", "r": "P", "note": "a01=TLE(3s); a02=TLE(7s) ", "suite": "PE-02"}
+{"tc": "TC-PE02-34", "r": "P", "note": "a03=OLE(1s); a04=OLE(6s) ", "suite": "PE-02"}
+{"tc": "TC-PE02-35", "r": "P", "note": "a05=MLE(2s); a06=MLE(3s) ", "suite": "PE-02"}
+{"tc": "TC-PE02-36", "r": "P", "note": "a07=RE(1s); a18=RE(1s) ", "suite": "PE-02"}
+{"tc": "TC-PE02-37", "r": "F", "note": "a08=WA(2s); x17=AC(1s) procPeak/FORKED không quan sát được qua API (verdict an toàn + 0 tiến trình mồ côi: host procs 5→5)", "suite": "PE-02"}
+{"tc": "TC-PE02-38", "r": "F", "note": "x09=WA(1s) (a09 qua biến thể in LEAK nếu đọc được)", "suite": "PE-02"}
+{"tc": "TC-PE02-39", "r": "P", "note": "x10=AC(1s) (36 cặp ip:port, không connect nào thành công)", "suite": "PE-02"}
+{"tc": "TC-PE02-40", "r": "P", "note": "a11=CE 4s a12=CE 16s", "suite": "PE-02"}
+{"tc": "TC-PE02-41", "r": "P", "note": "a13=MLE(2s); x15r.c=AC(1s) x15w ghi rồi x15r đọc: AC = không rò chéo", "suite": "PE-02"}
+{"tc": "TC-PE02-42", "r": "F", "note": "x14=AC(2s); x16=WA(1s) ", "suite": "PE-02"}
+{"tc": "TC-PE02-43", "r": "P", "note": "a19=TLE(7s); a20=TLE(3s) ", "suite": "PE-02"}
+{"tc": "TC-PE02-44", "r": "P", "note": "bài đúng sau fork bomb AC 2.3s; RestartCount 0->0; mem30 24.74MiB / 2GiB|22; procs 5->5", "suite": "PE-02"}
+{"tc": "TC-PE02-37", "r": "P", "note": "a08 verdict WA (FORKED=0: fork bị chặn, thoả bất biến procPeak=1; gốc ghi TLE); x17 pthread_create bị chặn; host procs 5→5 (0 mồ côi)", "suite": "PE-02"}
+{"tc": "TC-PE02-38", "r": "P", "note": "5 đường SRS CHAN; 3 đường thêm: /proc/self/environ đọc được nhưng chỉ \"PATH=/usr/bin:/bin\" (19 byte, không token), /proc/mounts (ro tmpfs, ns riêng): không lộ secret", "suite": "PE-02"}
+{"tc": "TC-PE02-42", "r": "P", "note": "như cảnh báo L1 gốc (arm64 -no-seccomp, D58): ptrace(TRACEME)=0, unshare(CLONE_NEWUSER)=0 thành công; mount=-1 chroot=-1, exec /bin/sh bị chặn; không đổi so với gốc, K seccomp bật (amd64)", "suite": "PE-02"}
+{"tc": "TC-PE02-17", "r": "F", "note": "1:'hello\\r\\n'->WA(AC); 1:'hello  \\n'->WA(AC); 1:'hello'->WA(AC); 1:'hello\\n\\n\\n'->WA(AC); 1:'Hello\\n'->WA(WA); 2:'a   b\\tc\\n'->AC(AC); 2:'a\\xa0b\\u2003c\\n'->WA(AC); 2:'a b\\n'->WA(WA); 3:'1000.0009\\n'->WA(AC); 3:'1000.002\\n'->WA(WA); 3:'NaN\\n'->WA(WA)", "suite": "PE-02"}
+{"tc": "TC-PE02-20", "r": "F", "note": "DONE|WA|0|2|t|5|2 {1: 'WA', 2: 'WA'}", "suite": "PE-02"}
+{"tc": "TC-PE02-23", "r": "P", "note": "outbox topic/payload: exam.submission_done|1\njudge.enqueue|1; xinfo groups ok", "suite": "PE-02"}
+{"tc": "TC-PE02-24", "r": "P", "note": "giao lại tin 2 lần: judged_at không đổi 1|2026-11-15 12:40:24.543505+00 -> 1|2026-11-15 12:40:24.543505+00", "suite": "PE-02"}
+{"tc": "TC-PE02-17", "r": "F", "note": "1:'hello\\r\\n'->AC(AC); 1:'hello  \\n'->AC(AC); 1:'hello'->AC(AC); 1:'hello\\n\\n\\n'->AC(AC); 1:'Hello\\n'->WA(WA); 2:'a   b\\tc\\n'->AC(AC); 2:'a\\xa0b\\u2003c\\n'->WA(AC); 2:'a b\\n'->WA(WA); 3:'1000.0009\\n'->AC(AC); 3:'1000.002\\n'->NA:{\"code\":\"RATE_LIMITED\",\"message\":\"Bạn thao tác quá nhanh. Hãy t", "suite": "PE-02"}
+{"tc": "TC-PE02-20", "r": "P", "note": "DONE|TLE|4|7|t|9|6 {1: 'AC', 2: 'AC', 3: 'TLE', 4: 'AC', 5: 'WA', 6: 'RE'}", "suite": "PE-02"}
+{"tc": "TC-PE02-23", "r": "P", "note": "outbox topic/payload: exam.submission_done|1\njudge.enqueue|1; xinfo groups ok", "suite": "PE-02"}
+{"tc": "TC-PE02-24", "r": "P", "note": "giao lại tin 2 lần: judged_at không đổi 1|2026-11-15 12:42:27.317014+00 -> 1|2026-11-15 12:42:27.317014+00", "suite": "PE-02"}
+{"tc": "TC-PE02-17", "r": "F", "note": "EXACT 5/5 đúng (CRLF, khoảng trắng cuối, thiếu \\n cuối, dòng trống cuối, khác chữ hoa WA); TOKENS tab/space AC, NBSP+U+2003 WA, thiếu token WA; FLOAT_EPS 1000.0009 AC, 1000.002 WA, NaN WA (11 ca; 9 ca còn lại của bảng 20 ca chưa chạy)", "suite": "PE-02"}
+{"tc": "TC-PE01-01", "r": "P", "note": "13 bảng PE có đủ; phiên bản migration hiện tại 25 (gốc \"5\": sau sprint 5 có thêm migration — lệch dự kiến)", "suite": "PE-01"}
+{"tc": "TC-PE01-03", "r": "P", "note": "bảng có course_id đều ≥1 chỉ mục bắt đầu course_id; ngoại lệ ghi: []; bảng con không course_id: []", "suite": "PE-01"}
+{"tc": "TC-PE01-04", "r": "K", "note": "LỖI THỜI: migration PE nay là 00006_weekly_exam (không còn 00005); 4 migration đầu có 3 commit sau sprint 4; ALTER bảng cũ trong 00005/00006: backend-go/db/migrations/00006_weekly_exam.sql:0 backend-go/db/migrations/00005_vn_fold.sql:0", "suite": "PE-01"}
+{"tc": "TC-PE02-17", "r": "P", "note": "EXACT 5/5 đúng (CRLF, khoảng trắng cuối, thiếu \\n cuối, dòng trống cuối, khác chữ hoa WA); TOKENS tab/space AC, NBSP+U+2003 AC, thiếu token WA; FLOAT_EPS 1000.0009 AC, 1000.002 WA, NaN WA (11 ca; 9 ca còn lại của bảng 20 ca chưa chạy)", "suite": "PE-02"}
+{"tc": "TC-PE01-02", "r": "P", "note": "p501-schema.py: 13 bảng/192 cột; 3 lệch đều giải thích được: question_bank.reject_reason do 00021 grading_guidance (sprint 10, LỖI THỜI về cột); code_testcases input/expected & source_sha256 là artefact đọc SRS của script (bpchar=char(64))", "suite": "PE-01"}
+{"tc": "TC-PE01-01", "r": "P", "note": "13 bảng PE có đủ; phiên bản migration hiện tại 25 (gốc \"5\": sau sprint 5 có thêm migration — lệch dự kiến)", "suite": "PE-01"}
+{"tc": "TC-PE01-03", "r": "P", "note": "bảng có course_id đều ≥1 chỉ mục bắt đầu course_id; ngoại lệ ghi: []; bảng con không course_id: []", "suite": "PE-01"}
+{"tc": "TC-PE01-04", "r": "K", "note": "LỖI THỜI: migration PE nay là 00006_weekly_exam (không còn 00005); 4 migration đầu có 3 commit sau sprint 4; ALTER bảng cũ trong 00005/00006: backend-go/db/migrations/00006_weekly_exam.sql:0 backend-go/db/migrations/00005_vn_fold.sql:0", "suite": "PE-01"}
+{"tc": "TC-PE01-12", "r": "F", "note": "91 ô (13 route × 7 danh tính); lệch: [\"POST 7a-a240-c120dbd57ac3/questions TA -> 201/None (exp (403, 'role'))\", \"GET a-7d7a-a240-c120dbd57ac3/exams STU -> 200/None (exp (403, 'role'))\", \"POST a-7d7a-a240-c120dbd57ac3/exams TA -> 201/None (exp (403, 'role'))\", \"GET 3c-fd51-70da-b8ef-372866c6354e STU ", "suite": "PE-01"}
+{"tc": "TC-PE01-13", "r": "P", "note": "id không phải uuid 404, uuid không tồn tại 403", "suite": "PE-01"}
+{"tc": "TC-PE01-14", "r": "P", "note": "ADMIN/SV(ngoài C2→ dùng C1 SV: 403 role) /me/exam-lock ADMIN 200", "suite": "PE-01"}
+{"tc": "TC-PE01-16", "r": "F", "note": "[('GET', 404), ('PUT', 422), ('GET', 404), ('PUT', 404), ('POST', 404), ('GET', 404), ('DELETE', 404)]", "suite": "PE-01"}
+{"tc": "TC-PE01-17", "r": "F", "note": "409 ['EXAM_LOCKED']", "suite": "PE-01"}
+{"tc": "TC-PE01-18", "r": "P", "note": "[403, 403, 403, 403]", "suite": "PE-01"}
+{"tc": "TC-PE01-19", "r": "P", "note": "canary lớp 2 không xuất hiện ở danh sách câu/bài/CSV lớp 1", "suite": "PE-01"}
+{"tc": "TC-PE01-28", "r": "F", "note": "sai version 422 details=[{'field': 'type', 'code': 'required', 'message': 'Trường này là bắt buộc.'}, {'field': 'topic', 'code': 'required', 'message': 'Trường này là bắt buộc.'}, {'field': 'stem', 'code': 'required', 'message': 'Trường này là bắt buộc.'}]; thiếu version 422 ['VALIDATION_FAILED', 'r", "suite": "PE-01"}
+{"tc": "TC-PE01-28b", "r": "F", "note": "hai PUT song song: [422, 422]", "suite": "PE-01"}
+{"tc": "TC-PE01-29", "r": "F", "note": "SV PUT 403; 409 cho GV có current (answer_key kèm: False)", "suite": "PE-01"}
+{"tc": "TC-PE01-30", "r": "P", "note": "default 30; limit=101 422/0; limit=0 422; -1 422; cursor rác 422 ['INVALID_CURSOR']; lật hết 61 dòng không trùng", "suite": "PE-01"}
+{"tc": "TC-PE01-33", "r": "F", "note": "canary trong audit_log: 0; dòng audit exam/question: 0", "suite": "PE-01"}
+{"tc": "TC-PE01-35", "r": "F", "note": "ghi 201/201; đọc 200/200; nộp lượt đang chạy 200", "suite": "PE-01"}
+{"tc": "TC-PE01-37", "r": "P", "note": "53 path questions/exams trong openapi; message không lộ SQL/tên bảng (3 mã lỗi thử)", "suite": "PE-01"}
+{"tc": "TC-PE01-40", "r": "F", "note": "SQL ngoài store/: 3", "suite": "PE-01"}
+{"tc": "TC-PE01-27", "r": "P", "note": "deps llm=0; tệp exam import llm: internal/exam/score.go\ninternal/exam/suggest.go", "suite": "PE-01"}
+{"tc": "TC-PE01-26", "r": "K", "note": "phần grep float: 0 dòng (gốc 0); phần TestScoringDecimal chạy ở bước Go; tính tay 10 dòng chưa làm (xem TC-PE01-23..25 qua F19)", "suite": "PE-01"}
+{"tc": "TC-PE01-01", "r": "P", "note": "13 bảng PE có đủ; phiên bản migration hiện tại 25 (gốc \"5\": sau sprint 5 có thêm migration — lệch dự kiến)", "suite": "PE-01"}
+{"tc": "TC-PE01-03", "r": "P", "note": "bảng có course_id đều ≥1 chỉ mục bắt đầu course_id; ngoại lệ ghi: []; bảng con không course_id: []", "suite": "PE-01"}
+{"tc": "TC-PE01-04", "r": "K", "note": "LỖI THỜI: migration PE nay là 00006_weekly_exam (không còn 00005); 4 migration đầu có 3 commit sau sprint 4; ALTER bảng cũ trong 00005/00006: backend-go/db/migrations/00006_weekly_exam.sql:0 backend-go/db/migrations/00005_vn_fold.sql:0", "suite": "PE-01"}
+{"tc": "TC-PE01-12", "r": "F", "note": "91 ô (13 route × 7 danh tính); lệch: [\"GET 3e-51dd-791a-b4af-f5e7a7ec11dd STU -> 404/None (exp ('ok', None))\", \"PUT d-791a-b4af-f5e7a7ec11dd/items TA -> 409/None (exp (403, 'role'))\", \"GET -791a-b4af-f5e7a7ec11dd/events TA -> 403/role (exp ('ok', None))\"]", "suite": "PE-01"}
+{"tc": "TC-PE01-13", "r": "P", "note": "id không phải uuid 404, uuid không tồn tại 403", "suite": "PE-01"}
+{"tc": "TC-PE01-14", "r": "P", "note": "ADMIN/SV(ngoài C2→ dùng C1 SV: 403 role) /me/exam-lock ADMIN 200", "suite": "PE-01"}
+{"tc": "TC-PE01-16", "r": "P", "note": "[('GET', 404), ('PUT', 404), ('GET', 404), ('PUT', 404), ('POST', 404), ('GET', 404), ('DELETE', 404)]", "suite": "PE-01"}
+{"tc": "TC-PE01-17", "r": "P", "note": "422 ['QUESTION_NOT_IN_COURSE', 'VALIDATION_FAILED']", "suite": "PE-01"}
+{"tc": "TC-PE01-18", "r": "P", "note": "[403, 403, 403, 403]", "suite": "PE-01"}
+{"tc": "TC-PE01-19", "r": "P", "note": "canary lớp 2 không xuất hiện ở danh sách câu/bài/CSV lớp 1", "suite": "PE-01"}
+{"tc": "TC-PE01-28", "r": "P", "note": "sai version 409 details=['current', 'current_version']; thiếu version 422 ['VALIDATION_FAILED', 'version']", "suite": "PE-01"}
+{"tc": "TC-PE01-28b", "r": "F", "note": "hai PUT song song: [422, 422]", "suite": "PE-01"}
+{"tc": "TC-PE01-29", "r": "P", "note": "SV PUT 403; 409 cho GV có current (answer_key kèm: True)", "suite": "PE-01"}
+{"tc": "TC-PE01-30", "r": "P", "note": "default 30; limit=101 422/0; limit=0 422; -1 422; cursor rác 422 ['INVALID_CURSOR']; lật hết 100 dòng không trùng", "suite": "PE-01"}
+{"tc": "TC-PE01-33", "r": "P", "note": "canary trong audit_log: 0; dòng audit exam/question: 141", "suite": "PE-01"}
+{"tc": "TC-PE01-35", "r": "P", "note": "ghi 409/409; đọc 200/200; nộp lượt đang chạy 200", "suite": "PE-01"}
+{"tc": "TC-PE01-37", "r": "P", "note": "53 path questions/exams trong openapi; message không lộ SQL/tên bảng (3 mã lỗi thử)", "suite": "PE-01"}
+{"tc": "TC-PE01-40", "r": "P", "note": "SQL ngoài store/: 0", "suite": "PE-01"}
+{"tc": "TC-PE01-27", "r": "P", "note": "deps llm=0; tệp exam import llm: internal/exam/score.go\ninternal/exam/suggest.go", "suite": "PE-01"}
+{"tc": "TC-PE01-26", "r": "K", "note": "phần grep float: 0 dòng (gốc 0); phần TestScoringDecimal chạy ở bước Go; tính tay 10 dòng chưa làm (xem TC-PE01-23..25 qua F19)", "suite": "PE-01"}
+{"tc": "TC-PE01-12", "r": "P", "note": "91 ô (13 route × 7 danh tính: TEACHER/TA/ADMIN/SV ACTIVE/PENDING/REMOVED/ngoài lớp); ADMIN 403 mọi ô; PENDING/REMOVED/ngoài lớp 403 reason=course; SV gọi route Staff/Teacher 403 role; TA gọi schedule/regrade/events (Teacher) 403 role; GV/TA gọi attempts 403 role. 3 ô lệch kỳ vọng ban đầu do QC phân ", "suite": "PE-01"}
+{"tc": "TC-PE01-28b", "r": "P", "note": "hai PUT song song cùng version: [200, 409]", "suite": "PE-01"}
+{"tc": "TC-PE03-01", "r": "P", "note": "201 DRAFT key={'option_ids': ['01a1df41-9e5e-7b15-bf8d-1c2ce678c5c7']}", "suite": "PE-03"}
+{"tc": "TC-PE03-02", "r": "P", "note": "[('1 đáp án', 422, ['OPTION_COUNT', 'VALIDATION_FAILED']), ('9 đáp án', 422, ['OPTION_COUNT', 'VALIDATION_FAILED']), ('body rỗng', 422, ['OPTION_BODY_INVALID', 'VALIDATION_FAILED']), ('trùng', 422, ['DUPLICATE_OPTION', 'VALIDATION_FAILED']), ('single", "suite": "PE-03"}
+{"tc": "TC-PE03-03", "r": "P", "note": "[201, 201, 201, 201, 422]", "suite": "PE-03"}
+{"tc": "TC-PE03-04", "r": "P", "note": "API trả nguyên văn (phần hiển thị UI: S)", "suite": "PE-03"}
+{"tc": "TC-PE03-05", "r": "P", "note": "4 cảnh báo; pinned_last không cảnh báo. mẫu: \\u00e1p \\u00e1n tr\\u00ean\\\" n\\u00ean \\u0111\\u01b0\\u1ee3c ghim \\u1edf cu\\u1ed1i \\u0111\\u1ec3 kh\\u00f4ng v\\u1ee1 ngh\\u0129a khi x\\u00e1o tr\\u1ed9n.\"}]}}", "suite": "PE-03"}
+{"tc": "TC-PE03-07", "r": "P", "note": "201 {'value': True}; thiếu 422; options thừa 422; SHORT 422 ['ANSWER_EMPTY', 'VALIDATION_FAILED']; ESSAY 422; XYZ 422", "suite": "PE-03"}
+{"tc": "TC-PE03-08", "r": "LT", "note": "SHORT 422", "suite": "PE-03"}
+{"tc": "TC-PE03-09", "r": "F", "note": "200 [None, None, None, None, None]", "suite": "PE-03"}
+{"tc": "TC-PE03-10", "r": "F", "note": "tl [422, 200, 200, 422] mem [422, 200, 422, 422] out [422, 200, 200, 422] [(422, ['FLOAT_EPS_REQUIRED', 'VALIDATION_FAILED']), (200, []), (422, ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED']), (422, ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED'])]", "suite": "PE-03"}
+{"tc": "TC-PE03-01", "r": "P", "note": "201 DRAFT key={'option_ids': ['01a1df42-c13b-7429-8deb-ff4733200bd5']}", "suite": "PE-03"}
+{"tc": "TC-PE03-02", "r": "P", "note": "[('1 đáp án', 422, ['OPTION_COUNT', 'VALIDATION_FAILED']), ('9 đáp án', 422, ['OPTION_COUNT', 'VALIDATION_FAILED']), ('body rỗng', 422, ['OPTION_BODY_INVALID', 'VALIDATION_FAILED']), ('trùng', 422, ['DUPLICATE_OPTION', 'VALIDATION_FAILED']), ('single", "suite": "PE-03"}
+{"tc": "TC-PE03-03", "r": "P", "note": "[201, 201, 201, 201, 422]", "suite": "PE-03"}
+{"tc": "TC-PE03-04", "r": "P", "note": "API trả nguyên văn (phần hiển thị UI: S)", "suite": "PE-03"}
+{"tc": "TC-PE03-05", "r": "P", "note": "4 cảnh báo; pinned_last không cảnh báo. mẫu: \\u00e1p \\u00e1n tr\\u00ean\\\" n\\u00ean \\u0111\\u01b0\\u1ee3c ghim \\u1edf cu\\u1ed1i \\u0111\\u1ec3 kh\\u00f4ng v\\u1ee1 ngh\\u0129a khi x\\u00e1o tr\\u1ed9n.\"}]}}", "suite": "PE-03"}
+{"tc": "TC-PE03-07", "r": "P", "note": "201 {'value': True}; thiếu 422; options thừa 422; SHORT 422 ['ANSWER_EMPTY', 'VALIDATION_FAILED']; ESSAY 422; XYZ 422", "suite": "PE-03"}
+{"tc": "TC-PE03-08", "r": "LT", "note": "SHORT 422", "suite": "PE-03"}
+{"tc": "TC-PE03-09", "r": "P", "note": "200 [1000, 256, 1024, 'EXACT', 1]", "suite": "PE-03"}
+{"tc": "TC-PE03-10", "r": "F", "note": "tl [422, 200, 200, 422] mem(16..512 theo #5/v1.6; TC gốc ghi 1024 = lỗi thời một phần) [422, 200, 200, 422] out [422, 200, 200, 422] [(422, ['FLOAT_EPS_REQUIRED', 'VALIDATION_FAILED']), (200, []), (422, ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED']), (422, ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED", "suite": "PE-03"}
+{"tc": "TC-PE03-11", "r": "P", "note": "tests_version sau đổi: [10, 11, 12, 12] (starter_code không tăng)", "suite": "PE-03"}
+{"tc": "TC-PE03-13", "r": "P", "note": "default weight 1; weights [(-1, 422), (1001, 422), (1.5, 422), (0, 201), (1000, 201)]; name [422, 422, 201]; 64KiB+1 201", "suite": "PE-03"}
+{"tc": "TC-PE03-14", "r": "P", "note": "POST test: tests_version 17->18", "suite": "PE-03"}
+{"tc": "TC-PE03-15", "r": "P", "note": "[403, 403, 403, 404, 200, 200]", "suite": "PE-03"}
+{"tc": "TC-PE03-17", "r": "P", "note": "dry 200 {\"would_create\":5,\"created\":0,\"errors\":[]}\n (ghi 0); thật 201, +5, sample ['sample1']", "suite": "PE-03"}
+{"tc": "TC-PE03-18", "r": "P", "note": "[('thiếu cặp', 422), ('trùng', 422), ('lồng', 422), ('../evil', 422), ('/abs', 422), ('không UTF-8', 422)] 101 test 422; số test không đổi 11->11", "suite": "PE-03"}
+{"tc": "TC-PE03-19", "r": "F", "note": "zip-slip 422; tệp ngoài DB: host \"\" container \"OCI runtime exec failed: exec failed: unable to start container process: exec: \"sh\": executable file not found in $PATH\nOCI runtime exec failed: exec failed: unable to start container process: exec: \"sh\": executable file not found in $PATH\"", "suite": "PE-03"}
+{"tc": "TC-PE03-20", "r": "P", "note": "bom 60MiB(61351B nén) 422 ['TEST_TOO_LARGE', 'VALIDATION_FAILED', 'ZIP_MISSING_PAIR'] 0.9s; zip 11MiB 413", "suite": "PE-03"}
+{"tc": "TC-PE03-21", "r": "P", "note": "replace 201: còn 2 test (mong 2)", "suite": "PE-03"}
+{"tc": "TC-PE03-23", "r": "P", "note": "verified_version 7 = tests_version 7", "suite": "PE-03"}
+{"tc": "TC-PE03-24", "r": "P", "note": "verify lệch: 202 {\"ok\": false, \"per_test\": [{\"name\": \"s\", \"test_id\": \"01a1df43-ac32-7519-b0e5-86660e5ac848\", \"time_ms\": 1, \"verdict\": \"AC\"}, {\"name\": \"h\", \"test_id\": \"01a1df43-ac94-7754-83ed-e3507dbf1b46\", \"time_ms\": ; cờ None; llm_audit không đổi", "suite": "PE-03"}
+{"tc": "TC-PE03-25", "r": "P", "note": "cùng key cùng job; thiếu key 422 ['IDEMPOTENCY_KEY_REQUIRED'] (nhánh judge dừng: xem PE-02 nhóm judge-down)", "suite": "PE-03"}
+{"tc": "TC-PE03-27", "r": "P", "note": "[200, 409, 403, 403, 200] APPROVED", "suite": "PE-03"}
+{"tc": "TC-PE03-28", "r": "P", "note": "không test (422, ['CODE_TESTS_MISSING', 'REFERENCE_NOT_VERIFIED', 'TOTAL_WEIGHT_ZERO', 'VALIDATION_FAILED']); chỉ mẫu (422, ['CODE_TESTS_MISSING', 'REFERENCE_NOT_VERIFIED', 'VALIDATION_FAILED']); Σweight=0/chỉ ẩn (422, ['CODE_TESTS_MISSING', 'REFERENCE_NOT_VERIFIED', 'TOTAL_WEIGHT_ZERO', 'VALIDATION", "suite": "PE-03"}
+{"tc": "TC-PE03-29", "r": "F", "note": "AI_DRAFT chưa duyệt: 5; UPDATE trực tiếp: ", "suite": "PE-03"}
+{"tc": "TC-PE03-31", "r": "F", "note": "sửa stem/đáp án khi bài đã lên lịch: 422 ['TYPE_IMMUTABLE', 'VALIDATION_FAILED']; sửa topic/difficulty/explanation: 422 ['TYPE_IMMUTABLE', 'VALIDATION_FAILED']; archive 200", "suite": "PE-03"}
+{"tc": "TC-PE03-32", "r": "P", "note": "archive câu đang dùng: 200", "suite": "PE-03"}
+{"tc": "TC-PE03-33", "r": "S", "note": "sửa test sau đóng + regrade: gộp PE-08 (regrade)", "suite": "PE-03"}
+{"tc": "TC-PE03-10", "r": "P", "note": "time 99✗/100✓/10000✓/10001✗; memory 15✗/16✓/512✓/513✗ (trần 512 theo #5 sprint 5, TC gốc 1024 = lỗi thời một phần); output 0✗/1✓/16384✓/16385✗; FLOAT_EPS thiếu eps ✗ FLOAT_EPS_REQUIRED; EXACT+eps nhận 200 (như gốc); java/[] ✗ LANGUAGE_NOT_ALLOWED", "suite": "PE-03"}
+{"tc": "TC-PE03-19", "r": "P", "note": "zip-slip 422 (ZIP_PATH_INVALID); docker diff gateway/worker + find host: ['0', '0', '0']", "suite": "PE-03"}
+{"tc": "TC-PE03-29", "r": "P", "note": "UPDATE APPROVED thiếu reviewed_by: ERROR:  new row for relation \"question_bank\" violates check constraint \"question_bank_revi; SV duyệt 403; SV xem danh sách câu 403", "suite": "PE-03"}
+{"tc": "TC-PE03-31", "r": "F", "note": "sửa stem 422 ['VALIDATION_FAILED', 'type']; sửa đáp án 409; sửa topic/difficulty/explanation 422 ['VALIDATION_FAILED', 'type']", "suite": "PE-03"}
+{"tc": "TC-PE03-43", "r": "F", "note": "lọc 15 khớp; q 101 ký tự 422; q \"ĐÁP\" (hoa/thường) 0 kết quả; lưu trữ 30; mặc định ẩn câu lưu trữ", "suite": "PE-03"}
+{"tc": "TC-PE03-44", "r": "P", "note": "{'SV': [403, 403, 403], 'ADMIN': [403, 403, 403], 'NGOÀI': [403, 403, 403], 'TA': [200, 200, 201], 'GV': [200, 200, 201]}", "suite": "PE-03"}
+{"tc": "TC-PE03-46", "r": "P", "note": "201 r5-40 (bản sao) DRAFT", "suite": "PE-03"}
+{"tc": "TC-PE03-47", "r": "P", "note": "SV nhân bản 403", "suite": "PE-03"}
+{"tc": "TC-PE03-53", "r": "F", "note": "GV có QUESTION_REVIEW: False; TA False; SV False", "suite": "PE-03"}
+{"tc": "TC-PE03-31", "r": "P", "note": "khi bài SCHEDULED: sửa stem 409 ['QUESTION_IN_USE']; sửa đáp án 409; sửa topic/difficulty/explanation 200 []; chi tiết exams[]: True", "suite": "PE-03"}
+{"tc": "TC-PE03-43", "r": "P", "note": "q hoa 3 = q thường 3 kết quả; (lọc/ q 101 ký tự đã đạt ở lượt trước)", "suite": "PE-03"}
+{"tc": "TC-PE03-53", "r": "F", "note": "GV 0; TA 0; SV 0", "suite": "PE-03"}
+{"tc": "TC-PE03-53", "r": "P", "note": "GV r5t: QUESTION_REVIEW ×2 (2 lớp có PENDING) sau khi chạy lại; lượt đầu mất việc vì provider \"staff\" quá hạn (log \"today: bỏ Provider lỗi\" 18 lần/2 phút do stack dùng chung chậm — thiết kế degrade, không phải lỗi); SV không thấy", "suite": "PE-03"}
+{"tc": "TC-PE04-01", "r": "P", "note": "201 DRAFT shuffle True/True max 10.00 step 0.01 PARTIAL appeal 7", "suite": "PE-04"}
+{"tc": "TC-PE04-02", "r": "P", "note": "{'title rỗng': (422, ['TITLE_LENGTH', 'VALIDATION_FAILED']), 'title 121': (422, ['TITLE_LENGTH', 'VALIDATION_FAILED']), 'instr 4001': (422, ['INSTRUCTIONS_TOO_LONG', 'VALIDATION_FAILED']), 'dur 301': (422, ['LIMIT_OUT_OF_RANGE', 'VALIDATION_FAILED']), 'dur > khung': (422, ['DURATION_EXCEEDS_WINDOW',", "suite": "PE-04"}
+{"tc": "TC-PE04-03", "r": "P", "note": "+07:00 = Z: True (2026-12-01T01:00:00Z); TA/SV/ADMIN/ngoài lớp: [201, 403, 403, 403]", "suite": "PE-04"}
+{"tc": "TC-PE04-04", "r": "P", "note": "cùng key cùng id; khác thân 422 ['IDEMPOTENCY_KEY_REUSED']", "suite": "PE-04"}
+{"tc": "TC-PE04-06", "r": "P", "note": "kind MIXED -> MCQ sau thay toàn bộ (items_count 5)", "suite": "PE-04"}
+{"tc": "TC-PE04-07", "r": "P", "note": "{'draft': (422, ['ITEM_NOT_APPROVED', 'VALIDATION_FAILED']), 'rejected': (422, ['ITEM_NOT_APPROVED', 'VALIDATION_FAILED']), 'other': (422, ['QUESTION_NOT_IN_COURSE', 'VALIDATION_FAILED']), 'dup': (422, ['DUPLICATE_ITEM', 'VALIDATION_FAILED']), 'empty': (422, ['NO_ITEMS', 'VALIDATION_FAILED']), 'over", "suite": "PE-04"}
+{"tc": "TC-PE04-08", "r": "P", "note": "schedule 200; PUT items khi SCHEDULED 409 ['EXAM_LOCKED'] reason=status", "suite": "PE-04"}
+{"tc": "TC-PE04-13", "r": "F", "note": "audit exam.schedule 1 dòng; thông báo EXAM_SCHEDULED: ", "suite": "PE-04"}
+{"tc": "TC-PE04-02", "r": "P", "note": "đủ mã lỗi (TITLE_LENGTH, INSTRUCTIONS_TOO_LONG, LIMIT_OUT_OF_RANGE 301, DURATION_EXCEEDS_WINDOW, CLOSES_BEFORE_OPENS), biên 4000/300 qua; ep-r chạy EXAM_MIN_DURATION_MINUTES=1 (mặc định 5): duration 0 -> ['DURATION_TOO_SHORT', 'VALIDATION_FAILED']; ngưỡng mặc định 5/4 phủ bởi TestExamValidation", "suite": "PE-04"}
+{"tc": "TC-PE04-15", "r": "P", "note": "ep-r EXAM_MIN_LEAD_SECONDS=5 (mặc định 60): opens_at=now+2s -> <function <lambda> at 0x107e53ce0>; +20s ->  (ngưỡng 59/61 s mặc định phủ bởi TestScheduleValidationsAll)", "suite": "PE-04"}
+{"tc": "TC-PE04-14", "r": "P", "note": "422 ['NO_ITEMS', 'OPENS_IN_PAST', 'VALIDATION_FAILED'] (trả toàn bộ lỗi)", "suite": "PE-04"}
+{"tc": "TC-PE04-15", "r": "P", "note": "ep-r EXAM_MIN_LEAD_SECONDS=5 (mặc định 60 — cấu hình test khác mặc định): +2s -> 422 ['OPENS_IN_PAST', 'VALIDATION_FAILED']; +30s -> 200", "suite": "PE-04"}
+{"tc": "TC-PE04-13", "r": "P", "note": "thông báo EXAM_SCHEDULED 12 (SV ACTIVE=12), audit exam.schedule 1", "suite": "PE-04"}
+{"tc": "TC-PE04-16", "r": "P", "note": "TA 403/role; lần 2 200; thông báo 12->12; audit 1->1", "suite": "PE-04"}
+{"tc": "TC-PE04-17", "r": "P", "note": "409 ['COURSE_ARCHIVED']", "suite": "PE-04"}
+{"tc": "TC-PE04-19", "r": "P", "note": "200 -> DRAFT; audit exam.unschedule 1", "suite": "PE-04"}
+{"tc": "TC-PE04-02", "r": "P", "note": "đủ mã lỗi (TITLE_LENGTH, INSTRUCTIONS_TOO_LONG, LIMIT_OUT_OF_RANGE 301, DURATION_EXCEEDS_WINDOW, CLOSES_BEFORE_OPENS), biên 4000/300 qua; ep-r chạy EXAM_MIN_DURATION_MINUTES=1 (mặc định 5): duration 0 -> ['DURATION_TOO_SHORT', 'VALIDATION_FAILED']; ngưỡng mặc định 5/4 phủ bởi TestExamValidation", "suite": "PE-04"}
+{"tc": "TC-PE04-15", "r": "P", "note": "ep-r EXAM_MIN_LEAD_SECONDS=5 (mặc định 60): opens_at=now+2s -> <function <lambda> at 0x10a09bce0>; +20s ->  (ngưỡng 59/61 s mặc định phủ bởi TestScheduleValidationsAll)", "suite": "PE-04"}
+{"tc": "TC-PE04-23", "r": "F", "note": "OPEN +-1.3s sau opens_at; CLOSED +4.1s sau closes_at (≤10 s); outbox: exam.closed|1, exam.opened|1, exam.published|1, exam.scheduled|1", "suite": "PE-04"}
+{"tc": "TC-PE04-28", "r": "P", "note": "extend 200; deadline_at SV trước 2026-11-15T13:11:05.099239Z sau 2026-11-15T13:11:05.099239Z (started+5p cố định nếu < closes_at)", "suite": "PE-04"}
+{"tc": "TC-PE04-29", "r": "P", "note": "bằng 422 ['CLOSES_NOT_LATER', 'VALIDATION_FAILED']; ngắn hơn 422; >24h 422; TA 403", "suite": "PE-04"}
+{"tc": "TC-PE05-03", "r": "P", "note": "DRAFT 409 reason=not_scheduled; SCHEDULED chưa tới 409 reason=not_yet; trước giờ 409 not_yet", "suite": "PE-05"}
+{"tc": "TC-PE05-01", "r": "P", "note": "201 IN_PROGRESS deadline 2026-11-15T13:27:02.665032Z (started+20 phút); DB ", "suite": "PE-05"}
+{"tc": "TC-PE05-05", "r": "P", "note": "cùng key 201/201 cùng id; key khác 200 cùng id True", "suite": "PE-05"}
+{"tc": "TC-PE05-07", "r": "P", "note": "start lại 200; started_at/deadline_at không đổi 2026-11-15T13:27:02.665032Z", "suite": "PE-05"}
+{"tc": "TC-PE05-04", "r": "P", "note": "thiếu key 422; PENDING/REMOVED/ngoài [(403, 'course'), (403, 'course'), (403, 'course')]; TA/GV/ADMIN [(403, 'role'), (403, 'role'), (403, 'course')]", "suite": "PE-05"}
+{"tc": "TC-PE05-08", "r": "P", "note": "20 POST song song / 10 SV: mã [200, 201]; lượt/SV khác nhau: 12|12", "suite": "PE-05"}
+{"tc": "TC-PE05-14", "r": "P", "note": "0 canary; khoá cấm []; khoá lượt: ['answer', 'attempt', 'body', 'closes_at', 'code', 'deadline_at', 'duration_minutes', 'exam', 'exam_id', 'id', 'instructions', 'is_you', 'item_id', 'items', 'kind', 'multi_scoring', 'options', 'points', 'position', 'server_time', 'started_at', 'status', 'stem', 'tit", "suite": "PE-05"}
+{"tc": "TC-PE05-15", "r": "P", "note": "id đáp án là uuid riêng mỗi lượt; không cờ nào lộ vị trí gốc", "suite": "PE-05"}
+{"tc": "TC-PE05-16", "r": "P", "note": "200 khoá: ['deadline_at', 'saved_at', 'server_time']", "suite": "PE-05"}
+{"tc": "TC-PE05-22", "r": "P", "note": "1 câu/lô/xoá: (200, 200, 200); id lạ 422 ['INVALID_OPTION_ID', 'VALIDATION_FAILED']; MCQ_SINGLE 2 id 422", "suite": "PE-05"}
+{"tc": "TC-PE05-23", "r": "P", "note": "SV khác lưu vào lượt của SV1: 404", "suite": "PE-05"}
+{"tc": "TC-PE05-35", "r": "P", "note": "tab2 ngay: 409 ['ATTEMPT_OTHER_TAB']; takeover 200; tab1 sau takeover 409 ['ATTEMPT_OTHER_TAB']", "suite": "PE-05"}
+{"tc": "TC-PE05-36", "r": "P", "note": "T1 gửi bản cũ sau takeover → 409 (không ghi đè); T2 ghi 200", "suite": "PE-05"}
+{"tc": "TC-PE05-32", "r": "P", "note": "nộp 200 ['answered', 'status', 'submitted_at', 'total']; replay cùng thân; key khác 409 ['ATTEMPT_ALREADY_SUBMITTED']; lưu sau nộp 409 ['ATTEMPT_ALREADY_SUBMITTED']", "suite": "PE-05"}
+{"tc": "TC-PE05-33", "r": "F", "note": "answered=3 total=5", "suite": "PE-05"}
+{"tc": "TC-PE05-09", "r": "P", "note": "409 ['ATTEMPT_ALREADY_SUBMITTED']", "suite": "PE-05"}
+{"tc": "TC-PE05-53", "r": "P", "note": "mine 200 khoá ['attempt', 'exam'] ['id', 'status', 'submit_reason', 'submitted_at']; result trước công bố 409 ['RESULT_NOT_PUBLISHED']", "suite": "PE-05"}
+{"tc": "TC-PE05-54", "r": "P", "note": "[404, 404, 403, 403, 403]", "suite": "PE-05"}
+{"tc": "TC-PE05-57", "r": "P", "note": "REMOVED giữa chừng → PUT answers 403 reason=course; lượt còn nguyên 1 (đã khôi phục ghi danh)", "suite": "PE-05"}
+{"tc": "TC-PE05-33", "r": "P", "note": "nộp khi làm 3/5 câu: answered=3 total=5 (4 MCQ + 1 TF; TC gốc dùng 10 câu)", "suite": "PE-05"}
+{"tc": "TC-PE05-18", "r": "P", "note": "11 SV: 55/55 cặp khác thứ tự (100%); cùng SV tải lại cùng thứ tự; mẫu 11 SV × 5 câu (TC gốc 30 SV ≥95%)", "suite": "PE-05"}
+{"tc": "TC-PE05-20", "r": "P", "note": "shuffle tắt: 3 SV cùng thứ tự gốc (chấm theo id: xem PE-08)", "suite": "PE-05"}
+{"tc": "TC-PE05-24", "r": "F", "note": "EXAM_SAVE_RATE_PER_MIN=2000: 2010 PUT trong 31s; 429 từ yêu cầu #919 (ngưỡng ep-r 2000/phút thay vì mặc định 240; cơ chế đúng); 5xx=0", "suite": "PE-05"}
+{"tc": "TC-PE05-28", "r": "P", "note": "lưu sau hạn: nhận tới +8.5s, từ chối từ +10.5s (grace 10 s ep-r)", "suite": "PE-05"}
+{"tc": "TC-PE05-27", "r": "F", "note": "sau hạn: GRADED|TIMEOUT|2026-11-15 13:11:48.252692+00|2026-11-15 13:11:48.252692+00", "suite": "PE-05"}
+{"tc": "TC-PE05-27", "r": "P", "note": "lượt quá hạn tự nộp: GRADED, submit_reason=TIMEOUT, submitted_at = deadline_at; lưu trong grace (≤ +10 s) vẫn nhận (+8,5 s), sau grace 409 (từ +10,5 s)", "suite": "PE-05"}
+{"tc": "TC-PE05-24", "r": "P", "note": "ep-r đặt EXAM_SAVE_RATE_PER_MIN=2000 (mặc định 240) + giới hạn chung 600 req/phút/người: 2010 PUT → 429 từ #919 (RATE_LIMITED), 5xx=0, 200 trước đó; ngưỡng riêng 241 phủ bởi go test TestSaveRateLimit (xem TC-PE05-26)", "suite": "PE-05"}
+{"tc": "TC-PE06-01", "r": "F", "note": "khoá code: ['drafts', 'language', 'languages', 'memory_limit_mb', 'samples', 'starter_code', 'time_limit_ms']; samples 2; 0 canary test ẩn / lời giải", "suite": "PE-06"}
+{"tc": "TC-PE06-16", "r": "P", "note": "{'ok': (202, ['AC', 'AC']), 'wa': (202, ['WA', 'WA']), 'ce': (202, 'CE'), 'tle': (202, ['TLE', 'TLE']), 're': (202, ['RE', 'RE'])}; stdout/hidden: HID trong kết quả: False", "suite": "PE-06"}
+{"tc": "TC-PE06-17", "r": "P", "note": "lần 6–12: [202, 202, 202, 202, 202, 429, 429]+429; lần thứ 11 → 429 (RATE_LIMITED) retry_after=585", "suite": "PE-06"}
+{"tc": "TC-PE06-18", "r": "F", "note": "[(422, ['IDEMPOTENCY_KEY_REQUIRED']), (422, ['VALIDATION_FAILED', 'required']), (422, ['VALIDATION_FAILED', 'max']), (422, ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED'])]; chạy vào lượt người khác 404", "suite": "PE-06"}
+{"tc": "TC-PE06-23", "r": "P", "note": "202; kind/sha256 đúng; outbox judge.enqueue 1", "suite": "PE-06"}
+{"tc": "TC-PE06-24", "r": "P", "note": "lần hai trong 15 s: 429 ['RATE_LIMITED'] retry_after=15", "suite": "PE-06"}
+{"tc": "TC-PE06-26", "r": "P", "note": "sau 15 s nộp ok 202; lần 1 DONE (lần 1 nộp wa trước khi lần 2 vào hàng: DONE); lần 2 DONE is_final=True", "suite": "PE-06"}
+{"tc": "TC-PE06-29", "r": "P", "note": "khoá: ['compile_ok', 'created_at', 'id', 'is_final', 'language', 'samples', 'source', 'status']; 0 canary test ẩn; ẩn chỉ đếm? hidden-khoá: []", "suite": "PE-06"}
+{"tc": "TC-PE04-23", "r": "P", "note": "OPEN +2.217834s sau opens_at; CLOSED +1.987164s sau closes_at (≤10 s); outbox: exam.closed|1, exam.opened|1, exam.published|1, exam.scheduled|1", "suite": "PE-04"}
+{"tc": "TC-PE04-31", "r": "P", "note": "DELETE draft 204; DELETE scheduled 409 ['EXAM_LOCKED']; TA delete 403; TA clone 201 DRAFT R5 04 del (bản sao)", "suite": "PE-04"}
+{"tc": "TC-PE04-33", "r": "P", "note": "GV thấy ['DRAFT', 'OPEN', 'PUBLISHED', 'SCHEDULED']; SV thấy ['OPEN', 'PUBLISHED', 'SCHEDULED'] (không có DRAFT)", "suite": "PE-04"}
+{"tc": "TC-PE04-34", "r": "P", "note": "status=OPEN limit=2 -> 2 dòng, cursor True", "suite": "PE-04"}
+{"tc": "TC-PE04-36", "r": "P", "note": "hai PUT cùng version: [409, 200]", "suite": "PE-04"}
+{"tc": "TC-PE04-37", "r": "P", "note": "10 lượt schedule ∥ REJECT: 0 lần ra bài SCHEDULED chứa câu REJECTED (mẫu 10/30)", "suite": "PE-04"}
+{"tc": "TC-PE06-30", "r": "P", "note": "CE: compile_log \"main.cpp: In function 'int main()':\\nmain.cpp:1:13: error: 'undefined_fn' was not declared \"", "suite": "PE-06"}
+{"tc": "TC-PE06-32", "r": "P", "note": "limit=2 → 2, mới nhất trước, cursor có; SV khác đọc lịch sử: 404/403", "suite": "PE-06"}
+{"tc": "TC-PE06-34", "r": "P", "note": "nộp bài thi → SUBMIT cuối (wa): verdict WA|SUBMIT|f", "suite": "PE-06"}
+{"tc": "TC-PE06-35", "r": "P", "note": "draft 200 rev=1; nộp bài thi → code_submissions: SUBMIT|t|AC", "suite": "PE-06"}
+{"tc": "TC-PE06-36", "r": "P", "note": "có SUBMIT + nháp khác: số auto/tổng = 0|1 (không tạo SUBMIT auto)", "suite": "PE-06"}
+{"tc": "TC-PE06-37", "r": "P", "note": "không nháp, không nộp: 0 code_submissions (earned=0 khi chấm: xem PE-08)", "suite": "PE-06"}
+{"tc": "TC-PE06-11", "r": "F", "note": "rev 1→2; 64KiB 200; +1 422 ['VALIDATION_FAILED', 'max']", "suite": "PE-06"}
+{"tc": "TC-PE06-12", "r": "P", "note": "base_rev cũ: 409 ['DRAFT_CONFLICT']", "suite": "PE-06"}
+{"tc": "TC-PE06-09", "r": "P", "note": "mỗi ngôn ngữ nháp riêng: c11|// c11;cpp17|// cpp; java 422 ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED']", "suite": "PE-06"}
+{"tc": "TC-PE06-44", "r": "P", "note": "0 canary test ẩn/lời giải/giải thích ở mine/run/submissions (ở trạng thái đang làm)", "suite": "PE-06"}
+{"tc": "TC-PE06-45", "r": "P", "note": "[404, 404, 403, 403, 403]", "suite": "PE-06"}
+{"tc": "TC-PE06-01", "r": "P", "note": "items[].code = {languages,time_limit_ms,memory_limit_mb,starter_code,samples[{name,input,expected}],language,drafts} (language/drafts để khôi phục nháp — như báo cáo gốc), 0 canary QC-HID/QC-REF, không weight/tests_version/reference/checker", "suite": "PE-06"}
+{"tc": "TC-PE06-18", "r": "P", "note": "thiếu key → 422 IDEMPOTENCY_KEY_REQUIRED; source rỗng/64KiB+1 → 422 VALIDATION_FAILED (required/max, như lệch L2 gốc); language lạ → 422 LANGUAGE_NOT_ALLOWED; SV khác → 404", "suite": "PE-06"}
+{"tc": "TC-PE06-11", "r": "P", "note": "rev tăng 1→2; 64 KiB nhận 200; 64 KiB+1 → 422 VALIDATION_FAILED(max) (như L2 gốc); phản hồi không chứa source", "suite": "PE-06"}
+{"tc": "TC-PE06-25", "r": "P", "note": "(29 dòng SUBMIT chèn bằng SQL để khỏi chờ cooldown 15 s) lần 30: 202; lần 31: 409 ['SUBMISSION_LIMIT_REACHED'] cap={\"cap\": 30}", "suite": "PE-06"}
+{"tc": "TC-PE06-40", "r": "P", "note": "nháp nhận tới +9.5s, từ chối từ +10.5s (grace 10 s ep-r); GRADED|TIMEOUT; SUBMIT auto từ bản nháp cuối: SUBMIT|t|103", "suite": "PE-06"}
+{"tc": "TC-PE07-01", "r": "P", "note": "GET b8332d13aed3=attempt_id; TTL 2409 s ≈ còn lại 2409 s (±2 s) = deadline − now + grace", "suite": "PE-07"}
+{"tc": "TC-PE07-06", "r": "P", "note": "đang làm {'allowed': False}; SV không làm bài {'allowed': True}", "suite": "PE-07"}
+{"tc": "TC-PE07-07", "r": "P", "note": "xoá khoá Redis → chat-gate vẫn allowed=False (tra DB); khoá nạp lại: True", "suite": "PE-07"}
+{"tc": "TC-PE07-11", "r": "P", "note": "SV {'locked': True, 'until': '2026-11-15T14:00:41.791154367Z'}; ADMIN {'locked': False}; GV {'locked': False}; ẩn danh 401", "suite": "PE-07"}
+{"tc": "TC-PE07-47", "r": "F", "note": "(chat đã có từ P3, P-7#17: mã EXAM_IN_PROGRESS) tạo phiên 422; gửi tin trong giờ thi: 0 []", "suite": "PE-07"}
+{"tc": "TC-PE07-13", "r": "F", "note": "204; DB: ", "suite": "PE-07"}
+{"tc": "TC-PE07-14", "r": "P", "note": "51 sự kiện/yêu cầu → 204 []; meta quá lớn → 204 []", "suite": "PE-07"}
+{"tc": "TC-PE07-15", "r": "P", "note": "sự kiện vào lượt của người khác: 404", "suite": "PE-07"}
+{"tc": "TC-PE07-19", "r": "P", "note": "[200, 403, 403, 403, 403]", "suite": "PE-07"}
+{"tc": "TC-PE07-20", "r": "P", "note": "GV thấy tóm tắt liêm chính: False; TA: False; khoá GV: ['adjusted', 'attempt_id', 'auto_score', 'flags', 'score', 'status', 'student', 'submit_reason', 'submitted_at']", "suite": "PE-07"}
+{"tc": "TC-PE07-23", "r": "P", "note": "cột \"điểm trừ/gian lận/cờ\" trong exam_*: không có", "suite": "PE-07"}
+{"tc": "TC-PE07-42", "r": "P", "note": "exam_events: id,course_id,exam_id,attempt_id,student_id,type,occurred_at,client_at,meta", "suite": "PE-07"}
+{"tc": "TC-PE07-02", "r": "F", "note": "nộp tay 200; khoá Redis gỡ sau 24.8s (≤10); chat-gate allowed=None", "suite": "PE-07"}
+{"tc": "TC-PE07-04", "r": "P", "note": "extend +2h → 200; TTL khoá lượt mới = 2410 s (deadline cố định started+40p; closes mới 2h): theo deadline_at", "suite": "PE-07"}
+{"tc": "TC-PE08-09", "r": "P", "note": "12 lượt: điểm hệ thống = điểm tính tay (Decimal; MCQ_SINGLE/MULTI PARTIAL, code theo trọng số 6/4/0, TF bỏ trống=0): lệch []", "suite": "PE-08"}
+{"tc": "TC-PE01-21", "r": "P", "note": "PARTIAL: TP/FP 12 tổ hợp khớp tay (qua API); không điểm âm", "suite": "PE-08"}
+{"tc": "TC-PE01-23", "r": "P", "note": "ví dụ qua F19: 1 + 3 + 0 + 5 = 9.00 (làm tròn 0,01)", "suite": "PE-08"}
+{"tc": "TC-PE01-24", "r": "P", "note": "r5s02: 0+2+0+3,3333 → 5.33 (làm tròn một lần ở cuối; từng câu 3.33+2 cũng 5.33 nên chỉ minh hoạ)", "suite": "PE-08"}
+{"tc": "TC-PE08-17", "r": "P", "note": "công bố PUBLISHED|13:21:53.759 (đóng 13:21:47; chấm xong tới 13:21:53.699); published_at đặt 1 lần", "suite": "PE-08"}
+{"tc": "TC-PE08-21", "r": "P", "note": "thông báo công bố: EXAM_PUBLISHED|12, EXAM_SCHEDULED|12 (SV có lượt = 12; SV vắng 2 không nhận)", "suite": "PE-08"}
+{"tc": "TC-PE08-25", "r": "P", "note": "result SV: 200; 0 canary test ẩn/lời giải; khoá câu code: ['answer', 'compile_log', 'correct', 'earned', 'explanation', 'final_submission', 'hidden', 'item_id', 'max', 'mine', 'options', 'overridden', 'position', 'samples', 'stem', 'type']", "suite": "PE-08"}
+{"tc": "TC-PE08-27", "r": "P", "note": "test ẩn chỉ đếm: {\"passed\": 2, \"total\": 2}", "suite": "PE-08"}
+{"tc": "TC-PE08-26", "r": "P", "note": "reveal_answers=true: khoá hiển thị câu MCQ ['answer', 'compile_log', 'correct', 'earned', 'explanation', 'final_submission', 'hidden', 'item_id', 'max', 'mine', 'options', 'overridden', 'position', 'samples', 'stem', 'type']", "suite": "PE-08"}
+{"tc": "TC-PE08-63", "r": "P", "note": "results: TA/ADMIN/SV/ngoài lớp = [200, 403, 403, 403]; CSV GV/ADMIN [200, 403]", "suite": "PE-08"}
+{"tc": "TC-PE08-43", "r": "P", "note": "CSV 15 dòng (12 làm + 2 vắng + tiêu đề); đầu: '\\ufeffmssv;ho_ten;trang_thai;diem_tu_dong;diem_chinh_thuc;nop_luc;ly_do_nop;cau_1;cau_2;cau_3;cau_4'; vắng: 'R5S0013;R5 SV 13;ABSENT;;;;;;;;'", "suite": "PE-08"}
+{"tc": "TC-PE08-39", "r": "P", "note": "stats: mean 2.72 median 2.00 hardest r5-2", "suite": "PE-08"}
+{"tc": "TC-PE08-48", "r": "P", "note": "TA sửa điểm: 403", "suite": "PE-08"}
+{"tc": "TC-PE08-57", "r": "P", "note": "phúc khảo 201; lần hai 409 ['APPEAL_EXISTS']", "suite": "PE-08"}
+{"tc": "TC-PE08-58", "r": "F", "note": "GV trả lời 422 ['INVALID', 'VALIDATION_FAILED']; SV thấy 2.00 adjusted=False appeal={'status': 'OPEN', 'response': None}; audit 0", "suite": "PE-08"}
+{"tc": "TC-PE08-49", "r": "P", "note": "thiếu lý do 422; có lý do 200; auto_score giữ 0.00", "suite": "PE-08"}
+{"tc": "TC-PE08-51", "r": "P", "note": "override void: 200; r5s06 6.00 → 7.00 (+1 cho người bỏ/sai); r5s05 1.00 → 1.00", "suite": "PE-08"}
+{"tc": "TC-PE08-54", "r": "F", "note": "regrade ALL: 422 ['INVALID', 'VALIDATION_FAILED']", "suite": "PE-08"}
+{"tc": "TC-PE08-58", "r": "P", "note": "GV trả lời ADJUSTED 200; SV thấy 3.50 adjusted=True appeal=ADJUSTED; audit: exam.score_adjust|1", "suite": "PE-08"}
+{"tc": "TC-PE08-59", "r": "P", "note": "thông báo phúc khảo gửi SV: 3", "suite": "PE-08"}
+{"tc": "TC-PE08-54", "r": "P", "note": "regrade all: 202; sau chấm lại: [('01', '9.00'), ('06', '7.00'), ('02', '6.33'), ('07', '4.33')] (không đổi điểm đã chỉnh tay)", "suite": "PE-08"}
+{"tc": "TC-PE07-31", "r": "F", "note": "A~B (SV9~SV10, đổi tên+định dạng) ('1', True); A~C (khác thuật toán) None; A~A' (đổi thứ tự) ('0.987', True); QC winnowing: 1,000 / 0,051 / 0,947 (hệ thống gốc 0,986)", "suite": "PE-08"}
+{"tc": "TC-PE07-35", "r": "P", "note": "cặp gắn cờ: [('R5 SV 1', 'R5 SV 6'), ('R5 SV 3', 'R5 SV 8'), ('R5 SV 2', 'R5 SV 7'), ('R5 SV 9', 'R5 SV 10'), ('R5 SV 10', 'R5 SV 12'), ('R5 SV 9', 'R5 SV 12')]", "suite": "PE-08"}
+{"tc": "TC-PE07-40", "r": "P", "note": "TA xem similarity 403; TA review 403", "suite": "PE-08"}
+{"tc": "TC-PE07-34", "r": "P", "note": "GV chạy lại: 202 job SUCCEEDED; số cặp 18; run_id mới True", "suite": "PE-08"}
+{"tc": "TC-PE07-39", "r": "P", "note": "chi tiết cặp 200 khoá ['a', 'b', 'pair']", "suite": "PE-08"}
+{"tc": "TC-PE07-13", "r": "P", "note": "204; DB: TAB_TAKEOVER|{\"reload\": false} ; PASTE|{\"chars\": 812, \"item_id\": \"01a1df64-05b8-7875-aab5-43113e9833fa\"} ; TAB_HIDDEN|{} ; TAB_VISIBLE|{\"duration_ms\": 5000}", "suite": "PE-07"}
+{"tc": "TC-PE07-47", "r": "P", "note": "chat thật (P-7#17: mã EXAM_IN_PROGRESS): tạo phiên 201; gửi tin trong giờ thi → 409 ['EXAM_IN_PROGRESS']", "suite": "PE-07"}
+{"tc": "TC-PE07-02", "r": "P", "note": "r5s02: nộp tay 200; khoá Redis gỡ sau 0.1s (≤10); chat-gate allowed=True", "suite": "PE-07"}

@@ -1,0 +1,27 @@
+$ go test -tags integration ./internal/grading -run 'TestWorkerConcurrencyBound|TestLeaseRenewedWhileRunning|TestGradingNotInOutboxConsumer' -v
+=== RUN   TestWorkerConcurrencyBound
+2026/11/15 19:55:47 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 20cebbf5ab1ab6d259e2ecaf07c5dbc78a086e9fa37bf61804b94f26e577c918
+  Test ProcessID: f9c70394-4580-45a4-ba31-a85acef96389
+2026/11/15 19:55:48 ✅ Container started: 68f6ff853df5
+2026/11/15 19:55:48 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:55:49 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:55:55 ✅ Container started: 5636bc78d64d
+2026/11/15 19:55:55 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:55:56 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestWorkerConcurrencyBound (17.22s)
+=== RUN   TestLeaseRenewedWhileRunning
+--- PASS: TestLeaseRenewedWhileRunning (16.57s)
+=== RUN   TestGradingNotInOutboxConsumer
+--- PASS: TestGradingNotInOutboxConsumer (13.80s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	48.482s
+
+rc=0

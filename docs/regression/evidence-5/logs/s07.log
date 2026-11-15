@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s07.py", line 9, in <module>
+    v = rds('GET', K); ttl = int(rds('TTL', K) or -9); dl = dt.datetime.fromisoformat(j['attempt']['deadline_at'].replace('Z', '+00:00')); rem = (dl - dt.datetime.now(dt.timezone.utc)).total_seconds() + 10
+                                                                                      ~^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable

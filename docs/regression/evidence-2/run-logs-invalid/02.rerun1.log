@@ -1,0 +1,47 @@
+== TC-PG02-60
+    ok   POST /_test/jobs trả job id ~ /^[0-9a-f-]{36}$/
+    ok   số dòng jobs = [1]
+    FAIL dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction): thực tế [0] phải ≥ 1
+-- TC-PG02-60 FAIL
+== TC-PG02-64
+    ok   tạo được dòng outbox topic lạ ~ /^[0-9a-f-]{36}$/
+    ok   attempts (1 lần đầu + 3 lần thử lại) = [4]
+    ok   dead_at có giá trị = [t]
+    ok   dispatched_at vẫn NULL = [t]
+    ok   last_error khác rỗng = [t]
+    FAIL XLEN outbox.dispatch.dead tăng 1: thực tế [1] ≠ mong đợi [2]
+    ok   tin dead-letter chứa id của dòng outbox = 1 (≥ 1)
+    ok   tin dead-letter có trường outbox_id = 1 (≥ 1)
+    ok   tin dead-letter có trường topic = 3 (≥ 1)
+    ok   tin dead-letter có trường error = 1 (≥ 1)
+    ok   tin dead-letter nêu topic qc.unknown.topic = 2 (≥ 1)
+    ok   XPENDING outbox.dispatch outbox (tin gốc đã XACK) = [0]
+    ok   XLEN outbox.dispatch sau 10 s lặng (XACK rồi XDEL) = [0]
+    ok   worker vẫn sống sau topic lạ ~ /healthy/
+-- TC-PG02-64 FAIL
+== TC-PG02-69
+    FAIL hai người dùng khác nhau dùng cùng khoá: hợp lệ: [BEGIN
+ERROR:  23505: duplicate key value violates unique constraint "idempotency_keys_user_endpoint_key_key"
+DETAIL:  Key (user_id, endpoint, key)=(00000000-0000-7000-8000-000000000001, POST /api/v1/_test/items, idem-0001-aaaa) already exists.
+SCHEMA NAME:  public
+TABLE NAME:  idempotency_keys
+CONSTRAINT NAME:  idempotency_keys_user_endpoint_key_key
+LOCATION:  _bt_check_unique, nbtinsert.c:666] không được khớp /ERROR/
+    FAIL chèn được 2 dòng: [BEGIN
+ERROR:  23505: duplicate key value violates unique constraint "idempotency_keys_user_endpoint_key_key"
+DETAIL:  Key (user_id, endpoint, key)=(00000000-0000-7000-8000-000000000001, POST /api/v1/_test/items, idem-0001-aaaa) already exists.
+SCHEMA NAME:  public
+TABLE NAME:  idempotency_keys
+CONSTRAINT NAME:  idempotency_keys_user_endpoint_key_key
+LOCATION:  _bt_check_unique, nbtinsert.c:666] không khớp /^2$/
+    ok   cùng user + cùng endpoint + cùng key → SQLSTATE 23505 ~ /23505:/
+    ok   cùng user + cùng endpoint + cùng key → thông báo ~ /idempotency_keys_user_endpoint_key_key/
+-- TC-PG02-69 FAIL
+== TC-PG02-70
+    ok   bảng thử _test_% đang tồn tại (điều kiện để phép đo có nghĩa) = 1 (≥ 1)
+    FAIL bảng public sau khi loại _test_%: thực tế [assignments attendance_checkins attendance_records audit_log auth_sessions auth_tokens calendar_events chat_messages chat_sessions checkin_windows class_sessions code_drafts code_problems code_submissions code_testcases content_chunks course_decision_gates course_guidance_flags courses decision_gates document_courses documents enrollments escalation_tickets exam_answers exam_appeals exam_attempts exam_events exam_items exams final_grade_snapshots forms_import_batches forms_import_rows forum_posts forum_threads goose_db_version grade_appeals grade_components grade_entries grade_items grade_rules grade_schemes gradebooks grading_guidance_items grading_guidance_versions grading_regression_cases grading_results idempotency_keys insight_reports integration_configs jobs knowledge_items llm_audit llm_budgets llm_models llm_providers llm_request_payloads llm_task_routes login_attempts mail_inbound mail_outbox notifications outbox participation_events pii_events post_reports practice_answers practice_attempts practice_items question_bank question_options reminder_log similarity_reports student_observations student_risk study_time_daily submissions user_devices user_settings users] ≠ mong đợi [audit_log goose_db_version idempotency_keys jobs outbox users]
+    FAIL số index sau khi loại _test_%: thực tế [303] ≠ mong đợi [17]
+    FAIL cột id mặc định uuidv7() sau khi loại _test_%: thực tế [66] ≠ mong đợi [5]
+-- TC-PG02-70 FAIL
+TỔNG story 02: PASS=0 FAIL=4 MANUAL=0 K=0
+FAIL: TC-PG02-60 TC-PG02-64 TC-PG02-69 TC-PG02-70

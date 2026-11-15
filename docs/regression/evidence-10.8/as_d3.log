@@ -1,0 +1,2 @@
+PASS TC-AS12-04b nonce hết hạn (EXPIRE 1 s) → 422 DEVICE_CHALLENGE_INVALID 422 {"code": "DEVICE_CHALLENGE_INVALID", "message": "M\u00e3 th\u1eed th\u00e1ch h\u1ebft h\u1ea1n. Th\u
+FAIL TC-AS04-13c ANDROID_KEY boot_verified=false: không NOT_APP, có DEVICE_UNTRUSTED (chạy lại với khoá mới) None

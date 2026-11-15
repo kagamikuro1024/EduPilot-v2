@@ -1,0 +1,6 @@
+$ node scripts/dev.mjs
+[dev] Chưa tìm thấy Docker. Hãy cài và khởi động Docker (hoặc colima) trước.
+[ELIFECYCLE] Command failed with exit code 1.
+PASS TC-18: thoát mã 1 khi thiếu Docker
+PASS TC-18: thông báo nhắc Docker
+PASS TC-18: không stack trace

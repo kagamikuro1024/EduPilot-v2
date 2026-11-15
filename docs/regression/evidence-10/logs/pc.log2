@@ -1,0 +1,16 @@
+C1 01a1df27-62b5-7775-a346-5c602a43e2f9 C2 01a1df27-62c2-7138-be74-2842f052e7fb
+bank 256 dict_keys(['id', 'type', 'title', 'topic', 'difficulty', 'review_status', 'origin', 'used_in_exams', 'version', 'archived_at', 'updated_at'])
+[('Mật mã khối', 'Tự luận — Chế độ ECB và CBC'), ('An toàn ứng dụng web', 'Tự luận — SQL injection')]
+essay item True
+PASS TC-08-14 ESSAY bỏ trống → 422 422
+PASS TC-08-09a 4.001 ký tự → 422 TOO_LONG 422 {"code": "TOO_LONG", "message": "Nội dung quá dài.", "trace_id": "a7a4cd056375df7dcabb33b5ff17382f"}
+PASS TC-08-01 ESSAY Trả lời: lưu, hiện đáp án mẫu+rubric, không đúng/sai 200 correct=None key={"rubric": "Mô tả ECB (3đ); mô tả CBC và IV (3đ); giải thích lộ mẫu (4đ).", "model_answer": "ECB mã hoá từng khối độc lập nên các khối bản rõ giống nhau cho bản
+FEEDBACK 200 {"overall": "Bài viết nắm được ý chính; còn thiếu ví dụ cụ thể để làm rõ.", "criteria": [{"name": "Cơ chế chèn mã", "comment": "Nêu được ý kẻ tấn công chèn mã qua dữ liệu nhập; nên mô tả bước ghép chuỗi vào truy vấn.", "evidence": []}, {"name": "Prepared statement", "comment": "Nhắc đến truy vấn tham số hoá nhưng chưa giải thích vì sao ngăn được chèn mã.", "evidence": []}, {"name": "Biện pháp thứ hai", "comment": "Cần thêm một biện pháp độc lập như kiểm tra dữ liệu nhập hoặc giới hạn quyền.", "e
+PASS TC-08-02 feedback 200: nhận xét theo tiêu chí kèm bằng chứng, không số điểm 200 3 tiêu chí; keys=['overall', 'criteria', 'injected']
+PASS TC-08-03 đúng 1 lời gọi LLM cho nhận xét llm_audit +1: [['GRADING', 'BATCH'], ['EMBEDDING', 'INTERACTIVE']]
+PASS TC-08-04 grade_entries không đổi 
+INJ 200 {"overall": "Bài viết nắm được ý chính; còn thiếu ví dụ cụ thể để làm rõ.", "criteria": [{"name": "Cơ chế chèn mã", "comment": "Nêu được ý kẻ tấn công chèn mã qua dữ liệu nhập; nên mô tả bước ghép chuỗi vào truy vấn.", "evidence": []}, {"name": "Prepared statement", "comment": "Nhắc đến truy vấn tham số hoá nhưng chưa giải thích vì sao ngăn được chèn mã.", "evidence": []}, {"name": "Biện pháp thứ 
+PASS TC-08-06 bài chèn lệnh: không 10 điểm/khen hết, không lộ prompt, không cờ cho SV 200 injected=False
+PASS TC-08-12 teacher GET lượt của SV → 403 403
+PASS TC-08-12 ta GET lượt của SV → 403 403
+PASS TC-08-12 admin GET lượt của SV → 403 403

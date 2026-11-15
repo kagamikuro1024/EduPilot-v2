@@ -1,0 +1,29 @@
+$ go test -tags integration ./internal/assignment ./internal/grade -run 'TestPublishWhenLockedKeepsSnapshot|TestPublishShowsDriftWhenLocked|TestPublishThenUnlockRefinalizeNotifies|TestPublishSerializesWithFinalize' -v
+testing: warning: no tests to run
+PASS
+ok  	github.com/edupilot/backend-go/internal/assignment	0.597s [no tests to run]
+=== RUN   TestPublishWhenLockedKeepsSnapshot
+2026/11/15 20:10:15 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 20d83b84b2412cf65004e1418beac3f1888f70b50ea6a1ec5d865291f538b4d8
+  Test ProcessID: 185be920-ff2c-436a-95ec-7b8073700e01
+2026/11/15 20:10:15 ✅ Container started: 68f6ff853df5
+2026/11/15 20:10:15 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 20:10:16 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPublishWhenLockedKeepsSnapshot (24.95s)
+=== RUN   TestPublishShowsDriftWhenLocked
+--- PASS: TestPublishShowsDriftWhenLocked (5.26s)
+=== RUN   TestPublishThenUnlockRefinalizeNotifies
+--- PASS: TestPublishThenUnlockRefinalizeNotifies (4.97s)
+=== RUN   TestPublishSerializesWithFinalize
+--- PASS: TestPublishSerializesWithFinalize (6.78s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	42.552s
+
+rc=0

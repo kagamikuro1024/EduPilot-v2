@@ -1,0 +1,34 @@
+$ go test -tags integration ./internal/integration -run 'TestImapSpoofedFromNotMatched|TestImapAuthResultsTrustedOnly|TestImapAuthResultsFirstHeader|TestImapNoTrustedIdUnmatched|TestImapReceiptBellToMatchedStudent' -v
+=== RUN   TestImapSpoofedFromNotMatched
+2026/11/15 19:44:54 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: dca676a0d4a7cdddc3a14e7fbdb4ddb3fad021bc119aef0f0283c65a8cc79ba6
+  Test ProcessID: 5cdc69e1-7bc8-40e8-8e97-f2501c772978
+2026/11/15 19:44:54 ✅ Container started: 68f6ff853df5
+2026/11/15 19:44:54 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:44:54 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:44:56 ✅ Container started: 5636bc78d64d
+2026/11/15 19:44:56 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:44:56 🔔 Container is ready: 5636bc78d64d
+2026/11/15 19:44:56 ✅ Container started: b8d9c357e377
+2026/11/15 19:44:56 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/15 19:44:56 🔔 Container is ready: b8d9c357e377
+--- PASS: TestImapSpoofedFromNotMatched (2.46s)
+=== RUN   TestImapAuthResultsTrustedOnly
+--- PASS: TestImapAuthResultsTrustedOnly (2.04s)
+=== RUN   TestImapAuthResultsFirstHeader
+--- PASS: TestImapAuthResultsFirstHeader (1.79s)
+=== RUN   TestImapNoTrustedIdUnmatched
+--- PASS: TestImapNoTrustedIdUnmatched (1.30s)
+=== RUN   TestImapReceiptBellToMatchedStudent
+--- PASS: TestImapReceiptBellToMatchedStudent (1.67s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	9.931s
+
+rc=0

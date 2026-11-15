@@ -1,0 +1,12 @@
+
+Running 2 tests using 1 worker
+
+(node:67758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-w12-shots-real.spec.ts:8:1 › K7 ảnh sau đợt 1+2 (1.2m)
+(node:68695) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  2 [mobile] › e2e/qc2-r91/qc-uiux91-w12-shots-real.spec.ts:8:1 › K7 ảnh sau đợt 1+2
+
+  1 skipped
+  1 passed (1.2m)

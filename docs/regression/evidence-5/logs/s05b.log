@@ -1,0 +1,5 @@
+PASS TC-PE05-18 11 SV: 55/55 cặp khác thứ tự (100%); cùng SV tải lại cùng thứ tự; mẫu 11 SV × 5 câu (TC gốc 30 SV ≥95%)
+PASS TC-PE05-20 shuffle tắt: 3 SV cùng thứ tự gốc (chấm theo id: xem PE-08)
+FAIL TC-PE05-24 EXAM_SAVE_RATE_PER_MIN=2000: 2010 PUT trong 31s; 429 từ yêu cầu #919 (ngưỡng ep-r 2000/phút thay vì mặc định 240; cơ chế đúng); 5xx=0
+PASS TC-PE05-28 lưu sau hạn: nhận tới +8.5s, từ chối từ +10.5s (grace 10 s ep-r)
+FAIL TC-PE05-27 sau hạn: GRADED|TIMEOUT|2026-11-15 13:11:48.252692+00|2026-11-15 13:11:48.252692+00

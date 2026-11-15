@@ -1,0 +1,545 @@
+{
+ "redirect": [
+  {
+   "r": "/inbox",
+   "url": "/inbox"
+  },
+  {
+   "r": "/chat",
+   "url": "/login?next=%2Fchat"
+  },
+  {
+   "r": "/gradebook",
+   "url": "/login?next=%2Fgradebook"
+  },
+  {
+   "r": "/me",
+   "url": "/login?next=%2Fme"
+  },
+  {
+   "r": "/",
+   "url": "/"
+  }
+ ],
+ "matrix": [
+  {
+   "v": "student",
+   "r": "(login)",
+   "ok": true,
+   "url": "/"
+  },
+  {
+   "v": "student",
+   "r": "/",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/",
+   "h1": "Chào Uyên"
+  },
+  {
+   "v": "student",
+   "r": "/chat",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/chat",
+   "h1": "Chat riêng"
+  },
+  {
+   "v": "student",
+   "r": "/practice",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/practice",
+   "h1": "Luyện đề"
+  },
+  {
+   "v": "student",
+   "r": "/practice/history",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/practice/history",
+   "h1": "Lịch sử luyện tập"
+  },
+  {
+   "v": "student",
+   "r": "/library",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/library",
+   "h1": "Thư viện"
+  },
+  {
+   "v": "student",
+   "r": "/me",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/me",
+   "h1": "Kết quả của tôi"
+  },
+  {
+   "v": "student",
+   "r": "/join",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/join",
+   "h1": "Tham gia lớp"
+  },
+  {
+   "v": "student",
+   "r": "/threads",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/threads",
+   "h1": "Hỏi đáp công khai"
+  },
+  {
+   "v": "student",
+   "r": "/calendar",
+   "exp": "MO",
+   "got": "MO",
+   "url": "/calendar",
+   "h1": "Lịch"
+  },
+  {
+   "v": "student",
+   "r": "/inbox",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/inbox",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/students",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/students",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/attendance",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/attendance",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/class/members",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/class/members",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/gradebook",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/gradebook",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/gradebook/scheme",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/gradebook/scheme",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/grading",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/grading",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/questions",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/questions",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/documents",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/documents",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/insights",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/insights",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/analytics",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/analytics",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/observability",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/observability",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/settings/llm",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/settings/llm",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/settings/integrations",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/settings/integrations",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/admin/courses",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/admin/courses",
+   "h1": "Bạn không có quyền xem màn này"
+  },
+  {
+   "v": "student",
+   "r": "/admin/users",
+   "exp": "CHAN",
+   "got": "CHAN",
+   "url": "/admin/users",
+   "h1": "Bạn không có quyền xem màn này"
+  }
+ ],
+ "overflow": [
+  {
+   "v": "student",
+   "r": "/",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/chat",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/practice",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/practice/history",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/library",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/me",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/join",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/threads",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/calendar",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/inbox",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/students",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/attendance",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/class/members",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/gradebook",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/gradebook/scheme",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/grading",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/questions",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/documents",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/insights",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/analytics",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/observability",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/settings/llm",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/settings/integrations",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/admin/courses",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/admin/users",
+   "w": 1440,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/chat",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/practice",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/practice/history",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/library",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/me",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/join",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/threads",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/calendar",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/inbox",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/students",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/attendance",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/class/members",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/gradebook",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/gradebook/scheme",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/grading",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/questions",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/documents",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/insights",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/analytics",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/observability",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/settings/llm",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/settings/integrations",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/admin/courses",
+   "w": 375,
+   "ov": 0
+  },
+  {
+   "v": "student",
+   "r": "/admin/users",
+   "w": 375,
+   "ov": 0
+  }
+ ],
+ "notfound": [
+  {
+   "r": "/khong-co-trang (chưa đăng nhập)",
+   "url": "/login?next=%2Fkhong-co-trang",
+   "text": "Đăng nhập EduPilot Email Mật khẩu Đăng nhập Quên mật khẩu? Chưa có tài khoản? Đăng ký Cần giúp? Liên hệ giảng viên hoặ"
+  },
+  {
+   "r": "/khong-co-trang student",
+   "text": "Đăng nhập EduPilot Email Mật khẩu Đăng nhập Quên mật khẩu? Chưa có tài khoản? Đăng ký Cần giúp? Liên"
+  }
+ ]
+}

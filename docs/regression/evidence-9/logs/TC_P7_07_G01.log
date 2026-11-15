@@ -1,0 +1,27 @@
+$ go test -tags integration ./internal/grading -run 'TestGradeAllEnqueuesOnlyUngraded|TestGradeAllProgressSSE|TestGradeAllNothingToGrade' -v
+=== RUN   TestGradeAllEnqueuesOnlyUngraded
+2026/11/15 19:49:13 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 568b10f02528fae4fb36fa063c2d39b7a960509f93ef5e6e0afb849002000e0f
+  Test ProcessID: c34c23e7-0265-4b81-9c7b-03f43d1bd9ec
+2026/11/15 19:49:13 ✅ Container started: 68f6ff853df5
+2026/11/15 19:49:13 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 19:49:14 🔔 Container is ready: 68f6ff853df5
+2026/11/15 19:49:27 ✅ Container started: 5636bc78d64d
+2026/11/15 19:49:27 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 19:49:28 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestGradeAllEnqueuesOnlyUngraded (15.73s)
+=== RUN   TestGradeAllNothingToGrade
+--- PASS: TestGradeAllNothingToGrade (5.39s)
+=== RUN   TestGradeAllProgressSSE
+--- PASS: TestGradeAllProgressSSE (22.42s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	44.297s
+
+rc=0

@@ -1,0 +1,51 @@
+
+Running 4 tests using 1 worker
+
+(node:30436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX17-1 Panel cấp trên: [{"y":172,"b":420,"w":800,"h":"DIV","prevText":"Lỗ hổng kiến thức"}]
+INFO UX17-2 khung lồng: 0 []
+INFO UX17-6 tiêu đề: [{"t":"Lỗ hổng kiến thức","tag":"H1","y":97,"b":132,"next":0}]
+INFO UX17-6 khoảng giữa Panel: []
+INFO UX17-3 các dòng phụ: ["4t: Chưa có báo cáo"]
+INFO UX17-13 :active transform: matrix(0.97, 0, 0, 0.97, 0, 0) | nút Tạo báo cáo mới: 1
+INFO UX17-9 API insights 761987: 404 {"code":"NOT_FOUND","message":"Không tìm thấy.","trace_id":"42b138c60ed8d6ce64ac3bcc7522d7c7"}
+INFO UX17-9 /insights lớp không có báo cáo: "Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới" | nút: ["Tạo báo cáo mới"]
+INFO UX17-10 chỉ báo giai đoạn: ["Đang tạo báo cáo Đang gom câu hỏi của lớp… Chưa có dữ liệu","Đang tạo báo cáo Đang đặt tên và soạn gợi ý… Chưa có dữ liệu"]
+INFO UX17-10 quay lại: "Lỗ hổng kiến thức ⏎ Chưa có báo cáo ⏎ Tạo báo cáo mới"
+  ✓  1 [desktop] › e2e/qc-uiux91-w5d-real.spec.ts:36:1 › TC-UX17 Insights thật 761988: Panel, khung lồng, chữ, khoảng cách khối (26.4s)
+INFO UX17-4 số lần xuất hiện: yêu cầu hôm nay 0 | Yêu cầu 7 ngày 0 | p95 0 | Tỷ lệ lỗi 1 | chuyển giảng viên 0 | che thông tin 1
+INFO UX17-4 dải ô: []
+INFO UX17-1 Panel: [{"y":242,"b":625,"w":1176,"h":"DIV","prevText":"7 ngày qua"}] | lồng: 0 []
+INFO UX17-6 tiêu đề: [{"t":"Quan sát AI","tag":"H1","y":97,"b":132,"next":0},{"t":"7 ngày qua","tag":"H2","y":199,"b":226,"next":0}]
+  ✘  2 [desktop] › e2e/qc-uiux91-w5d-real.spec.ts:88:1 › TC-UX17 Quan sát AI thật: số liệu đúng một chỗ, bảng 7 ngày, khoảng cách, quyền (3.0m)
+(node:36772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  3 [mobile] › e2e/qc-uiux91-w5d-real.spec.ts:36:1 › TC-UX17 Insights thật 761988: Panel, khung lồng, chữ, khoảng cách khối
+  -  4 [mobile] › e2e/qc-uiux91-w5d-real.spec.ts:88:1 › TC-UX17 Quan sát AI thật: số liệu đúng một chỗ, bảng 7 ngày, khoảng cách, quyền
+
+
+  1) [desktop] › e2e/qc-uiux91-w5d-real.spec.ts:88:1 › TC-UX17 Quan sát AI thật: số liệu đúng một chỗ, bảng 7 ngày, khoảng cách, quyền 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.evaluate: Test ended.
+    Call log:
+      - waiting for locator('main table').first()
+
+
+      102 |   console.log("INFO UX17-1 Panel:", JSON.stringify(g.panels), "| lồng:", g.nestedN, JSON.stringify(g.nested));
+      103 |   console.log("INFO UX17-6 tiêu đề:", JSON.stringify(g.hs));
+    > 104 |   const tbl = await page.locator("main table").first().evaluate((t) => [...t.querySelectorAll("tr")].slice(0, 3).map((r) => [...r.children].map((c) => (c as HTMLElement).innerText.trim()).join(" | ")));
+          |                                                        ^
+      105 |   console.log("INFO UX17-5 bảng 7 ngày:", JSON.stringify(tbl));
+      106 |   // UX17-7: chọn một hàng yêu cầu
+      107 |   const rows = page.locator("main table").nth(1).locator("tbody tr");
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w5d-real.spec.ts:104:56
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w5d-real/qc-uiux91-w5d-real-TC-UX17-76c6f-ng-7-ngày-khoảng-cách-quyền-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-uiux91-w5d-real.spec.ts:88:1 › TC-UX17 Quan sát AI thật: số liệu đúng một chỗ, bảng 7 ngày, khoảng cách, quyền 
+  2 skipped
+  1 passed (3.5m)

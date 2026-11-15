@@ -1,0 +1,17 @@
+--reset: xoá dữ liệu T1…
+users: 1 s
+courses: 0 s
+enrollments: 0 s
+class_sessions: 0 s
+attendance_records: 2 s
+participation_events: 1 s
+study_time_daily: 40 s
+chat_sessions: 1 s
+chat_messages: 16 s
+grade_schemes: 0 s
+grade_entries: 1 s
+assignments: 1 s
+submissions: 2 s
+documents: 1 s
+content_chunks: 77 s
+Xong sau 149 s, 405 MB → docs/regression/evidence-9.5/seed-t1-r95.json

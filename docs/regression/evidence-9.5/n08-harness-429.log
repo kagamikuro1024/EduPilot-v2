@@ -1,0 +1,7 @@
+  429 GET /me/courses?limit=100 → chờ 60s
+  429 GET /me/courses?limit=100 → chờ 60s
+  429 GET /me/courses?limit=100 → chờ 60s
+  429 GET /me/courses?limit=100 → chờ 60s
+  429 GET /me/courses?limit=100 → chờ 60s
+LỖI: GET /me/courses?limit=100 → 429 {"code":"RATE_LIMITED","message":"giả"}
+rc=2

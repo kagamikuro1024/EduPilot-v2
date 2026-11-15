@@ -1,0 +1,91 @@
+### ./internal/grading -run ^(TestEssayPromptUnchangedAtV0|TestGuidanceBlockDeterministic|TestGuidanceNoTotalsInPrompt|TestGuidanceVersionOnlyViaApply|TestRegradeKeepsLatePolicy|TestRegradeNeverOverwritesTeacherScores|TestGuidanceIsolation|TestGuidanceSetAtVersion|TestReflectInputNoIdentity|TestReflectOutputPII|TestReflectDroppedByCriterion|TestReflectInputNoSubmissionText|TestReflectKeywordExempt|TestInjectionOR)$
+--- PASS: TestReflectInputNoSubmissionText (0.00s)
+--- PASS: TestReflectDroppedByCriterion (0.00s)
+--- PASS: TestGuidanceVersionOnlyViaApply (1.06s)
+--- PASS: TestRegradeKeepsLatePolicy (19.07s)
+--- PASS: TestRegradeNeverOverwritesTeacherScores (14.87s)
+--- PASS: TestReflectInputNoIdentity (17.47s)
+--- PASS: TestReflectOutputPII (11.64s)
+--- PASS: TestGuidanceSetAtVersion (10.15s)
+--- PASS: TestGuidanceIsolation (72.16s)
+--- PASS: TestInjectionOR (130.67s)
+--- PASS: TestGuidanceNoTotalsInPrompt (0.00s)
+--- PASS: TestReflectKeywordExempt (0.00s)
+--- PASS: TestGuidanceBlockDeterministic (0.01s)
+--- PASS: TestEssayPromptUnchangedAtV0 (0.01s)
+ok  	github.com/edupilot/backend-go/internal/grading	277.945s
+### ./cmd/regress -run ^(TestRegressCLIRefusesExport)$
+--- PASS: TestRegressCLIRefusesExport (0.00s)
+ok  	github.com/edupilot/backend-go/cmd/regress	0.980s
+### ./internal/practice -run ^(TestRejectReasonHints)$
+--- PASS: TestRejectReasonHints (14.17s)
+ok  	github.com/edupilot/backend-go/internal/practice	14.650s
+### ./internal/assignment -run ^(TestPublishMixedGuidance|TestRegressionCaseIdempotent|TestRegressionCaseNoText)$
+--- PASS: TestPublishMixedGuidance (27.32s)
+--- PASS: TestRegressionCaseNoText (14.27s)
+--- PASS: TestRegressionCaseIdempotent (16.26s)
+ok  	github.com/edupilot/backend-go/internal/assignment	58.666s
+### ./internal/privacy -run ^(TestRosterDiacriticSubset)$
+--- PASS: TestRosterDiacriticSubset (0.00s)
+ok  	github.com/edupilot/backend-go/internal/privacy	0.618s
+### privacy Roster*/Detect*
+--- PASS: TestRosterScopedToCourse (0.00s)
+--- PASS: TestDetectRegexPositive (0.00s)
+--- PASS: TestRosterWordBoundary (0.00s)
+--- PASS: TestRosterNoCommonWordFalsePositive (0.00s)
+--- PASS: TestRosterNameVariants (0.00s)
+--- PASS: TestDetectRuneOffsetsWithAccents (0.00s)
+--- PASS: TestDetectOverlapAndOrder (0.00s)
+--- PASS: TestDetectRegexNegative (0.00s)
+--- PASS: TestRosterLoadError (0.00s)
+--- PASS: TestRosterDiacriticSubset (0.00s)
+--- PASS: TestDetectWindowedLongText (0.01s)
+--- PASS: TestDetectLinearTime (0.09s)
+--- PASS: TestRosterExcludesStaff (21.57s)
+--- PASS: TestRosterInvalidatedOnMemberChange (21.60s)
+ok  	github.com/edupilot/backend-go/internal/privacy	21.965s
+### ./internal/thread -run ^(TestSimilarNoBodyLog|TestPlaceholderOnlyBlockedByRules|TestPrecheckAddOnly)$
+--- PASS: TestPlaceholderOnlyBlockedByRules (15.84s)
+--- PASS: TestPrecheckAddOnly (16.21s)
+--- PASS: TestSimilarNoBodyLog (16.38s)
+ok  	github.com/edupilot/backend-go/internal/thread	17.161s
+### ./internal/llm -run ^(TestCascadeFailClosed|TestCascadeTable|TestDecideAudit|TestDecideMasked|TestDecideCallersAllowlist)$
+--- PASS: TestDecideAudit (0.00s)
+--- PASS: TestDecideMasked (0.00s)
+--- PASS: TestCascadeFailClosed (0.00s)
+--- PASS: TestCascadeTable (0.00s)
+--- PASS: TestDecideCallersAllowlist (0.63s)
+ok  	github.com/edupilot/backend-go/internal/llm	1.474s
+### ./internal/agent -run ^(TestOneEmbedPerMessage|TestCallBudgetPerMessage|TestCrisisNeverReachesDecide|TestRouteDecisionNoOverride)$
+--- PASS: TestRouteDecisionNoOverride (0.00s)
+--- PASS: TestCrisisNeverReachesDecide (0.00s)
+--- PASS: TestCallBudgetPerMessage (0.00s)
+--- PASS: TestOneEmbedPerMessage (0.00s)
+ok  	github.com/edupilot/backend-go/internal/agent	0.421s
+### TestDecide*/TestCascade* llm
+--- PASS: TestCascadeFailClosed (0.00s)
+--- PASS: TestDecideValidate (0.00s)
+--- PASS: TestDecideNotConfigured (0.00s)
+--- PASS: TestDecideBudgetNoCheapest (0.00s)
+--- PASS: TestDecideInputCeiling (0.00s)
+--- PASS: TestDecideMasked (0.00s)
+--- PASS: TestCascadeNotUsed (0.00s)
+--- PASS: TestDecideAudit (0.00s)
+--- PASS: TestDecideErrorMap (0.00s)
+--- PASS: TestDecideRealGuard (0.00s)
+--- PASS: TestCascadeTable (0.00s)
+--- PASS: TestDecideCallersAllowlist (0.30s)
+--- PASS: TestCascadeTimeout (0.30s)
+ok  	github.com/edupilot/backend-go/internal/llm	0.829s
+ok  	github.com/edupilot/backend-go/internal/llm/cost	0.306s [no tests to run]
+--- PASS: TestDecideFakeDeterministic (0.00s)
+--- PASS: TestDecideFakeOverrides (0.10s)
+ok  	github.com/edupilot/backend-go/internal/llm/fake	0.560s
+--- PASS: TestDecideRejectsBadQuestions (0.01s)
+--- PASS: TestDecideErrorMap (0.01s)
+--- PASS: TestDecideTimeoutRedirectAndNoGeneration (0.06s)
+--- PASS: TestDecideNoSDK (0.24s)
+ok  	github.com/edupilot/backend-go/internal/llm/provider	0.669s
+--- PASS: TestDecideBucketAndNoWait (0.00s)
+ok  	github.com/edupilot/backend-go/internal/llm/scheduler	0.702s
+GATE-DONE

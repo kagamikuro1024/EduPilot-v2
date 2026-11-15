@@ -1,0 +1,30 @@
+
+Running 1 test using 1 worker
+
+(node:85199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/qc-uiux91-w4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập (2.5s)
+
+
+  1) [desktop] › e2e/qc-uiux91-w4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập 
+
+    Error: có bài DRAFT
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      30 |   const aid = as.body.items.find((a: { title: string }) => /Bài tập 03/.test(a.title)).id as string;
+      31 |   const dr = await api(`/courses/${c}/submissions?limit=100&assignment_id=${aid}&status=DRAFT`);
+    > 32 |   expect(dr.body.items.length, "có bài DRAFT").toBeGreaterThan(0);
+         |                                                ^
+      33 |   const sid = dr.body.items[0].id as string;
+      34 |   let rid = "";
+      35 |   page.on("response", async (r) => { const m = r.url().match(/grading-results\/([0-9a-f-]{36})$/); if (m && r.request().method() === "GET") rid = m[1]; });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc-uiux91-w4g-real.spec.ts:32:48
+
+    Error Context: ../../../../../tmp/qc2-pw-f-qc-uiux91-w4g-real/qc-uiux91-w4g-real-TC-UX15-9ad11--nào-không-mất-điểm-đã-nhập-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc-uiux91-w4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập 
