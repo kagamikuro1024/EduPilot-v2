@@ -48,3 +48,29 @@ func TestE1Rules(t *testing.T) {
 		}
 	}
 }
+
+// D-R-01: "em nghĩ …" không phải "em nghỉ …" (bỏ dấu làm hai từ trùng nhau); "được / thiếu" chỉ tính khi kèm điểm / phép / buổi.
+func TestPersonalPatternThinkNotAbsent(t *testing.T) {
+	t.Parallel()
+	for text, want := range map[string]bool{
+		"Em nghĩ virus cần vật chủ":              false,
+		"Em có nghĩ rằng AES an toàn không":      false,
+		"Mình được học gì ở chương này":          false,
+		"em thiếu hiểu biết về hàm băm":          false,
+		"Em được biết virus cần vật chủ":         false,
+		"em nghỉ 3 buổi":                         true,
+		"Em nghỉ bao nhiêu buổi rồi":             true,
+		"em nghi 3 buoi":                         true,
+		"em nghi hoc 2 buoi co sao khong":        true,
+		"Em đã nghỉ học hôm qua":                 true,
+		"Em có được miễn thi không":              true,
+		"em được cộng mấy điểm rồi":              true,
+		"em thiếu điểm thành phần nào":           true,
+		"Em bị trừ điểm chuyên cần phải không ạ": true,
+		"em vắng 2 buổi có sao không":            true,
+	} {
+		if got := IsPersonalPattern(text); got != want {
+			t.Errorf("IsPersonalPattern(%q) = %v, muốn %v", text, got, want)
+		}
+	}
+}
