@@ -336,22 +336,24 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
       key: "student",
       header: "Sinh viên",
       frozen: true,
-      width: "220px",
+      width: "400px",
       primary: true,
       render: (r) => (
         <span className={s.who}>
           <span className={s.name}>{r.student?.full_name ?? "Chưa khớp"}</span>
-          <span className={s.code}>{r.student ? `${r.student.student_code}${r.student.inactive ? " · không còn trong lớp" : ""}` : ""}</span>
-          {flagText(r) && <span className={s.flag} data-part="flag-reason">{flagText(r)}</span>}
+          <span className={s.sub2}>
+            <span className={s.code}>{r.student ? `${r.student.student_code}${r.student.inactive ? " · không còn trong lớp" : ""}` : ""}</span>
+            {flagText(r) && <span className={s.flag} data-part="flag-reason" title={flagText(r)}>{flagText(r)}</span>}
+          </span>
         </span>
       ) },
     ...(oneAssignment ? [] : [{ key: "assignment", header: "Bài tập", width: "200px", render: (r: QueueRow) => <span className={s.clip} title={r.assignment.title}>{r.assignment.title}</span> }]),
-    { key: "source", header: "Nguồn", width: "130px", render: (r) => SOURCE_LABEL[r.source] ?? r.source },
+    { key: "source", header: "Nguồn", width: "90px", render: (r) => SOURCE_LABEL[r.source] ?? r.source },
     {
       key: "score",
       header: "Điểm",
       align: "end",
-      width: "120px",
+      width: "90px",
       render: (r) => (
         <span className={s.score}>
           {r.result?.total ? vi(r.result.total) : "—"}
@@ -361,7 +363,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
     {
       key: "state",
       header: "Trạng thái duyệt",
-      width: "150px",
+      width: "140px",
       part: "col-state",
       render: (r) => {
         const text = reviewStateText(r.result);
@@ -370,7 +372,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
     {
       key: "at",
       header: "Thời gian nộp",
-      width: "180px",
+      width: "170px",
       render: (r) => (
         <span className={s.sub}>
           {fmtLong(r.received_at)}
@@ -381,7 +383,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
       key: "open",
       header: <span className="ep-sr-only">Duyệt</span>,
       align: "end",
-      width: "110px",
+      width: "100px",
       render: (r) => (
         <Link href={reviewHref(r.id, filter, rows.length)} className={s.open} onClick={(e) => e.stopPropagation()} aria-label={`Duyệt bài của ${r.student?.full_name ?? "sinh viên"}`}>
           Duyệt <ArrowRight aria-hidden />

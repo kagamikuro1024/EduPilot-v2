@@ -62,7 +62,9 @@ func (g *flightGroup) do(ctx context.Context, key string, fn func(ctx context.Co
 		go func() {
 			f.resp, f.err = fn(callCtx)
 			g.mu.Lock()
-			delete(g.m, key) // nhóm mới sau đó được thử lại độc lập
+			if g.m[key] == f { // có thể đã bị người chờ cuối rời đi gỡ, và một nhóm mới cùng key đã thế chỗ
+				delete(g.m, key) // nhóm mới sau đó được thử lại độc lập
+			}
 			g.mu.Unlock()
 			cancel()
 			close(f.done)
@@ -78,6 +80,9 @@ func (g *flightGroup) do(ctx context.Context, key string, fn func(ctx context.Co
 		g.mu.Lock()
 		f.refs--
 		last := f.refs == 0
+		if last && g.m[key] == f {
+			delete(g.m, key) // lời gọi sắp bị huỷ: người đến sau phải mở lời gọi mới, không nhận lỗi huỷ của nhóm cũ
+		}
 		g.mu.Unlock()
 		if last {
 			f.cancel()

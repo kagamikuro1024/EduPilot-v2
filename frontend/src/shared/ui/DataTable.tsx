@@ -187,7 +187,7 @@ export function DataTable<T>({
               <th
                 key={c.key}
                 scope="col"
-                style={{ "--w": c.width, "--wm": c.mobileWidth ?? c.width, textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" } as CSSProperties}
+                style={{ "--w": c.width, "--wm": c.mobileWidth ?? c.width, ...(c.primary ? { minWidth: 160 } : {}), textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" } as CSSProperties}
                 className={[s.th, c.frozen ? s.frozen : ""].join(" ")}
                 data-part={c.part}
               >
