@@ -100,15 +100,19 @@ func TestSingleFlightCancelOneWaiter(t *testing.T) {
 	r := newRig(t, baseCfg(), fake.Settings{LatencyMin: 400 * time.Millisecond, LatencyMax: 400 * time.Millisecond}, nil)
 	ctxA, cancelA := context.WithCancel(t.Context())
 	results := make(chan error, 3)
-	for i, ctx := range []context.Context{ctxA, t.Context(), t.Context()} {
+	call := func(ctx context.Context) {
 		go func() {
 			_, err := r.g.Chat(ctx, shareable(llm.TaskUtility, llm.LaneNearRealtime))
 			results <- err
-			_ = i
 		}()
 	}
+	// Hai người chờ không huỷ vào trước: lời gọi chung luôn còn ít nhất một người chờ, nên huỷ A không thể làm số người chờ về 0
+	// (thứ tự khởi động goroutine trước đây quyết định A có là người duy nhất lúc huỷ hay không).
+	call(t.Context())
+	call(t.Context())
 	waitActive(t, r.ctl, 1) // lời gọi đã vào nhà cung cấp (không đoán bằng Sleep)
-	cancelA()               // một người chờ huỷ
+	call(ctxA)
+	cancelA() // một người chờ huỷ
 	var canceled, ok int
 	for range 3 {
 		if err := <-results; err == nil {
