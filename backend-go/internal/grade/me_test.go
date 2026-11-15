@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -253,6 +254,23 @@ func TestStudentDTOAllowlist(t *testing.T) {
 	var g map[string]any
 	require.NoError(t, json.Unmarshal(raw, &g))
 	walkKeys(t, g, "$")
+}
+
+// /me/grades `final.locked_at` là thời điểm chốt thật của bản chốt (openapi: date-time bắt buộc), không bao giờ 0001-01-01T00:00:00Z.
+func TestMeGradesFinalLockedAt(t *testing.T) {
+	r := newMeRig(t)
+	r.publish("weekly")
+	r.publish("final")
+	_, err := r.svc().Finalize(r.ctx, r.gv, r.course)
+	require.NoError(t, err)
+	m := r.me(r.a)
+	require.NotNil(t, m.Final)
+	raw, err := json.Marshal(m.Final)
+	require.NoError(t, err)
+	require.NotContains(t, string(raw), "0001-01-01")
+	var want time.Time
+	require.NoError(t, r.pool.QueryRow(r.ctx, `select locked_at from final_grade_snapshots where course_id = $1 and student_id = $2`, r.course, r.a).Scan(&want))
+	require.True(t, m.Final.LockedAt.Equal(want), "locked_at %s ≠ bản chốt %s", m.Final.LockedAt, want)
 }
 
 func TestMeGradesFinalFromSnapshot(t *testing.T) {

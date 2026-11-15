@@ -276,7 +276,7 @@ func meFinal(out MeGrades, sn store.GradeSnapshotsForStudentsRow, version int32,
 	out.Bonus = &MeBonus{Applied: bd.Bonus, Raw: bd.Bonus, Cap: capV}
 	out.Penalty = &MePenalty{Value: bd.Penalty, Absent: bd.Absent, Free: free, Per: per}
 	out.QT = bd.QT
-	f := &MeFinal{NumericGrade: sn.NumericGrade.String(), Letter: sn.Letter, Version: int(version)}
+	f := &MeFinal{NumericGrade: sn.NumericGrade.String(), Letter: sn.Letter, Version: int(version), LockedAt: sn.LockedAt}
 	if sn.FailedReason != nil {
 		t := lietText(*sn.FailedReason)
 		f.FailedReason = &t
