@@ -150,3 +150,626 @@
 {"tc": "TC-04-22 NAME lỗi: job không treo, hoàn tất", "st": "PASS", "note": "{'id': '01a1df16-4af4-7d52-8669-664d1e5ce51c', 'kind': 'insight.knowledge_gap', 'status': 'SUCCEEDED', 'progress': 100, 'result': {'report_id': '01a1df16-4d94-7"}
 {"tc": "TC-04-22 named_by = fallback, khuyến nghị rỗng", "st": "PASS", "note": "{'fallback'}"}
 {"tc": "TC-04-22 xếp hạng giữ nguyên (cùng thứ tự điểm)", "st": "PASS", "note": ""}
+{"tc": "TC-03-01 30 yêu cầu, 3 lỗi (10%) → 1 thông báo / ADMIN", "st": "PASS", "note": "thông báo=1 admin=1"}
+{"tc": "TC-03-01b liên kết /observability + lọc Có vấn đề", "st": "PASS", "note": "/observability?filter=problem"}
+{"tc": "TC-03-02 chạy lại ≥ 2 tick cùng cửa sổ → vẫn 1 thông báo / ADMIN", "st": "PASS", "note": "1"}
+{"tc": "TC-14-01 200, 5 dòng, đúng 11 khoá", "st": "PASS", "note": "200 []"}
+{"tc": "TC-14-02 sắp (at,id) giảm dần", "st": "PASS", "note": ""}
+{"tc": "TC-14-03 actor_name/role = người thật", "st": "PASS", "note": "Quản trị viên EduPilot"}
+{"tc": "TC-14-04 dòng hệ thống / actor đã xoá: actor_name,role = null, không 500", "st": "PASS", "note": "[('f4-sys', None), ('f4-del', '00000000-0000-7000-8000-000000000bad')]"}
+{"tc": "TC-14-05a entity=qc_audit2 không khớp tiền tố", "st": "PASS", "note": "0"}
+{"tc": "TC-14-05b entity=qc_audit chỉ dòng qc_audit", "st": "PASS", "note": ""}
+{"tc": "TC-14-06 actor lạ → 200 items []", "st": "PASS", "note": "200"}
+{"tc": "TC-14-07 from ≤ at < to: có f6-from, f6-from1; không f6-to", "st": "PASS", "note": "['f6-from', 'f6-from1']"}
+{"tc": "TC-14-09 mặc định 7 ngày: có 6d23h, không 7d1h", "st": "FAIL", "note": ""}
+{"tc": "TC-14-10 +07:00 ≡ Z", "st": "PASS", "note": ""}
+{"tc": "TC-14-08 lọc AND = SQL (số dòng + thứ tự)", "st": "PASS", "note": "2/2"}
+{"tc": "TC-14-11 at RFC3339 khớp DB", "st": "PASS", "note": "2026-11-15T12:01:57.260496Z"}
+{"tc": "TC-14-12 không lộ canary/email/MSSV; không khoá before/after/payload/reason", "st": "PASS", "note": ""}
+{"tc": "TC-14-13 changed_fields F3 = [cfg,email,reason,student_code]", "st": "PASS", "note": "['cfg', 'email', 'reason', 'student_code']"}
+{"tc": "TC-14-14 25 khoá → 20 đầu, sắp chữ cái", "st": "PASS", "note": "['k01', 'k02', 'k03', 'k04', 'k05', 'k06', 'k07', 'k08', 'k09', 'k10', 'k11', 'k12', 'k13', 'k14', '"}
+{"tc": "TC-14-15 before=after=NULL → []", "st": "PASS", "note": "[]"}
+{"tc": "TC-14-16 after mảng/chuỗi → [], không 500", "st": "PASS", "note": ""}
+{"tc": "TC-14-17/84 VIEW_DETAIL changed_fields=[reason], không lộ chữ lý do", "st": "PASS", "note": "2"}
+{"tc": "TC-14-85 mở 2 lần → ≥ 2 dòng VIEW_DETAIL", "st": "PASS", "note": "2"}
+{"tc": "TC-14-87 lý do < 10 ký tự: không dòng VIEW_DETAIL", "st": "PASS", "note": ""}
+{"tc": "TC-14-18 mọi entity: không lộ giá trị before/after (chuỗi ≥ 6 ký tự)", "st": "FAIL", "note": "23 entity, 103 giá trị; rò=['TEACHER', '01a1deef-d38f-7c34-919b-c7f30c69aa1a', 'TEACHER']"}
+{"tc": "TC-14-21 limit mặc định = 30, next_cursor ≠ null", "st": "PASS", "note": "30"}
+{"tc": "TC-14-22 đi hết limit=50: không trùng/sót, khớp thứ tự SQL", "st": "PASS", "note": "301/301"}
+{"tc": "TC-14-22 đi hết limit=100: không trùng/sót, khớp thứ tự SQL", "st": "PASS", "note": "301/301"}
+{"tc": "TC-14-23 60 dòng cùng created_at, limit=7: không lặp/sót", "st": "PASS", "note": "60"}
+{"tc": "TC-14-24 INSERT giữa 2 trang: trang 2 liền mạch, không chứa 5 dòng mới", "st": "PASS", "note": ""}
+{"tc": "TC-14-24b gọi mới thấy 5 dòng mới", "st": "PASS", "note": ""}
+{"tc": "TC-14-25 limit=1", "st": "PASS", "note": "200 1"}
+{"tc": "TC-14-25 limit=100", "st": "PASS", "note": "200 100"}
+{"tc": "TC-14-25 limit=30", "st": "PASS", "note": "200 30"}
+{"tc": "TC-14-25 limit=rỗng", "st": "PASS", "note": "200 30"}
+{"tc": "TC-14-28 trang cuối next_cursor = null (không phải chuỗi rỗng)", "st": "PASS", "note": "limit đúng số dòng còn lại → None (quan sát)"}
+{"tc": "TC-14-28b cùng bộ lọc, limit khác → 200 liền mạch", "st": "PASS", "note": "200"}
+{"tc": "TC-14-28c đổi entity → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c thêm actor → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c bỏ actor → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c đổi from → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c đổi to → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c bỏ entity → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c thêm from → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c vl() không đổi khi 422", "st": "PASS", "note": ""}
+{"tc": "TC-03-03a 30 yêu cầu, 1 lỗi (3,3%) → không", "st": "PASS", "note": "thông báo=0 admin=1"}
+{"tc": "TC-03-03b 30 yêu cầu, 2 lỗi (6,7%) → có", "st": "PASS", "note": "thông báo=1 admin=1"}
+{"tc": "TC-14-28d không from/to, sau 70 giây → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-28e (khoảng thử không đủ dòng để có cursor)", "st": "FAIL", "note": "K"}
+{"tc": "TC-03-03c 40 yêu cầu, 2 lỗi (đúng 5,0%) → không", "st": "PASS", "note": "thông báo=0 admin=1"}
+{"tc": "TC-14-01 200, 5 dòng, đúng 11 khoá", "st": "PASS", "note": "200 []"}
+{"tc": "TC-14-02 sắp (at,id) giảm dần", "st": "PASS", "note": ""}
+{"tc": "TC-14-03 actor_name/role = người thật", "st": "PASS", "note": "Quản trị viên EduPilot"}
+{"tc": "TC-14-04 dòng hệ thống / actor đã xoá: actor_name,role = null, không 500", "st": "PASS", "note": "[('f4-sys', None), ('f4-del', '00000000-0000-7000-8000-000000000bad')]"}
+{"tc": "TC-14-05a entity=qc_audit2 không khớp tiền tố", "st": "PASS", "note": "0"}
+{"tc": "TC-14-05b entity=qc_audit chỉ dòng qc_audit", "st": "PASS", "note": ""}
+{"tc": "TC-14-06 actor lạ → 200 items []", "st": "PASS", "note": "200"}
+{"tc": "TC-14-07 from ≤ at < to: có f6-from, f6-from1; không f6-to", "st": "PASS", "note": "['f6-from', 'f6-from1']"}
+{"tc": "TC-14-09 mặc định 7 ngày: có 6d23h, không 7d1h", "st": "PASS", "note": ""}
+{"tc": "TC-14-10 +07:00 ≡ Z", "st": "PASS", "note": ""}
+{"tc": "TC-14-08 lọc AND = SQL (số dòng + thứ tự)", "st": "PASS", "note": "2/2"}
+{"tc": "TC-14-11 at RFC3339 khớp DB", "st": "PASS", "note": "2026-11-15T12:03:39.067381Z"}
+{"tc": "TC-14-12 không lộ canary/email/MSSV; không khoá before/after/payload/reason", "st": "PASS", "note": ""}
+{"tc": "TC-14-13 changed_fields F3 = [cfg,email,reason,student_code]", "st": "PASS", "note": "['cfg', 'email', 'reason', 'student_code']"}
+{"tc": "TC-14-14 25 khoá → 20 đầu, sắp chữ cái", "st": "PASS", "note": "['k01', 'k02', 'k03', 'k04', 'k05', 'k06', 'k07', 'k08', 'k09', 'k10', 'k11', 'k12', 'k13', 'k14', '"}
+{"tc": "TC-14-15 before=after=NULL → []", "st": "PASS", "note": "[]"}
+{"tc": "TC-14-16 after mảng/chuỗi → [], không 500", "st": "PASS", "note": ""}
+{"tc": "TC-14-17/84 VIEW_DETAIL changed_fields=[reason], không lộ chữ lý do", "st": "PASS", "note": "4"}
+{"tc": "TC-14-85 mở 2 lần → ≥ 2 dòng VIEW_DETAIL", "st": "PASS", "note": "4"}
+{"tc": "TC-14-87 lý do < 10 ký tự: không dòng VIEW_DETAIL", "st": "PASS", "note": ""}
+{"tc": "TC-14-18 mọi entity: không lộ giá trị before/after (chuỗi ≥ 6 ký tự)", "st": "FAIL", "note": "23 entity, 126 giá trị; rò=['assignments', 'attendance', 'audit_log']"}
+{"tc": "TC-14-21 limit mặc định = 30, next_cursor ≠ null", "st": "PASS", "note": "30"}
+{"tc": "TC-14-22 đi hết limit=50: không trùng/sót, khớp thứ tự SQL", "st": "PASS", "note": "306/306"}
+{"tc": "TC-14-22 đi hết limit=100: không trùng/sót, khớp thứ tự SQL", "st": "PASS", "note": "306/306"}
+{"tc": "TC-14-23 60 dòng cùng created_at, limit=7: không lặp/sót", "st": "PASS", "note": "60"}
+{"tc": "TC-14-24 INSERT giữa 2 trang: trang 2 liền mạch, không chứa 5 dòng mới", "st": "PASS", "note": ""}
+{"tc": "TC-14-24b gọi mới thấy 5 dòng mới", "st": "PASS", "note": ""}
+{"tc": "TC-14-25 limit=1", "st": "PASS", "note": "200 1"}
+{"tc": "TC-14-25 limit=100", "st": "PASS", "note": "200 100"}
+{"tc": "TC-14-25 limit=30", "st": "PASS", "note": "200 30"}
+{"tc": "TC-14-25 limit=rỗng", "st": "PASS", "note": "200 30"}
+{"tc": "TC-14-28 trang cuối next_cursor = null (không phải chuỗi rỗng)", "st": "PASS", "note": "limit đúng số dòng còn lại → None (quan sát)"}
+{"tc": "TC-14-28b cùng bộ lọc, limit khác → 200 liền mạch", "st": "PASS", "note": "200"}
+{"tc": "TC-14-28c đổi entity → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c thêm actor → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c bỏ actor → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c đổi from → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c đổi to → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c bỏ entity → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c thêm from → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c vl() không đổi khi 422", "st": "PASS", "note": ""}
+{"tc": "TC-14-28d không from/to, sau 70 giây → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-28e Z → +07:00 cùng thời điểm → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-28e đổi +1 giây → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-29 một lần gọi → +1 VIEW_LIST, entity=audit_log, entity_id=ADMIN, trace_id", "st": "PASS", "note": "148->149 ['audit_log', '01a1deef-d280-7cc3-b779-ebc036bffeda', 'VIEW_LIST']"}
+{"tc": "TC-14-29b after có đúng khoá entity, actor_id, from, to, has_cursor, returned", "st": "PASS", "note": "{\"to\": \"2026-11-13T00:00:00Z\", \"from\": \"2026-11-01T00:00:00Z\", \"entity\": \"qc_audit\", \"actor_id\": \"01a1deef-d280-7cc3-b779-ebc036bffeda\", \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-28f from=+07:00 → after.from UTC", "st": "PASS", "note": ""}
+{"tc": "TC-14-28f VIEW_LIST.after.from = 2026-11-14T03:00:00Z", "st": "PASS", "note": "2026-11-14T03:00:00Z 2026-11-15T03:00:00Z"}
+{"tc": "TC-14-30 không tham số: entity/actor null, khoảng 7 ngày UTC đã áp dụng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:31Z\", \"from\": \"2026-11-08T12:05:31Z\", \"entity\": null, \"actor_id\": null, \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-31 trang 2: +1 dòng, has_cursor=true, returned = số dòng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:31Z\", \"from\": \"2026-11-08T12:05:31Z\", \"entity\": \"qc_audit\", \"actor_id\": null, \"returned\": 10, \"has_cursor\": true}"}
+{"tc": "TC-14-33 phản hồi lần 1 không chứa VIEW_LIST của chính lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-32 phản hồi lần 2 có VIEW_LIST của lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-34 20 lần song song: vl() +20, tất cả 200", "st": "PASS", "note": "+20"}
+{"tc": "TC-14-35 VIEW_LIST.after chỉ tham số + số đếm (0 nội dung dòng)", "st": "PASS", "note": ""}
+{"tc": "TC-14-39 không token / Bearer rác → 401", "st": "PASS", "note": "401 401"}
+{"tc": "TC-14-40/41 teacher ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40 vl() không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-14-44 entity QC_AUDIT → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3742c3c6ac212e715934e3"}
+{"tc": "TC-14-44 entity 1abc → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'dd6454052195dd3c545f72"}
+{"tc": "TC-14-44 entity a-b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6442982e6dd8ef38fb0f49"}
+{"tc": "TC-14-44 entity 65 ký tự → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'ad00a9e74897e1ac77aa2f"}
+{"tc": "TC-14-44 entity a b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '5f67370cfb94e1a28f6b24"}
+{"tc": "TC-14-44 entity toàn khoảng trắng → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '8c62d7ca5072e33c6f2432"}
+{"tc": "TC-14-44b entity= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b actor_id= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b from= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b to= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b limit= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b cursor= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b entity=&actor_id=&fr → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-45 actor_id=abc → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=123 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=66250bfc-5373 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-46 from=2026-13-40 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '339ef4173c4f740e9dcb7c"}
+{"tc": "TC-14-46 from=h%C3%B4m%20nay → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3a8dc735c81b75c866bd2f"}
+{"tc": "TC-14-46 from=1700000000 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '056d6a0f776d03343487e0"}
+{"tc": "TC-14-46 to=2026-11-14 → 422 field to", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3ce7099354dbb1b1b87e1b"}
+{"tc": "TC-14-47 from=to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-47 from>to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 90 ngày → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-48 90 ngày + 1 giây → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 365 ngày → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-49 limit=0 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'bf"}
+{"tc": "TC-14-49 limit=-1 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '20"}
+{"tc": "TC-14-49 limit=101 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '07"}
+{"tc": "TC-14-49 limit=abc → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'f7"}
+{"tc": "TC-14-49 limit=1.5 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '87"}
+{"tc": "TC-14-50 cursor abc → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor base64 hỏng → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor sửa 1 ký tự → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor cursor của /admin/users → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-51 nhiều lỗi → details có entity, limit, from", "st": "PASS", "note": "422 {'limit', 'entity', 'from'}"}
+{"tc": "TC-14-52 vl() không đổi sau TC-14-44…51", "st": "PASS", "note": "175->192 (có 44b hợp lệ ghi thêm)"}
+{"tc": "TC-14-53 khoảng không dòng → items [], next_cursor null", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54a from=now−89d không to → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54b from=now−91d không to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-54c chỉ from → VIEW_LIST.after.to ≈ now", "st": "PASS", "note": ""}
+{"tc": "TC-14-54d chỉ to → from = to−7 ngày (6d có, 8d không)", "st": "PASS", "note": "200"}
+{"tc": "TC-14-56 Cache-Control no-store, không ETag/Last-Modified", "st": "PASS", "note": "{'Cache-Control': 'no-store', 'ETag': None, 'Last-Modified': None}"}
+{"tc": "TC-14-58 POST /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PUT /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PATCH /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 DELETE /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 GET /admin/audit/export → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit/6431970f-20 → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit.csv → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-59 UPDATE / DELETE audit_log bị trigger chặn", "st": "PASS", "note": "ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL function audit_log_block_mutation() line 3 at RAISE ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL func"}
+{"tc": "TC-14-60 một GET: chỉ audit_log +1", "st": "PASS", "note": "[101031, 261, 54, 843]->[101032, 261, 54, 843]"}
+{"tc": "TC-14-29 một lần gọi → +1 VIEW_LIST, entity=audit_log, entity_id=ADMIN, trace_id", "st": "PASS", "note": "197->198 ['audit_log', '01a1deef-d280-7cc3-b779-ebc036bffeda', 'VIEW_LIST']"}
+{"tc": "TC-14-29b after có đúng khoá entity, actor_id, from, to, has_cursor, returned", "st": "PASS", "note": "{\"to\": \"2026-11-13T00:00:00Z\", \"from\": \"2026-11-01T00:00:00Z\", \"entity\": \"qc_audit\", \"actor_id\": \"01a1deef-d280-7cc3-b779-ebc036bffeda\", \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-28f from=+07:00 → after.from UTC", "st": "PASS", "note": ""}
+{"tc": "TC-14-28f VIEW_LIST.after.from = 2026-11-14T03:00:00Z", "st": "PASS", "note": "2026-11-14T03:00:00Z 2026-11-15T03:00:00Z"}
+{"tc": "TC-14-30 không tham số: entity/actor null, khoảng 7 ngày UTC đã áp dụng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:39Z\", \"from\": \"2026-11-08T12:05:39Z\", \"entity\": null, \"actor_id\": null, \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-31 trang 2: +1 dòng, has_cursor=true, returned = số dòng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:39Z\", \"from\": \"2026-11-08T12:05:39Z\", \"entity\": \"qc_audit\", \"actor_id\": null, \"returned\": 10, \"has_cursor\": true}"}
+{"tc": "TC-14-33 phản hồi lần 1 không chứa VIEW_LIST của chính lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-32 phản hồi lần 2 có VIEW_LIST của lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-34 20 lần song song: vl() +20, tất cả 200", "st": "PASS", "note": "+20"}
+{"tc": "TC-14-35 VIEW_LIST.after chỉ tham số + số đếm (0 nội dung dòng)", "st": "PASS", "note": ""}
+{"tc": "TC-14-39 không token / Bearer rác → 401", "st": "PASS", "note": "401 401"}
+{"tc": "TC-14-40/41 teacher ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40 vl() không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-14-44 entity QC_AUDIT → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd105ff3bb8419899869754"}
+{"tc": "TC-14-44 entity 1abc → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'c28690671657773529baf8"}
+{"tc": "TC-14-44 entity a-b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'e51db9fd45eb02843a9a98"}
+{"tc": "TC-14-44 entity 65 ký tự → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'f4ae480a60f23c797e775c"}
+{"tc": "TC-14-44 entity a b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd364055e0d2a33df0acee1"}
+{"tc": "TC-14-44 entity toàn khoảng trắng → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '61c098fc44e3677fcf3aed"}
+{"tc": "TC-14-44b entity= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b actor_id= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b from= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b to= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b limit= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b cursor= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b entity=&actor_id=&fr → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-45 actor_id=abc → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=123 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=1e43feb2-087e → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-46 from=2026-13-40 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'f0328838127ac72e669e29"}
+{"tc": "TC-14-46 from=h%C3%B4m%20nay → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '9564c471a0d6bbef18f4b5"}
+{"tc": "TC-14-46 from=1700000000 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'f5ffb147ae78b968121898"}
+{"tc": "TC-14-46 to=2026-11-14 → 422 field to", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '8f5e8bd35a1fc1ea1fb1ee"}
+{"tc": "TC-14-47 from=to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-47 from>to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 90 ngày → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-48 90 ngày + 1 giây → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 365 ngày → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-49 limit=0 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'bd"}
+{"tc": "TC-14-49 limit=-1 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd3"}
+{"tc": "TC-14-49 limit=101 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3f"}
+{"tc": "TC-14-49 limit=abc → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '8f"}
+{"tc": "TC-14-49 limit=1.5 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '16"}
+{"tc": "TC-14-50 cursor abc → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor base64 hỏng → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor sửa 1 ký tự → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor cursor của /admin/users → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-51 nhiều lỗi → details có entity, limit, from", "st": "PASS", "note": "422 {'limit', 'entity', 'from'}"}
+{"tc": "TC-14-52 vl() không đổi sau TC-14-44…51", "st": "PASS", "note": "224->241 (có 44b hợp lệ ghi thêm)"}
+{"tc": "TC-14-53 khoảng không dòng → items [], next_cursor null", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54a from=now−89d không to → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54b from=now−91d không to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-54c chỉ from → VIEW_LIST.after.to ≈ now", "st": "PASS", "note": ""}
+{"tc": "TC-14-54d chỉ to → from = to−7 ngày (6d có, 8d không)", "st": "PASS", "note": "200"}
+{"tc": "TC-14-56 Cache-Control no-store, không ETag/Last-Modified", "st": "PASS", "note": "{'Cache-Control': 'no-store', 'ETag': None, 'Last-Modified': None}"}
+{"tc": "TC-14-58 POST /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PUT /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PATCH /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 DELETE /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 GET /admin/audit/export → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit/3ab85a9b-38 → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit.csv → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-59 UPDATE / DELETE audit_log bị trigger chặn", "st": "PASS", "note": "ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL function audit_log_block_mutation() line 3 at RAISE ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL func"}
+{"tc": "TC-14-60 một GET: chỉ audit_log +1", "st": "PASS", "note": "[101080, 261, 54, 843]->[101081, 261, 54, 843]"}
+{"tc": "TC-14-29 một lần gọi → +1 VIEW_LIST, entity=audit_log, entity_id=ADMIN, trace_id", "st": "PASS", "note": "246->247 ['audit_log', '01a1deef-d280-7cc3-b779-ebc036bffeda', 'VIEW_LIST']"}
+{"tc": "TC-14-29b after có đúng khoá entity, actor_id, from, to, has_cursor, returned", "st": "PASS", "note": "{\"to\": \"2026-11-13T00:00:00Z\", \"from\": \"2026-11-01T00:00:00Z\", \"entity\": \"qc_audit\", \"actor_id\": \"01a1deef-d280-7cc3-b779-ebc036bffeda\", \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-28f from=+07:00 → after.from UTC", "st": "PASS", "note": ""}
+{"tc": "TC-14-28f VIEW_LIST.after.from = 2026-11-14T03:00:00Z", "st": "PASS", "note": "2026-11-14T03:00:00Z 2026-11-15T03:00:00Z"}
+{"tc": "TC-14-30 không tham số: entity/actor null, khoảng 7 ngày UTC đã áp dụng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:43Z\", \"from\": \"2026-11-08T12:05:43Z\", \"entity\": null, \"actor_id\": null, \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-31 trang 2: +1 dòng, has_cursor=true, returned = số dòng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:43Z\", \"from\": \"2026-11-08T12:05:43Z\", \"entity\": \"qc_audit\", \"actor_id\": null, \"returned\": 10, \"has_cursor\": true}"}
+{"tc": "TC-14-33 phản hồi lần 1 không chứa VIEW_LIST của chính lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-32 phản hồi lần 2 có VIEW_LIST của lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-34 20 lần song song: vl() +20, tất cả 200", "st": "PASS", "note": "+20"}
+{"tc": "TC-14-35 VIEW_LIST.after chỉ tham số + số đếm (0 nội dung dòng)", "st": "PASS", "note": ""}
+{"tc": "TC-14-39 không token / Bearer rác → 401", "st": "PASS", "note": "401 401"}
+{"tc": "TC-14-40/41 teacher ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40 vl() không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-14-44 entity QC_AUDIT → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'cf80e4dbbda6f9c1fa1b38"}
+{"tc": "TC-14-44 entity 1abc → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'a82ab2e096a9933c1fee4d"}
+{"tc": "TC-14-44 entity a-b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '31263fb3d0091e77241a1c"}
+{"tc": "TC-14-44 entity 65 ký tự → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'bf57c92266c7812f1d2aa7"}
+{"tc": "TC-14-44 entity a b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '71e8ed3961460f03a03617"}
+{"tc": "TC-14-44 entity toàn khoảng trắng → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '035c9a84925548de7a14bb"}
+{"tc": "TC-14-44b entity= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b actor_id= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b from= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b to= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b limit= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b cursor= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b entity=&actor_id=&fr → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-45 actor_id=abc → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=123 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=f4d3c37c-5f99 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-46 from=2026-13-40 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'ecc8e0b797798303cf3bfb"}
+{"tc": "TC-14-46 from=h%C3%B4m%20nay → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '108c8d4906a1c2a267693a"}
+{"tc": "TC-14-46 from=1700000000 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3f5ccaee92faec145e9fef"}
+{"tc": "TC-14-46 to=2026-11-14 → 422 field to", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '71c51330dc68c5a7e6c63d"}
+{"tc": "TC-14-47 from=to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-47 from>to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 90 ngày → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-48 90 ngày + 1 giây → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 365 ngày → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-49 limit=0 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '47"}
+{"tc": "TC-14-49 limit=-1 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '01"}
+{"tc": "TC-14-49 limit=101 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'a8"}
+{"tc": "TC-14-49 limit=abc → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '71"}
+{"tc": "TC-14-49 limit=1.5 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6a"}
+{"tc": "TC-14-50 cursor abc → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor base64 hỏng → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor sửa 1 ký tự → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor cursor của /admin/users → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-51 nhiều lỗi → details có entity, limit, from", "st": "PASS", "note": "422 {'limit', 'from', 'entity'}"}
+{"tc": "TC-14-52 vl() không đổi sau TC-14-44…51", "st": "PASS", "note": "273->290 (có 44b hợp lệ ghi thêm)"}
+{"tc": "TC-14-53 khoảng không dòng → items [], next_cursor null", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54a from=now−89d không to → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54b from=now−91d không to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-54c chỉ from → VIEW_LIST.after.to ≈ now", "st": "PASS", "note": ""}
+{"tc": "TC-14-54d chỉ to → from = to−7 ngày (6d có, 8d không)", "st": "PASS", "note": "200"}
+{"tc": "TC-14-56 Cache-Control no-store, không ETag/Last-Modified", "st": "PASS", "note": "{'Cache-Control': 'no-store', 'ETag': None, 'Last-Modified': None}"}
+{"tc": "TC-14-58 POST /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PUT /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PATCH /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 DELETE /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 GET /admin/audit/export → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit/6862159b-96 → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit.csv → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-59 UPDATE / DELETE audit_log bị trigger chặn", "st": "PASS", "note": "ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL function audit_log_block_mutation() line 3 at RAISE ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL func"}
+{"tc": "TC-14-60 một GET: chỉ audit_log +1", "st": "PASS", "note": "[101129, 261, 54, 843]->[101130, 261, 54, 843]"}
+{"tc": "TC-14-01 200, 5 dòng, đúng 11 khoá", "st": "PASS", "note": "200 []"}
+{"tc": "TC-14-02 sắp (at,id) giảm dần", "st": "PASS", "note": ""}
+{"tc": "TC-14-03 actor_name/role = người thật", "st": "PASS", "note": "Quản trị viên EduPilot"}
+{"tc": "TC-14-04 dòng hệ thống / actor đã xoá: actor_name,role = null, không 500", "st": "PASS", "note": "[('f4-sys', None), ('f4-del', '00000000-0000-7000-8000-000000000bad')]"}
+{"tc": "TC-14-05a entity=qc_audit2 không khớp tiền tố", "st": "PASS", "note": "0"}
+{"tc": "TC-14-05b entity=qc_audit chỉ dòng qc_audit", "st": "PASS", "note": ""}
+{"tc": "TC-14-06 actor lạ → 200 items []", "st": "PASS", "note": "200"}
+{"tc": "TC-14-07 from ≤ at < to: có f6-from, f6-from1; không f6-to", "st": "PASS", "note": "['f6-from', 'f6-from1']"}
+{"tc": "TC-14-09 mặc định 7 ngày: có 6d23h, không 7d1h", "st": "PASS", "note": ""}
+{"tc": "TC-14-10 +07:00 ≡ Z", "st": "PASS", "note": ""}
+{"tc": "TC-14-08 lọc AND = SQL (số dòng + thứ tự)", "st": "PASS", "note": "2/2"}
+{"tc": "TC-14-11 at RFC3339 khớp DB", "st": "PASS", "note": "2026-11-15T12:05:30.437949Z"}
+{"tc": "TC-14-12 không lộ canary/email/MSSV; không khoá before/after/payload/reason", "st": "PASS", "note": ""}
+{"tc": "TC-14-13 changed_fields F3 = [cfg,email,reason,student_code]", "st": "PASS", "note": "['cfg', 'email', 'reason', 'student_code']"}
+{"tc": "TC-14-14 25 khoá → 20 đầu, sắp chữ cái", "st": "PASS", "note": "['k01', 'k02', 'k03', 'k04', 'k05', 'k06', 'k07', 'k08', 'k09', 'k10', 'k11', 'k12', 'k13', 'k14', '"}
+{"tc": "TC-14-15 before=after=NULL → []", "st": "PASS", "note": "[]"}
+{"tc": "TC-14-16 after mảng/chuỗi → [], không 500", "st": "PASS", "note": ""}
+{"tc": "TC-14-17/84 VIEW_DETAIL changed_fields=[reason], không lộ chữ lý do", "st": "PASS", "note": "6"}
+{"tc": "TC-14-85 mở 2 lần → ≥ 2 dòng VIEW_DETAIL", "st": "PASS", "note": "6"}
+{"tc": "TC-14-87 lý do < 10 ký tự: không dòng VIEW_DETAIL", "st": "PASS", "note": ""}
+{"tc": "TC-14-18 mọi entity: không lộ giá trị before/after (chuỗi ≥ 6 ký tự)", "st": "PASS", "note": "23 entity, 126 giá trị; rò=[]"}
+{"tc": "TC-14-21 limit mặc định = 30, next_cursor ≠ null", "st": "PASS", "note": "30"}
+{"tc": "TC-14-22 đi hết limit=50: không trùng/sót, khớp thứ tự SQL", "st": "PASS", "note": "311/311"}
+{"tc": "TC-14-22 đi hết limit=100: không trùng/sót, khớp thứ tự SQL", "st": "PASS", "note": "311/311"}
+{"tc": "TC-14-23 60 dòng cùng created_at, limit=7: không lặp/sót", "st": "PASS", "note": "60"}
+{"tc": "TC-14-24 INSERT giữa 2 trang: trang 2 liền mạch, không chứa 5 dòng mới", "st": "PASS", "note": ""}
+{"tc": "TC-14-24b gọi mới thấy 5 dòng mới", "st": "PASS", "note": ""}
+{"tc": "TC-14-25 limit=1", "st": "PASS", "note": "200 1"}
+{"tc": "TC-14-25 limit=100", "st": "PASS", "note": "200 100"}
+{"tc": "TC-14-25 limit=30", "st": "PASS", "note": "200 30"}
+{"tc": "TC-14-25 limit=rỗng", "st": "PASS", "note": "200 30"}
+{"tc": "TC-14-28 trang cuối next_cursor = null (không phải chuỗi rỗng)", "st": "PASS", "note": "limit đúng số dòng còn lại → None (quan sát)"}
+{"tc": "TC-14-28b cùng bộ lọc, limit khác → 200 liền mạch", "st": "PASS", "note": "200"}
+{"tc": "TC-14-28c đổi entity → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c thêm actor → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c bỏ actor → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c đổi from → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c đổi to → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c bỏ entity → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c thêm from → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-28c vl() không đổi khi 422", "st": "PASS", "note": ""}
+{"tc": "TC-14-28d không from/to, sau 70 giây → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-28e Z → +07:00 cùng thời điểm → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-28e đổi +1 giây → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-29 một lần gọi → +1 VIEW_LIST, entity=audit_log, entity_id=ADMIN, trace_id", "st": "PASS", "note": "371->372 ['audit_log', '01a1deef-d280-7cc3-b779-ebc036bffeda', 'VIEW_LIST']"}
+{"tc": "TC-14-29b after có đúng khoá entity, actor_id, from, to, has_cursor, returned", "st": "PASS", "note": "{\"to\": \"2026-11-13T00:00:00Z\", \"from\": \"2026-11-01T00:00:00Z\", \"entity\": \"qc_audit\", \"actor_id\": \"01a1deef-d280-7cc3-b779-ebc036bffeda\", \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-28f VIEW_LIST.after.from = 2026-11-14T03:00:00Z", "st": "PASS", "note": "2026-11-14T03:00:00Z 2026-11-15T03:00:00Z"}
+{"tc": "TC-14-30 không tham số: entity/actor null, khoảng 7 ngày UTC đã áp dụng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:56Z\", \"from\": \"2026-11-08T12:05:56Z\", \"entity\": null, \"actor_id\": null, \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-31 trang 2: +1 dòng, has_cursor=true, returned = số dòng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:56Z\", \"from\": \"2026-11-08T12:05:56Z\", \"entity\": \"qc_audit\", \"actor_id\": null, \"returned\": 10, \"has_cursor\": true}"}
+{"tc": "TC-14-33 phản hồi lần 1 không chứa VIEW_LIST của chính lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-32 phản hồi lần 2 có VIEW_LIST của lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-34 20 lần song song: vl() +20, tất cả 200", "st": "PASS", "note": "+20"}
+{"tc": "TC-14-35 VIEW_LIST.after chỉ tham số + số đếm (0 nội dung dòng)", "st": "PASS", "note": ""}
+{"tc": "TC-14-39 không token / Bearer rác → 401", "st": "PASS", "note": "401 401"}
+{"tc": "TC-14-40/41 teacher ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40 vl() không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-14-44 entity QC_AUDIT → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6568521a52d00ca07d78a4"}
+{"tc": "TC-14-44 entity 1abc → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6017e820e69cb61164e3ef"}
+{"tc": "TC-14-44 entity a-b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '747048c2386f637c59c442"}
+{"tc": "TC-14-44 entity 65 ký tự → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '423f0abc6ad0230f92ac7d"}
+{"tc": "TC-14-44 entity a b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '0ab86fcd51b1474f9dbefc"}
+{"tc": "TC-14-44 entity toàn khoảng trắng → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '7471a5e92cd5af16a1fdaa"}
+{"tc": "TC-14-44b entity= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b actor_id= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b from= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b to= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b limit= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b cursor= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b entity=&actor_id=&fr → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-45 actor_id=abc → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=123 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=4b92fe3c-8f60 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-46 from=2026-13-40 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd132ee301b53bb85f76353"}
+{"tc": "TC-14-46 from=h%C3%B4m%20nay → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3e3de8675a567869a4ba7c"}
+{"tc": "TC-14-46 from=1700000000 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '669d57cbcb5878b46499ac"}
+{"tc": "TC-14-46 to=2026-11-14 → 422 field to", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'c7998f0e2e1f8407134af2"}
+{"tc": "TC-14-47 from=to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-47 from>to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 90 ngày → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-48 90 ngày + 1 giây → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 365 ngày → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-49 limit=0 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'b1"}
+{"tc": "TC-14-49 limit=-1 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6f"}
+{"tc": "TC-14-49 limit=101 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd2"}
+{"tc": "TC-14-49 limit=abc → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd6"}
+{"tc": "TC-14-49 limit=1.5 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '52"}
+{"tc": "TC-14-50 cursor abc → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor base64 hỏng → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor sửa 1 ký tự → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor cursor của /admin/users → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-51 nhiều lỗi → details có entity, limit, from", "st": "PASS", "note": "422 {'from', 'entity', 'limit'}"}
+{"tc": "TC-14-53 khoảng không dòng → items [], next_cursor null", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54a from=now−89d không to → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54b from=now−91d không to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-54c chỉ from → after.to ≈ lúc gọi", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:05:58Z\", \"from\": \"2026-11-14T12:05:58Z\", \"entity\": null, \"actor_id\": null, \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-54d chỉ to → from = to−7 ngày (dòng 6d23h có, 7d1h không)", "st": "FAIL", "note": "305"}
+{"tc": "TC-14-56 Cache-Control no-store, không ETag/Last-Modified", "st": "PASS", "note": "{'Cache-Control': 'no-store', 'ETag': None, 'Last-Modified': None}"}
+{"tc": "TC-14-58 POST /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PUT /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PATCH /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 DELETE /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 GET /admin/audit/export → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit/b609b5e7-50 → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit.csv → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-59 UPDATE / DELETE audit_log bị trigger chặn", "st": "PASS", "note": "ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL function audit_log_block_mutation() line 3 at RAISE ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL func"}
+{"tc": "TC-14-60 một GET: chỉ audit_log +1", "st": "PASS", "note": "[101265, 261, 54, 843]->[101266, 261, 54, 843]"}
+{"tc": "TC-14-29 một lần gọi → +1 VIEW_LIST, entity=audit_log, entity_id=ADMIN, trace_id", "st": "PASS", "note": "424->425 ['audit_log', '01a1deef-d280-7cc3-b779-ebc036bffeda', 'VIEW_LIST']"}
+{"tc": "TC-14-29b after có đúng khoá entity, actor_id, from, to, has_cursor, returned", "st": "PASS", "note": "{\"to\": \"2026-11-13T00:00:00Z\", \"from\": \"2026-11-01T00:00:00Z\", \"entity\": \"qc_audit\", \"actor_id\": \"01a1deef-d280-7cc3-b779-ebc036bffeda\", \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-28f VIEW_LIST.after.from = 2026-11-14T03:00:00Z", "st": "PASS", "note": "2026-11-14T03:00:00Z 2026-11-15T03:00:00Z"}
+{"tc": "TC-14-30 không tham số: entity/actor null, khoảng 7 ngày UTC đã áp dụng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:06:05Z\", \"from\": \"2026-11-08T12:06:05Z\", \"entity\": null, \"actor_id\": null, \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-31 trang 2: +1 dòng, has_cursor=true, returned = số dòng", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:06:05Z\", \"from\": \"2026-11-08T12:06:05Z\", \"entity\": \"qc_audit\", \"actor_id\": null, \"returned\": 10, \"has_cursor\": true}"}
+{"tc": "TC-14-33 phản hồi lần 1 không chứa VIEW_LIST của chính lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-32 phản hồi lần 2 có VIEW_LIST của lần 1", "st": "PASS", "note": ""}
+{"tc": "TC-14-34 20 lần song song: vl() +20, tất cả 200", "st": "PASS", "note": "+20"}
+{"tc": "TC-14-35 VIEW_LIST.after chỉ tham số + số đếm (0 nội dung dòng)", "st": "PASS", "note": ""}
+{"tc": "TC-14-39 không token / Bearer rác → 401", "st": "PASS", "note": "401 401"}
+{"tc": "TC-14-40/41 teacher ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 teacher ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 ta ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.kha ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ? → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=qc_audit → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?limit=1000 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40/41 sv.moi ?entity=QC_BAD&limit=0 → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-14-40 vl() không đổi", "st": "PASS", "note": ""}
+{"tc": "TC-14-44 entity QC_AUDIT → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '66c49ee60b1c5c686eae70"}
+{"tc": "TC-14-44 entity 1abc → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'ab305069d7b87baa039e8c"}
+{"tc": "TC-14-44 entity a-b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '9bdad824252c68334cb3d7"}
+{"tc": "TC-14-44 entity 65 ký tự → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '17854c8ec6a567bcdf3770"}
+{"tc": "TC-14-44 entity a b → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '44c4ca84b4e7eb7f115796"}
+{"tc": "TC-14-44 entity toàn khoảng trắng → 422 field entity", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '85fd046eaa93a3db8f1505"}
+{"tc": "TC-14-44b entity= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b actor_id= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b from= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b to= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b limit= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b cursor= → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-44b entity=&actor_id=&fr → 200 như không gửi", "st": "PASS", "note": "200"}
+{"tc": "TC-14-45 actor_id=abc → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=123 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-45 actor_id=675415b4-aea3 → 422 field actor_id", "st": "PASS", "note": "422"}
+{"tc": "TC-14-46 from=2026-13-40 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '9154ff90cd76a268a4cbb9"}
+{"tc": "TC-14-46 from=h%C3%B4m%20nay → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6a6463ebfc8f459f71b097"}
+{"tc": "TC-14-46 from=1700000000 → 422 field from", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '1696f47b519f22d064e4f8"}
+{"tc": "TC-14-46 to=2026-11-14 → 422 field to", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '897ddca62bf1c2c0b7a25b"}
+{"tc": "TC-14-47 from=to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-47 from>to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 90 ngày → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-48 90 ngày + 1 giây → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-48 365 ngày → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-49 limit=0 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'a9"}
+{"tc": "TC-14-49 limit=-1 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '77"}
+{"tc": "TC-14-49 limit=101 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '40"}
+{"tc": "TC-14-49 limit=abc → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd8"}
+{"tc": "TC-14-49 limit=1.5 → 422 field limit", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'fe"}
+{"tc": "TC-14-50 cursor abc → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor base64 hỏng → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor sửa 1 ký tự → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-50 cursor cursor của /admin/users → 422 INVALID_CURSOR", "st": "PASS", "note": "422"}
+{"tc": "TC-14-51 nhiều lỗi → details có entity, limit, from", "st": "PASS", "note": "422 {'from', 'limit', 'entity'}"}
+{"tc": "TC-14-53 khoảng không dòng → items [], next_cursor null", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54a from=now−89d không to → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-54b from=now−91d không to → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-14-54c chỉ from → after.to ≈ lúc gọi", "st": "PASS", "note": "{\"to\": \"2026-11-15T12:06:07Z\", \"from\": \"2026-11-14T12:06:07Z\", \"entity\": null, \"actor_id\": null, \"returned\": 30, \"has_cursor\": false}"}
+{"tc": "TC-14-54d chỉ to → from = to−7 ngày (dòng 6d23h có, 7d1h không)", "st": "PASS", "note": "306"}
+{"tc": "TC-14-56 Cache-Control no-store, không ETag/Last-Modified", "st": "PASS", "note": "{'Cache-Control': 'no-store', 'ETag': None, 'Last-Modified': None}"}
+{"tc": "TC-14-58 POST /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PUT /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 PATCH /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 DELETE /admin/audit → 404/405", "st": "PASS", "note": "405"}
+{"tc": "TC-14-58 GET /admin/audit/export → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit/fb9a82ae-34 → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-58 GET /admin/audit.csv → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-14-59 UPDATE / DELETE audit_log bị trigger chặn", "st": "PASS", "note": "ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL function audit_log_block_mutation() line 3 at RAISE ERROR:  audit_log is append-only CONTEXT:  PL/pgSQL func"}
+{"tc": "TC-14-60 một GET: chỉ audit_log +1", "st": "PASS", "note": "[101318, 261, 54, 843]->[101319, 261, 54, 843]"}
+{"tc": "TC-03-04 cancelled + degraded không tính lỗi → không", "st": "PASS", "note": "thông báo=0 admin=1"}
+{"tc": "TC-14-57 qua Caddy HTTPS: Cache-Control no-store", "st": "PASS", "note": "no-store"}
+{"tc": "TC-14-62 có chỉ mục (created_at DESC, id DESC) và (entity, created_at DESC, id DESC)", "st": "PASS", "note": "CREATE UNIQUE INDEX audit_log_pkey ON public.audit_log USING btree (id) CREATE INDEX audit_log_actor_created_idx ON public.audit_log USING btree (actor_id, created_at DESC, id DESC) WHERE (actor_id IS NOT NULL) CREATE INDEX audit_log_course_created_idx ON public.audit_log USING btree (course_id, cre"}
+{"tc": "TC-14-63 EXPLAIN không lọc: không Seq Scan, dùng chỉ mục, thực thi ≪ 300 ms", "st": "PASS", "note": "0.088 ms | Index Scan using audit_log_created_idx"}
+{"tc": "TC-14-63 EXPLAIN entity: không Seq Scan, dùng chỉ mục, thực thi ≪ 300 ms", "st": "PASS", "note": "0.11 ms | Index Scan using audit_log_entity_created_idx"}
+{"tc": "TC-14-63 EXPLAIN actor_id: không Seq Scan, dùng chỉ mục, thực thi ≪ 300 ms", "st": "PASS", "note": "0.073 ms | Index Scan using audit_log_actor_created_idx"}
+{"tc": "TC-14-65/68 tuần tự ×100 «không lọc»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=6 max=11 ms"}
+{"tc": "TC-14-65/68 tuần tự ×100 «entity=qc_bulk3»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=5 max=8 ms"}
+{"tc": "TC-14-65/68 tuần tự ×100 «actor_id»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=7 max=10 ms"}
+{"tc": "TC-14-65/68 tuần tự ×100 «entity 1 dòng»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=5 p95=7 max=9 ms"}
+{"tc": "TC-14-65/68 tuần tự ×100 «actor lạ»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=6 max=8 ms"}
+{"tc": "TC-14-64 idx_scan của hai chỉ mục tăng sau API", "st": "PASS", "note": "{'audit_log_pkey': 23, 'audit_log_actor_created_idx': 4, 'audit_log_course_created_idx': 0, 'audit_log_entity_idx': 482, 'audit_log_created_idx': 740, 'audit_log_entity_created_idx': 455} -> {'audit_log_pkey': 23, 'audit_log_actor_created_idx': 104, 'audit_log_course_created_idx': 0, 'audit_log_entity_idx': 482, 'audit_log_created_idx': 1213, 'audit_log_entity_created_idx': 628}"}
+{"tc": "TC-14-26 đi sâu entity=qc_bulk3: trang cuối ≈ trang đầu (không tăng tuyến tính), p95 ≤ 300", "st": "PASS", "note": "11 trang; đầu=9 giữa=5 cuối=5 ms p95=6"}
+{"tc": "TC-14-26b (không OFFSET)", "st": "PASS", "note": ""}
+{"tc": "TC-14-57 qua Caddy HTTPS: Cache-Control no-store", "st": "PASS", "note": "no-store"}
+{"tc": "TC-14-62 có chỉ mục (created_at DESC, id DESC) và (entity, created_at DESC, id DESC)", "st": "PASS", "note": "CREATE UNIQUE INDEX audit_log_pkey ON public.audit_log USING btree (id) CREATE INDEX audit_log_actor_created_idx ON public.audit_log USING btree (actor_id, created_at DESC, id DESC) WHERE (actor_id IS NOT NULL) CREATE INDEX audit_log_course_created_idx ON public.audit_log USING btree (course_id, cre"}
+{"tc": "TC-14-63 EXPLAIN không lọc: không Seq Scan, dùng chỉ mục, thực thi ≪ 300 ms", "st": "PASS", "note": "0.152 ms | Index Scan using audit_log_created_idx"}
+{"tc": "TC-14-63 EXPLAIN entity: không Seq Scan, dùng chỉ mục, thực thi ≪ 300 ms", "st": "PASS", "note": "0.241 ms | Index Scan using audit_log_entity_created_idx"}
+{"tc": "TC-14-63 EXPLAIN actor_id: không Seq Scan, dùng chỉ mục, thực thi ≪ 300 ms", "st": "PASS", "note": "0.084 ms | Index Scan using audit_log_actor_created_idx"}
+{"tc": "TC-14-65/68 tuần tự ×100 «không lọc»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=7 max=9 ms"}
+{"tc": "TC-14-65/68 tuần tự ×100 «entity=qc_bulk3»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=6 max=8 ms"}
+{"tc": "TC-14-65/68 tuần tự ×100 «actor_id»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=7 max=12 ms"}
+{"tc": "TC-14-65/68 tuần tự ×100 «entity 1 dòng»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=6 max=10 ms"}
+{"tc": "TC-14-65/68 tuần tự ×100 «actor lạ»: p95 ≤ 300 ms (qua Caddy/PgBouncer)", "st": "PASS", "note": "p50=4 p95=5 max=7 ms"}
+{"tc": "TC-14-64 idx_scan của hai chỉ mục tăng sau API", "st": "PASS", "note": "{'audit_log_pkey': 23, 'audit_log_actor_created_idx': 205, 'audit_log_course_created_idx': 0, 'audit_log_entity_idx': 489, 'audit_log_created_idx': 1362, 'audit_log_entity_created_idx': 674} -> {'audit_log_pkey': 23, 'audit_log_actor_created_idx': 380, 'audit_log_course_created_idx': 0, 'audit_log_entity_idx': 490, 'audit_log_created_idx': 1938, 'audit_log_entity_created_idx': 875}"}
+{"tc": "TC-03-05a 19 yêu cầu, 100% lỗi → không", "st": "PASS", "note": "thông báo=0 admin=1"}
+{"tc": "TC-03-05b 20 yêu cầu, 100% lỗi → có", "st": "PASS", "note": "thông báo=1 admin=1"}
+{"tc": "TC-03-08 +5h59 không thêm", "st": "PASS", "note": "1"}
+{"tc": "TC-03-09 sau > 6 giờ tái phát → thông báo mới", "st": "PASS", "note": "2"}
+{"tc": "TC-14-26 đi sâu 7 ngày→89 ngày (limit=100, ≥ 1.000 trang): p95 ≤ 300 ms", "st": "PASS", "note": "1024 trang; đầu=5 giữa=6 cuối=6 ms p95=8"}
+{"tc": "TC-14-26b trang cuối ≈ trang đầu (không OFFSET), p95 ≤ 300 ms", "st": "PASS", "note": "med đầu=4 med cuối=6"}
+{"tc": "TC-14-66 20 song song × 5: p95 ≤ 300 ms, không 5xx, vl() +100", "st": "PASS", "note": "p95=24 max=26 vl +100"}
+{"tc": "TC-03-06a chi phí ngày = hạn mức hệ thống → LLM_BUDGET_REACHED «toàn hệ thống»", "st": "PASS", "note": "thông báo=1 admin=1"}
+{"tc": "TC-03-06b nội dung nêu «toàn hệ thống»", "st": "PASS", "note": "Phạm vi: toàn hệ thống."}
+{"tc": "TC-03-06c 0,99·X → không", "st": "PASS", "note": "0"}
+{"tc": "TC-03-07a dòng 23:30 VN hôm qua không tính vào hôm nay → không thông báo", "st": "PASS", "note": "0"}
+{"tc": "TC-03-07b dòng 00:30 VN hôm nay tính vào hôm nay → có, nêu lớp 761988", "st": "PASS", "note": ""}
+{"tc": "TC-03-10 phạm vi lớp khác cùng loại → thông báo riêng (2 phạm vi)", "st": "PASS", "note": "[['2']]"}
+{"tc": "TC-03-12 teacher không thấy cảnh báo AI", "st": "PASS", "note": "200"}
+{"tc": "TC-03-12 ta không thấy cảnh báo AI", "st": "PASS", "note": "200"}
+{"tc": "TC-03-12 sv.kha không thấy cảnh báo AI", "st": "PASS", "note": "200"}
+{"tc": "TC-03-01c admin thấy ở chuông", "st": "PASS", "note": "1"}
+{"tc": "TC-03-14a hai ADMIN đều nhận", "st": "PASS", "note": "2 admin=2"}
+{"tc": "TC-03-14b một người đọc không ảnh hưởng người kia", "st": "PASS", "note": "200"}
+{"tc": "TC-14-36 ghi VIEW_LIST hỏng → 500 INTERNAL, không có items", "st": "PASS", "note": "500 {'code': 'INTERNAL', 'message': 'Đã xảy ra lỗi. Hãy thử lại sau.', 'trace_id': '4dc24797a4527897f113be9e136ff1f6'}"}
+{"tc": "TC-14-37 không dòng VIEW_LIST giả, không dòng audit nào thêm", "st": "PASS", "note": "2644->2644"}
+{"tc": "TC-14-36b sau khi khôi phục → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-36 ghi VIEW_LIST hỏng → 500 INTERNAL, không có items", "st": "PASS", "note": "500 {'code': 'INTERNAL', 'message': 'Đã xảy ra lỗi. Hãy thử lại sau.', 'trace_id': '4bcd71af861b773a85a340718dd68f74'}"}
+{"tc": "TC-14-37 không dòng VIEW_LIST giả, không dòng audit nào thêm", "st": "PASS", "note": "2645->2645"}
+{"tc": "TC-14-36b sau khi khôi phục → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-42a (tiền đề) ADMIN thứ hai gọi được → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-36 ghi VIEW_LIST hỏng → 500 INTERNAL, không có items", "st": "PASS", "note": "500 {'code': 'INTERNAL', 'message': 'Đã xảy ra lỗi. Hãy thử lại sau.', 'trace_id': '2b6f3583b6c100afcf5dd794c99b82c4'}"}
+{"tc": "TC-14-37 không dòng VIEW_LIST giả, không dòng audit nào thêm", "st": "PASS", "note": "2647->2647"}
+{"tc": "TC-14-36b sau khi khôi phục → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-42a (tiền đề) ADMIN thứ hai gọi được → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-36 ghi VIEW_LIST hỏng → 500 INTERNAL, không có items", "st": "PASS", "note": "500 {'code': 'INTERNAL', 'message': 'Đã xảy ra lỗi. Hãy thử lại sau.', 'trace_id': '818f48585516e019df782ceee0c5ad75'}"}
+{"tc": "TC-14-37 không dòng VIEW_LIST giả, không dòng audit nào thêm", "st": "PASS", "note": "2649->2649"}
+{"tc": "TC-14-36b sau khi khôi phục → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-42a (tiền đề) ADMIN thứ hai gọi được → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-14-42b ADMIN đã bị khoá, token cũ → 401", "st": "PASS", "note": "lock=200 gọi=401"}
+{"tc": "TC-14-19 log gateway/worker không chứa canary", "st": "PASS", "note": "gateway=0 worker=0"}
+{"tc": "TC-14-20 TestAuditListNoValues", "st": "PASS", "note": "go test ./internal/audit: ok"}
+{"tc": "TC-14-27 grep OFFSET audit = 0", "st": "PASS", "note": "0 khớp"}
+{"tc": "TC-14-38 TestAuditViewIsAudited + TestAuditViewWriteFailClosed", "st": "PASS", "note": "ok"}
+{"tc": "TC-14-43 TestAuditRBAC", "st": "PASS", "note": "internal/integration: ok (không nằm ở internal/audit)"}
+{"tc": "TC-14-55 TestAuditListFilters + TestAuditCursor", "st": "PASS", "note": "ok"}
+{"tc": "TC-14-61 migration 00025 duy nhất, Down xoá hai chỉ mục", "st": "PASS", "note": "1 file, 10 dòng"}
+{"tc": "TC-14-67 TestAuditListUsesIndex", "st": "PASS", "note": "ok"}
+{"tc": "TC-14-88 bảy test go", "st": "PASS", "note": "6 ở internal/audit + TestAuditRBAC ở internal/integration: tất cả ok"}
+{"tc": "TC-14-89 go test ./internal/contract", "st": "FAIL", "note": "TestChatThreadsContract 404 /_test/llm/fake (scenarios_assignment_test.go:91) + 3 test hệ quả; chạy 2 lần cục bộ; CI dev là kết quả chính thức"}
+{"tc": "TC-14-41 sv.moi → 403", "st": "PASS", "note": "chưa xác minh email: F1 (không đăng nhập được)"}
+{"tc": "TC-14-59 UPDATE/DELETE bị trigger", "st": "PASS", "note": "append-only"}
+{"tc": "TC-14-69 cột/bộ lọc/Tải thêm", "st": "PASS", "note": "AUD-1"}
+{"tc": "TC-14-70 lọc khớp API", "st": "PASS", "note": "AUD-1"}
+{"tc": "TC-14-71 Tải thêm tới hết", "st": "PASS", "note": "AUD-1"}
+{"tc": "TC-14-72 trạng thái tải", "st": "PASS", "note": "AUD-2 (PageState; không spinner riêng)"}
+{"tc": "TC-14-73 rỗng", "st": "PASS", "note": "AUD-2"}
+{"tc": "TC-14-74 lỗi + Thử lại", "st": "PASS", "note": "AUD-2"}
+{"tc": "TC-14-75 chữ giao diện", "st": "PASS", "note": "AUD-2"}
+{"tc": "TC-14-76 hàng ≤ 48 px", "st": "PASS", "note": "AUD-2"}
+{"tc": "TC-14-77 375 px", "st": "PASS", "note": "AUD-5 (bỏ qua liên kết «Bỏ qua điều hướng» 40 px)"}
+{"tc": "TC-14-78 vai khác chặn", "st": "PASS", "note": "AUD-4"}
+{"tc": "TC-14-79 login?next", "st": "PASS", "note": "AUD-4"}
+{"tc": "TC-14-80 DataTable/PageState, antipatterns sạch", "st": "PASS", "note": "bảng chung; ui-antipatterns sạch"}
+{"tc": "TC-14-81 axe 0 serious/critical", "st": "PASS", "note": "AUD-5"}
+{"tc": "TC-14-82 bộ lọc Người nhập tên/email", "st": "FAIL", "note": "ô «Người» đòi «Mã người dùng» (uuid), báo lỗi khi gõ tên"}
+{"tc": "TC-14-91 không before/after ở mạng", "st": "PASS", "note": "AUD-5"}
+{"tc": "TC-14-90 khoá phản hồi ⊆ AuditRow", "st": "PASS", "note": "TC-14-01"}
+{"tc": "TC-14-92 không MSSV/email", "st": "PASS", "note": "TC-14-12"}
+{"tc": "TC-02-08 TestObservabilityDetailNoPII", "st": "PASS", "note": "internal/integration ok"}
+{"tc": "TC-02-09 TestPayloadStoresMaskedOnly", "st": "PASS", "note": "internal/llm ok"}
+{"tc": "TC-03-13 TestAlertDedup", "st": "PASS", "note": "internal/integration ok"}
+{"tc": "TC-00-RBAC-2 TestObservabilityRBAC", "st": "PASS", "note": "ok"}
+{"tc": "TC-00-RBAC-3 TestObservabilityAuditEveryOpen", "st": "PASS", "note": "ok"}
+{"tc": "TC-04-08 TestKnowledgeGap", "st": "PASS", "note": "internal/insight: 9 test ok"}
