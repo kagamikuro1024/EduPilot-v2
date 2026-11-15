@@ -1,10 +1,13 @@
 # Kịch bản demo bảo vệ — 15 phút
 
-Phiên bản 1 · 2026-10-01 · Nguồn: P0 lát L0, `FLOWS.md` F2 → F3 → F5 → F7 → F9 → F10 → F17, seed ở `ARCHITECTURE.md` mục 9 · Spec: `docs/specs/FEAT-demo-script/`
+Phiên bản 2 · 2026-11-15 · Luồng: `FLOWS.md` F2 → F3 → F5 → F7 (điểm danh bằng mã QR, sprint 10.8) → F9 → F10 → F17 (`/insights` thật) → nhật ký quản trị (`/admin/audit`) · Lớp trình bày: **761987** · Seed: `README.md` mục 5, `ARCHITECTURE.md` mục 9
 
-Kịch bản này là kim chỉ nam cho mọi phase: mỗi phase sau phải làm cho ít nhất một bước dưới đây chạy thật. Cuối mỗi phase, chạy lại kịch bản tới bước xa nhất có thể và ghi vào mục 7. Câu hỏi còn mở: `docs/specs/FEAT-demo-script/QUESTIONS.md` (Q1–Q9); chỗ nào trong kịch bản phụ thuộc một câu hỏi thì có ghi `(xem Qn)`.
+Câu hỏi còn mở: `docs/specs/FEAT-demo-script/QUESTIONS.md` (Q1–Q9). «Lớp 1» ở các bảng dưới = lớp 761987, «lớp 2» = 761988.
 
-Mạch truyện: một tuần của **Sinh viên B** (lớp 1) và giảng viên phụ trách hai lớp. Sinh viên B hỏi điểm riêng tư → hỏi một câu tài liệu không có → giảng viên trả lời → được ghi phát biểu → bài tập được chấm và công bố → điểm vào sổ. Lớp 2 dùng để demo vào lớp, công thức điểm chưa xác nhận và cách ly dữ liệu giữa hai lớp.
+Mạch truyện: một tuần của **Sinh viên B** (lớp 761987) và giảng viên phụ trách hai lớp. Sinh viên B hỏi điểm riêng tư → hỏi một câu tài liệu không có → giảng viên trả lời → cả lớp điểm danh bằng QR, B được ghi phát biểu → bài tập được chấm và công bố → điểm vào sổ → giảng viên xem lỗ hổng kiến thức của lớp → Admin đối chiếu nhật ký. Lớp 761988 dùng để demo vào lớp, công thức điểm chưa xác nhận và cách ly dữ liệu giữa hai lớp.
+
+**Trạng thái kiểm (2026-11-15):** mục 2, 5 đã đối chiếu với mã `sprint/11-p10-eval`; Bước 4 (QR) viết theo SRS `FEAT-attendance-selfcheck` v1.6 vì 10.8 chưa vào `main`; **chưa chạy trọn trên stack demo ở mã mới** (xem mục 7, chạy sau merge). Chỗ chưa kiểm ghi `[CHƯA KIỂM]`.
+
 
 ## 1. Thời lượng
 
@@ -14,35 +17,39 @@ Mạch truyện: một tuần của **Sinh viên B** (lớp 1) và giảng viên
 | Bước 1. Mở lớp → vào lớp | F2 | 00:30 | 1:45 |
 | Bước 2. Hỏi riêng tư | F3 | 02:15 | 2:00 |
 | Bước 3. Cần giảng viên hỗ trợ | F5 | 04:15 | 2:15 |
-| Bước 4. Điểm danh và phát biểu | F7 | 06:30 | 1:30 |
-| Bước 5. Duyệt và công bố bài tập | F9 | 08:00 | 2:00 |
-| Bước 6. Công thức điểm và sổ điểm | F10 | 10:00 | 2:00 |
-| Bước 7. Báo cáo lỗ hổng kiến thức | F17 | 12:00 | 1:15 |
-| Kết | – | 13:15 | 0:30 |
-| Hết kịch bản; 1:15 còn lại là dự trữ | – | 13:45 | – |
+| Bước 4. Điểm danh bằng QR và phát biểu | F7 | 06:30 | 2:30 |
+| Bước 5. Duyệt và công bố bài tập | F9 | 09:00 | 2:00 |
+| Bước 6. Công thức điểm và sổ điểm | F10 | 11:00 | 2:00 |
+| Bước 7. Báo cáo lỗ hổng kiến thức | F17 | 13:00 | 1:15 |
+| Bước 8. Nhật ký quản trị | – | 14:15 | 0:30 |
+| Kết | – | 14:45 | 0:15 |
+| Hết kịch bản, **không còn dự trữ** | – | 15:00 | – |
 
-Quy tắc giữ giờ: trễ quá 30 s so với mốc của một bước thì bỏ các hàng ghi "(tuỳ chọn)" của bước kế tiếp. Không cắt bước.
+Quy tắc giữ giờ: trễ quá 30 s so với mốc của một bước thì bỏ các hàng ghi "(tuỳ chọn)" của bước đó và các bước kế. Không cắt bước. Hàng tuỳ chọn có sẵn để bỏ: Bước 1 mốc 01:55; Bước 2 mốc 03:45; Bước 3 mốc 06:10; Bước 4 mốc 08:45; Bước 6 mốc 12:45; Bước 7 mốc 14:05. Nếu hội đồng cho 20 phút thì thêm phần «Nếu hội đồng hỏi» của từng bước.
+
 
 ## 2. Chuẩn bị (T−30 phút, không tính vào 15 phút)
 
 | # | Việc | Lệnh / nơi làm | Kiểm |
 | --- | --- | --- | --- |
-| 1 | Dựng stack trên DB trống, seed tự chạy | `pnpm dev` (terminal riêng), `.env.local` có `SEED_ON_EMPTY_DB=true` | `pnpm dev:status`: mọi service chạy; `http://localhost:8025` mở được |
-| 2 | Chọn tầng chạy: LLM thật hay `DEMO_MODE=true` (mục 5) | `.env.local` | Gửi câu D1 thử một lần, xem có trả lời |
-| 3 | Tạo kết quả chấm nháp cho Bài tập 03 lớp 1 (chưa công bố) | Giảng viên chạy "Chấm tất cả" cho Bài tập 03 ở `/grading` | Bài của Sinh viên B ở trạng thái nháp, có cờ "cần xem kỹ" |
-| 4 | Tạo sẵn báo cáo lỗ hổng kiến thức của lớp 2 | Giảng viên, lớp 2, `/insights` → `Tạo báo cáo mới` | Có báo cáo, chủ đề C đứng đầu |
-| 5 | Có buổi học lớp 1 "đang diễn ra" vào giờ demo | Seed (xem Q1) | "Hôm nay" của giảng viên có việc điểm danh lớp 761987 |
-| 6 | Cửa sổ trình duyệt desktop: Admin (hồ sơ trình duyệt 1), Giảng viên (hồ sơ 2) | Đăng nhập sẵn | – |
-| 7 | Điện thoại thật hoặc giả lập 375 px: Sinh viên D, Sinh viên B, Giảng viên (cho điểm danh) | Đăng nhập sẵn, mỗi tài khoản một hồ sơ trình duyệt | – |
+| 1 | Dựng stack trên DB trống, seed tự chạy | `SEED_ON_EMPTY_DB=true COMPOSE_PROFILES=ingest pnpm dev` (terminal riêng; ≈ 10 phút, `README.md` 5.2) | `pnpm dev:status`: mọi service healthy; `https://localhost` đăng nhập được; `http://localhost:8025` mở được |
+| 2 | Chọn tầng chạy: LLM thật (9router) hay bản ghi sẵn (mục 5) | `/settings/llm`; 9router bật: `curl -s http://127.0.0.1:20128/v1/models` | Gửi câu D1 thử một lần, xem có trả lời |
+| 3 | Tạo kết quả chấm nháp cho Bài tập 03 lớp 761987 (chưa công bố) | Giảng viên chạy "Chấm tất cả" cho Bài tập 03 ở `/grading` | Bài của Sinh viên B ở trạng thái nháp, có cờ "cần xem kỹ" |
+| 4 | Có báo cáo lỗ hổng kiến thức ở cả hai lớp (không chờ nền trong lúc trình bày) | Giảng viên, từng lớp, `/insights` → `Tạo báo cáo mới` | Lớp 761987: chủ đề về mã độc / tấn công (A) và quy chế học vụ (B) đứng đầu; lớp 761988: TCP / UDP (C) đứng đầu `[CHƯA KIỂM: gom cụm với embedding giả]` |
+| 5 | Bật điểm danh bằng mã cho lớp 761987 và có một buổi học đang diễn ra vào giờ demo | Giảng viên, `/courses/{id}` → khối «Điểm danh bằng mã» bật; buổi học hôm nay từ seed (Q1) | "Hôm nay" của giảng viên có việc điểm danh lớp 761987; `/attendance` có nút `Mở điểm danh` `[CHƯA KIỂM: 10.8 chưa merge]` |
+| 6 | Cửa sổ trình duyệt desktop: Admin (hồ sơ 1), Giảng viên (hồ sơ 2); máy chiếu thứ hai hoặc cửa sổ riêng cho `/attendance/display` | Đăng nhập sẵn | – |
+| 7 | Điện thoại thật hoặc giả lập 375 px: Sinh viên D, Sinh viên B, Giảng viên (cho điểm danh); thêm 2 sinh viên khác để quét QR | Đăng nhập sẵn, mỗi tài khoản một hồ sơ trình duyệt | – |
 | 8 | Tab Mailpit `http://localhost:8025`, hộp thư trống | Xoá thư cũ trong Mailpit | Không còn thư |
 | 9 | File quy chế lớp 2 trên máy demo | `seed/demo/quy-che-lop2.pdf` (xem mục 6) | File mở được |
-| 10 | Video dự phòng sẵn trên laptop và USB | mục 5.3 | Phát thử 5 s |
+| 10 | Có sẵn vài dòng nhật ký để xem ở Bước 8 | Chạy thử Bước 5 và 6 một lần trước (công bố, xác nhận công thức tạo dòng `assignments / publish`, `grade_entries / set`) | `/admin/audit` (24 giờ) có dòng |
+| 11 | Video dự phòng sẵn trên laptop và USB | mục 5.3 | Phát thử 5 s |
 
-Tài khoản seed (mật khẩu `SEED_DEFAULT_PASSWORD`): `admin@edupilot.local`, `teacher@edupilot.local`, `sv.kha@edupilot.local` (Sinh viên B, lớp 1), `sv.moi@edupilot.local` (Sinh viên D, chưa vào lớp nào), `sv.nguyco@edupilot.local` (Sinh viên C, lớp 1). Lớp 1 mã lớp `761987`, mã tham gia `AN7K2MQ`; lớp 2 mã lớp `761988`, mã tham gia `BX4P9TW`, bật yêu cầu duyệt.
+Tài khoản seed (mật khẩu `SEED_DEFAULT_PASSWORD`, mặc định `Edupilot#Seed-2026`): `admin@edupilot.local`, `teacher@edupilot.local`, `sv.kha@edupilot.local` (Sinh viên B, lớp 761987), `sv.moi@edupilot.local` (Sinh viên D, chưa vào lớp nào), `sv.nguyco@edupilot.local` (Sinh viên C, lớp 761987). Lớp 761987 mã tham gia `AN7K2MQ`; lớp 761988 mã `BX4P9TW`. Bộ chọn lớp của giảng viên mở sẵn ở **761987**; chỉ đổi sang 761988 ở các bước nói rõ.
+
 
 ## 3. Câu nhập nguyên văn
 
-Người trình bày gõ (hoặc dán) đúng các chuỗi này. Chế độ `DEMO_MODE` chỉ có câu trả lời ghi sẵn cho đúng các chuỗi này. `{…}` là giá trị seed cố định (xem Q2).
+Người trình bày gõ (hoặc dán) đúng các chuỗi này. Tầng 2 (mục 5) không có câu trả lời ghi sẵn riêng cho các chuỗi này: dùng đúng chuỗi để kết quả lặp lại được. `{…}` là giá trị seed cố định (xem Q2).
 
 | Mã | Ai gõ | Ở đâu | Nội dung |
 | --- | --- | --- | --- |
@@ -97,103 +104,126 @@ Nếu hội đồng hỏi: mất mạng giữa lúc đang trả lời → tải 
 
 Nếu hội đồng hỏi: hai người cùng `Nhận` → người sau thấy ai đã nhận (409); mail lỗi → thử lại 3 lần, trả lời trong app không ảnh hưởng; không ai nhận 72 giờ → nổi lên đầu "Hôm nay". E2E: `escalation.spec.ts`.
 
-### Bước 4. Điểm danh và phát biểu — F7 (06:30–08:00)
+### Bước 4. Điểm danh bằng QR và phát biểu — F7 (06:30–09:00)
+
+> "Điểm danh không cần giảng viên gọi tên: sinh viên quét mã trên màn chiếu, mã đổi mỗi 10 giây nên chụp ảnh gửi bạn không dùng được."
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 06:30 | Giảng viên (375 px) | `/` | Chạm việc "Điểm danh buổi đang diễn ra – 761987" | Mở `/attendance` đúng buổi hôm nay (xem Q1) | P5 (Hôm nay: P2) |
-| 06:40 | Giảng viên (375 px) | `/attendance` | Mọi người mặc định có mặt; chạm `Vắng` cho 2 sinh viên, `Muộn` cho 1; ghi phát biểu +0,25 cho Sinh viên B ngay trên dòng | Trạng thái lưu hiển thị; toàn bộ thao tác dưới 60 s | P5 |
-| 07:10 | Giảng viên (375 px) | `/attendance` | `Lưu điểm danh` | Xác nhận đã lưu tại chỗ, không có thông báo nổi "Thành công" | P5 |
-| 07:25 | Sinh viên B (375 px) | `/me` | Mở | Phần chuyên cần và điểm cộng có thêm +0,25 vừa ghi; giải trình điểm dạng phép tính | P5 (giải trình: P6) |
-| 07:45 | Giảng viên (375 px) | `/attendance` | (tuỳ chọn) Tắt mạng điện thoại → chạm một ô → bật mạng | Thay đổi xếp hàng rồi tự đồng bộ, không mất | P5 |
+| 06:30 | Giảng viên | `/` | Chạm việc "Điểm danh buổi đang diễn ra – 761987" | Mở `/attendance` đúng buổi hôm nay (Q1) | P5 (Hôm nay: P2) |
+| 06:40 | Giảng viên | `/attendance` | `Mở điểm danh` → `Mở màn chiếu` | Cửa sổ mới `/attendance/display`: QR, **mã ngắn 6 ký tự** ngay dưới QR, số đã điểm danh, đồng hồ đếm ngược; QR và mã đổi cùng nhịp | 10.8 `[CHƯA KIỂM]` |
+| 06:55 | 2 sinh viên (375 px) | camera hệ thống → `/checkin?c=…` | Quét QR trên màn chiếu | Màn «Đã điểm danh hh:mm»; không nút nào; số đã điểm danh trên màn chiếu tăng | 10.8 `[CHƯA KIỂM]` |
+| 07:15 | Sinh viên khác (375 px) | `/checkin` | (tuỳ chọn) không quét được: nhập mã ngắn dưới QR | «Đã điểm danh»; dòng ở `/attendance` có chip «Nhập mã» | 10.8 `[CHƯA KIỂM]` |
+| 07:25 | Giảng viên (375 px) | `/attendance` | `Đóng`; dòng trạng thái đổi sang đã đóng. Chạm `Vắng` cho các sinh viên chưa quét, `Muộn` cho 1; ghi phát biểu +0,25 cho Sinh viên B ngay trên dòng | Mỗi dòng có «Điểm danh lúc»; sinh viên chưa quét ghi «Chưa điểm danh»; toàn bộ thao tác dưới 60 s | P5 + 10.8 |
+| 08:05 | Giảng viên (375 px) | `/attendance` | `Lưu điểm danh` | Xác nhận đã lưu tại chỗ, không có thông báo nổi "Thành công"; còn sinh viên chưa có dòng thì báo «Còn n sinh viên chưa điểm danh» (422 `CHECKIN_UNRESOLVED`) | P5 + 10.8 |
+| 08:25 | Sinh viên B (375 px) | `/me` | Mở | Hàng buổi hôm nay có «Điểm danh lúc hh:mm»; chuyên cần và điểm cộng có thêm +0,25; giải trình điểm dạng phép tính | P5 (giải trình: P6) |
+| 08:45 | Giảng viên (375 px) | `/attendance` | (tuỳ chọn) Tắt mạng điện thoại → chạm một ô → bật mạng | Thay đổi xếp hàng rồi tự đồng bộ, không mất | P5 |
 
-Nếu hội đồng hỏi: hai người cùng điểm danh → khoá lạc quan; sửa sau buổi học → ghi audit. E2E: `attendance.spec.ts`.
+Nếu hội đồng hỏi: mã cũ hết hạn sau 2 chu kỳ → «Mã đã hết hạn. Quét lại mã trên màn chiếu.»; sinh viên không thuộc lớp → bị từ chối, không lộ lý do; hai sinh viên cùng một điện thoại → dòng bị gắn cờ «Cần xem»; hai người cùng điểm danh → khoá lạc quan; sửa sau buổi học → ghi nhật ký (Bước 8). E2E: `attendance.spec.ts`, `attendance-checkin.spec.ts`, `attendance-display.spec.ts`, `checkin-code.spec.ts` (nhánh `sprint/10.8-attendance`).
 
-### Bước 5. Duyệt và công bố bài tập — F9 (08:00–10:00)
+
+### Bước 5. Duyệt và công bố bài tập — F9 (09:00–11:00)
 
 > Bài đã được nộp và chấm nháp ở bước chuẩn bị #3. Phần tạo bài và nộp bài có trong video phụ và E2E (xem Q4).
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 08:00 | Sinh viên B (375 px) | `/assignments/[id]` (Bài tập 03, mở từ `/me`) | Mở | Đã nộp, có dấu thời gian, nhãn nộp muộn; phần điểm ghi đang chấm — **không có điểm nháp** | P7 |
-| 08:15 | Giảng viên | `/grading` (tab Hàng chờ chấm) | Giữ lọc mặc định `Cần xem kỹ` + `Chưa duyệt` | Bài của Sinh viên B ở đầu, lý do cờ: hai lượt chấm lệch hơn 1 điểm | P7 |
-| 08:35 | Giảng viên | `/grading/[submissionId]` | Đọc bài bên trái, tiêu chí bên phải; sửa điểm tiêu chí bị lệch; sửa một câu nhận xét | Thông báo vàng tại tiêu chí lệch; mỗi tiêu chí có đoạn trích từ bài làm; tổng điểm tính lại ngay | P7 |
-| 09:05 | Giảng viên | `/grading/[submissionId]` | `Duyệt bài` | Trạng thái đã duyệt | P7 |
-| 09:15 | Giảng viên | `/grading` | Chọn bài vừa duyệt → `Công bố` | Trạng thái đã công bố; chỉ TEACHER thấy hành động này | P7 |
-| 09:35 | Sinh viên B (375 px) | `/assignments/[id]` | Tải lại | Điểm, nhận xét theo từng tiêu chí, đoạn trích từ bài của chính mình làm bằng chứng | P7 |
+| 09:00 | Sinh viên B (375 px) | `/assignments/[id]` (Bài tập 03, mở từ `/me`) | Mở | Đã nộp, có dấu thời gian, nhãn nộp muộn; phần điểm ghi đang chấm — **không có điểm nháp** | P7 |
+| 09:15 | Giảng viên | `/grading` (tab Hàng chờ chấm) | Giữ lọc mặc định `Cần xem kỹ` + `Chưa duyệt` | Bài của Sinh viên B ở đầu, lý do cờ: hai lượt chấm lệch hơn 1 điểm | P7 |
+| 09:35 | Giảng viên | `/grading/[submissionId]` | Đọc bài bên trái, tiêu chí bên phải; sửa điểm tiêu chí bị lệch; sửa một câu nhận xét | Thông báo vàng tại tiêu chí lệch; mỗi tiêu chí có đoạn trích từ bài làm; tổng điểm tính lại ngay | P7 |
+| 10:05 | Giảng viên | `/grading/[submissionId]` | `Duyệt bài` | Trạng thái đã duyệt | P7 |
+| 10:15 | Giảng viên | `/grading` | Chọn bài vừa duyệt → `Công bố` | Trạng thái đã công bố; chỉ TEACHER thấy hành động này | P7 |
+| 10:35 | Sinh viên B (375 px) | `/assignments/[id]` | Tải lại | Điểm, nhận xét theo từng tiêu chí, đoạn trích từ bài của chính mình làm bằng chứng | P7 |
 
 Nếu hội đồng hỏi: nộp sau hạn khi bài không cho nộp muộn → bị chặn; worker chết giữa chừng → việc được nhận lại, không chấm đôi. E2E: `assignment-lifecycle.spec.ts`.
 
-### Bước 6. Công thức điểm và sổ điểm — F10 (10:00–12:00)
+### Bước 6. Công thức điểm và sổ điểm — F10 (11:00–13:00)
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 10:00 | Giảng viên | `/gradebook`, lớp 2 | Đổi lớp ở bộ chọn lớp | Banner cố định "công thức điểm chưa xác nhận"; `Chốt điểm` bị khoá, lý do hiện khi rê chuột / focus | P6 |
-| 10:15 | Giảng viên | `/gradebook/scheme`, lớp 2 | Tải `seed/demo/quy-che-lop2.pdf` | Tiến độ xử lý nền; bản nháp: thành phần, trọng số, điểm cộng, mỗi mục cạnh đoạn trích có số trang; mục "chưa rõ: quy tắc làm tròn" chặn nút xác nhận | P6 |
-| 10:55 | Giảng viên | `/gradebook/scheme` | Điền D5 → `Xác nhận công thức` → xác nhận trong hộp thoại nêu hậu quả | Trạng thái đã xác nhận | P6 |
-| 11:15 | Giảng viên | `/gradebook`, lớp 2 | Quay lại | Banner biến mất; `Chốt điểm` mở | P6 |
-| 11:25 | Giảng viên | `/gradebook`, lớp 1 | Đổi lớp, mở giải trình dòng Sinh viên B | Thành phần điểm có +0,25 từ bước 4 và điểm Bài tập 03 từ bước 5; dòng ghi chú "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường" | P6 (dữ liệu: P5, P7) |
-| 11:45 | Giảng viên | `/gradebook`, lớp 1 | Xuất XLSX (menu) | File tải về có cột theo mẫu và dòng ghi chú điểm chính thức | P6 |
+| 11:00 | Giảng viên | `/gradebook`, lớp 2 | Đổi lớp ở bộ chọn lớp | Banner cố định "công thức điểm chưa xác nhận"; `Chốt điểm` bị khoá, lý do hiện khi rê chuột / focus | P6 |
+| 11:15 | Giảng viên | `/gradebook/scheme`, lớp 2 | Tải `seed/demo/quy-che-lop2.pdf` | Tiến độ xử lý nền; bản nháp: thành phần, trọng số, điểm cộng, mỗi mục cạnh đoạn trích có số trang; mục "chưa rõ: quy tắc làm tròn" chặn nút xác nhận | P6 |
+| 11:55 | Giảng viên | `/gradebook/scheme` | Điền D5 → `Xác nhận công thức` → xác nhận trong hộp thoại nêu hậu quả | Trạng thái đã xác nhận | P6 |
+| 12:15 | Giảng viên | `/gradebook`, lớp 2 | Quay lại | Banner biến mất; `Chốt điểm` mở | P6 |
+| 12:25 | Giảng viên | `/gradebook`, lớp 1 | Đổi lớp, mở giải trình dòng Sinh viên B | Thành phần điểm có +0,25 từ bước 4 và điểm Bài tập 03 từ bước 5; dòng ghi chú "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường" | P6 (dữ liệu: P5, P7) |
+| 12:45 | Giảng viên | `/gradebook`, lớp 1 | Xuất XLSX (menu) | File tải về có cột theo mẫu và dòng ghi chú điểm chính thức | P6 |
 
 `Chốt điểm` lớp 1 không làm trực tiếp trong 15 phút (xem Q5).
 
 Nếu hội đồng hỏi: hai người sửa cùng ô → 409 và chọn giữ bên nào; mở khoá sau chốt cần lý do. E2E: `gradebook.spec.ts`.
 
-### Bước 7. Báo cáo lỗ hổng kiến thức — F17 (12:00–13:15)
+### Bước 7. Báo cáo lỗ hổng kiến thức — F17 (13:00–14:15)
+
+> "Hệ thống gom câu hỏi sinh viên đã gửi thành chủ đề và xếp hạng bằng công thức cố định; AI chỉ đặt tên chủ đề. Câu hỏi hiện ra đã ẩn danh."
 
 | Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
 | --- | --- | --- | --- | --- | --- |
-| 12:00 | Giảng viên | `/insights`, lớp 1 | `Tạo báo cáo mới` | Tiến độ xử lý nền; danh sách chủ đề xếp hạng, chủ đề A và B đứng đầu, mỗi chủ đề có lý do và tín hiệu | P10 |
-| 12:35 | Giảng viên | `/insights` | Mở câu mẫu của chủ đề A | 3–5 câu đã ẩn danh, không có tên hay MSSV; chủ đề dưới 3 sinh viên hỏi không có câu mẫu | P10 |
-| 12:50 | Giảng viên | `/insights` | `Tạo thread ghim` | Thread ghim mới xuất hiện ở `/threads` của lớp 1 | P10 (Threads: P4) |
-| 13:05 | Giảng viên | `/insights`, lớp 2 | Đổi lớp (báo cáo đã tạo ở chuẩn bị #4) | Chủ đề C đứng đầu — dữ liệu hai lớp không lẫn | P10 |
+| 13:00 | Giảng viên | `/insights`, lớp 761987 | Mở trang (báo cáo đã tạo ở chuẩn bị #4); nếu có dữ liệu mới bấm `Tạo báo cáo mới` | Danh sách «Chủ đề nên dạy lại» xếp hạng: chủ đề mã độc / tấn công (A) và quy chế học vụ (B) đứng đầu; mỗi chủ đề có số sinh viên hỏi, số câu và gợi ý «Nên làm» | P10 |
+| 13:20 | Giảng viên | `/insights` | Mở «Câu hỏi mẫu» của chủ đề A | 3–5 câu đã ẩn danh, không có tên hay MSSV; chủ đề chỉ có dưới 3 sinh viên hỏi («Ít người hỏi») không có câu mẫu | P10 |
+| 13:40 | Giảng viên | `/insights` | `Tạo thread ghim` của chủ đề A → xác nhận ngay tại chỗ | Form mở tại chỗ (không hộp thoại); thread ghim mới xuất hiện ở `/threads` của lớp | P10 (Threads: P4) |
+| 13:55 | Giảng viên | `/insights`, lớp 761988 | (tuỳ chọn) Đổi lớp | Chủ đề TCP / UDP (C) đứng đầu — dữ liệu hai lớp không lẫn | P10 |
+| 14:05 | Giảng viên | `/insights` | (tuỳ chọn) Menu `⋯` → xuất Markdown | Tệp tải về: bảng chủ đề, không có tên hay MSSV | P10 |
 
-E2E / test: `pytest -q -k "knowledge_gap"` (P10).
+Nếu hội đồng hỏi: lớp chưa đủ câu hỏi → «Chưa đủ dữ liệu» kèm số câu hiện có và số cần có (409); khoảng thời gian chọn 7 / 14 / 30 ngày hoặc toàn kỳ; mỗi lớp tối đa 3 báo cáo mỗi giờ; hai người cùng bấm tạo → chỉ một báo cáo chạy. E2E: `insights.spec.ts`; Go: `TestKnowledgeGap`.
 
-### Kết (13:15–13:45)
+### Bước 8. Nhật ký quản trị (14:15–14:45)
 
-> "Bảy luồng vừa xem đi qua cùng một dữ liệu: câu hỏi của sinh viên, câu trả lời của giảng viên, điểm danh, bài chấm và công thức điểm đều đổ về cùng một sổ điểm. Mọi quyết định về điểm do giảng viên bấm; AI chỉ soạn nháp."
+> "Mọi thay đổi về điểm, điểm danh và cấu hình đều có dấu vết. Nhật ký chỉ ghi ai đổi gì và khoá nào bị đổi, không ghi giá trị."
+
+| Mốc | Vai trò | Route | Thao tác | Kết quả phải thấy | Phase |
+| --- | --- | --- | --- | --- | --- |
+| 14:15 | Admin | `/admin/audit` | Mở (khoảng 24 giờ) | Các dòng vừa tạo ở Bước 4–6: `attendance`, `assignments` (publish), `grade_entries` (set); mỗi dòng có thời điểm, người làm kèm vai, thực thể, hành động, khoá đổi; không có giá trị cũ / mới | P10 (P-11-30) |
+| 14:30 | Admin | `/admin/audit` | Ô «Thực thể» gõ `grade_entries` | Chỉ còn các dòng sổ điểm của Bước 6 | P10 |
+
+Nếu hội đồng hỏi: chỉ Admin vào được (giảng viên / TA / sinh viên 403); chính việc mở nhật ký cũng được ghi lại. E2E: `audit.spec.ts`; Go: `TestAuditRBAC`.
+
+### Kết (14:45–15:00)
+
+> "Tám phần vừa xem đi qua cùng một dữ liệu: câu hỏi của sinh viên, câu trả lời của giảng viên, điểm danh, bài chấm và công thức điểm đều đổ về cùng một sổ điểm. Mọi quyết định về điểm do giảng viên bấm; AI chỉ soạn nháp."
+
 
 ## 5. Dự phòng cho ngày bảo vệ
 
 Ba tầng, đi từ trên xuống. Người trình bày (chủ dự án) quyết định chuyển tầng.
 
-| Tầng | Khi nào dùng | Ai bật | Bật ở đâu, thế nào | Mất gì |
-| --- | --- | --- | --- | --- |
-| 1. Chạy thật | Mặc định (xem Q6) | – | `.env.local` không đặt `DEMO_MODE` | – |
-| 2. `DEMO_MODE=true` | Mạng hoặc API LLM lỗi lúc chuẩn bị, hoặc một bước lỗi 2 lần liên tiếp trong lúc demo | Chủ dự án | Sửa `.env.local`: `DEMO_MODE=true` → `docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot up -d gateway` (≈ 30 s, nói lời dẫn trong lúc chờ) | Câu trả lời là bản ghi sẵn; chỉ đúng với các câu ở mục 3 |
-| 3. Video quay sẵn | Stack không lên, hoặc tầng 2 cũng lỗi | Chủ dự án | Mở file video trên laptop (bản sao trên USB), nhảy tới chương của bước đang dở | Không tương tác được |
+| Tầng | Khi nào dùng | Bật ở đâu, thế nào | Mất gì |
+| --- | --- | --- | --- |
+| 1. LLM thật | Mặc định khi 9router chạy | Nhà cung cấp «9router» đang bật ở `/settings/llm` (`README.md` 5.3) | – |
+| 2. Bản ghi sẵn (nhà cung cấp giả) | 9router hoặc mạng lỗi lúc chuẩn bị, hoặc một bước LLM lỗi / chậm quá 2 lần liên tiếp | Admin `/settings/llm` → công tắc «Đang bật» của nhà cung cấp thật sang **tắt** (nạp lại ≤ 60 s, không dựng lại container). Không còn nhà cung cấp bật thì gateway dùng nhà cung cấp giả của `.env.local` (`LLM_PROVIDER=fake`) | Câu trả lời chat là bản giả, ít tự nhiên; chấm bài / quy chế dùng bản ghi sẵn nên giống thật |
+| 3. Video quay sẵn | Stack không lên, hoặc tầng 2 cũng lỗi | Mở file video trên laptop (bản sao trên USB), nhảy tới chương của bước đang dở | Không tương tác được |
 
-### 5.1 `DEMO_MODE=true` phải làm gì
+### 5.1 Tầng 2 làm được gì
 
-- Lớp gọi LLM trong gateway Go (`openai-go`, D46) dùng provider `fake` (P1 L1) cho mọi tác vụ trong kịch bản: CHAT, CLASSIFY, UTILITY, GRADING, INSIGHT, EMBEDDING. Worker Go dùng cùng cờ cho các việc nền.
-- Provider `fake` trả câu trả lời ghi sẵn cho đúng các đầu vào ở mục 3 và các việc nền của bước 5, 6, 7 (chấm Bài tập 03, trích quy chế lớp 2, báo cáo lỗ hổng hai lớp). Đầu vào khác → câu trả lời trung tính "chưa có câu trả lời ghi sẵn", không lỗi.
-- Đường đi còn nguyên: che tên / MSSV, Scheduler, `llm_audit`, ngưỡng độ tin cậy, escalation, mail. Chỉ lời gọi ra provider bị thay. Vì vậy dòng "Đã ẩn 2 thông tin cá nhân" và ticket ở bước 3 vẫn sinh thật.
-- Không cần mạng ra ngoài. Kiểm: tắt Wi-Fi máy demo, chạy toàn kịch bản, mọi bước qua.
-- Vị trí và định dạng bản ghi sẵn: đề xuất `seed/demo/fake_llm.json` (xem Q7).
+- Điều kiện cần: `.env.local` có `LLM_PROVIDER=fake` và `LLM_DEMO_FILE=/seed/demo/fake_llm.json` (mặc định của `.env.example`; compose gắn `./seed/demo` vào gateway và worker). Đổi `.env.local` thì phải tạo lại gateway và worker: `docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot up -d gateway worker` (≈ 30 s, nói lời dẫn trong lúc chờ). Tắt nhà cung cấp trên `/settings/llm` thì **không** cần.
+- Bản ghi sẵn `seed/demo/fake_llm.json` (theo nội dung yêu cầu, không theo băm) phủ: trích công thức quy chế lớp 1 / lớp 2 (D5), chấm Bài tập 03 hai lượt (Bước 5), và các việc Luyện đề. **Không có bản ghi riêng cho D1–D3 hay cho đặt tên chủ đề của `/insights`**: ở tầng 2 các việc đó trả lời bằng bản giả chung `[CHƯA KIỂM: chữ trả lời D1–D3, tên chủ đề ở Bước 7 trên bản giả — kiểm khi chạy trọn]`. Phần số liệu trong câu trả lời D1 (số buổi vắng, điểm phát biểu) vẫn lấy từ sổ thật, không từ LLM.
+- Đường đi còn nguyên: che tên / MSSV, Scheduler, `llm_audit`, ngưỡng độ tin cậy, escalation, mail. Chỉ lời gọi ra nhà cung cấp bị thay. Vì vậy dòng "Đã ẩn 2 thông tin cá nhân" và ticket ở Bước 3 vẫn sinh thật.
+- Không cần mạng ra ngoài.
+- LLM **chậm** (không lỗi): chat đã có câu trả lời hiện dần; chấm bài và báo cáo chạy nền có thanh tiến độ. Nói lời dẫn («đang chạy nền») rồi sang bước kế, quay lại sau; không đợi quá 20 s ở một chỗ.
 
 ### 5.2 Kiểm tầng 2 trước ngày bảo vệ
 
-Chạy kịch bản trọn vẹn hai lần với `DEMO_MODE=true`, một lần ngắt mạng hoàn toàn. Ghi kết quả vào mục 7.
+Chạy kịch bản trọn vẹn hai lần với nhà cung cấp thật đã tắt, một lần ngắt mạng hoàn toàn (kể cả 9router). Ghi kết quả vào mục 7.
 
 ### 5.3 Video
 
-- Quay sau khi xong P10, theo đúng kịch bản này, có chương theo 7 bước, 1080p, tiếng thuyết minh.
-- Thêm một video phụ ≤ 3 phút: tạo bài tập và sinh viên nộp bài (F9 bước 1–3), chốt điểm lớp 1 (F10 bước 6) — phần không chạy trực tiếp trong 15 phút.
+- Quay sau khi bản cuối vào `main`, theo đúng kịch bản này, có chương theo 8 bước, 1080p, tiếng thuyết minh.
+- Thêm một video phụ ≤ 3 phút: tạo bài tập và sinh viên nộp bài (F9 bước 1–3), chốt điểm lớp 761987 (F10 bước 6), điểm danh bằng app Android (10.8) — phần không chạy trực tiếp trong 15 phút.
 - Hai bản: ổ laptop demo và USB. Phát được không cần mạng.
+
 
 ## 6. Yêu cầu kịch bản đặt lên các phase sau
 
 | Phase | Phải có để kịch bản chạy | Bước |
 | --- | --- | --- |
-| P1 | Provider `fake` phát lại bản ghi sẵn theo đầu vào; cờ `DEMO_MODE` | 5.1 |
+| P1 | Provider `fake` phát lại bản ghi sẵn theo nội dung yêu cầu (`LLM_DEMO_FILE`); tắt nhà cung cấp thật ở `/settings/llm` để rơi về bản giả | 5.1 |
 | P2 | Seed cố định: họ tên, MSSV của Sinh viên B, C (Q2); mã tham gia `AN7K2MQ` / `BX4P9TW`; lớp 2 bật yêu cầu duyệt; chuông phân công chưa đọc | 1, 2 |
 | P3 | Dòng "Đã ẩn N thông tin cá nhân"; từ chối hỏi về người khác | 2 |
 | P4 | Câu D3 thuộc nhóm "câu ngoài tài liệu" của seed (không tài liệu nào trả lời được); mail qua Mailpit | 3 |
 | P5 | Một buổi học lớp 1 trùng giờ demo (Q1) | 4 |
+| 10.8 | Lớp 761987 bật «Điểm danh bằng mã»; `/attendance/display`, `/checkin`, nhập mã ngắn; ≥ 3 tài khoản sinh viên đăng nhập sẵn trên điện thoại | 4 |
 | P6 | File `seed/demo/quy-che-lop2.pdf` cố ý thiếu quy tắc làm tròn | 6 |
-| P7 | Bài tập 03 lớp 1 có bài nộp muộn của Sinh viên B; hai lượt chấm của bài đó lệch > 1 điểm (bản ghi sẵn khi `DEMO_MODE`) | 5 |
-| P10 | Câu hỏi seed lệch chủ đề A, B (lớp 1) và C (lớp 2); video | 7, 5.3 |
+| P7 | Bài tập 03 lớp 1 có bài nộp muộn của Sinh viên B; hai lượt chấm của bài đó lệch > 1 điểm (bản ghi sẵn `bt03-*` trong `fake_llm.json`) | 5 |
+| P10 | Câu hỏi seed lệch chủ đề A, B (lớp 1) và C (lớp 2), chủ đề D đúng 2 sinh viên; `/insights` thật; `/admin/audit`; video | 7, 8, 5.3 |
 
 ## 7. Nhật ký chạy lại
 
@@ -202,3 +232,4 @@ Cuối mỗi phase: chạy từ đầu tới bước xa nhất chạy được, 
 | Ngày | Phase vừa xong | Bước xa nhất chạy thật | Tổng thời gian | Tầng | Ghi chú |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-01 | P0 (đang làm) | – (chưa có bước nào chạy) | – | – | Bản kịch bản đầu tiên |
+| 2026-11-15 | Sprint 11 (viết lại v2) | Chưa chạy trọn | – | – | Cập nhật theo mã `sprint/11-p10-eval`; Bước 4 (QR) theo SRS vì 10.8 chưa merge. Chạy trọn trên stack demo sau merge: ghi tại đây |

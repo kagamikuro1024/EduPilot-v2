@@ -13,7 +13,7 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 > - **8 (P6):** sổ điểm kiểu bảng tính; AI trích công thức từ quy chế → giảng viên xác nhận → code tính (decimal, 30/30 khớp đáp án tính tay); chốt / mở khoá có lý do; nhập / xuất XLSX; điểm của tôi + tính thử; cổng P6 đạt.
 > - **9 (P7):** bài tập nộp trong app / ZIP / mail / Teams giả lập, khớp sinh viên theo danh sách lớp, AI chấm nháp hai lượt có bằng chứng, duyệt cạnh nhau, chỉ giảng viên công bố, phúc khảo; cổng P7 đạt kỹ thuật (nợ LCP màn nộp bài).
 >
-> Kế tiếp: sprint 10 (P9 Luyện đề). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> Đang làm: sprint 11 (P10: quan sát AI, lỗ hổng kiến thức, thống kê điểm thi, nhật ký quản trị) và 10.8 (điểm danh bằng QR). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -150,44 +150,76 @@ Quy ước Go: `internal/<module>/{handler,service,repo}.go`; handler mỏng, lo
 
 ## 5. Chạy trên máy
 
-### Yêu cầu
-- Docker (Docker Desktop, OrbStack hoặc colima) — ≥ 4 CPU, 4–8 GB RAM cho VM (colima: `colima start --cpu 4 --memory 4 --disk 60`)
-- Node 24 LTS + pnpm 12 (`corepack enable` hoặc `brew install pnpm`)
-- Go 1.27 (chỉ cần khi chạy test / build ngoài Docker)
-- macOS: `brew install node@24 pnpm go colima docker docker-compose golangci-lint gh`
+Hướng dẫn cho MacBook Apple Silicon. Mọi lệnh dưới đây chạy ở thư mục gốc repo.
 
-### Dựng stack
+### 5.1 Cài một lần
 ```bash
-pnpm install
-pnpm dev            # tạo .env.local từ .env.example nếu chưa có, build, chạy migration, chờ mọi service healthy
-pnpm dev:status     # trạng thái container
-pnpm dev:logs       # theo dõi log
-pnpm dev:down       # dừng (giữ volume)
-# chạy 2 bản gateway sau Caddy
-docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot up -d --scale gateway=2 --wait
+brew install node@24 pnpm go colima docker docker-compose golangci-lint gh   # go/golangci-lint/gh chỉ cần khi chạy test
+colima start --cpu 6 --memory 10 --disk 100     # máy 18 GB: 6 CPU / 10 GB là cấu hình đã đo và chạy đồng thời demo + một stack thử
+pnpm install --frozen-lockfile
 ```
+- `docling` (đọc PDF/DOCX) riêng ≈ 1,8 GiB RAM.
+- Testcontainers trên Colima: xem `backend-go/README.md` (`~/.testcontainers.properties`).
 
-| Service | Địa chỉ trên máy | Ghi chú |
+### 5.2 Dựng stack demo
+```bash
+SEED_ON_EMPTY_DB=true COMPOSE_PROFILES=ingest pnpm dev
+```
+`pnpm dev` tự tạo `.env.local` từ `.env.example` (lần đầu), build image, chạy migration, chờ mọi service healthy rồi (DB trống + `SEED_ON_EMPTY_DB=true`) chạy seed. **Không cần sửa `.env.local`**: `.env.example` đã đủ biến bắt buộc, chỉ chứa giá trị dev giả (`docker compose config` chạy được với nguyên bản). Gateway thiếu biến bắt buộc thì thoát mã 1 và nêu tên biến.
+
+- `COMPOSE_PROFILES=ingest` bật `docling`; **seed cần nó** (bước 11 nạp tài liệu). Không bật thì seed dừng ở bước đó với lỗi «Tài liệu chưa READY».
+- Seed đầy đủ ≈ 10 phút (9 phút 39 giây khi đo, kèm `SEED_GUIDANCE_DEMO=1 SEED_DECISION_DEMO=1`). Chạy lại an toàn (idempotent): `pnpm seed`.
+- `pnpm dev:status` · `pnpm dev:logs` · `pnpm dev:down` (giữ dữ liệu) · `pnpm dev:down -v` (xoá cả dữ liệu).
+- Hai bản gateway sau Caddy: `docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot up -d --scale gateway=2 --wait`.
+
+| Cái gì | Ở đâu | Ghi chú |
 | --- | --- | --- |
-| caddy | https://localhost | cửa vào duy nhất: `/api/*` → gateway, còn lại → frontend; chứng chỉ "Caddy Local Authority" |
-| gateway | https://localhost/api/v1/healthz | `{"status":"ok"}`; `/api/v1/readyz` kiểm DB + Redis. Không công bố cổng riêng (nhân bản được) |
-| frontend | http://localhost:3000 | Next.js chạy trực tiếp — **không dùng được để đăng nhập** (khác scheme/site với API nên trình duyệt không gửi cookie `SameSite=Lax` kèm `fetch`). Đăng nhập và mọi thao tác thật: https://localhost (Caddy, cùng một origin) |
-| mailpit | http://localhost:8025 | hộp thư giả; SMTP `localhost:1025` |
-| minio | http://localhost:9001 | console object storage |
-| postgres | `localhost:5433` | user/db `edupilot`; ứng dụng đi qua PgBouncer (trong mạng compose) |
-| redis | `localhost:6380` | |
+| Ứng dụng | https://localhost | Caddy là cửa vào duy nhất (`/api/*` → gateway, còn lại → frontend). Chứng chỉ nội bộ: trình duyệt cảnh báo một lần, `curl -k`. Đăng nhập **chỉ** qua địa chỉ này |
+| frontend trực tiếp | http://localhost:3000 | Không đăng nhập được (khác site với API, cookie `SameSite=Lax` bị chặn) |
+| Hộp thư giả | http://localhost:8025 | thư xác minh, đặt lại mật khẩu, trả lời của giảng viên |
+| MinIO | http://localhost:9001 | console kho tệp |
+| Postgres / Redis | `localhost:5433` / `localhost:6380` | user và DB `edupilot`; ứng dụng đi qua PgBouncer trong mạng compose |
+| `/api/v1/healthz`, `/readyz` | https://localhost/api/v1/… | `readyz` kiểm DB + Redis |
 
-Biến môi trường: [`.env.example`](.env.example) (chỉ giá trị dev giả). Gateway thiếu biến bắt buộc (hoặc biến rỗng) thì thoát mã 1 với một dòng log nêu đủ tên biến thiếu. Danh sách đầy đủ: `docs/ARCHITECTURE.md` §8.
+Tài khoản mẫu: `admin@`, `teacher@`, `sv.kha@` (Sinh viên B, lớp 1) … `@edupilot.local`; mật khẩu = `SEED_DEFAULT_PASSWORD` trong `.env.local` (mặc định của `.env.example`: `Edupilot#Seed-2026`). Lớp 1 = **761987** (mã tham gia `AN7K2MQ`), lớp 2 = 761988 (`BX4P9TW`). Sandbox chấm code là service `judge` (`go-judge`); trên Colima arm64 chạy với `-no-seccomp` (D58).
 
-Không ghi secret vào repo. Khoá LLM thật chỉ đặt trong `.env.local` (đã bị `.gitignore`); mọi test dùng provider `fake`.
+### 5.3 LLM thật qua 9router (tuỳ chọn)
+Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test. Sinh chữ thật đi qua **9router chạy trên Mac** (`http://127.0.0.1:20128`; bật bằng `9router -n -t`), **không** gọi Gemini trực tiếp.
+1. Kiểm: `curl -s http://127.0.0.1:20128/v1/models | head -c 200` trả danh sách model.
+2. Stack demo: đăng nhập Admin → `/settings/llm` → `Thêm nhà cung cấp` → «Máy chủ riêng (tương thích OpenAI)», địa chỉ `http://host.docker.internal:20128/v1` (container thấy Mac qua tên này), khoá 9router, model `ag/gemini-3.8-flash` → gán cho các tác vụ ở mục tuyến. `rpm_limit` đặt ≈ 10–20 (9router bận thì chậm).
+3. Stack đo / thử (cổng lệch): `BASE=https://localhost:<cổng HTTPS> PHASE=live node deploy/vps-llm.mjs` làm đúng các bước trên bằng API (script từ chối stack demo; xem `benchmarks/README.md`).
+4. Về lại bản giả: `/settings/llm` → công tắc «Đang bật» của nhà cung cấp thật sang tắt. Không còn nhà cung cấp bật thì gateway rơi về `LLM_PROVIDER=fake`, kèm bản ghi `seed/demo/fake_llm.json` (xem `docs/DEMO_SCRIPT.md` mục 5).
 
-### Dữ liệu mẫu (sprint 4–6)
+Embedding mặc định là nhà cung cấp giả: chất lượng gom cụm / truy xuất bằng embedding thật chưa đo (P-11-19).
+
+### 5.4 Nhiều stack trên một máy
+Mỗi stack một `COMPOSE_PROJECT_NAME` và một độ lệch cổng `EP_PORT_OFFSET` (cổng host cộng N; HTTPS = 443 + N). Hai máy giả `mock-graph` / `mock-imap` có cổng riêng `EP_PORT_MOCK_GRAPH` / `EP_PORT_MOCK_IMAP` (mặc định 8090 / 8091, trùng demo) — stack thứ hai phải đặt tay. **RAM: tối đa demo + một stack thử cùng lúc.**
+
+| Stack | Dựng | Dùng cho |
+| --- | --- | --- |
+| `edupilot` (demo) | `pnpm dev` | trình bày, bảo vệ |
+| `ep-qc` (QC) | `EP_PORT_OFFSET=500 COMPOSE_PROJECT_NAME=ep-qc EP_PORT_MOCK_GRAPH=8590 EP_PORT_MOCK_IMAP=8591 COMPOSE_PROFILES=ingest pnpm dev` | QC kiểm sprint; HTTPS `https://localhost:943`, Mailpit `:8525` |
+| `ep-<vai>` (đo) | xem `benchmarks/README.md` | T1, LLM thật; **không ghi lên demo** |
+
+Chế độ thử (đường `testroutes`, thêm `FAKE_LLM_VALID_KEY`…): thêm `-f docker-compose.test.yml` (và `-f docker-compose.test-seed.yml` khi seed nhiều) vào lệnh compose; `pnpm dev` không tự thêm. Dừng đúng stack bằng cùng biến: `EP_PORT_OFFSET=500 COMPOSE_PROJECT_NAME=ep-qc pnpm dev:down` (thêm `-v` để xoá dữ liệu).
+
+Seed / kiểm trên stack lệch cổng — truyền địa chỉ của chính stack đó:
 ```bash
-SEED_ON_EMPTY_DB=true pnpm dev     # DB trống: 2 lớp × 30 sinh viên, ngân hàng câu hỏi, 2 bài thi, tài liệu đã nhúng, hội thoại + thread mẫu, lịch, đi bằng chính API thật
-pnpm seed                          # chạy lại seed trên stack đang chạy
-docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot --profile ingest up -d docling   # bật đọc tài liệu khi cần (~1,8 GiB RAM)
+export COMPOSE_PROJECT_NAME=ep-qc API_URL=https://localhost:943/api/v1 MAILPIT_URL=http://localhost:8525
+export SEED_DEFAULT_PASSWORD=…   # bản của stack đó
+pnpm seed
 ```
-Đăng nhập ở https://localhost/login bằng các tài khoản mẫu `@edupilot.local` (sinh viên, TA, giảng viên, Admin), mật khẩu là `SEED_DEFAULT_PASSWORD` trong `.env.local`. Mã tham gia lớp mẫu: `AN7K2MQ`, `BX4P9TW`. Thư xác minh / đặt lại mật khẩu xem ở Mailpit http://localhost:8025. Bài thi: giảng viên ở `/exams`, sinh viên ở `/exams/[id]/take`. Chat riêng `/chat`, Threads `/threads`, tài liệu `/documents`, thư viện `/library`, lịch `/calendar`. Sandbox chấm code là service `judge` (`go-judge`) trong compose, ở mạng riêng; trên colima arm64 chạy với `JUDGE_EXTRA_ARGS=-no-seccomp` (D58), trên amd64 bật seccomp. Mặc định LLM là provider giả; thêm khoá thật ở `/settings/llm`.
+
+### 5.5 Kiểm dữ liệu mẫu (`check-*-seed`)
+Mỗi script gọi API thật bằng tài khoản seed (cần `API_URL`, `SEED_DEFAULT_PASSWORD`; xem 5.4 cho stack lệch cổng) và thoát mã ≠ 0 khi lệch. Không đối số = kiểm, và phần lớn chạy lại seed để kiểm idempotent (`--no-rerun` bỏ bước chạy lại).
+```bash
+for s in assignments chat crm decision docs exam grade guidance knowledge p10 practice; do
+  node scripts/check-$s-seed.mjs || echo "✗ $s"
+done
+```
+- Chạy trên stack seed đủ **không phải stack demo**: `check-decision-seed` / `check-guidance-seed` mong cổng / cờ ở trạng thái seed mặc định.
+- Chế độ có tên ghi dữ liệu (`assignments grade|demo5|teams|v2`, `exam demo`): chạy một lần, rồi dựng lại stack. Danh sách chế độ ở dòng đầu mỗi tệp.
+- `check-p10-seed.mjs`: seed quan sát AI, lỗ hổng kiến thức (chủ đề D đúng 2 SV) và thống kê điểm thi. **Cần DB dựng lại từ trống**, vì seed lớp 1 đã đổi cách chia câu.
 
 ### Prototype (sprint 1.5)
 Các màn chưa dựng thật (Threads, sổ điểm, chấm bài…) vẫn là bản mô phỏng của sprint 1.5 (`frontend/src/mock/`), được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
