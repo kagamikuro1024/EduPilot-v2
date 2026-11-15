@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Kiểm phản mẫu giao diện: docs/design/DESIGN.md §21, docs/design/INTEGRATION.md mục 5, docs/specs/FEAT-ui-foundation/SRS.md 4.1 + 4.3, docs/specs/FEAT-ui-panels/SRS.md 4.3.
-# 32 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề; 24–31 = hợp đồng khung trang DESIGN.md §23, sprint 10.7; 32 = token màn chiếu chỉ ở /attendance/display, P-108-8); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
+# 33 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề; 24–31 = hợp đồng khung trang DESIGN.md §23, sprint 10.7; 32 = token màn chiếu chỉ ở /attendance/display; 33 = chữ «Threads» hiển thị, P-108-8); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
 # Danh sách trắng: thêm chú thích `ui-allow: <lý do>` trên CÙNG dòng (trần 10 chỗ — QC đếm).
-# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 32 phép bắt được`.
+# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 33 phép bắt được`.
 # Chạy ở gốc repo. UI_SRC đổi thư mục nguồn (dùng cho --selftest).
 set -uo pipefail
 export LC_ALL=C
@@ -46,6 +46,7 @@ if [ "${1:-}" = "--selftest" ]; then
     "Tiêu đề rỗng là câu|features/_selftest/et.tsx|export const E = () => <EmptyState title=\"Chưa có gì. Khi có dữ liệu nó sẽ hiện ở đây.\" />;"
     "Vàng làm chữ|features/_selftest/y.module.css|.d { color: var(--ep-yellow); }"
     "Token màn chiếu ngoài /attendance/display|features/_selftest/proj.module.css|.p { font-size: var(--ep-text-projector-code); }"
+    "Chữ Threads / Insights / Analytics hiển thị|features/_selftest/vocab.tsx|export const V = () => <p>Kiểm duyệt Threads</p>;"
   )
   miss=0; names=""
   for s in "${seeds[@]}"; do
@@ -205,4 +206,10 @@ report "Vàng làm chữ" "$out"
 # 32: token chữ màn chiếu (--ep-text-projector-*) chỉ được dùng trong features/attendance/display/ (định nghĩa ở shared/styles/) — DESIGN.md §14.8.1, §23.1
 out=$(grep -rnE -e '--ep-text-projector-' "$SRC" --include=*.ts --include=*.tsx --include=*.css 2>/dev/null | grep -vE "shared/styles/|$PRESENT" || true)
 report "Token màn chiếu ngoài /attendance/display" "$out"
+
+# 33: chữ hiển thị «Threads» / «Insights» / «Analytics» (FEAT-uiux-91 US-07 AC4): trong chuỗi / JSX, ngoài import, comment, tên biến; tên người dùng thấy là «Hỏi đáp công khai», «Báo cáo kiến thức»…
+out=$(grep -rnE -e '(["'"'"'`>])[^"'"'"'`<>]*\b(Threads|Insights|Analytics)\b[^"'"'"'`<>]*(["'"'"'`<])' "$SRC" --include=*.ts --include=*.tsx 2>/dev/null \
+  | grep -vE ':[0-9]+:[[:space:]]*(//|\*|/\*)' | grep -vE '(import |from )["'"'"']|ui-allow:' || true)
+report "Chữ Threads / Insights / Analytics hiển thị" "$out"
+
 exit $FAIL
