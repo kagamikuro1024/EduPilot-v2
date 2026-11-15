@@ -52,6 +52,13 @@ const Cl2 = studentsFor("761988", "m.content ~* 'tcp|udp|dns|subnet|nat|dhcp|osi
 must(A >= 3 && B >= 3, `chủ đề lớn do A=${A} / B=${B} sinh viên hỏi (cần ≥ 3)`);
 must(D === 2, `chủ đề D do ${D} sinh viên hỏi (cần đúng 2)`);
 must(Cl2 >= 3, `chủ đề C (lớp 761988) do ${Cl2} sinh viên hỏi (cần ≥ 3)`);
+// P-11-32: câu mẫu k ≥ 3 theo TỪNG CÂU — mỗi chủ đề lớn phải có câu (chuẩn hoá) do ≥ 3 SV khác nhau hỏi, nếu không báo cáo không có câu mẫu
+const qualified = (code, like) => one(`select count(*) from (select 1 from chat_messages m join courses c on c.id = m.course_id where c.class_code = '${code}' and m.role = 'USER' and (${like})
+  group by lower(regexp_replace(m.content, '\\s+', ' ', 'g')) having count(distinct m.user_id) >= 3) x`);
+const qa = qualified("761987", "m.content ~* 'phishing|ransomware|ddos|botnet|firewall|zero-day|spyware'");
+const qb = qualified("761987", "m.content ~* 'dự thi|học vụ|phúc khảo|thôi học|tốt nghiệp|bảo lưu'");
+const qc = qualified("761988", "m.content ~* 'tcp|udp|dns|subnet|nat|dhcp|osi|http'");
+must(qa >= 3 && qb >= 3 && qc >= 3, `câu do ≥ 3 SV hỏi: A=${qa} B=${qb} C=${qc} (cần ≥ 3 mỗi chủ đề)`);
 must(studentsFor("761987", "m.content ~* 'tcp|udp|dns|subnet|dhcp|osi'") === 0, "lớp 761987 có câu hỏi của chủ đề C");
 
 // ---- seed B: điểm thi ----
@@ -71,5 +78,5 @@ if (!process.argv.includes("--no-rerun")) {
   for (const k of Object.keys(before)) must(before[k] === after[k], `chạy lại seed làm đổi ${k}: ${before[k]} → ${after[k]}`);
 }
 
-finish(`p10: llm_audit=${before.llm_audit}/${days} ngày · chat 761987=${c1} (A=${A} B=${B} D=${D} ngoài=${noCtx} nhóm=${grp.join(" ")}) 761988=${c2} · điểm thi ≥ 4 bài, có ca giảm 3 liên tiếp${process.argv.includes("--no-rerun") ? "" : " (idempotent)"}`);
+finish(`p10: llm_audit=${before.llm_audit}/${days} ngày · chat 761987=${c1} (A=${A}/${qa}c B=${B}/${qb}c D=${D} ngoài=${noCtx} nhóm=${grp.join(" ")}) 761988=${c2} · điểm thi ≥ 4 bài, có ca giảm 3 liên tiếp${process.argv.includes("--no-rerun") ? "" : " (idempotent)"}`);
 void failures;

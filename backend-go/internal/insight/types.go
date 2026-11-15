@@ -12,6 +12,8 @@ type Payload struct {
 	Uncovered  []Uncovered `json:"uncovered"`
 	Counts     Counts      `json:"counts"`
 	PeriodDays int         `json:"period_days"`
+
+	below map[string]struct{} // cụm từ của câu dưới ngưỡng k, để kiểm đầu ra LLM; không lưu
 }
 
 // Counts: tổng quan báo cáo.

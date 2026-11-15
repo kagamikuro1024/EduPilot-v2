@@ -26,7 +26,9 @@ import (
 type stubLLM struct {
 	llm.Client
 	failNames, failEmbed bool
+	leakName             string // khác rỗng: mọi chủ đề được «đặt tên» bằng chuỗi này (mô phỏng LLM chép câu dưới ngưỡng k)
 	structured           int
+	seen                 []string // nội dung user của mọi lời gọi đặt tên
 }
 
 func (s *stubLLM) Embed(_ context.Context, r llm.EmbedRequest) ([][]float32, error) {
@@ -54,6 +56,7 @@ func (s *stubLLM) Embed(_ context.Context, r llm.EmbedRequest) ([][]float32, err
 
 func (s *stubLLM) Structured(_ context.Context, r llm.Request, _ json.RawMessage) (json.RawMessage, error) {
 	s.structured++
+	s.seen = append(s.seen, r.Messages[1].Content)
 	if s.failNames {
 		return nil, errors.New("llm down")
 	}
@@ -64,9 +67,12 @@ func (s *stubLLM) Structured(_ context.Context, r llm.Request, _ json.RawMessage
 		_, _ = fmt.Sscanf(blk, "%d", &id)
 		name := "Chủ đề khác"
 		for _, k := range []string{"TCP", "SQL", "Docker"} {
-			if strings.Contains(blk, k) {
+			if strings.Contains(strings.ToLower(blk), strings.ToLower(k)) {
 				name = "Chủ đề " + k
 			}
+		}
+		if s.leakName != "" {
+			name = s.leakName
 		}
 		topics = append(topics, map[string]any{"id": id, "name": name, "recommendation": "Ôn lại " + name})
 	}
@@ -127,10 +133,10 @@ func (r *rig) ask(i int, text string, noCtx, low bool) {
 
 func (r *rig) seed() {
 	for k := range 30 { // A: 6 sinh viên, tự tin thấp nhiều
-		r.ask(k%6, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k), false, k%2 == 0)
+		r.ask(k%6, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k%5), false, k%2 == 0) // 5 câu, mỗi câu do nhiều sinh viên hỏi
 	}
 	for k := range 20 { // B: 5 sinh viên
-		r.ask(6+k%5, fmt.Sprintf("Viết SQL join hai bảng thế nào, câu %d?", k), false, false)
+		r.ask(6+k%5, fmt.Sprintf("Viết SQL join hai bảng thế nào, câu %d?", k%4), false, false)
 	}
 	for k := range 2 { // C: đúng 2 sinh viên
 		r.ask(11+k, fmt.Sprintf("Docker compose dùng ra sao, câu %d?", k), false, false)
@@ -189,6 +195,77 @@ func TestKnowledgeGapUncoveredMinStudents(t *testing.T) {
 	}
 }
 
+// TestKnowledgeGapExamplesPerQuestion — P-11-32: câu mẫu của chủ đề chỉ gồm câu (chuẩn hoá) do ≥ 3 sinh viên KHÁC NHAU hỏi; cụm 5 sinh viên mà mỗi câu chỉ 1 người hỏi → 0 câu mẫu
+// (chủ đề vẫn xếp hạng); câu do 3 sinh viên hỏi (lệch khoảng trắng) gộp một dòng.
+func TestKnowledgeGapExamplesPerQuestion(t *testing.T) {
+	r := newRig(t, 13)
+	for k := range 5 { // cụm SQL: 5 sinh viên, mỗi câu một người hỏi một lần
+		r.ask(k, fmt.Sprintf("Viết SQL join hai bảng thế nào, riêng em %d bị lỗi mã sinh viên", k), false, false)
+	}
+	for k := range 25 { // cụm TCP: 5 câu, mỗi câu 5 sinh viên hỏi — chỉ cần đủ dữ liệu; câu thứ 0 có lần viết thêm khoảng trắng
+		text := fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k%5)
+		if k%5 == 0 && k%2 == 0 {
+			text = "       " + text // thêm 7 khoảng trắng (cùng cụm nhúng của stub): vẫn là một câu chuẩn hoá
+		}
+		r.ask(5+k/5, text, false, false)
+	}
+	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	p := r.report()
+	var sql, tcp *insight.Topic
+	for i := range p.Topics {
+		switch p.Topics[i].Signals.Questions {
+		case 5:
+			sql = &p.Topics[i]
+		case 25:
+			tcp = &p.Topics[i]
+		}
+	}
+	require.NotNil(t, sql)
+	require.Equal(t, 5, sql.Signals.Students)
+	require.False(t, sql.FewAsked)
+	require.Empty(t, sql.Examples, "5 sinh viên, mỗi câu một người → không câu mẫu")
+	require.NotNil(t, tcp)
+	require.NotEmpty(t, tcp.Examples)
+	for _, e := range tcp.Examples {
+		require.NotContains(t, e, "riêng em")
+	}
+	rep, err := r.svc.Latest(t.Context(), r.course)
+	require.NoError(t, err)
+	md, err := r.svc.Export(t.Context(), r.course, rep.Report.ID)
+	require.NoError(t, err)
+	require.NotContains(t, md, "riêng em")
+}
+
+// TestKnowledgeGapNamingNoLeak — P-11-32: đầu vào đặt tên chỉ có câu đạt ngưỡng k; đầu ra LLM chép ≥ 6 từ liên tiếp của câu dưới ngưỡng → thay «Chủ đề N», bỏ khuyến nghị.
+func TestKnowledgeGapNamingNoLeak(t *testing.T) {
+	r := newRig(t, 13)
+	for k := range 5 {
+		r.ask(k, fmt.Sprintf("Viết SQL join hai bảng thế nào, riêng em %d bị lỗi mã sinh viên", k), false, false)
+	}
+	for k := range 25 {
+		r.ask(5+k/5, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k%5), false, false)
+	}
+	r.llm.leakName = "Ôn: viết SQL join hai bảng thế nào, riêng"
+	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	p := r.report()
+	require.NotEmpty(t, p.Topics)
+	for _, tp := range p.Topics {
+		require.Equal(t, fmt.Sprintf("Chủ đề %d", tp.Rank), tp.Name, "tên chép câu dưới ngưỡng bị thay")
+		require.Equal(t, "fallback", tp.NamedBy)
+		require.Empty(t, tp.Recommendation)
+	}
+	// đầu vào gửi LLM không chứa câu dưới ngưỡng: kiểm bằng lời gọi tiếp theo
+	r.llm.leakName = ""
+	r.llm.seen = nil
+	_, err = r.svc.RunNow(t.Context(), r.teacher, r.course, 14)
+	require.NoError(t, err)
+	for _, m := range r.llm.seen {
+		require.NotContains(t, m, "riêng em")
+	}
+}
+
 // TestKnowledgeGap — US-P10-04: A, B đứng đầu; chủ đề < 3 sinh viên không có câu mẫu; ngoài tài liệu có mục riêng; không danh tính trong payload.
 func TestKnowledgeGap(t *testing.T) {
 	r := newRig(t, 13)
@@ -209,8 +286,8 @@ func TestKnowledgeGap(t *testing.T) {
 	require.InDelta(t, 0.5, p.Topics[0].Signals.LowRate, 0.01)
 	require.Nil(t, p.Topics[0].Signals.PracticeWrongRate, "lớp chưa luyện đề: tín hiệu P vắng, trọng số chia đều")
 
-	// k = 3: A, B có 3–5 câu mẫu; C (2 sinh viên) không có câu mẫu + nhãn
-	require.GreaterOrEqual(t, len(p.Topics[0].Examples), 3)
+	// k = 3 theo từng câu (P-11-32): A, B có câu mẫu (mỗi câu ≥ 3 sinh viên hỏi); C (2 sinh viên) không có câu mẫu + nhãn
+	require.GreaterOrEqual(t, len(p.Topics[0].Examples), 1)
 	require.LessOrEqual(t, len(p.Topics[0].Examples), insight.MaxExamples)
 	var c *insight.Topic
 	for i := range p.Topics {

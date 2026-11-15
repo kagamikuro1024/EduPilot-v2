@@ -475,7 +475,7 @@ func (s *Service) build(ctx context.Context, q *store.Queries, courseID uuid.UUI
 		sigs[i] = cls[i].sig
 	}
 	scores := Score(sigs, pres)
-	pl := Payload{PeriodDays: days, Counts: Counts{Questions: len(d.items), Clusters: len(cls)}, Topics: []Topic{}, Uncovered: uncovered(d.items)}
+	pl := Payload{below: belowGrams(d.items), PeriodDays: days, Counts: Counts{Questions: len(d.items), Clusters: len(cls)}, Topics: []Topic{}, Uncovered: uncovered(d.items)}
 	all := map[uuid.UUID]bool{}
 	for _, it := range d.items {
 		all[it.student] = true
@@ -506,7 +506,7 @@ func (s *Service) build(ctx context.Context, q *store.Queries, courseID uuid.UUI
 			}
 		}
 		t.Name = tempName(c.keys, rank+1)
-		t.samples = sampleTexts(d.items, c.idx)
+		t.samples = t.Examples // đầu vào đặt tên: CHỈ câu đạt ngưỡng k (P-11-32)
 		pl.Topics = append(pl.Topics, t)
 	}
 	return pl, nil
@@ -573,38 +573,32 @@ func tempName(keys []string, rank int) string {
 	return strings.Join(keys, ", ")
 }
 
-// pickExamples: 3–5 câu mẫu, mỗi câu từ một sinh viên khác nhau khi có thể (vòng 1 mỗi người một câu, thiếu thì lấy thêm).
+// pickExamples: câu mẫu k-ẩn danh theo TỪNG CÂU (P-11-32, như `uncovered` P-11-31): gom theo câu chuẩn hoá, chỉ giữ câu do ≥ MinStudents sinh viên KHÁC NHAU hỏi
+// (một người hỏi nhiều lần = một). Nhiều sinh viên nhất trước, tối đa MaxExamples; không câu nào đạt → rỗng (chủ đề vẫn xếp hạng, không câu mẫu).
 func pickExamples(items []item, idx []int) []string {
-	seen := map[uuid.UUID]bool{}
-	var out, rest []string
+	type agg struct {
+		text     string
+		students map[uuid.UUID]struct{}
+	}
+	groups := map[string]*agg{}
+	var order []*agg
 	for _, i := range idx {
-		t := trim(items[i].text)
-		if seen[items[i].student] {
-			rest = append(rest, t)
-			continue
+		k := textfold.Collapse(items[i].text)
+		g, ok := groups[k]
+		if !ok {
+			g = &agg{text: trim(items[i].text), students: map[uuid.UUID]struct{}{}}
+			groups[k] = g
+			order = append(order, g)
 		}
-		seen[items[i].student] = true
-		out = append(out, t)
+		g.students[items[i].student] = struct{}{}
 	}
-	if len(out) > MaxExamples {
-		out = out[:MaxExamples]
-	}
-	for _, t := range rest {
-		if len(out) >= 3 {
+	sort.SliceStable(order, func(i, j int) bool { return len(order[i].students) > len(order[j].students) })
+	out := []string{}
+	for _, g := range order {
+		if len(g.students) < MinStudents || len(out) == MaxExamples {
 			break
 		}
-		out = append(out, t)
-	}
-	return out
-}
-
-func sampleTexts(items []item, idx []int) []string {
-	var out []string
-	for _, i := range idx {
-		if len(out) == MaxExamples {
-			break
-		}
-		out = append(out, trim(items[i].text))
+		out = append(out, g.text)
 	}
 	return out
 }
@@ -676,4 +670,41 @@ func (s *Service) insert(ctx context.Context, p payload, from, to time.Time, raw
 		return store.InsightReportInsertRow{}, fmt.Errorf("insight: chốt báo cáo: %w", err)
 	}
 	return row, nil
+}
+
+const leakWords = 6 // ≥ 6 từ liên tiếp trùng một câu dưới ngưỡng k = lộ câu (P-11-32)
+
+// belowGrams: mọi cụm leakWords từ liên tiếp (đã bỏ dấu, chữ thường) của các câu chuẩn hoá do < MinStudents sinh viên khác nhau hỏi.
+func belowGrams(items []item) map[string]struct{} {
+	students := map[string]map[uuid.UUID]struct{}{}
+	words := map[string][]string{}
+	for _, it := range items {
+		k := textfold.Collapse(it.text)
+		if students[k] == nil {
+			students[k] = map[uuid.UUID]struct{}{}
+			words[k] = textfold.Words(it.text)
+		}
+		students[k][it.student] = struct{}{}
+	}
+	out := map[string]struct{}{}
+	for k, w := range words {
+		if len(students[k]) >= MinStudents {
+			continue
+		}
+		for i := 0; i+leakWords <= len(w); i++ {
+			out[strings.Join(w[i:i+leakWords], " ")] = struct{}{}
+		}
+	}
+	return out
+}
+
+// leaks: văn bản do LLM sinh có chép ≥ leakWords từ liên tiếp của một câu dưới ngưỡng k.
+func leaks(text string, below map[string]struct{}) bool {
+	w := textfold.Words(text)
+	for i := 0; i+leakWords <= len(w); i++ {
+		if _, ok := below[strings.Join(w[i:i+leakWords], " ")]; ok {
+			return true
+		}
+	}
+	return false
 }

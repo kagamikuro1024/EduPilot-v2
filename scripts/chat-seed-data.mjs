@@ -88,8 +88,6 @@ export const TOPIC_C = [
   "HTTP và HTTPS khác nhau ở điểm nào?",
 ];
 
-const PREFIX = ["", "Cho em hỏi: ", "Giải thích giúp em: "];
-
 /**
  * 150 câu hỏi cố định của lớp 1 (theo `rand` có hạt giống): lệch về A và B (85 + 45), chủ đề D 10 câu (chỉ 2 sinh viên hỏi — chia ở seed.mjs), 10 tin ngoài tài liệu.
  * Mỗi câu một khoá riêng (`#n`) để chạy lại không nhân đôi.
@@ -97,7 +95,7 @@ const PREFIX = ["", "Cho em hỏi: ", "Giải thích giúp em: "];
 export function chatQuestions(rand) {
   const out = [];
   const add = (list, n) => {
-    for (let i = 0; i < n; i++) out.push(`${PREFIX[Math.floor(i / list.length) % PREFIX.length]}${list[i % list.length]}`);
+    for (let i = 0; i < n; i++) out.push(list[i % list.length]);
   };
   add(TOPIC_A, 85);
   add(TOPIC_B, 45);
@@ -115,7 +113,7 @@ export const isTopicD = (text) => TOPIC_D.some((q) => text.endsWith(q));
 /** 40 câu của lớp 2, lệch hẳn về chủ đề C. */
 export function chatQuestionsLop2() {
   const out = [];
-  for (let i = 0; i < 40; i++) out.push(`${PREFIX[Math.floor(i / TOPIC_C.length) % PREFIX.length]}${TOPIC_C[i % TOPIC_C.length]}`);
+  for (let i = 0; i < 40; i++) out.push(TOPIC_C[i % TOPIC_C.length]);
   return out;
 }
 
