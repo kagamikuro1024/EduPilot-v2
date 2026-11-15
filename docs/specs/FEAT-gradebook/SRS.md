@@ -434,7 +434,7 @@ Khung nhìn đầu: tiêu đề "Sổ điểm" + bộ chọn lớp; banner mỏn
 
 ### 7.3 `/me` phần điểm (`DESIGN.md` §14.9; thay khối "chưa có dữ liệu")
 
-Dưới khối Chuyên cần / Điểm cộng đã có: **câu nhận định** một dòng; `GradeCalculation` tuyến tính từ `text` (P-11-15; dòng thô: "Điểm học phần thô 7,2 = Giữa kỳ 7,5 × 20% + Kiểm tra hằng tuần 8,0 × 20% …"; không `min`, `max`, `÷`, ngoặc; mỗi dòng có `Căn cứ` mở đoạn trích quy chế); **what-if** một dòng "Nếu cuối kỳ được [ 8,0 ], điểm học phần sẽ là…" → kết quả tại chỗ (điểm + điểm chữ + một dòng phép tính) và liên kết `Hỏi trợ lý` mở chat riêng với câu gợi ý; dòng ghi chú cố định. Không streak, xếp hạng, so sánh, vòng tiến độ, huy hiệu, câu động viên; không từ kỹ thuật AI (`DESIGN.md` §13). 375 px: một cột, ô what-if rộng đủ ngón tay.
+Dưới khối Chuyên cần / Điểm cộng đã có: **dòng điểm** `nhãn + giá trị` (P-11-6a); `GradeCalculation` tuyến tính từ `text` (P-11-15; dòng thô: "Điểm học phần thô 7,2 = Giữa kỳ 7,5 × 20% + Kiểm tra hằng tuần 8,0 × 20% …"; không `min`, `max`, `÷`, ngoặc; mỗi dòng có `Căn cứ` mở đoạn trích quy chế); **what-if** một dòng "Nếu cuối kỳ được [ 8,0 ], điểm học phần sẽ là…" → kết quả tại chỗ (điểm + điểm chữ + một dòng phép tính) và liên kết `Hỏi trợ lý` mở chat riêng với câu gợi ý; dòng ghi chú cố định. Không streak, xếp hạng, so sánh, vòng tiến độ, huy hiệu, câu động viên; không từ kỹ thuật AI (`DESIGN.md` §13). 375 px: một cột, ô what-if rộng đủ ngón tay.
 
 ### 7.4 Khác
 

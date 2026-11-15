@@ -603,7 +603,7 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 
 ### Tiêu chí nghiệm thu
 - AC1 (một khối). Given `/me` có điểm When xem Then chỉ **một** khối giải trình; mỗi dòng: tên thành phần · trọng số % · điểm ("Giữa kỳ · 20 % · 7,5"), "Căn cứ · tr. 1" nằm cùng dòng; khối liệt kê thành phần riêng trước đó bị bỏ. **Không có cột "đóng góp"** ở 9.1: `/courses/{id}/me/grades` không trả giá trị này và UI không tự tính điểm; đổi hợp đồng API không thuộc sprint giao diện (P-91-11).
-- AC2 (đầu trang). Given tiêu đề When xem Then `h1` "Kết quả của tôi" không còn dòng phụ mã lớp trần "761987" (US-UX91-01 dòng 32); câu tóm tắt "Điểm quá trình hiện tại của bạn là 8,25 trên 10." giữ.
+- AC2 (đầu trang). Given tiêu đề When xem Then `h1` "Kết quả của tôi" không còn dòng phụ mã lớp trần "761987" (US-UX91-01 dòng 32); dòng tóm tắt "Điểm quá trình 8,25 / 10" (nhãn + giá trị, P-11-6a) thay câu dài "Điểm quá trình hiện tại của bạn là 8,25 trên 10."
 - AC3 (số chính xác). Given điểm When hiển thị Then dùng đúng giá trị máy chủ trả (không tự tính lại hay làm tròn ở UI; điểm là code thuần).
 - AC4 (không lộ). Given sinh viên chưa được công bố điểm nháp / ghi chú quan sát / nhãn rủi ro When xem Then **không** hiện; chỉ điểm đã công bố.
 - AC5 (yêu cầu xem lại). Given điểm đã công bố When bấm "Yêu cầu xem lại" Then hành vi hiện có (không đổi), đúng một nút phụ.
