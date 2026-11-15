@@ -627,5 +627,6 @@
       "minute": 101,
       "DONE": 1000
     }
-  ]
+  ],
+  "note": "LẦN 2, ĐẠT: 1000/1000 DONE trong 1,68 h (SLO ≤ 3 h), 0 FAILED, 0 mồ côi, 0 chấm hai lần. Mã có P-11-23 (ff00b5aa). Mạng en0, Tailscale tắt; watchdog 9router v4 (chỉ khởi động lại khi mất cổng), không có dòng khởi động lại trong 13:26–15:07 (+07). Stack demo dừng trong lúc đo. Độ trễ mỗi lượt LLM của lần này KHÔNG có (ep-t1 down -v trước khi trích llm_audit)."
 }

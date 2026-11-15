@@ -238,5 +238,6 @@
       "FAILED": 678,
       "DONE": 322
     }
-  ]
+  ],
+  "note": "LẦN 1, KHÔNG ĐẠT (giữ làm bằng chứng): 322 DONE / 678 FAILED trong 0,55 h. Phút 21 (05:21–05:22Z) watchdog v2 của PM khởi động lại 9router đang bận (3 lần thăm dò /v1/models quá 15 s) ⇒ 18 lỗi NETWORK + 2 TIMEOUT ⇒ mạch LLM mở 30 s ⇒ 4.545 lượt bị chặn circuit_open ⇒ hàng đợi chấm (3 lượt, backoff 25 s < 30 s) đốt hết lượt của 500 bài. Lỗi mã (P-11-23, fix/dr-06), không phải VPN. Chạy lại ở load-c-1000-9router-run2.json."
 }
