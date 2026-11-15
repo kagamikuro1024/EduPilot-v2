@@ -16,7 +16,7 @@ out=""
 out+=$(api -H "$(idem)" -X POST "$GW/api/v1/admin/llm/providers" -d "{\"type\":\"fake\",\"name\":\"CN0\",\"api_key\":\"$CANARY\",\"models\":$M}")
 made=$(api -H "$(idem)" -X POST "$GW/api/v1/admin/llm/providers" -d "{\"type\":\"fake\",\"name\":\"CN1\",\"api_key\":\"$CANARY\",\"skip_verify\":true,\"models\":$M}")
 out+="$made"
-ID=$(echo "$made" | sed -n 's/.*"id":"\([0-9a-f-]\{36\}\)".*/\1/p' | head -1)
+ID=$(echo "$made" | grep -o '"id":"[0-9a-f-]\{36\}"' | head -1 | cut -d'"' -f4) # id nhà cung cấp = id đầu tiên (models[].id đứng sau)
 out+=$(api -H "$(idem)" -X POST "$GW/api/v1/admin/llm/providers" -d "{\"type\":\"nope\",\"name\":\"CN2\",\"api_key\":\"$CANARY\"")
 out+=$(api -X PUT "$GW/api/v1/admin/llm/providers/$ID" -d "{\"type\":\"fake\",\"name\":\"CN1\",\"api_key\":\"${CANARY}2\",\"skip_verify\":true,\"version\":1}")
 out+=$(api -X PUT "$GW/api/v1/admin/llm/providers/$ID" -d "{\"type\":\"fake\",\"name\":\"CN1\",\"api_key\":\"${CANARY}3\",\"version\":2}")

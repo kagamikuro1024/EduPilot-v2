@@ -53,7 +53,7 @@ for (const [name, value] of [["NODE_ENV", process.env.NODE_ENV], ["APP_ENV", set
 
 const API = setting("API_URL", "https://localhost/api/v1").replace(/\/$/, "");
 const MAILPIT = setting("MAILPIT_URL", "http://localhost:8025").replace(/\/$/, "");
-const PASSWORD = setting("SEED_DEFAULT_PASSWORD", "");
+const PASSWORD = setting("SEED_DEFAULT_PASSWORD", "").trim();
 const RNG_SEED = Number(setting("SEED_RNG", "20261029"));
 if (!PASSWORD) {
   console.error("Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).");
@@ -1093,7 +1093,7 @@ async function importColumn(course, t, itemId, label, bytes) {
   const prev = await call("POST", `/courses/${course}/grade-entries/import`, { token: t, json: { ...body, mode: "preview" } });
   if (prev.body.errors.length > 0) throw new Error(`Tệp ${label}: ${prev.body.errors.length} dòng lỗi (MSSV khớp theo dòng ROSTER, #20)`);
   if (prev.body.rows_ok > 0 && prev.body.unchanged === prev.body.rows_ok) return; // chạy lại: không còn gì đổi → không ghi (khoá ghi nhập gắn với upload_id nên không phát lại được)
-  const done = await call("POST", `/courses/${course}/grade-entries/import`, { token: t, json: { ...body, mode: "commit" }, key: `seed-import-${label}-${sha.slice(0, 12)}` });
+  const done = await call("POST", `/courses/${course}/grade-entries/import`, { token: t, json: { ...body, mode: "commit" }, key: `seed-import-${label}-${pre.body.upload_id}` }); // khoá theo upload_id: chạy lại sau khi dữ liệu bị sửa là tệp mới, thân khác → không đụng IDEMPOTENCY_KEY_REUSED
   vlog("nhập", label, `ghi ${done.body.written}`);
   if (done.body.written > 0) ctx.changed = true;
 }

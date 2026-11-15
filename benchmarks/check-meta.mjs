@@ -12,7 +12,8 @@ let bad = 0;
 for (const f of files(root).filter((x) => !LEGACY.test(path.basename(x)))) {
   const m = JSON.parse(readFileSync(f, "utf8")).meta;
   const miss = [...META_FIELDS, ...(path.basename(f).startsWith("load-") ? K6_FIELDS : [])].filter((k) => m?.[k] === undefined || m[k] === "");
-  if (miss.length || m.machine !== MACHINE) { bad++; console.error(`${path.relative(process.cwd(), f)}: ${miss.length ? `thiếu ${miss.join(", ")}` : "machine sai"}`); }
+  const stack = path.basename(f).startsWith("load-") && !miss.includes("demo_stack") && !["stopped", "running"].includes(m.demo_stack) ? `demo_stack «${m.demo_stack}» ∉ stopped|running` : "";
+  if (miss.length || m.machine !== MACHINE || stack) { bad++; console.error(`${path.relative(process.cwd(), f)}: ${miss.length ? `thiếu ${miss.join(", ")}` : stack || "machine sai"}`); }
 }
 console.log(bad ? `${bad} tệp không hợp lệ` : "meta đủ");
 process.exit(bad ? 1 : 0);
