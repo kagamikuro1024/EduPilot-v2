@@ -105,7 +105,7 @@ Stack `ep-qc` dựng lại từ `sprint/11-p10-eval` @`4c919bf5` (seed T0). Lệ
 | E3 | `WAITING_HUMAN` | test–retest P1 QWK 0,885; P1–P2 QWK 0,451 (n = 24: claude qua 9router 403 hạn mức, 36/60 FAILED); gói chấm tay `e3-cham-tay.csv` |
 | E4 | OK | LLM p50 / p95: 3,7 / 6,0 s (gemini-3.8-flash), 2,8 / 5,8 s (claude-sonnet-4-6); chi phí quy đổi / 100 yêu cầu 0,30 / 1,41 USD (gọi thẳng ước 0,14 / 0,75) |
 | E5 | `WAITING_HUMAN` | 100 câu sinh, 0 bị bỏ; duyệt n = 0. Stack đã dựng lại → chạy lại 10 lô khi chủ dự án duyệt (`raw/e5-questions.json` chỉ lưu vết) |
-| E6 | OK, tái lập lệch, chờ đo lại độ trễ | RAM nghỉ gateway 18–21 MiB, worker 18–21 MiB; khởi động lạnh 145–376 ms; image production 17,2 / 16,2 MiB; p95 endpoint 4–17 ms. Max 20–27 s của gradebook là đo lệch do 429 (bộ đo ngủ Retry-After, dev2 điều tra) — bộ đo đã sửa, chạy lại E6 khi có lượt stack |
+| E6 | OK, tái lập lệch (đo lại 2026-11-15 ≈ 18:50 UTC @`468207a7`) | RAM nghỉ gateway 18,4–22,7 MiB, worker 14,3–19,2 MiB; khởi động lạnh 163–795 ms (trung vị lớn nhất 376 ms); image production 17,4 / 16,3 MiB; p95 endpoint 4,5–25,2 ms, max ≤ 52,8 ms; 0 phản hồi ≠ 200, 0 phản hồi 429 (bộ đo mới: một tài khoản mỗi endpoint, không thử lại). Lệch r1/r2: RAM 22,0 %, khởi động gateway 14,9 %, worker 20,9 % → ngoài ±15 % vì giá trị chỉ vài trăm ms / vài chục MiB |
 
 Việc của chủ dự án: soát 50 nhãn E1 + 24 nhãn E2, chấm 60 bài E3, duyệt 100 câu E5; xong chạy `make eval-report`.
 
