@@ -164,8 +164,8 @@
   .courseBtn { max-width: 240px; }
   .search { width: 36px; padding: 0; justify-content: center; border-color: transparent; background: transparent; }
   .searchKey { display: none; }
-  /* chữ ẩn bằng clip (không display:none): nút chỉ còn icon / chữ cái vẫn giữ tên truy cập lấy từ nội dung */
-  .searchText, .profileRole { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  /* chữ ẩn bằng clip (không display:none): nút chỉ còn icon / chữ cái vẫn giữ tên truy cập lấy từ nội dung. `text-overflow: clip`: chữ 1 × 1 px không phải chữ bị cắt thành «…» (AUDIT `ell`) */
+  .searchText, .profileRole { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; text-overflow: clip; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 }
 
 @media (max-width: 719px) {

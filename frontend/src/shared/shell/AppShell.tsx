@@ -168,12 +168,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 title={courseTitle}
               >
                 {role === "student" && !hasCourse ? (
-                  <span className={s.courseCode}>Chưa có lớp</span>
+                  <span className={s.courseCode} title="Chưa có lớp">Chưa có lớp</span>
                 ) : isAll ? (
-                  <span className={s.courseCode}>Tất cả lớp của tôi</span>
+                  <span className={s.courseCode} title="Tất cả lớp của tôi">Tất cả lớp của tôi</span>
                 ) : (
                   <>
-                    <span className={s.courseCode}>{realPicked?.class_code ?? course.code}</span>
+                    <span className={s.courseCode} title={realPicked?.class_code ?? course.code}>{realPicked?.class_code ?? course.code}</span>
                     {" "}
                     <span className={s.courseName} title={courseTitle}>
                       · {realPicked?.name ?? course.name}
