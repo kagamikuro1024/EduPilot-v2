@@ -1,5 +1,5 @@
 # SRS FEAT-attendance-selfcheck Điểm danh tự phục vụ chống gian lận (web + app Android)
-Phiên bản 1.1 · 2026-11-14 · Trạng thái: **DRAFT** (PM đã chốt Q-A-1, Q-A-2, Q-A-4 ở **P-108-2**; chờ PM duyệt toàn bộ). **v1.1 (P-108-2):** xoá hẳn lượt thô sau 30 ngày; `CHECKIN_UNRESOLVED` cho buổi có cửa sổ; **bỏ App Links** — trong app quét bằng `BarcodeDetector` trong WebView, thiếu thì nhập **mã ngắn** hiện dưới QR (FR-3a, FR-10, FR-22).
+Phiên bản 1.2 · 2026-11-15 · Trạng thái: **DRAFT** (PM đã chốt Q-A-1, Q-A-2, Q-A-4 ở **P-108-2**; chờ PM duyệt toàn bộ). **v1.1 (P-108-2):** xoá hẳn lượt thô sau 30 ngày; `CHECKIN_UNRESOLVED` cho buổi có cửa sổ; **bỏ App Links** — trong app quét bằng `BarcodeDetector` trong WebView, thiếu thì nhập **mã ngắn** hiện dưới QR (FR-3a, FR-10, FR-22).
 
 Nguồn: `US.md` (US-AS-01…14), PRD M5, FLOWS F7 + F7b, `docs/sprints/10.8/techlead.md` TL-1, `docs/research/2026-11-14-attendance-anti-cheat.md` (viết tắt «research»), **P-108-1**. Phần lệch có chủ đích so với research ghi ở mục 10.
 
@@ -378,7 +378,7 @@ Dưới `/api/v1`; `…` = `/courses/{id}`. Mọi ghi quan trọng: `Idempotency
 
 | # | Route | Quyền | Ghi chú |
 | --- | --- | --- | --- |
-| 1 | `PUT …/settings {attendance:{…}, version}` | TEACHER | route có sẵn; `409 VERSION_CONFLICT`; `422 VALIDATION_FAILED` |
+| 1 | `PUT …/settings {attendance:{…}, version}` | TEACHER | route có sẵn; `attendance` thay **toàn bộ** chính sách (trường vắng = mặc định); trả `CourseDetail` có `attendance` (Staff đủ trường; STUDENT chỉ `self_checkin`, `require`, `geo_check` — P-108-3); `409 VERSION_CONFLICT`; `422 VALIDATION_FAILED` |
 | 2 | `POST …/sessions/{sid}/checkin-windows {minutes?}` | Staff | `Idempotency-Key`; `201 {id, round, rotate_seconds, closes_at}`; `409 WINDOW_ALREADY_OPEN`, `ROUND_LIMIT`, `SELF_CHECKIN_DISABLED`, `COURSE_ARCHIVED` |
 | 3 | `GET …/sessions/{sid}/checkin-windows` | Staff | tối đa 3 cửa sổ |
 | 4 | `GET …/sessions/{sid}/checkin-windows/{wid}/display` | Staff | `{qr_url, short_code, …}`; `no-store`; `409 WINDOW_CLOSED`; `429` |
