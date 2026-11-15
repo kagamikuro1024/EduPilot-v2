@@ -14,13 +14,15 @@ const config = (phase: string): NextConfig => ({
     // 10.8 (ARCHITECTURE §11.7): CSP + Permissions-Policy cho MỌI route (plugin app gọi được từ mọi trang cùng tên miền). Chỉ bản dựng production: `next dev` cần `unsafe-eval`.
     // `unsafe-inline` vì App Router chèn script nội tuyến khi hydrate (nonce buộc mọi trang kết xuất theo request); KHÔNG `unsafe-eval`, KHÔNG nguồn script ngoài.
     const api = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
+    // URL ký sẵn của kho tệp: trên VPS cùng cổng 443 với ứng dụng (Caddy, path-style) nên là 'self'; kho ở origin khác (compose local, bản dựng cổng test) khai ở đây.
+    const blob = (process.env.NEXT_PUBLIC_BLOB_ORIGIN ?? "").replace(/\/+$/, "");
     const security =
       phase === PHASE_DEVELOPMENT_SERVER
         ? []
         : [
             {
               key: "Content-Security-Policy",
-              value: `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'${api ? ` ${api}` : ""}; media-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'`,
+              value: `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:${blob ? ` ${blob}` : ""}; connect-src 'self'${api ? ` ${api}` : ""}${blob ? ` ${blob}` : ""}; frame-src 'self'${blob ? ` ${blob}` : ""}; media-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'`,
             },
             { key: "Permissions-Policy", value: "camera=(self), geolocation=(self)" },
           ];

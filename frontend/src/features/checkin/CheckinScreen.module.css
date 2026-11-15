@@ -5,7 +5,7 @@
 .form { display: grid; gap: var(--ep-space-3); width: min(100%, 320px); text-align: start; justify-items: stretch; }
 .geo { margin: 0; color: var(--ep-ink-2); font-size: var(--ep-text-body); }
 .scanner { display: grid; gap: var(--ep-space-3); width: 100%; justify-items: center; }
-.video { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: var(--ep-canvas); border-radius: var(--ep-radius-md, 8px); }
+.video { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: var(--ep-canvas); border-radius: var(--ep-radius-md); }
 .dock { display: none; }
 @media (max-width: 719px) {
   .dock { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) var(--ep-space-4); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }

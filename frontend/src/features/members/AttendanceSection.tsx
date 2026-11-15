@@ -92,7 +92,7 @@ export function AttendanceSection({ courseId, canManage }: { courseId: string; c
     );
   }
 
-  if (!q.data || !p) return null;
+  if (!q.data || !p || typeof p.self_checkin !== "boolean") return null; // máy chủ chưa trả chính sách: không dựng công tắc không có trạng thái
   const geoOn = Boolean(p.geofence);
   const num = (v: string, lo: number, hi: number) => Math.min(hi, Math.max(lo, Math.round(Number(v) || 0)));
 

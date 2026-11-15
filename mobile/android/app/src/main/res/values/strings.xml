@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EduPilot</string>
+    <string name="title_activity_main">EduPilot</string>
+    <string name="package_name">vn.edupilot.app</string>
+    <string name="custom_url_scheme">vn.edupilot.app</string>
+</resources>

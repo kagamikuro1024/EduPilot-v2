@@ -78,8 +78,6 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
   // Lịch THẬT (US-P8-03): vài dòng mặc định; spec cần hành vi khác thì tự giả bằng `calApi` (page-level thắng).
   await context.route("**/api/v1/courses/*/calendar**", (r) => (r.request().method() === "GET" ? r.fulfill(json({ items: [calExam(), calItem(), calSession()], next_cursor: null })) : r.fallback()));
   // Điểm danh THẬT (US-P5-02): hai buổi và một lưới mặc định; spec cần hành vi khác thì tự giả bằng `attApi` (page-level thắng).
-  // chi tiết lớp: chính sách điểm danh bằng mã mặc định TẮT (màn /attendance đọc nó trước khi dựng lưới; 10.8)
-  await context.route("**/api/v1/courses/*", (r) => (r.request().method() === "GET" ? r.fulfill(json({ id: r.request().url().split("/").pop(), attendance: { self_checkin: false, rotate_seconds: 10, late_after_min: 15, require: "WEB", geo_check: false } })) : r.fallback()));
   await context.route("**/api/v1/courses/*/sessions**", (r) => {
     const u = new URL(r.request().url()).pathname;
     if (r.request().method() !== "GET") return r.fallback();

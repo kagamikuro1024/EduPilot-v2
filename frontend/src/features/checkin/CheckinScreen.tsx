@@ -7,6 +7,7 @@ import { fmtHM } from "@/features/calendar/calendarApi";
 import { useSession } from "@/shared/session/session";
 import { Button, Field, InlineNotice, Input, Page, PageHeader, Panel, Skeleton, StatusText, type HeaderAction } from "@/shared/ui";
 import { signWithDeviceKey } from "./deviceKey";
+import { hasAttestPlugin, nativeMockLocation, signNative } from "./nativeDevice";
 import { hasBarcodeDetector, Scanner } from "./Scanner";
 import { clearStash, readStash, stashExpired } from "./stash";
 import s from "./CheckinScreen.module.css";
@@ -32,7 +33,8 @@ type View =
 
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 
-function getGeo(): Promise<{ lat: number; lng: number; accuracy_m: number } | { denied: true }> {
+type Geo = { lat: number; lng: number; accuracy_m: number; mock?: boolean } | { denied: true };
+function getGeo(): Promise<Geo> {
   return new Promise((resolve) => {
     if (!navigator.geolocation) return resolve({ denied: true });
     navigator.geolocation.getCurrentPosition(
@@ -82,14 +84,18 @@ export function CheckinScreen() {
       try {
         const msg = `edupilot-checkin-v1|${"code" in inp ? `code:${inp.code}` : inp.token}|${uid}`;
         const policyP = apiClient.get<{ attendance?: { self_checkin?: boolean; geo_check?: boolean } }>(`/courses/${inp.course}`);
-        const [policyRes, device] = await Promise.all([policyP, signWithDeviceKey(msg)]);
+        const [policyRes, device] = await Promise.all([policyP, hasAttestPlugin() ? signNative(msg) : signWithDeviceKey(msg)]); // app: khoá Keystore; web: WebCrypto
         const policy = policyRes.data.attendance;
         if (policy && policy.self_checkin === false) return setView(viaCode ? { k: "entry", error: "Lớp này không điểm danh bằng mã." } : { k: "error", message: "Lớp này không điểm danh bằng mã." });
-        let geo: Awaited<ReturnType<typeof getGeo>> | undefined;
+        let geo: Geo | undefined;
         if (policy?.geo_check) {
           setGeoLine(true); // câu thông báo hiện TRƯỚC khi gọi định vị (Luật 91/2025 Đ31 k3)
           await nextFrame();
           geo = await getGeo();
+          if (hasAttestPlugin() && "lat" in geo) {
+            const mock = await nativeMockLocation();
+            if (mock !== undefined) geo = { ...geo, mock };
+          }
         }
         const { data } = await apiClient.post<{ checked_in_at: string; round: number }>(`/courses/${inp.course}/checkins`, {
           ...("code" in inp ? { code: inp.code } : { token: inp.token }),
