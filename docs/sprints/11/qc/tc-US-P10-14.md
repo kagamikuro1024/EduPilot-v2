@@ -1,6 +1,6 @@
 # QC test case — US-P10-14 (`/admin/audit`: nhật ký kiểm toán, không lộ nội dung)
 Nguồn: `docs/specs/FEAT-p10-eval/US.md` (US-P10-14, AC1–AC11), `SRS.md` v1.7 FR-28, `openapi.yaml` `listAuditLog` (`AuditPage`, `AuditRow`), `QUESTIONS.md` Q-E-26 (mặc định: **không bao giờ** trả `before` / `after`). Hộp đen. TC ID `TC-14-nn`. Quy ước mã `P / F / K` theo `tc-00-chung.md` (K = không kiểm được, tính FAIL, ghi lý do).
-Câu hỏi cho BA (QC thấy US chưa nói rõ): Q-S11-23…26 ở cuối file; chưa trả lời thì ca liên quan ghi **quan sát thực tế**, không FAIL.
+Cập nhật theo BA `e6eba277` (SRS v1.8, US-P10-14 AC1/2/3/4/7): Q-S11-23…26 **đã chốt** — thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, **cursor gắn dấu vân tay bộ lọc** (khác → `422 INVALID_CURSOR`), `limit` mặc định **30**.
 
 ## Quy ước và dữ liệu
 - `$B` = `https://localhost:<cổng ep-qc>/api/v1`; `$A` = JWT ADMIN; `$T`, `$TA`, `$S` = JWT `teacher@`, `ta@`, `sv.kha@`. `vl()` = `select count(*) from audit_log where action='VIEW_LIST'` (đo bằng psql trong container Postgres; bảng chỉ-thêm nên QC chỉ **INSERT** dòng thử, không sửa / xoá).
@@ -36,7 +36,7 @@ Câu hỏi cho BA (QC thấy US chưa nói rõ): Q-S11-23…26 ở cuối file; 
 | TC-14-13 | AC2 | F3 | `changed_fields` của dòng F3 | Đúng `["cfg","email","reason","student_code"]` (hợp `before ∪ after`, tên khoá cấp 1, sắp chữ cái) | API |
 | TC-14-14 | AC2 | F5 | Dòng 25 khoá | `changed_fields.length = 20`, sắp chữ cái, là **20 khoá đầu** của hợp (kể cả `zz_before_only` chỉ khi nằm trong 20) | API |
 | TC-14-15 | AC2 | F5 | Dòng `before = NULL, after = NULL` | `changed_fields = []` (không `null`, không lỗi) | API |
-| TC-14-16 | AC2 | F5 | Dòng `after` là mảng / chuỗi JSON | `200`, `changed_fields = []` (hoặc quan sát thực tế — Q-S11-25); không `500` | API |
+| TC-14-16 | AC2 | F5 | Dòng `after` là mảng / chuỗi JSON | `200`, `changed_fields = []` (Q-S11-25 đã chốt); không `500` | API |
 | TC-14-17 | AC2 | Dòng thật `VIEW_DETAIL` | Lọc `entity=llm_request` sau khi mở một yêu cầu | Chỉ có `changed_fields: ["reason"]`; thân không chứa chữ lý do đã nhập | API |
 | TC-14-18 | AC2 | `student_profile`, cấu hình tích hợp, `llm_request` | Mở từng `entity` có sẵn trong DB (`select distinct entity`) | Với mọi `entity`, thân phản hồi không chứa giá trị của `before` / `after`: so từng giá trị chuỗi dài ≥ 6 ký tự lấy từ DB, 0 khớp | API+DB |
 | TC-14-19 | AC2 | – | Log gateway sau mọi ca của file này | `docker compose logs gateway worker` không chứa `SECRET-CANARY`, `canary1@sv.example`, `20229001` | TAY |
@@ -45,21 +45,26 @@ Câu hỏi cho BA (QC thấy US chưa nói rõ): Q-S11-23…26 ở cuối file; 
 ## AC3 — phân trang con trỏ
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- | --- |
-| TC-14-21 | AC3 | F1 (230), F2 | `limit` mặc định, `entity=qc_audit` | `items.length = 50`; `next_cursor` khác `null` | API |
+| TC-14-21 | AC3 | F1 (230), F2 | `limit` mặc định (không gửi), `entity=qc_audit` | `items.length = 30` (`httpx.DefaultLimit`); `next_cursor` khác `null` | API |
 | TC-14-22 | AC3 | F1 + F2 (290 dòng) | Đi hết trang bằng `limit=50` rồi `limit=100` | Hợp các trang = 290 `id`, **không trùng, không sót** (so với `select id … order by created_at desc, id desc`); trang cuối `next_cursor = null` | API |
 | TC-14-23 | AC3 | F2 (60 dòng cùng `created_at`) | `limit=7` đi hết | Không lặp / sót dòng giữa các trang dù trùng `created_at` | API |
 | TC-14-24 | AC3 | F1 | Lấy trang 1, **INSERT 5 dòng mới** (`created_at = now()`), rồi lấy trang 2 bằng `next_cursor` | Trang 2 liền mạch với trang 1 (không trùng, không sót, không có 5 dòng mới); gọi mới lại thấy 5 dòng đầu | API |
-| TC-14-25 | AC3 | – | `limit=1`, `limit=100`, `limit=50` | Trả đúng số dòng (nếu đủ); `100` không vượt `maxItems: 100` | API |
+| TC-14-25 | AC3 | – | `limit=1`, `limit=100`, `limit=30`, `limit=` (rỗng) | Trả đúng số dòng (nếu đủ); `100` không vượt `maxItems: 100`; `limit=` rỗng = như không gửi (30) | API |
 | TC-14-26 | AC3 | F7 (≥ 100.000) | Đi tới trang 1.000 (`limit=100`) và đo thời gian từng trang | Thời gian trang cuối ≈ trang đầu (không tăng tuyến tính → không OFFSET); p95 ≤ 300 ms | API |
 | TC-14-27 | AC3 | – | `grep -rn "OFFSET" backend-go/internal/audit backend-go/internal/store/queries/*audit*` | 0 khớp | DIFF |
 | TC-14-28 | AC3 | – | Trang cuối | `next_cursor` là `null` (không phải chuỗi rỗng); `limit` đúng bằng số dòng còn lại → vẫn `null` hoặc trang rỗng kế (ghi quan sát, không FAIL) | API |
+| TC-14-28b | AC3 | F1 | Lấy `next_cursor` với `entity=qc_audit&actor_id=<ADMIN>&from=$F&to=$T0`; dùng lại **đúng** bộ lọc, `limit` khác (10 → 25) | `200`, trang kế liền mạch (`limit` không nằm trong dấu vân tay) | API |
+| TC-14-28c | AC3 | F1 | Cùng `next_cursor` nhưng đổi bộ lọc: (a) đổi `entity`, (b) thêm `actor_id`, (c) bỏ `actor_id`, (d) đổi `from`, (e) đổi `to`, (f) thêm `from` khi trước đó không có, (g) bỏ `entity` | Cả bảy: `422 INVALID_CURSOR` (không tiếp tục theo bộ lọc mới); `vl()` không đổi | API+DB |
+| TC-14-28d | AC3 | – | Lấy `next_cursor` khi **không** gửi `from` / `to` (mặc định 7 ngày), dùng lại cũng không gửi, sau khi đợi 70 giây | `200` (dấu vân tay «thiếu = thiếu», không dời theo `now`); trang liền mạch | API |
+| TC-14-28e | AC3 | – | Cùng một thời điểm viết khác dạng (`2026-11-14T03:00:00Z` ↔ `2026-11-14T10:00:00+07:00`) giữa hai trang | Ghi quan sát: `422` hoặc `200`; không `500`; báo BA nếu `422` (Q-S11-27) | API (quan sát) |
+| TC-14-28f | AC4 | – | `from=2026-11-14T10:00:00+07:00` | `VIEW_LIST.after.from` = `2026-11-14T03:00:00Z` (UTC) | API+DB |
 
 ## AC4 / AC5 — xem cũng bị ghi, ghi hỏng thì không trả
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- | --- |
 | TC-14-29 | AC4 | `n0 = vl()` | Một lần `GET /admin/audit?entity=qc_audit&actor_id=<ADMIN>&from=…&to=…` | `vl() = n0 + 1`; dòng mới: `entity='audit_log'`, `entity_id = <ADMIN id>`, `action='VIEW_LIST'`, `actor_id = ADMIN`, `trace_id` có; `after` có **đúng** các khoá `entity, actor_id, from, to, has_cursor, returned` (không khoá khác), giá trị khớp tham số / số dòng trả | API+DB |
-| TC-14-30 | AC4 | – | Không tham số lọc | `after.entity = null`, `after.actor_id = null`; `from` / `to` ghi khoảng 7 ngày thực tế (không `null`) hoặc `null` — ghi quan sát (Q-S11-23) | API+DB |
-| TC-14-31 | AC4 | – | Gọi trang 2 bằng `cursor` | Thêm một dòng, `has_cursor = true`, `returned` = số dòng trang 2 | API+DB |
+| TC-14-30 | AC4 | – | Không tham số lọc | `after.entity = null`, `after.actor_id = null`; `after.from` / `after.to` là khoảng **đã áp dụng** (RFC 3339 UTC, không `null`): `to` ≈ thời điểm gọi, `from = to − 7 ngày` | API+DB |
+| TC-14-31 | AC4 | – | Gọi trang 2 bằng `cursor` (cùng bộ lọc) | Thêm một dòng, `has_cursor = true`, `returned` = số dòng trang 2 | API+DB |
 | TC-14-32 | AC4 | – | Gọi hai lần liên tiếp cùng tham số | Hai dòng `VIEW_LIST` khác `id`; dòng của lần 1 **có** ở phản hồi lần 2 (lọc `entity=audit_log`), **không** có ở phản hồi lần 1 | API |
 | TC-14-33 | AC4 | – | Phản hồi lần 1: tìm `VIEW_LIST` của chính lần 1 (`entity=audit_log`) | Không có (dòng ghi "trong cùng giao dịch" nhưng không nằm trong chính phản hồi) | API |
 | TC-14-34 | AC4 | – | 20 lần gọi **song song** | `vl()` tăng đúng 20; mỗi dòng `returned` đúng với phản hồi tương ứng | API+DB |
@@ -80,17 +85,18 @@ Câu hỏi cho BA (QC thấy US chưa nói rõ): Q-S11-23…26 ở cuối file; 
 ## AC7 — tham số lỗi
 | TC | AC | Bước / lệnh (ADMIN) | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- |
-| TC-14-44 | AC7 | `entity=QC_AUDIT`, `entity=1abc`, `entity=a-b`, `entity=` + 65 ký tự, `entity=a%20b` | `422 VALIDATION_FAILED`, `details[]` có `field: "entity"`; (`entity=` rỗng: ghi quan sát — Q-S11-24) | API |
+| TC-14-44 | AC7 | `entity=QC_AUDIT`, `entity=1abc`, `entity=a-b`, `entity=` + 65 ký tự, `entity=a%20b`, `entity=%20%20` (toàn khoảng trắng — không được cắt) | `422 VALIDATION_FAILED`, `details[]` có `field: "entity"` | API |
+| TC-14-44b | AC1, AC7 | Tham số rỗng: `entity=`, `actor_id=`, `from=`, `to=`, `limit=`, `cursor=` (từng cái và tất cả cùng lúc) | `200`, kết quả **giống hệt** khi không gửi tham số đó (`items` cùng `id`, `limit` = 30, khoảng 7 ngày); `VIEW_LIST.after.entity = null` | API |
 | TC-14-45 | AC7 | `actor_id=abc`, `actor_id=123`, `actor_id=<uuid thiếu 1 ký tự>` | `422`, `details[].field = "actor_id"` | API |
 | TC-14-46 | AC7 | `from=2026-13-40`, `from=hôm nay`, `from=1700000000`, `to=2026-11-14` (không giờ) | `422`, `details[].field` là `from` / `to` đúng trường; (`to=2026-11-14` ngày không giờ: theo schema `date-time` → `422`) | API |
 | TC-14-47 | AC7 | `from=2026-11-14T00:00:00Z&to=2026-11-14T00:00:00Z` và `from > to` | `422` (`from ≥ to`) | API |
 | TC-14-48 | AC7 | `to − from` = đúng 90 ngày; = 90 ngày + 1 giây; = 365 ngày | 90 ngày: `200`; ≥ 90 ngày + 1 giây: `422` | API |
-| TC-14-49 | AC7 | `limit=0`, `-1`, `101`, `abc`, `1.5`, `` (rỗng) | `422`, `details[].field = "limit"` | API |
-| TC-14-50 | AC7 | `cursor=abc`, `cursor=` hỏng base64, cursor sửa 1 ký tự, cursor của **endpoint khác** (`next_cursor` của `GET /admin/users`) | `422 INVALID_CURSOR` (không `500`, không `200`) | API |
+| TC-14-49 | AC7 | `limit=0`, `-1`, `101`, `abc`, `1.5` (`limit=` rỗng không lỗi: TC-14-44b) | `422`, `details[].field = "limit"` | API |
+| TC-14-50 | AC7 | `cursor=abc`, `cursor=` hỏng base64, cursor sửa 1 ký tự (kể cả sửa dấu vân tay), cursor của **endpoint khác** (`next_cursor` của `GET /admin/users`) | `422 INVALID_CURSOR` (không `500`, không `200`); không ghi `VIEW_LIST` | API |
 | TC-14-51 | AC7 | Nhiều lỗi cùng lúc (`entity` sai + `limit=0` + `from` sai) | `422` một lần, `details[]` có cả ba trường | API |
 | TC-14-52 | AC7 | Mọi ca TC-14-44…51 | `vl()` không đổi | DB |
 | TC-14-53 | AC7 | Khoảng hợp lệ không có dòng: `from=2001-01-01T00:00:00Z&to=2001-02-01T00:00:00Z` | `200 {items: [], next_cursor: null}` | API |
-| TC-14-54 | AC7 | `from` không kèm `to` (và `to` không kèm `from`) | Ghi quan sát (Q-S11-23): `to` = hiện tại / `from + 7 ngày`? và có áp giới hạn 90 ngày không (`from = now-91d` không `to`) | API (quan sát) |
+| TC-14-54 | AC1, AC7 | Chỉ `from`; chỉ `to`; `from` cũ hơn 90 ngày so với `now` không `to` | Chỉ `from` → `to = now` (`VIEW_LIST.after.to` ≈ lúc gọi); chỉ `to` → `from = to − 7 ngày` (dòng cách `to` 6 ngày có, 8 ngày không); `from = now−89d` không `to` → `200`; `from = now−91d` không `to` → `422` | API |
 | TC-14-55 | AC7 | `go test ./internal/audit -run TestAuditListFilters -v` và `-run TestAuditCursor -v` | `ok` | GO |
 
 ## AC8 — không cache, chỉ đọc
@@ -152,13 +158,15 @@ Câu hỏi cho BA (QC thấy US chưa nói rõ): Q-S11-23…26 ở cuối file; 
 | TC-14-93 | hồi quy | Sau toàn bộ ca: `/observability` mở chi tiết, `/admin/users`, đăng nhập | Không đổi hành vi; dòng `audit_log` cũ giữ nguyên số lượng (trừ dòng thêm) | API |
 | TC-14-94 | F16 | `docs/FLOWS.md` F16 + `e2e-flows.md` | F16 ghi `/admin/audit` đã có; `/admin/health` thuộc PR (ngoài phạm vi, **không** tính FAIL) | DIFF |
 
-## Câu hỏi cho BA (QC ghi nhận; PM chuyển)
-| ID | Câu hỏi | QC đề xuất mặc định |
-| --- | --- | --- |
-| Q-S11-23 | `from` không kèm `to` (hoặc ngược lại) xử lý thế nào: `to = now`, hay `from + 7 ngày`; và `after.from` / `after.to` của dòng `VIEW_LIST` ghi gì khi không có tham số (khoảng mặc định thực tế hay `null`)? Giới hạn 90 ngày áp thế nào khi thiếu một đầu? | `to = now` khi thiếu `to`; `from = to − 7 ngày` khi thiếu `from`; `VIEW_LIST.after` ghi khoảng **đã áp dụng** (giá trị thực), vẫn áp trần 90 ngày |
-| Q-S11-24 | Tham số rỗng (`entity=`, `actor_id=`, `limit=`, `cursor=`): coi như không có hay `422`? | Coi như không có (`entity=`, `actor_id=`, `cursor=`); `limit=` → mặc định 50 |
-| Q-S11-25 | `before` / `after` không phải đối tượng JSON (mảng, chuỗi, số) → `changed_fields` ra gì? | `[]` (không lỗi `500`) |
-| Q-S11-26 | Con trỏ dùng lại với bộ lọc khác giữa hai trang: tiếp tục theo bộ lọc mới hay `422 INVALID_CURSOR`? | Tiếp tục theo `(created_at, id)` với bộ lọc mới (con trỏ chỉ khoá vị trí); ghi vào hợp đồng |
+## Câu hỏi đã chốt và câu hỏi mới
+| ID | Trạng thái |
+| --- | --- |
+| Q-S11-23 (thiếu một đầu khoảng thời gian; `VIEW_LIST.after.from/to`) | Chốt (BA `e6eba277`): chỉ `from` → `to = now`; chỉ `to` → `from = to − 7 ngày`; `after` ghi khoảng đã áp dụng (UTC); trần 90 ngày trên khoảng đã áp dụng. Khớp đề xuất QC |
+| Q-S11-24 (tham số rỗng) | Chốt: bỏ qua như không gửi; `entity` toàn khoảng trắng → `422`. Khớp |
+| Q-S11-25 (`before`/`after` không phải đối tượng) | Chốt: `[]`, không `500`. Khớp |
+| Q-S11-26 (cursor dùng lại với bộ lọc khác) | Chốt: **`422 INVALID_CURSOR`**, dấu vân tay `(entity, actor_id, from, to)` đúng như client gửi. **Khác** đề xuất QC; TC đổi theo (TC-14-28b…f) |
+| `limit` mặc định | **30** (không phải 50); TC-14-21, 25 đổi theo |
+| Q-S11-27 (mới) | Dấu vân tay «đúng như client gửi»: cùng thời điểm khác dạng chữ (`Z` ↔ `+07:00`) có bị `INVALID_CURSOR` không? Đề xuất QC: chuẩn hoá về UTC trước khi băm để client đổi múi giờ không hỏng phân trang. TC-14-28e ghi quan sát |
 
 ## Việc QC làm khi dev báo xong
 1. Nạp F1…F7 (INSERT qua psql, ghi lệnh vào `scripts/`), `ANALYZE audit_log`. 2. Chạy `scripts/au_*.py` (API+DB) và `frontend/e2e/qc-real-audit.spec.ts` (UI 1440 / 375, ảnh vào `docs/sprints/11/qc/shots/`). 3. Chạy các lệnh Go (TC-14-20, 38, 43, 55, 67, 88, 89) và `audit.spec.ts` ở nhánh dev. 4. TC-14-36 cần PM / TL cho phép tạo trigger tạm trên DB ep-qc (khôi phục ngay).
