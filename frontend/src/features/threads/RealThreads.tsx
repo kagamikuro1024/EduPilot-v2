@@ -112,7 +112,7 @@ function Row({ t, hideLabel }: { t: ThreadRow; hideLabel: boolean }) {
   const preview = cleanExcerpt(t.preview);
   return (
     <div className={r.row}>
-      <Link href={`/threads/${t.id}`} className={r.rowLink}>
+      <Link href={`/threads/${t.id}`} prefetch={false} className={r.rowLink}>
         <span className={r.rowTitle}>{t.pinned && <Pin className={r.pin} aria-label="Đã ghim" />}{t.title}</span>
         {preview && <p className={r.preview}>{preview}</p>}
       </Link>
@@ -164,7 +164,7 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       {gate.similar.length > 0 && (
         <ul className={r.similar} data-part="similar-confirmed" aria-label="Đã có câu trả lời xác nhận">
           {gate.similar.map((x) => (
-            <li key={x.thread_id}><Link href={`/threads/${x.thread_id}`}>{x.title}</Link></li>
+            <li key={x.thread_id}><Link href={`/threads/${x.thread_id}`} prefetch={false}>{x.title}</Link></li>
           ))}
         </ul>
       )}
