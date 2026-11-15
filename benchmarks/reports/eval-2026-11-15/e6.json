@@ -1,0 +1,312 @@
+{
+  "meta": {
+    "commit": "4c919bf5",
+    "timestamp": "2026-11-15T11:16:59.098Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 2,
+    "config": {
+      "stack": "ep-qc (1 gateway, 1 worker, seed T0)",
+      "requests_per_endpoint": 200,
+      "warmup": 20,
+      "client": "Python urllib tuần tự, qua Caddy HTTPS"
+    }
+  },
+  "status": "OK",
+  "runs": {
+    "r1": {
+      "meta": {
+        "commit": "4c919bf5",
+        "timestamp": "2026-11-15T11:16:11.416Z",
+        "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+        "runs": 1,
+        "config": {
+          "stack": "ep-qc",
+          "raw": "e6-r1.json"
+        }
+      },
+      "tag": "r1",
+      "idle_ram": {
+        "gateway": {
+          "mem_mib": 21.3,
+          "cpu": "0.02%"
+        },
+        "worker": {
+          "mem_mib": 21.0,
+          "cpu": "0.33%"
+        },
+        "caddy": {
+          "mem_mib": 22.3,
+          "cpu": "3.54%"
+        },
+        "pgbouncer": {
+          "mem_mib": 7.8,
+          "cpu": "0.11%"
+        },
+        "redis": {
+          "mem_mib": 10.6,
+          "cpu": "0.21%"
+        },
+        "postgres": {
+          "mem_mib": 119.1,
+          "cpu": "0.12%"
+        },
+        "docling": {
+          "mem_mib": 1521.7,
+          "cpu": "0.08%"
+        },
+        "minio": {
+          "mem_mib": 98.7,
+          "cpu": "0.00%"
+        },
+        "judge": {
+          "mem_mib": 17.6,
+          "cpu": "0.02%"
+        },
+        "frontend": {
+          "mem_mib": 151.9,
+          "cpu": "0.00%"
+        }
+      },
+      "cold_start_ms": {
+        "gateway": [
+          176,
+          170,
+          156
+        ],
+        "worker": [
+          206,
+          170,
+          144
+        ]
+      },
+      "latency_ms": {
+        "GET /readyz": {
+          "n": 200,
+          "p50": 2.8,
+          "p95": 4.9,
+          "max": 14.0,
+          "mean": 3.0,
+          "non_200": 0
+        },
+        "GET /me/courses (SV)": {
+          "n": 200,
+          "p50": 3.2,
+          "p95": 5.2,
+          "max": 7.9,
+          "mean": 3.5,
+          "non_200": 0
+        },
+        "GET threads lớp 1 (SV)": {
+          "n": 200,
+          "p50": 4.2,
+          "p95": 5.2,
+          "max": 6.1,
+          "mean": 4.3,
+          "non_200": 0
+        },
+        "GET documents lớp 1 (GV)": {
+          "n": 200,
+          "p50": 3.9,
+          "p95": 6.7,
+          "max": 15.5,
+          "mean": 4.3,
+          "non_200": 0
+        },
+        "GET students lớp 1 (GV)": {
+          "n": 200,
+          "p50": 10.1,
+          "p95": 13.7,
+          "max": 20.2,
+          "mean": 10.6,
+          "non_200": 0
+        },
+        "GET gradebook lớp 1 (GV)": {
+          "n": 200,
+          "p50": 7.8,
+          "p95": 9.9,
+          "max": 20525.6,
+          "mean": 110.7,
+          "non_200": 0
+        },
+        "GET today lớp 1 (GV)": {
+          "n": 200,
+          "p50": 3.1,
+          "p95": 4.0,
+          "max": 5.9,
+          "mean": 3.2,
+          "non_200": 0
+        }
+      },
+      "images": {
+        "gateway": {
+          "image": "edupilot-gateway-test",
+          "mib": 17.3
+        },
+        "worker": {
+          "image": "edupilot-worker-test",
+          "mib": 16.2
+        },
+        "gateway_production": {
+          "image": "ep-eval-gateway:4c919bf5",
+          "mib": 17.2
+        },
+        "worker_production": {
+          "image": "ep-eval-worker:4c919bf5",
+          "mib": 16.2
+        }
+      },
+      "colima": "{\"name\":\"default\",\"status\":\"Running\",\"arch\":\"aarch64\",\"cpus\":6,\"memory\":10737418240,\"disk\":107374182400,\"runtime\":\"docker\"}"
+    },
+    "r2": {
+      "meta": {
+        "commit": "4c919bf5",
+        "timestamp": "2026-11-15T11:16:03.548Z",
+        "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+        "runs": 1,
+        "config": {
+          "stack": "ep-qc",
+          "raw": "e6-r2.json"
+        }
+      },
+      "tag": "r2",
+      "idle_ram": {
+        "gateway": {
+          "mem_mib": 18.2,
+          "cpu": "0.09%"
+        },
+        "worker": {
+          "mem_mib": 18.1,
+          "cpu": "3.23%"
+        },
+        "caddy": {
+          "mem_mib": 22.4,
+          "cpu": "0.00%"
+        },
+        "pgbouncer": {
+          "mem_mib": 7.8,
+          "cpu": "0.10%"
+        },
+        "redis": {
+          "mem_mib": 10.8,
+          "cpu": "0.42%"
+        },
+        "postgres": {
+          "mem_mib": 118.4,
+          "cpu": "2.70%"
+        },
+        "docling": {
+          "mem_mib": 1521.7,
+          "cpu": "0.13%"
+        },
+        "minio": {
+          "mem_mib": 98.8,
+          "cpu": "0.04%"
+        },
+        "judge": {
+          "mem_mib": 17.7,
+          "cpu": "0.00%"
+        },
+        "frontend": {
+          "mem_mib": 152.1,
+          "cpu": "0.00%"
+        }
+      },
+      "cold_start_ms": {
+        "gateway": [
+          145,
+          376,
+          366
+        ],
+        "worker": [
+          508,
+          184,
+          157
+        ]
+      },
+      "latency_ms": {
+        "GET /readyz": {
+          "n": 200,
+          "p50": 2.7,
+          "p95": 6.6,
+          "max": 8.8,
+          "mean": 3.1,
+          "non_200": 0
+        },
+        "GET /me/courses (SV)": {
+          "n": 200,
+          "p50": 3.4,
+          "p95": 7.9,
+          "max": 17.7,
+          "mean": 4.0,
+          "non_200": 0
+        },
+        "GET threads lớp 1 (SV)": {
+          "n": 200,
+          "p50": 4.4,
+          "p95": 12.4,
+          "max": 23.5,
+          "mean": 5.3,
+          "non_200": 0
+        },
+        "GET documents lớp 1 (GV)": {
+          "n": 200,
+          "p50": 3.9,
+          "p95": 9.7,
+          "max": 16.8,
+          "mean": 4.6,
+          "non_200": 0
+        },
+        "GET students lớp 1 (GV)": {
+          "n": 200,
+          "p50": 9.3,
+          "p95": 17.4,
+          "max": 27.1,
+          "mean": 10.4,
+          "non_200": 0
+        },
+        "GET gradebook lớp 1 (GV)": {
+          "n": 200,
+          "p50": 8.2,
+          "p95": 16.8,
+          "max": 26539.7,
+          "mean": 142.0,
+          "non_200": 0
+        },
+        "GET today lớp 1 (GV)": {
+          "n": 200,
+          "p50": 3.4,
+          "p95": 8.8,
+          "max": 15.7,
+          "mean": 4.2,
+          "non_200": 0
+        }
+      },
+      "images": {
+        "gateway": {
+          "image": "edupilot-gateway-test",
+          "mib": 17.3
+        },
+        "worker": {
+          "image": "edupilot-worker-test",
+          "mib": 16.2
+        },
+        "gateway_production": {
+          "image": "ep-eval-gateway:4c919bf5",
+          "mib": 17.2
+        },
+        "worker_production": {
+          "image": "ep-eval-worker:4c919bf5",
+          "mib": 16.2
+        }
+      },
+      "colima": "{\"name\":\"default\",\"status\":\"Running\",\"arch\":\"aarch64\",\"cpus\":6,\"memory\":10737418240,\"disk\":107374182400,\"runtime\":\"docker\"}"
+    }
+  },
+  "reproducibility": {
+    "ram_go_pct": 14.2,
+    "cold_gateway_pct": 115.3,
+    "cold_worker_pct": 8.2,
+    "tolerance_pct": 15,
+    "within": false
+  }
+}

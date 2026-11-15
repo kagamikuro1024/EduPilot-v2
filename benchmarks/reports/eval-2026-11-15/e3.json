@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "commit": "4c919bf5",
+    "timestamp": "2026-11-15T11:16:58.807Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "stack": "ep-qc",
+      "providers": {
+        "meta": {
+          "commit": "4c919bf5",
+          "timestamp": "2026-11-15T11:13:28.312Z",
+          "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+          "runs": 1,
+          "config": {
+            "stack": "ep-qc",
+            "raw": "providers.json"
+          }
+        },
+        "embedding": "giả (fake) — đã trả về sau lượt đo",
+        "P1": {
+          "model": "ag/gemini-3.8-flash",
+          "via": "9router (openai_compatible)",
+          "since": "2026-11-15T11:13:28.298Z"
+        },
+        "embed_real_since": "2026-11-15T09:51:48.511Z",
+        "P2": {
+          "model": "ag/claude-sonnet-4-6",
+          "via": "9router (openai_compatible)",
+          "since": "2026-11-15T10:15:53.476Z"
+        },
+        "embed_real_calls": 395,
+        "embed_real_tokens": 0,
+        "embed_real_until": "2026-11-15T10:27:59.437Z"
+      },
+      "dataset": "benchmarks/guidance/kc/data/bt-a (60 bài)",
+      "dataset_sha256": "86d833a00ef2b402ea5b9d9537b48bfae14933b7c53f70219ec9c28dfdf3af2f",
+      "guidance_flag": "tắt"
+    }
+  },
+  "status": "WAITING_HUMAN",
+  "reason": "Chưa có điểm người chấm ≥ 60 bài (Q-E-18). Điểm LLM không được dùng làm chuẩn (vòng tròn). Gói chấm tay: e3-cham-tay.csv.",
+  "human_vs_ai": null,
+  "stability": [
+    {
+      "a": "P1r1",
+      "b": "P1r2",
+      "n": 60,
+      "qwk": 0.885,
+      "mae": 0.325,
+      "pearson": 0.9163,
+      "kind": "test–retest (cùng model, 2 vòng)"
+    },
+    {
+      "a": "P1r1",
+      "b": "P2r1",
+      "n": 24,
+      "qwk": 0.4505,
+      "mae": 0.7292,
+      "pearson": 0.6659,
+      "kind": "đồng thuận giữa hai model"
+    }
+  ],
+  "ai_vs_design_tier": [
+    {
+      "tag": "P1r1",
+      "n": 60,
+      "spearman": 0.4004
+    },
+    {
+      "tag": "P1r2",
+      "n": 60,
+      "spearman": 0.4555
+    },
+    {
+      "tag": "P2r1",
+      "n": 24,
+      "spearman": 0.7699
+    }
+  ],
+  "appendix_simulated_teacher": [
+    {
+      "a": "P1r1",
+      "b": "nhãn GV mô phỏng KC106",
+      "n": 40,
+      "qwk": 0.4416,
+      "mae": 1.575,
+      "pearson": 0.856,
+      "kind": "PHỤ LỤC — nhãn do agent đóng vai giảng viên, KHÔNG phải người chấm"
+    },
+    {
+      "a": "P1r2",
+      "b": "nhãn GV mô phỏng KC106",
+      "n": 40,
+      "qwk": 0.461,
+      "mae": 1.4563,
+      "pearson": 0.8864,
+      "kind": "PHỤ LỤC — nhãn do agent đóng vai giảng viên, KHÔNG phải người chấm"
+    },
+    {
+      "a": "P2r1",
+      "b": "nhãn GV mô phỏng KC106",
+      "n": 5,
+      "qwk": 0.4444,
+      "mae": 1.05,
+      "pearson": 0.8693,
+      "kind": "PHỤ LỤC — nhãn do agent đóng vai giảng viên, KHÔNG phải người chấm"
+    }
+  ],
+  "n_scored": {
+    "P1r1": 60,
+    "P1r2": 60,
+    "P2r1": 24
+  },
+  "llm_calls": {
+    "P1r1": {
+      "circuit_open": 157,
+      "error": 32,
+      "ok": 117
+    },
+    "P1r2": {
+      "circuit_open": 18,
+      "error": 17,
+      "ok": 111
+    },
+    "P2r1": {
+      "circuit_open": 1613,
+      "error": 43,
+      "ok": 48
+    }
+  },
+  "latency_ms": {
+    "P1r1": {
+      "n": 117,
+      "p50": 10733,
+      "p95": 14248,
+      "max": 17826,
+      "mean": 10867.0
+    },
+    "P1r2": {
+      "n": 111,
+      "p50": 10783,
+      "p95": 14415,
+      "max": 22356,
+      "mean": 10980.1
+    },
+    "P2r1": {
+      "n": 48,
+      "p50": 26503,
+      "p95": 33005,
+      "max": 35248,
+      "mean": 27061.4
+    }
+  },
+  "unavailable": {
+    "P2r1": "2026-11-15 18:00–18:13: chấm lại tuần tự bài FAILED bằng claude-sonnet-4-6 — 9router trả 403 hạn mức (antigravity, «reset after 1m») liên tục; 1 bài thử lại vẫn FAILED; dừng để nhả stack. P2 chỉ có 24/60 bài."
+  }
+}

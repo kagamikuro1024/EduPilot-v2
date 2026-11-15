@@ -1,0 +1,553 @@
+{
+  "meta": {
+    "commit": "4c919bf5",
+    "timestamp": "2026-11-15T11:16:59.002Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "stack": "ep-qc",
+      "model": "ag/gemini-3.8-flash",
+      "via": "9router",
+      "plan": [
+        [
+          "Network Security Threats",
+          "Phân loại mối đe doạ an ninh mạng"
+        ],
+        [
+          "Network Security Threats",
+          "Sâu máy tính, virus và trojan"
+        ],
+        [
+          "Network Security Threats",
+          "Tấn công trinh sát"
+        ],
+        [
+          "Network Security Threats",
+          "Tấn công truy cập và leo thang đặc quyền"
+        ],
+        [
+          "Network Security Threats",
+          "Tấn công từ chối dịch vụ"
+        ],
+        [
+          "Network Security Threats",
+          "Biện pháp giảm thiểu tấn công mạng"
+        ],
+        [
+          "Forecasting (QMB ch. 6b)",
+          "Mô hình dự báo chuỗi thời gian"
+        ],
+        [
+          "Forecasting (QMB ch. 6b)",
+          "Trung bình trượt và trung bình trượt có trọng số"
+        ],
+        [
+          "Forecasting (QMB ch. 6b)",
+          "Làm trơn hàm mũ"
+        ],
+        [
+          "Forecasting (QMB ch. 6b)",
+          "Đo sai số dự báo"
+        ]
+      ]
+    }
+  },
+  "status": "WAITING_HUMAN",
+  "reason": "Giảng viên (chủ dự án) mới duyệt 0/100 câu; AC7: ghi cỡ mẫu thật, không nội suy.",
+  "generated": 100,
+  "skipped_by_reason": {},
+  "review": {
+    "unchanged": 0,
+    "edited": 0,
+    "rejected": 0,
+    "pending": 100
+  },
+  "n_reviewed": 0,
+  "rates": null,
+  "llm_calls": 11,
+  "latency_ms": {
+    "n": 11,
+    "p50": 17310,
+    "p95": 28591,
+    "max": 28591,
+    "mean": 16412.4
+  },
+  "tokens_in": 72698,
+  "tokens_out": 24355,
+  "jobs": {
+    "lo01": {
+      "topic": "Phân loại mối đe doạ an ninh mạng",
+      "document": "Network Security Threats",
+      "job_id": "01a1de89-07f8-768d-9556-99d234b6ce97",
+      "t0": "2026-11-15T09:28:04.808Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1de89-30f1-73f8-900d-fa668cd05e43",
+          "01a1de89-30f3-72b2-a945-ceb4f9c15b66",
+          "01a1de89-30f4-7472-9fd9-ed8d9b5a10ca",
+          "01a1de89-30f5-71b1-a5bc-0dc9f5c27a5b",
+          "01a1de89-30f6-7854-b663-4b89df61a0ed",
+          "01a1de89-30f7-7b43-a771-994d218d09dd",
+          "01a1de89-30f8-7c16-9e94-5d5e42a2f0c3",
+          "01a1de89-30f9-7d80-9f07-dda5e1cded51",
+          "01a1de89-30fb-7180-bb46-c5334ed818f9",
+          "01a1de89-30fc-7906-afc2-85871ade3be4"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T09:28:16.876Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 5266,
+          "created_at": "2026-11-15T09:28:04.890197+00:00",
+          "latency_ms": 10452,
+          "tokens_out": 2662,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo02": {
+      "topic": "Sâu máy tính, virus và trojan",
+      "document": "Network Security Threats",
+      "job_id": "01a1de89-371e-7558-97a7-19e12a666791",
+      "t0": "2026-11-15T09:28:16.877Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1de89-a8a4-7dbb-bb46-0c8164ad55bf",
+          "01a1de89-a8a9-7155-af93-4ccf57b80ef4",
+          "01a1de89-a8aa-713f-8449-29f4185a4424",
+          "01a1de89-a8ab-7285-be4e-343645cd7589",
+          "01a1de89-a8ab-7f41-b846-1c28258aba66",
+          "01a1de89-a8ac-7e9d-b51b-4e56d0bc0983",
+          "01a1de89-a8ad-7e4a-b7b2-ec28a0aaa7c1",
+          "01a1de89-a8ae-7ce0-ac41-0cb1aadc36e1",
+          "01a1de89-a8af-7c3c-b982-80903febd5b3",
+          "01a1de89-a8b0-7855-ab10-2c237acb4a28"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T09:28:47.231Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 9715,
+          "created_at": "2026-11-15T09:28:17.388795+00:00",
+          "latency_ms": 28591,
+          "tokens_out": 2729,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo03": {
+      "topic": "Tấn công trinh sát",
+      "document": "Network Security Threats",
+      "job_id": "01a1de89-adb5-7735-9ea2-1a8a9db7b705",
+      "t0": "2026-11-15T09:28:47.232Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1de8a-06a9-7b9e-8cfa-dd13caedc43e",
+          "01a1de8a-06ac-77d3-8f90-c5350613ff7c",
+          "01a1de8a-06ad-784e-8fdf-b72ff2797294",
+          "01a1de8a-06ae-7909-aab0-0aa1e0b6a9a9",
+          "01a1de8a-06af-7926-b4ec-b751be93f016",
+          "01a1de8a-06b0-778c-b81e-0d9e92981d20",
+          "01a1de8a-06b1-76eb-b275-c93c607083d7",
+          "01a1de8a-06b2-75ea-a641-a25464bf876c",
+          "01a1de8a-06b3-77b9-a11c-a8751962c23f",
+          "01a1de8a-06b4-7825-835f-5e95e368d236"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T09:29:11.348Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 9172,
+          "created_at": "2026-11-15T09:28:47.389932+00:00",
+          "latency_ms": 22664,
+          "tokens_out": 2471,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo04": {
+      "topic": "Tấn công truy cập và leo thang đặc quyền",
+      "document": "Network Security Threats",
+      "job_id": "01a1de8a-0bec-7454-9716-c75c2c7bdedc",
+      "t0": "2026-11-15T09:29:11.348Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1de8a-5415-7e20-8332-f5aea9773247",
+          "01a1de8a-5419-70dd-9238-710c93ef2621",
+          "01a1de8a-541a-7602-a8ad-098a14ff432f",
+          "01a1de8a-541b-7406-bf24-dfdcf76c0647",
+          "01a1de8a-541c-7328-9a29-2cc4e5322c8b",
+          "01a1de8a-541d-7582-b284-aafe6f526faf",
+          "01a1de8a-541e-721d-ac0e-2a3f06cc4690",
+          "01a1de8a-541f-70cd-97c7-4068823a9aa5",
+          "01a1de8a-5420-7113-94f3-b99e0e022b7f",
+          "01a1de8a-5420-7b79-952c-dfa7e5cfab90"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T09:29:31.463Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 7511,
+          "created_at": "2026-11-15T09:29:11.889636+00:00",
+          "latency_ms": 17978,
+          "tokens_out": 2290,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo05": {
+      "topic": "Tấn công từ chối dịch vụ",
+      "document": "Network Security Threats",
+      "job_id": "01a1dea6-b457-73ee-bf75-c4e8409823da",
+      "t0": "2026-11-15T10:00:29.463Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1dea7-bb6a-703b-a223-6c75c79c8f21",
+          "01a1dea7-bb6e-73df-a5bf-4522bc2cb798",
+          "01a1dea7-bb6f-7e8c-a201-95c0e4ff57d1",
+          "01a1dea7-bb72-7302-b142-c707786bebc6",
+          "01a1dea7-bb74-7359-a79a-2f5d0ff658b2",
+          "01a1dea7-bb76-7438-91c6-91fb73b43eb9",
+          "01a1dea7-bb78-75ee-bc10-1af87a9770a6",
+          "01a1dea7-bb79-7d58-ade7-a7215e31eaf3",
+          "01a1dea7-bb7a-7fb9-aee8-c149d7b1584d",
+          "01a1dea7-bb7c-7198-8621-aecb62203758"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T10:01:37.842Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "error",
+          "attempts": 3,
+          "provider": "9router",
+          "tokens_in": 0,
+          "created_at": "2026-11-15T10:00:29.888175+00:00",
+          "latency_ms": 6652,
+          "tokens_out": 0,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        },
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 7025,
+          "created_at": "2026-11-15T10:01:21.037376+00:00",
+          "latency_ms": 15827,
+          "tokens_out": 2773,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo06": {
+      "topic": "Biện pháp giảm thiểu tấn công mạng",
+      "document": "Network Security Threats",
+      "job_id": "01a1dea7-bf79-77c9-8cb2-0379ca4ce2ac",
+      "t0": "2026-11-15T10:01:37.844Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1dea7-fdcd-7eb0-8dd7-b75b7b604ec1",
+          "01a1dea7-fdcf-757d-b9b6-e0256dbb0d00",
+          "01a1dea7-fdd0-76db-930d-e948096ce58a",
+          "01a1dea7-fdd1-77df-bfdf-78d808430b19",
+          "01a1dea7-fdd2-7a26-b4f6-088753debde6",
+          "01a1dea7-fdd3-7a58-b5e6-46c73d6e3739",
+          "01a1dea7-fdd4-7b73-9cde-2befcb13c615",
+          "01a1dea7-fdd5-7be8-bc8e-1d2f603f7092",
+          "01a1dea7-fdd6-7dd9-8f84-b3682f1bf559",
+          "01a1dea7-fdd8-7213-beb6-7a38c5b0c1ee"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T10:01:53.947Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 7452,
+          "created_at": "2026-11-15T10:01:38.392776+00:00",
+          "latency_ms": 15474,
+          "tokens_out": 1785,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo07": {
+      "topic": "Mô hình dự báo chuỗi thời gian",
+      "document": "Forecasting (QMB ch. 6b)",
+      "job_id": "01a1dea7-fe5d-7266-9c7d-716f61e1a580",
+      "t0": "2026-11-15T10:01:53.947Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1dea8-4455-701d-9245-7a8278be844a",
+          "01a1dea8-4457-7a21-8cc9-fffe8a539f26",
+          "01a1dea8-4458-7d05-b469-6eae484bd04d",
+          "01a1dea8-4459-7dc2-a5c5-866fb1a112ab",
+          "01a1dea8-445a-7f09-95ca-a52998fba926",
+          "01a1dea8-445c-7dda-9cd3-5255f57192cf",
+          "01a1dea8-445e-7217-8f02-042f2ccf74fa",
+          "01a1dea8-445e-7f8c-b050-f1f93a76bdec",
+          "01a1dea8-4460-796b-a87a-6caf05db2523",
+          "01a1dea8-4461-763d-a713-84da0ecf7d97"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T10:02:12.040Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 6610,
+          "created_at": "2026-11-15T10:01:54.389767+00:00",
+          "latency_ms": 17531,
+          "tokens_out": 2323,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo08": {
+      "topic": "Trung bình trượt và trung bình trượt có trọng số",
+      "document": "Forecasting (QMB ch. 6b)",
+      "job_id": "01a1dea8-450c-7091-977b-9f2f7666255e",
+      "t0": "2026-11-15T10:02:12.040Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1dea8-89d1-77ab-90b1-d3e8d898ba4c",
+          "01a1dea8-89d3-752c-a85b-bc572f6a211b",
+          "01a1dea8-89d4-7583-8c8a-dad73fd07a70",
+          "01a1dea8-89d5-73b3-b2a0-55c49cbbbab7",
+          "01a1dea8-89d6-7084-b405-00613b29f0e5",
+          "01a1dea8-89d6-7f86-ae6e-f9f24d5911bd",
+          "01a1dea8-89d7-7a5f-843e-168fae2179c9",
+          "01a1dea8-89d8-77a9-a215-e9ae07c3639b",
+          "01a1dea8-89d9-7484-ac1b-f33b7a77218a",
+          "01a1dea8-89da-71ae-94eb-3f0721eef363"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T10:02:30.149Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 7918,
+          "created_at": "2026-11-15T10:02:12.399973+00:00",
+          "latency_ms": 17310,
+          "tokens_out": 2334,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo09": {
+      "topic": "Làm trơn hàm mũ",
+      "document": "Forecasting (QMB ch. 6b)",
+      "job_id": "01a1dea8-8bc9-7336-ae4b-875778e6c9f8",
+      "t0": "2026-11-15T10:02:30.149Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1dea8-d607-7e82-aaab-0e682649bd5b",
+          "01a1dea8-d60a-7357-b12c-527920fe29c5",
+          "01a1dea8-d60b-7751-bbb6-a15a5e1d95ef",
+          "01a1dea8-d60c-7693-b1a9-90669bf0893b",
+          "01a1dea8-d60d-73c7-8999-3edc9265c20e",
+          "01a1dea8-d60e-71cc-9bff-4952088045ce",
+          "01a1dea8-d60f-7302-b0eb-3d6f6d43939e",
+          "01a1dea8-d610-7460-931e-ccad43d8d76d",
+          "01a1dea8-d611-74a4-ae9f-eb459665cd47",
+          "01a1dea8-d614-7141-a897-2b9ea61b0f75"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T10:02:50.254Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 7347,
+          "created_at": "2026-11-15T10:02:30.387194+00:00",
+          "latency_ms": 18833,
+          "tokens_out": 2773,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo10": {
+      "topic": "Đo sai số dự báo",
+      "document": "Forecasting (QMB ch. 6b)",
+      "job_id": "01a1dee1-52fc-79c1-82d7-2f1e54e57d0b",
+      "t0": "2026-11-15T11:04:31.179Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1dee1-7727-77e0-81e3-80be957b26e4",
+          "01a1dee1-772a-7484-9552-a1eb56b4fc4c",
+          "01a1dee1-772b-7d3d-871d-d1fa131c19f2",
+          "01a1dee1-772d-7847-b2ac-a82b84a2e542",
+          "01a1dee1-772e-7b15-894a-2d68633bc226",
+          "01a1dee1-772f-77f9-a63a-792e6dd1866d",
+          "01a1dee1-7730-741f-8952-6c0df0066a1e",
+          "01a1dee1-7731-742d-b3ff-2c0b79e45dfa",
+          "01a1dee1-7732-710d-9480-6895bc9cdcb7",
+          "01a1dee1-7732-7cb8-b887-4fb5cc46f19f"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T11:04:41.256Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "9router",
+          "tokens_in": 4682,
+          "created_at": "2026-11-15T11:04:31.258594+00:00",
+          "latency_ms": 9224,
+          "tokens_out": 2215,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    }
+  }
+}
