@@ -166,7 +166,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. «Lớp» = `course_id` của đường d�
 - AC2 (seed B). Given seed Then lớp 1 ≈ 150 câu hỏi (≥ 20 câu trong 14 ngày gần nhất để `period_days` mặc định tạo được báo cáo; **không** đòi ≥ 20 câu trong 7 ngày — `period_days = 7` với seed mỏng là ca `409 NOT_ENOUGH_DATA` hợp lệ, US-P10-04 AC9) lệch chủ đề A, B + 10 tin `no_context` (3 nhóm: N1 3 sinh viên, N2 4 sinh viên, N3 1 sinh viên hỏi 3 lần — US-P10-04 AC4) (≥ 3 sinh viên mỗi chủ đề lớn, 1 chủ đề đúng 2 sinh viên; chủ đề A, B mỗi chủ đề có ≥ 2 câu chuẩn hoá do ≥ 3 sinh viên khác nhau hỏi để có câu mẫu; thêm 1 chủ đề nhỏ có 5 sinh viên mà mỗi người một câu khác nhau → 0 câu mẫu, P-11-32); lớp 2 ≈ 40 câu lệch chủ đề C; ≥ 4 bài thi PE đã công bố với phân bố điểm có tụt 3 lần liên tiếp ở ≥ 1 sinh viên; `scripts/check-p10-seed.mjs` xanh.
 - AC3 (cổng). Given repo When chạy:
   - `cd backend-go && go test ./internal/insight -run TestKnowledgeGap -v`
-  - `cd backend-go && go test ./internal/observability -run 'TestObservabilityDetailNoPII|TestObservabilityAuditEveryOpen|TestAlertDedup' -v`
+  - `cd backend-go && go test ./internal/integration -run 'TestObservabilityDetailNoPII|TestObservabilityAuditEveryOpen|TestAlertDedup' -v`
   - `cd backend-go && go test ./internal/llm -run TestPayloadStoresMaskedOnly -v`
   - `pnpm -C frontend exec playwright test insights.spec.ts observability.spec.ts analytics-exam.spec.ts`
   Then tất cả xanh.
