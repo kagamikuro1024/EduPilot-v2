@@ -227,7 +227,7 @@ func (s *Service) Checkin(ctx context.Context, student, courseID uuid.UUID, in C
 		if err != nil {
 			return CheckinOut{}, false, wrap("người dùng chung máy", err)
 		}
-		if err := qt.AttFlagShared(ctx, store.AttFlagSharedParams{CourseID: courseID, SessionID: w.SessionID, StudentIds: others}); err != nil {
+		if err := qt.AttFlagShared(ctx, store.AttFlagSharedParams{CourseID: courseID, SessionID: w.SessionID, StudentIds: idStrings(others)}); err != nil {
 			return CheckinOut{}, false, wrap("gắn cờ dùng chung", err)
 		}
 	}

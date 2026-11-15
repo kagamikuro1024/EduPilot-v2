@@ -93,6 +93,7 @@ func newRig(t *testing.T, opts ...func(map[string]string)) *rig {
 
 	pcfg, err := pgxpool.ParseConfig(cfg.DatabaseURL)
 	require.NoError(t, err)
+	pcfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeExec // như runtime (PgBouncer transaction mode): bắt lỗi mã hoá tham số mảng (D-AS-01)
 	qc := &qcount{}
 	pcfg.ConnConfig.Tracer = qc
 	pool, err := pgxpool.NewWithConfig(t.Context(), pcfg)

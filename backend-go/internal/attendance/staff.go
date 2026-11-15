@@ -117,7 +117,7 @@ func (s *Service) ReviewSessions(ctx context.Context, courseIDs []uuid.UUID) ([]
 		return nil, nil
 	}
 	since := s.now().AddDate(0, 0, -s.Cfg.ReviewDays)
-	rows, err := store.New(s.Pool).AttReviewSessions(ctx, store.AttReviewSessionsParams{Since: &since, CourseIds: courseIDs})
+	rows, err := store.New(s.Pool).AttReviewSessions(ctx, store.AttReviewSessionsParams{Since: &since, CourseIds: idStrings(courseIDs)})
 	if err != nil {
 		return nil, wrap("buổi cần xem", err)
 	}
@@ -167,4 +167,13 @@ func ForgetStudent(ctx context.Context, q *store.Queries, userID uuid.UUID) (int
 		return 0, wrap("quên sinh viên", err)
 	}
 	return n, nil
+}
+
+// idStrings: PgBouncer (QueryExecModeExec) không mã hoá được []uuid.UUID; truy vấn nhận text[] rồi ép `::uuid[]` (D-AS-01).
+func idStrings(ids []uuid.UUID) []string {
+	out := make([]string, len(ids))
+	for i, id := range ids {
+		out[i] = id.String()
+	}
+	return out
 }

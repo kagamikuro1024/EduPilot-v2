@@ -462,16 +462,16 @@ func (q *Queries) AttDeviceUpsertWeb(ctx context.Context, arg AttDeviceUpsertWeb
 
 const attFlagShared = `-- name: AttFlagShared :exec
 update attendance_checkins set flags = array_append(flags, 'DEVICE_SHARED')
-where course_id = $1 and session_id = $2 and student_id = any($3::uuid[]) and not ('DEVICE_SHARED' = any(flags))
+where course_id = $1 and session_id = $2 and student_id = any($3::text[]::uuid[]) and not ('DEVICE_SHARED' = any(flags))
 `
 
 type AttFlagSharedParams struct {
 	CourseID   uuid.UUID
 	SessionID  uuid.UUID
-	StudentIds []uuid.UUID
+	StudentIds []string
 }
 
-// Gắn DEVICE_SHARED vào mọi lượt của các sinh viên đó trong cùng buổi (FR-12).
+// Gắn DEVICE_SHARED vào mọi lượt của các sinh viên đó trong cùng buổi (FR-12). `text[]` rồi ép `::uuid[]`: PgBouncer (QueryExecModeExec) không mã hoá được []uuid.UUID (D-AS-01).
 func (q *Queries) AttFlagShared(ctx context.Context, arg AttFlagSharedParams) error {
 	_, err := q.db.Exec(ctx, attFlagShared, arg.CourseID, arg.SessionID, arg.StudentIds)
 	return err
@@ -587,7 +587,7 @@ select s.course_id, s.id as session_id, s.session_no, count(*)::int as flagged, 
 from attendance_checkins c
 join checkin_windows w on w.course_id = c.course_id and w.id = c.window_id and w.closed_at is not null and w.closed_at >= $1
 join class_sessions s on s.course_id = c.course_id and s.id = c.session_id
-where c.course_id = any($2::uuid[]) and cardinality(c.flags) > 0 and c.flags_cleared_at is null
+where c.course_id = any($2::text[]::uuid[]) and cardinality(c.flags) > 0 and c.flags_cleared_at is null
 group by s.course_id, s.id, s.session_no
 order by max(w.closed_at) desc
 limit 50
@@ -595,7 +595,7 @@ limit 50
 
 type AttReviewSessionsParams struct {
 	Since     *time.Time
-	CourseIds []uuid.UUID
+	CourseIds []string
 }
 
 type AttReviewSessionsRow struct {

@@ -85,9 +85,9 @@ select
   (select count(*) from attendance_checkins y where y.course_id = sqlc.arg(course_id) and y.student_id = sqlc.arg(student_id) and y.device_id = sqlc.arg(device_id)) > 0 as this;
 
 -- name: AttFlagShared :exec
--- Gắn DEVICE_SHARED vào mọi lượt của các sinh viên đó trong cùng buổi (FR-12).
+-- Gắn DEVICE_SHARED vào mọi lượt của các sinh viên đó trong cùng buổi (FR-12). `text[]` rồi ép `::uuid[]`: PgBouncer (QueryExecModeExec) không mã hoá được []uuid.UUID (D-AS-01).
 update attendance_checkins set flags = array_append(flags, 'DEVICE_SHARED')
-where course_id = sqlc.arg(course_id) and session_id = sqlc.arg(session_id) and student_id = any(sqlc.arg(student_ids)::uuid[]) and not ('DEVICE_SHARED' = any(flags));
+where course_id = sqlc.arg(course_id) and session_id = sqlc.arg(session_id) and student_id = any(sqlc.arg(student_ids)::text[]::uuid[]) and not ('DEVICE_SHARED' = any(flags));
 
 -- ---- đóng cửa sổ -------------------------------------------------------------------------------------------------------------------
 -- name: AttCloseWriteRecords :one
@@ -178,7 +178,7 @@ select s.course_id, s.id as session_id, s.session_no, count(*)::int as flagged, 
 from attendance_checkins c
 join checkin_windows w on w.course_id = c.course_id and w.id = c.window_id and w.closed_at is not null and w.closed_at >= sqlc.arg(since)
 join class_sessions s on s.course_id = c.course_id and s.id = c.session_id
-where c.course_id = any(sqlc.arg(course_ids)::uuid[]) and cardinality(c.flags) > 0 and c.flags_cleared_at is null
+where c.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and cardinality(c.flags) > 0 and c.flags_cleared_at is null
 group by s.course_id, s.id, s.session_no
 order by max(w.closed_at) desc
 limit 50;
