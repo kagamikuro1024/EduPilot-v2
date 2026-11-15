@@ -5,6 +5,7 @@ import http from "node:http";
 const PORT = Number(process.env.API_PORT ?? 3312);
 /** @type {Map<string, any[]>} */
 const scripts = new Map();
+const owners = new Map();
 /** @type {any[]} */
 let log = [];
 const sseClosed = [];
@@ -20,7 +21,7 @@ const cors = (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", o);
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Headers", "authorization,content-type,x-request-id,idempotency-key,if-none-match,if-match,last-event-id,accept");
+    res.setHeader("Access-Control-Allow-Headers", "authorization,content-type,x-request-id,idempotency-key,if-none-match,if-match,last-event-id,accept,x-e2e-owner");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
     res.setHeader("Access-Control-Expose-Headers", "etag,retry-after,idempotent-replayed,x-request-id");
   }
@@ -35,10 +36,11 @@ http
     if (req.method === "OPTIONS") return res.writeHead(204).end();
 
     if (url.pathname === "/__ctl/ping") return send(res, 200, { ok: true });
-    if (url.pathname === "/__ctl/reset") { scripts.clear(); log = []; sseClosed.length = 0; return send(res, 200, {}); }
+    if (url.pathname === "/__ctl/reset") { scripts.clear(); owners.clear(); log = []; sseClosed.length = 0; return send(res, 200, {}); }
     if (url.pathname === "/__ctl/script") { // { "GET /api/v1/x": [ {status, body, headers, delay, destroy, sse, hold} ] }
       const s = JSON.parse(await readBody(req));
-      for (const [k, v] of Object.entries(s)) scripts.set(k, v);
+      const owner = req.headers["x-e2e-owner"]; // P-11-45: nhãn chủ kịch bản — chỉ lượt gọi cùng nhãn được đếm và nhận bước; trang của spec khác không làm lệch
+      for (const [k, v] of Object.entries(s)) { scripts.set(k, v); if (owner) owners.set(k, owner); else owners.delete(k); }
       return send(res, 200, {});
     }
     if (url.pathname === "/__ctl/log") return send(res, 200, { log, sseClosed });
@@ -50,7 +52,9 @@ http
 
     const q = scripts.get(key);
     if (!q) return send(res, 404, { code: "NOT_FOUND", message: "Không tìm thấy.", trace_id: "0".repeat(32) });
-    const n = log.filter((l) => l.method === req.method && l.path === url.pathname).length;
+    const owner = owners.get(key);
+    if (owner && req.headers["x-e2e-owner"] !== owner) return send(res, 404, { code: "NOT_FOUND", message: "Không tìm thấy.", trace_id: "0".repeat(32) }); // lượt của trang khác: như chưa có kịch bản, không cộng bộ đếm
+    const n = log.filter((l) => l.method === req.method && l.path === url.pathname && (!owner || l.headers["x-e2e-owner"] === owner)).length;
     const step = q[Math.min(n - 1, q.length - 1)];
     if (step.delay) await new Promise((r) => setTimeout(r, step.delay));
     if (step.destroy) return req.socket.destroy();
