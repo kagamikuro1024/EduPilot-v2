@@ -1,5 +1,5 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.7 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.8 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
@@ -10,6 +10,8 @@ Phiên bản 1.7 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; 
 **v1.5 (P-11-11):** US-P10-13 còn **ba** cổng (bỏ lưới khủng hoảng, giữ US-P3-04 AC13 — Q-E-23); định tuyến chat fallback = luật (Q-E-24); bỏ bộ thử khủng hoảng (Q-E-25 → Nợ sau bảo vệ); AC đánh số lại AC1…AC13 (+ AC6a).
 
 **v1.6 (sprint 10.5):** US-P10-13 và FR-25…27 chuyển sang `FEAT-decision-model` (US-DM-01…09); `llm_audit.path` → `cascade_path` + `cascade_gate` ở đó.
+
+**v1.8 (P-11-30, QC Q-S11-23…26):** FR-28 và US-P10-14 chốt: thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, cursor gắn bộ lọc (khác → `422 INVALID_CURSOR`), `limit` mặc định 30 (sửa 50 → khớp `httpx.DefaultLimit`).
 
 **v1.7 (P-11-30):** US-P10-14 `/admin/audit` tối thiểu (ADMIN, lọc entity / actor / thời gian, không trả `before` / `after`, xem cũng ghi `audit_log`); FR-28; route #13; Q-E-26. `/admin/health` thuộc phase PR.
 
@@ -111,7 +113,7 @@ sequenceDiagram
 | FR-25 | *(chuyển sang FEAT-decision-model)*  `internal/llm` thêm `Decide` (`net/http`, provider loại `decision`, chỉ `gemini-decision-1`, qua Scheduler + Masker) và `Cascade` với chính sách đối xứng `τ` / chỉ-thêm-cờ `ε`, lỗi → fallback → fail-closed, ghi `Path` | P10-13 AC1…3 |
 | FR-26 | *(chuyển sang FEAT-decision-model)*  Áp cascade cho **ba** cổng: tường lửa Threads (chỉ thêm chặn), cờ chèn lệnh (regex OR `Structured` OR decision), định tuyến chat (ngưỡng; dưới ngưỡng giữ kết quả luật; cổng TTFT); tin khủng hoảng **không bao giờ** tới decision / LLM; **không** cho điểm / rubric / escalate | P10-13 AC4…8 |
 | FR-27 | *(chuyển sang FEAT-decision-model)*  Đo + hiển thị tỉ lệ đường nhanh theo tác vụ (Admin), báo cáo `cascade.md`; cờ mặc định tắt | P10-13 AC9, AC13 |
-| FR-28 | `GET /admin/audit` (ADMIN): lọc AND `entity` / `actor_id` / `from`–`to` (mặc định 7 ngày, tối đa 90), phân trang con trỏ `(created_at, id)` giảm dần, `limit` 1–100; trả `{id, at, actor_*, entity, entity_id, action, course_id, trace_id, changed_fields[]}`, **không bao giờ** `before` / `after`; trong **một giao dịch** ghi `audit_log(entity='audit_log', entity_id=actor_id, action='VIEW_LIST', after={entity, actor_id, from, to, has_cursor, returned})` rồi mới trả (ghi hỏng → `500`, không trả dữ liệu); `Cache-Control: no-store`; migration `00025_audit_log_indexes` thêm hai chỉ mục `(created_at DESC, id DESC)`, `(entity, created_at DESC, id DESC)` | P10-14 |
+| FR-28 | `GET /admin/audit` (ADMIN): lọc AND `entity` / `actor_id` / `from`–`to` (không có cả hai → `[now − 7 ngày, now]`; chỉ `from` → `to = now`; chỉ `to` → `from = to − 7 ngày`; tối đa 90 ngày trên khoảng đã áp dụng; tham số rỗng = bỏ qua như `httpx.ParsePageParams`), phân trang con trỏ `(created_at, id)` giảm dần, `limit` 1–100 (mặc định 30), **cursor gắn dấu vân tay `(entity, actor_id, from, to)` do client gửi** — khác bộ lọc → `422 INVALID_CURSOR` (mở rộng `cursorJSON` với trường tuỳ chọn `f`; Q-S11-26); trả `{id, at, actor_*, entity, entity_id, action, course_id, trace_id, changed_fields[]}` (`before` / `after` không phải đối tượng → `[]`, không `500`), **không bao giờ** `before` / `after`; trong **một giao dịch** ghi `audit_log(entity='audit_log', entity_id=actor_id, action='VIEW_LIST', after={entity, actor_id, from, to (khoảng đã áp dụng), has_cursor, returned})` rồi mới trả (ghi hỏng → `500`, không trả dữ liệu); `Cache-Control: no-store`; migration `00025_audit_log_indexes` thêm hai chỉ mục `(created_at DESC, id DESC)`, `(entity, created_at DESC, id DESC)` | P10-14 |
 | FR-23 | Seed A + B + điểm thi và `check-p10-seed.mjs` idempotent | P10-07 |
 
 ### 4.1 Xếp hạng chủ đề (code thuần, không LLM; hằng số ở cấu hình, đề xuất Q-E-6)
