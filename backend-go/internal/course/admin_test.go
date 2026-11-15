@@ -166,6 +166,17 @@ func TestCreateCourseDuplicateClassCode(t *testing.T) {
 	require.Equal(t, 1, r.count(`select count(*) from courses where class_code = 'DUP-001'`))
 }
 
+// DEF-R4-01 (TC-P208-02): mã lớp không phân biệt hoa/thường, cả khi tạo lẫn khi sửa mã.
+func TestCreateCourseDuplicateClassCodeCaseInsensitive(t *testing.T) {
+	r := newRig(t)
+	a := r.actors()
+	r.mustOpen(a.A, map[string]any{"class_code": "SK20D91"})
+	res := r.open(a.A, map[string]any{"class_code": "sk20d91"})
+	require.Equal(t, http.StatusConflict, res.code)
+	require.Equal(t, "class_code", res.details()["field"])
+	require.Equal(t, 1, r.count(`select count(*) from courses where class_code ilike 'sk20d91'`))
+}
+
 func TestCreateCourseValidation(t *testing.T) {
 	r := newRig(t)
 	a := r.actors()
