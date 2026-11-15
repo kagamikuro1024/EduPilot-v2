@@ -100,6 +100,21 @@ func TestPutEntryClear(t *testing.T) {
 	require.Equal(t, apierr.VersionConflict, code)
 }
 
+// TC-P6-06-11 (HIGH): chuỗi trắng KHÔNG phải «xoá ô» — chỉ `score: null` xoá. ` ` và “ → 422, ô giữ nguyên điểm và version.
+func TestPutEntryBlankStringRejected(t *testing.T) {
+	d := newTDB(t)
+	c, gv, st, weekly, _ := d.sheet()
+	_, err := put(d, gv, c, st, weekly, s("8"), nil)
+	require.NoError(t, err)
+	for _, blank := range []string{" ", "", "  \t"} {
+		_, err := put(d, gv, c, st, weekly, s(blank), n(1))
+		status, code := apiCode(t, err)
+		require.Equal(t, http.StatusUnprocessableEntity, status, "%q", blank)
+		require.Equal(t, apierr.ValidationFailed, code, "%q", blank)
+	}
+	require.Equal(t, 1, d.countRows(`select count(*) from grade_entries where score = 8 and version = 1`), "ô vẫn còn điểm 8, version 1")
+}
+
 func TestPutEntryExamItemRejected(t *testing.T) {
 	d := newTDB(t)
 	c, gv, st, weekly, final := d.sheet()
