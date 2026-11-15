@@ -42,3 +42,33 @@ for (const [name, opts] of [["đã chốt", { locked: true, drift: true }], ["ch
   });
 }
 
+for (const [name, opts] of [["chưa chốt", {}], ["chưa có công thức", { scheme: false }], ["đã chốt", { locked: true }]] as const satisfies ReadonlyArray<readonly [string, Opts]>) {
+  test(`gradebook ${name}: đang tải và lỗi giữ đúng bộ nút của lúc có dữ liệu (X3)`, async ({ page, context }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await asDemo(context, "teacher");
+    let slow = true;
+    let broken = false;
+    await gradebookApi(page, {
+      students: 5,
+      ...opts,
+      h: { "GET gradebook": async (r, next) => { if (broken) return r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)); if (slow) await new Promise((ok) => setTimeout(ok, 2500)); return next(r); } },
+    });
+    const statusIn = page.waitForResponse((r) => r.url().includes("grade-scheme/status"));
+    await page.goto("/gradebook");
+    await statusIn;
+    await expect(page.locator("[aria-busy=true]").first()).toBeVisible();
+    await expect.poll(() => headerButtons(page).then((l) => l.length)).toBeGreaterThan(0);
+    const loading = await headerButtons(page);
+    await expect(page.locator("[aria-busy=true]")).toHaveCount(0, { timeout: 10_000 });
+    slow = false;
+    const data = await headerButtons(page);
+    expect(loading).toEqual(data);
+    broken = true;
+    const statusAgain = page.waitForResponse((r) => r.url().includes("grade-scheme/status"));
+    await page.reload();
+    await statusAgain;
+    await expect(page.getByRole("alert").first()).toBeVisible();
+    await expect.poll(() => headerButtons(page)).toEqual(data);
+  });
+}
+
