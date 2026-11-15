@@ -101,5 +101,5 @@
   .status { white-space: normal; }
 }
 .tech { margin-top: var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-2); }
-.tech summary { cursor: pointer; min-height: 24px; }
+.tech summary { cursor: pointer; }
 .tech div { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }

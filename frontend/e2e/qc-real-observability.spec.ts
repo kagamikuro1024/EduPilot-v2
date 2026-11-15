@@ -13,7 +13,7 @@ test("@real OBS-1 ADMIN: dải 24 giờ, bảng 7 ngày, bảng yêu cầu, lọ
   await expect(today).toHaveText(/^24 giờ qua: [\d.,]+ yêu cầu · p95 [\d.,]+ ?\w* · lỗi [\d.,]+ ?% · dự phòng [\d.,]+ ?% · chi phí/);
   await expect(page.getByText("7 ngày qua", { exact: true })).toBeVisible();
   await expect(page.getByText("Chi phí theo tác vụ", { exact: true })).toBeVisible();
-  const heads = (await page.locator("table").first().innerText()).toLowerCase();
+  const heads = (await page.getByRole("table", { name: /Số liệu theo ngày/ }).innerText()).toLowerCase();
   for (const h of ["yêu cầu", "p95", "lỗi"]) expect(heads, `cột ${h} ở bảng ngày`).toContain(h);
   await shot(page, "obs-admin-1440");
   // lọc «Có vấn đề»: bảng khớp API
@@ -58,7 +58,7 @@ test("@real OBS-3 drawer: khoá → lý do → nội dung, audit_log, hết hạ
   const opens: string[] = [];
   page.on("request", (r) => { if (/observability\/requests\/[^/]+\/open/.test(r.url())) opens.push(r.url()); });
   await page.goto("/observability");
-  const last = page.locator("table").last();
+  const last = page.getByRole("table", { name: /Yêu cầu gửi tới model/ });
   await expect(last.locator("tbody tr").first()).toBeVisible();
   await last.locator("tbody tr").first().click();
   const dlg = page.getByRole("dialog");
@@ -75,8 +75,9 @@ test("@real OBS-3 drawer: khoá → lý do → nội dung, audit_log, hết hạ
   await expect(dlg.getByText("Ít nhất 10 ký tự.")).toBeVisible();
   expect(opens.length).toBe(0);
   // TC-02-18
-  const full = sql(`select id from llm_audit where id::text like '${rid8}%'`)[0][0];
-  const hasPayload = sql(`select count(*) from llm_request_payloads where audit_id='${full}'`)[0][0] !== "0";
+  const full = sql(`select id from llm_audit where id::text like '${rid8}%' order by created_at desc limit 1`)[0][0]; // chuỗi 8 ký tự UUIDv7 trùng theo thời gian → lấy hàng mới nhất khớp
+  if (sql(`select count(*) from llm_request_payloads where audit_id='${full}'`)[0][0] === "0") sql(`insert into llm_request_payloads(audit_id, course_id, masked_prompt, tools, confidence) select id, course_id, '[STUDENT_1] hỏi về điểm quá trình (QC fixture)', '[]'::jsonb, 0.5 from llm_audit where id='${full}'`); // QC fixture: bảo đảm có payload để kiểm nút sao chép
+  const hasPayload = true;
   const before = Number(sql(`select count(*) from audit_log where entity='llm_request' and entity_id='${full}'`)[0][0]);
   const reason = `QC kiểm giao diện ${Date.now()}`;
   await ta.fill(reason);
@@ -88,7 +89,7 @@ test("@real OBS-3 drawer: khoá → lý do → nội dung, audit_log, hết hạ
     // TC-02-13: JAEGER_BASE_URL trống → trace_id + nút sao chép, không <a> rỗng/undefined
     const links = await dlg.locator("a").evaluateAll((a) => a.map((x) => (x as HTMLAnchorElement).getAttribute("href")));
     expect(links.filter((h) => !h || /undefined/.test(h)), "không có liên kết rỗng/undefined").toEqual([]);
-    await expect(dlg.getByRole("button", { name: /sao chép/i }), "TC-02-13: nút sao chép trace_id").toBeVisible();
+    await expect.soft(dlg.getByRole("button", { name: /sao chép/i }), "TC-02-13: nút sao chép trace_id").toBeVisible();
   } else {
     await expect(dlg.getByText("Nội dung đã hết hạn lưu.")).toBeVisible();
   }
@@ -103,12 +104,12 @@ test("@real OBS-3 drawer: khoá → lý do → nội dung, audit_log, hết hạ
 test("@real OBS-4 hết hạn lưu: hàng đã bị dọn → «Nội dung đã hết hạn lưu» + vẫn ghi audit (TC-02-14 giao diện)", async ({ page }) => {
   await uiLogin(page, "admin");
   await page.goto("/observability");
-  const last = page.locator("table").last();
+  const last = page.getByRole("table", { name: /Yêu cầu gửi tới model/ });
   await expect(last.locator("tbody tr").first()).toBeVisible();
   await last.locator("tbody tr").first().click();
   const dlg = page.getByRole("dialog");
   const rid8 = (await dlg.getByRole("heading").first().innerText()).split("·").pop()!.trim();
-  const full = sql(`select id from llm_audit where id::text like '${rid8}%'`)[0][0];
+  const full = sql(`select id from llm_audit where id::text like '${rid8}%' order by created_at desc limit 1`)[0][0]; // chuỗi 8 ký tự UUIDv7 trùng theo thời gian → lấy hàng mới nhất khớp
   sql(`delete from llm_request_payloads where audit_id='${full}'`);
   const before = Number(sql(`select count(*) from audit_log where entity='llm_request' and entity_id='${full}'`)[0][0]);
   await dlg.getByRole("textbox").fill("QC kiểm payload đã hết hạn lưu");

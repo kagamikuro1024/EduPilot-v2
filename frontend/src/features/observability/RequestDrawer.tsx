@@ -1,12 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { Check, Copy, ExternalLink } from "lucide-react";
 import { ApiError } from "@/shared/data";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
-import { Button, DefinitionList, Drawer, Field, InlineNotice, Textarea } from "@/shared/ui";
+import { Button, DefinitionList, Drawer, Field, IconButton, InlineNotice, Textarea } from "@/shared/ui";
 import { type RequestRow, secs, STATUS_LABEL, TASK_LABEL, useOpenRequest } from "./api";
 import s from "./observability.module.css";
+
+function CopyTrace({ id }: { id: string }) {
+  const [done, setDone] = useState(false);
+  return (
+    <IconButton label={done ? "Đã sao chép" : "Sao chép mã theo dõi"} size="sm" onClick={() => void navigator.clipboard.writeText(id).then(() => { setDone(true); window.setTimeout(() => setDone(false), 2000); })}>
+      {done ? <Check aria-hidden /> : <Copy aria-hidden />}
+    </IconButton>
+  );
+}
 
 /** Khoá → lý do → nội dung đã che. Mỗi lần bấm «Xem chi tiết» ghi một dòng nhật ký kiểm toán (lý do + người xem). */
 export function RequestDrawer({ row, onClose }: { row: RequestRow; onClose: () => void }) {
@@ -41,7 +50,7 @@ export function RequestDrawer({ row, onClose }: { row: RequestRow; onClose: () =
               { term: "Độ tin cậy", value: d.confidence ?? "—" },
               { term: "Độ trễ", value: secs(row.latency_ms) },
               { term: "Kết quả", value: STATUS_LABEL[d.status] ?? d.status },
-              { term: "Mã theo dõi", value: d.trace_url ? <a href={d.trace_url} target="_blank" rel="noreferrer">Mở trace <ExternalLink aria-hidden size={14} /></a> : <span className={s.mono}>{d.trace_id}</span> },
+              { term: "Mã theo dõi", value: d.trace_url ? <a href={d.trace_url} target="_blank" rel="noreferrer">Mở trace <ExternalLink aria-hidden size={14} /></a> : <span><span className={s.mono}>{d.trace_id}</span> <CopyTrace id={d.trace_id} /></span> },
             ]}
           />
         </div>

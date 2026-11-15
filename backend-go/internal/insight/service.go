@@ -19,6 +19,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pgvector/pgvector-go"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
@@ -102,9 +103,6 @@ func (s *Service) window(days int) (time.Time, time.Time) {
 
 // Generate: kiểm kỳ → so data_watermark (không có dữ liệu mới → reused, 0 lời gọi LLM, không tính trần) → đủ ≥ 20 câu → trần 3 việc / giờ / lớp → xếp việc.
 func (s *Service) Generate(ctx context.Context, actor, courseID uuid.UUID, periodDays int) (GenerateOut, error) {
-	if periodDays == 0 {
-		periodDays = DefaultPeriod
-	}
 	if !slices.Contains([]int{7, 14, 30, WholeTerm}, periodDays) {
 		return GenerateOut{}, apierr.Validation(apierr.FieldError{Field: "period_days", Code: "invalid", Message: "Kỳ là 7, 14, 30 hoặc 120 (toàn kỳ) ngày."})
 	}
@@ -395,6 +393,9 @@ func (s *Service) collect(ctx context.Context, q *store.Queries, courseID uuid.U
 		return d, fmt.Errorf("insight: câu hỏi chat: %w", err)
 	}
 	for _, r := range chat {
+		if agent.DetectIntent(r.Content) == agent.IntentCrisis { // P-11-34: không nhúng, không từ khoá, không câu mẫu; không cả mốc dữ liệu
+			continue
+		}
 		if t := s.anonymize(ctx, courseID, r.Content); t != "" {
 			d.items = append(d.items, item{student: r.UserID, text: t, low: r.LowConfidence || r.Escalated, nh: r.NotHelpful, noCtx: r.NoContext})
 		}
@@ -407,6 +408,9 @@ func (s *Service) collect(ctx context.Context, q *store.Queries, courseID uuid.U
 		return d, fmt.Errorf("insight: thread: %w", err)
 	}
 	for _, r := range th {
+		if agent.DetectIntent(r.Title+". "+r.Body) == agent.IntentCrisis {
+			continue
+		}
 		if t := s.anonymize(ctx, courseID, r.Title+". "+r.Body); t != "" {
 			d.items = append(d.items, item{student: r.UserID, text: t})
 		}
@@ -476,7 +480,7 @@ func (s *Service) build(ctx context.Context, q *store.Queries, courseID uuid.UUI
 		sigs[i] = cls[i].sig
 	}
 	scores := Score(sigs, pres)
-	pl := Payload{below: belowGrams(d.items), PeriodDays: days, Counts: Counts{Questions: len(d.items), Clusters: len(cls)}, Topics: []Topic{}, Uncovered: uncovered(d.items)}
+	pl := Payload{Schema: PayloadSchema, below: belowGrams(d.items), PeriodDays: days, Counts: Counts{Questions: len(d.items), Clusters: len(cls)}, Topics: []Topic{}, Uncovered: uncovered(d.items)}
 	all := map[uuid.UUID]bool{}
 	for _, it := range d.items {
 		all[it.student] = true

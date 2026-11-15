@@ -40,7 +40,7 @@ select task, count(*)::bigint as requests, coalesce(sum(cost_est), 0)::numeric(1
  group by task order by cost desc, requests desc;
 
 -- name: ObsRequestsPage :many
--- Bảng yêu cầu (ADMIN): KHÔNG cột nội dung. filter: all | problem (status ≠ ok) | privacy (pii_masked_count > 0).
+-- Bảng yêu cầu (ADMIN): KHÔNG cột nội dung. filter: all | problem (status ∉ ok, degraded, cancelled — Q-S11-1: nhất quán với tỷ lệ lỗi và cảnh báo) | privacy (pii_masked_count > 0).
 select a.id, a.created_at, a.task, a.lane, a.provider, a.model, a.latency_ms, a.status, a.error_kind, a.degraded, a.fallback_index,
        a.pii_masked_count, a.course_id, c.class_code as course_code
   from llm_audit a left join courses c on c.id = a.course_id
@@ -49,7 +49,7 @@ select a.id, a.created_at, a.task, a.lane, a.provider, a.model, a.latency_ms, a.
    and (sqlc.narg(course_id)::uuid is null or a.course_id = sqlc.narg(course_id))
    and (sqlc.narg(task)::text is null or a.task = sqlc.narg(task))
    and (sqlc.arg(filter)::text = 'all'
-        or (sqlc.arg(filter)::text = 'problem' and a.status <> 'ok')
+        or (sqlc.arg(filter)::text = 'problem' and a.status not in ('ok', 'degraded', 'cancelled'))
         or (sqlc.arg(filter)::text = 'privacy' and a.pii_masked_count > 0))
    and (sqlc.narg(cursor_at)::timestamptz is null or (a.created_at, a.id) < (sqlc.narg(cursor_at), sqlc.narg(cursor_id)::uuid))
  order by a.created_at desc, a.id desc
@@ -58,7 +58,7 @@ select a.id, a.created_at, a.task, a.lane, a.provider, a.model, a.latency_ms, a.
 -- name: ObsRequestDetail :one
 -- Metadata của một yêu cầu + bản prompt đã che (nếu còn); độ tự tin lấy từ tin chat cùng trace khi bản ghi payload chưa có.
 select a.id, a.created_at, a.task, a.lane, a.provider, a.model, a.latency_ms, a.status, a.error_kind, a.course_id, a.trace_id,
-       (p.audit_id is not null)::boolean as has_payload, p.masked_prompt as masked_prompt, p.tools as tools,
+       (p.audit_id is not null)::boolean as has_payload, p.created_at as payload_at, p.masked_prompt as masked_prompt, p.tools as tools,
        coalesce(coalesce(p.confidence, (select m.confidence from chat_messages m where m.trace_id = a.trace_id and m.confidence is not null limit 1))::text, '')::text as confidence
   from llm_audit a left join llm_request_payloads p on p.audit_id = a.id
  where a.id = sqlc.arg(id);

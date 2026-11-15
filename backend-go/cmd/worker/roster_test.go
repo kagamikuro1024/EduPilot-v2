@@ -49,3 +49,31 @@ func TestRosterInvalidateRegistered(t *testing.T) {
 		}
 	}
 }
+
+// DEF-R6-02: duyệt vào lớp (course.join_decided) cũng xoá ep:roster:{course}. Lớp giả: handler thông báo lỗi sau bước xoá cache (đứng đầu chuỗi), chỉ bước xoá được kiểm.
+func TestRosterInvalidateOnJoinDecided(t *testing.T) {
+	testutil.RequireContainers(t)
+	d, _ := workerDeps(t)
+	d.Cfg.DatabaseURL = testutil.MigratedPostgresURL(t)
+	pool, err := appdb.NewPool(t.Context(), d.Cfg, d.Log)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
+	d.DB = pool
+	reg := newRegistry(d)
+	course := uuid.New()
+	key := privacy.RosterKey(course)
+	if err := d.Redis.Set(t.Context(), key, `[{"n":"Nguyễn Văn An"}]`, time.Hour).Err(); err != nil {
+		t.Fatal(err)
+	}
+	h, ok := reg.Lookup("course.join_decided")
+	if !ok {
+		t.Fatal("course.join_decided chưa đăng ký")
+	}
+	payload, _ := json.Marshal(map[string]string{"course_id": course.String(), "user_id": uuid.NewString(), "decision": "APPROVED"})
+	_ = h(t.Context(), outbox.Message{Topic: "course.join_decided", Payload: payload}) // lỗi «đọc lớp» của thông báo là đúng (lớp giả); cache phải đã xoá trước đó
+	if n, _ := d.Redis.Exists(t.Context(), key).Result(); n != 0 {
+		t.Fatal("khoá roster còn sau khi duyệt")
+	}
+}

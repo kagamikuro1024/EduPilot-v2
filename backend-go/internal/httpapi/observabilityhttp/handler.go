@@ -93,6 +93,10 @@ func (h *Handler) requests(w http.ResponseWriter, r *http.Request) {
 			*f.dst = &t
 		}
 	}
+	if rq.From != nil && rq.To != nil && rq.From.After(*rq.To) {
+		badField(w, r, "from", "from phải không sau to.")
+		return
+	}
 	if pg.Cursor != nil {
 		rq.CursorAt, rq.CursorID = &pg.Cursor.CreatedAt, &pg.Cursor.ID
 	}

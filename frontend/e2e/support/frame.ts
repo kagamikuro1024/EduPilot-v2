@@ -137,6 +137,10 @@ export async function measureFrame(page: Page, opts: { wide: boolean; state?: "d
     }
     // T: chữ thừa
     const info = [...main.querySelectorAll("svg.lucide-info, svg.lucide-circle-help")].filter((s) => vis(s) && !s.closest("[role=status], [role=alert], [data-ep-notice]"));
+    if (!wide) { // S1: mục gập có vùng chạm ≥ 44 px ở 375 (quy tắc chung `summary` ở shared/styles/base.css; TC-05-21)
+      const small = [...document.querySelectorAll<HTMLElement>("summary")].filter(vis).filter((e) => e.getBoundingClientRect().height < 43.5);
+      if (small.length) add("S1", `${small.length} <summary> cao < 44 px (${small.map((e) => Math.round(e.getBoundingClientRect().height)).join(", ")})`);
+    }
     if (info.length) add("T1", `${info.length} icon giải thích`);
     return { kind, cols: Math.round(colW), headerH, devs };
   }, { wide: opts.wide, state: opts.state, calls: opts.calls ?? 0 });

@@ -10117,7 +10117,7 @@ paths:
     get:
       operationId: getCourseObservabilitySummary
       tags: [observability]
-      summary: "Tổng hợp 7 ngày của MỘT lớp (TEACHER của lớp; ADMIN mọi lớp): không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp. Giảng viên lớp khác → 404; TA / STUDENT → 403"
+      summary: "Tổng hợp 7 ngày của MỘT lớp (TEACHER của lớp; ADMIN mọi lớp): không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp. Giảng viên lớp khác, người ngoài lớp, TA / STUDENT → 403 (reason course hoặc role; không 404)"
       parameters:
         - name: id
           in: path
@@ -10142,7 +10142,7 @@ paths:
     post:
       operationId: generateKnowledgeGap
       tags: [insights]
-      summary: "Tạo báo cáo lỗ hổng kiến thức (Giảng viên / TA của lớp; ADMIN 403; Idempotency-Key bắt buộc). `period_days` ∈ {7, 14, 30, 120 = toàn kỳ}, mặc định 14; giá trị khác → 422. Không có dữ liệu mới từ báo cáo gần nhất cùng kỳ → 200 `reused` (0 lời gọi LLM); dưới 20 câu hỏi → 409 NOT_ENOUGH_DATA; quá 3 việc / giờ / lớp → 429 RATE_LIMITED + Retry-After. Việc nền BATCH `insight.knowledge_gap`, tiến độ SSE job.progress với detail.stage ∈ COLLECT | CLUSTER | NAME | DONE; kết quả GET /jobs/{id} → result {report_id}"
+      summary: "Tạo báo cáo lỗ hổng kiến thức (Giảng viên / TA của lớp; ADMIN 403; Idempotency-Key bắt buộc). `period_days` ∈ {7, 14, 30, 120 = toàn kỳ}; vắng → 14; có mặt mà ngoài tập đó (kể cả 0, âm) → 422. Không có dữ liệu mới từ báo cáo gần nhất cùng kỳ → 200 `reused` (0 lời gọi LLM); dưới 20 câu hỏi → 409 NOT_ENOUGH_DATA; quá 3 việc / giờ / lớp → 429 RATE_LIMITED + Retry-After. Việc nền BATCH `insight.knowledge_gap`, tiến độ SSE job.progress với detail.stage ∈ COLLECT | CLUSTER | NAME | DONE; kết quả GET /jobs/{id} → result {report_id}"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: Idempotency-Key
@@ -10185,7 +10185,7 @@ paths:
     get:
       operationId: getLatestKnowledgeGap
       tags: [insights]
-      summary: "Báo cáo lỗ hổng kiến thức mới nhất của lớp (Giảng viên / TA) kèm so với bản trước (chủ đề mới, đổi hạng) và has_new_data. Chưa có → 404. Cache-Control: no-store"
+      summary: "Báo cáo lỗ hổng kiến thức mới nhất của lớp (Giảng viên / TA) kèm so với bản trước (chủ đề mới, đổi hạng) và has_new_data. Chưa có, hoặc chỉ có báo cáo cũ (payload.schema < 2) → 404. Cache-Control: no-store"
       parameters:
         - $ref: "#/components/parameters/CourseId"
       responses:
@@ -10205,7 +10205,7 @@ paths:
     get:
       operationId: exportKnowledgeGap
       tags: [insights]
-      summary: "Xuất báo cáo dạng Markdown (Giảng viên / TA); `format` chỉ nhận md. Không có / lớp khác → 404"
+      summary: "Xuất báo cáo dạng Markdown (Giảng viên / TA); `format` chỉ nhận md. Không có / lớp khác / báo cáo cũ (payload.schema < 2) → 404"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: rid
@@ -15724,9 +15724,13 @@ components:
             type: string
     KnowledgeGapPayload:
       type: object
-      required: [topics, uncovered, counts, period_days]
+      required: [schema, topics, uncovered, counts, period_days]
       additionalProperties: false
       properties:
+        schema:
+          type: integer
+          enum: [2]
+          description: Phiên bản payload; báo cáo cũ (không có schema) bị coi như không tồn tại (404 ở latest / export, không dùng lại)
         topics:
           type: array
           items:

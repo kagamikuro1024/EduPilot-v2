@@ -1,5 +1,5 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.12 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.14 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
@@ -12,6 +12,10 @@ Phiên bản 1.12 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền;
 **v1.6 (sprint 10.5):** US-P10-13 và FR-25…27 chuyển sang `FEAT-decision-model` (US-DM-01…09); `llm_audit.path` → `cascade_path` + `cascade_gate` ở đó.
 
 **v1.8 (P-11-30, QC Q-S11-23…26):** FR-28 và US-P10-14 chốt: thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, cursor gắn bộ lọc (khác → `422 INVALID_CURSOR`), `limit` mặc định 30 (sửa 50 → khớp `httpx.DefaultLimit`).
+
+**v1.14 (P-11-35, chỉnh lại sau 7c459d34):** người ngoài lớp / lớp khác (lớp tồn tại) → `403` `reason=course` theo guard chung; `{id}` sai dạng và (ADMIN) lớp không tồn tại vẫn `404` (§2, §6 #4–#5, NFR, US-P10-01 AC6, US-P10-04 AC12, US-P10-11 AC3); seed làm rõ không đòi ≥ 20 câu trong 7 ngày.
+
+**v1.13 (P-11-34):** `collect` loại tin khủng hoảng (FR-13, US-P10-04 AC16); `payload.schema = 2`, báo cáo cũ không phục vụ (FR-29, AC17); `KnowledgeGapPayload.schema`.
 
 **v1.12 (P-11-32 bổ sung):** FR-29 — lời nhắc `NAME` chỉ nhận câu đạt ngưỡng; kiểm sau sinh ≥ 6 từ liên tiếp trùng câu dưới ngưỡng → «Chủ đề N» / bỏ `why`, `recommendation` (US-P10-04 AC15).
 
@@ -39,7 +43,7 @@ Nguyên tắc nền: giảng viên **không** đọc chat riêng chưa escalate;
 | Dải + bảng yêu cầu toàn hệ thống (`/admin/observability/summary`, `requests`) | ✓ | 403 | 403 | 403 |
 | Mở chi tiết yêu cầu (prompt đã che) | ✓ (lý do + `audit_log`) | 403 | 403 | 403 |
 | Xem nhật ký kiểm toán (`/admin/audit`) | ✓ (không giá trị `before` / `after`; chính việc xem ghi `audit_log`) | 403 | 403 | 403 |
-| Tổng hợp một lớp (`…/observability/summary`) | ✓ (mọi lớp) | ✓ (lớp mình; lớp khác 404) | 403 | 403 |
+| Tổng hợp một lớp (`…/observability/summary`) | ✓ (mọi lớp) | ✓ (lớp mình; lớp khác `403` `reason=course`) | 403 | 403 |
 | Nhận cảnh báo lỗi / chi phí | ✓ | – | – | – |
 | Tạo / xem / xuất báo cáo lỗ hổng | 403 | ✓ lớp mình | ✓ lớp mình | 403 |
 | Tạo thread ghim / buổi ôn tập từ báo cáo | – | ✓ | ✓ | – |
@@ -47,7 +51,7 @@ Nguyên tắc nền: giảng viên **không** đọc chat riêng chưa escalate;
 | So sánh nhiều lớp | – | ✓ (lớp mình dạy) | 403 | 403 |
 | `make eval`, `seed`, bảo mật, LCP | việc của đội (không phải tính năng sản phẩm) | | | |
 
-Sinh viên lớp khác → `404`. Mọi handler lớp học qua `CourseAccessGuard`.
+Người ngoài lớp (sinh viên chưa vào lớp, sinh viên / giảng viên / TA lớp khác) (lớp **tồn tại** mà người gọi không thuộc) → `403 FORBIDDEN` `reason=course` theo `CourseAccessGuard` chung (`FEAT-course-foundation` 4.1; P-11-35). `404` còn cho: `{id}` lớp không phải uuid (guard); lớp không tồn tại khi người gọi đã qua guard (chỉ ADMIN ở route cho ADMIN, ví dụ #4); tài nguyên con không tồn tại (`rid`, `exam_id`); `latest` chưa có báo cáo. Lưu ý: uuid hợp lệ nhưng lớp không tồn tại, người gọi không phải ADMIN → `403` như người ngoài lớp (guard không lộ lớp có hay không, `FEAT-course-foundation` 4.1). Mọi handler lớp học qua `CourseAccessGuard`.
 
 ## 3. Luồng chính và nhánh lỗi
 ```mermaid
@@ -83,6 +87,7 @@ sequenceDiagram
 | `audit_log` ghi lỗi | Cả giao dịch rollback, không trả nội dung | Lỗi chung + `Thử lại` |
 | `generate`, không dữ liệu mới | `200 reused:true`, 0 lời gọi LLM | «Chưa có câu hỏi mới từ ngày …» |
 | `generate`, < 20 câu hỏi | `409 NOT_ENOUGH_DATA` | «Chưa đủ câu hỏi để gom (cần ≥ 20)» |
+| Báo cáo cũ (`payload.schema` < 2) | `latest` / `export` `404`; `generate` tạo bản mới, không `reused` | Như «chưa có báo cáo» (EmptyState + `Tạo báo cáo mới`) |
 | LLM lỗi khi đặt tên | Tên tạm từ từ khoá cụm, `named_by:"fallback"` | «Chưa đặt được tên chủ đề» |
 | Chữ LLM sinh chứa ≥ 6 từ liên tiếp trùng một câu dưới ngưỡng (P-11-32) | `name` = «Chủ đề N», `named_by:"fallback"`; `why` / `recommendation` = `""` | Hiện «Chủ đề N», không dòng vì sao / khuyến nghị |
 | LLM lỗi trước `NAME` | Job `FAILED`, không bản ghi báo cáo | «Chưa tạo được báo cáo. Thử lại.» |
@@ -110,7 +115,7 @@ sequenceDiagram
 | FR-10 | Gom 5 nguồn của **đúng lớp**, che / ẩn danh trước khi nhúng và trước khi gửi LLM | P10-04 AC2, AC6, AC7, AC13 |
 | FR-11 | Gom cụm theo embedding (cosine), gắn chương / tuần theo metadata tài liệu của chunk gần nhất; xếp hạng bằng code với trọng số §4.1 | P10-04 AC3, AC4 |
 | FR-12 | LLM (`Structured(json_schema)`, làn `BATCH`) đặt tên chủ đề + khuyến nghị; lỗi → tên tạm | P10-04 AC3, AC10 |
-| FR-13 | Chủ đề < 3 sinh viên khác nhau: `examples=[]` + nhãn. Câu mẫu xét **theo từng câu** (P-11-32): chỉ câu chuẩn hoá có ≥ 3 sinh viên khác nhau hỏi (`MinStudents`, cùng FR-14) được vào `examples` (≤ 5, ẩn danh, đã che); không câu nào đạt → `examples=[]`, chủ đề chỉ hiện tên + số SV + số câu; câu không đạt không có trong `payload` / `export` | P10-04 AC5, AC6 |
+| FR-13 | **Nguồn:** `collect` loại tin / bài KHỦNG HOẢNG (`DetectIntent = CRISIS` + SQL lọc intent `CRISIS`, hai lớp; chat riêng và Threads) trước khi nhúng — không vào cụm, đếm, từ khoá, tên, câu mẫu, lời nhắc (P-11-34; US-P10-04 AC16). Chủ đề < 3 sinh viên khác nhau: `examples=[]` + nhãn. Câu mẫu xét **theo từng câu** (P-11-32): chỉ câu chuẩn hoá có ≥ 3 sinh viên khác nhau hỏi (`MinStudents`, cùng FR-14) được vào `examples` (≤ 5, ẩn danh, đã che); không câu nào đạt → `examples=[]`, chủ đề chỉ hiện tên + số SV + số câu; câu không đạt không có trong `payload` / `export` | P10-04 AC5, AC6 |
 | FR-14 | Mục «Tài liệu chưa đề cập» từ câu `chat_messages.no_context`, gom theo câu chuẩn hoá, **chỉ giữ nhóm ≥ 3 sinh viên khác nhau hỏi** (`MinStudents`; 1 sinh viên hỏi nhiều lần = 1; nhóm dưới ngưỡng bỏ hẳn khỏi `payload`; P-11-31) | P10-04 AC2, AC14, P10-05 AC6 |
 | FR-15 | `latest` trả báo cáo mới nhất + `previous` (chủ đề mới / đổi hạng) + `has_new_data`; `export?format=md` | P10-05 AC3, AC7, AC10 |
 | FR-16 | `/insights`: danh sách biên tập, trạng thái rỗng / đang tạo / lỗi, nháp thread ghim, form buổi ôn tập, in PDF bằng trình duyệt | P10-05 |
@@ -125,14 +130,14 @@ sequenceDiagram
 | FR-26 | *(chuyển sang FEAT-decision-model)*  Áp cascade cho **ba** cổng: tường lửa Threads (chỉ thêm chặn), cờ chèn lệnh (regex OR `Structured` OR decision), định tuyến chat (ngưỡng; dưới ngưỡng giữ kết quả luật; cổng TTFT); tin khủng hoảng **không bao giờ** tới decision / LLM; **không** cho điểm / rubric / escalate | P10-13 AC4…8 |
 | FR-27 | *(chuyển sang FEAT-decision-model)*  Đo + hiển thị tỉ lệ đường nhanh theo tác vụ (Admin), báo cáo `cascade.md`; cờ mặc định tắt | P10-13 AC9, AC13 |
 | FR-28 | `GET /admin/audit` (ADMIN): lọc AND `entity` / `actor_id` / `from`–`to` (không có cả hai → `[now − 7 ngày, now]`; chỉ `from` → `to = now`; chỉ `to` → `from = to − 7 ngày`; tối đa 90 ngày trên khoảng đã áp dụng; tham số rỗng = bỏ qua như `httpx.ParsePageParams`), phân trang con trỏ `(created_at, id)` giảm dần, `limit` 1–100 (mặc định 30), **cursor gắn dấu vân tay `(entity, actor_id, from, to)` đã chuẩn hoá** (`from` / `to` quy về UTC; `Z` và `+07:00` cùng thời điểm = cùng bộ lọc; `entity` / `actor_id` như đã kiểm; thiếu = thiếu, không quy ra mặc định) — khác bộ lọc → `422 INVALID_CURSOR` (mở rộng `cursorJSON` với trường tuỳ chọn `f`; Q-S11-26, Q-S11-27); trả `{id, at, actor_*, entity, entity_id, action, course_id, trace_id, changed_fields[]}` (`before` / `after` không phải đối tượng → `[]`, không `500`), **không bao giờ** `before` / `after`; trong **một giao dịch** ghi `audit_log(entity='audit_log', entity_id=actor_id, action='VIEW_LIST', after={entity, actor_id, from, to (khoảng đã áp dụng), has_cursor, returned})` rồi mới trả (ghi hỏng → `500`, không trả dữ liệu); `Cache-Control: no-store`; migration `00025_audit_log_indexes` thêm hai chỉ mục `(created_at DESC, id DESC)`, `(entity, created_at DESC, id DESC)` | P10-14 |
-| FR-29 | Bước `NAME` chỉ đưa vào lời nhắc từ khoá cụm + câu đạt ngưỡng k ≥ 3 (FR-13); câu dưới ngưỡng không vào lời nhắc. Kiểm sau sinh trên `name` / `why` / `recommendation`: ≥ 6 từ liên tiếp trùng câu dưới ngưỡng của lớp trong kỳ (chuẩn hoá `vn_fold`; câu ngắn: chứa nguyên câu, bỏ câu < 4 từ) → `name` = «Chủ đề N», `why` / `recommendation` = `""`; chạy trước lưu và trước `export` (P-11-32) | P10-04 AC15 |
+| FR-29 | Bước `NAME` chỉ đưa vào lời nhắc từ khoá cụm + câu đạt ngưỡng k ≥ 3 (FR-13); câu dưới ngưỡng không vào lời nhắc. Báo cáo có `payload.schema < 2` (hoặc thiếu) **không phục vụ**: `latest` / `export` → `404`, `generate` không dùng lại (P-11-34; AC17). Kiểm sau sinh trên `name` / `why` / `recommendation`: ≥ 6 từ liên tiếp trùng câu dưới ngưỡng của lớp trong kỳ (chuẩn hoá `vn_fold`; câu ngắn: chứa nguyên câu, bỏ câu < 4 từ) → `name` = «Chủ đề N», `why` / `recommendation` = `""`; chạy trước lưu và trước `export` (P-11-32) | P10-04 AC15 |
 | FR-23 | Seed A + B + điểm thi và `check-p10-seed.mjs` idempotent | P10-07 |
 
 ### 4.1 Xếp hạng chủ đề (code thuần, không LLM; hằng số ở cấu hình, đề xuất Q-E-6)
 Với cụm *c*, mỗi tín hiệu chuẩn hoá về [0, 1] bằng chia cho giá trị lớn nhất trong báo cáo: `score(c) = 0,30·S + 0,20·Q + 0,20·L + 0,15·N + 0,15·P`, trong đó S = số sinh viên khác nhau, Q = số câu hỏi, L = tỷ lệ tự tin thấp / escalate, N = tỷ lệ Not helpful, P = tỷ lệ sai luyện đề của chủ đề tương ứng. Nguồn thiếu → trọng số của nó chia đều cho các tín hiệu còn lại. Hoà → thứ tự ổn định theo `S` rồi `Q`. Hiển thị tối đa 8 chủ đề đầu; còn lại gập «Chủ đề khác».
 
 ## 5. Dữ liệu
-**Không tạo bảng cho báo cáo lỗ hổng:** `insight_reports` đã có (`00015`; `payload` jsonb: `{topics:[{rank,name,why,signals(students,questions,…),recommendation,examples,named_by,chapter,week}],uncovered:[],counts,period_days}`; **không** `student_id` / tên / MSSV trong payload).
+**Không tạo bảng cho báo cáo lỗ hổng:** `insight_reports` đã có (`00015`; `payload` jsonb: `{schema:2,topics:[{rank,name,why,signals(students,questions,…),recommendation,examples,named_by,chapter,week}],uncovered:[],counts,period_days}`; **không** `student_id` / tên / MSSV trong payload).
 
 **Bảng mới (đề xuất đổi ARCHITECTURE, Q-E-1, PM xác nhận P-11-1):** migration kế tiếp sau migration cuối đã merge (số do dev lấy từ nhánh gốc, goose, không sửa file cũ).
 ```sql
@@ -163,8 +168,8 @@ Tiền tố `/api/v1`. Ghi chú: cursor / `limit` ≤ 100.
 | 1 | `GET /admin/observability/summary?window=24h\|7d` | ADMIN | 403 |
 | 2 | `GET /admin/observability/requests?filter&course_id&task&from&to&cursor&limit` | ADMIN | 403, 422 |
 | 3 | `POST /admin/observability/requests/{id}/open {reason}` | ADMIN | 403, 404, 410 `PAYLOAD_EXPIRED`, 422 `REASON_REQUIRED` |
-| 4 | `GET /courses/{id}/observability/summary` | TEACHER lớp mình, ADMIN | 403, 404 |
-| 5 | `POST /courses/{id}/insights/knowledge-gap/generate {period_days}` (`Idempotency-Key` bắt buộc) | TA, TEACHER | 202 `{job_id}`; 200 `{report_id,reused:true}`; 409 `NOT_ENOUGH_DATA`; 422 (`period_days` ngoài {7, 14, 30, 120}); 429; 403; 404 |
+| 4 | `GET /courses/{id}/observability/summary` | TEACHER lớp mình, ADMIN | 403; 404 (`{id}` sai dạng; ADMIN + lớp không tồn tại) |
+| 5 | `POST /courses/{id}/insights/knowledge-gap/generate {period_days}` (`Idempotency-Key` bắt buộc) | TA, TEACHER | 202 `{job_id}`; 200 `{report_id,reused:true}`; 409 `NOT_ENOUGH_DATA`; 422 (`period_days` ngoài {7, 14, 30, 120}); 429; 403 (gồm người ngoài lớp); 404 (`{id}` sai dạng) |
 | 6 | `GET /courses/{id}/insights/knowledge-gap/latest` | TA, TEACHER | 404 (chưa có) |
 | 7 | `GET /courses/{id}/insights/knowledge-gap/{rid}/export?format=md` | TA, TEACHER | 404 |
 | 8 | `GET /courses/{id}/analytics/exams/overview?exam_id=\|week=` | TA, TEACHER; ADMIN chỉ tổng | 403, 404 |
@@ -197,13 +202,13 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 | Idempotency | `generate` + `Idempotency-Key`; cảnh báo khử trùng; mở chi tiết **không** idempotent có chủ ý (mỗi lần một dòng) |
 | Phân trang | Cursor cho #2, #10, #11; cấm `OFFSET` trên `llm_audit` |
 | Cache | Không cache điểm phía máy chủ (AGENTS #15); báo cáo vô hiệu theo `data_watermark`, không theo TTL |
-| Truy cập lớp | `CourseAccessGuard`; lớp khác → `404` |
+| Truy cập lớp | `CourseAccessGuard`; lớp khác / người ngoài lớp → `403` `reason=course`; `{id}` sai dạng → `404` |
 | Đo | Ghi cấu hình «MacBook Apple Silicon, Colima 6 CPU / 10 GB» |
 
 ## 9. Kiểm thử
 | Cấp | Test | Phủ |
 | --- | --- | --- |
-| Go unit | `TestKnowledgeGap` (seed lệch → A, B đứng đầu; câu mẫu không tên / MSSV; lớp 1 ∌ câu lớp 2; k ≥ 3; watermark không gọi LLM; tên tạm khi LLM lỗi), `TestKnowledgeGapUncoveredMinStudents`, `TestKnowledgeGapExamplesPerSentenceK`, `TestKnowledgeGapPromptOnlyQualified`, `TestKnowledgeGapNameGuard` | P10-04 |
+| Go unit | `TestKnowledgeGap` (seed lệch → A, B đứng đầu; câu mẫu không tên / MSSV; lớp 1 ∌ câu lớp 2; k ≥ 3; watermark không gọi LLM; tên tạm khi LLM lỗi), `TestKnowledgeGapUncoveredMinStudents`, `TestKnowledgeGapExamplesPerSentenceK`, `TestKnowledgeGapPromptOnlyQualified`, `TestKnowledgeGapNameGuard`, `TestKnowledgeGapCrisisExcluded`, `TestKnowledgeGapOldSchemaNotServed` | P10-04 |
 | Go | `TestObservabilityDetailNoPII`, `TestObservabilityAuditEveryOpen`, `TestAlertDedup`, `TestObservabilityRBAC` | P10-01…03 |
 | Go | `TestAuditListNoValues`, `TestAuditViewIsAudited`, `TestAuditViewWriteFailClosed`, `TestAuditRBAC`, `TestAuditListFilters`, `TestAuditCursor`, `TestAuditListUsesIndex` (`internal/audit`) | P10-14 |
 | Go | `TestPayloadStoresMaskedOnly` (`internal/llm`) | P10-02 AC10 |

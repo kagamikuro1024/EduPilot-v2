@@ -189,9 +189,9 @@ test("topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài k
   await expect(page.locator("header > button, header > div > button, header > div > div > button")).not.toHaveCount(0);
   const groups = await page.evaluate(() => ({
     course: !!document.querySelector('header button[aria-label^="Chọn lớp"]'),
-    search: !!document.querySelector('header button[aria-label="Tìm nhanh hoặc đi đến"]'),
+    search: !!document.querySelector("header button:has(kbd)"),
     bell: !!document.querySelector('header button[aria-label^="Thông báo"]'),
-    profile: !!document.querySelector('header button[aria-label^="Tài khoản: "]'),
+    profile: !![...document.querySelectorAll("header button")].some((b) => /Tài khoản: /.test(b.textContent ?? "")),
   }));
   expect(groups).toEqual({ course: true, search: true, bell: true, profile: true });
   await page.getByRole("button", { name: /^Tài khoản: / }).click();

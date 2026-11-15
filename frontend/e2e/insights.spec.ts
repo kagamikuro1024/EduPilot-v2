@@ -19,6 +19,17 @@ test("lớp chưa có báo cáo: một EmptyState + đúng một nút «Tạo b�
   await expect(page.getByText("Chủ đề nên dạy lại")).toHaveCount(0);
 });
 
+test("375 px: mục gập «Câu hỏi mẫu» / «Chủ đề khác» có vùng chạm ≥ 44 px (TC-05-21)", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const base = REPORT.report.payload.topics;
+  const topics = Array.from({ length: 10 }, (_, i) => ({ ...base[i % 2], rank: i + 1, name: `Chủ đề thử ${i + 1}` })); // > 8 chủ đề → có «Chủ đề khác»
+  await open(page, { ...REPORT, report: { ...REPORT.report, payload: { ...REPORT.report.payload, topics } } });
+  await expect(page.getByText(/^Chủ đề khác \(\d+\)$/)).toBeVisible();
+  const boxes = await page.locator("main summary").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
+  expect(boxes.length).toBeGreaterThan(1);
+  for (const h of boxes) expect(h).toBeGreaterThanOrEqual(44);
+});
+
 test("có báo cáo: chủ đề xếp hạng, câu mẫu gập, «Ít người hỏi» không có câu mẫu, chưa đề cập, so sánh, dòng ẩn danh (AC3, 6, 7, 11)", async ({ page }) => {
   await open(page, REPORT);
   await expect(page.getByRole("heading", { name: "Bắt tay ba bước TCP" })).toBeVisible();
@@ -74,7 +85,7 @@ test("không có dữ liệu mới → reused; dưới 20 câu → 409; vượt 
   await page.unroute(GEN);
   await page.route(GEN, (r) => fail(r, 429, "RATE_LIMITED"));
   await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toBeVisible();
 });
 
 test("có dữ liệu mới: «Tạo báo cáo mới» là nút chính (AC3)", async ({ page }) => {
@@ -151,7 +162,7 @@ test("API lỗi: một thông báo + Thử lại (AC13)", async ({ page }) => {
   await insightsApi(page, {});
   await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => fail(r, 500, "INTERNAL"));
   await page.goto("/insights");
-  await expect(page.getByRole("alert")).toHaveCount(1);
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
 });
 

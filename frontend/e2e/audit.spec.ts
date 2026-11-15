@@ -41,8 +41,13 @@ test("lọc gửi đúng tham số; entity sai mẫu báo tại ô và không g�
   await page.waitForTimeout(700);
   expect(urls.length).toBe(n);
   await page.getByLabel("Thực thể").fill("");
-  await page.getByLabel("Người", { exact: true }).fill("00000000-0000-7000-8000-0000000000aa");
+  // lọc theo người: bấm tên ở một dòng (không bắt gõ mã); chip «Người: …» + nút bỏ lọc (TC-14-82)
+  await expect(page.getByLabel("Người", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: /^Lọc theo Quản Trị Viên/ }).first().click();
   await expect.poll(() => urls.some((u) => u.includes("actor_id=00000000-0000-7000-8000-0000000000aa"))).toBe(true);
+  await expect(page.getByRole("button", { name: "Bỏ lọc người" })).toContainText("Quản Trị Viên");
+  await page.getByRole("button", { name: "Bỏ lọc người" }).click();
+  await expect(page.getByRole("button", { name: "Bỏ lọc người" })).toHaveCount(0);
   expect(urls.every((u) => /[?&]from=/.test(u))).toBe(true);
 });
 
@@ -65,7 +70,7 @@ test("khoảng không có dòng → EmptyState một dòng", async ({ page }) =>
 
 test("API lỗi → một thông báo + Thử lại", async ({ page }) => {
   await open(page, (r) => r.fulfill(json(500, { code: "INTERNAL", message: "Lỗi", trace_id: "t" })));
-  await expect(page.getByRole("alert")).toHaveCount(1);
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
 });
 

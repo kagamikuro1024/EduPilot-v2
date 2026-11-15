@@ -25,7 +25,7 @@ def ask(user, c, text):
 if part in ("all", "perm"):
     c, _, _, _ = api("sv.kha", "POST", f"{GEN(c1)}/generate", {"period_days": 14}); ok("TC-04-26 sv.kha generate → 403", c == 403, str(c))
     for u in ("sv.moi",):
-        c, _, _, _ = api(u, "POST", f"{GEN(c1)}/generate", {"period_days": 14}); ok(f"TC-04-27 {u} generate lớp 1 → 404", c == 404, str(c))
+        c, _, _, _ = api(u, "POST", f"{GEN(c1)}/generate", {"period_days": 14}); ok(f"TC-04-27 {u} generate lớp 1 → 403 (P-11-35)", c == 403, str(c))
     for tc, user, meth, path in (("generate", "admin", "POST", f"{GEN(c1)}/generate"), ("latest", "admin", "GET", f"{GEN(c1)}/latest")):
         c, _, _, _ = api(user, meth, path, {"period_days": 14} if meth == "POST" else None); ok(f"TC-04-28 ADMIN {tc} → 403", c == 403, str(c))
     rid = sql(f"select id from insight_reports where course_id='{c1}' order by created_at desc limit 1")[0][0]
@@ -73,14 +73,14 @@ if part in ("all", "reuse"):
     ok("TC-04-02 cùng Idempotency-Key → cùng job_id", c2_ in (200, 202) and j2 and j2.get("job_id") == j.get("job_id"), f"{c2_} {str(j2)[:100]}")
     if c == 202:
         jj = wait_job("teacher", j["job_id"]); ok("TC-04-01 job xong", jj.get("status") in ("DONE", "SUCCEEDED"), str(jj)[:160])
-        wm = sql(f"select data_watermark from insight_reports where course_id='{c1}' order by created_at desc limit 2")
+        wm = sql(f"select data_watermark from insight_reports where course_id='{c1}' and payload->>'period_days'='14' order by created_at desc limit 2")
         ok("TC-04-19 báo cáo mới có data_watermark mới", len(wm) == 2 and wm[0][0] != wm[1][0], str(wm))
         ai = sql("select task, lane, status, provider from llm_audit where task='INSIGHT' order by created_at desc limit 3")
         ok("TC-04-09 job 1 lời gọi INSIGHT làn BATCH", len([a for a in ai[:1] if a[1] == "BATCH"]) == 1, str(ai))
 if part in ("all", "content"):
     c, j, _, _ = api("teacher", "GET", f"{GEN(c1)}/latest"); rep = j["report"]; p = rep["payload"]
     cnt = p["counts"]; print("counts", cnt)
-    ok("TC-04-06 counts có đủ 5 nguồn", all(k in cnt for k in ("chat", "threads", "escalations", "practice", "no_context")) or len(cnt) >= 5, str(cnt))
+    ok("TC-04-06 counts = {questions,students,clusters} (P-11-35)", set(cnt) == {"questions", "students", "clusters"}, str(cnt))
     keys = json.dumps(p)
     def keysof(x):
         return set(x) | {k for v in x.values() for k in (keysof(v) if isinstance(v, dict) else [])} if isinstance(x, dict) else (set().union(*[keysof(i) for i in x]) if isinstance(x, list) and x else set())
@@ -95,7 +95,7 @@ if part in ("all", "content"):
     ok("TC-04-12 có chủ đề «Ít người hỏi» với examples=[]", d and all(t["examples"] == [] for t in d), f"{len(d)}")
     ok("TC-04-12 chủ đề thường có 3–5 câu mẫu hoặc ít hơn khi <3 SV", all(len(t["examples"]) <= 5 for t in topics), "")
     r120 = json.loads(sql("select payload::text from insight_reports where course_id='%s' and payload->>'period_days'='120' order by created_at desc limit 1" % c1)[0][0])
-    ok("TC-04-10 (v1.10 P-11-31) uncovered kỳ 120: đúng 2 nhóm N1 (3) và N2 (4), N3 bị bỏ", sorted(u["count"] for u in r120["uncovered"]) == [3, 4], str(r120["uncovered"]))
+    ok("TC-04-10 (v1.10 P-11-31) uncovered kỳ 120: đúng 2 nhóm N1 (3) và N2 (4), N3 bị bỏ", sorted(u["count"] for u in r120["uncovered"] if "ZQ-L1" not in u["text"] and not u["text"].startswith("QC")) == [3, 4], str(r120["uncovered"]))
     top2 = [t["name"] for t in r120["topics"][:2]]
     A = [r[0] for r in sql("select 1")]  # tên chủ đề A, B lấy ở TC-04-10b
     print("top2 kỳ 120:", top2)

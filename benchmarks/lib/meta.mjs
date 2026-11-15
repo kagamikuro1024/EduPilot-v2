@@ -10,8 +10,9 @@ export const K6_FIELDS = ["k6_cpus", "demo_stack"];
 const DEMO_PORTS = new Set(["", "80", "443", "3000"]);
 export function refuseDemo(base) {
   const u = new URL(base);
-  if (["localhost", "127.0.0.1"].includes(u.hostname) && DEMO_PORTS.has(u.port)) {
-    throw new Error(`Từ chối: ${base} là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.`);
+  if (["localhost", "127.0.0.1", "[::1]", "host.docker.internal"].includes(u.hostname) && DEMO_PORTS.has(u.port)) {
+    console.error(`Từ chối: ${base} là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.`); // một dòng, không stack trace
+    process.exit(1);
   }
 }
 

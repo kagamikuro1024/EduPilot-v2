@@ -112,12 +112,13 @@ func (r *runner) insightScenarios(x examRig) {
 	}
 	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/insights/knowledge-gap/generate", token: x.gv, headers: x.idem()}, 404)
 	gen(x.gv, 91, 422)
+	r.must(call{method: "POST", path: base + "/generate", token: x.gv, headers: x.idem(), body: `{"period_days":0}`}, 422) // P-11-35 (TC-04-04): 0 không phải «mặc định» — chỉ vắng trường mới là 14
 	gen(x.gv, 5, 422)
 	gen(x.gv, 30, 202)
 
 	var rid string
 	if err := db.QueryRow(ctx, `insert into insight_reports (course_id, kind, period_from, period_to, payload, data_watermark, generated_by)
-		values ($1, 'KNOWLEDGE_GAP', current_date - 30, current_date, '{"topics":[{"rank":1,"name":"TCP","why":"6 sinh viên hỏi","score":1,"signals":{"students":6,"questions":22,"low_confidence_rate":0.5,"not_helpful_rate":0,"practice_wrong_rate":0},"recommendation":"Ôn lại","examples":["TCP là gì"],"named_by":"llm","chapter":null,"week":null,"keywords":["tcp"]}],"uncovered":[],"counts":{"questions":22,"students":1,"clusters":1},"period_days":30}',
+		values ($1, 'KNOWLEDGE_GAP', current_date - 30, current_date, '{"schema":2,"topics":[{"rank":1,"name":"TCP","why":"6 sinh viên hỏi","score":1,"signals":{"students":6,"questions":22,"low_confidence_rate":0.5,"not_helpful_rate":0,"practice_wrong_rate":0},"recommendation":"Ôn lại","examples":["TCP là gì"],"named_by":"llm","chapter":null,"week":null,"keywords":["tcp"]}],"uncovered":[],"counts":{"questions":22,"students":1,"clusters":1},"period_days":30}',
 		        now() + interval '1 hour', (select created_by from courses where id = $1)) returning id::text`, x.cid).Scan(&rid); err != nil {
 		r.t.Fatal(err)
 	}

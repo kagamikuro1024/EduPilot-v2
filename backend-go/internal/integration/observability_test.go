@@ -146,6 +146,16 @@ func TestObservabilityAuditEveryOpen(t *testing.T) {
 	require.Equal(t, http.StatusGone, res.code)
 	require.Equal(t, "PAYLOAD_EXPIRED", res.json()["code"])
 	require.Equal(t, 1, w.auditCount(old), "hết hạn vẫn ghi lần mở")
+
+	// P-11-35 (TC-02-14): bản prompt còn trong DB nhưng quá 30 ngày (job dọn chưa chạy) → vẫn 410, không trả nội dung, vẫn ghi lần mở
+	stale := w.audit(time.Now().AddDate(0, 0, -31), &w.course, "ok", 50, 0, "[system]\nbí mật quá hạn")
+	res = w.open(w.adm, stale, reason)
+	require.Equal(t, http.StatusGone, res.code, string(res.body))
+	require.Equal(t, "PAYLOAD_EXPIRED", res.json()["code"])
+	require.NotContains(t, string(res.body), "bí mật")
+	require.Equal(t, 1, w.auditCount(stale))
+	fresh := w.audit(time.Now().AddDate(0, 0, -29), &w.course, "ok", 50, 0, "[system]\nvẫn còn hạn")
+	require.Equal(t, http.StatusOK, w.open(w.adm, fresh, reason).code)
 }
 
 // TestObservabilityDetailNoPII — AC5: đi qua gateway LLM thật (che thật, provider giả): chi tiết mở ra chỉ có placeholder, không tên / MSSV / email.
@@ -182,6 +192,8 @@ func TestObservabilityRequestsFilter(t *testing.T) {
 	}
 	w.audit(now.Add(-10*time.Minute), &w.course, "rate_limited", 900, 0, "")
 	w.audit(now.Add(-11*time.Minute), &w.otherCourse, "ok", 100, 2, "")
+	w.audit(now.Add(-12*time.Minute), &w.course, "degraded", 100, 0, "") // Q-S11-1: degraded, cancelled không phải «có vấn đề»
+	w.audit(now.Add(-13*time.Minute), &w.course, "cancelled", 100, 0, "")
 	get := func(q string) (items []any, next any) {
 		res := w.r.do(req{method: http.MethodGet, path: "/admin/observability/requests?" + q, bearer: w.adm.access})
 		require.Equal(t, http.StatusOK, res.code, string(res.body))
@@ -190,7 +202,7 @@ func TestObservabilityRequestsFilter(t *testing.T) {
 		return m["items"].([]any), m["next_cursor"]
 	}
 	all, _ := get("filter=all&limit=100")
-	require.Len(t, all, 7)
+	require.Len(t, all, 9)
 	for _, it := range all {
 		for k := range it.(map[string]any) {
 			require.NotContains(t, []string{"masked_prompt", "prompt", "content"}, k)
@@ -206,8 +218,11 @@ func TestObservabilityRequestsFilter(t *testing.T) {
 	require.Len(t, page1, 3)
 	require.NotNil(t, next)
 	page2, _ := get("limit=100&cursor=" + next.(string))
-	require.Len(t, page2, 4)
+	require.Len(t, page2, 6)
 	require.Equal(t, http.StatusUnprocessableEntity, w.r.do(req{method: http.MethodGet, path: "/admin/observability/requests?filter=zzz", bearer: w.adm.access}).code)
+	// P-11-35 (TC-01-06): from > to → 422, không phải 200 rỗng
+	res := w.r.do(req{method: http.MethodGet, path: "/admin/observability/requests?from=2026-11-15T00:00:00Z&to=2026-11-01T00:00:00Z", bearer: w.adm.access})
+	require.Equal(t, http.StatusUnprocessableEntity, res.code, string(res.body))
 }
 
 // TestAlertDedup — US-P10-03: ≥ 20 yêu cầu / giờ và lỗi > 5 % → đúng MỘT thông báo cho mọi ADMIN; chạy lại không thêm; qua khoảng khử trùng thì báo mới; ít tải không báo; chỉ ADMIN nhận.

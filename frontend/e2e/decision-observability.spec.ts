@@ -78,3 +78,13 @@ test("TEACHER không thấy bảng và không gọi API decision (AC6)", async (
   await expect(page.locator("[data-part=decision-observability]")).toHaveCount(0);
   expect((await getLog(page, OBS)).length).toBe(0);
 });
+
+test("vị trí: «Quyết định nhanh» nằm dưới «7 ngày qua» (US-DM-07 AC1, DEF-R10.5-01)", async ({ page }) => {
+  await openObs(page, { [`GET ${OBS}`]: [{ body: body() }] });
+  await expect(page.getByRole("heading", { name: "7 ngày qua" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Quyết định nhanh" })).toBeVisible();
+  const day = await page.getByRole("heading", { name: "7 ngày qua" }).boundingBox();
+  const dm = await page.getByRole("heading", { name: "Quyết định nhanh" }).boundingBox();
+  expect({ day: day?.y, dm: dm?.y }).toEqual({ day: expect.any(Number), dm: expect.any(Number) });
+  expect(dm!.y).toBeGreaterThan(day!.y);
+});

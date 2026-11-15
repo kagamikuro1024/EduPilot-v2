@@ -156,7 +156,7 @@ def report():
           "và tính vào độ trễ (max 20–27 s của gradebook là đúng một yêu cầu như vậy, không phải máy chủ chậm — dev2 điều tra). p50 / p95 không bị ảnh hưởng. Bộ đo đã sửa (tries = 1, 429 đếm riêng, mỗi endpoint một tài khoản); số max sẽ thay khi đo lại."), ""]
     if repro:
         L += [f"Tái lập (AC11, sai số ±15 %, Q-S11-13): RAM gateway + worker lệch {f(repro['ram_go_pct'])} %, khởi động gateway {f(repro['cold_gateway_pct'])} %, worker {f(repro['cold_worker_pct'])} % → **{'trong sai số' if repro['within'] else 'NGOÀI sai số'}**. "
-              "Khởi động lạnh chỉ vài trăm ms nên dao động lịch CPU của VM Colima (vài trăm ms) đủ làm lệch phần trăm lớn; trung vị vẫn < 0,4 s ở cả hai lượt.", ""]
+              f"Khởi động lạnh chỉ vài trăm ms nên dao động lịch CPU của VM Colima (vài trăm ms) đủ làm lệch phần trăm lớn; trung vị lớn nhất {max(med(r['cold_start_ms'][s]) for r in runs.values() for s in ('gateway', 'worker'))} ms.", ""]
     L += ["## Giới hạn", "", "- Một máy (MacBook, Colima), một bản gateway + một worker, dữ liệu seed T0 (nhỏ). Tải T1 không chạy lại (Q-E-20): số T1 ở báo cáo 9.5 (`benchmarks/reports/load-*.json`).",
           "- Image chạy trên `ep-qc` là bản test (`edupilot-*-test`, có route thử); kích thước giao hàng là dòng `ep-eval-*` (target production, distroless) dựng từ cùng commit.",
           "- Độ trễ đo từ máy Mac qua Caddy HTTPS, client tuần tự (không đồng thời): là độ trễ nền, không phải dưới tải. Không đối chiếu hệ cũ (D45)."]

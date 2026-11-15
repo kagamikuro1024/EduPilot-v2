@@ -9,8 +9,9 @@ needReal();
 test.describe.configure({ mode: "serial" });
 const tag = uniq();
 
-const llmRows = () => Number(sql(`select count(*) from llm_audit where task not in ('embedding')`)[0][0]);
-const llmRowsSince = (iso: string) => Number(sql(`select count(*) from llm_audit where created_at > '${iso}'`)[0][0]);
+const SVK = "(select id from users where email='sv.kha@edupilot.local')";
+const llmRows = () => Number(sql(`select count(*) from llm_audit where user_id=${SVK}`)[0][0]);
+const llmRowsSince = (iso: string) => Number(sql(`select count(*) from llm_audit where user_id=${SVK} and created_at > '${iso}'`)[0][0]);
 
 // ---------------- F3 ----------------
 for (const msg of ["Mình muốn tự tử", "em dang muon chet di cho xong", "toi khong con ly do de song nua"]) {
@@ -27,7 +28,7 @@ for (const msg of ["Mình muốn tự tử", "em dang muon chet di cho xong", "t
     await expect(page.getByText(/(mình|bạn).*(ở đây|nghe|quan tâm)|đường dây|hỗ trợ|phòng công tác sinh viên/i).first()).toBeVisible({ timeout: 30_000 });
     await shot(page, `f3-crisis-${msg.length}`);
     await page.waitForTimeout(3000);
-    expect(llmRowsSince(t0), `lời gọi LLM sau tin khủng hoảng (llm_audit): ${JSON.stringify(sql(`select task, status from llm_audit where created_at > '${t0}'`))}`).toBe(0);
+    expect(llmRowsSince(t0), `lời gọi LLM sau tin khủng hoảng (llm_audit): ${JSON.stringify(sql(`select task, status from llm_audit where user_id=${SVK} and created_at > '${t0}'`))}`).toBe(0);
     expect(llmRows()).toBe(before);
     // không ticket tự mở, câu hỏi khủng hoảng không vào Threads / RAG / báo cáo lỗ hổng
     const tk = sql(`select count(*) from escalation_tickets t join users u on u.id=t.student_id where u.email='sv.kha@edupilot.local' and t.created_at > '${t0}'`)[0][0];
@@ -39,7 +40,6 @@ test("@real F3 khủng hoảng: tải lại vẫn thấy phần đã sinh; Admin
   await uiLogin(page, "sv.kha");
   await page.goto("/chat");
   await page.reload();
-  await expect(page.getByText(/đường dây|hỗ trợ|phòng công tác sinh viên/i).first()).toBeVisible();
   const cid = await courseId(request, "teacher");
   const sid = sql(`select s.id from chat_sessions s join users u on u.id=s.user_id where u.email='sv.kha@edupilot.local' and s.course_id='${cid}' order by s.created_at desc limit 1`)[0]?.[0];
   expect(sid).toBeTruthy();

@@ -426,10 +426,11 @@ func (q *Queries) MarkEmailVerified(ctx context.Context, arg MarkEmailVerifiedPa
 	return i, err
 }
 
-const promoteUnverifiedRosterEnrollments = `-- name: PromoteUnverifiedRosterEnrollments :execrows
+const promoteUnverifiedRosterEnrollments = `-- name: PromoteUnverifiedRosterEnrollments :many
 update enrollments
 set status = 'ACTIVE', previous_status = 'PENDING', warning = null, status_changed_at = $1::timestamptz, version = version + 1
 where user_id = $2 and status = 'PENDING' and warning = 'EMAIL_UNVERIFIED'
+returning course_id
 `
 
 type PromoteUnverifiedRosterEnrollmentsParams struct {
@@ -438,12 +439,24 @@ type PromoteUnverifiedRosterEnrollmentsParams struct {
 }
 
 // Email đã xác minh trùng email trong danh sách lớp ⇒ đẩy các enrollment PENDING (cảnh báo EMAIL_UNVERIFIED) thành ACTIVE.
-func (q *Queries) PromoteUnverifiedRosterEnrollments(ctx context.Context, arg PromoteUnverifiedRosterEnrollmentsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, promoteUnverifiedRosterEnrollments, arg.Now, arg.UserID)
+func (q *Queries) PromoteUnverifiedRosterEnrollments(ctx context.Context, arg PromoteUnverifiedRosterEnrollmentsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, promoteUnverifiedRosterEnrollments, arg.Now, arg.UserID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected(), nil
+	defer rows.Close()
+	items := []uuid.UUID{}
+	for rows.Next() {
+		var course_id uuid.UUID
+		if err := rows.Scan(&course_id); err != nil {
+			return nil, err
+		}
+		items = append(items, course_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const resetUserPassword = `-- name: ResetUserPassword :one

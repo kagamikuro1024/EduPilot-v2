@@ -81,7 +81,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(grading.TopicGuidanceChanged, inv.Handle) // lưu ý chấm đổi (10.6): xoá cache «Hôm nay» của giảng viên + TA
 	reg.Register(course.TopicAssigned, outbox.Chain(cn.HandleAssigned, inv.Handle))
 	reg.Register(course.TopicJoinRequested, outbox.Chain(cn.HandleJoinRequested, inv.Handle))
-	reg.Register(course.TopicJoinDecided, outbox.Chain(cn.HandleJoinDecided, inv.Handle))
+	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
+	reg.Register(course.TopicJoinDecided, outbox.Chain(roster.Invalidate, cn.HandleJoinDecided, inv.Handle)) // duyệt ⇒ SV mới vào từ điển PII ngay (DEF-R6-02); xoá cache đứng đầu để thông báo lỗi không làm trễ
 	en := &exam.Notifier{Pool: d.DB, Log: d.Log, Notify: nt}
 	reg.Register(exam.TopicExamScheduled, outbox.Chain(en.HandleScheduled, inv.Handle)) // US-PE-04: thông báo lịch + xoá cache "Hôm nay"
 	reg.Register(exam.TopicExamUnscheduled, outbox.Chain(en.HandleUnscheduled, inv.Handle))
@@ -125,7 +126,6 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(escalation.TopicSLAEscalated, outbox.Chain(esc.HandleSLAEscalated, inv.Handle))
 	reg.Register(escalation.TopicCourseStall, outbox.Chain(esc.HandleCourseStalled, inv.Handle))
 	// Từ điển PII (US-P3-02): thành viên đổi / nhập danh sách → xoá ep:roster:{course} ngay sau xoá cache "Hôm nay". Cùng topic nên phải Chain.
-	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
 	for _, t := range []string{course.TopicMemberChanged, course.TopicRosterImport} {
 		reg.Register(t, outbox.Chain(inv.Handle, roster.Invalidate))
 	}

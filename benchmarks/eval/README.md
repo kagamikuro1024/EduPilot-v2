@@ -21,4 +21,4 @@ Kết quả: `benchmarks/reports/eval-<ngày>/e{1..6}.json` + `.md` + `.svg`; k�
 | E5 | `e5.py run` (10 lô × 10 câu; trần 5 lô / lớp / giờ — gặp 429 thì chạy lại sau) | duyệt câu trên UI ngân hàng câu hỏi |
 | E6 | `e6.py run --tag r1 / r2` | – |
 
-Đổi tuyến model: `stack.py route --tag P1 --model ag/gemini-3.8-flash`; nhúng: `stack.py embed-real` / `embed-fake` (khoá chỉ đọc trong tiến trình, không in, không ghi).
+Đổi tuyến model: `stack.py route --tag P1 --model ag/gemini-3.8-flash`; nhúng: `stack.py embed-real` / `embed-fake` (`--only <class_code>` để reindex một lớp; khoá chỉ đọc trong tiến trình, không in, không ghi). Stack dùng chung: `stack.py routes-save FILE` trước khi đổi, `routes-restore FILE` sau lượt đo.

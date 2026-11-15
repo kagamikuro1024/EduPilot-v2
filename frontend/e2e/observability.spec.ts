@@ -70,6 +70,20 @@ test("mở nội dung: cần lý do ≥ 10 ký tự, POST mang lý do, hiện n�
   expect(JSON.parse(posts[0].body)).toEqual({ reason: "Giảng viên khiếu nại câu trả lời sai" });
 });
 
+test("mã theo dõi: không có JAEGER (trace_url null) → hiện mã + nút sao chép, không liên kết rỗng (TC-02-13)", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await openAdmin(page, { [OPEN]: [{ body: detail() }] });
+  await page.getByRole("table", { name: /Yêu cầu gửi tới model/ }).locator("tbody tr").first().click();
+  await page.getByLabel("Lý do").fill("Giảng viên khiếu nại câu trả lời sai");
+  await page.getByRole("button", { name: "Xem chi tiết" }).click();
+  const drawer = page.getByRole("dialog");
+  await expect(drawer.getByText("t".repeat(32))).toBeVisible();
+  await expect(drawer.locator('a[href*="undefined"], a[href=""]')).toHaveCount(0);
+  await drawer.getByRole("button", { name: "Sao chép mã theo dõi" }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("t".repeat(32));
+  await expect(drawer.getByRole("button", { name: "Đã sao chép" })).toBeVisible();
+});
+
 test("nội dung hết hạn lưu (410 PAYLOAD_EXPIRED) → một dòng, không lỗi chung", async ({ page }) => {
   await openAdmin(page, { [OPEN]: [err(410, "PAYLOAD_EXPIRED")] });
   await page.getByRole("table", { name: /Yêu cầu gửi tới model/ }).locator("tbody tr").first().click();

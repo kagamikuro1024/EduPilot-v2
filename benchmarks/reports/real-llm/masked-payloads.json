@@ -5,7 +5,10 @@
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
-      "source": "TestNoPayloadLeak"
+      "source": "TestNoPayloadLeak",
+      "model": "provider giả (TestNoPayloadLeak), không gọi LLM thật",
+      "rpm_limit": null,
+      "config_source": "DEF-R9.5-09: không áp dụng"
     }
   },
   "count": 146,

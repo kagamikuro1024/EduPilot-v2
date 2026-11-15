@@ -27,6 +27,7 @@ join chat_sessions s on s.id = u.session_id and s.deleted_at is null
 join enrollments e on e.course_id = u.course_id and e.user_id = u.user_id and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE'
 left join chat_messages a on a.course_id = u.course_id and a.reply_to = u.id and a.role = 'ASSISTANT'
 where u.course_id = $1 and u.role = 'USER' and u.content <> ''
+  and a.intent is distinct from 'CRISIS' -- tin khủng hoảng không bao giờ vào báo cáo (P-11-34; mã còn kiểm DetectIntent trên chữ gốc)
   and u.created_at >= $2 and u.created_at < $3
 order by u.created_at, u.id
 limit $4
@@ -159,7 +160,7 @@ func (q *Queries) InsightPracticeTopics(ctx context.Context, arg InsightPractice
 const insightReportGet = `-- name: InsightReportGet :one
 select id, period_from, period_to, payload, data_watermark, generated_by, created_at
 from insight_reports
-where course_id = $1 and kind = 'KNOWLEDGE_GAP' and id = $2
+where course_id = $1 and kind = 'KNOWLEDGE_GAP' and id = $2 and coalesce((payload ->> 'schema')::int, 1) >= 2
 `
 
 type InsightReportGetParams struct {
@@ -229,7 +230,7 @@ func (q *Queries) InsightReportInsert(ctx context.Context, arg InsightReportInse
 const insightReportLatest = `-- name: InsightReportLatest :many
 select id, period_from, period_to, payload, data_watermark, generated_by, created_at
 from insight_reports
-where course_id = $1 and kind = 'KNOWLEDGE_GAP'
+where course_id = $1 and kind = 'KNOWLEDGE_GAP' and coalesce((payload ->> 'schema')::int, 1) >= 2 -- báo cáo cũ (trước P-11-31/32/34, không có schema) coi như không có
 order by created_at desc, id desc
 limit 2
 `
@@ -276,7 +277,7 @@ func (q *Queries) InsightReportLatest(ctx context.Context, courseID uuid.UUID) (
 const insightReportLatestFor = `-- name: InsightReportLatestFor :one
 select id, data_watermark
 from insight_reports
-where course_id = $1 and kind = 'KNOWLEDGE_GAP' and (payload ->> 'period_days')::int = $2::int
+where course_id = $1 and kind = 'KNOWLEDGE_GAP' and (payload ->> 'period_days')::int = $2::int and coalesce((payload ->> 'schema')::int, 1) >= 2
 order by created_at desc, id desc
 limit 1
 `

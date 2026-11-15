@@ -55,7 +55,6 @@ export function AdminView() {
   return (
     <>
       <FailedMail />
-      <DecisionTable />
       <PageState query={summary} isEmpty={() => (summary.data?.totals.requests ?? 0) === 0 && (summary.data?.days.length ?? 0) === 0} loading={<Skeleton lines={8} />} empty={<EmptyState title="Chưa có yêu cầu nào" />}>
         {t && (
           <p className={s.today} data-part="obs-today">
@@ -65,6 +64,7 @@ export function AdminView() {
         <Section title="7 ngày qua">
           <DataTable caption="Số liệu theo ngày" columns={DAY_COLUMNS} rows={summary.data?.days ?? []} rowKey={(d) => d.day} dense />
         </Section>
+        <DecisionTable />
         <Section title="Chi phí theo tác vụ">
           <DataTable caption="Chi phí 7 ngày theo tác vụ" columns={TASK_COLUMNS} rows={summary.data?.tasks ?? []} rowKey={(x) => x.task} dense />
         </Section>

@@ -58,12 +58,16 @@ func (h *Handler) generate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		PeriodDays int `json:"period_days"`
+		PeriodDays *int `json:"period_days"` // vắng = mặc định 14; có mặt thì phải ∈ {7, 14, 30, 120} (0 → 422, TC-04-04)
 	}
 	if r.ContentLength != 0 && !httpx.DecodeJSON(w, r, &in) {
 		return
 	}
-	out, err := h.Svc.Generate(r.Context(), user, course, in.PeriodDays)
+	period := insight.DefaultPeriod
+	if in.PeriodDays != nil {
+		period = *in.PeriodDays
+	}
+	out, err := h.Svc.Generate(r.Context(), user, course, period)
 	if err != nil {
 		h.fail(w, r, err)
 		return

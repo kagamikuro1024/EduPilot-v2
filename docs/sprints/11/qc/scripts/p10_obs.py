@@ -64,12 +64,12 @@ if part in ("all", "01"):
     # lớp mà teacher@ KHÔNG dạy: tạm nâng sv.moi thành TEACHER để ADMIN tạo lớp, rồi trả vai
     oc = sql("select c.id from courses c where c.class_code='QCOBS01'")
     if not oc:
-        sql("update users set role='TEACHER' where email='sv.moi@edupilot.local'")
+        sql("update users set role='TEACHER', student_code=null where email='sv.moi@edupilot.local'")
         cc, mk, _, _ = api("admin", "POST", "/admin/courses", {"subject_code": "QCO", "class_code": "QCOBS01", "name": "QC lớp khác (observability)", "semester": "2026-2027-HK1", "capacity": 30, "teacher_id": uid("sv.moi")})
-        sql("update users set role='STUDENT' where email='sv.moi@edupilot.local'")
+        sql("update users set role='STUDENT', student_code='20229004' where email='sv.moi@edupilot.local'")
         oc = sql("select c.id from courses c where c.class_code='QCOBS01'")
     c, j, _, _ = api("teacher", "GET", f"/courses/{oc[0][0]}/observability/summary")
-    ok("TC-01-08b GV xem lớp khác → 404", c == 404, f"{c}")
+    ok("TC-01-08b GV xem lớp khác → 403 (P-11-35)", c == 403, f"{c}")
     for code, cid in (("761987", c1), ("761988", c2)):
         c, j, _, _ = api("admin", "GET", f"/courses/{cid}/observability/summary")
         ok(f"TC-01-09 ADMIN xem {code} → 200", c == 200, f"{c}")

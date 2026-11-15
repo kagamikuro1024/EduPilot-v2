@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -25,16 +26,21 @@ import (
 // stubLLM: nhúng theo chủ đề trong câu (TCP→trục 0, SQL→1, Docker→2, còn lại→3), đặt tên theo từ khoá; failNames / failEmbed mô phỏng LLM hỏng.
 type stubLLM struct {
 	llm.Client
+	mu                   sync.Mutex
 	failNames, failEmbed bool
 	leakName             string // khác rỗng: mọi chủ đề được «đặt tên» bằng chuỗi này (mô phỏng LLM chép câu dưới ngưỡng k)
 	structured           int
 	seen                 []string // nội dung user của mọi lời gọi đặt tên
+	embedded             []string // mọi chuỗi gửi đi nhúng
 }
 
 func (s *stubLLM) Embed(_ context.Context, r llm.EmbedRequest) ([][]float32, error) {
 	if s.failEmbed {
 		return nil, errors.New("embed down")
 	}
+	s.mu.Lock()
+	s.embedded = append(s.embedded, r.Inputs...)
+	s.mu.Unlock()
 	out := make([][]float32, len(r.Inputs))
 	for i, t := range r.Inputs {
 		v := make([]float32, llm.EmbedDims)
@@ -55,8 +61,10 @@ func (s *stubLLM) Embed(_ context.Context, r llm.EmbedRequest) ([][]float32, err
 }
 
 func (s *stubLLM) Structured(_ context.Context, r llm.Request, _ json.RawMessage) (json.RawMessage, error) {
+	s.mu.Lock()
 	s.structured++
 	s.seen = append(s.seen, r.Messages[1].Content)
+	s.mu.Unlock()
 	if s.failNames {
 		return nil, errors.New("llm down")
 	}
@@ -300,6 +308,71 @@ func TestKnowledgeGapNameGuard(t *testing.T) {
 	}
 }
 
+// TestKnowledgeGapCrisisExcluded — P-11-34 F1: tin khủng hoảng (chat riêng) không bao giờ vào báo cáo: không nhúng ra ngoài, không từ khoá / tên chủ đề, không câu mẫu / «chưa đề cập» dù ≥ 3 sinh viên gõ cùng câu.
+func TestKnowledgeGapCrisisExcluded(t *testing.T) {
+	r := newRig(t, 13)
+	const canary = "Em không muốn sống nữa, bỏ học luôn canary-khung-hoang"
+	for k := range 4 { // 4 sinh viên cùng một câu khủng hoảng (qua ngưỡng k)
+		r.ask(k, canary, true, false)
+	}
+	// câu trung tính nhưng trợ lý đã gắn intent CRISIS (phòng thủ ở SQL)
+	const marked = "Dạo này em mệt lắm marker-intent-crisis"
+	for k := range 4 {
+		r.ask(4+k, marked, true, false)
+	}
+	r.exec(`update chat_messages set intent = 'CRISIS' where role = 'ASSISTANT' and reply_to in (select id from chat_messages where content = $1)`, marked)
+	for k := range 40 {
+		r.ask(k%6, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k%5), false, false)
+	}
+	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	var payload, all string
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select payload::text from insight_reports where course_id = $1`, r.course).Scan(&payload))
+	all = strings.Join(append(append([]string{payload}, r.llm.embedded...), r.llm.seen...), "\n")
+	for _, canaryText := range []string{"canary-khung-hoang", "sống nữa", "marker-intent-crisis", "canary", "marker"} {
+		require.NotContains(t, strings.ToLower(all), strings.ToLower(canaryText), canaryText)
+	}
+	rep, err := r.svc.Latest(t.Context(), r.course)
+	require.NoError(t, err)
+	md, err := r.svc.Export(t.Context(), r.course, rep.Report.ID)
+	require.NoError(t, err)
+	require.NotContains(t, md, "canary")
+	require.Equal(t, 40, rep.Report.Payload.Counts.Questions, "chỉ 40 câu thường được đếm")
+}
+
+// TestKnowledgeGapOldPayloadIgnored — P-11-34 F2: báo cáo cũ (payload không có schema = v1, sinh trước P-11-31/32/34) → 404 ở latest và export, không dùng lại ở Generate; chạy báo cáo mới thay được.
+func TestKnowledgeGapOldPayloadIgnored(t *testing.T) {
+	r := newRig(t, 13)
+	for k := range 40 {
+		r.ask(k%6, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k%5), false, false)
+	}
+	var oldID uuid.UUID
+	require.NoError(t, r.pool.QueryRow(t.Context(), `insert into insight_reports (course_id, kind, period_from, period_to, payload, data_watermark, generated_by)
+		values ($1, 'KNOWLEDGE_GAP', current_date - 30, current_date, '{"topics":[{"rank":1,"name":"cũ","why":"x","examples":["câu nguyên văn của một sinh viên"],"keywords":[],"signals":{}}],"uncovered":[{"text":"câu lẻ","count":1}],"counts":{"questions":40,"students":6,"clusters":1},"period_days":30}'::jsonb,
+		now() + interval '1 hour', $2) returning id`, r.course, r.teacher).Scan(&oldID))
+
+	_, err := r.svc.Latest(t.Context(), r.course)
+	var ae *apierr.Error
+	require.ErrorAs(t, err, &ae)
+	require.Equal(t, http.StatusNotFound, ae.Status)
+	_, err = r.svc.Export(t.Context(), r.course, oldID)
+	require.ErrorAs(t, err, &ae)
+	require.Equal(t, http.StatusNotFound, ae.Status)
+	out, err := r.svc.Generate(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	require.False(t, out.Reused, "báo cáo cũ không được dùng lại dù không có dữ liệu mới")
+	require.NotNil(t, out.JobID)
+
+	_, err = r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	rep, err := r.svc.Latest(t.Context(), r.course)
+	require.NoError(t, err)
+	require.Equal(t, insight.PayloadSchema, rep.Report.Payload.Schema)
+	require.NotEqual(t, oldID, rep.Report.ID)
+	require.Nil(t, rep.Previous, "so sánh không lấy tên chủ đề từ báo cáo cũ")
+	require.NotContains(t, rep.Report.Payload.Topics[0].Name, "cũ")
+}
+
 // TestKnowledgeGap — US-P10-04: A, B đứng đầu; chủ đề < 3 sinh viên không có câu mẫu; ngoài tài liệu có mục riêng; không danh tính trong payload.
 func TestKnowledgeGap(t *testing.T) {
 	r := newRig(t, 13)
@@ -380,8 +453,8 @@ func TestKnowledgeGapGenerateGates(t *testing.T) {
 	require.NotNil(t, out.JobID)
 	require.False(t, out.Reused)
 
-	// kỳ ngoài {7, 14, 30, 120} → 422 (Q-E-7); 0 = mặc định 14
-	for _, bad := range []int{-1, 5, 999} {
+	// kỳ ngoài {7, 14, 30, 120} → 422 (Q-E-7), kể cả 0 (P-11-35); «vắng = 14» do handler (contract)
+	for _, bad := range []int{-1, 0, 5, 999} {
 		_, err = r.svc.Generate(ctx, r.teacher, r.course, bad)
 		require.ErrorAs(t, err, &ae, bad)
 		require.Equal(t, http.StatusUnprocessableEntity, ae.Status, bad)

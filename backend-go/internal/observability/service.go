@@ -41,6 +41,16 @@ type Service struct {
 	Log   *slog.Logger
 	// JaegerBaseURL rỗng → không có liên kết trace.
 	JaegerBaseURL string
+	// PayloadDays: số ngày giữ bản prompt (OBS_PAYLOAD_DAYS; 0 → 30). `Open` kiểm tuổi lúc ĐỌC: quá hạn là 410 dù job dọn chưa chạy (riêng tư).
+	PayloadDays int
+}
+
+func (s *Service) payloadExpired(at *time.Time) bool {
+	days := s.PayloadDays
+	if days <= 0 {
+		days = 30
+	}
+	return at != nil && at.Before(s.now().AddDate(0, 0, -days))
 }
 
 func (s *Service) now() time.Time {
@@ -184,16 +194,16 @@ type CourseSummary struct {
 	Requests  int64     `json:"requests"`
 	ErrorRate float64   `json:"error_rate"`
 	// Escalations: số phiếu chuyển giảng viên; PIIMasked: số lần che thông tin.
-	Escalations   int64   `json:"escalations"`
-	PIIMasked     int64   `json:"pii_masked"`
-	Helpful       int64   `json:"helpful"`
-	NotHelpful    int64   `json:"not_helpful"`
-	ThreadCorrect int64   `json:"thread_correct"`
-	ThreadReject  int64   `json:"thread_reject"`
-	GradedChanged int64   `json:"graded_changed"`
-	GradedTotal   int64   `json:"graded_total"`
-	ChangeRate    float64 `json:"change_rate"`
-	MeanAbsDev    string  `json:"mean_abs_deviation"`
+	Escalations   int64    `json:"escalations"`
+	PIIMasked     int64    `json:"pii_masked"`
+	Helpful       int64    `json:"helpful"`
+	NotHelpful    int64    `json:"not_helpful"`
+	ThreadCorrect int64    `json:"thread_correct"`
+	ThreadReject  int64    `json:"thread_reject"`
+	GradedChanged int64    `json:"graded_changed"`
+	GradedTotal   int64    `json:"graded_total"`
+	ChangeRate    float64  `json:"change_rate"`
+	MeanAbsDev    string   `json:"mean_abs_deviation"`
 	Days          []DayRow `json:"days"`
 }
 
@@ -332,7 +342,7 @@ func (s *Service) Open(ctx context.Context, actor, id uuid.UUID, reason, traceID
 	if err := tx.Commit(ctx); err != nil {
 		return Detail{}, fmt.Errorf("observability: commit: %w", err)
 	}
-	if !d.HasPayload {
+	if !d.HasPayload || s.payloadExpired(d.PayloadAt) {
 		return Detail{}, ErrExpired
 	}
 	out := Detail{ID: d.ID, At: d.CreatedAt, Task: d.Task, Provider: d.Provider, Model: d.Model, Status: d.Status, TraceID: d.TraceID, MaskedPrompt: derefStr(d.MaskedPrompt), Tools: toolNames(d.Tools)}

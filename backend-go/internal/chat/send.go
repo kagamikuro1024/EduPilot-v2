@@ -27,7 +27,8 @@ const releaseLuaSrc = `if redis.call('GET', KEYS[1]) == ARGV[1] then return redi
 func (s *Service) precheck(ctx context.Context, a Actor, text string) error {
 	// Đường hỗ trợ KHÔNG bị khoá giờ thi (US-P4-07 AC5): tin khủng hoảng bỏ qua khoá, không tính CHAT_BLOCKED; câu mẫu do agent trả.
 	if agent.DetectIntent(text) == agent.IntentCrisis {
-		return s.rate(ctx, a.UserID)
+		_, err := s.rate(ctx, a.UserID) // đường hỗ trợ: Redis tắt vẫn đi tiếp (câu mẫu do agent trả)
+		return err
 	}
 	lk, locked, err := s.Lock.IsLocked(ctx, a.UserID)
 	if err != nil {
@@ -42,13 +43,17 @@ func (s *Service) precheck(ctx context.Context, a Actor, text string) error {
 		}
 		return apierr.New(http.StatusConflict, apierr.ExamInProgress).WithDetails(map[string]any{"until": lk.Until.UTC().Format(time.RFC3339)})
 	}
-	return s.rate(ctx, a.UserID)
+	down, err := s.rate(ctx, a.UserID)
+	if down { // Redis không đáp: mọi bước sau (khoá bận, nhúng, scheduler) đều chờ Redis ~2 s mỗi lệnh ⇒ dừng sớm, không treo 40 s (DEF-R9.5-20, TL-2d)
+		return apierr.New(http.StatusServiceUnavailable, apierr.Overloaded).WithRetryAfter(5)
+	}
+	return err
 }
 
-// rate: cửa sổ cố định theo phút đồng hồ; retry_after = số giây còn lại tới hết phút. Redis lỗi → bỏ qua giới hạn (không chặn chat).
-func (s *Service) rate(ctx context.Context, uid uuid.UUID) error {
+// rate: cửa sổ cố định theo phút đồng hồ; retry_after = số giây còn lại tới hết phút. Redis lỗi → bỏ qua giới hạn và báo down=true (người gọi quyết định).
+func (s *Service) rate(ctx context.Context, uid uuid.UUID) (down bool, _ error) {
 	if s.Redis == nil {
-		return nil
+		return false, nil
 	}
 	now := s.now()
 	k := fmt.Sprintf("ep:rl:chat:%s:%d", uid, now.Unix()/60)
@@ -57,15 +62,15 @@ func (s *Service) rate(ctx context.Context, uid uuid.UUID) error {
 		if s.Log != nil {
 			s.Log.WarnContext(ctx, "chat: giới hạn tốc độ lỗi Redis, bỏ qua", "error", err)
 		}
-		return nil
+		return true, nil
 	}
 	if n == 1 {
 		_ = s.Redis.Expire(ctx, k, 70*time.Second).Err()
 	}
 	if int(n) > s.c().RatePerMin {
-		return apierr.New(http.StatusTooManyRequests, apierr.RateLimited).WithRetryAfter(int(60 - now.Unix()%60))
+		return false, apierr.New(http.StatusTooManyRequests, apierr.RateLimited).WithRetryAfter(int(60 - now.Unix()%60))
 	}
-	return nil
+	return false, nil
 }
 
 // takeBusy: SET NX; trả (true, "") khi giành được; (false, giá trị đang giữ) khi không. Redis lỗi → coi như giành được (không chặn chat).
