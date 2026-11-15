@@ -58,18 +58,20 @@ export const TOPIC_D = [
   "Chọn hằng số làm trơn alpha như thế nào?",
 ];
 
-/** 10 câu ngoài tài liệu — trợ lý phải trả lời "chưa tìm thấy trong tài liệu của lớp". */
+/**
+ * 10 tin ngoài tài liệu của lớp 1 — trợ lý phải trả lời "chưa tìm thấy trong tài liệu của lớp" — chia 3 nhóm câu (P-11-31, US-P10-04 AC4):
+ * N1 do 3 sinh viên khác nhau hỏi (3 tin), N2 do 4 sinh viên (4 tin), N3 do MỘT sinh viên hỏi 3 lần (3 tin).
+ * «Tài liệu chưa đề cập» chỉ hiện N1, N2 (≥ 3 sinh viên); N3 bị bỏ. `who` = chỉ số trong ROSTER1 (sv.gioi = 0).
+ */
 export const OUTSIDE = [
   "Hôm nay thời tiết ở Hà Nội thế nào?",
   "Công thức nấu phở bò gồm những gì?",
   "Đội tuyển bóng đá quốc gia đá trận nào tới?",
-  "Giá vàng hôm nay là bao nhiêu?",
-  "Gợi ý bộ phim hay để xem cuối tuần?",
-  "Cách trồng cây xương rồng trong chậu nhỏ?",
-  "Nên mua điện thoại nào trong tầm giá mười triệu?",
-  "Lịch thi đấu giải bóng rổ chuyên nghiệp?",
-  "Cách pha cà phê muối ngon tại nhà?",
-  "Địa điểm du lịch đẹp ở miền Trung?",
+];
+export const OUTSIDE_PLAN = [
+  { text: OUTSIDE[0], who: [4, 5, 6] },
+  { text: OUTSIDE[1], who: [7, 8, 9, 10] },
+  { text: OUTSIDE[2], who: [11, 11, 11] },
 ];
 
 /** Chủ đề C của lớp 2 (mạng máy tính): lớp 1 không có câu nào thuộc chủ đề này (US-P10-07 AC2, TC-04-17). */
@@ -89,7 +91,7 @@ export const TOPIC_C = [
 const PREFIX = ["", "Cho em hỏi: ", "Giải thích giúp em: "];
 
 /**
- * 150 câu hỏi cố định của lớp 1 (theo `rand` có hạt giống): lệch về A và B (85 + 45), chủ đề D 10 câu (chỉ 2 sinh viên hỏi — chia ở seed.mjs), 10 câu ngoài tài liệu.
+ * 150 câu hỏi cố định của lớp 1 (theo `rand` có hạt giống): lệch về A và B (85 + 45), chủ đề D 10 câu (chỉ 2 sinh viên hỏi — chia ở seed.mjs), 10 tin ngoài tài liệu.
  * Mỗi câu một khoá riêng (`#n`) để chạy lại không nhân đôi.
  */
 export function chatQuestions(rand) {
@@ -100,7 +102,6 @@ export function chatQuestions(rand) {
   add(TOPIC_A, 85);
   add(TOPIC_B, 45);
   add(TOPIC_D, 10);
-  add(OUTSIDE, 10);
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [out[i], out[j]] = [out[j], out[i]];

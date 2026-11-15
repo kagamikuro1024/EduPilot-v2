@@ -38,7 +38,11 @@ const c2 = per("761988");
 must(c1 >= 145 && c1 <= 165, `lớp 761987: ${c1} câu hỏi chat (cần ≈ 150)`);
 must(c2 >= 35 && c2 <= 50, `lớp 761988: ${c2} câu hỏi chat (cần ≈ 40)`);
 const noCtx = one("select count(*) from chat_messages a join courses c on c.id = a.course_id where c.class_code = '761987' and a.role = 'ASSISTANT' and a.no_context");
-must(noCtx >= 10, `lớp 761987: ${noCtx} câu ngoài tài liệu (cần ≥ 10)`);
+must(noCtx >= 10, `lớp 761987: ${noCtx} tin ngoài tài liệu (cần ≥ 10)`);
+// P-11-31 (US-P10-07 AC2): 10 tin no_context = 3 nhóm câu — N1 3 SV (3 tin), N2 4 SV (4 tin), N3 1 SV × 3 tin → «Tài liệu chưa đề cập» chỉ hiện N1, N2
+const grp = q(`select count(*) n, count(distinct u.user_id) s from chat_messages a join chat_messages u on u.id = a.reply_to join courses c on c.id = a.course_id
+  where c.class_code = '761987' and a.role = 'ASSISTANT' and a.no_context and u.content not like 'QC-%' group by lower(regexp_replace(u.content, '\\s+', ' ', 'g')) order by 1 desc, 2 desc`).map((r) => r.map(Number).join("/"));
+must(grp.join(",") === "4/4,3/3,3/1", `nhóm câu ngoài tài liệu (tin/SV) = ${grp.join(",")} (cần 4/4,3/3,3/1)`);
 // ≥ 3 SV mỗi chủ đề lớn; chủ đề D đúng 2 SV (đếm theo từ khoá chủ đề — dữ liệu seed cố định)
 const studentsFor = (code, like) => one(`select count(distinct m.user_id) from chat_messages m join courses c on c.id = m.course_id where c.class_code = '${code}' and m.role = 'USER' and (${like})`);
 const A = studentsFor("761987", "m.content ~* 'phishing|ransomware|ddos|botnet|firewall|zero-day|spyware'");
@@ -67,5 +71,5 @@ if (!process.argv.includes("--no-rerun")) {
   for (const k of Object.keys(before)) must(before[k] === after[k], `chạy lại seed làm đổi ${k}: ${before[k]} → ${after[k]}`);
 }
 
-finish(`p10: llm_audit=${before.llm_audit}/${days} ngày · chat 761987=${c1} (A=${A} B=${B} D=${D} ngoài=${noCtx}) 761988=${c2} · điểm thi ≥ 4 bài, có ca giảm 3 liên tiếp${process.argv.includes("--no-rerun") ? "" : " (idempotent)"}`);
+finish(`p10: llm_audit=${before.llm_audit}/${days} ngày · chat 761987=${c1} (A=${A} B=${B} D=${D} ngoài=${noCtx} nhóm=${grp.join(" ")}) 761988=${c2} · điểm thi ≥ 4 bài, có ca giảm 3 liên tiếp${process.argv.includes("--no-rerun") ? "" : " (idempotent)"}`);
 void failures;

@@ -27,6 +27,7 @@ import (
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/textfold"
 )
 
 // Hằng của báo cáo.
@@ -629,7 +630,7 @@ func uncovered(items []item) []Uncovered {
 		if !it.noCtx {
 			continue
 		}
-		k := strings.ToLower(strings.Join(strings.Fields(it.text), " "))
+		k := textfold.Collapse(it.text)
 		if a, ok := cnt[k]; ok {
 			a.u.Count++
 			a.students[it.student] = struct{}{}

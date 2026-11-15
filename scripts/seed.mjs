@@ -11,7 +11,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, chatQuestionsLop2, isTopicD, miniPdf } from "./chat-seed-data.mjs";
+import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, OUTSIDE_PLAN, chatQuestions, chatQuestionsLop2, isTopicD, miniPdf } from "./chat-seed-data.mjs";
 import { createHash } from "node:crypto";
 import { XLSX_MIME, lop1Column, lop1Faulty, zip } from "./grade-seed-data.mjs";
 import { FOREIGN_MAIL, PERSONAL_MAIL, TEAMS_TITLE_04, createBody, loadPlan, sampleText, teamsMeta } from "./assignment-seed-data.mjs";
@@ -925,10 +925,11 @@ async function step12Chat() {
   let q = 0;
   let d = 0;
   for (const k of roster1) {
+    const mine = OUTSIDE_PLAN.flatMap((g) => g.who.filter((i) => roster1[i] === k).map(() => g.text)); // tin ngoài tài liệu của sinh viên này (P-11-31)
     (k === "sv.gioi" ? [2, 1, 1, 1] : [5]).forEach((quota, si) => {
       const turns = [];
       for (let m = 0; m < quota; m++) {
-        const text = dAsk.has(k) ? dOnly[d++] : rest[q++];
+        const text = mine.length > 0 ? mine.shift() : dAsk.has(k) ? dOnly[d++] : rest[q++];
         const outside = OUTSIDE.some((o) => text.endsWith(o));
         turns.push({ key: `seed-chat-${k}-${si}-${m}`, q: text, a: outside ? CHAT_ANSWER_OUTSIDE : CHAT_ANSWER, outside });
       }

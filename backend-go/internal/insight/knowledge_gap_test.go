@@ -135,8 +135,14 @@ func (r *rig) seed() {
 	for k := range 2 { // C: đúng 2 sinh viên
 		r.ask(11+k, fmt.Sprintf("Docker compose dùng ra sao, câu %d?", k), false, false)
 	}
-	for k := range 10 { // ngoài tài liệu
-		r.ask(k%4, "Cách cấu hình quantum router hãy giải thích", true, false)
+	for k := range 3 { // ngoài tài liệu N1: 3 sinh viên
+		r.ask(k, "Cách cấu hình quantum router hãy giải thích", true, false)
+	}
+	for k := range 4 { // N2: 4 sinh viên
+		r.ask(k, "Giá vàng hôm nay là bao nhiêu", true, false)
+	}
+	for range 3 { // N3: MỘT sinh viên hỏi 3 lần — bị bỏ (P-11-31)
+		r.ask(5, "Em ở KTX khu B phòng 302 xin hoãn bài được không", true, false)
 	}
 }
 
@@ -147,26 +153,40 @@ func (r *rig) report() insight.Payload {
 	return out.Report.Payload
 }
 
-// TestKnowledgeGapUncoveredKAnonymity — P-11-31 F-1: «Tài liệu chưa đề cập» chỉ liệt kê câu do ≥ 3 sinh viên KHÁC NHAU hỏi; một người hỏi nhiều lần không hiện.
-func TestKnowledgeGapUncoveredKAnonymity(t *testing.T) {
-	r := newRig(t, 13)
-	for range 5 {
-		r.ask(0, "Em ở KTX khu B phòng 302 xin hoãn bài được không", true, false) // 1 sinh viên × 5 lần
+// TestKnowledgeGapUncoveredMinStudents — P-11-31 F-1 (US-P10-04 AC14): «Tài liệu chưa đề cập» gom theo câu chuẩn hoá và chỉ giữ nhóm có ≥ 3 sinh viên KHÁC NHAU hỏi;
+// một người hỏi nhiều lần vẫn là một; nhóm dưới ngưỡng bỏ hẳn khỏi payload (không câu, không số lần).
+func TestKnowledgeGapUncoveredMinStudents(t *testing.T) {
+	cases := []struct {
+		name  string
+		asks  []int // chỉ số sinh viên hỏi cùng một câu (cách viết lệch hoa thường / khoảng trắng)
+		count int   // 0 = không hiện
+	}{
+		{"1 sinh viên hỏi 5 lần", []int{0, 0, 0, 0, 0}, 0},
+		{"2 sinh viên", []int{0, 1, 1, 0}, 0},
+		{"đúng 3 sinh viên", []int{0, 1, 2}, 3},
+		{"3 sinh viên, một người hỏi thêm", []int{0, 1, 2, 2, 2}, 5},
 	}
-	for k := range 2 {
-		r.ask(1+k, "Cách cấu hình quantum router hãy giải thích", true, false) // 2 sinh viên
+	variants := []string{"Em ở KTX khu B xin hoãn bài được không", "  em ở ktx khu b   xin hoãn bài được không ", "Em ở KTX khu B xin hoãn bài được không"}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			r := newRig(t, 13)
+			for k, i := range c.asks {
+				r.ask(i, variants[k%len(variants)], true, false)
+			}
+			for k := range 40 { // đủ dữ liệu để chạy báo cáo
+				r.ask(5+k%6, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k), false, false)
+			}
+			_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+			require.NoError(t, err)
+			p := r.report()
+			if c.count == 0 {
+				require.Empty(t, p.Uncovered)
+				return
+			}
+			require.Len(t, p.Uncovered, 1)
+			require.Equal(t, c.count, p.Uncovered[0].Count)
+		})
 	}
-	for k := range 3 {
-		r.ask(3+k, "Hệ thống chấm bài dùng ngôn ngữ nào", true, false) // 3 sinh viên
-	}
-	for k := range 12 { // đủ dữ liệu để chạy báo cáo
-		r.ask(k%6, fmt.Sprintf("TCP bắt tay ba bước là gì, câu %d?", k), false, false)
-	}
-	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
-	require.NoError(t, err)
-	p := r.report()
-	require.Len(t, p.Uncovered, 1, "chỉ câu do ≥ 3 sinh viên hỏi")
-	require.Equal(t, "Hệ thống chấm bài dùng ngôn ngữ nào", p.Uncovered[0].Text)
 }
 
 // TestKnowledgeGap — US-P10-04: A, B đứng đầu; chủ đề < 3 sinh viên không có câu mẫu; ngoài tài liệu có mục riêng; không danh tính trong payload.
@@ -202,9 +222,12 @@ func TestKnowledgeGap(t *testing.T) {
 	require.True(t, c.FewAsked)
 	require.Empty(t, c.Examples)
 
-	// ngoài tài liệu: 10 câu trùng gộp thành 1 mục
-	require.Len(t, p.Uncovered, 1)
-	require.Equal(t, 10, p.Uncovered[0].Count)
+	// ngoài tài liệu: 10 tin = 3 nhóm (3 SV / 4 SV / 1 SV × 3) → hiện 2 nhóm (4 lần trước, 3 lần sau), nhóm 1 sinh viên không có
+	require.Len(t, p.Uncovered, 2)
+	require.Equal(t, 4, p.Uncovered[0].Count)
+	require.Equal(t, 3, p.Uncovered[1].Count)
+	raw0, _ := json.Marshal(p.Uncovered)
+	require.NotContains(t, string(raw0), "KTX")
 
 	// payload không mang danh tính
 	raw, _ := json.Marshal(p)
