@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/attendance"
+	"github.com/edupilot/backend-go/internal/seedtool"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -244,4 +245,21 @@ func TestLogsNoCheckinSecrets(t *testing.T) {
 	aud := r.scalar(`select coalesce(string_agg(coalesce(before::text,'') || coalesce(after::text,''), ' '), '') from audit_log`)
 	require.NotContains(t, aud, tok)
 	require.NotContains(t, aud, "105.84")
+}
+
+// Lệnh dev seed-checkin-demo: buổi có cửa sổ đã đóng, nửa lớp điểm danh, hai người mang cờ → CHECKIN_REVIEW; vẫn phải đánh vắng mới hoàn tất.
+func TestSeedCheckinDemo(t *testing.T) {
+	r := newRig(t)
+	w := r.world(6)
+	n, err := seedtool.SeedCheckinDemo(t.Context(), r.pool, w.course)
+	require.NoError(t, err)
+	require.EqualValues(t, 3, n)
+	svc := &attendance.Service{Pool: r.pool, Redis: r.rdb, Clock: r.clk, Cfg: r.cfg.Attendance}
+	review, err := svc.ReviewSessions(t.Context(), []uuid.UUID{w.course})
+	require.NoError(t, err)
+	require.Len(t, review, 1)
+	require.Equal(t, 2, review[0].Flagged)
+	g := w.put(w.T, 0, nil, true)
+	require.Equal(t, "CHECKIN_UNRESOLVED", g.errCode())
+	require.EqualValues(t, 3, g.details()["count"])
 }

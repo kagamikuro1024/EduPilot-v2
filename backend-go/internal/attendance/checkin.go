@@ -260,7 +260,7 @@ func (s *Service) evaluate(ctx context.Context, q *store.Queries, student, cours
 		spki, ok1 := decodeB64(in.Device.PublicKey)
 		sig, ok2 := decodeB64(in.Device.Signature)
 		pk, ok3 := ParseP256(spki)
-		if !(ok1 && ok2 && ok3 && VerifySignature(pk, msg, sig)) {
+		if !ok1 || !ok2 || !ok3 || !VerifySignature(pk, msg, sig) {
 			sg.flags = append(sg.flags, FlagDeviceUntrusted)
 			break
 		}

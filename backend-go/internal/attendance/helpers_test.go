@@ -83,30 +83,10 @@ func (w world) path(i int, tail string) string {
 	return "/courses/" + w.course.String() + "/sessions/" + w.ses[i].String() + tail
 }
 
-func (w world) grid(s session, i int) resp {
-	return w.r.call(http.MethodGet, w.path(i, "/attendance"), s, nil)
-}
-
 type rec = map[string]any
 
 func (w world) put(s session, i int, records []rec, complete bool) resp {
 	return w.r.call(http.MethodPut, w.path(i, "/attendance"), s, map[string]any{"records": records, "complete": complete})
-}
-
-func row(id uuid.UUID, status string, extra ...any) rec {
-	m := rec{"student_id": id.String(), "status": status}
-	for i := 0; i+1 < len(extra); i += 2 {
-		m[extra[i].(string)] = extra[i+1]
-	}
-	return m
-}
-
-func (w world) all(status string) []rec {
-	out := make([]rec, len(w.students))
-	for i, u := range w.students {
-		out[i] = row(u.ID, status)
-	}
-	return out
 }
 
 func items(x resp, key string) []map[string]any {
@@ -115,21 +95,4 @@ func items(x resp, key string) []map[string]any {
 		out = append(out, it.(map[string]any))
 	}
 	return out
-}
-
-// addUserNamed ghi danh thêm một sinh viên ACTIVE tên `name` vào lớp.
-func (r *rig) addUserNamed(w world, name string) store.User {
-	r.t.Helper()
-	u := r.addUser(uniq("sv"), store.UserRoleSTUDENT, store.UserStatusACTIVE)
-	r.exec(`update users set full_name = $1 where id = $2`, name, u.ID)
-	r.enroll(w.course, u.ID, "STUDENT", "ACTIVE")
-	return u
-}
-
-// addUserRemoved ghi danh một sinh viên REMOVED (đã bị mời ra).
-func (r *rig) addUserRemoved(w world) store.User {
-	r.t.Helper()
-	u := r.addUser(uniq("gone"), store.UserRoleSTUDENT, store.UserStatusACTIVE)
-	r.enroll(w.course, u.ID, "STUDENT", "REMOVED")
-	return u
 }
