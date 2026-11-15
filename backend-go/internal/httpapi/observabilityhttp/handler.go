@@ -152,6 +152,10 @@ func (h *Handler) course(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out, err := h.Svc.CourseSummary(r.Context(), cid)
+	if errors.Is(err, observability.ErrNotFound) {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	}
 	if err != nil {
 		h.fail(w, r, "tổng hợp lớp", err)
 		return

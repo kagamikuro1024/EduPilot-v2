@@ -13198,6 +13198,8 @@ components:
             - RUBRIC_REQUIRED
             - REFERENCE_ANSWER_REQUIRED
             - RUBRIC_SUGGEST_INVALID
+            - PAYLOAD_EXPIRED
+            - REASON_REQUIRED
             - HAS_SUBMISSIONS
             - LINKED_TO_GRADEBOOK
             - ASSIGNMENT_NOT_FOUND

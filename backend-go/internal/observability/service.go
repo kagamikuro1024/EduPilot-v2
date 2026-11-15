@@ -203,6 +203,11 @@ func (s *Service) CourseSummary(ctx context.Context, course uuid.UUID) (CourseSu
 	from7 := dayStart(now).AddDate(0, 0, -6)
 	to := now.Add(time.Second)
 	q := store.New(s.Pool)
+	if ok, err := q.CourseExists(ctx, course); err != nil {
+		return CourseSummary{}, fmt.Errorf("observability: tìm lớp: %w", err)
+	} else if !ok {
+		return CourseSummary{}, ErrNotFound // ADMIN qua CourseAccessGuard với uuid lớp không tồn tại: 404 như mọi route lớp
+	}
 	win, err := q.ObsWindowSummary(ctx, store.ObsWindowSummaryParams{FromTs: from7, ToTs: to, CourseID: &course})
 	if err != nil {
 		return CourseSummary{}, fmt.Errorf("observability: tổng hợp lớp: %w", err)

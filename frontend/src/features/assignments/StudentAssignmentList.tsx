@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ApiErrorNotice } from "@/shared/data";
 import { withCourse } from "@/shared/lib/courseHref";
 import { useSession } from "@/shared/session/session";
@@ -38,7 +39,7 @@ export function StudentAssignmentList() {
 
 function List({ courseId }: { courseId: string }) {
   const q = useMyAssignments(courseId);
-  const now = Date.now();
+  const [now] = useState(() => Date.now());
   return (
     <Page kind="work">
       <PageHeader title="Bài tập" />

@@ -235,7 +235,7 @@ async function openStudent(page: Page, context: Parameters<typeof asDemo>[0], op
   return api;
 }
 
-test("student page states: bốn trạng thái, đề bài Markdown, tiêu chí, không mục sidebar", async ({ page, context }, info) => {
+test("student page states: bốn trạng thái, đề bài Markdown, tiêu chí, có mục «Bài tập» ở thanh điều hướng (P-11-14)", async ({ page, context }, info) => {
   desktopOnly(info);
   await openStudent(page, context);
   await expect(page.locator("[data-part=due-left]")).toHaveText(/^(còn|đã quá hạn) /);
@@ -246,7 +246,7 @@ test("student page states: bốn trạng thái, đề bài Markdown, tiêu chí,
   await expect(statusLine(page)).toHaveText("Chưa nộp");
   await expect(page.getByRole("button", { name: "Nộp bài" })).toBeVisible();
   await expect(page.locator("main [data-ep-panel]")).toHaveCount(1);
-  await expect(page.locator("nav a[href^='/assignments']")).toHaveCount(0); // không có mục sidebar
+  await expect(page.locator("nav a[href^='/assignments']").first()).toBeVisible(); // P-11-14: sinh viên có mục «Bài tập» (trước đây không có sidebar)
   await expect(page.locator("main [data-tone=strong]")).toHaveCount(0);
 
   for (const [state, text] of [

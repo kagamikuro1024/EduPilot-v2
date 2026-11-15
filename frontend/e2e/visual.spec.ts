@@ -36,6 +36,13 @@ const ROUTES: Array<{ name: string; path: string; role?: DemoRole; admin?: boole
   { name: "observability", path: "/observability", role: "teacher" }, // US-UX91-17 AC10
 ];
 
+async function courseObsApi(page: Page) {
+  const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+  await page.route("**/api/v1/courses/*/observability/summary", (r) =>
+    r.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify({ course_id: "00000000-0000-7000-8000-00000000c001", window: "7d", requests: 210, error_rate: 0.01, escalations: 4, pii_masked: 30, helpful: 20, not_helpful: 3, thread_correct: 9, thread_reject: 1, graded_changed: 2, graded_total: 8, change_rate: 0.25, mean_abs_deviation: "0.60", days: [] }) }),
+  );
+}
+
 /** Gateway giả cho "Hôm nay" của giảng viên: một lớp, đủ bốn kiểu việc (overdue, high, normal, EXAM_SIMILARITY) + lớp cần chú ý + buổi sắp tới. */
 async function staffTodayApi(page: Page) {
   const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
@@ -88,6 +95,7 @@ for (const r of ROUTES) {
         await asJwt(page, "TEACHER", { expIn: 366 * 86400 });
         await staffTodayApi(page);
       } else if (r.role) await asDemo(context, r.role, { expIn: 366 * 86400 }); // đồng hồ đóng băng 29/10: token mặc định (15 phút) đã hết hạn nên phiên rơi về Sinh viên — ảnh inbox / gradebook từng là trang chặn quyền
+      if (r.path === "/observability") await courseObsApi(page); // P10-01: màn THẬT của giảng viên; số liệu lớp cố định
       if (r.path === "/gradebook") await gradebookApi(page);
       if (r.path.startsWith("/grading")) await gradingApi(page); // #22: màn thật; dữ liệu cố định theo hợp đồng thật (support/gradebook-fixtures.ts)
       await page.goto(r.path);

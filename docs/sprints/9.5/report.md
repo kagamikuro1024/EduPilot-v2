@@ -62,17 +62,18 @@ Tất cả rc=0. Tệp ở `benchmarks/reports/real-llm/`.
 | **R6 gợi ý rubric / tóm tắt AI** (`misc.json`) | rubric 4 tiêu chí tổng 10,0 trong 12,9 s; tóm tắt hồ sơ SV 7,1 s, đúng số liệu (11/11 buổi, 300 phút/tuần, 12 lần phát biểu) | đạt |
 | **Guidance** (`guidance-20261115-112429.json`, BT03) | reflect SUCCEEDED, 1 bản nháp; áp phiên bản 1 (3 mục); 0 bản chấm cũ; MAE tiêu chí 0,25 (n=8) trước khi áp | chưa chấm lại sau khi áp nên chưa có số «sau» |
 
-## 4. Decision model trước / sau (`decision-before-after.md`)
+## 4. Decision model trước / sau (`decision-before-after.md`) — ĐÍNH CHÍNH P-11-25(1) / P-11-27
 
-Chạy trên ep-qc, provider decision GIẢ (p50 426 / p95 682 ms, log-chuẩn), 2026-11-15 12:43.
+Chạy trên ep-qc, provider decision GIẢ (p50 426 / p95 682 ms, log-chuẩn). **Lần đầu (2026-11-15 12:43) KHÔNG dùng được:** 65/90 yêu cầu chat mỗi cột trả HTTP 429 (`CHAT_RATE_PER_MIN` = 20 mỗi người mỗi phút; bench dùng một sinh viên gửi 90 câu liên tục và không chờ `Retry-After`), nên mẫu TTFT chỉ 25 điểm và kết luận «CHAT_ROUTING Bật được» sai. Sửa `benchmarks/decision/run.py` (chờ `Retry-After`, ghi số lần chờ) rồi đo lại đủ 90 câu mỗi cột, 0 lỗi (2026-11-15 15:47):
 
 | Cổng | Kết luận | Số liệu |
 | --- | --- | --- |
-| CHAT_ROUTING | Bật được | TTFT p95 ×0,73 (≤ 1,20); độ chính xác 0,8 → 1,0 |
-| THREADS_PRECHECK | Bật được | chặn nhầm 0,05 (≤ 0,05, sát ngưỡng); lọt 9 → 0 |
-| INJECTION_FLAG | Bật được | cờ đúng 1/6 → 6/6; cờ nhầm 0/6 |
+| CHAT_ROUTING | **Giữ tắt** | TTFT p95 ×1,53 (> 1,20); độ chính xác 0,667 → 0,933 |
+| THREADS_PRECHECK | Bật được (về số đo) | chặn nhầm 0/20 (lần đầu 1/20, sát ngưỡng); lọt 9 → 0; nhưng đăng bài p50 3,6 s so với 6,8 ms khi tắt (xem P-11-27) |
+| INJECTION_FLAG | Bật được (về số đo) | cờ đúng 1/6 → 6/6; cờ nhầm 0/6 |
 
-`[GIỚI HẠN]` Nhãn trả theo bản phát lại dựng từ chính bộ nhãn, nên độ chính xác không phải của Gemini. Chat: 65/90 yêu cầu của mỗi cột trả lỗi HTTP (mẫu TTFT chỉ 25 và 23 điểm); nguyên nhân chưa điều tra `[SUY LUẬN: giới hạn tần suất chat theo người dùng]`. Kết luận «Bật được» của CHAT_ROUTING dựa trên mẫu nhỏ này. Cột «thật» (AC6) chưa chạy.
+**Quyết định (PM, P-11-27):** cả ba cổng GIỮ TẮT mặc định; số đo là mô phỏng.
+`[GIỚI HẠN]` Nhãn trả theo bản phát lại dựng từ chính bộ nhãn, nên độ chính xác không phải của Gemini; trễ decision là mẫu log-chuẩn của provider giả, không phải trễ mạng. Cache theo lớp có thể làm lượt «bật» có nhiều câu cache hơn lượt «tắt». Cột «thật» (AC6) chưa chạy.
 
 ## 5. Giới hạn đã biết
 
