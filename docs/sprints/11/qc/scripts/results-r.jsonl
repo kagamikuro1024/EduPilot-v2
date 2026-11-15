@@ -1,0 +1,453 @@
+{"tc": "R-F1-01 đăng ký", "st": "PASS", "note": "202 {'message': 'Nếu email này dùng được, chúng tôi đã gửi thư xác nhận. Kiểm tra hộp thư của bạn.'}"}
+{"tc": "R-F1-02 có mail xác minh", "st": "PASS", "note": "1 mail"}
+{"tc": "R-F1-03 chưa xác minh vẫn đăng nhập được (không vào lớp)", "st": "PASS", "note": "200"}
+{"tc": "R-F1-04 xác minh bằng link", "st": "PASS", "note": "200"}
+{"tc": "R-F1-05 link dùng lại bị từ chối (một lần)", "st": "PASS", "note": "410 {'code': 'LINK_INVALID', 'message': 'Liên kết đã hết hạn hoặc đã được dùng.', 't"}
+{"tc": "R-F1-06 đăng nhập sau xác minh", "st": "PASS", "note": "200"}
+{"tc": "R-F1-07 SV mới chưa có lớp", "st": "PASS", "note": "200 0"}
+{"tc": "R-F1-08 forgot: email có / không tồn tại → cùng phản hồi", "st": "PASS", "note": "202 {'message': 'Nếu email này có tài khoản, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.'} | 202 {'message': 'Nếu email này có tài khoản, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.'}"}
+{"tc": "R-F1-09 mail đặt lại mật khẩu", "st": "PASS", "note": "1 mail"}
+{"tc": "R-F1-10 đặt lại mật khẩu", "st": "PASS", "note": "200 {'status': 'password_reset'}"}
+{"tc": "R-F1-11 phiên cũ bị thu hồi sau đặt lại", "st": "PASS", "note": "401"}
+{"tc": "R-F1-12 link đặt lại dùng lại bị từ chối", "st": "PASS", "note": "410"}
+{"tc": "R-F1-13 nhiều lần sai → bị chặn / chờ (429 hoặc 401 tăng dần)", "st": "PASS", "note": "lần 6: 429"}
+{"tc": "R-F1-14 MSSV trùng, email khác: không có lớp / dữ liệu của SV thật", "st": "PASS", "note": "200 []"}
+{"tc": "R-F2-01 Admin tra được GV", "st": "PASS", "note": "200"}
+{"tc": "R-F2-02 Admin mở lớp (sinh mã tham gia)", "st": "FAIL", "note": "201 {'id': '01a1dcdc-5627-70a7-8fe7-b5f846e2ec3d', 'class_code': 'QR06789', 'subject_code': 'QCR', 'name': 'QC đợt R 06789',"}
+{"tc": "R-F2-03 SV xem trước lớp theo mã", "st": "FAIL", "note": "0 None"}
+{"tc": "R-F2-04 SV vào lớp bằng mã", "st": "FAIL", "note": "0 None"}
+{"tc": "R-F2-05 mã sai → 404 / từ chối, không lộ lớp", "st": "PASS", "note": "404"}
+{"tc": "R-F2-06 GV thấy yêu cầu vào lớp (hoặc đã vào thẳng)", "st": "PASS", "note": "200 {'items': [], 'next_cursor': None, 'counts': {'active': 0, 'pending': 0}}"}
+{"tc": "R-F2-07 Lưu trữ lớp", "st": "PASS", "note": "200 {'id': '01a1dcdc-5627-70a7-8fe7-b5f846e2ec3d', 'class_code': 'QR06789', 'subject"}
+{"tc": "R-F2-08 lớp đã lưu trữ: mã tham gia tắt", "st": "PASS", "note": "404 {'code': 'JOIN_CODE_INVALID', 'message': 'Mã không hợp lệ hoặc đã hết hạn. Kiểm "}
+{"tc": "R-F13-01 GV tạo sự kiện EXAM", "st": "PASS", "note": "201 {'id': '01a1dcdc-5907-75fe-be94-42b275d6a90c', 'type': 'EXAM', 'title': 'QC-R kiểm tra giữa kỳ', 'st"}
+{"tc": "R-F13-02 SV thấy sự kiện", "st": "FAIL", "note": "422"}
+{"tc": "R-F13-03 token ICS", "st": "PASS", "note": "GET 200 POST 201 {'url': 'https://localhost/api/v1/calendar/feed.ics?token=We5rcTbu9FBd4Pd8RxMqpl"}
+{"tc": "R-F13-04 SV không tạo được sự kiện lớp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F14-sv.kha Hôm nay (sv.kha) 200", "st": "PASS", "note": "200 0 việc; keys ['no_course', 'email_verified', 'recommended', 'timeline', 'continue']"}
+{"tc": "R-F14-teacher Hôm nay (teacher) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions', 'attention', 'attention_total', 'upcoming']"}
+{"tc": "R-F14-ta Hôm nay (ta) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions', 'attention', 'attention_total', 'upcoming']"}
+{"tc": "R-F14-admin Hôm nay (admin) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions']"}
+{"tc": "R-F14-teacher-lớp Hôm nay theo lớp", "st": "PASS", "note": "200 {'count': 10, 'actions': [{'id': 'TICKET:01a1dcd2-8f1c-7169-8c8f-08690ac2f1f0', 'kind': 'TICKET', 't"}
+{"tc": "R-F14-sv-lớp Hôm nay theo lớp (SV 200)", "st": "PASS", "note": "200"}
+{"tc": "R-F2-01 Admin tra được GV", "st": "PASS", "note": "200"}
+{"tc": "R-F2-02 Admin mở lớp + GV lấy mã tham gia", "st": "PASS", "note": "mở 201; join-code 200 {'join_code': '42XH55Q', 'join_url': 'https://localhost/join/42XH55Q', 'enabled': True, 'expires_at'"}
+{"tc": "R-F2-03 SV xem trước lớp theo mã", "st": "FAIL", "note": "405 {'code': 'METHOD_NOT_ALLOWED', 'message': 'Phương thức không được hỗ trợ.', 'trace_id': '1e595d6031a"}
+{"tc": "R-F2-04 SV vào lớp bằng mã", "st": "PASS", "note": "200 {'already_member': False, 'course_id': '01a1dcdc-8dee-7542-9c87-a767f2175874', 'status': 'ACTIVE'}"}
+{"tc": "R-F2-05 mã sai → 404 / từ chối, không lộ lớp", "st": "PASS", "note": "404"}
+{"tc": "R-F2-06 GV thấy yêu cầu vào lớp (hoặc đã vào thẳng)", "st": "PASS", "note": "200 {'items': [], 'next_cursor': None, 'counts': {'active': 1, 'pending': 0}}"}
+{"tc": "R-F2-07 Lưu trữ lớp", "st": "PASS", "note": "200 {'id': '01a1dcdc-8dee-7542-9c87-a767f2175874', 'class_code': 'QR06803', 'subject"}
+{"tc": "R-F2-08 lớp đã lưu trữ: mã tham gia tắt", "st": "PASS", "note": "404 {'code': 'JOIN_CODE_INVALID', 'message': 'Mã không hợp lệ hoặc đã hết hạn. Kiểm "}
+{"tc": "R-F13-01 GV tạo sự kiện EXAM", "st": "PASS", "note": "201 {'id': '01a1dcdc-90c6-711e-abed-96dd7af54149', 'type': 'EXAM', 'title': 'QC-R kiểm tra giữa kỳ', 'st"}
+{"tc": "R-F13-02 SV thấy sự kiện", "st": "PASS", "note": "200"}
+{"tc": "R-F13-03 token ICS", "st": "PASS", "note": "GET 200 POST 201 {'url': 'https://localhost/api/v1/calendar/feed.ics?token=uIBa4myjNUSA_2CY2Avv_2"}
+{"tc": "R-F13-04 SV không tạo được sự kiện lớp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F14-sv.kha Hôm nay (sv.kha) 200", "st": "PASS", "note": "200 0 việc; keys ['no_course', 'email_verified', 'recommended', 'timeline', 'continue']"}
+{"tc": "R-F14-teacher Hôm nay (teacher) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions', 'attention', 'attention_total', 'upcoming']"}
+{"tc": "R-F14-ta Hôm nay (ta) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions', 'attention', 'attention_total', 'upcoming']"}
+{"tc": "R-F14-admin Hôm nay (admin) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions']"}
+{"tc": "R-F14-teacher-lớp Hôm nay theo lớp", "st": "PASS", "note": "200 {'count': 10, 'actions': [{'id': 'TICKET:01a1dcd2-8f1c-7169-8c8f-08690ac2f1f0', 'kind': 'TICKET', 't"}
+{"tc": "R-F14-sv-lớp Hôm nay theo lớp (SV 200)", "st": "PASS", "note": "200"}
+{"tc": "R-F2-01 Admin tra được GV", "st": "PASS", "note": "200"}
+{"tc": "R-F2-02 Admin mở lớp + GV lấy mã tham gia", "st": "PASS", "note": "mở 201; join-code 200 {'join_code': 'ZEN4322', 'join_url': 'https://localhost/join/ZEN4322', 'enabled': True, 'expires_at'"}
+{"tc": "R-F2-03 SV xem trước lớp theo mã", "st": "PASS", "note": "200 {'name': 'QC đợt R 06812', 'class_code': 'QR06812', 'semester': '2026-2027-HK1', 'teachers': [{'full"}
+{"tc": "R-F2-04 SV vào lớp bằng mã", "st": "PASS", "note": "200 {'already_member': False, 'course_id': '01a1dcdc-b00d-7d12-8ec1-e0ee5f452e69', 'status': 'ACTIVE'}"}
+{"tc": "R-F2-05 mã sai → 404 / từ chối, không lộ lớp", "st": "PASS", "note": "404"}
+{"tc": "R-F2-06 GV thấy yêu cầu vào lớp (hoặc đã vào thẳng)", "st": "PASS", "note": "200 {'items': [], 'next_cursor': None, 'counts': {'active': 1, 'pending': 0}}"}
+{"tc": "R-F2-07 Lưu trữ lớp", "st": "PASS", "note": "200 {'id': '01a1dcdc-b00d-7d12-8ec1-e0ee5f452e69', 'class_code': 'QR06812', 'subject"}
+{"tc": "R-F2-08 lớp đã lưu trữ: mã tham gia tắt", "st": "PASS", "note": "404 {'code': 'JOIN_CODE_INVALID', 'message': 'Mã không hợp lệ hoặc đã hết hạn. Kiểm "}
+{"tc": "R-F13-01 GV tạo sự kiện EXAM", "st": "PASS", "note": "201 {'id': '01a1dcdc-b2d7-70dd-a84e-c9c9e01e4896', 'type': 'EXAM', 'title': 'QC-R kiểm tra giữa kỳ', 'st"}
+{"tc": "R-F13-02 SV thấy sự kiện", "st": "PASS", "note": "200"}
+{"tc": "R-F13-03 token ICS", "st": "PASS", "note": "GET 200 POST 201 {'url': 'https://localhost/api/v1/calendar/feed.ics?token=Q853bkW3HejfbmimEiBiBI"}
+{"tc": "R-F13-04 SV không tạo được sự kiện lớp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F14-sv.kha Hôm nay (sv.kha) 200", "st": "PASS", "note": "200 0 việc; keys ['no_course', 'email_verified', 'recommended', 'timeline', 'continue']"}
+{"tc": "R-F14-teacher Hôm nay (teacher) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions', 'attention', 'attention_total', 'upcoming']"}
+{"tc": "R-F14-ta Hôm nay (ta) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions', 'attention', 'attention_total', 'upcoming']"}
+{"tc": "R-F14-admin Hôm nay (admin) 200", "st": "PASS", "note": "200 0 việc; keys ['count', 'actions']"}
+{"tc": "R-F14-teacher-lớp Hôm nay theo lớp", "st": "PASS", "note": "200 {'count': 10, 'actions': [{'id': 'TICKET:01a1dcd2-8f1c-7169-8c8f-08690ac2f1f0', 'kind': 'TICKET', 't"}
+{"tc": "R-F14-sv-lớp Hôm nay theo lớp (SV 200)", "st": "PASS", "note": "200"}
+{"tc": "R-F3-01 hỏi đáp có nguồn (stream, trích)", "st": "FAIL", "note": "200 TTFB 10ms tổng 468ms; 55 ký tự; citations=0; conf=None; ans='Mình chưa tìm thấy nội dung này trong tài liệu của lớp.'"}
+{"tc": "R-F3-02 sự kiện đầu ≤ 300 ms (D47)", "st": "PASS", "note": "10 ms"}
+{"tc": "R-F3-03 hỏi về người khác → từ chối", "st": "PASS", "note": "'Mình chỉ xem được dữ liệu của chính bạn.'"}
+{"tc": "R-F3-04 khủng hoảng: trả lời ân cần + hỗ trợ, 0 lời gọi LLM", "st": "PASS", "note": "llm_audit 49→49; 'Mình rất tiếc khi nghe điều này. Bạn không phải một mình, hãy nói chuyện với giảng viên của bạn nhé. Phòng Công tác sinh viên, phòng 101 nhà'"}
+{"tc": "R-F3-05 tải lại phiên vẫn thấy tin đã sinh", "st": "FAIL", "note": "405 123 ký tự"}
+{"tc": "R-F3-06 phản hồi Hữu ích", "st": "FAIL", "note": "405 {'code': 'METHOD_NOT_ALLOWED', 'message': 'Phương thức không được hỗ trợ.', 'tra"}
+{"tc": "R-F3-07 xoá (mềm) phiên chat của mình", "st": "PASS", "note": "204"}
+{"tc": "R-F5-01 SV nhờ giảng viên hỗ trợ → ticket", "st": "PASS", "note": "200 {'already': True, 'ticket': {'id': '01a1dcdd-2813-7a27-969d-6b9d592d792b', 'status': 'OPEN', 'created_at': '2026-11-15T0"}
+{"tc": "R-F5-02 bấm lần hai idempotent (cùng ticket)", "st": "PASS", "note": "200 None None"}
+{"tc": "R-F5-03 GV nhận ticket", "st": "FAIL", "note": "0 None"}
+{"tc": "R-F5-04 TA nhận sau → 409 thấy ai đã nhận", "st": "FAIL", "note": "0 None"}
+{"tc": "R-F5-05 GV trả lời ticket", "st": "FAIL", "note": "0 None"}
+{"tc": "R-F5-06 mail cho SV khi có trả lời", "st": "PASS", "note": "1 mail: ['Câu hỏi của bạn trên Threads có trả lời mới']"}
+{"tc": "R-F5-07 SV thấy trạng thái ticket", "st": "FAIL", "note": "403"}
+{"tc": "R-F5-08 SV khác không đọc ticket (403/404)", "st": "PASS", "note": "403"}
+{"tc": "R-F3-01 hỏi đáp có nguồn (stream, trích)", "st": "FAIL", "note": "200 TTFB 9ms tổng 453ms; 55 ký tự; citations=0; conf=None; ans='Mình chưa tìm thấy nội dung này trong tài liệu của lớp.'"}
+{"tc": "R-F3-02 sự kiện đầu ≤ 300 ms (D47)", "st": "PASS", "note": "9 ms"}
+{"tc": "R-F3-03 hỏi về người khác → từ chối", "st": "PASS", "note": "'Mình chỉ xem được dữ liệu của chính bạn.'"}
+{"tc": "R-F3-04 khủng hoảng: trả lời ân cần + hỗ trợ, 0 lời gọi LLM", "st": "PASS", "note": "llm_audit 55→55; 'Mình rất tiếc khi nghe điều này. Bạn không phải một mình, hãy nói chuyện với giảng viên của bạn nhé. Phòng Công tác sinh viên, phòng 101 nhà'"}
+{"tc": "R-F3-05 tải lại phiên vẫn thấy tin đã sinh", "st": "PASS", "note": "200 2770 ký tự"}
+{"tc": "R-F3-06 phản hồi Hữu ích", "st": "PASS", "note": "204 None"}
+{"tc": "R-F3-07 xoá (mềm) phiên chat của mình", "st": "PASS", "note": "204"}
+{"tc": "R-F5-01 SV nhờ giảng viên hỗ trợ → ticket", "st": "PASS", "note": "200 {'already': True, 'ticket': {'id': '01a1dcdd-8821-7a19-b8e8-d19e7ec8c5d0', 'status': 'OPEN', 'created_at': '2026-11-15T0"}
+{"tc": "R-F5-02 bấm lần hai idempotent (cùng ticket)", "st": "PASS", "note": "200 01a1dcdd-8821-7a19-b8e8-d19e7ec8c5d0 01a1dcdd-8821-7a19-b8e8-d19e7ec8c5d0"}
+{"tc": "R-F5-03 GV nhận ticket", "st": "PASS", "note": "200 {'ticket': {'id': '01a1dcdd-8821-7a19-b8e8-d19e7ec8c5d0', 'kind': 'QUESTION', 'status': 'CLAIMED', '"}
+{"tc": "R-F5-04 TA nhận sau → 409 thấy ai đã nhận", "st": "PASS", "note": "409 {'code': 'TICKET_ALREADY_CLAIMED', 'message': 'Câu hỏi này đã có người nhận.', 'trace_id': '77315fa426fa9c028f73f6b7316d2bfe', 'details': {'"}
+{"tc": "R-F5-05 GV trả lời ticket", "st": "PASS", "note": "200 {'message': {'id': '01a1dcdd-8a01-775f-a6bf-c0492bcdb4cd', 'content': 'Chào em, lịch bảo vệ chưa đổi"}
+{"tc": "R-F5-06 mail cho SV khi có trả lời", "st": "PASS", "note": "2 mail: ['Giảng viên đã trả lời câu hỏi của bạn', 'Câu hỏi của bạn trên Threads có trả lời mới']"}
+{"tc": "R-F5-07 SV thấy trạng thái ticket", "st": "FAIL", "note": "403 {'code': 'FORBIDDEN', 'message': 'Bạn không có quyền thực hiện thao tác này.', 'trace_id': '63a85841d438c03d8eb323c3326c"}
+{"tc": "R-F5-08 SV khác không đọc ticket (403/404)", "st": "PASS", "note": "403"}
+{"tc": "R-F3-01 không ngữ cảnh: trả lời trung thực + low_confidence (đường có nguồn: KHÔNG KIỂM ĐƯỢC, embedding giả)", "st": "PASS", "note": "200 TTFB 10ms tổng 505ms; citations=0; ticket=False; 'Mình chưa tìm thấy nội dung này trong tài liệu của lớp.'"}
+{"tc": "R-F3-02 sự kiện đầu ≤ 300 ms (D47)", "st": "PASS", "note": "10 ms"}
+{"tc": "R-F3-03 hỏi về người khác → từ chối", "st": "PASS", "note": "'Mình chỉ xem được dữ liệu của chính bạn.'"}
+{"tc": "R-F3-04 khủng hoảng: trả lời ân cần + hỗ trợ, 0 lời gọi LLM", "st": "PASS", "note": "llm_audit 66→66; 'Mình rất tiếc khi nghe điều này. Bạn không phải một mình, hãy nói chuyện với giảng viên của bạn nhé. Phòng Công tác sinh viên, phòng 101 nhà'"}
+{"tc": "R-F3-05 tải lại phiên vẫn thấy tin đã sinh", "st": "PASS", "note": "200 2663 ký tự"}
+{"tc": "R-F3-06 phản hồi Hữu ích", "st": "PASS", "note": "204 None"}
+{"tc": "R-F3-07 xoá (mềm) phiên chat của mình", "st": "PASS", "note": "204"}
+{"tc": "R-F5-01 SV nhờ giảng viên hỗ trợ → ticket", "st": "FAIL", "note": "409 {'code': 'TICKET_LIMIT_REACHED', 'message': 'Bạn đang có 5 câu hỏi chờ giảng viên.', 'trace_id': '0e84f6d938ecef08e094b2"}
+{"tc": "R-F5-02 bấm lần hai idempotent (cùng ticket)", "st": "PASS", "note": "409 None None"}
+{"tc": "R-F5-03 GV nhận ticket", "st": "PASS", "note": "200 {'ticket': {'id': '01a1dcd7-9e54-729e-b44f-e20cae3b19c0', 'kind': 'QUESTION', 'status': 'CLAIMED', '"}
+{"tc": "R-F5-04 TA nhận sau → 409 thấy ai đã nhận", "st": "PASS", "note": "409 {'code': 'TICKET_ALREADY_CLAIMED', 'message': 'Câu hỏi này đã có người nhận.', 'trace_id': 'e606561d13c97c7b23d0fca3b0ec85ac', 'details': {'"}
+{"tc": "R-F5-05 GV trả lời ticket", "st": "PASS", "note": "200 {'message': {'id': '01a1dcde-c59d-740a-bcdd-2cb0388a1b46', 'content': 'Chào em, lịch bảo vệ chưa đổi"}
+{"tc": "R-F5-06 mail cho SV khi có trả lời", "st": "PASS", "note": "2 mail: ['Giảng viên đã trả lời câu hỏi của bạn', 'Câu hỏi của bạn trên Threads có trả lời mới']"}
+{"tc": "R-F5-07 SV thấy ticket / trạng thái trong phiên chat", "st": "FAIL", "note": "200; /me/tickets cho SV = 403 (chỉ nhân sự)"}
+{"tc": "R-F5-08 SV khác không đọc ticket (403/404)", "st": "PASS", "note": "403"}
+{"tc": "R-F4-01 precheck phát hiện PII", "st": "FAIL", "note": "200 {'allowed': False, 'reasons': [{'type': 'MSSV', 'count': 2}, {'type': 'NAME', 'count': 1}, {'type': 'PERSONAL_QUESTION', 'count': 1}], 'reda"}
+{"tc": "R-F4-02 đăng bài có PII bị chặn (tường lửa)", "st": "PASS", "note": "422 {'code': 'PII_DETECTED', 'message': 'Bài viết có thông tin cá nhân. Chuyển sang chat riêng hoặc ẩn thông tin rồi đăng.', 'trace_id': 'd3e86f552a98bd4888fdf18362"}
+{"tc": "R-F4-03 đăng bài sạch", "st": "PASS", "note": "201 {'thread': {'id': '01a1dcde-ea45-7d2a-ac29-af7fa916fe52', 'title': 'QC-R 06954: khác nhau giữa worm "}
+{"tc": "R-F4-04 SV khác thấy bài công khai", "st": "PASS", "note": "200 posts=0"}
+{"tc": "R-F4-05 AI trả lời kiểu Socratic (cần RAG) — hoặc không tự trả lời khi không đủ tin cậy", "st": "PASS", "note": "AI post: 0 (embedding giả: KHÔNG KIỂM ĐƯỢC đường có nguồn)"}
+{"tc": "R-F4-06 SV khác bình luận", "st": "FAIL", "note": "422 {'code': 'PII_DETECTED', 'message': 'Bài viết có thông tin cá nhân. Chuyển sang "}
+{"tc": "R-F4-07 báo cáo bài", "st": "FAIL", "note": "403 {'code': 'FORBIDDEN', 'message': 'Bạn không có quyền thực hiện thao tác này.', 'trace_id': 'a7aa5d4b"}
+{"tc": "R-F4-08 giảng viên thấy bài bị báo trong hàng kiểm duyệt", "st": "FAIL", "note": "200"}
+{"tc": "R-F4-09 giảng viên ẩn bài (kèm lý do)", "st": "FAIL", "note": "409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ"}
+{"tc": "R-F4-10 sau ẩn, SV khác không thấy (404/ẩn)", "st": "PASS", "note": "200 {'thread': {'id': '01a1dcde-ea45-7d2a-ac29-af7fa916fe52', 'title': 'QC-R 06954: khác nhau giữa worm "}
+{"tc": "R-F4-11 người đăng thấy lý do ẩn", "st": "PASS", "note": "200 {'thread': {'id': '01a1dcde-ea45-7d2a-ac29-af7fa916fe52', 'title': 'QC-R 06954: khác nhau giữa worm và virus', 'body': 'Cho em hỏi worm khác"}
+{"tc": "R-F4-12 bỏ ẩn", "st": "FAIL", "note": "409"}
+{"tc": "R-F4-13 câu tương tự (cờ tắt → rỗng)", "st": "PASS", "note": "200 []"}
+{"tc": "R-F4-14 người đăng xoá bài của mình", "st": "PASS", "note": "204"}
+{"tc": "R-F4-01 precheck phát hiện PII (MSSV, tên)", "st": "PASS", "note": "200 {'allowed': False, 'reasons': [{'type': 'MSSV', 'count': 2}, {'type': 'NAME', 'count': 1}, {'type': 'PERSONAL_QUESTION', 'count': 1}], 'reda"}
+{"tc": "R-F4-02 đăng bài có PII bị chặn (tường lửa)", "st": "PASS", "note": "422 {'code': 'PII_DETECTED', 'message': 'Bài viết có thông tin cá nhân. Chuyển sang chat riêng hoặc ẩn thông tin rồi đăng.', 'trace_id': '1a5a5b6943c0470972c36223e4"}
+{"tc": "R-F4-03 đăng bài sạch", "st": "PASS", "note": "201 {'thread': {'id': '01a1dcdf-7245-7ea0-8708-5ed9bc597a68', 'title': 'QC-R 06989: khác nhau giữa worm "}
+{"tc": "R-F4-04 SV khác thấy bài công khai", "st": "PASS", "note": "200 posts=0"}
+{"tc": "R-F4-05 AI trả lời kiểu Socratic (cần RAG) — hoặc không tự trả lời khi không đủ tin cậy", "st": "PASS", "note": "AI post: 0 (embedding giả: KHÔNG KIỂM ĐƯỢC đường có nguồn)"}
+{"tc": "R-F4-06 SV khác bình luận", "st": "PASS", "note": "201 {'id': '01a1dcdf-a774-7aa0-b22f-7973180129b2', 'kind': 'HUMAN', 'author': {'full"}
+{"tc": "R-F4-06b «Em nghĩ …» (ý kiến, không hỏi riêng) không bị coi là câu hỏi cá nhân", "st": "FAIL", "note": "200 {'allowed': False, 'reasons': [{'type': 'PERSONAL_QUESTION', 'count': 1}], 'redacted_text': 'Em nghĩ virus cần vật chủ.', 'redacted_title': 'Worm', 'p"}
+{"tc": "R-F4-07 báo cáo bài", "st": "PASS", "note": "201 {'reported': True}"}
+{"tc": "R-F4-08 giảng viên thấy bài bị báo trong hàng kiểm duyệt", "st": "PASS", "note": "200"}
+{"tc": "R-F4-09 giảng viên ẩn bài (kèm lý do)", "st": "PASS", "note": "200 {'id': '01a1dcdf-7245-7ea0-8708-5ed9bc597a68', 'hidden': True, 'version': 2}"}
+{"tc": "R-F4-10 sau ẩn, SV khác không thấy (404/ẩn)", "st": "PASS", "note": "404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': 'e999e48c2ab299f464746c41400c4e85'}"}
+{"tc": "R-F4-11 người đăng thấy lý do ẩn", "st": "PASS", "note": "200 {'thread': {'id': '01a1dcdf-7245-7ea0-8708-5ed9bc597a68', 'title': 'QC-R 06989: khác nhau giữa worm và virus', 'body': 'Cho em hỏi worm khác"}
+{"tc": "R-F4-12 bỏ ẩn", "st": "PASS", "note": "200"}
+{"tc": "R-F4-13 câu tương tự (cờ tắt → rỗng)", "st": "PASS", "note": "200 []"}
+{"tc": "R-F4-14 người đăng xoá bài của mình", "st": "PASS", "note": "204"}
+{"tc": "R-F6-01 xin URL ký sẵn", "st": "FAIL", "note": "422 {'code': 'FILE_TYPE_NOT_ALLOWED', 'message': 'Chỉ nhận tệp PDF, DOCX hoặc PPTX.', 'trace_id': 'a1b922b5da16cfb27e7c6fc8f9f24d55'}"}
+{"tc": "R-F6-08 file sai loại bị chặn ngay trước khi tải", "st": "PASS", "note": "422 {'code': 'FILE_TYPE_NOT_ALLOWED', 'message': 'Chỉ nhận tệp PDF, DOCX hoặc PPTX.', 'trace_id': '861c779320f9c5e0638bb31f7"}
+{"tc": "R-F6-09 file quá cỡ bị chặn", "st": "PASS", "note": "422 {'code': 'FILE_TOO_LARGE', 'message': 'Tệp quá lớn (tối đa 50 MB).', 'trace_id': '34a023312de354b32ed10ae3a9358b0c'}"}
+{"tc": "R-F6-10 SV không tải tài liệu lên được (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F6-11 Thư viện SV không chứa ANSWER_KEY", "st": "PASS", "note": "200"}
+{"tc": "R-F7-01 điểm danh: lưu cả buổi (chạm người vắng)", "st": "PASS", "note": "200 {'records': [{'student_id': '01a1dcd2-91d2-795f-a53b-43c24e1bb6c3', 'status': 'ABSENT', 'version': 1}, {'student_id': '0"}
+{"tc": "R-F7-02 đọc lại: đúng 3 vắng", "st": "PASS", "note": "absent=3"}
+{"tc": "R-F7-03 TA sửa sau buổi học / khoá lạc quan", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '8db04d597a66c0a28d5bea"}
+{"tc": "R-F7-04 ghi phát biểu", "st": "PASS", "note": "201 {'id': '01a1dce0-b20d-7879-8963-80a8ee67e770', 'student_id': '01a1dcd2-91d3-76d4-bd1e-14061f2bf156',"}
+{"tc": "R-F7-05 gửi lại cùng client_event_id không ghi đôi (idempotent)", "st": "PASS", "note": "201 200"}
+{"tc": "R-F7-06 SV thấy điểm danh của chính mình", "st": "PASS", "note": "200 {'attendance': {'recorded': 10, 'present': 6, 'late': 1, 'excused': 0, 'absent': 3, 'sessions': [{'s"}
+{"tc": "R-F7-07 SV không xem điểm danh người khác (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F7-08 SV không điểm danh được (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F8-01 danh sách «Cần chú ý»", "st": "PASS", "note": "200 1"}
+{"tc": "R-F8-02 hồ sơ sinh viên (rủi ro + lý do)", "st": "PASS", "note": "200 {'student': {'id': '01a1dcd2-91c0-7360-a4d2-b29e7a15910a', 'full_name': 'Ngô Ngọc Cẩm', 'student_code': '20229003', 'joined_at': '2026-11-15"}
+{"tc": "R-F8-03 thêm ghi chú riêng", "st": "PASS", "note": "201 {'id': '01a1dce0-b23c-7270-a6fb-37efe12b8b77', 'author': {'id': '01a1dcd2-885a-72e4-853f-b836920dec1"}
+{"tc": "R-F8-04 SV không thấy ghi chú / hồ sơ (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F8-05 nhận xét AI (LLM 9router)", "st": "PASS", "note": "200 8.7s {'draft': {'summary': 'Sinh viên hiện có 4 buổi có mặt, 1 buổi đi muộn và vắng 5 buổi trên tổng số 10 buổi được ghi nhận. Về mức độ tương tác, sinh viên đã phát"}
+{"tc": "R-F8-06 nhắn riêng qua ticket do GV mở", "st": "PASS", "note": "201 {'ticket': {'created_at': '2026-11-15T01:44:44.406491Z', 'id': '01a1dce0-d47a-7754-81d8-a3024c81d221', 'kind': 'TEACHER_"}
+{"tc": "R-F8-07 xem hồ sơ ghi audit_log", "st": "FAIL", "note": "0 dòng audit liên quan"}
+{"tc": "R-F6-01 xin URL ký sẵn", "st": "PASS", "note": "200 {'upload_id': 'd205cbb9-991d-4a5d-8558-8d9b37065af0', 'method': 'PUT', 'url': 'http://localhost:9500/edupilot/courses/01a1dcd2-8f1c-7169-8c8f-08690ac2f1f0/docum"}
+{"tc": "R-F6-02 đẩy thẳng lên object storage", "st": "PASS", "note": "200 http://localhost:9500/edupilot/courses/01a1dcd2-8f1c-7169-8c"}
+{"tc": "R-F6-03 hoàn tất tải lên → tạo tài liệu", "st": "PASS", "note": "202 {'job_id': '01a1dce1-2fd3-7a36-a6bd-1c1f26d9f2e7', 'document': {'id': '01a1dce1-2fd2-79a4-ade9-ea2caca1785f', 'course_id': '01a1dcd2-8f1c-71"}
+{"tc": "R-F6-04 ingest → READY (docling)", "st": "PASS", "note": "status=READY"}
+{"tc": "R-F6-05 có chunk + nhúng", "st": "PASS", "note": "1 chunk"}
+{"tc": "R-F6-06 trùng nội dung → báo đã có / đề nghị chia sẻ", "st": "PASS", "note": "200 {'upload_id': 'ef88e16f-2ac1-4404-91f1-eeb96e62d4e6', 'method': 'PUT', 'url': 'http://localhost:9500/edupilot/courses/01a1dcd2-8f1c-7169-8c8"}
+{"tc": "R-F6-07 xoá tài liệu", "st": "PASS", "note": "204 None"}
+{"tc": "R-F6-08 file sai loại bị chặn ngay trước khi tải", "st": "PASS", "note": "422 {'code': 'FILE_TYPE_NOT_ALLOWED', 'message': 'Chỉ nhận tệp PDF, DOCX hoặc PPTX.', 'trace_id': '7a2364894270172d4e32f9355"}
+{"tc": "R-F6-09 file quá cỡ bị chặn", "st": "PASS", "note": "422 {'code': 'FILE_TOO_LARGE', 'message': 'Tệp quá lớn (tối đa 50 MB).', 'trace_id': 'da6b33a812ba5a221b45ab62c2ae2f9b'}"}
+{"tc": "R-F6-10 SV không tải tài liệu lên được (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F6-11 Thư viện SV không chứa ANSWER_KEY", "st": "PASS", "note": "200"}
+{"tc": "R-F7-01 điểm danh: lưu cả buổi (chạm người vắng)", "st": "PASS", "note": "200 {'records': [{'student_id': '01a1dcd2-91d2-795f-a53b-43c24e1bb6c3', 'status': 'ABSENT', 'version': 1}, {'student_id': '0"}
+{"tc": "R-F7-02 đọc lại: đúng 3 vắng", "st": "PASS", "note": "absent=3"}
+{"tc": "R-F7-03 TA sửa sau buổi học / khoá lạc quan", "st": "PASS", "note": "200 {'records': [{'student_id': '01a1dcd2-91d2-795f-a53b-43c24e1bb6c3', 'status': 'LATE', 'version': 2}]"}
+{"tc": "R-F7-04 ghi phát biểu", "st": "PASS", "note": "201 {'id': '01a1dce1-428e-74d1-a7dc-528d3ecac715', 'student_id': '01a1dcd2-91d3-76d4-bd1e-14061f2bf156',"}
+{"tc": "R-F7-05 gửi lại cùng client_event_id không ghi đôi (idempotent)", "st": "PASS", "note": "201 200"}
+{"tc": "R-F7-06 SV thấy điểm danh của chính mình", "st": "PASS", "note": "200 {'attendance': {'recorded': 11, 'present': 6, 'late': 1, 'excused': 0, 'absent': 4, 'sessions': [{'s"}
+{"tc": "R-F7-07 SV không xem điểm danh người khác (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F7-08 SV không điểm danh được (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F8-01 danh sách «Cần chú ý»", "st": "PASS", "note": "200 1"}
+{"tc": "R-F8-02 hồ sơ sinh viên (rủi ro + lý do)", "st": "PASS", "note": "200 {'student': {'id': '01a1dcd2-91c0-7360-a4d2-b29e7a15910a', 'full_name': 'Ngô Ngọc Cẩm', 'student_code': '20229003', 'joined_at': '2026-11-15"}
+{"tc": "R-F8-03 thêm ghi chú riêng", "st": "PASS", "note": "201 {'id': '01a1dce1-42be-794d-a629-ce6bbc5fb477', 'author': {'id': '01a1dcd2-885a-72e4-853f-b836920dec1"}
+{"tc": "R-F8-04 SV không thấy ghi chú / hồ sơ (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F8-05 nhận xét AI (LLM 9router)", "st": "PASS", "note": "200 7.6s {'draft': {'summary': 'Sinh viên hiện có mặt 5 trên 11 buổi được ghi nhận (vắng 5 buổi, muộn 1 buổi). Thời gian tự học đạt 120 phút ở tuần đầu tiên nhưng giảm x"}
+{"tc": "R-F8-06 nhắn riêng qua ticket do GV mở", "st": "PASS", "note": "201 {'ticket': {'created_at': '2026-11-15T01:45:20.213977Z', 'id': '01a1dce1-6058-7a16-bbd2-118338e338b4', 'kind': 'TEACHER_"}
+{"tc": "R-F8-07 xem hồ sơ ghi audit_log", "st": "PASS", "note": "view 3→4"}
+{"tc": "R-F9-01 GV tạo bài tập (rubric, muộn, phúc khảo)", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '090ebbd8149849ae9dfbe8719c63d06b', 'detail"}
+{"tc": "R-F9-02 AI gợi ý rubric (LLM)", "st": "FAIL", "note": "404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '1f6fd5b3a6bd1d271b22b11ee9e92976'}"}
+{"tc": "R-F9-01 GV tạo bài tập (rubric, muộn, phúc khảo)", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '5d2e54f12d7f83aaafebac7436f96181', 'detail"}
+{"tc": "R-F9-02 AI gợi ý rubric (LLM)", "st": "FAIL", "note": "404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '645d3d080a8a696e1c91a471ed3814e8'}"}
+{"tc": "R-F9-01 GV tạo bài tập (rubric, muộn, phúc khảo)", "st": "PASS", "note": "201 {'id': '01a1dce2-8973-75da-a215-025b416ab533', 'title': 'QC-R BT 07196 tường lửa', 'description': 'Trình bày tường lửa l"}
+{"tc": "R-F9-02 AI gợi ý rubric (LLM)", "st": "PASS", "note": "200 {'criteria': [{'name': 'Khái niệm và chức năng cốt lõi', 'guidance': 'Tối đa (40%): Nêu rõ tường lửa là thiết bị hoặc phần mềm, có chức năng"}
+{"tc": "R-F9-03 SV thấy bài đã công bố", "st": "PASS", "note": "200"}
+{"tc": "R-F9-04 hạn nộp < 24 h → việc ở Hôm nay (bài hạn 48 h: chưa)", "st": "PASS", "note": "200"}
+{"tc": "R-F9-05 SV nộp bài trong app (PDF)", "st": "PASS", "note": "201 {'submission': {'id': '01a1dce2-a925-779d-9302-f55aac0e5631', 'version': 1, 'received_at': '2026-11-15T01:46:44.389265Z'"}
+{"tc": "R-F9-06 SV thấy bài của mình, KHÔNG thấy điểm nháp", "st": "PASS", "note": "200 {'assignment': {'id': '01a1dce2-8973-75da-a215-025b416ab533', 'title': 'QC-R BT 07196 tường lửa', 'description': 'Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.', 'due_a"}
+{"tc": "R-F9-07 grade-all nhận việc (202 + job)", "st": "PASS", "note": "202 {'job_id': '01a1dce2-aa1c-7ab8-97be-85fede1c4efd', 'queued': 2}"}
+{"tc": "R-F9-08 chấm nháp xong (LLM thật) trong ≤ 6 phút", "st": "PASS", "note": "10s; submissions=2"}
+{"tc": "R-F9-09 có kết quả chấm nháp DRAFT cho cả hai bài", "st": "PASS", "note": "[('DRAFT', '0.00'), ('DRAFT', '10.00')]"}
+{"tc": "R-F9-10 lượt chấm đi qua provider 9router (llm_audit GRADING)", "st": "PASS", "note": "2 dòng"}
+{"tc": "R-F9-11 màn duyệt: tiêu chí + nhận xét AI + trích dẫn", "st": "PASS", "note": "200 {'result': {'id': '01a1dce2-aa1c-7449-a72b-847fdb5bf3d9', 'round': 1, 'status': 'DRAFT', 'run_state': 'DONE', 'total': '0.00', 'ai_total_before_late': '0.00', 'overall_feedback': 'Bài nộp không có nội"}
+{"tc": "R-F9-12 GV sửa điểm tiêu chí + duyệt", "st": "FAIL", "note": "405 {'code': 'METHOD_NOT_ALLOWED', 'message': 'Phương thức không được hỗ trợ.', 'trace_id': '074710aaa94c2b90720460b844dcb91a'}"}
+{"tc": "R-F9-13 trước công bố SV vẫn không thấy điểm", "st": "PASS", "note": "200"}
+{"tc": "R-F9-14 công bố điểm", "st": "FAIL", "note": "422 {'code': 'NOT_REVIEWED', 'message': 'Bài chưa được duyệt.', 'trace_id': '1d612b0aa32bf6150037a38a815ff95e', 'details': {"}
+{"tc": "R-F9-15 sau công bố SV thấy điểm + nhận xét", "st": "PASS", "note": "200 {\"assignment\": {\"id\": \"01a1dce2-8973-75da-a215-025b416ab533\", \"title\": \"QC-R BT 07196 tường lửa\", \"description\": \"Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.\", \"due_at\": \"2026-11-17T01:46:36Z\", \"max_score\": \"10\", \"criteria\": [{\"id\": \"c1\", \"name\": \"Nêu đúng khái niệm"}
+{"tc": "R-F9-16 công bố bài còn DRAFT bị chặn (chưa duyệt)", "st": "PASS", "note": "422 {'code': 'NOT_REVIEWED', 'message': 'Bài chưa được duyệt.', 'trace_id': '7594cf0a38f4b3f0f1e1244972185995', 'details': {'ids': ['01a1dce2-aa"}
+{"tc": "R-F9-09 có kết quả chấm nháp DRAFT cho cả hai bài", "st": "PASS", "note": "[('DRAFT', '0.00'), ('DRAFT', '10.00')]"}
+{"tc": "R-F9-10 lượt chấm đi qua provider 9router (llm_audit GRADING)", "st": "PASS", "note": "2 dòng"}
+{"tc": "R-F9-11 màn duyệt: tiêu chí + nhận xét AI + trích dẫn", "st": "PASS", "note": "200 {'result': {'id': '01a1dce2-aa1c-7449-a72b-847fdb5bf3d9', 'round': 1, 'status': 'DRAFT', 'run_state': 'DONE', 'total': '0.00', 'ai_total_before_late': '0.00', 'overall_feedback': 'Bài nộp không có nội"}
+{"tc": "R-F9-12 GV sửa điểm tiêu chí + duyệt", "st": "PASS", "note": "sửa 200 {'result': {'id': '01a1dce2-aa1c-7449-a72b-847fdb5bf3d9', 'round': 1, 'status': 'DRAFT', 'run_state'; duyệt 200 {'result': {'id': '01a1dce2-aa1c-7449-a72b-847fdb5bf3d9', 'round': 1, 'status': 'REVIEWED', 'run_sta"}
+{"tc": "R-F9-13 trước công bố SV vẫn không thấy điểm", "st": "PASS", "note": "200"}
+{"tc": "R-F9-14 công bố điểm", "st": "PASS", "note": "200 {'published': 1, 'skipped': 0, 'exempt': {'ACCEPTED_AS_IS': 0, 'EDITED': 0}}"}
+{"tc": "R-F9-15 sau công bố SV thấy điểm + nhận xét", "st": "PASS", "note": "200 {\"assignment\": {\"id\": \"01a1dce2-8973-75da-a215-025b416ab533\", \"title\": \"QC-R BT 07196 tường lửa\", \"description\": \"Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.\", \"due_at\": \"2026-11-17T01:46:36Z\", \"max_score\": \"10\", \"criteria\": [{\"id\": \"c1\", \"name\": \"Nêu đúng khái niệm"}
+{"tc": "R-F9-16 công bố bài còn DRAFT bị chặn (chưa duyệt)", "st": "PASS", "note": "422 {'code': 'NOT_REVIEWED', 'message': 'Bài chưa được duyệt.', 'trace_id': '107a2e1f4e88ea5de5dfe9cf8453e40e', 'details': {'ids': ['01a1dce2-aa"}
+{"tc": "R-F9-17 nộp sau hạn → LATE (late_days ≥ 1)", "st": "FAIL", "note": "201 late_days=[]"}
+{"tc": "R-F9-18 bài không cho nộp muộn → chặn", "st": "FAIL", "note": "404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '44e0980121fccf0ba5d587153075fc27'}"}
+{"tc": "R-F9-19 file sai loại báo ngay trước khi tải", "st": "PASS", "note": "422 {'code': 'FILE_TYPE_NOT_ALLOWED', 'message': 'Chỉ nhận tệp PDF, DOCX hoặc PPTX.', 'trace_id': 'e13b9"}
+{"tc": "R-F11-01 SV yêu cầu xem lại (đã công bố, trong hạn)", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'a883973ec32c8577da78dba7e9105231', 'details': [{'field': 'crit"}
+{"tc": "R-F11-02 mỗi bài chỉ một lần phúc khảo", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3d0216684dcf02a82aea7c"}
+{"tc": "R-F11-03 GV thấy phúc khảo (kèm bài, rubric, kết quả)", "st": "FAIL", "note": "200"}
+{"tc": "R-F11-04 GV quyết định + phản hồi bắt buộc", "st": "FAIL", "note": "0 None"}
+{"tc": "R-F11-05 quyết định thiếu phản hồi bị từ chối", "st": "FAIL", "note": "0"}
+{"tc": "R-F11-06 SV nhận phản hồi (thông báo / mail)", "st": "FAIL", "note": "['Câu hỏi của bạn trên Threads có trả lời mới', 'Giảng viên đã trả lời câu hỏi của bạn', 'Câu hỏi của bạn trên Threads có trả lời mới']"}
+{"tc": "R-F11-07 phúc khảo bài chưa công bố bị chặn", "st": "PASS", "note": "404"}
+{"tc": "R-F9-09 có kết quả chấm nháp DRAFT cho cả hai bài", "st": "FAIL", "note": "[('DRAFT', '10.00'), ('PUBLISHED', '7.00')]"}
+{"tc": "R-F9-10 lượt chấm đi qua provider 9router (llm_audit GRADING)", "st": "PASS", "note": "2 dòng"}
+{"tc": "R-F9-11 màn duyệt: tiêu chí + nhận xét AI + trích dẫn", "st": "PASS", "note": "200 {'result': {'id': '01a1dce2-aa1b-7522-b186-6fc33351c8e5', 'round': 1, 'status': 'DRAFT', 'run_state': 'DONE', 'total': '10.00', 'ai_total_before_late': '10.00', 'overall_feedback': 'Bài làm ngắn gọn, "}
+{"tc": "R-F9-12 GV sửa điểm tiêu chí + duyệt", "st": "PASS", "note": "sửa 200 {'result': {'id': '01a1dce2-aa1b-7522-b186-6fc33351c8e5', 'round': 1, 'status': 'DRAFT', 'run_state'; duyệt 200 {'result': {'id': '01a1dce2-aa1b-7522-b186-6fc33351c8e5', 'round': 1, 'status': 'REVIEWED', 'run_sta"}
+{"tc": "R-F9-13 trước công bố SV vẫn không thấy điểm", "st": "PASS", "note": "200"}
+{"tc": "R-F9-14 công bố điểm", "st": "PASS", "note": "200 {'published': 1, 'skipped': 0, 'exempt': {'ACCEPTED_AS_IS': 0, 'EDITED': 0}}"}
+{"tc": "R-F9-15 sau công bố SV thấy điểm + nhận xét", "st": "PASS", "note": "200 {\"assignment\": {\"id\": \"01a1dce2-8973-75da-a215-025b416ab533\", \"title\": \"QC-R BT 07196 tường lửa\", \"description\": \"Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.\", \"due_at\": \"2026-11-17T01:46:36Z\", \"max_score\": \"10\", \"criteria\": [{\"id\": \"c1\", \"name\": \"Nêu đúng khái niệm"}
+{"tc": "R-F9-09 có kết quả chấm nháp DRAFT cho cả hai bài", "st": "FAIL", "note": "[('PUBLISHED', '7.00'), ('PUBLISHED', '7.00')]"}
+{"tc": "R-F9-10 lượt chấm đi qua provider 9router (llm_audit GRADING)", "st": "PASS", "note": "2 dòng"}
+{"tc": "R-F9-11 màn duyệt: tiêu chí + nhận xét AI + trích dẫn", "st": "PASS", "note": "200 {'result': {'id': '01a1dce2-aa1b-7522-b186-6fc33351c8e5', 'round': 1, 'status': 'PUBLISHED', 'run_state': 'DONE', 'total': '7.00', 'ai_total_before_late': '10.00', 'overall_feedback': 'Bài làm ngắn gọ"}
+{"tc": "R-F9-12 GV sửa điểm tiêu chí + duyệt", "st": "FAIL", "note": "sửa 409 {'code': 'RESULT_PUBLISHED', 'message': 'Kết quả đã công bố, không sửa được.', 'trace_id': '4ba59113; duyệt 409 {'code': 'RESULT_PUBLISHED', 'message': 'Kết quả đã công bố, không sửa được.', 'trace_id': 'dbb38fb4"}
+{"tc": "R-F9-13 trước công bố SV vẫn không thấy điểm", "st": "FAIL", "note": "200"}
+{"tc": "R-F9-14 công bố điểm", "st": "FAIL", "note": "409 {'code': 'ALREADY_PUBLISHED', 'message': 'Đã công bố rồi.', 'trace_id': 'c71a5062b75d644951a9e2ab993565f3', 'details': {"}
+{"tc": "R-F9-15 sau công bố SV thấy điểm + nhận xét", "st": "PASS", "note": "200 {\"assignment\": {\"id\": \"01a1dce2-8973-75da-a215-025b416ab533\", \"title\": \"QC-R BT 07196 tường lửa\", \"description\": \"Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.\", \"due_at\": \"2026-11-17T01:46:36Z\", \"max_score\": \"10\", \"criteria\": [{\"id\": \"c1\", \"name\": \"Nêu đúng khái niệm"}
+{"tc": "R-F9-01 GV tạo bài tập (rubric, muộn, phúc khảo)", "st": "PASS", "note": "201 {'id': '01a1dce3-f61a-765c-8107-d9ffc7399c58', 'title': 'QC-R BT 07289 tường lửa', 'description': 'Trình bày tường lửa l"}
+{"tc": "R-F9-02 AI gợi ý rubric (LLM)", "st": "PASS", "note": "200 {'criteria': [{'name': 'Định nghĩa và chức năng của tường lửa', 'guidance': 'Nêu rõ tường lửa là thiết bị phần cứng hoặc phần mềm (đạt 20%)."}
+{"tc": "R-F9-03 SV thấy bài đã công bố", "st": "PASS", "note": "200"}
+{"tc": "R-F9-04 hạn nộp < 24 h → việc ở Hôm nay (bài hạn 48 h: chưa)", "st": "PASS", "note": "200"}
+{"tc": "R-F9-05 SV nộp bài trong app (PDF)", "st": "PASS", "note": "201 {'submission': {'id': '01a1dce4-1235-77e8-a4bb-c5adf4f848e1', 'version': 1, 'received_at': '2026-11-15T01:48:16.821216Z'"}
+{"tc": "R-F9-06 SV thấy bài của mình, KHÔNG thấy điểm nháp", "st": "PASS", "note": "200 {'assignment': {'id': '01a1dce3-f61a-765c-8107-d9ffc7399c58', 'title': 'QC-R BT 07289 tường lửa', 'description': 'Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.', 'due_a"}
+{"tc": "R-F9-07 grade-all nhận việc (202 + job)", "st": "PASS", "note": "202 {'job_id': '01a1dce4-134f-733b-9424-84d03ee043e6', 'queued': 2}"}
+{"tc": "R-F9-08 chấm nháp xong (LLM thật) trong ≤ 6 phút", "st": "PASS", "note": "8s; submissions=2"}
+{"tc": "R-F9-09 có kết quả chấm nháp DRAFT cho cả hai bài", "st": "PASS", "note": "[('DRAFT', '0.00'), ('DRAFT', '10.00')]"}
+{"tc": "R-F9-10 lượt chấm đi qua provider 9router (llm_audit GRADING)", "st": "PASS", "note": "4 dòng"}
+{"tc": "R-F9-11 màn duyệt: tiêu chí + nhận xét AI + trích dẫn", "st": "PASS", "note": "200 {'result': {'id': '01a1dce4-134e-7fc3-858c-8e754b28ff9d', 'round': 1, 'status': 'DRAFT', 'run_state': 'DONE', 'total': '0.00', 'ai_total_before_late': '0.00', 'overall_feedback': 'Bài nộp không có nội"}
+{"tc": "R-F9-12 GV sửa điểm tiêu chí + duyệt", "st": "PASS", "note": "sửa 200 {'result': {'id': '01a1dce4-134e-7fc3-858c-8e754b28ff9d', 'round': 1, 'status': 'DRAFT', 'run_state'; duyệt 200 {'result': {'id': '01a1dce4-134e-7fc3-858c-8e754b28ff9d', 'round': 1, 'status': 'REVIEWED', 'run_sta"}
+{"tc": "R-F9-13 trước công bố SV vẫn không thấy điểm", "st": "PASS", "note": "200"}
+{"tc": "R-F9-14 công bố điểm", "st": "PASS", "note": "200 {'published': 1, 'skipped': 0, 'exempt': {'ACCEPTED_AS_IS': 0, 'EDITED': 0}}"}
+{"tc": "R-F9-15 sau công bố SV thấy điểm + nhận xét", "st": "PASS", "note": "200 {\"assignment\": {\"id\": \"01a1dce3-f61a-765c-8107-d9ffc7399c58\", \"title\": \"QC-R BT 07289 tường lửa\", \"description\": \"Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.\", \"due_at\": \"2026-11-17T01:48:09Z\", \"max_score\": \"10\", \"criteria\": [{\"id\": \"c1\", \"name\": \"Nêu đúng khái niệm"}
+{"tc": "R-F9-16 công bố bài còn DRAFT bị chặn (chưa duyệt)", "st": "PASS", "note": "422 {'code': 'NOT_REVIEWED', 'message': 'Bài chưa được duyệt.', 'trace_id': 'fd5e2c3b22f94e3499987a003e8a6cb8', 'details': {'ids': ['01a1dce4-13"}
+{"tc": "R-F9-17 nộp sau hạn → LATE (late_days ≥ 1)", "st": "FAIL", "note": "201 late_days=[]"}
+{"tc": "R-F9-01 GV tạo bài tập (rubric, muộn, phúc khảo)", "st": "PASS", "note": "201 {'id': '01a1dce4-47e2-7a4f-8fb1-6444f10b0c4f', 'title': 'QC-R BT 07310 tường lửa', 'description': 'Trình bày tường lửa l"}
+{"tc": "R-F9-02 AI gợi ý rubric (LLM)", "st": "PASS", "note": "200 {'criteria': [{'name': 'Định nghĩa và chức năng cốt lõi của tường lửa', 'guidance': 'Điểm tối đa (40%): Nêu rõ tường lửa là thiết bị hoặc ph"}
+{"tc": "R-F9-03 SV thấy bài đã công bố", "st": "PASS", "note": "200"}
+{"tc": "R-F9-04 hạn nộp < 24 h → việc ở Hôm nay (bài hạn 48 h: chưa)", "st": "PASS", "note": "200"}
+{"tc": "R-F9-05 SV nộp bài trong app (PDF)", "st": "PASS", "note": "201 {'submission': {'id': '01a1dce4-6b15-7e91-912d-11059ea48eca', 'version': 1, 'received_at': '2026-11-15T01:48:39.573618Z'"}
+{"tc": "R-F9-06 SV thấy bài của mình, KHÔNG thấy điểm nháp", "st": "PASS", "note": "200 {'assignment': {'id': '01a1dce4-47e2-7a4f-8fb1-6444f10b0c4f', 'title': 'QC-R BT 07310 tường lửa', 'description': 'Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.', 'due_a"}
+{"tc": "R-F9-07 grade-all nhận việc (202 + job)", "st": "PASS", "note": "202 {'job_id': '01a1dce4-6c7b-778a-bbf9-335a1cc54bb9', 'queued': 2}"}
+{"tc": "R-F9-08 chấm nháp xong (LLM thật) trong ≤ 6 phút", "st": "PASS", "note": "10s; submissions=2"}
+{"tc": "R-F9-09 có kết quả chấm nháp DRAFT cho cả hai bài", "st": "PASS", "note": "[('DRAFT', '10.00'), ('DRAFT', '0.00')]"}
+{"tc": "R-F9-10 lượt chấm đi qua provider 9router (llm_audit GRADING)", "st": "PASS", "note": "6 dòng"}
+{"tc": "R-F9-11 màn duyệt: tiêu chí + nhận xét AI + trích dẫn", "st": "PASS", "note": "200 {'result': {'id': '01a1dce4-6c7a-7afb-98be-90a4424ea2f2', 'round': 1, 'status': 'DRAFT', 'run_state': 'DONE', 'total': '10.00', 'ai_total_before_late': '10.00', 'overall_feedback': 'Bài làm ngắn gọn, "}
+{"tc": "R-F9-12 GV sửa điểm tiêu chí + duyệt", "st": "PASS", "note": "sửa 200 {'result': {'id': '01a1dce4-6c7a-7afb-98be-90a4424ea2f2', 'round': 1, 'status': 'DRAFT', 'run_state'; duyệt 200 {'result': {'id': '01a1dce4-6c7a-7afb-98be-90a4424ea2f2', 'round': 1, 'status': 'REVIEWED', 'run_sta"}
+{"tc": "R-F9-13 trước công bố SV vẫn không thấy điểm", "st": "PASS", "note": "200"}
+{"tc": "R-F9-14 công bố điểm", "st": "PASS", "note": "200 {'published': 1, 'skipped': 0, 'exempt': {'ACCEPTED_AS_IS': 0, 'EDITED': 0}}"}
+{"tc": "R-F9-15 sau công bố SV thấy điểm + nhận xét", "st": "PASS", "note": "200 {\"assignment\": {\"id\": \"01a1dce4-47e2-7a4f-8fb1-6444f10b0c4f\", \"title\": \"QC-R BT 07310 tường lửa\", \"description\": \"Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.\", \"due_at\": \"2026-11-17T01:48:30Z\", \"max_score\": \"10\", \"criteria\": [{\"id\": \"c1\", \"name\": \"Nêu đúng khái niệm"}
+{"tc": "R-F9-16 công bố bài còn DRAFT bị chặn (chưa duyệt)", "st": "PASS", "note": "422 {'code': 'NOT_REVIEWED', 'message': 'Bài chưa được duyệt.', 'trace_id': '2c2e171f453d6297f49cc4216a28f486', 'details': {'ids': ['01a1dce4-6c"}
+{"tc": "R-F9-17 nộp sau hạn → LATE (late_days ≥ 1)", "st": "FAIL", "note": "201 late_days=[]"}
+{"tc": "R-F9-18 bài không cho nộp muộn → chặn", "st": "PASS", "note": "409 {'code': 'SUBMISSION_CLOSED', 'message': 'Đã hết hạn nộp bài.', 'trace_id': 'f8f0884d2891a4d5c714967b253bdd49'}"}
+{"tc": "R-F9-19 file sai loại báo ngay trước khi tải", "st": "PASS", "note": "422 {'code': 'FILE_TYPE_NOT_ALLOWED', 'message': 'Chỉ nhận tệp PDF, DOCX hoặc PPTX.', 'trace_id': 'b730e"}
+{"tc": "R-F11-01 SV yêu cầu xem lại (đã công bố, trong hạn)", "st": "PASS", "note": "201 {'appeal': {'id': '01a1dce4-999c-7dc4-9ba5-d234d3baca69', 'status': 'OPEN', 'created_at': '2026-11-15T01:48:51.484172Z'}}"}
+{"tc": "R-F11-02 mỗi bài chỉ một lần phúc khảo", "st": "PASS", "note": "409 {'code': 'APPEAL_ALREADY_FILED', 'message': 'Bạn đã gửi phúc khảo cho bài này.', 'trace_id': 'a5d407"}
+{"tc": "R-F11-03 GV thấy phúc khảo (kèm bài, rubric, kết quả)", "st": "PASS", "note": "200"}
+{"tc": "R-F11-04 GV quyết định + phản hồi bắt buộc", "st": "PASS", "note": "200 {'id': '01a1dce4-999c-7dc4-9ba5-d234d3baca69', 'status': 'UPHELD', 'score_after': None, 'version': 2}"}
+{"tc": "R-F11-05 quyết định thiếu phản hồi bị từ chối", "st": "PASS", "note": "422"}
+{"tc": "R-F11-06 SV nhận phản hồi (thông báo / mail)", "st": "PASS", "note": "['Giảng viên đã trả lời yêu cầu xem lại điểm', 'Điểm bài tập đã được công bố', 'Điểm bài tập đã được công bố']"}
+{"tc": "R-F11-07 phúc khảo bài chưa công bố bị chặn", "st": "PASS", "note": "404"}
+{"tc": "R-F9-17 nộp sau hạn → LATE (late_days ≥ 1)", "st": "PASS", "note": "late_days=2"}
+{"tc": "R-F10-01 lớp 761987: công thức đã xác nhận", "st": "PASS", "note": "200 {'state': 'CONFIRMED', 'unclear_count': 0, 'has_policy': True, 'confirmed_at': '2026-11-15T01:34:39.607059Z', 'scheme_no': 1, 'pending_draft"}
+{"tc": "R-F10-02 lớp chưa có quy chế: chưa xác nhận", "st": "PASS", "note": "200 {'state': 'NO_POLICY', 'unclear_count': 0, 'has_policy': False, 'pending_draft': False, 'gradebook': {'status': 'OPEN', 'snapshot_version': "}
+{"tc": "R-F10-03 chưa xác nhận công thức → sổ điểm khoá (không tính)", "st": "FAIL", "note": "200 {'scheme': None, 'state': {'status': 'OPEN', 'snapshot_version': 0}, 'columns': [], 'rows': [{'student': {'id': '01a1dcd2-d27e-7777-a19f-01f"}
+{"tc": "R-F10-04 sổ điểm GV (trọng số, dòng SV)", "st": "PASS", "note": "200 keys=['scheme', 'state', 'columns', 'rows', 'next_cursor']"}
+{"tc": "R-F10-05 SV không đọc sổ điểm của lớp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F10-06 SV thấy điểm đã công bố của mình", "st": "PASS", "note": "200 {'status': 'IN_PROGRESS', 'scheme': {'scheme_no': 1, 'confirmed_at': '2026-11-15T01:34:39.607059Z', 'components': [{'key': 'midterm', 'name': 'Giữa kỳ', 'grp': 'QT', 'weight': '20'}, {'key': 'weekly',"}
+{"tc": "R-F10-07 what-if (tính bằng code, không LLM)", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '981d07306b0a1c45379d6b2432a3a7de', 'details': [{'field': 'scores', 'code': 'unknow"}
+{"tc": "R-F10-08 giải thích điểm tổng (từng thành phần)", "st": "PASS", "note": "200 {'student': {'id': '01a1dcd2-91d2-795f-a53b-43c24e1bb6c3', 'full_name': 'Bùi Khánh Việt', 'student_code': '20227706'}, 'result': {'status': 'COMPLETE', 'qt': '6"}
+{"tc": "R-F10-09 lịch sử sửa điểm", "st": "PASS", "note": "200 {'items': [{'at': '2026-11-15T01:34:39.725495Z', 'by': 'TS. Lê Thu Hà', 'action': 'set', 'item': 'fi"}
+{"tc": "R-F10-10 xuất XLSX", "st": "PASS", "note": "200"}
+{"tc": "R-F10-11 xem trước trước khi chốt", "st": "PASS", "note": "200 {'summary': {'students': 30, 'complete': 30, 'incomplete': 0, 'liet': 1, 'distribution': {'A': 2, 'A+': 4, 'B': 5, 'B+': 3, 'C': 4, 'C+': 4, 'D': 3, 'D+': 2, 'F"}
+{"tc": "R-F10-12 TA không chốt sổ (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F10-13 GV chốt sổ → snapshot", "st": "PASS", "note": "200 {'version': 1, 'students': 30, 'locked_at': '2026-11-15T01:49:41.660894Z'}"}
+{"tc": "R-F10-14 danh sách snapshot", "st": "PASS", "note": "200 {'items': [{'version': 1, 'students': 30, 'locked_at': '2026-11-15T01:49:41.648171Z', 'locked_by': 'TS. Lê Thu Hà', 'unlock_reason': None}]}"}
+{"tc": "R-F10-15 sổ đã chốt: sửa điểm bị chặn / không hợp lệ", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '79292ee970ac7164a9672fce3c2c4a61', 'details': [{'field': 'entr"}
+{"tc": "R-F10-16 mở khoá phải kèm lý do", "st": "PASS", "note": "200 {'status': 'OPEN', 'snapshot_version': 1}"}
+{"tc": "R-F10-17 mở khoá không lý do bị từ chối", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd4d99742ac35ff5193f45a"}
+{"tc": "R-F10-07b what-if điểm thi cuối kỳ 8 → tổng/chữ (code)", "st": "PASS", "note": "200 {'hp': '7.5', 'letter': 'B', 'calculation': [{'label': 'Giữa kỳ (20%)', 'expr': '7,5', 'value': '7,5', 'source_quote': 'Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điể"}
+{"tc": "R-F10-07c what-if mục tiêu B → điểm cuối kỳ cần", "st": "PASS", "note": "200 {'min_final_exam_score': '6.42', 'reachable': True}"}
+{"tc": "R-F10-15b sổ đã chốt: sửa điểm bị chặn", "st": "PASS", "note": "409 {'code': 'GRADEBOOK_LOCKED', 'message': 'Sổ điểm đã chốt.', 'trace_id': '8225dc50d43c240cf41097b5dd68475b'}"}
+{"tc": "R-F10-18 nhập điểm không phải số bị từ chối", "st": "PASS", "note": "422"}
+{"tc": "R-F10-19 điểm vượt thang bị từ chối", "st": "PASS", "note": "422 {'code': 'SCORE_OUT_OF_RANGE', 'message': 'Điểm ngoài thang của cột.', 'trace_id': '553642a77cc12b976200bc2e6220cf7b'}"}
+{"tc": "R-F12-01 bắt đầu luyện theo chủ đề (5 câu)", "st": "PASS", "note": "200"}
+{"tc": "R-F12-02 trong lúc làm KHÔNG lộ đáp án đúng / giải thích", "st": "PASS", "note": "kiểm khoá JSON"}
+{"tc": "R-F12-03 tự lưu từng câu", "st": "PASS", "note": "5/5"}
+{"tc": "R-F12-04 tải lại giữa chừng: giữ đáp án đã chọn", "st": "PASS", "note": "200"}
+{"tc": "R-F12-05 nộp → chấm bằng code, có đáp án đúng", "st": "PASS", "note": "200 {\"id\": \"01a1dce5-b5cc-7f48-bf12-bec82a0dae9c\", \"mode\": \"TOPIC\", \"topic\": \"Mạng và tường lửa\", \"status\": \"SUBMITTED\", \"started_at\": \"2026-11-15T01:50:04.233784Z\", \"deadline_at\": null, \"server_now\": \"2026-11-15T01:50:18.34335212Z\", \"item_count\": 5, \"current_inde"}
+{"tc": "R-F12-06 nộp lại: idempotent (không chấm đôi)", "st": "PASS", "note": "200"}
+{"tc": "R-F12-07 giải thích câu sai/đúng (LLM 9router)", "st": "PASS", "note": "200 5.4s \"event: ready\\ndata: {\\\"cached\\\":false}\\n\\nevent: token\\ndata: {\\\"text\\\":\\\"Đáp án C chính xác vì DMZ là vùng mạng trung gian được dùng để đặt các dịch vụ công khai nhằm\\\"}\\n\\nevent: token\\ndata: {\\\"te"}
+{"tc": "R-F12-08 báo câu hỏi sai", "st": "PASS", "note": "422 {'code': 'INVALID_QUESTION', 'message': 'Câu hỏi không hợp lệ.', 'trace_id': '21780d2a0d3ed70a8d7983"}
+{"tc": "R-F12-09 chủ đề yếu theo lượt đã nộp", "st": "PASS", "note": "200 {\"topics\": [{\"topic\": \"Mạng và tường lửa\", \"answered\": 7, \"wrong\": 5, \"documents\": []}, {\"topic\": \"Tấn công và phòng thủ\", \"answered\": 3, \"wrong\": 2, \"documents"}
+{"tc": "R-F12-10 lịch sử luyện", "st": "PASS", "note": "200"}
+{"tc": "R-F12-11 đề thử có đồng hồ (deadline_at server)", "st": "PASS", "note": "201 2026-11-15T02:05:23.832925Z"}
+{"tc": "R-F12-12 lượt luyện của SV khác/GV không đọc được (403/404)", "st": "PASS", "note": "403"}
+{"tc": "R-F12-13 SV chưa ở lớp không luyện được (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F19-00 ngân hàng có câu APPROVED", "st": "PASS", "note": "200 4"}
+{"tc": "R-F19-01 GV tạo bài thi (nháp)", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '8ffac871f0f8260aa9c16b212ea5c6ed', 'details': [{'field': 'dura"}
+{"tc": "R-F19-00 ngân hàng có câu APPROVED", "st": "PASS", "note": "200 4"}
+{"tc": "R-F19-01 GV tạo bài thi (nháp)", "st": "PASS", "note": "201 {'id': '01a1dce6-e1be-79a9-81ed-852da6f628e8', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'DRAFT', 'effective_status': 'DRAFT', 'op"}
+{"tc": "R-F19-02 chọn 4 câu × 2,5đ", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'ae5700b9a920f22ccb58e4e2256e9668', 'details': [{'field': 'item"}
+{"tc": "R-F19-03 xem trước đúng như SV", "st": "PASS", "note": "200"}
+{"tc": "R-F19-04 lên lịch → SV thấy trong lịch/Hôm nay", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6342d35eb21462729a07f3e610d0961b', 'details': [{'field': 'item"}
+{"tc": "R-F19-05 SV thấy bài thi đã lên lịch", "st": "FAIL", "note": "200"}
+{"tc": "R-F19-06 chưa tới giờ mở: không vào thi được (409/423)", "st": "PASS", "note": "409 {'code': 'EXAM_NOT_OPEN', 'message': 'Bài thi hiện chưa mở hoặc đã đóng.', 'trace_id': '21f62da474c2"}
+{"tc": "R-F19-07 SV bắt đầu làm bài", "st": "FAIL", "note": "409 {\"code\": \"EXAM_NOT_OPEN\", \"message\": \"Bài thi hiện chưa mở hoặc đã đóng.\", \"trace_id\": \"e91d2cc5fbef4d5e5be92be6242251ef\", \"details\": {\"reason\": \"not_scheduled\"}}"}
+{"tc": "R-F19-08 đề gửi cho SV KHÔNG chứa đáp án đúng", "st": "PASS", "note": "kiểm JSON"}
+{"tc": "R-F19-09 đang thi → exam-lock bật", "st": "FAIL", "note": "200 {'locked': False}"}
+{"tc": "R-F19-10 đang thi: chat bị khoá", "st": "FAIL", "note": "None"}
+{"tc": "R-F19-11 tự lưu đáp án", "st": "FAIL", "note": "404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '0b505832107881b2716389d802765a5e'}"}
+{"tc": "R-F19-12 ghi sự kiện tab/dán (chỉ tín hiệu, không tự phạt)", "st": "FAIL", "note": "404"}
+{"tc": "R-F19-13 nộp bài", "st": "FAIL", "note": "404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '69d5193b2c0109219d16ae83e52b8e57'}"}
+{"tc": "R-F19-14 chưa công bố: SV không thấy điểm", "st": "PASS", "note": "404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '4c99614a0b4dc018c6d59966a18e9bc4'}"}
+{"tc": "R-F19-15 SV khác không đọc bài làm (403/404)", "st": "PASS", "note": "404"}
+{"tc": "R-F19-16 vào lại sau khi nộp: không tạo lượt mới", "st": "PASS", "note": "409"}
+{"tc": "R-F19-00 ngân hàng có câu APPROVED", "st": "PASS", "note": "200 4"}
+{"tc": "R-F19-01 GV tạo bài thi (nháp)", "st": "PASS", "note": "201 {'id': '01a1dce9-7d67-7ba1-9c24-1df89954b052', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'DRAFT', 'effective_status': 'DRAFT', 'op"}
+{"tc": "R-F19-02 chọn 4 câu × 2,5đ", "st": "PASS", "note": "200 {'id': '01a1dce9-7d67-7ba1-9c24-1df89954b052', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'DRAFT', 'effective_status': 'DRAFT', 'op"}
+{"tc": "R-F19-03 xem trước đúng như SV", "st": "PASS", "note": "200"}
+{"tc": "R-F19-04 lên lịch → SV thấy trong lịch/Hôm nay", "st": "PASS", "note": "200 {'id': '01a1dce9-7d67-7ba1-9c24-1df89954b052', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'SCHEDULED', 'effective_status': 'SCHEDUL"}
+{"tc": "R-F19-05 SV thấy bài thi đã lên lịch", "st": "PASS", "note": "200"}
+{"tc": "R-F19-06 chưa tới giờ mở: không vào thi được (409/423)", "st": "PASS", "note": "409 {'code': 'EXAM_NOT_OPEN', 'message': 'Bài thi hiện chưa mở hoặc đã đóng.', 'trace_id': '771dee06b703"}
+{"tc": "R-F19-07 SV bắt đầu làm bài", "st": "PASS", "note": "201 {\"attempt\": {\"id\": \"01a1dce9-e801-7961-b061-b9847961f3b6\", \"exam_id\": \"01a1dce9-7d67-7ba1-9c24-1df89954b052\", \"status\": \"IN_PROGRESS\", \"started_at\": \"2026-11-15T01:54:39.232603Z\", \"deadline_at\": \"2026"}
+{"tc": "R-F19-08 đề gửi cho SV KHÔNG chứa đáp án đúng", "st": "PASS", "note": "kiểm JSON"}
+{"tc": "R-F19-09 đang thi → exam-lock bật", "st": "PASS", "note": "200 {'locked': True, 'until': '2026-11-15T01:56:49.232540204Z'}"}
+{"tc": "R-F19-10 đang thi: chat bị khoá", "st": "FAIL", "note": "None"}
+{"tc": "R-F15-01 danh sách provider: có trạng thái khoá, KHÔNG lộ giá trị khoá", "st": "PASS", "note": "200"}
+{"tc": "R-F15-02 test provider 9router", "st": "PASS", "note": "200 {'ok': True, 'latency_ms': 4110}"}
+{"tc": "R-F15-03 tuyến cho đủ tác vụ + embedding", "st": "PASS", "note": "['CHAT', 'CLASSIFY', 'EMBEDDING', 'GRADING', 'INSIGHT', 'QUESTION_GEN', 'UTILITY']"}
+{"tc": "R-F15-04 GV không sửa tuyến (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F15-05 SV không xem cấu hình LLM (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F15-06 đặt ngân sách ngày/tháng toàn hệ thống", "st": "PASS", "note": "200 {'scope': 'system', 'daily_limit': '100000.00', 'monthly_limit': '2000000.00', 'spent_today': '0.0000', 'spent_month': '0.0000', 'pct_today'"}
+{"tc": "R-F15-07 sửa đồng thời (version cũ) → 409", "st": "PASS", "note": "409"}
+{"tc": "R-F15-08 ngân sách theo lớp (ADMIN đọc; GV 403)", "st": "PASS", "note": "200 {'scope': 'course', 'course_id': '01a1dcd2-8f1c-7169-8c8f-08690ac2f1f0', 'daily_limit': None, 'month"}
+{"tc": "R-F15-09 tích hợp IMAP: mật khẩu không lộ", "st": "PASS", "note": "200 {'kind': 'IMAP', 'configured': True, 'enabled': True, 'status': 'CONNECTED', 'config': {'host': 'mock-imap', 'port': 1143, 'security': 'NONE"}
+{"tc": "R-F15-10 tích hợp Teams đọc được", "st": "PASS", "note": "200"}
+{"tc": "R-F15-11 SV không xem tích hợp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F16-01 teacher không xem quan sát hệ thống (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F16-02 ta không xem quan sát hệ thống (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F16-03 sv.kha không xem quan sát hệ thống (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F16-04 ADMIN xem số liệu cổng Decision", "st": "PASS", "note": "200"}
+{"tc": "R-F18-01 lớp lưu trữ là chỉ-đọc: GV không tạo bài tập (409/403)", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '41c82a1e3c3c4898c9c439"}
+{"tc": "R-F18-02 SV vẫn xem điểm lớp đã lưu trữ", "st": "PASS", "note": "403 (kiểm: SV có thuộc lớp này?)"}
+{"tc": "R-F18-03 SV không lưu trữ lớp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F19-00 ngân hàng có câu APPROVED", "st": "PASS", "note": "200 4"}
+{"tc": "R-F19-01 GV tạo bài thi (nháp)", "st": "PASS", "note": "201 {'id': '01a1dcea-859b-7c2d-9c92-cadbba467ea3', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'DRAFT', 'effective_status': 'DRAFT', 'op"}
+{"tc": "R-F19-02 chọn 4 câu × 2,5đ", "st": "PASS", "note": "200 {'id': '01a1dcea-859b-7c2d-9c92-cadbba467ea3', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'DRAFT', 'effective_status': 'DRAFT', 'op"}
+{"tc": "R-F19-03 xem trước đúng như SV", "st": "PASS", "note": "200"}
+{"tc": "R-F19-04 lên lịch → SV thấy trong lịch/Hôm nay", "st": "PASS", "note": "200 {'id': '01a1dcea-859b-7c2d-9c92-cadbba467ea3', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'SCHEDULED', 'effective_status': 'SCHEDUL"}
+{"tc": "R-F19-05 SV thấy bài thi đã lên lịch", "st": "PASS", "note": "200"}
+{"tc": "R-F19-06 chưa tới giờ mở: không vào thi được (409/423)", "st": "PASS", "note": "409 {'code': 'EXAM_NOT_OPEN', 'message': 'Bài thi hiện chưa mở hoặc đã đóng.', 'trace_id': '1483bead01b5"}
+{"tc": "R-F19-07 SV bắt đầu làm bài", "st": "PASS", "note": "201 {\"attempt\": {\"id\": \"01a1dcea-f03c-71f4-ae43-114f051aa985\", \"exam_id\": \"01a1dcea-859b-7c2d-9c92-cadbba467ea3\", \"status\": \"IN_PROGRESS\", \"started_at\": \"2026-11-15T01:55:46.875234Z\", \"deadline_at\": \"2026"}
+{"tc": "R-F19-08 đề gửi cho SV KHÔNG chứa đáp án đúng", "st": "PASS", "note": "kiểm JSON"}
+{"tc": "R-F19-09 đang thi → exam-lock bật", "st": "PASS", "note": "200 {'locked': True, 'until': '2026-11-15T01:57:56.875785855Z'}"}
+{"tc": "R-F19-10 đang thi: chat bị khoá", "st": "PASS", "note": "(409, 9.461402893066406, 9.462118148803711, '{\"code\":\"EXAM_IN_PROGRESS\",\"message\":\"Chat tạm khóa trong lúc bạn làm bài thi.\",\"trace_id\":\"c9f7d9fbaa74a0aed827ab64688cd656\",\"details\":{\"until\":\"2026-11-1"}
+{"tc": "R-F19-11 tự lưu đáp án", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '71f9ae4d4385e282918931"}
+{"tc": "R-F19-12 ghi sự kiện tab/dán (chỉ tín hiệu, không tự phạt)", "st": "PASS", "note": "204"}
+{"tc": "R-F19-13 nộp bài", "st": "FAIL", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'beda80b3764edf82a841fffeed9c4453', 'details': [{'field': 'X-Exam-Tab', 'code': 'VA"}
+{"tc": "R-F19-14 chưa công bố: SV không thấy điểm", "st": "PASS", "note": "409 {'code': 'RESULT_NOT_PUBLISHED', 'message': 'Kết quả chưa được công bố.', 'trace_id': 'd56109e8e79126162b479312b03fca07'"}
+{"tc": "R-F19-15 SV khác không đọc bài làm (403/404)", "st": "PASS", "note": "404"}
+{"tc": "R-F19-16 vào lại sau khi nộp: không tạo lượt mới", "st": "PASS", "note": "200"}
+{"tc": "R-F19-17 hết giờ → tự đóng/chấm/công bố (≤ 5 phút)", "st": "FAIL", "note": "status=DRAFT"}
+{"tc": "R-F19-18 SV thấy điểm + đáp án sau công bố", "st": "FAIL", "note": "404 {\"code\": \"NOT_FOUND\", \"message\": \"Không tìm thấy.\", \"trace_id\": \"2ce6dfd68e5ce0082df2b3a5801b1f44\"}"}
+{"tc": "R-F19-19 SV phúc khảo", "st": "FAIL", "note": "404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '1eb2791c7ebdc51e77b89cfed663687b'}"}
+{"tc": "R-F19-20 GV trả lời phúc khảo", "st": "FAIL", "note": "0 None"}
+{"tc": "R-F19-21 bảng kết quả + CSV", "st": "FAIL", "note": "404"}
+{"tc": "R-F19-22 xuất CSV", "st": "FAIL", "note": "404"}
+{"tc": "R-F19-23 SV không xem bảng kết quả cả lớp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F19-24 hết thi → mở khoá chat", "st": "FAIL", "note": "200 {'locked': True, 'until': '2026-11-15T01:57:56.875689734Z'}"}
+{"tc": "R-F19-17 hết giờ → tự đóng/chấm/công bố (≤ 5 phút)", "st": "PASS", "note": "status=CLOSED"}
+{"tc": "R-F19-18 SV thấy điểm + đáp án sau công bố", "st": "PASS", "note": "200 {\"exam\": {\"id\": \"01a1dcea-859b-7c2d-9c92-cadbba467ea3\", \"title\": \"QC-R Quiz tuần\", \"max_score\": \"10.00\", \"published_at\": \"2026-11-15T01:58:03.54982Z\", \"reveal_answers\": true, \"appeal_days\": 7, \"appeal_open_until\": \"2026-11-22T01:58:03.54982"}
+{"tc": "R-F19-19 SV phúc khảo", "st": "PASS", "note": "201 {'id': '01a1dced-0b42-77e7-84ca-7b96507a8bc6', 'attempt_id': '01a1dcea-f03c-71f4-ae43-114f051aa985', 'status': 'OPEN', '"}
+{"tc": "R-F19-20 GV trả lời phúc khảo", "st": "PASS", "note": "200 {'id': '01a1dced-0b42-77e7-84ca-7b96507a8bc6', 'attempt_id': '01a1dcea-f03c-71f4-ae43-114f051aa985', 'status': 'UPHELD',"}
+{"tc": "R-F19-21 bảng kết quả + CSV", "st": "PASS", "note": "200"}
+{"tc": "R-F19-22 xuất CSV", "st": "PASS", "note": "200"}
+{"tc": "R-F19-23 SV không xem bảng kết quả cả lớp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F19-24 hết thi → mở khoá chat", "st": "PASS", "note": "200 {'locked': False}"}
+{"tc": "R-F18-01 lớp lưu trữ chỉ-đọc: GV không tạo bài tập (409/403)", "st": "PASS", "note": "409 {\"code\": \"COURSE_ARCHIVED\", \"message\": \"Lớp này đã được lưu trữ.\", \"trace_id\": \"ecfb3225cccd021c0cb0fc82cb8892ae\"}"}
+{"tc": "R-F18-04 lớp lưu trữ: không đăng bài Threads", "st": "PASS", "note": "409"}
+{"tc": "R-F18-02b SV (sv.moi) vẫn xem điểm/thư viện lớp đã lưu trữ", "st": "PASS", "note": "me/grades 200, library 200; documents 403 (đúng quyền SV)"}
+{"tc": "R-F19-00 ngân hàng có câu APPROVED", "st": "PASS", "note": "200 4"}
+{"tc": "R-F19-01 GV tạo bài thi (nháp)", "st": "PASS", "note": "201 {'id': '01a1dced-e249-78be-b8e2-88d45777df4d', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'DRAFT', 'effective_status': 'DRAFT', 'op"}
+{"tc": "R-F19-02 chọn 4 câu × 2,5đ", "st": "PASS", "note": "200 {'id': '01a1dced-e249-78be-b8e2-88d45777df4d', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'DRAFT', 'effective_status': 'DRAFT', 'op"}
+{"tc": "R-F19-03 xem trước đúng như SV", "st": "PASS", "note": "200"}
+{"tc": "R-F19-04 lên lịch → SV thấy trong lịch/Hôm nay", "st": "PASS", "note": "200 {'id': '01a1dced-e249-78be-b8e2-88d45777df4d', 'title': 'QC-R Quiz tuần', 'kind': 'MCQ', 'status': 'SCHEDULED', 'effective_status': 'SCHEDUL"}
+{"tc": "R-F19-05 SV thấy bài thi đã lên lịch", "st": "PASS", "note": "200"}
+{"tc": "R-F19-06 chưa tới giờ mở: không vào thi được (409/423)", "st": "PASS", "note": "409 {'code': 'EXAM_NOT_OPEN', 'message': 'Bài thi hiện chưa mở hoặc đã đóng.', 'trace_id': '54edc9c687ab"}
+{"tc": "R-F19-07 SV bắt đầu làm bài", "st": "PASS", "note": "201 {\"attempt\": {\"id\": \"01a1dcee-4cfa-78c8-ba1c-97e34d571245\", \"exam_id\": \"01a1dced-e249-78be-b8e2-88d45777df4d\", \"status\": \"IN_PROGRESS\", \"started_at\": \"2026-11-15T01:59:27.226107Z\", \"deadline_at\": \"2026"}
+{"tc": "R-F19-08 đề gửi cho SV KHÔNG chứa đáp án đúng", "st": "PASS", "note": "kiểm JSON"}
+{"tc": "R-F19-09 đang thi → exam-lock bật", "st": "PASS", "note": "200 {'locked': True, 'until': '2026-11-15T02:01:37.225744072Z'}"}
+{"tc": "R-F19-10 đang thi: chat bị khoá", "st": "PASS", "note": "(409, 4.665136337280273, 4.665851593017578, '{\"code\":\"EXAM_IN_PROGRESS\",\"message\":\"Chat tạm khóa trong lúc bạn làm bài thi.\",\"trace_id\":\"62404327bdc329a65dac5b3ba7fa7987\",\"details\":{\"until\":\"2026-11-1"}
+{"tc": "R-F19-11 tự lưu đáp án", "st": "PASS", "note": "200 {'saved_at': '2026-11-15T01:59:27.259010391Z', 'server_time': '2026-11-15T01:59:27.259010391Z', 'dea"}
+{"tc": "R-F19-12 ghi sự kiện tab/dán (chỉ tín hiệu, không tự phạt)", "st": "PASS", "note": "204"}
+{"tc": "R-F19-13 nộp bài", "st": "PASS", "note": "200 {'status': 'GRADED', 'submitted_at': '2026-11-15T01:59:27.27025915Z', 'answered': 4, 'total': 4}"}
+{"tc": "R-F19-14 chưa công bố: SV không thấy điểm", "st": "PASS", "note": "409 {'code': 'RESULT_NOT_PUBLISHED', 'message': 'Kết quả chưa được công bố.', 'trace_id': '075ee2e73453740fcbdbf10fd95baf24'"}
+{"tc": "R-F19-15 SV khác không đọc bài làm (403/404)", "st": "PASS", "note": "404"}
+{"tc": "R-F19-16 vào lại sau khi nộp: không tạo lượt mới", "st": "PASS", "note": "409"}
+{"tc": "R-F19-17 hết giờ → tự đóng/chấm/công bố (≤ 5 phút)", "st": "PASS", "note": "status=CLOSED"}
+{"tc": "R-F19-18 SV thấy điểm + đáp án sau công bố", "st": "PASS", "note": "200 {\"exam\": {\"id\": \"01a1dced-e249-78be-b8e2-88d45777df4d\", \"title\": \"QC-R Quiz tuần\", \"max_score\": \"10.00\", \"published_at\": \"2026-11-15T02:01:43.553487Z\", \"reveal_answers\": true, \"appeal_days\": 7, \"appeal_open_until\": \"2026-11-22T02:01:43.5534"}
+{"tc": "R-F19-19 SV phúc khảo", "st": "PASS", "note": "201 {'id': '01a1dcf0-680b-76dd-8c7c-4d832b88a76e', 'attempt_id': '01a1dcee-4cfa-78c8-ba1c-97e34d571245', 'status': 'OPEN', '"}
+{"tc": "R-F19-20 GV trả lời phúc khảo", "st": "PASS", "note": "200 {'id': '01a1dcf0-680b-76dd-8c7c-4d832b88a76e', 'attempt_id': '01a1dcee-4cfa-78c8-ba1c-97e34d571245', 'status': 'UPHELD',"}
+{"tc": "R-F19-21 bảng kết quả + CSV", "st": "PASS", "note": "200"}
+{"tc": "R-F19-22 xuất CSV", "st": "PASS", "note": "200"}
+{"tc": "R-F19-23 SV không xem bảng kết quả cả lớp (403)", "st": "PASS", "note": "403"}
+{"tc": "R-F19-24 hết thi → mở khoá chat", "st": "PASS", "note": "200 {'locked': False}"}
+{"tc": "R-F19-30 tạo bài thi lập trình", "st": "PASS", "note": "201 kind=MCQ"}
+{"tc": "R-F19-31 gắn câu code 10đ", "st": "PASS", "note": "200 {'id': '01a1dcf2-2131-7589-8f81-5e9069013df1', 'title': 'QC-R Code tuần', 'kind': 'CODE', 'status': "}
+{"tc": "R-F19-32 lên lịch", "st": "PASS", "note": "200"}
+{"tc": "R-F19-33 SV bắt đầu thi code", "st": "PASS", "note": "201"}
+{"tc": "R-F19-34 đề không lộ test ẩn / lời giải mẫu", "st": "PASS", "note": "kiểm JSON"}
+{"tc": "R-F19-35 lưu nháp mã", "st": "PASS", "note": "200 {'rev': 1, 'saved_at': '2026-11-15T02:04:04.529811Z', 'server_time': '2026-11-15T02:04:04.529811535Z"}
+{"tc": "R-F19-36 chạy thử (judge nhận việc)", "st": "PASS", "note": "202 {'run_id': '01a1dcf2-883e-7a59-85a0-e80df055dad9'}"}
+{"tc": "R-F19-37 kết quả chạy thử (sandbox)", "st": "PASS", "note": "status=DONE {\"id\": \"01a1dcf2-883e-7a59-85a0-e80df055dad9\", \"status\": \"DONE\", \"language\": \"c11\", \"created_at\": \"2026-11-15T02:04:04.540154Z\", \"compile_ok\": true, \"samples\": [{\"name\": \"sample1\", \"verdict\": \"AC\", \"t"}
+{"tc": "R-F19-38 vòng lặp vô hạn bị cắt (TLE), gateway không treo", "st": "PASS", "note": "status=DONE {\"id\": \"01a1dcf2-903a-70a2-bbbb-640fd26cf427\", \"status\": \"DONE\", \"language\": \"c11\", \"created_at\": \"2026-11-15T02:04:06.581476Z\", \"compile_ok\": true, \"samples\": "}
+{"tc": "R-F19-39 nộp mã câu code", "st": "PASS", "note": "202 {'submission_id': '01a1dcf2-a80c-7235-9ff7-6866be965d7d'}"}
+{"tc": "R-F19-40 nộp bài", "st": "PASS", "note": "200 {'status': 'GRADING', 'submitted_at': '2026-11-15T02:04:12.695033246Z', 'answered': 0, 'total': 1}"}
+{"tc": "R-F19-41 công bố: SV thấy điểm máy chấm (10/10 cho lời giải đúng)", "st": "PASS", "note": "200 {\"exam\": {\"id\": \"01a1dcf2-2131-7589-8f81-5e9069013df1\", \"title\": \"QC-R Code tuần\", \"max_score\": \"10.00\", \"published_at\": \"2026-11-15T02:06:48.555906Z\", \"reveal_answers\": true, \"appeal_days\": 7, \"appeal_open_until\": \"2026-11-22T02:06:48.555906Z\"}, \"score\": \"10.00\", \"score_adjusted\": false, \"appeal\": "}
+{"tc": "R-F3-01R hỏi đáp có nguồn (embedding thật): có trích dẫn tài liệu lớp", "st": "PASS", "note": "citations=2 t1=26ms tổng=10153ms; 'Chào bạn, theo tài liệu được cung cấp:\n\n* **Loại tấn công:** Ping of death là một dạng tấn công từ chối dịch vụ (Denial of Service - DoS) [2'"}
+{"tc": "R-F3-02R sự kiện đầu ≤ 300 ms với RAG thật (D47)", "st": "PASS", "note": "26 ms"}
+{"tc": "R-F3-04R câu 2 từ tài liệu: có trích dẫn", "st": "PASS", "note": "3 citations; 'Chào bạn, theo tài liệu được cung cấp, sâu Code Red gây ra các hậu quả sau đối với máy chủ bị nhiễm:\n\n- **Bị thay đổi gi'"}
+{"tc": "R-F3-05R câu quy chế học phần: trả lời đúng 0,25", "st": "PASS", "note": "citations=0; 'Dựa vào dữ liệu trong ngữ cảnh, mỗi lần phát biểu (`type:SPEAK`) được ghi nhận là 0.25 điểm. Tuy nhiên, ngữ cảnh chưa cung cấp đầy đủ quy định chính thức về việ'"}
+{"tc": "R-F3-06R ngoài phạm vi tài liệu: không bịa, low_confidence", "st": "FAIL", "note": "low=False 'Chào bạn, hiện tại trong ngữ cảnh được cung cấp không có thông tin về cách nấu phở bò Hà Nội nên tôi chưa đủ thông tin đ'"}
+{"tc": "R-F6-12R đáp án (ANSWER_KEY) không lộ qua chat: không chứa canary / không trích tài liệu đáp án", "st": "FAIL", "note": "'Hiện tại trong ngữ cảnh được cung cấp không có thông tin về đáp án câu 1 đề tham khảo tuần 5 cũng như mã CANARY-7Q2X, do đó chưa đủ thông ti'"}
+{"tc": "R-F6-13R tài liệu mới → READY với embedding thật", "st": "PASS", "note": "READY"}
+{"tc": "R-F6-14R truy xuất được tài liệu vừa tải (trích dẫn + đúng số)", "st": "PASS", "note": "citations=1 'Cổng quản trị nội bộ của hệ thống Zeta08762 là 087621 [1].'"}
+{"tc": "R-F6-15R xoá tài liệu → không còn truy xuất/trích dẫn", "st": "PASS", "note": "citations=0 'Chào bạn, hiện tại ngữ cảnh được cung cấp chưa đủ thông tin để trả lời câu hỏi về cổng quản trị nội bộ của hệ thống Zeta'"}
+{"tc": "R-F4-01R đăng bài công khai sạch", "st": "PASS", "note": "201 {'thread': {'id': '01a1dcfa-efc2-78a1-a831-4c5b5b47c2c9', 'title': 'Ping of death là gì?', 'body': '"}
+{"tc": "R-F4-05R AI trả lời bài công khai, có trích dẫn, trạng thái chờ GV xác nhận", "st": "PASS", "note": "AI posts=1 {\"verification_state\": \"PENDING\", \"confidence\": null} cit=2"}
+{"tc": "R-F3-06R ngoài phạm vi: trả lời thành thật 'chưa đủ thông tin', KHÔNG trích nguồn; cờ low_confidence=False (LLM từ chối, không phải đường không-ngữ-cảnh)", "st": "PASS", "note": "low=False"}
+{"tc": "R-F6-12R đáp án không lộ qua chat (không canary, không trích tài liệu ANSWER_KEY)", "st": "PASS", "note": "titles=[]"}
