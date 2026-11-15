@@ -37,7 +37,7 @@ function Block({ title, text }: { title: string; text: string }) {
   return (
     <div className={s.block}>
       <p className={s.blockTitle}>{title}</p>
-      <pre className={s.pre}>{visible(text)}</pre>
+      <pre className={s.pre} tabIndex={0} aria-label={title}>{visible(text)}</pre>
     </div>
   );
 }
@@ -72,7 +72,7 @@ export function RunResult({ run }: { run: RunView | null }) {
     return (
       <div className={s.result}>
         <StatusText tone="red"><X aria-hidden /> {VERDICT_LABEL.CE}</StatusText>
-        <pre className={s.pre}>{(run.compile_log ?? "").slice(0, COMPILE_LOG_MAX)}</pre>
+        <pre className={s.pre} tabIndex={0} aria-label="Thông báo biên dịch">{(run.compile_log ?? "").slice(0, COMPILE_LOG_MAX)}</pre>
       </div>
     );
   const ok = run.samples.filter((x) => x.verdict === "AC").length;
@@ -136,9 +136,9 @@ export function SubmissionList({ items, hasMore, onMore, onReuse, onView, loadin
               </div>
               {open === x.id && v && (
                 <div className={s.blocks}>
-                  <pre className={s.pre}>{v.source}</pre>
+                  <pre className={s.pre} tabIndex={0} aria-label="Mã đã nộp">{v.source}</pre>
                   <div><Button size="sm" onClick={() => onReuse(v)}>Dùng lại mã này</Button></div>
-                  {v.compile_ok === false && <pre className={s.pre}>{(v.compile_log ?? "").slice(0, COMPILE_LOG_MAX)}</pre>}
+                  {v.compile_ok === false && <pre className={s.pre} tabIndex={0} aria-label="Thông báo biên dịch">{(v.compile_log ?? "").slice(0, COMPILE_LOG_MAX)}</pre>}
                   {v.samples.length > 0 && <ul className={s.samples}>{v.samples.map((t) => <SampleRow key={t.name} r={t} detail={false} />)}</ul>}
                 </div>
               )}
