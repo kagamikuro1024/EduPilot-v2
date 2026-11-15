@@ -31,4 +31,8 @@ const INTROS: Record<string, RouteIntro> = {
   "/": { title: "Việc cần xử lý hôm nay" },
 };
 
-export const introFor = (pathname: string): RouteIntro | null => INTROS[pathname] ?? null;
+// Route động: tra theo tiền tố (US-P10-08; `/assignments/<id>` không có PreShell thì FCP chờ tới khi có phiên). h1 thật của màn là tiêu đề bài tập (dữ liệu); trước khi có
+// dữ liệu nó là «Bài tập» (StudentAssignment), nên chữ máy chủ dùng đúng chữ đó.
+const PREFIX_INTROS: Array<[string, RouteIntro]> = [["/assignments/", { title: "Bài tập" }]];
+
+export const introFor = (pathname: string): RouteIntro | null => INTROS[pathname] ?? PREFIX_INTROS.find(([p]) => pathname.startsWith(p))?.[1] ?? null;

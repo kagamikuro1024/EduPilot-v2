@@ -11,7 +11,7 @@
 .actions { display: flex; }
 .status { font-size: var(--ep-text-label); color: var(--ep-ink-2); }
 
-.total { font-size: var(--ep-text-page); font-weight: 680; font-variant-numeric: tabular-nums; line-height: 1.1; margin-bottom: var(--ep-space-4); }
+.total { font-size: var(--ep-text-section); font-weight: 680; font-variant-numeric: tabular-nums; line-height: 1.1; margin-bottom: var(--ep-space-4); }
 .crit { display: grid; gap: var(--ep-space-2); padding: var(--ep-space-3) 0; border-top: 1px solid var(--ep-rule); }
 .critHead { display: flex; justify-content: space-between; gap: var(--ep-space-4); font-weight: 600; }
 .critScore { font-variant-numeric: tabular-nums; flex: none; }
