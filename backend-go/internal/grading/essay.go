@@ -42,12 +42,13 @@ type EssayConfig struct {
 	LowConfidence, Disagree       decimal.Decimal
 	ExtractTimeout                time.Duration
 	AttemptTimeout                time.Duration
+	GuidanceEnabled               bool // GUIDANCE_ENABLED (công tắc cứng 10.6); worker đặt từ env
 }
 
 // DefaultEssayConfig là giá trị mặc định của SRS 4.1.
 func DefaultEssayConfig() EssayConfig {
 	return EssayConfig{MinChars: 50, MaxChars: 60000, EchoWords: 12, LowConfidence: decimal.RequireFromString("0.6"), Disagree: decimal.NewFromInt(1),
-		ExtractTimeout: 90 * time.Second, AttemptTimeout: 120 * time.Second}
+		ExtractTimeout: 90 * time.Second, AttemptTimeout: 120 * time.Second, GuidanceEnabled: true}
 }
 
 // BlobGetter đọc tệp bài nộp (stream, không ghi đĩa).
@@ -88,12 +89,16 @@ func (e DoclingExtractor) Extract(ctx context.Context, filename string, body io.
 // Grader chấm nháp MỘT bài nộp (SRS 4.6). Hàng đợi (US-P7-07) gọi Run; mọi nhánh lỗi vĩnh viễn được GHI vào `grading_results` (FAILED, tiêu chí NULL — không bao giờ 0 điểm),
 // lỗi tạm trả `*TransientError` để hàng đợi thử lại. Không tự công bố: chỉ ghi DRAFT.
 type Grader struct {
-	Pool    *pgxpool.Pool
-	LLM     Structurer
+	Pool *pgxpool.Pool
+	LLM  Structurer
+	// Flags: cờ «Lưu ý chấm» theo lớp (10.6); nil → mọi lớp ghim v0 (prompt như trước 10.6).
+	Flags   *GuidanceFlags
 	Blob    BlobGetter
 	Extract TextExtractor
 	Cfg     EssayConfig
 	Log     *slog.Logger
+	// Decide: tầng decision của cổng INJECTION_FLAG (D60); nil = không có tầng đó.
+	Decide Decider
 }
 
 // Outcome là kết quả của một lần chạy: DONE (DRAFT) hoặc FAILED (đã ghi, mã lỗi vĩnh viễn).
@@ -153,6 +158,19 @@ func (g *Grader) Run(ctx context.Context, courseID, resultID uuid.UUID) (Outcome
 		return g.fail(ctx, q, c, ErrInternal, nil)
 	}
 	ctx = llm.WithIdentity(ctx, llm.Identity{CourseID: &courseID})
+	// Ghim phiên bản lưu ý MỘT lần ở đầu Run: đúng phiên bản đã dùng dựng prompt của cả hai lượt, và đúng giá trị đó được ghi (TL-1 mục 3.2). Cờ lớp tắt / ESSAY khác → v0.
+	pin := guidancePin{}
+	if c.AssignmentID != nil && c.AssignmentType == "ESSAY" && g.Cfg.GuidanceEnabled && g.Flags.On(courseID, FlagGradingGuidance) {
+		pin.Version = int(c.AssignmentGuidanceVersion)
+	}
+	if pin.Version > 0 {
+		rows, gerr := q.GuidanceSetAt(ctx, store.GuidanceSetAtParams{CourseID: courseID, AssignmentID: *c.AssignmentID, V: int16(pin.Version)}) //nolint:gosec // phiên bản nhỏ
+		if gerr != nil {
+			return Outcome{}, &TransientError{Code: ErrInternal, Err: gerr} // thử lại; KHÔNG chấm thiếu lưu ý rồi vẫn ghim v
+		}
+		pin.Lines = orderByRubric(rows, rubric)
+	}
+	ctx = withPin(ctx, pin)
 
 	text, outcome, err := g.text(ctx, q, c)
 	if err != nil || outcome != nil {
@@ -177,7 +195,14 @@ func (g *Grader) Run(ctx context.Context, courseID, resultID uuid.UUID) (Outcome
 		return g.saveEmpty(ctx, q, c, rubric, hits, append(flags, FlagEmptySubmission), lateDays)
 	}
 
-	p1, p2, perr := g.passes(ctx, c, rubric, cleaned, text)
+	// Cờ chèn lệnh = regex OR Structured (gộp vào lượt chấm) OR decision; hai tầng sau chỉ khi cổng có hiệu lực và bài ≥ 20 từ (AC3). Chỉ gắn cờ, không đổi điểm.
+	tiers := g.Decide != nil && len(strings.Fields(cleaned)) >= minInjectionWords && g.Decide.GateEffective(ctx, llm.GateInjection)
+	var decided chan bool
+	if tiers {
+		decided = make(chan bool, 1)
+		go func() { decided <- g.flagInjectionDecision(ctx, cleaned) }() // song song với lời gọi chấm
+	}
+	p1, p2, perr := g.passes(ctx, c, rubric, cleaned, text, tiers)
 	if perr != nil {
 		var te *TransientError
 		if errors.As(perr, &te) {
@@ -187,6 +212,17 @@ func (g *Grader) Run(ctx context.Context, courseID, resultID uuid.UUID) (Outcome
 	}
 	m := Merge(p1, p2, rubric, g.Cfg.Disagree)
 	flags = append(flags, m.Flags...)
+	if tiers {
+		flagged := p1.LLMInjection || p2.LLMInjection
+		select {
+		case d := <-decided:
+			flagged = flagged || d
+		case <-ctx.Done():
+		}
+		if flagged {
+			flags = append(flags, FlagInjectionSuspected)
+		}
+	}
 	var comments []string
 	for _, r := range rubric {
 		comments = append(comments, p1.Comments[r.ID])
@@ -252,10 +288,13 @@ func (g *Grader) text(ctx context.Context, q *store.Queries, c store.EssayGradeC
 }
 
 // passes chạy hai lượt SONG SONG (lượt 2 đảo thứ tự tiêu chí), mỗi lượt đúng một llm.Structured (task GRADING, làn BATCH, temperature 0).
-func (g *Grader) passes(ctx context.Context, c store.EssayGradeContextRow, rubric []RubricItem, cleaned, text string) (PassResult, PassResult, error) {
+func (g *Grader) passes(ctx context.Context, c store.EssayGradeContextRow, rubric []RubricItem, cleaned, text string, injection bool) (PassResult, PassResult, error) {
 	pctx, cancel := context.WithTimeout(ctx, g.Cfg.AttemptTimeout)
 	defer cancel()
 	schema := EssaySchema(rubric)
+	if injection {
+		schema = EssaySchemaInjection(rubric)
+	}
 	var wg sync.WaitGroup
 	var res [2]PassResult
 	var errs [2]error
@@ -263,7 +302,7 @@ func (g *Grader) passes(ctx context.Context, c store.EssayGradeContextRow, rubri
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			res[i], errs[i] = g.onePass(pctx, c, rubric, cleaned, text, schema, i == 1)
+			res[i], errs[i] = g.onePass(pctx, c, rubric, cleaned, text, schema, i == 1, injection)
 		}()
 	}
 	wg.Wait()
@@ -281,12 +320,13 @@ func (g *Grader) passes(ctx context.Context, c store.EssayGradeContextRow, rubri
 	return res[0], res[1], nil
 }
 
-func (g *Grader) onePass(ctx context.Context, c store.EssayGradeContextRow, rubric []RubricItem, cleaned, text string, schema json.RawMessage, second bool) (PassResult, error) {
+func (g *Grader) onePass(ctx context.Context, c store.EssayGradeContextRow, rubric []RubricItem, cleaned, text string, schema json.RawMessage, second, injection bool) (PassResult, error) {
 	ref := ""
 	if c.ReferenceAnswer != nil {
 		ref = *c.ReferenceAnswer
 	}
-	system, user := BuildEssayPrompt(PromptInput{Title: c.Title, Description: c.Description, Reference: ref, Rubric: rubric, Text: cleaned, Second: second}, NewBoundary(cleaned))
+	pin := pinOf(ctx)
+	system, user := BuildEssayPrompt(PromptInput{Title: c.Title, Description: c.Description, Reference: ref, Rubric: rubric, Text: cleaned, Second: second, FlagInjection: injection, Guidance: pin.Lines, GuidanceVersion: pin.Version}, NewBoundary(cleaned))
 	zero := 0.0
 	lane := llm.LaneBatch
 	req := llm.Request{Task: llm.TaskGrading, Lane: &lane, Params: llm.Params{Temperature: &zero, MaxTokens: 4096},
@@ -339,7 +379,7 @@ func (g *Grader) fail(ctx context.Context, q *store.Queries, c store.EssayGradeC
 	}
 	raw, _ := json.Marshal(crit)
 	flags = uniqSorted(flags)
-	n, err := q.EssaySaveFailed(ctx, store.EssaySaveFailedParams{CourseID: c.CourseID, ID: c.ResultID, ErrorCode: &code, Criteria: raw, Flags: flags, Owner: leaseOf(ctx)})
+	n, err := q.EssaySaveFailed(ctx, store.EssaySaveFailedParams{CourseID: c.CourseID, ID: c.ResultID, ErrorCode: &code, Criteria: raw, Flags: flags, GuidanceVersion: int16(pinOf(ctx).Version), Owner: leaseOf(ctx)}) //nolint:gosec // phiên bản nhỏ
 	if err != nil {
 		return Outcome{}, fmt.Errorf("grading: ghi lỗi: %w", err)
 	}
@@ -408,9 +448,14 @@ func (g *Grader) write(ctx context.Context, q *store.Queries, c store.EssayGrade
 	if p1 != nil {
 		conf = nd(&p1.Confidence)
 	}
+	var aiComments json.RawMessage // chỉ có khi lượt 1 đã qua Check (bài trống / lỗi: NULL)
+	if p1 != nil {
+		aiComments = commentsJSON(crit, p1.Feedback)
+	}
 	n, err := q.EssaySaveDraft(ctx, store.EssaySaveDraftParams{
 		CourseID: c.CourseID, ID: c.ResultID, Criteria: critRaw, OverallFeedback: &feedback, Total: decimal.NullDecimal{Decimal: total, Valid: true}, AiScores: aiRaw, AiTotalBeforeLate: decimal.NullDecimal{Decimal: sum, Valid: true},
 		LateDays: int16(lateDays), LatePenalty: penalty, LlmReportedTotal: nd(reported), Flags: flags, Confidence: conf, PassDetail: detail, Owner: leaseOf(ctx),
+		AiComments: aiComments, GuidanceVersion: int16(pinOf(ctx).Version), //nolint:gosec // phiên bản nhỏ
 	})
 	if err != nil {
 		return Outcome{}, fmt.Errorf("grading: ghi bản nháp: %w", err)
@@ -434,3 +479,43 @@ func nd(d *decimal.Decimal) decimal.NullDecimal {
 }
 
 func norm(s string) string { return norm_.NFC.String(s) }
+
+// guidancePin là bản lưu ý đã dùng dựng prompt của lần chạy này (cả hai lượt) và sẽ được ghi vào grading_results.guidance_version.
+type guidancePin struct {
+	Version int
+	Lines   []GuidanceLine
+}
+
+type pinKey struct{}
+
+func withPin(ctx context.Context, p guidancePin) context.Context {
+	return context.WithValue(ctx, pinKey{}, p)
+}
+
+func pinOf(ctx context.Context) guidancePin {
+	p, _ := ctx.Value(pinKey{}).(guidancePin)
+	return p
+}
+
+// orderByRubric lấy lưu ý của phiên bản ghim theo thứ tự tiêu chí trong rubric (rồi approved_in_version, id: đã sắp từ SQL); tiêu chí không còn trong rubric thì bỏ.
+func orderByRubric(rows []store.GuidanceSetAtRow, rubric []RubricItem) []GuidanceLine {
+	var out []GuidanceLine
+	for _, r := range rubric {
+		for _, g := range rows {
+			if g.CriterionID == r.ID {
+				out = append(out, GuidanceLine{CriterionID: g.CriterionID, Text: g.Text})
+			}
+		}
+	}
+	return out
+}
+
+// commentsJSON dựng ai_comments {criteria:{id:nhận xét}, overall} từ nhận xét GỐC của AI ở lượt 1 (SRS 4.2.4); bất biến sau DONE.
+func commentsJSON(crit []critJSON, overall string) json.RawMessage {
+	m := map[string]string{}
+	for _, c := range crit {
+		m[c.ID] = c.Comment
+	}
+	raw, _ := json.Marshal(map[string]any{"criteria": m, "overall": overall})
+	return raw
+}

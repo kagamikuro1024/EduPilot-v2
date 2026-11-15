@@ -16,7 +16,7 @@ export type DocRow = Doc & {
   failFix?: string;
 };
 
-export const ANSWER_KEY_NOTE = "Không hiển thị cho sinh viên · Không dùng cho AI của sinh viên";
+export const ANSWER_KEY_NOTE = "Không hiển thị cho sinh viên · Không dùng cho AI";
 
 /** Seed: mọi dòng của bảng N5 đều `READY`; đáp án không hiện cho SV và không dùng cho AI. */
 export const DOCUMENTS: DocRow[] = N5_DOCS.map((d) => ({ ...d, status: "READY", forAi: d.forStudents }));

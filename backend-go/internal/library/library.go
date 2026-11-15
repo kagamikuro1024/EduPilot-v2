@@ -17,6 +17,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/edupilot/backend-go/internal/agent"
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/platform/blob"
@@ -37,7 +38,11 @@ type BlobAPI interface {
 type Service struct {
 	Pool *pgxpool.Pool
 	Blob BlobAPI
-	Log  *slog.Logger
+	// Lock: khoá giờ thi (exam.Locker). Sinh viên đang có lượt bài thi IN_PROGRESS thì tool search_library không trả đề thi (FR-23, US-P9-10 AC4); lỗi tra khoá → coi như đang khoá. nil = không kiểm.
+	Lock interface {
+		IsLocked(ctx context.Context, userID uuid.UUID) (exam.Lock, bool, error)
+	}
+	Log *slog.Logger
 }
 
 // Filter là bộ lọc danh sách.
@@ -198,7 +203,12 @@ func (s *Service) Search(ctx context.Context, tc agent.TrustedContext, query str
 	if utf8.RuneCountInString(q) < MinQuery {
 		return nil, nil, false, nil
 	}
-	rows, err := store.New(s.Pool).LibSearchTool(ctx, store.LibSearchToolParams{CourseID: tc.CourseID, Q: escapeLike(q)})
+	exclude := false
+	if s.Lock != nil {
+		_, locked, err := s.Lock.IsLocked(ctx, tc.UserID)
+		exclude = locked || err != nil
+	}
+	rows, err := store.New(s.Pool).LibSearchTool(ctx, store.LibSearchToolParams{CourseID: tc.CourseID, Q: escapeLike(q), ExcludeExamPapers: exclude})
 	if err != nil {
 		return nil, nil, false, fmt.Errorf("library: tìm cho tool: %w", err)
 	}

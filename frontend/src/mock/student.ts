@@ -119,7 +119,7 @@ export function recommendationFor(student: Student, quizDone: boolean): Recommen
       title: `${quiz.code} ${quiz.title} đóng sau ${until(quiz.due)}`,
       reason: "Bạn chưa làm bài này",
       minutes: quiz.minutes ?? 20,
-      href: "/practice/at-quiz01",
+      href: "/practice",
       cta: "Làm bài",
     };
   }
@@ -127,7 +127,7 @@ export function recommendationFor(student: Student, quizDone: boolean): Recommen
     title: "Ôn lại Mật mã đối xứng",
     reason: "Bạn sai 4/7 câu gần nhất",
     minutes: 15,
-    href: "/practice/at-symmetric",
+    href: "/practice",
     cta: "Luyện 10 câu",
   };
 }

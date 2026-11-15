@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/crm"
+	"github.com/edupilot/backend-go/internal/decision"
 	"github.com/edupilot/backend-go/internal/document"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
@@ -31,6 +33,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/practicehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
@@ -40,6 +43,7 @@ import (
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/crypto"
+	"github.com/edupilot/backend-go/internal/practice"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/submission"
 	"github.com/edupilot/backend-go/internal/submission/source"
@@ -113,8 +117,9 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA), today.WithAttention(crmService(d)))
 			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
 			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
-			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P5-02: điểm danh, phát biểu
-			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                           // US-P5-03: heartbeat, ack, đọc thời gian học
+			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)           // US-P5-02: điểm danh, phát biểu
+			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                                     // US-P5-03: heartbeat, ack, đọc thời gian học
+			(&practicehttp.Handler{Svc: practiceService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P9-05…09: luyện đề, thi thử
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {
@@ -140,6 +145,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 					ah.Teams = &submission.TeamsSync{Pool: d.DB, Redis: d.Redis, Cipher: cipher, Jobs: d.Jobs, Log: d.Log, Enabled: d.Cfg.TeamsEnabled, Source: tenv.Source, Timeout: d.Cfg.TeamsSyncTimeout, MinInterval: d.Cfg.SyncNowMinInterval}
 				}
 			}
+			ah.Guidance = guidanceService(d)
 			ah.Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
@@ -174,7 +180,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.
-			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).Mount(r, RequireIdempotencyKey(d))
+			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).WithDecision(decisionService(d)).Mount(r, RequireIdempotencyKey(d))
 		}
 		if d.DB != nil {
 			(&mailhttp.Handler{Pool: d.DB, Log: d.Log}).Mount(r) // US-P4-04 AC9: thư gửi lỗi (ADMIN)
@@ -227,6 +233,10 @@ func assignmentService(d Deps) *assignment.Service {
 	if d.LLM != nil && d.LLM.Gateway != nil {
 		s.LLM = d.LLM.Gateway
 	}
+	s.RegressMinDelta = d.Cfg.RegressionMinDelta
+	if d.LLM != nil {
+		s.Guidance = d.LLM.Guidance
+	}
 	return s
 }
 
@@ -236,6 +246,23 @@ func submissionService(d Deps) *submission.Service {
 		s.Blob = d.Blob
 	}
 	return s
+}
+
+// guidanceService dựng phía gateway của «Lưu ý chấm» (10.6). Cần Redis (trần giờ / khoá idempotent) và Jobs; thiếu → không có route.
+func guidanceService(d Deps) *grading.GuidanceService {
+	if d.Redis == nil || d.Jobs == nil {
+		return nil
+	}
+	var flags *grading.GuidanceFlags
+	if d.LLM != nil {
+		flags = d.LLM.Guidance
+	}
+	if flags == nil {
+		flags = grading.NewGuidanceFlags(d.DB, d.Log)
+		_ = flags.Load(context.Background())
+	}
+	det := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: d.DB}, Redis: d.Redis, Log: d.Log}}
+	return &grading.GuidanceService{Pool: d.DB, Redis: d.Redis.Client, Jobs: d.Jobs, Flags: flags, Det: det, Cfg: grading.GuidanceConfigFrom(d.Cfg)}
 }
 
 func gradingService(d Deps) *grading.Service {
@@ -252,4 +279,25 @@ func calendarService(d Deps) *calendar.Service {
 		clk = clock.Real{}
 	}
 	return &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clk, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}
+}
+
+// practiceService dựng practice.Service; LLM nil (không cấu hình) → giải thích / nhận xét trả 503, phần còn lại của luyện đề chạy bình thường.
+func practiceService(d Deps) *practice.Service {
+	s := &practice.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, Redis: d.Redis, Jobs: d.Jobs, Exam: &exam.Service{Pool: d.DB, Clock: d.Clock}}
+	if d.LLM != nil {
+		s.LLM = d.LLM.Gateway
+	}
+	if d.Blob != nil { // nhập Forms đọc lại tệp từ object storage (luật 10)
+		s.Blob = d.Blob
+	}
+	return s
+}
+
+// decisionService dựng dịch vụ cấu hình decision (SRS FEAT-decision-model 6) từ Deps; nil nếu thiếu DB.
+func decisionService(d Deps) *decision.Service {
+	if d.DB == nil || d.LLM == nil {
+		return nil
+	}
+	return &decision.Service{Pool: d.DB, Snapshot: d.LLM.Decision, Redis: d.Redis.Client, Circuit: d.LLM.Scheduler.CircuitState,
+		AllowReal: d.Cfg.LLMDecisionAllowReal, EnvKey: d.Cfg.GeminiKey != ""}
 }

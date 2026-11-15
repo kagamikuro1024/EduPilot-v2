@@ -458,7 +458,7 @@ Bám `DESIGN.md` §13, §14.2–§14.4, D59 (mỗi vùng làm việc một Panel
 | Route | Khung nhìn đầu | Primitive | Tải / rỗng / lỗi | Mobile |
 | --- | --- | --- | --- | --- |
 | `/chat` | cột hội thoại (≤ 840 px) trong **một** Panel; ô soạn `Composer` ở đáy; lịch sử gập được (ẩn dưới 720 px) | `Panel`, `Composer`, `ActionList`, `InlineNotice`, `CitationList`, `PIIProtectionNotice` | khung xương · "Hỏi bất cứ điều gì về lớp này." + một gợi ý · lỗi nói chuyện gì + dữ liệu có an toàn + `Thử lại` | 375 px; vùng chạm ≥ 44 px |
-| `/threads` | một nguồn cấp hàng gọn (tiêu đề, xem trước, chủ đề/tuần, trạng thái, hoạt động); rail lọc ≥ 1100 px, popover dưới 1100 px; soạn tại chỗ | `Panel`, `ActionList`, `StatusText`, `Field`, `Composer`, `Dialog` | khung xương · "Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên." + `Đặt câu hỏi` · lỗi + `Thử lại` | 375 px |
+| `/threads` | một nguồn cấp hàng gọn (tiêu đề, xem trước, chủ đề/tuần, trạng thái, hoạt động); rail lọc ≥ 1100 px, popover dưới 1100 px; soạn tại chỗ | `Panel`, `ActionList`, `StatusText`, `Field`, `Composer`, `Dialog` | khung xương · "Chưa có câu hỏi nào." + `Đặt câu hỏi` · lỗi + `Thử lại` | 375 px |
 | `/threads/[id]` | nội dung thread trước; bài đã xác nhận có vạch xanh 1 px + nhãn; bài AI chờ có chữ nhạt + `Chờ xác nhận`; Staff: `Xác nhận`, `Chỉnh sửa`, menu `Loại` | `Panel`, `StatusText`, `CitationList`, `VerificationState` | như trên | 375 px |
 
 **Lời văn (đã qua bảng dịch `DESIGN.md` §13 — sinh viên không thấy RAG, PII, provider, fallback, trace, confidence):**

@@ -1,0 +1,1 @@
+# Route chưa chuyển sang hợp đồng khung (DESIGN.md §23). Mỗi dòng một regex đường dẫn; hết lô 7 tệp này rỗng.

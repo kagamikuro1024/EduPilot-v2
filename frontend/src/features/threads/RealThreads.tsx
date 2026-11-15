@@ -1,10 +1,11 @@
 "use client";
 
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useQueryClient } from "@tanstack/react-query";
 import { Pin, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useExamLock } from "@/features/chat/chatApi";
 import { useAutosaveDraft } from "@/shared/data";
 import { useSession } from "@/shared/session/session";
@@ -64,8 +65,8 @@ export function RealThreads({ courseId }: { courseId: string }) {
   );
 
   return (
-    <Page width="full">
-      <PageHeader title="Hỏi đáp công khai" actions={!composing ? <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button> : undefined} />
+    <Page kind="work">
+      <PageHeader title="Hỏi đáp công khai" primary={!composing ? { label: "Đặt câu hỏi", onClick: () => setComposing(true) } : undefined} />
       <div className={r.detail}>
         {staff && <Tabs label="Chế độ xem" value={moderation ? "mod" : "all"} onChange={(v) => setModeration(v === "mod")} options={[{ value: "all", label: "Câu hỏi" }, { value: "mod", label: "Cần xem" }]} />}
         {staff && moderation && <ModerationQueue courseId={courseId} />}
@@ -84,15 +85,13 @@ export function RealThreads({ courseId }: { courseId: string }) {
             </Drawer>
           </>
         )}
-        <Panel>
+        <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
           <PageState
             query={list}
             isEmpty={() => list.items.length === 0 && pinned.length === 0}
             loading={<Skeleton lines={5} />}
             empty={
-              <EmptyState title={filtered ? "Không có câu hỏi nào khớp." : "Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên."}>
-                {!filtered && !composing && <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button>}
-              </EmptyState>
+              <EmptyState title={filtered ? "Không có câu hỏi nào khớp" : "Chưa có câu hỏi nào"} />
             }
           >
             {pendingMajor && <p className={r.majority}>{pendingCount} câu chờ xác nhận</p>}
@@ -146,6 +145,7 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
     body: body.value,
     payload: { title: title.value, body: body.value, tags: tagList, week_no: week ? Number(week) : null },
     canChat,
+    suggest: true,
     onPosted: () => {
       title.clear();
       body.clear();
@@ -157,9 +157,17 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
     },
   });
   const empty = !title.value.trim() || !body.value.trim();
+  const slow = useSlow(gate.pending, 800);
   return (
     <form className={r.composer} onSubmit={(e) => { e.preventDefault(); if (!empty && !locked) void gate.submit(false); }} data-part="thread-form">
       <Field label="Tiêu đề" required>{(id) => <Input id={id} value={title.value} onChange={(e) => title.setValue(e.target.value)} maxLength={200} disabled={locked} />}</Field>
+      {gate.similar.length > 0 && (
+        <ul className={r.similar} data-part="similar-confirmed" aria-label="Đã có câu trả lời xác nhận">
+          {gate.similar.map((x) => (
+            <li key={x.thread_id}><Link href={`/threads/${x.thread_id}`}>{x.title}</Link></li>
+          ))}
+        </ul>
+      )}
       <Field label="Nội dung" required>{(id) => <Textarea id={id} rows={5} value={body.value} onChange={(e) => body.setValue(e.target.value)} disabled={locked} />}</Field>
       <div className={r.composerRow}>
         <Field label="Thẻ">{(id) => <Input id={id} value={tags} onChange={(e) => setTags(e.target.value)} placeholder="quy-che, tcp" disabled={locked} />}</Field>
@@ -182,10 +190,25 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       <div className={r.actions}>
         <Button type="submit" variant="primary" disabled={empty || locked || gate.pending}>Đăng</Button>
         <Button variant="ghost" onClick={onCancel}>Huỷ</Button>
+        {slow && <StatusText tone="neutral">Đang kiểm tra</StatusText>}
       </div>
       {gate.dialog}
     </form>
   );
+}
+
+/** true khi `on` kéo dài quá `ms` (chỉ báo chờ chỉ hiện khi kiểm duyệt chậm; US-DM-03 AC6). */
+function useSlow(on: boolean, ms: number) {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!on) return;
+    const t = window.setTimeout(() => setSlow(true), ms);
+    return () => {
+      window.clearTimeout(t);
+      setSlow(false);
+    };
+  }, [on, ms]);
+  return on && slow;
 }
 
 export { Composer as ThreadComposer };
@@ -196,7 +219,7 @@ function ModerationQueue({ courseId }: { courseId: string }) {
   return (
     <Panel>
       <Tabs label="Trạng thái báo cáo" value={status} onChange={setStatus} options={[{ value: "OPEN", label: "Chờ xem" }, { value: "HIDDEN", label: "Đã ẩn" }]} />
-      <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Không có bài nào cần xem." />}>
+      <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Không có bài nào cần xem" />}>
         <DataTable
           caption="Bài bị báo cáo"
           rows={q.items}

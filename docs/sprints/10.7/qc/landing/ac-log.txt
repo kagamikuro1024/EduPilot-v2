@@ -1,0 +1,29 @@
+QCAC AC1 PASS h1="Vận hành lớp học có trợ lý AI" (8 từ); mục: top=1vh, bai-nop=1vh, ba-man=2vh, so-do=1vh, vai=1vh; h2: Bài nộp đi qua ba bước | EduPilot trong ba màn | Ba số đo trên dữ liệu mô phỏng | Việc của giảng viên và sinh viên
+QCAC AC1b PASS dòng dẫn nguyên văn
+QCAC AC2 PASS [{"t":"Đăng nhập","pause":false},{"t":"Xem video","pause":false}] skip=Tới nội dung
+QCAC AC3 PASS demo aria-label=Màn duyệt bài: AI chấm nháp tiêu chí «Gi; img/video/picture trong màn đầu=0; bg=none
+QCAC AC11 PASS h1 72px; h2 48,48,48,48; p nhỏ nhất 16
+QCAC AC11b PASS khoảng giữa các mục 0,0,0,0,0 (≥ 96, đo khoảng trống bên ngoài; có thể 0 nếu mục tự đệm)
+QCAC AC17 PASS rò=false mô phỏng=true tên=true github=true
+QCAC AC16og PASS og:*=9
+QCAC AC2b-h1 PASS h1 hiện 1/2 trong DOM
+QCAC AC4 PASS nút 32×32; aria-pressed false→true; data-paused=?
+QCAC AC4b PASS sau tải lại aria-pressed=true (nhớ trong phiên)
+QCAC AC5 PASS request video trước bấm=0; mở=true; focus trong hộp=true; Esc đóng=true; focus về nút=true; preload=none; #video-loi=true; bỏ nguồn=true; audioTracks=n/a
+QCAC AC6 PASS mục cao 1800px (2.00 màn); sticky=1; tên=Chat riêng có nguồn | Duyệt bài AI chấm nháp | Sổ điểm có giải trình; ảnh rộng=1278,1304,1304
+QCAC AC6b PASS ảnh#0 top=358 ; ảnh#1 top=358 ; ảnh#2 top=358
+QCAC AC8 PASS trước cuộn opacity=1,1,1,1,1,1; sau 2,6 s=1,1,1
+QCAC AC9 PASS thiếu nguyên văn: []; 146: giữa=91 cuối=146; hình=[{"w":626,"alt":"Sổ điểm của lớp mẫu: điểm thành phần và "}]; cỡ lớn nhất=48px
+QCAC AC24-1 PASS mục số đo có 1 ảnh
+QCAC AC10 PASS tab=2; chọn true,false→false,true; mục mỗi vai=0,0; ảnh=giang-vien-hom-nay-1280.webp
+QCAC AC13-lcp PASS LCP={"tag":"H1","id":"","t":28} (cần là chữ của h1; ghi chú: 26 tệp JS)
+QCAC AC19 PASS lỗi console: 
+QCAC AC11-390 PASS h1 38px; h2 30,30,30,30
+QCAC AC7-390 PASS sticky=0; ảnh=[{"w":347,"h":216,"vis":true},{"w":340,"h":212,"vis":true},{"w":347,"h":216,"vis":true},{"w":340,"h":606,"vis":true},{"w":340,"h":169,"vis":true},{"w":347,"h":172,"vis":true}]
+QCAC AC10-390 PASS mục vai cao 844px (1.00 màn @844)
+QCAC AC24-390 PASS mục số đo cao 1688px; khoảng trống liền giữa danh sách và ảnh=347px (≤ 844)
+QCAC AC16-390 PASS tràn ngang=false; cao liên kết chân trang=48,48,44
+QCAC AC14 PASS m-on=0; animation chạy=0; sticky=0; số 146 hiện=146; nút tạm dừng hiện=false
+QCAC AC7 PASS 1024 px: sticky=0
+QCAC AC15 PASS không script: mục hiện=true; khối chữ opacity 0=0; danh sách vai hiện=2
+  3 passed (18.8s)

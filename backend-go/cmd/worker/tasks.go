@@ -10,6 +10,7 @@ import (
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/chat"
 	"github.com/edupilot/backend-go/internal/crm"
+	"github.com/edupilot/backend-go/internal/decision"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/grade"
@@ -20,6 +21,7 @@ import (
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/practice"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/submission"
 	"github.com/edupilot/backend-go/internal/thread"
@@ -46,14 +48,19 @@ func newTasks(d Deps) []Task {
 	tasks = append(tasks, examTickTask{&exam.Ticker{Svc: &exam.Service{Pool: d.DB, Clock: clock.Real{}, Jobs: jobs.NewService(d.DB), Attempt: exam.AttemptConfig{Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second}, Redis: d.Redis}, Redis: d.Redis, Log: d.Log, Name: name, Every: d.Cfg.ExamTickInterval}})
 	tasks = append(tasks, reminderTask{&calendar.Reminder{Svc: &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}, Name: name, Every: d.Cfg.ReminderTick, Lead: d.Cfg.ReminderLead, Log: d.Log, Notify: nt}})
 	tasks = append(tasks, slaTask{&escalation.SLAJob{Svc: &escalation.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt, Cfg: escalation.ConfigFrom(d.Cfg)}, Redis: d.Redis, Name: name, Every: d.Cfg.TicketSLATick, Log: d.Log}})
+	tasks = append(tasks, decisionAlertTask{&decision.Alerter{Pool: d.DB, Notify: nt, Redis: d.Redis, Name: name, Every: d.Cfg.DecisionAlertTick, Dedupe: d.Cfg.DecisionAlertDedupe, Log: d.Log}})
 	tasks = append(tasks, rollupTask{&activity.RollupJob{Svc: &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: d.Cfg.RollupTick, Log: d.Log}})
 	tasks = append(tasks, riskTask{&crm.RiskJob{Svc: &crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, At: d.Cfg.RiskJobAt, Every: time.Minute, Log: d.Log}})
+	tasks = append(tasks, practiceCloseTask{&practice.CloseJob{Svc: &practice.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Every: time.Minute, Log: d.Log}})
 	tasks = append(tasks, gradeRemindTask{&grade.ReminderJob{Svc: &grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}, Redis: d.Redis, Name: name, Every: time.Minute, Log: d.Log}})
 	if bs, ok := d.Blob.(submission.BlobAPI); ok { // *blob.Store thật; worker thử nghiệm không có object storage thì không chạy job
 		tasks = append(tasks, orphanTask{&submission.OrphanJob{Svc: &submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: time.Hour, Log: d.Log}})
 	}
 	if gq := newGradingQueue(d); gq != nil {
 		tasks = append(tasks, gradingTask{gq})
+	}
+	if rq := newReflectQueue(d); rq != nil {
+		tasks = append(tasks, reflectTask{rq})
 	}
 	if ys := newImapSyncer(d); ys != nil {
 		tasks = append(tasks, imapTask{ys})
@@ -97,6 +104,12 @@ type slaTask struct{ j *escalation.SLAJob }
 func (slaTask) Name() string                    { return "ticket.sla" }
 func (t slaTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
+// decisionAlertTask chạy `decision.alert` (US-DM-07 AC4) — một bản nhờ khoá leader Redis.
+type decisionAlertTask struct{ j *decision.Alerter }
+
+func (decisionAlertTask) Name() string                    { return "decision.alert" }
+func (t decisionAlertTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
 // rollupTask chạy `heartbeat.rollup` (US-P5-03) — một bản nhờ khoá leader Redis.
 type rollupTask struct{ j *activity.RollupJob }
 
@@ -108,6 +121,12 @@ type riskTask struct{ j *crm.RiskJob }
 
 func (riskTask) Name() string                    { return "crm.risk" }
 func (t riskTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// practiceCloseTask chạy `practice.close` (US-P9-07) — mỗi phút đóng lượt thi thử quá hạn.
+type practiceCloseTask struct{ j *practice.CloseJob }
+
+func (practiceCloseTask) Name() string                    { return "practice.close" }
+func (t practiceCloseTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // gradeRemindTask chạy `grade.scheme_reminder` (US-P6-05) — mỗi tuần một lần sau 08:00 thứ Hai, một bản nhờ khoá leader + dấu tuần Redis.
 type gradeRemindTask struct{ j *grade.ReminderJob }

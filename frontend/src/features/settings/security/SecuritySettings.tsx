@@ -12,7 +12,7 @@ import { StudyTimeSection } from "./StudyTimeSection";
 export function SecuritySettings() {
   const { role, realCourseId } = useSession();
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader title="Tài khoản và bảo mật" />
       <PasswordSection />
       <DevicesSection />

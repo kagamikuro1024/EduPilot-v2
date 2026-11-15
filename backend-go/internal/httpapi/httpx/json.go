@@ -66,6 +66,10 @@ func decodeJSON(r *http.Request, dst any) *apierr.Error {
 				Field: typeErrField(typeErr), Code: "type", Message: "Giá trị không đúng kiểu dữ liệu.",
 			})
 		}
+		var syn *json.SyntaxError
+		if !errors.As(err, &syn) && !errors.Is(err, io.ErrUnexpectedEOF) { // JSON đúng cú pháp nhưng một giá trị không đọc được (decimal, uuid, thời điểm): lỗi dữ liệu, không phải JSON hỏng
+			return apierr.Validation(apierr.FieldError{Field: "body", Code: "type", Message: "Giá trị không đúng kiểu dữ liệu."})
+		}
 		return apierr.New(http.StatusBadRequest, apierr.BadRequest)
 	}
 	fields := append(validateStruct(dst), unknownFields(body, dst)...)

@@ -26,6 +26,8 @@ func TestClientSurface(t *testing.T) {
 		"Stream":     reflect.TypeOf(func(context.Context, llm.Request) (<-chan llm.Chunk, error) { return nil, nil }),
 		"Structured": reflect.TypeOf(func(context.Context, llm.Request, json.RawMessage) (json.RawMessage, error) { return nil, nil }),
 		"Embed":      reflect.TypeOf(func(context.Context, llm.EmbedRequest) ([][]float32, error) { return nil, nil }),
+		// D60 / SRS FEAT-decision-model 4.1: hàm thứ năm; bốn hàm cũ giữ nguyên chữ ký.
+		"Decide": reflect.TypeOf(func(context.Context, llm.DecideRequest) (llm.DecideResponse, error) { return llm.DecideResponse{}, nil }),
 	}
 	if typ.NumMethod() != len(want) {
 		t.Fatalf("Client có %d hàm, muốn %d", typ.NumMethod(), len(want))

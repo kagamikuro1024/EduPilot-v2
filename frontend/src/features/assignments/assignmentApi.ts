@@ -84,7 +84,7 @@ export function sumUnits(scores: string[]): number | null {
 export const assignmentsKey = (course: string) => ["assignments", course] as const;
 const path = (course: string) => `/courses/${course}/assignments`;
 
-export const useAssignments = (course: string) => useCursorList<Assignment>(assignmentsKey(course), path(course), { limit: 30 });
+export const useAssignments = (course: string) => useCursorList<Assignment>(assignmentsKey(course), path(course), { limit: 30, staleTime: 0 }); // «Đã nộp / Tổng» do người khác / luồng nộp đổi: luôn lấy lại khi mở và khi lấy lại tiêu điểm (GV-BUG «0 / 60»)
 
 export const useAssignment = (course: string, id: string | null) =>
   useQuery({

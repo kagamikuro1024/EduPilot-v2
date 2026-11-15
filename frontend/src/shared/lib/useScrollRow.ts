@@ -12,8 +12,8 @@ export function useScrollRow(ref: RefObject<HTMLDivElement | null>, count: numbe
     if (!el) return;
     const update = () => {
       const max = el.scrollWidth - el.clientWidth;
-      if (max > 1) el.setAttribute("data-scroll-x", "");
-      else el.removeAttribute("data-scroll-x");
+      if (max > 1) { el.setAttribute("data-scroll-x", ""); if (!el.querySelector("a[href], button, input, select, textarea, [tabindex]")) el.tabIndex = 0; } // vùng cuộn không có điều khiển nào: tự nhận focus để cuộn bằng bàn phím
+      else { el.removeAttribute("data-scroll-x"); if (el.getAttribute("tabindex") === "0" && !el.hasAttribute("data-keep-tab")) el.removeAttribute("tabindex"); }
       const fade = [el.scrollLeft > 1 && "start", el.scrollLeft < max - 1 && max > 1 && "end"].filter(Boolean).join(" ");
       if (fade) el.setAttribute("data-fade", fade);
       else el.removeAttribute("data-fade");

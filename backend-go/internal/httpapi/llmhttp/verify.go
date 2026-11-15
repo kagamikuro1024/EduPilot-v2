@@ -35,6 +35,7 @@ const (
 	kModel    = "MODEL_NOT_FOUND"
 	kBadResp  = "BAD_RESPONSE"
 	kDimsMism = "DIMS_MISMATCH"
+	kNotAllow = "NOT_ALLOWED" // mô hình decision thật khi LLM_DECISION_ALLOW_REAL tắt
 )
 
 // testMessage là câu tiếng Việt theo loại lỗi. Thân phản hồi của nhà cung cấp KHÔNG bao giờ ra ngoài — chỉ câu này (US-P1-04 AC13).
@@ -52,6 +53,8 @@ func testMessage(kind string) string {
 		return "Nhà cung cấp trả về dữ liệu không đúng định dạng."
 	case kDimsMism:
 		return "Mô hình nhúng không trả về 1536 chiều. Chọn mô hình khác."
+	case kNotAllow:
+		return "Chưa được phép dùng bản thật."
 	}
 	return "Không kết nối được tới nhà cung cấp. Kiểm tra địa chỉ và mạng."
 }
@@ -66,7 +69,7 @@ func pickInput(ms []llmconfig.ModelInput) *candidate {
 		if m.Enabled != nil && !*m.Enabled {
 			continue
 		}
-		if m.Kind == "chat" {
+		if m.Kind == "chat" || m.Kind == "decision" {
 			return &candidate{m.Model, m.Kind}
 		}
 		if emb == nil {
@@ -131,6 +134,19 @@ func (a *Admin) probe(ctx context.Context, typ string, baseURL *string, key stri
 	done := func(kind string) outcome {
 		return outcome{OK: kind == "", Kind: kind, Latency: a.Clock.Now().Sub(start)}
 	}
+	if c.kind == "decision" { // một câu `noul` vô hại; bản giả cục bộ (không mạng, không khoá)
+		base := ""
+		if baseURL != nil {
+			base = strings.TrimSpace(*baseURL)
+		}
+		if err := a.RT.Registry.ProbeDecision(ctx, c.model, key, base); err != nil {
+			if errors.Is(err, llmconfig.ErrDecisionRealDisabled) {
+				return done(kNotAllow)
+			}
+			return done(kindOf(err, typ))
+		}
+		return done("")
+	}
 	spec := llm.ProviderSpec{ID: "probe", Name: "probe", Type: typ, Key: key}
 	if baseURL != nil {
 		spec.BaseURL = strings.TrimSpace(*baseURL)
@@ -164,6 +180,10 @@ func (a *Admin) verifyBeforeSave(w http.ResponseWriter, r *http.Request, typ str
 	out := a.probe(r.Context(), typ, baseURL, key, *c)
 	if out.OK {
 		return true
+	}
+	if out.Kind == kNotAllow {
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.DecisionRealDisabled))
+		return false
 	}
 	f := apierr.FieldError{Field: "base_url", Code: "PROVIDER_UNREACHABLE", Message: testMessage(out.Kind)}
 	switch out.Kind {
@@ -310,11 +330,11 @@ func (a *Admin) testCandidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		Type    string            `json:"type" validate:"required,oneof=openai anthropic gemini openai_compatible fake"`
+		Type    string            `json:"type" validate:"required,oneof=openai anthropic gemini openai_compatible fake decision"`
 		BaseURL *string           `json:"base_url"`
 		APIKey  *llmconfig.Secret `json:"api_key"`
 		Model   string            `json:"model" validate:"required"`
-		Kind    string            `json:"kind" validate:"omitempty,oneof=chat embedding"`
+		Kind    string            `json:"kind" validate:"omitempty,oneof=chat embedding decision"`
 	}
 	if !httpx.DecodeJSON(w, r, &in) {
 		return

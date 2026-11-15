@@ -31,6 +31,8 @@ const (
 	TypeTicketStale          = "TICKET_STALE"
 	TypeTicketAnswered       = "TICKET_ANSWERED"
 	TypeCourseTicketsStalled = "COURSE_TICKETS_STALLED"
+	// TypeDecisionFailClosed: một cổng decision đóng-an-toàn nhiều bất thường (US-DM-07 AC4); chỉ ADMIN.
+	TypeDecisionFailClosed = "DECISION_FAIL_CLOSED"
 )
 
 // Spec là một thông báo cho MỘT người. DedupeKey rỗng = không khử trùng.

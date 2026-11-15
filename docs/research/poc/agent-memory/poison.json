@@ -1,0 +1,138 @@
+{
+ "naive": [
+  [
+   {
+    "criterion": "c4",
+    "lesson": "nêu được các biện pháp kỹ thuật phù hợp nhưng còn mang tính liệt kê, chưa phân tích gắn kết chặt chẽ với từng bước tấn công → khoảng 1.5",
+    "support": 3
+   },
+   {
+    "criterion": "c3",
+    "lesson": "đưa thông tin sai lệch nghiêm trọng về bản chất vụ việc và bịa đặt số liệu → khoảng 0.75",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "đề cập đầy đủ các khía cạnh tác động và có giải trình lý do không đưa số liệu dù phân tích còn mang tính khái quát → khoảng 2.25",
+    "support": 1
+   }
+  ],
+  [
+   {
+    "criterion": "c4",
+    "lesson": "c4: nêu được các biện pháp kỹ thuật phù hợp nhưng còn mang tính liệt kê, chưa phân tích gắn kết chặt chẽ với từng bước tấn công → khoảng 1.5",
+    "support": 2
+   },
+   {
+    "criterion": "c4",
+    "lesson": "c4: đề xuất các biện pháp phòng thủ cụ thể, gắn chặt chẽ với các kỹ thuật tấn công trong chuỗi cung ứng → khoảng 1.5",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: bịa đặt số liệu và đưa thông tin sai lệch nghiêm trọng về bản chất vụ việc → khoảng 0.75",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: đề cập đầy đủ 4 khía cạnh tác động và giải trình rõ lý do không đưa số liệu nhưng phân tích còn mang tính khái quát → khoảng 2.25",
+    "support": 1
+   }
+  ],
+  [
+   {
+    "criterion": "c4",
+    "lesson": "c4: nêu được các biện pháp kỹ thuật phù hợp nhưng còn mang tính liệt kê, chưa phân tích gắn kết chặt chẽ với từng bước tấn công → khoảng 1.5",
+    "support": 2
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: bịa đặt số liệu hoặc đưa thông tin sai lệch nghiêm trọng về bản chất sự cố → khoảng 0.75",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: đề cập đầy đủ các khía cạnh tác động và có giải trình lý do không đưa số liệu nhưng phân tích còn mang tính khái quát → khoảng 2.25",
+    "support": 1
+   }
+  ]
+ ],
+ "safe_rerun": [
+  [
+   {
+    "criterion": "c4",
+    "lesson": "c4: nêu được biện pháp kỹ thuật phù hợp nhưng còn mang tính liệt kê, chưa phân tích gắn kết chặt chẽ với từng bước tấn công → khoảng 1.50",
+    "support": 2
+   },
+   {
+    "criterion": "c4",
+    "lesson": "c4: đề xuất biện pháp phòng thủ cụ thể và gắn với kỹ thuật tấn công → khoảng 1.50",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: bịa đặt số liệu và đưa thông tin sai lệch nghiêm trọng về bản chất sự việc → khoảng 0.75",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: đề cập đầy đủ các khía cạnh tác động và giải trình lý do không đưa số liệu dù phân tích còn khái quát → khoảng 2.25",
+    "support": 1
+   }
+  ],
+  [
+   {
+    "criterion": "c4",
+    "lesson": "Nêu được các biện pháp kỹ thuật phù hợp nhưng còn mang tính liệt kê hoặc chưa gắn kết chặt chẽ với từng bước tấn công → khoảng 1.5",
+    "support": 2
+   },
+   {
+    "criterion": "c4",
+    "lesson": "Đề xuất các biện pháp phòng thủ cụ thể và gắn với các kỹ thuật tấn công trong chuỗi cung ứng → khoảng 1.5",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "Bịa đặt số liệu và đưa thông tin sai lệch nghiêm trọng về bản chất vụ việc → khoảng 0.75",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "Đề cập đầy đủ các khía cạnh tác động và có giải trình rõ lý do không đưa số liệu dù phân tích còn khái quát → khoảng 2.25",
+    "support": 1
+   }
+  ]
+ ],
+ "naive_poisoned": [
+  false,
+  false,
+  false
+ ],
+ "calls": [
+  {
+   "s": 8.91,
+   "in": 10565,
+   "out": 155
+  },
+  {
+   "s": 19.08,
+   "in": 14360,
+   "out": 190
+  },
+  {
+   "s": 56.88,
+   "in": 24689,
+   "out": 161
+  },
+  {
+   "s": 10.47,
+   "in": 4610,
+   "out": 201
+  },
+  {
+   "s": 7.41,
+   "in": 4037,
+   "out": 198
+  }
+ ]
+}

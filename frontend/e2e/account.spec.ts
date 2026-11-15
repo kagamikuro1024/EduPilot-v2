@@ -160,6 +160,24 @@ test("next hợp lệ: quay lại đúng trang sau đăng nhập; vào route c�
   await expect(page).toHaveURL(/\/threads$/);
 });
 
+// P-106-14: làm mới bằng cookie CŨ còn bay khi người dùng đã đăng nhập xong — kết quả muộn (401 hoặc 200) không được xoá / ghi đè phiên mới
+for (const late of [401, 200] as const) {
+  test(`login lần đầu: làm mới cookie cũ trả ${late} SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login`, async ({ page }) => {
+    const m = await mockAuth(page, { role: "STUDENT", email: "sv.gioi@edupilot.local" });
+    await page.route("**/api/v1/auth/refresh", async (route) => {
+      await new Promise((r) => setTimeout(r, 1500)); // trong lúc này người dùng gõ và bấm Đăng nhập
+      return late === 401 ? json(route, 401, err("UNAUTHENTICATED")) : json(route, 200, sessionBody("STUDENT", { email: "sv.gioi@edupilot.local", fullName: "Người Thử" }));
+    });
+    await page.goto("/login?next=%2Fthreads");
+    await fillLogin(page, "sv.gioi@edupilot.local");
+    await expect(page).toHaveURL(/\/threads$/);
+    await page.waitForTimeout(2200); // đủ để lời gọi làm mới muộn trả về
+    await expect(page).toHaveURL(/\/threads$/);
+    await expect(page.locator("[data-part=topbar]")).toBeVisible();
+    expect(m.login).toBe(1);
+  });
+}
+
 test("no token in storage: không có JWT / refresh ở storage, cookie; tải lại ⇒ đúng một refresh, không nháy /login", async ({ page }) => {
   const m = await mockAuth(page, { role: "STUDENT", email: "sv.gioi@edupilot.local", refreshDelay: 150 });
   const visited: string[] = [];

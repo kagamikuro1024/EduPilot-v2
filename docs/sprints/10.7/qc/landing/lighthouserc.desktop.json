@@ -1,0 +1,3 @@
+{ "ci": { "collect": { "url": ["http://localhost:580/"], "numberOfRuns": 3,
+  "settings": { "preset": "desktop", "throttlingMethod": "devtools", "chromeFlags": "--no-sandbox --headless=new", "onlyCategories": ["performance"] } },
+  "upload": { "target": "filesystem", "outputDir": "./lh/desktop" } } }

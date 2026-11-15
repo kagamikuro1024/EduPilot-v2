@@ -85,7 +85,7 @@ func (h *Handler) presign(w http.ResponseWriter, r *http.Request) {
 		}
 		httpx.WriteJSON(w, http.StatusOK, out)
 	}
-	if in.Purpose == document.PurposeGradeImport { // nhập điểm chỉ TEACHER (TA → 403)
+	if in.Purpose == document.PurposeGradeImport || in.Purpose == document.PurposeFormsImport { // nhập điểm / nhập Forms chỉ TEACHER (TA → 403)
 		h.Guard(auth.TeacherRole)(http.HandlerFunc(issue)).ServeHTTP(w, r)
 		return
 	}

@@ -34,7 +34,7 @@ test.describe("states", () => {
     el.evaluate((e) => {
       const pick = (n: Element) => {
         const c = getComputedStyle(n);
-        return [c.backgroundColor, c.color, c.textDecorationLine + c.textDecorationColor, c.borderTopColor, c.boxShadow, c.fontWeight].join("|");
+        return [c.backgroundColor, getComputedStyle(n, "::before").backgroundColor, c.color, c.textDecorationLine + c.textDecorationColor, c.borderTopColor, c.boxShadow, c.fontWeight].join("|"); // ::before: đường ray của công tắc
       };
       const out = [pick(e), ...Array.from(e.children).map(pick), ...Array.from(e.parentElement?.children ?? []).map(pick)];
       for (let n = e.parentElement; n && !n.matches("[data-part=state-cell]"); n = n.parentElement) out.push(pick(n));

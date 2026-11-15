@@ -13,7 +13,9 @@ var (
 	ErrLimit         = errors.New("llmconfig: vượt hạn mức số lượng")
 	ErrDuplicateName = errors.New("llmconfig: trùng tên nhà cung cấp")
 	ErrKeyMissing    = errors.New("llmconfig: nhà cung cấp chưa có khoá")
-	ErrKeyUnreadable = errors.New("llmconfig: không đọc được khoá của nhà cung cấp")
+	// ErrDecisionRealDisabled: chọn mô hình decision THẬT khi LLM_DECISION_ALLOW_REAL tắt (409 DECISION_REAL_DISABLED).
+	ErrDecisionRealDisabled = errors.New("llmconfig: mô hình decision thật chưa được phép")
+	ErrKeyUnreadable        = errors.New("llmconfig: không đọc được khoá của nhà cung cấp")
 )
 
 // LimitError: vượt hạn mức số lượng (422 VALIDATION_FAILED "tối đa N"); errors.Is(err, ErrLimit) đúng.

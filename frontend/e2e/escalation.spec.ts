@@ -237,7 +237,7 @@ test("inbox send failure keeps draft: lỗi 500 giữ chữ, Thử lại dùng l
   expect(posts[1].headers["idempotency-key"]).toBe(posts[0].headers["idempotency-key"]);
 });
 
-test("inbox states: rỗng có Xem tất cả, lỗi có Thử lại mà không mất dữ liệu", async ({ page, context }) => {
+test("inbox states: rỗng không nút (tab Tất cả đã có), lỗi có Thử lại mà không mất dữ liệu", async ({ page, context }) => {
   await asDemo(context, "teacher");
   let mode: "empty" | "error" = "empty";
   await page.route("**/api/v1/courses/*/tickets**", (r) => {
@@ -245,14 +245,14 @@ test("inbox states: rỗng có Xem tất cả, lỗi có Thử lại mà không 
     return mode === "empty" ? r.fulfill(json({ items: [], next_cursor: null })) : r.fulfill(json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500));
   });
   await page.goto("/inbox");
-  await expect(page.getByText("Chưa có câu hỏi nào cần thầy/cô xử lý.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Xem tất cả" })).toBeVisible();
+  await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Xem tất cả" })).toHaveCount(0); // rỗng không lặp tab «Tất cả» (§23.4)
   mode = "error";
-  await page.getByRole("button", { name: "Xem tất cả" }).click();
+  await page.getByRole("radio", { name: "Tất cả" }).click();
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
   mode = "empty";
   await page.getByRole("button", { name: "Thử lại" }).click();
-  await expect(page.getByText("Chưa có câu hỏi nào cần thầy/cô xử lý.")).toBeVisible();
+  await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toBeVisible();
 });
 
 test("inbox all courses: chế độ Tất cả lớp của tôi gọi /me/tickets và mỗi dòng ghi mã lớp", async ({ page, context }) => {
@@ -390,7 +390,7 @@ test("observability failed mail: Admin thấy thư lỗi với người nhận �
   expect(await sec.innerText()).not.toMatch(/nguyen|payload|CANARY/i);
   rows = [];
   await page.reload();
-  await expect(page.getByText("Không có thư lỗi.")).toBeVisible();
+  await expect(page.getByText("Không có thư lỗi")).toBeVisible();
   await expect(sec.getByRole("button")).toHaveCount(0);
 
   await context.clearCookies();

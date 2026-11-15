@@ -26,9 +26,10 @@ func (q *Queries) CountLLMModelsByProvider(ctx context.Context, providerID uuid.
 }
 
 const countLLMProviders = `-- name: CountLLMProviders :one
-select count(*) from llm_providers
+select count(*) from llm_providers where type <> 'decision'
 `
 
+// Hạn mức 20 không tính nhà `decision` (hệ thống tự seed, 00020): thêm nhà chat không bị chiếm chỗ.
 func (q *Queries) CountLLMProviders(ctx context.Context) (int64, error) {
 	row := q.db.QueryRow(ctx, countLLMProviders)
 	var count int64
@@ -164,6 +165,8 @@ type InsertLLMAuditParams struct {
 	CourseID       *uuid.UUID
 	TraceID        string
 	CreatedAt      time.Time
+	CascadeGate    *string
+	CascadePath    *string
 }
 
 const insertLLMBudget = `-- name: InsertLLMBudget :one

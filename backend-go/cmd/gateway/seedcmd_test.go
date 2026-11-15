@@ -12,7 +12,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 
+	goredis "github.com/redis/go-redis/v9"
+
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/grading"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 	"github.com/edupilot/backend-go/internal/testutil"
 )
@@ -233,4 +237,26 @@ func TestSeedAgeAssignment(t *testing.T) {
 	require.Equal(t, 1, code)
 	code, _, _ = runSeed(t, seedEnv(w.url, "dev"), "seed-age", "--course", "761987", "--assignment", "BT03", "--activity")
 	require.Equal(t, 2, code, "hai chế độ một lúc")
+}
+
+// GD-BUG-9: `seed-guidance` ghi cờ thẳng DB thì phải PUBLISH `ep:guidance:flags` như PUT /guidance-flags — nếu không gateway chỉ thấy cờ sau ≤ 60 s.
+func TestSeedGuidancePublishesFlag(t *testing.T) {
+	w := newSeedWorld(t)
+	_, err := w.pool.Exec(t.Context(), `insert into assignments (course_id, title, description, type, max_score, due_at, rubric, created_by, submission_code, reference_answer)
+		values ($1, 'BT03', 'x', 'ESSAY', 10, now(), '[{"id":"c1","name":"Một","max_score":"10","guidance":""}]'::jsonb, $2, 'BT03', 'đáp án')`, w.course, w.teacher)
+	require.NoError(t, err)
+	redisURL := testutil.RedisURL(t)
+	rdb, err := appredis.New(t.Context(), redisURL)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = rdb.Close() })
+	sub := rdb.Subscribe(t.Context(), grading.FlagsChannel)
+	t.Cleanup(func() { _ = sub.Close() })
+	_, err = sub.Receive(t.Context()) // xác nhận đã đăng ký kênh trước khi seed
+	require.NoError(t, err)
+	env := adminEnv(w.url, map[string]string{"APP_ENV": "dev", "REDIS_URL": redisURL})
+	code, out, errOut := runSeed(t, env, "seed-guidance", "--course", "761987", "--assignment", "BT03")
+	require.Zero(t, code, errOut+out)
+	msg, err := sub.ReceiveTimeout(t.Context(), 3*time.Second)
+	require.NoError(t, err, "cờ đã đổi phải được PUBLISH ngay")
+	require.Equal(t, grading.FlagsChannel, msg.(*goredis.Message).Channel)
 }

@@ -55,16 +55,16 @@ export function PanelMatrix() {
     <section id="panel" className={s.root} data-part="panel-matrix" aria-label="Panel">
       <h2 className="ep-section-title">Panel</h2>
       <div className={s.cells}>
-        {(["md", "lg", "none"] as const).map((pad) => (
+        {(["md"] as const).map((pad) => (
           <Cell key={`c-${pad}`} name={`${pad} · chỉ nội dung`}>
-            <Panel padding={pad} aria-label={`${pad} · chỉ nội dung`}>
-              <p className={pad === "none" ? s.padText : s.text}>Nội dung một vùng làm việc.</p>
+            <Panel aria-label={`${pad} · chỉ nội dung`}>
+              <p className={s.text}>Nội dung một vùng làm việc.</p>
             </Panel>
           </Cell>
         ))}
-        {(["md", "lg", "none"] as const).map((pad) => (
+        {(["md"] as const).map((pad) => (
           <Cell key={`s-${pad}`} name={`${pad} · hai PanelSection`}>
-            <Panel padding={pad} aria-label={`${pad} · hai PanelSection`}>
+            <Panel aria-label={`${pad} · hai PanelSection`}>
               <PanelSection title="Nhóm thứ nhất">
                 <p className={s.text}>Hai nhóm liền nhau ngăn bằng một đường kẻ 1 px.</p>
               </PanelSection>
@@ -86,7 +86,7 @@ export function PanelMatrix() {
           </Panel>
         </Cell>
         <Cell name="DataTable trong panel">
-          <Panel padding="none" aria-label="DataTable trong panel">
+          <Panel aria-label="DataTable trong panel">
             <DataTable caption="Điểm" columns={COLS} rows={ROWS} rowKey={(r) => r.id} />
           </Panel>
         </Cell>
@@ -115,7 +115,7 @@ export function PanelMatrix() {
           {(["loading", "empty", "error"] as const).map((st) => (
             <Cell key={st} name={`PageState ${st}`}>
               <Panel aria-label={`PageState ${st}`}>
-                <PageState state={st} empty={<EmptyState title="Chưa có gì ở đây.">Khi có dữ liệu, nó hiện ở đây.</EmptyState>}>
+                <PageState state={st} empty={<EmptyState title="Chưa có gì ở đây." />}>
                   <Section title="Nội dung"><p className={s.text}>Có dữ liệu.</p></Section>
                 </PageState>
               </Panel>

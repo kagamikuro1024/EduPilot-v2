@@ -26,7 +26,10 @@ const (
 	KindBadResponse   Kind = "BAD_RESPONSE" // trả về sai định dạng / sai schema
 	KindDimsMismatch  Kind = "DIMS_MISMATCH"
 	KindCancelled     Kind = "CANCELLED"
-	KindReplayMiss    Kind = "REPLAY_MISS"
+	// KindBlocked: decision model từ chối đầu vào vì bộ lọc nội dung (HTTP 400 `safety` / `prohibited_content` / `blocklist` / `content_blocked`).
+	// Không phải lỗi hệ thống: không thử lại, không chuyển nhà, không tính vào cầu dao; cascade coi là phân vân → FALLBACK (TL-1 10.5).
+	KindBlocked    Kind = "SAFETY_BLOCK"
+	KindReplayMiss Kind = "REPLAY_MISS"
 )
 
 // Retryable: thử lại cùng nhà cung cấp.

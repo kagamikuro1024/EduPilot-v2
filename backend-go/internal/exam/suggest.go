@@ -132,7 +132,8 @@ func mcqPromptInput(p SuggestPayload) string {
 }
 
 func (w *Worker) suggestMCQ(ctx context.Context, j jobs.JobCtx, p SuggestPayload) (any, error) {
-	raw, err := w.llmCall(ctx, mcqPrompt, mcqPromptInput(p))
+	hint, _ := w.Hints.Of(ctx, w.Pool, p.CourseID)
+	raw, err := w.llmCall(ctx, mcqPrompt, mcqPromptInput(p)+hint)
 	if err != nil {
 		return nil, err
 	}
@@ -149,6 +150,10 @@ func (w *Worker) suggestMCQ(ctx context.Context, j jobs.JobCtx, p SuggestPayload
 	for i, a := range parsed.Questions {
 		if i >= p.Count {
 			res.Dropped = append(res.Dropped, Dropped{Index: i, Reason: "EXTRA"})
+			continue
+		}
+		if a.Type == TypeShort || a.Type == TypeEssay { // gợi ý AI chỉ sinh trắc nghiệm / đúng–sai; SHORT / ESSAY nhập tay hoặc trích từ đề
+			res.Dropped = append(res.Dropped, Dropped{Index: i, Reason: "TYPE_NOT_SUPPORTED"})
 			continue
 		}
 		in := QuestionIn{Type: a.Type, Title: a.Title, Topic: p.Topic, Difficulty: a.Difficulty, Stem: a.Stem, Value: a.Value}

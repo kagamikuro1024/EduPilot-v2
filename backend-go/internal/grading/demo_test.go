@@ -58,6 +58,8 @@ func TestDemoModeRecordingsCoverPolicies(t *testing.T) {
 		case strings.HasSuffix(r.Name, "suggest-rubric"):
 			require.NoError(t, llm.ValidateJSON(grading.SuggestSchema, r.Response), r.Name)
 			got["suggest"]++
+		case strings.HasPrefix(r.Name, "practice-"): // luyện đề: kiểm ở internal/practice (demo_fixture_test.go)
+			continue
 		default: // bt03-sN-p1|p2: bản chấm mẫu của BA (sprint 9)
 			require.NoError(t, llm.ValidateJSON(grading.EssaySchema(rubric), r.Response), r.Name)
 			got["grading"]++

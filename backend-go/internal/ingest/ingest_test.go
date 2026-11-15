@@ -148,6 +148,9 @@ type embedStub struct {
 	fail    atomic.Int32 // số lần đầu trả lỗi tạm thời
 }
 
+func (e *embedStub) Decide(context.Context, llm.DecideRequest) (llm.DecideResponse, error) {
+	return llm.DecideResponse{}, errors.New("embedStub: không dùng Decide")
+}
 func (e *embedStub) Chat(context.Context, llm.Request) (llm.Response, error) {
 	return llm.Response{}, nil
 }

@@ -42,18 +42,18 @@ with input as (
   for update of e
 ), ups as (
   insert into grade_entries (course_id, item_id, student_id, score, source, entered_by)
-  select $3, $4, i.student_id, i.score, 'IMPORT', $5
+  select $3, $4, i.student_id, i.score, $5::grade_entry_source, $6
   from input i left join old o on o.student_id = i.student_id
   where o.id is null or o.score is distinct from i.score
   on conflict (item_id, student_id) do update
-    set score = excluded.score, source = 'IMPORT', entered_by = excluded.entered_by, version = grade_entries.version + 1, updated_at = now()
+    set score = excluded.score, source = excluded.source, entered_by = excluded.entered_by, version = grade_entries.version + 1, updated_at = now()
   returning student_id, score, version, (xmax = 0) as inserted
 ), aud as (
   insert into audit_log (course_id, actor_id, entity, entity_id, action, before, after)
-  select $3, $5, 'grade_entries', $4::text || ':' || u.student_id::text, 'set',
+  select $3, $6, 'grade_entries', $4::text || ':' || u.student_id::text, 'set',
          case when o.id is null then null
-              else jsonb_build_object('student_id', u.student_id, 'item_id', $4::uuid, 'item_key', $6::text, 'score', o.score::text, 'version', o.version) end,
-         jsonb_build_object('student_id', u.student_id, 'item_id', $4::uuid, 'item_key', $6::text, 'score', u.score::text, 'version', u.version)
+              else jsonb_build_object('student_id', u.student_id, 'item_id', $4::uuid, 'item_key', $7::text, 'score', o.score::text, 'version', o.version) end,
+         jsonb_build_object('student_id', u.student_id, 'item_id', $4::uuid, 'item_key', $7::text, 'score', u.score::text, 'version', u.version)
   from ups u left join old o on o.student_id = u.student_id
   returning 1
 )
@@ -67,6 +67,7 @@ type GradeImportApplyParams struct {
 	Scores     []string
 	CourseID   uuid.UUID
 	ItemID     uuid.UUID
+	Source     GradeEntrySource
 	ActorID    uuid.UUID
 	ItemKey    string
 }
@@ -84,6 +85,7 @@ func (q *Queries) GradeImportApply(ctx context.Context, arg GradeImportApplyPara
 		arg.Scores,
 		arg.CourseID,
 		arg.ItemID,
+		arg.Source,
 		arg.ActorID,
 		arg.ItemKey,
 	)

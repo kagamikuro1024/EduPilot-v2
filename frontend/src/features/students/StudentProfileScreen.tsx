@@ -11,9 +11,9 @@ export function StudentProfileScreen({ id }: { id: string }) {
   if (realPending) return null;
   if ((role !== "teacher" && role !== "ta") || !realCourseId || realCourseId === "all")
     return (
-      <Page>
+      <Page kind="work">
         <PageHeader title="Hồ sơ sinh viên" back={{ href: "/students", label: "Sinh viên" }} />
-        <Panel><EmptyState title={realCourseId === "all" ? "Chọn một lớp để xem hồ sơ." : "Chưa có lớp nào."} /></Panel>
+        <Panel><EmptyState title={realCourseId === "all" ? "Chọn một lớp để xem hồ sơ" : "Chưa có lớp nào"} /></Panel>
       </Page>
     );
   return (

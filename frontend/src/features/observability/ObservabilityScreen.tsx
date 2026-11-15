@@ -6,19 +6,11 @@ import { NOW, fmtScore, fmtTime } from "@/mock/core";
 import { COURSE_SUMMARY, REQUESTS, STATUS_LABEL, STATUS_STRIP, type LlmRequest } from "@/mock/system";
 import { useSession } from "@/shared/session/session";
 import { Button, type Column, DataTable, DefinitionList, Drawer, EmptyState, Field, InlineNotice, Page, PageHeader, PageState, Panel, Section, SegmentedControl, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { DecisionTable } from "./DecisionTable";
 import { FailedMail } from "./FailedMail";
 import s from "./observability.module.css";
 
 type SummaryRow = { label: string; value: string; hint?: string };
-
-/** Số "hôm nay": một dòng chữ, không dải ô số liệu cùng cỡ (US-UX91-17 AC3). Số 7 ngày nằm ở bảng bên dưới, mỗi chỉ số đúng một chỗ. */
-export function TodayLine({ items }: { items: Array<{ label: string; value: string; hint?: string }> }) {
-  return (
-    <p className={s.today} data-part="obs-today">
-      {items.map((m) => `${m.label} ${m.value}${m.hint ? ` (${m.hint})` : ""}`).join(" · ")}
-    </p>
-  );
-}
 
 type Filter = "all" | "problem" | "privacy";
 
@@ -82,18 +74,13 @@ export function ObservabilityScreen() {
   }
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader
         title="Quan sát AI"
         meta={
-          <>
-            <span>Thứ Năm, 29 tháng 10 · 09:20</span>
-            <span>{isAdmin ? "Toàn hệ thống" : course.label}</span>
-          </>
+          [<span key="m0">Thứ Năm, 29 tháng 10 · 09:20</span>, ...(isAdmin ? [<span key="m1">Toàn hệ thống</span>] : [])]
         }
       />
-
-      {isAdmin && <FailedMail />}
 
       <PageState
         loading={
@@ -104,31 +91,39 @@ export function ObservabilityScreen() {
             </div>
           </Panel>
         }
-        empty={<Panel><EmptyState title="Chưa có yêu cầu nào trong hôm nay">Khi sinh viên hỏi hoặc việc nền chạy, mỗi yêu cầu gửi tới model sẽ xuất hiện ở đây kèm độ trễ và kết quả.</EmptyState></Panel>}
+        empty={<Panel><EmptyState title="Chưa có yêu cầu nào trong hôm nay" /></Panel>}
         error={{
           problem: "Không đọc được số liệu quan sát trong 5 phút gần nhất.",
-          recovery: "Việc ghi nhật ký vẫn chạy, không mất dữ liệu. Thử lại; nếu vẫn lỗi, xem hàng chờ xử lý lỗi trước khi đổi cấu hình.",
         }}
       >
-        <TodayLine items={STATUS_STRIP} />
+        {isAdmin && <FailedMail />}
+        <Section title="Hôm nay">
+          <div data-part="obs-today">
+            <DefinitionList items={STATUS_STRIP.map((m) => ({ term: m.label, value: m.hint ? `${m.value} (${m.hint})` : m.value }))} />
+          </div>
+        </Section>
 
         {!isAdmin && (
-          <Section panel title={`Lớp ${course.code} trong 7 ngày`}>
-            <DataTable
-              caption="Số liệu 7 ngày của lớp"
-              columns={[
-                { key: "label", header: "Chỉ số", primary: true, render: (m: SummaryRow) => m.label },
-                { key: "value", header: "Giá trị", render: (m: SummaryRow) => m.value },
-                { key: "hint", header: "Ghi chú", render: (m: SummaryRow) => m.hint ?? "—" },
-              ]}
-              rows={COURSE_SUMMARY[course.id] ?? []}
-              rowKey={(m: SummaryRow) => m.label}
-              dense
-            />
+          <Section title={`Lớp ${course.code} trong 7 ngày`}>
+            {(COURSE_SUMMARY[course.id] ?? []).length === 0 ? (
+              <EmptyState title="Chưa có số liệu" />
+            ) : (
+              <DataTable
+                caption="Số liệu 7 ngày của lớp"
+                columns={[
+                  { key: "label", header: "Chỉ số", primary: true, render: (m: SummaryRow) => m.label },
+                  { key: "value", header: "Giá trị", render: (m: SummaryRow) => m.value },
+                  { key: "hint", header: "Ghi chú", render: (m: SummaryRow) => m.hint ?? "—" },
+                ]}
+                rows={COURSE_SUMMARY[course.id] ?? []}
+                rowKey={(m: SummaryRow) => m.label}
+                dense
+              />
+            )}
           </Section>
         )}
 
-        <Section panel
+        <Section
           title={`${rows.length} yêu cầu gần nhất`}
           action={
             <SegmentedControl
@@ -143,17 +138,22 @@ export function ObservabilityScreen() {
             />
           }
         >
-          <DataTable
-            caption="Yêu cầu gửi tới model, mới nhất trước"
-            columns={columns}
-            rows={rows}
-            rowKey={(r) => r.id}
-            dense
-            onRowClick={isAdmin ? (r) => setOpen(r) : undefined}
-            activeKey={open?.id}
-            empty={<p className={s.sub}>Không có yêu cầu nào khớp bộ lọc này.</p>}
-          />
+          {rows.length === 0 ? (
+            <EmptyState title="Không có yêu cầu khớp bộ lọc" />
+          ) : (
+            <DataTable
+              caption="Yêu cầu gửi tới model, mới nhất trước"
+              columns={columns}
+              rows={rows}
+              rowKey={(r) => r.id}
+              dense
+              onRowClick={isAdmin ? (r) => setOpen(r) : undefined}
+              activeKey={open?.id}
+            />
+          )}
         </Section>
+
+        {isAdmin && <DecisionTable />}
 
         {isAdmin && open && (
           <Drawer

@@ -96,7 +96,7 @@ test("student today: chỉ có yêu cầu chờ duyệt ⇒ 'Chờ giảng viên
   await expect(main(page).locator('[data-variant="primary"]').filter({ hasNotText: "Tiếp tục" })).toHaveCount(0);
 });
 
-test("student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không có việc gấp.' + dòng thời gian; 'Tiếp tục học' ẩn khi rỗng", async ({ page }) => {
+test("student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không có việc gấp' + dòng thời gian; 'Tiếp tục học' ẩn khi rỗng", async ({ page }) => {
   await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () =>
     student({
       timeline: [
@@ -105,7 +105,7 @@ test("student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không c
       ],
     }),
   );
-  await expect(page.getByText("Hôm nay bạn không có việc gấp.")).toBeVisible();
+  await expect(page.getByText("Hôm nay bạn không có việc gấp")).toBeVisible();
   await expect(page.getByText("Buổi 10 · An ninh mạng")).toBeVisible();
   await expect(page.getByText("Đang diễn ra")).toBeVisible();
   await expect(page.getByText("Sắp tới")).toBeVisible();
@@ -141,7 +141,7 @@ test("student today: thứ tự Hôm nay trước Tiếp tục học; phiên cù
 
 test("student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today", async ({ page }) => {
   const st = await open(page, "STUDENT", [mine(C1, "761988", "STUDENT"), mine(C2, "761987", "STUDENT")], () => student());
-  await expect(page.getByText("Hôm nay bạn không có việc gấp.")).toBeVisible();
+  await expect(page.getByText("Hôm nay bạn không có việc gấp")).toBeVisible();
   expect(st.calls[0]).toBe(`/courses/${C1}/today`);
 });
 
@@ -238,7 +238,7 @@ test("staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ 
 test("staff today: TA không có nút Bỏ qua; 0 việc ⇒ 'Không có việc cần xử lý hôm nay.'", async ({ page }) => {
   await open(page, "TA", [mine(C1, "761988", "TA")], () => staff([]));
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Không có việc cần xử lý hôm nay.");
-  await expect(page.getByText("Bạn đã xử lý hết việc.")).toBeVisible();
+  await expect(page.getByText("Bạn đã xử lý hết việc")).toBeVisible();
 });
 
 test("admin today: việc của hệ thống, không có lớp", async ({ page }) => {
@@ -323,6 +323,6 @@ test("staff attention block: liệt kê sinh viên + lý do ngắn + Xem tất c
 
 test("staff attention block: không có AT_RISK thì không hiện khối", async ({ page }) => {
   await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff([]));
-  await expect(main(page).getByText("Bạn đã xử lý hết việc.")).toBeVisible();
+  await expect(main(page).getByText("Bạn đã xử lý hết việc")).toBeVisible();
   await expect(main(page).getByRole("heading", { name: "Lớp cần chú ý" })).toHaveCount(0);
 });

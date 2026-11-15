@@ -3,9 +3,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ApiError, apiClient, fieldErrors } from "@/shared/data";
-import { Button, ButtonLink, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, Section, Skeleton, Switch } from "@/shared/ui";
+import { Button, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, Section, Skeleton, Switch } from "@/shared/ui";
 import s from "./ClassSettings.module.css";
 import { classKey, useClassCourse, type JoinInfo } from "./classApi";
+import { GuidanceFlagsSection } from "./GuidanceFlagsSection";
 import { RiskSection } from "./RiskSection";
 import { StudyTimeSetting } from "./StudyTimeSetting";
 import { ThresholdSection } from "./ThresholdSection";
@@ -15,12 +16,12 @@ import { dateInputValue } from "@/shared/lib/datetime";
 /** Mã tham gia và cài đặt tham gia của lớp. Giảng viên sửa; TA chỉ xem (không thấy nút tạo lại mã). */
 export function ClassSettings() {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page><PageHeader title="Mã và cài đặt tham gia" /><Panel><Skeleton lines={4} /></Panel></Page>;
+  if (cc.state === "loading") return <Page kind="read"><PageHeader title="Mã và cài đặt tham gia" /><Panel><Skeleton lines={4} /></Panel></Page>;
   if (cc.state === "none") {
     return (
-      <Page>
+      <Page kind="read">
         <PageHeader title="Mã và cài đặt tham gia" />
-        <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên. Quản trị viên mở lớp ở mục Lớp học.</EmptyState></Panel>
+        <Panel><EmptyState title="Chưa chọn lớp" /></Panel>
       </Page>
     );
   }
@@ -60,15 +61,12 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
   }
 
   return (
-    <Page>
-      <PageHeader
-        title="Mã và cài đặt tham gia"
-        actions={<ButtonLink href="/class/members">Thành viên lớp</ButtonLink>}
-      />
+    <Page kind="read">
+      <PageHeader title="Mã và cài đặt tham gia" secondary={[{ label: "Thành viên lớp", href: "/class/members" }]} />
       <PageState query={{ isPending: q.isPending, isError: q.isError, error: q.error, data: q.data, refetch: q.refetch }} showTechnical>
         {info && (
           <>
-            <Section panel title="Mã tham gia">
+            <Section title="Mã tham gia">
               <div className={s.codeRow}>
                 <p className={s.code} data-part="join-code">{info.join_code}</p>
                 <div className={s.actions}>
@@ -80,7 +78,7 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
                 <p className={s.readonly}>{info.active_students} sinh viên đang học{info.pending > 0 ? ` · ${info.pending} chờ duyệt` : ""}.</p>
               </div>
             </Section>
-            <Section panel title="Cài đặt tham gia">
+            <Section title="Cài đặt tham gia">
               {/* key theo version: bản mới từ máy chủ (lưu xong, “Dùng bản mới”, tạo lại mã) nạp lại form từ đầu */}
               <SettingsForm
                 key={info.version}
@@ -101,6 +99,7 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
             <ThresholdSection courseId={courseId} canManage={canManage} />
             <RiskSection courseId={courseId} canManage={canManage} />
             <StudyTimeSetting courseId={courseId} canManage={canManage} />
+            <GuidanceFlagsSection courseId={courseId} canManage={canManage} />
             {canManage && <ShareSection courseId={courseId} />}
           </>
         )}
@@ -145,8 +144,7 @@ function SettingsForm({ courseId, info, canManage, saved, onSaved, onReload }: {
         expires_at: expires ? `${expires}T23:59:59+07:00` : null,
         capacity: capacity.trim() === "" ? null : Number(capacity),
         allowed_email_domain: domain.trim() === "" ? null : domain.trim(),
-        version,
-      });
+        version });
       onSaved(data);
     } catch (err) {
       if (err instanceof ApiError && err.code === "VERSION_CONFLICT" && err.conflict) setConflict(err.conflict.current as JoinInfo);
@@ -211,8 +209,7 @@ type ShareSource = { id: string; class_code: string; name: string; semester: str
 function ShareSection({ courseId }: { courseId: string }) {
   const sources = useQuery({
     queryKey: classKey(courseId, "share-sources"),
-    queryFn: async ({ signal }) => (await apiClient.get<{ items: ShareSource[] }>(`/courses/${courseId}/share-sources`, { signal })).data.items,
-  });
+    queryFn: async ({ signal }) => (await apiClient.get<{ items: ShareSource[] }>(`/courses/${courseId}/share-sources`, { signal })).data.items });
   const [busy, setBusy] = useState<string | null>(null);
   const [results, setResults] = useState<Record<string, string>>({});
 
@@ -231,7 +228,7 @@ function ShareSection({ courseId }: { courseId: string }) {
 
   if (!sources.data || sources.data.length === 0) return null;
   return (
-    <Section panel title="Dùng lại nội dung từ lớp khác">
+    <Section title="Dùng lại nội dung từ lớp khác">
       <ul className={s.sources}>
         {sources.data.map((src) => (
           <li key={src.id} className={s.source}>

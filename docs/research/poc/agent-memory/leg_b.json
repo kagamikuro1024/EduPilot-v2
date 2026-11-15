@@ -1,0 +1,1138 @@
+{
+ "labels": {
+  "S1": {
+   "c1": 2.5,
+   "c2": 2.0,
+   "c3": 2.0,
+   "c4": 2.5
+  },
+  "S2": {
+   "c1": 1.75,
+   "c2": 1.5,
+   "c3": 1.0,
+   "c4": 1.5
+  },
+  "S3": {
+   "c1": 1.0,
+   "c2": 0.5,
+   "c3": 0.5,
+   "c4": 1.0
+  },
+  "S5": {
+   "c1": 0.0,
+   "c2": 0.0,
+   "c3": 0.0,
+   "c4": 0.0
+  },
+  "S6": {
+   "c1": 1.5,
+   "c2": 1.0,
+   "c3": 1.0,
+   "c4": 1.0
+  },
+  "S7": {
+   "c1": 2.0,
+   "c2": 1.0,
+   "c3": 2.0,
+   "c4": 2.0
+  }
+ },
+ "B0": {
+  "1": {
+   "S1": {
+    "scores": {
+     "c1": 2.5,
+     "c2": 2.5,
+     "c3": 2.5,
+     "c4": 2.5
+    },
+    "comments": {
+     "c1": "Xác định chính xác tác nhân đứng sau vụ việc và làm rõ bề mặt tấn công là hệ thống dựng phần mềm chứ không phải máy chủ khách hàng.",
+     "c2": "Mô tả chuỗi tấn công mạch lạc, đầy đủ các bước tuần tự và các căn cứ kỹ thuật then chốt.",
+     "c3": "Đánh giá đầy đủ các mặt tác động, dẫn chứng số liệu công khai chính xác và nêu rõ việc không có số liệu cho phần thời gian gián đoạn.",
+     "c4": "Đưa ra các giải pháp phòng thủ cụ thể, gắn chặt chẽ với từng giai đoạn và kỹ thuật của chuỗi tấn công."
+    },
+    "quotes": {
+     "c1": [
+      "Về tác nhân, các hãng an ninh và cơ quan chính phủ Mỹ quy cho nhóm APT29, còn gọi là Cozy Bear, một nhóm có tài trợ nhà nước, ưu tiên gián điệp dài hạn.",
+      "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds, nơi mã nguồn được biên dịch rồi ký số trước khi phát hành. Máy chủ của khách hàng không phải điểm vào ban đầu."
+     ],
+     "c2": [
+      "Chuỗi tấn công có năm bước. Một, kẻ tấn công xâm nhập môi trường dựng phần mềm. Hai, chúng cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll của bản phát hành chính thức.",
+      "Ba, bản cập nhật vẫn mang chữ ký hợp lệ nên được phát tới khoảng 18.000 tổ chức mà không bị nghi ngờ."
+     ],
+     "c3": [
+      "Về tác động, nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng khoá, chứng thư. Thiệt hại lớn nhất là niềm tin vào chuỗi cung ứng phần mềm. SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la. Em không tìm được số liệu công khai về thời gian gián đoạn của từng tổ chức nên không nêu con số."
+     ],
+     "c4": [
+      "Về phòng thủ, em đề xuất phân đoạn mạng để máy chủ giám sát không ra Internet trực tiếp, xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, xoay vòng khoá ký, kiểm tra toàn vẹn bản dựng bằng quy trình build tái lập được kèm SBOM, và giám sát hành vi bất thường của tiến trình hợp lệ như Orion mở kết nối DNS tới tên miền lạ."
+     ]
+    },
+    "tokens_in": 4556
+   },
+   "S2": {
+    "scores": {
+     "c1": 1.75,
+     "c2": 1.25,
+     "c3": 1.0,
+     "c4": 1.25
+    },
+    "comments": {
+     "c1": "Xác định đúng tác nhân APT29 nhưng chưa làm rõ bề mặt bị khai thác cụ thể là môi trường dựng phần mềm/hệ thống build.",
+     "c2": "Nêu được khung các bước cơ bản và mã độc SUNBURST, nhưng thiếu các căn cứ kỹ thuật then chốt như ký số hợp lệ, tên miền C2, và kỹ thuật giai đoạn sau (Golden SAML, di chuyển ngang).",
+     "c3": "Nêu được tác động định tính về vận hành và uy tín, nhưng thiếu hoàn toàn số liệu công khai cụ thể và không nói rõ tình trạng số liệu.",
+     "c4": "Đã đề cập đến xác thực và bảo vệ quy trình dựng nhưng giải pháp còn khái quát, chưa gắn cụ thể với kỹ thuật tấn công (thiếu SBOM, phân đoạn mạng máy chủ quản trị, build tái lập)."
+    },
+    "quotes": {
+     "c1": [
+      "Kẻ tấn công là nhóm APT29, có liên quan tới nhà nước",
+      "Chúng nhắm vào SolarWinds, công ty làm phần mềm Orion để quản lý mạng"
+     ],
+     "c2": [
+      "chèn mã độc SUNBURST vào bản cập nhật Orion",
+      "Khoảng 18.000 tổ chức nhận bản cập nhật, nhưng chỉ một số ít bị khai thác sâu hơn."
+     ],
+     "c3": [
+      "SolarWinds mất nhiều tiền để xử lý sự cố và mất uy tín với khách hàng."
+     ],
+     "c4": [
+      "dùng xác thực hai yếu tố và theo dõi lưu lượng mạng để phát hiện kết nối lạ. Nhà cung cấp phần mềm cũng nên bảo vệ tốt hơn quy trình dựng và phát hành."
+     ]
+    },
+    "tokens_in": 4496
+   },
+   "S3": {
+    "scores": {
+     "c1": 0.25,
+     "c2": 0.0,
+     "c3": 0.25,
+     "c4": 0.25
+    },
+    "comments": {
+     "c1": "Chưa xác định được tác nhân cụ thể và không phân tích bề mặt tấn công là hệ thống build/quy trình phát hành.",
+     "c2": "Hoàn toàn thiếu chuỗi tấn công chi tiết, không nêu được các kỹ thuật hay công cụ then chốt.",
+     "c3": "Đánh giá tác động rất sơ sài, mang tính chung chung và không có số liệu dẫn chứng.",
+     "c4": "Biện pháp đưa ra quá chung chung, không phù hợp và không giải quyết được bản chất của tấn công chuỗi cung ứng."
+    },
+    "quotes": {
+     "c1": [
+      "Hacker làm cho phần mềm có virus"
+     ],
+     "c2": [],
+     "c3": [
+      "nhiều công ty bị ảnh hưởng. Vụ này rất nghiêm trọng vì nhiều nơi dùng phần mềm này."
+     ],
+     "c4": [
+      "Để phòng chống thì cần cài phần mềm diệt virus và đặt mật khẩu mạnh."
+     ]
+    },
+    "tokens_in": 4241
+   },
+   "S5": {
+    "scores": {
+     "c1": 0.0,
+     "c2": 0.0,
+     "c3": 0.0,
+     "c4": 0.0
+    },
+    "comments": {
+     "c1": "Bài làm hoàn toàn không đề cập đến tác nhân hay bề mặt tấn công của vụ SolarWinds Orion.",
+     "c2": "Không có nội dung phân tích chuỗi tấn công của vụ việc theo yêu cầu.",
+     "c3": "Không đánh giá các tác động liên quan đến vụ tấn công SolarWinds.",
+     "c4": "Nội dung chỉ nói về đặt mật khẩu Wi-Fi gia đình, không đưa ra biện pháp phòng thủ chuỗi cung ứng phần mềm."
+    },
+    "quotes": {
+     "c1": [],
+     "c2": [],
+     "c3": [],
+     "c4": []
+    },
+    "tokens_in": 4043
+   },
+   "S6": {
+    "scores": {
+     "c1": 2.25,
+     "c2": 1.0,
+     "c3": 0.5,
+     "c4": 0.75
+    },
+    "comments": {
+     "c1": "Xác định đúng tác nhân APT29 và bề mặt tấn công là quy trình dựng phần mềm.",
+     "c2": "Chuỗi tấn công còn sơ sài, thiếu các bước quan trọng như thời gian nằm im, kỹ thuật C2, di chuyển ngang và Golden SAML.",
+     "c3": "Đánh giá tác động quá khái quát, thiếu các khía cạnh chi phí, dữ liệu, niềm tin và không có số liệu minh chứng.",
+     "c4": "Biện pháp phòng thủ còn chung chung, chưa liên hệ trực tiếp với bài toán bảo vệ chuỗi cung ứng phần mềm và môi trường dựng."
+    },
+    "quotes": {
+     "c1": [
+      "Nhóm APT29 xâm nhập vào quy trình dựng phần mềm của SolarWinds"
+     ],
+     "c2": [
+      "chèn mã độc SUNBURST vào bản cập nhật Orion. Bản cập nhật vẫn có chữ ký hợp lệ nên các khách hàng cài đặt mà không nghi ngờ. Sau đó mã độc kết nối ra ngoài để nhận lệnh."
+     ],
+     "c3": [
+      "Tác động là nhiều tổ chức phải kiểm tra lại hệ thống."
+     ],
+     "c4": [
+      "nên dùng xác thực nhiều lớp và theo dõi hoạt động bất thường trong mạng nội bộ."
+     ]
+    },
+    "tokens_in": 4562
+   },
+   "S7": {
+    "scores": {
+     "c1": 2.5,
+     "c2": 2.5,
+     "c3": 2.5,
+     "c4": 2.5
+    },
+    "comments": {
+     "c1": "Xác định chính xác tác nhân tấn công và bề mặt bị xâm nhập ở môi trường dựng phần mềm của nhà cung cấp.",
+     "c2": "Phân tích đầy đủ, tuần tự chuỗi tấn công kèm các dẫn chứng kỹ thuật, công cụ và số liệu mục tiêu cụ thể.",
+     "c3": "Đánh giá toàn diện các khía cạnh tác động, có số liệu chi phí công khai và nêu rõ giới hạn dữ liệu chưa thu thập được.",
+     "c4": "Đề xuất biện pháp phòng thủ xác đáng, gắn liền với các kỹ thuật tấn công đã phân tích."
+    },
+    "quotes": {
+     "c1": [
+      "Tác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước, hoạt động kiên trì và ưu tiên gián điệp hơn phá hoại. Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng."
+     ],
+     "c2": [
+      "Kẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll.",
+      "Khoảng 18.000 tổ chức tải bản cập nhật có mã độc, nhưng kẻ tấn công chỉ chọn khoảng 100 mục tiêu để khai thác tiếp."
+     ],
+     "c3": [
+      "Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó.",
+      "Em chưa tìm được số liệu đáng tin về thời gian gián đoạn dịch vụ của từng tổ chức bị ảnh hưởng, nên phần đánh giá tác động vận hành ở đây mới dừng ở mức định tính."
+     ],
+     "c4": [
+      "(1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet, (2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ, (3) kiểm tra tính toàn vẹn của bản dựng bằng quy trình build tái lập được và bản kê thành phần phần mềm (SBOM).",
+      "Ngoài ra cần giám sát hành vi bất thường của tiến trình hợp lệ, ví dụ Orion tự mở kết nối DNS tới một tên miền lạ ngoài danh sách đã biết"
+     ]
+    },
+    "tokens_in": 5890
+   }
+  },
+  "2": {
+   "S1": {
+    "scores": {
+     "c1": 2.5,
+     "c2": 2.5,
+     "c3": 2.5,
+     "c4": 2.5
+    },
+    "comments": {
+     "c1": "Xác định chính xác tác nhân có tài trợ nhà nước và chỉ rõ bề mặt tấn công là hệ thống dựng phần mềm thay vì máy chủ của khách hàng.",
+     "c2": "Trình bày đầy đủ, tuần tự các bước tấn công với đầy đủ chi tiết kỹ thuật, công cụ và số liệu mục tiêu.",
+     "c3": "Đánh giá toàn diện các khía cạnh tác động, trích dẫn số liệu tài chính công khai và minh bạch về phần thông tin chưa có số liệu.",
+     "c4": "Đề xuất các biện pháp kỹ thuật cụ thể, thiết thực và bám sát từng mắt xích trong chuỗi tấn công."
+    },
+    "quotes": {
+     "c1": [
+      "các hãng an ninh và cơ quan chính phủ Mỹ quy cho nhóm APT29, còn gọi là Cozy Bear, một nhóm có tài trợ nhà nước, ưu tiên gián điệp dài hạn",
+      "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds, nơi mã nguồn được biên dịch rồi ký số trước khi phát hành. Máy chủ của khách hàng không phải điểm vào ban đầu."
+     ],
+     "c2": [
+      "Chuỗi tấn công có năm bước. Một, kẻ tấn công xâm nhập môi trường dựng phần mềm. Hai, chúng cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll của bản phát hành chính thức.",
+      "Ba, bản cập nhật vẫn mang chữ ký hợp lệ nên được phát tới khoảng 18.000 tổ chức mà không bị nghi ngờ."
+     ],
+     "c3": [
+      "Về tác động, nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng khoá, chứng thư. Thiệt hại lớn nhất là niềm tin vào chuỗi cung ứng phần mềm. SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la.",
+      "Em không tìm được số liệu công khai về thời gian gián đoạn của từng tổ chức nên không nêu con số."
+     ],
+     "c4": [
+      "phân đoạn mạng để máy chủ giám sát không ra Internet trực tiếp",
+      "xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, xoay vòng khoá ký"
+     ]
+    },
+    "tokens_in": 4906
+   },
+   "S2": {
+    "scores": {
+     "c1": 1.75,
+     "c2": 1.25,
+     "c3": 1.25,
+     "c4": 1.25
+    },
+    "comments": {
+     "c1": "Đã xác định đúng tác nhân APT29 có yếu tố nhà nước, nhưng chưa nêu bật rõ bề mặt tấn công cốt lõi là hệ thống dựng phần mềm (build system).",
+     "c2": "Mới tóm tắt được luồng chính nhưng thiếu nhiều mắt xích và căn cứ kỹ thuật quan trọng như ký số hợp lệ, cơ chế nằm im/giả mạo lưu lượng, và kỹ thuật leo thang giai đoạn hai (Golden SAML).",
+     "c3": "Đã đề cập đến các khía cạnh tác động về vận hành, chi phí và niềm tin, nhưng hoàn toàn thiếu số liệu định lượng công khai hoặc lời giải thích về tính sẵn có của số liệu.",
+     "c4": "Các giải pháp nêu ra phù hợp nhưng còn mang tính khái quát, thiếu các biện pháp chuyên sâu gắn với vụ việc như phân đoạn mạng máy chủ giám sát, kiểm tra toàn vẹn bản dựng hay bảo vệ khóa ký."
+    },
+    "quotes": {
+     "c1": [
+      "Kẻ tấn công là nhóm APT29, có liên quan tới nhà nước",
+      "Kẻ tấn công lọt vào hệ thống của SolarWinds và chèn mã độc SUNBURST vào bản cập nhật Orion"
+     ],
+     "c2": [
+      "chèn mã độc SUNBURST vào bản cập nhật Orion",
+      "Khoảng 18.000 tổ chức nhận bản cập nhật, nhưng chỉ một số ít bị khai thác sâu hơn."
+     ],
+     "c3": [
+      "SolarWinds mất nhiều tiền để xử lý sự cố và mất uy tín với khách hàng."
+     ],
+     "c4": [
+      "dùng xác thực hai yếu tố và theo dõi lưu lượng mạng để phát hiện kết nối lạ. Nhà cung cấp phần mềm cũng nên bảo vệ tốt hơn quy trình dựng và phát hành."
+     ]
+    },
+    "tokens_in": 4836
+   },
+   "S3": {
+    "scores": {
+     "c1": 0.25,
+     "c2": 0.0,
+     "c3": 0.25,
+     "c4": 0.5
+    },
+    "comments": {
+     "c1": "Chưa xác định được tác nhân cụ thể cũng như bề mặt tấn công là hệ thống dựng phần mềm.",
+     "c2": "Hoàn toàn không trình bày chuỗi tấn công và thiếu toàn bộ các mắt xích, căn cứ kỹ thuật.",
+     "c3": "Đánh giá tác động rất sơ sài, mang tính cảm tính, thiếu phân tích các khía cạnh và không có số liệu minh chứng.",
+     "c4": "Biện pháp đưa ra quá chung chung, không gắn với đặc thù của cuộc tấn công chuỗi cung ứng."
+    },
+    "quotes": {
+     "c1": [
+      "SolarWinds là công ty phần mềm bị hacker tấn công năm 2020."
+     ],
+     "c2": [],
+     "c3": [
+      "Hacker làm cho phần mềm có virus và nhiều công ty bị ảnh hưởng. Vụ này rất nghiêm trọng vì nhiều nơi dùng phần mềm này."
+     ],
+     "c4": [
+      "Để phòng chống thì cần cài phần mềm diệt virus và đặt mật khẩu mạnh."
+     ]
+    },
+    "tokens_in": 4621
+   },
+   "S5": {
+    "scores": {
+     "c1": 0.0,
+     "c2": 0.0,
+     "c3": 0.0,
+     "c4": 0.0
+    },
+    "comments": {
+     "c1": "Bài viết không đề cập đến vụ tấn công SolarWinds, tác nhân hay bề mặt tấn công theo yêu cầu.",
+     "c2": "Không có nội dung phân tích chuỗi tấn công SolarWinds Orion.",
+     "c3": "Không có nội dung đánh giá tác động của vụ việc SolarWinds.",
+     "c4": "Nội dung chỉ nói về đặt mật khẩu Wi-Fi gia đình, không liên quan đến các biện pháp phòng vệ chuỗi cung ứng."
+    },
+    "quotes": {
+     "c1": [],
+     "c2": [],
+     "c3": [],
+     "c4": []
+    },
+    "tokens_in": 3935
+   },
+   "S6": {
+    "scores": {
+     "c1": 2.25,
+     "c2": 1.0,
+     "c3": 0.25,
+     "c4": 0.75
+    },
+    "comments": {
+     "c1": "Xác định đúng tác nhân APT29 và bề mặt tấn công là quy trình dựng phần mềm, tuy nhiên phần trình bày còn ngắn gọn.",
+     "c2": "Mô tả được giai đoạn đầu của chuỗi tấn công và tên mã độc, nhưng thiếu toàn bộ giai đoạn sau (chọn lọc mục tiêu, di chuyển ngang, Golden SAML) và các thông số kỹ thuật chi tiết.",
+     "c3": "Đánh giá tác động quá sơ sài, thiếu các khía cạnh dữ liệu, chi phí, niềm tin và không cung cấp số liệu thực tế.",
+     "c4": "Biện pháp phòng thủ còn mang tính chung chung, chưa liên hệ chặt chẽ với đặc thù tấn công chuỗi cung ứng hay tính toàn vẹn bản dựng phần mềm."
+    },
+    "quotes": {
+     "c1": [
+      "Nhóm APT29 xâm nhập vào quy trình dựng phần mềm của SolarWinds"
+     ],
+     "c2": [
+      "xâm nhập vào quy trình dựng phần mềm của SolarWinds rồi chèn mã độc SUNBURST vào bản cập nhật Orion. Bản cập nhật vẫn có chữ ký hợp lệ nên các khách hàng cài đặt mà không nghi ngờ. Sau đó mã độc kết nối ra ngoài để nhận lệnh."
+     ],
+     "c3": [
+      "Tác động là nhiều tổ chức phải kiểm tra lại hệ thống."
+     ],
+     "c4": [
+      "Về phòng thủ, nên dùng xác thực nhiều lớp và theo dõi hoạt động bất thường trong mạng nội bộ."
+     ]
+    },
+    "tokens_in": 4699
+   },
+   "S7": {
+    "scores": {
+     "c1": 2.5,
+     "c2": 2.5,
+     "c3": 2.5,
+     "c4": 2.5
+    },
+    "comments": {
+     "c1": "Xác định chính xác tác nhân có tài trợ nhà nước và bề mặt tấn công là hệ thống dựng phần mềm.",
+     "c2": "Phân tích chuỗi tấn công chi tiết, tuần tự, có đủ các căn cứ kỹ thuật và công cụ chính.",
+     "c3": "Đánh giá đầy đủ các khía cạnh tác động, có số liệu minh chứng và chủ động nêu rõ giới hạn số liệu.",
+     "c4": "Đề xuất phòng thủ gắn liền với chuỗi tấn công, cụ thể và có tính khả thi cao."
+    },
+    "quotes": {
+     "c1": [
+      "Tác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước",
+      "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng."
+     ],
+     "c2": [
+      "Kẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll. Vì bản cập nhật vẫn được ký bằng chứng thư số hợp lệ của SolarWinds",
+      "Khoảng 18.000 tổ chức tải bản cập nhật có mã độc, nhưng kẻ tấn công chỉ chọn khoảng 100 mục tiêu để khai thác tiếp."
+     ],
+     "c3": [
+      "nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư",
+      "Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la"
+     ],
+     "c4": [
+      "(1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet",
+      "(2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ"
+     ]
+    },
+    "tokens_in": 5453
+   }
+  }
+ },
+ "B1": {
+  "1": {
+   "S1": {
+    "scores": {
+     "c1": 2.5,
+     "c2": 2.5,
+     "c3": 2.5,
+     "c4": 2.5
+    },
+    "comments": {
+     "c1": "Xác định chính xác tác nhân và phân tích đúng bề mặt tấn công tại môi trường dựng phần mềm thay vì máy chủ khách hàng.",
+     "c2": "Phân tích đầy đủ, mạch lạc chuỗi 5 bước tấn công với đầy đủ công cụ, kỹ thuật và số liệu minh chứng.",
+     "c3": "Đánh giá toàn diện các khía cạnh tác động từ vận hành, niềm tin đến chi phí cụ thể, đồng thời nêu rõ giới hạn số liệu chưa công khai.",
+     "c4": "Đề xuất các biện pháp phòng thủ cụ thể, xác đáng và gắn chặt với từng mắt xích trong chuỗi tấn công chuỗi cung ứng."
+    },
+    "quotes": {
+     "c1": [
+      "Về tác nhân, các hãng an ninh và cơ quan chính phủ Mỹ quy cho nhóm APT29, còn gọi là Cozy Bear, một nhóm có tài trợ nhà nước, ưu tiên gián điệp dài hạn.",
+      "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds, nơi mã nguồn được biên dịch rồi ký số trước khi phát hành. Máy chủ của khách hàng không phải điểm vào ban đầu."
+     ],
+     "c2": [
+      "Chuỗi tấn công có năm bước. Một, kẻ tấn công xâm nhập môi trường dựng phần mềm. Hai, chúng cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll của bản phát hành chính thức.",
+      "Ba, bản cập nhật vẫn mang chữ ký hợp lệ nên được phát tới khoảng 18.000 tổ chức mà không bị nghi ngờ."
+     ],
+     "c3": [
+      "nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng khoá, chứng thư. Thiệt hại lớn nhất là niềm tin vào chuỗi cung ứng phần mềm.",
+      "SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la. Em không tìm được số liệu công khai về thời gian gián đoạn của từng tổ chức nên không nêu con số."
+     ],
+     "c4": [
+      "phân đoạn mạng để máy chủ giám sát không ra Internet trực tiếp, xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, xoay vòng khoá ký, kiểm tra toàn vẹn bản dựng bằng quy trình build tái lập được kèm SBOM, và giám sát hành vi bất thường của tiến trình hợp lệ như Orion mở kết nối DNS tới tên miền lạ."
+     ]
+    },
+    "tokens_in": 5681
+   },
+   "S2": {
+    "scores": {
+     "c1": 1.5,
+     "c2": 1.25,
+     "c3": 1.0,
+     "c4": 1.0
+    },
+    "comments": {
+     "c1": "Xác định đúng tác nhân APT29 có tài trợ nhà nước, nhưng chưa phân tích rõ bề mặt tấn công cụ thể ở môi trường dựng phần mềm (build system) của nhà cung cấp.",
+     "c2": "Mô tả được khung cơ bản của chuỗi tấn công nhưng thiếu nhiều căn cứ kỹ thuật quan trọng như ký số hợp lệ, thời gian nằm im, kỹ thuật Golden SAML và di chuyển ngang.",
+     "c3": "Đánh giá tác động còn mang tính khái quát, thiếu các số liệu minh chứng cụ thể về chi phí hoặc tuyên bố rõ về giới hạn dữ liệu công khai.",
+     "c4": "Biện pháp phòng thủ nêu còn chung chung, chưa gắn kết sâu với các kỹ thuật tấn công chuỗi cung ứng đặc thù (như phân đoạn mạng cho máy chủ giám sát, build tái lập, SBOM)."
+    },
+    "quotes": {
+     "c1": [
+      "Kẻ tấn công là nhóm APT29, có liên quan tới nhà nước, nên bài này gọi đây là tấn công có tổ chức.",
+      "Chúng nhắm vào SolarWinds, công ty làm phần mềm Orion để quản lý mạng, vì nhiều tổ chức lớn dùng phần mềm này."
+     ],
+     "c2": [
+      "Kẻ tấn công lọt vào hệ thống của SolarWinds và chèn mã độc SUNBURST vào bản cập nhật Orion.",
+      "Khoảng 18.000 tổ chức nhận bản cập nhật, nhưng chỉ một số ít bị khai thác sâu hơn."
+     ],
+     "c3": [
+      "Tác động của vụ việc là nhiều cơ quan chính phủ Mỹ bị xâm nhập và phải kiểm tra lại toàn bộ hệ thống. SolarWinds mất nhiều tiền để xử lý sự cố và mất uy tín với khách hàng."
+     ],
+     "c4": [
+      "Để phòng thủ, các tổ chức nên cập nhật phần mềm cẩn thận, dùng xác thực hai yếu tố và theo dõi lưu lượng mạng để phát hiện kết nối lạ. Nhà cung cấp phần mềm cũng nên bảo vệ tốt hơn quy trình dựng và phát hành."
+     ]
+    },
+    "tokens_in": 5337
+   },
+   "S3": {
+    "scores": {
+     "c1": 0.25,
+     "c2": 0.25,
+     "c3": 0.25,
+     "c4": 0.25
+    },
+    "comments": {
+     "c1": "Chưa xác định được nhóm tác nhân cụ thể (APT29/Cozy Bear) và chưa phân tích bề mặt tấn công ở môi trường dựng phần mềm.",
+     "c2": "Thiếu hoàn toàn các bước phân tích chuỗi tấn công và các dẫn chứng kỹ thuật theo yêu cầu.",
+     "c3": "Đánh giá tác động quá sơ sài, thiếu các khía cạnh về dữ liệu, chi phí, vận hành và không có số liệu minh chứng.",
+     "c4": "Biện pháp đưa ra mang tính phổ thông, chung chung, chưa gắn với đặc thù phòng thủ tấn công chuỗi cung ứng."
+    },
+    "quotes": {
+     "c1": [
+      "SolarWinds là công ty phần mềm bị hacker tấn công năm 2020."
+     ],
+     "c2": [
+      "Hacker làm cho phần mềm có virus và nhiều công ty bị ảnh hưởng."
+     ],
+     "c3": [
+      "Vụ này rất nghiêm trọng vì nhiều nơi dùng phần mềm này."
+     ],
+     "c4": [
+      "Để phòng chống thì cần cài phần mềm diệt virus và đặt mật khẩu mạnh."
+     ]
+    },
+    "tokens_in": 5279
+   },
+   "S5": {
+    "scores": {
+     "c1": 0.0,
+     "c2": 0.0,
+     "c3": 0.0,
+     "c4": 0.0
+    },
+    "comments": {
+     "c1": "Bài viết không đề cập đến vụ tấn công SolarWinds Orion, không nêu tác nhân và bề mặt tấn công.",
+     "c2": "Không có nội dung phân tích chuỗi tấn công của vụ việc.",
+     "c3": "Không đánh giá tác động của chiến dịch tấn công chuỗi cung ứng theo yêu cầu.",
+     "c4": "Nội dung hoàn toàn lạc đề, không đưa ra biện pháp phòng thủ liên quan đến vụ tấn công SolarWinds."
+    },
+    "quotes": {
+     "c1": [],
+     "c2": [],
+     "c3": [],
+     "c4": []
+    },
+    "tokens_in": 4525
+   },
+   "S6": {
+    "scores": {
+     "c1": 2.0,
+     "c2": 1.0,
+     "c3": 0.5,
+     "c4": 1.0
+    },
+    "comments": {
+     "c1": "Xác định đúng tác nhân APT29 và chỉ ra chính xác bề mặt tấn công là quy trình dựng phần mềm.",
+     "c2": "Mô tả được các bước ban đầu nhưng còn sơ sài, thiếu các mắt xích then chốt ở giai đoạn sau (C2, di chuyển ngang, kỹ thuật Golden SAML và số lượng nạn nhân).",
+     "c3": "Đánh giá tác động quá sơ sài, thiếu các khía cạnh về dữ liệu, chi phí, niềm tin và không đưa ra số liệu minh chứng.",
+     "c4": "Đề xuất phòng thủ còn chung chung, chưa gắn trực tiếp với đặc thù bảo vệ chuỗi cung ứng phần mềm và môi trường phát hành bản dựng."
+    },
+    "quotes": {
+     "c1": [
+      "Nhóm APT29 xâm nhập vào quy trình dựng phần mềm của SolarWinds"
+     ],
+     "c2": [
+      "chèn mã độc SUNBURST vào bản cập nhật Orion. Bản cập nhật vẫn có chữ ký hợp lệ nên các khách hàng cài đặt mà không nghi ngờ. Sau đó mã độc kết nối ra ngoài để nhận lệnh."
+     ],
+     "c3": [
+      "Tác động là nhiều tổ chức phải kiểm tra lại hệ thống."
+     ],
+     "c4": [
+      "nên dùng xác thực nhiều lớp và theo dõi hoạt động bất thường trong mạng nội bộ."
+     ]
+    },
+    "tokens_in": 4682
+   },
+   "S7": {
+    "scores": {
+     "c1": 1.75,
+     "c2": 2.0,
+     "c3": 2.0,
+     "c4": 2.0
+    },
+    "comments": {
+     "c1": "Xác định chính xác tác nhân APT29 có tài trợ nhà nước và bề mặt tấn công là hệ thống dựng phần mềm.",
+     "c2": "Chuỗi tấn công được trình bày đầy đủ, tuần tự, kèm tên mã độc và kỹ thuật then chốt rõ ràng.",
+     "c3": "Đánh giá đầy đủ các mặt tác động, có số liệu chi phí công khai và giải trình trung thực phần chưa có số liệu.",
+     "c4": "Đề xuất các biện pháp phòng thủ cụ thể, gắn sát với từng mắt xích của tấn công chuỗi cung ứng."
+    },
+    "quotes": {
+     "c1": [
+      "Tác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước, hoạt động kiên trì và ưu tiên gián điệp hơn phá hoại.",
+      "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng."
+     ],
+     "c2": [
+      "Kẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll.",
+      "Khoảng 18.000 tổ chức tải bản cập nhật có mã độc, nhưng kẻ tấn công chỉ chọn khoảng 100 mục tiêu để khai thác tiếp."
+     ],
+     "c3": [
+      "nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư.",
+      "Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó."
+     ],
+     "c4": [
+      "Về phòng thủ, em đề xuất ba nhóm biện pháp: (1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet, (2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ, (3) kiểm tra tính toàn vẹn của bản dựng bằng quy trình build tái lập được và bản kê thành phần phần mềm (SBOM).",
+      "Ngoài ra cần giám sát hành vi bất thường của tiến trình hợp lệ, ví dụ Orion tự mở kết nối DNS tới một tên miền lạ ngoài danh sách đã biết, vì chữ ký số hợp lệ không còn là bằng chứng đủ để tin một bản cập nhật."
+     ]
+    },
+    "tokens_in": 18492
+   }
+  },
+  "2": {
+   "S1": {
+    "scores": {
+     "c1": 2.25,
+     "c2": 2.25,
+     "c3": 2.25,
+     "c4": 2.25
+    },
+    "comments": {
+     "c1": "Xác định chính xác tác nhân tấn công và bề mặt bị xâm nhập ở môi trường dựng phần mềm.",
+     "c2": "Phân tích đầy đủ, tuần tự chuỗi tấn công với các kỹ thuật, công cụ và số liệu cụ thể.",
+     "c3": "Đánh giá toàn diện các khía cạnh tác động, có số liệu minh chứng và nêu rõ giới hạn thông tin công khai.",
+     "c4": "Đề xuất các biện pháp phòng thủ xác đáng, gắn liền với các kỹ thuật tấn công đã phân tích."
+    },
+    "quotes": {
+     "c1": [
+      "Về tác nhân, các hãng an ninh và cơ quan chính phủ Mỹ quy cho nhóm APT29, còn gọi là Cozy Bear, một nhóm có tài trợ nhà nước, ưu tiên gián điệp dài hạn.",
+      "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds, nơi mã nguồn được biên dịch rồi ký số trước khi phát hành. Máy chủ của khách hàng không phải điểm vào ban đầu."
+     ],
+     "c2": [
+      "Chuỗi tấn công có năm bước. Một, kẻ tấn công xâm nhập môi trường dựng phần mềm. Hai, chúng cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll của bản phát hành chính thức.",
+      "Ba, bản cập nhật vẫn mang chữ ký hợp lệ nên được phát tới khoảng 18.000 tổ chức mà không bị nghi ngờ."
+     ],
+     "c3": [
+      "Về tác động, nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng khoá, chứng thư.",
+      "Thiệt hại lớn nhất là niềm tin vào chuỗi cung ứng phần mềm. SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la."
+     ],
+     "c4": [
+      "Về phòng thủ, em đề xuất phân đoạn mạng để máy chủ giám sát không ra Internet trực tiếp, xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, xoay vòng khoá ký, kiểm tra toàn vẹn bản dựng bằng quy trình build tái lập được kèm SBOM, và giám sát hành vi bất thường của tiến trình hợp lệ như Orion mở kết nối DNS tới tên miền lạ."
+     ]
+    },
+    "tokens_in": 6075
+   },
+   "S2": {
+    "scores": {
+     "c1": 1.75,
+     "c2": 1.25,
+     "c3": 1.0,
+     "c4": 1.0
+    },
+    "comments": {
+     "c1": "Xác định đúng tác nhân APT29, tuy nhiên việc phân tích bề mặt tấn công ở môi trường build/quy trình phát hành còn khái quát.",
+     "c2": "Nêu được luồng tấn công cơ bản nhưng thiếu nhiều chi tiết và căn cứ kỹ thuật quan trọng như ký số hợp lệ, thời gian nằm im, kỹ thuật Golden SAML và leo thang đặc quyền.",
+     "c3": "Đánh giá tác động còn chung chung, không đưa ra số liệu minh chứng công khai cụ thể và chưa nêu rõ giới hạn số liệu.",
+     "c4": "Các khuyến nghị còn mang tính khái quát, chưa gắn kết chặt chẽ với các kỹ thuật tấn công chuỗi cung ứng đặc thù (như SBOM, build tái lập, phân đoạn máy chủ giám sát)."
+    },
+    "quotes": {
+     "c1": [
+      "Kẻ tấn công là nhóm APT29, có liên quan tới nhà nước",
+      "Kẻ tấn công lọt vào hệ thống của SolarWinds và chèn mã độc SUNBURST vào bản cập nhật Orion."
+     ],
+     "c2": [
+      "chèn mã độc SUNBURST vào bản cập nhật Orion",
+      "Sau đó mã độc liên lạc với máy chủ điều khiển của kẻ tấn công."
+     ],
+     "c3": [
+      "SolarWinds mất nhiều tiền để xử lý sự cố và mất uy tín với khách hàng."
+     ],
+     "c4": [
+      "Để phòng thủ, các tổ chức nên cập nhật phần mềm cẩn thận, dùng xác thực hai yếu tố và theo dõi lưu lượng mạng để phát hiện kết nối lạ. Nhà cung cấp phần mềm cũng nên bảo vệ tốt hơn quy trình dựng và phát hành."
+     ]
+    },
+    "tokens_in": 5069
+   },
+   "S3": {
+    "scores": {
+     "c1": 0.25,
+     "c2": 0.25,
+     "c3": 0.5,
+     "c4": 0.5
+    },
+    "comments": {
+     "c1": "Chưa xác định được tác nhân cụ thể (APT29 / nhóm có bảo trợ nhà nước) cũng như bề mặt tấn công cụ thể là hệ thống dựng phần mềm.",
+     "c2": "Hoàn toàn thiếu chuỗi tấn công chi tiết, không nêu tên mã độc, cơ chế lây lan hay các kỹ thuật di chuyển ngang.",
+     "c3": "Đánh giá tác động quá sơ sài, thiếu các khía cạnh dữ liệu, vận hành, niềm tin, chi phí và không có số liệu minh chứng.",
+     "c4": "Biện pháp đề xuất chỉ mang tính chung chung, chưa gắn với các kỹ thuật phòng thủ chuỗi cung ứng phần mềm."
+    },
+    "quotes": {
+     "c1": [
+      "Hacker làm cho phần mềm có virus"
+     ],
+     "c2": [
+      "Hacker làm cho phần mềm có virus và nhiều công ty bị ảnh hưởng."
+     ],
+     "c3": [
+      "Vụ này rất nghiêm trọng vì nhiều nơi dùng phần mềm này."
+     ],
+     "c4": [
+      "Để phòng chống thì cần cài phần mềm diệt virus và đặt mật khẩu mạnh."
+     ]
+    },
+    "tokens_in": 5145
+   },
+   "S5": {
+    "scores": {
+     "c1": 0.0,
+     "c2": 0.0,
+     "c3": 0.0,
+     "c4": 0.0
+    },
+    "comments": {
+     "c1": "Bài làm hoàn toàn không đề cập đến vụ tấn công SolarWinds, tác nhân hay bề mặt tấn công.",
+     "c2": "Không phân tích chuỗi tấn công của vụ việc theo yêu cầu đề bài.",
+     "c3": "Không có nội dung đánh giá tác động của chiến dịch tấn công SolarWinds.",
+     "c4": "Nội dung phòng thủ lạc đề, chỉ nói về mật khẩu Wi-Fi gia đình thay vì phòng thủ chuỗi cung ứng."
+    },
+    "quotes": {
+     "c1": [],
+     "c2": [],
+     "c3": [],
+     "c4": []
+    },
+    "tokens_in": 4362
+   },
+   "S6": {
+    "scores": {
+     "c1": 2.0,
+     "c2": 1.0,
+     "c3": 0.5,
+     "c4": 1.0
+    },
+    "comments": {
+     "c1": "Xác định đúng tác nhân APT29 và bề mặt tấn công tại quy trình dựng phần mềm.",
+     "c2": "Mô tả được bước đầu về SUNBURST nhưng thiếu phần lớn chuỗi tấn công sau đó (thời gian nằm im, lưu lượng C2, giai đoạn chọn lọc mục tiêu, Golden SAML và di chuyển ngang).",
+     "c3": "Nội dung tác động quá sơ sài, thiếu các khía cạnh về dữ liệu, chi phí, niềm tin và không có số liệu minh chứng.",
+     "c4": "Biện pháp đưa ra còn mang tính chung chung, chưa gắn trực tiếp với việc bảo vệ chuỗi cung ứng hay kiểm soát tính toàn vẹn bản dựng."
+    },
+    "quotes": {
+     "c1": [
+      "Nhóm APT29 xâm nhập vào quy trình dựng phần mềm của SolarWinds"
+     ],
+     "c2": [
+      "chèn mã độc SUNBURST vào bản cập nhật Orion. Bản cập nhật vẫn có chữ ký hợp lệ nên các khách hàng cài đặt mà không nghi ngờ. Sau đó mã độc kết nối ra ngoài để nhận lệnh."
+     ],
+     "c3": [
+      "Tác động là nhiều tổ chức phải kiểm tra lại hệ thống."
+     ],
+     "c4": [
+      "Về phòng thủ, nên dùng xác thực nhiều lớp và theo dõi hoạt động bất thường trong mạng nội bộ."
+     ]
+    },
+    "tokens_in": 5863
+   },
+   "S7": {
+    "scores": {
+     "c1": 1.5,
+     "c2": 2.0,
+     "c3": 2.0,
+     "c4": 2.0
+    },
+    "comments": {
+     "c1": "Xác định đúng tác nhân APT29 và bề mặt tấn công là hệ thống dựng/phát hành phần mềm, làm rõ không phải máy chủ khách hàng.",
+     "c2": "Chuỗi tấn công được trình bày tuần tự, mạch lạc và đầy đủ các kỹ thuật, công cụ then chốt.",
+     "c3": "Đánh giá đa chiều các khía cạnh tác động, có số liệu chi phí thực tế và nêu rõ phần chưa có số liệu thống kê.",
+     "c4": "Đề xuất các biện pháp phòng thủ cụ thể, bám sát các mắt xích của cuộc tấn công chuỗi cung ứng."
+    },
+    "quotes": {
+     "c1": [
+      "Tác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước, hoạt động kiên trì và ưu tiên gián điệp hơn phá hoại.",
+      "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng."
+     ],
+     "c2": [
+      "Kẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll.",
+      "nằm im 12–14 ngày để vượt qua các phép kiểm tra tự động, rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com"
+     ],
+     "c3": [
+      "nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư.",
+      "Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó."
+     ],
+     "c4": [
+      "phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet",
+      "xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ"
+     ]
+    },
+    "tokens_in": 11972
+   }
+  }
+ },
+ "lessons": {
+  "S1": [
+   {
+    "criterion": "c1",
+    "lesson": "c1: chưa xác định được tác nhân cụ thể và không phân tích bề mặt tấn công quy trình phát hành → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "c1: xác định chính xác tác nhân tấn công và bề mặt bị xâm nhập ở môi trường dựng phần mềm → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "c2: hoàn toàn thiếu chuỗi tấn công chi tiết, không nêu được kỹ thuật hay công cụ then chốt → khoảng 0.5",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "c2: phân tích đầy đủ, tuần tự chuỗi tấn công kèm dẫn chứng kỹ thuật, công cụ và số liệu cụ thể → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: đánh giá tác động quá khái quát, thiếu các khía cạnh chi phí, dữ liệu và không có số liệu minh chứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: đánh giá toàn diện các khía cạnh tác động, có số liệu minh chứng và nêu rõ giới hạn dữ liệu → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "c4: biện pháp đề xuất quá chung chung, không giải quyết được bản chất tấn công chuỗi cung ứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "c4: đề xuất biện pháp phòng thủ xác đáng, gắn liền với các kỹ thuật tấn công đã phân tích → khoảng 2.0",
+    "support": 1
+   }
+  ],
+  "S2": [
+   {
+    "criterion": "c3",
+    "lesson": "đánh giá toàn diện các mặt tác động, có số liệu minh chứng công khai và nêu rõ giới hạn dữ liệu chưa thu thập được → khoảng 2.0",
+    "support": 2
+   },
+   {
+    "criterion": "c3",
+    "lesson": "đánh giá tác động khái quát, thiếu các khía cạnh chi phí, dữ liệu, niềm tin và không có số liệu minh chứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "biện pháp đưa ra quá chung chung, không giải quyết đúng bản chất tấn công chuỗi cung ứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "đề xuất biện pháp phòng thủ xác đáng, gắn kết chặt chẽ với các kỹ thuật tấn công đã phân tích → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "chưa xác định được tác nhân cụ thể và không phân tích bề mặt tấn công của quy trình dựng phần mềm → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "xác định chính xác tác nhân tấn công và bề mặt bị xâm nhập ở môi trường dựng phần mềm → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "hoàn toàn thiếu chuỗi tấn công chi tiết, không nêu được kỹ thuật hay công cụ then chốt → khoảng 0.5",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "mô tả chuỗi tấn công mạch lạc, đầy đủ các bước tuần tự và các căn cứ kỹ thuật then chốt → khoảng 2.0",
+    "support": 1
+   }
+  ],
+  "S3": [
+   {
+    "criterion": "c3",
+    "lesson": "c3: đánh giá toàn diện các mặt tác động, có số liệu công khai và nêu rõ phần dữ liệu chưa thu thập được → khoảng 2.0",
+    "support": 2
+   },
+   {
+    "criterion": "c3",
+    "lesson": "c3: đánh giá tác động quá khái quát, thiếu các khía cạnh trọng yếu và không có số liệu minh chứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "c1: xác định đúng tác nhân và bề mặt bị xâm nhập ở môi trường dựng phần mềm của nhà cung cấp → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "c1: chỉ xác định đúng tác nhân và bề mặt tấn công ở quy trình dựng phần mềm → khoảng 1.5",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "c4: đề xuất biện pháp phòng thủ xác đáng, gắn liền với các kỹ thuật tấn công đã phân tích → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "c2: mô tả chuỗi tấn công mạch lạc, đầy đủ các bước tuần tự và các căn cứ kỹ thuật then chốt → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "c2: phân tích chuỗi tấn công tuần tự kèm dẫn chứng kỹ thuật, công cụ và số liệu mục tiêu cụ thể → khoảng 1.0",
+    "support": 1
+   }
+  ],
+  "S5": [
+   {
+    "criterion": "c3",
+    "lesson": "đánh giá toàn diện các khía cạnh tác động, có số liệu dẫn chứng công khai và nêu rõ giới hạn dữ liệu chưa thu thập được → khoảng 2.0",
+    "support": 2
+   },
+   {
+    "criterion": "c3",
+    "lesson": "đánh giá tác động quá khái quát, thiếu các khía cạnh chi phí, dữ liệu, niềm tin và không có số liệu minh chứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "đề xuất biện pháp phòng thủ xác đáng, gắn liền với các kỹ thuật tấn công đã phân tích → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "biện pháp đưa ra quá chung chung, không giải quyết được bản chất tấn công chuỗi cung ứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "chưa xác định được tác nhân cụ thể và không phân tích bề mặt tấn công ở quy trình build/phát hành → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "xác định chính xác tác nhân tấn công và bề mặt bị xâm nhập ở môi trường dựng phần mềm của nhà cung cấp → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "mô tả chuỗi tấn công mạch lạc, đầy đủ các bước tuần tự và các căn cứ kỹ thuật then chốt → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "hoàn toàn thiếu chuỗi tấn công chi tiết, không nêu được kỹ thuật hay công cụ then chốt → khoảng 0.5",
+    "support": 1
+   }
+  ],
+  "S6": [
+   {
+    "criterion": "c3",
+    "lesson": "c3: đánh giá đầy đủ các mặt tác động, có dẫn chứng số liệu công khai và nêu rõ giới hạn dữ liệu chưa thu thập được → khoảng 2.0",
+    "support": 2
+   },
+   {
+    "criterion": "c1",
+    "lesson": "c1: chưa xác định được tác nhân cụ thể và không phân tích đúng bề mặt tấn công → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "c1: xác định chính xác tác nhân tấn công và bề mặt bị xâm nhập ở môi trường dựng phần mềm → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "c2: thiếu chuỗi tấn công chi tiết, không nêu được kỹ thuật hay công cụ then chốt → khoảng 0.5",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "c2: mô tả chuỗi tấn công mạch lạc, đầy đủ các bước tuần tự và căn cứ kỹ thuật then chốt → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "c4: biện pháp quá chung chung, không giải quyết được bản chất tấn công chuỗi cung ứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "c4: đề xuất biện pháp phòng thủ xác đáng, gắn liền với các kỹ thuật tấn công đã phân tích → khoảng 2.0",
+    "support": 1
+   }
+  ],
+  "S7": [
+   {
+    "criterion": "c1",
+    "lesson": "chưa xác định được tác nhân cụ thể và không phân tích bề mặt tấn công trọng yếu → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c1",
+    "lesson": "xác định đúng tác nhân và bề mặt tấn công là quy trình dựng/phát hành phần mềm → khoảng 1.5",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "hoàn toàn thiếu chuỗi tấn công chi tiết, không nêu được kỹ thuật hay công cụ then chốt → khoảng 0.5",
+    "support": 1
+   },
+   {
+    "criterion": "c2",
+    "lesson": "mô tả chuỗi tấn công mạch lạc, đầy đủ các bước tuần tự và các căn cứ kỹ thuật then chốt → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "đánh giá tác động quá khái quát, thiếu các khía cạnh trọng yếu và không có số liệu minh chứng → khoảng 1.0",
+    "support": 1
+   },
+   {
+    "criterion": "c3",
+    "lesson": "đánh giá đầy đủ các mặt tác động, dẫn chứng số liệu công khai chính xác và giải trình phần thiếu số liệu → khoảng 2.0",
+    "support": 1
+   },
+   {
+    "criterion": "c4",
+    "lesson": "đưa ra biện pháp quá chung chung, không phù hợp và không giải quyết được bản chất tấn công chuỗi cung ứng → khoảng 1.0",
+    "support": 1
+   }
+  ]
+ },
+ "calls": [
+  {
+   "s": 3.59,
+   "in": 4043,
+   "out": 242
+  },
+  {
+   "s": 7.1,
+   "in": 4556,
+   "out": 745
+  },
+  {
+   "s": 7.13,
+   "in": 4241,
+   "out": 307
+  },
+  {
+   "s": 9.26,
+   "in": 4496,
+   "out": 442
+  },
+  {
+   "s": 6.96,
+   "in": 4562,
+   "out": 390
+  },
+  {
+   "s": 9.31,
+   "in": 5890,
+   "out": 806
+  },
+  {
+   "s": 2.44,
+   "in": 3935,
+   "out": 258
+  },
+  {
+   "s": 8.27,
+   "in": 4621,
+   "out": 349
+  },
+  {
+   "s": 8.79,
+   "in": 4836,
+   "out": 501
+  },
+  {
+   "s": 9.63,
+   "in": 4699,
+   "out": 443
+  },
+  {
+   "s": 7.49,
+   "in": 4906,
+   "out": 746
+  },
+  {
+   "s": 8.85,
+   "in": 5453,
+   "out": 794
+  },
+  {
+   "s": 14.89,
+   "in": 6117,
+   "out": 392
+  },
+  {
+   "s": 8.72,
+   "in": 4505,
+   "out": 387
+  },
+  {
+   "s": 18.0,
+   "in": 6910,
+   "out": 343
+  },
+  {
+   "s": 9.14,
+   "in": 4437,
+   "out": 393
+  },
+  {
+   "s": 8.85,
+   "in": 4361,
+   "out": 336
+  },
+  {
+   "s": 7.0,
+   "in": 3715,
+   "out": 331
+  },
+  {
+   "s": 4.42,
+   "in": 4525,
+   "out": 257
+  },
+  {
+   "s": 9.4,
+   "in": 5279,
+   "out": 461
+  },
+  {
+   "s": 10.52,
+   "in": 5337,
+   "out": 673
+  },
+  {
+   "s": 6.48,
+   "in": 4682,
+   "out": 414
+  },
+  {
+   "s": 11.53,
+   "in": 5681,
+   "out": 847
+  },
+  {
+   "s": 47.7,
+   "in": 18492,
+   "out": 866
+  },
+  {
+   "s": 5.55,
+   "in": 4362,
+   "out": 225
+  },
+  {
+   "s": 9.87,
+   "in": 5145,
+   "out": 380
+  },
+  {
+   "s": 9.93,
+   "in": 5069,
+   "out": 513
+  },
+  {
+   "s": 15.32,
+   "in": 6075,
+   "out": 720
+  },
+  {
+   "s": 9.97,
+   "in": 5863,
+   "out": 415
+  },
+  {
+   "s": 27.43,
+   "in": 11972,
+   "out": 737
+  }
+ ]
+}

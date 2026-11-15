@@ -754,6 +754,9 @@ components:
           type: object
           additionalProperties:
             type: integer
+        fake_decisions:
+          type: integer
+          description: Số lời gọi decision tới provider giả (đếm riêng với fake_calls).
         audit:
           type: object
           required: [buffer_len, flushed, dropped]
@@ -783,6 +786,17 @@ components:
           type: integer
         retry_after_ms:
           type: integer
+        decision_mode:
+          type: string
+          enum: ["", error, timeout, always_yes, always_no]
+        decision_prob:
+          type: [number, "null"]
+        decision_p50_ms:
+          type: integer
+        decision_p95_ms:
+          type: integer
+        decision_error_rate:
+          type: number
     LLMFakeState:
       type: object
       required: [latency_min_ms, latency_max_ms, error_rate, error_kind, valid_key_set, stream_delay_ms]
@@ -800,6 +814,16 @@ components:
           type: boolean
         stream_delay_ms:
           type: integer
+        decision_mode:
+          type: string
+        decision_prob:
+          type: [number, "null"]
+        decision_p50_ms:
+          type: integer
+        decision_p95_ms:
+          type: integer
+        decision_error_rate:
+          type: number
     Item:
       type: object
       required: [id, name, version, created_at, updated_at]

@@ -36,11 +36,12 @@ update documents set download_count = download_count + 1 where id = sqlc.arg(id)
 -- name: LibSearchTool :many
 -- Cho tool search_library: tối đa 5 tài liệu cùng bộ lọc của danh sách, kèm đoạn khớp đầu tiên (trang).
 select d.id, d.title, d.type, d.week_no,
-       (select c.page_no from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text) order by c.ord limit 1)::int as page_no,
+       coalesce((select c.page_no from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text) order by c.ord limit 1), 0)::int as page_no, -- khớp theo tên, chưa có đoạn → 0 (trước đây NULL làm Scan lỗi)
        coalesce((select left(regexp_replace(c.text, '\s+', ' ', 'g'), 160) from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text) order by c.ord limit 1), '')::text as snippet
 from documents d
 where (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
   and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
+  and (not sqlc.arg(exclude_exam_papers)::bool or d.type <> 'EXAM_PAPER')
   and (vn_fold(d.title) like '%' || vn_fold(sqlc.arg(q)::text) || '%' escape '\'
        or exists (select 1 from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text)))
 order by d.updated_at desc, d.id desc

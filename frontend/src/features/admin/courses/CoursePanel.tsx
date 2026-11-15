@@ -107,7 +107,7 @@ export function CoursePanel({ mode, onDone, onClose }: { mode: PanelMode; onDone
   const submitLabel = mode.kind === "open" ? "Mở lớp" : mode.kind === "edit" ? "Lưu thay đổi" : "Gán lại";
 
   return (
-    <Section panel title={title}>
+    <Section title={title}>
       <form onSubmit={submit} className={s.form} noValidate>
         {mode.kind !== "assign" && (
           <>

@@ -433,6 +433,15 @@ func DefaultMessage(code string) string {
 		if m, ok := assignmentMessage(code); ok {
 			return m
 		}
+		if m, ok := practiceMessage(code); ok {
+			return m
+		}
+		if m, ok := decisionMessage(code); ok {
+			return m
+		}
+		if m, ok := guidanceMessage(code); ok {
+			return m
+		}
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}
 }

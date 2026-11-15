@@ -18,7 +18,7 @@ Một hệ thống scale tốt mà dùng bực mình thì vẫn thất bại. Qu
 2. **Hoàn tác thay cho xác nhận.** Hành động đảo ngược được → dòng xác nhận tĩnh lặng ngay tại nơi thao tác "Đã … · Hoàn tác", tự biến sau 5 giây (không dùng toast "Thành công!" — `DESIGN.md` §13). Hộp thoại xác nhận CHỈ dành cho việc không đảo ngược: công bố điểm, chốt điểm cuối kỳ, xác nhận công thức, xoá tài liệu. Hộp thoại đó nói rõ hậu quả bằng con số ("Công bố điểm cho 28 sinh viên, gửi 28 mail").
 3. **Không bao giờ mất chữ đã gõ.** Tự lưu nháp vào máy (mỗi 2 s khi có thay đổi) cho: bài Threads, tin nhắn chat, câu trả lời ticket, nhận xét chấm bài, observation, bài thi thử, ô điền công thức. Khôi phục khi quay lại, kể cả sau khi sập trình duyệt.
 4. **Chờ phải có nghĩa.** Khung xương (skeleton) cho tải trang; chỉ báo giai đoạn cho việc dài ("Đang tìm trong tài liệu…", "Đang chấm 12/85"); việc nền hiện tiến độ qua SSE và cho phép rời trang. Cấm spinner trơ quá 1 giây không lời giải thích.
-5. **Không có ngõ cụt.** Mỗi trạng thái rỗng nói *vì sao rỗng* và có *một nút hành động kế tiếp*. Mỗi lỗi nói *chuyện gì xảy ra*, *dữ liệu của bạn có an toàn không*, và có nút *Thử lại*. Không bao giờ hiện mã lỗi trần hay "Something went wrong".
+5. **Không có ngõ cụt.** Mỗi trạng thái rỗng là một tiêu đề ngắn nói rõ đang rỗng cái gì, và có tối đa một nút khi màn chưa có nút nào làm việc đó (`DESIGN.md` §23.4). Mỗi lỗi nói chuyện gì xảy ra trong một dòng và có nút *Thử lại*; chỉ nói thêm về dữ liệu khi màn đang giữ chữ chưa lưu (§23.5). Không bao giờ hiện mã lỗi trần hay "Something went wrong".
 6. **Chịu được mạng xấu.** Stream chat đứt thì tự nối lại và hiện tiếp phần đã sinh; tải lại trang không mất câu trả lời. Gửi thất bại thì giữ nguyên nội dung và cho gửi lại (server khử trùng bằng `Idempotency-Key`). Mất mạng có dải báo; điểm danh xếp hàng cục bộ và tự đồng bộ khi có mạng lại.
 7. **AI phải minh bạch.** Mọi nội dung AI có nhãn nguồn gốc nhất quán: `AI` · `Đã được giảng viên xác nhận` · `Đã sửa bởi giảng viên`; citation mở tại chỗ và dẫn đúng trang tài liệu; sinh viên thấy độ chắc chắn bằng LỜI ("AI chưa đủ chắc chắn về câu này"), con số chỉ dành cho giảng viên; dòng "Đã ẩn N thông tin cá nhân trước khi gửi cho AI"; điểm AI chấm luôn ghi "bản nháp" cho đến khi công bố. Khi AI không chắc, UI nói thẳng và đưa lối sang giảng viên.
 8. **Bàn phím và trợ năng.** Mọi chức năng dùng được bằng bàn phím; thứ tự focus hợp lý; vòng focus nhìn thấy; tương phản đạt WCAG AA; nhãn cho trình đọc màn hình; không truyền nghĩa chỉ bằng màu (trạng thái điểm danh có cả chữ/biểu tượng). `Ctrl/⌘ K` mở bảng lệnh tìm nhanh sinh viên, tài liệu, màn hình.
@@ -77,9 +77,9 @@ Cấm viết `fetch` trần, spinner riêng, hộp thoại xác nhận riêng, h
 
 ## 6. Cổng UX cho mỗi phase (thêm vào Definition of Done)
 
-- [ ] Đạt `design/DESIGN.md` §22 (10 điều kiện) và không dính phản mẫu nào ở §21; `scripts/ui-antipatterns.sh` sạch
+- [ ] Đạt `design/DESIGN.md` §22 (11 điều kiện, gồm khung trang §23) và không dính phản mẫu nào ở §21; `scripts/ui-antipatterns.sh` sạch
 - [ ] Người dùng đúng vai trò nhận ra việc chính của màn trong ≈ 3 giây; khung nhìn đầu có MỘT lối hành động rõ ràng
-- [ ] Mọi màn mới dùng `<PageState>`: có đủ tải / rỗng / lỗi, và trạng thái rỗng có nút hành động
+- [ ] Mọi màn mới dùng `<PageState>`: có đủ tải / rỗng / lỗi, và trạng thái rỗng theo `DESIGN.md` §23.4
 - [ ] Không có `fetch` trần, spinner riêng, confirm riêng (`grep` kiểm được)
 - [ ] Chạy được bằng bàn phím từ đầu đến cuối luồng chính; axe không báo lỗi nghiêm trọng
 - [ ] Đúng bốn mốc bề rộng của `DESIGN.md` §17 (< 720, 720–1099, ≥ 1100, ≥ 1440); zoom 200% vẫn thao tác được; chữ Việt dài không vỡ bố cục, dấu không bị cắt
