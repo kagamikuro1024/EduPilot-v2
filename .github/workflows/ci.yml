@@ -152,9 +152,7 @@ jobs:
           case "$ROW" in
             course) pkgs=$(grep -E '/internal/course(/|$)' <<<"$all" || true) ;;
             auth) pkgs=$(grep -E '/internal/auth(/|$)' <<<"$all" || true) ;;
-            rest-1) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%3==1' || true) ;;
-            rest-2) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%3==2' || true) ;;
-            rest-3) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%3==0' || true) ;;
+            rest-[0-9]) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | ../scripts/go-shard.sh "${ROW#rest-}" 3 || true) ;; # LPT theo thời gian: backend-go/ci-shard-weights.txt (DEF-R7-01)
             *) echo "dòng $ROW không có trong bảng"; exit 1 ;;
           esac
           [ -n "$pkgs" ] || { echo "dòng $ROW không có gói nào"; exit 1; }
