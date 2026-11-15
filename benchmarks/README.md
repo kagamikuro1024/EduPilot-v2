@@ -21,10 +21,10 @@ SEED_DEFAULT_PASSWORD=… node benchmarks/load/run-t1.mjs dashboard --duration 2
 ```
 k6 chạy trong VM (`grafana/k6`, `--cpus 1.5 --memory 1.5g`, chung mạng với `caddy` của stack đo). Chat (b): `k6 run benchmarks/load/chat.js -e ACCOUNTS=t1 -e SCENARIO=ttft …`.
 
-## LLM thật (Gemini)
+## LLM thật (9router)
 ```bash
-PHASE=probe node deploy/vps-llm.mjs                                  # đầu phiên: chọn MODEL / FALLBACK (≤ 9 lời gọi)
-BASE=https://localhost:<cổng HTTPS> PHASE=seed node deploy/vps-llm.mjs    # trước khi seed nạp tài liệu: embedding thật, chat giả
+PHASE=probe node deploy/vps-llm.mjs                                  # đầu phiên: chọn MODEL / FALLBACK qua 9router (≤ 9 lời gọi; cần `9router -n -t`)
+BASE=https://localhost:<cổng HTTPS> PHASE=seed node deploy/vps-llm.mjs    # trước khi seed nạp tài liệu: chat giả, embedding giả
 BASE=… MODEL=… FALLBACK=… PHASE=live node deploy/vps-llm.mjs             # sau seed
 ```
-Khoá `GEMINI_API_KEY` chỉ ở `.env.local` / biến môi trường. Không bật LLM thật ở stack demo.
+Sinh chữ luôn qua 9router (`http://host.docker.internal:20128/v1`, khoá đọc từ `ROUTER_API_KEY` hoặc `~/.9router/db/data.sqlite`; không in). Không gọi Gemini trực tiếp; `GEMINI_API_KEY` chỉ khi `EMBED_PROVIDER=gemini` (PM cho phép). Không bật LLM thật ở stack demo.

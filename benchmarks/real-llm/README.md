@@ -1,10 +1,10 @@
-# Đo LLM thật (Gemini Free Tier, sprint 9.5)
+# Đo LLM thật (9router, sprint 9.5)
 
-Script `real_llm.py` là client ngoài: chỉ gọi HTTP API của gateway, chỉ dùng thư viện chuẩn của Python. Mô hình đo là mô hình stack đang cấu hình (`gemini-chat` + `gemini-embed`, chuỗi model chọn đầu phiên bằng `PHASE=probe node deploy/vps-llm.mjs`).
+Script `real_llm.py` là client ngoài: chỉ gọi HTTP API của gateway, chỉ dùng thư viện chuẩn của Python. Mô hình đo là mô hình stack đang cấu hình (`router-chat` openai_compatible qua 9router, model `ag/gemini-3.8-flash`…, chọn đầu phiên bằng `PHASE=probe node deploy/vps-llm.mjs`; embedding `fake`).
 - Kết quả ghi vào `benchmarks/reports/real-llm/*.json` (có khối `meta`). Báo cáo: `docs/research/2026-11-xx-nfr-real-llm.md`.
-- Dữ liệu gửi Gemini Free (nội dung có thể được Google dùng để cải thiện sản phẩm) chỉ gồm dữ liệu mô phỏng (D44) đã che tên / MSSV.
+- Dữ liệu gửi qua 9router tới nhà cung cấp phía sau chỉ gồm dữ liệu mô phỏng (D44) đã che tên / MSSV.
 
-**Chạy trên Mac, stack `-p ep-research`, cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; không dùng stack demo.** Khoá `GEMINI_API_KEY` chỉ ở `.env.local` của stack đo (không in, không commit). Hạn mức Gemini Free theo project, đặt lại 15:00 giờ Việt Nam: < 200 lời gọi sinh chữ mỗi ngày, chia hai ngày; hết hạn mức thì `--resume` sau 15:00.
+**Chạy trên Mac, stack `-p ep-research`, cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; không dùng stack demo.** Không gọi Gemini trực tiếp. Khoá 9router đọc từ `ROUTER_API_KEY` hoặc `~/.9router/db/data.sqlite` (không in, không commit). `CHAT_RPM` mặc định 10; gặp `429` có `Retry-After` > 60 s thì dừng lượt và ghi lý do, chạy tiếp bằng `--resume`.
 
 Dựng stack như `benchmarks/README.md` (project `ep-research`, `EP_PORT_OFFSET=300`), `PHASE=seed` → `node scripts/seed.mjs` (cần `--profile ingest`) → `PHASE=live`.
 

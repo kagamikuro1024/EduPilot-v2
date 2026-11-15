@@ -56,7 +56,10 @@ func (r *rig) callAs(s session, cr courseRoute, courseID uuid.UUID) resp {
 
 // adminOnly là các route lớp của sprint trước mang hợp đồng ADMIN-only bất biến (RequireRole, 422 khi id không phải uuid), không qua
 // CourseAccessGuard. Danh sách đóng: thêm route vào đây phải có lý do trong proposals; chúng vẫn bị kiểm 403 `reason=role` với người không phải ADMIN.
-var adminOnly = map[string]bool{"GET /courses/{id}/llm-budget": true, "PUT /courses/{id}/llm-budget": true}
+var adminOnly = map[string]bool{
+	"GET /courses/{id}/llm-budget": true, "PUT /courses/{id}/llm-budget": true,
+	"GET /courses/{id}/decision-gates": true, "PUT /courses/{id}/decision-gates/{gate}": true, // 10.5 (US-DM): cổng quyết định theo lớp, ADMIN-only (RequireRole)
+}
 
 // AC5: mọi route lớp đều có guard — người ngoài lớp (token hợp lệ) không nhận 2xx; một route quên guard thì bị lộ.
 func TestAllCourseRoutesGuarded(t *testing.T) {
@@ -144,5 +147,5 @@ func TestNoUnscopedChunkQuery(t *testing.T) {
 	// P8 thêm các đường đọc hợp lệ (US-P8-01, TLR-2): rag vectơ + từ khoá (một câu), đọc chữ để lập chỉ mục lại. Mỗi đường vẫn bắt buộc có course_ids (kiểm ở trên).
 	// P8-02 thêm thư viện (LibList / LibGet / LibSearchTool), đoạn của Staff (DocChunks / DocChunkLock), thống kê và hỏi theo tài liệu — mỗi câu vẫn lọc course_ids.
 	// P9 (US-P9-02 / 03) thêm hai đường đọc đoạn cho trích / sinh câu hỏi (PracticeDocChunks, PracticeChunksByIDs): cùng lọc course_ids, không đọc tài liệu tri thức.
-	require.ElementsMatch(t, []string{"ChunksForCourse", "RagSearch", "ListChunkTexts", "DocChunks", "DocChunkLock", "DocStats", "DocDeleteImpact", "LibList", "LibGet", "LibSearchTool", "ChatDocumentUsable", "PracticeDocChunks", "PracticeChunksByIDs"}, reads, "danh sách đường ĐỌC content_chunks được phép")
+	require.ElementsMatch(t, []string{"ChunksForCourse", "RagSearch", "ListChunkTexts", "DocChunks", "DocChunkLock", "DocStats", "DocDeleteImpact", "LibList", "LibGet", "LibSearchTool", "ChatDocumentUsable", "PracticeDocChunks", "PracticeChunksByIDs", "KnowledgeSimilarPosts"}, reads, "danh sách đường ĐỌC content_chunks được phép")
 }
