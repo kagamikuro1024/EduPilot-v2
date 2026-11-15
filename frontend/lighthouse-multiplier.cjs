@@ -1,6 +1,5 @@
 // P-11-46: cpuSlowdownMultiplier của lượt Lighthouse simulate theo tốc độ MÁY CHẠY. Cố định 4 làm TBT tăng 2–3× khi runner chậm (benchmarkIndex ≈ 2500 so với ≈ 4200: CI 43743335571).
 // multiplier = 4 × 4200 / benchmarkIndex, kẹp [2, 8]; benchmarkIndex đo bằng chính hàm của Lighthouse trong cùng Chromium sẽ chạy lhci. In ra stdout: một số.
-const { chromium } = require("@playwright/test");
 
 // Bản sao hàm computeBenchmarkIndex của Lighthouse (core/lib/page-functions.js; chạy trong trang): trung bình của hai phép đo, mỗi phép 0,5 s — GC (nối chuỗi) và sao chép mảng.
 function computeBenchmarkIndex() {
@@ -34,6 +33,7 @@ function computeBenchmarkIndex() {
 
 const REF = 4200; // benchmarkIndex của runner «bình thường» (các lượt xanh 4150–4450)
 (async () => {
+  const { chromium } = await import("@playwright/test");
   const b = await chromium.launch({ args: ["--no-sandbox"] });
   const p = await b.newPage();
   const samples = [];
