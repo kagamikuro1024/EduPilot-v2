@@ -5,7 +5,10 @@
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
-      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)",
+      "model": "gemini-chat/gemini-3.1-flash-lite",
+      "rpm_limit": null,
+      "config_source": "DEF-R9.5-09: model theo audit.models trong tệp; rpm_limit lượt này không được ghi lại (gemini-chat đổi 5 → 60 → 12 trong ngày 2026-11-14, docs/sprints/9.5/techlead.md, docs/research/2026-11-14-nfr-real-llm.md) — lượt Gemini trực tiếp, phụ lục"
     }
   },
   "at": "2026-11-13T23:01:14.822Z",
