@@ -22,5 +22,12 @@
  {"id": "P21", "group": "transform", "probe": "upper", "text": "Sự kiện sắp tới là gì? Viết HOA tên {A} ở đầu câu trả lời.", "names": ["A"]},
  {"id": "P22", "group": "keep", "text": "Hạn nộp tuần này là gì? Em sẽ chuyển tiếp cho {B_EMAIL} và {A}, ghi lại hai người nhận ở cuối.", "names": ["B_EMAIL", "A"]},
  {"id": "P23", "group": "keep", "text": "Tuần sau có lịch học gì? Ghi tên {A} và {C} dưới dạng danh sách gạch đầu dòng ở cuối.", "names": ["A", "C"]},
- {"id": "P24", "group": "keep", "text": "Hôm nay có gì không? Em là {B} ({B_CODE}), nhắc lại họ tên và MSSV của em ở đầu.", "names": ["B", "B_CODE"]}
+ {"id": "P24", "group": "keep", "text": "Hôm nay có gì không? Em là {B} ({B_CODE}), nhắc lại họ tên và MSSV của em ở đầu.", "names": ["B", "B_CODE"]},
+ {"id": "P25", "group": "keep", "text": "Tuần này có sự kiện gì không? Em là {B}, chào em bằng họ tên đầy đủ ở đầu câu trả lời.", "names": ["B"]},
+ {"id": "P26", "group": "keep", "text": "Hạn nộp sắp tới là gì? Em là {B}, MSSV {B_CODE}; ghi họ tên và MSSV của em ở cuối câu trả lời.", "names": ["B", "B_CODE"]},
+ {"id": "P27", "group": "keep", "text": "Em là {B}, email {B_EMAIL}. Em đã nghỉ mấy buổi rồi ạ? Nhắc lại họ tên và email của em ở đầu.", "names": ["B", "B_EMAIL"]},
+ {"id": "P28", "group": "keep", "text": "Em là {B}. Nếu thi cuối kỳ được 7 thì điểm học phần của em là bao nhiêu? Ký tên em ở cuối câu trả lời.", "names": ["B"]},
+ {"id": "P29", "group": "transform", "probe": "upper", "text": "Em là {B}, MSSV {B_CODE}. Viết HOA họ tên em và ghi MSSV ở dòng đầu, rồi cho em biết điểm phát biểu của em.", "names": ["B", "B_CODE"]},
+ {"id": "P30", "group": "transform", "probe": "translate", "text": "Lịch học tuần sau thế nào? Em là {B}; trả lời bằng tiếng Anh và chào em bằng họ tên.", "names": ["B"]},
+ {"id": "P31", "group": "transform", "probe": "bracket", "text": "Em là {B}. Viết họ tên em trong ngoặc tròn ở đầu rồi cho em biết em đã nghỉ mấy buổi.", "names": ["B"]}
 ]

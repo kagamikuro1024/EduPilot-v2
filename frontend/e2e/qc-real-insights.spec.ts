@@ -125,13 +125,30 @@ test("@real INS-3 quyền, lỗi, 375 px (TC-05-19/20/21)", async ({ page, brows
   expect.soft(sm, "TC-05-21: vùng chạm ≥ 44 px").toEqual([]);
 });
 
-test("@real INS-4 chọn kỳ (TC-04-04b)", async ({ page }) => {
+test("@real INS-4 chọn kỳ (TC-04-04b)", async ({ page, request }) => {
   await openInsights(page);
   const labels = ["7 ngày", "14 ngày", "30 ngày", "Toàn kỳ"];
-  const found: string[] = [];
-  for (const l of labels) if (await page.getByText(l, { exact: true }).filter({ visible: true }).count()) found.push(l);
+  const grp = page.getByRole("radiogroup").first();
+  const opts = await grp.getByRole("radio").allInnerTexts();
+  expect(opts.map((o) => o.trim()), "TC-04-04b: đúng bốn lựa chọn, không lựa chọn thứ năm").toEqual(labels);
+  await expect(grp.getByRole("radio", { name: "14 ngày" }), "mặc định 14").toBeChecked();
+  const tip = await grp.getByRole("radio", { name: "Toàn kỳ" }).evaluate((el) => el.getAttribute("title") ?? el.closest("[title]")?.getAttribute("title") ?? "");
+  expect.soft(tip, "tooltip trên nhãn «Toàn kỳ»").toBe("120 ngày gần nhất");
+  expect.soft(await page.locator("main svg[class*=info], main [aria-label*=Info]").count(), "không icon Info").toBe(0);
+  await noOverflow(page, true);
+  // «Toàn kỳ» → generate period_days = 120
+  const cid = await courseId(request, "teacher", await shownCode(page));
+  sql(`update insight_reports set data_watermark = data_watermark - interval '1 day' where course_id='${cid}'`);
+  execSync("docker exec ep-qc-redis-1 sh -c \"redis-cli --scan --pattern 'ep:rl:insight-generate:*' | xargs -r redis-cli del\"");
+  let sent = "";
+  await page.route("**/insights/knowledge-gap/generate", (r) => { sent = r.request().postData() ?? ""; return r.continue(); });
+  await grp.getByRole("radio", { name: "Toàn kỳ" }).click();
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect.poll(() => sent, { timeout: 15_000 }).toContain("120");
+  expect.soft(sent, "generate gửi period_days=120").toMatch(/"period_days":\s*120/);
   await shot(page, "ins4-period");
-  expect(found, "TC-04-04b: bốn lựa chọn kỳ 7 / 14 / 30 ngày và «Toàn kỳ»").toEqual(labels);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await noOverflow(page, true);
 });
 
 test("@real INS-5 nút nổi bật theo has_new_data (TC-05-06) + không dữ liệu mới (TC-05-08)", async ({ page, request }) => {
@@ -201,7 +218,7 @@ test("@real INS-7 POST threads lỗi 500 giữ nháp (TC-05-13)", async ({ page 
   await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
   const g2 = page.getByRole("group", { name: "Tạo thread ghim" });
   await expect.soft(g2.getByLabel("Nội dung"), "TC-05-13: tải lại → nháp (nội dung) còn").toHaveValue(body);
-  // ghi nhận (không phải lỗi): useAutosaveDraft chỉ giữ NỘI DUNG; tiêu đề quay về mặc định sau khi tải lại
+  await expect.soft(g2.getByLabel("Tiêu đề"), "luật «không mất chữ đã gõ» (51c14cd8): tiêu đề cũng còn sau tải lại").toHaveValue(title);
 });
 function require_rl_clear() {
   // bộ đếm tạo báo cáo (3 việc / 60 phút / lớp) làm phép thử thất bại giả

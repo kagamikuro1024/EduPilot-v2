@@ -5130,7 +5130,7 @@ paths:
     post:
       operationId: whatIfMyGrade
       tags: [gradebook]
-      summary: "Tính thử \"nếu cuối kỳ được X\" (hoặc điểm cuối kỳ tối thiểu để đạt điểm chữ mục tiêu) bằng engine; chỉ đọc, không ghi gì, không cần Idempotency-Key. Đúng một trong hai trường; điểm ngoài 0–10 hoặc quá 2 chữ số thập phân 422; thiếu thành phần quá trình đã công bố 409 NOT_ENOUGH_GRADES; đã chốt 409 FINAL_ALREADY_LOCKED"
+      summary: "Tính thử \"nếu cuối kỳ được X\" (hoặc điểm cuối kỳ tối thiểu để đạt điểm chữ mục tiêu) bằng engine; chỉ đọc, không ghi gì, không cần Idempotency-Key. Đúng một trong hai trường; điểm ngoài 0–10, quá 2 chữ số thập phân hoặc điểm chữ mục tiêu không thuộc thang của công thức (khớp chính xác sau TrimSpace, phân biệt hoa thường, rỗng = ngoài thang; details[].field = target_letter) 422; thiếu thành phần quá trình đã công bố 409 NOT_ENOUGH_GRADES; đã chốt 409 FINAL_ALREADY_LOCKED"
       parameters:
         - $ref: "#/components/parameters/CourseId"
       requestBody:
@@ -19323,6 +19323,7 @@ components:
           type: [string, "null"]
         version:
           type: [integer, "null"]
+          description: "Vắng ≡ null: ô mới; ô đã có mà null / vắng → 409 VERSION_CONFLICT; sai kiểu → 422 (P-11-54)"
     PutGradeEntryOutput:
       type: object
       required: [entry, row_result, bonus, penalty]

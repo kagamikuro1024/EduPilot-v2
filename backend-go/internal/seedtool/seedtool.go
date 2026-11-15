@@ -127,7 +127,7 @@ func studyRows(student uuid.UUID, email string, p StudyProfile, weeks int, now t
 	return out
 }
 
-// SeedStudyTime ghi `study_time_daily` của mọi sinh viên ACTIVE của lớp (`ON CONFLICT … GREATEST`, chạy lại không nhân đôi) và trả số dòng đã ĐỔI (thêm mới hoặc tăng).
+// SeedStudyTime ghi `study_time_daily` của mọi sinh viên ACTIVE của lớp (xoá hàng không còn trong tập, ghi đè giây của hàng trùng khoá; chạy lại không nhân đôi) và trả số dòng đã ĐỔI (thêm mới hoặc tăng).
 func SeedStudyTime(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, weeks int, p StudyProfile, now time.Time) (int64, error) {
 	if weeks < 1 || weeks > 52 {
 		return 0, errors.New("--weeks phải từ 1 đến 52")
@@ -165,11 +165,18 @@ func SeedStudyTime(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, 
 	if len(ids) == 0 {
 		return 0, nil
 	}
+	// Lịch seed dịch ngày (lùi 7 / 30 ngày): hàng của lần seed trước nằm ở ngày khác khoá tự nhiên mới nên không bị ghi đè và làm lệch tín hiệu STUDY (+2.580 hàng, WATCH 2 thay vì 3).
+	// Lịch sử thời gian học của lớp seed THUỘC seed (lệnh chỉ chạy ở dev / test): xoá hàng KHÔNG còn trong tập của lần này rồi upsert phần còn lại — chạy lại ở độ lệch nào cũng ra đúng bấy nhiêu hàng,
+	// cùng ngày thì không đổi dòng nào.
+	if _, err := pool.Exec(ctx, `delete from study_time_daily d where d.course_id = $1 and not exists (
+		select 1 from unnest($2::uuid[], $3::date[], $4::text[]) as x(s, dt, a) where x.s = d.student_id and x.dt = d.date and x.a = d.area)`, courseID, ids, days, ar); err != nil {
+		return 0, fmt.Errorf("xoá thời gian học cũ của seed: %w", err)
+	}
 	tag, err := pool.Exec(ctx, `
 insert into study_time_daily (course_id, student_id, date, area, active_seconds)
 select $1, x.s, x.d, x.a, x.n from unnest($2::uuid[], $3::date[], $4::text[], $5::int[]) as x(s, d, a, n)
-on conflict (course_id, student_id, date, area) do update set active_seconds = greatest(study_time_daily.active_seconds, excluded.active_seconds)
-where study_time_daily.active_seconds < excluded.active_seconds`, courseID, ids, days, ar, secs)
+on conflict (course_id, student_id, date, area) do update set active_seconds = excluded.active_seconds
+where study_time_daily.active_seconds <> excluded.active_seconds`, courseID, ids, days, ar, secs)
 	if err != nil {
 		return 0, fmt.Errorf("ghi study_time_daily: %w", err)
 	}

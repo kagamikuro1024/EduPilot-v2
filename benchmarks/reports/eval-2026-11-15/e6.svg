@@ -1,34 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" font-family="sans-serif" font-size="12">
-<text x="360.0" y="18" text-anchor="middle" font-size="14">E6 — độ trễ endpoint (ms, tuần tự, 200 yêu cầu)</text>
+<text x="360.0" y="18" text-anchor="middle" font-size="14">E6 — độ trễ endpoint (ms, tuần tự, 200 yêu cầu, lượt k2)</text>
 <text x="360.0" y="414" text-anchor="middle"></text>
 <text x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">ms</text>
 <line x1="60" y1="350.0" x2="700" y2="350.0" stroke="#ddd"/><text x="54" y="354.0" text-anchor="end">0</text>
-<line x1="60" y1="286.0" x2="700" y2="286.0" stroke="#ddd"/><text x="54" y="290.0" text-anchor="end">3</text>
-<line x1="60" y1="222.0" x2="700" y2="222.0" stroke="#ddd"/><text x="54" y="226.0" text-anchor="end">6</text>
-<line x1="60" y1="158.0" x2="700" y2="158.0" stroke="#ddd"/><text x="54" y="162.0" text-anchor="end">9</text>
-<line x1="60" y1="94.0" x2="700" y2="94.0" stroke="#ddd"/><text x="54" y="98.0" text-anchor="end">13</text>
-<line x1="60" y1="30.0" x2="700" y2="30.0" stroke="#ddd"/><text x="54" y="34.0" text-anchor="end">16</text>
-<rect x="69.1" y="293.1" width="34.6" height="56.9" fill="#b3261e"/><text x="87.4" y="290.1" text-anchor="middle" font-size="10">3</text>
-<rect x="105.7" y="250.5" width="34.6" height="99.5" fill="#1f5aa6"/><text x="124.0" y="247.5" text-anchor="middle" font-size="10">5</text>
+<line x1="60" y1="286.0" x2="700" y2="286.0" stroke="#ddd"/><text x="54" y="290.0" text-anchor="end">2</text>
+<line x1="60" y1="222.0" x2="700" y2="222.0" stroke="#ddd"/><text x="54" y="226.0" text-anchor="end">5</text>
+<line x1="60" y1="158.0" x2="700" y2="158.0" stroke="#ddd"/><text x="54" y="162.0" text-anchor="end">7</text>
+<line x1="60" y1="94.0" x2="700" y2="94.0" stroke="#ddd"/><text x="54" y="98.0" text-anchor="end">9</text>
+<line x1="60" y1="30.0" x2="700" y2="30.0" stroke="#ddd"/><text x="54" y="34.0" text-anchor="end">11</text>
+<rect x="69.1" y="274.1" width="34.6" height="75.9" fill="#b3261e"/><text x="87.4" y="271.1" text-anchor="middle" font-size="10">3</text>
+<rect x="105.7" y="226.3" width="34.6" height="123.7" fill="#1f5aa6"/><text x="124.0" y="223.3" text-anchor="middle" font-size="10">4</text>
 <text x="105.7" y="366" text-anchor="middle" font-size="12">GET /readyz</text>
-<rect x="160.6" y="285.0" width="34.6" height="65.0" fill="#b3261e"/><text x="178.9" y="282.0" text-anchor="middle" font-size="10">3</text>
-<rect x="197.1" y="244.4" width="34.6" height="105.6" fill="#1f5aa6"/><text x="215.4" y="241.4" text-anchor="middle" font-size="10">5</text>
+<rect x="160.6" y="260.1" width="34.6" height="89.9" fill="#b3261e"/><text x="178.9" y="257.1" text-anchor="middle" font-size="10">3</text>
+<rect x="197.1" y="217.9" width="34.6" height="132.1" fill="#1f5aa6"/><text x="215.4" y="214.9" text-anchor="middle" font-size="10">5</text>
 <text x="197.1" y="366" text-anchor="middle" font-size="10">GET /me/courses (SV)</text>
-<rect x="252.0" y="264.7" width="34.6" height="85.3" fill="#b3261e"/><text x="270.3" y="261.7" text-anchor="middle" font-size="10">4</text>
-<rect x="288.6" y="244.4" width="34.6" height="105.6" fill="#1f5aa6"/><text x="306.9" y="241.4" text-anchor="middle" font-size="10">5</text>
+<rect x="252.0" y="240.4" width="34.6" height="109.6" fill="#b3261e"/><text x="270.3" y="237.4" text-anchor="middle" font-size="10">4</text>
+<rect x="288.6" y="201.0" width="34.6" height="149.0" fill="#1f5aa6"/><text x="306.9" y="198.0" text-anchor="middle" font-size="10">5</text>
 <text x="288.6" y="366" text-anchor="middle" font-size="10">GET threads (SV)</text>
-<rect x="343.4" y="270.8" width="34.6" height="79.2" fill="#b3261e"/><text x="361.7" y="267.8" text-anchor="middle" font-size="10">4</text>
-<rect x="380.0" y="213.9" width="34.6" height="136.1" fill="#1f5aa6"/><text x="398.3" y="210.9" text-anchor="middle" font-size="10">7</text>
+<rect x="343.4" y="257.2" width="34.6" height="92.8" fill="#b3261e"/><text x="361.7" y="254.2" text-anchor="middle" font-size="10">3</text>
+<rect x="380.0" y="203.8" width="34.6" height="146.2" fill="#1f5aa6"/><text x="398.3" y="200.8" text-anchor="middle" font-size="10">5</text>
 <text x="380.0" y="366" text-anchor="middle" font-size="10">GET documents (GV)</text>
-<rect x="434.9" y="144.9" width="34.6" height="205.1" fill="#b3261e"/><text x="453.1" y="141.9" text-anchor="middle" font-size="10">10</text>
-<rect x="471.4" y="71.7" width="34.6" height="278.3" fill="#1f5aa6"/><text x="489.7" y="68.7" text-anchor="middle" font-size="10">14</text>
-<text x="471.4" y="366" text-anchor="middle" font-size="10">GET students (GV)</text>
-<rect x="526.3" y="191.6" width="34.6" height="158.4" fill="#b3261e"/><text x="544.6" y="188.6" text-anchor="middle" font-size="10">8</text>
-<rect x="562.9" y="148.9" width="34.6" height="201.1" fill="#1f5aa6"/><text x="581.1" y="145.9" text-anchor="middle" font-size="10">10</text>
+<rect x="434.9" y="119.5" width="34.6" height="230.5" fill="#b3261e"/><text x="453.1" y="116.5" text-anchor="middle" font-size="10">8</text>
+<rect x="471.4" y="71.7" width="34.6" height="278.3" fill="#1f5aa6"/><text x="489.7" y="68.7" text-anchor="middle" font-size="10">10</text>
+<text x="471.4" y="366" text-anchor="middle" font-size="10">GET students (TA)</text>
+<rect x="526.3" y="128.0" width="34.6" height="222.0" fill="#b3261e"/><text x="544.6" y="125.0" text-anchor="middle" font-size="10">8</text>
+<rect x="562.9" y="85.8" width="34.6" height="264.2" fill="#1f5aa6"/><text x="581.1" y="82.8" text-anchor="middle" font-size="10">9</text>
 <text x="562.9" y="366" text-anchor="middle" font-size="10">GET gradebook (GV)</text>
-<rect x="617.7" y="287.0" width="34.6" height="63.0" fill="#b3261e"/><text x="636.0" y="284.0" text-anchor="middle" font-size="10">3</text>
-<rect x="654.3" y="268.8" width="34.6" height="81.2" fill="#1f5aa6"/><text x="672.6" y="265.8" text-anchor="middle" font-size="10">4</text>
-<text x="654.3" y="366" text-anchor="middle" font-size="12">GET today (GV)</text>
+<rect x="617.7" y="265.7" width="34.6" height="84.3" fill="#b3261e"/><text x="636.0" y="262.7" text-anchor="middle" font-size="10">3</text>
+<rect x="654.3" y="212.3" width="34.6" height="137.7" fill="#1f5aa6"/><text x="672.6" y="209.3" text-anchor="middle" font-size="10">5</text>
+<text x="654.3" y="366" text-anchor="middle" font-size="12">GET today (TA)</text>
 <line x1="60" y1="350" x2="700" y2="350" stroke="#333"/>
 <rect x="60" y="394" width="12" height="10" fill="#b3261e"/><text x="76" y="403">p50</text>
 <rect x="230" y="394" width="12" height="10" fill="#1f5aa6"/><text x="246" y="403">p95</text>

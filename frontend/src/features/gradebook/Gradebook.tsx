@@ -7,7 +7,7 @@ import { GradeCalculation } from "@/shared/domain";
 import { Button, ButtonLink, type Column as TableColumn, DataTable, Drawer, EmptyState, InlineNotice, OverflowMenu, type HeaderAction, Page, PageHeader, PageState, Panel, Skeleton, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import {
-  exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus, useSnapshots,
+  exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus, useSnapshots, type SchemeStatus,
   type Column, type GEntry, type GradebookPage, type GRow, type Incomplete,
 } from "./gradeApi";
 import { FinalizeDialog, SnapshotHistory, UnlockDialog, stamp } from "./FinalizeGrades";
@@ -61,14 +61,15 @@ const ago = (iso?: string) => {
   return m < 1 ? "vừa xong" : m < 60 ? `${m} phút trước` : `${Math.round(m / 60)} giờ trước`;
 };
 
-/** Đầu trang khi chưa có dữ liệu (đang tải / lỗi / chưa chọn lớp): cùng nút với lúc có dữ liệu, nút cần dữ liệu khoá, liên kết bấm được (TL 14.6; DEF-R10.7-02). */
-function IdleHeader({ teacher }: { teacher: boolean }) {
+/** Đầu trang khi chưa có dữ liệu (đang tải / lỗi / chưa chọn lớp): đúng bộ nút của lúc có dữ liệu, suy từ trạng thái công thức nếu đã có; nút cần dữ liệu khoá, liên kết bấm được (TL 14.6; DEF-R10.7-02; P-11-51). */
+function IdleHeader({ teacher, status }: { teacher: boolean; status?: SchemeStatus }) {
+  const sealed = status?.state === "CONFIRMED" && status.gradebook.status === "LOCKED";
   return (
     <PageHeader
       title="Sổ điểm"
-      primary={teacher ? { label: "Chốt điểm", disabled: true } : undefined}
+      primary={teacher && !sealed ? { label: "Chốt điểm", disabled: true } : undefined}
       secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
-      more={teacher ? [{ label: "Xuất XLSX", disabled: true }] : []}
+      more={teacher && status?.state === "CONFIRMED" ? [{ label: "Xuất XLSX", disabled: true }] : []}
     />
   );
 }
@@ -313,9 +314,9 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     { key: "qt", header: "Quá trình", align: "end", width: "92px", part: "col-qt", render: (r) => calc(r, r.result?.qt, dec.qt) },
     { key: "hp", header: "Điểm học phần", align: "end", width: "112px", part: "col-hp", render: (r) => calc(r, r.result?.hp, dec.hp) },
     { key: "letter", header: "Điểm chữ", align: "center", width: "88px", part: "col-letter", render: (r) => (pending.has(r.student.id) ? "…" : r.result?.letter ?? "—") },
-    ...(showStatus ? [{ key: "status", header: "Trạng thái", width: "130px", part: "col-status", render: (r: GRow) => {
+    ...(showStatus ? [{ key: "status", header: "Trạng thái", width: rows.some((r) => r.drift) ? "184px" : "130px", part: "col-status", render: (r: GRow) => {
       const t = pending.has(r.student.id) ? "…" : statusText(r);
-      return <span data-part="row-status">{t === "Thiếu điểm" && <i className={s.missDot} aria-hidden />}{t}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span>;
+      return <span className={s.rowStatus} data-part="row-status">{t === "Thiếu điểm" && <i className={s.missDot} aria-hidden />}{t}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span>;
     } }] : []),
     {
       key: "menu", header: <span className="ep-sr-only">Hành động</span>, width: "56px", align: "end",
@@ -357,7 +358,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         : undefined;
 
   // MỘT PageHeader cho tải / lỗi / có dữ liệu (TL 14.6): nút cần dữ liệu hiện nhưng khoá, liên kết bấm được
-  const noData = <IdleHeader teacher={teacher} />;
+  const noData = <IdleHeader teacher={teacher} status={status} />;
   return (
     <Page kind="work">
       <PageState

@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -255,6 +256,23 @@ func TestStudentDTOAllowlist(t *testing.T) {
 	walkKeys(t, g, "$")
 }
 
+// /me/grades `final.locked_at` là thời điểm chốt thật của bản chốt (openapi: date-time bắt buộc), không bao giờ 0001-01-01T00:00:00Z.
+func TestMeGradesFinalLockedAt(t *testing.T) {
+	r := newMeRig(t)
+	r.publish("weekly")
+	r.publish("final")
+	_, err := r.svc().Finalize(r.ctx, r.gv, r.course)
+	require.NoError(t, err)
+	m := r.me(r.a)
+	require.NotNil(t, m.Final)
+	raw, err := json.Marshal(m.Final)
+	require.NoError(t, err)
+	require.NotContains(t, string(raw), "0001-01-01")
+	var want time.Time
+	require.NoError(t, r.pool.QueryRow(r.ctx, `select locked_at from final_grade_snapshots where course_id = $1 and student_id = $2`, r.course, r.a).Scan(&want))
+	require.True(t, m.Final.LockedAt.Equal(want), "locked_at %s ≠ bản chốt %s", m.Final.LockedAt, want)
+}
+
 func TestMeGradesFinalFromSnapshot(t *testing.T) {
 	r := newMeRig(t)
 	r.publish("weekly")
@@ -359,10 +377,15 @@ func TestMeWhatIfTargetLetter(t *testing.T) {
 	if *out.Reachable {
 		require.NotNil(t, out.MinFinalExam)
 	}
-	code, body = r.post("/me/grades/what-if", "A", map[string]any{"target_letter": "Z"})
+	// P-11-55 / TC-P6-09-49: điểm chữ NGOÀI thang của công thức là lỗi nhập (422), không phải «không đạt được»; «có trong thang nhưng không đạt được» vẫn 200 reachable=false (TC-P6-09-18)
+	for _, bad := range []string{"Z", "a", "a+", "A++", "", " "} { // so khớp CHÍNH XÁC: hoa / thường khác nhau, rỗng và trắng = ngoài thang
+		code, body = r.post("/me/grades/what-if", "A", map[string]any{"target_letter": bad})
+		require.Equal(t, 422, code, "%q", bad)
+		require.Contains(t, body, "VALIDATION_FAILED", "%q", bad)
+		require.Contains(t, body, `"field":"target_letter"`, "%q", bad)
+	}
+	code, _ = r.post("/me/grades/what-if", "A", map[string]any{"target_letter": " A "}) // TrimSpace trước khi so
 	require.Equal(t, 200, code)
-	require.Contains(t, body, `"reachable":false`)
-	require.NotContains(t, body, "min_final_exam_score")
 	code, _ = r.post("/me/grades/what-if", "A", map[string]any{"target_letter": "A", "final_exam_score": "8"})
 	require.Equal(t, 422, code, "đúng một trong hai trường")
 }

@@ -302,9 +302,12 @@ func analyze(data sheetData, m ImportMapping, max decimal.Decimal, roster []stor
 		}
 		d, err := ParseScore(rawScore)
 		if err != nil {
-			if rawScore != "" && scoreManyRE.MatchString(rawScore) {
+			switch badScoreCode(rawScore) {
+			case RowPrecision:
 				fail(r.n, RowPrecision, code, "")
-			} else {
+			case RowOutOfRange: // số âm: là số, nằm ngoài thang (US-P6-07 AC3, TC-P6-07-11)
+				fail(r.n, RowOutOfRange, code, fmt.Sprintf("Điểm ngoài thang 0–%s", strings.Replace(max.String(), ".", ",", 1)))
+			default:
 				fail(r.n, RowNotNumber, code, "")
 			}
 			continue
@@ -439,4 +442,18 @@ func (s *Service) plan(ctx context.Context, q *store.Queries, courseID uuid.UUID
 		existing[e.StudentID] = e.Score
 	}
 	return analyze(data, in.Mapping, item.MaxScore, roster, existing), nil
+}
+
+var negScoreRE = regexp.MustCompile(`^-\d{1,3}([.,]\d+)?$`) //nolint:gochecknoglobals // biểu thức chính quy bất biến
+
+// badScoreCode phân loại ô điểm mà ParseScore từ chối: quá 2 chữ số thập phân (kể cả số âm) → PRECISION; số âm → OUT_OF_RANGE; còn lại NOT_NUMBER.
+func badScoreCode(raw string) string {
+	t := strings.TrimSpace(raw)
+	if scoreManyRE.MatchString(t) || (negScoreRE.MatchString(t) && scoreManyRE.MatchString(t[1:])) {
+		return RowPrecision
+	}
+	if negScoreRE.MatchString(t) {
+		return RowOutOfRange
+	}
+	return RowNotNumber
 }

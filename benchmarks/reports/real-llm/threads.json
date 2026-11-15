@@ -1,36 +1,308 @@
 {
-  "meta": {
-    "commit": "5ea7cdef",
-    "timestamp": "2026-11-15T04:46:36.946Z",
-    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
-    "runs": 1,
-    "config": {
-      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)",
-      "model": "9router/ag/gemini-3.8-flash",
-      "embedding": "fake-embed-qcR (giả)",
-      "rpm_limit": 20,
-      "config_source": "DEF-R9.5-09: model + rpm_limit theo cấu hình lượt đo ghi ở docs/sprints/9.5/report.md dòng 5; embedding theo report.md mục 5 (Giới hạn)"
+ "meta": {
+  "commit": "468207a7",
+  "timestamp": "2026-11-15T21:17:46.363Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "compose_project": "ep-qc",
+   "CHAT": [
+    {
+     "provider": "QC 9router",
+     "model": "ag/gemini-3.8-flash",
+     "rpm_limit": null
     }
+   ],
+   "EMBEDDING": [
+    {
+     "provider": "gemini-embed-eval",
+     "model": "gemini-embedding-001",
+     "rpm_limit": 60
+    }
+   ],
+   "model": "QC 9router/ag/gemini-3.8-flash",
+   "rpm_limit": null
+  }
+ },
+ "at": "2026-11-15T21:17:46.363Z",
+ "summary": {
+  "n": 5,
+  "ai_answered": 5,
+  "ai_after_s": {
+   "n": 5,
+   "p50": 9.1,
+   "p90": 12.1,
+   "p95": 12.1,
+   "max": 12.1,
+   "mean": 9
+  }
+ },
+ "results": [
+  {
+   "title": "Phân biệt virus và sâu máy tính",
+   "thread_id": "01a1e111-863a-7fad-af5c-9b60ae498a96",
+   "ai_after_s": 9.3,
+   "ai": {
+    "id": "01a1e111-a915-7bcc-92cc-dd2154b6eb17",
+    "kind": "AI",
+    "author": null,
+    "body": "Chào bạn, về cách thức lây lan, virus và sâu máy tính (worm) có sự khác biệt chính như sau:\n\n- **Virus:** Cần có sự can thiệp của người dùng (*user intervention*) để lây lan [1]. Virus chỉ có thể lây lan giữa các máy tính bằng cách gửi qua mạng dưới dạng tệp, email payload hoặc truyền qua thiết bị lưu trữ rời (*removable medium*) [1].\n- **Sâu máy tính (Worm):** Không cần sự tham gia/can thiệp của người dùng (*user participation/intervention*) và có thể lây lan cực kỳ nhanh qua mạng [5], [6]. Chúng tự nhân bản và lây lan bằng cách khai thác độc lập các lỗ hổng mạng (chẳng hạn như *remote root buffer overflow*), tự cài đặt bản sao vào bộ nhớ máy tính và tìm kiếm các mục tiêu tiếp theo để lây nhiễm [1], [3], [6], [8].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 51,
+      "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 5,
+      "title": "Network Security Threats",
+      "page_no": 54,
+      "snippet": "- – Worms do not require user participation and can spread extremely fast over the network. - In January 2001, the SQL Slammer Worm slowed down global Internet traffic as a result of DoS.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 6,
+      "title": "Network Security Threats",
+      "page_no": 61,
+      "snippet": "- – Actual damage is done to the system. - – Files can be erased, systems can crash, information can be stolen, and distributed DDoS attacks can be lhd launched.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 53,
+      "snippet": "- Some viruses are programmed to damage the computer by damaging programs, deleting files, or reformatting the hard disk.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 8,
+      "title": "Network Security Threats",
+      "page_no": 56,
+      "snippet": "- The enabling vulnerability - – A worm installs itself using an exploit vector on a vulnerable system.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-15T21:16:33.426451Z",
+    "confidence": "0.920",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   },
+   "regen": {
+    "after_s": 12.1,
+    "ai": {
+     "id": "01a1e111-d0ef-712a-9c3a-8194e705377b",
+     "kind": "AI",
+     "author": null,
+     "body": "Chào bạn, sự khác nhau về cách lây lan giữa virus và sâu máy tính như sau:\n\n- **Virus máy tính:**\n  - **Cách lây lan:** Cần có sự can thiệp của người dùng (*user intervention*) để lây lan [2]. Virus gắn vào một chương trình khác [2] và chỉ có thể lây lan từ máy này sang máy khác qua mạng (dưới dạng tệp hoặc payload email) hoặc qua thiết bị lưu trữ di động (*removable medium*) [2]. Chúng thường tận dụng lỗi tràn bộ đệm root cục bộ [7].\n\n- **Sâu máy tính (Worm):**\n  - **Cách lây lan:** Không cần sự can thiệp hay tham gia của người dùng [6] [7]. Sâu máy tính tự nhân bản bằng cách độc lập khai thác các lỗ hổng mạng (thường là tràn bộ đệm root từ xa) [4] [7], thực thi mã và cài đặt bản sao vào bộ nhớ của máy bị nhiễm để tiếp tục lây lan cực nhanh sang các máy chủ khác [2] [6].\n\n- **Ví dụ cụ thể (được ghi nhận trong tài liệu):**\n  - Về sâu máy tính: Sâu **SQL Slammer** (tháng 1/2001, khai thác lỗi tràn bộ đệm của Microsoft's SQL Server, lây nhiễm hơn 250.000 máy chủ chỉ trong 30 phút và làm nghẽn lưu lượng Internet toàn cầu) [6], hoặc sâu **Code Red** [7]. \n  *(Lưu ý: Tài liệu của lớp không đề cập đến tên ví dụ cụ thể cho virus).*",
+     "verification_state": "PENDING",
+     "citations": [
+      {
+       "n": 2,
+       "title": "Network Security Threats",
+       "page_no": 51,
+       "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+       "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+      },
+      {
+       "n": 7,
+       "title": "Network Security Threats",
+       "page_no": 61,
+       "snippet": "- – Actual damage is done to the system. - – Files can be erased, systems can crash, information can be stolen, and distributed DDoS attacks can be lhd launched.",
+       "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+      },
+      {
+       "n": 6,
+       "title": "Network Security Threats",
+       "page_no": 54,
+       "snippet": "- – Worms do not require user participation and can spread extremely fast over the network. - In January 2001, the SQL Slammer Worm slowed down global Internet traffic as a result of DoS.",
+       "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+      },
+      {
+       "n": 4,
+       "title": "Network Security Threats",
+       "page_no": 53,
+       "snippet": "- Some viruses are programmed to damage the computer by damaging programs, deleting files, or reformatting the hard disk.",
+       "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+      }
+     ],
+     "version": 1,
+     "created_at": "2026-11-15T21:16:43.628109Z",
+     "confidence": "0.920",
+     "rejected": false,
+     "hidden": null,
+     "edited": false
+    }
+   }
   },
-  "at": "2026-11-15T04:46:36.946Z",
-  "results": [
-    {
-      "title": "Phân biệt virus và sâu máy tính",
-      "thread_id": "01a1dd7e-cd27-7794-9e88-eb38a89203b5",
-      "ai_after_s": 181.7,
-      "ai": null
-    },
-    {
-      "title": "Phishing qua email",
-      "thread_id": "01a1dd81-a5d1-7054-b9fc-99b2207d0a17",
-      "ai_after_s": 181.5,
-      "ai": null
-    },
-    {
-      "title": "DoS và DDoS",
-      "thread_id": "01a1dd84-7eaa-7ec9-9e50-fcf0e4f38bf9",
-      "ai_after_s": 181.6,
-      "ai": null
-    }
-  ]
+  {
+   "title": "Phishing qua email",
+   "thread_id": "01a1e111-ecf0-756f-bd7b-f9e4a3878fa2",
+   "ai_after_s": 9.1,
+   "ai": {
+    "id": "01a1e112-05f6-7f2b-970e-22876e0775c1",
+    "kind": "AI",
+    "author": null,
+    "body": "Mình chưa tìm thấy nội dung này trong tài liệu của lớp. \n\nTài liệu hiện chỉ đề cập việc kẻ tấn công sử dụng email để lừa lấy các thông tin nhạy cảm (như mật khẩu, số thẻ tín dụng) [1] hoặc gửi tệp đính kèm chứa mã độc [2], [3], chứ chưa có hướng dẫn cụ thể về cách nhận diện một email lừa đảo.",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 24,
+      "snippet": "- – Individual uses email or other means in an attempt to trick others into providing sensitive information, such as credit card numbers or passwords.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 2,
+      "title": "Network Security Threats",
+      "page_no": 129,
+      "snippet": "- Posing as a fellow employee, as an employee of a vendor, partner company, or law enforcement, as someone in authority, as a new employee requesting help, as a vendor or systems manufacturer calling",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 51,
+      "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-15T21:16:57.204938Z",
+    "confidence": "0.558",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   }
+  },
+  {
+   "title": "DoS và DDoS",
+   "thread_id": "01a1e112-2431-7bfa-ba8f-c050c2fb74e3",
+   "ai_after_s": 6.1,
+   "ai": {
+    "id": "01a1e112-37c8-7f88-8b8c-2a8584848b85",
+    "kind": "AI",
+    "author": null,
+    "body": "Chào bạn, điểm khác nhau giữa tấn công DoS và DDoS theo tài liệu gồm:\n\n- DoS là phiên bản đơn giản hơn so với DDoS [1].\n- DDoS sử dụng các phương thức tấn công tương tự như tấn công DoS tiêu chuẩn nhưng hoạt động ở quy mô lớn hơn nhiều [2].\n- Ở tấn công DDoS, thông thường có hàng trăm hoặc hàng nghìn điểm tấn công cùng cố gắng làm quá tải một mục tiêu [2].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 99,
+      "snippet": "- A DDoS attack and the simpler version of a DoS attack on a server, send extremely large numbers of requests over a network or the Internet.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 2,
+      "title": "Network Security Threats",
+      "page_no": 101,
+      "snippet": "- DDoS attack risks include: - – Downtime and productivity loss - – Revenue loss from sales and support services - – Lost customer loyalty - – Theft of information - – Extortion - – Stock price",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-15T21:17:09.958985Z",
+    "confidence": "0.900",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   }
+  },
+  {
+   "title": "Trojan horse",
+   "thread_id": "01a1e112-523a-7a65-8521-42468d336baa",
+   "ai_after_s": 7.9,
+   "ai": {
+    "id": "01a1e112-6d24-7d69-862c-65caf7d43e25",
+    "kind": "AI",
+    "author": null,
+    "body": "Chào bạn, theo tài liệu của lớp:\n\n* **Trojan horse là gì:** Là chương trình đối với người dùng có vẻ như thực hiện một chức năng mong muốn, hữu ích hoặc vô hại, nhưng trên thực tế lại tạo điều kiện cho việc truy cập trái phép vào hệ thống máy tính của người dùng và thực chất là một công cụ tấn công [1] [3].\n* **Điểm khác biệt so với virus:**\n  * **Khả năng tự nhân bản:** Trojan horse không có khả năng tự nhân bản (self-replicating), trong khi virus có thể tự sao chép chính nó [1] [3].\n  * **Cách thức tồn tại/hoạt động:** Toàn bộ ứng dụng Trojan horse được viết để ngụy trang trông giống như một thứ khác [3], trong khi virus là phần mềm độc hại được đính kèm vào một chương trình khác để thực thi chức năng không mong muốn [3].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 58,
+      "snippet": "http://www.cbc.ca/technology/story/2009/12/16/f-forbes-adobe-hacked-software.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 51,
+      "snippet": "- A virus is malicious software that is attached to another program to execute a particular unwanted function on a user's workstation.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-15T21:17:23.617912Z",
+    "confidence": "0.840",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   }
+  },
+  {
+   "title": "Tấn công do thám",
+   "thread_id": "01a1e112-81e9-763c-a937-296a37e2b233",
+   "ai_after_s": 12.1,
+   "ai": {
+    "id": "01a1e112-aa63-7379-8281-5cc089c1b690",
+    "kind": "AI",
+    "author": null,
+    "body": "Chào bạn, theo tài liệu của lớp, tấn công do thám (reconnaissance attacks) có thể bao gồm các hoạt động/kỹ thuật sau [1]:\n- **Truy vấn thông tin Internet (Internet information queries):** Dùng các công cụ như `whois`, `nslookup` để tìm chủ sở hữu tên miền và các dải địa chỉ IP liên quan [1].\n- **Quét ping (Ping sweeps / ICMP sweep):** Quét để xác định dải địa chỉ IP nào đang ánh xạ tới các máy chủ đang hoạt động (live hosts) [1].\n- **Quét cổng (Port scans):** Gửi thông điệp đến từng cổng để kiểm tra cổng đó có mở/được sử dụng hay không nhằm dò tìm điểm yếu [1].\n- **Bắt gói tin (Packet sniffers):** Bắt các gói tin truyền qua mạng [1].\n\nNgoài ra, trong quá trình thực hiện phân tích footprint (reconnaissance) [3], kẻ tấn công triển khai các bước [4]:\n1. Thu thập kiến thức qua các trang web, danh bạ điện thoại, tài liệu giới thiệu công ty, chi nhánh... [4]\n2. Sử dụng các lệnh như `nslookup` (đối chiếu tên miền với địa chỉ IP) và `traceroute` (hỗ trợ dựng sơ đồ mạng) để xây dựng footprint chi tiết hơn [4].\n3. Sử dụng các chương trình/tiện ích như truy vấn WHOIS, quét cổng (port scanning) và Nmap để tìm cổng mở và hệ điều hành của máy đích [4].",
+    "verification_state": "PENDING",
+    "citations": [
+     {
+      "n": 1,
+      "title": "Network Security Threats",
+      "page_no": 72,
+      "snippet": "- Reconnaissance also known as information gathering is the unauthorized discovery and mapping of systems, services, or vulnerabilities. - – In most cases, precedes an access or DoS attack.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 3,
+      "title": "Network Security Threats",
+      "page_no": 119,
+      "snippet": "- Step 1 — Perform footprint analysis (reconnaissance). - Step 2 — Detail the information. - Step 3 — Manipulate users to gain access. - Step 4 — Escalate privileges.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     },
+     {
+      "n": 4,
+      "title": "Network Security Threats",
+      "page_no": 120,
+      "snippet": "- Gain knowledge of acquisitions using Web pages, phone books, company brochures, subsidiaries, etc.",
+      "document_id": "01a1def2-de0c-79eb-a2bc-abb7cdaa2719"
+     }
+    ],
+    "version": 1,
+    "created_at": "2026-11-15T21:17:39.297132Z",
+    "confidence": "0.950",
+    "rejected": false,
+    "hidden": null,
+    "edited": false
+   },
+   "ai_state": {
+    "ai_state": "ANSWERED"
+   }
+  }
+ ]
 }

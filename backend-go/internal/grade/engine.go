@@ -117,6 +117,19 @@ func Compute(s Scheme, in Input) Result { return compute(s, in, nil) }
 // WhatIf = Compute với điểm cuối kỳ CK = ck (0–10), không ghi gì; điều kiện liệt vẫn áp.
 func WhatIf(s Scheme, in Input, ck decimal.Decimal) Result { return compute(s, in, &ck) }
 
+// hasLetter: `letter` có trong thang điểm chữ của công thức (khớp chính xác, phân biệt hoa thường).
+func (s Scheme) hasLetter(letter string) bool {
+	if s.Rules.Letters == nil {
+		return false
+	}
+	for _, b := range s.Rules.Letters.Bands {
+		if b.Letter == letter {
+			return true
+		}
+	}
+	return false
+}
+
 // MinFinalFor trả điểm cuối kỳ nhỏ nhất (bước 0,01) ∈ [0; 10] để điểm chữ ≥ target và không liệt; false nếu không đạt được
 // (kể cả khi còn thiếu điểm thành phần khác). Dùng cùng Compute (không có đường tính thứ hai).
 func MinFinalFor(s Scheme, in Input, target string) (decimal.Decimal, bool) {
@@ -177,7 +190,7 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 		}
 		var scores []decimal.Decimal
 		var exprs, names []string
-		missing := false
+		missing, zeroed := false, false
 		for _, it := range c.Items {
 			raw, ok := in.Scores[it.ID]
 			if ok {
@@ -199,6 +212,7 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 				scores = append(scores, decimal.Zero)
 				names = append(names, it.Name)
 				exprs = append(exprs, "0")
+				zeroed = true
 				continue
 			}
 			reason := ReasonNoScore
@@ -237,12 +251,18 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 			}
 			q, pg, fu := c.quote()
 			text := c.Name + ": " + fmtNum(cr.Score)
+			if zeroed && s.Rules.MissingScore != nil { // giải trình ĐÚNG lý do của số 0 và trích điều khoản (SRS 4.3.3, US-P6-02 AC7)
+				q, pg, fu = s.Rules.MissingScore.quote()
+			}
 			var detail []string
 			if len(scores) > 1 {
 				text += " · trung bình " + strconv.Itoa(len(scores)) + " bài"
 				for i, v := range scores {
 					detail = append(detail, strings.TrimSpace(names[i]+" "+fmtNum(v)))
 				}
+			}
+			if zeroed {
+				text += " · không dự → 0 theo quy chế"
 			}
 			r.Lines = append(r.Lines, Line{Label: c.Name + " (" + fmtNum(c.Weight) + "%)", Expr: expr, Text: text, Detail: detail, Value: fmtNum(cr.Score), Quote: q, Page: pg, FilledByUser: fu})
 		}

@@ -1,8 +1,2 @@
-simulate
-  /                LCP 1547 TBT 83 CLS 0 script 189 KB
-  /chat            LCP 1423 TBT 54 CLS 0.016 script 217 KB
-  /threads         LCP 2742 TBT 130 CLS 0 script 209 KB
-  /inbox           LCP 1817 TBT 53 CLS 0 script 207 KB
-  /gradebook       LCP 2889 TBT 38 CLS 0 script 232 KB
-  /me              LCP 2757 TBT 33 CLS 0 script 214 KB
-  /settings/llm    LCP 1512 TBT 13 CLS 0 script 215 KB
+# LCP trên ep-qc — CHƯA CÓ SỐ HỢP LỆ
+Lượt đo 15/11 (Lighthouse simulate, 3 lượt/route, tài khoản sv.kha / teacher / admin) chạy lúc load máy 12–46 (agent khác chạy song song) → PM đã loại. Số thô (tham khảo, KHÔNG dùng làm kết luận): / 1547 · /chat 1423 · /threads 2742 · /inbox 1817 · /gradebook 2889 · /me 2757 · /settings/llm 1512 ms (simulate); devtools có lượt 'page loaded too slowly'. Đo lại khi load < 8 (kiểm uptime trước, ghi vào bằng chứng); script: scripts/lh/.
