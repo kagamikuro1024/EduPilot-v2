@@ -1245,3 +1245,13 @@
 {"tc": "TC-10-16a tái lập r1/r2 (468207a7): E6 ±15 %", "st": "FAIL", "note": "lưu vết: RAM lệch 22,0 %, khởi động worker 20,9 % (gateway 14,9 % đạt); giữ nguyên theo P-11-53 (D-11-23)"}
 {"tc": "TC-10-16b tái lập k1/k2 (P-11-53, 419241e4): E1 giống hệt; E6 RAM 0,3 %, khởi động gateway 2,8 %, worker 4,1 % ≤ ±15 %", "st": "PASS", "note": "e6.md: ep-r đã dừng, cờ contended (edupilot-test-* không của đội, CPU 4,3 % / 2,8 %), loadavg VM 0,24–1,35 / Mac 2,42–3,61 ghi trong báo cáo; quy trình P-11-53 (khởi động lại + làm ấm, đo gateway HTTP từ host, trung vị) tuân thủ theo e6.md; ngưỡng ±15 % không nới"}
 {"tc": "TC-07-09 insights.spec.ts phủ luồng AC4 (F17) sau D-11-20 (5852c9c2)", "st": "PASS", "note": "đọc spec (mock, chạy ở CI): đổi lớp 2 → chủ đề đầu lớp 2 «Tường lửa và phân đoạn mạng», không lẫn lớp 1; thread ghim tạo từ báo cáo hiện ở /threads có biểu tượng «Đã ghim»; LLM lỗi → tên tạm từ khoá («tcp · bắt · tay») — cộng nhánh reused/409/429 sẵn có. Bù thật: INS-1..7 và p10_insight*.py trên ep-qc"}
+{"tc": "TC-06-21 1.000 bài nộp #8 overview: p95 ≤ 500 ms", "st": "PASS", "note": "p50=31 p95=49 ms, load máy=16.30"}
+{"tc": "TC-06-21 1.000 bài nộp #9 trend: p95 ≤ 500 ms", "st": "PASS", "note": "p50=58 p95=183 ms, load máy=16.19"}
+{"tc": "TC-06-21 1.000 bài nộp #10 hard-items: p95 ≤ 500 ms", "st": "PASS", "note": "p50=40 p95=64 ms, load máy=16.19"}
+{"tc": "TC-06-21 1.000 bài nộp #11 declining: p95 ≤ 500 ms", "st": "PASS", "note": "p50=32 p95=55 ms, load máy=16.19"}
+{"tc": "TC-06-21 1.000 bài nộp #12 compare: p95 ≤ 500 ms", "st": "PASS", "note": "p50=47 p95=58 ms, load máy=16.50"}
+{"tc": "TC-06-21 cursor hard-items: duyệt hết không trùng", "st": "PASS", "note": "12 dòng / 3 trang (limit=5)"}
+{"tc": "TC-06-21 cursor declining: duyệt hết không trùng", "st": "PASS", "note": "30 dòng / 6 trang (limit=5)"}
+{"tc": "TC-06-21 không OFFSET trong mã analytics", "st": "PASS", "note": "grep OFFSET = 0"}
+{"tc": "TC-01-10 lớp chưa có yêu cầu AI → EmptyState một dòng, không bảng rỗng (OBS-6, GV qct2 lớp QCT3)", "st": "PASS", "note": "«Chưa có yêu cầu AI nào» đúng 1, 0 bảng trong main, API tổng hợp 200"}
+{"tc": "TC-15d UI «Chi tiết» mở danh sách thành phần (P-11-15 ca 4, ME-1)", "st": "PASS", "note": "lớp QCT3 (công thức nhân bản, «Giữa kỳ» = TB hai cột MANUAL 7 và 9): DTO SV có detail [«Giữa kỳ lần 1 7», «Giữa kỳ lần 2 9»]; UI: nút «Chi tiết» → danh sách đúng 2 dòng, không chuỗi công thức thô, đóng lại được, 375 px không tràn"}

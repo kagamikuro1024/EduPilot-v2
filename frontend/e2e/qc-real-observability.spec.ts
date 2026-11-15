@@ -136,3 +136,18 @@ test("@real OBS-5 lỗi tải + 375 px (TC-01-11, TC-01-14)", async ({ page }) =
   await noOverflow(page);
   await shot(page, "obs-admin-375");
 });
+
+test("@real OBS-6 lớp chưa có yêu cầu AI: GV lớp QCT3 → EmptyState một dòng, không bảng rỗng (TC-01-10)", async ({ page, request }) => {
+  const c3 = sql("select id from courses where class_code='QCT3'")[0][0];
+  expect(Number(sql(`select count(*) from llm_audit where course_id='${c3}'`)[0][0]), "QCT3 chưa có yêu cầu AI").toBe(0);
+  await uiLogin(page, "qct2");
+  await page.goto(`/observability?course=${c3}`);
+  await expect(page.getByRole("heading", { name: "Quan sát AI", level: 1 })).toBeVisible();
+  await expect(page.getByText("Chưa có yêu cầu AI nào")).toBeVisible({ timeout: 20_000 });
+  expect(await page.getByText("Chưa có yêu cầu AI nào").count(), "một dòng").toBe(1);
+  expect(await page.locator("main table").count(), "không bảng rỗng").toBe(0);
+  const tk = await login(request, "qct2");
+  const api = await call(request, tk, "GET", `/courses/${c3}/observability/summary`);
+  expect.soft(api.status, "API tổng hợp lớp trống 200").toBe(200);
+  await shot(page, "obs6-empty");
+});
