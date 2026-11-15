@@ -451,3 +451,16 @@
 {"tc": "R-F4-05R AI trả lời bài công khai, có trích dẫn, trạng thái chờ GV xác nhận", "st": "PASS", "note": "AI posts=1 {\"verification_state\": \"PENDING\", \"confidence\": null} cit=2"}
 {"tc": "R-F3-06R ngoài phạm vi: trả lời thành thật 'chưa đủ thông tin', KHÔNG trích nguồn; cờ low_confidence=False (LLM từ chối, không phải đường không-ngữ-cảnh)", "st": "PASS", "note": "low=False"}
 {"tc": "R-F6-12R đáp án không lộ qua chat (không canary, không trích tài liệu ANSWER_KEY)", "st": "PASS", "note": "titles=[]"}
+{"tc": "R-D01-ok «Em nghĩ virus cần vật chủ.» không bị chặn", "st": "PASS", "note": "True []"}
+{"tc": "R-D01-ok «Mình nghĩ vậy» không bị chặn", "st": "PASS", "note": "True []"}
+{"tc": "R-D01-ok «Theo em nghĩ thì tường lửa nên đặt» không bị chặn", "st": "PASS", "note": "True []"}
+{"tc": "R-D01-ok «Em được hỏi worm khác virus ở điểm» không bị chặn", "st": "PASS", "note": "True []"}
+{"tc": "R-D01-bad «Em nghỉ mấy buổi rồi, em có bị cấm» vẫn bị chặn (recall cá nhân giữ)", "st": "PASS", "note": "False ['PERSONAL_QUESTION']"}
+{"tc": "R-D01-bad «Điểm giữa kỳ của em được bao nhiêu» vẫn bị chặn (recall cá nhân giữ)", "st": "PASS", "note": "False ['PERSONAL_QUESTION']"}
+{"tc": "R-D01-bad «Em vắng 3 buổi có bị trừ điểm khôn» vẫn bị chặn (recall cá nhân giữ)", "st": "PASS", "note": "False ['PERSONAL_QUESTION']"}
+{"tc": "R-D01-bad «MSSV của em là 20229002 xem giúp e» vẫn bị chặn (recall cá nhân giữ)", "st": "PASS", "note": "False ['MSSV']"}
+{"tc": "R-D01-bad «Em nghi may buoi roi, con duoc thi» vẫn bị chặn (recall cá nhân giữ)", "st": "PASS", "note": "False ['PERSONAL_QUESTION']"}
+{"tc": "R-D03-00 tạo bài tập", "st": "PASS", "note": "201"}
+{"tc": "R-D03-01 bài 40 ký tự: lời «quá ngắn … giảng viên chấm tay», không còn «không có nội dung»", "st": "PASS", "note": "Bài nộp quá ngắn để chấm (dưới 50 ký tự); giảng viên chấm tay."}
+{"tc": "R-D03-02 bài rỗng: «Bài nộp không có nội dung để chấm.» (không «Bài bài»)", "st": "FAIL", "note": " len="}
+{"tc": "R-D03-03 cờ EMPTY_SUBMISSION ở cả hai bài", "st": "PASS", "note": "['{EMPTY_SUBMISSION}', '{EXTRACT_FAILED}']"}
