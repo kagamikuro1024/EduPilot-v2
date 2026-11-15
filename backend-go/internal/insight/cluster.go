@@ -55,8 +55,7 @@ func Cluster(vecs [][]float32, tau float64) [][]int {
 	for i := range n {
 		size[i], alive[i], parent[i] = 1, true, i
 	}
-	var find func(int) int
-	find = func(i int) int {
+	find := func(i int) int {
 		for parent[i] != i {
 			parent[i], i = parent[parent[i]], parent[i]
 		}
