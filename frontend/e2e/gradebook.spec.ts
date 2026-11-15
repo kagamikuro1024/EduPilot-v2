@@ -477,7 +477,7 @@ test("publish column: menu cột công bố / gỡ; cột bài thi không có me
 test("penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện", async ({ page, context }, info) => {
   desktopOnly(info);
   await sheet(page, context, { warnings: ["PENALTY_NOT_IN_SCHEME"] });
-  const note = page.getByText("Có điểm trừ ghi tay không được tính theo công thức");
+  const note = page.getByText("Điểm trừ ghi tay", { exact: true });
   await expect(note).toHaveCount(1);
   await page.getByRole("button", { name: "Xem", exact: true }).click();
   await expect(page.getByText("Sinh Viên 0001").first()).toBeVisible();
@@ -485,7 +485,7 @@ test("penalty not in scheme notice: một dòng cảnh báo không chặn, mở 
   const p2 = await context.newPage();
   await gradebookApi(p2, {});
   await p2.goto("/gradebook");
-  await expect(p2.getByText(/không được tính theo công thức/)).toHaveCount(0);
+  await expect(p2.getByText(/ghi tay/)).toHaveCount(0);
 });
 
 test("gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức", async ({ page, context }, info) => {

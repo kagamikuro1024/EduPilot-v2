@@ -325,7 +325,8 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
       Công thức điểm chưa xác nhận
     </InlineNotice>
   );
-  const warnLabel = first?.warnings?.map((w) => (w === "PENALTY_NOT_IN_SCHEME" ? "Có điểm trừ ghi tay không được tính theo công thức" : "Có điểm cộng ghi tay không được tính theo công thức")) ?? [];
+  // P-11-6a (US-P10-08 AC3a): nhãn ngắn thay câu dài — câu dài là khối chữ lớn nhất sau phiên (lớn hơn h1 «Sổ điểm») nên kéo LCP về lúc có dữ liệu
+  const warnLabel = first?.warnings?.map((w) => (w === "PENALTY_NOT_IN_SCHEME" ? "Điểm trừ ghi tay" : "Điểm cộng ghi tay")) ?? [];
 
   const moreItems: HeaderAction[] =
     hasScheme && (teacher || (first?.state.snapshot_version ?? 0) > 0)
