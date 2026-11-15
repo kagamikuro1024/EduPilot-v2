@@ -232,8 +232,9 @@ jobs:
         run: pnpm -C frontend build
 
   e2e:
-    # TL-CI #3a: Playwright chia 3 shard (đổi số shard thì đổi cả `matrix.shard` lẫn `/3`). workers: 2, retries: 1 giữ nguyên trong playwright.config.ts.
-    name: Frontend e2e (Playwright ${{ matrix.shard }}/3)
+    # TL-CI #3a + DEF-R7-01: Playwright chia 4 shard THEO THỜI GIAN (frontend/e2e/support/shard.mjs: LPT từ giây CPU của từng tệp ở shard-weights.json), không theo số test:
+    # chia theo số test dồn frame / a11y / panels / exam vào một shard (1.646 s CPU vs 561 / 153 → 17 phút). Đổi số shard thì đổi cả `matrix.shard` lẫn `/4`. workers: 2, retries: 1 giữ nguyên.
+    name: Frontend e2e (Playwright ${{ matrix.shard }}/4)
     needs: changes
     if: needs.changes.outputs.fe == 'true'
     runs-on: ubuntu-24.04
@@ -241,7 +242,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/fe-setup
@@ -250,7 +251,10 @@ jobs:
       - name: build (gate)
         run: pnpm -C frontend build:gate
       - name: playwright test
-        run: pnpm -C frontend exec playwright test --grep-invert @real --shard=${{ matrix.shard }}/3
+        working-directory: frontend
+        run: |
+          mapfile -t files < <(node e2e/support/shard.mjs ${{ matrix.shard }} 4)
+          pnpm exec playwright test --grep-invert @real "${files[@]}"
       - name: upload reports
         if: failure()
         uses: actions/upload-artifact@v5
@@ -262,7 +266,7 @@ jobs:
           if-no-files-found: ignore
 
   lhci:
-    # TL-CI #3b: simulate (TBT / CLS / dung lượng JS) một job; devtools (LCP) hai job, mỗi job một nửa URL. Cùng tệp cấu hình, cùng ngưỡng,
+    # TL-CI #3b + DEF-R7-01: simulate (TBT / CLS / dung lượng JS) hai job (A / B, mỗi job một nửa URL; một job 9 URL × 5 lượt = 10 phút); devtools (LCP) hai job, mỗi job một nửa URL. Cùng tệp cấu hình, cùng ngưỡng,
     # cùng numberOfRuns: nửa URL ghi đè bằng --collect.url (lhci thay cả mảng url của tệp cấu hình, không nối thêm). Hợp hai nửa = đủ 8 URL (có /me). Simulate chạy 5 lượt mỗi URL (devtools 3): TBT trên runner có đuôi dài (một lượt 270–490 ms giữa các lượt 40–70 ms) nên trung vị của 3 lượt đỏ ngẫu nhiên; ngưỡng giữ 200 ms.
     name: Frontend Lighthouse (${{ matrix.name }})
     needs: changes
@@ -273,7 +277,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: simulate, config: lighthouserc.json, out: .lighthouseci, paths: "" }
+          - { name: simulate A, slug: simulate-a, config: lighthouserc.json, out: .lighthouseci, paths: "/ /chat /threads /inbox /gradebook" }
+          - { name: simulate B, slug: simulate-b, config: lighthouserc.json, out: .lighthouseci, paths: "/me /checkin /settings/llm /dev/ui" }
           - { name: devtools A, slug: devtools-a, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/ /chat /threads /inbox" }
           - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /settings/llm /dev/ui" }
     steps:

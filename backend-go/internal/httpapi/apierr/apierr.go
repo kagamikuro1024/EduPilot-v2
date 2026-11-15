@@ -3,9 +3,11 @@
 package apierr
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"go.opentelemetry.io/otel/trace"
 )
@@ -191,8 +193,22 @@ type body struct {
 	RetryAfter int    `json:"retry_after,omitempty"`
 }
 
+// StatusClientClosed: client đóng kết nối trước khi có phản hồi (quy ước nginx); chỉ để nhật ký / số đo không đếm là lỗi 5xx.
+const StatusClientClosed = 499
+
 // Write ghi lỗi dạng JSON. trace_id lấy từ span trong ctx của request (otelhttp tạo ở middleware đầu tiên).
 func Write(w http.ResponseWriter, r *http.Request, e *Error) {
+	if e.Status == http.StatusInternalServerError {
+		// Chỗ ghi lỗi CHUNG của mọi h.fail (DEF-R2-02, SRS 3.4): lỗi do ctx của request hết hạn / bị huỷ (DB, Redis, LLM trả context.DeadlineExceeded / Canceled)
+		// rơi vào nhánh `default` của h.fail thành 500 INTERNAL. Hết hạn → 504 DEADLINE_EXCEEDED; client đã đi → không ghi 500 (499, không thân).
+		ctx := r.Context()
+		if dl, ok := ctx.Deadline(); ctx.Err() == context.DeadlineExceeded || (ok && ctx.Err() == nil && !time.Now().Before(dl)) {
+			e = New(http.StatusGatewayTimeout, DeadlineExceeded)
+		} else if ctx.Err() == context.Canceled {
+			w.WriteHeader(StatusClientClosed)
+			return
+		}
+	}
 	h := w.Header()
 	h.Set("Content-Type", "application/json; charset=utf-8")
 	if e.RetryAfter > 0 {

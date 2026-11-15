@@ -8,8 +8,9 @@ export const TASKS: Array<{ task: string; label: string; lane: "INTERACTIVE" | "
   { task: "QUESTION_GEN", label: "Sinh câu hỏi", lane: "BATCH" },
   { task: "INSIGHT", label: "Tóm tắt lớp học", lane: "BATCH" },
 ];
-/** DECIDE không có dòng ở «Tác vụ» (không có chuỗi dự phòng); chỉ hiện ở mức dùng của ADMIN. */
-export const taskLabel = (task: string) => TASKS.find((t) => t.task === task)?.label ?? (task === "DECIDE" ? "Quyết định nhanh" : task);
+/** Tác vụ không có dòng ở «Tác vụ» (không có chuỗi dự phòng riêng) nhưng có ở mức dùng của ADMIN (`llm_audit.task`). */
+const USAGE_ONLY: Record<string, string> = { DECIDE: "Quyết định nhanh", EMBEDDING: "Đánh chỉ mục tài liệu" };
+export const taskLabel = (task: string) => TASKS.find((t) => t.task === task)?.label ?? USAGE_ONLY[task] ?? task;
 
 export const LANE_LABEL: Record<string, string> = { INTERACTIVE: "Trả lời ngay", NEAR_REALTIME: "Gần thời gian thực", BATCH: "Chạy nền" };
 
