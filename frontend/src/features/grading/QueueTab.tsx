@@ -336,13 +336,15 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
       key: "student",
       header: "Sinh viên",
       frozen: true,
-      width: "220px",
+      width: "320px",
       primary: true,
       render: (r) => (
         <span className={s.who}>
           <span className={s.name}>{r.student?.full_name ?? "Chưa khớp"}</span>
-          <span className={s.code}>{r.student ? `${r.student.student_code}${r.student.inactive ? " · không còn trong lớp" : ""}` : ""}</span>
-          {flagText(r) && <span className={s.flag} data-part="flag-reason">{flagText(r)}</span>}
+          <span className={s.sub2}>
+            <span className={s.code}>{r.student ? `${r.student.student_code}${r.student.inactive ? " · không còn trong lớp" : ""}` : ""}</span>
+            {flagText(r) && <span className={s.flag} data-part="flag-reason" title={flagText(r)}>{flagText(r)}</span>}
+          </span>
         </span>
       ) },
     ...(oneAssignment ? [] : [{ key: "assignment", header: "Bài tập", width: "200px", render: (r: QueueRow) => <span className={s.clip} title={r.assignment.title}>{r.assignment.title}</span> }]),
