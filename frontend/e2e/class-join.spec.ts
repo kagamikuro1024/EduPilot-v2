@@ -1113,3 +1113,64 @@ test("risk thresholds: TA chỉ xem, không gửi PUT", async ({ page }) => {
   await expect(page.locator("[data-part=risk-signals_required]")).toHaveText("3");
   expect(api.log.put).toHaveLength(0);
 });
+
+test("class settings attendance: bật hiện chu kỳ / muộn / yêu cầu; vị trí hiện dòng thông báo; lưu CẢ chính sách; 422 tại ô; TA chỉ xem", async ({ page, context }) => {
+  await context.grantPermissions(["geolocation"]);
+  await context.setGeolocation({ latitude: 21.005, longitude: 105.843 });
+  const server: { version: number; attendance: Json } = { version: 2, attendance: { self_checkin: false, rotate_seconds: 10, late_after_min: 15, require: "WEB", geo_check: false } };
+  const puts: Json[] = [];
+  await openSettings(page, "TEACHER", {
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}`, (r) => fulfill(r, 200, { id: C1, class_code: "761988", settings: { escalation_threshold: "0.80", version: server.version }, attendance: server.attendance }));
+      await page.route(`**/api/v1/courses/${C1}/settings`, (r) => {
+        const b = JSON.parse(r.request().postData() ?? "{}") as { attendance: Json; version: number };
+        puts.push(b as unknown as Json);
+        const cidrs = (b.attendance.campus_cidrs as string[] | undefined) ?? [];
+        if (cidrs.includes("khong-hop-le")) return fulfill(r, 422, apiErr("VALIDATION_FAILED", [{ field: "attendance.campus_cidrs", code: "CIDR", message: "Mạng không hợp lệ: khong-hop-le." }]));
+        server.version += 1;
+        server.attendance = { ...b.attendance, geo_check: Boolean(b.attendance.geofence) };
+        return fulfill(r, 200, { id: C1, settings: { escalation_threshold: "0.80", version: server.version }, attendance: server.attendance });
+      });
+    },
+  });
+  const box = page.locator("[data-part=attendance-settings]");
+  await expect(box.getByRole("switch", { name: "Điểm danh bằng mã" })).toBeVisible();
+  await expect(box.getByLabel("Chu kỳ mã (giây)")).toHaveCount(0); // tắt: chưa có trường nào khác
+  await box.getByRole("switch", { name: "Điểm danh bằng mã" }).click();
+  await expect.poll(() => puts.length).toBe(1);
+  expect(puts[0]).toMatchObject({ version: 2, attendance: { self_checkin: true, rotate_seconds: 10, late_after_min: 15, require: "WEB", campus_cidrs: [] } });
+  await box.getByLabel("Chu kỳ mã (giây)").fill("20");
+  await box.getByRole("radio", { name: "Chỉ app" }).click();
+  await expect.poll(() => puts.length).toBe(2);
+  expect(puts[1]).toMatchObject({ version: 3, attendance: { self_checkin: true, rotate_seconds: 20, require: "APP" } });
+
+  // Vị trí: dòng thông báo hiện cùng công tắc; lưu kèm toạ độ + bán kính
+  await expect(box.locator("[data-part=geo-notice]")).toHaveCount(0);
+  await box.getByRole("switch", { name: "Vị trí" }).click();
+  await expect(box.locator("[data-part=geo-notice]")).toHaveText("Lớp này kiểm tra vị trí khi điểm danh.");
+  await expect.poll(() => puts.length).toBe(3);
+  expect((puts[2].attendance as Json).geofence).toMatchObject({ radius_m: 150 });
+  await box.getByLabel("Bán kính (m)").fill("100");
+  await expect.poll(() => puts.length).toBe(4);
+  expect(((puts[3].attendance as Json).geofence as Json).radius_m).toBe(100);
+
+  // 422 hiện tại ô; chữ đã gõ giữ nguyên
+  await box.getByLabel("Mạng trường").fill("khong-hop-le");
+  await expect(box.getByText("Mạng không hợp lệ: khong-hop-le.")).toBeVisible();
+  await expect(box.getByLabel("Mạng trường")).toHaveValue("khong-hop-le");
+});
+
+test("class settings attendance: TA thấy chính sách nhưng mọi ô bị khoá, không gửi PUT", async ({ page }) => {
+  const puts: Json[] = [];
+  await openSettings(page, "TA", {
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}`, (r) => fulfill(r, 200, { id: C1, class_code: "761988", settings: { escalation_threshold: "0.80", version: 1 }, attendance: { self_checkin: true, rotate_seconds: 15, late_after_min: 10, require: "WEB", geo_check: false } }));
+      await page.route(`**/api/v1/courses/${C1}/settings`, (r) => { puts.push({}); return fulfill(r, 200, {}); });
+    },
+  });
+  const box = page.locator("[data-part=attendance-settings]");
+  await expect(box.getByRole("switch", { name: "Điểm danh bằng mã" })).toHaveAttribute("aria-checked", "true");
+  await expect(box.getByLabel("Chu kỳ mã (giây)")).toBeDisabled();
+  await expect(box.getByLabel("Mạng trường")).toBeDisabled();
+  expect(puts).toEqual([]);
+});
