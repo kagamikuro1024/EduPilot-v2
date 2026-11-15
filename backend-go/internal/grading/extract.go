@@ -252,7 +252,8 @@ func (s *Service) callLLM(ctx context.Context, pages []Page) (json.RawMessage, e
 	temp := 0.0
 	req := llm.Request{Task: llm.TaskUtility, Params: llm.Params{Temperature: &temp, MaxTokens: 4096},
 		Messages: []llm.Message{{Role: "system", Content: SystemPrompt}, {Role: "user", Content: BuildUser(pages)}}}
-	for i := range maxAttempts {
+	outage := 0
+	for i := 0; i < maxAttempts; i++ {
 		actx, cancel := context.WithTimeout(ctx, s.Cfg.attempt())
 		out, err := s.LLM.Structured(actx, req, ExtractSchema)
 		attemptExpired := errors.Is(actx.Err(), context.DeadlineExceeded) && ctx.Err() == nil
@@ -262,6 +263,10 @@ func (s *Service) callLLM(ctx context.Context, pages []Page) (json.RawMessage, e
 		}
 		if ctx.Err() != nil {
 			return nil, userErr(CodeLLMUnavailable, "AI trả lời quá lâu. Hãy thử lại sau.")
+		}
+		if llm.AwaitOutage(ctx, err, &outage) { // mất nhà cung cấp: hoãn, không tính lượt (P-11-23)
+			i--
+			continue
 		}
 		var over *llm.ErrOverloaded
 		var unav *llm.ErrUnavailable

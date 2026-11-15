@@ -61,6 +61,11 @@ where id = sqlc.arg(id) and run_state = 'RUNNING' and lease_owner = sqlc.arg(own
 update grading_results set run_state = 'QUEUED', not_before = now() + make_interval(secs => sqlc.arg(delay_secs)::float8), lease_owner = null, lease_until = null, updated_at = now()
 where id = sqlc.arg(id) and run_state = 'RUNNING' and lease_owner = sqlc.arg(owner);
 
+-- name: GradingRequeueOutage :execrows
+-- Mất nhà cung cấp LLM (mạch mở, mọi nhà cung cấp lỗi): QUEUED lại và HOÀN lượt thử vừa nhận (attempts - 1): sự cố của nhà cung cấp không được làm bài hết lượt (P-11-22, luật 12).
+update grading_results set run_state = 'QUEUED', attempts = greatest(attempts - 1, 0), not_before = now() + make_interval(secs => sqlc.arg(delay_secs)::float8), lease_owner = null, lease_until = null, updated_at = now()
+where id = sqlc.arg(id) and run_state = 'RUNNING' and lease_owner = sqlc.arg(owner);
+
 -- name: GradingFailPermanent :execrows
 -- Hết lượt / lỗi vĩnh viễn / bị thay: FAILED ở DB (mọi tiêu chí NULL; không bao giờ 0 điểm). `owner` rỗng = không kiểm thuê (bản cũ bị thay khi còn QUEUED).
 update grading_results set run_state = 'FAILED', error_code = sqlc.arg(code), lease_owner = null, lease_until = null, updated_at = now(), version = version + 1
