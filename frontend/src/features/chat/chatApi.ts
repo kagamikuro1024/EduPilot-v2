@@ -57,3 +57,9 @@ export const useExamLock = () =>
     refetchInterval: 30_000,
     queryFn: async ({ signal }) => (await apiClient.get<{ locked: boolean; until?: string }>("/me/exam-lock", { signal })).data,
   });
+
+/**
+ * Chữ đang chảy / chưa xong: bỏ dấu trích dẫn thô (`[1]`, `[1, 2]`, và `[1, ` đang dở ở cuối) — máy chủ gỡ và đánh số lại khi xong,
+ * sinh viên không được thấy `[1, 2]` thoáng qua (QC dot-r «chữ thô»).
+ */
+export const hideRawCites = (t: string) => t.replace(/\s?\[\d{1,3}(?:\s*,\s*\d{1,3})*\s*,?\s*\]/g, "").replace(/\s?\[[\d,\s]*$/, "");

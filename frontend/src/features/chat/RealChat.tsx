@@ -11,6 +11,7 @@ import { useSession } from "@/shared/session/session";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, Composer, EmptyState, IconButton, OverflowMenu, Page, PageHeader, PageState, Skeleton, Split } from "@/shared/ui";
 import {
+  hideRawCites,
   LOCK_KEY,
   messagesKey,
   sessionsKey,
@@ -335,7 +336,7 @@ function Row({ m, fb, onVote, onRetry, disabled, openTickets, onTicket, userId, 
     <div className={s.fromAi}>
       <p className={s.who}>Trợ lý AI</p>
       <Masked n={m.masked_count} />
-      {m.stream_status === "DONE" ? <Markdown source={m.content} /> : m.content && <p className={r.plain}>{m.content}</p>}
+      {m.stream_status === "DONE" ? <Markdown source={m.content} /> : m.content && <p className={r.plain}>{hideRawCites(m.content)}</p>}
       <Blocks blocks={m.blocks} />
       <Citations items={m.citations} />
       {m.low_confidence && m.stream_status === "DONE" && <Unsure />}
@@ -380,7 +381,7 @@ function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {
         <p className={s.who}>Trợ lý AI</p>
         <Masked n={live.masked} />
         <Blocks blocks={live.blocks} />
-        {live.text ? done ? <Markdown source={live.text} /> : <p className={r.plain}>{live.text}{live.status === "streaming" && <span className={s.caret} aria-hidden />}</p> : live.status === "streaming" && <p className={s.who}>{live.stage === "searching" ? "Đang tìm trong tài liệu…" : "Đang trả lời…"}</p>}
+        {live.text ? done ? <Markdown source={live.text} /> : <p className={r.plain}>{hideRawCites(live.text)}{live.status === "streaming" && <span className={s.caret} aria-hidden />}</p> : live.status === "streaming" && <p className={s.who}>{live.stage === "searching" ? "Đang tìm trong tài liệu…" : "Đang trả lời…"}</p>}
         {done && <Citations items={live.citations} />}
         {done && live.low && <Unsure />}
         {live.status === "cancelled" && <div className={r.actions}><span>Đã dừng.</span></div>}

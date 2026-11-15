@@ -189,6 +189,17 @@ test("reload mid-stream: tin đang sinh được nối lại bằng Last-Event-I
   expect(calls.some((c) => c.path === `/chat/messages/${MID}/stream`)).toBe(true);
 });
 
+test("đang chảy: dấu trích dẫn thô [1, 2] không lộ cho sinh viên (QC dot-r «chữ thô»)", async ({ page, context }) => {
+  await open(page, context, {
+    [`GET /chat/sessions`]: json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: [msg({ content: "DoS là tấn công làm cạn tài nguyên [1, 2] và [3", stream_status: "STREAMING", streaming: true, citations: [] }), msg({ id: "u1", role: "USER", content: "hỏi", citations: [] })], next_cursor: null })),
+    [`GET /chat/messages/${MID}/stream`]: (r) => r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("token", { off: 0, t: "DoS là tấn công làm cạn tài nguyên [1, 2] và [3" }, "1:2-0"))),
+  });
+  await page.locator("[data-part=chat-history] button[aria-pressed]").click();
+  await expect(page.getByText(/DoS là tấn công làm cạn tài nguyên/)).toBeVisible();
+  expect(await page.locator("[data-part=chat-thread]").innerText()).not.toMatch(/\[\d/);
+});
+
 test("calendar tool block: lịch hiện thành danh sách dòng, không JSON thô", async ({ page, context }) => {
   const ev = [{ title: "Thi giữa kỳ", type: "EXAM", starts: "Chủ Nhật, 20/12 · 14:00", location: "P.301" }, { title: "Nộp báo cáo", type: "OTHER", starts: "Thứ Ba, 22/12 · 09:00" }];
   let sent = false;
