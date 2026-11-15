@@ -206,12 +206,15 @@ def report():
     f = lambda x: str(x).replace(".", ",")  # noqa: E731
     hdr = ["| tiến trình | " + " | ".join(rs) + " |", "| --- |" + " --- |" * len(rs)]
     L = ["# E6 — nền Go", "", f"Trạng thái: **OK**. Stack `ep-qc` @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. Máy: {lib.MACHINE}. {len(runs)} lượt, mọi lượt đều báo cáo.", "",
-         "## Lượt và môi trường", "", "| lượt | quy trình | lưu lúc (UTC) | stack khác đang chạy | loadavg 1 phút VM (6 CPU) | loadavg 1 phút Mac |", "| --- | --- | --- | --- | --- | --- |"]
+         "## Lượt và môi trường", "", "| lượt | quy trình | lưu lúc (UTC) | stack khác đang chạy | CPU stack khác lúc đo RAM | loadavg 1 phút VM (6 CPU) | loadavg 1 phút Mac |",
+         "| --- | --- | --- | --- | --- | --- | --- |"]
     for t in rs:
         r, envs = runs[t], runs[t].get("env") or []
         rng = lambda k: f"{f(min(e[k][0] for e in envs))}–{f(max(e[k][0] for e in envs))}" if envs and all(e[k] for e in envs) else "không ghi"  # noqa: E731
         other = sorted({p for e in envs for p in e["other_projects"]})
-        L.append(f"| {t} | {proto(r)} | {r['meta']['timestamp'][11:19]} | {', '.join(other) if other else ('không' if envs else 'không ghi')} | {rng('load_vm')} | {rng('load_mac')} |")
+        oc = r.get("idle_ram_other_containers")
+        cpu = f(round(sum(float(v["cpu"].rstrip("%")) for v in oc.values()), 1)) + " %" if oc is not None else "không ghi"
+        L.append(f"| {t} | {proto(r)} | {r['meta']['timestamp'][11:19]} | {', '.join(other) if other else ('không' if envs else 'không ghi')} | {cpu} | {rng('load_vm')} | {rng('load_mac')} |")
     L += ["", "## RAM khi nghỉ (`docker stats` sau 60 s không yêu cầu; P-11-53: sau khởi động lại + làm ấm cố định)", ""] + hdr
     for s in SERVICES:
         if s in a["idle_ram"]:
