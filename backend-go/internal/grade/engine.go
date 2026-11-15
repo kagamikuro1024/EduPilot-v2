@@ -177,7 +177,7 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 		}
 		var scores []decimal.Decimal
 		var exprs, names []string
-		missing := false
+		missing, zeroed := false, false
 		for _, it := range c.Items {
 			raw, ok := in.Scores[it.ID]
 			if ok {
@@ -199,6 +199,7 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 				scores = append(scores, decimal.Zero)
 				names = append(names, it.Name)
 				exprs = append(exprs, "0")
+				zeroed = true
 				continue
 			}
 			reason := ReasonNoScore
@@ -237,12 +238,18 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 			}
 			q, pg, fu := c.quote()
 			text := c.Name + ": " + fmtNum(cr.Score)
+			if zeroed && s.Rules.MissingScore != nil { // giải trình ĐÚNG lý do của số 0 và trích điều khoản (SRS 4.3.3, US-P6-02 AC7)
+				q, pg, fu = s.Rules.MissingScore.quote()
+			}
 			var detail []string
 			if len(scores) > 1 {
 				text += " · trung bình " + strconv.Itoa(len(scores)) + " bài"
 				for i, v := range scores {
 					detail = append(detail, strings.TrimSpace(names[i]+" "+fmtNum(v)))
 				}
+			}
+			if zeroed {
+				text += " · không dự → 0 theo quy chế"
 			}
 			r.Lines = append(r.Lines, Line{Label: c.Name + " (" + fmtNum(c.Weight) + "%)", Expr: expr, Text: text, Detail: detail, Value: fmtNum(cr.Score), Quote: q, Page: pg, FilledByUser: fu})
 		}

@@ -210,6 +210,29 @@ func TestMissingScoreZeroRule(t *testing.T) {
 	require.True(t, found, "dòng 'không dự → 0'")
 }
 
+// TC-P6-01-20 / TC-P6-02-25 (SRS 4.3.3, US-P6-02 AC7): item thiếu bị tính 0 theo quy chế → dòng giải trình NÊU «không dự → 0 theo quy chế» và trích điều khoản (MISSING_SCORE), không chỉ expr «0».
+func TestMissingScoreZeroRuleExplains(t *testing.T) {
+	s, ids, rows := lop1(t)
+	require.NotNil(t, s.Rules.MissingScore)
+	require.NotEmpty(t, s.Rules.MissingScore.Quote, "quy chế seed có trích điều 1.4")
+	in := inputOf(rows[0], ids)
+	delete(in.Scores, ids[oneItem])
+	var zero grade.Line
+	for _, l := range grade.Compute(s, in).Lines {
+		if strings.HasPrefix(l.Label, "Kiểm tra hằng tuần") {
+			zero = l
+		}
+	}
+	require.Equal(t, "0", zero.Expr)
+	require.Contains(t, zero.Text, "không dự → 0 theo quy chế")
+	require.NotNil(t, zero.Quote)
+	require.Equal(t, s.Rules.MissingScore.Quote, *zero.Quote)
+	// thành phần đủ điểm không mang chữ này
+	for _, l := range grade.Compute(s, inputOf(rows[0], ids)).Lines {
+		require.NotContains(t, l.Text, "không dự", l.Label)
+	}
+}
+
 // TestMissingScoreZeroOnlyWhenSourceClosed — TLR-2: nguồn chưa chốt → INCOMPLETE với lý do tương ứng; thành phần ngoài zero_components không được 0.
 func TestMissingScoreZeroOnlyWhenSourceClosed(t *testing.T) {
 	for _, c := range []struct {
