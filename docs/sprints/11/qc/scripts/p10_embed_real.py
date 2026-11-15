@@ -6,7 +6,7 @@ KEY = env["GEMINI_API_KEY"].strip().strip('"').strip("'")
 NAME = "QC Gemini embed (P-11-47)"
 c1 = course("teacher", "761987")
 c, rt, _, _ = api("admin", "GET", "/admin/llm/routes")
-old = [r for r in rt["items"] if r["task"] == "EMBEDDING"][0]; old_chain = [e["id"] if "id" in e else e.get("model_id") for e in old["chain"]]
+old = [r for r in rt["items"] if r["task"] == "EMBEDDING"][0]; OLD_IDS = [e["model_id"] for e in old["chain"]]
 print("tuyến cũ:", [(e["provider_name"], e["model"]) for e in old["chain"]])
 c, j, _, _ = api("admin", "POST", "/admin/llm/providers", {"name": NAME, "type": "gemini", "api_key": KEY, "enabled": True,
                  "models": [{"model": "gemini-embedding-001", "kind": "embedding", "dims": 1536, "price_in": "0", "price_out": "0", "enabled": True}]})
@@ -15,21 +15,15 @@ del KEY
 ps = {p["name"]: p for p in api("admin", "GET", "/admin/llm/providers")[1]["items"]}; prov = ps[NAME]; mid = prov["models"][0]["id"]
 t0 = sql("select clock_timestamp()")[0][0]
 def restore():
-    pid = [p for p in api("admin", "GET", "/admin/llm/providers")[1]["items"] if p["name"] == "QC lỗi embed"][0]["id"]
-    def pv(): return {p["name"]: p for p in api("admin", "GET", "/admin/llm/providers")[1]["items"]}["QC lỗi embed"]
-    def body(p, en): return {"name": p["name"], "type": p["type"], "base_url": p["base_url"], "enabled": en, "version": p["version"],
-                             "models": [{"model": m["model"], "kind": m["kind"], "dims": m["dims"], "price_in": m["price_in"], "price_out": m["price_out"], "enabled": m["enabled"]} for m in p["models"]]}
-    print("bật tạm:", api("admin", "PUT", f"/admin/llm/providers/{pid}", body(pv(), True))[0])
     c, rt, _, _ = api("admin", "GET", "/admin/llm/routes"); cur = [r for r in rt["items"] if r["task"] == "EMBEDDING"][0]
-    print("trả tuyến:", api("admin", "PUT", "/admin/llm/routes", {"task": "EMBEDDING", "chain": [pv()["models"][0]["id"]], "params": cur["params"], "version": cur["version"]})[0])
-    print("tắt lại:", api("admin", "PUT", f"/admin/llm/providers/{pid}", body(pv(), False))[0])
+    print("trả tuyến về trạng thái trước lượt đo:", api("admin", "PUT", "/admin/llm/routes", {"task": "EMBEDDING", "chain": OLD_IDS, "params": cur["params"], "version": cur["version"]})[0])
     print("xoá provider Gemini:", api("admin", "DELETE", f"/admin/llm/providers/{prov['id']}")[0])
 try:
     c, cur, _, _ = api("admin", "GET", "/admin/llm/routes"); cur = [r for r in cur["items"] if r["task"] == "EMBEDDING"][0]
     print("đặt tuyến EMBEDDING:", api("admin", "PUT", "/admin/llm/routes", {"task": "EMBEDDING", "chain": [mid], "params": cur["params"], "version": cur["version"]})[0])
     subprocess.run(["docker", "exec", "ep-qc-redis-1", "sh", "-c", "redis-cli --scan --pattern 'ep:rl:insight-generate:*' | xargs -r redis-cli del"], capture_output=True)
     sql(f"update insight_reports set data_watermark = data_watermark - interval '1 day' where course_id='{c1}'")
-    c, j, _, _ = api("teacher", "POST", f"/courses/{c1}/insights/knowledge-gap/generate", {"period_days": 120}, headers={"Idempotency-Key": "qc-0411-" + uuid.uuid4().hex}); print("generate", c)
+    c, j, _, _ = api("teacher", "POST", f"/courses/{c1}/insights/knowledge-gap/generate", {"period_days": int(os.environ.get("PERIOD", "120"))}, headers={"Idempotency-Key": "qc-0411-" + uuid.uuid4().hex}); print("generate", c)
     st = None
     for _ in range(100):
         cc, jj, _, _ = api("teacher", "GET", f"/jobs/{j['job_id']}"); st = jj.get("status")

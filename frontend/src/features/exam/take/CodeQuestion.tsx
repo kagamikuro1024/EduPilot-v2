@@ -58,7 +58,7 @@ export function CodeQuestion(p: Props) {
             {code.samples.map((x) => (
               <li key={x.name} className={s.panel}>
                 <p className={s.sampleTitle}>{x.name}</p>
-                <pre className={s.sampleBlock}>{`Vào:\n${visible(x.input)}\nRa:\n${visible(x.expected)}`}</pre>
+                <pre className={s.sampleBlock} tabIndex={0} aria-label={`Vào và ra của ${x.name}`}>{`Vào:\n${visible(x.input)}\nRa:\n${visible(x.expected)}`}</pre>
               </li>
             ))}
           </ul>

@@ -19,7 +19,7 @@ def tally(all_ids):
     for i in all_ids:
         r = res.get(i)
         if not r: r2 = extra.get(i)
-        else: r2 = "FAIL" if "FAIL" in r.values() else "PASS"
+        else: r2 = "FAIL" if "FAIL" in r.values() else "K" if "BLOCKED" in r.values() else "PASS"
         if r2 == "PASS": p += 1
         elif r2 == "FAIL": f += 1
         elif r2 == "K": k += 1

@@ -7,7 +7,7 @@
   --ep-surface-strong: oklch(96% 0.012 25);
   --ep-ink: #231F20; /* đen quy chuẩn ĐHBK (sổ tay 2026, tr. 4) */
   --ep-ink-2: oklch(40% 0.018 25);
-  --ep-ink-3: oklch(58% 0.014 25);
+  --ep-ink-3: oklch(53% 0.014 25);
   --ep-rule: oklch(89% 0.012 25);
   --ep-panel-border: var(--ep-rule);
 
@@ -65,7 +65,7 @@
   --ep-ease-standard: cubic-bezier(.2, .8, .2, 1);
   --ep-fast: 140ms;
   --ep-normal: 200ms;
-  --ep-slow: 250ms;
+  --ep-slow: 200ms;
 
   --ep-shadow-popover: 0 10px 30px rgba(71, 32, 37, .12);
   --ep-elevation-1: 0 1px 2px rgb(71 32 37 / .05), 0 6px 18px rgb(71 32 37 / .07);

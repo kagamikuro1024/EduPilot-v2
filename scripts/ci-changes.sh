@@ -4,7 +4,7 @@
 # Tự kiểm: bash scripts/ci-changes.sh --selftest
 set -euo pipefail
 
-FE='^(frontend/|pnpm-lock\.yaml$|package\.json$|pnpm-workspace\.yaml$|scripts/ui-antipatterns\.sh$|scripts/lint-selftest\.sh$|mobile/scripts/|\.github/)'
+FE='^(frontend/|pnpm-lock\.yaml$|package\.json$|pnpm-workspace\.yaml$|scripts/ui-antipatterns\.sh$|scripts/lint-selftest\.sh$|scripts/tokens-sync\.test\.mjs$|mobile/scripts/|\.github/)'
 # Go: ngoài backend-go/ còn các tệp mà test Go đọc bằng đường dẫn tương đối (.env.example, benchmarks/pii, nguồn frontend của exam/integrity_test) và image dựng từ deploy/.
 GO='^(backend-go/|deploy/|\.env\.example$|benchmarks/pii/|frontend/src/features/exam/|frontend/src/shared/i18n/vi\.ts$|\.github/)'
 

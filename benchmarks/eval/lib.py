@@ -208,6 +208,21 @@ def load_raw(name):
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 
 
+def builds():
+    """raw/builds.json: bản gateway của stack theo thời gian (sha do người dựng xác nhận; image không mang sha)."""
+    return sorted((load_raw("builds.json") or {}).get("items", []), key=lambda b: b["created"])
+
+
+def build_of(image=None, at=None):
+    """sha bản gateway cho một lượt: theo image ghi lúc đo; không ghi image → bản mới nhất tạo trước `at` (ISO UTC)."""
+    iso = lambda s: datetime.fromisoformat(s.replace("Z", "+00:00"))  # noqa: E731
+    if image:
+        hit = [b for b in builds() if b["image"] == image]
+        return f"`{hit[0]['sha']}`" if hit else f"image `{image}`, sha chưa xác nhận"
+    hit = [b for b in builds() if at and iso(b["created"]) <= iso(at)][-1:]
+    return f"`{hit[0]['sha']}`" if hit else "chưa ghi"
+
+
 def write_report(name, obj, md_lines):
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{name}.json").write_text(json.dumps(obj, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")

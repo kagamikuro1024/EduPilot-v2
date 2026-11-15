@@ -1134,6 +1134,21 @@ test("take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản
   await expect(page.getByRole("button", { name: "Nộp lời giải" })).toBeDisabled();
 });
 
+// DEF-R5-02 (TC-PE06-08): khối kết quả chạy thử có max-height + cuộn → vùng cuộn phải tới được bằng Tab (axe `scrollable-region-focusable` = 0).
+test("take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0", async ({ page }) => {
+  const f = await codeSetup(page, {});
+  await startCode(page);
+  await editor(page).fill("int main(){}");
+  const long = Array.from({ length: 40 }, (_, i) => `dòng kết quả số ${i + 1}`).join("\n");
+  f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "WA", time_ms: 4, memory_kb: 2048, input: "1 2\n", expected: long, got: long + "\nthừa" }] };
+  await page.getByRole("button", { name: "Chạy thử" }).click();
+  await expect(page.locator("#main").getByText("Sai kết quả")).toBeVisible();
+  const scrolls = await page.locator("#main pre").evaluateAll((els) => els.filter((e) => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1).length);
+  expect(scrolls, "ca thử phải có vùng cuộn thật").toBeGreaterThan(0);
+  const a = await new AxeBuilder({ page }).withRules(["scrollable-region-focusable"]).analyze();
+  expect(a.violations.map((v) => `${v.id} ×${v.nodes.length}`)).toEqual([]);
+});
+
 test("take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần", async ({ page }) => {
   await page.route("**/api/v1/events**", (r) => r.abort());
   const f = await codeSetup(page, {});

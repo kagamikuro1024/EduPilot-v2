@@ -270,6 +270,8 @@ jobs:
         run: bash scripts/lint-selftest.sh
       - name: mobile prepare.mjs (chỉ nhận HTTPS)
         run: node --test mobile/scripts/prepare.test.mjs
+      - name: kit token ⊆ tokens.css (DEF-R3-02)
+        run: node --test scripts/tokens-sync.test.mjs
       - name: build (như production)
         run: pnpm -C frontend build
 

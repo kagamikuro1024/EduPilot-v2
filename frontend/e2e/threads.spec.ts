@@ -177,7 +177,7 @@ test("exam lock: ô soạn khoá kèm giờ mở lại", async ({ page, context 
   await threadApi(page, { [`GET ${T}`]: list() });
   await page.goto("/threads");
   await ask(page).click();
-  await expect(page.getByText(/Chat tạm khóa trong lúc bạn làm bài thi\. Dùng lại được sau/)).toBeVisible();
+  await expect(page.getByText(/Đăng bài tạm khóa trong lúc bạn làm bài thi\. Dùng lại được sau \d{2}:\d{2}\./)).toBeVisible();
   await expect(page.getByLabel(/Nội dung/)).toBeDisabled();
 });
 
