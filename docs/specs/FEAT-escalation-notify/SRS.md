@@ -163,7 +163,7 @@ sequenceDiagram
 | `intent ∈ {CRISIS, OTHER_PERSON, SMALLTALK}` | `false` |
 | `degraded = true` | `false` (nút vẫn hiện — sinh viên tự nhờ) |
 | `intent = GRADE_FORMULA` và `meta.NoFormula = true` (`ResponseMetadata.NoFormula bool` mới, đặt đúng ở nhánh trả câu mẫu "chưa có công thức"; **không** so chuỗi câu mẫu — TLR-17) | `true`, `origin = AUTO_NO_FORMULA` |
-| `LowConfidence = true` (kể cả `no_context`) | `true`, `origin = AUTO_LOW_CONFIDENCE` |
+| `LowConfidence = true` (kể cả `no_context`, **kể cả khi LLM trả lời mở đầu bằng đúng câu mẫu `ReplyNoContext`** — `FEAT-private-chat-pii` 4.8, P-11-18) | `true`, `origin = AUTO_LOW_CONFIDENCE` |
 | còn lại | `false` |
 
 Trần (kiểm sau bước tra `message_id` của 4.2.2): `count(*) WHERE course_id AND student_id AND status IN ('OPEN','CLAIMED') ≥ TICKET_OPEN_CAP` (= 5, Q22) → thủ công `409 TICKET_LIMIT_REACHED`; tự động **bỏ qua** (không lỗi, tăng bộ đếm `chat_tickets_suppressed_total{course}`, log không nội dung).
