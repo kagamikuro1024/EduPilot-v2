@@ -81,11 +81,12 @@ set email_verified_at = coalesce(email_verified_at, sqlc.arg(now)::timestamptz),
 where id = sqlc.arg(id)
 returning *;
 
--- name: PromoteUnverifiedRosterEnrollments :execrows
+-- name: PromoteUnverifiedRosterEnrollments :many
 -- Email đã xác minh trùng email trong danh sách lớp ⇒ đẩy các enrollment PENDING (cảnh báo EMAIL_UNVERIFIED) thành ACTIVE.
 update enrollments
 set status = 'ACTIVE', previous_status = 'PENDING', warning = null, status_changed_at = sqlc.arg(now)::timestamptz, version = version + 1
-where user_id = sqlc.arg(user_id) and status = 'PENDING' and warning = 'EMAIL_UNVERIFIED';
+where user_id = sqlc.arg(user_id) and status = 'PENDING' and warning = 'EMAIL_UNVERIFIED'
+returning course_id;
 
 -- name: LatestInviterName :one
 -- Tên người đã phát lời mời gần nhất cho user (để gửi lại thư mời); không có ⇒ không dòng.

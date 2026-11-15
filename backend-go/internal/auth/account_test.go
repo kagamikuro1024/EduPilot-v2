@@ -429,6 +429,9 @@ func TestVerifyPromotesRosterPending(t *testing.T) {
 	require.NoError(t, r.pool.QueryRow(t.Context(), `select status::text, warning from enrollments where user_id = $1`, uid).Scan(&status, &warning))
 	require.Equal(t, "ACTIVE", status)
 	require.Nil(t, warning)
+	var n int
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select count(*) from outbox where topic = 'course.member_changed' and payload->>'course_id' = $1`, course.String()).Scan(&n))
+	require.Equal(t, 1, n, "SV ACTIVE mới ⇒ ep:roster của lớp phải bị xoá (DEF-R6-02)")
 }
 
 // AC8.
