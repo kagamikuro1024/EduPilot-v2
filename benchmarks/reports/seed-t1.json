@@ -1,7 +1,7 @@
 {
   "meta": {
-    "commit": "e1f9925f",
-    "timestamp": "2026-11-14T08:00:37.114Z",
+    "commit": "8719db26",
+    "timestamp": "2026-11-15T05:01:03.075Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
@@ -16,7 +16,7 @@
       "compose_project": "ep-t1"
     }
   },
-  "seconds_total": 20,
+  "seconds_total": 22,
   "seconds_by_step": {
     "users": 0,
     "courses": 0,
@@ -32,7 +32,7 @@
     "assignments": 0,
     "submissions": 0,
     "documents": 0,
-    "content_chunks": 11
+    "content_chunks": 13
   },
   "rows": {
     "courses": 20,
@@ -52,7 +52,7 @@
     "study_time_daily": 525000,
     "chat_messages": 90000
   },
-  "db_mb": 402,
-  "postgres_mem": "207.5MiB / 9.69GiB",
+  "db_mb": 403,
+  "postgres_mem": "212.5MiB / 9.69GiB",
   "note": "Quy mô T1 đầy đủ."
 }
