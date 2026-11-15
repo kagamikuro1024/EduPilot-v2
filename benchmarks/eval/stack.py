@@ -2,8 +2,9 @@
 """Cấu hình tuyến LLM của stack đo qua API ADMIN (không ghi DB trực tiếp). Khoá không bao giờ được in / ghi tệp.
 
   stack.py route --tag P1 --model ag/gemini-3.8-flash      6 tác vụ sinh chữ → model này của provider `9router` (tạo nếu chưa có); ghi raw/providers.json
-  stack.py embed-real                                       PM cho phép (trần 1.000 lời gọi): provider `gemini-embed-eval` (gemini-embedding-001, 1536 chiều) + EMBEDDING → nó + reindex mọi lớp
-  stack.py embed-fake                                       EMBEDDING → provider fake, XOÁ provider gemini-embed-eval, reindex giả; in số lời gọi nhúng thật (llm_audit)
+  stack.py embed-real [--only 761987]                       PM cho phép (trần 1.000 lời gọi): provider `gemini-embed-eval` (gemini-embedding-001, 1536 chiều) + EMBEDDING → nó + reindex mọi lớp (hoặc một lớp)
+  stack.py embed-fake [--only 761987]                       EMBEDDING → provider fake, XOÁ provider gemini-embed-eval, reindex giả; in số lời gọi nhúng thật (llm_audit)
+  stack.py routes-save FILE / routes-restore FILE           stack dùng chung: chụp tuyến trước khi đổi, trả đúng chuỗi + params sau lượt đo
 Khoá 9router: ROUTER_KEY hoặc ~/.9router/db/data.sqlite (chỉ đọc). Khoá Gemini: GEMINI_ENV_FILE (mặc định ~/Documents/TA_Agent_v2-s95/.env.local), đọc trong tiến trình.
 """
 import argparse
@@ -89,11 +90,13 @@ def save_providers(patch):
     lib.save_raw("providers.json", cur)
 
 
-def reindex_all():
-    """Mọi lớp của giảng viên seed `teacher` (dạy mọi lớp seed + KC106): POST …/documents/reindex, chờ việc xong."""
+def reindex_all(only=None):
+    """Mọi lớp của giảng viên seed `teacher` (dạy mọi lớp seed + KC106), hoặc chỉ lớp `only`: POST …/documents/reindex, chờ việc xong."""
     done = []
     for m in lib.list_all("/me/courses", login("teacher")):
         c = m["course"]
+        if only and c["class_code"] != only:
+            continue
         st, j = call("POST", f"/courses/{c['id']}/documents/reindex", login("teacher"), {}, idem=lib.new_key("eval-reindex"))
         if st == 202 and j and j.get("job_id"):
             done.append((c["class_code"], lib.wait_job(login("teacher"), j["job_id"], timeout=1800)["status"]))
@@ -109,15 +112,29 @@ def main():
     r = sp.add_parser("route")
     r.add_argument("--tag", required=True)
     r.add_argument("--model", required=True)
-    sp.add_parser("embed-real")
-    sp.add_parser("embed-fake")
+    sp.add_parser("embed-real").add_argument("--only", help="chỉ reindex lớp có class_code này (bớt lời gọi nhúng thật)")
+    sp.add_parser("embed-fake").add_argument("--only", help="chỉ reindex lớp có class_code này")
+    for name in ("routes-save", "routes-restore"):  # stack dùng chung (ep-qc): chụp tuyến trước khi đổi, trả đúng tuyến cũ sau lượt đo
+        sp.add_parser(name).add_argument("file")
     a = ap.parse_args()
     lib.refuse_demo()
     if not lib.ready():
         lib.die("Gateway chưa chạy")
     adm = login("admin")
     try:
-        if a.cmd == "route":
+        if a.cmd == "routes-save":
+            Path(a.file).write_text(json.dumps(routes(adm), ensure_ascii=False, indent=1))
+            print("đã chụp:", {t: len(r.get("chain") or []) for t, r in routes(adm).items()})
+        elif a.cmd == "routes-restore":
+            for t, r in json.loads(Path(a.file).read_text()).items():
+                body = {"task": t, "chain": [x["model_id"] for x in r.get("chain") or []], "params": r.get("params") or {}, "version": routes(adm)[t]["version"]}
+                if not body["chain"]:
+                    continue
+                st, j = call("PUT", "/admin/llm/routes", adm, body)
+                if st != 200:
+                    raise Fail(f"trả tuyến {t} → {st} {j}")
+            print("đã trả tuyến:", sorted(json.loads(Path(a.file).read_text())))
+        elif a.cmd == "route":
             _, mid = ensure_model(adm, ROUTER, "openai_compatible", ROUTER_URL, router_key(), a.model, "chat", "0", 20)
             for t in TEXT_TASKS:
                 put_route(adm, t, mid)
@@ -129,7 +146,7 @@ def main():
             j = put_route(adm, "EMBEDDING", mid)
             save_providers({"embedding": f"thật: {EMBED_MODEL} (1536 chiều, Gemini trực tiếp — PM cho phép, trần 1.000 lời gọi)", "embed_real_since": t0})
             print(f"EMBEDDING → {EMBED_MODEL}; reindex_required={j.get('reindex_required')}")
-            reindex_all()
+            reindex_all(a.only)
         else:
             # fake trong DB mang khoá = FAKE_LLM_VALID_KEY của stack (env ep-qc, P-11-29); provider fake theo env (khoá rỗng) sẽ bị AUTH khi khoá đó được đặt
             _, fid = ensure_model(adm, "fake-eval", "fake", None, os.environ.get("EVAL_FAKE_KEY") or "fake", "fake-embed", "embedding", "0", 100000, dims=1536)
@@ -145,7 +162,7 @@ def main():
                 print(f"lời gọi nhúng thật: {n['n']} (token vào {n['tok']})")
             else:
                 save_providers({"embedding": "giả (fake)"})
-            reindex_all()
+            reindex_all(a.only)
     except Fail as e:
         lib.die(f"LỖI: {e}", 2)
 
