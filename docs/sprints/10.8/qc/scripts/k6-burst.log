@@ -1,0 +1,374 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: benchmarks/load/checkin.js
+        output: -
+
+     scenarios: (100.00%) 3 scenarios, 250 max VUs, 2m32s max duration (incl. graceful stop):
+              * background: 5.00 iterations/s for 15s (maxVUs: 5-20, exec: background, gracefulStop: 30s)
+              * display: 2.00 iterations/s for 15s (maxVUs: 10-30, exec: display, gracefulStop: 30s)
+              * checkin: 1 iterations for each of 200 VUs (maxDuration: 2m0s, exec: checkin, startTime: 2s, gracefulStop: 30s)
+
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+running (0m44.0s), 000/215 VUs, 6 complete and 0 interrupted iterations
+background   [   5% ] 00/05 VUs  00.7s/15s  5.00 iters/s
+display      [   5% ] 00/10 VUs  00.7s/15s  2.00 iters/s
+checkin    • [   0% ] waiting    1.3s      
+
+running (0m45.0s), 000/215 VUs, 13 complete and 0 interrupted iterations
+background   [  11% ] 00/05 VUs  01.7s/15s  5.00 iters/s
+display      [  11% ] 00/10 VUs  01.7s/15s  2.00 iters/s
+checkin    • [   0% ] waiting    0.3s      
+
+running (0m46.0s), 168/215 VUs, 52 complete and 0 interrupted iterations
+background   [  18% ] 00/05 VUs  02.7s/15s     5.00 iters/s
+display      [  18% ] 00/10 VUs  02.7s/15s     2.00 iters/s
+checkin      [  16% ] 200 VUs    0m00.7s/2m0s  032/200 iters, 1 per VU
+
+running (0m47.0s), 138/215 VUs, 89 complete and 0 interrupted iterations
+background   [  25% ] 00/05 VUs  03.7s/15s     5.00 iters/s
+display      [  25% ] 00/10 VUs  03.7s/15s     2.00 iters/s
+checkin      [  31% ] 200 VUs    0m01.7s/2m0s  062/200 iters, 1 per VU
+
+running (0m48.0s), 102/215 VUs, 132 complete and 0 interrupted iterations
+background   [  31% ] 00/05 VUs  04.7s/15s     5.00 iters/s
+display      [  31% ] 00/10 VUs  04.7s/15s     2.00 iters/s
+checkin      [  49% ] 200 VUs    0m02.7s/2m0s  098/200 iters, 1 per VU
+
+running (0m49.0s), 050/215 VUs, 191 complete and 0 interrupted iterations
+background   [  38% ] 00/05 VUs  05.7s/15s     5.00 iters/s
+display      [  38% ] 00/10 VUs  05.7s/15s     2.00 iters/s
+checkin      [  75% ] 200 VUs    0m03.7s/2m0s  150/200 iters, 1 per VU
+
+running (0m50.0s), 010/215 VUs, 238 complete and 0 interrupted iterations
+background   [  45% ] 00/05 VUs  06.7s/15s     5.00 iters/s
+display      [  45% ] 00/10 VUs  06.7s/15s     2.00 iters/s
+checkin      [  95% ] 200 VUs    0m04.7s/2m0s  190/200 iters, 1 per VU
+
+running (0m51.0s), 000/215 VUs, 255 complete and 0 interrupted iterations
+background   [  51% ] 00/05 VUs  07.7s/15s     5.00 iters/s
+display      [  51% ] 00/10 VUs  07.7s/15s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU
+
+running (0m52.0s), 000/215 VUs, 262 complete and 0 interrupted iterations
+background   [  58% ] 00/05 VUs  08.7s/15s     5.00 iters/s
+display      [  58% ] 00/10 VUs  08.7s/15s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU
+
+running (0m53.0s), 000/215 VUs, 269 complete and 0 interrupted iterations
+background   [  65% ] 00/05 VUs  09.7s/15s     5.00 iters/s
+display      [  65% ] 00/10 VUs  09.7s/15s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU
+
+running (0m54.0s), 000/215 VUs, 276 complete and 0 interrupted iterations
+background   [  71% ] 00/05 VUs  10.7s/15s     5.00 iters/s
+display      [  71% ] 00/10 VUs  10.7s/15s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU
+
+running (0m55.0s), 000/215 VUs, 283 complete and 0 interrupted iterations
+background   [  78% ] 00/05 VUs  11.7s/15s     5.00 iters/s
+display      [  78% ] 00/10 VUs  11.7s/15s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU
+
+running (0m56.0s), 000/215 VUs, 290 complete and 0 interrupted iterations
+background   [  85% ] 00/05 VUs  12.7s/15s     5.00 iters/s
+display      [  85% ] 00/10 VUs  12.7s/15s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU
+
+running (0m57.0s), 000/215 VUs, 297 complete and 0 interrupted iterations
+background   [  91% ] 00/05 VUs  13.7s/15s     5.00 iters/s
+display      [  91% ] 00/10 VUs  13.7s/15s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU
+
+running (0m58.0s), 000/215 VUs, 304 complete and 0 interrupted iterations
+background   [  98% ] 00/05 VUs  14.7s/15s     5.00 iters/s
+display      [  98% ] 00/10 VUs  14.7s/15s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU
+time="2026-11-15T15:12:57+07:00" level=info msg="lượt điểm danh đếm được: 200 (cần 200)" source=console
+
+
+  █ THRESHOLDS 
+
+    checkin_ok
+    ✓ 'count==200' count=200
+
+    checkin_rows_mismatch
+    ✓ 'count==0' count=0
+
+    http_req_duration{name:background}
+    ✓ 'p(95)<300' p(95)=12.59ms
+
+    http_req_duration{name:checkin}
+    ✓ 'p(95)<500' p(95)=5.38ms
+
+    http_req_duration{name:display}
+    ✓ 'p(95)<300' p(95)=9.66ms
+
+    http_req_failed{name:checkin}
+    ✓ 'rate==0' rate=0.00%
+
+    http_req_failed{name:display}
+    ✓ 'rate==0' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 200     3.428722/s
+    checks_succeeded...: 100.00% 200 out of 200
+    checks_failed......: 0.00%   0 out of 200
+
+    ✓ 201
+
+    CUSTOM
+    checkin_ok.....................: 200    3.428722/s
+    checkin_rows_mismatch..........: 0      0/s
+
+    HTTP
+    http_req_duration..............: avg=74.14ms med=4.13ms p(90)=217.1ms p(95)=219.06ms p(99)=222.54ms max=232.8ms
+      { expected_response:true }...: avg=74.14ms med=4.13ms p(90)=217.1ms p(95)=219.06ms p(99)=222.54ms max=232.8ms
+      { name:background }..........: avg=5.44ms  med=3.67ms p(90)=11.11ms p(95)=12.59ms  p(99)=16.67ms  max=20.37ms
+      { name:checkin }.............: avg=3.63ms  med=3.42ms p(90)=4.72ms  p(95)=5.38ms   p(99)=6.41ms   max=12.59ms
+      { name:display }.............: avg=4.36ms  med=3.33ms p(90)=7.92ms  p(95)=9.66ms   p(99)=11.74ms  max=11.99ms
+    http_req_failed................: 0.00%  0 out of 601
+      { name:checkin }.............: 0.00%  0 out of 200
+      { name:display }.............: 0.00%  0 out of 31
+    http_reqs......................: 601    10.30331/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.66s   med=1.28s  p(90)=4.15s   p(95)=4.48s    p(99)=4.82s    max=4.95s  
+    iterations.....................: 307    5.263089/s
+    vus............................: 0      min=0        max=168
+    vus_max........................: 215    min=215      max=215
+
+    NETWORK
+    data_received..................: 1.3 MB 22 kB/s
+    data_sent......................: 580 kB 9.9 kB/s
+
+
+
+
+running (0m58.3s), 000/215 VUs, 307 complete and 0 interrupted iterations
+background ✓ [ 100% ] 00/05 VUs  15s           5.00 iters/s
+display    ✓ [ 100% ] 00/10 VUs  15s           2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m05.0s/2m0s  200/200 iters, 1 per VU

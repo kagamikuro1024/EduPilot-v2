@@ -18,7 +18,7 @@ Bản kiểm: ep-qc @`a1c7ab30` (đợt 1, L1–L5) → @`b54d020e` (đợt 2: L
 | US-AS-11 app Android | **PASS** (phần kiểm được) | cấu hình tĩnh (cleartext off, `allowNavigation`, không `autoVerify`, không khoá trong git); emulator API 35: WebView có `BarcodeDetector`/`qr_code` → nút «Quét mã điểm danh», từ chối camera → «Chưa cấp quyền camera.», `ErrorPath` «Thử lại», điểm danh mức 2 (P-108-5), `NOT_APP` (P-108-6). KHÔNG KIỂM ĐƯỢC: máy thật (mức 3 thật, `boot_verified`, `GEO_MOCK` thật), quét QR thật bằng camera ảo. D-AS-04 đã được dev sửa (@`089b9d01`) |
 | US-AS-12 chứng thực thiết bị | **PASS** | nonce 1 lần / 5 lần-phút / hết hạn, chuỗi rác → `ATTESTATION_FAILED`, 1 và 7 chứng chỉ → 422, mức 3 / `boot_verified=false` / `GEO_MOCK` / `key_id` lạ bằng fixture, Go test attest 4/4 (3 chuỗi thật, P-108-4 trong `TestAttestRejects`). KHÔNG KIỂM ĐƯỢC: chuỗi chứng thực từ máy thật, danh sách thu hồi khi mất mạng Google |
 | US-AS-13 giữ 30 ngày | **PASS** | purge: A (31 ngày) xoá, B (29 ngày) + cửa sổ mở giữ, thiết bị mồ côi xoá, chạy lại + 2 tiến trình song song không đổi, cửa sổ còn. KHÔNG KIỂM ĐƯỢC: lô 2 500 hàng, ngắt Postgres giữa lô (TC-AS13-04, -09) |
-| US-AS-14 seed / E2E / tải | **PASS** (phần kiểm được) | `seed-checkin-demo`: 43 lượt → 0 lượt (idempotent); 761987 giữ nguyên số `attendance_records`; đủ ca cờ (vòng 1 ≥ 20 lượt, `LATE` = 1, `RECHECK_MISS`, `over_headcount`); `sv.gioi` không lượt; `check-checkin-seed.mjs` phần snapshot xanh; `ui-antipatterns` sạch; CI dev xanh (Go, e2e, Lighthouse). **k6: chưa đo trên Docker (chờ bench); số của dev2 (native, không PgBouncer) không thay được.** `check-checkin-seed` chạy lại seed đầy đủ thoát 1 ở bước 17/20 (409 `TICKET_STATE_INVALID` do dữ liệu chat/ticket tích luỹ của ep-qc, ngoài 10.8) |
+| US-AS-14 seed / E2E / tải | **PASS** (phần kiểm được) | `seed-checkin-demo`: 43 lượt → 0 lượt (idempotent); 761987 giữ nguyên số `attendance_records`; đủ ca cờ (vòng 1 ≥ 20 lượt, `LATE` = 1, `RECHECK_MISS`, `over_headcount`); `sv.gioi` không lượt; `check-checkin-seed.mjs` phần snapshot xanh; `ui-antipatterns` sạch; CI dev xanh (Go, e2e, Lighthouse). **k6 trên ep-qc Docker + PgBouncer: PASS (xem mục «k6» bên dưới).** `check-checkin-seed` chạy lại seed đầy đủ thoát 1 ở bước 17/20 (409 `TICKET_STATE_INVALID` do dữ liệu chat/ticket tích luỹ của ep-qc, ngoài 10.8) |
 
 ## Lỗi (xem `defects.md`)
 | Mã | Mức | Trạng thái |
@@ -34,10 +34,20 @@ Ghi nhận (không lỗi): (1) `/me/today` cache ~15–29 s sau thay đổi tr�
 
 ## Chưa chạy / KHÔNG KIỂM ĐƯỢC (không tính FAIL)
 - Máy Android thật (P-108-12): AC-5, 5b, 6, 9b, 11 (thật), 13, 17, 19 của `android-checklist.md`; quét QR thật qua camera trong app (AC-3); AC-7b.
-- iPhone / Safari / PWA; k6 `checkin.js` trên Docker (chờ bench 1.000 bài); Lighthouse `/checkin` (CI); lô purge 2 500 hàng; chaos khi purge.
+- iPhone / Safari / PWA; Lighthouse `/checkin` (CI); lô purge 2 500 hàng; chaos khi purge.
 - Đã chạy ở đợt 3 (trước đây «chưa chạy»): TC-AS01-10 (a: FAIL → D-AS-06; b, c PASS), TC-AS02-09, TC-AS02-15, TC-AS03-10, TC-AS03-13, TC-AS03-22 (8 vòng, không 5xx), TC-AS05-15 (8 vòng: đóng thắng, `PUT` lưới 409 `VERSION_CONFLICT`, không dòng trùng), TC-AS06-01 (90 lượt: 30 SV × 3 vòng, không phải 120), TC-AS06-03 (0,49 ms; chỉ mục theo quy mô T1 KHÔNG KIỂM ĐƯỢC), TC-AS07-10 (UI).
-- Vẫn KHÔNG chạy: TC-AS06-01 với ≥ 120 lượt thật (chỉ 90), kiểm chỉ mục ở quy mô T1, k6 trên Docker (chờ bench).
+- Vẫn KHÔNG chạy: TC-AS06-01 với ≥ 120 lượt thật (chỉ 90), kiểm chỉ mục `EXPLAIN` ở quy mô T1 (bảng điểm danh chỉ ~400 hàng ngoài 400 hàng k6).
 - `check-checkin-seed.mjs` đầy đủ (chạy lại toàn seed) — cần DB sạch.
 
 ## Cách tái chạy
 `scripts/as_setup.py` (lớp QC-AS + sessions), `as_a.py`…`as_h.py` (API, cần `PYTHONPATH=…/10.5/qc/scripts`), `frontend/e2e/qc-as-real.spec.ts` + `playwright.qc-as.config.ts` (`QC_REAL=1 QC_CID QC_SIDS QC_PW`), `frontend/e2e/qc-as-android.spec.ts` (emulator + CDP; chưa ổn định: khoá Keystore dùng chung giữa các tài khoản nên cần `pm clear` mỗi tài khoản — kết quả Android lấy từ các lần chạy tay CDP cùng quy trình; cần `adb reverse tcp:580 tcp:580` sau `adb root`, APK debug dựng với `capacitor.config.js` `cleartext:true` chỉ để thử, KHÔNG commit).
+
+## k6 `benchmarks/load/checkin.js` (US-AS-14 AC3) — ep-qc, Docker, PgBouncer
+Cách đo: ep-qc dựng lại sang DB `edupilot_t1` (POSTGRES_DB / DATABASE_URL / PGBOUNCER_URL, gateway kèm `benchmarks/load/k6-stack.yml`, **qua PgBouncer**), `seed-t1.mjs --no-vectors` (1.000 SV · 20 lớp, script lấy từ `sprint/9.5-nfr`), k6 chạy trên máy host (Mac) → Caddy `https://localhost:943` → gateway (1) + worker (1) Docker; MacBook Apple Silicon, không bench khác chạy lúc đó. Xong đã trả ep-qc về DB QC (`edupilot`). Lượt gửi **không có `device`** (k6 không ký ECDSA): đường nóng không có bước chữ ký (cờ `NO_DEVICE_KEY`, vẫn 201); đường `DEVICE_SHARED` (D-AS-01) đã kiểm riêng ở API.
+
+| Kịch bản | Tải | `POST …/checkins` p95 / p99 / max | `display` p95 | đọc nền p95 | lỗi | hàng DB | Ngưỡng |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| spread | 200 SV dàn đều 30 s (+ 20 màn chiếu poll, đọc nền 5/s) | **9,62** / 11,46 / 22,38 ms | 11,26 ms | 10,19 ms | 0 % (0/776) | 200 (buổi 1) | ≤ 500 ms, lỗi 0 %, 200 hàng, display < 300 ms: **PASS** |
+| burst | 200 lượt dồn 5 s | **5,38** / 6,41 / 12,59 ms | 9,66 ms | 12,59 ms | 0 % (0/601) | 200 (buổi 2) | **PASS** |
+
+Số của dev2 (native, không PgBouncer): 15,6 / 9,8 ms — cùng bậc. Nhật ký: `scripts/k6-spread.log|json`, `k6-burst.log|json`. Ghi chú: k6 chạy trên host nên có phí mạng loopback; đường Caddy TLS có tính vào số đo.
