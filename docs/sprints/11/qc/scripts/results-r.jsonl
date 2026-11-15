@@ -468,3 +468,6 @@
 {"tc": "R-P1118-IN ticket giả ≤ 20% trên câu trong tài liệu", "st": "PASS", "note": "[n] 11/12; ticket giả 0/12; câu mẫu (từ chối nhầm) 0/12"}
 {"tc": "R-P1118-OOD tỷ lệ ticket ≥ 90% trên câu ngoài tài liệu", "st": "PASS", "note": "ticket 12/12; low_confidence 12/12; LLM theo câu mẫu 12/12; có trích dẫn 0/12"}
 {"tc": "R-P1118-IN ticket giả ≤ 20% trên câu trong tài liệu", "st": "FAIL", "note": "[n] 10/12; ticket giả 7/12; câu mẫu (từ chối nhầm) 0/12"}
+{"tc": "R-P1118-OOD tỷ lệ ticket ≥ 90% trên câu ngoài tài liệu", "st": "PASS", "note": "ticket 12/12; low_confidence 12/12; LLM theo câu mẫu 12/12; có trích dẫn 0/12"}
+{"tc": "R-P1118-IN ticket giả ≤ 20% trên câu trong tài liệu", "st": "FAIL", "note": "[n] 12/12; ticket giả 3/12; câu mẫu (từ chối nhầm) 1/12"}
+{"tc": "R-P1118-RAW không còn chữ thô [2, 5, 7] trong câu trả lời SV", "st": "FAIL", "note": "2 câu còn: ['Tấn công từ chối dịch vụ DoS là gì?', 'Sâu (worm) khác virus ở điểm nào theo bài giảng?']"}

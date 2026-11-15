@@ -12,8 +12,9 @@ IN = ["Ping of death là kiểu tấn công gì?", "Code Red gây ra hậu quả
       "Có bốn nhóm tấn công mạng nào theo tài liệu?", "Tấn công từ chối dịch vụ DoS là gì?", "Sâu (worm) khác virus ở điểm nào theo bài giảng?",
       "Reconnaissance attack là gì?", "Access attack gồm những dạng nào?", "Trojan Horse hoạt động ra sao?", "Tấn công smurf là gì?",
       "Vì sao các chuyên gia mạng vá lỗi chậm làm Code Red nặng hơn?", "Ví dụ về tấn công truy cập (access attacks) trong slide là gì?"]
-SV_OOD = ["sv04", "sv05", "sv06", "sv07"]; SV_IN = ["sv08", "sv09", "sv10", "sv11"]  # mỗi SV tối đa 5 ticket chờ
+SV_OOD = ["sv12", "sv13", "sv14", "sv15"]; SV_IN = ["sv17", "sv18", "sv19", "sv20"]  # mỗi SV tối đa 5 ticket chờ
 TPL = "chưa tìm thấy nội dung này trong tài liệu của lớp"
+RAW = re.compile(r"\[\d+(?:\s*[,;–-]\s*\d+)+\]")  # chữ thô kiểu [2, 5, 7]
 def run(qs, tag, SVS):
     out = []
     for i, t in enumerate(qs):
@@ -23,7 +24,7 @@ def run(qs, tag, SVS):
         st, t1, tot, ans, done, ev = ask(u, s["id"], t)
         out.append((t, st, ans, done, u))
         hn = "yes" if re.search(r"\[\d+\]", ans or "") else "no"
-        print(f"  [{tag}] {t[:50]:50} st={st} cit={len(done.get('citations') or [])} [n]={hn} low={done.get('low_confidence')} ticket={'có' if done.get('ticket') else 'không'} tpl={'yes' if TPL in (ans or '').lower() else 'no'} → {(ans or '')[:60]!r}", flush=True)
+        print(f"  [{tag}] {t[:50]:50} st={st} cit={len(done.get('citations') or [])} [n]={hn} low={done.get('low_confidence')} ticket={'có' if done.get('ticket') else 'không'} tpl={'yes' if TPL in (ans or '').lower() else 'no'} raw={'CÓ' if RAW.search(ans or '') else 'không'} deg={'CÓ' if ('Trả lời tạm thời' in (ans or '') or 'gián đoạn' in (ans or '')) else 'không'} → {(ans or '')[:60]!r}", flush=True)
     return out
 o = run(OOD, "OOD", SV_OOD); n = len(o); tk = sum(1 for x in o if x[3] and x[3].get("ticket")); lc = sum(1 for x in o if x[3] and x[3].get("low_confidence"))
 tp = sum(1 for x in o if x[2] and TPL in x[2].lower()); ci = sum(1 for x in o if x[3] and (x[3].get("citations") or []))
@@ -31,3 +32,8 @@ ok("R-P1118-OOD tỷ lệ ticket ≥ 90% trên câu ngoài tài liệu", n >= 10
 i_ = run(IN, "IN", SV_IN); m = len(i_); cit = sum(1 for x in i_ if x[2] and re.search(r"\[\d+\]", x[2])); tk2 = sum(1 for x in i_ if x[3] and x[3].get("ticket"))
 tp2 = sum(1 for x in i_ if x[2] and TPL in x[2].lower())
 ok("R-P1118-IN ticket giả ≤ 20% trên câu trong tài liệu", m >= 10 and tk2 / m <= 0.2, f"[n] {cit}/{m}; ticket giả {tk2}/{m}; câu mẫu (từ chối nhầm) {tp2}/{m}")
+
+raw = [x[0] for x in o + i_ if x[2] and RAW.search(x[2])]
+ok("R-P1118-RAW không còn chữ thô [2, 5, 7] trong câu trả lời SV", not raw, f"{len(raw)} câu còn: {raw[:3]}")
+deg = sum(1 for x in o + i_ if x[2] and ("Trả lời tạm thời" in x[2] or "gián đoạn" in x[2]))
+print("câu bị giảm cấp (9router rớt), cần loại khỏi tỷ lệ:", deg)
