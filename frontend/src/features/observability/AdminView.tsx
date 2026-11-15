@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useCursorList } from "@/shared/data";
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, type Column, DataTable, EmptyState, PageState, Section, SegmentedControl, Select, Skeleton, StatusText } from "@/shared/ui";
 import { DecisionTable } from "./DecisionTable";
 import { FailedMail } from "./FailedMail";
@@ -69,6 +70,7 @@ export function AdminView() {
         </Section>
         <Section
           title="Yêu cầu"
+          fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} onRetry={() => void list.refetch()} /> : null}
           action={
             <>
               <SegmentedControl

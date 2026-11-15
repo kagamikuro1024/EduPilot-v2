@@ -50,6 +50,7 @@ type Auditor struct {
 	write   AuditWriter
 	log     *slog.Logger
 	mu      sync.Mutex
+	flushMu sync.Mutex // một lần flush tại một lúc: flush gọi từ ngoài chờ lô đang ghi của vòng nền xong rồi mới trả (FlushAudit hứa «mọi dòng đã ghi»)
 	buf     []AuditRow
 	wake    chan struct{}
 	stop    chan struct{}
@@ -128,6 +129,8 @@ func (a *Auditor) take(n int) []AuditRow {
 }
 
 func (a *Auditor) flush(ctx context.Context) {
+	a.flushMu.Lock()
+	defer a.flushMu.Unlock()
 	for {
 		rows := a.take(auditBatch)
 		if len(rows) == 0 {
