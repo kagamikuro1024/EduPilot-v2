@@ -1,5 +1,7 @@
-.headline { margin: 0; font-size: var(--ep-text-section); line-height: 1.4; }
+.headline { margin: 0; font-size: var(--ep-text-item); line-height: 1.4; } /* ≤ h1 của khung xương (P-11-6a): không thành ứng viên LCP mới */
+.headLabel { color: var(--ep-ink-2); }
 .sub { margin: 0; color: var(--ep-ink-2); max-width: 70ch; }
+.note { margin: 0; color: var(--ep-ink-2); font-size: var(--ep-text-meta); } /* ghi chú cố định một dòng, nhỏ hơn h1 của khung xương (P-11-6a) */
 .trend { max-width: 560px; }
 .whatif { display: grid; gap: var(--ep-space-2); margin-top: var(--ep-space-3); }
 .whatifLabel { display: flex; align-items: center; gap: var(--ep-space-3); flex-wrap: wrap; }

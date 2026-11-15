@@ -56,8 +56,16 @@ const comma = (v: string) => v.replace(".", ",");
 
 /** Câu nhận định theo trạng thái (không bình luận tốt / xấu, không động viên). */
 export function gradeSentence(g: MeGrades): string {
-  if (g.status === "NO_SCHEME") return "Lớp chưa có công thức điểm chính thức.";
-  if (g.status === "FINAL" && g.final) return `Điểm học phần đã chốt: ${comma(g.final.numeric_grade)} (${g.final.letter}).`;
-  if (g.qt) return `Điểm quá trình hiện tại của bạn là ${comma(g.qt)} trên 10.`;
-  return "";
+  return g.status === "NO_SCHEME" ? "Lớp chưa có công thức điểm chính thức." : "";
+}
+
+/**
+ * Dòng điểm «nhãn + giá trị» (P-11-6a, US-P10-08 AC3a): chữ nhỏ hơn h1 của khung xương nên h1 vẫn là ứng viên LCP lớn nhất sau khi có phiên
+ * (câu «Điểm quá trình hiện tại của bạn là 8,75 trên 10.» lớn hơn h1 và kéo LCP về lúc có dữ liệu).
+ */
+export function gradeLine(g: MeGrades): { label: string; value: string } | null {
+  if (g.status === "NO_SCHEME") return null;
+  if (g.status === "FINAL" && g.final) return { label: "Điểm học phần", value: `${comma(g.final.numeric_grade)} (${g.final.letter})` };
+  if (g.qt) return { label: "Điểm quá trình", value: `${comma(g.qt)} / 10` };
+  return null;
 }

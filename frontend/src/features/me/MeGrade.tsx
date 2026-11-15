@@ -6,7 +6,7 @@ import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { ApiError, apiClient } from "@/shared/data";
 import { GradeCalculation, type CalcLine } from "@/shared/domain";
 import { Button, EmptyState, Input, Section, Skeleton } from "@/shared/ui";
-import { gradeSentence, type MeGrades, type MeWhatIf } from "./meApi";
+import { gradeLine, gradeSentence, type MeGrades, type MeWhatIf } from "./meApi";
 import s from "./Me.module.css";
 
 const comma = (v: string) => v.replace(".", ",");
@@ -45,15 +45,19 @@ function GradeBody({ courseId, g }: { courseId: string; g: MeGrades }) {
   const comps = g.components ?? [];
   const lines = explainLines(comps, g.calculation ?? []);
   const published = comps.filter((c) => c.status === "PUBLISHED");
-  const sentence = gradeSentence(g);
-  if (published.length === 0 && !sentence) return <EmptyState title="Chưa có điểm nào được công bố" />;
+  const line = gradeLine(g);
+  if (published.length === 0 && !line) return <EmptyState title="Chưa có điểm nào được công bố" />;
   return (
     <>
-      {sentence && <p className={s.headline} data-part="grade-sentence">{sentence}</p>}
+      {line && (
+        <p className={s.headline} data-part="grade-sentence">
+          <span className={s.headLabel}>{line.label}</span> <strong>{line.value}</strong>
+        </p>
+      )}
       {g.final?.failed_reason && <p className={s.sub}>{g.final.failed_reason}</p>}
       {lines.length > 0 && <GradeCalculation lines={lines} caption="Cách tính điểm của bạn" />}
       {g.status === "IN_PROGRESS" && g.qt && <WhatIf courseId={courseId} />}
-      {g.official_note && <p className={s.sub} data-part="official-note">{g.official_note}</p>}
+      {g.official_note && <p className={s.note} data-part="official-note">{g.official_note}</p>}
     </>
   );
 }

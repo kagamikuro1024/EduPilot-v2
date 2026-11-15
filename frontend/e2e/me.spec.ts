@@ -179,7 +179,7 @@ const finalGrade = () => ({ status: "FINAL", components: [comp("final", "Thi cu�
 test("grade section: câu nhận định theo trạng thái, thành phần đã công bố / chưa công bố, đúng một dòng ghi chú cố định", async ({ page }) => {
   await api(page, COURSE, { grades: () => inProgress() });
   await page.goto("/me");
-  await expect(page.locator("[data-part=grade-sentence]")).toHaveText("Điểm quá trình hiện tại của bạn là 8,25 trên 10.");
+  await expect(page.locator("[data-part=grade-sentence]")).toHaveText("Điểm quá trình 8,25 / 10");
   const sec = page.locator("main section", { hasText: "Giữa kỳ · 20 %" }); // US-UX91-20 AC1: một khối, "tên · trọng số %" cùng dòng với điểm
   await expect(sec).toContainText("8,25");
   await expect(sec).toContainText("Chưa công bố");
@@ -188,7 +188,7 @@ test("grade section: câu nhận định theo trạng thái, thành phần đã 
   await asDemo(page.context(), "student", { person: "sv-2" });
   await api(page, COURSE, { grades: finalGrade });
   await page.goto("/me");
-  await expect(page.locator("[data-part=grade-sentence]")).toHaveText("Điểm học phần đã chốt: 7,0 (B).");
+  await expect(page.locator("[data-part=grade-sentence]")).toHaveText("Điểm học phần 7,0 (B)");
   await expect(page.locator("[data-part=what-if]")).toHaveCount(0);
   await page.unrouteAll({ behavior: "ignoreErrors" });
   await asDemo(page.context(), "student", { person: "sv-2" });
