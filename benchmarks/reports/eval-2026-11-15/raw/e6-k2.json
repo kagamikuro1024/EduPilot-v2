@@ -1,0 +1,767 @@
+{
+ "meta": {
+  "commit": "419241e4",
+  "timestamp": "2026-11-15T21:54:44.983Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "stack": "ep-qc",
+   "raw": "e6-k2.json"
+  }
+ },
+ "tag": "k2",
+ "protocol": "P-11-53",
+ "idle_ram": {
+  "gateway": {
+   "mem_mib": 17.3,
+   "cpu": "3.32%"
+  },
+  "frontend": {
+   "mem_mib": 76.8,
+   "cpu": "0.02%"
+  },
+  "worker": {
+   "mem_mib": 13.3,
+   "cpu": "0.40%"
+  },
+  "caddy": {
+   "mem_mib": 22.6,
+   "cpu": "5.33%"
+  },
+  "judge": {
+   "mem_mib": 16.4,
+   "cpu": "0.00%"
+  },
+  "pgbouncer": {
+   "mem_mib": 12.8,
+   "cpu": "0.06%"
+  },
+  "redis": {
+   "mem_mib": 10.7,
+   "cpu": "0.32%"
+  },
+  "postgres": {
+   "mem_mib": 228.0,
+   "cpu": "0.11%"
+  },
+  "docling": {
+   "mem_mib": 1083.4,
+   "cpu": "0.16%"
+  },
+  "minio": {
+   "mem_mib": 99.3,
+   "cpu": "0.06%"
+  }
+ },
+ "idle_ram_other_containers": {
+  "edupilot-test-judge": {
+   "mem_mib": 12.7,
+   "cpu": "0.00%"
+  },
+  "edupilot-test-minio": {
+   "mem_mib": 327.5,
+   "cpu": "0.00%"
+  },
+  "edupilot-test-redis": {
+   "mem_mib": 23.0,
+   "cpu": "0.26%"
+  },
+  "edupilot-test-postgres": {
+   "mem_mib": 175.0,
+   "cpu": "0.00%"
+  },
+  "ep-qc-mock-graph-1": {
+   "mem_mib": 4.6,
+   "cpu": "0.00%"
+  },
+  "ep-qc-mock-imap-1": {
+   "mem_mib": 5.2,
+   "cpu": "0.00%"
+  },
+  "ep-qc-mailpit-1": {
+   "mem_mib": 16.5,
+   "cpu": "2.51%"
+  }
+ },
+ "cold_start_ms": {
+  "gateway": [
+   409,
+   382,
+   380,
+   383,
+   387,
+   394,
+   381,
+   380,
+   375,
+   381
+  ],
+  "worker": [
+   178,
+   164,
+   175,
+   193,
+   174,
+   158,
+   164,
+   178,
+   180,
+   181
+  ]
+ },
+ "probe_cost_ms": {
+  "gateway": [
+   9.5,
+   4.3,
+   3.5,
+   3.7,
+   3.1,
+   2.7,
+   2.7,
+   2.7,
+   2.5,
+   2.8
+  ],
+  "worker": [
+   51.9,
+   50.5,
+   49.6,
+   51.5,
+   53.9,
+   55.5,
+   50.3,
+   46.2,
+   47.2,
+   51.2
+  ]
+ },
+ "latency_ms": {
+  "GET /readyz": {
+   "n": 200,
+   "p50": 2.7,
+   "p95": 4.4,
+   "max": 6.8,
+   "mean": 2.9,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": null
+  },
+  "GET /me/courses (SV)": {
+   "n": 200,
+   "p50": 3.2,
+   "p95": 4.7,
+   "max": 14.9,
+   "mean": 3.5,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "sv.kha"
+  },
+  "GET threads lớp 1 (SV)": {
+   "n": 200,
+   "p50": 3.9,
+   "p95": 5.3,
+   "max": 9.3,
+   "mean": 4.2,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "sv.gioi"
+  },
+  "GET documents lớp 1 (GV)": {
+   "n": 200,
+   "p50": 3.3,
+   "p95": 5.2,
+   "max": 8.5,
+   "mean": 3.5,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "teacher"
+  },
+  "GET students lớp 1 (TA)": {
+   "n": 200,
+   "p50": 8.2,
+   "p95": 9.9,
+   "max": 11.0,
+   "mean": 8.3,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "ta"
+  },
+  "GET gradebook lớp 1 (GV)": {
+   "n": 200,
+   "p50": 7.9,
+   "p95": 9.4,
+   "max": 12.7,
+   "mean": 8.0,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "teacher"
+  },
+  "GET today lớp 1 (TA)": {
+   "n": 200,
+   "p50": 3.0,
+   "p95": 4.9,
+   "max": 10.2,
+   "mean": 3.3,
+   "non_200": 0,
+   "rate_limited_excluded": 0,
+   "account": "ta"
+  }
+ },
+ "images": {
+  "gateway": {
+   "image": "edupilot-gateway-test",
+   "mib": 17.4
+  },
+  "worker": {
+   "image": "edupilot-worker-test",
+   "mib": 16.3
+  },
+  "gateway_production": {
+   "image": "ep-eval-gateway:419241e4",
+   "mib": 17.4
+  },
+  "worker_production": {
+   "image": "ep-eval-worker:419241e4",
+   "mib": 16.3
+  }
+ },
+ "env": [
+  {
+   "phase": "bắt đầu",
+   "at": "2026-11-15T21:51:26.918Z",
+   "load_mac": [
+    2.66,
+    3.98,
+    5.8
+   ],
+   "load_vm": [
+    0.7,
+    1.47,
+    3.65
+   ],
+   "other_projects": [
+    "edupilot-test-judge",
+    "edupilot-test-minio",
+    "edupilot-test-postgres",
+    "edupilot-test-redis"
+   ],
+   "containers": [
+    {
+     "name": "ep-qc-gateway-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:50:19.988440635Z"
+    },
+    {
+     "name": "ep-qc-frontend-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T18:42:19.932054656Z"
+    },
+    {
+     "name": "ep-qc-worker-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:51:03.450026985Z"
+    },
+    {
+     "name": "ep-qc-caddy-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T17:53:01.980849563Z"
+    },
+    {
+     "name": "ep-qc-judge-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T13:35:15.93064391Z"
+    },
+    {
+     "name": "edupilot-test-judge",
+     "project": "",
+     "started_at": "2026-11-15T19:02:44.072594567Z"
+    },
+    {
+     "name": "edupilot-test-minio",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.949987147Z"
+    },
+    {
+     "name": "edupilot-test-redis",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.636392718Z"
+    },
+    {
+     "name": "edupilot-test-postgres",
+     "project": "",
+     "started_at": "2026-11-15T21:15:21.651425786Z"
+    },
+    {
+     "name": "ep-qc-pgbouncer-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:20:03.527067727Z"
+    },
+    {
+     "name": "ep-qc-redis-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.758485455Z"
+    },
+    {
+     "name": "ep-qc-postgres-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:57.921782229Z"
+    },
+    {
+     "name": "ep-qc-mock-graph-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.015695435Z"
+    },
+    {
+     "name": "ep-qc-docling-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.617252975Z"
+    },
+    {
+     "name": "ep-qc-mock-imap-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.29131182Z"
+    },
+    {
+     "name": "ep-qc-minio-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.49168172Z"
+    },
+    {
+     "name": "ep-qc-mailpit-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.107682204Z"
+    }
+   ]
+  },
+  {
+   "phase": "sau khởi động lại + làm ấm",
+   "at": "2026-11-15T21:51:34.521Z",
+   "load_mac": [
+    2.69,
+    3.96,
+    5.78
+   ],
+   "load_vm": [
+    0.64,
+    1.45,
+    3.63
+   ],
+   "other_projects": [
+    "edupilot-test-judge",
+    "edupilot-test-minio",
+    "edupilot-test-postgres",
+    "edupilot-test-redis"
+   ],
+   "containers": [
+    {
+     "name": "ep-qc-gateway-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:51:30.256276978Z"
+    },
+    {
+     "name": "ep-qc-frontend-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T18:42:19.932054656Z"
+    },
+    {
+     "name": "ep-qc-worker-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:51:32.316412441Z"
+    },
+    {
+     "name": "ep-qc-caddy-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T17:53:01.980849563Z"
+    },
+    {
+     "name": "ep-qc-judge-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T13:35:15.93064391Z"
+    },
+    {
+     "name": "edupilot-test-judge",
+     "project": "",
+     "started_at": "2026-11-15T19:02:44.072594567Z"
+    },
+    {
+     "name": "edupilot-test-minio",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.949987147Z"
+    },
+    {
+     "name": "edupilot-test-redis",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.636392718Z"
+    },
+    {
+     "name": "edupilot-test-postgres",
+     "project": "",
+     "started_at": "2026-11-15T21:15:21.651425786Z"
+    },
+    {
+     "name": "ep-qc-pgbouncer-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:20:03.527067727Z"
+    },
+    {
+     "name": "ep-qc-redis-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.758485455Z"
+    },
+    {
+     "name": "ep-qc-postgres-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:57.921782229Z"
+    },
+    {
+     "name": "ep-qc-mock-graph-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.015695435Z"
+    },
+    {
+     "name": "ep-qc-docling-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.617252975Z"
+    },
+    {
+     "name": "ep-qc-mock-imap-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.29131182Z"
+    },
+    {
+     "name": "ep-qc-minio-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.49168172Z"
+    },
+    {
+     "name": "ep-qc-mailpit-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.107682204Z"
+    }
+   ]
+  },
+  {
+   "phase": "đo RAM nghỉ",
+   "at": "2026-11-15T21:52:37.133Z",
+   "load_mac": [
+    3.61,
+    3.91,
+    5.62
+   ],
+   "load_vm": [
+    0.24,
+    1.18,
+    3.39
+   ],
+   "other_projects": [
+    "edupilot-test-judge",
+    "edupilot-test-minio",
+    "edupilot-test-postgres",
+    "edupilot-test-redis"
+   ],
+   "containers": [
+    {
+     "name": "ep-qc-gateway-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:51:30.256276978Z"
+    },
+    {
+     "name": "ep-qc-frontend-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T18:42:19.932054656Z"
+    },
+    {
+     "name": "ep-qc-worker-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:51:32.316412441Z"
+    },
+    {
+     "name": "ep-qc-caddy-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T17:53:01.980849563Z"
+    },
+    {
+     "name": "ep-qc-judge-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T13:35:15.93064391Z"
+    },
+    {
+     "name": "edupilot-test-judge",
+     "project": "",
+     "started_at": "2026-11-15T19:02:44.072594567Z"
+    },
+    {
+     "name": "edupilot-test-minio",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.949987147Z"
+    },
+    {
+     "name": "edupilot-test-redis",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.636392718Z"
+    },
+    {
+     "name": "edupilot-test-postgres",
+     "project": "",
+     "started_at": "2026-11-15T21:15:21.651425786Z"
+    },
+    {
+     "name": "ep-qc-pgbouncer-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:20:03.527067727Z"
+    },
+    {
+     "name": "ep-qc-redis-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.758485455Z"
+    },
+    {
+     "name": "ep-qc-postgres-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:57.921782229Z"
+    },
+    {
+     "name": "ep-qc-mock-graph-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.015695435Z"
+    },
+    {
+     "name": "ep-qc-docling-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.617252975Z"
+    },
+    {
+     "name": "ep-qc-mock-imap-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.29131182Z"
+    },
+    {
+     "name": "ep-qc-minio-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.49168172Z"
+    },
+    {
+     "name": "ep-qc-mailpit-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.107682204Z"
+    }
+   ]
+  },
+  {
+   "phase": "sau khởi động lạnh",
+   "at": "2026-11-15T21:54:26.929Z",
+   "load_mac": [
+    2.64,
+    3.47,
+    5.24
+   ],
+   "load_vm": [
+    0.41,
+    0.99,
+    3.07
+   ],
+   "other_projects": [
+    "edupilot-test-judge",
+    "edupilot-test-minio",
+    "edupilot-test-postgres",
+    "edupilot-test-redis"
+   ],
+   "containers": [
+    {
+     "name": "ep-qc-gateway-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:53:39.824075703Z"
+    },
+    {
+     "name": "ep-qc-frontend-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T18:42:19.932054656Z"
+    },
+    {
+     "name": "ep-qc-worker-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:54:23.436986192Z"
+    },
+    {
+     "name": "ep-qc-caddy-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T17:53:01.980849563Z"
+    },
+    {
+     "name": "ep-qc-judge-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T13:35:15.93064391Z"
+    },
+    {
+     "name": "edupilot-test-judge",
+     "project": "",
+     "started_at": "2026-11-15T19:02:44.072594567Z"
+    },
+    {
+     "name": "edupilot-test-minio",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.949987147Z"
+    },
+    {
+     "name": "edupilot-test-redis",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.636392718Z"
+    },
+    {
+     "name": "edupilot-test-postgres",
+     "project": "",
+     "started_at": "2026-11-15T21:15:21.651425786Z"
+    },
+    {
+     "name": "ep-qc-pgbouncer-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:20:03.527067727Z"
+    },
+    {
+     "name": "ep-qc-redis-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.758485455Z"
+    },
+    {
+     "name": "ep-qc-postgres-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:57.921782229Z"
+    },
+    {
+     "name": "ep-qc-mock-graph-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.015695435Z"
+    },
+    {
+     "name": "ep-qc-docling-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.617252975Z"
+    },
+    {
+     "name": "ep-qc-mock-imap-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.29131182Z"
+    },
+    {
+     "name": "ep-qc-minio-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.49168172Z"
+    },
+    {
+     "name": "ep-qc-mailpit-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.107682204Z"
+    }
+   ]
+  },
+  {
+   "phase": "sau độ trễ",
+   "at": "2026-11-15T21:54:44.817Z",
+   "load_mac": [
+    2.48,
+    3.4,
+    5.18
+   ],
+   "load_vm": [
+    0.48,
+    0.98,
+    3.04
+   ],
+   "other_projects": [
+    "edupilot-test-judge",
+    "edupilot-test-minio",
+    "edupilot-test-postgres",
+    "edupilot-test-redis"
+   ],
+   "containers": [
+    {
+     "name": "ep-qc-gateway-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:53:39.824075703Z"
+    },
+    {
+     "name": "ep-qc-frontend-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T18:42:19.932054656Z"
+    },
+    {
+     "name": "ep-qc-worker-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T21:54:23.436986192Z"
+    },
+    {
+     "name": "ep-qc-caddy-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T17:53:01.980849563Z"
+    },
+    {
+     "name": "ep-qc-judge-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T13:35:15.93064391Z"
+    },
+    {
+     "name": "edupilot-test-judge",
+     "project": "",
+     "started_at": "2026-11-15T19:02:44.072594567Z"
+    },
+    {
+     "name": "edupilot-test-minio",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.949987147Z"
+    },
+    {
+     "name": "edupilot-test-redis",
+     "project": "",
+     "started_at": "2026-11-15T21:15:22.636392718Z"
+    },
+    {
+     "name": "edupilot-test-postgres",
+     "project": "",
+     "started_at": "2026-11-15T21:15:21.651425786Z"
+    },
+    {
+     "name": "ep-qc-pgbouncer-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:20:03.527067727Z"
+    },
+    {
+     "name": "ep-qc-redis-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.758485455Z"
+    },
+    {
+     "name": "ep-qc-postgres-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:57.921782229Z"
+    },
+    {
+     "name": "ep-qc-mock-graph-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.015695435Z"
+    },
+    {
+     "name": "ep-qc-docling-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.617252975Z"
+    },
+    {
+     "name": "ep-qc-mock-imap-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.29131182Z"
+    },
+    {
+     "name": "ep-qc-minio-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.49168172Z"
+    },
+    {
+     "name": "ep-qc-mailpit-1",
+     "project": "ep-qc",
+     "started_at": "2026-11-15T11:19:58.107682204Z"
+    }
+   ]
+  }
+ ],
+ "contended": true,
+ "colima": "{\"name\":\"default\",\"status\":\"Running\",\"arch\":\"aarch64\",\"cpus\":6,\"memory\":10737418240,\"disk\":107374182400,\"runtime\":\"docker\"}"
+}

@@ -105,7 +105,7 @@ Stack `ep-qc` dựng lại từ `sprint/11-p10-eval` @`4c919bf5` (seed T0). Lệ
 | E3 | `WAITING_HUMAN` | test–retest P1 QWK 0,885; P1–P2 QWK 0,451 (n = 24: claude qua 9router 403 hạn mức, 36/60 FAILED); gói chấm tay `e3-cham-tay.csv` |
 | E4 | OK | LLM p50 / p95: 3,7 / 6,0 s (gemini-3.8-flash), 2,8 / 5,8 s (claude-sonnet-4-6); chi phí quy đổi / 100 yêu cầu 0,30 / 1,41 USD (gọi thẳng ước 0,14 / 0,75) |
 | E5 | `WAITING_HUMAN` | 100 câu sinh, 0 bị bỏ; duyệt n = 0. Stack đã dựng lại → chạy lại 10 lô khi chủ dự án duyệt (`raw/e5-questions.json` chỉ lưu vết) |
-| E6 | OK, tái lập lệch (đo lại 2026-11-15 18:55–19:01 UTC @`468207a7`) | RAM nghỉ gateway 18,4–22,7 MiB, worker 14,3–19,2 MiB; khởi động lạnh 163–795 ms (trung vị lớn nhất 376 ms); image production 17,4 / 16,3 MiB; p95 endpoint 4,5–25,2 ms, max ≤ 52,8 ms; 0 phản hồi ≠ 200, 0 phản hồi 429 (bộ đo mới: một tài khoản mỗi endpoint, không thử lại). Lệch r1/r2: RAM 22,0 %, khởi động gateway 14,9 %, worker 20,9 % → ngoài ±15 %; nguyên nhân ở mục dưới |
+| E6 | OK; r1/r2 tái lập lệch (TC-10-16 FAIL, D-11-23), k1/k2 theo P-11-53 trong sai số | **r1/r2** (2026-11-15 18:55–19:01 UTC @`468207a7`): RAM nghỉ gateway 18,4–22,7 MiB, worker 14,3–19,2 MiB; khởi động lạnh 163–795 ms; lệch RAM 22,0 %, khởi động gateway 14,9 %, worker 20,9 % → ngoài ±15 % (nguyên nhân ở mục dưới). **k1/k2** (21:48–21:55 UTC @`419241e4`, P-11-53): RAM gateway 17,4 / 17,3 MiB, worker 13,1 / 13,3 MiB; khởi động lạnh trung vị gateway 392,5 / 381,5 ms, worker 184,0 / 176,5 ms (10 mẫu); lệch 0,3 % / 2,8 % / 4,1 % → trong ±15 %, cờ `contended` (edupilot-test-* chạy, CPU 2,8–4,3 %). Image production 17,4 / 16,3 MiB. p95 endpoint ≤ 25,2 ms; 0 phản hồi ≠ 200, 0 phản hồi 429 ở cả 4 lượt |
 
 Việc của chủ dự án: soát 50 nhãn E1 + 24 nhãn E2, chấm 60 bài E3, duyệt 100 câu E5; xong chạy `make eval-report`.
 
@@ -128,6 +128,11 @@ Nguồn: `raw/e6-r{1,2}.json`, `docker inspect` / `docker logs` của các conta
 3. **Cùng trạng thái tiến trình:** đầu mỗi lượt khởi động lại gateway + worker, làm ấm bằng một bộ yêu cầu cố định, nghỉ 60 s rồi mới đo RAM.
 4. **Khởi động lạnh đo bằng dụng cụ mịn hơn:** gateway dò `GET /readyz` từ host qua cổng Caddy, chu kỳ 10 ms (bỏ `docker exec`); worker không có dòng log «sẵn sàng» nên giữ `-healthcheck`, nhưng đo kèm chi phí `docker exec` của chính lượt và báo độ phân giải. Lấy 10 mẫu, báo trung vị + khoảng tứ phân vị.
 5. Chỉ so tái lập giữa các lượt không cờ. Muốn ±15 % có sàn tuyệt đối (ví dụ lệch ≤ max(15 %, 50 ms / 3 MiB)) là đổi AC11 → việc của BA/PM, TL không tự đổi.
+
+**Kết quả lượt có kiểm soát (P-11-53, `benchmarks/reports/eval-2026-11-15/e6.md`):** `ep-r` đã `docker stop`; còn `edupilot-test-{judge,minio,postgres,redis}` (không của đội, không dừng) ⇒ k1, k2 mang cờ `contended`, nhưng CPU của chúng lúc đo RAM 4,3 % / 2,8 %, loadavg 1 phút VM 0,24–1,35, Mac 2,42–3,61 (lượt r1/r2: không ghi; lúc phân tích có `ep-r` chạy, VM 18,97).
+- Tái lập k1/k2: RAM gateway + worker 0,3 %, khởi động gateway 2,8 %, worker 4,1 % → **trong ±15 %**. Lượt r1/r2 giữ nguyên trong báo cáo (NGOÀI sai số).
+- Độ phân giải: một lần dò gateway (HTTP từ host) trung vị 2,95 ms; worker (`docker exec`) 50,85–53,7 ms khi VM nhàn (so với 119–271 ms lúc VM tải 18,97).
+- Khởi động lạnh gateway của k1/k2 (382–393 ms) KHÔNG so trực tiếp với r1/r2 được: k đo tới lúc Caddy chuyển được `/readyz` từ host, r đo `wget` trong mạng compose. RAM nghỉ k1/k2 gần r2 (tiến trình mới khởi động), xa r1 (tiến trình chạy lâu) — khớp nguyên nhân 2.
 
 ---
 
