@@ -92,7 +92,7 @@ func (s *Service) ClearFlags(ctx context.Context, actor, courseID, cid uuid.UUID
 		}
 		c.FlagsClearedAt = &now
 		// mục CHECKIN_REVIEW của «Hôm nay» đổi → vô hiệu cache Staff (cùng topic với lưu điểm danh: bộ vô hiệu xoá cache của Giảng viên + TA)
-		if _, err := outbox.Write(ctx, tx, topicAttendanceSaved, map[string]string{"course_id": courseID.String(), "session_id": c.SessionID.String()}); err != nil {
+		if _, err := outbox.Write(ctx, tx, TopicAttendanceSaved, map[string]string{"course_id": courseID.String(), "session_id": c.SessionID.String()}); err != nil {
 			return CheckinRow{}, wrap("outbox", err)
 		}
 	}

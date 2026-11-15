@@ -38,8 +38,8 @@ func serveEnv() map[string]string {
 		"BLOB_BUCKET":        "b",
 		"BLOB_ACCESS_KEY":    "ak",
 		"BLOB_SECRET_KEY":    "sk",
-		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=",
-		"HTTP_ADDR":          "127.0.0.1:0",
+		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "ATTENDANCE_TOKEN_KEY": "ZWR1cGlsb3QtcHJvZC1hdHRlbmRhbmNlLXRva2VuLWs=",
+		"HTTP_ADDR": "127.0.0.1:0",
 	}
 }
 

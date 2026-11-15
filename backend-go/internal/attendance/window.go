@@ -403,7 +403,7 @@ func (s *Service) closeLocked(ctx context.Context, tx pgx.Tx, q *store.Queries, 
 		return CloseResult{}, err
 	}
 	if written > 0 {
-		if _, err := outbox.Write(ctx, tx, topicAttendanceSaved, map[string]string{"course_id": courseID.String(), "session_id": sid.String()}); err != nil {
+		if _, err := outbox.Write(ctx, tx, TopicAttendanceSaved, map[string]string{"course_id": courseID.String(), "session_id": sid.String()}); err != nil {
 			return CloseResult{}, wrap("outbox", err)
 		}
 	}
@@ -523,7 +523,7 @@ func (s *Service) AbsentUnchecked(ctx context.Context, actor, courseID, sid uuid
 		if err := audit(ctx, q, "attendance", courseID, &actor, sid.String(), "absent_unchecked", nil, map[string]any{"marked": len(ids), "changes": ch}); err != nil {
 			return 0, err
 		}
-		if _, err := outbox.Write(ctx, tx, topicAttendanceSaved, map[string]string{"course_id": courseID.String(), "session_id": sid.String()}); err != nil {
+		if _, err := outbox.Write(ctx, tx, TopicAttendanceSaved, map[string]string{"course_id": courseID.String(), "session_id": sid.String()}); err != nil {
 			return 0, wrap("outbox", err)
 		}
 	}

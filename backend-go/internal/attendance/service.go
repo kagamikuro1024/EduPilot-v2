@@ -23,8 +23,8 @@ import (
 // Config là cấu hình điểm danh (SRS 4.1), đọc ở internal/platform/config.
 type Config = config.Attendance
 
-// topicAttendanceSaved trùng crm.TopicAttendanceSaved (attendance không import crm: crm gọi attendance).
-const topicAttendanceSaved = "crm.attendance_saved"
+// TopicAttendanceSaved trùng crm.TopicAttendanceSaved (attendance không import crm: crm gọi attendance).
+const TopicAttendanceSaved = "crm.attendance_saved"
 
 // Service là nghiệp vụ điểm danh tự phục vụ. Redis nil ⇒ không giới hạn lượt (như middleware hạn mức); Attest nil ⇒ đăng ký thiết bị trả 503.
 type Service struct {
