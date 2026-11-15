@@ -10,6 +10,7 @@ Không đếm câu đã duyệt sẵn trong seed (chỉ các lô do lệnh này 
 """
 import argparse
 import json
+import os
 import time
 from datetime import datetime
 
@@ -135,7 +136,11 @@ def report():
         L.append(f"| {k} | {j['topic']} | {j['t0'][11:19]} | {(j.get('t1') or '')[11:19] or '–'} | {secs(j)} | {j.get('status') or 'đang chạy'} | {n_created} | {len(res.get('skipped') or [])} | "
                  f"{(j.get('error') or {}).get('code') if isinstance(j.get('error'), dict) else (j.get('error') or '–')} | {', '.join(rl.get(k, [])) or '–'} | "
                  + (", ".join(f"{s} {n}" for s, n in sorted(st_count.items())) or "–") + " |")
-    L += ["", "![](e5.svg)", "", "## Cách duyệt (chủ dự án)", "", "Đăng nhập `teacher@edupilot.local` → Ngân hàng câu hỏi lớp 761987 → lọc «Chờ duyệt» → với từng câu: `Duyệt` (nguyên), sửa rồi `Duyệt` (sửa nhẹ), hoặc `Loại`. Xong chạy `make eval-report`: gen-stats đọc lại, không gọi LLM.", "",
+    L += ["", "![](e5.svg)", "", "## Cách duyệt (chủ dự án)", "",
+          f"1. Mở `{os.environ.get('APP_PUBLIC_URL', 'http://localhost:580')}`, đăng nhập `teacher@edupilot.local` (mật khẩu seed), chọn lớp 761987 → **Ngân hàng câu hỏi** (`/questions`).",
+          "2. Lọc **Nguồn = Sinh từ tài liệu**, **Trạng thái = Chờ duyệt**, rồi lần lượt **Chủ đề** = một trong 10 chủ đề ở bảng trên (lớp còn câu chờ duyệt khác do QC tạo, không thuộc E5; gen-stats chỉ đếm câu của 10 lô này).",
+          "3. Mở từng câu: đúng như AI viết → `Duyệt` (tính «duyệt nguyên»); phải sửa → `Chỉnh sửa`, lưu, rồi `Duyệt` (tính «sửa nhẹ»); sai / lạc đề / trùng → menu `⋯` → `Loại`.",
+          "4. Xong (hoặc dừng giữa chừng) chạy `python3 benchmarks/eval/e5.py report` (hay `make eval-report`): đọc gen-stats, không gọi LLM; tỉ lệ chỉ tính trên câu đã duyệt.", "",
          "## Giới hạn", "", "- Dữ liệu mô phỏng (D44): tài liệu seed lớp 1; chưa kiểm chứng với câu hỏi giảng viên thật dùng trong lớp.",
          "- Tỉ lệ chỉ tính trên câu đã duyệt (AC7); chưa duyệt đủ 100 câu thì ghi cỡ mẫu thật, không nội suy.", "- Người duyệt: chủ dự án (một người, không có người duyệt thứ hai)."]
     lib.write_report("e5", obj, L)
