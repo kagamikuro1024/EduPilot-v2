@@ -40,11 +40,11 @@ type Topic struct {
 
 // TopicSignals: số liệu của một chủ đề.
 type TopicSignals struct {
-	Students          int     `json:"students"`
-	Questions         int     `json:"questions"`
-	LowRate           float64 `json:"low_confidence_rate"`
-	NotHelpfulRate    float64 `json:"not_helpful_rate"`
-	PracticeWrongRate float64 `json:"practice_wrong_rate"`
+	Students          int      `json:"students"`
+	Questions         int      `json:"questions"`
+	LowRate           float64  `json:"low_confidence_rate"`
+	NotHelpfulRate    float64  `json:"not_helpful_rate"`
+	PracticeWrongRate *float64 `json:"practice_wrong_rate"` // null khi lớp chưa dùng luyện đề (trọng số của P chia đều, SRS 4.1)
 }
 
 // Uncovered: câu hỏi chưa có trong tài liệu.

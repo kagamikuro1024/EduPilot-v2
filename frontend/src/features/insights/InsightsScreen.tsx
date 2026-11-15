@@ -1,202 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CalendarPlus, Pin, Sparkles } from "lucide-react";
-import { COURSE_1, fmtLongDate, fmtTime } from "@/mock/core";
-import { REVIEW_SLOT, reportFor, type InsightTopic } from "@/mock/insights";
-import { KEYS, type CalendarExtra, type InsightThread } from "@/mock/state";
-import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
-import { useDemoSlice } from "@/shared/state/demo";
-import { Button, ButtonLink, EmptyState, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, useRouteState } from "@/shared/ui";
-import s from "./insights.module.css";
+import { EmptyState, Page, PageHeader, Panel } from "@/shared/ui";
+import { KnowledgeGap } from "./KnowledgeGap";
 
-const STEPS = ["Gom câu hỏi của lớp và bỏ tên, mã số sinh viên", "Nhóm câu hỏi theo chủ đề", "Xếp hạng chủ đề và soạn gợi ý dạy lại"];
-
+/** Lỗ hổng kiến thức của lớp đang chọn (giảng viên / TA): đọc báo cáo thật; không có bản mô phỏng. */
 export function InsightsScreen() {
-  const { role, course } = useSession();
-  const canWrite = role === "teacher";
-  const [fresh, setFresh] = useDemoSlice<Record<string, boolean>>("insights.fresh", {});
-  const [threads, setThreads] = useDemoSlice<InsightThread[]>(KEYS.insightThreads, []);
-  const [extras, setExtras] = useDemoSlice<CalendarExtra[]>(KEYS.calendarExtras, []);
-  const [step, setStep] = useState<number | null>(null);
-  const undo = useUndoLine();
-
-  const noReport = useRouteState() === "empty";
-  const report = reportFor(course.id, Boolean(fresh[course.id]));
-
-  useEffect(() => {
-    if (step === null) return;
-    const t = window.setTimeout(() => {
-      if (step + 1 >= STEPS.length) {
-        setFresh((prev) => ({ ...prev, [course.id]: true }));
-        setStep(null);
-      } else {
-        setStep(step + 1);
-      }
-    }, 1000);
-    return () => window.clearTimeout(t);
-  }, [step, course.id, setFresh]);
-
-  function pinThread(topic: InsightTopic) {
-    const id = `ith-${course.id}-${topic.id}`;
-    // Một chủ đề chỉ có MỘT thread ghim: bấm lại (hay quay lại màn) không tạo thêm (04-AC9).
-    setThreads((prev) => (prev.some((t) => t.id === id) ? prev : [...prev, { id, courseId: course.id, title: `Chủ đề đang vướng: ${topic.title}`, topic: topic.title, body: topic.threadBody }]));
-    undo.push(`Đã ghim thread “${topic.title}” vào Hỏi đáp công khai của lớp ${course.code}`, () => setThreads((prev) => prev.filter((t) => t.id !== id)));
-  }
-
-  function addReview(topic: InsightTopic) {
-    const slot = REVIEW_SLOT[course.id] ?? REVIEW_SLOT[COURSE_1];
-    const id = `ice-${course.id}-${topic.id}`;
-    setExtras((prev) => [...prev, { id, courseId: course.id, title: `Ôn tập: ${topic.title}`, at: slot.at, durationMin: slot.durationMin }]);
-    undo.push(`Đã thêm buổi ôn tập “${topic.title}” vào lịch lớp ${course.code} — ${slot.label}`, () => setExtras((prev) => prev.filter((e) => e.id !== id)));
-  }
-
-  // Lớp THẬT ngoài mô phỏng: chưa có báo cáo (màn này chưa nối API — sprint 11, M13)
-  if (!report) {
+  const { realCourses, realCourseId, realPending } = useSession();
+  const courseId = realCourses ? (realCourseId && realCourseId !== "all" ? realCourseId : (realCourses[0]?.id ?? null)) : null;
+  if (realPending) return null;
+  if (!courseId) {
     return (
       <Page kind="read">
         <PageHeader title="Lỗ hổng kiến thức" />
         <Panel>
-          <EmptyState title="Chưa có báo cáo" />
+          <EmptyState title="Chưa có lớp nào" />
         </Panel>
       </Page>
     );
   }
-
-  return (
-    <Page kind="read">
-      <PageHeader
-        title="Lỗ hổng kiến thức"
-        primary={canWrite ? { label: "Tạo báo cáo mới", icon: <Sparkles aria-hidden />, busy: step !== null, onClick: () => setStep(0) } : undefined}
-        meta={noReport ? undefined : [`Báo cáo ${fmtLongDate(report.generatedAt)}, ${fmtTime(report.generatedAt)}`, `${report.questions} câu hỏi đã nhóm chủ đề · ${report.students} sinh viên`]}
-      />
-
-      <PageState
-        loading={
-          <Panel>
-            <div className={s.loading}>
-              <Skeleton lines={2} />
-              <Skeleton lines={5} />
-              <Skeleton lines={5} />
-            </div>
-          </Panel>
-        }
-        empty={
-          <Panel><EmptyState title="Chưa có báo cáo" /></Panel>
-        }
-        error={{
-          problem: "Không tạo được báo cáo lỗ hổng kiến thức.",
-        }}
-      >
-        {step !== null ? (
-          <Section title="Đang tạo báo cáo">
-            <ol className={s.steps} aria-live="polite">
-              {STEPS.map((text, i) => (
-                <li key={text} className={s.step}>
-                  <StatusText tone={i < step ? "green" : i === step ? "blue" : "neutral"}>{i < step ? "Xong" : i === step ? "Đang chạy" : "Chờ"}</StatusText>
-                  <span>{text}</span>
-                </li>
-              ))}
-            </ol>
-          </Section>
-        ) : (
-          <div className={s.blocks}>
-            <Section title="Chủ đề nên dạy lại">
-              <ol className={s.topics}>
-                {report.topics.map((t, i) => (
-                  <li key={t.id} className={s.topic}>
-                    <div className={s.topicHead}>
-                      <span className={s.rank} aria-hidden>
-                        {i + 1}
-                      </span>
-                      <div className={s.topicTitle}>
-                        <h3 className="ep-item-title">{t.title}</h3>
-                        <p className="ep-meta">
-                          {t.students} sinh viên · {t.questions} câu hỏi
-                          {report.comparison && t.delta > 0 && ` · +${t.delta} so với báo cáo trước`}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className={s.why}>{t.why}</p>
-
-                    <ul className={s.signals}>
-                      {t.signals.map((sig) => (
-                        <li key={sig}>{sig}</li>
-                      ))}
-                    </ul>
-
-                    {t.samples.length > 0 ? (
-                      <details className={s.samples}>
-                        <summary>Xem {t.samples.length} câu hỏi đã ẩn danh</summary>
-                        <ul>
-                          {t.samples.map((q) => (
-                            <li key={q}>“{q}”</li>
-                          ))}
-                        </ul>
-                      </details>
-                    ) : (
-                      <p className={s.noSamples}>Dưới 3 sinh viên hỏi — không hiện câu mẫu để không suy ngược ra được là ai hỏi.</p>
-                    )}
-
-                    <p className={s.action}>
-                      <span className={s.actionLabel}>Nên làm</span> {t.action}
-                    </p>
-
-                    {canWrite && (
-                      <div className={s.topicActions}>
-                        {threads.some((th) => th.id === `ith-${course.id}-${t.id}`) ? (
-                          <ButtonLink size="sm" href={`/threads/ith-${course.id}-${t.id}`} icon={<Pin aria-hidden />}>
-                            Đã ghim · Xem thread
-                          </ButtonLink>
-                        ) : (
-                          <Button size="sm" icon={<Pin aria-hidden />} onClick={() => pinThread(t)}>
-                            Tạo thread ghim
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          icon={<CalendarPlus aria-hidden />}
-                          disabled={extras.some((e) => e.id === `ice-${course.id}-${t.id}`)}
-                          onClick={() => addReview(t)}
-                        >
-                          {extras.some((e) => e.id === `ice-${course.id}-${t.id}`) ? "Đã có buổi ôn tập" : "Tạo buổi ôn tập"}
-                        </Button>
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ol>
-              {undo.node}
-            </Section>
-
-            <Section title="Tài liệu chưa đề cập">
-              <ul className={s.gaps}>
-                {report.uncovered.map((g) => (
-                  <li key={g.title} className={s.gap}>
-                    <div>
-                      <p className="ep-item-title">{g.title}</p>
-                      <p className={s.gapNote}>{g.note}</p>
-                    </div>
-                    <span className="ep-meta">{g.asks} câu hỏi</span>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            {report.comparison && (
-              <Section title="So với báo cáo ngày 22/10">
-                <ul className={s.compare}>
-                  {report.comparison.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              </Section>
-            )}
-          </div>
-        )}
-      </PageState>
-    </Page>
-  );
+  return <KnowledgeGap courseId={courseId} />;
 }

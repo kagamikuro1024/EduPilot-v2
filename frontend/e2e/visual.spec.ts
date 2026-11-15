@@ -4,6 +4,7 @@ import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
 import { gradebookApi } from "./support/gradebook-fixtures";
 import { gradingApi } from "./support/assignment-fixtures";
 import { base, reset, script } from "./support/llm-fixtures";
+import { ok, REPORT } from "./support/insights-fixtures";
 import { asDemo, asJwt, type DemoRole } from "./support/session";
 
 // US-PU-05 AC1: 7 route đại diện × 2 bề rộng = 14 ảnh mốc (SRS 8.3). Đồng hồ đóng băng 29/10/2026 09:20 giờ VN, animation tắt,
@@ -95,6 +96,7 @@ for (const r of ROUTES) {
         await asJwt(page, "TEACHER", { expIn: 366 * 86400 });
         await staffTodayApi(page);
       } else if (r.role) await asDemo(context, r.role, { expIn: 366 * 86400 }); // đồng hồ đóng băng 29/10: token mặc định (15 phút) đã hết hạn nên phiên rơi về Sinh viên — ảnh inbox / gradebook từng là trang chặn quyền
+      if (r.path === "/insights") await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (route) => ok(route, REPORT)); // P10-04/05: màn THẬT; báo cáo cố định
       if (r.path === "/observability") await courseObsApi(page); // P10-01: màn THẬT của giảng viên; số liệu lớp cố định
       if (r.path === "/gradebook") await gradebookApi(page);
       if (r.path.startsWith("/grading")) await gradingApi(page); // #22: màn thật; dữ liệu cố định theo hợp đồng thật (support/gradebook-fixtures.ts)

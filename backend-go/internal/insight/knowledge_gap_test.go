@@ -165,6 +165,7 @@ func TestKnowledgeGap(t *testing.T) {
 	require.Equal(t, 1, p.Topics[0].Rank)
 	require.Equal(t, 6, p.Topics[0].Signals.Students)
 	require.InDelta(t, 0.5, p.Topics[0].Signals.LowRate, 0.01)
+	require.Nil(t, p.Topics[0].Signals.PracticeWrongRate, "lớp chưa luyện đề: tín hiệu P vắng, trọng số chia đều")
 
 	// k = 3: A, B có 3–5 câu mẫu; C (2 sinh viên) không có câu mẫu + nhãn
 	require.GreaterOrEqual(t, len(p.Topics[0].Examples), 3)
@@ -223,10 +224,12 @@ func TestKnowledgeGapGenerateGates(t *testing.T) {
 	require.NotNil(t, out.JobID)
 	require.False(t, out.Reused)
 
-	// kỳ ngoài 1..90 → 422
-	_, err = r.svc.Generate(ctx, r.teacher, r.course, 91)
-	require.ErrorAs(t, err, &ae)
-	require.Equal(t, http.StatusUnprocessableEntity, ae.Status)
+	// kỳ ngoài {7, 14, 30, 120} → 422 (Q-E-7); 0 = mặc định 14
+	for _, bad := range []int{-1, 5, 999} {
+		_, err = r.svc.Generate(ctx, r.teacher, r.course, bad)
+		require.ErrorAs(t, err, &ae, bad)
+		require.Equal(t, http.StatusUnprocessableEntity, ae.Status, bad)
+	}
 
 	// chạy xong rồi gọi lại không có dữ liệu mới → reused, 0 lời gọi LLM, không xếp việc
 	_, err = r.svc.RunNow(ctx, r.teacher, r.course, 30)
@@ -252,9 +255,9 @@ func TestKnowledgeGapGenerateGates(t *testing.T) {
 	require.NotNil(t, out.JobID)
 
 	// trần 3 việc / giờ / lớp: đã có 2 việc (30 ngày); việc thứ 3 qua, thứ 4 → 429 + Retry-After
-	_, err = r.svc.Generate(ctx, r.teacher, r.course, 29)
+	_, err = r.svc.Generate(ctx, r.teacher, r.course, 7)
 	require.NoError(t, err)
-	_, err = r.svc.Generate(ctx, r.teacher, r.course, 28)
+	_, err = r.svc.Generate(ctx, r.teacher, r.course, 14)
 	require.ErrorAs(t, err, &ae)
 	require.Equal(t, http.StatusTooManyRequests, ae.Status)
 	require.Positive(t, ae.RetryAfter)
@@ -309,4 +312,19 @@ func joinCode() string {
 		b[i] = alpha[int(id[i])%len(alpha)]
 	}
 	return string(b)
+}
+
+// Hai việc đồng thời cùng lớp + kỳ + dữ liệu không tạo hai báo cáo trùng watermark (TC-04-31).
+func TestKnowledgeGapConcurrentSingleReport(t *testing.T) {
+	r := newRig(t, 13)
+	r.seed()
+	errs := make(chan error, 2)
+	for range 2 {
+		go func() { _, err := r.svc.RunNow(context.Background(), r.teacher, r.course, 30); errs <- err }()
+	}
+	require.NoError(t, <-errs)
+	require.NoError(t, <-errs)
+	var n int
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select count(*) from insight_reports where course_id = $1`, r.course).Scan(&n))
+	require.Equal(t, 1, n)
 }

@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -36,10 +37,10 @@ const (
 	MaxRows         = 3000 // trần số câu hỏi mỗi nguồn / kỳ
 	MinStudents     = 3    // chủ đề < 3 sinh viên: không câu mẫu (k-ẩn danh, FR-13)
 	MaxExamples     = 5
-	TopRanked       = 8 // `/insights` hiển thị tối đa 8 chủ đề đầu
-	DefaultPeriod   = 30
-	MaxPeriod       = 90
-	RatePerHour     = 3 // việc generate / 60 phút / lớp
+	TopRanked       = 8   // `/insights` hiển thị tối đa 8 chủ đề đầu
+	DefaultPeriod   = 14  // Q-E-7: kỳ ∈ {7, 14, 30, toàn kỳ}, mặc định 14
+	WholeTerm       = 120 // «toàn kỳ» ≈ một học kỳ: ponytail — số cố định, lớp không có ngày bắt đầu / kết thúc kỳ trong schema
+	RatePerHour     = 3   // việc generate / 60 phút / lớp
 	DefaultTau      = 0.80
 	practiceTau     = 0.75
 	namedByLLM      = "llm"
@@ -94,7 +95,7 @@ type GenerateOut struct {
 }
 
 func (s *Service) window(days int) (time.Time, time.Time) {
-	to := s.now()
+	to := s.now().Add(time.Minute) // biên trên +1 phút: đồng hồ gateway có thể chậm hơn Postgres, câu hỏi vừa gửi không được rơi ngoài kỳ
 	return to.AddDate(0, 0, -days), to
 }
 
@@ -103,8 +104,8 @@ func (s *Service) Generate(ctx context.Context, actor, courseID uuid.UUID, perio
 	if periodDays == 0 {
 		periodDays = DefaultPeriod
 	}
-	if periodDays < 1 || periodDays > MaxPeriod {
-		return GenerateOut{}, apierr.New(http.StatusUnprocessableEntity, apierr.ValidationFailed).WithDetails(map[string]any{"fields": []apierr.FieldError{{Field: "period_days", Code: "OUT_OF_RANGE", Message: "Kỳ từ 1 đến 90 ngày."}}})
+	if !slices.Contains([]int{7, 14, 30, WholeTerm}, periodDays) {
+		return GenerateOut{}, apierr.Validation(apierr.FieldError{Field: "period_days", Code: "invalid", Message: "Kỳ là 7, 14, 30 hoặc 120 (toàn kỳ) ngày."})
 	}
 	q := store.New(s.Pool)
 	from, to := s.window(periodDays)
@@ -342,9 +343,9 @@ func (s *Service) generate(ctx context.Context, owner uuid.UUID, p payload, stag
 	if err != nil {
 		return nil, fmt.Errorf("insight: payload: %w", err)
 	}
-	row, err := q.InsightReportInsert(ctx, store.InsightReportInsertParams{CourseID: p.CourseID, PeriodFrom: dateIn(from), PeriodTo: dateIn(to), Payload: raw, DataWatermark: d.watermark, GeneratedBy: owner})
+	row, err := s.insert(ctx, p, from, to, raw, d.watermark, owner)
 	if err != nil {
-		return nil, fmt.Errorf("insight: ghi báo cáo: %w", err)
+		return nil, err
 	}
 	if s.Notify != nil {
 		link := "/insights"
@@ -481,7 +482,11 @@ func (s *Service) build(ctx context.Context, q *store.Queries, courseID uuid.UUI
 	pl.Counts.Students = len(all)
 	for rank, k := range Order(sigs, scores) {
 		c := cls[k]
-		t := Topic{Rank: rank + 1, Score: round3(scores[k]), Keywords: []string{}, Signals: TopicSignals{Students: c.sig.Students, Questions: c.sig.Questions, LowRate: round3(c.sig.LowRate), NotHelpfulRate: round3(c.sig.NotHelpfulRate), PracticeWrongRate: round3(c.sig.PracticeWrongRate)}, Examples: []string{}, NamedBy: namedByFallback}
+		t := Topic{Rank: rank + 1, Score: round3(scores[k]), Keywords: []string{}, Signals: TopicSignals{Students: c.sig.Students, Questions: c.sig.Questions, LowRate: round3(c.sig.LowRate), NotHelpfulRate: round3(c.sig.NotHelpfulRate)}, Examples: []string{}, NamedBy: namedByFallback}
+		if pres.Practice {
+			p := round3(c.sig.PracticeWrongRate)
+			t.Signals.PracticeWrongRate = &p
+		}
 		t.Why = why(t.Signals)
 		if c.keys != nil {
 			t.Keywords = c.keys
@@ -554,8 +559,8 @@ func why(s TopicSignals) string {
 	if s.NotHelpfulRate > 0 {
 		t += fmt.Sprintf("; %d%% bị đánh giá chưa hữu ích", int(s.NotHelpfulRate*100+0.5))
 	}
-	if s.PracticeWrongRate > 0 {
-		t += fmt.Sprintf("; %d%% sai khi luyện đề", int(s.PracticeWrongRate*100+0.5))
+	if s.PracticeWrongRate != nil && *s.PracticeWrongRate > 0 {
+		t += fmt.Sprintf("; %d%% sai khi luyện đề", int(*s.PracticeWrongRate*100+0.5))
 	}
 	return t
 }
@@ -635,4 +640,30 @@ func uncovered(items []item) []Uncovered {
 		out = out[:20]
 	}
 	return out
+}
+
+// insert ghi báo cáo; hai việc đồng thời của cùng lớp + kỳ không tạo hai bản trùng data_watermark (khoá tư vấn theo lớp, kiểm lại trong khoá).
+func (s *Service) insert(ctx context.Context, p payload, from, to time.Time, raw []byte, wm time.Time, owner uuid.UUID) (store.InsightReportInsertRow, error) {
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return store.InsightReportInsertRow{}, fmt.Errorf("insight: mở giao dịch: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	if _, err := tx.Exec(ctx, `select pg_advisory_xact_lock(hashtextextended('insight:' || $1::text, 0))`, p.CourseID); err != nil {
+		return store.InsightReportInsertRow{}, fmt.Errorf("insight: khoá lớp: %w", err)
+	}
+	q := store.New(tx)
+	if last, err := q.InsightReportLatestFor(ctx, store.InsightReportLatestForParams{CourseID: p.CourseID, PeriodDays: int32(p.PeriodDays)}); err == nil && !wm.After(last.DataWatermark) { //nolint:gosec // 7..120
+		return store.InsightReportInsertRow{ID: last.ID}, nil // việc song song đã ghi cùng dữ liệu
+	} else if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return store.InsightReportInsertRow{}, fmt.Errorf("insight: báo cáo gần nhất: %w", err)
+	}
+	row, err := q.InsightReportInsert(ctx, store.InsightReportInsertParams{CourseID: p.CourseID, PeriodFrom: dateIn(from), PeriodTo: dateIn(to), Payload: raw, DataWatermark: wm, GeneratedBy: owner})
+	if err != nil {
+		return store.InsightReportInsertRow{}, fmt.Errorf("insight: ghi báo cáo: %w", err)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return store.InsightReportInsertRow{}, fmt.Errorf("insight: chốt báo cáo: %w", err)
+	}
+	return row, nil
 }

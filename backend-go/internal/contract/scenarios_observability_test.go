@@ -35,6 +35,16 @@ func (r *runner) observabilityScenarios(x examRig) {
 	r.must(call{method: "GET", path: base + "/summary?window=1y", token: x.admin}, 422)
 	r.must(call{method: "GET", path: base + "/requests?filter=bad", token: x.admin}, 422)
 
+	// nhật ký kiểm toán (US-P10-14): chỉ ADMIN; tham số sai → 422
+	au := "/api/v1/admin/audit"
+	r.must(call{method: "GET", path: au + "?entity=llm_request&limit=5", token: x.admin}, 200)
+	r.must(call{method: "GET", path: au}, 401)
+	for _, who := range []string{x.gv, x.ta, x.sv} {
+		r.must(call{method: "GET", path: au, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: au + "?entity=Bad-Entity", token: x.admin}, 422)
+	r.must(call{method: "GET", path: au + "?cursor=rac", token: x.admin}, 422)
+
 	open := func(id string) string { return base + "/requests/" + id + "/open" }
 	reason := `{"reason":"Giảng viên khiếu nại câu trả lời sai"}`
 	r.must(call{method: "POST", path: open(withPayload), token: x.admin, headers: x.idem(), body: reason}, 200)
@@ -102,6 +112,7 @@ func (r *runner) insightScenarios(x examRig) {
 	}
 	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/insights/knowledge-gap/generate", token: x.gv, headers: x.idem()}, 404)
 	gen(x.gv, 91, 422)
+	gen(x.gv, 5, 422)
 	gen(x.gv, 30, 202)
 
 	var rid string
@@ -111,9 +122,9 @@ func (r *runner) insightScenarios(x examRig) {
 		r.t.Fatal(err)
 	}
 	gen(x.gv, 30, 200) // không có dữ liệu mới → reused
-	gen(x.ta, 29, 202)
-	gen(x.gv, 28, 202)
-	gen(x.gv, 27, 429) // quá 3 việc / giờ / lớp
+	gen(x.ta, 7, 202)
+	gen(x.gv, 14, 202)
+	gen(x.gv, 120, 429) // quá 3 việc / giờ / lớp
 
 	r.must(call{method: "GET", path: base + "/latest", token: x.gv}, 200)
 	r.must(call{method: "GET", path: base + "/latest", token: x.ta}, 200)

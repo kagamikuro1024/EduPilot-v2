@@ -280,3 +280,35 @@ func TestPayloadPurge(t *testing.T) {
 	require.NoError(t, w.r.pool.QueryRow(t.Context(), `select count(*) from llm_audit where id = $1`, old).Scan(&cnt))
 	require.Equal(t, 1, cnt, "llm_audit giữ nguyên")
 }
+
+// TestAuditRBAC — US-P10-14 AC6, AC8: chỉ ADMIN xem được nhật ký; không JWT → 401; TEACHER / TA / STUDENT → 403 (kể cả actor_id = chính mình);
+// bốn ca từ chối không ghi VIEW_LIST; ADMIN 200 + Cache-Control: no-store và có ghi VIEW_LIST.
+func TestAuditRBAC(t *testing.T) {
+	w := newObsWorld(t)
+	views := func() (n int) {
+		require.NoError(t, w.r.pool.QueryRow(t.Context(), `select count(*) from audit_log where entity = 'audit_log' and action = 'VIEW_LIST'`).Scan(&n))
+		return n
+	}
+	get := func(bearer, query string) resp {
+		return w.r.do(req{method: http.MethodGet, path: "/admin/audit" + query, bearer: bearer})
+	}
+	require.Equal(t, http.StatusUnauthorized, get("", "").code)
+	for name, c := range map[string]struct {
+		s    session
+		role string
+	}{"teacher": {w.gv, "TEACHER"}, "ta": {w.ta, "TA"}, "student": {w.sv, "STUDENT"}} {
+		var self string
+		require.NoError(t, w.r.pool.QueryRow(t.Context(), `select user_id::text from enrollments where course_id = $1 and role_in_course = $2 limit 1`, w.course, c.role).Scan(&self))
+		require.Equal(t, http.StatusForbidden, get(c.s.access, "").code, name)
+		require.Equal(t, http.StatusForbidden, get(c.s.access, "?actor_id="+self).code, name+" actor_id = chính mình")
+	}
+	require.Zero(t, views(), "bốn ca từ chối không ghi VIEW_LIST")
+
+	res := get(w.adm.access, "?entity=audit_log")
+	require.Equal(t, http.StatusOK, res.code)
+	require.Equal(t, "no-store", res.hdr.Get("Cache-Control"))
+	require.Equal(t, 1, views())
+	require.Equal(t, http.StatusUnprocessableEntity, get(w.adm.access, "?limit=0").code)
+	require.Equal(t, http.StatusUnprocessableEntity, get(w.adm.access, "?cursor=rac").code)
+	require.Equal(t, 1, views(), "lỗi tham số không ghi VIEW_LIST")
+}
