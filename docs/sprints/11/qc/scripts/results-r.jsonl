@@ -464,3 +464,7 @@
 {"tc": "R-D03-01 bài 40 ký tự: lời «quá ngắn … giảng viên chấm tay», không còn «không có nội dung»", "st": "PASS", "note": "Bài nộp quá ngắn để chấm (dưới 50 ký tự); giảng viên chấm tay."}
 {"tc": "R-D03-02 bài rỗng: «Bài nộp không có nội dung để chấm.» (không «Bài bài»)", "st": "FAIL", "note": " len="}
 {"tc": "R-D03-03 cờ EMPTY_SUBMISSION ở cả hai bài", "st": "PASS", "note": "['{EMPTY_SUBMISSION}', '{EXTRACT_FAILED}']"}
+{"tc": "R-P1118-OOD tỷ lệ ticket ≥ 90% trên câu ngoài tài liệu", "st": "FAIL", "note": "ticket 0/12; low_confidence 1/12; LLM theo câu mẫu 0/12; có trích dẫn 12/12"}
+{"tc": "R-P1118-IN ticket giả ≤ 20% trên câu trong tài liệu", "st": "PASS", "note": "[n] 11/12; ticket giả 0/12; câu mẫu (từ chối nhầm) 0/12"}
+{"tc": "R-P1118-OOD tỷ lệ ticket ≥ 90% trên câu ngoài tài liệu", "st": "PASS", "note": "ticket 12/12; low_confidence 12/12; LLM theo câu mẫu 12/12; có trích dẫn 0/12"}
+{"tc": "R-P1118-IN ticket giả ≤ 20% trên câu trong tài liệu", "st": "FAIL", "note": "[n] 10/12; ticket giả 7/12; câu mẫu (từ chối nhầm) 0/12"}

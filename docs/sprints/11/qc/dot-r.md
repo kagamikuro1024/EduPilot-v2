@@ -10,7 +10,7 @@ Mức: **Cao** (luồng chính hỏng / mất dữ liệu / lộ dữ liệu), *
 | D-R-04 | Thấp | F19 Thi | Hợp đồng lệch: `openapi.yaml` ghi header `X-Exam-Tab` `required: false` cho `PUT …/attempts/{aid}/answers` và `POST …/submit`, nhưng thiếu header → 422 `VALIDATION_FAILED` (`field: X-Exam-Tab`); riêng `POST …/attempts` (bắt đầu) không cần | SV đang thi: `PUT /courses/{id}/exams/{eid}/attempts/{aid}/answers` không gửi `X-Exam-Tab` → 422; gửi uuid → 200 | Mở — ghi sprint 11 (PM) |
 | D-R-05 | TB | F6 Tài liệu (UI) | Bảng Tài liệu ở 1440 vỡ khi có tài liệu **Lỗi**: cột Tên co còn ~1 ký tự/dòng («du·p-a-07 13 0.pd f», hàng cao 141–198 px, audit D3 ×4), cột «Trạng thái» chiếm hết bề rộng bằng câu lỗi dài, cột «Cập nhật» bị cắt. 375 bình thường. Audit 10.7 không bắt vì seed không có tài liệu lỗi | GV, lớp 761987: tải lên PDF 2 dòng ngắn (trích ~60 ký tự → trạng thái Lỗi «Không đọc được chữ trong tệp…») → mở `/documents` ở 1440. Ảnh: `audit-r/teacher-data-_documents-1440.jpg` | **Đạt** ở main `6b30be37`: `/documents` 1440 hàng 48 px, câu lỗi cắt «…», không tràn (`audit-r2/`) |
 | D-R-06 | Thấp | F9 Chấm (UI) | `/grading` ở 1440: hàng có dòng phụ «Bài trống» cao 67 px (audit D3: cần 48/44 ±1); cùng nguồn gốc D-R-03 (bài ngắn bị coi trống) | GV: nộp bài 40 ký tự → `grade-all` → `/grading` tab Hàng chờ. Ảnh `audit-r/teacher-data-_grading-1440.jpg` | **Đạt** ở main `6b30be37`: `/grading` hàng 48 px, nhãn «Thiếu nội dung» (`audit-r2/`) |
-| D-R-07 | TB | F3 Chat riêng | Câu ngoài phạm vi tài liệu («Cách nấu phở bò…», «đề tham khảo tuần 5» chưa có nội dung) khi **có truy xuất nhưng không liên quan**: LLM từ chối thành thật («ngữ cảnh chưa đủ thông tin…») nhưng `done.low_confidence=false`, `ticket=null`, `citations=[]` → không có đề nghị nhờ giảng viên (đường «không ngữ cảnh» thì có `low_confidence=true` + ticket). Cùng một tình huống người dùng, hai hành vi khác nhau | Embedding thật: SV `POST /chat/sessions/{sid}/messages {"content":"Cách nấu phở bò Hà Nội ngon như thế nào?"}` → SSE `done` | Mở — dev xử lý (P-11-18); QC đo lại 2 chiều khi dev báo xong |
+| D-R-07 | TB | F3 Chat riêng | Câu ngoài phạm vi tài liệu («Cách nấu phở bò…», «đề tham khảo tuần 5» chưa có nội dung) khi **có truy xuất nhưng không liên quan**: LLM từ chối thành thật («ngữ cảnh chưa đủ thông tin…») nhưng `done.low_confidence=false`, `ticket=null`, `citations=[]` → không có đề nghị nhờ giảng viên (đường «không ngữ cảnh» thì có `low_confidence=true` + ticket). Cùng một tình huống người dùng, hai hành vi khác nhau | Embedding thật: SV `POST /chat/sessions/{sid}/messages {"content":"Cách nấu phở bò Hà Nội ngon như thế nào?"}` → SSE `done` | **Đạt một nửa** ở main `140a8b15` (P-11-18): chiều ngoài tài liệu **ĐẠT** 12/12 ticket, 12/12 theo câu mẫu, 0/12 trích dẫn; chiều trong tài liệu **CHƯA ĐẠT**: ticket giả 7/12 (58 %; 7/10 nếu loại 2 câu gặp 9router rớt) > ngưỡng 20 %. Chi tiết mục «Đo P-11-18» |
 | D-R-08 | Thấp | F6 Tài liệu | Lập chỉ mục lại cả lớp (`POST /courses/{id}/documents/reindex`) → job `FAILED` với khoá Gemini bậc miễn phí: lô nhúng 100 chuỗi trúng hạn mức 100 yêu cầu/phút → 429 ×3 lần thử rồi bỏ (audit `rate_limited`/`RATE_LIMIT`). Từng tài liệu (`/documents/{id}/reindex`, cách nhau ≥ 60 s) thì xong. Không có lùi thời gian dài hơn / chia lô nhỏ khi 429 | Gemini `gemini-embedding-001` bậc miễn phí; `POST …/documents/reindex` lớp 761987 (≈ 100 chunk) | Mở (ghi nhận) |
 
 ## Lượt embedding THẬT (PM duyệt P-11, trần 2.000 lời gọi)
@@ -18,3 +18,24 @@ Mức: **Cao** (luồng chính hỏng / mất dữ liệu / lộ dữ liệu), *
 - Phạm vi: 6 tài liệu READY dùng cho AI của lớp 761987 (121 chunk, `reindex` từng tài liệu) + 1 tài liệu QC tải mới (đã xoá) + 8 câu hỏi chat + 1 bài Threads. Decision vẫn giả, chat vẫn 9router.
 - **Số lời gọi thực** (`llm_audit`, provider `gemini-embed-qcR`): 29 dòng, 43 lần gọi HTTP (gồm 14 lần bị 429 ở lượt `reindex` cả lớp), ≈ 2 % trần. Cộng 1–2 lời gọi kiểm khoá khi tạo provider (không vào audit) ⇒ < 50.
 - Gỡ: route EMBEDDING → provider `fake` (DB; API không cho để trống chuỗi — 422 `ROUTE_INVALID chain_empty`), provider Gemini đã `DELETE` (204, khoá bị xoá), reindex lại 6 tài liệu bằng embedding giả.
+
+## Đo P-11-18 (main `140a8b15`, 9router thật, embedding Gemini thật — lượt 2)
+Script `scripts/w10_p1118.py`; 12 câu ngoài tài liệu (cùng chủ đề an ninh mạng: WannaCry, Zero-trust, WPA3, SQLi mù, Kerberos golden ticket, MITRE ATT&CK, stored XSS, SIEM/SOAR, honeypot, IPsec, Spectre, ISO 27001) và 12 câu trong tài liệu (bài giảng Network Security Threats), 4 SV riêng mỗi chiều (mỗi SV ≤ 5 ticket).
+
+| Chiều | Chỉ số | Kết quả | Ngưỡng PM | |
+| --- | --- | --- | --- | --- |
+| Ngoài tài liệu | có ticket | **12/12 (100 %)** | ≥ 90 % | ĐẠT |
+| | LLM mở bằng câu mẫu «Mình chưa tìm thấy nội dung này trong tài liệu của lớp.» | 12/12 | – | |
+| | `low_confidence=true` / có trích dẫn | 12/12 / 0/12; `confidence` 0,43–0,52 | – | |
+| Trong tài liệu | ticket giả | **7/12 (58 %)**; 7/10 nếu bỏ 2 câu bị 9router rớt (1 «Trả lời tạm thời», 1 «AI đang gián đoạn») | ≤ 20 % | **CHƯA ĐẠT** |
+| | có `[n]` (regex `\[\d+\]`) | 10/12 (1 câu dạng `[2, 5, 7]`, 1 câu 9router rớt) | – | |
+| | câu mẫu (từ chối nhầm) | 0/12 | – | |
+- `confidence` các câu trong tài liệu bị cờ thấp: 0,600 ×4 («bốn nhóm tấn công», DoS, worm/virus, smurf), 0,657 (Code Red), 0,680 (Trojan), 0,733 (Reconnaissance); các câu không cờ: 0,800–1,000. Ngưỡng thực tế quanh 0,75. Cả 7 câu đều trả lời đúng nội dung tài liệu, có `[n]` (trừ câu `[2, 5, 7]`).
+- Gợi ý cho dev (P-11-19): nguồn tài liệu tiếng Anh + câu hỏi tiếng Việt cho cos nền ~0,5–0,6 → `RAG_SIM_FLOOR/CEIL` 0,25/0,65 chưa hiệu chỉnh; khớp dự đoán P-11-19.
+- Lần chạy đầu (trước khi 9router ổn định) bị loại: 12/12 câu OOD đều «Trả lời tạm thời, trích nguyên văn» do `circuit_open` (9router rớt, watchdog khởi động lại 10:38–10:43); `ticket=0/12`. Số liệu trên là lần chạy lại.
+- Lưu ý vận hành: 9router flap làm cầu dao LLM mở và câu trả lời giảm cấp «Trả lời tạm thời…»; `POST /admin/llm/providers/{id}/test` đóng lại sau khi 9router ổn định.
+
+### Lượt embedding thật thứ 2 (PM duyệt, trần 2.000)
+- Nạp / gỡ như lượt 1 (khoá → DB qua API admin, `DELETE` provider, route → provider `fake`, reindex lại bằng embedding giả).
+- Số lời gọi thực (`llm_audit`, `gemini-embed-qcR`): lượt 2 = 34 dòng / 40 lần HTTP; **cộng cả hai lượt = 63 dòng / 83 lần HTTP (≈ 4 % trần)**; 9 dòng `rate_limited` (reindex tài liệu 82 chunk gặp 429 một lần, chạy lại xong).
+
