@@ -239,10 +239,18 @@ func TestEmptySubmissionNoLLMCall(t *testing.T) {
 	require.Equal(t, "DONE", out.State)
 	var fb string
 	g.one(&fb, `select overall_feedback from grading_results where id = $1`, res)
-	require.Equal(t, grading.EmptyFeedback, fb)
+	require.Equal(t, grading.ShortFeedback(50), fb, "có chữ nhưng dưới 50 ký tự: nhận xét «quá ngắn», không nói «không có nội dung» (P-11-17)")
+	require.NotContains(t, fb, "Bài Bài")
 	_, _, flags, total, _, _, _ := g.row(res)
 	require.Equal(t, []string{"EMPTY_SUBMISSION"}, flags)
 	require.Equal(t, "0.00", *total)
+
+	// Chỉ dòng danh tính (sau làm sạch n = 0): câu «không có nội dung».
+	res = g.submit("B", "bai.md", "Họ tên: Nguyễn Văn B\nMSSV: 20229998\nEmail: b@x.test", nil)
+	_, err = g.grader.Run(t.Context(), g.course, res)
+	require.NoError(t, err)
+	g.one(&fb, `select overall_feedback from grading_results where id = $1`, res)
+	require.Equal(t, grading.EmptyFeedback, fb)
 }
 
 func TestShortTextThreshold(t *testing.T) {

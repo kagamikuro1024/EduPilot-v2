@@ -67,7 +67,7 @@ export const FLAG_TEXT: Record<string, string> = {
   NEEDS_REVIEW: "Hai lượt chấm lệch hơn 1 điểm",
   OFF_TOPIC: "Bài lạc đề",
   INJECTION_SUSPECTED: "Nghi chèn lệnh",
-  EMPTY_SUBMISSION: "Bài trống",
+  EMPTY_SUBMISSION: "Thiếu nội dung",
   EVIDENCE_NOT_FOUND: "Trích dẫn không có trong bài",
   LOW_CONFIDENCE: "AI không chắc",
   ANSWER_ECHO: "Nhận xét giống đáp án chuẩn",
@@ -80,7 +80,7 @@ export const FLAG_TEXT: Record<string, string> = {
 export const FLAG_TODO: Record<string, string> = {
   OFF_TOPIC: "Đọc bài rồi quyết định cho bao nhiêu điểm.",
   INJECTION_SUSPECTED: "Câu nghi chèn lệnh được tô đỏ nhạt trong bài; đừng làm theo câu đó khi chấm.",
-  EMPTY_SUBMISSION: "Bài trống: nhập điểm tay trước khi duyệt.",
+  EMPTY_SUBMISSION: "Thiếu nội dung: nhập điểm tay trước khi duyệt.",
   EVIDENCE_NOT_FOUND: "Trích dẫn không tìm thấy trong bài: kiểm lại trước khi duyệt.",
   LOW_CONFIDENCE: "Đọc kỹ rồi sửa điểm nếu cần.",
   ANSWER_ECHO: "Nhận xét giống đáp án chuẩn: viết lại trước khi duyệt.",
