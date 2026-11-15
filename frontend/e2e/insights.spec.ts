@@ -96,7 +96,7 @@ test("tạo thread ghim: nháp sửa được → Đăng tạo thread rồi ghim
     return r.fulfill({ status: 204, headers: cors });
   });
   await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
-  const dlg = page.getByRole("dialog", { name: "Tạo thread ghim" });
+  const dlg = page.getByRole("group", { name: "Tạo thread ghim" });
   await expect(dlg.getByLabel("Tiêu đề")).toHaveValue("Chủ đề đang vướng: Bắt tay ba bước TCP");
   const body = dlg.getByLabel("Nội dung");
   await expect(body).toHaveValue(/Ôn lại Bắt tay ba bước TCP/);
@@ -112,7 +112,7 @@ test("tạo thread lỗi: hộp giữ nguyên chữ đã sửa, báo tại chỗ
   await open(page, REPORT);
   await page.route("**/api/v1/courses/*/threads", (r) => (r.request().method() === "POST" ? fail(r, 422, "PII_DETECTED", "Có thông tin cá nhân") : r.fallback()));
   await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
-  const dlg = page.getByRole("dialog", { name: "Tạo thread ghim" });
+  const dlg = page.getByRole("group", { name: "Tạo thread ghim" });
   await dlg.getByLabel("Nội dung").fill("Chữ đã sửa của giảng viên");
   await dlg.getByRole("button", { name: "Đăng" }).click();
   await expect(dlg.getByRole("alert")).toBeVisible();
@@ -128,7 +128,7 @@ test("buổi ôn tập: sự kiện lịch loại OTHER «Ôn tập: <chủ đ�
     return ok(r, { id: "00000000-0000-7000-8000-0000000000d1" }, 201);
   });
   await page.getByRole("button", { name: "Tạo buổi ôn tập" }).first().click();
-  const dlg = page.getByRole("dialog", { name: "Tạo buổi ôn tập" });
+  const dlg = page.getByRole("group", { name: "Tạo buổi ôn tập" });
   await expect(dlg.getByLabel("Tên buổi")).toHaveValue("Ôn tập: Bắt tay ba bước TCP");
   await expect(dlg.getByRole("button", { name: "Lưu" })).toBeDisabled();
   await dlg.getByLabel("Bắt đầu").fill("2026-11-20T18:00");

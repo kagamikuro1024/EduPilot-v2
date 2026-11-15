@@ -6,7 +6,7 @@ import { ApiError, useJob } from "@/shared/data";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, EmptyState, type HeaderAction, InlineNotice, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText } from "@/shared/ui";
 import { downloadMarkdown, type Latest, type Topic, useGenerate, useLatest, useRefreshLatest } from "./insightsApi";
-import { PinThreadDialog, ReviewDialog } from "./TopicDialogs";
+import { PinThreadForm, ReviewForm } from "./TopicForms";
 import s from "./insights.module.css";
 
 const TOP = 8; // SRS 4.1: hiển thị tối đa 8 chủ đề đầu, còn lại gập «Chủ đề khác»
@@ -21,8 +21,7 @@ export function KnowledgeGap({ courseId }: { courseId: string }) {
   const refresh = useRefreshLatest(courseId);
   const [jobId, setJobId] = useState<string | null>(null);
   const [reusedAt, setReusedAt] = useState<string | null>(null);
-  const [pin, setPin] = useState<Topic | null>(null);
-  const [review, setReview] = useState<Topic | null>(null);
+  const [open, setOpen] = useState<{ kind: "pin" | "review"; rank: number } | null>(null);
   const job = useJob(jobId);
 
   const running = gen.isPending || (jobId !== null && job.status !== "SUCCEEDED" && job.status !== "FAILED");
@@ -81,16 +80,15 @@ export function KnowledgeGap({ courseId }: { courseId: string }) {
         error={{ problem: "Không tải được báo cáo lỗ hổng kiến thức." }}
         showTechnical
       >
-        {data && <Body data={data} onPin={setPin} onReview={setReview} />}
+        {data && <Body data={data} courseId={courseId} open={open} setOpen={setOpen} />}
       </PageState>
 
-      {pin && <PinThreadDialog courseId={courseId} topic={pin} onClose={() => setPin(null)} />}
-      {review && <ReviewDialog courseId={courseId} topic={review} onClose={() => setReview(null)} />}
     </Page>
   );
 }
 
-function Body({ data, onPin, onReview }: { data: Latest; onPin: (t: Topic) => void; onReview: (t: Topic) => void }) {
+type Open = { kind: "pin" | "review"; rank: number } | null;
+function Body({ data, courseId, open, setOpen }: { data: Latest; courseId: string; open: Open; setOpen: (o: Open) => void }) {
   const { topics, uncovered } = data.report.payload;
   const top = topics.slice(0, TOP);
   const rest = topics.slice(TOP);
@@ -98,13 +96,13 @@ function Body({ data, onPin, onReview }: { data: Latest; onPin: (t: Topic) => vo
     <div className={s.blocks}>
       <Section title="Chủ đề nên dạy lại">
         <ol className={s.topics}>
-          {top.map((t) => <TopicItem key={t.rank} t={t} onPin={onPin} onReview={onReview} />)}
+          {top.map((t) => <TopicItem key={t.rank} t={t} courseId={courseId} open={open?.rank === t.rank ? open.kind : null} setOpen={setOpen} />)}
         </ol>
         {rest.length > 0 && (
           <details className={s.samples}>
             <summary>Chủ đề khác ({rest.length})</summary>
             <ol className={s.topics}>
-              {rest.map((t) => <TopicItem key={t.rank} t={t} onPin={onPin} onReview={onReview} />)}
+              {rest.map((t) => <TopicItem key={t.rank} t={t} courseId={courseId} open={open?.rank === t.rank ? open.kind : null} setOpen={setOpen} />)}
             </ol>
           </details>
         )}
@@ -136,7 +134,7 @@ function Body({ data, onPin, onReview }: { data: Latest; onPin: (t: Topic) => vo
   );
 }
 
-function TopicItem({ t, onPin, onReview }: { t: Topic; onPin: (t: Topic) => void; onReview: (t: Topic) => void }) {
+function TopicItem({ t, courseId, open, setOpen }: { t: Topic; courseId: string; open: "pin" | "review" | null; setOpen: (o: Open) => void }) {
   const where = [t.chapter, t.week !== null ? `Tuần ${t.week}` : null].filter(Boolean).join(" · ");
   return (
     <li className={s.topic} id={`topic-${t.rank}`}>
@@ -166,9 +164,11 @@ function TopicItem({ t, onPin, onReview }: { t: Topic; onPin: (t: Topic) => void
       {t.recommendation && <p className={s.action}><span className={s.actionLabel}>Nên làm</span> {t.recommendation}</p>}
 
       <div className={s.topicActions}>
-        <Button size="sm" icon={<Pin aria-hidden />} onClick={() => onPin(t)}>Tạo thread ghim</Button>
-        <Button size="sm" icon={<CalendarPlus aria-hidden />} onClick={() => onReview(t)}>Tạo buổi ôn tập</Button>
+        <Button size="sm" icon={<Pin aria-hidden />} onClick={() => setOpen({ kind: "pin", rank: t.rank })} aria-expanded={open === "pin"}>Tạo thread ghim</Button>
+        <Button size="sm" icon={<CalendarPlus aria-hidden />} onClick={() => setOpen({ kind: "review", rank: t.rank })} aria-expanded={open === "review"}>Tạo buổi ôn tập</Button>
       </div>
+      {open === "pin" && <PinThreadForm courseId={courseId} topic={t} onClose={() => setOpen(null)} />}
+      {open === "review" && <ReviewForm courseId={courseId} topic={t} onClose={() => setOpen(null)} />}
     </li>
   );
 }
