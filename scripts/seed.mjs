@@ -19,6 +19,7 @@ import { ROSTER1, crmPlan } from "./crm-plan.mjs";
 import { meta } from "../benchmarks/lib/meta.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 import { APPROVED as P9_APPROVED, C2_APPROVED as P9_C2, ESSAYS as P9_ESSAYS, PENDING as P9_PENDING } from "./practice-seed-data.mjs";
+import { anchorNowIso } from "./seed-clock.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
@@ -1150,16 +1151,23 @@ async function step15Gradebook() {
 
 async function step15StudyTimeRisk() {
   step(16, "Thời gian học 10 tuần (lớp 761988: 3 tuần), rải hoạt động, tính at-risk…");
+  // `--now` theo buổi neo của từng lớp (buổi 10 / buổi 4 = «hôm nay» lúc seed đầu): chạy lại sang ngày khác không làm lệch tuần (P-11-48, scripts/seed-clock.mjs)
+  const nowFor = async (code, anchorNo) => {
+    const items = await listAll(`/courses/${ctx.ids[code]}/sessions`, ctx.tokens.teacher);
+    const s = items.find((x) => x.session_no === anchorNo);
+    return s ? ["--now", anchorNowIso(s.starts_at, Date.now())] : [];
+  };
+  const n1 = await nowFor("761987", 10), n2 = await nowFor("761988", 4);
   const profile = readFileSync(path.join(root, "seed", "study_profile.json"), "utf8");
-  vlog(gatewayAdmin("seed-study-time", ["--course", "761987", "--weeks", "10", "--profile", "-"], profile));
-  vlog(gatewayAdmin("seed-study-time", ["--course", "761988", "--weeks", "3", "--profile", "-"], profile));
-  vlog(gatewayAdmin("seed-age", ["--course", "761987", "--activity", "--weeks", "10"]));
+  vlog(gatewayAdmin("seed-study-time", ["--course", "761987", "--weeks", "10", "--profile", "-", ...n1], profile));
+  vlog(gatewayAdmin("seed-study-time", ["--course", "761988", "--weeks", "3", "--profile", "-", ...n2], profile));
+  vlog(gatewayAdmin("seed-age", ["--course", "761987", "--activity", "--weeks", "10", ...n1]));
   // hoạt động tuần 8 / 9 của sinh viên có điểm quá trình thấp, đúng cột `activity_week9` / `activity_week8` của seed/expected_risk.csv (US-P6-09 AC8)
   const want = readFileSync(path.join(root, "seed", "expected_risk.csv"), "utf8").trim().split("\n").slice(1).map((l) => l.split(",")).filter((c) => c[4] !== "").map((c) => ({ student_code: accounts.get(c[0]).code, week9: c[4], week8: c[5] }));
-  vlog(gatewayAdmin("seed-activity", ["--course", "761987", "--plan", "-"], JSON.stringify(want)));
-  const out = gatewayAdmin("crm-risk-run", ["--course", "761987"]);
-  if (!/AT_RISK 1, WATCH 3/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 3": ${out} — buổi 10 phải là HÔM NAY (seed chạy trên DB trống; DB cũ giữ lịch buổi của ngày seed trước nên tuần của buổi 8 / 9 lệch)`);
-  if (!/AT_RISK 0/.test(gatewayAdmin("crm-risk-run", ["--course", "761988"]))) throw new Error("Lớp 761988 không được có AT_RISK");
+  vlog(gatewayAdmin("seed-activity", ["--course", "761987", "--plan", "-", ...n1], JSON.stringify(want)));
+  const out = gatewayAdmin("crm-risk-run", ["--course", "761987", ...n1]);
+  if (!/AT_RISK 1, WATCH 3/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 3": ${out}`);
+  if (!/AT_RISK 0/.test(gatewayAdmin("crm-risk-run", ["--course", "761988", ...n2]))) throw new Error("Lớp 761988 không được có AT_RISK");
 }
 
 const TICKET_STUDENTS = [["sv14", "open"], ["sv15", "overdue"], ["sv16", "claimed"], ["sv17", "answered"], ["sv18", "closed"]];
