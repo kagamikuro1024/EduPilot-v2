@@ -1,5 +1,6 @@
 .notice {
   display: flex;
+  flex-wrap: wrap; /* chữ không bị nút ép xuống từng chữ: không đủ chỗ thì nút xuống dòng dưới (`.noticeBody` có bề rộng tối thiểu) */
   align-items: flex-start;
   gap: var(--ep-space-3);
   padding: var(--ep-space-3) var(--ep-space-4);
@@ -10,10 +11,12 @@
 }
 .compact { padding: var(--ep-space-2) var(--ep-space-3); border-radius: var(--ep-radius-sm); }
 .noticeIcon { flex: none; width: 18px; height: 18px; margin-top: 1px; stroke-width: 1.9; }
-.noticeBody { flex: 1; min-width: 0; display: grid; gap: var(--ep-space-1); }
+.noticeBody { flex: 999 1 9rem; min-width: 0; display: grid; gap: var(--ep-space-1); }
 .noticeTitle { font-weight: 600; color: var(--ep-ink); line-height: 1.45; }
 .noticeText { color: var(--ep-ink-2); line-height: 1.55; }
-.noticeAction { flex: none; display: flex; gap: var(--ep-space-2); align-items: center; }
+.noticeAction { flex: 1 0 auto; display: flex; gap: var(--ep-space-2); align-items: center; justify-content: flex-end; }
+/* một dòng: nút giữ cỡ (body chiếm hết phần dư vì flex-grow 999 : 1); xuống dòng ở di động: nút dàn hết bề rộng */
+@media (max-width: 719px) { .noticeAction > * { flex: 1; } }
 
 .n_info .noticeIcon { color: var(--ep-blue); }
 .n_success .noticeIcon { color: var(--ep-green); }

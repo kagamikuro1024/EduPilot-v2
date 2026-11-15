@@ -130,3 +130,23 @@ test("attendance checkin: Lưu điểm danh bị 422 CHECKIN_UNRESOLVED → cả
   expect(records.map((x) => x.student_id)).toEqual([sid(1)]); // 29 ô trống không gửi
   await expect(row(page, 1).getByRole("radio", { name: "Muộn — Sinh Viên 01", exact: true })).toBeChecked();
 });
+
+// D-AS-05: ở 375 cảnh báo «Còn N sinh viên chưa điểm danh» không bị nút ép xuống từng chữ: chữ tối đa 2 dòng, nút nằm DƯỚI chữ và dàn hết bề rộng khối.
+test("attendance checkin 375: cảnh báo CHECKIN_UNRESOLVED — chữ ≤ 2 dòng, nút Đánh vắng xếp dưới, full-width, không tràn ngang", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "mobile", "đo ở di động");
+  await setup(page, context, {
+    windows: [win({ closed_at: new Date(NOW - 1000).toISOString() })],
+    rows: [crow(1)],
+    grid: gridBody(2, [mark(1, "PRESENT"), ...students(30).slice(1).map((s, i) => student(i + 2))]),
+    put: (r) => r.fulfill(json({ code: "CHECKIN_UNRESOLVED", message: "m", trace_id: "b".repeat(32), details: { count: 29 } }, 422)),
+  });
+  await page.getByRole("button", { name: /Lưu điểm danh/ }).first().click();
+  const text = page.getByText("Còn 29 sinh viên chưa điểm danh", { exact: true });
+  await expect(text).toBeVisible();
+  const btn = page.getByRole("button", { name: "Đánh vắng 29 SV chưa điểm danh" }).first();
+  const [t, b, n] = [await text.boundingBox(), await btn.boundingBox(), await page.getByRole("status").filter({ has: text }).boundingBox()];
+  expect(t!.height).toBeLessThanOrEqual(2 * 22);
+  expect(b!.y).toBeGreaterThanOrEqual(t!.y + t!.height);
+  expect(b!.width).toBeGreaterThanOrEqual(n!.width * 0.8);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
