@@ -204,9 +204,9 @@ test("no token in storage: không có JWT / refresh ở storage, cookie; tải l
   expect(await scan()).toEqual([]);
 });
 
-test("nav per role after login: Sinh viên 9 · TA 13 · Giảng viên 16 · Admin 6 mục", async ({ page }, info) => {
+test("nav per role after login: Sinh viên 9 · TA 13 · Giảng viên 16 · Admin 7 mục", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop", "thanh bên chỉ có ở desktop");
-  const want: Array<[JwtRole, string, number]> = [["STUDENT", "sv.gioi@edupilot.local", 9], ["TA", "ta@edupilot.local", 13], ["TEACHER", "teacher@edupilot.local", 16], ["ADMIN", "admin@edupilot.local", 6]];
+  const want: Array<[JwtRole, string, number]> = [["STUDENT", "sv.gioi@edupilot.local", 9], ["TA", "ta@edupilot.local", 13], ["TEACHER", "teacher@edupilot.local", 16], ["ADMIN", "admin@edupilot.local", 7]];
   for (const [role, email, n] of want) {
     await page.context().clearCookies();
     await page.unroute("**/api/v1/auth/**");
@@ -887,10 +887,10 @@ test("@real register verify login (cần stack Go + Mailpit: đăng ký → đ�
 });
 
 // US-P2-12 AC3 (cập nhật US-PE-04, góp ý #1: thêm mục "Bài thi"): 7 tài khoản seed (đăng nhập giả bằng đúng email seed) thấy đúng số mục điều hướng: SV 8, TA 13, GV 16, Admin 6, SV chưa vào lớp 1.
-test("seed accounts nav: số mục theo vai (9 / 13 / 16 / 6 / 1)", async ({ page, context }, info) => {
+test("seed accounts nav: số mục theo vai (9 / 13 / 16 / 7 / 1)", async ({ page, context }, info) => {
   test.skip(info.project.name !== "desktop", "thanh bên chỉ có ở bề rộng desktop");
   const cases: Array<[Parameters<typeof asDemo>[1], string | undefined, number]> = [
-    ["student", "sv-1", 9], ["student", "sv-2", 9], ["student", "sv-3", 9], ["student", "sv-4", 1], ["ta", undefined, 13], ["teacher", undefined, 16], ["admin", undefined, 6],
+    ["student", "sv-1", 9], ["student", "sv-2", 9], ["student", "sv-3", 9], ["student", "sv-4", 1], ["ta", undefined, 13], ["teacher", undefined, 16], ["admin", undefined, 7],
   ];
   for (const [role, person, want] of cases) {
     await context.clearCookies();

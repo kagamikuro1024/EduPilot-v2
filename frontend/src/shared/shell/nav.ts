@@ -17,6 +17,7 @@ import {
   NotebookPen,
   Plug,
   SlidersHorizontal,
+  ScrollText,
   UserRound,
   Users,
   type LucideIcon,
@@ -108,6 +109,7 @@ const ADMIN: NavGroup[] = [
     items: [
       { href: "/admin/courses", label: "Lớp học", icon: Building2 },
       { href: "/admin/users", label: "Người dùng", icon: UserRound },
+      { href: "/admin/audit", label: "Nhật ký", icon: ScrollText },
     ],
   },
   {
@@ -224,6 +226,7 @@ const MOCK_BACKEND: Array<[string, Backend]> = [
 
 /** Route chưa có backend thật → phase sẽ dựng nó; `null` = backend thật (`/settings/llm`) hoặc route PU (`/dev/*`). `/` là "Hôm nay" (P2). */
 export function mockBackend(pathname: string): Backend | null {
+  if (pathname === "/admin/audit") return null; // US-P10-14: màn thật
   if (pathname === "/admin/users" || pathname.startsWith("/admin/users/")) return null; // US-P2-06: màn thật
   if (pathname === "/admin/courses" || pathname.startsWith("/admin/courses/")) return null; // US-P2-08: màn thật
   if (pathname === "/join" || pathname.startsWith("/join/") || pathname.startsWith("/class/")) return null; // US-P2-09: màn thật

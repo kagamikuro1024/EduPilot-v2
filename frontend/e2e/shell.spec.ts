@@ -121,7 +121,7 @@ const NAV: Record<string, Row[]> = {
   "student-no-course": [["Hôm nay", "/"]],
   ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Hỏi đáp công khai", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Lỗ hổng kiến thức", "/insights"], ["Số liệu lớp học", "/analytics"]],
   teacher: [],
-  admin: [["Hôm nay", "/"], ["Quan sát AI", "/observability"], ["Lớp học", "/admin/courses"], ["Người dùng", "/admin/users"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]],
+  admin: [["Hôm nay", "/"], ["Quan sát AI", "/observability"], ["Lớp học", "/admin/courses"], ["Người dùng", "/admin/users"], ["Nhật ký", "/admin/audit"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]],
 };
 NAV.teacher = [...NAV.ta, ["Quan sát AI", "/observability"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]];
 
@@ -240,7 +240,7 @@ test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV kh�
   await page.getByRole("combobox").fill("zzzz");
   await expect(page.getByText("Không thấy mục nào khớp.")).toBeVisible();
   await page.getByRole("combobox").fill("");
-  await expect(page.getByRole("option")).toHaveCount(8);
+  await expect(page.getByRole("option")).toHaveCount(9);
 });
 
 test("notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần", async ({ page }) => {
@@ -582,9 +582,9 @@ test("bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; b�
   for (const h of await sheet.locator("a").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().height))) expect(h, "mục ≥ 48 px").toBeGreaterThanOrEqual(48);
 });
 
-test("route access: số mục nav 9 / 13 / 16 / 6 theo vai; canOpen không đổi", async () => {
+test("route access: số mục nav 9 / 13 / 16 / 7 theo vai; canOpen không đổi", async () => {
   const count = (r: DemoRole) => navFor(r === "student" ? "student" : r, true).flatMap((g) => g.items).length;
-  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([9, 13, 16, 6]);
+  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([9, 13, 16, 7]);
 });
 
 // BUG-S9-01 (proposals sprint 9 #12): nhãn bản mô phỏng chỉ thuộc về bản D51, không được hiện ở màn thật.
