@@ -58,7 +58,7 @@ wait_ready() { local i=0 max=${1:-60}; while [ $i -lt "$max" ]; do [ "$(code $GW
 gw_ids() { $C ps -q gateway; }
 mode_now() { local c; c=$(code -H "Authorization: Bearer $(tok STUDENT $U1)" $GW/api/v1/_test/whoami); case $c in 200) echo test;; 404) echo default;; *) echo "unknown($c)";; esac; }
 ensure_mode() {  # ensure_mode test|default — chỉ dựng lại khi chế độ hiện tại khác
-  [ "$(mode_now)" = "$1" ] && return 0
+  [ "$(mode_now)" = "$1" ] && [ "$($C ps -q gateway | grep -c .)" -ge 2 ] && return 0   # QC2 (SmkJ): cần 2 bản gateway (baseline ep-r chạy 1)
   if [ "$1" = test ]; then tmode >/dev/null 2>&1; else dmode >/dev/null 2>&1; fi; wait_ready 90; [ "$(mode_now)" = "$1" ]; }
 gw_env() {  # gw_env test|default VAR=giá_trị … — dựng lại gateway (+worker) với biến môi trường ghi đè (compose phải chuyển tiếp biến)
   local m=$1; shift; local cmd=$C; [ "$m" = test ] && cmd=$CT

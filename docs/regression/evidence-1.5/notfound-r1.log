@@ -1,0 +1,7 @@
+PASS teacher: url=/duong-dan-khong-co-that 404=true nút «Về Hôm nay»=1
+   → sau bấm: /
+PASS sv.kha: url=/duong-dan-khong-co-that 404=true nút «Về Hôm nay»=1
+   → sau bấm: /
+PASS admin: url=/duong-dan-khong-co-that 404=true nút «Về Hôm nay»=1
+   → sau bấm: /
+RESULT: PASS

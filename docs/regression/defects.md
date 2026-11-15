@@ -6,21 +6,13 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 
 | Sprint | Ca | Triệu chứng |
 |---|---|---|
-| 1.5 | TC-00-36 | DEF-R1.5-02: TA tại «/» tràn ngang +9 px (390) / +24 px (375) — nút hồ sơ ở topbar |
-| 1.5 | TC-00-57 | DEF-R1.5-01: đã đăng nhập mở đường dẫn không có thật → /login?next=…, không có màn «Không tìm thấy trang» |
-| 1.5 | TC-00-59 | DEF-R1.5-01: không thấy màn 404 để bấm «Về Hôm nay» |
 | 1 | P0-01/TC-07 | DEF-R1-01: DEMO_SCRIPT trích attendance-checkin/-display/checkin-code/audit/insights.spec.ts nhưng FLOWS.md không có mục tương ứng |
-| 1 | P0-02/TC-21 | DEF-R2-01: `redocly lint` openapi.yaml 1 lỗi (analytics/exams/compare: parameters null) |
-| 10.5 | TC-D07-02 | bảng «Quyết định nhanh» nằm TRÊN bảng «7 ngày qua» (AdminView.tsx:58 trước :65); US-DM-07 AC1: dưới bảng 7 ngày · **DEF-R10.5-01** |
-| 10.6 | TC-G03-24 | TA/SV/ADMIN 403, không token 401, cờ tắt 409 đúng; nhưng reflect qua đường lớp 2 (cờ lớp 2 tắt) → 409 GUIDANCE_DISABLED trước 404 (ghi nhận 1 c |
-| 10.6 | TC-G05-24 | SV regrade 403, TA 202; qua đường lớp 2 → 409 GUIDANCE_DISABLED (cờ lớp 2 tắt) thay vì 404 — ghi nhận 1 của summary 10.6, có sẵn · **DEF-R10.6-01 |
 | 10.8 | TC-AS08-20 | FAIL TC-AS08-20 / TC-AS08-20: DEF-R10.8-03: thử lại dùng khoá mới (2–3 khoá khác nhau); server vẫn 1 cửa sổ đóng |
 | 10.8 | TC-AS08-25 | FAIL TC-AS08-25 / TC-AS08-25b: |
 | 10.8 | TC-AS09-36 | FAIL TC-AS09-36 / TC-AS09-36: label-content-name-mismatch:serious:1; LCP=132 ms |
 | 10.8 | TC-AS09-39 | FAIL TC-AS09-39a / TC-AS09-39a: label-content-name-mismatch:serious |
 | 10.8 | TC-AS11-07 | FAIL TC-AS11-07 / TC-AS11-07: DEF-R10.8-04: nút «Quét mã điểm danh» vẫn hiện (chỉ kiểm 'BarcodeDetector' in window) |
 | 10.8 | TC-AS14-11 | FAIL TC-AS14-11 / TC-AS14-11: DEF-R10.8-02: 13 tên không tồn tại |
-| 10 | TC-12-14 | DEF-R10-01: go test ./internal/contract/... không xanh (7 test đỏ; 500 INTERNAL ở POST …/posts/{id}/report, /auth/verify-email, thiếu quan sát); ngoài phạm  |
 | 2 | TC-PG02-60 | CẦN TRIAGE: dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction): thực tế [0] phải ≥ 1 |
 | 2 | TC-PG03-32 | CẦN TRIAGE: có hai bản gateway: [] không khớp /^.+$/ |
 | 2 | TC-PG03-33 | CẦN TRIAGE: XFF 203.0.113.7 request thứ 6 bị 429: [] không khớp / 429/ |
@@ -30,16 +22,13 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 2 | TC-PG06-10 | DEF-R2-02: `go test ./internal/contract` rc 1 (TestStatusParity trượt 2/2 lần) |
 | 2 | TC-PG06-11 | DEF-R2-02: gồm TestStatusParity |
 | 3 | TC-GATEPU-01 | lint 5 cảnh báo (TC-PU01-05); pbuild/gbuild rc=0, 0 "Failed to load font" (DEF-R3-03) |
-| 3 | TC-P101-24 | DecryptKey( ngoài llm/llmconfig: 2 chỗ (httpapi/llmhttp/admin.go:242, verify.go:302) → DEF-R3-04 (DEF-R3-04) |
 | 3 | TC-P102-14 | lỗi 503: INTERACTIVE gọi nhà 2 lần (1+1 thử lại), BATCH 15 lần (kỳ vọng 3) (DEF-R3-05) |
 | 3 | TC-P103-19 | sau chuỗi lỗi: circuit=open; lời gọi kế tiếp chặn ngay (503 LLM_UNAVAILABLE, 42242 ms, 0 request tới stub) (DEF-R3-05) |
 | 3 | TC-P103-20 | bán mở sau 30 s: 3 lời gọi đồng thời → stub nhận 6 (≤ 1 thăm dò × 3 lần thử); [503, 503, 503] (DEF-R3-05) |
 | 3 | TC-P105-44 | chữ «EMBEDDING» thô hiện ở bảng «Mức dùng theo tác vụ» (taskLabel không có nhãn cho EMBEDDING) → DEF-R3-01 (DEF-R3-01) |
 | 3 | TC-PU01-05 | pnpm lint rc=0 nhưng 5 cảnh báo (cells.tsx:39, QueueTab.tsx:115/123, Landing.tsx:48, LlmSettings.tsx:13); nền sprint 3 = 0 cảnh báo → DEF-R3-03 (DEF-R3-03) |
-| 4 | TC-P208-02 | class_code trùng(hoa-thường) 201; còn lại [422, 422, 422, 422, 422, 422] (DEF-R4-01) |
 | 4 | TC-P210-03 | tệp `.xlsx` thực là văn bản (text.xlsx) được nhận 200 (server đọc theo nội dung như CSV); fake-ext/png-as/cut.xlsx → 422 UNSUPPORTED_FILE đúng → |
 | 6 | TC-P3-01-49 | Vai DB ứng dụng edupilot rolsuper=t (như BUG-1 gốc); DEF-R6-01 |
-| 6 | TC-P3-02-21 | vẫn F trên ảnh ep-r hiện chạy (tạo 2026-11-15 19:38, trước fix afbd433e): vào mã/duyệt không xoá ep:roster; retest sau fix chờ Main dựng lại ả |
 | 6 | TC-P3-06-42 | /threads khi khoá: ô tiêu đề/nội dung vô hiệu, dòng báo là "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." thay vì "Đă |
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
 | 8 | TC-P6-01-20 | weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
@@ -342,6 +331,7 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Kỳ vọng (SRS P3-02 AC3 / TC-P3-02-21): cache roster xoá ≤ 5 s sau khi thành viên đổi, tên SV mới bị chặn; Thực tế: cache sống đến hết TTL 1 giờ.
 - Bằng chứng: lệnh trên (chạy hai lần, cùng kết quả); outbox chỉ có `course.member_changed` cho thao tác mời ra · Nghi ngờ mã: `backend-go/internal/course/members.go:222` (approve chỉ ghi `TopicJoinDecided`), `backend-go/internal/course/join.go:185-269` (không ghi sự kiện khi ACTIVE ngay), `cmd/worker/registry.go:129`
 - Chạy lại lần 2: ổn định
+- **ĐÃ SỬA (afbd433e), RERUN 2026-11-16 ĐẠT:** vào bằng mã (không duyệt) → outbox `course.member_changed` +1, `ep:roster` xoá ≤ 3 s; duyệt 1,0 s; mời ra 0,5 s. TC-P3-02-21 đạt. (Lượt trước còn đỏ vì gateway ep-r chạy ảnh cũ do cửa sổ chaos khôi phục nhầm ảnh `edupilot-gateway`.)
 ### DEF-R6-C-01 — Dòng khoá ở /threads dùng chữ của chat thay vì "Đăng bài tạm khóa…"
 - Mức: Thấp
 - TC: TC-P3-06-42
@@ -659,3 +649,24 @@ Phân loại các lượt F thô: không còn F do môi trường — mọi lư�
 1. `/me/today` mục `CHECKIN_REVIEW` đôi lúc vắng khi máy tải cao (provider «Hôm nay» hạn 60 ms, `today/providers.go:18`): 3 lần vắng / 8 lần đo; chờ cache 60 s hoặc gọi lại thì có. Go test `TestMeAttendanceCheckedAtAndTodayReview` trượt cùng lý do khi tải cao.
 2. `backend-go/internal/attendance/token.go:65,88` còn chú thích tên cũ `TOKEN_INVALID`/`TOKEN_EXPIRED` (mã chạy đúng `CHECKIN_TOKEN_*`).
 3. Go: `TestAttestRealChains`, `TestCheckinFlow`, `TestCheckinFlags`, `TestPurgeKeepsRecords`, `TestMeAttendanceCheckedAtAndTodayReview` hết hạn / trượt khi máy tải 30+; chạy lại khi tải thấp: toàn bộ PASS (`go-attendance3.log`, `go-attest3.log`, `-race` ok). `go test ./internal/contract` cần `-tags testroutes` (Makefile:17).
+
+---
+<!-- defects-closed.md -->
+## Lỗi đã được dev sửa và QC chạy lại đạt (bản dựng ≥ dbf48ed0, ep-r dựng lại 2026-11-16)
+
+| Lỗi | Ca | Commit sửa | Kết quả chạy lại |
+|---|---|---|---|
+| DEF-R6-02 (High) roster PII không vô hiệu khi vào lớp | TC-P3-02-21 (sprint 6) | afbd433e | ĐẠT: vào bằng mã → `course.member_changed` +1, `ep:roster` xoá ≤ 3 s; duyệt 1,0 s; mời ra 0,5 s |
+| DEF-R4-01 (TB) mã lớp phân biệt hoa/thường | TC-P208-02 (sprint 4) | 56ad200c (migration 00026) | ĐẠT: SK21D91 → 201, sk21d91 → 409 CONFLICT |
+| DEF-R3-04 (Thấp) `DecryptKey(` ngoài llm/llmconfig | TC-P101-24 (sprint 3) | e859c554 | ĐẠT: grep = 0 ngoài `llmconfig/resolver.go` |
+| DEF-R2-01 (TB) `redocly lint` openapi.yaml 1 lỗi | P0-02/TC-21 (sprint 1), TC-21 (sprint 2) | 816498c6 | ĐẠT: «valid», 0 lỗi |
+| DEF-R9-01 (Thấp) tên test `-G` sprint 9 | TC-P7-01-G06, 02-G10, 03-G03, 03-G07, 06-G11, 08-G08 | P-11-42 (+4a5e49d7 TestSubmitIdempotent) | ĐẠT cả 6 (`evidence-9/logs/p11-42.log`) |
+| DEF-R9.5-05 (TB) 9.5 sửa test có sẵn | TC-N10-10 (sprint 9.5) | P-11-36 hồi tố | ĐÓNG |
+| DEF-R1.5-01 (TB) đã đăng nhập mở đường dẫn lạ → /login | TC-00-57, TC-00-59 (sprint 1.5) | 36c960f5 | ĐẠT: GV/SV/Admin → màn «Không tìm thấy trang», «Về Hôm nay» → «/» (`evidence-1.5/notfound-r1.log`) |
+| DEF-R1.5-02 (Thấp) TA tràn ngang 375/390 px | TC-00-36 (sprint 1.5) | (topbar, qua 1c0700e2/P-11-39) | ĐẠT: 4 vai × 375/390: ox = 0 (`evidence-1.5/overflow-r1.log`) |
+| DEF-R5-01 / R10.8-01 axe `label-content-name-mismatch` ở AppShell | TC-PE03-52 … (sprint 5); TC-AS08-25/AS09-36/AS09-39 (10.8) | 1c0700e2, ec1657c2 (P-11-39) | ĐẠT trên '/' (3 vai × 1440/375, cả tag +wcag21a): 0 lỗi (`evidence-10.8/axe-appshell.log`); 3 ca 10.8 do SmkH chạy lại đúng spec |
+| DEF-R10.6-01 (Thấp) 409 trước 404 | TC-G03-24, TC-G05-24 (10.6) | 1c0700e2 | ĐẠT: 404 ASSIGNMENT_NOT_FOUND |
+| DEF-R10.5-01 (Thấp) «Quyết định nhanh» trên bảng 7 ngày | TC-D07-02 (10.5) | 1c0700e2 | ĐẠT: y(7 ngày)=405 < y(Quyết định nhanh)=903 |
+| DEF-R2-02 / R10-01 (contract đỏ) | TC-PG06-10/11 (sprint 2), TC-12-14 (sprint 10) | de20f571 (+ do tải) | ĐẠT lúc tải thấp: `go test -tags testroutes ./internal/contract/...` ok 37 s |
+
+Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiếp), R7-01 (CI shard — cần chạy CI, K(b) nếu PM không duyệt đẩy nhánh), R4-02 `text.xlsx` (chưa sửa), R10.8-03/04, UX08-50 (landing, ≥ P-11-?).

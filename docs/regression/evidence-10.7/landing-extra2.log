@@ -1,0 +1,7 @@
+QCAC AC12 PASS nghỉ=none rê=matrix(1, 0, 0, 1, 0, -1) bấm=matrix(0.985, 0, 0, 0.985, 0, 1) hover:hover+pointer:fine=true
+QCAC AC22 FAIL màn đầu: Tạo tài khoản | Đăng nhập | Vận hành lớp học | có trợ lý AI | AI soạn nháp câu trả lời và điểm, giảng viên duyệt rồi mới công bố. Họ tên và MSSV được che trước khi gửi cho AI; điểm học phần do mã tính từ quy chế. | 146 | Bài tập 03 | Bài làm 12 / 18 · 761987 An ninh mạng | «…kẻ tấn công chèn chuỗi vào ô đăng nhập để câu truy vấn luôn đúng, từ đó bỏ qua bước kiểm tra mật khẩu…» | Tiêu chí | AI nháp | Điểm | Xác định đúng lỗ hổng | 8,0 | 8,0 | Giải thích cách khai thác | 7,5 | 7,5 | 7,5 | 8,5 | Đề xuất cách vá | 9,0 | 9,0 | Nháp | Đã duyệt | 8,2 | 8,5 | Duyệt | Duyệt lúc 10:42 | Điểm học phần tính thế nào ạ? | Chuyên cần 10 %, giữa kỳ 30 %, cuối kỳ 60 %.
+QCAC AC20 FAIL login= register=
+QCAC AC16-1440 PASS axe 0; thứ bậc true; ảnh thiếu alt=0
+QCAC AC16-390 PASS axe 0; thứ bậc true; ảnh thiếu alt=0
+QCAC AC16-kb PASS dialog mở 1→0; tạm dừng false→true; focus ring solid 2px rgb(206, 22, 40); tab: Tạo tài khoản > Đăng nhập > Đăng nhập > Xem video >  > Giảng viên > Tạo tài khoản > Đăng nhập
+  1 passed (22.1s)

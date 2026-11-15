@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm F) · Ngày: 2026-11-15
-Tổng TC cũ: 250 · Đạt: 136 · Trượt: 1 · Không chạy (K, gồm lỗi thời / ngoài phạm vi): 5 · Chưa chạy (mẫu): 108   (P+F+K+M = 250)
+Tổng TC cũ: 250 · Đạt: 137 · Trượt: 0 · Không chạy (K, gồm lỗi thời / ngoài phạm vi): 5 · Chưa chạy (mẫu): 108   (P+F+K+M = 250)
 Quy ước: «K» chỉ gồm lỗi thời / ngoài phạm vi theo spec / loại (b). «M» = chưa chạy vì ngoài mẫu «đường chính + ≥1 nhánh lỗi / phân quyền mỗi US» (PM quyết có chạy nốt không) hoặc cần khoá cấu hình global (ghi rõ ở cột ghi chú); không tính trượt.
 Cách chạy (bản sao đã sửa tham số ở `docs/regression/evidence-10/scripts/`, script gốc không đổi): `export SEED_DEFAULT_PASSWORD='Edupilot#Seed-2026'`; `python3 pa1.py pa1b.py pa2.py pa2b.py pa3.py pb3.py pb4.py pc.py pd.py pe.py pk.py pg.py pi2.py pj2.py px.py px2.py px3.py px4.py recheck_l1.py recheck_l3.py recheck_low.py` (qlib.py đổi cổng 943→1143, `ep-qc`→`ep-r-postgres-1`, thử lại 429/5xx; pa2/pa2b thêm nhánh SHORT; pb.py ánh xạ tên tài liệu seed; `clean_inprog.py` nộp lượt dở trước mỗi script). Go: `go test ./internal/quiz ./internal/practice` + `sqlc diff` + `go test ./internal/contract` (log `logs/go-tests.log`, `logs/contract-fail*.log`). UI: `frontend/e2e/qc2-r10/` (bản sao spec `qc-s10-*` đặt lớp mặc định 761987 bằng localStorage `ep:ui:course`) — 1440: luyện đề / lịch sử / Hôm nay / thi thử không tràn ngang, không chữ cấm (AI, RAG, citation, model…); 375: /practice, /practice/history đạt; ảnh `/tmp/qc2-f-shots10`. Kết quả UI không map sang từng TC (spec thăm dò, không có assertion theo TC) nên các TC E2E vẫn ở «M» trừ khi nêu khác.
 Môi trường: 9router thật cho CHAT/QUESTION_GEN/GRADING (tuần tự, không song song); Postgres ep-r bị nhóm 9.5 làm sập một lần lúc 12:59 UTC (đã hồi phục, các ca đang chạy được chạy lại).
@@ -268,7 +268,7 @@ Lượt 2 (luật mới «không lấy mẫu»): chạy nốt 112 ca M bằng `p
 | TC-12-11 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
 | TC-12-12 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: PASS |
 | TC-12-13 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
-| TC-12-14 | F | DEF-R10-01: go test ./internal/contract/... không xanh (7 test đỏ; 500 INTERNAL ở POST …/posts/{id}/report, /auth/verify-email, thiếu quan sát); ngoài phạm vi practice, nghi môi trường chung (testcontainers trên Colima đông tải) |
+| TC-12-14 | P | RERUN 2026-11-16 lúc tải thấp (load ≈ 6) trên bản dựng dbf48ed0: `go test -count=1 -tags testroutes ./internal/contract/...` → ok 37 s (evidence-2/logs-contract-rerun2.log). Lần đỏ trước = tải 20–60 (REQUEST_TIMEOUT=1 s của rig) — DEF-R10-01 loại; dev bổ sung de20f571 (ctx hết hạn → 504 thay 500) |
 | TC-12-15 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
 | TC-12-16 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
 | TC-12-17 | K | (b) cần người/công cụ ngoài đồ án: Lighthouse/k6 hoãn theo chủ dự án; thử tải 100 SV |
@@ -279,7 +279,7 @@ Lượt 2 (luật mới «không lấy mẫu»): chạy nốt 112 ca M bằng `p
 | TC-12-22 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: PASS |
 
 ## Trượt: bước tái hiện
-### DEF-R10-01 — contract test `./internal/contract` không xanh ở be0c0d96 (TC-12-14)
+### DEF-R10-01 — ĐÃ LOẠI (do tải) + dev sửa kèm de20f571; contract xanh khi máy rảnh (TC-12-14 đạt)
 `cd backend-go && go test ./internal/contract/ -run 'TestStudentNeverSeesConfidence|TestChatThreadsContract'` (testcontainers pgvector/redis/minio). Lần 1 (cả gói): 7 test đỏ (TestChatThreadsContract, TestContract_ResponsesMatchSpec, TestSpec_EveryDocumentedStatusExercised, TestStudentNeverSeesConfidence, TestNoAnswerLeak, TestResultsPermissionMatrix, TestGolden_Auth). Chạy riêng: TestNoAnswerLeak, TestGolden_Auth xanh; TestStudentNeverSeesConfidence đỏ `scenarios_thread_test.go:247 POST …/posts/{id}/report → 500`; TestChatThreadsContract đỏ `scenarios_test.go:389 POST /auth/verify-email → 500` (hai lần chạy khác nhau, endpoint khác nhau). Hai test «ResponsesMatchSpec / EveryDocumentedStatusExercised» đỏ khi chỉ chạy tập con (cần cả gói). Không liên quan practice; không phân biệt được lỗi sản phẩm với quá tải Colima (40 container). Chi tiết ở `defects-10.md`.
 
 ## Ca K và lý do (bảng gom)

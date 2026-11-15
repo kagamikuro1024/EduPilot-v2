@@ -15,6 +15,7 @@
 - Kỳ vọng (SRS P3-02 AC3 / TC-P3-02-21): cache roster xoá ≤ 5 s sau khi thành viên đổi, tên SV mới bị chặn; Thực tế: cache sống đến hết TTL 1 giờ.
 - Bằng chứng: lệnh trên (chạy hai lần, cùng kết quả); outbox chỉ có `course.member_changed` cho thao tác mời ra · Nghi ngờ mã: `backend-go/internal/course/members.go:222` (approve chỉ ghi `TopicJoinDecided`), `backend-go/internal/course/join.go:185-269` (không ghi sự kiện khi ACTIVE ngay), `cmd/worker/registry.go:129`
 - Chạy lại lần 2: ổn định
+- **ĐÃ SỬA (afbd433e), RERUN 2026-11-16 ĐẠT:** vào bằng mã (không duyệt) → outbox `course.member_changed` +1, `ep:roster` xoá ≤ 3 s; duyệt 1,0 s; mời ra 0,5 s. TC-P3-02-21 đạt. (Lượt trước còn đỏ vì gateway ep-r chạy ảnh cũ do cửa sổ chaos khôi phục nhầm ảnh `edupilot-gateway`.)
 ### DEF-R6-C-01 — Dòng khoá ở /threads dùng chữ của chat thay vì "Đăng bài tạm khóa…"
 - Mức: Thấp
 - TC: TC-P3-06-42

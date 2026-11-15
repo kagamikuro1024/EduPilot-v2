@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 1 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm A) · Ngày: 2026-11-15
 
-Tổng TC cũ: 68 · Đạt (P): 27 · Trượt (F): 2 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 32 · Chưa chạy — cần PM quyết (X): 5 · Chưa chạy — ngoài mẫu (N): 2   (P+F+K+D+X+N = 68)
+Tổng TC cũ: 68 · Đạt (P): 28 · Trượt (F): 1 · Không chạy K (a/b/c): 0 · Lỗi thời (D): 32 · Chưa chạy — cần PM quyết (X): 5 · Chưa chạy — ngoài mẫu (N): 2   (P+F+K+D+X+N = 68)
 Quy ước: **K(a)** thiết bị không có · **K(b)** cần người thật · **K(c)** ngoài phạm vi đồ án · **D** TC lỗi thời (spec đã đổi hợp lệ, ghi mã đề xuất/quyết định) · **X** chưa chạy vì lệnh phá huỷ/dựng stack thứ hai bị cấm (chờ PM) · **N** chưa chạy: dạng tài liệu, ngoài mẫu smoke «1 chính + 1 lỗi / US».
 Cách chạy:
 - `bash docs/sprints/1/qc/scripts/tc-US-P0-01.sh` (14 TC), `tc-US-P0-02.sh` (tĩnh: 01–09 19 23–27 31 34–38; riêng 18, 21), `tc-US-P0-03.sh TC-04 05 13 14 16` — log ở `evidence-1/run-*.log`.
@@ -13,7 +13,7 @@ Cách chạy:
 | US | TC tổng | P | F | K(a/b/c) | D | X | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | US-P0-01 | 14 | 7 | 1 | 0 | 6 | 0 | 0 | tài liệu DEMO_SCRIPT đã viết lại v2 → 6 ca D |
-| US-P0-02 | 38 | 18 | 1 | 0 | 13 | 5 | 1 | scaffold sprint 1: nhiều ca D vì cây đã đổi; X = `pnpm dev` stack thứ hai |
+| US-P0-02 | 38 | 19 | 0 | 0 | 13 | 5 | 1 | scaffold sprint 1: nhiều ca D vì cây đã đổi; X = `pnpm dev` stack thứ hai; TC-21 đạt sau 816498c6 |
 | US-P0-03 | 16 | 2 | 0 | 0 | 13 | 0 | 1 | CI sprint 1: bằng chứng run đã đóng, ci.yml tái cấu trúc |
 
 ## Kết quả từng ca
@@ -55,7 +55,7 @@ Cách chạy:
 | P0-02/TC-18 | P | PATH không docker → thoát 1, thông báo Docker, không stack trace |
 | P0-02/TC-19 | D | có phụ thuộc mới (uqr, react-dom 19.3…) ngoài phạm vi TC |
 | P0-02/TC-20 | N | = `go vet` + `go test -race ./...` toàn bộ — thuộc GATE-03/04 sprint 2 (chưa chạy do tải máy) |
-| P0-02/TC-21 | F | DEF-R2-01: `redocly lint` openapi.yaml 1 lỗi (analytics/exams/compare: parameters null) |
+| P0-02/TC-21 | P | RERUN 2026-11-16 sau 816498c6 (DEF-R2-01 đã sửa): `redocly lint backend-go/api/openapi.yaml` → «valid», 0 lỗi (21 cảnh báo) |
 | P0-02/TC-22 | P | `pnpm -C frontend lint` rc 0, `build` rc 0 |
 | P0-02/TC-23 | P |  |
 | P0-02/TC-24 | P |  |
@@ -91,4 +91,4 @@ Cách chạy:
 
 ## Trượt: bước tái hiện
 ### DEF-R1-01 — DEMO_SCRIPT trích spec E2E không có trong FLOWS (TC-07)
-### DEF-R2-01 — openapi.yaml 1 lỗi redocly (TC-21) — chi tiết `defects-2.md`
+### DEF-R2-01 — ĐÃ SỬA (816498c6), rerun 2026-11-16: redocly lint hợp lệ, TC-21 đạt — chi tiết `defects-2.md`

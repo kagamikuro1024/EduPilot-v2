@@ -1,0 +1,14 @@
+
+Running 1 test using 1 worker
+
+(node:93683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+QCAC AC12 PASS nghỉ=none rê=matrix(1, 0, 0, 1, 0, -1) bấm=matrix(0.985, 0, 0, 0.985, 0, 1) hover:hover+pointer:fine=true
+QCAC AC22 FAIL màn đầu: Tạo tài khoản | Đăng nhập | Vận hành lớp học | có trợ lý AI | AI soạn nháp câu trả lời và điểm, giảng viên duyệt rồi mới công bố. Họ tên và MSSV được che trước khi gửi cho AI; điểm học phần do mã tính
+QCAC AC20 FAIL login=/login,/login,/login register=
+QCAC AC16-1440 PASS axe 0; thứ bậc true; ảnh thiếu alt=0
+QCAC AC16-390 PASS axe 0; thứ bậc true; ảnh thiếu alt=0
+QCAC AC16-kb FAIL dialog mở 0→0; tạm dừng false→false; focus ring solid 2px rgb(206, 22, 40); tab: Tạo tài khoản > Đăng nhập > Đăng nhập > Xem video >  > Tạo tài khoản > Đăng nhập > Tạo tài khoản
+  ✓  1 qc-r107-landing-extra.spec.ts:8:1 › landing bổ sung: AC12, AC16, AC20, AC22 (20.7s)
+
+  1 passed (21.9s)

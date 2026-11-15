@@ -1,0 +1,202 @@
+[WebServer] (node:71465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:71484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 98 tests using 1 worker
+
+(node:71485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › e2e/class-join.spec.ts:44:1 › course picker: giảng viên 2 lớp thấy cả hai, 'Tất cả lớp của tôi' và 'Quản lý lớp này' (1.1s)
+  ✓   2 [desktop] › e2e/class-join.spec.ts:56:1 › course picker: sinh viên thấy lớp ACTIVE của mình, lớp PENDING không chọn được, không có 'Tất cả lớp' (452ms)
+  ✓   3 [desktop] › e2e/class-join.spec.ts:67:1 › course picker: sinh viên 1 lớp ACTIVE + 1 PENDING chỉ thấy lớp ACTIVE (1.2s)
+  ✓   4 [desktop] › e2e/class-join.spec.ts:75:1 › course picker: ?course= của lớp không thuộc người này bị bỏ, về lớp đầu (351ms)
+  ✓   5 [desktop] › e2e/class-join.spec.ts:82:1 › course picker: ?course= của lớp thuộc người này đè lựa chọn và được nhớ ở localStorage (1.6s)
+  ✓   6 [desktop] › e2e/class-join.spec.ts:92:1 › course picker: lớp đã lưu trữ không là mặc định và không được nhớ (US-UX91-06 AC3, P-91-9) (1.7s)
+  ✘   7 [desktop] › e2e/class-join.spec.ts:108:1 › course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390 (154ms)
+(node:71656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [desktop] › e2e/class-join.spec.ts:125:1 › no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 route và không gọi API lớp (2.4s)
+  ✓   9 [desktop] › e2e/class-join.spec.ts:141:1 › mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp (636ms)
+  ✓  10 [desktop] › e2e/class-join.spec.ts:152:1 › mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, không mượn lớp mô phỏng 761987 (10.7 lô 1) (361ms)
+  ✓  11 [desktop] › e2e/class-join.spec.ts:233:1 › admin courses page: bảng đúng cột, một nút chính, khung mở tại chỗ, gửi xong có dòng tĩnh, bấm đúp một lớp, lưu trữ có xác nhận nêu số (1.1s)
+  ✘  12 [desktop] › e2e/class-join.spec.ts:274:1 › admin courses page: sửa và gán lại dùng PUT / assign; rỗng có lời mời mở lớp; không có đường thêm sinh viên; 375 px sạch (1.3s)
+(node:71743) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [desktop] › e2e/class-join.spec.ts:302:1 › admin courses page: chưa có lớp → lời mời mở lớp đầu tiên (363ms)
+  ✓  14 [desktop] › e2e/class-join.spec.ts:308:1 › admin courses errors: mã lớp trùng tại ô, 422 theo ô giữ chữ, gửi lại cùng khoá, sai version, sai vai, lưu trữ lại (2.3s)
+  ✓  15 [desktop] › e2e/class-join.spec.ts:366:1 › bell real: chấm theo unread_count, mở khung không xoá chấm, bấm mục đánh dấu đã đọc và đi tới link, làm mới 30 s (995ms)
+  ✓  16 [desktop] › e2e/class-join.spec.ts:417:1 › bell real sse open: không làm mới ở 30 s, làm mới ở 120 s (840ms)
+  ✓  17 [desktop] › e2e/class-join.spec.ts:453:1 › bell real: lỗi tải → dòng 'Chưa tải được thông báo.' không chặn app; hết chưa đọc thì chấm biến (2.0s)
+  ✓  18 [desktop] › e2e/class-join.spec.ts:487:1 › join page: ô nhập tự viết hoa và bỏ ký tự cấm, một nút chính, xem trước rồi tham gia (850ms)
+  ✓  19 [desktop] › e2e/class-join.spec.ts:507:1 › join page: cần duyệt, chờ duyệt, sai mã, đầy lớp, bị giới hạn đếm ngược, chưa xác minh email (1.2s)
+  ✓  20 [desktop] › e2e/class-join.spec.ts:547:1 › join page: lớp cần duyệt hiện câu cần duyệt và kết quả chờ duyệt (768ms)
+  ✘  21 [desktop] › e2e/class-join.spec.ts:560:1 › join page: 375 px sạch (tràn ngang, vùng chạm, chữ bị cắt) (220ms)
+(node:72016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 [desktop] › e2e/class-join.spec.ts:574:1 › join link login redirect: /join/<mã> chưa đăng nhập → /login?next=… → quay lại, xem trước ngay, mã rời khỏi URL (2.0s)
+  ✓  23 [desktop] › e2e/class-join.spec.ts:599:1 › join page: /join/<mã> gửi Referrer-Policy no-referrer và Cache-Control no-store (301ms)
+  ✓  24 [desktop] › e2e/class-join.spec.ts:634:1 › class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng thái Bật/Tắt, lạc quan + Hoàn tác; «Ca kiểm thử» khoá với giảng viên; TA không thấy khối (2.0s)
+  ✓  25 [desktop] › e2e/class-join.spec.ts:666:1 › class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính (1.4s)
+  ✓  26 [desktop] › e2e/class-join.spec.ts:695:1 › class settings page: lỗi tại ô và xung đột phiên bản (780ms)
+  ✓  27 [desktop] › e2e/class-join.spec.ts:716:1 › class settings page: TA thấy mã nhưng chỉ đọc; sinh viên bị chặn và không gọi join-code (613ms)
+  ✓  28 [desktop] › e2e/class-join.spec.ts:745:1 › threshold slider: kéo đổi giá trị ngay (dấu phẩy), lưu một lần sau khi dừng; 409 nạp lại giá trị của máy chủ (1.8s)
+  ✓  29 [desktop] › e2e/class-join.spec.ts:772:1 › threshold slider: TA chỉ xem, không gửi PUT (455ms)
+  ✓  30 [desktop] › e2e/class-join.spec.ts:780:1 › class settings page: sinh viên → màn chặn quyền, 0 yêu cầu tới join-code (706ms)
+  ✓  31 [desktop] › e2e/class-join.spec.ts:823:1 › class members page: bảng thành viên, tìm, đếm tab, mời ra có Hoàn tác (chỉ giảng viên) (1.4s)
+  ✓  32 [desktop] › e2e/class-join.spec.ts:843:1 › class members page: chọn nhiều → Duyệt N, Hoàn tác gọi undo cho từng người; từ chối; ?tab=pending (1.2s)
+  ✓  33 [desktop] › e2e/class-join.spec.ts:862:1 › class members page: hàng email chưa khớp MSSV — giảng viên xác nhận ngắn rồi duyệt; TA không thấy nút Duyệt (690ms)
+  ✓  34 [desktop] › e2e/class-join.spec.ts:876:1 › class members page: TA không có nút Duyệt ở hàng email chưa khớp (521ms)
+  ✓  35 [desktop] › e2e/class-join.spec.ts:885:1 › class members page: rỗng, tab Trợ giảng (thêm / bớt), sinh viên bị chặn, 375 px sạch (1.3s)
+  ✓  36 [desktop] › e2e/class-join.spec.ts:907:1 › class members page: sinh viên → màn chặn quyền (474ms)
+  ✓  37 [desktop] › e2e/class-join.spec.ts:921:1 › roster import ui: chọn tệp → xem trước đúng dòng 7 và 19 → Nhập 28 sinh viên; TA không thấy tab (1.0s)
+  ✓  38 [desktop] › e2e/class-join.spec.ts:953:1 › roster import ui: TA không thấy tab (540ms)
+  ✓  39 [desktop] › e2e/class-join.spec.ts:959:1 › roster import ui: tệp sai loại / quá lớn báo tại vùng thả; mất mạng giữ tệp và Gửi lại dùng cùng khoá (2.6s)
+  -  40 [desktop] › e2e/class-join.spec.ts:998:1 › roster import ui: 375 px không tràn ngang
+  ✓  41 [desktop] › e2e/class-join.spec.ts:1013:1 › share sources section: chỉ hiện khi có nguồn đủ điều kiện; dùng lại tại chỗ, không toast; TA không thấy (1.1s)
+  ✓  42 [desktop] › e2e/class-join.spec.ts:1040:1 › share sources section: TA không gọi share-sources và không thấy mục (491ms)
+  -  43 [desktop] › e2e/class-join.spec.ts:1048:1 › @real course picker với seed: GV 2 lớp, SV A 2 lớp, SV B 1 lớp, SV D chưa có lớp
+  -  44 [desktop] › e2e/class-join.spec.ts:1052:1 › @real roster import ui + share sources section (seed): GV lớp 2 nhập roster-2-loi.csv thấy dòng 7 và 19, nút Nhập 28 sinh viên; TA không thấy tab; GV khác học phần không thấy mục chia sẻ
+  -  45 [desktop] › e2e/class-join.spec.ts:1056:1 › @real join flow end to end (375 × 812): D xem trước và vào lớp 2, giảng viên duyệt, tạo lại mã, 6 mã sai ⇒ 429
+  ✓  46 [desktop] › e2e/class-join.spec.ts:1081:1 › risk thresholds: năm dòng nhãn + thanh + giá trị; kéo đổi ngay, lưu MỘT lần sau khi dừng; 409 hoàn lại (2.4s)
+  ✓  47 [desktop] › e2e/class-join.spec.ts:1108:1 › risk thresholds: TA chỉ xem, không gửi PUT (506ms)
+  ✓  48 [desktop] › e2e/class-join.spec.ts:1117:1 › class settings attendance: bật hiện chu kỳ / muộn / yêu cầu; vị trí hiện dòng thông báo; lưu CẢ chính sách; 422 tại ô; TA chỉ xem (5.2s)
+  ✓  49 [desktop] › e2e/class-join.spec.ts:1163:1 › class settings attendance: TA thấy chính sách nhưng mọi ô bị khoá, không gửi PUT (849ms)
+(node:72516) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  50 [mobile] › e2e/class-join.spec.ts:44:1 › course picker: giảng viên 2 lớp thấy cả hai, 'Tất cả lớp của tôi' và 'Quản lý lớp này' (1.1s)
+  ✓  51 [mobile] › e2e/class-join.spec.ts:56:1 › course picker: sinh viên thấy lớp ACTIVE của mình, lớp PENDING không chọn được, không có 'Tất cả lớp' (542ms)
+  ✓  52 [mobile] › e2e/class-join.spec.ts:67:1 › course picker: sinh viên 1 lớp ACTIVE + 1 PENDING chỉ thấy lớp ACTIVE (800ms)
+  ✓  53 [mobile] › e2e/class-join.spec.ts:75:1 › course picker: ?course= của lớp không thuộc người này bị bỏ, về lớp đầu (1.1s)
+  ✓  54 [mobile] › e2e/class-join.spec.ts:82:1 › course picker: ?course= của lớp thuộc người này đè lựa chọn và được nhớ ở localStorage (735ms)
+  ✓  55 [mobile] › e2e/class-join.spec.ts:92:1 › course picker: lớp đã lưu trữ không là mặc định và không được nhớ (US-UX91-06 AC3, P-91-9) (2.3s)
+  ✓  56 [mobile] › e2e/class-join.spec.ts:108:1 › course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390 (2.6s)
+  ✓  57 [mobile] › e2e/class-join.spec.ts:125:1 › no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 route và không gọi API lớp (2.9s)
+  ✓  58 [mobile] › e2e/class-join.spec.ts:141:1 › mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp (706ms)
+  ✓  59 [mobile] › e2e/class-join.spec.ts:152:1 › mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, không mượn lớp mô phỏng 761987 (10.7 lô 1) (471ms)
+  -  60 [mobile] › e2e/class-join.spec.ts:233:1 › admin courses page: bảng đúng cột, một nút chính, khung mở tại chỗ, gửi xong có dòng tĩnh, bấm đúp một lớp, lưu trữ có xác nhận nêu số
+  -  61 [mobile] › e2e/class-join.spec.ts:274:1 › admin courses page: sửa và gán lại dùng PUT / assign; rỗng có lời mời mở lớp; không có đường thêm sinh viên; 375 px sạch
+  -  62 [mobile] › e2e/class-join.spec.ts:302:1 › admin courses page: chưa có lớp → lời mời mở lớp đầu tiên
+  -  63 [mobile] › e2e/class-join.spec.ts:308:1 › admin courses errors: mã lớp trùng tại ô, 422 theo ô giữ chữ, gửi lại cùng khoá, sai version, sai vai, lưu trữ lại
+  ✓  64 [mobile] › e2e/class-join.spec.ts:366:1 › bell real: chấm theo unread_count, mở khung không xoá chấm, bấm mục đánh dấu đã đọc và đi tới link, làm mới 30 s (688ms)
+  ✓  65 [mobile] › e2e/class-join.spec.ts:417:1 › bell real sse open: không làm mới ở 30 s, làm mới ở 120 s (781ms)
+  ✓  66 [mobile] › e2e/class-join.spec.ts:453:1 › bell real: lỗi tải → dòng 'Chưa tải được thông báo.' không chặn app; hết chưa đọc thì chấm biến (2.1s)
+  ✓  67 [mobile] › e2e/class-join.spec.ts:487:1 › join page: ô nhập tự viết hoa và bỏ ký tự cấm, một nút chính, xem trước rồi tham gia (955ms)
+  ✓  68 [mobile] › e2e/class-join.spec.ts:507:1 › join page: cần duyệt, chờ duyệt, sai mã, đầy lớp, bị giới hạn đếm ngược, chưa xác minh email (793ms)
+  ✓  69 [mobile] › e2e/class-join.spec.ts:547:1 › join page: lớp cần duyệt hiện câu cần duyệt và kết quả chờ duyệt (484ms)
+  ✓  70 [mobile] › e2e/class-join.spec.ts:560:1 › join page: 375 px sạch (tràn ngang, vùng chạm, chữ bị cắt) (568ms)
+  ✓  71 [mobile] › e2e/class-join.spec.ts:574:1 › join link login redirect: /join/<mã> chưa đăng nhập → /login?next=… → quay lại, xem trước ngay, mã rời khỏi URL (699ms)
+  ✓  72 [mobile] › e2e/class-join.spec.ts:599:1 › join page: /join/<mã> gửi Referrer-Policy no-referrer và Cache-Control no-store (404ms)
+  ✓  73 [mobile] › e2e/class-join.spec.ts:634:1 › class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng thái Bật/Tắt, lạc quan + Hoàn tác; «Ca kiểm thử» khoá với giảng viên; TA không thấy khối (1.4s)
+  ✓  74 [mobile] › e2e/class-join.spec.ts:666:1 › class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính (1.1s)
+  ✓  75 [mobile] › e2e/class-join.spec.ts:695:1 › class settings page: lỗi tại ô và xung đột phiên bản (522ms)
+  ✓  76 [mobile] › e2e/class-join.spec.ts:716:1 › class settings page: TA thấy mã nhưng chỉ đọc; sinh viên bị chặn và không gọi join-code (453ms)
+  ✓  77 [mobile] › e2e/class-join.spec.ts:745:1 › threshold slider: kéo đổi giá trị ngay (dấu phẩy), lưu một lần sau khi dừng; 409 nạp lại giá trị của máy chủ (2.1s)
+  ✓  78 [mobile] › e2e/class-join.spec.ts:772:1 › threshold slider: TA chỉ xem, không gửi PUT (348ms)
+  ✓  79 [mobile] › e2e/class-join.spec.ts:780:1 › class settings page: sinh viên → màn chặn quyền, 0 yêu cầu tới join-code (382ms)
+  -  80 [mobile] › e2e/class-join.spec.ts:823:1 › class members page: bảng thành viên, tìm, đếm tab, mời ra có Hoàn tác (chỉ giảng viên)
+  -  81 [mobile] › e2e/class-join.spec.ts:843:1 › class members page: chọn nhiều → Duyệt N, Hoàn tác gọi undo cho từng người; từ chối; ?tab=pending
+  -  82 [mobile] › e2e/class-join.spec.ts:862:1 › class members page: hàng email chưa khớp MSSV — giảng viên xác nhận ngắn rồi duyệt; TA không thấy nút Duyệt
+  -  83 [mobile] › e2e/class-join.spec.ts:876:1 › class members page: TA không có nút Duyệt ở hàng email chưa khớp
+  -  84 [mobile] › e2e/class-join.spec.ts:885:1 › class members page: rỗng, tab Trợ giảng (thêm / bớt), sinh viên bị chặn, 375 px sạch
+  ✓  85 [mobile] › e2e/class-join.spec.ts:907:1 › class members page: sinh viên → màn chặn quyền (287ms)
+  -  86 [mobile] › e2e/class-join.spec.ts:921:1 › roster import ui: chọn tệp → xem trước đúng dòng 7 và 19 → Nhập 28 sinh viên; TA không thấy tab
+  -  87 [mobile] › e2e/class-join.spec.ts:953:1 › roster import ui: TA không thấy tab
+  -  88 [mobile] › e2e/class-join.spec.ts:959:1 › roster import ui: tệp sai loại / quá lớn báo tại vùng thả; mất mạng giữ tệp và Gửi lại dùng cùng khoá
+  ✓  89 [mobile] › e2e/class-join.spec.ts:998:1 › roster import ui: 375 px không tràn ngang (453ms)
+  -  90 [mobile] › e2e/class-join.spec.ts:1013:1 › share sources section: chỉ hiện khi có nguồn đủ điều kiện; dùng lại tại chỗ, không toast; TA không thấy
+  -  91 [mobile] › e2e/class-join.spec.ts:1040:1 › share sources section: TA không gọi share-sources và không thấy mục
+  -  92 [mobile] › e2e/class-join.spec.ts:1048:1 › @real course picker với seed: GV 2 lớp, SV A 2 lớp, SV B 1 lớp, SV D chưa có lớp
+  -  93 [mobile] › e2e/class-join.spec.ts:1052:1 › @real roster import ui + share sources section (seed): GV lớp 2 nhập roster-2-loi.csv thấy dòng 7 và 19, nút Nhập 28 sinh viên; TA không thấy tab; GV khác học phần không thấy mục chia sẻ
+  -  94 [mobile] › e2e/class-join.spec.ts:1056:1 › @real join flow end to end (375 × 812): D xem trước và vào lớp 2, giảng viên duyệt, tạo lại mã, 6 mã sai ⇒ 429
+  ✓  95 [mobile] › e2e/class-join.spec.ts:1081:1 › risk thresholds: năm dòng nhãn + thanh + giá trị; kéo đổi ngay, lưu MỘT lần sau khi dừng; 409 hoàn lại (2.1s)
+  ✓  96 [mobile] › e2e/class-join.spec.ts:1108:1 › risk thresholds: TA chỉ xem, không gửi PUT (334ms)
+  ✓  97 [mobile] › e2e/class-join.spec.ts:1117:1 › class settings attendance: bật hiện chu kỳ / muộn / yêu cầu; vị trí hiện dòng thông báo; lưu CẢ chính sách; 422 tại ô; TA chỉ xem (4.9s)
+  ✓  98 [mobile] › e2e/class-join.spec.ts:1163:1 › class settings attendance: TA thấy chính sách nhưng mọi ô bị khoá, không gửi PUT (378ms)
+
+
+  1) [desktop] › e2e/class-join.spec.ts:108:1 › course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390 
+
+    Error: Cannot find module '/private/tmp/qc2-h-fe/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-h-fe/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-h-fe/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-h-fe/frontend/e2e/class-join.spec.ts:109:31
+
+    Error Context: test-results/class-join-course-picker-k-30620-title-không-tràn-ở-1440-390-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/class-join-course-picker-k-30620-title-không-tràn-ở-1440-390-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/class-join-course-picker-k-30620-title-không-tràn-ở-1440-390-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/class-join.spec.ts:274:1 › admin courses page: sửa và gán lại dùng PUT / assign; rỗng có lời mời mở lớp; không có đường thêm sinh viên; 375 px sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-h-fe/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-h-fe/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-h-fe/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-h-fe/frontend/e2e/class-join.spec.ts:296:42
+
+    Error Context: test-results/class-join-admin-courses-p-ef957--thêm-sinh-viên-375-px-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/class-join-admin-courses-p-ef957--thêm-sinh-viên-375-px-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/class-join-admin-courses-p-ef957--thêm-sinh-viên-375-px-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › e2e/class-join.spec.ts:560:1 › join page: 375 px sạch (tràn ngang, vùng chạm, chữ bị cắt) 
+
+    Error: Cannot find module '/private/tmp/qc2-h-fe/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-h-fe/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-h-fe/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-h-fe/frontend/e2e/class-join.spec.ts:561:42
+
+    Error Context: test-results/class-join-join-page-375-p-d3506-ngang-vùng-chạm-chữ-bị-cắt--desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/class-join-join-page-375-p-d3506-ngang-vùng-chạm-chữ-bị-cắt--desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/class-join-join-page-375-p-d3506-ngang-vùng-chạm-chữ-bị-cắt--desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [desktop] › e2e/class-join.spec.ts:108:1 › course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390 
+    [desktop] › e2e/class-join.spec.ts:274:1 › admin courses page: sửa và gán lại dùng PUT / assign; rỗng có lời mời mở lớp; không có đường thêm sinh viên; 375 px sạch 
+    [desktop] › e2e/class-join.spec.ts:560:1 › join page: 375 px sạch (tràn ngang, vùng chạm, chữ bị cắt) 
+  21 skipped
+  74 passed (1.7m)

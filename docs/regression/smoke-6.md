@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm E) · Ngày: 2026-11-15
-Tổng TC cũ: 536 · Đạt: 296 · Trượt: 3 · Không chạy K (a/b/c): 1 · Lỗi thời (T, tính vào cột K của brief): 6 · Chưa chạy (mẫu) N: 230   (P+F+K+T+N = 536 = 536)
+Tổng TC cũ: 536 · Đạt: 297 · Trượt: 2 · Không chạy K (a/b/c): 1 · Lỗi thời (T, tính vào cột K của brief): 6 · Chưa chạy (mẫu) N: 230   (P+F+K+T+N = 536 = 536). TC-P3-02-21 đã đạt trên bản dựng có fix afbd433e (xem dòng ca).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -103,7 +103,7 @@ Cách chạy:
 | TC-P3-02-18 | P | go test ok (3 test/ca con, ~2s) |
 | TC-P3-02-19 | P | 2 mẫu đúng |
 | TC-P3-02-20 | P | exists=1 ttl=3597 type=string |
-| TC-P3-02-21 | F | vẫn F trên ảnh ep-r hiện chạy (tạo 2026-11-15 19:38, trước fix afbd433e): vào mã/duyệt không xoá ep:roster; retest sau fix chờ Main dựng lại ảnh (script /tmp/qc2e/s6_roster2.py) — DEF-R6-02 |
+| TC-P3-02-21 | P | RERUN sau fix afbd433e (ảnh edupilot-gateway-test dựng 2026-11-16, SV chưa vào lớp vào bằng mã → ACTIVE): outbox `course.member_changed` +1 (34→35), `ep:roster:<course>` xoá ≤ 3 s; duyệt xoá 1,0 s, mời ra 0,5 s (s6_roster2.py + j1.py) — DEF-R6-02 ĐÃ SỬA |
 | TC-P3-02-22 | P | mời ra → cache xoá 0,5 s, tên không còn bị chặn |
 | TC-P3-02-23 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P3-02-24 | P | 2 mẫu đúng |
@@ -440,7 +440,7 @@ Cách chạy:
 
 ## Trượt: bước tái hiện
 ### DEF-R6-01 — Vai DB của ứng dụng là siêu quyền (TC-P3-01-49): `rolsuper=t` ở ep-r (cùng BUG-1 gốc của sprint 6; trigger append-only vẫn chặn 42501). Chi tiết `defects-6.md`.
-### DEF-R6-02 — Bộ nhớ đệm roster PII không vô hiệu khi SV vào lớp (TC-P3-02-21): duyệt / vào bằng mã không phát `course.member_changed`, tên SV mới không bị che tới 1 giờ. Chi tiết `defects-6.md`.
+### DEF-R6-02 — ĐÃ SỬA (afbd433e) — rerun 2026-11-16: vào bằng mã / duyệt / mời ra đều xoá `ep:roster` ≤ 3 s; TC-P3-02-21 đạt. Chi tiết `defects-6.md`.
 ### DEF-R6-C-01 — Dòng khoá ở /threads khi đang thi dùng chữ của chat (TC-P3-06-42). Chi tiết `defects-6.md`.
 
 ## Ca K / T / N và lý do

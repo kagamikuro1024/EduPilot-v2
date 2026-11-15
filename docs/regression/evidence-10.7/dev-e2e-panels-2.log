@@ -1,0 +1,148 @@
+[WebServer] (node:74741) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:74786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 118 tests using 1 worker
+
+(node:74788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [desktop] › e2e/panels.spec.ts:30:3 › tokens › năm token đúng giá trị phương án (a); token nền cũ đã bị xoá (708ms)
+  ✓    2 [desktop] › e2e/panels.spec.ts:50:3 › dom contract › Panel, PanelSection, ô nhấn: nền, viền, bán kính, bóng, padding, h3 (đọc computed ở /dev/ui#panel) (539ms)
+  ✓    3 [desktop] › e2e/panels.spec.ts:74:3 › nest › /dev/ui: NEST = 0, TITLE = 0, kể cả khi mở Dialog / Drawer / Popover (7.5s)
+  ✓    4 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai student: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (4.7s)
+  ✓    5 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai ta: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (4.4s)
+  ✓    6 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai teacher: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (5.5s)
+  ✓    7 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai admin: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (1.5s)
+  ✓    8 [desktop] › e2e/panels.spec.ts:105:3 › strong cap / kpi wall › ca gieo vi phạm bị bắt: 4 ô nhấn trong một panel; 3 Panel bằng nhau cùng hàng ở đầu trang (555ms)
+  ✓    9 [desktop] › e2e/panels.spec.ts:117:3 › primitives in panel › DataTable, ActionList, Tabs, DefinitionList, Composer: gốc không viền / bóng / bo góc riêng (464ms)
+  ✓   10 [desktop] › e2e/panels.spec.ts:131:3 › primitives in panel › /dev/ui#panel: AUDIT sạch ở 1440 và 390 px (688ms)
+  ✓   11 [desktop] › e2e/panels.spec.ts:146:3 › token only › ghi đè năm token → canvas, panel, ô nhấn, viền, bóng đổi đúng (không giá trị cứng trong Panel / khung) (333ms)
+  ✓   12 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /login: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (519ms)
+  ✓   13 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /register: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (565ms)
+  ✓   14 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /forgot-password: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (709ms)
+  ✓   15 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /reset-password?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (553ms)
+  ✓   16 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /verify-email?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (556ms)
+  ✓   17 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /invite/x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (790ms)
+  ✓   18 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @1440: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (1.1s)
+  ✓   19 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @1024: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (701ms)
+  ✓   20 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @375: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (704ms)
+  ✓   21 [desktop] › e2e/panels.spec.ts:247:3 › student routes › 16 route Sinh viên: main có ≥ 1 Panel, tiêu đề vùng ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (13.0s)
+  ✓   22 [desktop] › e2e/panels.spec.ts:270:3 › student mock routes › /chat, /threads, /threads/[id], /practice/[id], /me, /calendar: panel đúng chỗ; Composer trong panel; bộ lọc ngoài panel (4.4s)
+  ✓   23 [desktop] › e2e/panels.spec.ts:305:3 › exams student › /exams: số Panel = số nhóm có dữ liệu; hàng không có Panel; tiêu đề nhóm ngoài panel; rỗng = một Panel (415ms)
+  ✓   24 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (688ms)
+  ✓   25 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (295ms)
+  ✓   26 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (257ms)
+  ✓   27 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (300ms)
+  ✓   28 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (261ms)
+  ✓   29 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (305ms)
+  ✓   30 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (360ms)
+  ✓   31 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (304ms)
+  ✓   32 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (281ms)
+  ✓   33 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (359ms)
+  ✓   34 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (331ms)
+  ✓   35 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (298ms)
+  ✓   36 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /join: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (269ms)
+  ✓   37 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /join/ABC123: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (316ms)
+  ✓   38 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /settings: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (646ms)
+  ✓   39 [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @375; AUDIT + vùng chạm sạch (6.8s)
+  ✓   40 [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @390; AUDIT + vùng chạm sạch (6.9s)
+  ✓   41 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (773ms)
+  ✓   42 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (450ms)
+  ✓   43 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / ta @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (734ms)
+  ✓   44 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / ta @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (554ms)
+  ✓   45 [desktop] › e2e/panels.spec.ts:443:3 › members › /class/members: Tabs ngoài panel; mỗi tab đúng 1 Panel; STRONG ≤ 3; NEST = 0 (1.3s)
+  ✓   46 [desktop] › e2e/panels.spec.ts:461:3 › exams staff › /exams Staff: số Panel = số nhóm có dữ liệu; một nút chính; h2 ngoài panel; rỗng = 1 Panel (356ms)
+  ✓   47 [desktop] › e2e/panels.spec.ts:477:3 › exams empty › QC B1: /exams rỗng (Giảng viên và Sinh viên) = đúng 1 Panel + EmptyState; Staff có nút `Tạo bài thi` (1.0s)
+  ✓   48 [desktop] › e2e/panels.spec.ts:499:3 › exam editor › /exams/[id]: Tabs ngoài; mỗi tab 1 Panel; NEST = 0 kể cả khi mở Drawer; tổng điểm là 1 ô nhấn; Panel không là hậu duệ của Drawer (825ms)
+  ✓   49 [desktop] › e2e/panels.spec.ts:523:3 › questions › /questions: Toolbar + bảng trong 1 Panel, 1 nút chính; hàng mở Drawer không chứa Panel (465ms)
+  ✓   50 [desktop] › e2e/panels.spec.ts:538:3 › exam results|similarity › results: 1 Panel, Tabs ngoài, tab Nghi giống nhau chỉ Giảng viên; similarity: bảng cặp 1 Panel, hai khối mã là 2 ô strong ≥ 1024 (2.4s)
+  ✓   51 [desktop] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai teacher: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (27.9s)
+  ✓   52 [desktop] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai ta: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (23.3s)
+  ✓   53 [desktop] › e2e/panels.spec.ts:592:3 › staff routes › /grading/[submissionId]: bài + rubric = 2 Panel cạnh nhau, không lồng (349ms)
+  ✓   54 [desktop] › e2e/panels.spec.ts:602:3 › staff routes › /attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px (1.9s)
+  ✓   55 [desktop] › e2e/panels.spec.ts:630:3 › admin users › /admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375 (978ms)
+  ✓   56 [desktop] › e2e/panels.spec.ts:649:3 › admin courses › /admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375 (895ms)
+  ✓   57 [desktop] › e2e/panels.spec.ts:667:3 › settings llm › /settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375 (932ms)
+  ✓   58 [desktop] › e2e/panels.spec.ts:687:3 › admin routes › bảng 7.2 × vai admin: main ≥ 1 Panel, TITLE / NEST / WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (7.2s)
+| Màn | Diện tích đỏ | Panel | WALL |
+|---|---|---|---|
+| home-student | 0.42 % | 2 | 0 |
+| exams-student | 0.02 % | 3 | 0 |
+| take-pre | 0.37 % | 1 | 0 |
+| take-run | 0.03 % | 2 | 0 |
+| home-teacher | 0.23 % | 2 | 0 |
+| members | 0.02 % | 1 | 0 |
+| questions | 0.44 % | 1 | 0 |
+| exam-editor | 0.26 % | 1 | 0 |
+| exam-results | 0.03 % | 1 | 0 |
+| admin-users | 0.41 % | 1 | 0 |
+| admin-courses | 0.29 % | 1 | 0 |
+| settings-llm | 0.13 % | 6 | 0 |
+| login | 0.03 % | 1 | 0 |
+  ✓   59 [desktop] › e2e/panels.spec.ts:708:3 › red area › 13 màn chính ở 1440 px: diện tích đỏ (ΔE2000 ≤ 10 so với --ep-red, không tính --ep-red-soft) < 8 % toàn ảnh; WALL = 0 (11.1s)
+(node:78657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   60 [mobile] › e2e/panels.spec.ts:30:3 › tokens › năm token đúng giá trị phương án (a); token nền cũ đã bị xoá
+  -   61 [mobile] › e2e/panels.spec.ts:50:3 › dom contract › Panel, PanelSection, ô nhấn: nền, viền, bán kính, bóng, padding, h3 (đọc computed ở /dev/ui#panel)
+  -   62 [mobile] › e2e/panels.spec.ts:74:3 › nest › /dev/ui: NEST = 0, TITLE = 0, kể cả khi mở Dialog / Drawer / Popover
+  -   63 [mobile] › e2e/panels.spec.ts:88:5 › nest › route × vai student: NEST = 0, TITLE = 0 (trạng thái có dữ liệu)
+  -   64 [mobile] › e2e/panels.spec.ts:88:5 › nest › route × vai ta: NEST = 0, TITLE = 0 (trạng thái có dữ liệu)
+  -   65 [mobile] › e2e/panels.spec.ts:88:5 › nest › route × vai teacher: NEST = 0, TITLE = 0 (trạng thái có dữ liệu)
+  -   66 [mobile] › e2e/panels.spec.ts:88:5 › nest › route × vai admin: NEST = 0, TITLE = 0 (trạng thái có dữ liệu)
+  -   67 [mobile] › e2e/panels.spec.ts:105:3 › strong cap / kpi wall › ca gieo vi phạm bị bắt: 4 ô nhấn trong một panel; 3 Panel bằng nhau cùng hàng ở đầu trang
+  -   68 [mobile] › e2e/panels.spec.ts:117:3 › primitives in panel › DataTable, ActionList, Tabs, DefinitionList, Composer: gốc không viền / bóng / bo góc riêng
+  -   69 [mobile] › e2e/panels.spec.ts:131:3 › primitives in panel › /dev/ui#panel: AUDIT sạch ở 1440 và 390 px
+  -   70 [mobile] › e2e/panels.spec.ts:146:3 › token only › ghi đè năm token → canvas, panel, ô nhấn, viền, bóng đổi đúng (không giá trị cứng trong Panel / khung)
+  -   71 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /login: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -   72 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /register: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -   73 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /forgot-password: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -   74 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /reset-password?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -   75 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /verify-email?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -   76 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /invite/x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -   77 [mobile] › e2e/panels.spec.ts:215:5 › student home › / @1440: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375
+  -   78 [mobile] › e2e/panels.spec.ts:215:5 › student home › / @1024: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375
+  -   79 [mobile] › e2e/panels.spec.ts:215:5 › student home › / @375: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375
+  -   80 [mobile] › e2e/panels.spec.ts:247:3 › student routes › 16 route Sinh viên: main có ≥ 1 Panel, tiêu đề vùng ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024
+  -   81 [mobile] › e2e/panels.spec.ts:270:3 › student mock routes › /chat, /threads, /threads/[id], /practice/[id], /me, /calendar: panel đúng chỗ; Composer trong panel; bộ lọc ngoài panel
+  -   82 [mobile] › e2e/panels.spec.ts:305:3 › exams student › /exams: số Panel = số nhóm có dữ liệu; hàng không có Panel; tiêu đề nhóm ngoài panel; rỗng = một Panel
+  -   83 [mobile] › e2e/panels.spec.ts:334:7 › take states › intro @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   84 [mobile] › e2e/panels.spec.ts:334:7 › take states › intro @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   85 [mobile] › e2e/panels.spec.ts:334:7 › take states › intro @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   86 [mobile] › e2e/panels.spec.ts:334:7 › take states › running @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   87 [mobile] › e2e/panels.spec.ts:334:7 › take states › running @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   88 [mobile] › e2e/panels.spec.ts:334:7 › take states › running @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   89 [mobile] › e2e/panels.spec.ts:334:7 › take states › submitted @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   90 [mobile] › e2e/panels.spec.ts:334:7 › take states › submitted @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   91 [mobile] › e2e/panels.spec.ts:334:7 › take states › submitted @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   92 [mobile] › e2e/panels.spec.ts:334:7 › take states › published @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   93 [mobile] › e2e/panels.spec.ts:334:7 › take states › published @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   94 [mobile] › e2e/panels.spec.ts:334:7 › take states › published @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -   95 [mobile] › e2e/panels.spec.ts:359:5 › join|settings › /join: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0
+  -   96 [mobile] › e2e/panels.spec.ts:359:5 › join|settings › /join/ABC123: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0
+  -   97 [mobile] › e2e/panels.spec.ts:359:5 › join|settings › /settings: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0
+  -   98 [mobile] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @375; AUDIT + vùng chạm sạch
+  -   99 [mobile] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @390; AUDIT + vùng chạm sạch
+  -  100 [mobile] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu
+  -  101 [mobile] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu
+  -  102 [mobile] › e2e/panels.spec.ts:425:7 › staff home › / ta @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu
+  -  103 [mobile] › e2e/panels.spec.ts:425:7 › staff home › / ta @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu
+  -  104 [mobile] › e2e/panels.spec.ts:443:3 › members › /class/members: Tabs ngoài panel; mỗi tab đúng 1 Panel; STRONG ≤ 3; NEST = 0
+  -  105 [mobile] › e2e/panels.spec.ts:461:3 › exams staff › /exams Staff: số Panel = số nhóm có dữ liệu; một nút chính; h2 ngoài panel; rỗng = 1 Panel
+  -  106 [mobile] › e2e/panels.spec.ts:477:3 › exams empty › QC B1: /exams rỗng (Giảng viên và Sinh viên) = đúng 1 Panel + EmptyState; Staff có nút `Tạo bài thi`
+  -  107 [mobile] › e2e/panels.spec.ts:499:3 › exam editor › /exams/[id]: Tabs ngoài; mỗi tab 1 Panel; NEST = 0 kể cả khi mở Drawer; tổng điểm là 1 ô nhấn; Panel không là hậu duệ của Drawer
+  -  108 [mobile] › e2e/panels.spec.ts:523:3 › questions › /questions: Toolbar + bảng trong 1 Panel, 1 nút chính; hàng mở Drawer không chứa Panel
+  -  109 [mobile] › e2e/panels.spec.ts:538:3 › exam results|similarity › results: 1 Panel, Tabs ngoài, tab Nghi giống nhau chỉ Giảng viên; similarity: bảng cặp 1 Panel, hai khối mã là 2 ô strong ≥ 1024
+  -  110 [mobile] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai teacher: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024
+  -  111 [mobile] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai ta: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024
+  -  112 [mobile] › e2e/panels.spec.ts:592:3 › staff routes › /grading/[submissionId]: bài + rubric = 2 Panel cạnh nhau, không lồng
+  -  113 [mobile] › e2e/panels.spec.ts:602:3 › staff routes › /attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px
+  -  114 [mobile] › e2e/panels.spec.ts:630:3 › admin users › /admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375
+  -  115 [mobile] › e2e/panels.spec.ts:649:3 › admin courses › /admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375
+  -  116 [mobile] › e2e/panels.spec.ts:667:3 › settings llm › /settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375
+  -  117 [mobile] › e2e/panels.spec.ts:687:3 › admin routes › bảng 7.2 × vai admin: main ≥ 1 Panel, TITLE / NEST / WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024
+  -  118 [mobile] › e2e/panels.spec.ts:708:3 › red area › 13 màn chính ở 1440 px: diện tích đỏ (ΔE2000 ≤ 10 so với --ep-red, không tính --ep-red-soft) < 8 % toàn ảnh; WALL = 0
+
+  59 skipped
+  59 passed (2.8m)

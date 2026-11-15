@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 538 · Đạt: 287 · Trượt: 2 · Không chạy (K, gồm lỗi thời): 249   (P+F+K = 538)
+Tổng TC cũ: 538 · Đạt: 288 · Trượt: 1 · Không chạy (K, gồm lỗi thời): 249   (P+F+K = 538)
 K chia theo loại: chưa chạy (mẫu): 244; (c): 2; lỗi thời: 1; (b): 2. Loại «chưa chạy (mẫu)» / «nền tảng» KHÔNG phải K (a)/(b)/(c) — chờ PM quyết có chạy nốt.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -278,7 +278,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P207-38 | P | SV GET members/{uid} → 405 (route không tồn tại cho GET), không lộ dữ liệu; liệt kê members → 403 (TC-P209-54) |
 | TC-P207-39 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P208-01 | P | 201; replay=true; count=1; join_code=None  |
-| TC-P208-02 | F | class_code trùng(hoa-thường) 201; còn lại [422, 422, 422, 422, 422, 422] (DEF-R4-01) |
+| TC-P208-02 | P | RERUN 2026-11-16 sau 56ad200c (DEF-R4-01 đã sửa, migration 00026 áp, goose=26): tạo SK21D91 → 201; sk21d91 → 409 CONFLICT field class_code; ca 422 còn lại không đổi |
 | TC-P208-03 | P | 10 song song cùng class_code: {409: 9, 201: 1} |
 | TC-P208-04 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P208-05 | P | go test: 4 pass/0 skip/0 fail |

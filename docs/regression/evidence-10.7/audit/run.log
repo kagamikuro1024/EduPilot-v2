@@ -1,0 +1,64 @@
+=== data 00:20:08
+
+Running 8 tests using 1 worker
+
+(node:53722) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp student data @1440 (45.3s)
+  ✓  2 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp student data @375 (28.8s)
+  ✓  3 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp ta data @1440 (46.6s)
+  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp ta data @375 (1.1m)
+  ✓  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp teacher data @1440 (57.5s)
+  ✓  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp teacher data @375 (50.9s)
+  ✓  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp admin data @1440 (17.6s)
+  ✓  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp admin data @375 (20.0s)
+
+  Slow test file: [desktop] › e2e/qc-ui-audit-real.spec.ts (5.6m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  8 passed (5.6m)
+exit=0 00:25:50
+=== empty 00:25:50
+
+Running 6 tests using 1 worker
+
+(node:67325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp student empty @1440 (33.6s)
+  ✓  2 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp student empty @375 (38.8s)
+  ✓  3 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp ta empty @1440 (1.4m)
+  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp ta empty @375 (42.9s)
+  ✓  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp teacher empty @1440 (50.4s)
+  ✓  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:168:7 › chụp teacher empty @375 (47.4s)
+
+  6 passed (4.9m)
+exit=0 00:30:48
+=== loading 00:30:48
+
+Running 6 tests using 1 worker
+
+(node:74406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp teacher loading @1440 (45.5s)
+  ✓  2 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp student loading @1440 (15.1s)
+  ✓  3 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp admin loading @1440 (6.6s)
+  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp teacher loading @375 (50.4s)
+  ✓  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp student loading @375 (12.8s)
+  ✓  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp admin loading @375 (5.4s)
+
+  6 passed (2.3m)
+exit=0 00:33:07
+=== error 00:33:07
+
+Running 6 tests using 1 worker
+
+(node:78120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp teacher error @1440 (1.2m)
+  ✓  2 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp student error @1440 (23.1s)
+  ✓  3 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp admin error @1440 (10.1s)
+  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp teacher error @375 (1.2m)
+  ✓  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp student error @375 (18.9s)
+  ✓  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:191:7 › chụp admin error @375 (8.1s)
+
+  6 passed (3.4m)
+exit=0 00:36:32

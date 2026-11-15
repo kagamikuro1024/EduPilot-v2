@@ -7,3 +7,41 @@ TỔNG story gate: PASS=1 FAIL=0 MANUAL=0 K=0
 ### gate:06 00:15:28
 == TC-GATE-06
     FAIL contract không tag rc: thực tế [1] ≠ mong đợi [0]
+    ok   contract có tag rc = [0]
+    ok   contract không tag không 'no tests' !~ /no tests to run|no test files/
+    ok   contract có tag không 'no tests' !~ /no tests to run|no test files/
+-- TC-GATE-06 FAIL
+TỔNG story gate: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-GATE-06
+### gate:07 00:17:48
+== TC-GATE-07
+    ok   go test ./internal/httpapi -run 'TestCursor_NoSkipNoDup|TestCursor_SameTimestamp|TestCursor_InsertAndDeleteDuringScan|TestIdempotency_DoubleSend_OneRecord|TestIdempotency_ReplayIdentical|TestIdempotency_Concurrent50|TestOptimisticLock_Stale409|TestOptimisticLock_Concurrent20|TestETag_NotModified|TestETag_ChangesAfterUpdate' rc = [0]
+    ok   --- PASS: TestCursor_NoSkipNoDup
+    ok   --- PASS: TestCursor_SameTimestamp
+    ok   --- PASS: TestCursor_InsertAndDeleteDuringScan
+    ok   --- PASS: TestIdempotency_DoubleSend_OneRecord
+    ok   --- PASS: TestIdempotency_ReplayIdentical
+    ok   --- PASS: TestIdempotency_Concurrent50
+    ok   --- PASS: TestOptimisticLock_Stale409
+    ok   --- PASS: TestOptimisticLock_Concurrent20
+    ok   --- PASS: TestETag_NotModified
+    ok   --- PASS: TestETag_ChangesAfterUpdate
+    FAIL go test -race ./internal/httpapi/... rc: thực tế [1] ≠ mong đợi [0]
+-- TC-GATE-07 FAIL
+TỔNG story gate: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-GATE-07
+### gate:08 00:21:15
+== TC-GATE-08
+    ok   go test ./internal/httpapi/sse/... -run 'TestSSE_Headers|TestSSE_LastEventID_NoLossNoDup|TestSSE_ReconnectRace|TestSSE_CrossInstance|TestSSE_GatewayShutdownFailover|TestSSE_MaxTwoPerUser' rc = [0]
+    ok   --- PASS: TestSSE_Headers
+    ok   --- PASS: TestSSE_LastEventID_NoLossNoDup
+    ok   --- PASS: TestSSE_ReconnectRace
+    ok   --- PASS: TestSSE_CrossInstance
+    ok   --- PASS: TestSSE_GatewayShutdownFailover
+    ok   --- PASS: TestSSE_MaxTwoPerUser
+    ok   go test ./internal/auth/... -run 'TestJWT_Claims|TestVerify_Table|TestRBAC_Matrix|TestCourseAccessGuard_DefaultDenyAll|TestBcrypt_Format' rc = [0]
+    ok   --- PASS: TestJWT_Claims
+    ok   --- PASS: TestVerify_Table
+    ok   --- PASS: TestRBAC_Matrix
+    ok   --- PASS: TestCourseAccessGuard_DefaultDenyAll
+    ok   --- PASS: TestBcrypt_Format

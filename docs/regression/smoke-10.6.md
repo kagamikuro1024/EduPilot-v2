@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.6 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm G, SmkG) · Ngày: 2026-11-15
-Tổng TC cũ: 263 · Đạt: 140 · Trượt: 2 · Không chạy (K, gồm lỗi thời): 121   (P+F+K = 263)
+Tổng TC cũ: 263 · Đạt: 142 · Trượt: 0 · Không chạy (K, gồm lỗi thời): 121   (P+F+K = 263)
 Tách K: K(a/b/c) = 2 (a=0, b=2, c=0) · lỗi thời = 1 · **chưa chạy (mẫu) = 118** (ngoài mẫu smoke «1 chính + 1 lỗi/phân quyền mỗi US»; chờ PM quyết có chạy nốt)
 
 Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, sửa cho ep-r): `gd_a`,`gd_c`,`gd_d`,`gd_f`,`gd_g`,`gd_h`,`gd_i`,`gd_j`(mới, DB),`gd_k`(mới, reflect) + `gd_b2` (G03-16/18/22); stub OpenAI-compatible `stub_llm.py` cổng 8778 trỏ route GRADING dưới khoá toàn cục (cửa sổ W1/W2/B1, đã hoàn); `gd_e1/e2` với `GUIDANCE_ENABLED=false` (restart gateway+worker dưới khoá, đã hoàn mặc định); Go: `TestEssayPromptUnchangedAtV0`, `TestGuidance*`, `TestReflect*`, `TestRegress*`, `TestPublishMixedGuidance`, `TestRejectReasonHints`, `TestRosterDiacriticSubset` (+`TestRoster*`,`TestDetect*`) và `go test -tags testroutes ./internal/contract/...` PASS; Playwright `qc-gd-today/ui-real` (9 ca xanh, ảnh `shots/`), `qc2g-class-settings` + `qc-gd-ux/undo-real` KHÔNG ra kết quả hợp lệ (stack bị chaos của nhóm khác + thiếu dữ liệu nháp) → các ca UI ghi «chưa chạy (mẫu)». Dữ liệu BT03 lớp 761987 đã bị đổi (duyệt/công bố/chấm lại) — nhóm khác dùng chung cần lưu ý. Chưa chạy: `GUIDANCE_MIN_RESULTS=abc` (TC-G01-08), `regress run`, `run.sh` E3 (cần nhãn người → K b), migrate up/down/up trên DB trống.
@@ -105,7 +105,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | TC-G03-21 | P | stub rỗng → job SUCCEEDED, 0 DRAFT |
 | TC-G03-22 | K (lỗi thời) | LỖI THỜI (P-11-23): lỗi nhà cung cấp (stub error/invalid) → hoãn không tính lượt (llm.AwaitOutage, OutageMax) nên job FAILED sau ≈10 phút thay vì 3 lần/≈30 s; đã quan sát: FAILED REFLECT_FAILED «Chưa rút được lưu ý. Thử lại.», 0 DRAFT |
 | TC-G03-23 | P | 4 lần/giờ/bài tập: lần 4 → 429 RATE_LIMITED |
-| TC-G03-24 | **F** | TA/SV/ADMIN 403, không token 401, cờ tắt 409 đúng; nhưng reflect qua đường lớp 2 (cờ lớp 2 tắt) → 409 GUIDANCE_DISABLED trước 404 (ghi nhận 1 của summary 10.6 — có sẵn) · **DEF-R10.6-01** |
+| TC-G03-24 | P | RERUN 2026-11-16 sau sửa DEF-R10.6-01 (dev, 1c0700e2): TA/SV/ADMIN 403, không token 401, cờ tắt 409 đúng; reflect với bài tập của lớp khác qua đường lớp 2 (cờ tắt) → 404 ASSIGNMENT_NOT_FOUND |
 | TC-G03-25 | P | overview: enabled, eligible theo số bài duyệt (lượt đầu 0 bài → eligible=false) |
 | TC-G04-01…TC-G04-02 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-G04-03 | P | APPROVE → 200 APPROVED chờ áp dụng, audit |
@@ -150,7 +150,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | TC-G05-20 | P | không round trùng (UNIQUE) |
 | TC-G05-21 | P | round cũ giữ nguyên ai_scores / ai_comments / guidance_version |
 | TC-G05-22…TC-G05-23 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
-| TC-G05-24 | **F** | SV regrade 403, TA 202; qua đường lớp 2 → 409 GUIDANCE_DISABLED (cờ lớp 2 tắt) thay vì 404 — ghi nhận 1 của summary 10.6, có sẵn · **DEF-R10.6-01** |
+| TC-G05-24 | P | RERUN 2026-11-16 sau DEF-R10.6-01: regrade-stale với bài tập lớp khác qua đường lớp 2 → 404 ASSIGNMENT_NOT_FOUND; SV 403, TA 202 |
 | TC-G05-25…TC-G05-26 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-G05-27 | P | khối không chứa tổng điểm / trừ / làm tròn / phạt |
 | TC-G06-01 | P | stats v0 khớp SQL độc lập (n, MAE tiêu chí, MAE tổng, lệch, tiêu chí sửa, tỉ lệ) |
@@ -219,7 +219,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | TC-G11-12 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 
 ## Trượt: bước tái hiện
-### DEF-R10.6-01 — reflect / regrade-stale qua lớp cờ tắt trả 409 trước 404 (TC-G03-24, TC-G05-24; Thấp, có sẵn). Chi tiết `defects-10.6.md`.
+### DEF-R10.6-01 — ĐÃ SỬA, rerun 2026-11-16: 404 ASSIGNMENT_NOT_FOUND trước 409 (TC-G03-24, TC-G05-24 đạt)
 
 ## Ca K và lý do (bảng gom)
 | Mã loại | Ca | Lý do |

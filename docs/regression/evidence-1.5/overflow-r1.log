@@ -1,0 +1,9 @@
+PASS ta 375px ox=0
+PASS ta 390px ox=0
+PASS teacher 375px ox=0
+PASS teacher 390px ox=0
+PASS sv.kha 375px ox=0
+PASS sv.kha 390px ox=0
+PASS admin 375px ox=0
+PASS admin 390px ox=0
+RESULT: PASS

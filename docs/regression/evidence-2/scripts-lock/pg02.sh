@@ -627,7 +627,7 @@ tc_pg02_68() {  # AC17 — mật khẩu chỉ ở dạng bcrypt (US-PG-04 AC8) t
   chk "dòng users có password_hash không phải bcrypt" "$n" 0
 }
 tc_pg02_69() {  # AC17 — idempotency_keys khoá theo user_id (US-PG-03 AC12)
-  local ok
+  local ok IDEM=idem-69-$RANDOM$RANDOM   # QC2 (SmkJ): ep-r dùng chung đã có (U1, endpoint, idem-0001-aaaa) từ story 03 — khoá riêng cho TC này
   ok="insert into idempotency_keys(user_id,endpoint,key,request_hash,status_code,response) values('$U1','POST /api/v1/_test/items','$IDEM','h',201,'{}'::jsonb); insert into idempotency_keys(user_id,endpoint,key,request_hash,status_code,response) values('$U2','POST /api/v1/_test/items','$IDEM','h',201,'{}'::jsonb)"
   local o; o=$(qv "BEGIN; $ok; select count(*) from idempotency_keys where key='$IDEM'; ROLLBACK;")
   chk_nre "hai người dùng khác nhau dùng cùng khoá: hợp lệ" "$o" 'ERROR'

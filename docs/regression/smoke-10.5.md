@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.5 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm G, SmkG) · Ngày: 2026-11-15
-Tổng TC cũ: 185 · Đạt: 79 · Trượt: 1 · Không chạy (K, gồm lỗi thời): 105   (P+F+K = 185)
+Tổng TC cũ: 185 · Đạt: 80 · Trượt: 0 · Không chạy (K, gồm lỗi thời): 105   (P+F+K = 185)
 Tách K: K(a/b/c) = 0 (a=0, b=0, c=0) · lỗi thời = 2 · **chưa chạy (mẫu) = 103** (ngoài mẫu smoke «1 chính + 1 lỗi/phân quyền mỗi US»; chờ PM quyết có chạy nốt)
 
 Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, sửa cho ep-r): `dm_a_provider` (23 PASS), `dm_e_api` (58 PASS), `dm_f_alert_obs` (obs khớp SQL), `dm_smoke.py` (mới: ma trận cổng theo cấu hình) qua các lần restart gateway+worker dưới khoá toàn cục với `FAKE_DECISION_PROB`=0,9/0,01/0,2/0,97/mặc định, `LLM_DECISION_FAKE_MODE`=error/timeout, CLASSIFY→stub :8778 (đã hoàn); `dm_b_threads` (rules/precheck); `dm_c` (cờ chèn lệnh, 3 cấu hình — kết quả KHÔNG hợp lệ: chỉ 7–22/24 bài chấm lại được, P=0,9 chưa chạy xong hàng đợi, dữ liệu BT03 bị lẫn bởi 10.6 → ca D04-01/02/03/05/09/14/20 ghi chưa chạy); Go gate (llm, agent, thread, privacy, grading) PASS; Playwright `qc-dm-ui-real` 3 xanh; `LLM_DECISION_ALLOW_REAL=false` giữ nguyên, 0 gói tới googleapis. Chưa chạy: cảnh báo DECISION_FAIL_CLOSED (cần `DECISION_ALERT_TICK` + dữ liệu mới), `benchmarks/decision/run.sh`, thêm ca Threads comment/roles.
@@ -120,7 +120,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 | TC-D06-18…TC-D06-22 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D06-23 | P | dm_m: GV/SV/TA không thấy «Quyết định nhanh» / tên cổng trong 30 phản hồi |
 | TC-D07-01 | P | số khớp SQL (calls, FAST %, FALLBACK %, FAIL_CLOSED %, error %): 3 cổng |
-| TC-D07-02 | **F** | bảng «Quyết định nhanh» nằm TRÊN bảng «7 ngày qua» (AdminView.tsx:58 trước :65); US-DM-07 AC1: dưới bảng 7 ngày · **DEF-R10.5-01** |
+| TC-D07-02 | P | RERUN 2026-11-16 sau sửa DEF-R10.5-01 (1c0700e2): /observability (Admin, 1440): y(«7 ngày qua»)=405 < y(«Quyết định nhanh»)=903 — bảng 7 ngày ở trên (evidence-10.5/scripts/obs-order-r1.cjs, shots/observability-order-r1.png) |
 | TC-D07-03 | P | dải «24 giờ qua» không có chỉ số decision |
 | TC-D07-04 | P | dm_m: «Bật ở N/M lớp» = courses_enabled/total khớp SQL (1/51); cổng tắt → state off |
 | TC-D07-05…TC-D07-08 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
@@ -140,7 +140,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 | TC-D08-23 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 
 ## Trượt: bước tái hiện
-### DEF-R10.5-01 — bảng «Quyết định nhanh» ở /observability nằm trên bảng 7 ngày (TC-D07-02; Thấp, hồi quy do sprint 11). Chi tiết `defects-10.5.md`.
+### DEF-R10.5-01 — ĐÃ SỬA, rerun 2026-11-16 đạt (TC-D07-02): «Quyết định nhanh» nằm dưới bảng 7 ngày.
 
 ## Ca K và lý do (bảng gom)
 | Mã loại | Ca | Lý do |

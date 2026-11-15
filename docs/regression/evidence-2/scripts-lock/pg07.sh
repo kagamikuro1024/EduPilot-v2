@@ -412,7 +412,7 @@ tc_pg07_46() {  # AC14 — k6 smoke trên stack mặc định: rc=0, mọi ngư�
   command -v k6 >/dev/null 2>&1 || { fail_tc "k6 chưa cài trên máy chạy QC"; return; }
   ensure_mode default || fail_tc "không về được chế độ default"
   T=$(tok STUDENT $U1)
-  k6 run -e BASE=https://localhost -e TOKEN="$T" benchmarks/load/smoke.js > "$f" 2>&1; rc=$?
+  k6 run -e BASE=$GW -e TOKEN="$T" benchmarks/load/smoke.js > "$f" 2>&1; rc=$?   # QC2 (SmkJ): ep-r cổng 1143 (bản gốc https://localhost)
   grep -E 'p\(95\)|http_req_failed|checks|✓|✗' "$f" | head -20
   chk "rc của k6 run" "$rc" 0
   chk "số ngưỡng ✗ (không đạt)" "$(grep -c '✗' "$f")" 0
@@ -430,7 +430,7 @@ tc_pg07_48() {  # AC14 — kịch bản ghi với -e TEST_ROUTES=1 ở chế đ�
   command -v k6 >/dev/null 2>&1 || { fail_tc "k6 chưa cài trên máy chạy QC"; return; }
   ensure_mode test || fail_tc "không dựng được chế độ test"
   T=$(tok STUDENT $U1)
-  k6 run -e BASE=https://localhost -e TOKEN="$T" -e TEST_ROUTES=1 benchmarks/load/smoke.js > "$f" 2>&1; rc=$?
+  k6 run -e BASE=$GW -e TOKEN="$T" -e TEST_ROUTES=1 benchmarks/load/smoke.js > "$f" 2>&1; rc=$?
   ensure_mode default >/dev/null 2>&1                       # trả stack về trạng thái chuẩn trước khi chấm
   grep -E 'p\(95\)|http_req_failed|checks|✓|✗' "$f" | head -20
   chk "rc của k6 run (TEST_ROUTES=1, tmode)" "$rc" 0
@@ -442,7 +442,7 @@ tc_pg07_49() {  # AC14 — TEST_ROUTES=1 trên stack mặc định: rc≠0 + đ�
   command -v k6 >/dev/null 2>&1 || { fail_tc "k6 chưa cài trên máy chạy QC"; return; }
   ensure_mode default || fail_tc "không về được chế độ default"
   T=$(tok STUDENT $U1)
-  k6 run -e BASE=https://localhost -e TOKEN="$T" -e TEST_ROUTES=1 benchmarks/load/smoke.js > "$f" 2>&1; rc=$?
+  k6 run -e BASE=$GW -e TOKEN="$T" -e TEST_ROUTES=1 benchmarks/load/smoke.js > "$f" 2>&1; rc=$?
   tail -15 "$f"
   chk_ne "rc của k6 run (TEST_ROUTES=1, dmode)" "$rc" 0
   chk_ge "đầu ra chứa đúng chuỗi 'TEST_ROUTES=1 cần stack dựng bằng docker-compose.test.yml'" \
@@ -485,7 +485,7 @@ tc_pg07_52() {  # AC16 — gateway thoát mã 1 và log nêu tên biến thiếu
   local miss exits
   _pg07_drop_jwt
   trap '_pg07_restore_env' INT TERM
-  $C up -d --no-deps --force-recreate gateway >/dev/null 2>&1
+  env -u JWT_SECRET_KEY $C up -d --no-deps --force-recreate gateway >/dev/null 2>&1   # QC2 (SmkJ): baseline env xuất JWT_SECRET_KEY — gỡ khỏi môi trường lệnh
   sleep 8
   miss=$(_pg07_jlog gateway 'select(.missing) | .missing[]' | sort -u | paste -sd, -)
   exits=$($C ps -a --format '{{.Service}} {{.ExitCode}}' | awk '$1=="gateway"{print $2}' | sort -u | paste -sd, -)
@@ -498,7 +498,7 @@ tc_pg07_53() {  # AC16 — restart tối đa 3 lần rồi dừng (không lặp 
   local id n max=0 running=""
   _pg07_drop_jwt
   trap '_pg07_restore_env' INT TERM
-  $C up -d --no-deps --force-recreate gateway >/dev/null 2>&1
+  env -u JWT_SECRET_KEY $C up -d --no-deps --force-recreate gateway >/dev/null 2>&1
   sleep 60
   for id in $($C ps -aq gateway); do
     n=$(docker inspect -f '{{.RestartCount}}' "$id" 2>/dev/null)

@@ -1,0 +1,149 @@
+consistency: 1440px gave navigate: net::ERR_CERT_AUTHORITY_INVALID; trying it once more
+consistency: 390px gave navigate: net::ERR_CERT_AUTHORITY_INVALID; trying it once more
+consistency  https://localhost:1143/
+NOT CHECKED at 1440, 390px: the browser could not walk the page there (see the probe errors); run it again on a quieter machine
+
+1440x900  0 screens  0 FAIL  0 WARN
+  (probe error) navigate: net::ERR_CERT_AUTHORITY_INVALID
+
+390x844  0 screens  0 FAIL  0 WARN
+  (probe error) navigate: net::ERR_CERT_AUTHORITY_INVALID
+
+first screen at 1280, 1152, 1024, 896, 768  0 FAIL  25 WARN
+  WARN hero-fill       [1280] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN hero-fill       [1152] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN hero-fill       [1024] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN hero-fill       [896] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN hero-fill       [768] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN nav             [1280] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN nav             [1152] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN nav             [1024] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN nav             [896] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN nav             [768] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN spill           [1280] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN spill           [1152] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN spill           [1024] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN spill           [896] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN spill           [768] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN off-viewport    [1280] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN off-viewport    [1152] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN off-viewport    [1024] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN off-viewport    [896] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN off-viewport    [768] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN cut-text        [1280] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN cut-text        [1152] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN cut-text        [1024] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN cut-text        [896] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  WARN cut-text        [768] (the page)
+       partly measured: the first screen (navigate: net::ERR_CERT_AUTHORITY_INVALID)
+       fix: run the check again on a quieter machine; if it keeps failing, the probe error line says what stopped it
+  (probe error) 1280: first screen: navigate: net::ERR_CERT_AUTHORITY_INVALID
+  (probe error) 1152: first screen: navigate: net::ERR_CERT_AUTHORITY_INVALID
+  (probe error) 1024: first screen: navigate: net::ERR_CERT_AUTHORITY_INVALID
+  (probe error) 896: first screen: navigate: net::ERR_CERT_AUTHORITY_INVALID
+  (probe error) 768: first screen: navigate: net::ERR_CERT_AUTHORITY_INVALID
+
+the page at 320x640, walked for what runs past the screen's edge  0 FAIL
+  (probe error) narrow: navigate: net::ERR_CERT_AUTHORITY_INVALID
+
+checks
+  SKIP assets                 SKIP shader-lint            SKIP gl-fallback            
+  SKIP empty-visual           WARN hero-fill              SKIP flush                  
+  SKIP placeholder            SKIP sample-label           SKIP caption                
+  SKIP credit-wall            WARN nav                    SKIP nav-covers             
+  WARN spill                  WARN off-viewport           SKIP fold-card              
+  SKIP hover-spill            SKIP overlap-text           SKIP collide                
+  SKIP tap-size               SKIP row-gap                WARN cut-text               
+  SKIP fold-cut               SKIP marquee                SKIP scroll-linked          
+  SKIP scroll-reveal          SKIP pinned                 SKIP loop-pause             
+  SKIP reduced-motion         SKIP hidden-content         SKIP webgl                  
+  SKIP no-visual              SKIP text-only              SKIP card-visual            
+  SKIP hidden-visual          SKIP card-family            SKIP card-layout            
+  SKIP nesting                SKIP effect-repeat          SKIP ui-fit                 
+  SKIP ui-centre              SKIP dark-ground            SKIP button-styles          
+  SKIP button-shape           SKIP same-action            SKIP button-picture         
+  SKIP cta                    SKIP pricing-tiers          SKIP copy-headline          
+  SKIP copy-fact              SKIP copy-headings          SKIP copy-buttons           
+  SKIP copy-actions           SKIP heading-scale          SKIP stagger                
+  SKIP top-stagger            SKIP off-grid               SKIP col-edge               
+  SKIP right-edge             SKIP centre-axis            SKIP tilt                   
+  SKIP contrast               SKIP text-contrast          SKIP body-size              
+  SKIP busy-ground            SKIP section-gaps           SKIP proximity              
+  SKIP hole                   SKIP links                  SKIP forms                  
+  SKIP photo-upscale          SKIP photo-set              SKIP photo-credit           
+  SKIP nav-family             SKIP nav-labels             SKIP link-styles            
+  SKIP heading-align          SKIP label-centre           SKIP fake-button            
+  SKIP stranded-action        SKIP orphan                 SKIP unit-break             
+  SKIP tab-wrap               SKIP effects-fit            SKIP fade-cut               
+  SKIP photo-weight           SKIP copy-length            SKIP nav-current            
+  SKIP progress-bar           SKIP photo-repeat           SKIP button-contrast        
+  SKIP photo-print            SKIP grounds                SKIP split-align            
+  SKIP fact-agree             SKIP fold-action            SKIP action-count           
+  SKIP one-screen             SKIP hover                  SKIP hover-move             
+  SKIP product-shown          SKIP same-object            SKIP font-load              
+  SKIP visual-caption         SKIP visual-empty           SKIP effect-kind            
+  SKIP hero-enter             SKIP moment-none            SKIP street-number          
+  SKIP postcode               SKIP coordinates            SKIP company-number         
+  SKIP phone-number           SKIP hero-screen            SKIP section-height         
+  SKIP section-air            SKIP one-section            SKIP one-heading            
+  SKIP container-edges        SKIP row-lines              SKIP split-pair             
+  SKIP motion-layer           SKIP count-text             SKIP loop-cycle             
+  SKIP section-tile           SKIP empty-area             SKIP a11y-name              
+  SKIP img-alt                SKIP field-label            SKIP heading-order          
+  SKIP tabindex               SKIP focus-ring             SKIP focus-visible          
+  SKIP focus-hidden           SKIP skip-link              SKIP menu-toggle            
+  SKIP lang                   SKIP page-meta              SKIP share-meta             
+  SKIP action-repeat          SKIP map-link               SKIP open-now               
+  SKIP assumed                SKIP run-on                 SKIP form-fields            
+  SKIP form-send              
+
+total  0 FAIL  25 WARN  INCOMPLETE: not checked at 1440, 390px  (crops and report.json in /tmp/qc2-h/cons)
+exit=2

@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 3 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 523 · Đạt: 368 · Trượt: 7 · Không chạy (K, gồm lỗi thời): 148   (P+F+K = 523)
+Tổng TC cũ: 523 · Đạt: 369 · Trượt: 6 · Không chạy (K, gồm lỗi thời): 148   (P+F+K = 523)
 K chia theo loại: chưa chạy (mẫu): 127; (c): 7; (b): 7; lỗi thời: 3; nền tảng: 4. Loại «chưa chạy (mẫu)» / «nền tảng» KHÔNG phải K (a)/(b)/(c) — chờ PM quyết có chạy nốt.
 
 Cách chạy: (1) Go: `go test -race -json ./internal/llm/... ./internal/llmconfig/... ./internal/platform/crypto/...` + `-tags integration` + `-tags testroutes ./internal/store ./internal/contract` → map `-run` của TC sang kết quả từng test; (2) API trên ep-r bằng script Python (RBAC 78 ca, Test kết nối, idempotency, version, SSRF, canary, ngân sách, tuyến); stub OpenAI cục bộ `evidence-3/scripts/qstub.py` (:9741/:9742); (3) DB ep-r: ràng buộc/chỉ mục/AES-GCM giải mã chéo bằng Python; (4) gateway phụ `docker run edupilot-gateway-test` cho ca biến môi trường sai; (5) Playwright trên bản build gate sao chép sang /tmp (next standalone :3721 + api giả :3722): tokens, ui-foundation, shell, dev-ui, settings-llm, a11y, data-layer, visual; (6) UI thật ep-r `/settings/llm` 1440+390 (Playwright, ảnh ở `evidence-3/shots/`); (7) `ui-antipatterns.sh`, `--selftest`, `lint-selftest.sh`, `pnpm lint` trong bản sao.
@@ -71,7 +71,7 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P101-21 | P | hoán api_key_enc giữa 2 nhà (của QC) → key_status {'SmkB-enc': 'unreadable', 'SmkB-enc2': 'unreadable'}; nhà khác {'Quyết định': 'missing', 'QC 9router': 'ok', 'QC fake': 'ok', 'QC stub g': 'ok'} |
 | TC-P101-22 | P | go test: 1 pass/0 skip/0 fail |
 | TC-P101-23 | P | go test: 2 pass/0 skip/0 fail |
-| TC-P101-24 | F | DecryptKey( ngoài llm/llmconfig: 2 chỗ (httpapi/llmhttp/admin.go:242, verify.go:302) → DEF-R3-04 (DEF-R3-04) |
+| TC-P101-24 | P | RERUN 2026-11-16 sau e859c554 (DEF-R3-04 đã sửa): `grep DecryptKey(` ngoài llm/llmconfig = 0 (chỉ llmconfig/resolver.go); lớp HTTP gọi Resolver.KeyForVerify |
 | TC-P101-25 | P | go test: 5 pass/0 skip/0 fail |
 | TC-P101-26 | P | audit_log theo entity_id của nhà QC: 4 dòng cho 4 thao tác sửa/xoá (before/after không chứa khoá, TC-P104-09) |
 | TC-P101-27 | P | sửa không api_key 200 md5 giữ=True; api_key="" 422 VALIDATION_FAILED md5 giữ=True; khoá mới 200 md5 đổi=True; version cũ=TC-P104-22 |
