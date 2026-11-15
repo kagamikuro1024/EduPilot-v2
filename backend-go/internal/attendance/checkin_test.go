@@ -323,3 +323,23 @@ func TestPurgeKeepsRecords(t *testing.T) {
 	require.Equal(t, 1, r.count(`select count(*) from attendance_records where session_id = $1`, w.ses[0]), "dòng điểm danh chính thức giữ nguyên")
 	require.Equal(t, 0, r.count(`select count(*) from user_devices`), "thiết bị không còn lượt nào bị xoá")
 }
+
+// D-AS-06 / US-AS-01 AC5: tắt self_checkin khi cửa sổ đang mở → cửa sổ đó vẫn nhận lượt tới khi đóng (cả token lẫn mã ngắn); mở cửa sổ MỚI thì bị chặn.
+func TestCheckinWindowSurvivesPolicyOff(t *testing.T) {
+	r := newRig(t)
+	w := r.world(4)
+	w.enable("")
+	wid := w.open(0).json()["id"].(string)
+	tok, code := w.token(0, wid)
+	w.r.exec(`update courses set settings = jsonb_set(settings, '{attendance,self_checkin}', 'false') where id = $1`, w.course)
+
+	require.Equal(t, http.StatusCreated, w.checkin(w.sv(0), map[string]any{"token": tok}).code)
+	require.Equal(t, http.StatusCreated, w.checkin(w.sv(1), map[string]any{"code": code}).code)
+
+	// Hết giờ (chưa ai đóng) hoặc đã đóng → như cũ: SELF_CHECKIN_DISABLED.
+	require.Equal(t, http.StatusOK, r.do(req{path: w.cpath("/checkin-windows/" + wid + "/close"), bearer: w.T.access}).code)
+	require.Equal(t, "SELF_CHECKIN_DISABLED", w.checkin(w.sv(2), map[string]any{"token": tok}).errCode())
+	require.Equal(t, "SELF_CHECKIN_DISABLED", w.checkin(w.sv(2), map[string]any{"code": code}).errCode())
+	require.Equal(t, "SELF_CHECKIN_DISABLED", w.open(0).errCode(), "mở cửa sổ mới vẫn bị chặn khi lớp tắt")
+	require.Equal(t, 2, r.count(`select count(*) from attendance_checkins where window_id = $1`, wid))
+}

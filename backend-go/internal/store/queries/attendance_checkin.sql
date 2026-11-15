@@ -43,6 +43,10 @@ select id, course_id from checkin_windows where closed_at is null and closes_at 
 -- name: AttSessionHasWindow :one
 select exists (select 1 from checkin_windows where course_id = sqlc.arg(course_id) and session_id = sqlc.arg(session_id))::bool;
 
+-- name: AttCourseLiveWindow :one
+-- Lớp có cửa sổ đang mở (chưa đóng, chưa quá giờ): tắt `self_checkin` giữa buổi không chặn lượt tới của cửa sổ đó (US-AS-01 AC5, D-AS-06).
+select exists (select 1 from checkin_windows where course_id = sqlc.arg(course_id) and closed_at is null and closes_at > sqlc.arg(now))::bool;
+
 -- name: AttSessionOpenWindow :one
 select exists (select 1 from checkin_windows where course_id = sqlc.arg(course_id) and session_id = sqlc.arg(session_id) and closed_at is null)::bool;
 

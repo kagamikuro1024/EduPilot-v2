@@ -113,10 +113,16 @@ func (s *Service) Checkin(ctx context.Context, student, courseID uuid.UUID, in C
 	if c.Status != store.CourseStatusACTIVE {
 		return CheckinOut{}, false, apierr.New(http.StatusConflict, apierr.CourseArchived)
 	}
-	if !pol.SelfCheckin {
-		return CheckinOut{}, false, conflict(apierr.SelfCheckinDisabled)
-	}
 	now := s.now()
+	if !pol.SelfCheckin { // chính sách tắt giữa buổi: cửa sổ đang mở vẫn nhận lượt tới khi đóng (US-AS-01 AC5); không có cửa sổ mở thì như cũ
+		live, err := q.AttCourseLiveWindow(ctx, store.AttCourseLiveWindowParams{CourseID: courseID, Now: now})
+		if err != nil {
+			return CheckinOut{}, false, wrap("kiểm cửa sổ đang mở", err)
+		}
+		if !live {
+			return CheckinOut{}, false, conflict(apierr.SelfCheckinDisabled)
+		}
+	}
 	nowStep := func(rot int) int64 { return Step(now.Unix(), rot) }
 
 	var (

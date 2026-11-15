@@ -371,6 +371,23 @@ func (q *Queries) AttClosedWritten(ctx context.Context, arg AttClosedWrittenPara
 	return i, err
 }
 
+const attCourseLiveWindow = `-- name: AttCourseLiveWindow :one
+select exists (select 1 from checkin_windows where course_id = $1 and closed_at is null and closes_at > $2)::bool
+`
+
+type AttCourseLiveWindowParams struct {
+	CourseID uuid.UUID
+	Now      time.Time
+}
+
+// Lớp có cửa sổ đang mở (chưa đóng, chưa quá giờ): tắt `self_checkin` giữa buổi không chặn lượt tới của cửa sổ đó (US-AS-01 AC5, D-AS-06).
+func (q *Queries) AttCourseLiveWindow(ctx context.Context, arg AttCourseLiveWindowParams) (bool, error) {
+	row := q.db.QueryRow(ctx, attCourseLiveWindow, arg.CourseID, arg.Now)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const attDeviceByHashLock = `-- name: AttDeviceByHashLock :one
 select id, key_sha256, public_key, kind, attested, boot_verified, security_level, label, created_at from user_devices where key_sha256 = $1 for update
 `
