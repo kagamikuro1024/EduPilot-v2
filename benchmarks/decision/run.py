@@ -144,24 +144,33 @@ def ask(sv, c1, text):
     must(s, (200, 201), "tạo phiên chat")
     h = {"Accept": "text/event-stream", "Authorization": f"Bearer {sv}", "Content-Type": "application/json", "Origin": ORIGIN, "Idempotency-Key": str(uuid.uuid4())}
     req = urllib.request.Request(f"{API}/chat/sessions/{sess['id']}/messages", data=json.dumps({"content": text}).encode(), method="POST", headers=h)
-    t0 = time.perf_counter()
-    first = tok = None
-    stages, ev = set(), ""
-    try:
-        with urllib.request.urlopen(req, context=CTX, timeout=120) as r:
-            for line in r:
-                line = line.decode().rstrip("\n")
-                if line.startswith("event:"):
-                    ev = line[6:].strip()
-                elif line.startswith("data:"):
-                    now = (time.perf_counter() - t0) * 1000
-                    first = first if first is not None else now
-                    if ev == "token" and tok is None:
-                        tok = now
-                    if ev == "status":
-                        stages.add(json.loads(line[5:]).get("stage"))
-    except urllib.error.HTTPError as e:
-        return {"error": e.code}
+    # CHAT_RATE_PER_MIN = 20 / người / phút: một SV gửi 90 câu liên tục sẽ nhận 429 (P-11-25(1): 65/90 «lỗi» lần trước đều là 429 của bench).
+    # Chờ Retry-After rồi gửi lại; bộ đếm giờ chạy lại từ lần gửi thành công nên TTFT không dính thời gian chờ.
+    waits = 0
+    while True:
+        t0 = time.perf_counter()
+        first = tok = None
+        stages, ev = set(), ""
+        try:
+            with urllib.request.urlopen(req, context=CTX, timeout=120) as r:
+                for line in r:
+                    line = line.decode().rstrip("\n")
+                    if line.startswith("event:"):
+                        ev = line[6:].strip()
+                    elif line.startswith("data:"):
+                        now = (time.perf_counter() - t0) * 1000
+                        first = first if first is not None else now
+                        if ev == "token" and tok is None:
+                            tok = now
+                        if ev == "status":
+                            stages.add(json.loads(line[5:]).get("stage"))
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and waits < 6:
+                waits += 1
+                time.sleep(min(65, float(e.headers.get("Retry-After") or 5)) + 0.5)
+                continue
+            return {"error": e.code, "waits_429": waits}
     s, msgs = call("GET", f"/chat/sessions/{sess['id']}/messages?limit=20", sv)
     kinds = []
     for m in (msgs or {}).get("items", []):
@@ -170,7 +179,7 @@ def ask(sv, c1, text):
     call("DELETE", f"/chat/sessions/{sess['id']}", sv)
     # câu trả lời từ cache không có giai đoạn «searching» và không có block: không đại diện cho đường cần đo → loại khỏi TTFT
     cached = "searching" not in stages and not kinds
-    return {"first_ms": first, "ttft_ms": tok, "kinds": kinds, "cached": cached}
+    return {"first_ms": first, "ttft_ms": tok, "kinds": kinds, "cached": cached, "waits_429": waits}
 
 
 def scenario_chat(c1):
@@ -188,7 +197,7 @@ def scenario_chat(c1):
     for st in ("rules", "course_qa", "paraphrase"):
         xs = [r for r in ok if r["stratum"] == st]
         by[st] = {"n": len(xs), "accuracy": round(sum(map(correct, xs)) / len(xs), 3) if xs else None}
-    return {"requests": len(res), "errors": len(res) - len(ok), "cached_excluded": len(ok) - len(live),
+    return {"requests": len(res), "errors": len(res) - len(ok), "waits_429": sum(r.get("waits_429", 0) for r in res), "cached_excluded": len(ok) - len(live),
             "ttft": lat([r["ttft_ms"] for r in live]), "first_event": lat([r["first_ms"] for r in ok if r["first_ms"] is not None]),
             "accuracy": round(sum(map(correct, ok)) / len(ok), 3) if ok else None, "by_stratum": by}
 
@@ -327,7 +336,7 @@ def markdown(off, on, v, paths, meta):
          f"| TTFT p50 / p95 (ms) | {off['chat']['ttft']['p50_ms']} / {off['chat']['ttft']['p95_ms']} | {on['chat']['ttft']['p50_ms']} / {on['chat']['ttft']['p95_ms']} |",
          f"| Sự kiện đầu p50 / p95 (ms) | {off['chat']['first_event']['p50_ms']} / {off['chat']['first_event']['p95_ms']} | {on['chat']['first_event']['p50_ms']} / {on['chat']['first_event']['p95_ms']} |",
          f"| Độ chính xác (rules / course_qa / paraphrase) | {off['chat']['accuracy']} ({' / '.join(str(off['chat']['by_stratum'][k]['accuracy']) for k in ('rules', 'course_qa', 'paraphrase'))}) | {on['chat']['accuracy']} ({' / '.join(str(on['chat']['by_stratum'][k]['accuracy']) for k in ('rules', 'course_qa', 'paraphrase'))}) |",
-         f"| Loại khỏi TTFT (trả từ cache) / lỗi | {off['chat']['cached_excluded']} / {off['chat']['errors']} | {on['chat']['cached_excluded']} / {on['chat']['errors']} |",
+         f"| Loại khỏi TTFT (trả từ cache) / lỗi / lần chờ 429 | {off['chat']['cached_excluded']} / {off['chat']['errors']} / {off['chat']['waits_429']} | {on['chat']['cached_excluded']} / {on['chat']['errors']} / {on['chat']['waits_429']} |",
          f"| FAST / FALLBACK / FAIL_CLOSED | — | {paths['CHAT_ROUTING']['fast']} / {paths['CHAT_ROUTING']['fallback']} / {paths['CHAT_ROUTING']['fail_closed']} |",
          "", "## Threads (40 bài)", "", "| | tắt | bật |", "|---|---|---|",
          f"| Đăng p50 / p95 (ms) | {off['threads']['latency']['p50_ms']} / {off['threads']['latency']['p95_ms']} | {on['threads']['latency']['p50_ms']} / {on['threads']['latency']['p95_ms']} |",

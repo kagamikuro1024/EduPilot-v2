@@ -544,12 +544,16 @@ def cmd_grade_report(api, a):
                     emap[sid] = (row["sample_v2"] or row["sample_v1"], exp[row["sample_v2"] or row["sample_v1"]])
         rows, per_round = [], []
         for rd in g["rounds"]:
-            tot_e, tot_g, crit_err, within, nr, fails, ev_drop, inj = [], [], [], 0, 0, 0, 0, []
+            tot_e, tot_g, crit_err, within, nr, fails, ev_drop, inj, not_ai = [], [], [], 0, 0, 0, 0, [], 0
             for sid, d in rd["results"].items():
                 if sid not in emap:
                     continue
                 sample, e = emap[sid]
                 res = d["result"]
+                # P-11-25(2): kết quả đã duyệt / công bố có sẵn từ seed (attempts 0, không pass_detail) KHÔNG phải đầu ra AI — không tính vào MAE / QWK / mẫu chèn lệnh.
+                if res.get("status") in ("REVIEWED", "PUBLISHED") and not d.get("pass_detail"):
+                    not_ai += 1
+                    continue
                 flags = d.get("flags") or []
                 if res["run_state"] == "FAILED":
                     fails += 1
@@ -577,7 +581,7 @@ def cmd_grade_report(api, a):
                               "mae_total": round(sum(abs(x - y) for x, y in zip(tot_e, tot_g)) / n, 3) if n else None,
                               "mae_criterion": round(sum(crit_err) / len(crit_err), 3) if crit_err else None,
                               "within_0_5": f"{within}/{n}", "qwk": qwk(tot_e, tot_g) if n > 2 else None,
-                              "needs_review": f"{nr}/{n}", "evidence_not_found": f"{ev_drop}/{n}", "injection": inj})
+                              "needs_review": f"{nr}/{n}", "evidence_not_found": f"{ev_drop}/{n}", "injection": inj, "excluded_not_ai": not_ai})
         stab = None
         if len(g["rounds"]) > 1:
             r1, r2 = g["rounds"][0]["results"], g["rounds"][1]["results"]
