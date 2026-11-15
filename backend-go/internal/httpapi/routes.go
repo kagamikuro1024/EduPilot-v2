@@ -9,6 +9,7 @@ import (
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/assignment"
 	"github.com/edupilot/backend-go/internal/attendance"
+	"github.com/edupilot/backend-go/internal/attendance/attest"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
@@ -211,7 +212,7 @@ func activityService(d Deps) *activity.Service {
 }
 
 func attendanceService(d Deps) *attendance.Service {
-	return &attendance.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log, Cfg: d.Cfg.Attendance}
+	return &attendance.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log, Cfg: d.Cfg.Attendance, Attest: &attest.Verifier{Pool: d.DB, Redis: d.Redis, Cfg: d.Cfg.Attendance, Log: d.Log}}
 }
 
 func crmService(d Deps) *crm.Service {

@@ -72,6 +72,9 @@ func (s *Service) ClearFlags(ctx context.Context, actor, courseID, cid uuid.UUID
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	q := store.New(tx)
+	if err := s.requireActive(ctx, q, courseID); err != nil {
+		return CheckinRow{}, err
+	}
 	c, err := q.AttCheckinByID(ctx, store.AttCheckinByIDParams{CourseID: courseID, ID: cid})
 	if err != nil {
 		if isNoRows(err) {

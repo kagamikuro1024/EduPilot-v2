@@ -36,7 +36,8 @@ type RegisterIn struct {
 
 // RegisterOut: `key_id` = base64url của key_sha256.
 type RegisterOut struct {
-	KeyID string
+	KeyID   string
+	Created bool // false = khoá đã đăng ký từ trước (200)
 }
 
 // KeyID = base64url(sha256(public_key)) không đệm.
@@ -44,6 +45,9 @@ func KeyID(publicKey []byte) string {
 	h := sha256.Sum256(publicKey)
 	return base64.RawURLEncoding.EncodeToString(h[:])
 }
+
+// KeySum = sha256(public_key): khoá của `user_devices.key_sha256`.
+func KeySum(publicKey []byte) []byte { return keySum(publicKey) }
 
 func keySum(publicKey []byte) []byte {
 	h := sha256.Sum256(publicKey)

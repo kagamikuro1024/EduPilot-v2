@@ -91,6 +91,18 @@ func audit(ctx context.Context, q *store.Queries, entity string, courseID uuid.U
 	return nil
 }
 
+// requireActive: lớp đã lưu trữ → 409 COURSE_ARCHIVED (mọi thao tác ghi của Staff).
+func (s *Service) requireActive(ctx context.Context, q *store.Queries, courseID uuid.UUID) error {
+	c, _, err := s.course(ctx, q, courseID)
+	if err != nil {
+		return err
+	}
+	if c.Status != store.CourseStatusACTIVE {
+		return apierr.New(http.StatusConflict, apierr.CourseArchived)
+	}
+	return nil
+}
+
 // course đọc lớp (không khoá) và chính sách điểm danh; lớp không có → 404.
 func (s *Service) course(ctx context.Context, q *store.Queries, courseID uuid.UUID) (store.Course, Policy, error) {
 	c, err := q.GetCourse(ctx, courseID)

@@ -192,7 +192,7 @@ func (s Service) Get(ctx context.Context, id uuid.UUID, myRole string, staff boo
 			return Detail{}, fmt.Errorf("course: đọc cài đặt lớp: %w", err)
 		}
 		d.Settings = &Settings{EscalationThreshold: full.EscalationThreshold.StringFixed(2), Version: full.Version, Risk: crm.ThresholdsFrom(full.Settings).Values()}
-		d.Attendance = attendance.PolicyOf(s.Attendance, full.Settings)
+		d.Attendance = attendance.PolicyOf(s.Attendance, full.Settings).Staff()
 	}
 	return d, nil
 }

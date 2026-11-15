@@ -156,6 +156,15 @@ type ForStudent struct {
 	GeoCheck    bool   `json:"geo_check"`
 }
 
+// StaffView là chính sách cho Giảng viên / TA: đủ trường + `geo_check` (openapi CourseDetail.attendance).
+type StaffView struct {
+	Policy
+	GeoCheck bool `json:"geo_check"`
+}
+
+// Staff trả chính sách đầy đủ cho Staff.
+func (p Policy) Staff() StaffView { return StaffView{Policy: p, GeoCheck: p.Geofence != nil} }
+
 // Student rút gọn chính sách cho sinh viên.
 func (p Policy) Student() ForStudent {
 	return ForStudent{SelfCheckin: p.SelfCheckin, Require: p.Require, GeoCheck: p.Geofence != nil}

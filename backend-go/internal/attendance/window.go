@@ -22,15 +22,15 @@ import (
 // WindowOut là một cửa sổ điểm danh cho Staff.
 type WindowOut struct {
 	ID            uuid.UUID  `json:"id"`
-	SessionID     uuid.UUID  `json:"session_id"`
+	SessionID     uuid.UUID  `json:"-"`
 	Round         int        `json:"round"`
-	RotateSeconds int        `json:"rotate_seconds"`
+	RotateSeconds int        `json:"-"`
 	OpenedAt      time.Time  `json:"opened_at"`
 	ClosesAt      time.Time  `json:"closes_at"`
 	ClosedAt      *time.Time `json:"closed_at"`
 	Headcount     *int       `json:"headcount"`
-	CheckedIn     *int       `json:"checked_in,omitempty"`
-	OverHeadcount *bool      `json:"over_headcount,omitempty"`
+	CheckedIn     *int       `json:"checked_in"`
+	OverHeadcount *bool      `json:"over_headcount"`
 }
 
 func windowOut(w store.CheckinWindow) WindowOut {
@@ -134,9 +134,19 @@ func (s *Service) OpenWindow(ctx context.Context, actor, courseID, sid uuid.UUID
 // ListWindows: tối đa 3 cửa sổ của buổi (không cursor), kèm số đã điểm danh và `over_headcount`.
 func (s *Service) ListWindows(ctx context.Context, courseID, sid uuid.UUID) ([]WindowOut, error) {
 	q := store.New(s.Pool)
+	if _, err := q.AttSessionExists(ctx, store.AttSessionExistsParams{CourseID: courseID, ID: sid}); err != nil {
+		if isNoRows(err) {
+			return nil, notFound()
+		}
+		return nil, wrap("đọc buổi", err)
+	}
 	ws, err := q.AttWindowsBySession(ctx, store.AttWindowsBySessionParams{CourseID: courseID, SessionID: sid})
 	if err != nil {
 		return nil, wrap("liệt kê cửa sổ", err)
+	}
+	sc, err := q.AttSessionCheckinStudents(ctx, store.AttSessionCheckinStudentsParams{CourseID: courseID, SessionID: sid})
+	if err != nil {
+		return nil, wrap("đếm sinh viên", err)
 	}
 	out := make([]WindowOut, 0, len(ws))
 	for _, w := range ws {
@@ -147,10 +157,6 @@ func (s *Service) ListWindows(ctx context.Context, courseID, sid uuid.UUID) ([]W
 		}
 		ci := int(n)
 		o.CheckedIn = &ci
-		sc, err := q.AttSessionCheckinStudents(ctx, store.AttSessionCheckinStudentsParams{CourseID: courseID, SessionID: sid})
-		if err != nil {
-			return nil, wrap("đếm sinh viên", err)
-		}
 		over := OverHeadcount(int(sc), o.Headcount)
 		o.OverHeadcount = &over
 		out = append(out, o)
@@ -227,6 +233,9 @@ func (s *Service) SetHeadcount(ctx context.Context, actor, courseID, wid uuid.UU
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	q := store.New(tx)
+	if err := s.requireActive(ctx, q, courseID); err != nil {
+		return WindowOut{}, err
+	}
 	old, err := q.AttWindowByID(ctx, store.AttWindowByIDParams{CourseID: courseID, ID: wid})
 	if err != nil {
 		if isNoRows(err) {
@@ -316,6 +325,18 @@ func (s *Service) Close(ctx context.Context, actor *uuid.UUID, courseID, wid uui
 	return res, nil
 }
 
+// withCounts điền `checked_in` (lượt của cửa sổ) và `over_headcount` (so với số sinh viên khác nhau trong buổi, AC6) cho một cửa sổ.
+func (s *Service) withCounts(ctx context.Context, q *store.Queries, courseID uuid.UUID, o WindowOut, students int) (WindowOut, error) {
+	n, err := q.AttWindowCheckedIn(ctx, store.AttWindowCheckedInParams{CourseID: courseID, WindowID: o.ID})
+	if err != nil {
+		return o, wrap("đếm lượt", err)
+	}
+	ci := int(n)
+	over := OverHeadcount(students, o.Headcount)
+	o.CheckedIn, o.OverHeadcount = &ci, &over
+	return o, nil
+}
+
 // closeLocked chạy khi đã giữ khoá buổi + cửa sổ.
 func (s *Service) closeLocked(ctx context.Context, tx pgx.Tx, q *store.Queries, startsAt time.Time, w store.CheckinWindow, closedBy *uuid.UUID, pol Policy) (CloseResult, error) {
 	courseID, sid := w.CourseID, w.SessionID
@@ -332,7 +353,15 @@ func (s *Service) closeLocked(ctx context.Context, tx pgx.Tx, q *store.Queries, 
 		if err != nil {
 			return CloseResult{}, wrap("đếm chưa điểm danh", err)
 		}
-		return CloseResult{Window: windowOut(w), Written: Written{Present: int(wr.Present), Late: int(wr.Late)}, Unchecked: int(unchecked)}, nil
+		students, err := q.AttSessionCheckinStudents(ctx, store.AttSessionCheckinStudentsParams{CourseID: courseID, SessionID: sid})
+		if err != nil {
+			return CloseResult{}, wrap("đếm sinh viên", err)
+		}
+		o, err := s.withCounts(ctx, q, courseID, windowOut(w), int(students))
+		if err != nil {
+			return CloseResult{}, err
+		}
+		return CloseResult{Window: o, Written: Written{Present: int(wr.Present), Late: int(wr.Late)}, Unchecked: int(unchecked), SkippedExisting: max(0, int(students)-int(wr.Present)-int(wr.Late))}, nil
 	}
 	now := s.now()
 	closed, err := q.AttWindowClose(ctx, store.AttWindowCloseParams{CourseID: courseID, ID: w.ID, ClosedAt: &now, ClosedBy: closedBy})
@@ -361,7 +390,11 @@ func (s *Service) closeLocked(ctx context.Context, tx pgx.Tx, q *store.Queries, 
 		return CloseResult{}, wrap("đếm chưa điểm danh", err)
 	}
 	written := int(wr.Present) + int(wr.Late)
-	res := CloseResult{Window: windowOut(closed), Written: Written{Present: int(wr.Present), Late: int(wr.Late)}, Unchecked: int(unchecked), SkippedExisting: max(0, int(students)-written)}
+	co, err := s.withCounts(ctx, q, courseID, windowOut(closed), int(students))
+	if err != nil {
+		return CloseResult{}, err
+	}
+	res := CloseResult{Window: co, Written: Written{Present: int(wr.Present), Late: int(wr.Late)}, Unchecked: int(unchecked), SkippedExisting: max(0, int(students)-written)}
 	action := "checkin_window.close"
 	if closedBy == nil {
 		action = "checkin_window.auto_close"

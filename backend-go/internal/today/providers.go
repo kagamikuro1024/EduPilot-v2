@@ -247,7 +247,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			out = append(out, mk(it))
 		}
 		out = append(out, sessionUnmarkedItems(c, r.Unmarked, v.Now)...) // US-P5-01 (bậc 12, Giảng viên + TA)
-		out = append(out, checkinReviewItems(c, r.CheckinReview)...)    // 10.8 (bậc 13, Giảng viên + TA)
+		out = append(out, checkinReviewItems(c, r.CheckinReview)...)     // 10.8 (bậc 13, Giảng viên + TA)
 		if r.Questions > 0 {                                             // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
 			age := v.Now.Sub(r.QuestionsOldest)
 			out = append(out, mk(Item{

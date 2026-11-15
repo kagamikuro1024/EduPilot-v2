@@ -428,5 +428,9 @@ func (h *Handler) deviceRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	noStore(w)
-	httpx.WriteJSON(w, http.StatusCreated, map[string]string{"key_id": out.KeyID})
+	code := http.StatusOK
+	if out.Created {
+		code = http.StatusCreated
+	}
+	httpx.WriteJSON(w, code, map[string]string{"key_id": out.KeyID})
 }
