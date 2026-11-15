@@ -72,6 +72,19 @@ for (const [name, opts] of [["chưa chốt", {}], ["chưa có công thức", { s
   });
 }
 
+for (const [name, opts] of [["đã chốt", { locked: true }], ["chưa chốt", {}], ["chưa có công thức", { scheme: false }]] as const satisfies ReadonlyArray<readonly [string, Opts]>) {
+  test(`gradebook ${name}: trạng thái công thức chưa về thì khung chờ chỉ hiện «Xem công thức» (P-11-58)`, async ({ page, context }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await asDemo(context, "teacher");
+    const hold = async (_r: unknown, next: (r: never) => Promise<void> | void) => { await new Promise((ok) => setTimeout(ok, 2500)); return next(_r as never); };
+    await gradebookApi(page, { students: 5, ...opts, h: { "GET gradebook": hold as never, "GET grade-scheme/status": hold as never } });
+    await page.goto("/gradebook");
+    await expect(page.locator("[aria-busy=true]").first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Xem công thức" })).toBeVisible();
+    expect(await headerButtons(page)).toEqual(["Xem công thức"]);
+  });
+}
+
 test("insights: đang tải và lỗi giữ đúng bộ nút đầu trang của lúc có báo cáo (X3)", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const KC = { id: "22222222-2222-7222-8222-222222222987", class_code: "761987", subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" };
