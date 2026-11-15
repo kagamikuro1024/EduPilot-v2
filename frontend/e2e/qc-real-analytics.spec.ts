@@ -4,7 +4,9 @@ import { call, courseId, login, needReal, noOverflow, shot, sql, uiLogin } from 
 // QC sprint 11 — US-P10-06 /analytics tab «Điểm thi» (TC-06-01/09/10/19/20/23) trên ep-qc thật.
 needReal();
 
-async function openExams(page: Page, courseQuery = "") {
+const C1 = () => sql("select id from courses where class_code='761987'")[0][0];
+
+async function openExams(page: Page, courseQuery = `?course=${C1()}`) {
   await page.goto(`/analytics${courseQuery}`);
   const tab = page.getByRole("tab", { name: "Điểm thi" }).or(page.getByRole("button", { name: "Điểm thi" })).first();
   await expect(tab).toBeVisible();
@@ -19,7 +21,7 @@ test("@real AN-1 bài mới nhất, histogram, một dòng chữ, xu hướng, b
   await expect(page.getByText("Xu hướng qua các bài thi")).toBeVisible();
   await expect(page.getByRole("table", { name: "Câu sai nhiều nhất" })).toBeVisible({ timeout: 30_000 });
   await shot(page, "an1-1440");
-  const cid = await courseId(request, "teacher", (await page.getByRole("banner").innerText()).match(/\b(\d{6})\b/)?.[1] ?? "761987");
+  const cid = await courseId(request, "teacher", "761987");
   const latest = sql(`select title from exams where course_id='${cid}' and status='PUBLISHED' order by published_at desc nulls last limit 1`)[0]?.[0];
   const body = await page.locator("main").innerText();
   expect.soft(latest ? body.includes(latest) : true, `TC-06-01: mặc định chọn bài PUBLISHED mới nhất «${latest}»`).toBe(true);
@@ -31,7 +33,7 @@ test("@real AN-2 liên kết «Xem ở Báo cáo lỗ hổng» theo chủ đề 
   await uiLogin(page, "teacher");
   await openExams(page);
   await expect(page.getByRole("table", { name: "Câu sai nhiều nhất" })).toBeVisible({ timeout: 30_000 });
-  const code = (await page.getByRole("banner").innerText()).match(/\b(\d{6})\b/)?.[1] ?? "761987";
+  const code = "761987";
   const cid = await courseId(request, "teacher", code);
   const tk = await login(request, "teacher");
   const rep = await call(request, tk, "GET", `/courses/${cid}/insights/knowledge-gap/latest`);
