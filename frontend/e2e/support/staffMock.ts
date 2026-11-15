@@ -80,12 +80,12 @@ const PROVIDER = { id: "pv1", type: "openai", name: "OpenAI", base_url: null, en
 const CHAIN = [{ model_id: "m1", provider_id: "pv1", provider_name: "OpenAI", model: "gpt-4o-mini" }];
 
 /** `/admin/llm/*` cho `/settings/llm` (chỉ đọc). */
-export async function mockLlmApi(page: Page) {
+export async function mockLlmApi(page: Page, opts: { noProviders?: boolean } = {}) {
   await page.route(/\/api\/v1\/admin\/llm\//, async (route) => {
     const req = route.request();
     if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
     const p = new URL(req.url()).pathname;
-    if (p.endsWith("/providers")) return j(route, { items: [PROVIDER], env_fallback: { active: false, providers: [] } });
+    if (p.endsWith("/providers")) return j(route, opts.noProviders ? { items: [], env_fallback: { active: true, providers: ["fake"] } } : { items: [PROVIDER], env_fallback: { active: false, providers: [] } });
     if (p.endsWith("/routes")) return j(route, { items: [{ task: "chat", lane: "INTERACTIVE", chain: CHAIN, params: {}, version: 1 }], embedding: null });
     if (p.endsWith("/budget")) return j(route, { scope: "global", daily_limit: "10.00", monthly_limit: "200.00", spent_today: "1.20", spent_month: "40.00", pct_today: 12, pct_month: 20, state: "ok", version: 1 });
     if (p.endsWith("/usage")) return j(route, { from: "2026-10-01T00:00:00Z", to: "2026-10-30T00:00:00Z", group: "task", items: [] });

@@ -3,6 +3,7 @@ import { asDemo, sessionBody, type DemoRole } from "./support/session";
 import { BASE_URL } from "./support/env";
 import { mockMe } from "./support/meMock";
 import { mockLlmApi } from "./support/staffMock";
+import { gradebookApi } from "./support/gradebook-fixtures";
 
 // US-PU-06 AC8: lần vẽ chữ đầu tiên là chữ của khung máy chủ (PreShell) và SAU KHI có phiên không có ứng viên LCP nào mới.
 // Mạng giả 1,6 Mbps / 150 ms + CPU 4× như Lighthouse để phông chữ về muộn (phông đổi làm chữ rộng hơn ⇒ ứng viên mới — lỗi từng gặp).
@@ -25,7 +26,8 @@ for (const [path, role] of CASES) {
       await route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody(role === "student" ? "STUDENT" : role === "teacher" ? "TEACHER" : "ADMIN", {})) });
     });
     if (path === "/me") await mockMe(page); // có dữ liệu thật của màn: khối chữ nào lớn hơn h1 sau phiên sẽ hiện ra
-    if (path === "/settings/llm") await mockLlmApi(page); // không giả API thì sau phiên hiện thông báo lỗi, lớn hơn h1 (proposal #1)
+    if (path === "/settings/llm") await mockLlmApi(page, { noProviders: true }); // trạng thái T1 (chưa có nhà cung cấp): câu giải thích dài từng là ứng viên LCP mới; không giả API thì hiện thông báo lỗi lớn hơn h1 (proposal #1)
+    if (path === "/gradebook") await gradebookApi(page, { warnings: ["PENALTY_NOT_IN_SCHEME", "BONUS_NOT_IN_SCHEME"] }); // T1: có điểm cộng / trừ ghi tay — câu cảnh báo dài từng là ứng viên LCP mới (P-11-6a)
     const cdp = await context.newCDPSession(page);
     await cdp.send("Network.enable");
     await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: (1.6 * 1024 * 1024) / 8, uploadThroughput: (750 * 1024) / 8 });
@@ -51,3 +53,23 @@ for (const [path, role] of CASES) {
     expect(after, `không có ứng viên LCP mới sau phiên (trước: ${JSON.stringify(before)}, sau: ${JSON.stringify(after)})`).toEqual(before);
   });
 }
+
+// Route động `/assignments/<id>`: có PreShell theo tiền tố, nên chữ đầu tiên trước phiên là chữ của máy chủ (FCP không chờ phiên). Sau phiên đoạn đề bài là DỮ LIỆU của bài tập,
+// lớn hơn h1 «Bài tập»: LCP của route này không đạt bằng đường (a) (US-P10-08 AC6), nên chỉ kiểm phần trước phiên.
+test("lcp before refresh /assignments/<id>: ứng viên đầu là chữ PreShell", async ({ page, context }) => {
+  test.setTimeout(60_000);
+  await page.setViewportSize({ width: 412, height: 823 });
+  await asDemo(context, "student");
+  await page.route("**/api/v1/auth/refresh", () => new Promise(() => undefined)); // giữ mãi: chỉ xét trước phiên
+  await page.addInitScript(() => {
+    const w = window as unknown as { __lcp: Array<{ fromPre: boolean }> };
+    w.__lcp = [];
+    new PerformanceObserver((l) => l.getEntries().forEach((e) => w.__lcp.push({ fromPre: !!(e as unknown as { element?: Element }).element?.closest("[data-part=pre-shell]") }))).observe({ type: "largest-contentful-paint", buffered: true });
+  });
+  await page.goto("/assignments/00000000-0000-7000-8000-0000000a0001");
+  await expect(page.locator("[data-part=pre-shell] h1")).toHaveText("Bài tập");
+  await page.waitForTimeout(1500);
+  const seen = await page.evaluate(() => (window as unknown as { __lcp: Array<{ fromPre: boolean }> }).__lcp);
+  expect(seen.length).toBeGreaterThan(0);
+  expect(seen.every((c) => c.fromPre)).toBe(true);
+});
