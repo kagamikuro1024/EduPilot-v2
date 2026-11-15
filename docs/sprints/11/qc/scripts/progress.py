@@ -26,7 +26,7 @@ def tally(all_ids):
     return p, f, k
 groups = [("Đợt1 quan sát AI", ids("tc-US-P10-01-03.md")), ("Đợt2 insights", ids("tc-US-P10-04-05.md")), ("Đợt2 điểm thi", ids("tc-US-P10-06-07.md")),
           ("/assignments SV", ["A"] * 6), ("P-11-15", ["B"] * 4), ("US-P10-14 audit", ids("tc-US-P10-14.md")),
-          ("@real F3", ["F3"] * 3), ("@real F5", ["F5"]), ("@real F9/F11", ["F9", "F11"]), ("@real F16", ["F16"]), ("@real F17", ["F17"]), ("U1 phiên", ["U1"] * 3), ("LCP 7 route", ["LCP"] * 7)]
+          ("@real F3", ["F3"] * 3), ("@real F5", ["F5"]), ("@real F9/F11", ["F9", "F11"]), ("@real F16", ["F16"]), ("@real F17", ["F17"]), ("U1 phiên", ["U1"] * 3), ("LCP 8 route", ["LCP"] * 8)]
 cur = sys.argv[1] if len(sys.argv) > 1 else ""
 with open("/tmp/qc-progress.tsv", "w") as f:
     for name, tc in groups:
