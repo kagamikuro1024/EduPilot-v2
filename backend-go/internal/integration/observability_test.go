@@ -29,7 +29,7 @@ type obsWorld struct {
 func newObsWorld(t *testing.T) *obsWorld {
 	t.Helper()
 	w := &obsWorld{}
-	w.r = newRigDeps(t, func(d *httpapi.Deps) { w.rt = d.LLM })
+	w.r = newRigDeps(t, func(d *httpapi.Deps) { w.rt = d.LLM }, func(env map[string]string) { env["LLM_PROVIDER"] = "fake" }) // cổng LLM thật + nhà cung cấp giả
 	r := w.r
 	adm := r.addUser(uniq("adm"), store.UserRoleADMIN, store.UserStatusACTIVE)
 	gv := r.addUser(uniq("gv"), store.UserRoleTEACHER, store.UserStatusACTIVE)
@@ -248,7 +248,7 @@ func TestAlertDedup(t *testing.T) {
 	}
 	require.Equal(t, 1, count(notify.TypeLLMErrorRate), "chạy lại cùng cửa sổ không thêm")
 
-	_, err = w.r.pool.Exec(t.Context(), `update notifications set created_at = created_at - interval '7 hours' where type = $1`, notify.TypeLLMErrorRate)
+	_, err = w.r.pool.Exec(t.Context(), `update notifications set created_at = created_at - interval '7 hours', dedupe_key = dedupe_key || 'old' where type = $1`, notify.TypeLLMErrorRate)
 	require.NoError(t, err)
 	_, err = a.Tick(t.Context())
 	require.NoError(t, err)
