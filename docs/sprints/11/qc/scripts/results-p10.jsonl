@@ -728,7 +728,6 @@
 {"tc": "TC-14-61 migration 00025 duy nhất, Down xoá hai chỉ mục", "st": "PASS", "note": "1 file, 10 dòng"}
 {"tc": "TC-14-67 TestAuditListUsesIndex", "st": "PASS", "note": "ok"}
 {"tc": "TC-14-88 bảy test go", "st": "PASS", "note": "6 ở internal/audit + TestAuditRBAC ở internal/integration: tất cả ok"}
-{"tc": "TC-14-89 go test ./internal/contract", "st": "FAIL", "note": "TestChatThreadsContract 404 /_test/llm/fake (scenarios_assignment_test.go:91) + 3 test hệ quả; chạy 2 lần cục bộ; CI dev là kết quả chính thức"}
 {"tc": "TC-14-41 sv.moi → 403", "st": "PASS", "note": "chưa xác minh email: F1 (không đăng nhập được)"}
 {"tc": "TC-14-59 UPDATE/DELETE bị trigger", "st": "PASS", "note": "append-only"}
 {"tc": "TC-14-69 cột/bộ lọc/Tải thêm", "st": "PASS", "note": "AUD-1"}
@@ -1190,3 +1189,6 @@
 {"tc": "TC-01-13 EXPLAIN «bảng yêu cầu»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_created_idx Execution Time: 0.727 ms"}
 {"tc": "TC-01-13 EXPLAIN «summary 7d»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_task_created_idx Execution Time: 6715.279 ms"}
 {"tc": "TC-01-13 EXPLAIN «problem»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_created_idx Execution Time: 0.486 ms"}
+{"tc": "TC-15a DTO SV: mọi dòng có text, không khoá expr; text không min(/max(/÷/ngoặc", "st": "FAIL", "note": "SV=30 dòng=180 có text=180 expr=0 detail=0 lỗi=[('sv.lech', 403)]"}
+{"tc": "TC-15b staff explain giữ expr", "st": "PASS", "note": "200"}
+{"tc": "TC-14-89 go test ./internal/contract (chốt theo CI run 43739149089 @ec1657c2, xanh toàn bộ; cục bộ đỏ do 404 /_test/llm/fake là khác biệt môi trường)", "st": "PASS", "note": "CI quyết (PM)"}
