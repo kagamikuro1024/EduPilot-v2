@@ -88,7 +88,7 @@ func TestLowConfidenceUsesCourseThreshold(t *testing.T) {
 	t.Parallel()
 	o := Outcome{Plan: IntentCourseQA, Hits: withCos(0.45)} // confidence 0,700
 	for thr, want := range map[string]bool{"0.50": false, "0.70": false, "0.71": true, "0.80": true, "0.95": true} {
-		m := o.Metadata(supported, dec(thr), false, 0)
+		m := o.Metadata(supported+" [1]", dec(thr), false, 0) // có dấu [1]: P-11-18 (d) hạ ground về 0 nếu không dẫn nguồn
 		require.Equal(t, "0.700", m.Confidence.Decimal.StringFixed(3))
 		require.Equal(t, want, m.LowConfidence, "ngưỡng "+thr)
 	}
@@ -126,4 +126,45 @@ func TestConfidenceNoExtraLLMCall(t *testing.T) {
 	require.Equal(t, embeds, r.embeds.Load(), "không nhúng thêm")
 	require.Equal(t, gens, r.g.calls.Load())
 	require.Equal(t, int64(1), gens, "đúng một lần sinh chữ")
+}
+
+// TestRefusalAndNoCitationAreLowConfidence — P-11-18 (D-R-07): lời từ chối và câu trả lời không dẫn nguồn nào KHÔNG được coi là tin cậy,
+// dù truy xuất có hit cao (ep-qc: gemini-embedding-001 cho cos_top1 ≥ 0,55 với câu ngoài chủ đề, confidence 0,855, low_confidence=false).
+func TestRefusalAndNoCitationAreLowConfidence(t *testing.T) {
+	t.Parallel()
+	o := Outcome{Plan: IntentCourseQA, Hits: withCos(0.57)} // retr 0,800: chỉ cần ground = 1 là 0,880 ≥ 0,80
+	for name, tc := range map[string]struct {
+		answer     string
+		wantLow    bool
+		wantGround string
+	}{
+		"từ chối đúng câu mẫu mở đầu":       {"Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Bạn thử hỏi cách khác nhé.", true, "0.000"},
+		"từ chối lẫn trong câu, không dấu":  {"Chao ban, minh chua tim thay noi dung nay trong tai lieu cua lop.", true, "0.000"},
+		"từ chối tự do, không dẫn nguồn":    {"Hiện tại trong ngữ cảnh được cung cấp không có thông tin về cách nấu phở bò Hà Nội nên mình chưa đủ thông tin để trả lời.", true, "0.000"},
+		"trả lời thật nhưng quên dẫn nguồn": {supported, true, "0.000"},
+		"trả lời thật có dẫn nguồn":         {supported + " [1]", false, "1.000"},
+		"[n] lạ không tính là dẫn nguồn":    {supported + " [7]", true, "0.000"},
+	} {
+		m := o.Metadata(tc.answer, dec("0.80"), false, 0)
+		require.Equal(t, tc.wantLow, m.LowConfidence, name)
+		require.Equal(t, tc.wantGround, m.Groundedness.StringFixed(3), name)
+		ok, origin := m.ShouldEscalate(IntentCourseQA)
+		require.Equal(t, tc.wantLow, ok, name)
+		if ok {
+			require.Equal(t, OriginAutoLowConfidence, origin, name)
+		}
+	}
+	// Lời từ chối luôn thấp, kể cả khi giảng viên hạ ngưỡng xuống 0,50 và truy xuất cao.
+	m := Outcome{Plan: IntentCourseQA, Hits: withCos(0.90)}.Metadata(ReplyNoContext, dec("0.50"), false, 0)
+	require.True(t, m.LowConfidence)
+	// Câu từ chối không làm hỏng nhận định có căn cứ đi kèm.
+	require.Equal(t, "1.000", Groundedness(ReplyNoContext+" "+supported, withCos(0.9)).StringFixed(3))
+	require.True(t, IsRefusal("MÌNH CHƯA TÌM THẤY NỘI DUNG NÀY TRONG TÀI LIỆU CỦA LỚP"))
+	require.False(t, IsRefusal(supported))
+}
+
+// SystemPrompt phải chứa nguyên văn câu mẫu: IsRefusal chỉ bắt được lời từ chối nếu mô hình được dặn dùng đúng câu đó.
+func TestSystemPromptCarriesRefusalSentence(t *testing.T) {
+	t.Parallel()
+	require.Contains(t, SystemPrompt, ReplyNoContext)
 }

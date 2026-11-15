@@ -2,6 +2,7 @@ package agent
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -49,6 +50,23 @@ func (m ResponseMetadata) ShouldEscalate(intent Intent) (bool, string) {
 		return true, OriginAutoLowConfidence
 	}
 	return false, ""
+}
+
+// refusalCore: lõi của câu mẫu ReplyNoContext, đã bỏ dấu + chữ thường. Câu trả lời của LLM chứa lõi này (ở bất kỳ đâu, không phân biệt dấu) là LỜI TỪ CHỐI: ngữ cảnh
+// không trả lời được câu hỏi (P-11-18, D-R-07). SystemPrompt bảo mô hình mở đầu đúng bằng câu này khi không đủ ngữ cảnh.
+var refusalCore = auth.Fold(strings.ToLower("chưa tìm thấy nội dung này trong tài liệu của lớp")) //nolint:gochecknoglobals // hằng dẫn xuất từ câu mẫu
+
+// IsRefusal cho biết văn bản là lời từ chối "chưa tìm thấy trong tài liệu" (thuần, không LLM).
+func IsRefusal(s string) bool { return strings.Contains(auth.Fold(strings.ToLower(s)), refusalCore) }
+
+// hasCitation: câu trả lời có ít nhất một dấu [n] trỏ tới một đoạn trong hits (n ∈ [1, nHits]); [n] lạ không tính (như ExtractCitations).
+func hasCitation(answer string, nHits int) bool {
+	for _, m := range reMarker.FindAllStringSubmatch(answer, -1) {
+		if n, err := strconv.Atoi(m[1]); err == nil && n >= 1 && n <= nHits {
+			return true
+		}
+	}
+	return false
 }
 
 var (
@@ -101,7 +119,7 @@ func Groundedness(answer string, hits []rag.Hit) decimal.Decimal {
 	claims, ok := 0, 0
 	for _, s := range reSentence.Split(reCiteMark.ReplaceAllString(answer, " "), -1) {
 		ws := contentWords(s)
-		if len(ws) < groundMinWords {
+		if len(ws) < groundMinWords || IsRefusal(s) { // câu từ chối không phải một nhận định cần căn cứ (P-11-18 c)
 			continue
 		}
 		claims++
@@ -161,8 +179,16 @@ func (o Outcome) Metadata(answer string, threshold decimal.Decimal, degraded boo
 		m.RetrievalScore, m.Groundedness = one, one
 		m.Confidence = decimal.NullDecimal{Decimal: one.Round(3), Valid: true}
 	case o.Plan == IntentCourseQA && len(o.Hits) > 0:
+		refused := IsRefusal(answer)
 		m.RetrievalScore, m.Groundedness = Retrieval(BestCosine(o.Hits)), Groundedness(answer, o.Hits)
+		if refused || !hasCitation(answer, len(o.Hits)) { // không dẫn nguồn nào = không có căn cứ (P-11-18 d); từ chối = chưa trả lời được (b)
+			m.Groundedness = decimal.Zero
+		}
 		m.Confidence = decimal.NullDecimal{Decimal: Score(m.RetrievalScore, m.Groundedness), Valid: true}
+		if refused { // lời từ chối luôn là "chưa chắc", kể cả khi ngưỡng của lớp thấp
+			m.LowConfidence = true
+			return m
+		}
 	default:
 		return m
 	}
