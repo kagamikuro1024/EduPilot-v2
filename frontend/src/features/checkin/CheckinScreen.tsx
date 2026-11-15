@@ -56,7 +56,7 @@ function describe(e: unknown, viaCode: boolean): { message: string; offline?: bo
 
 /** `/checkin` (DESIGN §14.8.2): token từ QR (đã cất ở layout) gửi MỘT lần; không có token ⇒ nhập mã ngắn hoặc quét trong app. */
 export function CheckinScreen() {
-  const { role, identity, realCourseId, realCourses, realPending } = useSession();
+  const { role, identity, realCourseId, realCourses } = useSession();
   const native = typeof window !== "undefined" && Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.());
   const canScan = native && hasBarcodeDetector();
   // token đã cất ở layout (QR): đọc MỘT lần lúc dựng; AuthGate chỉ dựng màn này ở client nên không lệch khi hydrate
@@ -130,7 +130,7 @@ export function CheckinScreen() {
   // Có token hợp lệ đã cất ⇒ gửi đúng một lần rồi xoá khỏi sessionStorage; mọi nhánh khác đã chốt ở trạng thái đầu.
   // setTimeout 0 (có dọn): StrictMode chạy effect hai lần nhưng chỉ lần sau còn hẹn.
   useEffect(() => {
-    if (role !== "student" || realPending || !uid || !stash || !UUID.test(stash.c) || stashExpired(stash)) return;
+    if (role !== "student" || !uid || !stash || !UUID.test(stash.c) || stashExpired(stash)) return; // lớp lấy từ token đã cất: không chờ /me/courses (bớt một vòng trên đường nóng)
     const t = setTimeout(() => {
       if (sent.current) return; // tải lại nền của /me/courses làm effect chạy lại: token chỉ dùng một lần
       sent.current = true;
@@ -138,7 +138,7 @@ export function CheckinScreen() {
       void submit({ course: stash.c, token: stash.token });
     }, 0);
     return () => clearTimeout(t);
-  }, [role, realPending, uid, submit, stash]);
+  }, [role, uid, submit, stash]);
 
   // 429: đếm ngược từng giây; hết giờ thì mã ngắn quay về ô nhập, token tự gửi lại
   useEffect(() => {
