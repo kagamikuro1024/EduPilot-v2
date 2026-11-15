@@ -1192,3 +1192,5 @@
 {"tc": "TC-15a DTO SV: mọi dòng có text, không khoá expr; text không min(/max(/÷/ngoặc", "st": "FAIL", "note": "SV=30 dòng=180 có text=180 expr=0 detail=0 lỗi=[('sv.lech', 403)]"}
 {"tc": "TC-15b staff explain giữ expr", "st": "PASS", "note": "200"}
 {"tc": "TC-14-89 go test ./internal/contract (chốt theo CI run 43739149089 @ec1657c2, xanh toàn bộ; cục bộ đỏ do 404 /_test/llm/fake là khác biệt môi trường)", "st": "PASS", "note": "CI quyết (PM)"}
+{"tc": "TC-01-13 1 triệu hàng rải 60 ngày «summary 7d»: p95 ≤ 500 ms", "st": "FAIL", "note": "p50=1360 p95=8084 max=12090 ms"}
+{"tc": "TC-01-13 1 triệu hàng (11,6 ngày) «summary 24h» 504 / EXPLAIN 7d", "st": "FAIL", "note": "load 25: summary 24h → 504 (Caddy 35 s) một lượt, 7d p50=1,4 s p95=8,1 s; EXPLAIN 7d 605k hàng = 11,2 s (index scan 8,5 s + percentile_cont) khi load 25; 24h 86k hàng = 0,25 s"}
