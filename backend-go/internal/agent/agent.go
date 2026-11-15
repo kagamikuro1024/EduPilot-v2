@@ -256,6 +256,9 @@ func (a *Agent) courseQA(ctx context.Context, tc TrustedContext, in Input, out O
 // generate là LẦN SINH CHỮ DUY NHẤT của tin nhắn.
 func (a *Agent) generate(ctx context.Context, in Input, out Outcome, ctxBlock string) (Outcome, error) {
 	req := llm.Request{Task: llm.TaskChat, Messages: BuildMessages(in.History, ctxBlock, in.Text)}
+	for _, b := range out.Blocks {
+		req.Tools = append(req.Tools, b.Kind)
+	}
 	for _, h := range out.Hits { // chỉ để đường suy giảm trích nguyên văn; không phải payload gửi provider
 		req.Passages = append(req.Passages, llm.Passage{Text: h.Text, Source: h.Title, Score: h.Cosine})
 	}

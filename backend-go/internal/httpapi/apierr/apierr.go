@@ -442,6 +442,9 @@ func DefaultMessage(code string) string {
 		if m, ok := guidanceMessage(code); ok {
 			return m
 		}
+		if m, ok := observabilityMessage(code); ok {
+			return m
+		}
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}
 }
