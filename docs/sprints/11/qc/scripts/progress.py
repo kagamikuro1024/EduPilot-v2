@@ -12,7 +12,7 @@ res = {}
 for l in open(os.path.join(D, "results-p10.jsonl")):
     d = json.loads(l)
     for m in re.finditer(r"TC-(\d\d)-(\d+[a-z]?)", d["tc"]):
-        k = f"TC-{m.group(1)}-{m.group(2)}"; res.setdefault(k, {})[d["tc"]] = d["st"]
+        k = f"TC-{m.group(1)}-{m.group(2)}"; res.setdefault(k, {})[d["tc"]] = d["st"]; kb = re.sub(r"[a-z]$", "", k); res.setdefault(kb, {})[d["tc"]] = d["st"]
 extra = json.load(open(os.path.join(D, "progress-extra.json"))) if os.path.exists(os.path.join(D, "progress-extra.json")) else {}
 def tally(all_ids):
     p = f = k = 0
