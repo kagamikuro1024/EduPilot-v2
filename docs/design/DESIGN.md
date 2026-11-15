@@ -735,6 +735,136 @@ No cards.
 
 If grade scheme missing/unconfirmed, show one slim notice above table; do not block attendance.
 
+Frame (§23, sprint 10.7): page kind `work`. Below 720 px the sticky bottom bar IS the primary action (`data-ep-header-dock`, P-107-14); the header then draws no primary.
+
+### Self check-in on this route (sprint 10.8, `FEAT-attendance-selfcheck`)
+
+Applies only when the course has `self_checkin = true`. Otherwise the route is unchanged.
+
+Header actions (§23.2):
+- Primary stays `Lưu điểm danh` (docked below 720 px).
+- Secondary `Mở điểm danh`: shown only when the selected session has no open window and fewer than 3 rounds; hidden (not disabled) while a window is open. It opens the window (`Idempotency-Key`) and then navigates to `/attendance/display?course=&session=` in the same tab. Below 720 px it sits in the "Thêm" menu like every secondary.
+- Overflow `⋯`, once round 1 exists: `Mở vòng {r+1}` (r < 3), `Nhập số đầu người`, `Gọi ngẫu nhiên 5 người`.
+
+Window line: one quiet line inside the panel, directly under the toolbar (the §23.3 job-result slot). Never a second panel, never a toast.
+
+| Window state | Line | Small buttons in the line |
+|---|---|---|
+| Open | `Đang mở` · `Vòng 2` (round ≥ 2 only) · `{k}/{n}` · `còn mm:ss` | `Mở màn chiếu`, `Đóng` |
+| Close queued offline | `Chưa đóng` (warning style) | none; retries by itself |
+| Closed | `Đã ghi {a} có mặt · {b} muộn · {u} chưa điểm danh` | `Đánh vắng {u} SV chưa điểm danh` (u > 0 only) |
+| Headcount set | appends `· {h} người trong lớp`; if `over_headcount`, warning text `Số điểm danh nhiều hơn số người đếm` | – |
+
+- `{k}` = students checked in for the session, `{n}` = ACTIVE students. While a window is open, the line and the rows refetch every `rotate_seconds` (`refetchInterval`); refetch stops when the window closes or the tab is hidden.
+- `Đóng` has no confirmation: its result stays editable on the grid.
+- `Đánh vắng…` opens `ConfirmIrreversible` (one bulk write, no bulk undo): title `Đánh vắng {u} sinh viên?`, consequence `{u} sinh viên chưa điểm danh thành Vắng.`, confirm `Đánh vắng`.
+- `Nhập số đầu người` turns the line's tail into one number `Field` `Số đầu người` (0–2000), autosaved.
+- `Gọi ngẫu nhiên 5 người` opens a `Drawer` `Gọi ngẫu nhiên`: 5 `ActionList` rows (name, MSSV, `Có cờ` / `Ngẫu nhiên`). Nothing else.
+
+Grid rows when the session has at least one window:
+- A student without a row starts with an EMPTY status cell (no default `Có mặt`) and the metadata `Chưa điểm danh`.
+- Under the name: metadata `Điểm danh lúc 07:03` (earliest check-in of the session).
+- `StatusText` chips, at most 2 then `+n`: flag labels (SRS 4.4) in the warning style (§4: amber text + yellow dot); `Chưa xác minh` for assurance 1; neutral `Nhập mã` for `channel = CODE`. Flags never use red.
+- Row with uncleared flags: small button `Đã xem` (clears that student's flags for the session; audited; no undo because there is no un-clear API).
+- Toolbar `FilterChips`, kept in the URL as `filter=review`: `Tất cả`, `Cần xem ({k})`. Today's `CHECKIN_REVIEW` links here with `filter=review`.
+- `Lưu điểm danh` rejected with `422 CHECKIN_UNRESOLVED`: `InlineNotice tone="warning"` first in the panel, `Còn {n} sinh viên chưa điểm danh`, action `Đánh vắng {n} SV chưa điểm danh` (same dialog). Edited cells stay.
+- 375 px: the grid stays a row list; the window line wraps to two lines (text, then the two buttons at 44 px).
+
+Course setting (TEACHER, on `/class/settings`): one `Section` `Điểm danh bằng mã`.
+- `Switch` `Điểm danh bằng mã`. When on: `Chu kỳ mã` (giây, 5–60), `Tính muộn sau` (phút, 0–120), `Yêu cầu` as `SegmentedControl` `Web hoặc app` / `Chỉ app`.
+- Progressive: `Vị trí` (`Switch`, `Dùng vị trí hiện tại`, `Bán kính (m)`) and `Mạng trường` (`Textarea`, placeholder `10.0.0.0/8`).
+- With `Vị trí` on, the line `Lớp này kiểm tra vị trí khi điểm danh.` sits next to the switch. It is the legal notice (Luật 91/2025 Đ31 k3), the only sentence allowed here.
+- `422` errors appear at the field.
+
+---
+
+## 14.8.1 `/attendance/display` — Màn chiếu điểm danh
+
+Primary job: every student in a 200-seat hall can scan the QR or read the short code within 30 s.
+
+Role: TA, TEACHER. STUDENT / ADMIN get the standard blocked screen and the page makes zero `/api/v1` calls.
+
+Frame: OUTSIDE the app shell: no sidebar, top bar, bottom nav, `Page` or `PageHeader`. Route group `app/(present)/` with the same `AuthGate`. It is the only route outside the two kinds of §23.1 (P-108-8). There is a visually hidden `h1` `Màn chiếu điểm danh`. The open window is found from `GET …/sessions/{sid}/checkin-windows`.
+
+Layout. Target landscape ≥ 1280×720. Portrait stacks the same blocks in the same order.
+
+```
+┌───────────────────────────────┬──────────────────────────────┐
+│                               │ Mã điểm danh                 │  meta
+│            QR                 │ ABC 123                      │  code
+│          (square)             │ 87 / 120                     │  count
+│                               │ còn 07:42 · Vòng 2           │  meta
+│                               │    [Đóng điểm danh] [Thoát]  │
+└───────────────────────────────┴──────────────────────────────┘
+```
+
+- QR: `uqr` SVG, ECC `L`, quiet zone 4 modules, `--ep-ink` modules on `--ep-surface`.
+  - Side = `min(100dvh − 2 × --ep-space-8, 56vw)`.
+  - Measured with `uqr` 0.1.3: the 162-character URL on a Cloudflare quick-tunnel host is version 8 (49 modules) at `L` and version 9 at `M`. `L` keeps each module ≈ 10 % larger, and nothing on a projector damages the code.
+- Short code: 6 Crockford characters shown as `ABC 123`, tabular figures, letter-spacing `.08em`. Label above: `Mã điểm danh`, the same words as the field on `/checkin`.
+- Count: `{checked_in}`, plus `/ {headcount}` only when a headcount is set. No ring, no bar (no gamification).
+- Countdown to `closes_at`. The round appears only when it is ≥ 2.
+- Actions, bottom right at UI-label size: `Đóng điểm danh` (secondary) and `Thoát` (ghost). `Esc` = `Thoát` (back to `/attendance?course=&session=`). There is no red primary: nobody in the room is invited to press anything.
+- Colour: no red on this screen. `Mất kết nối` uses the warning style.
+- Motion: QR and code swap instantly, with no transition.
+
+Type: three scoped tokens, used ONLY by this route's CSS module. This is a scoped exception like §11.1; `ui-antipatterns.sh` allows the tokens only under `features/attendance/display/`.
+
+| Token | Value | ≈ px at 1280×720 | Use |
+|---|---|---:|---|
+| `--ep-text-projector-code` | `14vmin` | 101 | short code |
+| `--ep-text-projector-count` | `8vmin` | 58 | count, `Đã đóng` |
+| `--ep-text-projector-meta` | `4vmin` | 29 | label, countdown, round, `Mất kết nối` |
+
+On a 3 m wide image of 1280 px, the code's cap height is ≈ 17 cm. `[SUY LUẬN]` By the usual sign rule of 1 cm of letter height per 1–2 m, that reads from 17–34 m. The QR module is ≈ 25 mm. `[SUY LUẬN]` A 12 MP phone camera resolves 4 px per module up to ≈ 15–20 m; beyond that, students type the short code.
+
+Behaviour:
+- Poll `GET …/display` once per step. Schedule the next request at `step_expires_at` converted with `offset = server_time − Date.now()` (measured on every response), plus 150 ms. If the same step comes back, retry once after 500 ms. That is 6 requests a minute at 10 s rotation (limit 30).
+- The countdown and the step timer use the same offset. The laptop clock is never trusted.
+- `navigator.wakeLock.request("screen")` while the window is open (native API; failure ignored).
+- Offline / 5xx: keep the last QR and code while the server still accepts them (until `step_expires_at + rotate_seconds`, server time). After that, show a same-size empty square with `Mất kết nối` (P-108-7). Retry after 1, 2, 4 s, capped at `rotate_seconds`.
+- `409 WINDOW_CLOSED`, or the countdown reaches 0: the QR area becomes `Đã đóng` (count size) with the final count; the only action left is `Thoát`.
+- Loading: a `Skeleton` square at QR size. First-load error: `InlineNotice tone="danger"` `Không tải được mã` + `Thử lại`.
+
+---
+
+## 14.8.2 `/checkin` — Điểm danh (sinh viên)
+
+Primary job: a student is marked present in one action, within 3 s of scanning, on a 375 px phone.
+
+Role: STUDENT. TA / TEACHER / ADMIN get the standard blocked screen with no API call.
+
+Frame (§23): inside the app shell, kind `read`, `h1` `Điểm danh`, no header meta (the course is in the top bar), one `Panel`.
+- The route is not in `nav.ts`, so `frame.spec.ts` lists it explicitly (P-108-8).
+- Route group `app/(checkin)/checkin/`. Its layout runs BEFORE `AuthGate`:
+  1. Store `{c, token, at}` in `sessionStorage` (`ep.checkin`, ≤ 60 s).
+  2. Clear the hash with `history.replaceState`.
+- Reason: `AuthGate` sends a signed-out user to `/login?next=` with path and query only, so the fragment would be lost.
+- The page then reads the token only from `sessionStorage` and deletes it on use.
+
+States (one panel, content centred in the read column):
+
+| State | Panel content | Primary (docked bar below 720 px) |
+|---|---|---|
+| Sending (token) | `Skeleton` of the result size | none |
+| Done | `Đã điểm danh 07:03` in the Data emphasis role and one `Check` icon in `--ep-red` (meaning "đã xác nhận"); nothing else | none |
+| No token, app with `BarcodeDetector` (`qr_code`) | link button `Nhập mã` | `Quét mã điểm danh` |
+| Scanning | square camera view as wide as the panel; small button `Thoát` | none |
+| No token, web, or no detector | `Field` `Mã điểm danh` (`autocapitalize="characters"`, `autocomplete="off"`, `autocorrect="off"`, `spellcheck={false}`, `enterkeyhint="go"`, placeholder `ABC 123`) + metadata `Lớp {mã lớp}` | `Điểm danh` |
+| Camera denied | as above + warning text `Chưa cấp quyền camera.` | `Điểm danh` |
+| Error | one sentence from US-AS-09 AC4 / AC10: a field error on the code path, an `InlineNotice` on the token path | offline: `Thử lại`; expired / invalid in the app: `Quét mã điểm danh`; on the web: none (scan again with the camera) |
+| 429 | `Thử lại sau {n} giây.`, counting down | disabled, with that reason |
+| Location check on (`attendance.geo_check`, P-108-3) | the line `Lớp này kiểm tra vị trí khi điểm danh.` is painted first; geolocation is requested on the next frame | – |
+
+- Only facts. No sentence explaining how check-in works, no install prompt, no tips.
+- The success check is the only red on the screen. Errors use the standard danger notice.
+- Scanner:
+  - `getUserMedia({video: {facingMode: "environment"}})` + `BarcodeDetector({formats: ["qr_code"]})`, about 5 frames per second.
+  - Accept only: `origin` = the app's origin, path `/checkin`, `c` a UUID, a non-empty hash. Other codes are ignored silently.
+  - `track.stop()` on accept, `Thoát`, leaving the route, and `visibilitychange` to hidden.
+- App or web: `window.Capacitor?.isNativePlatform?.()`. `frontend/` imports no `@capacitor/*` package (ARCHITECTURE §11.7).
+- 375 px: one viewport. With the keyboard open, the code field scrolls into view above the docked bar.
+
 ---
 
 ## 14.9 `/me` — Kết quả của tôi
@@ -744,7 +874,7 @@ Primary job: understand personal standing and what affects it.
 First viewport:
 1. Current course grade sentence / status.
 2. `Giải trình điểm` breakdown as a linear calculation.
-3. Attendance + participation summary.
+3. Attendance + participation summary. A session with a check-in shows the metadata `Điểm danh lúc hh:mm` (`checked_in_at`); nothing else about check-in reaches this page.
 4. Upcoming graded work.
 5. Weekly learning time as a small trend lower on page.
 
