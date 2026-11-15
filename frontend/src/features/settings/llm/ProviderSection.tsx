@@ -65,7 +65,7 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
           tone="info"
           action={canEdit && form?.mode !== "add" ? <Button size="sm" onClick={() => setForm({ mode: "add" })}>Thêm nhà cung cấp</Button> : undefined}
         >
-          Đang dùng cấu hình mặc định của máy chủ. Thêm nhà cung cấp để thay đổi.
+          Chưa có nhà cung cấp
         </InlineNotice>
       )}
       <ul className={s.list}>

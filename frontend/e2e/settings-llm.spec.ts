@@ -223,7 +223,7 @@ test("errors: tải lỗi 503 ⇒ thông báo chuẩn + Thử lại 1 request; L
   await reset(page);
   await script(page, base({ [`GET ${P}/providers`]: [{ body: { items: [], env_fallback: { active: true, providers: ["fake"] } } }] }));
   await page.reload(); // token ở bộ nhớ mất khi tải lại; phiên khôi phục bằng refresh (cookie httpOnly)
-  await expect(page.getByText("Đang dùng cấu hình mặc định của máy chủ. Thêm nhà cung cấp để thay đổi.")).toBeVisible();
+  await expect(page.getByText("Chưa có nhà cung cấp", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Thêm nhà cung cấp" }).first()).toBeVisible();
   await page.locator("[data-part=route-table], main").getByRole("button", { name: "Thêm nhà cung cấp" }).last().click();
   await expect(page.locator("[data-part=provider-form]")).toBeVisible();
