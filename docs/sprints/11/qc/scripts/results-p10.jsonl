@@ -87,3 +87,66 @@
 {"tc": "TC-03-08 +5h59 không thêm", "st": "PASS", "note": "1"}
 {"tc": "TC-03-09 sau > 6 giờ tái phát → thông báo mới", "st": "FAIL", "note": ""}
 {"tc": "TC-03-06a chi phí ngày = hạn mức hệ thống → LLM_BUDGET_REACHED «toàn hệ thống»", "st": "FAIL", "note": "thông báo=0 admin=1"}
+{"tc": "TC-04-26 sv.kha generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-27 sv.moi generate lớp 1 → 404", "st": "FAIL", "note": "403"}
+{"tc": "TC-04-28 ADMIN generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN latest → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN export → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-29 teacher latest → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 teacher export md → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 teacher export pdf → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 teacher export xml → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 ta latest → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 ta export md → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 ta export pdf → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 ta export xml → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-30 latest không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-04-30 generate không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-04-05 ta generate → được như GV (200 reused/202)", "st": "PASS", "note": "200"}
+{"tc": "TC-04-03 generate không Idempotency-Key → 400/422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-04 period_days=0 → 422", "st": "FAIL", "note": "200 {'report_id': '01a1df13-9421-7e57-b602-7ab929c3b375', 'reused': True}"}
+{"tc": "TC-04-04 period_days=-1 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '8702fd3f5425431c63bccb"}
+{"tc": "TC-04-04 period_days=5 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3b1be1191c08708b4405c6"}
+{"tc": "TC-04-04 period_days=15 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'f4cf6043b5bc7b342efcab"}
+{"tc": "TC-04-04 period_days=60 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '9c49a25062482987bdc124"}
+{"tc": "TC-04-04 period_days=119 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '59a7bf9b075ced271f9c48"}
+{"tc": "TC-04-04 period_days=121 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '85cab7c0d08bf2a5e54216"}
+{"tc": "TC-04-04 period_days=999 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '90e3ee503424c5aa2be781"}
+{"tc": "TC-04-04 period_days=null → mặc định 14 (200/202)", "st": "PASS", "note": "200 {'report_id': '01a1df13-9421-7e57-b602-7ab929c3b375', 'reused': True}"}
+{"tc": "TC-04-04 period_days=\"14\" → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3a9aacf7e60f6c1351a1d9"}
+{"tc": "TC-04-04 period_days=14.0 → 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-04-04 period_days=chữ → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '08bd41cb1cc9163e612047"}
+{"tc": "TC-04-04 giá trị sai không tạo job/báo cáo/lời gọi LLM", "st": "PASS", "note": "rep 3->3 audit 86->86"}
+{"tc": "TC-04-04 không gửi period_days → mặc định 14", "st": "PASS", "note": "200 {'report_id': '01a1df13-9421-7e57-b602-7ab929c3b375', 'reused': True}"}
+{"tc": "TC-04-04 period_days=7 hợp lệ → 200/202", "st": "FAIL", "note": "409 {'code': 'NOT_ENOUGH_DATA', 'message': 'Sinh viên này chưa có đủ dữ liệu để nhận xét.', 'trace_id': "}
+{"tc": "TC-04-04 period_days=14 hợp lệ → 200/202", "st": "PASS", "note": "200 {'report_id': '01a1df13-9421-7e57-b602-7ab929c3b375', 'reused': True}"}
+{"tc": "TC-04-04 period_days=30 hợp lệ → 200/202", "st": "PASS", "note": "200 {'report_id': '01a1df13-54f2-7134-8d77-d6cadb5790f5', 'reused': True}"}
+{"tc": "TC-04-04 period_days=120 hợp lệ → 200/202", "st": "PASS", "note": "200 {'report_id': '01a1df13-2f58-749d-80d5-29c767bd6252', 'reused': True}"}
+{"tc": "TC-04-18 không có dữ liệu mới → 200 reused:true", "st": "PASS", "note": "200 {'report_id': '01a1df13-9421-7e57-b602-7ab929c3b375', 'reused': True}"}
+{"tc": "TC-04-18 llm_audit / insight_reports không tăng", "st": "PASS", "note": "audit 86->86 rep 3->3"}
+{"tc": "TC-04-19 thêm câu hỏi → 202 (không reused)", "st": "PASS", "note": "202 {'job_id': '01a1df14-d53f-75d4-9ba2-e24ac9b9e364'}"}
+{"tc": "TC-04-02 cùng Idempotency-Key → cùng job_id", "st": "PASS", "note": "202 {'job_id': '01a1df14-d53f-75d4-9ba2-e24ac9b9e364'}"}
+{"tc": "TC-04-01 job xong", "st": "PASS", "note": "{'id': '01a1df14-d53f-75d4-9ba2-e24ac9b9e364', 'kind': 'insight.knowledge_gap', 'status': 'SUCCEEDED', 'progress': 100, 'result': {'report_id': '01a1df14-d6dc-7"}
+{"tc": "TC-04-19 báo cáo mới có data_watermark mới", "st": "PASS", "note": "[['2026-11-15 12:00:45.329641+00'], ['2026-11-15 11:57:45.653566+00']]"}
+{"tc": "TC-04-09 job 1 lời gọi INSIGHT làn BATCH", "st": "PASS", "note": "[['INSIGHT', 'BATCH', 'ok', 'QC fake'], ['INSIGHT', 'BATCH', 'ok', 'QC 9router'], ['INSIGHT', 'BATCH', 'ok', 'env:fake']]"}
+{"tc": "TC-04-06 counts có đủ 5 nguồn", "st": "FAIL", "note": "{'questions': 37, 'students': 11, 'clusters': 27}"}
+{"tc": "TC-04-16 payload không có student_id/user_id/email/student_code", "st": "FAIL", "note": ""}
+{"tc": "TC-04-14 0 khớp tên/MSSV/email/SĐT trong latest + export + payload", "st": "PASS", "note": "[]"}
+{"tc": "TC-04-08 rank liền mạch 1..n, score giảm dần", "st": "PASS", "note": "n=27"}
+{"tc": "TC-04-12 có chủ đề «Ít người hỏi» với examples=[]", "st": "PASS", "note": "25"}
+{"tc": "TC-04-12 chủ đề thường có 3–5 câu mẫu hoặc ít hơn khi <3 SV", "st": "PASS", "note": ""}
+{"tc": "TC-04-10 «uncovered» có đúng 10 câu no_context (tổng count)", "st": "FAIL", "note": "[{'text': 'Hôm nay thời tiết ở Hà Nội thế nào?', 'count': 3}]"}
+{"tc": "TC-04-06 counts có đủ 5 nguồn", "st": "FAIL", "note": "{'questions': 37, 'students': 11, 'clusters': 27}"}
+{"tc": "TC-04-16 khoá payload không có student_id/user_id/email/student_code", "st": "PASS", "note": "['clusters', 'counts', 'period_days', 'questions', 'students', 'topics', 'uncovered']"}
+{"tc": "TC-04-14 0 khớp tên/MSSV/email/SĐT trong latest + export + payload", "st": "PASS", "note": "[]"}
+{"tc": "TC-04-08 rank liền mạch 1..n, score giảm dần", "st": "PASS", "note": "n=27"}
+{"tc": "TC-04-12 có chủ đề «Ít người hỏi» với examples=[]", "st": "PASS", "note": "25"}
+{"tc": "TC-04-12 chủ đề thường có 3–5 câu mẫu hoặc ít hơn khi <3 SV", "st": "PASS", "note": ""}
+{"tc": "TC-04-10 (v1.10 P-11-31) uncovered kỳ 120: đúng 2 nhóm N1 (3) và N2 (4), N3 bị bỏ", "st": "PASS", "note": "[{'text': 'Công thức nấu phở bò gồm những gì?', 'count': 4}, {'text': 'Hôm nay thời tiết ở Hà Nội thế nào?', 'count': 3}]"}
+{"tc": "TC-04-17 không câu/từ khoá riêng lớp 1 (ZQ-L1) ở lớp 2", "st": "PASS", "note": "202 202"}
+{"tc": "TC-04-25 3 lần đầu 202, lần 4 429 + Retry-After", "st": "FAIL", "note": "[(202, None), (200, None), (202, None), (200, None)]"}
+{"tc": "TC-04-31 hai generate song song: không trùng watermark", "st": "PASS", "note": "[202, 202] wm=2/2"}
+{"tc": "TC-04-25 3 lần đầu 202, lần 4 429 + Retry-After", "st": "PASS", "note": "[(202, None), (202, None), (202, None), (429, '3476')]"}
+{"tc": "TC-04-22 NAME lỗi: job không treo, hoàn tất", "st": "PASS", "note": "{'id': '01a1df16-4af4-7d52-8669-664d1e5ce51c', 'kind': 'insight.knowledge_gap', 'status': 'SUCCEEDED', 'progress': 100, 'result': {'report_id': '01a1df16-4d94-7"}
+{"tc": "TC-04-22 named_by = fallback, khuyến nghị rỗng", "st": "PASS", "note": "{'fallback'}"}
+{"tc": "TC-04-22 xếp hạng giữ nguyên (cùng thứ tự điểm)", "st": "PASS", "note": ""}

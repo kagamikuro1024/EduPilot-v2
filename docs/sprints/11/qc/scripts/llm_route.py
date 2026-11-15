@@ -25,8 +25,7 @@ def mk(name, body):
     return provs()[name]
 
 def model_id(p, model):
-    c, j, _, _ = api("admin", "GET", f"/admin/llm/providers/{p['id']}")
-    return [m for m in j["models"] if m["model"] == model][0]["id"]
+    return [m for m in p["models"] if m["model"] == model][0]["id"]
 
 def set_routes(prov, model):
     c, rt, _, _ = api("admin", "GET", "/admin/llm/routes")
@@ -36,7 +35,7 @@ def set_routes(prov, model):
         c, j, _, _ = api("admin", "PUT", "/admin/llm/routes", {"task": r["task"], "chain": [mid], "params": r["params"], "version": r["version"]})
         print(r["task"], c, "" if c == 200 else str(j)[:200])
 
-cmd = sys.argv[1]
+cmd = sys.argv[1] if __name__ == "__main__" and len(sys.argv) > 1 else ""
 if cmd == "setup":
     mk("QC 9router", {"type": "openai_compatible", "base_url": "http://host.docker.internal:20128/v1", "api_key": key9(), "enabled": True,
                       "models": [{"model": MODEL, "kind": "chat", "price_in": "0", "price_out": "0", "enabled": True}]})
@@ -44,5 +43,6 @@ if cmd == "setup":
 elif cmd in ("real", "fake"):
     p = provs()["QC 9router" if cmd == "real" else "QC fake"]
     set_routes(p, MODEL if cmd == "real" else "fake-chat")
-c, rt, _, _ = api("admin", "GET", "/admin/llm/routes")
-print({r["task"]: [e["provider_name"] + "/" + e["model"] for e in r["chain"]] for r in rt["items"]})
+if cmd:
+    c, rt, _, _ = api("admin", "GET", "/admin/llm/routes")
+    print({r["task"]: [e["provider_name"] + "/" + e["model"] for e in r["chain"]] for r in rt["items"]})
