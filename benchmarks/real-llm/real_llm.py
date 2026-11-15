@@ -62,6 +62,20 @@ class Fail(Exception):
     pass
 
 
+class QuotaOut(Fail):
+    """429 / 503 có Retry-After dài hơn QUOTA_WAIT: dừng lượt thay vì ngủ (DEF-R9.5-12)."""
+
+    def __init__(self, msg, retry_after):
+        super().__init__(msg)
+        self.retry_after = retry_after
+
+
+QUOTA_WAIT = 60.0
+# tệp kết quả của từng lệnh: `--resume` bỏ qua lệnh đã có tệp này (ponytail: mức lệnh, không mức từng lượt; chia nhỏ hơn khi một lệnh dài hơn hạn mức)
+RESULT = {"setup": "state.json", "extract": "extract.json", "grade-setup": "state.json", "grade-report": "grade-report.json",
+          "mask": "mask.json", "chat": "chat.json", "threads": "threads.json", "misc": "misc.json"}
+
+
 def now():
     return datetime.now(timezone.utc)
 
@@ -131,6 +145,8 @@ class Api:
                     return b if raw else (json.loads(b) if b else {})
             except urllib.error.HTTPError as e:
                 b = e.read()
+                if e.code in (429, 503) and retry_after(e, b) > QUOTA_WAIT:
+                    raise QuotaOut(f"{method} {path} → {e.code} Retry-After {retry_after(e, b):.0f}s", retry_after(e, b)) from None
                 if e.code in (429, 503) and i < tries - 1:
                     wait = backoff(e, b, i)
                     print(f"  {e.code} {method} {path} → chờ {wait:.0f}s", file=sys.stderr)
@@ -185,13 +201,18 @@ class Api:
         return out
 
 
-def backoff(e, body, i):
+def retry_after(e, body):
     ra = e.headers.get("Retry-After")
     try:
         ra = float(ra) if ra else json.loads(body).get("retry_after")
-    except (ValueError, AttributeError):
-        ra = None
-    return min(60.0, float(ra) if ra else 5.0 * (2 ** i))
+        return float(ra) if ra else 0.0
+    except (ValueError, AttributeError, TypeError):
+        return 0.0
+
+
+def backoff(e, body, i):
+    ra = retry_after(e, body)
+    return min(QUOTA_WAIT, ra if ra else 5.0 * (2 ** i))
 
 
 # ---- đọc DB qua AUDIT_PSQL (chỉ đọc) ---------------------------------------------------------------------------------------
@@ -831,6 +852,7 @@ def cmd_misc(api, a):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--resume", action="store_true", help="bỏ qua lệnh đã có tệp kết quả (sau khi dừng vì hết hạn mức)")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("setup")
     e = sub.add_parser("extract")
@@ -842,8 +864,16 @@ def main():
     for name in ("grade-report", "mask", "crisis", "chat", "threads", "misc"):
         sub.add_parser(name)
     a = ap.parse_args()
+    if a.resume and a.cmd in RESULT and (OUT / RESULT[a.cmd]).exists():
+        print(f"--resume: đã có {OUT / RESULT[a.cmd]}, bỏ qua {a.cmd}")
+        return
     try:
         globals()["cmd_" + a.cmd.replace("-", "_")](Api(), a)
+    except QuotaOut as e:
+        OUT.mkdir(parents=True, exist_ok=True)
+        (OUT / "resume.json").write_text(json.dumps({"cmd": a.cmd, "at": iso(now()), "reason": "chưa hoàn tất — hết hạn mức", "retry_after_s": e.retry_after, "detail": str(e)}, ensure_ascii=False, indent=1) + "\n")
+        print(f"CHƯA HOÀN TẤT — hết hạn mức ({e}). Chạy tiếp sau {e.retry_after:.0f}s: real_llm.py --resume {a.cmd}", file=sys.stderr)
+        sys.exit(3)
     except Fail as e:
         print("LỖI:", e, file=sys.stderr)
         sys.exit(2)
