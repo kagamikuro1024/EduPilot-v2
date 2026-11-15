@@ -332,7 +332,7 @@ func (q *Queries) ObsPayloadsPurge(ctx context.Context, before time.Time) (int64
 
 const obsRequestDetail = `-- name: ObsRequestDetail :one
 select a.id, a.created_at, a.task, a.lane, a.provider, a.model, a.latency_ms, a.status, a.error_kind, a.course_id, a.trace_id,
-       (p.audit_id is not null)::boolean as has_payload, p.masked_prompt as masked_prompt, p.tools as tools,
+       (p.audit_id is not null)::boolean as has_payload, p.created_at as payload_at, p.masked_prompt as masked_prompt, p.tools as tools,
        coalesce(coalesce(p.confidence, (select m.confidence from chat_messages m where m.trace_id = a.trace_id and m.confidence is not null limit 1))::text, '')::text as confidence
   from llm_audit a left join llm_request_payloads p on p.audit_id = a.id
  where a.id = $1
@@ -351,6 +351,7 @@ type ObsRequestDetailRow struct {
 	CourseID     *uuid.UUID
 	TraceID      string
 	HasPayload   bool
+	PayloadAt    *time.Time
 	MaskedPrompt *string
 	Tools        json.RawMessage
 	Confidence   string
@@ -373,6 +374,7 @@ func (q *Queries) ObsRequestDetail(ctx context.Context, id uuid.UUID) (ObsReques
 		&i.CourseID,
 		&i.TraceID,
 		&i.HasPayload,
+		&i.PayloadAt,
 		&i.MaskedPrompt,
 		&i.Tools,
 		&i.Confidence,
@@ -389,7 +391,7 @@ select a.id, a.created_at, a.task, a.lane, a.provider, a.model, a.latency_ms, a.
    and ($3::uuid is null or a.course_id = $3)
    and ($4::text is null or a.task = $4)
    and ($5::text = 'all'
-        or ($5::text = 'problem' and a.status <> 'ok')
+        or ($5::text = 'problem' and a.status not in ('ok', 'degraded', 'cancelled'))
         or ($5::text = 'privacy' and a.pii_masked_count > 0))
    and ($6::timestamptz is null or (a.created_at, a.id) < ($6, $7::uuid))
  order by a.created_at desc, a.id desc
@@ -424,7 +426,7 @@ type ObsRequestsPageRow struct {
 	CourseCode     *string
 }
 
-// Bảng yêu cầu (ADMIN): KHÔNG cột nội dung. filter: all | problem (status ≠ ok) | privacy (pii_masked_count > 0).
+// Bảng yêu cầu (ADMIN): KHÔNG cột nội dung. filter: all | problem (status ∉ ok, degraded, cancelled — Q-S11-1: nhất quán với tỷ lệ lỗi và cảnh báo) | privacy (pii_masked_count > 0).
 func (q *Queries) ObsRequestsPage(ctx context.Context, arg ObsRequestsPageParams) ([]ObsRequestsPageRow, error) {
 	rows, err := q.db.Query(ctx, obsRequestsPage,
 		arg.FromTs,

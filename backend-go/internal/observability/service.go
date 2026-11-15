@@ -41,6 +41,16 @@ type Service struct {
 	Log   *slog.Logger
 	// JaegerBaseURL rỗng → không có liên kết trace.
 	JaegerBaseURL string
+	// PayloadDays: số ngày giữ bản prompt (OBS_PAYLOAD_DAYS; 0 → 30). `Open` kiểm tuổi lúc ĐỌC: quá hạn là 410 dù job dọn chưa chạy (riêng tư).
+	PayloadDays int
+}
+
+func (s *Service) payloadExpired(at *time.Time) bool {
+	days := s.PayloadDays
+	if days <= 0 {
+		days = 30
+	}
+	return at != nil && at.Before(s.now().AddDate(0, 0, -days))
 }
 
 func (s *Service) now() time.Time {
@@ -332,7 +342,7 @@ func (s *Service) Open(ctx context.Context, actor, id uuid.UUID, reason, traceID
 	if err := tx.Commit(ctx); err != nil {
 		return Detail{}, fmt.Errorf("observability: commit: %w", err)
 	}
-	if !d.HasPayload {
+	if !d.HasPayload || s.payloadExpired(d.PayloadAt) {
 		return Detail{}, ErrExpired
 	}
 	out := Detail{ID: d.ID, At: d.CreatedAt, Task: d.Task, Provider: d.Provider, Model: d.Model, Status: d.Status, TraceID: d.TraceID, MaskedPrompt: derefStr(d.MaskedPrompt), Tools: toolNames(d.Tools)}

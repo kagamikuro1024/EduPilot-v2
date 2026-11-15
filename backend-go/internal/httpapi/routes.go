@@ -197,7 +197,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		if d.DB != nil {
 			(&mailhttp.Handler{Pool: d.DB, Log: d.Log}).Mount(r) // US-P4-04 AC9: thư gửi lỗi (ADMIN)
 			// US-P10-01/02: quan sát AI (ADMIN) + bản tổng hợp một lớp (TEACHER của lớp / ADMIN).
-			(&observabilityhttp.Handler{Svc: &observability.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, JaegerBaseURL: d.Cfg.JaegerBaseURL}, Guard: courseGuard, Log: d.Log}).Mount(r)
+			(&observabilityhttp.Handler{Svc: &observability.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, JaegerBaseURL: d.Cfg.JaegerBaseURL, PayloadDays: d.Cfg.ObsPayloadDays}, Guard: courseGuard, Log: d.Log}).Mount(r)
 		}
 	})
 
