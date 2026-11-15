@@ -2685,7 +2685,7 @@ paths:
     post:
       operationId: createCheckin
       tags: [attendance]
-      summary: "Sinh viên tự điểm danh (CHỈ STUDENT ACTIVE của lớp; `student_id` lấy từ JWT, `student_id` / `user_id` trong thân bị bỏ qua). Đúng MỘT trong `token`, `code` (cả hai / không có → 422 VALIDATION_FAILED). Tín hiệu bất thường (không chữ ký, máy dùng chung, ngoài vùng…) KHÔNG bao giờ làm từ chối: vẫn 201 và ghi cờ; thân phản hồi giống hệt khi có hoặc không có cờ. Idempotent theo khoá tự nhiên (course, cửa sổ, sinh viên): gửi lại → 200 cùng `{checked_in_at, round}`, không đổi cờ. Lỗi: 403 NOT_IN_COURSE (chưa ghi danh ACTIVE); 409 SELF_CHECKIN_DISABLED | WINDOW_CLOSED | COURSE_ARCHIVED; 422 TOKEN_INVALID (mã sai / cửa sổ lạ / lớp khác / mã ngắn không khớp, không phân biệt) | TOKEN_EXPIRED (MAC đúng, bước ngoài hai bước) | VALIDATION_FAILED; 429 RATE_LIMITED + Retry-After (10 lượt / phút / người; riêng `code`: từ lần nhập sai thứ 6 trong 1 phút, kể cả khi mã đúng sau đó)"
+      summary: "Sinh viên tự điểm danh (CHỈ STUDENT ACTIVE của lớp; `student_id` lấy từ JWT, `student_id` / `user_id` trong thân bị bỏ qua). Đúng MỘT trong `token`, `code` (cả hai / không có → 422 VALIDATION_FAILED). Tín hiệu bất thường (không chữ ký, máy dùng chung, ngoài vùng…) KHÔNG bao giờ làm từ chối: vẫn 201 và ghi cờ; thân phản hồi giống hệt khi có hoặc không có cờ. Idempotent theo khoá tự nhiên (course, cửa sổ, sinh viên): gửi lại → 200 cùng `{checked_in_at, round}`, không đổi cờ. Lỗi: 403 NOT_IN_COURSE (chưa ghi danh ACTIVE); 409 SELF_CHECKIN_DISABLED | WINDOW_CLOSED | COURSE_ARCHIVED; 422 CHECKIN_TOKEN_INVALID (mã sai / cửa sổ lạ / lớp khác / mã ngắn không khớp, không phân biệt) | CHECKIN_TOKEN_EXPIRED (MAC đúng, bước ngoài hai bước) | VALIDATION_FAILED; 429 RATE_LIMITED + Retry-After (10 lượt / phút / người; riêng `code`: từ lần nhập sai thứ 6 trong 1 phút, kể cả khi mã đúng sau đó)"
       parameters:
         - $ref: "#/components/parameters/CourseId"
       requestBody:
@@ -14003,6 +14003,8 @@ components:
             - TOO_LONG
             - TYPE_NOT_SUPPORTED_IN_EXAM
             - SELF_CHECKIN_DISABLED
+            - CHECKIN_TOKEN_INVALID
+            - CHECKIN_TOKEN_EXPIRED
             - WINDOW_ALREADY_OPEN
             - WINDOW_CLOSED
             - WINDOW_OPEN

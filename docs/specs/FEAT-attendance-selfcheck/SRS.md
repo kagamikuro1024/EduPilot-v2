@@ -1,5 +1,5 @@
 # SRS FEAT-attendance-selfcheck Điểm danh tự phục vụ chống gian lận (web + app Android)
-Phiên bản 1.3 · 2026-11-15 · Trạng thái: **DRAFT** (PM đã chốt Q-A-1, Q-A-2, Q-A-4 ở **P-108-2**; chờ PM duyệt toàn bộ). **v1.1 (P-108-2):** xoá hẳn lượt thô sau 30 ngày; `CHECKIN_UNRESOLVED` cho buổi có cửa sổ; **bỏ App Links** — trong app quét bằng `BarcodeDetector` trong WebView, thiếu thì nhập **mã ngắn** hiện dưới QR (FR-3a, FR-10, FR-22). **v1.2 (P-108-3):** hợp đồng API (`CourseDetail.attendance`, thay toàn bộ chính sách, trần 3 cửa sổ, `close` lần hai không audit / outbox). **v1.3 (P-108-4…10):** FR-20 ràng `public_key` với chứng chỉ lá (P-108-4); app chưa chứng thực ký Keystore gửi `WEB_KEY` → mức 2 (P-108-5); `NOT_APP` theo chữ ký `ANDROID_KEY` của khoá `attested` (P-108-6); màn chiếu giữ QR tới hạn hiệu lực theo giờ máy chủ (P-108-7); dựng lại APK một lệnh khi đổi host (P-108-9); `attendance.ForgetStudent` (P-108-10). P-108-8 (DESIGN §23.1) làm sau khi 10.7 vào main.
+Phiên bản 1.4 · 2026-11-15 · Trạng thái: **DRAFT** (PM đã chốt Q-A-1, Q-A-2, Q-A-4 ở **P-108-2**; chờ PM duyệt toàn bộ). **v1.1 (P-108-2):** xoá hẳn lượt thô sau 30 ngày; `CHECKIN_UNRESOLVED` cho buổi có cửa sổ; **bỏ App Links** — trong app quét bằng `BarcodeDetector` trong WebView, thiếu thì nhập **mã ngắn** hiện dưới QR (FR-3a, FR-10, FR-22). **v1.2 (P-108-3):** hợp đồng API (`CourseDetail.attendance`, thay toàn bộ chính sách, trần 3 cửa sổ, `close` lần hai không audit / outbox). **v1.3 (P-108-4…10):** FR-20 ràng `public_key` với chứng chỉ lá (P-108-4); app chưa chứng thực ký Keystore gửi `WEB_KEY` → mức 2 (P-108-5); `NOT_APP` theo chữ ký `ANDROID_KEY` của khoá `attested` (P-108-6); màn chiếu giữ QR tới hạn hiệu lực theo giờ máy chủ (P-108-7); dựng lại APK một lệnh khi đổi host (P-108-9); `attendance.ForgetStudent` (P-108-10). P-108-8 (DESIGN §23.1) làm sau khi 10.7 vào main.
 
 Nguồn: `US.md` (US-AS-01…14), PRD M5, FLOWS F7 + F7b, `docs/sprints/10.8/techlead.md` TL-1, `docs/research/2026-11-14-attendance-anti-cheat.md` (viết tắt «research»), **P-108-1**. Phần lệch có chủ đích so với research ghi ở mục 10.
 
@@ -37,7 +37,7 @@ Kết quả đóng cửa sổ ghi vào `attendance_records` có sẵn; lưới �
 | 9 | Mục `CHECKIN_REVIEW` ở `GET /me/today` | không có | ✓ | ✓ | – |
 | 10 | Thấy cờ, mức tin cậy, `geo_distance_m`, `in_campus` | **không bao giờ** | ✓ | ✓ | – |
 
-Người ngoài lớp: `404` cho mọi route có `{id}` của lớp (không lộ lớp tồn tại). Không JWT: `401`.
+Người ngoài lớp: `403` (`FORBIDDEN`, `details.reason = course`) cho mọi route có `{id}` của lớp — đúng `CourseAccessGuard` (P-108-11, vá chỗ ghi `404`); tài nguyên con (`sid`, `wid`, `cid`) không thuộc lớp trong đường dẫn vẫn `404`. Không JWT: `401`.
 
 **Nguyên tắc dữ liệu (luật cứng, kiểm bằng test):**
 - Sinh viên không thấy cờ / `assurance` / thiết bị / vị trí đã lưu qua API, giao diện, AI (`get_my_attendance` không đổi), thông báo, thư.
@@ -126,8 +126,8 @@ stateDiagram-v2
 | Tình huống | Hệ thống phản ứng | Người dùng thấy |
 | --- | --- | --- |
 | Lớp tắt `self_checkin` | `409 SELF_CHECKIN_DISABLED` | SV: «Lớp này không điểm danh bằng mã.» · Staff: không có nút |
-| MAC sai / cửa sổ lạ / lớp khác / sai cú pháp | `422 TOKEN_INVALID` (không phân biệt) | «Mã không đúng. Quét lại mã trên màn chiếu.» |
-| MAC đúng, `step` ngoài hai bước | `422 TOKEN_EXPIRED` | «Mã đã hết hạn. Quét lại mã trên màn chiếu.» |
+| MAC sai / cửa sổ lạ / lớp khác / sai cú pháp | `422 CHECKIN_TOKEN_INVALID` (không phân biệt) | «Mã không đúng. Quét lại mã trên màn chiếu.» |
+| MAC đúng, `step` ngoài hai bước | `422 CHECKIN_TOKEN_EXPIRED` | «Mã đã hết hạn. Quét lại mã trên màn chiếu.» |
 | Cửa sổ đã đóng / quá `closes_at` (MAC đúng) | `409 WINDOW_CLOSED` | «Đã đóng điểm danh.» |
 | SV chưa ghi danh `ACTIVE` | `403 NOT_IN_COURSE` | «Bạn không thuộc lớp này.» |
 | TA / TEACHER / ADMIN gọi route SV | `403` | Màn chặn chuẩn |
@@ -145,7 +145,7 @@ stateDiagram-v2
 | Nonce thiết bị sai / hết hạn | `422 DEVICE_CHALLENGE_INVALID` | App thử lại tự động một lần |
 | Chuỗi chứng thực giả / APK lạ / bị thu hồi / khoá không khớp chứng chỉ lá (kể cả emulator) | `422 ATTESTATION_FAILED` | App vẫn ký bằng khoá Keystore và gửi `WEB_KEY` (DER) → mức 2 (P-108-5) |
 | Danh sách thu hồi không tải được, chưa có bản đệm | `503 ATTESTATION_UNAVAILABLE` (chỉ đăng ký) | App vẫn ký bằng khoá Keystore, gửi `WEB_KEY` (mức 2), thử đăng ký lại sau (P-108-5) |
-| Nhập mã ngắn sai / hết hạn / lớp không có cửa sổ khớp | `422 TOKEN_INVALID` (không phân biệt) | «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» |
+| Nhập mã ngắn sai / hết hạn / lớp không có cửa sổ khớp | `422 CHECKIN_TOKEN_INVALID` (không phân biệt) | «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» |
 | Nhập mã ngắn đúng nhưng cửa sổ đã đóng | `409 WINDOW_CLOSED` | «Đã đóng điểm danh.» |
 | Nhập sai ≥ 5 lần / phút | `429` + `Retry-After` (cả khi đúng sau đó, hết phút) | «Thử lại sau {n} giây.» |
 | `token` và `code` cùng có / cùng thiếu | `422 VALIDATION_FAILED` | – (không xảy ra từ giao diện) |
@@ -223,7 +223,7 @@ Vòng ≥ 2: thêm `RECHECK_MISS` (FR-14). Trả `written{present,late}`, `unche
 
 ### 4.3 `internal/attendance` — lượt điểm danh
 
-**FR-10 (điểm danh).** `POST /courses/{id}/checkins {token | code, device?, geo?, app?}` (đúng một trong `token`, `code`) (STUDENT, `CourseAccessGuard`, `student_id` = `sub`). Thứ tự: hạn mức `CHECKIN_RATE_PER_MIN` (middleware có sẵn, theo `uid`) → cú pháp thân (`422`) → lớp bật `self_checkin` → **đường `token`:** cửa sổ theo `window_id` **và** `course_id` → MAC; **đường `code`:** kiểm bộ đếm sai `ep:att:codefail:{uid}` (≥ `CHECKIN_CODE_FAIL_PER_MIN` ⇒ `429`) → nạp cửa sổ của lớp có `closes_at > now() − CHECKIN_CODE_LOOKBACK_MIN` → khớp mã ngắn (FR-3a) bước hiện tại / trước ⇒ cửa sổ đó; không khớp ⇒ `INCR` bộ đếm, `422 TOKEN_INVALID` → `closed_at`/`closes_at` (`409`) → `step` (đường `token`: `422 TOKEN_EXPIRED`; đường `code` đã kiểm bước ở bước khớp) → `SELECT` lượt hiện có `(course, window, student)` → có ⇒ `200` bản cũ → chưa ⇒ kiểm chữ ký, tính cờ (FR-11…FR-13), `INSERT … ON CONFLICT (course_id, window_id, student_id) DO NOTHING RETURNING`; mất cuộc đua ⇒ đọc lại, `200`. `channel` = `CODE` khi đường `code`, ngược lại `APP` nếu `app` có mặt, còn lại `WEB`. Phản hồi `{checked_in_at, round}` — **cùng hình dạng** mọi trường hợp. → US-AS-03.
+**FR-10 (điểm danh).** `POST /courses/{id}/checkins {token | code, device?, geo?, app?}` (đúng một trong `token`, `code`) (STUDENT, `CourseAccessGuard`, `student_id` = `sub`). Thứ tự: hạn mức `CHECKIN_RATE_PER_MIN` (middleware có sẵn, theo `uid`) → cú pháp thân (`422`) → lớp bật `self_checkin` → **đường `token`:** cửa sổ theo `window_id` **và** `course_id` → MAC; **đường `code`:** kiểm bộ đếm sai `ep:att:codefail:{uid}` (≥ `CHECKIN_CODE_FAIL_PER_MIN` ⇒ `429`) → nạp cửa sổ của lớp có `closes_at > now() − CHECKIN_CODE_LOOKBACK_MIN` → khớp mã ngắn (FR-3a) bước hiện tại / trước ⇒ cửa sổ đó; không khớp ⇒ `INCR` bộ đếm, `422 CHECKIN_TOKEN_INVALID` → `closed_at`/`closes_at` (`409`) → `step` (đường `token`: `422 CHECKIN_TOKEN_EXPIRED`; đường `code` đã kiểm bước ở bước khớp) → `SELECT` lượt hiện có `(course, window, student)` → có ⇒ `200` bản cũ → chưa ⇒ kiểm chữ ký, tính cờ (FR-11…FR-13), `INSERT … ON CONFLICT (course_id, window_id, student_id) DO NOTHING RETURNING`; mất cuộc đua ⇒ đọc lại, `200`. `channel` = `CODE` khi đường `code`, ngược lại `APP` nếu `app` có mặt, còn lại `WEB`. Phản hồi `{checked_in_at, round}` — **cùng hình dạng** mọi trường hợp. → US-AS-03.
 
 **FR-11 (chữ ký và thiết bị).** Chuỗi ký `"edupilot-checkin-v1|" + token + "|" + user_id` (đường `code`: `"edupilot-checkin-v1|code:" + CODE_CHUẨN_HOÁ + "|" + user_id`). `WEB_KEY`: nhận `public_key` (SPKI, ≤ 512 byte), `key_sha256 = sha256(public_key)`, `INSERT user_devices … ON CONFLICT (key_sha256) DO NOTHING`, kiểm ECDSA P-256 (chữ ký 64 byte `r‖s` hoặc DER). `ANDROID_KEY`: `key_id` (= base64url `key_sha256`) phải có trong `user_devices` với `attested`; kiểm chữ ký bằng `public_key` đã lưu. Không có `device` ⇒ `NO_DEVICE_KEY`; có nhưng sai / chưa đăng ký ⇒ `DEVICE_UNTRUSTED`. **Không bao giờ** từ chối vì chữ ký. → US-AS-04 AC1, AC9.
 
@@ -388,16 +388,16 @@ Dưới `/api/v1`; `…` = `/courses/{id}`. Mọi ghi quan trọng: `Idempotency
 | 8 | `POST …/sessions/{sid}/absent-unchecked` | Staff | `Idempotency-Key`; `409 WINDOW_OPEN`, `NO_WINDOW`; `{marked}` |
 | 9 | `GET …/sessions/{sid}/checkins?flagged=&round=&cursor=&limit=` | Staff | con trỏ, `limit ≤ 100` |
 | 10 | `POST …/checkins/{cid}/clear-flags` | Staff | `audit_log`; idempotent |
-| 11 | `POST …/checkins {token \| code, device?, geo?, app?}` | STUDENT | `201`/`200 {checked_in_at, round}`; `409 SELF_CHECKIN_DISABLED`, `WINDOW_CLOSED`, `COURSE_ARCHIVED`; `422 TOKEN_INVALID`, `TOKEN_EXPIRED`, `VALIDATION_FAILED`; `403 NOT_IN_COURSE`; `429` (kể cả quá 5 lần nhập sai mã ngắn / phút) |
+| 11 | `POST …/checkins {token \| code, device?, geo?, app?}` | STUDENT | `201`/`200 {checked_in_at, round}`; `409 SELF_CHECKIN_DISABLED`, `WINDOW_CLOSED`, `COURSE_ARCHIVED`; `422 CHECKIN_TOKEN_INVALID`, `CHECKIN_TOKEN_EXPIRED`, `VALIDATION_FAILED`; `403 NOT_IN_COURSE`; `429` (kể cả quá 5 lần nhập sai mã ngắn / phút) |
 | 12 | `POST /me/devices/challenge` → `{nonce}` | STUDENT | `429` |
 | 13 | `POST /me/devices {kind, public_key, attestation_chain[]}` | STUDENT | `201`/`200 {key_id}`; `422 DEVICE_CHALLENGE_INVALID`, `ATTESTATION_FAILED`; `503 ATTESTATION_UNAVAILABLE` |
 | 14 | `GET …/me/attendance` | STUDENT | thêm `checked_in_at` |
 | 15 | `GET /me/today` | mọi vai | thêm `CHECKIN_REVIEW` cho Staff |
 | 16 | `PUT …/sessions/{sid}/attendance` | Staff | thêm `422 CHECKIN_UNRESOLVED {count}` (FR-9) |
 
-Thân `device`: `{kind:"WEB_KEY", public_key, signature}` hoặc `{kind:"ANDROID_KEY", key_id, signature}`; `geo`: `{lat, lng, accuracy_m, mock?, denied?}`; `app`: `{version}` (chỉ để chẩn đoán, không đổi quyết định). Ghi chú `403`: STUDENT khác lớp ở route Staff → `404`.
+Thân `device`: `{kind:"WEB_KEY", public_key, signature}` hoặc `{kind:"ANDROID_KEY", key_id, signature}`; `geo`: `{lat, lng, accuracy_m, mock?, denied?}`; `app`: `{version}` (chỉ để chẩn đoán, không đổi quyết định). Ghi chú `403`: người ngoài lớp (kể cả STUDENT lớp khác ở route Staff) → `403` lý do `course` (P-108-11). Mã lỗi QR / mã ngắn mang tiền tố `CHECKIN_` để không trùng `TOKEN_EXPIRED` / `TOKEN_INVALID` của xác thực (client `apiClient` làm mới phiên / đăng xuất theo hai mã đó).
 
-Mã lỗi mới: `SELF_CHECKIN_DISABLED`, `WINDOW_ALREADY_OPEN`, `WINDOW_CLOSED`, `WINDOW_OPEN`, `NO_WINDOW`, `ROUND_LIMIT`, `TOKEN_INVALID`, `TOKEN_EXPIRED`, `NOT_IN_COURSE`, `CHECKIN_UNRESOLVED`, `DEVICE_CHALLENGE_INVALID`, `ATTESTATION_FAILED`, `ATTESTATION_UNAVAILABLE`. Không có tool agent mới.
+Mã lỗi mới: `SELF_CHECKIN_DISABLED`, `WINDOW_ALREADY_OPEN`, `WINDOW_CLOSED`, `WINDOW_OPEN`, `NO_WINDOW`, `ROUND_LIMIT`, `CHECKIN_TOKEN_INVALID`, `CHECKIN_TOKEN_EXPIRED`, `NOT_IN_COURSE`, `CHECKIN_UNRESOLVED`, `DEVICE_CHALLENGE_INVALID`, `ATTESTATION_FAILED`, `ATTESTATION_UNAVAILABLE`. Không có tool agent mới.
 
 ## 7. Giao diện
 
