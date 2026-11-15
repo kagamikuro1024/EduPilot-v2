@@ -31,6 +31,8 @@ type HandlerDeps struct {
 	Redis    *redis.Client
 	Verifier *auth.Verifier
 	Clock    clock.Clock
+	// MW: tuỳ chọn xác thực dùng chung với nhóm nghiệp vụ (`authOptions`: thu hồi phiên, ở production bắt buộc `sid`) — P-11-31 F-2.
+	MW []auth.MiddlewareOption
 	// Drain đóng lại khi gateway bắt đầu tắt (httpapi.State.DrainC()): handler gửi `event: shutdown` rồi đóng.
 	Drain <-chan struct{}
 }
@@ -100,7 +102,7 @@ func NewHandler(d HandlerDeps) http.Handler {
 	if h.clk == nil {
 		h.clk = clock.Real{}
 	}
-	return auth.Middleware(d.Verifier)(http.HandlerFunc(h.stream))
+	return auth.Middleware(d.Verifier, d.MW...)(http.HandlerFunc(h.stream))
 }
 
 func (h *handler) stream(w http.ResponseWriter, r *http.Request) {
