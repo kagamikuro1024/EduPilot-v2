@@ -72,9 +72,12 @@
    "P23"
   ],
   "spell_leak": [],
+  "spell_detector": "v3 (P-PM chặt nhất): mọi chuỗi ≥ 3 ký tự đơn ngăn bởi khoảng trắng / - / . / , / _ / / / |, bỏ dấu, không phân biệt hoa thường; lộ khi chuỗi ghép chứa giá trị PII của probe, một từ ≥ 3 ký tự của tên, hoặc phần trước @ của email; xét MỌI probe",
   "errors": [],
   "threshold": 0.95,
-  "pass": true
+  "pass": true,
+  "spell_leak_before": [],
+  "rescored_at": "2026-11-15T22:30:54.151Z"
  },
  "results": [
   {
@@ -154,7 +157,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -231,7 +236,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -309,7 +316,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -375,7 +384,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -454,7 +465,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -605,7 +618,8 @@
    "missing": [],
    "leftover_placeholder": false,
    "leftover_match": null,
-   "spell_leak": false
+   "spell_leak": [],
+   "spell_leak_before": false
   },
   {
    "http": 200,
@@ -682,7 +696,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -750,7 +766,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -817,7 +835,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -967,7 +987,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1033,7 +1055,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1142,7 +1166,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1250,7 +1276,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1328,7 +1356,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1393,7 +1423,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1460,7 +1492,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1502,7 +1536,9 @@
     "A"
    ],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1543,7 +1579,9 @@
     "C_CODE"
    ],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1584,7 +1622,9 @@
     "B"
    ],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1624,7 +1664,9 @@
     "C"
    ],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1664,7 +1706,9 @@
     "A"
    ],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1705,7 +1749,9 @@
     "A"
    ],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1746,7 +1792,9 @@
     "C"
    ],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -1878,7 +1926,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -2021,7 +2071,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -2153,7 +2205,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -2220,7 +2274,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -2328,7 +2384,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -2394,7 +2452,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -2525,7 +2585,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   },
   {
    "http": 200,
@@ -2591,7 +2653,9 @@
    ],
    "missing": [],
    "leftover_placeholder": false,
-   "leftover_match": null
+   "leftover_match": null,
+   "spell_leak_before": null,
+   "spell_leak": []
   }
  ]
 }
