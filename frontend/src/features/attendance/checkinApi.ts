@@ -41,13 +41,25 @@ export type CheckinRow = {
 export const windowsKey = (course: string, session: string) => ["checkin-windows", course, session] as const;
 export const checkinsKey = (course: string, session: string) => ["checkins", course, session] as const;
 
-/** Cửa sổ của một buổi (≤ 3 vòng, không phân trang). `refetchMs` > 0 thì hỏi lại theo chu kỳ (chỉ khi tab hiện). */
-export const useWindows = (course: string, session: string | undefined, refetchMs: number | false = false) =>
+export type CoursePolicy = { self_checkin: boolean; rotate_seconds: number; late_after_min: number; require: "WEB" | "APP" };
+
+/** Chính sách điểm danh bằng mã của lớp (`GET /courses/{id}` → `attendance`); `null` khi lớp chưa bật / máy chủ không trả. */
+export const useCoursePolicy = (course: string) =>
   useQuery({
+    queryKey: ["course-attendance", course] as const,
+    staleTime: 30_000,
+    queryFn: async ({ signal }) => (await apiClient.get<{ attendance?: CoursePolicy }>(`/courses/${course}`, { signal })).data.attendance ?? null,
+  });
+
+export const isOpen = (w: CheckinWindow, now = Date.now()) => !w.closed_at && Date.parse(w.closes_at) > now;
+
+/** Cửa sổ của một buổi (≤ 3 vòng, không phân trang). Đang có cửa sổ mở thì hỏi lại mỗi `rotateSeconds` (chỉ khi tab hiện). */
+export const useWindows = (course: string, session: string | undefined, enabled: boolean, rotateSeconds: number) =>
+  useQuery<CheckinWindow[]>({
     queryKey: windowsKey(course, session ?? ""),
-    enabled: Boolean(session),
+    enabled: enabled && Boolean(session),
     staleTime: 0,
-    refetchInterval: refetchMs,
+    refetchInterval: (q) => (q.state.data?.some((w) => isOpen(w)) ? rotateSeconds * 1000 : false),
     refetchIntervalInBackground: false,
     queryFn: async ({ signal }) => (await apiClient.get<{ items: CheckinWindow[] }>(`/courses/${course}/sessions/${session}/checkin-windows`, { signal })).data.items,
   });

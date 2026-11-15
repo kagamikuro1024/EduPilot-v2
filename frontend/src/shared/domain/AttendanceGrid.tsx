@@ -2,7 +2,7 @@
 
 import { useState, type KeyboardEvent } from "react";
 import { Plus } from "lucide-react";
-import { DataTable, Kbd, type Column } from "@/shared/ui";
+import { DataTable, Kbd, StatusText, type Column } from "@/shared/ui";
 import s from "./AttendanceGrid.module.css";
 
 export type AttendanceStatus = "PRESENT" | "LATE" | "EXCUSED" | "ABSENT";
@@ -14,13 +14,39 @@ export const ATTENDANCE_OPTIONS: Array<{ value: AttendanceStatus; label: string;
 ];
 /** "+2 · +0,25×2" (số lần · điểm cộng mỗi lần × số lần); chưa biết điểm cộng thì chỉ "+2". */
 const speakText = (n: number, bonus?: string) => (bonus ? `+${n} · +${bonus}×${n}` : `+${n}`);
-const labelOf = (v: AttendanceStatus) => ATTENDANCE_OPTIONS.find((o) => o.value === v)?.label ?? v;
+const labelOf = (v: AttendanceStatus | null) => (v === null ? "Chưa điểm danh" : (ATTENDANCE_OPTIONS.find((o) => o.value === v)?.label ?? v));
+
+function CheckinMeta({ c }: { c: CheckinInfo }) {
+  const shown = c.chips.slice(0, 2);
+  const more = c.chips.length - shown.length;
+  if (!c.at && shown.length === 0 && !c.review) return null;
+  return (
+    <span className="ep-meta" data-part="checkin-meta">
+      {c.at && <span>Điểm danh lúc {c.at}</span>}
+      {shown.map((x) => (
+        <StatusText key={x.label} tone={x.tone === "warn" ? "amber" : "neutral"}> · {x.label}</StatusText>
+      ))}
+      {more > 0 && <span> · +{more}</span>}
+      {c.review && (
+        <>
+          {" · "}
+          <button type="button" onClick={c.review}>Đã xem</button>
+        </>
+      )}
+    </span>
+  );
+}
+
+/** Điểm danh bằng mã (DESIGN §14.8): thời điểm quét sớm nhất, nhãn cờ (≤ 2 rồi `+n`) và nút `Đã xem`. */
+export type CheckinInfo = { at: string | null; chips: Array<{ label: string; tone: "warn" | "neutral" }>; review?: () => void };
 
 export type AttendanceGridRow = {
   id: string;
   name: string;
   code: string;
-  status: AttendanceStatus;
+  /** `null` = ô trống, chưa điểm danh (buổi có cửa sổ điểm danh bằng mã; không mặc định `Có mặt`) */
+  status: AttendanceStatus | null;
+  checkin?: CheckinInfo;
   speaks: number;
   /** vừa lưu xong: nháy nền xanh nhạt tại ô tên (US-UX91-04 AC7) */
   saved?: boolean;
@@ -98,8 +124,9 @@ export function AttendanceGrid({
           <span className="ep-item-title">{r.name}</span>
           <span className="ep-meta">
             {r.code}
-            {r.status !== "PRESENT" && <span className={s.statusText} data-status={r.status}> · {labelOf(r.status)}</span>}
+            {r.status !== "PRESENT" && <span className={s.statusText} data-status={r.status ?? "NONE"}> · {labelOf(r.status)}</span>}
           </span>
+          {r.checkin && <CheckinMeta c={r.checkin} />}
           {resolve(r)}
         </span>
       ),
@@ -160,7 +187,7 @@ export function AttendanceGrid({
         rowAttrs={(r) => ({ "data-part": "student-row", "data-student-id": r.id })}
         mobileRow={(r) => {
           const expanded = open === r.id;
-          const tone = r.status === "ABSENT" ? s.mStatusAbsent : r.status === "PRESENT" ? "" : s.mStatusOther;
+          const tone = r.status === "ABSENT" ? s.mStatusAbsent : r.status === "PRESENT" || r.status === null ? "" : s.mStatusOther;
           return (
             <div className={s.mRow} data-part="att-row" data-student-id={r.id}>
               <div className={s.mTop}>
@@ -176,6 +203,7 @@ export function AttendanceGrid({
                 </button>
               </div>
               {resolve(r)}
+              {r.checkin && <CheckinMeta c={r.checkin} />}
               {expanded && !readOnly && (
                 <div className={s.mPanel}>
                   <div className={s.mMarks} role="radiogroup" aria-label={`Điểm danh ${r.name}`}>

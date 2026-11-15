@@ -66,7 +66,7 @@ test("attendance display: Esc thoát về /attendance; sinh viên không gây y�
   await page.goto(URL_DISPLAY);
   await expect(page.locator("[data-part=short-code]")).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page).toHaveURL(new RegExp(`/attendance\\?course=${COURSE}&session=${SESSION}$`));
+  await expect(page).toHaveURL(new RegExp(`/attendance\\?session=${SESSION}$`));
 
   await page.context().clearCookies();
   await asDemo(context, "student");

@@ -8,7 +8,7 @@ import { queueKey, type Conflict, type Grid, type PutResult, type SpeakCreated, 
 
 /** Việc chờ gửi: đổi trạng thái (khoá = mã sinh viên) hoặc một lần phát biểu (khoá = `speak:<client_event_id>`). */
 type Item = { kind: "mark"; status: Status } | { kind: "speak"; student_id: string };
-type Base = Record<string, { status: Status; version: number | null }>;
+type Base = Record<string, { status: Status | null; version: number | null }>;
 
 function browserStore(key: string) {
   return {
@@ -43,15 +43,17 @@ function conflictsOf(e: ApiError): Conflict[] {
   return [];
 }
 
-export type Row = { id: string; name: string; code: string; status: Status; speaks: number; conflict: Conflict | null };
+export type Row = { id: string; name: string; code: string; status: Status | null; speaks: number; conflict: Conflict | null };
 
 /**
  * Trạng thái điểm danh của một buổi (FEAT-crm-360 AC8, AC13): lựa chọn ghi NGAY vào kho ở máy (`SaveQueue`, khoá có người dùng), gửi `PUT` một lần cho cả lô sau 2 s yên lặng
  * và khi có mạng lại; phát biểu gửi ngay (mất mạng thì chờ trong cùng hàng đợi, `client_event_id` khử trùng). Xung đột 409 dừng hàng đợi, giữ chữ, chờ người dùng chọn từng dòng.
  */
-export function useAttendance({ course, userId, grid }: { course: string; userId: string; grid: Grid }) {
+export function useAttendance({ course, userId, grid, blank = false }: { course: string; userId: string; grid: Grid; blank?: boolean }) {
+  /** Hàng chưa có dòng điểm danh: ô trống khi buổi có cửa sổ điểm danh bằng mã (10.8), nếu không là «Có mặt» như trước. */
+  const fallback: Status | null = blank ? null : "PRESENT";
   const session = grid.session.id;
-  const [base, setBaseState] = useState<Base>(() => Object.fromEntries(grid.students.map((s) => [s.id, { status: s.record?.status ?? "PRESENT", version: s.record?.version ?? null }])));
+  const [base, setBaseState] = useState<Base>(() => Object.fromEntries(grid.students.map((s) => [s.id, { status: s.record?.status ?? fallback, version: s.record?.version ?? null }])));
   const baseRef = useRef(base);
   const setBase = useCallback((fn: (b: Base) => Base) => {
     baseRef.current = fn(baseRef.current);
@@ -60,6 +62,7 @@ export function useAttendance({ course, userId, grid }: { course: string; userId
   const [delta, setDelta] = useState<Record<string, number>>({});
   const [conflicts, setConflicts] = useState<Conflict[]>([]);
   const [fatal, setFatal] = useState<string | null>(null);
+  const [unresolved, setUnresolved] = useState<number | null>(null);
   const [doneAt, setDoneAt] = useState<string | null>(grid.session.attendance_done_at);
   const [changedSinceDone, setChangedSinceDone] = useState(false);
   const [completed, setCompleted] = useState<{ total: number; absent: number } | null>(null);
@@ -74,9 +77,10 @@ export function useAttendance({ course, userId, grid }: { course: string; userId
         const complete = completeRef.current;
         // `Lưu điểm danh` ghi CẢ LƯỚI trong một lời gọi (hàng không đổi so với máy chủ bị bỏ qua, không xung đột); tự lưu chỉ gửi hàng đã đổi
         const overlay = new Map(marks.map((m) => [m.id, m.status]));
-        const ids = complete ? grid.students.map((s) => s.id) : marks.map((m) => m.id);
+        const statusFor = (id: string) => overlay.get(id) ?? baseRef.current[id]?.status ?? fallback;
+        const ids = (complete ? grid.students.map((s) => s.id) : marks.map((m) => m.id)).filter((id) => statusFor(id) !== null); // ô trống không gửi: máy chủ đếm là «chưa điểm danh»
         const res = await apiClient.put<PutResult>(`/courses/${course}/sessions/${session}/attendance`, {
-          records: ids.map((id) => ({ student_id: id, status: overlay.get(id) ?? baseRef.current[id]?.status ?? "PRESENT", ...(baseRef.current[id]?.version != null ? { version: baseRef.current[id].version } : {}) })),
+          records: ids.map((id) => ({ student_id: id, status: statusFor(id), ...(baseRef.current[id]?.version != null ? { version: baseRef.current[id].version } : {}) })),
           complete,
         });
         setBase((b) => {
@@ -96,6 +100,13 @@ export function useAttendance({ course, userId, grid }: { course: string; userId
             setConflicts(list);
             return { ok: false, fatal: true };
           }
+        }
+        if (e instanceof ApiError && e.code === "CHECKIN_UNRESOLVED") {
+          // buổi có điểm danh bằng mã: còn sinh viên chưa có dòng. Giữ ô đã sửa (lô vẫn chờ trong hàng đợi), dừng ở đây để người dùng quyết định
+          completeRef.current = false;
+          const n = (e.details as { count?: number } | null | undefined)?.count;
+          setUnresolved(typeof n === "number" ? n : 0);
+          return { ok: false, fatal: true };
         }
         if (e instanceof ApiError && e.status >= 400 && e.status < 500 && e.status !== 408 && e.status !== 429 && e.status !== 401) {
           completeRef.current = false;
@@ -156,17 +167,17 @@ export function useAttendance({ course, userId, grid }: { course: string; userId
   }, [queue]);
 
   const pending = queue.pending();
-  const statusOf = (id: string): Status => {
+  const statusOf = (id: string): Status | null => {
     const p = pending[id];
-    return p?.kind === "mark" ? p.status : (base[id]?.status ?? "PRESENT");
+    return p?.kind === "mark" ? p.status : (base[id]?.status ?? fallback);
   };
   /** Trạng thái hiện hành đọc thẳng từ hàng đợi + bản máy chủ (dùng trong sự kiện, không phụ thuộc lần dựng gần nhất). */
   const currentStatus = useCallback(
-    (id: string): Status => {
+    (id: string): Status | null => {
       const p = queue.pending()[id];
-      return p?.kind === "mark" ? p.status : (baseRef.current[id]?.status ?? "PRESENT");
+      return p?.kind === "mark" ? p.status : (baseRef.current[id]?.status ?? fallback);
     },
-    [queue],
+    [queue, fallback],
   );
 
   const rows: Row[] = useMemo(
@@ -189,8 +200,17 @@ export function useAttendance({ course, userId, grid }: { course: string; userId
       queue.set(id, { kind: "mark", status });
       setChangedSinceDone(true);
       setCompleted(null);
+      setUnresolved(null);
     },
     [queue, currentStatus],
+  );
+
+  /** Hoàn tác về ô trống (hàng chưa có dòng điểm danh): bỏ lựa chọn đang chờ, ô trở về bản máy chủ. */
+  const unmark = useCallback(
+    (id: string) => {
+      queue.discard(id);
+    },
+    [queue],
   );
 
   /** Ghi một lần phát biểu: đếm tăng ngay, gửi ngay (không chờ 2 s). Trả mã sự kiện để hoàn tác. */
@@ -254,5 +274,11 @@ export function useAttendance({ course, userId, grid }: { course: string; userId
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queue, grid.students, currentStatus]);
 
-  return { rows, qstate, conflicts, fatal, doneAt, changedSinceDone, completed, setMark, speak, undoSpeak, resolve, complete, retry: () => queue.resume() };
+  /** Sau khi đánh vắng số còn lại: mở lại hàng đợi đã dừng ở 422 để `Lưu điểm danh` chạy tiếp. */
+  const clearUnresolved = useCallback(() => {
+    setUnresolved(null);
+    queue.restart();
+  }, [queue]);
+
+  return { unresolved, clearUnresolved, rows, qstate, conflicts, fatal, doneAt, changedSinceDone, completed, setMark, unmark, speak, undoSpeak, resolve, complete, retry: () => queue.resume() };
 }

@@ -4,10 +4,10 @@
 .skeleton { width: 100%; height: 100%; }
 .centered { width: 100%; height: 100%; display: grid; place-items: center; text-align: center; }
 .countSize { font-size: var(--ep-text-projector-count); font-weight: 600; }
-.warn { font-size: var(--ep-text-projector-meta); color: var(--ep-warning-ink, var(--ep-ink)); border: 2px dashed var(--ep-rule); }
+.warn { font-size: var(--ep-text-projector-meta); color: var(--ep-ink); border: 2px dashed var(--ep-rule); }
 .side { display: grid; gap: var(--ep-space-4); align-content: center; min-width: 0; }
 .meta { margin: 0; font-size: var(--ep-text-projector-meta); color: var(--ep-ink-2); line-height: 1.2; }
-.metaWarn { margin: 0; font-size: var(--ep-text-label); color: var(--ep-warning-ink, var(--ep-ink)); }
+.metaWarn { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink); }
 .code { margin: 0; font-size: var(--ep-text-projector-code); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .08em; line-height: 1.05; white-space: nowrap; }
 .count { margin: 0; font-size: var(--ep-text-projector-count); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .of { color: var(--ep-ink-3); font-weight: 500; }
