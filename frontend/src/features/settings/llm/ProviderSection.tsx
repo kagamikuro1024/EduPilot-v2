@@ -77,7 +77,7 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
               <div className={s.providerGrid}>
                 <div className={s.info}>
                   <p className="ep-item-title">{p.name}</p>
-                  {(TYPE_LABEL[p.type] ?? p.type) !== p.name && <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>}
+                  {(TYPE_LABEL[p.type] ?? p.type) !== p.name && !(p.type === "openai_compatible" && p.base_url) && <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>}
                   {p.type === "openai_compatible" && p.base_url && <p className={s.mono}>{p.base_url}</p>}
                 </div>
                 <div className={s.status} data-part="provider-status">
