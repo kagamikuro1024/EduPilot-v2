@@ -1,5 +1,5 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.6 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.7 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
@@ -10,6 +10,8 @@ Phiên bản 1.6 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; 
 **v1.5 (P-11-11):** US-P10-13 còn **ba** cổng (bỏ lưới khủng hoảng, giữ US-P3-04 AC13 — Q-E-23); định tuyến chat fallback = luật (Q-E-24); bỏ bộ thử khủng hoảng (Q-E-25 → Nợ sau bảo vệ); AC đánh số lại AC1…AC13 (+ AC6a).
 
 **v1.6 (sprint 10.5):** US-P10-13 và FR-25…27 chuyển sang `FEAT-decision-model` (US-DM-01…09); `llm_audit.path` → `cascade_path` + `cascade_gate` ở đó.
+
+**v1.7 (P-11-30):** US-P10-14 `/admin/audit` tối thiểu (ADMIN, lọc entity / actor / thời gian, không trả `before` / `after`, xem cũng ghi `audit_log`); FR-28; route #13; Q-E-26. `/admin/health` thuộc phase PR.
 
 ## 1. Mục đích và phạm vi
 Hoàn tất M13 (Observation A: `/observability`; B: `/insights`), thống kê điểm thi PE trên `/analytics`, đóng Nợ (UX17-8/9, LCP, L6), đo đạc E1–E6, E2E F1–F17, rà bảo mật và hoàn thiện cho buổi bảo vệ.
@@ -26,6 +28,7 @@ Nguyên tắc nền: giảng viên **không** đọc chat riêng chưa escalate;
 | --- | --- | --- | --- | --- |
 | Dải + bảng yêu cầu toàn hệ thống (`/admin/observability/summary`, `requests`) | ✓ | 403 | 403 | 403 |
 | Mở chi tiết yêu cầu (prompt đã che) | ✓ (lý do + `audit_log`) | 403 | 403 | 403 |
+| Xem nhật ký kiểm toán (`/admin/audit`) | ✓ (không giá trị `before` / `after`; chính việc xem ghi `audit_log`) | 403 | 403 | 403 |
 | Tổng hợp một lớp (`…/observability/summary`) | ✓ (mọi lớp) | ✓ (lớp mình; lớp khác 404) | 403 | 403 |
 | Nhận cảnh báo lỗi / chi phí | ✓ | – | – | – |
 | Tạo / xem / xuất báo cáo lỗ hổng | 403 | ✓ lớp mình | ✓ lớp mình | 403 |
@@ -108,6 +111,7 @@ sequenceDiagram
 | FR-25 | *(chuyển sang FEAT-decision-model)*  `internal/llm` thêm `Decide` (`net/http`, provider loại `decision`, chỉ `gemini-decision-1`, qua Scheduler + Masker) và `Cascade` với chính sách đối xứng `τ` / chỉ-thêm-cờ `ε`, lỗi → fallback → fail-closed, ghi `Path` | P10-13 AC1…3 |
 | FR-26 | *(chuyển sang FEAT-decision-model)*  Áp cascade cho **ba** cổng: tường lửa Threads (chỉ thêm chặn), cờ chèn lệnh (regex OR `Structured` OR decision), định tuyến chat (ngưỡng; dưới ngưỡng giữ kết quả luật; cổng TTFT); tin khủng hoảng **không bao giờ** tới decision / LLM; **không** cho điểm / rubric / escalate | P10-13 AC4…8 |
 | FR-27 | *(chuyển sang FEAT-decision-model)*  Đo + hiển thị tỉ lệ đường nhanh theo tác vụ (Admin), báo cáo `cascade.md`; cờ mặc định tắt | P10-13 AC9, AC13 |
+| FR-28 | `GET /admin/audit` (ADMIN): lọc AND `entity` / `actor_id` / `from`–`to` (mặc định 7 ngày, tối đa 90), phân trang con trỏ `(created_at, id)` giảm dần, `limit` 1–100; trả `{id, at, actor_*, entity, entity_id, action, course_id, trace_id, changed_fields[]}`, **không bao giờ** `before` / `after`; trong **một giao dịch** ghi `audit_log(entity='audit_log', entity_id=actor_id, action='VIEW_LIST', after={entity, actor_id, from, to, has_cursor, returned})` rồi mới trả (ghi hỏng → `500`, không trả dữ liệu); `Cache-Control: no-store`; migration mới thêm hai chỉ mục `(created_at DESC, id DESC)`, `(entity, created_at DESC, id DESC)` | P10-14 |
 | FR-23 | Seed A + B + điểm thi và `check-p10-seed.mjs` idempotent | P10-07 |
 
 ### 4.1 Xếp hạng chủ đề (code thuần, không LLM; hằng số ở cấu hình, đề xuất Q-E-6)
@@ -154,6 +158,7 @@ Tiền tố `/api/v1`. Ghi chú: cursor / `limit` ≤ 100.
 | 10 | `GET /courses/{id}/analytics/exams/hard-items?exam_id&cursor&limit` | TA, TEACHER | – |
 | 11 | `GET /courses/{id}/analytics/exams/declining?cursor&limit` | TA, TEACHER (ADMIN 403) | – |
 | 12 | `GET /analytics/exams/compare` | TEACHER (lớp mình dạy) | 403 |
+| 13 | `GET /admin/audit?entity&actor_id&from&to&cursor&limit` | ADMIN | 401, 403, 422 (`VALIDATION_FAILED`, `INVALID_CURSOR`), 500 (không ghi được `VIEW_LIST`) |
 
 Ghi chú: (a) #3 đổi `GET` → `POST` so với `ARCHITECTURE.md` §5 vì có tác dụng phụ (`audit_log`) và lý do không nên nằm trong URL (Q-E-4); (b) #2 và #3 trả `Cache-Control: no-store`; (c) tiến độ tạo báo cáo qua SSE chung, sự kiện `job.progress`; (d) tạo thread ghim dùng API Threads sẵn có (`POST …/threads` rồi đặt ghim), tạo buổi ôn tập dùng `POST …/calendar/events` (type `OTHER`) — **không** endpoint mới; (e) `GET /jobs/{id}` cho trạng thái; (f) ADMIN không gọi #5–#7. Tool agent: không có. Cần có trong `openapi.yaml` (US-P10-07 AC6).
 
@@ -163,6 +168,7 @@ Nguồn: `DESIGN.md` §14.21, §14.22, §13; `UX.md` mục 6. Chỉ token `--ep-
 | --- | --- | --- | --- | --- |
 | `/observability` (ADMIN) | Dòng «24 giờ qua» → bảng 7 ngày → bảng yêu cầu có lọc → `Drawer` chi tiết (khoá → lý do → nội dung) | `PageHeader`, `DataTable`, `Drawer`, `SegmentedControl`, `Field`, `PageState` | `EmptyState` một dòng; `PageState` lỗi + `Thử lại` | Dải xếp dọc, bảng cuộn trong khung |
 | `/observability` (TEACHER) | Một lớp, tổng hợp (không bảng yêu cầu) | `DefinitionList` / bảng | như trên | như trên |
+| `/admin/audit` (ADMIN) | Bảng Thời điểm · Người · Thực thể · Hành động · Khoá đổi; ba bộ lọc; `Tải thêm` | `PageHeader`, `DataTable`, `PageState` | `EmptyState` «Không có dòng nào trong khoảng này»; skeleton; lỗi + `Thử lại` | Bảng cuộn trong khung, bộ lọc xếp dọc |
 | `/insights` | Ngày báo cáo + `Tạo báo cáo mới` → danh sách chủ đề biên tập (mục gập câu mẫu) → «Tài liệu chưa đề cập» → «So với báo cáo ngày …» | `Page`, `Panel`, `Section`, `DataTable` nhẹ, `useAutosaveDraft` | `EmptyState` + một nút; chỉ báo giai đoạn khi đang tạo; `PageState` lỗi | Xếp dọc, vùng chạm ≥ 44 px |
 | `/analytics` tab `Điểm thi` | Chọn bài thi → dòng thống kê → histogram → bảng câu sai nhiều | recharts, `DataTable`, `SegmentedControl` | `EmptyState` «Chưa có bài thi công bố» | Biểu đồ co, bảng cuộn |
 
@@ -185,6 +191,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 | --- | --- | --- |
 | Go unit | `TestKnowledgeGap` (seed lệch → A, B đứng đầu; câu mẫu không tên / MSSV; lớp 1 ∌ câu lớp 2; k ≥ 3; watermark không gọi LLM; tên tạm khi LLM lỗi) | P10-04 |
 | Go | `TestObservabilityDetailNoPII`, `TestObservabilityAuditEveryOpen`, `TestAlertDedup`, `TestObservabilityRBAC` | P10-01…03 |
+| Go | `TestAuditListNoValues`, `TestAuditViewIsAudited`, `TestAuditViewWriteFailClosed`, `TestAuditRBAC`, `TestAuditListFilters`, `TestAuditCursor`, `TestAuditListUsesIndex` (`internal/audit`) | P10-14 |
 | Go | `TestPayloadStoresMaskedOnly` (`internal/llm`) | P10-02 AC10 |
 | Go | `TestExamStatsPublishedOnly`, `TestExamStatsAdminNoIdentity` | P10-06 |
 | Go | `TestStartCountZero` (`internal/practice`) | P10-09 |
@@ -212,4 +219,5 @@ Xem `QUESTIONS.md` (Q-E-1…25). **Đề xuất đổi ARCHITECTURE (PM quyết)
 | E1–E6 | – | P10 L3 | P10-10 | FR-20 | `make eval` |
 | Tất cả | F1–F17 | P10 L3 | P10-11 | FR-21 | Bảng `e2e-matrix.md` |
 | – | – | P10 đợt 6 (P-11-10) | P10-13 | FR-25…27 | `TestCascade*`, `cascade.md` |
+| M13-A (Q: nơi xem «có ghi `audit_log`», P-11-30) | F16 | P10 đợt 1 | P10-14 | FR-28 | `TestAudit*`, `audit.spec.ts` |
 | – | – | P10 L4 (rà bảo mật; P-11-9) | P10-12 | FR-22, FR-24 | Báo cáo rà bảo mật, README, `DEMO_SCRIPT.md` |

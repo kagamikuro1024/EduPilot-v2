@@ -9665,6 +9665,55 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/audit:
+    get:
+      operationId: listAuditLog
+      tags: [observability]
+      summary: "Nhật ký kiểm toán (ADMIN): lọc entity / actor_id / from–to (mặc định 7 ngày gần nhất, tối đa 90 ngày), phân trang con trỏ (created_at, id) giảm dần, limit 1–100 (mặc định 50). KHÔNG BAO GIỜ trả before / after: chỉ tên khoá thay đổi. Mỗi lần gọi thành công ghi một dòng audit_log (entity audit_log, action VIEW_LIST) cùng giao dịch trước khi trả; không ghi được thì 500 và không trả dữ liệu; Cache-Control no-store"
+      parameters:
+        - name: entity
+          in: query
+          schema:
+            type: string
+            pattern: "^[a-z][a-z0-9_]{0,63}$"
+        - name: actor_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Trang nhật ký
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/admin/observability/requests/{id}/open:
     post:
       operationId: openObservabilityRequest
@@ -16870,6 +16919,37 @@ components:
             $ref: "#/components/schemas/ObsRequestRow"
         next_cursor:
           type: [string, "null"]
+    AuditPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/AuditRow"
+        next_cursor:
+          type: [string, "null"]
+    AuditRow:
+      type: object
+      required: [id, at, actor_id, actor_name, actor_role, entity, entity_id, action, course_id, trace_id, changed_fields]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        at: {type: string, format: date-time}
+        actor_id: {type: [string, "null"], format: uuid}
+        actor_name: {type: [string, "null"]}
+        actor_role: {type: [string, "null"], enum: [ADMIN, TEACHER, TA, STUDENT, null]}
+        entity: {type: string}
+        entity_id: {type: string}
+        action: {type: string}
+        course_id: {type: [string, "null"], format: uuid}
+        trace_id: {type: [string, "null"]}
+        changed_fields:
+          type: array
+          maxItems: 20
+          items: {type: string}
     ObsOpenInput:
       type: object
       required: [reason]
