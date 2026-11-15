@@ -9725,6 +9725,103 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/insights/knowledge-gap/generate:
+    post:
+      operationId: generateKnowledgeGap
+      tags: [insights]
+      summary: "Tạo báo cáo lỗ hổng kiến thức (Giảng viên / TA của lớp; ADMIN 403; Idempotency-Key bắt buộc). `period_days` 1–90, mặc định 30. Không có dữ liệu mới từ báo cáo gần nhất cùng kỳ → 200 `reused` (0 lời gọi LLM); dưới 20 câu hỏi → 409 NOT_ENOUGH_DATA; quá 3 việc / giờ / lớp → 429 RATE_LIMITED + Retry-After. Việc nền BATCH `insight.knowledge_gap`, tiến độ SSE job.progress với detail.stage ∈ COLLECT | CLUSTER | NAME | DONE; kết quả GET /jobs/{id} → result {report_id}"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeGapRequest"
+      responses:
+        "200":
+          description: Chưa có dữ liệu mới, dùng lại báo cáo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeGapReused"
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/insights/knowledge-gap/latest:
+    get:
+      operationId: getLatestKnowledgeGap
+      tags: [insights]
+      summary: "Báo cáo lỗ hổng kiến thức mới nhất của lớp (Giảng viên / TA) kèm so với bản trước (chủ đề mới, đổi hạng) và has_new_data. Chưa có → 404. Cache-Control: no-store"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Báo cáo mới nhất
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeGapLatest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/insights/knowledge-gap/{rid}/export:
+    get:
+      operationId: exportKnowledgeGap
+      tags: [insights]
+      summary: "Xuất báo cáo dạng Markdown (Giảng viên / TA); `format` chỉ nhận md. Không có / lớp khác → 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [md]
+      responses:
+        "200":
+          description: Markdown
+          content:
+            text/markdown:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/chat/tickets/{id}/followup:
     post:
       operationId: followupTicket
@@ -14550,6 +14647,165 @@ components:
           format: uuid
         document:
           $ref: "#/components/schemas/Document"
+    KnowledgeGapRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        period_days:
+          type: integer
+          minimum: 1
+          maximum: 90
+    KnowledgeGapReused:
+      type: object
+      required: [report_id, reused]
+      additionalProperties: false
+      properties:
+        report_id:
+          type: string
+          format: uuid
+        reused:
+          type: boolean
+    KnowledgeGapTopicSignals:
+      type: object
+      required: [students, questions, low_confidence_rate, not_helpful_rate, practice_wrong_rate]
+      additionalProperties: false
+      properties:
+        students:
+          type: integer
+        questions:
+          type: integer
+        low_confidence_rate:
+          type: number
+        not_helpful_rate:
+          type: number
+        practice_wrong_rate:
+          type: number
+    KnowledgeGapTopic:
+      type: object
+      required: [rank, name, why, score, signals, recommendation, examples, named_by, chapter, week, keywords]
+      additionalProperties: false
+      properties:
+        rank:
+          type: integer
+        name:
+          type: string
+        why:
+          type: string
+        score:
+          type: number
+        signals:
+          $ref: "#/components/schemas/KnowledgeGapTopicSignals"
+        recommendation:
+          type: string
+        examples:
+          type: array
+          items:
+            type: string
+        few_asked:
+          type: boolean
+        named_by:
+          type: string
+          enum: [llm, fallback]
+        chapter:
+          type: [string, "null"]
+        week:
+          type: [integer, "null"]
+        keywords:
+          type: array
+          items:
+            type: string
+    KnowledgeGapPayload:
+      type: object
+      required: [topics, uncovered, counts, period_days]
+      additionalProperties: false
+      properties:
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/KnowledgeGapTopic"
+        uncovered:
+          type: array
+          items:
+            type: object
+            required: [text, count]
+            additionalProperties: false
+            properties:
+              text:
+                type: string
+              count:
+                type: integer
+        counts:
+          type: object
+          required: [questions, students, clusters]
+          additionalProperties: false
+          properties:
+            questions:
+              type: integer
+            students:
+              type: integer
+            clusters:
+              type: integer
+        period_days:
+          type: integer
+    KnowledgeGapReport:
+      type: object
+      required: [id, period_from, period_to, data_watermark, created_at, payload]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        period_from:
+          type: [string, "null"]
+          format: date
+        period_to:
+          type: [string, "null"]
+          format: date
+        data_watermark:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        payload:
+          $ref: "#/components/schemas/KnowledgeGapPayload"
+    KnowledgeGapLatest:
+      type: object
+      required: [report, has_new_data]
+      additionalProperties: false
+      properties:
+        report:
+          $ref: "#/components/schemas/KnowledgeGapReport"
+        has_new_data:
+          type: boolean
+        previous:
+          type: object
+          required: [id, created_at, new_topics]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            created_at:
+              type: string
+              format: date-time
+            new_topics:
+              type: array
+              items:
+                type: string
+            moved:
+              type: array
+              items:
+                type: object
+                required: [name, from, to]
+                additionalProperties: false
+                properties:
+                  name:
+                    type: string
+                  from:
+                    type: integer
+                  to:
+                    type: integer
     JobAccepted:
       type: object
       required: [job_id]

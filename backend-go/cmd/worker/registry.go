@@ -15,6 +15,7 @@ import (
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/ingest"
+	"github.com/edupilot/backend-go/internal/insight"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/knowledge"
@@ -46,6 +47,8 @@ func newRegistry(d Deps) *outbox.Registry {
 		(&submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}).RegisterZip(runner) // submission.zip (US-P7-04)
 	}
 	if d.LLM != nil {
+		det := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: d.DB}, Redis: d.Redis, Log: d.Log}}
+		(&insight.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, LLM: d.LLM, Det: det, Notify: nt}).Register(runner)    // insight.knowledge_gap (US-P10-04)
 		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM, Hints: questionHints(d)}).Register(runner) // question.extract, question.generate (US-P9-02, US-P9-03)
 	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)

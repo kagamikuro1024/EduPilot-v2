@@ -360,11 +360,11 @@ func (q *Queries) InsightThreadQuestions(ctx context.Context, arg InsightThreadQ
 }
 
 const insightWatermark = `-- name: InsightWatermark :one
-select greatest(
+select coalesce(greatest(
          (select max(m.created_at) from chat_messages m where m.course_id = $1 and m.role = 'USER' and m.created_at >= $2 and m.created_at < $3),
          (select max(t.created_at) from forum_threads t where t.course_id = $1 and t.created_at >= $2 and t.created_at < $3),
          (select max(a.answered_at) from practice_answers a where a.course_id = $1 and a.answered_at >= $2 and a.answered_at < $3)
-       )::timestamptz as watermark
+       ), 'epoch'::timestamptz)::timestamptz as watermark
 `
 
 type InsightWatermarkParams struct {

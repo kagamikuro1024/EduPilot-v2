@@ -29,6 +29,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/gradehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/insighthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/integrationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
@@ -38,6 +39,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
+	"github.com/edupilot/backend-go/internal/insight"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/mailin"
@@ -119,9 +121,10 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA), today.WithAttention(crmService(d)))
 			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
 			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
-			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)           // US-P5-02: điểm danh, phát biểu
-			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                                     // US-P5-03: heartbeat, ack, đọc thời gian học
-			(&practicehttp.Handler{Svc: practiceService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P9-05…09: luyện đề, thi thử
+			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)                                          // US-P5-02: điểm danh, phát biểu
+			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                                                                    // US-P5-03: heartbeat, ack, đọc thời gian học
+			(&practicehttp.Handler{Svc: practiceService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)                                // US-P9-05…09: luyện đề, thi thử
+			(&insighthttp.Handler{Svc: &insight.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, Redis: d.Redis, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P10-04: báo cáo lỗ hổng kiến thức
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {

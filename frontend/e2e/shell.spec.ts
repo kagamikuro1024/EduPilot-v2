@@ -117,7 +117,7 @@ test("active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền �
 
 type Row = [string, string];
 const NAV: Record<string, Row[]> = {
-  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Hỏi đáp công khai", "/threads"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
+  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Hỏi đáp công khai", "/threads"], ["Bài tập", "/assignments"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
   "student-no-course": [["Hôm nay", "/"]],
   ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Hỏi đáp công khai", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Lỗ hổng kiến thức", "/insights"], ["Số liệu lớp học", "/analytics"]],
   teacher: [],
@@ -582,9 +582,9 @@ test("bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; b�
   for (const h of await sheet.locator("a").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().height))) expect(h, "mục ≥ 48 px").toBeGreaterThanOrEqual(48);
 });
 
-test("route access: số mục nav 8 / 13 / 16 / 6 theo vai; canOpen không đổi", async () => {
+test("route access: số mục nav 9 / 13 / 16 / 6 theo vai; canOpen không đổi", async () => {
   const count = (r: DemoRole) => navFor(r === "student" ? "student" : r, true).flatMap((g) => g.items).length;
-  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([8, 13, 16, 6]);
+  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([9, 13, 16, 6]);
 });
 
 // BUG-S9-01 (proposals sprint 9 #12): nhãn bản mô phỏng chỉ thuộc về bản D51, không được hiện ở màn thật.

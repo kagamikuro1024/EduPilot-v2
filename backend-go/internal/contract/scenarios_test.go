@@ -185,7 +185,9 @@ func (r *runner) record(c call, status int, h http.Header, body []byte, skipBody
 	sse := strings.HasPrefix(h.Get("Content-Type"), "text/event-stream")
 	// `text/calendar` (US-P8-03 feed.ics): không có bộ giải mã ICS; định dạng do `calendar.TestICS*` kiểm.
 	ics := strings.HasPrefix(h.Get("Content-Type"), "text/calendar")
-	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv || sse || ics})
+	// `text/markdown` (US-P10-05 export): không có bộ giải mã; nội dung do `insight.TestKnowledgeGap` kiểm.
+	md := strings.HasPrefix(h.Get("Content-Type"), "text/markdown")
+	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv || sse || ics || md})
 	r.add(o)
 }
 

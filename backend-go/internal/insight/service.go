@@ -377,7 +377,6 @@ type item struct {
 	text    string
 	low, nh bool // tự tin thấp / escalate; Not helpful
 	noCtx   bool
-	hasFeed bool
 }
 
 type collected struct {
@@ -482,8 +481,11 @@ func (s *Service) build(ctx context.Context, q *store.Queries, courseID uuid.UUI
 	pl.Counts.Students = len(all)
 	for rank, k := range Order(sigs, scores) {
 		c := cls[k]
-		t := Topic{Rank: rank + 1, Score: round3(scores[k]), Keywords: c.keys, Signals: TopicSignals{Students: c.sig.Students, Questions: c.sig.Questions, LowRate: round3(c.sig.LowRate), NotHelpfulRate: round3(c.sig.NotHelpfulRate), PracticeWrongRate: round3(c.sig.PracticeWrongRate)}, Examples: []string{}, NamedBy: namedByFallback}
+		t := Topic{Rank: rank + 1, Score: round3(scores[k]), Keywords: []string{}, Signals: TopicSignals{Students: c.sig.Students, Questions: c.sig.Questions, LowRate: round3(c.sig.LowRate), NotHelpfulRate: round3(c.sig.NotHelpfulRate), PracticeWrongRate: round3(c.sig.PracticeWrongRate)}, Examples: []string{}, NamedBy: namedByFallback}
 		t.Why = why(t.Signals)
+		if c.keys != nil {
+			t.Keywords = c.keys
+		}
 		if c.sig.Students < MinStudents {
 			t.FewAsked = true
 		} else {

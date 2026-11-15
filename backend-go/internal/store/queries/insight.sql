@@ -39,11 +39,11 @@ having count(*) >= 5;
 
 -- name: InsightWatermark :one
 -- Mốc dữ liệu mới nhất của ba nguồn trong kỳ (câu hỏi chat, thread, lượt trả lời luyện đề).
-select greatest(
+select coalesce(greatest(
          (select max(m.created_at) from chat_messages m where m.course_id = sqlc.arg(course_id) and m.role = 'USER' and m.created_at >= sqlc.arg(from_ts) and m.created_at < sqlc.arg(to_ts)),
          (select max(t.created_at) from forum_threads t where t.course_id = sqlc.arg(course_id) and t.created_at >= sqlc.arg(from_ts) and t.created_at < sqlc.arg(to_ts)),
          (select max(a.answered_at) from practice_answers a where a.course_id = sqlc.arg(course_id) and a.answered_at >= sqlc.arg(from_ts) and a.answered_at < sqlc.arg(to_ts))
-       )::timestamptz as watermark;
+       ), 'epoch'::timestamptz)::timestamptz as watermark;
 
 -- name: InsightNearestChunk :one
 -- Chương / tuần của tài liệu có đoạn gần tâm cụm nhất (metadata tài liệu của lớp).
