@@ -160,7 +160,7 @@ func (q *Queries) InsightPracticeTopics(ctx context.Context, arg InsightPractice
 const insightReportGet = `-- name: InsightReportGet :one
 select id, period_from, period_to, payload, data_watermark, generated_by, created_at
 from insight_reports
-where course_id = $1 and kind = 'KNOWLEDGE_GAP' and id = $2
+where course_id = $1 and kind = 'KNOWLEDGE_GAP' and id = $2 and coalesce((payload ->> 'schema')::int, 1) >= 2
 `
 
 type InsightReportGetParams struct {
@@ -230,7 +230,7 @@ func (q *Queries) InsightReportInsert(ctx context.Context, arg InsightReportInse
 const insightReportLatest = `-- name: InsightReportLatest :many
 select id, period_from, period_to, payload, data_watermark, generated_by, created_at
 from insight_reports
-where course_id = $1 and kind = 'KNOWLEDGE_GAP'
+where course_id = $1 and kind = 'KNOWLEDGE_GAP' and coalesce((payload ->> 'schema')::int, 1) >= 2 -- báo cáo cũ (trước P-11-31/32/34, không có schema) coi như không có
 order by created_at desc, id desc
 limit 2
 `
@@ -277,7 +277,7 @@ func (q *Queries) InsightReportLatest(ctx context.Context, courseID uuid.UUID) (
 const insightReportLatestFor = `-- name: InsightReportLatestFor :one
 select id, data_watermark
 from insight_reports
-where course_id = $1 and kind = 'KNOWLEDGE_GAP' and (payload ->> 'period_days')::int = $2::int
+where course_id = $1 and kind = 'KNOWLEDGE_GAP' and (payload ->> 'period_days')::int = $2::int and coalesce((payload ->> 'schema')::int, 1) >= 2
 order by created_at desc, id desc
 limit 1
 `

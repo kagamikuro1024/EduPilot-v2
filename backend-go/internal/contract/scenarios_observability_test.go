@@ -117,7 +117,7 @@ func (r *runner) insightScenarios(x examRig) {
 
 	var rid string
 	if err := db.QueryRow(ctx, `insert into insight_reports (course_id, kind, period_from, period_to, payload, data_watermark, generated_by)
-		values ($1, 'KNOWLEDGE_GAP', current_date - 30, current_date, '{"topics":[{"rank":1,"name":"TCP","why":"6 sinh viên hỏi","score":1,"signals":{"students":6,"questions":22,"low_confidence_rate":0.5,"not_helpful_rate":0,"practice_wrong_rate":0},"recommendation":"Ôn lại","examples":["TCP là gì"],"named_by":"llm","chapter":null,"week":null,"keywords":["tcp"]}],"uncovered":[],"counts":{"questions":22,"students":1,"clusters":1},"period_days":30}',
+		values ($1, 'KNOWLEDGE_GAP', current_date - 30, current_date, '{"schema":2,"topics":[{"rank":1,"name":"TCP","why":"6 sinh viên hỏi","score":1,"signals":{"students":6,"questions":22,"low_confidence_rate":0.5,"not_helpful_rate":0,"practice_wrong_rate":0},"recommendation":"Ôn lại","examples":["TCP là gì"],"named_by":"llm","chapter":null,"week":null,"keywords":["tcp"]}],"uncovered":[],"counts":{"questions":22,"students":1,"clusters":1},"period_days":30}',
 		        now() + interval '1 hour', (select created_by from courses where id = $1)) returning id::text`, x.cid).Scan(&rid); err != nil {
 		r.t.Fatal(err)
 	}

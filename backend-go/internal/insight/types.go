@@ -7,7 +7,11 @@ import (
 )
 
 // Payload là `insight_reports.payload` (SRS 5): không `student_id` / tên / MSSV, chỉ số đếm + chữ đã che.
+// PayloadSchema: phiên bản hợp đồng của payload. 2 = sau P-11-31/32/34 (k-ẩn danh theo câu, không tin khủng hoảng, có guardLeaks). Báo cáo không có schema (v1) không được đọc, xuất, dùng lại.
+const PayloadSchema = 2
+
 type Payload struct {
+	Schema     int         `json:"schema"`
 	Topics     []Topic     `json:"topics"`
 	Uncovered  []Uncovered `json:"uncovered"`
 	Counts     Counts      `json:"counts"`

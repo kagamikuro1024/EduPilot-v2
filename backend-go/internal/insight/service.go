@@ -483,7 +483,7 @@ func (s *Service) build(ctx context.Context, q *store.Queries, courseID uuid.UUI
 		sigs[i] = cls[i].sig
 	}
 	scores := Score(sigs, pres)
-	pl := Payload{below: belowGrams(d.items), PeriodDays: days, Counts: Counts{Questions: len(d.items), Clusters: len(cls)}, Topics: []Topic{}, Uncovered: uncovered(d.items)}
+	pl := Payload{Schema: PayloadSchema, below: belowGrams(d.items), PeriodDays: days, Counts: Counts{Questions: len(d.items), Clusters: len(cls)}, Topics: []Topic{}, Uncovered: uncovered(d.items)}
 	all := map[uuid.UUID]bool{}
 	for _, it := range d.items {
 		all[it.student] = true

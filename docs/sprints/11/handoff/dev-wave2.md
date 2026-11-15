@@ -30,3 +30,7 @@ Nav SV 8 → 9 mục (`/assignments`, P-11-14): `shell.spec`, `account.spec` (+ 
 - Ảnh mốc visual `insights-1440`, `analytics-1440` (đổi màn): lấy từ artifact CI rồi commit.
 - Màn `/admin/audit`: bộ lọc «Người» nhận mã người dùng (chưa có ô chọn người).
 - E2E thật F16 / F17 trên stack (QC `real-flows.md`).
+
+## P-11-34 (rà bảo mật 15/11 b)
+- F1: `collect` bỏ mọi tin có `agent.DetectIntent == CRISIS` (chat riêng và thread; không cả mốc dữ liệu) và SQL `InsightChatQuestions` lọc `a.intent is distinct from 'CRISIS'` — tin khủng hoảng không được nhúng ra ngoài, không vào từ khoá / tên chủ đề / câu mẫu. Test `TestKnowledgeGapCrisisExcluded` (canary vắng khỏi `insight_reports.payload`, khỏi chuỗi gửi `Embed`, khỏi lời nhắc `Structured`, khỏi export).
+- F2: `Payload.schema = 2` (`PayloadSchema`); `InsightReportLatest / LatestFor / Get` chỉ đọc báo cáo `schema ≥ 2`. Báo cáo cũ (không có `schema`) = không tồn tại: 404 ở `latest` / `export`, `Generate` không dùng lại (`reused=false`), `previous` không lấy tên từ báo cáo cũ. Hệ quả vận hành: sau khi triển khai, MỌI báo cáo cũ biến mất khỏi giao diện cho tới khi bấm «Tạo báo cáo mới». Test `TestKnowledgeGapOldPayloadIgnored`. openapi: `KnowledgeGapPayload.schema` (required, enum 2).

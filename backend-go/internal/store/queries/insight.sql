@@ -64,7 +64,7 @@ returning id, created_at;
 -- Hai báo cáo mới nhất của lớp (mới nhất trước): bản hiện tại + bản trước để so sánh.
 select id, period_from, period_to, payload, data_watermark, generated_by, created_at
 from insight_reports
-where course_id = sqlc.arg(course_id) and kind = 'KNOWLEDGE_GAP'
+where course_id = sqlc.arg(course_id) and kind = 'KNOWLEDGE_GAP' and coalesce((payload ->> 'schema')::int, 1) >= 2 -- báo cáo cũ (trước P-11-31/32/34, không có schema) coi như không có
 order by created_at desc, id desc
 limit 2;
 
@@ -72,11 +72,11 @@ limit 2;
 -- Báo cáo mới nhất cùng period_days (so data_watermark để quyết định `reused`).
 select id, data_watermark
 from insight_reports
-where course_id = sqlc.arg(course_id) and kind = 'KNOWLEDGE_GAP' and (payload ->> 'period_days')::int = sqlc.arg(period_days)::int
+where course_id = sqlc.arg(course_id) and kind = 'KNOWLEDGE_GAP' and (payload ->> 'period_days')::int = sqlc.arg(period_days)::int and coalesce((payload ->> 'schema')::int, 1) >= 2
 order by created_at desc, id desc
 limit 1;
 
 -- name: InsightReportGet :one
 select id, period_from, period_to, payload, data_watermark, generated_by, created_at
 from insight_reports
-where course_id = sqlc.arg(course_id) and kind = 'KNOWLEDGE_GAP' and id = sqlc.arg(id);
+where course_id = sqlc.arg(course_id) and kind = 'KNOWLEDGE_GAP' and id = sqlc.arg(id) and coalesce((payload ->> 'schema')::int, 1) >= 2;

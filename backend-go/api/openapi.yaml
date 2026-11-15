@@ -15724,9 +15724,13 @@ components:
             type: string
     KnowledgeGapPayload:
       type: object
-      required: [topics, uncovered, counts, period_days]
+      required: [schema, topics, uncovered, counts, period_days]
       additionalProperties: false
       properties:
+        schema:
+          type: integer
+          enum: [2]
+          description: Phiên bản payload; báo cáo cũ (không có schema) bị coi như không tồn tại (404 ở latest / export, không dùng lại)
         topics:
           type: array
           items:
