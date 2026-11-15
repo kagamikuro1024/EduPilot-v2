@@ -11,8 +11,9 @@ import (
 
 // checkinScenarios gọi 12 thao tác điểm danh tự phục vụ (FEAT-attendance-selfcheck 6) với mọi status khai báo (trừ các mục miễn ở exempt.go).
 // c2: lớp ACTIVE có sinh viên svIn đã vào lớp; cid: lớp đã lưu trữ.
-func (r *runner) checkinScenarios(ctx context.Context, db *pgxpool.Pool, c2, gv, ta, svIn, admin string) {
+func (r *runner) checkinScenarios(db *pgxpool.Pool, c2, gv, ta, svIn, admin string) {
 	t := r.t
+	ctx := context.Background()
 	idem := func() map[string]string { return map[string]string{"Idempotency-Key": "ct-" + uuid.NewString()} }
 	course := "/api/v1/courses/" + c2
 	if _, err := db.Exec(ctx, `update courses set settings = settings || '{"attendance":{"self_checkin":true,"rotate_seconds":15,"late_after_min":15,"require":"WEB"}}'::jsonb where id = $1`, c2); err != nil {
