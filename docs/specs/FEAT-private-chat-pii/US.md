@@ -309,6 +309,8 @@ Truy vết: PRD M1 (AC dưới ngưỡng), G1, §6 E1; P3 L4; D47 (tin cậy l�
   Kiểm: `python benchmarks/eval_pii.py --validate --strict-synthetic` → `OK`; chạy với token Giảng viên → script cảnh báo và thoát 2.
 - AC12 (trung thực về giới hạn). Given nhóm S7 (4 mẫu tên người ngoài roster, không tín hiệu khác) Then được **ghi riêng** trong báo cáo là vùng NER đã cắt (D46), mẫu đó vẫn tính vào chỉ số chung (tối đa làm recall tụt xuống 0,96 nếu cả 4 lọt); `report` có đoạn "Giới hạn đã biết" cho luận văn.
   Kiểm: mở `benchmarks/reports/e1.md` → mục "Giới hạn đã biết" nêu S7 và số mẫu lọt.
+- AC13 (LLM từ chối dù có ngữ cảnh — P-11-18). Given câu hỏi cùng chủ đề tài liệu nhưng ngoài nội dung (cosine đoạn đầu ≥ `RAG_SIM_FLOOR`) và LLM trả lời **mở đầu bằng đúng câu mẫu** «Mình chưa tìm thấy nội dung này trong tài liệu của lớp.» Then `no_context=true`, `low_confidence=true`, không ghi cache, và (intent hợp lệ) có ticket `AUTO_LOW_CONFIDENCE` cùng giao dịch (US-P4-01 AC5 của `FEAT-escalation-notify`); `ground` không tính câu từ chối; câu trả lời `COURSE_QA` có `Hit` mà không có dấu `[n]` nào → `ground = 0` (P-11-18 (d); chấp nhận thêm ticket khi câu đúng quên `[n]`); câu mẫu nằm giữa bài (không mở đầu) **không** kích hoạt; không thêm lời gọi LLM.
+  Kiểm: `go test ./internal/agent ./internal/chat -run 'TestConfidenceFormula|TestRefusalOpeningIsNoContext|TestGroundSkipsRefusal' -v` → `ok` (bảng trả lời giả); `$PW private-chat.spec.ts -g 'refusal opens ticket'` → có ticket tự mở.
 
 ### Ngoài phạm vi của story này
 - Hiệu chỉnh ngưỡng `escalation_threshold` (E2); so sánh chất lượng trả lời có / không che (E1 phần "chất lượng", ghi cho luận văn, không phải cổng); nhãn thật bằng người sinh viên thật (cấm theo D44).
