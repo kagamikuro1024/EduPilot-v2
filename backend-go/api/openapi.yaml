@@ -19323,6 +19323,7 @@ components:
           type: [string, "null"]
         version:
           type: [integer, "null"]
+          description: "Vắng ≡ null: ô mới; ô đã có mà null / vắng → 409 VERSION_CONFLICT; sai kiểu → 422 (P-11-54)"
     PutGradeEntryOutput:
       type: object
       required: [entry, row_result, bonus, penalty]
