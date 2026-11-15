@@ -90,7 +90,7 @@ const insightNearestChunk = `-- name: InsightNearestChunk :one
 select d.title, d.week_no
 from content_chunks c
 join documents d on d.id = c.document_id
-where $1::uuid = any (c.course_ids) and c.embedding is not null
+where $1::uuid = any (c.course_ids) and c.embedding is not null and d.category <> 'THREAD_KNOWLEDGE'
 order by c.embedding <=> $2::vector
 limit 1
 `
@@ -362,7 +362,7 @@ func (q *Queries) InsightThreadQuestions(ctx context.Context, arg InsightThreadQ
 const insightWatermark = `-- name: InsightWatermark :one
 select coalesce(greatest(
          (select max(m.created_at) from chat_messages m where m.course_id = $1 and m.role = 'USER' and m.created_at >= $2 and m.created_at < $3),
-         (select max(t.created_at) from forum_threads t where t.course_id = $1 and t.created_at >= $2 and t.created_at < $3),
+         (select max(t.created_at) from forum_threads t where t.course_id = $1 and t.hidden_at is null and t.deleted_at is null and t.created_at >= $2 and t.created_at < $3),
          (select max(a.answered_at) from practice_answers a where a.course_id = $1 and a.answered_at >= $2 and a.answered_at < $3)
        ), 'epoch'::timestamptz)::timestamptz as watermark
 `

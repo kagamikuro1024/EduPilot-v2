@@ -41,7 +41,7 @@ having count(*) >= 5;
 -- Mốc dữ liệu mới nhất của ba nguồn trong kỳ (câu hỏi chat, thread, lượt trả lời luyện đề).
 select coalesce(greatest(
          (select max(m.created_at) from chat_messages m where m.course_id = sqlc.arg(course_id) and m.role = 'USER' and m.created_at >= sqlc.arg(from_ts) and m.created_at < sqlc.arg(to_ts)),
-         (select max(t.created_at) from forum_threads t where t.course_id = sqlc.arg(course_id) and t.created_at >= sqlc.arg(from_ts) and t.created_at < sqlc.arg(to_ts)),
+         (select max(t.created_at) from forum_threads t where t.course_id = sqlc.arg(course_id) and t.hidden_at is null and t.deleted_at is null and t.created_at >= sqlc.arg(from_ts) and t.created_at < sqlc.arg(to_ts)),
          (select max(a.answered_at) from practice_answers a where a.course_id = sqlc.arg(course_id) and a.answered_at >= sqlc.arg(from_ts) and a.answered_at < sqlc.arg(to_ts))
        ), 'epoch'::timestamptz)::timestamptz as watermark;
 
@@ -50,7 +50,7 @@ select coalesce(greatest(
 select d.title, d.week_no
 from content_chunks c
 join documents d on d.id = c.document_id
-where sqlc.arg(course_id)::uuid = any (c.course_ids) and c.embedding is not null
+where sqlc.arg(course_id)::uuid = any (c.course_ids) and c.embedding is not null and d.category <> 'THREAD_KNOWLEDGE'
 order by c.embedding <=> sqlc.arg(centroid)::vector
 limit 1;
 
