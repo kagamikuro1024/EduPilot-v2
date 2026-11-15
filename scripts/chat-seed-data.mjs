@@ -44,8 +44,8 @@ export const TOPIC_B = [
   "Điểm trung bình tích luỹ được tính thế nào?",
 ];
 
-/** Các câu có trong tài liệu nhưng không thuộc A, B. */
-export const TOPIC_C = [
+/** Chủ đề D của lớp 1 (dự báo): có trong tài liệu nhưng CHỈ đúng 2 sinh viên hỏi (US-P10-07 AC2: ví dụ «Ít người hỏi» của báo cáo lỗ hổng). */
+export const TOPIC_D = [
   "Dự báo bằng trung bình trượt là gì?",
   "Hồi quy tuyến tính đơn dùng để làm gì?",
   "Sai số dự báo MAD được tính thế nào?",
@@ -72,10 +72,24 @@ export const OUTSIDE = [
   "Địa điểm du lịch đẹp ở miền Trung?",
 ];
 
+/** Chủ đề C của lớp 2 (mạng máy tính): lớp 1 không có câu nào thuộc chủ đề này (US-P10-07 AC2, TC-04-17). */
+export const TOPIC_C = [
+  "Giao thức TCP bắt tay ba bước như thế nào?",
+  "UDP khác TCP ở điểm nào?",
+  "Địa chỉ IP và địa chỉ MAC khác nhau ra sao?",
+  "DNS phân giải tên miền theo các bước nào?",
+  "Subnet mask dùng để làm gì?",
+  "NAT cho phép nhiều máy dùng chung một địa chỉ IP như thế nào?",
+  "Router khác switch ở điểm nào?",
+  "DHCP cấp địa chỉ cho máy trạm ra sao?",
+  "Mô hình OSI gồm những tầng nào?",
+  "HTTP và HTTPS khác nhau ở điểm nào?",
+];
+
 const PREFIX = ["", "Cho em hỏi: ", "Giải thích giúp em: "];
 
 /**
- * 150 câu hỏi cố định (theo `rand` có hạt giống): lệch về A và B (≈ 53 % + 33 % trong các câu trong tài liệu), 10 câu ngoài tài liệu.
+ * 150 câu hỏi cố định của lớp 1 (theo `rand` có hạt giống): lệch về A và B (85 + 45), chủ đề D 10 câu (chỉ 2 sinh viên hỏi — chia ở seed.mjs), 10 câu ngoài tài liệu.
  * Mỗi câu một khoá riêng (`#n`) để chạy lại không nhân đôi.
  */
 export function chatQuestions(rand) {
@@ -83,14 +97,24 @@ export function chatQuestions(rand) {
   const add = (list, n) => {
     for (let i = 0; i < n; i++) out.push(`${PREFIX[Math.floor(i / list.length) % PREFIX.length]}${list[i % list.length]}`);
   };
-  add(TOPIC_A, 70);
+  add(TOPIC_A, 85);
   add(TOPIC_B, 45);
-  add(TOPIC_C, 25);
+  add(TOPIC_D, 10);
   add(OUTSIDE, 10);
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [out[i], out[j]] = [out[j], out[i]];
   }
+  return out;
+}
+
+/** Câu thuộc chủ đề D (để chia cho đúng 2 sinh viên). */
+export const isTopicD = (text) => TOPIC_D.some((q) => text.endsWith(q));
+
+/** 40 câu của lớp 2, lệch hẳn về chủ đề C. */
+export function chatQuestionsLop2() {
+  const out = [];
+  for (let i = 0; i < 40; i++) out.push(`${PREFIX[Math.floor(i / TOPIC_C.length) % PREFIX.length]}${TOPIC_C[i % TOPIC_C.length]}`);
   return out;
 }
 

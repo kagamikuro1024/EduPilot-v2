@@ -11,7 +11,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
+import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, chatQuestionsLop2, isTopicD, miniPdf } from "./chat-seed-data.mjs";
 import { createHash } from "node:crypto";
 import { XLSX_MIME, lop1Column, lop1Faulty, zip } from "./grade-seed-data.mjs";
 import { FOREIGN_MAIL, PERSONAL_MAIL, TEAMS_TITLE_04, createBody, loadPlan, sampleText, teamsMeta } from "./assignment-seed-data.mjs";
@@ -916,14 +916,19 @@ const CHAT_ANSWER_OUTSIDE = "Mình chưa tìm thấy nội dung này trong tài 
 async function step12Chat() {
   step(12, "Lịch sử chat riêng của sinh viên lớp 761987 (≈ 150 câu, ghi thẳng, không tự mở ticket)…");
   const questions = chatQuestions(mulberry32(RNG_SEED ^ 0x5eed));
-  // kế hoạch: sv.gioi 4 phiên (2+1+1+1 tin), mỗi người còn lại 1 phiên × 5 tin → 5 + 145 = 150
+  // kế hoạch: sv.gioi 4 phiên (2+1+1+1 tin), mỗi người còn lại 1 phiên × 5 tin → 5 + 145 = 150.
+  // Chủ đề D (10 câu) chỉ do ĐÚNG hai sinh viên hỏi (sv.nguyco, sv04: mỗi người 5 câu) — US-P10-07 AC2 «Ít người hỏi»; A, B do ≥ 3 sinh viên.
+  const dOnly = questions.filter(isTopicD);
+  const rest = questions.filter((x) => !isTopicD(x));
+  const dAsk = new Set([roster1[2], roster1[3]]);
   const sessions = [];
   let q = 0;
+  let d = 0;
   for (const k of roster1) {
     (k === "sv.gioi" ? [2, 1, 1, 1] : [5]).forEach((quota, si) => {
       const turns = [];
-      for (let m = 0; m < quota; m++, q++) {
-        const text = questions[q % questions.length];
+      for (let m = 0; m < quota; m++) {
+        const text = dAsk.has(k) ? dOnly[d++] : rest[q++];
         const outside = OUTSIDE.some((o) => text.endsWith(o));
         turns.push({ key: `seed-chat-${k}-${si}-${m}`, q: text, a: outside ? CHAT_ANSWER_OUTSIDE : CHAT_ANSWER, outside });
       }
@@ -936,6 +941,17 @@ async function step12Chat() {
   for (const code of ["761987", "761988"]) {
     if (!/seed-llm-audit: 0 dòng/.test(gatewayAdmin("seed-llm-audit", ["--course", code], ""))) ctx.changed = true;
   }
+  // Lớp 761988 (US-P10-07 AC2): 40 câu hỏi lệch hẳn về chủ đề C (mạng máy tính), 20 sinh viên × 2 câu.
+  const q2 = chatQuestionsLop2();
+  const sessions2 = only2.slice(0, 20).map((k, i) => ({
+    email: accounts.get(k).email,
+    key: `seed-chat2-session-${k}`,
+    turns: [0, 1].map((m) => ({ key: `seed-chat2-${k}-${m}`, q: q2[i * 2 + m], a: CHAT_ANSWER, outside: false })),
+  }));
+  const out2 = gatewayAdmin("seed-chat", ["--course", "761988", "--weeks", "3", "--plan", "-"], JSON.stringify({ sessions: sessions2 }));
+  if (!/seed-chat: 0 tin/.test(out2)) ctx.changed = true;
+  // Điểm thi hằng tuần (US-P10-06/07): 4 bài PUBLISHED quá khứ của lớp 761987, có sinh viên giảm điểm 3 bài liên tiếp; ghi thẳng DB, idempotent theo tiêu đề bài.
+  if (!/seed-exam-history: 0 lượt/.test(gatewayAdmin("seed-exam-history", ["--course", "761987"], ""))) ctx.changed = true;
 }
 
 // ---- bước 13: thread lớp (12 + 3) với đủ trạng thái bài AI (US-P3-08 AC2) ---------------------------------------------------

@@ -44,14 +44,16 @@ func SeedLLMAudit(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, n
 			h := hash32(fmt.Sprintf("llm-audit/%s/%d", courseID, k))
 			at := now.Add(-time.Duration(day)*24*time.Hour - time.Duration(h%86000)*time.Second)
 			task := tasks[h%uint32(len(tasks))] //nolint:gosec // len cố định nhỏ
-			status, kind, fb := "ok", "", 0
+			status, kind, fb, degraded := "ok", "", 0, false
 			switch {
-			case h%97 == 0:
+			case k == 5 || h%97 == 0: // k cố định: mọi lớp chắc chắn có ít nhất một dòng mỗi loại
 				status, kind = "error", "SERVER"
-			case h%53 == 0:
+			case k == 17 || h%53 == 0:
 				status, kind = "rate_limited", "RATE_LIMIT"
-			case h%41 == 0:
+			case k == 29 || h%41 == 0:
 				status, fb = "ok", 1
+			case k == 41 || h%61 == 0:
+				status, degraded = "degraded", true // trả lời bằng bản rút gọn khi nhà cung cấp chậm (FR-1: không tính là lỗi)
 			}
 			pii := 0
 			if task == "CHAT" && h%10 == 0 {
@@ -67,8 +69,8 @@ func SeedLLMAudit(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, n
 				kindArg = kind
 			}
 			if _, err := tx.Exec(ctx, `insert into llm_audit (id, task, lane, provider, model, tokens_in, tokens_out, latency_ms, queue_wait_ms, attempts, fallback_index, cost_est, status, error_kind, degraded, pii_masked_count, course_id, trace_id, created_at)
-				values ($1, $2, 'INTERACTIVE', 'fake', 'fake-chat', $3, $4, $5, 0, 1, $6, $7, $8, $9, false, $10, $11, $12, $13) on conflict (id) do nothing`,
-				id, task, 200+int(h%400), 60+int(h%200), latency, fb, 12+int(h%20), status, kindArg, pii, courseID, fmt.Sprintf("%s%s-%d", llmAuditMarker, courseID.String()[:8], k), at); err != nil {
+				values ($1, $2, 'INTERACTIVE', 'fake', 'fake-chat', $3, $4, $5, 0, 1, $6, $7, $8, $9, $10, $11, $12, $13, $14) on conflict (id) do nothing`,
+				id, task, 200+int(h%400), 60+int(h%200), latency, fb, 12+int(h%20), status, kindArg, degraded, pii, courseID, fmt.Sprintf("%s%s-%d", llmAuditMarker, courseID.String()[:8], k), at); err != nil {
 				return 0, fmt.Errorf("seed-llm-audit: ghi llm_audit: %w", err)
 			}
 			if task == "CHAT" && status == "ok" {
@@ -80,6 +82,11 @@ func SeedLLMAudit(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, n
 			}
 			n++
 		}
+	}
+	// một thư gửi lỗi (DEAD) cho bảng «Thư chưa gửi được» (US-P10-07 AC1); khoá khử trùng cố định nên chạy lại không nhân đôi
+	if _, err := tx.Exec(ctx, `insert into mail_outbox (to_addr, template, payload, status, attempts, last_error, dedupe_key)
+		values ('khong-ton-tai@example.invalid', 'seed_observability_failed', '{}'::jsonb, 'DEAD', 4, 'SMTP 550 hộp thư không tồn tại', 'seed-obs-dead-mail') on conflict do nothing`); err != nil {
+		return 0, fmt.Errorf("seed-llm-audit: ghi thư lỗi: %w", err)
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return 0, fmt.Errorf("seed-llm-audit: commit: %w", err)
