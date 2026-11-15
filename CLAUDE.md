@@ -101,6 +101,8 @@ pnpm dev                 # dựng toàn bộ stack local (compose) + seed khi DB
 pnpm dev:status | dev:logs | dev:down
 # Go
 cd backend-go && go vet ./... && golangci-lint run && go test -race ./...
+cd backend-go && EP_SKIP_TIMING=1 go test -race -tags testroutes ./...   # như CI: có route thử `/api/v1/_test/*`; không tag chỉ kiểm bản dựng mặc định (các test của route thử bị bỏ)
+bash scripts/go-test-count.sh      # số test có tag không được giảm dưới sàn backend-go/ci-test-count.txt (nâng sàn khi thêm test)
 cd backend-go && sqlc generate && sqlc diff
 cd backend-go && goose -dir db/migrations postgres "$DATABASE_URL" up
 cd backend-go && go test ./internal/contract/...        # contract test: response khớp openapi.yaml
