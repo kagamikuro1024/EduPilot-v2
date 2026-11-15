@@ -361,7 +361,8 @@ func TestSeedStudyTimeRerunShiftedCalendar(t *testing.T) {
 			require.NoError(t, err)
 			require.Zero(t, again, "cùng ngày: không đổi dòng nào")
 
-			// at-risk sau chuỗi «seed ở ngày sau rồi seed lại theo buổi neo (hôm nay)» = đúng 1 AT_RISK + 2 WATCH, như seed sạch
+			// CHỈ phần STUDY + điểm danh của seed: 1 AT_RISK (sv.nguyco) + 2 WATCH (sv12, sv19), như TestSeedCRMExpected. WATCH thứ 3 của bước 16 là sv26 (điểm quá trình LOW + hoạt động tuần 9 = 0,
+			// seed/expected_risk.csv) — cần điểm số và seed-activity nên KHÔNG có trong thế giới thử này; tổng "AT_RISK 1, WATCH 3" kiểm ở seed.mjs trên stack thật.
 			_, err = seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, today)
 			require.NoError(t, err)
 			svc := &crm.Service{Pool: w.pool, Clock: clock.NewFake(today)}
