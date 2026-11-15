@@ -15,7 +15,7 @@ const nameSchema = `{"type":"object","additionalProperties":false,"required":["t
 
 // name đặt tên + khuyến nghị cho TopRanked chủ đề đầu bằng MỘT lời gọi Structured (BATCH). Lỗi / thiếu → giữ tên tạm từ từ khoá, named_by="fallback" (AC10).
 // Đầu vào chỉ là câu mẫu đã che + từ khoá; điểm và hạng không do LLM quyết.
-func (s *Service) name(ctx context.Context, pl *Payload) {
+func (s *Service) name(ctx context.Context, pl *Payload, piiMasked int) {
 	n := min(len(pl.Topics), TopRanked)
 	if n == 0 || s.LLM == nil {
 		return
@@ -28,7 +28,7 @@ func (s *Service) name(ctx context.Context, pl *Payload) {
 		}
 	}
 	lane := llm.LaneBatch
-	raw, err := s.LLM.Structured(ctx, llm.Request{Task: llm.TaskInsight, Lane: &lane, Shareable: false, Messages: []llm.Message{{Role: "system", Content: nameSystem}, {Role: "user", Content: b.String()}}}, json.RawMessage(nameSchema))
+	raw, err := s.LLM.Structured(ctx, llm.Request{Task: llm.TaskInsight, Lane: &lane, Shareable: false, PIIMaskedCount: piiMasked, Messages: []llm.Message{{Role: "system", Content: nameSystem}, {Role: "user", Content: b.String()}}}, json.RawMessage(nameSchema))
 	if err != nil {
 		if s.Log != nil {
 			s.Log.WarnContext(ctx, "insight: đặt tên lỗi, dùng tên tạm", "err", err)

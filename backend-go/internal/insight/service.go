@@ -337,7 +337,7 @@ func (s *Service) generate(ctx context.Context, owner uuid.UUID, p payload, stag
 		return nil, err
 	}
 	stage(70, "NAME")
-	s.name(ctx, &pl)
+	s.name(ctx, &pl, d.piiMasked)
 	guardLeaks(&pl) // trước khi lưu (FR-29); export đọc từ bản đã lưu
 	raw, err := json.Marshal(pl)
 	if err != nil {
@@ -360,17 +360,20 @@ func (s *Service) generate(ctx context.Context, owner uuid.UUID, p payload, stag
 var selfIntro = regexp.MustCompile(`(?i)\b(tôi|em|mình|tớ)\s+(tên\s+là|tên|là)\s+\S+(\s+\S+){0,3}`)
 
 // anonymize: che thông tin cá nhân theo danh sách lớp (privacy.Detect) rồi bỏ lời tự giới thiệu «em là …» — chữ đi vào embedding / LLM / payload luôn qua đây.
-func (s *Service) anonymize(ctx context.Context, courseID uuid.UUID, text string) string {
+// Trả thêm số thông tin cá nhân đã che: cộng vào `collected.piiMasked` rồi ghi vào lời gọi LLM đặt tên (llm_audit.pii_masked_count, AC13) để bộ lọc «Quyền riêng tư» thấy.
+func (s *Service) anonymize(ctx context.Context, courseID uuid.UUID, text string) (string, int) {
 	text = strings.TrimSpace(text)
+	masked := 0
 	if s.Det != nil {
 		if fs, err := s.Det.Detect(ctx, courseID, text); err == nil {
 			text = privacy.Redact(text, fs)
+			masked = len(fs)
 		} else if s.Log != nil {
 			s.Log.WarnContext(ctx, "insight: che chữ lỗi, bỏ câu", "err", err)
-			return ""
+			return "", 0
 		}
 	}
-	return strings.TrimSpace(selfIntro.ReplaceAllString(text, ""))
+	return strings.TrimSpace(selfIntro.ReplaceAllString(text, "")), masked
 }
 
 type item struct {
@@ -384,6 +387,7 @@ type collected struct {
 	items     []item
 	practice  []store.InsightPracticeTopicsRow
 	watermark time.Time
+	piiMasked int // tổng thông tin cá nhân đã che ở bước thu thập (cả câu bị bỏ sau đó)
 }
 
 func (s *Service) collect(ctx context.Context, q *store.Queries, courseID uuid.UUID, from, to time.Time) (collected, error) {
@@ -396,7 +400,9 @@ func (s *Service) collect(ctx context.Context, q *store.Queries, courseID uuid.U
 		if agent.DetectIntent(r.Content) == agent.IntentCrisis { // P-11-34: không nhúng, không từ khoá, không câu mẫu; không cả mốc dữ liệu
 			continue
 		}
-		if t := s.anonymize(ctx, courseID, r.Content); t != "" {
+		t, n := s.anonymize(ctx, courseID, r.Content)
+		d.piiMasked += n
+		if t != "" {
 			d.items = append(d.items, item{student: r.UserID, text: t, low: r.LowConfidence || r.Escalated, nh: r.NotHelpful, noCtx: r.NoContext})
 		}
 		if r.CreatedAt.After(d.watermark) {
@@ -411,7 +417,9 @@ func (s *Service) collect(ctx context.Context, q *store.Queries, courseID uuid.U
 		if agent.DetectIntent(r.Title+". "+r.Body) == agent.IntentCrisis {
 			continue
 		}
-		if t := s.anonymize(ctx, courseID, r.Title+". "+r.Body); t != "" {
+		t, n := s.anonymize(ctx, courseID, r.Title+". "+r.Body)
+		d.piiMasked += n
+		if t != "" {
 			d.items = append(d.items, item{student: r.UserID, text: t})
 		}
 		if r.CreatedAt.After(d.watermark) {
