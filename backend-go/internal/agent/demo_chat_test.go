@@ -37,6 +37,13 @@ func TestDemoChatRecordings(t *testing.T) {
 	d3 := demoStream(t, "[1] Quy chế\n- 2.1 Phát biểu được cộng điểm", "Thi cuối kỳ có được mang một tờ A4 ghi chú viết tay vào phòng thi không ạ?")
 	require.True(t, IsRefusal(d3), d3)
 
+	// bản ghi trích quy chế không được chặn chat: ngữ cảnh truy xuất chứa «40%», «25%» hay câu đầu quy chế vẫn phải ra câu trả lời chat, không phải JSON công thức
+	for _, ctxBlock := range []string{"[1] Quy chế\n- Giữa kỳ 40%", "[1] Quy chế\n- Chuyên cần 25%", "[1] Quy chế\nĐiểm quá trình gồm ba thành phần"} {
+		got := demoStream(t, ctxBlock, "Nộp bài muộn bị trừ điểm thế nào?")
+		require.NotContains(t, got, `"components"`, ctxBlock)
+		require.Contains(t, got, "giả lập", ctxBlock)
+	}
+
 	other := demoStream(t, "", "Hôm nay trời thế nào?")
 	require.Contains(t, other, "giả lập", "câu lạ không có bản ghi: bản giả trung tính, không lỗi")
 }

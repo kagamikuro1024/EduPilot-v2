@@ -3,7 +3,8 @@
   {
    "name": "quy-che-lop1-v2",
    "match": [
-    "Điểm quá trình gồm ba thành phần"
+    "Điểm quá trình gồm ba thành phần",
+    "Bạn trích công thức tính điểm học phần từ quy chế môn học"
    ],
    "response": {
     "components": [
@@ -232,7 +233,8 @@
   {
    "name": "quy-che-lop1",
    "match": [
-    "40%"
+    "40%",
+    "Bạn trích công thức tính điểm học phần từ quy chế môn học"
    ],
    "response": {
     "components": [
@@ -444,7 +446,8 @@
   {
    "name": "quy-che-lop2",
    "match": [
-    "25%"
+    "25%",
+    "Bạn trích công thức tính điểm học phần từ quy chế môn học"
    ],
    "response": {
     "components": [

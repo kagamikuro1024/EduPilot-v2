@@ -231,3 +231,34 @@ func TestKeyNeverLeaksViaErrors(t *testing.T) {
 	require.NotRegexp(t, `sk-[A-Za-z0-9_-]{8,}`, all)
 	require.NotRegexp(t, `(?i)bearer\s+[A-Za-z0-9._-]{8,}`, all)
 }
+
+// DEMO_SCRIPT tầng 2: tắt nhà cung cấp thật ở /settings/llm → mọi tác vụ rơi về nhà cung cấp giả của env (LLM_PROVIDER=fake + LLM_DEMO_FILE); bật lại → trở về nhà cung cấp thật.
+func TestRegistryDisableProviderFallsBackToEnvFake(t *testing.T) {
+	t.Parallel()
+	r := newCfgRig(t)
+	real := r.add(t, "openai_compatible", "9router", "", "http://127.0.0.1:20128/v1", cm("ag/gemini"))
+	_, err := r.svc.SetRoute(r.ctx, "CHAT", []uuid.UUID{real.Models[0].ID}, nil, 0)
+	require.NoError(t, err)
+	reg := llm.NewRegistry(r.res, llm.EnvConfig{Provider: "fake"}, func(s llm.ProviderSpec) (provider.Provider, error) { return &stub{name: s.Name}, nil }, newDiscardLog())
+	require.NoError(t, reg.Load(t.Context()))
+	first := func(task llm.Task) string {
+		rt, err := reg.Route(task)
+		require.NoError(t, err)
+		return rt.Targets[0].ProviderName
+	}
+	require.Equal(t, "9router", first(llm.TaskChat), "DB thắng env")
+	require.Equal(t, "env:fake", first(llm.TaskGrading), "tác vụ chưa có tuyến dùng env")
+
+	off := false
+	real, err = r.svc.UpdateProvider(r.ctx, real.ID, llmconfig.ProviderInput{Type: "openai_compatible", Name: "9router", BaseURL: real.BaseURL, Enabled: &off, Version: real.Version})
+	require.NoError(t, err)
+	require.NoError(t, reg.Reload(t.Context()))
+	require.Equal(t, "env:fake", first(llm.TaskChat), "tắt nhà cung cấp thật → nhà cung cấp giả")
+	require.True(t, reg.EnvActive())
+
+	on := true
+	_, err = r.svc.UpdateProvider(r.ctx, real.ID, llmconfig.ProviderInput{Type: "openai_compatible", Name: "9router", BaseURL: real.BaseURL, Enabled: &on, Version: real.Version})
+	require.NoError(t, err)
+	require.NoError(t, reg.Reload(t.Context()))
+	require.Equal(t, "9router", first(llm.TaskChat), "bật lại → trở về nhà cung cấp thật")
+}
