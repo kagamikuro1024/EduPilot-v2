@@ -8,16 +8,20 @@ test.describe.configure({ mode: "serial" });
 const tag = uniq();
 
 test("@real 403: TEACHER / TA / STUDENT không đọc, không ghi cấu hình LLM (API) và /settings/llm là trang chặn quyền (UI)", async ({ browser, request }) => {
-  for (const u of ["teacher", "ta", "sv.kha"]) {
+  // GET danh sách nhà cung cấp / tuyến: ADMIN + TEACHER (openapi listLLMProviders), TA và SV bị chặn; mọi ghi chỉ ADMIN
+  for (const [u, readable] of [["teacher", true], ["ta", false], ["sv.kha", false]] as const) {
     const tk = await login(request, u);
-    for (const [m, path, body] of [["GET", "/admin/llm/providers"], ["GET", "/admin/llm/routes"], ["POST", "/admin/llm/providers", { name: "x", type: "fake", api_key: "k" }]] as const) {
-      const r = await call(request, tk, m, path, body);
-      expect(r.status, `${u} ${m} ${path}`).toBe(403);
+    for (const path of ["/admin/llm/providers", "/admin/llm/routes"]) {
+      const r = await call(request, tk, "GET", path);
+      expect(r.status, `${u} GET ${path}`).toBe(readable ? 200 : 403);
+      if (readable) expect(r.text, "đọc được nhưng không có khoá").not.toMatch(/"api_key"|"key"\s*:/);
     }
+    const w = await call(request, tk, "POST", "/admin/llm/providers", { name: "x", type: "fake", api_key: "k" });
+    expect(w.status, `${u} POST /admin/llm/providers`).toBe(403);
   }
   const anon = await call(request, null, "GET", "/admin/llm/providers");
   expect(anon.status).toBe(401);
-  for (const u of ["teacher", "sv.kha"]) {
+  for (const u of ["ta", "sv.kha"]) {
     const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 }, locale: "vi-VN" });
     const p = await ctx.newPage();
     const calls: number[] = [];
@@ -33,13 +37,14 @@ test("@real 403: TEACHER / TA / STUDENT không đọc, không ghi cấu hình LL
 
 test("@real hai tab: cùng sửa một nhà cung cấp, tab sau nhận 409 (khoá lạc quan) và giao diện nạp lại giá trị mới", async ({ browser, request }) => {
   const admin = await login(request, "admin");
-  const mk = await call(request, admin, "POST", "/admin/llm/providers", { name: `QC F15 ${tag}`, type: "fake", api_key: `qc-${tag}`, enabled: true });
+  const mk = await call(request, admin, "POST", "/admin/llm/providers", { name: `QC F15 ${tag}`, type: "fake", api_key: process.env.QC_FAKE_VALID_KEY ?? `qc-${tag}`, enabled: true, models: [{ model: `qc-f15-${tag}`, kind: "chat", price_in: "0", price_out: "0", enabled: true }] });
   expect([200, 201], mk.text.slice(0, 200)).toContain(mk.status);
   const id = String(mk.json.id);
   const v = Number(mk.json.version ?? 1);
-  const a = await call(request, admin, "PATCH", `/admin/llm/providers/${id}`, { enabled: false, version: v });
+  const body = { type: "fake", name: `QC F15 ${tag}`, models: [{ model: `qc-f15-${tag}`, kind: "chat", price_in: "0", price_out: "0", enabled: true }] };
+  const a = await call(request, admin, "PUT", `/admin/llm/providers/${id}`, { ...body, enabled: false, version: v });
   expect(a.status, a.text.slice(0, 200)).toBe(200);
-  const b = await call(request, admin, "PATCH", `/admin/llm/providers/${id}`, { enabled: true, version: v });
+  const b = await call(request, admin, "PUT", `/admin/llm/providers/${id}`, { ...body, enabled: true, version: v });
   expect(b.status, "tab sau dùng version cũ").toBe(409);
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 }, locale: "vi-VN" });
   const p = await ctx.newPage();
@@ -55,11 +60,11 @@ test("@real hai tab: cùng sửa một nhà cung cấp, tab sau nhận 409 (kho�
 test("@real khoá sai: gateway từ chối khoá không hợp lệ (422 PROVIDER_AUTH_FAILED tại ô api_key), khoá đúng lưu được, khoá không lộ ở giao diện", async ({ page, request }) => {
   test.skip(!process.env.QC_FAKE_VALID_KEY, "cần gateway ep-qc có FAKE_LLM_VALID_KEY và QC_FAKE_VALID_KEY (K — chưa kiểm được nếu thiếu)");
   const admin = await login(request, "admin");
-  const bad = await call(request, admin, "POST", "/admin/llm/providers", { name: `QC F15 sai ${tag}`, type: "fake", api_key: `sai-${tag}`, enabled: true });
+  const bad = await call(request, admin, "POST", "/admin/llm/providers", { name: `QC F15 sai ${tag}`, type: "fake", api_key: `sai-${tag}`, enabled: true, models: [{ model: `qc-f15s-${tag}`, kind: "chat", price_in: "0", price_out: "0", enabled: true }] });
   expect(bad.status, bad.text.slice(0, 200)).toBe(422);
   expect(JSON.stringify((bad.json as Json).details ?? [])).toMatch(/api_key/);
   expect(bad.text, "thân lỗi không lặp lại khoá").not.toContain(`sai-${tag}`);
-  const good = await call(request, admin, "POST", "/admin/llm/providers", { name: `QC F15 đúng ${tag}`, type: "fake", api_key: process.env.QC_FAKE_VALID_KEY, enabled: true });
+  const good = await call(request, admin, "POST", "/admin/llm/providers", { name: `QC F15 đúng ${tag}`, type: "fake", api_key: process.env.QC_FAKE_VALID_KEY, enabled: true, models: [{ model: `qc-f15d-${tag}`, kind: "chat", price_in: "0", price_out: "0", enabled: true }] });
   expect([200, 201], good.text.slice(0, 200)).toContain(good.status);
   expect(good.text, "phản hồi không trả khoá").not.toContain(String(process.env.QC_FAKE_VALID_KEY));
   await uiLogin(page, "admin");

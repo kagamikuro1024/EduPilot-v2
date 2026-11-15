@@ -29,6 +29,12 @@ export function sql(q: string): string[][] {
   return out.trim() ? out.trim().split("\n").map((l) => l.split("|")) : [];
 }
 
+/** Xoá bộ đếm hạn mức đăng ký / quên mật khẩu / đăng nhập theo IP (5 lần / giờ) — fixture QC, không đụng khoá thu hồi phiên `ep:auth:rev`. */
+export function resetAuthLimits() {
+  const R = process.env.QC_REDIS ?? "ep-qc-redis-1";
+  execFileSync("docker", ["exec", R, "sh", "-c", "redis-cli --scan --pattern 'ep:rl:auth*' | xargs -r redis-cli del; redis-cli --scan --pattern 'ep:auth:forgot:*' | xargs -r redis-cli del"], { encoding: "utf8" });
+}
+
 export type Json = Record<string, unknown>;
 export interface Reply { status: number; json: Json; text: string }
 
@@ -65,7 +71,7 @@ export async function courseId(request: APIRequestContext, user: string, code = 
 }
 
 // ---- Mailpit ----
-interface MailMeta { ID: string; Subject: string; Created: string; To: { Address: string }[] }
+interface MailMeta { ID: string; Subject: string; Created: string; Snippet?: string; To: { Address: string }[] }
 export async function waitMail(to: string, subject: RegExp, sinceMs: number, timeoutMs = 60_000): Promise<{ id: string; text: string; subject: string }> {
   const end = Date.now() + timeoutMs;
   for (;;) {
@@ -79,9 +85,9 @@ export async function waitMail(to: string, subject: RegExp, sinceMs: number, tim
     await sleep(1500);
   }
 }
-export async function mailCount(to: string, subject: RegExp): Promise<number> {
+export async function mailCount(to: string, subject: RegExp, bodyHas?: string): Promise<number> {
   const j = (await (await fetch(`${MAILPIT}/api/v1/messages?limit=200`)).json()) as { messages?: MailMeta[] };
-  return (j.messages ?? []).filter((x) => x.To.some((a) => a.Address === to) && subject.test(x.Subject)).length;
+  return (j.messages ?? []).filter((x) => x.To.some((a) => a.Address === to) && subject.test(x.Subject) && (!bodyHas || (x.Snippet ?? "").includes(bodyHas))).length;
 }
 /** Liên kết đầu tiên trong thư có `needle` (verify / reset / invite) — chỉ giữ đường dẫn + query để chạy trên mọi origin. */
 export function linkIn(text: string, needle: RegExp): string {
@@ -104,9 +110,9 @@ export async function shot(page: Page, name: string) {
   await page.screenshot({ path: `${OUT}/${name}.png` });
 }
 /** Không tràn ngang; trả chuỗi ghi chú (cho test.info().annotations). */
-export async function noOverflow(page: Page) {
+export async function noOverflow(page: Page, soft = false) {
   const m = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
-  expect(m.sw, `tràn ngang ${m.sw}/${m.cw}`).toBeLessThanOrEqual(m.cw);
+  (soft ? expect.soft : expect)(m.sw, `tràn ngang ${m.sw}/${m.cw}`).toBeLessThanOrEqual(m.cw);
 }
 export function poll<T>(fn: () => Promise<T> | T, ok: (v: T) => boolean, timeoutMs: number, everyMs = 5000): Promise<T> {
   return (async () => {
