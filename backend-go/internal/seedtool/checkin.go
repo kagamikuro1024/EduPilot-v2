@@ -14,7 +14,7 @@ import (
 //   - vòng 2: mọi người trừ người cuối ⇒ người cuối mang RECHECK_MISS ở lượt vòng 1; headcount thấp hơn số lượt ⇒ over_headcount.
 //
 // Sinh viên `sv.gioi` không có lượt nào (dùng để thử điểm danh tay khi demo). Ghi PRESENT / LATE cho người đã điểm danh như lúc đóng cửa sổ; giảng viên vẫn phải «Đánh vắng
-// người chưa điểm danh» rồi hoàn tất như thật. IDEMPOTENT: buổi đầu đã có cửa sổ thì không làm gì (trả 0). Chỉ gọi từ lệnh dev | test.
+// người chưa điểm danh» rồi hoàn tất như thật. Chạy lại là không đổi: IDEMPOTENT: buổi đầu đã có cửa sổ thì không làm gì (trả 0). Chỉ gọi từ lệnh dev | test.
 func SeedCheckinDemo(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID) (int64, error) {
 	tx, err := pool.Begin(ctx)
 	if err != nil {
