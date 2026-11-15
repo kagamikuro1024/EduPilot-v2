@@ -1,0 +1,631 @@
+{
+  "meta": {
+    "commit": "a96bf120",
+    "timestamp": "2026-11-15T08:07:22.569Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "scenario": "grade-1000",
+      "courses": 20,
+      "provider": "9router ag/gemini-3.8-flash",
+      "worker_fake_latency": "20000-20000",
+      "grading_workers": "5",
+      "compose_project": "ep-t1"
+    },
+    "k6_cpus": "1.5",
+    "demo_stack": "stopped"
+  },
+  "queued": 1000,
+  "hours": 1.68,
+  "done": 1000,
+  "failed": 0,
+  "orphan": 0,
+  "graded_twice": 0,
+  "slo_hours": 3,
+  "pass": true,
+  "progress": [
+    {
+      "minute": 0,
+      "RUNNING": 5,
+      "QUEUED": 994,
+      "DONE": 1
+    },
+    {
+      "minute": 1,
+      "RUNNING": 5,
+      "QUEUED": 984,
+      "DONE": 11
+    },
+    {
+      "minute": 2,
+      "RUNNING": 5,
+      "QUEUED": 974,
+      "DONE": 21
+    },
+    {
+      "minute": 3,
+      "RUNNING": 5,
+      "QUEUED": 964,
+      "DONE": 31
+    },
+    {
+      "minute": 4,
+      "RUNNING": 5,
+      "QUEUED": 953,
+      "DONE": 42
+    },
+    {
+      "minute": 5,
+      "RUNNING": 5,
+      "QUEUED": 944,
+      "DONE": 51
+    },
+    {
+      "minute": 6,
+      "RUNNING": 5,
+      "QUEUED": 934,
+      "DONE": 61
+    },
+    {
+      "minute": 7,
+      "RUNNING": 5,
+      "QUEUED": 923,
+      "DONE": 72
+    },
+    {
+      "minute": 8,
+      "RUNNING": 5,
+      "QUEUED": 914,
+      "DONE": 81
+    },
+    {
+      "minute": 9,
+      "RUNNING": 5,
+      "QUEUED": 903,
+      "DONE": 92
+    },
+    {
+      "minute": 10,
+      "RUNNING": 5,
+      "QUEUED": 893,
+      "DONE": 102
+    },
+    {
+      "minute": 11,
+      "RUNNING": 5,
+      "QUEUED": 883,
+      "DONE": 112
+    },
+    {
+      "minute": 12,
+      "RUNNING": 5,
+      "QUEUED": 873,
+      "DONE": 122
+    },
+    {
+      "minute": 13,
+      "RUNNING": 5,
+      "QUEUED": 863,
+      "DONE": 132
+    },
+    {
+      "minute": 14,
+      "RUNNING": 5,
+      "QUEUED": 853,
+      "DONE": 142
+    },
+    {
+      "minute": 15,
+      "RUNNING": 5,
+      "QUEUED": 843,
+      "DONE": 152
+    },
+    {
+      "minute": 16,
+      "RUNNING": 5,
+      "QUEUED": 833,
+      "DONE": 162
+    },
+    {
+      "minute": 17,
+      "RUNNING": 5,
+      "QUEUED": 823,
+      "DONE": 172
+    },
+    {
+      "minute": 18,
+      "RUNNING": 5,
+      "QUEUED": 813,
+      "DONE": 182
+    },
+    {
+      "minute": 19,
+      "RUNNING": 5,
+      "QUEUED": 803,
+      "DONE": 192
+    },
+    {
+      "minute": 20,
+      "RUNNING": 5,
+      "QUEUED": 793,
+      "DONE": 202
+    },
+    {
+      "minute": 21,
+      "RUNNING": 5,
+      "QUEUED": 783,
+      "DONE": 212
+    },
+    {
+      "minute": 22,
+      "RUNNING": 5,
+      "QUEUED": 773,
+      "DONE": 222
+    },
+    {
+      "minute": 23,
+      "RUNNING": 5,
+      "QUEUED": 763,
+      "DONE": 232
+    },
+    {
+      "minute": 24,
+      "RUNNING": 5,
+      "QUEUED": 753,
+      "DONE": 242
+    },
+    {
+      "minute": 25,
+      "RUNNING": 5,
+      "QUEUED": 743,
+      "DONE": 252
+    },
+    {
+      "minute": 26,
+      "RUNNING": 5,
+      "QUEUED": 733,
+      "DONE": 262
+    },
+    {
+      "minute": 27,
+      "RUNNING": 5,
+      "QUEUED": 723,
+      "DONE": 272
+    },
+    {
+      "minute": 28,
+      "RUNNING": 5,
+      "QUEUED": 713,
+      "DONE": 282
+    },
+    {
+      "minute": 29,
+      "RUNNING": 5,
+      "QUEUED": 703,
+      "DONE": 292
+    },
+    {
+      "minute": 30,
+      "RUNNING": 5,
+      "QUEUED": 693,
+      "DONE": 302
+    },
+    {
+      "minute": 31,
+      "RUNNING": 5,
+      "QUEUED": 683,
+      "DONE": 312
+    },
+    {
+      "minute": 32,
+      "RUNNING": 5,
+      "QUEUED": 672,
+      "DONE": 323
+    },
+    {
+      "minute": 33,
+      "RUNNING": 5,
+      "QUEUED": 663,
+      "DONE": 332
+    },
+    {
+      "minute": 34,
+      "RUNNING": 5,
+      "QUEUED": 653,
+      "DONE": 342
+    },
+    {
+      "minute": 35,
+      "RUNNING": 5,
+      "QUEUED": 643,
+      "DONE": 352
+    },
+    {
+      "minute": 36,
+      "RUNNING": 5,
+      "QUEUED": 632,
+      "DONE": 363
+    },
+    {
+      "minute": 37,
+      "RUNNING": 5,
+      "QUEUED": 622,
+      "DONE": 373
+    },
+    {
+      "minute": 38,
+      "RUNNING": 5,
+      "QUEUED": 612,
+      "DONE": 383
+    },
+    {
+      "minute": 39,
+      "RUNNING": 5,
+      "QUEUED": 602,
+      "DONE": 393
+    },
+    {
+      "minute": 40,
+      "RUNNING": 5,
+      "QUEUED": 592,
+      "DONE": 403
+    },
+    {
+      "minute": 41,
+      "RUNNING": 5,
+      "QUEUED": 582,
+      "DONE": 413
+    },
+    {
+      "minute": 42,
+      "RUNNING": 5,
+      "QUEUED": 572,
+      "DONE": 423
+    },
+    {
+      "minute": 43,
+      "RUNNING": 5,
+      "QUEUED": 562,
+      "DONE": 433
+    },
+    {
+      "minute": 44,
+      "RUNNING": 5,
+      "QUEUED": 552,
+      "DONE": 443
+    },
+    {
+      "minute": 45,
+      "RUNNING": 5,
+      "QUEUED": 542,
+      "DONE": 453
+    },
+    {
+      "minute": 46,
+      "RUNNING": 5,
+      "QUEUED": 532,
+      "DONE": 463
+    },
+    {
+      "minute": 47,
+      "RUNNING": 5,
+      "QUEUED": 523,
+      "DONE": 472
+    },
+    {
+      "minute": 48,
+      "RUNNING": 5,
+      "QUEUED": 512,
+      "DONE": 483
+    },
+    {
+      "minute": 49,
+      "RUNNING": 5,
+      "QUEUED": 502,
+      "DONE": 493
+    },
+    {
+      "minute": 50,
+      "RUNNING": 5,
+      "QUEUED": 492,
+      "DONE": 503
+    },
+    {
+      "minute": 51,
+      "RUNNING": 5,
+      "QUEUED": 482,
+      "DONE": 513
+    },
+    {
+      "minute": 52,
+      "RUNNING": 5,
+      "QUEUED": 472,
+      "DONE": 523
+    },
+    {
+      "minute": 53,
+      "RUNNING": 5,
+      "QUEUED": 462,
+      "DONE": 533
+    },
+    {
+      "minute": 54,
+      "RUNNING": 5,
+      "QUEUED": 452,
+      "DONE": 543
+    },
+    {
+      "minute": 55,
+      "RUNNING": 5,
+      "QUEUED": 442,
+      "DONE": 553
+    },
+    {
+      "minute": 56,
+      "RUNNING": 5,
+      "QUEUED": 432,
+      "DONE": 563
+    },
+    {
+      "minute": 57,
+      "RUNNING": 5,
+      "QUEUED": 422,
+      "DONE": 573
+    },
+    {
+      "minute": 58,
+      "RUNNING": 5,
+      "QUEUED": 412,
+      "DONE": 583
+    },
+    {
+      "minute": 59,
+      "RUNNING": 5,
+      "QUEUED": 402,
+      "DONE": 593
+    },
+    {
+      "minute": 60,
+      "RUNNING": 5,
+      "QUEUED": 392,
+      "DONE": 603
+    },
+    {
+      "minute": 61,
+      "RUNNING": 5,
+      "QUEUED": 382,
+      "DONE": 613
+    },
+    {
+      "minute": 62,
+      "RUNNING": 5,
+      "QUEUED": 371,
+      "DONE": 624
+    },
+    {
+      "minute": 63,
+      "RUNNING": 5,
+      "QUEUED": 361,
+      "DONE": 634
+    },
+    {
+      "minute": 64,
+      "RUNNING": 5,
+      "QUEUED": 351,
+      "DONE": 644
+    },
+    {
+      "minute": 65,
+      "RUNNING": 5,
+      "QUEUED": 341,
+      "DONE": 654
+    },
+    {
+      "minute": 66,
+      "RUNNING": 5,
+      "QUEUED": 331,
+      "DONE": 664
+    },
+    {
+      "minute": 67,
+      "RUNNING": 5,
+      "QUEUED": 321,
+      "DONE": 674
+    },
+    {
+      "minute": 68,
+      "RUNNING": 5,
+      "QUEUED": 311,
+      "DONE": 684
+    },
+    {
+      "minute": 69,
+      "RUNNING": 5,
+      "QUEUED": 301,
+      "DONE": 694
+    },
+    {
+      "minute": 70,
+      "RUNNING": 5,
+      "QUEUED": 291,
+      "DONE": 704
+    },
+    {
+      "minute": 71,
+      "RUNNING": 5,
+      "QUEUED": 281,
+      "DONE": 714
+    },
+    {
+      "minute": 72,
+      "RUNNING": 5,
+      "QUEUED": 271,
+      "DONE": 724
+    },
+    {
+      "minute": 73,
+      "RUNNING": 5,
+      "QUEUED": 261,
+      "DONE": 734
+    },
+    {
+      "minute": 74,
+      "RUNNING": 5,
+      "QUEUED": 251,
+      "DONE": 744
+    },
+    {
+      "minute": 75,
+      "RUNNING": 5,
+      "QUEUED": 241,
+      "DONE": 754
+    },
+    {
+      "minute": 77,
+      "RUNNING": 5,
+      "QUEUED": 230,
+      "DONE": 765
+    },
+    {
+      "minute": 78,
+      "RUNNING": 5,
+      "QUEUED": 220,
+      "DONE": 775
+    },
+    {
+      "minute": 79,
+      "RUNNING": 5,
+      "QUEUED": 210,
+      "DONE": 785
+    },
+    {
+      "minute": 80,
+      "RUNNING": 5,
+      "QUEUED": 201,
+      "DONE": 794
+    },
+    {
+      "minute": 81,
+      "RUNNING": 5,
+      "QUEUED": 190,
+      "DONE": 805
+    },
+    {
+      "minute": 82,
+      "RUNNING": 5,
+      "QUEUED": 180,
+      "DONE": 815
+    },
+    {
+      "minute": 83,
+      "RUNNING": 5,
+      "QUEUED": 170,
+      "DONE": 825
+    },
+    {
+      "minute": 84,
+      "RUNNING": 5,
+      "QUEUED": 160,
+      "DONE": 835
+    },
+    {
+      "minute": 85,
+      "RUNNING": 5,
+      "QUEUED": 150,
+      "DONE": 845
+    },
+    {
+      "minute": 86,
+      "RUNNING": 5,
+      "QUEUED": 140,
+      "DONE": 855
+    },
+    {
+      "minute": 87,
+      "RUNNING": 5,
+      "QUEUED": 130,
+      "DONE": 865
+    },
+    {
+      "minute": 88,
+      "RUNNING": 5,
+      "QUEUED": 121,
+      "DONE": 874
+    },
+    {
+      "minute": 89,
+      "RUNNING": 5,
+      "QUEUED": 110,
+      "DONE": 885
+    },
+    {
+      "minute": 90,
+      "RUNNING": 5,
+      "QUEUED": 100,
+      "DONE": 895
+    },
+    {
+      "minute": 91,
+      "RUNNING": 5,
+      "QUEUED": 90,
+      "DONE": 905
+    },
+    {
+      "minute": 92,
+      "RUNNING": 5,
+      "QUEUED": 80,
+      "DONE": 915
+    },
+    {
+      "minute": 93,
+      "RUNNING": 5,
+      "QUEUED": 70,
+      "DONE": 925
+    },
+    {
+      "minute": 94,
+      "RUNNING": 5,
+      "QUEUED": 60,
+      "DONE": 935
+    },
+    {
+      "minute": 95,
+      "RUNNING": 5,
+      "QUEUED": 50,
+      "DONE": 945
+    },
+    {
+      "minute": 96,
+      "RUNNING": 5,
+      "QUEUED": 40,
+      "DONE": 955
+    },
+    {
+      "minute": 97,
+      "RUNNING": 5,
+      "QUEUED": 30,
+      "DONE": 965
+    },
+    {
+      "minute": 98,
+      "RUNNING": 5,
+      "QUEUED": 20,
+      "DONE": 975
+    },
+    {
+      "minute": 99,
+      "RUNNING": 5,
+      "QUEUED": 10,
+      "DONE": 985
+    },
+    {
+      "minute": 100,
+      "RUNNING": 5,
+      "DONE": 995
+    },
+    {
+      "minute": 101,
+      "DONE": 1000
+    }
+  ]
+}
