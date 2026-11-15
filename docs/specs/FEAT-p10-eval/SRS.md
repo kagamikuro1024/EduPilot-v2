@@ -1,5 +1,5 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.10 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.11 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
@@ -12,6 +12,8 @@ Phiên bản 1.10 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền;
 **v1.6 (sprint 10.5):** US-P10-13 và FR-25…27 chuyển sang `FEAT-decision-model` (US-DM-01…09); `llm_audit.path` → `cascade_path` + `cascade_gate` ở đó.
 
 **v1.8 (P-11-30, QC Q-S11-23…26):** FR-28 và US-P10-14 chốt: thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, cursor gắn bộ lọc (khác → `422 INVALID_CURSOR`), `limit` mặc định 30 (sửa 50 → khớp `httpx.DefaultLimit`).
+
+**v1.11 (P-11-32):** câu mẫu của chủ đề xét k ≥ 3 theo từng câu chuẩn hoá, không theo cụm (FR-13, US-P10-04 AC5, US-P10-05 AC3, US-P10-07 AC2); chủ đề không câu nào đạt chỉ có tên + số SV + số câu.
 
 **v1.10 (P-11-31):** «Tài liệu chưa đề cập» chỉ giữ nhóm câu có ≥ 3 sinh viên khác nhau hỏi (FR-14, US-P10-04 AC4 + AC14, US-P10-05 AC6, seed US-P10-07 AC2).
 
@@ -84,6 +86,7 @@ sequenceDiagram
 | `generate` vượt trần | `429 RATE_LIMITED` + `Retry-After` | Thông báo tại chỗ |
 | Lớp chưa có báo cáo | `404` ở `latest` | `EmptyState` + `Tạo báo cáo mới` |
 | Chủ đề < 3 SV | `examples=[]`, nhãn «Ít người hỏi» | Không mục gập câu mẫu |
+| Chủ đề ≥ 3 SV nhưng không câu nào do ≥ 3 SV hỏi (P-11-32) | `examples=[]`, vẫn có `signals.students`, `signals.questions` | Chỉ tên + số SV + số câu; không mục gập |
 | Câu `no_context` do < 3 SV hỏi | Bỏ khỏi `uncovered` (không câu, không số lần) | Không có dòng nào; `uncovered` rỗng → không hiện Panel |
 | Cảnh báo cùng loại trong 6 giờ | Bỏ qua | Không thông báo lặp |
 | LCP còn > 2.500 ms sau U1–U4 + (a) | Không nới ngưỡng, không SSR / đổi auth (P-11-6); ghi số thật + Nợ | Story không FAIL vì route đó |
@@ -104,7 +107,7 @@ sequenceDiagram
 | FR-10 | Gom 5 nguồn của **đúng lớp**, che / ẩn danh trước khi nhúng và trước khi gửi LLM | P10-04 AC2, AC6, AC7, AC13 |
 | FR-11 | Gom cụm theo embedding (cosine), gắn chương / tuần theo metadata tài liệu của chunk gần nhất; xếp hạng bằng code với trọng số §4.1 | P10-04 AC3, AC4 |
 | FR-12 | LLM (`Structured(json_schema)`, làn `BATCH`) đặt tên chủ đề + khuyến nghị; lỗi → tên tạm | P10-04 AC3, AC10 |
-| FR-13 | Chủ đề < 3 sinh viên khác nhau: `examples=[]` + nhãn; ≥ 3: 3–5 câu mẫu ẩn danh, mỗi câu từ sinh viên khác nhau khi có thể | P10-04 AC5, AC6 |
+| FR-13 | Chủ đề < 3 sinh viên khác nhau: `examples=[]` + nhãn. Câu mẫu xét **theo từng câu** (P-11-32): chỉ câu chuẩn hoá có ≥ 3 sinh viên khác nhau hỏi (`MinStudents`, cùng FR-14) được vào `examples` (≤ 5, ẩn danh, đã che); không câu nào đạt → `examples=[]`, chủ đề chỉ hiện tên + số SV + số câu; câu không đạt không có trong `payload` / `export` | P10-04 AC5, AC6 |
 | FR-14 | Mục «Tài liệu chưa đề cập» từ câu `chat_messages.no_context`, gom theo câu chuẩn hoá, **chỉ giữ nhóm ≥ 3 sinh viên khác nhau hỏi** (`MinStudents`; 1 sinh viên hỏi nhiều lần = 1; nhóm dưới ngưỡng bỏ hẳn khỏi `payload`; P-11-31) | P10-04 AC2, AC14, P10-05 AC6 |
 | FR-15 | `latest` trả báo cáo mới nhất + `previous` (chủ đề mới / đổi hạng) + `has_new_data`; `export?format=md` | P10-05 AC3, AC7, AC10 |
 | FR-16 | `/insights`: danh sách biên tập, trạng thái rỗng / đang tạo / lỗi, nháp thread ghim, form buổi ôn tập, in PDF bằng trình duyệt | P10-05 |
@@ -125,7 +128,7 @@ sequenceDiagram
 Với cụm *c*, mỗi tín hiệu chuẩn hoá về [0, 1] bằng chia cho giá trị lớn nhất trong báo cáo: `score(c) = 0,30·S + 0,20·Q + 0,20·L + 0,15·N + 0,15·P`, trong đó S = số sinh viên khác nhau, Q = số câu hỏi, L = tỷ lệ tự tin thấp / escalate, N = tỷ lệ Not helpful, P = tỷ lệ sai luyện đề của chủ đề tương ứng. Nguồn thiếu → trọng số của nó chia đều cho các tín hiệu còn lại. Hoà → thứ tự ổn định theo `S` rồi `Q`. Hiển thị tối đa 8 chủ đề đầu; còn lại gập «Chủ đề khác».
 
 ## 5. Dữ liệu
-**Không tạo bảng cho báo cáo lỗ hổng:** `insight_reports` đã có (`00015`; `payload` jsonb: `{topics:[{rank,name,why,signals,recommendation,examples,named_by,chapter,week}],uncovered:[],counts,period_days}`; **không** `student_id` / tên / MSSV trong payload).
+**Không tạo bảng cho báo cáo lỗ hổng:** `insight_reports` đã có (`00015`; `payload` jsonb: `{topics:[{rank,name,why,signals(students,questions,…),recommendation,examples,named_by,chapter,week}],uncovered:[],counts,period_days}`; **không** `student_id` / tên / MSSV trong payload).
 
 **Bảng mới (đề xuất đổi ARCHITECTURE, Q-E-1, PM xác nhận P-11-1):** migration kế tiếp sau migration cuối đã merge (số do dev lấy từ nhánh gốc, goose, không sửa file cũ).
 ```sql
@@ -186,7 +189,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 | --- | --- |
 | Hiệu năng | `summary` p95 ≤ 500 ms; bảng yêu cầu ≤ 300 ms trên `llm_audit` ≥ 1 triệu hàng; thống kê điểm thi p95 ≤ 500 ms; LCP ≤ 2.500 ms (8 route); SSE đầu ≤ 300 ms (chat không đổi) |
 | Làn LLM | `generate` = `BATCH`; không làm chat treo (nguyên tắc 11) |
-| Riêng tư | Prompt chỉ bản đã che, chỉ ADMIN, có lý do + `audit_log` mỗi lần; câu mẫu k ≥ 3, ẩn danh; «Tài liệu chưa đề cập» k ≥ 3 (P-11-31); không `student_id` trong payload báo cáo; `Cache-Control: no-store` cho #2, #3 |
+| Riêng tư | Prompt chỉ bản đã che, chỉ ADMIN, có lý do + `audit_log` mỗi lần; câu mẫu k ≥ 3 **theo từng câu**, ẩn danh (P-11-32); «Tài liệu chưa đề cập» k ≥ 3 (P-11-31); không `student_id` trong payload báo cáo; `Cache-Control: no-store` cho #2, #3 |
 | Idempotency | `generate` + `Idempotency-Key`; cảnh báo khử trùng; mở chi tiết **không** idempotent có chủ ý (mỗi lần một dòng) |
 | Phân trang | Cursor cho #2, #10, #11; cấm `OFFSET` trên `llm_audit` |
 | Cache | Không cache điểm phía máy chủ (AGENTS #15); báo cáo vô hiệu theo `data_watermark`, không theo TTL |
@@ -196,7 +199,7 @@ Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở mà
 ## 9. Kiểm thử
 | Cấp | Test | Phủ |
 | --- | --- | --- |
-| Go unit | `TestKnowledgeGap` (seed lệch → A, B đứng đầu; câu mẫu không tên / MSSV; lớp 1 ∌ câu lớp 2; k ≥ 3; watermark không gọi LLM; tên tạm khi LLM lỗi), `TestKnowledgeGapUncoveredMinStudents` | P10-04 |
+| Go unit | `TestKnowledgeGap` (seed lệch → A, B đứng đầu; câu mẫu không tên / MSSV; lớp 1 ∌ câu lớp 2; k ≥ 3; watermark không gọi LLM; tên tạm khi LLM lỗi), `TestKnowledgeGapUncoveredMinStudents`, `TestKnowledgeGapExamplesPerSentenceK` | P10-04 |
 | Go | `TestObservabilityDetailNoPII`, `TestObservabilityAuditEveryOpen`, `TestAlertDedup`, `TestObservabilityRBAC` | P10-01…03 |
 | Go | `TestAuditListNoValues`, `TestAuditViewIsAudited`, `TestAuditViewWriteFailClosed`, `TestAuditRBAC`, `TestAuditListFilters`, `TestAuditCursor`, `TestAuditListUsesIndex` (`internal/audit`) | P10-14 |
 | Go | `TestPayloadStoresMaskedOnly` (`internal/llm`) | P10-02 AC10 |
