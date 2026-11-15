@@ -1,0 +1,89 @@
+{"tc": "TC-01-02a số yêu cầu / lỗi / dự phòng khớp SQL 24h", "st": "PASS", "note": "api=149/10/7 sql=149/10/7"}
+{"tc": "TC-01-02b p95 khớp SQL (±10%)", "st": "PASS", "note": "api=3084.4 sql=3084.4"}
+{"tc": "TC-01-02c bảng ngày dùng múi giờ VN (số yêu cầu mỗi ngày khớp SQL theo VN)", "st": "PASS", "note": "lệch={}"}
+{"tc": "TC-01-04 tổng chi phí theo tác vụ = tổng bảng ngày (±0,01)", "st": "PASS", "note": "tasks=14097.0 days=14097.0"}
+{"tc": "TC-01-05a duyệt hết cursor: không trùng, không sót", "st": "PASS", "note": "đã thấy=725 DB=725 trùng=0 trang=8"}
+{"tc": "TC-01-05b filter=problem chỉ status lỗi", "st": "FAIL", "note": "38/24"}
+{"tc": "TC-01-05c filter=privacy chỉ pii_masked_count>0", "st": "PASS", "note": "32"}
+{"tc": "TC-01-05d limit=1000 kẹp ≤100 hoặc 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-01-05e thân không có trường nội dung", "st": "PASS", "note": ""}
+{"tc": "TC-01-05f lọc lớp + tác vụ", "st": "PASS", "note": "200 100"}
+{"tc": "TC-01-05g from/to", "st": "PASS", "note": ""}
+{"tc": "TC-01-06a filter=xyz", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06b from>to", "st": "FAIL", "note": "200"}
+{"tc": "TC-01-06c cursor rác", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06d window lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-01-08a GV xem lớp mình: không bảng yêu cầu/chi phí theo nhà cung cấp/nội dung", "st": "PASS", "note": "200 ['change_rate', 'course_id', 'days', 'error_rate', 'escalations', 'graded_changed', 'graded_total', 'helpful', 'mean_abs_deviation', 'not_helpful', 'pii_masked', 'requests', 'thread_correct', 'thread_reject', 'window']"}
+{"tc": "TC-01-08b GV xem lớp khác → 404", "st": "FAIL", "note": "200"}
+{"tc": "TC-01-09 ADMIN xem 761987 → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-01-09 ADMIN xem 761988 → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-01-09b ADMIN lớp không tồn tại → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-02 open → 200 + no-store", "st": "PASS", "note": "200 no-store {'id': 'ef95576d-34e7-52df-9d67-8507cb593a7a', 'at': '2026-11-15T08:35:40.34016Z', 'task': 'CHAT', 'provider': 'fake', '"}
+{"tc": "TC-02-03 đúng 1 dòng audit_log VIEW_DETAIL", "st": "PASS", "note": "0->1"}
+{"tc": "TC-02-03b VIEW_DETAIL + reason + actor + trace", "st": "PASS", "note": "[['VIEW_DETAIL', 't', 'Điều tra lỗi tăng sau 10h', 't']]"}
+{"tc": "TC-02-04 lý do 9 ký tự → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do 201 ký tự → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do rỗng → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do thiếu trường → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do 10 khoảng trắng → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-06 hai lần open → 2 dòng audit", "st": "PASS", "note": "1->3"}
+{"tc": "TC-02-11 teacher → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11 ta → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11 sv.kha → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11b không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-02-16 UUID không có → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-16 UUID sai định dạng → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-16b không thêm audit_log", "st": "PASS", "note": "3->3"}
+{"tc": "TC-02-19 no-store /admin/observability/requests", "st": "PASS", "note": "no-store"}
+{"tc": "TC-02-19 no-store /admin/observability/summary", "st": "FAIL", "note": null}
+{"tc": "TC-02-20 GET chi tiết cũ → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-01-02a số yêu cầu / lỗi / dự phòng khớp SQL 24h", "st": "PASS", "note": "api=149/10/7 sql=149/10/7"}
+{"tc": "TC-01-02b p95 khớp SQL (±10%)", "st": "PASS", "note": "api=3084.4 sql=3084.4"}
+{"tc": "TC-01-02c bảng ngày dùng múi giờ VN (số yêu cầu mỗi ngày khớp SQL theo VN)", "st": "PASS", "note": "lệch={}"}
+{"tc": "TC-01-04 tổng chi phí theo tác vụ = tổng bảng ngày (±0,01)", "st": "PASS", "note": "tasks=14097.0 days=14097.0"}
+{"tc": "TC-01-05a duyệt hết cursor: không trùng, không sót", "st": "PASS", "note": "đã thấy=725 DB=725 trùng=0 trang=8"}
+{"tc": "TC-01-05b filter=problem chỉ status lỗi", "st": "FAIL", "note": "38/24"}
+{"tc": "TC-01-05c filter=privacy chỉ pii_masked_count>0", "st": "PASS", "note": "32"}
+{"tc": "TC-01-05d limit=1000 kẹp ≤100 hoặc 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-01-05e thân không có trường nội dung", "st": "PASS", "note": ""}
+{"tc": "TC-01-05f lọc lớp + tác vụ", "st": "PASS", "note": "200 100"}
+{"tc": "TC-01-05g from/to", "st": "PASS", "note": ""}
+{"tc": "TC-01-06a filter=xyz", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06b from>to", "st": "FAIL", "note": "200"}
+{"tc": "TC-01-06c cursor rác", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06d window lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-01-08a GV xem lớp mình: không bảng yêu cầu/chi phí theo nhà cung cấp/nội dung", "st": "PASS", "note": "200 ['change_rate', 'course_id', 'days', 'error_rate', 'escalations', 'graded_changed', 'graded_total', 'helpful', 'mean_abs_deviation', 'not_helpful', 'pii_masked', 'requests', 'thread_correct', 'thread_reject', 'window']"}
+{"tc": "TC-02-02 open → 200 + no-store", "st": "PASS", "note": "200 no-store {'id': 'ef95576d-34e7-52df-9d67-8507cb593a7a', 'at': '2026-11-15T08:35:40.34016Z', 'task': 'CHAT', 'provider': 'fake', '"}
+{"tc": "TC-02-03 đúng 1 dòng audit_log VIEW_DETAIL", "st": "PASS", "note": "3->4"}
+{"tc": "TC-02-03b VIEW_DETAIL + reason + actor + trace", "st": "PASS", "note": "[['VIEW_DETAIL', 't', 'Điều tra lỗi tăng sau 10h', 't']]"}
+{"tc": "TC-02-04 lý do 9 ký tự → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do 201 ký tự → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do rỗng → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do thiếu trường → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do 10 khoảng trắng → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-06 hai lần open → 2 dòng audit", "st": "PASS", "note": "4->6"}
+{"tc": "TC-02-11 teacher → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11 ta → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11 sv.kha → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11b không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-02-16 UUID không có → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-16 UUID sai định dạng → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-16b không thêm audit_log", "st": "PASS", "note": "6->6"}
+{"tc": "TC-02-19 no-store /admin/observability/requests", "st": "PASS", "note": "no-store"}
+{"tc": "TC-02-19 no-store /admin/observability/summary (nên có, không bắt buộc)", "st": "PASS", "note": null}
+{"tc": "TC-02-20 GET chi tiết cũ → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-02-07 payload đã mở ≥ 20, 0 khớp tên/MSSV/email SV", "st": "PASS", "note": "mở=31 rò=[]"}
+{"tc": "TC-02-14 payload > 30 ngày → 410 PAYLOAD_EXPIRED + vẫn audit", "st": "FAIL", "note": "200 {'id': '6abc1dba-36f2-550a-ac56-78e5c4fafc2d', 'at': '2026-11-08T15:07:10.34016Z"}
+{"tc": "TC-03-01 30 yêu cầu, 3 lỗi (10%) → 1 thông báo / ADMIN", "st": "FAIL", "note": "thông báo=0 admin=1"}
+{"tc": "TC-03-01 30 yêu cầu, 3 lỗi (10%) → 1 thông báo / ADMIN", "st": "PASS", "note": "thông báo=1 admin=1"}
+{"tc": "TC-03-01b liên kết /observability + lọc Có vấn đề", "st": "PASS", "note": "/observability?filter=problem"}
+{"tc": "TC-03-02 chạy lại ≥ 2 tick cùng cửa sổ → vẫn 1 thông báo / ADMIN", "st": "PASS", "note": "1"}
+{"tc": "TC-03-03a 30 yêu cầu, 1 lỗi (3,3%) → không", "st": "PASS", "note": "thông báo=0 admin=1"}
+{"tc": "TC-03-03b 30 yêu cầu, 2 lỗi (6,7%) → có", "st": "PASS", "note": "thông báo=1 admin=1"}
+{"tc": "TC-03-03c 40 yêu cầu, 2 lỗi (đúng 5,0%) → không", "st": "PASS", "note": "thông báo=0 admin=1"}
+{"tc": "TC-03-04 cancelled + degraded không tính lỗi → không", "st": "PASS", "note": "thông báo=0 admin=1"}
+{"tc": "TC-03-05a 19 yêu cầu, 100% lỗi → không", "st": "FAIL", "note": "thông báo=1 admin=1"}
+{"tc": "TC-03-05b 20 yêu cầu, 100% lỗi → có", "st": "PASS", "note": "thông báo=1 admin=1"}
+{"tc": "TC-03-08 +5h59 không thêm", "st": "PASS", "note": "1"}
+{"tc": "TC-03-09 sau > 6 giờ tái phát → thông báo mới", "st": "FAIL", "note": ""}
+{"tc": "TC-03-06a chi phí ngày = hạn mức hệ thống → LLM_BUDGET_REACHED «toàn hệ thống»", "st": "FAIL", "note": "thông báo=0 admin=1"}
