@@ -346,3 +346,22 @@
 {"tc": "TC-AS12-03c (D-AS-03) openapi attestation_chain minItems 2 / maxItems 6", "st": "PASS", "note": "attestation_chain]       additionalProperties: false       properties:         kind:           type: string           enum: [ANDROID_KEY]         public_key:   "}
 {"tc": "TC-AS12-03d 1 và 7 chứng chỉ → 422 (khớp openapi)", "st": "PASS", "note": "422 422"}
 {"tc": "ANDROID AC-12 (kiểm lại @b54d020e, bản sửa D-AS-01) hai tài khoản cùng điện thoại: cả hai «Đã điểm danh»; lượt tài khoản thứ hai có DEVICE_SHARED", "st": "PASS", "note": "sv06: DEVICE_NEW | sv07: DEVICE_SHARED,DEVICE_NEW"}
+{"tc": "TC-AS08-UX1 (375) thông báo «Còn N sinh viên chưa điểm danh» xuống dòng từng chữ (cột chữ hẹp vì nút «Đánh vắng N SV chưa điểm danh» chiếm bề rộng) — lỗi bố cục D-AS-05 (Thấp)", "st": "FAIL", "note": "shots/att-confirm2-375.png"}
+{"tc": "TC-AS08-UX2 sau khi đóng cửa sổ, cùng lúc có «Mở điểm danh» (phụ) và «Mở vòng 2» (⋯), và hai nút «Đánh vắng N SV…» (thông báo + dòng cửa sổ): hành động trùng — ghi nhận (Thấp)", "st": "PASS", "note": "NOTE"}
+{"tc": "TC-AS01-10a đổi rotate 30 + tắt self_checkin khi cửa sổ đang mở: mã vẫn xoay 5 s (đã ghim) và SV vẫn điểm danh được", "st": "FAIL", "note": "5 409"}
+{"tc": "TC-AS01-10b cửa sổ MỚI khi self_checkin tắt → 409 SELF_CHECKIN_DISABLED", "st": "PASS", "note": "409 SELF_CHECKIN_DISABLED"}
+{"tc": "TC-AS01-10c cửa sổ mới dùng rotate_seconds=30 mới", "st": "PASS", "note": "30"}
+{"tc": "TC-AS02-15 over_headcount: headcount 5 + 7 lượt → false; 8 lượt → true; headcount 2000 → false; audit checkin_window.headcount", "st": "PASS", "note": "False True False"}
+{"tc": "TC-AS02-09 mở vòng 2: không thông báo / chuông cho SV; không mục «Hôm nay» mới cho SV", "st": "PASS", "note": "notif {'sv.gioi': '27', 'sv.kha': '40', 'sv.nguyco': '27'}→{'sv.gioi': '27', 'sv.kha': '40', 'sv.nguyco': '27'}; outbox 1734→1734"}
+{"tc": "TC-AS03-13 3 lượt đúng ở 3 cửa sổ không bị đếm; 5 lần sai → 422; lần sai thứ 6 → 429", "st": "PASS", "note": "[201, 201, 201] [422, 422, 422, 422, 422] 429"}
+{"tc": "TC-AS03-10 mã ngắn tìm theo lớp: mã cửa sổ ĐANG MỞ → 201 đúng cửa sổ; mã cửa sổ vừa ĐÓNG → 409 WINDOW_CLOSED; mã cửa sổ LỚP KHÁC → 422 CHECKIN_TOKEN_INVALID", "st": "PASS", "note": "201 409:WINDOW_CLOSED 422:CHECKIN_TOKEN_INVALID"}
+{"tc": "TC-AS03-22 mời ra đua với điểm danh ×8: không có 5xx; điểm danh chỉ 201 hoặc 403", "st": "PASS", "note": "[(200, 403), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201), (200, 201)]"}
+{"tc": "TC-AS05-15 đóng ∥ PUT lưới ×8: không 5xx, không dòng trùng; kết quả mỗi vòng là PUT 200 + ABSENT (GV thắng) hoặc PUT 409 + PRESENT (đóng trước)", "st": "PASS", "note": "[(200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0'), (200, 409, 'PRESENT', '0')]"}
+{"tc": "TC-AS01-10a (D-AS-06) tắt self_checkin khi cửa sổ đang mở: cửa sổ vẫn nhận lượt tới khi đóng (US-AS-01 AC5) — THỰC TẾ: POST checkins → 409 SELF_CHECKIN_DISABLED (cả token và mã ngắn); display vẫn 200", "st": "FAIL", "note": "rotate đã ghim 5 s đúng; chỉ phần «vẫn nhận lượt» sai"}
+{"tc": "(chuẩn bị) 3 vòng × 30 SV = 90 lượt", "st": "PASS", "note": "90"}
+{"tc": "TC-AS06-01 90 lượt, limit=50: 2 trang, đủ 90, không trùng/thiếu, thứ tự (created_at,id)", "st": "PASS", "note": "90 lượt, 2 trang"}
+{"tc": "TC-AS06-01b tập id khớp DB", "st": "PASS", "note": ""}
+{"tc": "TC-AS06-02d limit=100 trả ≤ 100 (90) và next_cursor null", "st": "PASS", "note": "90"}
+{"tc": "TC-AS06-03 kế hoạch truy vấn danh sách: dùng chỉ mục attendance_checkins_session_idx, không OFFSET, thời gian thực thi nhỏ", "st": "FAIL", "note": "->  Index Scan using attendance_checkins_student_idx on attendance_checkins c  (cost=0.27..1.84 rows=1 width=72) (actual time=0.001..0.002 rows=2.81 loops=32) | Index Cond: ((course_id = '01a1de3f-3c5f-7c11-ab99-d5cec72f62b5'::uuid) AND (student_id = u.id)) | Index Searches: 32 | ->  Index Scan usin"}
+{"tc": "TC-AS06-03 truy vấn danh sách: không OFFSET; 90 lượt thực thi 0,49 ms (384 buffer). Planner chọn nhánh theo bảng nhỏ (411 hàng) — không dùng attendance_checkins_session_idx; kiểm lại chỉ mục ở quy mô T1: KHÔNG KIỂM ĐƯỢC (cần ≥ 100 k hàng)", "st": "PASS", "note": "NOTE"}
+{"tc": "D-AS-04 kiểm lại @089b9d01: prepare.mjs từ chối http://localhost:580 với gợi ý tunnel HTTPS; README bỏ localhost/10.0.2.2; https tunnel OK", "st": "PASS", "note": "đóng"}
