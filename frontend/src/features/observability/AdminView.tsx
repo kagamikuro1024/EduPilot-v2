@@ -55,20 +55,19 @@ export function AdminView() {
     <>
       <FailedMail />
       <DecisionTable />
-      <PageState query={summary} isEmpty={() => (summary.data?.totals.requests ?? 0) === 0 && (summary.data?.days.length ?? 0) === 0} loading={<Skeleton lines={8} />} empty={<EmptyState title="Chưa có yêu cầu nào." />}>
+      <PageState query={summary} isEmpty={() => (summary.data?.totals.requests ?? 0) === 0 && (summary.data?.days.length ?? 0) === 0} loading={<Skeleton lines={8} />} empty={<EmptyState title="Chưa có yêu cầu nào" />}>
         {t && (
           <p className={s.today} data-part="obs-today">
             {`24 giờ qua: ${t.requests.toLocaleString("vi-VN")} yêu cầu · p95 ${secs(t.p95_ms)} · lỗi ${pct(t.error_rate)} · dự phòng ${pct(t.fallback_rate)} · chi phí ${money(t.cost)}`}
           </p>
         )}
-        <Section panel title="7 ngày qua">
+        <Section title="7 ngày qua">
           <DataTable caption="Số liệu theo ngày" columns={DAY_COLUMNS} rows={summary.data?.days ?? []} rowKey={(d) => d.day} dense />
         </Section>
-        <Section panel title="Chi phí theo tác vụ">
+        <Section title="Chi phí theo tác vụ">
           <DataTable caption="Chi phí 7 ngày theo tác vụ" columns={TASK_COLUMNS} rows={summary.data?.tasks ?? []} rowKey={(x) => x.task} dense />
         </Section>
         <Section
-          panel
           title="Yêu cầu"
           action={
             <>
@@ -86,7 +85,7 @@ export function AdminView() {
             </>
           }
         >
-          <PageState query={list} isEmpty={() => list.items.length === 0} loading={<Skeleton lines={6} />} empty={<EmptyState title="Không có yêu cầu nào khớp." />}>
+          <PageState query={list} isEmpty={() => list.items.length === 0} loading={<Skeleton lines={6} />} empty={<EmptyState title="Không có yêu cầu nào khớp" />}>
             <DataTable caption="Yêu cầu gửi tới model, mới nhất trước" columns={columns} rows={list.items} rowKey={(r) => r.id} dense onRowClick={(r) => setOpen(r)} activeKey={open?.id} />
             {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}
           </PageState>

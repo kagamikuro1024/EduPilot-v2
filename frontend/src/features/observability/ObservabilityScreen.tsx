@@ -11,8 +11,8 @@ export function ObservabilityScreen() {
   const isAdmin = role === "admin";
   const courseId = realCourses ? (realCourseId && realCourseId !== "all" ? realCourseId : (realCourses[0]?.id ?? null)) : null;
   return (
-    <Page width="wide">
-      <PageHeader title="Quan sát AI" meta={<span>{isAdmin ? "Toàn hệ thống" : course.label}</span>} />
+    <Page kind="work">
+      <PageHeader title="Quan sát AI" meta={[<span key="m">{isAdmin ? "Toàn hệ thống" : course.label}</span>]} />
       {isAdmin ? <AdminView /> : <CourseView courseId={courseId} />}
     </Page>
   );

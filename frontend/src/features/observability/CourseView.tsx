@@ -7,9 +7,9 @@ import { pct, useCourseSummary } from "./api";
 export function CourseView({ courseId }: { courseId: string | null }) {
   const q = useCourseSummary(courseId);
   return (
-    <PageState query={q} isEmpty={() => courseId === null} loading={<Skeleton lines={6} />} empty={<EmptyState title="Chưa có lớp nào." />}>
+    <PageState query={q} isEmpty={() => courseId === null} loading={<Skeleton lines={6} />} empty={<EmptyState title="Chưa có lớp nào" />}>
       {q.data && (
-        <Section panel title="7 ngày qua">
+        <Section title="7 ngày qua">
           <DefinitionList
             items={[
               { term: "Yêu cầu", value: q.data.requests.toLocaleString("vi-VN") },
