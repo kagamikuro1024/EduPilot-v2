@@ -1,5 +1,5 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.8 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.9 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
@@ -12,6 +12,8 @@ Phiên bản 1.8 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; 
 **v1.6 (sprint 10.5):** US-P10-13 và FR-25…27 chuyển sang `FEAT-decision-model` (US-DM-01…09); `llm_audit.path` → `cascade_path` + `cascade_gate` ở đó.
 
 **v1.8 (P-11-30, QC Q-S11-23…26):** FR-28 và US-P10-14 chốt: thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, cursor gắn bộ lọc (khác → `422 INVALID_CURSOR`), `limit` mặc định 30 (sửa 50 → khớp `httpx.DefaultLimit`).
+
+**v1.9 (Q-E-7):** `period_days` ∈ {7, 14, 30, 120}, «Toàn kỳ» = 120 ngày gần nhất (FR-9, route #5, `/insights`, US-P10-04 AC1).
 
 **v1.7 (P-11-30):** US-P10-14 `/admin/audit` tối thiểu (ADMIN, lọc entity / actor / thời gian, không trả `before` / `after`, xem cũng ghi `audit_log`); FR-28; route #13; Q-E-26. `/admin/health` thuộc phase PR.
 
@@ -95,7 +97,7 @@ sequenceDiagram
 | FR-6 | `internal/llm` ghi `llm_request_payloads` **chỉ bản đã che**; dọn bản ghi > 30 ngày bằng job hằng ngày; trả `410` khi hết hạn | P10-02 AC8, AC10 |
 | FR-7 | Hiện liên kết Jaeger khi có `JAEGER_BASE_URL`, không thì `trace_id` + sao chép | P10-02 AC7 |
 | FR-8 | Worker 5 phút / lần tính cảnh báo: lỗi > 5% (cửa sổ 1 giờ, ≥ 20 yêu cầu) và chi phí ngày ≥ 100% `llm_budgets`; tạo thông báo ADMIN, khử trùng 6 giờ, idempotent | P10-03 |
-| FR-9 | `generate`: kiểm quyền + trần (3 việc / 60 phút / lớp) + `Idempotency-Key`; so `data_watermark` (cùng `period_days`); `202` hoặc `200 reused` | P10-04 AC1, AC8, AC11 |
+| FR-9 | `generate`: kiểm quyền + trần (3 việc / 60 phút / lớp) + `Idempotency-Key`; `period_days` ∈ {7, 14, 30, 120} (mặc định 14; 120 = «Toàn kỳ» = 120 ngày gần nhất vì schema lớp không có ngày bắt đầu / kết thúc kỳ; khác → `422`); so `data_watermark` (cùng `period_days`); `202` hoặc `200 reused` | P10-04 AC1, AC8, AC11 |
 | FR-10 | Gom 5 nguồn của **đúng lớp**, che / ẩn danh trước khi nhúng và trước khi gửi LLM | P10-04 AC2, AC6, AC7, AC13 |
 | FR-11 | Gom cụm theo embedding (cosine), gắn chương / tuần theo metadata tài liệu của chunk gần nhất; xếp hạng bằng code với trọng số §4.1 | P10-04 AC3, AC4 |
 | FR-12 | LLM (`Structured(json_schema)`, làn `BATCH`) đặt tên chủ đề + khuyến nghị; lỗi → tên tạm | P10-04 AC3, AC10 |
@@ -152,7 +154,7 @@ Tiền tố `/api/v1`. Ghi chú: cursor / `limit` ≤ 100.
 | 2 | `GET /admin/observability/requests?filter&course_id&task&from&to&cursor&limit` | ADMIN | 403, 422 |
 | 3 | `POST /admin/observability/requests/{id}/open {reason}` | ADMIN | 403, 404, 410 `PAYLOAD_EXPIRED`, 422 `REASON_REQUIRED` |
 | 4 | `GET /courses/{id}/observability/summary` | TEACHER lớp mình, ADMIN | 403, 404 |
-| 5 | `POST /courses/{id}/insights/knowledge-gap/generate {period_days}` (`Idempotency-Key` bắt buộc) | TA, TEACHER | 202 `{job_id}`; 200 `{report_id,reused:true}`; 409 `NOT_ENOUGH_DATA`; 429; 403; 404 |
+| 5 | `POST /courses/{id}/insights/knowledge-gap/generate {period_days}` (`Idempotency-Key` bắt buộc) | TA, TEACHER | 202 `{job_id}`; 200 `{report_id,reused:true}`; 409 `NOT_ENOUGH_DATA`; 422 (`period_days` ngoài {7, 14, 30, 120}); 429; 403; 404 |
 | 6 | `GET /courses/{id}/insights/knowledge-gap/latest` | TA, TEACHER | 404 (chưa có) |
 | 7 | `GET /courses/{id}/insights/knowledge-gap/{rid}/export?format=md` | TA, TEACHER | 404 |
 | 8 | `GET /courses/{id}/analytics/exams/overview?exam_id=\|week=` | TA, TEACHER; ADMIN chỉ tổng | 403, 404 |
@@ -171,7 +173,7 @@ Nguồn: `DESIGN.md` §14.21, §14.22, §13; `UX.md` mục 6. Chỉ token `--ep-
 | `/observability` (ADMIN) | Dòng «24 giờ qua» → bảng 7 ngày → bảng yêu cầu có lọc → `Drawer` chi tiết (khoá → lý do → nội dung) | `PageHeader`, `DataTable`, `Drawer`, `SegmentedControl`, `Field`, `PageState` | `EmptyState` một dòng; `PageState` lỗi + `Thử lại` | Dải xếp dọc, bảng cuộn trong khung |
 | `/observability` (TEACHER) | Một lớp, tổng hợp (không bảng yêu cầu) | `DefinitionList` / bảng | như trên | như trên |
 | `/admin/audit` (ADMIN) | Bảng Thời điểm · Người · Thực thể · Hành động · Khoá đổi; ba bộ lọc; `Tải thêm` | `PageHeader`, `DataTable`, `PageState` | `EmptyState` «Không có dòng nào trong khoảng này»; skeleton; lỗi + `Thử lại` | Bảng cuộn trong khung, bộ lọc xếp dọc |
-| `/insights` | Ngày báo cáo + `Tạo báo cáo mới` → danh sách chủ đề biên tập (mục gập câu mẫu) → «Tài liệu chưa đề cập» → «So với báo cáo ngày …» | `Page`, `Panel`, `Section`, `DataTable` nhẹ, `useAutosaveDraft` | `EmptyState` + một nút; chỉ báo giai đoạn khi đang tạo; `PageState` lỗi | Xếp dọc, vùng chạm ≥ 44 px |
+| `/insights` | Ngày báo cáo + chọn khoảng («7 ngày» · «14 ngày» · «30 ngày» · «Toàn kỳ» — nhãn cuối có tooltip «120 ngày gần nhất») + `Tạo báo cáo mới` → danh sách chủ đề biên tập (mục gập câu mẫu) → «Tài liệu chưa đề cập» → «So với báo cáo ngày …» | `Page`, `Panel`, `Section`, `DataTable` nhẹ, `useAutosaveDraft` | `EmptyState` + một nút; chỉ báo giai đoạn khi đang tạo; `PageState` lỗi | Xếp dọc, vùng chạm ≥ 44 px |
 | `/analytics` tab `Điểm thi` | Chọn bài thi → dòng thống kê → histogram → bảng câu sai nhiều | recharts, `DataTable`, `SegmentedControl` | `EmptyState` «Chưa có bài thi công bố» | Biểu đồ co, bảng cuộn |
 
 Lời văn theo §13: không «RAG / PII / provider / fallback / trace» ở màn sinh viên (các màn này không dành cho sinh viên). Quy tắc chữ UI: không dòng mô tả dưới tiêu đề; tooltip chỉ cho cú pháp / lý do khoá / hệ quả; dòng quyền riêng tư của `/insights` là `meta` một dòng. Nhãn Việt: `Tạo báo cáo mới`, `Xem chi tiết`, `Tạo thread ghim`, `Tạo buổi ôn tập`, `Xuất`.
