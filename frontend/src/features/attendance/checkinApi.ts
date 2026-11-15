@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/shared/data";
+import { ApiError, apiClient } from "@/shared/data";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (12 thao tác điểm danh tự phục vụ, tag `attendance`).
 export type CheckinWindow = {
@@ -48,7 +48,15 @@ export const useCoursePolicy = (course: string) =>
   useQuery({
     queryKey: ["course-attendance", course] as const,
     staleTime: 30_000,
-    queryFn: async ({ signal }) => (await apiClient.get<{ attendance?: CoursePolicy }>(`/courses/${course}`, { signal })).data.attendance ?? null,
+    // 404 = lớp không có / không còn quyền: lưới cũng không tải được; coi như chưa bật. Lỗi mạng / 5xx (sau thử lại của apiClient) vẫn là lỗi: không được âm thầm đưa lưới về «Có mặt» mặc định.
+    queryFn: async ({ signal }) =>
+      (await apiClient.get<{ attendance?: CoursePolicy }>(`/courses/${course}`, { signal }).then(
+        (r) => r.data.attendance ?? null,
+        (e: unknown) => {
+          if (e instanceof ApiError && e.status === 404) return null;
+          throw e;
+        },
+      )),
   });
 
 export const isOpen = (w: CheckinWindow, now = Date.now()) => !w.closed_at && Date.parse(w.closes_at) > now;
