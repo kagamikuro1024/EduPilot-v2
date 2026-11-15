@@ -32,6 +32,11 @@ Trạng thái: **ĐÃ SỬA** = dev/BA sửa, QC chạy lại PASS ở commit gh
 | D-11-20 | Thấp | TC-07-09 (dev nhận) | `insights.spec.ts` (mock) thiếu nhánh AC4: đổi lớp 2 / «C đứng đầu lớp 2», thread ghim hiện ở `/threads`, «LLM lỗi → tên tạm» | QC bù bằng `@real` INS-1..7 + `p10_insight*.py`; dev thêm 2 nhánh hoặc BA sửa AC4 |
 | D-11-21 | Thấp | TC-07-13 (dev nhận) | Ảnh mốc `insights-1440` (11-15 20:21) và `observability-1440` (11-15 16:27) cũ hơn UI (`5f38581d`, `51c14cd8`, `13c14bc9`) | dev sinh lại từ artifact CI |
 | D-11-22 | Thấp | TC-07-14 (PM làm khi đóng sprint) | `docs/PROGRESS.md` còn F16 ☐ / F17 ☐ | PM cập nhật khi đóng sprint; luồng đã đi trọn (xem summary) |
+| D-11-23 | Thấp | TC-10-16 (AC11 tái lập) | E6 hai lượt lệch ngoài ±15 % đã ghi (Q-S11-13): RAM 22,0 %, khởi động worker 20,9 % (gateway 14,9 % đạt); E1 3 lượt giống hệt | chấm đúng sai số ghi, không nới; TL giải thích giá trị nhỏ (RAM 14–23 MiB, khởi động 163–795 ms); PM chấm lại theo k1/k2 của P-11-53, giữ FAIL r1/r2 trong sổ |
+
+## B2. Kiểm từ bằng chứng của TL (không chạy lại, tốn lời gọi thật)
+- DEF-R9.5-10 (`a8b3a8cc`, mask.json): 31 probe, 24 tới mô hình, khôi phục 35/35, sót 0, đổi/bỏ 0, `spell_leak` 0 → PASS. Ghi nhận: bộ dò đánh vần nay chỉ bắt chuỗi có gạch nối (chữ-chữ-chữ), không bắt chữ cách khoảng trắng; 7 probe P17–P23 bị chặn `OTHER_PERSON` trước mô hình (tính riêng).
+- DEF-R9.5-11 (threads.json, crisis.json): Threads 5/5 AI trả lời (p50 9,1 s), khủng hoảng 4/4 → PASS.
 
 ## C. Ghi nhận không phải lỗi sản phẩm
 - Môi trường đã tìm và xử lý: provider fake qua ENV báo AUTH khi đặt `FAKE_LLM_VALID_KEY` (seed bước 10) · job `observability.alert` do judge giữ khoá leader (hạ tick, xoá khoá) · migration 24 vào DB sau 25 (áp tay trước khi có D-11-14) · `Caddyfile.kc` của QC thiếu `/edupilot/*` (đồng bộ từ `deploy/caddy/Caddyfile`) · `/gateway migrate` cũ · Hôm nay: nhà cung cấp `staff` có ngân sách 150 ms, khi máy quá tải bị bỏ và kết quả thiếu được nhớ 60 s (không lỗi; spec tải lại).
