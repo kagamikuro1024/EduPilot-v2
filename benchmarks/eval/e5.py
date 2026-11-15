@@ -35,9 +35,16 @@ PLAN = [  # (tài liệu, chủ đề) — chủ đề khác nhau để lô khô
 
 def gateway_started():
     """`State.StartedAt` của gateway stack đo: đổi giữa lô ⇒ gateway đã khởi động lại."""
+    return gateway_info()["started_at"]
+
+
+def gateway_info():
+    """Bản gateway đang chạy: image id + giờ tạo container. Image không mang sha git (không label, không /version) ⇒ sha của bản dựng
+    do người dựng xác nhận, ghi tay vào `raw.builds[<image>]`; KHÔNG lấy git HEAD của worktree bộ đo."""
     name = f"{os.environ.get('COMPOSE_PROJECT_NAME', 'ep-qc')}-gateway-1"
-    r = subprocess.run(["docker", "inspect", "-f", "{{.State.StartedAt}}", name], capture_output=True, text=True)
-    return r.stdout.strip() or None
+    r = subprocess.run(["docker", "inspect", "-f", "{{.Image}}\t{{.Created}}\t{{.State.StartedAt}}", name], capture_output=True, text=True)
+    img, created, started = (r.stdout.strip().split("\t") + [None, None, None])[:3]
+    return {"image": (img or "").removeprefix("sha256:")[:12] or None, "created": created, "started_at": started}
 
 
 def run():
@@ -68,7 +75,8 @@ def run():
                 return
             if st != 202:
                 raise Fail(f"generate {k} → {st} {j}")
-            raw["jobs"][k] = {"topic": topic, "document": doc, "job_id": j["job_id"], "t0": t0, "gateway_started_at": gateway_started()}
+            g = gateway_info()
+            raw["jobs"][k] = {"topic": topic, "document": doc, "job_id": j["job_id"], "t0": t0, "gateway_started_at": g["started_at"], "gateway_image": g["image"], "gateway_created": g["created"]}
             lib.save_raw("e5.json", raw)
         try:
             r = lib.wait_job(login(TEACHER), raw["jobs"][k]["job_id"], timeout=900)
@@ -131,16 +139,18 @@ def report():
     lib.svg_bars("e5.svg", [("duyệt nguyên", [tot["unchanged"]]), ("sửa nhẹ", [tot["edited"]]), ("loại", [tot["rejected"]]), ("chờ duyệt", [tot["pending"]])], ["số câu"],
                  f"E5 — {created} câu AI sinh: kết quả duyệt (n duyệt = {reviewed})", "câu", fmt="{:.0f}")
     pct = lambda x: "–" if rate is None else f"{rate[x] * 100:.1f} %".replace(".", ",")  # noqa: E731
-    L = ["# E5 — câu hỏi AI sinh", "", f"Trạng thái: **{status}**. Stack `ep-qc` @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. Model sinh: `{obj['meta']['config']['model']}` qua 9router.", "",
+    iso = lambda s: datetime.fromisoformat(s.replace("Z", "+00:00"))  # noqa: E731
+    build_of = lambda j: lib.build_of(j.get("gateway_image"), j["t0"])  # noqa: E731
+    L = ["# E5 — câu hỏi AI sinh", "", f"Trạng thái: **{status}**. Stack `ep-qc`; bản gateway của từng lô ở cột «bản dựng» (sha do người dựng xác nhận, image không mang sha). "
+         f"Bộ đo `benchmarks/eval/e5.py` @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. Model sinh: `{obj['meta']['config']['model']}` qua 9router.", "",
          f"- Sinh: **{created}** câu từ {len(raw['jobs'])} lô (10 câu / lô, MCQ một đáp án, mức MEDIUM, nguồn: «Network Security Threats», «Forecasting (QMB ch. 6b)»). Bỏ: " + (", ".join(f"{k} {v}" for k, v in skipped.items()) or "không") + ".",
          f"- Duyệt: **n = {reviewed}** — duyệt nguyên {tot['unchanged']} ({pct('unchanged')}), sửa nhẹ {tot['edited']} ({pct('edited')}), loại {tot['rejected']} ({pct('rejected')}); chờ duyệt {tot['pending']}.",
          f"- Lời gọi QUESTION_GEN (llm_audit): {len(calls)}, p50 {obj['latency_ms'].get('p50')} ms, p95 {obj['latency_ms'].get('p95')} ms; token vào {obj['tokens_in']}, ra {obj['tokens_out']}.", "",
-         "## Từng lô", "", "| lô | chủ đề | POST (UTC) | xong (UTC) | giây | trạng thái | câu tạo | bỏ | lỗi | POST bị 429 trước lô | lời gọi LLM (trạng thái) |",
-         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+         "## Từng lô", "", "| lô | chủ đề | bản dựng | POST (UTC) | xong (UTC) | giây | trạng thái | câu tạo | bỏ | lỗi | POST bị 429 trước lô | lời gọi LLM (trạng thái) |",
+         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     rl = {}
     for x in raw.get("rate_limited", []):
         rl.setdefault(x["batch"], []).append(x["at"][11:19])
-    iso = lambda s: datetime.fromisoformat(s.replace("Z", "+00:00"))  # noqa: E731
     secs = lambda j: round((iso(j["t1"]) - iso(j["t0"])).total_seconds()) if j.get("t1") else "–"  # noqa: E731
     for k, j in sorted(raw["jobs"].items()):
         res, au = j.get("result") or {}, j.get("audit") or []
@@ -148,9 +158,13 @@ def report():
         for a in au:
             st_count[a["status"]] = st_count.get(a["status"], 0) + 1
         n_created = res.get("created") if isinstance(res.get("created"), int) else len(res.get("created") or [])
-        L.append(f"| {k} | {j['topic']} | {j['t0'][11:19]} | {(j.get('t1') or '')[11:19] or '–'} | {secs(j)} | {j.get('status') or 'đang chạy'} | {n_created} | {len(res.get('skipped') or [])} | "
+        L.append(f"| {k} | {j['topic']} | {build_of(j)} | {j['t0'][11:19]} | {(j.get('t1') or '')[11:19] or '–'} | {secs(j)} | {j.get('status') or 'đang chạy'} | {n_created} | {len(res.get('skipped') or [])} | "
                  f"{(j.get('error') or {}).get('code') if isinstance(j.get('error'), dict) else (j.get('error') or '–')} | {', '.join(rl.get(k, [])) or '–'} | "
                  + (", ".join(f"{s} {n}" for s, n in sorted(st_count.items())) or "–") + " |")
+    for k in sorted(set(rl) - set(raw["jobs"])):
+        L.append(f"| {k} | {dict((f'lo{i + 1:02d}', t) for i, (_, t) in enumerate(PLAN))[k]} | – | – | – | – | chưa nhận (429) | 0 | 0 | – | {', '.join(rl[k])} | – |")
+    if lib.builds():
+        L += ["", "Bản dựng (`raw/builds.json`): " + "; ".join(f"`{b['sha']}` = image `{b['image']}` tạo {b['created'][:19]}Z ({b['source']})" for b in lib.builds()) + "."]
     L += ["", "![](e5.svg)", "", "## Cách duyệt (chủ dự án)", "",
           f"1. Mở `{os.environ.get('APP_PUBLIC_URL', 'http://localhost:580')}`, đăng nhập `teacher@edupilot.local` (mật khẩu seed), chọn lớp 761987 → **Ngân hàng câu hỏi** (`/questions`).",
           "2. Lọc **Nguồn = Sinh từ tài liệu**, **Trạng thái = Chờ duyệt**, rồi lần lượt **Chủ đề** = một trong 10 chủ đề ở bảng trên (lớp còn câu chờ duyệt khác do QC tạo, không thuộc E5; gen-stats chỉ đếm câu của 10 lô này).",

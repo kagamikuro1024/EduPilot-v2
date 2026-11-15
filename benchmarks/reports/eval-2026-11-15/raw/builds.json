@@ -1,0 +1,17 @@
+{
+ "meta": {
+  "commit": "68c348d3",
+  "timestamp": "2026-11-15T22:10:00Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {"stack": "ep-qc", "raw": "builds.json", "note": "Bản gateway / worker của ep-qc theo thời gian. Image không mang sha git (không label, không /version) nên sha do người dựng xác nhận; KHÔNG lấy git HEAD của worktree bộ đo. Lượt đo gán bản theo image ghi lúc đo, hoặc bản mới nhất tạo trước giờ đo."}
+ },
+ "items": [
+  {
+   "image": "c71505e4f4d6",
+   "created": "2026-11-15T18:42:16Z",
+   "sha": "31c19e0d",
+   "source": "QC xác nhận qua PM 2026-11-16; image đã bị xoá khi QC dựng lại 22:05Z"
+  }
+ ]
+}
