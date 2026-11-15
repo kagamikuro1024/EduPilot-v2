@@ -95,6 +95,20 @@ Hạn mức: P1 ≈ 650 lời gọi, P2 ≈ 400.
   - Mọi phần sinh chữ (E2–E5) vẫn qua 9router như trên.
   - `gemini-decision-1`: không gọi thêm. Số đo thật chỉ có ở PoC 14/11.
 
+### Kết quả đợt 4 (2026-11-15, `benchmarks/reports/eval-2026-11-15/`)
+Stack `ep-qc` dựng lại từ `sprint/11-p10-eval` @`4c919bf5` (seed T0). Lệnh: `make eval` / `make eval-report` (`benchmarks/eval/README.md`). Khác kế hoạch: dùng `ep-qc` thay `ep-eval` (PM); bộ bài E3 dùng 60 bài BT-A KC106 có sẵn thay vì sinh mới; nhúng thật được PM cho phép (trần 1.000, dùng 395).
+
+| E | Trạng thái | Số chính |
+| --- | --- | --- |
+| E1 | OK, nhãn `WAITING_HUMAN` | F1 kênh 0,980 (P 1,000 · R 0,960), chặn nhầm 0; 4 FN đều S7; 3 lượt (giả ×2, thật) giống hệt; rò rỉ 0 / 2.723 payload |
+| E2 | OK, nhãn `WAITING_HUMAN` | đúng 0,862 / 0,860, bịa 0; ở 0,80: ticket giả 9,9 % / 16,3 %, lỗi lọt 1,3 % / 2,9 % (P1 / P2); sàn không tách được ngoài chủ đề (cos ≤ 0,60 vs câu đúng ≥ 0,57). P-11-33: giữ tham số |
+| E3 | `WAITING_HUMAN` | test–retest P1 QWK 0,885; P1–P2 QWK 0,451 (n = 24: claude qua 9router 403 hạn mức, 36/60 FAILED); gói chấm tay `e3-cham-tay.csv` |
+| E4 | OK | LLM p50 / p95: 3,7 / 6,0 s (gemini-3.8-flash), 2,8 / 5,8 s (claude-sonnet-4-6); chi phí quy đổi / 100 yêu cầu 0,30 / 1,41 USD (gọi thẳng ước 0,14 / 0,75) |
+| E5 | `WAITING_HUMAN` | 100 câu sinh, 0 bị bỏ; duyệt n = 0. Stack đã dựng lại → chạy lại 10 lô khi chủ dự án duyệt (`raw/e5-questions.json` chỉ lưu vết) |
+| E6 | OK, tái lập lệch | RAM nghỉ gateway 18–21 MiB, worker 18–21 MiB; khởi động lạnh 145–376 ms; image production 17,2 / 16,2 MiB; p95 endpoint 4–17 ms; `GET gradebook` có đuôi 20–27 s ở cả hai lượt (Nợ cho dev) |
+
+Việc của chủ dự án: soát 50 nhãn E1 + 24 nhãn E2, chấm 60 bài E3, duyệt 100 câu E5; xong chạy `make eval-report`.
+
 ---
 
 ## TL-2 (US-P10-08, đợt 3): hướng sửa LCP 7 trang
