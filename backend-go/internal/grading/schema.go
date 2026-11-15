@@ -10,6 +10,9 @@ const numStr = `{"type":"string","pattern":"^\\d+(\\.\\d+)?$"}`
 // nullStr là chuỗi tuỳ chọn: ở strict mode mọi khoá đều `required`, nên tuỳ chọn khai bằng `["string","null"]`.
 const nullStr = `{"type":["string","null"]}`
 
+// weightStr là trọng số thành phần: thang 0–100 (P-95-8, TL-2i: Gemini trả 0.2 khi schema chỉ nói "chuỗi số"); không tự chuẩn hoá ở code, cờ WEIGHT_SUM vẫn bắt tổng sai.
+const weightStr = `{"type":"string","pattern":"^\\d+(\\.\\d+)?$","description":"Phần trăm 0–100 của điểm học phần, ví dụ \"20\" (không phải \"0.2\"); các thành phần cộng lại 100"}`
+
 const idList = `{"type":"array","items":{"type":"string"}}`
 
 // paramsSchema: `params` là anyOf sáu nhánh (BONUS, PENALTY, ROUNDING, LETTER_SCALE, FAIL_CONDITION, MISSING_SCORE). Mỗi nhánh là object đủ `required`,
@@ -26,7 +29,7 @@ var paramsSchema = `{"anyOf":[` + //nolint:gochecknoglobals // schema bất bi�
 // ExtractSchema là JSON schema đầu ra của `llm.Structured` (tương thích `strict: true`: mọi object có `required` = mọi khoá, `additionalProperties:false`).
 var ExtractSchema = json.RawMessage(`{"type":"object","additionalProperties":false,"required":["components","rules","citations","unclear_items"],"properties":{` + //nolint:gochecknoglobals // schema bất biến
 	`"components":{"type":"array","maxItems":20,"items":{"type":"object","additionalProperties":false,"required":["key","name","group","weight","kind_hint","citation_ids"],"properties":{` +
-	`"key":{"type":"string","pattern":"^[a-z][a-z0-9_]{0,39}$"},"name":{"type":"string","minLength":1,"maxLength":80},"group":{"type":"string","enum":["QT","CK"]},"weight":` + numStr + `,` +
+	`"key":{"type":"string","pattern":"^[a-z][a-z0-9_]{0,39}$"},"name":{"type":"string","minLength":1,"maxLength":80},"group":{"type":"string","enum":["QT","CK"]},"weight":` + weightStr + `,` +
 	`"kind_hint":` + nullStr + `,"citation_ids":` + idList + `}}},` +
 	`"rules":{"type":"array","maxItems":30,"items":{"type":"object","additionalProperties":false,"required":["kind","applicable","params","citation_ids"],"properties":{` +
 	`"kind":{"type":"string","enum":["BONUS","PENALTY","ROUNDING","LETTER_SCALE","FAIL_CONDITION","MISSING_SCORE"]},"applicable":{"type":"boolean"},"params":` + paramsSchema + `,"citation_ids":` + idList + `}}},` +

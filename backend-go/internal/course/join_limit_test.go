@@ -43,20 +43,29 @@ func TestJoinFailureTimingEqualized(t *testing.T) {
 			run(n)
 		}
 	}
+	// Nhiễu của máy (lập lịch, GC, tải) chỉ làm một mẫu CHẬM hơn, không bao giờ nhanh hơn: nên so phần nhanh nhất của mỗi nguyên nhân (trung bình 25% mẫu thấp nhất),
+	// không so trung vị (ở mức ~1 ms, trung vị 20 mẫu dao động > 35% khi máy bận). Một nhánh làm thêm việc (thêm truy vấn, thêm so sánh) dịch cả phân phối nên vẫn lộ ra.
+	// Ngưỡng 35% giữ nguyên. Thứ tự xoay vòng mỗi lượt để không nguyên nhân nào luôn đứng ngay sau cùng một nguyên nhân khác.
+	const rounds = 100
 	samples := map[string][]time.Duration{}
-	for range 20 { // xen kẽ để trôi tải làm lệch đều
-		for _, n := range names {
+	for i := range rounds {
+		for j := range names {
+			n := names[(i+j)%len(names)]
 			samples[n] = append(samples[n], run(n))
 		}
 	}
-	med := map[string]time.Duration{}
+	fast := map[string]time.Duration{}
 	lo, hi := time.Duration(1<<62), time.Duration(0)
 	for n, ds := range samples {
 		sort.Slice(ds, func(i, j int) bool { return ds[i] < ds[j] })
-		med[n] = (ds[9] + ds[10]) / 2
-		lo, hi = min(lo, med[n]), max(hi, med[n])
+		var sum time.Duration
+		for _, d := range ds[:rounds/4] {
+			sum += d
+		}
+		fast[n] = sum / (rounds / 4)
+		lo, hi = min(lo, fast[n]), max(hi, fast[n])
 	}
-	require.LessOrEqualf(t, float64(hi-lo)/float64(lo), 0.35, "trung vị mỗi nguyên nhân: %v", med)
+	require.LessOrEqualf(t, float64(hi-lo)/float64(lo), 0.35, "trung bình 25%% mẫu nhanh nhất của mỗi nguyên nhân: %v", fast)
 }
 
 // ===== AC4: giới hạn đoán mã =====

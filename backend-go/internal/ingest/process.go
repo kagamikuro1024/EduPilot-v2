@@ -327,8 +327,13 @@ func (p *Processor) embedStrings(ctx context.Context, jobID uuid.UUID, inputs []
 		lo, hi := b*llm.EmbedBatch, min((b+1)*llm.EmbedBatch, len(inputs))
 		var vecs [][]float32
 		var err error
+		outage := 0
 		for attempt := 1; attempt <= p.Set.Retries; attempt++ {
 			vecs, err = p.LLM.Embed(ctx, llm.EmbedRequest{Inputs: inputs[lo:hi]})
+			if llm.AwaitOutage(ctx, err, &outage) { // mất nhà cung cấp: hoãn, không tính lượt (P-11-23; D-R-08: 429 → FAILED cả lớp)
+				attempt--
+				continue
+			}
 			var dm *llm.ErrDimsMismatch
 			if err == nil || errors.As(err, &dm) || ctx.Err() != nil {
 				break

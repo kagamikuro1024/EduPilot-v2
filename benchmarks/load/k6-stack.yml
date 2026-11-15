@@ -14,3 +14,10 @@ services:
       LLM_DEFAULT_TPM: "100000000"
       FAKE_LLM_LATENCY: "${K6_LAT:-300-300}"
       DISPLAY_RATE_PER_MIN: "120" # checkin.js: 3 giảng viên T1 poll màn chiếu của 20 lớp (≈ 7 lớp / người, 1 lượt / 10 s ≈ 42 / phút); mặc định 30 / người / phút là cho một giảng viên một lớp
+  # Chấm bài chạy ở worker: độ trễ provider giả RIÊNG cho việc chấm (chat ở gateway giữ K6_LAT). K6_GRADE_LAT=20000-20000 cho lượt chấm 1.000 bài thời gian thật (US-NFR-04 AC9).
+  worker:
+    environment:
+      LLM_MAX_CONCURRENCY: "100"
+      LLM_DEFAULT_RPM: "100000"
+      LLM_DEFAULT_TPM: "100000000"
+      FAKE_LLM_LATENCY: "${K6_GRADE_LAT:-0-0}"

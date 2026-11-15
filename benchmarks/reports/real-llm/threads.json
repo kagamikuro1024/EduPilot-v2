@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "commit": "5ea7cdef",
+    "timestamp": "2026-11-15T04:46:36.946Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+    }
+  },
+  "at": "2026-11-15T04:46:36.946Z",
+  "results": [
+    {
+      "title": "Phân biệt virus và sâu máy tính",
+      "thread_id": "01a1dd7e-cd27-7794-9e88-eb38a89203b5",
+      "ai_after_s": 181.7,
+      "ai": null
+    },
+    {
+      "title": "Phishing qua email",
+      "thread_id": "01a1dd81-a5d1-7054-b9fc-99b2207d0a17",
+      "ai_after_s": 181.5,
+      "ai": null
+    },
+    {
+      "title": "DoS và DDoS",
+      "thread_id": "01a1dd84-7eaa-7ec9-9e50-fcf0e4f38bf9",
+      "ai_after_s": 181.6,
+      "ai": null
+    }
+  ]
+}

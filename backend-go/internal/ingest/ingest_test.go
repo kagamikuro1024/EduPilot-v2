@@ -146,6 +146,7 @@ type embedStub struct {
 	idents  []llm.Identity
 	dims    int
 	fail    atomic.Int32 // số lần đầu trả lỗi tạm thời
+	outage  atomic.Bool  // lỗi giả là mất nhà cung cấp (P-11-23)
 }
 
 func (e *embedStub) Decide(context.Context, llm.DecideRequest) (llm.DecideResponse, error) {
@@ -163,7 +164,7 @@ func (e *embedStub) Structured(context.Context, llm.Request, json.RawMessage) (j
 func (e *embedStub) Embed(ctx context.Context, r llm.EmbedRequest) ([][]float32, error) {
 	if e.fail.Load() > 0 {
 		e.fail.Add(-1)
-		return nil, &llm.ErrUnavailable{Reason: llm.ReasonAllFailed}
+		return nil, &llm.ErrUnavailable{Reason: llm.ReasonAllFailed, Outage: e.outage.Load()}
 	}
 	e.mu.Lock()
 	e.batches = append(e.batches, len(r.Inputs))
@@ -765,6 +766,21 @@ func TestIngestEmbedRetriesTransient(t *testing.T) {
 	t.Parallel()
 	f := newFx(t)
 	f.emb.fail.Store(2)
+	doc, job := f.upload(t, docSpec{visible: true, useRAG: true})
+	f.run(t, doc, job)
+	st, _, _ := f.status(t, doc)
+	require.Equal(t, "READY", st)
+}
+
+// TestIngestEmbedOutageDoesNotConsumeRetries — P-11-23: mất nhà cung cấp lâu hơn Retries lần gọi ⇒ tài liệu vẫn READY, không FAILED EMBED_FAILED (D-R-08).
+// Không t.Parallel: đổi llm.OutageDelay toàn gói.
+func TestIngestEmbedOutageDoesNotConsumeRetries(t *testing.T) {
+	old := llm.OutageDelay
+	llm.OutageDelay = time.Millisecond
+	t.Cleanup(func() { llm.OutageDelay = old })
+	f := newFx(t)
+	f.emb.outage.Store(true)
+	f.emb.fail.Store(8)
 	doc, job := f.upload(t, docSpec{visible: true, useRAG: true})
 	f.run(t, doc, job)
 	st, _, _ := f.status(t, doc)

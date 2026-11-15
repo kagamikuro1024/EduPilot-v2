@@ -1,0 +1,5 @@
+# Override CHỈ ở stack đo (US-NFR-05): bật pg_stat_statements để lấy 10 truy vấn nặng nhất. Không dùng ở demo / production; không nằm trong migration sản phẩm.
+#   docker compose --env-file .env.local -f docker-compose.local.yml -f benchmarks/load/pg-stats.yml -p ep-t1 up -d postgres
+services:
+  postgres:
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "pg_stat_statements.track=all", "-c", "track_io_timing=on"]
