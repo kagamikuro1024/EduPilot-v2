@@ -299,7 +299,7 @@ function Sheet({ courseId, userId, classCode, grid, picker, selfCheckin, rotate,
         title="Điểm danh"
         meta={[`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`]}
         primary={{ label: saved ? "Đã lưu" : "Lưu điểm danh", disabled: locked, onClick: () => void complete(), docked: true }}
-        secondary={[selfCheckin && !open && windows.length < 3 ? { label: "Mở điểm danh", onClick: () => void openWindow(), busy: acts.open.isPending } : undefined]}
+        secondary={[selfCheckin && !hasWindow ? { label: "Mở điểm danh", onClick: () => void openWindow(), busy: acts.open.isPending } : undefined]}
         more={moreActions}
       />
       <Panel>
@@ -339,6 +339,7 @@ function Sheet({ courseId, userId, classCode, grid, picker, selfCheckin, rotate,
             onHeadcount={(v) => latest && acts.headcount.mutate({ wid: (open ?? latest).id, headcount: v })}
             onClose={() => void closeWindow()}
             onAbsent={() => setAbsentOpen(true)}
+            absentInNotice={a.unresolved !== null}
             onExpire={() => {
               void qc.invalidateQueries({ queryKey: windowsKey(courseId, st.id) });
               void refreshGrid();

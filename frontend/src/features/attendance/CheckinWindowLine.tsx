@@ -43,6 +43,7 @@ export function CheckinWindowLine({
   onHeadcount,
   onClose,
   onAbsent,
+  absentInNotice,
   onExpire,
 }: {
   open: CheckinWindow | null;
@@ -57,6 +58,8 @@ export function CheckinWindowLine({
   onHeadcount: (v: number | null) => void;
   onClose: () => void;
   onAbsent: () => void;
+  /** Cảnh báo CHECKIN_UNRESOLVED đang hiện và đã có nút «Đánh vắng…»: dòng này không lặp lại (một việc một nút, §23) */
+  absentInNotice: boolean;
   onExpire: () => void;
 }) {
   const [hc, setHc] = useState<string>(() => (latest?.headcount != null ? String(latest.headcount) : ""));
@@ -109,7 +112,7 @@ export function CheckinWindowLine({
         </span>
       )}
       {tail}
-      {summary.unchecked > 0 && !closeQueued && (
+      {summary.unchecked > 0 && !closeQueued && !absentInNotice && (
         <span className={s.lineButtons}>
           <Button size="sm" onClick={onAbsent}>Đánh vắng {summary.unchecked} SV chưa điểm danh</Button>
         </span>

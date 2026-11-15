@@ -749,7 +749,7 @@ Applies only when the course has `self_checkin = true`. Otherwise the route is u
 
 Header actions (§23.2):
 - Primary stays `Lưu điểm danh` (docked below 720 px).
-- Secondary `Mở điểm danh`: shown only when the selected session has no open window and fewer than 3 rounds; hidden (not disabled) while a window is open. It opens the window (`Idempotency-Key`) and then navigates to `/attendance/display?course=&session=` in the same tab. Below 720 px it sits in the "Thêm" menu like every secondary.
+- Secondary `Mở điểm danh`: shown only while the selected session has NO window yet; hidden (not disabled) as soon as round 1 exists (later rounds live in the overflow `⋯`; one job, one button, §23). It opens the window (`Idempotency-Key`) and then navigates to `/attendance/display?course=&session=` in the same tab. Below 720 px it sits in the "Thêm" menu like every secondary.
 - Overflow `⋯`, once round 1 exists: `Mở vòng {r+1}` (r < 3), `Nhập số đầu người`, `Gọi ngẫu nhiên 5 người`.
 
 Window line: one quiet line inside the panel, directly under the toolbar (the §23.3 job-result slot). Never a second panel, never a toast.
@@ -773,7 +773,7 @@ Grid rows when the session has at least one window:
 - `StatusText` chips, at most 2 then `+n`: flag labels (SRS 4.4) in the warning style (§4: amber text + yellow dot); `Chưa xác minh` for assurance 1; neutral `Nhập mã` for `channel = CODE`. Flags never use red.
 - Row with uncleared flags: small button `Đã xem` (clears that student's flags for the session; audited; no undo because there is no un-clear API).
 - Toolbar `FilterChips`, kept in the URL as `filter=review`: `Tất cả`, `Cần xem ({k})`. Today's `CHECKIN_REVIEW` links here with `filter=review`.
-- `Lưu điểm danh` rejected with `422 CHECKIN_UNRESOLVED`: `InlineNotice tone="warning"` first in the panel, `Còn {n} sinh viên chưa điểm danh`, action `Đánh vắng {n} SV chưa điểm danh` (same dialog). Edited cells stay.
+- `Lưu điểm danh` rejected with `422 CHECKIN_UNRESOLVED`: `InlineNotice tone="warning"` first in the panel, `Còn {n} sinh viên chưa điểm danh`, action `Đánh vắng {n} SV chưa điểm danh` (same dialog). While this notice shows, the closed window line drops its own `Đánh vắng…` button (one place only). Edited cells stay.
 - 375 px: the grid stays a row list; the window line wraps to two lines (text, then the two buttons at 44 px).
 
 Course setting (TEACHER, on `/class/settings`): one `Section` `Điểm danh bằng mã`.

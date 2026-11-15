@@ -100,6 +100,9 @@ test("attendance checkin: cửa sổ đã đóng — «Đã ghi a có mặt · b
   const line = page.locator("[data-part=window-line]");
   await expect(page.locator("[data-part=window-summary]")).toHaveText("Đã ghi 1 có mặt · 1 muộn · 28 chưa điểm danh");
   await expect(line).toContainText("31 người trong lớp");
+  // một việc một nút (§23): sau khi đóng không còn «Mở điểm danh» ở đầu trang (vòng kế tiếp nằm trong menu ⋯), «Đánh vắng u SV» chỉ ở một chỗ
+  await expect(page.getByRole("button", { name: "Mở điểm danh" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Đánh vắng \d+ SV/ })).toHaveCount(1);
   await expect(page.locator("[data-part=over-headcount]")).toHaveText("Số điểm danh nhiều hơn số người đếm");
   await line.getByRole("button", { name: "Đánh vắng 28 SV chưa điểm danh" }).click();
   await expect(page.getByText("Đánh vắng 28 sinh viên?")).toBeVisible();
@@ -125,7 +128,7 @@ test("attendance checkin: Lưu điểm danh bị 422 CHECKIN_UNRESOLVED → cả
   await row(page, 1).getByRole("radio", { name: "Muộn — Sinh Viên 01", exact: true }).check();
   await page.getByRole("button", { name: /Lưu điểm danh/ }).first().click();
   await expect(page.getByText("Còn 29 sinh viên chưa điểm danh", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Đánh vắng 29 SV chưa điểm danh" }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Đánh vắng 29 SV chưa điểm danh" })).toHaveCount(1); // nút ở cảnh báo, dòng cửa sổ không lặp lại
   const records = (JSON.parse(body) as { records: Array<{ student_id: string }> }).records;
   expect(records.map((x) => x.student_id)).toEqual([sid(1)]); // 29 ô trống không gửi
   await expect(row(page, 1).getByRole("radio", { name: "Muộn — Sinh Viên 01", exact: true })).toBeChecked();
