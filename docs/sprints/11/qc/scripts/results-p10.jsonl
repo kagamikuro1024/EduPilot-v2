@@ -764,7 +764,6 @@
 {"tc": "TC-01-14 375 px", "st": "PASS", "note": "OBS-5"}
 {"tc": "TC-02-01 drawer khoá, chưa gọi open", "st": "PASS", "note": "OBS-3"}
 {"tc": "TC-02-05 lý do 5 ký tự: nút khoá + lỗi tại ô", "st": "PASS", "note": "OBS-3"}
-{"tc": "TC-02-13 JAEGER trống: trace_id + nút sao chép", "st": "FAIL", "note": "Mã theo dõi hiện chữ, không có nút sao chép (RequestDrawer.tsx)"}
 {"tc": "TC-02-14u giao diện hết hạn", "st": "PASS", "note": "OBS-4"}
 {"tc": "TC-02-15 job dọn chỉ xoá > 30 ngày, llm_audit nguyên", "st": "PASS", "note": "OBS_PURGE_TICK=30s: payload 31 ngày bị xoá, hàng mới còn"}
 {"tc": "TC-02-18 mở qua giao diện → audit VIEW_DETAIL", "st": "PASS", "note": "OBS-3"}
@@ -1177,3 +1176,17 @@
 {"tc": "TC-04-27b GV lớp khác latest lớp 1 → 403", "st": "PASS", "note": ""}
 {"tc": "TC-06-13b GV lớp khác declining lớp 1 → 403", "st": "PASS", "note": ""}
 {"tc": "TC-04-23 lỗi trước NAME (embedding hỏng): job FAILED, không bản ghi mới, latest vẫn báo cáo cũ", "st": "PASS", "note": "FAILED {'code': 'JOB_FAILED', 'message': 'Việc chạy thất bại.'} rep 18->18"}
+{"tc": "TC-04-24b job chậm vẫn kết thúc (không treo)", "st": "PASS", "note": "SUCCEEDED"}
+{"tc": "TC-04-24 LLM chậm 60 s: chat không bị job BATCH làm chậm", "st": "PASS", "note": "chat khi job chậm (n=6): p50≈5,1 s, max 11,4 s (9router); baseline không job (n=8): p50≈4,0 s, p95≈5,8 s; INSIGHT làn BATCH, job kết thúc SUCCEEDED; ghi chú: đường chat này gọi CLASSIFY thật qua 9router nên chậm sẵn"}
+{"tc": "TC-02-12 JAEGER_BASE_URL đặt: trace_url = {base}/trace/{trace_id}", "st": "PASS", "note": "200 http://jaeger.qc.example:16686/trace/f45498e7b7730a278d73d876f3c8ef48"}
+{"tc": "TC-02-13 JAEGER trống: trace_id + nút sao chép (b354fd16)", "st": "PASS", "note": "OBS-3 trên build 9303b0e8"}
+{"tc": "TC-02-10 ghi payload lỗi: chat vẫn trả lời, llm_audit vẫn ghi, payload không ghi", "st": "PASS", "note": "audit 928->929 payload 330->330 reply=Theo quy chế của lớp, tỷ lệ điểm như sau:\n- Điểm quá trình ("}
+{"tc": "TC-03-11 worker tắt: chat không chậm/lỗi thêm (p95 ≤ baseline 5,8 s ×1,5), không thông báo nửa vời", "st": "PASS", "note": "worker tắt n=8: [3384, 3514, 3648, 3737, 3991, 4573, 4728, 6584] (baseline p50≈4,0 s p95≈5,8 s); thông báo LLM_* 0->0"}
+{"tc": "TC-01-13 1 triệu hàng «summary 7d»: p95 ≤ 500 ms", "st": "FAIL", "note": "p50=6710 p95=10780 max=11779 ms"}
+{"tc": "TC-01-13 1 triệu hàng «summary 24h»: p95 ≤ 500 ms", "st": "FAIL", "note": "p50=3265 p95=4968 max=6467 ms"}
+{"tc": "TC-01-13 1 triệu hàng «requests limit=50»: p95 ≤ 300 ms", "st": "PASS", "note": "p50=32 p95=106 max=164 ms"}
+{"tc": "TC-01-13 1 triệu hàng «requests problem»: p95 ≤ 300 ms", "st": "PASS", "note": "p50=22 p95=64 max=75 ms"}
+{"tc": "TC-01-13 1 triệu hàng «course summary»: p95 ≤ 500 ms", "st": "FAIL", "note": "p50=1754 p95=4107 max=7378 ms"}
+{"tc": "TC-01-13 EXPLAIN «bảng yêu cầu»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_created_idx Execution Time: 0.727 ms"}
+{"tc": "TC-01-13 EXPLAIN «summary 7d»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_task_created_idx Execution Time: 6715.279 ms"}
+{"tc": "TC-01-13 EXPLAIN «problem»: không Seq Scan trừ tổng hợp 7 ngày, không OFFSET", "st": "PASS", "note": "Index Scan using llm_audit_created_idx Execution Time: 0.486 ms"}

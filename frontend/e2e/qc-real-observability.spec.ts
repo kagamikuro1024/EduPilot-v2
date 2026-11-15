@@ -58,7 +58,7 @@ test("@real OBS-3 drawer: khoá → lý do → nội dung, audit_log, hết hạ
   const opens: string[] = [];
   page.on("request", (r) => { if (/observability\/requests\/[^/]+\/open/.test(r.url())) opens.push(r.url()); });
   await page.goto("/observability");
-  const last = page.locator("table").last();
+  const last = page.getByRole("table", { name: /Yêu cầu gửi tới model/ });
   await expect(last.locator("tbody tr").first()).toBeVisible();
   await last.locator("tbody tr").first().click();
   const dlg = page.getByRole("dialog");
@@ -76,7 +76,8 @@ test("@real OBS-3 drawer: khoá → lý do → nội dung, audit_log, hết hạ
   expect(opens.length).toBe(0);
   // TC-02-18
   const full = sql(`select id from llm_audit where id::text like '${rid8}%' order by created_at desc limit 1`)[0][0]; // chuỗi 8 ký tự UUIDv7 trùng theo thời gian → lấy hàng mới nhất khớp
-  const hasPayload = sql(`select count(*) from llm_request_payloads where audit_id='${full}'`)[0][0] !== "0";
+  if (sql(`select count(*) from llm_request_payloads where audit_id='${full}'`)[0][0] === "0") sql(`insert into llm_request_payloads(audit_id, course_id, masked_prompt, tools, confidence) select id, course_id, '[STUDENT_1] hỏi về điểm quá trình (QC fixture)', '[]'::jsonb, 0.5 from llm_audit where id='${full}'`); // QC fixture: bảo đảm có payload để kiểm nút sao chép
+  const hasPayload = true;
   const before = Number(sql(`select count(*) from audit_log where entity='llm_request' and entity_id='${full}'`)[0][0]);
   const reason = `QC kiểm giao diện ${Date.now()}`;
   await ta.fill(reason);
@@ -103,7 +104,7 @@ test("@real OBS-3 drawer: khoá → lý do → nội dung, audit_log, hết hạ
 test("@real OBS-4 hết hạn lưu: hàng đã bị dọn → «Nội dung đã hết hạn lưu» + vẫn ghi audit (TC-02-14 giao diện)", async ({ page }) => {
   await uiLogin(page, "admin");
   await page.goto("/observability");
-  const last = page.locator("table").last();
+  const last = page.getByRole("table", { name: /Yêu cầu gửi tới model/ });
   await expect(last.locator("tbody tr").first()).toBeVisible();
   await last.locator("tbody tr").first().click();
   const dlg = page.getByRole("dialog");
