@@ -210,3 +210,77 @@ test("nháp thread ghim: gõ tiêu đề, tải lại trang, tiêu đề còn ng
   dlg = page.getByRole("group", { name: "Tạo thread ghim" });
   await expect(dlg.getByLabel("Tiêu đề")).toHaveValue("Ôn gấp bắt tay ba bước trước buổi kiểm tra");
 });
+
+// D-11-20 / US-P10-04 AC4 (E2E F17): các nhánh còn thiếu của `insights.spec.ts` — đổi lớp 2, thread ghim hiện ở /threads, LLM lỗi → tên tạm.
+const COURSE2 = { ...COURSE, id: "00000000-0000-7000-8000-00000000c002", class_code: "761988", name: "An ninh mạng nâng cao" };
+const topicTitles = (page: Page) => page.locator("h3.ep-item-title").allTextContents();
+const named = (t: { name: string; named_by?: string; rank: number }) => ({
+  ...REPORT.report.payload.topics[0], ...t, why: `Chủ đề ${t.name}`, recommendation: `Ôn lại ${t.name} bằng một ví dụ`, examples: [`${t.name}: câu hỏi mẫu 1`, `${t.name}: câu hỏi mẫu 2`, `${t.name}: câu hỏi mẫu 3`],
+});
+
+test("đổi sang lớp 2: «Tường lửa và phân đoạn mạng» đứng đầu lớp 2 và không xuất hiện ở lớp 1 (AC4, AC7)", async ({ page }) => {
+  const REPORT2 = { ...REPORT, report: { ...REPORT.report, payload: { ...REPORT.report.payload, topics: [named({ rank: 1, name: "Tường lửa và phân đoạn mạng" }), named({ rank: 2, name: "Mật mã đối xứng" })] } }, previous: null };
+  await asJwt(page, "TEACHER");
+  await page.route("**/api/v1/me/courses**", (r) => ok(r, { items: [COURSE, COURSE2].map((course) => ({ course, role_in_course: "TEACHER", enrollment_status: "ACTIVE" })), next_cursor: null }));
+  await page.route("**/api/v1/me/today**", (r) => ok(r, { count: 0, actions: [] }));
+  await page.route("**/api/v1/notifications**", (r) => ok(r, { items: [], next_cursor: null, unread_count: 0 }));
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => ok(r, r.request().url().includes(COURSE2.id) ? REPORT2 : REPORT));
+  await page.goto("/insights");
+  await expect(page.getByRole("heading", { name: "Bắt tay ba bước TCP" })).toBeVisible();
+  expect((await topicTitles(page))[0]).toBe("Bắt tay ba bước TCP");
+  await expect(page.getByText("Tường lửa và phân đoạn mạng")).toHaveCount(0);
+
+  await page.getByRole("button", { name: /^Chọn lớp, đang xem/ }).click();
+  await page.getByRole("dialog", { name: "Chọn lớp" }).getByRole("menuitem", { name: /761988/ }).click();
+  await expect(page.getByRole("heading", { name: "Tường lửa và phân đoạn mạng" })).toBeVisible();
+  expect((await topicTitles(page))[0]).toBe("Tường lửa và phân đoạn mạng");
+  await expect(page.getByText("Bắt tay ba bước TCP")).toHaveCount(0);
+});
+
+test("thread ghim tạo từ báo cáo hiện ở /threads (AC4)", async ({ page }) => {
+  const created: { id: string; title: string }[] = [];
+  const TH = "00000000-0000-7000-8000-0000000000c1";
+  await open(page, REPORT);
+  await page.route((u) => /\/api\/v1\/courses\/[^/]+\/threads$/.test(u.pathname), (r) => {
+    if (r.request().method() === "POST") {
+      created.push({ id: TH, title: r.request().postDataJSON().title });
+      return ok(r, { thread: { id: TH } }, 201);
+    }
+    // GET danh sách: thread đã ghim nằm ở `pinned[]` (hợp đồng thật)
+    const row = { id: TH, title: created[0]?.title ?? "", preview: "Tuần này ta ôn lại bắt tay ba bước.", tags: [], week_no: 3, pinned: true, author: { full_name: "Giảng viên", role: "TEACHER", is_me: true }, answer_state: null, reply_count: 0, last_activity_at: "2026-11-14T09:00:00Z", created_at: "2026-11-14T09:00:00Z" };
+    return ok(r, { items: [], pinned: created.length ? [row] : [], next_cursor: null });
+  });
+  await page.route("**/api/v1/courses/*/threads/*/pin", (r) => r.fulfill({ status: 204, headers: cors }));
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  const dlg = page.getByRole("group", { name: "Tạo thread ghim" });
+  await dlg.getByRole("button", { name: "Đăng" }).click();
+  await expect(dlg.getByText("Đã đăng và ghim thread.")).toBeVisible();
+  expect(created).toHaveLength(1);
+
+  await page.goto("/threads");
+  const row = page.locator("[data-part=pinned-row]");
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText("Chủ đề đang vướng: Bắt tay ba bước TCP");
+  await expect(row.getByLabel("Đã ghim")).toBeVisible();
+});
+
+test("LLM đặt tên lỗi: báo cáo vẫn ra, mọi chủ đề mang tên tạm từ từ khoá và nhãn «Chưa đặt được tên chủ đề» (AC4)", async ({ page }) => {
+  const FALLBACK = { ...REPORT, has_new_data: false, previous: null, report: { ...REPORT.report, payload: { ...REPORT.report.payload, topics: [
+    named({ rank: 1, name: "tcp · bắt · tay", named_by: "fallback" }), named({ rank: 2, name: "sql · join · bảng", named_by: "fallback" }), named({ rank: 3, name: "Chủ đề 3", named_by: "fallback" }),
+  ] } } };
+  let latest: unknown = null;
+  await asJwt(page, "TEACHER");
+  await insightsApi(page, {});
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => (latest ? ok(r, latest) : fail(r, 404, "NOT_FOUND")));
+  await page.route(GEN, (r) => ok(r, { job_id: JOB.id }, 202));
+  await page.route(`**/api/v1/jobs/${JOB.id}`, (r) => {
+    latest = FALLBACK; // LLM đặt tên hỏng ⇒ vẫn SUCCEEDED (lỗi NAME không làm hỏng việc)
+    return ok(r, { id: JOB.id, status: "SUCCEEDED", progress: 100, result: { report_id: FALLBACK.report.id } });
+  });
+  await page.goto("/insights");
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect(page.getByRole("heading", { name: "tcp · bắt · tay" })).toBeVisible({ timeout: 15_000 });
+  expect(await topicTitles(page)).toEqual(["tcp · bắt · tay", "sql · join · bảng", "Chủ đề 3"]);
+  await expect(page.getByText("Chưa đặt được tên chủ đề")).toHaveCount(3);
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(0);
+});
