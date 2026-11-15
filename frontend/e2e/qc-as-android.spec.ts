@@ -17,8 +17,9 @@ async function api(u: string, method: string, path: string, body?: unknown) { co
 let idx = 0;
 async function win() { const sid = SIDS[idx++]; const o = await api("teacher", "POST", `/courses/${C}/sessions/${sid}/checkin-windows`, {}); expect(o.s).toBe(201); const d = (await api("teacher", "GET", `/courses/${C}/sessions/${sid}/checkin-windows/${o.j.id}/display`)).j; return { sid, wid: o.j.id as string, d }; }
 const psql = (q: string) => execSync(`docker compose -p ep-qc exec -T postgres psql -U edupilot -d edupilot -At -F'|' -c "${q}"`, { cwd: process.env.HOME + "/Documents/TA_Agent_qc5" }).toString().trim();
+type CdpReply = { id?: number; result?: { data?: string; result?: { value?: unknown }; exceptionDetails?: unknown } };
 class Cdp {
-  private id = 0; private cb = new Map<number, (r: any) => void>(); private ws!: globalThis.WebSocket; reqs: string[] = [];
+  private id = 0; private cb = new Map<number, (r: CdpReply) => void>(); private ws!: globalThis.WebSocket; reqs: string[] = [];
   static async open() {
     const t = (await (await fetch("http://localhost:9222/json")).json()) as { type: string; url: string; webSocketDebuggerUrl: string }[];
     const pg = t.find((x) => x.type === "page" && x.url.startsWith(BASE)) ?? t.find((x) => x.type === "page")!;
@@ -28,8 +29,8 @@ class Cdp {
     await c.send("Runtime.enable"); await c.send("Page.enable"); await c.send("Network.enable");
     return c;
   }
-  send(method: string, params: object = {}) { const id = ++this.id; return new Promise<any>((res) => { this.cb.set(id, res); this.ws.send(JSON.stringify({ id, method, params })); }); }
-  async ev<T = any>(expr: string): Promise<T> { const r = await this.send("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails).slice(0, 300)); return r.result?.result?.value as T; }
+  send(method: string, params: object = {}) { const id = ++this.id; return new Promise<CdpReply>((res) => { this.cb.set(id, res); this.ws.send(JSON.stringify({ id, method, params })); }); }
+  async ev<T = unknown>(expr: string): Promise<T> { const r = await this.send("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails).slice(0, 300)); return r.result?.result?.value as T; }
   async nav(url: string) { await this.send("Page.navigate", { url }); await new Promise((r) => setTimeout(r, 1500)); }
   async until(expr: string, ms = 25_000) { const t0 = Date.now(); while (Date.now() - t0 < ms) { try { if (await this.ev(expr)) return true; } catch { /* trang đang tải */ } await new Promise((r) => setTimeout(r, 400)); } return false; }
   get url() { return this.ev<string>("location.href"); }
@@ -55,7 +56,7 @@ test("(chuẩn bị) chính sách lớp về mặc định, quyền vị trí đ
 
 test("AC-0/1/4 app tải web, native, BarcodeDetector, đăng nhập SV", async () => {
   const c = await Cdp.open();
-  const info = await c.ev(`(async()=>({native:Boolean(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()),secure:window.isSecureContext,bd:typeof window.BarcodeDetector,fmts:window.BarcodeDetector?await window.BarcodeDetector.getSupportedFormats():[],plugin:Boolean(window.Capacitor&&window.Capacitor.isPluginAvailable&&window.Capacitor.isPluginAvailable('EduPilotAttest')),href:location.href}))()`);
+  const info = await c.ev<{ native: boolean; secure: boolean; bd: string; fmts: string[]; plugin: boolean; href: string }>(`(async()=>({native:Boolean(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()),secure:window.isSecureContext,bd:typeof window.BarcodeDetector,fmts:window.BarcodeDetector?await window.BarcodeDetector.getSupportedFormats():[],plugin:Boolean(window.Capacitor&&window.Capacitor.isPluginAvailable&&window.Capacitor.isPluginAvailable('EduPilotAttest')),href:location.href}))()`);
   rec("AC-0 thông tin WebView", "NOTE", JSON.stringify(info));
   check("AC-0 app mở được web từ APP_SERVER_URL, Capacitor native, secure context, plugin EduPilotAttest có", info.native && info.secure && info.plugin, JSON.stringify(info));
   check("AC-4 BarcodeDetector + qr_code trên emulator (không có ⇒ chỉ ô nhập mã ngắn)", true, `BarcodeDetector=${info.bd} formats=${info.fmts.join(",")}`);
