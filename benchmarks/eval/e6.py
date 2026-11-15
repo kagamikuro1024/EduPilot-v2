@@ -75,22 +75,33 @@ def image_sizes():
 
 
 def latency():
-    stu, tea = login("sv.kha"), login("teacher")
-    cid = lib.course_by_code(tea, lib.CLASS1)
-    eps = [("GET /readyz", "/readyz", None), ("GET /me/courses (SV)", "/me/courses?limit=20", stu), ("GET threads lớp 1 (SV)", f"/courses/{cid}/threads?limit=20", stu),
-           ("GET documents lớp 1 (GV)", f"/courses/{cid}/documents?limit=20", tea), ("GET students lớp 1 (GV)", f"/courses/{cid}/students?limit=50", tea),
-           ("GET gradebook lớp 1 (GV)", f"/courses/{cid}/gradebook", tea), ("GET today lớp 1 (GV)", f"/courses/{cid}/today", tea)]
-    out = {}
-    for name, path, tok in eps:
+    """Mỗi endpoint một tài khoản (seed chỉ có 2 tài khoản nhân viên lớp 1: teacher, ta → token nào vừa dùng trong 61 s thì nghỉ NGOÀI vùng đo
+    cho giới hạn 600 yêu cầu / phút / người hồi lại). Trong vùng đo `tries=1`: 429 đếm riêng và loại khỏi độ trễ, không ngủ Retry-After."""
+    cid = lib.course_by_code(login("teacher"), lib.CLASS1)
+    eps = [("GET /readyz", "/readyz", None), ("GET /me/courses (SV)", "/me/courses?limit=20", "sv.kha"), ("GET threads lớp 1 (SV)", f"/courses/{cid}/threads?limit=20", "sv.gioi"),
+           ("GET documents lớp 1 (GV)", f"/courses/{cid}/documents?limit=20", "teacher"), ("GET students lớp 1 (TA)", f"/courses/{cid}/students?limit=50", "ta"),
+           ("GET gradebook lớp 1 (GV)", f"/courses/{cid}/gradebook", "teacher"), ("GET today lớp 1 (TA)", f"/courses/{cid}/today", "ta")]
+    out, last = {}, {}
+    for name, path, who in eps:
+        if who in last:
+            time.sleep(max(0.0, 61 - (time.time() - last[who])))
+        tok = login(who) if who else None
+        if who and call("GET", path, tok, tries=1)[0] != 200:
+            raise Fail(f"{name}: tài khoản {who} không đọc được ({path})")
         for _ in range(N_WARM):
-            call("GET", path, tok)
-        ms, bad = [], 0
+            call("GET", path, tok, tries=1)
+        ms, bad, limited = [], 0, 0
         for _ in range(N_REQ):
             t = time.perf_counter()
-            st, _ = call("GET", path, tok)
+            st, _ = call("GET", path, tok, tries=1)
+            if st == 429:
+                limited += 1
+                continue
             ms.append(round((time.perf_counter() - t) * 1000, 1))
             bad += st != 200
-        out[name] = {**lib.pct(ms), "non_200": bad}
+        out[name] = {**lib.pct(ms), "non_200": bad, "rate_limited_excluded": limited, "account": who}
+        if who:
+            last[who] = time.time()
     return out
 
 
@@ -135,13 +146,14 @@ def report():
         L.append(f"| {s} | " + " | ".join(", ".join(map(str, r["cold_start_ms"][s])) for r in runs.values()) + " |")
     L += ["", "## Kích thước image", "", "| image | MiB |", "| --- | --- |"] + [f"| `{v['image']}` | {f(v['mib'])} |" for v in (a.get("images") or {}).values()]
     rs = sorted(runs)
-    L += ["", "## Độ trễ endpoint (ms, " + " / ".join(rs) + ")", "", "| endpoint | n | p50 | p95 | max | ≠ 200 |", "| --- | --- | --- | --- | --- | --- |"]
-    L += [f"| {k} | {v['n']} | " + " | ".join(" / ".join(f(runs[t]['latency_ms'][k][m]) for t in rs) for m in ("p50", "p95", "max")) + f" | {sum(runs[t]['latency_ms'][k]['non_200'] for t in rs)} |"
-          for k, v in a["latency_ms"].items()]
-    slow = [k for k in a["latency_ms"] if all(runs[t]["latency_ms"][k]["max"] > 1000 for t in rs)]
-    L += ["", "![](e6.svg)", ""]
-    if slow:
-        L += [f"**Đuôi dài lặp lại:** {', '.join(slow)} có ít nhất một yêu cầu > 1 s ở mọi lượt (max " + " / ".join(f(runs[t]['latency_ms'][slow[0]]['max']) for t in rs) + " ms) dù p95 < 20 ms — cần dev xem (ngoài p95, ghi để không bỏ sót).", ""]
+    L += ["", "## Độ trễ endpoint (ms, " + " / ".join(rs) + ")", "", "| endpoint | n | p50 | p95 | max | ≠ 200 | 429 (đã loại) |", "| --- | --- | --- | --- | --- | --- | --- |"]
+    L += [f"| {k} | " + " / ".join(str(runs[t]['latency_ms'][k]['n']) for t in rs) + " | " + " | ".join(" / ".join(f(runs[t]['latency_ms'][k][m]) for t in rs) for m in ("p50", "p95", "max"))
+          + f" | {sum(runs[t]['latency_ms'][k]['non_200'] for t in rs)} | " + " / ".join(str(runs[t]['latency_ms'][k].get('rate_limited_excluded', 'chưa đếm')) for t in rs) + " |" for k in a["latency_ms"]]
+    new = all("rate_limited_excluded" in v for r in runs.values() for v in r["latency_ms"].values())
+    L += ["", "![](e6.svg)", "", ("Mỗi endpoint đo bằng một tài khoản riêng (nhân viên dùng chung thì nghỉ 61 s ngoài vùng đo); trong vùng đo không thử lại: phản hồi 429 (giới hạn 600 yêu cầu / phút / người) "
+          "bị loại khỏi độ trễ và đếm ở cột cuối." if new else
+          "**Đo lệch do 429 — chờ đo lại:** các lượt này dùng một token giảng viên cho cả documents + students + gradebook, chạm giới hạn 600 yêu cầu / phút / người; bộ đo ngủ Retry-After "
+          "và tính vào độ trễ (max 20–27 s của gradebook là đúng một yêu cầu như vậy, không phải máy chủ chậm — dev2 điều tra). p50 / p95 không bị ảnh hưởng. Bộ đo đã sửa (tries = 1, 429 đếm riêng, mỗi endpoint một tài khoản); số max sẽ thay khi đo lại."), ""]
     if repro:
         L += [f"Tái lập (AC11, sai số ±15 %, Q-S11-13): RAM gateway + worker lệch {f(repro['ram_go_pct'])} %, khởi động gateway {f(repro['cold_gateway_pct'])} %, worker {f(repro['cold_worker_pct'])} % → **{'trong sai số' if repro['within'] else 'NGOÀI sai số'}**. "
               "Khởi động lạnh chỉ vài trăm ms nên dao động lịch CPU của VM Colima (vài trăm ms) đủ làm lệch phần trăm lớn; trung vị vẫn < 0,4 s ở cả hai lượt.", ""]
