@@ -10117,7 +10117,7 @@ paths:
     get:
       operationId: getCourseObservabilitySummary
       tags: [observability]
-      summary: "Tổng hợp 7 ngày của MỘT lớp (TEACHER của lớp; ADMIN mọi lớp): không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp. Giảng viên lớp khác → 404; TA / STUDENT → 403"
+      summary: "Tổng hợp 7 ngày của MỘT lớp (TEACHER của lớp; ADMIN mọi lớp): không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp. Giảng viên lớp khác, người ngoài lớp, TA / STUDENT → 403 (reason course hoặc role; không 404)"
       parameters:
         - name: id
           in: path
@@ -10136,8 +10136,6 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
   /api/v1/courses/{id}/insights/knowledge-gap/generate:
     post:
       operationId: generateKnowledgeGap
@@ -10173,8 +10171,6 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
         "422":
