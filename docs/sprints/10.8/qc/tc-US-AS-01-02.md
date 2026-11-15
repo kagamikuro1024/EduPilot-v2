@@ -34,7 +34,7 @@ Nguồn: US.md + SRS §3.1, 3.4, 4.1, 4.2, 5, 6 #1–6. Hộp đen; quy ước: 
 | TC-AS02-09 | AC3 | Vòng 1 đã đóng; SV có chuông / `Hôm nay` trống | Mở vòng 2; đọc outbox + `notifications` + `GET /me/today` của SV | Không có sự kiện tới SV nào; không mục `Hôm nay` mới cho SV | API+DB |
 | TC-AS02-10 | AC4 | Cửa sổ mở | Staff `GET …/display` hai lần cách 1 s (cùng bước) | `200 {qr_url, short_code, step_expires_at, server_time, rotate_seconds, round, checked_in, headcount, closes_at}`; `qr_url` = `{APP_PUBLIC_URL}/checkin?c={C}#<token>`; `short_code` 6 ký tự Crockford (không `I L O U`); hai lần cùng bước → **cùng** `qr_url` và `short_code`; `Cache-Control: no-store` | API |
 | TC-AS02-11 | AC4 | – | Chờ `step_expires_at`+1 s, gọi lại | `qr_url` **và** `short_code` đổi cùng lúc (cùng bước) | API |
-| TC-AS02-12 | AC4 | – | Đọc `docker logs gateway`/access log của Caddy sau vài lần `display` + quét | Không dòng nào chứa phần sau `#` của `qr_url` (token không vào access log); response `display` không có `Referer` policy dẫn token (kiểm header `Referrer-Policy` của trang `/checkin` = `no-referrer`/`same-origin`) | API |
+| TC-AS02-12 | AC4 | – | Đọc `docker logs gateway`/access log của Caddy sau vài lần `display` + quét | Không dòng nào chứa phần sau `#` của `qr_url` (token không vào access log); response `display` không có `Referer` policy dẫn token (SRS không yêu cầu header `Referrer-Policy` (fragment `#` không bao giờ vào `Referer`); ghi nhận giá trị header, không FAIL| API |
 | TC-AS02-13 | AC5 | Buổi có 3 cửa sổ | `GET …/checkin-windows` | ≤ 3 phần tử, mỗi cái `{id, round, opened_at, closes_at, closed_at, headcount, checked_in, over_headcount}`; **không** có `token`/`short_code`/mã nào | API |
 | TC-AS02-14 | AC5 | – | Đọc schema `openapi.yaml` của route #3 + DB | `maxItems: 3`; `CHECK (round BETWEEN 1 AND 3)` + `UNIQUE (course_id,session_id,round)` (đọc `\d checkin_windows`) | DIFF+DB |
 | TC-AS02-15 | AC6 | Cửa sổ có 12 lượt | `PATCH …/checkin-windows/{W} {headcount:10}` rồi 12 lượt; kế đó `{headcount:12}` | `headcount=10`: `over_headcount=true` khi số SV khác nhau > 10 + max(2, ⌈0,5⌉=1 → 2)=12 ⇒ với 12 lượt **false**, 13 lượt **true**; `headcount=2000` OK; `audit_log` `checkin_window.headcount` | API+DB |
@@ -42,7 +42,7 @@ Nguồn: US.md + SRS §3.1, 3.4, 4.1, 4.2, 5, 6 #1–6. Hộp đen; quy ước: 
 | TC-AS02-17 | AC6 | Cửa sổ đã đóng | `PATCH headcount` | `200` (cho phép khi đã đóng) | API |
 | TC-AS02-18 | AC7 | `minutes=1`, không ai đóng | Chờ 125 s; đọc DB + `audit_log` | `closed_at` đặt, `closed_by IS NULL`, `audit_log` `checkin_window.auto_close`; `attendance_records` ghi theo thủ tục US-AS-05 (có mặt/muộn cho SV đã điểm danh); không `ABSENT` | API+DB |
 | TC-AS02-19 | AC7 | Cửa sổ đã tự đóng | Chờ thêm 2 nhịp quét (120 s) | Không đổi gì, không audit mới | DB |
-| TC-AS02-20 | AC8 | – | `sid` của lớp khác; `wid` không tồn tại; UUID hỏng | `404` (UUID hỏng `422`) | API |
+| TC-AS02-20 | AC8 | – | `sid` của lớp khác; `wid` không tồn tại; UUID hỏng | `404` (UUID hỏng cũng `404`, đúng quy ước repo) | API |
 | TC-AS02-21 | AC8 | Cửa sổ đã đóng / quá `closes_at` | `GET …/display` | `409 WINDOW_CLOSED` | API |
 | TC-AS02-22 | AC8 | – | 31 lần `GET …/display` trong 60 s (một người) | Từ lần thứ 31 `429` + `Retry-After` | API |
 | TC-AS02-23 | AC8 | Lớp lưu trữ | `POST …/checkin-windows` | `409 COURSE_ARCHIVED` | API |
