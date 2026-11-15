@@ -193,12 +193,12 @@ Mặc định `LLM_PROVIDER=fake`: không cần mạng, đủ cho demo và test.
 Embedding mặc định là nhà cung cấp giả: chất lượng gom cụm / truy xuất bằng embedding thật chưa đo (P-11-19).
 
 ### 5.4 Nhiều stack trên một máy
-Mỗi stack một `COMPOSE_PROJECT_NAME` và một độ lệch cổng `EP_PORT_OFFSET` (cổng host cộng N; HTTPS = 443 + N). Hai máy giả `mock-graph` / `mock-imap` có cổng riêng `EP_PORT_MOCK_GRAPH` / `EP_PORT_MOCK_IMAP` (mặc định 8090 / 8091, trùng demo) — stack thứ hai phải đặt tay. **RAM: tối đa demo + một stack thử cùng lúc.**
+Mỗi stack một `COMPOSE_PROJECT_NAME` và một độ lệch cổng `EP_PORT_OFFSET` (cổng host cộng N; HTTPS = 443 + N). Hai máy giả `mock-graph` / `mock-imap` (8090 / 8091 + N) cũng lệch theo N khi dựng bằng `pnpm dev`; seed đọc `EP_PORT_MOCK_GRAPH` / `EP_PORT_MOCK_IMAP` để gửi thư thử đúng stack (thiếu thì thư rơi vào mock-imap của stack demo). **RAM: tối đa demo + một stack thử cùng lúc.**
 
 | Stack | Dựng | Dùng cho |
 | --- | --- | --- |
 | `edupilot` (demo) | `pnpm dev` | trình bày, bảo vệ |
-| `ep-qc` (QC) | `EP_PORT_OFFSET=500 COMPOSE_PROJECT_NAME=ep-qc EP_PORT_MOCK_GRAPH=8590 EP_PORT_MOCK_IMAP=8591 COMPOSE_PROFILES=ingest pnpm dev` | QC kiểm sprint; HTTPS `https://localhost:943`, Mailpit `:8525` |
+| `ep-qc` (QC) | `EP_PORT_OFFSET=500 COMPOSE_PROJECT_NAME=ep-qc COMPOSE_PROFILES=ingest pnpm dev` | QC kiểm sprint; HTTPS `https://localhost:943`, Mailpit `:8525` |
 | `ep-<vai>` (đo) | xem `benchmarks/README.md` | T1, LLM thật; **không ghi lên demo** |
 
 Chế độ thử (đường `testroutes`, thêm `FAKE_LLM_VALID_KEY`…): thêm `-f docker-compose.test.yml` (và `-f docker-compose.test-seed.yml` khi seed nhiều) vào lệnh compose; `pnpm dev` không tự thêm. Dừng đúng stack bằng cùng biến: `EP_PORT_OFFSET=500 COMPOSE_PROJECT_NAME=ep-qc pnpm dev:down` (thêm `-v` để xoá dữ liệu).
@@ -206,6 +206,7 @@ Chế độ thử (đường `testroutes`, thêm `FAKE_LLM_VALID_KEY`…): thêm
 Seed / kiểm trên stack lệch cổng — truyền địa chỉ của chính stack đó:
 ```bash
 export COMPOSE_PROJECT_NAME=ep-qc API_URL=https://localhost:943/api/v1 MAILPIT_URL=http://localhost:8525
+export EP_PORT_MOCK_GRAPH=8590 EP_PORT_MOCK_IMAP=8591   # mock-graph / mock-imap của stack này (= 8090 / 8091 + 500)
 export SEED_DEFAULT_PASSWORD=…   # bản của stack đó
 pnpm seed
 ```

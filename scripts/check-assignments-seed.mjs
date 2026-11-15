@@ -15,7 +15,7 @@ import { accountCodes } from "./assignment-accounts.mjs";
 
 const modes = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const run = (m) => modes.includes(m);
-const MOCK_GRAPH = (process.env.MOCK_GRAPH_URL || "http://localhost:8090").replace(/\/$/, "");
+const MOCK_GRAPH = (process.env.MOCK_GRAPH_URL || `http://localhost:${process.env.EP_PORT_MOCK_GRAPH || 8090}`).replace(/\/$/, "");
 const { c1 } = await courses();
 const t = await tok("teacher");
 const plan = loadPlan(root);

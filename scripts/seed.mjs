@@ -1209,8 +1209,8 @@ async function step17Moderation() {
 // ---- bước 18: Bài tập 03 / 04, thư IMAP thử, thẻ Teams (US-S9-SEED) ------------------------------------------------------
 // Chỉ HTTP API thật + cmd/mock-imap (`POST /__mock/append`). Hạn BT03 = bây giờ + DUE_AHEAD_S: sinh viên "đúng hạn" nộp trước hạn, thư IMAP mang INTERNALDATE = hạn + giờ so với hạn trong seed-plan.csv,
 // riêng Sinh viên B nộp SAU hạn (chờ tới hạn rồi nộp: muộn 1 ngày theo luật làm tròn lên). Không chạy chấm (để demo `Chấm tất cả`).
-const MOCK_IMAP = setting("MOCK_IMAP_URL", "http://localhost:8091").replace(/\/$/, "");
-const MOCK_GRAPH = setting("MOCK_GRAPH_URL", "http://localhost:8090").replace(/\/$/, "");
+const MOCK_IMAP = setting("MOCK_IMAP_URL", `http://localhost:${process.env.EP_PORT_MOCK_IMAP || 8091}`).replace(/\/$/, "");
+const MOCK_GRAPH = setting("MOCK_GRAPH_URL", `http://localhost:${process.env.EP_PORT_MOCK_GRAPH || 8090}`).replace(/\/$/, "");
 const DUE_AHEAD_S = 75;
 // P-11-13: mô tả bài tập ghi «Hạn nộp 23:59» ⇒ hạn BT04 đặt đúng 23:59:00 giờ Việt Nam (+07) của ngày đó. BT03 cần hạn ngắn lúc nộp bài thử rồi được `seed-age` lùi về 23:59 (+07).
 const at2359 = (d) => new Date(`${new Date(d.getTime() + 7 * 3600_000).toISOString().slice(0, 10)}T23:59:00+07:00`);
