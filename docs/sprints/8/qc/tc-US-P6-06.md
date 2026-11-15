@@ -65,7 +65,9 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-06 (AC1–AC13) + `SRS.md` 3, 4
 Đã phủ: điểm ngoài thang (TC-09), chính xác (TC-10, 11), ô EXAM (TC-13), `VERSION_CONFLICT` (TC-18), chưa công thức (TC-37), mất mạng (TC-39), đã chốt (TC-40).
 | TC-id | Tình huống | Bước | Kết quả mong đợi |
 | --- | --- | --- | --- |
-| TC-P6-06-56 | `PUT` thiếu `version` / `version` kiểu chữ | `curl -X PUT $Q/grade-entries -H "$TCH" -d '{"item_id":"…","student_id":"…","score":"5"}'` | `422 VALIDATION_FAILED`; không ghi |
+| TC-P6-06-56a (P-11-54) | `PUT` với `version` sai kiểu (chữ `"1"`, số thực, `true`) | `curl -X PUT $Q/grade-entries -H "$TCH" -d '{"item_id":"…","student_id":"…","score":"5","version":"1"}'` | `422 VALIDATION_FAILED`; không ghi |
+| TC-P6-06-56b (P-11-54) | `PUT` thiếu `version` hoặc `version: null` trên ô ĐÃ có điểm | cùng lệnh, bỏ khoá `version` (rồi `"version":null`) | `409 VERSION_CONFLICT` kèm `current`; điểm trong DB KHÔNG đổi (so `grade_entries` trước / sau lệnh); trả 200 hoặc ghi đè = lỗi HIGH |
+| TC-P6-06-56c (P-11-54) | `PUT` thiếu `version` (≡ `null`) trên ô CHƯA có điểm | cùng lệnh trên ô mới | `200`; ô được tạo, `version` = 1 |
 | TC-P6-06-57 | `PUT` cho sinh viên không thuộc lớp / đã rời lớp | `student_id` của sinh viên lớp 2 vào `$Q` | `404`/`422` (FK phức hợp); không ghi |
 | TC-P6-06-58 | `PUT` score là số JSON (`5`) thay vì chuỗi | `-d '{…,"score":5,…}'` | chấp nhận hoặc `422` nhất quán; **không** lưu sai (QC thử `5.005`, `0.1+0.2` biểu diễn: gửi `"score":8.333` → `SCORE_PRECISION`) |
 | TC-P6-06-59 | Đua nhập: 2 lần `PUT` cùng `version` song song (20 lượt) | script `xargs -P` | đúng một thắng, còn lại `409 VERSION_CONFLICT`; `audit_log` đúng số lần thành công |
