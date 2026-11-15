@@ -71,6 +71,9 @@ jobs:
           restore-keys: |
             go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-static-
             go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-
+      - name: Caddy - URL ký sẵn của MinIO cùng origin (local + VPS)
+        working-directory: .
+        run: node --test deploy/caddy/blob-route.test.mjs
       - name: go vet
         run: go vet ./...
       - name: go vet (testroutes)
