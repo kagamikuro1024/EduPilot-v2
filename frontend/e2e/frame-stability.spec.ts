@@ -72,3 +72,29 @@ for (const [name, opts] of [["chưa chốt", {}], ["chưa có công thức", { s
   });
 }
 
+test("insights: đang tải và lỗi giữ đúng bộ nút đầu trang của lúc có báo cáo (X3)", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const KC = { id: "22222222-2222-7222-8222-222222222987", class_code: "761987", subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" };
+  let mode: "slow" | "ok" | "fail" = "slow";
+  await asJwt(page, "TEACHER");
+  await page.route("**/api/v1/me/courses**", (r) => r.fulfill(json({ items: [{ course: KC, role_in_course: "TEACHER", enrollment_status: "ACTIVE" }], next_cursor: null })));
+  await page.route("**/api/v1/me/today**", (r) => r.fulfill(json({ count: 0, actions: [] })));
+  await page.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", async (r) => {
+    if (mode === "fail") return r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500));
+    if (mode === "slow") await new Promise((ok) => setTimeout(ok, 2500));
+    return r.fulfill(json(REPORT));
+  });
+  await page.goto("/insights");
+  await expect(page.locator("[aria-busy=true]").first()).toBeVisible();
+  const loading = await headerButtons(page);
+  await expect(page.getByText("Chủ đề nên dạy lại")).toBeVisible();
+  const data = await headerButtons(page);
+  expect(data.length).toBeGreaterThan(0);
+  expect(loading).toEqual(data);
+  mode = "fail";
+  await page.reload();
+  await expect(page.getByRole("alert").first()).toBeVisible();
+  expect(await headerButtons(page)).toEqual(data);
+});
+

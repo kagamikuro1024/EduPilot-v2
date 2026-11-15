@@ -45,19 +45,23 @@ export function KnowledgeGap({ courseId }: { courseId: string }) {
 
   const data = latest.data ?? null;
   const create = { label: "Tạo báo cáo mới", icon: <Sparkles aria-hidden />, busy: running, onClick: () => void start() };
+  // Đang tải / lỗi: đầu trang giữ đúng bộ nút của lúc có báo cáo, menu khoá (TL 14.6; P-11-51). Rỗng: nút nằm ở khối rỗng.
+  const busyHead = latest.isPending || latest.isError;
   const more: HeaderAction[] | undefined = data
     ? [
         { label: "Xuất Markdown", icon: <Download aria-hidden />, onClick: () => void downloadMarkdown(courseId, data.report.id) },
         { label: "Xuất PDF", onClick: () => window.print() },
       ]
-    : undefined;
+    : busyHead
+      ? [{ label: "Xuất Markdown", icon: <Download aria-hidden />, disabled: true }]
+      : undefined;
 
   return (
     <Page kind="read">
       <PageHeader
         title="Lỗ hổng kiến thức"
         primary={data?.has_new_data ? create : undefined}
-        secondary={data && !data.has_new_data ? [create] : undefined}
+        secondary={(data && !data.has_new_data) || busyHead ? [create] : undefined}
         more={more}
         meta={data ? [`Báo cáo ${dmy(data.report.created_at)}, ${hm(data.report.created_at)}`, `${data.report.payload.counts.questions} câu hỏi · ${data.report.payload.counts.students} sinh viên`, "Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy"] : undefined}
       />
