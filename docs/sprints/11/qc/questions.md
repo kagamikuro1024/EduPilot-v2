@@ -29,3 +29,11 @@ Phát sinh khi viết TC pha 1 (2026-11-14). Mỗi câu có phương án QC; TC 
 ## Việc QC ghi nhận không cần trả lời
 - Đợt R (smoke hồi quy toàn bộ) tách khỏi các TC này: `docs/sprints/11/qc/smoke-hoi-quy.md`, chạy khi PM xếp lượt RAM.
 - TC-02-10 / 02-17 / 04-31 cần can thiệp DB (đổi quyền bảng): chỉ thực hiện trên stack `ep-qc`, khôi phục ngay, ghi ở báo cáo.
+
+## Câu hỏi thêm cho US-P10-14 (`/admin/audit`, 2026-11-14; chi tiết ở `tc-US-P10-14.md`) — Q-S11-23…26 ĐÃ CHỐT bởi BA `e6eba277` (26: cursor khác bộ lọc = 422 INVALID_CURSOR; limit mặc định 30); Q-S11-27 mới ở `tc-US-P10-14.md`
+| ID | Câu hỏi | QC đề xuất mặc định |
+| --- | --- | --- |
+| Q-S11-23 | `from` không kèm `to` (hoặc ngược lại): `to = now` hay `from + 7 ngày`; `after.from` / `after.to` của `VIEW_LIST` ghi gì khi không có tham số; trần 90 ngày áp thế nào khi thiếu một đầu? | `to = now` / `from = to − 7 ngày`; `VIEW_LIST.after` ghi khoảng đã áp dụng; vẫn áp trần 90 ngày |
+| Q-S11-24 | Tham số rỗng (`entity=`, `actor_id=`, `limit=`, `cursor=`): bỏ qua hay `422`? | Bỏ qua; `limit=` → 50 |
+| Q-S11-25 | `before` / `after` không phải đối tượng JSON → `changed_fields` ra gì? | `[]`, không `500` |
+| Q-S11-26 | Con trỏ dùng lại với bộ lọc khác giữa hai trang: tiếp tục theo bộ lọc mới hay `422 INVALID_CURSOR`? | Tiếp tục theo `(created_at, id)`; ghi vào hợp đồng |
