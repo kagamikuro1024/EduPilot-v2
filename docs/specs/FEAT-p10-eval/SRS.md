@@ -1,5 +1,5 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.14 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.15 · 2026-11-16 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
 
 **v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
@@ -12,6 +12,8 @@ Phiên bản 1.14 · 2026-11-15 · Trạng thái: **APPROVED** (PM uỷ quyền;
 **v1.6 (sprint 10.5):** US-P10-13 và FR-25…27 chuyển sang `FEAT-decision-model` (US-DM-01…09); `llm_audit.path` → `cascade_path` + `cascade_gate` ở đó.
 
 **v1.8 (P-11-30, QC Q-S11-23…26):** FR-28 và US-P10-14 chốt: thiếu một đầu khoảng thời gian, tham số rỗng = bỏ qua, `before` / `after` không phải đối tượng → `[]`, cursor gắn bộ lọc (khác → `422 INVALID_CURSOR`), `limit` mặc định 30 (sửa 50 → khớp `httpx.DefaultLimit`).
+
+**v1.15 (P-11-44):** FR-1 ghi độ chính xác `summary` toàn hệ thống (đếm chính xác; p50 / p95 xấp xỉ ≤ 5 %), US-P10-01 AC8, openapi `ObsTotals` / `ObsDayRow`.
 
 **v1.14 (P-11-35, chỉnh lại sau 7c459d34):** người ngoài lớp / lớp khác (lớp tồn tại) → `403` `reason=course` theo guard chung; `{id}` sai dạng và (ADMIN) lớp không tồn tại vẫn `404` (§2, §6 #4–#5, NFR, US-P10-01 AC6, US-P10-04 AC12, US-P10-11 AC3); seed làm rõ không đòi ≥ 20 câu trong 7 ngày.
 
@@ -103,7 +105,7 @@ sequenceDiagram
 ## 4. Yêu cầu chức năng
 | FR | Hệ thống phải… | AC |
 | --- | --- | --- |
-| FR-1 | Tổng hợp từ `llm_audit` trong cửa sổ 24 giờ / 7 ngày: số yêu cầu, p50 / p95 `latency_ms`, tỷ lệ lỗi (status ∉ {`ok`,`degraded`,`cancelled`}), tỷ lệ chuyển dự phòng (`fallback_index > 0`), chi phí (`cost_est` theo ngày `Asia/Ho_Chi_Minh`, theo tác vụ) | P10-01 AC2, AC3 |
+| FR-1 | Tổng hợp từ `llm_audit` trong cửa sổ 24 giờ / 7 ngày: số yêu cầu, p50 / p95 `latency_ms`, tỷ lệ lỗi (status ∉ {`ok`,`degraded`,`cancelled`}), tỷ lệ chuyển dự phòng (`fallback_index > 0`), chi phí (`cost_est` theo ngày `Asia/Ho_Chi_Minh`, theo tác vụ). **Độ chính xác (P-11-44):** `summary` toàn hệ thống đọc bảng cộng gộp theo giờ `llm_audit_hourly` (migration `00027`, worker `observability.rollup` mỗi phút) cộng phần lẻ đầu / cuối cửa sổ đọc thô từ `llm_audit`; số yêu cầu, lỗi, dự phòng, chi phí, lần che PII **chính xác**; p50 / p95 `latency_ms` **xấp xỉ** từ histogram 140 nhóm tỉ lệ 1,1, sai số tương đối ≤ 5 % (một nhóm); giờ hiện tại có thể trễ cộng gộp ≤ ~3 phút nhưng phần lẻ đọc thô nên không thiếu hàng; `summary` một lớp (`…/courses/{id}/observability/summary`) đọc thô, không qua bảng cộng gộp | P10-01 AC2, AC3, AC8 |
 | FR-2 | Bổ sung chỉ số chất lượng: chuyển giảng viên (`escalation_tickets`), Helpful / Not helpful (`chat_messages.feedback`), Correct / Reject (Threads), tỷ lệ + độ lệch giảng viên sửa điểm AI, lần che thông tin (`pii_events`, chỉ đếm) | P10-01 AC1, AC5 |
 | FR-3 | Liệt kê yêu cầu với bộ lọc (`all` / `problem` / `privacy`, lớp, tác vụ, khoảng giờ), phân trang con trỏ, **không** trả nội dung | P10-01 AC4, AC8 |
 | FR-4 | Trả tổng hợp lớp cho TEACHER của lớp đó và ADMIN, không có nội dung, không chi phí theo nhà cung cấp | P10-01 AC5, AC6 |

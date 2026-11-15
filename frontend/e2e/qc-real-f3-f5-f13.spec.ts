@@ -54,6 +54,8 @@ test("@real F5 nhắc 24 giờ → 72 giờ: ticket quá hạn → thông báo g
   test.setTimeout(TICK_WAIT_MS * 3 + 300_000);
   // thư nhắc ticket chỉ gửi GV đã bật «nhận thư khi có câu hỏi chờ» (mặc định tắt): bật bằng fixture, trả lại cuối ca
   sql(`insert into user_settings (user_id, notify_ticket_by_mail) select id, true from users where email='teacher@edupilot.local' on conflict (user_id) do update set notify_ticket_by_mail = true`);
+  // dọn ticket mở còn sót của chính ca này (SV chỉ được 5 ticket mở cùng lúc; nút «Nhờ giảng viên» khoá khi đủ 5)
+  sql(`update escalation_tickets set status='CLOSED', closed_at=now(), closed_reason='STAFF_DISMISSED', dismiss_reason='DUPLICATE' where status='OPEN' and student_id=(select id from users where email='sv.nguyco@edupilot.local')`);
   const t0 = Date.now();
   // 1) SV hỏi một câu ngoài tài liệu rồi bấm «Nhờ giảng viên hỗ trợ» (UI thật)
   await uiLogin(page, "sv.nguyco");
@@ -87,14 +89,15 @@ test("@real F5 nhắc 24 giờ → 72 giờ: ticket quá hạn → thông báo g
   await uiLogin(gp, "teacher");
   await gp.goto(`/?course=${await courseId(request, "teacher")}`);
   const item = gp.locator("main").getByText(/Câu hỏi chờ giảng viên/).first();
-  await expect(item).toBeVisible();
+  // nhà cung cấp «staff» của Hôm nay có ngân sách 150 ms; khi máy quá tải nó bị bỏ và kết quả thiếu được nhớ 60 s (TTL) → tải lại tới khi hiện (≤ 3 phút)
+  await expect(async () => { if (!(await item.isVisible())) { await gp.reload(); } await expect(item).toBeVisible({ timeout: 8_000 }); }).toPass({ timeout: 180_000, intervals: [5_000] });
   await expect(gp.locator("main")).toContainText(/chờ quá 72 giờ làm việc · lâu nhất \d+ giờ/);
   const top = await gp.locator("main").innerText();
   expect(top.indexOf("Câu hỏi chờ giảng viên"), "việc ticket quá hạn nổi lên đầu «Hôm nay»").toBeLessThan(200);
   await shot(gp, "f5-today-overdue-teacher");
   // SV vẫn thấy trạng thái ticket «Đang chờ giảng viên · đã gửi …»
   await page.goto("/chat");
-  await page.getByRole("button", { name: new RegExp(`Lịch bảo vệ đồ án năm sau.*QC ${tag}`) }).first().click();
+  await page.getByRole("button", { name: /Lịch bảo vệ đồ án năm sau/ }).first().click({ timeout: 20_000 }); // tiêu đề phiên cắt ở 50 ký tự (mất đuôi tag); phiên mới nhất đứng đầu
   await expect(page.getByText(/Đang chờ giảng viên/)).toBeVisible();
   await shot(page, "f5-student-status");
   await gv.close();

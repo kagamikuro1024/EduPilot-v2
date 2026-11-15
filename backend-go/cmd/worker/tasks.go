@@ -74,6 +74,8 @@ func newTasks(d Deps) []Task {
 	tasks = append(tasks,
 		obsTask{name: "observability.alert", j: &observability.Job{Name: "observability.alert", Holder: name, Redis: d.Redis, Every: d.Cfg.ObsAlertTick, Log: d.Log,
 			Fn: func(ctx context.Context) (int64, error) { n, err := alerter.Tick(ctx); return int64(n), err }}},
+		obsTask{name: "observability.rollup", j: &observability.Job{Name: "observability.rollup", Holder: name, Redis: d.Redis, Every: time.Minute, Log: d.Log,
+			Fn: func(ctx context.Context) (int64, error) { return obs.Rollup(ctx) }}}, // bảng cộng gộp theo giờ của llm_audit (TC-01-13, P-11-44)
 		obsTask{name: "observability.purge", j: &observability.Job{Name: "observability.purge", Holder: name, Redis: d.Redis, Every: d.Cfg.ObsPurgeTick, Log: d.Log,
 			Fn: func(ctx context.Context) (int64, error) { return obs.PurgePayloads(ctx, d.Cfg.ObsPayloadDays) }}})
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})

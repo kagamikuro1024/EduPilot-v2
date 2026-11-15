@@ -130,53 +130,6 @@ func (q *Queries) ObsAlertRecent(ctx context.Context, arg ObsAlertRecentParams) 
 	return recent, err
 }
 
-const obsCostByTask = `-- name: ObsCostByTask :many
-select task, count(*)::bigint as requests, coalesce(sum(cost_est), 0)::numeric(14,4) as cost,
-       coalesce(sum(tokens_in), 0)::bigint as tokens_in, coalesce(sum(tokens_out), 0)::bigint as tokens_out
-  from llm_audit
- where created_at >= $1 and created_at < $2
- group by task order by cost desc, requests desc
-`
-
-type ObsCostByTaskParams struct {
-	FromTs time.Time
-	ToTs   time.Time
-}
-
-type ObsCostByTaskRow struct {
-	Task      string
-	Requests  int64
-	Cost      decimal.Decimal
-	TokensIn  int64
-	TokensOut int64
-}
-
-func (q *Queries) ObsCostByTask(ctx context.Context, arg ObsCostByTaskParams) ([]ObsCostByTaskRow, error) {
-	rows, err := q.db.Query(ctx, obsCostByTask, arg.FromTs, arg.ToTs)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ObsCostByTaskRow{}
-	for rows.Next() {
-		var i ObsCostByTaskRow
-		if err := rows.Scan(
-			&i.Task,
-			&i.Requests,
-			&i.Cost,
-			&i.TokensIn,
-			&i.TokensOut,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const obsCourseQuality = `-- name: ObsCourseQuality :one
 select
   (select count(*) from chat_messages m where m.course_id = $1 and m.feedback = 'HELPFUL' and m.created_at >= $2 and m.created_at < $3)::bigint as helpful,
@@ -469,6 +422,247 @@ func (q *Queries) ObsRequestsPage(ctx context.Context, arg ObsRequestsPageParams
 		return nil, err
 	}
 	return items, nil
+}
+
+const obsRollupDeleteHours = `-- name: ObsRollupDeleteHours :exec
+delete from llm_audit_hourly where hour >= $1 and hour < $2
+`
+
+type ObsRollupDeleteHoursParams struct {
+	FromTs time.Time
+	ToTs   time.Time
+}
+
+// Worker: cộng gộp [from, to) (giờ nguyên) — xoá rồi ghi lại cả khoảng nên chạy lại bao nhiêu lần cũng ra cùng kết quả.
+func (q *Queries) ObsRollupDeleteHours(ctx context.Context, arg ObsRollupDeleteHoursParams) error {
+	_, err := q.db.Exec(ctx, obsRollupDeleteHours, arg.FromTs, arg.ToTs)
+	return err
+}
+
+const obsRollupDeleteLat = `-- name: ObsRollupDeleteLat :exec
+delete from llm_audit_hourly_lat where hour >= $1 and hour < $2
+`
+
+type ObsRollupDeleteLatParams struct {
+	FromTs time.Time
+	ToTs   time.Time
+}
+
+func (q *Queries) ObsRollupDeleteLat(ctx context.Context, arg ObsRollupDeleteLatParams) error {
+	_, err := q.db.Exec(ctx, obsRollupDeleteLat, arg.FromTs, arg.ToTs)
+	return err
+}
+
+const obsRollupInsertHours = `-- name: ObsRollupInsertHours :exec
+insert into llm_audit_hourly (hour, task, requests, errors, fallbacks, cost, tokens_in, tokens_out, pii_masked)
+select date_trunc('hour', created_at), task, count(*), count(*) filter (where status not in ('ok', 'degraded', 'cancelled')), count(*) filter (where fallback_index > 0),
+       coalesce(sum(cost_est), 0)::numeric(14,4), coalesce(sum(tokens_in), 0), coalesce(sum(tokens_out), 0), coalesce(sum(pii_masked_count), 0)
+  from llm_audit where created_at >= $1 and created_at < $2
+ group by 1, 2
+`
+
+type ObsRollupInsertHoursParams struct {
+	FromTs time.Time
+	ToTs   time.Time
+}
+
+func (q *Queries) ObsRollupInsertHours(ctx context.Context, arg ObsRollupInsertHoursParams) error {
+	_, err := q.db.Exec(ctx, obsRollupInsertHours, arg.FromTs, arg.ToTs)
+	return err
+}
+
+const obsRollupInsertLat = `-- name: ObsRollupInsertLat :exec
+insert into llm_audit_hourly_lat (hour, bucket, n)
+select date_trunc('hour', created_at), obs_lat_bucket(latency_ms), count(*)
+  from llm_audit where created_at >= $1 and created_at < $2
+ group by 1, 2
+`
+
+type ObsRollupInsertLatParams struct {
+	FromTs time.Time
+	ToTs   time.Time
+}
+
+func (q *Queries) ObsRollupInsertLat(ctx context.Context, arg ObsRollupInsertLatParams) error {
+	_, err := q.db.Exec(ctx, obsRollupInsertLat, arg.FromTs, arg.ToTs)
+	return err
+}
+
+const obsRollupLatency = `-- name: ObsRollupLatency :many
+select h.hour::timestamptz as hour, h.bucket, h.n
+  from llm_audit_hourly_lat h where h.hour >= $1 and h.hour < $2
+union all
+select date_trunc('hour', a.created_at), obs_lat_bucket(a.latency_ms), count(*)
+  from (
+    select x.created_at, x.latency_ms from llm_audit x where x.created_at >= $3 and x.created_at < $4
+    union all
+    select y.created_at, y.latency_ms from llm_audit y where y.created_at >= $2 and y.created_at < $5
+  ) a
+ group by 1, 2
+`
+
+type ObsRollupLatencyParams struct {
+	Lo     time.Time
+	Hi     time.Time
+	FromTs time.Time
+	HeadTo time.Time
+	ToTs   time.Time
+}
+
+type ObsRollupLatencyRow struct {
+	Hour   time.Time
+	Bucket int16
+	N      int64
+}
+
+// Histogram độ trễ cùng cửa sổ và cùng cách chia hai nguồn như ObsRollupParts.
+func (q *Queries) ObsRollupLatency(ctx context.Context, arg ObsRollupLatencyParams) ([]ObsRollupLatencyRow, error) {
+	rows, err := q.db.Query(ctx, obsRollupLatency,
+		arg.Lo,
+		arg.Hi,
+		arg.FromTs,
+		arg.HeadTo,
+		arg.ToTs,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ObsRollupLatencyRow{}
+	for rows.Next() {
+		var i ObsRollupLatencyRow
+		if err := rows.Scan(&i.Hour, &i.Bucket, &i.N); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const obsRollupLockState = `-- name: ObsRollupLockState :exec
+select pg_advisory_xact_lock(hashtext('llm_audit_rollup'))
+`
+
+func (q *Queries) ObsRollupLockState(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, obsRollupLockState)
+	return err
+}
+
+const obsRollupParts = `-- name: ObsRollupParts :many
+select h.hour::timestamptz as hour, h.task, h.requests, h.errors, h.fallbacks, h.cost, h.tokens_in, h.tokens_out, h.pii_masked
+  from llm_audit_hourly h where h.hour >= $1 and h.hour < $2
+union all
+select date_trunc('hour', a.created_at), a.task, count(*), count(*) filter (where a.status not in ('ok', 'degraded', 'cancelled')), count(*) filter (where a.fallback_index > 0),
+       coalesce(sum(a.cost_est), 0)::numeric(14,4), coalesce(sum(a.tokens_in), 0), coalesce(sum(a.tokens_out), 0), coalesce(sum(a.pii_masked_count), 0)
+  from (
+    select x.created_at, x.task, x.status, x.fallback_index, x.cost_est, x.tokens_in, x.tokens_out, x.pii_masked_count
+      from llm_audit x where x.created_at >= $3 and x.created_at < $4
+    union all
+    select y.created_at, y.task, y.status, y.fallback_index, y.cost_est, y.tokens_in, y.tokens_out, y.pii_masked_count
+      from llm_audit y where y.created_at >= $2 and y.created_at < $5
+  ) a
+ group by 1, 2
+`
+
+type ObsRollupPartsParams struct {
+	Lo     time.Time
+	Hi     time.Time
+	FromTs time.Time
+	HeadTo time.Time
+	ToTs   time.Time
+}
+
+type ObsRollupPartsRow struct {
+	Hour      time.Time
+	Task      string
+	Requests  int64
+	Errors    int64
+	Fallbacks int64
+	Cost      decimal.Decimal
+	TokensIn  int64
+	TokensOut int64
+	PiiMasked int64
+}
+
+// Tổng hợp toàn hệ thống theo (giờ, tác vụ) của cửa sổ [from, to): giờ đủ [lo, hi) từ llm_audit_hourly + phần lẻ thô [from, min(lo, to)) và [hi, to). Mọi hàng gốc thuộc đúng MỘT nguồn.
+// lo / hi do Go tính (giờ nguyên đầu tiên ≥ from; min(watermark, giờ nguyên ≤ to)) để bộ lập kế hoạch thấy khoảng thật: ước lượng sai làm Postgres bật JIT ~100 ms cho truy vấn nhỏ.
+func (q *Queries) ObsRollupParts(ctx context.Context, arg ObsRollupPartsParams) ([]ObsRollupPartsRow, error) {
+	rows, err := q.db.Query(ctx, obsRollupParts,
+		arg.Lo,
+		arg.Hi,
+		arg.FromTs,
+		arg.HeadTo,
+		arg.ToTs,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ObsRollupPartsRow{}
+	for rows.Next() {
+		var i ObsRollupPartsRow
+		if err := rows.Scan(
+			&i.Hour,
+			&i.Task,
+			&i.Requests,
+			&i.Errors,
+			&i.Fallbacks,
+			&i.Cost,
+			&i.TokensIn,
+			&i.TokensOut,
+			&i.PiiMasked,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const obsRollupPurge = `-- name: ObsRollupPurge :exec
+delete from llm_audit_hourly where hour < $1
+`
+
+func (q *Queries) ObsRollupPurge(ctx context.Context, beforeTs time.Time) error {
+	_, err := q.db.Exec(ctx, obsRollupPurge, beforeTs)
+	return err
+}
+
+const obsRollupPurgeLat = `-- name: ObsRollupPurgeLat :exec
+delete from llm_audit_hourly_lat where hour < $1
+`
+
+func (q *Queries) ObsRollupPurgeLat(ctx context.Context, beforeTs time.Time) error {
+	_, err := q.db.Exec(ctx, obsRollupPurgeLat, beforeTs)
+	return err
+}
+
+const obsRollupSetWatermark = `-- name: ObsRollupSetWatermark :exec
+insert into llm_audit_rollup_state (id, watermark, updated_at) values (true, $1, now())
+on conflict (id) do update set watermark = excluded.watermark, updated_at = now()
+`
+
+func (q *Queries) ObsRollupSetWatermark(ctx context.Context, watermark time.Time) error {
+	_, err := q.db.Exec(ctx, obsRollupSetWatermark, watermark)
+	return err
+}
+
+const obsRollupWatermark = `-- name: ObsRollupWatermark :one
+select watermark from llm_audit_rollup_state
+`
+
+// Không dòng = chưa chạy lần nào (mọi truy vấn đọc thô).
+func (q *Queries) ObsRollupWatermark(ctx context.Context) (time.Time, error) {
+	row := q.db.QueryRow(ctx, obsRollupWatermark)
+	var watermark time.Time
+	err := row.Scan(&watermark)
+	return watermark, err
 }
 
 const obsWindowSummary = `-- name: ObsWindowSummary :one

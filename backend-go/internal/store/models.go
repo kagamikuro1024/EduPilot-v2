@@ -3562,6 +3562,30 @@ type LlmAudit struct {
 	CascadePath    *string
 }
 
+type LlmAuditHourly struct {
+	Hour      time.Time
+	Task      string
+	Requests  int64
+	Errors    int64
+	Fallbacks int64
+	Cost      decimal.Decimal
+	TokensIn  int64
+	TokensOut int64
+	PiiMasked int64
+}
+
+type LlmAuditHourlyLat struct {
+	Hour   time.Time
+	Bucket int16
+	N      int64
+}
+
+type LlmAuditRollupState struct {
+	ID        bool
+	Watermark time.Time
+	UpdatedAt time.Time
+}
+
 type LlmBudget struct {
 	ID           uuid.UUID
 	Scope        string

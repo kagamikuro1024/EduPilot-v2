@@ -67,7 +67,7 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.Equal(t, gooseRows, gooseRows2, "up lần hai phải là no-op")
 	require.NoError(t, conn.QueryRow(ctx,
 		`select version_id from goose_db_version where is_applied order by id desc limit 1`).Scan(&version))
-	require.Equal(t, 26, version) // 26: DEF-R4-01 thêm 00026_courses_class_code_ci (mã lớp không phân biệt hoa/thường); 25: sprint 11 thêm 00025_audit_log_indexes (US-P10-14); 24: 10.8 thêm 00024_attendance_checkin (SRS FEAT-attendance-selfcheck 5); 22: sprint 11 thêm 00022_llm_request_payloads (quan sát AI, P-11-1a); 21: 10.6 thêm 00021_grading_guidance theo SRS FEAT-grading-guidance 5, nhánh sprint/10.6-guidance
+	require.Equal(t, 27, version) // 27: P-11-44 thêm 00027_llm_audit_rollup (bảng cộng gộp theo giờ của llm_audit, TC-01-13); 26: DEF-R4-01 thêm 00026_courses_class_code_ci (mã lớp không phân biệt hoa/thường); 25: sprint 11 thêm 00025_audit_log_indexes (US-P10-14); 24: 10.8 thêm 00024_attendance_checkin (SRS FEAT-attendance-selfcheck 5); 22: sprint 11 thêm 00022_llm_request_payloads (quan sát AI, P-11-1a); 21: 10.6 thêm 00021_grading_guidance theo SRS FEAT-grading-guidance 5, nhánh sprint/10.6-guidance
 
 	// down lùi về version 0: 5 bảng nền + 5 bảng llm_* biến mất, extension vector GIỮ LẠI.
 	require.NoError(t, db.Migrate(ctx, url, "down", io.Discard))

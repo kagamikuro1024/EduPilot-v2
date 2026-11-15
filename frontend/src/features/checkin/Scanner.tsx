@@ -9,6 +9,23 @@ type DetectorCtor = new (o: { formats: string[] }) => Detector;
 
 export const hasBarcodeDetector = () => typeof window !== "undefined" && "BarcodeDetector" in window;
 
+/**
+ * Quét QR chạy được thật? `BarcodeDetector` có mà không đọc `qr_code` (danh sách định dạng rỗng / thiếu, hàm dựng ném lỗi) thì không hiện nút quét:
+ * bấm vào chỉ rơi sang «từ chối camera» (DEF-R10.8-04). Bản không có `getSupportedFormats` (cũ) coi là có hỗ trợ.
+ */
+export async function canScanQr(): Promise<boolean> {
+  if (!hasBarcodeDetector()) return false;
+  const C = (window as unknown as { BarcodeDetector: DetectorCtor & { getSupportedFormats?: () => Promise<string[]> } }).BarcodeDetector;
+  try {
+    const formats = await C.getSupportedFormats?.();
+    if (Array.isArray(formats) && !formats.includes("qr_code")) return false;
+    new C({ formats: ["qr_code"] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Hợp lệ khi: cùng nguồn gốc với ứng dụng, đường dẫn `/checkin`, `c` là UUID, có fragment (DESIGN §14.8.2). Mã khác bị bỏ qua im lặng. */
 export function parseCheckinQr(raw: string): { c: string; token: string } | null {
   try {

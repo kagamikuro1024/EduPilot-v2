@@ -1,0 +1,11 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 3,
+      "puppeteerScript": "./docs/sprints/11/qc/scripts/lh/auth-qc.cjs",
+      "puppeteerLaunchOptions": { "args": ["--no-sandbox", "--headless=new", "--ignore-certificate-errors"] },
+      "settings": { "chromeFlags": "--no-sandbox --headless=new --ignore-certificate-errors", "onlyCategories": ["performance"] }
+    },
+    "upload": { "target": "filesystem", "outputDir": "./benchmarks/.lighthouse-raw" }
+  }
+}

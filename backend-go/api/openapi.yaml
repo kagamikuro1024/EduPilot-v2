@@ -9958,7 +9958,7 @@ paths:
     get:
       operationId: getObservabilitySummary
       tags: [observability]
-      summary: "Quan sát AI toàn hệ thống (ADMIN): dải 24 giờ / 7 ngày, bảng 7 ngày theo ngày VN, chi phí theo tác vụ; không nội dung"
+      summary: "Quan sát AI toàn hệ thống (ADMIN): dải 24 giờ / 7 ngày, bảng 7 ngày theo ngày VN, chi phí theo tác vụ; không nội dung. Số đếm / lỗi / dự phòng / chi phí / che PII chính xác; p50 / p95 xấp xỉ (sai số tương đối ≤ 5 %)"
       parameters:
         - name: window
           in: query
@@ -18185,8 +18185,8 @@ components:
       additionalProperties: false
       properties:
         requests: {type: integer}
-        p50_ms: {type: number}
-        p95_ms: {type: number}
+        p50_ms: {type: number, description: "Xấp xỉ từ histogram theo giờ, sai số tương đối ≤ 5 % (P-11-44)"}
+        p95_ms: {type: number, description: "Xấp xỉ từ histogram theo giờ, sai số tương đối ≤ 5 % (P-11-44)"}
         errors: {type: integer}
         error_rate: {type: number}
         fallbacks: {type: integer}
@@ -18201,7 +18201,7 @@ components:
       properties:
         day: {type: string, format: date}
         requests: {type: integer}
-        p95_ms: {type: number}
+        p95_ms: {type: number, description: "Xấp xỉ từ histogram theo giờ, sai số tương đối ≤ 5 % (P-11-44)"}
         errors: {type: integer}
         escalations: {type: integer}
         pii_masked: {type: integer}

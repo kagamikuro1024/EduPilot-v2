@@ -1,0 +1,8 @@
+simulate
+  /                LCP 1547 TBT 83 CLS 0 script 189 KB
+  /chat            LCP 1423 TBT 54 CLS 0.016 script 217 KB
+  /threads         LCP 2742 TBT 130 CLS 0 script 209 KB
+  /inbox           LCP 1817 TBT 53 CLS 0 script 207 KB
+  /gradebook       LCP 2889 TBT 38 CLS 0 script 232 KB
+  /me              LCP 2757 TBT 33 CLS 0 script 214 KB
+  /settings/llm    LCP 1512 TBT 13 CLS 0 script 215 KB

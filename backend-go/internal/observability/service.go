@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -15,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/shopspring/decimal"
 
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/store"
@@ -120,11 +122,6 @@ func rate(n, d int64) float64 {
 	return float64(n) / float64(d)
 }
 
-func totals(r store.ObsWindowSummaryRow, window time.Duration) Totals {
-	return Totals{Requests: r.Requests, P50Ms: r.P50Ms, P95Ms: r.P95Ms, Errors: r.Errors, ErrorRate: rate(r.Errors, r.Requests),
-		Fallbacks: r.Fallbacks, FallbackRate: rate(r.Fallbacks, r.Requests), Cost: r.Cost.String(), PIIMasked: r.PiiMasked, WindowSeconds: int64(window.Seconds())}
-}
-
 func (s *Service) days(ctx context.Context, q *store.Queries, from, to time.Time, course *uuid.UUID) ([]DayRow, error) {
 	ds, err := q.ObsDailySummary(ctx, store.ObsDailySummaryParams{FromTs: from, ToTs: to, CourseID: course})
 	if err != nil {
@@ -167,24 +164,48 @@ func (s *Service) Summary(ctx context.Context, window string) (AdminSummary, err
 	}
 	now := s.now()
 	q := store.New(s.Pool)
-	win, err := q.ObsWindowSummary(ctx, store.ObsWindowSummaryParams{FromTs: now.Add(-dur), ToTs: now.Add(time.Second)})
-	if err != nil {
-		return AdminSummary{}, fmt.Errorf("observability: tổng hợp: %w", err)
-	}
-	from7 := dayStart(now).AddDate(0, 0, -6)
-	days, err := s.days(ctx, q, from7, now.Add(time.Second), nil)
+	to := now.Add(time.Second)
+	// Đọc bảng cộng gộp theo giờ + phần lẻ thô (rollup.go): không quét cả 7 ngày llm_audit (TC-01-13). Hai lần đọc nhỏ cùng bảng nên chạy tuần tự.
+	win, err := s.rollupSummary(ctx, q, now.Add(-dur), to, false)
 	if err != nil {
 		return AdminSummary{}, err
 	}
-	ts, err := q.ObsCostByTask(ctx, store.ObsCostByTaskParams{FromTs: from7, ToTs: now.Add(time.Second)})
+	from7 := dayStart(now).AddDate(0, 0, -6)
+	wk, err := s.rollupSummary(ctx, q, from7, to, true)
 	if err != nil {
-		return AdminSummary{}, fmt.Errorf("observability: chi phí theo tác vụ: %w", err)
+		return AdminSummary{}, err
 	}
-	tasks := make([]TaskCost, 0, len(ts))
-	for _, t := range ts {
-		tasks = append(tasks, TaskCost{Task: t.Task, Requests: t.Requests, Cost: t.Cost.String(), TokensIn: t.TokensIn, TokensOut: t.TokensOut})
+	es, err := q.ObsEscalationsDaily(ctx, store.ObsEscalationsDailyParams{FromTs: from7, ToTs: to})
+	if err != nil {
+		return AdminSummary{}, fmt.Errorf("observability: chuyển giảng viên theo ngày: %w", err)
 	}
-	return AdminSummary{Window: window, Totals: totals(store.ObsWindowSummaryRow(win), dur), Days: days, Tasks: tasks}, nil
+	esc := map[string]int64{}
+	for _, e := range es {
+		esc[e.Day.Time.Format(time.DateOnly)] = e.N
+	}
+	days := make([]DayRow, 0, len(wk.days))
+	for _, k := range sortedDaysDesc(wk.days) {
+		d := wk.days[k]
+		if d.requests == 0 {
+			continue
+		}
+		days = append(days, DayRow{Day: k, Requests: d.requests, P95Ms: quantile(&d.lat, 0.95), Errors: d.errors, Escalations: esc[k], PIIMasked: d.pii, Cost: d.cost.String()})
+	}
+	tasks := make([]TaskCost, 0, len(wk.tasks))
+	for name, t := range wk.tasks {
+		tasks = append(tasks, TaskCost{Task: name, Requests: t.requests, Cost: t.cost.String(), TokensIn: t.tokensIn, TokensOut: t.tokensOut})
+	}
+	sort.Slice(tasks, func(i, j int) bool { // chi phí giảm dần, rồi số yêu cầu giảm dần (như ORDER BY cũ)
+		ci, _ := decimal.NewFromString(tasks[i].Cost)
+		cj, _ := decimal.NewFromString(tasks[j].Cost)
+		if c := ci.Cmp(cj); c != 0 {
+			return c > 0
+		}
+		return tasks[i].Requests > tasks[j].Requests
+	})
+	a := win.all
+	return AdminSummary{Window: window, Totals: Totals{Requests: a.requests, P50Ms: quantile(&a.lat, 0.5), P95Ms: quantile(&a.lat, 0.95), Errors: a.errors, ErrorRate: rate(a.errors, a.requests),
+		Fallbacks: a.fallbacks, FallbackRate: rate(a.fallbacks, a.requests), Cost: a.cost.String(), PIIMasked: a.pii, WindowSeconds: int64(dur.Seconds())}, Days: days, Tasks: tasks}, nil
 }
 
 // CourseSummary là bản tổng hợp MỘT lớp (TEACHER của lớp, hoặc ADMIN): không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp.

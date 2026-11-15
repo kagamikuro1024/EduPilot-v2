@@ -40,3 +40,25 @@ test("checkin scan: từ chối camera → «Chưa cấp quyền camera.» + ô 
   await expect(page.getByText("Chưa cấp quyền camera.")).toBeVisible();
   await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
 });
+
+// DEF-R10.8-04 (TC-AS11-07): BarcodeDetector có nhưng không đọc được qr_code ⇒ không có nút quét, ô «Mã điểm danh» hiện ngay.
+for (const [name, patch] of [
+  ["getSupportedFormats() rỗng", `window.BarcodeDetector.getSupportedFormats = async () => [];`],
+  ["getSupportedFormats() không có qr_code", `window.BarcodeDetector.getSupportedFormats = async () => ["code_128", "ean_13"];`],
+  ["hàm dựng ném lỗi", `window.BarcodeDetector = class { constructor() { throw new TypeError("formats không hỗ trợ"); } };`],
+] as const) {
+  test(`checkin scan: ${name} ⇒ không nút «Quét mã điểm danh», ô nhập mã hiện ngay`, async ({ page, context }) => {
+    await page.addInitScript(stub([]) + ";" + patch);
+    await checkinApi(page, context);
+    await page.goto("/checkin");
+    await expect(page.getByLabel("Mã điểm danh")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Quét mã điểm danh" })).toHaveCount(0);
+  });
+}
+
+test("checkin scan: getSupportedFormats() có qr_code ⇒ vẫn có nút quét", async ({ page, context }) => {
+  await page.addInitScript(stub([]) + `;window.BarcodeDetector.getSupportedFormats = async () => ["qr_code"];`);
+  await checkinApi(page, context);
+  await page.goto("/checkin");
+  await expect(page.getByRole("button", { name: "Quét mã điểm danh" }).first()).toBeVisible();
+});
