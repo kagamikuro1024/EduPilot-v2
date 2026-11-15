@@ -9,6 +9,8 @@ async function openInsights(page: Page, user = "teacher") {
   await page.goto("/insights");
   await expect(page.getByRole("heading", { name: "Lỗ hổng kiến thức", level: 1 })).toBeVisible();
 }
+// lớp đang chọn ở thanh trên cùng (picker) — các kiểm API dùng đúng lớp màn đang hiển thị
+const shownCode = async (page: Page) => (await page.getByRole("banner").innerText()).match(/\b(\d{6})\b/)?.[1] ?? "761987";
 
 test("@real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/09/10/16/17/18)", async ({ page, request }) => {
   const reads: string[] = [];
@@ -17,7 +19,7 @@ test("@real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/
   await expect(page.getByText("Chủ đề nên dạy lại", { exact: true })).toBeVisible();
   expect.soft(reads.every((r) => r.startsWith("GET ") && r.includes("/knowledge-gap/latest")), `chỉ GET latest: ${reads.join(" | ")}`).toBe(true);
   const tk = await login(request, "teacher");
-  const cid = await courseId(request, "teacher");
+  const cid = await courseId(request, "teacher", await shownCode(page));
   const lat = await call(request, tk, "GET", `/courses/${cid}/insights/knowledge-gap/latest`);
   const rep = (lat.json as { report: { payload: { topics: { name: string; few_asked?: boolean; examples: string[] }[]; uncovered: { text: string; count: number }[] } } }).report;
   for (const t of rep.payload.topics.slice(0, 3)) await expect.soft(page.getByText(t.name, { exact: false }).first(), `chủ đề «${t.name}» khớp payload`).toBeVisible();
@@ -25,14 +27,16 @@ test("@real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/
   const body = await page.locator("main").innerText();
   expect.soft(body.match(/Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy/g)?.length ?? 0, "TC-05-18: đúng một dòng meta").toBe(1);
   expect.soft(await page.getByRole("button", { name: "Tạo báo cáo mới" }).count(), "một nút Tạo báo cáo mới").toBe(1);
-  if (rep.payload.topics.some((t) => t.few_asked)) await expect.soft(page.getByText("Ít người hỏi").first(), "TC-05-05 nhãn «Ít người hỏi»").toBeVisible();
+  const moreTopics = await page.getByText("Chủ đề khác").count();
+  const shown = await page.locator("main").getByRole("button", { name: /Tạo thread ghim/ }).filter({ visible: true }).count();
+  expect.soft(shown, `TC-05-04: ≤ 8 chủ đề ở khung nhìn đầu (có «Chủ đề khác»: ${moreTopics})`).toBeLessThanOrEqual(8);
+  const others = page.getByText(/^Chủ đề khác/).first();
+  if (await others.count()) await others.click();
+  if (rep.payload.topics.some((t) => t.few_asked)) expect.soft(await page.getByText("Ít người hỏi").filter({ visible: true }).count(), "TC-05-05 nhãn «Ít người hỏi» hiện ở ít nhất một chủ đề").toBeGreaterThan(0);
   if (rep.payload.uncovered.length) {
     await expect.soft(page.getByText("Tài liệu chưa đề cập", { exact: true })).toBeVisible();
     for (const u of rep.payload.uncovered) await expect.soft(page.getByText(u.text)).toBeVisible();
   }
-  const moreTopics = await page.getByText("Chủ đề khác").count();
-  const shown = await page.locator("main").getByRole("button", { name: /Tạo thread ghim/ }).count();
-  expect.soft(shown, `TC-05-04: ≤ 8 chủ đề ở khung nhìn đầu (có «Chủ đề khác»: ${moreTopics})`).toBeLessThanOrEqual(8);
   await expect.soft(page.getByText(/^So với báo cáo ngày/)).toBeVisible();
   // Xuất Markdown / PDF
   const menu = page.getByRole("button", { name: /Thêm|Khác|Tuỳ chọn|Xuất/ }).first();
@@ -49,15 +53,15 @@ test("@real INS-1 đọc latest, cấu trúc màn, meta, Xuất (TC-05-02/04/05/
   expect.soft(pdfReq, "không tải PDF từ máy chủ").toEqual([]);
 });
 
-test("@real INS-2 thread ghim + buổi ôn tập (TC-05-11/12/14/15)", async ({ page, browser, request }) => {
+test("@real INS-2 thread ghim + buổi ôn tập (TC-05-11/12/14/15)", async ({ page, request }) => {
   await openInsights(page);
-  const cid = await courseId(request, "teacher");
+  const cid = await courseId(request, "teacher", await shownCode(page));
   const before = Number(sql(`select count(*) from forum_threads where course_id='${cid}' and pinned_at is not null`)[0][0]);
   await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
   const grp = page.getByRole("group", { name: "Tạo thread ghim" });
   await expect(grp.getByLabel("Tiêu đề")).toBeVisible();
   const title = `QC ghim ${Date.now().toString(36)}`;
-  expect.soft(Number(sql(`select count(*) from forum_threads where course_id='${cid}' and title like 'QC ghim%'`)[0][0]), "TC-05-11: chưa tạo gì trước khi Đăng").toBe(0);
+  expect.soft(Number(sql(`select count(*) from forum_threads where course_id='${cid}' and pinned_at is not null`)[0][0]), "TC-05-11: mở nháp chưa tạo thread ghim nào").toBe(before);
   await grp.getByLabel("Tiêu đề").fill(title);
   const draft = await grp.getByLabel("Nội dung").inputValue();
   expect.soft(draft.length, "nháp có nội dung từ khuyến nghị").toBeGreaterThan(5);
@@ -70,9 +74,10 @@ test("@real INS-2 thread ghim + buổi ôn tập (TC-05-11/12/14/15)", async ({ 
   const lat = await call(request, await login(request, "teacher"), "GET", `/courses/${cid}/insights/knowledge-gap/latest`);
   const ex = ((lat.json as { report: { payload: { topics: { examples: string[] }[] } } }).report.payload.topics).flatMap((t) => t.examples);
   expect.soft(ex.filter((e) => bodyDb.includes(e)), "TC-05-12: nội dung không chứa câu hỏi mẫu").toEqual([]);
-  const kha = await login(request, "sv.kha");
+  const code = await shownCode(page);
+  const kha = await login(request, code === "761988" ? "sv34" : "sv.kha");
   const list = await call(request, kha, "GET", `/courses/${cid}/threads?limit=50`);
-  expect.soft(JSON.stringify(list.json).includes(title), "sv.kha thấy thread ở lớp 1").toBe(true);
+  expect.soft(JSON.stringify(list.json).includes(title), "SV của lớp thấy thread").toBe(true);
   // buổi ôn tập
   await page.getByRole("button", { name: /Tạo buổi ôn tập/ }).first().click();
   const g2 = page.getByRole("group", { name: "Tạo buổi ôn tập" });

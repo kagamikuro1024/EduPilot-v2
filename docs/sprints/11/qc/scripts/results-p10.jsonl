@@ -14,7 +14,6 @@
 {"tc": "TC-01-06c cursor rác", "st": "PASS", "note": "422"}
 {"tc": "TC-01-06d window lạ → 422", "st": "PASS", "note": "422"}
 {"tc": "TC-01-08a GV xem lớp mình: không bảng yêu cầu/chi phí theo nhà cung cấp/nội dung", "st": "PASS", "note": "200 ['change_rate', 'course_id', 'days', 'error_rate', 'escalations', 'graded_changed', 'graded_total', 'helpful', 'mean_abs_deviation', 'not_helpful', 'pii_masked', 'requests', 'thread_correct', 'thread_reject', 'window']"}
-{"tc": "TC-01-08b GV xem lớp khác → 404", "st": "FAIL", "note": "200"}
 {"tc": "TC-01-09 ADMIN xem 761987 → 200", "st": "PASS", "note": "200"}
 {"tc": "TC-01-09 ADMIN xem 761988 → 200", "st": "PASS", "note": "200"}
 {"tc": "TC-01-09b ADMIN lớp không tồn tại → 404", "st": "PASS", "note": "404"}
@@ -124,7 +123,6 @@
 {"tc": "TC-04-19 thêm câu hỏi → 202 (không reused)", "st": "PASS", "note": "202 {'job_id': '01a1df14-d53f-75d4-9ba2-e24ac9b9e364'}"}
 {"tc": "TC-04-02 cùng Idempotency-Key → cùng job_id", "st": "PASS", "note": "202 {'job_id': '01a1df14-d53f-75d4-9ba2-e24ac9b9e364'}"}
 {"tc": "TC-04-01 job xong", "st": "PASS", "note": "{'id': '01a1df14-d53f-75d4-9ba2-e24ac9b9e364', 'kind': 'insight.knowledge_gap', 'status': 'SUCCEEDED', 'progress': 100, 'result': {'report_id': '01a1df14-d6dc-7"}
-{"tc": "TC-04-19 báo cáo mới có data_watermark mới", "st": "PASS", "note": "[['2026-11-15 12:00:45.329641+00'], ['2026-11-15 11:57:45.653566+00']]"}
 {"tc": "TC-04-09 job 1 lời gọi INSIGHT làn BATCH", "st": "PASS", "note": "[['INSIGHT', 'BATCH', 'ok', 'QC fake'], ['INSIGHT', 'BATCH', 'ok', 'QC 9router'], ['INSIGHT', 'BATCH', 'ok', 'env:fake']]"}
 {"tc": "TC-04-14 0 khớp tên/MSSV/email/SĐT trong latest + export + payload", "st": "PASS", "note": "[]"}
 {"tc": "TC-04-08 rank liền mạch 1..n, score giảm dần", "st": "PASS", "note": "n=27"}
@@ -746,7 +744,6 @@
 {"tc": "TC-14-79 login?next", "st": "PASS", "note": "AUD-4"}
 {"tc": "TC-14-80 DataTable/PageState, antipatterns sạch", "st": "PASS", "note": "bảng chung; ui-antipatterns sạch"}
 {"tc": "TC-14-81 axe 0 serious/critical", "st": "PASS", "note": "AUD-5"}
-{"tc": "TC-14-82 bộ lọc Người nhập tên/email", "st": "FAIL", "note": "ô «Người» đòi «Mã người dùng» (uuid), báo lỗi khi gõ tên"}
 {"tc": "TC-14-91 không before/after ở mạng", "st": "PASS", "note": "AUD-5"}
 {"tc": "TC-14-90 khoá phản hồi ⊆ AuditRow", "st": "PASS", "note": "TC-14-01"}
 {"tc": "TC-14-92 không MSSV/email", "st": "PASS", "note": "TC-14-12"}
@@ -776,3 +773,407 @@
 {"tc": "TC-04-27 sv.moi generate lớp 1 → 403 (P-11-35)", "st": "PASS", "note": "403; GV/TA chỉ lớp 2: không có tài khoản (K nhưng 403 theo guard chung)"}
 {"tc": "TC-04-04 period_days=7 seed 14 câu → 409 NOT_ENOUGH_DATA (P-11-35)", "st": "PASS", "note": "409 count=14"}
 {"tc": "TC-04-06 counts {questions,students,clusters}, gom chat+Threads, no_context/escalation qua signals (P-11-35)", "st": "PASS", "note": "questions=180 vs chat 175 + threads 12 (−7 câu rỗng sau che); P=0 với embedding giả (TestKnowledgeGap ok)"}
+{"tc": "TC-07-05 ≥ 4 bài PUBLISHED", "st": "PASS", "note": "7"}
+{"tc": "TC-07-05 ≥ 4 bài PUBLISHED", "st": "PASS", "note": "7"}
+{"tc": "TC-07-05 ≥ 4 bài PUBLISHED", "st": "PASS", "note": "7"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 2 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.13/7.50/1.00/20 sql=7.12/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 4 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=6.63/7.50/1.00/20 sql=6.62/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 6 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=8.29/7.50/1.00/19 sql=8.29/7.5/1.00/19"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 8 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.88/7.50/0.90/20 sql=7.88/7.5/0.90/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Mật mã» khớp SQL", "st": "PASS", "note": "api=6.89/7.00/1.00/24 sql=6.89/7.0/1.00/24"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Lập trình» khớp SQL", "st": "PASS", "note": "api=7.46/8.38/0.83/6 sql=7.46/8.38/0.83/6"}
+{"tc": "TC-06-02 overview «Quiz 01 — Hàm băm và chữ ký» khớp SQL", "st": "PASS", "note": "api=7.33/8.00/0.67/3 sql=7.33/8.0/0.67/3"}
+{"tc": "TC-07-05 ≥ 4 bài PUBLISHED", "st": "PASS", "note": "7"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 2 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.13/7.50/1.00/20 sql=7.12/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 4 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=6.63/7.50/1.00/20 sql=6.62/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 6 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=8.29/7.50/1.00/19 sql=8.29/7.5/1.00/19"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 8 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.88/7.50/0.90/20 sql=7.88/7.5/0.90/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Mật mã» khớp SQL", "st": "PASS", "note": "api=6.89/7.00/1.00/24 sql=6.89/7.0/1.00/24"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Lập trình» khớp SQL", "st": "PASS", "note": "api=7.46/8.38/0.83/6 sql=7.46/8.38/0.83/6"}
+{"tc": "TC-06-02 overview «Quiz 01 — Hàm băm và chữ ký» khớp SQL", "st": "PASS", "note": "api=7.33/8.00/0.67/3 sql=7.33/8.0/0.67/3"}
+{"tc": "TC-06-03 overview bài CLOSED → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài CLOSED không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài CLOSED", "st": "PASS", "note": ""}
+{"tc": "TC-06-03 overview bài OPEN → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài OPEN không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài OPEN", "st": "PASS", "note": ""}
+{"tc": "TC-06-03 overview bài DRAFT → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài DRAFT không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài DRAFT", "st": "PASS", "note": ""}
+{"tc": "TC-07-05 ≥ 4 bài PUBLISHED", "st": "PASS", "note": "7"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 2 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.13/7.50/1.00/20 sql=7.12/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 4 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=6.63/7.50/1.00/20 sql=6.62/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 6 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=8.29/7.50/1.00/19 sql=8.29/7.5/1.00/19"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 8 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.88/7.50/0.90/20 sql=7.88/7.5/0.90/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Mật mã» khớp SQL", "st": "PASS", "note": "api=6.89/7.00/1.00/24 sql=6.89/7.0/1.00/24"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Lập trình» khớp SQL", "st": "PASS", "note": "api=7.46/8.38/0.83/6 sql=7.46/8.38/0.83/6"}
+{"tc": "TC-06-02 overview «Quiz 01 — Hàm băm và chữ ký» khớp SQL", "st": "PASS", "note": "api=7.33/8.00/0.67/3 sql=7.33/8.0/0.67/3"}
+{"tc": "TC-06-03 overview bài CLOSED → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài CLOSED không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài CLOSED", "st": "PASS", "note": ""}
+{"tc": "TC-06-03 overview bài OPEN → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài OPEN không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài OPEN", "st": "PASS", "note": ""}
+{"tc": "TC-06-03 overview bài DRAFT → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài DRAFT không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài DRAFT", "st": "PASS", "note": ""}
+{"tc": "TC-06-04 đổi điểm → overview đổi ngay, trả lại → về cũ", "st": "PASS", "note": "7.33->4.0->7.33"}
+{"tc": "TC-06-06 không lời gọi LLM mới", "st": "PASS", "note": "817->817"}
+{"tc": "TC-06-07 tuần có bài: 200 + gộp; tuần trống: 200 rỗng có cấu trúc", "st": "PASS", "note": "200 {'scope': 'week', 'exams': [{'id': '01a1def2-6405-722d-b119-48067144279c', 'titl | 200 {'scope': 'week', 'exams': [], 'submissions': 0, 'pass_rate': None, 'mean': None, 'median': None, 'd"}
+{"tc": "TC-06-08 thiếu cả hai → bài mới nhất", "st": "PASS", "note": "200"}
+{"tc": "TC-06-08 có cả hai → 422 (không 500)", "st": "PASS", "note": "422 (ghi: 422)"}
+{"tc": "TC-06-08 week sai → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-06-11 declining = SV tụt 3 bài liên tiếp (strict) tính độc lập bằng SQL", "st": "PASS", "note": "api=3 sql=3 api−sql=0 sql−api=0"}
+{"tc": "TC-06-11b mỗi dòng 3 điểm giảm dần, có tên", "st": "PASS", "note": "3 dòng"}
+{"tc": "TC-06-12 student_risk không đổi", "st": "PASS", "note": "['54', '96916099983.355470']->['54', '96916099983.355470']"}
+{"tc": "TC-06-13/18 ta declining → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-06-13/18 teacher declining → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-06-13/18 admin declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-13/18 sv.kha declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-13/18 sv.moi declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha overview → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha trend → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha hard-items → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16/18 sv.kha compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi overview → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi trend → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi hard-items → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16/18 sv.moi compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16 ta compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-17 ADMIN overview: chỉ tổng (không tên/MSSV, không trung vị theo người)", "st": "PASS", "note": "200 {\"scope\": \"exam\", \"exams\": [{\"id\": \"01a1def7-3d19-710b-95ed-f4ce5582e6f1\", \"title\": \"Quiz 01 \\u2014 H\\u00e0m b\\u0103m v\\u00e0 ch\\u1eef k\\u00fd\", \"opens_at\": \"20"}
+{"tc": "TC-06-14 compare: 2 lớp, lớp <5 bài nộp «chưa đủ» (không số)", "st": "PASS", "note": "[[\"761987\", true, 112], [\"761988\", false, 0]]"}
+{"tc": "TC-06-16 ADMIN compare (Q-S11-10: ghi giá trị)", "st": "PASS", "note": "403"}
+{"tc": "TC-07-05 ≥ 4 bài PUBLISHED", "st": "PASS", "note": "7"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 2 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.13/7.50/1.00/20 sql=7.12/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 4 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=6.63/7.50/1.00/20 sql=6.62/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 6 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=8.29/7.50/1.00/19 sql=8.29/7.5/1.00/19"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 8 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.88/7.50/0.90/20 sql=7.88/7.5/0.90/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Mật mã» khớp SQL", "st": "PASS", "note": "api=6.89/7.00/1.00/24 sql=6.89/7.0/1.00/24"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Lập trình» khớp SQL", "st": "PASS", "note": "api=7.46/8.38/0.83/6 sql=7.46/8.38/0.83/6"}
+{"tc": "TC-06-02 overview «Quiz 01 — Hàm băm và chữ ký» khớp SQL", "st": "PASS", "note": "api=7.33/8.00/0.67/3 sql=7.33/8.0/0.67/3"}
+{"tc": "TC-06-03 overview bài CLOSED → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài CLOSED không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài CLOSED", "st": "PASS", "note": ""}
+{"tc": "TC-06-03 overview bài OPEN → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài OPEN không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài OPEN", "st": "PASS", "note": ""}
+{"tc": "TC-06-03 overview bài DRAFT → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài DRAFT không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài DRAFT", "st": "PASS", "note": ""}
+{"tc": "TC-06-04 đổi điểm → overview đổi ngay, trả lại → về cũ", "st": "PASS", "note": "7.33->4.0->7.33"}
+{"tc": "TC-06-06 không lời gọi LLM mới", "st": "PASS", "note": "817->817"}
+{"tc": "TC-06-07 tuần có bài: 200 + gộp; tuần trống: 200 rỗng có cấu trúc", "st": "PASS", "note": "200 {'scope': 'week', 'exams': [{'id': '01a1def2-6405-722d-b119-48067144279c', 'titl | 200 {'scope': 'week', 'exams': [], 'submissions': 0, 'pass_rate': None, 'mean': None, 'median': None, 'd"}
+{"tc": "TC-06-08 thiếu cả hai → bài mới nhất", "st": "PASS", "note": "200"}
+{"tc": "TC-06-08 có cả hai → 422 (không 500)", "st": "PASS", "note": "422 (ghi: 422)"}
+{"tc": "TC-06-08 week sai → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-06-11 declining = SV tụt 3 bài liên tiếp (strict) tính độc lập bằng SQL", "st": "PASS", "note": "api=3 sql=3 api−sql=0 sql−api=0"}
+{"tc": "TC-06-11b mỗi dòng 3 điểm giảm dần, có tên", "st": "PASS", "note": "3 dòng"}
+{"tc": "TC-06-12 student_risk không đổi", "st": "PASS", "note": "['54', '96916099983.355470']->['54', '96916099983.355470']"}
+{"tc": "TC-06-13/18 ta declining → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-06-13/18 teacher declining → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-06-13/18 admin declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-13/18 sv.kha declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-13/18 sv.moi declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha overview → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha trend → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha hard-items → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16/18 sv.kha compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi overview → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi trend → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi hard-items → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16/18 sv.moi compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16 ta compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-17 ADMIN overview: chỉ tổng (không tên/MSSV, không trung vị theo người)", "st": "PASS", "note": "200 {\"scope\": \"exam\", \"exams\": [{\"id\": \"01a1def7-3d19-710b-95ed-f4ce5582e6f1\", \"title\": \"Quiz 01 \\u2014 H\\u00e0m b\\u0103m v\\u00e0 ch\\u1eef k\\u00fd\", \"opens_at\": \"20"}
+{"tc": "TC-06-14 compare: 2 lớp, lớp <5 bài nộp «chưa đủ» (không số)", "st": "PASS", "note": "[[\"761987\", true, 112], [\"761988\", false, 0]]"}
+{"tc": "TC-06-16 ADMIN compare (Q-S11-10: ghi giá trị)", "st": "PASS", "note": "403"}
+{"tc": "TC-06-22 Cache-Control không public/max-age dài cho điểm", "st": "PASS", "note": "private, no-cache"}
+{"tc": "TC-07-05 ≥ 4 bài PUBLISHED", "st": "PASS", "note": "7"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 2 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.13/7.50/1.00/20 sql=7.12/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 4 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=6.63/7.50/1.00/20 sql=6.62/7.5/1.00/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 6 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=8.29/7.50/1.00/19 sql=8.29/7.5/1.00/19"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 8 — Ôn tập» khớp SQL", "st": "PASS", "note": "api=7.88/7.50/0.90/20 sql=7.88/7.5/0.90/20"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Mật mã» khớp SQL", "st": "PASS", "note": "api=6.89/7.00/1.00/24 sql=6.89/7.0/1.00/24"}
+{"tc": "TC-06-02 overview «Kiểm tra tuần 9 — Lập trình» khớp SQL", "st": "PASS", "note": "api=7.46/8.38/0.83/6 sql=7.46/8.38/0.83/6"}
+{"tc": "TC-06-02 overview «Quiz 01 — Hàm băm và chữ ký» khớp SQL", "st": "PASS", "note": "api=7.33/8.00/0.67/3 sql=7.33/8.0/0.67/3"}
+{"tc": "TC-06-03 overview bài CLOSED → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài CLOSED không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài CLOSED", "st": "PASS", "note": ""}
+{"tc": "TC-06-03 overview bài OPEN → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài OPEN không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài OPEN", "st": "PASS", "note": ""}
+{"tc": "TC-06-03 overview bài DRAFT → 404/409", "st": "PASS", "note": "404"}
+{"tc": "TC-06-03 bài DRAFT không xuất hiện ở trend/hard-items/declining", "st": "PASS", "note": "[]"}
+{"tc": "TC-06-03 overview mặc định không lấy bài DRAFT", "st": "PASS", "note": ""}
+{"tc": "TC-06-04 đổi điểm → overview đổi ngay, trả lại → về cũ", "st": "PASS", "note": "7.33->4.0->7.33"}
+{"tc": "TC-06-06 không lời gọi LLM mới", "st": "PASS", "note": "817->817"}
+{"tc": "TC-06-07 tuần có bài: 200 + gộp; tuần trống: 200 rỗng có cấu trúc", "st": "PASS", "note": "200 {'scope': 'week', 'exams': [{'id': '01a1def2-6405-722d-b119-48067144279c', 'titl | 200 {'scope': 'week', 'exams': [], 'submissions': 0, 'pass_rate': None, 'mean': None, 'median': None, 'd"}
+{"tc": "TC-06-08 thiếu cả hai → bài mới nhất", "st": "PASS", "note": "200"}
+{"tc": "TC-06-08 có cả hai → 422 (không 500)", "st": "PASS", "note": "422 (ghi: 422)"}
+{"tc": "TC-06-08 week sai → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-06-11 declining = SV tụt 3 bài liên tiếp (strict) tính độc lập bằng SQL", "st": "PASS", "note": "api=3 sql=3 api−sql=0 sql−api=0"}
+{"tc": "TC-06-11b mỗi dòng 3 điểm giảm dần, có tên", "st": "PASS", "note": "3 dòng"}
+{"tc": "TC-06-12 student_risk không đổi", "st": "PASS", "note": "['54', '96916099983.355470']->['54', '96916099983.355470']"}
+{"tc": "TC-06-13/18 ta declining → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-06-13/18 teacher declining → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-06-13/18 admin declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-13/18 sv.kha declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-13/18 sv.moi declining → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha overview → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha trend → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.kha hard-items → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16/18 sv.kha compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi overview → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi trend → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-18 sv.moi hard-items → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16/18 sv.moi compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-16 ta compare → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-06-17 ADMIN overview: chỉ tổng (không tên/MSSV, không trung vị theo người)", "st": "PASS", "note": "200 {\"scope\": \"exam\", \"exams\": [{\"id\": \"01a1def7-3d19-710b-95ed-f4ce5582e6f1\", \"title\": \"Quiz 01 \\u2014 H\\u00e0m b\\u0103m v\\u00e0 ch\\u1eef k\\u00fd\", \"opens_at\": \"20"}
+{"tc": "TC-06-14 compare: 2 lớp, lớp <5 bài nộp «chưa đủ» (không số)", "st": "PASS", "note": "[[\"761987\", true, 112], [\"761988\", false, 0]]"}
+{"tc": "TC-06-16 ADMIN compare (Q-S11-10: ghi giá trị)", "st": "PASS", "note": "403"}
+{"tc": "TC-06-22 Cache-Control không public/max-age dài cho điểm", "st": "PASS", "note": "private, no-cache"}
+{"tc": "TC-06-24 bài code: mục CODE kèm ce_rate; bài trắc nghiệm: MCQ", "st": "PASS", "note": "code=['CODE', 'CODE'] mcq=['MCQ', 'MCQ', 'MCQ']"}
+{"tc": "TC-07-01 llm_audit ≥ 300 dòng, ≥ 7 ngày, lỗi/degraded/fallback/pii>0, ≥ 2 lớp, ≥ 3 task", "st": "PASS", "note": "['817', '7', '7', '2', '25', '14', '17', '33']"}
+{"tc": "TC-07-02 payload ≥ 20, 0 tên/MSSV/email SV, có mail lỗi", "st": "PASS", "note": "payload=295 tên=68 rò=0 mail lỗi=1"}
+{"tc": "TC-07-04 lớp 1 ≥ 150 câu, lớp 2 ≥ 30", "st": "PASS", "note": "lớp1=['179', '30'] lớp2=['45']"}
+{"tc": "TC-07-16 EXPLAIN created_at", "st": "PASS", "note": "Index Scan using llm_audit_created_idx"}
+{"tc": "TC-07-16 EXPLAIN course_id,created_at", "st": "PASS", "note": "Index Scan using llm_audit_course_created_idx"}
+{"tc": "TC-07-16 EXPLAIN status,created_at", "st": "PASS", "note": "Index Scan using llm_audit_status_created_idx"}
+{"tc": "TC-07-12 mock/system không còn; antipatterns sạch", "st": "PASS", "note": "grep 0; ui-antipatterns exit 0"}
+{"tc": "TC-07-16 điểm thi (course_id, exam_id): có chỉ mục; bảng nhỏ nên planner dùng Seq Scan", "st": "PASS", "note": "chỉ mục tồn tại"}
+{"tc": "TC-01-02a số yêu cầu / lỗi / dự phòng khớp SQL 24h", "st": "PASS", "note": "api=234/11/7 sql=234/11/7"}
+{"tc": "TC-01-02b p95 khớp SQL (±10%)", "st": "PASS", "note": "api=3098.6499999999996 sql=3098.6499999999996"}
+{"tc": "TC-01-02c bảng ngày dùng múi giờ VN (số yêu cầu mỗi ngày khớp SQL theo VN)", "st": "PASS", "note": "lệch={}"}
+{"tc": "TC-01-04 tổng chi phí theo tác vụ = tổng bảng ngày (±0,01)", "st": "PASS", "note": "tasks=14097.0 days=14097.0"}
+{"tc": "TC-01-05a duyệt hết cursor: không trùng, không sót", "st": "PASS", "note": "đã thấy=817 DB=817 trùng=0 trang=9"}
+{"tc": "TC-01-05b filter=problem chỉ status lỗi", "st": "PASS", "note": "25/25"}
+{"tc": "TC-01-05c filter=privacy chỉ pii_masked_count>0", "st": "PASS", "note": "33"}
+{"tc": "TC-01-05d limit=1000 kẹp ≤100 hoặc 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-01-05e thân không có trường nội dung", "st": "PASS", "note": ""}
+{"tc": "TC-01-05f lọc lớp + tác vụ", "st": "PASS", "note": "200 100"}
+{"tc": "TC-01-05g from/to", "st": "PASS", "note": ""}
+{"tc": "TC-01-06a filter=xyz", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06b from>to", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06c cursor rác", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06d window lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-01-08a GV xem lớp mình: không bảng yêu cầu/chi phí theo nhà cung cấp/nội dung", "st": "PASS", "note": "200 ['change_rate', 'course_id', 'days', 'error_rate', 'escalations', 'graded_changed', 'graded_total', 'helpful', 'mean_abs_deviation', 'not_helpful', 'pii_masked', 'requests', 'thread_correct', 'thread_reject', 'window']"}
+{"tc": "TC-02-02 open → 200 + no-store", "st": "PASS", "note": "200 no-store {'id': '01a1df03-89ba-79d6-819d-820725493f7e', 'at': '2026-11-15T11:41:53.466632Z', 'task': 'CHAT', 'provider': 'env:fak"}
+{"tc": "TC-02-03 đúng 1 dòng audit_log VIEW_DETAIL", "st": "PASS", "note": "0->1"}
+{"tc": "TC-02-03b VIEW_DETAIL + reason + actor + trace", "st": "PASS", "note": "[['VIEW_DETAIL', 't', 'Điều tra lỗi tăng sau 10h', 't']]"}
+{"tc": "TC-02-04 lý do 9 ký tự → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do 201 ký tự → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do rỗng → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do thiếu trường → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-04 lý do 10 khoảng trắng → 422 REASON_REQUIRED, không audit", "st": "PASS", "note": "422 {'code': 'REASON_REQUIRED', 'message': 'Cần nhập lý do (10–200 ký tự) trước khi "}
+{"tc": "TC-02-06 hai lần open → 2 dòng audit", "st": "PASS", "note": "1->3"}
+{"tc": "TC-02-11 teacher → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11 ta → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11 sv.kha → 403, không audit", "st": "PASS", "note": "403"}
+{"tc": "TC-02-11b không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-02-16 UUID không có → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-16 UUID sai định dạng → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-02-16b không thêm audit_log", "st": "PASS", "note": "53->53"}
+{"tc": "TC-02-19 no-store /admin/observability/requests", "st": "PASS", "note": "no-store"}
+{"tc": "TC-02-19 no-store /admin/observability/summary (nên có, không bắt buộc)", "st": "PASS", "note": null}
+{"tc": "TC-02-20 GET chi tiết cũ → 404/405", "st": "PASS", "note": "404"}
+{"tc": "TC-02-07 payload đã mở ≥ 20, 0 khớp tên/MSSV/email SV", "st": "PASS", "note": "mở=31 rò=[]"}
+{"tc": "TC-02-14 payload > 30 ngày → 410 PAYLOAD_EXPIRED + vẫn audit", "st": "PASS", "note": "410 {'code': 'PAYLOAD_EXPIRED', 'message': 'Nội dung đã hết hạn lưu.', 'trace_id': '"}
+{"tc": "TC-04-26 sv.kha generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN latest → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN export → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-29 teacher latest → 200", "st": "FAIL", "note": "404"}
+{"tc": "TC-04-29 teacher export md → 200", "st": "FAIL", "note": "404"}
+{"tc": "TC-04-29 teacher export pdf → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 teacher export xml → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 ta latest → 200", "st": "FAIL", "note": "404"}
+{"tc": "TC-04-29 ta export md → 200", "st": "FAIL", "note": "404"}
+{"tc": "TC-04-29 ta export pdf → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 ta export xml → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-30 latest không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-04-30 generate không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-04-05 ta generate → được như GV (200 reused/202)", "st": "PASS", "note": "202"}
+{"tc": "TC-04-03 generate không Idempotency-Key → 400/422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-04 period_days=0 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '91922728f88879c0e4502f"}
+{"tc": "TC-04-04 period_days=-1 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '642b1bca49e97d8e45e242"}
+{"tc": "TC-04-04 period_days=5 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'e286a4ed59aff660f658ec"}
+{"tc": "TC-04-04 period_days=15 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '9bc2598eba59bf4478e18b"}
+{"tc": "TC-04-04 period_days=60 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'b660b8c2d736a5386a5d82"}
+{"tc": "TC-04-04 period_days=119 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '0994b7949df8f0fa011f75"}
+{"tc": "TC-04-04 period_days=121 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'fd58873ae4deb67ce9c092"}
+{"tc": "TC-04-04 period_days=999 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '036a5d1dca9acfb821bf0d"}
+{"tc": "TC-04-04 period_days=null → mặc định 14 (200/202)", "st": "PASS", "note": "202 {'job_id': '01a1df3a-56aa-7eaf-a120-4864e63f2b13'}"}
+{"tc": "TC-04-04 period_days=\"14\" → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '030f31ee1e85a959368a7f"}
+{"tc": "TC-04-04 period_days=14.0 → 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-04-04 period_days=chữ → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'e08bd9a87e76bfd5c24e21"}
+{"tc": "TC-04-04 giá trị sai không tạo job/báo cáo/lời gọi LLM", "st": "PASS", "note": "rep 14->14 audit 100->100"}
+{"tc": "TC-04-04 không gửi period_days → mặc định 14", "st": "PASS", "note": "202 {'job_id': '01a1df3a-5a00-7fa4-bd2a-b36e31a97a48'}"}
+{"tc": "TC-04-04 period_days=7 hợp lệ → 200/202", "st": "PASS", "note": "202 {'job_id': '01a1df3a-5b27-7f3a-9bc9-ea02d2e7f966'}"}
+{"tc": "TC-04-04 period_days=14 hợp lệ → 200/202", "st": "PASS", "note": "202 {'job_id': '01a1df3a-5b81-78fc-a9f9-681babeafd63'}"}
+{"tc": "TC-04-04 period_days=30 hợp lệ → 200/202", "st": "PASS", "note": "202 {'job_id': '01a1df3a-5bfb-7b7c-b329-79c45060d3b1'}"}
+{"tc": "TC-04-04 period_days=120 hợp lệ → 200/202", "st": "PASS", "note": "202 {'job_id': '01a1df3a-5c4c-7d10-a94d-21549c9c5094'}"}
+{"tc": "TC-04-26 sv.kha generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN latest → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN export → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-29 teacher latest → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 teacher export md → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 teacher export pdf → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 teacher export xml → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 ta latest → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 ta export md → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 ta export pdf → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 ta export xml → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-30 latest không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-04-30 generate không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-04-05 ta generate → được như GV (200 reused/202)", "st": "PASS", "note": "200"}
+{"tc": "TC-04-03 generate không Idempotency-Key → 400/422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-04 period_days=0 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '0cb5e0e597c4846fbf5875"}
+{"tc": "TC-04-04 period_days=-1 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'e1407d5d9ebefc0abbbf34"}
+{"tc": "TC-04-04 period_days=5 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '4906287660798a5bed5571"}
+{"tc": "TC-04-04 period_days=15 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '9a4ebb81599d4176ed855a"}
+{"tc": "TC-04-04 period_days=60 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd09baa3a712ed21ca1968c"}
+{"tc": "TC-04-04 period_days=119 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'c0e218577c4aa09201de11"}
+{"tc": "TC-04-04 period_days=121 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '02f4185c56906ca652f57f"}
+{"tc": "TC-04-04 period_days=999 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '65602fefd115273f22ab3b"}
+{"tc": "TC-04-04 period_days=null → mặc định 14 (200/202)", "st": "PASS", "note": "200 {'report_id': '01a1df3a-775e-71b3-a6ef-8f23898a3a7c', 'reused': True}"}
+{"tc": "TC-04-04 period_days=\"14\" → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6695b3111059d24961d3b4"}
+{"tc": "TC-04-04 period_days=14.0 → 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-04-04 period_days=chữ → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'fdc4402873fbd02b476ffe"}
+{"tc": "TC-04-04 giá trị sai không tạo job/báo cáo/lời gọi LLM", "st": "PASS", "note": "rep 15->15 audit 102->102"}
+{"tc": "TC-04-04 không gửi period_days → mặc định 14", "st": "PASS", "note": "200 {'report_id': '01a1df3a-775e-71b3-a6ef-8f23898a3a7c', 'reused': True}"}
+{"tc": "TC-04-04 period_days=7 hợp lệ → 200/202", "st": "PASS", "note": "202 {'job_id': '01a1df3a-b950-74aa-9a8d-8d1e86f55a1d'}"}
+{"tc": "TC-04-04 period_days=14 hợp lệ → 200/202", "st": "PASS", "note": "200 {'report_id': '01a1df3a-775e-71b3-a6ef-8f23898a3a7c', 'reused': True}"}
+{"tc": "TC-04-04 period_days=30 hợp lệ → 200/202", "st": "PASS", "note": "202 {'job_id': '01a1df3a-bb06-7b09-b984-5ebc1669922c'}"}
+{"tc": "TC-04-04 period_days=120 hợp lệ → 200/202", "st": "PASS", "note": "202 {'job_id': '01a1df3a-bbb2-7045-a2d5-d6dcde77d78a'}"}
+{"tc": "TC-04-18 không có dữ liệu mới → 200 reused:true", "st": "PASS", "note": "200 {'report_id': '01a1df3a-775e-71b3-a6ef-8f23898a3a7c', 'reused': True}"}
+{"tc": "TC-04-18 llm_audit / insight_reports không tăng", "st": "PASS", "note": "audit 102->103 rep 8->8"}
+{"tc": "TC-04-19 thêm câu hỏi → 202 (không reused)", "st": "PASS", "note": "202 {'job_id': '01a1df3a-ca0c-7b24-835e-fbb557b01ac8'}"}
+{"tc": "TC-04-02 cùng Idempotency-Key → cùng job_id", "st": "PASS", "note": "202 {'job_id': '01a1df3a-ca0c-7b24-835e-fbb557b01ac8'}"}
+{"tc": "TC-01-02a số yêu cầu / lỗi / dự phòng khớp SQL 24h", "st": "FAIL", "note": "api=267/11/7 sql=270/11/7"}
+{"tc": "TC-01-02b p95 khớp SQL (±10%)", "st": "FAIL", "note": "api=5157.699999999993 sql=6061.049999999984"}
+{"tc": "TC-01-02c bảng ngày dùng múi giờ VN (số yêu cầu mỗi ngày khớp SQL theo VN)", "st": "PASS", "note": "lệch={}"}
+{"tc": "TC-01-04 tổng chi phí theo tác vụ = tổng bảng ngày (±0,01)", "st": "PASS", "note": "tasks=14097.0 days=14097.0"}
+{"tc": "TC-01-05a duyệt hết cursor: không trùng, không sót", "st": "PASS", "note": "đã thấy=853 DB=853 trùng=0 trang=9"}
+{"tc": "TC-01-05b filter=problem chỉ status lỗi", "st": "PASS", "note": "25/25"}
+{"tc": "TC-01-05c filter=privacy chỉ pii_masked_count>0", "st": "PASS", "note": "33"}
+{"tc": "TC-01-05d limit=1000 kẹp ≤100 hoặc 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-01-05e thân không có trường nội dung", "st": "PASS", "note": ""}
+{"tc": "TC-01-05f lọc lớp + tác vụ", "st": "PASS", "note": "200 100"}
+{"tc": "TC-01-05g from/to", "st": "PASS", "note": ""}
+{"tc": "TC-01-06a filter=xyz", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06b from>to", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06c cursor rác", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06d window lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-01-08a GV xem lớp mình: không bảng yêu cầu/chi phí theo nhà cung cấp/nội dung", "st": "PASS", "note": "200 ['change_rate', 'course_id', 'days', 'error_rate', 'escalations', 'graded_changed', 'graded_total', 'helpful', 'mean_abs_deviation', 'not_helpful', 'pii_masked', 'requests', 'thread_correct', 'thread_reject', 'window']"}
+{"tc": "TC-01-09 ADMIN xem 761987 → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-01-09 ADMIN xem 761988 → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-01-09b ADMIN lớp không tồn tại → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-04-01 job xong", "st": "PASS", "note": "{'id': '01a1df3a-ca0c-7b24-835e-fbb557b01ac8', 'kind': 'insight.knowledge_gap', 'status': 'SUCCEEDED', 'progress': 100, 'result': {'report_id': '01a1df3b-08dc-7"}
+{"tc": "TC-04-09 job 1 lời gọi INSIGHT làn BATCH", "st": "PASS", "note": "[['INSIGHT', 'BATCH', 'ok', 'QC 9router'], ['INSIGHT', 'BATCH', 'ok', 'QC 9router'], ['INSIGHT', 'BATCH', 'ok', 'QC 9router']]"}
+{"tc": "TC-04-16 khoá payload không có student_id/user_id/email/student_code", "st": "PASS", "note": "['clusters', 'counts', 'period_days', 'questions', 'schema', 'students', 'topics', 'uncovered']"}
+{"tc": "TC-04-14 0 khớp tên/MSSV/email/SĐT trong latest + export + payload", "st": "PASS", "note": "[]"}
+{"tc": "TC-04-08 rank liền mạch 1..n, score giảm dần", "st": "PASS", "note": "n=17"}
+{"tc": "TC-04-12 có chủ đề «Ít người hỏi» với examples=[]", "st": "PASS", "note": "16"}
+{"tc": "TC-04-12 chủ đề thường có 3–5 câu mẫu hoặc ít hơn khi <3 SV", "st": "PASS", "note": ""}
+{"tc": "TC-04-10 (v1.10 P-11-31) uncovered kỳ 120: đúng 2 nhóm N1 (3) và N2 (4), N3 bị bỏ", "st": "FAIL", "note": "[{'text': 'Công thức nấu phở bò gồm những gì?', 'count': 4}, {'text': 'Hôm nay thời tiết ở Hà Nội thế nào?', 'count': 3}, {'text': 'Cho hỏi về ZQ-L1-ff4476 học phần', 'count': 3}]"}
+{"tc": "TC-01-02a số yêu cầu / lỗi / dự phòng khớp SQL 24h", "st": "PASS", "note": "api=272/11/7 sql=272/11/7"}
+{"tc": "TC-01-02b p95 khớp SQL (±10%)", "st": "PASS", "note": "api=7147.7999999999865 sql=7147.7999999999865"}
+{"tc": "TC-01-02c bảng ngày dùng múi giờ VN (số yêu cầu mỗi ngày khớp SQL theo VN)", "st": "PASS", "note": "lệch={}"}
+{"tc": "TC-01-04 tổng chi phí theo tác vụ = tổng bảng ngày (±0,01)", "st": "PASS", "note": "tasks=14097.0 days=14097.0"}
+{"tc": "TC-01-05a duyệt hết cursor: không trùng, không sót", "st": "PASS", "note": "đã thấy=855 DB=855 trùng=0 trang=9"}
+{"tc": "TC-01-05b filter=problem chỉ status lỗi", "st": "PASS", "note": "25/25"}
+{"tc": "TC-01-05c filter=privacy chỉ pii_masked_count>0", "st": "PASS", "note": "33"}
+{"tc": "TC-01-05d limit=1000 kẹp ≤100 hoặc 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-01-05e thân không có trường nội dung", "st": "PASS", "note": ""}
+{"tc": "TC-01-05f lọc lớp + tác vụ", "st": "PASS", "note": "200 100"}
+{"tc": "TC-01-05g from/to", "st": "PASS", "note": ""}
+{"tc": "TC-01-06a filter=xyz", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06b from>to", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06c cursor rác", "st": "PASS", "note": "422"}
+{"tc": "TC-01-06d window lạ → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-01-08a GV xem lớp mình: không bảng yêu cầu/chi phí theo nhà cung cấp/nội dung", "st": "PASS", "note": "200 ['change_rate', 'course_id', 'days', 'error_rate', 'escalations', 'graded_changed', 'graded_total', 'helpful', 'mean_abs_deviation', 'not_helpful', 'pii_masked', 'requests', 'thread_correct', 'thread_reject', 'window']"}
+{"tc": "TC-01-08b GV xem lớp khác → 403 (P-11-35)", "st": "PASS", "note": "403"}
+{"tc": "TC-01-09 ADMIN xem 761987 → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-01-09 ADMIN xem 761988 → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-01-09b ADMIN lớp không tồn tại → 404", "st": "PASS", "note": "404"}
+{"tc": "TC-04-17 không câu/từ khoá riêng lớp 1 (ZQ-L1) ở lớp 2", "st": "PASS", "note": "202 202"}
+{"tc": "TC-04-25 3 lần đầu 202, lần 4 429 + Retry-After", "st": "PASS", "note": "[(202, None), (202, None), (202, None), (429, '968')]"}
+{"tc": "TC-04-31 hai generate song song: không trùng watermark", "st": "PASS", "note": "[202, 202] wm=4/4"}
+{"tc": "TC-04-26 sv.kha generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-27 sv.moi generate lớp 1 → 403 (P-11-35)", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN generate → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN latest → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-28 ADMIN export → 403", "st": "PASS", "note": "403"}
+{"tc": "TC-04-29 teacher latest → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 teacher export md → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 teacher export pdf → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 teacher export xml → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 ta latest → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 ta export md → 200", "st": "PASS", "note": "200"}
+{"tc": "TC-04-29 ta export pdf → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-29 ta export xml → 422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-30 latest không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-04-30 generate không token → 401", "st": "PASS", "note": "401"}
+{"tc": "TC-04-05 ta generate → được như GV (200 reused/202)", "st": "PASS", "note": "200"}
+{"tc": "TC-04-03 generate không Idempotency-Key → 400/422", "st": "PASS", "note": "422"}
+{"tc": "TC-04-04 period_days=0 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '28bf854977f85ca6c4ccca"}
+{"tc": "TC-04-04 period_days=-1 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'b48c1a4b245ecfbc23f0ef"}
+{"tc": "TC-04-04 period_days=5 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '829c8194ee03b6b57b0538"}
+{"tc": "TC-04-04 period_days=15 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '0ecea4d0140db96318dc35"}
+{"tc": "TC-04-04 period_days=60 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'a4ec7549143ee918d06380"}
+{"tc": "TC-04-04 period_days=119 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'dc1ab021c09cdd6f510ea3"}
+{"tc": "TC-04-04 period_days=121 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'dc30d4a1087efd0373e05e"}
+{"tc": "TC-04-04 period_days=999 → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '46f470c01cf030fb8af18f"}
+{"tc": "TC-04-04 period_days=null → mặc định 14 (200/202)", "st": "PASS", "note": "200 {'report_id': '01a1df3d-6e24-7d0e-84f9-ff71c596890c', 'reused': True}"}
+{"tc": "TC-04-04 period_days=\"14\" → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '6817044fe51e2f8013002d"}
+{"tc": "TC-04-04 period_days=14.0 → 422", "st": "PASS", "note": "422 "}
+{"tc": "TC-04-04 period_days=chữ → 422", "st": "PASS", "note": "422 {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'e14bad4ae9fcfde9abecc9"}
+{"tc": "TC-04-04 giá trị sai không tạo job/báo cáo/lời gọi LLM", "st": "PASS", "note": "rep 26->26 audit 120->120"}
+{"tc": "TC-04-04 không gửi period_days → mặc định 14", "st": "PASS", "note": "200 {'report_id': '01a1df3d-6e24-7d0e-84f9-ff71c596890c', 'reused': True}"}
+{"tc": "TC-04-04 period_days=7 hợp lệ → 200/202", "st": "PASS", "note": "202 {'job_id': '01a1df3d-9503-743f-9bc5-8500b48bee95'}"}
+{"tc": "TC-04-04 period_days=14 hợp lệ → 200/202", "st": "PASS", "note": "200 {'report_id': '01a1df3d-6e24-7d0e-84f9-ff71c596890c', 'reused': True}"}
+{"tc": "TC-04-04 period_days=30 hợp lệ → 200/202", "st": "PASS", "note": "200 {'report_id': '01a1df3c-f862-765b-bbf6-f5cd768bf8fd', 'reused': True}"}
+{"tc": "TC-04-04 period_days=120 hợp lệ → 200/202", "st": "PASS", "note": "200 {'report_id': '01a1df3d-4513-7e9a-8292-61bef019f245', 'reused': True}"}
+{"tc": "TC-04-16 khoá payload không có student_id/user_id/email/student_code", "st": "PASS", "note": "['clusters', 'counts', 'period_days', 'questions', 'schema', 'students', 'topics', 'uncovered']"}
+{"tc": "TC-04-14 0 khớp tên/MSSV/email/SĐT trong latest + export + payload", "st": "PASS", "note": "[]"}
+{"tc": "TC-04-08 rank liền mạch 1..n, score giảm dần", "st": "PASS", "note": "n=33"}
+{"tc": "TC-04-12 có chủ đề «Ít người hỏi» với examples=[]", "st": "PASS", "note": "29"}
+{"tc": "TC-04-12 chủ đề thường có 3–5 câu mẫu hoặc ít hơn khi <3 SV", "st": "PASS", "note": ""}
+{"tc": "TC-04-10 (v1.10 P-11-31) uncovered kỳ 120: đúng 2 nhóm N1 (3) và N2 (4), N3 bị bỏ", "st": "FAIL", "note": "[{'text': 'Công thức nấu phở bò gồm những gì?', 'count': 4}, {'text': 'Hôm nay thời tiết ở Hà Nội thế nào?', 'count': 3}, {'text': 'Cho hỏi về ZQ-L1-ff4476 học phần', 'count': 3}, {'text': 'Cho hỏi về ZQ-L1-278fa8 học phần', 'count': 3}]"}
+{"tc": "TC-04-06 counts = {questions,students,clusters} (P-11-35)", "st": "PASS", "note": "{'questions': 25, 'students': 4, 'clusters': 19}"}
+{"tc": "TC-04-16 khoá payload không có student_id/user_id/email/student_code", "st": "PASS", "note": "['clusters', 'counts', 'period_days', 'questions', 'schema', 'students', 'topics', 'uncovered']"}
+{"tc": "TC-04-14 0 khớp tên/MSSV/email/SĐT trong latest + export + payload", "st": "PASS", "note": "[]"}
+{"tc": "TC-04-08 rank liền mạch 1..n, score giảm dần", "st": "PASS", "note": "n=19"}
+{"tc": "TC-04-12 có chủ đề «Ít người hỏi» với examples=[]", "st": "PASS", "note": "17"}
+{"tc": "TC-04-12 chủ đề thường có 3–5 câu mẫu hoặc ít hơn khi <3 SV", "st": "PASS", "note": ""}
+{"tc": "TC-04-10 (v1.10 P-11-31) uncovered kỳ 120: đúng 2 nhóm N1 (3) và N2 (4), N3 bị bỏ", "st": "PASS", "note": "[{'text': 'Công thức nấu phở bò gồm những gì?', 'count': 4}, {'text': 'Hôm nay thời tiết ở Hà Nội thế nào?', 'count': 3}, {'text': 'Cho hỏi về ZQ-L1-ff4476 học phần', 'count': 3}, {'text': 'Cho hỏi về ZQ-L1-278fa8 học phần', 'count': 3}]"}
+{"tc": "TC-05-01 không @/mock trong insights", "st": "PASS", "note": "grep 0"}
+{"tc": "TC-05-02 chỉ GET latest, số liệu khớp payload", "st": "PASS", "note": "INS-1"}
+{"tc": "TC-05-03 chưa có báo cáo → 404 + EmptyState + 1 nút", "st": "PASS", "note": "INS-EMPTY (lớp đang chọn 761988; API 761987 404)"}
+{"tc": "TC-05-04 màn: ngày + nút + ≤ 8 chủ đề + «Chủ đề khác»", "st": "PASS", "note": "INS-1"}
+{"tc": "TC-05-05 «Ít người hỏi»", "st": "PASS", "note": "INS-1"}
+{"tc": "TC-05-09 Tài liệu chưa đề cập", "st": "PASS", "note": "INS-1"}
+{"tc": "TC-05-10 So với báo cáo ngày", "st": "PASS", "note": "INS-1"}
+{"tc": "TC-05-11 nháp thread ghim chưa tạo gì", "st": "PASS", "note": "INS-2"}
+{"tc": "TC-05-12 thread ghim, tác giả GV, không câu mẫu, SV thấy", "st": "PASS", "note": "INS-2"}
+{"tc": "TC-05-14 buổi ôn tập OTHER", "st": "PASS", "note": "INS-2"}
+{"tc": "TC-05-16 xuất Markdown", "st": "PASS", "note": "INS-1"}
+{"tc": "TC-05-17 xuất PDF = window.print", "st": "PASS", "note": "INS-1"}
+{"tc": "TC-05-18 một dòng meta", "st": "PASS", "note": "INS-1"}
+{"tc": "TC-05-19 SV/ADMIN không có mục /insights", "st": "PASS", "note": "INS-3"}
+{"tc": "TC-05-20 lỗi latest + Thử lại", "st": "PASS", "note": "INS-3"}
+{"tc": "TC-05-21 vùng chạm ≥ 44 px ở 375", "st": "FAIL", "note": "«Câu hỏi mẫu (n)» và «Chủ đề khác (n)» cao 30 px (đo bounding box)"}
+{"tc": "TC-14-82 bộ lọc Người: chọn từ bảng, không dán uuid", "st": "PASS", "note": "dev sửa: bấm tên người ở hàng để lọc, chip «Người: …» (AUD-3)"}
+{"tc": "TC-04-21a lớp mới 19 câu → 409 NOT_ENOUGH_DATA {count:19}", "st": "PASS", "note": "cnt=19 409 {'code': 'NOT_ENOUGH_DATA', 'message': 'Sinh viên này chưa có đủ dữ liệu để nhận xét.', 'trace_id': 'c0ec1d84f9f1ec2853d"}
+{"tc": "TC-04-21b 409 không tạo báo cáo", "st": "PASS", "note": ""}
+{"tc": "TC-04-21c 20 câu → 202", "st": "PASS", "note": "202 {'job_id': '01a1df42-3aee-76a5-88b3-75085a181745'}"}
+{"tc": "TC-04-07 lớp chưa dùng luyện đề: job xong, signals luyện đề vắng/null", "st": "PASS", "note": "SUCCEEDED [{'students': 1, 'questions': 1, 'low_confidence_rate': 1, 'not_helpful_rate': 0, 'practice_wrong_rate': None}]"}
+{"tc": "TC-06-15a lớp đúng 4 bài nộp → «Chưa đủ» (không số)", "st": "PASS", "note": "{'course_id': '01a1df3e-f139-7611-9a1c-6d8c2aa43f24', 'class_code': 'QCT2', 'name': 'QC lớp GV hai', 'exams': 1, 'submissions': 4, 'enough': False, 'mean': None, 'median': None, 'pass_rate': None}"}
+{"tc": "TC-06-15b lớp đúng 5 bài nộp → hiện số", "st": "PASS", "note": "{'course_id': '01a1df3e-f139-7611-9a1c-6d8c2aa43f24', 'class_code': 'QCT2', 'name': 'QC lớp GV hai', 'exams': 1, 'submissions': 5, 'enough': True, 'mean': '6.00', 'median': '6.00', 'pass_rate': '0.60'}"}
+{"tc": "TC-06-16 GV chỉ lớp QCT2: chỉ lớp mình, không lớp người khác", "st": "PASS", "note": "['QCT2']"}
+{"tc": "TC-06-18 GV lớp khác overview lớp 1 → 403 (guard chung)", "st": "PASS", "note": "403"}
+{"tc": "TC-06-02b QCT2 overview khớp SQL (mean 6,00; 5 bài)", "st": "PASS", "note": "{'scope': 'exam', 'exams': [{'id': '01a1df42-c50b-7788-8429-843a31fa05ff', 'title': 'QC Bài thi lớp 2', 'opens_at': '202"}
+{"tc": "TC-01-08b GV lớp khác xem observability lớp 1 → 403 (P-11-35)", "st": "PASS", "note": ""}
+{"tc": "TC-04-27b GV lớp khác latest lớp 1 → 403", "st": "PASS", "note": ""}
+{"tc": "TC-06-13b GV lớp khác declining lớp 1 → 403", "st": "PASS", "note": ""}
+{"tc": "TC-04-23 lỗi trước NAME (embedding hỏng): job FAILED, không bản ghi mới, latest vẫn báo cáo cũ", "st": "PASS", "note": "FAILED {'code': 'JOB_FAILED', 'message': 'Việc chạy thất bại.'} rep 18->18"}

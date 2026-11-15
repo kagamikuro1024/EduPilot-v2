@@ -25,7 +25,8 @@ test("@real AUD-1 cột, bộ lọc, Tải thêm, khớp API (TC-14-69/70/71)", 
   const first = ((ref.json as { items: { action: string }[] }).items)[0];
   await expect(table(page).getByRole("row").nth(1)).toContainText(first.action);
   const more = page.getByRole("button", { name: "Tải thêm" });
-  let clicks = 0, calls0 = api.length;
+  const calls0 = api.length;
+  let clicks = 0;
   while (await more.isVisible().catch(() => false) && clicks < 20) {
     const before = api.length;
     await more.click();
@@ -75,15 +76,24 @@ test("@real AUD-2 rỗng, lỗi + Thử lại, chữ giao diện, hàng ≤ 48 p
   await expect(page.getByText("Không có dòng nào trong khoảng này").or(table(page))).toBeVisible();
 });
 
-test("@real AUD-3 bộ lọc «Người» nhập tên/email, không bắt dán uuid (TC-14-82)", async ({ page }) => {
+test("@real AUD-3 bộ lọc «Người»: chọn người từ bảng (không dán uuid) (TC-14-82)", async ({ page }) => {
+  const urls: string[] = [];
+  page.on("request", (r) => { if (/\/api\/v1\/admin\/audit\?/.test(r.url())) urls.push(decodeURIComponent(r.url())); });
   await uiLogin(page, "admin");
   await page.goto("/admin/audit");
-  const actor = page.getByLabel("Người", { exact: true });
-  await expect(actor).toBeVisible();
-  const ph = (await actor.getAttribute("placeholder")) ?? "";
-  expect(ph, "ô «Người» không đòi mã người dùng (uuid)").not.toMatch(/mã|uuid|id/i);
-  await actor.fill("Quản trị");
-  await expect(page.getByText("Mã người dùng không đúng"), "gõ tên không bị báo sai mã").toHaveCount(0);
+  await expect(table(page)).toBeVisible();
+  await expect(page.getByPlaceholder(/mã người dùng|uuid/i), "không có ô đòi dán mã người dùng").toHaveCount(0);
+  const pick = table(page).getByRole("button", { name: /^Lọc theo / }).first();
+  await expect(pick).toBeVisible();
+  const label = (await pick.getAttribute("aria-label"))!.replace("Lọc theo ", "");
+  await pick.click();
+  await expect(page.getByRole("button", { name: "Bỏ lọc người" })).toContainText(label.split(" ")[0]);
+  await expect.poll(() => urls.some((u) => /actor_id=[0-9a-f-]{36}/.test(u))).toBe(true);
+  const rows = await table(page).getByRole("row").allInnerTexts();
+  expect(rows.slice(1).every((r) => r.includes(label.split(" ")[0]) || r.includes("Hệ thống") === false), "mọi dòng thuộc người đã chọn").toBe(true);
+  await shot(page, "audit-person-filter");
+  await page.getByRole("button", { name: "Bỏ lọc người" }).click();
+  await expect(page.getByRole("button", { name: "Bỏ lọc người" })).toHaveCount(0);
 });
 
 test("@real AUD-4 phân quyền giao diện + chưa đăng nhập (TC-14-78/79)", async ({ page, browser }) => {
