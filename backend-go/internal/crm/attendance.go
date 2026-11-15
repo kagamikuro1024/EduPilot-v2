@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/edupilot/backend-go/internal/attendance"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
@@ -279,8 +280,21 @@ func (s *Service) PutGrid(ctx context.Context, actor, courseID, sid uuid.UUID, i
 		}
 	}
 
-	// Hoàn tất: sinh viên ACTIVE còn thiếu dòng được ghi PRESENT cùng giao dịch (bất biến SRS 4.3.1).
+	// Hoàn tất. Buổi có cửa sổ điểm danh tự phục vụ (10.8 FR-9, P-108-2): còn sinh viên ACTIVE chưa có dòng → ROLLBACK + 422 CHECKIN_UNRESOLVED {count}
+	// (thay cho bước «điền PRESENT»: im lặng coi người chưa quét là có mặt sẽ làm hỏng chính điểm danh bằng mã). Buổi không có cửa sổ: như cũ.
+	hasWindow := false
 	if in.Complete {
+		has, left, err := attendance.CountUnresolved(ctx, q, courseID, sid)
+		if err != nil {
+			return PutGridResult{}, wrap("kiểm sinh viên chưa điểm danh", err)
+		}
+		if has && left > 0 {
+			return PutGridResult{}, apierr.New(http.StatusUnprocessableEntity, apierr.CheckinUnresolved).WithDetails(map[string]int{"count": left})
+		}
+		hasWindow = has
+	}
+	// Sinh viên ACTIVE còn thiếu dòng được ghi PRESENT cùng giao dịch (bất biến SRS 4.3.1).
+	if in.Complete && !hasWindow {
 		have := make(map[uuid.UUID]bool, len(cur)+len(in.Records))
 		for id := range cur {
 			have[id] = true

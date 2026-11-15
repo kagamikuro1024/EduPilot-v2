@@ -1,0 +1,519 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: benchmarks/load/checkin.js
+        output: -
+
+     scenarios: (100.00%) 3 scenarios, 250 max VUs, 2m32s max duration (incl. graceful stop):
+              * background: 5.00 iterations/s for 40s (maxVUs: 5-20, exec: background, gracefulStop: 30s)
+              * display: 2.00 iterations/s for 40s (maxVUs: 10-30, exec: display, gracefulStop: 30s)
+              * checkin: 1 iterations for each of 200 VUs (maxDuration: 2m0s, exec: checkin, startTime: 2s, gracefulStop: 30s)
+
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+Run          [ 100% ] setup()
+background   [   0% ]
+display      [   0% ]
+checkin      [   0% ]
+
+running (0m48.0s), 000/215 VUs, 5 complete and 0 interrupted iterations
+background   [   1% ] 00/05 VUs  00.5s/40s  5.00 iters/s
+display      [   1% ] 00/10 VUs  00.5s/40s  2.00 iters/s
+checkin    • [   0% ] waiting    1.5s      
+
+running (0m49.0s), 000/215 VUs, 12 complete and 0 interrupted iterations
+background   [   4% ] 00/05 VUs  01.5s/40s  5.00 iters/s
+display      [   4% ] 00/10 VUs  01.5s/40s  2.00 iters/s
+checkin    • [   0% ] waiting    0.5s      
+
+running (0m50.0s), 197/215 VUs, 22 complete and 0 interrupted iterations
+background   [   6% ] 00/05 VUs  02.5s/40s     5.00 iters/s
+display      [   6% ] 00/10 VUs  02.5s/40s     2.00 iters/s
+checkin      [   2% ] 200 VUs    0m00.5s/2m0s  003/200 iters, 1 per VU
+
+running (0m51.0s), 187/215 VUs, 39 complete and 0 interrupted iterations
+background   [   9% ] 00/05 VUs  03.5s/40s     5.00 iters/s
+display      [   9% ] 00/10 VUs  03.5s/40s     2.00 iters/s
+checkin      [   6% ] 200 VUs    0m01.5s/2m0s  013/200 iters, 1 per VU
+
+running (0m52.0s), 180/215 VUs, 53 complete and 0 interrupted iterations
+background   [  11% ] 00/05 VUs  04.5s/40s     5.00 iters/s
+display      [  11% ] 00/10 VUs  04.5s/40s     2.00 iters/s
+checkin      [  10% ] 200 VUs    0m02.5s/2m0s  020/200 iters, 1 per VU
+
+running (0m53.0s), 173/215 VUs, 67 complete and 0 interrupted iterations
+background   [  14% ] 00/05 VUs  05.5s/40s     5.00 iters/s
+display      [  14% ] 00/10 VUs  05.5s/40s     2.00 iters/s
+checkin      [  14% ] 200 VUs    0m03.5s/2m0s  027/200 iters, 1 per VU
+
+running (0m54.0s), 165/215 VUs, 82 complete and 0 interrupted iterations
+background   [  16% ] 00/05 VUs  06.5s/40s     5.00 iters/s
+display      [  16% ] 00/10 VUs  06.5s/40s     2.00 iters/s
+checkin      [  18% ] 200 VUs    0m04.5s/2m0s  035/200 iters, 1 per VU
+
+running (0m55.0s), 159/215 VUs, 95 complete and 0 interrupted iterations
+background   [  19% ] 00/05 VUs  07.5s/40s     5.00 iters/s
+display      [  19% ] 00/10 VUs  07.5s/40s     2.00 iters/s
+checkin      [  20% ] 200 VUs    0m05.5s/2m0s  041/200 iters, 1 per VU
+
+running (0m56.0s), 153/215 VUs, 108 complete and 0 interrupted iterations
+background   [  21% ] 00/05 VUs  08.5s/40s     5.00 iters/s
+display      [  21% ] 00/10 VUs  08.5s/40s     2.00 iters/s
+checkin      [  24% ] 200 VUs    0m06.5s/2m0s  047/200 iters, 1 per VU
+
+running (0m57.0s), 148/215 VUs, 120 complete and 0 interrupted iterations
+background   [  24% ] 00/05 VUs  09.5s/40s     5.00 iters/s
+display      [  24% ] 00/10 VUs  09.5s/40s     2.00 iters/s
+checkin      [  26% ] 200 VUs    0m07.5s/2m0s  052/200 iters, 1 per VU
+
+running (0m58.0s), 144/215 VUs, 131 complete and 0 interrupted iterations
+background   [  26% ] 00/05 VUs  10.5s/40s     5.00 iters/s
+display      [  26% ] 00/10 VUs  10.5s/40s     2.00 iters/s
+checkin      [  28% ] 200 VUs    0m08.5s/2m0s  056/200 iters, 1 per VU
+
+running (0m59.0s), 144/215 VUs, 138 complete and 0 interrupted iterations
+background   [  29% ] 00/05 VUs  11.5s/40s     5.00 iters/s
+display      [  29% ] 00/10 VUs  11.5s/40s     2.00 iters/s
+checkin      [  28% ] 200 VUs    0m09.5s/2m0s  056/200 iters, 1 per VU
+
+running (1m00.0s), 136/215 VUs, 153 complete and 0 interrupted iterations
+background   [  31% ] 00/05 VUs  12.5s/40s     5.00 iters/s
+display      [  31% ] 00/10 VUs  12.5s/40s     2.00 iters/s
+checkin      [  32% ] 200 VUs    0m10.5s/2m0s  064/200 iters, 1 per VU
+
+running (1m01.0s), 129/215 VUs, 167 complete and 0 interrupted iterations
+background   [  34% ] 00/05 VUs  13.5s/40s     5.00 iters/s
+display      [  34% ] 00/10 VUs  13.5s/40s     2.00 iters/s
+checkin      [  36% ] 200 VUs    0m11.5s/2m0s  071/200 iters, 1 per VU
+
+running (1m02.0s), 124/215 VUs, 179 complete and 0 interrupted iterations
+background   [  36% ] 00/05 VUs  14.5s/40s     5.00 iters/s
+display      [  36% ] 00/10 VUs  14.5s/40s     2.00 iters/s
+checkin      [  38% ] 200 VUs    0m12.5s/2m0s  076/200 iters, 1 per VU
+
+running (1m03.0s), 113/215 VUs, 197 complete and 0 interrupted iterations
+background   [  39% ] 00/05 VUs  15.5s/40s     5.00 iters/s
+display      [  39% ] 00/10 VUs  15.5s/40s     2.00 iters/s
+checkin      [  44% ] 200 VUs    0m13.5s/2m0s  087/200 iters, 1 per VU
+
+running (1m04.0s), 103/215 VUs, 214 complete and 0 interrupted iterations
+background   [  41% ] 00/05 VUs  16.5s/40s     5.00 iters/s
+display      [  41% ] 00/10 VUs  16.5s/40s     2.00 iters/s
+checkin      [  48% ] 200 VUs    0m14.5s/2m0s  097/200 iters, 1 per VU
+
+running (1m05.0s), 093/215 VUs, 231 complete and 0 interrupted iterations
+background   [  44% ] 00/05 VUs  17.5s/40s     5.00 iters/s
+display      [  44% ] 00/10 VUs  17.5s/40s     2.00 iters/s
+checkin      [  54% ] 200 VUs    0m15.5s/2m0s  107/200 iters, 1 per VU
+
+running (1m06.0s), 089/215 VUs, 242 complete and 0 interrupted iterations
+background   [  46% ] 00/05 VUs  18.5s/40s     5.00 iters/s
+display      [  46% ] 00/10 VUs  18.5s/40s     2.00 iters/s
+checkin      [  56% ] 200 VUs    0m16.5s/2m0s  111/200 iters, 1 per VU
+
+running (1m07.0s), 080/215 VUs, 258 complete and 0 interrupted iterations
+background   [  49% ] 00/05 VUs  19.5s/40s     5.00 iters/s
+display      [  49% ] 00/10 VUs  19.5s/40s     2.00 iters/s
+checkin      [  60% ] 200 VUs    0m17.5s/2m0s  120/200 iters, 1 per VU
+
+running (1m08.0s), 072/215 VUs, 273 complete and 0 interrupted iterations
+background   [  51% ] 00/05 VUs  20.5s/40s     5.00 iters/s
+display      [  51% ] 00/10 VUs  20.5s/40s     2.00 iters/s
+checkin      [  64% ] 200 VUs    0m18.5s/2m0s  128/200 iters, 1 per VU
+
+running (1m09.0s), 067/215 VUs, 285 complete and 0 interrupted iterations
+background   [  54% ] 00/05 VUs  21.5s/40s     5.00 iters/s
+display      [  54% ] 00/10 VUs  21.5s/40s     2.00 iters/s
+checkin      [  66% ] 200 VUs    0m19.5s/2m0s  133/200 iters, 1 per VU
+
+running (1m10.0s), 062/215 VUs, 297 complete and 0 interrupted iterations
+background   [  56% ] 00/05 VUs  22.5s/40s     5.00 iters/s
+display      [  56% ] 00/10 VUs  22.5s/40s     2.00 iters/s
+checkin      [  69% ] 200 VUs    0m20.5s/2m0s  138/200 iters, 1 per VU
+
+running (1m11.0s), 055/215 VUs, 311 complete and 0 interrupted iterations
+background   [  59% ] 00/05 VUs  23.5s/40s     5.00 iters/s
+display      [  59% ] 00/10 VUs  23.5s/40s     2.00 iters/s
+checkin      [  72% ] 200 VUs    0m21.5s/2m0s  145/200 iters, 1 per VU
+
+running (1m12.0s), 052/215 VUs, 321 complete and 0 interrupted iterations
+background   [  61% ] 00/05 VUs  24.5s/40s     5.00 iters/s
+display      [  61% ] 00/10 VUs  24.5s/40s     2.00 iters/s
+checkin      [  74% ] 200 VUs    0m22.5s/2m0s  148/200 iters, 1 per VU
+
+running (1m13.0s), 042/215 VUs, 338 complete and 0 interrupted iterations
+background   [  64% ] 00/05 VUs  25.5s/40s     5.00 iters/s
+display      [  64% ] 00/10 VUs  25.5s/40s     2.00 iters/s
+checkin      [  79% ] 200 VUs    0m23.5s/2m0s  158/200 iters, 1 per VU
+
+running (1m14.0s), 037/215 VUs, 350 complete and 0 interrupted iterations
+background   [  66% ] 00/05 VUs  26.5s/40s     5.00 iters/s
+display      [  66% ] 00/10 VUs  26.5s/40s     2.00 iters/s
+checkin      [  82% ] 200 VUs    0m24.5s/2m0s  163/200 iters, 1 per VU
+
+running (1m15.0s), 034/215 VUs, 360 complete and 0 interrupted iterations
+background   [  69% ] 00/05 VUs  27.5s/40s     5.00 iters/s
+display      [  69% ] 00/10 VUs  27.5s/40s     2.00 iters/s
+checkin      [  83% ] 200 VUs    0m25.5s/2m0s  166/200 iters, 1 per VU
+
+running (1m16.0s), 021/215 VUs, 380 complete and 0 interrupted iterations
+background   [  71% ] 00/05 VUs  28.5s/40s     5.00 iters/s
+display      [  71% ] 00/10 VUs  28.5s/40s     2.00 iters/s
+checkin      [  90% ] 200 VUs    0m26.5s/2m0s  179/200 iters, 1 per VU
+
+running (1m17.0s), 014/215 VUs, 394 complete and 0 interrupted iterations
+background   [  74% ] 00/05 VUs  29.5s/40s     5.00 iters/s
+display      [  74% ] 00/10 VUs  29.5s/40s     2.00 iters/s
+checkin      [  93% ] 200 VUs    0m27.5s/2m0s  186/200 iters, 1 per VU
+
+running (1m18.0s), 010/215 VUs, 405 complete and 0 interrupted iterations
+background   [  76% ] 00/05 VUs  30.5s/40s     5.00 iters/s
+display      [  76% ] 00/10 VUs  30.5s/40s     2.00 iters/s
+checkin      [  95% ] 200 VUs    0m28.5s/2m0s  190/200 iters, 1 per VU
+
+running (1m19.0s), 003/215 VUs, 419 complete and 0 interrupted iterations
+background   [  79% ] 00/05 VUs  31.5s/40s     5.00 iters/s
+display      [  79% ] 00/10 VUs  31.5s/40s     2.00 iters/s
+checkin      [  98% ] 200 VUs    0m29.5s/2m0s  197/200 iters, 1 per VU
+
+running (1m20.0s), 000/215 VUs, 429 complete and 0 interrupted iterations
+background   [  81% ] 00/05 VUs  32.5s/40s     5.00 iters/s
+display      [  81% ] 00/10 VUs  32.5s/40s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU
+
+running (1m21.0s), 000/215 VUs, 436 complete and 0 interrupted iterations
+background   [  84% ] 00/05 VUs  33.5s/40s     5.00 iters/s
+display      [  84% ] 00/10 VUs  33.5s/40s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU
+
+running (1m22.0s), 000/215 VUs, 443 complete and 0 interrupted iterations
+background   [  86% ] 00/05 VUs  34.5s/40s     5.00 iters/s
+display      [  86% ] 00/10 VUs  34.5s/40s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU
+
+running (1m23.0s), 000/215 VUs, 450 complete and 0 interrupted iterations
+background   [  89% ] 00/05 VUs  35.5s/40s     5.00 iters/s
+display      [  89% ] 00/10 VUs  35.5s/40s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU
+
+running (1m24.0s), 000/215 VUs, 457 complete and 0 interrupted iterations
+background   [  91% ] 00/05 VUs  36.5s/40s     5.00 iters/s
+display      [  91% ] 00/10 VUs  36.5s/40s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU
+
+running (1m25.0s), 000/215 VUs, 464 complete and 0 interrupted iterations
+background   [  94% ] 00/05 VUs  37.5s/40s     5.00 iters/s
+display      [  94% ] 00/10 VUs  37.5s/40s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU
+
+running (1m26.0s), 000/215 VUs, 471 complete and 0 interrupted iterations
+background   [  96% ] 00/05 VUs  38.5s/40s     5.00 iters/s
+display      [  96% ] 00/10 VUs  38.5s/40s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU
+
+running (1m27.0s), 000/215 VUs, 478 complete and 0 interrupted iterations
+background   [  99% ] 00/05 VUs  39.5s/40s     5.00 iters/s
+display      [  99% ] 00/10 VUs  39.5s/40s     2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU
+time="2026-11-15T15:11:54+07:00" level=info msg="lượt điểm danh đếm được: 200 (cần 200)" source=console
+
+
+  █ THRESHOLDS 
+
+    checkin_ok
+    ✓ 'count==200' count=200
+
+    checkin_rows_mismatch
+    ✓ 'count==0' count=0
+
+    http_req_duration{name:background}
+    ✓ 'p(95)<300' p(95)=10.19ms
+
+    http_req_duration{name:checkin}
+    ✓ 'p(95)<500' p(95)=9.62ms
+
+    http_req_duration{name:display}
+    ✓ 'p(95)<300' p(95)=11.26ms
+
+    http_req_failed{name:checkin}
+    ✓ 'rate==0' rate=0.00%
+
+    http_req_failed{name:display}
+    ✓ 'rate==0' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 200     2.286295/s
+    checks_succeeded...: 100.00% 200 out of 200
+    checks_failed......: 0.00%   0 out of 200
+
+    ✓ 201
+
+    CUSTOM
+    checkin_ok.....................: 200    2.286295/s
+    checkin_rows_mismatch..........: 0      0/s
+
+    HTTP
+    http_req_duration..............: avg=64.13ms med=4.71ms p(90)=228.02ms p(95)=243.01ms p(99)=278.65ms max=441.39ms
+      { expected_response:true }...: avg=64.13ms med=4.71ms p(90)=228.02ms p(95)=243.01ms p(99)=278.65ms max=441.39ms
+      { name:background }..........: avg=4.7ms   med=3.73ms p(90)=8.35ms   p(95)=10.19ms  p(99)=13ms     max=13.73ms 
+      { name:checkin }.............: avg=4.94ms  med=4.33ms p(90)=7.21ms   p(95)=9.62ms   p(99)=11.46ms  max=22.38ms 
+      { name:display }.............: avg=5.13ms  med=4ms    p(90)=9.67ms   p(95)=11.26ms  p(99)=12.98ms  max=13.29ms 
+    http_req_failed................: 0.00%  0 out of 776
+      { name:checkin }.............: 0.00%  0 out of 200
+      { name:display }.............: 0.00%  0 out of 81
+    http_reqs......................: 776    8.870826/s
+
+    EXECUTION
+    iteration_duration.............: avg=6.2s    med=8.38ms p(90)=22.87s   p(95)=26.22s   p(99)=29.28s   max=29.96s  
+    iterations.....................: 482    5.509972/s
+    vus............................: 0      min=0        max=197
+    vus_max........................: 215    min=215      max=215
+
+    NETWORK
+    data_received..................: 1.8 MB 20 kB/s
+    data_sent......................: 589 kB 6.7 kB/s
+
+
+
+
+running (1m27.5s), 000/215 VUs, 482 complete and 0 interrupted iterations
+background ✓ [ 100% ] 00/05 VUs  40s           5.00 iters/s
+display    ✓ [ 100% ] 00/10 VUs  40s           2.00 iters/s
+checkin    ✓ [ 100% ] 200 VUs    0m30.0s/2m0s  200/200 iters, 1 per VU

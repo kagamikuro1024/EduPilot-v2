@@ -131,6 +131,8 @@ AC: dựng đề 20 câu ≤ 3 s; không câu nào thiếu đáp án/citation; t
 ### M5. CRM: điểm danh, phát biểu, điểm cộng/trừ
 Tạo lịch buổi học một lần (thứ, giờ, phòng, ngày bắt đầu–kết thúc, loại trừ ngày nghỉ) sinh hàng loạt buổi; sửa từng buổi được (nghỉ, học bù). Lưới điểm danh theo buổi (Có mặt / Muộn / Vắng có phép / Vắng), thao tác bàn phím; sự kiện tham gia (loại, điểm ±, ghi chú, buổi); dòng thời gian theo sinh viên; audit log mọi chỉnh sửa.
 AC: điểm danh 30 sinh viên ≤ 60 s thao tác, lưu một lần gọi; sinh viên hỏi AI "em nghỉ mấy buổi, được cộng bao nhiêu" nhận đúng số DB.
+Điểm danh tự phục vụ (10.8, `FEAT-attendance-selfcheck`): sinh viên quét QR xoay vòng 10 s bằng điện thoại (web hoặc app Android), hệ thống **chỉ gắn cờ** (cùng máy, máy mới, quét trễ, vị trí / mạng trường tuỳ chọn, vắng lượt kiểm lại), không tự phạt, không tự ghi vắng; giảng viên đối chiếu (đếm đầu người, vòng 2, gọi tên ngẫu nhiên), sửa tay có hoàn tác và `audit_log`; không sinh trắc, không lưu toạ độ / IP; dữ liệu thô giữ 30 ngày.
+AC: 200 sinh viên điểm danh ≤ 30 s, p95 ≤ 500 ms; sinh viên không bao giờ thấy cờ; đóng cửa sổ không tạo vắng; lượt hợp lệ ghi một lần dù gửi nhiều lần.
 
 ### M6. Đánh giá sinh viên (hồ sơ 360) + ghi chú quan sát
 KPI: chuyên cần, điểm cộng, điểm QT tạm tính, hoạt động hỏi AI, thời gian học tuần, mức rủi ro. Biểu đồ: điểm thành phần so với trung bình lớp, xu hướng điểm, phổ điểm lớp, heatmap chuyên cần, thời gian học theo tuần.

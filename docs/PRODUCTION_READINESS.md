@@ -37,6 +37,11 @@ Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356
 | Thời gian học on-screen | Tín hiệu cần chú ý, KHÔNG tính điểm | Bản thân, giảng viên lớp | Thô 7 ngày; tổng hợp theo ngày đến khi lớp lưu trữ |
 | `llm_audit` (prompt đã che) | Vận hành, chi phí, điều tra | Admin (có ghi audit) | 6 tháng |
 | `audit_log` | Truy vết | Admin | 24 tháng |
+| Lượt tự điểm danh (`attendance_checkins`): giờ quét, kênh, mức tin cậy, cờ, khoảng cách tới lớp, độ chính xác vị trí, trong mạng trường hay không. **Không** toạ độ, **không** IP | Chống điểm danh hộ: giảng viên xem cờ rồi tự quyết (chỉ gắn cờ, không tự phạt) | Giảng viên / TA lớp. Sinh viên chỉ thấy giờ điểm danh của mình, không thấy cờ | **30 ngày** sau khi cửa sổ đóng thì xoá hẳn hàng (worker `attendance.purge`, mỗi ngày, lô ≤ 1.000; P-108-2). Xoá tài khoản → xoá ngay (`attendance.ForgetStudent`). Trạng thái cuối nằm ở dòng điểm danh |
+| Khoá thiết bị (`user_devices`): khoá công khai, băm, kết quả chứng thực. Không IMEI, không số serial, không gắn tài khoản | Nhận ra một máy dùng cho nhiều tài khoản | Không ai xem trực tiếp; chỉ thành cờ | Xoá khi không còn lượt nào tham chiếu và tạo đã quá 30 ngày (cùng worker) |
+| Cửa sổ điểm danh (`checkin_windows`): giờ mở / đóng, vòng, số đầu người | Vận hành buổi học | Giảng viên / TA lớp | Cùng dòng điểm danh (không có dữ liệu cá nhân) |
+
+Vị trí khi điểm danh là dữ liệu cá nhân. Lớp phải tự bật (mặc định tắt). Khi bật, sinh viên thấy đúng một dòng «Lớp này kiểm tra vị trí khi điểm danh.» trước khi máy hỏi quyền (Luật 91/2025 Đ31 k3). Máy chủ chỉ giữ khoảng cách và độ chính xác; toạ độ và IP bị bỏ ngay sau khi tính, không vào DB, log hay `audit_log`. Không thu dữ liệu sinh trắc.
 
 ## 2. Những điều phải thống nhất với trường trước khi thí điểm
 
@@ -57,7 +62,7 @@ Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356
 | Sao lưu | `pg_dump` hằng đêm + WAL nếu có thể; sao lưu object storage; mã hoá bản sao lưu; giữ 7 ngày / 4 tuần / 3 tháng; **diễn tập khôi phục** ghi lại thời gian | `make restore-drill` |
 | Giám sát | Uptime ngoài (kiểm `/healthz` mỗi phút); cảnh báo qua mail khi: 5xx > 1%, p95 > 2 s, hàng đợi > ngưỡng, dead-letter > 0, đĩa > 80%, sao lưu thất bại, sắp chạm trần ngân sách LLM | `/admin/health` + thử tắt từng dịch vụ |
 | Vận hành | `docs/RUNBOOK.md`: triển khai, quay lui, khôi phục, xoay secret, xử lý sự cố lộ dữ liệu, LLM chết, mail chết; môi trường **staging** giống production; migration chạy trên staging trước | Diễn tập một lần mỗi kịch bản |
-| Vòng đời dữ liệu | Lưu trữ lớp, xuất dữ liệu lớp, nhân bản sang kỳ mới, job xoá theo thời hạn, xuất / xoá dữ liệu cá nhân, màn đồng ý có phiên bản | E2E `semester-end.spec.ts`, `privacy-rights.spec.ts` |
+| Vòng đời dữ liệu | Lưu trữ lớp, xuất dữ liệu lớp, nhân bản sang kỳ mới, job xoá theo thời hạn, xuất / xoá dữ liệu cá nhân, màn đồng ý có phiên bản. Job xoá dữ liệu sinh viên phải gọi `attendance.ForgetStudent` (sprint 10.8, P-108-10); `attendance.purge` đã chạy từ 10.8 | E2E `semester-end.spec.ts`, `privacy-rights.spec.ts` |
 | Đăng nhập trường (tuỳ chọn) | OIDC với Microsoft Entra ID, chỉ `openid profile email`, sau cờ `OIDC_ENABLED`; nối tài khoản theo email đã xác minh | Test với ứng dụng OIDC giả lập |
 | Quản trị | `/admin/audit` (lọc theo người, thực thể, thời gian), `/admin/health` | – |
 | Tải | Chạy lại `make load-t1` trên hạ tầng giống thật | Báo cáo SLO |

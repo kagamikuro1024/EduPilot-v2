@@ -16,3 +16,11 @@
   .saveBar { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) var(--ep-space-4); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
   .saveBar button { min-height: 44px; width: 100%; }
 }
+
+/* Dòng cửa sổ điểm danh bằng mã (DESIGN §14.8): một dòng yên lặng dưới thanh công cụ; 375 px: chữ rồi hai nút 44 px */
+.windowLine { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-1) var(--ep-space-3); padding-block: var(--ep-space-2); color: var(--ep-ink-2); font-size: var(--ep-text-body); font-variant-numeric: tabular-nums; }
+.lineButtons { display: inline-flex; flex-wrap: wrap; gap: var(--ep-space-2); margin-inline-start: auto; }
+@media (max-width: 719px) {
+  .lineButtons { flex-basis: 100%; margin-inline-start: 0; }
+  .lineButtons > * { min-height: 44px; }
+}

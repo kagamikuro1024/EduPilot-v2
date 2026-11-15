@@ -1355,6 +1355,15 @@ async function stepGuidanceDemo() {
   if (!/seed-guidance: 0 /.test(out)) ctx.changed = true;
 }
 
+// ---- Điểm danh bằng mã (FEAT-attendance-selfcheck, 10.8 L7, US-AS-14 AC1) -------------------------------------------------
+// Lớp 761988: bật self_checkin; buổi 1 có hai cửa sổ ĐÃ ĐÓNG (vòng 1: 22 lượt đủ ca cờ + 1 LATE; vòng 2 + RECHECK_MISS; headcount thấp hơn số lượt). sv.gioi không có lượt (điểm danh tay khi demo).
+// Ghi thẳng DB bằng `gateway admin seed-checkin-demo` (dev | test). Idempotent: buổi 1 đã có cửa sổ thì không làm gì.
+async function stepCheckinDemo() {
+  console.log("[+] Điểm danh bằng mã: lớp 761988 bật, buổi 1 có hai cửa sổ đã đóng…");
+  const out = gatewayAdmin("seed-checkin-demo", ["--course", "761988"]);
+  if (!/seed-checkin-demo: 0 /.test(out)) ctx.changed = true;
+}
+
 // ---- chạy ------------------------------------------------------------------------------------------------------------
 async function main() {
   const started = Date.now();
@@ -1385,6 +1394,7 @@ async function main() {
   await step19Practice();
   await stepDecisionDemo();
   await stepGuidanceDemo();
+  await stepCheckinDemo();
   console.log(`Seed xong trong ${Math.round((Date.now() - started) / 1000)} s.`);
   if (!ctx.changed) console.log("Seed xong (không đổi)");
   console.log("  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)");
@@ -1398,6 +1408,7 @@ async function main() {
   console.log("  Lớp 761987: Luyện đề — 82 câu APPROVED (8 chủ đề, gồm 8 trả lời ngắn + 2 tự luận) + 20 câu PENDING + 1 Quiz tính điểm (đã công bố, 3 lượt) + câu EXTRACTED / GENERATED có trích dẫn + ngân hàng riêng của lớp 761988 + ≈ 40 lượt của 13 sinh viên (B sai nhiều An toàn ứng dụng web; C đang dở 1 lượt) — `node scripts/check-practice-seed.mjs`");
   console.log(`  Decision model: provider \`decision-fake\` + 3 cổng ${setting("SEED_DECISION_DEMO", "") === "1" ? "BẬT cho lớp 761987 (SEED_DECISION_DEMO=1)" : "tắt (SEED_DECISION_DEMO=1 bật cả ba cho lớp 761987)"} — \`node scripts/check-decision-seed.mjs\``);
   console.log(`  Học từ lần sửa: ${setting("SEED_GUIDANCE_DEMO", "") === "1" ? "BẬT cho lớp 761987 + 8 kết quả BT03 đã duyệt, tiêu chí đầu giảng viên thấp hơn AI 1,0 (SEED_GUIDANCE_DEMO=1)" : "tắt (SEED_GUIDANCE_DEMO=1 bật cờ + dữ liệu demo cho BT03)"} — \`node scripts/check-guidance-seed.mjs\``);
+  console.log("  Điểm danh bằng mã: lớp 761988 bật; buổi 1 có 2 cửa sổ đã đóng (22 lượt vòng 1 đủ ca cờ, vòng 2 + RECHECK_MISS, over_headcount); sv.gioi chưa có lượt — `node scripts/check-checkin-seed.mjs`");
   console.log("  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)");
 }
 

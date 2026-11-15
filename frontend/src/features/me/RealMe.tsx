@@ -6,7 +6,7 @@ import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { apiClient } from "@/shared/data";
 import { ActionList, ActionRow, Button, DefinitionList, EmptyState, Page, PageHeader, Panel, Section, Skeleton, TrendChart } from "@/shared/ui";
 import { STATE_LABEL, dueLabel, useMyAssignments } from "@/features/assignments/assignmentApi";
-import { fmtLong } from "@/features/calendar/calendarApi";
+import { fmtHM, fmtLong } from "@/features/calendar/calendarApi";
 import { withCourse } from "@/shared/lib/courseHref";
 import { useMinWidth } from "@/shared/lib/useMinWidth";
 import { MeGrade, useMyGrades } from "./MeGrade";
@@ -125,7 +125,7 @@ function Attendance({ a }: { a: MyAttendance["attendance"] }) {
       ) : (
         <>
           <p className={s.headline}>{attendanceSentence(a)}</p>
-          {missed.length > 0 && <div className={s.dense}><DefinitionList items={missed.map((x) => ({ term: `Buổi ${x.session_no} · ${dayMonthOf(x.starts_at)}`, value: STATUS_LABEL[x.status] ?? x.status }))} /></div>}
+          {missed.length > 0 && <div className={s.dense}><DefinitionList items={missed.map((x) => ({ term: `Buổi ${x.session_no} · ${dayMonthOf(x.starts_at)}`, value: `${STATUS_LABEL[x.status] ?? x.status}${x.checked_in_at ? ` · Điểm danh lúc ${fmtHM(x.checked_in_at)}` : ""}` }))} /></div>}
         </>
       )}
     </Section>

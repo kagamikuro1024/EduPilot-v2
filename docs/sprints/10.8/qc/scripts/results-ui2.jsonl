@@ -1,0 +1,37 @@
+{"tc":"TC-AS08-30a mã ngắn 6 ký tự Crockford hiện cạnh QR","st":"PASS","note":"08BETV"}
+{"tc":"TC-AS08-30b mã ngắn trên màn = mã API (cùng bước)","st":"PASS","note":"08BETV vs 08B ETV"}
+{"tc":"TC-AS08-31 hình học 1920×1080","st":"NOTE","note":"{\"vw\":1920,\"vh\":1080,\"codeVmin\":13.999999999999998,\"countVmin\":8,\"metaVmin\":4,\"qr\":[1016,1016],\"overflow\":false}"}
+{"tc":"TC-AS08-31a cỡ chữ mã ≈14vmin, đếm ≈8vmin, phụ ≈4vmin (±1)","st":"PASS","note":"{\"vw\":1920,\"vh\":1080,\"codeVmin\":13.999999999999998,\"countVmin\":8,\"metaVmin\":4,\"qr\":[1016,1016],\"overflow\":false}"}
+{"tc":"TC-AS08-31b QR vuông ≥ 40% cạnh ngắn; không cuộn","st":"PASS","note":"[1016,1016]"}
+{"tc":"TC-AS08-31c 1280×720: không cuộn, thấy QR + mã + đếm + nút","st":"PASS","note":"overflow=false"}
+{"tc":"TC-AS08-32 QR lưu qr.png để giải mã bằng jsQR (script riêng)","st":"NOTE","note":"/tmp/qc-as2/qr.png"}
+{"tc":"TC-AS14-08b axe /attendance/display: 0 lỗi nghiêm trọng","st":"PASS","note":""}
+{"tc":"(chuẩn bị) SV điểm danh","st":"NOTE","note":"status 201"}
+{"tc":"TC-AS08-33 số đã điểm danh cập nhật ≤ 14 s (poll theo bước)","st":"PASS","note":"5311 ms"}
+{"tc":"TC-AS08-36a mất mạng 1,5 s: vẫn giữ QR + mã (còn hạn)","st":"PASS","note":""}
+{"tc":"TC-AS08-36b hết hạn theo giờ máy chủ: thay bằng ô trống + «Mất kết nối»","st":"PASS","note":"20 s"}
+{"tc":"TC-AS08-37 có mạng lại: QR trở lại ≤ 20 s","st":"PASS","note":""}
+{"tc":"TC-AS08-38 đóng cửa sổ → «Đã đóng» ≤ 15 s","st":"PASS","note":""}
+{"tc":"TC-AS09-01 mở liên kết có #token → «Đã điểm danh hh:mm» không thao tác","st":"PASS","note":"Đã điểm danh 14:39"}
+{"tc":"TC-AS09-03a không yêu cầu mạng nào chứa token","st":"PASS","note":"48 yêu cầu"}
+{"tc":"TC-AS09-03b sau xong: location.hash rỗng; sessionStorage/localStorage không còn token","st":"PASS","note":" ss={}"}
+{"tc":"TC-AS09-30a 375 px: không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS09-30b nút dock cao ≥ 44 px (nếu có)","st":"PASS","note":"null"}
+{"tc":"TC-AS09-35a CSP có, không unsafe-eval, không nguồn script ngoài; Permissions-Policy camera/geolocation=(self)","st":"PASS","note":"default-src 'self'; script-src 'self' 'unsafe-inline'; style | camera=(self), geolocation=(self)"}
+{"tc":"TC-AS09-35b Referrer-Policy của /checkin","st":"NOTE","note":"header=(không đặt); SRS không yêu cầu; #fragment không bao giờ vào Referer (TC-AS09-03a đã đo)"}
+{"tc":"TC-AS09-39a axe /checkin: 0 lỗi nghiêm trọng","st":"PASS","note":""}
+{"tc":"TC-AS09-10a chưa đăng nhập → /login; URL đăng nhập không mang token","st":"PASS","note":"http://localhost:580/login?next=%2Fcheckin%3Fc%3D01a1dde0-8183-7634-aff7-27d408a"}
+{"tc":"TC-AS09-10b sau đăng nhập quay lại /checkin và «Đã điểm danh» (token cất qua sessionStorage)","st":"PASS","note":""}
+{"tc":"TC-AS03-24a thông báo «Mã đã hết hạn. Quét lại mã trên màn chiếu.»","st":"PASS","note":"Mã đã hết hạn. Quét lại mã trên màn chiếu."}
+{"tc":"TC-AS03-24b sau phản hồi 422 CHECKIN_TOKEN_EXPIRED: không gọi /auth/refresh|logout, không về /login","st":"PASS","note":"http://localhost:580/checkin?c=01a1dde0-8183-7634-aff7-27d408aa4c58 | POST@34/37 auth-sau=0"}
+{"tc":"TC-AS09-20a không có #token: hiện ô «Mã điểm danh» (Chromium không BarcodeDetector)","st":"PASS","note":""}
+{"tc":"TC-AS09-21 gõ mã chữ thường có khoảng trắng → «Đã điểm danh»","st":"PASS","note":"HV8 HT4"}
+{"tc":"TC-AS09-22 5 lần sai → «Mã không đúng…»; lần 6 → «Thử lại sau N giây.»","st":"PASS","note":"Thử lại sau 56 giây."}
+{"tc":"TC-AS01-13a 1440: cài đặt có «Chu kỳ mã (giây)», «Tính muộn sau (phút)», «Yêu cầu», «Vị trí», «Mạng trường»","st":"PASS","note":""}
+{"tc":"TC-AS01-13b 1440: không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-01a 1440: /attendance không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-25 1440: axe /attendance 0 lỗi nghiêm trọng","st":"PASS","note":""}
+{"tc":"TC-AS01-13a 375: cài đặt có «Chu kỳ mã (giây)», «Tính muộn sau (phút)», «Yêu cầu», «Vị trí», «Mạng trường»","st":"PASS","note":""}
+{"tc":"TC-AS01-13b 375: không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-01a 375: /attendance không tràn ngang","st":"PASS","note":""}
+{"tc":"TC-AS08-25 375: axe /attendance 0 lỗi nghiêm trọng","st":"PASS","note":""}

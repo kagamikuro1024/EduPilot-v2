@@ -7,6 +7,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/activity"
 	"github.com/edupilot/backend-go/internal/agent"
+	"github.com/edupilot/backend-go/internal/attendance"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/chat"
 	"github.com/edupilot/backend-go/internal/crm"
@@ -51,6 +52,8 @@ func newTasks(d Deps) []Task {
 	tasks = append(tasks, decisionAlertTask{&decision.Alerter{Pool: d.DB, Notify: nt, Redis: d.Redis, Name: name, Every: d.Cfg.DecisionAlertTick, Dedupe: d.Cfg.DecisionAlertDedupe, Log: d.Log}})
 	tasks = append(tasks, rollupTask{&activity.RollupJob{Svc: &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: d.Cfg.RollupTick, Log: d.Log}})
 	tasks = append(tasks, riskTask{&crm.RiskJob{Svc: &crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, At: d.Cfg.RiskJobAt, Every: time.Minute, Log: d.Log}})
+	attSvc := &attendance.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, Log: d.Log, Cfg: d.Cfg.Attendance}
+	tasks = append(tasks, attSweepTask{&attendance.SweepJob{Svc: attSvc, Log: d.Log}}, attPurgeTask{&attendance.PurgeJob{Svc: attSvc, Redis: d.Redis, Name: name, Log: d.Log}})
 	tasks = append(tasks, practiceCloseTask{&practice.CloseJob{Svc: &practice.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Every: time.Minute, Log: d.Log}})
 	tasks = append(tasks, gradeRemindTask{&grade.ReminderJob{Svc: &grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}, Redis: d.Redis, Name: name, Every: time.Minute, Log: d.Log}})
 	if bs, ok := d.Blob.(submission.BlobAPI); ok { // *blob.Store thật; worker thử nghiệm không có object storage thì không chạy job
@@ -121,6 +124,18 @@ type riskTask struct{ j *crm.RiskJob }
 
 func (riskTask) Name() string                    { return "crm.risk" }
 func (t riskTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// attSweepTask chạy `attendance.sweep` (10.8 FR-7) — mỗi CHECKIN_SWEEP_INTERVAL_S đóng cửa sổ điểm danh quá giờ.
+type attSweepTask struct{ j *attendance.SweepJob }
+
+func (attSweepTask) Name() string                    { return "attendance.sweep" }
+func (t attSweepTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// attPurgeTask chạy `attendance.purge` (10.8 FR-21) — mỗi ngày sau 03:00 ICT xoá lượt thô / thiết bị quá 30 ngày, một bản nhờ khoá leader + dấu ngày.
+type attPurgeTask struct{ j *attendance.PurgeJob }
+
+func (attPurgeTask) Name() string                    { return "attendance.purge" }
+func (t attPurgeTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // practiceCloseTask chạy `practice.close` (US-P9-07) — mỗi phút đóng lượt thi thử quá hạn.
 type practiceCloseTask struct{ j *practice.CloseJob }

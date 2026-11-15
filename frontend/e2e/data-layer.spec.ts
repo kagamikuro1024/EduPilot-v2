@@ -212,6 +212,20 @@ test("auth expired: 5 request song song ⇒ đúng 1 sự kiện, không gửi l
   expect(await page.evaluate(() => (window as unknown as { __ep: { tokenStore: { get: () => string | null } } }).__ep.tokenStore.get())).toBeNull();
 });
 
+test("điểm danh: 422 CHECKIN_TOKEN_EXPIRED / CHECKIN_TOKEN_INVALID không refresh phiên, không đăng xuất (P-108-11)", async ({ page }) => {
+  await open(page);
+  await call(page, 'ep.tokenStore.set("t.o.k")');
+  for (const [i, code] of ["CHECKIN_TOKEN_EXPIRED", "CHECKIN_TOKEN_INVALID"].entries()) {
+    await script(page, { "POST /api/v1/err": [err(422, code)] });
+    const r = await call(page, 'ep.apiClient.post("/err", {})');
+    expect(r.error, code).toMatchObject({ code, status: 422 });
+    expect(r.error.userMessage, code).toMatch(/^Mã .*Quét lại mã trên màn chiếu\.$/);
+    expect((await getLog(page, "/api/v1/err")).log, code).toHaveLength(i + 1); // mỗi lần đúng một request: không phát lại sau refresh
+  }
+  expect(await page.evaluate(() => (window as unknown as { __events: string[] }).__events.filter((e) => e === "auth:expired").length)).toBe(0);
+  expect(await page.evaluate(() => (window as unknown as { __ep: { tokenStore: { get: () => string | null } } }).__ep.tokenStore.get())).toBe("t.o.k");
+});
+
 const SESSION = { access_token: "n.e.w", token_type: "Bearer", expires_in: 900, user: { id: "u1", email: "a@b.example", full_name: "A", role: "STUDENT", status: "ACTIVE", email_verified: true } };
 
 /**

@@ -488,6 +488,49 @@ func (ns NullCheckerKind) Value() (driver.Value, error) {
 	return string(ns.CheckerKind), nil
 }
 
+type CheckinChannel string
+
+const (
+	CheckinChannelWEB  CheckinChannel = "WEB"
+	CheckinChannelAPP  CheckinChannel = "APP"
+	CheckinChannelCODE CheckinChannel = "CODE"
+)
+
+func (e *CheckinChannel) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = CheckinChannel(s)
+	case string:
+		*e = CheckinChannel(s)
+	default:
+		return fmt.Errorf("unsupported scan type for CheckinChannel: %T", src)
+	}
+	return nil
+}
+
+type NullCheckinChannel struct {
+	CheckinChannel CheckinChannel
+	Valid          bool // Valid is true if CheckinChannel is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCheckinChannel) Scan(value interface{}) error {
+	if value == nil {
+		ns.CheckinChannel, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.CheckinChannel.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCheckinChannel) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.CheckinChannel), nil
+}
+
 type ChunkAudience string
 
 const (
@@ -571,6 +614,48 @@ func (ns NullCourseStatus) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.CourseStatus), nil
+}
+
+type DeviceKind string
+
+const (
+	DeviceKindWEBKEY     DeviceKind = "WEB_KEY"
+	DeviceKindANDROIDKEY DeviceKind = "ANDROID_KEY"
+)
+
+func (e *DeviceKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DeviceKind(s)
+	case string:
+		*e = DeviceKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DeviceKind: %T", src)
+	}
+	return nil
+}
+
+type NullDeviceKind struct {
+	DeviceKind DeviceKind
+	Valid      bool // Valid is true if DeviceKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDeviceKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.DeviceKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DeviceKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDeviceKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DeviceKind), nil
 }
 
 type DocumentStatus string
@@ -2615,6 +2700,25 @@ type Assignment struct {
 	GuidanceVersion   int16
 }
 
+type AttendanceCheckin struct {
+	ID             uuid.UUID
+	CourseID       uuid.UUID
+	SessionID      uuid.UUID
+	WindowID       uuid.UUID
+	StudentID      uuid.UUID
+	DeviceID       *uuid.UUID
+	Channel        CheckinChannel
+	Assurance      int16
+	TokenAgeMs     int32
+	GeoDistanceM   *int32
+	GeoAccuracyM   *int32
+	InCampus       *bool
+	Flags          []string
+	FlagsClearedBy *uuid.UUID
+	FlagsClearedAt *time.Time
+	CreatedAt      time.Time
+}
+
 type AttendanceRecord struct {
 	ID        uuid.UUID
 	CourseID  uuid.UUID
@@ -2727,6 +2831,20 @@ type ChatSession struct {
 	DeletedAt     *time.Time
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+}
+
+type CheckinWindow struct {
+	ID            uuid.UUID
+	CourseID      uuid.UUID
+	SessionID     uuid.UUID
+	Round         int16
+	RotateSeconds int16
+	Headcount     *int32
+	OpenedBy      uuid.UUID
+	OpenedAt      time.Time
+	ClosesAt      time.Time
+	ClosedBy      *uuid.UUID
+	ClosedAt      *time.Time
 }
 
 type ClassSession struct {
@@ -3805,6 +3923,18 @@ type User struct {
 	Version             int32
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
+}
+
+type UserDevice struct {
+	ID            uuid.UUID
+	KeySha256     []byte
+	PublicKey     []byte
+	Kind          DeviceKind
+	Attested      bool
+	BootVerified  *bool
+	SecurityLevel *string
+	Label         *string
+	CreatedAt     time.Time
 }
 
 type UserSetting struct {

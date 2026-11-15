@@ -6,6 +6,7 @@ import { ApiError, apiClient, fieldErrors } from "@/shared/data";
 import { Button, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, Section, Skeleton, Switch } from "@/shared/ui";
 import s from "./ClassSettings.module.css";
 import { classKey, useClassCourse, type JoinInfo } from "./classApi";
+import { AttendanceSection } from "./AttendanceSection";
 import { GuidanceFlagsSection } from "./GuidanceFlagsSection";
 import { RiskSection } from "./RiskSection";
 import { StudyTimeSetting } from "./StudyTimeSetting";
@@ -98,6 +99,7 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
             </Section>
             <ThresholdSection courseId={courseId} canManage={canManage} />
             <RiskSection courseId={courseId} canManage={canManage} />
+            <AttendanceSection courseId={courseId} canManage={canManage} />
             <StudyTimeSetting courseId={courseId} canManage={canManage} />
             <GuidanceFlagsSection courseId={courseId} canManage={canManage} />
             {canManage && <ShareSection courseId={courseId} />}

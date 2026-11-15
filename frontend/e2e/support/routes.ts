@@ -5,7 +5,7 @@ import { TID } from "./thread-fixtures";
 // Danh sách route để quét (axe, một-nút-chính): mọi đích điều hướng của vai (khớp ma trận quyền SRS 7.5) + vài route chi tiết đại diện.
 // Route thuộc PU không cần vai: /login, /dev/ui, /dev/data.
 const DETAIL: Record<DemoRole, string[]> = {
-  student: [`/threads/${TID}`, "/practice/history", "/assignments/bt03", "/join"],
+  student: [`/threads/${TID}`, "/practice/history", "/assignments/bt03", "/join", "/checkin"], // /checkin ngoài nav.ts: liệt kê rõ (P-108-8)
   ta: ["/class/members"],
   teacher: ["/class/members", "/gradebook/scheme"],
   admin: [],

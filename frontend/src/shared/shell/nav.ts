@@ -155,6 +155,7 @@ const ACCESS: Array<[string, Role[]]> = [
   ["/settings", ["student", "ta", "teacher", "admin"]], // Tài khoản và bảo mật: mọi vai, chỉ tác động chính mình
   ["/admin", ["admin"]],
   ["/chat", ["student"]],
+  ["/checkin", ["student"]], // điểm danh bằng mã (10.8): chỉ sinh viên; route ngoài thanh điều hướng, mở từ QR / camera hệ thống
   ["/practice", ["student"]],
   ["/library", ["student"]],
   ["/me", ["student"]],

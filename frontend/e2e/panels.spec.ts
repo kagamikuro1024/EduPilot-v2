@@ -602,6 +602,8 @@ test.describe("staff routes", () => {
   test("/attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px", async ({ page, context }, info) => {
     test.skip(info.project.name !== "desktop", "đo một lần");
     await asDemo(context, "teacher");
+    // /attendance lee chính sách điểm danh bằng mã của lớp trước khi dựng lưới (10.8): mặc định tắt
+    await page.route("**/api/v1/courses/*", (r) => (r.request().method() === "GET" ? r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true" }, body: JSON.stringify({ attendance: { self_checkin: false, rotate_seconds: 10, late_after_min: 15, require: "WEB", geo_check: false } }) }) : r.fallback()));
     await page.setViewportSize({ width: 375, height: 812 });
     const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
     for (const route of ["/attendance", "/inbox"]) {
