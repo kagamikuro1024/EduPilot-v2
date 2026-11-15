@@ -13,7 +13,7 @@ Môi trường: stack `ep-qc` (HTTPS `https://localhost:943`, Postgres 18 + pgve
 | P-11-15 (DTO điểm cho SV) | 4 | 3 | 0 | 1 | ca 4 (UI «Chi tiết») cần dữ liệu có `detail` |
 | @real F3 / F5 / F9+F11 / F16 / F17 | 8 | 8 | 0 | 0 | LLM thật (9router) ở F9/F11, TC-04-11, TC-05-07 |
 | U1 (làm mới phiên sớm) | 3 | 3 | 0 | 0 | |
-| LCP 8 route | 8 | 4 | 4 | 0 | devtools, load 3,5–5,2, dữ liệu seed ep-qc (D-11-24); chưa đo stack T1 |
+| LCP 8 route | 8 | 4 | 0 | 4 sơ bộ | devtools, load 3,5–5,2, dữ liệu seed ep-qc — SƠ BỘ, không T1, chưa chấm (D-11-24); chờ đo T1 |
 
 ## Thật / giả
 - LLM chữ: mặc định tuyến **9router thật** (`ag/gemini-3.8-flash`) cho CHAT/CLASSIFY/UTILITY/GRADING/QUESTION_GEN/INSIGHT; công tắc `/settings/llm` kiểm bằng INSIGHT (bật → 9router, tắt → fake env, bật lại). Ca cần fake (tên lỗi, 429, chậm 60 s, 1 triệu hàng, seed) dùng provider `QC fake` / `QC lỗi` / `QC chậm`.
