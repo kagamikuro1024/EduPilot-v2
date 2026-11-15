@@ -11636,8 +11636,9 @@ components:
           description: SPKI, base64
         attestation_chain:
           type: array
-          minItems: 1
-          maxItems: 10
+          minItems: 2
+          maxItems: 6
+          description: Chuỗi chứng thực Key Attestation, 2–6 chứng chỉ (lá + trung gian + gốc), tổng ≤ 16 KB; sai số lượng → 422 VALIDATION_FAILED (ARCHITECTURE 11.5 bước 1)
           items:
             type: string
             description: Chứng chỉ X.509 DER, base64; lá trước

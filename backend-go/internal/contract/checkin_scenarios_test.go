@@ -134,6 +134,9 @@ func (r *runner) checkinScenarios(db *pgxpool.Pool, c2, gv, ta, svIn, admin stri
 	r.must(call{method: "POST", path: dv, body: `{}`}, 401)
 	r.must(call{method: "POST", path: dv, token: gv, body: `{}`}, 403)
 	r.must(call{method: "POST", path: dv, token: svIn, body: `{}`}, 422)
+	// openapi `attestation_chain` minItems 2 / maxItems 6 (D-AS-03): 1 và 7 chứng chỉ → 422 trước khi đụng nonce
+	r.must(call{method: "POST", path: dv, token: svIn, body: `{"kind":"ANDROID_KEY","public_key":"AAAA","attestation_chain":["AAAA"]}`}, 422)
+	r.must(call{method: "POST", path: dv, token: svIn, body: `{"kind":"ANDROID_KEY","public_key":"AAAA","attestation_chain":["AAAA","AAAA","AAAA","AAAA","AAAA","AAAA","AAAA"]}`}, 422)
 
 	// lớp lưu trữ: mọi thao tác ghi của Staff → 409 COURSE_ARCHIVED (cửa sổ w2 còn mở lúc lưu trữ)
 	_, o2 := r.must(call{method: "POST", path: course + "/sessions/" + s5 + "/checkin-windows", token: gv, headers: idem(), body: `{}`}, 201)
