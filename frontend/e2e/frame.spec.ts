@@ -16,7 +16,7 @@ const SIZES = [
 ] as const;
 
 // Không có trạng thái đang tải / lỗi của vùng để đo ở bản dựng mô phỏng: `/join` chỉ có biểu mẫu; `/chat` là hội thoại mô phỏng (DemoChat) không nghe ?state=; `/settings/integrations` của Admin chưa chọn lớp nên chưa tải gì. Các yêu cầu /api/v1 bị chặn ở đó là của khung ứng dụng. Nợ sprint 11 (nối API thật): đo lại hai route sau.
-const FORM_ONLY = /^\/(join|chat|settings\/integrations)(\/|$)/;
+const FORM_ONLY = /^\/(join|checkin|chat|settings\/integrations)(\/|$)/;
 
 test.beforeEach(({ page }) => settleGoto(page));
 

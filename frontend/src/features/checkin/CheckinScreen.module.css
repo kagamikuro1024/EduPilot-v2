@@ -1,0 +1,13 @@
+/* /checkin (DESIGN §14.8.2): một Panel, nội dung căn giữa cột đọc; dấu ✓ là chỗ đỏ DUY NHẤT (nghĩa «đã xác nhận»); lỗi dùng thông báo danger chuẩn */
+.body { display: grid; gap: var(--ep-space-4); justify-items: center; text-align: center; min-height: 160px; align-content: center; padding-block: var(--ep-space-6); }
+.done { margin: 0; display: inline-flex; align-items: center; gap: var(--ep-space-3); }
+.check { color: var(--ep-red); width: 1.5rem; height: 1.5rem; }
+.form { display: grid; gap: var(--ep-space-3); width: min(100%, 320px); text-align: start; justify-items: stretch; }
+.geo { margin: 0; color: var(--ep-ink-2); font-size: var(--ep-text-body); }
+.scanner { display: grid; gap: var(--ep-space-3); width: 100%; justify-items: center; }
+.video { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: var(--ep-canvas); border-radius: var(--ep-radius-md, 8px); }
+.dock { display: none; }
+@media (max-width: 719px) {
+  .dock { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) var(--ep-space-4); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
+  .dock button { min-height: 44px; width: 100%; }
+}
