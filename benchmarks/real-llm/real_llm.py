@@ -259,7 +259,7 @@ def md_pages(path):
             cur = int(m.group(1))
             pages[cur] = []
         elif cur and not line.startswith("<!--"):
-            pages[cur].append(re.sub(r"^#+\s*", "", line))
+            pages[cur].append(re.sub(r"^(#+|[-*])\s*", "", line))
     return {k: fold(" ".join(v)) for k, v in pages.items()}
 
 
@@ -369,7 +369,8 @@ def score_extraction(draft, fx, pages):
     cites = [(c, "component:" + x["key"]) for x in comps for c in x["citations"]] + [(c, "rule:" + x["kind"]) for x in draft["rules"] for c in x["citations"]]
     cstat = {"total": len(cites), "on_stated_page": 0, "other_page": 0, "not_found": 0, "not_found_items": []}
     for c, owner in cites:
-        q = fold(c["quote"])
+        # docling dựng đoạn thành mục «- 1.2. …»: LLM trích đúng chữ đó, còn tệp gốc không có «- ». Bỏ dấu đầu mục hai phía (P-11-25(3): 5/10 lần «not_found» là lỗi của phép đo).
+        q = fold(re.sub(r"^[-*]\s+", "", c["quote"].strip()))
         if q and q in pages.get(c["page"], ""):
             cstat["on_stated_page"] += 1
         elif q and any(q in t for t in pages.values()):
