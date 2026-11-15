@@ -1,5 +1,5 @@
 // P-11-46: cpuSlowdownMultiplier của lượt Lighthouse simulate theo tốc độ MÁY CHẠY. Cố định 4 làm TBT tăng 2–3× khi runner chậm (benchmarkIndex ≈ 2500 so với ≈ 4200: CI 43743335571).
-// multiplier = 4 × 4200 / benchmarkIndex, kẹp [2, 8]; benchmarkIndex đo bằng chính hàm của Lighthouse trong cùng Chromium sẽ chạy lhci. In ra stdout: một số.
+// multiplier = 4 × benchmarkIndex / 4200, kẹp [2, 8]: máy chậm hơn mốc thì cần làm chậm ÍT hơn để ra cùng tốc độ «thiết bị» (hiệu quả = tốc độ máy / multiplier = 4200 / 4). benchmarkIndex đo bằng chính hàm của Lighthouse trong cùng Chromium sẽ chạy lhci. In ra stdout: một số.
 
 // Bản sao hàm computeBenchmarkIndex của Lighthouse (core/lib/page-functions.js; chạy trong trang): trung bình của hai phép đo, mỗi phép 0,5 s — GC (nối chuỗi) và sao chép mảng.
 function computeBenchmarkIndex() {
@@ -41,7 +41,7 @@ const REF = 4200; // benchmarkIndex của runner «bình thường» (các lư�
   await b.close();
   samples.sort((x, y) => x - y);
   const bi = samples[1];
-  const m = Math.min(8, Math.max(2, Math.round(((4 * REF) / bi) * 100) / 100));
-  console.error(`benchmarkIndex ${JSON.stringify(samples.map(Math.round))} → trung vị ${Math.round(bi)}; cpuSlowdownMultiplier = ${m} (4 × ${REF} / ${Math.round(bi)}, kẹp [2, 8])`);
+  const m = Math.min(8, Math.max(2, Math.round(((4 * bi) / REF) * 100) / 100));
+  console.error(`benchmarkIndex ${JSON.stringify(samples.map(Math.round))} → trung vị ${Math.round(bi)}; cpuSlowdownMultiplier = ${m} (4 × ${Math.round(bi)} / ${REF}, kẹp [2, 8])`);
   console.log(m);
 })();
