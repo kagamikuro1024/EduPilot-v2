@@ -168,3 +168,25 @@ func TestSystemPromptCarriesRefusalSentence(t *testing.T) {
 	t.Parallel()
 	require.Contains(t, SystemPrompt, ReplyNoContext)
 }
+
+// D-R-09 (QC đợt R): câu trả lời THẬT trong ep-qc — intent LIBRARY_SEARCH có khối dữ liệu, mô hình mở bằng câu mẫu «Mình chưa tìm thấy…» rồi nói thêm.
+// Trước: tool-backed ⇒ confidence 1,000, low_confidence=false. Phải là «chưa chắc».
+func TestMetadataToolBackedRefusalIsLowConfidence(t *testing.T) {
+	hi := decimal.New(75, -2)
+	real := `Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Trong tài liệu hiện chỉ liệt kê "Access Attacks" là một trong bốn loại tấn công mạng mà chưa cung cấp ví dụ chi tiết.`
+	m := Outcome{Plan: IntentLibrary, Blocks: []Block{{Kind: "library_results"}}}.Metadata(real, hi, false, 0)
+	if !m.LowConfidence || !m.Confidence.Valid || !m.Confidence.Decimal.IsZero() {
+		t.Fatalf("lời từ chối của intent tool-backed phải thấp: %+v", m)
+	}
+	// biến thể: dấu hỏi / không dấu / viết hoa vẫn nhận ra
+	for _, a := range []string{"MÌNH CHƯA TÌM THẤY NỘI DUNG NÀY TRONG TÀI LIỆU CỦA LỚP.", "Minh chua tim thay noi dung nay trong tai lieu cua lop."} {
+		if !(Outcome{Plan: IntentLibrary, Blocks: []Block{{Kind: "x"}}}).Metadata(a, hi, false, 0).LowConfidence {
+			t.Errorf("không nhận ra lời từ chối: %q", a)
+		}
+	}
+	// không từ chối ⇒ vẫn 1,000 (dữ liệu lấy từ DB)
+	ok := Outcome{Plan: IntentLibrary, Blocks: []Block{{Kind: "library_results"}}}.Metadata("Đây là các tài liệu liên quan.", hi, false, 0)
+	if ok.LowConfidence || ok.Confidence.Decimal.String() != "1" {
+		t.Errorf("tool-backed bình thường phải 1,000: %+v", ok)
+	}
+}

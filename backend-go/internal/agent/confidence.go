@@ -258,6 +258,13 @@ func (o Outcome) Metadata(answer string, threshold decimal.Decimal, degraded boo
 		return m
 	case o.Canned != "":
 		return m
+	case o.ToolBacked() && IsRefusal(answer):
+		// D-R-09: tool trả khối dữ liệu nhưng mô hình mở bằng câu «chưa tìm thấy…» (vd. LIBRARY_SEARCH trả thẻ tài liệu không liên quan): dữ liệu không trả lời được câu hỏi ⇒ chưa chắc,
+		// KHÔNG phải 1,000. Cùng nguyên tắc P-11-18 (b) cho đường CourseQA.
+		m.RetrievalScore, m.Groundedness = decimal.Zero, decimal.Zero
+		m.Confidence = decimal.NullDecimal{Decimal: decimal.Zero.Round(3), Valid: true}
+		m.LowConfidence = true
+		return m
 	case o.ToolBacked():
 		m.RetrievalScore, m.Groundedness = one, one
 		m.Confidence = decimal.NullDecimal{Decimal: one.Round(3), Valid: true}
