@@ -4,7 +4,8 @@
 .colHead { display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--ep-space-1); white-space: nowrap; }
 .colMenu { display: inline-flex; }
 .colMenu button { opacity: 0; }
-.colHead:hover .colMenu button, .colHead:focus-within .colMenu button { opacity: 1; }
+.colHead:focus-within .colMenu button { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .colHead:hover .colMenu button { opacity: 1; } }
 @media (hover: none) { .colMenu button { opacity: 1; } }
 .pubDot { display: inline-block; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--ep-ink-2); }
 .missDot { display: inline-block; width: 6px; height: 6px; margin-right: var(--ep-space-2); border-radius: 50%; background: var(--ep-amber); }

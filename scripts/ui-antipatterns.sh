@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Kiểm phản mẫu giao diện: docs/design/DESIGN.md §21, docs/design/INTEGRATION.md mục 5, docs/specs/FEAT-ui-foundation/SRS.md 4.1 + 4.3, docs/specs/FEAT-ui-panels/SRS.md 4.3.
-# 33 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề; 24–31 = hợp đồng khung trang DESIGN.md §23, sprint 10.7; 32 = token màn chiếu chỉ ở /attendance/display; 33 = chữ «Threads» hiển thị, P-108-8); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
+# 34 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề; 24–31 = hợp đồng khung trang DESIGN.md §23, sprint 10.7; 32 = token màn chiếu chỉ ở /attendance/display; 33 = chữ «Threads» hiển thị; 34 = :hover ngoài @media hover, P-108-8); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
 # Danh sách trắng: thêm chú thích `ui-allow: <lý do>` trên CÙNG dòng (trần 10 chỗ — QC đếm).
-# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 33 phép bắt được`.
+# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 34 phép bắt được`.
 # Chạy ở gốc repo. UI_SRC đổi thư mục nguồn (dùng cho --selftest).
 set -uo pipefail
 export LC_ALL=C
@@ -47,6 +47,7 @@ if [ "${1:-}" = "--selftest" ]; then
     "Vàng làm chữ|features/_selftest/y.module.css|.d { color: var(--ep-yellow); }"
     "Token màn chiếu ngoài /attendance/display|features/_selftest/proj.module.css|.p { font-size: var(--ep-text-projector-code); }"
     "Chữ Threads / Insights / Analytics hiển thị|features/_selftest/vocab.tsx|export const V = () => <p>Kiểm duyệt Threads</p>;"
+    "Luật :hover ngoài @media (hover: hover)|features/_selftest/hov.module.css|.hov:hover { color: red; }"
   )
   miss=0; names=""
   for s in "${seeds[@]}"; do
@@ -212,4 +213,7 @@ out=$(grep -rnE -e '(["'"'"'`>])[^"'"'"'`<>]*\b(Threads|Insights|Analytics)\b[^"
   | grep -vE ':[0-9]+:[[:space:]]*(//|\*|/\*)' | grep -vE '(import |from )["'"'"']|ui-allow:' || true)
 report "Chữ Threads / Insights / Analytics hiển thị" "$out"
 
+# 34: mọi luật :hover nằm trong @media (hover: hover) and (pointer: fine) (FEAT-uiux-91 US-04 AC2) — máy cảm ứng không dính hover; bộ quét CSS có cấu trúc ở scripts/hover-check.mjs
+out=$(node "$(dirname "$0")/hover-check.mjs" "$SRC" 2>&1 || true)
+report "Luật :hover ngoài @media (hover: hover)" "$out"
 exit $FAIL
