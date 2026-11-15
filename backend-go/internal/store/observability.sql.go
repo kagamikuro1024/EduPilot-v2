@@ -207,6 +207,7 @@ type ObsCourseQualityRow struct {
 }
 
 // Chất lượng một lớp trong cửa sổ: không danh tính, không nội dung.
+// hidden-ok: chỉ đếm bài AI theo trạng thái xác minh; bài AI bị từ chối thường đã ẩn nhưng vẫn là số đo chất lượng.
 func (q *Queries) ObsCourseQuality(ctx context.Context, arg ObsCourseQualityParams) (ObsCourseQualityRow, error) {
 	row := q.db.QueryRow(ctx, obsCourseQuality, arg.CourseID, arg.FromTs, arg.ToTs)
 	var i ObsCourseQualityRow

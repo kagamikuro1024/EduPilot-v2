@@ -68,6 +68,7 @@ delete from llm_request_payloads where created_at < sqlc.arg(before);
 
 -- name: ObsCourseQuality :one
 -- Chất lượng một lớp trong cửa sổ: không danh tính, không nội dung.
+-- hidden-ok: chỉ đếm bài AI theo trạng thái xác minh; bài AI bị từ chối thường đã ẩn nhưng vẫn là số đo chất lượng.
 select
   (select count(*) from chat_messages m where m.course_id = sqlc.arg(course_id) and m.feedback = 'HELPFUL' and m.created_at >= sqlc.arg(from_ts) and m.created_at < sqlc.arg(to_ts))::bigint as helpful,
   (select count(*) from chat_messages m where m.course_id = sqlc.arg(course_id) and m.feedback = 'NOT_HELPFUL' and m.created_at >= sqlc.arg(from_ts) and m.created_at < sqlc.arg(to_ts))::bigint as not_helpful,
