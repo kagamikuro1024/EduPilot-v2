@@ -1,0 +1,31 @@
+{"tc":"(chuẩn bị) AS08","st":"NOTE","note":"kha 201, nguyco(code) 201"}
+{"tc":"TC-AS08-04 cửa sổ đang mở: «Mở điểm danh» ẩn (không phải disabled); có dòng trạng thái","st":"PASS","note":"nút=0; Đang mở · 0/12 · còn 09:53 Mở màn chiếu Đóng"}
+{"tc":"TC-AS08-09 hàng đã điểm danh «Điểm danh lúc hh:mm»; hàng chưa điểm danh «Chưa điểm danh», không mặc định Có mặt","st":"PASS","note":""}
+{"tc":"TC-AS08-10 chip: «Nhập mã» cho CODE, nhãn cờ «Không xác minh được máy», «Chưa xác minh» (mức 1)","st":"FAIL","note":"thiếu: Nhập mã"}
+{"tc":"TC-AS08-11a «Cần xem (k)» → URL có filter=review; chỉ hàng còn cờ","st":"PASS","note":"https://localhost:1143/attendance?session=01a1dfe4-3e9e-7e8c-8280-213888d136ac&filter=review"}
+{"tc":"TC-AS08-11b mục «Hôm nay» CHECKIN_REVIEW (cửa sổ đã đóng) có href ?filter=review","st":"PASS","note":"/attendance?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1dfe4-3e9f-75e0-8465-7e30c944aac3&filter=review"}
+{"tc":"TC-AS08-12 «Đã xem» → clear-flags; audit_log +; không nút hoàn tác","st":"PASS","note":"audit 2→3; undo=0"}
+{"tc":"TC-AS08-13 sửa ô Vắng→Có mặt: lưu tại chỗ, có «Hoàn tác» (≈5 s)","st":"PASS","note":"undo=1; Đang lưu…"}
+{"tc":"TC-AS08-14a sau vòng 1: menu ⋯ có «Mở vòng 2», «Nhập số đầu người», «Gọi ngẫu nhiên 5 người»","st":"PASS","note":"Mở vòng 2 | Nhập số đầu người | Gọi ngẫu nhiên 5 người"}
+{"tc":"TC-AS08-14b sau vòng 3: không còn «Mở vòng …»","st":"PASS","note":"Nhập số đầu người | Gọi ngẫu nhiên 5 người"}
+{"tc":"TC-AS08-17a lỗi tải cửa sổ: có nguyên nhân + «Thử lại»","st":"PASS","note":"Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.  Bỏ qua điều hướng QC-AS · QC điểm danh QC-AS Tìm nhanh hoặc đi đến… ⌘ K Có 22 "}
+{"tc":"TC-AS08-17b mở lúc đã có cửa sổ (409): «Đang có cửa sổ mở» + «Mở màn chiếu»","st":"PASS","note":"https://localhost:1143/attendance/display?course=01a1df74-adfe-7424-802c-13b603b668d3&session=01a1dfe4-3e9f-7a6a-8d79-66128ad34ced | Màn chiếu điểm danh  Mã điểm danh  W08 Q5B  0  còn 09:57  Đóng điểm danh Thoát"}
+{"tc":"TC-AS08-18 «Lưu điểm danh» còn SV chưa điểm danh: InlineNotice đầu panel «Còn N…» + «Đánh vắng N SV…»","st":"PASS","note":"y=233.1875"}
+{"tc":"TC-AS08-15 «Số đầu người» (0–2000) tự lưu; 2001 không lưu; lượt > dung sai → «Số điểm danh nhiều hơn số người đếm»","st":"FAIL","note":"saved=1; gõ 2001 → lưu 2000 (giới hạn ≤ 2000)"}
+{"tc":"TC-AS08-16 Drawer «Gọi ngẫu nhiên»: 5 hàng (tên, MSSV, «Có cờ»/«Ngẫu nhiên»)","st":"PASS","note":"5 hàng"}
+{"tc":"TC-AS08-07 «Đóng»: không hộp xác nhận; dòng «Đã ghi a có mặt · b muộn · u chưa điểm danh» tại chỗ, không toast; kèm «Đánh vắng u SV…»","st":"PASS","note":"Đã ghi 0 có mặt · 0 muộn · 12 chưa điểm danh"}
+{"tc":"TC-AS08-08 «Đánh vắng u SV»: hộp chuẩn «Đánh vắng u sinh viên?», hệ quả, nút «Đánh vắng»; xác nhận → dòng ABSENT","st":"PASS","note":"Đánh vắng 12 sinh viên?  12 sinh viên chưa điểm danh thành Vắng.  Để sau Đánh vắng"}
+{"tc":"TC-AS08-08b sau xác nhận: số dòng ABSENT = u","st":"FAIL","note":"ABSENT=7 u=12"}
+{"tc":"TC-AS08-21 hai tab cùng đóng: không lỗi trần, cả hai về «đóng»","st":"FAIL","note":"codes=200 | Đang mở · 1/12 · còn 09:42 Mở màn chiếu Đóng | Đang mở · 1/12 · còn 09:42 Mở màn chiếu Đóng"}
+{"tc":"TC-AS08-20 mất mạng khi «Đóng»: dòng «Chưa đóng»; có mạng → tự thử lại cùng Idempotency-Key, một cửa sổ đóng","st":"FAIL","note":"queued=1 closed=1 posts=5 keys=3 resp=fail:ep-2aa84,fail:ep-2aa84,fail:ep-2aa84,200:ep-1e766,200:ep-ad298"}
+{"tc":"TC-AS08-19 375 px: dòng cửa sổ ≥ 2 dòng, nút ≥ 44 px, «Lưu điểm danh» dock dưới, không tràn ngang","st":"PASS","note":"{\"h\":88,\"btns\":[44,44],\"ov\":false,\"dock\":true} moOpenOutside=false"}
+{"tc":"TC-AS08-22/44 sv.gioi: /attendance và /attendance/display → màn chặn chuẩn, 0 request dữ liệu điểm danh","st":"FAIL","note":"req(att)=1 req(display)=0 | Bỏ qua điều hướng QD8B1 · QC s8core QD8B1 Tìm nhanh hoặc đi đến… ⌘ K T Nguyễn Mi | "}
+{"tc":"TC-AS08-22/44 admin: /attendance và /attendance/display → màn chặn chuẩn, 0 request dữ liệu điểm danh","st":"PASS","note":"req(att)=1 req(display)=0 | Bỏ qua điều hướng  Toàn hệ thống · INT1006  Tìm nhanh hoặc đi đến… ⌘ K Có 4 thôn | Bạn không có quyền xem màn này  Trang này dành cho giảng viê"}
+{"tc":"TC-AS08-23 TA thấy đủ nút điểm danh; PUT …/settings bằng TA → 403","st":"PASS","note":"hasOpen=true put=403"}
+{"tc":"TC-AS09-14 r108ta mở /checkin: màn chặn chuẩn, 0 request dữ liệu","st":"PASS","note":"req=0 | Bỏ qua điều hướng QC-AS Có 22 thông báo mới 9+ T Bạn không có quyền xem màn này "}
+{"tc":"TC-AS09-14 r108t mở /checkin: màn chặn chuẩn, 0 request dữ liệu","st":"PASS","note":"req=0 | Bỏ qua điều hướng QC-AS Có 22 thông báo mới 9+ G Bạn không có quyền xem màn này "}
+{"tc":"TC-AS09-14 admin mở /checkin: màn chặn chuẩn, 0 request dữ liệu","st":"PASS","note":"req=0 | Bỏ qua điều hướng  Toàn hệ thống · INT1006  Có 4 thông báo mới 4 N Bạn không có "}
+{"tc":"TC-AS08-32 QR chụp màn chiếu → jsQR giải ra URL …#token; token xác thực với API (201)","st":"PASS","note":"https://localhost/checkin?c=01a1df74-adfe-7424-802c-13b603b668d3#01a1e… → 201"}
+{"tc":"TC-AS08-35 màn chiếu gọi navigator.wakeLock.request('screen'); lỗi bị bỏ qua (không thông báo lỗi)","st":"FAIL","note":""}
+{"tc":"TC-AS08-33b rotate=5 s: mã ngắn và QR đổi cùng nhịp (số giá trị khác nhau bằng nhau); ≤ 12 yêu cầu display/phút","st":"PASS","note":"mã=6 qr=6 req=5/24s"}
+{"tc":"TC-AS08-34 đồng hồ trang lệch +60 s: vẫn đổi mã theo nhịp máy chủ (≥ 2 mã / 16 s) và hiện hiển thị bình thường","st":"PASS","note":"mã=4; countdown='còn 09:11'"}

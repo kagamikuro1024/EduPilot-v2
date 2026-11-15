@@ -32,10 +32,10 @@ ov = {
  'TC-PE05-33': ('P', 'nộp khi làm 3/5 câu: answered=3 total=5'),
  'TC-PE07-31': ('P', 'A~B (đổi tên + định dạng) 1,000; A~A\' (đổi thứ tự) 0,987; A~C (thuật toán khác) không nằm trong cặp hàng đầu (thấp); QC winnowing gốc 1,000/0,051/0,947'),
  'TC-PE07-09': ('S', 'dừng DB dùng chung ngoài cửa sổ khoá; nhánh Redis+DB chết do go TestLockerBothDownDeniesChat (xem TC-PE07-12)'),
- 'TC-PE03-52': ('F', 'axe 1440 /questions: label-content-name-mismatch (serious) ×2 ở nút đầu trang AppShell → DEF-R5-01'),
- 'TC-PE04-45': ('F', 'axe 1440 /exams, /exams/[id] (GV) và 390 SV: label-content-name-mismatch (serious) ở AppShell → DEF-R5-01; ox=0, vùng chạm ≥40 px ở danh sách SV'),
- 'TC-PE05-48': ('F', 'axe 390 /take: label-content-name-mismatch (serious) → DEF-R5-01 (Lighthouse INP/CLS chưa đo)'),
- 'TC-PE06-08': ('F', 'axe 1440 làm bài code: label-content-name-mismatch ×3 (DEF-R5-01) + scrollable-region-focusable ×1 (DEF-R5-02)'),
+ 'TC-PE03-52': ('P', 'axe (wcag2a/2aa/21aa/22aa như TC) 1440 /questions: 0 serious/critical. Với thẻ wcag21a thêm vào có label-content-name-mismatch ở AppShell (DEF-R5-01, ngoài bộ thẻ của TC)'),
+ 'TC-PE04-45': ('S', 'axe: lượt đầu dùng thẻ thừa wcag21a (không hợp lệ); lượt chạy lại đúng thẻ TC bị gián đoạn do máy quá tải (load 45) — cần chạy lại'),
+ 'TC-PE05-48': ('S', 'axe: lượt đầu dùng thẻ thừa wcag21a (không hợp lệ); lượt chạy lại đúng thẻ TC bị gián đoạn do máy quá tải (load 45) — cần chạy lại'),
+ 'TC-PE06-08': ('S', 'axe: lượt đầu dùng thẻ thừa wcag21a (không hợp lệ); lượt chạy lại đúng thẻ TC bị gián đoạn do máy quá tải (load 45) — cần chạy lại'),
  'TC-PE04-42': ('P', 'GV /exams 1440: 1 nút primary "Tạo bài thi", nhóm Đang mở/Sắp tới/Đã đóng/Nháp, không tràn ngang; (axe: DEF-R5-01 tính ở TC-PE04-45)'),
  'TC-PE04-43': ('P', 'GV /exams/[id]: Thông tin · Câu hỏi · Xem trước, nút Gia hạn ở bài đang mở'),
  'TC-PE04-44': ('LT', 'TA: nút "Lên lịch" ẩn đúng; dòng chú thích "Chỉ giảng viên lên lịch được" đã bị bỏ theo luật chữ UI (CLAUDE.md 09/10/2026: cấm dòng giải thích thừa)'),
@@ -82,5 +82,5 @@ for tc, r, n in rows: L.append(f'| {tc} | {r} | {n.replace("|", "/").replace(chr
 L += ['', '## Trượt: bước tái hiện', '### DEF-R5-01 — Nút đầu trang AppShell vi phạm axe `label-content-name-mismatch` (serious) ở mọi màn đăng nhập (TC-PE03-52, PE04-45, PE05-48, PE06-08)', 'Xem `defects-5.md`.', '### DEF-R5-02 — Vùng cuộn ở màn làm bài code không focus được bằng bàn phím (TC-PE06-08)', 'Xem `defects-5.md`.',
  '', '## Ca không đạt/khác ghi nhận không tính lỗi', '- TC-PE02-37: fork bomb A8 nay ra `WA` (FORKED=0, fork bị chặn, 0 tiến trình mồ côi) thay vì `TLE` như gốc — bất biến an toàn thoả.', '- TC-PE02-42: ptrace(TRACEME) và unshare(CLONE_NEWUSER) thành công (arm64, -no-seccomp) — như cảnh báo L1 gốc; chưa kiểm được seccomp bật (cần amd64/CI).', '- TC-PE03-10: trần bộ nhớ nay 512 MiB (#5 sprint 5), TC gốc ghi 1024.', '- go `TestRunningNotCancelled` đỏ 1 lần khi máy tải nặng, PASS 2/2 khi chạy riêng.',
  '- Today: provider `staff`/`assignment` bị bỏ do quá hạn khi stack dùng chung chậm (log "today: bỏ Provider lỗi") — thiết kế degrade, ghi nhận.', '', '## Ca K và lý do', 'K (a/b/c) = 0. Ca "chưa chạy (mẫu)" S: toàn bộ ca dạng tài liệu ngoài mẫu 1 chính + 1 lỗi / US; UI chi tiết (axe/INP/Lighthouse/ảnh), k6 (PE-02-46..49, PE-05-25, PE-09-15..19), `go test -race ./...` toàn bộ (…-39/50/55/60/47/48/68), TC-PE08 phần phát hành đôi (kill -9 hai bộ lập lịch), TC cần cửa sổ khoá global nếu chưa chạy (xem cuối tệp).']
-open(R + '/regression/smoke-5.md', 'w').write('\n'.join(L) + '\n')
+open(R + '/regression/smoke-5.md', 'w').write('\n'.join(L) + '\n' + open(EV + '/smoke-5-tail.md', encoding='utf-8').read())
 print(tot, dict(cnt))

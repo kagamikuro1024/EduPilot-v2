@@ -1,0 +1,19 @@
+[nopolicy] teacher /gradebook QD8F2 banners=1 links=["Xem công thức","Tải quy chế","Thiết lập công thức"] chotDiem={"disabled":true,"aria":"true","title":null}
+[nopolicy] teacher gradebook text: Sổ điểm | Xem công thức | Chốt điểm | Chưa có công thức điểm đã xác nhận | Công thức điểm chưa xác nhận | Tải quy chế |  | Chưa có công thức điểm |  | Thiết lập công thức
+hover tooltip=["Chưa có công thức điểm đã xác nhận"]
+focus tooltip=["Chưa có công thức điểm đã xác nhận"]
+info icons in main: 0
+[nopolicy] teacher /attendance QD8F2 banners=0 links=[] chotDiem=null
+[nopolicy] teacher /gradebook QD8F8(CONFIRMED) banners=0 links=["Xem công thức"] chotDiem={"disabled":true,"aria":null,"title":null}
+[nopolicy] teacher /attendance QD8F8(CONFIRMED) banners=0 links=[] chotDiem=null
+[nopolicy] ta /gradebook QD8F2 banners=1 links=["Xem công thức","Xem công thức"] chotDiem=null
+[nopolicy] ta /attendance QD8F2 banners=1 links=["Xem công thức"] chotDiem=null
+[nopolicy] student /me banners=0
+[nopolicy] student /attendance?course=01a1e009-23f8-706c-91ea-5bc4a9cff5fa banners=0
+[nopolicy] student /gradebook?course=01a1e009-23f8-706c-91ea-5bc4a9cff5fa banners=0
+[nopolicy] student /chat banners=0
+[draftready] teacher /gradebook QD8F2 banners=1 links=["Xem công thức","Xác nhận công thức","Thiết lập công thức"] chotDiem={"disabled":true,"aria":"true","title":null}
+[draftready] teacher gradebook text: Sổ điểm | Xem công thức | Chốt điểm | Chưa có công thức điểm đã xác nhận | Công thức điểm chưa xác nhận | Xác nhận công thức |  | Chưa có công thức điểm |  | Thiết lập công thức
+[draftready] teacher /attendance QD8F2 banners=1 links=["Xem công thức"] chotDiem=null
+[draftready] teacher /gradebook QD8F8(CONFIRMED) banners=0 links=["Xem công thức"] chotDiem={"disabled":true,"aria":null,"title":null}
+[draftready] teacher /attendance QD8F8(CONFIRMED) banners=0 links=["Xem công thức"] chotDiem={"disabled":true,"aria":null,"title":null}

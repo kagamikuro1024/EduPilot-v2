@@ -1,0 +1,24 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestPublishItemToggle|TestPublishItemAudit|TestPublishExamItemNotToggleable|TestPublishLockedRejected)$ ./internal/grade
+=== RUN   TestPublishItemToggle
+2026/11/15 22:51:11 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 4b3ca6d2219f306eb3b1683717234716a0ac9cf98bafc7e246a1d7cc24301441
+  Test ProcessID: 57563edc-2fe6-455b-b989-c3445e7b05f8
+2026/11/15 22:51:11 ✅ Container started: 68f6ff853df5
+2026/11/15 22:51:11 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:51:11 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPublishItemToggle (0.81s)
+=== RUN   TestPublishItemAudit
+--- PASS: TestPublishItemAudit (0.80s)
+=== RUN   TestPublishExamItemNotToggleable
+--- PASS: TestPublishExamItemNotToggleable (0.81s)
+=== RUN   TestPublishLockedRejected
+--- PASS: TestPublishLockedRejected (0.79s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	3.666s

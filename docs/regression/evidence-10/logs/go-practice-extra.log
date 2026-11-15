@@ -1,0 +1,13 @@
+--- FAIL: TestExtractPageCap (159.38s)
+--- FAIL: TestRejectReasonHints (159.87s)
+--- FAIL: TestWrongAnswerSignalsNoIdentity (160.55s)
+--- FAIL: TestExplainRateLimit (161.17s)
+--- FAIL: TestMockOfflineTolerance (161.82s)
+--- FAIL: TestPracticeIsolation (163.27s)
+--- FAIL: TestLibraryToolHidesExamPaperWhileLocked (163.27s)
+--- FAIL: TestFormsImportScoreDecimal (163.33s)
+--- FAIL: TestFormsImportNoLLM (163.33s)
+--- FAIL: TestJobLimitsPerCourse (165.52s)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/practice	166.333s
+FAIL

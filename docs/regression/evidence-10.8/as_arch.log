@@ -1,0 +1,2 @@
+archive 200
+PASS TC-AS01-09/02-23/03-19/05-14 lớp lưu trữ: 6 ghi → 409 COURSE_ARCHIVED (spot-check chỉ đọc: 200) {'checkin': (409, 'COURSE_ARCHIVED'), 'settings': (409, 'COURSE_ARCHIVED'), 'open': (409, 'COURSE_ARCHIVED'), 'close': (409, 'COURSE_ARCHIVED'), 'absent': (409

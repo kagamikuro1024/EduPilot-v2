@@ -1,0 +1,17 @@
+RBAC PASS 100
+PASS TC-P6-01-36 ma trận 20 route × 5 vai: 100 phép thử, 0 lệch
+PASS TC-P6-02-46 STUDENT preview/explain người khác/impact → 403 403 403
+PASS TC-P6-02-47 TA preview 200, finalize 403
+PASS TC-P6-02-48 ADMIN preview 403
+PASS TC-P6-03-44 TA/SV/ADMIN extract → [403, 403, 403]; llm_audit 3649→3649 không đổi
+PASS TC-P6-03-46 TA GET grade-scheme 200, PUT 403
+PASS TC-P6-03-47 STUDENT GET grade-scheme → 403
+PASS TC-P6-04-49 ADMIN GET grade-scheme → 403
+PASS TC-P6-01-37 GV lớp khác: GET gradebook/PUT entries/POST finalize → [403, 403, 403]
+PASS TC-P6-01-40 ngoài lớp / lớp không tồn tại → [403, 403, 403, 403] (cùng mã)
+PASS TC-P6-01-41 id không phải uuid → [404, 404]
+PASS TC-P6-03-45 GV lớp khác extract lớp 1 → 403
+PASS TC-P6-04-47 GV lớp khác GET grade-scheme → 403
+lớp 2 gradebook: 200 {'scheme': None, 'state': {'status': 'OPEN', 'snapshot_version': 0}, 'columns': [], 'rows': [{'student': {'id': '01a1df27-a2fa-759a-a56f-be1c85e8fed9', 'full_name': 'Đặng Minh Hiếu', 'student_code': '20227916'}, 'entries': {}, 'bonus': '0', 'penalty': '0', 'result': None}, {'student': {'id': '01a1df NO_POLICY
+PASS TC-P6-01-31 lớp 2 gradebook 200: 24 dòng (đều thuộc lớp 2), trạng thái NO_POLICY (chưa công thức), không điểm lớp 1
+F TC-P6-01-32 409 422 audit 74->74 entries 60->60

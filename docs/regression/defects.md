@@ -15,20 +15,55 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 10.6 | TC-G03-24 | TA/SV/ADMIN 403, không token 401, cờ tắt 409 đúng; nhưng reflect qua đường lớp 2 (cờ lớp 2 tắt) → 409 GUIDANCE_DISABLED trước 404 (ghi nhận 1 c |
 | 10.6 | TC-G05-24 | SV regrade 403, TA 202; qua đường lớp 2 → 409 GUIDANCE_DISABLED (cờ lớp 2 tắt) thay vì 404 — ghi nhận 1 của summary 10.6, có sẵn · **DEF-R10.6-01 |
 | 10 | TC-12-14 | DEF-R10-01: go test ./internal/contract/... không xanh (7 test đỏ; 500 INTERNAL ở POST …/posts/{id}/report, /auth/verify-email, thiếu quan sát); ngoài phạm  |
+| 2 | TC-PG02-60 | CẦN TRIAGE: dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction): thực tế [0] phải ≥ 1 |
+| 2 | TC-PG06-01 | DEF-R2-01: redocly lint openapi.yaml 1 lỗi (analytics/exams/compare: parameters null) |
+| 2 | TC-PG06-10 | DEF-R2-02: `go test ./internal/contract` rc 1 (TestStatusParity trượt 2/2 lần) |
+| 2 | TC-PG06-11 | DEF-R2-02: gồm TestStatusParity |
 | 3 | TC-GATEPU-01 | lint 5 cảnh báo (TC-PU01-05); pbuild/gbuild rc=0, 0 "Failed to load font" (DEF-R3-03) |
 | 3 | TC-P101-24 | DecryptKey( ngoài llm/llmconfig: 2 chỗ (httpapi/llmhttp/admin.go:242, verify.go:302) → DEF-R3-04 (DEF-R3-04) |
+| 3 | TC-P102-14 | lỗi 503: INTERACTIVE gọi nhà 2 lần (1+1 thử lại), BATCH 15 lần (kỳ vọng 3) (DEF-R3-05) |
+| 3 | TC-P103-19 | sau chuỗi lỗi: circuit=open; lời gọi kế tiếp chặn ngay (503 LLM_UNAVAILABLE, 42242 ms, 0 request tới stub) (DEF-R3-05) |
+| 3 | TC-P103-20 | bán mở sau 30 s: 3 lời gọi đồng thời → stub nhận 6 (≤ 1 thăm dò × 3 lần thử); [503, 503, 503] (DEF-R3-05) |
 | 3 | TC-P105-44 | chữ «EMBEDDING» thô hiện ở bảng «Mức dùng theo tác vụ» (taskLabel không có nhãn cho EMBEDDING) → DEF-R3-01 (DEF-R3-01) |
 | 3 | TC-PU01-05 | pnpm lint rc=0 nhưng 5 cảnh báo (cells.tsx:39, QueueTab.tsx:115/123, Landing.tsx:48, LlmSettings.tsx:13); nền sprint 3 = 0 cảnh báo → DEF-R3-03 (DEF-R3-03) |
 | 4 | TC-P208-02 | class_code trùng(hoa-thường) 201; còn lại [422, 422, 422, 422, 422, 422] (DEF-R4-01) |
 | 4 | TC-P210-03 | tệp `.xlsx` thực là văn bản (text.xlsx) được nhận 200 (server đọc theo nội dung như CSV); fake-ext/png-as/cut.xlsx → 422 UNSUPPORTED_FILE đúng → |
-| 5 | TC-PE03-52 | axe 1440 /questions: label-content-name-mismatch (serious) ×2 ở nút đầu trang AppShell → DEF-R5-01 |
-| 5 | TC-PE04-45 | axe 1440 /exams, /exams/[id] (GV) và 390 SV: label-content-name-mismatch (serious) ở AppShell → DEF-R5-01; ox=0, vùng chạm ≥40 px ở danh sách SV |
-| 5 | TC-PE05-48 | axe 390 /take: label-content-name-mismatch (serious) → DEF-R5-01 (Lighthouse INP/CLS chưa đo) |
-| 5 | TC-PE06-08 | axe 1440 làm bài code: label-content-name-mismatch ×3 (DEF-R5-01) + scrollable-region-focusable ×1 (DEF-R5-02) |
 | 6 | TC-P3-01-49 | Vai DB ứng dụng edupilot rolsuper=t (như BUG-1 gốc); DEF-R6-01 |
 | 6 | TC-P3-02-21 | Duyệt/vào lớp không vô hiệu ep:roster (chỉ member_changed khi mời ra/hoàn tác) → tên SV mới không bị chặn ≤1 giờ; DEF-R6-02 |
+| 7 | TC-P4-02-03 | go test FAIL: ok  	github.com/edupilot/backend-go/internal/calendar	(cached) FAIL |
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
-| 9 | TC-P7-01-G06 | TestAssignmentsRBACMatrix: không có trong repo; go rc=1 missing=[] skip=[] race=False |
+| 8 | TC-P6-01-20 | weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01) |
+| 8 | TC-P6-02-15 | quét float64: internal/seedtool/examhistory.go:130 đưa điểm thi qua float64(c)*2.5 (seed tool); mã sản phẩm sạch |
+| 8 | TC-P6-02-25 | C: KT=0, status COMPLETE, nhưng dòng KT chỉ expr '0' (filled_by_user, không quote điều 1.4), không có chữ 'không dự → 0 theo quy chế' (DEF-R8-s8core-01 |
+| 8 | TC-P6-02-42 | 200 {'students_total': 30, 'students_computable': 30, 'changed_vs_confirmed': 21, 'entries_carried': 60, 'entries_dropped': [], 'samples': [{'student': {'i |
+| 8 | TC-P6-05-03 | status={"state": "DRAFT_UNCLEAR", "unclear_count": 3, "has_policy": true, "pending_draft": true, "gradebook": {"status": "OPEN", "snapsho |
+| 8 | TC-P6-05-23 | GS=[{"id": "GRADE_SCHEME_UNCONFIRMED:01a1dff6-f018-7550-b9bb-abfaa2cf3d9d", "kind": setup=[] |
+| 8 | TC-P6-05-24 | ['Đã có quy chế, chưa trích công thức.'] |
+| 9.5 | TC-N01-12 | DEF-R9.5-16: check-meta nêu đúng tên 7 trường thiếu nhưng `demo_stack:"unknown"` vẫn «meta đủ» (không kiểm giá trị) |
+| 9.5 | TC-N01-17 | DEF-R9.5-01: BASE=http://[::1]:3000 và host.docker.internal:3000 KHÔNG bị refuseDemo (chỉ lỗi kết nối) |
+| 9.5 | TC-N02-02 | DEF-R9.5-17: trên ep-r 4/7 check-*-seed đạt (chat, crm, docs, grade ×3); assignments/exam/knowledge đỏ do dữ liệu bị ca khác thêm (BT03 đã chấm, 10 c� |
+| 9.5 | TC-N02-03 | DEF-R9.5-17: chạy lại seed.mjs trên ep-r: mã 1 «422 IDEMPOTENCY_KEY_REUSED» ở bước 15 (6 điểm giữa kỳ bị ca khác sửa); lượt chạy sau bước |
+| 9.5 | TC-N02-06 | DEF-R9.5-18: đăng nhập 4 vai OK, sai mật khẩu 401; GV/TA/SV có việc đúng nguồn; Admin Hôm nay = 0 việc (nguồn Admin chỉ phát sinh khi lỗi hệ th |
+| 9.5 | TC-N02-09 | DEF-R9.5-19: bỏ SEED_DEFAULT_PASSWORD vẫn chạy tiếp (đọc .env.local/.env.example), không «Thiếu SEED_DEFAULT_PASSWORD» |
+| 9.5 | TC-N02-11 | DEF-R9.5-19: mật khẩu rỗng / toàn khoảng trắng không bị coi là chưa đặt (rơi về .env.local) |
+| 9.5 | TC-N04-12 | DEF-R9.5-03: load-a/c không có mục docker stats / ghi 'không OOM, CPU<95 %' |
+| 9.5 | TC-N05-03 | DEF-R9.5-04: không có 00018_indexes_tuning.sql (P-95-8 dev: «không tạo», cột quyết định PM để trống) |
+| 9.5 | TC-N06-04 | DEF-R9.5-20: Redis tắt → gửi chat trả 200 suy giảm sau 39,5 s (> 10 s; dev ghi ≈ 19 s) = TL-2d còn mở; tạo phiên chat 503 sau 1,9 s |
+| 9.5 | TC-N07-10 | DEF-R9.5-08: báo cáo/handoff không ghi lần đo bị nhiễu (CPU nền > 30 %) |
+| 9.5 | TC-N08-01 | DEF-R9.5-09: meta.config của 12/13 tệp real-llm chỉ có `note`, không có chuỗi model thực đo và RPM |
+| 9.5 | TC-N08-06 | DEF-R9.5-10: 15 lượt mask nhưng không có tỷ lệ placeholder giữ/khôi phục (≥ 95 %) và số lần mô hình đổi placeholder; report.md «chưa so khớ |
+| 9.5 | TC-N08-11 | DEF-R9.5-11: R5 Threads 3/3 AI SKIPPED (embedding giả); khủng hoảng chỉ 1 mẫu (Q24), không đủ ≥ 3 mẫu/việc |
+| 9.5 | TC-N08-16 | DEF-R9.5-12: real_llm.py không có --resume / không ghi «chưa hoàn tất — hết hạn mức»; 429 Retry-After 120 → chờ 60 s ×5 (≈300 s) rồi LỖI rc=2, |
+| 9.5 | TC-N08-17 | DEF-R9.5-12: không có --resume (README nói có); xem TC-N08-16 |
+| 9.5 | TC-N09-01 | DEF-R9.5-13: báo cáo research không có mục riêng NFR-02/03 và không đủ «6 phần» ở từng mục |
+| 9.5 | TC-N09-04 | DEF-R9.5-14: số R2–R4 trong research report (MAE 1,19; token đầu p95 9,5 s…) không có trong tệp nguồn cùng tên (nay chứa số 9router: MAE 0,688; first |
+| 9.5 | TC-N09-05 | DEF-R9.5-14: 3/15 số mẫu không khớp tệp nguồn (R2 vòng 3, R4 first_token, R4 sự kiện đầu 15 vs 14 ms) |
+| 9.5 | TC-N09-07 | DEF-R9.5-15: danh sách «câu cần vá» chỉ nêu tệp, không có tệp:dòng |
+| 9.5 | TC-N09-11 | DEF-R9.5-07: câu «MacBook Apple Silicon, Colima 6 CPU / 10 GB» chỉ 1 lần; hạn chế loopback/cận dưới không ở từng mục |
+| 9.5 | TC-N09-13 | DEF-R9.5-14: FAIL «1.000 bài lần 1» (322/1000, 678 FAILED) và run1 không có ở bảng tổng của research report (bảng ghi «chưa có kết quả») |
+| 9.5 | TC-N10-06 | DEF-R9.5-06: PROGRESS.md không có dòng Nợ TL-2c/d/e/f dù techlead.md ghi «chuyển Nợ» |
+| 9.5 | TC-N10-10 | DEF-R9.5-05: 9.5 sửa test có sẵn (bf9aa0bb 2 test guard; 811afebd kỳ vọng 429) |
+| 9 | TC-P7-01-G06 | TestAssignmentsRBACMatrix không có trong repo (DEF-R9-01); contract -tags testroutes chạy lại lúc máy rảnh: ok 54s (lần đỏ trước = do tải ~20) |
 | 9 | TC-P7-02-G10 | TestAssignmentsRBACMatrix: không có trong repo |
 | 9 | TC-P7-03-G03 | TestSubmitIdempotent: không có trong repo; Playwright mock 1 mẫu -g xanh |
 | 9 | TC-P7-03-G07 | TestSubmitClosed: không có trong repo |
@@ -92,6 +127,27 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Chạy lại lần 2: ổn định
 
 ---
+<!-- defects-2.md -->
+### DEF-R2-01 — `openapi.yaml` không qua `redocly lint` (1 lỗi struct)
+- Mức: Trung bình
+- Sprint gốc: 2 (US-PG-06; cũng sprint 1 US-P0-02/TC-21) · TC gốc: TC-PG06-01, P0-02/TC-21 · Hồi quy do sprint sau?: CÓ (sprint 11 đợt 2, commit 0d38d7a5 «US-P10-06 API thống kê điểm thi»)
+- Môi trường: be0c0d96, không cần stack
+- Bước tái hiện: 1. `cd` gốc repo. 2. `pnpm exec redocly lint backend-go/api/openapi.yaml` → rc 1, «10370:7 error struct Expected type `ParameterList` (array) but got `null`».
+- Kỳ vọng: 0 lỗi lint · Thực tế: 1 lỗi + 21 cảnh báo; thao tác `compareExamAnalytics` (GET /api/v1/analytics/exams/compare) khai báo `parameters:` rỗng
+- Bằng chứng: evidence-1/run-02-tc21.log · Nghi ngờ mã: backend-go/api/openapi.yaml:10370 (xoá khoá `parameters:` hoặc điền danh sách)
+- Chạy lại lần 2: ổn định
+
+### DEF-R2-02 — `go test ./internal/contract` đỏ: TestStatusParity / TestSpec_EveryDocumentedStatusExercised
+- Mức: Cao (hợp đồng API↔spec; có một 500 INTERNAL thay vì 404)
+- Sprint gốc: 2 (US-PG-06) · TC gốc: TC-PG06-10, TC-PG06-11 (TC-PG06-28 lỗi thời cách chọn test) · Hồi quy do sprint sau?: CÓ (scenarios_exam_test.go thuộc sprint 9.x; spec mở rộng 298 route)
+- Môi trường: be0c0d96, testcontainers (Colima), máy tải cao (load ~20)
+- Bước tái hiện: 1. `cd backend-go && go test -race -count=1 -tags testroutes -v -run TestStatusParity ./internal/contract`. Lượt đầy đủ: `scenarios_exam_test.go:606: GET …/exams/{eid}/attempts/{aid}/code/{pid}/submissions → 500 (cần 404): {"code":"INTERNAL"…}`; lượt chạy riêng: `scenarios_test.go:441: POST /api/v1/admin/llm/providers → 504 (cần 201) DEADLINE_EXCEEDED` (nghi tải máy). `TestSpec_EveryDocumentedStatusExercised`: nhiều trạng thái khai báo (DELETE /admin/llm/providers/{id}: 204/401/403/404/409; DELETE /chat/sessions/{sid}…) «không test nào sinh ra».
+- Kỳ vọng: TestStatusParity, TestSpec_EveryDocumentedStatusExercised PASS · Thực tế: FAIL cả hai lần (chạy riêng và cả bộ)
+- Bằng chứng: /tmp/qc2-A-statusparity.log; evidence-2/run-logs/06.log · Nghi ngờ mã: backend-go/internal/contract/scenarios_exam_test.go:606 (500 thay vì 404 ở submissions mã lập trình), contract/exempt.go (thiếu miễn trừ cho route mới)
+- Chạy lại lần 2: trượt (2/2)
+- **Phân tích SmkJ (23:40, chạy riêng `TestStatusParity` với env CI `TESTCONTAINERS_RYUK_DISABLED=true EP_SKIP_TIMING=1 -race -tags testroutes -count=1`, load máy 18–20, VM Colima load 43–62):** lượt 23:33 trượt ở `scenarios_test.go:501 PUT /admin/llm/routes → 504 DEADLINE_EXCEEDED` (không tới được dòng 606; log gateway của rig bị `io.Discard` ở `rig_test.go`, không có dòng log/stack để trích). Mỗi lượt đỏ ở MỘT yêu cầu khác nhau (441 → 501 → 606; DEF-R10-01 cũng khác endpoint mỗi lần) ⇒ không phải một lỗi xác định. Nguyên nhân gốc đọc từ mã: `rig_test.go:66 REQUEST_TIMEOUT=1s` + Postgres/Redis/MinIO testcontainers DÙNG CHUNG toàn máy (tên cố định, Reuse) với mọi agent đang chạy `go test` ⇒ một câu SQL > 1 s là hết hạn. Hết hạn chưa ghi gì → `timeoutMiddleware` trả 504 (đúng spec); NHƯNG 27 chỗ `apierr.Internal` ở các handler (vd. `examhttp/questions.go:99`, mặc định của `h.fail`) ghi 500 INTERNAL cho mọi lỗi lạ, kể cả `context deadline exceeded` từ DB, TRƯỚC khi middleware kịp xét (`!sw.wrote` sai) ⇒ cùng nguyên nhân cho ra 500 (606, DEF-R10-01: `POST …/report`, `/auth/verify-email`) hoặc 504 (441, 501). Kết luận: **do tải** ở mức kiểm thử (rig 1 s); kèm lỗi nhẹ thật của sản phẩm: lỗi DB do hết hạn bị gói thành 500 thay vì 504 (SRS 3.4) ở handler không dùng ánh xạ `DeadlineExceeded` (chỉ `llmhttp/verify.go`, `observabilityhttp`, `todayhttp` có). Chưa có lượt xanh trên máy rảnh (tải không xuống dưới 8) — lượt kế tiếp: xem mục «lượt chạy» ở smoke-2.md.
+
+---
 <!-- defects-3.md -->
 ### DEF-R3-01 — Bảng «Mức dùng theo tác vụ» hiện chữ thô «EMBEDDING»
 - Mức: Thấp
@@ -129,6 +185,15 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Bằng chứng: kết quả grep · Nghi ngờ mã: như trên
 - Chạy lại lần 2: ổn định
 
+### DEF-R3-05 — Làn BATCH bị gọi lại/chờ bất thường trên ep-r (TC-P102-14, TC-P103-19, TC-P103-20)
+- Mức: Trung bình (cần dev xác nhận; có thể do tải chung của nhóm khác trên làn BATCH)
+- Sprint gốc: 3 · TC gốc: TC-P102-14 (AC6), TC-P103-19/20 (AC6 cầu dao) · Hồi quy do sprint sau?: KHÔNG RÕ
+- Môi trường: ep-r, be0c0d96, ADMIN, `/_test/llm/chat`, nhà stub OpenAI cục bộ `evidence-3/scripts/qstub.py` (model `m-503` trả 503), `LLM_MAX_CONCURRENCY=10`
+- Bước tái hiện: `python3 evidence-3/scripts/p10x2.py` (cần khoá global): (1) đặt CHAT → nhà S3/m-503, GRADING → nhà S4/m-503; gọi CHAT ×1 → stub nhận 2 (đúng 1+1); gọi GRADING ×1 → stub nhận 15 lần (kỳ vọng 3: 1 + 2 thử lại); (2) sau ≥5 lỗi, circuit=open nhưng lời gọi GRADING kế tiếp trả 503 sau 42 242 ms (kỳ vọng chặn ngay <500 ms, 0 request tới nhà); (3) sau 30 s bán mở: 3 lời gọi đồng thời → stub nhận 6 (kỳ vọng ≤ 1 thăm dò × số lần thử).
+- Kỳ vọng: BATCH thử lại ≤ 2 lần; cầu dao mở chặn ngay; bán mở 1 thăm dò · Thực tế: như trên (INTERACTIVE đúng)
+- Bằng chứng: `evidence-3/p10x.out`, `/tmp/qc2-b/results-3-p10y*.json` · Nghi ngờ mã: `backend-go/internal/llm/scheduler/` (hàng đợi BATCH dùng chung giữa tiến trình, `LLM_BATCH_SHARE`), `internal/llm/cascade.go`; hoặc làn BATCH đang bận bởi chấm bài của nhóm khác (nhiễu môi trường) — chạy lại trên stack yên tĩnh để loại trừ
+- Chạy lại lần 2: trượt ổn định (2 lần chạy cùng kết quả; lần chạy thứ 3 đang chờ khoá)
+
 ---
 <!-- defects-4.md -->
 ### DEF-R4-01 — Mã lớp phân biệt hoa/thường: tạo được hai lớp `SK20D91` và `sk20d91`
@@ -140,16 +205,23 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Bằng chứng: `evidence-4/p2c.out` (TC-P208-02) · Nghi ngờ mã: `backend-go/internal/course/admin.go:114-120` (`normClass`), `backend-go/db/migrations/00003_course_foundation.sql:37,49`
 - Chạy lại lần 2: ổn định (tạo lại với mã khác: cùng kết quả). Đã lưu trữ cả hai lớp QC sau khi đo.
 
+### DEF-R4-02 — Import roster nhận tệp `.xlsx` thực chất là văn bản (TC-P210-03)
+- Mức: Thấp
+- Sprint gốc: 4 · TC gốc: TC-P210-03 (AC1/AC13 magic bytes) · Hồi quy do sprint sau?: KHÔNG RÕ
+- Môi trường: ep-r, be0c0d96, GV của lớp
+- Bước tái hiện: tạo `text.xlsx` bằng `gen.py` (nội dung CSV, đuôi .xlsx); `POST /courses/{id}/roster/import?dry_run=true` multipart `file=@text.xlsx` + `Idempotency-Key` → 200 (đọc như CSV). `fake-ext.csv` (ELF), `png-as.csv`, `cut.xlsx` → 422 UNSUPPORTED_FILE đúng.
+- Kỳ vọng: 422 UNSUPPORTED_FILE (đuôi/ nội dung không khớp magic bytes) · Thực tế: 200
+- Bằng chứng: `evidence-4/p2h.out` · Nghi ngờ mã: bộ đọc roster ở `backend-go/internal/course/` (nhận diện theo nội dung, bỏ qua đuôi)
+- Chạy lại lần 2: ổn định (không có hại: dữ liệu vẫn qua kiểm tra dòng)
+
 ---
 <!-- defects-5.md -->
-### DEF-R5-01 — Nút đầu trang AppShell vi phạm axe `label-content-name-mismatch` (serious) trên mọi màn đăng nhập
-- Mức: Trung bình (truy cập; ảnh hưởng người dùng đọc màn hình/điều khiển bằng giọng nói; rộng)
-- Sprint gốc: 5 · TC gốc: TC-PE03-52, TC-PE04-45, TC-PE05-48, TC-PE06-08 (axe 0 `serious`/`critical`) · Hồi quy do sprint sau?: CÓ (khung AppShell mới sau sprint 5: 10.7 §23 / sprint 9.1–10.x; `git log frontend/src/shared/shell/AppShell.tsx`)
-- Môi trường: ep-r, be0c0d96, vai GV r5t / TA / SV r5s11–12, Chrome 1440 và 390; frontend http://localhost:3700 qua https://localhost:1143
-- Bước tái hiện: 1. Đăng nhập (UI) bằng bất kỳ tài khoản. 2. Mở `/questions` (GV) hoặc `/exams`, `/exams/<id>/take` (SV). 3. Chạy `@axe-core/playwright` (wcag2a/aa/21a/21aa) — script: `docs/regression/evidence-5/ui/ui_pe.cjs` (in node vi phạm).
-- Kỳ vọng (theo AC/TC): axe 0 `serious`/`critical`. · Thực tế: `label-content-name-mismatch` ×2–3: (1) `button.search aria-label="Tìm nhanh hoặc đi đến"` khác chữ nhìn thấy "Tìm nhanh hoặc đi đến…"; (2) nút chuông `aria-label="Thông báo, 58 chưa đọc"` khác chữ hiển thị "9+"; (3) nút hồ sơ `aria-label="Tài khoản: R5 SV 12"` khác chữ "R5 SV 12".
-- Bằng chứng: `evidence-5/logs/ui_pe.log`, `evidence-5/ui/shots/*.png` · Nghi ngờ mã: `frontend/src/shared/shell/AppShell.tsx:245-266` (aria-label không chứa nguyên văn chữ hiển thị — WCAG 2.5.3)
-- Chạy lại lần 2: trượt/ổn định (3 lượt chạy)
+### DEF-R5-01 — Nút đầu trang AppShell: axe `label-content-name-mismatch` (chỉ khi bật thẻ wcag21a)
+- Mức: Thấp (ghi nhận, KHÔNG phải hồi quy của sprint sau; ca TC liên quan được chấm lại)
+- Sprint gốc: 5 · TC gốc: TC-PE03-52 (axe wcag2a/2aa/21aa/22aa 0 serious) · Hồi quy do sprint sau?: KHÔNG — `aria-label` của nút tìm nhanh / chuông / hồ sơ có từ `f7a15c7d` (US-PROTO-00, 2026-10-02) và `c8c3b70b` (2026-10-02), TRƯỚC sprint 5 (10-03…10-10); `axe-allow.json` không có mục `label-content-name-mismatch`. Quy tắc này thuộc thẻ `wcag21a`, không nằm trong bộ thẻ của TC/dev (`a11y.spec.ts` TAGS = wcag2a, wcag2aa, wcag21aa, wcag22aa) nên lượt đầu của QC (thêm wcag21a) báo thừa.
+- Môi trường: ep-r, be0c0d96, GV r5t 1440; script `evidence-5/ui/ui_pe.cjs`
+- Kỳ vọng: 0 serious với bộ thẻ TC. · Thực tế: với bộ thẻ TC → 0 (`/questions`); thêm wcag21a → `button.search` aria-label "Tìm nhanh hoặc đi đến" ≠ chữ "…" nhìn thấy, chuông "Thông báo, N chưa đọc" ≠ "9+", hồ sơ "Tài khoản: Tên" ≠ "Tên" (WCAG 2.5.3). Nghi mã: `frontend/src/shared/shell/AppShell.tsx:245-266`.
+- Chạy lại lần 2: ổn định. Khuyến nghị (PM quyết): đưa chữ nhìn thấy vào đầu aria-label.
 
 ### DEF-R5-02 — Vùng cuộn ở màn làm bài code không focus được bằng bàn phím
 - Mức: Thấp
@@ -201,12 +273,10 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 
 ---
 <!-- defects-8.md -->
-### DEF-R8-01 — Xem trước sổ điểm lớp 1 lệch bảng chuẩn ở 7/30 SV (chưa xác minh)
-- Mức: Cao (nếu là lỗi tính điểm) · Sprint gốc: 8 · TC gốc: TC-P6-SEED/G6-12 (preview vs expected_final_grades.csv) · Hồi quy do sprint sau?: KHÔNG RÕ (nghi sprint 9 `v2` — công thức lớp 1 bản 2 có 4 thành phần — hoặc nhóm khác sửa điểm/mục bài tập ở lớp 1)
-- Môi trường: ep-r, be0c0d96, TEACHER, `GET /courses/{lớp 1}/gradebook/preview?limit=100`
-- Bước tái hiện: `python3 docs/sprints/8/qc/scripts/p6-preview-vs-csv.py --by-account` (đã đổi container sang ep-r-postgres-1) sau khi lưu preview vào /tmp/pv.json
-- Kỳ vọng: 30/30 khớp · Thực tế: 23/30 (sv10 qt 8,5 vs 6,0; sv23 hp_raw 4,1 vs 4,0 …). `p6-hand-calc.py` 30/30 và `go test ./internal/grade` xanh nên engine đúng; nghi dữ liệu lớp 1 đã đổi.
-- Bằng chứng: `docs/regression/evidence-8/logs/preview-vs-csv.log` · Chạy lại lần 2: ổn định (2 lần)
+
+
+### DEF-R8-00 — (SmkD) Xem trước sổ lớp 1 lệch 7/30 — xem S8Core để kết luận
+- Triệu chứng: `p6-preview-vs-csv.py --by-account` 23/30 (sv10 qt 8,5 vs 6,0; sv23 hp_raw 4,1 vs 4,0). hand-calc 30/30 và go test grade xanh.
 
 ---
 <!-- defects-9.md -->
@@ -219,15 +289,9 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Bằng chứng: `docs/regression/evidence-9/logs/TC_P7_*_G*.log`
 - Chạy lại lần 2: ổn định
 
+### DEF-R9-02 — ĐÃ LOẠI: `go test ./internal/contract/...` đỏ lúc tải cao
+- Chạy lại `go test -count=1 -tags testroutes ./internal/contract/...` lúc máy rảnh: ok (25 PASS, rc=0, logs/contract-rerun.log). Lần đỏ trước do timeout/504 khi tải ~20 → môi trường, không phải lỗi.
 
-### DEF-R9-02 — `go test ./internal/contract/...` đỏ ở HEAD (TC-P7-01-G06, một vế)
-- Mức: Trung bình (chưa xác minh nguyên nhân)
-- Sprint gốc: 9 · TC gốc: TC-P7-01-G06 · Hồi quy do sprint sau?: KHÔNG RÕ (chưa chạy lại với tập thẻ build đúng của gate-p6/p7; cả `-tags testroutes` lẫn không thẻ đều rc=1)
-- Môi trường: ep-r, be0c0d96, máy dev (testcontainers/Colima)
-- Bước tái hiện: `cd backend-go && go test -count=1 -tags testroutes ./internal/contract/...` → rc=1, `TestSpec_EveryDocumentedStatusExercised` báo các route `/api/v1/_test/*` (whoami, events, items) "khai báo status … nhưng không test nào sinh ra"; không thẻ: `TestStudentNeverSeesConfidence` "0 lời gọi chat"
-- Kỳ vọng: xanh (mọi gate cũ chạy `-tags testroutes`) · Thực tế: đỏ
-- Bằng chứng: `docs/regression/evidence-9/logs/contract-testroutes.log` (6.000 ký tự cuối), `TC_P7_01_G06.log`
-- Chạy lại lần 2: ổn định (2 lần)
 
 ---
 <!-- defects-9.5.md -->
@@ -406,6 +470,11 @@ Ghi nhận không phải lỗi sản phẩm: (1) check-practice-seed.mjs đỏ d
 - Bằng chứng: `evidence-10.5/pw-dm.log`, `evidence-10.5/shots/observability-admin-1440.png`  · Nghi ngờ mã: `AdminView.tsx:58-65`
 - Chạy lại lần 2: ổn định
 
+### Mục TC-D04 (cổng chèn lệnh) — không có lỗi sản phẩm
+- TC-D04-01, D04-09 ghi `LỖI THỜI (P-11-26)`: `FAKE_DECISION_PROB` chỉ ghi đè đầu vào NGOÀI `decision-replay.json`; sau P-11-26 replay chứa mẫu chấm của seed (20 FALLBACK + 1 FAST ở P=0,9) nên kịch bản `dm_c.py` (14 cờ mới ở P=0,9) không còn dựng được. Cần dev/PM cho cách điều khiển mới nếu muốn kiểm OR ba tầng.
+- TC-D04-02/03 PASS: lỗi decision (circuit_open) → chấm xong 22/22, điểm y hệt giữa cổng tắt / bật / lỗi cùng điều kiện. Chênh điểm so với round 1 trong `dm_c.py` KHÔNG do cổng (cổng tắt cũng chênh y hệt): round 1 chấm lúc route GRADING do nhóm khác đang đổi.
+- Lưu ý môi trường: Postgres vào recovery giữa lượt B5a (nhóm khác chaos) làm hỏng một lượt; đã chạy lại ở B6.
+
 ---
 <!-- defects-10.6.md -->
 ### DEF-R10.6-01 — reflect / regrade-stale qua lớp có cờ tắt trả 409 GUIDANCE_DISABLED trước 404
@@ -421,3 +490,18 @@ Ghi nhận không phải lỗi sản phẩm: (1) check-practice-seed.mjs đỏ d
 - TC-G03-22 (reflect `error` / `invalid` → FAILED sau 3 lần): hành vi đổi theo P-11-23 (`llm.AwaitOutage`: mất nhà cung cấp không tiêu lượt, hoãn tới OutageMax) → job FAILED sau ≈ 10 phút, vẫn 0 DRAFT, mã `REFLECT_FAILED`. Ghi `LỖI THỜI (P-11-23)`.
 - TC-G01-05 «lớp lạ → 404»: GV/TA/SV không thuộc lớp nhận 403 từ CourseAccessGuard (không đổi từ 10-2026; tc-00 sprint 10: «403 hoặc 404»); ADMIN nhận 404.
 - `go test -tags testroutes ./internal/contract` đỏ ở `TestNoAnswerLeak` khi chạy trong shell đã export `QC_*`/`SEED_DEFAULT_PASSWORD`; chạy trong môi trường sạch: PASS (cả gói 57 s). Do môi trường chạy của QC, không phải lỗi.
+
+---
+<!-- defects-10.8.md -->
+# Lỗi hồi quy sprint 10.8 (tạm, cập nhật dần) — be0c0d96, ep-r, qc2/SmkH
+
+Chưa có lỗi sản phẩm nào được xác nhận (trượt 2 lần). Các lượt F đã gặp và đã quy về môi trường / dữ liệu lặp, chạy lại đều ra P (không phải lỗi):
+
+| TC | Triệu chứng lần đầu | Nguyên nhân | Chạy lại |
+| --- | --- | --- | --- |
+| TC-AS03-07 | (c) trả `422 CHECKIN_TOKEN_INVALID` thay vì `409 SELF_CHECKIN_DISABLED` | lớp thử còn một cửa sổ đang mở; theo D-AS-06 (US-AS-01 AC5) cửa sổ đang mở vẫn nhận lượt dù tắt chính sách — hành vi đúng | P trên lớp không có cửa sổ mở |
+| TC-AS03-18 | `me/attendance` rỗng | chưa đóng cửa sổ nên chưa có `attendance_records` | P sau khi đóng |
+| TC-AS04-10 | K2 đầu tiên bị `DEVICE_NEW` ở lượt chạy 2 | dùng lại SV đã có khoá từ lượt chạy 1 | P với SV mới |
+| TC-AS10-08b | grep log khớp `10.77` | khớp nhầm mili-giây của dấu thời gian | P với mẫu chính xác (0 dòng) |
+| TC-AS12-15, TC-AS12-12…14 | 422 / dòng DB rỗng | token xoay 5 s hết hạn vì stack chậm, hoặc PostgreSQL đang phục hồi sau sự cố (nhóm khác) | P khi chạy lại |
+| TC-AS06-06/08 | `/me/today` không có mục | cache Hôm nay 60 s + fixture SQL không xoá cache; mục tính trong hạn 60 ms của provider | P sau chờ hết TTL |

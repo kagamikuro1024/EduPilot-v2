@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 7 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm E) · Ngày: 2026-11-15
-Tổng TC cũ: 582 · Đạt: 159 · Trượt: 1 · Không chạy K (a/b/c): 6 · Lỗi thời (T, tính vào cột K của brief): 0 · Chưa chạy (mẫu) N: 416   (P+F+K+T+N = 582 = 582)
+Tổng TC cũ: 582 · Đạt: 165 · Trượt: 2 · Không chạy K (a/b/c): 6 · Lỗi thời (T, tính vào cột K của brief): 0 · Chưa chạy (mẫu) N: 409   (P+F+K+T+N = 582 = 582)
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -16,20 +16,20 @@ Cách chạy:
 ## Tổng hợp theo US
 | US | TC tổng | P | F | K | T | N | Ghi chú |
 |---|---|---|---|---|---|---|---|
-| US-P4-01 | 42 | 9 | 0 | 0 | 0 | 33 |  |
-| US-P4-02 | 31 | 7 | 0 | 0 | 0 | 24 |  |
+| US-P4-01 | 42 | 11 | 0 | 0 | 0 | 31 |  |
+| US-P4-02 | 31 | 7 | 1 | 0 | 0 | 23 |  |
 | US-P4-03 | 45 | 19 | 0 | 0 | 0 | 26 |  |
 | US-P4-04 | 39 | 9 | 0 | 0 | 0 | 30 |  |
 | US-P4-05 | 53 | 19 | 0 | 0 | 0 | 34 |  |
 | US-P4-06 | 55 | 22 | 0 | 0 | 0 | 33 |  |
-| US-P4-07 | 29 | 11 | 0 | 0 | 0 | 18 |  |
+| US-P4-07 | 29 | 12 | 0 | 0 | 0 | 17 |  |
 | US-P5-01 | 36 | 12 | 0 | 0 | 0 | 24 |  |
 | US-P5-02 | 48 | 13 | 0 | 0 | 0 | 35 |  |
 | US-P5-03 | 47 | 10 | 0 | 0 | 0 | 37 |  |
 | US-P5-04 | 37 | 10 | 0 | 0 | 0 | 27 |  |
-| US-P5-05 | 35 | 9 | 0 | 0 | 0 | 26 |  |
+| US-P5-05 | 35 | 10 | 0 | 0 | 0 | 25 |  |
 | US-P5-06 | 28 | 4 | 0 | 0 | 0 | 24 |  |
-| US-S7-SEED | 25 | 0 | 0 | 0 | 0 | 25 |  |
+| US-S7-SEED | 25 | 2 | 0 | 0 | 0 | 23 |  |
 | US-CI-02 | 32 | 5 | 1 | 6 | 0 | 20 |  |
 
 ## Kết quả từng ca
@@ -37,7 +37,10 @@ Cách chạy:
 | TC | KQ | Ghi chú |
 |---|---|---|
 | TC-P4-01-01 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
-| TC-P4-01-02 … TC-P4-01-06 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-02 … TC-P4-01-03 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-04 | P | kind=X→22P02; OPEN+claimed_by→23514; CLAIMED thiếu claimed_by→23514; ANSWERED thiếu answered_by→23514; QUESTION không message_id→23514; GRADE_APPEAL không appeal_payload→23514; QUESTION có appeal_payl |
+| TC-P4-01-05 | P | cả thread và post→23514; cả hai rỗng→23514; hai lần cùng đích→23505; reason ngoài enum→22P02; 1 lần hợp lệ→OK; cascade→OK; cascade xoá chunk→BEGIN INSERT 0 1 DELETE 1 left=0 ROLLBACK |
+| TC-P4-01-06 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-01-07 | P | escalate → 201 {'already': False, 'ticket': {'id': '01a1df53-c92c-7dbc-8808-d96a6181fbf9', 'status': 'OPEN', 'creat (đã có ticket trước đó=0) |
 | TC-P4-01-08 | P | 3 lần → [200, 200, 200], số ticket=1 |
 | TC-P4-01-09 | P | 10 yêu cầu song song → [200, 201], số ticket=1 |
@@ -52,7 +55,8 @@ Cách chạy:
 | TC-P4-01-37 | P | `go test -tags testroutes ./internal/contract/...`: lệnh gốc thiếu tag nên 404 `_test/*`; có tag chỉ 1 test đỏ do 504 DEADLINE (TestNoAnswerLeak, tải máy ~20) — chạy riêng ok 29 s |
 | TC-P4-01-38 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-01-E1 … TC-P4-01-P1 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-02-01 … TC-P4-02-03 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-01 … TC-P4-02-02 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-03 | F | go test FAIL: ok  	github.com/edupilot/backend-go/internal/calendar	(cached) FAIL |
 | TC-P4-02-04 | P | SSE /events của GV nhận khung `notification` (TICKET_NEW) < 1 s sau khi ticket tạo |
 | TC-P4-02-05 … TC-P4-02-12 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-02-13 | P | TICKET_NEW gộp: «8 câu hỏi đang chờ giảng viên» (một thông báo/lớp) |
@@ -179,7 +183,8 @@ Cách chạy:
 | TC-P4-06-E1 … TC-P4-06-E2 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-07-01 | P | 20/20 câu dương → CRISIS; sót: [] |
 | TC-P4-07-02 | P | 17 câu âm: bị bắt nhầm CRISIS: [] |
-| TC-P4-07-03 … TC-P4-07-05 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-07-03 … TC-P4-07-04 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-07-05 | P | go test ok (2 test/ca con, ~2s) |
 | TC-P4-07-06 | P | câu trả lời mẫu duy nhất: 'Mình rất tiếc khi nghe điều này. Bạn không phải một mình, hãy nói chuyện với giảng viên củ' |
 | TC-P4-07-07 | P | cụm cấm trong câu mẫu: [] |
 | TC-P4-07-08 | P | 0 lời gọi LLM (llm_audit CHAT/UTILITY/CLASSIFY không tăng) qua 20+17+… câu |
@@ -284,7 +289,9 @@ Cách chạy:
 | TC-P5-05-23 | P | outreach → 201 |
 | TC-P5-05-24 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-05-25 | P | outreach chứa tên/email/MSSV của SV khác → [422, 422, 422] |
-| TC-P5-05-26 … TC-P5-05-33 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-26 … TC-P5-05-28 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-29 | P | go test ok (2 test/ca con, ~2s) |
+| TC-P5-05-30 … TC-P5-05-33 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-05-E1 … TC-P5-05-P1 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-06-01 | P | me/attendance, me/participation → [200, 200] |
 | TC-P5-06-02 | P | tham số student/student_id bị bỏ qua (cùng kết quả của chính mình) |
@@ -293,7 +300,11 @@ Cách chạy:
 | TC-P5-06-05 | P | limit=2 → 200 0 mục; keys=['attendance', 'next_cursor'] |
 | TC-P5-06-06 … TC-P5-06-26 (21 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-06-E1 … TC-P5-06-E2 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-S7-SEED-01 … TC-id (26 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-S7-SEED-01 … TC-S7-SEED-04 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-S7-SEED-05 | P | go test ok (0 test/ca con, ~3s) |
+| TC-S7-SEED-06 … TC-S7-SEED-20 (15 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-S7-SEED-21 | P | go test ok (0 test/ca con, ~2s) |
+| TC-S7-SEED-22 … TC-id (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-01 … TC-04 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-05 | P | mọi dòng Go matrix: `go test -race -tags testroutes -v $pkgs`; không -short/-failfast |
 | TC-06 | P | union 4 dòng matrix = `go list -tags testroutes ./...` = 100 gói, mỗi gói đúng 1 dòng (không trùng, không thiếu); sprint 7 gốc là 42 gói — tăng do sprint sau thêm gói |
@@ -318,6 +329,3 @@ Cách chạy:
 ## Ca K / T / N và lý do
 - K(b — PM duyệt đẩy nhánh tạm): TC-08, 16, 17, 18, 19, 22 của US-CI-02.
 - N (chưa chạy mẫu): ca UI Playwright-CLI/375 px, tick dài (SLA, reminder, rollup, auto-close, crm-risk-run), kill worker/gateway giữa chừng, hai gateway SSE, k6, Lighthouse, các ca Go chưa kịp chạy, S7-SEED (seed/expected, seed-study-time, gate-p4/p5 cần chạy lại script gate), CI-02 còn lại (đối chiếu trước/sau).
-
-## Độ phủ P/F theo US (lượt cuối)
-P4-01 21% · P4-02 23% · P4-03 42% · P4-04 23% · P4-05 36% · P4-06 40% · P4-07 38% · P5-01 33% · P5-02 27% · P5-03 21% · P5-04 27% · P5-05 26% · P5-06 14% · S7-SEED 0% · CI-02 19%. Chưa đạt 40%: các US còn lại; S7-SEED chưa chạy (cần seed.mjs/seed-study-time + gate-p4/p5).

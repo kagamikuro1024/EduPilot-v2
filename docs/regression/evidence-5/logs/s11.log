@@ -1,0 +1,7 @@
+ERR b1 AssertionError((422, {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'a3721c9f83168159993dd9ea88d032f4', 'details': [{'field': 'duration_minutes', 'code': 'DURATION_EXCEED
+PASS TC-PE05-56 lớp lưu trữ: SV thành viên bắt đầu 409 ['COURSE_ARCHIVED']; SV không thuộc lớp 403/course (start), mine 403
+PASS TC-PE08-28 reveal_answers=false: result 200; canary giải thích 0; khoá đáp án/đúng-sai: [('correct', 'true')]; điểm hiện 3.33
+PASS TC-PE05-59 sau công bố reveal=false: result + mine không có canary giải thích / answer_key; trước công bố đã quét ở PE05-14/16/53 (0 canary)
+ERR b4 KeyError('version')
+ERR b5 AssertionError((503, {}))
+FAIL TC-PE07-10 chat-gate ×300 (stack dùng chung, qua Caddy HTTPS): p95 phía gateway (log duration_ms, n=293) = 777.0 ms; p95 phía client 1407.6 ms

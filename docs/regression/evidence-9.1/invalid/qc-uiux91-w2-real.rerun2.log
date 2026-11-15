@@ -1,0 +1,59 @@
+
+Running 40 tests using 1 worker
+
+(node:23582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — student (3.1s)
+  ✓   2 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — teacher (2.6s)
+  ✓   3 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — ta (4.0s)
+  ✓   4 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — admin (4.0s)
+  ✘   5 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:57:1 › TC-UX07-4 thanh dưới / Thêm ở 375 — sinh viên + giảng viên (1.5m)
+(node:27971) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27971) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✘   6 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:76:1 › TC-UX07-5/6/7/11 tiêu đề trang = nhãn nav, <title>, HTML máy chủ, URL cũ còn (8.4s)
+(node:28335) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:95:1 › TC-UX07-7 /threads/‹id›: liên kết quay lại (5.3s)
+(node:28678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:106:1 › TC-UX07-15 số mục nav theo vai không đổi (SV 8, TA 12, GV 15, admin 6) (40.2s)
+  ✓   9 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses: không còn câu giải thích cũ (4.4s)
+  ✓  10 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses (mở form): không còn câu giải thích cũ (7.3s)
+  ✓  11 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/users: không còn câu giải thích cũ (7.6s)
+  ✓  12 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/users (mở form): không còn câu giải thích cũ (3.0s)
+  ✘  13 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 teacher /analytics: không còn câu giải thích cũ (1.8s)
+(node:31419) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 teacher /exams: không còn câu giải thích cũ (2.1s)
+(node:31470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 student /exams: không còn câu giải thích cũ (3.1s)
+  ✓  16 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 teacher /insights: không còn câu giải thích cũ (2.9s)
+  ✓  17 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 student /join: không còn câu giải thích cũ (5.0s)
+  ✓  18 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 student /me: không còn câu giải thích cũ (3.4s)
+  ✘  19 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/settings: không còn câu giải thích cũ (3.7s)
+(node:33262) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  20 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/members: không còn câu giải thích cũ (1.6s)
+(node:33476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  21 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 teacher /observability: không còn câu giải thích cũ (2.0s)
+(node:33580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 admin /observability: không còn câu giải thích cũ (2.5s)
+  ✓  23 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 student /practice/history: không còn câu giải thích cũ (2.8s)
+  ✓  24 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 student /practice: không còn câu giải thích cũ (2.9s)
+  ✓  25 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:143:3 › TC-UX01-1 teacher /questions: không còn câu giải thích cũ (3.0s)
+(node:33580) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  26 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:155:1 › TC-UX01-3 khung máy chủ (PreShell): không câu phụ, Hỏi đáp công khai (751ms)
+  ✘  27 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:167:1 › TC-UX01-10 hộp xác nhận Chốt điểm còn mô tả hệ quả (1.8s)
+(node:34642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:181:1 › TC-UX01-9 SV mở /observability, /analytics → 403 giữ nguyên (4.2s)
+  ✘  29 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:190:1 › TC-UX01-17 375 px: dưới h1 không còn dòng phụ trống, không tràn ngang (1.9s)
+(node:35377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  30 [desktop] › e2e/qc-uiux91-w2-real.spec.ts:205:1 › TC-UX05-1/2/3 Hộp thư rỗng: EmptyState đúng mẫu, không «Chọn một câu hỏi», nút ghost căn trái (3.4s)
+(node:35444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

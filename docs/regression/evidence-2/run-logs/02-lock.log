@@ -1,0 +1,76 @@
+### 02:60 22:45:03
+== TC-PG02-60
+    ok   POST /_test/jobs trả job id ~ /^[0-9a-f-]{36}$/
+    ok   số dòng jobs = [1]
+    FAIL dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction): thực tế [0] phải ≥ 1
+-- TC-PG02-60 FAIL
+TỔNG story 02: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG02-60
+### 02:62 22:45:06
+== TC-PG02-62
+    ok   số worker lúc chạy = [2]
+    ok   job nhận 202 = [100]
+    ok   dòng outbox job.enqueue mới = [100]
+    thời gian tới khi dispatched hết: 6s
+    ok   dòng outbox chưa dispatched = [0]
+    ok   thời gian dispatched hết (giây; ngưỡng stack compose thật ≤ 30 s — US.md 02-AC14 "Làm rõ" #Q-QC-02-2, 10 s chỉ cho test Go) = 6 (≤ 30)
+    ok   max(attempts) (0 = handler chạy đúng 1 lần mỗi dòng) = [0]
+    ok   job SUCCEEDED = [100]
+    ok   job progress=100 = [100]
+    ok   XPENDING outbox.dispatch outbox = [0]
+    ok   XLEN outbox.dispatch sau 10 s lặng (đã XACK + XDEL) = [0]
+    ok   XLEN outbox.dispatch.dead không đổi = [1]
+-- TC-PG02-62 PASS
+TỔNG story 02: PASS=1 FAIL=0 MANUAL=0 K=0
+### 02:64 22:58:15
+== TC-PG02-64
+    ok   tạo được dòng outbox topic lạ ~ /^[0-9a-f-]{36}$/
+    ok   attempts (1 lần đầu + 3 lần thử lại) = [4]
+    ok   dead_at có giá trị = [t]
+    ok   dispatched_at vẫn NULL = [t]
+    ok   last_error khác rỗng = [t]
+    ok   XLEN outbox.dispatch.dead tăng 1 = [2]
+    ok   tin dead-letter chứa id của dòng outbox = 1 (≥ 1)
+    ok   tin dead-letter có trường outbox_id = 2 (≥ 1)
+    ok   tin dead-letter có trường topic = 6 (≥ 1)
+    ok   tin dead-letter có trường error = 2 (≥ 1)
+    ok   tin dead-letter nêu topic qc.unknown.topic = 4 (≥ 1)
+    ok   XPENDING outbox.dispatch outbox (tin gốc đã XACK) = [0]
+    ok   XLEN outbox.dispatch sau 10 s lặng (XACK rồi XDEL) = [0]
+    ok   worker vẫn sống sau topic lạ ~ /healthy/
+-- TC-PG02-64 PASS
+TỔNG story 02: PASS=1 FAIL=0 MANUAL=0 K=0
+### 02:67 22:59:06
+== TC-PG02-67
+    ok   job nhận 202 = [30]
+    ok   dòng outbox job.enqueue mới = [30]
+    thời gian hồi phục sau khi giết worker: 53s (OUTBOX_CLAIM_IDLE mặc định 60 s)
+    ok   dòng outbox chưa dispatched (không mất tin) = [0]
+    ok   thời gian hồi phục (giây) = 53 (≤ 150)
+    ok   XPENDING outbox.dispatch outbox = [0]
+    ok   XLEN outbox.dispatch.dead không đổi = [2]
+    chứng cứ trạng thái job sau sự cố: 
+    ok   worker còn đúng 1 bản sau khôi phục = [1]
+-- TC-PG02-67 PASS
+TỔNG story 02: PASS=1 FAIL=0 MANUAL=0 K=0
+### 02:69 23:00:10
+== TC-PG02-69
+    FAIL hai người dùng khác nhau dùng cùng khoá: hợp lệ: [BEGIN
+ERROR:  23505: duplicate key value violates unique constraint "idempotency_keys_user_endpoint_key_key"
+DETAIL:  Key (user_id, endpoint, key)=(00000000-0000-7000-8000-000000000001, POST /api/v1/_test/items, idem-0001-aaaa) already exists.
+SCHEMA NAME:  public
+TABLE NAME:  idempotency_keys
+CONSTRAINT NAME:  idempotency_keys_user_endpoint_key_key
+LOCATION:  _bt_check_unique, nbtinsert.c:666] không được khớp /ERROR/
+    FAIL chèn được 2 dòng: [BEGIN
+ERROR:  23505: duplicate key value violates unique constraint "idempotency_keys_user_endpoint_key_key"
+DETAIL:  Key (user_id, endpoint, key)=(00000000-0000-7000-8000-000000000001, POST /api/v1/_test/items, idem-0001-aaaa) already exists.
+SCHEMA NAME:  public
+TABLE NAME:  idempotency_keys
+CONSTRAINT NAME:  idempotency_keys_user_endpoint_key_key
+LOCATION:  _bt_check_unique, nbtinsert.c:666] không khớp /^2$/
+    ok   cùng user + cùng endpoint + cùng key → SQLSTATE 23505 ~ /23505:/
+    ok   cùng user + cùng endpoint + cùng key → thông báo ~ /idempotency_keys_user_endpoint_key_key/
+-- TC-PG02-69 FAIL
+TỔNG story 02: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG02-69

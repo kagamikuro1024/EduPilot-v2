@@ -1,0 +1,12 @@
+== ep-r95z-gateway lines 3575
+emails ngoài @edupilot.local:
+email @edupilot.* (đếm):
+0
+Bearer/AIza/sk-:
+0
+== ep-r95z-worker lines 243
+emails ngoài @edupilot.local:
+email @edupilot.* (đếm):
+0
+Bearer/AIza/sk-:
+0

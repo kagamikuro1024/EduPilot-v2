@@ -385,6 +385,3 @@ Cách chạy:
 - T: TC-P3-03-31 (usage mở cho TEACHER) và TC-P3-04-45 (khủng hoảng hai tầng, câu mẫu đổi — US-P4-07 2026-10-14; kiểm lại hành vi mới ở sprint 7: 20/20 dương, 17/17 âm).
 - K(b): TC-P8-03-28 (Google Calendar).
 - N (chưa chạy mẫu): phần còn lại — chủ yếu ca Playwright-CLI/375 px/UI, k6 (TC-P3-05-02, 08-14/15, P8-01-47), kill worker/docling (P8-01-26/44/51), khoá giờ thi (P3-05-22…27, 06-40…43: tài khoản sv.gioi đang trong lượt thi của nhóm khác), goose down/up (không có `goose` trên máy), chờ tick nhắc lịch (P8-03-34…43: `reminder-tick` chưa gọi), đồng hồ 10 phút của URL presign, đo tải 1.000 SV.
-
-## Độ phủ P/F theo US (lượt cuối)
-P3-01 75% · P3-02 57% · P3-03 44% · P3-04 49% · P3-05 41% · P3-06 67% · P3-07 28% · P3-08 28% · P8-01 24% · P8-02 33% · P8-03 40%. US dưới 40%: P3-07, P3-08, P8-01, P8-02 (chưa chạy tiếp được do hết ngân sách yêu cầu).

@@ -1,0 +1,15 @@
+## selftest
+32 / 32 phép bắt được
+## clean copy
+exit=0
+## UX01-13 long static description
+✗ Câu mô tả tĩnh dưới tiêu đề
+exit=1
+## UX01-14 short + dynamic
+exit=0
+## real tree
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+exit=0
+done

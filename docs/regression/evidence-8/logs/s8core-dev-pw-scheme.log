@@ -1,0 +1,21 @@
+
+Running 14 tests using 1 worker
+
+(node:51466) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › e2e/gradebook.spec.ts:23:1 › scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả (1.5s)
+  ✓   2 [desktop] › e2e/gradebook.spec.ts:49:1 › unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có lý do ở chính nút, điền xong thì mở (734ms)
+  ✓   3 [desktop] › e2e/gradebook.spec.ts:67:1 › scheme edit optimistic: số sai báo tại ô và giữ chữ; số đúng lưu ngay khi rời ô, version + 1; 409 hoàn lại kèm dòng báo (1.2s)
+  ✓   4 [desktop] › e2e/gradebook.spec.ts:94:1 › scheme edit conflict: 409 VERSION_CONFLICT nạp bản hiện tại và báo bằng InlineNotice (811ms)
+  ✓   5 [desktop] › e2e/gradebook.spec.ts:106:1 › impact preview: ba sinh viên mẫu trước → sau; lớp chưa đủ điểm hiện dòng chưa đủ điểm (730ms)
+  ✓   6 [desktop] › e2e/gradebook.spec.ts:116:1 › impact preview empty: chưa đủ điểm (803ms)
+  ✓   7 [desktop] › e2e/gradebook.spec.ts:122:1 › confirm irreversible: hộp thoại nêu ba con số, gửi version + Idempotency-Key, xong đổi chữ tại chỗ (không toast) (1.1s)
+  ✓   8 [desktop] › e2e/gradebook.spec.ts:137:1 › confirm irreversible dropped: số điểm bị bỏ và lý do hiện trong hộp thoại (714ms)
+  ✓   9 [desktop] › e2e/gradebook.spec.ts:144:1 › new policy diff: có bản nháp cạnh bản đã xác nhận → chế độ so sánh do máy chủ tính (863ms)
+  ✓  10 [desktop] › e2e/gradebook.spec.ts:155:1 › scheme offline retry: mất mạng giữ chữ, báo Chưa lưu 1–2 từ, tự gửi lại khi có mạng (4.3s)
+  ✓  11 [desktop] › e2e/gradebook.spec.ts:170:1 › scheme rbac: TA đọc được nhưng không có nút xác nhận, tải quy chế, ô điền; sinh viên bị chặn (1.2s)
+  ✓  12 [desktop] › e2e/gradebook.spec.ts:185:1 › scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại (3.4s)
+  ✓  13 [desktop] › e2e/gradebook.spec.ts:202:1 › scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px (708ms)
+  ✓  14 [desktop] › e2e/gradebook.spec.ts:477:1 › penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện (1.2s)
+
+  14 passed (22.2s)

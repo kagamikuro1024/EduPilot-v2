@@ -1,0 +1,19 @@
+# compose config (project edupilot, mặc định) rc:
+rc=0
+# project edupilot offset 900 (như dev.mjs EP_PORT_OFFSET):
+rc=0
+# pnpm dev:status (chỉ đọc)
+caddy running healthy
+docling running healthy
+frontend running healthy
+gateway running healthy
+judge running healthy
+mailpit running healthy
+minio running healthy
+mock-graph running healthy
+mock-imap running healthy
+pgbouncer running healthy
+postgres running healthy
+redis running healthy
+worker running healthy
+rc=0

@@ -1,0 +1,4 @@
+users|60
+checkins|43
+practice|42
+chat|383

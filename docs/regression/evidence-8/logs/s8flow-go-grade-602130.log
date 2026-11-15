@@ -1,0 +1,22 @@
+go test -count=1 -v -timeout 900s -race -tags integration -run ^(TestFinalizeConcurrent|TestFinalizeVsPutRace|TestWriteTxLocksGradebookShared)$ ./internal/grade
+=== RUN   TestFinalizeConcurrent
+2026/11/15 22:53:07 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: e0e0b6fe87f1b7313c9db92b6f213887b9ef34513c483d58bbb7ec0e19691303
+  Test ProcessID: 0922e762-7337-4b59-a7a8-6bb8f1968e3e
+2026/11/15 22:53:07 ✅ Container started: 68f6ff853df5
+2026/11/15 22:53:07 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:53:07 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestFinalizeConcurrent (0.95s)
+=== RUN   TestFinalizeVsPutRace
+--- PASS: TestFinalizeVsPutRace (16.78s)
+=== RUN   TestWriteTxLocksGradebookShared
+--- PASS: TestWriteTxLocksGradebookShared (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	19.504s

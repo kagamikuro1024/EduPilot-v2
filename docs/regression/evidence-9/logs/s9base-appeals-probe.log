@@ -1,0 +1,28 @@
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+  kq  |                  name                   | want  |  got  |           cons            
+------+-----------------------------------------+-------+-------+---------------------------
+ PASS | 07 hai phúc khảo cùng (lớp,bài,sv)      | 23505 | 23505 | grade_appeals_once_key
+ PASS | 07 phúc khảo hợp lệ lần 1               | ok    | ok    | 
+ PASS | 07 result_id của lớp khác (FK phức hợp) | 23503 | 23503 | grade_appeals_result_fkey
+ PASS | 07 status lạ                            | 23514 | 23514 | grade_appeals_open_chk
+(4 rows)
+

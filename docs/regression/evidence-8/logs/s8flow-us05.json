@@ -1,0 +1,34 @@
+{
+ "TC-P6-05-01": [
+  "P",
+  "L2={\"state\": \"NO_POLICY\", \"unclear_count\": 0, \"has_policy\": false, \"pending_draft\": false, \"gradebook\": {\"status\": \"OPEN\", \"snapshot_version\": 0}, \"fi"
+ ],
+ "TC-P6-05-07": [
+  "P",
+  "SV/ADM/TA=[403, 403, 200]"
+ ],
+ "x-status-new": [
+  "I",
+  "{\"state\": \"NO_POLICY\", \"unclear_count\": 0, \"has_policy\": false, \"pending_draft\": false, \"gradebook\": {\"status\": \"OPEN\", \"snapshot_version\": 0}, \"finalize_blocke"
+ ],
+ "TC-P6-05-23": [
+  "F",
+  "GS=[{\"id\": \"GRADE_SCHEME_UNCONFIRMED:01a1dff6-f018-7550-b9bb-abfaa2cf3d9d\", \"kind\": setup=[]"
+ ],
+ "TC-P6-05-02": [
+  "P",
+  "doc=READY status={\"state\": \"NOT_EXTRACTED\", \"unclear_count\": 0, \"has_policy\": true, \"pending_draft\": false, \"gradebook\": {\"stat"
+ ],
+ "TC-P6-05-03": [
+  "F",
+  "status={\"state\": \"DRAFT_UNCLEAR\", \"unclear_count\": 3, \"has_policy\": true, \"pending_draft\": true, \"gradebook\": {\"status\": \"OPEN\", \"snapsho"
+ ],
+ "TC-P6-05-04": [
+  "P",
+  "status={\"state\": \"DRAFT_READY\", \"unclear_count\": 0, \"has_policy\": true, \"pending_draft\": true, \"gradebook\": {\"status\": \"OPEN\", \"snapshot_"
+ ],
+ "TC-P6-05-24": [
+  "F",
+  "['Đã có quy chế, chưa trích công thức.']|['Đã có quy chế, chưa trích công thức.']|['Đã có quy chế, chưa trích công thức.']"
+ ]
+}

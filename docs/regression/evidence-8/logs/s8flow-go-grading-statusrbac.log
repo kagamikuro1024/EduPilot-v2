@@ -1,0 +1,2 @@
+--- PASS: TestStatusRBAC (95.85s)
+ok  	github.com/edupilot/backend-go/internal/grading	96.758s

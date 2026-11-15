@@ -1,0 +1,617 @@
+{
+ "./internal/grade -tags integration TestStatusStates": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 60
+ },
+ "./internal/grade -tags integration TestStatusPendingDraft": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 60
+ },
+ "./internal/grade -tags integration TestStatusRBAC": {
+  "st": "NONE",
+  "rc": 0,
+  "sec": 60
+ },
+ "./internal/grade -tags integration TestReminderWeeklyOncePerWeek": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 60
+ },
+ "./internal/grade -tags integration TestReminderStopsWhenConfirmed": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 44
+ },
+ "./internal/grade -tags integration TestReminderSkipsArchived": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 44
+ },
+ "./internal/grade -tags integration TestReminderCatchUp": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 44
+ },
+ "./internal/grade -tags integration TestReminderRecipientsTeacherOnly": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 44
+ },
+ "./internal/grade -tags integration TestSourceDocumentDeletedKeepsConfirmed": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 21
+ },
+ "./internal/grade -tags integration TestPutEntryOK": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 21
+ },
+ "./internal/grade -tags integration TestPutEntryOutOfRange": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 21
+ },
+ "./internal/grade -tags integration TestPutEntryPrecision": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 21
+ },
+ "./internal/grade -tags integration TestPutEntryClear": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 18
+ },
+ "./internal/grade -tags integration TestPutEntryExamItemRejected": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 18
+ },
+ "./internal/grade -tags integration TestPutEntryReturnsRowResult": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 18
+ },
+ "./internal/grade -tags integration TestPutEntryUnder300ms": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 18
+ },
+ "./internal/grade -tags integration TestPutEntryConflictBody": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 16
+ },
+ "./internal/grade -tags integration TestEntryHistoryFromAudit": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 16
+ },
+ "./internal/grade -tags integration TestGradebookPageP95": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 16
+ },
+ "./internal/grade -tags integration TestGradebookNoNPlusOne": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 16
+ },
+ "./internal/grade -tags integration TestGradebookExplainNoSeqScan": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 8
+ },
+ "./internal/grade -tags integration TestPutEntryLocked": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 8
+ },
+ "./internal/grade -tags integration TestPutEntryAuditFailClosed": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 8
+ },
+ "./internal/grade -tags integration TestPutEntryAuditRow": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 8
+ },
+ "./internal/grade -tags integration TestPublishItemToggle": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestPublishItemAudit": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestPublishExamItemNotToggleable": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestPublishLockedRejected": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestGradebookWarningsPenaltyNotInScheme": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestGradebookRBAC": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestImportPresignValidation": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestImportNoLocalDisk": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestImportRBAC": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade -tags integration TestImportPreviewNoWrite": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade -tags integration TestImportMappingSuggest": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade -tags integration TestImportCommitOneTx": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade -tags integration TestImportIdempotentSameFile": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestImportHasErrorsBlocks": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestImportSkipErrors": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestImportAuditPerChange": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestImportLockedOrExam": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestImportLop1MatchesExpected": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestExportLayoutAndNote": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestExportFromSnapshotWhenLocked": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestExportFormulaInjection": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade -tags integration TestExportHeadersAndAudit": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade -tags integration TestExportRBAC": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade -tags integration TestExport1000Under3s": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade -tags integration TestImport1000Under3s": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestImportNoNPlusOne": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeSnapshotsAll": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeEqualsPreview": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeIdempotent": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeOneTxAndAudit": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeLop1MatchesExpected": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeNotConfirmed": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeIncompleteAllOrNothing": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeAlreadyLocked": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestLockedBlocksWrites": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestSnapshotUnaffectedBySourceChange": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestDriftFlag": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestUnlockRequiresReason": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestUnlockWhenOpen": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestUnlockAudit": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestUnlockRBAC": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestRefinalizeNewVersion": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestOldSnapshotHashUnchanged": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestSnapshotHistoryReadable": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestRefinalizeNotifiesOnlyChanged": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeNotifiesAll": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestNotifyNoNumbers": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestNotifyDedupe": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalize1000Under3s": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeNoNPlusOne": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestFinalizeRBAC": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestMeGradesOwnOnly": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestMeGradesIgnoresStudentParam": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestMeGradesNoSchemeStatus": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestMeGradesNoStore": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestNoDraftLeak": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/grade -tags integration TestStudentDTOAllowlist": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestPendingItemHasNoScore": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestMeWhatIfNoWrite": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestMeWhatIfTargetLetter": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestMeWhatIfIncomplete": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestMeWhatIfOutOfRange": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestMeGradesIsolation": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestStudentCannotCallStaffGradeRoutes": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/grade -tags integration TestSnapshotIDOR": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 2
+ },
+ "./internal/today -tags integration TestProviderGradeSchemeUnconfirmed": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/today -tags integration TestProviderClearedOnConfirm": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 4
+ },
+ "./internal/agent  TestGradeFormulaNoScheme": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/agent  TestPersonalGradeNoScheme": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/agent  TestWhatIfNoScheme": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/agent  TestToolGradeSummaryTrustedContext": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/agent  TestToolWhatIfNoIdentityParam": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/agent  TestToolGradeNumbersMatchMeGrades": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/agent  TestToolGradeNotInPublicRegistry": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/agent  TestPersonalToolsHaveNoIdentityParam": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/agent  TestGradeFormulaFromConfirmedScheme": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 2
+ },
+ "./internal/escalation -tags integration TestAutoNoFormulaTicket": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/grade  TestImportParseErrors": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 7
+ },
+ "./internal/grade  TestImportDecimalComma": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 7
+ },
+ "./internal/grade  TestImportPrecisionRejected": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 7
+ },
+ "./internal/grade  TestImportFormattedCellValue": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 7
+ },
+ "./internal/grade  TestImportStudentCodeAsText": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade  TestImportMatchesEnrollmentSnapshot": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade  TestImportSelfDeclaredCodeIgnored": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade  TestImportBlankKeepsOld": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 6
+ },
+ "./internal/grade  TestImportZipBomb": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 7
+ },
+ "./internal/grade  TestImportTooManyRows": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 7
+ },
+ "./internal/grade  TestImportCorruptFile": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 7
+ },
+ "./internal/grade  TestImportSha256Mismatch": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 7
+ },
+ "./internal/grade  TestImportFormulaCellNotExecuted": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 2
+ },
+ "./internal/grade -race -tags integration TestFinalizeConcurrent": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 24
+ },
+ "./internal/grade -race -tags integration TestFinalizeVsPutRace": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 24
+ },
+ "./internal/grade -race -tags integration TestWriteTxLocksGradebookShared": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 24
+ },
+ "./internal/crm  TestRiskGradeSignal": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/crm  TestRiskGradeAnchor": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/crm  TestRiskGradeNullWithoutScheme": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/crm  TestRiskGradeStrictBelow": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 5
+ },
+ "./internal/crm  TestRiskGradeBatchInput": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ },
+ "./internal/integration -tags integration TestSeedRiskAfterGradebook": {
+  "st": "PASS",
+  "rc": 0,
+  "sec": 3
+ }
+}

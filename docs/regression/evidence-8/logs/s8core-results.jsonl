@@ -1,0 +1,142 @@
+{"tc": "TC-P6-02-03", "v": "F", "note": "preview vs CSV 22/30; vs tính tay đầu vào thật 30/30"}
+{"tc": "TC-P6-01-01", "v": "P", "note": "goose up→down(1)→up→status trên DB trống qcd8probe: cả 3 rc=0, 00016_gradebook Applied (logs/s8core-goose.log)"}
+{"tc": "TC-P6-01-02", "v": "P", "note": "grep ALTER TABLE trong 00016_gradebook.sql: 0 / 0 (cả Up lẫn Down)"}
+{"tc": "TC-P6-01-03", "v": "P", "note": "information_schema khớp SRS 5.1: version/unlock cols, không published ở grade_entries, numeric(5,2), PK uuid (gradebooks PK course_id uuid) (logs/s8core-sc"}
+{"tc": "TC-P6-01-04", "v": "P", "note": "docs/PROGRESS.md:98 có dòng '00016 | gradebook'"}
+{"tc": "TC-P6-01-05", "v": "P", "note": "goose down-to 15 (gỡ 00016+sau): 0 bảng, 0 enum grade*/gradebook_status; up lại sạch (không 'already exists')"}
+{"tc": "TC-P6-01-06", "v": "P", "note": "probe SQL: 2 DRAFT 23505; 1 CONFIRMED+nhiều SUPERSEDED ok; 2 CONFIRMED 23505"}
+{"tc": "TC-P6-01-07", "v": "P", "note": "probe: weight -0,01/100,01 → 23514; 0 và 100 ok"}
+{"tc": "TC-P6-01-08", "v": "P", "note": "probe: trùng (scheme,key) → 23505"}
+{"tc": "TC-P6-01-09", "v": "P", "note": "probe: EXAM thiếu exam_id / MANUAL có exam_id / max_score 0,-1 → 23514; EXAM hợp lệ ok"}
+{"tc": "TC-P6-01-10", "v": "P", "note": "probe: score -0,01 → 23514; 0 ok; trùng (item,student) → 23505"}
+{"tc": "TC-P6-01-11", "v": "P", "note": "probe: 4 ca chéo lớp đều 23503 (FK phức hợp)"}
+{"tc": "TC-P6-01-12", "v": "P", "note": "21 chỉ mục không-PK: ngoại lệ đều nằm trong SRS 5.1; cả 7 bảng course_id NOT NULL"}
+{"tc": "TC-P6-01-13", "v": "P", "note": "TestSchemaGradebook/OneDraftOneConfirmed/CrossCourseFK/Checks/IndexesStartWithCourseID PASS; sqlc generate + sqlc diff rc=0 rỗng"}
+{"tc": "TC-P6-01-14", "v": "P", "note": "app role=owner (superuser): UPDATE/DELETE/TRUNCATE → P0001 'snapshot is immutable'; số dòng không đổi (rollback)"}
+{"tc": "TC-P6-01-15", "v": "P", "note": "2 trigger: final_grade_snapshots_immutable_row (row, BEFORE) + _truncate (statement, tgtype&32)"}
+{"tc": "TC-P6-01-16", "v": "P", "note": "probe: trùng (course,student,version) 23505; version mới ok; UPDATE bản mới P0001"}
+{"tc": "TC-P6-01-17", "v": "P", "note": "10.000 dòng: Index Scan using final_grade_snapshots_version_idx (200 dòng planner chọn Seq Scan vì bảng nhỏ — như báo cáo gốc)"}
+{"tc": "TC-P6-01-18", "v": "P", "note": "vai trò không phải chủ: 'must be owner'; vai trò gateway=edupilot (superuser, chủ bảng) gỡ được trigger → ghi RỦI RO (TC cho phép, không FAIL AC)"}
+{"tc": "TC-P6-01-19", "v": "P", "note": "TestSnapshotImmutable/TruncateBlocked/UniqueVersion/VersionIndex Go integration -tags integration (logs/s8core-go-*.log) PASS"}
+{"tc": "TC-P6-01-24", "v": "P", "note": "TestExamScorePublishedOnly/FollowsAdjust/MissingIsNotZero/Scale/MatchesSeedCSV PASS; test có require.Equal(24 dòng MCQ)"}
+{"tc": "TC-P6-01-28", "v": "P", "note": "grep study_time_daily|student_risk|student_observations ở mã không-test internal/grade: rỗng"}
+{"tc": "TC-P6-01-29", "v": "P", "note": "TestInputsFromP5/ExcusedLateNotAbsent/ActiveOnly/MatchExpectedCRM Go integration -tags integration (logs/s8core-go-*.log) PASS"}
+{"tc": "TC-P6-01-35", "v": "P", "note": "TestCrossCourseIsolation/ExamFromOtherCourseRejected/LeftStudentExcluded Go integration -tags integration (logs/s8core-go-*.log) PASS"}
+{"tc": "TC-P6-01-38", "v": "P", "note": "TestAllCourseRoutesGuarded PASS (internal/integration); openapi: 45 dòng khớp, đúng 20 operation grade/gradebook/me-grades (≥19)"}
+{"tc": "TC-P6-01-39", "v": "P", "note": "TestRBACMatrix Go integration -tags integration (logs/s8core-go-*.log) PASS"}
+{"tc": "TC-P6-02-05", "v": "P", "note": "M1 nửa-chẵn: TestEngineExpected30 sv04/08/10/26/30, TestEngineCases S10/S11/S16, TestRoundHalfUpTable đỏ (sv05 không đổi vì 6,75→7,0 cả hai cách)"}
+{"tc": "TC-P6-02-06", "v": "P", "note": "M2 trần cộng 1,5: TestEngineCases/S03 + TestEngineExpected30/sv.gioi đỏ"}
+{"tc": "TC-P6-02-07", "v": "P", "note": "M3 miễn 3 buổi: sv.nguyco, S05, S07, S08 đỏ"}
+{"tc": "TC-P6-02-08", "v": "P", "note": "M4 làm tròn trung gian QT: 23 ca sv + S10/S11 + TestNoIntermediateRounding đỏ"}
+{"tc": "TC-P6-02-09", "v": "P", "note": "M5 liệt CK<=3,0: sv23, sv25, TestFinalExactlyThreeNotFail đỏ"}
+{"tc": "TC-P6-02-14", "v": "P", "note": "grep float/math.Round/ParseFloat/RoundBank/StringFixedBank + Sscanf/%f ở mã không-test internal/grade: rỗng (rc grep=1)"}
+{"tc": "TC-P6-02-18", "v": "P", "note": "M6 thêm float64: TestNoFloatInGrade đỏ; grep cổng P6 có dòng (cổng đỏ)"}
+{"tc": "TC-P6-02-19", "v": "P", "note": "go list -deps ./internal/grade | grep activity|crm|llm|grading|privacy|agent|openai-go: rỗng (rc=1)"}
+{"tc": "TC-P6-02-21", "v": "P", "note": "M7 import activity: TestForbiddenImports đỏ (lần chạy lại riêng; lần đầu bị kill rc=143 do tải)"}
+{"tc": "TC-P6-02-39", "v": "P", "note": "chỉ có 1 hàm tính điểm Compute(engine.go:115); Preview (gradebook.go:646) gọi nó; TestPreviewUsesCompute PASS"}
+{"tc": "TC-P6-03-04", "v": "P", "note": "grep: 3 file ngoài internal/llm chỉ chứa tên enum 'openai anthropic' trong validate/oneof (llmhttp, llmconfig); không SDK/endpoint"}
+{"tc": "TC-P6-03-14", "v": "P", "note": "PDF quy-che-lop2 (pypdf, 2 trang): 0 lần làm tròn/quy tròn/bước điểm; md có 1 dòng là chú thích HTML nói về chính điều đó"}
+{"tc": "TC-P6-03-26", "v": "P", "note": "ConfirmScheme: định nghĩa confirm.go:31 + 1 lời gọi gradehttp/handler.go:202; không ở job/seed/agent"}
+{"tc": "TC-P6-03-28", "v": "P", "note": "seed.mjs xác nhận qua POST …/grade-scheme/confirm bằng token TEACHER; không UPDATE grade_schemes. (seed-t1.mjs là seed tải DB riêng edupilot_t1, INSERT thẳ"}
+{"tc": "TC-P6-04-37", "v": "P", "note": "grep mock/gradebook frontend/src rỗng; frontend/src/mock/gradebook.ts không tồn tại"}
+{"tc": "TC-P6-02-15", "v": "F", "note": "quét float64: internal/seedtool/examhistory.go:130 đưa điểm thi qua float64(c)*2.5 (seed tool); mã sản phẩm sạch"}
+{"tc": "TC-P6-02-02", "v": "P", "note": "TestEngineExpected30 -race: PASS, đúng 30 ca con, 0 SKIP, 0 DATA RACE (logs/s8core-go2.log)"}
+{"tc": "TC-P6-02-10", "v": "P", "note": "TestEngineCases -race: PASS, đúng 18 ca con S01–S18, 0 SKIP"}
+{"tc": "TC-P6-02-11", "v": "P", "note": "TestRoundHalfUpTable/NoIntermediateRounding/DivRoundNoDrift PASS; ca x,25 x,75 x,5 bước 0,5/0,1/1 (M1 làm đỏ)"}
+{"tc": "TC-P6-02-13", "v": "P", "note": "TestDivRoundNoDrift + TestEngineCases/S16-chia-khong-het PASS (hp_raw 6,25 → 6,5)"}
+{"tc": "TC-P6-02-20", "v": "P", "note": "TestForbiddenImports/TestEngineIsPure PASS; grep study_time_daily rỗng; Compute(s Scheme, in Input) không context"}
+{"tc": "TC-P6-02-23", "v": "P", "note": "TestParamsDriveResult/MissingParamIsError/NoPolicyConstants PASS; grep hằng: chỉ chú thích, 7*3600 múi giờ, roundingSteps (tập bước SRS 4.2.4)"}
+{"tc": "TC-P6-02-28", "v": "P", "note": "TestMissingScoreIncomplete/ZeroRule/ZeroOnlyWhenSourceClosed/ExpectedStudentC PASS"}
+{"tc": "TC-P6-02-31", "v": "P", "note": "TestFailConditions/TestFinalExactlyThreeNotFail PASS"}
+{"tc": "TC-P6-02-35", "v": "P", "note": "TestExplainOrderAndQuotes/ExprRecomputesValue/FullPrecision/UserFilledHasNoQuote PASS"}
+{"tc": "TC-P6-02-40", "v": "P", "note": "TestZeroWeightGroupNoDivide/BonusNoEffectWarning/PenaltyNotApplicable/PenaltyNotInSchemeWarning/BonusNotApplicable PASS"}
+{"tc": "TC-P6-02-49", "v": "P", "note": "TestPreviewRBAC PASS (Go integration -tags integration, logs/s8core-go-*.log)"}
+{"tc": "TC-P6-03-05", "v": "P", "note": "TestExtractOneStructuredCall/TaskAndLane/PromptHasPages/SchemaStrictCompatible/AttemptTimeout PASS"}
+{"tc": "TC-P6-03-09", "v": "P", "note": "TestExtractGradeScheme PASS"}
+{"tc": "TC-P6-03-15", "v": "P", "note": "TestExtractLop2OneUnclear PASS"}
+{"tc": "TC-P6-03-16", "v": "P", "note": "8 test TestChecker* PASS (WeightSum, NoComponents, Bonus, BonusCap, Absence, Rounding, LetterScale, ParamInvalid)"}
+{"tc": "TC-P6-03-24", "v": "P", "note": "TestCitationVerified/NotFound/PageMissing/OCRTolerance/ComparedAfterUnmask PASS; không có hàm vnFold tự viết ở Go (vn_fold dùng ở SQL/textfold)"}
+{"tc": "TC-P6-03-27", "v": "P", "note": "TestExtractNeverConfirms (grading) + TestConfirmOnlyFromHandler (grade) PASS"}
+{"tc": "TC-P6-03-29", "v": "P", "note": "TestPromptDelimitsDocument/NoInstructionFollowing/ExtractUsesPrivacyMask PASS"}
+{"tc": "TC-P6-03-43", "v": "P", "note": "12 test TestExtract* (NotPolicy…ReplaceDraftVersionChanged) PASS (Go integration -tags integration, logs/s8core-go-*.log)"}
+{"tc": "TC-P6-03-48", "v": "P", "note": "TestExtractRBAC PASS"}
+{"tc": "TC-P6-04-28", "v": "P", "note": "TestConfirmCarryOverEntries/NoCarryOnMaxScoreChange/NoCarryOnSourceChange/SupersedeBeforeConfirm/CreatesGradebookRow/BlockedWhenLocked PASS"}
+{"tc": "TC-P6-01-36", "v": "P", "note": "ma trận 20 route × 5 vai: 100 phép thử, 0 lệch"}
+{"tc": "TC-P6-02-46", "v": "P", "note": "STUDENT preview/explain người khác/impact → 403 403 403"}
+{"tc": "TC-P6-02-47", "v": "P", "note": "TA preview 200, finalize 403"}
+{"tc": "TC-P6-02-48", "v": "P", "note": "ADMIN preview 403"}
+{"tc": "TC-P6-03-44", "v": "P", "note": "TA/SV/ADMIN extract → [403, 403, 403]; llm_audit 3649→3649 không đổi"}
+{"tc": "TC-P6-03-46", "v": "P", "note": "TA GET grade-scheme 200, PUT 403"}
+{"tc": "TC-P6-03-47", "v": "P", "note": "STUDENT GET grade-scheme → 403"}
+{"tc": "TC-P6-04-49", "v": "P", "note": "ADMIN GET grade-scheme → 403"}
+{"tc": "TC-P6-01-37", "v": "P", "note": "GV lớp khác: GET gradebook/PUT entries/POST finalize → [403, 403, 403]"}
+{"tc": "TC-P6-01-40", "v": "P", "note": "ngoài lớp / lớp không tồn tại → [403, 403, 403, 403] (cùng mã)"}
+{"tc": "TC-P6-01-41", "v": "P", "note": "id không phải uuid → [404, 404]"}
+{"tc": "TC-P6-03-45", "v": "P", "note": "GV lớp khác extract lớp 1 → 403"}
+{"tc": "TC-P6-04-47", "v": "P", "note": "GV lớp khác GET grade-scheme → 403"}
+{"tc": "TC-P6-01-31", "v": "P", "note": "lớp 2 gradebook 200: 24 dòng (đều thuộc lớp 2), trạng thái NO_POLICY (chưa công thức), không điểm lớp 1"}
+{"tc": "TC-P6-01-32", "v": "F", "note": "409 422 audit 74->74 entries 60->60"}
+{"tc": "TC-P6-02-01", "v": "P", "note": "p6-hand-calc.py rc=0: 30/30 + 18/18 khớp; các bước 10 dòng khớp bảng tay (logs/s8core-handcalc.log)"}
+{"tc": "TC-P6-02-03", "v": "P", "note": "preview lớp sao QD8A1 (đầu vào sạch = seed): 30/30 khớp qt, hp_raw, hp, letter, verdict theo MSSV; lớp 1 gốc lệch 8 do dữ liệu bị ghi đè (xem DEF/ghi chú)"}
+{"tc": "TC-P6-02-16", "v": "P", "note": "preview: số JSON chỉ ở ['A', 'A+', 'B', 'B+', 'C', 'C+', 'D', 'D+', 'F', 'complete', 'incomplete', 'liet', 'students']; điểm đều là chuỗi decimal (8 giá tr"}
+{"tc": "TC-P6-01-20", "v": "F", "note": "[] A,B,C=10,8,0 {'label': 'Kiểm tra hằng tuần (20%)', 'expr': '0', 'value': '0', 'filled_by_user': True}"}
+{"tc": "TC-P6-02-25", "v": "F", "note": "{'label': 'Kiểm tra hằng tuần (20%)', 'expr': '0', 'value': '0', 'filled_by_user': True}"}
+{"tc": "TC-P6-02-29", "v": "P", "note": "sv20 hp 5,0 F LIET:final<3.0; sv23 D 4,0 OK; sv25 D 4,0 (hp_raw 3.75) không liệt"}
+{"tc": "TC-P6-02-30", "v": "P", "note": "giải trình sv20 có dòng liệt với quote nguyên văn điều 4.1: 'Không đạt'"}
+{"tc": "TC-P6-02-32", "v": "F", "note": "[0, 1, 2, 3, 4, 5, 5, 7, 8, 9, 10] ['Giữa kỳ (20%)', 'Kiểm tra hằng tuần (20%)', 'Thi cuối kỳ (60%)', 'Điểm cộng', 'Điểm trừ', 'Điểm quá trình trước điểm c"}
+{"tc": "TC-P6-02-33", "v": "P", "note": "mọi expr của B, C, sv09 tính lại bằng Fraction ra đúng value; HP thô B 7,2 · C 3,2 · sv09 8,066 (không làm tròn giữa chừng)"}
+{"tc": "TC-P6-02-34", "v": "F", "note": "[('20229602', ['3.0'])] quote lạ []"}
+{"tc": "TC-P6-01-25", "v": "P", "note": "SQL P5: A cộng 3,00 vắng 0 · B 0,50 vắng 2 · C 0,25 vắng 5 (khớp expected_crm); giải trình dùng đúng (min(0,5; 1); max(0; 5 − 2) × 0,5 + 0)"}
+{"tc": "TC-P6-02-12", "v": "P", "note": "impact step 0.1: samples cao nhất Đỗ Bảo Hải 9,8; giữa Hồ Thu Chi 6.5; thấp nhất 3,2; cả 3 khớp hand-calc --table step=0.1"}
+{"tc": "TC-P6-02-12", "v": "P", "note": "impact step 0.1: samples 9,8 / 6.5 / 3,2 khớp hand-calc step=0.1; step 1 khớp hand-calc step=1 (6,5→7)"}
+{"tc": "TC-P6-04-15", "v": "P", "note": "3 mẫu: cao nhất 10→9,8 · giữa 6.5→6.5 (vị trí 15/16 theo HP) · thấp nhất 3→3,2; giữa khớp hand-calc (đo ≤300 ms: xem UI/TC-04-15 ghi chú)"}
+{"tc": "TC-P6-04-16", "v": "F", "note": "200 200 4101/4105 180/180 N 21 vs 21"}
+{"tc": "TC-P6-02-22", "v": "P", "note": "impact với cap=1,5 free=1 (không sửa mã giữa hai lần gọi): 3 mẫu khớp hand-calc --table cap=1.5 free=1; changed=0"}
+{"tc": "TC-P6-02-41", "v": "P", "note": "w_QT=0: 200, HP = CK (3 mẫu ['10', '6.5', '3']), không NaN/Infinity/chia 0; ghi chú: impact không trả cảnh báo BONUS_NO_EFFECT (có ở TestBonusNoEffectWarni"}
+{"tc": "TC-P6-02-42", "v": "F", "note": "200 {'students_total': 30, 'students_computable': 30, 'changed_vs_confirmed': 21, 'entries_carried': 60, 'entries_dropped': [], 'samples': [{'student': {'i"}
+{"tc": "TC-P6-02-45", "v": "P", "note": "weight 'abc','-5','101','',1e999 → [('abc', 422), ('-5', 422), ('101', 422), ('', 422), ('inf', 400)]; không 5xx, panic trong log gateway 0→0"}
+{"tc": "TC-P6-02-37", "v": "F", "note": "200 {'hp': '8', 'letter': 'B+', 'calculation': [{'label': 'Giữa kỳ (20%)', 'text': 'Giữa kỳ: 7,5', 'value': '7,5', 'source_quote': 'Điểm quá trình gồm hai "}
+{"tc": "TC-P6-02-38", "v": "P", "note": "what-if C target A+ → {\"reachable\": false}"}
+{"tc": "TC-P6-02-32", "v": "P", "note": "B: thứ tự dòng đúng (thành phần→cộng→trừ→QT→CK→HP thô→làm tròn→chữ); QT₀ 7,75 → +0,50 → 8,25 → HP thô 7,2 → 7 → B"}
+{"tc": "TC-P6-02-34", "v": "P", "note": "10 SV ngẫu nhiên: mọi số trong explanation CSV có trong lines[]; 181 quote của 30 SV đều có thật (grep -F) trong quy-che-lop1.md; dòng B không quote = số h"}
+{"tc": "TC-P6-02-37", "v": "P", "note": "what-if B: CK 8,0 → HP 8 B+; target A → min CK 8.25; A+ → 9.09; audit_log/grade_entries không đổi (script đếm trước/sau)"}
+{"tc": "TC-P6-01-32", "v": "P", "note": "IDOR: item lớp 1 qua đường dẫn lớp có công thức (QD8A1): PUT grade-entries 404, publish 404; audit_log lớp không tăng 4→4"}
+{"tc": "TC-P6-04-16", "v": "P", "note": "impact 2 lần: audit_log lớp 4→4, grade_entries 60→60 (không ghi); N=21 khớp tính tay; khoá ['changed_vs_confirmed', 'entries_carried', 'entries_dropped', '"}
+{"tc": "TC-P6-02-26", "v": "P", "note": "xoá ô final sv30 (PUT score null 200): preview status INCOMPLETE, không hp/letter ({'status': 'INCOMPLETE', 'hp': None, 'letter': None, 'verdict': 'INCOMPL"}
+{"tc": "TC-P6-02-17", "v": "P", "note": "go vet ./internal/grade/... ./internal/grading/... rc=0; golangci-lint run ./internal/grade/...: 0 issues; TestNoFloatInGrade PASS (logs/s8core-go2.log)"}
+{"tc": "TC-P6-02-36", "v": "P", "note": "TestWhatIfNoWrite/MinFinalFor/PreviewUsesCompute PASS; BenchmarkCompute1000 = 27,9 ms/op (≤200 ms) trên máy QC (tải cao)"}
+{"tc": "TC-P6-01-20", "v": "F", "note": "weekly A 10, B 8, C 0 và 24 dòng MCQ khớp CSV (đọc qua explain), nhưng giải trình C không có dòng 'không dự → 0 theo quy chế' (DEF-R8-s8core-01)"}
+{"tc": "TC-P6-02-25", "v": "F", "note": "C: KT=0, status COMPLETE, nhưng dòng KT chỉ expr '0' (filled_by_user, không quote điều 1.4), không có chữ 'không dự → 0 theo quy chế' (DEF-R8-s8core-01)"}
+{"tc": "TC-P6-01-21", "v": "P", "note": "bài thi chuyển CLOSED: cả lớp INCOMPLETE (30/30), missing ['weekly'], không có số 0 bịa; giải trình: [{'label': 'weekly', 'expr': '', 'value': 'Bài thi chư"}
+{"tc": "TC-P6-02-27", "v": "F", "note": "{'students': 30, 'complete': 0, 'incomplete': 30, 'liet': 0, 'distribution': {}} (200, {'version': 1, 'students': 30, 'locked_at': '2026-11-15T16:35:52.933"}
+{"tc": "TC-P6-01-22", "v": "P", "note": "sửa adjusted_score B 8→7: giải trình ô weekly đổi ngay 8→7; grade_entries nguồn EXAM = 0"}
+{"tc": "TC-P6-01-23", "v": "P", "note": "quy thang: item 20, điểm thi 8,0 → ô 16 (expr '16 × 10 ÷ 20') → điểm QT 8; item 30, 7,33 → 21,99 ('21,99 × 10 ÷ 30') → 7,33; decimal không sai số"}
+{"tc": "TC-P6-01-26", "v": "P", "note": "B thêm 1 EXCUSED + 1 LATE: vắng vẫn 2 ('max(0; 2 − 2) × 0,5 + 0'), P=0"}
+{"tc": "TC-P6-01-27", "v": "P", "note": "sv30 enrollment REMOVED: gradebook 29 hàng, preview students 29 (không tính sv30)"}
+{"tc": "TC-P6-01-30", "v": "F", "note": "False True ('3', 'F')"}
+{"tc": "TC-P6-02-27", "v": "P", "note": "exam CLOSED: preview cả lớp INCOMPLETE (30/30); finalize lần chạy lại → 409 GRADES_INCOMPLETE (details missing weekly). Lần đầu trả 200: nghi tick tự công "}
+{"tc": "TC-P6-01-30", "v": "P", "note": "study_time_daily C = 600 phút/ngày (14 ngày × 3 khu vực, SQL tay): preview 30 SV & giải trình C không đổi (HP 3 · F); không dòng nào nhắc thời gian học; đã"}
+{"tc": "TC-P6-01-34", "v": "P", "note": "sv30 rời lớp rồi chốt lại: snapshot v1 của sv30 còn nguyên ['7.50', 'B']; v2 chỉ 29 SV, không có dòng v2 cho sv30"}
+{"tc": "TC-P6-04-27", "v": "P", "note": "sổ LOCKED: confirm → 409 GRADEBOOK_LOCKED; DRAFT không đổi [['DRAFT', '2']]"}
+{"tc": "TC-P6-02-42", "v": "P", "note": "w_CK=0 + luật FINAL_BELOW: PUT 200, unclear_items ['PARAM_INVALID'] (mục chưa rõ, chặn xác nhận) — impact trả tính bình thường, mục chưa rõ nằm ở bản nháp"}
+{"tc": "TC-P6-02-24", "v": "F", "note": "200 ['ABSENCE_RULE_MISSING'] 200 {'students_total': 30, 'students_computable': 0, 'changed_vs_confirmed': 0, 'entries_carried': 60, 'entries_dropped': [], "}
+{"tc": "TC-P6-04-11", "v": "P", "note": "trọng số abc/-5/101 → [422, 422, 422]; 12,5 → 422 VALIDATION_FAILED; tổng 110 → unclear WEIGHT_SUM kèm tổng 110 (giữ chữ: UI, xem spec)"}
+{"tc": "TC-P6-04-08", "v": "P", "note": "confirm khi còn mục chưa rõ → 422 SCHEME_HAS_UNCLEAR details {\"codes\": [\"WEIGHT_SUM\"], \"unclear_items\": [{\"source\": \"CODE; status vẫn DRAFT"}
+{"tc": "TC-P6-04-12", "v": "P", "note": "PUT với version cũ → 409 VERSION_CONFLICT kèm giá trị hiện tại (True)"}
+{"tc": "TC-P6-04-10", "v": "P", "note": "PUT rời ô: version 9→10, unclear_items recomputed []=[], ROUNDING filled_by_user=true, không trích dẫn (UI ghi 'do giảng viên đặt'; dòng mạng ở UI-TC)"}
+{"tc": "TC-P6-04-42", "v": "P", "note": "confirm thiếu Idempotency-Key → 422 IDEMPOTENCY_KEY_REQUIRED; DRAFT không đổi"}
+{"tc": "TC-P6-04-43", "v": "P", "note": "confirm thân {} thiếu version → 422 VALIDATION_FAILED"}
+{"tc": "TC-P6-04-33", "v": "P", "note": "confirm với version cũ → 409 VERSION_CONFLICT; status vẫn DRAFT; sau đó confirm version mới (bước kế) → 200"}
+{"tc": "TC-P6-04-21", "v": "P", "note": "confirm 200: DRAFT→CONFIRMED(confirmed_by), cũ→SUPERSEDED [['SUPERSEDED', '1'], ['CONFIRMED', '2']]; audit_log confirm có số liệu {\"version\": 10, \"scheme_n"}
+{"tc": "TC-P6-04-25", "v": "F", "note": "[['final', 'CONFIRMED', '30'], ['final', 'SUPERSEDED', '0'], ['midterm', 'CONFIRMED', '30'], ['midterm', 'SUPERSEDED', '0'], ['weekly', 'CONFIRMED', '0'], "}
+{"tc": "TC-P6-04-09", "v": "P", "note": "TestConfirmBlockedByUnclear PASS + e2e 'unclear blocks confirm' xanh (13 test dev Playwright gradebo)"}
+{"tc": "TC-P6-04-14", "v": "P", "note": "TestSchemePutRecheck/VersionConflict/OnlyDraft/FilledByUserNoCitation PASS + e2e 'scheme edit optimistic' xanh"}
+{"tc": "TC-P6-04-18", "v": "P", "note": "TestImpactThreeSamples/NoWrite/NoCompleteStudents PASS + e2e 'impact preview' (+ 'empty') xanh"}
+{"tc": "TC-P6-04-24", "v": "P", "note": "TestConfirmFlow/Idempotent/Audit/RBAC PASS + e2e 'confirm irreversible' xanh"}
+{"tc": "TC-P6-04-32", "v": "P", "note": "TestNewPolicyMakesNewDraft/DiffAgainstConfirmed/ConfirmedUnchangedUntilConfirm PASS + e2e 'new policy diff' xanh"}
+{"tc": "TC-P6-04-36", "v": "P", "note": "TestSchemeEditRace/TestConfirmStaleVersion PASS + e2e 'scheme offline retry' xanh"}
+{"tc": "TC-P6-04-40", "v": "P", "note": "e2e 'scheme states' + 'scheme mobile' xanh"}
+{"tc": "TC-P6-04-48", "v": "P", "note": "e2e 'scheme rbac' xanh"}
+{"tc": "TC-P6-02-24", "v": "P", "note": "xoá PENALTY.params.free: PUT 200 + unclear ABSENCE_RULE_MISSING (chặn xác nhận); impact students_computable=0, samples rỗng — không HP mặc định; (impact kh"}
+{"tc": "TC-P6-04-25", "v": "P", "note": "confirm giữ khoá/thang/nguồn: 60 điểm CHUYỂN sang item mới (midterm 30, final 30; item cũ SUPERSEDED còn trong DB, 0 điểm); /gradebook 30/30 đủ điểm; entri"}
+{"tc": "TC-P6-04-26", "v": "P", "note": "midterm max 10→100: impact/confirm entries_dropped=[midterm: 30, MAX_CHANGED]; điểm KHÔNG sang item thang 100 (mới 0 điểm), 30 điểm còn ở item cũ SUPERSEDE"}

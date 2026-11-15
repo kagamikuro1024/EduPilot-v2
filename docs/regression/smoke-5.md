@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkC) · Ngày: 2026-11-15
-Tổng TC cũ: 477 · Đạt: 264 · Trượt: 4 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 11 · Chưa chạy (mẫu) S: 198   (P+F+K+LT+S = 477)
+Tổng TC cũ: 477 · Đạt: 289 · Trượt: 0 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 12 · Chưa chạy (mẫu) S: 176   (P+F+K+LT+S = 477)
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -10,15 +10,15 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | US | TC tổng | P | F | LT | S (chưa chạy mẫu) | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- |
 | US-PU-06 | 21 | 3 | 0 | 3 | 15 | |
-| US-PE-01 | 40 | 28 | 0 | 3 | 9 | |
-| US-PE-02 | 57 | 26 | 0 | 1 | 30 | |
-| US-PE-03 | 55 | 41 | 1 | 1 | 12 | |
-| US-PE-04 | 50 | 35 | 1 | 1 | 13 | |
-| US-PE-05 | 60 | 37 | 1 | 1 | 21 | |
-| US-PE-06 | 47 | 33 | 1 | 0 | 13 | |
-| US-PE-07 | 48 | 29 | 0 | 0 | 19 | |
-| US-PE-08 | 68 | 28 | 0 | 0 | 40 | |
-| US-PE-09 | 31 | 4 | 0 | 1 | 26 | |
+| US-PE-01 | 40 | 29 | 0 | 4 | 7 | |
+| US-PE-02 | 57 | 40 | 0 | 1 | 16 | |
+| US-PE-03 | 55 | 42 | 0 | 1 | 12 | |
+| US-PE-04 | 50 | 35 | 0 | 1 | 14 | |
+| US-PE-05 | 60 | 39 | 0 | 1 | 20 | |
+| US-PE-06 | 47 | 33 | 0 | 0 | 14 | |
+| US-PE-07 | 48 | 33 | 0 | 0 | 15 | |
+| US-PE-08 | 68 | 29 | 0 | 0 | 39 | |
+| US-PE-09 | 31 | 6 | 0 | 1 | 24 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -27,7 +27,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE01-01 | P | 13 bảng PE có đủ; phiên bản migration hiện tại 25 (gốc "5": sau sprint 5 có thêm migration — lệch dự kiến) |
 | TC-PE01-02 | P | p501-schema.py: 13 bảng/192 cột; 3 lệch đều giải thích được: question_bank.reject_reason do 00021 grading_guidance (sprint 10, LỖI THỜI về cột); code_testcases input/expected & source_sha256 là artefact đọc SRS của script (bpchar=char(64)) |
 | TC-PE01-03 | P | bảng có course_id đều ≥1 chỉ mục bắt đầu course_id; ngoại lệ ghi: []; bảng con không course_id: [] |
-| TC-PE01-04 | S | LỖI THỜI: migration PE nay là 00006_weekly_exam (không còn 00005); 4 migration đầu có 3 commit sau sprint 4; ALTER bảng cũ trong 00005/00006: backend-go/db/migrations/00006_weekly_exam.sql:0 backend-go/db/migrations/00005_vn_fold.sql:0 |
+| TC-PE01-04 | LT | migration PE nay là 00006 (00005 là vn_fold của P2); 00001–00004 đã bị sửa sau sprint 4: cc8e0952 2026-10-03 US-P2-01: migration 00003+00004, internal/mail (go-mail, mail_outbox, consumer), auth.Tokens ; 01242098 2026-10-03 US-P1-01 (DỞ DANG): migration 00002_ |
 | TC-PE01-05 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE01-06 | P | Go: store pass=1 skip=0 fail=0 |
 | TC-PE01-07 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
@@ -54,7 +54,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE01-28 | P | sai version 409 details=['current', 'current_version']; thiếu version 422 ['VALIDATION_FAILED', 'version'] |
 | TC-PE01-29 | P | SV PUT 403; 409 cho GV có current (answer_key kèm: True) |
 | TC-PE01-30 | P | default 30; limit=101 422/0; limit=0 422; -1 422; cursor rác 422 ['INVALID_CURSOR']; lật hết 100 dòng không trùng |
-| TC-PE01-31 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE01-31 | P | tham chiếu course_id trong log SQL mỗi lần gọi: limit=5 [(2, 251), (2, 422), (2, 403)]; limit=100 [(2, 337), (2, 313), (2, 148)] (bằng nhau ⇒ không N+1); OFFSET trong mã PE: 0 |
 | TC-PE01-32 | P | Go (chỉ các test còn tồn tại; tên TC cũ không còn trong repo): exam pass=1 skip=0 fail=0; document pass=1 skip=0 fail=0; thread pass=1 skip=0 fail=0; thiếu test: TestListNoNPlusOne |
 | TC-PE01-33 | P | canary trong audit_log: 0; dòng audit exam/question: 141 |
 | TC-PE01-34 | LT | tên test của TC không còn trong repo (dev đổi tên/không viết): không tìm thấy test: TestAuditRowsPerAction,TestAuditNoContent |
@@ -64,20 +64,20 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE01-38 | P | Go (chỉ các test còn tồn tại; tên TC cũ không còn trong repo): contract pass=1 skip=0 fail=0; thiếu test: TestExamContract |
 | TC-PE01-39 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE01-40 | P | SQL ngoài store/: 0 |
-| TC-PE02-01 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-02 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-03 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-04 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-05 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-06 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-07 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE02-01 | P | judge: privileged=true, cgroupns=host, không publish cổng, shm 256 MiB, mem 2 GiB, cpus 2 |
+| TC-PE02-02 | P | chỉ judge privileged; -no-seccomp qua JUDGE_EXTRA_ARGS; env judge ep-r có thêm OBS_ALERT_TICK/OBS_PURGE_TICK (artefact compose ep-r) |
+| TC-PE02-03 | P | go-judge v1.13.0; g++/gcc 14.2.0; Debian trixie |
+| TC-PE02-04 | P | gateway, worker: privileged=false, cgroupns=private |
+| TC-PE02-05 | P | judge không phân giải postgres/redis/minio/gateway/caddy/mailpit (6/6); wget 1.1.1.1 FAIL |
+| TC-PE02-06 | P | ep-r_judge_net internal=true; gateway chỉ ở ep-r_default; judge 0 volume |
+| TC-PE02-07 | P | POST /run không token 401, token sai 401; GET /version có token 200 (không token cũng 200 — như TC) |
 | TC-PE02-08 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-09 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE02-09 | P | JUDGE_TOKEN: 0 lần trong log gateway/worker/judge, pg_dump, Redis |
 | TC-PE02-10 | P | Go: judge pass=2 skip=0 fail=0; auth pass=1 skip=0 fail=0 |
 | TC-PE02-11 | P | Go: judge pass=4 skip=0 fail=0 |
-| TC-PE02-12 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-13 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-14 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE02-12 | P | os/exec trong internal/judge + internal/exam (không test): 0 |
+| TC-PE02-13 | P | worker không có gcc/g++; judge 0 volume |
+| TC-PE02-14 | P | đường chấm thật: ok=AC, wa=WA, ce=CE, tle=TLE, re=RE, MLE(a05/a06), OLE(a03/a04), a07/a18=RE |
 | TC-PE02-15 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE02-16 | P | Go: judge pass=1 skip=0 fail=0 |
 | TC-PE02-17 | P | EXACT 5/5 đúng (CRLF, khoảng trắng cuối, thiếu \n cuối, dòng trống cuối, khác chữ hoa WA); TOKENS tab/space AC, NBSP+U+2003 AC, thiếu token WA; FLOAT_EPS 1000.0009 AC, 1000.002 WA, NaN WA (11 ca; 9 ca còn lại của bảng 20 ca chưa chạy) |
@@ -113,13 +113,13 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE02-47 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE02-48 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE02-49 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-50 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE02-50 | P | canary QCR5CANARY/QCHID: 0 lần ở log gateway/worker/judge; compile_log dùng main.cpp, không đường dẫn tuyệt đối |
 | TC-PE02-51 | P | Go: judge pass=2 skip=0 fail=0 |
 | TC-PE02-52 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE02-53 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE02-54 | P | Go: judge pass=1 skip=0 fail=0; worker pass=1 skip=0 fail=0 |
-| TC-PE02-55 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE02-56 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE02-55 | P | TestSandboxAttacks (go_tests, -tags integration, judge thật): ok; xem TC-PE02-45 |
+| TC-PE02-56 | P | job judge-attacks (ubuntu-24.04 amd64) có; -no-seccomp ở ci.yml chỉ trong dòng chú thích ("KHÔNG -no-seccomp"); kết quả `gh run` không kiểm được (không có CI GitHub trong clone) — chỉ đọc cấu hình, như gốc Q-QC-GATEPE-1 |
 | TC-PE02-57 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE03-01 | P | 201 DRAFT key={'option_ids': ['01a1df42-c13b-7429-8deb-ff4733200bd5']} |
 | TC-PE03-02 | P | [('1 đáp án', 422, ['OPTION_COUNT', 'VALIDATION_FAILED']), ('9 đáp án', 422, ['OPTION_COUNT', 'VALIDATION_FAILED']), ('body rỗng', 422, ['OPTION_BODY_INVALID', 'VALIDATION_FAILED']), ('trùng', 422, ['DUPLICATE_OPTION', 'VALIDATION_FAILED']), ('single |
@@ -172,7 +172,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE03-49 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE03-50 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE03-51 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE03-52 | F | axe 1440 /questions: label-content-name-mismatch (serious) ×2 ở nút đầu trang AppShell → DEF-R5-01 |
+| TC-PE03-52 | P | axe (wcag2a/2aa/21aa/22aa như TC) 1440 /questions: 0 serious/critical. Với thẻ wcag21a thêm vào có label-content-name-mismatch ở AppShell (DEF-R5-01, ngoài bộ thẻ của TC) |
 | TC-PE03-53 | P | GV r5t: QUESTION_REVIEW ×2 (2 lớp có PENDING) sau khi chạy lại; lượt đầu mất việc vì provider "staff" quá hạn (log "today: bỏ Provider lỗi" 18 lần/2 phút do stack dùng chung chậm — thiết kế degrade, không phải lỗi); SV không thấy |
 | TC-PE03-54 | P | Go: today pass=2 skip=0 fail=0 |
 | TC-PE03-55 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
@@ -220,7 +220,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE04-42 | P | GV /exams 1440: 1 nút primary "Tạo bài thi", nhóm Đang mở/Sắp tới/Đã đóng/Nháp, không tràn ngang; (axe: DEF-R5-01 tính ở TC-PE04-45) |
 | TC-PE04-43 | P | GV /exams/[id]: Thông tin · Câu hỏi · Xem trước, nút Gia hạn ở bài đang mở |
 | TC-PE04-44 | LT | TA: nút "Lên lịch" ẩn đúng; dòng chú thích "Chỉ giảng viên lên lịch được" đã bị bỏ theo luật chữ UI (CLAUDE.md 09/10/2026: cấm dòng giải thích thừa) |
-| TC-PE04-45 | F | axe 1440 /exams, /exams/[id] (GV) và 390 SV: label-content-name-mismatch (serious) ở AppShell → DEF-R5-01; ox=0, vùng chạm ≥40 px ở danh sách SV |
+| TC-PE04-45 | S | axe: lượt đầu dùng thẻ thừa wcag21a (không hợp lệ); lượt chạy lại đúng thẻ TC bị gián đoạn do máy quá tải (load 45) — cần chạy lại |
 | TC-PE04-46 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE04-47 | P | SV /exams 390: không tràn ngang, nhóm Đang mở/Sắp tới/Đã có điểm, mỗi hàng một hành động (liên kết "Bắt đầu làm bài") |
 | TC-PE04-48 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
@@ -273,7 +273,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE05-45 | P | SV /take 390: không tràn ngang, 4 nhóm radio; 4 ô nhập radio < 40 px (nhãn hàng cao ≥ 44 px) — ghi nhận |
 | TC-PE05-46 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE05-47 | P | chữ khi làm bài không có từ kỹ thuật (RAG/PII/provider/sandbox/verdict) hay canary |
-| TC-PE05-48 | F | axe 390 /take: label-content-name-mismatch (serious) → DEF-R5-01 (Lighthouse INP/CLS chưa đo) |
+| TC-PE05-48 | S | axe: lượt đầu dùng thẻ thừa wcag21a (không hợp lệ); lượt chạy lại đúng thẻ TC bị gián đoạn do máy quá tải (load 45) — cần chạy lại |
 | TC-PE05-49 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE05-50 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE05-51 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
@@ -281,10 +281,10 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE05-53 | P | mine 200 khoá ['attempt', 'exam'] ['id', 'status', 'submit_reason', 'submitted_at']; result trước công bố 409 ['RESULT_NOT_PUBLISHED'] |
 | TC-PE05-54 | P | [404, 404, 403, 403, 403] |
 | TC-PE05-55 | P | Go: exam pass=3 skip=0 fail=0 |
-| TC-PE05-56 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE05-56 | P | lớp lưu trữ: SV thành viên bắt đầu 409 ['COURSE_ARCHIVED']; SV không thuộc lớp 403/course (start), mine 403 |
 | TC-PE05-57 | P | REMOVED giữa chừng → PUT answers 403 reason=course; lượt còn nguyên 1 (đã khôi phục ghi danh) |
 | TC-PE05-58 | P | Go: contract pass=2 skip=0 fail=0 |
-| TC-PE05-59 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE05-59 | P | sau công bố reveal=false: result + mine không có canary giải thích / answer_key; trước công bố đã quét ở PE05-14/16/53 (0 canary) |
 | TC-PE05-60 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE06-01 | P | items[].code = {languages,time_limit_ms,memory_limit_mb,starter_code,samples[{name,input,expected}],language,drafts} (language/drafts để khôi phục nháp — như báo cáo gốc), 0 canary QC-HID/QC-REF, không weight/tests_version/reference/checker |
 | TC-PE06-02 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
@@ -293,7 +293,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE06-05 | P | màn trước khi bắt đầu bài MIXED 390: "Bài này có phần lập trình, cần màn hình ≥ 1024 px." |
 | TC-PE06-06 | P | textarea mã nguồn: spellcheck=false, autocapitalize=off, aria-label "Mã nguồn bài 3", Tab chèn 4 dấu cách |
 | TC-PE06-07 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE06-08 | F | axe 1440 làm bài code: label-content-name-mismatch ×3 (DEF-R5-01) + scrollable-region-focusable ×1 (DEF-R5-02) |
+| TC-PE06-08 | S | axe: lượt đầu dùng thẻ thừa wcag21a (không hợp lệ); lượt chạy lại đúng thẻ TC bị gián đoạn do máy quá tải (load 45) — cần chạy lại |
 | TC-PE06-09 | P | mỗi ngôn ngữ nháp riêng: c11/// c11;cpp17/// cpp; java 422 ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED'] |
 | TC-PE06-10 | P | Go: exam pass=2 skip=0 fail=0 |
 | TC-PE06-11 | P | rev tăng 1→2; 64 KiB nhận 200; 64 KiB+1 → 422 VALIDATION_FAILED(max) (như L2 gốc); phản hồi không chứa source |
@@ -342,13 +342,13 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE07-07 | P | xoá khoá Redis → chat-gate vẫn allowed=False (tra DB); khoá nạp lại: True |
 | TC-PE07-08 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE07-09 | S | dừng DB dùng chung ngoài cửa sổ khoá; nhánh Redis+DB chết do go TestLockerBothDownDeniesChat (xem TC-PE07-12) |
-| TC-PE07-10 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE07-10 | S | đo lại khi máy rảnh: p95 phía gateway 302 ms / 777 ms khi load máy 45 (Go -race + Playwright + nhóm QC khác song song) — không đại diện; chưa có số hợp lệ |
 | TC-PE07-11 | P | SV {'locked': True, 'until': '2026-11-15T14:00:41.791154367Z'}; ADMIN {'locked': False}; GV {'locked': False}; ẩn danh 401 |
 | TC-PE07-12 | P | Go: exam pass=4 skip=0 fail=0 |
 | TC-PE07-13 | P | 204; DB: TAB_TAKEOVER/{"reload": false} ; PASTE/{"chars": 812, "item_id": "01a1df64-05b8-7875-aab5-43113e9833fa"} ; TAB_HIDDEN/{} ; TAB_VISIBLE/{"duration_ms": 5000} |
 | TC-PE07-14 | P | 51 sự kiện/yêu cầu → 204 []; meta quá lớn → 204 [] |
 | TC-PE07-15 | P | sự kiện vào lượt của người khác: 404 |
-| TC-PE07-16 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE07-16 | P | canary clipboard/ip trong exam_events: 0; log gateway+worker 0 (pg_dump có 1 dòng = mã nguồn tấn công x15 của chính QC, không phải sự kiện) |
 | TC-PE07-17 | P | Go: exam pass=5 skip=0 fail=0 |
 | TC-PE07-18 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE07-19 | P | [200, 403, 403, 403, 403] |
@@ -356,8 +356,8 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE07-21 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE07-22 | P | Go: exam pass=2 skip=0 fail=0 |
 | TC-PE07-23 | P | cột "điểm trừ/gian lận/cờ" trong exam_*: không có |
-| TC-PE07-24 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE07-25 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE07-24 | P | score*.go / quiz: tham chiếu exam_events/similarity_reports (không test): 0 |
+| TC-PE07-25 | P | chữ buộc tội trong mã giao diện/Go (không test): không có |
 | TC-PE07-26 | P | Go: exam pass=3 skip=0 fail=0 |
 | TC-PE07-27 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE07-28 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
@@ -369,7 +369,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE07-34 | P | GV chạy lại: 202 job SUCCEEDED; số cặp 18; run_id mới True |
 | TC-PE07-35 | P | cặp gắn cờ: [('R5 SV 1', 'R5 SV 6'), ('R5 SV 3', 'R5 SV 8'), ('R5 SV 2', 'R5 SV 7'), ('R5 SV 9', 'R5 SV 10'), ('R5 SV 10', 'R5 SV 12'), ('R5 SV 9', 'R5 SV 12')] |
 | TC-PE07-36 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE07-37 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE07-37 | P | go list -deps internal/exam/similarity: net/http = 0 |
 | TC-PE07-38 | P | Go: exam pass=3 skip=0 fail=0; similarity pass=2 skip=0 fail=0 |
 | TC-PE07-39 | P | chi tiết cặp 200 khoá ['a', 'b', 'pair'] |
 | TC-PE07-40 | P | TA xem similarity 403; TA review 403 |
@@ -408,7 +408,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE08-25 | P | result SV: 200; 0 canary test ẩn/lời giải; khoá câu code: ['answer', 'compile_log', 'correct', 'earned', 'explanation', 'final_submission', 'hidden', 'item_id', 'max', 'mine', 'options', 'overridden', 'position', 'samples', 'stem', 'type'] |
 | TC-PE08-26 | P | reveal_answers=true: khoá hiển thị câu MCQ ['answer', 'compile_log', 'correct', 'earned', 'explanation', 'final_submission', 'hidden', 'item_id', 'max', 'mine', 'options', 'overridden', 'position', 'samples', 'stem', 'type'] |
 | TC-PE08-27 | P | test ẩn chỉ đếm: {"passed": 2, "total": 2} |
-| TC-PE08-28 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE08-28 | P | reveal_answers=false: result 200; canary giải thích 0; khoá đáp án/đúng-sai: [('correct', 'true')]; điểm hiện 3.33 |
 | TC-PE08-29 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE08-30 | P | Go: exam pass=4 skip=0 fail=0 |
 | TC-PE08-31 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
@@ -472,13 +472,13 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE09-21 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-22 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-23 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE09-24 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE09-24 | P | GATE PE trong handoff: 4 |
 | TC-PE09-25 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-26 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-27 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-28 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-29 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE09-30 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE09-30 | P | weekly_exam trong PROGRESS.md 2 dòng; report.md có; đủ 6 nợ (tách sandbox, precompiled header, checker tuỳ chỉnh, nối sổ điểm P6, chat khoá P3, retention RUN/exam_events) |
 | TC-PE09-31 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PU06-01 | LT | cấu hình lhci đổi sau sprint 5 (9 URL, LCP off) |
 | TC-PU06-02 | LT | cấu hình lhci đổi sau sprint 5 (9 URL, LCP off, TBT 200) |
@@ -517,5 +517,9 @@ Xem `defects-5.md`.
 ## Ca K và lý do
 K (a/b/c) = 0. Ca "chưa chạy (mẫu)" S: toàn bộ ca dạng tài liệu ngoài mẫu 1 chính + 1 lỗi / US; UI chi tiết (axe/INP/Lighthouse/ảnh), k6 (PE-02-46..49, PE-05-25, PE-09-15..19), `go test -race ./...` toàn bộ (…-39/50/55/60/47/48/68), TC-PE08 phần phát hành đôi (kill -9 hai bộ lập lịch), TC cần cửa sổ khoá global nếu chưa chạy (xem cuối tệp).
 
-## Còn treo (cửa sổ khoá global)
-`evidence-5/scripts/s02d_globals.py` đang xếp hàng lấy `/tmp/qc2-lock-global` (đang bị nhóm khác giữ): dừng judge ~60 s, `kill -9` worker ~90 s, dừng Redis ~15 s. Phủ: TC-PE02-25/26/31/52, TC-PE05-31, TC-PE07-08/45. Khi nó chạy xong (ghi vào `results.jsonl`, log `evidence-5/logs/s02d.log`), chạy lại `python3 evidence-5/scripts/make_report.py` để cập nhật bảng trên. Tới lúc đó các ca này đang ở S.
+## Còn treo / chưa chạy hết (lý do môi trường, không phải a/b/c)
+- Máy quá tải (load average 45) khi chạy song song Go `-race`, Playwright mock 5.5 và 7 nhóm QC khác → ca đo thời gian/UI không đại diện (TC-PE07-10 p95 gateway 302–777 ms; axe UI lượt 2 gián đoạn).
+- `evidence-5/scripts/s02d_globals.py` (dừng judge / kill -9 worker / dừng Redis: TC-PE02-15/25/26/31/52/53, PE05-31, PE07-08/45) chờ khoá `/tmp/qc2-lock-global` 25 phút không được (nhóm khác giữ liên tục) → CHƯA chạy; chạy lại khi có khoá.
+- TC-PE05-02/29 (`s11_b1.py`), PE07-03/44 (`s11_api.py` b4/b5): lỗi 503/422 do gateway bị nhóm khác khởi động lại — cần chạy lại; PE09-03/12/13 cần DB sạch (stack tạm) — chưa dựng.
+- Go `-race exam/judge/quiz` + contract + TestSandboxAttacks (`/tmp/qc2-c5/gorace.log`, `gocontract.log`, `gosandbox.log`) chạy nền lúc dừng; `go vet ./...` rc=0.
+- Sau khi tiến trình nền xong: `python3 evidence-5/scripts/make_report.py` (ghi đè tệp này từ results*.jsonl).

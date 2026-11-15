@@ -1,0 +1,161 @@
+## 01-02
+0
+0
+## 01-04
+28:| P6 Sổ điểm | Xong | 2026-10-31 | 2026-10-31 | ĐẠT kỹ thuật (`sprints/8/qc/gate-P6.md`); tính tay A, B, C của chủ dự án còn nợ | `00016_gradebook`; decimal, không `float64`; AI chỉ trích nháp; snapshot bất biến; MSSV chỉ theo danh sách lớp (#20) |
+98:| 00016 | gradebook | P6 (US-P6-01; lược đồ khác ARCHITECTURE §4 theo proposals #3 + 4 bổ sung Tech Lead) |
+## 01-28
+rc=1
+## 01-38
+45
+19
+0
+## 02-14
+rc(grep)=1
+rc2=1
+## 02-15
+backend-go/internal/grading/queue.go:80:	P50, P95  float64
+backend-go/internal/grading/queue.go:110:		d := append([]float64(nil), m.durations...)
+backend-go/internal/grading/reflect.go:341:func jaccard(a, b string) float64 {
+backend-go/internal/grading/reflect.go:352:	return float64(inter) / float64(len(wa)+len(wb)-inter)
+---
+backend-go/internal/agent/confidence.go:145:		if float64(in) >= groundSupported*float64(len(ws)) {
+backend-go/internal/agent/confidence.go:231:func BestCosine(hits []rag.Hit) float64 {
+backend-go/internal/agent/tools.go:259:// WhatIfArgs là tham số của what_if_final_grade: giả định theo thành phần. Điểm là decimal (luật 5: cấm float64 cho điểm).
+backend-go/internal/crm/risk.go:28:// Thresholds là ngưỡng theo lớp (`courses.settings.risk`, SRS 4.7.3). Tỷ lệ chuyên cần là decimal (luật 5: không float64 cho số liệu chấm / ngưỡng).
+backend-go/internal/grading/reflect.go:127:// critDelta là một tiêu chí của một kết quả: điểm AI (bất biến) và điểm giảng viên chốt. Điểm là decimal, không bao giờ float64.
+backend-go/internal/grading/reflect.go:341:func jaccard(a, b string) float64 {
+backend-go/internal/grading/reflect.go:352:	return float64(inter) / float64(len(wa)+len(wb)-inter)
+backend-go/internal/insight/rank.go:14:var baseWeights = [5]float64{0.30, 0.20, 0.20, 0.15, 0.15} //nolint:gochecknoglobals // hằng bảng, bất biến
+backend-go/internal/insight/rank.go:20:	LowRate           float64 // L ∈ [0,1]
+backend-go/internal/insight/rank.go:21:	NotHelpfulRate    float64 // N ∈ [0,1]
+backend-go/internal/insight/rank.go:22:	PracticeWrongRate float64 // P ∈ [0,1]
+backend-go/internal/insight/rank.go:29:func Weights(p Present) [5]float64 {
+backend-go/internal/insight/rank.go:31:	var w [5]float64
+backend-go/internal/insight/rank.go:42:			w[i] = baseWeights[i] + lost/float64(kept)
+backend-go/internal/insight/rank.go:49:func Score(sigs []Signals, p Present) []float64 {
+backend-go/internal/insight/rank.go:50:	var mx [5]float64
+backend-go/internal/insight/rank.go:51:	val := func(s Signals) [5]float64 {
+backend-go/internal/insight/rank.go:52:		return [5]float64{float64(s.Students), float64(s.Questions), s.LowRate, s.NotHelpfulRate, s.PracticeWrongRate}
+backend-go/internal/insight/rank.go:61:	out := make([]float64, len(sigs))
+backend-go/internal/insight/rank.go:74:func Order(sigs []Signals, scores []float64) []int {
+backend-go/internal/insight/service.go:63:	Tau float64
+backend-go/internal/insight/service.go:73:func (s *Service) tau() float64 {
+backend-go/internal/insight/service.go:466:		n := float64(len(idx))
+backend-go/internal/insight/service.go:467:		cls[k] = cl{idx: idx, keys: Keywords(tx, 3), sig: Signals{Students: len(students), Questions: len(idx), LowRate: float64(low) / n, NotHelpfulRate: float64(nh) / n}}
+backend-go/internal/insight/service.go:470:				cls[k].sig.PracticeWrongRate = float64(pt[t].Wrong) / float64(pt[t].Answered)
+backend-go/internal/insight/service.go:544:func nearest(c []float32, cands [][]float32) (int, float64) {
+backend-go/internal/insight/service.go:554:func round3(x float64) float64 { return float64(int(x*1000+0.5)) / 1000 }
+backend-go/internal/insight/types.go:31:	Score          float64      `json:"score"`
+backend-go/internal/insight/types.go:47:	LowRate           float64  `json:"low_confidence_rate"`
+backend-go/internal/insight/types.go:48:	NotHelpfulRate    float64  `json:"not_helpful_rate"`
+backend-go/internal/insight/types.go:49:	PracticeWrongRate *float64 `json:"practice_wrong_rate"` // null khi lớp chưa dùng luyện đề (trọng số của P chia đều, SRS 4.1)
+backend-go/internal/judge/queue.go:592:	var mult float64
+backend-go/internal/llm/gateway.go:42:	Rand  func() float64 // [0,1) cho jitter
+backend-go/internal/llm/gateway.go:201:func paramFloat(p llmconfig.Params, k string) *float64 {
+backend-go/internal/llm/provider/decision.go:48:	Noul          float64
+backend-go/internal/llm/provider/decision.go:49:	Confidence    float64
+backend-go/internal/llm/provider/decision.go:50:	Probabilities map[string]float64
+backend-go/internal/llm/provider/decision.go:115:	Noul          *float64           `json:"noul"`
+backend-go/internal/llm/provider/decision.go:117:	Probabilities map[string]float64 `json:"probabilities"`
+backend-go/internal/llm/provider/decision.go:118:	Confidence    float64            `json:"confidence"`
+backend-go/internal/llm/types.go:89:	Score  float64
+backend-go/internal/observability/service.go:67:	P50Ms         float64 `json:"p50_ms"`
+backend-go/internal/observability/service.go:70:	ErrorRate     float64 `json:"error_rate"`
+backend-go/internal/observability/service.go:72:	FallbackRate  float64 `json:"fallback_rate"`
+backend-go/internal/observability/service.go:106:func rate(n, d int64) float64 {
+backend-go/internal/observability/service.go:110:	return float64(n) / float64(d)
+backend-go/internal/observability/service.go:185:	ErrorRate float64   `json:"error_rate"`
+backend-go/internal/observability/service.go:195:	ChangeRate    float64 `json:"change_rate"`
+backend-go/internal/platform/config/config.go:167:	LLMBatchShare     float64
+backend-go/internal/platform/config/config.go:226:	FakeErrorRate         float64
+backend-go/internal/platform/config/config.go:238:	FakeDecisionErrorRate    float64
+backend-go/internal/platform/config/config.go:240:	FakeDecisionProb         *float64 // FAKE_DECISION_PROB: ghi đè xác suất của bản giả (P-105-1 Q2)
+backend-go/internal/platform/config/config.go:254:	RegressionMaxRel        float64         // REGRESSION_MAX_REL
+backend-go/internal/platform/config/config.go:256:	ThreadSuggestMin        float64         // THREAD_SUGGEST_MIN (cosine)
+backend-go/internal/platform/config/config.go:873:func (l *loader) fraction(name string, def float64) float64 {
+backend-go/internal/platform/config/config.go:886:// points đọc điểm (decimal, bước 0,01) trong [lo, hi]; không bao giờ qua float64 (luật 5).
+backend-go/internal/platform/config/config.go:901:func (l *loader) rate(name string, def float64) float64 {
+backend-go/internal/regress/capture.go:66:		case bool, float64, int, int64:
+backend-go/internal/seedtool/examhistory.go:130:				values ($1, $2, $3, 'GRADED', $4, $5, $6, 'MANUAL', $7, $8::jsonb, $6)`, courseID, eid, s, start, start.Add(30*time.Minute), start.Add(25*time.Minute), float64(c)*2.5, string(raw)); err != nil {
+backend-go/internal/store/decision.sql.go:494:	P50Ms      float64
+backend-go/internal/store/grading_queue.sql.go:162:	LeaseSecs float64
+backend-go/internal/store/grading_queue.sql.go:348:	LeaseSecs float64
+backend-go/internal/store/grading_queue.sql.go:367:	DelaySecs float64
+backend-go/internal/store/grading_queue.sql.go:387:	DelaySecs float64
+backend-go/internal/store/grading_queue.sql.go:522:func (q *Queries) GradingSweep(ctx context.Context, requeueSecs float64) ([]GradingSweepRow, error) {
+backend-go/internal/store/guidance.sql.go:958:	Cosine   float64
+backend-go/internal/store/observability.sql.go:494:	P50Ms     float64
+backend-go/internal/store/rag.sql.go:80:	Cosine     float64
+backend-go/internal/store/rag.sql.go:81:	Score      float64
+backend-go/internal/testroutes/llm.go:75:				Score  float64 `json:"score"`
+backend-go/internal/testroutes/llm.go:179:	ErrorRate    *float64 `json:"error_rate"`
+backend-go/internal/testroutes/llm.go:186:	DecisionProb      *float64 `json:"decision_prob"`
+backend-go/internal/testroutes/llm.go:189:	DecisionErrorRate *float64 `json:"decision_error_rate"`
+## 02-19
+rc=1
+## 02-20
+rc=1
+package grade // import "github.com/edupilot/backend-go/internal/grade"
+
+func Compute(s Scheme, in Input) Result
+    Compute là hàm THUẦN: không context, không I/O, không đồng hồ (SRS 4.3).
+    Công thức ở 4.3.2.
+
+## 02-23
+backend-go/internal/grade/engine.go:80:	Verdict       string // "OK" | "LIET:final<3.0" | "LIET:absent>=7" | "INCOMPLETE:weekly+final" | "INVALID:ROUNDING_MISSING"
+backend-go/internal/grade/engine.go:351:	// Điểm học phần thô → chuẩn hoá độ chính xác máy → làm tròn một lần ở cuối (bước 6–7, TLR-1, TLR-13).
+backend-go/internal/grade/export.go:162:// lietRemark: "Liệt: …" từ mã lý do (`LIET:final<3.0`, `LIET:absent>=7`).
+backend-go/internal/grade/export.go:209:	ict := time.FixedZone("ICT", 7*3600)
+backend-go/internal/grade/finalize.go:22:// Hằng số chốt / mở khoá (SRS FEAT-gradebook 4.7).
+backend-go/internal/grade/finalize.go:121:// Finalize chốt điểm cả lớp thành snapshot bất biến (SRS 4.7.1). Một giao dịch: khoá hàng `gradebooks` `FOR UPDATE` → LOCKED 409 → công thức CONFIRMED →
+backend-go/internal/grade/finalize.go:223:// Unlock mở khoá sổ đã chốt (SRS 4.7.4): lý do 10–500 ký tự, đang OPEN → 409 `NOT_LOCKED`. Bản chốt cũ không đổi.
+backend-go/internal/grade/finalize.go:256:// HandleFinalized là outbox.Handler của `grade.finalized` (SRS 4.7.5): lần đầu GRADE_FINALIZED cho cả lớp; chốt lại chỉ báo GRADE_CHANGED cho sinh viên có
+backend-go/internal/grade/gradebook.go:300:// ParseScore đọc điểm giao diện nhập (`8,5` / `8.5`): ≤ 2 chữ số thập phân, KHÔNG tự làm tròn (TLR-7). Dùng chung với nhập XLSX.
+backend-go/internal/grade/me.go:137:// lietText đổi mã lý do liệt (`LIET:final<3.0`) sang câu cho sinh viên.
+backend-go/internal/grade/reminder.go:14:// Loại chuông của sổ điểm (SRS 4.5.4, 4.7.5).
+backend-go/internal/grade/reminder.go:27:var ict = time.FixedZone("Asia/Ho_Chi_Minh", 7*3600) //nolint:gochecknoglobals // múi giờ cố định, bất biến
+backend-go/internal/grade/reminder.go:65:	return d.AddDate(0, 0, -((int(d.Weekday()) + 6) % 7))
+backend-go/internal/grade/rules.go:87:// ParseBonus: {source:"PARTICIPATION", per_speak:"0.25", cap:"1.0"}.
+backend-go/internal/grade/rules.go:114:// ParsePenalty: {source:"ABSENCE", free:2, per:"0.5"}.
+backend-go/internal/grade/rules.go:144:var roundingSteps = []decimal.Decimal{decimal.RequireFromString("0.01"), decimal.RequireFromString("0.1"), decimal.RequireFromString("0.25"), decimal.RequireFromString("0.5"), decimal.NewFromInt(1)} //nolint:gochecknoglobals // tập bất biến
+backend-go/internal/grade/rules.go:146:// ParseRounding: {step:"0.5", mode:"HALF_UP"}.
+backend-go/internal/grade/rules.go:218:// ParseFail: {kind:"FINAL_BELOW", value:"3.0"} hoặc {kind:"ABSENT_AT_LEAST", value:"7"}. Giữ nguyên chữ của value để in lại ở `verdict`.
+backend-go/internal/grade/types.go:128:	Text  string // chữ gốc của value ("3.0"), in lại ở verdict
+## 02-39
+backend-go/internal/grade/engine.go:115:func Compute(s Scheme, in Input) Result { return compute(s, in, nil) }
+backend-go/internal/grade/export.go:130:func fillFromCompute(row *exportRow, items []Item, conf Loaded, r Result, in Input) {
+backend-go/internal/grade/gradebook.go:646:func (s *Service) Preview(ctx context.Context, courseID uuid.UUID, cursor string, limit int) (PreviewPage, error) {
+## 03-04
+backend-go/internal/httpapi/llmhttp/admin.go
+backend-go/internal/httpapi/llmhttp/verify.go
+backend-go/internal/llmconfig/service.go
+rc=0
+## 03-14
+1
+## 03-24
+## 03-26
+backend-go/internal/grade/confirm.go:27:// ConfirmScheme xác nhận bản nháp (SRS 4.4.4) — CHỈ được gọi từ handler `POST …/grade-scheme/confirm` (TestConfirmOnlyFromHandler; luật: không đường nền nào
+backend-go/internal/grade/confirm.go:31:func (s *Service) ConfirmScheme(ctx context.Context, actor, courseID uuid.UUID, version int) (ConfirmResult, error) {
+backend-go/internal/httpapi/gradehttp/handler.go:186:// confirm: POST …/grade-scheme/confirm {version} (TEACHER, Idempotency-Key) — đường DUY NHẤT gọi ConfirmScheme.
+backend-go/internal/httpapi/gradehttp/handler.go:202:	out, err := h.Grade.ConfirmScheme(r.Context(), actor, cid, b.Version)
+## 03-28
+scripts/seed.mjs:1072:// Chỉ HTTP API thật, bằng đúng vai: tải quy chế (TEACHER) → `extract` (provider giả đọc bản ghi seed/demo/fake_llm.json) → nối item "weekly" với bài thi → `confirm` (TEACHER) → nhập XLSX → công bố hai cột.
+scripts/seed.mjs:1073:// Khoá nghiệp vụ: `title` của tài liệu; Idempotency-Key cố định cho extract / confirm / nhập. Sổ KHÔNG được chốt (để demo `Chốt điểm`). Lớp 761988: không quy chế.
+scripts/seed.mjs:1102:  step(15, "Quy chế môn, công thức điểm (extract → confirm), nhập điểm giữa kỳ / cuối kỳ lớp 761987…");
+scripts/seed.mjs:1132:    await call("POST", `/courses/${c1}/grade-scheme/confirm`, { token: t, json: { version: saved.body.version ?? draft.version + 1 }, key: `seed-confirm-761987-${doc.id.slice(0, 8)}` });
+scripts/seed.mjs:1184:    if (rank[tk.status] < 3 && goal >= 3) tk = (await call("POST", `/chat/tickets/${tk.id}/confirm`, { token })).body.ticket;
+scripts/check-assignments-v2.mjs:50:  const confirmed = (await call("GET", `/courses/${c1}/grade-scheme`, { token: t })).body.confirmed;
+scripts/check-assignments-v2.mjs:51:  const weeklyExam = confirmed.components.find((c) => c.key === "weekly").items[0].exam_id;
+scripts/check-assignments-v2.mjs:58:  const cf = await call("POST", `/courses/${c1}/grade-scheme/confirm`, { token: t, json: { version: put.body.version ?? draft.version + 1 }, key: `chk-v2-confirm-${doc.id.slice(0, 8)}-${Date.now()}` });
+scripts/check-grade-seed.mjs:92:  const cur = (await call("GET", `/courses/${c1}/grade-scheme`, { token: t })).body.confirmed;
+scripts/seed-t1.mjs:115:insert into grade_schemes (course_id, scheme_no, status, source_title, confirmed_by, confirmed_at, created_by)
+scripts/seed.mjs:1072:// Chỉ HTTP API thật, bằng đúng vai: tải quy chế (TEACHER) → `extract` (provider giả đọc bản ghi seed/demo/fake_llm.json) → nối item "weekly" với bài thi → `confirm` (TEACHER) → nhập XLSX → công bố hai cột.
+scripts/seed.mjs:1073:// Khoá nghiệp vụ: `title` của tài liệu; Idempotency-Key cố định cho extract / confirm / nhập. Sổ KHÔNG được chốt (để demo `Chốt điểm`). Lớp 761988: không quy chế.
+scripts/seed.mjs:1102:  step(15, "Quy chế môn, công thức điểm (extract → confirm), nhập điểm giữa kỳ / cuối kỳ lớp 761987…");
+scripts/seed.mjs:1132:    await call("POST", `/courses/${c1}/grade-scheme/confirm`, { token: t, json: { version: saved.body.version ?? draft.version + 1 }, key: `seed-confirm-761987-${doc.id.slice(0, 8)}` });
+scripts/seed.mjs:1184:    if (rank[tk.status] < 3 && goal >= 3) tk = (await call("POST", `/chat/tickets/${tk.id}/confirm`, { token })).body.ticket;
+scripts/seed-t1.mjs:115:insert into grade_schemes (course_id, scheme_no, status, source_title, confirmed_by, confirmed_at, created_by)
+scripts/seed-t1.mjs:115:insert into grade_schemes (course_id, scheme_no, status, source_title, confirmed_by, confirmed_at, created_by)
+## 04-37
+ls: cannot access 'frontend/src/mock/gradebook.ts': No such file or directory

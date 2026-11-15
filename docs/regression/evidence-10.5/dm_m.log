@@ -1,0 +1,8 @@
+PASS D02-23/D06-23 sv.kha: 30 phản hồi không có cascade_* / tên cổng / FAST·FALLBACK / «Quyết định nhanh» []
+PASS D02-23/D06-23 teacher: 30 phản hồi không có cascade_* / tên cổng / FAST·FALLBACK / «Quyết định nhanh» []
+PASS D02-23/D06-23 ta: 30 phản hồi không có cascade_* / tên cổng / FAST·FALLBACK / «Quyết định nhanh» []
+PASS D06-15 đổi + hoàn tác ngưỡng → 2 dòng audit_log (entity decision_gate, before/after, actor), version +2 200/200 [['t', 't', 't'], ['t', 't', 't']]
+PASS D07-04 «Bật ở N/M lớp»: courses_enabled / courses_total khớp SQL api=1/51 sql=1/51 state=on
+PASS D07-04b cổng tắt: trạng thái «tắt» (state off) off
+INFO D07-16 lớp có DECIDE THREADS: [['1']]
+INFO D08-02 200 {"items": [{"gate": "CHAT_ROUTING", "enabled": false, "effective": false, "version": 6}, {"gate": "INJECTION_FLAG", "enabled": false, "effective": false, "version": 7}, {"gate": "THREADS_PRECHECK", "e

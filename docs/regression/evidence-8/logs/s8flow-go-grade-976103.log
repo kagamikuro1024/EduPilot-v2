@@ -1,0 +1,24 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestPutEntryClear|TestPutEntryExamItemRejected|TestPutEntryReturnsRowResult|TestPutEntryUnder300ms)$ ./internal/grade
+=== RUN   TestPutEntryClear
+2026/11/15 22:50:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 5057f835fc4a495b71fa9c5a63f102f543ddfa502f05c307ea896ccd9ddbd2dd
+  Test ProcessID: 8acdf4b3-595a-4658-8aaf-687e8b5f06a1
+2026/11/15 22:50:34 ✅ Container started: 68f6ff853df5
+2026/11/15 22:50:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:50:34 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPutEntryClear (2.93s)
+=== RUN   TestPutEntryExamItemRejected
+--- PASS: TestPutEntryExamItemRejected (2.15s)
+=== RUN   TestPutEntryReturnsRowResult
+--- PASS: TestPutEntryReturnsRowResult (3.46s)
+=== RUN   TestPutEntryUnder300ms
+--- PASS: TestPutEntryUnder300ms (3.17s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	12.239s

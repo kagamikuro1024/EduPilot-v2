@@ -1,0 +1,6 @@
+PASS TC-P6-01-27 sv30 enrollment REMOVED: gradebook 29 hàng, preview students 29 (không tính sv30)
+['id', 'course_id', 'student_id', 'date', 'updated_at', 'active_seconds', 'created_at', 'area']
+insert study_time ERROR:  new row for relation "study_time_daily" violates check constraint "study_time_daily_area_chk"
+DETAIL:  Failing row contains (01a1e011-4dba-7f9d-add8-d0dc4c7400aa, 01a1e007-d4cd-719b-a5af-d7fc009559a8, 01a1df27-651a-7710-9d22-1bc37fec90bb, 2026-11-15, KNOWLEDGE, 36000, 2026-11-15 16:36:32.823335+00, 2026-11-15 16:36:32.823335+00).
+
+F TC-P6-01-30 False True ('3', 'F')

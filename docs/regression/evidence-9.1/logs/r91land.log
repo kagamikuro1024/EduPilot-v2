@@ -1,0 +1,21 @@
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-r91land-real.spec.ts:6:1 › TC-UX08-PQ khách /chat, /gradebook → /login?next=; HTML trang giới thiệu không dữ liệu cá nhân (5.0s)
+INFO video attrs {"attrs0":{"controls":true,"preload":"none","playsinline":true,"poster":null,"autoplay":false},"a2":{"controls":true,"preload":"none","playsinline":true,"poster":"/landing/gioi-thieu-v1.webp","autoplay":false},"attrs":{"controls":true,"preload":"none","playsinline":true,"poster":null,"autoplay":false}}
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-r91land-real.spec.ts:22:1 › TC-UX09-8 video đầy đủ: controls, preload=none, playsinline, poster, không autoplay; không request trước khi bấm (6.5s)
+INFO JS gz 1440: 11 tệp tĩnh 214.5 KB + inline 50.7 KB; lớn: 0307lsdce-dar.js=70.0KB 36rn0-9rd4hbl.js=41.7KB
+INFO LCP 1440: {"lcp":[{"t":220,"tag":"IMG","cls":"Landing-module__H_TZ-W__logo","txt":""},{"t":332,"tag":"SPAN","cls":"Landing-module__H_TZ-W__ln","txt":"Vận hành lớp học"}],"cls":0}
+  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-r91land-real.spec.ts:44:3 › TC-UX08-44 JS gzip route / + LCP 1440 (4.7s)
+INFO JS gz 375: 11 tệp tĩnh 214.5 KB + inline 50.7 KB; lớn: 0307lsdce-dar.js=70.0KB 36rn0-9rd4hbl.js=41.7KB
+INFO LCP 375: {"lcp":[{"t":300,"tag":"IMG","cls":"Landing-module__H_TZ-W__logo","txt":""},{"t":420,"tag":"SPAN","cls":"Landing-module__H_TZ-W__ln","txt":"Vận hành lớp học"},{"t":452,"tag":"P","cls":"Landing-module__H_TZ-W__lead","txt":"AI soạn nháp câu trả lời và điểm, giảng "}],"cls":0.09505108107452255}
+  ✘  4 [desktop] › e2e/qc2-r91/qc-uiux91-r91land-real.spec.ts:44:3 › TC-UX08-44 JS gzip route / + LCP 375 (5.3s)
+    Error: expect(received).toBeLessThanOrEqual(expected)
+    Expected: <= 262144
+    Received:    271608
+      58 |     console.log(`INFO LCP ${w}: ${JSON.stringify(m)}`);
+    Error Context: ../../../../../tmp/qc2-pw-s91-land/qc2-r91-qc-uiux91-r91land--f7678-8-44-JS-gzip-route-LCP-1440-desktop/error-context.md
+    Error: expect(received).toBeLessThanOrEqual(expected)
+    Expected: <= 262144
+    Received:    271608
+      58 |     console.log(`INFO LCP ${w}: ${JSON.stringify(m)}`);
+    Error Context: ../../../../../tmp/qc2-pw-s91-land/qc2-r91-qc-uiux91-r91land--7b6d1-08-44-JS-gzip-route-LCP-375-desktop/error-context.md
+  2 failed
+  2 passed (25.2s)

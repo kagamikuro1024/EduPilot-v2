@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 3 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 523 · Đạt: 368 · Trượt: 4 · Không chạy (K, gồm lỗi thời): 151   (P+F+K = 523)
-K chia theo loại: chưa chạy (mẫu): 130; (c): 7; (b): 7; lỗi thời: 3; nền tảng: 4. Loại «chưa chạy (mẫu)» / «nền tảng» KHÔNG phải K (a)/(b)/(c) — chờ PM quyết có chạy nốt.
+Tổng TC cũ: 523 · Đạt: 368 · Trượt: 7 · Không chạy (K, gồm lỗi thời): 148   (P+F+K = 523)
+K chia theo loại: chưa chạy (mẫu): 127; (c): 7; (b): 7; lỗi thời: 3; nền tảng: 4. Loại «chưa chạy (mẫu)» / «nền tảng» KHÔNG phải K (a)/(b)/(c) — chờ PM quyết có chạy nốt.
 
 Cách chạy: (1) Go: `go test -race -json ./internal/llm/... ./internal/llmconfig/... ./internal/platform/crypto/...` + `-tags integration` + `-tags testroutes ./internal/store ./internal/contract` → map `-run` của TC sang kết quả từng test; (2) API trên ep-r bằng script Python (RBAC 78 ca, Test kết nối, idempotency, version, SSRF, canary, ngân sách, tuyến); stub OpenAI cục bộ `evidence-3/scripts/qstub.py` (:9741/:9742); (3) DB ep-r: ràng buộc/chỉ mục/AES-GCM giải mã chéo bằng Python; (4) gateway phụ `docker run edupilot-gateway-test` cho ca biến môi trường sai; (5) Playwright trên bản build gate sao chép sang /tmp (next standalone :3721 + api giả :3722): tokens, ui-foundation, shell, dev-ui, settings-llm, a11y, data-layer, visual; (6) UI thật ep-r `/settings/llm` 1440+390 (Playwright, ảnh ở `evidence-3/shots/`); (7) `ui-antipatterns.sh`, `--selftest`, `lint-selftest.sh`, `pnpm lint` trong bản sao.
 Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-shell 1247; CORS_ORIGINS ep-r thiếu https://localhost:1143 (mọi F5 văng /login) — đã nhờ PM-QC sửa, tôi dùng route đổi Origin của /auth/refresh; khoá global đang bị nhóm khác giữ nên cụm ca đổi tuyến/ngân sách/cầu dao (TC-P102-14…19/42, TC-P103-03/14…41, TC-P104-27/34, TC-P105-20/22) CHƯA chạy ("chưa chạy (mẫu)" — script `/tmp/qc2-b/p10x.py` sẵn sàng).
@@ -12,8 +12,8 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | GATE-P1 | 23 | 7 | 0 | 16 | |
 | GATE-PU | 17 | 4 | 1 | 12 | |
 | US-P1-01 | 35 | 25 | 1 | 9 | |
-| US-P1-02 | 50 | 26 | 0 | 24 | |
-| US-P1-03 | 50 | 21 | 0 | 29 | |
+| US-P1-02 | 50 | 26 | 1 | 23 | |
+| US-P1-03 | 50 | 21 | 2 | 27 | |
 | US-P1-04 | 48 | 37 | 0 | 11 | |
 | US-P1-05 | 57 | 51 | 1 | 5 | |
 | US-PU-01 | 36 | 20 | 1 | 15 | |
@@ -95,7 +95,7 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P102-11 | P | ánh xạ lỗi (CLASSIFY→stub): m-429:503 LLM_UNAVAILABLE rate_limited/RATE_LIMIT/att=3; m-404:503 LLM_UNAVAILABLE error/MODEL_NOT_FOUND/att=1; m-500:503 LLM_UNAVAILABLE error/SERVER/att=3; m-503:503 LLM_UNAVAILABLE error/SERVER/att=3; m-garbage:503 LLM_UNAVAILABLE error/BAD_RESPONSE/att=1 (chỉ 5/16 kiể |
 | TC-P102-12 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P102-13 | P | go test: 1 pass/0 skip/0 fail |
-| TC-P102-14 | K | chưa chạy (mẫu): lần chạy đầu hỏng do kịch bản QC (cầu dao nhà stub mở sớm / PUT ngân sách sai định dạng / đọc audit lệch thứ tự) — không kết luận; script /tmp/qc2-b/p10x.py chạy lại cần khoá global |
+| TC-P102-14 | F | lỗi 503: INTERACTIVE gọi nhà 2 lần (1+1 thử lại), BATCH 15 lần (kỳ vọng 3) (DEF-R3-05) |
 | TC-P102-15 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P102-16 | P | go test: 3 pass/0 skip/0 fail |
 | TC-P102-17 | P | A 503 → B 200: fallback_index=1 provider=SmkB-S2 (512 ms; stub A nhận 3 yêu cầu) |
@@ -126,7 +126,7 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P102-50 | P | go test: 25 pass/0 skip/0 fail |
 | TC-P103-01 | P | go test: 4 pass/0 skip/0 fail |
 | TC-P103-02 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P103-03 | K | chưa chạy (mẫu): lần chạy đầu hỏng do kịch bản QC (cầu dao nhà stub mở sớm / PUT ngân sách sai định dạng / đọc audit lệch thứ tự) — không kết luận; script /tmp/qc2-b/p10x.py chạy lại cần khoá global |
+| TC-P103-03 | P | bảng làn đúng cho 6 tác vụ (audit); CHAT hạ làn → NEAR_REALTIME; GRADING đòi INTERACTIVE bị từ chối (không có dòng audit, không nâng làn) |
 | TC-P103-04 | P | go test: 1 pass/0 skip/0 fail |
 | TC-P103-05 | K | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
 | TC-P103-06 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
@@ -140,9 +140,10 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P103-16 | P | llm_audit status=overloaded: 0 (từ chối HTTP 0) |
 | TC-P103-17 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P103-18 | P | go test: 6 pass/0 skip/0 fail |
-| TC-P103-19 | P | sau lỗi liên tiếp: circuit=open; lời gọi kế tiếp bị chặn ngay (200 None, 9 ms, stub 0 request) |
-| TC-P103-20 | P | bán mở sau 30 s: 3 lời gọi đồng thời → stub nhận 2 (kỳ vọng thăm dò 1 lần × ≤2 lần thử); kết quả [200, 200, 200] |
-| TC-P103-21…TC-P103-22 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P103-19 | F | sau chuỗi lỗi: circuit=open; lời gọi kế tiếp chặn ngay (503 LLM_UNAVAILABLE, 42242 ms, 0 request tới stub) (DEF-R3-05) |
+| TC-P103-20 | F | bán mở sau 30 s: 3 lời gọi đồng thời → stub nhận 6 (≤ 1 thăm dò × 3 lần thử); [503, 503, 503] (DEF-R3-05) |
+| TC-P103-21 | P | MODEL_NOT_FOUND ×6 → circuit closed (ghi nhận hành vi; TC gốc dùng BAD_REQUEST — stub không tạo 400) |
+| TC-P103-22 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P103-23 | P | go test: 10 pass/0 skip/0 fail |
 | TC-P103-24 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P103-25 | K | chưa chạy (mẫu): lần chạy đầu hỏng do kịch bản QC (cầu dao nhà stub mở sớm / PUT ngân sách sai định dạng / đọc audit lệch thứ tự) — không kết luận; script /tmp/qc2-b/p10x.py chạy lại cần khoá global |

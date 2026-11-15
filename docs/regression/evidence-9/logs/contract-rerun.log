@@ -20,3 +20,55 @@
 2026/11/15 22:44:10 🔔 Container is ready: b8d9c357e377
 --- PASS: TestCascadeThreadsHTTP (10.56s)
 === RUN   TestChatThreadsContract
+--- PASS: TestChatThreadsContract (20.90s)
+=== RUN   TestSpec_LoadsAndValidates
+--- PASS: TestSpec_LoadsAndValidates (0.33s)
+=== RUN   TestRouteSpecParity
+--- PASS: TestRouteSpecParity (0.13s)
+=== RUN   TestStatusParity
+--- PASS: TestStatusParity (0.00s)
+=== RUN   TestContract_ResponsesMatchSpec
+--- PASS: TestContract_ResponsesMatchSpec (0.00s)
+=== RUN   TestSpec_ErrorResponsesDeclared
+--- PASS: TestSpec_ErrorResponsesDeclared (0.15s)
+=== RUN   TestSpec_EveryDocumentedStatusExercised
+--- PASS: TestSpec_EveryDocumentedStatusExercised (0.21s)
+=== RUN   TestValidator_RejectsBadResponses
+--- PASS: TestValidator_RejectsBadResponses (0.26s)
+=== RUN   TestValidator_UUIDFormat
+--- PASS: TestValidator_UUIDFormat (0.24s)
+=== RUN   TestSpec_SecurityDeclared
+--- PASS: TestSpec_SecurityDeclared (0.27s)
+=== RUN   TestContract_UnauthenticatedMatchesSpec
+--- PASS: TestContract_UnauthenticatedMatchesSpec (1.25s)
+=== RUN   TestStudentNeverSeesConfidence
+--- PASS: TestStudentNeverSeesConfidence (0.00s)
+=== RUN   TestDecisionProviderHTTP
+--- PASS: TestDecisionProviderHTTP (0.52s)
+=== RUN   TestDecisionReplayFile
+--- PASS: TestDecisionReplayFile (0.01s)
+=== RUN   TestStudentGuardStates
+--- PASS: TestStudentGuardStates (0.69s)
+=== RUN   TestRemovedMidExam403
+--- PASS: TestRemovedMidExam403 (0.55s)
+=== RUN   TestExamErrorCodes
+--- PASS: TestExamErrorCodes (0.20s)
+=== RUN   TestExamRoutesNotAheadOfSpec
+--- PASS: TestExamRoutesNotAheadOfSpec (0.16s)
+=== RUN   TestPracticeErrorCodes
+--- PASS: TestPracticeErrorCodes (0.20s)
+=== RUN   TestQuestionListPermissionMatrix
+--- PASS: TestQuestionListPermissionMatrix (0.74s)
+=== RUN   TestNoAnswerLeak
+leak_matrix 20x6 clean (221 lời gọi; PUBLISHED chạy hai lần reveal_answers)
+    exam_results_http_test.go:321: leak_matrix 20x6 clean (221 lời gọi)
+--- PASS: TestNoAnswerLeak (13.67s)
+=== RUN   TestResultsPermissionMatrix
+--- PASS: TestResultsPermissionMatrix (0.84s)
+=== RUN   TestGolden_Auth
+--- PASS: TestGolden_Auth (0.16s)
+=== RUN   TestGolden_LLM
+--- PASS: TestGolden_LLM (0.21s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/contract	54.022s
+rc=0

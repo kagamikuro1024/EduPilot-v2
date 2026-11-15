@@ -1,0 +1,198 @@
+Pager usage is off.
+SET
+BEGIN
+INSERT 0 2
+INSERT 0 1
+INSERT 0 1
+SAVEPOINT
+psql:<stdin>:9: ERROR:  insert or update on table "final_grade_snapshots" violates foreign key constraint "final_grade_snapshots_student_fkey"
+DETAIL:  Key (course_id, student_id)=(00000000-0000-7000-8000-0000000000c1, 00000000-0000-7000-8000-0000000000b1) is not present in table "enrollments".
+--- TC-14 thông điệp
+psql:<stdin>:11: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ROLLBACK
+SAVEPOINT
+ROLLBACK
+SAVEPOINT
+psql:<stdin>:14: ERROR:  insert or update on table "final_grade_snapshots" violates foreign key constraint "final_grade_snapshots_student_fkey"
+DETAIL:  Key (course_id, student_id)=(00000000-0000-7000-8000-0000000000c1, 00000000-0000-7000-8000-0000000000b1) is not present in table "enrollments".
+psql:<stdin>:15: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:<stdin>:18: ERROR:  insert or update on table "final_grade_snapshots" violates foreign key constraint "final_grade_snapshots_student_fkey"
+DETAIL:  Key (course_id, student_id)=(00000000-0000-7000-8000-0000000000c1, 00000000-0000-7000-8000-0000000000b1) is not present in table "enrollments".
+psql:<stdin>:19: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ROLLBACK
+ROLLBACK
+--- TC-17 EXPLAIN (100 SV x 2 version)
+BEGIN
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 100
+psql:<stdin>:28: ERROR:  insert or update on table "final_grade_snapshots" violates foreign key constraint "final_grade_snapshots_student_fkey"
+DETAIL:  Key (course_id, student_id)=(00000000-0000-7000-8000-0000000000c1, 00000000-0000-7000-8000-000000001000) is not present in table "enrollments".
+psql:<stdin>:29: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:<stdin>:30: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:<stdin>:31: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ROLLBACK
+--- TC-12 chỉ mục không phải PK
+psql:<stdin>:32: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+       tablename       |                 indexname                 |                                                                       indexdef                                                                        
+-----------------------+-------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ final_grade_snapshots | final_grade_snapshots_student_version_key | CREATE UNIQUE INDEX final_grade_snapshots_student_version_key ON public.final_grade_snapshots USING btree (course_id, student_id, version)
+ final_grade_snapshots | final_grade_snapshots_version_idx         | CREATE INDEX final_grade_snapshots_version_idx ON public.final_grade_snapshots USING btree (course_id, version, student_id)
+ grade_components      | grade_components_course_id_key            | CREATE UNIQUE INDEX grade_components_course_id_key ON public.grade_components USING btree (course_id, id)
+ grade_components      | grade_components_course_scheme_idx        | CREATE INDEX grade_components_course_scheme_idx ON public.grade_components USING btree (course_id, scheme_id, "position")
+ grade_components      | grade_components_scheme_key               | CREATE UNIQUE INDEX grade_components_scheme_key ON public.grade_components USING btree (scheme_id, key)
+ grade_entries         | grade_entries_course_item_idx             | CREATE INDEX grade_entries_course_item_idx ON public.grade_entries USING btree (course_id, item_id)
+ grade_entries         | grade_entries_course_student_idx          | CREATE INDEX grade_entries_course_student_idx ON public.grade_entries USING btree (course_id, student_id)
+ grade_entries         | grade_entries_item_student_key            | CREATE UNIQUE INDEX grade_entries_item_student_key ON public.grade_entries USING btree (item_id, student_id)
+ grade_items           | grade_items_course_exam_idx               | CREATE INDEX grade_items_course_exam_idx ON public.grade_items USING btree (course_id, exam_id) WHERE (exam_id IS NOT NULL)
+ grade_items           | grade_items_course_id_key                 | CREATE UNIQUE INDEX grade_items_course_id_key ON public.grade_items USING btree (course_id, id)
+ grade_items           | grade_items_course_scheme_idx             | CREATE INDEX grade_items_course_scheme_idx ON public.grade_items USING btree (course_id, scheme_id, "position")
+ grade_items           | grade_items_scheme_exam_key               | CREATE UNIQUE INDEX grade_items_scheme_exam_key ON public.grade_items USING btree (scheme_id, exam_id)
+ grade_items           | grade_items_scheme_key                    | CREATE UNIQUE INDEX grade_items_scheme_key ON public.grade_items USING btree (scheme_id, key)
+ grade_rules           | grade_rules_course_scheme_idx             | CREATE INDEX grade_rules_course_scheme_idx ON public.grade_rules USING btree (course_id, scheme_id)
+ grade_rules           | grade_rules_scheme_kind_key               | CREATE UNIQUE INDEX grade_rules_scheme_kind_key ON public.grade_rules USING btree (scheme_id, kind) WHERE (kind <> 'FAIL_CONDITION'::grade_rule_kind)
+ grade_schemes         | grade_schemes_course_id_key               | CREATE UNIQUE INDEX grade_schemes_course_id_key ON public.grade_schemes USING btree (course_id, id)
+ grade_schemes         | grade_schemes_course_status_idx           | CREATE INDEX grade_schemes_course_status_idx ON public.grade_schemes USING btree (course_id, status)
+ grade_schemes         | grade_schemes_extract_job_key             | CREATE UNIQUE INDEX grade_schemes_extract_job_key ON public.grade_schemes USING btree (extract_job_id)
+ grade_schemes         | grade_schemes_no_key                      | CREATE UNIQUE INDEX grade_schemes_no_key ON public.grade_schemes USING btree (course_id, scheme_no)
+ grade_schemes         | grade_schemes_one_confirmed_idx           | CREATE UNIQUE INDEX grade_schemes_one_confirmed_idx ON public.grade_schemes USING btree (course_id) WHERE (status = 'CONFIRMED'::grade_scheme_status)
+ grade_schemes         | grade_schemes_one_draft_idx               | CREATE UNIQUE INDEX grade_schemes_one_draft_idx ON public.grade_schemes USING btree (course_id) WHERE (status = 'DRAFT'::grade_scheme_status)
+(21 rows)
+
+      table_name       | column_name | is_nullable 
+-----------------------+-------------+-------------
+ final_grade_snapshots | course_id   | NO
+ grade_components      | course_id   | NO
+ grade_entries         | course_id   | NO
+ grade_items           | course_id   | NO
+ grade_rules           | course_id   | NO
+ grade_schemes         | course_id   | NO
+ gradebooks            | course_id   | NO
+(7 rows)
+
+--- TC-03 cột
+      table_name       |    column_name     |        data_type         |        column_default        | is_nullable | numeric_precision | numeric_scale 
+-----------------------+--------------------+--------------------------+------------------------------+-------------+-------------------+---------------
+ final_grade_snapshots | id                 | uuid                     | uuidv7()                     | NO          |                   |              
+ final_grade_snapshots | course_id          | uuid                     |                              | NO          |                   |              
+ final_grade_snapshots | student_id         | uuid                     |                              | NO          |                   |              
+ final_grade_snapshots | version            | integer                  |                              | NO          |                32 |             0
+ final_grade_snapshots | scheme_id          | uuid                     |                              | NO          |                   |              
+ final_grade_snapshots | breakdown          | jsonb                    |                              | NO          |                   |              
+ final_grade_snapshots | numeric_grade      | numeric                  |                              | NO          |                 5 |             2
+ final_grade_snapshots | letter             | text                     |                              | NO          |                   |              
+ final_grade_snapshots | failed_reason      | text                     |                              | YES         |                   |              
+ final_grade_snapshots | locked_at          | timestamp with time zone | now()                        | NO          |                   |              
+ final_grade_snapshots | locked_by          | uuid                     |                              | NO          |                   |              
+ final_grade_snapshots | unlock_reason      | text                     |                              | YES         |                   |              
+ final_grade_snapshots | created_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_components      | id                 | uuid                     | uuidv7()                     | NO          |                   |              
+ grade_components      | course_id          | uuid                     |                              | NO          |                   |              
+ grade_components      | scheme_id          | uuid                     |                              | NO          |                   |              
+ grade_components      | key                | text                     |                              | NO          |                   |              
+ grade_components      | name               | text                     |                              | NO          |                   |              
+ grade_components      | grp                | USER-DEFINED             |                              | NO          |                   |              
+ grade_components      | weight             | numeric                  |                              | NO          |                 5 |             2
+ grade_components      | position           | integer                  | 0                            | NO          |                32 |             0
+ grade_components      | citations          | jsonb                    | '[]'::jsonb                  | NO          |                   |              
+ grade_components      | filled_by_user     | boolean                  | false                        | NO          |                   |              
+ grade_components      | created_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_components      | updated_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_entries         | id                 | uuid                     | uuidv7()                     | NO          |                   |              
+ grade_entries         | course_id          | uuid                     |                              | NO          |                   |              
+ grade_entries         | item_id            | uuid                     |                              | NO          |                   |              
+ grade_entries         | student_id         | uuid                     |                              | NO          |                   |              
+ grade_entries         | score              | numeric                  |                              | NO          |                 5 |             2
+ grade_entries         | source             | USER-DEFINED             | 'MANUAL'::grade_entry_source | NO          |                   |              
+ grade_entries         | version            | integer                  | 1                            | NO          |                32 |             0
+ grade_entries         | entered_by         | uuid                     |                              | NO          |                   |              
+ grade_entries         | created_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_entries         | updated_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_items           | id                 | uuid                     | uuidv7()                     | NO          |                   |              
+ grade_items           | course_id          | uuid                     |                              | NO          |                   |              
+ grade_items           | scheme_id          | uuid                     |                              | NO          |                   |              
+ grade_items           | component_id       | uuid                     |                              | NO          |                   |              
+ grade_items           | key                | text                     |                              | NO          |                   |              
+ grade_items           | name               | text                     |                              | NO          |                   |              
+ grade_items           | max_score          | numeric                  | 10                           | NO          |                 5 |             2
+ grade_items           | source             | USER-DEFINED             | 'MANUAL'::grade_item_source  | NO          |                   |              
+ grade_items           | exam_id            | uuid                     |                              | YES         |                   |              
+ grade_items           | assignment_id      | uuid                     |                              | YES         |                   |              
+ grade_items           | published_at       | timestamp with time zone |                              | YES         |                   |              
+ grade_items           | position           | integer                  | 0                            | NO          |                32 |             0
+ grade_items           | created_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_items           | updated_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_rules           | id                 | uuid                     | uuidv7()                     | NO          |                   |              
+ grade_rules           | course_id          | uuid                     |                              | NO          |                   |              
+ grade_rules           | scheme_id          | uuid                     |                              | NO          |                   |              
+ grade_rules           | kind               | USER-DEFINED             |                              | NO          |                   |              
+ grade_rules           | applicable         | boolean                  | true                         | NO          |                   |              
+ grade_rules           | params             | jsonb                    | '{}'::jsonb                  | NO          |                   |              
+ grade_rules           | source_quote       | text                     |                              | YES         |                   |              
+ grade_rules           | source_page        | integer                  |                              | YES         |                32 |             0
+ grade_rules           | filled_by_user     | boolean                  | false                        | NO          |                   |              
+ grade_rules           | created_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_rules           | updated_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_schemes         | id                 | uuid                     | uuidv7()                     | NO          |                   |              
+ grade_schemes         | course_id          | uuid                     |                              | NO          |                   |              
+ grade_schemes         | scheme_no          | integer                  |                              | NO          |                32 |             0
+ grade_schemes         | status             | USER-DEFINED             | 'DRAFT'::grade_scheme_status | NO          |                   |              
+ grade_schemes         | source_document_id | uuid                     |                              | YES         |                   |              
+ grade_schemes         | source_title       | text                     |                              | YES         |                   |              
+ grade_schemes         | extraction         | jsonb                    |                              | YES         |                   |              
+ grade_schemes         | extract_job_id     | uuid                     |                              | YES         |                   |              
+ grade_schemes         | confirmed_by       | uuid                     |                              | YES         |                   |              
+ grade_schemes         | confirmed_at       | timestamp with time zone |                              | YES         |                   |              
+ grade_schemes         | created_by         | uuid                     |                              | NO          |                   |              
+ grade_schemes         | version            | integer                  | 1                            | NO          |                32 |             0
+ grade_schemes         | unclear_count      | integer                  | 0                            | NO          |                32 |             0
+ grade_schemes         | created_at         | timestamp with time zone | now()                        | NO          |                   |              
+ grade_schemes         | updated_at         | timestamp with time zone | now()                        | NO          |                   |              
+ gradebooks            | course_id          | uuid                     |                              | NO          |                   |              
+ gradebooks            | status             | USER-DEFINED             | 'OPEN'::gradebook_status     | NO          |                   |              
+ gradebooks            | snapshot_version   | integer                  | 0                            | NO          |                32 |             0
+ gradebooks            | unlock_reason      | text                     |                              | YES         |                   |              
+ gradebooks            | unlocked_by        | uuid                     |                              | YES         |                   |              
+ gradebooks            | unlocked_at        | timestamp with time zone |                              | YES         |                   |              
+ gradebooks            | version            | integer                  | 1                            | NO          |                32 |             0
+ gradebooks            | created_at         | timestamp with time zone | now()                        | NO          |                   |              
+ gradebooks            | updated_at         | timestamp with time zone | now()                        | NO          |                   |              
+(84 rows)
+
+--- TC-03 PK types
+        relname        |  attname  | format_type 
+-----------------------+-----------+-------------
+ final_grade_snapshots | id        | uuid
+ grade_components      | id        | uuid
+ grade_entries         | id        | uuid
+ grade_items           | id        | uuid
+ grade_rules           | id        | uuid
+ grade_schemes         | id        | uuid
+ gradebooks            | course_id | uuid
+(7 rows)
+
+--- TC-05 enum
+       typname       
+---------------------
+ grade_appeals
+ grade_components
+ grade_entries
+ grade_entry_source
+ grade_group
+ grade_item_source
+ grade_items
+ grade_rule_kind
+ grade_rules
+ grade_scheme_status
+ grade_schemes
+ gradebook_status
+ gradebooks
+(13 rows)
+
+--- TC-18: quyền / chủ bảng
+        relname        | pg_get_userbyid 
+-----------------------+-----------------
+ final_grade_snapshots | edupilot
+(1 row)
+

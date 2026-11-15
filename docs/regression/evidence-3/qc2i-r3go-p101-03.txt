@@ -1,0 +1,16 @@
+== qc2i_r3go
+cột SRS 60 | id uuid True | created_at/updated_at có: [('llm_providers', True, True), ('llm_models', True, True), ('llm_task_routes', True, True), ('llm_budgets', True, True)]
+FK llm_*: 
+== edupilot
+cột thêm ngoài SRS llm_audit ['cascade_gate', 'cascade_path']
+cột SRS 60 | id uuid True | created_at/updated_at có: [('llm_providers', True, True), ('llm_models', True, True), ('llm_task_routes', True, True), ('llm_budgets', True, True)]
+FK llm_*: 
+BAD 0
+qc2i_r3go
+llm_task_routes->llm_models
+llm_models->llm_providers
+2
+edupilot
+llm_models->llm_providers
+llm_task_routes->llm_models
+2

@@ -1,0 +1,15 @@
+### vps-llm BASE=http://[::1]:3000
+Từ chối: http://[::1]:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+### vps-llm BASE=http://host.docker.internal:3000
+Từ chối: http://host.docker.internal:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+### vps-llm BASE=http://127.0.0.1:3000
+Từ chối: http://127.0.0.1:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+### vps-llm BASE=http://localhost:3000/
+Từ chối: http://localhost:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+### vps-llm BASE=https://localhost:443
+Từ chối: https://localhost:443 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1

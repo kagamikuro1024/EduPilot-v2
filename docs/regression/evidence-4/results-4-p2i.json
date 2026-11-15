@@ -1,0 +1,1 @@
+{"TC-P212-18": ["F", "mail_outbox DEAD=1 (đo lại; lần đầu có 1 DEAD do nhóm khác); theo trạng thái SENT:535,DEAD:1"], "TC-P201-10": ["P", "đo lại: khoá \"token|password|link|url\" trong payload mail_outbox = 0; pg_dump không có liên kết verify-email?token="]}

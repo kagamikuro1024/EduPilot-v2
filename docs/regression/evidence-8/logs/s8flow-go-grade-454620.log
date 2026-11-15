@@ -1,0 +1,27 @@
+go test -count=1 -v -timeout 900s -run ^(TestImportStudentCodeAsText|TestImportMatchesEnrollmentSnapshot|TestImportSelfDeclaredCodeIgnored|TestImportBlankKeepsOld)$ ./internal/grade
+=== RUN   TestImportStudentCodeAsText
+2026/11/15 22:52:50 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f8472f962b2d4dda85368f23fe836158da99b524823a6e194025ff461c4ee7c7
+  Test ProcessID: 0d619916-e68f-41ea-9154-7c13937fc9eb
+2026/11/15 22:52:50 ✅ Container started: 68f6ff853df5
+2026/11/15 22:52:50 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:52:50 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:52:51 ✅ Container started: 5636bc78d64d
+2026/11/15 22:52:51 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:52:51 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestImportStudentCodeAsText (1.12s)
+=== RUN   TestImportMatchesEnrollmentSnapshot
+--- PASS: TestImportMatchesEnrollmentSnapshot (0.64s)
+=== RUN   TestImportSelfDeclaredCodeIgnored
+--- PASS: TestImportSelfDeclaredCodeIgnored (0.75s)
+=== RUN   TestImportBlankKeepsOld
+--- PASS: TestImportBlankKeepsOld (0.78s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	3.766s

@@ -1,0 +1,19 @@
+push 1 202
+push 2 202
+push 3 202
+push 4 202
+push 5 202
+== stop redis 23:33:49
+push 6 (redis tắt) 503
+push 7 (redis tắt) 503
+push 8 (redis tắt) 503
+== start redis 23:34:14
+client f1 còn mở: không
+push 9 202
+push 10 202
+push 11 202
+Last-Event-ID=1794760427643-0
+push 12 202
+push 13 202
+f1 ids: 5 · n nhận: "n":1 "n":2 "n":3 "n":4 "n":5 
+f2 ids: 0 · n nhận: 

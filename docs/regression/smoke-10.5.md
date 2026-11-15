@@ -1,22 +1,22 @@
 # Smoke hồi quy sprint 10.5 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm G, SmkG) · Ngày: 2026-11-15
-Tổng TC cũ: 185 · Đạt: 72 · Trượt: 1 · Không chạy (K, gồm lỗi thời): 112   (P+F+K = 185)
-Tách K: K(a/b/c) = 0 (a=0, b=0, c=0) · lỗi thời = 0 · **chưa chạy (mẫu) = 112** (ngoài mẫu smoke «1 chính + 1 lỗi/phân quyền mỗi US»; chờ PM quyết có chạy nốt)
+Tổng TC cũ: 185 · Đạt: 79 · Trượt: 1 · Không chạy (K, gồm lỗi thời): 105   (P+F+K = 185)
+Tách K: K(a/b/c) = 0 (a=0, b=0, c=0) · lỗi thời = 2 · **chưa chạy (mẫu) = 103** (ngoài mẫu smoke «1 chính + 1 lỗi/phân quyền mỗi US»; chờ PM quyết có chạy nốt)
 
 Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, sửa cho ep-r): `dm_a_provider` (23 PASS), `dm_e_api` (58 PASS), `dm_f_alert_obs` (obs khớp SQL), `dm_smoke.py` (mới: ma trận cổng theo cấu hình) qua các lần restart gateway+worker dưới khoá toàn cục với `FAKE_DECISION_PROB`=0,9/0,01/0,2/0,97/mặc định, `LLM_DECISION_FAKE_MODE`=error/timeout, CLASSIFY→stub :8778 (đã hoàn); `dm_b_threads` (rules/precheck); `dm_c` (cờ chèn lệnh, 3 cấu hình — kết quả KHÔNG hợp lệ: chỉ 7–22/24 bài chấm lại được, P=0,9 chưa chạy xong hàng đợi, dữ liệu BT03 bị lẫn bởi 10.6 → ca D04-01/02/03/05/09/14/20 ghi chưa chạy); Go gate (llm, agent, thread, privacy, grading) PASS; Playwright `qc-dm-ui-real` 3 xanh; `LLM_DECISION_ALLOW_REAL=false` giữ nguyên, 0 gói tới googleapis. Chưa chạy: cảnh báo DECISION_FAIL_CLOSED (cần `DECISION_ALERT_TICK` + dữ liệu mới), `benchmarks/decision/run.sh`, thêm ca Threads comment/roles.
 
 ## Tổng hợp theo US
 | US | TC tổng | P | F | K(a/b/c)+lỗi thời | chưa chạy (mẫu) | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- |
-| US-DM-01 `Decide()` và provider | 28 | 18 | 0 | 0 | 10 |  |
-| US-DM-02 Cascade + cấu hình | 25 | 14 | 0 | 0 | 11 |  |
-| US-DM-03 Cổng `THREADS_PRECHECK` | 20 | 11 | 0 | 0 | 9 |  |
-| US-DM-04 Cổng `INJECTION_FLAG` | 20 | 3 | 0 | 0 | 17 |  |
-| US-DM-05 Cổng `CHAT_ROUTING` | 19 | 6 | 0 | 0 | 13 |  |
-| US-DM-09 Ranh giới an toàn (xuyên suốt) | 11 | 6 | 0 | 0 | 5 |  |
-| US-DM-06 Màn cấu hình | 23 | 5 | 0 | 0 | 18 |  |
-| US-DM-07 Bảng số liệu | 16 | 5 | 1 | 0 | 10 |  |
-| QC test case — US-DM-08 (đo trước / sau, seed, hướng dẫn, cổ | 23 | 4 | 0 | 0 | 19 |  |
+| US-DM-01 `Decide()` và provider | 28 | 18 | 0 | 0 | 10 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-DM-02 Cascade + cấu hình | 25 | 15 | 0 | 0 | 10 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-DM-03 Cổng `THREADS_PRECHECK` | 20 | 11 | 0 | 0 | 9 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-DM-04 Cổng `INJECTION_FLAG` | 20 | 5 | 0 | 2 | 13 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-DM-05 Cổng `CHAT_ROUTING` | 19 | 6 | 0 | 0 | 13 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-DM-09 Ranh giới an toàn (xuyên suốt) | 11 | 6 | 0 | 0 | 5 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-DM-06 Màn cấu hình | 23 | 7 | 0 | 0 | 16 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-DM-07 Bảng số liệu | 16 | 7 | 1 | 0 | 8 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| QC test case — US-DM-08 (đo trước / sau, seed, hướng dẫn, cổ | 23 | 4 | 0 | 0 | 19 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
 
 ## Kết quả từng ca (đã chạy: P/F; K gom theo dải)
 | TC | KQ | Ghi chú |
@@ -62,7 +62,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 | TC-D02-20 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D02-21 | P | Go TestPrecheckAddOnly PASS (decision chỉ thêm chặn, không bỏ chặn của luật) |
 | TC-D02-22 | P | teacher/TA/SV: 19 API cổng 403; không token 401 |
-| TC-D02-23 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D02-23 | P | dm_m: SV/GV/TA × 30 phản hồi (me, courses, threads, assignments, notifications, chat, grading-results, settings): 0 cascade_* / tên cổng / FAST·FALLBACK |
 | TC-D02-24 | P | GET cổng theo lớp: 3 cổng {enabled, effective, version} |
 | TC-D02-25 | P | GET decision/courses: cursor duyệt hết, không trùng |
 | TC-D03-01 | P | luật chặn (MSSV) → 422 PII_DETECTED, 0 DECIDE |
@@ -78,7 +78,12 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 | TC-D03-11…TC-D03-13 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D03-14 | P | chat khủng hoảng: 0 DECIDE; Threads khủng hoảng: Go TestCrisisNeverReachesDecide PASS (lượt stack bị 503 do chaos nhóm khác, chưa chạy lại) |
 | TC-D03-15…TC-D03-20 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
-| TC-D04-01…TC-D04-11 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D04-01 | K (lỗi thời) | LỖI THỜI (P-11-26): bản phát lại decision-replay.json nay chứa mẫu chấm của seed nên FAKE_DECISION_PROB không ghi đè được (chỉ áp cho đầu vào ngoài replay) → không dựng được bảng OR 7 tổ hợp bằng P; với P=0,9 chỉ 1–6 lời gọi FAST, 20 FALLBACK |
+| TC-D04-02 | P | FAKE_MODE=error: DECIDE error → circuit_open; mọi bài chấm xong (22/22 DONE), cờ chỉ từ regex (sv14), điểm khớp các round cùng điều kiện, hàng chờ không treo (batchB5c/B6) |
+| TC-D04-03 | P | điểm y hệt giữa cổng tắt / P=0,9 / P=0,01 / lỗi trên cùng round-điều kiện (vd sv07 5,75, sv15 9,00 ở round 2–6, 8–10); chênh với round 1 là do round 1 chấm trước khi nhóm khác đổi route, không do cổng (batchB6: cổng TẮT cũng cho đúng các chênh đó) |
+| TC-D04-04…TC-D04-08 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D04-09 | K (lỗi thời) | LỖI THỜI (P-11-26): 6 biến thể + 6 đối chứng nay đo bằng bộ replay riêng (P-11-26: 0 cờ nhầm trên bộ sạch); không đo được bằng FAKE_DECISION_PROB |
+| TC-D04-10…TC-D04-11 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D04-12 | P | DECIDE của chấm: làn BATCH, cascade_gate=INJECTION_FLAG |
 | TC-D04-13 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D04-14 | P | FAKE_MODE=error: DECIDE error → circuit_open (cầu dao mở), cờ chỉ từ regex (sv14 giữ INJECTION_SUSPECTED), 0 cờ mới; chấm vẫn chạy (một phần bài còn QUEUED lúc đọc) |
@@ -108,18 +113,23 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 | TC-D06-07 | P | 3 hàng cổng đúng tên, công tắc mặc định Tắt, «Cài đặt nâng cao», «Theo lớp»; công tắc 36×36 (1440) / 44×44 (375) |
 | TC-D06-08…TC-D06-09 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D06-10 | P | tìm lớp theo mã trong bảng Theo lớp |
-| TC-D06-11…TC-D06-16 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D06-11…TC-D06-14 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D06-15 | P | dm_m: đổi + hoàn tác ngưỡng → 2 dòng audit_log decision_gate có before/after/actor |
+| TC-D06-16 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D06-17 | P | teacher không thấy khối / bảng «Quyết định nhanh» ở /settings/llm và /observability |
-| TC-D06-18…TC-D06-23 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D06-18…TC-D06-22 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D06-23 | P | dm_m: GV/SV/TA không thấy «Quyết định nhanh» / tên cổng trong 30 phản hồi |
 | TC-D07-01 | P | số khớp SQL (calls, FAST %, FALLBACK %, FAIL_CLOSED %, error %): 3 cổng |
 | TC-D07-02 | **F** | bảng «Quyết định nhanh» nằm TRÊN bảng «7 ngày qua» (AdminView.tsx:58 trước :65); US-DM-07 AC1: dưới bảng 7 ngày · **DEF-R10.5-01** |
 | TC-D07-03 | P | dải «24 giờ qua» không có chỉ số decision |
-| TC-D07-04…TC-D07-08 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D07-04 | P | dm_m: «Bật ở N/M lớp» = courses_enabled/total khớp SQL (1/51); cổng tắt → state off |
+| TC-D07-05…TC-D07-08 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D07-09 | P | teacher: /admin/observability/decision 403; /observability không có bảng decision |
 | TC-D07-10 | P | teacher / TA / SV không nhận chuông DECISION_FAIL_CLOSED |
 | TC-D07-11…TC-D07-13 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D07-14 | P | GET observability/decision: Cache-Control no-store; window lạ → 422 |
-| TC-D07-15…TC-D07-16 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D07-15 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-D07-16 | P | dm_m: DECIDE THREADS chỉ thuộc 1 lớp có cổng (quan sát) |
 | TC-D08-01 | P | seed sạch: llm_providers có decision-fake bật + gemini-decision-1 tắt; ba cổng tắt, ngưỡng mặc định |
 | TC-D08-02…TC-D08-03 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-D08-04 | P | Go TestDecide* + TestCascade* (llm, llm/fake, llm/provider, llm/scheduler) PASS |
@@ -135,6 +145,8 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 ## Ca K và lý do (bảng gom)
 | Mã loại | Ca | Lý do |
 | --- | --- | --- |
+| KL | TC-D04-01 | LỖI THỜI (P-11-26): bản phát lại decision-replay.json nay chứa mẫu chấm của seed nên FAKE_DECISION_PROB không ghi đè được (chỉ áp cho đầu vào ngoài replay) → không dựng được bảng OR 7 tổ hợp bằng P; với P=0,9 chỉ 1–6 lời gọi FAST, 20 FALLBACK |
+| KL | TC-D04-09 | LỖI THỜI (P-11-26): 6 biến thể + 6 đối chứng nay đo bằng bộ replay riêng (P-11-26: 0 cờ nhầm trên bộ sạch); không đo được bằng FAKE_DECISION_PROB |
 
 ## Chưa chạy (mẫu)
-112 ca: dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có script; liệt kê theo dải ở bảng trên (cột «chưa chạy (mẫu)»).
+103 ca: dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có script; liệt kê theo dải ở bảng trên (cột «chưa chạy (mẫu)»).

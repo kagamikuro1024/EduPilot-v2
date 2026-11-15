@@ -1,0 +1,40 @@
+### up
+2026/11/15 23:06:37 OK   00022_llm_request_payloads.sql (48.99ms)
+2026/11/15 23:06:37 OK   00024_attendance_checkin.sql (204.05ms)
+2026/11/15 23:06:37 OK   00025_audit_log_indexes.sql (34.85ms)
+2026/11/15 23:06:37 goose: successfully migrated database to version: 25
+rc=0
+### down(1)
+2026/11/15 23:06:38 OK   00025_audit_log_indexes.sql (83.47ms)
+### after down tables/types
+7
+13
+24
+22
+### up (25)
+2026/11/15 23:06:49 OK   00025_audit_log_indexes.sql (218.74ms)
+2026/11/15 23:06:49 goose: successfully migrated database to version: 25
+### status 00016
+2026/11/15 23:06:49     Sun Nov 15 16:06:34 2026 -- 00008_privacy.sql
+2026/11/15 23:06:49     Sun Nov 15 16:06:35 2026 -- 00015_observation.sql
+2026/11/15 23:06:49     Sun Nov 15 16:06:35 2026 -- 00016_gradebook.sql
+2026/11/15 23:06:49     Sun Nov 15 16:06:36 2026 -- 00017_assignments.sql
+### down-to 15 (gỡ 00016 và các bản sau)
+2026/11/15 23:06:50 OK   00025_audit_log_indexes.sql (122.85ms)
+2026/11/15 23:06:50 OK   00024_attendance_checkin.sql (240ms)
+2026/11/15 23:06:50 OK   00022_llm_request_payloads.sql (62.21ms)
+2026/11/15 23:06:50 OK   00021_grading_guidance.sql (145.63ms)
+2026/11/15 23:06:51 OK   00020_decision.sql (215.15ms)
+2026/11/15 23:06:51 OK   00019_practice.sql (169.61ms)
+2026/11/15 23:06:51 OK   00017_assignments.sql (392.19ms)
+2026/11/15 23:06:51 OK   00016_gradebook.sql (286.25ms)
+2026/11/15 23:06:51 goose: no migrations to run. current version: 15
+rc=0
+0
+0
+### up lại
+2026/11/15 23:06:58 OK   00024_attendance_checkin.sql (123.93ms)
+2026/11/15 23:06:58 OK   00025_audit_log_indexes.sql (44.22ms)
+2026/11/15 23:06:58 goose: successfully migrated database to version: 25
+rc=0
+2026/11/15 23:06:59     Sun Nov 15 16:06:55 2026 -- 00016_gradebook.sql

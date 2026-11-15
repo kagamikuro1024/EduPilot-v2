@@ -1,0 +1,7 @@
+== TC-PG02-69
+    ok   hai người dùng khác nhau dùng cùng khoá: hợp lệ !~ /ERROR/
+    ok   chèn được 2 dòng ~ /^2$/
+    ok   cùng user + cùng endpoint + cùng key → SQLSTATE 23505 ~ /23505:/
+    ok   cùng user + cùng endpoint + cùng key → thông báo ~ /idempotency_keys_user_endpoint_key_key/
+-- TC-PG02-69 PASS
+TỔNG story 02: PASS=1 FAIL=0 MANUAL=0 K=0

@@ -1,17 +1,19 @@
 # Smoke hồi quy sprint 10 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm F) · Ngày: 2026-11-15
-Tổng TC cũ: 250 · Đạt: 132 · Trượt: 1 · Không chạy (K, gồm lỗi thời / ngoài phạm vi): 5 · Chưa chạy (mẫu): 112   (P+F+K+M = 250)
+Tổng TC cũ: 250 · Đạt: 136 · Trượt: 1 · Không chạy (K, gồm lỗi thời / ngoài phạm vi): 5 · Chưa chạy (mẫu): 108   (P+F+K+M = 250)
 Quy ước: «K» chỉ gồm lỗi thời / ngoài phạm vi theo spec / loại (b). «M» = chưa chạy vì ngoài mẫu «đường chính + ≥1 nhánh lỗi / phân quyền mỗi US» (PM quyết có chạy nốt không) hoặc cần khoá cấu hình global (ghi rõ ở cột ghi chú); không tính trượt.
 Cách chạy (bản sao đã sửa tham số ở `docs/regression/evidence-10/scripts/`, script gốc không đổi): `export SEED_DEFAULT_PASSWORD='Edupilot#Seed-2026'`; `python3 pa1.py pa1b.py pa2.py pa2b.py pa3.py pb3.py pb4.py pc.py pd.py pe.py pk.py pg.py pi2.py pj2.py px.py px2.py px3.py px4.py recheck_l1.py recheck_l3.py recheck_low.py` (qlib.py đổi cổng 943→1143, `ep-qc`→`ep-r-postgres-1`, thử lại 429/5xx; pa2/pa2b thêm nhánh SHORT; pb.py ánh xạ tên tài liệu seed; `clean_inprog.py` nộp lượt dở trước mỗi script). Go: `go test ./internal/quiz ./internal/practice` + `sqlc diff` + `go test ./internal/contract` (log `logs/go-tests.log`, `logs/contract-fail*.log`). UI: `frontend/e2e/qc2-r10/` (bản sao spec `qc-s10-*` đặt lớp mặc định 761987 bằng localStorage `ep:ui:course`) — 1440: luyện đề / lịch sử / Hôm nay / thi thử không tràn ngang, không chữ cấm (AI, RAG, citation, model…); 375: /practice, /practice/history đạt; ảnh `/tmp/qc2-f-shots10`. Kết quả UI không map sang từng TC (spec thăm dò, không có assertion theo TC) nên các TC E2E vẫn ở «M» trừ khi nêu khác.
 Môi trường: 9router thật cho CHAT/QUESTION_GEN/GRADING (tuần tự, không song song); Postgres ep-r bị nhóm 9.5 làm sập một lần lúc 12:59 UTC (đã hồi phục, các ca đang chạy được chạy lại).
 
+Lượt 2 (luật mới «không lấy mẫu»): chạy nốt 112 ca M bằng `pm.py`/`pm_a*.py` (kết quả `results_m.jsonl`, dòng sau thắng). **TẠM DỪNG lúc 23:2x theo lệnh PM (tải máy 44, nguy cơ sập Postgres):** đã xong TC-01-04, TC-01-15, TC-04-13, TC-12-21; còn lại chạy khi tải < 15. Script lô A1 (`pm_a1.py`: TC-05-04/05/05/06/15) đã viết, chạy dở (ngân hàng QC-r10-A 26/30 câu SHORT đã tạo, chủ đề riêng của QC). Ca Go (`go test` bằng testcontainers) bị hết hạn migrate khi tải cao: TestWrongAnswerSignalsNoIdentity, TestFormsImportNoLLM/ScoreDecimal, TestLibraryToolHidesExamPaperWhileLocked chạy lại xanh (4/4), overlay QC TC-09-11..13 (`/tmp/qc2-r10-ovl/qc2_r10_test.go`) chưa xong.
+
 ## Tổng hợp theo US
 | US | TC tổng | P | F | K | M | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- |
-| P9-01 Lược đồ, Quiz Engine, DTO | 20 | 18 | 0 | 0 | 2 | |
+| P9-01 Lược đồ, Quiz Engine, DTO | 20 | 20 | 0 | 0 | 0 | |
 | P9-02 Trích đề cũ | 26 | 17 | 0 | 1 | 8 | |
 | P9-03 Sinh câu | 13 | 7 | 0 | 0 | 6 | |
-| P9-04 /questions + duyệt hàng loạt | 23 | 11 | 0 | 0 | 12 | |
+| P9-04 /questions + duyệt hàng loạt | 23 | 12 | 0 | 0 | 11 | |
 | P9-05 Dựng đề theo ma trận | 18 | 11 | 0 | 0 | 7 | |
 | P9-06 Luyện theo chủ đề | 27 | 16 | 0 | 0 | 11 | |
 | P9-07 Thi thử | 30 | 17 | 0 | 1 | 12 | |
@@ -19,8 +21,8 @@ Môi trường: 9router thật cho CHAT/QUESTION_GEN/GRADING (tuần tự, khôn
 | P9-09 Lịch sử, điểm yếu, Hôm nay | 21 | 10 | 0 | 0 | 11 | |
 | P9-10 Liêm chính | 17 | 9 | 0 | 0 | 8 | |
 | P9-11 Nhập Forms | 19 | 6 | 0 | 1 | 12 | |
-| P9-12 Seed + cổng | 22 | 2 | 1 | 1 | 18 | |
-| **Tổng** | 250 | 132 | 1 | 5 | 112 | |
+| P9-12 Seed + cổng | 22 | 3 | 1 | 1 | 17 | |
+| **Tổng** | 250 | 136 | 1 | 5 | 108 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -28,7 +30,7 @@ Môi trường: 9router thật cho CHAT/QUESTION_GEN/GRADING (tuần tự, khôn
 | TC-01-01 | P | DB: bảng practice_*, enum, không practice_exams |
 | TC-01-02 | P | FK phức hợp, CHECK, UNIQUE từng phần, chỉ mục |
 | TC-01-03 | P | SV chưa vào lớp → 23503 (px2.py) |
-| TC-01-04 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
+| TC-01-04 | P | goose trên bản sao DB (pg_dump → DB qc2_r10): down-to 18 (lùi 00025→00019, version 17): 0 bảng practice_*, courses/enrollments/question_bank giữ nguyên (42/445/558); up lại → v25, 3 bảng trở lại; log logs/goose-r10.log |
 | TC-01-05 | P | sqlc generate+diff mã 0 (go-tests.log) |
 | TC-01-06 | P | chỉ mục practice_attempts_open_key: trùng chủ đề bị từ chối; khác chủ đề chèn được (psql tay) |
 | TC-01-07 | P | TestGradeShort + TestGradeShortBadKey xanh; bảng 33 ca |
@@ -39,7 +41,7 @@ Môi trường: 9router thật cho CHAT/QUESTION_GEN/GRADING (tuần tự, khôn
 | TC-01-12 | P | script: TC-01-12a; TC-01-12b |
 | TC-01-13 | P | script: TC-01-13 ESSAY vào bài thi → 422 TYPE_NOT_SUPPORTE; TC-01-13 SHORT vào bài thi → 422 TYPE_NOT_SUPPORTE |
 | TC-01-14 | P | TestPracticeStudentDTOAllowlist xanh + quét API TC-10-05a |
-| TC-01-15 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: PASS |
+| TC-01-15 | P | kiểm độ nhạy bằng go -overlay (không sửa mã sản phẩm): thêm trường answer_key vào QuestionView → TestPracticeStudentDTOAllowlist FAIL (len 4→5 'answer_key'); log logs/tc-01-15.log |
 | TC-01-16 | P | script: TC-01-16 ["  "]; TC-01-16 [""] |
 | TC-01-P1 | P | script: TC-01-P1 |
 | TC-01-P2 | P | script: TC-01-P2 |
@@ -97,7 +99,7 @@ Môi trường: 9router thật cho CHAT/QUESTION_GEN/GRADING (tuần tự, khôn
 | TC-04-10 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
 | TC-04-11 | P | PUT version cũ → 409 VERSION_CONFLICT (px3.py) |
 | TC-04-12 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: FAIL |
-| TC-04-13 | M | PUT review CITATION_REQUIRED chưa chạy lại (script chọn câu có citations); đường bulk đã PASS |
+| TC-04-13 | P | 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "ec19dd6e6fcf860b43b70f9a49e42c6e", "details": [{"field": "citations", "code": "CIT; 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp l |
 | TC-04-14 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
 | TC-04-15 | P | /me/today của TA có «82 câu hỏi chờ duyệt · lớp 761987» (GV bị cắt ở 20 việc do dữ liệu nhiễu của nhóm khác); biến mất sau khi duyệt hết: chưa chạy |
 | TC-04-16 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
@@ -273,7 +275,7 @@ Môi trường: 9router thật cho CHAT/QUESTION_GEN/GRADING (tuần tự, khôn
 | TC-12-18 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
 | TC-12-19 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: FAIL |
 | TC-12-20 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
-| TC-12-21 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: CHƯA |
+| TC-12-21 | P | goose down + up trên bản sao DB seed: cả hai OK (00025), version 25; thêm down-to 18 + up toàn bộ OK; log logs/goose-r10.log |
 | TC-12-22 | M | chưa chạy (mẫu: ngoài «đường chính + 1 nhánh lỗi/US»); lần gốc: PASS |
 
 ## Trượt: bước tái hiện

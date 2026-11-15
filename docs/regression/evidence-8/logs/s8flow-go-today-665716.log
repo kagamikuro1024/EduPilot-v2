@@ -1,0 +1,23 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestProviderGradeSchemeUnconfirmed|TestProviderClearedOnConfirm)$ ./internal/today
+=== RUN   TestProviderGradeSchemeUnconfirmed
+2026/11/15 22:52:29 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3b2ca006b4861e7dc1c7649b1af801cc057b3568336a7e4e3832bfefb4b5a911
+  Test ProcessID: e753b5eb-27f6-4c4d-80a4-dc747d6a2d36
+2026/11/15 22:52:29 ✅ Container started: 68f6ff853df5
+2026/11/15 22:52:29 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:52:29 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:52:29 ✅ Container started: 5636bc78d64d
+2026/11/15 22:52:29 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:52:29 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestProviderGradeSchemeUnconfirmed (0.84s)
+=== RUN   TestProviderClearedOnConfirm
+--- PASS: TestProviderClearedOnConfirm (0.52s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/today	2.124s

@@ -1,0 +1,18 @@
+go test -count=1 -v -timeout 900s -run ^(TestGradeFormulaFromConfirmedScheme)$ ./internal/agent
+=== RUN   TestGradeFormulaFromConfirmedScheme
+2026/11/15 22:52:37 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 13d47eac233ab9eede9d8b152f0d2b0e6ae54a0a8db24ca3153037afd9b0434b
+  Test ProcessID: 02043088-6220-4cb2-a4c8-5e81f7ddbcd7
+2026/11/15 22:52:37 ✅ Container started: 68f6ff853df5
+2026/11/15 22:52:37 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:52:37 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestGradeFormulaFromConfirmedScheme (0.57s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/agent	0.959s

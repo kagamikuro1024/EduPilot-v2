@@ -1,0 +1,27 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestImportIdempotentSameFile|TestImportHasErrorsBlocks|TestImportSkipErrors|TestImportAuditPerChange)$ ./internal/grade
+=== RUN   TestImportIdempotentSameFile
+2026/11/15 22:51:27 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 72e84248a7431e5d6575dcd2044bc1cb358d78074639411846f6a56671476aa4
+  Test ProcessID: fa0b13b3-6d36-4402-a9f4-c7c3bb8b765b
+2026/11/15 22:51:27 ✅ Container started: 68f6ff853df5
+2026/11/15 22:51:27 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:51:27 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:51:27 ✅ Container started: 5636bc78d64d
+2026/11/15 22:51:27 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:51:27 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestImportIdempotentSameFile (0.84s)
+=== RUN   TestImportHasErrorsBlocks
+--- PASS: TestImportHasErrorsBlocks (0.63s)
+=== RUN   TestImportSkipErrors
+--- PASS: TestImportSkipErrors (0.62s)
+=== RUN   TestImportAuditPerChange
+--- PASS: TestImportAuditPerChange (0.58s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	3.135s

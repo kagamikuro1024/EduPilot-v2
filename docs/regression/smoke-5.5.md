@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5.5 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkC) · Ngày: 2026-11-15
-Tổng TC cũ: 58 (tc-US-UI-01…07) · Đạt: 0 · Trượt: 0 · K (a/b/c): 0 · Lỗi thời LT (bằng chứng bên dưới): 2 · Chưa chạy (mẫu) S: 56
+Tổng TC cũ: 58 · Đạt: 0 · Trượt: 0 · K (a/b/c): 0 · LT: 2 · Chưa chạy: 56 — bản dựng cổng ĐÃ build (`pnpm build:gate`), spec mock đang chạy nền (`/tmp/qc2-c5/pw55b.json`); chạy `python3 evidence-5/scripts/finalize_55.py` khi xong để nối bảng spec vào tệp này.
 
 **Chưa chạy gần hết — hết ngân sách lượt sau khi ưu tiên sprint 5.** Các ca 5.5 đều là Playwright chạy trên bản dựng cổng + gateway giả (`panels.spec.ts`, `shell.spec.ts`, `a11y.spec.ts`, `exam.spec.ts`…, cần `pnpm build:gate`), không chạy được trực tiếp trên ep-r; phần thăm dò UI thật dùng `evidence-5/ui/ui_pe.cjs` (axe/tràn ngang trên khung AppShell hiện tại) cho sprint 5.
 

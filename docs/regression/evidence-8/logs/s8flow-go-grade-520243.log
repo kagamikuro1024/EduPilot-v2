@@ -1,0 +1,27 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestStudentDTOAllowlist|TestPendingItemHasNoScore|TestMeWhatIfNoWrite|TestMeWhatIfTargetLetter)$ ./internal/grade
+=== RUN   TestPendingItemHasNoScore
+2026/11/15 22:52:17 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f2a8846a953096d60a80c8809bebd07851e623015518f6b9c6b4f9a131d13012
+  Test ProcessID: e3046e6e-b83b-460c-af5f-1c5fe5fce566
+2026/11/15 22:52:17 ✅ Container started: 68f6ff853df5
+2026/11/15 22:52:17 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:52:17 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:52:18 ✅ Container started: 5636bc78d64d
+2026/11/15 22:52:18 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:52:18 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestPendingItemHasNoScore (0.75s)
+=== RUN   TestStudentDTOAllowlist
+--- PASS: TestStudentDTOAllowlist (0.58s)
+=== RUN   TestMeWhatIfNoWrite
+--- PASS: TestMeWhatIfNoWrite (0.58s)
+=== RUN   TestMeWhatIfTargetLetter
+--- PASS: TestMeWhatIfTargetLetter (0.52s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	2.872s

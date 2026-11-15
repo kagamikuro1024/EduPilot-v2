@@ -1,0 +1,16 @@
+## 02-02 race TestEngineExpected30
+rc=0; PASS con: 30; SKIP: 0; DATA RACE: 0
+## 02-10 race TestEngineCases
+rc=0; PASS con: 18; SKIP: 0
+## 02-36 bench
+--- PASS: TestWhatIfNoWrite (0.00s)
+--- PASS: TestMinFinalFor (0.16s)
+--- PASS: TestPreviewUsesCompute (89.52s)
+BenchmarkCompute1000
+BenchmarkCompute1000-11    	      20	  27862119 ns/op
+ok  	github.com/edupilot/backend-go/internal/grade	91.133s
+## 02-17 vet+lint
+vet rc=0
+0 issues.
+lint rc=0
+DONE

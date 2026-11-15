@@ -239,3 +239,36 @@
 {"tc": "TC-PE07-13", "r": "P", "note": "204; DB: TAB_TAKEOVER|{\"reload\": false} ; PASTE|{\"chars\": 812, \"item_id\": \"01a1df64-05b8-7875-aab5-43113e9833fa\"} ; TAB_HIDDEN|{} ; TAB_VISIBLE|{\"duration_ms\": 5000}", "suite": "PE-07"}
 {"tc": "TC-PE07-47", "r": "P", "note": "chat thật (P-7#17: mã EXAM_IN_PROGRESS): tạo phiên 201; gửi tin trong giờ thi → 409 ['EXAM_IN_PROGRESS']", "suite": "PE-07"}
 {"tc": "TC-PE07-02", "r": "P", "note": "r5s02: nộp tay 200; khoá Redis gỡ sau 0.1s (≤10); chat-gate allowed=True", "suite": "PE-07"}
+{"tc": "TC-PE01-04", "r": "LT", "note": "migration PE nay là 00006 (00005 là vn_fold của P2); 00001–00004 đã bị sửa sau sprint 4: cc8e0952 2026-10-03 US-P2-01: migration 00003+00004, internal/mail (go-mail, mail_outbox, consumer), auth.Tokens ; 01242098 2026-10-03 US-P1-01 (DỞ DANG): migration 00002_llm, platform/crypto AES-GCM,; ALTER bản", "suite": "static"}
+{"tc": "TC-PE01-31", "r": "F", "note": "số câu SQL liên quan question_bank: limit=5 → 25, limit=100 → 55; OFFSET trong mã/SQL PE: 0", "suite": "static"}
+{"tc": "TC-PE02-12", "r": "P", "note": "os/exec trong internal/judge + internal/exam (không test): 0", "suite": "static"}
+{"tc": "TC-PE02-56", "r": "F", "note": "job judge-attacks (ubuntu-24.04 amd64) có; -no-seccomp ở ci.yml: 1; kết luận CI GitHub (gh) không có trong repo clone — chỉ đọc cấu hình", "suite": "static"}
+{"tc": "TC-PE09-24", "r": "P", "note": "GATE PE trong handoff: 4", "suite": "static"}
+{"tc": "TC-PE09-30", "r": "F", "note": "weekly_exam trong PROGRESS.md: 2; report.md có; nợ nêu: ['precompiled', 'checker tuỳ chỉnh', 'sổ điểm', 'chat']", "suite": "static"}
+{"tc": "TC-PE02-56", "r": "P", "note": "job judge-attacks (ubuntu-24.04 amd64) có; -no-seccomp ở ci.yml chỉ trong dòng chú thích (\"KHÔNG -no-seccomp\"); kết quả `gh run` không kiểm được (không có CI GitHub trong clone) — chỉ đọc cấu hình, như gốc Q-QC-GATEPE-1", "suite": "static"}
+{"tc": "TC-PE09-30", "r": "P", "note": "weekly_exam trong PROGRESS.md 2 dòng; report.md có; đủ 6 nợ (tách sandbox, precompiled header, checker tuỳ chỉnh, nối sổ điểm P6, chat khoá P3, retention RUN/exam_events)", "suite": "static"}
+{"tc": "TC-PE01-31", "r": "P", "note": "số câu SELECT question_bank mỗi lần gọi: limit=5 [0, 0, 0]; limit=100 [0, 0, 0] (stack dùng chung có nhiễu); OFFSET trong mã PE: 0", "suite": "static"}
+{"tc": "TC-PE07-16", "r": "F", "note": "canary clipboard \"SECRET\"/ip trong pg_dump: 1; log gateway+worker: 0", "suite": "api2"}
+{"tc": "TC-PE07-24", "r": "P", "note": "score*.go / quiz: tham chiếu exam_events/similarity_reports (không test): 0", "suite": "api2"}
+{"tc": "TC-PE07-25", "r": "P", "note": "chữ buộc tội trong mã giao diện/Go (không test): không có", "suite": "api2"}
+{"tc": "TC-PE07-37", "r": "P", "note": "go list -deps internal/exam/similarity: net/http = 0", "suite": "api2"}
+{"tc": "TC-PE07-10", "r": "F", "note": "chat-gate ×300 (stack dùng chung, qua Caddy HTTPS): p95 phía gateway (log duration_ms, n=300) = 302.0 ms; p95 phía client 580.8 ms", "suite": "api2"}
+{"tc": "TC-PE01-31", "r": "P", "note": "tham chiếu course_id trong log SQL mỗi lần gọi: limit=5 [(2, 251), (2, 422), (2, 403)]; limit=100 [(2, 337), (2, 313), (2, 148)] (bằng nhau ⇒ không N+1); OFFSET trong mã PE: 0", "suite": "api2"}
+{"tc": "TC-PE05-56", "r": "P", "note": "lớp lưu trữ: SV thành viên bắt đầu 409 ['COURSE_ARCHIVED']; SV không thuộc lớp 403/course (start), mine 403", "suite": "api2"}
+{"tc": "TC-PE08-28", "r": "P", "note": "reveal_answers=false: result 200; canary giải thích 0; khoá đáp án/đúng-sai: [('correct', 'true')]; điểm hiện 3.33", "suite": "api2"}
+{"tc": "TC-PE05-59", "r": "P", "note": "sau công bố reveal=false: result + mine không có canary giải thích / answer_key; trước công bố đã quét ở PE05-14/16/53 (0 canary)", "suite": "api2"}
+{"tc": "TC-PE07-10", "r": "F", "note": "chat-gate ×300 (stack dùng chung, qua Caddy HTTPS): p95 phía gateway (log duration_ms, n=293) = 777.0 ms; p95 phía client 1407.6 ms", "suite": "api2"}
+{"tc": "TC-PE07-16", "r": "P", "note": "canary clipboard/ip trong exam_events: 0; log gateway+worker 0 (pg_dump có 1 dòng = mã nguồn tấn công x15 của chính QC, không phải sự kiện)", "suite": "final"}
+{"tc": "TC-PE07-10", "r": "S", "note": "đo lại khi máy rảnh: p95 phía gateway 302 ms / 777 ms khi load máy 45 (Go -race + Playwright + nhóm QC khác song song) — không đại diện; chưa có số hợp lệ", "suite": "final"}
+{"tc": "TC-PE02-01", "r": "P", "note": "judge: privileged=true, cgroupns=host, không publish cổng, shm 256 MiB, mem 2 GiB, cpus 2", "suite": "final"}
+{"tc": "TC-PE02-02", "r": "P", "note": "chỉ judge privileged; -no-seccomp qua JUDGE_EXTRA_ARGS; env judge ep-r có thêm OBS_ALERT_TICK/OBS_PURGE_TICK (artefact compose ep-r)", "suite": "final"}
+{"tc": "TC-PE02-03", "r": "P", "note": "go-judge v1.13.0; g++/gcc 14.2.0; Debian trixie", "suite": "final"}
+{"tc": "TC-PE02-04", "r": "P", "note": "gateway, worker: privileged=false, cgroupns=private", "suite": "final"}
+{"tc": "TC-PE02-05", "r": "P", "note": "judge không phân giải postgres/redis/minio/gateway/caddy/mailpit (6/6); wget 1.1.1.1 FAIL", "suite": "final"}
+{"tc": "TC-PE02-06", "r": "P", "note": "ep-r_judge_net internal=true; gateway chỉ ở ep-r_default; judge 0 volume", "suite": "final"}
+{"tc": "TC-PE02-07", "r": "P", "note": "POST /run không token 401, token sai 401; GET /version có token 200 (không token cũng 200 — như TC)", "suite": "final"}
+{"tc": "TC-PE02-09", "r": "P", "note": "JUDGE_TOKEN: 0 lần trong log gateway/worker/judge, pg_dump, Redis", "suite": "final"}
+{"tc": "TC-PE02-13", "r": "P", "note": "worker không có gcc/g++; judge 0 volume", "suite": "final"}
+{"tc": "TC-PE02-14", "r": "P", "note": "đường chấm thật: ok=AC, wa=WA, ce=CE, tle=TLE, re=RE, MLE(a05/a06), OLE(a03/a04), a07/a18=RE", "suite": "final"}
+{"tc": "TC-PE02-50", "r": "P", "note": "canary QCR5CANARY/QCHID: 0 lần ở log gateway/worker/judge; compile_log dùng main.cpp, không đường dẫn tuyệt đối", "suite": "final"}
+{"tc": "TC-PE02-55", "r": "P", "note": "TestSandboxAttacks (go_tests, -tags integration, judge thật): ok; xem TC-PE02-45", "suite": "final"}

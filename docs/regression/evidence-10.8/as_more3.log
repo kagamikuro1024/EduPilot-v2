@@ -1,0 +1,13 @@
+PASS TC-AS04-14c require=APP: WEB_KEY + khai app.version vẫn NOT_APP (khai báo máy khách không là căn cứ) ['DEVICE_NEW,NOT_APP', '2', 'APP']
+PASS TC-AS12-05 chuỗi X.509 tự ký giả (2 chứng chỉ) → 422 ATTESTATION_FAILED 422 {"code": "ATTESTATION_FAILED", "message": "Kh\u00f4ng x\u00e1c minh \u0111\u01b0\u1ee3c thi\u1ebft b
+free sessions 26 students 12
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/scripts/as_more3.py", line 30, in <module>
+    sql(f"insert into attendance_checkins(course_id,session_id,window_id,student_id,channel,assurance,token_age_ms,created_at) select w.course_id,w.session_id,w.id,u.id::uuid,'TOKEN',1,100,now()-interval '40 days' from checkin_windows w, (values {vals}) as u(id) where w.course_id='{C}' and w.closed_at < now()-interval '39 days' and w.round=1")
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/scripts/dmlib.py", line 72, in sql
+    if r.returncode: raise RuntimeError(r.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: ERROR:  invalid input value for enum checkin_channel: "TOKEN"
+LINE 1: ...) select w.course_id,w.session_id,w.id,u.id::uuid,'TOKEN',1,...
+                                                             ^
+

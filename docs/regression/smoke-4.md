@@ -1,7 +1,7 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 538 · Đạt: 274 · Trượt: 2 · Không chạy (K, gồm lỗi thời): 262   (P+F+K = 538)
-K chia theo loại: chưa chạy (mẫu): 257; (c): 2; lỗi thời: 1; (b): 2. Loại «chưa chạy (mẫu)» / «nền tảng» KHÔNG phải K (a)/(b)/(c) — chờ PM quyết có chạy nốt.
+Tổng TC cũ: 538 · Đạt: 287 · Trượt: 2 · Không chạy (K, gồm lỗi thời): 249   (P+F+K = 538)
+K chia theo loại: chưa chạy (mẫu): 244; (c): 2; lỗi thời: 1; (b): 2. Loại «chưa chạy (mẫu)» / «nền tảng» KHÔNG phải K (a)/(b)/(c) — chờ PM quyết có chạy nốt.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
 Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54Z (500 INTERNAL ~1 phút); ngưỡng đăng nhập sai theo IP 30/15 phút bị chạm khi nhiều nhóm cùng IP 172.22.0.1 (xoá `ep:auth:ipfail/fail`); APP_PUBLIC_URL của thư là https://localhost (thiếu :1143).
@@ -16,8 +16,8 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | US-P2-04 | 40 | 32 | 0 | 8 | |
 | US-P2-05 | 40 | 26 | 0 | 14 | |
 | US-P2-06 | 43 | 27 | 0 | 16 | |
-| US-P2-07 | 39 | 11 | 0 | 28 | |
-| US-P2-08 | 42 | 17 | 1 | 24 | |
+| US-P2-07 | 39 | 20 | 0 | 19 | |
+| US-P2-08 | 42 | 21 | 1 | 20 | |
 | US-P2-09 | 54 | 33 | 0 | 21 | |
 | US-P2-10 | 40 | 24 | 1 | 15 | |
 | US-P2-11 | 44 | 15 | 0 | 29 | |
@@ -249,25 +249,34 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P206-43 | P | go test: 153 pass/0 skip/0 fail |
 | TC-P207-01…TC-P207-07 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P207-08 | P | như TC-P207-15 (IDOR lớp): 0 ca lệch |
-| TC-P207-09…TC-P207-12 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-09 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-10 | P | openapi: members là route «TA, giảng viên, Admin» (Manage/xem quản lý) → Admin 200 đúng; today/sessions kiểm riêng ở TC-P211-16 |
+| TC-P207-11…TC-P207-12 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P207-13 | P | go test: 5 pass/0 skip/0 fail |
 | TC-P207-14 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P207-15 | P | 258 thao tác của mọi route lớp (openapi) gọi bởi SV KHÔNG thuộc lớp (sv.kha) vào lớp 2e1a: 2xx/5xx = 0 |
 | TC-P207-16…TC-P207-18 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P207-19 | P | qc-real-f2: bộ chọn lớp theo seed (GV 2 lớp, SV A/B ≥1 lớp ACTIVE, sv.moi chưa lớp) (spec @real ep-r, 4/4 đạt) |
-| TC-P207-20…TC-P207-21 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-20 | P | SV vừa xin vào lớp cần duyệt: me/courses [('SHAACDD0', 'PENDING')] |
+| TC-P207-21 | P | limit=101 → 422; ETag W/"eAvw8yVlYS1mWshE"; If-None-Match → 304 |
 | TC-P207-22 | P | go test: 6 pass/0 skip/0 fail |
-| TC-P207-23 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-23 | P | SV: không join_code, my_role=STUDENT, GV chỉ {full_name}; Admin 200; mã tham gia của GV lấy qua GET /courses/{id}/join-code (TC-P209-21 đạt) |
 | TC-P207-24 | P | go test: 4 pass/0 skip/0 fail |
-| TC-P207-25…TC-P207-29 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-25 | P | đổi MSSV ở hồ sơ → student_code_snapshot của enrollments không đổi (khớp mới: 0) |
+| TC-P207-26 | P | trường chỉ đọc/sai định dạng → [('role', 422), ('email', 422), ('id', 422), ('status', 422), ('full_name', 422), ('student_code', 422)]; sai version 409; sửa hợp lệ 200 |
+| TC-P207-27 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-28 | P | GET 200 ['notify_answer_by_mail', 'notify_ticket_by_mail', 'remind_deadline_by_mail', 'reminders', 'study_time', 'track_study_time', 'version']; PUT khoá lạ 422; GET settings người khác 404 |
+| TC-P207-29 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P207-30 | P | qc-real-f2: bộ chọn lớp theo seed (UI) (spec @real ep-r, 4/4 đạt) |
 | TC-P207-31 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P207-32 | P | Playwright class-join.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P207-33 | P | qc-real-f2: SV chưa lớp thấy «Bạn chưa vào lớp nào» + ô nhập mã (spec @real ep-r, 4/4 đạt) |
 | TC-P207-34 | P | Playwright class-join.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-P207-35…TC-P207-36 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-35 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-36 | P | không JWT: [401, 401, 401, 401] |
 | TC-P207-37 | P | go test: 4 pass/0 skip/0 fail |
-| TC-P207-38…TC-P207-39 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P207-38 | P | SV GET members/{uid} → 405 (route không tồn tại cho GET), không lộ dữ liệu; liệt kê members → 403 (TC-P209-54) |
+| TC-P207-39 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P208-01 | P | 201; replay=true; count=1; join_code=None  |
 | TC-P208-02 | F | class_code trùng(hoa-thường) 201; còn lại [422, 422, 422, 422, 422, 422] (DEF-R4-01) |
 | TC-P208-03 | P | 10 song song cùng class_code: {409: 9, 201: 1} |
@@ -283,15 +292,17 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P208-14…TC-P208-15 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P208-16 | P | go test: 8 pass/0 skip/0 fail |
 | TC-P208-17 | K | chưa chạy (mẫu): như TC-P208-13 |
-| TC-P208-18…TC-P208-21 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P208-18 | P | TA nhận thông báo COURSE_ASSIGNED=3: ['Bạn được phân công làm trợ giảng lớp Lớp SmkB S acdd0 – SHSACDD0'] |
+| TC-P208-19…TC-P208-20 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P208-21 | P | GV lớp thay TA 200; GV lớp khác 403; TA 403; SV 403; candidates 200 |
 | TC-P208-22 | P | go test: 4 pass/0 skip/0 fail |
 | TC-P208-23 | K | chưa chạy (mẫu): không có thông báo của GV2 để thử (kịch bản QC lỗi); id lạ → 404 |
-| TC-P208-24 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P208-24 | P | limit=101 422; limit=1 → 1 mục (next_cursor=True); unread_only: 4 mục chưa đọc |
 | TC-P208-25 | P | go test: 5 pass/0 skip/0 fail |
 | TC-P208-26 | P | 5 thao tác × 4 danh tính []; GV của lớp tự assign 403 |
 | TC-P208-27 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P208-28 | P | go test: 1 pass/0 skip/0 fail |
-| TC-P208-29 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P208-29 | P | khoá mục lớp: ['assistants_count', 'capacity', 'class_code', 'id', 'name', 'semester', 'status', 'students_active', 'students_pending', 'subject_code', 'teacher', 'version'] |
 | TC-P208-30 | P | go test: 4 pass/0 skip/0 fail |
 | TC-P208-31…TC-P208-32 | K | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P208-33 | P | Playwright class-join.spec.ts (bản build gate, gateway giả): 0 ca đỏ |

@@ -1,0 +1,110 @@
+=== BASE (không đột biến)
+=== base rc=0
+ok  	github.com/edupilot/backend-go/internal/grade	1.799s
+1
+=== M1 nửa-chẵn rc=1
+--- FAIL: TestNoFloatInGrade
+--- FAIL: TestEngineExpected30
+    --- FAIL: TestEngineExpected30/sv04
+    --- FAIL: TestEngineExpected30/sv08
+    --- FAIL: TestEngineExpected30/sv10
+    --- FAIL: TestEngineExpected30/sv26
+    --- FAIL: TestEngineExpected30/sv30
+--- FAIL: TestEngineCases
+    --- FAIL: TestEngineCases/S10-lam-tron-0.1-nua-len
+    --- FAIL: TestEngineCases/S11-lam-tron-0.5-duoi-1-chut
+    --- FAIL: TestEngineCases/S16-chia-khong-het
+--- FAIL: TestRoundHalfUpTable
+    --- FAIL: TestRoundHalfUpTable/0.5/6.25
+    --- FAIL: TestRoundHalfUpTable/0.5/8.25
+    --- FAIL: TestRoundHalfUpTable/0.5/0.25
+    --- FAIL: TestRoundHalfUpTable/0.1/7.25
+    --- FAIL: TestRoundHalfUpTable/1/6.5
+    --- FAIL: TestRoundHalfUpTable/0.25/6.125
+--- FAIL: TestNoIntermediateRounding
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	1.505s
+FAIL
+=== M2 trần cộng 1,0→1,5 rc=1
+--- FAIL: TestEngineExpected30
+    --- FAIL: TestEngineExpected30/sv.gioi
+--- FAIL: TestEngineCases
+    --- FAIL: TestEngineCases/S03-tran-cong-1.25
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	1.713s
+FAIL
+=== M3 miễn 2→3 buổi rc=1
+--- FAIL: TestEngineExpected30
+    --- FAIL: TestEngineExpected30/sv.nguyco
+--- FAIL: TestEngineCases
+    --- FAIL: TestEngineCases/S05-vang-3-tru-0.5
+    --- FAIL: TestEngineCases/S07-liet-vang-7
+    --- FAIL: TestEngineCases/S08-vang-6-chua-liet
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	1.733s
+FAIL
+=== M4 làm tròn trung gian QT rc=1
+--- FAIL: TestEngineExpected30
+    --- FAIL: TestEngineExpected30/sv.kha
+    --- FAIL: TestEngineExpected30/sv.nguyco
+    --- FAIL: TestEngineExpected30/sv04
+    --- FAIL: TestEngineExpected30/sv05
+    --- FAIL: TestEngineExpected30/sv06
+    --- FAIL: TestEngineExpected30/sv08
+    --- FAIL: TestEngineExpected30/sv09
+    --- FAIL: TestEngineExpected30/sv11
+    --- FAIL: TestEngineExpected30/sv12
+    --- FAIL: TestEngineExpected30/sv13
+    --- FAIL: TestEngineExpected30/sv14
+    --- FAIL: TestEngineExpected30/sv15
+    --- FAIL: TestEngineExpected30/sv16
+    --- FAIL: TestEngineExpected30/sv17
+    --- FAIL: TestEngineExpected30/sv18
+    --- FAIL: TestEngineExpected30/sv19
+    --- FAIL: TestEngineExpected30/sv20
+    --- FAIL: TestEngineExpected30/sv22
+    --- FAIL: TestEngineExpected30/sv24
+    --- FAIL: TestEngineExpected30/sv25
+    --- FAIL: TestEngineExpected30/sv26
+    --- FAIL: TestEngineExpected30/sv27
+    --- FAIL: TestEngineExpected30/sv28
+--- FAIL: TestEngineCases
+    --- FAIL: TestEngineCases/S10-lam-tron-0.1-nua-len
+    --- FAIL: TestEngineCases/S11-lam-tron-0.5-duoi-1-chut
+--- FAIL: TestNoIntermediateRounding
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	1.624s
+FAIL
+=== M5 liệt CK<=3,0 rc=1
+--- FAIL: TestEngineExpected30
+    --- FAIL: TestEngineExpected30/sv23
+    --- FAIL: TestEngineExpected30/sv25
+--- FAIL: TestFinalExactlyThreeNotFail
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	1.258s
+FAIL
+=== M6 float64 trong grade rc=1
+--- FAIL: TestNoFloatInGrade
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	1.221s
+FAIL
+--- lệnh grep cổng P6 (M6):
+/tmp/qc-mut-s8core/backend-go/internal/grade/qc_mut.go:3:var _ = float64(1)
+grep rc=0 (0 = có dòng = cổng đỏ)
+=== M7 import activity rc=143
+=== sau khôi phục:
+=== restored rc=0
+ok  	github.com/edupilot/backend-go/internal/grade	1.088s
+?? backend-go/internal/grade/engine.go.bak
+DONE
+=== M7 (chạy lại riêng) import activity
+--- FAIL: TestForbiddenImports (0.42s)
+    arch_test.go:57: 
+        	Error Trace:	/tmp/qc-mut-s8core/backend-go/internal/grade/arch_test.go:57
+        	Error:      	"internal/goarch\nunsafe\ninternal/abi\ninternal/unsafeheader\ninternal/cpu\ninternal/bytealg\ninternal/byteorder\ninternal/chacha8rand\ninternal/coverage/rtcov\ninternal/godebugs\ninternal/goexperiment\ninternal/goos\ninternal/profilerecord\ninternal/runtime/atomic\ninternal/runtime/exithook\ninternal/runtime/gc\ninternal/runtime/sys\ninternal/runtime/gc/scan\ninternal/asan\ninternal/msan\ninternal/race\ninternal/runtime/math\nmath/bits\ninternal/runtime/maps\ninternal/runtime/pprof/label\ninternal/strconv\ninternal/stringslite\ninternal/trace/tracev2\nruntime\ninternal/reflectlite\nerrors\nsync/atomic\ninternal/sync\ninternal/synctest\nsync\nio\niter\nunicode\nunicode/utf8\nbytes\ninternal/oserror\nsyscall\ntime\ncontext\nhash\nstrconv\ncrypto\ninternal/bisect\ninternal/godebug\ncrypto/internal/fips140deps/godebug\nstrings\ncrypto/internal/fips140\ncrypto/internal/fips140/alias\ncrypto/internal/fips140deps/byteorder\ncrypto/internal/fips140deps/cpu\ncrypto/internal/impl\ncrypto/internal/fips140/sha256\ncrypto/internal/constanttime\ncrypto/internal/fips140/subtle\ncrypto/internal/fips140/sha3\ncrypto/internal/fips140/sha512\ncrypto/internal/fips140/hmac\ncrypto/internal/fips140/check\ncrypto/internal/fips140/aes\ncrypto/internal/fips140deps/time\ncrypto/internal/entropy/v1.0.0\ninternal/syscall/unix\npath\ncmp\nslices\nio/fs\ninternal/filepathlite\ninternal/poll\ninternal/syscall/execenv\ninternal/testlog\nos\ncrypto/internal/sysrand\ncrypto/internal/fips140/drbg\nmath\ncrypto/internal/fips140/aes/gcm\ncrypto/fips140\ncrypto/internal/fips140only\ncrypto/subtle\ncrypto/cipher\ncrypto/internal/boring/sig\ncrypto/internal/boring\ncrypto/sha256\nencoding/base64\nreflect\ninternal/fmtsort\nfmt\nencoding/hex\nencoding\nencoding/json/internal\nencoding/json/internal/jsonflags\nencoding/json/internal/jsonopts\nunicode/utf16\nencoding/json/internal/jsonwire\nencoding/json/jsontext\nencoding/base32\nencoding/binary\nencoding/json/v2\nencoding/json\ngo.opentelemetry.io/otel/attribute/internal\ngithub.com/cespare/xxhash/v2\ngo.opentelemetry.io/otel/attribute/internal/xxhash\nsort\ngo.opentelemetry.io/otel/attribute\ngo.opentelemetry.io/otel/codes\ngo.opentelemetry.io/otel/semconv/v1.43.0\ngo.opentelemetry.io/otel/trace/embedded\ngo.opentelemetry.io/otel/trace/internal/telemetry\ngo.opentelemetry.io/otel/trace\nbufio\ncompress/flate\nhash/crc32\ncompress/gzip\ncontainer/list\ncrypto/aes\ncrypto/des\ncrypto/internal/fips140/nistec/fiat\ncrypto/internal/fips140/nistec\ncrypto/internal/fips140/ecdh\ncrypto/internal/fips140/edwards25519/field\nmath/rand/v2\ncrypto/internal/randutil\ncrypto/internal/rand\ncrypto/ecdh\nmath/rand\nmath/big\ncrypto/elliptic\ncrypto/internal/boring/bbig\ncrypto/internal/fips140/bigmod\ncrypto/internal/fips140/ecdsa\nweak\ncrypto/internal/fips140cache\ncrypto/sha3\ncrypto/internal/fips140hash\ncrypto/sha512\ninternal/saferio\nencoding/asn1\nvendor/golang.org/x/crypto/cryptobyte/asn1\nvendor/golang.org/x/crypto/cryptobyte\ncrypto/ecdsa\ncrypto/internal/fips140/edwards25519\ncrypto/internal/fips140/ed25519\ncrypto/rand\ncrypto/ed25519\ncrypto/internal/fips140/hkdf\ncrypto/hkdf\ncrypto/hmac\ncrypto/internal/fips140/mlkem\ncrypto/mlkem\nvendor/golang.org/x/crypto/internal/alias\nvendor/golang.org/x/crypto/chacha20\nvendor/golang.org/x/crypto/internal/poly1305\nvendor/golang.org/x/crypto/chacha20poly1305\ncrypto/hpke\ncrypto/internal/fips140/tls12\ncrypto/internal/fips140/tls13\ncrypto/md5\ncrypto/internal/fips140/mldsa\ncrypto/mldsa\ncrypto/rc4\ncrypto/internal/fips140/rsa\ncrypto/rsa\ncrypto/sha1\ncrypto/tls/internal/fips140tls\ncrypto/dsa\ncrypto/x509/internal/macos\ncrypto/x509/pkix\nencoding/pem\nmaps\nvendor/golang.org/x/net/dns/dnsmessage\ninternal/nettrace\nunique\nnet/netip\ninternal/routebsd\ninternal/singleflight\nnet\nnet/url\npath/filepath\ncrypto/x509\ncrypto/tls\nvendor/golang.org/x/text/transform\nlog/internal\nlog\nvendor/golang.org/x/text/unicode/bidi\nvendor/golang.org/x/text/secure/bidirule\nvendor/golang.org/x/text/unicode/norm\nvendor/golang.org/x/net/idna\nnet/textproto\nvendor/golang.org/x/net/http/httpguts\nvendor/golang.org/x/net/http/httpproxy\nmime\nmime/quotedprintable\nmime/multipart\nnet/http/httptrace\nnet/http/internal\nnet/http/internal/ascii\nvendor/golang.org/x/net/http2/hpack\nnet/http/internal/httpcommon\nnet/http/internal/httpsfv\nnet/http/internal/http2\nnet/http\ngithub.com/edupilot/backend-go/internal/httpapi/apierr\ngithub.com/edupilot/backend-go/internal/platform/clock\ngithub.com/redis/go-redis/v9/auth\ngo.uber.org/atomic\ngithub.com/redis/go-redis/v9/internal/util\ngithub.com/redis/go-redis/v9/internal\nregexp/syntax\nregexp\ngithub.com/redis/go-redis/v9/internal/maintnotifications/logs\ngithub.com/redis/go-redis/v9/internal/proto\ngithub.com/redis/go-redis/v9/internal/pool\ngithub.com/redis/go-redis/v9/internal/auth/streaming\ngithub.com/redis/go-redis/v9/internal/hashtag\ngithub.com/redis/go-redis/v9/internal/hscan\ngithub.com/redis/go-redis/v9/internal/interfaces\ngithub.com/redis/go-redis/v9/internal/otel\ngithub.com/redis/go-redis/v9/internal/routing\ngithub.com/redis/go-redis/v9/push\ngithub.com/redis/go-redis/v9/maintnotifications\ngolang.org/x/sys/cpu\nruntime/debug\ngithub.com/redis/go-redis/v9\nlog/slog/internal\nlog/slog/internal/buffer\nlog/slog\ngithub.com/edupilot/backend-go/internal/platform/redis\ndatabase/sql/internal\nuuid\ndatabase/sql/driver\ngithub.com/google/uuid\ndatabase/sql\ngithub.com/jackc/pgx/v5/internal/pgio\ngithub.com/jackc/pgx/v5/internal/pgdatetime\ngithub.com/jackc/pgx/v5/internal/sanitize\ncrypto/internal/fips140/pbkdf2\ncrypto/pbkdf2\ngithub.com/jackc/pgpassfile\ngithub.com/jackc/pgservicefile\ngithub.com/jackc/pgx/v5/internal/iobufpool\ngithub.com/jackc/pgx/v5/pgconn/ctxwatch\ngithub.com/jackc/pgx/v5/pgconn/internal/bgreader\ngithub.com/jackc/pgx/v5/pgproto3\nencoding/xml\ngithub.com/jackc/pgx/v5/pgtype\ngolang.org/x/text/internal/tag\ngolang.org/x/text/internal/language\ngolang.org/x/text/internal/language/compact\ngolang.org/x/text/language\ngolang.org/x/text/internal\ngolang.org/x/text/transform\ngolang.org/x/text/unicode/norm\ngolang.org/x/text/cases\ngolang.org/x/text/runes\ngolang.org/x/text/unicode/bidi\ngolang.org/x/text/secure/bidirule\ngolang.org/x/text/width\ngolang.org/x/text/secure/precis\nos/user\ngithub.com/jackc/pgx/v5/pgconn\ngithub.com/jackc/pgx/v5/internal/stmtcache\ngithub.com/jackc/pgx/v5\ngithub.com/pgvector/pgvector-go\ngithub.com/shopspring/decimal\ngithub.com/edupilot/backend-go/internal/store\ngithub.com/jackc/puddle/v2/internal/genstack\ngolang.org/x/sync/semaphore\ngithub.com/jackc/puddle/v2\ngithub.com/jackc/pgx/v5/pgxpool\ngithub.com/edupilot/backend-go/internal/activity\nembed\nflag\ngithub.com/edupilot/backend-go/internal/platform/crypto\nnet/mail\ngithub.com/edupilot/backend-go/internal/platform/config\ngithub.com/go-logr/logr\ngithub.com/go-logr/logr/funcr\ngithub.com/go-logr/stdr\ngo.opentelemetry.io/auto/sdk/internal/telemetry\ngo.opentelemetry.io/otel/semconv/v1.37.0\ngo.opentelemetry.io/otel/trace/noop\ngo.opentelemetry.io/auto/sdk\ngo.opentelemetry.io/otel/internal/errorhandler\ngo.opentelemetry.io/otel/metric/embedded\ngo.opentelemetry.io/otel/metric\ngo.opentelemetry.io/otel/internal/baggage\ngo.opentelemetry.io/otel/baggage\ngo.opentelemetry.io/otel/propagation\ngo.opentelemetry.io/otel/internal/global\ngo.opentelemetry.io/otel\ngo.opentelemetry.io/otel/sdk/instrumentation\ngo.opentelemetry.io/otel/sdk\ngo.opentelemetry.io/otel/sdk/internal/attrnorm\ngo.opentelemetry.io/otel/sdk/internal/x\ngolang.org/x/sys/unix\nos/exec\ngo.opentelemetry.io/otel/sdk/resource\ngo.opentelemetry.io/otel/sdk/trace/internal/env\ngo.opentelemetry.io/otel/metric/noop\ngo.opentelemetry.io/otel/semconv/internal/metricpool\ngo.opentelemetry.io/otel/semconv/v1.43.0/otelconv\ngo.opentelemetry.io/otel/sdk/trace/internal/observ\nruntime/trace\ngo.opentelemetry.io/otel/sdk/trace\nhash/fnv\ngoogle.golang.org/protobuf/internal/detrand\ngoogle.golang.org/protobuf/internal/errors\ngoogle.golang.org/protobuf/encoding/protowire\ngoogle.golang.org/protobuf/internal/pragma\ngoogle.golang.org/protobuf/reflect/protoreflect\ngoogle.golang.org/protobuf/internal/descfmt\ngoogle.golang.org/protobuf/internal/descopts\ngoogle.golang.org/protobuf/internal/editiondefaults\ngoogle.golang.org/protobuf/internal/flags\ngo/token\ngoogle.golang.org/protobuf/internal/strs\ngoogle.golang.org/protobuf/internal/encoding/text\ngoogle.golang.org/protobuf/internal/encoding/defval\ngoogle.golang.org/protobuf/internal/encoding/messageset\ngoogle.golang.org/protobuf/internal/genid\ngoogle.golang.org/protobuf/internal/order\ngoogle.golang.org/protobuf/reflect/protoregistry\ngoogle.golang.org/protobuf/runtime/protoiface\ngoogle.golang.org/protobuf/proto\ngoogle.golang.org/protobuf/internal/filedesc\ngoogle.golang.org/protobuf/internal/set\ngoogle.golang.org/protobuf/encoding/prototext\ngoogle.golang.org/protobuf/internal/encoding/tag\ngoogle.golang.org/protobuf/internal/protolazy\ngoogle.golang.org/protobuf/internal/impl\ngoogle.golang.org/protobuf/internal/filetype\ngoogle.golang.org/protobuf/internal/version\ngoogle.golang.org/protobuf/runtime/protoimpl\ngo.opentelemetry.io/proto/otlp/common/v1\ngo.opentelemetry.io/proto/otlp/resource/v1\ngo.opentelemetry.io/proto/otlp/trace/v1\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/internal/tracetransform\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp/internal\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp/internal/counter\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp/internal/x\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp/internal/observ\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp/internal/envconfig\ngithub.com/cenkalti/backoff/v5\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp/internal/retry\ngolang.org/x/net/internal/timeseries\nhtml\ntext/template/parse\ntext/template\nhtml/template\ntext/tabwriter\ngolang.org/x/net/trace\ngoogle.golang.org/grpc/backoff\ngoogle.golang.org/grpc/grpclog/internal\ngoogle.golang.org/grpc/grpclog\ngoogle.golang.org/grpc/connectivity\ngoogle.golang.org/grpc/attributes\ngoogle.golang.org/grpc/internal/credentials\ngoogle.golang.org/grpc/internal/envconfig\ngoogle.golang.org/grpc/credentials\ngoogle.golang.org/grpc/serviceconfig\ngoogle.golang.org/grpc/internal\ngoogle.golang.org/grpc/internal/channelz\ngoogle.golang.org/grpc/channelz\ngoogle.golang.org/grpc/metadata\ngoogle.golang.org/grpc/stats\ngoogle.golang.org/grpc/experimental/stats\ngoogle.golang.org/grpc/resolver\ngoogle.golang.org/grpc/balancer\ngoogle.golang.org/grpc/balancer/base\ngoogle.golang.org/grpc/balancer/pickfirst/internal\ngoogle.golang.org/grpc/experimental/balancer/weight\ngoogle.golang.org/grpc/internal/grpclog\ngoogle.golang.org/protobuf/internal/encoding/json\ngoogle.golang.org/protobuf/encoding/protojson\ngoogle.golang.org/protobuf/protoadapt\ngoogle.golang.org/grpc/internal/pretty\ngoogle.golang.org/grpc/balancer/pickfirst\ngoogle.golang.org/grpc/balancer/endpointsharding\ngoogle.golang.org/grpc/balancer/roundrobin\ngoogle.golang.org/grpc/codes\ngoogle.golang.org/grpc/credentials/insecure\ngoogle.golang.org/grpc/encoding/internal\ngoogle.golang.org/grpc/internal/grpcutil\ngoogle.golang.org/grpc/internal/mem\ngoogle.golang.org/grpc/mem\ngoogle.golang.org/grpc/encoding\ngoogle.golang.org/grpc/encoding/proto\ngoogle.golang.org/grpc/internal/backoff\ngoogle.golang.org/grpc/internal/balancer/gracefulswitch\ngoogle.golang.org/grpc/internal/balancerload\ngoogle.golang.org/protobuf/types/known/durationpb\ngoogle.golang.org/protobuf/types/known/timestamppb\ngoogle.golang.org/grpc/binarylog/grpc_binarylog_v1\ngoogle.golang.org/protobuf/types/known/anypb\ngoogle.golang.org/genproto/googleapis/rpc/status\ngoogle.golang.org/grpc/internal/status\ngoogle.golang.org/grpc/status\ngoogle.golang.org/grpc/internal/binarylog\ngoogle.golang.org/grpc/internal/buffer\ngoogle.golang.org/grpc/internal/grpcsync\ngoogle.golang.org/grpc/internal/idle\ngoogle.golang.org/grpc/internal/metadata\ngoogle.golang.org/grpc/internal/serviceconfig\ngoogle.golang.org/grpc/internal/resolver\ngoogle.golang.org/grpc/internal/proxyattributes\ngolang.org/x/net/idna\ngolang.org/x/net/http/httpguts\ngolang.org/x/net/http2/hpack\ngolang.org/x/net/internal/httpcommon\ngolang.org/x/net/internal/httpsfv\ngolang.org/x/net/http2\ngoogle.golang.org/grpc/internal/stats\ngoogle.golang.org/grpc/internal/syscall\ngoogle.golang.org/grpc/internal/transport/internal\ngoogle.golang.org/grpc/internal/transport/networktype\ngoogle.golang.org/grpc/internal/transport/readyreader\ngoogle.golang.org/grpc/keepalive\ngoogle.golang.org/grpc/peer\ngoogle.golang.org/grpc/tap\nnet/http/httputil\ngoogle.golang.org/grpc/internal/transport\ngoogle.golang.org/grpc/internal/resolver/delegatingresolver\ngoogle.golang.org/grpc/internal/resolver/passthrough\ngoogle.golang.org/grpc/internal/resolver/unix\ngoogle.golang.org/grpc/balancer/grpclb/state\ngoogle.golang.org/grpc/internal/resolver/dns/internal\ngoogle.golang.org/grpc/internal/resolver/dns\ngoogle.golang.org/grpc/resolver/dns\nruntime/pprof\ngoogle.golang.org/grpc\ngoogle.golang.org/grpc/encoding/gzip\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp/internal/otlpconfig\ngithub.com/grpc-ecosystem/grpc-gateway/v2/utilities\ngithub.com/grpc-ecosystem/grpc-gateway/v2/internal/httprule\ngoogle.golang.org/genproto/googleapis/api/httpbody\ngoogle.golang.org/grpc/health/grpc_health_v1\ngoogle.golang.org/protobuf/types/known/fieldmaskpb\ngoogle.golang.org/protobuf/types/known/structpb\ngoogle.golang.org/protobuf/types/known/wrapperspb\ngithub.com/grpc-ecosystem/grpc-gateway/v2/runtime\ngo.opentelemetry.io/proto/otlp/collector/trace/v1\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp/internal/otlpjson\ngo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp\ngithub.com/edupilot/backend-go/internal/platform/otel\ngithub.com/edupilot/backend-go/internal/platform/outbox\ngithub.com/go-chi/chi/v5\ngithub.com/golang-jwt/jwt/v5\ngolang.org/x/crypto/blowfish\ngolang.org/x/crypto/bcrypt\ngithub.com/edupilot/backend-go/internal/auth\ngithub.com/edupilot/backend-go/internal/httpapi/sse\ngithub.com/edupilot/backend-go/internal/notify\narchive/zip\ngithub.com/richardlehane/msoleps/types\ngithub.com/richardlehane/mscfb\ngithub.com/tiendc/go-deepcopy\ngithub.com/xuri/efp\ngithub.com/xuri/nfp\ngolang.org/x/crypto/md4\ngolang.org/x/crypto/ripemd160\ngolang.org/x/net/html/atom\ngolang.org/x/net/html\ngolang.org/x/text/encoding/internal/identifier\ngolang.org/x/text/encoding\ngolang.org/x/text/encoding/internal\ngolang.org/x/text/encoding/charmap\ngolang.org/x/text/encoding/japanese\ngolang.org/x/text/encoding/korean\ngolang.org/x/text/encoding/simplifiedchinese\ngolang.org/x/text/encoding/traditionalchinese\ngolang.org/x/text/internal/utf8internal\ngolang.org/x/text/encoding/unicode\ngolang.org/x/text/encoding/htmlindex\ngolang.org/x/net/html/charset\ngolang.org/x/text/internal/catmsg\ngolang.org/x/text/internal/stringset\ngolang.org/x/text/internal/number\ngolang.org/x/text/message/catalog\ngolang.org/x/text/feature/plural\ngolang.org/x/text/internal/format\ngolang.org/x/text/message\nimage/color\nimage\nmath/cmplx\ngithub.com/xuri/excelize/v2\ngithub.com/edupilot/backend-go/internal/grade\n" should not contain "internal/activity"
+        	Test:       	TestForbiddenImports
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	1.759s
+FAIL
+restored-check:
+ok  	github.com/edupilot/backend-go/internal/grade	0.982s

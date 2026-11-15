@@ -1,0 +1,8 @@
+{"tc":"(chuẩn bị) AS08","st":"NOTE","note":"kha 201, nguyco(code) 201"}
+{"tc":"TC-AS08-04 cửa sổ đang mở: «Mở điểm danh» ẩn (không phải disabled); có dòng trạng thái","st":"PASS","note":"nút=0; Đang mở · 0/12 · còn 09:48 Mở màn chiếu Đóng"}
+{"tc":"TC-AS08-09 hàng đã điểm danh «Điểm danh lúc hh:mm»; hàng chưa điểm danh «Chưa điểm danh», không mặc định Có mặt","st":"FAIL","note":""}
+{"tc":"TC-AS08-10 chip: «Nhập mã» cho CODE, nhãn cờ «Không xác minh được máy», «Chưa xác minh» (mức 1)","st":"FAIL","note":""}
+{"tc":"TC-AS08-11a «Cần xem (k)» → URL có filter=review; chỉ hàng còn cờ","st":"PASS","note":"https://localhost:1143/attendance?session=01a1dfe4-3e9f-794b-94ca-f494d3b34293&filter=review"}
+{"tc":"TC-AS08-11b mục «Hôm nay» CHECKIN_REVIEW có href ?filter=review","st":"FAIL","note":"(chưa có mục: cache Hôm nay)"}
+{"tc":"TC-AS08-12 «Đã xem» → clear-flags; audit_log +; không nút hoàn tác","st":"PASS","note":"audit 0→1; undo=0"}
+{"tc":"TC-AS08-13","st":"FAIL","note":"ngoại lệ: Error: locator.waitFor: Test ended. Call log: \u001b[2m - waiting for getByRole('radiogroup', { name: /Điểm danh / }).first() to be visible\u001b[22m "}

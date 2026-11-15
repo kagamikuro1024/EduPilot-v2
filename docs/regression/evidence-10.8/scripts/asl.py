@@ -26,7 +26,11 @@ def sessions(user, cid):
         out += j["items"]; cur = j.get("next_cursor")
         if not cur: return out
 def policy(cid, **kw):
-    c, j, _ = api(TEACHER, "GET", f"/courses/{cid}"); v = j["settings"]["version"]
+    for _t in range(6):
+        c, j, _ = api(TEACHER, "GET", f"/courses/{cid}")
+        if c == 200: break
+        time.sleep(15)
+    v = j["settings"]["version"]
     a = {"self_checkin": True, "rotate_seconds": 10}; a.update(kw)
     c, j, _ = api(TEACHER, "PUT", f"/courses/{cid}/settings", {"attendance": a, "version": v}); return c, j
 def openw(cid, sid, minutes=None, user=TEACHER, idem=None):

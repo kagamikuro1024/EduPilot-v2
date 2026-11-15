@@ -1,0 +1,14 @@
+preview API vs CSV BA: 22/30 khớp
+preview API vs tính tay (Fraction) từ đầu vào THẬT trong DB: 30/30 khớp
+LỆCH CSV: sv04 20224786 midterm seed 6.25 → DB 0 (QUIZ v2)
+LỆCH CSV: sv05 20223869 midterm seed 6.75 → DB 2 (QUIZ v2)
+LỆCH CSV: sv06 20226862 midterm seed 10.00 → DB 4 (QUIZ v2)
+LỆCH CSV: sv07 20226980 midterm seed 9.00 → DB 6 (QUIZ v2)
+LỆCH CSV: sv09 20226004 midterm seed 7.50 → DB 8 (QUIZ v2)
+LỆCH CSV: sv10 20227825 midterm seed 5.00 → DB 10 (QUIZ v2)
+LỆCH CSV: sv22 20223050 bonus seed 0.25 → DB 1/2
+LỆCH CSV: sv23 20221975 bonus seed 0.00 → DB 1/4
+số bản công thức lớp 1: 1 [['1', 'CONFIRMED', '3']]
+entries không phải IMPORT/seed: [['20224786', 'midterm', 'QUIZ', '2', '2026-11-15 12:41:45.376295+00'], ['20223869', 'midterm', 'QUIZ', '2', '2026-11-15 12:41:45.376513+00'], ['20226862', 'midterm', 'QUIZ', '2', '2026-11-15 12:41:45.376531+00'], ['20226980', 'midterm', 'QUIZ', '2', '2026-11-15 12:41:45.376544+00'], ['20226004', 'midterm', 'QUIZ', '2', '2026-11-15 12:41:45.376552+00'], ['20227825', 'midterm', 'QUIZ', '2', '2026-11-15 12:41:45.376559+00'], ['20227706', 'midterm', 'MANUAL', '9', '2026-11-15 14:20:33.310586+00']]
+participation sau seed: [['20223050', 'SPEAK', '0.25', '2026-11-15 14:15:31.927592+00']]
+F TC-P6-02-03 preview vs CSV 22/30; vs tính tay đầu vào thật 30/30

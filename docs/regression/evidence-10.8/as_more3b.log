@@ -1,0 +1,9 @@
+PASS TC-AS12-05 chuỗi X.509 tự ký giả (2 chứng chỉ) → 422 ATTESTATION_FAILED 422 {"code": "ATTESTATION_FAILED", "message": "Kh\u00f4ng x\u00e1c minh \u0111\u01b0\u1ee3c thi\u1ebft b
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/scripts/as_more3.py", line 22, in <module>
+    ssn = sessions(TEACHER, C)
+          ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.8/scripts/asl.py", line 25, in sessions
+    c, j, _ = api(user, "GET", f"/courses/{cid}/sessions?limit=100" + (f"&cursor={cur}" if cur else "")); assert c == 200, (c, j)
+                                                                                                                 ^^^^^^^^
+AssertionError: (429, {'code': 'RATE_LIMITED', 'message': 'Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.', 'trace_id': 'b6bc0236e4168ddd8276e52a87461086', 'retry_after': 30})

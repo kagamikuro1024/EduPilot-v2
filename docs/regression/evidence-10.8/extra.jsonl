@@ -1,0 +1,5 @@
+{"tc": "TC-AS02-14 openapi CheckinWindowList.items maxItems 3 + DB CHECK round 1..3 + UNIQUE (course,session,round)", "st": "PASS", "note": "kiểm lại: schema CheckinWindowList (components) có maxItems: 3; lần 1 test đọc sai đoạn"}
+{"tc": "TC-AS03-25 openapi có CHECKIN_TOKEN_INVALID/EXPIRED; mã dùng CHECKIN_*", "st": "PASS", "note": "code không dùng TOKEN_EXPIRED/TOKEN_INVALID; chỉ 2 chú thích cũ token.go:65,88 còn tên cũ (ghi nhận Thấp)"}
+{"tc": "TC-AS06-03 truy vấn danh sách: không OFFSET, dùng chỉ mục, thực thi 1,8–2,5 ms @599 hàng", "st": "PASS", "note": "chỉ mục attendance_checkins_session_idx dùng khi lọc theo buổi (bitmap); kế hoạch có join chọn natural_key ở quy mô nhỏ; quy mô T1 không đo được"}
+{"tc": "TC-AS06-06 /me/today CHECKIN_REVIEW (chạy lại sau chờ TTL cache)", "st": "PASS", "note": "as_c3/as_c4 PASS; có lần chập chờn khi tải máy cao (provider Hôm nay hạn 60 ms)"}
+{"tc": "TC-AS14-02c seed không yêu cầu lượt CODE (TC thừa, kết luận QC gốc)", "st": "PASS", "note": "0 CODE, 37/43 lượt 0 cờ, tổng 43"}

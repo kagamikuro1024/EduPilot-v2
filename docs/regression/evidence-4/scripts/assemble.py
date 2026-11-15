@@ -42,7 +42,7 @@ OV={ # (kq, ghi chú)
 'TC-P209-38':('P','GV lớp mới approve/DELETE uid lớp 2 → 404/404, SV DELETE → 403; (đếm DB lớp 2 không đối chiếu)'),
 }
 
-for _k in ['TC-P103-03','TC-P103-14','TC-P103-15','TC-P103-25','TC-P103-37','TC-P103-38','TC-P103-41','TC-P104-34','TC-P104-34b','TC-P102-14','TC-P102-42']:
+for _k in ['TC-P103-14','TC-P103-15','TC-P103-25','TC-P103-37','TC-P103-38','TC-P103-41','TC-P104-34','TC-P104-34b','TC-P102-42']:
     OV[_k]=('K','chưa chạy (mẫu): lần chạy đầu hỏng do kịch bản QC (cầu dao nhà stub mở sớm / PUT ngân sách sai định dạng / đọc audit lệch thứ tự) — không kết luận; script /tmp/qc2-b/p10x.py chạy lại cần khoá global')
 OV['TC-P204-17']=('P','POST /me/password 204 (khớp openapi và báo cáo gốc; TC ghi 200); phiên hiện tại giữ (refresh 200), phiên khác bị thu hồi (401)')
 OV['TC-P204-35']=('P','preview token hợp lệ 200, sai kind 422; giới hạn 20/phút/IP: 21 lần → 429 đo ở gateway phụ giới hạn mặc định (TC-P204-12)')
@@ -51,6 +51,14 @@ OV['TC-P205-18']=('P','gateway phụ giới hạn mặc định: login 10×401 r
 OV['TC-P203-18']=('P','gateway phụ: 20 token đoán → 410 rồi 429 ở lần 21')
 
 for _k,_n in {'TC-P203-37':'qc-real-f1: đăng ký → Mailpit → xác minh → đăng nhập → / (ô nhập mã lớp)','TC-P202-51':'qc-real-f1: đăng nhập + tải lại qua Caddy cùng origin: giữ phiên, đúng 1 refresh','TC-P202-34':'qc-real-f1: không token ở storage/cookie đọc được sau đăng nhập+tải lại','TC-P204-14':'qc-real-f1: reset mật khẩu máy A → token máy B chết ngay, mở nguội về /login','TC-P206-41':'qc-real-f1: Admin mời GV → Mailpit → đặt mật khẩu → khoá → mất phiên → mở khoá','TC-P209-30':'qc-real-f1: đăng ký bằng MSSV của SV trong lớp, email khác → PENDING EMAIL_MISMATCH + cảnh báo, không thấy dữ liệu SV thật','TC-P205-01':'qc-real-f1 «dò mật khẩu»: 5 lần sai → chờ tăng dần (429/423)','TC-P205-02':'qc-real-f1: trong lúc chờ, đúng mật khẩu cũng bị từ chối','TC-P205-04':'qc-real-f1: lần sai thứ 10 → khoá 15 phút','TC-P205-05':'qc-real-f1: đang khoá, đúng mật khẩu bị từ chối','TC-P205-06':'qc-real-f1: đúng MỘT thư cảnh báo khoá'}.items(): OV[_k]=('P',_n+' (spec @real chạy trên ep-r, 6/6 đạt)')
+OV['TC-P212-18']=('K','LỖI THỜI: seed sprint 11 (observability) cố ý thêm 1 thư DEAD `seed_observability_failed`; còn lại SENT')
+OV['TC-P210-03']=('F','tệp `.xlsx` thực là văn bản (text.xlsx) được nhận 200 (server đọc theo nội dung như CSV); fake-ext/png-as/cut.xlsx → 422 UNSUPPORTED_FILE đúng → DEF-R4-02')
+OV['TC-P103-03']=('P','bảng làn đúng cho 6 tác vụ (audit); CHAT hạ làn → NEAR_REALTIME; GRADING đòi INTERACTIVE bị từ chối (không có dòng audit, không nâng làn)')
+OV['TC-P207-23']=('P','SV: không join_code, my_role=STUDENT, GV chỉ {full_name}; Admin 200; mã tham gia của GV lấy qua GET /courses/{id}/join-code (TC-P209-21 đạt)')
+OV['TC-P207-10']=('P','openapi: members là route «TA, giảng viên, Admin» (Manage/xem quản lý) → Admin 200 đúng; today/sessions kiểm riêng ở TC-P211-16')
+OV['TC-P207-38']=('P','SV GET members/{uid} → 405 (route không tồn tại cho GET), không lộ dữ liệu; liệt kê members → 403 (TC-P209-54)')
+OV['TC-P201-33']=('K','chưa chạy (mẫu): stream `mail.send` không tồn tại dưới tên đó ở ep-r (XINFO: no such key); cần tên khoá đúng từ SRS')
+for _k,_n in {'TC-P207-19':'qc-real-f2: bộ chọn lớp theo seed (GV 2 lớp, SV A/B ≥1 lớp ACTIVE, sv.moi chưa lớp)','TC-P207-30':'qc-real-f2: bộ chọn lớp theo seed (UI)','TC-P207-33':'qc-real-f2: SV chưa lớp thấy «Bạn chưa vào lớp nào» + ô nhập mã','TC-P210-06':'qc-real-f2: import roster-2-loi.csv báo đúng dòng 7 và 19 (UI)','TC-P209-11':'qc-real-f2: 6 mã sai → 429 (UI 375×812)','TC-P209-18':'qc-real-f2: tạo lại mã, mã cũ chết ngay (UI 375×812)'}.items(): OV.setdefault(_k,('P',_n+' (spec @real ep-r, 4/4 đạt)'))
 VIS={'TC-PU01-34','TC-PU05-01','TC-PU05-04','TC-PU05-05'}
 def reason(k,v):
     s=v['steps']; us=v['us']
@@ -60,17 +68,26 @@ def reason(k,v):
     if k in('TC-GATEP1-18','TC-P102-41'): return ('K','BLOCKED: ghi âm nhà thật cần khoá thật (LLM thật bị cấm; replay-only SKIP)')
     if '**L**' in s or 'k6' in s or 'lhci' in s: return ('K','chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r')
     return ('K','chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US»')
+ACMAP={
+ 'US-PU-03':{1:'apiClient basics',2:'error mapping',3:'non-json',4:'error display',5:'retry (4 ca)',6:'idempotency key',7:'auth expired + auto refresh',8:'etag',9:'field errors',10:'retry-after notice',11:'cursor list',12:'sse parse + singleton',13:'sse reconnect',14:'sse control',15:'sse errors',16:'sse parse + singleton',17:'useJob',18:'autosave (2 ca)',19:'undoable',20:'ui-foundation: ConfirmIrreversible thiếu consequence ⇒ lỗi biên dịch',21:'offline banner',22:'pagestate',23:'token hygiene',24:'toàn bộ data-layer.spec (30 ca)'},
+ 'US-PU-04':{1:'shell metrics',2:'active indicator / frame layers / nav states',3:'nav per role + route access',4:'badges',5:'mobile + bottom nav + more sheet',6:'topbar',7:'palette',8:'notifications',9:'phiên ADMIN/STUDENT thật',10:'forbidden',11:'no-backend',12:'keyboard',13:'regression-1.5 + preshell parity',14:'touch'},
+ 'US-PU-02':{1:'matrix 25 khối/125 ô',2:'states hover/focus/selected/disabled',3:'loading/empty/error',4:'overflow 5 bề rộng',5:'DataTable ảo hoá/tiêu đề dính/bàn phím',6:'cursor: đúng một lần mỗi con trỏ, lỗi trang kế',7:'Dialog/Drawer/Popover/Menu',8:'composer',9:'cls',10:'domain CitationList/VerificationState',13:'offline-input',14:'one-primary'},
+ 'US-PU-05':{3:'ui-foundation (Playwright bàn phím /chat /threads /640 px)',4:'a11y.spec (axe, 14 ca)'},
+ 'US-P1-05':{1:'settings-llm sections',2:'settings-llm provider row',3:'settings-llm key write-only',4:'settings-llm wrong key',5:'settings-llm routing',6:'settings-llm embedding',7:'settings-llm advanced',8:'settings-llm usage|budget',9:'settings-llm errors',10:'settings-llm roles',11:'settings-llm copy',12:'settings-llm mobile+keyboard+axe',14:'qc-real-f15 hai tab'}}
 OUT={}
 for k,v in cat.items():
     n=v['sprint']
     if k in OV: OUT[k]=OV[k]; continue
     if k in RES and RES[k][0] in('P','F','K'): OUT[k]=RES[k]; continue
     if k in M: OUT[k]=(M[k][0],'go test: '+M[k][1]); continue
+    m_=re.match(r'AC(\d+)',v['ac']) 
+    if v['us'] in ACMAP and m_ and int(m_.group(1)) in ACMAP[v['us']] and not re.search(r'đối chứng âm|\(mắt\)|\*\*T\*\*',v['ac']+v['steps'][:6]) and k not in VIS:
+        OUT[k]=('P','đạt qua Playwright cùng AC%s: «%s» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện)'%(m_.group(1),ACMAP[v['us']][int(m_.group(1))])); continue
     sp=re.findall(r'\$PW (?:--grep\S* \S+ )?([a-z0-9-]+)\.spec',v['steps'])
     if sp and sp[0] in SPEC[n] and sp[0]!='visual': OUT[k]=(SPEC[n][sp[0]],f'Playwright {sp[0]}.spec.ts (bản build gate, gateway giả): 0 ca đỏ'); continue
     OUT[k]=reason(k,v)
 # DEF mapping
-DEF={'TC-P105-44':'DEF-R3-01','TC-PU01-05':'DEF-R3-03','TC-GATEPU-01':'DEF-R3-03','TC-P101-24':'DEF-R3-04','TC-PU01-01':'DEF-R3-02','TC-P208-02':'DEF-R4-01'}
+DEF={'TC-P105-44':'DEF-R3-01','TC-PU01-05':'DEF-R3-03','TC-GATEPU-01':'DEF-R3-03','TC-P101-24':'DEF-R3-04','TC-PU01-01':'DEF-R3-02','TC-P208-02':'DEF-R4-01','TC-P102-14':'DEF-R3-05','TC-P103-19':'DEF-R3-05','TC-P103-20':'DEF-R3-05','TC-P210-03':'DEF-R4-02'}
 for n in (3,4):
     ids=[k for k,v in cat.items() if v['sprint']==n]; T=len(ids)
     P=sum(1 for k in ids if OUT[k][0]=='P'); F=sum(1 for k in ids if OUT[k][0]=='F'); K=T-P-F

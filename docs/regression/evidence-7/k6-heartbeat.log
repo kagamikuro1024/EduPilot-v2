@@ -1,0 +1,6 @@
+    ✓ 'rate>0.999' rate=100.00%
+    ✗ 'p(95)<20' p(95)=10.2s
+    ✓ 'rate<0.001' rate=0.00%
+    ✓ heartbeat 204
+    http_req_duration..............: avg=2.59s min=7.1ms  med=469.84ms max=16.44s p(90)=9.26s p(95)=10.2s 
+    http_req_failed................: 0.00%  0 out of 472

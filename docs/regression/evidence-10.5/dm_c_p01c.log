@@ -1,0 +1,9 @@
+regrade sv10@edupilot.local 409 {"code": "VERSION_CONFLICT", "message": "Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.", "trace_id": "59
+regrade sv11@edupilot.local 409 {"code": "VERSION_CONFLICT", "message": "Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.", "trace_id": "54
+xếp hàng chấm lại: 20 / 22
+[p01] regraded=20 states=['DONE']
+  tổng điểm đổi so với round 1: [('sv07@edupilot.local', '4.75', '5.00'), ('sv08@edupilot.local', '4.75', '4.25'), ('sv09@edupilot.local', '4.75', '5.00'), ('sv12@edupilot.local', '4.75', '5.25'), ('sv14@edupilot.local', '3.50', '4.25'), ('sv15@edupilot.local', '8.00', '10.00'), ('sv16@edupilot.local', '4.75', '5.25'), ('sv18@edupilot.local', '3.00', '0.75'), ('sv19@edupilot.local', '0.50', '0.00'), ('sv20@edupilot.local', '4.75', '6.00'), ('sv22@edupilot.local', '9.00', '10.00'), ('sv25@edupilot.local', '5.75', '5.00'), ('sv27@edupilot.local', '3.00', '1.00'), ('sv.gioi@edupilot.local', '8.50', '9.00')]
+  cờ INJECTION mới: []
+  mất cờ regex: []
+  DECIDE: [['INJECTION_FLAG', 'FALLBACK', 'ok', 'BATCH', '8']]
+  s4(sv24) cờ: ['{EMPTY_SUBMISSION}']  s6(sv14): ['{INJECTION_SUSPECTED}']

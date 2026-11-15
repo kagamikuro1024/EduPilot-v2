@@ -11,19 +11,25 @@ def expand(title):
             elif re.fullmatch(r'\d+-\d+', part):
                 a, b = part.split('-')
                 for n in range(int(a), int(b) + 1): out.add(f"TC-UX{st}-{n}")
+    for m in re.finditer(r'TC-UX(\d\d)-(\d+)\.\.(\d+)((?:,\d+)*)', title):
+        st = m.group(1)
+        for n in range(int(m.group(2)), int(m.group(3)) + 1): out.add(f"TC-UX{st}-{n}")
+        for n in [x for x in m.group(4).split(',') if x]: out.add(f"TC-UX{st}-{n}")
     for m in re.finditer(r'TC-UX91-(X\d)', title): out.add(f"TC-UX91-{m.group(1)}")
     return out
 LINE = re.compile(r'^\s+(✓|✘|-)\s+\d+ \[(\w+)\] › e2e/(?:qc2-r91/)?(\S+?)\.spec\.ts:\d+:\d+ › (.*?)(?: \([\d.]+m?s\))?$')
 res = {}   # (file,title,project) -> st
-for f in sorted(glob.glob(L + "/*.log")):
+for f in sorted(glob.glob(L + "/*.log"), key=lambda x: ("rerun3" in x, ".rerun" in x, x)):
     if "grep-batch" in f: continue
-    rerun = f.endswith(".rerun.log")
+    rerun = ".rerun" in os.path.basename(f)
     for ln in open(f, errors="ignore"):
         m = LINE.match(ln.rstrip("\n"))
         if not m: continue
         st, proj, file, title = m.groups()
         if st == '-': continue
-        key = (file.replace("qc-uiux91-", ""), title.strip(), proj)
+        fk = file.replace("qc-uiux91-", "")
+        if "rerun3" in os.path.basename(f) and fk.startswith("r"): fk = fk[1:]
+        key = (fk, title.strip(), proj)
         if rerun or key not in res: res[key] = "P" if st == "✓" else "F"
 tc = collections.defaultdict(lambda: [0, 0, set()])
 for (file, title, proj), st in res.items():

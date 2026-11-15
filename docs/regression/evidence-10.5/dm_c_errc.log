@@ -1,0 +1,7 @@
+xếp hàng chấm lại: 22 / 22
+[err] regraded=22 states=['DONE']
+  tổng điểm đổi so với round 1: [('sv07@edupilot.local', '4.75', '5.75'), ('sv09@edupilot.local', '4.75', '5.75'), ('sv10@edupilot.local', '3.50', '3.00'), ('sv11@edupilot.local', '5.25', '5.75'), ('sv12@edupilot.local', '4.75', '5.75'), ('sv14@edupilot.local', '3.50', '4.50'), ('sv15@edupilot.local', '8.00', '9.00'), ('sv16@edupilot.local', '4.75', '5.75'), ('sv19@edupilot.local', '0.50', '0.00'), ('sv20@edupilot.local', '4.75', '5.75'), ('sv.gioi@edupilot.local', '8.50', '9.00')]
+  cờ INJECTION mới: []
+  mất cờ regex: []
+  DECIDE: [['INJECTION_FLAG', 'FALLBACK', 'circuit_open', 'BATCH', '15'], ['INJECTION_FLAG', 'FALLBACK', 'error', 'BATCH', '6']]
+  s4(sv24) cờ: ['{EMPTY_SUBMISSION}']  s6(sv14): ['{INJECTION_SUSPECTED}']

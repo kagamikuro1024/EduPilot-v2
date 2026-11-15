@@ -1,0 +1,220 @@
+[WebServer] (node:50050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:50460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 100 tests using 2 workers
+
+(node:50466) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:50467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [desktop] › e2e/qc-uiux91-w1.spec.ts:56:1 › TC-UX02-2 Threads: các hàng I1…I9 đúng chuỗi AC2 (1.3s)
+  ✓    2 [desktop] › e2e/qc-uiux91-w1.spec.ts:64:1 › TC-UX02-9 ngày giờ sai / null → «—», không Invalid Date, không lỗi (1.4s)
+  ✓    4 [desktop] › e2e/qc-uiux91-w1.spec.ts:88:1 › TC-UX02-4 Tài liệu (GV) và Thư viện (SV): cập nhật I3, I4 (1.5s)
+  ✓    3 [desktop] › e2e/qc-uiux91-w1.spec.ts:76:1 › TC-UX02-3 Chat: lịch sử phiên I1…I4 (1.6s)
+  ✓    6 [desktop] › e2e/qc-uiux91-w1.spec.ts:123:5 › TC-UX02-7/8 múi giờ trình duyệt America/Los_Angeles › Threads I1/I2/I3 giữ giờ ICT (America/Los_Angeles) (1.1s)
+  ✓    5 [desktop] › e2e/qc-uiux91-w1.spec.ts:105:1 › TC-UX02-4b Thư viện (SV): cập nhật I3, I4 (1.2s)
+  ✓    7 [desktop] › e2e/qc-uiux91-w1.spec.ts:123:5 › TC-UX02-7/8 múi giờ trình duyệt Pacific/Kiritimati › Threads I1/I2/I3 giữ giờ ICT (Pacific/Kiritimati) (923ms)
+  ✓    8 [desktop] › e2e/qc-uiux91-w1.spec.ts:134:1 › TC-UX02-13 375 px: Threads / Chat với I5 không tràn ngang (1.1s)
+  ✓    9 [desktop] › e2e/qc-uiux91-w1.spec.ts:142:1 › TC-UX03-1..4,12 /dev/ui: nút khoá có lý do (DOM, tooltip, click, opacity, bàn phím) (1.7s)
+  ✓   10 [desktop] › e2e/qc-uiux91-w1.spec.ts:167:1 › TC-UX03-14 /dev/ui: disabledReason mà không disabled → không tooltip, bấm được (2.1s)
+  ✓   11 [desktop] › e2e/qc-uiux91-w1.spec.ts:182:1 › TC-UX03-6 Sổ điểm công thức chưa xác nhận → Chốt điểm khoá, lý do «Chưa có công thức điểm đã xác nhận» (889ms)
+  ✓   12 [desktop] › e2e/qc-uiux91-w1.spec.ts:192:1 › TC-UX03-7 Công thức có mục chưa rõ → Xác nhận công thức khoá «Còn N mục chưa rõ» (869ms)
+INFO chưa chọn bài tập: Chấm tất cả = Chọn một bài tập trước.
+  ✓   14 [desktop] › e2e/qc-uiux91-w1.spec.ts:221:1 › TC-UX03-9/10b Chấm bài có bài nộp: Chấm tất cả bấm được; chọn bài tập → Tải bài lên bấm được (744ms)
+  ✓   13 [desktop] › e2e/qc-uiux91-w1.spec.ts:202:1 › TC-UX03-8/10 Chấm bài: Chấm tất cả khoá khi rỗng; Tải bài lên khoá khi chưa chọn bài tập (1.6s)
+  ✓   15 [desktop] › e2e/qc-uiux91-w1.spec.ts:231:1 › TC-UX03-15 STUDENT: nút giảng viên không có trong DOM (1.6s)
+  ✘   17 [desktop] › e2e/qc-uiux91-w1.spec.ts:261:1 › TC-UX04-1/2 :active thu 0,97 ≤ 100 ms rồi trở lại (1.3s)
+  ✓   16 [desktop] › e2e/qc-uiux91-w1.spec.ts:241:1 › TC-UX03-13 cảm ứng 375: chạm nút khoá → lý do hiện dưới nút ≥ 3 s (4.5s)
+(node:50861) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   18 [desktop] › e2e/qc-uiux91-w1.spec.ts:290:1 › TC-UX04-9/21 thanh tiến độ: scaleX, kẹp 0–100, NaN → 0 (1.3s)
+  ✓   20 [desktop] › e2e/qc-uiux91-w1.spec.ts:316:1 › TC-UX04-10 thu gọn sidebar: main không transition margin-left, tức thì ≤ 160 ms, CLS ≤ 0,05 (1.2s)
+  ✘   19 [desktop] › e2e/qc-uiux91-w1.spec.ts:261:1 › TC-UX04-1/2 :active thu 0,97 ≤ 100 ms rồi trở lại (retry #1) (1.5s)
+  ✓   21 [desktop] › e2e/qc-uiux91-w1.spec.ts:347:1 › TC-UX04-6 hộp thoại Chốt điểm mở ≤ 200 ms (545ms)
+(node:50986) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   22 [desktop] › e2e/qc-uiux91-w1.spec.ts:373:1 › TC-UX04-20 phím J/K, ⌘K không có hoạt cảnh (1.1s)
+  ✓   23 [desktop] › e2e/qc-uiux91-w1.spec.ts:360:1 › TC-UX04-11 menu tài khoản: gốc xuất phát ở nút gọi, ≤ 160 ms (1.2s)
+  ✓   25 [desktop] › e2e/qc-uiux91-w1.spec.ts:416:1 › TC-UX21-3 người quay lại: có gọi refresh, hiện Hôm nay, không nháy trang giới thiệu (849ms)
+  ✓   24 [desktop] › e2e/qc-uiux91-w1.spec.ts:395:1 › TC-UX21-1/2 khách (không cờ): `/` không gọi API nào, không lỗi 401 ở console (3.4s)
+  ✓   26 [desktop] › e2e/qc-uiux91-w1.spec.ts:433:1 › TC-UX21-4/5 mất cờ nhưng còn cookie: `/` hiện trang giới thiệu; bấm Đăng nhập → /login làm mới và vào ứng dụng (1.7s)
+  ✓   27 [desktop] › e2e/qc-uiux91-w1.spec.ts:448:1 › TC-UX21-6/10 /login và /register không cookie: vẫn gọi refresh, hiện form (823ms)
+  ✓   28 [desktop] › e2e/qc-uiux91-w1.spec.ts:459:1 › TC-UX21-7/8 localStorage ném lỗi: `/` không lỗi, hiện trang giới thiệu (906ms)
+  ✓   29 [desktop] › e2e/qc-uiux91-w1.spec.ts:472:1 › TC-UX21-9 khách mở route sâu → /login?next= (1.2s)
+INFO tooltip reduce=false: {"td":"0.12s","tp":"opacity","anim":[120]}
+INFO hàng: {"g":["Câu hỏi chờ giảng viên","4 bài cần xem kỹ","1 yêu cầu có email chưa khớp MSSV"],"h":["2 bài bị báo cáo chờ xem","5 câu hỏi chờ duyệt"],"k":["1 cặp bài code nghi giống nhau","3 bài nộp chưa khớp sinh viên"]}
+  ✓   31 [desktop] › e2e/qc-uiux91-w3.spec.ts:74:1 › TC-UX10-1 F-GV: ba nhóm Gấp · 3 → Hôm nay · 2 → Khi rảnh · 2, thứ tự máy chủ trong nhóm (1.3s)
+INFO tooltip reduce=true: {"td":"0.001s","tp":"opacity","anim":[]}
+  ✓   30 [desktop] › e2e/qc-uiux91-w1.spec.ts:481:1 › TC-UX03-17 tooltip lý do: hiện bằng opacity ≤ 120 ms; reduce → tức thì (3.4s)
+INFO EXAM_SIMILARITY high: Gấp · 1 ; Hôm nay · 1 ; Khi rảnh · 1
+  ✓   32 [desktop] › e2e/qc-uiux91-w3.spec.ts:85:1 › TC-UX10-2/3/4 nhóm rỗng không hiện; chỉ normal → chỉ «Hôm nay»; EXAM_SIMILARITY high → Gấp (3.4s)
+INFO URL: /auth/refresh, /events, /notifications, /me/courses, /courses/00000000-0000-7000-8000-00000000c002/today
+  ✓   33 [desktop] › e2e/qc-uiux91-w3.spec.ts:103:1 › TC-UX10-5 không API mới: chỉ /me/courses, /me/today (hoặc courses/*/today), auth (2.1s)
+INFO một lớp: 1 việc cần xử lý hôm nay Chủ Nhật, 15/11 Gấp · 1 Câu hỏi chờ giảng viên Lý do ngắn. Mở
+INFO nút đỏ: ["Mở"]
+INFO hàng: [{"k":"AI_PENDING","t":"Mở","svg":false,"bg":"rgb(206, 22, 40)","color":"lab(100 0 0)","dec":"none"},{"k":"REVIEW_FLAGGED","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"JOIN_REQUESTS","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"REPORTED_POSTS","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"QUESTION_REVIEW","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"EXAM_SIMILARITY","t":"Mở","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"},{"k":"UNMATCHED_SUBMISSION","t":"Xem bài chưa khớp","svg":true,"bg":"rgba(0, 0, 0, 0)","color":"lab(30.233 5.52832 2.9892)","dec":"none"}]
+INFO tất cả lớp: 2 việc cần xử lý hôm nay Chủ Nhật, 15/11 · Tất cả lớp của tôi Gấp · 1 Câu hỏi chờ giảng viên Lý do ngắn. lớp 761987 Mở Hôm nay · 1 2 bài bị báo cáo chờ xem Lý do ngắn. lớp 761988 Mở
+  ✓   35 [desktop] › e2e/qc-uiux91-w3.spec.ts:137:1 › TC-UX10-10/11 một lớp: không mã lớp ở hàng; Tất cả lớp: có mã lớp (1.8s)
+INFO nút đỏ khi không còn Gấp: ["Mở"] hàng đầu: REPORTED_POSTS
+  ✓   34 [desktop] › e2e/qc-uiux91-w3.spec.ts:112:1 › TC-UX10-6/7/8 một nút đỏ ở việc đầu của nhóm đầu; các hàng còn lại ghost + mũi tên; bỏ nhóm Gấp → nút đỏ sang A4 (2.1s)
+INFO chấm: [{"k":"AI_PENDING","bg":"rgb(206, 22, 40)"},{"k":"REVIEW_FLAGGED","bg":"lab(56.8969 19.547 68.5348)"},{"k":"JOIN_REQUESTS","bg":"lab(56.8969 19.547 68.5348)"},{"k":"REPORTED_POSTS","bg":"lab(45.3509 4.28858 2.31123)"},{"k":"QUESTION_REVIEW","bg":"lab(45.3509 4.28858 2.31123)"},{"k":"EXAM_SIMILARITY","bg":"lab(45.3509 4.28858 2.31123)"},{"k":"UNMATCHED_SUBMISSION","bg":"lab(45.3509 4.28858 2.31123)"}]
+INFO tên h3: Gấp, 3 việc | Hôm nay, 2 việc | Khi rảnh, 2 việc
+INFO region:  |  | 
+INFO 1440: {"att":{"l":1101,"t":224,"w":290},"up":{"l":1101,"t":524,"w":290},"list":{"l":265,"t":255,"r":1027,"b":496}}
+  ✓   36 [desktop] › e2e/qc-uiux91-w3.spec.ts:156:1 › TC-UX10-12/13 màu chấm theo mức khẩn; nhóm có tên truy cập «Gấp, 3 việc» (1.1s)
+INFO 1099: {"att":{"l":121,"t":1000,"w":929},"up":{"l":121,"t":1300,"w":929},"list":{"l":121,"t":255,"r":1050,"b":496}}
+  ✓   37 [desktop] › e2e/qc-uiux91-w3.spec.ts:177:1 › TC-UX10-14/15/16/27 «Lớp cần chú ý» + «Sắp tới»: cột phải ≤ 320 px ở 1440, dưới danh sách ở 1099; Xem tất cả (N) (1.5s)
+INFO admin: Gấp · 1 ; Hôm nay · 1
+INFO TA: Gấp · 1 ; Hôm nay · 1
+  ✓   39 [desktop] › e2e/qc-uiux91-w3.spec.ts:233:1 › TC-UX10-22/23/24 sinh viên không có nhóm; admin; TA không có «Bỏ qua» ở COURSE_SETUP (3.2s)
+INFO sau refetch lỗi: 7 việc cần xử lý hôm nay Chủ Nhật, 15/11 Chưa làm mới được. Đang hiện dữ liệu lần trước. Thử lại Gấp · 3 Câu hỏi chờ giảng viên Lý do ngắn. Mở 4 bài cần xem kỹ 
+INFO 375: {"ov":false,"small":[],"rows":[{"titleBottom":302,"btnTop":302},{"titleBottom":442,"btnTop":442},{"titleBottom":605,"btnTop":605}]}
+  ✓   40 [desktop] › e2e/qc-uiux91-w3.spec.ts:254:1 › TC-UX10-25 375 px: nhãn nhóm + hàng xếp dọc, nút xuống dòng, vùng chạm ≥ 44 (712ms)
+INFO today: /courses/00000000-0000-7000-8000-00000000c002/today
+  ✓   41 [desktop] › e2e/qc-uiux91-w3.spec.ts:268:1 › TC-UX10-PQ TA/GV chỉ thấy việc theo JWT: không gọi courses khác (1.1s)
+INFO thứ tự: [{"y":97,"t":"Chào Thử"},{"y":199,"t":"Việc nên làm tiếp"},{"y":444,"t":"Hôm nay"},{"y":692,"t":"Tiếp tục học"}]
+INFO tiếp tục học: ["Sâu Morris là gì\nLớp 761987 · Thứ Năm, 09:00","Ransomware hoạt động\nLớp 761987 · Thứ Tư, 09:00","Mỗi lần phát biểu\nLớp 761987 · Thứ Ba, 09:00"]
+INFO lỗi lần đầu: Hôm nay Chủ Nhật, 15/11 Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng. Chi tiết kỹ thuật Thử lại
+  ✓   38 [desktop] › e2e/qc-uiux91-w3.spec.ts:203:1 › TC-UX10-18/19/20/21 lỗi tải, làm mới lỗi, rỗng, 15 trên 40 (7.6s)
+INFO:  Nộp Bài tập 03 Hạn 23:59 hôm nay. Khoảng 30 phút Mở bài tập Hôm nay Buổi 5 · An ninh mạng Ngày mai, 13:30–16:00 · P.405 Sắp tới Tiếp tục học Phiên hôm qua Lớp 761987 · Hôm qua, 00:13 Phiên cũ Lớp 761987 · Thứ Hai, 00:13
+  ✓   43 [desktop] › e2e/qc-uiux91-w3.spec.ts:308:1 › TC-UX11-5 thời gian «Tiếp tục học» theo US-02 (982ms)
+INFO khác lớp: Chào Thử Chủ Nhật, 08/11 Việc nên làm tiếp Nộp Bài tập 03 Hạn 23:59 hôm nay. Khoảng 30 phút Mở bài tập Hôm nay Buổi 5 · An ninh mạng Ngày mai, 13:30–16:00 · P.405 Sắp tới Tiếp tục học Sâu Morris là gì Lớp 761988 · Thứ Sáu, 09:00 Sâu Morris là gì Lớp 761987 · Thứ Năm, 09:00
+  ✓   42 [desktop] › e2e/qc-uiux91-w3.spec.ts:280:1 › TC-UX11-1/2/3/4/6 SV: thứ tự lời chào → Việc nên làm tiếp → Hôm nay → Tiếp tục học; khử trùng; 1 nút đỏ (3.3s)
+  ✓   45 [desktop] › e2e/qc-uiux91-w3.spec.ts:340:1 › TC-UX11-PQ phiên chat chỉ của chính SV: không gọi API phiên của người khác (1.0s)
+INFO reduce=false hoạt cảnh sau khi bấm (1484 ms): [{"n":"background-color","d":140},{"n":"background-color","d":140},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400},{"n":"vVAPUW_shimmer","d":1400}]
+INFO reduce=false không tính chỉ báo tải: ["background-color:140"]
+  ✓   46 [desktop] › e2e/qc-uiux91-w3.spec.ts:347:3 › TC-UX10-17 Red Thread khi bấm việc (reduce=false): < 300 ms; reduce → không chạy (2.8s)
+INFO 375 SV: {"ov":false,"cur":["Hôm nay"],"ys":[175,464,696]}
+  ✓   44 [desktop] › e2e/qc-uiux91-w3.spec.ts:319:1 › TC-UX11-7/8/9 sv.moi nhập mã; GV/TA không có khối của SV; 375 px thứ tự + thanh dưới (4.5s)
+INFO Quá trình: ["6,000","5,500","7,915"] | Điểm học phần: ["6,50","7,50","8,50"] | ô nhập tuần: ["6,000","5,500","7,915"] | ô nhập cuối kỳ: ["7,00","8,50","9,00"]
+  ✓   48 [desktop] › e2e/qc-uiux91-w4.spec.ts:32:1 › TC-UX16-1 cột Quá trình: 6 / 5,5 / 7,915 → 6,000 / 5,500 / 7,915; ô nhập giữ nguyên chữ người dùng (2.3s)
+INFO reduce=true hoạt cảnh sau khi bấm (1494 ms): [{"n":"background-color","d":1},{"n":"background-color","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1},{"n":"vVAPUW_shimmer","d":1}]
+INFO reduce=true không tính chỉ báo tải: ["background-color:1"]
+  ✓   47 [desktop] › e2e/qc-uiux91-w3.spec.ts:347:3 › TC-UX10-17 Red Thread khi bấm việc (reduce=true): < 300 ms; reduce → không chạy (2.8s)
+INFO tiêu đề phụ: Thiếu điểm: 2 sinh viên | trạng thái hàng: ["","","","","Thiếu điểm","Thiếu điểm"]
+INFO số hàng DOM: 21 → 29 | scrollHeight: 4906
+  ✓   49 [desktop] › e2e/qc-uiux91-w4.spec.ts:49:1 › TC-UX16-8 1.000 sinh viên: DOM chỉ giữ ≤ 80 hàng (ảo hoá), cuộn xuống vẫn có hàng (1.9s)
+INFO sau lọc: số hàng 2
+INFO cột khi không ai thiếu: ["Sinh viên","Kiểm tra tuần","Thi cuối kỳ","Bài thi giữa kỳ","Điểm cộng","Điểm trừ","Quá trình","Điểm học phần","Điểm chữ","Hành động"]
+  ✓   50 [desktop] › e2e/qc-uiux91-w4.spec.ts:62:1 › TC-UX16-9/10/11 Thiếu điểm: hàng thiếu có chữ, hàng đủ trống, liên kết lọc; không hàng thiếu thì ẩn cột; không có «Đủ» (2.8s)
+INFO sổ đã chốt: số input 0
+  ✓   51 [desktop] › e2e/qc-uiux91-w4.spec.ts:94:1 › TC-UX16-18 lỗi tải: ApiErrorNotice + Thử lại; sổ đã chốt chỉ đọc (1.6s)
+(node:52070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52073) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   52 [mobile] › e2e/qc-uiux91-w1.spec.ts:56:1 › TC-UX02-2 Threads: các hàng I1…I9 đúng chuỗi AC2
+  -   54 [mobile] › e2e/qc-uiux91-w1.spec.ts:76:1 › TC-UX02-3 Chat: lịch sử phiên I1…I4
+  -   53 [mobile] › e2e/qc-uiux91-w1.spec.ts:64:1 › TC-UX02-9 ngày giờ sai / null → «—», không Invalid Date, không lỗi
+  -   55 [mobile] › e2e/qc-uiux91-w1.spec.ts:88:1 › TC-UX02-4 Tài liệu (GV) và Thư viện (SV): cập nhật I3, I4
+  -   56 [mobile] › e2e/qc-uiux91-w1.spec.ts:105:1 › TC-UX02-4b Thư viện (SV): cập nhật I3, I4
+  -   57 [mobile] › e2e/qc-uiux91-w1.spec.ts:123:5 › TC-UX02-7/8 múi giờ trình duyệt America/Los_Angeles › Threads I1/I2/I3 giữ giờ ICT (America/Los_Angeles)
+  -   58 [mobile] › e2e/qc-uiux91-w1.spec.ts:123:5 › TC-UX02-7/8 múi giờ trình duyệt Pacific/Kiritimati › Threads I1/I2/I3 giữ giờ ICT (Pacific/Kiritimati)
+  -   59 [mobile] › e2e/qc-uiux91-w1.spec.ts:134:1 › TC-UX02-13 375 px: Threads / Chat với I5 không tràn ngang
+  -   60 [mobile] › e2e/qc-uiux91-w1.spec.ts:142:1 › TC-UX03-1..4,12 /dev/ui: nút khoá có lý do (DOM, tooltip, click, opacity, bàn phím)
+  -   61 [mobile] › e2e/qc-uiux91-w1.spec.ts:167:1 › TC-UX03-14 /dev/ui: disabledReason mà không disabled → không tooltip, bấm được
+  -   62 [mobile] › e2e/qc-uiux91-w1.spec.ts:182:1 › TC-UX03-6 Sổ điểm công thức chưa xác nhận → Chốt điểm khoá, lý do «Chưa có công thức điểm đã xác nhận»
+  -   64 [mobile] › e2e/qc-uiux91-w1.spec.ts:202:1 › TC-UX03-8/10 Chấm bài: Chấm tất cả khoá khi rỗng; Tải bài lên khoá khi chưa chọn bài tập
+  -   63 [mobile] › e2e/qc-uiux91-w1.spec.ts:192:1 › TC-UX03-7 Công thức có mục chưa rõ → Xác nhận công thức khoá «Còn N mục chưa rõ»
+  -   66 [mobile] › e2e/qc-uiux91-w1.spec.ts:231:1 › TC-UX03-15 STUDENT: nút giảng viên không có trong DOM
+  -   65 [mobile] › e2e/qc-uiux91-w1.spec.ts:221:1 › TC-UX03-9/10b Chấm bài có bài nộp: Chấm tất cả bấm được; chọn bài tập → Tải bài lên bấm được
+  -   67 [mobile] › e2e/qc-uiux91-w1.spec.ts:261:1 › TC-UX04-1/2 :active thu 0,97 ≤ 100 ms rồi trở lại
+  -   69 [mobile] › e2e/qc-uiux91-w1.spec.ts:290:1 › TC-UX04-9/21 thanh tiến độ: scaleX, kẹp 0–100, NaN → 0
+  -   70 [mobile] › e2e/qc-uiux91-w1.spec.ts:316:1 › TC-UX04-10 thu gọn sidebar: main không transition margin-left, tức thì ≤ 160 ms, CLS ≤ 0,05
+  -   71 [mobile] › e2e/qc-uiux91-w1.spec.ts:347:1 › TC-UX04-6 hộp thoại Chốt điểm mở ≤ 200 ms
+  -   72 [mobile] › e2e/qc-uiux91-w1.spec.ts:360:1 › TC-UX04-11 menu tài khoản: gốc xuất phát ở nút gọi, ≤ 160 ms
+  -   73 [mobile] › e2e/qc-uiux91-w1.spec.ts:373:1 › TC-UX04-20 phím J/K, ⌘K không có hoạt cảnh
+  -   74 [mobile] › e2e/qc-uiux91-w1.spec.ts:395:1 › TC-UX21-1/2 khách (không cờ): `/` không gọi API nào, không lỗi 401 ở console
+  -   75 [mobile] › e2e/qc-uiux91-w1.spec.ts:416:1 › TC-UX21-3 người quay lại: có gọi refresh, hiện Hôm nay, không nháy trang giới thiệu
+  -   76 [mobile] › e2e/qc-uiux91-w1.spec.ts:433:1 › TC-UX21-4/5 mất cờ nhưng còn cookie: `/` hiện trang giới thiệu; bấm Đăng nhập → /login làm mới và vào ứng dụng
+  -   77 [mobile] › e2e/qc-uiux91-w1.spec.ts:448:1 › TC-UX21-6/10 /login và /register không cookie: vẫn gọi refresh, hiện form
+  -   78 [mobile] › e2e/qc-uiux91-w1.spec.ts:459:1 › TC-UX21-7/8 localStorage ném lỗi: `/` không lỗi, hiện trang giới thiệu
+  -   79 [mobile] › e2e/qc-uiux91-w1.spec.ts:472:1 › TC-UX21-9 khách mở route sâu → /login?next=
+  -   80 [mobile] › e2e/qc-uiux91-w1.spec.ts:481:1 › TC-UX03-17 tooltip lý do: hiện bằng opacity ≤ 120 ms; reduce → tức thì
+  -   81 [mobile] › e2e/qc-uiux91-w3.spec.ts:74:1 › TC-UX10-1 F-GV: ba nhóm Gấp · 3 → Hôm nay · 2 → Khi rảnh · 2, thứ tự máy chủ trong nhóm
+  -   82 [mobile] › e2e/qc-uiux91-w3.spec.ts:85:1 › TC-UX10-2/3/4 nhóm rỗng không hiện; chỉ normal → chỉ «Hôm nay»; EXAM_SIMILARITY high → Gấp
+  -   83 [mobile] › e2e/qc-uiux91-w3.spec.ts:103:1 › TC-UX10-5 không API mới: chỉ /me/courses, /me/today (hoặc courses/*/today), auth
+  -   84 [mobile] › e2e/qc-uiux91-w3.spec.ts:112:1 › TC-UX10-6/7/8 một nút đỏ ở việc đầu của nhóm đầu; các hàng còn lại ghost + mũi tên; bỏ nhóm Gấp → nút đỏ sang A4
+  -   85 [mobile] › e2e/qc-uiux91-w3.spec.ts:137:1 › TC-UX10-10/11 một lớp: không mã lớp ở hàng; Tất cả lớp: có mã lớp
+  -   86 [mobile] › e2e/qc-uiux91-w3.spec.ts:156:1 › TC-UX10-12/13 màu chấm theo mức khẩn; nhóm có tên truy cập «Gấp, 3 việc»
+  ✓   68 [mobile] › e2e/qc-uiux91-w1.spec.ts:241:1 › TC-UX03-13 cảm ứng 375: chạm nút khoá → lý do hiện dưới nút ≥ 3 s (5.6s)
+  -   87 [mobile] › e2e/qc-uiux91-w3.spec.ts:177:1 › TC-UX10-14/15/16/27 «Lớp cần chú ý» + «Sắp tới»: cột phải ≤ 320 px ở 1440, dưới danh sách ở 1099; Xem tất cả (N)
+  -   89 [mobile] › e2e/qc-uiux91-w3.spec.ts:233:1 › TC-UX10-22/23/24 sinh viên không có nhóm; admin; TA không có «Bỏ qua» ở COURSE_SETUP
+  -   88 [mobile] › e2e/qc-uiux91-w3.spec.ts:203:1 › TC-UX10-18/19/20/21 lỗi tải, làm mới lỗi, rỗng, 15 trên 40
+  -   91 [mobile] › e2e/qc-uiux91-w3.spec.ts:268:1 › TC-UX10-PQ TA/GV chỉ thấy việc theo JWT: không gọi courses khác
+  -   90 [mobile] › e2e/qc-uiux91-w3.spec.ts:254:1 › TC-UX10-25 375 px: nhãn nhóm + hàng xếp dọc, nút xuống dòng, vùng chạm ≥ 44
+  -   93 [mobile] › e2e/qc-uiux91-w3.spec.ts:308:1 › TC-UX11-5 thời gian «Tiếp tục học» theo US-02
+  -   92 [mobile] › e2e/qc-uiux91-w3.spec.ts:280:1 › TC-UX11-1/2/3/4/6 SV: thứ tự lời chào → Việc nên làm tiếp → Hôm nay → Tiếp tục học; khử trùng; 1 nút đỏ
+  -   95 [mobile] › e2e/qc-uiux91-w3.spec.ts:340:1 › TC-UX11-PQ phiên chat chỉ của chính SV: không gọi API phiên của người khác
+  -   94 [mobile] › e2e/qc-uiux91-w3.spec.ts:319:1 › TC-UX11-7/8/9 sv.moi nhập mã; GV/TA không có khối của SV; 375 px thứ tự + thanh dưới
+  -   96 [mobile] › e2e/qc-uiux91-w3.spec.ts:347:3 › TC-UX10-17 Red Thread khi bấm việc (reduce=false): < 300 ms; reduce → không chạy
+  -   97 [mobile] › e2e/qc-uiux91-w3.spec.ts:347:3 › TC-UX10-17 Red Thread khi bấm việc (reduce=true): < 300 ms; reduce → không chạy
+  -   98 [mobile] › e2e/qc-uiux91-w4.spec.ts:32:1 › TC-UX16-1 cột Quá trình: 6 / 5,5 / 7,915 → 6,000 / 5,500 / 7,915; ô nhập giữ nguyên chữ người dùng
+  -   99 [mobile] › e2e/qc-uiux91-w4.spec.ts:49:1 › TC-UX16-8 1.000 sinh viên: DOM chỉ giữ ≤ 80 hàng (ảo hoá), cuộn xuống vẫn có hàng
+  -  101 [mobile] › e2e/qc-uiux91-w4.spec.ts:94:1 › TC-UX16-18 lỗi tải: ApiErrorNotice + Thử lại; sổ đã chốt chỉ đọc
+  -  100 [mobile] › e2e/qc-uiux91-w4.spec.ts:62:1 › TC-UX16-9/10/11 Thiếu điểm: hàng thiếu có chữ, hàng đủ trống, liên kết lọc; không hàng thiếu thì ẩn cột; không có «Đủ»
+
+
+  1) [desktop] › e2e/qc-uiux91-w1.spec.ts:261:1 › TC-UX04-1/2 :active thu 0,97 ≤ 100 ms rồi trở lại 
+
+    Error: số biến thể nút đã thử
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 2
+    Received:   0
+
+      284 |     if (!/none|matrix\(1,/.test(await b.evaluate((e) => getComputedStyle(e).transform))) bad.push(`${sig} không trở lại`);
+      285 |   }
+    > 286 |   expect(seen.size, "số biến thể nút đã thử").toBeGreaterThan(2);
+          |                                               ^
+      287 |   expect(bad, "nút không thu 0,97 khi :active").toEqual([]);
+      288 | });
+      289 |
+        at /private/tmp/qc2-r91-ws/frontend/e2e/qc-uiux91-w1.spec.ts:286:47
+
+    Error Context: ../../../../tmp/qc2-pw-s91-mock/qc-uiux91-w1-TC-UX04-1-2-a-03aca-u-0-97-≤-100-ms-rồi-trở-lại-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-mock/qc-uiux91-w1-TC-UX04-1-2-a-03aca-u-0-97-≤-100-ms-rồi-trở-lại-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-mock/qc-uiux91-w1-TC-UX04-1-2-a-03aca-u-0-97-≤-100-ms-rồi-trở-lại-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: số biến thể nút đã thử
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 2
+    Received:   0
+
+      284 |     if (!/none|matrix\(1,/.test(await b.evaluate((e) => getComputedStyle(e).transform))) bad.push(`${sig} không trở lại`);
+      285 |   }
+    > 286 |   expect(seen.size, "số biến thể nút đã thử").toBeGreaterThan(2);
+          |                                               ^
+      287 |   expect(bad, "nút không thu 0,97 khi :active").toEqual([]);
+      288 | });
+      289 |
+        at /private/tmp/qc2-r91-ws/frontend/e2e/qc-uiux91-w1.spec.ts:286:47
+
+    Error Context: ../../../../tmp/qc2-pw-s91-mock/qc-uiux91-w1-TC-UX04-1-2-a-03aca-u-0-97-≤-100-ms-rồi-trở-lại-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-mock/qc-uiux91-w1-TC-UX04-1-2-a-03aca-u-0-97-≤-100-ms-rồi-trở-lại-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-mock/qc-uiux91-w1-TC-UX04-1-2-a-03aca-u-0-97-≤-100-ms-rồi-trở-lại-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › e2e/qc-uiux91-w1.spec.ts:261:1 › TC-UX04-1/2 :active thu 0,97 ≤ 100 ms rồi trở lại ─
+  49 skipped
+  50 passed (1.2m)

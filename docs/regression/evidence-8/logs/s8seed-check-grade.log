@@ -1,0 +1,56 @@
+### preview
+(node:81600) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51
+  if (r.status !== 200) throw new Error(`Không đăng nhập được ${key}: ${r.status}`);
+                              ^
+
+Error: Không đăng nhập được teacher: 503
+    at tok (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:70:45)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-grade-seed.mjs:15:20
+
+Node.js v24.21.0
+rc=1
+### abc
+(node:82055) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51
+  if (r.status !== 200) throw new Error(`Không đăng nhập được ${key}: ${r.status}`);
+                              ^
+
+Error: Không đăng nhập được teacher: 503
+    at tok (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:70:45)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-grade-seed.mjs:15:20
+
+Node.js v24.21.0
+rc=1
+### counts
+(node:82108) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+counts {"docs":11,"columns":3,"entries":60} — bỏ qua (--no-rerun)
+rc=0
+### lop2
+(node:82888) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+lớp 2: chốt điểm 409
+rc=0
+### impact
+(node:82978) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+impact p95 164 ms (≤ 300)
+rc=0
+### preview
+25/30 OK
+  ✗ sv04 (20224786): HP 5 · D+ ≠ 6.5 · C+
+  ✗ sv05 (20223869): HP 6 · C ≠ 7.0 · B
+  ✗ sv06 (20226862): HP 8.5 · A ≠ 10.0 · A+
+  ✗ sv07 (20226980): HP 8 · B+ ≠ 9.0 · A+
+  ✗ sv10 (20227825): HP 6.5 · C+ ≠ 5.5 · C
+rc=0
+### abc
+A B C OK
+rc=0

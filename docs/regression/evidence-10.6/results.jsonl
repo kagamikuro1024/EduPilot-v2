@@ -295,3 +295,15 @@
 {"tc": "G03-09 đầu vào reflect (≥ 4 ký tự): không tên / MSSV / email SV, không submission_id / student_id, không SĐT/email", "st": "FAIL", "note": "leak=[] sid=21 phones=[] emails=[] (n=377 mẫu PII)"}
 {"tc": "G08-12 cờ THREAD_SUGGEST tắt → [] và 0 lượt nhúng của người gọi", "st": "PASS", "note": "200 [] nhúng(user)=0"}
 {"tc": "G01-10 cờ tắt: similar-confirmed → [], 0 nhúng mới", "st": "PASS", "note": "200 [] nhúng=0"}
+{"tc": "G06-02 phiên bản n<5: chỉ số null", "st": "FAIL", "note": "không có phiên bản n<5 trong dữ liệu"}
+{"tc": "G06-08 tổng n các phiên bản = số bài hiện hành REVIEWED/PUBLISHED", "st": "PASS", "note": "sum=0 sql=0"}
+{"tc": "G06-03 thêm / đụng DRAFT: số không đổi", "st": "PASS", "note": ""}
+{"tc": "G06-04 bias_total = AI − chốt (khớp SQL độc lập, dấu AI>chốt dương)", "st": "PASS", "note": "sql=0.00 api=0.00"}
+{"tc": "G06-10 sv.kha stats → 403", "st": "PASS", "note": "403"}
+{"tc": "G06-10 sv31 stats → 403", "st": "PASS", "note": "403"}
+{"tc": "G06-10 không token stats → 401", "st": "PASS", "note": "401"}
+{"tc": "G06-10 stats qua lớp 2 → 404/403", "st": "PASS", "note": "404"}
+{"tc": "G11-06 SV quét 37 phản hồi: 0 trường lưu ý / phiên bản / cờ / số đo", "st": "PASS", "note": "[]"}
+{"tc": "G11-04 bảng guidance_items + regression_cases không chứa tên SV", "st": "PASS", "note": "[]"}
+{"tc": "G07-14 không ca hồi quy mồ côi (source_id không còn kết quả) = 0", "st": "PASS", "note": "0"}
+{"tc": "G11-02 assignments.guidance_version không đổi bởi thao tác đọc / stats (so trước-sau)", "st": "PASS", "note": "4"}

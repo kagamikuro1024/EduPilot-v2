@@ -113,3 +113,9 @@
 {"tc": "D07-10 teacher không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
 {"tc": "D07-10 ta không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
 {"tc": "D07-10 sv.kha không nhận DECISION_FAIL_CLOSED", "st": "PASS", "note": "200"}
+{"tc": "D02-23/D06-23 sv.kha: 30 phản hồi không có cascade_* / tên cổng / FAST·FALLBACK / «Quyết định nhanh»", "st": "PASS", "note": "[]"}
+{"tc": "D02-23/D06-23 teacher: 30 phản hồi không có cascade_* / tên cổng / FAST·FALLBACK / «Quyết định nhanh»", "st": "PASS", "note": "[]"}
+{"tc": "D02-23/D06-23 ta: 30 phản hồi không có cascade_* / tên cổng / FAST·FALLBACK / «Quyết định nhanh»", "st": "PASS", "note": "[]"}
+{"tc": "D06-15 đổi + hoàn tác ngưỡng → 2 dòng audit_log (entity decision_gate, before/after, actor), version +2", "st": "PASS", "note": "200/200 [['t', 't', 't'], ['t', 't', 't']]"}
+{"tc": "D07-04 «Bật ở N/M lớp»: courses_enabled / courses_total khớp SQL", "st": "PASS", "note": "api=1/51 sql=1/51 state=on"}
+{"tc": "D07-04b cổng tắt: trạng thái «tắt» (state off)", "st": "PASS", "note": "off"}

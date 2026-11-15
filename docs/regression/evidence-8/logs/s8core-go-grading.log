@@ -1,0 +1,123 @@
+=== RUN   TestCheckerWeightSum
+--- PASS: TestCheckerWeightSum (0.00s)
+=== RUN   TestCheckerNoComponents
+--- PASS: TestCheckerNoComponents (0.00s)
+=== RUN   TestCheckerBonus
+--- PASS: TestCheckerBonus (0.00s)
+=== RUN   TestCheckerBonusCap
+--- PASS: TestCheckerBonusCap (0.00s)
+=== RUN   TestCheckerAbsence
+--- PASS: TestCheckerAbsence (0.00s)
+=== RUN   TestCheckerRounding
+--- PASS: TestCheckerRounding (0.00s)
+=== RUN   TestCheckerLetterScale
+=== RUN   TestCheckerLetterScale/không_tăng_dần
+=== RUN   TestCheckerLetterScale/không_bắt_đầu_từ_0
+=== RUN   TestCheckerLetterScale/hở_(thiếu_mức_cuối)
+=== RUN   TestCheckerLetterScale/điểm_chữ_trùng
+--- PASS: TestCheckerLetterScale (0.00s)
+    --- PASS: TestCheckerLetterScale/không_tăng_dần (0.00s)
+    --- PASS: TestCheckerLetterScale/không_bắt_đầu_từ_0 (0.00s)
+    --- PASS: TestCheckerLetterScale/hở_(thiếu_mức_cuối) (0.00s)
+    --- PASS: TestCheckerLetterScale/điểm_chữ_trùng (0.00s)
+=== RUN   TestCheckerParamInvalid
+=== RUN   TestCheckerParamInvalid/trọng_số_không_phải_số
+=== RUN   TestCheckerParamInvalid/trọng_số_ngoài_[0;100]
+=== RUN   TestCheckerParamInvalid/bước_làm_tròn_lạ
+=== RUN   TestCheckerParamInvalid/điều_kiện_cuối_kỳ_khi_nhóm_CK_trọng_số_0
+=== RUN   TestCheckerParamInvalid/tham_số_số_JSON_thay_vì_chuỗi
+=== RUN   TestCheckerParamInvalid/thành_phần_không_có_trong_MISSING_SCORE
+=== RUN   TestCheckerParamInvalid/khoá_thành_phần_trùng
+--- PASS: TestCheckerParamInvalid (0.00s)
+    --- PASS: TestCheckerParamInvalid/trọng_số_không_phải_số (0.00s)
+    --- PASS: TestCheckerParamInvalid/trọng_số_ngoài_[0;100] (0.00s)
+    --- PASS: TestCheckerParamInvalid/bước_làm_tròn_lạ (0.00s)
+    --- PASS: TestCheckerParamInvalid/điều_kiện_cuối_kỳ_khi_nhóm_CK_trọng_số_0 (0.00s)
+    --- PASS: TestCheckerParamInvalid/tham_số_số_JSON_thay_vì_chuỗi (0.00s)
+    --- PASS: TestCheckerParamInvalid/thành_phần_không_có_trong_MISSING_SCORE (0.00s)
+    --- PASS: TestCheckerParamInvalid/khoá_thành_phần_trùng (0.00s)
+=== RUN   TestCitationVerified
+2026/11/15 22:51:08 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 550cf32a1ed2cca2b0e740b43ceab31101d52c717d81d8db929b82dbdc554b46
+  Test ProcessID: 190407f8-947c-40a0-994d-d4e8090e950c
+2026/11/15 22:51:08 ✅ Container started: 68f6ff853df5
+2026/11/15 22:51:08 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:51:08 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestCitationVerified (0.72s)
+=== RUN   TestCitationNotFound
+--- PASS: TestCitationNotFound (0.78s)
+=== RUN   TestCitationPageMissing
+--- PASS: TestCitationPageMissing (0.60s)
+=== RUN   TestCitationOCRTolerance
+--- PASS: TestCitationOCRTolerance (1.47s)
+=== RUN   TestCitationComparedAfterUnmask
+--- PASS: TestCitationComparedAfterUnmask (1.50s)
+=== RUN   TestPromptDelimitsDocument
+--- PASS: TestPromptDelimitsDocument (0.00s)
+=== RUN   TestPromptNoInstructionFollowing
+--- PASS: TestPromptNoInstructionFollowing (0.79s)
+=== RUN   TestExtractUsesPrivacyMask
+2026/11/15 22:51:15 ✅ Container started: 5636bc78d64d
+2026/11/15 22:51:15 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:51:15 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestExtractUsesPrivacyMask (0.89s)
+=== RUN   TestExtractOneStructuredCall
+--- PASS: TestExtractOneStructuredCall (0.66s)
+=== RUN   TestExtractTaskAndLane
+--- PASS: TestExtractTaskAndLane (0.54s)
+=== RUN   TestExtractPromptHasPages
+--- PASS: TestExtractPromptHasPages (0.75s)
+=== RUN   TestExtractSchemaStrictCompatible
+--- PASS: TestExtractSchemaStrictCompatible (0.00s)
+=== RUN   TestExtractAttemptTimeout
+--- PASS: TestExtractAttemptTimeout (1.75s)
+=== RUN   TestExtractGradeScheme
+--- PASS: TestExtractGradeScheme (0.98s)
+=== RUN   TestExtractLop2OneUnclear
+--- PASS: TestExtractLop2OneUnclear (0.76s)
+=== RUN   TestExtractNeverConfirms
+--- PASS: TestExtractNeverConfirms (0.58s)
+=== RUN   TestExtractNotPolicy
+--- PASS: TestExtractNotPolicy (0.60s)
+=== RUN   TestExtractNotReady
+--- PASS: TestExtractNotReady (0.59s)
+=== RUN   TestExtractTooLong
+--- PASS: TestExtractTooLong (0.65s)
+=== RUN   TestExtractLLMDown
+--- PASS: TestExtractLLMDown (1.83s)
+=== RUN   TestExtractInvalidSchema
+=== RUN   TestExtractInvalidSchema/không_phải_JSON
+=== RUN   TestExtractInvalidSchema/khoá_lạ
+=== RUN   TestExtractInvalidSchema/khoá_thành_phần_xấu
+=== RUN   TestExtractInvalidSchema/loại_luật_lạ
+--- PASS: TestExtractInvalidSchema (2.49s)
+    --- PASS: TestExtractInvalidSchema/không_phải_JSON (0.72s)
+    --- PASS: TestExtractInvalidSchema/khoá_lạ (0.61s)
+    --- PASS: TestExtractInvalidSchema/khoá_thành_phần_xấu (0.55s)
+    --- PASS: TestExtractInvalidSchema/loại_luật_lạ (0.61s)
+=== RUN   TestExtractFailureKeepsConfirmed
+--- PASS: TestExtractFailureKeepsConfirmed (0.66s)
+=== RUN   TestExtractIdempotentKey
+--- PASS: TestExtractIdempotentKey (0.65s)
+=== RUN   TestExtractKillWorkerMidRun
+--- PASS: TestExtractKillWorkerMidRun (0.57s)
+=== RUN   TestExtractDraftExists
+--- PASS: TestExtractDraftExists (0.73s)
+=== RUN   TestExtractReplaceDraft
+--- PASS: TestExtractReplaceDraft (0.60s)
+=== RUN   TestExtractDraftEditedDuringJob
+--- PASS: TestExtractDraftEditedDuringJob (0.65s)
+=== RUN   TestExtractReplaceDraftVersionChanged
+--- PASS: TestExtractReplaceDraftVersionChanged (0.64s)
+=== RUN   TestExtractRBAC
+--- PASS: TestExtractRBAC (0.53s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	24.705s
+rc=0

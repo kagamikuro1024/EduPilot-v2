@@ -1,0 +1,21 @@
+== gateway 409 since 2026-11-15T15:47:33Z
+0
+{"time":"2026-11-15T15:49:23.409972353Z","level":"INFO","msg":"request","service":"gateway","instance":"d8f2227e5091","method":"GET","path":"/api/v1/admin/users","status":200,"duration_ms":6,"request_id":"1bcf30b1601670810b165c3d32c4dd3e","trace_id":"1bcf30b1601670810b165c3d32c4dd3e"}
+{"time":"2026-11-15T15:49:24.463212826Z","level":"INFO","msg":"request","service":"gateway","instance":"d8f2227e5091","method":"GET","path":"/api/v1/admin/users","status":200,"duration_ms":10,"request_id":"409f8d25fa235a44f99ada8be7126880","trace_id":"409f8d25fa235a44f99ada8be7126880"}
+{"time":"2026-11-15T15:49:24.890908994Z","level":"INFO","msg":"request","service":"gateway","instance":"d8f2227e5091","method":"POST","path":"/api/v1/auth/login","status":200,"duration_ms":409,"request_id":"ffeeef54c21ba64a7ac9f87d507ec76b","trace_id":"ffeeef54c21ba64a7ac9f87d507ec76b"}
+{"time":"2026-11-15T15:49:25.409202624Z","level":"INFO","msg":"request","service":"gateway","instance":"d8f2227e5091","method":"GET","path":"/api/v1/me/profile","status":200,"duration_ms":1,"request_id":"981375076c51bcfe1d515a4f4632df89","trace_id":"981375076c51bcfe1d515a4f4632df89"}
+{"time":"2026-11-15T15:49:26.366953715Z","level":"INFO","msg":"request","service":"gateway","instance":"d8f2227e5091","method":"POST","path":"/api/v1/notifications/01a1df6d-7165-7409-accd-51ffbf54f9fb/read","status":204,"duration_ms":0,"request_id":"6c283733cb8465501ddf1bcacdab5b4c","trace_id":"6c28
+== pg 23505
+0
+0
+== 'đã có' in seed rerun
+2
+ECISION_DEMO=1 bật cả ba cho lớp 761987) — `node scripts/check-decision-seed.mjs`
+  Học từ lần sửa: tắt (SEED_GUIDANCE_DEMO=1 bật cờ + dữ liệu demo cho BT03) — `node scripts/check-guidance-seed.mjs`
+  Điểm danh bằng mã: lớp 761988 bật; buổi 1 có 2 cửa sổ đã đóng (22 lượt vòng 1 đủ ca cờ, vòng 2 + RECHECK_MISS, over_headcount); sv.gioi chưa có lượt — `node scripts/check-checkin-seed.mjs`
+  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)
+
+real	2m25.902s
+user	0m1.171s
+sys	0m0.692s
+rc=0

@@ -1,0 +1,27 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestReminderStopsWhenConfirmed|TestReminderSkipsArchived|TestReminderCatchUp|TestReminderRecipientsTeacherOnly)$ ./internal/grade
+=== RUN   TestReminderCatchUp
+2026/11/15 22:49:36 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 9c015e5630608b5bea068817672bd23ed21f18b3b0c42b7fcb0fc83f7b755f86
+  Test ProcessID: 315c4903-c757-4ea0-81bc-25bcdfa3bcbd
+2026/11/15 22:49:36 ✅ Container started: 68f6ff853df5
+2026/11/15 22:49:36 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:49:37 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:49:58 ✅ Container started: 5636bc78d64d
+2026/11/15 22:49:58 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:49:58 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestReminderCatchUp (24.36s)
+=== RUN   TestReminderStopsWhenConfirmed
+--- PASS: TestReminderStopsWhenConfirmed (3.70s)
+=== RUN   TestReminderSkipsArchived
+--- PASS: TestReminderSkipsArchived (2.29s)
+=== RUN   TestReminderRecipientsTeacherOnly
+--- PASS: TestReminderRecipientsTeacherOnly (1.86s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	32.816s

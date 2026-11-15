@@ -1,0 +1,1608 @@
+[WebServer] (node:77514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:77641) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 126 tests using 2 workers
+
+(node:78121) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [desktop] › e2e/datetime.spec.ts:8:1 › formatWhen: bảng quy ước AC2 (16ms)
+  ✓    3 [desktop] › e2e/datetime.spec.ts:25:1 › formatDay / formatTime / dateInputValue / longDate (5ms)
+  ✓    2 [desktop] › e2e/datetime.spec.ts:19:1 › formatWhen: ranh giới nửa đêm theo giờ Việt Nam, không theo UTC (23ms)
+  ✓    4 [desktop] › e2e/datetime.spec.ts:34:1 › chuỗi sai / null → '—', không ném lỗi (170ms)
+  ✓    5 [desktop] › e2e/datetime.spec.ts:43:1 › múi giờ của máy khác không đổi kết quả (mọi bộ định dạng đặt timeZone tường minh) (31ms)
+  ✓    7 [desktop] › e2e/landing.spec.ts:38:1 › landing có cờ 'đã từng đăng nhập' ⇒ vẫn gọi làm mới phiên (US-21 AC2); mất cờ vẫn thấy giới thiệu (2.8s)
+  ✓    6 [desktop] › e2e/landing.spec.ts:17:1 › landing anonymous: tiêu đề, nút Đăng nhập / Tạo tài khoản, chân trang, không gọi API nào (kể cả refresh), không tài khoản demo (3.3s)
+  ✓    8 [desktop] › e2e/landing.spec.ts:47:1 › landing mất cờ nhưng còn cookie: bấm Đăng nhập (chuyển trang trong ứng dụng) thì thử làm mới phiên bằng cookie (US-21 AC3) (1.4s)
+  ✓    9 [desktop] › e2e/landing.spec.ts:59:1 › landing signed in: đã đăng nhập thì `/` là Hôm nay, không có trang giới thiệu (1.0s)
+  ✓   10 [desktop] › e2e/landing.spec.ts:69:1 › landing deep link: /gradebook chưa đăng nhập vẫn về /login?next= (847ms)
+  ✓   11 [desktop] › e2e/landing.spec.ts:75:1 › landing back from login: logo ở /login quay về trang giới thiệu (1.4s)
+  ✓   12 [desktop] › e2e/landing.spec.ts:83:1 › landing stale hint: dấu 'đã từng đăng nhập' nhưng phiên hết hạn → trang giới thiệu hiện, dấu bị gỡ (1.2s)
+  ✓   13 [desktop] › e2e/landing.spec.ts:92:3 › landing responsive 1440: không cuộn ngang, axe không lỗi nghiêm trọng, ảnh có kích thước (3.5s)
+  ✓   14 [desktop] › e2e/landing.spec.ts:92:3 › landing responsive 375: không cuộn ngang, axe không lỗi nghiêm trọng, ảnh có kích thước (3.7s)
+  ✓   15 [desktop] › e2e/landing.spec.ts:110:1 › landing video đầy đủ: không tải khi chưa bấm; `Xem video` mở hộp thoại, Esc đóng; có lời thay cho video không tiếng (2.0s)
+  ✓   16 [desktop] › e2e/landing.spec.ts:139:1 › landing đoạn sản phẩm: chạy khi có chuyển động, Tạm dừng / Phát dừng hẳn và nhớ trong phiên; reduce thì đứng ở hình đã xong, không m-on, không nút (4.1s)
+  ✓   17 [desktop] › e2e/landing.spec.ts:168:1 › landing hiện theo cuộn: ba số đo ẩn tới khi cuộn tới; 146 đếm lên rồi đứng; reduce hiện đủ ngay (AC9, AC14, AC15) (3.0s)
+  ✓   18 [desktop] › e2e/landing.spec.ts:187:1 › landing số liệu: ba số đo nguyên văn nguồn, mỗi số có hình (AC9, AC24) (654ms)
+  ✓   19 [desktop] › e2e/landing.spec.ts:201:1 › landing vai: hai tab Giảng viên / Sinh viên (bấm, mũi tên, ảnh đổi); không script → hai danh sách xếp dọc (1.9s)
+  ✓   20 [desktop] › e2e/landing.spec.ts:232:1 › landing khung ghim: ở 1440 khung dính và ba màn đổi theo cuộn; ở 1024 và reduce xếp dọc không ghim (1.7s)
+  ✓   22 [desktop] › e2e/landing.spec.ts:277:1 › landing AC16: có thẻ og:* để chia sẻ liên kết (1.3s)
+  ✓   21 [desktop] › e2e/landing.spec.ts:254:1 › landing ảnh không bao giờ trống: giảm chuyển động, không script và 390 px đều thấy ảnh khung ghim và ảnh vai (2.4s)
+  ✓   23 [desktop] › e2e/panels.spec.ts:30:3 › tokens › năm token đúng giá trị phương án (a); token nền cũ đã bị xoá (1.3s)
+  ✓   24 [desktop] › e2e/panels.spec.ts:50:3 › dom contract › Panel, PanelSection, ô nhấn: nền, viền, bán kính, bóng, padding, h3 (đọc computed ở /dev/ui#panel) (1.2s)
+  ✓   25 [desktop] › e2e/panels.spec.ts:74:3 › nest › /dev/ui: NEST = 0, TITLE = 0, kể cả khi mở Dialog / Drawer / Popover (9.3s)
+  ✓   26 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai student: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (10.5s)
+  ✓   27 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai ta: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (12.7s)
+  ✓   28 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai teacher: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (13.7s)
+  ✓   30 [desktop] › e2e/panels.spec.ts:105:3 › strong cap / kpi wall › ca gieo vi phạm bị bắt: 4 ô nhấn trong một panel; 3 Panel bằng nhau cùng hàng ở đầu trang (2.2s)
+  ✓   29 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai admin: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (6.0s)
+  ✓   31 [desktop] › e2e/panels.spec.ts:117:3 › primitives in panel › DataTable, ActionList, Tabs, DefinitionList, Composer: gốc không viền / bóng / bo góc riêng (1.5s)
+  ✘   32 [desktop] › e2e/panels.spec.ts:131:3 › primitives in panel › /dev/ui#panel: AUDIT sạch ở 1440 và 390 px (504ms)
+  ✓   33 [desktop] › e2e/panels.spec.ts:146:3 › token only › ghi đè năm token → canvas, panel, ô nhấn, viền, bóng đổi đúng (không giá trị cứng trong Panel / khung) (815ms)
+  ✘   34 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /login: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (247ms)
+(node:81979) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:82013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   35 [desktop] › e2e/panels.spec.ts:131:3 › primitives in panel › /dev/ui#panel: AUDIT sạch ở 1440 và 390 px (retry #1) (531ms)
+  ✘   36 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /login: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (retry #1) (666ms)
+(node:82150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:82254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   37 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /register: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (225ms)
+  ✘   38 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /forgot-password: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (495ms)
+(node:82583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:82717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   39 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /register: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (retry #1) (387ms)
+  ✘   40 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /forgot-password: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (retry #1) (330ms)
+(node:83272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:83314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   42 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /verify-email?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (684ms)
+  ✘   41 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /reset-password?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (694ms)
+(node:83549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:83550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   43 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /verify-email?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (retry #1) (243ms)
+  ✘   44 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /reset-password?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (retry #1) (246ms)
+(node:83978) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:83984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   45 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /invite/x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (721ms)
+  ✓   46 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @1440: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (1.6s)
+  ✓   47 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @1024: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (1.0s)
+(node:84091) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   48 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @375: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (1.1s)
+  ✘   49 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /invite/x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (retry #1) (413ms)
+(node:84584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   51 [desktop] › e2e/panels.spec.ts:270:3 › student mock routes › /chat, /threads, /threads/[id], /practice/[id], /me, /calendar: panel đúng chỗ; Composer trong panel; bộ lọc ngoài panel (5.8s)
+  ✓   52 [desktop] › e2e/panels.spec.ts:305:3 › exams student › /exams: số Panel = số nhóm có dữ liệu; hàng không có Panel; tiêu đề nhóm ngoài panel; rỗng = một Panel (1.8s)
+  ✘   53 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (2.0s)
+(node:85472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   50 [desktop] › e2e/panels.spec.ts:247:3 › student routes › 16 route Sinh viên: main có ≥ 1 Panel, tiêu đề vùng ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (21.7s)
+  ✘   54 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (1.4s)
+  ✘   55 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (1.1s)
+(node:86247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   56 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (1.7s)
+  ✘   57 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (1.8s)
+(node:86525) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86554) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   58 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (2.2s)
+  ✘   59 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (2.7s)
+(node:87195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:87298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   60 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (3.4s)
+  ✘   61 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (3.7s)
+(node:88074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:88147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   62 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (4.9s)
+  ✘   63 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (4.9s)
+(node:89141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   64 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (3.6s)
+  ✘   65 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (3.2s)
+(node:90289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   66 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (3.5s)
+  ✘   67 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (2.5s)
+(node:91296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:91375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   68 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (3.9s)
+  ✘   69 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (3.7s)
+(node:92390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92565) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   70 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (3.5s)
+  ✘   71 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (3.8s)
+(node:94056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   72 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (2.9s)
+  ✘   73 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (3.3s)
+(node:95519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   74 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (2.6s)
+  ✘   75 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (3.1s)
+(node:96747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:96901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   76 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /join: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (1.8s)
+  ✓   78 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /join/ABC123: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (1.7s)
+  ✘   77 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (retry #1) (2.6s)
+  ✓   79 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /settings: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (1.2s)
+  ✘   80 [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @390; AUDIT + vùng chạm sạch (690ms)
+(node:97812) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98086) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   81 [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @375; AUDIT + vùng chạm sạch (625ms)
+  ✘   82 [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @390; AUDIT + vùng chạm sạch (retry #1) (838ms)
+(node:98178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   83 [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @375; AUDIT + vùng chạm sạch (retry #1) (500ms)
+  ✓   84 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (928ms)
+(node:98915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   85 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / ta @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (1.2s)
+  ✓   87 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / ta @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (1.2s)
+  ✓   86 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (1.8s)
+  ✓   89 [desktop] › e2e/panels.spec.ts:461:3 › exams staff › /exams Staff: số Panel = số nhóm có dữ liệu; một nút chính; h2 ngoài panel; rỗng = 1 Panel (1.2s)
+  ✓   88 [desktop] › e2e/panels.spec.ts:443:3 › members › /class/members: Tabs ngoài panel; mỗi tab đúng 1 Panel; STRONG ≤ 3; NEST = 0 (2.0s)
+  ✓   91 [desktop] › e2e/panels.spec.ts:499:3 › exam editor › /exams/[id]: Tabs ngoài; mỗi tab 1 Panel; NEST = 0 kể cả khi mở Drawer; tổng điểm là 1 ô nhấn; Panel không là hậu duệ của Drawer (3.6s)
+  ✓   90 [desktop] › e2e/panels.spec.ts:477:3 › exams empty › QC B1: /exams rỗng (Giảng viên và Sinh viên) = đúng 1 Panel + EmptyState; Staff có nút `Tạo bài thi` (4.1s)
+  ✓   92 [desktop] › e2e/panels.spec.ts:523:3 › questions › /questions: Toolbar + bảng trong 1 Panel, 1 nút chính; hàng mở Drawer không chứa Panel (1.0s)
+  ✓   93 [desktop] › e2e/panels.spec.ts:538:3 › exam results|similarity › results: 1 Panel, Tabs ngoài, tab Nghi giống nhau chỉ Giảng viên; similarity: bảng cặp 1 Panel, hai khối mã là 2 ô strong ≥ 1024 (5.2s)
+  ✓   95 [desktop] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai ta: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (42.6s)
+  ✓   96 [desktop] › e2e/panels.spec.ts:592:3 › staff routes › /grading/[submissionId]: bài + rubric = 2 Panel cạnh nhau, không lồng (1.1s)
+  ✘   97 [desktop] › e2e/panels.spec.ts:602:3 › staff routes › /attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px (634ms)
+(node:5594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   94 [desktop] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai teacher: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (51.5s)
+  ✘   98 [desktop] › e2e/panels.spec.ts:630:3 › admin users › /admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375 (466ms)
+  ✘   99 [desktop] › e2e/panels.spec.ts:602:3 › staff routes › /attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px (retry #1) (471ms)
+(node:5732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  100 [desktop] › e2e/panels.spec.ts:630:3 › admin users › /admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375 (retry #1) (275ms)
+  ✘  101 [desktop] › e2e/panels.spec.ts:649:3 › admin courses › /admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375 (542ms)
+(node:6046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6237) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  102 [desktop] › e2e/panels.spec.ts:667:3 › settings llm › /settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375 (548ms)
+  ✘  103 [desktop] › e2e/panels.spec.ts:649:3 › admin courses › /admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375 (retry #1) (441ms)
+(node:6667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  104 [desktop] › e2e/panels.spec.ts:667:3 › settings llm › /settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375 (retry #1) (417ms)
+(node:6760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  105 [desktop] › e2e/panels.spec.ts:687:3 › admin routes › bảng 7.2 × vai admin: main ≥ 1 Panel, TITLE / NEST / WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (11.0s)
+  ✓  107 [desktop] › e2e/shell.spec.ts:26:1 › metrics: sidebar 216 / 72 / ẩn; header 56; thu gọn nhớ ở ep:ui:sidebar (6.7s)
+| Màn | Diện tích đỏ | Panel | WALL |
+|---|---|---|---|
+| home-student | 0.42 % | 2 | 0 |
+| exams-student | 0.02 % | 3 | 0 |
+| take-pre | 0.37 % | 1 | 0 |
+| take-run | 0.03 % | 2 | 0 |
+| home-teacher | 0.23 % | 2 | 0 |
+| members | 0.02 % | 1 | 0 |
+| questions | 0.44 % | 1 | 0 |
+| exam-editor | 0.26 % | 1 | 0 |
+| exam-results | 0.03 % | 1 | 0 |
+| admin-users | 0.41 % | 1 | 0 |
+| admin-courses | 0.29 % | 1 | 0 |
+| settings-llm | 0.13 % | 6 | 0 |
+| login | 0.03 % | 1 | 0 |
+  ✓  106 [desktop] › e2e/panels.spec.ts:708:3 › red area › 13 màn chính ở 1440 px: diện tích đỏ (ΔE2000 ≤ 10 so với --ep-red, không tính --ep-red-soft) < 8 % toàn ảnh; WALL = 0 (15.9s)
+  ✓  108 [desktop] › e2e/shell.spec.ts:59:1 › metrics: thanh dưới không che nút cuối nội dung (375) (1.5s)
+  ✓  109 [desktop] › e2e/shell.spec.ts:77:1 › active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền đặc (1.5s)
+  ✓  111 [desktop] › e2e/shell.spec.ts:149:1 › badges: chỉ inbox / grading; không viết cứng số trong nav.ts (973ms)
+  ✓  110 [desktop] › e2e/shell.spec.ts:128:1 › nav per role: nhãn + href + thứ tự khớp SRS 7.5 (4.3s)
+  ✓  113 [desktop] › e2e/shell.spec.ts:184:1 › topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài khoản (1.8s)
+  ✓  112 [desktop] › e2e/shell.spec.ts:160:1 › mobile: ≤ 5 đích, Thêm đủ mục còn lại, đóng bằng Esc trả focus, không tràn ngang (9.7s)
+  ✓  114 [desktop] › e2e/shell.spec.ts:201:1 › palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV không thấy Điểm danh (6.1s)
+  ✓  116 [desktop] › e2e/shell.spec.ts:282:3 › session › phiên ADMIN thật: nav Admin, không đổi vai, có Đăng xuất; token không lộ ra storage / DOM / URL (1.6s)
+  ✓  117 [desktop] › e2e/shell.spec.ts:301:3 › session › phiên STUDENT thật: màn mock dùng sv-2 + tên thật, SV bị chặn /settings/llm (1.4s)
+  ✓  118 [desktop] › e2e/shell.spec.ts:313:1 › forbidden: màn chặn, nút Về Hôm nay, 0 request /api/v1 (4.9s)
+  -  119 [desktop] › e2e/shell.spec.ts:340:1 › no-backend: MOCK_SCREENS=0 → empty-no-backend đúng phase, 1 nút, nav còn
+  ✓  120 [desktop] › e2e/shell.spec.ts:365:1 › keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự header → sidebar → nội dung, Esc trả focus (3.2s)
+  ✓  121 [desktop] › e2e/shell.spec.ts:396:1 › regression-1.5: LEFT page-title 240 / 12, brand 56, logo 32, mark 28 (3.3s)
+  ✓  115 [desktop] › e2e/shell.spec.ts:246:1 › notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần (17.3s)
+  ✓  123 [desktop] › e2e/shell.spec.ts:436:1 › BUG-PU04-1: bảng Thêm ở điện thoại là bảng trượt — đóng bằng bấm ngoài, vuốt xuống, Esc và trả focus về nút Thêm (3.8s)
+  ✓  124 [desktop] › e2e/shell.spec.ts:483:1 › frame layers: body = canvas; sidebar và thanh trên = surface (đặc) + đường kẻ; main không tự đặt nền (1.6s)
+  ✓  125 [desktop] › e2e/shell.spec.ts:507:1 › nav states: hover / đang chọn = surface-subtle; vạch đỏ 2 px; focus-visible thấy rõ; nhãn nhóm ≥ 4,5 : 1 (1.6s)
+  ✓  126 [desktop] › e2e/shell.spec.ts:536:1 › preshell parity: nền ba vùng của PreShell và AppShell giống nhau, h1 không dịch chỗ khi phiên về (1.3s)
+  ✓  127 [desktop] › e2e/shell.spec.ts:565:1 › bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; bảng Thêm là lớp nổi (surface, shadow-popover, radius-lg), không phải Panel (1.9s)
+  ✓  128 [desktop] › e2e/shell.spec.ts:585:1 › route access: số mục nav 9 / 13 / 16 / 7 theo vai; canOpen không đổi (344ms)
+  ✓  129 [desktop] › e2e/shell.spec.ts:591:1 › demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng · dữ liệu giả'; phiên không có lớp thật vẫn có (3.1s)
+  ✓  130 [desktop] › e2e/today.spec.ts:54:1 › student today: chưa vào lớp ⇒ ô nhập mã ngay trên trang; nhập xong chuyển /join/<mã> (958ms)
+  ✓  131 [desktop] › e2e/today.spec.ts:74:1 › student today: email chưa xác minh đứng trước, ô nhập mã vẫn ở dưới; chỉ một nút chính (922ms)
+  ✓  132 [desktop] › e2e/today.spec.ts:90:1 › student today: chỉ có yêu cầu chờ duyệt ⇒ 'Chờ giảng viên duyệt', không nút hành động (1.4s)
+  ✓  133 [desktop] › e2e/today.spec.ts:99:1 › student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không có việc gấp' + dòng thời gian; 'Tiếp tục học' ẩn khi rỗng (840ms)
+  ✓  134 [desktop] › e2e/today.spec.ts:116:1 › student today: continue learning — tối đa 3 phiên chat, mở đúng /chat?session=, có mã lớp; rỗng thì không có vùng (796ms)
+  ✓  135 [desktop] › e2e/today.spec.ts:125:1 › student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11) (967ms)
+  ✓  136 [desktop] › e2e/today.spec.ts:142:1 › student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today (1.1s)
+  ✓  122 [desktop] › e2e/shell.spec.ts:413:1 › touch: vùng chạm và tràn ngang ở 4 vai × 375/390 (23.5s)
+  ✓  137 [desktop] › e2e/today.spec.ts:148:1 › staff today: tiêu đề đếm việc, hàng đúng thứ tự, 'lớp 761988' ở chế độ tất cả lớp (1.3s)
+  ✓  138 [desktop] › e2e/today.spec.ts:170:1 › staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn chữ, đúng một nút đỏ, không lặp mã lớp (US-UX91-10) (1.6s)
+  ✓  139 [desktop] › e2e/today.spec.ts:191:1 › staff today: nhóm rỗng không hiện; chỉ việc thường ⇒ chỉ nhóm Hôm nay (823ms)
+  ✓  140 [desktop] › e2e/today.spec.ts:196:1 › staff today: nguồn Khi rảnh nhưng urgency high ⇒ vẫn là Gấp (966ms)
+  ✓  141 [desktop] › e2e/today.spec.ts:201:1 › staff today ≥ 1440: Lớp cần chú ý và Sắp tới nằm cột phải cạnh danh sách; 1024 nằm dưới (1.1s)
+  ✓  142 [desktop] › e2e/today.spec.ts:217:1 › staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ qua gọi setup/dismiss và hàng biến mất (1.2s)
+  ✓  143 [desktop] › e2e/today.spec.ts:238:1 › staff today: TA không có nút Bỏ qua; 0 việc ⇒ 'Không có việc cần xử lý hôm nay.' (849ms)
+  ✓  144 [desktop] › e2e/today.spec.ts:244:1 › admin today: việc của hệ thống, không có lớp (880ms)
+  ✓  146 [desktop] › e2e/today.spec.ts:272:1 › no mock items: trang / không chứa dữ liệu mô phỏng cũ (889ms)
+  ✓  145 [desktop] › e2e/today.spec.ts:257:1 › today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu (1.7s)
+  -  147 [desktop] › e2e/today.spec.ts:280:1 › today 375 px: sinh viên và giảng viên không tràn ngang, vùng chạm sạch
+  -  148 [desktop] › e2e/today.spec.ts:294:1 › today 375 px: giảng viên với bốn bước mở ra
+  -  149 [desktop] › e2e/today.spec.ts:310:1 › @real today: student / staff / admin với seed — D thấy ô nhập mã; B và A ≤ 1 nút chính, timeline có 'Buổi 10'; GV: tiêu đề '^\d+ việc cần xử lý hôm nay$'
+  ✓  150 [desktop] › e2e/today.spec.ts:315:1 › staff attention block: liệt kê sinh viên + lý do ngắn + Xem tất cả (n) (1.3s)
+  ✓  151 [desktop] › e2e/today.spec.ts:324:1 › staff attention block: không có AT_RISK thì không hiện khối (1.5s)
+
+
+  1) [desktop] › e2e/panels.spec.ts:131:3 › primitives in panel › /dev/ui#panel: AUDIT sạch ở 1440 và 390 px 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:133:33
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-primitives-in-panel-53183-AUDIT-sạch-ở-1440-và-390-px-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-primitives-in-panel-53183-AUDIT-sạch-ở-1440-và-390-px-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-primitives-in-panel-53183-AUDIT-sạch-ở-1440-và-390-px-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:133:33
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-primitives-in-panel-53183-AUDIT-sạch-ở-1440-và-390-px-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-primitives-in-panel-53183-AUDIT-sạch-ở-1440-và-390-px-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-primitives-in-panel-53183-AUDIT-sạch-ở-1440-và-390-px-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /login: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-login-mộ-50632--ngoài-panel-NEST-0-TITLE-0-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-login-mộ-50632--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-login-mộ-50632--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-login-mộ-50632--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-login-mộ-50632--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-login-mộ-50632--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /register: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-register-79f3b--ngoài-panel-NEST-0-TITLE-0-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-register-79f3b--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-register-79f3b--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-register-79f3b--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-register-79f3b--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-register-79f3b--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /forgot-password: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-forgot-p-61f8c--ngoài-panel-NEST-0-TITLE-0-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-forgot-p-61f8c--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-forgot-p-61f8c--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-forgot-p-61f8c--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-forgot-p-61f8c--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-forgot-p-61f8c--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /reset-password?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-reset-pa-02b22--ngoài-panel-NEST-0-TITLE-0-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-reset-pa-02b22--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-reset-pa-02b22--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-reset-pa-02b22--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-reset-pa-02b22--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-reset-pa-02b22--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /verify-email?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-verify-e-6b8f4--ngoài-panel-NEST-0-TITLE-0-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-verify-e-6b8f4--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-verify-e-6b8f4--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-verify-e-6b8f4--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-verify-e-6b8f4--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-verify-e-6b8f4--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /invite/x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-invite-x-db224--ngoài-panel-NEST-0-TITLE-0-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-invite-x-db224--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-invite-x-db224--ngoài-panel-NEST-0-TITLE-0-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:172:35
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-invite-x-db224--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-invite-x-db224--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-auth-shell-invite-x-db224--ngoài-panel-NEST-0-TITLE-0-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-d5316-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-d5316-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-d5316-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-d5316-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-d5316-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-d5316-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-e7d4a-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-e7d4a-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-e7d4a-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-e7d4a-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-e7d4a-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-1-e7d4a-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-3-fa02a-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-3-fa02a-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-3-fa02a-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-3-fa02a-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-3-fa02a-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-intro-3-fa02a-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-00689-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-00689-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-00689-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-00689-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-00689-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-00689-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-25214-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-25214-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-25214-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-25214-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-25214-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-25214-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [desktop] › e2e/panels.spec.ts:334:7 › take states › running @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-3335e-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-3335e-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-3335e-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-3335e-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-3335e-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-running-3335e-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-23171-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-23171-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-23171-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-23171-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-23171-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-23171-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-7c338-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-7c338-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-7c338-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-7c338-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-7c338-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-7c338-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-d9607-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-d9607-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-d9607-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-d9607-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-d9607-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-submitt-d9607-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-8c66a-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-8c66a-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-8c66a-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-8c66a-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-8c66a-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-8c66a-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-df54c-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-df54c-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-df54c-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-df54c-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-df54c-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-df54c-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [desktop] › e2e/panels.spec.ts:334:7 › take states › published @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-cbedf-không-phải-Panel-AUDIT-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-cbedf-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-cbedf-không-phải-Panel-AUDIT-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:349:37
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-cbedf-không-phải-Panel-AUDIT-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-cbedf-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-take-states-publish-cbedf-không-phải-Panel-AUDIT-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @375; AUDIT + vùng chạm sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:383:46
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-944b3-px-375-AUDIT-vùng-chạm-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-944b3-px-375-AUDIT-vùng-chạm-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-944b3-px-375-AUDIT-vùng-chạm-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:383:46
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-944b3-px-375-AUDIT-vùng-chạm-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-944b3-px-375-AUDIT-vùng-chạm-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-944b3-px-375-AUDIT-vùng-chạm-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @390; AUDIT + vùng chạm sạch 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:383:46
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-0f2cb-px-390-AUDIT-vùng-chạm-sạch-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-0f2cb-px-390-AUDIT-vùng-chạm-sạch-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-0f2cb-px-390-AUDIT-vùng-chạm-sạch-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:383:46
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-0f2cb-px-390-AUDIT-vùng-chạm-sạch-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-0f2cb-px-390-AUDIT-vùng-chạm-sạch-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-mobile-gutter-mọi-P-0f2cb-px-390-AUDIT-vùng-chạm-sạch-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [desktop] › e2e/panels.spec.ts:602:3 › staff routes › /attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:608:44
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-staff-routes-attend-07e20--44-px-Panel-cách-mép-12-px-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-staff-routes-attend-07e20--44-px-Panel-cách-mép-12-px-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-staff-routes-attend-07e20--44-px-Panel-cách-mép-12-px-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:608:44
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-staff-routes-attend-07e20--44-px-Panel-cách-mép-12-px-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-staff-routes-attend-07e20--44-px-Panel-cách-mép-12-px-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-staff-routes-attend-07e20--44-px-Panel-cách-mép-12-px-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [desktop] › e2e/panels.spec.ts:630:3 › admin users › /admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:633:33
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-admin-users-admin-u-d8309--AUDIT-sạch-ở-1440-1024-375-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-admin-users-admin-u-d8309--AUDIT-sạch-ở-1440-1024-375-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-admin-users-admin-u-d8309--AUDIT-sạch-ở-1440-1024-375-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:633:33
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-admin-users-admin-u-d8309--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-admin-users-admin-u-d8309--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-admin-users-admin-u-d8309--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [desktop] › e2e/panels.spec.ts:649:3 › admin courses › /admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:652:33
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-admin-courses-admin-a49c6--AUDIT-sạch-ở-1440-1024-375-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-admin-courses-admin-a49c6--AUDIT-sạch-ở-1440-1024-375-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-admin-courses-admin-a49c6--AUDIT-sạch-ở-1440-1024-375-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:652:33
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-admin-courses-admin-a49c6--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-admin-courses-admin-a49c6--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-admin-courses-admin-a49c6--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [desktop] › e2e/panels.spec.ts:667:3 › settings llm › /settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375 
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:670:33
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-settings-llm-settin-87133--AUDIT-sạch-ở-1440-1024-375-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-settings-llm-settin-87133--AUDIT-sạch-ở-1440-1024-375-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-settings-llm-settin-87133--AUDIT-sạch-ở-1440-1024-375-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: Cannot find module '/private/tmp/qc2-r91-ws/docs/sprints/1.5/qc/scripts/audit.mjs' imported from /private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts
+
+       at support/audit.ts:8
+
+       6 |
+       7 | export async function loadAudit(): Promise<{ AUDIT_SRC: string; TOUCH_SRC: string; LEFT_SRC: string }> {
+    >  8 |   const m = await import(pathToFileURL(file).href);
+         |                                             ^
+       9 |   return { AUDIT_SRC: m.AUDIT_SRC, TOUCH_SRC: m.TOUCH_SRC, LEFT_SRC: m.LEFT_SRC };
+      10 | }
+      11 |
+        at loadAudit (/private/tmp/qc2-r91-ws/frontend/e2e/support/audit.ts:8:45)
+        at /private/tmp/qc2-r91-ws/frontend/e2e/panels.spec.ts:670:33
+
+    Error Context: ../../../../tmp/qc2-pw-s91-dev/panels-settings-llm-settin-87133--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../tmp/qc2-pw-s91-dev/panels-settings-llm-settin-87133--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../tmp/qc2-pw-s91-dev/panels-settings-llm-settin-87133--AUDIT-sạch-ở-1440-1024-375-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25 failed
+    [desktop] › e2e/panels.spec.ts:131:3 › primitives in panel › /dev/ui#panel: AUDIT sạch ở 1440 và 390 px 
+    [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /login: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+    [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /register: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+    [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /forgot-password: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+    [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /reset-password?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+    [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /verify-email?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+    [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /invite/x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › running @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:334:7 › take states › published @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch 
+    [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @375; AUDIT + vùng chạm sạch 
+    [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @390; AUDIT + vùng chạm sạch 
+    [desktop] › e2e/panels.spec.ts:602:3 › staff routes › /attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px 
+    [desktop] › e2e/panels.spec.ts:630:3 › admin users › /admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375 
+    [desktop] › e2e/panels.spec.ts:649:3 › admin courses › /admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375 
+    [desktop] › e2e/panels.spec.ts:667:3 › settings llm › /settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375 
+  4 skipped
+  97 passed (6.4m)

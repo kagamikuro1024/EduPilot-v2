@@ -1,0 +1,52 @@
+=== RUN   TestIndexesStartWithCourseID
+=== PAUSE TestIndexesStartWithCourseID
+=== RUN   TestSchemaGradebook
+=== PAUSE TestSchemaGradebook
+=== RUN   TestGradebookOneDraftOneConfirmed
+=== PAUSE TestGradebookOneDraftOneConfirmed
+=== RUN   TestGradebookChecks
+=== PAUSE TestGradebookChecks
+=== RUN   TestGradebookCrossCourseFK
+=== PAUSE TestGradebookCrossCourseFK
+=== RUN   TestSnapshotImmutable
+=== PAUSE TestSnapshotImmutable
+=== RUN   TestSnapshotTruncateBlocked
+=== PAUSE TestSnapshotTruncateBlocked
+=== RUN   TestSnapshotUniqueVersion
+=== PAUSE TestSnapshotUniqueVersion
+=== RUN   TestSnapshotVersionIndex
+=== PAUSE TestSnapshotVersionIndex
+=== CONT  TestIndexesStartWithCourseID
+=== CONT  TestSnapshotImmutable
+=== CONT  TestSnapshotTruncateBlocked
+=== CONT  TestGradebookChecks
+=== CONT  TestGradebookCrossCourseFK
+=== CONT  TestGradebookOneDraftOneConfirmed
+=== CONT  TestSchemaGradebook
+=== CONT  TestSnapshotVersionIndex
+=== CONT  TestSnapshotUniqueVersion
+2026/11/15 22:51:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 64aab59f04ea4d63a45339822f9cedefd00a920921d8ed52da42c4eca57fb76a
+  Test ProcessID: 92bdb35a-69d3-4d2a-98c9-c704c031c353
+2026/11/15 22:51:34 ✅ Container started: 68f6ff853df5
+2026/11/15 22:51:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:51:34 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestIndexesStartWithCourseID (2.36s)
+--- PASS: TestSchemaGradebook (2.40s)
+--- PASS: TestGradebookOneDraftOneConfirmed (2.42s)
+--- PASS: TestSnapshotVersionIndex (2.43s)
+--- PASS: TestSnapshotUniqueVersion (2.45s)
+--- PASS: TestSnapshotImmutable (2.45s)
+--- PASS: TestGradebookChecks (2.49s)
+--- PASS: TestSnapshotTruncateBlocked (2.54s)
+--- PASS: TestGradebookCrossCourseFK (2.57s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/store	2.959s
+rc=0

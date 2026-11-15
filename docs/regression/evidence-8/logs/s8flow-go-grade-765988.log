@@ -1,0 +1,27 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestFinalizeIdempotent|TestFinalizeOneTxAndAudit|TestFinalizeLop1MatchesExpected|TestFinalizeNotConfirmed)$ ./internal/grade
+=== RUN   TestFinalizeIdempotent
+2026/11/15 22:51:46 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 56e9aec129a88eefaca73d2eafd0b11ade75b54ff1b50d50c14df7146181b111
+  Test ProcessID: fb6d5b10-433b-45ff-b482-fa5a5119a1b1
+2026/11/15 22:51:46 ✅ Container started: 68f6ff853df5
+2026/11/15 22:51:46 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:51:46 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:51:47 ✅ Container started: 5636bc78d64d
+2026/11/15 22:51:47 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:51:47 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestFinalizeIdempotent (0.69s)
+=== RUN   TestFinalizeOneTxAndAudit
+--- PASS: TestFinalizeOneTxAndAudit (0.53s)
+=== RUN   TestFinalizeLop1MatchesExpected
+--- PASS: TestFinalizeLop1MatchesExpected (0.71s)
+=== RUN   TestFinalizeNotConfirmed
+--- PASS: TestFinalizeNotConfirmed (0.58s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	2.954s

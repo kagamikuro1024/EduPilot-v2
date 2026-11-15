@@ -1,0 +1,27 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestImport1000Under3s|TestImportNoNPlusOne|TestFinalizeSnapshotsAll|TestFinalizeEqualsPreview)$ ./internal/grade
+=== RUN   TestFinalizeSnapshotsAll
+2026/11/15 22:51:42 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 50452bdbfa3d093ab20040e69fd8c24f3d59dfdef5a587904130b0018b7d211b
+  Test ProcessID: d7e67ff0-88d1-4093-855e-d4f7c412d43a
+2026/11/15 22:51:42 ✅ Container started: 68f6ff853df5
+2026/11/15 22:51:42 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:51:42 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestFinalizeSnapshotsAll (0.67s)
+=== RUN   TestFinalizeEqualsPreview
+--- PASS: TestFinalizeEqualsPreview (0.59s)
+=== RUN   TestImport1000Under3s
+2026/11/15 22:51:44 ✅ Container started: 5636bc78d64d
+2026/11/15 22:51:44 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:51:44 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestImport1000Under3s (0.69s)
+=== RUN   TestImportNoNPlusOne
+--- PASS: TestImportNoNPlusOne (0.59s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	2.999s

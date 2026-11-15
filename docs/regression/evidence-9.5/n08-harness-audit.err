@@ -1,0 +1,3 @@
+ERROR:  column "entity_type" does not exist
+LINE 1: select action, entity_type, actor_id is not null, created_at...
+                       ^

@@ -1,0 +1,38 @@
+=== RUN   TestSubmissionsMatchedChecks
+=== PAUSE TestSubmissionsMatchedChecks
+=== RUN   TestAiScoresImmutable
+=== PAUSE TestAiScoresImmutable
+=== RUN   TestAssignmentDeleteRestrictedByGradeItem
+=== PAUSE TestAssignmentDeleteRestrictedByGradeItem
+=== CONT  TestSubmissionsMatchedChecks
+=== CONT  TestAssignmentDeleteRestrictedByGradeItem
+=== CONT  TestAiScoresImmutable
+2026/11/15 23:03:52 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: cf8867a102664e95151945e0ad70446a7ea761bb2593b2b1b31065001ab08401
+  Test ProcessID: c0a25f54-879c-4c62-b41e-09003f738c7e
+2026/11/15 23:03:52 ✅ Container started: 68f6ff853df5
+2026/11/15 23:03:52 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 23:03:52 🔔 Container is ready: 68f6ff853df5
+=== NAME  TestAssignmentDeleteRestrictedByGradeItem
+    assignments_schema_test.go:306: migrate up: goose up: partial migration error (type:sql,version:8): timeout: context deadline exceeded; sql: transaction has already been committed or rolled back
+=== NAME  TestSubmissionsMatchedChecks
+    assignments_schema_test.go:149: migrate up: goose up: partial migration error (type:sql,version:6): timeout: context deadline exceeded; sql: transaction has already been committed or rolled back
+=== NAME  TestAiScoresImmutable
+    assignments_schema_test.go:223: migrate up: goose up: partial migration error (type:sql,version:6): timeout: context deadline exceeded; sql: transaction has already been committed or rolled back
+--- FAIL: TestAiScoresImmutable (156.47s)
+--- FAIL: TestSubmissionsMatchedChecks (156.49s)
+--- FAIL: TestAssignmentDeleteRestrictedByGradeItem (156.54s)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/store	156.997s
+FAIL
+
+real	2m45.806s
+user	1m30.315s
+sys	1m2.269s

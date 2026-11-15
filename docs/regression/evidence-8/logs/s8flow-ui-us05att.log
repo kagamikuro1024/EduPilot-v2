@@ -1,0 +1,11 @@
+url=https://localhost:1143/attendance course=QD8F2 · QC nhóm D QD8F2 Tìm nhanh hoặc đi đến… ⌘ K Có 37 thông báo mới 9+ H TS. 
+text: Điểm danh | Lưu điểm danh | buổi 3 · Hôm nay, 00:15–02:15 · P.101 | Buổi | Buổi 3 · 15/11 · Chưa | Buổi 2 · 14/11 · Chưa | Buổi 1 · 13/11 · Chưa | Chưa có thay đổi | Công thức điểm chưa xác nhận | Xem công thức | Điểm danh buổi 3 lớp QD8F2 | Sinh viên	Có mặt 1	Muộn 2	Vắng phép 3	Vắng 4	Phát biểu P |  | Bùi Thanh Khải | 20229002 | 	 | Có mặt — Bùi Thanh Khải | 	 | Muộn — Bùi Thanh Khải | 	 | Vắng phép — Bùi Thanh Khải | 	 | Vắng — Bùi Thanh Khải | 	 |  |  | Vũ Hoàng Giang | 20229001 | 	 | Có mặt — Vũ Hoàng Giang | 	 | Muộn — Vũ Hoàng Giang | 	 | Vắng phép — Vũ Hoàng Giang | 	 | Vắng — Vũ Hoàng Giang | 	
+banners=1 links=["Xem công thức"]
+banner box={"x":308,"y":293.78125,"width":210.390625,"height":18} h1={"x":240,"y":96.5,"width":144.859375,"height":35}
+rows=2
+data-parts: data-part="page-title",data-part="att-session-select",data-part="att-save-state",data-part="attendance-grid",data-part="student-row",data-part="att-row",data-part="att-status",data-part="att-save-bar"
+url=https://localhost:1143/attendance course=QD8F8 · QC nhóm D QD8F8 Tìm nhanh hoặc đi đến… ⌘ K s TS. GV QC s8flow
+text: Điểm danh | Lưu điểm danh
+banners=0 links=[]
+rows=0
+data-parts: data-part="page-title",data-part="att-save-bar"

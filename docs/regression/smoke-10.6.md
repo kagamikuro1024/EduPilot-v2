@@ -1,28 +1,28 @@
 # Smoke hồi quy sprint 10.6 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm G, SmkG) · Ngày: 2026-11-15
-Tổng TC cũ: 263 · Đạt: 134 · Trượt: 2 · Không chạy (K, gồm lỗi thời): 127   (P+F+K = 263)
-Tách K: K(a/b/c) = 2 (a=0, b=2, c=0) · lỗi thời = 1 · **chưa chạy (mẫu) = 124** (ngoài mẫu smoke «1 chính + 1 lỗi/phân quyền mỗi US»; chờ PM quyết có chạy nốt)
+Tổng TC cũ: 263 · Đạt: 140 · Trượt: 2 · Không chạy (K, gồm lỗi thời): 121   (P+F+K = 263)
+Tách K: K(a/b/c) = 2 (a=0, b=2, c=0) · lỗi thời = 1 · **chưa chạy (mẫu) = 118** (ngoài mẫu smoke «1 chính + 1 lỗi/phân quyền mỗi US»; chờ PM quyết có chạy nốt)
 
 Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, sửa cho ep-r): `gd_a`,`gd_c`,`gd_d`,`gd_f`,`gd_g`,`gd_h`,`gd_i`,`gd_j`(mới, DB),`gd_k`(mới, reflect) + `gd_b2` (G03-16/18/22); stub OpenAI-compatible `stub_llm.py` cổng 8778 trỏ route GRADING dưới khoá toàn cục (cửa sổ W1/W2/B1, đã hoàn); `gd_e1/e2` với `GUIDANCE_ENABLED=false` (restart gateway+worker dưới khoá, đã hoàn mặc định); Go: `TestEssayPromptUnchangedAtV0`, `TestGuidance*`, `TestReflect*`, `TestRegress*`, `TestPublishMixedGuidance`, `TestRejectReasonHints`, `TestRosterDiacriticSubset` (+`TestRoster*`,`TestDetect*`) và `go test -tags testroutes ./internal/contract/...` PASS; Playwright `qc-gd-today/ui-real` (9 ca xanh, ảnh `shots/`), `qc2g-class-settings` + `qc-gd-ux/undo-real` KHÔNG ra kết quả hợp lệ (stack bị chaos của nhóm khác + thiếu dữ liệu nháp) → các ca UI ghi «chưa chạy (mẫu)». Dữ liệu BT03 lớp 761987 đã bị đổi (duyệt/công bố/chấm lại) — nhóm khác dùng chung cần lưu ý. Chưa chạy: `GUIDANCE_MIN_RESULTS=abc` (TC-G01-08), `regress run`, `run.sh` E3 (cần nhãn người → K b), migrate up/down/up trên DB trống.
 
 ## Tổng hợp theo US
 | US | TC tổng | P | F | K(a/b/c)+lỗi thời | chưa chạy (mẫu) | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- |
-| A. P-106-11 — tường lửa PII khớp tên roster: «dấu là tập con | 10 | 6 | 0 | 0 | 4 |  |
-| B. P-106-12 — cụm vô hại miễn từ khoá cấm | 12 | 10 | 0 | 0 | 2 |  |
-| C. P-106-12 — `dropped` theo tiêu chí + dòng «N lưu ý bị loạ | 14 | 1 | 0 | 0 | 13 |  |
-| D. UX theo danh mục chuẩn P-106-13 (nhật ký giaovien mô phỏn | 22 | 1 | 0 | 0 | 21 |  |
-| US-GD-01 Cờ theo lớp | 18 | 13 | 0 | 0 | 5 |  |
-| US-GD-02 Nền dữ liệu | 16 | 10 | 0 | 0 | 6 |  |
-| US-GD-03 Rút lưu ý | 25 | 19 | 1 | 1 | 4 |  |
-| US-GD-04 Duyệt / Áp dụng | 30 | 19 | 0 | 0 | 11 |  |
-| US-GD-05 Ghim, chấm lại, chặn lô trộn | 27 | 16 | 1 | 0 | 10 |  |
-| US-GD-06 Số đo và nhãn tiêu chí | 12 | 4 | 0 | 0 | 8 |  |
-| US-GD-07 Ca hồi quy (theo tham chiếu) | 15 | 7 | 0 | 1 | 7 |  |
-| US-GD-08 Câu tương tự lúc soạn (Threads) | 20 | 11 | 0 | 0 | 9 |  |
-| US-GD-09 Lý do loại câu hỏi (mẫu âm) | 12 | 5 | 0 | 0 | 7 |  |
-| US-GD-10 Seed, cổng, đo | 18 | 6 | 0 | 1 | 11 |  |
-| US-GD-11 Ranh giới an toàn (xuyên suốt) | 12 | 6 | 0 | 0 | 6 |  |
+| A. P-106-11 — tường lửa PII khớp tên roster: «dấu là tập con | 10 | 6 | 0 | 0 | 4 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| B. P-106-12 — cụm vô hại miễn từ khoá cấm | 12 | 10 | 0 | 0 | 2 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| C. P-106-12 — `dropped` theo tiêu chí + dòng «N lưu ý bị loạ | 14 | 1 | 0 | 0 | 13 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| D. UX theo danh mục chuẩn P-106-13 (nhật ký giaovien mô phỏn | 22 | 1 | 0 | 0 | 21 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-01 Cờ theo lớp | 18 | 14 | 0 | 0 | 4 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-02 Nền dữ liệu | 16 | 10 | 0 | 0 | 6 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-03 Rút lưu ý | 25 | 19 | 1 | 1 | 4 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-04 Duyệt / Áp dụng | 30 | 19 | 0 | 0 | 11 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-05 Ghim, chấm lại, chặn lô trộn | 27 | 16 | 1 | 0 | 10 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-06 Số đo và nhãn tiêu chí | 12 | 5 | 0 | 0 | 7 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-07 Ca hồi quy (theo tham chiếu) | 15 | 8 | 0 | 1 | 6 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-08 Câu tương tự lúc soạn (Threads) | 20 | 11 | 0 | 0 | 9 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-09 Lý do loại câu hỏi (mẫu âm) | 12 | 5 | 0 | 0 | 7 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-10 Seed, cổng, đo | 18 | 6 | 0 | 1 | 11 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
+| US-GD-11 Ranh giới an toàn (xuyên suốt) | 12 | 9 | 0 | 0 | 3 | mẫu 1 chính + 1 lỗi/phân quyền; xem bảng từng ca |
 
 ## Kết quả từng ca (đã chạy: P/F; K gom theo dải)
 | TC | KQ | Ghi chú |
@@ -58,7 +58,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | TC-G01-05 | P | TA/SV 403, không token 401; GV/lớp lạ → 403 (CourseAccessGuard chung từ 10-2026; tc-00 sprint 10 cho phép «403 hoặc 404»); admin lớp lạ → 404 |
 | TC-G01-06 | P | TA GET/PUT cờ → 403; SV 403 |
 | TC-G01-07 | P | gateway GUIDANCE_ENABLED=false: PUT cờ → 409 GUIDANCE_DISABLED; reflect → 409, 0 job mới (restart dưới khoá, đã hoàn) |
-| TC-G01-08 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-G01-08 | P | GUIDANCE_MIN_RESULTS=abc: gateway thoát mã 1, log nêu tên biến «GUIDANCE_MIN_RESULTS: cần số nguyên trong 1–1000»; env đã khôi phục (evidence-10.5/minres.log) |
 | TC-G01-09 | P | cờ tắt: reflect/apply/regrade-stale → 409 GUIDANCE_DISABLED, overview enabled=false, dữ liệu cũ còn, màn duyệt không khối guidance (phần «prompt không khối» xem G05-26: chưa chạy) |
 | TC-G01-10 | P | THREAD_SUGGEST tắt: similar-confirmed → [], 0 lượt nhúng của người gọi |
 | TC-G01-11 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
@@ -154,7 +154,8 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | TC-G05-25…TC-G05-26 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-G05-27 | P | khối không chứa tổng điểm / trừ / làm tròn / phạt |
 | TC-G06-01 | P | stats v0 khớp SQL độc lập (n, MAE tiêu chí, MAE tổng, lệch, tiêu chí sửa, tỉ lệ) |
-| TC-G06-02…TC-G06-03 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-G06-02 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-G06-03 | P | gd_m: đụng DRAFT, tổng n các phiên bản không đổi |
 | TC-G06-04 | P | bias_total = AI − chốt (AI > chốt → dương), khớp SQL |
 | TC-G06-05…TC-G06-09 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-G06-10 | P | SV stats 403, ADMIN 403, TA 200 (lớp 2 / không token: chưa chạy) |
@@ -169,7 +170,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | TC-G07-11 | P | regress export mặc định từ chối, thoát 3 (Go TestRegressCLIRefusesExport PASS) |
 | TC-G07-12 | K(b) | regress export thật chờ phép PM («KHÔNG KIỂM ĐƯỢC (chờ phép)») |
 | TC-G07-13 | P | stats.regression_cases = SQL (2 = 2); teacher/TA 200, SV/ADMIN 403; GET /regression* → 404 |
-| TC-G07-14 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-G07-14 | P | gd_m: 0 ca hồi quy mồ côi (source_id không còn kết quả) |
 | TC-G07-15 | P | Go TestRegressionCaseNoText + TestRegressionCaseIdempotent PASS |
 | TC-G08-01 | P | POST similar-confirmed {q = chữ đã nhúng của thread xác nhận} → có thread đó (≤ 3, DTO {thread_id,title}) |
 | TC-G08-02 | P | q < 3 từ → []; q rỗng không 500; q 6.000 ký tự → 422, không 500 |
@@ -206,11 +207,12 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | TC-G10-17 | P | git diff gốc..10.6: test cũ chỉ đổi theo 10.5 / đếm; expected_grading.json chỉ thêm teacher_label, expected S7 = 7,00 giữ nguyên |
 | TC-G10-18 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-G11-01 | P | Go TestGuidanceVersionOnlyViaApply PASS |
-| TC-G11-02 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-G11-02 | P | gd_m: assignments.guidance_version không đổi khi đọc / stats |
 | TC-G11-03 | P | Go TestGuidanceNoTotalsInPrompt PASS; gd_d: khối không có tổng/trừ/làm tròn; decide chữ cấm → 422 (API chữ tay đủ) |
-| TC-G11-04 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-G11-04 | P | gd_m: guidance_items + regression_cases không chứa tên SV; đầu vào reflect đã kiểm (G03-09) |
 | TC-G11-05 | P | Go TestGuidanceIsolation PASS (cô lập hai bài tập qua API: chưa chạy) |
-| TC-G11-06…TC-G11-08 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
+| TC-G11-06 | P | gd_m: SV quét 37 phản hồi: 0 trường lưu ý / phiên bản / cờ / số đo |
+| TC-G11-07…TC-G11-08 | chưa chạy (mẫu) | chưa chạy (mẫu): dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có; ngoài mẫu «1 chính + 1 lỗi/phân quyền mỗi US» |
 | TC-G11-09 | P | git diff gốc..10.6: go.mod / go.sum / package.json không đổi; không thư viện bộ nhớ agent |
 | TC-G11-10 | P | audit_log có từng quyết định: approve, edit_approve, reject, reset, retire, apply, guidance_flag.set, question.review |
 | TC-G11-11 | P | log gateway / worker / caddy: 0 gói tới googleapis; LLM_DECISION_ALLOW_REAL=false |
@@ -227,4 +229,4 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | Kb | TC-G10-13 | cần PM giao agent «Giáo viên» / người chấm nhãn E3 (chưa giao) |
 
 ## Chưa chạy (mẫu)
-124 ca: dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có script; liệt kê theo dải ở bảng trên (cột «chưa chạy (mẫu)»).
+118 ca: dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có script; liệt kê theo dải ở bảng trên (cột «chưa chạy (mẫu)»).

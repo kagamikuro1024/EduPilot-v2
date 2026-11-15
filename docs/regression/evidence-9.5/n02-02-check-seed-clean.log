@@ -1,0 +1,79 @@
+### check-assignments-seed.mjs bt03
+                        ^
+
+Error: Chưa có hai lớp 761987 / 761988 (chạy `node scripts/seed.mjs` trước).
+    at courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:73:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-assignments-seed.mjs:19:16
+
+Node.js v24.21.0
+rc=1
+### check-assignments-seed.mjs counts --no-rerun
+                        ^
+
+Error: Chưa có hai lớp 761987 / 761988 (chạy `node scripts/seed.mjs` trước).
+    at courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:73:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-assignments-seed.mjs:19:16
+
+Node.js v24.21.0
+rc=1
+### check-chat-seed.mjs --no-rerun
+                        ^
+
+Error: Chưa có hai lớp 761987 / 761988 (chạy `node scripts/seed.mjs` trước).
+    at courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:73:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-chat-seed.mjs:50:20
+
+Node.js v24.21.0
+rc=1
+### check-crm-seed.mjs --no-rerun
+                        ^
+
+Error: Chưa có hai lớp 761987 / 761988 (chạy `node scripts/seed.mjs` trước).
+    at courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:73:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-crm-seed.mjs:11:20
+
+Node.js v24.21.0
+rc=1
+### check-docs-seed.mjs --no-rerun
+                        ^
+
+Error: Chưa có hai lớp 761987 / 761988 (chạy `node scripts/seed.mjs` trước).
+    at courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:73:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-docs-seed.mjs:10:20
+
+Node.js v24.21.0
+rc=1
+### check-grade-seed.mjs preview abc lop2 --no-rerun
+                        ^
+
+Error: Chưa có hai lớp 761987 / 761988 (chạy `node scripts/seed.mjs` trước).
+    at courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:73:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-grade-seed.mjs:15:20
+
+Node.js v24.21.0
+rc=1
+### check-grade-seed.mjs counts --no-rerun
+                        ^
+
+Error: Chưa có hai lớp 761987 / 761988 (chạy `node scripts/seed.mjs` trước).
+    at courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:73:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-grade-seed.mjs:15:20
+
+Node.js v24.21.0
+rc=1
+### check-exam-seed.mjs bank
+✗ bank:
+  - GET /courses/undefined/questions → 404
+rc=1
+### check-exam-seed.mjs demo
+✗ demo:
+  - GET /courses/undefined/exams → 404
+rc=1
+DONE

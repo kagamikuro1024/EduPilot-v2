@@ -1,0 +1,31 @@
+
+Running 5 tests using 1 worker
+
+(node:19988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19988) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+NOTE (chuẩn bị) AS08 kha 201, nguyco(code) 201
+PASS TC-AS08-04 cửa sổ đang mở: «Mở điểm danh» ẩn (không phải disabled); có dòng trạng thái nút=0; Đang mở · 0/12 · còn 09:48 Mở màn chiếu Đóng
+FAIL TC-AS08-09 hàng đã điểm danh «Điểm danh lúc hh:mm»; hàng chưa điểm danh «Chưa điểm danh», không mặc định Có mặt 
+FAIL TC-AS08-10 chip: «Nhập mã» cho CODE, nhãn cờ «Không xác minh được máy», «Chưa xác minh» (mức 1) 
+PASS TC-AS08-11a «Cần xem (k)» → URL có filter=review; chỉ hàng còn cờ https://localhost:1143/attendance?session=01a1dfe4-3e9f-794b-94ca-f494d3b34293&filter=review
+FAIL TC-AS08-11b mục «Hôm nay» CHECKIN_REVIEW có href ?filter=review (chưa có mục: cache Hôm nay)
+PASS TC-AS08-12 «Đã xem» → clear-flags; audit_log +; không nút hoàn tác audit 0→1; undo=0
+FAIL TC-AS08-13 ngoại lệ: Error: locator.waitFor: Test ended. Call log:  - waiting for getByRole('radiogroup', { name: /Điểm danh / }).first() to be visible 
+  ✘  1 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:63:1 › A /attendance: lưới, bộ lọc, Đã xem, sửa ô, hộp xác nhận (AS08-04…14, 17, 18) (4.0m)
+  -  2 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:153:1 › B /attendance: số đầu người, Gọi ngẫu nhiên, đóng, 375, đua, mất mạng (AS08-07,08,15,16,19,20,21)
+  -  3 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:214:1 › C /attendance 375, vai sai, TA (AS08-19, 22, 23, 44, AS09-14)
+  -  4 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:250:1 › D màn chiếu: QR giải mã, nhịp, đồng hồ lệch, wakeLock, Esc/Thoát/Đóng, lỗi tải, hai máy, dọc, axe (AS08-32,34,35,39,40,41,42,43,47)
+  -  5 ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:315:1 › E /checkin: StashGate, thiết bị, lỗi, mạng, hướng dẫn trang (AS09-02,04…09,11,13,15,23,24,31,33,37)
+
+
+  1) ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:63:1 › A /attendance: lưới, bộ lọc, Đã xem, sửa ô, hộp xác nhận (AS08-04…14, 17, 18) 
+
+    Test timeout of 240000ms exceeded.
+
+    Error Context: ../../../../../tmp/qc2-pw-SmkH3/qc-r108-more-A-attendance--adfe2--xác-nhận-AS08-04…14-17-18-/error-context.md
+
+  1 failed
+    ../docs/regression/evidence-10.8/e2e/qc-r108-more.spec.ts:63:1 › A /attendance: lưới, bộ lọc, Đã xem, sửa ô, hộp xác nhận (AS08-04…14, 17, 18) 
+  4 did not run
+exit=1

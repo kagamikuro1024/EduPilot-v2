@@ -1,0 +1,5 @@
+HTTP 401 https://localhost:1143/api/v1/auth/refresh
+HTTP 503 https://localhost:1143/api/v1/events
+HTTP 503 https://localhost:1143/api/v1/events
+HTTP 503 https://localhost:1143/api/v1/events
+HTTP 503 https://localhost:1143/api/v1/events

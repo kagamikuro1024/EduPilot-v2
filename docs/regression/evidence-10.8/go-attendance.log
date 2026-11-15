@@ -1,0 +1,147 @@
+=== RUN   TestTokenRoundTripAndTamper
+--- PASS: TestTokenRoundTripAndTamper (0.00s)
+=== RUN   TestTokenStepWindow
+--- PASS: TestTokenStepWindow (0.00s)
+=== RUN   TestShortCodeNormalize
+--- PASS: TestShortCodeNormalize (0.00s)
+=== RUN   TestCheckinFlow
+2026/11/15 23:09:37 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: fac277bfbb48b4bbf6e6d298428e694728ef9d5c91e4fedf7fd621247d2d683b
+  Test ProcessID: e0098fbc-689d-425e-9524-a7737a1fff26
+2026/11/15 23:09:38 ✅ Container started: 68f6ff853df5
+2026/11/15 23:09:38 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 23:09:38 🔔 Container is ready: 68f6ff853df5
+    checkin_test.go:77: migrate up: goose up: partial migration error (type:sql,version:15): timeout: context deadline exceeded; sql: transaction has already been committed or rolled back
+--- FAIL: TestCheckinFlow (157.53s)
+=== RUN   TestCheckinFlags
+    checkin_test.go:130: create database: timeout: context deadline exceeded
+--- FAIL: TestCheckinFlags (60.15s)
+=== RUN   TestCloseAbsentComplete
+2026/11/15 23:14:31 ✅ Container started: 5636bc78d64d
+2026/11/15 23:14:31 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 23:14:31 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestCloseAbsentComplete (97.01s)
+=== RUN   TestSweepAutoCloseAndLate
+--- PASS: TestSweepAutoCloseAndLate (77.54s)
+=== RUN   TestMeAttendanceCheckedAtAndTodayReview
+    checkin_test.go:257: 
+        	Error Trace:	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/attendance/checkin_test.go:257
+        	Error:      	"{\"count\":0,\"actions\":[],\"attention\":[],\"attention_total\":0,\"upcoming\":[{\"at\":\"2026-11-16T21:16:33.275099+07:00\",\"title\":\"Buổi 1 · An ninh mạng\",\"place\":\"\",\"course\":{\"id\":\"01a1dffe-ff67-745c-9d96-a1d17b0d5c06\",\"class_code\":\"CC38946\"}},{\"at\":\"2026-11-17T21:16:33.275099+07:00\",\"title\":\"Buổi 2 · An ninh mạng\",\"place\":\"\",\"course\":{\"id\":\"01a1dffe-ff67-745c-9d96-a1d17b0d5c06\",\"class_code\":\"CC38946\"}}]}" does not contain "\"CHECKIN_REVIEW\""
+        	Test:       	TestMeAttendanceCheckedAtAndTodayReview
+--- FAIL: TestMeAttendanceCheckedAtAndTodayReview (31.59s)
+=== RUN   TestSettingsAttendance
+--- PASS: TestSettingsAttendance (136.93s)
+=== RUN   TestPurgeKeepsRecords
+panic: test timed out after 10m0s
+	running tests:
+		TestPurgeKeepsRecords (39s)
+
+goroutine 697 [running]:
+testing.(*M).startAlarm.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2959 +0x2c4
+created by time.goFunc
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/time/sleep.go:182 +0x38
+
+goroutine 1 [chan receive]:
+testing.(*T).Run(0x59961a207448, {0x105f30fa7?, 0x59961a4bfa88?}, 0x107a1bf98)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2266 +0x3cc
+testing.runTests.func1(0x59961a207448)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2742 +0x38
+testing.tRunner(0x59961a207448, 0x59961a4bfbb8)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+testing.runTests({0x105f4799e, 0x1e}, {0x105f71bee, 0x32}, 0x599619fb4798, {0x107b6ab48, 0x12, 0x12}, {0x59961a4bfc58?, 0x59961a236e00?, ...})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2740 +0x400
+testing.(*M).Run(0x599619f7eb40)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2600 +0x578
+main.main()
+	_testmain.go:82 +0x80
+
+goroutine 695 [IO wait]:
+internal/poll.runtime_pollWait(0x1153a5200, 0x72)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/netpoll.go:351 +0xa0
+internal/poll.(*pollDesc).wait(0x59961a5f9b00?, 0x59961a69c000?, 0x0)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/internal/poll/fd_poll_runtime.go:84 +0x28
+internal/poll.(*pollDesc).waitRead(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/internal/poll/fd_poll_runtime.go:89
+internal/poll.(*FD).Read(0x59961a5f9b00, {0x59961a69c000, 0x2000, 0x2000})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/internal/poll/fd_unix.go:170 +0x22c
+net.(*netFD).Read(0x59961a5f9b00, {0x59961a69c000?, 0x59961a75ab28?, 0x104f89034?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/fd_posix.go:68 +0x28
+net.(*conn).Read(0x59961a623100, {0x59961a69c000?, 0x59961a75aaa0?, 0x0?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/net.go:196 +0x34
+github.com/jackc/pgx/v5/pgconn/internal/bgreader.(*BGReader).Read(0x59961c02d500, {0x59961a69c000, 0x2000, 0x2000})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgconn/internal/bgreader/bgreader.go:100 +0xa4
+io.ReadAtLeast({0x1079f89a8, 0x59961c02d500}, {0x59961a69c000, 0x2000, 0x2000}, 0x5)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/io/io.go:335 +0x90
+github.com/jackc/pgx/v5/pgproto3.(*chunkReader).Next(0x59961a83e060, 0x5)
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgproto3/chunkreader.go:80 +0x24c
+github.com/jackc/pgx/v5/pgproto3.(*Frontend).Receive(0x59961c7ee008)
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgproto3/frontend.go:313 +0x34
+github.com/jackc/pgx/v5/pgconn.(*PgConn).peekMessage(0x59961a320008)
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgconn/pgconn.go:643 +0x184
+github.com/jackc/pgx/v5/pgconn.(*MultiResultReader).NextResult(0x59961a320140)
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/pgconn/pgconn.go:1638 +0x44
+github.com/jackc/pgx/v5.(*Conn).execSimpleProtocol(0x30?, {0x107a0d3f0?, 0x59961a47a150?}, {0x59961a4624e0?, 0x59961a75b018?}, {0x0?, 0x107b95780?, 0x107b95d20?})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/conn.go:598 +0xb4
+github.com/jackc/pgx/v5.(*Conn).exec(0x59961c140dc0, {0x107a0d3f0, 0x59961a47a150}, {0x59961a4624e0, 0x24}, {0x0?, 0x14?, 0x1?})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/conn.go:583 +0x5ec
+github.com/jackc/pgx/v5.(*Conn).Exec(0x59961c140dc0, {0x107a0d3f0?, 0x59961a47a150?}, {0x59961a4624e0, 0x24}, {0x0, 0x0, 0x0})
+	/Users/kuro/go/pkg/mod/github.com/jackc/pgx/v5@v5.11.0/conn.go:490 +0x114
+github.com/edupilot/backend-go/internal/testutil.newDatabase({0x107a18580, 0x59961a645448})
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/testutil/containers.go:249 +0x428
+github.com/edupilot/backend-go/internal/testutil.PostgresURL({0x107a18580, 0x59961a645448})
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/testutil/containers.go:197 +0x3c
+github.com/edupilot/backend-go/internal/testutil.MigratedPostgresURL({0x107a18580, 0x59961a645448})
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/testutil/migrated.go:18 +0x48
+github.com/edupilot/backend-go/internal/attendance_test.newRig(0x59961a645448, {0x0, 0x0, 0x0?})
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/attendance/rig_test.go:82 +0x464
+github.com/edupilot/backend-go/internal/attendance_test.TestPurgeKeepsRecords(0x59961a645448)
+	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/attendance/checkin_test.go:304 +0x34
+testing.tRunner(0x59961a645448, 0x107a1bf98)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	github.com/edupilot/backend-go/internal/attendance	601.222s
+=== RUN   TestAttestRealChains
+=== RUN   TestAttestRealChains/caiman_sdk36_SB_EC_RKP
+2026/11/15 23:09:36 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: fac277bfbb48b4bbf6e6d298428e694728ef9d5c91e4fedf7fd621247d2d683b
+  Test ProcessID: 042b626f-a61a-4ee0-8d88-eea7894596dc
+2026/11/15 23:09:37 ✅ Container started: 5636bc78d64d
+2026/11/15 23:09:37 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 23:09:37 🔔 Container is ready: 5636bc78d64d
+2026/11/15 23:09:39 ✅ Container started: 68f6ff853df5
+2026/11/15 23:09:39 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 23:09:39 🔔 Container is ready: 68f6ff853df5
+    attest_test.go:160: migrate up: goose up: partial migration error (type:sql,version:16): timeout: context deadline exceeded; sql: transaction has already been committed or rolled back
+=== RUN   TestAttestRealChains/caiman_sdk36_TEE_EC_RKP
+    attest_test.go:160: create database: timeout: context deadline exceeded
+=== RUN   TestAttestRealChains/akita_sdk34_TEE_EC_NONE
+--- FAIL: TestAttestRealChains (296.31s)
+    --- FAIL: TestAttestRealChains/caiman_sdk36_SB_EC_RKP (157.73s)
+    --- FAIL: TestAttestRealChains/caiman_sdk36_TEE_EC_RKP (60.20s)
+    --- PASS: TestAttestRealChains/akita_sdk34_TEE_EC_NONE (78.36s)
+=== RUN   TestAttestRejects
+--- PASS: TestAttestRejects (78.79s)
+=== RUN   TestAttestRevocation
+--- PASS: TestAttestRevocation (34.15s)
+=== RUN   TestDeviceChallengeOnce
+--- PASS: TestDeviceChallengeOnce (93.66s)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/attendance/attest	503.657s
+FAIL
+exit=1

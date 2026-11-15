@@ -1,0 +1,184 @@
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+ try 
+-----
+ 
+(1 row)
+
+  kq  |                name                | mong  | that  
+------+------------------------------------+-------+-------
+ PASS | 06a hai DRAFT cùng lớp             | 23505 | 23505
+ PASS | 06b CONFIRMED đầu                  | ok    | ok
+ PASS | 06c hai CONFIRMED                  | 23505 | 23505
+ PASS | 06d nhiều SUPERSEDED               | ok    | ok
+ PASS | 06e scheme lớp 2                   | ok    | ok
+ PASS | 07a weight -0.01                   | 23514 | 23514
+ PASS | 07b weight 100.01                  | 23514 | 23514
+ PASS | 07c weight 0                       | ok    | ok
+ PASS | 07d weight 100                     | ok    | ok
+ PASS | 08b component gắn scheme lớp khác  | 23503 | 23503
+ PASS | 08 (scheme,key) trùng              | 23505 | 23505
+ PASS | 09a EXAM thiếu exam_id             | 23514 | 23514
+ PASS | 09b MANUAL có exam_id              | 23514 | 23514
+ PASS | 09c EXAM hợp lệ                    | ok    | ok
+ PASS | 09d max_score 0                    | 23514 | 23514
+ PASS | 09e max_score -1                   | 23514 | 23514
+ PASS | 10a score -0.01                    | 23514 | 23514
+ PASS | 10b score 0                        | ok    | ok
+ PASS | 10c trùng (item,student)           | 23505 | 23505
+ PASS | 11a entry lớp2 → item lớp1         | 23503 | 23503
+ PASS | 11b item lớp2 → exam lớp1          | 23503 | 23503
+ PASS | 11c item lớp2 → scheme lớp1        | 23503 | 23503
+ PASS | 11d entry lớp1 → sv chỉ ở lớp2     | 23503 | 23503
+ PASS | 14a UPDATE snapshot                | P0001 | P0001
+ PASS | 14b DELETE snapshot                | P0001 | P0001
+ PASS | 14c TRUNCATE snapshot              | P0001 | P0001
+ PASS | 16a trùng (course,student,version) | 23505 | 23505
+ PASS | 16b version mới                    | ok    | ok
+ PASS | 16c UPDATE bản mới vẫn chặn        | P0001 | P0001
+(29 rows)
+
+      ten      |                  tgname                  | row_level | truncate_bit | before_bit 
+---------------+------------------------------------------+-----------+--------------+------------
+ TC-15 trigger | final_grade_snapshots_immutable_row      |         1 |            0 |          2
+ TC-15 trigger | final_grade_snapshots_immutable_truncate |         0 |           32 |          2
+(2 rows)
+

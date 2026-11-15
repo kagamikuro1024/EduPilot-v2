@@ -1,0 +1,10 @@
+QD8A2 01a1e010-be20-706d-8d19-7df59857ed47
+PUT 200
+202 {'job_id': '01a1e011-dd59-7fe2-bb4d-b1c811c9f599', 'document': {'id': '01a1e011-dd58-7beb-b468-309f9fa6d098', 'course_id': '01a1e010-be20-706d-8d19-7df59857ed47', 'title': 'Quy chế học phần', 'type': 'COURSE_POLICY', 'filename': 'quy-che-lop1.pdf', 'mime_type': 'application/pdf', 'size_bytes': 66391, 'status': 'QUEUED', 'error': None, 'page_count': None, 'visible_to_students': True, 'use_for_rag': True, 'category': None, 'week_no': None, 'version': 1, 'created_at': '2026-11-15T16:37:09.589866Z', 'updated_at': '2026-11-15T16:37:09.589866Z'}}
+doc [['01a1e011-dd58-7beb-b468-309f9fa6d098', 'READY', 'COURSE_POLICY', '']]
+assign 200
+QD8B1 01a1e012-6408-7000-a0e2-948d299b5db1
+PUT 200
+202 {'job_id': '01a1e012-685e-7288-94ae-09878b6baaa0', 'document': {'id': '01a1e012-685c-744f-b094-3dd13e92dabe', 'course_id': '01a1e012-6408-7000-a0e2-948d299b5db1', 'title': 'Quy chế học phần', 'type': 'COURSE_POLICY', 'filename': 'quy-che-lop2.pdf', 'mime_type': 'application/pdf', 'size_bytes': 64248, 'status': 'QUEUED', 'error': None, 'page_count': None, 'visible_to_students': True, 'use_for_rag': True, 'category': None, 'week_no': None, 'version': 1, 'created_at': '2026-11-15T16:37:45.148312Z', 'updated_at': '2026-11-15T16:37:45.148312Z'}}
+doc [['01a1e012-685c-744f-b094-3dd13e92dabe', 'READY', 'COURSE_POLICY', '']]
+assign 200

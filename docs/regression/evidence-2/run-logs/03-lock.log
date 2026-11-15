@@ -1,0 +1,108 @@
+### 03:26 23:00:11
+== TC-PG03-26
+    ok   X-RateLimit-Limit = 5 (compose có chuyển tiếp RATE_LIMIT_IP_PER_MIN?) = [5]
+    ok   code khi 429 = [RATE_LIMITED]
+    ok   code khi 429 = [RATE_LIMITED]
+    ok   số request không-429 trong 7 = [5]
+    ok   số request 429 trong 7 = [2]
+-- TC-PG03-26 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:27 23:00:31
+== TC-PG03-27
+    ok   có đạt 429 = [429]
+    ok   retry_after ≥ 1 = 18 (≥ 1)
+    ok   retry_after ≤ 60 = 18 (≤ 60)
+    ok   header Retry-After = retry_after = [18]
+-- TC-PG03-27 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:28 23:00:51
+== TC-PG03-28
+    ok   X-RateLimit-Limit là số ~ /^[0-9]+$/
+    ok   X-RateLimit-Remaining request 1 là số ~ /^[0-9]+$/
+    ok   X-RateLimit-Remaining request 2 là số ~ /^[0-9]+$/
+    ok   Remaining giảm (r2 < r1) = 3 (≤ 3)
+-- TC-PG03-28 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:29 23:01:23
+== TC-PG03-29
+    ok   đã vượt giới hạn trước khi thử health = [yes]
+    ok   /healthz = [200]
+    ok   /api/v1/healthz = [200]
+    ok   /api/v1/readyz = [200]
+-- TC-PG03-29 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:30 23:01:43
+== TC-PG03-30
+    ok   cuối cửa sổ cũ bị 429 = [429]
+    ok   cửa sổ mới không 429 = [404] (≠ [429])
+-- TC-PG03-30 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:31 23:30:22
+== TC-PG03-31
+    ok   U1 request thứ 4 (giới hạn user = 3) = [429]
+    ok   code của U1 = [RATE_LIMITED]
+    ok   U2 không bị ảnh hưởng = [404] (≠ [429])
+-- TC-PG03-31 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:32 23:32:09
+== TC-PG03-32
+    FAIL có hai bản gateway: [] không khớp /^.+$/
+    FAIL số 429 trên 6 request chia hai bản: thực tế [0] ≠ mong đợi [1]
+-- TC-PG03-32 FAIL
+TỔNG story 03: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG03-32
+### 03:33 23:32:49
+== TC-PG03-33
+    FAIL XFF 203.0.113.7 request thứ 6 bị 429: [] không khớp / 429/
+    ok   XFF 203.0.113.8 (bộ đếm khác) không 429 !~ / 429/
+-- TC-PG03-33 FAIL
+TỔNG story 03: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG03-33
+### 03:35 23:33:37
+== TC-PG03-35
+    ok   request thường vẫn 200 khi Redis chết (fail-open) = [200]
+    FAIL độ trễ thêm so với baseline (ms): thực tế [236] phải ≤ 50
+    ok   dòng log warn về rate limit trong ~13 s (≤ 1/10 s × 2 bản) = 4 (≤ 4)
+    ok   readyz trở lại 200 sau khi bật Redis = [200]
+-- TC-PG03-35 FAIL
+TỔNG story 03: PASS=0 FAIL=1 MANUAL=0 K=0
+FAIL: TC-PG03-35
+### 03:66 23:34:17
+== TC-PG03-66
+    ok   TTL khoá :lock ≤ 30 = 29 (≤ 30)
+    ok   TTL khoá :lock ≥ 1 = 29 (≥ 1)
+    ok   có ≥ 1 phản hồi 409 hoặc replay (chứng tỏ có khoá chạy-dở) = 1 (≥ 1)
+    ok   số khoá :lock còn lại sau 35 s = [0]
+    ok   số dòng _test_items = [1]
+-- TC-PG03-66 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:67 23:35:06
+== TC-PG03-67
+    ok   số dòng idempotency_keys sau lần 1 = [1]
+    ok   Redis đã sạch khoá ep:idem = [0]
+    ok   status lần 2 = lần 1 = [201]
+    ok   Idempotent-Replayed lần 2 = [true]
+    ok   thân lần 2 tương đương lần 1 (JSON) = [{"created_at":"2026-11-15T16:35:24.483169Z","id":"01a1e010-42c3-74ff-b358-773b859f1247","name":"qc67-1794760524400-25778","updated_at":"2026-11-15T16:35:24.483169Z","version":1}]
+    ok   số dòng _test_items = [1]
+    ok   số dòng idempotency_keys = [1]
+-- TC-PG03-67 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:68 23:35:27
+== TC-PG03-68
+    ok   status = [503]
+    ok   code = [SERVICE_UNAVAILABLE]
+    ok   số bản ghi mới = [0]
+    ok   số dòng mang tên vừa gửi = [0]
+    ok   readyz trở lại 200 = [200]
+-- TC-PG03-68 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0
+### 03:86 23:35:49
+== TC-PG03-86
+    ok   status POST = [202]
+    ok   jobs.status ngay sau POST (worker dừng) = [QUEUED]
+    ok   số dòng outbox job.enqueue của job = [1]
+    ok   outbox tăng đúng 1 dòng = [1]
+    ok   jobs.created_at = outbox.created_at (cùng transaction) = [1]
+    ok   sau khi bật lại worker = [SUCCEEDED]
+-- TC-PG03-86 PASS
+TỔNG story 03: PASS=1 FAIL=0 MANUAL=0 K=0

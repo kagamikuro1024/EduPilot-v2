@@ -1,0 +1,27 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestMeWhatIfIncomplete|TestMeWhatIfOutOfRange|TestMeGradesIsolation|TestStudentCannotCallStaffGradeRoutes)$ ./internal/grade
+=== RUN   TestMeGradesIsolation
+2026/11/15 22:52:22 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 1e851086823330b6ef12d5dc6f05d22229b7d8e5b5962dc9fc3371ba43d2e2ff
+  Test ProcessID: d55d487f-e4f5-450f-8c6f-747488960178
+2026/11/15 22:52:22 ✅ Container started: 68f6ff853df5
+2026/11/15 22:52:22 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:52:22 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:52:22 ✅ Container started: 5636bc78d64d
+2026/11/15 22:52:22 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:52:22 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestMeGradesIsolation (0.69s)
+=== RUN   TestStudentCannotCallStaffGradeRoutes
+--- PASS: TestStudentCannotCallStaffGradeRoutes (0.60s)
+=== RUN   TestMeWhatIfIncomplete
+--- PASS: TestMeWhatIfIncomplete (0.60s)
+=== RUN   TestMeWhatIfOutOfRange
+--- PASS: TestMeWhatIfOutOfRange (0.57s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	2.925s

@@ -88,3 +88,13 @@ HOW = """Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scrip
 USNOTE = {}
 FAILTXT = ["### DEF-R10.5-01 — bảng «Quyết định nhanh» ở /observability nằm trên bảng 7 ngày (TC-D07-02; Thấp, hồi quy do sprint 11). Chi tiết `defects-10.5.md`."]
 put("P","TC-D04-14","FAKE_MODE=error: DECIDE error → circuit_open (cầu dao mở), cờ chỉ từ regex (sv14 giữ INJECTION_SUSPECTED), 0 cờ mới; chấm vẫn chạy (một phần bài còn QUEUED lúc đọc)")
+put("P","TC-D02-23","dm_m: SV/GV/TA × 30 phản hồi (me, courses, threads, assignments, notifications, chat, grading-results, settings): 0 cascade_* / tên cổng / FAST·FALLBACK")
+put("P","TC-D06-23","dm_m: GV/SV/TA không thấy «Quyết định nhanh» / tên cổng trong 30 phản hồi")
+put("P","TC-D06-15","dm_m: đổi + hoàn tác ngưỡng → 2 dòng audit_log decision_gate có before/after/actor")
+put("P","TC-D07-04","dm_m: «Bật ở N/M lớp» = courses_enabled/total khớp SQL (1/51); cổng tắt → state off")
+put("P","TC-D07-16","dm_m: DECIDE THREADS chỉ thuộc 1 lớp có cổng (quan sát)")
+put("P","TC-D04-02","FAKE_MODE=error: DECIDE error → circuit_open; mọi bài chấm xong (22/22 DONE), cờ chỉ từ regex (sv14), điểm khớp các round cùng điều kiện, hàng chờ không treo (batchB5c/B6)")
+put("P","TC-D04-03","điểm y hệt giữa cổng tắt / P=0,9 / P=0,01 / lỗi trên cùng round-điều kiện (vd sv07 5,75, sv15 9,00 ở round 2–6, 8–10); chênh với round 1 là do round 1 chấm trước khi nhóm khác đổi route, không do cổng (batchB6: cổng TẮT cũng cho đúng các chênh đó)")
+put("KL","TC-D04-01","LỖI THỜI (P-11-26): bản phát lại decision-replay.json nay chứa mẫu chấm của seed nên FAKE_DECISION_PROB không ghi đè được (chỉ áp cho đầu vào ngoài replay) → không dựng được bảng OR 7 tổ hợp bằng P; với P=0,9 chỉ 1–6 lời gọi FAST, 20 FALLBACK")
+put("KL","TC-D04-09","LỖI THỜI (P-11-26): 6 biến thể + 6 đối chứng nay đo bằng bộ replay riêng (P-11-26: 0 cờ nhầm trên bộ sạch); không đo được bằng FAKE_DECISION_PROB")
+USNOTE_ALL = "Chạy bổ sung: dm_m, B5/B6 (cổng chèn lệnh), minres"

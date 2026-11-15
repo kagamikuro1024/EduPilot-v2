@@ -1,0 +1,24 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestDriftFlag|TestUnlockRequiresReason|TestUnlockWhenOpen|TestUnlockAudit)$ ./internal/grade
+=== RUN   TestDriftFlag
+2026/11/15 22:51:55 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 3a2b7d81a7093d4eee5b6000509aadb3c1b20891d878ea7fab81519e12dcfd08
+  Test ProcessID: 4e38fe6d-3fb8-4bc6-b575-56d3662cd46d
+2026/11/15 22:51:55 ✅ Container started: 68f6ff853df5
+2026/11/15 22:51:55 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:51:55 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDriftFlag (0.65s)
+=== RUN   TestUnlockRequiresReason
+--- PASS: TestUnlockRequiresReason (0.52s)
+=== RUN   TestUnlockWhenOpen
+--- PASS: TestUnlockWhenOpen (0.53s)
+=== RUN   TestUnlockAudit
+--- PASS: TestUnlockAudit (0.50s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	2.657s

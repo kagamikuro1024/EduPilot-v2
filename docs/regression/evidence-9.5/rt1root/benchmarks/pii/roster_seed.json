@@ -1,0 +1,212 @@
+[
+ {
+  "n": 1,
+  "local": "sv.gioi",
+  "email": "sv.gioi@edupilot.local",
+  "name": "Vũ Hoàng Giang",
+  "code": "20229001"
+ },
+ {
+  "n": 2,
+  "local": "sv.kha",
+  "email": "sv.kha@edupilot.local",
+  "name": "Bùi Thanh Khải",
+  "code": "20229002"
+ },
+ {
+  "n": 3,
+  "local": "sv.nguyco",
+  "email": "sv.nguyco@edupilot.local",
+  "name": "Ngô Ngọc Cẩm",
+  "code": "20229003"
+ },
+ {
+  "n": 4,
+  "local": "sv04",
+  "email": "sv04@edupilot.local",
+  "name": "Vũ Minh Long",
+  "code": "20224786"
+ },
+ {
+  "n": 5,
+  "local": "sv05",
+  "email": "sv05@edupilot.local",
+  "name": "Nguyễn Anh Linh",
+  "code": "20223869"
+ },
+ {
+  "n": 6,
+  "local": "sv06",
+  "email": "sv06@edupilot.local",
+  "name": "Đỗ Bảo Hải",
+  "code": "20226862"
+ },
+ {
+  "n": 7,
+  "local": "sv07",
+  "email": "sv07@edupilot.local",
+  "name": "Bùi Thu Việt",
+  "code": "20226980"
+ },
+ {
+  "n": 8,
+  "local": "sv08",
+  "email": "sv08@edupilot.local",
+  "name": "Dương Minh Yến",
+  "code": "20222003"
+ },
+ {
+  "n": 9,
+  "local": "sv09",
+  "email": "sv09@edupilot.local",
+  "name": "Huỳnh Hoàng Hương",
+  "code": "20226004"
+ },
+ {
+  "n": 10,
+  "local": "sv10",
+  "email": "sv10@edupilot.local",
+  "name": "Võ Thanh Trang",
+  "code": "20227825"
+ },
+ {
+  "n": 11,
+  "local": "sv11",
+  "email": "sv11@edupilot.local",
+  "name": "Ngô Văn Hà",
+  "code": "20224349"
+ },
+ {
+  "n": 12,
+  "local": "sv12",
+  "email": "sv12@edupilot.local",
+  "name": "Võ Thị An",
+  "code": "20229049"
+ },
+ {
+  "n": 13,
+  "local": "sv13",
+  "email": "sv13@edupilot.local",
+  "name": "Dương Tuấn Giang",
+  "code": "20224852"
+ },
+ {
+  "n": 14,
+  "local": "sv14",
+  "email": "sv14@edupilot.local",
+  "name": "Ngô Văn Hải",
+  "code": "20227769"
+ },
+ {
+  "n": 15,
+  "local": "sv15",
+  "email": "sv15@edupilot.local",
+  "name": "Phạm Mai Chi",
+  "code": "20226712"
+ },
+ {
+  "n": 16,
+  "local": "sv16",
+  "email": "sv16@edupilot.local",
+  "name": "Ngô Thu Khoa",
+  "code": "20227130"
+ },
+ {
+  "n": 17,
+  "local": "sv17",
+  "email": "sv17@edupilot.local",
+  "name": "Phan Hoàng Nam",
+  "code": "20223354"
+ },
+ {
+  "n": 18,
+  "local": "sv18",
+  "email": "sv18@edupilot.local",
+  "name": "Dương Quốc Hương",
+  "code": "20224019"
+ },
+ {
+  "n": 19,
+  "local": "sv19",
+  "email": "sv19@edupilot.local",
+  "name": "Võ Gia Linh",
+  "code": "20226009"
+ },
+ {
+  "n": 20,
+  "local": "sv20",
+  "email": "sv20@edupilot.local",
+  "name": "Huỳnh Đức Dũng",
+  "code": "20229602"
+ },
+ {
+  "n": 21,
+  "local": "sv21",
+  "email": "sv21@edupilot.local",
+  "name": "Bùi Khánh Việt",
+  "code": "20227706"
+ },
+ {
+  "n": 22,
+  "local": "sv22",
+  "email": "sv22@edupilot.local",
+  "name": "Đỗ Khánh Hà",
+  "code": "20223050"
+ },
+ {
+  "n": 23,
+  "local": "sv23",
+  "email": "sv23@edupilot.local",
+  "name": "Bùi Minh Yến",
+  "code": "20221975"
+ },
+ {
+  "n": 24,
+  "local": "sv24",
+  "email": "sv24@edupilot.local",
+  "name": "Lê Thanh Hải",
+  "code": "20227053"
+ },
+ {
+  "n": 25,
+  "local": "sv25",
+  "email": "sv25@edupilot.local",
+  "name": "Hồ Đức Thảo",
+  "code": "20225401"
+ },
+ {
+  "n": 26,
+  "local": "sv26",
+  "email": "sv26@edupilot.local",
+  "name": "Huỳnh Thu Long",
+  "code": "20223579"
+ },
+ {
+  "n": 27,
+  "local": "sv27",
+  "email": "sv27@edupilot.local",
+  "name": "Võ Hữu Bình",
+  "code": "20223575"
+ },
+ {
+  "n": 28,
+  "local": "sv28",
+  "email": "sv28@edupilot.local",
+  "name": "Phan Ngọc Lan",
+  "code": "20226611"
+ },
+ {
+  "n": 29,
+  "local": "sv29",
+  "email": "sv29@edupilot.local",
+  "name": "Hồ Thu Chi",
+  "code": "20222839"
+ },
+ {
+  "n": 30,
+  "local": "sv30",
+  "email": "sv30@edupilot.local",
+  "name": "Phan Thu Hà",
+  "code": "20224880"
+ }
+]

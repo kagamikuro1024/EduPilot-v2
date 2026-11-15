@@ -75,17 +75,24 @@ if os.path.exists(ct):
     if c["rc"] == 0 and cur and cur[0] == "F" and "go rc=1" in cur[1]: setr("TC-P7-01-G06", "F", cur[1].replace("go rc=1 missing=[] skip=[] race=False", "contract -tags testroutes: ok") )
 for tc in list(R):
     pass
+# ---- 4b. part-*.tsv của các subagent (ghi đè)
+for pf in sorted(glob.glob(f"{ROOT}/{EV}/part-*.tsv")):
+    for l in open(pf):
+        a = l.rstrip("\n").split("\t")
+        if len(a) >= 3 and a[0] in tcs and a[1] in ("P", "F", "LT", "K"): setr(a[0], "K" if a[1] == "LT" else a[1], ("LT: " if a[1] == "LT" else "") + a[2])
+if "G06" and "TC-P7-01-G06" in R and R["TC-P7-01-G06"][0] == "F":
+    R["TC-P7-01-G06"] = ("F", "TestAssignmentsRBACMatrix không có trong repo (DEF-R9-01); contract -tags testroutes chạy lại lúc máy rảnh: ok 54s (lần đỏ trước = do tải ~20)")
 # ---- 5. mặc định
 for tc in tcs:
     if tc in R: continue
     if re.search(r"-M\d+$", tc): setr(tc, "K", "MẪU: đột biến mã (QC gốc, /tmp/qc-mut) — ngoài mẫu smoke 1 chính + 1 lỗi / US")
     else: setr(tc, "K", "MẪU: dạng tài liệu/UI/hạ tầng, ngoài mẫu smoke — chưa chạy (PM quyết có chạy nốt)")
-cnt = collections.Counter(v[0] for v in R.values()); T = len(tcs); mau = sum(1 for v in R.values() if v[0] == "K" and v[1].startswith("MẪU"))
+cnt = collections.Counter(v[0] for v in R.values()); T = len(tcs); mau = sum(1 for v in R.values() if v[0] == "K" and v[1].startswith("MẪU")); lt = sum(1 for v in R.values() if v[0] == "K" and v[1].startswith("LT:"))
 assert sum(cnt.values()) == T
 byus = collections.defaultdict(lambda: collections.Counter())
 for tc, (st, _) in R.items(): byus[re.match(r"TC-(P7-\d\d|P7-SEED)", tc).group(1)][st] += 1
 md = [f"# Smoke hồi quy sprint 9 — kết quả", f"Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D, SmkD) · Ngày: 2026-11-15",
-      f"Tổng TC cũ: {T} · Đạt: {cnt['P']} · Trượt: {cnt['F']} · Không chạy (K): {cnt['K']}   (P+F+K = T). Trong K: **K loại a/b/c = {cnt['K']-mau}**, **chưa chạy (mẫu) = {mau}** (ca dạng tài liệu/đột biến/UI chưa đi tay; PM quyết có chạy nốt).", "",
+      f"Tổng TC cũ: {T} · Đạt: {cnt['P']} · Trượt: {cnt['F']} · Không chạy (K): {cnt['K']}   (P+F+K = T). Trong K: **LT (lỗi thời) = {lt}, K loại a/b/c = {cnt['K']-mau-lt}**, **chưa chạy (mẫu) = {mau}** (ca dạng tài liệu/đột biến/UI chưa đi tay; PM quyết có chạy nốt).", "",
       "Cách chạy (script + log ở `docs/regression/evidence-9/`):",
       "- Hàng `-G` (119): `scripts/run-g-go.py` chạy đúng lệnh `go test` ghi ở TC (testcontainers, tuần tự) + `scripts/fix-g-go.py` (tìm gói thật cho tên test lệch, `-tags integration,testroutes`); Playwright mock `assignment-lifecycle`, `grade-appeal`, `settings-integrations`, `me`, `a11y`, `lcp` trên bản build gate (cổng 3731, `logs/pw-mock.json`).",
       "- Hộp đen: bản sao script `docs/sprints/9/qc/scripts/p7-*.py` (đổi cổng/container sang ep-r, lớp riêng QD9A…QD9E/QD9T, SV vào bằng mã rồi đặt `joined_via=ROSTER` để giống seed), `p7-schema-probe.sql`, `p7-rbac.sh` (lớp 1), `p7-seed-grade.py` (BT03 lớp 1, GRADING→QC fake dưới khoá global), `p7-hand-calc.py`, `p7-checks.py`, goose DB phụ.",
@@ -116,5 +123,7 @@ if "DEF-R9-01" in dm:
           "- Môi trường: ep-r/be0c0d96, `go test -tags integration[,testroutes] -run <tên> -v <gói>`", "- Bước tái hiện: chạy lệnh ở hàng `-G` tương ứng; `logs/g-go.jsonl`, `logs/g-go-fix.jsonl`", "- Kỳ vọng: test được nêu tên tồn tại và PASS · Thực tế: `no tests to run` / không có hàm", "- Bằng chứng: `docs/regression/evidence-9/logs/TC_P7_*_G*.log`", "- Chạy lại lần 2: ổn định", ""]
 if "DEF-R9-02" in dm:
     d += ["### DEF-R9-02 — Hàng -G trượt (xem chi tiết ở smoke-9.md)", "- Mức: Trung bình", "- Hồi quy do sprint sau?: KHÔNG RÕ", *[f"- {t}: {n[:300]}" for t, n in dm["DEF-R9-02"]], ""]
+d += ["### DEF-R9-02 — ĐÃ LOẠI: `go test ./internal/contract/...` đỏ lúc tải cao", "- Chạy lại `go test -count=1 -tags testroutes ./internal/contract/...` lúc máy rảnh: ok (25 PASS, rc=0, logs/contract-rerun.log). Lần đỏ trước do timeout/504 khi tải ~20 → môi trường, không phải lỗi.", ""]
+for pf in sorted(glob.glob(f"{ROOT}/{EV}/defects-part-*.md")): d += ["", open(pf).read()]
 open(f"{ROOT}/docs/regression/defects-9.md", "w").write("\n".join(d) + "\n")
 print(cnt, "mau", mau, "F:", [t for t,_ in fails])

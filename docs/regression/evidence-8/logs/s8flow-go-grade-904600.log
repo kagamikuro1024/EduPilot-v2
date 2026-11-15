@@ -1,0 +1,27 @@
+go test -count=1 -v -timeout 900s -run ^(TestImportZipBomb|TestImportTooManyRows|TestImportCorruptFile|TestImportSha256Mismatch)$ ./internal/grade
+=== RUN   TestImportZipBomb
+2026/11/15 22:52:56 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 0ff79ecf10261b4cbf9f5097a0dd9c4325ad39a0acc20a8144102d322ab35f58
+  Test ProcessID: f413a2cc-25c3-4f96-8ea6-0d9397952910
+2026/11/15 22:52:56 ✅ Container started: 68f6ff853df5
+2026/11/15 22:52:56 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:52:56 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:52:57 ✅ Container started: 5636bc78d64d
+2026/11/15 22:52:57 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:52:57 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestImportZipBomb (1.33s)
+=== RUN   TestImportTooManyRows
+--- PASS: TestImportTooManyRows (0.66s)
+=== RUN   TestImportCorruptFile
+--- PASS: TestImportCorruptFile (0.59s)
+=== RUN   TestImportSha256Mismatch
+--- PASS: TestImportSha256Mismatch (0.95s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	4.030s

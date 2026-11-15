@@ -1,0 +1,13 @@
+PASS TC-P6-01-32 IDOR: item lớp 1 qua đường dẫn lớp có công thức (QD8A1): PUT grade-entries 404, publish 404; audit_log lớp không tăng 4→4
+PASS TC-P6-04-16 impact 2 lần: audit_log lớp 4→4, grade_entries 60→60 (không ghi); N=21 khớp tính tay; khoá ['changed_vs_confirmed', 'entries_carried', 'entries_dropped', '
+PASS TC-P6-02-26 xoá ô final sv30 (PUT score null 200): preview status INCOMPLETE, không hp/letter ({'status': 'INCOMPLETE', 'hp': None, 'letter': None, 'verdict': 'INCOMPL
+entry sv30 final after: []
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-8/scripts/s8core-a1-p3.py", line 41, in <module>
+    sql(f"update exams set status='CLOSED' where id='{EXAM}'")
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-8/scripts/s8core_lib.py", line 13, in sql
+    if r.returncode: raise RuntimeError(r.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: ERROR:  new row for relation "exams" violates check constraint "exams_published_chk"
+DETAIL:  Failing row contains (01a1e007-f90c-7acc-b35a-3b7f566a742b, 01a1e007-d4cd-719b-a5af-d7fc009559a8, Kiểm tra tuần 9 — Mật mã, Bài kiểm tra mẫu: 10 câu trắc nghiệm., MCQ, CLOSED, 2026-11-15 12:22:01.639+00, 2026-11-15 12:24:17.639+00, 2, t, t, 10.00, 0.01, PARTIAL, t, 7, f, f, 2026-11-15 12:24:18.685875+00, 01a1df27-5bfd-746a-acbf-411de5ffccb2, 6, 2026-11-15 12:21:47.694969+00, 2026-11-15 16:35:15.683016+00).
+

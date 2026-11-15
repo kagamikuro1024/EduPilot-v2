@@ -1,0 +1,24 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestSourceDocumentDeletedKeepsConfirmed|TestPutEntryOK|TestPutEntryOutOfRange|TestPutEntryPrecision)$ ./internal/grade
+=== RUN   TestPutEntryOK
+2026/11/15 22:50:13 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f494baedba34a7e10f05627578feb2c766048ed0986eed12d1e86451e89ff3a9
+  Test ProcessID: 69da4d7c-3e5c-43d0-ba62-806eb52eb58b
+2026/11/15 22:50:13 ✅ Container started: 68f6ff853df5
+2026/11/15 22:50:13 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:50:13 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPutEntryOK (4.86s)
+=== RUN   TestPutEntryOutOfRange
+--- PASS: TestPutEntryOutOfRange (3.38s)
+=== RUN   TestPutEntryPrecision
+--- PASS: TestPutEntryPrecision (4.59s)
+=== RUN   TestSourceDocumentDeletedKeepsConfirmed
+--- PASS: TestSourceDocumentDeletedKeepsConfirmed (2.14s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	15.469s

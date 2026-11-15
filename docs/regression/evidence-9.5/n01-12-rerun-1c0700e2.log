@@ -1,0 +1,9 @@
+../../../../tmp/qc2-r95b/meta-t/load-a.json: demo_stack «unknown» ∉ stopped|running
+../../../../tmp/qc2-r95b/meta-t/load-d.json: thiếu commit, timestamp
+2 tệp không hợp lệ
+rc=1
+meta đủ
+rc=0
+6ec47f79 fix/rg-9.5: refuseDemo chặn [::1] + host.docker.internal (1 dòng); canary-scan lấy id nhà cung cấp đầu; check-meta kiểm demo_stack; seed khoá import theo upload_id, từ chối mật khẩu trắng (DEF-R9.5-01/02/16/17/19)
+93cbb959 9.5: meta theo spec v1.0 (máy, k6_cpus, demo_stack), RAM postgres sau seed, handoff lát 1
+89ff0e8c 9.5: seed-t1, k6 T1 (a)(d), tham số hoá vps-llm (Gemini), meta + check-meta (US-NFR-01/03/04)

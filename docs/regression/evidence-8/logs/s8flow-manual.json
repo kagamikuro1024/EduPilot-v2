@@ -1,0 +1,30 @@
+{
+ "TC-P6-05-09": [
+  "P",
+  "QD8F2 NO_POLICY: 1 banner 'Công thức điểm chưa xác nhận' + liên kết 'Tải quy chế' (Xem công thức, Thiết lập công thức); shot s8flow-us05-nopolicy-gradebook-teac"
+ ],
+ "TC-P6-05-15": [
+  "P",
+  "Chốt điểm disabled+aria-disabled=true; tooltip 'Chưa có công thức điểm đã xác nhận' khi hover và focus; 0 icon Info"
+ ],
+ "TC-P6-05-19": [
+  "P",
+  "/attendance QD8F2: banner 'Công thức điểm chưa xác nhận'+'Xem công thức' phía trên lưới 1 dòng; lưu thao tác xem TC-20"
+ ],
+ "TC-P6-05-10": [
+  "P",
+  "TA /gradebook & /attendance lớp NO_POLICY: banner cùng chữ, liên kết 'Xem công thức' (không 'Tải quy chế', không 'Chốt điểm')"
+ ],
+ "TC-P6-05-12": [
+  "P",
+  "TEACHER lớp 1 CONFIRMED: 0 banner (gradebook, attendance); STUDENT: 0 banner ở /me,/attendance,/gradebook,/chat"
+ ],
+ "TC-P6-05-44": [
+  "P",
+  "GV lớp khác (teacher@ gọi lớp QD8F8 do gv.s8f dạy) → 403 FORBIDDEN reason=course"
+ ],
+ "TC-P6-05-11": [
+  "P",
+  "QD8F2 DRAFT_READY: banner + liên kết 'Xác nhận công thức' (TEACHER)"
+ ]
+}

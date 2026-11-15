@@ -1,0 +1,15 @@
+2026/11/15 23:26:18 goose: successfully migrated database to version: 1
+INSERT 0 1
+2026/11/15 23:26:22 OK   00002_llm.sql (2.45s)
+2026/11/15 23:26:22 goose: successfully migrated database to version: 2
+--bảng llm sau up-to 2:
+llm_audit,llm_budgets,llm_models,llm_providers,llm_task_routes
+2026/11/15 23:26:26 OK   00002_llm.sql (124.69ms)
+--sau down (số bảng llm_, users, version):
+0
+1
+2026/11/15 23:26:29 goose: version 1
+2026/11/15 23:26:29 goose: successfully migrated database to version: 2
+2026/11/15 23:26:29 goose: version 2
+5
+1

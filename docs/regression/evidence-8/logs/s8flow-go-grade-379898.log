@@ -1,0 +1,24 @@
+go test -count=1 -v -timeout 900s -tags integration -run ^(TestPutEntryConflictBody|TestEntryHistoryFromAudit|TestGradebookPageP95|TestGradebookNoNPlusOne)$ ./internal/grade
+=== RUN   TestPutEntryConflictBody
+2026/11/15 22:50:51 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: c16af7595ae734e07538d547bc0d0f3c379d5da21aa940fec60abea0b6529e9f
+  Test ProcessID: 42f06613-f2c2-4618-9042-b27959b129c2
+2026/11/15 22:50:51 ✅ Container started: 68f6ff853df5
+2026/11/15 22:50:51 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:50:52 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestPutEntryConflictBody (2.50s)
+=== RUN   TestEntryHistoryFromAudit
+--- PASS: TestEntryHistoryFromAudit (2.42s)
+=== RUN   TestGradebookNoNPlusOne
+--- PASS: TestGradebookNoNPlusOne (2.45s)
+=== RUN   TestGradebookPageP95
+--- PASS: TestGradebookPageP95 (2.68s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	10.552s

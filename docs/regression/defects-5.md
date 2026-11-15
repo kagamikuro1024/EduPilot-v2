@@ -1,11 +1,9 @@
-### DEF-R5-01 — Nút đầu trang AppShell vi phạm axe `label-content-name-mismatch` (serious) trên mọi màn đăng nhập
-- Mức: Trung bình (truy cập; ảnh hưởng người dùng đọc màn hình/điều khiển bằng giọng nói; rộng)
-- Sprint gốc: 5 · TC gốc: TC-PE03-52, TC-PE04-45, TC-PE05-48, TC-PE06-08 (axe 0 `serious`/`critical`) · Hồi quy do sprint sau?: CÓ (khung AppShell mới sau sprint 5: 10.7 §23 / sprint 9.1–10.x; `git log frontend/src/shared/shell/AppShell.tsx`)
-- Môi trường: ep-r, be0c0d96, vai GV r5t / TA / SV r5s11–12, Chrome 1440 và 390; frontend http://localhost:3700 qua https://localhost:1143
-- Bước tái hiện: 1. Đăng nhập (UI) bằng bất kỳ tài khoản. 2. Mở `/questions` (GV) hoặc `/exams`, `/exams/<id>/take` (SV). 3. Chạy `@axe-core/playwright` (wcag2a/aa/21a/21aa) — script: `docs/regression/evidence-5/ui/ui_pe.cjs` (in node vi phạm).
-- Kỳ vọng (theo AC/TC): axe 0 `serious`/`critical`. · Thực tế: `label-content-name-mismatch` ×2–3: (1) `button.search aria-label="Tìm nhanh hoặc đi đến"` khác chữ nhìn thấy "Tìm nhanh hoặc đi đến…"; (2) nút chuông `aria-label="Thông báo, 58 chưa đọc"` khác chữ hiển thị "9+"; (3) nút hồ sơ `aria-label="Tài khoản: R5 SV 12"` khác chữ "R5 SV 12".
-- Bằng chứng: `evidence-5/logs/ui_pe.log`, `evidence-5/ui/shots/*.png` · Nghi ngờ mã: `frontend/src/shared/shell/AppShell.tsx:245-266` (aria-label không chứa nguyên văn chữ hiển thị — WCAG 2.5.3)
-- Chạy lại lần 2: trượt/ổn định (3 lượt chạy)
+### DEF-R5-01 — Nút đầu trang AppShell: axe `label-content-name-mismatch` (chỉ khi bật thẻ wcag21a)
+- Mức: Thấp (ghi nhận, KHÔNG phải hồi quy của sprint sau; ca TC liên quan được chấm lại)
+- Sprint gốc: 5 · TC gốc: TC-PE03-52 (axe wcag2a/2aa/21aa/22aa 0 serious) · Hồi quy do sprint sau?: KHÔNG — `aria-label` của nút tìm nhanh / chuông / hồ sơ có từ `f7a15c7d` (US-PROTO-00, 2026-10-02) và `c8c3b70b` (2026-10-02), TRƯỚC sprint 5 (10-03…10-10); `axe-allow.json` không có mục `label-content-name-mismatch`. Quy tắc này thuộc thẻ `wcag21a`, không nằm trong bộ thẻ của TC/dev (`a11y.spec.ts` TAGS = wcag2a, wcag2aa, wcag21aa, wcag22aa) nên lượt đầu của QC (thêm wcag21a) báo thừa.
+- Môi trường: ep-r, be0c0d96, GV r5t 1440; script `evidence-5/ui/ui_pe.cjs`
+- Kỳ vọng: 0 serious với bộ thẻ TC. · Thực tế: với bộ thẻ TC → 0 (`/questions`); thêm wcag21a → `button.search` aria-label "Tìm nhanh hoặc đi đến" ≠ chữ "…" nhìn thấy, chuông "Thông báo, N chưa đọc" ≠ "9+", hồ sơ "Tài khoản: Tên" ≠ "Tên" (WCAG 2.5.3). Nghi mã: `frontend/src/shared/shell/AppShell.tsx:245-266`.
+- Chạy lại lần 2: ổn định. Khuyến nghị (PM quyết): đưa chữ nhìn thấy vào đầu aria-label.
 
 ### DEF-R5-02 — Vùng cuộn ở màn làm bài code không focus được bằng bàn phím
 - Mức: Thấp

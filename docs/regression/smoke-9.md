@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D, SmkD) · Ngày: 2026-11-15
-Tổng TC cũ: 347 · Đạt: 188 · Trượt: 6 · Không chạy (K): 153   (P+F+K = T). Trong K: **K loại a/b/c = 0**, **chưa chạy (mẫu) = 153** (ca dạng tài liệu/đột biến/UI chưa đi tay; PM quyết có chạy nốt).
+Tổng TC cũ: 347 · Đạt: 189 · Trượt: 6 · Không chạy (K): 152   (P+F+K = T). Trong K: **LT (lỗi thời) = 0, K loại a/b/c = 0**, **chưa chạy (mẫu) = 152** (ca dạng tài liệu/đột biến/UI chưa đi tay; PM quyết có chạy nốt).
 
 Cách chạy (script + log ở `docs/regression/evidence-9/`):
 - Hàng `-G` (119): `scripts/run-g-go.py` chạy đúng lệnh `go test` ghi ở TC (testcontainers, tuần tự) + `scripts/fix-g-go.py` (tìm gói thật cho tên test lệch, `-tags integration,testroutes`); Playwright mock `assignment-lifecycle`, `grade-appeal`, `settings-integrations`, `me`, `a11y`, `lcp` trên bản build gate (cổng 3731, `logs/pw-mock.json`).
@@ -10,7 +10,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 ## Tổng hợp theo US
 | US | TC tổng | P | F | K | Ghi chú |
 |---|---|---|---|---|---|
-| P7-01 | 25 | 20 | 1 | 4 | |
+| P7-01 | 25 | 21 | 1 | 3 | |
 | P7-02 | 34 | 23 | 1 | 10 | |
 | P7-03 | 32 | 19 | 2 | 11 | |
 | P7-04 | 29 | 24 | 0 | 5 | |
@@ -32,7 +32,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-01-04 | P | p7-schema-probe.sql: 25 ca, mã + tên ràng buộc đúng |
 | TC-P7-01-05 | P | p7-schema-probe.sql: 17 ca, mã + tên ràng buộc đúng |
 | TC-P7-01-06 | P | p7-schema-probe.sql: 8 ca, mã + tên ràng buộc đúng |
-| TC-P7-01-07 | K | MẪU: dạng tài liệu/UI/hạ tầng, ngoài mẫu smoke — chưa chạy (PM quyết có chạy nốt) |
+| TC-P7-01-07 | P | grade_appeals: trùng (lớp,bài,sv) 23505 grade_appeals_once_key; result_id lớp khác 23503 grade_appeals_result_fkey (bảng thật tên grade_appeals) |
 | TC-P7-01-08 | P | mọi chỉ mục bắt đầu course_id (trừ lease_idx — ngoại lệ SRS 5); EXPLAIN 5.000 bài chưa chạy |
 | TC-P7-01-09 | P | mọi id mặc định uuidv7() |
 | TC-P7-01-10 | P | p7-schema-probe.sql: 4 ca, mã + tên ràng buộc đúng |
@@ -47,7 +47,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-01-G03 | P | go test + Playwright mock xanh |
 | TC-P7-01-G04 | P | go test + Playwright mock xanh |
 | TC-P7-01-G05 | P | go test + Playwright mock xanh |
-| TC-P7-01-G06 | F | TestAssignmentsRBACMatrix: không có trong repo; go rc=1 missing=[] skip=[] race=False |
+| TC-P7-01-G06 | F | TestAssignmentsRBACMatrix không có trong repo (DEF-R9-01); contract -tags testroutes chạy lại lúc máy rảnh: ok 54s (lần đỏ trước = do tải ~20) |
 | TC-P7-01-M1…TC-P7-01-M3 | K | MẪU: đột biến mã (QC gốc, /tmp/qc-mut) — ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P7-02-01…TC-P7-02-02 | K | MẪU: dạng tài liệu/UI/hạ tầng, ngoài mẫu smoke — chưa chạy (PM quyết có chạy nốt) |
 | TC-P7-02-03 | P | api-02.log: 4 kiểm |
@@ -270,7 +270,7 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 | TC-P7-SEED-M1…TC-P7-SEED-M2 | K | MẪU: đột biến mã (QC gốc, /tmp/qc-mut) — ngoài mẫu smoke 1 chính + 1 lỗi / US |
 
 ## Trượt: bước tái hiện
-- TC-P7-01-G06 → DEF-R9-01: TestAssignmentsRBACMatrix: không có trong repo; go rc=1 missing=[] skip=[] race=False
+- TC-P7-01-G06 → DEF-R9-01: TestAssignmentsRBACMatrix không có trong repo (DEF-R9-01); contract -tags testroutes chạy lại lúc máy rảnh: ok 54s (lần đỏ trước = do tải ~20)
 - TC-P7-02-G10 → DEF-R9-01: TestAssignmentsRBACMatrix: không có trong repo
 - TC-P7-03-G03 → DEF-R9-01: TestSubmitIdempotent: không có trong repo; Playwright mock 1 mẫu -g xanh
 - TC-P7-03-G07 → DEF-R9-01: TestSubmitClosed: không có trong repo
@@ -279,4 +279,4 @@ Cách chạy (script + log ở `docs/regression/evidence-9/`):
 
 ## Ca K và lý do
 - K loại a/b/c (thiết bị / người thật / ngoài phạm vi): 0
-- Chưa chạy (mẫu): 153 — gồm 44 hàng đột biến `-M`, UI 375 px/offline/axe thật, k6/EXPLAIN 1.000–5.000 bài, backoff IMAP/ kill -9 worker, ca chấm đa trạng thái chưa kịp chạy trong cửa sổ khoá LLM.
+- Chưa chạy (mẫu): 152 — gồm 44 hàng đột biến `-M`, UI 375 px/offline/axe thật, k6/EXPLAIN 1.000–5.000 bài, backoff IMAP/ kill -9 worker, ca chấm đa trạng thái chưa kịp chạy trong cửa sổ khoá LLM.

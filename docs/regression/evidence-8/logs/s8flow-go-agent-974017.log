@@ -1,0 +1,26 @@
+go test -count=1 -v -timeout 900s -run ^(TestToolWhatIfNoIdentityParam|TestToolGradeNumbersMatchMeGrades|TestToolGradeNotInPublicRegistry|TestPersonalToolsHaveNoIdentityParam)$ ./internal/agent
+=== RUN   TestPersonalToolsHaveNoIdentityParam
+=== PAUSE TestPersonalToolsHaveNoIdentityParam
+=== RUN   TestToolWhatIfNoIdentityParam
+2026/11/15 22:52:34 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 2df952950405b47f99e57c1284dbfc3d16bdd62792bb1afcc1e7aedeabadc6b7
+  Test ProcessID: 09e72344-34e4-432c-adfd-cc8d5ee2dc76
+2026/11/15 22:52:34 ✅ Container started: 68f6ff853df5
+2026/11/15 22:52:34 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:52:34 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestToolWhatIfNoIdentityParam (0.64s)
+=== RUN   TestToolGradeNumbersMatchMeGrades
+--- PASS: TestToolGradeNumbersMatchMeGrades (0.54s)
+=== RUN   TestToolGradeNotInPublicRegistry
+--- PASS: TestToolGradeNotInPublicRegistry (0.00s)
+=== CONT  TestPersonalToolsHaveNoIdentityParam
+--- PASS: TestPersonalToolsHaveNoIdentityParam (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/agent	1.556s

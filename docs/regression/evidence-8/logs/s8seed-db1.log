@@ -1,0 +1,24 @@
+## 01
+Quy chế học phần|COURSE_POLICY||READY
+Quy chế học vụ|OTHER|Quy chế trường|READY
+## 01b all COURSE_POLICY
+761987|Quy chế học phần|COURSE_POLICY|READY
+## 02
+761987|CONFIRMED|1|t
+Giữa kỳ|20.00
+Kiểm tra hằng tuần|20.00
+Thi cuối kỳ|60.00
+BONUS|1
+PENALTY|1
+ROUNDING|1
+FAIL_CONDITION|2
+LETTER_SCALE|1
+MISSING_SCORE|1
+## 03
+grade_schemes|extract|01a1df27-5bfd-746a-acbf-411de5ffccb2|teacher@edupilot.local
+grade_schemes|edit|01a1df27-5bfd-746a-acbf-411de5ffccb2|teacher@edupilot.local
+grade_schemes|confirm|01a1df27-5bfd-746a-acbf-411de5ffccb2|teacher@edupilot.local
+grade_scheme.extract|SUCCEEDED|1
+scripts/seed-t1.mjs:115:insert into grade_schemes (course_id, scheme_no, status, source_title, confirmed_by, confirmed_at, created_by)
+## 04
+0

@@ -1,0 +1,11 @@
+P=ad344b76 S=e1f9925f
+== T ở P (cha)
+--- FAIL: TestStructuredRequestShape (0.01s)
+    --- FAIL: TestStructuredRequestShape/gemini (0.00s)
+        provider_test.go:249: Gemini bỏ qua const: phải đổi thành enum: {"json_schema":{"name":"result","schema":{"additionalProperties":false,"properties":{"a":{"type":"string"},"k":{"const":"X"},"l":{"items":{"properties":{"m":{"items":{"type":"string"},"type":"array"}},"type":"object"},"type":"array"}},"required":["a"],"type":"object"},"strict":false},"type":"json_schema"}
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/llm/provider	0.617s
+FAIL
+== T ở S (e1f9925f)
+e1f9925f
+ok  	github.com/edupilot/backend-go/internal/llm/provider	0.402s

@@ -1,0 +1,10 @@
+
+Running 7 tests using 1 worker
+
+(node:22430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO teacher /assignments: —
+INFO teacher /insights: —
+INFO teacher /calendar: 09/11,15/11
+INFO teacher /exams: —
+INFO teacher /library: —

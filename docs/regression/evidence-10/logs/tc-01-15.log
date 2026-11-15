@@ -1,0 +1,15 @@
+        	            	actual  : []string{"answer_key", "options", "stem", "topic", "type"}
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1,2 +1,3 @@
+        	            	-([]string) (len=4) {
+        	            	+([]string) (len=5) {
+        	            	+ (string) (len=10) "answer_key",
+        	            	  (string) (len=7) "options",
+        	Test:       	TestPracticeStudentDTOAllowlist
+        	Messages:   	QuestionView
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/practice	0.793s
+FAIL

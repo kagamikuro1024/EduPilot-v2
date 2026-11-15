@@ -1,1 +1,5 @@
 PASS TC-AS03-07 thứ tự kiểm: 401 → 403 → 409 SELF_CHECKIN_DISABLED → (đóng+MAC sai) 422 CHECKIN_TOKEN_INVALID 401 403 409:SELF_CHECKIN_DISABLED | 422:CHECKIN_TOKEN_INVALID (chạy lại trên lớp không có cửa sổ mở)
+PASS TC-AS03-18 me/attendance: buổi đã điểm danh (sau đóng) có checked_in_at; không cờ/mức/thiết bị [{'session_no': 164, 'starts_at': '2027-04-24T17:05:00Z', 'status': 'PRESENT', 'checked_in_at': '2026-11-15T15:44:30.517939Z'}] keys=['session_no', 'starts_at',
+PASS TC-AS04-10 DEVICE_NEW: K1 lần đầu không cờ; K2 đầu: DEVICE_NEW; K2 sau: không [(201, '-'), (201, 'DEVICE_NEW'), (201, '-')]
+PASS TC-AS10-08b log gateway không chứa toạ độ đã gửi (khớp chính xác 10.7727 / 106.6602) 0
+

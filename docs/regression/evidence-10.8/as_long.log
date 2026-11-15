@@ -1,0 +1,4 @@
+PASS TC-AS02-18 minutes=1 tự đóng ≤ 125 s: closed_at đặt, closed_by NULL, audit auto_close, records PRESENT/LATE, không ABSENT [201, 201] ['t', 't', '1'] [['PRESENT', '2']] [['checkin_window.open', 'f'], ['checkin_window.auto_close', 't']]
+PASS TC-AS05-05 cửa sổ tự đóng: closed_by NULL, marked_by = người mở, cùng quy tắc ['t', 't', '1'] marked_by_notnull=[['t']]
+PASS TC-AS02-19 sau thêm 2 nhịp quét (125 s): không đổi gì, không audit mới ('2026-11-15 15:50:05.00802+00', '2', '2') -> ('2026-11-15 15:50:05.00802+00', '2', '2')
+FAIL TC-AS04-11 rotate=60: tuổi ≈30 s không cờ; tuổi ≈70 s TOKEN_LATE vẫn 201; token_age_ms khớp ±1 s 201 ['NO_DEVICE_KEY', '31578'] | 201 ['NO_DEVICE_KEY,TOKEN_LATE', '71573']

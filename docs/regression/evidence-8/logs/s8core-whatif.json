@@ -1,0 +1,72 @@
+[
+ {
+  "hp": "8",
+  "letter": "B+",
+  "calculation": [
+   {
+    "label": "Giữa kỳ (20%)",
+    "text": "Giữa kỳ: 7,5",
+    "value": "7,5",
+    "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+    "page": 1
+   },
+   {
+    "label": "Kiểm tra hằng tuần (20%)",
+    "text": "Kiểm tra hằng tuần: 8",
+    "value": "8"
+   },
+   {
+    "label": "Điểm cộng",
+    "text": "Điểm cộng 0,5 · tối đa 1",
+    "value": "0,5",
+    "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+    "page": 1
+   },
+   {
+    "label": "Điểm trừ",
+    "text": "Điểm trừ 0 · vắng 2 buổi, được miễn 2, mỗi buổi trừ 0,5",
+    "value": "0",
+    "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+    "page": 1
+   },
+   {
+    "label": "Điểm quá trình trước điểm cộng / trừ",
+    "text": "Điểm quá trình trước điểm cộng / trừ 7,75",
+    "value": "7,75"
+   },
+   {
+    "label": "Điểm quá trình",
+    "text": "Điểm quá trình 8,25",
+    "value": "8,25"
+   },
+   {
+    "label": "Điểm cuối kỳ (giả định)",
+    "text": "Điểm cuối kỳ giả định 8",
+    "value": "8"
+   },
+   {
+    "label": "Điểm học phần thô",
+    "text": "Điểm học phần thô 8,1 = 8,25 × 40% + 8 × 60%",
+    "value": "8,1"
+   },
+   {
+    "label": "Làm tròn đến 0,5 (nửa lên)",
+    "text": "Làm tròn đến 0,5: 8,1 → 8",
+    "value": "8",
+    "source_quote": "Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn.",
+    "page": 2
+   }
+  ]
+ },
+ {
+  "min_final_exam_score": "8.25",
+  "reachable": true
+ },
+ {
+  "min_final_exam_score": "9.09",
+  "reachable": true
+ },
+ {
+  "reachable": false
+ }
+]

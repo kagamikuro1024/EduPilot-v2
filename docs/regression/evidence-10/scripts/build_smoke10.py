@@ -53,6 +53,20 @@ S(M_, "check-practice-seed.mjs báo thiếu «B có điểm yếu An toàn ứng
 S(P_, "chat từ chối nội dung môn học khi đang thi (409 EXAM_IN_PROGRESS); nộp bài → exam-lock mở; chat hỏi lại được (pi2.py)", "TC-10-07", "TC-10-07c", "TC-10-08", "TC-10-08b")
 S(K_, "ngoài phạm vi theo spec (P-10-7 Q16)", "TC-08-08")
 S(K_, "(b) cần người/công cụ ngoài đồ án: Lighthouse/k6 hoãn theo chủ dự án; thử tải 100 SV", "TC-12-17", "TC-07-25", "TC-02-18")
+
+# --- kết quả lô M (luật không lấy mẫu): results_m.jsonl, dòng sau thắng; nhiều dòng cùng mã gốc (TC-04-13 X) → F nếu có F, ngược lại ca đầu tiên không P, ngược lại P
+_RM = {}
+if os.path.exists(H + '/results_m.jsonl'):
+    for l in open(H + '/results_m.jsonl'):
+        r = json.loads(l); base = r['tc'].split(' ')[0]; _RM.setdefault(base, {})[r['tc']] = (r['kq'], r['note'])
+    for base, d in _RM.items():
+        if base not in ids: continue
+        vals = list(d.values()); bad = [v for v in vals if v[0] not in ('P',)]
+        kq = bad[0][0] if bad else 'P'
+        kq = 'K' if kq in ('Ka', 'Kb', 'Kc', 'LT') else kq
+        pre = {'LT': 'LT: ', 'Ka': '(a) ', 'Kb': '(b) ', 'Kc': '(c) '}.get(bad[0][0] if bad else '', '')
+        note = (pre + '; '.join(dict.fromkeys(v[1] for v in (bad or vals))))
+        O[base] = (kq, note)
 rows = []; cnt = collections.Counter(); byus = collections.defaultdict(collections.Counter)
 for t in ids:
     us = t.split('-')[1]
@@ -72,6 +86,8 @@ Tổng TC cũ: {T} · Đạt: {p} · Trượt: {f} · Không chạy (K, gồm l�
 Quy ước: «K» chỉ gồm lỗi thời / ngoài phạm vi theo spec / loại (b). «M» = chưa chạy vì ngoài mẫu «đường chính + ≥1 nhánh lỗi / phân quyền mỗi US» (PM quyết có chạy nốt không) hoặc cần khoá cấu hình global (ghi rõ ở cột ghi chú); không tính trượt.
 Cách chạy (bản sao đã sửa tham số ở `docs/regression/evidence-10/scripts/`, script gốc không đổi): `export SEED_DEFAULT_PASSWORD='Edupilot#Seed-2026'`; `python3 pa1.py pa1b.py pa2.py pa2b.py pa3.py pb3.py pb4.py pc.py pd.py pe.py pk.py pg.py pi2.py pj2.py px.py px2.py px3.py px4.py recheck_l1.py recheck_l3.py recheck_low.py` (qlib.py đổi cổng 943→1143, `ep-qc`→`ep-r-postgres-1`, thử lại 429/5xx; pa2/pa2b thêm nhánh SHORT; pb.py ánh xạ tên tài liệu seed; `clean_inprog.py` nộp lượt dở trước mỗi script). Go: `go test ./internal/quiz ./internal/practice` + `sqlc diff` + `go test ./internal/contract` (log `logs/go-tests.log`, `logs/contract-fail*.log`). UI: `frontend/e2e/qc2-r10/` (bản sao spec `qc-s10-*` đặt lớp mặc định 761987 bằng localStorage `ep:ui:course`) — 1440: luyện đề / lịch sử / Hôm nay / thi thử không tràn ngang, không chữ cấm (AI, RAG, citation, model…); 375: /practice, /practice/history đạt; ảnh `/tmp/qc2-f-shots10`. Kết quả UI không map sang từng TC (spec thăm dò, không có assertion theo TC) nên các TC E2E vẫn ở «M» trừ khi nêu khác.
 Môi trường: 9router thật cho CHAT/QUESTION_GEN/GRADING (tuần tự, không song song); Postgres ep-r bị nhóm 9.5 làm sập một lần lúc 12:59 UTC (đã hồi phục, các ca đang chạy được chạy lại).
+
+Lượt 2 (luật mới «không lấy mẫu»): chạy nốt 112 ca M bằng `pm.py`/`pm_a*.py` (kết quả `results_m.jsonl`, dòng sau thắng). **TẠM DỪNG lúc 23:2x theo lệnh PM (tải máy 44, nguy cơ sập Postgres):** đã xong TC-01-04, TC-01-15, TC-04-13, TC-12-21; còn lại chạy khi tải < 15. Script lô A1 (`pm_a1.py`: TC-05-04/05/05/06/15) đã viết, chạy dở (ngân hàng QC-r10-A 26/30 câu SHORT đã tạo, chủ đề riêng của QC). Ca Go (`go test` bằng testcontainers) bị hết hạn migrate khi tải cao: TestWrongAnswerSignalsNoIdentity, TestFormsImportNoLLM/ScoreDecimal, TestLibraryToolHidesExamPaperWhileLocked chạy lại xanh (4/4), overlay QC TC-09-11..13 (`/tmp/qc2-r10-ovl/qc2_r10_test.go`) chưa xong.
 
 ## Tổng hợp theo US
 | US | TC tổng | P | F | K | M | Ghi chú |

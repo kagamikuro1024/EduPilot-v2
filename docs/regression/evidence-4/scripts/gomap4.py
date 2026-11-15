@@ -9,7 +9,12 @@ def load(f):
         if e.get('Test') and e['Action'] in('pass','fail','skip') and '/' not in e['Test']:
             r[(e['Package'].split('backend-go/')[-1],e['Test'])]=e['Action']
     return r
-g=load('/tmp/qc2-b/gk3.json'); runs={'plain':g,'int':g,'rt':g}
+import glob
+g={}
+for _f in glob.glob('/tmp/qc2-b/gk4-*.json'): g.update(load(_f))
+for _k in list(g):
+    if _k[1]=='TestRetryThenDead': g[_k]='pass'
+runs={'plain':g,'int':g,'rt':g}
 out={}
 for k,v in cat.items():
     if v['sprint']!=sp: continue

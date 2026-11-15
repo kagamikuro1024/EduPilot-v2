@@ -1,0 +1,21 @@
+=== RUN   TestAllCourseRoutesGuarded
+2026/11/15 22:51:40 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 9d8bbfb18e19f80cbdec912455771bd0cfbf7d49b86125fc0ed6014d05bbc01b
+  Test ProcessID: d7359d8f-a0ed-4ef8-bb82-b27c79dbb78e
+2026/11/15 22:51:40 ✅ Container started: 68f6ff853df5
+2026/11/15 22:51:40 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/15 22:51:40 🔔 Container is ready: 68f6ff853df5
+2026/11/15 22:51:41 ✅ Container started: 5636bc78d64d
+2026/11/15 22:51:41 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/15 22:51:41 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestAllCourseRoutesGuarded (1.98s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	2.745s
+rc=0

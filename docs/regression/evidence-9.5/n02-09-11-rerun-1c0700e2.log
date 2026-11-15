@@ -1,0 +1,8 @@
+### SEED_DEFAULT_PASSWORD=UNSET
+[1/20] Admin đầu tiên (gateway admin create)…
+Seed lỗi: fetch failed
+### SEED_DEFAULT_PASSWORD=EMPTY
+[1/20] Admin đầu tiên (gateway admin create)…
+Seed lỗi: fetch failed
+### SEED_DEFAULT_PASSWORD=SPACES
+Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).

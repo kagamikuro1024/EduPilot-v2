@@ -1,0 +1,29 @@
+== goose status
+2026/11/15 22:47:16     Sun Nov 15 12:20:42 2026 -- 00016_gradebook.sql
+2026/11/15 22:47:16     Sun Nov 15 12:20:42 2026 -- 00017_assignments.sql
+2026/11/15 22:47:16     Sun Nov 15 12:20:42 2026 -- 00019_practice.sql
+2026/11/15 22:47:16     Sun Nov 15 12:20:42 2026 -- 00020_decision.sql
+2026/11/15 22:47:16     Sun Nov 15 12:20:42 2026 -- 00021_grading_guidance.sql
+2026/11/15 22:47:16     Sun Nov 15 12:20:42 2026 -- 00022_llm_request_payloads.sql
+2026/11/15 22:47:16     Sun Nov 15 12:20:42 2026 -- 00024_attendance_checkin.sql
+2026/11/15 22:47:16     Sun Nov 15 12:20:42 2026 -- 00025_audit_log_indexes.sql
+== down 1 (TC-12-21)
+2026/11/15 22:47:16 OK   00025_audit_log_indexes.sql (181.79ms)
+2026/11/15 22:47:16 OK   00025_audit_log_indexes.sql (202.12ms)
+2026/11/15 22:47:16 goose: successfully migrated database to version: 25
+== down-to 18 (TC-01-04)
+2026/11/15 22:47:18 OK   00024_attendance_checkin.sql (1.67s)
+2026/11/15 22:47:19 OK   00022_llm_request_payloads.sql (252.01ms)
+2026/11/15 22:47:19 OK   00021_grading_guidance.sql (433.81ms)
+2026/11/15 22:47:19 OK   00020_decision.sql (231.09ms)
+2026/11/15 22:47:20 OK   00019_practice.sql (321.38ms)
+2026/11/15 22:47:20 goose: no migrations to run. current version: 17
+practice tables after down-to 18: 0
+courses/enroll after: 42 445 558
+2026/11/15 22:47:24 OK   00020_decision.sql (128.34ms)
+2026/11/15 22:47:24 OK   00021_grading_guidance.sql (450.95ms)
+2026/11/15 22:47:24 OK   00022_llm_request_payloads.sql (89.4ms)
+2026/11/15 22:47:25 OK   00024_attendance_checkin.sql (350.29ms)
+2026/11/15 22:47:25 OK   00025_audit_log_indexes.sql (31.93ms)
+2026/11/15 22:47:25 goose: successfully migrated database to version: 25
+practice tables after up: 3 ; version 25

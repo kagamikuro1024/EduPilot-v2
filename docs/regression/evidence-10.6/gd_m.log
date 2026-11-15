@@ -1,0 +1,13 @@
+stats: []
+FAIL G06-02 phiên bản n<5: chỉ số null không có phiên bản n<5 trong dữ liệu
+PASS G06-08 tổng n các phiên bản = số bài hiện hành REVIEWED/PUBLISHED sum=0 sql=0
+PASS G06-03 thêm / đụng DRAFT: số không đổi 
+PASS G06-04 bias_total = AI − chốt (khớp SQL độc lập, dấu AI>chốt dương) sql=0.00 api=0.00
+PASS G06-10 sv.kha stats → 403 403
+PASS G06-10 sv31 stats → 403 403
+PASS G06-10 không token stats → 401 401
+PASS G06-10 stats qua lớp 2 → 404/403 404
+PASS G11-06 SV quét 37 phản hồi: 0 trường lưu ý / phiên bản / cờ / số đo []
+PASS G11-04 bảng guidance_items + regression_cases không chứa tên SV []
+PASS G07-14 không ca hồi quy mồ côi (source_id không còn kết quả) = 0 0
+PASS G11-02 assignments.guidance_version không đổi bởi thao tác đọc / stats (so trước-sau) 4

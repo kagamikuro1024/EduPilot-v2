@@ -1,0 +1,20 @@
+FAIL TC-AS02-14 openapi list cửa sổ maxItems 3; DB CHECK round 1..3 + UNIQUE (course,session,round) CHECK (((round >= 1) AND (round <= 3))) | UNIQUE (course_id, session_id, round)
+PASS TC-AS04-04 user_devices: không user_id, không bảng liên kết; label luôn NULL (CHECK) ['created_at', 'key_sha256', 'public_key', 'kind', 'attested', 'boot_verified', 'id', 'label', 'security_level']
+PASS TC-AS04-18 attendance_checkins: CHECK 12 mã cờ, 3 chỉ mục, UNIQUE (course,window,student), không cột toạ độ/IP 12 mã; cột=['created_at', 'course_id', 'session_id', 'window_id', 'student_id', 'device_id', 'channel', 'assurance', 'token_age_ms', 'geo_distan
+PASS TC-AS13-06 PRODUCTION_READINESS §3 ghi job xoá tài khoản phải gọi attendance.ForgetStudent ['| Lượt tự điểm danh (`attendance_checkins`): giờ quét, kênh, mức tin cậy, cờ, khoảng cách tới lớp, độ chính xác vị trí, trong mạng trường ha', '| Vòng đời dữ liệu
+PASS TC-AS13-10 PRODUCTION_READINESS §1.1 có dòng retention cho lượt thô, thiết bị, cửa sổ (30 ngày / không dữ liệu cá nhân) ['| Khoá thiết bị (`user_devices`): khoá công khai, băm, kết quả chứng thực. Không IMEI, không số serial, không gắn tài khoản | Nhận ra
+FAIL TC-AS03-25 openapi có CHECKIN_TOKEN_INVALID / CHECKIN_TOKEN_EXPIRED; route điểm danh không dùng TOKEN_EXPIRED/TOKEN_INVALID (xác thực) backend-go/internal/attendance/token.go:65:// ParseToken tách `window.step.mac`; sai cú pháp → ok=false (người gọi trả T
+PASS TC-AS04-03 mã ngắn: ký code:CODE → 201 assurance 2; ký nhầm thông điệp token → DEVICE_UNTRUSTED 201 ['DEVICE_NEW', '2', 'CODE'] | 201 ['DEVICE_UNTRUSTED', '1', 'CODE']
+FAIL TC-AS03-17 bảng ca tín hiệu bất thường: luôn 201, cờ tương ứng trong DB {'sv.gioi': 201, 'sv.kha': 201, 'sv.nguyco': 201, 'sv04': 201, 'sv05': 201, 'sv06': 201, 'sv07': 201, 'sv08': 201, 'sv09': 201, 'sv10': 422} {'sv.gioi': ['NO_DEVICE_KEY,OFF_CAMPUS', '
+PASS TC-AS04-12 assurance theo SRS 4.5: không chữ ký 1; WEB_KEY hợp lệ 2; WEB_KEY + GEO_OUT 1 ['NO_DEVICE_KEY,OFF_CAMPUS', '1', 'WEB'] ['DEVICE_NEW,OFF_CAMPUS', '2', 'WEB'] ['DEVICE_NEW,GEO_OUT,OFF_CAMPUS', '1', 'WEB']
+FAIL TC-AS04-14 app.version lạ / channel tự khai APP không đổi cờ / mức (không NOT_APP, channel TOKEN) None
+PASS TC-AS04-16 public_key rác → 201 + NO_DEVICE_KEY hoặc DEVICE_UNTRUSTED, không lỗi ['DEVICE_UNTRUSTED,OFF_CAMPUS', '1', 'WEB']
+FAIL TC-AS10-13 mọi cờ AC2–AC3: phản hồi SV vẫn 201 
+FAIL TC-AS12-16 mọi ca thiết bị/chữ ký trên: 201 
+PASS TC-AS12-11 emulator chưa chứng thực: WEB_KEY chữ ký DER → 201, mức 2, không DEVICE_UNTRUSTED ['DEVICE_NEW', '2', 'WEB']
+PASS TC-AS10-12 SV GET /courses/{C}: geo_check true, không geofence / campus_cidrs / toạ độ {"self_checkin": true, "require": "WEB", "geo_check": true}
+PASS TC-AS10-15 geofence sai (radius 19/2001, lat 91, lng −181) → 422 [422, 422, 422, 422]
+PASS TC-AS07-05 spot-check n=5 với 3 lượt còn cờ: 3 FLAGGED trước + 2 RANDOM, không trùng, đủ trường, DB/audit không đổi nf=3 ['FLAGGED', 'FLAGGED', 'FLAGGED', 'RANDOM', 'RANDOM'] audit 571->571
+PASS TC-AS03-23 log gateway: 0 dòng public_key/signature/token=/"token" thuộc điểm danh; không toạ độ secrets=0 coords=0
+PASS TC-AS12-19 log gateway: nonce / public_key / chuỗi chứng chỉ = 0 
+PASS TC-AS02-12 token (phần sau #) không vào log gateway / Caddy; ghi nhận Referrer-Policy gateway/caddy=0/0; Referrer-Policy=no-referrer

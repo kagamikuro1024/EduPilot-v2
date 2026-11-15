@@ -1,0 +1,15 @@
+PASS TC-P6-01-21 bài thi chuyển CLOSED: cả lớp INCOMPLETE (30/30), missing ['weekly'], không có số 0 bịa; giải trình: [{'label': 'weekly', 'expr': '', 'value': 'Bài thi chư
+F TC-P6-02-27 {'students': 30, 'complete': 0, 'incomplete': 30, 'liet': 0, 'distribution': {}} (200, {'version': 1, 'students': 30, 'locked_at': '2026-11-15T16:35:52.933
+PASS TC-P6-01-22 sửa adjusted_score B 8→7: giải trình ô weekly đổi ngay 8→7; grade_entries nguồn EXAM = 0
+{'label': 'Kiểm tra hằng tuần (20%)', 'expr': '16 × 10 ÷ 20', 'value': '8', 'filled_by_user': True} {'label': 'Kiểm tra hằng tuần (20%)', 'expr': '21,99 × 10 ÷ 30', 'value': '7,33', 'filled_by_user': True}
+PASS TC-P6-01-23 quy thang: item 20, điểm thi 8,0 → ô 16 (expr '16 × 10 ÷ 20') → điểm QT 8; item 30, 7,33 → 21,99 ('21,99 × 10 ÷ 30') → 7,33; decimal không sai số
+PASS TC-P6-01-26 B thêm 1 EXCUSED + 1 LATE: vắng vẫn 2 ('max(0; 2 − 2) × 0,5 + 0'), P=0
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-8/scripts/s8core-a1-p3b.py", line 51, in <module>
+    sql(f"update enrollments set status='REMOVED' where course_id='{A1}' and user_id='{uidA('sv30')}'")
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-8/scripts/s8core_lib.py", line 13, in sql
+    if r.returncode: raise RuntimeError(r.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: ERROR:  new row for relation "enrollments" violates check constraint "enrollments_removed_chk"
+DETAIL:  Failing row contains (01a1e007-f0b9-7626-bbb3-c37c31bf3b34, 01a1e007-d4cd-719b-a5af-d7fc009559a8, 01a1df27-6553-7c98-bc34-a0c697597f85, STUDENT, REMOVED, ROSTER, 20224880, null, null, 2026-11-15 16:26:19.177852+00, null, null, 1, 2026-11-15 16:26:19.177852+00, 2026-11-15 16:36:06.568069+00).
+

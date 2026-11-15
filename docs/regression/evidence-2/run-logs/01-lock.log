@@ -93,3 +93,24 @@ TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
 TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
 ### 01:72 22:44:30
 == TC-PG01-72
+    ok   RestartCount|StartedAt|Pid|Running trước = sau = [0|2026-11-15T13:54:44.787198295Z|2675304|true]
+    ok   tiến trình vẫn chạy ~ /true$/
+-- TC-PG01-72 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:73 22:44:45
+== TC-PG01-73
+    ok   mã readyz = [503]
+    ok   code = [NOT_READY]
+    ok   details.db = [down]
+    ok   số giây tới khi readyz báo down = 0 (≤ 10)
+    ok   mã healthz khi Postgres chết = [200]
+-- TC-PG01-73 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0
+### 01:74 22:44:53
+== TC-PG01-74
+    ok   mã readyz = [503]
+    ok   details.db = [down]
+    ok   details.redis = [down]
+    ok   RestartCount|Running trước = sau = [0|true]
+-- TC-PG01-74 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0 K=0

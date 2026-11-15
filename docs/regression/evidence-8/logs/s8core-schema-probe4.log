@@ -1,0 +1,37 @@
+Pager usage is off.
+--- TC-17 EXPLAIN 10.000 dòng (1.000 SV x 10 version)
+BEGIN
+ANALYZE
+                                                         QUERY PLAN                                                         
+----------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.29..40.55 rows=100 width=177)
+   ->  Index Scan using final_grade_snapshots_version_idx on final_grade_snapshots  (cost=0.29..402.97 rows=1000 width=177)
+         Index Cond: ((course_id = '00000000-0000-7000-8000-0000000000c1'::uuid) AND (version = 2))
+(3 rows)
+
+--- TC-18 vai trò không phải chủ bảng
+CREATE ROLE
+GRANT
+SET
+--- TC-18 vai trò chủ bảng/superuser (vai trò của gateway trên stack này: edupilot)
+ERROR:  must be owner of table final_grade_snapshots
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ROLLBACK
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+BEGIN
+INSERT 0 2
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+--- owner/superuser: gỡ trigger rồi UPDATE
+ALTER TABLE
+UPDATE 1
+          ?column?          | numeric_grade 
+----------------------------+---------------
+ numeric_grade sau UPDATE = |          1.00
+(1 row)
+
+ROLLBACK

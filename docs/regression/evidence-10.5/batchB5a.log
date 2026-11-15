@@ -1,0 +1,33 @@
+fake GRADING 200 30
+=== p90 23:03:22
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+xếp hàng chấm lại: 22 / 22
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.5/scripts/dm_c.py", line 22, in <module>
+    r = sql(f"select run_state,count(*) from grading_results where round>1 and created_at>='{s0}' group by 1")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-10.5/scripts/dmlib.py", line 59, in sql
+    if r.returncode: raise RuntimeError(r.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  the database system is in recovery mode
+
+tổng 93s
+=== cleanup
+lthy
+minio healthy
+mock-graph healthy
+mock-imap healthy
+pgbouncer healthy
+postgres healthy
+redis healthy
+worker healthy
+
+restore GRADING 200 31

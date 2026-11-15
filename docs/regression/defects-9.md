@@ -7,12 +7,6 @@
 - Bằng chứng: `docs/regression/evidence-9/logs/TC_P7_*_G*.log`
 - Chạy lại lần 2: ổn định
 
+### DEF-R9-02 — ĐÃ LOẠI: `go test ./internal/contract/...` đỏ lúc tải cao
+- Chạy lại `go test -count=1 -tags testroutes ./internal/contract/...` lúc máy rảnh: ok (25 PASS, rc=0, logs/contract-rerun.log). Lần đỏ trước do timeout/504 khi tải ~20 → môi trường, không phải lỗi.
 
-### DEF-R9-02 — `go test ./internal/contract/...` đỏ ở HEAD (TC-P7-01-G06, một vế)
-- Mức: Trung bình (chưa xác minh nguyên nhân)
-- Sprint gốc: 9 · TC gốc: TC-P7-01-G06 · Hồi quy do sprint sau?: KHÔNG RÕ (chưa chạy lại với tập thẻ build đúng của gate-p6/p7; cả `-tags testroutes` lẫn không thẻ đều rc=1)
-- Môi trường: ep-r, be0c0d96, máy dev (testcontainers/Colima)
-- Bước tái hiện: `cd backend-go && go test -count=1 -tags testroutes ./internal/contract/...` → rc=1, `TestSpec_EveryDocumentedStatusExercised` báo các route `/api/v1/_test/*` (whoami, events, items) "khai báo status … nhưng không test nào sinh ra"; không thẻ: `TestStudentNeverSeesConfidence` "0 lời gọi chat"
-- Kỳ vọng: xanh (mọi gate cũ chạy `-tags testroutes`) · Thực tế: đỏ
-- Bằng chứng: `docs/regression/evidence-9/logs/contract-testroutes.log` (6.000 ký tự cuối), `TC_P7_01_G06.log`
-- Chạy lại lần 2: ổn định (2 lần)

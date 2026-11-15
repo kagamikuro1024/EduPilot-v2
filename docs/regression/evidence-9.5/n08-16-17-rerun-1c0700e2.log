@@ -1,0 +1,16 @@
+== setup (429 Retry-After 120)
+CHƯA HOÀN TẤT — hết hạn mức (GET /me/courses?limit=100 → 429 Retry-After 120s). Chạy tiếp sau 120s: real_llm.py --resume setup
+rc=3 sau 0 s
+{
+ "cmd": "setup",
+ "at": "2026-11-15T16:37:35.647Z",
+ "reason": "chưa hoàn tất — hết hạn mức",
+ "retry_after_s": 120.0,
+ "detail": "GET /me/courses?limit=100 → 429 Retry-After 120s"
+}
+== --resume setup (chưa có state.json)
+CHƯA HOÀN TẤT — hết hạn mức (GET /me/courses?limit=100 → 429 Retry-After 120s). Chạy tiếp sau 120s: real_llm.py --resume setup
+rc=3 sau 0 s
+== --resume setup (đã có state.json)
+--resume: đã có /tmp/qc2-r95b/rl-out/state.json, bỏ qua setup
+rc=0
