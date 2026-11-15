@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ApiError, ApiErrorNotice } from "@/shared/data";
 import { InlineNotice, Page, PageHeader, Panel, Section, Skeleton } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
@@ -13,6 +13,7 @@ import { useProviders, useRoutes } from "./api";
 import s from "./llm.module.css";
 
 // Phần dưới màn hình: tách khỏi mã nạp đầu để việc đồng bộ lúc dựng trang ngắn lại (TBT, #19).
+const STAGES = 5;
 const UsageSection = dynamic(() => import("./UsageSection").then((m) => m.UsageSection), { loading: () => <Skeleton lines={3} /> });
 
 /**
@@ -30,6 +31,15 @@ export function LlmSettings() {
   const failed = !notConfigured && (providers.isError ? providers : routes.isError ? routes : null);
   const pending = !notConfigured && (providers.isPending || routes.isPending);
 
+  // Dựng từng phần ở một tác vụ riêng, từ trên xuống (phần mới nối xuống cuối nên không đẩy chỗ nào đã hiện: CLS 0): dựng cả sáu phần cùng lúc là một tác vụ dài, đẩy TBT trên runner lên 224–262 ms (P-11-20).
+  const [stage, setStage] = useState(1);
+  const ready = !pending && !failed;
+  useEffect(() => {
+    if (!ready || stage >= STAGES) return;
+    const t = setTimeout(() => setStage((n) => n + 1), 0);
+    return () => clearTimeout(t);
+  }, [ready, stage]);
+
   return (
     <Page kind="work">
       <PageHeader title="Cấu hình LLM" />
@@ -45,23 +55,31 @@ export function LlmSettings() {
           <Section part="settings-section" title="Kết nối nhà cung cấp">
             <ProviderSection key={adding} initialAdd={adding > 0} providers={(providers.data?.items ?? []).filter((p) => p.type !== "decision")} canEdit={canEdit} envFallback={providers.data?.env_fallback ?? { active: true, providers: [] }} />
           </Section>
-          <Section part="settings-section" title="Mô hình theo tác vụ">
-            <RouteTableSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} onAddProvider={() => setAdding((n) => n + 1)} />
-          </Section>
-          <Section part="settings-section" title="Chuỗi dự phòng">
-            <FallbackSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} />
-          </Section>
-          {canEdit && (
+          {stage >= 2 && (
+            <Section part="settings-section" title="Mô hình theo tác vụ">
+              <RouteTableSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} onAddProvider={() => setAdding((n) => n + 1)} />
+            </Section>
+          )}
+          {stage >= 3 && (
+            <Section part="settings-section" title="Chuỗi dự phòng">
+              <FallbackSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} />
+            </Section>
+          )}
+          {stage >= 4 && canEdit && (
             <Section part="settings-section" title="Quyết định nhanh">
               <DecisionSection providers={providers.data?.items ?? []} canEdit={canEdit} />
             </Section>
           )}
-          <Section part="settings-section" title="Mô hình tìm kiếm tài liệu">
-            {routes.data ? <EmbeddingSection routes={routes.data} providers={providers.data?.items ?? []} canEdit={canEdit} /> : <Skeleton lines={2} />}
-          </Section>
-          <Section part="usage-section" title="Mức dùng và ngân sách">
-            <UsageSection canEdit={canEdit} />
-          </Section>
+          {stage >= 4 && (
+            <Section part="settings-section" title="Mô hình tìm kiếm tài liệu">
+              {routes.data ? <EmbeddingSection routes={routes.data} providers={providers.data?.items ?? []} canEdit={canEdit} /> : <Skeleton lines={2} />}
+            </Section>
+          )}
+          {stage >= 5 && (
+            <Section part="usage-section" title="Mức dùng và ngân sách">
+              <UsageSection canEdit={canEdit} />
+            </Section>
+          )}
         </>
       )}
     </Page>
