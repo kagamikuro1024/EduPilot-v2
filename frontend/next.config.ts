@@ -7,6 +7,9 @@ const base = ["tsx", "ts", "jsx", "js"];
 
 const config = (phase: string): NextConfig => ({
   output: "standalone",
+  // NEXT_PUBLIC_API_URL là hằng số THỜI ĐIỂM DỰNG ở cả bundle máy chủ lẫn trình duyệt. Không có dòng này, trang kết xuất theo request (mọi đường dẫn 404) đọc biến môi trường LÚC CHẠY
+  // của container (compose đặt https://localhost) và script làm mới sớm ở <head> gọi sai origin, trong khi trang tiền kết xuất tĩnh dùng giá trị lúc dựng (DEF-R1.5-01).
+  env: { NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? "" },
   // CSS vào thẳng HTML: lần vẽ đầu không chờ 3 tệp CSS (US-PU-06: LCP / FCP).
   experimental: { inlineCss: true },
   // Trang nhận liên kết một lần (xác minh email, đặt lại mật khẩu, lời mời): không gửi Referer, không cache (SRS FEAT-account-security 6.3).

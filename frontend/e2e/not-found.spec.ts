@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { BASE_URL } from "./support/env";
+import { API_URL, BASE_URL } from "./support/env";
 import { settleGoto } from "./support/hydrate";
 import { mockStudentToday } from "./support/screens";
 import { asDemo } from "./support/session";
@@ -11,8 +11,11 @@ for (const role of ["student", "teacher"] as const) {
   test(`404: ${role} đã đăng nhập mở /khong-co-trang ⇒ Không tìm thấy trang, giữ URL, Về Hôm nay quay lại`, async ({ page, context }) => {
     await asDemo(context, role);
     await mockStudentToday(page);
+    const refresh: string[] = [];
+    page.on("request", (q) => q.url().includes("/auth/refresh") && refresh.push(q.url()));
     await page.goto("/khong-co-trang");
     await expect(page.getByRole("heading", { level: 1, name: "Không tìm thấy trang" })).toBeVisible();
+    expect(refresh).toEqual([`${API_URL}/api/v1/auth/refresh`]); // trang kết xuất theo request cũng gọi đúng origin dựng (không đọc biến môi trường lúc chạy)
     await expect(page).toHaveURL(`${BASE_URL}/khong-co-trang`);
     await page.getByRole("link", { name: "Về Hôm nay" }).click();
     await expect(page).toHaveURL(`${BASE_URL}/`);
