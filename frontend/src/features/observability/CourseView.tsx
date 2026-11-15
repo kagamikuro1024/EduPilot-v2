@@ -1,13 +1,13 @@
 "use client";
 
-import { DefinitionList, EmptyState, PageState, Section, Skeleton } from "@/shared/ui";
+import { DefinitionList, EmptyState, PageState, Panel, Section, Skeleton } from "@/shared/ui";
 import { pct, useCourseSummary } from "./api";
 
 /** Bản tổng hợp 7 ngày của MỘT lớp: không bảng yêu cầu, không nội dung, không chi phí theo nhà cung cấp. */
 export function CourseView({ courseId }: { courseId: string | null }) {
   const q = useCourseSummary(courseId);
   return (
-    <PageState query={q} isEmpty={(d) => courseId === null || (d as { requests?: number } | undefined)?.requests === 0} loading={<Skeleton lines={6} />} empty={<EmptyState title={courseId === null ? "Chưa có lớp nào" : "Chưa có yêu cầu AI nào"} />}>
+    <PageState query={q} isEmpty={(d) => courseId === null || (d as { requests?: number } | undefined)?.requests === 0} loading={<Panel><Skeleton lines={6} /></Panel>} empty={<Panel><EmptyState title={courseId === null ? "Chưa có lớp nào" : "Chưa có yêu cầu AI nào"} /></Panel>}>
       {q.data && (
         <Section title="7 ngày qua">
           <DefinitionList

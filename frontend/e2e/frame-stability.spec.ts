@@ -98,3 +98,23 @@ test("insights: đang tải và lỗi giữ đúng bộ nút đầu trang của 
   expect(await headerButtons(page)).toEqual(data);
 });
 
+test("observability (giảng viên) lớp chưa có yêu cầu: khối rỗng nằm trong một Panel cao ≤ 320 px (E6)", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const KC = { id: "22222222-2222-7222-8222-222222222987", class_code: "761987", subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" };
+  await asJwt(page, "TEACHER");
+  await page.route("**/api/v1/me/courses**", (r) => r.fulfill(json({ items: [{ course: KC, role_in_course: "TEACHER", enrollment_status: "ACTIVE" }], next_cursor: null })));
+  await page.route("**/api/v1/me/today**", (r) => r.fulfill(json({ count: 0, actions: [] })));
+  await page.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
+  await page.route("**/api/v1/courses/*/observability/summary", (r) =>
+    r.fulfill(json({ requests: 0, error_rate: 0, escalations: 0, pii_masked: 0, helpful: 0, not_helpful: 0, thread_correct: 0, thread_reject: 0, graded_total: 0, graded_changed: 0, change_rate: 0, mean_abs_deviation: 0 })),
+  );
+  await page.goto("/observability");
+  const empty = page.locator("main [data-ep-empty]");
+  await expect(empty).toBeVisible();
+  const box = await empty.evaluate((e) => {
+    const p = e.closest("[data-ep-panel]");
+    return p ? p.getBoundingClientRect().height : null;
+  });
+  expect(box).not.toBeNull();
+  expect(box!).toBeLessThanOrEqual(320);
+});
