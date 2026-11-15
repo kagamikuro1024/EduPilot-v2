@@ -337,3 +337,12 @@
 {"tc": "ANDROID AC-12 hai tài khoản cùng điện thoại (đợt 2, @81051907): tài khoản thứ hai nhận «Hệ thống đang bận. Thử lại sau ít phút.» (503), không có lượt (D-AS-01)", "st": "FAIL", "note": "tái hiện trong app"}
 {"tc": "ANDROID AC-15 offline: trang «Không kết nối được máy chủ. Thử lại» (WebView tải lại khi mất mạng); gửi lại an toàn chưa đo", "st": "PASS", "note": "ghi nhận; gửi lại khi đã tải xong chưa đo (KHÔNG KIỂM ĐƯỢC phần «Chưa có mạng.»)"}
 {"tc": "ANDROID AC-11 GEO_MOCK: vị trí đặt bằng `adb emu geo fix` KHÔNG bị gắn GEO_MOCK (plugin isMockLocation=false) — ghi nhận, cần máy thật + app GPS giả", "st": "PASS", "note": "NOTE"}
+{"tc": "TC-AS04-07 (kiểm lại) cùng khoá, hai SV: cả hai 201 và cả hai lượt có DEVICE_SHARED (cờ gắn cả lượt trước)", "st": "PASS", "note": "201 201 {'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW'}"}
+{"tc": "TC-AS04-07b SV thứ ba cùng khoá: 201; ba lượt đều DEVICE_SHARED", "st": "PASS", "note": "{'sv.gioi': 'DEVICE_NEW,DEVICE_SHARED', 'sv.kha': 'DEVICE_SHARED,DEVICE_NEW', 'sv.nguyco': 'DEVICE_SHARED,DEVICE_NEW'}"}
+{"tc": "TC-AS04-08 (kiểm lại) đua 4 vòng: luôn hai 201 và cả hai DEVICE_SHARED", "st": "PASS", "note": "[([201, 201], True), ([201, 201], True), ([201, 201], True), ([201, 201], True)]"}
+{"tc": "TC-AS04-09b cùng khoá ở buổi sau (phạm vi lớp): DEVICE_SHARED (SRS FR-12: cùng course_id)", "st": "PASS", "note": "DEVICE_SHARED,DEVICE_NEW"}
+{"tc": "TC-AS06-06 (kiểm lại sau đổi AttReviewSessions) /me/today vẫn có CHECKIN_REVIEW", "st": "PASS", "note": "[\"Buổi 102: 3 lượt điểm danh cần xem · QC-AS\", \"Buổi 241: 1 lượt điểm danh cần xem · QC-AS\", \"Buổi 242: 1 lượt điểm danh cần xem · QC-AS\"]"}
+{"tc": "TC-AS03-02b (theo P-108-13/SRS v1.6) trường lạ trong thân → 422 VALIDATION_FAILED code=unknown; không ghi lượt", "st": "PASS", "note": "[{\"field\": \"student_id\", \"code\": \"unknown\", \"message\": \"Tr\\u01b0\\u1eddng kh\\u00f4ng \\u0111\\u01b0\\u1e"}
+{"tc": "TC-AS12-03c (D-AS-03) openapi attestation_chain minItems 2 / maxItems 6", "st": "PASS", "note": "attestation_chain]       additionalProperties: false       properties:         kind:           type: string           enum: [ANDROID_KEY]         public_key:   "}
+{"tc": "TC-AS12-03d 1 và 7 chứng chỉ → 422 (khớp openapi)", "st": "PASS", "note": "422 422"}
+{"tc": "ANDROID AC-12 (kiểm lại @b54d020e, bản sửa D-AS-01) hai tài khoản cùng điện thoại: cả hai «Đã điểm danh»; lượt tài khoản thứ hai có DEVICE_SHARED", "st": "PASS", "note": "sv06: DEVICE_NEW | sv07: DEVICE_SHARED,DEVICE_NEW"}

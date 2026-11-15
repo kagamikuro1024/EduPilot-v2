@@ -1,6 +1,6 @@
 import json, collections, re
 last = collections.OrderedDict()
-for f in ("results-as.jsonl", "/tmp/qc-as/ui.jsonl"):
+for f in ("results-as.jsonl", "results-ui.jsonl", "results-ui2.jsonl"):
     try:
         for l in open(f):
             r = json.loads(l); k = r["tc"].split(" ")[0]; last[k] = r
