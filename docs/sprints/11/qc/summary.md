@@ -6,7 +6,7 @@ Môi trường: stack `ep-qc` (HTTPS `https://localhost:943`, Postgres 18 + pgve
 | Nhóm | Tổng | Đạt | Trượt | Chưa kiểm | Ghi chú |
 | --- | --- | --- | --- | --- | --- |
 | US-P10-01…03 Quan sát AI + cảnh báo | 52 | 51 | 0 | 1 | TC-01-10 (EmptyState GV lớp chưa có yêu cầu AI) chờ stack |
-| US-P10-04…05 Insights | 54 | 53 | 1 | 0 | TC-04-11 (D-11-17) |
+| US-P10-04…05 Insights | 54 | 53 | 0 | 1 chặn | TC-04-11 (D-11-17): sửa ở `5852c9c2` đã vào build, chờ hạn mức Gemini ngày |
 | US-P10-06…07 Điểm thi + seed/E2E | 40 | 35 | 4 | 1 | TC-06-21 (1.000 bài) chờ stack; 07-03c, 07-09, 07-13, 07-14 |
 | US-P10-14 `/admin/audit` | 100 | 100 | 0 | 0 | |
 | `/assignments` SV (P-11-14) | 6 | 6 | 0 | 0 | |
