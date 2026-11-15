@@ -265,7 +265,7 @@ def pct(xs):
 
 # ---- chữ -----------------------------------------------------------------------------------------------------------------
 def fold(s):
-    s = unicodedata.normalize("NFC", s).replace("đ", "d").replace("Đ", "D")
+    s = unicodedata.normalize("NFKC", s).replace("đ", "d").replace("Đ", "D")  # NFKC: chữ toàn góc «Ｋ» → «K», NBSP → khoảng trắng (D-11-25)
     s = "".join(c for c in unicodedata.normalize("NFD", s) if not unicodedata.combining(c))
     return re.sub(r"\s+", " ", s).strip().lower()
 
@@ -753,9 +753,9 @@ def cmd_mask_rescore(api, a):
     for name in ("mask-luot1.json", "mask.json"):
         d = json.loads((OUT / name).read_text())
         for r in d["results"]:
-            r["spell_leak_before"] = r.get("spell_leak")
+            r.setdefault("spell_leak_before", r.get("spell_leak"))  # giữ giá trị lúc chạy thật, không đè khi chấm lại nhiều lần
             r["spell_leak"] = spelled_pii(r.get("content") or "", people, list(dict.fromkeys(probes[r["id"]]["names"])))
-        before = d["summary"].get("spell_leak")
+        before = d["summary"].get("spell_leak_before", d["summary"].get("spell_leak"))
         d["summary"] = {**mask_summary(d["results"]), "spell_leak_before": before, "rescored_at": iso(now())}
         save(name, d)
         print(name, "spell_leak:", before, "→", d["summary"]["spell_leak"], "pass:", d["summary"]["pass"])
