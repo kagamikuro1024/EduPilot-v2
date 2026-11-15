@@ -13,6 +13,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/edupilot/backend-go/internal/auth"
 )
@@ -63,13 +64,19 @@ type Result struct {
 // personalPatterns: câu hỏi cá nhân tiếng Việt, khớp trên văn bản đã bỏ dấu + chữ thường (nên phủ cả có dấu lẫn không dấu).
 var (
 	rePers0 = regexp.MustCompile(`\bdiem( [a-z]+){0,3} (cua )?(em|minh|toi|tao)\b`)
-	rePers1 = regexp.MustCompile(`\b(em|minh|toi) (co )?(da |bi |dang |con )?(vang|nghi|duoc|thieu|bi tru|bi cam|bi canh bao)\b`)
-	rePers2 = regexp.MustCompile(`\b(so buoi |buoi )?(vang|nghi|diem danh|chuyen can) (cua )?(em|minh|toi)\b`)
-	rePers3 = regexp.MustCompile(`\blich thi (cua )?(em|minh|toi)\b`)
-	rePers4 = regexp.MustCompile(`\bdiem cong (cua )?(em|minh|toi)\b`)
-	rePers5 = regexp.MustCompile(`\bquy che\b.{0,50}\b(ap|danh) (vao|cho) (em|minh|toi)\b`)
-	rePers6 = regexp.MustCompile(`\b(phuc khao|khieu nai)\b.{0,50}\bdiem (cua )?(em|minh|toi)\b`)
-	rePers7 = regexp.MustCompile(`\b(bai|diem|ket qua)\b.{0,30}\bcua (em|minh|toi)\b`)
+	// Bỏ dấu làm "nghỉ" (vắng) trùng "nghĩ" (suy nghĩ) và "được / thiếu" quá chung ("em nghĩ virus cần vật chủ", "mình được học gì" bị chặn nhầm, D-R-01):
+	// rePers1 chỉ giữ cụm không mơ hồ; "nghỉ" xét riêng trên văn bản CÓ dấu (rePers1Nghi), "được / thiếu" cần tân ngữ về điểm / phép / buổi (rePers1b).
+	rePers1  = regexp.MustCompile(`\b(em|minh|toi) (co )?(da |bi |dang |con )?(vang|bi tru|bi cam|bi canh bao)\b`)
+	rePers1b = regexp.MustCompile(`\b(em|minh|toi) (co )?(da |bi |dang |con )?(duoc|thieu) (diem|cong|mien|phep|bao nhieu|may|buoi|thi)\b`)
+	// Trên chữ thường đã chuẩn hoá NFC, chưa bỏ dấu. "nghỉ" có dấu: luôn là vắng. "nghi" gõ không dấu: chỉ khi kèm buổi / học / số lượng.
+	rePers1Nghi   = regexp.MustCompile(`(^|[^\p{L}])(em|mình|minh|tôi|toi) (có |co )?(đã |da |bị |bi |đang |dang |còn |con )?nghỉ($|[^\p{L}])`)
+	rePers1NghiKD = regexp.MustCompile(`(^|[^\p{L}])(em|minh|toi) (co )?(da |bi |dang |con )?nghi (hoc|buoi|may|bao nhieu|[0-9])`)
+	rePers2       = regexp.MustCompile(`\b(so buoi |buoi )?(vang|nghi|diem danh|chuyen can) (cua )?(em|minh|toi)\b`)
+	rePers3       = regexp.MustCompile(`\blich thi (cua )?(em|minh|toi)\b`)
+	rePers4       = regexp.MustCompile(`\bdiem cong (cua )?(em|minh|toi)\b`)
+	rePers5       = regexp.MustCompile(`\bquy che\b.{0,50}\b(ap|danh) (vao|cho) (em|minh|toi)\b`)
+	rePers6       = regexp.MustCompile(`\b(phuc khao|khieu nai)\b.{0,50}\bdiem (cua )?(em|minh|toi)\b`)
+	rePers7       = regexp.MustCompile(`\b(bai|diem|ket qua)\b.{0,30}\bcua (em|minh|toi)\b`)
 	// lịch thi hỏi về chính mình ("em thi phòng nào", "mình thi lúc mấy giờ", "em có phải thi lại"); cụm "thi" cần đứng sau ngôi thứ nhất để câu hỏi chung ("khi nào thi?") không dính.
 	rePers8 = regexp.MustCompile(`\b(em|minh|toi)\b.{0,25}\bthi\b.{0,25}\b(phong|luc|khi nao|bao gio|may gio|ngay nao|o dau|lai)\b`)
 	// điểm cộng / điều kiện áp vào mình ("em phát biểu 3 lần được cộng bao nhiêu", "em có đủ điều kiện dự thi không", "em đi học đủ chưa", "trường hợp của em").
@@ -81,8 +88,12 @@ var noiseToi = strings.NewReplacer("tối", "tzi", "tới", "tzi", "tỏi", "tzi
 
 // IsPersonalPattern cho biết văn bản khớp mẫu câu cá nhân (dùng cả ở agent để chọn "ý định cá nhân").
 func IsPersonalPattern(text string) bool {
+	lower := strings.ToLower(norm.NFC.String(text))
+	if rePers1Nghi.MatchString(lower) || rePers1NghiKD.MatchString(lower) {
+		return true
+	}
 	f := auth.Fold(noiseToi.Replace(strings.ToLower(text)))
-	for _, re := range []*regexp.Regexp{rePers0, rePers1, rePers2, rePers3, rePers4, rePers5, rePers6, rePers7, rePers8, rePers9} {
+	for _, re := range []*regexp.Regexp{rePers0, rePers1, rePers1b, rePers2, rePers3, rePers4, rePers5, rePers6, rePers7, rePers8, rePers9} {
 		if re.MatchString(f) {
 			return true
 		}

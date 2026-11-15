@@ -33,8 +33,13 @@ const (
 	ErrInternal           = "INTERNAL"
 )
 
-// EmptyFeedback là nhận xét cố định của bài trống (không do AI).
+// EmptyFeedback là nhận xét cố định của bài rỗng (n = 0, không do AI). Bài có chữ nhưng dưới ngưỡng dùng ShortFeedback (P-11-17).
 const EmptyFeedback = "Bài nộp không có nội dung để chấm."
+
+// ShortFeedback là nhận xét cố định của bài quá ngắn (0 < n < GRADING_MIN_CHARS, không do AI); `min` lấy từ cấu hình, không viết cứng.
+func ShortFeedback(min int) string {
+	return fmt.Sprintf("Bài nộp quá ngắn để chấm (dưới %d ký tự); giảng viên chấm tay.", min)
+}
 
 // EssayConfig là các hằng của Grading Engine (SRS 4.1).
 type EssayConfig struct {
@@ -191,8 +196,12 @@ func (g *Grader) Run(ctx context.Context, courseID, resultID uuid.UUID) (Outcome
 		flags = append(flags, FlagLateAfterCutoff)
 	}
 
-	if utf8.RuneCountInString(cleaned) < g.Cfg.MinChars { // bài trống: không gọi LLM
-		return g.saveEmpty(ctx, q, c, rubric, hits, append(flags, FlagEmptySubmission), lateDays)
+	if n := utf8.RuneCountInString(cleaned); n < g.Cfg.MinChars { // bài trống / quá ngắn: không gọi LLM
+		fb := ShortFeedback(g.Cfg.MinChars)
+		if strings.TrimSpace(cleaned) == "" {
+			fb = EmptyFeedback
+		}
+		return g.saveEmpty(ctx, q, c, rubric, hits, append(flags, FlagEmptySubmission), lateDays, fb)
 	}
 
 	// Cờ chèn lệnh = regex OR Structured (gộp vào lượt chấm) OR decision; hai tầng sau chỉ khi cổng có hiệu lực và bài ≥ 20 từ (AC3). Chỉ gắn cờ, không đổi điểm.
@@ -389,7 +398,7 @@ func (g *Grader) fail(ctx context.Context, q *store.Queries, c store.EssayGradeC
 	return Outcome{State: "FAILED", Code: code, Flags: flags}, nil
 }
 
-func (g *Grader) saveEmpty(ctx context.Context, q *store.Queries, c store.EssayGradeContextRow, rubric []RubricItem, hits []InjectionHit, flags []string, lateDays int) (Outcome, error) {
+func (g *Grader) saveEmpty(ctx context.Context, q *store.Queries, c store.EssayGradeContextRow, rubric []RubricItem, hits []InjectionHit, flags []string, lateDays int, feedback string) (Outcome, error) {
 	crit := make([]critJSON, len(rubric))
 	ai := map[string]string{}
 	for i, r := range rubric {
@@ -397,7 +406,7 @@ func (g *Grader) saveEmpty(ctx context.Context, q *store.Queries, c store.EssayG
 		crit[i] = critJSON{ID: r.ID, Score: &z, Evidence: []Evidence{}}
 		ai[r.ID] = z
 	}
-	return g.write(ctx, q, c, crit, ai, EmptyFeedback, decimal.Zero, decimal.Zero, lateDays, nil, uniqSorted(flags), nil, passDetail(nil, nil, rubric, hits, nil))
+	return g.write(ctx, q, c, crit, ai, feedback, decimal.Zero, decimal.Zero, lateDays, nil, uniqSorted(flags), nil, passDetail(nil, nil, rubric, hits, nil))
 }
 
 func (g *Grader) saveDraft(ctx context.Context, q *store.Queries, c store.EssayGradeContextRow, rubric []RubricItem, m Merged, p2 PassResult, flags []string, hits []InjectionHit, lateDays int, penalty decimal.Decimal) (Outcome, error) {
