@@ -112,6 +112,7 @@ func (r *runner) insightScenarios(x examRig) {
 	}
 	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/insights/knowledge-gap/generate", token: x.gv, headers: x.idem()}, 404)
 	gen(x.gv, 91, 422)
+	r.must(call{method: "POST", path: base + "/generate", token: x.gv, headers: x.idem(), body: `{"period_days":0}`}, 422) // P-11-35 (TC-04-04): 0 không phải «mặc định» — chỉ vắng trường mới là 14
 	gen(x.gv, 5, 422)
 	gen(x.gv, 30, 202)
 

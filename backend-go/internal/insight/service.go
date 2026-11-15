@@ -103,9 +103,6 @@ func (s *Service) window(days int) (time.Time, time.Time) {
 
 // Generate: kiểm kỳ → so data_watermark (không có dữ liệu mới → reused, 0 lời gọi LLM, không tính trần) → đủ ≥ 20 câu → trần 3 việc / giờ / lớp → xếp việc.
 func (s *Service) Generate(ctx context.Context, actor, courseID uuid.UUID, periodDays int) (GenerateOut, error) {
-	if periodDays == 0 {
-		periodDays = DefaultPeriod
-	}
 	if !slices.Contains([]int{7, 14, 30, WholeTerm}, periodDays) {
 		return GenerateOut{}, apierr.Validation(apierr.FieldError{Field: "period_days", Code: "invalid", Message: "Kỳ là 7, 14, 30 hoặc 120 (toàn kỳ) ngày."})
 	}

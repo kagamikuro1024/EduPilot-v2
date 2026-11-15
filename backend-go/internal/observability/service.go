@@ -194,16 +194,16 @@ type CourseSummary struct {
 	Requests  int64     `json:"requests"`
 	ErrorRate float64   `json:"error_rate"`
 	// Escalations: số phiếu chuyển giảng viên; PIIMasked: số lần che thông tin.
-	Escalations   int64   `json:"escalations"`
-	PIIMasked     int64   `json:"pii_masked"`
-	Helpful       int64   `json:"helpful"`
-	NotHelpful    int64   `json:"not_helpful"`
-	ThreadCorrect int64   `json:"thread_correct"`
-	ThreadReject  int64   `json:"thread_reject"`
-	GradedChanged int64   `json:"graded_changed"`
-	GradedTotal   int64   `json:"graded_total"`
-	ChangeRate    float64 `json:"change_rate"`
-	MeanAbsDev    string  `json:"mean_abs_deviation"`
+	Escalations   int64    `json:"escalations"`
+	PIIMasked     int64    `json:"pii_masked"`
+	Helpful       int64    `json:"helpful"`
+	NotHelpful    int64    `json:"not_helpful"`
+	ThreadCorrect int64    `json:"thread_correct"`
+	ThreadReject  int64    `json:"thread_reject"`
+	GradedChanged int64    `json:"graded_changed"`
+	GradedTotal   int64    `json:"graded_total"`
+	ChangeRate    float64  `json:"change_rate"`
+	MeanAbsDev    string   `json:"mean_abs_deviation"`
 	Days          []DayRow `json:"days"`
 }
 

@@ -10142,7 +10142,7 @@ paths:
     post:
       operationId: generateKnowledgeGap
       tags: [insights]
-      summary: "Tạo báo cáo lỗ hổng kiến thức (Giảng viên / TA của lớp; ADMIN 403; Idempotency-Key bắt buộc). `period_days` ∈ {7, 14, 30, 120 = toàn kỳ}, mặc định 14; giá trị khác → 422. Không có dữ liệu mới từ báo cáo gần nhất cùng kỳ → 200 `reused` (0 lời gọi LLM); dưới 20 câu hỏi → 409 NOT_ENOUGH_DATA; quá 3 việc / giờ / lớp → 429 RATE_LIMITED + Retry-After. Việc nền BATCH `insight.knowledge_gap`, tiến độ SSE job.progress với detail.stage ∈ COLLECT | CLUSTER | NAME | DONE; kết quả GET /jobs/{id} → result {report_id}"
+      summary: "Tạo báo cáo lỗ hổng kiến thức (Giảng viên / TA của lớp; ADMIN 403; Idempotency-Key bắt buộc). `period_days` ∈ {7, 14, 30, 120 = toàn kỳ}; vắng → 14; có mặt mà ngoài tập đó (kể cả 0, âm) → 422. Không có dữ liệu mới từ báo cáo gần nhất cùng kỳ → 200 `reused` (0 lời gọi LLM); dưới 20 câu hỏi → 409 NOT_ENOUGH_DATA; quá 3 việc / giờ / lớp → 429 RATE_LIMITED + Retry-After. Việc nền BATCH `insight.knowledge_gap`, tiến độ SSE job.progress với detail.stage ∈ COLLECT | CLUSTER | NAME | DONE; kết quả GET /jobs/{id} → result {report_id}"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: Idempotency-Key

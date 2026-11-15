@@ -453,8 +453,8 @@ func TestKnowledgeGapGenerateGates(t *testing.T) {
 	require.NotNil(t, out.JobID)
 	require.False(t, out.Reused)
 
-	// kỳ ngoài {7, 14, 30, 120} → 422 (Q-E-7); 0 = mặc định 14
-	for _, bad := range []int{-1, 5, 999} {
+	// kỳ ngoài {7, 14, 30, 120} → 422 (Q-E-7), kể cả 0 (P-11-35); «vắng = 14» do handler (contract)
+	for _, bad := range []int{-1, 0, 5, 999} {
 		_, err = r.svc.Generate(ctx, r.teacher, r.course, bad)
 		require.ErrorAs(t, err, &ae, bad)
 		require.Equal(t, http.StatusUnprocessableEntity, ae.Status, bad)
