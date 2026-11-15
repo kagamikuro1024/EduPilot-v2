@@ -334,3 +334,49 @@ func TestSeedLLMAudit(t *testing.T) {
 	require.Equal(t, 1, count(`select count(*) from mail_outbox where status = 'DEAD'`))
 	require.Zero(t, count(`select count(*) from llm_request_payloads where masked_prompt ~ '[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[a-z]{2,}|[0-9]{8,}'`), "chỉ nhãn [STUDENT_n], không email / MSSV thật")
 }
+
+// P-11-48 / TC-07-03: seed lại sau khi lịch dịch ngày (+1, +7, +30) KHÔNG để lại hàng của lần trước — study_time_daily ra đúng tập hàng của lần seed sau, và at-risk vẫn 1 AT_RISK + 2 WATCH.
+func TestSeedStudyTimeRerunShiftedCalendar(t *testing.T) {
+	var p plan
+	readJSON(t, "../../../seed/crm_plan.json", &p)
+	prof, err := os.ReadFile("../../../seed/study_profile.json")
+	require.NoError(t, err)
+	profile, err := seedtool.ParseProfile(prof)
+	require.NoError(t, err)
+	for _, days := range []int{1, 7, 30} {
+		t.Run(fmt.Sprintf("+%d ngày", days), func(t *testing.T) {
+			w := newWorld(t, p)
+			_, err := seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, today)
+			require.NoError(t, err)
+			later := today.AddDate(0, 0, days)
+			_, err = seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, later)
+			require.NoError(t, err)
+			rows := count(t, w, `select count(*) from study_time_daily where course_id = $1`, w.course)
+			_, err = w.pool.Exec(t.Context(), `delete from study_time_daily where course_id = $1`, w.course)
+			require.NoError(t, err)
+			_, err = seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, later)
+			require.NoError(t, err)
+			require.Equal(t, count(t, w, `select count(*) from study_time_daily where course_id = $1`, w.course), rows, "seed lại sau khi dịch %d ngày để lại hàng của lần trước", days)
+			again, err := seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, later)
+			require.NoError(t, err)
+			require.Zero(t, again, "cùng ngày: không đổi dòng nào")
+
+			// at-risk sau chuỗi «seed ở ngày sau rồi seed lại theo buổi neo (hôm nay)» = đúng 1 AT_RISK + 2 WATCH, như seed sạch
+			_, err = seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, today)
+			require.NoError(t, err)
+			svc := &crm.Service{Pool: w.pool, Clock: clock.NewFake(today)}
+			require.NoError(t, svc.RunCourse(t.Context(), w.course, today))
+			var atRisk, watch []string
+			for e, l := range levels(t, w) {
+				switch l {
+				case "AT_RISK":
+					atRisk = append(atRisk, e)
+				case "WATCH":
+					watch = append(watch, e)
+				}
+			}
+			require.ElementsMatch(t, []string{"sv.nguyco@edupilot.local"}, atRisk)
+			require.ElementsMatch(t, []string{"sv12@edupilot.local", "sv19@edupilot.local"}, watch)
+		})
+	}
+}
