@@ -11,7 +11,7 @@ import { useAutosaveDraft } from "@/shared/data";
 import { useSession } from "@/shared/session/session";
 import { Button, DataTable, Drawer, EmptyState, Field, Input, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Tabs, Textarea } from "@/shared/ui";
 import { useMinWidth } from "@/shared/lib/useMinWidth";
-import { ANSWER_LABEL, REASON_NAME, cleanExcerpt, describeReasons, pinnedOf, threadsKey, useModerationQueue, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
+import { ANSWER_LABEL, REASON_NAME, THREAD_LOCK_TEXT, cleanExcerpt, describeReasons, pinnedOf, threadsKey, useModerationQueue, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
 import { usePostGate } from "./usePostGate";
 import r from "./RealThreads.module.css";
 import { formatTime, formatWhen } from "@/shared/lib/datetime";
@@ -183,9 +183,9 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       {gate.check && !gate.check.allowed && (
         <p className={r.noticeLine} role="status" data-part="pii-notice">Phát hiện {describeReasons(gate.check.reasons)}</p>
       )}
-      {locked && <p className={r.noticeLine} role="status">Chat tạm khóa trong lúc bạn làm bài thi.{until ? ` Dùng lại được sau ${formatTime(until)}.` : ""}</p>}
+      {locked && <p className={r.noticeLine} role="status">{THREAD_LOCK_TEXT}{until ? ` Dùng lại được sau ${formatTime(until)}.` : ""}</p>}
       {gate.error && (
-        <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Gửi lại</Button>}>{gate.error.userMessage}</InlineNotice>
+        <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Gửi lại</Button>}>{gate.error.code === "EXAM_IN_PROGRESS" ? THREAD_LOCK_TEXT : gate.error.userMessage}</InlineNotice>
       )}
       <div className={r.actions}>
         <Button type="submit" variant="primary" disabled={empty || locked || gate.pending}>Đăng</Button>

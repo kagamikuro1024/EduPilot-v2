@@ -64,6 +64,9 @@ export const threadsKey = (courseId: string) => ["threads", courseId] as const;
 export const useThreadList = (courseId: string, f: ListFilter) =>
   useCursorList<ThreadRow>([...threadsKey(courseId), "list", f], `/courses/${courseId}/threads`, { limit: 30, query: { q: f.q || undefined, tag: f.tag || undefined, week: f.week || undefined, state: f.state || undefined } });
 
+/** Khoá đăng bài khi đang làm bài thi (SRS FEAT-private-chat-pii: «Đăng bài tạm khóa…», không phải chữ của chat). */
+export const THREAD_LOCK_TEXT = "Đăng bài tạm khóa trong lúc bạn làm bài thi.";
+
 /** `pinned[]` chỉ có ở trang đầu và nằm ngoài `items`. */
 export const pinnedOf = (pages: readonly object[] | undefined): ThreadRow[] => {
   const first = pages?.[0];
