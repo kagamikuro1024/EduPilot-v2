@@ -574,6 +574,9 @@ test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + C
   await expect(qRows(page).first()).toContainText("Chưa duyệt");
   await expect(qRows(page).first()).toContainText("Hai lượt chấm lệch hơn 1 điểm");
   await expect(qRows(page).first()).toContainText("Nghi chèn lệnh");
+  // D-R-06: hàng có cờ vẫn 48 px (mã sinh viên + lý do cờ chung một dòng), không 67 px như khi lý do xuống dòng riêng
+  const rowBox = await qRows(page).first().boundingBox();
+  expect(rowBox!.height).toBeLessThanOrEqual(48.5);
   const first = api.calls.find((c) => c.path.includes("/submissions?"))!;
   expect(first.path).toContain("needs_review=true");
   expect(first.path).toContain("status=DRAFT");

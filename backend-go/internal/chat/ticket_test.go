@@ -191,3 +191,30 @@ func TestThresholdTakesEffectNextMessage(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, r.count(`select count(*) from escalation_tickets where message_id = $1 and origin = 'AUTO_LOW_CONFIDENCE'`, m2), "ngưỡng mới 0,65 > 0,60: chuyển ngay ở tin kế tiếp")
 }
+
+// P-11-18 (D-R-07): LLM từ chối bằng chữ tự do trong khi truy xuất có hit cao (cos 0,9 ⇒ confidence 0,6·1 + 0,4·ground) vẫn là «chưa chắc» → ticket tự mở
+// và câu không vào cache; câu trả lời thật có dẫn nguồn [1] thì không.
+func TestRefusalWithHighRetrievalOpensTicket(t *testing.T) {
+	r := newRig(t)
+	r.withTickets()
+	hit := rag.Hit{Title: "Giao thức TCP", Text: "Giao thức TCP bảo đảm truyền tin cậy bằng bắt tay ba bước và truyền lại gói mất.", Cosine: 0.9}
+	reply := func(text string) {
+		r.ag.fn = func(ctx context.Context, _ agent.TrustedContext, _ agent.Input) (agent.Outcome, error) {
+			return agent.Outcome{Plan: agent.IntentCourseQA, Hits: []rag.Hit{hit}, Stream: r.ag.stream(ctx, nil, time.Millisecond, llm.Response{}, text)}, nil
+		}
+	}
+	reply("Hiện tại trong ngữ cảnh được cung cấp không có thông tin về cách nấu phở bò Hà Nội nên mình chưa đủ thông tin để trả lời.")
+	c, mid, err := r.send(r.student, r.sess, "Cách nấu phở bò Hà Nội ngon như thế nào?")
+	require.NoError(t, err)
+	require.Equal(t, chat.EvDone, c.last().Ev)
+	require.Equal(t, true, c.last().D["low_confidence"])
+	require.NotNil(t, c.last().D["ticket"], "từ chối mà không có ticket = sinh viên không có đường nhờ giảng viên")
+	require.Equal(t, 1, r.count(`select count(*) from escalation_tickets where message_id = $1 and origin = 'AUTO_LOW_CONFIDENCE'`, mid))
+
+	reply("Giao thức TCP bảo đảm truyền tin cậy bằng bắt tay ba bước [1].")
+	c, mid, err = r.send(r.student, r.sess, "TCP đảm bảo độ tin cậy bằng cách nào?")
+	require.NoError(t, err)
+	require.Equal(t, false, c.last().D["low_confidence"])
+	require.Nil(t, c.last().D["ticket"])
+	require.Equal(t, 0, r.count(`select count(*) from escalation_tickets where message_id = $1`, mid))
+}
