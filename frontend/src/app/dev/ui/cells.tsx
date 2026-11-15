@@ -36,7 +36,7 @@ const errorNote = (act: () => void, what = "Không tải được danh sách.") 
     Dữ liệu của bạn vẫn an toàn. Kiểm tra kết nối rồi thử lại.
   </InlineNotice>
 );
-const emptyOne = (act: () => void, title = "Chưa có bài nộp nào", text = "Khi sinh viên nộp bài, bài sẽ hiện ở đây.", label = "Giao bài đầu tiên") => (
+const emptyOne = (act: () => void, title = "Chưa có bài nộp nào", label = "Giao bài đầu tiên") => (
   <EmptyState title={title} action={<Button onClick={act}>{label}</Button>} />
 );
 const noop = () => {};
@@ -157,7 +157,7 @@ export const CELLS: Record<string, Cell> = {
   FilterChips: (st, act) => <TabsDemo st={st} act={act} kind="chips" />,
   ActionList: (st, act) => {
     if (st === "loading") return <Skeleton lines={3} />;
-    if (st === "empty") return emptyOne(act, "Chưa có việc nào", "Việc cần làm sẽ hiện ở đây khi có.", "Xem lịch");
+    if (st === "empty") return emptyOne(act, "Chưa có việc nào", "Xem lịch");
     if (st === "error") return errorNote(act, "Không tải được danh sách việc.");
     return (
       <ActionList label="Việc cần làm">
@@ -179,7 +179,7 @@ export const CELLS: Record<string, Cell> = {
           onRowClick={st === "disabled" ? undefined : act}
           activeKey={st === "selected" ? "b" : undefined}
           mobile="scroll"
-          empty={emptyOne(act, "Chưa có điểm nào", "Điểm sẽ hiện khi bài được chấm.", "Mở hàng chờ chấm")}
+          empty={emptyOne(act, "Chưa có điểm nào", "Mở hàng chờ chấm")}
         />
       </div>
     );
@@ -195,7 +195,7 @@ export const CELLS: Record<string, Cell> = {
           </Button>
         )}
       >
-        {st === "loading" ? <div aria-busy="true" style={{ padding: 12 }}><Skeleton lines={2} /></div> : st === "empty" ? <div style={{ padding: 12 }}>{emptyOne(act, "Không có bộ lọc", "Chưa có bộ lọc nào được lưu.", "Tạo bộ lọc")}</div> : <div style={{ padding: 12 }}>Chỉ hiện bài chưa chấm</div>}
+        {st === "loading" ? <div aria-busy="true" style={{ padding: 12 }}><Skeleton lines={2} /></div> : st === "empty" ? <div style={{ padding: 12 }}>{emptyOne(act, "Không có bộ lọc", "Tạo bộ lọc")}</div> : <div style={{ padding: 12 }}>Chỉ hiện bài chưa chấm</div>}
       </Popover>
     </div>
   ),

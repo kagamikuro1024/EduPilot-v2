@@ -10,7 +10,6 @@ import { EmbeddingSection } from "./EmbeddingSection";
 import { ProviderSection } from "./ProviderSection";
 import { FallbackSection, RouteTableSection } from "./RoutesSection";
 import { useProviders, useRoutes } from "./api";
-import s from "./llm.module.css";
 
 // Phần dưới màn hình: tách khỏi mã nạp đầu để việc đồng bộ lúc dựng trang ngắn lại (TBT, #19).
 const STAGES = 5;

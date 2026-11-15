@@ -86,6 +86,11 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const setAssignmentId = (v: string) => patch({ assignment: v });
   const setStatus = (v: QueueStatus) => patch({ status: v });
   const setFlagOnly = (v: boolean) => patch({ needs: v ? "1" : "0" });
+  // `patch` đổi theo mỗi lần vẽ (đọc `params`); hai effect tự nới lọc dưới đây gọi bản mới nhất qua ref để không đưa nó vào deps (sẽ chạy lại mỗi lần).
+  const patchRef = useRef(patch);
+  useEffect(() => {
+    patchRef.current = patch;
+  });
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
@@ -110,7 +115,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   useEffect(() => {
     if (!relaxed.current && flagOnly && !list.isPending && !list.isError && rows.length === 0) {
       relaxed.current = true;
-      setFlagOnly(false);
+      patchRef.current({ needs: "0" });
     }
   }, [flagOnly, list.isPending, list.isError, rows.length]);
 
@@ -118,7 +123,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   useEffect(() => {
     if (!relaxedStatus.current && !flagOnly && status === "DRAFT" && !list.isPending && !list.isError && rows.length === 0 && !ungraded.isPending && ungraded.items.length > 0) {
       relaxedStatus.current = true;
-      setStatus("NONE");
+      patchRef.current({ status: "NONE" });
     }
   }, [flagOnly, status, list.isPending, list.isError, rows.length, ungraded.isPending, ungraded.items.length]);
 
