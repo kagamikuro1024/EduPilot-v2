@@ -114,7 +114,12 @@ func (a GradeAdapter) whatIf(ctx context.Context, tc TrustedContext, in grade.Wh
 			return nil, false, ErrNoScheme
 		case apierr.FinalAlreadyLocked:
 			return a.Summary(ctx, tc)
-		case apierr.NotEnoughGrades, apierr.ScoreOutOfRange, apierr.ScorePrecision, apierr.ValidationFailed:
+		case apierr.ValidationFailed:
+			if in.TargetLetter != nil { // điểm chữ ngoài thang: lỗi đầu vào, không phải «chưa có dữ liệu» (SRS 4.8.3)
+				return nil, false, ErrUnknownLetter
+			}
+			return nil, false, nil
+		case apierr.NotEnoughGrades, apierr.ScoreOutOfRange, apierr.ScorePrecision:
 			return nil, false, nil
 		}
 	}

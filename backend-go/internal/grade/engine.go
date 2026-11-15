@@ -117,6 +117,19 @@ func Compute(s Scheme, in Input) Result { return compute(s, in, nil) }
 // WhatIf = Compute với điểm cuối kỳ CK = ck (0–10), không ghi gì; điều kiện liệt vẫn áp.
 func WhatIf(s Scheme, in Input, ck decimal.Decimal) Result { return compute(s, in, &ck) }
 
+// hasLetter: `letter` có trong thang điểm chữ của công thức (khớp chính xác, phân biệt hoa thường).
+func (s Scheme) hasLetter(letter string) bool {
+	if s.Rules.Letters == nil {
+		return false
+	}
+	for _, b := range s.Rules.Letters.Bands {
+		if b.Letter == letter {
+			return true
+		}
+	}
+	return false
+}
+
 // MinFinalFor trả điểm cuối kỳ nhỏ nhất (bước 0,01) ∈ [0; 10] để điểm chữ ≥ target và không liệt; false nếu không đạt được
 // (kể cả khi còn thiếu điểm thành phần khác). Dùng cùng Compute (không có đường tính thứ hai).
 func MinFinalFor(s Scheme, in Input, target string) (decimal.Decimal, bool) {

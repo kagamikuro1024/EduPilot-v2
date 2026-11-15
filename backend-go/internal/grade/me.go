@@ -328,6 +328,9 @@ func (s *Service) MeWhatIf(ctx context.Context, courseID, user uuid.UUID, in Wha
 	if !ok {
 		return WhatIfOut{}, apierr.New(http.StatusConflict, apierr.SchemeNotConfirmed)
 	}
+	if in.TargetLetter != nil && !conf.Scheme.hasLetter(strings.TrimSpace(*in.TargetLetter)) { // điểm chữ ngoài thang (Z, a+) = lỗi nhập, không phải «không đạt được» (TC-P6-09-49)
+		return WhatIfOut{}, apierr.Validation(apierr.FieldError{Field: "target_letter", Code: "enum", Message: "Điểm chữ không có trong thang của công thức."})
+	}
 	if gb, err := q.GradebookState(ctx, courseID); err == nil && gb.Status == store.GradebookStatusLOCKED {
 		if sn, err := q.GradeSnapshotsForStudents(ctx, store.GradeSnapshotsForStudentsParams{CourseID: courseID, Version: gb.SnapshotVersion, StudentIds: idStrings([]uuid.UUID{user})}); err == nil && len(sn) == 1 {
 			return WhatIfOut{}, apierr.New(http.StatusConflict, apierr.FinalAlreadyLocked)

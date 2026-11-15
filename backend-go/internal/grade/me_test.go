@@ -377,10 +377,15 @@ func TestMeWhatIfTargetLetter(t *testing.T) {
 	if *out.Reachable {
 		require.NotNil(t, out.MinFinalExam)
 	}
-	code, body = r.post("/me/grades/what-if", "A", map[string]any{"target_letter": "Z"})
+	// P-11-55 / TC-P6-09-49: điểm chữ NGOÀI thang của công thức là lỗi nhập (422), không phải «không đạt được»; «có trong thang nhưng không đạt được» vẫn 200 reachable=false (TC-P6-09-18)
+	for _, bad := range []string{"Z", "a", "a+", "A++", "", " "} { // so khớp CHÍNH XÁC: hoa / thường khác nhau, rỗng và trắng = ngoài thang
+		code, body = r.post("/me/grades/what-if", "A", map[string]any{"target_letter": bad})
+		require.Equal(t, 422, code, "%q", bad)
+		require.Contains(t, body, "VALIDATION_FAILED", "%q", bad)
+		require.Contains(t, body, `"field":"target_letter"`, "%q", bad)
+	}
+	code, _ = r.post("/me/grades/what-if", "A", map[string]any{"target_letter": " A "}) // TrimSpace trước khi so
 	require.Equal(t, 200, code)
-	require.Contains(t, body, `"reachable":false`)
-	require.NotContains(t, body, "min_final_exam_score")
 	code, _ = r.post("/me/grades/what-if", "A", map[string]any{"target_letter": "A", "final_exam_score": "8"})
 	require.Equal(t, 422, code, "đúng một trong hai trường")
 }

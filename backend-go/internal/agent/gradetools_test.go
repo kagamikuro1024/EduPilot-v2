@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -207,4 +208,22 @@ func TestGradeFormulaFromConfirmedScheme(t *testing.T) {
 	require.Equal(t, map[string]any{"step": "0.5", "mode": "HALF_UP"}, f["rounding"])
 	require.Len(t, f["letter_scale"], 3)
 	require.Equal(t, "Quy chế học phần, tr. 3", f["source"])
+}
+
+// P-11-55 (SRS FEAT-gradebook 4.8.3, v1.4): `target_letter` ngoài thang → tool trả LỜI NÊU LỖI ĐẦU VÀO (nêu điểm chữ đã nhập), không `null` / «chưa có dữ liệu» và không dữ kiện bịa.
+// So khớp chính xác sau TrimSpace, phân biệt hoa thường, rỗng = ngoài thang.
+func TestToolWhatIfUnknownLetter(t *testing.T) {
+	r := newGradeRig(t)
+	for _, bad := range []string{"Z", "a", "A++", " "} {
+		_, _, err := r.ad.MinFinal(r.ctx, r.tc(r.a), bad)
+		require.ErrorIs(t, err, ErrUnknownLetter, "%q", bad)
+		res := runTool(t, r.registry(), "what_if_final_grade", r.tc(r.a), `{"target_letter":`+strconv.Quote(bad)+`}`)
+		require.True(t, res.NoData, "%q", bad)
+		require.Nil(t, res.Facts)
+		require.Contains(t, res.Message, "không có trong thang", "%q", bad)
+		require.NotEqual(t, ReplyNoData("điểm"), res.Message, "không phải câu «chưa có dữ liệu»")
+	}
+	_, ok, err := r.ad.MinFinal(r.ctx, r.tc(r.a), " A ") // TrimSpace: điểm chữ có trong thang
+	require.NoError(t, err)
+	require.True(t, ok)
 }
