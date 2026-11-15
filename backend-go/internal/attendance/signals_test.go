@@ -247,19 +247,34 @@ func TestLogsNoCheckinSecrets(t *testing.T) {
 	require.NotContains(t, aud, "105.84")
 }
 
-// Lệnh dev seed-checkin-demo: buổi có cửa sổ đã đóng, nửa lớp điểm danh, hai người mang cờ → CHECKIN_REVIEW; vẫn phải đánh vắng mới hoàn tất.
+// Lệnh dev seed-checkin-demo (US-AS-14 AC1): hai cửa sổ đã đóng ở buổi đầu; vòng 1 đủ ca cờ; vòng 2 + RECHECK_MISS; over_headcount; idempotent; vẫn phải đánh vắng mới hoàn tất.
 func TestSeedCheckinDemo(t *testing.T) {
 	r := newRig(t)
-	w := r.world(6)
+	w := r.world(24)
 	n, err := seedtool.SeedCheckinDemo(t.Context(), r.pool, w.course)
 	require.NoError(t, err)
-	require.EqualValues(t, 3, n)
+	require.EqualValues(t, 22+21, n) // vòng 1: 22 lượt; vòng 2: mọi người trừ người cuối
+	count := func(q string) string { return r.scalar(strings.ReplaceAll(q, "$C", "'"+w.course.String()+"'")) }
+	require.Equal(t, "2", count(`select count(*) from checkin_windows where course_id = $C and closed_at is not null`))
+	require.Equal(t, "22", count(`select count(*) from attendance_checkins c join checkin_windows w on w.id = c.window_id where c.course_id = $C and w.round = 1`))
+	for flag, want := range map[string]string{"DEVICE_SHARED": "2", "DEVICE_NEW": "1", "NO_DEVICE_KEY": "1", "TOKEN_LATE": "1", "RECHECK_MISS": "1"} {
+		require.Equal(t, want, count(`select count(*) from attendance_checkins where course_id = $C and '`+flag+`' = any(flags)`), flag)
+	}
+	require.Equal(t, "1", count(`select count(*) from attendance_records where course_id = $C and status = 'LATE'`))
+	require.Equal(t, "1", count(`select count(*) from checkin_windows where course_id = $C and headcount < (select count(*) from attendance_checkins c where c.window_id = checkin_windows.id)`), "over_headcount")
+	require.Equal(t, "true", count(`select (settings->'attendance'->>'self_checkin') from courses where id = $C`))
+
+	again, err := seedtool.SeedCheckinDemo(t.Context(), r.pool, w.course) // chạy lần hai: số hàng không đổi
+	require.NoError(t, err)
+	require.EqualValues(t, 0, again)
+	require.Equal(t, "43", count(`select count(*) from attendance_checkins where course_id = $C`))
+
 	svc := &attendance.Service{Pool: r.pool, Redis: r.rdb, Clock: r.clk, Cfg: r.cfg.Attendance}
 	review, err := svc.ReviewSessions(t.Context(), []uuid.UUID{w.course})
 	require.NoError(t, err)
 	require.Len(t, review, 1)
-	require.Equal(t, 2, review[0].Flagged)
+	require.Equal(t, 6, review[0].Flagged)
 	g := w.put(w.T, 0, nil, true)
 	require.Equal(t, "CHECKIN_UNRESOLVED", g.errCode())
-	require.EqualValues(t, 3, g.details()["count"])
+	require.EqualValues(t, 2, g.details()["count"]) // 24 sinh viên, 22 có lượt
 }
