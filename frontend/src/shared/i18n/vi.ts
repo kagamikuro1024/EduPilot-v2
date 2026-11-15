@@ -50,6 +50,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   JOIN_CODE_INVALID: "Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên.",
   COURSE_FULL: "Lớp đã đủ sĩ số.",
   COURSE_ARCHIVED: "Lớp này đã được lưu trữ.",
+  CHECKIN_TOKEN_INVALID: "Mã không đúng. Quét lại mã trên màn chiếu.",
+  CHECKIN_TOKEN_EXPIRED: "Mã đã hết hạn. Quét lại mã trên màn chiếu.",
   EXAM_IN_PROGRESS: "Chat tạm khóa trong lúc bạn làm bài thi.",
   CHAT_BUSY: "AI đang trả lời câu trước.",
   MESSAGE_TOO_LONG: "Tin nhắn dài quá 4.000 ký tự.",

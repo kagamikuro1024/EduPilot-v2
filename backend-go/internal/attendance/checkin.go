@@ -58,15 +58,15 @@ type CheckinOut struct {
 }
 
 func tokenInvalid() *apierr.Error {
-	return apierr.New(http.StatusUnprocessableEntity, apierr.TokenInvalid).WithMessage("Mã không đúng. Quét lại mã trên màn chiếu.")
+	return apierr.New(http.StatusUnprocessableEntity, apierr.CheckinTokenInvalid)
 }
 
 func codeInvalid() *apierr.Error {
-	return apierr.New(http.StatusUnprocessableEntity, apierr.TokenInvalid).WithMessage("Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.")
+	return apierr.New(http.StatusUnprocessableEntity, apierr.CheckinTokenInvalid).WithMessage("Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.")
 }
 
 func tokenExpired() *apierr.Error {
-	return apierr.New(http.StatusUnprocessableEntity, apierr.TokenExpired).WithMessage("Mã đã hết hạn. Quét lại mã trên màn chiếu.")
+	return apierr.New(http.StatusUnprocessableEntity, apierr.CheckinTokenExpired)
 }
 
 func decodeB64(s string) ([]byte, bool) {
@@ -218,7 +218,7 @@ func (s *Service) Checkin(ctx context.Context, student, courseID uuid.UUID, in C
 		}
 		var pg *pgconn.PgError
 		if errors.As(err, &pg) && pg.Code == "23503" && strings.Contains(pg.ConstraintName, "student_fkey") {
-			return CheckinOut{}, false, apierr.New(http.StatusForbidden, apierr.NotInCourse)
+			return CheckinOut{}, false, apierr.New(http.StatusForbidden, apierr.Forbidden).WithDetails(map[string]string{"reason": "course"}) // bị mời ra giữa guard và INSERT: như người ngoài lớp
 		}
 		return CheckinOut{}, false, wrap("ghi lượt", err)
 	}

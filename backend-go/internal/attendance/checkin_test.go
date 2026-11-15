@@ -81,7 +81,7 @@ func TestCheckinFlow(t *testing.T) {
 	// Lớp chưa bật → SELF_CHECKIN_DISABLED; bật nhưng chưa mở cửa sổ → NO_WINDOW.
 	require.Equal(t, "SELF_CHECKIN_DISABLED", w.checkin(s1, map[string]any{"code": "AAAAAA"}).errCode())
 	w.enable("")
-	require.Equal(t, "TOKEN_INVALID", w.checkin(s1, map[string]any{"code": "AAAAAA"}).errCode(), "chưa có cửa sổ nào khớp mã")
+	require.Equal(t, "CHECKIN_TOKEN_INVALID", w.checkin(s1, map[string]any{"code": "AAAAAA"}).errCode(), "chưa có cửa sổ nào khớp mã")
 
 	o := w.open(0)
 	require.Equal(t, http.StatusCreated, o.code, string(o.body))
@@ -94,6 +94,14 @@ func TestCheckinFlow(t *testing.T) {
 	require.Equal(t, http.StatusForbidden, w.display(s1, 0, wid).code)
 	require.Equal(t, http.StatusForbidden, w.checkin(w.T, map[string]any{"code": "AAAAAA"}).code)
 	require.Equal(t, http.StatusForbidden, w.checkin(w.OUT, map[string]any{"code": "AAAAAA"}).code)
+	// Chưa ghi danh ACTIVE (PENDING) / đã bị mời ra: guard chặn trước handler — 403 FORBIDDEN, details.reason = course (không có mã NOT_IN_COURSE riêng; P-108-11).
+	pend := r.mustLogin(w.pending.Email)
+	pc := w.checkin(pend, map[string]any{"code": "AAAAAA"})
+	require.Equal(t, http.StatusForbidden, pc.code)
+	require.Equal(t, "FORBIDDEN", pc.errCode())
+	require.Equal(t, "course", pc.details()["reason"])
+	gone := r.addUserRemoved(w)
+	require.Equal(t, http.StatusForbidden, w.checkin(r.mustLogin(gone.Email), map[string]any{"code": "AAAAAA"}).code)
 
 	tok, code := w.token(0, wid)
 	k := newDevkey(t)
@@ -105,17 +113,17 @@ func TestCheckinFlow(t *testing.T) {
 	require.Equal(t, http.StatusOK, again.code)
 	require.Equal(t, first.json()["checked_in_at"], again.json()["checked_in_at"])
 
-	// Đường mã ngắn; mã sai → TOKEN_INVALID kiểu mã; token rác → TOKEN_INVALID.
+	// Đường mã ngắn; mã sai → CHECKIN_TOKEN_INVALID kiểu mã; token rác → CHECKIN_TOKEN_INVALID.
 	require.Equal(t, http.StatusCreated, w.checkin(s2, map[string]any{"code": code}).code)
 	require.NotEmpty(t, w.checkin(s2, map[string]any{"code": "ZZZZZZ"}).errCode())
 	require.NotEmpty(t, w.checkin(w.sv(2), map[string]any{"token": "x.y.z"}).errCode())
 	require.Equal(t, 2, r.count(`select count(*) from attendance_checkins where window_id = $1`, wid))
 
-	// Token cũ hơn một bước vẫn nhận; hai bước thì TOKEN_EXPIRED.
+	// Token cũ hơn một bước vẫn nhận; hai bước thì CHECKIN_TOKEN_EXPIRED.
 	r.clk.Advance(5 * time.Second)
 	require.Equal(t, http.StatusCreated, w.checkin(w.sv(2), map[string]any{"token": tok}).code)
 	r.clk.Advance(35 * time.Second)
-	require.Equal(t, "TOKEN_EXPIRED", w.checkin(w.sv(2), map[string]any{"token": tok}).errCode())
+	require.Equal(t, "CHECKIN_TOKEN_EXPIRED", w.checkin(w.sv(2), map[string]any{"token": tok}).errCode())
 }
 
 func TestCheckinFlags(t *testing.T) {

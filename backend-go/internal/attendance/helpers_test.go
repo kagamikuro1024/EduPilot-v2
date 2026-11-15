@@ -96,3 +96,11 @@ func items(x resp, key string) []map[string]any {
 	}
 	return out
 }
+
+// addUserRemoved ghi danh một sinh viên REMOVED (đã bị mời ra).
+func (r *rig) addUserRemoved(w world) store.User {
+	r.t.Helper()
+	u := r.addUser(uniq("gone"), store.UserRoleSTUDENT, store.UserStatusACTIVE)
+	r.enroll(w.course, u.ID, "STUDENT", "REMOVED")
+	return u
+}
