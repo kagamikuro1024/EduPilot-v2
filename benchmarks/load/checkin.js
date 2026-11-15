@@ -105,7 +105,7 @@ export function setup() {
 }
 
 export function checkin(data) {
-  const i = exec.vu.idInTest; // 1…200
+  const i = exec.scenario.iterationInTest + 1; // 1…200 (idInTest đếm cả VU của display / background nên lệch)
   const n = Math.ceil(i / PER);
   const c = data.courses[n - 1];
   sleep(Math.random() * (SCENARIO === 'spread' ? 30 : 5));

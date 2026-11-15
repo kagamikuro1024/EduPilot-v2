@@ -1,6 +1,6 @@
-# Dev — Sprint 10.8 (điểm danh tự phục vụ): L1–L5, L7 (chưa đo)
+# Dev — Sprint 10.8 (điểm danh tự phục vụ): L1–L5, L7
 
-Nhánh `sprint/10.8-attendance`. Phạm vi: `techlead.md` TL-2 §4 lát L1–L5 và L7 (mã). Chưa chạy: k6, E2E trên stack thật, Lighthouse `/checkin`, kiểm tay emulator.
+Nhánh `sprint/10.8-attendance`. Phạm vi: `techlead.md` TL-2 §4 lát L1–L5 và L7. Mục «Đợt 2» ghi các số đo và việc còn nợ.
 
 ## Đã làm
 - Migration `00024_attendance_checkin.sql` (3 bảng + 2 enum, có Down). Truy vấn `internal/store/queries/attendance_checkin.sql` (sqlc sạch).
@@ -48,10 +48,16 @@ Nhánh `sprint/10.8-attendance`. Phạm vi: `techlead.md` TL-2 §4 lát L1–L5 
 | 12 | `TestAttest*`, `TestDeviceChallengeOnce` | `TestAttestRealChains`, `TestAttestRejects`, `TestAttestRevocation`, `TestDeviceChallengeOnce` |
 | 13 | `TestPurge*`, `TestAccountDeleteRemovesCheckins` | `TestPurgeKeepsRecords`, `TestForgetStudentKeepsOthers` |
 
+## Đợt 2 (dev2, 2026-11-15)
+- **k6 `checkin.js` đã chạy** (không phải stack T1 Docker đầy đủ — RAM; xem «Cách đo»): spread 200 SV / 30 s và burst 200 lượt / 5 s đều qua mọi ngưỡng. `POST …/checkins` p95 **15,6 ms** (spread) / **9,8 ms** (burst), lỗi 0 %, đúng 200 hàng mỗi lần (teardown đếm 200; DB 400 hàng sau hai lần); `display` p95 11,8 / 12,7 ms; đọc nền p95 9,6 / 10,4 ms.
+  Cách đo: gateway dựng native (`go build`, `APP_ENV=dev`, `fake` LLM, `k6-stack.yml` env) + Postgres 18 / Redis 8 / MinIO trong 3 container riêng, dữ liệu `seed-t1.mjs --no-vectors` (1.000 SV · 20 lớp, script lấy từ `sprint/9.5-nfr`), MacBook Apple Silicon, **không có worker, không Caddy/TLS, không pgbouncer**. Số này là chặn dưới của đường nóng, KHÔNG thay cho số đo trên stack T1 (còn QC/PM chạy khi có `ep-t1`).
+- **Sửa lỗi script k6 (lỗi L7 của dev1):** `exec.vu.idInTest` đếm cả VU của kịch bản `display` / `background` nên 15 VU cuối rơi sang lớp T1-05 (không có token) → 15 × 401. Đổi sang `exec.scenario.iterationInTest + 1`.
+- **Đường quét có test tự động:** `frontend/e2e/checkin-scan.spec.ts` (`BarcodeDetector` + `getUserMedia` giả): mã khác nguồn / không phải URL bị bỏ qua, mã đúng gửi token một lần và `track.stop()`, từ chối camera → «Chưa cấp quyền camera.» + ô nhập mã.
+- **Icon manifest:** `public/brand/icon-{192,512}.png` (từ `logo-edupilot-mark.svg`, nền trắng) vào `manifest.ts`.
+- **Kiểm toàn bộ:** `make lint` (vet ×3 + golangci-lint ×3) 0 issue; `go test -race -tags testroutes ./...` xanh toàn bộ gói; lần chạy song song `./...` trên máy này bị timeout 10 phút ở 11 gói (máy dùng chung với `ep-qc` / `ep-t1`), chạy lại các gói đó với `-p 3` đều xanh, `attendance` xanh riêng + 3/3 lần `TestMeAttendanceCheckedAtAndTodayReview` (một lần đỏ khi quá tải, không lặp lại). `pnpm lint` 0 lỗi (5 cảnh báo cũ, ngoài 10.8), `next build:gate` xanh, Playwright `checkin` + `attendance` 65 passed / 31 skipped (theo project), `scripts/ui-antipatterns.sh` sạch.
+
 ## Nợ / chưa làm
-- **Chưa chạy trên stack thật:** k6 `checkin.js` (cần stack T1 kèm `k6-stack.yml`), E2E F7b trọn trên stack (các spec Playwright dùng gateway giả theo hợp đồng thật), `check-checkin-seed.mjs`, Lighthouse / axe `/checkin` và `/attendance/display`, p95 «0 thao tác → Đã điểm danh ≤ 1,5 s».
-- Icon manifest chỉ có SVG (chưa PNG 192 / 512). Kịch bản kiểm tay emulator `android-checklist.md` thuộc QC.
-- Đường quét (`getUserMedia` + `BarcodeDetector`) chưa có test tự động (Chromium headless không có detector): chỉ có `parseCheckinQr` và kiểm tay.
-- Playwright trên bản dựng có CSP: máy này chạy documents, a11y, class-join, checkin*, attendance*, panels, frame student; phần còn lại để CI.
-- `attest` chưa chạy với emulator (chỉ gốc phần mềm ⇒ bước 4 hỏng; P-108-5). `go test -race` toàn bộ để CI.
+- **Chưa chạy:** k6 trên stack T1 thật (Docker, TLS, pgbouncer, worker); `scripts/check-checkin-seed.mjs` (cần `seed.mjs` đầy đủ trên stack demo; phần logic đã có `TestSeedCheckinDemo`); Lighthouse `/checkin` (đã khai ở `lighthouserc.json`, chạy ở CI); kiểm tay emulator `android-checklist.md` (QC; **không có máy Android thật** — P-108-12).
+- `attest` chưa chạy với emulator (chỉ gốc phần mềm ⇒ bước 4 hỏng; P-108-5).
 - `PRODUCTION_READINESS` §3: job xoá tài khoản (phase PR) phải gọi `attendance.ForgetStudent`.
+- Production compose / secret của PR phải đặt `ATTENDANCE_TOKEN_KEY`, `ATTESTATION_PACKAGE`, `ATTESTATION_CERT_SHA256` khác rỗng.
