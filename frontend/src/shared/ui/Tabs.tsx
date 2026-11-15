@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useScrollRow } from "@/shared/lib/useScrollRow";
 import s from "./Tabs.module.css";
 
-type Option<V extends string> = { value: V; label: ReactNode; count?: number; disabled?: boolean };
+type Option<V extends string> = { value: V; label: ReactNode; count?: number; disabled?: boolean; /** gợi ý trên chính nhãn (chỉ khi thiếu nó người dùng hiểu sai) */ title?: string };
 
 /** Chuyển giữa các phần lớn của MỘT đối tượng (DESIGN.md §10.8). */
 export function Tabs<V extends string>({ value, onChange, options, label }: { value: V; onChange: (v: V) => void; options: Option<V>[]; label: string }) {
@@ -51,7 +51,7 @@ export function SegmentedControl<V extends string>({ value, onChange, options, l
   return (
     <div role="radiogroup" aria-label={label} className={s.segmented} ref={ref}>
       {options.map((o) => (
-        <button key={o.value} type="button" role="radio" aria-checked={o.value === value} className={s.segment} disabled={o.disabled} onClick={() => onChange(o.value)}>
+        <button key={o.value} type="button" role="radio" aria-checked={o.value === value} className={s.segment} disabled={o.disabled} title={o.title} onClick={() => onChange(o.value)}>
           {o.label}
           {o.count !== undefined && <span className={s.count}>{o.count}</span>}
         </button>

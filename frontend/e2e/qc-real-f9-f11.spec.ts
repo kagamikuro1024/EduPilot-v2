@@ -48,13 +48,13 @@ test("@real F9 GV tạo + công bố bài; SV nộp PDF trong app; chấm hàng 
   const body = pdf(["Tuong lua la thiet bi hoac phan mem loc luu luong theo quy tac.", "No thuong dat o bien mang giua mang trong va Internet.", "Vi du: quy tac chan moi goi den cong 23 (telnet) tu ben ngoai."]);
   await page.locator("input[type=file]").setInputFiles({ name: `bai-${tag}.pdf`, mimeType: "application/pdf", buffer: body });
   await page.getByRole("button", { name: "Nộp bài" }).click();
-  await expect(page.getByText(/Đã nộp|đã nộp/).first()).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/Đã nhận bài lúc/).first()).toBeVisible({ timeout: 60_000 });
   await shot(page, "f9-student-submitted");
   expect(createHash("sha256").update(body).digest("hex")).toHaveLength(64);
 
   const gj = await call(request, teacher, "POST", `/courses/${S.cid}/assignments/${S.aid}/grade-all`, {});
   expect([200, 202], gj.text.slice(0, 200)).toContain(gj.status);
-  const rows = await poll(() => sql(`select r.id, r.status from grading_results r join submissions s on s.id=r.submission_id where s.assignment_id='${S.aid}'`), (r) => r.length >= 1 && r.every((x) => x[1] !== "PENDING"), 300_000, 5000);
+  const rows = await poll(() => sql(`select r.id, r.status, r.run_state from grading_results r join submissions s on s.id=r.submission_id where s.assignment_id='${S.aid}'`), (r) => r.length >= 1 && r.every((x) => x[2] === "DONE" || x[2] === "FAILED"), 300_000, 5000);
   expect(rows.length, "có kết quả chấm").toBeGreaterThanOrEqual(1);
   expect(rows[0][1], "kết quả chấm nháp").toBe("DRAFT");
   S.rid = rows[0][0];
@@ -90,25 +90,31 @@ test("@real F9 GV sửa tiêu chí + duyệt → công bố; SV thấy điểm +
 });
 
 test("@real F11 phúc khảo: SV «Yêu cầu xem lại» (một lần) → GV quyết định có phản hồi → SV được báo; AI không tham gia", async ({ page, browser, request }) => {
+  // Hôm nay gom theo bài tập có phúc khảo cũ nhất: đóng phúc khảo QC còn sót của lượt trước để mục «yêu cầu xem lại điểm» trỏ đúng bài vừa tạo
+  sql(`update grade_appeals set status='UPHELD', decided_at=now(), decided_by=(select id from users where email='teacher@edupilot.local'), response='QC dọn fixture', score_after=score_before where status='OPEN' and assignment_id <> '${S.aid}'`);
   await uiLogin(page, "sv.kha");
   await page.goto(`/assignments/${S.aid}`);
   await page.getByRole("button", { name: "Yêu cầu xem lại" }).click();
+  await page.getByRole("checkbox", { name: /Ví dụ minh hoạ/ }).check();
   await page.getByLabel("Lý do").fill("Em cho rằng ví dụ về quy tắc lọc cổng 23 đã đủ cụ thể, nhờ thầy xem lại tiêu chí 2.");
-  await page.getByRole("button", { name: "Gửi", exact: true }).click();
-  await expect.poll(() => sql(`select count(*) from escalation_tickets where kind='GRADE_APPEAL' and course_id='${S.cid}' and student_id=(select id from users where email='sv.kha@edupilot.local') and created_at > now() - interval '10 minutes'`)[0][0]).toBe("1");
+  await page.getByRole("button", { name: "Gửi", exact: true }).click({ timeout: 20_000 });
+  await expect.poll(() => sql(`select count(*) from grade_appeals where course_id='${S.cid}' and assignment_id='${S.aid}' and student_id=(select id from users where email='sv.kha@edupilot.local') and status='OPEN'`)[0][0], { timeout: 10_000 }).toBe("1");
   await shot(page, "f11-student-appeal-sent");
   await expect(page.getByRole("button", { name: "Yêu cầu xem lại" })).toHaveCount(0); // mỗi bài một lần
   const llm0 = Number(sql(`select count(*) from llm_audit`)[0][0]);
   const gv = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
   const gp = await gv.newPage();
   await uiLogin(gp, "teacher");
-  await gp.goto("/");
-  await gp.locator("main").getByText(/phúc khảo/i).first().click();
-  await gp.getByRole("button", { name: "Quyết định" }).click();
+  await gp.goto(`/?course=${S.cid}`);
+  const item = gp.locator("main").getByText(/yêu cầu xem lại điểm/i).first();
+  await expect(async () => { if (!(await item.isVisible())) await gp.reload(); await expect(item).toBeVisible({ timeout: 8_000 }); }).toPass({ timeout: 120_000, intervals: [5_000] });
+  await item.click();
+  await gp.getByRole("button", { name: "Giữ nguyên điểm" }).click({ timeout: 20_000 });
   await gp.getByLabel(/Phản hồi/).fill("Đã xem lại: ví dụ đạt yêu cầu, thầy giữ nguyên điểm theo thang đã công bố.");
-  await gp.getByRole("button", { name: "Giữ nguyên điểm" }).click();
+  await gp.getByRole("button", { name: "Quyết định", exact: true }).click({ timeout: 20_000 });
+  await gp.getByRole("dialog").getByRole("button", { name: "Quyết định" }).click({ timeout: 20_000 });
   await shot(gp, "f11-teacher-decided");
-  await expect.poll(() => sql(`select status from escalation_tickets where kind='GRADE_APPEAL' and course_id='${S.cid}' order by created_at desc limit 1`)[0][0]).not.toBe("OPEN");
+  await expect.poll(() => sql(`select status from grade_appeals where course_id='${S.cid}' and assignment_id='${S.aid}' order by created_at desc limit 1`)[0][0]).not.toBe("OPEN");
   await gv.close();
   const bell = await poll(async () => JSON.stringify((await call(request, await login(request, "sv.kha"), "GET", "/notifications?limit=20")).json), (s) => /phúc khảo|xem lại/i.test(s), 60_000, 3000);
   expect(bell).toMatch(/phúc khảo|xem lại/i);

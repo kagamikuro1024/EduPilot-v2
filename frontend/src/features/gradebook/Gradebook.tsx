@@ -61,13 +61,25 @@ const ago = (iso?: string) => {
   return m < 1 ? "vừa xong" : m < 60 ? `${m} phút trước` : `${Math.round(m / 60)} giờ trước`;
 };
 
+/** Đầu trang khi chưa có dữ liệu (đang tải / lỗi / chưa chọn lớp): cùng nút với lúc có dữ liệu, nút cần dữ liệu khoá, liên kết bấm được (TL 14.6; DEF-R10.7-02). */
+function IdleHeader({ teacher }: { teacher: boolean }) {
+  return (
+    <PageHeader
+      title="Sổ điểm"
+      primary={teacher ? { label: "Chốt điểm", disabled: true } : undefined}
+      secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
+      more={teacher ? [{ label: "Xuất XLSX", disabled: true }] : []}
+    />
+  );
+}
+
 /** Sổ điểm: chỉ có thật, Giảng viên / TA của lớp (TA chỉ đọc). */
 export function Gradebook() {
   const { role, realCourseId, realPending } = useSession();
   if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) {
     return (
       <Page kind="work">
-        <PageHeader title="Sổ điểm" />
+        {role === "teacher" || role === "ta" ? <IdleHeader teacher={role === "teacher"} /> : <PageHeader title="Sổ điểm" />}
         <Panel>{realPending ? <Skeleton lines={10} /> : <EmptyState title="Chọn một lớp để xem" />}</Panel>
       </Page>
     );
@@ -345,14 +357,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         : undefined;
 
   // MỘT PageHeader cho tải / lỗi / có dữ liệu (TL 14.6): nút cần dữ liệu hiện nhưng khoá, liên kết bấm được
-  const noData = (
-    <PageHeader
-      title="Sổ điểm"
-      primary={teacher ? { label: "Chốt điểm", disabled: true } : undefined}
-      secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
-      more={teacher ? [{ label: "Xuất XLSX", disabled: true }] : []}
-    />
-  );
+  const noData = <IdleHeader teacher={teacher} />;
   return (
     <Page kind="work">
       <PageState

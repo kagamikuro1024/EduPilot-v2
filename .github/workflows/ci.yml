@@ -74,6 +74,11 @@ jobs:
       - name: Caddy - URL ký sẵn của MinIO cùng origin (local + VPS)
         working-directory: .
         run: node --test deploy/caddy/blob-route.test.mjs
+      - name: Script - canary-scan xoá đủ hai nhà cung cấp, seed từ chối mật khẩu trắng
+        working-directory: .
+        run: |
+          bash scripts/canary-scan.test.sh
+          node --test scripts/seed-password.test.mjs
       - name: go vet
         run: go vet ./...
       - name: go vet (testroutes)

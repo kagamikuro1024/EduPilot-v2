@@ -7,12 +7,12 @@ import { CourseView } from "./CourseView";
 
 /** Quan sát AI: Quản trị viên thấy toàn hệ thống + bảng yêu cầu; giảng viên chỉ thấy bản tổng hợp một lớp của mình (không nội dung). */
 export function ObservabilityScreen() {
-  const { role, course, realCourses, realCourseId } = useSession();
+  const { role, realCourses, realCourseId } = useSession();
   const isAdmin = role === "admin";
   const courseId = realCourses ? (realCourseId && realCourseId !== "all" ? realCourseId : (realCourses[0]?.id ?? null)) : null;
   return (
     <Page kind="work">
-      <PageHeader title="Quan sát AI" meta={[<span key="m">{isAdmin ? "Toàn hệ thống" : course.label}</span>]} />
+      <PageHeader title="Quan sát AI" meta={isAdmin ? [<span key="m">Toàn hệ thống</span>] : undefined} />
       {isAdmin ? <AdminView /> : <CourseView courseId={courseId} />}
     </Page>
   );

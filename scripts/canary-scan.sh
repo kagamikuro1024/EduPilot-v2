@@ -13,10 +13,14 @@ idem() { echo "Idempotency-Key: canary-$RANDOM$RANDOM$RANDOM"; }
 M='[{"model":"fake-chat","kind":"chat","price_in":"0","price_out":"0"}]'
 out=""
 # tạo: khoá sai (422), skip_verify (201), thân hỏng, loại lạ, đổi khoá, Test mọi kiểu, đọc, xoá
-out+=$(api -H "$(idem)" -X POST "$GW/api/v1/admin/llm/providers" -d "{\"type\":\"fake\",\"name\":\"CN0\",\"api_key\":\"$CANARY\",\"models\":$M}")
+# id nhà cung cấp = id đầu tiên trong phản hồi (models[].id đứng sau)
+pid() { printf '%s' "$1" | grep -o '"id":"[0-9a-f-]\{36\}"' | head -1 | cut -d'"' -f4 || true; }
+first=$(api -H "$(idem)" -X POST "$GW/api/v1/admin/llm/providers" -d "{\"type\":\"fake\",\"name\":\"CN0\",\"api_key\":\"$CANARY\",\"models\":$M}")
+out+="$first"
+ID0=$(pid "$first")
 made=$(api -H "$(idem)" -X POST "$GW/api/v1/admin/llm/providers" -d "{\"type\":\"fake\",\"name\":\"CN1\",\"api_key\":\"$CANARY\",\"skip_verify\":true,\"models\":$M}")
 out+="$made"
-ID=$(echo "$made" | grep -o '"id":"[0-9a-f-]\{36\}"' | head -1 | cut -d'"' -f4) # id nhà cung cấp = id đầu tiên (models[].id đứng sau)
+ID=$(pid "$made")
 out+=$(api -H "$(idem)" -X POST "$GW/api/v1/admin/llm/providers" -d "{\"type\":\"nope\",\"name\":\"CN2\",\"api_key\":\"$CANARY\"")
 out+=$(api -X PUT "$GW/api/v1/admin/llm/providers/$ID" -d "{\"type\":\"fake\",\"name\":\"CN1\",\"api_key\":\"${CANARY}2\",\"skip_verify\":true,\"version\":1}")
 out+=$(api -X PUT "$GW/api/v1/admin/llm/providers/$ID" -d "{\"type\":\"fake\",\"name\":\"CN1\",\"api_key\":\"${CANARY}3\",\"version\":2}")
@@ -25,7 +29,9 @@ out+=$(api -X POST "$GW/api/v1/admin/llm/providers/$ID/test" -d "{\"api_key\":\"
 out+=$(api -X POST "$GW/api/v1/admin/llm/providers/$ID/test")
 out+=$(api "$GW/api/v1/admin/llm/providers")
 out+=$(api "$GW/api/v1/admin/llm/routes")
-out+=$(api -X DELETE "$GW/api/v1/admin/llm/providers/$ID")
+for d in "$ID" "$ID0"; do # dọn cả hai nhà cung cấp canary (CN0 tạo ở lệnh đầu, DEF-R9.5-02)
+  [ -n "$d" ] && out+=$(api -X DELETE "$GW/api/v1/admin/llm/providers/$d")
+done
 n() { printf '%s\n' "$out" | grep -c "$CANARY" || true; }
 printf '%-18s : %s\n' "phản hồi API" "$(n)"
 printf '%-18s : %s\n' "log compose" "$($COMPOSE logs --no-color 2>&1 | grep -c "$CANARY" || true)"

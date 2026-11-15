@@ -20,6 +20,7 @@ import (
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/testutil"
 )
 
@@ -32,6 +33,7 @@ type stubLLM struct {
 	structured           int
 	seen                 []string // nội dung user của mọi lời gọi đặt tên
 	embedded             []string // mọi chuỗi gửi đi nhúng
+	piiSeen              []int    // PIIMaskedCount của mọi lời gọi đặt tên
 }
 
 func (s *stubLLM) Embed(_ context.Context, r llm.EmbedRequest) ([][]float32, error) {
@@ -64,6 +66,7 @@ func (s *stubLLM) Structured(_ context.Context, r llm.Request, _ json.RawMessage
 	s.mu.Lock()
 	s.structured++
 	s.seen = append(s.seen, r.Messages[1].Content)
+	s.piiSeen = append(s.piiSeen, r.PIIMaskedCount)
 	s.mu.Unlock()
 	if s.failNames {
 		return nil, errors.New("llm down")
@@ -556,4 +559,21 @@ func TestKnowledgeGapConcurrentSingleReport(t *testing.T) {
 	var n int
 	require.NoError(t, r.pool.QueryRow(t.Context(), `select count(*) from insight_reports where course_id = $1`, r.course).Scan(&n))
 	require.Equal(t, 1, n)
+}
+
+// TestKnowledgeGapPIICountOnNameCall — TC-04-15 / AC13: số thông tin cá nhân đã che ở bước thu thập đi vào lời gọi INSIGHT (llm_audit.pii_masked_count), không còn 0.
+func TestKnowledgeGapPIICountOnNameCall(t *testing.T) {
+	r := newRig(t, 14)
+	r.svc.Det = &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: r.pool}}}
+	r.seed()
+	for i := range 3 { // ba câu nêu họ tên bạn trong lớp: mỗi câu che 1 tên
+		r.ask(i, fmt.Sprintf("TCP bắt tay ba bước: bạn Sinh Viên Số%d giải thích giúp mình với", 10+i), false, false)
+	}
+	_, err := r.svc.RunNow(t.Context(), r.teacher, r.course, 30)
+	require.NoError(t, err)
+	require.Len(t, r.llm.piiSeen, 1)
+	require.GreaterOrEqual(t, r.llm.piiSeen[0], 3, "mỗi tên trong lớp đã che phải được đếm")
+	for _, s := range r.llm.seen {
+		require.NotContains(t, s, "Sinh Viên Số11")
+	}
 }

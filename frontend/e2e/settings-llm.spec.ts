@@ -367,3 +367,15 @@ test("@real two tabs / wrong key / 403", async () => {
   test.skip(true, "@real: cần stack Go (docker-compose.test.yml) — QC chạy tay");
 });
 
+
+// DEF-R10.7-04: nhiều nhà cung cấp «Máy chủ riêng» không lặp chuỗi loại ở từng hàng — địa chỉ máy chủ đã phân biệt chúng.
+test("nhiều nhà cung cấp máy chủ riêng: «Máy chủ riêng» không lặp ở từng hàng, mỗi hàng có địa chỉ riêng (DEF-R10.7-04)", async ({ page }) => {
+  const items = Array.from({ length: 7 }, (_, i) =>
+    provider({ id: `00000000-0000-7000-8000-0000000001${i}0`, type: "openai_compatible", name: `Trường ${i + 1}`, base_url: `https://llm${i + 1}.example.test/v1` }));
+  await openLlm(page, "ADMIN", { [`GET ${P}/providers`]: [{ body: providers(items) }] });
+  const rows = page.locator("[data-part=provider-row]");
+  await expect(rows).toHaveCount(7);
+  const repeats = await rows.evaluateAll((els) => els.filter((e) => (e.textContent ?? "").includes("Máy chủ riêng")).length);
+  expect(repeats).toBeLessThan(3);
+  await expect(rows.nth(6)).toContainText("https://llm7.example.test/v1");
+});
