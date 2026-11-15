@@ -147,7 +147,8 @@
 .dlg video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; background: var(--ep-ink); } .dlg form { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px; }
 .dlg__link { display: inline-flex; align-items: center; min-height: 44px; color: var(--ep-ink); text-decoration: underline; text-decoration-color: var(--ep-rule); text-underline-offset: 4px; }
 
-/* =================== CHUYỂN ĐỘNG (chỉ khi html.m-on; chỉ transform + opacity) =================== */
+/* =================== CHUYỂN ĐỘNG (chỉ khi html.m-on) =================== */
+/* Hiện theo cuộn CHỈ dịch transform, opacity luôn 1 (UX08-50): chữ mờ lúc chưa vào khung là nội dung gần như vô hình nếu observer không bắn, và axe đo tương phản lúc đó. */
 /* màn đầu vào một lần, khoảng 1,1 s; h1 chỉ dịch, không ẩn (LCP) */
 :global(.m-on) .h1 .ln { animation: rise 700ms var(--ease-out) both; } :global(.m-on) .h1 .ln + .ln { animation-delay: 80ms; }
 :global(.m-on) .hero .stripe { transform-origin: left; animation: draw 700ms var(--ease-out) 250ms both; }
@@ -183,9 +184,9 @@
 
 /* ba bước: sợi chỉ vẽ trong 1 s, tới nút nào nút đó và thẻ của nó hiện */
 :global(.m-armed) .steps3::before { transform: scaleX(0); transition: transform 1s linear; }
-:global(.m-armed) .step .mark { opacity: 0; transform: scale(.6); transition: opacity 300ms, transform 400ms var(--ease-out); transition-delay: calc(var(--i) * 500ms); }
-:global(.m-armed) .step .card { opacity: 0; transform: translateY(16px); transition: opacity 500ms, transform 600ms var(--ease-out); transition-delay: calc(100ms + var(--i) * 500ms); }
-:global(.m-armed) :global(.is-in) .steps3::before, :global(.m-armed) :global(.is-in) .step .mark, :global(.m-armed) :global(.is-in) .step .card { opacity: 1; transform: none; }
+:global(.m-armed) .step .mark { transform: scale(.6); transition: transform 400ms var(--ease-out); transition-delay: calc(var(--i) * 500ms); }
+:global(.m-armed) .step .card { transform: translateY(16px); transition: transform 600ms var(--ease-out); transition-delay: calc(100ms + var(--i) * 500ms); }
+:global(.m-armed) :global(.is-in) .steps3::before, :global(.m-armed) :global(.is-in) .step .mark, :global(.m-armed) :global(.is-in) .step .card { transform: none; }
 /* rê chuột: thẻ diễn lại bước của nó */
 @media (hover: hover) and (pointer: fine) {
   :global(.m-on) .card:hover .k { animation: up 400ms var(--ease-out) both; animation-delay: calc(var(--k) * 300ms); }
@@ -198,8 +199,8 @@
 
 /* ba số đo: vạch kẻ vẽ ra, chữ hiện theo */
 :global(.m-armed) .stat::before { transform: scaleX(0); transition: transform 800ms var(--ease-out); transition-delay: calc(var(--i) * 120ms); }
-:global(.m-armed) .stat > * { opacity: 0; transform: translateY(12px); transition: opacity 500ms, transform 600ms var(--ease-out); transition-delay: calc(150ms + var(--i) * 120ms); }
-:global(.m-armed) :global(.is-in) .stat::before, :global(.m-armed) :global(.is-in) .stat > * { opacity: 1; transform: none; }
+:global(.m-armed) .stat > * { transform: translateY(12px); transition: transform 600ms var(--ease-out); transition-delay: calc(150ms + var(--i) * 120ms); }
+:global(.m-armed) :global(.is-in) .stat::before, :global(.m-armed) :global(.is-in) .stat > * { transform: none; }
 
 /* lời kết: dải đỏ vàng vẽ ra */
 :global(.m-armed) .closing .stripe { transform: scaleX(0); transform-origin: left; transition: transform 700ms var(--ease-out) 100ms; } :global(.m-armed) .closing:global(.is-in) .stripe { transform: none; }
