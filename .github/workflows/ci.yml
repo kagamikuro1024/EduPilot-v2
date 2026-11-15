@@ -83,6 +83,9 @@ jobs:
         run: go vet ./...
       - name: go vet (testroutes)
         run: go vet -tags testroutes ./...
+      - name: Số test có tag testroutes không giảm (P-11-50)
+        working-directory: .
+        run: bash scripts/go-test-count.sh
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
@@ -182,6 +185,28 @@ jobs:
         with:
           path: ${{ steps.gopath.outputs.build }}
           key: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-rest-${{ github.run_id }}
+
+  go-test-default:
+    # P-11-50: lệnh chuẩn `go test` KHÔNG tag phải xanh ở các gói có hai bản dựng (route thử chỉ có khi có tag): hợp đồng, gateway, httpapi. Các dòng `go-test` chạy toàn bộ cây CÓ tag.
+    name: Go test (không tag testroutes)
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend-go
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+      - name: go test (không tag)
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+          EP_SKIP_TIMING: "1"
+        run: go test -count=1 ./internal/contract/ ./cmd/gateway/ ./internal/httpapi/
 
   judge-attacks:
     name: Judge attacks (amd64, seccomp bật)
