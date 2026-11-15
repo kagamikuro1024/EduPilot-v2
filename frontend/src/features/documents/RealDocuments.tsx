@@ -134,7 +134,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
       key: "status", header: "Trạng thái", width: "12%",
       render: (d) => (
         <StatusText tone={d.status === "READY" ? "green" : d.status === "FAILED" ? "red" : "amber"}>
-          {STATUS_LABEL[d.status]}{d.status === "FAILED" && d.error ? ` — ${d.error}` : ""}
+          {d.status === "FAILED" && d.error ? <span className={r.statusClip} title={d.error}>{STATUS_LABEL[d.status]} — {d.error}</span> : STATUS_LABEL[d.status]}
         </StatusText>
       ),
     },

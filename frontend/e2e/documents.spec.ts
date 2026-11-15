@@ -33,6 +33,18 @@ test("table: tên, loại, tuần, hai cờ, trạng thái, cập nhật; dải 
   await expect(page.locator('main [data-variant="primary"]:visible')).toHaveCount(1);
 });
 
+test("table 1440: lý do lỗi rất dài không ép cột Tên còn một ký tự mỗi dòng (D-R-05)", async ({ page, context }) => {
+  const error = "Không trích được văn bản: docling-serve trả 500 — " + "x".repeat(300);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, context, { [`GET ${D}`]: list([doc({ id: "d2", title: "Slide TLS", status: "FAILED", error }), doc()]) });
+  const rows = page.locator("[data-part=doc-row]");
+  await expect(rows).toHaveCount(2);
+  const name = await rows.first().locator("td").first().boundingBox();
+  expect(name!.width).toBeGreaterThanOrEqual(160);
+  for (const h of await rows.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) expect(h).toBeLessThanOrEqual(56);
+  await expect(rows.first().getByText(/^Lỗi — Không trích được/)).toHaveAttribute("title", error);
+});
+
 test("states: rỗng có Tải tài liệu lên; lỗi có Thử lại", async ({ page, context }) => {
   await open(page, context, { [`GET ${D}`]: list([]), [`GET ${D}/stats`]: json(stats({ total: 0, has_course_policy: false })) });
   await expect(page.getByText("Lớp chưa có tài liệu")).toBeVisible();
