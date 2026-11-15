@@ -139,7 +139,7 @@ function Body({ data, onPin, onReview }: { data: Latest; onPin: (t: Topic) => vo
 function TopicItem({ t, onPin, onReview }: { t: Topic; onPin: (t: Topic) => void; onReview: (t: Topic) => void }) {
   const where = [t.chapter, t.week !== null ? `Tuần ${t.week}` : null].filter(Boolean).join(" · ");
   return (
-    <li className={s.topic}>
+    <li className={s.topic} id={`topic-${t.rank}`}>
       <div className={s.topicHead}>
         <span className={s.rank} aria-hidden>{t.rank}</span>
         <div className={s.topicTitle}>
