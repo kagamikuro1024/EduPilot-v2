@@ -53,7 +53,8 @@ for (const [name, value] of [["NODE_ENV", process.env.NODE_ENV], ["APP_ENV", set
 
 const API = setting("API_URL", "https://localhost/api/v1").replace(/\/$/, "");
 const MAILPIT = setting("MAILPIT_URL", "http://localhost:8025").replace(/\/$/, "");
-const PASSWORD = setting("SEED_DEFAULT_PASSWORD", "").trim();
+// DEF-R9.5-19: đặt RỖNG rõ ràng (biến môi trường có mặt nhưng trống) = từ chối, không rơi về .env.local; KHÔNG đặt = đọc .env.local / .env.example (tiện local); giá trị cuối cùng trống / trắng = từ chối.
+const PASSWORD = ("SEED_DEFAULT_PASSWORD" in process.env ? process.env.SEED_DEFAULT_PASSWORD : setting("SEED_DEFAULT_PASSWORD", "")).trim();
 const RNG_SEED = Number(setting("SEED_RNG", "20261029"));
 if (!PASSWORD) {
   console.error("Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).");
