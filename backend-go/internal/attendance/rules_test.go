@@ -49,7 +49,7 @@ func TestWindowOpenRules(t *testing.T) {
 	o, c = parse(t, w, 0, r2.json()["id"].(string))
 	require.Equal(t, 3*time.Minute, c.Sub(o).Round(time.Second))
 	// Mở vòng ≥ 2 không sinh sự kiện outbox nào của lớp (không thông báo tới sinh viên).
-	require.Zero(t, r.count(`select count(*) from outbox where payload->>'course_id' = $1 and topic like 'attendance.%' or topic like 'checkin.%'`, w.course.String()))
+	require.Zero(t, r.count(`select count(*) from outbox where payload->>'course_id' = $1`, w.course.String()))
 	require.Equal(t, http.StatusOK, w.closeWindow(r2.json()["id"].(string)).code)
 	r1 := w.open(1)
 	require.Equal(t, http.StatusCreated, r1.code, string(r1.body))
