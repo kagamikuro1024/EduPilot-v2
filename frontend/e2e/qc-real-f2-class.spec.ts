@@ -9,9 +9,9 @@ const tag = uniq();
 const S: { cid: string; code: string } = { cid: "", code: "" };
 
 test("@real bộ chọn lớp theo seed: GV 2 lớp, SV A/B ≥ 1 lớp ACTIVE, SV D (sv.moi) chưa có lớp → màn «Bạn chưa vào lớp nào»", async ({ browser, request }) => {
-  const count = async (u: string) => (((await call(request, await login(request, u), "GET", "/me/courses")).json.items ?? []) as { status?: string }[]).filter((i) => (i.status ?? "ACTIVE") === "ACTIVE").length;
-  const nT = await count("teacher");
-  expect(nT, "GV có đúng 2 lớp (761987, 761988)").toBe(2);
+  const count = async (u: string) => (((await call(request, await login(request, u), "GET", "/me/courses")).json.items ?? []) as { status?: string; course: { status?: string } }[]).filter((i) => (i.status ?? "ACTIVE") === "ACTIVE" && i.course.status !== "ARCHIVED").length;
+  const codesT = (((await call(request, await login(request, "teacher"), "GET", "/me/courses")).json.items ?? []) as { status?: string; course: { class_code: string } }[]).filter((i) => (i.status ?? "ACTIVE") === "ACTIVE").map((i) => i.course.class_code);
+  expect(codesT, "GV có (ít nhất) hai lớp seed; TL có thể thêm lớp KC106 khi chạy eval").toEqual(expect.arrayContaining(["761987", "761988"]));
   expect(await count("sv.gioi")).toBeGreaterThanOrEqual(1);
   expect(await count("sv.kha")).toBeGreaterThanOrEqual(1);
   const nD = await count("sv.moi");
@@ -56,7 +56,7 @@ test("@real nhập danh sách: GV mở lớp mới, nhập roster-2-loi.csv → 
   await shot(p, "f2-roster-preview");
   await p.getByRole("button", { name: "Nhập 28 sinh viên" }).click();
   await expect(p.getByRole("status").filter({ hasText: "Đã nhập 28 sinh viên · 2 dòng lỗi chưa nhập." })).toBeVisible({ timeout: 60_000 });
-  expect(Number(sql(`select count(*) from roster_entries where course_id='${S.cid}'`)[0]?.[0] ?? sql(`select count(*) from enrollments where course_id='${S.cid}'`)[0][0])).toBeGreaterThanOrEqual(28);
+  expect(Number(sql(`select count(*) from enrollments where course_id='${S.cid}' and role_in_course='STUDENT'`)[0][0]), "28 hàng danh sách lớp được ghi").toBe(28);
   await shot(p, "f2-roster-imported");
   await ctx.close();
   // TA (lớp 761987) không thấy tab nhập danh sách
@@ -82,6 +82,10 @@ test("@real vào lớp end-to-end 375×812: D xem trước và vào lớp, GV du
   await p.getByRole("button", { name: "Tham gia lớp" }).click();
   await expect(p.getByRole("status").filter({ hasText: /Bạn đã vào lớp|chờ duyệt|Đã gửi yêu cầu/ })).toBeVisible();
   await shot(p, "f2-join-done-375");
+  await p.goto("/");
+  await p.locator("[data-part=topbar]").waitFor();
+  await noOverflow(p, true); // lớp mới có mã 12 ký tự: thanh trên cùng ở 375 px không được đẩy menu hồ sơ ra ngoài (D-S11-01)
+  await shot(p, "f2-topbar-long-code-375");
   const st = sql(`select e.status from enrollments e join users u on u.id=e.user_id where u.email='sv.moi@edupilot.local' and e.course_id='${S.cid}'`)[0]?.[0];
   expect(["ACTIVE", "PENDING"], `trạng thái vào lớp: ${st}`).toContain(st);
   if (st === "PENDING") {
@@ -103,6 +107,7 @@ test("@real vào lớp end-to-end 375×812: D xem trước và vào lớp, GV du
   for (let i = 0; i < 8; i++) codes.push((await call(request, tk, "POST", "/courses/join", { code: `ZZZZZ${i}2`.slice(0, 7) })).status);
   expect(codes.includes(429), `mã trả về: ${codes}`).toBe(true);
   await ctx.close();
+  sql(`delete from enrollments where course_id='${S.cid}' and user_id in (select id from users where email='sv.moi@edupilot.local')`);
   const arch = await call(request, await login(request, "admin"), "POST", `/admin/courses/${S.cid}/archive`, {});
   expect([200, 204]).toContain(arch.status);
   const after = await call(request, await login(request, "sv.gioi"), "POST", "/courses/join/preview", { code: String(rg.json.code ?? rg.json.join_code) });

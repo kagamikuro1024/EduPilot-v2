@@ -32,12 +32,12 @@ test("@real F9 GV tạo + công bố bài; SV nộp PDF trong app; chấm hàng 
     { id: "c2", name: "Ví dụ minh hoạ", max_score: "5", guidance: "Có ví dụ cụ thể về quy tắc lọc gói: 4–5. Chung chung: 2–3. Không có: 0–1." }];
   const mk = await call(request, teacher, "POST", `/courses/${S.cid}/assignments`, {
     title: S.title, description: "Trình bày tường lửa là gì, đặt ở đâu trong mạng và cho một ví dụ quy tắc lọc.", type: "ESSAY", max_score: "10", due_at: due,
-    allow_late: true, late_penalty_per_day: "0.5", late_max_days: 2, appeal_days: 7, channels: ["IN_APP"], submission_code: `Q${tag.toUpperCase().slice(0, 6)}`,
+    allow_late: true, late_penalty_per_day: "0.5", late_max_days: 2, appeal_days: 7, channels: ["IN_APP"], submission_code: `Q${tag.toUpperCase().slice(-6)}`,
     reference_answer: "Tường lửa là thiết bị hoặc phần mềm lọc lưu lượng theo quy tắc, thường đặt ở biên mạng giữa mạng trong và Internet.", rubric });
   expect([200, 201], mk.text.slice(0, 200)).toContain(mk.status);
   S.aid = String(mk.json.id ?? (mk.json.assignment as Json | undefined)?.id);
-  const rub = await call(request, teacher, "PUT", `/courses/${S.cid}/assignments/${S.aid}/rubric`, { criteria: rubric });
-  expect([200, 204, 404, 405, 422]).toContain(rub.status);
+  const rub = await call(request, teacher, "PUT", `/courses/${S.cid}/assignments/${S.aid}/rubric`, { version: mk.json.version ?? 1, criteria: rubric });
+  expect([200, 204], rub.text.slice(0, 200)).toContain(rub.status);
   const pub = await call(request, teacher, "POST", `/courses/${S.cid}/assignments/${S.aid}/publish`, {});
   expect([200, 201, 204], pub.text.slice(0, 200)).toContain(pub.status);
 

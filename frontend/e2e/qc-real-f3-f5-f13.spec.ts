@@ -99,7 +99,7 @@ test("@real F13 nhắc 24 giờ: sự kiện sắp tới → một chuông + m�
   const cid = await courseId(request, "teacher");
   const teacher = await login(request, "teacher");
   // sv.nguyco tắt nhắc bài thi (tắt từng loại)
-  sql(`update users set preferences = jsonb_set(coalesce(preferences,'{}'::jsonb), '{reminders}', coalesce(preferences->'reminders','{}'::jsonb) || '{"exam": false}'::jsonb) where email='sv.nguyco@edupilot.local'`);
+  sql(`insert into user_settings (user_id, preferences) select id, '{"reminders":{"exam":false}}'::jsonb from users where email='sv.nguyco@edupilot.local' on conflict (user_id) do update set preferences = excluded.preferences`);
   const title = `QC nhắc 24h ${tag}`;
   const startsAt = new Date(Date.now() + 23 * 3600_000).toISOString();
   const ev = await call(request, teacher, "POST", `/courses/${cid}/calendar/events`, { type: "EXAM", title, starts_at: startsAt });
@@ -109,15 +109,15 @@ test("@real F13 nhắc 24 giờ: sự kiện sắp tới → một chuông + m�
   const got = await poll(() => rl("sv.kha"), (n) => n >= 1, TICK_WAIT_MS, 15_000);
   expect(got, "sv.kha có đúng một dòng nhắc").toBe(1);
   expect(rl("sv.nguyco"), "sv.nguyco đã tắt «exam» → không nhắc").toBe(0);
-  const mails = await poll(() => mailCount("sv.kha@edupilot.local", new RegExp(title.slice(0, 12), "i")), (n) => n >= 1, 120_000, 10_000);
+  const mails = await poll(() => mailCount("sv.kha@edupilot.local", /Sắp đến giờ/i, title), (n) => n >= 1, 120_000, 10_000);
   expect(mails, "một thư nhắc tới sv.kha").toBe(1);
   const bell = ((await call(request, await login(request, "sv.kha"), "GET", "/notifications?limit=30")).json.items ?? []) as { title: string; body?: string }[];
   expect(bell.filter((n) => `${n.title} ${n.body ?? ""}`.includes(title)).length, "một chuông").toBe(1);
   // không gửi trùng ở tick sau
   await sleep(Math.min(TICK_WAIT_MS, 6 * 60_000));
   expect(rl("sv.kha")).toBe(1);
-  expect(await mailCount("sv.kha@edupilot.local", new RegExp(title.slice(0, 12), "i"))).toBe(1);
-  sql(`update users set preferences = preferences #- '{reminders,exam}' where email='sv.nguyco@edupilot.local'`);
+  expect(await mailCount("sv.kha@edupilot.local", /Sắp đến giờ/i, title)).toBe(1);
+  sql(`update user_settings set preferences = '{}'::jsonb where user_id = (select id from users where email='sv.nguyco@edupilot.local')`);
 });
 
 type Json = Record<string, unknown>;
@@ -126,10 +126,12 @@ test("@real F13 đổi hạn: hạn nộp dời → «Hôm nay» của SV, lịc
   const teacher = await login(request, "teacher");
   const title = `QC đổi hạn ${tag}`;
   const due1 = new Date(Date.now() + 20 * 3600_000).toISOString().replace(/\.\d+Z$/, "Z");
-  const body = { title, description: "Bài thử đổi hạn.", type: "ESSAY", max_score: "10", due_at: due1, allow_late: true, late_penalty_per_day: "0.5", late_max_days: 2, appeal_days: 7, channels: ["IN_APP"], submission_code: `QC${tag.toUpperCase().slice(0, 5)}`, reference_answer: "Đáp án mẫu." };
+  const body = { title, description: "Bài thử đổi hạn.", type: "ESSAY", max_score: "10", due_at: due1, allow_late: true, late_penalty_per_day: "0.5", late_max_days: 2, appeal_days: 7, channels: ["IN_APP"], submission_code: `QC${tag.toUpperCase().slice(-6)}`, reference_answer: "Đáp án mẫu." };
   const mk = await call(request, teacher, "POST", `/courses/${cid}/assignments`, body);
   expect([200, 201], mk.text.slice(0, 200)).toContain(mk.status);
   const aid = String(mk.json.id ?? (mk.json.assignment as Json | undefined)?.id);
+  const rub = await call(request, teacher, "PUT", `/courses/${cid}/assignments/${aid}/rubric`, { version: mk.json.version ?? 1, criteria: [{ id: "c1", name: "Nội dung", max_score: "10", guidance: "Đúng ý chính: 7–10. Thiếu ý: 3–6. Sai: 0–2." }] });
+  expect([200, 204], rub.text.slice(0, 200)).toContain(rub.status);
   const pub = await call(request, teacher, "POST", `/courses/${cid}/assignments/${aid}/publish`, {});
   expect([200, 201, 204], pub.text.slice(0, 160)).toContain(pub.status);
   await uiLogin(page, "sv.kha");
@@ -150,7 +152,10 @@ test("@real F13 đổi hạn: hạn nộp dời → «Hôm nay» của SV, lịc
   const ev = ((cal.json.items ?? cal.json.events ?? []) as { title: string; starts_at: string }[]).find((e) => e.title.includes(title));
   expect(ev, "sự kiện lịch của bài tập còn tồn tại").toBeTruthy();
   expect(Math.abs(Date.parse(ev!.starts_at) - Date.parse(due2)), "lịch dời theo hạn mới (≤ 1 phút)").toBeLessThan(60_000);
-  await page.goto("/calendar");
+  await page.goto(`/calendar?course=${cid}`);
+  await page.locator("[data-part=topbar]").waitFor();
+  await page.getByText("Danh sách", { exact: true }).click();
   await expect(page.getByText(title).first()).toBeVisible();
+  await shot(page, "f13-calendar-moved");
   await shot(page, "f13-calendar-moved");
 });
