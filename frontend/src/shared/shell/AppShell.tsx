@@ -174,6 +174,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 ) : (
                   <>
                     <span className={s.courseCode}>{realPicked?.class_code ?? course.code}</span>
+                    {" "}
                     <span className={s.courseName} title={courseTitle}>
                       · {realPicked?.name ?? course.name}
                     </span>
@@ -246,8 +247,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Search aria-hidden />
             <span className={s.searchText}>Tìm nhanh hoặc đi đến…</span>
             <span className={s.searchKey}>
-              <Kbd>⌘</Kbd>
-              <Kbd>K</Kbd>
+              <Kbd glyph="⌘" />
+              <Kbd glyph="K" />
             </span>
           </button>
 
@@ -264,12 +265,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             label="Tài khoản"
             trigger={(p) => (
               <button type="button" className={s.profile} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={`Tài khoản: ${personName}`}>
-                <span className={s.initials} aria-hidden>
-                  {user.name
-                    .split(" ")
-                    .slice(-1)[0]
-                    .slice(0, 1)}
-                </span>
+                <span className={s.initials} data-initial={user.name.split(" ").slice(-1)[0].slice(0, 1)} aria-hidden />
                 <span className={s.profileRole}>{personName}</span>
                 <ChevronDown aria-hidden />
               </button>
