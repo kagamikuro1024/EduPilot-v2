@@ -66,13 +66,14 @@ function explainLines(comps: NonNullable<MeGrades["components"]>, calc: NonNulla
   const used = new Set<number>();
   const rows = comps.map((c): CalcLine => {
     const label = `${c.name} · ${comma(c.weight)} %`;
-    if (c.status !== "PUBLISHED" || c.score === undefined) return { label, expr: "", value: "Chưa công bố" };
+    if (c.status !== "PUBLISHED" || c.score === undefined) return { label, value: "Chưa công bố" };
     const i = calc.findIndex((l) => l.label.startsWith(`${c.name} (`));
     if (i >= 0) used.add(i);
     const l = calc[i];
-    return { label, expr: l && l.expr !== l.value ? l.expr : "", value: c.score, quote: l?.source_quote, page: l?.page };
+    const note = l?.text.split(" · ").slice(1).join(" · "); // «trung bình n bài»: phần sau dấu · của câu máy chủ dựng
+    return { label, note: note || undefined, detail: l?.detail, value: c.score, quote: l?.source_quote, page: l?.page };
   });
-  return [...rows, ...calc.filter((_, i) => !used.has(i)).map((l) => ({ label: l.label, expr: l.expr, value: l.value, quote: l.source_quote, page: l.page }))];
+  return [...rows, ...calc.filter((_, i) => !used.has(i)).map((l): CalcLine => ({ label: l.label, text: l.text, detail: l.detail, quote: l.source_quote, page: l.page }))];
 }
 /** Ô "Nếu cuối kỳ được [ ]": gõ xong (350 ms) tính bằng máy chủ; số đã gõ giữ nguyên khi mạng chập chờn (kèm Thử lại). Không ghi gì. */
 function WhatIf({ courseId }: { courseId: string }) {

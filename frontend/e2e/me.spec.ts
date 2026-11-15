@@ -166,14 +166,15 @@ const inProgress = (over: Record<string, unknown> = {}) => ({
   components: [comp("midterm", "Giữa kỳ", "20", "8.25"), comp("weekly", "Kiểm tra hằng tuần", "20", "8"), comp("final", "Thi cuối kỳ", "60")],
   qt: "8.25",
   calculation: [
-    { label: "Giữa kỳ (20%)", expr: "8,25", value: "8,25" },
-    { label: "Điểm cộng", expr: "min(0,5; 1,0)", value: "0,5", source_quote: "Mỗi lần phát biểu được cộng 0,25 điểm.", page: 2 },
-    { label: "Điểm quá trình", expr: "min(10; max(0; 8,25 + 0,5 − 0))", value: "8,25" },
+    { label: "Giữa kỳ (20%)", text: "Giữa kỳ: 8,25", value: "8,25" },
+    { label: "Kiểm tra hằng tuần (20%)", text: "Kiểm tra hằng tuần: 8 · trung bình 2 bài", detail: ["Tuần 1 7,5", "Tuần 2 8,5"], value: "8" },
+    { label: "Điểm cộng", text: "Điểm cộng 0,5 · bạn có 1,0, tối đa 0,5", value: "0,5", source_quote: "Mỗi lần phát biểu được cộng 0,25 điểm.", page: 2 },
+    { label: "Điểm quá trình", text: "Điểm quá trình 8,25", value: "8,25" },
   ],
   official_note: "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.",
   ...over,
 });
-const finalGrade = () => ({ status: "FINAL", components: [comp("final", "Thi cuối kỳ", "60", "7")], qt: "7", final: { numeric_grade: "7.0", letter: "B", version: 1, locked_at: "2026-10-30T03:00:00Z" }, calculation: [{ label: "Điểm học phần thô", expr: "(40 × 7 + 60 × 7) ÷ 100", value: "7" }], official_note: "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường." });
+const finalGrade = () => ({ status: "FINAL", components: [comp("final", "Thi cuối kỳ", "60", "7")], qt: "7", final: { numeric_grade: "7.0", letter: "B", version: 1, locked_at: "2026-10-30T03:00:00Z" }, calculation: [{ label: "Điểm học phần thô", text: "Điểm học phần thô 7 = 7 × 40% + 7 × 60%", value: "7" }], official_note: "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường." });
 
 test("grade section: câu nhận định theo trạng thái, thành phần đã công bố / chưa công bố, đúng một dòng ghi chú cố định", async ({ page }) => {
   await api(page, COURSE, { grades: () => inProgress() });
@@ -204,8 +205,13 @@ test("calculation linear: phép tính từng dòng cùng thứ tự, Căn cứ m
   await expect(calc.locator("li")).toHaveCount(5); // 3 thành phần (2 đã công bố, 1 chưa) + điểm cộng + điểm quá trình
   await expect(calc.locator("li").nth(0)).toContainText("Giữa kỳ · 20 %");
   await expect(calc.locator("li").nth(2)).toContainText("Chưa công bố");
-  await expect(calc.locator("li").nth(3)).toContainText("min(0,5; 1,0)");
-  await expect(calc.locator("li").nth(4)).toContainText("= 8,25");
+  await expect(calc.locator("li").nth(1)).toContainText("trung bình 2 bài");
+  await expect(calc.locator("li").nth(3)).toContainText("Điểm cộng 0,5 · bạn có 1,0, tối đa 0,5");
+  await expect(calc.locator("li").nth(4)).toContainText("Điểm quá trình 8,25");
+  await expect(calc).not.toContainText(/min\(|max\(|round\(|÷/); // P-11-15: sinh viên không thấy biểu thức máy
+  await expect(calc.getByText("Tuần 1 7,5")).toBeHidden();
+  await calc.getByRole("button", { name: "Chi tiết" }).click();
+  await expect(calc.getByText("Tuần 1 7,5")).toBeVisible();
   await calc.getByRole("button", { name: /Căn cứ · tr\. 2/ }).click();
   await expect(calc).toContainText("Mỗi lần phát biểu được cộng 0,25 điểm.");
   const text = (await page.locator("main").innerText()).toLowerCase();
@@ -257,7 +263,7 @@ test("grade states: lỗi → nguyên nhân + Thử lại; chưa công bố gì 
 
 test("grade mobile 375: khối điểm một cột, không tràn ngang", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await api(page, COURSE, { grades: () => inProgress({ calculation: [{ label: "Điểm quá trình trước điểm cộng / trừ", expr: "(20 × 8,25 + 20 × 8 + 20 × 7,5 + 20 × 9) ÷ 80", value: "8,19" }] }) });
+  await api(page, COURSE, { grades: () => inProgress({ calculation: [{ label: "Điểm quá trình trước điểm cộng / trừ", text: "Điểm quá trình trước điểm cộng / trừ 8,19", value: "8,19" }] }) });
   await page.goto("/me");
   await expect(page.locator("[data-part=grade-sentence]")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);

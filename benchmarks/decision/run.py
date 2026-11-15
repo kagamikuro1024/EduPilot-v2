@@ -389,7 +389,13 @@ def main():
             paths = {g: path_delta(before, after, g) for g in GATES}
     set_mode(c1, False)  # trả stack về trạng thái ban đầu của seed mặc định
     v = verdicts(results["off"], results["on"])
-    meta = {"when": time.strftime("%Y-%m-%d %H:%M"), "fake_p50": os.environ.get("LLM_DECISION_FAKE_P50_MS", "426"), "fake_p95": os.environ.get("LLM_DECISION_FAKE_P95_MS", "682")}
+    import subprocess
+    sh = lambda *c: subprocess.run(c, capture_output=True, text=True, cwd=ROOT).stdout.strip()
+    meta = {"when": time.strftime("%Y-%m-%d %H:%M"), "fake_p50": os.environ.get("LLM_DECISION_FAKE_P50_MS", "426"), "fake_p95": os.environ.get("LLM_DECISION_FAKE_P95_MS", "682"),
+            # khối chung của mọi tệp đo (US-NFR-01 AC3, benchmarks/check-meta.mjs)
+            "commit": sh("git", "rev-parse", "--short", "HEAD") or "unknown", "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU", "runs": ROUNDS,
+            "config": {"chat_rounds": ROUNDS, "course": CLASS, "decision_provider": "fake"}}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "decision-before-after.json").write_text(json.dumps({"meta": meta, **results, "paths_on": paths, "verdict": {g: {"result": k, "why": why} for g, (k, why) in v.items()}}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (OUT / "decision-before-after.md").write_text(markdown(results["off"], results["on"], v, paths, meta), encoding="utf-8")

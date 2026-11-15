@@ -49,8 +49,11 @@ type ComponentResult struct {
 // Line là một dòng giải trình. Value là chuỗi (dấu phẩy, đủ chữ số, bỏ số 0 thừa — TLR-5), Expr chỉ gồm các số đã hiển thị
 // (cú pháp: + − × ÷ ( ) min(a; b) max(a; b) round(x)) nên tính lại bằng decimal ra đúng Value. Quote nil ⇔ mục giảng viên tự điền / không có căn cứ.
 type Line struct {
-	Label        string
-	Expr         string
+	Label string
+	Expr  string
+	// Text / Detail: câu tiếng Việt cho SINH VIÊN dựng từ CÙNG các số với Expr (P-11-15, SRS 4.8.2a); không bao giờ có min / max / round / ÷ / ngoặc. Staff vẫn nhận Expr.
+	Text         string
+	Detail       []string
 	Value        string
 	Quote        *string
 	Page         int
@@ -173,13 +176,14 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 			continue
 		}
 		var scores []decimal.Decimal
-		var exprs []string
+		var exprs, names []string
 		missing := false
 		for _, it := range c.Items {
 			raw, ok := in.Scores[it.ID]
 			if ok {
 				si := raw.Mul(MaxScale).DivRound(it.Max, DivPrecision)
 				scores = append(scores, si)
+				names = append(names, it.Name)
 				if it.Max.Equal(MaxScale) {
 					exprs = append(exprs, fmtNum(raw))
 				} else {
@@ -193,6 +197,7 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 			}
 			if closed && zero[c.Key] { // nguồn đã chốt sổ cho item → 0 theo quy chế (TLR-2)
 				scores = append(scores, decimal.Zero)
+				names = append(names, it.Name)
 				exprs = append(exprs, "0")
 				continue
 			}
@@ -231,7 +236,15 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 				expr = "(" + strings.Join(parts, " + ") + ") ÷ " + strconv.Itoa(len(scores))
 			}
 			q, pg, fu := c.quote()
-			r.Lines = append(r.Lines, Line{Label: c.Name + " (" + fmtNum(c.Weight) + "%)", Expr: expr, Value: fmtNum(cr.Score), Quote: q, Page: pg, FilledByUser: fu})
+			text := c.Name + ": " + fmtNum(cr.Score)
+			var detail []string
+			if len(scores) > 1 {
+				text += " · trung bình " + strconv.Itoa(len(scores)) + " bài"
+				for i, v := range scores {
+					detail = append(detail, strings.TrimSpace(names[i]+" "+fmtNum(v)))
+				}
+			}
+			r.Lines = append(r.Lines, Line{Label: c.Name + " (" + fmtNum(c.Weight) + "%)", Expr: expr, Text: text, Detail: detail, Value: fmtNum(cr.Score), Quote: q, Page: pg, FilledByUser: fu})
 		}
 		r.Components = append(r.Components, cr)
 	}
@@ -265,7 +278,11 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 	if bonusOn {
 		r.BonusApplied = decimal.Min(in.BonusPoints, s.Rules.Bonus.Cap)
 		q, pg, fu := s.Rules.Bonus.quote()
-		r.Lines = append(r.Lines, Line{Label: "Điểm cộng", Expr: "min(" + fmtNum(in.BonusPoints) + "; " + fmtNum(s.Rules.Bonus.Cap) + ")", Value: fmtNum(r.BonusApplied), Quote: q, Page: pg, FilledByUser: fu})
+		bonusText := "Điểm cộng " + fmtNum(r.BonusApplied) + " · tối đa " + fmtNum(s.Rules.Bonus.Cap)
+		if in.BonusPoints.GreaterThan(s.Rules.Bonus.Cap) {
+			bonusText = "Điểm cộng " + fmtNum(s.Rules.Bonus.Cap) + " · bạn có " + fmtNum(in.BonusPoints) + ", tối đa " + fmtNum(s.Rules.Bonus.Cap)
+		}
+		r.Lines = append(r.Lines, Line{Label: "Điểm cộng", Expr: "min(" + fmtNum(in.BonusPoints) + "; " + fmtNum(s.Rules.Bonus.Cap) + ")", Text: bonusText, Value: fmtNum(r.BonusApplied), Quote: q, Page: pg, FilledByUser: fu})
 		if !hasQT {
 			r.Warnings = append(r.Warnings, WarnBonusNoEffect)
 		}
@@ -277,7 +294,11 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 		over := decimal.Max(decimal.Zero, decimal.NewFromInt(int64(in.Absent-p.Free)))
 		r.Penalty = over.Mul(p.Per).Add(in.PenaltyEventPoints)
 		q, pg, fu := p.quote()
-		r.Lines = append(r.Lines, Line{Label: "Điểm trừ", Expr: "max(0; " + strconv.Itoa(in.Absent) + " − " + strconv.Itoa(p.Free) + ") × " + fmtNum(p.Per) + " + " + fmtNum(in.PenaltyEventPoints), Value: fmtNum(r.Penalty), Quote: q, Page: pg, FilledByUser: fu})
+		penText := "Điểm trừ " + fmtNum(r.Penalty) + " · vắng " + strconv.Itoa(in.Absent) + " buổi, được miễn " + strconv.Itoa(p.Free) + ", mỗi buổi trừ " + fmtNum(p.Per)
+		if in.PenaltyEventPoints.Sign() > 0 {
+			penText += ", điểm trừ khác " + fmtNum(in.PenaltyEventPoints)
+		}
+		r.Lines = append(r.Lines, Line{Label: "Điểm trừ", Text: penText, Expr: "max(0; " + strconv.Itoa(in.Absent) + " − " + strconv.Itoa(p.Free) + ") × " + fmtNum(p.Per) + " + " + fmtNum(in.PenaltyEventPoints), Value: fmtNum(r.Penalty), Quote: q, Page: pg, FilledByUser: fu})
 	} else if s.Rules.Penalty != nil && in.PenaltyEventPoints.Sign() != 0 {
 		r.Warnings = append(r.Warnings, WarnPenaltyNotInScheme)
 	}
@@ -295,39 +316,45 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 		return sum.DivRound(w, DivPrecision), "(" + strings.Join(terms, " + ") + ") ÷ " + fmtNum(w)
 	}
 	hpNum := decimal.Zero
-	var hpTerms []string
+	var hpTerms, hpText []string
 	if hasQT {
 		var expr string
 		r.QT0, expr = weighted(GroupQT, wQT)
 		r.HasQT = true
-		r.Lines = append(r.Lines, Line{Label: "Điểm quá trình trước điểm cộng / trừ", Expr: expr, Value: fmtNum(r.QT0)})
+		r.Lines = append(r.Lines, Line{Label: "Điểm quá trình trước điểm cộng / trừ", Expr: expr, Text: "Điểm quá trình trước điểm cộng / trừ " + fmtNum(r.QT0), Value: fmtNum(r.QT0)})
 		r.QTBeforeClamp = r.QT0.Add(r.BonusApplied).Sub(r.Penalty)
 		r.QT = decimal.Min(MaxScale, decimal.Max(decimal.Zero, r.QTBeforeClamp))
-		r.Lines = append(r.Lines, Line{Label: "Điểm quá trình", Expr: "min(10; max(0; " + fmtNum(r.QT0) + " + " + fmtNum(r.BonusApplied) + " − " + fmtNum(r.Penalty) + "))", Value: fmtNum(r.QT)})
+		qtText := "Điểm quá trình " + fmtNum(r.QT)
+		if !r.QTBeforeClamp.Equal(r.QT) {
+			qtText += " · giữ trong khoảng 0–10"
+		}
+		r.Lines = append(r.Lines, Line{Label: "Điểm quá trình", Text: qtText, Expr: "min(10; max(0; " + fmtNum(r.QT0) + " + " + fmtNum(r.BonusApplied) + " − " + fmtNum(r.Penalty) + "))", Value: fmtNum(r.QT)})
 		hpNum = hpNum.Add(wQT.Mul(r.QT))
 		hpTerms = append(hpTerms, fmtNum(wQT)+" × "+fmtNum(r.QT))
+		hpText = append(hpText, fmtNum(r.QT)+" × "+fmtNum(wQT)+"%")
 	}
 	if hasCK {
 		if ckOverride != nil {
 			r.CK = *ckOverride
-			r.Lines = append(r.Lines, Line{Label: "Điểm cuối kỳ (giả định)", Expr: fmtNum(r.CK), Value: fmtNum(r.CK)})
+			r.Lines = append(r.Lines, Line{Label: "Điểm cuối kỳ (giả định)", Expr: fmtNum(r.CK), Text: "Điểm cuối kỳ giả định " + fmtNum(r.CK), Value: fmtNum(r.CK)})
 		} else {
 			var expr string
 			r.CK, expr = weighted(GroupCK, wCK)
-			r.Lines = append(r.Lines, Line{Label: "Điểm cuối kỳ", Expr: expr, Value: fmtNum(r.CK)})
+			r.Lines = append(r.Lines, Line{Label: "Điểm cuối kỳ", Expr: expr, Text: "Điểm cuối kỳ " + fmtNum(r.CK), Value: fmtNum(r.CK)})
 		}
 		r.HasCK = true
 		hpNum = hpNum.Add(wCK.Mul(r.CK))
 		hpTerms = append(hpTerms, fmtNum(wCK)+" × "+fmtNum(r.CK))
+		hpText = append(hpText, fmtNum(r.CK)+" × "+fmtNum(wCK)+"%")
 	}
 
 	// Điểm học phần thô → chuẩn hoá độ chính xác máy → làm tròn một lần ở cuối (bước 6–7, TLR-1, TLR-13).
 	r.HPRaw = hpNum.DivRound(TotalWeight, DivPrecision).Round(NormalizeDigits)
-	r.Lines = append(r.Lines, Line{Label: "Điểm học phần thô", Expr: "(" + strings.Join(hpTerms, " + ") + ") ÷ " + fmtNum(TotalWeight), Value: fmtNum(r.HPRaw)})
+	r.Lines = append(r.Lines, Line{Label: "Điểm học phần thô", Text: "Điểm học phần thô " + fmtNum(r.HPRaw) + " = " + strings.Join(hpText, " + "), Expr: "(" + strings.Join(hpTerms, " + ") + ") ÷ " + fmtNum(TotalWeight), Value: fmtNum(r.HPRaw)})
 	step := s.Rules.Rounding.Step
 	r.HP = r.HPRaw.DivRound(step, DivPrecision).Round(0).Mul(step)
 	q, pg, fu := s.Rules.Rounding.quote()
-	r.Lines = append(r.Lines, Line{Label: "Làm tròn đến " + fmtNum(step) + " (nửa lên)", Expr: "round(" + fmtNum(r.HPRaw) + " ÷ " + fmtNum(step) + ") × " + fmtNum(step), Value: fmtNum(r.HP), Quote: q, Page: pg, FilledByUser: fu})
+	r.Lines = append(r.Lines, Line{Label: "Làm tròn đến " + fmtNum(step) + " (nửa lên)", Text: "Làm tròn đến " + fmtNum(step) + ": " + fmtNum(r.HPRaw) + " → " + fmtNum(r.HP), Expr: "round(" + fmtNum(r.HPRaw) + " ÷ " + fmtNum(step) + ") × " + fmtNum(step), Value: fmtNum(r.HP), Quote: q, Page: pg, FilledByUser: fu})
 
 	// Điểm chữ (bước 8) và điều kiện liệt (bước 9).
 	for _, b := range s.Rules.Letters.Bands {
@@ -337,7 +364,7 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 		}
 	}
 	q, pg, fu = s.Rules.Letters.quote()
-	r.Lines = append(r.Lines, Line{Label: "Điểm chữ", Value: r.Letter, Quote: q, Page: pg, FilledByUser: fu})
+	r.Lines = append(r.Lines, Line{Label: "Điểm chữ", Text: "Điểm chữ " + r.Letter, Value: r.Letter, Quote: q, Page: pg, FilledByUser: fu})
 	for _, f := range s.Rules.Fails {
 		var hit bool
 		var verdict string
@@ -350,7 +377,7 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 		if hit {
 			r.Verdict, r.Letter = verdict, "F"
 			q, pg, fu := f.quote()
-			r.Lines = append(r.Lines, Line{Label: "Không đạt", Value: "F", Quote: q, Page: pg, FilledByUser: fu})
+			r.Lines = append(r.Lines, Line{Label: "Không đạt", Text: "Không đạt · điểm chữ F", Value: "F", Quote: q, Page: pg, FilledByUser: fu})
 			break
 		}
 	}

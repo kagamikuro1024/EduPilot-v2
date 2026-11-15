@@ -56,12 +56,14 @@ func breakdown(conf Loaded, r Result, in Input) json.RawMessage {
 		Score  string `json:"score,omitempty"`
 	}
 	type line struct {
-		Label       string `json:"label"`
-		Expr        string `json:"expr"`
-		Value       string `json:"value"`
-		SourceQuote string `json:"source_quote,omitempty"`
-		Page        int    `json:"page,omitempty"`
-		FilledBy    bool   `json:"filled_by_user,omitempty"`
+		Label       string   `json:"label"`
+		Expr        string   `json:"expr"`
+		Text        string   `json:"text,omitempty"`
+		Detail      []string `json:"detail,omitempty"`
+		Value       string   `json:"value"`
+		SourceQuote string   `json:"source_quote,omitempty"`
+		Page        int      `json:"page,omitempty"`
+		FilledBy    bool     `json:"filled_by_user,omitempty"`
 	}
 	b := struct {
 		Scheme     map[string]any    `json:"scheme"`
@@ -106,7 +108,7 @@ func breakdown(conf Loaded, r Result, in Input) json.RawMessage {
 		b.Failed = r.Verdict
 	}
 	for _, l := range r.Lines {
-		x := line{Label: l.Label, Expr: l.Expr, Value: l.Value, Page: l.Page, FilledBy: l.FilledByUser}
+		x := line{Label: l.Label, Expr: l.Expr, Text: l.Text, Detail: l.Detail, Value: l.Value, Page: l.Page, FilledBy: l.FilledByUser}
 		if l.Quote != nil {
 			x.SourceQuote = *l.Quote
 		}

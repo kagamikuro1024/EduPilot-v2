@@ -197,7 +197,7 @@ func TestNoDraftLeakQT(t *testing.T) {
 		}
 	}
 	for _, l := range m.Calculation {
-		require.NotContains(t, l.Label+l.Expr+l.Value, "7,77")
+		require.NotContains(t, l.Label+l.Text+l.Value, "7,77")
 		require.NotContains(t, l.Label, "Điểm quá trình", "dòng giải trình dừng trước khi cần điểm quá trình nháp")
 	}
 	// công bố quá trình, gỡ công bố cuối kỳ (canary 9,87 của B): qt có, nhưng cuối kỳ không lộ
@@ -215,7 +215,7 @@ var meAllowed = map[string]bool{
 	"status": true, "scheme": true, "scheme_no": true, "confirmed_at": true, "components": true, "key": true, "name": true, "grp": true, "weight": true,
 	"bonus": true, "applied": true, "raw": true, "cap": true, "penalty": true, "value": true, "absent": true, "free": true, "per": true,
 	"qt": true, "final": true, "numeric_grade": true, "letter": true, "failed_reason": true, "version": true, "locked_at": true,
-	"calculation": true, "label": true, "expr": true, "source_quote": true, "page": true, "official_note": true, "score": true,
+	"calculation": true, "label": true, "text": true, "detail": true, "source_quote": true, "page": true, "official_note": true, "score": true,
 }
 
 func walkKeys(t *testing.T, v any, path string) {

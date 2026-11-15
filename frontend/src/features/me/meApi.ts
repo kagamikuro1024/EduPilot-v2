@@ -47,7 +47,7 @@ export type MeGrades = {
   components?: Array<{ key: string; name: string; weight: string; status: "PUBLISHED" | "PENDING"; score?: string }>;
   qt?: string;
   final?: { numeric_grade: string; letter: string; failed_reason?: string; version: number; locked_at: string };
-  calculation?: Array<{ label: string; expr: string; value: string; source_quote?: string; page?: number }>;
+  calculation?: Array<{ label: string; text: string; detail?: string[]; value: string; source_quote?: string; page?: number }>;
   official_note?: string;
 };
 export type MeWhatIf = { hp?: string; letter?: string; failed?: string };

@@ -58,11 +58,12 @@ type (
 		LockedAt     time.Time `json:"locked_at"`
 	}
 	MeLine struct {
-		Label       string `json:"label"`
-		Expr        string `json:"expr"`
-		Value       string `json:"value"`
-		SourceQuote string `json:"source_quote,omitempty"`
-		Page        int    `json:"page,omitempty"`
+		Label       string   `json:"label"`
+		Text        string   `json:"text"`
+		Detail      []string `json:"detail,omitempty"`
+		Value       string   `json:"value"`
+		SourceQuote string   `json:"source_quote,omitempty"`
+		Page        int      `json:"page,omitempty"`
 	}
 	MeGrades struct {
 		Status       string        `json:"status"`
@@ -233,8 +234,16 @@ func (s *Service) MeGrades(ctx context.Context, courseID, user uuid.UUID) (MeGra
 	return out, nil
 }
 
+// meText: câu cho sinh viên; bản chốt cũ (trước P-11-15) chưa lưu `text` thì dùng «nhãn: giá trị» — không bao giờ lộ `expr`.
+func meText(text, label, value string) string {
+	if text != "" {
+		return text
+	}
+	return label + ": " + value
+}
+
 func meLine(l Line) MeLine {
-	m := MeLine{Label: l.Label, Expr: l.Expr, Value: l.Value, Page: l.Page}
+	m := MeLine{Label: l.Label, Text: meText(l.Text, l.Label, l.Value), Detail: l.Detail, Value: l.Value, Page: l.Page}
 	if l.Quote != nil {
 		m.SourceQuote = *l.Quote
 	}
@@ -249,11 +258,12 @@ func meFinal(out MeGrades, sn store.GradeSnapshotsForStudentsRow, version int32,
 			Key, Name, Weight, Score string
 		} `json:"components"`
 		Lines []struct {
-			Label       string `json:"label"`
-			Expr        string `json:"expr"`
-			Value       string `json:"value"`
-			SourceQuote string `json:"source_quote"`
-			Page        int    `json:"page"`
+			Label       string   `json:"label"`
+			Text        string   `json:"text"`
+			Detail      []string `json:"detail"`
+			Value       string   `json:"value"`
+			SourceQuote string   `json:"source_quote"`
+			Page        int      `json:"page"`
 		} `json:"lines"`
 	}
 	if err := json.Unmarshal(sn.Breakdown, &bd); err != nil {
@@ -272,7 +282,7 @@ func meFinal(out MeGrades, sn store.GradeSnapshotsForStudentsRow, version int32,
 		f.FailedReason = &t
 	}
 	for _, l := range bd.Lines {
-		out.Calculation = append(out.Calculation, MeLine{Label: l.Label, Expr: l.Expr, Value: l.Value, SourceQuote: l.SourceQuote, Page: l.Page})
+		out.Calculation = append(out.Calculation, MeLine{Label: l.Label, Text: meText(l.Text, l.Label, l.Value), Detail: l.Detail, Value: l.Value, SourceQuote: l.SourceQuote, Page: l.Page})
 	}
 	out.Final = f
 	return out, nil
