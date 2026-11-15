@@ -19,6 +19,6 @@ Kết quả: `benchmarks/reports/eval-<ngày>/e{1..6}.json` + `.md` + `.svg`; k�
 | E3 | `e3.py setup`, `e3.py grade --tag P1r1 --first / P1r2 / P2r1` (60 bài KC106 BT-A) | chấm 60 bài: điền `benchmarks/eval/human/e3_scores.csv` theo `e3-cham-tay.csv` |
 | E4 | `e4.py` (đọc raw E2, E3) | – |
 | E5 | `e5.py run` (10 lô × 10 câu; trần 5 lô / lớp / giờ — gặp 429 thì chạy lại sau) | duyệt câu trên UI ngân hàng câu hỏi |
-| E6 | `e6.py run --tag r1 / r2` | – |
+| E6 | `e6.py images` (dựng image production, trước cửa sổ đo), `e6.py run --tag k1 / k2`, `e6.py report` — quy trình P-11-53: chỉ một stack, ghi loadavg + container mỗi pha | – |
 
 Đổi tuyến model: `stack.py route --tag P1 --model ag/gemini-3.8-flash`; nhúng: `stack.py embed-real` / `embed-fake` (`--only <class_code>` để reindex một lớp; khoá chỉ đọc trong tiến trình, không in, không ghi). Stack dùng chung: `stack.py routes-save FILE` trước khi đổi, `routes-restore FILE` sau lượt đo.
