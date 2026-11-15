@@ -259,7 +259,7 @@ def f(x, d=3):
 
 
 def md(o, prov, pack):
-    L = ["# E3 — chấm tự luận", "", f"Trạng thái: **{o['status']}**. Stack `ep-qc` @ `{o['meta']['commit']}`, {o['meta']['timestamp'][:10]}. "
+    L = ["# E3 — chấm tự luận", "", f"Trạng thái: **{o['status']}**. Stack `ep-qc` (sha bản gateway không ghi lúc đo); báo cáo dựng bằng bộ đo @ `{o['meta']['commit']}`, {o['meta']['timestamp'][:10]}. "
          f"Bộ bài: 60 bài BT-A của KC106 (sha256 `{o['meta']['config']['dataset_sha256'][:16]}…`), rubric 4 tiêu chí × 2,5, cờ lưu ý chấm tắt.", ""]
     if o["status"] == "WAITING_HUMAN":
         L += [f"**Chưa có điểm người chấm.** {o['reason']} Khi chủ dự án điền `benchmarks/eval/human/e3_scores.csv` (cùng cột với `{pack}`), chạy `make eval-report`: QWK / MAE / Pearson tính lại ngay, không gọi LLM.", ""]

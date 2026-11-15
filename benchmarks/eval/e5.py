@@ -169,7 +169,10 @@ def report():
           f"1. Mở `{os.environ.get('APP_PUBLIC_URL', 'http://localhost:580')}`, đăng nhập `teacher@edupilot.local` (mật khẩu seed), chọn lớp 761987 → **Ngân hàng câu hỏi** (`/questions`).",
           "2. Lọc **Nguồn = Sinh từ tài liệu**, **Trạng thái = Chờ duyệt**, rồi lần lượt **Chủ đề** = một trong 10 chủ đề ở bảng trên (lớp còn câu chờ duyệt khác do QC tạo, không thuộc E5; gen-stats chỉ đếm câu của 10 lô này).",
           "3. Mở từng câu: đúng như AI viết → `Duyệt` (tính «duyệt nguyên»); phải sửa → `Chỉnh sửa`, lưu, rồi `Duyệt` (tính «sửa nhẹ»); sai / lạc đề / trùng → menu `⋯` → `Loại`.",
-          "4. Xong (hoặc dừng giữa chừng) chạy `python3 benchmarks/eval/e5.py report` (hay `make eval-report`): đọc gen-stats, không gọi LLM; tỉ lệ chỉ tính trên câu đã duyệt.", "",
+          "4. Xong (hoặc dừng giữa chừng) chạy `python3 benchmarks/eval/e5.py report` (hay `make eval-report`): đọc gen-stats, không gọi LLM; tỉ lệ chỉ tính trên câu đã duyệt.",
+          "",
+          "Câu và kết quả duyệt nằm trong volume Postgres của `ep-qc`: `docker stop` / `start`, khởi động lại hay dựng lại image gateway KHÔNG làm mất; chỉ `docker compose down -v` (xoá volume, bị cấm) mới mất. "
+          "`raw/e5-questions.json` là bản lưu vết, không nhập lại được.", "",
          "## Giới hạn", "", "- Dữ liệu mô phỏng (D44): tài liệu seed lớp 1; chưa kiểm chứng với câu hỏi giảng viên thật dùng trong lớp.",
          "- Tỉ lệ chỉ tính trên câu đã duyệt (AC7); chưa duyệt đủ 100 câu thì ghi cỡ mẫu thật, không nội suy.", "- Người duyệt: chủ dự án (một người, không có người duyệt thứ hai)."]
     lib.write_report("e5", obj, L)
