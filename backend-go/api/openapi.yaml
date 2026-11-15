@@ -10185,7 +10185,7 @@ paths:
     get:
       operationId: getLatestKnowledgeGap
       tags: [insights]
-      summary: "Báo cáo lỗ hổng kiến thức mới nhất của lớp (Giảng viên / TA) kèm so với bản trước (chủ đề mới, đổi hạng) và has_new_data. Chưa có → 404. Cache-Control: no-store"
+      summary: "Báo cáo lỗ hổng kiến thức mới nhất của lớp (Giảng viên / TA) kèm so với bản trước (chủ đề mới, đổi hạng) và has_new_data. Chưa có, hoặc chỉ có báo cáo cũ (payload.schema < 2) → 404. Cache-Control: no-store"
       parameters:
         - $ref: "#/components/parameters/CourseId"
       responses:
@@ -10205,7 +10205,7 @@ paths:
     get:
       operationId: exportKnowledgeGap
       tags: [insights]
-      summary: "Xuất báo cáo dạng Markdown (Giảng viên / TA); `format` chỉ nhận md. Không có / lớp khác → 404"
+      summary: "Xuất báo cáo dạng Markdown (Giảng viên / TA); `format` chỉ nhận md. Không có / lớp khác / báo cáo cũ (payload.schema < 2) → 404"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: rid
