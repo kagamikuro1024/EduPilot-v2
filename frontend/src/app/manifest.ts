@@ -12,6 +12,10 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: BRAND.red,
     background_color: BRAND.canvas,
     lang: "vi",
-    icons: [{ src: "/brand/logo-edupilot-mark.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
+    icons: [
+      { src: "/brand/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/brand/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/brand/logo-edupilot-mark.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+    ],
   };
 }
