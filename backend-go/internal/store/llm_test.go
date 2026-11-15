@@ -58,7 +58,7 @@ func TestLLMSchema(t *testing.T) {
 	var tables int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from information_schema.tables
 		where table_schema='public' and table_name like 'llm\_%'`).Scan(&tables))
-	require.Equal(t, 6, tables) // + llm_request_payloads (00022, quan sát AI)
+	require.Equal(t, 9, tables) // + llm_request_payloads (00022, quan sát AI) + llm_audit_hourly / _hourly_lat / _rollup_state (00027, P-11-44: bảng cộng gộp theo giờ)
 
 	for table, cols := range want {
 		rows, err := conn.Query(ctx, `

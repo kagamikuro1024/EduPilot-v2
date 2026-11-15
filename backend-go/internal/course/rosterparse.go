@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"path/filepath"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -65,6 +66,15 @@ func columnOf(h string) int {
 }
 
 func columnLabel(c int) string { return [colCount]string{"Email", "Họ và tên", "MSSV"}[c] }
+
+// CheckRosterFileName: đuôi .xlsx mà nội dung không phải ZIP (PK\x03\x04) là tệp sai loại → 422 UNSUPPORTED_FILE (DEF-R4-02). Đuôi khác không bị chặn:
+// ParseRoster vẫn quyết loại theo magic bytes.
+func CheckRosterFileName(name string, data []byte) error {
+	if strings.EqualFold(filepath.Ext(name), ".xlsx") && !bytes.HasPrefix(data, []byte("PK\x03\x04")) {
+		return errUnsupportedFile()
+	}
+	return nil
+}
 
 // ParseRoster đọc CSV (UTF-8, BOM tuỳ chọn, dấu , hoặc ;) hoặc XLSX (sheet đầu); loại tệp theo magic bytes, không theo đuôi.
 func ParseRoster(data []byte) ([]RosterRow, error) {
