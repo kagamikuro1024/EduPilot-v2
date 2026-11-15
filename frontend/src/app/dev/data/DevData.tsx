@@ -206,7 +206,7 @@ function PageStateDemo({ staff }: { staff: boolean }) {
   return (
     <section className={s.block} data-part="pagestate" aria-label="PageState">
       <h2 className="ep-section-title">PageState</h2>
-      <PageState query={q} isEmpty={(d) => (d as { items: string[] }).items.length === 0} showTechnical={staff} empty={<EmptyState title="Chưa có gì">Không có mục nào.</EmptyState>}>
+      <PageState query={q} isEmpty={(d) => (d as { items: string[] }).items.length === 0} showTechnical={staff} empty={<EmptyState title="Chưa có gì" />}>
         <p data-part="ps-ok">{q.data?.items.join(", ")}</p>
       </PageState>
     </section>

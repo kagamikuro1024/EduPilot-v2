@@ -14,8 +14,8 @@ const href = (id: string, course: string) => `/practice/${id}?course=${course}`;
 /** Luyện đề: chọn cách luyện có ích nhất lúc này (DESIGN §14.18). */
 export function PracticeHome() {
   const c = useStudentCourse();
-  if (c.state === "loading") return <Page><PageHeader title="Luyện đề" /><Panel><Skeleton lines={6} /></Panel></Page>;
-  if (c.state === "none") return <Page><PageHeader title="Luyện đề" /><Panel><EmptyState title="Chưa có lớp">Vào lớp bằng mã lớp để luyện đề.</EmptyState></Panel></Page>;
+  if (c.state === "loading") return <Page kind="read"><PageHeader title="Luyện đề" /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (c.state === "none") return <Page kind="read"><PageHeader title="Luyện đề" /><Panel><EmptyState title="Chưa có lớp" /></Panel></Page>;
   return <Home courseId={c.id} />;
 }
 
@@ -42,17 +42,20 @@ function Home({ courseId }: { courseId: string }) {
   const minN = Number(minutes);
   const mockBad = !Number.isInteger(countN) || countN < MIN_COUNT || countN > 50 || !Number.isInteger(minN) || minN < 10 || minN > 180;
 
+  // Tabs giữ khi tải / lỗi (X3): nhãn như khi có dữ liệu, không số đếm
+  const noDataTabs = <Tabs label="Cách luyện" value={mode} onChange={setMode} options={[{ value: "topic", label: "Theo chủ đề", count: 0 }, { value: "mock", label: "Thi thử" }]} />;
   return (
-    <Page>
-      <PageHeader title="Luyện đề" actions={<ButtonLink href="/practice/history">Lịch sử luyện tập</ButtonLink>} />
+    <Page kind="read">
+      <PageHeader title="Luyện đề" secondary={[{ label: "Lịch sử luyện tập", href: "/practice/history" }]} />
       <PageState
         query={ov}
+        header={noDataTabs}
         isEmpty={() => Boolean(noQuestions)}
-        loading={<Panel><Skeleton lines={6} /></Panel>}
+        loading={<>{noDataTabs}<Panel><Skeleton lines={6} /></Panel></>}
         empty={<Panel><EmptyState title="Giảng viên chưa mở câu hỏi" /></Panel>}
       >
         {open.length > 0 && (
-          <Section panel title="Lượt đang dở">
+          <Section title="Lượt đang dở">
             <ActionList label="Lượt đang dở">
               {open.map((o) => (
                 <ActionRow
@@ -69,7 +72,7 @@ function Home({ courseId }: { courseId: string }) {
         )}
 
         {rec && (
-          <Section panel title="Nên luyện ngay">
+          <Section title="Nên luyện ngay">
             <ActionList label="Khuyến nghị luyện tập">
               <ActionRow
                 tone="red"
@@ -82,7 +85,7 @@ function Home({ courseId }: { courseId: string }) {
           </Section>
         )}
 
-        <Section panel title="Chọn cách luyện">
+        <Section title="Chọn cách luyện">
           <Tabs label="Cách luyện" value={mode} onChange={setMode} options={[{ value: "topic", label: "Theo chủ đề", count: ov.data?.topics.length ?? 0 }, { value: "mock", label: "Thi thử" }]} />
           {mode === "topic" ? (
             <ActionList label="Chủ đề luyện tập">
@@ -110,7 +113,7 @@ function Home({ courseId }: { courseId: string }) {
         </Section>
 
         {(recent.items.length > 0) && (
-          <Section panel title="Lượt gần đây">
+          <Section title="Lượt gần đây">
             <ActionList label="Lượt gần đây">
               {recent.items.map((r) => (
                 <ActionRow

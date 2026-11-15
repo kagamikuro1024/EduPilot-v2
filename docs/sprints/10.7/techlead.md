@@ -1,0 +1,719 @@
+# Sprint 10.7 (UI-R): ghi chú khảo sát bàn giao (techlead-mem → techlead-ui)
+
+Đây **chưa phải hợp đồng §23**. PM chuyển việc sang techlead-ui khi Tech Lead mới đọc mã xong, chưa soạn nháp. Các số dưới đây đếm bằng `grep` trên `origin/main` @`e9af9d15`. Ước tính là ước tính, chưa đối chiếu ảnh.
+
+## Hiện trạng primitive (`frontend/src/shared/ui/`)
+
+| Primitive | Tệp | API hiện tại | Vì sao mỗi route ra một kiểu |
+| --- | --- | --- | --- |
+| `Page` | `Layout.tsx`, `Layout.module.css` | `width?: "reading" \| "wide" \| "full"` (mặc định `reading` = 960 px, **căn trái**), `className?` | 47 chỗ không truyền `width` nên ngầm là `reading`. 32 chỗ `wide`, 9 `full`, 1 `reading`. 4 chỗ truyền `className`: chat ×2, inbox, `me/RealMe` |
+| `PageHeader` | `Layout.tsx` | `title, description?, meta?, actions?, back?`; hàng tiêu đề `align-items: flex-end; flex-wrap: wrap` | Khoảng 16 chỗ có `description`, 15 chỗ có `meta`. `actions` là ReactNode tự do: không giới hạn số nút, và nút rơi xuống dòng dưới khi hẹp |
+| `Section` | `Layout.tsx` | `title, description?, action?, panel?` | Khoảng 5 chỗ có `description` (dòng phụ). Ngoài ra 23 chỗ tự dựng `<h2 className="ep-section-title">` ngoài `shared/ui`, bỏ qua `Section` |
+| `Panel` / `PanelSection` | `Panel.tsx`, `.module.css` | Bản thân không đặt chiều cao | Panel «cao hết màn» là do CSS route: `inbox/RealInbox.module.css:21–34` (`height: calc(100dvh …)`, `[data-ep-panel] { height: 100% }`), `chat/ChatScreen.module.css:9`, `grading/SubmissionReview.module.css:11,58` |
+| `EmptyState` | `Feedback.tsx:51`, `Feedback.module.css:36` | `title, children?, action?, icon?`; CSS `justify-items: start; align-self: start; max-width: 56ch` | 96 chỗ gọi, khoảng 58 chỗ có thân chữ, 11 chỗ có icon. Mặc định **căn trái-trên**, nên ra lỗi bố cục (3) của `ui-empty` |
+| `PageState` | `PageState.tsx` | Rỗng mặc định = `<EmptyState title="Chưa có gì ở đây">Khi có dữ liệu…</EmptyState>`. Chú thích ghi «câu dạy bước kế» | Mặc định trái luật chữ UI của PO |
+| `Split` | `Layout.tsx` | `main, aside, ratio` | **Không route nào dùng.** Chat, inbox, duyệt bài đều tự dựng chia đôi bằng CSS riêng |
+
+`meta` lặp lớp: thấy ở `inbox/RealInbox.tsx:103` (`meta={<span>{courseLabel}</span>}`). Còn cần quét hết.
+
+Độ rộng tự đặt trong CSS route: 73 dòng `max-width: <số>` ở 41 tệp `*.module.css`. Nhiều nhất ở `exam/Exam`, `exam/take/Take`, `members/ClassSettings`, `chat/ChatScreen`, `practice/Practice`, `gradebook/Gradebook`. Không phải dòng nào cũng là khung: có cả cột chữ, ô nhập.
+
+## Xung đột phải chốt trước khi viết §23
+
+- **«`read` căn giữa» (plan.md) trái với 00-AC11.** AC này (`FEAT-ui-foundation/US.md:219` AC13, `FEAT-ui-panels/US.md:114` AC3) ghi: mép trái `h1` là 240 px ở 1440 trên **mọi** route, và `Layout.module.css:1` có chú thích «không căn giữa». Nếu chọn căn giữa thì BA phải vá ba AC đó, và QC phải đổi phép đo `LEFT` của `audit.mjs`.
+- **DESIGN.md mâu thuẫn với luật PO.** §10.2 ghi «One short supporting sentence only if needed». §15 «Empty states: Teach the next action», kèm ví dụ «Good» là một câu giải thích dài. `UX.md:21` (quy tắc 5): «mỗi trạng thái rỗng nói *vì sao rỗng*». `UX.md:82` (cổng UX). Skill impeccable `operate.md` cũng nói «empty states that teach». Luật PO (CLAUDE.md 09/10/2026) thắng; cả bốn chỗ phải vá.
+- **Script hiện có.** `scripts/ui-antipatterns.sh` có 23 phép. Phép 23 chỉ bắt `description` tĩnh > 40 ký tự. Đã có cơ chế `--selftest` (mỗi phép một hạt giống) nên luật mới cần thêm hạt giống vào mảng `seeds`.
+
+## Hướng Tech Lead định đề xuất (techlead-ui tự quyết)
+
+1. Ép bằng **kiểu TypeScript** trước, script sau:
+   - `Page.width: "work" | "read"` bắt buộc, bỏ `className`;
+   - bỏ `PageHeader.description` / `actions`, thay bằng `primary` (một nút) + `secondary` (tuple ≤ 2, dạng dữ liệu để thu vào menu khi < 720 px);
+   - bỏ `Section.description`;
+   - `EmptyState` chỉ còn `title` + `action?`, không `children`, không `icon`.
+
+   `tsc` trong `pnpm build` sẽ chỉ ra mọi chỗ gọi.
+2. Chia đôi cao hết màn chỉ qua `Split` (thêm `fill`, `ratio="list-detail"`). Xoá CSS chiều cao ở inbox, chat, duyệt bài.
+3. Script chỉ bắt những gì kiểu không bắt được:
+   - độ rộng ≥ 480 px / `vw` trong CSS route;
+   - `height` / `min-height` `100%` / `100dvh` ngoài `Split`;
+   - `meta` chứa `courseLabel` / `classCode` / `course?.code|name`;
+   - `<h2 className="ep-section-title">` tự dựng;
+   - nút rỗng trùng nhãn nút chính đầu trang trong cùng tệp.
+4. Commit 1 chỉ đổi API primitive + sửa máy móc mọi chỗ gọi, để build xanh. Sau đó mỗi nhóm route một commit.
+
+## Phân nhóm route (đề xuất kiểu: `work` / `read` / `work·split`)
+
+| Nhóm | Route |
+| --- | --- |
+| G1 Hôm nay | `/` (3 vai): read |
+| G2 Hỏi đáp | `/chat` work·split · `/inbox` work·split · `/threads` work · `/threads/[id]` read |
+| G3 Lớp & người | `/students` work · `/students/[id]` work · `/class/members` work · `/attendance` work · `/class/settings` read · `/join`, `/join/[code]` read |
+| G4 Đánh giá | `/grading` work · `/grading/[submissionId]` work·split · `/gradebook` work · `/gradebook/scheme` read · `/assignments/[id]` read · `/exams`, `/exams/[id]`, `/exams/[id]/results`, `/exams/[id]/similarity` work · `/exams/[id]/take` read · `/questions` work · `/practice` read · `/practice/[attemptId]` read · `/practice/history` work · `/me` read |
+| G5 Nội dung | `/documents` work · `/library` work · `/library/[id]` read · `/calendar` work |
+| G6 Hiểu lớp & hệ thống | `/insights` read · `/analytics` read · `/observability` work · `/settings` read · `/settings/llm` work · `/settings/integrations` read · `/admin/courses`, `/admin/users` work |
+| G7 Ngoài app | `login`, `register`, `forgot-password`, `reset-password`, `verify-email`, `invite/[token]`, `error`, `not-found`, `RouteStub`: chỉ áp luật rỗng / tiêu đề |
+
+Kết quả của persona-eval (`research/persona-eval`, §3.1) liên quan trực tiếp tới UI-R: trạng thái rỗng «Chưa có bài nộp.» sai nghĩa ở `/grading`, Markdown thô ở `/assignments/[id]`, hai nút «Tải bài lên» khi hàng chờ rỗng, nút ở «Hôm nay» lặp tiêu đề.
+
+---
+
+# TL-1 (techlead-ui, 2026-11-14): kế hoạch đánh giá và làm lại khung giao diện
+
+Kế thừa ghi chú khảo sát ở trên (số đếm đã kiểm lại trên `origin/main` @`ebc60676`). Không có mã sản phẩm nào bị sửa. Tệp đi kèm:
+
+| Tệp | Nội dung |
+| --- | --- |
+| `design-23-draft.md` | Nguyên văn nháp `DESIGN.md` §23 + các dòng cũ phải vá |
+| `proposals.md` | P-107-1 … P-107-9: chỗ trái AC đã duyệt, việc cần PM / chủ dự án quyết |
+| `mau/palette.md` | Bộ màu Bách khoa: mã chính thức, token, bảng tương phản |
+| `mau/khung-trang.html` + `mau/khung/*.png` | Ba màn khung × bốn trạng thái, 1440 và 375 |
+| `mau/mau-1.html`, `mau/mau-app.html` + `sau-web.png`, `sau-app.png` | «Hôm nay» giảng viên; app sinh viên điểm danh bằng mã QR |
+| `mau/landing.html` + `mau/landing-*.png` | Trang giới thiệu (mục 8) |
+
+## 0. Kết luận trước
+
+1. Lỗi gốc là **primitive cho phép**: `Page` có 3 độ rộng + `className`, `PageHeader.actions` là JSX tự do, `EmptyState` nhận thân chữ + icon, `Section` có dòng phụ, chiều cao theo màn nằm trong CSS của route. Sửa từng màn sẽ tái phát. Phải **xoá khả năng đó khỏi API**, rồi đo bằng DOM.
+2. Hợp đồng khung (§23): `Page` đúng 2 kiểu (`work` 1176 px ở 1440, `read` 800 px căn giữa); một mẫu đầu trang; panel rộng đúng cột, cao theo nội dung; trạng thái rỗng = tiêu đề + tối đa 1 nút, căn giữa.
+3. Ba lớp ép: **kiểu TypeScript** (prop bị xoá → build đỏ ở mọi chỗ gọi cũ), **8 luật mới** trong `ui-antipatterns.sh` (24–31), **`frame.spec.ts`** đo hợp đồng trên mọi route × vai × 1440 / 375 × 4 trạng thái. Lớp thứ ba là lớp quyết định: «xong» = 0 độ lệch.
+4. Thứ tự: lô 0 (primitive + sửa máy móc, build xanh) → lô 1 (3 màn chủ dự án chụp, dừng cho duyệt) → lô 2–7 theo nhóm route → lô 8 (bộ màu) → lô 9 (trang giới thiệu). Ước 7 ngày dev cho khung, 1,5 ngày cho màu và trang giới thiệu.
+5. Bộ màu: mã chính thức lấy từ sổ tay nhận diện 2026 của trường (đỏ `#CE1628`, vàng `#F3C108`, đen `#231F20`). **Đỏ gần như trùng đỏ hiện tại**; thay đổi nhìn thấy là **nền trang trắng** (chủ dự án 14/11) và vàng điểm nhấn. Mọi cặp chữ / nền đạt AA, trừ chữ vàng (cấm).
+6. Việc phải có quyết định trước khi dev bắt đầu (`proposals.md`): P-107-1 (cột `read` căn giữa trái 00-AC11), P-107-2 / -3 (trạng thái rỗng và lỗi trái `DESIGN` §15, `UX.md` quy tắc 5), P-107-6 (mẫu «Hôm nay» giảng viên gộp hai vùng phụ vào một panel), P-107-9 (trang giới thiệu: luật nào thắng khi `DESIGN` §11.1 và skill `design-taste-frontend` trái nhau), P-107-10 (nền trắng trái D59), P-107-11 (đổi lời trang giới thiệu).
+
+## 1. Kế hoạch đánh giá
+
+Nguyên tắc: mỗi tiêu chí là **một con số đọc từ DOM hoặc từ ảnh**, có ngưỡng, không có chữ «trông». QC đang đo K1–K6 bằng `frontend/e2e/qc-ui-audit-real.spec.ts` (đọc ở worktree `qc-106`, không sửa); cột «QC» ghi mã tương ứng, «mới» là phép cần thêm.
+
+### 1.1 Ma trận
+
+| Chiều | Giá trị |
+| --- | --- |
+| Route × vai | Theo bảng `ROUTES` của QC: sinh viên 13, trợ giảng ≈ 19, giảng viên ≈ 22, admin 7 (chỉ cặp vai được phép vào) |
+| Bề rộng | 1440 × 900 và 375 × 812 |
+| Trạng thái | có dữ liệu (lớp 761987) · rỗng (lớp `QCEMPTY`) · đang tải · lỗi |
+| Đang tải, lỗi | Dựng bằng Playwright, không đụng mã app: `page.route('**/api/v1/**', …)` giữ phản hồi 5 s rồi chụp ở 800 ms (đang tải); trả 500 (lỗi). Cho qua `/api/v1/auth/**` và `/api/v1/me`. Bố cục hai trạng thái này không phụ thuộc vai → chỉ chạy **một vai mỗi route** |
+
+Tổng: khoảng 230 lượt (dữ liệu + rỗng) + 180 lượt (tải + lỗi). Mỗi lượt lưu một dòng JSON + một ảnh.
+
+### 1.2 Tiêu chí
+
+Sai số ±1 px nếu không ghi khác. «Cột» = vùng nội dung của `Page` (đã trừ đệm).
+
+| Mã | Đo gì | Cách đo | Đạt khi | QC |
+| --- | --- | --- | --- | --- |
+| **W1** | Kiểu trang | đếm `main [data-ep-page]` | đúng 1, giá trị `work` hoặc `read` | K1 |
+| **W2** | Bề rộng cột ở 1440 | `getBoundingClientRect` | `work` = 1176; `read` = 800 và lề trái = lề phải | K1 |
+| **W3** | Mép panel | mọi `[data-ep-panel]` cấp cao nhất | `left` = mép trái cột, `right` = mép phải cột (trong `Split`: hợp hai pane phủ đúng cột) | K1 |
+| **W4** | Mép tiêu đề và nút | `h1.left`, `actions.right` | = mép trái / phải cột | K2 |
+| **W5** | 375 | cột, `scrollWidth − innerWidth` | cột 12 → 363; tràn ngang = 0 | K6 |
+| **H1** | Tiêu đề | đếm `h1` | đúng 1, nằm trong `[data-ep-page-header]` | K2 |
+| **H2** | Chữ thừa ở đầu trang | con của header | chỉ có: liên kết quay lại, `h1`, meta, cụm nút. 0 thẻ `<p>` khác | K2 |
+| **H3** | Meta | cao / `line-height`; so chữ với `[data-part=topbar]` | ≤ 1 dòng ở 1440; không chứa mã lớp, tên lớp đang chọn | K2 |
+| **H4** | Nút cùng hàng tiêu đề | tâm dọc cụm nút − tâm dọc `h1` | ≤ 4 px ở 1440 | K2 |
+| **H5** | Số nút đầu trang | nút thấy được trong `[data-ep-header-actions]` | ≤ 1 `primary` (ngoài cùng bên phải) + ≤ 2 phụ + ≤ 1 nút «Thêm» | K2 |
+| **H6** | Nút chính lạc chỗ | `[data-variant=primary]` ngoài header | 0 khi trang có 1 vùng; ≤ 1 mỗi vùng khi nhiều vùng | K2 |
+| **H7** | Chiều cao đầu trang | `header.height` gom theo «có meta / không meta» | mỗi nhóm đúng **một** giá trị trên toàn app (±2) → thân trang bắt đầu ở cùng toạ độ | mới |
+| **H8** | Đầu trang ở 375 | cao hàng nút | 1 dòng (≤ 48 px) | mới |
+| **P1** | Đệm panel | `padding` tính được | 24 (16 ở 375); 0 chỉ ở panel của `Split` | K1 |
+| **P2** | Panel cao theo nội dung | `panel.height` so tổng cao con + đệm | chênh ≤ 2 px. Ngoại lệ `[data-ep-split=fill]`: đáy panel = đáy màn − 24 | K1 |
+| **P3** | Lồng, số panel mỗi vùng | `[data-ep-panel] [data-ep-panel]`; panel trong mỗi `[data-ep-section]` | 0; đúng 1 (đã có ở `panels.spec.ts`) | – |
+| **P4** | Tiêu đề mục | mọi `main h2` | có `data-ep-section-title`; phần đầu mục không có `<p>` | K3 |
+| **P5** | Nhịp dọc | khoảng cách đầu trang → thân, mục → mục, `h2` → panel | 40 / 48 / 16 (ở 375: 32 / 48 / 16) | mới |
+| **E1** | Hình khối rỗng | con của `[data-ep-empty]` | đúng 1 tiêu đề + ≤ 1 nút; 0 `svg` ngoài nút; 0 chữ khác | K4 |
+| **E2** | Căn giữa | tâm ngang khối − tâm ngang vật chứa | ≤ 2 px (QC đang dùng 40) | K4 |
+| **E3** | Tiêu đề rỗng | độ dài, số dòng | ≤ 40 ký tự, 1 dòng ở 1440, không dấu chấm cuối | mới |
+| **E4** | Nút rỗng trùng | nhãn nút rỗng so nhãn nút đầu trang, tab, nút thanh công cụ | không trùng | K4, K5 |
+| **E5** | Kiểu nút rỗng | `data-variant` | `secondary` | K4 |
+| **E6** | Panel khi rỗng | cao vật chứa ở 1440 | ≤ 320 px | K4 |
+| **E7** | Rỗng tự dựng | route ở lớp rỗng mà 0 `[data-ep-empty]` | liệt kê, xem ảnh từng cái | K4 |
+| **L1** | Đầu trang khi đang tải | `h1` rect so trạng thái có dữ liệu | bằng nhau | mới |
+| **L2** | Khung xương | `[aria-busy=true]` | nằm trong panel cùng mép với panel có dữ liệu; 0 spinner | mới |
+| **L3** | Nhảy bố cục | CLS từ đang tải → có dữ liệu | ≤ 0,1 | mới |
+| **X1** | Khối lỗi | `[role=alert]` trong vùng | đúng 1, rộng = cột, có nút «Thử lại» | mới |
+| **X2** | Chữ lỗi | nội dung | không mã trần (`4xx`, `5xx`, `undefined`, `Error:`); ≤ 1 câu khi màn không có ô nhập | mới |
+| **X3** | Khung khi lỗi | header, tab so trạng thái có dữ liệu | giữ nguyên | mới |
+| **D1** | Cỡ chữ | tập `font-size` tính được trong `main` | ⊆ {28, 24, 20, 16, 15, 14, 12} px | mới |
+| **D2** | Cao điều khiển | nút, ô nhập, ô chọn | 36 hoặc 30 ở 1440; ≥ 44 ở 375 (`TOUCH` đã có) | mới |
+| **D3** | Cao hàng bảng | `tbody tr` | 48 hoặc 44 | mới |
+| **T1** | Icon giải thích | `svg.lucide-info`, `svg.lucide-circle-help` trong `main`, ngoài `InlineNotice` | 0 | mới |
+| **T2** | Câu lặp | chuỗi > 30 ký tự giống hệt nhau trong `main` | < 3 lần | mới |
+| **C1** | Tương phản | các cặp ở `mau/palette.md` mục 3 | đạt ngưỡng (`contrast.spec.ts`) | – |
+| **C2** | Diện tích đỏ | số điểm ảnh trong ảnh chụp cách `--ep-red` ΔE < 10 / tổng | < 8 % | mới |
+| **C3** | Vàng | phần tử có `background-color` = `--ep-yellow` trong một khung nhìn; phần tử có `color` vàng | ≤ 3; 0 | mới |
+
+### 1.3 So chéo
+
+Mỗi lượt sinh một **chữ ký khung**: `(kiểu, h1.left, cột.left, cột.width, có meta?, đệm panel, hình khối rỗng)`.
+
+- Đạt khi ở 1440 toàn app có **≤ 4 chữ ký** (2 kiểu × có / không meta), ở 375 có **≤ 2**.
+- `audit.md` thêm bảng «giá trị → danh sách route» cho từng thành phần của chữ ký, sắp theo số route giảm dần. Route lạc nằm cuối bảng, không cần nhìn ảnh để tìm.
+- Ảnh: trước khi chụp, chèn hai đường gióng 1 px ở mép trái / phải cột mong đợi (mẫu: `khung-trang.html?guides=1`). Lưới ảnh `audit.html` xếp **theo kiểu** (mọi màn `work` cạnh nhau), không xếp theo vai, để mắt người thấy ngay màn nào lệch đường gióng.
+
+### 1.4 Đề nghị QC bổ sung (qua PM, P-107-7)
+
+1. Đọc **móc DOM ổn định** thay cho hậu tố lớp CSS Module (`page`, `meta`, `empty`…): sau lô 0 các lớp đó đổi tên, script hiện tại sẽ mù. Danh sách móc ở mục 3.
+2. Thêm hai trạng thái đang tải / lỗi theo 1.1.
+3. Thêm các phép «mới» ở 1.2 và bảng chữ ký 1.3; siết E2 từ 40 px xuống 2 px.
+4. Chụp cả trang (`fullPage`) cho trạng thái có dữ liệu ở 375, vì lỗi nhịp dọc nằm dưới nếp gấp.
+
+### 1.5 Cổng thường trực
+
+Sau UI-R, phần đo của QC chuyển thành `frontend/e2e/frame.spec.ts` (chạy trên build giả lập như `panels.spec.ts`, không cần stack thật; trạng thái rỗng dùng fixture). Trong lúc sửa nó chạy ở chế độ báo cáo; hết lô 7 thì thành chặn trong `/gate`. Route mới về sau tự vào ma trận vì spec duyệt bảng điều hướng `nav.ts`.
+
+## 2. Hợp đồng khung trang
+
+Nguyên văn: `design-23-draft.md`. Các con số chính ở 1440 (thanh bên 216):
+
+| | `work` | `read` |
+| --- | --- | --- |
+| Cột nội dung | 240 → 1416 (1176 px), trần 1600 px | 428 → 1228 (800 px), căn giữa |
+| Dùng khi | có `DataTable`, lưới (lịch, điểm danh, sổ điểm) hoặc `Split` | còn lại: báo cáo, biểu mẫu, cài đặt, danh sách một cột |
+| Ở 375 | 12 → 363 | 12 → 363 |
+
+Ba quyết định thiết kế cần chủ dự án nhìn mẫu rồi gật:
+
+1. **`read` căn giữa, 800 px.** Tiêu đề lệch 188 px giữa màn `work` và màn `read` khi chuyển trang. Đổi lại không còn panel hẹp dính trái với khoảng trống 376 px bên phải (đúng lỗi chủ dự án chụp ở `/insights`). 800 thay cho 960 hiện tại: 960 trên vùng 1176 chỉ hở mỗi bên 108 px, đọc ra là «gần đầy nhưng lệch», không phải một kiểu riêng. So `khung/work-data-1440.png` với `khung/read-data-1440.png`.
+2. **Nút chính luôn ở đầu trang** khi trang có một vùng. Hiện `/grading` đặt «Chấm tất cả» trong thanh công cụ của panel, `/insights` đặt dưới meta, `/questions` đặt ở góc phải: ba màn ba chỗ.
+3. **Khối rỗng không có nút nếu đầu trang đã có nút đó.** `khung/work-empty-1440.png` (không nút) so với `khung/work-filtered-1440.png` (một nút «Xoá bộ lọc», vì không nơi nào khác làm được).
+
+## 3. Thay đổi primitive (`frontend/src/shared/ui/`)
+
+Số chỗ gọi đếm trên `frontend/src` (kể cả `Demo*`, trừ `app/dev`).
+
+| Primitive | API hiện tại | API mới | Chỗ gọi phải sửa | Route không tự đặt được gì |
+| --- | --- | --- | --- | --- |
+| `Page` | `width?: "reading" \| "wide" \| "full"`, `className?` | `kind: "work" \| "read"` (**bắt buộc**), `className?: never` | 90 thẻ ở 55 tệp (47 ngầm `reading`, 32 `wide`, 9 `full`, 4 có `className`) | Độ rộng, đệm, căn lề. Hai token `--ep-page-work` / `--ep-page-read` chỉ `Layout.module.css` đọc |
+| `PageHeader` | `title, description?, meta?, actions?, back?` | `title, back?, meta?: readonly ReactNode[]` (≤ 3 mẩu dữ liệu, tự nối bằng « · », một dòng, cắt bằng dấu ba chấm), `primary?: HeaderAction`, `secondary?: readonly [HeaderAction?, HeaderAction?]`, `more?: HeaderAction[]` | 91 thẻ: 17 có `description`, 13 có `meta`, 26 có `actions` | Vị trí, số lượng, thứ tự nút; câu mô tả; meta nhiều dòng |
+| `HeaderAction` (mới) | – | `{ label, icon?, onClick? \| href?, disabled?, reason?, busy?, menu?: MenuItem[] }`. `reason` = lý do khoá, hiện bằng tooltip sẵn có của `Button`. `menu` = nút mở `Menu` (vd. «Tạo câu hỏi») | 26 chỗ `actions`: 18 `Button`, 7 `ButtonLink`, 1 `Popover`, 1 `OverflowMenu`; 1 `Select` + 1 `SegmentedControl` chuyển xuống `Toolbar` | Ở < 720 px primitive tự gom nút phụ vào một nút «Thêm» (làm được vì nút là dữ liệu, không phải JSX) |
+| `Section` | `title?, description?, action?, panel?: boolean \| "lg" \| "none", className?, id?, part?` | `title, action?, id?, part?`; luôn bọc con trong **một** `Panel` | 5 chỗ có `description` (3 ngoài `app/dev`: `insights`, `today/StudentToday`, `threads/DemoThreads`); 99 chỗ `panel` bỏ prop; 0 chỗ dùng `"lg"` / `"none"` | Dòng phụ; chọn có panel hay không; `className` |
+| `Panel` | `as?, padding?: "md" \| "lg" \| "none", aria-label?` | `as?, aria-label?` | 2 chỗ `padding="none"` (đều là chia đôi → chuyển sang `Split`) | Đệm. Chiều cao: không ai đặt được vì `className` vốn đã cấm, và luật 25–26 chặn CSS route |
+| `Split` | `main, aside, ratio?: "wide-main" \| "half"`; **0 chỗ dùng** | `ratio: "main-aside" \| "half" \| "list-detail"`, `fill?: boolean`, `detailOpen?: boolean` (dưới 1100 px: danh sách → chi tiết). `list-detail` và `fill` tự bọc một panel sát mép; `fill` tự tắt khi danh sách rỗng / lỗi | `chat` (2), `inbox`, `grading/SubmissionReview`, `gradebook/GradeScheme`, `today/StaffToday`, `exam/take`, `practice/PracticeRun` | Chiều cao theo màn; tỉ lệ cột; đường kẻ dọc |
+| `EmptyState` | `title, children?, action?, icon?` | `title: string, action?: ReactNode`; CSS: căn giữa, đệm dọc `--ep-space-16`, bỏ `max-width: 56ch` và `justify-items: start` | 96 thẻ: 65 có thẻ đóng (có thân), 11 có `icon`, 28 có `action` | Thân chữ, icon, căn lề |
+| `PageState` | `empty?: ReactNode`, mặc định có câu «Khi có dữ liệu…»; lỗi mặc định hai câu | `empty?: { title: string; action?: ReactNode }`, mặc định `{ title: "Chưa có dữ liệu" }`; `error?: { problem: string }`; lỗi mặc định `Không tải được nội dung` + «Thử lại»; `unsaved?: boolean` thêm câu «Chữ bạn đã nhập vẫn còn» | 36 chỗ truyền `empty={…}` | Hình khối rỗng và khối lỗi |
+| `Toolbar` | `children, end?, alignEnd?` | giữ. Thêm luật: `end` không chứa nút `primary` khi trang có một vùng (đo bằng H6) | `grading/GradingQueue` và các màn H6 chỉ ra | – |
+
+**Móc DOM ổn định** (primitive tự gắn; QC và `frame.spec.ts` chỉ đọc các móc này):
+
+`data-ep-page="work|read"` · `data-ep-page-header` · `data-ep-header-meta` · `data-ep-header-actions` · `data-ep-section` · `data-ep-section-head` · `data-ep-section-title` · `data-ep-panel` (đã có) · `data-ep-split="main-aside|half|list-detail"` + `data-ep-split-fill` · `data-ep-empty` · `data-ep-toolbar`. Giữ `data-part="page-title"` trên `h1` (các spec cũ đang dùng).
+
+**Vì sao là kiểu trước, script sau:** `pnpm -C frontend build` chạy `tsc`. Xoá prop → mọi chỗ gọi cũ thành lỗi biên dịch có tên tệp và dòng, không sót, không cần regex. Script chỉ lo những gì kiểu không thấy (CSS của route, nội dung chuỗi).
+
+## 4. Luật mới cho `scripts/ui-antipatterns.sh` (24–31)
+
+Cùng cơ chế hiện có: mỗi phép in `✓` / `✗`, miễn bằng `ui-allow: <lý do>` cùng dòng (trần 10 chỗ giữ nguyên), mỗi phép có hạt giống trong `--selftest` (kỳ vọng `31 / 31 phép bắt được`). «CSS route» = `*.module.css` dưới `features/` và `app/`, trừ `features/landing/` và `app/dev/`.
+
+| # | Tên phép | Bắt | Biểu thức (ERE) | Hạt giống |
+| --- | --- | --- | --- | --- |
+| 24 | Khung tự đặt độ rộng | CSS route đặt bề rộng cỡ khung, hoặc tự căn giữa | `(max-\|min-)?width[[:space:]]*:[^;]*(([6-9][0-9]{2}\|[0-9]{4,})px\|[3-9][0-9](\.[0-9]+)?rem\|[0-9]+vw)` và `margin(-inline)?[[:space:]]*:[^;]*\bauto\b`. Ngưỡng 600 px: phân bố hiện tại có các giá trị 320–560 px (ô nhập, cột chữ) không bị bắt; 11 dòng từ 640 px trở lên (640 ×5, 720 ×2, 820 ×2, 1180 ×2) bị bắt, dev xét từng dòng. Giá trị tính bằng `ch` không bị bắt | `.a { max-width: 840px; }` |
+| 25 | Chiều cao theo màn ngoài `shared/` | CSS route dùng `vh` / `dvh` / `svh` | `(min-\|max-)?height[[:space:]]*:[^;]*[0-9](d\|s\|l)?vh`. Hiện dính: `inbox`, `chat`, `grading/SubmissionReview`, `exam/take`, `practice` (5 tệp) | `.b { height: calc(100dvh - 56px); }` |
+| 26 | Với tay vào primitive | CSS route chọn phần tử của primitive | `data-ep-(panel\|page\|empty\|section\|split)\|\.page\.page`. Hiện dính: `inbox/RealInbox.module.css`, `chat/ChatScreen.module.css` | `.c > :global([data-ep-panel]) { height: 100%; }` |
+| 27 | Meta lặp lớp | `meta=` của `PageHeader` chứa lớp đang chọn | perl trên thẻ mở `<PageHeader …>`: thuộc tính `meta` khớp `course(Label\|Code\|Name)\|class_?[cC]ode\|course\??\.(label\|code\|name\|class_code)`. Hiện dính: `inbox`, `insights`, `analytics`, `observability` | `<PageHeader title="x" meta={[course.label]} />` |
+| 28 | Tiêu đề tự dựng | `h1` / `h2` ngoài primitive | `<h1\b\|<h2\b\|ep-page-title\|ep-section-title` ngoài `shared/ui/`. Hiện 23 chỗ `ep-section-title` + 4 chỗ `h1` | `<h2 className="ep-section-title">x</h2>` |
+| 29 | Nút rỗng trùng đầu trang | cùng tệp: nhãn trong `action` của `EmptyState` / `empty={{…}}` trùng `label` của `primary` | perl gom `primary={{ label: "…"` rồi tìm chuỗi đó trong các khối rỗng. Trần: không thấy qua ranh giới tệp → phần đó do E4 | tệp có `primary={{ label: "Tạo câu hỏi" }}` và `<EmptyState title="x" action={<Button>Tạo câu hỏi</Button>} />` |
+| 30 | Tiêu đề rỗng là câu | `title` tĩnh của `EmptyState` / `empty={{ title }}` dài hơn 40 ký tự, hoặc có `. ` giữa chuỗi, hoặc kết thúc bằng `.` | perl như phép 23 | `<EmptyState title="Chưa có gì. Khi có dữ liệu nó sẽ hiện ở đây." />` |
+| 31 | Vàng làm chữ | `--ep-yellow` dùng cho chữ / viền / icon | `(^\|[^-])(color\|border(-[a-z]+)?-color\|stroke\|fill)[[:space:]]*:[^;]*--ep-yellow\b` (không khớp `background-color`) | `.d { color: var(--ep-yellow); }` |
+
+Phép 23 hiện có (câu mô tả > 40 ký tự ở `description=`) thành thừa sau lô 0 vì prop không còn; **giữ nguyên**, không xoá (nó là AC của `FEAT-uiux-91` US-01 AC6).
+
+Giới hạn nói thẳng: grep không thấy độ rộng sinh ra từ `grid-template-columns` hay từ nội dung. Phần đó chỉ `frame.spec.ts` (W2, W3) bắt được. Script là lưới thô chạy trong 2 giây; spec là cổng.
+
+## 5. Lô sửa route
+
+Đơn vị ước lượng: ngày làm việc của `dev` (một phiên agent liền mạch). Mỗi lô một commit `10.7: lô N <nhóm>`; mỗi lô kết thúc bằng: build xanh, `ui-antipatterns` sạch, `frame.spec.ts` lọc theo route của lô = 0 lệch, ảnh trước / sau lấy từ `audit.html` lọc theo route (trước = bản chụp hiện trạng của QC, sau = chụp lại cùng script). Cột «Số chỗ» đếm bằng `grep` trong thư mục feature của lô (`<EmptyState`, `description=`, ` meta=`, dòng CSS có bề rộng từ 3 chữ số px): là cỡ việc, không phải danh sách lỗi.
+
+| Lô | Route (kiểu) | Việc chính | Số chỗ | Ước |
+| --- | --- | --- | --- | --- |
+| **0** Primitive | – | Đổi API 7 primitive + `HeaderAction`; thêm móc DOM; sửa **máy móc** mọi chỗ gọi để build xanh (chưa chỉnh bố cục); luật 24–31 + hạt giống; `frame.spec.ts` chế độ báo cáo; sinh lại ảnh mốc `visual.spec.ts` | 88 `Page`, 91 `PageHeader`, 96 `EmptyState`, 99 `Section panel` | 1,5 |
+| **1** Ba màn chủ dự án chụp → **DỪNG cho duyệt** | `/insights` (read) · `/questions` (work) · `/inbox` (work + `Split` list-detail fill) | Màn mẫu thật cho ba hình thái. `/inbox` là nơi dựng `Split fill` lần đầu | rỗng 6, meta 4, CSS chiều cao 1 tệp | 0,75 |
+| **2** Hỏi đáp | `/chat` (work + Split fill) · `/threads` (work) · `/threads/[id]` (read) | Chuyển `chat` sang `Split`; bỏ `Page className` ×2 | rỗng 8, mô tả 6, meta 4, CSS rộng 14 dòng | 0,75 |
+| **3** Chấm và điểm | `/grading` (work) · `/grading/[submissionId]` (work + Split half fill) · `/gradebook` (work) · `/gradebook/scheme` (work + Split main-aside) · `/assignments/[id]` (read) | «Chấm tất cả» lên đầu trang; hai nút «Tải bài lên» còn một; rỗng «Chưa có bài nộp.» sửa nghĩa (persona-eval) | rỗng 8, meta 4, CSS rộng 12 dòng | 1 |
+| **4** Thi và luyện | `/exams` (read) · `/exams/[id]` (read, dev xác nhận) · `/exams/[id]/results`, `/similarity` (work) · `/exams/[id]/take` (work + Split main-aside) · `/practice` (read) · `/practice/[attemptId]` (work + Split main-aside) · `/practice/history` (read) · `/me` (read) | Nhiều khối rỗng có thân chữ nhất (22) | rỗng 27, mô tả 5, meta 8, CSS rộng 27 dòng | 1 |
+| **5** Lớp và người | `/students` (work) · `/students/[id]` (work) · `/class/members` (work) · `/class/settings` (read) · `/attendance` (work) · `/join`, `/join/[code]` (read) | `members` có 11 dòng CSS rộng | rỗng 14, mô tả 3, CSS rộng 18 dòng | 0,75 |
+| **6** Nội dung và Hôm nay | `/documents` (work) · `/library` (read) · `/library/[id]` (read) · `/calendar` (work) · `/` sinh viên (read), giảng viên / trợ giảng (work + Split main-aside), admin (read) | «Hôm nay» giảng viên theo `mau/mau-1.html` nếu P-107-6 được nhận | rỗng 16, mô tả 9, meta 11 | 0,75 |
+| **7** Hiểu lớp, hệ thống, ngoài khung | `/analytics` (read) · `/observability` (work) · `/settings` (read) · `/settings/llm` (work) · `/settings/integrations` (read) · `/admin/courses`, `/admin/users` (work) · `error`, `not-found`, `RouteStub` (read) · trang tài khoản (`AuthShell`: chỉ áp luật chữ và khối rỗng) | Cuối lô: `frame.spec.ts` thành chặn | rỗng 9, meta 4 | 0,5 |
+| **8** Bộ màu | toàn app | Đổi 8 token ở `tokens.css` + `DESIGN_TOKENS.css`; thêm `--ep-yellow`, `--ep-yellow-soft`; ba chỗ dùng vàng đầu tiên (chấm «cần xem kỹ», nhãn «cần chú ý», vạch «kế tiếp»); 3 tệp logo; `contrast.spec.ts` thêm cặp vàng; sinh lại ảnh mốc | 8 token, 3 svg | 0,5 |
+| **9** Trang giới thiệu | `/` chưa đăng nhập | Theo mục 8 | 1 màn | 1 |
+
+Tổng khoảng **8,5 ngày dev** (7 cho khung, 1,5 cho màu và trang giới thiệu) + QC chụp lại sau mỗi lô. Lô 8 tách sau lô 7 để ảnh trước / sau của lô 1–7 chỉ khác về khung; nếu chủ dự án muốn thấy màu sớm, lô 8 đổi lên ngay sau lô 0 được (chỉ đụng token).
+
+Nhánh `fix/ui-empty` (BA đã vá SRS bỏ câu giải thích trong trạng thái rỗng) gộp vào trước lô 0.
+
+## 6. Mẫu tham chiếu cho chủ dự án duyệt
+
+HTML tĩnh tự chứa ở `docs/sprints/10.7/mau/`, mở bằng trình duyệt; đều dùng bộ màu mới.
+
+| Mẫu | Chứng minh điều gì | Ảnh |
+| --- | --- | --- |
+| `khung-trang.html?m=work` · `/questions` | Kiểu `work`; nút chính ở đầu trang; thanh lọc trong panel; rỗng không nút; rỗng do lọc có một nút; đang tải giữ khung; lỗi một dòng | `khung/work-{data,empty,filtered,loading,error}-1440.png` |
+| `khung-trang.html?m=read` · `/insights` | Kiểu `read` 800 px căn giữa; meta một dòng; tiêu đề mục không dòng phụ | `khung/read-{data,empty}-1440.png` |
+| `khung-trang.html?m=split` · `/inbox` | `Split` cao hết màn **chỉ khi có dữ liệu**; rỗng thì panel thấp, không nút «Xem tất cả» | `khung/split-{data,empty}-1440.png` |
+| cả ba ở 375 | Một cột, nút chính đủ rộng, nút phụ gom vào «Thêm» | `khung/375-work-data_work-empty_read-data_split-empty.png` |
+| `mau-1.html` · «Hôm nay» giảng viên | `Split main-aside`; đỏ chỉ ở nút chính, mục đang chọn, số việc chờ; vàng ở 4 chỗ nhỏ | `sau-web.png` |
+| `mau-app.html` · app sinh viên | Cùng token trên điện thoại (sprint 10.8) | `sau-app.png` |
+| `landing.html` | Mục 8; có chuyển động, mở bằng trình duyệt | `landing-chuyen-dong.png`, `landing-man-dau-1440.png`, `landing-1440.png`, `landing-390.png` |
+
+Thêm `&guides=1` vào URL của `khung-trang.html` để thấy hai đường gióng mép cột.
+
+## 7. Bộ màu Bách khoa
+
+Chi tiết: `mau/palette.md`. Tóm tắt: 6 token đổi giá trị (`--ep-red`, `--ep-red-hover`, `--ep-red-soft`, `--ep-ink`, `--ep-canvas`, `--ep-blue`), 2 token mới (`--ep-yellow`, `--ep-yellow-soft`), 9 token giữ nguyên. Nguồn: sổ tay nhận diện 2026 trang 4 và 6. Không dùng logo trường. Không tô đỏ thanh trên (khác `qldt.hust.edu.vn`) vì trái luật «đỏ là tín hiệu»; nếu chủ dự án muốn thanh trên đỏ thì đó là quyết định mở lại D28, ghi ở P-107-8.
+
+**Nền trắng** (chủ dự án, 14/11, sau khi xem mẫu đầu): `--ep-canvas` = `#FFFFFF`. Hệ quả: nền trang và panel cùng trắng, panel chỉ còn tách bằng viền 1 px + bóng tĩnh; điều «nền trang tối hơn panel 5 điểm L» của D59 và phép đo ΔL ở `contrast.spec.ts` / `panels.spec.ts` phải đổi (P-107-10). Mọi mẫu ở mục 6 đã dựng lại trên nền trắng. Vì vậy §23.3 thêm một câu: panel luôn có đủ viền và bóng, không route nào được bỏ.
+
+## 8. Trang giới thiệu (`/` chưa đăng nhập)
+
+### 8.1 Hiện trạng đo được
+
+Chạy bộ kiểm của skill `design-taste-frontend` trên bản đang chạy ở `ep-qc` (`http://localhost:580/`, không đăng nhập), 1440 và 390, ngày 2026-11-14:
+
+| Công cụ | Kết quả |
+| --- | --- |
+| `consistency.mjs --page software` | **42 FAIL, 20 WARN** |
+| `copy-lint.mjs --kind software` | 0 FAIL, 0 WARN (561 từ) |
+| `perf.mjs` | 2 FAIL (9 tệp phông), 6 WARN; LCP, CLS, thời gian chặn đều đạt |
+| `assets/layout/check.mjs` | không chạy được: trang không có cấu trúc `main > section` |
+
+| Mã kiểm | Số | Nghĩa | Thật hay do công cụ |
+| --- | --- | --- | --- |
+| `scroll-linked` | 23 FAIL + 10 WARN | Phần tử chuyển động theo cuộn | **Trái luật nhau**: `DESIGN.md` §11.1 cho phép, skill cấm → P-107-9 |
+| `container-edges` | 8 | Thanh trên chỉ có nút bên phải; mục «Xem EduPilot làm việc» lề 48 px trong khi các mục khác 160 px; không có một khung chứa chung | Thật. Cùng loại lỗi với «mỗi trang một kiểu panel» |
+| `hero-screen`, `section-height` | 4 | Mục không cao đúng 1–2 màn | Một phần do công cụ (không có `main > section` nên coi cả trang là một khối); nhịp mục không đều là thật |
+| `focus-visible`, `focus-ring` | 5 | Vòng focus của nút đọc ra 0 : 1; `.Chart…point:focus-visible` bỏ viền | Cần kiểm tay; cái thứ hai là thật |
+| `loop-pause` | 1 | Đoạn phim nền lặp quá 5 giây, không có nút dừng | Thật (WCAG 2.2.2) |
+| `copy-fact` | 2 | Màn đầu không có một dữ kiện cứng (con số, nền tảng, ngày) | Thật |
+| `copy-headings` | 1 (6 tiêu đề) | «Hỏi riêng, có nguồn», «Khác biệt, có số đo»… không gọi tên vật | Thật |
+| `copy-headline` | WARN | `h1` 14 từ (nên 2–8) | Thật |
+| `body-size` | WARN | 8 / 12 đoạn chữ chạy 15 px (nên ≥ 16) | Thật |
+| `tap-size`, `skip-link`, `share-meta`, `moment-none` | WARN | Liên kết chân trang 18 px; thiếu liên kết bỏ qua; thiếu thẻ chia sẻ | Thật, nhỏ |
+
+Nhìn bằng mắt (ảnh `mau/landing-truoc-720.png`, thu 50 %): ảnh sản phẩm ở màn đầu chồng chữ lên nhau ở cột phải; con số thứ ba («+0,05 %») không phải lợi ích người dùng hiểu được; lời kêu gọi cuối trang trống.
+
+### 8.2 Hướng sửa
+
+Mẫu: `mau/landing.html`, **bản có chuyển động** (mở bằng trình duyệt để xem chạy). Ảnh: `landing-chuyen-dong.png` (12 khung hình của các chuyển động), `landing-man-dau-1440.png` (màn đầu), `landing-1440.png` (cả trang ở trạng thái đứng, tức là khi bật «giảm chuyển động»), `landing-390.png` (bảy màn ở 390). Dựng theo phương án (a) của P-107-9 và P-107-12: token và phông của `DESIGN.md` §11.1, bố cục và lời văn theo skill `design-taste-frontend`, chuyển động theo P-107-12, dùng bộ kiểm của skill làm thước đo (không dùng bộ CSS của skill, vì D53).
+
+Bản đầu của mẫu là bản tĩnh; chủ dự án chê «đơn giản quá, hiệu ứng đâu» (đúng: trang giới thiệu phải thuyết phục, mà bản tĩnh chỉ sửa lỗi đo được). Bản này thêm chuyển động có việc để làm và phóng to phần sản phẩm.
+
+| Lỗi đo được ở 8.1 | Cách sửa trong mẫu |
+| --- | --- |
+| `container-edges` ×8 | **Một** khung chứa `.wrap` cho thanh trên, sáu mục và chân trang: mép 80 → 1360 ở 1440, 24 → 366 ở 390. Lưới 12 cột, mọi khối bắt đầu và kết thúc trên đường cột |
+| `hero-screen`, `section-height` | Trang là `header` + `main > section` ×5 + `footer.closing`; mỗi mục cao đúng một màn (`100svh`), riêng mục khung ghim cao hai màn khi đang ghim; tiêu đề là nội dung đầu tiên, căn trên |
+| `copy-fact` | Màn đầu có một dữ kiện cứng, **nguyên văn nguồn**: «146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp» |
+| `copy-headline` (14 từ) | `h1` còn 8 từ: «Vận hành lớp học có trợ lý AI»; nửa sau («bảo vệ dữ liệu cá nhân») chuyển thành câu thứ hai của đoạn dẫn |
+| `copy-headings` ×6 | Tiêu đề gọi tên vật: «Bài nộp đi qua ba bước», «EduPilot trong ba màn», «Ba số đo trên dữ liệu mô phỏng», «Việc của giảng viên và sinh viên», «Lớp của bạn trên EduPilot». Không có dòng chú thích dưới tiêu đề mục |
+| Màn đầu 3 nút | Còn 2 («Đăng nhập» có mũi tên, «Xem video»); «Tạo tài khoản» lên thanh trên và xuống lời kết |
+| `body-size` (15 px) | Chữ chạy 16 px, đoạn dẫn 18 px |
+| `tap-size`, `skip-link`, `share-meta` | Liên kết chân trang cao 44 px; có «Tới nội dung»; có thẻ `og:` |
+| `focus-visible` | Vòng focus 2 px `--ep-red` lệch 3 px trên mọi điều khiển của trang |
+| `loop-pause` | Đoạn sản phẩm chạy ở màn đầu có nút tạm dừng 32 px ở góc khung |
+| Ảnh màn đầu chồng chữ | Màn đầu là **HTML thật** của màn duyệt bài ở cỡ đọc được, đang chạy (xem 8.3), kèm một thẻ hỏi đáp có nguồn nổi ở góc dưới |
+| Ảnh sản phẩm nhỏ | Mục «EduPilot trong ba màn»: ảnh chụp thật rộng hết khung chứa (1280 px), ba tên màn xếp ngang phía trên |
+| Mục vai chỉ có chữ | Hai tab «Giảng viên» / «Sinh viên»; bấm thì đổi danh sách việc và ảnh «Hôm nay» của vai đó |
+| Lời kết trống | Lời kết + chân trang là **một** mục: tiêu đề, hai nút, ảnh Sổ điểm, dòng pháp lý |
+| Bộ màu | Nền trắng toàn trang; đỏ chỉ ở nút chính, sợi chỉ nối ba bước, vạch màn đang xem, tab đang chọn, chấm «đã sửa»; vàng ở 2 chỗ nhỏ (vạch hai màu dưới `h1` và ở lời kết theo tỉ lệ dải đỏ / vàng của nhận diện trường, nhãn «Nháp») |
+
+Giữ **nguyên văn** ba câu số đo và ba câu nguồn của chúng (US-UX91-08 AC9, kể cả dấu «:»), và vế «trong danh sách lớp» ở câu 146 (P-91-7(2)). Chỉ 146 đếm lên; «30/30» và «+0,05 %» đứng yên, như bản 9.1.
+
+Mẫu **đổi lời** so với trang hiện tại ở ba chỗ (P-107-11 đã nhận): `h1` rút gọn; tiêu đề mục đổi tên; dòng «Ví dụ minh hoạ, số liệu mẫu.» dưới ba bước bị bỏ. Con số «1.000 sinh viên trên 20 lớp» của bản tĩnh đã rút khỏi màn đầu; mẫu không còn số nào ngoài nguồn AC9. Số trong các khối minh hoạ giao diện (8,0 / 7,5 / 8,5 / 9,0; 0,1 × 9,0 + 0,3 × 8,0 + 0,6 × 8,3 = 8,3) là dữ liệu vẽ, không phải số đo; dòng pháp lý cuối trang đã ghi «dữ liệu mô phỏng».
+
+### 8.3 Chuyển động (hợp đồng cho lô 9, theo P-107-12)
+
+Luật chung, đo được:
+
+- Chỉ `transform` và `opacity` được chạy (đổi màu khi rê chuột là đổi tức thì, không chuyển tiếp).
+- Không thư viện chuyển động: CSS `@keyframes` / `transition`, một `IntersectionObserver`, một lần đọc cuộn thụ động mỗi khung hình. Script của mẫu 51 dòng, 4,3 KB, gồm cả tab, hộp thoại video và nút tạm dừng.
+- Phần hiện theo cuộn chỉ bị ẩn **sau khi** script chạy tới chỗ gắn bộ quan sát (lớp `m-armed`); script hỏng giữa chừng thì không có gì bị ẩn. Bộ quan sát không gọi lại trong 1,5 s thì hiện hết.
+- Nội dung màn đầu hiện ngay từ khung hình đầu: `h1`, đoạn dẫn, nút, dòng số đo chỉ **dịch** (12–20 px), không bắt đầu từ `opacity: 0`. `h1` là LCP; đo bằng `perf.mjs`: LCP là dòng chữ của `h1`, thời gian chặn 0 ms.
+- `prefers-reduced-motion: reduce` hoặc không có script: không gắn lớp `m-on`, mọi thứ đứng ở **hình đã xong**. Đã đo: 0 animation đang chạy, cả trang đọc được (`landing-1440.png` chính là ảnh của chế độ này).
+- Cái gì tự chạy quá 5 giây thì có nút tạm dừng. Chỉ có **một** thứ tự chạy: đoạn sản phẩm ở màn đầu.
+- Điện thoại (< 640 px): màn đầu vẫn vào, các mục vẫn hiện theo cuộn; đoạn sản phẩm đứng ở hình đã xong, không có con trỏ giả, không ghim.
+
+| # | Ở đâu | Chuyển động | Để làm gì | Số đo |
+| --- | --- | --- | --- | --- |
+| 1 | Màn đầu, lúc tải | `h1` hai dòng dịch lên, lệch nhau 80 ms; vạch đỏ vàng vẽ từ trái; đoạn dẫn, nút, dòng số đo, thẻ hỏi đáp dịch lên lần lượt cách nhau 60 ms; khung sản phẩm từ 0,98 về 1 | Tên sản phẩm đến trước, rồi tới việc cần bấm | Xong trong 1,2 s, một lần |
+| 2 | Màn đầu, khung sản phẩm | **Đoạn sản phẩm chạy**: bản AI chấm nháp → con trỏ tới ô điểm tiêu chí 2, bấm, 7,5 bị gạch và 8,5 hiện ra kèm chấm đỏ «đã sửa», điểm bài 8,2 → 8,5 → con trỏ tới nút «Duyệt», bấm, nhãn «Nháp» đổi thành «Đã duyệt» | Cho thấy lời hứa của sản phẩm trong 9 giây: AI soạn nháp, giảng viên quyết | Vòng 9 s; giữ hình đã xong 3,4 s; cuối vòng mờ còn 30 % rồi viết lại, không bao giờ trống; nút tạm dừng |
+| 3 | «Bài nộp đi qua ba bước», khi cuộn tới | Sợi chỉ đỏ vẽ từ nút 1 tới nút 3 trong 1 s; sợi chỉ tới nút nào thì nút đó và thẻ của nó hiện | Ba bước là một trình tự, không phải ba ô ngang hàng | Một lần; thẻ cách nhau 500 ms |
+| 4 | Ba thẻ bước, khi rê chuột | Thẻ diễn lại bước của nó: các dòng hiện lần lượt (thẻ 2: 8,5 thay 7,5 rồi nhãn «Đã duyệt») | Mời bấm thử; trả lời «bước này làm gì» | 300 ms mỗi dòng; chỉ chuột thật, không chạy trên màn chạm |
+| 5 | «EduPilot trong ba màn» | **Khung ghim**: mục cao 2 màn, nội dung ghim bằng `position: sticky`; cuộn thì vạch đỏ trên tên màn chạy theo, ảnh đổi sang màn kế bằng mờ dần | Ba màn trong chỗ của một | Bám theo thanh cuộn, cuộn ngược thì chạy ngược; không chiếm quyền cuộn |
+| 6 | «Ba số đo», khi cuộn tới | Ba vạch kẻ vẽ từ trái, chữ hiện theo; **146** đếm từ 0 | Con số là bằng chứng, đáng một nhịp dừng | Một lần; đếm 1 s |
+| 7 | «Việc của giảng viên và sinh viên» | Bấm tab: vạch đỏ trượt sang tab mới, danh sách và ảnh đổi | Người xem chọn vai của mình | 240 ms; mũi tên trái / phải đổi tab |
+| 8 | Mọi nút, liên kết | Nút nhích lên 1 px khi rê, lún 1 px khi bấm, mũi tên nhích 3 px; liên kết thanh trên vẽ gạch chân từ trái | Mọi thứ bấm được đều trả lời | 150 ms vào, 90 ms bấm |
+| 9 | Lời kết, khi cuộn tới | Vạch đỏ vàng vẽ từ trái | Khép lại bằng đúng dấu hiệu mở đầu | 700 ms, một lần |
+
+Không làm: chữ chạy ngang, trượt ảnh tự động, thẻ nghiêng theo chuột, nút hút chuột, hạt / tuyết / pháo giấy, chữ đổi màu gradient, kính mờ, phát sáng (`DESIGN.md` §11.1 và §21 vẫn cấm).
+
+Khác bản đang chạy (lô 9 phải đổi): đoạn phim `gioi-thieu-clip-v1` ở màn đầu được thay bằng đoạn sản phẩm dựng bằng HTML (nét ở mọi cỡ màn, nhẹ hơn 200 KB phim, đọc được bằng trình đọc màn hình qua `aria-label`); «Xem video» vẫn mở phim 75 giây trong hộp thoại.
+
+### 8.4 Bộ kiểm chạy trên mẫu
+
+Cùng lệnh với 8.1, chạy trên `mau/landing.html` (bản có chuyển động), 1440 và 390, ngày 2026-11-14. Số FAIL qua các lượt: bản tĩnh 42 → 22 → 11; thêm chuyển động lên 28; sửa còn 20 → **18**.
+
+| Công cụ | Trang hiện tại | Mẫu bản tĩnh | Mẫu có chuyển động |
+| --- | --- | --- | --- |
+| `consistency.mjs` | 42 FAIL, 20 WARN | 11 FAIL, 25 WARN | **18 FAIL, 17 WARN** |
+| `copy-lint.mjs` | 0 FAIL, 0 WARN | 0 FAIL, 0 WARN | 0 FAIL, 0 WARN |
+| `perf.mjs` | 2 FAIL, 6 WARN | 2 FAIL, 4 WARN | 4 FAIL, 3 WARN; LCP 576 ms ở 1440 (dòng chữ `h1`), 324 ms ở 390 (đoạn dẫn); thời gian chặn 0 ms |
+
+Bản có chuyển động nhiều FAIL hơn bản tĩnh vì skill cấm đúng thứ P-107-12 cho phép. 18 FAIL, không giấu:
+
+| Nhóm | Mã | Số | Vì sao còn | Xử lý |
+| --- | --- | --- | --- | --- |
+| Chủ ý, theo P-107-12 | `scroll-reveal` | 6 | Ba bước, ba số đo và vạch lời kết hiện khi cuộn tới (skill cấm mọi thứ hiện theo cuộn) | Miễn trừ, ghi lý do là P-107-12 |
+| Chủ ý, theo §11.1 | `scroll-linked`, `section-air`, `empty-area` | 3 | Khung ghim: mục cao hai màn, nội dung ghim một màn, nên bộ kiểm thấy «61 % mục trống». Skill chỉ miễn cho khung ghim dựng bằng module của chính nó | Miễn trừ, ghi lý do là `DESIGN.md` §11.1 |
+| Thật | `no-visual` | 3 | Mục «Ba số đo» chỉ có chữ (cả hai bề rộng); mục vai ở 390 ẩn ảnh để vừa một màn | Chủ dự án chọn: thêm hình cho mục số đo, hoặc nhận là dải số. Ở 390 cho ảnh hiện dưới danh sách nếu chịu mục dài hai màn |
+| Thật | `one-heading` | 2 | Con số 48 px bị tính như tiêu đề: «30/30» và tiêu đề mục kế cùng hiện ở 5,5 % vị trí cuộn (ngưỡng 3 %) | Hạ số xuống 40 px, hoặc nhận: số to là chủ ý |
+| Thật | `container-edges` | 1 | Ở 390 chữ trong thẻ lùi 25 px so với mép khung chứa | Ở điện thoại bỏ viền thẻ, chữ ra sát mép |
+| Do mẫu | `links` | 2 | `#register` không có đích trong tệp tĩnh | Tự hết khi nối `/register` |
+| Do công cụ | `copy-headings` | 1 | Bộ kiểm so tiêu đề với danh sách danh từ tiếng Anh và tên sản phẩm (`consistency.mjs` dòng 9362, 9417–9422); tiêu đề tiếng Việt không chứa «EduPilot» đều bị đánh | Miễn trừ |
+
+`perf.mjs` 4 FAIL: «8 tệp phông» (ngưỡng của skill là 4; ba độ đậm × hai subset là điều kiện PM đã nhận ở góp ý #14 sprint 5); hai lần «yêu cầu hỏng» là ảnh bìa của phim, do mẫu trỏ ra ngoài thư mục khi chạy qua máy chủ tạm của bộ kiểm; «ảnh quá cỡ» ở 390 là **thật**: mẫu nhúng ảnh 1600 px cho mọi bề rộng, lô 9 phải dùng `srcset` với các bản 640 / 800 đã có trong `frontend/public/landing/`.
+
+Bộ kiểm bố cục `assets/layout/check.mjs` và cổng `gate.mjs` của skill chưa chạy trên mẫu: chúng đòi trang dựng từ `starter.html` và bộ CSS của skill (xem P-107-9).
+
+## 9. Rủi ro và cách lùi
+
+| Rủi ro | Mức | Giảm |
+| --- | --- | --- |
+| Lô 0 đụng ~280 chỗ gọi trong một commit | Cao | Sửa máy móc, không đổi bố cục; `tsc` là lưới; `git revert` một commit là lùi được hết |
+| `Split fill` thay CSS riêng của `chat` / `inbox` / duyệt bài, là ba màn dùng nhiều nhất | Cao | Lô 1 làm `/inbox` trước và dừng cho duyệt; `escalation.spec.ts`, `private-chat.spec.ts` phải xanh nguyên, không sửa assertion |
+| Ảnh mốc `visual.spec.ts` (26 ảnh) đổi hết | Trung bình | Sinh lại ở lô 0 và lô 8, liệt kê từng ảnh + lý do trong handoff (quy tắc Q-QC-PU06-4) |
+| Cột `read` 800 làm chật màn đang dùng 960 | Trung bình | Quy tắc chọn kiểu đẩy màn có bảng sang `work`; `--ep-page-read` là một token, đổi một chỗ |
+| Spec cũ ghim `LEFT = 240` trên mọi route | Chắc chắn (P-107-1) | BA vá AC trước lô 0 |
+| Bỏ thân chữ làm mất thông tin thật sự cần | Thấp | Luật chữ UI đã chỉ chỗ: nhãn nút hoặc tooltip trên chính nút. `fix/ui-empty` của BA đã rà SRS |
+
+## 10. Việc cần PM / chủ dự án quyết
+
+`proposals.md` P-107-1 … P-107-11. Chặn lô 0: P-107-1, -2, -3, -4, -5. Chặn lô 6: P-107-6. Chặn lô 8: P-107-8, -10. Chặn lô 9: P-107-9, -11. Không chặn dev: P-107-7 (việc của QC).
+
+## 11. Nợ từ handoff dev đưa vào hợp đồng §23 (PM 14/11)
+
+Nguồn: `handoff/dev-sprint10.7.md` trên nhánh này, và tin PM.
+
+| Nợ | Thuộc §23? | Xử lý | Lô | Đo bằng |
+| --- | --- | --- | --- | --- |
+| **Toolbar 390 px: ba nút xuống 2 dòng** (`/grading` tab Hàng chờ: «Tải bài lên» + «Chấm tất cả» + «Công bố»; `Layout.module.css` `.toolbarEnd` không `flex-wrap`) | Có, §23.2 | Không vá `.toolbarEnd`. Ba nút này là hành động cấp trang, không phải của thanh lọc → chuyển lên `PageHeader`: `primary` = «Chấm tất cả», `secondary` = [«Tải bài lên», «Công bố»]. Dưới 720 px primitive tự gom hai nút phụ vào nút «Thêm», hàng nút còn đúng một dòng. `Toolbar.end` từ nay chỉ chứa điều khiển của bảng (công tắc, sắp xếp). Ảnh chuẩn `grading-queue-390.png` sinh lại trên Linux / CI | 3 | H5, H6, H8 |
+| **(d) Bộ lọc «Bài tập» mất khi rời route** | Không (hành vi, không phải khung) | Ghi vào §23.3 một câu để mọi màn làm giống nhau: trạng thái lọc cấp trang (`Tabs`, `Toolbar`) sống trong **URL** (`?assignment=…&status=…`), không ở `sessionStorage`. Quay lại, tải lại, gửi liên kết đều giữ lọc; danh sách tải sau không ghi đè được vì URL là nguồn. Bỏ khoá `sessionStorage` của 10.6 khi chuyển | 3 | e2e: chọn bài tập → sang `/gradebook` → quay lại → còn lọc; tải lại trang → còn lọc |
+| **(k) Dòng báo xong sau «Chấm lại»** (`Đã chấm xong N bài`) | Một phần: vị trí | Dòng báo việc nền là dòng xác nhận tĩnh lặng (`UndoLine` không nút), nằm ngay dưới `Toolbar` của vùng, trong panel. Không toast, không đẩy bố cục (chỗ đã chừa sẵn một dòng). Nhánh «lô không tới SUCCEEDED» và «tải lại giữa chừng»: dòng đọc trạng thái từ `useJob`, nên tải lại vẫn hiện đúng; lô lỗi hiện `InlineNotice` một dòng + «Thử lại» theo §23.5 | 3 | e2e hiện có của 10.6 + L3 (không nhảy bố cục) |
+| **Landing: axe báo tương phản chập chờn** | Có, mục 8 | `[SUY LUẬN]` chưa tái hiện: chữ đang ở giữa chuyển động theo cuộn có `opacity` < 1 lúc axe lấy mẫu, nên tỉ lệ tương phản tính trên màu đã pha. Mẫu mới chỉ dùng `transform` cho chữ; `opacity` chỉ dùng cho ảnh. Thêm vào `landing.spec.ts`: chạy axe với `reducedMotion: "reduce"` **và** một lượt sau khi cuộn hết trang, cả hai phải 0 lỗi. Nếu còn chập chờn thì nguyên nhân khác, dev báo lại | 9 | axe 0 serious / critical ở 20 lượt liên tiếp |
+
+Nợ «`/insights` và các màn mô phỏng còn `?? X[COURSE_1]`» (trái D51) không thuộc khung; giữ ở sprint 11 như handoff ghi. `frame.spec.ts` chạy được trên màn mô phỏng nên không chặn UI-R.
+
+## 12. Trả lời dev (2026-11-15)
+
+Hai câu ở `handoff/dev-sprint10.7.md` mục «Cần TL quyết». Số lấy từ `qc/audit-lo1.md` và đọc mã; tôi chưa chạy lại lượt đo nào.
+
+### 12.1 H7 ở 375: đầu trang có / không có hàng nút
+
+**Quyết: ở 375 không so tổng chiều cao theo «có meta». Chiều cao chuẩn = tổng các hàng đang có.** Ở 1440 nút nằm cùng hàng tiêu đề (`min-height: 36px`) nên chỉ meta đổi chiều cao; dưới 720 px nút xuống hàng riêng (§23.2), nên «có nút» cũng đổi chiều cao. Tiêu chí cũ thiếu biến này, mã không sai.
+
+```
+H(375) = 36                      tiêu đề một dòng
+       + 67   nếu có hàng nút    (khoảng 24 + nút cao 44; đo được 67)
+       + 8 + 19,2 × số dòng meta nếu có meta (khoảng `--ep-space-2`, chữ 14 px)
+sai số ±2
+```
+
+Công thức khớp cả năm giá trị QC đã đo, kể cả bốn dòng đang bị ghi là lệch:
+
+| Đầu trang ở 375 | Tính | QC đo |
+| --- | --- | --- |
+| Chỉ tiêu đề | 36 | 36 |
+| Tiêu đề + hàng nút (`/questions` rỗng) | 103 | 103 |
+| Tiêu đề + meta 2 dòng (`/insights` TA) | 82,4 | 82,4 |
+| Tiêu đề + hàng nút + meta 1 dòng | 130,2 | 130 |
+| Tiêu đề + hàng nút + meta 2 dòng (`/insights` GV) | 149,4 | 149,4 |
+
+Vậy bốn dòng H7 của `audit-lo1.md` **không phải lệch**; dev không sửa gì ở khung vì H7.
+
+Sửa cách đo:
+
+- H7 ở 375 gom theo `(số dòng tiêu đề, số dòng meta, có hàng nút)`, mỗi nhóm đúng một giá trị (±2). Ở 1440 giữ nguyên `(có meta)`.
+- QC: `qc/scripts/audit_report.py` dòng 55, khoá `(w, hasMeta)` thành `(w, hasMeta)` ở 1440 và `(w, số dòng h1, metaLines, có hàng nút)` ở 375.
+- Thứ vẫn là lỗi ở 375: tiêu đề quá 2 dòng; meta quá 2 dòng (H3 ở 375: ≤ 2 dòng); hàng nút quá một dòng (H8).
+
+Một lệch thật tôi thấy khi đọc mã, không thuộc H7: ở 375 thứ tự đang là tiêu đề → hàng nút → meta (`.actions` nằm trong `.headRow`, meta nằm sau), còn §23.2 ghi tiêu đề → meta → hàng nút. Giữ §23.2: meta thuộc về tiêu đề, đứng dưới nút thì đọc như chú thích của nút. Sửa ở `Layout.module.css` trong khối `max-width: 719px`; giữ khoảng 8 (tiêu đề → meta) và 24 (→ hàng nút) thì tổng chiều cao không đổi, bảng trên vẫn đúng.
+
+### 12.2 `/insights` mô phỏng: L2 / X1
+
+**Quyết: không miễn. Đo ngay ở `frame.spec.ts` trên bản dựng có màn mô phỏng; lượt audit của QC trên stack thật ghi «không áp dụng» cho đến sprint 11.**
+
+Vì sao QC ra lỗi: script QC tạo «đang tải / lỗi» bằng cách chặn `**/api/v1/**` (`qc-ui-audit-real.spec.ts` dòng 192–205). `/insights` đọc `@/mock/core`, không gọi API, nên không bao giờ vào hai trạng thái đó; ở bản dựng thật `?state=` lại bị tắt (`PageState.tsx` dòng 15). «Không có `aria-busy`» và «alert×0» là do cách đo, chưa nói gì về khung.
+
+Đo bằng cách nào:
+
+- Bản dựng có màn mô phỏng đã có sẵn cửa: `?state=loading` và `?state=error`. `InsightsScreen` đã khai cả hai hình: khung xương trong `Panel` (`Skeleton` có `aria-busy="true"`) và khối lỗi một dòng + «Thử lại» (`InlineNotice` `danger` có `role="alert"`).
+- Dev: `frame.spec.ts` dòng 28–29 đang lặp `["data", "empty"]`; thêm `"loading"`, `"error"` và đo L1–L3, X1–X3. Mỗi lượt vào trạng thái bằng **cả hai** đường, `?state=` cùng với chặn `/api/v1/**` như QC làm: route mô phỏng nghe `?state=`, route thật (`PageState query=`) nghe API. Không cần danh sách route mô phỏng.
+- QC: route nào không phát yêu cầu `/api/v1` nào trong lúc bị chặn thì ghi L1–L3, X1–X3 là «không áp dụng (màn mô phỏng)», không tính lỗi. Theo mã hiện có `@/mock/` ở `insights`, `analytics`, `observability`, `calendar`, `library`, `documents`, `threads`, `chat`; phát hiện theo yêu cầu mạng thì không phải giữ danh sách này.
+
+Phần này chứng minh **hình** của hai trạng thái (đúng panel, đúng mép, một `role=alert` rộng bằng cột, có «Thử lại»), tức đúng thứ §23.5 quy định. Phần chưa chứng minh được: lỗi API thật có dẫn tới hai hình đó không. Ghi nợ sprint 11 cùng dòng D51: khi `/insights` nối API, L2 / X1 phải đạt trong lượt audit của QC bằng đường chặn API, và `?state=` của màn đó bị gỡ.
+
+### 12.3 Điểm danh ở 375: hai nút cùng việc
+
+**Quyết: ở 375 chỉ còn một nút lưu, là thanh dưới, kiểu `primary`. Nút ở đầu trang ẩn dưới 720 px.**
+
+Hiện trạng (`RealAttendance.tsx` dòng 139–175): dưới 720 px có cả nút `primary` «Lưu điểm danh» thành một hàng full-width ở đầu trang lẫn thanh dính đáy «Lưu điểm danh · N có mặt · M vắng» kiểu `secondary`. Thanh bị hạ xuống `secondary` chỉ để H6 sạch.
+
+Vì sao:
+
+- `DESIGN.md` §14.8 ghi nút chính của màn này «on mobile a sticky bottom bar»: trên điện thoại nút chính **là** thanh dưới, không phải thêm một nút. US-UX91-12 AC4 cũng đòi thanh đó. Không AC nào đòi nút ở đầu trang tại 375.
+- §23.2 và §23.4 cùng một ý: mỗi việc một nút đang hiện. Hai nút cùng việc là thứ khung này sinh ra để xoá.
+- Thanh dưới là nút duy nhất luôn với tới khi đang lướt 30–60 dòng, lại mang số có mặt / vắng. Bỏ hàng nút ở đầu trang trả lại 67 px cho màn đầu (mục 12.1), khoảng một dòng rưỡi sinh viên.
+- H6 không được sửa bằng cách hạ kiểu nút: đỏ nghĩa là «cần hành động», và hành động đó nằm ở thanh.
+
+Cách làm, nhỏ nhất:
+
+1. `HeaderAction` thêm `docked?: boolean`: dưới 720 px `PageHeader` không vẽ nút đó (và không vẽ hàng nút nếu chỉ còn nó). Không đụng 1440.
+2. Thanh dưới của route mang móc `data-ep-header-dock`; nút trong thanh là `primary`, cùng điều kiện khoá với nút đầu trang.
+3. `e2e/support/frame.ts` dòng 75: nút trong `[data-ep-header-dock]` không tính là «primary ngoài đầu trang» (H6). Thêm một phép đo: route có dock thì ở 375 đầu trang có 0 nút `primary` đang hiện, và ở 1440 dock không hiện.
+
+Áp cùng luật cho `/grading/[id]`: thanh «Đã duyệt N/M · Duyệt bài» (`SubmissionReview.tsx` dòng 573) đã đúng mẫu này, chỉ cần gắn móc. Chưa gom hai thanh thành một primitive: nội dung hai thanh khác nhau (một nút kèm số; tiến độ + hai mũi tên + nút). Route thứ ba cần thanh dưới thì gom.
+
+§23.2 cần thêm một dòng (đã thêm vào `design-23-draft.md`; `DESIGN.md` chờ PM qua P-107-14).
+
+## 13. Xem lại hình mục «Ba số đo» của lô 9 (2026-11-15)
+
+Đo trên bản dev đang chạy ở `localhost:3310` (worktree dev @`cd0b199b`, sạch), 1440 và 390, có và không giảm chuyển động. Ảnh: `mau/so-do-lo9-cd0b199b.png`.
+
+**Kết luận: chưa đạt. Hai hình giữ, sửa nhỏ; hình thứ ba bỏ.**
+
+| Hình | Số nguồn | Đo được | Kết luận |
+| --- | --- | --- | --- |
+| Thanh «recall 0,960» | recall 0,960 trên 200 mẫu (`sprints/6/report.md` dòng 34) | phần tô / rãnh = 0,9600 ở cả hai bề rộng | **Đúng tỉ lệ.** Sai chỗ: thanh rộng 954 px nằm dưới câu «146 yêu cầu gửi AI: 0 lần lộ…», nên 4 % trống đọc thành «4 % bị lộ». Nhãn «recall 0,960» lặp câu ngay trên nó |
+| 30 chấm xanh | 30/30 dòng khớp (`sprints/8/report.md` dòng 24) | 30 chấm 12 px, một hàng ở 1440; 19 + 11 ở 390 | **Đúng.** Nhãn «30 trên 30 sinh viên mẫu» lặp tiêu đề dòng |
+| Hai thanh TTFT | +0,05 % (`sprints/9/report.md` dòng 25) | khai `100%` và `100.05%`, nhưng `max-width: 100%` cắt: cả hai = 1,0000 | **Bỏ.** Hình đang vẽ «+0 %». Vẽ đúng tỉ lệ thì lệch 0,48 px ở 1440 và 0,17 px ở 390, không ai thấy. Nguồn chỉ có số tương đối, không có hai giá trị tuyệt đối để vẽ. Hai thanh đen kín chiều ngang là khối nặng nhất mục mà không mang tin; nhãn «chat khi không chấm · chat khi đang chấm hàng loạt» là câu mới không có trong nguồn (AC9) |
+
+Sửa (ở `Landing.tsx` dòng 125–127 và `Landing.module.css` dòng 122–125):
+
+1. Xoá cả ba `<small>`. Câu của dòng là nhãn của hình.
+2. Thanh recall nằm dưới đúng câu của nó: `grid-column: 9 / span 4` ở 1440 (ở 390 đã nằm ngay dưới câu đó).
+3. Chấm ở 390 chia đều 15 + 15.
+4. Xoá `.viz--pair` và hình của dòng thứ ba.
+
+Màu đã đúng luật: thanh mực, chấm xanh (đã xác nhận), không đỏ, không vàng.
+
+Đối chiếu AC24, phần liên quan tới hình:
+
+| Ý | Đo | Kết quả |
+| --- | --- | --- |
+| (1) mục có hình ở 1440 và 390 | `consistency.mjs`: `no-visual` 0 FAIL | Đạt. Sau khi bỏ hình dòng ba mục vẫn còn hai hình; chưa chạy lại bộ kiểm sau sửa |
+| (3) số lớn ≤ 40 px | 40 px ở 1440, 28 px ở 390 | Đạt |
+| Mục vừa một màn ở 390 | cao 963 px trên màn 844 (mẫu: 844) | **Chưa đạt.** Bốn sửa trên bớt khoảng 130 px, còn khoảng 832 (tính, chưa đo) |
+
+So với `mau/landing.html`: mẫu không có hình ở mục này (hình là phần AC24 thêm). Phần còn lại khớp mẫu: `h2` 48 px, lưới 3 / 5 / 4 cột, ba câu nguyên văn, giảm chuyển động thì 0 animation. Chưa xem số 146 đếm lên.
+
+### 13.1 Ngoài hình: bộ kiểm trên bản dev
+
+`consistency.mjs` trên `localhost:3310`: **23 FAIL, 8 WARN**. Miễn trừ đã ghi ở 8.4 là 8 (`scroll-reveal` 6, `scroll-linked` 1, `copy-headings` 1). Còn 15, nên câu kiểm của AC24 «số FAIL ngoài miễn trừ = 0» chưa đạt.
+
+| Mã | Số | Là gì | Mức |
+| --- | --- | --- | --- |
+| `hidden-content`, `empty-visual` | 4 | **Khung ghim «EduPilot trong ba màn» trống.** Cả ba ảnh `opacity: 0` khi giảm chuyển động, khi không có script, và ở 390 (tôi đo lại: 0 / 0 / 0). Không script thì hai ảnh ở mục vai cũng 0. Trái P-107-12 («giảm chuyển động: tắt hẳn, hiện hình đã xong») và mục 8.3. Mẫu gắn sẵn `is-on` cho ảnh đầu trong HTML | Chặn |
+| `container-edges`, `hero-screen`, `section-height`, `one-heading` | 9 | `footer.closing` không có `.wrap` (mẫu có) và cả trang bọc trong `div.landingRoot`, nên bộ kiểm đọc chân trang thành màn đầu. Sửa hai chỗ cấu trúc đó rồi chạy lại mới biết còn bao nhiêu | Cần chạy lại |
+| trong đó `section-height` ở 390 | – | Lời kết bắt đầu lệch lưới màn 277 px: `#so-do` 963, `#vai` 1003 (màn 844) | Thật |
+| `off-grid` | 1 | «Tạo tài khoản» ở lời kết lệch 17 px | Nhỏ |
+| `focus-ring` | 1 | `.point:focus-visible` của `Chart` bỏ viền focus; không thuộc trang giới thiệu | Ngoài lô 9 |
+
+### 13.2 Chốt ba điểm lệch của dev @`c072ad12` (2026-11-15)
+
+Đo trên `localhost:3310` (worktree dev @`c072ad12`, sạch), 1440 và 390; giảm chuyển động, không script, có chuyển động. Ảnh: `mau/so-do-lo9-c072ad12.png` (hiện tại), `mau/so-do-lo9-de-xuat.png` (sau hai sửa dưới đây, thử bằng cách chèn CSS vào trang đang chạy, không sửa mã).
+
+**Đính chính mục 13.** Ở mục 13 tôi ghi «`no-visual` 0 FAIL → đạt» cho thanh + chấm. Sai: lúc đó trang chưa có `<main>` nên bộ kiểm không đọc ra các mục và không xét `no-visual`. Khi dev thêm `<main>`, bộ kiểm đòi hình phủ ≥ 15 % mục (15–25 % là WARN). Thanh 8 px và 30 chấm không thể tới ngưỡng đó, nên yêu cầu «giữ thanh + chấm» của tôi không làm được dưới AC23.
+
+| Điểm | Chốt | Vì sao | Việc còn lại |
+| --- | --- | --- | --- |
+| (a) Bỏ thanh + chấm, hình của mục là ảnh Sổ điểm | **Chấp nhận**, kèm một sửa | Dev đúng (xem đính chính). Ảnh không bịa số. Nhưng đang cắt từ trái: ngăn «Giải trình» bị cụt ở 1440, còn ở 390 chỉ thấy thanh điều hướng của app. Ngăn «Giải trình» mới là thứ gắn với số đo: từng dòng công thức + «Căn cứ · tr. 1», đúng câu «Điểm do mã tính từ quy chế» | `.stats__shot img { object-position: right top; }` |
+| (b) `#so-do` ở 390 cao hai màn | **Chấp nhận hai màn; đòi sửa khoảng trống** | Tôi rút yêu cầu ≤ 844: h2 + ba số đo đã cao 686 px, chỉ còn khoảng 94 px cho hình, dưới ngưỡng 15 %. Nhưng cách làm hiện tại là `min-height: 200svh` + `space-between`: danh sách hết ở 686, ảnh bắt đầu ở 1264, giữa là **578 px trống (68 % một màn)**. Bộ kiểm không bắt, mắt thì thấy nửa màn trắng | Ở ≤ 639 px: `.stats__shot { aspect-ratio: 9 / 16; }` (đang 10 / 11). Đã thử: ảnh 340 × 606, ngăn «Giải trình» hiện trọn và đọc được, phủ 36 % mục |
+| (c) Miễn trừ mới `focus-ring` | **Không nhận; đòi sửa** | AC23 ghi «không miễn trừ nào khác». Đây là lỗi thật của một primitive trong phạm vi sprint: `shared/ui/Chart.module.css` dòng 15 có `outline: none`, điểm trên biểu đồ khi focus chỉ đổi màu tô | Xoá `outline: none` ở dòng 15 (giữ `fill`); viền focus chung sẽ hiện |
+
+Bộ kiểm trên @`c072ad12`: **12 FAIL, 15 WARN** (trước: 23 / 8). 11 FAIL nằm trong danh sách miễn trừ của AC23; FAIL duy nhất ngoài danh sách là `focus-ring`. Sửa (c) xong thì về 0; tôi chưa chạy lại sau sửa.
+
+| Mã | Số | Thuộc miễn trừ AC23 |
+| --- | --- | --- |
+| `scroll-reveal` | 6 | Có |
+| `scroll-linked`, `section-air`, `empty-area` (khung ghim hai màn) | 1 + 2 + 1 | Có, nhưng AC23 ghi tổng 3, thực tế 4 (`section-air` ×2, cùng một nguyên nhân). BA sửa con số |
+| `copy-headings` | 1 | Có |
+| `focus-ring` | 1 | **Không** |
+
+Đã hết so với 13.1: `hidden-content`, `empty-visual`, `container-edges`, `hero-screen`, `section-height`, `one-heading`, `off-grid`.
+
+**Khung ghim mặc định hiện: đạt.**
+
+| Ca | Ảnh khung ghim đang hiện | Ảnh vai đang hiện |
+| --- | --- | --- |
+| Giảm chuyển động, 1440 | 1 / 3 | 1 / 2 |
+| Không script, 1440 | 1 / 3 | 1 / 2 |
+| Giảm chuyển động, 390 | 1 / 3 | 1 / 2 |
+| Có chuyển động, 390 | 1 / 3 | 1 / 2 |
+| Không script, 390 | 1 / 3 | 1 / 2 |
+
+- Ảnh đã tải thật (`naturalWidth` 1280 / 640), không chỉ `opacity: 1`; mục đang tô đỏ trong danh sách khớp ảnh đang hiện.
+- Ca spec «landing ảnh không bao giờ trống» (`landing.spec.ts`) phủ đúng ba ca đã hỏng ở 13.1 (giảm chuyển động, 390, không script) với cùng phép đo. Tôi đọc spec và tự đo lại trên trang đang chạy; không chạy spec.
+- Khác mẫu, nhận: ảnh mặc định là ảnh thứ hai («Duyệt bài»), mẫu là ảnh đầu («Chat riêng»).
+
+Còn một chỗ cùng tệp: `story-gradebook-v1` xuất hiện hai lần trên trang (màn thứ ba của khung ghim và mục số đo, hai mục liền nhau). Nhận, với điều kiện sửa (a): ở mục số đo ảnh cắt vào ngăn «Giải trình», không lặp lại nguyên màn.
+
+## 14. Quyết bốn điểm của QC (`qc/summary.md` @`188e648a`, 2026-11-15)
+
+Căn cứ: `qc/audit.md`, ảnh `qc/audit/sau/`, mã và `DESIGN.md`. Tôi không chạy lại lượt đo nào.
+
+### 14.1 H6: nút «Mở» ở Hôm nay và nút «Gửi» ở chat
+
+**Quyết: cả hai là ngoại lệ hợp lệ, không tính lệch.** Cả hai đã được `DESIGN.md` ghi rõ, và cả hai là nút gắn với một vật chứ không gắn với trang, nên không thể dời lên đầu trang.
+
+| Nút | Căn cứ | Điều kiện để còn hợp lệ |
+| --- | --- | --- |
+| «Gửi» của `Composer` | §10.12: «Composer is a distinct working surface. One primary send action» | ≤ 1 `primary` trong mỗi `form` |
+| «Mở» ở hàng việc đầu tiên | §14 Teacher / TA mục 3: «Exactly one primary (red) button: the first item of the first group. Other rows use a `ghost` button» | Đúng 1 `primary` trong toàn bộ `ActionList` của trang, **và** đầu trang không có `primary` |
+
+H6 viết lại: mỗi vùng làm việc có ≤ 1 nút `primary` đang hiện. Nút đó nằm ở đầu trang, trừ ba chỗ nó gắn với vật: thanh dính đáy (P-107-14), nút gửi của một `form`, hàng đầu của `ActionList`.
+
+Cách đo:
+
+- QC: `qc-ui-audit-real.spec.ts` dòng 90 thêm `!b.closest("form")`, giống `frame.ts` dòng 75 đang làm, và bỏ nút nằm trong `ActionList`; thêm hai phép đếm ở cột «Điều kiện».
+- Dev: `ActionList` thêm móc `data-ep-action-list` trên `ul` (một thuộc tính) để QC và `frame.ts` chọn đúng, không dựa vào `li`.
+
+«Luyện đề» ở `student/practice/history` rỗng vẫn là lệch thật (nút rỗng phải `secondary`, E5), như QC ghi.
+
+### 14.2 X3: vùng lỗi thì meta và số đếm ở đầu trang biến mất
+
+**Quyết: đúng, không tính lệch.** Meta và số đếm là dữ liệu của chính truy vấn vừa hỏng. Giữ lại thì chỉ có hai cách, số cũ hoặc chỗ trống giữ chỗ, và cả hai đều tệ hơn là không hiện. Đầu trang thấp đi một dòng meta (27 px) khi lỗi là chấp nhận được: vùng lỗi thay cả thân trang, không có gì cần gióng theo.
+
+X3 viết lại. Khi lỗi, so với lúc có dữ liệu:
+
+| Phải giữ | Được mất |
+| --- | --- |
+| Đúng một `h1`, cùng vị trí | Dòng meta |
+| Các tab: cùng số tab, cùng nhãn | Số đếm trong nhãn tab («Thành viên30» → «Thành viên») |
+| Nút ở đầu trang: cùng nhãn (được khoá) | Chiều cao đầu trang |
+| Kiểu trang | |
+
+Theo đó, 12 trong 13 dòng X3 hết lệch: `students`, `attendance`, `gradebook`, `gradebook/scheme`, `questions`, `class/members`. `student/practice` vẫn là lệch thật: tab là điều hướng, không phải dữ liệu, không được mất. QC so nhãn tab sau khi bỏ chữ số cuối và bỏ so chiều cao đầu trang.
+
+### 14.3 E7 ×17 «không áp dụng»
+
+**Xác nhận 11, không xác nhận 6.** Tôi xem lại ảnh 1440 của cả 18 route.
+
+| Loại | Số | Route | Vì sao |
+| --- | --- | --- | --- |
+| Không áp dụng | 11 | `settings` (SV, TA, GV), `class/settings` (TA, GV), `settings/llm`, `settings/integrations`, `class/members` (TA, GV), `/` (TA, GV) | Màn biểu mẫu không có trạng thái rỗng; `class/members` luôn có giảng viên; «Hôm nay» ở lớp rỗng vẫn có việc thiết lập lớp |
+| **Lệch thật** | 3 | `student/` (QC đã ghi); `student/chat`; `teacher/observability` | `student/chat`: «Chưa có phiên nào» là thẻ `<p>` tự dựng ở `RealChat.tsx` dòng 283 (cùng câu đó ở `SessionSheet.tsx` dùng `EmptyState`). `teacher/observability`: bảng «Lớp … trong 7 ngày» chỉ có hàng tiêu đề, không có hàng nào và không có khối rỗng; bảng «0 yêu cầu gần nhất» dùng `<p>` tự dựng (`ObservabilityScreen.tsx` dòng 150) |
+| Chưa đo được | 4 | `students` (TA, GV), `analytics` (TA, GV) | `students`: lớp `QCEMPTY` có 1 sinh viên nên chưa bao giờ rỗng. `analytics`: màn mô phỏng đang hiện số của lớp khác; màn này **có** trạng thái rỗng, đo được khi nối API (nợ sprint 11, cùng lỗi dữ liệu QC đã ghi) |
+
+«Chưa đo được» không phải «đạt»: QC ghi riêng, không gộp vào «không áp dụng».
+
+### 14.4 T2: chuỗi lặp là dữ liệu
+
+**Xác nhận.** T2 sinh ra để bắt câu giải thích lặp trên mọi dòng (luật chữ UI), không bắt dữ liệu. Dòng thiết bị «172.21.*.* · Lần cuối: …» và tên bài tập ×6 ở hàng chờ chấm là dữ liệu: không áp dụng.
+
+T2 viết lại: chỉ đếm chuỗi tĩnh, tức chuỗi tìm thấy nguyên văn trong `frontend/src`. QC kiểm bằng `grep` chuỗi đó trong mã; có thì là tĩnh.
+
+«Không dùng cho AI của sinh viên» ×4 ở `documents` là lệch thật như QC ghi: trạng thái bảy chữ lặp mỗi dòng, phải rút về 1–2 chữ dưới một tiêu đề cột.
+
+### 14.5 H7: hàng liên kết quay lại trên `h1`
+
+**Quyết: giữ hàng quay lại, thêm nó vào công thức và khoá gom. Không đổi sang breadcrumb.**
+
+- Hàng quay lại đã là một phần của hợp đồng: `DESIGN.md` §23.2 vẽ nó là hàng riêng, tuỳ chọn, trên tiêu đề; `PageHeader` có prop `back`. Công thức 12.1 của tôi bỏ sót nó.
+- Khoảng 15 màn con đang dùng (`exams/*`, `practice/*`, `gradebook/scheme`, `grading/[id]`, `students/[id]`, `threads/[id]`, `library/[id]`). Các màn này không có trong sidebar, nên bỏ hàng quay lại là mất đường về.
+- Breadcrumb là primitive mới cho cây chỉ sâu hai cấp; không cần.
+
+Giá trị chuẩn, lấy từ `Layout.module.css` (`.back` cao 28, khoảng 8; dưới 720 px cao 44 và kéo lề dưới −8):
+
+```
+H(≥ 720) = 36 + 36 nếu có hàng quay lại + (8 + 19,2) nếu có meta
+H(< 720) = 36 + 44 nếu có hàng quay lại + (8 + 19,2 × số dòng meta) nếu có meta + 68 nếu có hàng nút
+sai số ±2
+```
+
+Hàng nút ở 375 nay là 68 (12.1 ghi 67) vì dev đã đổi thứ tự theo 12.1: khoảng 8 + lề 16 + nút 44.
+
+Khoá gom H7 thêm «có hàng quay lại»: `(độ rộng, cao h1, số dòng meta, có hàng nút, có hàng quay lại)`.
+
+Đối chiếu 12 dòng H7 của `qc/audit.md`:
+
+| Màn | Rộng | Tính | QC đo | Lệch |
+| --- | --- | --- | --- | --- |
+| `practice/history` (có dữ liệu, rỗng) | 1440 | 72 | 72 | 0 |
+| `practice/history` (có dữ liệu, rỗng) | 375 | 80 | 80 | 0 |
+| `gradebook/scheme` rỗng (TA, GV) | 1440 | 72 | 72 | 0 |
+| `gradebook/scheme` rỗng, TA | 375 | 80 | 80 | 0 |
+| `gradebook/scheme` rỗng, GV (có hàng nút) | 375 | 148 | 148 | 0 |
+| `gradebook/scheme` có dữ liệu (TA, GV) | 1440 | 99,2 | 102,4 | **+3,2** |
+| `gradebook/scheme` có dữ liệu, TA | 375 | 107,2 | 110,4 | **+3,2** |
+| `gradebook/scheme` có dữ liệu, GV (có hàng nút) | 375 | 175,2 | 178,4 | **+3,2** |
+
+Vậy 8 dòng hết lệch. 4 dòng `gradebook/scheme` có dữ liệu còn lệch 3,2 px và là **lệch thật, không do hàng quay lại**: meta của màn này là một `StatusText` («Bản nháp», «Đã xác nhận · …») nên dòng meta cao 22,4 thay vì 19,2. Sửa ở primitive, không ở route: `.meta` trong `Layout.module.css` phải cho mọi thứ nằm trong nó cùng một chiều cao dòng (thành phần con thừa hưởng cỡ chữ và `line-height` của meta).
+
+### 14.6 X3: nút ở đầu trang khi vùng lỗi
+
+**Quyết: nút ở đầu trang không được mất khi lỗi (và khi đang tải). Nút cần dữ liệu thì hiện ở trạng thái khoá; nút không cần dữ liệu thì hiện và bấm được.** Ba màn QC nêu là lệch thật.
+
+| Loại nút | Ví dụ | Khi đang tải / lỗi |
+| --- | --- | --- |
+| Cần dữ liệu đã tải | «Lưu điểm danh», «Chốt điểm» | Hiện, `disabled`. **Không** thêm `reason`: khối lỗi ngay dưới, có «Thử lại», đã là lý do; thêm tooltip là nói hai lần |
+| Không cần dữ liệu | «Tải quy chế», «Xem công thức», mọi nút là liên kết | Hiện, bấm được |
+| Nút chính gắn thanh dính đáy (375) | thanh «Lưu điểm danh · N có mặt · M vắng» | Thanh vẫn hiện, `disabled`, nhãn không kèm số đếm |
+
+Vì sao:
+
+- §23.5 đã ghi: đang tải, rỗng và lỗi không đổi kiểu trang, đầu trang, tab. Nút là một phần của đầu trang. Meta được mất (14.2) vì nó **là** dữ liệu; nút thì không.
+- Ẩn nút rồi cho hiện lại làm trang nhảy: ở 375 hàng nút cao 68 px, tải xong hay «Thử lại» xong là thân trang tụt xuống 68 px.
+- «Tải quy chế» mất khi lỗi là mất một đường làm việc vẫn chạy được.
+
+Nguyên nhân trong mã, cùng một kiểu ở cả ba màn: route viết thêm một `PageHeader` rút gọn (chỉ `title`) cho nhánh đang tải và nhánh lỗi. `RealAttendance.tsx` dòng 55, 56, 60, 71, 72; `Gradebook.tsx` dòng 70, 350, 351; `GradeScheme.tsx` dòng 42, 76, 77. Sửa: mỗi route dựng **một** `PageHeader` dùng cho cả bốn trạng thái, nút cần dữ liệu nhận `disabled` khi chưa có dữ liệu. Ít mã hơn hiện tại.
+
+X3 viết lại, thay dòng «Nút ở đầu trang» ở 14.2. Khi đang tải và khi lỗi, so với lúc có dữ liệu:
+
+- cùng số nút đang hiện trong `[data-ep-header-actions]`, cùng kiểu (`primary` / `secondary`), cùng thứ tự; nhãn được khác khi nhãn mang trạng thái («Đã lưu» ↔ «Lưu điểm danh»);
+- route có thanh dính đáy: `[data-ep-header-dock]` vẫn hiện ở 375;
+- nút được `disabled`.
+
+Cùng luật cho L1 (đang tải). QC đo thêm ở trạng thái đang tải; nếu các màn khác cũng rút gọn đầu trang khi tải thì ghi cùng mã X3.
+
+### 14.7 X1: `/settings` có hai mục độc lập, lỗi cả hai ra hai alert
+
+**Quyết: hai alert hợp lệ, không gộp. Luật là một alert cho mỗi truy vấn hỏng, đặt tại chỗ vùng mà truy vấn đó nuôi.**
+
+- §23.5 ghi khối lỗi nằm «in place of the region». Ở `/settings` mỗi mục là một vùng có truy vấn riêng: «Thiết bị đang đăng nhập» gọi `/me/sessions`, «Thư» gọi `/me/settings`.
+- Lỗi phải nằm tại chỗ: «Mật khẩu» không gọi gì và vẫn dùng được; một mục hỏng thì mục kia vẫn chạy. Gộp thành một alert cấp trang là che vùng còn chạy, hoặc báo sai phạm vi.
+- «Thử lại» của alert nào gọi lại đúng truy vấn của vùng đó.
+
+Giới hạn, và là lệch thật đang có ở vai sinh viên: đếm theo **truy vấn**, không theo mục. «Thư», «Nhắc trước 24 giờ» và «Thời gian học» cùng đọc một khoá `["me", "settings"]` (`MailSection.tsx`, `RemindersSection.tsx`, `StudyTimeSection.tsx`), nên `/me/settings` hỏng một lần thì ra ba alert giống hệt nhau. Sửa: ba mục đó nằm trong **một** `PageState`, một alert thay chỗ cả ba.
+
+Hình của mỗi alert không đổi so với §23.5: tiêu đề mục (`h2`) giữ nguyên, alert thay chỗ panel của mục (không nằm trong đệm panel), rộng bằng cột, có «Thử lại» riêng.
+
+X1 viết lại:
+
+| Đo | Đạt khi |
+| --- | --- |
+| Số `[role=alert]` trong mỗi `[data-ep-section]` | ≤ 1 |
+| Trang không có mục | đúng 1 |
+| Tổng số alert của trang | ≥ 1 và ≤ số yêu cầu `GET /api/v1` khác nhau bị trả lỗi |
+| Mỗi alert | rộng = cột (±2), có nút «Thử lại» của riêng nó |
+
+Sửa cách đo: `frame.ts` dòng 119 đang đòi `alerts.length === 1` trên cả trang; đổi theo bảng trên. QC đã chặn `/api/v1` nên đếm được số `GET` hỏng khác nhau ngay trong lượt đo.
+
+`teacher/settings` hiện là `alert×0` trong `qc/audit.md`; đó vẫn là lệch thật như QC ghi, quyết định này chỉ nói kết quả đúng sau khi sửa là hai alert.
+
+### 14.8 D3: «List row min 56» ở 375 là sàn hay cố định
+
+**Quyết: là sàn. Hàng ≥ 56 px là đạt; QC bỏ kiểm trần theo px.**
+
+- §23.6 ghi «min 56», và mã cũng vậy: `min-height: 56px` ở hàng của `ActionList` và ở mục danh sách của `DataTable` dưới 720 px.
+- Dưới 720 px `DataTable` đổi mỗi hàng thành một mục danh sách 2–3 dòng (cột chính đậm + các dòng «Nhãn: giá trị»). Đây là hợp đồng của primitive, không phải lệch. Số QC đo ở `students` khớp đúng hợp đồng đó: 70 px là hai dòng, 92 px là ba dòng.
+- Cố định 56 px thì phải cắt chữ tiếng Việt xuống một dòng hoặc bỏ cột, tệ hơn hàng cao.
+
+Giới hạn nằm ở nội dung, không ở px: một mục danh sách có tối đa ba dòng chữ. Để bắt mục nhồi quá ba dòng mà không cần đếm dòng, QC **liệt kê** (không tính lệch) mục cao hơn 112 px để xem ảnh.
+
+Bảng vẫn là bảng dưới 720 px (`mobile="scroll"`: sổ điểm, bảng quyết định ở Quan sát) cũng là sàn, vì ô nhập ở đó cao 44 px nên hàng không thể còn 48.
+
+D3 viết lại:
+
+| Thứ | ≥ 720 px | < 720 px |
+| --- | --- | --- |
+| Hàng bảng (`tbody tr` đang hiện) | 48, `dense` 44, cố định (±1) | ≥ 48, `dense` ≥ 44 |
+| Mục danh sách (`ActionList`, mục của `DataTable`) | ≥ 56 | ≥ 56; cao hơn 112 thì liệt kê để xem ảnh |
+
+Không đổi `DESIGN.md`: §23.6 đã ghi «min».
+
+Theo đó 7 trong 12 dòng D3 của `qc/audit.md` hết lệch (các dòng ở 375: `students`, `gradebook`, `admin/observability`). 5 dòng ở 1440 vẫn là lệch thật: `grading` 53, `documents` 57, `gradebook` 65. Ở máy tính hàng bảng là giá trị cố định.

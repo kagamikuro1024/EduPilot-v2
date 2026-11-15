@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useQueryClient } from "@tanstack/react-query";
 import { Pin, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
@@ -64,8 +65,8 @@ export function RealThreads({ courseId }: { courseId: string }) {
   );
 
   return (
-    <Page width="full">
-      <PageHeader title="Hỏi đáp công khai" actions={!composing ? <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button> : undefined} />
+    <Page kind="work">
+      <PageHeader title="Hỏi đáp công khai" primary={!composing ? { label: "Đặt câu hỏi", onClick: () => setComposing(true) } : undefined} />
       <div className={r.detail}>
         {staff && <Tabs label="Chế độ xem" value={moderation ? "mod" : "all"} onChange={(v) => setModeration(v === "mod")} options={[{ value: "all", label: "Câu hỏi" }, { value: "mod", label: "Cần xem" }]} />}
         {staff && moderation && <ModerationQueue courseId={courseId} />}
@@ -84,15 +85,13 @@ export function RealThreads({ courseId }: { courseId: string }) {
             </Drawer>
           </>
         )}
-        <Panel>
+        <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
           <PageState
             query={list}
             isEmpty={() => list.items.length === 0 && pinned.length === 0}
             loading={<Skeleton lines={5} />}
             empty={
-              <EmptyState title={filtered ? "Không có câu hỏi nào khớp." : "Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên."}>
-                {!filtered && !composing && <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button>}
-              </EmptyState>
+              <EmptyState title={filtered ? "Không có câu hỏi nào khớp" : "Chưa có câu hỏi nào"} />
             }
           >
             {pendingMajor && <p className={r.majority}>{pendingCount} câu chờ xác nhận</p>}
@@ -220,7 +219,7 @@ function ModerationQueue({ courseId }: { courseId: string }) {
   return (
     <Panel>
       <Tabs label="Trạng thái báo cáo" value={status} onChange={setStatus} options={[{ value: "OPEN", label: "Chờ xem" }, { value: "HIDDEN", label: "Đã ẩn" }]} />
-      <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Không có bài nào cần xem." />}>
+      <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Không có bài nào cần xem" />}>
         <DataTable
           caption="Bài bị báo cáo"
           rows={q.items}

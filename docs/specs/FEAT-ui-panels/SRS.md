@@ -41,7 +41,7 @@ flowchart LR
 
 Điểm dừng duy nhất: **sau B** (US-UI-01 AC5). Dev không chạm `DESIGN.md`, `AGENTS.md`, `ui-antipatterns.sh`, `Panel.tsx`, `tokens.css`, CSS màn nào trước D59 (kiểm bằng quan hệ tổ tiên commit, TLR-10).
 
-**Cấu trúc một trang sau đổi** (mọi route trong `(app)`): canvas → `PageHeader` (h1 + mô tả, ngoài panel) → lặp `Section` { tiêu đề vùng `h2.ep-section-title` ngoài panel → **một** `Panel` { `PanelSection`… ngăn bằng đường kẻ 1 px; ô nhấn `tone="strong"` ≤ 3 } }. `Tabs`, bộ lọc cấp trang, `Toolbar` cấp vùng nằm **ngoài** panel nếu chúng điều khiển nhiều vùng, **trong** panel nếu chỉ điều khiển bảng của panel đó. Lớp nổi (`Dialog`, `Drawer`, `Popover`, `Menu`, bảng "Thêm", `Composer` nổi) là **bề mặt riêng, không phải `Panel`** và không chứa `Panel`.
+**Cấu trúc một trang sau đổi** (mọi route trong `(app)`): canvas → `PageHeader` (h1 + tối đa một dòng meta dữ liệu, không câu mô tả — `DESIGN.md` §23.2, P-107-2; ngoài panel) → lặp `Section` { tiêu đề vùng `h2.ep-section-title` ngoài panel → **một** `Panel` { `PanelSection`… ngăn bằng đường kẻ 1 px; ô nhấn `tone="strong"` ≤ 3 } }. `Tabs`, bộ lọc cấp trang, `Toolbar` cấp vùng nằm **ngoài** panel nếu chúng điều khiển nhiều vùng, **trong** panel nếu chỉ điều khiển bảng của panel đó. Lớp nổi (`Dialog`, `Drawer`, `Popover`, `Menu`, bảng "Thêm", `Composer` nổi) là **bề mặt riêng, không phải `Panel`** và không chứa `Panel`.
 
 ## 4. Yêu cầu chức năng
 
@@ -124,7 +124,7 @@ Các phép khác **không đổi**: "Bo góc kiểu SaaS / số cứng" đã ch�
 
 | Token | Vai trò | Ghi chú |
 | --- | --- | --- |
-| `--ep-canvas` | nền trang (thay `--ep-paper`) | tối hơn `--ep-surface` đúng `ΔL` của phương án |
+| `--ep-canvas` | nền trang (thay `--ep-paper`) | **từ 10.7 (P-107-10): `#FFFFFF` = `--ep-surface`; không còn điều kiện ΔL nền–panel**; panel luôn có viền 1 px **và** `--ep-elevation-1` (đo `getComputedStyle`) |
 | `--ep-surface-strong` | ô nhấn trong panel | `oklch(96% 0.012 25)` ≈ `#faefee` ở cả ba phương án |
 | `--ep-elevation-1` | bóng tĩnh của `Panel` | `none` ở (b), (c) — token luôn tồn tại để API không đổi |
 | `--ep-radius-panel` | bán kính `Panel` | mặc định 14 px; trong [12, 16] px (Q3) |
@@ -166,13 +166,13 @@ Hệ quả: nếu chọn (b) thì **bắt buộc** hạ `--ep-ink-3` xuống 51 
 ### 5.4 Hợp đồng `Panel` / `PanelSection` (`frontend/src/shared/ui/Panel.tsx`, xuất ở `shared/ui/index.ts`)
 
 ```ts
-type PanelProps = { as?: "div" | "section"; padding?: "md" | "lg" | "none"; "aria-label"?: string; children: ReactNode; className?: never };
+type PanelProps = { as?: "div" | "section"; "aria-label"?: string; children: ReactNode; className?: never };
 type PanelSectionProps = { title?: ReactNode; action?: ReactNode; tone?: "default" | "strong"; children: ReactNode };
 ```
 
 | Phần | DOM / CSS |
 | --- | --- |
-| `Panel` | `<div|section data-ep-panel>`; nền `--ep-surface`; `border: 1px solid var(--ep-panel-border)`; `border-radius: var(--ep-radius-panel)`; `box-shadow: var(--ep-elevation-1)`; padding `--ep-space-6` (`lg`: `--ep-space-8`; `none`: 0); mobile < 720 px: **không `margin`**, padding `--ep-space-4`; lề 12 px tới mép viewport do `.page { padding-inline: var(--ep-space-3) }` (TLR-4) |
+| `Panel` | `<div|section data-ep-panel>`; nền `--ep-surface`; `border: 1px solid var(--ep-panel-border)`; `border-radius: var(--ep-radius-panel)`; `box-shadow: var(--ep-elevation-1)`; một padding duy nhất `--ep-space-6` (không còn `lg` / `none`; sát mép chỉ qua `Split` — P-107-5); mobile < 720 px: **không `margin`**, padding `--ep-space-4`; lề 12 px tới mép viewport do `.page { padding-inline: var(--ep-space-3) }` (TLR-4) |
 | `PanelSection` (default) | `<div data-ep-panel-section>`; tiêu đề (nếu có) = **`h3`** (`ep-item-title`); `PanelSection` đứng sau `PanelSection`: `border-top: 1px solid var(--ep-rule)`, `padding-top`/`margin-top` `--ep-space-6`; không viền / bóng / bo góc riêng |
 | `PanelSection tone="strong"` | thêm `data-tone="strong"`; nền `--ep-surface-strong`; `border-radius: var(--ep-radius-md)`; padding `--ep-space-4`; không viền, không bóng; số liệu dùng thang chữ `ep-section-title` (không cỡ chữ mới) |
 | Luật | **Server Component thuần CSS, 0 byte JS** — không `"use client"`, không `createContext` / `PanelContext` (TLR-2); chặn lồng bằng phép tĩnh 22 + kiểm DOM; `className` **không** cho truyền (chặn "tự chế" khung) |
@@ -189,7 +189,7 @@ type PanelSectionProps = { title?: ReactNode; action?: ReactNode; tone?: "defaul
 
 | Phần | Nền | Cạnh | Ghi chú |
 | --- | --- | --- | --- |
-| `<body>` / `main` | `--ep-canvas` | — | cuộn; `Page` giữ `reading` 960 / `wide` 1440 / `full`; **< 720 px `padding-inline: var(--ep-space-3)`** (12 px, một quy tắc lề — TLR-4) |
+| `<body>` / `main` | `--ep-canvas` | — | cuộn; `Page` có hai kiểu (`DESIGN.md` §23.1; P-107-1, P-107-4): `work` (≤ `--ep-page-work` 100 rem; `LEFT` `h1` = 240 ở 1440) và `read` (`--ep-page-read` 800 px căn giữa; `LEFT` `h1` = 428 ở 1440); ở 390 / 375 cả hai = 16 / 12; **< 720 px `padding-inline: var(--ep-space-3)`** (12 px, một quy tắc lề — TLR-4) |
 | Sidebar (cố định) | `--ep-surface` | `border-right: 1px solid var(--ep-rule)` | mục `hover` / đang chọn nền `--ep-surface-subtle`; vạch đỏ 2 px "đang ở đâu" giữ |
 | Thanh trên (cố định, 56 px) | `--ep-surface` | `border-bottom: 1px solid var(--ep-rule)` | đặc, không `backdrop-filter` |
 | Thanh dưới mobile | `--ep-surface` | `border-top: 1px solid var(--ep-rule)` | 4 đích + "Thêm" |
@@ -221,7 +221,7 @@ Quy ước cột: **Vùng → Panel** = mỗi vùng một `Panel`; "ngoài panel
 
 | Route | Khung nhìn đầu | Vùng → Panel | Ghi chú |
 | --- | --- | --- | --- |
-| `/` | §14.1 Teacher / TA | "{N} việc cần xử lý hôm nay" (`ActionList`, 1 nút chính) · "Sắp tới" · "Lớp cần chú ý" **chỉ khi có dữ liệu** (hợp đồng do P5 định nghĩa — góp ý #2) | không hero metrics; ≤ 1 ô nhấn |
+| `/` | §14.1 Teacher / TA | `h1` "{N} việc cần xử lý hôm nay"; `Split main-aside` (P-107-6): panel chính = `ActionList` 1 nút chính, nhóm «Gấp» / «Hôm nay» / «Khi rảnh» là `PanelSection`; panel phụ (một) = `PanelSection` "Sắp tới" + "Lớp cần chú ý" **chỉ khi có dữ liệu** (hợp đồng do P5 định nghĩa — góp ý #2); hai panel thẳng đỉnh | không hero metrics; ≤ 1 ô nhấn |
 | `/class/members` | bảng thành viên | `Tabs` ngoài panel; mỗi tab 1 panel; tab "Nạp danh sách" = 1 panel với `PanelSection` (chọn tệp → xem trước → kết quả), ≤ 3 ô nhấn (thêm / bỏ qua / lỗi) | TA: quyền như cũ |
 | `/class/settings` | cài đặt lớp | mỗi mục 1 panel | |
 | `/exams` | nhóm `Đang mở` / `Sắp tới` / `Đã đóng` / `Nháp` | mỗi nhóm 1 panel; nút chính `Tạo bài thi` | |

@@ -2,12 +2,12 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowRight, ListChecks, Upload } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowRight, Upload } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ApiError, newIdempotencyKey, useJob, useSSE } from "@/shared/data";
+import { ApiError, ApiErrorNotice, newIdempotencyKey, useJob, useSSE } from "@/shared/data";
 import { checkSubmissionBundle, uploadSubmissionBundle } from "@/shared/data/uploadFile";
-import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
+import { Button, type Column, type HeaderAction, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useAssignments, vi } from "@/features/assignments/assignmentApi";
 import { guidanceKey, regradeStale, useGuidance } from "@/features/assignments/guidanceApi";
 import { useSchemes } from "@/features/gradebook/gradeApi";
@@ -34,8 +34,7 @@ const TEAMS_FAIL_TEXT: Record<string, string> = {
   TEAMS_AUTH_FAILED: "Không đăng nhập được vào Teams",
   FILE_TYPE_NOT_ALLOWED: "Loại tệp không nhận",
   FILE_TOO_LARGE: "Tệp quá lớn",
-  FILE_EMPTY: "Tệp trống",
-};
+  FILE_EMPTY: "Tệp trống" };
 
 /** Liên kết sang màn duyệt mang theo bộ lọc đang xem: màn đó dùng lại đúng hàng chờ để đi bài kế. */
 export const reviewHref = (id: string, f: QueueFilter, total?: number) => {
@@ -58,14 +57,35 @@ const subscribeNarrow = (cb: () => void) => {
   return () => m.removeEventListener("change", cb);
 };
 
+export type QueueHeader = { primary?: HeaderAction; secondary?: [HeaderAction?, HeaderAction?] };
+
 /** Tab `Hàng chờ` của `/grading` (US-P7-08 AC1): bảng ảo hoá, lọc mặc định `Cần xem kỹ` + `Chưa duyệt`. */
-export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boolean }) {
+export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; teacher: boolean; /** hành động cấp trang («Chấm tất cả» …) đi lên đầu trang (DESIGN.md §23.2) */ onHeader: (h: QueueHeader | null) => void }) {
   const qc = useQueryClient();
   const router = useRouter();
   const assignments = useAssignments(courseId);
-  const [assignmentId, setAssignmentId] = useState("");
-  const [status, setStatus] = useState<QueueStatus>("DRAFT");
-  const [flagOnly, setFlagOnly] = useState(true);
+  // Bộ lọc cấp trang sống trong URL (DESIGN.md §23.3): rời route, tải lại, gửi liên kết đều giữ lọc. Tên tham số khớp màn duyệt bài (`assignment`, `status`, `needs`).
+  const params = useSearchParams();
+  const assignmentId = params.get("assignment") ?? "";
+  const askedStatus = params.get("status") as QueueStatus | null;
+  const status: QueueStatus = STATUS_OPTIONS.some((o) => o.value === askedStatus) ? (askedStatus as QueueStatus) : "DRAFT";
+  const flagOnly = params.has("needs") ? params.get("needs") === "1" : true;
+  // `router.replace` chưa kịp áp thì `params` còn cũ: giữ phần vừa ghi 1 giây để hai lần ghi liền nhau (tự nới lọc + người dùng chọn) không đè nhau.
+  const pend = useRef<Record<string, { v: string; t: number }>>({});
+  const patch = (next: Record<string, string>) => {
+    const now = Date.now();
+    for (const [k, v] of Object.entries(next)) pend.current[k] = { v, t: now };
+    const q = new URLSearchParams(params);
+    q.set("tab", "queue");
+    for (const [k, e] of Object.entries(pend.current)) {
+      if (now - e.t > 1000) delete pend.current[k];
+      else q.set(k, e.v);
+    }
+    router.replace(`/grading?${q}`, { scroll: false });
+  };
+  const setAssignmentId = (v: string) => patch({ assignment: v });
+  const setStatus = (v: QueueStatus) => patch({ status: v });
+  const setFlagOnly = (v: boolean) => patch({ needs: v ? "1" : "0" });
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
@@ -74,40 +94,10 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   const [job, setJob] = useState<{ id: string; queued: number } | null>(null);
   const [confirming, setConfirming] = useState(false);
   const publishIdem = useRef<string | null>(null);
-  const relaxed = useRef(false);
-  const relaxedStatus = useRef(false);
+  const relaxed = useRef(params.has("needs")); // người dùng đã chọn (URL có tham số): không tự nới lại
+  const relaxedStatus = useRef(params.has("status"));
   const [teamsJob, setTeamsJob] = useState<string | null>(null);
   const [teamsWait, setTeamsWait] = useState(0);
-
-  // GV-BUG (d): giữ lựa chọn bộ lọc của người dùng khi rời hàng chờ rồi vào lại (không tự bật lại «Cần xem kỹ»)
-  const filterKey = `ep:grading-queue-filter:${courseId}`;
-  const [filterLoaded, setFilterLoaded] = useState(false);
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem(filterKey);
-      if (raw) {
-        const f = JSON.parse(raw) as { a?: string; s?: QueueStatus; f?: boolean };
-        /* eslint-disable react-hooks/set-state-in-effect */
-        setAssignmentId(f.a ?? "");
-        setStatus(f.s ?? "DRAFT");
-        setFlagOnly(Boolean(f.f));
-        /* eslint-enable react-hooks/set-state-in-effect */
-        relaxed.current = true;
-        relaxedStatus.current = true;
-      }
-    } catch {
-      /* bộ nhớ phiên không dùng được: giữ mặc định */
-    }
-    setFilterLoaded(true);
-  }, [filterKey]);
-  useEffect(() => {
-    if (!filterLoaded) return;
-    try {
-      sessionStorage.setItem(filterKey, JSON.stringify({ a: assignmentId, s: status, f: flagOnly }));
-    } catch {
-      /* đầy / bị chặn: bỏ qua */
-    }
-  }, [filterLoaded, filterKey, assignmentId, status, flagOnly]);
 
   const filter: QueueFilter = { assignment_id: assignmentId || undefined, status, needs_review: flagOnly };
   const narrow = useSyncExternalStore(subscribeNarrow, () => window.matchMedia(NARROW).matches, () => false);
@@ -270,6 +260,24 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       : undefined;
   const students = new Set(chosen.map((r) => r.student?.id).filter(Boolean)).size;
   const oldReviewed = stale && assignmentIds.size === 1 && assignmentIds.has(assignmentId) ? stale.reviewed : 0;
+  // Hành động cấp trang đi lên PageHeader: «Chấm tất cả» (chính), «Tải bài lên» + «Công bố» (phụ), «Đồng bộ từ Teams» (menu). Dùng ref để callback luôn mới mà không đẩy lại mỗi lần render.
+  const acts = useRef({ pick: () => {}, grade: () => {}, publish: () => {} });
+  useEffect(() => {
+    acts.current = { pick: () => picker.current?.click(), grade: gradeAllNow, publish: () => setConfirming(true) };
+  });
+  const hdrKey = [needAssignment, noneToGrade, busy, teacher, chosen.length].join("|");
+  useEffect(() => {
+    onHeader({
+      primary: { label: "Chấm tất cả", busy, disabled: Boolean(needAssignment || noneToGrade), reason: needAssignment ?? noneToGrade, onClick: () => acts.current.grade() },
+      secondary: [
+        { label: "Tải bài lên", icon: <Upload aria-hidden />, disabled: Boolean(needAssignment) || busy, reason: needAssignment, onClick: () => acts.current.pick() },
+        teacher ? { label: "Công bố", disabled: chosen.length === 0, reason: chosen.length === 0 ? "Chọn bài đã duyệt." : undefined, onClick: () => acts.current.publish() } : undefined,
+      ],
+    });
+    return () => onHeader(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hdrKey]);
+
   const consequence = `Công bố ${chosen.length} bài · ${students} sinh viên nhận thư · ${column ? `điểm vào sổ điểm cột ${column}` : `không tính vào sổ điểm (${scheme ? "bài chưa gắn vào cột điểm" : "chưa có công thức điểm"})`}${oldReviewed > 0 ? ` · ${oldReviewed} bài đã duyệt chấm theo bản lưu ý cũ, vẫn công bố được` : ""}`;
 
   const publishNow = () =>
@@ -321,8 +329,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           onClick={(ev) => ev.stopPropagation()}
           onChange={() => setPicked((p) => { const n = new Set(p); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })}
         />
-      ) : null,
-  };
+      ) : null };
 
   const columns: Column<QueueRow>[] = [
     {
@@ -337,8 +344,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           <span className={s.code}>{r.student ? `${r.student.student_code}${r.student.inactive ? " · không còn trong lớp" : ""}` : ""}</span>
           {flagText(r) && <span className={s.flag} data-part="flag-reason">{flagText(r)}</span>}
         </span>
-      ),
-    },
+      ) },
     ...(oneAssignment ? [] : [{ key: "assignment", header: "Bài tập", width: "200px", render: (r: QueueRow) => <span className={s.clip} title={r.assignment.title}>{r.assignment.title}</span> }]),
     { key: "source", header: "Nguồn", width: "130px", render: (r) => SOURCE_LABEL[r.source] ?? r.source },
     {
@@ -351,8 +357,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           {r.result?.total ? vi(r.result.total) : "—"}
           {r.result && r.result.status !== "DRAFT" && <span className={s.sub}> đã duyệt</span>}
         </span>
-      ),
-    },
+      ) },
     {
       key: "state",
       header: "Trạng thái duyệt",
@@ -361,8 +366,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       render: (r) => {
         const text = reviewStateText(r.result);
         return <StatusText tone={reviewTone(text)}>{text}</StatusText>;
-      },
-    },
+      } },
     {
       key: "at",
       header: "Thời gian nộp",
@@ -372,8 +376,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           {fmtLong(r.received_at)}
           {r.late_days > 0 ? ` · muộn ${r.late_days} ngày` : ""}
         </span>
-      ),
-    },
+      ) },
     {
       key: "open",
       header: <span className="ep-sr-only">Duyệt</span>,
@@ -383,37 +386,19 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
         <Link href={reviewHref(r.id, filter, rows.length)} className={s.open} onClick={(e) => e.stopPropagation()} aria-label={`Duyệt bài của ${r.student?.full_name ?? "sinh viên"}`}>
           Duyệt <ArrowRight aria-hidden />
         </Link>
-      ),
-    },
+      ) },
   ];
 
   return (
-    <Panel>
+    <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
         <Toolbar
           alignEnd
           end={
-            <>
-              <Button icon={<Upload aria-hidden />} disabled={Boolean(needAssignment) || busy} disabledReason={needAssignment} onClick={() => picker.current?.click()}>
-                Tải bài lên
+            teamsChannel ? (
+              <Button disabled={busy || teamsRunning || teamsWait > 0} title={teamsWait > 0 ? `Chờ ${teamsWait} giây nữa` : undefined} onClick={teamsSync}>
+                Đồng bộ từ Teams
               </Button>
-              <Button variant="primary" loading={busy} disabled={Boolean(needAssignment || noneToGrade)} disabledReason={needAssignment ?? noneToGrade} onClick={gradeAllNow}>
-                Chấm tất cả
-              </Button>
-              {teacher && (
-                <Button variant="primary" disabled={chosen.length === 0} disabledReason={chosen.length === 0 ? "Chọn bài đã duyệt." : undefined} onClick={() => setConfirming(true)}>
-                  Công bố
-                </Button>
-              )}
-              {teamsChannel && (
-                <Button
-                  disabled={busy || teamsRunning || teamsWait > 0}
-                  title={teamsWait > 0 ? `Chờ ${teamsWait} giây nữa` : undefined}
-                  onClick={teamsSync}
-                >
-                  Đồng bộ từ Teams
-                </Button>
-              )}
-            </>
+            ) : undefined
           }
         >
           <Field label="Bài tập" className={s.filterField}>
@@ -509,13 +494,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       isEmpty={(d) => (d as QueueRow[]).length === 0}
       loading={<Skeleton lines={10} />}
       empty={
-        <EmptyState
-          title="Chưa có bài nộp."
-          icon={<ListChecks aria-hidden />}
-          action={teacher ? <Button icon={<Upload aria-hidden />} disabled={Boolean(needAssignment) || busy} disabledReason={needAssignment} onClick={() => picker.current?.click()}>Tải bài lên</Button> : undefined}
-        >
-          Sinh viên nộp trong ứng dụng, hoặc thầy/cô tải ZIP lên.
-        </EmptyState>
+        <EmptyState title={flagOnly ? "Không có bài cần xem kỹ" : `Không có bài ${(STATUS_OPTIONS.find((o) => o.value === status)?.label ?? "").toLowerCase()}`} />
       }
       showTechnical
     >
@@ -550,8 +529,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           pagination={{
             nextCursor: list.data?.pages[list.data.pages.length - 1]?.next_cursor ?? null,
             loading: list.isFetchingNextPage,
-            onLoadMore: () => void list.fetchNextPage(),
-          }}
+            onLoadMore: () => void list.fetchNextPage() }}
         />
       </>
     </PageState>

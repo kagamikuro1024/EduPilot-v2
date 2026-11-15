@@ -7,8 +7,8 @@
   padding: var(--ep-space-6);
   min-width: 0;
 }
-.lg { padding: var(--ep-space-8); }
-.none { padding: 0; }
+.panel > :first-child { margin-top: 0; } .panel > :last-child, .panel > :last-child > :last-child { margin-bottom: 0; } /* panel cao đúng nội dung + đệm (P2): không để lề cuối đẩy dưới đệm */
+.panel:has(> [data-ep-split="list-detail"]) { padding: 0; overflow: hidden; } /* chia đôi sát mép: chỉ qua Split (DESIGN.md §23.3) */
 
 .section { display: grid; gap: var(--ep-space-4); min-width: 0; }
 .section + .section { border-top: 1px solid var(--ep-rule); margin-top: var(--ep-space-6); padding-top: var(--ep-space-6); }

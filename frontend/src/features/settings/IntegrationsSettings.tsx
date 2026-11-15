@@ -28,25 +28,23 @@ export function IntegrationsSettings() {
   const courseId = admin ? picked || list[0]?.id || "" : realCourseId && realCourseId !== "all" ? realCourseId : "";
 
   return (
-    <Page>
-      <PageHeader
-        title="Tích hợp"
-        actions={
-          admin && list.length > 0 ? (
-            <Field label="Lớp" className={s.picker}>
-              {(id) => (
-                <Select id={id} value={courseId} onChange={(e) => setPicked(e.target.value)} data-part="course-picker">
-                  {list.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.class_code} · {c.name}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
-          ) : undefined
-        }
-      />
+    <Page kind="read">
+      <PageHeader title="Tích hợp" />
+      {admin && list.length > 0 && (
+        <div className={s.picker}>
+          <Field label="Lớp">
+            {(id) => (
+              <Select id={id} value={courseId} onChange={(e) => setPicked(e.target.value)} data-part="course-picker">
+                {list.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.class_code} · {c.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        </div>
+      )}
       {admin && courses.isPending ? (
         <Panel>
           <Skeleton lines={8} />
@@ -55,7 +53,7 @@ export function IntegrationsSettings() {
         <Blocks key={courseId} courseId={courseId} admin={admin} />
       ) : (
         <Panel>
-          <EmptyState title={admin ? "Chưa có lớp nào." : "Chọn một lớp ở thanh trên."} />
+          <EmptyState title={admin ? "Chưa có lớp nào" : "Chọn một lớp ở thanh trên"} />
         </Panel>
       )}
     </Page>
@@ -77,15 +75,13 @@ function Blocks({ courseId, admin }: { courseId: string; admin: boolean }) {
   const failed = [smtp, imap, teams].find((q) => q.isError);
   if (failed || !smtp.data || !imap.data || !teams.data) {
     return (
-      <Panel>
-        <ApiErrorNotice
-          error={failed?.error}
-          title="Chưa đọc được trạng thái tích hợp."
-          context="Các kết nối đang có vẫn chạy."
-          showTechnical
-          onRetry={() => void failed?.refetch()}
-        />
-      </Panel>
+      <ApiErrorNotice
+        error={failed?.error}
+        title="Chưa đọc được trạng thái tích hợp"
+        context="Các kết nối đang có vẫn chạy."
+        showTechnical
+        onRetry={() => void failed?.refetch()}
+      />
     );
   }
 

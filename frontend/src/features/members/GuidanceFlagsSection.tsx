@@ -52,10 +52,10 @@ function FlagRow({ courseId, flag }: { courseId: string; flag: GuidanceFlag }) {
 export function GuidanceFlagsSection({ courseId, canManage }: { courseId: string; canManage: boolean }) {
   const q = useGuidanceFlags(courseId, canManage);
   if (!canManage || q.isError) return null;
-  if (q.isPending) return <Section panel title="Học từ lần sửa"><Skeleton lines={3} /></Section>;
+  if (q.isPending) return <Section title="Học từ lần sửa"><Skeleton lines={3} /></Section>;
   const by = new Map(q.data.map((f) => [f.feature, f]));
   return (
-    <Section panel title="Học từ lần sửa">
+    <Section title="Học từ lần sửa">
       <div data-part="guidance-flags">
         {ORDER.filter((f) => by.has(f)).map((f) => (
           <FlagRow key={f} courseId={courseId} flag={by.get(f)!} />

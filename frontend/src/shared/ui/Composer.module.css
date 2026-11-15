@@ -22,7 +22,8 @@
 
 .input {
   width: 100%;
-  min-height: 28px;
+  box-sizing: border-box;
+  min-height: 36px; /* điều khiển cao 36 (D2) */
   max-height: 220px;
   padding: var(--ep-space-1) 0;
   border: 0;
@@ -42,7 +43,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--ep-space-2);
-  min-height: 32px;
+  min-height: 36px;
   padding: 0 var(--ep-space-3);
   border: 0;
   border-radius: var(--ep-radius-sm);

@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useQueryClient } from "@tanstack/react-query";
 import { Mail, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -118,17 +119,8 @@ export function AdminUsers() {
   ];
 
   return (
-    <Page width="wide">
-      <PageHeader
-        title="Người dùng"
-        actions={
-          inviting ? undefined : (
-            <Button variant="primary" icon={<Mail aria-hidden />} onClick={() => setInviting(true)}>
-              Mời giảng viên
-            </Button>
-          )
-        }
-      />
+    <Page kind="work">
+      <PageHeader title="Người dùng" primary={inviting ? undefined : { label: "Mời giảng viên", icon: <Mail aria-hidden />, onClick: () => setInviting(true) }} />
 
       {inviting && (
         <InvitePanel
@@ -180,7 +172,7 @@ export function AdminUsers() {
         </InlineNotice>
       )}
 
-      <Panel>
+      <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
         <Toolbar
           end={
             <Field label="Tìm người dùng" className={s.searchField}>
@@ -213,7 +205,7 @@ export function AdminUsers() {
           rows={list.items}
           rowKey={(u) => u.id}
           dense
-          empty={<EmptyState title="Chưa có người dùng khớp bộ lọc.">Thử bỏ bớt từ khoá hoặc chọn lại vai trò.</EmptyState>}
+          empty={<EmptyState title="Chưa có người dùng khớp bộ lọc" />}
           pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
         />
       </PageState>

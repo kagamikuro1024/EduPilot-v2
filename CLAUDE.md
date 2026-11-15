@@ -61,6 +61,7 @@ Worker Go chạy việc nền, gọi container `docling-serve` để trích PDF/
 - Bo góc nhỏ (6–12 px; riêng `Panel` dùng `--ep-radius-panel`), không bóng ngoài menu / popover / dialog và `Panel` (`--ep-elevation-1`). Một họ chữ: Be Vietnam Pro. Không chữ gradient, không glass, không neon AI.
 - Một hành động chính cho mỗi vùng làm việc; tối đa 2 hành động phụ hiện ra; còn lại vào menu. Sửa tại chỗ và mở dần trước khi dùng modal. Dialog chỉ cho việc cần bảo vệ.
 - Điều hướng chính trên desktop luôn có nhãn chữ. Sinh viên không bao giờ thấy từ kỹ thuật AI (RAG, PII, fallback, trace, provider…); dùng bảng dịch ở `DESIGN.md` §13. Nút là động từ.
+- Khung trang theo `DESIGN.md` §23: `Page` kiểu `work` hoặc `read`, một mẫu đầu trang, panel rộng đúng cột và cao theo nội dung, trạng thái rỗng chỉ có tiêu đề + tối đa một nút. Trang không tự đặt độ rộng, khoảng đệm, chiều cao theo màn. Trong app chuyển động tối thiểu; chỉ trang giới thiệu `/` được làm chuyển động marketing (P-107-12).
 - Chỉ dùng token `--ep-*` và primitive ở `frontend/src/shared/`. Cấm màu / bo góc / bóng / cỡ chữ viết cứng trong trang. Cấm tạo bản sao riêng của nút, trường nhập, chip, dialog, tab, bảng, thông báo cho từng route.
 - Không gamify: không streak, không bảng xếp hạng, không vòng tiến độ, không confetti.
 - `bash scripts/ui-antipatterns.sh` phải sạch trước khi báo xong.

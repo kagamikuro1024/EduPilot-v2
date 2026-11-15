@@ -8,7 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import { ApiError, apiClient, useAutosaveDraft, useUndoableAction } from "@/shared/data";
 import { CitationList, Markdown } from "@/shared/domain";
 import { useSession } from "@/shared/session/session";
-import { Button, Composer, IconButton, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton } from "@/shared/ui";
+import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
+import { Button, Composer, EmptyState, IconButton, OverflowMenu, Page, PageHeader, PageState, Skeleton, Split } from "@/shared/ui";
 import {
   LOCK_KEY,
   messagesKey,
@@ -187,6 +188,7 @@ export function RealChat({ courseId }: { courseId: string }) {
     setSendError(null);
   };
 
+  const noSessions = sessions.isSuccess && items.length === 0; // chưa có phiên: một cột, không khối rỗng thứ hai trong cột phiên (E2)
   const showEmpty = !sid || (messages.isSuccess && list.length === 0 && !live);
   const hasMessages = (!!sid && list.length > 0) || !!live;
   const today = useQuery({
@@ -201,25 +203,30 @@ export function RealChat({ courseId }: { courseId: string }) {
 
 
   return (
-    <Page width="full" className={s.page}>
-      <PageHeader title="Chat riêng" actions={hasMessages ? <Button onClick={() => open(null)}>Phiên mới</Button> : undefined} />
-      <div className={`${s.layout} ${r.layout} ${collapsed ? r.collapsed : ""}`}>
-        {!collapsed && (
-          <nav className={`${s.history} ${r.flat}`} data-part="chat-history" aria-label="Phiên trước">
+    <Page kind="work">
+      <PageHeader title="Chat riêng" secondary={hasMessages ? [{ label: "Phiên mới", onClick: () => open(null) }] : undefined} />
+      {del.node}
+      {sessions.isError && <ApiErrorNotice error={sessions.error} onRetry={() => void sessions.refetch()} />}
+      <Split
+        ratio="list-detail"
+        fill
+        detailOpen
+        listCollapsed={collapsed || noSessions || sessions.isError}
+        main={
+          <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
             <div className={r.historyHead}>
               <p className={s.historyLabel}>Phiên trước</p>
               <IconButton label="Thu gọn lịch sử" size="sm" onClick={() => setCollapsed(true)}><PanelLeftClose aria-hidden /></IconButton>
             </div>
             <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />
-            {del.node}
           </nav>
-        )}
+        }
+        aside={
+          <div className={s.convo}>
 
-        <div className={s.column}>
-          <button type="button" className={`${s.sessionsBtn} ${collapsed ? r.showSessions : ""}`} data-part="chat-sessions-button" onClick={() => (wide ? setCollapsed(false) : setSheet(true))} aria-haspopup={wide ? undefined : "dialog"}>
+          {!noSessions && !sessions.isError && (<button type="button" className={`${s.sessionsBtn} ${collapsed ? r.showSessions : ""}`} data-part="chat-sessions-button" onClick={() => (wide ? setCollapsed(false) : setSheet(true))} aria-haspopup={wide ? undefined : "dialog"}>
             Phiên trước ({items.length})
-          </button>
-          <Panel>
+          </button>)}
             <div className={`${s.inner} ${showEmpty && !live ? r.empty : ""}`} data-part="chat-inner">
               <PageState
                 query={sid ? messages : undefined}
@@ -264,12 +271,12 @@ export function RealChat({ courseId }: { courseId: string }) {
                 />
               </div>
             </div>
-          </Panel>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       <ChatSessionSheet open={sheet} onClose={() => setSheet(false)} onNew={hasMessages ? () => open(null) : undefined}>
-        <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />
+        {sheet && <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />}
       </ChatSessionSheet>
     </Page>
   );
@@ -277,7 +284,7 @@ export function RealChat({ courseId }: { courseId: string }) {
 
 function SessionList({ items, current, loading, onOpen, onDelete }: { items: ChatSession[]; current: string | null; loading: boolean; onOpen: (id: string) => void; onDelete: (id: string) => void }) {
   if (loading) return <Skeleton lines={3} />;
-  if (items.length === 0) return <p className={s.historyEmpty}>Chưa có phiên nào</p>;
+  if (items.length === 0) return null; // không phiên: cột phiên đóng (noSessions), không khối rỗng thứ hai
   return (
     <ul className={r.sheetList}>
       {items.map((x) => (
@@ -297,7 +304,7 @@ function SessionList({ items, current, loading, onOpen, onDelete }: { items: Cha
 function Intro({ suggestions, onPick }: { suggestions: string[]; onPick: (text: string) => void }) {
   return (
     <div className={s.intro}>
-      <p className="ep-item-title">Hỏi bất cứ điều gì về lớp này.</p>
+      <div><EmptyState title="Hỏi bất cứ điều gì về lớp này" /></div>
       <p className={s.introText}>Phiên chat này chỉ bạn đọc được.</p>
       <ul className={r.suggest} data-part="chat-suggestions">
         {suggestions.map((t) => (

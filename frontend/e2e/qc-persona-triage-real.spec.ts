@@ -30,8 +30,9 @@ const main = async (p: Page) => (await p.locator("main").innerText()).replace(/\
 
 test("sinh viên 375: Hôm nay, thanh điều hướng, trang bài tập, Kết quả của tôi", async ({ browser }, ti) => {
   test.skip(ti.project.name !== "desktop");
-  test.setTimeout(150_000);
+  test.setTimeout(240_000);
   const { ctx, page } = await login(browser, "sv.kha", 375, 812);
+  page.setDefaultTimeout(8000);
   await page.goto(`${BASE}/`); await page.waitForTimeout(3000);
   const t = await main(page);
   info("C6 Hôm nay (SV) 375 — 600 ký tự đầu", t.slice(0, 700));
@@ -42,7 +43,7 @@ test("sinh viên 375: Hôm nay, thanh điều hướng, trang bài tập, Kết 
   info("C5 nhãn điều hướng 375", nav.map((s) => s.trim()).filter(Boolean));
   await page.getByText("Thêm", { exact: true }).last().click().catch(() => {});
   await page.waitForTimeout(800);
-  info("C5 nhãn sau «Thêm»", (await page.locator("[role=dialog] a, [role=menu] a, aside a, nav a").allInnerTexts()).map((s) => s.trim()).filter(Boolean));
+  info("C5 nhãn sau «Thêm»", (await page.locator("a").allInnerTexts().catch(() => [])).map((s) => s.trim()).filter(Boolean).slice(0, 30));
   await page.screenshot({ path: `${OUT}/sv-them-375.png` });
   await page.keyboard.press("Escape");
   if (BT03) {

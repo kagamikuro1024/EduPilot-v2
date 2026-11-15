@@ -74,16 +74,11 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
   const del = staff ? (e: CalItem) => { if (pending) commitDelete(); setPending(e); } : undefined;
 
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader
         title="Lịch"
-        actions={
-          <>
-            <Button onClick={() => setIcs((v) => !v)} aria-expanded={ics}>Thêm vào lịch</Button>
-            {staff && <Button onClick={() => setForm("new")}>Thêm sự kiện</Button>}
-            {staff && <Button variant="primary" onClick={() => setSessions(true)}>Tạo lịch buổi học</Button>}
-          </>
-        }
+        primary={staff ? { label: "Tạo lịch buổi học", onClick: () => setSessions(true) } : undefined}
+        secondary={[{ label: "Thêm vào lịch", onClick: () => setIcs((v) => !v), expanded: ics }, staff ? { label: "Thêm sự kiện", onClick: () => setForm("new") } : undefined]}
       />
       {staff && (
         <>
@@ -138,7 +133,7 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
         loading={<Panel><Skeleton lines={8} /></Panel>}
         empty={
           <Panel>
-            <EmptyState title="Chưa có gì trong lịch." action={staff ? <Button variant="primary" onClick={() => setForm("new")}>Thêm sự kiện</Button> : undefined} />
+            <EmptyState title="Chưa có gì trong lịch" />
           </Panel>
         }
       >
@@ -229,7 +224,7 @@ function MonthView({ first, start, today, items, now }: { first: number; start: 
 }
 
 function ListView({ items, now, onEdit, onDelete }: { items: CalItem[]; now: number; onEdit?: (e: CalItem) => void; onDelete?: (e: CalItem) => void }) {
-  if (items.length === 0) return <Panel><EmptyState title="Không còn sự kiện nào sắp tới." /></Panel>;
+  if (items.length === 0) return <Panel><EmptyState title="Không còn sự kiện nào sắp tới" /></Panel>;
   return (
     <Panel>
       <ActionList label="Sự kiện sắp tới">

@@ -11,7 +11,7 @@ export type Tone = "red" | "amber" | "green" | "blue" | "neutral";
 export function ActionList({ children, label, loading }: { children?: ReactNode; label?: string; /** đang tải: từng ấy hàng khung xương cao đúng bằng hàng thật (tiêu đề + một dòng bối cảnh) */ loading?: number }) {
   if (loading) {
     return (
-      <ul className={s.list} aria-label={label} aria-busy="true">
+      <ul className={s.list} aria-label={label} aria-busy="true" data-ep-action-list>
         {Array.from({ length: loading }, (_, i) => (
           <li key={i} className={s.row} aria-hidden>
             <div className={s.main}>
@@ -27,7 +27,7 @@ export function ActionList({ children, label, loading }: { children?: ReactNode;
     );
   }
   return (
-    <ul className={s.list} aria-label={label}>
+    <ul className={s.list} aria-label={label} data-ep-action-list>
       {children}
     </ul>
   );

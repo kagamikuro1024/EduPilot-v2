@@ -1,0 +1,37 @@
+QCAC AXE-teacher/observability@390 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-teacher/documents@390 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-teacher/observability@1440 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-teacher/documents@1440 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-admin/observability@390 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-admin/observability@1440 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-student/chat@390 PASS serious/critical=[] vùng cuộn ngang=[]
+QCAC AXE-student/chat@1440 PASS serious/critical=[] vùng cuộn ngang=[]
+QCINFO attendance@375 {"dock":true,"pos":"fixed","bottomGap":56,"navH":57,"h":61,"dockBtn":[{"t":"Lưu điểm danh · 30 có mặ","h":44,"w":343}],"headerPrimary":[],"lastTextBottom":2329,"docH":2696,"vh":812,"overflowX":false}
+QCAC P14-att375-dock PASS dock=true; nút chính trong dock=[{"t":"Lưu điểm danh · 30 có mặ","h":44,"w":343}]; nút primary ở đầu trang=[]
+QCAC P14-att375-sticky PASS position=fixed; cách đáy khung nhìn=56px = cao thanh điều hướng dưới (57px); cao 61
+QCAC P14-att375-touch PASS cao nút 44
+QCAC P14-att375-scroll PASS sau cuộn cách đáy 56px (thanh dưới 57px)
+QCAC P14-att375-nocover PASS cuối trang: đỉnh dock 695; số dòng chữ nằm sau dock 0
+QCINFO grading-detail@375 {"dock":true,"pos":"fixed","bottomGap":56,"navH":57,"h":99,"dockBtn":[{"t":"Duyệt bài","h":44,"w":125}],"headerPrimary":[],"lastTextBottom":2790,"docH":3151,"vh":812,"overflowX":false}
+QCAC P14-rev375-dock PASS dock=true; nút trong dock=[{"t":"Duyệt bài","h":44,"w":125}]; primary ở đầu trang=[]
+QCAC P14-rev375-sticky PASS position=fixed; cách đáy=56px (thanh dưới 57px)
+QCAC P14-rev375-touch PASS cao 44
+QCAC P14-rev375-scroll PASS sau cuộn 56px (thanh dưới 57px)
+QCINFO attendance@1440 {"dock":false,"pos":null,"bottomGap":null,"navH":0,"h":null,"dockBtn":[],"headerPrimary":["Lưu điểm danh"],"lastTextBottom":1787,"docH":1768,"vh":900,"overflowX":false}
+QCAC P14-att1440 PASS đầu trang primary=["Lưu điểm danh"]; dock=[] (không hai nút cùng việc)
+QCINFO documents@1440 {"n":4,"truly":0,"tips":[{"name":"","d":"Đáp án không hiển thị cho sinh viên"},{"name":"","d":"Đáp án không hiển thị cho sinh viên"},{"name":"","d":"Đáp án không hiển thị cho sinh viên"},{"name":"","d":"Đáp án không hiển thị cho sinh viên"}],"icons":0,"shared":0}
+QCAC DOC-1440-aria-disabled PASS 4 công tắc aria-disabled; thuộc tính disabled thật = 0 (phải 0 để nhận focus)
+QCAC DOC-1440-icons PASS icon info/circle-help = 0
+QCAC DOC-1440-focus PASS focus=true; lý do hiện=true «Đáp án không hiển thị cho sinh viên»
+QCAC DOC-1440-esc FAIL sau Esc lý do hiện=true
+QCAC DOC-1440-no-toggle-kbd PASS aria-checked false→false; PATCH=0
+QCAC DOC-1440-tab PASS Shift+Tab rồi Tab quay lại công tắc khoá
+QCAC DOC-1440-shared FAIL không có hàng «Chia sẻ từ» trong lớp 761987 để kiểm (KHÔNG KIỂM ĐƯỢC)
+QCINFO documents@375 {"n":4,"truly":0,"tips":[{"name":"","d":"Đáp án không hiển thị cho sinh viên"},{"name":"","d":"Đáp án không hiển thị cho sinh viên"},{"name":"","d":"Đáp án không hiển thị cho sinh viên"},{"name":"","d":"Đáp án không hiển thị cho sinh viên"}],"icons":0,"shared":0}
+QCAC DOC-375-aria-disabled PASS 4 công tắc aria-disabled; thuộc tính disabled thật = 0 (phải 0 để nhận focus)
+QCAC DOC-375-icons PASS icon info/circle-help = 0
+    Error: locator.scrollIntoViewIfNeeded: Test ended.
+QCINFO settings-sv@1440 GET hỏng khác nhau=4 ["/api/v1/me/sessions","/api/v1/events","/api/v1/notifications","/api/v1/me/settings"] :: {"secs":[{"h2":"Mật khẩu","alerts":0,"retry":[],"live":["INPUT","Hiện mật khẩu","INPUT","Hiện mật khẩu","INPUT","Hiện mật khẩu"]},{"h2":"Thiết bị đang đăng nhập","alerts":1,"retry":["Thử lại"],"live":[]},{"h2":"Thư","alerts":1,"retry":["Thử lại"],"live":[]}],"alertsTotal":2}
+QCINFO settings-sv@375 GET hỏng khác nhau=4 ["/api/v1/me/sessions","/api/v1/events","/api/v1/notifications","/api/v1/me/settings"] :: {"secs":[{"h2":"Mật khẩu","alerts":0,"retry":[],"live":["INPUT","Hiện mật khẩu","INPUT","Hiện mật khẩu","INPUT","Hiện mật khẩu"]},{"h2":"Thiết bị đang đăng nhập","alerts":1,"retry":["Thử lại"],"live":[]},{"h2":"Thư","alerts":1,"retry":["Thử lại"],"live":[]}],"alertsTotal":2}
+  1 failed
+  10 passed (3.7m)

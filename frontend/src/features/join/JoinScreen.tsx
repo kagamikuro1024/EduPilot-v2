@@ -107,9 +107,9 @@ export function JoinScreen({ initialCode }: { initialCode?: string }) {
   const teachers = preview?.teachers.map((t) => t.full_name).join(", ");
 
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader title="Tham gia lớp" />
-      <Section panel>
+      <Section>
         {done ? (
           <div className={s.result}>
             <p role="status" className={s.resultText}>

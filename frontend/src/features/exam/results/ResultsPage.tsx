@@ -26,16 +26,16 @@ export function ResultsPage({ id }: { id: string }) {
   const back = { href: "/exams", label: "Bài thi" };
   if (role !== "teacher" && role !== "ta")
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Kết quả bài thi" back={back} />
-        <Panel><EmptyState title="Chỉ dành cho giảng viên và TA">Trang này dành cho giảng viên và TA của lớp.</EmptyState></Panel>
+        <Panel><EmptyState title="Chỉ dành cho giảng viên và TA" /></Panel>
       </Page>
     );
   if (!course)
     return (
-      <Page width="wide">
+      <Page kind="work">
         <PageHeader title="Kết quả bài thi" back={back} />
-        {cc.state === "loading" ? <Panel><Skeleton lines={6} /></Panel> : <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem kết quả.</EmptyState></Panel>}
+        {cc.state === "loading" ? <Panel><Skeleton lines={6} /></Panel> : <Panel><EmptyState title="Chưa chọn lớp" /></Panel>}
       </Page>
     );
   return <Board course={course} exam={id} teacher={role === "teacher"} />;
@@ -63,7 +63,7 @@ function Board({ course, exam, teacher }: { course: string; exam: string; teache
     else setTab(t);
   }
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageHeader title={e ? `Kết quả · ${e.title}` : "Kết quả bài thi"} back={{ href: "/exams", label: "Bài thi" }} />
       {detail.isError && <ApiErrorNotice error={detail.error} onRetry={() => void detail.refetch()} />}
       {e && e.status !== "CLOSED" && e.status !== "PUBLISHED" && e.status !== "OPEN" && <InlineNotice>Bài thi chưa mở nên chưa có kết quả.</InlineNotice>}
@@ -172,7 +172,7 @@ function Table({ course, exam, teacher, e, onChanged }: { course: string; exam: 
             activeKey={list.items.find((r) => r.attempt_id === open)?.student.id}
             virtual={{ height: 520 }}
             pagination={{ nextCursor: list.hasNextPage ? (list.data?.pages.at(-1)?.next_cursor ?? null) : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
-            empty={<EmptyState title="Chưa có dòng nào">Không có sinh viên nào khớp bộ lọc.</EmptyState>}
+            empty={<EmptyState title="Chưa có dòng nào" />}
           />
         </div>
       )}

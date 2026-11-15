@@ -1,0 +1,3 @@
+{ "ci": { "collect": { "url": ["http://localhost:580/"], "numberOfRuns": 3,
+  "settings": { "preset": "perf", "throttlingMethod": "devtools", "formFactor": "mobile", "screenEmulation": { "mobile": true, "width": 375, "height": 812, "deviceScaleFactor": 2, "disabled": false }, "chromeFlags": "--no-sandbox --headless=new", "onlyCategories": ["performance"] } },
+  "upload": { "target": "filesystem", "outputDir": "./lh/mobile" } } }

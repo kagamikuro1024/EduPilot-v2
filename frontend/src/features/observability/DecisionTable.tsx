@@ -23,17 +23,17 @@ export function DecisionTable() {
 
   return (
     <Section
-      panel
       title="Quyết định nhanh"
       part="decision-observability"
+      fault={q.isError ? <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} /> : null}
       action={<SegmentedControl label="Cửa sổ thời gian" value={window} onChange={setWindow} options={[{ value: "24h", label: "24 giờ" }, { value: "7d", label: "7 ngày" }]} />}
     >
-      {q.isPending ? (
+      {q.isPending || !q.data ? (
         <Skeleton lines={4} />
-      ) : q.isError ? (
-        <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} />
       ) : (
-        <>
+        q.data.every((r) => r.calls === 0) ? (
+          <EmptyState title="Chưa có lời gọi nào" />
+        ) : (
           <DataTable<Row>
             caption="Quyết định nhanh theo cổng"
             rows={q.data}
@@ -53,8 +53,7 @@ export function DecisionTable() {
               { key: "cost", header: "Chi phí", align: "end", render: (r) => num(r, vnd(r.cost_vnd)) },
             ]}
           />
-          {q.data.every((r) => r.calls === 0) && <EmptyState title="Chưa có lời gọi nào" />}
-        </>
+        )
       )}
     </Section>
   );

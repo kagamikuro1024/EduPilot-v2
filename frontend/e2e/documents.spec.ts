@@ -35,8 +35,8 @@ test("table: tên, loại, tuần, hai cờ, trạng thái, cập nhật; dải 
 
 test("states: rỗng có Tải tài liệu lên; lỗi có Thử lại", async ({ page, context }) => {
   await open(page, context, { [`GET ${D}`]: list([]), [`GET ${D}/stats`]: json(stats({ total: 0, has_course_policy: false })) });
-  await expect(page.getByText("Lớp chưa có tài liệu.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tải tài liệu lên" })).toHaveCount(2);
+  await expect(page.getByText("Lớp chưa có tài liệu")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tải tài liệu lên" })).toHaveCount(1); // chỉ nút ở đầu trang: rỗng không lặp nút (DESIGN §23.4)
   await page.unroute(`**/api/v1/courses/${COURSE}/documents**`);
   let n = 0;
   await docApi(page, { [`GET ${D}`]: (r) => (++n === 1 ? r.fulfill(err(500, "INTERNAL")) : r.fulfill(list())), [`GET ${D}/stats`]: json(stats()) });
@@ -45,12 +45,28 @@ test("states: rỗng có Tải tài liệu lên; lỗi có Thử lại", async (
   await expect(page.locator("[data-part=doc-row]")).toHaveCount(1);
 });
 
-test("answer key labels: đúng hai dòng, công tắc Hiện cho sinh viên khoá", async ({ page, context }) => {
+test("answer key: công tắc Hiện cho sinh viên khoá, lý do ở chính công tắc (không dòng chữ thêm trong hàng)", async ({ page, context }) => {
   await open(page, context, { [`GET ${D}`]: list([doc({ id: "k1", title: "Đáp án tuần 1", type: "ANSWER_KEY", visible_to_students: false })]) });
   const row = page.locator("[data-part=doc-row]");
-  await expect(row.getByText("Không hiển thị cho sinh viên")).toBeVisible();
-  await expect(row.getByText("Không dùng cho AI của sinh viên")).toBeVisible();
   await expect(row.getByRole("switch", { name: /Hiện cho sinh viên/ })).toBeDisabled();
+  await expect(row.getByRole("switch", { name: /Hiện cho sinh viên/ })).toHaveAccessibleDescription("Đáp án không hiển thị cho sinh viên");
+});
+
+test("công tắc khoá có lý do: focus bàn phím mở lý do, bấm không đổi giá trị (hàng chia sẻ và đáp án)", async ({ page, context }) => {
+  const calls = await open(page, context, { [`GET ${D}`]: list([doc({ id: "s1", title: "Slide chia sẻ", shared_from: "761988" }), doc({ id: "k1", title: "Đáp án", type: "ANSWER_KEY", visible_to_students: false })]) });
+  for (const [row, name, reason] of [["s1", /Dùng cho AI/, "Chỉ đổi được ở lớp gốc"], ["k1", /Hiện cho sinh viên/, "Đáp án không hiển thị cho sinh viên"]] as const) {
+    const sw = page.locator(`[data-doc-id=${row}]`).getByRole("switch", { name });
+    await expect(sw).toHaveAttribute("aria-disabled", "true");
+    await sw.focus();
+    await expect(sw).toHaveAccessibleDescription(reason);
+    await expect(sw.locator("xpath=following-sibling::span[@role='tooltip']")).toHaveCSS("opacity", "1");
+    await page.keyboard.press("Escape"); // Esc đóng lý do dù còn focus
+    await expect(sw).toBeFocused();
+    await expect(sw.locator("xpath=following-sibling::span[@role='tooltip']")).toHaveCSS("opacity", "0");
+    const before = calls.length;
+    await sw.click({ force: true });
+    expect(calls.length).toBe(before); // không PATCH
+  }
 });
 
 test("course policy reminder: một dòng khi thiếu quy chế, nút mở chọn tệp; có rồi thì biến mất", async ({ page, context }) => {

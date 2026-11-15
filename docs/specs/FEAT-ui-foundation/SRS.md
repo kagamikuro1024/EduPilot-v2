@@ -99,13 +99,13 @@ flowchart TD
 | 409 `VERSION_CONFLICT` | `error.conflict` có giá trị hiện tại | Màn hỏi giữ bên nào (phase sở hữu) |
 | 422 `VALIDATION_FAILED` | `fieldErrors` | Lỗi dưới từng ô, nội dung giữ nguyên |
 | 429 / 503 có `retry_after` | Không tự thử nếu > 5 s | "Thử lại sau N giây", nút khoá tới hết giờ |
-| 502 HTML / đứt giữa chừng | `ApiError` `BAD_GATEWAY` / `NETWORK` | "Không kết nối được… dữ liệu của bạn vẫn an toàn" |
+| 502 HTML / đứt giữa chừng | `ApiError` `BAD_GATEWAY` / `NETWORK` | "Không kết nối được tới máy chủ." (một dòng; vế «chữ bạn đã nhập vẫn còn» chỉ khi `PageState unsaved` — P-107-3) |
 | SSE đứt | Nối lại backoff + `Last-Event-ID`; loại trùng theo id | Không thấy gì (hoặc dải mất mạng) |
 | SSE 429 `SSE_LIMIT_REACHED` | Chờ `retry_after`, ≤ 3 lần, rồi `degraded` | "Bạn đang mở nhiều cửa sổ; cập nhật tự động tạm dừng" |
 | Token hết hạn giữa stream (`reconnect token_expired`) | `auth:expired`, không nối tới khi có token | Như 401 |
 | `resync` | Vô hiệu hoá query đã đăng ký | Dữ liệu tự làm mới |
 | `localStorage` đầy / bị chặn | `status="error"` của nháp, chữ vẫn trong ô | Dòng nhỏ "Chưa lưu được bản nháp" |
-| Route chưa có backend (`MOCK_SCREENS=0`) | `EmptyState` theo phase | "Tính năng này đang được xây ở giai đoạn P3…" |
+| Route chưa có backend (`MOCK_SCREENS=0`) | `EmptyState` chỉ tiêu đề + nút `Về Hôm nay` | "Tính năng chưa mở." (tên phase giữ ở bảng 7.6 cho dev, không hiện trên giao diện) |
 | Vai không được mở route | Màn chặn; không gọi API | "Bạn không có quyền xem màn này" |
 | Lint / ảnh mốc / axe đỏ | CI đỏ, artifact báo cáo | (dev) tên phép / ảnh lệch / nút vi phạm |
 
@@ -448,7 +448,7 @@ Hai khối này **không** nằm trong ma trận `[data-part=primitive]` / `[dat
 | P1 | Panel | D L E R | 4 | H, F, S, X (thành phần không tương tác — `G`) |
 | P2 | PanelSection | D (mặc định và `tone="strong"`) | 1 | H, F, S, X (`G`); L, E, R (do `Panel` chứa nó báo — `C`) |
 
-Cách đo: D = ba độ đệm `md` / `lg` / `none` và hai `PanelSection` ngăn bằng đường kẻ 1 px, ô nhấn `tone="strong"`; L / E / R = `PageState` tải (`aria-busy="true"`, khung xương), rỗng (nói vì sao + đúng 1 hành động), lỗi (`role="alert"`, có `Thử lại`) bên trong `Panel`. Mục `#panel` có ≥ 8 ô, mỗi ô đạt `AUDIT` sạch ở 1440 và 390 px (`FEAT-ui-panels` US-UI-02 AC7). Hợp đồng DOM / CSS của khối: `FEAT-ui-panels/SRS.md` 5.4.
+Cách đo: D = ba độ đệm `md` / `lg` / `none` và hai `PanelSection` ngăn bằng đường kẻ 1 px, ô nhấn `tone="strong"`; L / E / R = `PageState` tải (`aria-busy="true"`, khung xương), rỗng (tiêu đề ngắn + tối đa 1 hành động, không thân chữ), lỗi (`role="alert"`, có `Thử lại`) bên trong `Panel`. Mục `#panel` có ≥ 8 ô, mỗi ô đạt `AUDIT` sạch ở 1440 và 390 px (`FEAT-ui-panels` US-UI-02 AC7). Hợp đồng DOM / CSS của khối: `FEAT-ui-panels/SRS.md` 5.4.
 
 ### 7.3 Quy ước chung cho từng trạng thái (đo được)
 
@@ -459,7 +459,7 @@ Cách đo: D = ba độ đệm `md` / `lg` / `none` và hai `PanelSection` ngăn
 | selected | thuộc tính ARIA (`aria-selected` / `aria-pressed` / `aria-checked` / `aria-current` / `aria-expanded`) + dấu hiệu không chỉ là màu | đọc thuộc tính + so ảnh |
 | disabled | `disabled` hoặc `aria-disabled="true"`; `cursor: not-allowed`; không gọi handler; lý do qua `aria-describedby` nếu có | đếm lần gọi handler = 0 |
 | loading | khung xương đúng hình, `aria-busy="true"`; không spinner giữa trang | `[aria-busy=true]`, không `animate-spin` ngoài Button |
-| empty | nói vì sao rỗng + đúng 1 hành động | đếm `button, a` trong ô = 1 |
+| empty | tiêu đề ngắn + tối đa 1 hành động, không câu giải thích (ui-empty) | đếm `button, a` trong ô ≤ 1; không có đoạn chữ thân ngoài tiêu đề |
 | error | `role="alert"`; vấn đề + an toàn + cách khắc phục; có `Thử lại` | chuỗi không khớp `/^[A-Z_]{3,}$/` |
 
 ### 7.3a Hợp đồng ô `empty` và `error` theo từng khối (trả lời TC-PU02-11 / 12; v1.2)
@@ -479,7 +479,7 @@ Bảng 7.3 là quy ước **chung**; ô nào áp dụng ở 7.2 phải theo dòn
 
 | Loại | Khối | `role="alert"` | Ý bắt buộc | `Thử lại` |
 | --- | --- | --- | --- | --- |
-| Tải / thao tác lỗi | ActionList, DataTable, Layout, CitationList, Dialog, Drawer, Composer, ConfirmIrreversible, UndoLine | có | **ba**: vấn đề, dữ liệu có an toàn không, cách khắc phục | đúng **1** nút `Thử lại` (UndoLine: câu + một `Thử lại`, không lặp) |
+| Tải / thao tác lỗi | ActionList, DataTable, Layout, CitationList, Dialog, Drawer, Composer, ConfirmIrreversible, UndoLine | có | **một dòng** nói chuyện gì hỏng; vế về dữ liệu / chữ đã nhập chỉ khi `PageState unsaved` (P-107-3) | đúng **1** nút `Thử lại` (UndoLine: câu + một `Thử lại`, không lặp) |
 | Lỗi nhập | Field, Checkbox | không bắt buộc | **hai**: vấn đề, cách sửa; `aria-invalid="true"` + `aria-describedby` trỏ câu lỗi | **không** có (không có gì để thử lại) |
 | Thông báo | InlineNotice | có | hai: vấn đề, cách khắc phục | tuỳ nơi dùng (0–1) |
 | Trạng thái chữ | StatusText | có | hai: vấn đề + an toàn ("Chưa lưu — nội dung vẫn ở đây") | **không** có |

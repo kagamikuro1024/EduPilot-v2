@@ -79,13 +79,13 @@ export function ExamTake({ id }: { id: string }) {
     if (load.kind === "ready") void refresh(load.course, (m) => !isRunning(m));
   });
 
-  if (load.kind === "loading") return <Page><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Panel><Skeleton lines={5} /></Panel></Page>;
+  if (load.kind === "loading") return <Page kind="read"><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Panel><Skeleton lines={5} /></Panel></Page>;
   if (load.kind === "error") {
     const gone = load.error instanceof ApiError && (load.error.status === 404 || load.error.status === 403);
     return (
-      <Page>
+      <Page kind="read">
         <PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} />
-        {gone ? <Panel><EmptyState title="Không tìm thấy bài thi">Bài thi không có hoặc không thuộc lớp của bạn.</EmptyState></Panel> : <ApiErrorNotice error={load.error} onRetry={() => setLoad({ kind: "loading" })} />}
+        {gone ? <Panel><EmptyState title="Không tìm thấy bài thi" /></Panel> : <ApiErrorNotice error={load.error} onRetry={() => setLoad({ kind: "loading" })} />}
       </Page>
     );
   }
@@ -121,7 +121,7 @@ function Intro({ mine, start, onStarted }: { mine: NoAttempt; start: (key: strin
   const minutesLeft = e.closes_at ? Math.max(0, Math.floor((Date.parse(e.closes_at) - nowMs) / 60_000)) : null;
   const short = e.status === "OPEN" && e.duration_minutes && minutesLeft !== null && minutesLeft < e.duration_minutes;
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader title={e.title} back={{ href: "/exams", label: "Bài thi" }} />
       <Panel>
       <div className={s.intro}>
@@ -151,7 +151,7 @@ function Done({ course, id, mine }: { course: string; id: string; mine: Submitte
   const published = mine.exam.status === "PUBLISHED";
   const when = hhmmss(a.submitted_at);
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader title={mine.exam.title} back={{ href: "/exams", label: "Bài thi" }} />
       <div className={s.done} data-part="submitted">
         <Panel>

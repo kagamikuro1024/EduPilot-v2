@@ -51,9 +51,7 @@ export function LLMRouteTable({
     );
   if (rows.length === 0 || groups.every((g) => g.models.length === 0))
     return (
-      <EmptyState title="Chưa có mô hình nào để chọn" action={emptyAction}>
-        Thêm nhà cung cấp có mô hình trò chuyện, rồi quay lại đây để chọn.
-      </EmptyState>
+      <EmptyState title="Chưa có mô hình nào để chọn" action={emptyAction} />
     );
   const lock = disabled || readOnly;
   return (

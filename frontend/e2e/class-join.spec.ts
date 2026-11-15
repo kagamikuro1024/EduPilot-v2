@@ -128,7 +128,6 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
   for (const route of routes) {
     await page.goto(route);
     await expect(page.getByRole("heading", { name: "Bạn chưa vào lớp nào" }), route).toBeVisible();
-    await expect(page.getByText("Nhập mã tham gia do giảng viên cung cấp để dùng tính năng này."), route).toBeVisible();
     await expect(page.locator("main").getByRole("link", { name: "Tham gia lớp bằng mã" }), route).toHaveAttribute("href", "/join");
     await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" }), route).toHaveCount(0);
   }
@@ -142,19 +141,20 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
 test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp", async ({ page }) => {
   const courseCalls = await login(page, "TEACHER", [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")]);
   await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)
-  await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
+  await expect(picker(page)).toContainText("761987"); // lớp ở thanh trên (header không còn lặp lớp, 10.7 H3)
   const panel = await options(page);
   await panel.getByRole("menuitem", { name: /761988 · An ninh mạng/ }).click();
-  await expect(page.getByText(/An ninh mạng – 761988/).first()).toBeVisible();
+  await expect(picker(page)).toContainText("761988");
   await expect(page.getByText(/An ninh mạng – 761987/)).toHaveCount(0);
   expect(courseCalls).toEqual([]);
 });
 
-test("mock course mapping: lớp có class_code lạ dùng lớp mô phỏng đầu", async ({ page }) => {
+test("mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, không mượn lớp mô phỏng 761987 (10.7 lô 1)", async ({ page }) => {
   await login(page, "TEACHER", [item(C1, "999999", "TEACHER")]);
   await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)
   await expect(picker(page)).toContainText("999999");
-  await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
+  await expect(page.getByText("Chưa có số liệu")).toBeVisible(); // không mượn số liệu 761987
+  await expect(page.getByText(/An ninh mạng – 761987/)).toHaveCount(0);
 });
 
 // ===== US-P2-08: /admin/courses và chuông thật =====
@@ -302,7 +302,7 @@ test("admin courses page: sửa và gán lại dùng PUT / assign; rỗng có l�
 test("admin courses page: chưa có lớp → lời mời mở lớp đầu tiên", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop", "bảng dùng chung");
   await openCourses(page, []);
-  await expect(page.getByText("Chưa có lớp nào. Mở lớp đầu tiên.")).toBeVisible();
+  await expect(page.getByText("Chưa có lớp nào")).toBeVisible();
 });
 
 test("admin courses errors: mã lớp trùng tại ô, 422 theo ô giữ chữ, gửi lại cùng khoá, sai version, sai vai, lưu trữ lại", async ({ page }, info) => {
@@ -885,7 +885,7 @@ test("class members page: TA không có nút Duyệt ở hàng email chưa khớ
 test("class members page: rỗng, tab Trợ giảng (thêm / bớt), sinh viên bị chặn, 375 px sạch", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop", "bảng dùng chung");
   const st = await openMembers(page, "TEACHER", [mem("t1", "Trợ Giảng Một", "ACTIVE", { role_in_course: "TA" })], "/class/members?tab=pending");
-  await expect(page.getByText("Chưa có yêu cầu nào chờ duyệt.")).toBeVisible();
+  await expect(page.getByText("Chưa có yêu cầu nào chờ duyệt")).toBeVisible();
   const puts: Json[] = [];
   await page.route(`**/api/v1/courses/${C1}/assistants`, (r) => { puts.push(JSON.parse(r.request().postData() ?? "{}") as Json); return fulfill(r, 200, { teacher: null, assistants: [], changed: { teacher: false, added_ta: [], removed_ta: [] } }); });
   await page.getByRole("tab", { name: "Trợ giảng" }).click();
