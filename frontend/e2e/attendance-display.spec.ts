@@ -66,7 +66,7 @@ test("attendance display: Esc thoát về /attendance; sinh viên không gây y�
   await page.goto(URL_DISPLAY);
   await expect(page.locator("[data-part=short-code]")).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page).toHaveURL(new RegExp(`/attendance\\?session=${SESSION}$`));
+  await expect(page).toHaveURL(new RegExp(`/attendance\\?course=${COURSE}&session=${SESSION}$`));
 
   await page.context().clearCookies();
   await asDemo(context, "student");
@@ -75,4 +75,27 @@ test("attendance display: Esc thoát về /attendance; sinh viên không gây y�
   await page.goto(URL_DISPLAY);
   await expect(page.getByText("Bạn không có quyền xem màn này")).toBeVisible();
   expect(calls.filter((p) => p.includes("/checkin-windows"))).toEqual([]);
+});
+
+const OTHER = "00000000-0000-7000-8000-00000000c002";
+const item = (id: string, code: string) => ({ course: { id, class_code: code, subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" }, role_in_course: "TEACHER", enrollment_status: "ACTIVE" });
+
+test("attendance display: lớp lấy từ URL, không từ lớp đang chọn; lớp ngoài tài khoản → lỗi rõ, 0 yêu cầu cửa sổ", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "đo một lần");
+  await asDemo(context, "teacher");
+  // lớp đang chọn của tab = OTHER (đứng đầu danh sách); màn chiếu mở cho COURSE
+  await page.route("**/api/v1/me/courses**", (r) => r.fulfill(json({ items: [item(OTHER, "761999"), item(COURSE, "761988")], next_cursor: null })));
+  const asked: string[] = [];
+  page.on("request", (r) => r.url().includes("/checkin-windows") && asked.push(new URL(r.url()).pathname));
+  await mock(page, (n) => json(disp(n, 20000, 10)));
+  await page.goto(URL_DISPLAY);
+  await expect(page.locator("[data-part=short-code]")).toHaveText("ABC 123");
+  await expect(page).toHaveURL(new RegExp(`course=${COURSE}`)); // tham số không bị bỏ
+  expect(asked.every((p) => p.includes(`/courses/${COURSE}/`))).toBe(true);
+
+  const before = asked.length;
+  await page.goto(`/attendance/display?course=00000000-0000-7000-8000-00000000c009&session=${SESSION}`);
+  await expect(page.getByText("Lớp này không có trong tài khoản của bạn")).toBeVisible();
+  await expect(page.locator("[data-part=short-code]")).toHaveCount(0);
+  expect(asked.length).toBe(before);
 });

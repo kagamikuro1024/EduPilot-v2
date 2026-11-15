@@ -21,10 +21,11 @@ const grouped = (code: string) => (code.length === 6 ? `${code.slice(0, 3)} ${co
 
 /** Màn chiếu điểm danh (DESIGN §14.8.1): ngoài khung ứng dụng; chỉ giảng viên / TA; sinh viên và quản trị viên không gây yêu cầu `/api/v1` nào. */
 export function AttendanceDisplay() {
-  // `?course=` là liên kết sâu của phiên (chọn lớp rồi bị bỏ khỏi URL): lớp lấy từ lớp đang chọn
-  const { role, realCourseId, realPending } = useSession();
-  const course = realCourseId && realCourseId !== "all" ? realCourseId : "";
-  const session = useSearchParams().get("session") ?? "";
+  // Lớp lấy từ URL, KHÔNG từ lớp đang chọn của tab (màn chiếu mở ở máy khác / tab khác không được hiện QR của lớp khác). Phiên giữ nguyên `?course=` ở route này.
+  const { role, realCourses, realPending } = useSession();
+  const params = useSearchParams();
+  const course = params.get("course") ?? "";
+  const session = params.get("session") ?? "";
   if (role !== "teacher" && role !== "ta") {
     return (
       <main className={s.blocked} id="main">
@@ -43,6 +44,14 @@ export function AttendanceDisplay() {
       </main>
     );
   }
+  if (!realCourses?.some((c) => c.id === course && c.role_in_course !== "STUDENT")) {
+    return (
+      <main className={s.blocked} id="main">
+        <h1>Lớp này không có trong tài khoản của bạn</h1>
+        <ButtonLink href="/attendance" variant="primary">Về Điểm danh</ButtonLink>
+      </main>
+    );
+  }
   return <Live course={course} session={session} />;
 }
 
@@ -50,7 +59,7 @@ function Live({ course, session }: { course: string; session: string }) {
   const router = useRouter();
   const d = useDisplay(course, session);
   const actions = useCheckinActions(course, session);
-  const back = `/attendance?session=${session}`;
+  const back = `/attendance?course=${course}&session=${session}`;
   const [closeError, setCloseError] = useState<string | null>(null);
 
   const exit = () => router.push(back);

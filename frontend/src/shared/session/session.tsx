@@ -150,6 +150,7 @@ function useCourseDeepLink(courseIds: string[] | null, setCourse: (id: string) =
 
   useEffect(() => {
     if (!wanted || !ready) return;
+    if (pathname.startsWith("/attendance/display")) return; // màn chiếu đọc `?course=` từ URL, không đổi lớp đang chọn của tab và không bị bỏ tham số
     if (allowed) setCourse(wanted);
     const rest = new URLSearchParams(params.toString());
     rest.delete("course");
