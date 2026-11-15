@@ -52,6 +52,8 @@ test("@real F3 khủng hoảng: tải lại vẫn thấy phần đã sinh; Admin
 // ---------------- F5 ----------------
 test("@real F5 nhắc 24 giờ → 72 giờ: ticket quá hạn → thông báo gộp + thư, rồi nổi lên «Hôm nay» của GV kèm số giờ đã chờ", async ({ page, browser, request }) => {
   test.setTimeout(TICK_WAIT_MS * 3 + 300_000);
+  // thư nhắc ticket chỉ gửi GV đã bật «nhận thư khi có câu hỏi chờ» (mặc định tắt): bật bằng fixture, trả lại cuối ca
+  sql(`insert into user_settings (user_id, notify_ticket_by_mail) select id, true from users where email='teacher@edupilot.local' on conflict (user_id) do update set notify_ticket_by_mail = true`);
   const t0 = Date.now();
   // 1) SV hỏi một câu ngoài tài liệu rồi bấm «Nhờ giảng viên hỗ trợ» (UI thật)
   await uiLogin(page, "sv.nguyco");
@@ -59,21 +61,23 @@ test("@real F5 nhắc 24 giờ → 72 giờ: ticket quá hạn → thông báo g
   const composer = page.getByRole("textbox", { name: "Câu hỏi của bạn" });
   await composer.fill(`Lịch bảo vệ đồ án năm sau có thay đổi không ạ? (QC ${tag})`);
   await composer.press("Enter");
-  const ask = page.getByRole("button", { name: /Nhờ giảng viên hỗ trợ/ }).last();
-  await expect(ask).toBeVisible({ timeout: 90_000 });
-  await ask.click();
+  // AI không đủ chắc → hệ thống tự mở ticket («Đang chờ giảng viên»); nếu chưa tự mở thì bấm nút nhờ giảng viên
+  const waiting = page.getByText(/Đang chờ giảng viên/);
+  const ask = page.getByRole("button", { name: /Nhờ giảng viên hỗ trợ/ });
+  await expect(waiting.or(ask).first()).toBeVisible({ timeout: 90_000 });
+  if (!(await waiting.count())) await ask.last().click();
   await expect.poll(() => sql(`select count(*) from escalation_tickets t join users u on u.id=t.student_id where u.email='sv.nguyco@edupilot.local' and t.status='OPEN' and t.created_at > to_timestamp(${t0 / 1000})`)[0][0], { timeout: 30_000 }).toBe("1");
   const tid = sql(`select t.id from escalation_tickets t join users u on u.id=t.student_id where u.email='sv.nguyco@edupilot.local' and t.status='OPEN' order by t.created_at desc limit 1`)[0][0];
   await shot(page, "f5-ticket-open");
-  const staleMails0 = await mailCount("teacher@edupilot.local", /chờ|nhắc|câu hỏi/i);
-  // 2) lùi đồng hồ: 6 ngày lịch (≥ 24 giờ làm việc kể cả cuối tuần)
+    // 2) lùi đồng hồ: 6 ngày lịch (≥ 24 giờ làm việc kể cả cuối tuần)
   sql(`update escalation_tickets set waiting_since = now() - interval '6 days', created_at = now() - interval '6 days' where id='${tid}'`);
   const s1 = await poll(() => sql(`select sla_stage from escalation_tickets where id='${tid}'`)[0][0], (v) => v === "1" || v === "2", TICK_WAIT_MS, 15_000);
   expect(["1", "2"], `sla_stage sau ${TICK_WAIT_MS / 60000} phút`).toContain(s1);
   const tkn = await login(request, "teacher");
   const bell = await poll(async () => ((await call(request, tkn, "GET", "/notifications?limit=30")).json.items ?? []) as { type: string; title: string }[], (it) => it.some((n) => n.type === "TICKET_STALE"), 120_000, 10_000);
   expect(bell.some((n) => n.type === "TICKET_STALE"), "GV có thông báo gộp «N câu hỏi chờ quá 24 giờ làm việc»").toBe(true);
-  expect(await poll(() => mailCount("teacher@edupilot.local", /chờ|nhắc|câu hỏi/i), (n) => n > staleMails0, 120_000, 10_000), "có thư nhắc tới GV").toBeGreaterThan(staleMails0);
+  // thư nhắc gộp theo lớp, một thư mỗi lớp mỗi ngày (dedupe): đã gửi hôm nay ở lần chạy trước thì không gửi lại
+  expect(await poll(() => mailCount("teacher@edupilot.local", /chờ giảng viên quá 24 giờ làm việc/i), (n) => n >= 1, 120_000, 10_000), "có thư nhắc «quá 24 giờ làm việc» tới GV").toBeGreaterThanOrEqual(1);
   // 3) 72 giờ làm việc: ≥ 14 ngày lịch
   sql(`update escalation_tickets set waiting_since = now() - interval '20 days', created_at = now() - interval '20 days', sla_stage = case when sla_stage < 1 then 1 else sla_stage end where id='${tid}'`);
   const s2 = await poll(() => sql(`select sla_stage from escalation_tickets where id='${tid}'`)[0][0], (v) => v === "2", TICK_WAIT_MS, 15_000);
@@ -81,16 +85,20 @@ test("@real F5 nhắc 24 giờ → 72 giờ: ticket quá hạn → thông báo g
   const gv = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
   const gp = await gv.newPage();
   await uiLogin(gp, "teacher");
-  await gp.goto("/");
-  const first = gp.locator("main").getByText(/chờ|đã chờ/i).first();
-  await expect(first).toBeVisible();
-  await expect(gp.locator("main")).toContainText(/\d+\s*(giờ|ngày)/);
+  await gp.goto(`/?course=${await courseId(request, "teacher")}`);
+  const item = gp.locator("main").getByText(/Câu hỏi chờ giảng viên/).first();
+  await expect(item).toBeVisible();
+  await expect(gp.locator("main")).toContainText(/chờ quá 72 giờ làm việc · lâu nhất \d+ giờ/);
+  const top = await gp.locator("main").innerText();
+  expect(top.indexOf("Câu hỏi chờ giảng viên"), "việc ticket quá hạn nổi lên đầu «Hôm nay»").toBeLessThan(200);
   await shot(gp, "f5-today-overdue-teacher");
   // SV vẫn thấy trạng thái ticket «Đang chờ giảng viên · đã gửi …»
   await page.goto("/chat");
+  await page.getByRole("button", { name: new RegExp(`Lịch bảo vệ đồ án năm sau.*QC ${tag}`) }).first().click();
   await expect(page.getByText(/Đang chờ giảng viên/)).toBeVisible();
   await shot(page, "f5-student-status");
   await gv.close();
+  sql(`update user_settings set notify_ticket_by_mail = false where user_id = (select id from users where email='teacher@edupilot.local')`);
 });
 
 // ---------------- F13 ----------------
