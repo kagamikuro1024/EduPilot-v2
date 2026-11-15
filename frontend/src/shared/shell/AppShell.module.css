@@ -175,7 +175,11 @@
   .topbar { padding: 0 var(--ep-space-3) 0 var(--ep-space-4); gap: var(--ep-space-3); }
   .mobileBrand { display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: calc(-1 * var(--ep-space-2)); }
   .courseName { display: none; }
-  .courseBtn { min-height: 44px; }
+  .courseBtn { min-height: 44px; min-width: 0; }
+  /* mã lớp dài (≤ 20 ký tự) co lại bằng dấu … thay vì đẩy cụm tìm / chuông / hồ sơ ra ngoài khung (DEF-R1.5-02) */
+  .topbar > :has(.courseBtn) { min-width: 0; }
+  .courseCode { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .topEnd { flex: none; }
   .courseCurrent { display: block; padding: var(--ep-space-2) var(--ep-space-3) var(--ep-space-1); font-size: var(--ep-text-label); font-weight: 600; line-height: 1.4; color: var(--ep-ink); overflow-wrap: anywhere; }
   .search { width: 44px; height: 44px; }
   .iconBtn { width: 44px; height: 44px; }
