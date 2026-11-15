@@ -1,10 +1,10 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { FileText, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ApiError, newIdempotencyKey } from "@/shared/data";
-import { Button, ButtonLink, ConfirmIrreversible, Drawer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, PanelSection, Skeleton, StatusText } from "@/shared/ui";
+import { Button, ConfirmIrreversible, Drawer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, PanelSection, Skeleton, Split, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import { CitationPane } from "./CitationPane";
 import { BLOCKS, Blocks, unclearOf, type BlockId } from "./SchemeBlocks";
@@ -36,7 +36,14 @@ const at = (iso?: string) => (iso ? formatWhen(iso) : "");
 /** Công thức điểm: chỉ có thật, Giảng viên / TA của lớp (TA chỉ đọc). */
 export function GradeScheme() {
   const { role, realCourseId, realPending, realCourses } = useSession();
-  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) return null;
+  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) {
+    return (
+      <Page kind="work">
+        <PageHeader title="Công thức điểm" back={{ href: "/gradebook", label: "Sổ điểm" }} />
+        <Panel>{realPending ? <Skeleton lines={10} /> : <EmptyState title="Chọn một lớp để xem" />}</Panel>
+      </Page>
+    );
+  }
   const code = realCourses?.find((c) => c.id === realCourseId)?.class_code ?? "";
   return <RealGradeScheme courseId={realCourseId} classCode={code} teacher={role === "teacher"} />;
 }
@@ -56,36 +63,25 @@ function RealGradeScheme({ courseId, teacher }: { courseId: string; classCode: s
     <PageHeader
       title="Công thức điểm"
       back={{ href: "/gradebook", label: "Sổ điểm" }}
-      meta={draft ? <StatusText tone="amber">Bản nháp</StatusText> : confirmed ? <span data-part="confirmed-line"><StatusText tone="green">{`Đã xác nhận · ${at(confirmed.confirmed_at)}`}</StatusText></span> : undefined}
-      actions={
-        teacher && (
-          <>
-            <input ref={picker} type="file" hidden accept=".pdf,.docx,.pptx" data-part="policy-input" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload.start(f); }} />
-            <Button variant="secondary" icon={<Upload aria-hidden />} disabled={upload.state.phase === "uploading" || upload.state.phase === "reading" || upload.state.phase === "extracting"} onClick={() => picker.current?.click()}>
-              Tải quy chế
-            </Button>
-          </>
-        )
-      }
+      meta={[draft ? <StatusText key="m0" tone="amber">Bản nháp</StatusText> : confirmed ? <span key="m0" data-part="confirmed-line"><StatusText tone="green">{`Đã xác nhận · ${at(confirmed.confirmed_at)}`}</StatusText></span> : undefined]}
+      secondary={teacher ? [{ label: "Tải quy chế", icon: <Upload aria-hidden />, disabled: upload.state.phase === "uploading" || upload.state.phase === "reading" || upload.state.phase === "extracting", onClick: () => picker.current?.click() }] : undefined}
     />
   );
 
   return (
-    <Page>
+    <Page kind="work">
+      {teacher && <input ref={picker} type="file" hidden accept=".pdf,.docx,.pptx" data-part="policy-input" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload.start(f); }} />}
       <PageState
         query={{ isPending: base.isPending, isError: base.isError, error: base.error, data: base.data, refetch: base.refetch }}
-        loading={<><PageHeader title="Công thức điểm" back={{ href: "/gradebook", label: "Sổ điểm" }} /><Panel><Skeleton lines={10} /></Panel></>}
+        header={header}
+        loading={<>{header}<Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >
         {header}
         <UploadProgress up={upload} />
         {!draft && !confirmed ? (
           <Panel>
-            <EmptyState
-              title="Lớp chưa có quy chế."
-              icon={<FileText aria-hidden />}
-              action={teacher ? <Button variant="primary" icon={<Upload aria-hidden />} onClick={() => picker.current?.click()}>Tải quy chế</Button> : <ButtonLink href="/gradebook">Về sổ điểm</ButtonLink>}
-            />
+            <EmptyState title="Lớp chưa có quy chế" />
           </Panel>
         ) : draft ? (
           <Review
@@ -144,15 +140,20 @@ function ReadOnly({ courseId, doc }: { courseId: string; doc: SchemeDoc }) {
   const [sel, setSel] = useState<{ block: BlockId; cite: Citation } | null>(null);
   const w = useMemo(() => toWorking(doc), [doc]);
   return (
-    <Panel>
-      <div className={s.review}>
-        <div className={s.main}>
-          <Blocks courseId={courseId} doc={doc} working={w} editable={false} errors={{}} selected={sel?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={() => undefined} />
-        </div>
-        {wide ? <aside className={s.aside}><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={sel?.cite ?? null} /></aside> : null}
-      </div>
+    <>
+      <Split
+        ratio="main-aside"
+        main={
+          <Panel>
+            <div className={s.main}>
+              <Blocks courseId={courseId} doc={doc} working={w} editable={false} errors={{}} selected={sel?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={() => undefined} />
+            </div>
+          </Panel>
+        }
+        aside={wide ? <Panel><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={sel?.cite ?? null} /></Panel> : null}
+      />
       {!wide && sel && <CiteDrawer open onClose={() => setSel(null)} courseId={courseId} doc={doc} cite={sel.cite} />}
-    </Panel>
+    </>
   );
 }
 
@@ -231,8 +232,12 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
   const saving = ed.state === "saving" ? "Đang lưu…" : ed.state === "offline" ? "Chưa lưu" : ed.state === "error" ? "Chưa lưu" : null;
 
   return (
-    <Panel>
-      {ed.notice && <InlineNotice tone="warning" compact action={<Button size="sm" variant="ghost" onClick={ed.dismissNotice}>Đã rõ</Button>}>{ed.notice}</InlineNotice>}
+    <>
+      <Split
+        ratio="main-aside"
+        main={
+          <Panel>
+          {ed.notice && <InlineNotice tone="warning" compact action={<Button size="sm" variant="ghost" onClick={ed.dismissNotice}>Đã rõ</Button>}>{ed.notice}</InlineNotice>}
       <div className={s.bar2}>
         {saving && <span data-part="save-state"><StatusText tone="amber">{saving}</StatusText></span>}
         {confirmed && <Button size="sm" variant="ghost" aria-pressed={compare} onClick={() => onCompare(!compare)}>{compare ? "Bản nháp" : "So sánh"}</Button>}
@@ -242,7 +247,6 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
           </Button>
         )}
       </div>
-      <div className={s.review}>
         <div className={s.main}>
           {compare && diff ? (
             <DiffView diff={diff} />
@@ -251,8 +255,10 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
           )}
           {!compare && <Preview impact={imp} />}
         </div>
-        {wide ? <aside className={s.aside}><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={shown?.cite ?? null} /></aside> : null}
-      </div>
+          </Panel>
+        }
+        aside={wide ? <Panel><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={shown?.cite ?? null} /></Panel> : null}
+      />
       {!wide && sel && <CiteDrawer open onClose={() => setSel(null)} courseId={courseId} doc={doc} cite={sel.cite} />}
       {editable && (
         <ConfirmIrreversible
@@ -267,7 +273,7 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
           error={err ?? undefined}
         />
       )}
-    </Panel>
+    </>
   );
 }
 

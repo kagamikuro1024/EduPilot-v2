@@ -14,7 +14,7 @@ export function StatsPanel({ course, exam }: { course: string; exam: string }) {
   if (q.isError) return <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} />;
   const d = q.data;
   const total = d.distribution.reduce((n, b) => n + b.count, 0);
-  if (total === 0) return <EmptyState title="Chưa có điểm">Thống kê hiện khi có lượt đã chấm.</EmptyState>;
+  if (total === 0) return <EmptyState title="Chưa có điểm" />;
   return (
     <div className={s.statGrid} data-part="stats">
       <section className={s.sub} aria-label="Phân bố điểm">

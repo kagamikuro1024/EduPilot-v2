@@ -4,7 +4,7 @@
  * route khác giữ khung xương. Không còn câu phụ dưới tiêu đề (FEAT-uiux-91 US-01). QUY TẮC LCP (AC8): ứng viên LCP đầu tiên phải là khối chữ LỚN NHẤT mà màn sẽ có sau phiên — chữ nào xuất hiện sau
  * phiên mà lớn hơn sẽ thành ứng viên mới và kéo LCP về lúc có phiên. Kiểm bằng e2e `lcp before refresh`.
  */
-export type RouteIntro = { title: string; description?: string; width?: "reading" | "wide" | "full"; body?: string };
+export type RouteIntro = { title: string; width?: "work" | "read"; body?: string };
 
 export const INBOX_INTRO = {
   title: "Hộp thư hỗ trợ",
@@ -20,10 +20,10 @@ const INTROS: Record<string, RouteIntro> = {
   "/threads": { title: "Hỏi đáp công khai" },
   // h1 thật = "Kết quả của tôi" + mã lớp (RealMe); các khối sau phiên nhỏ hơn h1 nên h1 là ứng viên LCP duy nhất
   "/me": { title: "Kết quả của tôi" },
-  "/gradebook": { title: "Sổ điểm", width: "wide" },
+  "/gradebook": { title: "Sổ điểm", width: "work" },
   "/chat": {
     title: "Chat riêng",
-    width: "full",
+    width: "work",
     // lời giới thiệu của phiên chat trống (cùng chữ với ChatScreen): là khối chữ lớn nhất của màn đầu nên phải có sẵn từ máy chủ
     body: "Phiên chat này chỉ bạn đọc được. Bạn có thể hỏi về số buổi đã vắng, điểm cộng phát biểu, hạn nộp bài hoặc nội dung bài giảng. Khi AI chưa đủ chắc chắn, câu hỏi sẽ được chuyển cho giảng viên.",
   },

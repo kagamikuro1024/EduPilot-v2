@@ -7,7 +7,7 @@
 .step:last-child { border-bottom: 1px solid var(--ep-rule); }
 
 /* Mỗi khối là MỘT Panel; chủ đề bên trong ngăn bằng đường kẻ 1 px, không khung riêng (US-UX91-17 AC1). */
-.blocks { display: grid; gap: var(--ep-space-8); }
+.blocks { display: grid; } /* mục → mục do Section quyết (48 px) */
 .topics { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .topic {
   display: grid;

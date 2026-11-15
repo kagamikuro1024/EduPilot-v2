@@ -1,0 +1,29 @@
+[
+  {
+    "url": "http://localhost:580/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc5/frontend/lh/mobile/localhost--2026_11_14_22_32_55.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc5/frontend/lh/mobile/localhost--2026_11_14_22_32_55.report.json",
+    "summary": {
+      "performance": 0.97
+    }
+  },
+  {
+    "url": "http://localhost:580/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc5/frontend/lh/mobile/localhost--2026_11_14_22_33_43.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc5/frontend/lh/mobile/localhost--2026_11_14_22_33_43.report.json",
+    "summary": {
+      "performance": 0.97
+    }
+  },
+  {
+    "url": "http://localhost:580/",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc5/frontend/lh/mobile/localhost--2026_11_14_22_33_19.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc5/frontend/lh/mobile/localhost--2026_11_14_22_33_19.report.json",
+    "summary": {
+      "performance": 0.97
+    }
+  }
+]

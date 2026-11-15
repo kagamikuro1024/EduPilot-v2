@@ -1,0 +1,24 @@
+== copy-lint ==
+== /tmp/land-live.html  (608 words)  0 FAIL, 0 WARN
+== consistency ==
+1440x900  9 screens, 1 held section  8 FAIL  9 WARN
+  FAIL scroll-linked   section#ba-man > div.Landing-module__H_TZ-W__wrap.Landing-module__H_TZ-W__story  "EduPilot trong ba màn Chat riêng có nguồ"
+  FAIL scroll-reveal   section#bai-nop  "Bài nộp đi qua ba bước 1 AI chấm nháp th"
+  FAIL scroll-reveal   section#so-do  "Ba số đo trên dữ liệu mô phỏng 146 yêu c"
+  FAIL scroll-reveal   div.Landing-module__H_TZ-W__landingRoot > div.Landing-module__H_TZ-W__page > footer.Landing-module__H_TZ-W__sec.Landing-module__H_TZ-W__closing  "Lớp của bạn trên EduPilo
+  FAIL copy-headings   h2#flow-title  "Bài nộp đi qua ba bước"
+  FAIL empty-area      section#ba-man  "EduPilot trong ba màn"
+       57% of the section is empty: 96px above its first content, 944px under its last (img:nth-of-type(2)), in its 1800px of rows (WARN over 35%, FAIL over 50%)  [1440-05-empty-area.jpg]
+  FAIL section-air     section#ba-man / section#so-do
+  FAIL section-air     section#ba-man  "EduPilot trong ba mànChat riêng có nguồn"
+390x844  10 screens  3 FAIL  5 WARN
+  FAIL scroll-reveal   section#bai-nop  "Bài nộp đi qua ba bước 1 AI chấm nháp th"
+  FAIL scroll-reveal   section#so-do  "Ba số đo trên dữ liệu mô phỏng 146 yêu c"
+  FAIL scroll-reveal   div.Landing-module__H_TZ-W__landingRoot > div.Landing-module__H_TZ-W__page > footer.Landing-module__H_TZ-W__sec.Landing-module__H_TZ-W__closing  "Lớp của bạn trên EduPilo
+first screen at 1280, 1152, 1024, 896, 768  0 FAIL  0 WARN
+  PASS fold-cut               PASS marquee                FAIL scroll-linked          
+  FAIL scroll-reveal          PASS pinned                 PASS loop-pause             
+  PASS copy-fact              FAIL copy-headings          WARN copy-buttons           
+  FAIL section-air            PASS one-section            PASS one-heading            
+  PASS section-tile           FAIL empty-area             PASS a11y-name              
+total  11 FAIL  15 WARN  (crops and report.json in /Users/kuro/Documents/TA_Agent_qc106/docs/sprints/10.7/qc/landing/consistency)

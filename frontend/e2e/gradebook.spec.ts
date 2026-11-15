@@ -20,11 +20,11 @@ async function open(page: Page, context: Parameters<typeof asDemo>[0], opts: Par
 const block = (page: Page, id: string) => page.locator(`[data-block=${id}]`);
 const confirmBtn = (page: Page) => page.getByRole("button", { name: "Xác nhận công thức" });
 
-test("scheme review layout: một Panel, sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả", async ({ page, context }, info) => {
+test("scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả", async ({ page, context }, info) => {
   desktopOnly(info);
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page, context);
-  await expect(page.locator("main [data-ep-panel]")).toHaveCount(1);
+  await expect(page.locator("main [data-ep-panel]")).toHaveCount(2);
   await expect(page.locator("[data-block] h3")).toHaveText(["Thành phần", "Điểm cộng", "Điểm trừ", "Làm tròn", "Thang chữ", "Liệt"]);
   const pane = page.locator("[data-part=citation-pane]");
   await expect(pane).toBeVisible();
@@ -185,7 +185,7 @@ test("scheme rbac: TA đọc được nhưng không có nút xác nhận, tải 
 test("scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại", async ({ page, context }, info) => {
   desktopOnly(info);
   await open(page, context, { draft: null, confirmed: null });
-  await expect(page.getByText("Lớp chưa có quy chế.")).toBeVisible();
+  await expect(page.getByText("Lớp chưa có quy chế")).toBeVisible();
   await expect(page.getByRole("button", { name: "Tải quy chế" }).first()).toBeVisible();
 
   let n = 0;
@@ -412,7 +412,7 @@ test("type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn 
 test("gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại", async ({ page, context }, info) => {
   desktopOnly(info);
   await sheet(page, context, { scheme: false });
-  await expect(page.getByText("Chưa có công thức điểm.")).toBeVisible();
+  await expect(page.getByText("Chưa có công thức điểm", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Thiết lập công thức" })).toBeVisible();
   await expect(page.getByText("Công thức điểm chưa xác nhận")).toBeVisible();
   await expect(page.locator("input[data-cell]")).toHaveCount(0);
@@ -420,7 +420,7 @@ test("gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại"
   const p2 = await context.newPage();
   await gradebookApi(p2, { students: 0 });
   await p2.goto("/gradebook");
-  await expect(p2.getByText("Lớp chưa có sinh viên.")).toBeVisible();
+  await expect(p2.getByText("Lớp chưa có sinh viên")).toBeVisible();
 
   const p3 = await context.newPage();
   let n = 0;

@@ -115,7 +115,7 @@ export function ProfileNotes({ courseId, studentId, userId, focusSignal }: { cou
   const drafting = ai.value !== "";
 
   return (
-    <Section panel title="Ghi chú" action={<PrivateMark />}>
+    <Section title="Ghi chú" action={<PrivateMark />}>
       <div className={s.compose}>
         <Textarea ref={area} rows={3} value={note.value} aria-label="Ghi chú mới" placeholder="Điều bạn quan sát được và việc đã làm" onChange={(e) => note.setValue(e.target.value)} />
         {err instanceof ApiError && <ApiErrorNotice error={err} onRetry={() => void saveNote()} title="Chưa lưu được ghi chú. Chữ của bạn vẫn còn trong ô." />}
@@ -147,7 +147,7 @@ export function ProfileNotes({ courseId, studentId, userId, focusSignal }: { cou
       {list.isError && list.items.length === 0 ? (
         <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} title="Không tải được ghi chú." />
       ) : list.items.length === 0 && !list.isPending ? (
-        <EmptyState title="Chưa có ghi chú nào." />
+        <EmptyState title="Chưa có ghi chú nào" />
       ) : (
         <ul className={s.notes}>
           {list.items.map((n) => (

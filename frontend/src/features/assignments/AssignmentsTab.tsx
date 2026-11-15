@@ -1,7 +1,6 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -73,10 +72,7 @@ export function AssignmentsTab({ courseId, teacher, creating, onCreatingChange }
         loading={<Panel><Skeleton lines={8} /></Panel>}
         empty={
           <Panel>
-            <EmptyState
-              title="Lớp chưa có bài tập."
-              action={teacher ? <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => onCreatingChange(true)}>Tạo bài tập</Button> : undefined}
-            />
+            <EmptyState title="Lớp chưa có bài tập" />
           </Panel>
         }
         showTechnical

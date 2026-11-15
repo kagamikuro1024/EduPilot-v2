@@ -13,6 +13,7 @@
 .clip { display: block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .open { display: inline-flex; align-items: center; gap: var(--ep-space-1); min-height: 44px; padding-inline: var(--ep-space-2); color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 600; text-decoration: none; }
 .open svg { width: 14px; height: 14px; }
+@media (min-width: 720px) { .open { min-height: 36px; } } /* hàng bảng 48 | 44 (D3): hàng đã bấm được cả dòng */
 @media (hover: hover) and (pointer: fine) { .open:hover { color: var(--ep-ink); } }
 .open:focus-visible, .mOpen:focus-visible { outline: none; box-shadow: var(--ep-focus); border-radius: var(--ep-radius-xs); }
 .mItem { display: grid; gap: var(--ep-space-1); font-weight: 400; }

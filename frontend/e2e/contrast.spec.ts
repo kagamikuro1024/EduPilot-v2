@@ -24,6 +24,17 @@ test("ma trận chữ × nền ≥ 4,5 : 1; amber ≥ 3 : 1 trên panel", async 
   expect(m.amber, "amber ≥ 3 : 1 trên panel").toBeGreaterThanOrEqual(3);
 });
 
+// P-107-8: vàng ĐHBK chỉ làm nền / chấm / vạch — chữ `--ep-ink` trên vàng đạt AAA; vàng đứng một mình trên trắng KHÔNG đạt (nên cấm chữ vàng, ui-antipatterns 31).
+test("vàng: chữ ink trên vàng / vàng nhạt ≥ 4,5 : 1; chấm vàng có viền amber ≥ 3 : 1 trên trắng", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "đo token một lần");
+  await page.goto("/dev/ui");
+  const m = (await page.evaluate(`(() => { const t = ${COLOR_TOOLS}; const out = { onYellow: t.ratio(t.token("--ep-ink"), t.token("--ep-yellow")), onSoft: t.ratio(t.token("--ep-ink"), t.token("--ep-yellow-soft")), amberRim: t.ratio(t.token("--ep-amber"), t.token("--ep-surface")), yellowAlone: t.ratio(t.token("--ep-yellow"), t.token("--ep-surface")) }; t.done(); return out; })()`)) as { onYellow: number; onSoft: number; amberRim: number; yellowAlone: number };
+  expect(m.onYellow).toBeGreaterThanOrEqual(4.5);
+  expect(m.onSoft).toBeGreaterThanOrEqual(4.5);
+  expect(m.amberRim).toBeGreaterThanOrEqual(3);
+  expect(m.yellowAlone, "vàng một mình không đạt 3 : 1: chỉ được dùng kèm viền amber hoặc làm nền cho chữ ink").toBeLessThan(3);
+});
+
 // US-UI-03 AC2 — chữ trong sidebar / thanh trên (nền --ep-surface): nhãn nhóm (--ep-ink-3), mục nav (--ep-ink-2), mục đang chọn (--ep-ink) trên nền surface-subtle.
 test("sidebar: chữ nav và nhãn nhóm ≥ 4,5 : 1 trên nền của chính chúng", async ({ page, context }, info) => {
   test.skip(info.project.name !== "desktop", "đo một lần");

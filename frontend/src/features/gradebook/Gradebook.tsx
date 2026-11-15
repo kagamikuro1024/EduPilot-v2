@@ -4,7 +4,7 @@ import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/shared/data";
 import { GradeCalculation } from "@/shared/domain";
-import { Button, ButtonLink, type Column as TableColumn, DataTable, Drawer, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText } from "@/shared/ui";
+import { Button, ButtonLink, type Column as TableColumn, DataTable, Drawer, EmptyState, InlineNotice, OverflowMenu, type HeaderAction, Page, PageHeader, PageState, Panel, Skeleton, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import {
   exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus, useSnapshots,
@@ -64,7 +64,14 @@ const ago = (iso?: string) => {
 /** Sổ điểm: chỉ có thật, Giảng viên / TA của lớp (TA chỉ đọc). */
 export function Gradebook() {
   const { role, realCourseId, realPending } = useSession();
-  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) return null;
+  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) {
+    return (
+      <Page kind="work">
+        <PageHeader title="Sổ điểm" />
+        <Panel>{realPending ? <Skeleton lines={10} /> : <EmptyState title="Chọn một lớp để xem" />}</Panel>
+      </Page>
+    );
+  }
   return <RealGradebook courseId={realCourseId} teacher={role === "teacher"} />;
 }
 
@@ -320,46 +327,53 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
   );
   const warnLabel = first?.warnings?.map((w) => (w === "PENALTY_NOT_IN_SCHEME" ? "Có điểm trừ ghi tay không được tính theo công thức" : "Có điểm cộng ghi tay không được tính theo công thức")) ?? [];
 
-  const actions = (
-    <>
-      <ButtonLink href="/gradebook/scheme" variant="secondary">Xem công thức</ButtonLink>
-      {hasScheme && (teacher || (first?.state.snapshot_version ?? 0) > 0) && (
-        <OverflowMenu
-          label="Thêm hành động"
-          items={[
-            ...(teacher && !locked ? [{ label: "Nhập từ XLSX", onSelect: () => setImporting(true) }, { label: "Nhập từ Forms", onSelect: () => setFormsImporting(true) }] : []),
-            ...(teacher ? [{ label: "Xuất XLSX", onSelect: () => void download() }] : []),
-            ...((first?.state.snapshot_version ?? 0) > 0 ? [{ label: "Lịch sử chốt", onSelect: () => setHistory(true) }] : []),
-            ...(teacher && locked ? [{ label: "Mở khoá", onSelect: () => setUnlocking(true) }] : []),
-          ]}
-        />
-      )}
-      {teacher && status?.state === "CONFIRMED" && !locked && (
-        <Button variant="primary" onClick={() => setFinalizing(true)}>Chốt điểm</Button>
-      )}
-      {teacher && status && status.state !== "CONFIRMED" && (
-        <Button variant="primary" disabled disabledReason={status.finalize_blocked_reason ?? "Chưa có công thức điểm đã xác nhận"}>Chốt điểm</Button>
-      )}
-    </>
-  );
+  const moreItems: HeaderAction[] =
+    hasScheme && (teacher || (first?.state.snapshot_version ?? 0) > 0)
+      ? [
+          ...(teacher && !locked ? [{ label: "Nhập từ XLSX", onClick: () => setImporting(true) }, { label: "Nhập từ Forms", onClick: () => setFormsImporting(true) }] : []),
+          ...(teacher ? [{ label: "Xuất XLSX", onClick: () => void download() }] : []),
+          ...((first?.state.snapshot_version ?? 0) > 0 ? [{ label: "Lịch sử chốt", onClick: () => setHistory(true) }] : []),
+          ...(teacher && locked ? [{ label: "Mở khoá", onClick: () => setUnlocking(true) }] : []),
+        ]
+      : [];
+  const chotDiem: HeaderAction | undefined =
+    teacher && status?.state === "CONFIRMED" && !locked
+      ? { label: "Chốt điểm", onClick: () => setFinalizing(true) }
+      : teacher && status && status.state !== "CONFIRMED"
+        ? { label: "Chốt điểm", disabled: true, reason: status.finalize_blocked_reason ?? "Chưa có công thức điểm đã xác nhận" }
+        : undefined;
 
+  // MỘT PageHeader cho tải / lỗi / có dữ liệu (TL 14.6): nút cần dữ liệu hiện nhưng khoá, liên kết bấm được
+  const noData = (
+    <PageHeader
+      title="Sổ điểm"
+      primary={teacher ? { label: "Chốt điểm", disabled: true } : undefined}
+      secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
+      more={teacher ? [{ label: "Xuất XLSX", disabled: true }] : []}
+    />
+  );
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageState
         query={{ isPending: q.isPending, isError: q.isError, error: q.error, data: q.data, refetch: q.refetch }}
-        loading={<><PageHeader title="Sổ điểm" /><Panel><Skeleton lines={10} /></Panel></>}
+        header={noData}
+        loading={<>{noData}<Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >
-        <PageHeader title="Sổ điểm" actions={actions} meta={
-          <>
-            {locked && <StatusText tone="green">{`Đã chốt v${first?.state.snapshot_version}${snaps?.[0] ? ` · ${stamp(snaps[0].locked_at)}` : ""}`}</StatusText>}
-            {missing.length > 0 && (
-              <button type="button" className={s.missLink} aria-pressed={onlyMissing} data-part="missing-filter" onClick={() => setOnlyMissing((v) => !v)}>
+        <PageHeader
+          title="Sổ điểm"
+          primary={chotDiem}
+          secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
+          more={moreItems}
+          meta={[
+            locked && <StatusText key="m0" tone="green">{`Đã chốt v${first?.state.snapshot_version}${snaps?.[0] ? ` · ${stamp(snaps[0].locked_at)}` : ""}`}</StatusText>,
+            missing.length > 0 && (
+              <button key="m1" type="button" className={s.missLink} aria-pressed={onlyMissing} data-part="missing-filter" onClick={() => setOnlyMissing((v) => !v)}>
                 {`Thiếu điểm: ${missing.length} sinh viên`}
               </button>
-            )}
-          </>
-        } />
+            ),
+          ]}
+        />
         <Panel>
           {banner}
           {incomplete && (
@@ -385,9 +399,9 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
             </InlineNotice>
           ))}
           {!hasScheme ? (
-            <EmptyState title="Chưa có công thức điểm." action={teacher ? <ButtonLink href="/gradebook/scheme" variant="primary">Thiết lập công thức</ButtonLink> : undefined} />
+            <EmptyState title="Chưa có công thức điểm" action={teacher ? <ButtonLink href="/gradebook/scheme">Thiết lập công thức</ButtonLink> : undefined} />
           ) : rows.length === 0 ? (
-            <EmptyState title="Lớp chưa có sinh viên." />
+            <EmptyState title="Lớp chưa có sinh viên" />
           ) : (
             <DataTable
               columns={tableCols}

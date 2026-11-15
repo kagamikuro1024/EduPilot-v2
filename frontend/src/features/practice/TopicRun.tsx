@@ -61,13 +61,13 @@ export function TopicRun({ courseId, initial, tab, onDone }: { courseId: string;
   }
 
   return (
-    <Page>
+    <Page kind="read">
       <PageHeader
         title={initial.topic ?? "Luyện tập"}
         back={{ href: "/practice", label: "Thoát về Luyện đề" }}
-        meta={<><span>Câu {index + 1}/{items.length}</span><span>Đúng {rightCount}</span></>}
+        meta={[<span key="m0">Câu {index + 1}/{items.length}</span>, <span key="m1">Đúng {rightCount}</span>]}
       />
-      <Section panel>
+      <Section>
         <div className={s.runBody}>
         <div className={s.progress} aria-hidden><span className={s.progressFill} style={{ "--p": index / items.length } as React.CSSProperties} /></div>
         <div className={s.question}><Markdown source={item.question.stem} /></div>

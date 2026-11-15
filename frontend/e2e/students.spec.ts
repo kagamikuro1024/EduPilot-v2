@@ -86,7 +86,7 @@ test("students states: lỗi có Thử lại; rỗng khi lọc có Bỏ lọc; l
   await retry.click();
   await expect(page.getByRole("row", { name: /Sinh Viên 001/ })).toBeVisible();
   await page.getByRole("button", { name: "Vắng nhiều" }).click();
-  await expect(page.getByText("Không có sinh viên nào khớp.")).toBeVisible();
+  await expect(page.getByText("Không có sinh viên nào khớp")).toBeVisible();
   await page.getByRole("button", { name: "Bỏ lọc" }).click();
   await expect(page.getByRole("row", { name: /Sinh Viên 001/ })).toBeVisible();
   await expect(page).not.toHaveURL(/filter=/);
@@ -120,7 +120,7 @@ test("students no real class: không còn màn mô phỏng (AC10), chưa có l�
   await page.route(`**/api/v1/courses/**/students**`, (r) => { calls.push(r.request().url()); return r.fulfill(json(pageOf([]))); });
   await page.goto("/students");
   await expect(page.getByRole("heading", { name: "Sinh viên" })).toBeVisible();
-  await expect(page.getByText("Chưa có lớp nào.")).toBeVisible();
+  await expect(page.getByText("Chưa có lớp nào")).toBeVisible();
   expect(calls).toEqual([]);
 });
 
@@ -182,7 +182,7 @@ test("profile tabs and header: tên, MSSV, lớp, câu nhận định, hai hành
   await page.getByRole("tab", { name: "Chuyên cần" }).click();
   await expect(page.getByRole("row", { name: /Buổi 3.*Vắng.*Ốm/ })).toBeVisible();
   await page.getByRole("tab", { name: "Điểm" }).click();
-  await expect(page.getByText("Lớp chưa có công thức điểm đã xác nhận.")).toBeVisible();
+  await expect(page.getByText("Lớp chưa có công thức điểm đã xác nhận")).toBeVisible();
   await expect(page.getByRole("link", { name: "Xác nhận công thức" })).toBeVisible();
   await page.getByRole("tab", { name: "Hoạt động học" }).click();
   await expect(page.getByText("1 bài đăng").or(page.getByText("Bài đăng tuần trước"))).toBeVisible();

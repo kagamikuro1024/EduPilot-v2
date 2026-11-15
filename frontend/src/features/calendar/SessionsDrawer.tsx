@@ -162,7 +162,7 @@ function SessionList({ courseId }: { courseId: string }) {
       {pending && <UndoLine message={`Đã xoá buổi ${pending.session_no}`} onUndo={() => { cancelled.current = true; setPending(null); }} onDone={commitDelete} />}
       {m.remove.isError && <ApiErrorNotice error={m.remove.error} />}
       {items.length === 0 ? (
-        <EmptyState title="Lớp chưa có buổi học." />
+        <EmptyState title="Lớp chưa có buổi học" />
       ) : (
         <ActionList label="Buổi đã có">
           {items.map((x) =>

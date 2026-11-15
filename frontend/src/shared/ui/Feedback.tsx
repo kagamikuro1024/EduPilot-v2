@@ -47,13 +47,14 @@ export function StatusText({ tone = "neutral", children, chip }: { tone?: Status
   );
 }
 
-/** Trạng thái rỗng dạy việc kế tiếp (DESIGN.md §15). */
-export function EmptyState({ title, children, action, icon }: { title: ReactNode; children?: ReactNode; action?: ReactNode; icon?: ReactNode }) {
+/**
+ * Trạng thái rỗng (DESIGN.md §23.4): MỘT tiêu đề ngắn nói đang rỗng cái gì + tối đa một nút (chỉ khi màn chưa có nút nào làm việc đó, và là `secondary`).
+ * Căn giữa trong vật chứa. Không thân chữ, không icon, không minh hoạ.
+ */
+export function EmptyState({ title, action }: { title: string; action?: ReactNode }) {
   return (
-    <div className={s.empty}>
-      {icon && <div className={s.emptyIcon}>{icon}</div>}
+    <div className={s.empty} data-ep-empty>
       <p className="ep-item-title">{title}</p>
-      {children && <p className={s.emptyText}>{children}</p>}
       {action && <div className={s.emptyAction}>{action}</div>}
     </div>
   );

@@ -30,12 +30,12 @@ test("attendance session picker: mặc định buổi đang diễn ra, gần nh�
   await expect(page.locator("[data-part=att-session-select]")).toHaveValue(sessionRow(1).id);
 });
 
-test("attendance empty no sessions: 'Lớp chưa có lịch buổi học.' và nút về /calendar", async ({ page, context }, info) => {
+test("attendance empty no sessions: 'Lớp chưa có lịch buổi học' và nút về /calendar", async ({ page, context }, info) => {
   desktopOnly(info);
   await asDemo(context, "teacher");
   await attApi(page, { sessions: [] });
   await page.goto("/attendance");
-  await expect(page.getByText("Lớp chưa có lịch buổi học.")).toBeVisible();
+  await expect(page.getByText("Lớp chưa có lịch buổi học")).toBeVisible();
   await expect(page.getByRole("link", { name: "Tạo lịch buổi học" })).toHaveAttribute("href", "/calendar");
 });
 

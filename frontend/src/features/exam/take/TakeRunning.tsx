@@ -6,7 +6,8 @@ import { ApiError } from "@/shared/data";
 import { ExamTimer, Markdown } from "@/shared/domain";
 import type { ExamClock } from "@/shared/lib/examClock";
 import type { Answer } from "@/shared/lib/saveQueue";
-import { Button, ConfirmIrreversible, Drawer, InlineNotice, Panel, StatusText } from "@/shared/ui";
+import { useMinWidth } from "@/shared/lib/useMinWidth";
+import { Button, ConfirmIrreversible, Drawer, InlineNotice, Page, PageHeader, Panel, Split, StatusText } from "@/shared/ui";
 import { CodeQuestion } from "./CodeQuestion";
 import { IntegrityNotice } from "./IntegrityNotice";
 import { useAnswers } from "./useAnswers";
@@ -175,6 +176,7 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
   }
 
   const unanswered = items.length - answeredCount;
+  const wide = useMinWidth(1100);
   const offline = qs.status === "offline";
   const status = offline
     ? "Mất mạng — bài vẫn được giữ trên máy bạn"
@@ -185,7 +187,9 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
         : "Mọi thay đổi sẽ tự lưu";
 
   return (
-    <div className={[s.take, item.type === "CODE" ? s.takeWide : ""].join(" ")} data-part="take">
+    <Page kind="work">
+    <PageHeader title={exam.title} back={{ href: "/exams", label: "Bài thi" }} />
+    <div className={s.take} data-part="take">
       <header className={s.bar}>
         <span className={s.barQ}>Câu {index + 1}/{items.length}</span>
         <ExamTimer deadlineMs={deadlineMs} clock={clock} onWarn={setWarn} onExpire={() => { setExpired(true); if (!hasCode) onExpired(); }} />
@@ -203,12 +207,9 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
         </InlineNotice>
       )}
 
-      <div className={s.layout}>
-        <aside className={s.side} aria-label="Danh sách câu">
-          <Panel>
-            <Navigator items={items} answers={answers} code={codeAnswered} index={index} onGo={go} />
-          </Panel>
-        </aside>
+      <Split
+        ratio="main-aside"
+        main={
         <section className={s.question} aria-label="Câu hỏi" data-part="question">
           {item.type === "CODE" ? (
             <CodeQuestion
@@ -232,7 +233,15 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
             </Panel>
           )}
         </section>
-      </div>
+        }
+        aside={wide ? (
+          <aside aria-label="Danh sách câu">
+            <Panel>
+              <Navigator items={items} answers={answers} code={codeAnswered} index={index} onGo={go} />
+            </Panel>
+          </aside>
+        ) : null}
+      />
 
       <IntegrityNotice compact />
 
@@ -258,6 +267,7 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
         onConfirm={() => void submit()}
       />
     </div>
+    </Page>
   );
 }
 

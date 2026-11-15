@@ -398,8 +398,10 @@ test("regression-1.5: LEFT page-title 240 / 12, brand 56, logo 32, mark 28", asy
   const { LEFT_SRC } = await loadAudit();
   await asDemo(context, "teacher");
   await size(page, 1440);
-  await page.goto("/analytics");
+  await page.goto("/observability"); // kiểu work: cột bắt đầu ở 240
   expect(await page.evaluate(LEFT_SRC)).toBe(240);
+  await page.goto("/analytics"); // kiểu read (P-107-1): cột 800 px căn giữa vùng nội dung → 428
+  expect(await page.evaluate(LEFT_SRC)).toBe(428);
   expect((await box(page, "[data-part=sidebar] [data-part=brand]")).h).toBe(56);
   expect((await box(page, "[data-part=sidebar] [data-part=brand] img")).h).toBe(32);
   await size(page, 390, 844);
@@ -495,7 +497,7 @@ test("frame layers: body = canvas; sidebar và thanh trên = surface (đặc) + 
   expect(await rgbOf(page, css.side.bg)).toBe(surface);
   expect(await rgbOf(page, css.top.bg)).toBe(surface);
   expect(css.main.bg, "main không tự đặt nền riêng").toBe("rgba(0, 0, 0, 0)");
-  expect(surface).not.toBe(canvas);
+  expect(surface, "P-107-10: nền trang trắng = surface; panel tách bằng viền + bóng").toBe(canvas);
   expect([css.side.br, css.top.bb]).toEqual(["1px", "1px"]);
   expect(await rgbOf(page, css.side.brc)).toBe(rule);
   expect(await rgbOf(page, css.top.bbc)).toBe(rule);

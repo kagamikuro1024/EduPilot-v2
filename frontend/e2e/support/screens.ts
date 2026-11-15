@@ -52,7 +52,7 @@ export const SCREENS: Screen[] = [
   { name: "exams-student", path: "/exams", waitFor: "main h2", setup: async (page, context) => { await student(page, context); await mockStudentExams(page); } },
   { name: "take-pre", path: `/exams/${TAKE_EXAM}/take?course=${TAKE_COURSE}`, waitFor: "main button", setup: async (page) => { await mockTake(page, "intro", { now: FROZEN.getTime(), expIn: LONG_EXP }); } },
   { name: "take-run", path: `/exams/${TAKE_EXAM}/take?course=${TAKE_COURSE}`, waitFor: "main [role=radio], main input[type=radio]", setup: async (page) => { await mockTake(page, "running", { now: FROZEN.getTime(), expIn: LONG_EXP }); } },
-  { name: "home-teacher", path: "/", waitFor: "main h2", setup: async (page, context) => { await asDemo(context, "teacher", { expIn: LONG_EXP }); await mockStaffToday(page); } },
+  { name: "home-teacher", path: "/", waitFor: "main [data-ep-panel]", setup: async (page, context) => { await asDemo(context, "teacher", { expIn: LONG_EXP }); await mockStaffToday(page); } },
   { name: "members", path: "/class/members", waitFor: "main table", setup: async (page, context) => { await asDemo(context, "teacher", { expIn: LONG_EXP }); await mockStaffApi(page); } },
   { name: "questions", path: "/questions", waitFor: "main table", setup: async (page, context) => { await asDemo(context, "teacher", { expIn: LONG_EXP }); await mockStaffApi(page); } },
   { name: "exam-editor", path: `/exams/${STAFF_DRAFT}`, waitFor: "main form", setup: async (page, context) => { await asDemo(context, "teacher", { expIn: LONG_EXP }); await mockStaffApi(page); } },

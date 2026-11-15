@@ -52,27 +52,37 @@ export function RealAttendance({ courseId, userId, classCode }: { courseId: stri
     </label>
   );
 
-  if (list.isPending) return <Page width="wide"><PageHeader title="Điểm danh" /><Panel><Skeleton lines={10} /></Panel></Page>;
-  if (list.isError) return <Page width="wide"><PageHeader title="Điểm danh" /><PageState query={{ isPending: false, isError: true, error: list.error, data: null, refetch: list.refetch }}>{null}</PageState></Page>;
+  // MỘT PageHeader cho mọi trạng thái (TL 14.6): nút cần dữ liệu hiện nhưng khoá; thanh dính đáy khoá nằm CUỐI trang để không chen giữa đầu trang và thân
+  const noData = <PageHeader title="Điểm danh" primary={{ label: "Lưu điểm danh", disabled: true, docked: true }} />;
+  const noDock = (
+    <div className={s.saveBar} data-part="att-save-bar" data-ep-header-dock>
+      <Button variant="primary" disabled>Lưu điểm danh</Button>
+    </div>
+  );
+  if (list.isPending) return <Page kind="work">{noData}<Panel><Skeleton lines={10} /></Panel>{noDock}</Page>;
+  if (list.isError) return <Page kind="work">{noData}<PageState query={{ isPending: false, isError: true, error: list.error, data: null, refetch: list.refetch }}>{null}</PageState>{noDock}</Page>;
   if (!current) {
     return (
-      <Page width="wide">
-        <PageHeader title="Điểm danh" />
+      <Page kind="work">
+        {noData}
         <Panel>
-          <EmptyState title="Lớp chưa có lịch buổi học." action={<ButtonLink href="/calendar" variant="primary">Tạo lịch buổi học</ButtonLink>} />
+          <EmptyState title="Lớp chưa có lịch buổi học" action={<ButtonLink href="/calendar">Tạo lịch buổi học</ButtonLink>} />
         </Panel>
+        {noDock}
       </Page>
     );
   }
   return (
-    <Page width="wide">
+    <Page kind="work">
       <PageState
         query={{ isPending: grid.isPending, isError: grid.isError, error: grid.error, data: grid.data, refetch: grid.refetch }}
-        loading={<><PageHeader title="Điểm danh" /><Panel><Skeleton lines={10} /></Panel></>}
+        header={noData}
+        loading={<>{noData}<Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >
         {grid.data && <Sheet key={current.id} courseId={courseId} userId={userId} classCode={classCode} grid={grid.data} picker={picker} />}
       </PageState>
+      {!grid.data && noDock}
     </Page>
   );
 }
@@ -133,19 +143,14 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
   const present = rows.filter((r) => r.status === "PRESENT" || r.status === "LATE").length;
   const absent = rows.length - present;
   const barState = q.status === "offline" ? "Chờ mạng" : saved ? "Đã lưu" : "Lưu điểm danh";
+  const locked = saved || a.conflicts.length > 0 || q.status === "offline";
 
   return (
     <div className={s.sheet}>
       <PageHeader
         title="Điểm danh"
-        description={`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`}
-        actions={
-          <span className={s.desktopOnly}>
-            <Button variant={saved ? "secondary" : "primary"} disabled={saved || a.conflicts.length > 0} onClick={() => void complete()}>
-              {saved ? "Đã lưu" : "Lưu điểm danh"}
-            </Button>
-          </span>
-        }
+        meta={[`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`]}
+        primary={{ label: saved ? "Đã lưu" : "Lưu điểm danh", disabled: locked, onClick: () => void complete(), docked: true }}
       />
       <Panel>
         <Toolbar end={<span data-part="att-save-state">{state}</span>}>{picker}</Toolbar>
@@ -174,8 +179,8 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
         <AttendanceGrid rows={rows} caption={`Điểm danh buổi ${st.session_no} lớp ${classCode}`} speakBonus={speakBonus} stickyHeight="calc(100dvh - 18rem)" onSet={setMark} onSpeak={speak} onResolve={a.resolve} />
         {undo.node}
       </Panel>
-      <div className={s.saveBar} data-part="att-save-bar">
-        <Button variant="primary" disabled={saved || a.conflicts.length > 0 || q.status === "offline"} onClick={() => void complete()}>
+      <div className={s.saveBar} data-part="att-save-bar" data-ep-header-dock>
+        <Button variant="primary" disabled={locked} onClick={() => void complete()}>
           {barState} · {present} có mặt · {absent} vắng
         </Button>
       </div>
