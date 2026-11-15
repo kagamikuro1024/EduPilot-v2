@@ -790,7 +790,7 @@ Primary job: every student in a 200-seat hall can scan the QR or read the short 
 
 Role: TA, TEACHER. STUDENT / ADMIN get the standard blocked screen and the page makes zero `/api/v1` calls.
 
-Frame: OUTSIDE the app shell: no sidebar, top bar, bottom nav, `Page` or `PageHeader`. Route group `app/(present)/` with the same `AuthGate`. It is the only route outside the two kinds of §23.1 (P-108-8). There is a visually hidden `h1` `Màn chiếu điểm danh`. The open window is found from `GET …/sessions/{sid}/checkin-windows`.
+Frame: OUTSIDE the app shell: no sidebar, top bar, bottom nav, `Page` or `PageHeader`. Route group `app/(present)/` with the same `AuthGate`. It is the one presentation route allowed by §23.1 (P-108-8). There is a visually hidden `h1` `Màn chiếu điểm danh`. The open window is found from `GET …/sessions/{sid}/checkin-windows`.
 
 Layout. Target landscape ≥ 1280×720. Portrait stacks the same blocks in the same order.
 
@@ -814,7 +814,7 @@ Layout. Target landscape ≥ 1280×720. Portrait stacks the same blocks in the s
 - Colour: no red on this screen. `Mất kết nối` uses the warning style.
 - Motion: QR and code swap instantly, with no transition.
 
-Type: three scoped tokens, used ONLY by this route's CSS module. This is a scoped exception like §11.1; `ui-antipatterns.sh` allows the tokens only under `features/attendance/display/`.
+Type: three scoped tokens, used ONLY by this route's CSS module. This is a scoped exception like §11.1; `ui-antipatterns.sh` check 32 fails on these tokens anywhere outside `features/attendance/display/` (and `shared/styles/`, where they are defined).
 
 | Token | Value | ≈ px at 1280×720 | Use |
 |---|---|---:|---|
@@ -1389,6 +1389,10 @@ Every signed-in route is built from the same frame. A route chooses a **kind** a
 - Below 1100 px both kinds are the same: full width minus side padding.
 - Decision rule, in order: (1) a `DataTable`, a grid (calendar, attendance, gradebook) or a `Split` → `work`; (2) otherwise → `read`. A route never mixes kinds between its states (data, empty, loading, error). `/` is a different screen per role, so its kind is set per role.
 - `--ep-page-work` and `--ep-page-read` are read only by `shared/ui/Layout.module.css`. `Page` accepts no `className` and no width prop.
+- Presentation route outside the frame (P-108-8): only `/attendance/display` (§14.8.1).
+  - It renders outside `AppShell`, with no `Page` or `PageHeader`, and is not measured by `frame.spec.ts`.
+  - It may size by the viewport (`vw`, `dvh`) and use the `--ep-text-projector-*` tokens. For that reason `ui-antipatterns.sh` checks 24–25 skip `features/attendance/display/`, and check 32 keeps the tokens inside it.
+  - No other route may use this exception. A new one needs a proposal.
 
 ## 23.2 PageHeader: one pattern
 
@@ -1454,5 +1458,5 @@ Fixed values; a route does not override them.
 ## 23.7 Enforcement
 
 1. Types: the removed props make every old call site a compile error.
-2. `scripts/ui-antipatterns.sh` checks 24–31 (frame width, viewport height, reaching into primitives, meta repeating the course, hand-made titles, empty-state duplicates, long titles, yellow as text).
+2. `scripts/ui-antipatterns.sh` checks 24–32 (frame width, viewport height, reaching into primitives, meta repeating the course, hand-made titles, empty-state duplicates, long titles, yellow as text, projector tokens outside the projector route). Checks 24–25 skip `features/attendance/display/` (§23.1).
 3. `frontend/e2e/frame.spec.ts` measures the rules above in the DOM on every route × role × 1440 / 375 × data / empty / loading / error. A route is done when it has zero deviations.

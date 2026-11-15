@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Kiểm phản mẫu giao diện: docs/design/DESIGN.md §21, docs/design/INTEGRATION.md mục 5, docs/specs/FEAT-ui-foundation/SRS.md 4.1 + 4.3, docs/specs/FEAT-ui-panels/SRS.md 4.3.
-# 31 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề; 24–31 = hợp đồng khung trang DESIGN.md §23, sprint 10.7); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
+# 32 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề; 24–31 = hợp đồng khung trang DESIGN.md §23, sprint 10.7; 32 = token màn chiếu chỉ ở /attendance/display, P-108-8); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
 # Danh sách trắng: thêm chú thích `ui-allow: <lý do>` trên CÙNG dòng (trần 10 chỗ — QC đếm).
-# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 31 phép bắt được`.
+# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 32 phép bắt được`.
 # Chạy ở gốc repo. UI_SRC đổi thư mục nguồn (dùng cho --selftest).
 set -uo pipefail
 export LC_ALL=C
@@ -45,6 +45,7 @@ if [ "${1:-}" = "--selftest" ]; then
     "Nút rỗng trùng nút đầu trang|features/_selftest/dup.tsx|export const D2 = () => (<><PageHeader title=\"x\" primary={{ label: \"Tạo câu hỏi\" }} /><EmptyState title=\"x\" action={<Button>Tạo câu hỏi</Button>} /></>);"
     "Tiêu đề rỗng là câu|features/_selftest/et.tsx|export const E = () => <EmptyState title=\"Chưa có gì. Khi có dữ liệu nó sẽ hiện ở đây.\" />;"
     "Vàng làm chữ|features/_selftest/y.module.css|.d { color: var(--ep-yellow); }"
+    "Token màn chiếu ngoài /attendance/display|features/_selftest/proj.module.css|.p { font-size: var(--ep-text-projector-code); }"
   )
   miss=0; names=""
   for s in "${seeds[@]}"; do
@@ -166,9 +167,11 @@ report() { # tên, nội dung vi phạm (đã lọc nợ và ui-allow)
   if [ -n "$out" ]; then echo "✗ $1"; echo "$out" | head -20; echo; FAIL=1; else echo "✓ $1"; fi
 }
 # 24: khung tự đặt độ rộng (≥ 600 px / ≥ 30 rem / vw) hoặc tự căn giữa trong CSS route. Ô nhập, cột chữ (< 600 px, ch) không bị bắt.
-report "Khung tự đặt độ rộng" "$(route_css | xargs grep -nE '(max-|min-)?width[[:space:]]*:[^;]*(([6-9][0-9]{2}|[0-9]{4,})px|[3-9][0-9](\.[0-9]+)?rem|[0-9]+vw)|margin(-inline)?[[:space:]]*:[^;]*\bauto\b' 2>/dev/null | grep -v '@media' || true)"
-# 25: chiều cao theo màn ngoài shared/ (chỉ Split được đặt)
-report "Chiều cao theo màn ngoài shared/" "$(route_css | xargs grep -nE '(min-|max-)?height[[:space:]]*:[^;]*[0-9](d|s|l)?vh' 2>/dev/null || true)"
+# Route trình chiếu ngoài khung (DESIGN.md §23.1, P-108-8): chỉ features/attendance/display/ được đo theo màn (vw / dvh) — phép 24–25 bỏ qua thư mục này.
+PRESENT='features/attendance/display/'
+report "Khung tự đặt độ rộng" "$(route_css | grep -v "$PRESENT" | xargs grep -nE '(max-|min-)?width[[:space:]]*:[^;]*(([6-9][0-9]{2}|[0-9]{4,})px|[3-9][0-9](\.[0-9]+)?rem|[0-9]+vw)|margin(-inline)?[[:space:]]*:[^;]*\bauto\b' 2>/dev/null | grep -v '@media' || true)"
+# 25: chiều cao theo màn ngoài shared/ (chỉ Split được đặt; route trình chiếu được miễn)
+report "Chiều cao theo màn ngoài shared/" "$(route_css | grep -v "$PRESENT" | xargs grep -nE '(min-|max-)?height[[:space:]]*:[^;]*[0-9](d|s|l)?vh' 2>/dev/null || true)"
 # 26: CSS route với tay vào phần tử của primitive
 report "Với tay vào primitive" "$(route_css | xargs grep -nE 'data-ep-(panel|page|empty|section|split)|\.page\.page' 2>/dev/null || true)"
 # 27: meta của PageHeader lặp lớp đang chọn (thanh trên đã có)
@@ -198,4 +201,7 @@ report "Tiêu đề rỗng là câu" "$(route_tsx | xargs perl -CSD -Mutf8 -0777
 # 31: vàng chỉ làm nền / chấm / vạch — cấm làm chữ, viền, icon (1,69 : 1 trên trắng, không đạt WCAG)
 out=$(grep -rnE '(^|[^-])(color|border(-[a-z]+)?-color|stroke|fill)[[:space:]]*:[^;]*--ep-yellow\b' "$SRC" --include=*.css 2>/dev/null | grep -vE 'features/landing/' || true)
 report "Vàng làm chữ" "$out"
+# 32: token chữ màn chiếu (--ep-text-projector-*) chỉ được dùng trong features/attendance/display/ (định nghĩa ở shared/styles/) — DESIGN.md §14.8.1, §23.1
+out=$(grep -rnE -e '--ep-text-projector-' "$SRC" --include=*.ts --include=*.tsx --include=*.css 2>/dev/null | grep -vE "shared/styles/|$PRESENT" || true)
+report "Token màn chiếu ngoài /attendance/display" "$out"
 exit $FAIL
