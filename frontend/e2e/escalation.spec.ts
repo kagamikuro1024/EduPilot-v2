@@ -300,7 +300,7 @@ test("inbox shortcuts: J / K đổi ticket, R vào ô soạn, không kích hoạ
 test("bell count: số chưa đọc trên chuông, tối đa 9+", async ({ page }) => {
   await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 15 }) });
   await page.goto("/");
-  await expect(page.locator("[data-part=bell-dot]")).toHaveAttribute("data-count", "9+"); // P-11-37: «9+» vẽ bằng CSS
+  await expect(page.locator("[data-part=bell-dot]")).toHaveAttribute("data-count", "9+"); // P-11-38: «9+» vẽ bằng CSS
   await expect(bell(page)).toHaveAttribute("aria-label", "Thông báo, 15 chưa đọc");
 });
 
