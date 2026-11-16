@@ -1,0 +1,9 @@
+P TC-PE08-15 regrade scope=attempt ×2: 202/202; auto_score 9.00 → 9.00; số bản nộp 1 → 1 (không dòng đôi)
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s17e_regrade.py", line 20, in <module>
+    op = mkexam(open_s=14, win=300, dur=5, items=[qid], title='R5L 03-33 dùng câu', nq=1)[0]; time.sleep(16)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 110, in mkexam
+    s, jj, _ = call('PUT', base_e + '/' + eid + '/items', T, dict(items=[dict(question_id=q, points='1') for q in items], version=g['version'])); assert s == 200, (s, jj)
+                                                                                                                                                         ^^^^^^^^
+AssertionError: (422, {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'd5904bb3a4bed3829bfc0d895f07abe3', 'details': [{'field': 'items[0].question_id', 'code': 'ITEM_NOT_APPROVED', 'message': 'Chỉ chọn được câu đã duyệt và chưa lưu trữ.'}]})

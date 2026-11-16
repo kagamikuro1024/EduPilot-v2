@@ -128,3 +128,4 @@
 {"tc": "TC-PE06-27", "r": "S", "note": "kịch bản UI chưa nhận được trạng thái (selector nút Nộp lời giải chưa bấm được) — chưa kết luận, chạy lại"}
 {"tc": "TC-PE06-39", "r": "S", "note": "kịch bản: ô chỉ đọc đúng, chữ còn, PUT draft cuối cách deadline 0,0 s (đúng yêu cầu); nhưng bản nháp máy chủ ≠ chữ trong ô và chưa có bài nộp tự động trong 6 s đo — chưa kết luận, chạy lại sau khi lượt đóng xong (spec \"timeout while typing\" mock pass)"}
 {"tc": "TC-PE06-42", "r": "S", "note": "chưa nhận được kết quả nộp trong 60 s (cùng lỗi selector nút Nộp như PE06-27) — chưa kết luận, chạy lại"}
+{"tc": "TC-PE08-15", "r": "P", "note": "regrade scope=attempt ×2: 202/202; auto_score 9.00 → 9.00; số bản nộp 1 → 1 (không dòng đôi)"}

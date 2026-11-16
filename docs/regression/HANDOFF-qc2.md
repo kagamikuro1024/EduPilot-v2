@@ -1,0 +1,3 @@
+# Trạng thái qc2 (dừng theo lệnh chủ dự án, 2026-11-16)
+- Đã push `qc2/regression`. ep-r khỏe, không tiến trình QC nào đang chạy; không xoá volume nào.
+- Việc dở: (1) dựng lại ep-r ở P-11-58 và audit 10.7 trên 761987 + QCEMPTY (luật X3 mới); (2) DEF-R3-05 lượt sạch `evidence-3/scripts/p10x3.py` (TC-P102-14, P103-19, P103-20) chưa có kết luận; (3) R6-C-01 UI thật `evidence-3/scripts/r6c01.mjs` chưa chạy xong; (4) R5-02 chưa chạy lại; (5) sprint 8 còn 163 N (P6-03 phần còn lại, UI P6-04/05/07/08/09, SEED, S8-UI, virtual scroll); (6) 9.1: chạy lại nhóm F do timeout; (7) sprint 5 (79 N) và 5.5 (8 N) của SmkL; (8) sprint 3, 4, 6, 7, 9, 10, 10.5, 10.6, 9.5 còn N; (9) ca X của sprint 1/2 cần pnpm dev trên ep-r riêng, làm cuối cùng.
