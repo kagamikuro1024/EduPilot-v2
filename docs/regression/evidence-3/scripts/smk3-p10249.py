@@ -1,21 +1,17 @@
-# TC-P102-49 / TC-P103-46: /_test/llm/chat và /_test/llm/stats — binary thường 404 (ep-r), binary testroutes (gateway cô lập smk3-gw1, mini.sh): 401 không token, 403 SV/GV/TA, 200 ADMIN; keys stats không có prompt/text
+# TC-P102-49 / TC-P103-46: /_test/llm/chat và /_test/llm/stats. binary testroutes = ep-r (và smk3-gw1): 401 không token, 403 SV/GV/TA, 200 ADMIN; binary thường = image edupilot-gateway (smk3-gw3 :18203): 404 kể cả ADMIN
 from smk3iso import *
 import lib
-adm=itok('gw1'); 
-def f(role): return lib.forge(adm,sec='edupilot-dev',role=role)
-def eplogin():
-    for i in range(6):
+def eplogin(u):
+    for i in range(8):
         subprocess.run(['docker','exec','ep-r-redis-1','sh','-c',"redis-cli --scan --pattern 'ep:rl:auth*' | xargs -r redis-cli del"],capture_output=True)
-        try: return lib.login('admin')
+        try: return lib.login(u)
         except Exception as e: time.sleep(3)
     raise
-out=[]
+toks={'none':None,'STUDENT':eplogin('sv36'),'TEACHER':eplogin('teacher'),'TA':eplogin('ta'),'ADMIN':eplogin('admin')}
 for path,m,body in (('/_test/llm/chat','POST',{'task':'CHAT','prompt':'x'}),('/_test/llm/stats','GET',None)):
-    r={}
-    for name,tok in (('none',None),('STUDENT',f('STUDENT')),('TEACHER',f('TEACHER')),('TA',f('TA')),('ADMIN',adm)):
-        s,j,_=lib._call(m,path,tok,body,None,None,True,IB['gw1']); r[name]=s
-    # binary thường: ep-r (token ADMIN thật)
-    s,j,_=lib._call(m,path,eplogin(),body)
-    r['ep-r ADMIN (binary thường)']=s
-    print(path,r); out.append((path,r))
-s,j,_=ic('GET','/_test/llm/stats'); print('keys stats',sorted(j.keys()),'prompt/text trong stats:',any(k in json.dumps(j) for k in ('"prompt"','"text"')))
+    r={n:lib._call(m,path,t,body)[0] for n,t in toks.items()}
+    s3,_,_=lib._call(m,path,itok('gw3') if False else None,body,None,None,True,IB['gw3'])
+    s,j,_=lib._call('POST','/auth/login',body={'email':'admin@smk3.test','password':APW},base=IB['gw3']); a3=j.get('access_token')
+    r3=lib._call(m,path,a3,body,None,None,True,IB['gw3'])[0]
+    print(path,'testroutes (ep-r):',r,'| binary thường ADMIN:',r3,'| không token:',s3)
+s,j,_=lib._call('GET','/_test/llm/stats',toks['ADMIN']); print('keys stats',sorted(j.keys()),'prompt/text:',any(k in json.dumps(j) for k in ('"prompt"','"text"')))

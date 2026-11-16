@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9.1 — kết quả (TẠM DỪNG theo lệnh PM — tải máy 44)
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm F) · Ngày: 2026-11-15
-Tổng TC cũ: 414 · Đạt: 184 · Trượt: 82 · Lỗi thời (LT, theo 10.7): 51 · K (a/b/c): 0 · Chưa chạy (M): 97   (P+F+LT+K+M = 414)
+Tổng TC cũ: 414 · Đạt: 199 · Trượt: 67 · Lỗi thời (LT, theo 10.7): 51 · K (a/b/c): 0 · Chưa chạy (M): 97   (P+F+LT+K+M = 414)
 Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản sao `frontend/e2e/qc2-r91/`, `qc2-r91` sửa đường ảnh /out và lớp mặc định) bằng `playwright.qc-real.config.ts --workers=1` trên https://localhost:1143; chạy lại ca đỏ (`--last-failed`); ca GREP/FFP/Lighthouse/OCR khung video/dev-spec chốt qua `evidence-9.1/make_overrides.py` → `overrides91.json` (93 mục); `build_smoke91.py` dựng bảng. Triage 118 F ở `evidence-9.1/triage.md`; chỗ dở ở `evidence-9.1/state.md`. Nhiều ca F là lượt đỏ cũ CHƯA chạy lại (nhóm G3/G4 = môi trường: dữ liệu ep-r bị đổi, timeout đăng nhập do bộ đếm auth / gateway draining; xem triage) — KHÔNG phải lỗi mã xác nhận.
 
 ## Tổng hợp theo US
@@ -66,7 +66,7 @@ Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản s
 | TC-UX03-18 | M | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
 | TC-UX04-1 | P | spec w1 đỏ vì selector `class*=Button-module` không khớp bản dựng cổng (tên lớp băm); bản sửa qc2-r91-mock-extra.spec.ts (data-variant) xanh: 5 biến thể nút, transform 0,97 ≤ 100 ms, trở lại |
 | TC-UX04-2 | P | spec w1 đỏ vì selector `class*=Button-module` không khớp bản dựng cổng (tên lớp băm); bản sửa qc2-r91-mock-extra.spec.ts (data-variant) xanh: 5 biến thể nút, transform 0,97 ≤ 100 ms, trở lại |
-| TC-UX04-3 | F | 9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02 |
+| TC-UX04-3 | P | RERUN 2026-11-16 sau 25cd3352 (P-11-57, DEF-R9.1-02): quét frontend/src/**/*.css: 0 luật :hover ngoài @media (hover: hover) |
 | TC-UX04-4 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX04-5 | P | tokens.css:73-75 --ep-fast 140ms, --ep-normal 200ms, --ep-slow 200ms (≤ 200) |
 | TC-UX04-6 | P | spec w1 |
@@ -149,7 +149,7 @@ Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản s
 | TC-UX07-5 | P | spec w2-real |
 | TC-UX07-6 | P | spec w2-real |
 | TC-UX07-7 | P | spec w2-real |
-| TC-UX07-8 | F | còn 1 chuỗi hiển thị «Kiểm duyệt Threads»: frontend/src/features/settings/llm/decisionApi.ts:17 (nhãn cổng THREADS_PRECHECK cho admin, thêm ở sprint 10.5 commit acb704cc) → DEF-R9.1-03 |
+| TC-UX07-8 | P | RERUN 2026-11-16 sau 7322ac62 (DEF-R9.1-01): grep "Kiểm duyệt Threads" frontend/src = 0 |
 | TC-UX07-9 | P | spec w12c-real |
 | TC-UX07-10 | P | spec w12b-real |
 | TC-UX07-11 | P | spec w2-real |
@@ -200,12 +200,12 @@ Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản s
 | TC-UX11-9 | P | spec w3 |
 | TC-UX11-10 | M | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
 | TC-UX11-PQ | P | spec w3 |
-| TC-UX14-1 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX14-2 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX14-1 | P | spec w4-real |
+| TC-UX14-2 | P | spec w4-real |
 | TC-UX14-3 | F | spec w4b-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX14-4 | F | spec w4-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| TC-UX14-4 | P | spec w4-real |
 | TC-UX14-5 | F | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX14-6 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX14-6 | P | spec w4-real |
 | TC-UX14-7 | F | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX14-8 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX14-9 | F | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
@@ -214,29 +214,29 @@ Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản s
 | TC-UX14-12 | M | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
 | TC-UX14-PQ | F | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX14-PG | F | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-1 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-2 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-3 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-4 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX15-1 | P | spec w4-real |
+| TC-UX15-2 | P | spec w4-real |
+| TC-UX15-3 | P | spec w4-real |
+| TC-UX15-4 | P | spec w4-real |
 | TC-UX15-5 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
-| TC-UX15-6 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-7 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-8 | F | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-9 | F | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-10 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-11 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-12 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-13 | F | spec w4-real,w4b-real,w4c-real: 3 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX15-6 | P | spec w4-real |
+| TC-UX15-7 | P | spec w4-real |
+| TC-UX15-8 | P | spec w4-real,w4b-real |
+| TC-UX15-9 | P | spec w4-real,w4b-real |
+| TC-UX15-10 | P | spec w4-real |
+| TC-UX15-11 | P | spec w4-real |
+| TC-UX15-12 | P | spec w4-real |
+| TC-UX15-13 | P | spec w4-real,w4b-real,w4c-real |
 | TC-UX15-14 | F | spec w4c-real,w4g-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-15 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-16 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-17 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX15-18 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX15-15 | P | spec w4-real |
+| TC-UX15-16 | P | spec w4-real |
+| TC-UX15-17 | P | spec w4-real |
+| TC-UX15-18 | P | spec w4-real |
 | TC-UX15-19 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX15-20 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX15-21 | M | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
 | TC-UX15-PQ | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
-| TC-UX16-1 | P | spec w4,w4f-real |
+| TC-UX16-1 | F | spec w4,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | TC-UX16-2 | P | spec w4-real |
 | TC-UX16-3 | P | spec w4-real |
 | TC-UX16-4 | P | spec w4-real |
@@ -247,7 +247,7 @@ Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản s
 | TC-UX16-9 | P | spec w4,w4-real |
 | TC-UX16-10 | P | spec w4,w4-real |
 | TC-UX16-11 | P | spec w4,w4-real |
-| TC-UX16-12 | P | spec w4g-real |
+| TC-UX16-12 | F | spec w4g-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | TC-UX16-13 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX16-14 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX16-15 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
@@ -256,7 +256,7 @@ Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản s
 | TC-UX16-18 | P | spec w4 |
 | TC-UX16-19 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX16-20 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX16-21 | P | spec w4-real,w4f-real |
+| TC-UX16-21 | F | spec w4-real,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | TC-UX16-22 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX16-23 | M | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
 | TC-UX16-24 | F | spec w4d-real: 1 lượt đỏ / 0 xanh (xem logs/) |
@@ -271,7 +271,7 @@ Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản s
 | TC-UX12-9 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX12-10 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX12-11 | F | spec w4-real,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
-| TC-UX12-12 | P | spec w4-real |
+| TC-UX12-12 | F | spec w4-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | TC-UX12-13 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX12-14 | F | spec w4-real,w4b-real,w4c-real,w4f-real: 1 lượt đỏ / 3 xanh (xem logs/) |
 | TC-UX12-15 | F | spec w4-real,w4b-real,w4c-real,w4f-real: 1 lượt đỏ / 3 xanh (xem logs/) |
@@ -282,11 +282,11 @@ Cách chạy: toàn bộ spec `frontend/e2e/qc-uiux91-*-real.spec.ts` (+ bản s
 | TC-UX12-20 | F | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX12-21 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX12-22 | M | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
-| TC-UX12-PQ | P | spec w4-real |
+| TC-UX12-PQ | F | spec w4-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | TC-UX13-1 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX13-2 | M | chưa chạy (mẫu; dạng GREP + E2E, không có test tự động hoặc test bị skip) |
-| TC-UX13-3 | P | spec w5i-real |
-| TC-UX13-4 | P | spec w5i-real |
+| TC-UX13-3 | F | spec w5i-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX13-4 | F | spec w5i-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX13-5 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX13-6 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX13-7 | M | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |

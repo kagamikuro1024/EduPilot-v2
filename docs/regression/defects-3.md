@@ -48,11 +48,10 @@
 - DEF-R3-05 (BATCH thử lại/cầu dao): lượt chạy lại 2026-11-16 (xem smoke-3: TC-P102-14, P103-19/20) = ĐẠT; trên stack cô lập cũng đạt (TC-P102-18, P103-22).
 - DEF-R3-01 (EMBEDDING thô ở bảng mức dùng): CHƯA kiểm lại ở UI (TC-P105-44 giữ F); DEF-R3-02, DEF-R3-04 không đổi.
 
-### DEF-R3-SMK-01 — Bucket RPM của nhà cung cấp cho qua nhiều hơn burst (60 rpm → 50–65 lời gọi dồn đầu cửa sổ)
-- Mức: Trung bình
-- Sprint gốc: 3 (US-P1-03) · TC gốc: TC-P103-08 (AC3) · Hồi quy do sprint sau?: KHÔNG RÕ (chưa blame)
-- Môi trường: stack cô lập smk3 (DB+Redis mới, 2 gateway edupilot-gateway-test), ADMIN, nhà openai_compatible → stub, rpm_limit=60, tpm_limit=null (mặc định 100.000.000 do env LLM_DEFAULT_TPM)
-- Bước tái hiện: 1. tạo nhà rpm_limit=60 và gán CHAT; 2. nghỉ ≥65 s; 3. 20 luồng gọi CHAT liên tục qua 2 gateway trong 10 s (`evidence-3/scripts/smk3-p10308b.py`, cần stack smk3 `/tmp/smk34/mini.sh`).
-- Kỳ vọng: ≤ 60×10/60 + burst(6) = 16 lời gọi trong 10 s (SRS 4.3: dung lượng bucket = burst = max(1, ceil(10 %·hạn mức))) · Thực tế: 65 lời gọi trong giây đầu rồi 1 lời gọi/giây (74 sau 10 s); lượt khác 50 trong 10 s
-- Bằng chứng: `evidence-3/smk-p10308.txt`, `smk-p10308b.txt` · Nghi ngờ mã: `backend-go/internal/llm/scheduler/redis.go` bucketLua / cách truyền rc (burst) cho nhà có rpm_limit sửa qua PUT
-- Chạy lại lần 2: ổn định (2/2 lượt vượt)
+### DEF-R3-SMK-01 — RÚT LẠI (lỗi đo của QC, KHÔNG phải lỗi sản phẩm): «bucket RPM cho qua 50–65 lời gọi / 10 s»
+- Trạng thái: ĐÓNG — TC-P103-08 chạy lại = ĐẠT (qc2/SmkO, 2026-11-16)
+- Nguyên nhân gốc: `stubreset()` trong `evidence-3/scripts/smk3iso.py` chỉ xoá bộ đếm của stub cổng 9741/9742, còn ca TC-P103-08 dùng stub cổng 9751. Bộ đếm 9751 vì vậy cộng dồn cả các lời gọi chuẩn bị (khởi tạo nhà, vòng nạp cấu hình, lượt trước) rồi script in con số đó như «số lời gọi trong 10 s»: «65 trong giây đầu rồi 1/giây» = ~59 lời gọi cộng dồn + burst 6; «50 trong 10 s» cùng nguyên nhân. Sau mốc đó đúng 1 lời gọi/giây — tức bucket hoạt động đúng 60 rpm.
+- Đọc mã (chỉ đọc) `backend-go/internal/llm/scheduler/redis.go` `bucketLua` + `scheduler.go` `tryGrant`: bucket khởi tạo `tokens = cap`, `cap = burst(rpm) = max(1, rpm/10)` = 6; mỗi lần gọi nạp thêm `(now-ts)*rpm/60000` rồi kẹp `min(cap, …)`; mỗi lời gọi trừ 1; thiếu token thì nhả chỗ và ngủ theo gợi ý (≤1 s). Đồng hồ lấy bằng `redis.call('TIME')`. Hàm khớp SRS 4.3.
+- Đo lại sạch (`evidence-3/scripts/smk3-p10308.py`, `smk-p10308.txt`): nhà rpm_limit=60, 20 luồng qua 2 gateway, xoá đúng bộ đếm 9751: lượt 1 stub tích luỹ mỗi giây [6,7,8,9,10,11,12,13,14,15] = 15 tại t=10 s; lượt 2 (nghỉ 65 s) cũng 15; trần TC 16. Người gọi dư thừa chờ rồi nhận OVERLOADED sau 10 s (không RATE_LIMIT). Thêm TC-P103-09: nhà null/null trên gateway không đặt LLM_DEFAULT_* → cũng 15/10 s, TPM bucket cap 10.000 (= 10 % × 100.000). `TestTwoProcessesRPM` đạt.
+- Hồi quy do sprint sau?: KHÔNG. `scheduler/redis.go` chỉ có 2 commit, cả hai ở sprint 3 (c9a1a04e US-P1-03 và 27d44ae8 sửa BUG-P103-1/2, 2026-10-03); `bucketLua`/`burst()` không đổi từ đó (git log, chỉ đọc). Sprint 10.5 chỉ đụng `scheduler.go` (thêm L1 Decide, 425d2a74).
+- Bài học QC: dùng bộ đếm từ chính cổng stub của ca, hoặc đếm `llm_audit` trong cửa sổ; `smk3-p10308b.py` cũ giữ làm bằng chứng của lỗi đo.

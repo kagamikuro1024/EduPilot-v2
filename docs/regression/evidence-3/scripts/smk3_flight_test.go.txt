@@ -1,0 +1,92 @@
+package scheduler_test
+
+import (
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/fake"
+	"github.com/edupilot/backend-go/internal/llm/provider"
+)
+
+// QC SmkO — TC-P103-33/34/35: ĐÚNG 50 yêu cầu (bản test của dev dùng 5 ở ca không gộp).
+func fan(t *testing.T, r *rig, req llm.Request, n int) (errs int, texts []string) {
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	for range n {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, err := r.g.Chat(t.Context(), req)
+			mu.Lock()
+			defer mu.Unlock()
+			if err != nil {
+				errs++
+			} else {
+				texts = append(texts, resp.Text)
+			}
+		}()
+	}
+	wg.Wait()
+	return
+}
+
+func TestSmk33Merge50(t *testing.T) {
+	r := newRig(t, baseCfg(), fake.Settings{LatencyMin: 300 * time.Millisecond, LatencyMax: 300 * time.Millisecond}, nil)
+	_, texts := fan(t, r, shareable(llm.TaskUtility, llm.LaneNearRealtime), 50)
+	if r.ctl.Calls() != 1 || len(texts) != 50 {
+		t.Fatalf("NEAR_REALTIME shareable: calls=%d ok=%d (muốn 1 / 50)", r.ctl.Calls(), len(texts))
+	}
+	for _, s := range texts {
+		if s != texts[0] {
+			t.Fatal("kết quả khác nhau")
+		}
+	}
+	r2 := newRig(t, baseCfg(), fake.Settings{LatencyMin: 300 * time.Millisecond, LatencyMax: 300 * time.Millisecond}, nil)
+	_, texts = fan(t, r2, shareable(llm.TaskUtility, llm.LaneBatch), 50)
+	if r2.ctl.Calls() != 1 || len(texts) != 50 {
+		t.Fatalf("BATCH shareable: calls=%d ok=%d", r2.ctl.Calls(), len(texts))
+	}
+}
+
+func TestSmk34NoMerge50(t *testing.T) {
+	cases := map[string]llm.Request{
+		"INTERACTIVE": shareable(llm.TaskChat, llm.LaneInteractive),
+		"GRADING":     shareable(llm.TaskGrading, llm.LaneBatch),
+		"Shareable=false": func() llm.Request {
+			q := shareable(llm.TaskUtility, llm.LaneNearRealtime)
+			q.Shareable = false
+			return q
+		}(),
+	}
+	for name, req := range cases {
+		cfg := baseCfg()
+		cfg.MaxConcurrency = 100 // 50 lời gọi cùng chạy được
+		cfg.BatchShare = 1
+		r := newRig(t, cfg, fake.Settings{LatencyMin: 200 * time.Millisecond, LatencyMax: 200 * time.Millisecond}, nil)
+		ok, texts := fan(t, r, req, 50)
+		if r.ctl.Calls() != 50 || len(texts) != 50 || ok != 0 {
+			t.Errorf("%s: calls=%d ok=%d lỗi=%d (muốn 50 lời gọi riêng)", name, r.ctl.Calls(), len(texts), ok)
+		}
+	}
+}
+
+func TestSmk35SharedError(t *testing.T) {
+	r := newRig(t, baseCfg(), fake.Settings{LatencyMin: 300 * time.Millisecond, LatencyMax: 300 * time.Millisecond, ErrorRate: 1, ErrorKind: provider.KindServer, ErrorStatus: 503}, nil)
+	errs, texts := fan(t, r, shareable(llm.TaskUtility, llm.LaneNearRealtime), 50)
+	c1 := r.ctl.Calls()
+	if errs != 50 || len(texts) != 0 {
+		t.Fatalf("lỗi chia cho cả nhóm: errs=%d ok=%d", errs, len(texts))
+	}
+	// nhóm mới → thử lại độc lập (không dùng kết quả lỗi cũ)
+	errs2, _ := fan(t, r, shareable(llm.TaskUtility, llm.LaneNearRealtime), 50)
+	c2 := r.ctl.Calls()
+	t.Logf("nhóm 1: 50 lỗi cùng lúc với %d lời gọi nhà; nhóm 2 (mới): %d lỗi, thêm %d lời gọi nhà", c1, errs2, c2-c1)
+	if c2 <= c1 {
+		t.Fatalf("nhóm mới phải gọi lại nhà cung cấp độc lập: %d → %d", c1, c2)
+	}
+	if c1 > 4 {
+		t.Fatalf("50 yêu cầu cùng lỗi mà gọi nhà %d lần (muốn gộp: ≤ 1 + thử lại)", c1)
+	}
+}

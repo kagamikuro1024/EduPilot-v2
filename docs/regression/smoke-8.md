@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 395 · Trượt: 4 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 113   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 405 · Trượt: 4 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 103   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -12,10 +12,10 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | P6-03 | 48 | 46 | 2 | 0 | 0 | 0 |
 | P6-04 | 49 | 43 | 1 | 0 | 0 | 5 |
 | P6-05 | 46 | 19 | 0 | 0 | 0 | 27 |
-| P6-06 | 63 | 60 | 0 | 0 | 0 | 3 |
+| P6-06 | 63 | 62 | 0 | 0 | 0 | 1 |
 | P6-07 | 59 | 58 | 1 | 0 | 0 | 0 |
-| P6-08 | 47 | 44 | 0 | 0 | 0 | 3 |
-| P6-09 | 50 | 35 | 0 | 0 | 0 | 15 |
+| P6-08 | 47 | 47 | 0 | 0 | 0 | 0 |
+| P6-09 | 50 | 40 | 0 | 0 | 0 | 10 |
 | P6-SEED | 37 | 0 | 0 | 0 | 0 | 37 |
 | S8-UI | 23 | 0 | 0 | 0 | 0 | 23 |
 
@@ -300,7 +300,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-06-43 | P | audit mới nhất: grade_entries/set before {"score": "6.75", "item_id": "01a1e082-05b2-7b42-9ba4-ee1046 after {"score": "6", "item_id": "01a1e082-05b2-7b42-9ba4-ee1046 |
 | TC-P6-06-44 | P | audit_log chặn INSERT (trigger riêng lớp, thay vì đổi tên bảng dùng chung) → PUT 500; điểm không ghi: ('6.75', 1) = ('6.75', 1); đã gỡ trigger |
 | TC-P6-06-45 | P | Go 2 test PASS (logs/s8r-dev-gradebook-me.log); grep mock/gradebook rỗng |
-| TC-P6-06-46 | N | chưa chạy |
+| TC-P6-06-46 | P | hồ sơ B (QD8R6U) tab Điểm: GradeCalculation đủ dòng (7,5 · 8 · 6,5 · điểm cộng · quá trình 8,25 · thô 7,2 · làm tròn 0,5) true; lớp chưa có công thức đã xác nhận (QD8A2,  |
 | TC-P6-06-47 | P | UI thật ep-r: công bố cột giữa kỳ (chấm tròn Đã công bố) / cột EXAM không có menu — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-48 | P | UI thật ep-r: công bố cột giữa kỳ (chấm tròn Đã công bố) / cột EXAM không có menu — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-49 | P | publish cột EXAM → 409 ITEM_NOT_PUBLISHABLE |
@@ -317,7 +317,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-06-60 | P | UI thật ep-r: TA: chỉ đọc — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-61 | P | PUT bằng TA/STUDENT/ADMIN → {'ta': 403, 'sv.gioi': 403, 'admin': 403}; DB không đổi |
 | TC-P6-06-62 | P | GV lớp khác GET gradebook → 403; STUDENT → 403; không token → 401 |
-| TC-P6-06-63 | N | chưa chạy |
+| TC-P6-06-63 | P | go test internal/grade TestGradebookRBAC (-tags integration) PASS; bash docs/sprints/8/qc/scripts/p6-rbac.sh trên ep-r: «RBAC: PASS» (101 dòng PASS) — phần playwright gra |
 | TC-P6-07-01 | P | presign → 200 upload_id + URL ký (kho MinIO :9700), PUT thành công; `docker diff` gateway: tệp .xlsx mới 0→0 (không ghi đĩa cục bộ) |
 | TC-P6-07-02 | P | đuôi .pdf / .csv / .xlsx+mime pdf → [(422, 'FILE_TYPE_NOT_ALLOWED'), (422, 'FILE_TYPE_NOT_ALLOWED'), (422, 'FILE_TYPE_NOT_ALLOWED')] |
 | TC-P6-07-03 | P | 11 MiB khai thật → 422 FILE_TOO_LARGE; khai 2000 B nhưng PUT 11 MiB → kho MinIO từ chối (ngắt kết nối) |
@@ -386,7 +386,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-08-07 | P | xoá cuối kỳ sv30, sv27 → finalize 409 GRADES_INCOMPLETE total=2 students=[{"id": "01a1df27-6553-7c98-bc34-a0c697597f85", "missing": ["final"]}, {"id": "01a1df27-654e |
 | TC-P6-08-08 | P | LOAD1000 thiếu 40 ô cuối kỳ → finalize 409 GRADES_INCOMPLETE: details.total=40, students.length=30 (≤30) |
 | TC-P6-08-09 | P | finalize lần hai khoá mới → 409 GRADEBOOK_LOCKED |
-| TC-P6-08-10 | N | chưa chạy |
+| TC-P6-08-10 | P | Chốt điểm khi thiếu 1 điểm: danh sách thiếu 1 (nút liên kết 1); chữ «Thiếu điểm: 1 sinh viên»; click liên kết → focus «ô 01a1df27-6508-7d9b-8577-7497e45a2315:0» |
 | TC-P6-08-11 | P | go test 3 test PASS (log s8flow-go-*.log) |
 | TC-P6-08-12 | P | khi LOCKED: PUT/publish/confirm → {'put': 409, 'publish': 409, 'import': 404, 'confirm': 409} (['GRADEBOOK_LOCKED', 'GRADEBOOK_LOCKED', 'GRADEBOOK_LOCKED']); import  |
 | TC-P6-08-13 | P | sửa điểm bài thi sv04 (nguồn sống 6→0): băm SNAP(1) không đổi; hàng sv04 drift=true & locked.version=1 (xem trước sống HP 5 ≠ snapshot 6.5); chỉ 1 hàng drift; STUDEN |
@@ -412,9 +412,9 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-08-33 | P | LOAD1000 finalize ×3 (max): 0.22s (≤3); đọc bản chốt trang đầu snapshots/3?limit=100: p90 14 ms (≤500), 100 dòng; số câu SQL 1.000 = 30 SV: TestFinalizeNoNPlusOne (t |
 | TC-P6-08-34 | P | đọc bản chốt LOAD1000 limit=100: seq_scan final_grade_snapshots tăng [0, 0, 0] (min 0 = dùng chỉ mục final_grade_snapshots_version_idx); EXPLAIN truy vấn: TestFinali |
 | TC-P6-08-35 | P | go test 2 test PASS (log s8flow-go-*.log) |
-| TC-P6-08-36 | N | chưa chạy |
+| TC-P6-08-36 | P | hộp thoại (QD8R6X, lớp 1 đủ điểm): «Chốt điểm Chốt 30 sinh viên · phân bố: A+ 3, A 3, B+ 3, B 5, C+ 4, C 4, D+ 2, D 3, F 3 · 1 sinh viên liệt Để sau Chốt điểm» khớp từng  |
 | TC-P6-08-37 | P | UI thật ep-r: sổ LOCKED: Đã chốt vN, ô khoá, Mở khoá ở menu, hộp thoại mở khoá, không toast — xanh (frontend/e2e/qc2-r8/real-06b.spec.ts) |
-| TC-P6-08-38 | N | chưa chạy |
+| TC-P6-08-38 | P | 409 hiển thị bằng chữ Việt: «Sổ điểm Xem công thức Chốt điểm Thiếu điểm: 1 sinh viên Còn 1 sinh viên chưa đủ điểm Vũ Hoàng Giang — thiếu Thi cuối kỳ Ẩn Bảng điểm của lớp  |
 | TC-P6-08-39 | P | dev e2e ['finalize flow\\|finalize incomplete list'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-08-40 | P | sau chốt: finalize bởi TA/SV/ADMIN/GV lớp khác → {'ta': 403, 'sv.gioi': 403, 'admin': 403, 'g7t': 403} |
 | TC-P6-08-41 | P | sinh viên B GET snapshots / snapshots/{1,2,3} → [403, 403, 403, 403]; đoán snapshot_id (A + 20 id) → [403]: không dòng nào lộ |
@@ -435,10 +435,10 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-09 | P | B quét 15 route STUDENT (/me, /me/grades, today, notifications, threads, documents, exams, snapshots…): 7 trả 200, CANARY (unlock_reason) = 0 lần ở mọi phản hồi, 0 k |
 | TC-P6-09-10 | P | exam chưa PUBLISHED → item EXAM {'key': 'weekly', 'name': 'Kiểm tra hằng tuần', 'weight': '20', 'status': 'PENDING'}; sổ chưa chốt → không có khoá 'final' (khoá: ['b |
 | TC-P6-09-11 | P | GV bật publish → B thấy giữa kỳ 7.77; gỡ công bố → PENDING (không score) |
-| TC-P6-09-12 | N | chưa chạy |
-| TC-P6-09-13 | N | chưa chạy |
-| TC-P6-09-14 | N | chưa chạy |
-| TC-P6-09-15 | N | chưa chạy |
+| TC-P6-09-12 | P | go test internal/grade TestNoDraftLeak, TestNoDraftLeakQT, TestStudentDTOAllowlist, TestPublishItemToggle, TestPendingItemHasNoScore PASS (-tags integration); canary-scan |
+| TC-P6-09-13 | P | Điểm quá trình hiện là dòng «nhãn + giá trị» «Điểm quá trình 8,25 / 10» theo P-11-6a (US.md AC3 đã đổi; câu nhận định bỏ để h1 là ứng viên LCP); GradeCalculation tuyến tí |
+| TC-P6-09-14 | P | sau chốt (QD8R8): «Điểm học phần 7 (B)» — dòng điểm nay theo SRS P-11-6a («nhãn + giá trị»); SRS ví dụ «7,0 (B)», màn hiện «7 (B)» (bỏ số 0 thừa). Chưa có công thức: «Lớp |
+| TC-P6-09-15 | P | quét /me: streak/xếp hạng/so với lớp/huy hiệu/lời khen/🎉 = 0; số dùng dấu phẩy (không dạng 8.25): true |
 | TC-P6-09-16 | P | dev e2e ['grade section\\|calculation linear\\|no gamify'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-09-17 | P | what-if final 8,0 (không Idempotency-Key) → 200: HP 8 B+ (tay QT 8,25 → HP thô 8,10 → 8,0 B+), 9 dòng phép tính tuyến tính; UI ô nhập: s8r-ui-09 |
 | TC-P6-09-18 | P | B target A → {'min_final_exam_score': '8.25', 'reachable': True}; A+ → {'min_final_exam_score': '9.09', 'reachable': True}; C target A+ → {'reachable': False} (không |
@@ -468,7 +468,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-42 | P | lớp 2 (761988, công thức chưa CONFIRMED): 24 dòng student_risk, 0 dòng có GRADE_LOW |
 | TC-P6-09-43 | P | QD8R71: grade_low_below 5,0→6,0 (PUT settings 200): số SV có GRADE_LOW 6→11 (crm.risk chạy lại riêng lớp); ngưỡng 10,5 / 5,3 / -1 / abc → [422, 422, 422, 422] |
 | TC-P6-09-44 | P | sv26: nhập study_time_daily 40.000 s/ngày × 7 ngày rồi chạy lại crm.risk: qt_milli GRADE_LOW 2125 → 2125 (vẫn 2,125: thời gian học không vào điểm) |
-| TC-P6-09-45 | N | chưa chạy |
+| TC-P6-09-45 | P | go test internal/crm TestRiskGradeSignal/Anchor/NullWithoutScheme/StrictBelow/BatchInput + internal/integration TestSeedRiskAfterGradebook PASS; risk khớp expected_risk.c |
 | TC-P6-09-46 | N | chưa chạy |
 | TC-P6-09-47 | P | dev e2e ['grade states\\|grade mobile 375'] xanh (logs/s8r-dev-gradebook-me.log); grep mock ở features/me rỗng |
 | TC-P6-09-48 | P | {} → 422 VALIDATION_FAILED; cả hai trường → 422 VALIDATION_FAILED |

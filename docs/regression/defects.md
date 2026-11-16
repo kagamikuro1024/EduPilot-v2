@@ -12,25 +12,22 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 2 | TC-PG07-63 | DEF-R2-04: cổng GATE-PG chạy trọn còn 2 ca đỏ (GATE-03, GATE-06: contract không tag); 01–02, 04–24, 26, 28–29 đạt; GATE-25/27 (trình duyệt), GATE-2 |
 | 2 | TC-GATE-03 | DEF-R2-04: `go test -race ./...` KHÔNG tag: 98 gói xanh (3360 PASS) nhưng `internal/contract` đỏ cố định (TestChatThreadsContract: POST /_test/llm/fake → 404 |
 | 2 | TC-GATE-06 | DEF-R2-04: contract KHÔNG tag rc 1 (cố định, lặp 3 lượt + go test trực tiếp); có tag PASS |
-| 3 | TC-P103-08 | 2 lượt chạy lặp lại: nhà rpm_limit=60 (đặt qua API), 20 luồng từ 2 gateway: lượt 1 stub nhận 50 yêu cầu trong 10 s (TC ≤ 16 = 10 + burst 6); l� |
 | 3 | TC-P105-44 | chữ «EMBEDDING» thô hiện ở bảng «Mức dùng theo tác vụ» (taskLabel không có nhãn cho EMBEDDING) → DEF-R3-01 (DEF-R3-01) |
-| 5 | TC-PE01-39 | go vet ./... rc=0; golangci-lint 0 issues; sqlc diff rc=0; go test -race -count=1 trên 99 gói: 99 ok (auth/exam/judge/quiz ok; auth chạy lại ok sau sự cố contai |
-| 5 | TC-PE02-57 | go vet ./... rc=0; golangci-lint 0 issues; sqlc diff rc=0; go test -race -count=1 trên 99 gói: 99 ok (auth/exam/judge/quiz ok; auth chạy lại ok sau sự cố contai |
+| 5.5 | TC-UI7-06 | pnpm -C frontend lint rc=1 ở HEAD: 32 lỗi ở 10 tệp QC đã commit frontend/e2e/qc2-* (mã sản phẩm sạch, rc=0 khi loại); build rc=0 (1 cảnh báo metadat |
 | 5 | TC-PE03-33 | sửa test ẩn của câu đã dùng ở bài PUBLISHED: GV 200 (tests_version 7 → 8); TA 403; điểm bài cũ 10.00 → 10.00 (chưa đổi tới khi regrade); kết |
 | 5 | TC-PE03-49 | Drawer: câu nháp nút [Đóng/Lưu cấu hình/Thêm test/Kiểm tra zip/Nhập zip/Gợi ý đầu vào từ AI/Chạy lời giải mẫu/Duyệt/Gửi duyệt/Chỉnh |
 | 5 | TC-PE03-51 | bàn phím: Tab tới hàng (sau 31 lần), Enter mở Drawer=false, focus trong Drawer=false, tới nút Duyệt/Chỉnh sửa=false, Esc trả focus=true; AUDIT (ox/cut |
-| 5 | TC-PE04-40 | khoá ep:today:<uid>:<scope> bị xoá sau: lên lịch bài 0.62 s (bài 48 giờ) / mở bài 0.63 s (so với dòng outbox exam.opened) / bắt đầu 1.35 s / nộp 0 |
 | 5 | TC-PE06-27 | nộp code (r5s31, ui_m.cjs s27): chuỗi chữ hiện theo thời gian: "Đang chấm" (0,2 s) → kết quả "Biên dịch được · 2/2 test mẫu đúng" (0,6 s),  |
 | 5 | TC-PE07-18 | r5s23: dán 300+ ký tự (ô mã), ẩn/hiện tab giả lập, mất/có mạng: lô đầu gửi sau 9.4 s (≈15 s), gồm ["PASTE","TAB_HIDDEN","TAB_VISIBLE","OFFLIN |
 | 5 | TC-PE08-04 | MCQ-only (r5s36, s20j_api.py p0804): nộp → 200 trong 0,02 s; ngay sau nộp DB: status=GRADED, graded_at đặt, breakdown 4 mục [{item_id,earned,max}] ĐẠT; NHƯ |
 | 5 | TC-PE08-31 | SV r5s01 (E30, đã công bố) 1440/375: điểm "9,00 / 10,00" (dấu phẩy ✓); dòng tóm tắt "Bạn đúng a/n câu trắc nghiệm · bài lập trình: p/t tes |
 | 5 | TC-PE08-38 | UI Staff /exams/[id]/results (GV r5t 1440/1100/390, TA r5ta 1440; ui_m2.cjs staff+scroll): ĐẠT: cột Họ tên/MSSV/Trạng thái/Điểm/Nộp lúc + Tín hiệu (ch |
+| 5 | TC-PU06-17 | HEAD eeffb053: pnpm -C frontend lint rc=1 (32 lỗi + 15 cảnh báo) — toàn bộ ở 10 tệp QC đã commit frontend/e2e/qc2-r4/r8/r10/r91/* (no-explicit-any, no-req |
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
 | 8 | TC-P6-03-19 | [] (202, 'FAILED', 'LLM_UNAVAILABLE') / ['PARAM_INVALID', 'WEIGHT_SUM'] |
 | 8 | TC-P6-03-36 | đầu ra không phải JSON (stub 'invalid'): job FAILED LLM_UNAVAILABLE (spec: EXTRACTION_INVALID); stub nhận 3 lời gọi (spec: đúng 1); llm_audit [['1', 'error' |
 | 8 | TC-P6-04-03 | 1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer � |
 | 8 | TC-P6-07-47 | ghi xong ô cập nhật không tải lại trang (ô Bùi Thanh Khải 7,00), hộp thoại đóng, NHƯNG focus rơi về <body>, không về nút menu «Thêm hành đ |
-| 9.1 | TC-UX04-3 | 9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02 |
 | 9.1 | TC-UX04-12 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX04-13 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX04-14 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
@@ -44,42 +41,24 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 9.1 | TC-UX06-6 | spec w12c-real,w2-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | 9.1 | TC-UX06-7 | spec w12c-real,w2-real,w5r-real: 3 lượt đỏ / 2 xanh (xem logs/) |
 | 9.1 | TC-UX06-PQ | spec w12c-real: 1 lượt đỏ / 1 xanh (xem logs/) |
-| 9.1 | TC-UX07-8 | còn 1 chuỗi hiển thị «Kiểm duyệt Threads»: frontend/src/features/settings/llm/decisionApi.ts:17 (nhãn cổng THREADS_PRECHECK cho admin, thêm ở sprint 10 |
 | 9.1 | TC-UX07-15 | spec w2-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX14-1 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX14-2 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX14-3 | spec w4b-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX14-4 | spec w4-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | 9.1 | TC-UX14-5 | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX14-6 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX14-7 | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX14-9 | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX14-10 | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX14-11 | spec w4-real,w4b-real: 3 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX14-PQ | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX14-PG | spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-1 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-2 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-3 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-4 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-6 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-7 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-8 | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-9 | spec w4-real,w4b-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-10 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-11 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-12 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-13 | spec w4-real,w4b-real,w4c-real: 3 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX15-14 | spec w4c-real,w4g-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-15 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-16 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-17 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| 9.1 | TC-UX15-18 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX16-1 | spec w4,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | 9.1 | TC-UX16-5 | spec w4-real,w4f-real: 1 lượt đỏ / 2 xanh (xem logs/) |
+| 9.1 | TC-UX16-12 | spec w4g-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | 9.1 | TC-UX16-15 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX16-16 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX16-19 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX16-20 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX16-21 | spec w4-real,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | 9.1 | TC-UX16-24 | spec w4d-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX12-1 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX12-2 | spec w4-real,w4b-real: 1 lượt đỏ / 1 xanh (xem logs/) |
@@ -91,12 +70,16 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 9.1 | TC-UX12-9 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX12-10 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX12-11 | spec w4-real,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX12-12 | spec w4-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | 9.1 | TC-UX12-13 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX12-14 | spec w4-real,w4b-real,w4c-real,w4f-real: 1 lượt đỏ / 3 xanh (xem logs/) |
 | 9.1 | TC-UX12-15 | spec w4-real,w4b-real,w4c-real,w4f-real: 1 lượt đỏ / 3 xanh (xem logs/) |
 | 9.1 | TC-UX12-18 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX12-19 | spec w4-real,w4f-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | 9.1 | TC-UX12-20 | spec w4-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX12-PQ | spec w4-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| 9.1 | TC-UX13-3 | spec w5i-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| 9.1 | TC-UX13-4 | spec w5i-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX13-14 | spec w5a-real: 1 lượt đỏ / 1 xanh (xem logs/) |
 | 9.1 | TC-UX13-18 | spec w5a-real,w5g-real: 1 lượt đỏ / 2 xanh (xem logs/) |
 | 9.1 | TC-UX13-21 | spec w5a-real: 1 lượt đỏ / 1 xanh (xem logs/) |
@@ -286,14 +269,13 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - DEF-R3-05 (BATCH thử lại/cầu dao): lượt chạy lại 2026-11-16 (xem smoke-3: TC-P102-14, P103-19/20) = ĐẠT; trên stack cô lập cũng đạt (TC-P102-18, P103-22).
 - DEF-R3-01 (EMBEDDING thô ở bảng mức dùng): CHƯA kiểm lại ở UI (TC-P105-44 giữ F); DEF-R3-02, DEF-R3-04 không đổi.
 
-### DEF-R3-SMK-01 — Bucket RPM của nhà cung cấp cho qua nhiều hơn burst (60 rpm → 50–65 lời gọi dồn đầu cửa sổ)
-- Mức: Trung bình
-- Sprint gốc: 3 (US-P1-03) · TC gốc: TC-P103-08 (AC3) · Hồi quy do sprint sau?: KHÔNG RÕ (chưa blame)
-- Môi trường: stack cô lập smk3 (DB+Redis mới, 2 gateway edupilot-gateway-test), ADMIN, nhà openai_compatible → stub, rpm_limit=60, tpm_limit=null (mặc định 100.000.000 do env LLM_DEFAULT_TPM)
-- Bước tái hiện: 1. tạo nhà rpm_limit=60 và gán CHAT; 2. nghỉ ≥65 s; 3. 20 luồng gọi CHAT liên tục qua 2 gateway trong 10 s (`evidence-3/scripts/smk3-p10308b.py`, cần stack smk3 `/tmp/smk34/mini.sh`).
-- Kỳ vọng: ≤ 60×10/60 + burst(6) = 16 lời gọi trong 10 s (SRS 4.3: dung lượng bucket = burst = max(1, ceil(10 %·hạn mức))) · Thực tế: 65 lời gọi trong giây đầu rồi 1 lời gọi/giây (74 sau 10 s); lượt khác 50 trong 10 s
-- Bằng chứng: `evidence-3/smk-p10308.txt`, `smk-p10308b.txt` · Nghi ngờ mã: `backend-go/internal/llm/scheduler/redis.go` bucketLua / cách truyền rc (burst) cho nhà có rpm_limit sửa qua PUT
-- Chạy lại lần 2: ổn định (2/2 lượt vượt)
+### DEF-R3-SMK-01 — RÚT LẠI (lỗi đo của QC, KHÔNG phải lỗi sản phẩm): «bucket RPM cho qua 50–65 lời gọi / 10 s»
+- Trạng thái: ĐÓNG — TC-P103-08 chạy lại = ĐẠT (qc2/SmkO, 2026-11-16)
+- Nguyên nhân gốc: `stubreset()` trong `evidence-3/scripts/smk3iso.py` chỉ xoá bộ đếm của stub cổng 9741/9742, còn ca TC-P103-08 dùng stub cổng 9751. Bộ đếm 9751 vì vậy cộng dồn cả các lời gọi chuẩn bị (khởi tạo nhà, vòng nạp cấu hình, lượt trước) rồi script in con số đó như «số lời gọi trong 10 s»: «65 trong giây đầu rồi 1/giây» = ~59 lời gọi cộng dồn + burst 6; «50 trong 10 s» cùng nguyên nhân. Sau mốc đó đúng 1 lời gọi/giây — tức bucket hoạt động đúng 60 rpm.
+- Đọc mã (chỉ đọc) `backend-go/internal/llm/scheduler/redis.go` `bucketLua` + `scheduler.go` `tryGrant`: bucket khởi tạo `tokens = cap`, `cap = burst(rpm) = max(1, rpm/10)` = 6; mỗi lần gọi nạp thêm `(now-ts)*rpm/60000` rồi kẹp `min(cap, …)`; mỗi lời gọi trừ 1; thiếu token thì nhả chỗ và ngủ theo gợi ý (≤1 s). Đồng hồ lấy bằng `redis.call('TIME')`. Hàm khớp SRS 4.3.
+- Đo lại sạch (`evidence-3/scripts/smk3-p10308.py`, `smk-p10308.txt`): nhà rpm_limit=60, 20 luồng qua 2 gateway, xoá đúng bộ đếm 9751: lượt 1 stub tích luỹ mỗi giây [6,7,8,9,10,11,12,13,14,15] = 15 tại t=10 s; lượt 2 (nghỉ 65 s) cũng 15; trần TC 16. Người gọi dư thừa chờ rồi nhận OVERLOADED sau 10 s (không RATE_LIMIT). Thêm TC-P103-09: nhà null/null trên gateway không đặt LLM_DEFAULT_* → cũng 15/10 s, TPM bucket cap 10.000 (= 10 % × 100.000). `TestTwoProcessesRPM` đạt.
+- Hồi quy do sprint sau?: KHÔNG. `scheduler/redis.go` chỉ có 2 commit, cả hai ở sprint 3 (c9a1a04e US-P1-03 và 27d44ae8 sửa BUG-P103-1/2, 2026-10-03); `bucketLua`/`burst()` không đổi từ đó (git log, chỉ đọc). Sprint 10.5 chỉ đụng `scheduler.go` (thêm L1 Decide, 425d2a74).
+- Bài học QC: dùng bộ đếm từ chính cổng stub của ca, hoặc đếm `llm_audit` trong cửa sổ; `smk3-p10308b.py` cũ giữ làm bằng chứng của lỗi đo.
 
 ---
 <!-- defects-4.md -->
@@ -390,13 +372,21 @@ Bằng chứng: `evidence-5/results-q2.jsonl` (bản ghi cuối thắng), `evide
 - Nộp bài MCQ-only: 200 trong 0,02 s, GRADED + `breakdown` đúng; nhưng outbox của lượt chỉ có `exam.attempt_started`, `exam.attempt_submitted`; không có `exam.attempt_graded` → chủ lượt không nhận SSE `exam.attempt` (kết nối /api/v1/events chỉ nhận `ready`).
 
 ## Ghi nhận môi trường (không tính lỗi)
+- TC-PE04-40 (lượt đầu ghi F): LỖI ĐO, không phải lỗi sản phẩm. Kịch bản s20a_today.py lấy thời điểm outbox exam.closed khi dòng đó chưa có (trả 0) nên tính «đóng 1794837114.25 s» (epoch trừ 0). Đo lại từng sự kiện so với dòng outbox: lên lịch 0,62 s, mở 0,63 s, bắt đầu 1,35 s, nộp 0,58 s, đóng 0,57 s sau sự kiện (s20a_today2.py) → P (≤2 s). Một lượt đo đóng bài trễ 66 s do bộ gửi outbox bị nhóm QC khác khởi động lại — môi trường.
 - Bộ gửi outbox trễ 66 s đúng một lần (13:55:58Z) khi nhóm QC khác khởi động lại tiến trình trong cửa sổ khoá; các lần khác 0,45–0,5 s.
 - Worker ghi `exam.tick lỗi` mỗi 5 s từ 22:03 hôm qua cho lượt 01a1e01f… của bài «QC E7 khoá chat» (tổng điểm các mục bằng 0 — dữ liệu chèn bằng SQL của nhóm QC sprint 7; không tạo được qua API).
 - `go test -race ./...` toàn kho khi máy tải 20–30: nhiều gói hết 10 phút (activity, assignment, auth, course, crm, exam, grade…) và contract đỏ do tải; chạy lại gói exam / contract không-tag / có-tag riêng thì xanh.
 
+## Từ nhóm đo hiệu năng/tĩnh (SmkM.PerfStaticQC; chi tiết `evidence-5/defects-draft-perf.md`)
+### DEF-R5-12 — `pnpm lint` ở frontend rc=1 (TC-PU06-17, TC-UI7-06)
+- Mức: Trung bình (CI chạy đúng lệnh này sẽ đỏ) · Nguyên nhân: 32 lỗi + 15 cảnh báo hoàn toàn ở 10 tệp QC đã commit `frontend/e2e/qc2-*`; mã sản phẩm lint rc=0 · Sprint gốc: không phải sprint 5 (tệp QC đợt hồi quy) · Đề xuất: sửa/loại `qc2-*` khỏi lint hoặc `eslint-ignore`.
+### Ghi nhận Thấp — `next build` cảnh báo `metadataBase` (trang giới thiệu thêm ở sprint sau).
+
 ---
 <!-- defects-5.5.md -->
-### Không có lỗi riêng cho 5.5 (phần đã chạy). DEF-R5-01 (AppShell axe) ghi ở defects-5.md — áp cho mọi màn 5.5.
+### DEF-R5.5-01 — `pnpm lint` frontend rc=1 (TC-UI7-06)
+- Mức: Trung bình · Nguyên nhân: 32 lỗi + 15 cảnh báo chỉ ở 10 tệp QC `frontend/e2e/qc2-*` đã commit (mã sản phẩm lint rc=0; build rc=0). Trùng DEF-R5-12 (defects-5.md). Sprint gốc: không phải 5.5. Chi tiết: `evidence-5/defects-draft-perf.md`.
+- DEF-R5-01 (AppShell axe, defects-5.md) áp cho mọi màn 5.5.
 
 ---
 <!-- defects-6.md -->

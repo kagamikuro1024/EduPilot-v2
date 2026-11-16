@@ -1,0 +1,8 @@
+TC-PE05-48 — phần Lighthouse (mobile 412x823, DPR 1,75), /exams/<id>/take, stack ep-r thật (https://localhost:1143), SV r5s12…r5s21, bài MCQ 6 câu "R5L LH /take 4h".
+Lighthouse 12.6.1 (lhci 0.15.1), Chrome for Testing 1255, simulate throttling mặc định (RTT 150 ms, 1,6 Mbps, CPU 4×); máy tải ~9–11, benchmarkIndex 2400–3270.
+User flow (startFlow + timespan: bấm "Bắt đầu làm bài", chọn đáp án, "Câu sau" ×4; chế độ navigation không có INP):
+  INP  = 58,2 / 76,9 / 85,5 / 65,1 / 43,4 ms (5 lượt, lớn nhất 85,5)   → ≤ 200 ms  ĐẠT
+  CLS  = 0,00008 (mọi lượt; lượt navigation 0,00006)                      → ≤ 0,1    ĐẠT
+  TBT trong timespan 0–16 ms
+Navigation (màn bắt đầu làm bài, 3 lượt): CLS 0,00006; TBT 34–78 ms (4×, bi 2872–3206); LCP 3,01–3,03 s (simulate) / 5,45–5,51 s (devtools) — phần tử LCP <p class="integrityText"> hiện sau khi dữ liệu bài thi về; JS truyền 232,8–233,1 KB.
+Kết luận phần Lighthouse của PE05-48: INP ≤ 200 ms và CLS ≤ 0,1 ĐẠT. Dữ liệu thô: lh/take/flow.json, nav*.json; kịch bản lh/take_lh.mjs; đầu ra lh/take_flow.out, take_flow2.out, take_nav.out, take_navd.out.

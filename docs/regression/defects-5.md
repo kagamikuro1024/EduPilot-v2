@@ -71,6 +71,12 @@ Bằng chứng: `evidence-5/results-q2.jsonl` (bản ghi cuối thắng), `evide
 - Nộp bài MCQ-only: 200 trong 0,02 s, GRADED + `breakdown` đúng; nhưng outbox của lượt chỉ có `exam.attempt_started`, `exam.attempt_submitted`; không có `exam.attempt_graded` → chủ lượt không nhận SSE `exam.attempt` (kết nối /api/v1/events chỉ nhận `ready`).
 
 ## Ghi nhận môi trường (không tính lỗi)
+- TC-PE04-40 (lượt đầu ghi F): LỖI ĐO, không phải lỗi sản phẩm. Kịch bản s20a_today.py lấy thời điểm outbox exam.closed khi dòng đó chưa có (trả 0) nên tính «đóng 1794837114.25 s» (epoch trừ 0). Đo lại từng sự kiện so với dòng outbox: lên lịch 0,62 s, mở 0,63 s, bắt đầu 1,35 s, nộp 0,58 s, đóng 0,57 s sau sự kiện (s20a_today2.py) → P (≤2 s). Một lượt đo đóng bài trễ 66 s do bộ gửi outbox bị nhóm QC khác khởi động lại — môi trường.
 - Bộ gửi outbox trễ 66 s đúng một lần (13:55:58Z) khi nhóm QC khác khởi động lại tiến trình trong cửa sổ khoá; các lần khác 0,45–0,5 s.
 - Worker ghi `exam.tick lỗi` mỗi 5 s từ 22:03 hôm qua cho lượt 01a1e01f… của bài «QC E7 khoá chat» (tổng điểm các mục bằng 0 — dữ liệu chèn bằng SQL của nhóm QC sprint 7; không tạo được qua API).
 - `go test -race ./...` toàn kho khi máy tải 20–30: nhiều gói hết 10 phút (activity, assignment, auth, course, crm, exam, grade…) và contract đỏ do tải; chạy lại gói exam / contract không-tag / có-tag riêng thì xanh.
+
+## Từ nhóm đo hiệu năng/tĩnh (SmkM.PerfStaticQC; chi tiết `evidence-5/defects-draft-perf.md`)
+### DEF-R5-12 — `pnpm lint` ở frontend rc=1 (TC-PU06-17, TC-UI7-06)
+- Mức: Trung bình (CI chạy đúng lệnh này sẽ đỏ) · Nguyên nhân: 32 lỗi + 15 cảnh báo hoàn toàn ở 10 tệp QC đã commit `frontend/e2e/qc2-*`; mã sản phẩm lint rc=0 · Sprint gốc: không phải sprint 5 (tệp QC đợt hồi quy) · Đề xuất: sửa/loại `qc2-*` khỏi lint hoặc `eslint-ignore`.
+### Ghi nhận Thấp — `next build` cảnh báo `metadataBase` (trang giới thiệu thêm ở sprint sau).

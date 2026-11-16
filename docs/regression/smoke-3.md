@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 3 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 485 · Đạt: 417 · Trượt: 2 · Lỗi thời (LT): 5 · Không kiểm được K (a/b/c): 0/4/5 · Chưa chạy (N): 52   (P+F+LT+K+N = T)
+Tổng TC cũ: 523 · Đạt: 443 · Trượt: 1 · Lỗi thời (LT): 5 · Không kiểm được K (a/b/c): 1/7/8 · Chưa chạy (N): 58   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-3/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 3`.
 
 Cách chạy: (1) Go: `go test -race -json ./internal/llm/... ./internal/llmconfig/... ./internal/platform/crypto/...` + `-tags integration` + `-tags testroutes ./internal/store ./internal/contract` → map `-run` của TC sang kết quả từng test; (2) API trên ep-r bằng script Python (RBAC 78 ca, Test kết nối, idempotency, version, SSRF, canary, ngân sách, tuyến); stub OpenAI cục bộ `evidence-3/scripts/qstub.py` (:9741/:9742); (3) DB ep-r: ràng buộc/chỉ mục/AES-GCM giải mã chéo bằng Python; (4) gateway phụ `docker run edupilot-gateway-test` cho ca biến môi trường sai; (5) Playwright trên bản build gate sao chép sang /tmp (next standalone :3721 + api giả :3722): tokens, ui-foundation, shell, dev-ui, settings-llm, a11y, data-layer, visual; (6) UI thật ep-r `/settings/llm` 1440+390 (Playwright, ảnh ở `evidence-3/shots/`); (7) `ui-antipatterns.sh`, `--selftest`, `lint-selftest.sh`, `pnpm lint` trong bản sao.
@@ -9,18 +9,18 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 ## Tổng hợp theo US
 | US | TC tổng | P | F | LT | K | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GATE-P1 | 12 | 7 | 0 | 0 | 1 | 4 | |
-| GATE-PU | 9 | 5 | 0 | 0 | 1 | 3 | |
-| US-P1-01 | 33 | 32 | 0 | 0 | 0 | 1 | |
-| US-P1-02 | 43 | 40 | 0 | 0 | 0 | 3 | |
-| US-P1-03 | 41 | 37 | 1 | 0 | 0 | 3 | |
-| US-P1-04 | 48 | 43 | 0 | 1 | 1 | 3 | |
-| US-P1-05 | 52 | 51 | 1 | 0 | 0 | 0 | |
-| US-PU-01 | 31 | 21 | 0 | 3 | 0 | 7 | |
-| US-PU-02 | 43 | 43 | 0 | 0 | 0 | 0 | |
+| GATE-P1 | 23 | 11 | 0 | 0 | 3 | 9 | |
+| GATE-PU | 17 | 5 | 0 | 0 | 1 | 11 | |
+| US-P1-01 | 35 | 34 | 0 | 0 | 0 | 1 | |
+| US-P1-02 | 50 | 50 | 0 | 0 | 0 | 0 | |
+| US-P1-03 | 50 | 45 | 0 | 0 | 0 | 5 | |
+| US-P1-04 | 48 | 45 | 0 | 1 | 1 | 1 | |
+| US-P1-05 | 57 | 51 | 1 | 0 | 2 | 3 | |
+| US-PU-01 | 36 | 21 | 0 | 3 | 0 | 12 | |
+| US-PU-02 | 47 | 43 | 0 | 0 | 2 | 2 | |
 | US-PU-03 | 57 | 57 | 0 | 0 | 0 | 0 | |
 | US-PU-04 | 59 | 58 | 0 | 0 | 0 | 1 | |
-| US-PU-05 | 34 | 23 | 0 | 1 | 1 | 9 | |
+| US-PU-05 | 44 | 23 | 0 | 1 | 7 | 13 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -31,15 +31,23 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-GATEP1-04 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP1-05 | P | go test: 1 pass/0 skip/0 fail |
 | TC-GATEP1-06 | P | go test: 55 pass/0 skip/0 fail |
-| TC-GATEP1-07 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-07 | K(c) | (c) make eval có target (python3 benchmarks/eval/run.py) nhưng là phép đo P10 trên stack ep-qc với LLM thật; plan sprint 3 hoãn, BA trả lời «không FAIL», không là điều kiện PASS cổng — không chạy |
 | TC-GATEP1-08 | P | go test: 25 pass/0 skip/0 fail |
-| TC-GATEP1-09…TC-GATEP1-10 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-09 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-10 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP1-11 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
-| TC-GATEP1-12…TC-GATEP1-15 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-12 | P | stack cô lập, 2 nhà fake (SmkG-F1/F2), đổi CHAT 6 lần và chat ngay: lời gọi kế tiếp luôn dùng nhà mới (0,10–0,18 s sau PUT, ≤1 s); llm_audit 6 dòng cuối khớp từng provider/model/fallback_index (lượt 1). Lượt chạy lại lần 2 báo lệch khi so 6 dòng audit vì ghi audit bất đồng bộ chưa xả kịp lúc truy vấn, không phải lỗi sản phẩm (smk3-gate1.py) |
+| TC-GATEP1-13 | K(a) | (a) thiếu khoá nhà cung cấp thật (OpenAI/Gemini): BLOCKED có chủ đích theo BA Q-QC-GATEP1-2, chỉ chứng minh được bằng fake (TC-GATEP1-12) |
+| TC-GATEP1-14 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-15 | P | (a) tắt công tắc nhà chính F1: chat 200 dùng F2 fallback_index=0, hàng F1 enabled=false; (b) nhà chính lỗi còn bật (stub 503): 200 dùng F2 fallback_index=1, llm_audit fallback_index=1/ok, log WARN «chuyển nhà cung cấp dự phòng» có from=SmkG-S3 to=SmkG-F2 (smk3-gate1.py) |
 | TC-GATEP1-16 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
-| TC-GATEP1-17 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-17 | P | mọi nhà chết (chuỗi 1 nhà 503, retries 0) + 5 passages: 200, degraded=true, 36 ms (≤2 s), mở đầu «AI tạm thời không khả dụng. Dưới đây là các đoạn tài liệu liên quan nhất:», trích đúng 3 đoạn nguyên văn kèm nguồn/trang, không từ kỹ thuật |
 | TC-GATEP1-18 | P | go test: 0 pass/1 skip/0 fail |
-| TC-GATEP1-19…TC-GATEP1-99 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-19 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-20 | P | chạy lại trên ep-r hiện tại (smk3-gate20.py): ma trận 13 thao tác × 6 danh tính = 78/78 đúng (đường dẫn đúng /courses/{id}/llm-budget), 14 ca token giả (alg=none, secret sai, sửa vai, SUPERUSER, thiếu sub, rỗng, a.b.c) đều 401, số dòng llm_providers/routes/budgets trước = sau (10/6/1) |
+| TC-GATEP1-21 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-22 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-99 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEPU-01 | P | lint mã sản phẩm 0 cảnh báo (xem TC-PU01-05); chưa dựng lại pbuild/gbuild để đếm «Failed to load font» nên chỉ chốt phần lint |
 | TC-GATEPU-02 | P | ui-antipatterns 32 ✓ / 0 ✗; --selftest 32/32; lint-selftest 7/7; ui-allow 9 (≤10) |
 | TC-GATEPU-03 | P | playwright desktop: ui-foundation + tokens + shell + dev-ui + settings-llm + a11y + data-layer đạt (ban đầu 5 ca fail vì bản sao thiếu audit.mjs, đã bổ sung) |
@@ -49,7 +57,14 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-GATEPU-07 | P | go test: 25 pass/0 skip/0 fail |
 | TC-GATEPU-08 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
 | TC-GATEPU-09 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
-| TC-GATEPU-10…TC-GATEPU-17 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-10 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-11 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-12 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-13 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-14 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-15 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-16 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-17 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P101-01 | P | migration 00002_llm áp dụng; phiên bản hiện tại 25 (TC cũ ghi =2, đã tăng hợp lệ) |
 | TC-P101-02 | P | có đủ 5 bảng; hiện llm_audit,llm_budgets,llm_models,llm_providers,llm_request_payloads,llm_task_routes (llm_request_payloads thêm ở 00022 — hợp lệ) |
 | TC-P101-03 | P | smk-p101-03.txt trên DB ep-r: 60 cột SRS 5.2 khớp tên/kiểu/nullable/default (BAD 0); id uuid default uuidv7(); có created_at/updated_at; chỉ có FK nội bộ llm_models→llm_providers, llm_task_routes→llm_models (0 FK tới users/courses); llm_audit thêm 2 cột cascade_gate/cascade_path (mở rộng hợp lệ sau này) |
@@ -78,11 +93,12 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P101-26 | P | audit_log theo entity_id của nhà QC: 4 dòng cho 4 thao tác sửa/xoá (before/after không chứa khoá, TC-P104-09) |
 | TC-P101-27 | P | sửa không api_key 200 md5 giữ=True; api_key="" 422 VALIDATION_FAILED md5 giữ=True; khoá mới 200 md5 đổi=True; version cũ=TC-P104-22 |
 | TC-P101-28 | P | xoá nhà không dùng: 204, mô hình đi cùng; hạn mức 21 nhà: TC-P104-23 |
-| TC-P101-29…TC-P101-30 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P101-29 | P | go test -race ./internal/llmconfig: TestRouteRules (chuỗi rỗng, 5 mô hình, chat↔embedding sai loại, EMBEDDING 2 mô hình, dims=768 → ErrDimsMismatch, mô hình nhà tắt, trùng, temperature/max_tokens/timeout_s/retries ngoài biên, khoá lạ → ErrRouteInvalid theo từng luật; ca lành chấp nhận) + TestRoutesPutRules pass |
+| TC-P101-30 | P | TestEmbeddingChangeFlagsReindex (llmconfig) pass: đổi mô hình EMBEDDING mang cờ ReindexRequired; qua API: reindex_required:true khi đổi, false khi giữ mô hình (TC-P104-28); không thao tác dữ liệu nhúng cũ (dịch vụ chỉ trả cờ) |
 | TC-P101-31 | P | go test: 1 pass/0 skip/0 fail |
 | TC-P101-32 | P | go test: 1 pass/0 skip/0 fail |
 | TC-P101-33 | P | cột tiền numeric |
-| TC-P101-34 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P101-34 | N | chưa chạy trọn (dừng theo lệnh PM): go vet ./... (mặc định + testroutes) rc=0, golangci-lint 0 issues, sqlc diff rc=0; go test -race per-gói: 15/99 gói đầu đạt 0 lỗi (/tmp/smk34/go-all2), phần còn lại chưa chạy |
 | TC-P101-35 | P | secret dạng sk-…/AKIA/PRIVATE KEY ngoài test/fixture: 0 |
 | TC-P102-01 | P | SDK nhà cung cấp ngoài internal/llm: 0 dòng (không tính test/comment) |
 | TC-P102-02 | P | URL nhà cung cấp cứng ngoài internal/llm: 0 |
@@ -93,7 +109,7 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P102-07 | P | stream: stub nhận 1 lời gọi; SSE có token/done; audit 0af7651916cd43dd8448eb211c80319c/ok/CHAT |
 | TC-P102-08 | P | ngắt stream → provider_inflight=0 sau 0.04s; audit status=cancelled |
 | TC-P102-09 | P | go test: 2 pass/0 skip/0 fail |
-| TC-P102-10 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P102-10 | P | go test -race -tags integration ./internal/llm TestRegistry (PG thật): 5 loại nhà → openai https://api.openai.com/v1, anthropic https://api.anthropic.com/v1/, gemini https://generativelanguage.googleapis.com/v1beta/openai/, openai_compatible = base_url bản ghi, fake = giả; nhà tắt (OFF) và unreadable (khoá AAD hỏng) bị bỏ qua, Load không sập; chuỗi tuyến theo fallback_order (OA→AN→GE→OC), RPM mặc định 60; TestBaseURLs, TestFallbackOrder, TestRegistryDisableProviderFallsBackToEnvFake pass |
 | TC-P102-11 | P | ánh xạ lỗi (CLASSIFY→stub): m-429:503 LLM_UNAVAILABLE rate_limited/RATE_LIMIT/att=3; m-404:503 LLM_UNAVAILABLE error/MODEL_NOT_FOUND/att=1; m-500:503 LLM_UNAVAILABLE error/SERVER/att=3; m-503:503 LLM_UNAVAILABLE error/SERVER/att=3; m-garbage:503 LLM_UNAVAILABLE error/BAD_RESPONSE/att=1 (chỉ 5/16 kiể |
 | TC-P102-12 | P | stack cô lập + stub smk3stub: nhà trả 502 thân HTML+stack 5.000 ký tự → phản hồi 503 LLM_UNAVAILABLE «AI tạm thời không khả dụng…» (181 byte, không HTML/Traceback/XXXX), log gateway 0 khớp, llm_audit error/SERVER (smk-phaseB.txt) |
 | TC-P102-13 | P | go test: 1 pass/0 skip/0 fail |
@@ -111,15 +127,19 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P102-25 | P | gateway phụ smk3-gw3: 50 lời gọi 200 rồi docker stop (SIGTERM): thoát rc=0 sau 5,5 s, log «gateway stopped», đủ 50/50 dòng llm_audit (smk-p102-25.txt); TestAuditFlushOnShutdown cùng nội dung |
 | TC-P102-26 | P | go test: 4 pass/0 skip/0 fail |
 | TC-P102-27 | P | traceparent -> llm_audit.trace_id=0af7651916cd43dd8448eb211c80319c |
-| TC-P102-28…TC-P102-29 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P102-28 | P | TestStructuredRequestShape (provider, 4 loại nhà: openai/gemini json_schema, anthropic tool bắt buộc, compat json_object + schema trong lời nhắc), TestStructuredDowngrade, TestStructuredJSONSchema, TestCompatSchemaMergedIntoCallerSystem, TestStructuredUnmaskAfterSchema pass; mỗi Structured đúng 1 lời gọi nhà (D47) |
+| TC-P102-29 | P | TestStructuredInvalidFallsBack + TestValidateJSON (thiếu khoá bắt buộc / thừa khoá additionalProperties:false) + TestAllFailed pass: JSON sai schema tính là lỗi nhà, chuyển fallback, hết chuỗi → ErrAllProvidersFailed; không trả JSON sai schema |
 | TC-P102-30 | P | go test: 4 pass/0 skip/0 fail |
-| TC-P102-31 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P102-31 | P | TestEmbedDims (768 → MODEL_DIMS_MISMATCH không thử lại; 1.536 ok), TestEmbedBatchSplit (250 chuỗi → 100/100/50), TestEmbedEmptyInput (rỗng → BAD_REQUEST cục bộ, nhà 0 request), TestEmbed (provider, dimensions=1536 trong request) pass |
 | TC-P102-32 | P | LLM_EMBED_DIMS=768 → rc=1 sau 1.9s; {"time":"2026-11-15T12:57:04.138688699Z","level":"ERROR","msg":"giá trị biến môi trường không hợp lệ: LLM_EMBED_DIMS: khoá cố định 1536 (pgvector vect |
 | TC-P102-33 | P | go test: 3 pass/0 skip/0 fail |
-| TC-P102-34…TC-P102-36 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P102-34 | P | go test internal/llm/fake: TestChatDeterministic (2 lần giống hệt), TestEmbedDeterministicL2 (1.536 chiều, ‖v‖=1±1e-6, khác nhau theo chuỗi), TestStructuredFromSchema (JSON hợp schema), TestStreamWordByWord (token cách ≈20 ms mặc định) pass |
+| TC-P102-35 | P | TestLatencyErrorRateAndKey (fake): khoá sai → AUTH, khoá đúng → ok; độ trễ trong khoảng cấu hình; tỉ lệ lỗi 1.0 đúng từng loại lỗi chọn; TestFakeNoNetwork pass |
+| TC-P102-36 | P | TestReplayHitAndMiss (fake) + TestEmbedReplay + TestReplayHasNoSecrets: có tệp replay khớp sha256 → trả đúng nội dung; yêu cầu lạ → lỗi REPLAY_MISS (không gọi nơi khác) |
 | TC-P102-37 | P | go test: 12 pass/0 skip/0 fail |
 | TC-P102-38 | P | go test: 1 pass/0 skip/0 fail |
-| TC-P102-39…TC-P102-40 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P102-39 | P | bản sao backend-go /tmp/smk34/bg39: đổi "category"→"categoryX" ở testdata/replay/openai/classify.json → TestProviderContract/openai FAIL nêu «bản ghi sai schema: thiếu trường bắt buộc "category"» và «khoá thừa $.categoryX; thiếu khoá $.category»; hoàn tác → PASS; git status backend-go cây chính sạch (không chạm) |
+| TC-P102-40 | P | env -i (chỉ HOME, PATH, GOCACHE) go test -run TestProviderContract ./internal/llm: PASS không cần khoá (anthropic BLOCKED/skip có ghi, 4/5 nhà chạy) |
 | TC-P102-41 | P | go test: 0 pass/1 skip/0 fail |
 | TC-P102-42 | P | 2 gateway (smk3-gw1/gw2, DB+Redis chung): 244 và 295 lời gọi CHAT ~30–37 req/s xen kẽ hai gateway, đổi tuyến CHAT T1→T2 giữa chừng: 0 lỗi 5xx; sau PUT lời gọi mới dùng nhà mới: lần muộn nhất bắt đầu theo cấu hình cũ = 0,036 s sau PUT (≤1 s); audit ghi cả T1 lẫn T2 từ hai gateway (smk-phaseC1/2.txt) |
 | TC-P102-43 | P | đổi tên bảng llm_models (cấu hình hỏng) rồi PUBLISH ep:llm:reload: cả hai gateway log ERROR «nạp lại cấu hình LLM thất bại, giữ cấu hình cũ», chat vẫn 200 với nhà cũ, readyz 200; đổi tên lại + PUBLISH → bình thường |
@@ -128,7 +148,7 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P102-46 | P | stack cô lập: tắt mọi nhà trong DB + LLM_PROVIDER=fake → chat dùng env:fake (env_fallback.active, providers=[fake]); gateway phụ LLM_PROVIDER rỗng + không khoá env → CHAT/GRADING/CLASSIFY đều 503 LLM_NOT_CONFIGURED «Chưa cấu hình nhà cung cấp AI…», không panic, stub 0 yêu cầu, llm_audit status=not_configured; nhánh OPENAI_API_KEY → TestEnvFallback (go test) |
 | TC-P102-47 | P | stub phản chiếu «Authorization: Bearer good-key» + CANARY-SMK3-8f3a9c + sk-live… + Bearer abc.def.ghi trong thân 401: phản hồi (503 chung), log gateway, llm_audit (error_kind=AUTH), audit_log, outbox, thân Test kết nối: 0 khớp mọi mẫu (log postgres 1 khớp = chính câu lệnh tìm của QC) |
 | TC-P102-48 | P | go test: 2 pass/0 skip/0 fail |
-| TC-P102-49 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P102-49 | P | ep-r (binary testroutes): /_test/llm/chat và /stats không token 401; SV(sv36) / GV(teacher) / TA(ta) 403; ADMIN 200; binary thường (image edupilot-gateway, smk3-gw3): 404 kể cả ADMIN và không token; TestDefaultBinary_NoTestRoutes (scripts/smk3-p10249.py) |
 | TC-P102-50 | P | go test: 25 pass/0 skip/0 fail |
 | TC-P103-01 | P | go test: 4 pass/0 skip/0 fail |
 | TC-P103-02 | P | gateway cô lập LLM_MAX_CONCURRENCY=1, nhà ngủ 3 s: 1 chiếm chỗ rồi gửi 3 BATCH (đến trước), 3 NEAR_REALTIME, 3 INTERACTIVE: thứ tự chạy theo queue_wait_ms: INTERACTIVE 2,2/5,1/8,1 s → NEAR_REALTIME 11,4/14,4/17,3 s → BATCH 20,7/23,6/26,6 s; trong mỗi làn đúng FIFO (k=0,1,2) (smk-p10302.txt) |
@@ -137,10 +157,11 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P103-05 | P | 2 gateway (smk3-gw1/gw2) + DB/Redis chung, nhà fake 200–400 ms, 200 CHAT vào MỖI gateway cùng lúc (400 yêu cầu, 11,6 s): đỉnh ZCARD ep:llm:inflight:<provider> = 10 qua 2.356 mẫu mỗi ~3 ms (≤10 cộng cả hai tiến trình); 362 ok + 38 OVERLOADED hợp lệ (chờ >10 s, đúng AC5); ZCARD=0 sau khi xong, không rò chỗ (smk-p10305.txt) |
 | TC-P103-06 | P | kill -9 gateway smk3-gw2 khi giữ 3 chỗ (nhà ngủ 25 s): gw1 vẫn phục vụ cùng nhà (200 sau 69 ms); khoá hạn (score) = hạn ctx 30 s + 10 s ≈ 40 s; ZCARD vẫn 3 cho tới lời gọi kế tiếp (Lua ZREMRANGEBYSCORE thu hồi chỗ quá hạn lúc cấp chỗ) → sau 1 lời gọi mới ZCARD=0 (smk-p10306.txt) |
 | TC-P103-07 | P | go test: 4 pass/0 skip/0 fail |
-| TC-P103-08 | F | 2 lượt chạy lặp lại: nhà rpm_limit=60 (đặt qua API), 20 luồng từ 2 gateway: lượt 1 stub nhận 50 yêu cầu trong 10 s (TC ≤ 16 = 10 + burst 6); lượt 2 sau 65 s nghỉ: 65 yêu cầu trong giây đầu rồi đúng 1/giây (74 sau 10 s) — dung lượng bucket lớn hơn burst 6 của SRS 4.3 (smk-p10308.txt, smk-p10308b.txt; khoá Redis ep:llm:rl:rpm:<id> kiểu hash tokens/ts; chưa truy nguyên nguyên nhân — cần dev xác nhận) |
-| TC-P103-09 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P103-08 | P | CHẠY LẠI (qc2/SmkO): lượt F trước là LỖI ĐO của QC — stubreset() trong smk3iso chỉ xoá bộ đếm cổng 9741/9742 còn stub của ca này ở 9751 nên bộ đếm cộng dồn ~39 lời gọi chuẩn bị. Đo lại với xoá đúng cổng 9751, nhà rpm_limit=60, 20 luồng qua gw1+gw2: lượt 1 stub tích luỹ [6,7,8,9,10,11,12,13,14,15] = 15 lời gọi tại 10 s (≤ 16 = 10+burst 6), lượt 2 sau 65 s nghỉ cũng 15; 1 lời gọi/giây sau burst; phần còn lại chờ rồi OVERLOADED sau 10 s (không RATE_LIMIT); TestTwoProcessesRPM pass (smk-p10308.txt, scripts/smk3-p10308.py). DEF-R3-SMK-01 rút lại |
+| TC-P103-09 | P | gateway smk3-gw4 KHÔNG có biến LLM_DEFAULT_RPM/TPM (printenv = 0), nhà rpm_limit=tpm_limit=null: 20 luồng 10 s → stub 15 lời gọi (burst 6 + 1/s = mặc định 60 rpm); khoá tpm bucket tokens=9.992 ≈ dung lượng 10 %×100.000 = 10.000 (mặc định 100.000 TPM); TestLLMEnv pass (scripts/smk3-p10309.py) |
 | TC-P103-10 | P | go test: 2 pass/0 skip/0 fail |
-| TC-P103-11…TC-P103-12 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
+| TC-P103-11 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
+| TC-P103-12 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
 | TC-P103-13 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P103-14 | P | gateway cô lập LLM_MAX_CONCURRENCY=1, LLM_QUEUE_MAX=200, nhà ngủ 10 s: 215 POST song song → 201 yêu cầu đầu (1 chạy + 200 chờ) KHÔNG bị từ chối (2 xong 200 trong 22 s, 199 còn chờ rồi huỷ), yêu cầu thứ 202–215 (14) → 503 OVERLOADED tiếng Việt «Hệ thống đang rất đông…», header Retry-After=30 = retry_after trong thân (1–30), từ chối sau 2–5 ms (≤50 ms), llm_audit status=overloaded 14 (smk-phaseE1.txt) |
 | TC-P103-15 | P | gateway cô lập (LLM_QUEUE_WAIT_MAX=10s mặc định): 10 lời gọi m-hang chiếm hết 10 chỗ + 1 người chờ → 503 OVERLOADED retry_after=1 đúng sau 10,0 s (smk-phaseE3.txt) |
@@ -161,7 +182,9 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P103-30 | P | không passages → 200 degraded=True text='AI tạm thời không khả dụng. Câu hỏi của bạn đã được ghi lại, giảng viên sẽ xem.' |
 | TC-P103-31 | P | từ cấm trong 2 chuỗi suy giảm: [] |
 | TC-P103-32 | P | go test: 6 pass/0 skip/0 fail |
-| TC-P103-33…TC-P103-35 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P103-33 | P | QC tự viết (scripts/smk3_flight_test.go.txt, chạy trên bản sao): 50 yêu cầu giống hệt NEAR_REALTIME Shareable và 50 ở BATCH Shareable → fake.Calls = 1, cả 50 nhận cùng kết quả; TestSingleFlightShareable pass |
+| TC-P103-34 | P | QC tự viết đúng 50 yêu cầu giống hệt: INTERACTIVE, GRADING (BATCH), Shareable=false → mỗi ca 50 lời gọi riêng (Calls=50); TestNoSingleFlightInteractive pass |
+| TC-P103-35 | P | 50 yêu cầu chung lỗi 503: cả 50 nhận lỗi với 3 lời gọi nhà (1+thử lại); nhóm mới sau đó: thêm 3 lời gọi độc lập (không dùng lại lỗi cũ); huỷ 1 người chờ không huỷ lời gọi khi còn người chờ: TestSingleFlightCancelOneWaiter pass (huỷ tất cả mới dừng nhà) |
 | TC-P103-36 | P | go test: 6 pass/0 skip/0 fail |
 | TC-P103-37 | P | stack cô lập, giá 1,0 đ/lời gọi, trần ngày 100: 78 → ok, 79 → ok (79,0 %), 80 → state=warn (80,0 %) + đúng 1 sự kiện outbox llm.budget.warn {pct:80,scope:system,period:day}; 81/84/85/90/99 % không thêm sự kiện (vẫn 1); 100 → exhausted; spent_today từng bước đúng 1,0000 (chuỗi decimal, khớp bảng tay); đối soát audit: TestBudgetReconcileFromAudit (smk-phaseD.txt) |
 | TC-P103-38 | P | ở 100 %: GRADING (BATCH) → 503 LLM_UNAVAILABLE details.reason=budget_exhausted, llm_audit status=budget_blocked; CHAT và CLASSIFY vẫn 200, dùng mô hình rẻ nhất đang bật (SmkI-B2 m-ok 1.000 đ/Mtok = 0,008 đ/lời gọi, khớp llm_audit.model/provider) thay vì B1 (125.000 đ/Mtok) |
@@ -171,9 +194,11 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P103-42 | P | stream: nhà cắt TCP sau 2 token → SSE «event: token»×2 rồi «event: error {code:LLM_UNAVAILABLE}», đóng, không chuyển nhà sau khi đã gửi byte, audit error/BAD_RESPONSE (5 s, smk3-p10342.py); nhà 503 trước byte đầu → chuyển fallback, token+done (stub 2 yêu cầu) |
 | TC-P103-43 | P | go test: 5 pass/0 skip/0 fail |
 | TC-P103-44 | P | go test: 4 pass/0 skip/0 fail |
-| TC-P103-45…TC-P103-46 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P103-45 | P | stack cô lập, 10 req/s ×30 s vào smk3-gw1, docker stop smk3-redis ở giây 6, start ở giây 18: 300/300 lời gọi 200 (mỗi giây đủ 10, trễ tối đa 2,0 s, không treo); log ERROR «Redis không dùng được, Scheduler chuyển sang giới hạn cục bộ» đúng 1 lần (ngoài ra thư viện go-redis phát 520 dòng WARN «failed to dial» trong 10 s — ghi nhận, không phải mức error); llm_audit +300/300; Redis về: 3 lời gọi 200, khoá bucket ep:llm:rl:rpm:<id> có lại và ZCARD=0 không restart; đối soát ngân sách: TestBudgetReconcileFromAudit/TestRedisBackReconciles pass (scripts/smk3-p10345.py) |
+| TC-P103-46 | P | cùng lượt TC-P102-49: /_test/llm/stats 401 không token / 403 SV,GV,TA / 200 ADMIN / 404 binary thường; keys = audit,circuit,fake_calls,fake_decisions,inflight,provider_inflight,queue_depth — không có prompt/text |
 | TC-P103-47 | P | {'LLM_BATCH_SHARE=1.5': (1, True), 'LLM_BATCH_SHARE=0': (1, True), 'LLM_BATCH_SHARE=-1': (1, True), 'LLM_MAX_CONCURRENCY=0': (1, True), 'LLM_MAX_CONCURRENCY=-3': (1, True), 'LLM_QUEUE_MAX=-1': (1, True), 'LLM_BREAKER_FAILS=0': (1, True)} |
-| TC-P103-48…TC-P103-49 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P103-48 | P | gateway smk3-gw4 chạy không đặt biến LLM_* (env-file đã lọc): log «config loaded» in llm_max_concurrency=10, llm_batch_share=0.5, llm_queue_max=200, llm_queue_wait_max=10s, llm_request_timeout=30s, llm_breaker_fails=5, llm_breaker_open=30s, llm_default_rpm=60, llm_default_tpm=100000; go test ./internal/platform/config TestLLMEnv pass (47 pass) |
+| TC-P103-49 | N | chưa chạy trọn (dừng theo lệnh PM): vet/lint/sqlc xanh; go test -race -count=3 ./internal/llm/scheduler/... đạt (80,7 s); integration -count=3 và go test -race ./... toàn cây chưa xong |
 | TC-P103-50 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
 | TC-P104-01 | P | 72/78 ca đúng ngay lần đầu; 6 ca còn lại do QC gọi sai đường dẫn ngân sách lớp (`/admin/llm/courses/..`); đường đúng `/courses/{id}/llm-budget` đo lại ở TC-P104-35 (ADMIN ok, GV/TA/SV 403, không JWT 401) |
 | TC-P104-02 | P | 403 ['code', 'message', 'trace_id', 'details'] |
@@ -202,7 +227,7 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P104-25 | P | 7 tác vụ, lane đúng, chain/params/version có; khối embedding=null vì ep-r chưa gán tuyến EMBEDDING (chưa kiểm dims/reindex_required) |
 | TC-P104-26 | P | 8 ca (6 chạy): {'chuỗi rỗng': (422, 'ROUTE_INVALID'), '5 mô hình': (422, 'ROUTE_INVALID'), 'embedding cho CHAT': (422, 'ROUTE_INVALID'), 'trùng': (422, 'ROUTE_INVALID'), 'temperature=3': (422, 'ROUTE_INVALID'), 'timeout_s=0': (422, 'ROUTE_INVALID')} DB không đổi |
 | TC-P104-27 | P | PUT 200 ETag W/"v7"; lời gọi dùng nhà mới sau 197 ms (2 lần thử; 1 gateway — ca "cả hai gateway" không có trên ep-r) |
-| TC-P104-28 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P104-28 | P | API (stack cô lập): PUT /admin/llm/routes EMBEDDING emb-a→emb-b trả reindex_required:true, đổi lại emb-b→emb-a true, giữ emb-b chỉ đổi timeout_s → false (scripts/smk3-p10428.py); TestEmbeddingChangeFlagsReindex pass |
 | TC-P104-29 | P | go test: 4 pass/0 skip/0 fail |
 | TC-P104-30 | P | smk3-p104-usage.py: gieo 20.000 dòng llm_audit (provider smk3, 2/2026), tự tính bằng Python từ dữ liệu thô: group=task (6 khoá) và group=day (28 ngày) khớp từng trường calls/tokens/cost_est (chuỗi thập phân, đúng từng đồng)/p50/p95/errors/degraded: 0 lệch; đã dọn dòng gieo |
 | TC-P104-31 | P | mặc định 7,0 ngày; khoảng 93 ngày → 422 VALIDATION_FAILED; from>to → 422; group=foo → 422; TEACHER ?course_id → 403 FORBIDDEN; TEACHER tổng hệ thống → 200; ADMIN+course_id → 200 (smk-p104-usage.txt) |
@@ -216,13 +241,13 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P104-39 | P | go test: 25 pass/0 skip/0 fail |
 | TC-P104-40 | LT | golden PG không bị sửa (git diff origin/sprint/2-pg..HEAD: 0 dòng xoá ở testdata/golden); redocly lint openapi.yaml rc=0 (21 cảnh báo); riêng «operationId = 18 / openapi.test = 18» lỗi thời: các sprint sau thêm API (nay 344 operationId trong openapi.yaml, 21 trong openapi.test.yaml) |
 | TC-P104-41 | P | go test: 25 pass/0 skip/0 fail |
-| TC-P104-42 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P104-42 | P | make -C backend-go lint rc=0 (go vet ×3 tag: mặc định/testroutes/integration + golangci-lint ×3: «0 issues»); go test -race -tags 'integration testroutes' ./internal/contract: 27 pass/0 fail (golden PG không đổi, đường dẫn PG /events, healthz, readyz, jobs/{id} còn nguyên) |
 | TC-P104-43 | P | JSON hỏng (400, 'BAD_REQUEST', True); 2MB (413, 'PAYLOAD_TOO_LARGE'); ct sai (415, 'UNSUPPORTED_MEDIA_TYPE'); CORS evil=None; ETag routes=W/"Z_OOqA_ZzZaOUKf_" |
 | TC-P104-44 | P | 3 lần GET /admin/llm/providers (10 nhà, 45 mô hình): llm_providers +3 và llm_models +3 lượt quét (pg_stat_user_tables) = đúng 1 truy vấn/bảng/lần, 2 truy vấn mỗi lời gọi ≤ 3, không N+1; mã ListProviders gom bằng map |
 | TC-P104-45 | P | go test: 3 pass/0 skip/0 fail |
 | TC-P104-46 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
 | TC-P104-47 | P | secret trong repo: 0; mã lỗi mới có thông điệp tiếng Việt: quan sát qua API (OVERLOADED/ROUTE_INVALID… xem TC-P103/104) |
-| TC-P104-48 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P104-48 | N | chưa chạy trọn (dừng theo lệnh PM): vet/lint/sqlc diff rc=0; go test -race ./... toàn cây chưa xong (15/99 gói đạt) |
 | TC-P105-01 | P | /settings/llm thật: 5 phần (thêm «Quyết định nhanh», US-DM-06 AC1), 0 lồng, LEFT page-title 240, 0 nút primary hiện lúc đầu (3 primary nằm trong hộp thoại ẩn) |
 | TC-P105-02 | P | như TC-P105-01 |
 | TC-P105-03 | P | đạt qua Playwright cùng AC1: «settings-llm sections» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
@@ -272,10 +297,13 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P105-47 | P | settings-llm.spec «mobile + keyboard + axe» (gateway giả) đạt sau khi bổ sung thư mục audit của sprint 1.5 vào bản sao |
 | TC-P105-48 | P | settings-llm.spec axe 0 serious/critical (gateway giả; axe trên màn thật ADMIN/GV: chưa chạy) |
 | TC-P105-49 | P | useDemoSlice/ep_demo trong settings/llm: 0 |
-| TC-P105-50…TC-P105-52 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P105-50 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P105-51 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P105-52 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P105-53 | P | đạt qua Playwright cùng AC14: «qc-real-f15 hai tab» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-P105-54 | P | qc-real-f15-llm: hai tab sửa cùng nhà → tab sau 409 và nạp lại (stack ep-r) |
-| TC-P105-55…TC-P105-56 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-P105-55 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-P105-56 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
 | TC-P105-57 | P | git grep sk-… trong frontend (ngoài e2e): 0 |
 | TC-PU01-01 | LT | LỖI THỜI: docs/design/DESIGN_TOKENS.css đổi hợp lệ sau sprint 3 (P-107-8/10 bộ màu ĐHBK, màn chiếu P-108-8); còn 2 token lệch giữa kit và tokens.css: --ep-ink-3 (kit 58 % / code 53 %, góp ý #25) và --ep-slow (kit 250 ms / code 200 ms, uiux-91 US-04) → DEF-R3-02 (tài liệu kit chưa đồng bộ) |
 | TC-PU01-02 | P | token thêm so với bản gốc: 7 (≥4 đúng tên; TC cũ ghi đúng 4, đã tăng theo sprint sau): ['--ep-ink-3', '--ep-mask-clear', '--ep-mask-solid', '--ep-scrim', '--ep-shadow-composer', '--ep-slow', '--ep-text-display'] |
@@ -288,7 +316,8 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU01-09 | P | 3 ca xấu → ✗×3; 4 ca lành rc=0 (không báo nhầm) |
 | TC-PU01-10 | P | .tsx gieo → rc=1, ✗×6 |
 | TC-PU01-11 | P | lint-selftest.sh: 7 / 7 luật ESLint + 32 / 32 phép ui-antipatterns bắt được; rc=0 (TC cũ ghi 19 phép, đã tăng) |
-| TC-PU01-12…TC-PU01-13 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU01-12 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU01-13 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-PU01-14 | P | đếm = ['0'] (kỳ vọng 0) |
 | TC-PU01-15 | P | đếm = ['0'] (kỳ vọng 0) |
 | TC-PU01-16 | P | đếm = ['0'] (kỳ vọng 0) |
@@ -306,7 +335,9 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU01-28 | P | Playwright tokens.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-PU01-29 | P | 3 logo/favicon trên frontend ep-r :3700 → [200, 200, 200] |
 | TC-PU01-30 | P | Playwright tokens.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-PU01-31…TC-PU01-33 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU01-31 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU01-32 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU01-33 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-PU01-34 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
 | TC-PU01-35 | P | setItem khoá nhạy cảm trong frontend/src = 0 |
 | TC-PU01-36 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
@@ -348,13 +379,15 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU02-36 | P | đạt qua Playwright cùng AC10: «domain CitationList/VerificationState» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-37 | P | đạt qua Playwright cùng AC10: «domain CitationList/VerificationState» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-38 | P | 0 chuỗi hiển thị chứa RAG/PII/fallback/trace/provider/redaction/confidence/embedding/prompt/LLM trong shared/ui (quét .tsx, bỏ comment/import) |
-| TC-PU02-39…TC-PU02-40 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU02-39 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU02-40 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-PU02-41 | P | đạt qua Playwright cùng AC13: «offline-input» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-42 | P | đạt qua Playwright cùng AC13: «offline-input» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-43 | P | đạt qua Playwright cùng AC14: «one-primary» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-44 | P | đạt qua Playwright cùng AC14: «one-primary» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-45 | P | đạt qua Playwright cùng AC14: «one-primary» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
-| TC-PU02-46…TC-PU02-47 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-PU02-46 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-PU02-47 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
 | TC-PU03-01 | P | đạt qua Playwright cùng AC1: «apiClient basics» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU03-02 | P | đạt qua Playwright cùng AC1: «apiClient basics» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU03-03 | P | setItem( token ở shared/data: 0 |
@@ -474,7 +507,8 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU05-01 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
 | TC-PU05-02 | P | 26 ảnh mốc (≥14 = 7 route × 2 bề rộng; hiện nhiều hơn do route thêm sau) |
 | TC-PU05-03 | P | visual.spec.ts: maxDiffPixelRatio 0.005, threshold 0.2, animations disabled, reducedMotion reduce, page.clock.setFixedTime 2026-10-29 09:20 +07, timezoneId Asia/Ho_Chi_Minh, chờ document.fonts.ready |
-| TC-PU05-04…TC-PU05-05 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
+| TC-PU05-04 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
+| TC-PU05-05 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
 | TC-PU05-06 | P | git log ảnh mốc ở sprint 3: 4 commit (09bef60e, d586ed1e, 1d6e611f, 7b06006e) đều có giải thích trong handoff dev-US-PU-05 (ink-3 #25, phông #26, settings-llm #28, BUG-PU05-1 ảnh Linux) |
 | TC-PU05-07 | P | shots/before có đúng 12 ảnh <route>-<w>.png, commit 64c294d7 (2026-10-03 12:49) sớm hơn commit US-PU đầu tiên 4c9c2f25 (14:19); /dev/ui không có ảnh trước |
 | TC-PU05-08 | P | đạt qua Playwright cùng AC3: «ui-foundation (Playwright bàn phím /chat /threads /640 px)» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
@@ -497,15 +531,19 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU05-25 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-PU05-26 | P | ui-antipatterns.sh 32 ✓/0 ✗; --selftest 32/32 bắt được; chạy ở bản sao, frontend/src sạch (TC cũ: 19 phép — đã tăng) |
 | TC-PU05-27 | P | ui-antipatterns.sh 32 ✓/0 ✗; --selftest 32/32 bắt được; chạy ở bản sao, frontend/src sạch (TC cũ: 19 phép — đã tăng) |
-| TC-PU05-28…TC-PU05-29 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
+| TC-PU05-28 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
+| TC-PU05-29 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
 | TC-PU05-30 | P | grep legacy/secrets. trong .github/workflows/ci.yml: 0 dòng; job Go giữ nguyên, thay đổi so với sprint 2 chỉ thêm job Frontend và env TESTCONTAINERS_RYUK_DISABLED + timeout-minutes |
-| TC-PU05-31…TC-PU05-32 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
-| TC-PU05-33…TC-PU05-34 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU05-31 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
+| TC-PU05-32 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
+| TC-PU05-33 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU05-34 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-PU05-35 | K(c) | (c) CI GitHub / nhánh ci/ui-drift của PR sprint 3 — ngoài phạm vi đồ án |
 | TC-PU05-36 | P | commit PU: đụng backend-go: 0 |
 | TC-PU05-37 | P | go test: 25 pass/0 skip/0 fail |
 | TC-PU05-38 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-PU05-39…TC-PU05-40 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-PU05-39 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-PU05-40 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
 | TC-PU05-41 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-PU05-42 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
 | TC-PU05-43 | P | JWT cứng trong e2e/lighthouserc: 0 |

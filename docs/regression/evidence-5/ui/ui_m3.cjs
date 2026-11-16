@@ -1,0 +1,9 @@
+// QC2 smoke sprint 5 (SmkM): axe + AUDIT/TOUCH cho PE04-45 (danh sách bài thi 1440/1024/390) và phần axe của PE05-48 (/take 1440/375). Chạy: node ui_m3.cjs
+const L = require('./ui_lib.cjs'); const { chromium, login, B, R, axe, AUDIT_SRC, TOUCH_SRC, SH } = L; const fs = require('fs');
+const FX = JSON.parse(fs.readFileSync('/tmp/qc2L/uix2.json')); const audit = async (p, w) => { const a = await p.evaluate(`(${AUDIT_SRC.trim()})`); const o = await p.evaluate(() => [...document.querySelectorAll('option')].map((x) => x.textContent.trim())); a.cut = a.cut.filter((c) => !o.includes(c)); const t = w < 600 ? await p.evaluate(TOUCH_SRC) : []; return { ox: a.ox, cut: a.cut.length, ell: a.ell.length, touch: t.length }; };
+(async () => { const br = await chromium.launch({ headless: true }); const res = {}; let ok = true;
+  for (const [u, paths] of [['r5t', ['/exams', `/exams/${FX.xmcq}?course=${FX.c1}`]], ['r5s01', ['/exams']]]) for (const w of [1440, 1024, 390]) {
+    const { ctx, p } = await login(br, u, { width: w, height: 900 }); for (const path of paths) { await p.goto(B + path); await p.waitForTimeout(3000); await L.dismiss(p); const a = await audit(p, w); const ax = await axe(p); const k = `${u} ${path.split('?')[0].replace(/[0-9a-f-]{36}/, '[id]')} ${w}`; res[k] = { a, ax }; if (a.ox > 0 || a.cut > 0 || a.ell > 0 || a.touch > 0 || ax.length) ok = false; } await ctx.close(); }
+  const sv = {}; for (const w of [1440, 375]) { const { ctx, p } = await login(br, 'r5s34', { width: w, height: 900 }); await p.goto(`${B}/exams/${FX.xmcq}/take?course=${FX.c1}`); await p.waitForTimeout(3500); await L.dismiss(p); sv[w] = { a: await audit(p, w), ax: await axe(p) }; await p.screenshot({ path: SH + `/m-take-${w}.png` }); await ctx.close(); }
+  console.log(JSON.stringify(res), JSON.stringify(sv)); fs.writeFileSync('/tmp/qc2-c5b/m3.json', JSON.stringify({ res, sv, ok }));
+  await br.close(); })();

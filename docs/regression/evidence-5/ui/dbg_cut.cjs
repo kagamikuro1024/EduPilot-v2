@@ -1,0 +1,2 @@
+const L = require('./ui_lib.cjs'); const { chromium, login, B, AUDIT_SRC } = L; const FX = JSON.parse(require('fs').readFileSync('/tmp/qc2L/uix2.json'));
+(async () => { const br = await chromium.launch({ headless: true }); const { ctx, p } = await login(br, 'r5t', { width: 1440, height: 900 }); await p.goto(`${B}/exams/${FX.xmcq}?course=${FX.c1}`); await p.waitForTimeout(3000); await L.dismiss(p); const a = await p.evaluate(`(${AUDIT_SRC.trim()})`); console.log(JSON.stringify(a.cut)); await br.close(); })();

@@ -39,7 +39,6 @@ for l in lines[i0 + 3:i1]:
     if not m: continue
     codes = expand(m.group(1))
     base = norm(m.group(2), m.group(3))
-    if len(codes) > 1 and not any(c in ov for c in codes): rows.append((m.group(1), *base)); continue
     for c in codes:
         rows.append((c, *(ov.get(c) or base)))
         seen.add(c)
