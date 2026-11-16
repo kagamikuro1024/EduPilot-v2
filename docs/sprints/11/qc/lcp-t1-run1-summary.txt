@@ -1,0 +1,19 @@
+simulate
+  /                LCP 2407 TBT 16 CLS 0 script 189 KB
+  /chat            LCP 2716 TBT 30 CLS 0.011 script 217 KB
+  /threads         LCP 2262 TBT 19 CLS 0 script 209 KB
+  /inbox           LCP 2579 TBT 17 CLS 0 script 207 KB
+  /gradebook       LCP 2871 TBT 22 CLS 0 script 229 KB
+  /me              LCP 1958 TBT 16 CLS 0 script 214 KB
+  /settings/llm    LCP 1958 TBT 9 CLS 0 script 215 KB
+  /assignments/01a1e176-641c-759a-98bd-1bee0163acca LCP 2724 TBT 22 CLS 0.028 script 213 KB
+devtools
+  /                LCP 1618 TBT 13 CLS 0 script 189 KB
+  /chat            LCP 1571 TBT 25 CLS 0.011 script 217 KB
+  /threads         LCP 1559 TBT 19 CLS 0 script 209 KB
+  /inbox           LCP 1546 TBT 19 CLS 0 script 207 KB
+  /gradebook       LCP 1552 TBT 18 CLS 0 script 229 KB
+  /me              LCP 1510 TBT 15 CLS 0 script 214 KB
+  /settings/llm    LCP 1515 TBT 20 CLS 0 script 216 KB
+  /assignments/01a1e176-641c-759a-98bd-1bee0163acca LCP 4795 TBT 19 CLS 0.028 script 213 KB
+LHFIN
