@@ -45,12 +45,18 @@ export function Popover({
     };
   }, [open]);
 
-  const close = () => setOpen(false);
+  // Chọn một mục: trả focus về nút gốc (mục vừa bấm bị gỡ cùng menu), để hộp thoại mà mục đó mở trả focus về đúng nút này.
+  const close = () => {
+    setOpen(false);
+    (root.current?.querySelector("[aria-haspopup]") as HTMLElement | null)?.focus();
+  };
   return (
     <div className={s.root} ref={root}>
       {trigger({ open, toggle: () => setOpen((o) => !o), "aria-expanded": open, "aria-haspopup": "true" })}
       {open && (
         <div className={[s.panel, align === "start" ? s.start : s.end].join(" ")} style={{ width }} role="dialog" aria-label={label}>
+          {/* `close` chỉ chạy trong sự kiện bấm: đọc ref lúc đó an toàn */}
+          {/* eslint-disable-next-line react-hooks/refs */}
           {typeof children === "function" ? children(close) : children}
         </div>
       )}
