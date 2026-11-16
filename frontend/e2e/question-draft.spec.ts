@@ -57,3 +57,13 @@ test("sửa câu hỏi chưa có nháp: giá trị của máy chủ, không có 
   await expect(page.getByLabel("Đề bài")).toHaveValue("Gõ mới");
   await expect(page.getByText("Đã khôi phục phần bạn đang sửa dở.")).toHaveCount(0);
 });
+
+test("Enter trên hàng: Drawer mở và ở lại mở, focus nằm trong Drawer (R5-04)", async ({ page }) => {
+  await page.goto("/questions");
+  await rowA(page).focus();
+  await page.keyboard.press("Enter");
+  const dlg = page.getByRole("dialog");
+  await expect(dlg.getByRole("heading", { name: "Câu A" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.activeElement?.closest("dialog") !== null)).toBe(true);
+  await expect(dlg).toBeVisible();
+});
