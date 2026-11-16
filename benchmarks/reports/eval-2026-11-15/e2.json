@@ -1,7 +1,7 @@
 {
   "meta": {
-    "commit": "4c919bf5",
-    "timestamp": "2026-11-15T11:16:58.611Z",
+    "commit": "5233fa86",
+    "timestamp": "2026-11-15T23:05:11.663Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
@@ -44,7 +44,8 @@
   },
   "status": "OK",
   "labels": "WAITING_HUMAN",
-  "labels_note": "Nhãn do BA soạn; chủ dự án soát 20 % (24 mục, benchmarks/e2/README.md) — chưa soát.",
+  "human_review": null,
+  "labels_note": "Nhãn do BA soạn; chủ dự án soát 20 % (24 mục): gói e2-soat-nhan.csv → benchmarks/eval/human/e2_soat.csv.",
   "thresholds": [
     0.3,
     0.35,

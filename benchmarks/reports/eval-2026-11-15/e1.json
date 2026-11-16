@@ -1,7 +1,7 @@
 {
   "meta": {
-    "commit": "4c919bf5",
-    "timestamp": "2026-11-15T11:16:58.199Z",
+    "commit": "5233fa86",
+    "timestamp": "2026-11-15T23:05:11.162Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 3,
     "config": {
@@ -16,7 +16,8 @@
   },
   "status": "OK",
   "labels": "WAITING_HUMAN",
-  "labels_note": "200 nhãn do agent viết (benchmarks/pii/LABELING.md); chủ dự án soát ≥ 50 mẫu phân tầng (P-11-3) — chưa soát.",
+  "human_review": null,
+  "labels_note": "200 nhãn do agent viết (benchmarks/pii/LABELING.md); chủ dự án gán mù ≥ 50 mẫu phân tầng (P-11-3): gói e1-soat-nhan.csv → benchmarks/eval/human/e1_soat.csv.",
   "main_run": "real",
   "channel": {
     "f1": 0.9796,

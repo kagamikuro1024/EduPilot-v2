@@ -1,2 +1,17 @@
-# LCP trên ep-qc — CHƯA CÓ SỐ HỢP LỆ
-Lượt đo 15/11 (Lighthouse simulate, 3 lượt/route, tài khoản sv.kha / teacher / admin) chạy lúc load máy 12–46 (agent khác chạy song song) → PM đã loại. Số thô (tham khảo, KHÔNG dùng làm kết luận): / 1547 · /chat 1423 · /threads 2742 · /inbox 1817 · /gradebook 2889 · /me 2757 · /settings/llm 1512 ms (simulate); devtools có lượt 'page loaded too slowly'. Đo lại khi load < 8 (kiểm uptime trước, ghi vào bằng chứng); script: scripts/lh/.
+# LCP trên ep-qc — lượt đo hợp lệ (22:10–22:30Z 15/11, HEAD 708dc729)
+Điều kiện: Lighthouse throttle devtools, 3 lượt/route (trung vị), build production, đăng nhập thật, trạng thái «đã bấm Đã hiểu» (P-11-5), dữ liệu seed ep-qc (không phải T1 1.000 SV), load máy 3,5–5,2 (<8; ghi uptime trước/sau: 5,04 → 3,46 và 3,65 → 5,17), script scripts/lh/ + /tmp/qc-lh.sh.
+| route (vai) | LCP trung vị ms | ≤ 2.500 | phần tử LCP |
+| --- | --- | --- | --- |
+| / (SV) | 1.593 | đạt | đoạn chữ Landing |
+| /chat (SV) | 1.552 | đạt | — |
+| /threads (SV) | 5.314 | TRƯỢT | xem trước thread (dữ liệu) |
+| /inbox (GV) | 1.562 | đạt | — |
+| /gradebook (GV) | 5.113 | TRƯỢT | thông báo (dữ liệu) |
+| /me (SV) | 5.284 | TRƯỢT | nhãn «Điểm …» của GradeCalculation (dữ liệu) |
+| /settings/llm (ADMIN) | 1.521 | đạt | — |
+| /assignments/[id] (SV) | 4.859 | TRƯỢT | — (CLS 0,063) |
+TBT: mọi route ≤ 128 ms (devtools). Mô phỏng (simulate): không đo lượt này (số simulate cũ ở load 12–46 đã bị PM loại).
+Đối chiếu handoff dev-wave3: dev tự nêu dữ liệu chính hiện sau ≈ 4,7–6 s dưới throttle này và LCP đạt nhờ phần tử lớn nhất là chữ khung; với dữ liệu seed ep-qc chữ dữ liệu lớn hơn h1 nên LCP = thời điểm dữ liệu hiện. Chưa đo trên stack T1 (TC-08-02 yêu cầu T1).
+
+
+[Thay thế] Số chính thức ở T1: lcp-t1.md. Bảng trên là đo sơ bộ ở dữ liệu seed ep-qc, không dùng chấm.

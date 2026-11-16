@@ -1,7 +1,7 @@
 {
   "meta": {
-    "commit": "68c348d3",
-    "timestamp": "2026-11-15T22:06:49.084Z",
+    "commit": "5233fa86",
+    "timestamp": "2026-11-15T23:05:20.661Z",
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
@@ -53,27 +53,27 @@
     }
   },
   "status": "WAITING_HUMAN",
-  "reason": "Giảng viên (chủ dự án) mới duyệt 0/80 câu; AC7: ghi cỡ mẫu thật, không nội suy.",
-  "generated": 80,
+  "reason": "Giảng viên (chủ dự án) mới duyệt 0/100 câu; AC7: ghi cỡ mẫu thật, không nội suy.",
+  "generated": 100,
   "skipped_by_reason": {},
   "review": {
     "unchanged": 0,
     "edited": 0,
     "rejected": 0,
-    "pending": 80
+    "pending": 100
   },
   "n_reviewed": 0,
   "rates": null,
-  "llm_calls": 8,
+  "llm_calls": 10,
   "latency_ms": {
-    "n": 8,
+    "n": 10,
     "p50": 18764,
-    "p95": 25201,
-    "max": 25201,
-    "mean": 17352.6
+    "p95": 25271,
+    "max": 25271,
+    "mean": 17696.7
   },
-  "tokens_in": 55893,
-  "tokens_out": 18639,
+  "tokens_in": 68113,
+  "tokens_out": 23677,
   "jobs": {
     "lo01": {
       "topic": "Phân loại mối đe doạ an ninh mạng",
@@ -447,6 +447,104 @@
           "latency_ms": 16612,
           "tokens_out": 2292,
           "queue_wait_ms": 1,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo09": {
+      "topic": "Làm trơn hàm mũ",
+      "document": "Forecasting (QMB ch. 6b)",
+      "job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+      "t0": "2026-11-15T23:00:31.068Z",
+      "gateway_started_at": "2026-11-15T22:05:19.149050106Z",
+      "gateway_image": "09d80a7b3d3c",
+      "gateway_created": "2026-11-15T22:05:14.663953054Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1e171-3b77-7df9-a234-6b0698e34691",
+          "01a1e171-3b7e-7bdd-8022-b0a137850d9d",
+          "01a1e171-3b81-7d2b-8cd9-c1669885f749",
+          "01a1e171-3b83-7521-8b5b-a422b843d241",
+          "01a1e171-3b84-7ddd-92db-cfe9891ad627",
+          "01a1e171-3b86-7576-b971-b297d28fa8e6",
+          "01a1e171-3b87-7dbd-bced-7b9dde7efe75",
+          "01a1e171-3b89-7144-9276-190e294194cc",
+          "01a1e171-3b8a-7f33-9abe-88666c45cc56",
+          "01a1e171-3b8c-7003-972e-11be1859272c"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T23:00:57.315Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "QC 9router",
+          "tokens_in": 7538,
+          "created_at": "2026-11-15T23:00:31.538122+00:00",
+          "latency_ms": 25271,
+          "tokens_out": 2724,
+          "queue_wait_ms": 0,
+          "fallback_index": 0
+        }
+      ]
+    },
+    "lo10": {
+      "topic": "Đo sai số dự báo",
+      "document": "Forecasting (QMB ch. 6b)",
+      "job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+      "t0": "2026-11-15T23:01:05.382Z",
+      "gateway_started_at": "2026-11-15T22:05:19.149050106Z",
+      "gateway_image": "09d80a7b3d3c",
+      "gateway_created": "2026-11-15T22:05:14.663953054Z",
+      "status": "SUCCEEDED",
+      "result": {
+        "created": [
+          "01a1e171-8fd4-7388-b396-a3cb2f0f0a04",
+          "01a1e171-8fd7-79d4-a3b0-d91fe3700e4e",
+          "01a1e171-8fd9-7361-b55d-528679657e2a",
+          "01a1e171-8fda-77f5-a35a-47587205d7e7",
+          "01a1e171-8fdb-76b1-998c-882c1f2ff18f",
+          "01a1e171-8fdc-79a6-9e09-e7468eca9726",
+          "01a1e171-8fdd-7835-88b5-f2ec1c3e4091",
+          "01a1e171-8fde-7906-bcd6-ad495fd2a5b5",
+          "01a1e171-8fdf-7673-ab0a-5b37ffb24b28",
+          "01a1e171-8fe0-72f1-9af2-3f7dffed065c"
+        ],
+        "skipped": []
+      },
+      "error": null,
+      "t1": "2026-11-15T23:01:19.560Z",
+      "gen_stats": {
+        "unchanged": 0,
+        "edited": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "audit": [
+        {
+          "lane": "BATCH",
+          "task": "QUESTION_GEN",
+          "model": "ag/gemini-3.8-flash",
+          "status": "ok",
+          "attempts": 1,
+          "provider": "QC 9router",
+          "tokens_in": 4682,
+          "created_at": "2026-11-15T23:01:05.537901+00:00",
+          "latency_ms": 12875,
+          "tokens_out": 2314,
+          "queue_wait_ms": 0,
           "fallback_index": 0
         }
       ]

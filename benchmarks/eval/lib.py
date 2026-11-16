@@ -223,6 +223,33 @@ def build_of(image=None, at=None):
     return f"`{hit[0]['sha']}`" if hit else "chưa ghi"
 
 
+def human_review(kind):
+    """Bản soát nhãn chủ dự án đã điền: benchmarks/eval/human/e1_soat.csv (gán mù cột 4 CHẶN / CHO QUA; so với nhãn bộ dữ liệu qua raw/e1-soat-map.json)
+    hoặc e2_soat.csv (cột 9 Đúng / Sai nhãn / Câu hỏi mơ hồ). Đủ khi E1 ≥ 50 mẫu (≥ 25 dương, ≥ 25 âm), E2 đủ 24 mục."""
+    import csv
+    p = HERE / f"human/{kind}_soat.csv"
+    if not p.exists():
+        return None
+    norm = lambda s: re.sub(r"\s+", " ", s.strip().lower())  # noqa: E731
+    with p.open(encoding="utf-8-sig") as f:
+        rows = [r for r in csv.reader(f) if len(r) > 2 and r[0].strip().isdigit()]
+    if kind == "e1":
+        ids = load_raw("e1-soat-map.json")["map"]
+        truth = {it["id"]: it["expect_block"] for it in map(json.loads, (ROOT / "benchmarks/pii/e1_dataset.jsonl").read_text(encoding="utf-8").splitlines()) if it}
+        done = [(ids[r[1]], norm(r[3]) == "chặn") for r in rows if norm(r[3]) in ("chặn", "cho qua")]
+        pos = sum(truth[i] for i, _ in done)
+        dis = [i for i, lab in done if lab != truth[i]]
+        ok = len(done) >= 50 and pos >= 25 and len(done) - pos >= 25
+        out = {"n": len(done), "positive": pos, "negative": len(done) - pos, "agree": len(done) - len(dis), "disagree": dis}
+    else:
+        done = [r for r in rows if norm(r[8]) in ("đúng", "sai nhãn", "câu hỏi mơ hồ")]
+        dis = [r[1] for r in done if norm(r[8]) != "đúng"]
+        ok = len(done) >= 24
+        out = {"n": len(done), "agree": len(done) - len(dis), "disagree": dis}
+    out["status"] = ("SOÁT" if ok else "WAITING_HUMAN") + f" ({out['agree']}/{out['n']} đồng ý; bất đồng → BA phán: {', '.join(dis) or 'không'})"
+    return out
+
+
 def write_report(name, obj, md_lines):
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{name}.json").write_text(json.dumps(obj, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")

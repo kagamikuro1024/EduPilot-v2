@@ -61,13 +61,13 @@ const ago = (iso?: string) => {
   return m < 1 ? "vừa xong" : m < 60 ? `${m} phút trước` : `${Math.round(m / 60)} giờ trước`;
 };
 
-/** Đầu trang khi chưa có dữ liệu (đang tải / lỗi / chưa chọn lớp): đúng bộ nút của lúc có dữ liệu, suy từ trạng thái công thức nếu đã có; nút cần dữ liệu khoá, liên kết bấm được (TL 14.6; DEF-R10.7-02; P-11-51). */
+/** Đầu trang khi chưa có dữ liệu (đang tải / lỗi / chưa chọn lớp): nút phụ thuộc trạng thái công thức / khoá CHỈ hiện khi đã biết trạng thái và đúng như lúc có dữ liệu; chưa biết thì không hiện (TL 14.6; P-11-58). «Xem công thức» luôn hiện. */
 function IdleHeader({ teacher, status }: { teacher: boolean; status?: SchemeStatus }) {
   const sealed = status?.state === "CONFIRMED" && status.gradebook.status === "LOCKED";
   return (
     <PageHeader
       title="Sổ điểm"
-      primary={teacher && !sealed ? { label: "Chốt điểm", disabled: true } : undefined}
+      primary={teacher && status && !sealed ? { label: "Chốt điểm", disabled: true } : undefined}
       secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
       more={teacher && status?.state === "CONFIRMED" ? [{ label: "Xuất XLSX", disabled: true }] : []}
     />

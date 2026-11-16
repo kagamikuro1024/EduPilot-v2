@@ -51,7 +51,7 @@ def main():
     lib.svg_bars("e4.svg", [(t, [r.get("latency_llm_ms", {}).get("p50"), r.get("latency_llm_ms", {}).get("p95")]) for t, r in rows.items() if r["status"] == "OK"], ["p50", "p95"],
                  "E4 — độ trễ lời gọi sinh chữ (ms, llm_audit, qua 9router)", "ms", fmt="{:.0f}")
     f = lambda x, d=3: "–" if x is None else f"{x:.{d}f}".replace(".", ",")  # noqa: E731
-    L = ["# E4 — so sánh model", "", f"Trạng thái: **{obj['status']}**. Stack `ep-qc` @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. Cả hai model gọi qua 9router (openai_compatible), cùng stack, cùng seed, cùng bộ câu E2.", "",
+    L = ["# E4 — so sánh model", "", f"Trạng thái: **{obj['status']}**. Stack `ep-qc` (sha bản gateway không ghi lúc đo); báo cáo dựng bằng bộ đo @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. Cả hai model gọi qua 9router (openai_compatible), cùng stack, cùng seed, cùng bộ câu E2.", "",
          "| | " + " | ".join(f"{t}: `{r['model']}`" for t, r in rows.items()) + " |", "| --- |" + " --- |" * len(rows)]
     def row(name, fn):
         L.append(f"| {name} | " + " | ".join(fn(r) if r["status"] == "OK" else r["status"] for r in rows.values()) + " |")

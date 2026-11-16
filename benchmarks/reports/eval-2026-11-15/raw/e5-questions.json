@@ -1,7 +1,7 @@
 {
  "meta": {
-  "commit": "3186a7b5",
-  "timestamp": "2026-11-15T22:02:50.101Z",
+  "commit": "d080ea35",
+  "timestamp": "2026-11-15T23:01:29.345Z",
   "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
   "runs": 1,
   "config": {
@@ -10,7 +10,7 @@
   }
  },
  "course_id": "01a1deef-d902-7a1d-89e3-98a8272e1620",
- "n": 80,
+ "n": 100,
  "items": [
   {
    "batch": "lo01",
@@ -5098,6 +5098,1272 @@
     "version": 1,
     "created_at": "2026-11-15T22:02:15.64623Z",
     "updated_at": "2026-11-15T22:02:15.690049Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b77-7df9-a234-6b0698e34691",
+    "type": "MCQ_SINGLE",
+    "title": "Theo phương pháp bình phương bé nhất (least squares) trong dự báo xu thế tuyến tính, đường xu thế đư",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Theo phương pháp bình phương bé nhất (least squares) trong dự báo xu thế tuyến tính, đường xu thế được xác định nhằm tối thiểu hóa đại lượng nào?",
+    "explanation": "Phương pháp bình phương bé nhất xác định đường xu thế duy nhất giúp cực tiểu hóa sai số bình phương trung bình giữa các dự báo đường xu thế và giá trị quan sát thực tế.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b77-739d-843c-06d458f4e516",
+      "position": 1,
+      "body": "Sai số bình phương trung bình (mean square error) giữa giá trị dự báo và giá trị quan sát thực tế",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b77-73a0-9467-230408a351a6",
+      "position": 2,
+      "body": "Độ lệch tuyệt đối trung bình (MAD) giữa giá trị dự báo và giá trị quan sát thực tế",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b77-73a3-959f-3b94e0970abe",
+      "position": 3,
+      "body": "Tổng sai số phần trăm tuyệt đối của toàn bộ chuỗi thời gian",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b77-73a5-98bc-fe748d8f5f70",
+      "position": 4,
+      "body": "Hệ số góc của phương trình đường xu thế",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b77-739d-843c-06d458f4e516"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-005b-7681-a15a-b532d177df75",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 3
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.830187Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b7e-7bdd-8022-b0a137850d9d",
+    "type": "MCQ_SINGLE",
+    "title": "Trong phương trình dự báo xu thế tuyến tính $T_t = b_0 + b_1 t$, biến độc lập và biến phụ thuộc được",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Trong phương trình dự báo xu thế tuyến tính $T_t = b_0 + b_1 t$, biến độc lập và biến phụ thuộc được xác định như thế nào?",
+    "explanation": "Trong phân tích hồi quy cho đường xu thế, khoảng thời gian (t) đóng vai trò là biến độc lập và giá trị thực tế quan sát được là biến phụ thuộc.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b7e-77ff-a9dc-e10c25cb998a",
+      "position": 1,
+      "body": "Biến độc lập là khoảng thời gian t và biến phụ thuộc là giá trị quan sát thực tế trong chuỗi thời gian",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b7e-7801-ad09-641f5749de07",
+      "position": 2,
+      "body": "Biến độc lập là giá trị quan sát thực tế và biến phụ thuộc là khoảng thời gian t",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b7e-7803-9f5b-07e52105f2d7",
+      "position": 3,
+      "body": "Biến độc lập là hệ số chặn và biến phụ thuộc là hệ số góc",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b7e-7805-bc13-1eff057031ef",
+      "position": 4,
+      "body": "Cả hai biến đều là các biến giả đại diện cho các mùa trong năm",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b7e-77ff-a9dc-e10c25cb998a"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-005b-7681-a15a-b532d177df75",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 3
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.833457Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b81-7d2b-8cd9-c1669885f749",
+    "type": "MCQ_SINGLE",
+    "title": "Trong phương trình đường xu thế tuyến tính $T_t = b_0 + b_1 t$, hai tham số $b_0$ và $b_1$ lần lượt",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Trong phương trình đường xu thế tuyến tính $T_t = b_0 + b_1 t$, hai tham số $b_0$ và $b_1$ lần lượt biểu diễn các đại lượng nào?",
+    "explanation": "Theo công thức của phương pháp bình phương bé nhất, $b_0$ là điểm cắt trục tung (Y-intercept) và $b_1$ là độ dốc (slope) của đường xu thế.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b81-79f0-87f7-5405f28dde8a",
+      "position": 1,
+      "body": "$b_0$ là hệ số chặn trục tung (Y-intercept) và $b_1$ là hệ số góc (slope) của đường xu thế",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b81-79f3-8232-1b90a638f356",
+      "position": 2,
+      "body": "$b_0$ là hệ số góc và $b_1$ là hệ số chặn trục tung của đường xu thế",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b81-79f4-858d-ac5948f16884",
+      "position": 3,
+      "body": "$b_0$ là giá trị trung bình và $b_1$ là số lượng chu kỳ quan sát",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b81-79f6-ba28-e16a13705cfd",
+      "position": 4,
+      "body": "$b_0$ là sai số ngẫu nhiên và $b_1$ là độ dài mùa vụ",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b81-79f0-87f7-5405f28dde8a"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-005b-7681-a15a-b532d177df75",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 3
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.834849Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b83-7521-8b5b-a422b843d241",
+    "type": "MCQ_SINGLE",
+    "title": "Khi chuỗi thời gian có thành phần xu thế tăng (positive trend), phương pháp trung bình trượt có trọn",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Khi chuỗi thời gian có thành phần xu thế tăng (positive trend), phương pháp trung bình trượt có trọng số bộc lộ nhược điểm gì so với phương pháp chiếu xu thế?",
+    "explanation": "Do có thành phần xu thế dương, phương pháp chiếu xu thế phản ánh sát xu thế hơn, trong khi trung bình trượt có trọng số dù đặt trọng số lớn ở kỳ gần nhất vẫn cho dự báo bị trễ so với dữ liệu biến đổi.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b83-711b-a92a-e027ea76f84d",
+      "position": 1,
+      "body": "Tạo ra kết quả dự báo bị trễ (lagging behind) so với dữ liệu đang biến đổi",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b83-711e-9e51-23a1a2d54663",
+      "position": 2,
+      "body": "Luôn tạo ra giá trị dự báo vượt xa xu thế thực tế",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b83-711f-a904-a18b08fbdb03",
+      "position": 3,
+      "body": "Không thể gán trọng số lớn hơn cho giai đoạn gần nhất",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b83-7122-ae3b-c6de7df1952c",
+      "position": 4,
+      "body": "Bắt buộc phải loại bỏ các giá trị quan sát của các kỳ trước đó",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b83-711b-a92a-e027ea76f84d"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0060-787c-b704-0bcdb6acfbc2",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 10
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.836593Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b84-7ddd-92db-cfe9891ad627",
+    "type": "MCQ_SINGLE",
+    "title": "Khi áp dụng phương pháp trung bình trượt có trọng số 3 kỳ ($k = 3$) để dự báo cho tháng 12 (tháng th",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Khi áp dụng phương pháp trung bình trượt có trọng số 3 kỳ ($k = 3$) để dự báo cho tháng 12 (tháng thứ 10), dữ liệu của 3 tháng nào ngay trước đó sẽ được sử dụng?",
+    "explanation": "Dự báo cho tháng 12 là trung bình có trọng số của 3 tháng ngay trước đó: tháng 9, tháng 10 và tháng 11.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b84-7b3a-b1e7-560b48e359f3",
+      "position": 1,
+      "body": "Tháng 9, tháng 10 và tháng 11",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b84-7b3c-a50e-9bf4a543ec26",
+      "position": 2,
+      "body": "Tháng 8, tháng 9 và tháng 10",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b84-7b3f-b318-ae426a99c2c8",
+      "position": 3,
+      "body": "Tháng 6, tháng 7 và tháng 8",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b84-7b41-8f8f-09abff94232d",
+      "position": 4,
+      "body": "Tháng 7, tháng 8 và tháng 9",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b84-7b3a-b1e7-560b48e359f3"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-005f-799b-94d1-483b49914d4b",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 9
+     },
+     {
+      "chunk_id": "01a1def5-0060-787c-b704-0bcdb6acfbc2",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 10
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.838122Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b86-7576-b971-b297d28fa8e6",
+    "type": "MCQ_SINGLE",
+    "title": "Khi một biến định tính (categorical variable) có $k$ mức đại diện cho các mùa, số lượng biến giả (du",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Khi một biến định tính (categorical variable) có $k$ mức đại diện cho các mùa, số lượng biến giả (dummy variables) cần thiết để mô hình hóa là bao nhiêu?",
+    "explanation": "Quy tắc nêu rõ khi một biến định tính có k mức, ta cần k – 1 biến giả để đưa vào mô hình.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b86-73a6-8c69-7115b8d6c4d4",
+      "position": 1,
+      "body": "k – 1",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b86-73a8-aebb-58d80a3c7f8b",
+      "position": 2,
+      "body": "k",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b86-73ab-8f08-439109e4edd8",
+      "position": 3,
+      "body": "k + 1",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b86-73ad-ac09-f1297a863e2a",
+      "position": 4,
+      "body": "2k",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b86-73a6-8c69-7115b8d6c4d4"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0067-7565-9b68-3d682bf69a09",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 16
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.839574Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b87-7dbd-bced-7b9dde7efe75",
+    "type": "MCQ_SINGLE",
+    "title": "Trong bài toán chuỗi thời gian có 4 quý không có xu thế, cần sử dụng bao nhiêu biến giả để mô hình h",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Trong bài toán chuỗi thời gian có 4 quý không có xu thế, cần sử dụng bao nhiêu biến giả để mô hình hóa yếu tố mùa vụ?",
+    "explanation": "Nếu có 4 mùa (quý), áp dụng quy tắc k – 1 mức thì cần 3 biến giả (Qtr1, Qtr2, Qtr3).",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b87-7b1c-ab1e-8d3bd5249a5c",
+      "position": 1,
+      "body": "3 biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b87-7b1e-9076-15a74cb12069",
+      "position": 2,
+      "body": "4 biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b87-7b21-8334-ec64090d8725",
+      "position": 3,
+      "body": "2 biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b87-7b23-9076-3b8a7f0a51b8",
+      "position": 4,
+      "body": "1 biến giả",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b87-7b1c-ab1e-8d3bd5249a5c"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0067-7565-9b68-3d682bf69a09",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 16
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.840829Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b89-7144-9276-190e294194cc",
+    "type": "MCQ_SINGLE",
+    "title": "Đối với chuỗi thời gian có tính mùa vụ nhưng không có xu thế (seasonality without trend), ngoài việc",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Đối với chuỗi thời gian có tính mùa vụ nhưng không có xu thế (seasonality without trend), ngoài việc sử dụng hồi quy biến giả, có thể lập dự báo cho các quý năm tiếp theo bằng cách đơn giản nào?",
+    "explanation": "Tài liệu cho biết có thể thu được các dự báo theo quý cho năm tiếp theo bằng cách tính trung bình số lượng bán được trong từng quý.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b88-7e88-bbf2-be0b4ab74ce1",
+      "position": 1,
+      "body": "Tính giá trị trung bình của từng quý qua các năm đã có",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b88-7e8a-9c2d-806f01bd4de5",
+      "position": 2,
+      "body": "Lấy giá trị quý tương ứng của năm đầu tiên",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b88-7e8c-8650-bc52b567ee2e",
+      "position": 3,
+      "body": "Tính trung bình trượt 2 kỳ cho toàn bộ chuỗi dữ liệu",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b88-7e8e-8d05-c870615b3a20",
+      "position": 4,
+      "body": "Cộng dồn tất cả các quý rồi chia cho tổng số năm",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b88-7e88-bbf2-be0b4ab74ce1"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0068-7875-a3f8-561e234ca94d",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 18
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.84266Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b8a-7f33-9abe-88666c45cc56",
+    "type": "MCQ_SINGLE",
+    "title": "Trong ví dụ chuỗi thời gian bán hàng theo quý không có xu thế dài hạn, đồ thị chuỗi thời gian cho th",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Trong ví dụ chuỗi thời gian bán hàng theo quý không có xu thế dài hạn, đồ thị chuỗi thời gian cho thấy đặc điểm nào về mô hình mùa vụ?",
+    "explanation": "Quan sát kỹ đồ thị chuỗi thời gian cho thấy quý 1 và quý 3 có mức bán vừa phải, quý 2 có mức bán cao nhất và quý 4 có xu hướng thấp nhất.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b8a-7c26-9c2f-e3e30c48555f",
+      "position": 1,
+      "body": "Quý 1 và Quý 3 có doanh số vừa phải, Quý 2 cao nhất, Quý 4 thấp nhất",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b8a-7c29-aa18-a422b31e2296",
+      "position": 2,
+      "body": "Quý 1 cao nhất, Quý 2 và Quý 4 vừa phải, Quý 3 thấp nhất",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b8a-7c2b-8964-04ebc8136d5c",
+      "position": 3,
+      "body": "Doanh số của cả 4 quý dao động ngẫu nhiên và không thể hiện tính mùa vụ",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b8a-7c2c-8258-19ccc4d99c36",
+      "position": 4,
+      "body": "Quý 4 luôn đạt doanh số cao nhất trong năm",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b8a-7c26-9c2f-e3e30c48555f"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0063-7590-8705-14d82df8fefe",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 14
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.843783Z"
+   }
+  },
+  {
+   "batch": "lo09",
+   "topic": "Làm trơn hàm mũ",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-3b8c-7003-972e-11be1859272c",
+    "type": "MCQ_SINGLE",
+    "title": "Để mở rộng phương pháp khớp đường cong khi chuỗi thời gian có cả hiệu ứng mùa vụ và xu thế tuyến tín",
+    "topic": "Làm trơn hàm mũ",
+    "difficulty": "MEDIUM",
+    "stem": "Để mở rộng phương pháp khớp đường cong khi chuỗi thời gian có cả hiệu ứng mùa vụ và xu thế tuyến tính, ta cần thực hiện điều chỉnh nào?",
+    "explanation": "Khi chuỗi thời gian chứa cả hiệu ứng mùa vụ và xu thế tuyến tính, cách tiếp cận được mở rộng bằng cách đưa thêm một biến bổ sung đại diện cho thời gian.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-3b8b-7d9e-b1c3-06ca90fc82e8",
+      "position": 1,
+      "body": "Đưa thêm một biến bổ sung để đại diện cho thời gian",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b8b-7da0-9690-95f822e3813e",
+      "position": 2,
+      "body": "Tăng số lượng biến giả lên thành k biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b8b-7da1-8eb8-75b02a69f830",
+      "position": 3,
+      "body": "Loại bỏ hoàn toàn các biến giả mùa vụ",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-3b8b-7da3-bed0-3a5410e0a7ff",
+      "position": 4,
+      "body": "Đặt trọng số bằng nhau cho tất cả các khoảng thời gian",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-3b8b-7d9e-b1c3-06ca90fc82e8"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0069-7a73-b06f-d7fa6001ee14",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 19
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e170-d71a-7467-96c9-38bc08cad924",
+    "version": 1,
+    "created_at": "2026-11-15T23:00:56.823128Z",
+    "updated_at": "2026-11-15T23:00:56.84476Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fd4-7388-b396-a3cb2f0f0a04",
+    "type": "MCQ_SINGLE",
+    "title": "Trong phương pháp bình phương bé nhất (least squares) dùng để xác định đường xu hướng tuyến tính, ti",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Trong phương pháp bình phương bé nhất (least squares) dùng để xác định đường xu hướng tuyến tính, tiêu chí tối thiểu hóa nào được sử dụng giữa các dự báo và giá trị quan sát thực tế?",
+    "explanation": "Theo tài liệu, phương pháp bình phương bé nhất xác định đường xu hướng duy nhất giúp tối thiểu hóa bình phương sai số trung bình (mean square error) giữa giá trị dự báo và giá trị quan sát thực tế.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fd3-7dca-b449-0a8103fa434b",
+      "position": 1,
+      "body": "Tổng sai số tuyệt đối (Mean Absolute Error)",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd3-7dcc-9449-b06d2ebaebe2",
+      "position": 2,
+      "body": "Bình phương sai số trung bình (Mean Square Error)",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd3-7dce-b9c6-750e349d4f8c",
+      "position": 3,
+      "body": "Sai số phần trăm tuyệt đối trung bình (MAPE)",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd3-7dcf-8224-f01bc30c6047",
+      "position": 4,
+      "body": "Độ lệch chuẩn của sai số dự báo",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fd3-7dcc-9449-b06d2ebaebe2"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-005b-7681-a15a-b532d177df75",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 3
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.423116Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fd7-79d4-a3b0-d91fe3700e4e",
+    "type": "MCQ_SINGLE",
+    "title": "Khi xác định đường xu hướng tuyến tính bằng phương pháp bình phương bé nhất, biến độc lập và biến ph",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Khi xác định đường xu hướng tuyến tính bằng phương pháp bình phương bé nhất, biến độc lập và biến phụ thuộc được xác định như thế nào?",
+    "explanation": "Tài liệu nêu rõ: biến độc lập là khoảng thời gian (the time period) và biến phụ thuộc là giá trị quan sát thực tế trong chuỗi thời gian.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fd7-7780-a985-8ae87aa6940b",
+      "position": 1,
+      "body": "Biến độc lập là khoảng thời gian (t) và biến phụ thuộc là giá trị quan sát thực tế.",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd7-7781-bc03-6b363e330c14",
+      "position": 2,
+      "body": "Biến độc lập là giá trị quan sát thực tế và biến phụ thuộc là khoảng thời gian (t).",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd7-7782-b139-ee6f1fbbf682",
+      "position": 3,
+      "body": "Cả hai biến đều là các quan sát thực tế ở các thời kỳ khác nhau.",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd7-7784-b32f-db0d97985809",
+      "position": 4,
+      "body": "Biến độc lập là sai số dự báo và biến phụ thuộc là khoảng thời gian (t).",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fd7-7780-a985-8ae87aa6940b"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-005b-7681-a15a-b532d177df75",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 3
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.424758Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fd9-7361-b55d-528679657e2a",
+    "type": "MCQ_SINGLE",
+    "title": "Trong phương trình dự báo xu hướng tuyến tính Tt = b0 + b1*t, các tham số b0 và b1 đại diện cho nhữn",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Trong phương trình dự báo xu hướng tuyến tính Tt = b0 + b1*t, các tham số b0 và b1 đại diện cho những thành phần nào?",
+    "explanation": "Theo công thức trong tài liệu: b0 là Y-intercept của đường xu hướng tuyến tính, và b1 là slope (độ dốc) của đường xu hướng tuyến tính.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fd9-7158-9aca-a41c4a0bbaa0",
+      "position": 1,
+      "body": "b0 là độ dốc (slope) và b1 là hệ số chặn trục Y (Y-intercept)",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd9-715a-bbe8-1e7606d3ec00",
+      "position": 2,
+      "body": "b0 là sai số bình phương trung bình và b1 là số lượng quan sát",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd9-715b-b513-3e595baf4957",
+      "position": 3,
+      "body": "b0 là hệ số chặn trục Y (Y-intercept) và b1 là độ dốc (slope) của đường xu hướng",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fd9-715d-85da-9b317540c4e7",
+      "position": 4,
+      "body": "b0 là giá trị trung bình của chuỗi và b1 là trọng số thời gian",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fd9-715b-b513-3e595baf4957"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-005b-7681-a15a-b532d177df75",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 3
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.426179Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fda-77f5-a35a-47587205d7e7",
+    "type": "MCQ_SINGLE",
+    "title": "Theo kết luận từ ví dụ Auger's Plumbing Service, tại sao mô hình bình quân di động có trọng số lại t",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Theo kết luận từ ví dụ Auger's Plumbing Service, tại sao mô hình bình quân di động có trọng số lại tụt lại phía sau (lagging behind) dữ liệu đang biến đổi?",
+    "explanation": "Tài liệu nêu rõ do thành phần xu hướng dương (positive trend component) trong chuỗi thời gian, bình quân di động có trọng số dù đặt trọng số lớn (0,6) vào kỳ hiện tại vẫn tạo ra dự báo bị tụt lại phía sau dữ liệu.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fda-7548-9b6f-425ec8de9edd",
+      "position": 1,
+      "body": "Do chuỗi thời gian tồn tại thành phần tính mùa vụ rất mạnh",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fda-754e-ad5c-761b0dde0f1d",
+      "position": 2,
+      "body": "Do chuỗi thời gian có thành phần xu hướng dương",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fda-7550-bb64-93b500eea47a",
+      "position": 3,
+      "body": "Do trọng số đặt vào giai đoạn gần nhất quá nhỏ (chỉ 0,1)",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fda-7552-af0b-f03827258540",
+      "position": 4,
+      "body": "Do số lượng kỳ dữ liệu quan sát quá ít (dưới 3 kỳ)",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fda-754e-ad5c-761b0dde0f1d"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0060-787c-b704-0bcdb6acfbc2",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 10
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.427255Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fdb-76b1-998c-882c1f2ff18f",
+    "type": "MCQ_SINGLE",
+    "title": "Khi mô hình hóa yếu tố mùa vụ dạng biến định tính (categorical variable) có k mức (k levels), cần sử",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Khi mô hình hóa yếu tố mùa vụ dạng biến định tính (categorical variable) có k mức (k levels), cần sử dụng bao nhiêu biến giả (dummy variables)?",
+    "explanation": "Tài liệu chỉ ra rằng khi một biến định tính có k mức thì cần sử dụng k - 1 biến giả (dummy variables).",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fdb-751f-bf52-cd21fc154de1",
+      "position": 1,
+      "body": "k biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdb-7521-8336-3700f2f53982",
+      "position": 2,
+      "body": "k + 1 biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdb-7522-a335-4b3f72ebcc50",
+      "position": 3,
+      "body": "k - 1 biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdb-7524-a16b-8fe4d90633bb",
+      "position": 4,
+      "body": "2k biến giả",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fdb-7522-a335-4b3f72ebcc50"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0067-7565-9b68-3d682bf69a09",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 16
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.428412Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fdc-79a6-9e09-e7468eca9726",
+    "type": "MCQ_SINGLE",
+    "title": "Trong ví dụ bán ô (Umbrella Sales) với chuỗi thời gian mang tính mùa vụ không có xu hướng, dự báo do",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Trong ví dụ bán ô (Umbrella Sales) với chuỗi thời gian mang tính mùa vụ không có xu hướng, dự báo doanh số quý cho năm tiếp theo có thể thu được bằng cách nào mà không cần dùng phương trình hồi quy phức tạp?",
+    "explanation": "Đoạn [C14] nêu rõ: 'We could have obtained the quarterly forecasts for next year by simply computing the average number of umbrellas sold in each quarter'.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fdc-7777-b116-d613045c828a",
+      "position": 1,
+      "body": "Lấy giá trị của quý tương ứng ở năm đầu tiên",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdc-7778-840f-b3efa081d13d",
+      "position": 2,
+      "body": "Tính giá trị trung bình của các quý trong cùng năm gần nhất",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdc-777a-b436-460ccf92692f",
+      "position": 3,
+      "body": "Tính doanh số bán ô trung bình ở mỗi quý qua các năm",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdc-777b-a5e9-31b06b47ba96",
+      "position": 4,
+      "body": "Lấy doanh số quý lớn nhất trừ đi doanh số quý nhỏ nhất",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fdc-777a-b436-460ccf92692f"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0068-7875-a3f8-561e234ca94d",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 18
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.42936Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fdd-7835-88b5-f2ec1c3e4091",
+    "type": "MCQ_SINGLE",
+    "title": "Trong ví dụ Umbrella Sales, thứ tự mức doanh số giữa các quý được quan sát thấy như thế nào qua đồ t",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Trong ví dụ Umbrella Sales, thứ tự mức doanh số giữa các quý được quan sát thấy như thế nào qua đồ thị chuỗi thời gian?",
+    "explanation": "Tài liệu chỉ ra: Quý 1 và 3 có doanh số trung bình (moderate), Quý 2 có doanh số cao nhất, và Quý 4 có xu hướng thấp nhất.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fdd-76a5-ad8d-dc56609ad3c8",
+      "position": 1,
+      "body": "Quý 1 cao nhất, Quý 2 và 3 vừa phải, Quý 4 thấp nhất",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdd-76a7-900d-cc33dd65e060",
+      "position": 2,
+      "body": "Quý 2 cao nhất, Quý 1 và 3 vừa phải, Quý 4 thấp nhất",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdd-76a8-a8ca-e7253d0fb4e6",
+      "position": 3,
+      "body": "Quý 4 cao nhất, Quý 2 thấp nhất, Quý 1 và 3 vừa phải",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdd-76aa-aa94-1596d7d48b28",
+      "position": 4,
+      "body": "Quý 3 cao nhất, Quý 1 thấp nhất, Quý 2 và 4 vừa phải",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fdd-76a7-900d-cc33dd65e060"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0063-7590-8705-14d82df8fefe",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 14
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.430413Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fde-7906-bcd6-ad495fd2a5b5",
+    "type": "MCQ_SINGLE",
+    "title": "Khi mở rộng mô hình để xử lý một chuỗi thời gian vừa có tác động mùa vụ vừa có xu hướng tuyến tính,",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Khi mở rộng mô hình để xử lý một chuỗi thời gian vừa có tác động mùa vụ vừa có xu hướng tuyến tính, người ta đưa thêm biến nào vào mô hình?",
+    "explanation": "Đoạn [C15] nêu: 'We will introduce an additional variable to represent time' khi chuỗi chứa cả hiệu ứng mùa vụ và xu hướng tuyến tính.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fde-7772-af47-924313de4cd6",
+      "position": 1,
+      "body": "Biến đại diện cho sai số ngẫu nhiên",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fde-7774-8d77-62a3caf8bd7b",
+      "position": 2,
+      "body": "Biến bổ sung để đại diện cho thời gian",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fde-7775-add5-4359eec6bd56",
+      "position": 3,
+      "body": "Biến trọng số mũ của kỳ trước",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fde-7776-b190-43202cfcf856",
+      "position": 4,
+      "body": "Biến chỉ số giá cả tiêu dùng",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fde-7774-8d77-62a3caf8bd7b"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0069-7a73-b06f-d7fa6001ee14",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 19
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.431234Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fdf-7673-ab0a-5b37ffb24b28",
+    "type": "MCQ_SINGLE",
+    "title": "Trong ví dụ Terry's Tie Shop với 3 mùa trong năm (Giáng sinh, Ngày của Cha, và các thời gian khác),",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Trong ví dụ Terry's Tie Shop với 3 mùa trong năm (Giáng sinh, Ngày của Cha, và các thời gian khác), cần xác định bao nhiêu biến giả trong mô hình?",
+    "explanation": "Đoạn [C18] nêu: 'There are three seasons, so we will need two dummy variables' (Seas1 và Seas2).",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fdf-74b9-b756-03148eb0f433",
+      "position": 1,
+      "body": "1 biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdf-74ba-aac0-802ee079f3d6",
+      "position": 2,
+      "body": "2 biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdf-74bc-8783-04a149e6d98c",
+      "position": 3,
+      "body": "3 biến giả",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fdf-74bd-89db-8b37b5486b85",
+      "position": 4,
+      "body": "4 biến giả",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fdf-74ba-aac0-802ee079f3d6"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-006c-782f-bf7a-65d2f580a20c",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 22
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.432013Z"
+   }
+  },
+  {
+   "batch": "lo10",
+   "topic": "Đo sai số dự báo",
+   "http": 200,
+   "question": {
+    "id": "01a1e171-8fe0-72f1-9af2-3f7dffed065c",
+    "type": "MCQ_SINGLE",
+    "title": "Đối với dữ liệu bán ô (Umbrella Sales) ở đoạn [C13], dự báo doanh số cho Quý 4 năm thứ 6 đạt giá trị",
+    "topic": "Đo sai số dự báo",
+    "difficulty": "MEDIUM",
+    "stem": "Đối với dữ liệu bán ô (Umbrella Sales) ở đoạn [C13], dự báo doanh số cho Quý 4 năm thứ 6 đạt giá trị là bao nhiêu?",
+    "explanation": "Theo đoạn [C13], công thức dự báo Quý 4 là: Sales = 95 + 29(0) + 57(0) + 26(0) = 95.",
+    "origin": "GENERATED",
+    "review_status": "PENDING",
+    "options": [
+     {
+      "id": "01a1e171-8fe0-714f-9c8a-8949b02988c3",
+      "position": 1,
+      "body": "124",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fe0-7151-a983-e4c87402bbc3",
+      "position": 2,
+      "body": "152",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fe0-7152-aac6-996e772b23bf",
+      "position": 3,
+      "body": "121",
+      "pinned_last": false
+     },
+     {
+      "id": "01a1e171-8fe0-7153-ae3b-d979209054fe",
+      "position": 4,
+      "body": "95",
+      "pinned_last": false
+     }
+    ],
+    "answer_key": {
+     "option_ids": [
+      "01a1e171-8fe0-7153-ae3b-d979209054fe"
+     ]
+    },
+    "citations": [
+     {
+      "chunk_id": "01a1def5-0067-7565-9b68-3d682bf69a09",
+      "document_id": "01a1def4-a96c-792b-aa75-800d540b5ff3",
+      "document_title": "Forecasting (QMB ch. 6b)",
+      "page": 16
+     }
+    ],
+    "used_in_exams": [],
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "archived_at": null,
+    "ai_job_id": "01a1e171-5d2e-7a1e-bffb-1874b88db45f",
+    "version": 1,
+    "created_at": "2026-11-15T23:01:18.419835Z",
+    "updated_at": "2026-11-15T23:01:18.432936Z"
    }
   }
  ]

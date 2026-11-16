@@ -61,7 +61,8 @@ def report():
     m = runs[main_tag]
     leak_total = sum(lk["hits"].values()) if lk else None
     obj = {"meta": lib.meta({"stack": "ep-qc", "dataset": "benchmarks/pii/e1_dataset.jsonl (200)", "runs": {t: r["run"]["embedding"] for t, r in runs.items()}}, runs=len(runs)),
-           "status": "OK", "labels": "WAITING_HUMAN", "labels_note": "200 nhãn do agent viết (benchmarks/pii/LABELING.md); chủ dự án soát ≥ 50 mẫu phân tầng (P-11-3) — chưa soát.",
+           "status": "OK", "labels": (lib.human_review("e1") or {}).get("status", "WAITING_HUMAN"), "human_review": lib.human_review("e1"),
+           "labels_note": "200 nhãn do agent viết (benchmarks/pii/LABELING.md); chủ dự án gán mù ≥ 50 mẫu phân tầng (P-11-3): gói e1-soat-nhan.csv → benchmarks/eval/human/e1_soat.csv.",
            "main_run": main_tag, "channel": {**m["metrics"], **m["counts"]}, "targets": {"f1_channel": ">= 0.90 (mục tiêu)", "payload_leak": "= 0 (mục tiêu)"},
            "by_pii_type_recall": m["by_pii_type"], "by_stratum": m["by_stratum"], "channel_confusion": m["channel_confusion"],
            "payload_leak": lk and {"rows_scanned": lk["payload_rows"], "hits": lk["hits"], "total": leak_total, "by_task": lk["by_task"]},
@@ -70,7 +71,7 @@ def report():
                  ["recall / F1 / tỉ lệ"], f"E1 — tường lửa PII ({runs[main_tag]['run']['embedding'][:40]})", "tỉ lệ", ymax=1.0)
     f = lambda x: f"{x:.3f}".replace(".", ",")  # noqa: E731
     c = obj["channel"]
-    L = ["# E1 — tường lửa PII của Threads", "", f"Trạng thái: **OK** · nhãn: **WAITING_HUMAN** (nhãn máy, chủ dự án chưa soát ≥ 50 mẫu — P-11-3). Stack `ep-qc` @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}.", "",
+    L = ["# E1 — tường lửa PII của Threads", "", f"Trạng thái: **OK** · nhãn: **{obj['labels']}** (nhãn máy; chủ dự án gán mù ≥ 50 mẫu — P-11-3, `HUONG-DAN-CHU-DU-AN.md`). Stack `ep-qc` (sha bản gateway không ghi lúc đo); báo cáo dựng bằng bộ đo @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}.", "",
          f"Lượt chính `{main_tag}` ({runs[main_tag]['run']['embedding']}): kênh **P {f(c['precision'])} · R {f(c['recall'])} · F1 {f(c['f1'])}** (mục tiêu F1 ≥ 0,90), chặn nhầm {f(c['false_block'])}; TP {c['tp']} · FP {c['fp']} · FN {c['fn']} · TN {c['tn']}.",
          f"Rò rỉ payload LLM: **{leak_total if leak_total is not None else 'chưa quét'}** lần trúng tên / MSSV / email roster trên {lk['payload_rows'] if lk else '–'} payload đã che (mục tiêu = 0).", "",
          "![](e1.svg)", "", "## Theo lượt", "", "| lượt | nhúng | P | R | F1 | chặn nhầm | TP | FP | FN | TN |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]

@@ -214,7 +214,8 @@ def report():
         comb["per_provider"] = {t: point(v["rows"], comb["floor"], comb["ceil"], comb["w"], T0) for t, v in res.items()}
         comb["current_per_provider"] = {t: v["current_at_t0"] for t, v in res.items()}
     obj = {"meta": lib.meta({"stack": "ep-qc", "providers": prov, "embedding": embed, "constants_at_run": {"RAG_SIM_FLOOR": FLOOR0, "RAG_SIM_CEIL": CEIL0, "w_retr": W0, "escalation_threshold": T0}}),
-           "status": status, "labels": "WAITING_HUMAN", "labels_note": "Nhãn do BA soạn; chủ dự án soát 20 % (24 mục, benchmarks/e2/README.md) — chưa soát.",
+           "status": status, "labels": (lib.human_review("e2") or {}).get("status", "WAITING_HUMAN"), "human_review": lib.human_review("e2"),
+           "labels_note": "Nhãn do BA soạn; chủ dự án soát 20 % (24 mục): gói e2-soat-nhan.csv → benchmarks/eval/human/e2_soat.csv.",
            "thresholds": THRESHOLDS, "recommendation": comb, "by_provider": {t: {k: v for k, v in r.items() if k != "rows"} for t, r in res.items()}}
     lib.save_raw("e2-rows.json", {t: r["rows"] for t, r in res.items()})
     xs = THRESHOLDS
@@ -235,7 +236,7 @@ def fmt(x, d=3):
 
 def md(obj, res, prov):
     L = ["# E2 — ngưỡng escalation và hiệu chỉnh độ tin cậy", "",
-         f"Trạng thái: **{obj['status']}** · nhãn: **WAITING_HUMAN** (BA soạn, chủ dự án chưa soát 20 %). Stack `ep-qc` @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. "
+         f"Trạng thái: **{obj['status']}** · nhãn: **{obj['labels']}** (BA soạn; chủ dự án soát 24 mục, `HUONG-DAN-CHU-DU-AN.md`). Stack `ep-qc` (sha bản gateway không ghi lúc đo); báo cáo dựng bằng bộ đo @ `{obj['meta']['commit']}`, {obj['meta']['timestamp'][:10]}. "
          f"Nhúng: {obj['meta']['config']['embedding']}. Hằng số lúc đo: RAG_SIM_FLOOR 0,25 · RAG_SIM_CEIL 0,65 · conf = 0,6·retr + 0,4·ground · ngưỡng lớp 0,80. "
          "Bảng theo ngưỡng tính trên câu vàng; bảng trước–sau và đề xuất tính trên câu vàng + 20 câu ngoài chủ đề.", ""]
     rc = obj["recommendation"]

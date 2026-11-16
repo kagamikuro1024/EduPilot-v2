@@ -13,7 +13,7 @@ Môi trường: stack `ep-qc` (HTTPS `https://localhost:943`, Postgres 18 + pgve
 | P-11-15 (DTO điểm cho SV) | 4 | 3 | 0 | 1 | ca 4 (UI «Chi tiết») cần dữ liệu có `detail` |
 | @real F3 / F5 / F9+F11 / F16 / F17 | 8 | 8 | 0 | 0 | LLM thật (9router) ở F9/F11, TC-04-11, TC-05-07 |
 | U1 (làm mới phiên sớm) | 3 | 3 | 0 | 0 | |
-| LCP 7 route | 7 | 0 | 0 | 7 | số đo lúc load 12–46 bị loại; đo lại khi load < 8 |
+| LCP 8 route | 8 | 7 | 0 | 1 Nợ AC6 | T1 (ep-t1) devtools: /assignments/[id] 4.794 ms → Nợ (D-11-24); lần đầu báo riêng; lcp-t1.md |
 
 ## Thật / giả
 - LLM chữ: mặc định tuyến **9router thật** (`ag/gemini-3.8-flash`) cho CHAT/CLASSIFY/UTILITY/GRADING/QUESTION_GEN/INSIGHT; công tắc `/settings/llm` kiểm bằng INSIGHT (bật → 9router, tắt → fake env, bật lại). Ca cần fake (tên lỗi, 429, chậm 60 s, 1 triệu hàng, seed) dùng provider `QC fake` / `QC lỗi` / `QC chậm`.
@@ -33,3 +33,8 @@ Lớp `QCT2`, `QCT3`; GV `qct2@edupilot.local`; thread «QC ghim …» / «QC nh
 
 ## Lệnh chạy lại
 `cd ~/Documents/TA_Agent_qc5/frontend && QC_REAL=1 QC_BASE=https://localhost:943 … npx playwright test -c playwright.qc-real-flow.config.ts e2e/qc-real-*.spec.ts` (xem `real-flows.md`) · `python3 docs/sprints/11/qc/scripts/p10_*.py` · `python3 docs/sprints/11/qc/scripts/progress.py`.
+
+## Trạng thái dừng (chủ dự án lệnh dừng, tối làm tiếp)
+- Chưa chạy: TC-04-11 (Gemini thật, chờ hạn mức ngày hồi sau 07:00Z, ghi số chuỗi dùng); TC-07-13 (chờ dev), TC-07-14 (PM).
+- Stack: ep-t1 đã docker stop (volume giữ); ep-qc chạy lại, readyz 200, PENDING 761987 = 150.
+- Dữ liệu QC trên ep-qc chưa dọn (QCT2/3/4, qct2@, provider QC *, fixture audit 100k).

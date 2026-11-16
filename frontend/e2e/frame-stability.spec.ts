@@ -72,32 +72,46 @@ for (const [name, opts] of [["chưa chốt", {}], ["chưa có công thức", { s
   });
 }
 
-test("insights: đang tải và lỗi giữ đúng bộ nút đầu trang của lúc có báo cáo (X3)", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  const KC = { id: "22222222-2222-7222-8222-222222222987", class_code: "761987", subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" };
-  let mode: "slow" | "ok" | "fail" = "slow";
-  await asJwt(page, "TEACHER");
-  await page.route("**/api/v1/me/courses**", (r) => r.fulfill(json({ items: [{ course: KC, role_in_course: "TEACHER", enrollment_status: "ACTIVE" }], next_cursor: null })));
-  await page.route("**/api/v1/me/today**", (r) => r.fulfill(json({ count: 0, actions: [] })));
-  await page.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
-  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", async (r) => {
-    if (mode === "fail") return r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500));
-    if (mode === "slow") await new Promise((ok) => setTimeout(ok, 2500));
-    return r.fulfill(json(REPORT));
+for (const [name, opts] of [["đã chốt", { locked: true }], ["chưa chốt", {}], ["chưa có công thức", { scheme: false }]] as const satisfies ReadonlyArray<readonly [string, Opts]>) {
+  test(`gradebook ${name}: trạng thái công thức chưa về thì khung chờ chỉ hiện «Xem công thức» (P-11-58)`, async ({ page, context }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await asDemo(context, "teacher");
+    const hold = async (_r: unknown, next: (r: never) => Promise<void> | void) => { await new Promise((ok) => setTimeout(ok, 2500)); return next(_r as never); };
+    await gradebookApi(page, { students: 5, ...opts, h: { "GET gradebook": hold as never, "GET grade-scheme/status": hold as never } });
+    await page.goto("/gradebook");
+    await expect(page.locator("[aria-busy=true]").first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Xem công thức" })).toBeVisible();
+    expect(await headerButtons(page)).toEqual(["Xem công thức"]);
   });
-  await page.goto("/insights");
-  await expect(page.locator("[aria-busy=true]").first()).toBeVisible();
-  await expect.poll(() => headerButtons(page).then((l) => l.length)).toBeGreaterThan(0);
-  const loading = await headerButtons(page);
-  await expect(page.getByText("Chủ đề nên dạy lại")).toBeVisible();
-  const data = await headerButtons(page);
-  expect(data.length).toBeGreaterThan(0);
-  expect(loading).toEqual(data);
-  mode = "fail";
-  await page.reload();
-  await expect(page.getByRole("alert").first()).toBeVisible();
-  await expect.poll(() => headerButtons(page)).toEqual(data);
-});
+}
+
+for (const withReport of [true, false]) {
+  test(`insights ${withReport ? "lớp có báo cáo" : "lớp chưa có báo cáo"}: đang tải và lỗi không hiện nút đầu trang chưa biết có hay không (P-11-58)`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const KC = { id: "22222222-2222-7222-8222-222222222987", class_code: "761987", subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" };
+    let mode: "slow" | "ok" | "fail" = "slow";
+    await asJwt(page, "TEACHER");
+    await page.route("**/api/v1/me/courses**", (r) => r.fulfill(json({ items: [{ course: KC, role_in_course: "TEACHER", enrollment_status: "ACTIVE" }], next_cursor: null })));
+    await page.route("**/api/v1/me/today**", (r) => r.fulfill(json({ count: 0, actions: [] })));
+    await page.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
+    await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", async (r) => {
+      if (mode === "fail") return r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500));
+      if (mode === "slow") await new Promise((ok) => setTimeout(ok, 2500));
+      return withReport ? r.fulfill(json(REPORT)) : r.fulfill(json({ code: "NOT_FOUND", message: "Không có", trace_id: "t" }, 404));
+    });
+    await page.goto("/insights");
+    await expect(page.locator("[aria-busy=true]").first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Lỗ hổng kiến thức", level: 1 })).toBeVisible();
+    expect(await headerButtons(page)).toEqual([]);
+    await expect(page.locator("[aria-busy=true]")).toHaveCount(0, { timeout: 10_000 });
+    const data = await headerButtons(page);
+    expect(data.length > 0).toBe(withReport);
+    mode = "fail";
+    await page.reload();
+    await expect(page.getByRole("alert").first()).toBeVisible();
+    await expect.poll(() => headerButtons(page)).toEqual([]);
+  });
+}
 
 test("observability (giảng viên) lớp chưa có yêu cầu: khối rỗng nằm trong một Panel cao ≤ 320 px (E6)", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
