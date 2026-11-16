@@ -54,3 +54,5 @@ simulate:
 - devtools lượt (1): 7/8 route ≤ 2.500 ms; **/assignments/[id] trượt: 4.794 ms** (phần tử LCP = đoạn mô tả bài tập `<p>`, render delay 4,73 s; refresh phiên 0,7 s → khoảng trống tới 3,55 s → `me/courses` + `notifications` → `assignments/<id>` bắt đầu 4,17 s: chờ `me/courses`, chuỗi phụ thuộc). Theo AC6: ghi số thật + phần tử + nguyên nhân vào Nợ; story không FAIL vì route đó; không nới ngưỡng, không SSR.
 - Lượt đầu: /threads 4.377, /me 4.335, /assignments/[id] 4.851 (hộp thoại thời gian học là phần tử lớn nhất trước khi bấm «Đã hiểu»; P-11-5).
 - Số seed ep-qc (5,1–5,3 s ở /threads, /gradebook, /me) KHÔNG tái lập ở T1 (1,5 s): ở ep-qc LCP là chữ dữ liệu; ở T1 là chữ khung (đúng như dev-wave3 nêu).
+
+Raw: `lcp-t1-raw.tar.gz` (`qc-t1-raw1/` = lượt (1), `qc-t1-raw2/` = lượt (2); mỗi thư mục có `devtools/` và `simulate/` lhr-*.json; đã quét: không có mật khẩu seed, khoá Gemini, JWT). Tóm tắt: `lcp-t1-run{1,2}-summary.txt`; load máy: `lcp-t1-run{1,2}.meta`.
