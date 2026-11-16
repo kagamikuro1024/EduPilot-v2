@@ -391,3 +391,11 @@ TC-P6-04-44	P	tooltip lý do khoá hiện cả khi focus bàn phím («Còn 1 m�
 TC-P6-04-45	P	TA: Xác nhận 0, Tải quy chế 0, ô điền 0; thấy công thức + trích dẫn chỉ đọc
 TC-P6-04-46	P	SV mở /gradebook/scheme: «Bạn không có quyền xem màn này»; DOM không chứa «Thi cuối kỳ»
 TC-P6-04-03	F	1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer → Esc) → DEF-R8-A1 Thấp
+TC-P6-07-09	P	UI nhập XLSX (QD8R71, real-07.spec.ts): bước 2 gợi ý cột theo tên MSSV→«A · MSSV», Điểm→«C · Điểm», đổi được; bước 3 xem trước
+TC-P6-07-44	P	Dialog 3 bước (Tiếp tục → Xem trước → «Ghi 30 dòng» / «Bỏ qua 6 dòng lỗi và ghi 3 dòng»); lỗi theo hàng bằng chữ Việt (MSSV không có trong lớp, MSSV bị lặp trong tệp, Điểm ngoài thang 0–10, Điểm có quá 2 chữ số thập phân, Điểm không phải số), không mã tiếng Anh thô; tóm tắt «30 dòng hợp lệ · 0 ghi đè · 30 không đổi · 0 lỗi» khớp
+TC-P6-07-45	P	«Công bố cột cho sinh viên» mặc định tắt; ghi khi tắt → published_at không đặt; bật + ghi → cột final có published_at (đo DB)
+TC-P6-07-46	P	ngắt mạng lúc tải tệp lên: «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.» + nút Tải lại; tên tệp errors.xlsx và item đã chọn còn nguyên; có mạng → Tải lại → sang bước ánh xạ. (Môi trường: gateway ep-r phải có BLOB_PUBLIC_ENDPOINT=localhost:1143 như scripts/dev.mjs — cấu hình ep-r đã sửa trong override)
+TC-P6-07-47	F	ghi xong ô cập nhật không tải lại trang (ô Bùi Thanh Khải 7,00), hộp thoại đóng, NHƯNG focus rơi về <body>, không về nút menu «Thêm hành động» → DEF-R8-A2
+TC-P6-07-48	P	375 px: /gradebook không tràn ngang; Nhập từ XLSX mở được hộp thoại, không tràn ngang
+TC-P6-07-59	P	hàng có MSSV tự khai (joined_via=CODE): «Dòng 4 · 20229003 · MSSV chưa có trong danh sách lớp»; không mã thô, không gợi ý ghép theo tên
+TC-P6-02-04	P	/gradebook lớp 1 (QD8R6U, real-06.spec.ts test 1): A «9,5 A+», B «7,0 B», C «3,0 F» (số dấu phẩy) khớp bảng tay; ảnh evidence-8/shots/s8r-06-gradebook-1440.png

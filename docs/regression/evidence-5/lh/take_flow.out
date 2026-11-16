@@ -1,0 +1,20 @@
+next Câu sau
+opt A
+Đáp án 0 của câu 700
+next Câu sau
+opt null
+next Câu sau
+opt A
+Đáp án 0 của câu 701
+next Câu sau
+{"tbt":4.015999999999622,"cls":0.00007810832905097374,"inp":58.174,"jsTransfer":0,"jsResourceBytes":0,"bi":3268.5,"mult":4}
+TimeoutError: Waiting failed: 20000ms exceeded
+    at new WaitTask (file:///Users/kuro/checkouts/pq/frontend/node_modules/.pnpm/puppeteer-core@24.43.1_bare-buffer@3.7.2_supports-color@7.2.0/node_modules/puppeteer-core/lib/esm/puppeteer/common/WaitTask.js:46:34)
+    at IsolatedWorld.waitForFunction (file:///Users/kuro/checkouts/pq/frontend/node_modules/.pnpm/puppeteer-core@24.43.1_bare-buffer@3.7.2_supports-color@7.2.0/node_modules/puppeteer-core/lib/esm/puppeteer/api/Realm.js:49:26)
+    at CdpFrame.waitForFunction (file:///Users/kuro/checkouts/pq/frontend/node_modules/.pnpm/puppeteer-core@24.43.1_bare-buffer@3.7.2_supports-color@7.2.0/node_modules/puppeteer-core/lib/esm/puppeteer/api/Frame.js:580:43)
+    at CdpFrame.<anonymous> (file:///Users/kuro/checkouts/pq/frontend/node_modules/.pnpm/puppeteer-core@24.43.1_bare-buffer@3.7.2_supports-color@7.2.0/node_modules/puppeteer-core/lib/esm/puppeteer/util/decorators.js:101:27)
+    at CdpPage.waitForFunction (file:///Users/kuro/checkouts/pq/frontend/node_modules/.pnpm/puppeteer-core@24.43.1_bare-buffer@3.7.2_supports-color@7.2.0/node_modules/puppeteer-core/lib/esm/puppeteer/api/Page.js:1447:37)
+    at session (file:///Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/take_lh.mjs:12:27)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/take_lh.mjs:26:22
+
+Node.js v24.21.0

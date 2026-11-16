@@ -12,20 +12,24 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 2 | TC-PG07-63 | DEF-R2-04: cổng GATE-PG chạy trọn còn 2 ca đỏ (GATE-03, GATE-06: contract không tag); 01–02, 04–24, 26, 28–29 đạt; GATE-25/27 (trình duyệt), GATE-2 |
 | 2 | TC-GATE-03 | DEF-R2-04: `go test -race ./...` KHÔNG tag: 98 gói xanh (3360 PASS) nhưng `internal/contract` đỏ cố định (TestChatThreadsContract: POST /_test/llm/fake → 404 |
 | 2 | TC-GATE-06 | DEF-R2-04: contract KHÔNG tag rc 1 (cố định, lặp 3 lượt + go test trực tiếp); có tag PASS |
-| 3 | TC-GATEPU-01 | lint 5 cảnh báo (TC-PU01-05); pbuild/gbuild rc=0, 0 "Failed to load font" (DEF-R3-03) |
+| 3 | TC-P103-08 | 2 lượt chạy lặp lại: nhà rpm_limit=60 (đặt qua API), 20 luồng từ 2 gateway: lượt 1 stub nhận 50 yêu cầu trong 10 s (TC ≤ 16 = 10 + burst 6); l� |
 | 3 | TC-P105-44 | chữ «EMBEDDING» thô hiện ở bảng «Mức dùng theo tác vụ» (taskLabel không có nhãn cho EMBEDDING) → DEF-R3-01 (DEF-R3-01) |
-| 3 | TC-PU01-05 | pnpm lint rc=0 nhưng 5 cảnh báo (cells.tsx:39, QueueTab.tsx:115/123, Landing.tsx:48, LlmSettings.tsx:13); nền sprint 3 = 0 cảnh báo → DEF-R3-03 (DEF-R3-03) |
 | 5 | TC-PE01-39 | go vet ./... rc=0; golangci-lint 0 issues; sqlc diff rc=0; go test -race -count=1 trên 99 gói: 99 ok (auth/exam/judge/quiz ok; auth chạy lại ok sau sự cố contai |
-| 5 | TC-PE02-31 | judge dừng: Chạy thử 202 [] retry_after=None sau 0.03s (≤3); nộp 202 QUEUED (0.01s) |
-| 5 | TC-PE02-52 | judge dừng → healthz 200 độc lập, readyz 200 judge:"down" (log warn 8 dòng trong 54+ s); bật lại: readyz judge=up sau 60.9s (TC ≤10 s cộng nhịp kiểm |
 | 5 | TC-PE02-57 | go vet ./... rc=0; golangci-lint 0 issues; sqlc diff rc=0; go test -race -count=1 trên 99 gói: 99 ok (auth/exam/judge/quiz ok; auth chạy lại ok sau sự cố contai |
+| 5 | TC-PE03-33 | sửa test ẩn của câu đã dùng ở bài PUBLISHED: GV 200 (tests_version 7 → 8); TA 403; điểm bài cũ 10.00 → 10.00 (chưa đổi tới khi regrade); kết |
 | 5 | TC-PE03-49 | Drawer: câu nháp nút [Đóng/Lưu cấu hình/Thêm test/Kiểm tra zip/Nhập zip/Gợi ý đầu vào từ AI/Chạy lời giải mẫu/Duyệt/Gửi duyệt/Chỉnh |
 | 5 | TC-PE03-51 | bàn phím: Tab tới hàng (sau 31 lần), Enter mở Drawer=false, focus trong Drawer=false, tới nút Duyệt/Chỉnh sửa=false, Esc trả focus=true; AUDIT (ox/cut |
-| 5 | TC-PE06-19 | (phần judge chết) run → 503 JUDGE_UNAVAILABLE retry_after=None trong 0.03s; phần hàng đầy + run ≤5s: TC-PE02-27 (s13_judge.py burst) |
+| 5 | TC-PE04-40 | khoá ep:today:<uid>:<scope> bị xoá sau: lên lịch bài 0.62 s (bài 48 giờ) / mở bài 0.63 s (so với dòng outbox exam.opened) / bắt đầu 1.35 s / nộp 0 |
+| 5 | TC-PE06-27 | nộp code (r5s31, ui_m.cjs s27): chuỗi chữ hiện theo thời gian: "Đang chấm" (0,2 s) → kết quả "Biên dịch được · 2/2 test mẫu đúng" (0,6 s),  |
+| 5 | TC-PE07-18 | r5s23: dán 300+ ký tự (ô mã), ẩn/hiện tab giả lập, mất/có mạng: lô đầu gửi sau 9.4 s (≈15 s), gồm ["PASTE","TAB_HIDDEN","TAB_VISIBLE","OFFLIN |
+| 5 | TC-PE08-04 | MCQ-only (r5s36, s20j_api.py p0804): nộp → 200 trong 0,02 s; ngay sau nộp DB: status=GRADED, graded_at đặt, breakdown 4 mục [{item_id,earned,max}] ĐẠT; NHƯ |
+| 5 | TC-PE08-31 | SV r5s01 (E30, đã công bố) 1440/375: điểm "9,00 / 10,00" (dấu phẩy ✓); dòng tóm tắt "Bạn đúng a/n câu trắc nghiệm · bài lập trình: p/t tes |
+| 5 | TC-PE08-38 | UI Staff /exams/[id]/results (GV r5t 1440/1100/390, TA r5ta 1440; ui_m2.cjs staff+scroll): ĐẠT: cột Họ tên/MSSV/Trạng thái/Điểm/Nộp lúc + Tín hiệu (ch |
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
 | 8 | TC-P6-03-19 | [] (202, 'FAILED', 'LLM_UNAVAILABLE') / ['PARAM_INVALID', 'WEIGHT_SUM'] |
 | 8 | TC-P6-03-36 | đầu ra không phải JSON (stub 'invalid'): job FAILED LLM_UNAVAILABLE (spec: EXTRACTION_INVALID); stub nhận 3 lời gọi (spec: đúng 1); llm_audit [['1', 'error' |
 | 8 | TC-P6-04-03 | 1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer � |
+| 8 | TC-P6-07-47 | ghi xong ô cập nhật không tải lại trang (ô Bùi Thanh Khải 7,00), hộp thoại đóng, NHƯNG focus rơi về <body>, không về nút menu «Thêm hành đ |
 | 9.1 | TC-UX04-3 | 9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02 |
 | 9.1 | TC-UX04-12 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX04-13 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
@@ -277,6 +281,20 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Bằng chứng: `evidence-3/p10x.out`, `/tmp/qc2-b/results-3-p10y*.json` · Nghi ngờ mã: `backend-go/internal/llm/scheduler/` (hàng đợi BATCH dùng chung giữa tiến trình, `LLM_BATCH_SHARE`), `internal/llm/cascade.go`; hoặc làn BATCH đang bận bởi chấm bài của nhóm khác (nhiễu môi trường) — chạy lại trên stack yên tĩnh để loại trừ
 - Chạy lại lần 2: trượt ổn định (2 lần chạy cùng kết quả; lần chạy thứ 3 đang chờ khoá)
 
+### Cập nhật lượt N=0 (2026-11-16, qc2/SmkN)
+- DEF-R3-03 (lint 5 cảnh báo): ĐÃ HẾT trên mã hiện tại — eslint mã sản phẩm 0 vấn đề (bản sao /tmp/smk3-fe, loại e2e/qc2-*). Lưu ý: `pnpm lint` toàn cây đang báo 47 vấn đề (32 lỗi) nằm hoàn toàn trong spec QC đã commit `frontend/e2e/qc2-r4|r8|r10|r91` (đã báo PM).
+- DEF-R3-05 (BATCH thử lại/cầu dao): lượt chạy lại 2026-11-16 (xem smoke-3: TC-P102-14, P103-19/20) = ĐẠT; trên stack cô lập cũng đạt (TC-P102-18, P103-22).
+- DEF-R3-01 (EMBEDDING thô ở bảng mức dùng): CHƯA kiểm lại ở UI (TC-P105-44 giữ F); DEF-R3-02, DEF-R3-04 không đổi.
+
+### DEF-R3-SMK-01 — Bucket RPM của nhà cung cấp cho qua nhiều hơn burst (60 rpm → 50–65 lời gọi dồn đầu cửa sổ)
+- Mức: Trung bình
+- Sprint gốc: 3 (US-P1-03) · TC gốc: TC-P103-08 (AC3) · Hồi quy do sprint sau?: KHÔNG RÕ (chưa blame)
+- Môi trường: stack cô lập smk3 (DB+Redis mới, 2 gateway edupilot-gateway-test), ADMIN, nhà openai_compatible → stub, rpm_limit=60, tpm_limit=null (mặc định 100.000.000 do env LLM_DEFAULT_TPM)
+- Bước tái hiện: 1. tạo nhà rpm_limit=60 và gán CHAT; 2. nghỉ ≥65 s; 3. 20 luồng gọi CHAT liên tục qua 2 gateway trong 10 s (`evidence-3/scripts/smk3-p10308b.py`, cần stack smk3 `/tmp/smk34/mini.sh`).
+- Kỳ vọng: ≤ 60×10/60 + burst(6) = 16 lời gọi trong 10 s (SRS 4.3: dung lượng bucket = burst = max(1, ceil(10 %·hạn mức))) · Thực tế: 65 lời gọi trong giây đầu rồi 1 lời gọi/giây (74 sau 10 s); lượt khác 50 trong 10 s
+- Bằng chứng: `evidence-3/smk-p10308.txt`, `smk-p10308b.txt` · Nghi ngờ mã: `backend-go/internal/llm/scheduler/redis.go` bucketLua / cách truyền rc (burst) cho nhà có rpm_limit sửa qua PUT
+- Chạy lại lần 2: ổn định (2/2 lượt vượt)
+
 ---
 <!-- defects-4.md -->
 ### DEF-R4-01 — Mã lớp phân biệt hoa/thường: tạo được hai lớp `SK20D91` và `sk20d91`
@@ -331,7 +349,7 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Nghi ngờ: `onKeyDown` của hàng mở Drawer và chuyển focus tới nút "Đóng"; sự kiện keypress của chính phím Enter đó bấm luôn nút "Đóng". [INFERENCE: Chrome thật cũng vậy; đã tái hiện bằng Playwright keyboard.press.]
 - Các phần khác của TC đạt: 5 mốc bề rộng 1440/1024/720/719/390 không tràn ngang, không cắt chữ, ≥720 bảng, <720 danh sách.
 
-### DEF-R5-05 — `go test ./internal/contract/...` không tag testroutes đỏ (lệnh trong TC tổng và `scripts/gate-pe.sh`)
+### DEF-R5-05 — `go test ./internal/contract/...` không tag testroutes đỏ (lệnh trong TC tổng và `scripts/gate-pe.sh`) — ĐÃ SỬA (commit 562f5a45, P-11-50/DEF-R2-04): chạy lại ở HEAD qc2: không tag ok 39 s, có tag ok
 - Mức: Thấp (script/tài liệu; CI chạy với `-tags testroutes` nên xanh)
 - TC gốc: TC-PE01-39, PE02-57 (và các TC tổng PE03-55…PE08-68 cùng lệnh) · Hồi quy do sprint sau?: CÓ (contract_test cần bản dựng testroutes sau P3/P10)
 - Thực tế: 4 test đỏ khi thiếu tag; với `-tags testroutes` ok (31 s) và `-race` ok (80 s). Khuyến nghị: thêm `-tags testroutes` vào gate-pe.sh + TC.
@@ -340,6 +358,41 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 - Go `TestRunningNotCancelled` đỏ 1 lần khi máy tải nặng (lease 30 s hết hạn), PASS 2/2 khi chạy riêng — chập chờn do tải.
 - TC-PE02-37: fork bomb A8 ra `WA` (FORKED=0) thay vì `TLE` như gốc; bất biến `procPeak==1`/0 tiến trình mồ côi thoả.
 - Today bỏ provider `staff`/`assignment` khi stack quá tải (timeout) — degrade có chủ đích.
+
+## Lượt SmkM (qc2, 2026-11-16, HEAD sprint/11 + merge)
+Bằng chứng: `evidence-5/results-q2.jsonl` (bản ghi cuối thắng), `evidence-5/ui/ui_m.cjs`, `ui_m2.cjs`, `scripts/s20*.py`, ảnh `evidence-5/ui/shots/m-*.png`.
+
+### DEF-R5-06 — Lần nộp code: nhãn «Đã nhận, đang xếp hàng» (QUEUED) không bao giờ hiện
+- TC: TC-PE06-27 · Mức: Thấp · Sprint gốc: 5 (US-PE-06 AC8, commit 2b74e9f7) · Hồi quy do sprint sau: KHÔNG (chưa từng có)
+- Tái hiện: SV nộp lời giải khi hàng chấm đầy / chặn. `CodeResults.tsx:91 submissionStatus()` trả «Đang chấm» cho cả QUEUED và RUNNING. Quan sát thật: «Đang chấm» (0,2 s) → «Biên dịch được · 2/2 test mẫu đúng».
+- Kỳ vọng (US AC8): QUEUED «Đã nhận, đang xếp hàng» → RUNNING «Đang chấm» → DONE.
+
+### DEF-R5-07 — Tín hiệu liêm chính cuối cùng bị mất khi đóng tab (không gửi lúc pagehide)
+- TC: TC-PE07-18 · Mức: Thấp (tín hiệu tham khảo, không đổi điểm) · Sprint gốc: 5 (237f40af US-PE-07) · Sau đó: KHÔNG sửa (4831150a chỉ thêm tuỳ chọn keepalive vào apiClient)
+- Tái hiện: SV dán nội dung ở ô mã (PASTE vào bộ đệm), rồi rời trang (`location=about:blank`) trước nhịp 15 s: `exam_events` 5 → 5 (lô cuối không tới). `useIntegrityEvents.ts` flush() gọi `apiClient.post` không `keepalive`/`sendBeacon`.
+- Kỳ vọng (US AC3): gửi gộp ~15 s VÀ khi `pagehide` (sendBeacon / fetch keepalive). Phần đạt: lô 15 s gửi đúng (PASTE chỉ `chars`+`item_id`, không lộ nội dung).
+
+### DEF-R5-08 — Màn kết quả SV thiếu dòng tóm tắt và từng câu không gập mặc định
+- TC: TC-PE08-31 · Mức: Thấp · Sprint gốc: 5 (ff926faf US-PE-08) · Hồi quy do sprint sau: KHÔNG
+- `StudentResult.tsx` chỉ có «9,00 / 10,00» + danh sách câu mở sẵn; không có «Bạn đúng 8/10 câu trắc nghiệm · bài lập trình: p/t test ẩn đạt»; câu không gập (chỉ khối «Mã của bạn» gập). SRS dòng 1098 và US AC7 vẫn ghi dòng này (chưa vá theo luật chữ UI 09/10/2026 nếu là chủ ý — PM quyết: vá spec hoặc thêm dòng).
+
+### DEF-R5-09 — Giao diện Staff `/exams/[id]/results` lệch US AC10 ở 3 điểm
+- TC: TC-PE08-38 · Mức: Thấp · Sprint gốc: 5
+- (1) Drawer không có verdict từng test ẩn (chỉ «Test ẩn: đạt 2 trên 2»); SRS 4.x `breakdown` chỉ lưu `{passed,total}` nên US AC10 và SRS mâu thuẫn — BA/PM quyết. (2) Bài chưa ai làm: hiện cả lớp «Chưa bắt đầu», không có «Chưa có sinh viên nào bắt đầu làm bài.». (3) 390 px: AUDIT_SRC `cut`=40 (cột «Nộp lúc/Tín hiệu» ngoài khung cuộn ngang của bảng; không tràn trang).
+- Phần đạt: cuộn 5.001 dòng p95 khung 16,8 ms; TA không thấy Tín hiệu / tab liêm chính.
+
+### DEF-R5-10 — Sửa test sau đóng: bài cũ không hiện «đã chấm theo bộ test cũ»
+- TC: TC-PE03-33 · Mức: Thấp · Sprint gốc: 5 (US-PE-03 AC8) · Hồi quy: KHÔNG
+- GV sửa test ẩn sau khi bài PUBLISHED: 200, `tests_version` 7→8, điểm giữ nguyên tới regrade, TA 403, câu đang ở bài OPEN → 409 QUESTION_IN_USE đều đúng; nhưng không có trường/chữ «đã chấm theo bộ test cũ» ở API kết quả Staff, giao diện hay mã Go.
+
+### DEF-R5-11 — Chấm trắc nghiệm đồng bộ không phát sự kiện SSE `exam.attempt`
+- TC: TC-PE08-04 · Mức: Thấp · Sprint gốc: 5 (US-PE-08 AC2) · Hồi quy: KHÔNG RÕ
+- Nộp bài MCQ-only: 200 trong 0,02 s, GRADED + `breakdown` đúng; nhưng outbox của lượt chỉ có `exam.attempt_started`, `exam.attempt_submitted`; không có `exam.attempt_graded` → chủ lượt không nhận SSE `exam.attempt` (kết nối /api/v1/events chỉ nhận `ready`).
+
+## Ghi nhận môi trường (không tính lỗi)
+- Bộ gửi outbox trễ 66 s đúng một lần (13:55:58Z) khi nhóm QC khác khởi động lại tiến trình trong cửa sổ khoá; các lần khác 0,45–0,5 s.
+- Worker ghi `exam.tick lỗi` mỗi 5 s từ 22:03 hôm qua cho lượt 01a1e01f… của bài «QC E7 khoá chat» (tổng điểm các mục bằng 0 — dữ liệu chèn bằng SQL của nhóm QC sprint 7; không tạo được qua API).
+- `go test -race ./...` toàn kho khi máy tải 20–30: nhiều gói hết 10 phút (activity, assignment, auth, course, crm, exam, grade…) và contract đỏ do tải; chạy lại gói exam / contract không-tag / có-tag riêng thì xanh.
 
 ---
 <!-- defects-5.5.md -->
@@ -415,12 +468,13 @@ Công thức không đổi (1 bản CONFIRMED v3, scheme_no 1). Nguyên nhân l�
 - Nguyên nhân [INFERENCE từ mã]: gateway coi đầu ra sai schema là BAD_RESPONSE → ErrAllProvidersFailed; backend-go/internal/grading/extract.go callLLM (dòng ~273) xếp là lỗi TẠM nên thử lại; EXTRACTION_INVALID chỉ ra khi ErrBadRequest hoặc buildDraft lỗi.
 - Bằng chứng: evidence-8/logs/s8r-03c-run.log, evidence-8/logs/s8r-03b-run.log.
 
-### DEF-R8-A2 — Đóng Drawer trích dẫn bằng Esc làm focus rơi về <body> (TC-P6-04-03)
+### DEF-R8-A2 — Đóng Drawer / Dialog làm focus rơi về <body> thay vì nút mở (TC-P6-04-03, TC-P6-07-47)
 - Mức: Thấp (trợ năng bàn phím)
 - Sprint gốc: 8 (US-P6-04) · Hồi quy do sprint sau? KHÔNG RÕ
 - Bước tái hiện: /gradebook/scheme (bản nháp có trích dẫn), cửa sổ 1023 px, Tab tới nút «Trang N» → Enter (Drawer mở) → Esc.
 - Kỳ vọng: focus về nút «Trang N» (SRS: trả focus đúng nút). Thực tế: document.activeElement = BODY. Drawer đóng đúng, cột cố định ở 1024 px đúng.
-- Bằng chứng: evidence-8/logs/s8r-real04-run.log (real-04.spec.ts, test 04-03r).
+- Cùng lỗi ở TC-P6-07-47: đóng hộp thoại Nhập XLSX sau khi ghi → focus về <body> (SRS: «trả focus về nút menu»).
+- Bằng chứng: evidence-8/logs/s8r-real04-run.log (real-04.spec.ts, test 04-03r), real-07.spec.ts (test 07-46,47,48).
 
 ### Ghi nhận (không tính F): TC-P6-03-31 — tên không thuộc danh sách lớp không bị che
 - PDF quy chế chứa «Nguyễn Văn Test 20229999 (nvtest@example.com)» (tên giả KHÔNG thuộc lớp): prompt tới LLM che MSSV và email nhưng giữ nguyên tên. Với tên/MSSV/email của sinh viên TRONG lớp: che hết ([[SV_1]] [[MSSV_1]] [[EMAIL_1]]). Cơ chế che theo danh sách lớp (internal/privacy/roster.go); TC dùng tên ngoài danh sách. TC chấm P theo kịch bản lớp thật. PM cân nhắc có cần che tên lạ (cần NER) hay không.

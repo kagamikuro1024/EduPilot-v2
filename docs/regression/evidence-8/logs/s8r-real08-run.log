@@ -1,0 +1,21 @@
+
+Running 5 tests using 1 worker
+
+(node:71121) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+F TC-P6-06-46 hồ sơ B (QD8R6U) tab Điểm: GradeCalculation đủ dòng (7,5 · 8 · 6,5 · điểm cộng · quá trình 8,25 · thô 7,2 · làm tròn 0,5) true; lớp chưa có công thức (QD8F3): EmptyState «Sinh viên Hồ sơ sinh viên Không tải được hồ sơ sinh viên. Dữ liệu và ghi chú đang gõ không bị mất. C»
+  ✓  1 [desktop] › e2e/qc2-r8/real-08.spec.ts:13:1 › [06-46] hồ sơ SV tab Điểm: GradeCalculation thật; lớp chưa có công thức: EmptyState (44.1s)
+entry: 01a1e080-7c4b-708c-8492-60fae4f1b008|01a1e080-7840-739c-b74b-9d89c42509ff|01a1e080-7bb6-7f46-837f-36bfc2b49a13|01a1df27-6508-7d9b-8577-7497e45a2315|9.50|MANUAL|32|01a1df27-5bfd-746a-acbf-411de5ffccb2|2026-11-15 12:26:01.850421+00|2026-11-15 18:38:50.004754+00
+F TC-P6-08-10 Chốt điểm khi thiếu 1 điểm: danh sách thiếu 0 (mục liên kết 0); chữ «Vũ Hoàng Giang — thiếu Thi cuối kỳ»; click liên kết → focus «»
+P TC-P6-08-38 409 hiển thị bằng chữ Việt: «Sổ điểm Xem công thức Chốt điểm Thiếu điểm: 1 sinh viên Còn 1 sinh viên chưa đủ điểm Vũ Hoàng Giang — thiếu Thi cuối kỳ Ẩn Bảng điểm của lớp Sinh viên Giữa kỳ Kiểm tra hằng tuần Thi cuối kỳ Điểm cộng Điểm trừ Quá trình Điểm học phần Điểm chữ Trạng thái Hành động Bùi Khánh Việt 20227706 — 0,50 0,00 6,000 5,50 C Bùi Minh Yến 20221975 — 0,00 0,00 5,500 4,00 D Bùi Thanh Khải 20229002 — 0,50 0,00 8,250 7,00 B Bùi Thu Việt 20226980 — 0,00 0,00 8,000 9,00 A+ Đỗ Bảo Hải 20226862 — 0,75 0,00 9,750 10,00 A+ Đỗ Khánh Hà 20223050 — 0,25 0,00 7,915 8,50 A Dương Minh Yến 20222003 — 0,75 0,00 8,250 8,50 A Dương Quốc Hương 20224019 — 0,25 0,00 5,750 5,00 D+ Dương Tuấn Giang 20224852 — 0,50 0,00 8,125 8,50 A Hồ Đức Thảo 20225401 — 0,75 0,00 4,875 4,00 D Hồ Thu Chi 20222839 — 0,75 0,00 4,500 6,50 C+ Huỳnh Đức Dũng 20229602 — 0,75 0,00 8,165 5,00 F Liệt Huỳnh Hoàng Hương 20226004 — 0,75 0,00 8,165 8,00 B+ Huỳnh Thu Long 20223579 — 0,25 0,00 2,125 3,50 F Lê Thanh Hải 20227053 — 0,00 0,00 4,875 4,00 D Ngô Ngọc Cẩm 20229003 — 0,25 1,50 1,250 3,00 F Ngô Thu Khoa 20227130 — 0,75 0,00 6,875 6,00 C Ngô Văn Hà 20224349 — 0,25 0,00 6,415 6,50 C+ Ngô Văn Hải 20227769 — 0,50 0,00 7,125 7,50 B Nguyễn Anh Linh 20223869 — 0,75 0,00 7,125 7,00 B Phạm Mai Chi 20226712 — 0,00 0,00 5,125 5,00 D+ đã công bố Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.»; mã thô false
+  ✓  2 [desktop] › e2e/qc2-r8/real-08.spec.ts:26:1 › [08-10,08-38] Chốt điểm khi thiếu điểm: danh sách thiếu + liên kết tới ô; lỗi 409 bằng chữ Việt (32.5s)
+P TC-P6-08-36 hộp thoại (QD8R6X, lớp 1 đủ điểm): «Chốt điểm Chốt 30 sinh viên · phân bố: A+ 3, A 3, B+ 3, B 5, C+ 4, C 4, D+ 2, D 3, F 3 · 1 sinh viên liệt Để sau Chốt điểm» khớp từng chữ cái với bảng tay: true; Idempotency-Key trong POST finalize: có (ep-1877b…)
+  ✓  3 [desktop] › e2e/qc2-r8/real-08.spec.ts:49:1 › [08-36] hộp thoại Chốt điểm: phân bố khớp CSV + Idempotency-Key (25.4s)
+F TC-P6-09-13 LT-xem-ghi-chú: câu nhận định nay là dòng «nhãn + giá trị» (P-11-6a, US.md AC3): «Điểm quá trình 8,25 / 10»; GradeCalculation tuyến tính đúng thứ tự false; DTO SV không lộ expr/min/max/round/÷: true
+P TC-P6-09-15 quét /me: streak/xếp hạng/so với lớp/huy hiệu/lời khen/🎉 = 0; số dùng dấu phẩy (không dạng 8.25): true
+P TC-P6-09-14 sau chốt (QD8R8): «Điểm học phần 7 (B)» — dòng điểm nay theo SRS P-11-6a («nhãn + giá trị»); SRS ví dụ «7,0 (B)», màn hiện «7 (B)» (bỏ số 0 thừa). Chưa có công thức: «Lớp chưa có công thức điểm chính thức.» (xem 05-xx)
+  ✓  4 [desktop] › e2e/qc2-r8/real-08.spec.ts:62:1 › [09-13,09-14,09-15] /me của SV: dòng điểm, GradeCalculation tuyến tính, quét gamify (25.1s)
+F TC-P6-09-46 375 px: skeleton khi chậm 0; lỗi 500 → Thử lại true, bấm lại tải được true, không cuộn ngang true; rỗng (lớp ): «(không có lớp mà chưa cột nào công bố)»
+  ✓  5 [desktop] › e2e/qc2-r8/real-08.spec.ts:74:1 › [09-46] /me 375 px: skeleton / rỗng / lỗi + Thử lại, không cuộn ngang (21.9s)
+
+  5 passed (2.5m)

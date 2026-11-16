@@ -30,7 +30,7 @@
 - Nghi ngờ: `onKeyDown` của hàng mở Drawer và chuyển focus tới nút "Đóng"; sự kiện keypress của chính phím Enter đó bấm luôn nút "Đóng". [INFERENCE: Chrome thật cũng vậy; đã tái hiện bằng Playwright keyboard.press.]
 - Các phần khác của TC đạt: 5 mốc bề rộng 1440/1024/720/719/390 không tràn ngang, không cắt chữ, ≥720 bảng, <720 danh sách.
 
-### DEF-R5-05 — `go test ./internal/contract/...` không tag testroutes đỏ (lệnh trong TC tổng và `scripts/gate-pe.sh`)
+### DEF-R5-05 — `go test ./internal/contract/...` không tag testroutes đỏ (lệnh trong TC tổng và `scripts/gate-pe.sh`) — ĐÃ SỬA (commit 562f5a45, P-11-50/DEF-R2-04): chạy lại ở HEAD qc2: không tag ok 39 s, có tag ok
 - Mức: Thấp (script/tài liệu; CI chạy với `-tags testroutes` nên xanh)
 - TC gốc: TC-PE01-39, PE02-57 (và các TC tổng PE03-55…PE08-68 cùng lệnh) · Hồi quy do sprint sau?: CÓ (contract_test cần bản dựng testroutes sau P3/P10)
 - Thực tế: 4 test đỏ khi thiếu tag; với `-tags testroutes` ok (31 s) và `-race` ok (80 s). Khuyến nghị: thêm `-tags testroutes` vào gate-pe.sh + TC.
@@ -39,3 +39,38 @@
 - Go `TestRunningNotCancelled` đỏ 1 lần khi máy tải nặng (lease 30 s hết hạn), PASS 2/2 khi chạy riêng — chập chờn do tải.
 - TC-PE02-37: fork bomb A8 ra `WA` (FORKED=0) thay vì `TLE` như gốc; bất biến `procPeak==1`/0 tiến trình mồ côi thoả.
 - Today bỏ provider `staff`/`assignment` khi stack quá tải (timeout) — degrade có chủ đích.
+
+## Lượt SmkM (qc2, 2026-11-16, HEAD sprint/11 + merge)
+Bằng chứng: `evidence-5/results-q2.jsonl` (bản ghi cuối thắng), `evidence-5/ui/ui_m.cjs`, `ui_m2.cjs`, `scripts/s20*.py`, ảnh `evidence-5/ui/shots/m-*.png`.
+
+### DEF-R5-06 — Lần nộp code: nhãn «Đã nhận, đang xếp hàng» (QUEUED) không bao giờ hiện
+- TC: TC-PE06-27 · Mức: Thấp · Sprint gốc: 5 (US-PE-06 AC8, commit 2b74e9f7) · Hồi quy do sprint sau: KHÔNG (chưa từng có)
+- Tái hiện: SV nộp lời giải khi hàng chấm đầy / chặn. `CodeResults.tsx:91 submissionStatus()` trả «Đang chấm» cho cả QUEUED và RUNNING. Quan sát thật: «Đang chấm» (0,2 s) → «Biên dịch được · 2/2 test mẫu đúng».
+- Kỳ vọng (US AC8): QUEUED «Đã nhận, đang xếp hàng» → RUNNING «Đang chấm» → DONE.
+
+### DEF-R5-07 — Tín hiệu liêm chính cuối cùng bị mất khi đóng tab (không gửi lúc pagehide)
+- TC: TC-PE07-18 · Mức: Thấp (tín hiệu tham khảo, không đổi điểm) · Sprint gốc: 5 (237f40af US-PE-07) · Sau đó: KHÔNG sửa (4831150a chỉ thêm tuỳ chọn keepalive vào apiClient)
+- Tái hiện: SV dán nội dung ở ô mã (PASTE vào bộ đệm), rồi rời trang (`location=about:blank`) trước nhịp 15 s: `exam_events` 5 → 5 (lô cuối không tới). `useIntegrityEvents.ts` flush() gọi `apiClient.post` không `keepalive`/`sendBeacon`.
+- Kỳ vọng (US AC3): gửi gộp ~15 s VÀ khi `pagehide` (sendBeacon / fetch keepalive). Phần đạt: lô 15 s gửi đúng (PASTE chỉ `chars`+`item_id`, không lộ nội dung).
+
+### DEF-R5-08 — Màn kết quả SV thiếu dòng tóm tắt và từng câu không gập mặc định
+- TC: TC-PE08-31 · Mức: Thấp · Sprint gốc: 5 (ff926faf US-PE-08) · Hồi quy do sprint sau: KHÔNG
+- `StudentResult.tsx` chỉ có «9,00 / 10,00» + danh sách câu mở sẵn; không có «Bạn đúng 8/10 câu trắc nghiệm · bài lập trình: p/t test ẩn đạt»; câu không gập (chỉ khối «Mã của bạn» gập). SRS dòng 1098 và US AC7 vẫn ghi dòng này (chưa vá theo luật chữ UI 09/10/2026 nếu là chủ ý — PM quyết: vá spec hoặc thêm dòng).
+
+### DEF-R5-09 — Giao diện Staff `/exams/[id]/results` lệch US AC10 ở 3 điểm
+- TC: TC-PE08-38 · Mức: Thấp · Sprint gốc: 5
+- (1) Drawer không có verdict từng test ẩn (chỉ «Test ẩn: đạt 2 trên 2»); SRS 4.x `breakdown` chỉ lưu `{passed,total}` nên US AC10 và SRS mâu thuẫn — BA/PM quyết. (2) Bài chưa ai làm: hiện cả lớp «Chưa bắt đầu», không có «Chưa có sinh viên nào bắt đầu làm bài.». (3) 390 px: AUDIT_SRC `cut`=40 (cột «Nộp lúc/Tín hiệu» ngoài khung cuộn ngang của bảng; không tràn trang).
+- Phần đạt: cuộn 5.001 dòng p95 khung 16,8 ms; TA không thấy Tín hiệu / tab liêm chính.
+
+### DEF-R5-10 — Sửa test sau đóng: bài cũ không hiện «đã chấm theo bộ test cũ»
+- TC: TC-PE03-33 · Mức: Thấp · Sprint gốc: 5 (US-PE-03 AC8) · Hồi quy: KHÔNG
+- GV sửa test ẩn sau khi bài PUBLISHED: 200, `tests_version` 7→8, điểm giữ nguyên tới regrade, TA 403, câu đang ở bài OPEN → 409 QUESTION_IN_USE đều đúng; nhưng không có trường/chữ «đã chấm theo bộ test cũ» ở API kết quả Staff, giao diện hay mã Go.
+
+### DEF-R5-11 — Chấm trắc nghiệm đồng bộ không phát sự kiện SSE `exam.attempt`
+- TC: TC-PE08-04 · Mức: Thấp · Sprint gốc: 5 (US-PE-08 AC2) · Hồi quy: KHÔNG RÕ
+- Nộp bài MCQ-only: 200 trong 0,02 s, GRADED + `breakdown` đúng; nhưng outbox của lượt chỉ có `exam.attempt_started`, `exam.attempt_submitted`; không có `exam.attempt_graded` → chủ lượt không nhận SSE `exam.attempt` (kết nối /api/v1/events chỉ nhận `ready`).
+
+## Ghi nhận môi trường (không tính lỗi)
+- Bộ gửi outbox trễ 66 s đúng một lần (13:55:58Z) khi nhóm QC khác khởi động lại tiến trình trong cửa sổ khoá; các lần khác 0,45–0,5 s.
+- Worker ghi `exam.tick lỗi` mỗi 5 s từ 22:03 hôm qua cho lượt 01a1e01f… của bài «QC E7 khoá chat» (tổng điểm các mục bằng 0 — dữ liệu chèn bằng SQL của nhóm QC sprint 7; không tạo được qua API).
+- `go test -race ./...` toàn kho khi máy tải 20–30: nhiều gói hết 10 phút (activity, assignment, auth, course, crm, exam, grade…) và contract đỏ do tải; chạy lại gói exam / contract không-tag / có-tag riêng thì xanh.

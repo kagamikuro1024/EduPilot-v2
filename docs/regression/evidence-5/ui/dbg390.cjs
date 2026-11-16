@@ -1,0 +1,4 @@
+const L = require('./ui_lib.cjs'); const { chromium, login, B, AUDIT_SRC } = L; const fs = require('fs'); const E30 = JSON.parse(fs.readFileSync('/tmp/qc2L/e30.json')).eid; const C1 = JSON.parse(fs.readFileSync('/tmp/qc2L/hold.json')).c1;
+(async () => { const br = await chromium.launch({ headless: true }); const { ctx, p } = await login(br, 'r5t', { width: 390, height: 900 }); await p.goto(`${B}/exams/${E30}/results?course=${C1}`); await p.waitForTimeout(4000); await L.dismiss(p);
+  const a = await p.evaluate(`(${AUDIT_SRC.trim()})`); console.log(JSON.stringify(a.cut.slice(0, 8))); console.log('layout', await p.evaluate(() => { const t = document.querySelector('table'); const w = t && t.closest('[class*=scroll]'); return { tableW: t && t.scrollWidth, wrapW: w && w.clientWidth, vw: innerWidth }; }));
+  await p.screenshot({ path: L.SH + '/m-pe08-38-390.png' }); await br.close(); })();

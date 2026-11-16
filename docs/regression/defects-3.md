@@ -42,3 +42,17 @@
 - Kỳ vọng: BATCH thử lại ≤ 2 lần; cầu dao mở chặn ngay; bán mở 1 thăm dò · Thực tế: như trên (INTERACTIVE đúng)
 - Bằng chứng: `evidence-3/p10x.out`, `/tmp/qc2-b/results-3-p10y*.json` · Nghi ngờ mã: `backend-go/internal/llm/scheduler/` (hàng đợi BATCH dùng chung giữa tiến trình, `LLM_BATCH_SHARE`), `internal/llm/cascade.go`; hoặc làn BATCH đang bận bởi chấm bài của nhóm khác (nhiễu môi trường) — chạy lại trên stack yên tĩnh để loại trừ
 - Chạy lại lần 2: trượt ổn định (2 lần chạy cùng kết quả; lần chạy thứ 3 đang chờ khoá)
+
+### Cập nhật lượt N=0 (2026-11-16, qc2/SmkN)
+- DEF-R3-03 (lint 5 cảnh báo): ĐÃ HẾT trên mã hiện tại — eslint mã sản phẩm 0 vấn đề (bản sao /tmp/smk3-fe, loại e2e/qc2-*). Lưu ý: `pnpm lint` toàn cây đang báo 47 vấn đề (32 lỗi) nằm hoàn toàn trong spec QC đã commit `frontend/e2e/qc2-r4|r8|r10|r91` (đã báo PM).
+- DEF-R3-05 (BATCH thử lại/cầu dao): lượt chạy lại 2026-11-16 (xem smoke-3: TC-P102-14, P103-19/20) = ĐẠT; trên stack cô lập cũng đạt (TC-P102-18, P103-22).
+- DEF-R3-01 (EMBEDDING thô ở bảng mức dùng): CHƯA kiểm lại ở UI (TC-P105-44 giữ F); DEF-R3-02, DEF-R3-04 không đổi.
+
+### DEF-R3-SMK-01 — Bucket RPM của nhà cung cấp cho qua nhiều hơn burst (60 rpm → 50–65 lời gọi dồn đầu cửa sổ)
+- Mức: Trung bình
+- Sprint gốc: 3 (US-P1-03) · TC gốc: TC-P103-08 (AC3) · Hồi quy do sprint sau?: KHÔNG RÕ (chưa blame)
+- Môi trường: stack cô lập smk3 (DB+Redis mới, 2 gateway edupilot-gateway-test), ADMIN, nhà openai_compatible → stub, rpm_limit=60, tpm_limit=null (mặc định 100.000.000 do env LLM_DEFAULT_TPM)
+- Bước tái hiện: 1. tạo nhà rpm_limit=60 và gán CHAT; 2. nghỉ ≥65 s; 3. 20 luồng gọi CHAT liên tục qua 2 gateway trong 10 s (`evidence-3/scripts/smk3-p10308b.py`, cần stack smk3 `/tmp/smk34/mini.sh`).
+- Kỳ vọng: ≤ 60×10/60 + burst(6) = 16 lời gọi trong 10 s (SRS 4.3: dung lượng bucket = burst = max(1, ceil(10 %·hạn mức))) · Thực tế: 65 lời gọi trong giây đầu rồi 1 lời gọi/giây (74 sau 10 s); lượt khác 50 trong 10 s
+- Bằng chứng: `evidence-3/smk-p10308.txt`, `smk-p10308b.txt` · Nghi ngờ mã: `backend-go/internal/llm/scheduler/redis.go` bucketLua / cách truyền rc (burst) cho nhà có rpm_limit sửa qua PUT
+- Chạy lại lần 2: ổn định (2/2 lượt vượt)

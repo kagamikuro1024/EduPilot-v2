@@ -1,0 +1,160 @@
+Exception in thread Thread-19 (run_ex):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+    aid, j, H, s_, _ = start(e, u)
+                       ^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+    t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())
+        ^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+    raise Exception('login %s %s %s' % (u, s, t[:200]))
+Exception: login r5s01 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"7e96b6b557e04e82e93561f15994ea83","retry_after":15}
+
+Exception in thread Thread-9 (run_ex):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+    aid, j, H, s_, _ = start(e, u)
+                       ^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+    t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())
+Exception in thread         ^^^^^^^^
+Thread-4 (run_ex):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+    Exception in thread Thread-10 (run_ex):
+    self.run()
+Exception in thread raise Exception('login %s %s %s' % (u, s, t[:200]))Traceback (most recent call last):
+Thread-1 (run_ex):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+Exception        : self._target(*self._args, **self._kwargs)    
+self.run()login r5s30 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"b03ddd21bf53e4df5653c738179b490a","retry_after":14}
+
+self.run()Exception in thread 
+
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+Thread-7 (run_ex):
+Traceback (most recent call last):
+      File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self._target(*self._args, **self._kwargs)    
+self._target(*self._args, **self._kwargs)aid, j, H, s_, _ = start(e, u)
+ 
+      File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+  self.run()
+   File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+    aid, j, H, s_, _ = start(e, u)  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+ 
+    self._target(*self._args, **self._kwargs)
+                              ^          ^^aid, j, H, s_, _ = start(e, u)
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+     ^  ^ ^     ^ aid, j, H, s_, _ = start(e, u) ^  ^^^^ 
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+
+^ ^    t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())^^^^^^^^         
+                      ^^^^^^^^     ^^^^ ^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+
+     t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())
+    File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+       raise Exception('login %s %s %s' % (u, s, t[:200]))
+  Exception: login r5s02 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"47ff238385999ebe7e17d91b6e0d361b","retry_after":14}
+
+           ^^^t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())Exception in thread ^^^Thread-18 (run_ex)^
+^^:
+Traceback (most recent call last):
+   File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+ ^^^    ^^^^self.run()^ 
+ ^  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+^ 
+
+    self._target(*self._args, **self._kwargs)   ^  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+^^^^^^^
+
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+    t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())    aid, j, H, s_, _ = start(e, u)
+     
+raise Exception('login %s %s %s' % (u, s, t[:200]))     
+    raise Exception('login %s %s %s' % (u, s, t[:200])) Exception: login r5s11 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"4da5cb990127b6e33fb4339c71d91b96","retry_after":14}
+
+
+Exception: login r5s24 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"18b9e45e54de6e30fdb26e0b696cdbac","retry_after":14}
+
+                       ^^^^^^^^^ ^^^^^^^^
+^^  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+        t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())
+raise Exception('login %s %s %s' % (u, s, t[:200]))
+Exception: login r5s02 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"650cd2de6c093d25bedcb990584ca5dd","retry_after":14}
+
+        ^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+    raise Exception('login %s %s %s' % (u, s, t[:200]))
+Exception: login r5s30 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"47a8ede710fee4738e77006d5a27ef18","retry_after":14}
+
+Exception in thread Thread-6 (run_ex):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+    aid, j, H, s_, _ = start(e, u)
+                       ^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+    t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())
+        ^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+    raise Exception('login %s %s %s' % (u, s, t[:200]))
+Exception: login r5s21 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"1b698f3e2f77f8edbde47a27ebbbcb52","retry_after":14}
+
+Exception in thread Thread-20 (run_ex):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+    aid, j, H, s_, _ = start(e, u)
+                       ^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+    t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())
+        ^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+    raise Exception('login %s %s %s' % (u, s, t[:200]))
+Exception: login r5s05 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"d81aece066dbb9ccba6651c39ac71402","retry_after":14}
+
+Exception in thread Thread-15 (run_ex):
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/s16_global.py", line 154, in run_ex
+    aid, j, H, s_, _ = start(e, u)
+                       ^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 118, in start
+    t = login(u); s, j, _ = call('POST', base_e + '/' + eid + '/attempts', t, {}, idem())
+        ^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 34, in login
+    raise Exception('login %s %s %s' % (u, s, t[:200]))
+Exception: login r5s21 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"1def493106af2151700d0938b23483e2","retry_after":14}
+

@@ -1,0 +1,22 @@
+=== RUN   TestSmk3RealDefaultDeadlines
+=== RUN   TestSmk3RealDefaultDeadlines/INTERACTIVE
+=== PAUSE TestSmk3RealDefaultDeadlines/INTERACTIVE
+=== RUN   TestSmk3RealDefaultDeadlines/NEAR_REALTIME
+=== PAUSE TestSmk3RealDefaultDeadlines/NEAR_REALTIME
+=== RUN   TestSmk3RealDefaultDeadlines/BATCH
+=== PAUSE TestSmk3RealDefaultDeadlines/BATCH
+=== CONT  TestSmk3RealDefaultDeadlines/INTERACTIVE
+=== CONT  TestSmk3RealDefaultDeadlines/BATCH
+=== CONT  TestSmk3RealDefaultDeadlines/NEAR_REALTIME
+=== NAME  TestSmk3RealDefaultDeadlines/INTERACTIVE
+    zz_smk3_defaults_test.go:31: INTERACTIVE: err=llm: quá hạn sau 30.000726917s
+=== NAME  TestSmk3RealDefaultDeadlines/NEAR_REALTIME
+    zz_smk3_defaults_test.go:31: NEAR_REALTIME: err=llm: quá hạn sau 30.000640792s
+=== NAME  TestSmk3RealDefaultDeadlines/BATCH
+    zz_smk3_defaults_test.go:31: BATCH: err=llm: quá hạn sau 2m0.005682375s
+--- PASS: TestSmk3RealDefaultDeadlines (0.00s)
+    --- PASS: TestSmk3RealDefaultDeadlines/INTERACTIVE (30.00s)
+    --- PASS: TestSmk3RealDefaultDeadlines/NEAR_REALTIME (30.00s)
+    --- PASS: TestSmk3RealDefaultDeadlines/BATCH (120.01s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/scheduler	120.642s

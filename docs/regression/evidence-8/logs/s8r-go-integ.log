@@ -1,0 +1,3 @@
+--- PASS: TestSeedRiskAfterGradebook (1.16s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	1.962s

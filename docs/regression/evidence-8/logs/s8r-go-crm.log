@@ -1,0 +1,8 @@
+--- PASS: TestRiskGradeSignalDB (1.20s)
+--- PASS: TestRiskGradeNullWithoutScheme (0.75s)
+--- PASS: TestRiskGradeBatchInput (1.17s)
+--- PASS: TestRiskGradeSignal (0.00s)
+--- PASS: TestRiskGradeStrictBelow (0.00s)
+--- PASS: TestRiskGradeAnchor (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/crm	4.109s

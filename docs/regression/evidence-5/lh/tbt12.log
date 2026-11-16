@@ -1,0 +1,48 @@
+uptime: 21:33  up 2 days, 14:55, 1 user, load averages: 9.63 10.93 12.42
+WARNING: collect.settings.chromeFlags option will be ignored.
+WARNING: If you want chromeFlags with puppeteerScript, use collect.puppeteerLaunchOptions.args option.
+Running Lighthouse 5 time(s) on http://localhost:3330/
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/chat
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/threads
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/inbox
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/gradebook
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/settings/llm
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/dev/ui
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Done running Lighthouse!
+rc=0
+uptime: 21:40  up 2 days, 15:02, 1 user, load averages: 8.68 10.04 11.60

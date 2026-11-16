@@ -5,3 +5,12 @@
 multiplier=3.38
 benchmarkIndex [3531,3549,3652] → trung vị 3549; cpuSlowdownMultiplier = 3.38 (4 × 3549 / 4200, kẹp [2, 8])
 == simulate autorun (CI config, 9 URL x5)
+
+Done running autorun.
+rc=0
+uptime: 21:33  up 2 days, 14:55, 1 user, load averages: 9.63 10.93 12.42
+== TBT 12x (7 URL x5)
+Done running Lighthouse!
+rc=0
+uptime: 21:40  up 2 days, 15:02, 1 user, load averages: 8.68 10.04 11.60
+CHAIN-DONE

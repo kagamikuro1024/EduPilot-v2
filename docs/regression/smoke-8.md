@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 388 · Trượt: 3 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 121   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 395 · Trượt: 4 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 113   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -8,12 +8,12 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | US | TC tổng | P | F | LT | K | N |
 |---|---|---|---|---|---|---|
 | P6-01 | 41 | 41 | 0 | 0 | 0 | 0 |
-| P6-02 | 49 | 48 | 0 | 0 | 0 | 1 |
+| P6-02 | 49 | 49 | 0 | 0 | 0 | 0 |
 | P6-03 | 48 | 46 | 2 | 0 | 0 | 0 |
 | P6-04 | 49 | 43 | 1 | 0 | 0 | 5 |
 | P6-05 | 46 | 19 | 0 | 0 | 0 | 27 |
 | P6-06 | 63 | 60 | 0 | 0 | 0 | 3 |
-| P6-07 | 59 | 52 | 0 | 0 | 0 | 7 |
+| P6-07 | 59 | 58 | 1 | 0 | 0 | 0 |
 | P6-08 | 47 | 44 | 0 | 0 | 0 | 3 |
 | P6-09 | 50 | 35 | 0 | 0 | 0 | 15 |
 | P6-SEED | 37 | 0 | 0 | 0 | 0 | 37 |
@@ -66,7 +66,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-02-01 | P | p6-hand-calc.py rc=0: 30/30 + 18/18 khớp; các bước 10 dòng khớp bảng tay (logs/s8core-handcalc.log) |
 | TC-P6-02-02 | P | TestEngineExpected30 -race: PASS, đúng 30 ca con, 0 SKIP, 0 DATA RACE (logs/s8core-go2.log) |
 | TC-P6-02-03 | P | preview lớp sao QD8A1 (đầu vào sạch = seed): 30/30 khớp qt, hp_raw, hp, letter, verdict theo MSSV; lớp 1 gốc lệch 8 do dữ liệu bị ghi đè (xem DEF/ghi chú) |
-| TC-P6-02-04 | N | chưa chạy |
+| TC-P6-02-04 | P | /gradebook lớp 1 (QD8R6U, real-06.spec.ts test 1): A «9,5 A+», B «7,0 B», C «3,0 F» (số dấu phẩy) khớp bảng tay; ảnh evidence-8/shots/s8r-06-gradebook-1440.png |
 | TC-P6-02-05 | P | M1 nửa-chẵn: TestEngineExpected30 sv04/08/10/26/30, TestEngineCases S10/S11/S16, TestRoundHalfUpTable đỏ (sv05 không đổi vì 6,75→7,0 cả hai cách) |
 | TC-P6-02-06 | P | M2 trần cộng 1,5: TestEngineCases/S03 + TestEngineExpected30/sv.gioi đỏ |
 | TC-P6-02-07 | P | M3 miễn 3 buổi: sv.nguyco, S05, S07, S08 đỏ |
@@ -326,7 +326,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-07-06 | P | TA/STUDENT/ADMIN × (presign, preview, commit) → [403, 403, 403, 403, 403, 403, 403, 403, 403] |
 | TC-P6-07-07 | P | go test 3 test PASS (log s8flow-go-*.log) |
 | TC-P6-07-08 | P | preview midterm.xlsx → rows_total 30, rows_ok 30, overwrites 0, unchanged 30, errors [], sample 0 (≤20); grade_entries 60→60, audit_log 3→3 không đổi |
-| TC-P6-07-09 | N | chưa chạy |
+| TC-P6-07-09 | P | UI nhập XLSX (QD8R71, real-07.spec.ts): bước 2 gợi ý cột theo tên MSSV→«A · MSSV», Điểm→«C · Điểm», đổi được; bước 3 xem trước |
 | TC-P6-07-10 | P | go test 2 test PASS (log s8flow-go-*.log) |
 | TC-P6-07-11 | P | errors.xlsx → 6 lỗi {2: 'STUDENT_NOT_IN_COURSE', 4: 'DUPLICATE_IN_FILE', 5: 'SCORE_OUT_OF_RANGE', 6: 'SCORE_PRECISION', 7: 'SCORE_NOT_NUMBER', 10: 'SCORE_OUT_OF_RANG |
 | TC-P6-07-12 | P | formula.xlsx: dòng B (=22/3 định dạng 0.00 → '7.33') hợp lệ; dòng C (=22/3 chung) → {3: 'SCORE_PRECISION'}; rows_ok 1 |
@@ -361,11 +361,11 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-07-41 | P | go test 5 test PASS (log s8flow-go-*.log) |
 | TC-P6-07-42 | P | LOAD1000 (5 lần, max): xuất 0.08s (≤3), xem trước 1.000 dòng 0.04s (≤2), ghi 1.000 dòng 0.08s (≤3); số câu SQL 1.000 dòng = 10 dòng: TestImportNoNPlusOne (test Go đế |
 | TC-P6-07-43 | P | go test 3 test PASS (log s8flow-go-*.log) |
-| TC-P6-07-44 | N | chưa chạy |
-| TC-P6-07-45 | N | chưa chạy |
-| TC-P6-07-46 | N | chưa chạy |
-| TC-P6-07-47 | N | chưa chạy |
-| TC-P6-07-48 | N | chưa chạy |
+| TC-P6-07-44 | P | Dialog 3 bước (Tiếp tục → Xem trước → «Ghi 30 dòng» / «Bỏ qua 6 dòng lỗi và ghi 3 dòng»); lỗi theo hàng bằng chữ Việt (MSSV không có trong lớp, MSSV bị lặp trong tệp, Điể |
+| TC-P6-07-45 | P | «Công bố cột cho sinh viên» mặc định tắt; ghi khi tắt → published_at không đặt; bật + ghi → cột final có published_at (đo DB) |
+| TC-P6-07-46 | P | ngắt mạng lúc tải tệp lên: «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.» + nút Tải lại; tên tệp errors.xlsx và item đã chọn còn nguyên; có mạng → Tải lạ |
+| TC-P6-07-47 | F | ghi xong ô cập nhật không tải lại trang (ô Bùi Thanh Khải 7,00), hộp thoại đóng, NHƯNG focus rơi về <body>, không về nút menu «Thêm hành động» → DEF-R8-A2 |
+| TC-P6-07-48 | P | 375 px: /gradebook không tràn ngang; Nhập từ XLSX mở được hộp thoại, không tràn ngang |
 | TC-P6-07-49 | P | dev e2e ['import xlsx flow\\|import errors listed'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-07-50 | P | upload_id lớp khác → 404 UPLOAD_NOT_FOUND; upload_id không tồn tại → 404; không ghi |
 | TC-P6-07-51 | P | item_id của lớp khác → 404 NOT_FOUND |
@@ -376,7 +376,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-07-56 | P | 20229888 có ROSTER (R) + CODE (Z2): preview không lỗi/AMBIGUOUS; điểm vào R=8.00, Z2=None |
 | TC-P6-07-57 | P | 20229999 joined_via=ADMIN → khớp, điểm 7.00 |
 | TC-P6-07-58 | P | PUT tay cho Z (CODE) → 200, điểm 6.50; sổ vẫn liệt kê Z (39 dòng) |
-| TC-P6-07-59 | N | chưa chạy |
+| TC-P6-07-59 | P | hàng có MSSV tự khai (joined_via=CODE): «Dòng 4 · 20229003 · MSSV chưa có trong danh sách lớp»; không mã thô, không gợi ý ghép theo tên |
 | TC-P6-08-01 | P | finalize → 200 {'version': 1, 'students': 30, 'locked_at': '2026-11-15T18:43:09.999815Z'}; snapshot v1 30 dòng; gradebooks LOCKED v1; scheme_id/locked_by/locked_at c |
 | TC-P6-08-02 | P | snapshot v1 30/30 khớp expected_final_grades.csv (hp↔numeric_grade, letter, verdict↔failed_reason; sv20 5,0 F kèm lý do liệt) |
 | TC-P6-08-03 | P | numeric_grade của snapshot = hp trong preview lưu trước khi chốt, 30/30 |

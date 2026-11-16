@@ -34,4 +34,42 @@ Run #5...done.
 Running Lighthouse 5 time(s) on http://localhost:3330/gradebook
 Run #1...done.
 Run #2...done.
-Run #3...
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/me
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/checkin
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/settings/llm
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/dev/ui
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Done running Lighthouse!
+
+Checking assertions against 9 URL(s), 45 total run(s)
+
+All results processed!
+
+Dumping 45 reports to disk at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/sim5/.lighthouseci...
+Done writing reports to disk.
+
+Done running autorun.
+rc=0
+uptime: 21:33  up 2 days, 14:55, 1 user, load averages: 9.63 10.93 12.42

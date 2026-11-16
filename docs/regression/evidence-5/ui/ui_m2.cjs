@@ -52,4 +52,13 @@ const audit = async (p, w) => { const a = await p.evaluate(`(${AUDIT_SRC.trim()}
     await p.getByRole('tab', { name: 'Nghi giống nhau' }).click(); await p.waitForTimeout(1500); F.sim = /Nghi giống nhau/.test(await main(p)); await ctx.close();
     console.log(JSON.stringify(F, null, 1).slice(0, 6000)); fs.writeFileSync('/tmp/qc2-c5b/staff.json', JSON.stringify(F));
   }
+  if (ONLY === 'scroll') {
+    const bk = JSON.parse(fs.readFileSync('/tmp/qc2L/bulk.json')); const { ctx, p } = await login(br, 'r5t', { width: 1440, height: 900 }); const t0 = Date.now();
+    await p.goto(`${B}/exams/${bk.exam}/results?course=${bk.c4}`); await p.waitForSelector('tbody tr', { timeout: 60000 }); const tLoad = Date.now() - t0; await p.waitForTimeout(1500);
+    const info = await p.evaluate(() => { const sc = [...document.querySelectorAll('*')].find((e) => /virtual/.test(e.className || '') && e.scrollHeight > e.clientHeight + 100) || [...document.querySelectorAll('div')].find((e) => e.scrollHeight > e.clientHeight + 500 && getComputedStyle(e).overflowY !== 'visible'); return sc ? { cls: sc.className, sh: sc.scrollHeight, ch: sc.clientHeight, rows: document.querySelectorAll('tbody tr').length } : null; });
+    const runs = []; for (let k = 0; k < 3; k++) {
+      const r = await p.evaluate(async () => { const sc = [...document.querySelectorAll('*')].find((e) => /virtual/.test(e.className || '') && e.scrollHeight > e.clientHeight + 100) || [...document.querySelectorAll('div')].find((e) => e.scrollHeight > e.clientHeight + 500 && getComputedStyle(e).overflowY !== 'visible'); sc.scrollTop = 0; await new Promise((r) => setTimeout(r, 300)); const frames = []; let last = performance.now(); let n = 0; const total = sc.scrollHeight - sc.clientHeight; const step = total / 240;
+        await new Promise((done) => { const tick = (now) => { frames.push(now - last); last = now; sc.scrollTop = Math.min(total, sc.scrollTop + step); if (++n < 240) requestAnimationFrame(tick); else done(); }; requestAnimationFrame(tick); }); const s = [...frames].sort((a, b) => a - b); return { n: frames.length, p50: s[Math.floor(s.length * .5)], p95: s[Math.floor(s.length * .95)], max: s[s.length - 1], rowsInDom: document.querySelectorAll('tbody tr').length, total }; }); runs.push(r); }
+    const load = require('os').loadavg()[0].toFixed(1); await p.screenshot({ path: SH + '/m-pe08-38-scroll.png' }); console.log(JSON.stringify({ tLoad, info, runs, load })); fs.writeFileSync('/tmp/qc2-c5b/scroll.json', JSON.stringify({ tLoad, info, runs, load })); await ctx.close();
+  }
   await br.close(); })();

@@ -1,0 +1,8 @@
+--- PASS: TestGradebookRBAC (1.29s)
+--- PASS: TestPublishItemToggle (0.94s)
+--- PASS: TestPendingItemHasNoScore (1.29s)
+--- PASS: TestNoDraftLeak (1.11s)
+--- PASS: TestNoDraftLeakQT (1.05s)
+--- PASS: TestStudentDTOAllowlist (0.75s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grade	7.289s

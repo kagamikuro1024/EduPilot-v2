@@ -23,12 +23,12 @@ if (mode === 'nav') {
   }
 }
 if (mode === 'flow') {
-  const {br, page} = await session('r5s0' + (process.argv[3] || 8)); await page.goto(url, {waitUntil: 'networkidle2'});
+  const {br, page} = await session('r5s' + String(process.argv[3] || 8).padStart(2, '0')); await page.goto(url, {waitUntil: 'networkidle2'});
   const flow = await startFlow(page, {config: {extends: 'lighthouse:default', settings: {onlyCategories: ['performance'], formFactor: 'mobile', screenEmulation: {mobile: true, width: 412, height: 823, deviceScaleFactor: 1.75, disabled: false}}}});
   await flow.startTimespan({name: 'làm bài'});
   const click = async (sel) => { const h = await page.$(sel); if (h) { await h.click(); await new Promise(r => setTimeout(r, 1200)); return true; } return false; };
   const byText = async (re) => { const els = await page.$$('button, [role=radio], [role=checkbox], label'); for (const e of els) { const t = await e.evaluate(n => (n.innerText || '').trim()); if (re.test(t)) { await e.click(); await new Promise(r => setTimeout(r, 1200)); return t; } } return null; };
-  console.log('start', await byText(/^Bắt đầu làm bài$/));
+  console.log('start', await byText(/^Bắt đầu làm bài$/)); await page.waitForSelector('input[type=radio],input[type=checkbox]', {timeout: 20000}); await new Promise(r => setTimeout(r, 1500));
   for (let i = 0; i < 4; i++) { console.log('opt', await byText(/Đáp án \d của câu/)); console.log('next', await byText(/^Câu sau$/)); }
   await page.screenshot({path: OUT + 'flow.png'});
   await flow.endTimespan(); const r = await flow.createFlowResult(); const x = pick(r.steps[0].lhr); console.log(JSON.stringify(x)); fs.writeFileSync(OUT + 'flow.json', JSON.stringify(r.steps[0].lhr)); await br.close();

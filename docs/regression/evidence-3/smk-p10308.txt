@@ -1,0 +1,5 @@
+lượt 1 (xô đầy) stub tích luỹ mỗi giây: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15] | stub tại t=10 s: 15 (TC ≤ 16) | mã phản hồi: {(200, None): 23, (503, 'OVERLOADED'): 12}
+lượt 2 (sau 65 s nghỉ) stub tích luỹ mỗi giây: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15] | stub tại t=10 s: 15 (TC ≤ 16) | mã phản hồi: {(200, None): 24, (503, 'OVERLOADED'): 11}
+llm_audit CHAT status: overloaded:75
+ok:221
+KQ P 15 15
