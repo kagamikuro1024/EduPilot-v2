@@ -33,3 +33,8 @@ Lớp `QCT2`, `QCT3`; GV `qct2@edupilot.local`; thread «QC ghim …» / «QC nh
 
 ## Lệnh chạy lại
 `cd ~/Documents/TA_Agent_qc5/frontend && QC_REAL=1 QC_BASE=https://localhost:943 … npx playwright test -c playwright.qc-real-flow.config.ts e2e/qc-real-*.spec.ts` (xem `real-flows.md`) · `python3 docs/sprints/11/qc/scripts/p10_*.py` · `python3 docs/sprints/11/qc/scripts/progress.py`.
+
+## Trạng thái dừng (chủ dự án lệnh dừng, tối làm tiếp)
+- Chưa chạy: TC-04-11 (Gemini thật, chờ hạn mức ngày hồi sau 07:00Z, ghi số chuỗi dùng); TC-07-13 (chờ dev), TC-07-14 (PM).
+- Stack: ep-t1 đã docker stop (volume giữ); ep-qc chạy lại, readyz 200, PENDING 761987 = 150.
+- Dữ liệu QC trên ep-qc chưa dọn (QCT2/3/4, qct2@, provider QC *, fixture audit 100k).
