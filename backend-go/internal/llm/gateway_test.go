@@ -235,6 +235,29 @@ func TestAllFailedOutageFlag(t *testing.T) {
 	}
 }
 
+// DEF-R8-A1: mọi nhà trả đầu ra sai định dạng / sai schema ⇒ BadOutput (người gọi không thử lại); lẫn lỗi hạ tầng hay mạch mở thì KHÔNG.
+func TestAllFailedBadOutputFlag(t *testing.T) {
+	t.Parallel()
+	mk := func(n string, kind provider.Kind) *stub {
+		return &stub{name: n, chat: func(int, provider.ChatOpts) (provider.Result, error) { return provider.Result{}, perr(kind, 200) }}
+	}
+	for name, c := range map[string]struct {
+		a, b provider.Kind
+		want bool
+	}{
+		"cả hai sai định dạng": {provider.KindBadResponse, provider.KindBadResponse, true},
+		"một sai, một 5xx":     {provider.KindBadResponse, provider.KindServer, false},
+		"cả hai 5xx":           {provider.KindServer, provider.KindServer, false},
+	} {
+		g, _ := newGateway(t, mk("A", c.a), mk("B", c.b))
+		lane := llm.LaneBatch
+		_, err := g.Structured(t.Context(), llm.Request{Task: llm.TaskInsight, Lane: &lane, Messages: userMsg("x")}, json.RawMessage(`{"type":"object"}`))
+		if !errors.Is(err, llm.ErrAllProvidersFailed) || llm.IsBadOutput(err) != c.want {
+			t.Errorf("%s: err=%v IsBadOutput=%v, muốn %v", name, err, llm.IsBadOutput(err), c.want)
+		}
+	}
+}
+
 func TestLaneRules(t *testing.T) {
 	t.Parallel()
 	ptr := func(l llm.Lane) *llm.Lane { return &l }

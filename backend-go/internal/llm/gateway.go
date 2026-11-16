@@ -330,6 +330,8 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 	var zero chosen[T]
 	targets := c.route.Targets
 	lastKind := provider.Kind("")
+	badOutput := true // mọi nhà đã thử đều trả đầu ra sai; mạch mở / lỗi hạ tầng / chưa thử nhà nào → false
+	tried := false
 	outage := false // có nhà cung cấp lỗi do hạ tầng (mạch mở, mạng, quá hạn, 5xx, 429), khác đầu ra sai / sai khoá
 	for idx, t := range targets {
 		if err := c.ctx.Err(); err != nil {
@@ -339,6 +341,7 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 		if !c.g.gate.BreakerAllow(c.ctx, t.ProviderID) {
 			lastKind = "circuit_open"
 			outage = true
+			badOutput = false
 			c.row.ErrorKind = "circuit_open"
 			c.warnFallback(targets, idx, "circuit_open")
 			continue
@@ -357,6 +360,8 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 		permit.Done(-1)
 		lastKind = ar.kind
 		outage = outage || ar.kind.Retryable()
+		tried = true
+		badOutput = badOutput && ar.kind == provider.KindBadResponse
 		c.row.ErrorKind = string(ar.kind)
 		if ar.perr != nil && ar.perr.Detail != "" {
 			c.g.o.Log.DebugContext(c.ctx, "lỗi nhà cung cấp LLM", "provider", t.ProviderName, "kind", string(ar.kind), "detail", ar.perr.Detail)
@@ -378,7 +383,7 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 	if err := c.ctx.Err(); err != nil {
 		return zero, c.ctxErr(err)
 	}
-	return zero, &allFailed{outage: outage}
+	return zero, &allFailed{outage: outage, badOutput: tried && badOutput}
 }
 
 // dimsOf lấy số chiều thật đã gắn vào Detail của lỗi DIMS_MISMATCH ("n").
@@ -539,7 +544,7 @@ func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 			c.finish(&resp, nil)
 			return resp, nil
 		}
-		err = &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err)}
+		err = unavailable(err)
 	}
 	if err == nil {
 		resp.Text = mk.unmask(resp.Text)
@@ -610,7 +615,7 @@ func (g *Gateway) Structured(ctx context.Context, r Request, schema json.RawMess
 	c.recordPrompt(mk, rm)
 	resp, err := g.chat(c, rm, schema)
 	if errors.Is(err, ErrAllProvidersFailed) {
-		err = &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err)}
+		err = unavailable(err)
 	}
 	var out json.RawMessage
 	if err == nil { // schema đã được kiểm trên đầu ra thô (trong g.chat); chỉ khi đó mới khôi phục chuỗi giá trị

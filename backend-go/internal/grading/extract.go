@@ -268,6 +268,9 @@ func (s *Service) callLLM(ctx context.Context, pages []Page) (json.RawMessage, e
 			i--
 			continue
 		}
+		if llm.IsBadOutput(err) { // mọi nhà cung cấp trả đầu ra sai schema: thử lại không đổi kết quả (DEF-R8-A1)
+			return nil, userErr(CodeExtractionBad, "Không đọc được công thức từ quy chế.")
+		}
 		var over *llm.ErrOverloaded
 		var unav *llm.ErrUnavailable
 		transient := attemptExpired || errors.As(err, &over) || (errors.As(err, &unav) && unav.Reason != llm.ReasonBudgetExhausted) || errors.Is(err, llm.ErrAllProvidersFailed)
