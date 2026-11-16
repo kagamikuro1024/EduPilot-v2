@@ -62,16 +62,19 @@ export function QuestionForm({ courseId, userId, detail, createType, onSaved, on
   const initial = useMemo(() => (detail ? fromDetail(detail) : blank(createType ?? "MCQ_SINGLE")), [detail, createType]);
   const draftKey = `question:${detail?.id ?? `new-${createType ?? "MCQ_SINGLE"}`}`;
   const saved = useAutosaveDraft(draftKey, { userId });
-  const restored = useMemo(() => {
+  const [d, setD] = useState<Draft>(initial);
+  const [restored, setRestored] = useState<Draft | null>(null);
+  const [settled, setSettled] = useState(false); // đã chốt giá trị đầu: nháp trong máy (tới ở lượt dựng sau, vì hook đọc kho sau khi gắn kết) hoặc bản đang có
+  if (!settled && saved.value) {
+    setSettled(true);
     try {
-      return saved.value ? (JSON.parse(saved.value) as Draft) : null;
-    } catch {
-      return null;
-    }
-    // chỉ lúc mở: bản nháp đã khôi phục được dùng làm giá trị đầu
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const [d, setD] = useState<Draft>(restored && restored.type === initial.type ? restored : initial);
+      const r = JSON.parse(saved.value) as Draft;
+      if (r.type === initial.type) {
+        setD(r);
+        setRestored(r);
+      }
+    } catch { /* nháp hỏng: giữ bản đang có */ }
+  }
   const [pending, setPending] = useState(false);
   const [err, setErr] = useState<unknown>(null);
   const fe = fieldErrors(err);
@@ -79,6 +82,7 @@ export function QuestionForm({ courseId, userId, detail, createType, onSaved, on
   const isMcq = d.type === "MCQ_SINGLE" || d.type === "MCQ_MULTI";
 
   function patch(next: Partial<Draft>) {
+    setSettled(true);
     setD((prev) => {
       const merged = { ...prev, ...next };
       saved.setValue(JSON.stringify(merged));
