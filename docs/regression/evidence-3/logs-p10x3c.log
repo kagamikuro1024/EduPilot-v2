@@ -1,0 +1,4 @@
+TC-P102-14 P stub: INTERACTIVE=2 (kỳ vọng 2), BATCH=3 (kỳ vọng 3); llm_audit CHAT: ''; GRADING: 'error/SERVER/att=3/qwait=0/lat=939'; GRADING của nhà khá
+TC-P103-19 P circuit=open; lời gọi kế tiếp 200 None 8 ms, stub 0 request; llm_audit: ''
+TC-P103-20 P bán mở: 3 lời gọi đồng thời → stub 2 (kỳ vọng thăm dò 1 lần x ≤2 thử); kết quả [200, 200, 200]; llm_audit: 'degraded/att=0/lat=3\ndegraded/a
+window s 37.70412588119507

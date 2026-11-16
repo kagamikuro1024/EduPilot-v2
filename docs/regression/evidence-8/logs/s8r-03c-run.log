@@ -1,0 +1,4 @@
+setroute 200
+F TC-P6-03-36 đầu ra không phải JSON (stub 'invalid'): job FAILED LLM_UNAVAILABLE (spec: EXTRACTION_INVALID); stub nhận 3 lời gọi (spec: đúng 1); llm_audit [['1', 'error', 'BAD_RE
+P TC-P6-03-37 QD8A2 CONFIRMED (confirm→200): grade_schemes trước [['CONFIRMED', '1']] = sau [['CONFIRMED', '1']] sau 2 lần trích lỗi (FAILED/FAILED); /gradebook 200
+restore 200

@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm E) · Ngày: 2026-11-15
-Tổng TC cũ: 536 · Đạt: 297 · Trượt: 1 · Không chạy K (a/b/c): 2 · Lỗi thời (T, tính vào cột K của brief): 6 · Chưa chạy (mẫu) N: 230   (P+F+K+T+N = 536 = 536). TC-P3-02-21 đã đạt trên bản dựng có fix afbd433e (xem dòng ca); TC-P3-01-49 → K(c) theo PM (DEF-R6-01 là nợ phase PR, D44).
+Tổng TC cũ: 536 · Đạt: 298 · Trượt: 0 · Không chạy K (a/b/c): 2 · Lỗi thời (T, tính vào cột K của brief): 6 · Chưa chạy (mẫu) N: 230   (P+F+K+T+N = 536 = 536). TC-P3-02-21 đã đạt trên bản dựng có fix afbd433e (xem dòng ca); TC-P3-01-49 → K(c) theo PM (DEF-R6-01 là nợ phase PR, D44).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -280,7 +280,7 @@ Cách chạy:
 | TC-P3-06-39 | P | go test ok (1 test/ca con, ~3s) |
 | TC-P3-06-40 | P | 409 EXAM_IN_PROGRESS until có; forum_threads mới=0; exam_events CHAT_BLOCKED/{}; bài chứa PII cũng 409 (khoá chạy trước tường lửa): 409 |
 | TC-P3-06-41 | P | danh sách 200, chi tiết 200, precheck 200, bình luận 201, from-draft 201 |
-| TC-P3-06-42 | F | /threads khi khoá: ô tiêu đề/nội dung vô hiệu, dòng báo là "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." thay vì "Đăng bài tạm khóa trong lúc bạn làm bài thi…" (SRS 472). Nộp bài |
+| TC-P3-06-42 | P | RERUN 2026-11-16 (ep-r ≥ 32b4cb2b, a081590a): SV sv04 lớp 761987, /threads?course=, giả lập /me/exam-lock locked: dòng báo «Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau HH:mm.» hiện, không còn chữ «Chat tạm khóa» (evidence-3/scripts/r6c01.mjs, shots/r6c01-threads-lock.png) |
 | TC-P3-06-43 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P3-06-44 | P | bỏ sót []; personal_question=True reasons=[{'type': 'PERSONAL_QUESTION', 'count': 1}] |
 | TC-P3-06-45 | P | 5 mẫu âm, chặn nhầm: [] |

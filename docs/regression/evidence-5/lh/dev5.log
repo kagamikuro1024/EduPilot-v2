@@ -1,0 +1,79 @@
+uptime: 20:55  up 2 days, 14:17, 1 user, load averages: 20.84 23.73 17.90
+✅  .lighthouseci/ directory writable
+✅  Configuration file found
+✅  Chrome installation found
+⚠️   GitHub token not set
+Healthcheck passed!
+
+WARNING: collect.settings.chromeFlags option will be ignored.
+WARNING: If you want chromeFlags with puppeteerScript, use collect.puppeteerLaunchOptions.args option.
+Running Lighthouse 5 time(s) on http://localhost:3330/
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/chat
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/threads
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/inbox
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/gradebook
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/me
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/settings/llm
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/dev/ui
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Done running Lighthouse!
+
+Checking assertions against 8 URL(s), 40 total run(s)
+
+1 result(s) for [1mhttp://localhost:3330/dev/ui[0m :
+
+  ⚠️  [1mlargest-contentful-paint[0m warning for [1mmaxNumericValue[0m assertion
+       Largest Contentful Paint
+       https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/
+
+        expected: <=[32m2500[0m
+           found: [31m2966.289[0m
+      [2mall values: 2964.346, 2966.289, 2928.385, 2984.873, 2968.339[0m
+
+All results processed!
+
+Dumping 40 reports to disk at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools...
+Done writing reports to disk.
+
+Done running autorun.
+rc=0
+uptime: 21:20  up 2 days, 14:42, 1 user, load averages: 6.06 8.62 14.12

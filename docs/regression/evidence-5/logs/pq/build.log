@@ -1,0 +1,78 @@
+$ next build
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 1439ms
+- Experiments (use with caution):
+  ✓ inlineCss
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 19.4s
+  Running TypeScript ...
+  Finished TypeScript in 42s ...
+  Collecting page data using 10 workers ...
+  Generating static pages using 10 workers (0/40) ...
+  Generating static pages using 10 workers (10/40) 
+  Generating static pages using 10 workers (20/40) 
+  Generating static pages using 10 workers (30/40) 
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Generating static pages using 10 workers (40/40) in 5.6s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[...slug]
+├ ○ /admin/audit
+├ ○ /admin/courses
+├ ○ /admin/users
+├ ○ /analytics
+├ ○ /assignments
+├ ƒ /assignments/[id]
+├ ○ /attendance
+├ ○ /attendance/display
+├ ○ /calendar
+├ ○ /chat
+├ ○ /checkin
+├ ○ /class/members
+├ ○ /class/settings
+├ ƒ /dev/[...slug]
+├ ○ /documents
+├ ○ /exams
+├ ƒ /exams/[id]
+├ ƒ /exams/[id]/results
+├ ƒ /exams/[id]/similarity
+├ ƒ /exams/[id]/take
+├ ○ /forgot-password
+├ ○ /gradebook
+├ ○ /gradebook/scheme
+├ ○ /grading
+├ ƒ /grading/[submissionId]
+├ ○ /inbox
+├ ○ /insights
+├ ƒ /invite/[token]
+├ ○ /join
+├ ƒ /join/[code]
+├ ○ /library
+├ ƒ /library/[id]
+├ ○ /login
+├ ○ /manifest.webmanifest
+├ ○ /me
+├ ○ /observability
+├ ○ /practice
+├ ƒ /practice/[attemptId]
+├ ○ /practice/history
+├ ○ /questions
+├ ○ /register
+├ ○ /reset-password
+├ ○ /settings
+├ ○ /settings/integrations
+├ ○ /settings/llm
+├ ○ /students
+├ ƒ /students/[id]
+├ ○ /threads
+├ ƒ /threads/[id]
+└ ○ /verify-email
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

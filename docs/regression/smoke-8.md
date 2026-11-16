@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 349 · Trượt: 0 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 163   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 388 · Trượt: 3 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 121   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -9,10 +9,10 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 |---|---|---|---|---|---|---|
 | P6-01 | 41 | 41 | 0 | 0 | 0 | 0 |
 | P6-02 | 49 | 48 | 0 | 0 | 0 | 1 |
-| P6-03 | 48 | 27 | 0 | 0 | 0 | 21 |
-| P6-04 | 49 | 25 | 0 | 0 | 0 | 24 |
+| P6-03 | 48 | 46 | 2 | 0 | 0 | 0 |
+| P6-04 | 49 | 43 | 1 | 0 | 0 | 5 |
 | P6-05 | 46 | 19 | 0 | 0 | 0 | 27 |
-| P6-06 | 63 | 58 | 0 | 0 | 0 | 5 |
+| P6-06 | 63 | 60 | 0 | 0 | 0 | 3 |
 | P6-07 | 59 | 52 | 0 | 0 | 0 | 7 |
 | P6-08 | 47 | 44 | 0 | 0 | 0 | 3 |
 | P6-09 | 50 | 35 | 0 | 0 | 0 | 15 |
@@ -117,72 +117,72 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-03-03 | P | log gateway+worker trong lúc trích: 0 lần nội dung quy chế ('Điều 1', 'Điểm thi cuối kỳ') |
 | TC-P6-03-04 | P | grep: 3 file ngoài internal/llm chỉ chứa tên enum 'openai anthropic' trong validate/oneof (llmhttp, llmconfig); không SDK/endpoint |
 | TC-P6-03-05 | P | TestExtractOneStructuredCall/TaskAndLane/PromptHasPages/SchemaStrictCompatible/AttemptTimeout PASS |
-| TC-P6-03-06 | N | chưa chạy |
+| TC-P6-03-06 | P | schema.go: 12 object / 12 additionalProperties:false, có anyOf, đủ 6 kind; extract.go đặt temperature |
 | TC-P6-03-07 | P | draft lớp 1: 3 thành phần [('final', '60'), ('midterm', '20'), ('weekly', '20')], 7 luật, unclear_items [] |
 | TC-P6-03-08 | P | so khớp fixture extraction-lop1.json: thành phần True, luật+tham số True (chỉ khác id/version/status) |
 | TC-P6-03-09 | P | TestExtractGradeScheme PASS |
 | TC-P6-03-10 | P | p6-citation-check trên citations gộp từ components+rules của draft: 11/11 trích dẫn đúng (11 trích dẫn) rc=0 |
-| TC-P6-03-11 | N | chưa chạy |
-| TC-P6-03-12 | N | chưa chạy |
+| TC-P6-03-11 | P | seed/demo/quy-che-lop1.pdf (pypdf, máy không có pdftotext): 2 trang; trang 1 có Điều 1, Điều 2 và 1.1; trang 2 có Điều 3, 4, 5 và «làm tròn đến 0,5»; có lớp chữ thật (179 |
+| TC-P6-03-12 | P | 761987: filename quy-che-lop1.pdf = COURSE_POLICY (title Quy chế học phần); Quyche.pdf = OTHER, category Quy chế trường (title Quy chế học vụ); không còn COURSE_POLICY nà |
 | TC-P6-03-13 | P | lớp 2: thành phần [('final', '50'), ('lab', '25'), ('midterm', '25')], luật ['BONUS', 'FAIL_CONDITION', 'LETTER_SCALE', 'PENALTY'], unclear ['ROUNDING_MISSING']; BON |
 | TC-P6-03-14 | P | PDF quy-che-lop2 (pypdf, 2 trang): 0 lần làm tròn/quy tròn/bước điểm; md có 1 dòng là chú thích HTML nói về chính điều đó |
 | TC-P6-03-15 | P | TestExtractLop2OneUnclear PASS |
 | TC-P6-03-16 | P | 8 test TestChecker* PASS (WeightSum, NoComponents, Bonus, BonusCap, Absence, Rounding, LetterScale, ParamInvalid) |
-| TC-P6-03-17 | N | chưa chạy |
-| TC-P6-03-18 | N | chưa chạy |
-| TC-P6-03-19 | N | chưa chạy |
-| TC-P6-03-20 | N | chưa chạy |
-| TC-P6-03-21 | N | chưa chạy |
-| TC-P6-03-22 | N | chưa chạy |
-| TC-P6-03-23 | N | chưa chạy |
+| TC-P6-03-17 | P | WEIGHT_SUM có tổng 90 ([{"source": "CODE", "code": "WEIGHT_SUM", "target": "components", "message": "Tổng trọng s); bản nháp vẫn lưu (3 thành phần); confirm → 422 SC |
+| TC-P6-03-18 | P | bỏ thang → ['LETTER_SCALE_MISSING']; A+≥9,A≥9,B≥7 → ['LETTER_SCALE_INVALID']; thang bắt đầu từ 1 → ['LETTER_SCALE_INVALID'] |
+| TC-P6-03-19 | F | [] (202, 'FAILED', 'LLM_UNAVAILABLE') / ['PARAM_INVALID', 'WEIGHT_SUM'] |
+| TC-P6-03-20 | P | LLM trả unclear_items [] nhưng ROUNDING_MISSING vẫn có, source=CODE |
+| TC-P6-03-21 | P | quote bịa ở c6 → CITATION_NOT_FOUND 1 mục, target ['rules.ROUNDING']; mã khác: ['CITATION_NOT_FOUND'] |
+| TC-P6-03-22 | P | page=9 → 1 CITATION_NOT_FOUND (['rules.FAIL_CONDITION']); quote trang 1 gán page=2 → 1 (['components.final']) |
+| TC-P6-03-23 | P | quote bỏ dấu → 0 CITATION_NOT_FOUND (chấp nhận); đổi '0,5'→'1,0' → 1 (['rules.ROUNDING']) |
 | TC-P6-03-24 | P | TestCitationVerified/NotFound/PageMissing/OCRTolerance/ComparedAfterUnmask PASS; không có hàm vnFold tự viết ở Go (vn_fold dùng ở SQL/textfold) |
 | TC-P6-03-25 | P | sau trích: grade_schemes [['DRAFT', 't', 't']] |
 | TC-P6-03-26 | P | ConfirmScheme: định nghĩa confirm.go:31 + 1 lời gọi gradehttp/handler.go:202; không ở job/seed/agent |
 | TC-P6-03-27 | P | TestExtractNeverConfirms (grading) + TestConfirmOnlyFromHandler (grade) PASS |
 | TC-P6-03-28 | P | seed.mjs xác nhận qua POST …/grade-scheme/confirm bằng token TEACHER; không UPDATE grade_schemes. (seed-t1.mjs là seed tải DB riêng edupilot_t1, INSERT thẳ |
 | TC-P6-03-29 | P | TestPromptDelimitsDocument/NoInstructionFollowing/ExtractUsesPrivacyMask PASS |
-| TC-P6-03-30 | N | chưa chạy |
-| TC-P6-03-31 | N | chưa chạy |
+| TC-P6-03-30 | P | request tới LLM (log stub): câu injection nằm trong khối dữ liệu của tin user (không ở system)=True, ranh giới=False, system dặn chỉ trích/không làm theo lệnh=True;  |
+| TC-P6-03-31 | P | PDF có tên+MSSV+email của SV trong danh sách lớp: prompt tới LLM không còn tên/MSSV/email (lọt: []); dòng trong prompt: ['Người lập: [[SV_1]] [[MSSV_1]] ([[EMAIL_1]] |
 | TC-P6-03-32 | P | extract với document khác COURSE_POLICY → 404 NOT_FOUND |
-| TC-P6-03-33 | N | chưa chạy |
-| TC-P6-03-34 | N | chưa chạy |
-| TC-P6-03-35 | N | chưa chạy |
-| TC-P6-03-36 | N | chưa chạy |
-| TC-P6-03-37 | N | chưa chạy |
+| TC-P6-03-33 | P | tài liệu PROCESSING → 409 DOCUMENT_NOT_READY |
+| TC-P6-03-34 | P | quy chế dài → 422 POLICY_TOO_LONG, số job không đổi (23→23); đã dọn chunk thêm (3→3) |
+| TC-P6-03-35 | P | nhà cung cấp 503: job FAILED LLM_UNAVAILABLE; stub nhận 9 yêu cầu, llm_audit [['3', 'error', 'SERVER'], ['3', 'error', 'SERVER'], ['3', 'error', 'SERVER']]; DRAFT rá |
+| TC-P6-03-36 | F | đầu ra không phải JSON (stub 'invalid'): job FAILED LLM_UNAVAILABLE (spec: EXTRACTION_INVALID); stub nhận 3 lời gọi (spec: đúng 1); llm_audit [['1', 'error', 'BAD_RE |
+| TC-P6-03-37 | P | QD8A2 CONFIRMED (confirm→200): grade_schemes trước [['CONFIRMED', '1']] = sau [['CONFIRMED', '1']] sau 2 lần trích lỗi (FAILED/FAILED); /gradebook 200 |
 | TC-P6-03-38 | P | extract hai lần cùng khoá → job_id giống; grade_schemes mới 1 |
-| TC-P6-03-39 | N | chưa chạy |
-| TC-P6-03-40 | N | chưa chạy |
-| TC-P6-03-41 | N | chưa chạy |
-| TC-P6-03-42 | N | chưa chạy |
+| TC-P6-03-39 | P | kill worker ở giây 5/14: job nhận lại → SUCCEEDED; số DRAFT 1; stub nhận 2 lời gọi |
+| TC-P6-03-40 | P | sửa tay PUT → 200; extract không replace → 409 DRAFT_EXISTS (details {'edited_items': 1}); replace_draft=true → 202; audit_log gần đây [['1']] |
+| TC-P6-03-41 | P | extract không replace_draft; PUT sửa trong lúc chạy → job FAILED DRAFT_EXISTS; nháp người dùng midterm=['21'] |
+| TC-P6-03-42 | P | replace_draft=true rồi PUT tăng version trong lúc chạy → job FAILED DRAFT_EXISTS; nháp người dùng còn weekly=['19'] |
 | TC-P6-03-43 | P | 12 test TestExtract* (NotPolicy…ReplaceDraftVersionChanged) PASS (Go integration -tags integration, logs/s8core-go-*.log) |
 | TC-P6-03-44 | P | TA/SV/ADMIN extract → [403, 403, 403]; llm_audit 3649→3649 không đổi |
 | TC-P6-03-45 | P | GV lớp khác extract lớp 1 → 403 |
 | TC-P6-03-46 | P | TA GET grade-scheme 200, PUT 403 |
 | TC-P6-03-47 | P | STUDENT GET grade-scheme → 403 |
 | TC-P6-03-48 | P | TestExtractRBAC PASS |
-| TC-P6-04-01 | N | chưa chạy |
-| TC-P6-04-02 | N | chưa chạy |
-| TC-P6-04-03 | N | chưa chạy |
-| TC-P6-04-04 | N | chưa chạy |
+| TC-P6-04-01 | P | /gradebook/scheme lớp 2 (QD8B1) 1440 px: [data-ep-panel] 2 (công thức + cột trích dẫn), lồng nhau 0, có cột trích dẫn (real-04.spec.ts) |
+| TC-P6-04-02 | P | click quote: Giữa kỳ → «Trang 1», Điểm cộng → «Trang 2», Thang chữ → «Trang 2» (khớp extraction-lop2); đoạn trích được <mark> nhấn mạnh |
+| TC-P6-04-03 | F | 1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer → Esc) → DEF-R8-A1 Thấp |
+| TC-P6-04-04 | P | icon Info/CircleHelp 0; hai dòng sau tiêu đề «Tải quy chế | Bản nháp» (không câu mô tả) |
 | TC-P6-04-05 | N | chưa chạy |
-| TC-P6-04-06 | N | chưa chạy |
-| TC-P6-04-07 | N | chưa chạy |
+| TC-P6-04-06 | P | khối Làm tròn trống tại chỗ có ô chọn bước; nút Xác nhận công thức aria-disabled=true; tooltip trên chính nút «Còn 1 mục chưa rõ: làm tròn» (hover và focus); không modal |
+| TC-P6-04-07 | P | chọn «Làm tròn đến 0,1»: mục chưa rõ biến mất, nút bật (disabled=false), tooltip hết; xác nhận được (TC-04-22/41) |
 | TC-P6-04-08 | P | confirm khi còn mục chưa rõ → 422 SCHEME_HAS_UNCLEAR details {"codes": ["WEIGHT_SUM"], "unclear_items": [{"source": "CODE; status vẫn DRAFT |
 | TC-P6-04-09 | P | TestConfirmBlockedByUnclear PASS + e2e 'unclear blocks confirm' xanh (13 test dev Playwright gradebo) |
 | TC-P6-04-10 | P | PUT rời ô: version 9→10, unclear_items recomputed []=[], ROUNDING filled_by_user=true, không trích dẫn (UI ghi 'do giảng viên đặt'; dòng mạng ở UI-TC) |
 | TC-P6-04-11 | P | trọng số abc/-5/101 → [422, 422, 422]; 12,5 → 422 VALIDATION_FAILED; tổng 110 → unclear WEIGHT_SUM kèm tổng 110 (giữ chữ: UI, xem spec) |
 | TC-P6-04-12 | P | PUT với version cũ → 409 VERSION_CONFLICT kèm giá trị hiện tại (True) |
-| TC-P6-04-13 | N | chưa chạy |
+| TC-P6-04-13 | P | PUT grade-scheme: lớp chỉ có CONFIRMED (QD8R6W) → 409 SCHEME_NOT_DRAFT, công thức v3 không đổi; lớp không có công thức (QD8F3, gv.s8f) → 409 NO_DRAFT |
 | TC-P6-04-14 | P | TestSchemePutRecheck/VersionConflict/OnlyDraft/FilledByUserNoCitation PASS + e2e 'scheme edit optimistic' xanh |
 | TC-P6-04-15 | P | 3 mẫu: cao nhất 10→9,8 · giữa 6.5→6.5 (vị trí 15/16 theo HP) · thấp nhất 3→3,2; giữa khớp hand-calc (đo ≤300 ms: xem UI/TC-04-15 ghi chú) |
 | TC-P6-04-16 | P | impact 2 lần: audit_log lớp 4→4, grade_entries 60→60 (không ghi); N=21 khớp tính tay; khoá ['changed_vs_confirmed', 'entries_carried', 'entries_dropped', ' |
-| TC-P6-04-17 | N | chưa chạy |
+| TC-P6-04-17 | P | khối Xem thử lớp 2 chưa có điểm: «Chưa đủ điểm để xem thử» |
 | TC-P6-04-18 | P | TestImpactThreeSamples/NoWrite/NoCompleteStudents PASS + e2e 'impact preview' (+ 'empty') xanh |
-| TC-P6-04-19 | N | chưa chạy |
-| TC-P6-04-20 | N | chưa chạy |
+| TC-P6-04-19 | P | hộp thoại nêu số: lớp 2 «Áp cho 3 sinh viên · điểm học phần của 0 sinh viên sẽ đổi … · 0 điểm đã nhập bị bỏ»; Esc đóng, Để sau đóng, focus về nút Xác nhận. LƯU Ý: click r |
+| TC-P6-04-20 | P | QD8R6W CONFIRMED v3 + nháp đổi bước làm tròn 0,1: «Áp cho 30 sinh viên · điểm học phần của 21 sinh viên sẽ đổi so với công thức hiện tại · 60 điểm đã nhập được giữ · 0 đi |
 | TC-P6-04-21 | P | confirm 200: DRAFT→CONFIRMED(confirmed_by), cũ→SUPERSEDED [['SUPERSEDED', '1'], ['CONFIRMED', '2']]; audit_log confirm có số liệu {"version": 10, "scheme_n |
-| TC-P6-04-22 | N | chưa chạy |
-| TC-P6-04-23 | N | chưa chạy |
+| TC-P6-04-22 | P | xác nhận lớp 2: mục công thức biến mất khỏi Hôm nay và banner /gradebook hết |
+| TC-P6-04-23 | P | POST confirm bằng TA/STUDENT/ADMIN → [('ta', 403), ('sv.gioi', 403), ('admin', 403)]; UI TA không thấy Xác nhận công thức / Tải quy chế / ô điền (TC-04-45 PASS) |
 | TC-P6-04-24 | P | TestConfirmFlow/Idempotent/Audit/RBAC PASS + e2e 'confirm irreversible' xanh |
 | TC-P6-04-25 | P | confirm giữ khoá/thang/nguồn: 60 điểm CHUYỂN sang item mới (midterm 30, final 30; item cũ SUPERSEDED còn trong DB, 0 điểm); /gradebook 30/30 đủ điểm; entri |
 | TC-P6-04-26 | P | midterm max 10→100: impact/confirm entries_dropped=[midterm: 30, MAX_CHANGED]; điểm KHÔNG sang item thang 100 (mới 0 điểm), 30 điểm còn ở item cũ SUPERSEDE |
@@ -194,18 +194,18 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-04-32 | P | TestNewPolicyMakesNewDraft/DiffAgainstConfirmed/ConfirmedUnchangedUntilConfirm PASS + e2e 'new policy diff' xanh |
 | TC-P6-04-33 | P | confirm với version cũ → 409 VERSION_CONFLICT; status vẫn DRAFT; sau đó confirm version mới (bước kế) → 200 |
 | TC-P6-04-34 | N | chưa chạy |
-| TC-P6-04-35 | N | chưa chạy |
+| TC-P6-04-35 | P | offline: sửa trọng số rồi Tab → nhãn «Chưa lưu», chữ vẫn trong ô; có mạng lại tự gửi: DB weight midterm = 24.00; không mất chữ |
 | TC-P6-04-36 | P | TestSchemeEditRace/TestConfirmStaleVersion PASS + e2e 'scheme offline retry' xanh |
 | TC-P6-04-37 | P | grep mock/gradebook frontend/src rỗng; frontend/src/mock/gradebook.ts không tồn tại |
-| TC-P6-04-38 | N | chưa chạy |
-| TC-P6-04-39 | N | chưa chạy |
+| TC-P6-04-38 | P | lớp chưa quy chế: «Lớp chưa có quy chế» + Tải quy chế; chậm 3 s có skeleton; 500 → khối lỗi + Thử lại, bấm Thử lại tải lại được |
+| TC-P6-04-39 | P | 375 px: cuộn ngang 0; nút chính cao 44 px; trích dẫn mở bằng Drawer |
 | TC-P6-04-40 | P | e2e 'scheme states' + 'scheme mobile' xanh |
-| TC-P6-04-41 | N | chưa chạy |
+| TC-P6-04-41 | P | sau xác nhận: không toast; chữ tại chỗ «Đã xác nhận · Hôm nay, 21:19» |
 | TC-P6-04-42 | P | confirm thiếu Idempotency-Key → 422 IDEMPOTENCY_KEY_REQUIRED; DRAFT không đổi |
 | TC-P6-04-43 | P | confirm thân {} thiếu version → 422 VALIDATION_FAILED |
-| TC-P6-04-44 | N | chưa chạy |
-| TC-P6-04-45 | N | chưa chạy |
-| TC-P6-04-46 | N | chưa chạy |
+| TC-P6-04-44 | P | tooltip lý do khoá hiện cả khi focus bàn phím («Còn 1 mục chưa rõ: làm tròn») |
+| TC-P6-04-45 | P | TA: Xác nhận 0, Tải quy chế 0, ô điền 0; thấy công thức + trích dẫn chỉ đọc |
+| TC-P6-04-46 | P | SV mở /gradebook/scheme: «Bạn không có quyền xem màn này»; DOM không chứa «Thi cuối kỳ» |
 | TC-P6-04-47 | P | GV lớp khác GET grade-scheme → 403 |
 | TC-P6-04-48 | P | e2e 'scheme rbac' xanh |
 | TC-P6-04-49 | P | ADMIN GET grade-scheme → 403 |
@@ -286,8 +286,8 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-06-29 | P | go test 1 test PASS (log s8flow-go-*.log) |
 | TC-P6-06-30 | P | LOAD1000 trang đầu limit=100 ×20: p50 20 ms, p95 51 ms (≤500); limit=101 → 422; thứ tự vn_fold(tên),id đúng trên lớp 30 SV có dấu: True |
 | TC-P6-06-31 | N | chưa chạy |
-| TC-P6-06-32 | N | chưa chạy |
-| TC-P6-06-33 | N | chưa chạy |
+| TC-P6-06-32 | P | LOAD1000 (đã mở khoá bằng API): gõ dở «7,» ở hàng 5, cuộn tới cuối (9 yêu cầu có cursor) rồi cuộn về: ô vẫn giữ «7,» (real-06b.spec.ts, 3 lượt) |
+| TC-P6-06-33 | P | LOAD1000: ArrowDown/Enter qua cuối cửa sổ ảo hoá: focus đi qua >2 ô khác nhau, focus cuối là INPUT; thead dính (sticky) (real-06b.spec.ts) |
 | TC-P6-06-34 | P | LOAD1000 limit=100: seq_scan +0 trên grade_entries/participation_events/attendance_records (pg_stat_user_tables, min 3 lượt); đếm câu SQL không đo được qua log DB dù |
 | TC-P6-06-35 | P | Go 3 test PASS; dev e2e ['virtualized 1000\\|type then scroll keeps text'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-06-36 | P | grep: DataTableVirtual + cellNav nằm trong frontend/src/shared/ui; grep '<table' ở features/gradebook rỗng |

@@ -1,0 +1,31 @@
+
+Running 6 tests using 1 worker
+
+(node:40103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+P TC-P6-04-01 [data-ep-panel] 2, lồng nhau 0, cột trích dẫn true
+P TC-P6-04-02 Giữa kỳ → «Trang 1», Điểm cộng → «Trang 2», Thang chữ → «Trang 2»; đoạn trích được nhấn mạnh true
+F TC-P6-04-03 1024 px cột cố định true; 1023 px cột false, mục đang chọn → Drawer 1; Esc đóng true; chọn lại bằng nút Trang → Drawer 1, Esc đóng true, focus về «<BODY>»
+P TC-P6-04-04 icon Info/CircleHelp 0; hai dòng sau tiêu đề: «Tải quy chế | Bản nháp»
+P TC-P6-04-06 nút aria-disabled=true; tooltip hover «Còn 1 mục chưa rõ: làm tròn», focus «Còn 1 mục chưa rõ: làm tròn»; modal 0; khối Làm tròn có ô điền
+P TC-P6-04-44 tooltip hiện khi focus bàn phím (không chỉ hover): «Còn 1 mục chưa rõ: làm tròn»
+P TC-P6-04-07 sau điền «Làm tròn đến 0,1»: còn «chưa rõ» false; nút aria-disabled=null disabled=false
+P TC-P6-04-17 khối Xem thử: Chưa đủ điểm để xem thử
+F TC-P6-04-19 hộp thoại: «Xác nhận công thức Áp cho 3 sinh viên · điểm học phần của 0 sinh viên sẽ đổi so với công thức hiện tại · 0 điểm đã nhập được giữ · 0 điểm đã nhập bị bỏ Để sau Xác nhận công thức»; click ngoài vẫn mở true; Esc đóng false Esc sau click ngoài không đóng (còn 2); Esc khi focus trong hộp thoại: còn 2
+  ✓  1 [desktop] › e2e/qc2-r8/real-04.spec.ts:14:1 › [04-01..07] bố cục, trích dẫn, 1023/1024, luật chữ, làm tròn (25.6s)
+P TC-P6-04-20 hộp thoại: «Xác nhận công thức Áp cho 30 sinh viên · điểm học phần của 21 sinh viên sẽ đổi so với công thức hiện tại · 60 điểm đã nhập được giữ · 0 điểm đã nhập bị bỏ Để sau Xác nhận công thức»
+  ✓  2 [desktop] › e2e/qc2-r8/real-04.spec.ts:62:1 › [04-20] lớp 1 CONFIRMED có điểm: số tác động (14.0s)
+P TC-P6-04-45 TA: Xác nhận 0, Tải quy chế 0, ô điền 0; thấy công thức/trích dẫn true
+P TC-P6-04-46 SV: trang Bạn không có quyền xem màn này; DOM không chứa «Thi cuối kỳ» true
+  ✓  3 [desktop] › e2e/qc2-r8/real-04.spec.ts:72:1 › [04-23,45,46] phân quyền giao diện: TA chỉ đọc, SV 403 (22.8s)
+P TC-P6-04-38 rỗng «Lớp chưa có quy chế» + Tải quy chế true; skeleton khi chậm 1; lỗi 500 hiện Thử lại true; bấm Thử lại tải lại được true
+P TC-P6-04-39 375 px: cuộn ngang 0; chiều cao nút chính 44; trích dẫn mở bằng Drawer true
+  ✓  4 [desktop] › e2e/qc2-r8/real-04.spec.ts:81:1 › [04-38,39] trạng thái rỗng, skeleton, lỗi 500, 375 px (34.8s)
+F TC-P6-04-35 offline: nhãn «Chưa lưu», giữ chữ true; có mạng lại nhãn «»; DB weight midterm=25.00 (gốc Giữa kỳ)
+restored 25.00
+  ✓  5 [desktop] › e2e/qc2-r8/real-04.spec.ts:101:1 › [04-35] offline: sửa ô, rời ô, có mạng lại (27.5s)
+P TC-P6-04-41 sau xác nhận: toast «»; chữ tại chỗ «Đã xác nhận · Hôm nay, 21:19»
+P TC-P6-04-22 Hôm nay trước: không mục công thức; sau: hết; /gradebook trước có chữ công thức/banner true, sau «(không còn)»
+  ✓  6 [desktop] › e2e/qc2-r8/real-04.spec.ts:117:1 › [04-22,41] xác nhận lớp 2: không toast, đổi tại chỗ, Hôm nay + banner biến mất (47.1s)
+
+  6 passed (2.9m)

@@ -5,8 +5,8 @@ const mkp = async (browser: any, user: string) => { const c: BrowserContext = aw
 const rowsN = (p: Page) => p.locator("[data-part=grade-row]").count();
 test("[TC-P6-06-31,TC-P6-06-32,TC-P6-06-33] LOAD1000: DOM ≤ 60 hàng, cuộn tải trang kế, ô đang gõ giữ chữ, Enter xuyên cửa sổ ảo hoá", async ({ browser }) => {
   const p = await mkp(browser, "teacher"); const reqs: string[] = []; p.on("request", (q) => { if (q.url().includes("/gradebook?")) reqs.push(q.url().split("?")[1]); });
-  await p.addInitScript(() => { (window as any).__lt = []; new PerformanceObserver((l) => { for (const e of l.getEntries()) (window as any).__lt.push(e.duration); }).observe({ entryTypes: ["longtask"] }); });
-  await go(p, `/gradebook?course=${cid("LOAD1000")}`); await p.locator("[data-part=grade-row]").first().waitFor({ timeout: 30000 });
+    await go(p, `/gradebook?course=${cid("LOAD1000")}`); await p.locator("[data-part=grade-row]").first().waitFor({ timeout: 30000 });
+  await p.evaluate(() => { (window as any).__lt = []; new PerformanceObserver((l) => { for (const e of l.getEntries()) (window as any).__lt.push(e.duration); }).observe({ entryTypes: ["longtask"] }); });
   const scroller = () => p.evaluate((t) => { const r = document.querySelector("[data-part=grade-row]"); let e: any = r; while (e && !(e.scrollHeight > e.clientHeight + 5 && /(auto|scroll)/.test(getComputedStyle(e).overflowY))) e = e.parentElement; return e ? { h: e.scrollHeight, c: e.clientHeight } : null; }, 0);
   const setTop = (t: number) => p.evaluate((t) => { const r = document.querySelector("[data-part=grade-row]"); let e: any = r; while (e && !(e.scrollHeight > e.clientHeight + 5 && /(auto|scroll)/.test(getComputedStyle(e).overflowY))) e = e.parentElement; if (e) e.scrollTop = t < 0 ? e.scrollHeight : t; }, t);
   let maxDom = await rowsN(p); log("06b", `LOAD1000 hàng ban đầu ${maxDom} scroller ${JSON.stringify(await scroller())}`);

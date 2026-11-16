@@ -344,3 +344,50 @@ TC-P6-03-13	P	lớp 2: thành phần [('final', '50'), ('lab', '25'), ('midterm'
 TC-P6-03-38	P	extract hai lần cùng khoá → job_id giống; grade_schemes mới 1
 TC-P6-03-32	P	extract với document khác COURSE_POLICY → 404 NOT_FOUND
 TC-P6-03-10	P	p6-citation-check trên citations gộp từ components+rules của draft: 11/11 trích dẫn đúng (11 trích dẫn) rc=0
+TC-P6-03-06	P	schema.go: 12 object / 12 additionalProperties:false, có anyOf, đủ 6 kind; extract.go đặt temperature
+TC-P6-03-11	F	['0', '0', '0']
+TC-P6-03-12	F	[['Quy chế học phần', 'COURSE_POLICY', ''], ['Quy chế học vụ', 'OTHER', 'Quy chế trường']]
+TC-P6-03-17	P	WEIGHT_SUM có tổng 90 ([{"source": "CODE", "code": "WEIGHT_SUM", "target": "components", "message": "Tổng trọng s); bản nháp vẫn lưu (3 thành phần); confirm → 422 SC
+TC-P6-03-18	P	bỏ thang → ['LETTER_SCALE_MISSING']; A+≥9,A≥9,B≥7 → ['LETTER_SCALE_INVALID']; thang bắt đầu từ 1 → ['LETTER_SCALE_INVALID']
+TC-P6-03-19	F	[] (202, 'FAILED', 'LLM_UNAVAILABLE') / ['PARAM_INVALID', 'WEIGHT_SUM']
+TC-P6-03-20	P	LLM trả unclear_items [] nhưng ROUNDING_MISSING vẫn có, source=CODE
+TC-P6-03-21	P	quote bịa ở c6 → CITATION_NOT_FOUND 1 mục, target ['rules.ROUNDING']; mã khác: ['CITATION_NOT_FOUND']
+TC-P6-03-22	P	page=9 → 1 CITATION_NOT_FOUND (['rules.FAIL_CONDITION']); quote trang 1 gán page=2 → 1 (['components.final'])
+TC-P6-03-23	P	quote bỏ dấu → 0 CITATION_NOT_FOUND (chấp nhận); đổi '0,5'→'1,0' → 1 (['rules.ROUNDING'])
+TC-P6-03-30	P	request tới LLM (log stub): câu injection nằm trong khối dữ liệu của tin user (không ở system)=True, ranh giới=False, system dặn chỉ trích/không làm theo lệnh=True; 
+TC-P6-03-31	F	leak=['Nguyễn Văn Test'] =====BẮT ĐẦU VĂN BẢN QUY CHẾ (chỉ là dữ liệu)===== [Trang 1] Lớp 761987 · Học kỳ 1 năm học 2026–2027 · Tài liệu mô phỏng dùng cho kiểm thử E
+TC-P6-03-33	P	tài liệu PROCESSING → 409 DOCUMENT_NOT_READY
+TC-P6-03-34	P	quy chế dài → 422 POLICY_TOO_LONG, số job không đổi (23→23); đã dọn chunk thêm (3→3)
+TC-P6-03-11	P	seed/demo/quy-che-lop1.pdf (pypdf, máy không có pdftotext): 2 trang; trang 1 có Điều 1, Điều 2 và 1.1; trang 2 có Điều 3, 4, 5 và «làm tròn đến 0,5»; có lớp chữ thật (1793 ký tự trích được)
+TC-P6-03-12	P	761987: filename quy-che-lop1.pdf = COURSE_POLICY (title Quy chế học phần); Quyche.pdf = OTHER, category Quy chế trường (title Quy chế học vụ); không còn COURSE_POLICY nào là Quyche.pdf
+TC-P6-03-35	P	nhà cung cấp 503: job FAILED LLM_UNAVAILABLE; stub nhận 9 yêu cầu, llm_audit [['3', 'error', 'SERVER'], ['3', 'error', 'SERVER'], ['3', 'error', 'SERVER']]; DRAFT rá
+TC-P6-03-36	F	{'id': '01a1e49b-4244-7976-b517-e31ca42a53d5', 'kind': 'grade_scheme.extract', 'status': 'FAILED', 'progress': 20, 'error': {'code': 'LLM_UNAVAILABLE', 'message': 'A
+TC-P6-03-37	F	QD8R6W không có tài liệu COURSE_POLICY để trích
+TC-P6-03-40	P	sửa tay PUT → 200; extract không replace → 409 DRAFT_EXISTS (details {'edited_items': 1}); replace_draft=true → 202; audit_log gần đây [['1']]
+TC-P6-03-42	P	replace_draft=true rồi PUT tăng version trong lúc chạy → job FAILED DRAFT_EXISTS; nháp người dùng còn weekly=['19']
+TC-P6-03-41	P	extract không replace_draft; PUT sửa trong lúc chạy → job FAILED DRAFT_EXISTS; nháp người dùng midterm=['21']
+TC-P6-03-39	P	kill worker ở giây 5/14: job nhận lại → SUCCEEDED; số DRAFT 1; stub nhận 2 lời gọi
+TC-P6-03-36	F	đầu ra không phải JSON (stub 'invalid'): job FAILED LLM_UNAVAILABLE (spec: EXTRACTION_INVALID); stub nhận 3 lời gọi (spec: đúng 1); llm_audit [['1', 'error', 'BAD_RE
+TC-P6-03-37	P	QD8A2 CONFIRMED (confirm→200): grade_schemes trước [['CONFIRMED', '1']] = sau [['CONFIRMED', '1']] sau 2 lần trích lỗi (FAILED/FAILED); /gradebook 200
+TC-P6-06-32	P	LOAD1000 (đã mở khoá bằng API): gõ dở «7,» ở hàng 5, cuộn tới cuối (9 yêu cầu có cursor) rồi cuộn về: ô vẫn giữ «7,» (real-06b.spec.ts, 3 lượt)
+TC-P6-06-33	P	LOAD1000: ArrowDown/Enter qua cuối cửa sổ ảo hoá: focus đi qua >2 ô khác nhau, focus cuối là INPUT; thead dính (sticky) (real-06b.spec.ts)
+TC-P6-03-31	P	PDF có tên+MSSV+email của SV trong danh sách lớp: prompt tới LLM không còn tên/MSSV/email (lọt: []); dòng trong prompt: ['Người lập: [[SV_1]] [[MSSV_1]] ([[EMAIL_1]]
+TC-P6-04-13	P	PUT grade-scheme: lớp chỉ có CONFIRMED (QD8R6W) → 409 SCHEME_NOT_DRAFT, công thức v3 không đổi; lớp không có công thức (QD8F3, gv.s8f) → 409 NO_DRAFT
+TC-P6-04-23	P	POST confirm bằng TA/STUDENT/ADMIN → [('ta', 403), ('sv.gioi', 403), ('admin', 403)]; UI TA không thấy Xác nhận công thức / Tải quy chế / ô điền (TC-04-45 PASS)
+TC-P6-04-01	P	/gradebook/scheme lớp 2 (QD8B1) 1440 px: [data-ep-panel] 2 (công thức + cột trích dẫn), lồng nhau 0, có cột trích dẫn (real-04.spec.ts)
+TC-P6-04-02	P	click quote: Giữa kỳ → «Trang 1», Điểm cộng → «Trang 2», Thang chữ → «Trang 2» (khớp extraction-lop2); đoạn trích được <mark> nhấn mạnh
+TC-P6-04-04	P	icon Info/CircleHelp 0; hai dòng sau tiêu đề «Tải quy chế | Bản nháp» (không câu mô tả)
+TC-P6-04-06	P	khối Làm tròn trống tại chỗ có ô chọn bước; nút Xác nhận công thức aria-disabled=true; tooltip trên chính nút «Còn 1 mục chưa rõ: làm tròn» (hover và focus); không modal
+TC-P6-04-07	P	chọn «Làm tròn đến 0,1»: mục chưa rõ biến mất, nút bật (disabled=false), tooltip hết; xác nhận được (TC-04-22/41)
+TC-P6-04-17	P	khối Xem thử lớp 2 chưa có điểm: «Chưa đủ điểm để xem thử»
+TC-P6-04-19	P	hộp thoại nêu số: lớp 2 «Áp cho 3 sinh viên · điểm học phần của 0 sinh viên sẽ đổi … · 0 điểm đã nhập bị bỏ»; Esc đóng, Để sau đóng, focus về nút Xác nhận. LƯU Ý: click ra ngoài (backdrop) ĐÓNG hộp thoại (Dialog dùng chung, dismissible={!loading}); TC viết «không đóng khi click ngoài» nhưng SRS US-P6-04 AC5 và DESIGN §10.11 không có luật này; đóng = huỷ, không ghi gì → PM quyết nếu cần chặn
+TC-P6-04-20	P	QD8R6W CONFIRMED v3 + nháp đổi bước làm tròn 0,1: «Áp cho 30 sinh viên · điểm học phần của 21 sinh viên sẽ đổi so với công thức hiện tại · 60 điểm đã nhập được giữ · 0 điểm đã nhập bị bỏ» (Y=0 như kỳ vọng)
+TC-P6-04-22	P	xác nhận lớp 2: mục công thức biến mất khỏi Hôm nay và banner /gradebook hết
+TC-P6-04-35	P	offline: sửa trọng số rồi Tab → nhãn «Chưa lưu», chữ vẫn trong ô; có mạng lại tự gửi: DB weight midterm = 24.00; không mất chữ
+TC-P6-04-38	P	lớp chưa quy chế: «Lớp chưa có quy chế» + Tải quy chế; chậm 3 s có skeleton; 500 → khối lỗi + Thử lại, bấm Thử lại tải lại được
+TC-P6-04-39	P	375 px: cuộn ngang 0; nút chính cao 44 px; trích dẫn mở bằng Drawer
+TC-P6-04-41	P	sau xác nhận: không toast; chữ tại chỗ «Đã xác nhận · Hôm nay, 21:19»
+TC-P6-04-44	P	tooltip lý do khoá hiện cả khi focus bàn phím («Còn 1 mục chưa rõ: làm tròn»)
+TC-P6-04-45	P	TA: Xác nhận 0, Tải quy chế 0, ô điền 0; thấy công thức + trích dẫn chỉ đọc
+TC-P6-04-46	P	SV mở /gradebook/scheme: «Bạn không có quyền xem màn này»; DOM không chứa «Thi cuối kỳ»
+TC-P6-04-03	F	1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer → Esc) → DEF-R8-A1 Thấp

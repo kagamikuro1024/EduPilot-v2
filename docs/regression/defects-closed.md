@@ -38,3 +38,6 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - **DEF-R3-05**: nguyên nhân của số 15/42 s và 12 yêu cầu (kỳ vọng 3) đã tìm ra ở phía QC: `evidence-3/scripts/lib.py` hàm `call()` TỰ THỬ LẠI 502/503 tới 5 lần cách 8 s. llm_audit của lần đo cũ: 4 dòng GRADING cách nhau ~9 s, MỖI dòng `attempts=3`, `queue_wait_ms` 0–1; rồi 2 dòng `circuit_open` (attempts=0, 2–6 ms). Tức mỗi lời gọi = 3 lần thử đúng như TestBatchOutageEndToEnd; nhiễu do kịch bản QC. Lượt sạch (dùng `_call` không thử lại, `p10x3.py`) đang chờ cửa sổ không đo tải.
 - **DEF-R6-C-01** (a081590a): mã đã có `THREAD_LOCK_TEXT` «Đăng bài tạm khóa trong lúc bạn làm bài thi.»; chạy UI thật (`evidence-3/scripts/r6c01.mjs`) chưa xong do lệnh dừng Playwright của PM.
 - **DEF-R5-02** (d1374b09): chưa chạy lại (cần Playwright).
+- **DEF-R3-05** (RERUN 2026-11-16, ep-r ≥ 32b4cb2b): ĐÓNG — TC-P102-14/P103-19/P103-20 PASS bằng llm_audit; nguyên nhân là kịch bản QC (lib.py call() thử lại 502/503 ×5), không phải sản phẩm. Evidence: `evidence-3/logs-p10x3c.log`, `evidence-3/scripts/p10x3.py`.
+- **DEF-R6-C-01** (RERUN, a081590a): ĐÓNG — TC-P3-06-42 PASS trên UI thật (r6c01.mjs: có «Đăng bài tạm khóa…», không còn «Chat tạm khóa»).
+- **DEF-R5-02** (RERUN, d1374b09): ĐÓNG — TC-PE06-08 PASS (axe 1440 /exams/<id>/take sau Chạy thử = 0).

@@ -1,0 +1,37 @@
+uptime: 21:23  up 2 days, 14:45, 1 user, load averages: 11.85 9.94 13.57
+✅  .lighthouseci/ directory writable
+✅  Configuration file found
+✅  Chrome installation found
+⚠️   GitHub token not set
+Healthcheck passed!
+
+WARNING: collect.settings.chromeFlags option will be ignored.
+WARNING: If you want chromeFlags with puppeteerScript, use collect.puppeteerLaunchOptions.args option.
+Running Lighthouse 5 time(s) on http://localhost:3330/
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/chat
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/threads
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/inbox
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://localhost:3330/gradebook
+Run #1...done.
+Run #2...done.
+Run #3...

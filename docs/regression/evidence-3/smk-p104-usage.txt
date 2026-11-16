@@ -1,0 +1,17 @@
+rows 20000
+task 200 6 172 ms
+day 200 28 137 ms
+LỆCH 0 []
+default7d (200, 7.0)
+93d (422, {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '5807bdf43d9d3801b8e3fe8de827615c', 'details': [{'field': 'from', 'code': 'OU
+94d 422
+exact93 422
+from>to (422, {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '63a81ab4536673d961d07f84cdd777c9', 'details': [{'field': 'to', 'code': 'OUT_
+group=lạ (422, {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': 'c69205f1ab2cf1a9be7387f11d125867', 'details': [{'field': 'group', 'code': 'I
+teacher+course (403, {'code': 'FORBIDDEN', 'message': 'Bạn không có quyền thực hiện thao tác này.', 'trace_id': '41e5b7ea2e24d21b3ae71470ec8025d6', 'details': {'reason': 'role
+teacher total 200
+admin+course 200
+ANALYZE
+EXPLAIN False True True
+ms task ['99', '83', '28', '32', '32']
+cleanup 0

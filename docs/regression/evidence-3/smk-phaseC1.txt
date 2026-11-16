@@ -1,0 +1,7 @@
+P102-42/P104-37a: PUT 200 tổng lời gọi 244 ~30 req/s lỗi 0 ; sau PUT còn dùng nhà cũ (bắt đầu sau PUT): 0 ; lần bắt đầu muộn nhất dùng cấu hình cũ sau PUT (s): {'gw1': -9, 'gw2': -9}
+ provider theo gateway: {'gw1': ['SmkI-T1', 'SmkI-T2'], 'gw2': ['SmkI-T1', 'SmkI-T2']}
+ audit theo gateway/provider: SmkI-T1|86
+SmkI-T2|158
+P102-43 sau khi hỏng cấu hình+reload: chat [(200, 'SmkI-T1'), (200, 'SmkI-T1')] | log lỗi: ['{"time":"2026-11-16T14:11:22.397750654Z","level":"ERROR","msg":"nạp lại cấu hình LLM thất bại, giữ cấu hình cũ","service":"gateway","instance":"489ebc2f699c","error":"đọc cấu hình: llmconfig: liệt kê mô hình: ERROR: relation \\"llm', '{"time":"2026-11-16T14:11:22.399554012Z","level":"ERROR","msg":"nạp lại cấu hình LLM thất bại, giữ cấu hình cũ","service":"gateway","instance":"4f484862bdf7","error":"đọc cấu hình: llmconfig: liệt kê mô hình: ERROR: relation \\"llm']
+ readyz (200, {'db': 'up', 'redis': 'up', 'status': 'ready'})
+ sau khôi phục SmkI-T1

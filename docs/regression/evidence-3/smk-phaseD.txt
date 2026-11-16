@@ -1,0 +1,28 @@
+CHAT 200
+CLASSIFY 200
+GRADING 200
+[('Quyết định', True, [('decision-fake', '0.0000', '0.0000', True)]), ('SmkI-S1', False, [('m-ok', '1000000.0000', '1000000.0000', True)]), ('SmkI-S2', False, [('m-ok', '1000000.0000', '1000000.0000', True)]), ('SmkI-T1', True, [('m-ok', '1000000.0000', '1000000.0000', True)]), ('SmkI-T2', True, [('m-ok', '1000000.0000', '1000000.0000', True)]), ('SmkI-B1', True, [('m-ok', '125000.0000', '125000.0000', True)]), ('SmkI-B2', True, [('m-ok', '1000.0000', '1000.0000', True)])]
+bud sau reset {'scope': 'system', 'daily_limit': '100000.00', 'monthly_limit': '2000000.00', 'spent_today': '0.0000', 'spent_month': '0.0000', 'pct_today': 0.0, 'pct_month': 0.0, 'state': 'ok', 'version': 1}
+PUT 100/1000 200 {'scope': 'system', 'daily_limit': '100.00', 'monthly_limit': '1000.00', 'spent_today': '0.0000', 'spent_month': '0.0000', 'pct_today': 0.0, 'pct_month': 0.0, 'state': 'ok', 'version': 2}
+(1, 200, 'SmkI-B1', '1.0000', 1.0, 'ok') outbox 0
+(78, 200, 'SmkI-B1', '78.0000', 78.0, 'ok') outbox 0
+(79, 200, 'SmkI-B1', '79.0000', 79.0, 'ok') outbox 0
+(80, 200, 'SmkI-B1', '80.0000', 80.0, 'warn') outbox 1
+(81, 200, 'SmkI-B1', '81.0000', 81.0, 'warn') outbox 1
+(84, 200, 'SmkI-B1', '84.0000', 84.0, 'warn') outbox 1
+(85, 200, 'SmkI-B1', '85.0000', 85.0, 'warn') outbox 1
+(90, 200, 'SmkI-B1', '90.0000', 90.0, 'warn') outbox 1
+(99, 200, 'SmkI-B1', '99.0000', 99.0, 'warn') outbox 1
+(100, 200, 'SmkI-B1', '100.0000', 100.0, 'exhausted') outbox 1
+(101, 200, 'SmkI-B2', '100.0080', 100.0, 'exhausted') outbox 1
+first warn (80, 200, 'SmkI-B1', '80.0000', 80.0, 'warn') first exhausted (100, 200, 'SmkI-B1', '100.0000', 100.0, 'exhausted')
+outbox warn events 1 {"pct": 80, "scope": "system", "period": "day"}
+tiền: spent_today= 100.0800 audit sum= 100.0080 số dòng 101
+state exhausted 100.1
+GRADING(BATCH) khi hết 503 {"code": "LLM_UNAVAILABLE", "message": "AI tạm thời không khả dụng. Hãy thử lại sau.", "trace_id": "c35672a1cfa49db8408d50301014d500", "details": {"reason": "budget_exhausted"}}
+CHAT khi hết -> 200 SmkI-B2 m-ok Q ok
+CLASSIFY khi hết -> 200 SmkI-B2 m-ok Q ok
+CLASSIFY|SmkI-B2|m-ok|ok|0.0080
+CHAT|SmkI-B2|m-ok|ok|0.0080
+GRADING|||budget_blocked|0.0000
+CHAT|SmkI-B2|m-ok|ok|0.0080

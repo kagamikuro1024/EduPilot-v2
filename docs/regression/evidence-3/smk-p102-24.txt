@@ -1,0 +1,4 @@
+calls 1700 {200: 1700} 15.1s {'buffer_len': 0, 'dropped': 0, 'flushed': 950} -> {'buffer_len': 1000, 'dropped': 491, 'flushed': 950}
+rows trong DB sau khi nhả khoá 1100
+['{"time":"2026-11-16T14:05:34.465623494Z","level":"WARN","msg":"không ghi được llm_audit","service":"gateway","instance":"489ebc2f699c","rows":100,"error":"statement description failed: timeout: contex', '{"time":"2026-11-16T14:05:39.479544154Z","level":"WARN","msg":"không ghi được llm_audit","service":"gateway","instance":"489ebc2f699c","rows":100,"error":"statement description failed: timeout: contex', '{"time":"2026-11-16T14:06:18.878519197Z","level":"WARN","msg":"không ghi được llm_audit","service":"gateway","instance":"489ebc2f699c","rows":9,"error":"statement description failed: timeout: context ']
+{'buffer_len': 0, 'dropped': 491, 'flushed': 2050}

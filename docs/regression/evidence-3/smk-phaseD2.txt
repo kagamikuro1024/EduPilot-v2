@@ -1,0 +1,22 @@
+GET {"scope": "system", "daily_limit": null, "monthly_limit": null, "spent_today": "121.0960", "spent_month": "121.0960", "pct_today": null, "pct_month": null, "state": "ok", "version": 10}
+keys ['daily_limit', 'monthly_limit', 'pct_month', 'pct_today', 'scope', 'spent_month', 'spent_today', 'state', 'version'] tiền là chuỗi: False
+  daily>monthly (422, 'VALIDATION_FAILED', None, None)
+  âm (422, 'VALIDATION_FAILED', None, None)
+  abc (422, 'VALIDATION_FAILED', None, None)
+  monthly âm (422, 'VALIDATION_FAILED', None, None)
+  ok 100000/2000000 (200, 'ok', '100000.00', '2000000.00')
+  null (200, 'ok', None, None)
+ version cũ 409 VERSION_CONFLICT
+đặt trần dưới chi tiêu 200 exhausted 100.8
+GRADING ngay sau PUT (hết ngân sách?) 503 LLM_UNAVAILABLE {'reason': 'budget_exhausted'}
+GRADING sau khi bỏ trần 200 SmkI-B1
+INSERT 0 1
+course 01a1e4b6-2f42-7581-ac4e-e654519bde83
+GET course budget 200 {"scope": "course", "course_id": "01a1e4b6-2f42-7581-ac4e-e654519bde83", "daily_limit": null, "monthly_limit": null, "spent_today": "0.0000", "spent_month": "0.0000", "pct_today": null, "pct_month": null, "state": "ok", "version": 0}
+PUT course budget 200 {"scope": "course", "course_id": "01a1e4b6-2f42-7581-ac4e-e654519bde83", "daily_limit": "5.00", "monthly_limit": "1000.00", "spent_today": "0.0000", "spent_month": "0.0000", "pct_today": 0.0, "pct_month": 0.0, "state": "ok", "version": 1}
+lớp: [(200, 'SmkI-B1', '1.0000', 'ok'), (200, 'SmkI-B1', '2.0000', 'ok'), (200, 'SmkI-B1', '3.0000', 'ok'), (200, 'SmkI-B1', '4.0000', 'warn'), (200, 'SmkI-B1', '5.0000', 'exhausted'), (200, 'SmkI-B2', '5.0080', 'exhausted'), (200, 'SmkI-B2', '5.0160', 'exhausted')]
+GRADING lớp (hết): 503 {'reason': 'budget_exhausted'} | hệ thống: ok
+GRADING không course (hệ thống chưa cạn): 200 SmkI-B1
+outbox warn: {"pct": 80, "scope": "system", "period": "day"}
+{"pct": 80, "scope": "course", "period": "day", "course_id": "01a1e4b6-2f42-7581-ac4e-e654519bde83"}
+audit sum 128.1120|146 | spent_month 128.1120

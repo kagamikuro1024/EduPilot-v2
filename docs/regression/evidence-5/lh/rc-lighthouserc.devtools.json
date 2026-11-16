@@ -1,0 +1,63 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3330/",
+        "http://localhost:3330/chat",
+        "http://localhost:3330/threads",
+        "http://localhost:3330/inbox",
+        "http://localhost:3330/gradebook",
+        "http://localhost:3330/me",
+        "http://localhost:3330/settings/llm",
+        "http://localhost:3330/dev/ui"
+      ],
+      "numberOfRuns": 3,
+      "puppeteerScript": "../lh-auth-qc.cjs",
+      "puppeteerLaunchOptions": {
+        "args": [
+          "--no-sandbox",
+          "--headless=new"
+        ]
+      },
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless=new",
+        "throttlingMethod": "devtools",
+        "onlyCategories": [
+          "performance"
+        ]
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "^http://localhost:3330/(?!dev/ui$).*",
+          "assertions": {
+            "largest-contentful-paint": [
+              "error",
+              {
+                "maxNumericValue": 2500,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": "^http://localhost:3330/dev/ui$",
+          "assertions": {
+            "largest-contentful-paint": [
+              "warn",
+              {
+                "maxNumericValue": 2500,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci-devtools"
+    }
+  }
+}

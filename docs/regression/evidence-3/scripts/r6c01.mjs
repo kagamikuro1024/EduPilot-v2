@@ -2,9 +2,9 @@ import { chromium } from '/Users/kuro/Documents/TA_Agent_qc2/frontend/node_modul
 const b=await chromium.launch(); 
 const ctx=await b.newContext({viewport:{width:1440,height:900},ignoreHTTPSErrors:true,locale:'vi-VN'});
 const p=await ctx.newPage();
-await p.goto('https://localhost:1143/login'); await p.locator('input[type=email]').fill('a.5dace@b.vn'); await p.locator('input[type=password]').fill('Edupilot#Seed-2026'); await p.keyboard.press('Enter'); await p.waitForTimeout(2500);
+await p.goto('https://localhost:1143/login'); await p.locator('input[type=email]').fill('sv04@edupilot.local'); await p.locator('input[type=password]').fill('Edupilot#Seed-2026'); await p.keyboard.press('Enter'); await p.waitForTimeout(2500);
 await ctx.route('**/api/v1/me/exam-lock',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({locked:true,until:new Date(Date.now()+30*60000).toISOString()})}));
-await p.goto('https://localhost:1143/threads'); await p.waitForTimeout(2500);
+await p.goto('https://localhost:1143/threads?course=01a1df27-62b5-7775-a346-5c602a43e2f9'); await p.waitForTimeout(2500);
 await p.getByRole('button',{name:/Đặt câu hỏi/}).first().click(); await p.waitForTimeout(1500);
 const t=await p.locator('body').innerText();
 console.log(JSON.stringify({url:p.url(),threadLock:/Đăng bài tạm khóa trong lúc bạn làm bài thi\. Dùng lại được sau \d{2}:\d{2}\./.test(t),chatText:/Chat tạm khóa/.test(t)}));

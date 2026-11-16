@@ -1,0 +1,12 @@
+200
+0 503 LLM_UNAVAILABLE 20 ms
+1 503 LLM_UNAVAILABLE 9 ms
+2 503 LLM_UNAVAILABLE 6 ms
+3 503 LLM_UNAVAILABLE 9 ms
+4 503 LLM_UNAVAILABLE 9 ms
+5 503 LLM_UNAVAILABLE 7 ms
+khoá Redis: WRONGTYPE Operation against a key holding the wrong kind of value | keys ['ep:llm:cb:01a1e4b9-9a7e-754f-9021-78b4232c17e3', 'ep:llm:cb:01a1e4b0-1e9f-757d-9f19-bfb2047e0999', 'ep:llm:cb:01a1e4b0-1ee9-7932-ac14-aada080fb878', 'ep:llm:cb:01a1e4b6-b3c0-7a36-bbc6-511428e97de8']
+providers circuit gw2: [('SmkI-T2', 'open')]
+gọi qua gw2: 503 LLM_UNAVAILABLE 10 ms; stub nhận thêm 0
+circuit_open|circuit_open|0
+error|SERVER|1

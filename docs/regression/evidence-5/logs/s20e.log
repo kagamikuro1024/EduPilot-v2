@@ -1,0 +1,1 @@
+True TC-PE02-52 judge dừng (dừng container, ghi nhật ký khoá): worker /healthz 200 (độc lập judge), /readyz HTTP 200 với judge:"down" sau 6.3 s; sau 78 s dừng, log wa

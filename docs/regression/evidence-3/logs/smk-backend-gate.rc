@@ -1,0 +1,5 @@
+vet rc=0
+lint rc=0
+sqlc rc=0
+gotest rc=143
+done

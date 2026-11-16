@@ -1,0 +1,10 @@
+F TC-PE02-31 judge dừng (readyz báo judge:down sau None s): Chạy thử 503 ['JUDGE_UNAVAILABLE'] retry_after=23 sau 0.11s (≤3); nộp 202 QUEUED (0.06s)
+P TC-PE06-19 (phần judge chết) run → 503 JUDGE_UNAVAILABLE retry_after=23 trong 0.11s; phần hàng đầy + run ≤5s: TC-PE02-27 (s13_judge.py burst)
+F TC-PE02-52 judge dừng: healthz 200; readyz 200 {"db":"up","redis":"up","status":"ready"}
+; log warn liên quan judge trong 149 s: 5
+P TC-PE02-26 judge dừng, worker chạy: tiến trình thử lại (giây, status|verdict|attempts|fail_count) = [[106.2, "QUEUED||1|1"], [107.8, "QUEUED||2|2"], [114.1, "QUE
+P TC-PE02-15 judge lỗi giữa chấm: verdict cuối = ERROR|IE|4|4 (IE, không RE/WA, không điểm 0 — lượt ở GRADING, xem PE08-06)
+F TC-PE02-53 judge down > 60 s, có bài chờ chấm (IE): Today GV EXAM_GRADE_ERROR=False, TA=True
+P TC-PE08-20 1 lượt kẹt GRADING (IE, judge dừng): sau đóng +65 s bài ở CLOSED|f (CLOSED, published_at null — không công bố khi còn GRADING), lượt GRADING; thông bá
+F TC-PE02-52 judge dừng → healthz 200 độc lập, readyz 200 judge:"down" (log warn 5 dòng trong 148+ s); bật lại: readyz judge=up sau 68.3s (TC ≤10 s cộng nhịp kiểm 
+F TC-PE08-06 dead-letter IE: lượt ở GRADING|TIMEOUT (không GRADED, không 0 điểm); việc EXAM_GRADE_ERROR cho GV+TA; judge lên + regrade scope=errors → 202; lượt GRA

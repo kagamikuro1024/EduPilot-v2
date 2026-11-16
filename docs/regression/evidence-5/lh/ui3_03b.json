@@ -1,0 +1,50 @@
+[
+ {
+  "user": "r5s01",
+  "route": "/threads",
+  "w": 1440,
+  "left": 240,
+  "ox": 0,
+  "audit": {
+   "ox": 0,
+   "cut": [],
+   "ell": []
+  }
+ },
+ {
+  "user": "r5s01",
+  "route": "/threads",
+  "w": 375,
+  "left": 12,
+  "ox": 0,
+  "audit": {
+   "ox": 0,
+   "cut": [],
+   "ell": []
+  }
+ },
+ {
+  "user": "admin",
+  "route": "/settings/llm",
+  "w": 1440,
+  "left": 240,
+  "ox": 0,
+  "audit": {
+   "ox": 0,
+   "cut": [],
+   "ell": []
+  }
+ },
+ {
+  "user": "admin",
+  "route": "/settings/llm",
+  "w": 375,
+  "left": 12,
+  "ox": 0,
+  "audit": {
+   "ox": 0,
+   "cut": [],
+   "ell": []
+  }
+ }
+]

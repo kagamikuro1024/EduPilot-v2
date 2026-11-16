@@ -13,9 +13,6 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 2 | TC-GATE-03 | DEF-R2-04: `go test -race ./...` KHÔNG tag: 98 gói xanh (3360 PASS) nhưng `internal/contract` đỏ cố định (TestChatThreadsContract: POST /_test/llm/fake → 404 |
 | 2 | TC-GATE-06 | DEF-R2-04: contract KHÔNG tag rc 1 (cố định, lặp 3 lượt + go test trực tiếp); có tag PASS |
 | 3 | TC-GATEPU-01 | lint 5 cảnh báo (TC-PU01-05); pbuild/gbuild rc=0, 0 "Failed to load font" (DEF-R3-03) |
-| 3 | TC-P102-14 | lỗi 503: INTERACTIVE gọi nhà 2 lần (1+1 thử lại), BATCH 15 lần (kỳ vọng 3) (DEF-R3-05) |
-| 3 | TC-P103-19 | sau chuỗi lỗi: circuit=open; lời gọi kế tiếp chặn ngay (503 LLM_UNAVAILABLE, 42242 ms, 0 request tới stub) (DEF-R3-05) |
-| 3 | TC-P103-20 | bán mở sau 30 s: 3 lời gọi đồng thời → stub nhận 6 (≤ 1 thăm dò × 3 lần thử); [503, 503, 503] (DEF-R3-05) |
 | 3 | TC-P105-44 | chữ «EMBEDDING» thô hiện ở bảng «Mức dùng theo tác vụ» (taskLabel không có nhãn cho EMBEDDING) → DEF-R3-01 (DEF-R3-01) |
 | 3 | TC-PU01-05 | pnpm lint rc=0 nhưng 5 cảnh báo (cells.tsx:39, QueueTab.tsx:115/123, Landing.tsx:48, LlmSettings.tsx:13); nền sprint 3 = 0 cảnh báo → DEF-R3-03 (DEF-R3-03) |
 | 5 | TC-PE01-39 | go vet ./... rc=0; golangci-lint 0 issues; sqlc diff rc=0; go test -race -count=1 trên 99 gói: 99 ok (auth/exam/judge/quiz ok; auth chạy lại ok sau sự cố contai |
@@ -25,9 +22,10 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 | 5 | TC-PE03-49 | Drawer: câu nháp nút [Đóng/Lưu cấu hình/Thêm test/Kiểm tra zip/Nhập zip/Gợi ý đầu vào từ AI/Chạy lời giải mẫu/Duyệt/Gửi duyệt/Chỉnh |
 | 5 | TC-PE03-51 | bàn phím: Tab tới hàng (sau 31 lần), Enter mở Drawer=false, focus trong Drawer=false, tới nút Duyệt/Chỉnh sửa=false, Esc trả focus=true; AUDIT (ox/cut |
 | 5 | TC-PE06-19 | (phần judge chết) run → 503 JUDGE_UNAVAILABLE retry_after=None trong 0.03s; phần hàng đầy + run ≤5s: TC-PE02-27 (s13_judge.py burst) |
-| 5 | TC-PE08-15 | regrade scope=attempt ×2 trên cùng dữ liệu: 422/422 ['INVALID', 'VALIDATION_FAILED']; auto_score 4.00 → 4.00 (không đổi); số dòng exam_answers 9 → 9 (kh |
-| 6 | TC-P3-06-42 | /threads khi khoá: ô tiêu đề/nội dung vô hiệu, dòng báo là "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." thay vì "Đă |
 | 7 | TC-20 | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệ |
+| 8 | TC-P6-03-19 | [] (202, 'FAILED', 'LLM_UNAVAILABLE') / ['PARAM_INVALID', 'WEIGHT_SUM'] |
+| 8 | TC-P6-03-36 | đầu ra không phải JSON (stub 'invalid'): job FAILED LLM_UNAVAILABLE (spec: EXTRACTION_INVALID); stub nhận 3 lời gọi (spec: đúng 1); llm_audit [['1', 'error' |
+| 8 | TC-P6-04-03 | 1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer � |
 | 9.1 | TC-UX04-3 | 9 luật :hover ngoài @media (hover: hover): gradebook/Gradebook.module.css:7 (9.1) và features/landing/Landing.module.css:35,39,40,73,97,144,226 (10.7) → DEF-R9.1-02 |
 | 9.1 | TC-UX04-12 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | 9.1 | TC-UX04-13 | spec w4c-real: 1 lượt đỏ / 0 xanh (xem logs/) |
@@ -407,6 +405,26 @@ Nguồn: `defects-<sprint>.md` (chi tiết từng lỗi) và `smoke-<sprint>.md`
 ### Ghi chú điều tra (không phải DEF): lớp 761987 lệch 8/30 so expected_final_grades.csv
 Công thức không đổi (1 bản CONFIRMED v3, scheme_no 1). Nguyên nhân là dữ liệu bị nhóm QC/sprint khác ghi đè trên lớp seed: midterm của sv04,05,06,07,09,10 = 0,2,4,6,8,10 nguồn QUIZ v2 (nhập Forms, 12:41:45 hôm nay); điểm cộng SPEAK 0,25 thêm cho sv22 (14:15) và sv23 (13:13). Tính tay Fraction từ đầu vào thật khớp preview 30/30 (logs/s8core-drift.log); bản sao sạch QD8A1 khớp CSV 30/30.
 
+
+
+### DEF-R8-A1 — Trích công thức: đầu ra không phải JSON bị thử lại ×3 và báo «AI đang không dùng được» thay vì EXTRACTION_INVALID (TC-P6-03-36, TC-P6-03-19)
+- Mức: Thấp (không mất dữ liệu; sai mã lỗi + tốn 3 lời gọi)
+- Sprint gốc: 8 (4acd28b6, 2026-10-31, US-P6-03) · Hồi quy do sprint sau? KHÔNG
+- Bước tái hiện: 1. Đặt route UTILITY sang nhà cung cấp OpenAI-compatible giả (s8r-stub.py, mode `invalid`: nội dung «đây không phải JSON {»). 2. POST /courses/{lớp}/grade-scheme/extract (tài liệu COURSE_POLICY READY). 3. Đợi job. (TC-19: mode `custom` với weight «abc».)
+- Kỳ vọng: job FAILED `EXTRACTION_INVALID`, đúng 1 lời gọi (SRS 4.2.2; TC-P6-03-36). Thực tế: job FAILED `LLM_UNAVAILABLE` («AI đang không dùng được»); stub nhận 3 lời gọi, llm_audit 3 dòng error/BAD_RESPONSE. Weight «abc» (TC-19) cũng fail cả việc thay vì mục PARAM_INVALID.
+- Nguyên nhân [INFERENCE từ mã]: gateway coi đầu ra sai schema là BAD_RESPONSE → ErrAllProvidersFailed; backend-go/internal/grading/extract.go callLLM (dòng ~273) xếp là lỗi TẠM nên thử lại; EXTRACTION_INVALID chỉ ra khi ErrBadRequest hoặc buildDraft lỗi.
+- Bằng chứng: evidence-8/logs/s8r-03c-run.log, evidence-8/logs/s8r-03b-run.log.
+
+### DEF-R8-A2 — Đóng Drawer trích dẫn bằng Esc làm focus rơi về <body> (TC-P6-04-03)
+- Mức: Thấp (trợ năng bàn phím)
+- Sprint gốc: 8 (US-P6-04) · Hồi quy do sprint sau? KHÔNG RÕ
+- Bước tái hiện: /gradebook/scheme (bản nháp có trích dẫn), cửa sổ 1023 px, Tab tới nút «Trang N» → Enter (Drawer mở) → Esc.
+- Kỳ vọng: focus về nút «Trang N» (SRS: trả focus đúng nút). Thực tế: document.activeElement = BODY. Drawer đóng đúng, cột cố định ở 1024 px đúng.
+- Bằng chứng: evidence-8/logs/s8r-real04-run.log (real-04.spec.ts, test 04-03r).
+
+### Ghi nhận (không tính F): TC-P6-03-31 — tên không thuộc danh sách lớp không bị che
+- PDF quy chế chứa «Nguyễn Văn Test 20229999 (nvtest@example.com)» (tên giả KHÔNG thuộc lớp): prompt tới LLM che MSSV và email nhưng giữ nguyên tên. Với tên/MSSV/email của sinh viên TRONG lớp: che hết ([[SV_1]] [[MSSV_1]] [[EMAIL_1]]). Cơ chế che theo danh sách lớp (internal/privacy/roster.go); TC dùng tên ngoài danh sách. TC chấm P theo kịch bản lớp thật. PM cân nhắc có cần che tên lạ (cần NER) hay không.
+
 ---
 <!-- defects-9.md -->
 ### DEF-R9-01 — Tên test ở dòng `Kiểm:` của US không có trong repo (hoặc ở gói khác)
@@ -772,3 +790,6 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - **DEF-R3-05**: nguyên nhân của số 15/42 s và 12 yêu cầu (kỳ vọng 3) đã tìm ra ở phía QC: `evidence-3/scripts/lib.py` hàm `call()` TỰ THỬ LẠI 502/503 tới 5 lần cách 8 s. llm_audit của lần đo cũ: 4 dòng GRADING cách nhau ~9 s, MỖI dòng `attempts=3`, `queue_wait_ms` 0–1; rồi 2 dòng `circuit_open` (attempts=0, 2–6 ms). Tức mỗi lời gọi = 3 lần thử đúng như TestBatchOutageEndToEnd; nhiễu do kịch bản QC. Lượt sạch (dùng `_call` không thử lại, `p10x3.py`) đang chờ cửa sổ không đo tải.
 - **DEF-R6-C-01** (a081590a): mã đã có `THREAD_LOCK_TEXT` «Đăng bài tạm khóa trong lúc bạn làm bài thi.»; chạy UI thật (`evidence-3/scripts/r6c01.mjs`) chưa xong do lệnh dừng Playwright của PM.
 - **DEF-R5-02** (d1374b09): chưa chạy lại (cần Playwright).
+- **DEF-R3-05** (RERUN 2026-11-16, ep-r ≥ 32b4cb2b): ĐÓNG — TC-P102-14/P103-19/P103-20 PASS bằng llm_audit; nguyên nhân là kịch bản QC (lib.py call() thử lại 502/503 ×5), không phải sản phẩm. Evidence: `evidence-3/logs-p10x3c.log`, `evidence-3/scripts/p10x3.py`.
+- **DEF-R6-C-01** (RERUN, a081590a): ĐÓNG — TC-P3-06-42 PASS trên UI thật (r6c01.mjs: có «Đăng bài tạm khóa…», không còn «Chat tạm khóa»).
+- **DEF-R5-02** (RERUN, d1374b09): ĐÓNG — TC-PE06-08 PASS (axe 1440 /exams/<id>/take sau Chạy thử = 0).

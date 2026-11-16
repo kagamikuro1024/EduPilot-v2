@@ -1,0 +1,6 @@
+200
+400 yêu cầu (200 mỗi gateway) trong 11.6s Counter({(200, None): 362, (503, 'OVERLOADED'): 38}) đỉnh ZCARD 10 số mẫu 2356
+ZCARD sau khi xong: 0
+độ trễ 200: min 404 median 5762 max 11045 ms
+ok|362
+overloaded|38

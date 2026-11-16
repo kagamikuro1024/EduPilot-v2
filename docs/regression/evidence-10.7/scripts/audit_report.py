@@ -33,7 +33,9 @@ def x3(r, d):
     why = []
     if not r["header"]["h1Count"]: why.append("mất h1")
     if nt(r["tabs"]) != nt(d["tabs"]): why.append(f"tab {r['tabs']} vs {d['tabs']}")
-    if bv(r) != bv(d): why.append(f"nút {[b['t'] for b in r['header']['btns']]} vs {[b['t'] for b in d['header']['btns']]}")
+    def sub(a, b):  # P-11-58: khung chờ THIẾU nút mà data có (nút phụ thuộc trạng thái chưa biết) ⇒ không lệch; khung chờ CÓ nút mà data không có ⇒ luôn lệch
+        it = iter(b); return all(x in it for x in a)
+    if not sub(bv(r), bv(d)): why.append(f"nút {[b['t'] for b in r['header']['btns']]} vs {[b['t'] for b in d['header']['btns']]}")
     if r["kind"] != d["kind"]: why.append(f"kiểu {r['kind']} vs {d['kind']}")
     if d.get("dock", 0) and not r.get("dock", 0): why.append("mất thanh dính đáy (dock)")
     if why: bad("X3", r, "; ".join(why))

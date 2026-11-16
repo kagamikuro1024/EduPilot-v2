@@ -1,0 +1,7 @@
+== take devtools
+{"lcp":5450.536,"tbt":0,"cls":0.00005524268963554689,"jsTransfer":232979,"jsResourceBytes":741326,"bi":3286,"mult":4,"lcpEl":"<p class=\"Take-module__zRWm5W__integrityText\">"}
+{"lcp":5514.237,"tbt":0,"cls":0.00005524268963554689,"jsTransfer":233118,"jsResourceBytes":741326,"bi":3250,"mult":4,"lcpEl":"<p class=\"Take-module__zRWm5W__integrityText\">"}
+{"lcp":5509.386,"tbt":0,"cls":0.00005524268963554689,"jsTransfer":232969,"jsResourceBytes":741326,"bi":2748,"mult":4,"lcpEl":"<p class=\"Take-module__zRWm5W__integrityText\">"}
+multiplier=3.38
+benchmarkIndex [3531,3549,3652] → trung vị 3549; cpuSlowdownMultiplier = 3.38 (4 × 3549 / 4200, kẹp [2, 8])
+== simulate autorun (CI config, 9 URL x5)

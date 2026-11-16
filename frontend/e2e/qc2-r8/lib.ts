@@ -31,4 +31,5 @@ export async function go(page: Page, url: string) {
 export const log = (name: string, line: string) => { appendFileSync(`${EV}/logs/s8r-ui-${name}.log`, line + "\n"); console.log(line); };
 export const shot = (page: Page, name: string) => page.screenshot({ path: `${EV}/shots/s8r-${name}.png` });
 export const IDS: Record<string, any> = JSON.parse(require("node:fs").readFileSync("/tmp/qc2-s8r/ids.json", "utf8"));
-export const cid = (code: string) => IDS[code].id as string;
+import { execFileSync } from "node:child_process";
+export const cid = (code: string) => (IDS[code]?.id as string) ?? execFileSync("docker", ["exec", "ep-r-postgres-1", "psql", "-U", "edupilot", "-d", "edupilot", "-At", "-c", `select id from courses where class_code='${code}'`], { encoding: "utf8" }).trim();

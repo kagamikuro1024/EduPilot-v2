@@ -1,0 +1,3 @@
+setroute 200
+P TC-P6-03-31 PDF có tên+MSSV+email của SV trong danh sách lớp: prompt tới LLM không còn tên/MSSV/email (lọt: []); dòng trong prompt: ['Người lập: [[SV_1]] [[MSSV_1]] ([[EMAIL_1]]
+restore 200

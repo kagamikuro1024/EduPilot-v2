@@ -7,3 +7,25 @@ menu LOCKED: ["Xuất XLSX","Lịch sử chốt","Mở khoá"]
 hộp thoại mở khoá: Mở khoá Mở khoá bản chốt v3 của 30 sinh viên. Bản v3 vẫn được giữ nguyên. Nhập lý do 10–500 ký tự. Lý do Để sau Mở khoá
 lý do ngắn → nút disabled=true
 lý do đủ dài → nút disabled=false
+LOAD1000 hàng ban đầu 21 scroller {"h":4894,"c":600}
+LOAD1000 hàng ban đầu 21 scroller {"h":4906,"c":600}
+sau cuộn cuối: 20 hàng DOM, max 30, yêu cầu có cursor 9
+ô hàng 5 sau cuộn về: '7,'
+LOAD1000 hàng ban đầu 21 scroller {"h":4906,"c":600}
+sau cuộn cuối: 20 hàng DOM, max 30, yêu cầu có cursor 9
+ô hàng 5 sau cuộn về: '7,'
+long task: 1 (max 54 ms)
+ArrowDown/focus: ["01a1e082","01a1e082","01a1e082","01a1e082","01a1e082","01a1e082"]
+focus cuối: INPUT
+LOAD1000 hàng ban đầu 21 scroller {"h":4906,"c":600}
+sau cuộn cuối: 20 hàng DOM, max 30, yêu cầu có cursor 9
+ô hàng 5 sau cuộn về: '7,'
+long task: 1 (max 261 ms)
+ArrowDown/focus: ["01a1e082","01a1e082","01a1e082","01a1e082","01a1e082","01a1e082"]
+focus cuối: INPUT
+LOAD1000 hàng ban đầu 21 scroller {"h":4906,"c":600}
+sau cuộn cuối: 20 hàng DOM, max 30, yêu cầu có cursor 9
+ô hàng 5 sau cuộn về: '7,'
+long task: 1 (max 65 ms)
+ArrowDown/focus: ["01a1e082","01a1e082","01a1e082","01a1e082","01a1e082","01a1e082"]
+focus cuối: INPUT

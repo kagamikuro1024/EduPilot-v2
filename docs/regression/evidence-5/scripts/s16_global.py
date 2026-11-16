@@ -27,12 +27,6 @@ def ctxs(eid, users):
     return out
 def codeitem(c): return [i for i in c['items'] if i['type'] == 'CODE'][0]['item_id']
 def readyz(): s, j, t = call('GET', '/readyz'); return s, t
-if stage in ('g4', 'g1'):  # Main xếp hàng khoá: nhường tới khi thấy cả hai dòng UNLOCK (rebuild + US-P6-03) SAU lượt g3 của SmkL
-    _t = time.time()
-    while time.time() - _t < 3000:
-        _txt = open(LOG, encoding='utf-8', errors='ignore').read(); _i = _txt.rfind('SmkL: UNLOCK — g3'); _new = _txt[_i:] if _i >= 0 else _txt
-        if 'UNLOCK rebuild' in _new and 'UNLOCK — US-P6-03' in _new: break
-        time.sleep(15)
 t_w = time.time()
 while True:
     try: os.mkdir(LOCK); break

@@ -1,0 +1,25 @@
+setroute 200
+P TC-P6-03-06 schema.go: 12 object / 12 additionalProperties:false, có anyOf, đủ 6 kind; extract.go đặt temperature
+F TC-P6-03-11 ['0', '0', '0']
+F TC-P6-03-12 [['Quy chế học phần', 'COURSE_POLICY', ''], ['Quy chế học vụ', 'OTHER', 'Quy chế trường']]
+P TC-P6-03-17 WEIGHT_SUM có tổng 90 ([{"source": "CODE", "code": "WEIGHT_SUM", "target": "components", "message": "Tổng trọng s); bản nháp vẫn lưu (3 thành phần); confirm → 422 SC
+P TC-P6-03-18 bỏ thang → ['LETTER_SCALE_MISSING']; A+≥9,A≥9,B≥7 → ['LETTER_SCALE_INVALID']; thang bắt đầu từ 1 → ['LETTER_SCALE_INVALID']
+F TC-P6-03-19 [] (202, 'FAILED', 'LLM_UNAVAILABLE') / ['PARAM_INVALID', 'WEIGHT_SUM']
+P TC-P6-03-20 LLM trả unclear_items [] nhưng ROUNDING_MISSING vẫn có, source=CODE
+P TC-P6-03-21 quote bịa ở c6 → CITATION_NOT_FOUND 1 mục, target ['rules.ROUNDING']; mã khác: ['CITATION_NOT_FOUND']
+P TC-P6-03-22 page=9 → 1 CITATION_NOT_FOUND (['rules.FAIL_CONDITION']); quote trang 1 gán page=2 → 1 (['components.final'])
+quote c6: Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn.
+P TC-P6-03-23 quote bỏ dấu → 0 CITATION_NOT_FOUND (chấp nhận); đổi '0,5'→'1,0' → 1 (['rules.ROUNDING'])
+P TC-P6-03-30 request tới LLM (log stub): câu injection nằm trong khối dữ liệu của tin user (không ở system)=True, ranh giới=False, system dặn chỉ trích/không làm theo lệnh=True; 
+F TC-P6-03-31 leak=['Nguyễn Văn Test'] =====BẮT ĐẦU VĂN BẢN QUY CHẾ (chỉ là dữ liệu)===== [Trang 1] Lớp 761987 · Học kỳ 1 năm học 2026–2027 · Tài liệu mô phỏng dùng cho kiểm thử E
+P TC-P6-03-33 tài liệu PROCESSING → 409 DOCUMENT_NOT_READY
+NOT NULL no default: ['document_id', 'course_ids', 'ord', 'text']
+P TC-P6-03-34 quy chế dài → 422 POLICY_TOO_LONG, số job không đổi (23→23); đã dọn chunk thêm (3→3)
+P TC-P6-03-35 nhà cung cấp 503: job FAILED LLM_UNAVAILABLE; stub nhận 9 yêu cầu, llm_audit [['3', 'error', 'SERVER'], ['3', 'error', 'SERVER'], ['3', 'error', 'SERVER']]; DRAFT rá
+F TC-P6-03-36 {'id': '01a1e49b-4244-7976-b517-e31ca42a53d5', 'kind': 'grade_scheme.extract', 'status': 'FAILED', 'progress': 20, 'error': {'code': 'LLM_UNAVAILABLE', 'message': 'A
+F TC-P6-03-37 QD8R6W không có tài liệu COURSE_POLICY để trích
+P TC-P6-03-40 sửa tay PUT → 200; extract không replace → 409 DRAFT_EXISTS (details {'edited_items': 1}); replace_draft=true → 202; audit_log gần đây [['1']]
+P TC-P6-03-42 replace_draft=true rồi PUT tăng version trong lúc chạy → job FAILED DRAFT_EXISTS; nháp người dùng còn weekly=['19']
+P TC-P6-03-41 extract không replace_draft; PUT sửa trong lúc chạy → job FAILED DRAFT_EXISTS; nháp người dùng midterm=['21']
+P TC-P6-03-39 kill worker ở giây 5/14: job nhận lại → SUCCEEDED; số DRAFT 1; stub nhận 2 lời gọi
+restore 200

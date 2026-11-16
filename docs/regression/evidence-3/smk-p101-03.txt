@@ -1,0 +1,5 @@
+== edupilot
+cột thêm ngoài SRS llm_audit ['cascade_gate', 'cascade_path']
+cột SRS 60 | id uuid True | created_at/updated_at có: [('llm_providers', True, True), ('llm_models', True, True), ('llm_task_routes', True, True), ('llm_budgets', True, True)]
+FK llm_*: 
+BAD 0

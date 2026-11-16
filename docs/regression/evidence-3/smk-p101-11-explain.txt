@@ -1,0 +1,12 @@
+TRUNCATE TABLE
+INSERT 0 20000
+ANALYZE
+20000
+
+theo task (course_id=NULL, 7 ngày) → [('Bitmap Heap Scan', 'llm_audit', None), ('Bitmap Index Scan', None, 'llm_audit_created_idx')] | exec ms 2.819 | không Seq Scan
+theo day (course_id=NULL, 7 ngày) → [('Bitmap Heap Scan', 'llm_audit', None), ('Bitmap Index Scan', None, 'llm_audit_created_idx')] | exec ms 7.152 | không Seq Scan
+theo course_id (task, 30 ngày) → [('Bitmap Heap Scan', 'llm_audit', None), ('Bitmap Index Scan', None, 'llm_audit_course_created_idx')] | exec ms 6.922 | không Seq Scan
+theo task, từng task 7 ngày → [('Bitmap Heap Scan', 'llm_audit', None), ('Bitmap Index Scan', None, 'llm_audit_task_created_idx')] | exec ms 10.743 | không Seq Scan
+SEQ 0
+1560
+

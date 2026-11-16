@@ -1,0 +1,23 @@
+ tổng 215 200: 2 503: 14 chờ-quá-22s(không phản hồi): 199
+ 503 mã: {'OVERLOADED'} | Retry-After: ['1'] | retry_after trong thân: [1] | message: Hệ thống đang rất đông. Vui lòng thử lại sau ít giây.
+ độ trễ từ chối (ms): min 2 median 3 max 7
+ thứ tự đến của các yêu cầu bị từ chối (chỉ số): [201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214]
+ sau thả:  cancelled|398
+overloaded|28
+ok|4
+== CLASSIFY NEAR_REALTIME 200
+ tổng 215 200: 2 503: 14 chờ-quá-22s(không phản hồi): 199
+ 503 mã: {'OVERLOADED'} | Retry-After: ['1'] | retry_after trong thân: [1] | message: Hệ thống đang rất đông. Vui lòng thử lại sau ít giây.
+ độ trễ từ chối (ms): min 3 median 3 max 7
+ thứ tự đến của các yêu cầu bị từ chối (chỉ số): [201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214]
+ sau thả:  cancelled|199
+ok|2
+overloaded|14
+== GRADING BATCH 200
+ tổng 215 200: 2 503: 14 chờ-quá-22s(không phản hồi): 199
+ 503 mã: {'OVERLOADED'} | Retry-After: ['5'] | retry_after trong thân: [5] | message: Hệ thống đang rất đông. Vui lòng thử lại sau ít giây.
+ độ trễ từ chối (ms): min 3 median 6 max 11
+ thứ tự đến của các yêu cầu bị từ chối (chỉ số): [201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214]
+ sau thả:  cancelled|199
+overloaded|14
+ok|2

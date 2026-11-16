@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkC, SmkL bổ sung) · Ngày: 2026-11-16
-Tổng TC cũ: 477 · Đạt: 378 · Trượt: 8 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 12 · Chưa chạy (mẫu) S: 79   (P+F+K+LT+S = 477)
+Tổng TC cũ: 477 · Đạt: 380 · Trượt: 7 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 12 · Chưa chạy (mẫu) S: 78   (P+F+K+LT+S = 477)
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -15,9 +15,9 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | US-PE-03 | 55 | 49 | 2 | 1 | 3 | |
 | US-PE-04 | 50 | 44 | 0 | 1 | 5 | |
 | US-PE-05 | 60 | 55 | 0 | 1 | 4 | |
-| US-PE-06 | 47 | 39 | 1 | 0 | 7 | |
+| US-PE-06 | 47 | 40 | 1 | 0 | 6 | |
 | US-PE-07 | 48 | 40 | 0 | 0 | 8 | |
-| US-PE-08 | 68 | 54 | 1 | 0 | 13 | |
+| US-PE-08 | 68 | 55 | 0 | 0 | 13 | |
 | US-PE-09 | 31 | 8 | 0 | 1 | 22 | |
 
 ## Kết quả từng ca
@@ -293,7 +293,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE06-05 | P | màn trước khi bắt đầu bài MIXED 390: "Bài này có phần lập trình, cần màn hình ≥ 1024 px." |
 | TC-PE06-06 | P | textarea mã nguồn: spellcheck=false, autocapitalize=off, aria-label "Mã nguồn bài 3", Tab chèn 4 dấu cách |
 | TC-PE06-07 | P | dán 65.536 ký tự: bộ đếm "65.536/65.536"; gõ thêm 'Z' → độ dài ô 65536 (≤65.536; chữ báo: "(không thấy)"); 21.845×'ệ' (3 byte): "65.535/65.536" (đếm theo byte); 30 dòng × 5.000 ký tự: ox=0 (cuộn trong ô); chú thích Việt lưu/tải lại đúng=true; INP thô trong ô 0 |
-| TC-PE06-08 | S | axe: lượt đầu dùng thẻ thừa wcag21a (không hợp lệ); lượt chạy lại đúng thẻ TC bị gián đoạn do máy quá tải (load 45) — cần chạy lại |
+| TC-PE06-08 | P | RERUN 2026-11-16 (ep-r ≥ 32b4cb2b, d1374b09): axe 1440 màn làm bài code sau Chạy thử (SV r5s01, bài MIXED): 0 serious/critical, ox=0 (DEF-R5-02 đóng; ui_pe_r502.cjs) |
 | TC-PE06-09 | P | mỗi ngôn ngữ nháp riêng: c11/// c11;cpp17/// cpp; java 422 ['LANGUAGE_NOT_ALLOWED', 'VALIDATION_FAILED'] |
 | TC-PE06-10 | P | Go: exam pass=2 skip=0 fail=0 |
 | TC-PE06-11 | P | rev tăng 1→2; 64 KiB nhận 200; 64 KiB+1 → 422 VALIDATION_FAILED(max) (như L2 gốc); phản hồi không chứa source |
@@ -306,7 +306,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE06-18 | P | thiếu key → 422 IDEMPOTENCY_KEY_REQUIRED; source rỗng/64KiB+1 → 422 VALIDATION_FAILED (required/max, như lệch L2 gốc); language lạ → 422 LANGUAGE_NOT_ALLOWED; SV khác → 404 |
 | TC-PE06-19 | F | (phần judge chết) run → 503 JUDGE_UNAVAILABLE retry_after=None trong 0.03s; phần hàng đầy + run ≤5s: TC-PE02-27 (s13_judge.py burst) |
 | TC-PE06-20 | P | Go (chỉ các test còn tồn tại; tên TC cũ không còn trong repo): judge pass=1 skip=0 fail=0; exam pass=1 skip=0 fail=0; thiếu test: TestRunLaneNotBlockedBySubmitBacklog,TestRunDoesNotAffectScore |
-| TC-PE06-21 | P | Chạy thử hiện nhãn "Lỗi biên dịch" (c11 + <cstdio>); nhãn Việt; các nhãn khác (Đúng/Sai…) chưa chụp hết |
+| TC-PE06-21 | P | RERUN: Chạy thử hiện nhãn kết quả «Lỗi biên dịch»; nháp trên máy chủ 1 bản (ui_pe_r502.cjs) |
 | TC-PE06-22 | P | spec mock exam.spec.ts trên bản dựng cổng (pw55b.json: 40/40 desktop + 37/40 mobile pass, 0 FAIL; lượt chạy lại lẻ trên worktree dùng chung bị ENOENT test-results do agent khác xoá nên không dùng): "run result display" pass; ui-antipatterns.sh 32 ✓ rc=0 |
 | TC-PE06-23 | P | 202; kind/sha256 đúng; outbox judge.enqueue 1 |
 | TC-PE06-24 | P | lần hai trong 15 s: 429 ['RATE_LIMITED'] retry_after=15 |
@@ -395,7 +395,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE08-12 | P | 20 lượt ngẫu nhiên (6 câu nhiều đáp án PARTIAL K=3 + 4 đúng–sai, max 10, bước 0,01): auto_score = (b) cộng đủ chữ số rồi làm tròn cuối ở 20/20 lượt; số lượt mà (a) làm tròn từng câu rồi cộng ≠ (b): 7 (≥3 ⇒ phép thử phân biệt được); mẫu: [('r5s01', '4.00', '4.0 |
 | TC-PE08-13 | P | override void câu 1 (đúng–sai): 200 []; sau chấm lại mọi lượt nhận trọn điểm câu đó: lệch [] (0/20); người đã đúng giữ nguyên, người sai/bỏ trống +1,00; mẫu số (Σ điểm câu) giữ 10.00 |
 | TC-PE08-14 | P | max_score=100, bước 0,5: đạt tối đa → 100.00; sai hết → 0.00; bỏ trống → 0.00 (kẹp [0, max]) |
-| TC-PE08-15 | F | regrade scope=attempt ×2 trên cùng dữ liệu: 422/422 ['INVALID', 'VALIDATION_FAILED']; auto_score 4.00 → 4.00 (không đổi); số dòng exam_answers 9 → 9 (không dòng đôi) |
+| TC-PE08-15 | P | regrade scope=attempt ×2: 202/202; auto_score 9.00 → 9.00; số bản nộp 1 → 1 (không dòng đôi) |
 | TC-PE08-16 | P | Go: exam pass=2 skip=0 fail=0 |
 | TC-PE08-17 | P | công bố PUBLISHED/13:21:53.759 (đóng 13:21:47; chấm xong tới 13:21:53.699); published_at đặt 1 lần |
 | TC-PE08-18 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |

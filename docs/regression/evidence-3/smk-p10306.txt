@@ -1,0 +1,5 @@
+ZCARD trước 0
+ZCARD khi gw2 giữ 3 chỗ 3 ['I:2a02bca4-0b4c-4cff-8329-cdcd20ee929b', '1794839227864', 'I:3975236c-7bd3-4c16-b64c-68f4b9f35629', '1794839227888', 'I:8ac96651-a21b-4ef3-b2e5-c4e3e3af7f93', '1794839227889']
+gw1 phục vụ GRADING cùng nhà khi 3 chỗ treo: 200 SmkI-T3 69 ms
+  t+1.0s ZCARD=3
+thu hồi chỗ sau None

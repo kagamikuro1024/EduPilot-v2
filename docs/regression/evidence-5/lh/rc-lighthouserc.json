@@ -1,0 +1,90 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3330/",
+        "http://localhost:3330/chat",
+        "http://localhost:3330/threads",
+        "http://localhost:3330/inbox",
+        "http://localhost:3330/gradebook",
+        "http://localhost:3330/me",
+        "http://localhost:3330/checkin",
+        "http://localhost:3330/settings/llm",
+        "http://localhost:3330/dev/ui"
+      ],
+      "numberOfRuns": 5,
+      "puppeteerScript": "../lh-auth-qc.cjs",
+      "puppeteerLaunchOptions": {
+        "args": [
+          "--no-sandbox",
+          "--headless=new"
+        ]
+      },
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless=new"
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "^http://localhost:3330/(?!dev/ui$).*",
+          "assertions": {
+            "largest-contentful-paint": "off",
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1,
+                "aggregationMethod": "median"
+              }
+            ],
+            "total-blocking-time": [
+              "error",
+              {
+                "maxNumericValue": 200,
+                "aggregationMethod": "median"
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 256000,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": "^http://localhost:3330/dev/ui$",
+          "assertions": {
+            "largest-contentful-paint": "off",
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1,
+                "aggregationMethod": "median"
+              }
+            ],
+            "total-blocking-time": [
+              "warn",
+              {
+                "maxNumericValue": 200,
+                "aggregationMethod": "median"
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 256000,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

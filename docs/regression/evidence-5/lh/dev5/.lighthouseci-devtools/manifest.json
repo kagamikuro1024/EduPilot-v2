@@ -1,0 +1,362 @@
+[
+  {
+    "url": "http://localhost:3330/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_55_56.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_55_56.report.json",
+    "summary": {
+      "performance": 0.89
+    }
+  },
+  {
+    "url": "http://localhost:3330/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_56_34.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_56_34.report.json",
+    "summary": {
+      "performance": 0.72
+    }
+  },
+  {
+    "url": "http://localhost:3330/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_57_35.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_57_35.report.json",
+    "summary": {
+      "performance": 0.98
+    }
+  },
+  {
+    "url": "http://localhost:3330/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_58_21.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_58_21.report.json",
+    "summary": {
+      "performance": 0.82
+    }
+  },
+  {
+    "url": "http://localhost:3330/chat",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_13_58_54.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_13_58_54.report.json",
+    "summary": {
+      "performance": 0.9
+    }
+  },
+  {
+    "url": "http://localhost:3330/chat",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_13_59_38.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_13_59_38.report.json",
+    "summary": {
+      "performance": 0.92
+    }
+  },
+  {
+    "url": "http://localhost:3330/chat",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_14_00_30.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_14_00_30.report.json",
+    "summary": {
+      "performance": 0.76
+    }
+  },
+  {
+    "url": "http://localhost:3330/chat",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_14_01_23.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_14_01_23.report.json",
+    "summary": {
+      "performance": 0.91
+    }
+  },
+  {
+    "url": "http://localhost:3330/threads",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_02_57.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_02_57.report.json",
+    "summary": {
+      "performance": 0.91
+    }
+  },
+  {
+    "url": "http://localhost:3330/threads",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_03_35.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_03_35.report.json",
+    "summary": {
+      "performance": 0.83
+    }
+  },
+  {
+    "url": "http://localhost:3330/threads",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_05_03.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_05_03.report.json",
+    "summary": {
+      "performance": 0.9
+    }
+  },
+  {
+    "url": "http://localhost:3330/threads",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_06_04.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_06_04.report.json",
+    "summary": {
+      "performance": 0.6
+    }
+  },
+  {
+    "url": "http://localhost:3330/inbox",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_07_34.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_07_34.report.json",
+    "summary": {
+      "performance": 0.93
+    }
+  },
+  {
+    "url": "http://localhost:3330/inbox",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_08_13.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_08_13.report.json",
+    "summary": {
+      "performance": 0.96
+    }
+  },
+  {
+    "url": "http://localhost:3330/inbox",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_08_53.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_08_53.report.json",
+    "summary": {
+      "performance": 0.92
+    }
+  },
+  {
+    "url": "http://localhost:3330/inbox",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_09_32.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_09_32.report.json",
+    "summary": {
+      "performance": 0.95
+    }
+  },
+  {
+    "url": "http://localhost:3330/gradebook",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_10_10.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_10_10.report.json",
+    "summary": {
+      "performance": 0.77
+    }
+  },
+  {
+    "url": "http://localhost:3330/gradebook",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_11_29.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_11_29.report.json",
+    "summary": {
+      "performance": 0.92
+    }
+  },
+  {
+    "url": "http://localhost:3330/gradebook",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_12_07.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_12_07.report.json",
+    "summary": {
+      "performance": 0.95
+    }
+  },
+  {
+    "url": "http://localhost:3330/gradebook",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_12_46.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_12_46.report.json",
+    "summary": {
+      "performance": 0.9
+    }
+  },
+  {
+    "url": "http://localhost:3330/me",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_13_22.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_13_22.report.json",
+    "summary": {
+      "performance": 0.94
+    }
+  },
+  {
+    "url": "http://localhost:3330/me",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_13_57.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_13_57.report.json",
+    "summary": {
+      "performance": 0.96
+    }
+  },
+  {
+    "url": "http://localhost:3330/me",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_15_03.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_15_03.report.json",
+    "summary": {
+      "performance": 0.96
+    }
+  },
+  {
+    "url": "http://localhost:3330/me",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_15_37.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_15_37.report.json",
+    "summary": {
+      "performance": 0.96
+    }
+  },
+  {
+    "url": "http://localhost:3330/settings/llm",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_16_10.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_16_10.report.json",
+    "summary": {
+      "performance": 0.98
+    }
+  },
+  {
+    "url": "http://localhost:3330/settings/llm",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_16_43.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_16_43.report.json",
+    "summary": {
+      "performance": 0.98
+    }
+  },
+  {
+    "url": "http://localhost:3330/settings/llm",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_17_15.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_17_15.report.json",
+    "summary": {
+      "performance": 0.98
+    }
+  },
+  {
+    "url": "http://localhost:3330/settings/llm",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_18_20.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_18_20.report.json",
+    "summary": {
+      "performance": 0.98
+    }
+  },
+  {
+    "url": "http://localhost:3330/dev/ui",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_18_54.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_18_54.report.json",
+    "summary": {
+      "performance": 0.88
+    }
+  },
+  {
+    "url": "http://localhost:3330/dev/ui",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_19_18.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_19_18.report.json",
+    "summary": {
+      "performance": 0.94
+    }
+  },
+  {
+    "url": "http://localhost:3330/dev/ui",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_20_06.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_20_06.report.json",
+    "summary": {
+      "performance": 0.92
+    }
+  },
+  {
+    "url": "http://localhost:3330/dev/ui",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_20_30.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_20_30.report.json",
+    "summary": {
+      "performance": 0.93
+    }
+  },
+  {
+    "url": "http://localhost:3330/",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_57_08.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost--2026_11_16_13_57_08.report.json",
+    "summary": {
+      "performance": 0.95
+    }
+  },
+  {
+    "url": "http://localhost:3330/chat",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_14_02_07.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-chat-2026_11_16_14_02_07.report.json",
+    "summary": {
+      "performance": 0.91
+    }
+  },
+  {
+    "url": "http://localhost:3330/threads",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_04_18.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-threads-2026_11_16_14_04_18.report.json",
+    "summary": {
+      "performance": 0.82
+    }
+  },
+  {
+    "url": "http://localhost:3330/inbox",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_06_49.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-inbox-2026_11_16_14_06_49.report.json",
+    "summary": {
+      "performance": 0.91
+    }
+  },
+  {
+    "url": "http://localhost:3330/gradebook",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_10_52.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-gradebook-2026_11_16_14_10_52.report.json",
+    "summary": {
+      "performance": 0.94
+    }
+  },
+  {
+    "url": "http://localhost:3330/me",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_14_30.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-me-2026_11_16_14_14_30.report.json",
+    "summary": {
+      "performance": 0.96
+    }
+  },
+  {
+    "url": "http://localhost:3330/settings/llm",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_17_49.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-settings_llm-2026_11_16_14_17_49.report.json",
+    "summary": {
+      "performance": 0.98
+    }
+  },
+  {
+    "url": "http://localhost:3330/dev/ui",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_19_42.report.html",
+    "jsonPath": "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/lh/dev5/.lighthouseci-devtools/localhost-dev_ui-2026_11_16_14_19_42.report.json",
+    "summary": {
+      "performance": 0.95
+    }
+  }
+]

@@ -1,0 +1,326 @@
+[
+ {
+  "user": "r5s01",
+  "route": "/",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "Chào 1"
+  ],
+  "small": 14,
+  "primary": 0,
+  "lcpLast": [
+   356,
+   "H1:Việc cần xử lý hôm nay"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5s01",
+  "route": "/chat",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "Chat riêng"
+  ],
+  "small": 16,
+  "primary": 1,
+  "lcpLast": [
+   280,
+   "P:Phiên chat này chỉ bạn đọc đ"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5s01",
+  "route": "/threads",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "Hỏi đáp công khai"
+  ],
+  "small": 19,
+  "primary": 1,
+  "lcpLast": [
+   468,
+   "H1:Hỏi đáp công khai"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5s01",
+  "route": "/",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "Chào 1"
+  ],
+  "small": 0,
+  "primary": 0,
+  "lcpLast": [
+   452,
+   "H1:Việc cần xử lý hôm nay"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5s01",
+  "route": "/chat",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "Chat riêng"
+  ],
+  "small": 0,
+  "primary": 1,
+  "lcpLast": [
+   280,
+   "P:Phiên chat này chỉ bạn đọc đ"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5s01",
+  "route": "/threads",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "Hỏi đáp công khai"
+  ],
+  "small": 0,
+  "primary": 1,
+  "lcpLast": [
+   388,
+   "H1:Hỏi đáp công khai"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5t",
+  "route": "/",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "1 việc cần xử lý hôm nay"
+  ],
+  "small": 22,
+  "primary": 1,
+  "lcpLast": [
+   256,
+   "H1:Việc cần xử lý hôm nay"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5t",
+  "route": "/inbox",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "Hộp thư hỗ trợ"
+  ],
+  "small": 25,
+  "primary": 0,
+  "lcpLast": [
+   476,
+   "H1:Hộp thư hỗ trợ"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5t",
+  "route": "/gradebook",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "Sổ điểm"
+  ],
+  "small": 25,
+  "primary": 1,
+  "lcpLast": [
+   1036,
+   "IMG:"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5t",
+  "route": "/",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "1 việc cần xử lý hôm nay"
+  ],
+  "small": 0,
+  "primary": 1,
+  "lcpLast": [
+   332,
+   "H1:Việc cần xử lý hôm nay"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5t",
+  "route": "/inbox",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "Hộp thư hỗ trợ"
+  ],
+  "small": 0,
+  "primary": 0,
+  "lcpLast": [
+   480,
+   "H1:Hộp thư hỗ trợ"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5t",
+  "route": "/gradebook",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "Sổ điểm"
+  ],
+  "small": 0,
+  "primary": 1,
+  "lcpLast": [
+   768,
+   "DIV:Công thức điểm chưa xác nhận"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "admin",
+  "route": "/",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "2 việc cần xử lý hôm nay"
+  ],
+  "small": 13,
+  "primary": 1,
+  "lcpLast": [
+   296,
+   "H1:Việc cần xử lý hôm nay"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "admin",
+  "route": "/settings/llm",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "Cấu hình LLM"
+  ],
+  "small": 78,
+  "primary": 0,
+  "lcpLast": [
+   284,
+   "H1:Cấu hình LLM"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "admin",
+  "route": "/",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "2 việc cần xử lý hôm nay"
+  ],
+  "small": 0,
+  "primary": 1,
+  "lcpLast": [
+   540,
+   "SPAN:Lớp E7S23 có 2 câu hỏi chờ q"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "admin",
+  "route": "/settings/llm",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "Cấu hình LLM"
+  ],
+  "small": 0,
+  "primary": 0,
+  "lcpLast": [
+   376,
+   "H1:Cấu hình LLM"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5ta",
+  "route": "/",
+  "w": 1440,
+  "ox": 0,
+  "h1": [
+   "1 việc cần xử lý hôm nay"
+  ],
+  "small": 19,
+  "primary": 1,
+  "lcpLast": [
+   240,
+   "H1:Việc cần xử lý hôm nay"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ },
+ {
+  "user": "r5ta",
+  "route": "/",
+  "w": 375,
+  "ox": 0,
+  "h1": [
+   "1 việc cần xử lý hôm nay"
+  ],
+  "small": 0,
+  "primary": 1,
+  "lcpLast": [
+   240,
+   "H1:Việc cần xử lý hôm nay"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 ()"
+  ]
+ }
+]

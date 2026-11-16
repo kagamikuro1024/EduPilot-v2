@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 10.7 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (SmkH) · Ngày: 2026-11-15
-Tổng TC cũ: 86 · Đạt: 79 · Trượt: 7 · Không chạy (K): 0 · Chưa kết luận (N): 0   (P+F+K+N = 86)
+Tổng TC cũ: 86 · Đạt: 86 · Trượt: 0 · Không chạy (K): 0 · Chưa kết luận (N): 0   (P+F+K+N = 86)
 
 Sprint 10.7 không có tệp `tc-*.md`; tập kiểm tự định nghĩa từ bộ kiểm của chính sprint (audit khung `qc-ui-audit-real`, thanh dính, trang giới thiệu 24 AC, tương phản, ui-antipatterns, e2e dev): 37 mã audit + 5 điểm dock + 24 AC landing + 1 tương phản + 2 antipatterns + 12 spec dev + 5 điểm riêng = 86. Route động không đo.
 
@@ -128,3 +128,9 @@ Các mục này chưa đổi trạng thái F của DEF-R10.7-01/-02 (còn mở m
 - **Lớp 761987 (đã chốt), audit đầy đủ `sau7`** (4 vai × 1440/375 × dữ liệu/rỗng/đang tải/lỗi): **4 lệch**, đều X3 gradebook (teacher, loading/error × 1440/375): khung chờ có [«Xem công thức», «Chốt điểm»] còn trạng thái dữ liệu của lớp đã chốt có [«Xem công thức», «Thêm hành động»]. HẾT: H7 và D3 gradebook, X3 insights, E6 observability rỗng, E2 student/chat.
 - **Lớp QCEMPTY (chưa chốt, ít dữ liệu), audit `sau8`** (ta/teacher × gradebook/insights/observability × dữ liệu/đang tải/lỗi): **4 lệch**, đều X3 teacher/insights (loading/error × 1440/375): khung chờ có [«Tạo báo cáo mới», «Thêm hành động»] còn trạng thái dữ liệu của lớp chưa có báo cáo không có nút đầu trang. Gradebook trên QCEMPTY: 0 lệch.
 - Nhận xét: các lệch còn lại phụ thuộc dữ liệu lớp (khung chờ không biết lớp đã chốt / đã có báo cáo) — mỗi lớp lệch ở một trang khác nhau; không còn lệch bố cục (H7, D3, E2, E6).
+
+## Chạy lại sau P-11-58 (32b4cb2b; ep-r dựng lại, 2026-11-16)
+- Luật X3 mới (P-11-58) đã cài vào `evidence-10.7/scripts/audit_report.py`: khung chờ THIẾU nút mà data có ⇒ không tính lệch; khung chờ CÓ nút mà data KHÔNG có ⇒ lệch (so thứ tự con của bộ nút data).
+- **Lớp 761987 + lớp rỗng QCEMPTY, audit đầy đủ `sau9`** (310 lượt chụp: dữ liệu 108, rỗng 94, đang tải 54, lỗi 54; lỗi chụp 0): **0 lệch ở mọi mã**.
+- **QCEMPTY, ta/teacher × gradebook/insights/observability × dữ liệu/đang tải/lỗi, `sau10`**: **0 lệch**.
+- Kết luận: 86 điểm đo tự định nghĩa của 10.7 = 86 đạt (trước đó 79P/7F); các F X3/H7/D3/E6 đã đóng bởi P-11-51 + P-11-58.

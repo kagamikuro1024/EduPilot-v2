@@ -1,0 +1,7 @@
+P102-42/P104-37a: PUT 200 tổng lời gọi 295 ~37 req/s lỗi 0 ; sau PUT còn dùng nhà cũ (bắt đầu sau PUT): 3 ; lần bắt đầu muộn nhất dùng cấu hình cũ sau PUT (s): {'gw1': -9, 'gw2': 0.03554797172546387}
+ provider theo gateway: {'gw1': ['SmkI-T1', 'SmkI-T2'], 'gw2': ['SmkI-T1', 'SmkI-T2']}
+ audit theo gateway/provider: SmkI-T2|333
+SmkI-T1|209
+P102-44 sửa DB không PUBLISH → gateway 2 nạp sau 59.6 s
+P104-37b: PUT route khi Redis dừng -> 200 {'task': 'CHAT', 'lane': 'INTERACTIVE', 'chain': [{'model_id': '01a1e4b0-1ef1-7979-9873-2cb5c09f7a4a', 'provider_id': '01a1e4b0-1ee9-7932-ac14-aada080 2.7s
+ gateway 2 dùng cấu hình mới sau khi Redis về: 22.0 s

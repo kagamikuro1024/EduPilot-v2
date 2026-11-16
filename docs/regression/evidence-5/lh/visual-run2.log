@@ -1,0 +1,60 @@
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+Running 52 tests using 2 workers
+
+  ✓   1 [desktop] › e2e/visual.spec.ts:79:9 › home @390 (6.5s)
+  ✓   2 [desktop] › e2e/visual.spec.ts:79:9 › home @1440 (7.2s)
+  ✓   4 [desktop] › e2e/visual.spec.ts:79:9 › chat @390 (4.5s)
+  ✓   3 [desktop] › e2e/visual.spec.ts:79:9 › chat @1440 (5.6s)
+  ✓   6 [desktop] › e2e/visual.spec.ts:79:9 › threads @390 (4.7s)
+  ✓   5 [desktop] › e2e/visual.spec.ts:79:9 › threads @1440 (5.6s)
+  ✓   8 [desktop] › e2e/visual.spec.ts:79:9 › inbox @390 (7.8s)
+  ✓   7 [desktop] › e2e/visual.spec.ts:79:9 › inbox @1440 (10.6s)
+  ✓   9 [desktop] › e2e/visual.spec.ts:79:9 › attendance @1440 (8.1s)
+  ✓  10 [desktop] › e2e/visual.spec.ts:79:9 › attendance @390 (7.9s)
+  ✓  11 [desktop] › e2e/visual.spec.ts:79:9 › grading-queue @1440 (7.2s)
+  ✓  12 [desktop] › e2e/visual.spec.ts:79:9 › grading-queue @390 (5.7s)
+  ✓  13 [desktop] › e2e/visual.spec.ts:79:9 › grading-review @1440 (7.0s)
+  ✓  14 [desktop] › e2e/visual.spec.ts:79:9 › grading-review @390 (6.2s)
+  ✓  16 [desktop] › e2e/visual.spec.ts:79:9 › hom-nay-gv @390 (4.6s)
+  ✓  15 [desktop] › e2e/visual.spec.ts:79:9 › hom-nay-gv @1440 (5.8s)
+  ✓  17 [desktop] › e2e/visual.spec.ts:79:9 › gradebook @1440 (7.4s)
+  ✓  18 [desktop] › e2e/visual.spec.ts:79:9 › gradebook @390 (6.4s)
+  ✓  19 [desktop] › e2e/visual.spec.ts:79:9 › settings-llm @1440 (3.7s)
+  ✓  20 [desktop] › e2e/visual.spec.ts:79:9 › settings-llm @390 (6.8s)
+  ✓  21 [desktop] › e2e/visual.spec.ts:79:9 › dev-ui @1440 (7.9s)
+  ✓  22 [desktop] › e2e/visual.spec.ts:79:9 › dev-ui @390 (10.9s)
+  ✓  23 [desktop] › e2e/visual.spec.ts:79:9 › insights @1440 (11.5s)
+  ✓  24 [desktop] › e2e/visual.spec.ts:79:9 › insights @390 (6.7s)
+  ✓  26 [desktop] › e2e/visual.spec.ts:79:9 › observability @390 (4.1s)
+  ✓  25 [desktop] › e2e/visual.spec.ts:79:9 › observability @1440 (5.5s)
+  -  27 [mobile] › e2e/visual.spec.ts:79:9 › home @390
+  -  28 [mobile] › e2e/visual.spec.ts:79:9 › home @1440
+  -  29 [mobile] › e2e/visual.spec.ts:79:9 › chat @1440
+  -  30 [mobile] › e2e/visual.spec.ts:79:9 › chat @390
+  -  31 [mobile] › e2e/visual.spec.ts:79:9 › threads @1440
+  -  32 [mobile] › e2e/visual.spec.ts:79:9 › threads @390
+  -  33 [mobile] › e2e/visual.spec.ts:79:9 › inbox @1440
+  -  34 [mobile] › e2e/visual.spec.ts:79:9 › inbox @390
+  -  35 [mobile] › e2e/visual.spec.ts:79:9 › attendance @1440
+  -  36 [mobile] › e2e/visual.spec.ts:79:9 › attendance @390
+  -  37 [mobile] › e2e/visual.spec.ts:79:9 › grading-queue @1440
+  -  38 [mobile] › e2e/visual.spec.ts:79:9 › grading-queue @390
+  -  39 [mobile] › e2e/visual.spec.ts:79:9 › grading-review @1440
+  -  40 [mobile] › e2e/visual.spec.ts:79:9 › grading-review @390
+  -  41 [mobile] › e2e/visual.spec.ts:79:9 › hom-nay-gv @1440
+  -  42 [mobile] › e2e/visual.spec.ts:79:9 › hom-nay-gv @390
+  -  43 [mobile] › e2e/visual.spec.ts:79:9 › gradebook @1440
+  -  44 [mobile] › e2e/visual.spec.ts:79:9 › gradebook @390
+  -  45 [mobile] › e2e/visual.spec.ts:79:9 › settings-llm @1440
+  -  46 [mobile] › e2e/visual.spec.ts:79:9 › settings-llm @390
+  -  47 [mobile] › e2e/visual.spec.ts:79:9 › dev-ui @1440
+  -  48 [mobile] › e2e/visual.spec.ts:79:9 › dev-ui @390
+  -  49 [mobile] › e2e/visual.spec.ts:79:9 › insights @1440
+  -  50 [mobile] › e2e/visual.spec.ts:79:9 › insights @390
+  -  51 [mobile] › e2e/visual.spec.ts:79:9 › observability @390
+  -  52 [mobile] › e2e/visual.spec.ts:79:9 › observability @1440
+
+  26 skipped
+  26 passed (1.9m)
+rc=0

@@ -1,0 +1,16 @@
+P102-12 503 181 {"code": "LLM_UNAVAILABLE", "message": "AI tạm thời không khả dụng. Hãy thử lại sau.", "trace_id": "a1000000000000000000000000000000", "details": {"reason": "all_providers_failed"}}
+ leak html/trace? False False False | in logs: False False
+ audit error|SERVER
+P102-15 m-ra2 503 LLM_UNAVAILABLE 4.1s số lần gọi 3 khoảng cách [2.0, 2.0]
+P102-15 m-ra30 503 LLM_UNAVAILABLE 0.0s số lần gọi 1 khoảng cách []
+P102-15 ctx<1s 503 LLM_UNAVAILABLE 0.0s số lần gọi 1
+P102-18 A=400 422 VALIDATION_FAILED | stub A 1 | stub B 1 | audit 1|error/BAD_REQUEST
+P102-18 A,B,C=5xx 503 LLM_UNAVAILABLE | stub 3 3 | audit 1|error/SERVER/3
+P102-47 503 {"code": "LLM_UNAVAILABLE", "message": "AI tạm thời không khả dụng. Hãy thử lại sau.", "trace_id": "d1000000000000000000000000000000", "details": {"reason": "all_providers_failed"}}
+ trong phản hồi [] | log [] | audit_log ERROR:  column "details" does not exist
+LINE 1: select count(*) from audit_log where details::text ~ 'CANARY...
+                                             ^ | llm_audit.error_kind AUTH | outbox 0
+ Test kết nối m-canary 200 {"ok": false, "error_kind": "AUTH", "message": "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.", "latency_ms": 8} rò: []
+P103-42 giữa chừng 200 ['event: token', 'event: token', 'event: token', 'event: token', 'event: token', 'event: token', 'event: token', 'event: token'] | stub 0 0
+P103-42 chưa byte 200 ['event: token', 'event: token', 'event: token', 'event: done'] fallback tokens: True | stub 2 2
+P103-24 timeout_s=3 504 {"code": "DEADLINE_EXCEEDED", "message": "Xử lý quá thời hạn.", "trace_id": "f1000000000000000000000000000000"} 3.0s | audit timeout|TIMEOUT

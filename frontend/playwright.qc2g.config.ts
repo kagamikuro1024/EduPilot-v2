@@ -6,6 +6,6 @@ export default defineConfig({
   timeout: 120_000,
   expect: { timeout: 8_000 },
   workers: 1, retries: 0, reporter: [["list"]],
-  use: { baseURL: process.env.QC_BASE ?? "https://localhost:1143", ignoreHTTPSErrors: true, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" },
+  use: { baseURL: process.env.QC_BASE ?? "https://localhost:1143", actionTimeout: 15_000, ignoreHTTPSErrors: true, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" },
   projects: [{ name: "desktop", use: { viewport: { width: 1440, height: 900 } } }],
 });
