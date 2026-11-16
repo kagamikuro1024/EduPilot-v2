@@ -65,3 +65,7 @@ Có một tiến trình ngoài (nghi `pkill -f next` của phiên khác, `[SUY L
 
 ## 2026-11-16 dev2 — dừng theo lệnh chủ dự án
 Xong: DEF-R5-03, R5-04, R8-A2 (mỗi cái 1 commit, test đỏ-trước). Còn (chưa bắt đầu): R5-06 nhãn QUEUED (CodeResults.tsx:91), R5-08 dòng tóm tắt + gập câu (StudentResult.tsx), R5-09 Staff results lệch AC10 (3 điểm; điểm 1 cần BA/PM quyết), R3-01 chữ EMBEDDING (settings/llm/labels.ts:13, dùng nhãn «Đánh chỉ mục» của observability/api.ts:44).
+
+## 2026-11-16 dev — dừng theo lệnh chủ dự án (5 lỗi qc2)
+- Xong: DEF-R8-A1 (6c75bd54), R5-11 (3f748ec2), R5-10 (dd160463: `tests_stale` ở `GET …/results/{aid}`).
+- Còn: R5-07 (tín hiệu liêm chính mất khi đóng tab: `useIntegrityEvents.ts` flush không `keepalive`/`sendBeacon` lúc `pagehide`; xem lại số 9,4 s). P103-08 bị qc2 rút (lỗi kịch bản QC).
