@@ -519,10 +519,12 @@ func (q *Queries) AttemptStaffHead(ctx context.Context, arg AttemptStaffHeadPara
 }
 
 const attemptSubmitHistory = `-- name: AttemptSubmitHistory :many
-select id, item_id, status, verdict, language, source, created_at, judged_at, compile_ok, compile_log, results, tests_version, passed_weight, total_weight
-from code_submissions
-where course_id = $1 and attempt_id = $2 and kind = 'SUBMIT'
-order by item_id, created_at, id
+select s.id, s.item_id, s.status, s.verdict, s.language, s.source, s.created_at, s.judged_at, s.compile_ok, s.compile_log, s.results, s.tests_version, s.passed_weight, s.total_weight,
+       p.tests_version as current_tests_version
+from code_submissions s
+join code_problems p on p.course_id = s.course_id and p.question_id = s.problem_id
+where s.course_id = $1 and s.attempt_id = $2 and s.kind = 'SUBMIT'
+order by s.item_id, s.created_at, s.id
 `
 
 type AttemptSubmitHistoryParams struct {
@@ -531,23 +533,25 @@ type AttemptSubmitHistoryParams struct {
 }
 
 type AttemptSubmitHistoryRow struct {
-	ID           uuid.UUID
-	ItemID       uuid.UUID
-	Status       SubmissionStatus
-	Verdict      *JudgeVerdict
-	Language     string
-	Source       string
-	CreatedAt    time.Time
-	JudgedAt     *time.Time
-	CompileOk    *bool
-	CompileLog   *string
-	Results      json.RawMessage
-	TestsVersion *int32
-	PassedWeight *int32
-	TotalWeight  *int32
+	ID                  uuid.UUID
+	ItemID              uuid.UUID
+	Status              SubmissionStatus
+	Verdict             *JudgeVerdict
+	Language            string
+	Source              string
+	CreatedAt           time.Time
+	JudgedAt            *time.Time
+	CompileOk           *bool
+	CompileLog          *string
+	Results             json.RawMessage
+	TestsVersion        *int32
+	PassedWeight        *int32
+	TotalWeight         *int32
+	CurrentTestsVersion int32
 }
 
 // Mọi bản nộp (SUBMIT) của lượt, cho Staff: verdict TỪNG test kể cả test ẩn nằm trong `results`.
+// `current_tests_version`: bộ test hiện hành của câu; bản nộp có `tests_version` nhỏ hơn = đã chấm theo bộ test cũ (US-PE-03 AC8).
 func (q *Queries) AttemptSubmitHistory(ctx context.Context, arg AttemptSubmitHistoryParams) ([]AttemptSubmitHistoryRow, error) {
 	rows, err := q.db.Query(ctx, attemptSubmitHistory, arg.CourseID, arg.AttemptID)
 	if err != nil {
@@ -572,6 +576,7 @@ func (q *Queries) AttemptSubmitHistory(ctx context.Context, arg AttemptSubmitHis
 			&i.TestsVersion,
 			&i.PassedWeight,
 			&i.TotalWeight,
+			&i.CurrentTestsVersion,
 		); err != nil {
 			return nil, err
 		}

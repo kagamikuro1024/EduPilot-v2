@@ -99,7 +99,7 @@ function Submissions({ d }: { d: Detail }) {
           {d.submissions.filter((x) => x.item_id === it.item_id).map((x, i) => (
             <details key={x.id}>
               <summary>
-                Lần {i + 1} · {fmtClock(x.created_at)} · {x.verdict ? VERDICT_VI[x.verdict] ?? x.verdict : x.status}
+                Lần {i + 1} · {fmtClock(x.created_at)} · {x.verdict ? VERDICT_VI[x.verdict] ?? x.verdict : x.status}{x.tests_stale && " · Chấm theo bộ test cũ"}
               </summary>
               {x.tests.length > 0 && (
                 <p className={s.muted}>
