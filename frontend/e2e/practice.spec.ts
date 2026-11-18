@@ -85,8 +85,7 @@ test("mock run: không lộ đúng / sai trước khi nộp, mất mạng giữ 
 
   await page.reload();
   await expect(page.locator("[data-part=practice-mock]")).toBeVisible();
-  await page.getByRole("button", { name: "Câu sau" }).click();
-  await expect(page.getByRole("button", { name: /^Phương án B của câu 2/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Phương án B của câu 2/ })).toHaveAttribute("aria-pressed", "true"); // quay đúng câu 2 (P-11-66)
 
   await page.getByRole("button", { name: "Nộp bài" }).first().click();
   await expect(page.getByRole("dialog")).toContainText("Bạn đã trả lời 2/5 câu");

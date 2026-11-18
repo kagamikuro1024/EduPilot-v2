@@ -9,7 +9,7 @@ import { SaveQueue, type QueueState, type Sender } from "@/shared/lib/saveQueue"
 import { useMinWidth } from "@/shared/lib/useMinWidth";
 import { Button, ConfirmIrreversible, Drawer, InlineNotice, Page, PageHeader, Panel, Split, StatusText } from "@/shared/ui";
 import { QuestionInput, filled } from "./QuestionInput";
-import { newIdempotencyKey, putAnswer, submitAttempt, type Ans, type PAttempt, type PItem } from "./practiceApi";
+import { newIdempotencyKey, patchIndex, putAnswer, submitAttempt, type Ans, type PAttempt, type PItem } from "./practiceApi";
 import s from "./Practice.module.css";
 
 type Qd = Ans & { ts?: number }; // `ts`: lúc người làm bài đổi đáp án (ms) — gửi thành client_ts để dung sai ghi ngoại tuyến (Q-P9-5)
@@ -104,7 +104,12 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
   const canWrite = !other && !expired;
   const done = (it: PItem) => filled(it.question, answers[it.id]);
   const answeredCount = items.filter(done).length;
-  const go = useCallback((i: number) => setIndex(Math.max(0, Math.min(items.length - 1, i))), [items.length]);
+  // Vị trí câu lưu máy chủ (FR-14, US-P9-07 AC6): tải lại quay đúng câu; mất lượt PATCH không sao (chỉ để quay lại đúng câu).
+  const go = useCallback((i: number) => {
+    const to = Math.max(0, Math.min(items.length - 1, i));
+    setIndex(to);
+    if (canWrite) void patchIndex(courseId, initial.id, tab, to).catch(() => undefined);
+  }, [items.length, canWrite, courseId, initial.id, tab]);
 
   function choose(it: PItem, v: Ans) {
     const next: Qd = { ...v, ts: Date.now() };
