@@ -17574,7 +17574,7 @@ components:
           type: integer
     StaffSubmission:
       type: object
-      required: [id, item_id, status, verdict, language, source, created_at, compile_ok, compile_log, tests]
+      required: [id, item_id, status, verdict, language, source, created_at, compile_ok, compile_log, tests, tests_stale]
       additionalProperties: false
       properties:
         id:
@@ -17602,6 +17602,9 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StaffTestResult"
+        tests_stale:
+          type: boolean
+          description: Chấm theo bộ test cũ (test đã sửa sau đó, chưa chấm lại).
     StaffResultDetail:
       type: object
       required: [attempt_id, student, status, version, auto_score, score, adjust, submitted_at, submit_reason, items, submissions, appeal]

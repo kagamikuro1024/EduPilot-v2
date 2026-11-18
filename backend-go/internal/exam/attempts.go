@@ -569,7 +569,7 @@ func (s *Service) SubmitAttempt(ctx context.Context, userID, courseID, examID, a
 }
 
 // finish nộp một lượt IN_PROGRESS (dùng chung cho nộp tay và tick): chấm trắc nghiệm ngay bằng các câu đã lưu; bài có câu code → GRADING (hoàn tất ở US-PE-06);
-// bài chỉ trắc nghiệm → GRADED kèm điểm. Câu chưa trả lời tính 0. Phát `exam.attempt_submitted`.
+// bài chỉ trắc nghiệm → GRADED kèm điểm. Câu chưa trả lời tính 0. Phát `exam.attempt_submitted` (và `exam.attempt_graded` khi GRADED ngay).
 func (s *Service) finish(ctx context.Context, q *store.Queries, tx pgx.Tx, e store.Exam, a store.ExamAttempt, reason string, at time.Time) (SubmitView, error) {
 	answered, err := q.AttemptCountsByAnswer(ctx, store.AttemptCountsByAnswerParams{CourseID: a.CourseID, AttemptID: a.ID})
 	if err != nil {
@@ -598,6 +598,11 @@ func (s *Service) finish(ctx context.Context, q *store.Queries, tx pgx.Tx, e sto
 	}
 	if _, err := outbox.Write(ctx, tx, TopicAttemptSubmitted, map[string]any{"exam_id": a.ExamID, "course_id": a.CourseID, "attempt_id": a.ID, "user_id": a.StudentID}); err != nil {
 		return SubmitView{}, fmt.Errorf("exam: outbox: %w", err)
+	}
+	if row.Status == store.AttemptStatusGRADED { // chấm xong ngay (chỉ trắc nghiệm): báo chủ lượt như đường TryFinishGrading
+		if _, err := outbox.Write(ctx, tx, TopicAttemptGraded, map[string]any{"exam_id": a.ExamID, "course_id": a.CourseID, "attempt_id": a.ID, "user_id": a.StudentID}); err != nil {
+			return SubmitView{}, fmt.Errorf("exam: outbox: %w", err)
+		}
 	}
 	return SubmitView{Status: string(row.Status), SubmittedAt: at, Answered: int(answered), Total: len(items)}, nil
 }

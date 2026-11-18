@@ -20,6 +20,18 @@ func IsOutage(err error) bool {
 	return (errors.As(err, &af) && af.outage) || (errors.As(err, &un) && un.Reason == ReasonAllFailed && un.Outage)
 }
 
+// IsBadOutput: mọi nhà cung cấp đã thử trả đầu ra sai định dạng / sai schema. Việc nền coi là lỗi vĩnh viễn, không thử lại (DEF-R8-A1).
+func IsBadOutput(err error) bool {
+	var af *allFailed
+	var un *ErrUnavailable
+	return (errors.As(err, &af) && af.badOutput) || (errors.As(err, &un) && un.Reason == ReasonAllFailed && un.BadOutput)
+}
+
+// unavailable chuyển ErrAllProvidersFailed của runChain thành ErrUnavailable giữ nguyên các cờ.
+func unavailable(err error) *ErrUnavailable {
+	return &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err), BadOutput: IsBadOutput(err)}
+}
+
 // OutageBackoff: OutageDelay + nhiễu 0–⅓ để cả lô không dồn vào cùng một giây.
 func OutageBackoff(base time.Duration) time.Duration {
 	return base + time.Duration(rand.Int64N(int64(base)/3+1)) //nolint:gosec // nhiễu giãn cách, không phải bí mật

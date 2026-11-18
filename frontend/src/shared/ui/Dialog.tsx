@@ -82,12 +82,21 @@ function Overlay({
     }
   };
 
+  const opener = useRef<HTMLElement | null>(null);
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
-    if (open && !d.open) d.showModal();
+    if (open && !d.open) {
+      opener.current = document.activeElement as HTMLElement | null;
+      d.showModal();
+    }
     if (!open && d.open) d.close();
   }, [open]);
+  // Nơi gọi thường gỡ hẳn Drawer / Dialog khi đóng (`{x && <Drawer open …/>}`): <dialog> bị gỡ khỏi cây thì trình duyệt không trả focus, nên tự trả về nút đã mở.
+  useEffect(() => () => {
+    const el = opener.current;
+    if (el?.isConnected && (!document.activeElement || document.activeElement === document.body)) el.focus();
+  }, []);
 
   return (
     <dialog

@@ -376,6 +376,17 @@ func TestExtractInvalidSchema(t *testing.T) {
 	}
 }
 
+// DEF-R8-A1 (TC-P6-03-36): mọi nhà cung cấp trả đầu ra sai schema (gateway báo BadOutput) → EXTRACTION_INVALID, đúng 1 lời gọi; không phải LLM_UNAVAILABLE x3.
+func TestExtractGatewayBadOutput(t *testing.T) {
+	f := &fakeLLM{fn: func(int, context.Context) (json.RawMessage, error) {
+		return nil, &llm.ErrUnavailable{Reason: llm.ReasonAllFailed, BadOutput: true}
+	}}
+	e := newEnv(t, f)
+	_, err := e.run(e.policyDoc("quy-che-lop1.md"), false, 0)
+	require.Equal(t, "EXTRACTION_INVALID", asUserErr(t, err).Code)
+	require.Equal(t, 1, f.count())
+}
+
 // TestExtractFailureKeepsConfirmed — AC7: việc thất bại không đụng bản CONFIRMED.
 func TestExtractFailureKeepsConfirmed(t *testing.T) {
 	f := constLLM(lop1(t))

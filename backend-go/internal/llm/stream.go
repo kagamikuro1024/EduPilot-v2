@@ -58,7 +58,7 @@ func (g *Gateway) Stream(ctx context.Context, r Request) (<-chan Chunk, error) {
 		})
 	if errors.Is(err, ErrAllProvidersFailed) {
 		if c.lane != LaneInteractive {
-			err = &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err)}
+			err = unavailable(err)
 		} else { // chưa phát byte nào: trả câu suy giảm trích nguyên văn
 			resp := degraded(r)
 			c.finish(&resp, nil)

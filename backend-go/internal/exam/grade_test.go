@@ -793,6 +793,24 @@ func TestPublishFlowWorkerKilled(t *testing.T) {
 	require.Zero(t, n, "chạy lại tick: không công bố lần hai")
 }
 
+// TestResultDetailFlagsOldTestsVersion — US-PE-03 AC8 (TC-PE03-33): sửa test sau khi bài đã chấm → bản nộp cũ hiện `tests_stale` (điểm chưa đổi) cho tới khi chấm lại.
+func TestResultDetailFlagsOldTestsVersion(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	m := r.mixExam()
+	sub := m.finish(true, true)
+	m.judged(sub, "WA")
+	m.closeExam()
+	d, err := r.svc.ResultDetail(t.Context(), r.course, m.e.ID, m.v.Attempt.ID, false)
+	require.NoError(t, err)
+	require.Len(t, d.Submissions, 1)
+	require.False(t, d.Submissions[0].TestsStale, "cùng bộ test hiện hành")
+	r.exec(`update code_problems set tests_version = tests_version + 1 where question_id = (select question_id from exam_items where id=$1)`, m.codeI)
+	d, err = r.svc.ResultDetail(t.Context(), r.course, m.e.ID, m.v.Attempt.ID, false)
+	require.NoError(t, err)
+	require.True(t, d.Submissions[0].TestsStale)
+}
+
 // TestResultsHideIntegrityFromTA — US-PE-07 AC4 (chuyển sang PE-08): chi tiết một lượt chỉ kèm `integrity` (sự kiện liêm chính) và bảng điểm chỉ kèm `flags` cho Giảng viên.
 func TestResultsHideIntegrityFromTA(t *testing.T) {
 	t.Parallel()
