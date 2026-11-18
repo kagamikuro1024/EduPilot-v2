@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Ghi /tmp/qc-progress.tsv: nhóm⇥tổng⇥đạt⇥trượt⇥chặn⇥đang_làm. Số thật từ smoke-*.md (dòng sau thắng; N = chưa chạy)."""
 import re,sys,os
-D=os.path.join(os.path.dirname(os.path.abspath(__file__)),"..")
+H=os.path.expanduser("~/Documents")
+DIR={"9":H+"/TA_Agent_qc9sub/docs/regression"}  # smoke 9 do worktree riêng của agent con
+D=H+"/TA_Agent_qc9s/docs/regression"
 UX=["S21","S22","S23","a","a2","b","c","d","f","g","h","i","j","k","l","m","n","o","p","17"]
 def expand(a,b):
     if a=="TC-UX-S21": return ["TC-UX-"+x for x in UX]
@@ -17,7 +19,7 @@ def klass(s):
     return "N"
 def load(f):
     st={}
-    for l in open(os.path.join(D,f"smoke-{f}.md"),encoding="utf8"):
+    for l in open(os.path.join(DIR.get(f,D),f"smoke-{f}.md"),encoding="utf8"):
         m=re.match(r"\| (TC-[^|]+?) \| ([^|]+?) \|",l)
         if not m: continue
         t=m.group(1).strip(); k=klass(m.group(2))
