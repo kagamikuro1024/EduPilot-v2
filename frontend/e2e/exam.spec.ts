@@ -1415,6 +1415,18 @@ test("results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng
   expect(st.scores[0]).toEqual({ score: "8.5", reason: "chấm tay câu 2", version: 3 });
 });
 
+// DEF-R5-09 điểm 3 (TC-PE08-38): ở 390 px bảng điểm không có cột nằm ngoài khung cuộn ngang; chi tiết còn lại ở Drawer.
+test("results (Giảng viên) 390 px: mọi cột của bảng điểm nằm trong khung, không phải cuộn ngang", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await resultsSetup(page, "TEACHER");
+  await page.goto(`/exams/${E_R}/results?course=${C1}`);
+  await expect(page.getByRole("row", { name: /Nguyễn Văn A/ })).toBeVisible();
+  const box = await page.locator("[data-part=virtual-scroll]").evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth }));
+  expect(box.sw).toBeLessThanOrEqual(box.cw);
+  await page.getByRole("row", { name: /Nguyễn Văn A/ }).click();
+  await expect(page.locator("[data-part=result-drawer]").getByText("Nộp lúc")).toBeVisible();
+});
+
 test("results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm", async ({ page }) => {
   await resultsSetup(page, "TA");
   await page.goto(`/exams/${E_R}/results?course=${C1}`);
