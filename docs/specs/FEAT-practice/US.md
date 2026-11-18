@@ -233,7 +233,7 @@ Thứ tự thi công đề xuất (cắt theo `WORKFLOW.md` §6: `GenerateQuesti
 - AC5 (luyện đề không khoá chat). Given sinh viên chỉ đang có lượt luyện `TOPIC` / `MOCK` Then chat **không** bị khoá; thi thử đang làm không làm đổi `GET /me/exam-lock`.
 - AC6 (ghi nhận). Given thi thử When hết giờ Then không có sự kiện nào trong `exam_events` (vì không phải bài thi).
 - AC7 (lộ đáp án qua `explain`). Given lượt `MOCK` chưa nộp When gọi `explain` Then `409 NOT_SUBMITTED`; không có đường nào khác trả giải thích.
-- AC8 (phân quyền chéo lớp). Given sinh viên lớp X (có lượt) Then không đọc câu / trích dẫn của lớp Y; `question_id` của lớp khác trong `answers` → `422 INVALID_QUESTION`.
+- AC8 (phân quyền chéo lớp). Given sinh viên lớp X (có lượt) Then không đọc câu / trích dẫn của lớp Y; `PUT …/answers/{itemId}` nhận câu qua đường dẫn `itemId` chứ không qua thân (thân chỉ có `answer`, `version`, `client_ts`): trường lạ như `question_id` → `422 VALIDATION_FAILED`; `itemId` không thuộc lượt của mình → `404`; `option_ids` không thuộc câu của lượt (kể cả mã đáp án của câu lớp khác) → `422 INVALID_OPTION_ID`; dạng `answer` không hợp loại câu → `422 INVALID_QUESTION`; không trường hợp nào trả dữ liệu của lớp khác (P-11-63).
 
 ### Ngoài phạm vi của story này
 - Giám thị, so mã giống (PE).
