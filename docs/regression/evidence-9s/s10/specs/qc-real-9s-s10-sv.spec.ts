@@ -365,3 +365,64 @@ test("TC-12-11 luồng thi thử 20 câu: tải lại ở câu 8, tắt/bật m�
   verdict(PACE < 1000 || process.env.QC_NOOFF || process.env.QC_NORELOAD ? "DBG-12-11-var" : "TC-12-11", !!m && Number(m[1]) === expected && Number(m[2]) === 20 && String(dbc) === String(expected), `thi thử 20 câu (QC tính tay ${expected}/20): kết quả hiển thị «${m?.[0]}»; DB correct_count ${dbc}; ${log.join("; ")}; chữ kết quả: «${t.replace(/\n/g, " ").slice(0, 120)}»`);
   await ctx.close();
 });
+
+test("TC-06-20 explain lỗi (stub trả 500/429): chữ tại chỗ, phản hồi sẵn có không đổi, làm tiếp + nộp bình thường", async ({ browser, request }) => {
+  test.setTimeout(150_000);
+  const { ctx, page, id } = await pageAs(browser, "sv.kha", 1440);
+  const a = await startVia(request, "sv.kha", id, { mode: "TOPIC", topic: T, count: 5 });
+  const tk = await login(request, "sv.kha");
+  await page.goto(`/practice/${a.id}`); await page.waitForTimeout(1500);
+  const opts = page.getByRole("list", { name: "Các đáp án" }).getByRole("button");
+  await opts.first().click(); await page.getByRole("button", { name: "Kiểm tra" }).click(); await page.waitForTimeout(2000);
+  const before = (await page.locator("main").innerText()).replace(/Giải thích thêm|Thử lại|Chưa giải thích được\./g, "").trim();
+  writeFileSync("/tmp/stub10_mode", "overloaded");
+  await page.getByRole("button", { name: "Giải thích thêm" }).click(); await page.waitForTimeout(3500);
+  const after = await page.locator("main").innerText(); await page.screenshot({ path: `${OUT}/s10-0620.png` });
+  writeFileSync("/tmp/stub10_mode", "ok");
+  const msg = /Chưa giải thích được\./.test(after); const retry = await page.getByRole("button", { name: "Thử lại" }).count();
+  const kept = after.replace(/Giải thích thêm|Thử lại|Chưa giải thích được\./g, "").trim() === before;
+  await page.getByRole("button", { name: /Câu tiếp theo|Câu sau/ }).first().click().catch(() => {}); await page.waitForTimeout(1200);
+  const next = /2\s*\/\s*5/.test(await page.locator("main").innerText());
+  const rs = await call(request, tk, "POST", `/courses/${id}/practice/attempts/${a.id}/submit`, {});
+  verdict("TC-06-20", msg && retry > 0 && kept && next && [200, 201].includes(rs.status), `stub trả 429 (OVERLOADED) cho explain: «Chưa giải thích được.» tại chỗ ${msg} + nút «Thử lại» ×${retry}; phần đúng/sai + giải thích sẵn có không đổi ${kept}; làm tiếp sang câu 2/5 ${next}; submit ${rs.status}`);
+  await ctx.close();
+});
+
+test("TC-03-05 UI: nguồn của câu sinh từ tài liệu ẩn chỉ là chữ, không bấm mở được", async ({ browser, request }) => {
+  test.setTimeout(120_000);
+  const id = sql(`select id from courses where class_code='QD10C'`)[0][0];
+  const { ctx, page } = await pageAs(browser, "sv.kha", 1440, "QD10C");
+  await startVia(request, "sv.kha", id, { mode: "TOPIC", topic: "Mẫu sinh câu", count: 5 }).then(async (a) => {
+    await page.goto(`/practice/${a.id}`); await page.waitForTimeout(1500);
+    await page.getByRole("list", { name: "Các đáp án" }).getByRole("button").first().click(); await page.getByRole("button", { name: "Kiểm tra" }).click(); await page.waitForTimeout(2500);
+    const t = await page.locator("main").innerText(); await page.screenshot({ path: `${OUT}/s10-0305.png` });
+    const links = await page.locator("main a[href*='/library']").count(); const txt = /Nguồn trong tài liệu/.test(t);
+    verdict("TC-03-05", txt && links === 0, `câu sinh từ LECTURE ẩn (visible_to_students=false), sau khi trả lời: chữ «Nguồn trong tài liệu» ${txt}; liên kết tới /library ×${links}; chữ trang: «${t.replace(/\n/g, " ").slice(0, 200)}»`);
+  });
+  await ctx.close();
+});
+
+test("TC-08-11 nhận xét tự luận khi LLM lỗi (stub 500): «Chưa nhận xét được. Thử lại.», bài viết giữ nguyên", async ({ browser, request }) => {
+  test.setTimeout(150_000);
+  const id = sql(`select id from courses where class_code='QD10A'`)[0][0]; const U = "sv.moi";
+  let a: { id: string; items: { id: string; question: { type: string; stem: string } }[] } | null = null; let iid = "";
+  for (const [tp] of sql(`select topic from question_bank where course_id='${id}' and type='ESSAY' and review_status='APPROVED'`)) {
+    for (let k = 0; k < 8 && !iid; k++) { const t = await startVia(request, U, id, { mode: "TOPIC", topic: tp, count: 20 }) as unknown as { id: string; items: { id: string; question: { type: string; stem: string } }[] }; const it = t.items.find((x) => x.question.type === "ESSAY"); if (it) { a = t; iid = it.id; } }
+    if (iid) break;
+  }
+  expect(iid, "không có câu ESSAY").not.toBe("");
+  const { ctx, page } = await pageAs(browser, U, 1440);
+  const tk = await login(request, U); const TXT = "SQL injection là chèn lệnh SQL độc hại vào đầu vào. Cách chống: dùng prepared statement.";
+  await call(request, tk, "PUT", `/courses/${id}/practice/attempts/${a!.id}/answers/${iid}`, { answer: { text: TXT } });
+  await page.goto(`/practice/${a!.id}`); await page.waitForTimeout(1500);
+  // tới câu ESSAY (có thể không phải câu 1)
+  for (let n = 0; n < 25 && (await page.getByRole("button", { name: "Nhận xét" }).count()) === 0; n++) { const nx = page.getByRole("button", { name: /Câu tiếp theo|Câu sau|Kiểm tra/ }).first(); if (!(await nx.count())) break; await page.getByRole("list", { name: "Các đáp án" }).getByRole("button").first().click({ timeout: 1500 }).catch(() => {}); await nx.click().catch(() => {}); await page.waitForTimeout(500); }
+  const has = await page.getByRole("button", { name: "Nhận xét" }).count(); const ta = await page.getByRole("textbox").first().inputValue().catch(() => "");
+  writeFileSync("/tmp/stub10_mode", "error");
+  if (has) await page.getByRole("button", { name: "Nhận xét" }).click(); await page.waitForTimeout(4000);
+  const t = await page.locator("main").innerText(); await page.screenshot({ path: `${OUT}/s10-0811.png` }); writeFileSync("/tmp/stub10_mode", "ok");
+  const r = await call(request, tk, "GET", `/courses/${id}/practice/attempts/${a!.id}`, undefined);
+  const saved = JSON.stringify(r.json).includes("prepared statement"); const msg = /Chưa nhận xét được\./.test(t); const retry = await page.getByRole("button", { name: "Thử lại" }).count();
+  verdict("TC-08-11", has > 0 && msg && retry > 0 && saved, `LLM lỗi: nút Nhận xét ×${has}; chữ «Chưa nhận xét được.» ${msg} + nút «Thử lại» ×${retry}; bài viết trong ô: «${ta.slice(0, 40)}», GET attempt vẫn có bài đã lưu: ${saved}; chữ trang: «${t.replace(/\n/g, " ").slice(-160)}»`);
+  await ctx.close();
+});
