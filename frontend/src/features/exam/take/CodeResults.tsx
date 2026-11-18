@@ -88,7 +88,8 @@ const hhmmss = (iso: string) => new Date(Date.parse(iso) + 7 * 3600_000).toISOSt
 
 /** Dòng trạng thái của một lần nộp (AC10). */
 export function submissionStatus(x: SubmissionView): string {
-  if (pending(x.status)) return "Đang chấm";
+  if (x.status === "QUEUED") return "Đã nhận, đang xếp hàng";
+  if (x.status === "RUNNING") return "Đang chấm";
   if (x.status === "SUPERSEDED") return "Đã được thay bằng lần nộp mới hơn";
   if (x.status === "ERROR") return IE_TEXT;
   if (x.compile_ok === false) return "Lỗi biên dịch";
