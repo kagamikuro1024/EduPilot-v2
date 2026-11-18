@@ -21,3 +21,5 @@ def mk(code, students, nq):
     print(code, cid, "câu:", sql(f"select count(*) from question_bank where course_id='{cid}'")[0][0])
 mk("QD10A", ["sv.kha", "sv.gioi", "sv.nguyco", "sv.moi", "sv31", "sv32", "sv33", "sv34"], 107)
 mk("QD10B", ["sv31"], 12)
+mk("QD10A", ["sv36", "sv37"], 107)   # SV mới chưa có lượt nào (09-05, 09-19)
+mk("QD10C", ["sv36"], 0)             # lớp chưa có câu APPROVED (06-23)

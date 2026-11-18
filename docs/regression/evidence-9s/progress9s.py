@@ -30,7 +30,7 @@ rows=[];
 for f,name in [("9","smoke 9"),("10","smoke 10"),("10.5","smoke 10.5"),("10.6","smoke 10.6")]:
     s=load(f); c={k:sum(1 for v in s.values() if v==k) for k in ("P","F","K","N","LT")}
     rows.append((name,len(s),c["P"],c["F"],0,len(s)-c["P"]-c["F"],0))
-out=["nhóm\ttổng\tđạt\ttrượt\tchặn\tđang_làm"]
+out=["#nhóm\ttổng\tđạt\ttrượt\tchặn\tđang_làm"]
 out.append("sprint 11\t275\t273\t1\t0\t1")
 note=dict(a.split("=",1) for a in sys.argv[1:] if "=" in a)
 for n,t,p,f,k,nn,lt in rows: out.append(f"{n}\t{t}\t{p}\t{f}\t{k}\t{note.get(n.split()[1],nn)}")
