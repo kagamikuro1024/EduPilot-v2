@@ -184,8 +184,8 @@ select id, title from documents
 where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER') and type::text <> 'THREAD_KNOWLEDGE';
 
 -- name: PracticeDocBrief :one
--- Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái.
-select id, type::text as type, status::text as status from documents where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and type::text <> 'THREAD_KNOWLEDGE';
+-- Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái + số trang (trần 60 trang của extract, kiểm trước khi tạo việc).
+select id, type::text as type, status::text as status, page_count from documents where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and type::text <> 'THREAD_KNOWLEDGE';
 
 -- name: PracticeDocChunks :many
 select id, page_no, heading, text from content_chunks

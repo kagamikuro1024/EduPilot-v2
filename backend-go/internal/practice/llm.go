@@ -286,5 +286,10 @@ func (s *Service) feedbackLimit(ctx context.Context, userID uuid.UUID) error {
 
 // jobLimit: ≤ MaxJobsPerHr việc `extract` / `generate` mỗi lớp mỗi giờ (P-10-8 F3, Q-P9-12; kiểm soát chi phí LLM); hạn mức ngày của Scheduler vẫn áp.
 func (s *Service) jobLimit(ctx context.Context, kind string, courseID uuid.UUID) error {
-	return s.hourLimit(ctx, kind, courseID.String(), MaxJobsPerHr)
+	err := s.hourLimit(ctx, kind, courseID.String(), MaxJobsPerHr)
+	var ae *apierr.Error
+	if errors.As(err, &ae) && ae.Status == http.StatusTooManyRequests {
+		return ae.WithDetails(map[string]string{"reason": "jobs"})
+	}
+	return err
 }
