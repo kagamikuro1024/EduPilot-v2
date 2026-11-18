@@ -77,7 +77,7 @@ func BuildMatrix(pool []Candidate, matrix []Cell, h History, seed uint64) (ids [
 		return got
 	}
 	for _, cell := range matrix {
-		need := cell.Count
+		need, borrowed := cell.Count, 0 // borrowed: số câu bù từ chủ đề khác (AC1: mỗi lần bù ghi notes)
 		sameTopic := func(c Candidate) bool { return c.Topic == cell.Topic || cell.Topic == "" }
 		need -= take(need, func(c Candidate) bool {
 			return sameTopic(c) && (cell.Difficulty == "" || c.Difficulty == cell.Difficulty)
@@ -90,11 +90,16 @@ func BuildMatrix(pool []Candidate, matrix []Cell, h History, seed uint64) (ids [
 				})
 			}
 			if need > 0 { // chủ đề khác, cùng độ khó
-				need -= take(need, func(c Candidate) bool { return c.Difficulty == cell.Difficulty })
+				n := take(need, func(c Candidate) bool { return c.Difficulty == cell.Difficulty })
+				need, borrowed = need-n, borrowed+n
 			}
 		}
 		if need > 0 { // P-10-9: cả ngân hàng còn câu thì không cắt ngắn đề
-			need -= take(need, func(Candidate) bool { return true })
+			n := take(need, func(Candidate) bool { return true })
+			need, borrowed = need-n, borrowed+n
+		}
+		if borrowed > 0 {
+			notes = append(notes, fmt.Sprintf("bù %d câu từ chủ đề khác cho ô %s", borrowed, cell.Topic))
 		}
 		if need > 0 && !short[cell.Topic] {
 			short[cell.Topic] = true
