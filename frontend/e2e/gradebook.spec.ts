@@ -199,6 +199,18 @@ test("scheme states: rỗng có Tải quy chế, đang tải có khung xương, 
   await expect(p2.getByRole("heading", { name: "Thành phần" })).toBeVisible();
 });
 
+// DEF-R8-A5 (TC-P6-05-42, US-P6-05 AC8): tài liệu nguồn đã bị xoá (source_document_id rỗng, source_title còn) → trích dẫn hiện «Tài liệu nguồn đã gỡ», không lỗi.
+test("scheme source removed: trích dẫn hiện «Tài liệu nguồn đã gỡ», còn đoạn trích, không có liên kết mở trang", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, context, { draft: null, confirmed: confirmedLop1({ source_document_id: undefined }) });
+  await block(page, "components").getByRole("button", { name: "Trang 1" }).click();
+  const pane = page.locator("[data-part=citation-pane]");
+  await expect(pane).toContainText("Tài liệu nguồn đã gỡ");
+  await expect(pane.locator("mark")).toContainText("Điểm quá trình gồm bài kiểm tra hằng tuần");
+  await expect(pane.getByRole("link")).toHaveCount(0);
+});
+
 test("scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px", async ({ page, context }, info) => {
   desktopOnly(info);
   await page.setViewportSize({ width: 375, height: 812 });
