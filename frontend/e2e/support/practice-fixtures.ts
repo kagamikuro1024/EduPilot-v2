@@ -39,7 +39,7 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
       items: a.items.map((it) => ({
         id: it.id, position: it.position, question: { type: it.type, topic: it.topic, stem: it.stem, options: it.options },
         answer: it.answer,
-        feedback: showFb(it) ? { correct: (it.answer!.answer.option_ids as string[])[0] === it.correct, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [] } : null,
+        feedback: showFb(it) ? { correct: (it.answer!.answer.option_ids as string[])[0] === it.correct, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [{ document_id: "doc-hidden", page: 1 }] } : null,
       })),
       result: closed ? { correct, total: a.items.length, score: ((correct * 10) / a.items.length).toFixed(1), topics: [], weakest_topic: null, expired: a.expired } : null,
     };
@@ -90,7 +90,7 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
       if (it.answer && JSON.stringify(it.answer.answer) !== JSON.stringify(b.answer) && (b.version ?? 0) !== it.answer.version) return route.fulfill(err(409, "VERSION_CONFLICT", { version: it.answer.version })); // như máy chủ thật
       it.answer = { answer: b.answer, version: (it.answer?.version ?? 0) + 1, locked: a.mode === "TOPIC" };
       const ok = (b.answer.option_ids as string[])[0] === it.correct;
-      return route.fulfill(json({ version: it.answer.version, locked: it.answer.locked, feedback: a.mode === "TOPIC" ? { correct: ok, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [] } : null }));
+      return route.fulfill(json({ version: it.answer.version, locked: it.answer.locked, feedback: a.mode === "TOPIC" ? { correct: ok, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [{ document_id: "doc-hidden", page: 1 }] } : null }));
     }
     if (req.method() === "POST" && parts[2] === "submit") {
       a.status = "SUBMITTED";
