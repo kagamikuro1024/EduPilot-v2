@@ -38,3 +38,15 @@ test("đang thi thử: chat riêng không bị khoá", async ({ page, context })
   await page.goto("/chat");
   await expect(composer(page)).toBeEnabled();
 });
+
+// TC-10-09 (DEF-R10S-13): hai chiều trên CÙNG màn /chat — từ chối khi đang có lượt bài thi, mở lại khi bài thi hết giờ (máy chủ báo hết khoá).
+test("chat riêng: khoá khi đang có lượt bài thi, mở lại ở chính màn đó khi hết giờ", async ({ page, context }) => {
+  let locked = true;
+  await context.route("**/api/v1/me/exam-lock", (r) => r.fulfill(json(locked ? { locked: true, until: new Date(Date.now() + 40 * 60_000).toISOString() } : { locked: false })));
+  await chatApi(page);
+  await page.goto("/chat");
+  await expect(composer(page)).toBeDisabled();
+  locked = false; // lượt bài thi hết giờ / đã nộp
+  await page.reload();
+  await expect(composer(page)).toBeEnabled();
+});

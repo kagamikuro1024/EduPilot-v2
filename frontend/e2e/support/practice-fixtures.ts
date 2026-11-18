@@ -24,7 +24,7 @@ function makeItems(n: number, topic: string): Item[] {
 }
 
 /** `h` ghi đè theo khoá "METHOD đuôi" (vd. "PUT answers", "POST submit"); `next()` chạy xử lý mặc định. `now` đặt đồng hồ máy chủ giả (mặc định: giờ thật). */
-export async function practiceApi(page: Page, h: Record<string, Handler> = {}, opts: { mockCount?: number; minutes?: number } = {}) {
+export async function practiceApi(page: Page, h: Record<string, Handler> = {}, opts: { mockCount?: number; topicCount?: number; minutes?: number } = {}) {
   const calls: Call[] = [];
   const attempts = new Map<string, Attempt>();
   let seq = 0;
@@ -67,7 +67,7 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
     if (req.method() === "POST" && parts[0] === "start") {
       const b = JSON.parse(body) as { mode: "TOPIC" | "MOCK"; topic?: string; count?: number; duration_minutes?: number };
       const id = `att-${++seq}`;
-      const n = b.mode === "MOCK" ? (opts.mockCount ?? b.count ?? 20) : Math.min(5, b.count ?? 5);
+      const n = b.mode === "MOCK" ? (opts.mockCount ?? b.count ?? 20) : (opts.topicCount ?? Math.min(5, b.count ?? 5));
       attempts.set(id, { id, mode: b.mode, topic: b.topic ?? null, status: "IN_PROGRESS", started_at: new Date().toISOString(), deadline_at: b.mode === "MOCK" ? new Date(Date.now() + (opts.minutes ?? b.duration_minutes ?? 30) * 60_000).toISOString() : null, items: makeItems(n, b.topic ?? "Thi thử"), current_index: 0, version: 1, expired: false });
       return route.fulfill(json(view(attempts.get(id)!), 201));
     }
