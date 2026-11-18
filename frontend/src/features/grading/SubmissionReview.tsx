@@ -360,7 +360,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
         <button type="button" role="tab" aria-selected={tab === "grade"} onClick={() => setTab("grade")}>Chấm</button>
       </div>
       <Split
-        ratio="half"
+        ratio="review"
         fill
         only={tab === "doc" ? "main" : "aside"}
         main={

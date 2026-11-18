@@ -641,13 +641,26 @@ test("grading ta cannot see publish: TA duyệt được nhưng không có nút 
   await expect(page.getByRole("button", { name: "Duyệt bài" })).toBeEnabled();
 });
 
-test("review two columns: hai nửa bằng nhau, tiêu chí phẳng, Duyệt bài cuối cột", async ({ page, context }, info) => {
+test("review two columns: trái 52–58 % / phải 42–48 %, tiêu chí phẳng, Duyệt bài cuối cột", async ({ page, context }, info) => {
   desktopOnly(info);
-  await page.setViewportSize({ width: 1440, height: 900 });
   await openReview(page, context);
-  const [left, right] = await page.locator("main [data-ep-panel]").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().width));
-  const sum = left + right;
-  expect(Math.abs(left / sum - 0.5)).toBeLessThan(0.02); // Split half: hai nửa bằng nhau (§23.4)
+  const boxes = () => page.locator("main [data-ep-panel]").evaluateAll((es) => es.slice(0, 2).map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width }; }));
+  for (const width of [1440, 1024]) { // ≥ 1.024 px: hai cột 55 / 45 (DESIGN §23.3, P-11-69)
+    await page.setViewportSize({ width, height: 900 });
+    const [l, r] = await boxes();
+    expect(l.y).toBeCloseTo(r.y, 0);
+    const sum = l.w + r.w;
+    expect(l.w / sum, `trái ở ${width} px`).toBeGreaterThanOrEqual(0.52);
+    expect(l.w / sum, `trái ở ${width} px`).toBeLessThanOrEqual(0.58);
+    expect(r.w / sum, `phải ở ${width} px`).toBeGreaterThanOrEqual(0.42);
+    expect(r.w / sum, `phải ở ${width} px`).toBeLessThanOrEqual(0.48);
+  }
+  await page.setViewportSize({ width: 1000, height: 900 }); // < 1.024 px: xếp chồng, bài làm trên, rubric dưới
+  const [top, bottom] = await boxes();
+  expect(bottom.y).toBeGreaterThan(top.y);
+  expect(bottom.x).toBeCloseTo(top.x, 0);
+  await page.setViewportSize({ width: 1440, height: 900 });
+
   await expect(page.locator("[data-part=submission-text]").getByText("Phiên bản 1")).toBeVisible();
   await expect(page.getByRole("button", { name: "Mở tệp gốc" })).toBeVisible();
   await expect(page.locator("[data-part=criterion]")).toHaveCount(4);

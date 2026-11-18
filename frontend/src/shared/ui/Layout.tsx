@@ -219,6 +219,7 @@ export function Toolbar({ children, end, alignEnd }: { children: ReactNode; end?
  * Hai vùng cạnh nhau — chỗ DUY NHẤT trong app được đặt chiều cao theo màn (DESIGN.md §23.3).
  * `main-aside`: chính + bối cảnh 340 px, hai panel thẳng đỉnh, xếp chồng dưới 1100 px.
  * `half`: hai cột bằng nhau, hai panel.
+ * `review`: 55 % / 45 % (màn duyệt bài chấm, DESIGN §14.13: trái 52–58 %, phải 42–48 %).
  * `list-detail`: MỘT panel sát mép, danh sách 380 px + chi tiết; `fill` = cao đúng phần còn lại của màn, hai ngăn cuộn riêng (chỉ khi `filled`: danh sách có dòng;
  * rỗng / lỗi thì panel thấp theo nội dung). Dưới 1100 px chỉ hiện một ngăn: danh sách, hoặc chi tiết khi `detailOpen`.
  */
@@ -233,7 +234,7 @@ export function Split({
 }: {
   main: ReactNode;
   aside: ReactNode;
-  ratio?: "main-aside" | "half" | "list-detail";
+  ratio?: "main-aside" | "half" | "review" | "list-detail";
   /** `list-detail`: cao hết màn (chỉ khi có dòng) */
   fill?: boolean;
   /** `list-detail` dưới 1100 px: hiện ngăn chi tiết thay cho danh sách */
@@ -254,7 +255,7 @@ export function Split({
     );
   }
   return (
-    <div className={[s.split, ratio === "half" ? s.half : ""].join(" ")} data-ep-split={ratio} data-ep-split-fill={fill ? "" : undefined} data-only={only}>
+    <div className={[s.split, ratio === "half" ? s.half : ratio === "review" ? s.review : ""].join(" ")} data-ep-split={ratio} data-ep-split-fill={fill ? "" : undefined} data-only={only}>
       <div className={s.splitMain}>{main}</div>
       <aside className={s.splitAside}>{aside}</aside>
     </div>

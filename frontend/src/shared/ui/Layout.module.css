@@ -35,6 +35,7 @@
 
 .split { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--ep-space-6); align-items: start; }
 .half { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.review { grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); } /* 55 / 45 */
 .splitMain, .splitAside { min-width: 0; }
 /* half + fill: hai panel cao đúng phần còn lại của màn, mỗi panel cuộn riêng (duyệt bài: bài làm | chấm) */
 .split[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 12rem); min-height: 28rem; align-items: stretch; }
@@ -58,14 +59,22 @@
 .dlRow dd { margin: 0; color: var(--ep-ink); font-weight: 500; }
 
 @media (max-width: 1099px) {
-  .split, .half { grid-template-columns: 1fr; gap: var(--ep-space-6); }
-  .splitAside { position: static; }
-  .split[data-ep-split-fill] { height: auto; min-height: 0; } /* xếp chồng: mỗi panel cao theo nội dung */
-  .split[data-ep-split-fill] [data-ep-panel] { overflow-y: visible; }
+  .split:not(.review), .half { grid-template-columns: 1fr; gap: var(--ep-space-6); }
+  .split:not(.review) > .splitAside { position: static; }
+  .split:not(.review)[data-ep-split-fill] { height: auto; min-height: 0; } /* xếp chồng: mỗi panel cao theo nội dung */
+  .split:not(.review)[data-ep-split-fill] [data-ep-panel] { overflow-y: visible; }
   .listDetail { grid-template-columns: 1fr; }
   .listDetail[data-ep-split-fill] { height: calc(100dvh - var(--ep-topbar) - 10rem); }
   .ldList { border-right: 0; }
   .listDetail[data-detail-open] .ldList, .listDetail:not([data-detail-open]) .ldDetail { display: none; }
+}
+
+/* review (duyệt bài, DESIGN §23.3): 55/45 từ 1.024 px, dưới đó xếp chồng (bài làm trên, rubric dưới) */
+@media (max-width: 1023px) {
+  .review { grid-template-columns: 1fr; gap: var(--ep-space-6); }
+  .review > .splitAside { position: static; }
+  .review[data-ep-split-fill] { height: auto; min-height: 0; }
+  .review[data-ep-split-fill] [data-ep-panel] { overflow-y: visible; }
 }
 
 @media (max-width: 719px) {
