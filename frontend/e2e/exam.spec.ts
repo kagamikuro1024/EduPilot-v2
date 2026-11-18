@@ -623,7 +623,7 @@ const TAKE_ITEMS = [
 type CodeSample = { name: string; verdict: string; time_ms: number; memory_kb: number; input?: string; expected?: string; got?: string };
 type CodeOut = { compile_ok: boolean; compile_log?: string; samples: CodeSample[] };
 type CodeSub = { id: string; language: string; source: string; created_at: string; polls: number };
-type CodeState = { drafts: Record<string, { source: string; rev: number; at: string }>; runs: Record<string, { language: string; polls: number }>; subs: CodeSub[]; runOut: CodeOut; subOut: CodeOut; pollsBeforeDone: number; runStatus: number; submitStatus: number };
+type CodeState = { drafts: Record<string, { source: string; rev: number; at: string }>; runs: Record<string, { language: string; polls: number }>; subs: CodeSub[]; runOut: CodeOut; subOut: CodeOut; pollsBeforeDone: number; queuedPolls: number; runStatus: number; submitStatus: number };
 type TakeState = { code: CodeState | null; started: boolean; submitted: null | { at: string; reason: string }; writer: string | null; answers: Record<string, Json>; skewMs: number; durationMs: number; deadline: number; calls: Array<{ m: string; url: string; tab: string | null; key: string | null; body: unknown }>; offlineSave: boolean; graceMs: number; events: Json[]; instructions: string | null };
 function codeItem(c: CodeState) {
   const langs = Object.keys(c.drafts);
@@ -638,7 +638,7 @@ function codeItem(c: CodeState) {
   };
 }
 const newCode = (): CodeState => ({
-  drafts: {}, runs: {}, subs: [], pollsBeforeDone: 1, runStatus: 202, submitStatus: 202,
+  drafts: {}, runs: {}, subs: [], pollsBeforeDone: 1, queuedPolls: 0, runStatus: 202, submitStatus: 202,
   runOut: { compile_ok: true, samples: [{ name: "sample1", verdict: "AC", time_ms: 3, memory_kb: 1024 }] },
   subOut: { compile_ok: true, samples: [{ name: "sample1", verdict: "AC", time_ms: 3, memory_kb: 1024 }] },
 });
@@ -746,7 +746,7 @@ function fakeTake(over: Partial<TakeState> = {}) {
     }
     const subView = (x: CodeSub, full: boolean) => {
       const done = x.polls > c.pollsBeforeDone;
-      return { ...view(x.id, done ? "DONE" : "RUNNING", x.language, x.created_at, c.subOut), is_final: x === c.subs[c.subs.length - 1], ...(full ? { source: x.source } : {}) };
+      return { ...view(x.id, done ? "DONE" : x.polls <= c.queuedPolls ? "QUEUED" : "RUNNING", x.language, x.created_at, c.subOut), is_final: x === c.subs[c.subs.length - 1], ...(full ? { source: x.source } : {}) };
     };
     if (m === "GET" && path.endsWith("/submissions")) {
       c.subs.forEach((x) => x.polls++);
@@ -1117,6 +1117,20 @@ test("take: submission history — Đang chấm → kết quả, nhãn Lần n�
   f.st.code!.submitStatus = 409;
   await page.getByRole("button", { name: "Nộp lời giải" }).click();
   await expect(page.getByText(/Bạn đã nộp đủ số lần cho bài này/)).toBeVisible();
+});
+
+// DEF-R5-06 (TC-PE06-27, US-PE-06 AC8): lần nộp còn trong hàng đợi hiện «Đã nhận, đang xếp hàng», tới lượt mới «Đang chấm».
+test("take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả", async ({ page }) => {
+  const f = await codeSetup(page, {});
+  f.st.code!.queuedPolls = 1;
+  f.st.code!.pollsBeforeDone = 3;
+  await startCode(page);
+  await editor(page).fill("int main(){return 1;}");
+  await page.getByRole("button", { name: "Nộp lời giải" }).click();
+  const row = page.locator("[data-part=submission]").first();
+  await expect(row).toContainText("Đã nhận, đang xếp hàng");
+  await expect(row).toContainText("Đang chấm", { timeout: 10_000 });
+  await expect(row).toContainText("Biên dịch được · 1/1 test mẫu đúng", { timeout: 10_000 });
 });
 
 test("take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ", async ({ page }) => {
