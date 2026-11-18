@@ -337,3 +337,31 @@ test("TC-09-02 + TC-09-05 + TC-09-19 + TC-09-20 lịch sử luyện tập", asyn
   verdict("TC-09-20", nr > 0 && ok, `abort API history: «${te.replace(/\n/g, " ").slice(0, 120)}» nút Thử lại ×${nr}; bấm → tải được ${ok}`);
   await ctx.close();
 });
+
+test("TC-12-11 luồng thi thử 20 câu: tải lại ở câu 8, tắt/bật mạng ở câu 12–14, nộp, kết quả so với đáp án tính tay", async ({ browser, request }) => {
+  test.setTimeout(240_000);
+  const { ctx, page, id } = await pageAs(browser, "sv.gioi", 1440);
+  const a = await mockStart(request, "sv.gioi", id, 20, 30); const PACE = Number(process.env.QC_PACE ?? 1200); const reqs: string[] = [];
+  page.on("response", (r) => { if (/practice\/attempts\/[^/]+\/(answers|submit)/.test(r.url())) reqs.push(`${r.request().method()} ${r.url().split("/").slice(-2).join("/").slice(-14)} ${r.status()}`); });
+  page.on("requestfailed", (r) => { if (/practice\/attempts/.test(r.url())) reqs.push(`FAIL ${r.method()} ${r.failure()?.errorText}`); });
+  await page.goto(`/practice/${a.id}`); await page.waitForTimeout(1500);
+  // đáp án QC tính tay: câu i đúng khi i % 4 !== 0 → 15/20 (phương án đúng của kho QC có chữ «đúng» ở nhãn, sai có chữ «sai»)
+  const want = (i: number) => i % 4 !== 0; let expected = 0; const log: string[] = [];
+  for (let i = 1; i <= 20; i++) {
+    if (i === 12 && !process.env.QC_NOOFF) { reqs.push("##offline"); await ctx.setOffline(true); }
+    const list = page.getByRole("list", { name: "Các đáp án" }).getByRole("button");
+    const texts = await list.allInnerTexts(); const k = texts.findIndex((t) => (want(i) ? /đúng/.test(t) : /sai/.test(t)));
+    expect(k, `câu ${i}: phương án ${want(i) ? "đúng" : "sai"} trong ${JSON.stringify(texts)}`).toBeGreaterThanOrEqual(0);
+    reqs.push(`>>click ${i}`); await list.nth(k).click({ timeout: 8000 }); if (want(i)) expected++;
+    await page.waitForTimeout(PACE);
+    if (i === 8 && !process.env.QC_NORELOAD) { await page.reload(); await page.waitForTimeout(2000); const sel = await page.getByRole("list", { name: "Các đáp án" }).getByRole("button").nth(k).getAttribute("aria-pressed").catch(() => null); const cur = await page.locator("main").innerText(); log.push(`reload@8: còn ở câu 8 ${/Câu 8\b|8\s*\/\s*20/.test(cur)}; lựa chọn giữ ${sel}`); }
+    if (i === 14) { reqs.push("##online"); await ctx.setOffline(false); await page.waitForTimeout(3000); log.push(`online@14: «${(await page.getByRole("status").first().innerText().catch(() => "")).slice(0, 60)}»`); }
+    if (i < 20) await page.getByRole("button", { name: "Câu sau" }).click();
+  }
+  await page.getByRole("button", { name: "Nộp bài" }).first().click(); const dlg = page.getByRole("dialog"); await dlg.getByRole("button", { name: "Nộp bài" }).click(); await page.waitForTimeout(4000);
+  const t = await page.locator("main").innerText(); const m = t.match(/đúng\s+(\d+)\s*\/\s*(\d+)/i); await page.screenshot({ path: `${OUT}/s10-1211-result.png` });
+  const dbc = sql(`select correct_count from practice_attempts where id='${a.id}'`)[0]?.[0];
+  console.log("REQS", PACE, reqs.length, JSON.stringify(reqs));
+  verdict(PACE < 1000 || process.env.QC_NOOFF || process.env.QC_NORELOAD ? "DBG-12-11-var" : "TC-12-11", !!m && Number(m[1]) === expected && Number(m[2]) === 20 && String(dbc) === String(expected), `thi thử 20 câu (QC tính tay ${expected}/20): kết quả hiển thị «${m?.[0]}»; DB correct_count ${dbc}; ${log.join("; ")}; chữ kết quả: «${t.replace(/\n/g, " ").slice(0, 120)}»`);
+  await ctx.close();
+});
