@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 7 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval, bản dựng trên ep-r) · Stack ep-r · Người chạy: qc3 (Qc3S7, chạy lại từ bản ghi qc2 ngày 2026-11-15) · Ngày: 2026-11-18
-Tổng TC: 579 (582 cũ − 2 lỗi thời có nguồn đã xoá) · Đạt: 381 · Trượt: 2 · Chưa chạy N: 196   (P+F+N = 579 = 579)
+Tổng TC: 579 (582 cũ − 2 lỗi thời có nguồn đã xoá) · Đạt: 453 · Trượt: 3 · Chưa chạy N: 123   (P+F+N = 579 = 579)
 
 Quy ước: P = đạt; F = trượt; N = chưa chạy (chạy tới P/F thật, không còn K/T). Ca lỗi thời có nguồn quyết định đã xoá khỏi bảng, xem cuối defects-7.md. Bản ghi mới của qc3 ghi «[qc3 18/11]».
 
@@ -17,15 +17,15 @@ Cách chạy:
 ## Tổng hợp theo US
 | US | TC tổng | P | F | N | Ghi chú |
 |---|---|---|---|---|---|
-| US-P4-01 | 42 | 32 | 0 | 10 |  |
-| US-P4-02 | 31 | 16 | 1 | 14 |  |
-| US-P4-03 | 45 | 30 | 0 | 15 |  |
-| US-P4-04 | 39 | 29 | 0 | 10 |  |
-| US-P4-05 | 53 | 44 | 0 | 9 |  |
-| US-P4-06 | 55 | 48 | 0 | 7 |  |
-| US-P4-07 | 29 | 26 | 0 | 3 |  |
-| US-P5-01 | 36 | 23 | 0 | 13 |  |
-| US-P5-02 | 48 | 13 | 0 | 35 |  |
+| US-P4-01 | 42 | 42 | 0 | 0 |  |
+| US-P4-02 | 31 | 28 | 0 | 3 |  |
+| US-P4-03 | 45 | 39 | 2 | 4 |  |
+| US-P4-04 | 39 | 39 | 0 | 0 |  |
+| US-P4-05 | 53 | 53 | 0 | 0 |  |
+| US-P4-06 | 55 | 51 | 0 | 4 |  |
+| US-P4-07 | 29 | 28 | 0 | 1 |  |
+| US-P5-01 | 36 | 31 | 0 | 5 |  |
+| US-P5-02 | 48 | 22 | 0 | 26 |  |
 | US-P5-03 | 47 | 10 | 0 | 37 |  |
 | US-P5-04 | 37 | 34 | 0 | 3 |  |
 | US-P5-05 | 35 | 26 | 0 | 9 |  |
@@ -54,7 +54,13 @@ Cách chạy:
 | TC-P4-01-15 | P | [qc3 18/11] CRISIS: CRISIS/low=false/deg=false/DONE → không ticket; OTHER_PERSON(email): OTHER_PERSON/low=false/deg=false/DONE → không ticket; OTHER_PERSON(tên trong lớp): OTHER_PERSON/low=false/deg=false/DONE → không ticket; SMALLTALK: SMALLTALK/low=false/deg=false/DONE → không ticket; degraded: provider lỗi (error_rate=1) → tin FAILED, ticket=0 (lần chạy trước); low_confidence=false: PERSONAL_GRADE/EXAM_SCHEDULE/UPCOMING_EVENTS low=false → ticket=0 (TC-14) |
 | TC-P4-01-16 | P | [qc3 18/11] GRADE_FORMULA/low=false/deg=false/DONE; ticket origin=AUTO_NO_FORMULA; câu mẫu="Lớp chưa có công thức điểm chính thức do giảng viên xác nhận." (câu gốc «Điểm cuối kỳ tính thế nào?» được luật gán COURSE_QA — SRS private-chat N2 coi là quy chế chung; dùng «Công thức tính điểm…» đúng GRADE_FORMULA) |
 | TC-P4-01-17 | P | go test ./internal/agent -run TestShouldEscalateTable ok (7 ca con) |
-| TC-P4-01-18 … TC-P4-01-24 (7 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-18 | P | [qc3 18/11] nút «Nhờ giảng viên hỗ trợ» dưới từng tin (1280×800): {"normal":1,"crisis":0,"other":0,"small":0,"failed":0,"cancelled":0,"streaming":0,"auto":0} (mong normal=1, còn lại 0) |
+| TC-P4-01-19 | P | [qc3 18/11] tin low_confidence đã tự mở ticket (ticket tạo ~20 s trước): nút=0, dòng trạng thái=["Đang chờ giảng viên · vừa gửi"] |
+| TC-P4-01-20 | P | [qc3 18/11] tooltip (title)=«Giảng viên sẽ đọc câu hỏi này và câu trả lời của AI»; chữ quanh nút: «Hữu ích / Không hữu ích / Nhờ giảng viên hỗ trợ» (không câu mô tả khác) |
+| TC-P4-01-21 | P | [qc3 18/11] SV có 5 ticket mở, tin AI thứ 6: nút hiện=1, disabled=true, tooltip=«Bạn đang có 5 câu hỏi chờ giảng viên» |
+| TC-P4-01-22 | P | [qc3 18/11] 3 lần click liên tiếp (script, 0 ms giữa các lần): POST /escalate=1; dòng trạng thái hiện sau 2 ms (≤100); «Đang chờ giảng viên · vừa gửi»; DB ticket=1 |
+| TC-P4-01-23 | P | [qc3 18/11] offline→bấm: «Đang gửi…» (DB 0 ticket); online sau 5 s: DB 1 ticket, giao diện «Đang chờ giảng viên · vừa gửi» |
+| TC-P4-01-24 | P | [qc3 18/11] chặn route 500: nút hoàn lại=1, InlineNotice «Chưa gửi được. Thử lại»=1, nút «Thử lại»=1 |
 | TC-P4-01-25 | P | [qc3 18/11] 6th → 409 TICKET_LIMIT_REACHED count=0 |
 | TC-P4-01-26 | P | [qc3 18/11] trước: 5 ticket mở; câu yếu low_confidence=True, ticket=None; log "suppressed" 0→1; câu: Mình chưa tìm thấy nội dung này trong tài liệu của lớp. |
 | TC-P4-01-27 | P | [qc3 18/11] (a) s02 lớp B 201; (b) s05 lớp A 201; (c) answer=200, nhờ tin 6 → 201 |
@@ -62,28 +68,31 @@ Cách chạy:
 | TC-P4-01-29 | P | SV khác 404, TA 403, TCH 403, ADM 403, id lạ 404 |
 | TC-P4-01-30 | P | [qc3 18/11] REMOVED (remove→(200, {'user_id': '01a1ef3e-c3ca-7c35-9e81-2624a950742c', 'status': 'REMOVED', 'previous_status': 'ACTIVE', 'warning': None}), enrol=REMOVED) tin của mình → 403; PENDING gọi tin người khác → 404; ngoài lớp → 404 (spec #15: 403/404/404) |
 | TC-P4-01-31 | P | [qc3 18/11] archive→200; escalate → 409 COURSE_ARCHIVED |
-| TC-P4-01-32 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-01-33 | P | [qc3 18/11] status=[200, 200, 422, 405]; khoá ticket thấy: ['created_at', 'id', 'status']; khoá cấm lộ: [] |
+| TC-P4-01-32 | P | [qc3 18/11] đang thi: escalate → 409 EXAM_IN_PROGRESS details={'until': '2026-11-18T18:03:22Z'}; chat riêng cùng lúc → 409 EXAM_IN_PROGRESS details={'until': '2026-11-18T18:03:22Z'} (cùng mã/trạng thái/thân; đã lên lớp 01a1ef3e) |
+| TC-P4-01-33 | P | [qc3 18/11] SV sv05 (ticket tự mở thật AUTO_NO_FORMULA 01a1f004): GET messages / sessions (2 kiểu query) / me/today / notifications → [200, 200, 200, 200, 200]; khoá của đối tượng ticket: ['created_at', 'id', 'status']; khoá cấm (claimed_by, origin, sla_stage, answered_by) xuất hiện ở bất kỳ đâu: [] |
 | TC-P4-01-34 | P | [qc3 18/11] USER/STREAMING/CRISIS/OTHER_PERSON/SMALLTALK/FAILED → [(422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE')]; ticket=['0', '0', '0', '0', '0', '0'] |
-| TC-P4-01-35 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-35 | P | [qc3 18/11] Redis chết (cửa sổ trước): escalate → 201 vẫn tạo ticket (spec #16/AC12: Redis chết vẫn 201, chuông muộn qua đọc bù — đã kiểm 24); Postgres chết: escalate → 503 SERVICE_UNAVAILABLE retry_after={"code": "SERVICE_UNAVAILABLE", "message": "D\u1ecbch v\u1ee5 t\u1ea1m th\u1eddi kh\u00f4ng kh\u1ea3 d\u1ee5ng. H\u00e3y th\u1eed l\u1ea1i s; có Idempotency-Key → 503; ticket của tin trước/sau=0/0 |
 | TC-P4-01-36 | P | [qc3 18/11] cùng key: 201/200 cùng id, count=1; không Idempotency-Key → 200 (count=1) |
 | TC-P4-01-37 | P | `go test -tags testroutes ./internal/contract/...`: lệnh gốc thiếu tag nên 404 `_test/*`; có tag chỉ 1 test đỏ do 504 DEADLINE (TestNoAnswerLeak, tải máy ~20) — chạy riêng ok 29 s |
 | TC-P4-01-38 | P | 10.000 ticket/50 lớp: list lớp+status → Index Scan escalation_tickets_course_status_idx; theo SV → escalation_tickets_student_idx; SLA → sla_idx; autoclose → autoclose_idx; không Seq Scan escalation_t |
-| TC-P4-01-E1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-E1 | P | [qc3 18/11] hai tab cùng phiên bấm đồng thời: ticket=1; sau làm mới dòng trạng thái tab1=1, tab2=1 |
 | TC-P4-01-E2 | P | [qc3 18/11] xoá phiên→204; GV mở chi tiết → 200; ticket.session_id giữ nguyên=True; keys=['ticket', 'question', 'ai_answer', 'transcript'] |
 | TC-P4-01-E3 | P | [qc3 18/11] tin chứa CANARY-9K3Z đã gửi (st=200); escalate 200; grep log gateway/worker = ['0', '0'] |
 | TC-P4-01-P1 | P | [qc3 18/11] SVB GET messages phiên SVA → 404; GET ticket → 403; danh sách phiên của SVB có ticket SVA=False |
-| TC-P4-02-01 … TC-P4-02-02 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-02-03 | N | go test course/exam/thread/calendar: một gói đỏ lúc máy tải ~20 (chưa xác định gói) — chưa chạy lại riêng từng gói |
+| TC-P4-02-01 | P | [qc3 18/11] grep -rn 'InsertNotification/insert into notifications' backend-go (go+sql) / grep -v 'internal/notify/store/queries/notify.sql' → chỉ còn mã sinh sqlc store/notify.sql.go (sinh từ notify.sql) và các tệp *_test.go; không mã sản phẩm nào khác; go test ./internal/notify (gồm TestNotificationsOnlyViaNotify) ok 4.9s (@1409b04d) |
+| TC-P4-02-02 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-03 | P | [qc3 18/11] go test ./internal/course ok 90.8s; ./internal/exam ok 41.7s; ./internal/thread ok 18.4s; ./internal/calendar ok 8.4s (-count=1, từng gói, @1409b04d; log /tmp/qc3e/go/p402_*.log). Phần «git diff 1518f83.. chỉ #8/#10» chỉ đúng tại thời điểm sprint 7; các sprint sau sửa test hợp lệ nên không dùng làm tiêu chí |
 | TC-P4-02-04 | P | SSE /events của GV nhận khung `notification` (TICKET_NEW) < 1 s sau khi ticket tạo |
 | TC-P4-02-05 | P | [qc3 18/11] 20 lần: nhận 20/20 khung; p50=0.32s p95=0.40s max=0.41s (ms: [176, 178, 335, 142, 193, 239, 73, 166, 304, 351, 399, 309, 346, 357, 409, 339, 383, 308, 340, 402]) |
-| TC-P4-02-06 … TC-P4-02-08 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-06 | P | [qc3 18/11] SV bấm «Nhờ giảng viên hỗ trợ»: chuông GV đổi «3» → «4» sau 565 ms (≤5000), không reload (sự kiện load của trang GV: 0 sau lần mở đầu) |
+| TC-P4-02-07 | P | [qc3 18/11] hai gateway dùng chung Redis/Postgres (gateway-1 qua Caddy, gateway phụ :18090): SSE ở B + escalate trúng A → B nhận khung notification sau 0.39 s (escalate 201); SSE ở A + escalate trúng B (201) → A nhận sau 0.39 s (≤5 s cả hai chiều) |
+| TC-P4-02-08 | P | [qc3 18/11] dừng gateway B khi SSE đang mở (đã nhận 1 khung, Last-Event-ID=1795028346116-0); trong lúc B tắt tạo 3 ticket qua A; nối lại vào A với Last-Event-ID → nhận 3 khung notification ids=['1795028348112-0', '1795028351621-0', '1795028354615-0'], đúng thứ tự, không trùng, không mất (bộ đệm Redis dùng chung, gateway không giữ trạng thái) |
 | TC-P4-02-09 | P | [qc3 18/11] Last-Event-ID=1795016801855-0; 3 ticket sinh cách nhau 3,5 s khi ngắt: nhận 3 khung notification ids=['1795016827861-0', '1795016831851-0', '1795016835355-0'] (đúng thứ tự, không trùng); mọi id > E0; các khung=[None, 'ready', 'notification', 'notification', 'notification'] (lần chạy gộp nhanh trước đó: 2 khung vì n bằng không phát — theo SRS 4.4.3) |
 | TC-P4-02-10 | P | [qc3 18/11] khoá ep:sse:buf:01a1ef53-… tồn tại=1, xoá; nối Last-Event-ID cũ → [(None, None), ('ready', '{"connection_id":"d17f7eb4-f043-4636-bf64-673fe02e2253","server_time":"2026-11-18T15:44:24.980961605Z"}'), ('resync', '{"reason":"buffer_exceeded"}')]; unread API=2 DB=2 |
 | TC-P4-02-11 | P | [qc3 18/11] status=200, khung=[(None, None), ('ready', '{"connection_id":"5ef22bcf-5087-4efa-9f18-b28e1adfb3b2","server_time":"2026-11-18T15:44:52.009890126Z"}'), ('resync', '{"reason":"invalid_last_event_id"}')] |
-| TC-P4-02-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-12 | P | [qc3 18/11] offline 10 s, 3 ticket sinh lúc offline; sau nối lại ≤35 s: chuông có 1 dòng «câu hỏi đang chờ»: «4 câu hỏi đang chờ giảng viên Hộp thư hỗ trợ · vừa xong» (không nhân đôi; mong 1 dòng gộp «4 câu hỏi…» gồm ticket 06); DB chưa đọc: 1/4 câu hỏi đang chờ giảng viên |
 | TC-P4-02-13 | P | TICKET_NEW gộp: «8 câu hỏi đang chờ giảng viên» (một thông báo/lớp) |
-| TC-P4-02-14 | F | [qc3 18/11] F (DEF-R7-02): sau khi số về 0 (dòng tự đã đọc, tiêu đề giữ "1 câu hỏi…"), ticket mới (n=1) không nâng dòng/không chưa đọc/không khung SSE vì so n > leadingInt(title) cũ; xem evidence-7/scripts-r3/p402c_def.txt; (SRS 4.4.3 cũng nói dòng giữ id và đặt read_at=NULL khi số tăng — id KHÁC trong TC là lời văn, không tính) |
+| TC-P4-02-14 | P | [qc3 18/11] ticket1→đã xử lý (dòng tự đọc) → ticket mới: dòng 01a1efc0 (cũ 01a1efc0) read_at=- title="1 câu hỏi đang chờ giảng viên", khung SSE mới=1 (ep-r @1409b04d gồm fix R7-02 e4b82a05) |
 | TC-P4-02-15 | P | [qc3 18/11] xử lý hết → dòng read_at=2026-11-18 15:45:47.241542+00 title=3 câu hỏi đang chờ giảng viên |
 | TC-P4-02-16 | P | [qc3 18/11] số 4→3 sau khi đọc: read_at trước 2026-11-18 15:45:47.241542+00, sau 2026-11-18 15:45:47.241542+00/3 câu hỏi đang chờ giảng viên; khung notification mới=0 |
 | TC-P4-02-17 | P | số trong tiêu đề (8) = count(OPEN) của lớp (8) |
@@ -92,7 +101,11 @@ Cách chạy:
 | TC-P4-02-20 | P | [qc3 18/11] phát lại outbox escalation.created (ticket 01a1ef56): thông báo 1/1 câu hỏi đang chờ giảng viên → 1/1 câu hỏi đang chờ giảng viên; khung SSE mới=0 |
 | TC-P4-02-21 | P | SV đọc thông báo GV → 404; GV đọc → 204; lặp → 204 |
 | TC-P4-02-22 | P | [qc3 18/11] 2 kết nối [200, 200], thứ ba → 429 {"code":"SSE_LIMIT_REACHED","message":"Đã đạt số kết nối thời gian thực tối đa.","trace_id |
-| TC-P4-02-23 … TC-P4-02-27 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-23 | P | [qc3 18/11] 3 tab cùng người dùng (SSE tối đa 2/người; tab 3 rơi về làm mới 30 s): dòng gộp ở tab 3 «5 câu hỏi đang chờ giảng viên» → «6 câu hỏi đang chờ giảng viên» sau 24.7 s (≤30 s), không lỗi trang (0), nhãn chuông «Thông báo, 4 chưa đọc» |
+| TC-P4-02-24 | P | [qc3 18/11] Redis dừng 18 s (cửa sổ khoá toàn cục): tạo 2 ticket → 201/201 (luồng nghiệp vụ không lỗi); GET /notifications → 200; SSE đang mở nhận khung «reconnect upstream_unavailable»; dòng thông báo TICKET_NEW tạo ngay sau khi Redis lên lại (17:46:51, tiêu đề «2 câu hỏi đang chờ giảng viên»); chuông làm mới qua GET /notifications không mất thông báo |
+| TC-P4-02-25 | P | [qc3 18/11] 1280×800, 12 chưa đọc: chấm «9+» (mong 9+); thứ tự (QCN số): ,12,11,10,09,08,07,06,05,04,03,02,01; link rỗng → href «/»; mục có ?course= dẫn tới «/calendar?course=01a1ef3e-d6a7-7c9c-b202-0d77f275c2cc»; sau bấm URL «/calendar» (?course= được tiêu thụ); đánh dấu đã đọc lạc quan: POST /notifications/01a1efed-9070-7c76-a167-18f1a6d70681/read, chấm sau «9+»; toast: 0; (phần tử role=status/alert khác: ["DIV.:Lịch · EduPilot"]) |
+| TC-P4-02-26 | P | [qc3 18/11] 375×812: nút chuông 44×44; 13 mục, chiều cao nhỏ nhất 65 px (≥44); scrollWidth 375 ≤ innerWidth 375; aria-live="polite" ở vùng số chưa đọc |
+| TC-P4-02-27 | P | [qc3 18/11] mở danh sách (mục 3 «01a1efed» top=219.7), đẩy thông báo mới (GV trả lời): mục đầu «Giảng viên đã trả lời câu hỏi của bạn Câu hỏi của bạn · vừa », 14 mục; mục đang đọc top sau=221.1 (lệch 1.5 px, ≤2) |
 | TC-P4-02-28 | P | danh sách chuông 200, 3 mục, unread? keys=['next_cursor', 'unread_count'] |
 | TC-P4-02-29 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-02-E1 | P | [qc3 18/11] link rỗng → 422; link của người khác → 200 {'updated': 0}; chưa đọc của GV 1→1 |
@@ -104,7 +117,7 @@ Cách chạy:
 | TC-P4-03-05 | P | me/tickets GV 200, 15 mục |
 | TC-P4-03-06 | P | TA 200 |
 | TC-P4-03-07 | P | ADMIN/SV me/tickets → 403/403 |
-| TC-P4-03-08 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-08 | P | [qc3 18/11] Bộ chọn lớp → «Tất cả lớp của tôi» (GV qc3t có lớp QC3A/B/C/H), URL /inbox: 14 dòng, mã lớp ở dòng: QC3A=13, QC3B=1; bộ chọn lớp ('Tất cả lớp…') phần tử=1; mẫu: «QC3 qc3s01 / 2 phút / Câu hỏi inbox số 1 QCINB / Đang chờ · QC3A» |
 | TC-P4-03-09 | P | chi tiết → 200 |
 | TC-P4-03-10 | P | GV lớp khác xem ticket → 403 |
 | TC-P4-03-11 | P | SV/ADMIN → 403/403 |
@@ -112,22 +125,29 @@ Cách chạy:
 | TC-P4-03-13 | P | [qc3 18/11] claim → 200; DB CLAIMED/true/true |
 | TC-P4-03-14 | P | claim đồng thời → {'ta': 200, 'teacher': 409} |
 | TC-P4-03-15 | P | người đã nhận bấm lại = 200 |
-| TC-P4-03-16 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-16 | P | [qc3 18/11] teacher và TA cùng bấm «Nhận» (Promise.all): người thua thấy InlineNotice «QC3 qc3t01 đã nhận lúc 01:38.» (ngữ cảnh TA); người thắng có ô trả lời=1; DB: CLAIMED/TEACHER; lưu ý chữ thực «{tên} đã nhận lúc HH:MM.» (TC gốc: «Cô … đã nhận câu này lúc HH:MM» — chữ đã đổi theo spec hiện hành, cùng ý) |
 | TC-P4-03-17 | P | answer → 200 |
-| TC-P4-03-18 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-18 | P | [qc3 18/11] tin trả lời của GV trong /chat của SV: «Giảng viên · QC3 qc3t01 / Đây là câu trả lời của giảng viên QCANS. / Hỏi tiếp / Đã rõ»; nút dưới tin: ["Hỏi tiếp","Đã rõ"] (mong nhãn «Giảng viên · {tên}», không «Trợ lý AI», không Hữu ích / Không hữu ích) |
 | TC-P4-03-19 | P | dismiss OUT_OF_SCOPE → 200 {'ticket': {'id': '01a1df54-2168-70c5-a6c2-b6ad84e6bbca', 'k |
 | TC-P4-03-20 | P | answer lặp cùng key → 200, thân giống=True |
 | TC-P4-03-21 | P | [qc3 18/11] answer không Idempotency-Key → 422 IDEMPOTENCY_KEY_REQUIRED; số tin STAFF_ANSWER 4→4 |
 | TC-P4-03-22 | P | answer body rỗng/4001 → [422, 422] (ticket đã ANSWERED nên 409 cũng hợp lệ) |
 | TC-P4-03-23 | P | [qc3 18/11] answer → 200; ticket.session_id đổi=False; tin STAFF_ANSWER nằm ở phiên «Tin nhắn từ giảng viên/true/01a1ef57-ba4c-70ee-b51c-ecd758ba0d21»; GV đọc ngữ cảnh → 200; Hỏi tiếp → 422 |
-| TC-P4-03-24 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-24 | P | [qc3 18/11] provider=fake (CHAT→QC fake, cửa sổ khoá toàn cục): phiên có tin STAFF_ANSWER + ESCALATION_FOLLOWUP (2 tin intent đó); SV hỏi tiếp một câu thường → payload gửi LLM: 1 lời gọi sinh văn bản, chứa câu hỏi trước của phiên (QCHIST)=True, chứa STAFF_ANSWER (QCSTAFF24)=False, chứa ESCALATION_FOLLOWUP (QCFOLLOW24)=False |
 | TC-P4-03-25 | P | [qc3 18/11] teacher answer ticket TA đã nhận → 409 TICKET_ALREADY_CLAIMED details={"claimed_at": "2026-11-18T15:47:43.815329Z", "claimed_by": {"id": "01a1ef3e-bf94-726c-8f09-d1ab4ed7727c", "full_name":  |
 | TC-P4-03-26 | P | người khác release → 409, chủ release → 200 |
 | TC-P4-03-27 | P | [qc3 18/11] teacher thêm → 200; TA → 409; ticket ANSWERED/true; tin STAFF_ANSWER=2; TICKET_ANSWERED 1→2 |
 | TC-P4-03-28 | P | answer chứa tên/MSSV/email/CCCD người khác → [422, 422, 422] |
 | TC-P4-03-29 | P | [qc3 18/11] MSSV/email/CCCD → [(422, 'PII_IN_ANSWER'), (422, 'PII_IN_ANSWER'), (422, 'PII_IN_ANSWER')] |
 | TC-P4-03-30 | P | answer sạch → 200 |
-| TC-P4-03-31 … TC-P4-03-38 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-31 | P | [qc3 18/11] gõ dở T1 → sang T2 (ô trống=true, gõ nháp riêng) → về T1: «NHAP-T1 đang gõ dở»; tải lại (URL ?ticket= của phiếu đã nhận, bộ lọc mặc định «Đang chờ»: ô trả lời hiện=0; sau chọn lại «Đã nhận»/phiếu): «NHAP-T1 đang gõ dở»; đóng trình duyệt + mở lại (storageState): T1 «NHAP-T1 đang gõ dở», T2 «NHAP-T2 riêng»; chờ ≥2 s giữa các lần gõ |
+| TC-P4-03-32 | P | [qc3 18/11] lỗi 500 khi gửi: nháp giữ «NHAP-T1 đang gõ dở», nút «Gửi trả lời»=1, nút «Gửi lại» (TC gốc «Thử lại»)=1, thông báo role=alert «Có lỗi xảy ra. Dữ liệu của bạn vẫn an toàn…»; request chứa nháp ngoài /answer trước khi gửi: 0 (nháp không ra khỏi máy); bỏ chặn → Thử lại → ticket ANSWERED; khoá nháp ticket còn trong localStorage: 1 |
+| TC-P4-03-33 | F | [qc3 18/11] F (DEF-R7-05, Thấp): 375×812: /inbox danh sách toàn màn hình ✓ (chi tiết ẩn); bấm dòng 6/6 → URL ?ticket=… chi tiết toàn màn hình ✓ (danh sách ẩn); Quay lại → /inbox ✓, bộ lọc «Đang chờ» vẫn chọn ✓, vị trí cuộn trước/sau = 134/134 ✓; NHƯNG «ô trả lời dính đáy» ✗: ô trả lời của phiếu đã nhận nằm cuối nội dung (static, đáy ô y=488 trên viewport 812), không sticky/fixed (RealInbox.module.css và Composer.module.css không có position: sticky/fixed). Ảnh evidence-7/r3/shots/p403-34-composer.png |
+| TC-P4-03-34 | P | [qc3 18/11] vùng chạm: 14 phần tử (bỏ liên kết ẩn «Bỏ qua điều hướng» — hiện khi focus), nhỏ hơn 44 px cao: []; scrollWidth 375/375 (danh sách), 375/375 (sau quay lại) |
+| TC-P4-03-35 | P | [qc3 18/11] 1280×800: danh sách rộng 379 px (kỳ vọng 380), chi tiết 634 px cùng màn hình |
+| TC-P4-03-36 | F | [qc3 18/11] F (DEF-R7-04): J/K chuyển phiếu ✓, «R» focus ô trả lời ✓, gõ «jjkk» trong ô không kích hoạt phím tắt ✓, tooltip nút «Gửi trả lời»=«⌘↵ · Ctrl+↵» ✓; NHƯNG Ctrl+↵ gửi xong KHÔNG sang phiếu kế khi bộ lọc là «Đang chờ» (mặc định): Nhận phiếu eb00db → Ctrl+↵ → ticket ANSWERED, URL vẫn ?ticket=eb00db (lớp QC3G, qc3t5). Với bộ lọc «Tất cả» thì sang phiếu kế đúng (78d7ad→a3acee). Nguyên nhân: onNext tìm phiếu trong rows của bộ lọc hiện tại (RealInbox.tsx), phiếu đã Nhận rời «Đang chờ» ⇒ findIndex=-1. Bằng chứng: evidence-7/r3/ui-p403.log (INFO 36b) |
+| TC-P4-03-37 | P | [qc3 18/11] 3 ticket (1 GV nhận, 1 TA nhận): mục TICKET xuất hiện sau 0.73s (≤5); nội dung [{"id": "TICKET:01a1efc0-6e08-72a9-adbe-983cc3ad402f", "kind": "TICKET", "title": "Câu hỏi chờ giảng viên · lớp QC3G", "reason": "1 câu hỏi đang chờ · 1 câu bạn đã nhận · lâu nhất 0 phút", "urgency": "high", "href": "/inbox?course=01a1efc0-6e08-72a9-adbe-983cc3ad402f", "course": {"id": "01a1efc0-6e08-72a9-adbe-983cc3ad402f", "cl; SV me/today mục TICKET=0; xử lý hết → mục biến sau 1.0220329761505127s (≤60); ticket TA đã nhận không tính vào «đang chờ» của GV (1 đang chờ) |
+| TC-P4-03-38 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-03-39 | P | {'sv08': [403, 403, 403], 'sv09': [403, 403, 403], 'admin': [403, 403, 403], 'ta': [200, 200, 409], 'teacher': [200, 200, 409]} |
 | TC-P4-03-40 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-03-41 | P | [qc3 18/11] feedback → 422 MESSAGE_NOT_RATEABLE; retry → 422 MESSAGE_NOT_RATEABLE; feedback DB=- |
@@ -143,32 +163,35 @@ Cách chạy:
 | TC-P4-04-06 | P | [qc3 18/11] thư A chứa A1=True B2=False; thư B chứa B2=True A1=False; chéo=0 |
 | TC-P4-04-07 | P | khoá payload: answer_message_id,ticket_id |
 | TC-P4-04-08 | P | [qc3 18/11] thân thư nhắc: có /inbox?course=…=True, mã lớp QC3A=True; rò tên/nội dung/MSSV/email=[] |
-| TC-P4-04-09 … TC-P4-04-10 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-09 | P | [qc3 18/11] pause Mailpit → answer (200) → worker đang kẹt gửi (dòng QUEUED/0) → SIGKILL worker (rc 0), unpause, worker tự chạy lại (True): mail_outbox → SENT, Mailpit 1 thư tới qc3s09 (đúng 1), không mất thư [điểm 1: trước khi ghi SENT; trạng thái PROCESSING không có (khoá dòng trong giao dịch)] |
+| TC-P4-04-10 | P | [qc3 18/11] trigger tạm làm bước ghi SENT chậm 12 s; Mailpit đã nhận thư trong khi dòng còn QUEUED → SIGKILL worker → worker lên lại: Mailpit có đúng 1 thư mang Message-ID=<mail_outbox.id@…> (khớp=True, MP_IGNORE_DUPLICATE_IDS), mail_outbox=SENT; trigger đã gỡ |
 | TC-P4-04-11 | P | [qc3 18/11] Mailpit MessageID=01a1ef58-db8e-7efb-9fe2-7b62c84eb2e6@edupilot.local so với mail_outbox.id=01a1ef58-db8e-7efb-9fe2-7b62c84eb2e6: dạng <id@domain MAIL_FROM> |
-| TC-P4-04-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-12 | P | [qc3 18/11] gateway phụ (ep-r-gateway-qc3b :18090) bị SIGKILL khi tạo ticket, 2 lượt × 20 vòng × 5 yêu cầu escalate song song. Lượt 1 (kill sau 20–60 ms, yêu cầu đã xong): 100 × 201, ticket 100 = outbox escalation.created 100, thiếu outbox 0, outbox mồ côi 0. Lượt 2 (trigger tạm pg_sleep 0,4 s sau INSERT ticket trước COMMIT, kill sau 120–270 ms giữa giao dịch): 100 yêu cầu bị cắt, ticket tạo=0, outbox=0 (giao dịch rollback cả ticket lẫn outbox), thiếu outbox 0, mồ côi 0; trigger đã gỡ, gateway-1 không bị đụng |
 | TC-P4-04-13 | P | [qc3 18/11] seed-age 100h + run-job: OPEN/-/stage=1/ws=11-14 18:49; thư tới qc3t=2, qc3ta=5; tiêu đề "Có câu hỏi chờ giảng viên quá 24 giờ làm việc" |
 | TC-P4-04-14 | P | [qc3 18/11] đăng thread 201, bình luận 201; thư thread_reply tới tác giả: 1; thân chứa tiêu đề thread=True, liên kết=True; (nhánh VERIFY/CORRECT của câu trả lời AI: xem TC-P4-04-14b ở nhóm threads) |
 | TC-P4-04-15 | P | [qc3 18/11] bật notify_ticket_by_mail (200); 3 ticket trong ~10 s → 1 thư ticket_new gộp, tiêu đề "Có câu hỏi mới cần giảng viên"; thân: 'Lớp QC3F có 2 câu hỏi đang chờ.\r\n\r\nhttps://localhost/inbox?course=01a1ef56-b61b-74ac-a4b9-223b4d7a26'; khoá cửa sổ TTL=948s |
 | TC-P4-04-16 | P | [qc3 18/11] cửa sổ trượt 15 phút (mốc là giá trị khoá Redis ms; TTL khoá 948 s ≤ 16 phút): ticket đầu → 1 thư; mốc cách 14 m 50 s (dành 9 s cho độ trễ xử lý; 14 m 59 s sát biên bị vượt do độ trễ worker) + ticket → thêm 0 thư; mốc cách 15 m 01 s + ticket → thêm 1 thư (mong 1/0/1) |
-| TC-P4-04-17 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-17 | P | [qc3 18/11] Redis dừng: 2 ticket ở lớp có teacher bật notify_ticket_by_mail (khoá cửa sổ đã xoá): mail_outbox ticket_new SENT, Mailpit +1 thư «Có câu hỏi mới cần giảng viên» sau khi Redis lên lại (25 s); không mất thư (không bỏ) |
 | TC-P4-04-18 | P | [qc3 18/11] 4 thư test: tiêu đề ['Giảng viên đã trả lời câu hỏi của bạn']; chứa tên=[] |
-| TC-P4-04-19 … TC-P4-04-20 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-19 | P | [qc3 18/11] Mailpit mất mạng: dòng mail_outbox theo thời gian [(s, attempts/status/last_error)] = [(0.1, '0/QUEUED/-'), (0.7, '1/QUEUED/smtp_unavailable'), (2.2, '2/QUEUED/smtp_unavailable'), (7.5, '3/QUEUED/smtp_unavailable'), (38.0, '4/DEAD/smtp_unavailable')]; DEAD sau 38.0s; last_error là nhãn (không email/nội dung: dòng vi phạm=0); outbox mail.send dead_at có: 1 |
+| TC-P4-04-20 | P | [qc3 18/11] trong lúc thư lỗi: answer → 200, ticket ANSWERED, SV GET messages phiên → 200 (tin trả lời hiện), chuông TICKET_ANSWERED=4 |
 | TC-P4-04-21 | P | [qc3 18/11] địa chỉ người nhận không hợp lệ → DEAD/1/bad_recipient (DEAD ngay, attempts=1, không thử lại). SMTP 550 thật không dựng được trên Mailpit: lớp lỗi vĩnh viễn 5xx được dev test TestClassify; ở đây dùng bad_recipient |
 | TC-P4-04-22 | P | [qc3 18/11] PUT notify_answer_by_mail=false → 200; sau khi trả lời: thư=0, chuông TICKET_ANSWERED=3 |
 | TC-P4-04-23 | P | [qc3 18/11] teacher mới (notify_ticket_by_mail=mặc định false) nhận ticket → thư mới=0 |
 | TC-P4-04-24 | P | [qc3 18/11] To=[['qc3s13@edupilot.local']]; thư gửi evil@x.vn=0 (client truyền to/cc trong body answer bị bỏ qua) |
 | TC-P4-04-25 | P | [qc3 18/11] thư nhắc lớp QC3A: TEACHER 2, TA 5; ADMIN 0; teacher lớp khác 0 |
-| TC-P4-04-26 … TC-P4-04-27 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-26 | P | [qc3 18/11] /settings: GV {"ticket":1,"answer":0,"tkOn":"false","anOn":null,"mailGroup":true}; TA {"ticket":1,"answer":0,"tkOn":"false","anOn":null,"mailGroup":true}; SV {"ticket":0,"answer":1,"tkOn":null,"anOn":"true","mailGroup":true} (GV/TA: «Mail báo ticket mới» tắt mặc định, không có công tắc của SV; SV: «Mail khi giảng viên trả lời» bật mặc định, không có công tắc ticket) |
+| TC-P4-04-27 | P | [qc3 18/11] bật «Mail báo ticket mới»: aria-checked đổi sau 58 ms (lạc quan, trước khi PUT xong); tắt lại → false; 2 PUT /me/settings, mọi thân có version: true («{"notify_ticket_by_mail":true,"version":1}»); toast/thông báo: [] |
 | TC-P4-04-28 | P | sai version → 409; STUDENT PUT notify_ticket_by_mail → 200 (lưu, không tác dụng) theo kỳ vọng TC |
 | TC-P4-04-29 | P | route chứa "outbox": không có |
 | TC-P4-04-30 | P | [qc3 18/11] log 40 phút qua (gateway/worker) chứa @edupilot.local: ['0', '0']; mẫu: '' |
 | TC-P4-04-31 | P | ADMIN failed-mail → 200 {'items': [{'id': '01a1df2b-7e85-7cdc-9b73-ae2a759fc2df', 'template': 'seed_obse |
 | TC-P4-04-32 | P | GV/TA/SV → [403, 403, 403] |
-| TC-P4-04-33 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-33 | P | [qc3 18/11] ADMIN /observability, GET failed-mail trả danh sách rỗng (page.route; stack có thư DEAD thật từ các ca khác nên không thể rỗng thật): «ệ thống / Thư chưa gửi được / Không có thư lỗi / 7 ngày qua / 24 giờ qua: 746 yêu cầu · p9»; nút trong khối=["24 giờ","7 ngày","Tất cả","Có vấn đề","Thông tin cá nhân","1 giờ","24 giờ","7 ngày","Xem thêm"] |
 | TC-P4-04-34 | P | mail_outbox 100.000 dòng/500 DEAD: EXPLAIN trang đầu + con trỏ dùng mail_outbox_dead_idx, không Seq Scan |
 | TC-P4-04-35 | P | [qc3 18/11] dòng thiếu ticket_id → DEAD/1/payload_invalid; Mailpit thêm thư=0 |
 | TC-P4-04-36 | P | [qc3 18/11] ticket đã xoá/không tồn tại → DEAD/1/ticket_missing (không thử lại: attempts trong nhãn) |
-| TC-P4-04-E1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-E1 | P | [qc3 18/11] Mailpit mất mạng lúc trả lời, nối lại sau ~10 s: tiến trình [(10.1, '3/QUEUED/smtp_unavailable'), (37.9, '3/SENT/-')]; Mailpit nhận 1 thư (đúng 1) |
 | TC-P4-04-E2 | P | [qc3 18/11] SV chưa xác minh email: answer 200; mail_outbox: không có dòng; Mailpit 0 thư (ghi nhận thực tế) |
 | TC-P4-04-P1 | P | [qc3 18/11] mail_outbox escalation_answered tới GV/TA=0; mail ticket tới ADMIN=0 (COURSE_TICKETS_STALLED chỉ thông báo); tiêu đề thư tới admin: [] |
 | TC-P4-05-01 | P | followup → 200 {'ticket': {'id': '01a1df53-c92c-7dbc-8808-d96a6181fbf9', 'status': 'OPEN', 'created_at': '2026-11-1 |
@@ -185,12 +208,12 @@ Cách chạy:
 | TC-P4-05-12 | P | confirm bởi SV khác/GV → [404, 403] |
 | TC-P4-05-13 | P | [qc3 18/11] ANSWERED 8 ngày → CLOSED/AUTO_7D/2026-11-18 15:48:11.655316+00; chạy lại → closed_at giữ nguyên=True; OPEN quá 9 ngày=OPEN, CLAIMED quá 9 ngày=CLAIMED |
 | TC-P4-05-14 | P | [qc3 18/11] ANSWERED 6 ngày + teacher trả lời thêm (200) → chạy autoclose: ANSWERED/true (answered_at đã đặt lại) |
-| TC-P4-05-15 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-05-15 | P | [qc3 18/11] ticket CLOSED/AUTO_7D, SV mở /chat: dòng trạng thái ["Đã đóng"], «Đã đóng» trong trang=true, nút «Hỏi tiếp»=1; (≤30 ngày kể từ đóng: API followup 200 đã kiểm ở 05-15 phần API) |
 | TC-P4-05-16 | P | [qc3 18/11] go test internal/escalation (5 bảng) PASS (go/esc_work.log); stack theo --now (a: waiting_since T2 08:00 → nhắc T3 08:00; b: T6 12:00 → T2 12:00; c: T7 10:00 → T3 00:00; [mốc, stage a/b/c]): [('11-23T11:59', ['0', '0', '0']), ('11-23T12:01', ['0', '1', '0']), ('11-24T00:01', ['0', '1', '1']), ('11-24T07:59', ['0', '1', '1']), ('11-24T08:01', ['1', '1', '1'])] |
 | TC-P4-05-17 | P | worktime_test.go TestWorkingElapsedTable: đủ 9 dòng SRS 9.3 (09→17=8h, T6 16→T2 09=17h, T7→CN=0, T6 23→T2 01=2h, T2 07→08=1h, T2 08→T3 08=24h, T2 17→T3 08=15h, cùng điểm=0, T5 08→T3 sau 17=81h) khớp; |
 | TC-P4-05-18 | P | tick SLA 1 phút (TICKET_SLA_TICK=1m), Chủ nhật nên tuổi ticket tính theo giờ làm việc = 0: dùng seed-age (UPDATE waiting_since vào các ngày làm việc trước): 8 giờ làm việc → stage 0; ~2 ngày → stage 1 |
 | TC-P4-05-19 | P | ticket ≥ 72 giờ làm việc (waiting_since 2026-11-05) → sla_stage=2 sau một tick |
-| TC-P4-05-20 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-05-20 | P | [qc3 18/11] 2 worker chạy song song (ep-r-worker-1 + ep-r-worker-qc3b cùng env/DB/Redis; ticket.sla nhờ khoá leader Redis): 3 ticket lớp QC3E quá hạn (seed-age 100 h) → sau 52 s cả 3 sla_stage=2, sla_stage_at giống hệt nhau (19:07:40 — một lần chạy), thư ticket_reminder +1 cho mỗi người nhận (qc3t3, qc3ta: dedupe_key …:2026111902 ⇒ 1 thư/giờ/lớp; 2 dòng cũ còn lại là của lần chạy trước, giờ khác), TICKET_STALE 2 dòng (hai người nhận), không nhắc đôi; worker phụ đã xoá |
 | TC-P4-05-21 | P | s21 CLAIMED quá hạn: TICKET_STALE cá nhân e7gv=2 (lần 1 + sau bỏ nhận/nhận lại, dedupe theo claimed_at), e7ta=0, thư nhắc cho lớp=0; không thông báo nhóm |
 | TC-P4-05-22 | P | s22a(created_at cũ, waiting_since mới)=stage0; s22b(created_at cũ... waiting_since cũ)=stage1; chỉ ticket waiting_since quá hạn được nhắc |
 | TC-P4-05-23 | P | s23: waiting_since T3 23:00 (73 giờ LV) → sla_stage=2; /me/today e7gv: mục TICKET lớp E7S23 urgency=overdue đứng đầu, reason "2 câu hỏi chờ quá 72 giờ làm việc · lâu nhất 73 giờ" |
@@ -198,7 +221,7 @@ Cách chạy:
 | TC-P4-05-25 | P | s23 (stage 2) nhưng e7gv/e7ta có phiên last_used_at <72h → COURSE_TICKETS_STALLED = 0 (không báo ADMIN) |
 | TC-P4-05-26 | P | sau nhiều tick cùng ngày: 20261113,20261115 (1 thông báo/ngày); lùi ngày liên tiếp: 20261113,20261114,20261115 → tổng 3, mỗi ngày đúng 1 (dedupe_key stalled:<lớp>:<yyyymmdd>) |
 | TC-P4-05-27 | P | UI /chat (1440 & 375) 4 trạng thái: OPEN "Đang chờ giảng viên · vừa gửi"/"· đã gửi 2 phút trước"; CLAIMED "Giảng viên đã nhận · đã chờ 2 phút"; ANSWERED nhãn "Giảng viên · <tên>" + "Hỏi tiếp","Đã rõ"; |
-| TC-P4-05-28 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-05-28 | P | [qc3 18/11] giữ /chat mở 125 s: «Giảng viên đã nhận · đã chờ 6 phút» → «Giảng viên đã nhận · đã chờ 8 phút» (Age đổi); vị trí khối y 368.5 → 368.5, cao 19.2 → 19.2, scrollHeight main 750 → 750 (không nhảy layout) |
 | TC-P4-05-29 | P | me/today SV → 200 keys ['no_course', 'email_verified', 'recommended', 'timeline', 'continue'] |
 | TC-P4-05-30 | P | mở /chat?session=… → mạng có GET …/messages?limit=100 và POST /notifications/read {"link":"/chat?session=<id>"} (mục chuyển đã đọc); GET …/messages riêng (API) 200 không đổi read_at/updated_at của thô |
 | TC-P4-05-31 | P | notifications/read {link} bởi SV → 200 |
@@ -212,15 +235,18 @@ Cách chạy:
 | TC-P4-05-39 | P | SV/ADMIN/GV lớp khác lưu tri thức → [403, 403, 403] |
 | TC-P4-05-40 | P | chunk text (được nhúng) chứa bản đã sửa=True; embedding nạp sau 3.3s; text='true/Câu hỏi: Quy định nộp bài muộn kỳ QCKX9 của lớp là gì?\nTrả lời: ĐÃ SỬA QCKX9: nộp muộn trừ 20% mỗi ngày, tối đa 3 n' |
 | TC-P4-05-41 | P | embedding nạp sau 3.3s (<10s); ep:rag:ver (rỗng→1) tăng; sv22 hỏi trùng đoạn → trả lời trích nguồn "Hỏi đáp đã được giảng viên xác nhận" (TICKET: không có thread_id/liên kết) [1]. Lưu ý: câu hỏi diễn |
-| TC-P4-05-42 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-05-42 | P | [qc3 18/11] Embedding không dừng được qua provider fake (fake.Embed không có error_rate) nên dừng worker (nơi chạy knowledge.sync/nhúng) ~20 s trong cửa sổ khoá toàn cục: lưu tri thức → 201 {saved:true,loaded:false} (vẫn thành công); content_chunks 1 đoạn embedding NULL (1/0 ⇒ không lọt tìm kiếm: go test ./internal/rag TestKnowledgeUnembeddedNotRetrieved PASS); UI inbox: «Chưa nạp vào tri thức / Thử lại / Gỡ»; bấm «Thử lại» → outbox knowledge.sync +1 (4→5, TestKnowledgeRetryRewritesOutbox PASS); worker lên lại → embedding nạp xong 1/1, trạng thái loaded=true («Đã lưu») |
 | TC-P4-05-43 | P | gỡ tri thức → 204, lặp → 204 |
 | TC-P4-05-44 | P | GET library (SV 200; GV 403 vì route của SV), documents, documents/stats, share-sources, /me/today GV+SV: 0 lần lộ tài liệu THREAD_KNOWLEDGE / "Hỏi đáp đã được giảng viên xác nhận"; documents/{id}, li |
 | TC-P4-05-45 | P | sv29 (lớp E7C2) hỏi đúng chuỗi đoạn của lớp 1 → "Mình chưa tìm thấy…", citations=[]; cùng chuỗi ở lớp 1 thì trúng |
 | TC-P4-05-46 | P | PUT escalation_threshold 0.95 → 200, GET lại 0.95; 0.49/0.96 → 422; trả về 0.80. Hiệu lực tin kế tiếp: chat/gen.go threshold() đọc courses.escalation_threshold ở mỗi tin (GetCourse); [stack giả: tool/ |
 | TC-P4-05-47 | P | 0.85 → 200; 0.49/0.96/0.82/abc → [422, 422, 422, 422] |
 | TC-P4-05-48 | P | version cũ → 409; TA/SV/ADMIN → [403, 403, 403] |
-| TC-P4-05-49 | N | slice E ghi F không có triệu chứng (dở dang) — cần chạy lại |
-| TC-P4-05-50 … TC-P4-05-P1 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-05-49 | P | [qc3 18/11] UI /class/settings (GV): khối «Ngưỡng chuyển cho giảng viên / Ít chuyển / Chuyển nhiều / 0,80» (đầu «Ít chuyển», cuối «Chuyển nhiều», không câu mô tả khác — văn bản khối quan sát ở lượt explore); kéo thanh bằng phím 0,80 → 0,95; DB courses.escalation_threshold=0.95; audit_log: {version 3, escalation_threshold 0.80} => {version 4, escalation_threshold 0.95} (giá trị cũ/mới); đã trả lại 0,80 |
+| TC-P4-05-50 | P | [qc3 18/11] 6 ticket quá hạn (seed-age 100 h, stage 0); trigger tạm giữ giao dịch ticket.sla (pg_sleep 20 s trên UPDATE sla_stage) → bắt được job đang ghi sau 36 s → SIGKILL worker: stage cả 6 = 0 (rollback, không nửa vời), thư ticket_reminder tới qc3t2/qc3ta giữ nguyên 1→1 (từ lần chạy trước, không thêm), không dòng outbox/thông báo mới khi stage còn 0; worker tự lên lại, tick kế hoàn tất sau 56 s: stage cả 6 = 2, thư nhắc +1 cho mỗi người nhận (1→2), không nhắc đôi; trigger đã gỡ |
+| TC-P4-05-E1 | P | [qc3 18/11] Redis dừng lúc SV bấm «Đã rõ» (POST /chat/tickets/{id}/confirm) → 200, ticket CLOSED/STUDENT_CONFIRMED trong DB (dữ liệu + outbox ở Postgres; TC gốc ghi 503 — đã thay bằng proposals #16/#22: Redis chết vẫn thành công) |
+| TC-P4-05-E2 | P | [qc3 18/11] trigger tạm làm UPDATE đóng ticket chậm 3 s (DB chậm); run-job ticket.autoclose (3.1 s: ticket.autoclose xong: 1 ticket đã đóng): ticket OPEN quá 9 ngày → OPEN/-/stage=0/ws=11-10 02:01 (không đóng nhầm); ticket ANSWERED 8 ngày → CLOSED/AUTO_7D/stage=0/ws=11-19 02:01; trigger đã gỡ |
+| TC-P4-05-P1 | P | [qc3 18/11] TA lớp khác (r5ta) knowledge/dismiss ticket lớp QC3A → 403/403; GV lớp khác (r5t) knowledge → 403; thông báo COURSE_TICKETS_STALLED: ADMIN 43 dòng, GV/TA QC3 0 dòng (chỉ ADMIN nhận) |
 | TC-P4-06-01 | P | SV báo SPAM → 201 {'reported': True} |
 | TC-P4-06-02 | P | báo lần hai → 409 ALREADY_REPORTED; số dòng=1 |
 | TC-P4-06-03 | P | enum sai/note>200/note với SPAM → [422, 422, 422] |
@@ -264,7 +290,7 @@ Cách chạy:
 | TC-P4-06-41 | P | trước REJECT truy xuất được=True; REJECT→200 (0.4s) knowledge_items=0; sau REJECT truy xuất=False; ep:rag:ver 8→9; SV thấy bài AI bị loại=False |
 | TC-P4-06-42 | P | VERIFY→200; embedding sau 1.6s; ep:rag:ver 5→6; chunk="Câu hỏi: QC-E42 hàm băm Hỏi về hàm băm QCE42 dùng làm gì trong thực tế? Trả lời: Hàm băm Q"; SV hỏi đúng chuỗi → nguồn tri thức=True, có thread_i |
 | TC-P4-06-43 | P | CORRECT 200,200; knowledge_items=1; số đoạn chứa QCE43B=1; sau lần 1: 'true/Câu hỏi: QC-E43b sửa hai lần\nHỏi về chứng chỉ số QCE43B'; sau lần 2: 'true/Câu hỏi: QC-E43b sửa hai lần\nHỏi về chứng chỉ s |
-| TC-P4-06-44 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-06-44 | P | [qc3 18/11] dừng worker (nơi nhúng tri thức; fake.Embed không có error_rate để làm «provider chết») rồi GV VERIFY bài AI: POST /posts/{pid}/verify → 200 VERIFIED (không phụ thuộc nhúng); mục AI_CONFIRM của /courses/{id}/today đếm lại «2 câu trả lời AI chờ xác nhận» → «1 câu trả lời AI chờ xác nhận» sau 56,6 s (≤60 s); đoạn tri thức tạo với embedding NULL (1/0) khi worker tắt, worker lên lại → nạp xong (1/1) |
 | TC-P4-06-45 | P | SV lớp E7C2 hỏi đúng chuỗi → '[]///Mình chưa tìm thấy nội dung này trong tài liệu của lớp.' |
 | TC-P4-06-46 | P | {'sv08': [201, 403], 'ta': [201, 200], 'teacher': [201, 200], 'admin': [403, 403]} |
 | TC-P4-06-47 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
@@ -273,7 +299,9 @@ Cách chạy:
 | TC-P4-06-50 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-06-51 | P | xoá bởi chủ → 204; hide → 404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '861381313558c34 |
 | TC-P4-06-52 | P | SV khác thấy canary: {'list': (200, False), 'list2': (200, False), 'similar': (404, False), 'today': (200, False), 'tget': (404, False), 'queue': (403, False), 'notif': (200, False)}; chủ bài 200; hàn |
-| TC-P4-06-53 … TC-P4-06-E2 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-06-53 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-06-E1 | P | [qc3 18/11] PUT bình luận của mình kèm SĐT → 422 PII_DETECTED; bản lưu vẫn «Bình luận sạch ban đầu của mình QCE1.» (không lưu) |
+| TC-P4-06-E2 | P | [qc3 18/11] xoá bình luận (chủ) → 204; SV khác báo cáo bình luận đã xoá → 404 NOT_FOUND |
 | TC-P4-07-01 | P | 20/20 câu dương → CRISIS; sót: [] |
 | TC-P4-07-02 | P | 17 câu âm: bị bắt nhầm CRISIS: [] |
 | TC-P4-07-03 | P | intent: ['CRISIS', 'SMALLTALK', 'COURSE_QA', 'COURSE_QA'] |
@@ -301,7 +329,8 @@ Cách chạy:
 | TC-P4-07-25 | P | «deadline này làm em muốn chết» → CRISIS (câu hỗ trợ) |
 | TC-P4-07-26 | P | đọc phiên khủng hoảng bởi TA/GV/ADMIN/SV khác → {'ta': 403, 'teacher': 403, 'admin': 403, 'sv09': 404} |
 | TC-P4-07-27 | P | scripts/ui-antipatterns.sh exit=0 |
-| TC-P4-07-E1 … TC-P4-07-E2 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-07-E1 | P | [qc3 18/11] LLM provider chết (fake error_rate=1, error_kind=SERVER) khi SV gửi «Em không muốn sống nữa.»: tin ASSISTANT intent=CRISIS, stream_status=DONE, degraded=false, nội dung câu mẫu «Mình rất tiếc khi nghe điều này. Bạn không phải một mình, hã…»; SSE done không có ticket; không phụ thuộc LLM |
+| TC-P4-07-E2 | P | [qc3 18/11] Redis dừng ~15 s (cửa sổ khoá): chat riêng gửi «Em không muốn sống nữa.» → HTTP 200, SSE token câu mẫu «Mình rất tiếc khi nghe điều này…» + done, tin ASSISTANT CRISIS/DONE (không phụ thuộc Redis); Threads đăng bài chứa câu dương → 503 SERVICE_UNAVAILABLE details.redis=down (hành vi ghi nhận; TC chấp nhận «câu mẫu hoặc 503»; bài không được đăng, lối hỗ trợ ở chat riêng vẫn có) |
 | TC-P5-01-01 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
 | TC-P5-01-02 | P | grep -c ^ALTER TABLE 00013_crm.sql = 1 (class_sessions: attendance_done_at/by, UNIQUE(course_id,id), CHECK); PROGRESS.md dòng 95 "00013 / crm" |
 | TC-P5-01-03 | P | {'status X': '22P02', 'dup unique': '23505', 'fk session other course': '23503', 'fk student not enrolled': '23503', 'PENALTY +': '23514', 'SPEAK -': '23514', 'client_event dup': '23505', 'type X': '2 |
@@ -318,7 +347,7 @@ Cách chạy:
 | TC-P5-01-14 | P | trigger lỗi ở buổi 5 → 500 INTERNAL; số buổi=0; đã gỡ trigger |
 | TC-P5-01-15 | P | PUT buổi → 200 {'session': {'id': '01a1df59-df98-7982-94b4-aac2b49cce36', 'session_no': 11, 'st |
 | TC-P5-01-16 | P | sai version / kết thúc<bắt đầu → [409, 422] |
-| TC-P5-01-17 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-01-17 | P | [qc3 18/11] sửa giờ buổi 1 → 200; GET /calendar ETag đổi sau 0.01s (W/"fPONyz9-jDf5Smrq" → W/"wcwL3btrDVc2PRXz") (≤5s) |
 | TC-P5-01-18 | P | DELETE buổi chưa có điểm danh → 204 |
 | TC-P5-01-19 | P | PUT điểm danh 200; DELETE → 409 SESSION_HAS_ATTENDANCE; PUT sửa → 200 |
 | TC-P5-01-20 | P | buổi bù → 201 {'created': 1, 'first_session_no': 10, 'last_session_no': 10, 'skipped': 0}; PUT topic → 200 |
@@ -326,25 +355,39 @@ Cách chạy:
 | TC-P5-01-22 | P | xoá buổi 5 (và 6) → 204/204; buổi mới → 201 {'created': 1, 'first_session_no': 5, 'last_session_no': 5, 'skipped': 0} (kỳ vọng 5) |
 | TC-P5-01-23 | P | SV 403, ADMIN 403, SV ghi 403, SV ngoài lớp 403; TA dry_run 200 |
 | TC-P5-01-24 | P | PUT buổi lớp 1 qua URL lớp 2 → 404 |
-| TC-P5-01-25 … TC-P5-01-E2 (12 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-01-25 … TC-P5-01-26 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-01-27 | P | [qc3 18/11] COURSE_SETUP QC3H: trước generate «1/4 bước», bước «Tạo lịch buổi học» done=false (Href lịch); sau generate 201 → «2/4 bước xong», steps={'share_code': True, 'policy': False, 'sessions': True, 'documents': False} (tự tick) |
+| TC-P5-01-28 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-01-29 | P | [qc3 18/11] GET /courses/{id}/today (GV qc3t, lớp QC3H): «Điểm danh buổi 105 đang diễn ra · QC3H» urgency=high (không overdue), «Buổi 104 đã kết thúc, chưa điểm danh · QC3H» urgency=overdue (kết thúc 3 giờ trước, ≤24h), href=/attendance?course=…&session=… ; 5 buổi chưa điểm danh → chỉ 3 mục hiện (≤3 mỗi lớp) |
+| TC-P5-01-30 | P | [qc3 18/11] thứ tự kind trong today lớp: ['SESSION_UNMARKED', 'SESSION_UNMARKED', 'JOIN_REQUEST', 'GRADE_SCHEME_UNCONFIRMED', 'COURSE_SETUP'] (SESSION_UNMARKED bậc 12 đứng trước JOIN_REQUEST/GRADE_SCHEME…; EXAM_GRADE_ERROR không có); sau Lưu điểm danh hai buổi → mục biến mất sau 1.0s (≤60) |
+| TC-P5-01-31 | P | [qc3 18/11] SV (me/today) SESSION_UNMARKED=0; ADMIN=0; lớp QC3C ARCHIVED có buổi đang diễn ra: me/today=0, today lớp (200)=0 |
+| TC-P5-01-32 | P | [qc3 18/11] hai generate song song (qc3t teacher + qc3ta TA, khoá Idempotency khác) cùng khoảng 2026-12-29…2027-01-12: TA → 201 created 3 (no 11–13) skipped 2; teacher → 201 created 0 skipped 5 (DUPLICATE, gồm 3 buổi vừa tạo + 2 buổi có sẵn); DB 10→13 (+3 đúng một lần), session_no trùng=0, starts_at trùng=0, không 500 |
+| TC-P5-01-33 … TC-P5-01-34 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-01-E1 | P | [qc3 18/11] dry_run lớp ARCHIVED → 409 COURSE_ARCHIVED (SRS 6.1: 409 COURSE_ARCHIVED) |
+| TC-P5-01-E2 | P | [qc3 18/11] Postgres chết khi generate → 503 SERVICE_UNAVAILABLE; số buổi 19→19 (không buổi nửa vời). Ghi chú E2 nêu Redis/DB: Redis chết → generate không dùng Redis (xem dưới) |
 | TC-P5-02-01 | P | lưới điểm danh → 200; keys=['session', 'students'] |
-| TC-P5-02-02 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-02 | P | [qc3 18/11] lưới lớp QC3H (32 SV ghi danh: 30 ACTIVE, qc3s31 PENDING, qc3s32 REMOVED): 30 hàng; PENDING trong lưới=False, REMOVED trong lưới=False |
 | TC-P5-02-03 | P | buổi lớp 1 qua URL lớp 2 → 404 |
 | TC-P5-02-04 | P | PUT 7 hàng → 200; DB 7/1 |
 | TC-P5-02-05 | P | PUT lại y hệt → 200; DB 7/1 (không đổi version) |
-| TC-P5-02-06 … TC-P5-02-07 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-06 | P | [qc3 18/11] PUT 30 hàng (29 giữ nguyên + 1 đổi PRESENT→ABSENT) → 200; chỉ hàng đổi tăng version: 1 hàng, đúng hàng đổi=True (v1→v2); audit mới nhất: save/{"counts": {"LATE": 1, "ABSENT": 1, "PRESENT": 28}, "changes": [{"to": "ABSENT", "from": "PRESENT", "student_id": "01a1ef3e-bfce-7824-8114-4f92136f9ccc"}]} |
+| TC-P5-02-07 | P | [qc3 18/11] PUT 30 hàng thật đổi ~20% hàng ×20 lần (đo riêng PUT): p50=6 ms p95=13 ms max=13 ms (≤500 ms) |
 | TC-P5-02-08 | P | T2 PUT với version cũ → 409 VERSION_CONFLICT |
-| TC-P5-02-09 … TC-P5-02-10 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-09 | P | [qc3 18/11] T1 đổi hàng X → LATE (200); T2 (TA, version cũ 2) gửi hàng X đúng giá trị DB hiện tại (LATE) → 200 (không 409) |
+| TC-P5-02-10 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-11 | P | ngoài lớp/trùng/status X/note 201 → [422, 422, 422, 422] |
-| TC-P5-02-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-12 | P | [qc3 18/11] Postgres chết giữa PUT lưới → 503 SERVICE_UNAVAILABLE; attendance_records trước/sau bật lại: 30/438/f23431252ce5360ae65e36b318100dcf → 30/438/f23431252ce5360ae65e36b318100dcf |
 | TC-P5-02-13 | P | complete:true → 200; true/01a1df27-5bfd-746a-acbf-411de5ffccb2 |
-| TC-P5-02-14 … TC-P5-02-26 (13 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-14 | P | [qc3 18/11] complete → 200; sửa 1 hàng sau complete (PRESENT→EXCUSED) → 200; done_at giữ nguyên=True; audit: edit_after_complete/{"counts": {"ABSENT": 6, "PRESENT": 24}}/{"counts": {"ABSENT": 6, "EXCUSED": 1, "PRESENT": 23}, "changes": [{"to": "EXCUSED", "from": "PRESENT", "student_id": "01a1ef3e-c06c-7d87-b88e-c780bf902a24"}]} |
+| TC-P5-02-15 | P | [qc3 18/11] PUT complete:false ×43 lần → attendance_done_at IS NULL=t |
+| TC-P5-02-16 … TC-P5-02-26 (11 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-27 | P | POST phát biểu → 201; lặp client_event_id → 200; số dòng=1 |
 | TC-P5-02-28 | P | SV/ADMIN/SV ngoài lớp → [403, 403, 422] |
 | TC-P5-02-29 … TC-P5-02-37 (9 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-38 | P | sv.kha (DB: vắng 1): Hiện tại bạn đã vắng 1 buổi học. |
 | TC-P5-02-39 | P | sv.gioi (DB vắng 0) hỏi cùng câu → «chưa vắng buổi nào (0)»; mỗi SV nhận số của chính mình |
-| TC-P5-02-40 … TC-P5-02-41 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-40 | P | [qc3 18/11] lớp QC3A (chưa buổi/điểm danh): «Hệ thống chưa có dữ liệu điểm danh của bạn.»; llm_audit 4399→4399 (0 lời gọi LLM) |
+| TC-P5-02-41 | P | [qc3 18/11] hỏi hộ bạn qc3s02 → «Mình chỉ xem được dữ liệu của chính bạn.»; hỏi của mình → «Bạn đã nghỉ 1 buổi.»; grep CANARY-NOTE-9 trong phản hồi/SSE = False (ghi chú đã lưu: PUT 200, DB note=CANARY-NOTE-9 lý do riêng) |
 | TC-P5-02-42 | P | {'sv08': [403, 403], 'admin': [403, 403], 'sv.moi': [403, 403], 'ta': [200, 200]} |
 | TC-P5-02-43 | P | TA xoá sự kiện của GV → 403 |
 | TC-P5-02-44 … TC-P5-02-E2 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
@@ -502,4 +545,4 @@ Cách chạy:
 | TC-26 | P | Commit US-CI-02 (089d239d) chỉ đổi .github/workflows/ci.yml; vòng 2/3 (d49c41a4, e5f6390b) ci.yml + handoff (test Go sửa theo PM #19 ở commit riêng). playwright.config.ts không đổi 1518f83..be0c0d96; |
 | TC-27 … TC-E4 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 
-HANDOFF qc3 (Qc3S7, 18/11/2026 ~23:00): còn N = 196 / 579 (P 381, F 2: TC-20 = DEF-R7-01, TC-P4-02-14 = DEF-R7-02). Đã xong: US-P4-01 (32/42), P4-02 API+SSE (UI chuông 06/12/23/25/26/27, 07/08 hai gateway, 24 Redis chết, 01/02/03/29 còn N), P4-03 API, P4-04 mail API (còn 09/10/12/17/19/20/E1 cần khoá toàn cục: tạm dừng Mailpit/worker, 26/27/33 UI), P4-05 API (còn 20, 28, 42, 49, 50, E1/E2/P1, TC-15 phần UI). Chưa đụng: P4-06/07, P5-01…06 (phần N), SEED-11/16/22/23/25, CI TC-08/16–19/22/E1–E4/27. Dữ liệu QC3 trên ep-r: người dùng qc3t, qc3t2…qc3t4 (TEACHER), qc3ta (TA), qc3s01…qc3s30 (SV), lớp QC3A (qc3t), QC3B, QC3C (đã ARCHIVED), QC3D (qc3t2), QC3E (qc3t3), QC3F (qc3t4); id lớp ở scripts-r3/c7.json; phiên UI s26 ở /tmp/qc3e/fx_ui1.json. Script: evidence-7/scripts-r3/ (lib3.py, p401*.py…p405*.py, build_r3.py dựng lại bảng từ master7.json, specs/*.ts + pw.config.ts chạy bằng NODE_PATH=…/TA_Agent_qc2/frontend/node_modules npx playwright test -c pw.config.ts). Việc kế: UI Playwright P4-01 (18–24, E1; DOM: nút data-part=ask-staff, trạng thái data-part=ticket-status), nhóm cần khoá (Redis/Mailpit/worker/Postgres), P4-06/07, P5-*.
+HANDOFF qc3 (Qc3S7, 19/11/2026 ~02:30, ep-r @1409b04d): còn N = 123 / 579 (P 454…xem header; F: TC-20 (DEF-R7-01), TC-P4-03-33 (DEF-R7-05), TC-P4-03-36 (DEF-R7-04); DEF-R7-02 đã sửa, TC-P4-02-14 = P). Còn N theo nhóm: TC-P4-02: 02 18 29; TC-P4-03: 04 38 40 42; TC-P4-06: 34 47 50 53; TC-P4-07: 15; TC-P5-01: 25 26 28 33 34; TC-P5-02: 10 16 17 18 19 20 21 22 23 24 25 26 29 30 31 32 33 34 35 36 37 44 45 46 E1 E2; TC-P5-03: 02 03 04 06 07 08 09 10 11 12 13 15 16 17 18 20 21 22 23 24 25 28 29 31 32 33 34 36 37 40 41 42 43 44 E1 E2 P1; TC-P5-04: 09 E1 P1; TC-P5-05: 03 12 14 15 20 30 31 E1 P1; TC-P5-06: 07 08 09 10 14 15 16 17 18 22 23 24 25 E1 E2; TC-S7-SEED: 11 16 22 23 25; CI: TC-08 TC-16 TC-17 TC-18 TC-19 TC-22 TC-27 TC-E1 TC-E2 TC-E3 TC-E4. Việc kế: Threads UI P4-06 (34/47/50/53; menu «Tuỳ chọn bài», form báo cáo, ConfirmIrreversible) + P4-07-15 (hộp khủng hoảng /threads), P4-02-02/P4-03-04 (cần log_statement ở cửa sổ khoá + 1.000 SV/ticket), P4-02-18/29, P4-03-40/42 và P4-02-29 (CI log run 44343596969 @777bb5e2 success, `gh run view`), toàn bộ P5-01/02/03/04/05/06 phần N (Playwright: calendar, /attendance, /me, /students, /settings; heartbeat/Redis cho P5-03), SEED-11/16/22/23/25, CI-08/16-19/22/27/E1-E4 (gh đọc log; không push). Dữ liệu QC3 trên ep-r: người dùng qc3t, qc3t2…qc3t6 (GV), qc3ta (TA), qc3s01…qc3s40 (SV, qc3s18/20 đã bị gỡ khỏi QC3A, qc3s38-40 chưa ack tracking), lớp QC3A…QC3I (id ở scripts-r3/c7.json; QC3C ARCHIVED, QC3H 30 SV + buổi 101–110). Container phụ đang chạy: ep-r-gateway-qc3b (cổng 18090) — cần `docker rm -f ep-r-gateway-qc3b` khi xong. Script: evidence-7/scripts-r3/ (lib3.py, p40*.py, w_*.py cửa sổ khoá, specs/*.ts + pw.config.ts, build_r3.py dựng lại bảng từ master7.json, ingest.py nạp log UI).

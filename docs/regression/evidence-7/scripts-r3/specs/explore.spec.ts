@@ -1,21 +1,12 @@
 import { test } from "@playwright/test";
-import { login, go, FX, log } from "./lib";
-test("explore chat", async ({ page }) => {
-  const fx = FX("fx_ui1");
-  await login(page, "qc3s26");
-  await go(page, `/chat?session=${fx.sid}`);
-  const out = await page.evaluate(() => {
-    const markers = ["NORMAL","CRISIS","OTHER","SMALL","FAILED","CANCELLED","STREAMING","AUTO"];
-    const res: any = {};
-    for (const m of markers) {
-      const els = Array.from(document.querySelectorAll("main *")).filter((e) => e.children.length === 0 && (e.textContent ?? "").includes("QCUI-" + m));
-      if (!els.length) { res[m] = "not-rendered"; continue; }
-      let node: Element = els[0];
-      while (node.parentElement) { const p = node.parentElement; const c = markers.filter((x) => (p as HTMLElement).innerText.includes("QCUI-" + x)).length; if (c > 1) break; node = p; }
-      res[m] = { ask: node.querySelectorAll("[data-part=ask-staff]").length, status: node.querySelectorAll("[data-part=ticket-status]").length, text: (node as HTMLElement).innerText.slice(0, 120) };
-    }
-    return res;
-  });
-  log("explore", JSON.stringify(out, null, 1));
-  log("explore", "MSG TEXT=" + (await page.locator("main").innerText()).slice(0, 1500));
+import { go, FX, shot, log, newUser } from "./lib";
+test("explore threads", async ({ browser }) => {
+  const f = FX("fx_ui7");
+  for (const [u, path] of [["qc3s24", `/threads/${f.th}?course=${f.A}`], ["qc3s26", `/threads/${f.th2}?course=${f.A}`], ["qc3t", `/threads/${f.th2}?course=${f.A}`], ["qc3s26", `/threads?course=${f.A}`]] as const) {
+    const { ctx, page } = await newUser(browser, u); await go(page, path); await page.waitForTimeout(1500);
+    const txt = (await page.locator("main").innerText()).replace(/\n+/g, " | ").slice(0, 1200);
+    const menus = await page.locator('button[aria-label="Tuỳ chọn bài"]').count();
+    log("explore", `== ${u} ${path.slice(0, 60)}\n${txt}\nMENUS=${menus}`);
+    await shot(page, `explore-thr-${u}`); await ctx.close();
+  }
 });

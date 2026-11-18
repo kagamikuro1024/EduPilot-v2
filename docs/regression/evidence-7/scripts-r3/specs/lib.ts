@@ -32,3 +32,9 @@ export const shot = (page: Page, name: string) => page.screenshot({ path: `${EV}
 export const psql = (sql: string) => execFileSync("docker", ["exec", "ep-r-postgres-1", "psql", "-U", "edupilot", "-d", "edupilot", "-At", "-c", sql], { encoding: "utf8" }).trim();
 export const FX = (n: string) => JSON.parse(readFileSync(`/tmp/qc3e/${n}.json`, "utf8"));
 export { expect };
+
+import type { Browser } from "@playwright/test";
+export async function newUser(browser: Browser, user: string, vp = { width: 1280, height: 800 }) {
+  const ctx = await browser.newContext({ ignoreHTTPSErrors: true, baseURL: "https://localhost:1143", viewport: vp, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" });
+  const page = await ctx.newPage(); await login(page, user); return { ctx, page };
+}

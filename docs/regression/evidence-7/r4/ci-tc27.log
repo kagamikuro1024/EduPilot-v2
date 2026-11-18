@@ -1,0 +1,52 @@
+# TC-27: git diff 1518f83 HEAD(1409b04d) -- .github | grep + lines
+1409b04d Merge remote-tracking branch 'origin/sprint/11-p10-eval' into HEAD
++      - uses: actions/checkout@v7
++      - uses: actions/setup-go@v7
++        uses: actions/cache/restore@v5
++        uses: actions/cache/restore@v5
++        uses: actions/cache/save@v5
++      - uses: actions/checkout@v7
++      - uses: actions/setup-go@v7
+--- permissions trong ci.yml HEAD:
+14:permissions:
+15:  contents: read
+--- mọi uses: trong .github (HEAD):
+      1 101:        uses: sqlc-dev/setup-sqlc@v5
+      1 10:    - uses: pnpm/action-setup@v6
+      1 11:    - uses: actions/setup-node@v7
+      1 129:      - uses: actions/checkout@v7
+      1 130:      - uses: actions/setup-go@v7
+      1 140:        uses: actions/cache/restore@v5
+      1 146:        uses: actions/cache/restore@v5
+      1 184:        uses: actions/cache/save@v5
+      1 206:      - uses: actions/checkout@v7
+      1 207:      - uses: actions/setup-go@v7
+      1 20:      uses: actions/cache@v5
+      1 230:      - uses: actions/checkout@v7
+      1 231:      - uses: actions/setup-go@v7
+      1 240:      - uses: actions/cache/restore@v5
+      1 244:      - uses: actions/cache/restore@v5
+      1 263:      - uses: actions/checkout@v7
+      1 264:      - uses: ./.github/actions/fe-setup
+      1 26:      - uses: actions/checkout@v7
+      1 291:      - uses: actions/checkout@v7
+      1 292:      - uses: ./.github/actions/fe-setup
+      1 304:        uses: actions/upload-artifact@v5
+      1 329:      - uses: actions/checkout@v7
+      1 330:      - uses: ./.github/actions/fe-setup
+      1 368:        uses: actions/upload-artifact@v5
+      1 50:      - uses: actions/checkout@v7
+      1 51:      - uses: actions/setup-go@v7
+      1 61:        uses: actions/cache@v5
+      1 67:        uses: actions/cache@v5
+      1 90:        uses: golangci/golangci-lint-action@v9
+      1 95:        uses: golangci/golangci-lint-action@v9
+--- uses: đã có ở 1518f83:
+uses: ./.github/actions/fe-setup
+uses: actions/cache/restore@v5
+uses: actions/cache@v5
+uses: actions/checkout@v7
+uses: actions/setup-go@v7
+uses: actions/upload-artifact@v5
+uses: golangci/golangci-lint-action@v9
+uses: sqlc-dev/setup-sqlc@v5

@@ -15,6 +15,21 @@
 - Kỳ vọng (US AC5 / SRS 4.4.3): ticket mới ⇒ dòng chưa đọc (nâng lên, phát SSE `notification`). Thực tế: dòng vẫn đã đọc, tiêu đề giữ «1 câu hỏi…», 0 khung SSE; GV không được báo cho tới khi số chờ vượt số cũ.
 - Nguyên nhân (đọc mã): nhánh `n == 0` chỉ `NotifyAggMarkRead`, giữ nguyên tiêu đề; lần sau `case n > leadingInt(cur.Title)` so với số cũ nên n ≤ số cũ thì bị bỏ qua. Cùng cơ chế cho mọi loại gộp (AI_PENDING, POST_REPORTED, TICKET_STALE).
 - Bằng chứng: `evidence-7/scripts-r3/p402c_def.txt`, `p402c.py`
+- **ĐÃ SỬA (e4b82a05, ep-r @1409b04d):** chạy lại TC-P4-02-14 ngày 19/11: ticket → xử lý hết (dòng tự đọc «0 câu hỏi…») → ticket mới ⇒ cùng dòng được nâng «1 câu hỏi đang chờ giảng viên», chưa đọc, 1 khung SSE ⇒ P.
+
+### DEF-R7-04 — Ctrl+↵ gửi trả lời không sang phiếu kế khi bộ lọc là «Đang chờ»
+- Mức: Thấp
+- Sprint gốc: 7 · TC gốc: TC-P4-03-36 (US-P4-03 AC11) · Hồi quy do sprint sau?: chưa xác định (RealInbox.tsx)
+- Bước tái hiện: lớp QC3G, GV qc3t5, `/inbox` (bộ lọc mặc định «Đang chờ») → chọn phiếu đầu → «Nhận» → gõ trả lời → Ctrl+↵.
+- Kỳ vọng: gửi rồi sang phiếu kế. Thực tế: ticket ANSWERED nhưng URL vẫn `?ticket=` của phiếu cũ. Với bộ lọc «Tất cả» thì sang phiếu kế đúng. Nguyên nhân (đọc mã): `onNext` tìm phiếu trong `rows` của bộ lọc hiện tại; phiếu đã Nhận rời «Đang chờ» ⇒ findIndex=-1.
+- Bằng chứng: `evidence-7/r3/ui-p403.log` (dòng INFO 36b), `scripts-r3/specs/inbox-p403.spec.ts`
+- Quan sát kèm (chưa lập thành lỗi): mở thẳng `/inbox?ticket=<phiếu CLAIMED/ANSWERED>` khi bộ lọc mặc định «Đang chờ» hiện «Chọn một câu hỏi để xem» (khung chi tiết trống).
+
+### DEF-R7-05 — Ô trả lời của hộp thư không «dính đáy» ở 375 px
+- Mức: Thấp
+- Sprint gốc: 7 · TC gốc: TC-P4-03-33 (US-P4-03 AC10, SRS 7: «ô trả lời dính đáy») · Hồi quy do sprint sau?: KHÔNG (chưa từng có position: sticky/fixed trong `RealInbox.module.css`, `Composer.module.css`)
+- Bước tái hiện: 375×812, GV mở phiếu đã nhận → ô trả lời nằm cuối nội dung (đáy y=488 trên viewport 812), không bám đáy màn hình. Phần còn lại của AC10 (danh sách/chi tiết toàn màn hình, ?ticket=, Quay lại giữ bộ lọc+cuộn, vùng chạm ≥44 px, không tràn ngang) đạt.
+- Bằng chứng: `evidence-7/r3/shots/p403-34-composer.png`, `ui-p403.log`
 
 ## Ca lỗi thời có nguồn quyết định (xoá khỏi smoke-7.md và khỏi tổng; qc3 18/11/2026)
 - TC-P5-06-19 (US-P5-06 AC8: giảng viên/TA/ADMIN mở `/me` «được chuyển về `/`») — thay bằng màn chặn chung «Bạn không có quyền xem màn này» + nút Về Hôm nay: `docs/sprints/7/proposals.md` #34 (PM ACCEPTED 2026-10-15).

@@ -24,6 +24,31 @@
 - Kỳ vọng / Thực tế: SRS FEAT-private-chat-pii 472 "Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau {HH:mm}." / hiện "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." (e2e threads.spec.ts:180 cũng khẳng định chữ chat).
 - Nghi ngờ mã: frontend/src/features/threads/RealThreads.tsx:186
 
+### DEF-R6-U1 — Chữ «Tìm hiểu» của chat riêng khác SRS
+- Mức: Thấp · TC: TC-P3-05-35 · Sprint gốc: 6 · Hồi quy do sprint sau?: KHÔNG RÕ
+- Bước tái hiện: SV mở /chat, mở «Tìm hiểu» về việc che thông tin.
+- Kỳ vọng (SRS FEAT-private-chat-pii / TC): «Tên, mã số sinh viên, email và số điện thoại được thay bằng ký hiệu trước khi gửi cho AI, rồi hiện lại cho bạn.» · Thực tế: «Tên, MSSV, email, số điện thoại được thay bằng ký hiệu trước khi gửi cho AI và khôi phục khi hiển thị cho bạn.»
+- Nghi ngờ mã: frontend/src/features/chat/RealChat.tsx:416
+### DEF-R6-U2 — Tiêu đề hộp thoại PII ở Threads khác SRS
+- Mức: Thấp · TC: TC-P3-06-09 · Kỳ vọng «Bài viết có thông tin cá nhân» · Thực tế «Bài này có thông tin cá nhân» · Nghi ngờ mã: frontend/src/features/threads/PIIChannelDialog.tsx:33
+### DEF-R6-U3 — Nút đăng lại khi mất mạng ở Threads khác SRS
+- Mức: Thấp · TC: TC-P3-06-34 · Kỳ vọng nút «Đăng lại» · Thực tế «Gửi lại»
+### DEF-R6-U4 — Trạng thái rỗng /threads thiếu câu mời
+- Mức: Thấp · TC: TC-P3-06-37 · Kỳ vọng «Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên.» · Thực tế «Chưa có câu hỏi nào»
+### DEF-R6-U5 — Chữ lỗi MASK_FAILED của chat khác SRS
+- Mức: Thấp · TC: TC-P3-02-50 · Kỳ vọng (SRS dòng 114) «Chưa gửi được tin nhắn. Thử lại.» · Thực tế «AI đang gián đoạn. Thử lại sau.» (backend-go/internal/chat/buf.go errorText nhánh mặc định). Fail-closed đúng (go test TestMaskFailsClosed, TestMaskNoCourseFailsClosed); không bắn được thật vì PRIVACY_MASK_TIMEOUT_MS=1 không làm tin ngắn quá hạn.
+### DEF-R6-U6 — Chữ CHAT_UNAVAILABLE ở UI khác SRS
+- Mức: Thấp · TC: TC-P3-05-26 · API đạt (503 CHAT_UNAVAILABLE khi tra khoá lỗi, bảng exam_attempts đổi tên tạm). Kỳ vọng «Chat chưa dùng được lúc này. Thử lại sau ít phút.» · Thực tế frontend/src/shared/i18n/vi.ts:68 «Chat tạm thời chưa dùng được. Thử lại sau.»
+### DEF-R6-D1 — Trích dẫn cũ vẫn hiện tên tài liệu đã bị xoá, không có «Nguồn đã gỡ»
+- Mức: Trung bình · TC: TC-P3-05-42 (phần b); ảnh hưởng nghi ngờ TC-P8-02-20 · Sprint gốc: 6 · Hồi quy: KHÔNG RÕ
+- Bước tái hiện: 1. SV hỏi, nhận câu trả lời có trích dẫn tài liệu X. 2. GV xoá X. 3. SV mở lại phiên chat.
+- Kỳ vọng (FEAT-docs-calendar SRS dòng 105, US-P3-05 AC15b): trích dẫn hiện «Nguồn đã gỡ» · Thực tế: vẫn hiện tên X; chuỗi «Nguồn đã gỡ» không tồn tại trong backend-go/internal/chat/*.go hay RealChat.tsx.
+### DEF-R6-P1 — Bộ chia đoạn không gộp mẩu < 200 rune qua ranh giới trang
+- Mức: Thấp · TC: TC-P8-01-18 · Kỳ vọng (SRS 142 / US-P8-01 AC6): mẩu < 200 rune gộp vào mẩu kề nếu tổng ≤ 800 · Thực tế: PDF 23 trang slide QMB12ch6b.pdf → 4 đoạn < 200 rune không phải đoạn cuối (ord 0: 152, 1: 39, 5: 117, 6: 88; 117+88=205 ≤ 800 gộp được). Các tính chất khác đạt (ord liên tục, ≤800, duy nhất, token_count NULL, trùng (document_id,ord) → 23505).
+### DEF-R6-P2 — Chia sẻ tài liệu không tăng ep:rag:ver của lớp đích
+- Mức: Trung bình · TC: TC-P8-01-37 · Kỳ vọng (US-P8-01 AC14): chia sẻ → outbox document.changed → ep:rag:ver tăng ≤ 5 s, cache câu trả lời cũ không trúng · Thực tế: tải tài liệu / PATCH cờ / sửa đoạn / xoá đều tăng 1 trong ≤ 5 s; POST /courses/{đích}/share-from (tài liệu mới vào document_courses, course_ids của lớp đích) giữ nguyên 26→26 trong 24 s.
+- Nghi ngờ mã: backend-go/internal/course/share.go không ghi outbox document.changed (chỉ document/manage.go và ingest/process.go ghi).
+
 - LT-đã-xoá TC-P3-01-05: proposals #13 (số 00009 bỏ trống, calendar là 00011)
 - LT-đã-xoá TC-P3-03-31: GET /admin/llm/usage mở cho TEACHER: openapi «ADMIN, TEACHER» (sprint 9/10)
 - LT-đã-xoá TC-P3-04-45: US-P4-07 2026-10-14: khủng hoảng hai tầng, câu mẫu đổi

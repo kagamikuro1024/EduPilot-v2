@@ -17,3 +17,4 @@ PASS TC-P4-03-35 1280×800: danh sách rộng 379 px (kỳ vọng 380), chi ti�
 FAIL TC-P4-03-36 J → ticket kế (ea1666→b7c1a2), K → trước (ea1666); «R» focus TEXTAREA:Câu trả lời gửi sinh viên; gõ «jjkk…» trong ô: không chuyển ticket (true), nội dung «jjkk không đổi ticket»; Ctrl+Enter gửi (ticket ANSWERED) rồi sang ea1666 (s3=ea1666); tooltip nút «Gửi trả lời»=«⌘↵ · Ctrl+↵»
 INFO 36b (a) bộ lọc «Đang chờ»: Nhận b7c1a2 + Ctrl+Enter → ticket=b7c1a2 (trạng thái ANSWERED; KHÔNG sang phiếu kế); (b) bộ lọc «Tất cả»: fa2ed2 + Ctrl+Enter → fa2ed2 (KHÔNG sang phiếu kế), có ô trả lời=0
 INFO 36b rows(Tất cả)=30; trạng thái=CLO,CLO,CLA,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,ANS,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO,CLO
+INFO 36b (a) bộ lọc «Đang chờ»: Nhận eb00db + Ctrl+Enter → ticket=eb00db (trạng thái ANSWERED; KHÔNG sang phiếu kế); (b) bộ lọc «Tất cả» (7 dòng): 78d7ad + Ctrl+Enter → a3acee (sang phiếu kế), có ô trả lời=1
