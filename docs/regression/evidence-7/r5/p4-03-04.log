@@ -1,0 +1,147 @@
+2026-11-18 20:04:22.221 UTC [53112] LOG: execute <unnamed>: -- name: RequeueStaleOutbox :many update outbox set enqueued_at = null where enqueued_at is not null and dispatched_at is null and dead_at is null and enqueued_at < now() - ($1::bigint * interval '1 millisecond') returning id 
+
+2026-11-18 20:04:22.221 UTC [53112] LOG: statement: begin
+
+2026-11-18 20:04:22.222 UTC [53112] LOG: execute <unnamed>: -- name: SelectDueOutbox :many select id, topic, payload, created_at, next_attempt_at, enqueued_at, dispatched_at, attempts, last_error, dead_at, updated_at from outbox where dispatched_at is null and dead_at is null and enqueued_at is null and next_attempt_at <= now() order by next_attempt_at, id limit $1 for update skip locked 
+
+2026-11-18 20:04:22.222 UTC [53112] LOG: statement: rollback
+
+2026-11-18 20:04:22.635 UTC [67816] LOG: statement: select count(*) from documents where filename='ui08k.docx' and course_id='01a1f03c-40fc-77f6-a505-c519802a3e52'
+
+2026-11-18 20:04:22.680 UTC [66681] LOG: statement: rollback
+
+2026-11-18 20:04:22.681 UTC [66681] LOG: execute <unnamed>: -- name: RequeueStaleOutbox :many update outbox set enqueued_at = null where enqueued_at is not null and dispatched_at is null and dead_at is null and enqueued_at < now() - ($1::bigint * interval '1 millisecond') returning id 
+
+2026-11-18 20:04:22.681 UTC [66681] LOG: statement: begin
+
+2026-11-18 20:04:22.681 UTC [66681] LOG: execute <unnamed>: -- name: SelectDueOutbox :many select id, topic, payload, created_at, next_attempt_at, enqueued_at, dispatched_at, attempts, last_error, dead_at, updated_at from outbox where dispatched_at is null and dead_at is null and enqueued_at is null and next_attempt_at <= now() order by next_attempt_at, id limit $1 for update skip locked 
+
+2026-11-18 20:04:22.721 UTC [53112] LOG: execute <unnamed>: -- name: RequeueStaleOutbox :many update outbox set enqueued_at = null where enqueued_at is not null and dispatched_at is null and dead_at is null and enqueued_at < now() - ($1::bigint * interval '1 millisecond') returning id 
+
+2026-11-18 20:04:22.721 UTC [53112] LOG: statement: begin
+
+2026-11-18 20:04:22.721 UTC [53112] LOG: execute <unnamed>: -- name: SelectDueOutbox :many select id, topic, payload, created_at, next_attempt_at, enqueued_at, dispatched_at, attempts, last_error, dead_at, updated_at from outbox where dispatched_at is null and dead_at is null and enqueued_at is null and next_attempt_at <= now() order by next_attempt_at, id limit $1 for update skip locked 
+
+2026-11-18 20:04:22.722 UTC [53112] LOG: statement: rollback
+
+2026-11-18 20:04:22.767 UTC [67823] LOG: statement: select count(*) from notifications where dedupe_key like 'exam.scheduled:01a1f042-3663-7f80-812a-eff1c408c625:%'
+
+2026-11-18 20:04:22.781 UTC [53112] LOG: statement: SET application_name='edupilot-gateway';
+
+2026-11-18 20:04:22.781 UTC [53112] LOG: statement: -- ping
+
+2026-11-18 20:04:22.781 UTC [53112] LOG: execute <unnamed>: -- name: GetMembership :one select role_in_course, status from enrollments where course_id = $1 and user_id = $2 
+
+2026-11-18 20:04:22.783 UTC [53112] LOG: execute <unnamed>: -- name: TicketListStaff :many select t.id, t.course_id, t.kind, t.status, t.student_id, s.full_name as student_name, t.claimed_by, cb.full_name as claimed_name, t.answered_by, t.sla_stage, t.waiting_since, t.reopened_count, t.save_as_knowledge, t.version, t.created_at, c.class_code, left(coalesce(q.content, ''), 140)::text as question_preview from escalation_tickets t join users s on s.id = t.student_id join courses c on c.id = t.course_id left join users cb on cb.id = t.claimed_by left join chat_messages a on a.course_id = t.course_id and a.id = t.message_id left join chat_messages q on q.course_id = a.course_id and q.id = a.reply_to where t.course_id = any($1::text[]::uuid[]) and ($2::text = 'ALL' or t.status = $2::ticket_status) and ($3::timestamptz is null or (t.created_at, t.id) > ($3::timestamptz, $4::uuid)) order by t.cr
+
+2026-11-18 20:04:23.221 UTC [53112] LOG: statement: SET application_name='edupilot-worker';
+
+2026-11-18 20:04:23.222 UTC [53112] LOG: execute <unnamed>: -- name: RequeueStaleOutbox :many update outbox set enqueued_at = null where enqueued_at is not null and dispatched_at is null and dead_at is null and enqueued_at < now() - ($1::bigint * interval '1 millisecond') returning id 
+
+2026-11-18 20:04:23.222 UTC [53112] LOG: statement: begin
+
+2026-11-18 20:04:23.222 UTC [53112] LOG: execute <unnamed>: -- name: SelectDueOutbox :many select id, topic, payload, created_at, next_attempt_at, enqueued_at, dispatched_at, attempts, last_error, dead_at, updated_at from outbox where dispatched_at is null and dead_at is null and enqueued_at is null and next_attempt_at <= now() order by next_attempt_at, id limit $1 for update skip locked 
+
+2026-11-18 20:04:23.222 UTC [53112] LOG: statement: rollback
+
+2026-11-18 20:04:23.703 UTC [67830] LOG: statement: select count(*) from documents where filename='ui08k.docx' and course_id='01a1f03c-40fc-77f6-a505-c519802a3e52'
+
+2026-11-18 20:04:23.714 UTC [43069] LOG: statement: -- ping
+
+2026-11-18 20:04:23.715 UTC [43069] LOG: execute <unnamed>: -- name: ListMyCourses :many select c.id, c.class_code, c.subject_code, c.name, c.semester, c.status as course_status, e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id, -- hộp thoại thời gian học (US-P5-03 AC7) đi cùng trang này để khỏi thêm câu SQL / yêu cầu: đã "Đã hiểu" chưa; có lớp ACTIVE nào cho tắt đo không (u.tracking_notice_ack_at is not null)::bool as notice_acked, exists (select 1 from enrollments x join courses y on y.id = x.course_id where x.user_id = e.user_id and x.role_in_course = 'STUDENT' and x.status = 'ACTIVE' and y.status = 'ACTIVE' and y.allow_study_time_opt_out)::bool as opt_out_available from enrollments e join courses c on c.id = e.course_id join users u on u.id = e.user_id where e.user_id = $1 and (e.status = 'ACTIVE' or (e.status = 'PENDING' and e.role_
+
+2026-11-18 20:04:23.722 UTC [53112] LOG: execute <unnamed>: -- name: RequeueStaleOutbox :many update outbox set enqueued_at = null where enqueued_at is not null and dispatched_at is null and dead_at is null and enqueued_at < now() - ($1::bigint * interval '1 millisecond') returning id 
+
+2026-11-18 20:04:23.722 UTC [53112] LOG: statement: begin
+
+2026-11-18 20:04:23.722 UTC [53112] LOG: execute <unnamed>: -- name: SelectDueOutbox :many select id, topic, payload, created_at, next_attempt_at, enqueued_at, dispatched_at, attempts, last_error, dead_at, updated_at from outbox where dispatched_at is null and dead_at is null and enqueued_at is null and next_attempt_at <= now() order by next_attempt_at, id limit $1 for update skip locked 
+
+2026-11-18 20:04:23.722 UTC [53112] LOG: statement: rollback
+
+2026-11-18 20:04:23.898 UTC [43071] LOG: statement: -- ping
+
+2026-11-18 20:04:23.899 UTC [43071] LOG: execute <unnamed>: -- name: ListMyCourses :many select c.id, c.class_code, c.subject_code, c.name, c.semester, c.status as course_status, e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id, -- hộp thoại thời gian học (US-P5-03 AC7) đi cùng trang này để khỏi thêm câu SQL / yêu cầu: đã "Đã hiểu" chưa; có lớp ACTIVE nào cho tắt đo không (u.tracking_notice_ack_at is not null)::bool as notice_acked, exists (select 1 from enrollments x join courses y on y.id = x.course_id where x.user_id = e.user_id and x.role_in_course = 'STUDENT' and x.status = 'ACTIVE' and y.status = 'ACTIVE' and y.allow_study_time_opt_out)::bool as opt_out_available from enrollments e join courses c on c.id = e.course_id join users u on u.id = e.user_id where e.user_id = $1 and (e.status = 'ACTIVE' or (e.status = 'PENDING' and e.role_
+
+2026-11-18 20:04:24.222 UTC [53112] LOG: execute <unnamed>: -- name: RequeueStaleOutbox :many update outbox set enqueued_at = null where enqueued_at is not null and dispatched_at is null and dead_at is null and enqueued_at < now() - ($1::bigint * interval '1 millisecond') returning id 
+
+2026-11-18 20:04:24.222 UTC [53112] LOG: statement: -- ping
+
+2026-11-18 20:04:24.222 UTC [43974] LOG: statement: begin
+
+2026-11-18 20:04:24.222 UTC [53112] LOG: statement: begin
+
+2026-11-18 20:04:24.222 UTC [43974] LOG: execute <unnamed>: -- name: SelectDueOutbox :many select id, topic, payload, created_at, next_attempt_at, enqueued_at, dispatched_at, attempts, last_error, dead_at, updated_at from outbox where dispatched_at is null and dead_at is null and enqueued_at is null and next_attempt_at <= now() order by next_attempt_at, id limit $1 for update skip locked 
+
+2026-11-18 20:04:24.222 UTC [53112] LOG: execute <unnamed>: -- name: ExamTickOpen :many update exams set status = 'OPEN', version = version + 1 where status = 'SCHEDULED' and opens_at <= $1::timestamptz and closes_at > $1::timestamptz returning id, course_id 
+
+2026-11-18 20:04:24.222 UTC [43974] LOG: statement: rollback
+
+2026-11-18 20:04:24.222 UTC [53112] LOG: statement: commit
+
+2026-11-18 20:04:24.223 UTC [43974] LOG: statement: begin
+
+2026-11-18 20:04:24.223 UTC [43974] LOG: execute <unnamed>: -- name: ExamTickClose :many update exams set status = 'CLOSED', version = version + 1 where status in ('SCHEDULED', 'OPEN') and closes_at <= $1::timestamptz returning id, course_id 
+
+2026-11-18 20:04:24.223 UTC [43974] LOG: statement: commit
+
+2026-11-18 20:04:24.223 UTC [53112] LOG: execute <unnamed>: -- name: IntegrationDue :many select course_id, config_public, state from integration_configs where kind = 'IMAP' and enabled and coalesce((state->>'paused')::boolean, false) = false and (state->>'next_at' is null or (state->>'next_at')::timestamptz <= $1::timestamptz) order by course_id limit $2 
+
+2026-11-18 20:04:24.223 UTC [43974] LOG: execute <unnamed>: -- name: AttemptsDue :many select a.id, a.course_id, a.exam_id, a.student_id, a.deadline_at, (a.deadline_at >= e.closes_at)::boolean as by_close from exam_attempts a join exams e on e.course_id = a.course_id and e.id = a.exam_id where a.status = 'IN_PROGRESS' and a.deadline_at + make_interval(secs => $1::int) < $2::timestamptz order by a.deadline_at, a.id limit 200 
+
+2026-11-18 20:04:24.223 UTC [43974] LOG: statement: begin
+
+2026-11-18 20:04:24.224 UTC [43974] LOG: execute <unnamed>: -- name: AttemptLockByID :one select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at from exam_attempts where course_id = $1 and id = $2 for update 
+
+2026-11-18 20:04:24.224 UTC [53112] LOG: execute <unnamed>: -- name: GradingSweep :many update grading_results set updated_at = now() where id in ( select r.id from grading_results r where r.run_state = 'QUEUED' and r.not_before <= now() and (r.updated_at <= now() - make_interval(secs => $1::float8) or (r.attempts > 0 and r.updated_at <= r.not_before)) order by r.not_before limit 500 for update skip locked) returning id, course_id, submission_id, round 
+
+2026-11-18 20:04:24.224 UTC [53112] LOG: execute <unnamed>: -- name: GradingExpiredLeases :many select r.id, r.course_id, r.submission_id, r.round from grading_results r where r.run_state = 'RUNNING' and r.lease_until < now() limit 500 
+
+2026-11-18 20:04:24.224 UTC [43974] LOG: execute <unnamed>: -- name: ExamGet :one select id, course_id, title, instructions, kind, status, opens_at, closes_at, duration_minutes, shuffle_questions, shuffle_options, max_score, rounding_step, multi_scoring, reveal_answers, appeal_days, publish_hold, regrading, published_at, created_by, version, created_at, updated_at from exams where course_id = $1 and id = $2 
+
+2026-11-18 20:04:24.225 UTC [53112] LOG: execute <unnamed>: -- name: GradingQueueDepth :one select count(*)::int from grading_results where run_state = 'QUEUED' 
+
+2026-11-18 20:04:24.225 UTC [43974] LOG: execute <unnamed>: -- name: AttemptCountsByAnswer :one select count(*)::int as answered from exam_answers where course_id = $1 and attempt_id = $2 
+
+2026-11-18 20:04:24.225 UTC [43974] LOG: execute <unnamed>: -- name: ExamGradeItems :many select i.id as item_id, i.question_id, i.points, i.override, q.type, q.answer_key from exam_items i join question_bank q on q.course_id = i.course_id and q.id = i.question_id where i.course_id = $1 and i.exam_id = $2 order by i.position 
+
+2026-11-18 20:04:24.225 UTC [43974] LOG: execute <unnamed>: -- name: AnswersList :many select item_id, answer from exam_answers where course_id = $1 and attempt_id = $2 
+
+2026-11-18 20:04:24.225 UTC [43974] LOG: execute <unnamed>: -- name: ExamPreviewOptions :many select o.id, o.question_id, o.position, o.body, o.pinned_last from question_options o join exam_items i on i.course_id = o.course_id and i.question_id = o.question_id where i.course_id = $1 and i.exam_id = $2 order by o.question_id, o.position 
+
+2026-11-18 20:04:24.226 UTC [43974] LOG: execute <unnamed>: -- name: AttemptFinalSubmissions :many select distinct on (s.item_id) s.id, s.item_id, s.problem_id, s.status, s.verdict, s.compile_ok, s.compile_log, s.results, s.passed_weight, s.total_weight, s.language, s.source, s.created_at, s.judged_at, s.auto from code_submissions s where s.course_id = $1 and s.attempt_id = $2 and s.kind = 'SUBMIT' and s.status <> 'SUPERSEDED' order by s.item_id, s.created_at desc, s.id desc 
+
+2026-11-18 20:04:24.226 UTC [43974] LOG: statement: rollback
+
+2026-11-18 20:04:24.226 UTC [43974] LOG: execute <unnamed>: -- name: AttemptsToFinishGrading :many select a.id, a.course_id from exam_attempts a where a.status = 'GRADING' and not exists (select 1 from code_submissions s where s.course_id = a.course_id and s.attempt_id = a.id and s.kind = 'SUBMIT' and s.status in ('QUEUED', 'RUNNING')) order by a.submitted_at nulls last, a.id limit 200 
+
+2026-11-18 20:04:24.226 UTC [43974] LOG: statement: begin
+
+2026-11-18 20:04:24.226 UTC [43974] LOG: execute <unnamed>: -- name: AttemptLockByID :one select id, course_id, exam_id, student_id, status, started_at, deadline_at, submitted_at, submit_reason, writer_tab, writer_seen_at, auto_score, adjusted_score, adjusted_reason, adjusted_by, adjusted_at, breakdown, graded_at, version, created_at, updated_at from exam_attempts where course_id = $1 and id = $2 for update 
+
+2026-11-18 20:04:24.226 UTC [43974] LOG: execute <unnamed>: -- name: ExamGet :one select id, course_id, title, instructions, kind, status, opens_at, closes_at, duration_minutes, shuffle_questions, shuffle_options, max_score, rounding_step, multi_scoring, reveal_answers, appeal_days, publish_hold, regrading, published_at, created_by, version, created_at, updated_at from exams where course_id = $1 and id = $2 
+
+2026-11-18 20:04:24.227 UTC [43974] LOG: execute <unnamed>: -- name: ExamGradeItems :many select i.id as item_id, i.question_id, i.points, i.override, q.type, q.answer_key from exam_items i join question_bank q on q.course_id = i.course_id and q.id = i.question_id where i.course_id = $1 and i.exam_id = $2 order by i.position 
+
+2026-11-18 20:04:24.227 UTC [43974] LOG: execute <unnamed>: -- name: AnswersList :many select item_id, answer from exam_answers where course_id = $1 and attempt_id = $2 
+
+2026-11-18 20:04:24.227 UTC [43974] LOG: execute <unnamed>: -- name: ExamPreviewOptions :many select o.id, o.question_id, o.position, o.body, o.pinned_last from question_options o join exam_items i on i.course_id = o.course_id and i.question_id = o.question_id where i.course_id = $1 and i.exam_id = $2 order by o.question_id, o.position 
+
+2026-11-18 20:04:24.227 UTC [43974] LOG: execute <unnamed>: -- name: AttemptFinalSubmissions :many select distinct on (s.item_id) s.id, s.item_id, s.problem_id, s.status, s.verdict, s.compile_ok, s.compile_log, s.results, s.passed_weight, s.total_weight, s.language, s.source, s.created_at, s.judged_at, s.auto from code_submissions s where s.course_id = $1 and s.attempt_id = $2 and s.kind = 'SUBMIT' and s.status <> 'SUPERSEDED' order by s.item_id, s.created_at desc, s.id desc 
+
+2026-11-18 20:04:24.227 UTC [43974] LOG: statement: commit
+
+2026-11-18 20:04:24.229 UTC [43974] LOG: execute <unnamed>: -- name: ExamRegradingExams :many select id, course_id from exams where regrading and status in ('CLOSED', 'PUBLISHED') and updated_at < now() - interval '15 seconds' limit 100 
+
+2026-11-18 20:04:24.229 UTC [43974] LOG: statement: begin
+
+2026-11-18 20:04:24.229 UTC [43974] LOG: execute <unnamed>: -- name: ExamPublishDue :many update exams x set status = 'PUBLISHED', published_at = $1, version = version + 1, updated_at = now() where x.status = 'CLOSED' and not x.publish_hold and not x.regrading and ($2::uuid is null or x.id = $2::uuid) and not exists (select 1 from exam_attempts a where a.course_id = x.course_id and a.exam_id = x.id and a.status <> 'GRADED') returning x.id, x.course_id, x.title 
+
+2026-11-18 20:04:24.230 UTC [43974] LOG: statement: commit
+
+2026-11-18 20:04:24.231 UTC [43974] LOG: execute <unnamed>: -- name: SimilarityDueExams :many select e.course_id, e.id, e.created_by from exams e where e.status in ('CLOSED', 'PUBLISHED') and e.kind in ('CODE', 'MIXED') and not exists (select 1 from exam_attempts a where a.course_id = e.course_id and a.exam_id = e.id and a.status = 'IN_PROGRESS') and not exists (select 1 from audit_log l where l.course_id = e.course_id and l.entity = 'exam' and l.entity_id = e.id::text and l.action in ('exam.similarity.queued', 'exam.similarity.run')) order by e.closes_at limit 20 
+
+2026-11-18 20:04:24.235 UTC [43974] LOG: execute <unnamed>: -- name: JudgeRequeueExpired :many update code_submissions set status = 'QUEUED', lease_until = null, enqueued_at = null where status = 'RUNNING' and lease_until < now() returning id, kind 
+
+2026-11-18 20:04:24.235 UTC [43974] LOG: execute <unnamed>: -- name: JudgeResetStaleSignal :execrows update code_submissions set enqueued_at = null where status = 'QUEUED' and enqueued_at is not null and enqueued_at < now() - $1::int * interval '1 millisecond' 
+
+2026-11-18 20:04:24.236 UTC [43974] LOG: execute <unnamed>: -- name: JudgeDueUnqueued :many select id, kind from code_submissions where status = 'QUEUED' and enqueued_at is null and next_attempt_at <= now() order by next_attempt_at, id limit $1 

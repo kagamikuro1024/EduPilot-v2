@@ -226,24 +226,27 @@ test("44 trạng thái tải/lỗi", async ({ browser }) => {
   await ctx.close();
 });
 
-test("36 máy dùng chung A đăng xuất, B đăng nhập", async ({ browser }) => {
+for (const mode of ["offline", "PUT-chặn"] as const) test(`36 máy dùng chung A đăng xuất, B đăng nhập (${mode})`, async ({ browser }) => {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, baseURL: "https://localhost:1143", viewport: { width: 1280, height: 800 }, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" });
   const page = await ctx.newPage(); await login(page, F.teacher); const S = ses(F.C); await openAtt(page, F.C, S);
   const aId = psql(`select id from users where email='${F.teacher}@edupilot.local'`); const bId = psql(`select id from users where email='${F.ta}@edupilot.local'`);
-  await ctx.setOffline(true); await page.waitForTimeout(400); await rad(page, 2, "ABSENT").click(); await rad(page, 3, "ABSENT").click(); await page.waitForTimeout(600);
+  if (mode === "offline") await ctx.setOffline(true); else await ctx.route(/\/sessions\/[^/]+\/attendance$/, (r) => (r.request().method() === "PUT" ? r.abort("failed") : r.continue()));
+  await page.waitForTimeout(400); await rad(page, 2, "ABSENT").click(); await rad(page, 3, "ABSENT").click(); await page.waitForTimeout(3000);
   const keysA = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.includes(":attendance:")));
   const trg = page.locator("[data-part=topbar] button[aria-haspopup]").last(); await trg.click().catch(() => undefined);
   const menu = page.getByRole("menuitem", { name: "Đăng xuất" }).or(page.getByRole("button", { name: "Đăng xuất" })); await menu.first().click();
-  await page.getByText("Còn điểm danh chưa lưu").waitFor({ timeout: 8000 }); await page.getByRole("dialog").getByRole("button", { name: "Đăng xuất" }).click();
-  await ctx.setOffline(false); await page.waitForURL(/\/login/, { timeout: 30000 }).catch(() => undefined); await page.waitForTimeout(1500);
-  const afterOut = await page.evaluate(() => ({ keys: Object.keys(localStorage), blob: JSON.stringify(Object.entries(localStorage)) }));
-  const draftLeft = afterOut.keys.filter((k) => k.includes(":attendance:")); const aTrace = afterOut.blob.includes(aId);
-  const t0 = psql("select now()");
-  await login(page, F.ta); await openAtt(page, F.C, S); await page.waitForTimeout(1000);
+  await page.getByText("Còn điểm danh chưa lưu").waitFor({ timeout: 8000 }); await page.getByRole("dialog").getByRole("button", { name: "Đăng xuất" }).click(); await page.waitForTimeout(3000);
+  const urlAfter = page.url().replace(/^https:\/\/[^/]+/, "");
+  const store = async () => { const o = (await ctx.storageState()).origins.flatMap((x) => x.localStorage); return { keys: o.map((x) => x.name), blob: JSON.stringify(o) }; };
+  const afterOut = await store(); const draftLeft = afterOut.keys.filter((k) => k.includes(":attendance:")); const aTrace = afterOut.blob.includes(aId);
+  if (mode === "offline") await ctx.setOffline(false); else await ctx.unroute(/\/sessions\/[^/]+\/attendance$/); await page.waitForTimeout(6000);
+  const after2 = await store(); const draftLeft2 = after2.keys.filter((k) => k.includes(":attendance:")).length; const urlOnline = page.url().replace(/^https:\/\/[^/]+/, "");
+  const sentByA = psql(`select count(*) from attendance_records where session_id='${S}'`);
+  await page.goto("/login"); await login(page, F.ta); await openAtt(page, F.C, S); await page.waitForTimeout(1000);
   const seenA = [await rad(page, 2, "ABSENT").isChecked(), await rad(page, 3, "ABSENT").isChecked()];
   await rad(page, 7, "LATE").click(); await page.getByText(/Đã lưu \d\d:\d\d/).waitFor({ timeout: 20000 }); await page.waitForTimeout(800);
   const byA = psql(`select count(*) from attendance_records where session_id='${S}' and marked_by='${aId}'`); const byB = psql(`select count(*) from attendance_records where session_id='${S}' and marked_by='${bId}'`);
-  const absA = psql(`select count(*) from attendance_records where session_id='${S}' and status='ABSENT'`); const noteA = psql(`select count(*) from attendance_records where session_id='${S}' and note is not null and note<>''`);
-  R("TC-P5-02-36", keysA.length === 1 && draftLeft.length === 0 && !aTrace && seenA.every((x) => !x) && byA === "0" && Number(byB) >= 1 && absA === "0" && noteA === "0", `A (${F.teacher}) offline đánh Vắng 2 hàng (kho ${JSON.stringify(keysA.map((k) => k.replace(/[0-9a-f]{8}-[0-9a-f-]{27}/g, "<uuid>")))}), Đăng xuất (xác nhận «Còn điểm danh chưa lưu»); sau đăng xuất kho còn khoá attendance: ${draftLeft.length}, chuỗi có user_id của A: ${aTrace}; B (${F.ta}) đăng nhập cùng trình duyệt, mở cùng buổi: 2 hàng của A hiển thị Vắng=${JSON.stringify(seenA)} (kỳ vọng false); B đánh Muộn 1 hàng → «Đã lưu»; DB: bản ghi marked_by=A ${byA}, marked_by=B ${byB}, ABSENT ${absA} (dữ liệu A không bị gửi), ghi chú ${noteA}`);
+  const noteA = psql(`select count(*) from attendance_records where session_id='${S}' and note is not null and note<>''`);
+  R(`TC-P5-02-36(${mode})`, keysA.length === 1 && draftLeft.length === 0 && !aTrace && sentByA === "0" && seenA.every((x) => !x) && byA === "0" && Number(byB) >= 1 && noteA === "0", `[${mode}] A (${F.teacher}) đánh Vắng 2 hàng chưa lên máy chủ (kho ${JSON.stringify(keysA.map((k) => k.replace(/[0-9a-f]{8}-[0-9a-f-]{27}/g, "<uuid>")))}), Đăng xuất (xác nhận «Còn điểm danh chưa lưu»), sau 3 s ở ${urlAfter}: kho còn khoá attendance: ${draftLeft.length}, chuỗi có user_id của A: ${aTrace}; có mạng/bỏ chặn 6 s (trang ở ${urlOnline}, kho còn ${draftLeft2} khoá): số bản ghi buổi = ${sentByA} (kỳ vọng 0: dữ liệu A không được gửi sau đăng xuất); B (${F.ta}) đăng nhập cùng trình duyệt, mở cùng buổi: 2 hàng của A hiển thị Vắng=${JSON.stringify(seenA)} (kỳ vọng false); B đánh Muộn 1 hàng → «Đã lưu»; DB: marked_by=A ${byA}, marked_by=B ${byB}, ghi chú ${noteA}`);
   await ctx.close();
 });

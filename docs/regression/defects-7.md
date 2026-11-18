@@ -60,6 +60,27 @@
 - Kỳ vọng (SRS 4.6.1 bước 5, `RedisBudget` = 500 ms): 204 trong ≤ 1 s, tăng `activity_heartbeat_dropped_total`, log không PII. Thực tế: 204, log WARN `activity_heartbeat_dropped_total … context deadline exceeded` không PII (đạt), nhưng độ trễ ~8 s.
 - Bằng chứng: `evidence-7/scripts-r3/p53lock.py`, `master7.json` (TC-P5-03-29)
 
+### DEF-R7-10 — «Xem trước» tạo lịch buổi học gửi Idempotency-Key
+- Mức: Thấp
+- Sprint gốc: 7 · TC gốc: TC-P5-01-26 (US-P5-01 AC9) · Hồi quy do sprint sau?: chưa xác định
+- Bước tái hiện: GV mở /calendar → «Tạo lịch buổi học» → điền → «Xem trước» 3 lần rồi «Tạo N buổi» 2 lần; theo dõi network.
+- Kỳ vọng: `generate?dry_run=true` KHÔNG có Idempotency-Key (SRS crm-360 4.2.1 bước 1, TLR-12: xem trước chỉ đọc, khoá chiếm suất lưu vô ích); khoá của lần tạo thật mới mỗi lần. Thực tế: 3 lần xem trước đều gửi khoá riêng (ep-f5d4678a…, ep-bbfe692e…, ep-2e8bbfcd…); 2 lần tạo thật khoá khác nhau và khác khoá xem trước (vế «khoá mới mỗi lần» đạt).
+- Bằng chứng: `evidence-7/r3/ui-p501-r5.log`
+
+### DEF-R7-11 — Trạng thái rỗng của Hộp thư hỗ trợ không đúng chữ / thiếu nút «Xem tất cả»
+- Mức: Thấp
+- Sprint gốc: 7 · TC gốc: TC-P4-03-38 (US-P4-03 AC13) · Hồi quy do sprint sau?: chưa xác định
+- Bước tái hiện: GV mở /inbox của lớp còn ticket ở trạng thái khác, chọn bộ lọc «Đã nhận» (rỗng); và /inbox của lớp không có ticket.
+- Kỳ vọng: «Không có câu hỏi nào đang chờ.» + nút `Xem tất cả` (lớp 2). Thực tế: «Chưa có câu hỏi cần xử lý», không có nút/liên kết «Xem tất cả» (khung xương, lỗi + «Thử lại», CLS 0 đều đạt).
+- Bằng chứng: `evidence-7/r3/ui-p7c.log`, `shots/p7c-inbox-empty2.png`
+
+### DEF-R7-12 — Menu bài AI của giảng viên ghi «Loại», không phải «Loại khỏi tri thức»
+- Mức: Thấp
+- Sprint gốc: 7 · TC gốc: TC-P4-06-47 (US-P4-06 AC14, DESIGN §13) · Hồi quy do sprint sau?: chưa xác định
+- Bước tái hiện: GV mở thread có bài AI «Chờ xác nhận» ở lớp của mình; mở menu «Thêm hành động» cạnh «Chỉnh sửa».
+- Kỳ vọng: «Loại khỏi tri thức» (giảng viên). Thực tế: mục «Loại». Các phần khác của AC14 (menu Báo cáo, danh sách lý do, «Đã báo cáo · Hoàn tác» 5 s, Ẩn bài/Ghim/Giữ bài, Sửa/Xoá, 375 px) đạt.
+- Bằng chứng: `evidence-7/r3/ui-p7c.log` (TC-P4-06-47c)
+
 ## Ca lỗi thời có nguồn quyết định (xoá khỏi smoke-7.md và khỏi tổng; qc3 18/11/2026)
 - TC-P5-06-19 (US-P5-06 AC8: giảng viên/TA/ADMIN mở `/me` «được chuyển về `/`») — thay bằng màn chặn chung «Bạn không có quyền xem màn này» + nút Về Hôm nay: `docs/sprints/7/proposals.md` #34 (PM ACCEPTED 2026-10-15).
 - TC-S7-SEED-10 (US-S7-SEED AC3: «đúng 2 WATCH» ghim) — thêm tín hiệu GRADE, số WATCH không còn ghim, đáp án tính lại ở `seed/expected_crm.csv`: `docs/sprints/8/proposals.md` #5 (ACCEPTED có sửa, 2026-10-31).
