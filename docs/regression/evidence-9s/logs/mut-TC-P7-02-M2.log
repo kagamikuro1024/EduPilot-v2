@@ -1,0 +1,12 @@
+TC-P7-02-M2: bỏ LATE_RULE_LOCKED
+backend-go/internal/assignment/assignment.go: «if lateChanged && facts.HasPublished {» -> «if false && lateChanged && facts.HasPublished {»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestLateRuleLockedAfterPublish'
+rc=1 => RED
+--- FAIL: TestLateRuleLockedAfterPublish (1.33s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/assignment/assignment_test.go:366
+        	Error:      	Not equal: 
+        	            	expected: "LATE_RULE_LOCKED"
+        	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	2.040s
+FAIL

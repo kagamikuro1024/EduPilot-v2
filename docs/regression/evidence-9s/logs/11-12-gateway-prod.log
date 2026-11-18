@@ -1,0 +1,6 @@
+== APP_ENV=production GRAPH_BASE_URL=http://mock-graph:8090/v1.0 TEAMS_ENABLED=true
+{"time":"2026-11-18T22:31:42.561167+07:00","level":"ERROR","msg":"giá trị biến môi trường không hợp lệ: ATTENDANCE_TOKEN_KEY: cần 32 byte mã hoá base64; GRAPH_BASE_URL: production không được dùng mock-graph hoặc kết nối không mã
+rc=1
+== APP_ENV=production TEAMS_ENABLED=false
+{"time":"2026-11-18T22:31:42.61769+07:00","level":"ERROR","msg":"giá trị biến môi trường không hợp lệ: ATTENDANCE_TOKEN_KEY: cần 32 byte mã hoá base64","service":"gateway","instance":"KuroKami","invalid":["ATTENDANCE_TOKEN_KEY"],"trace_id":"d
+rc=1

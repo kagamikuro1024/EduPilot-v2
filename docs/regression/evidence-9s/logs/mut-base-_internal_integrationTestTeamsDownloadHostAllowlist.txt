@@ -1,0 +1,3 @@
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestTeamsDownloadHostAllowlist'
+rc=0
+ok  	github.com/edupilot/backend-go/internal/integration	0.565s

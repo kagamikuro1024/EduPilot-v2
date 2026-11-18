@@ -1,0 +1,3 @@
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestStudentNeverSeesDraftGrade'
+rc=0
+ok  	github.com/edupilot/backend-go/internal/integration	1.960s

@@ -1,0 +1,12 @@
+TC-P7-10-M4: bỏ WHERE status='OPEN' AND version=$v ở GradeAppealDecide
+backend-go/internal/store/appeal.sql.go: «where course_id = $5 and id = $6 and status = 'OPEN' and version = $7» -> «where course_id = $5 and id = $6»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestAppealDecideConcurrent'
+rc=1 => RED
+--- FAIL: TestAppealDecideConcurrent (0.60s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/assignment/appeal_test.go:441
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 4
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	1.286s
+FAIL

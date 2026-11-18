@@ -1,0 +1,12 @@
+TC-P7-05-M3: bỏ UNIQUE (course_id, uidvalidity, message_uid)
+backend-go/db/migrations/00017_assignments.sql: «'PARSE_ERROR')),
+    CONSTRAINT mail_inbound_uid_key UNIQUE (course_id, uidvalidity, messa» -> «'PARSE_ERROR'))
+);»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestImapPollIdempotentRestart'
+rc=1 => RED
+--- FAIL: TestImapPollIdempotentRestart (1.86s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/integration/imap_rig_test.go:309
+        	Error:      	Received unexpected error:
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/integration	2.657s
+FAIL

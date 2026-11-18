@@ -1,0 +1,12 @@
+TC-P7-01-M2: bỏ trigger bất biến ai_scores
+backend-go/db/migrations/00017_assignments.sql: «CREATE TRIGGER grading_results_ai_immutable_row BEFORE UPDATE ON grading_results FOR EACH » -> «-- MUT: bỏ trigger»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/store -run 'TestAiScoresImmutable'
+rc=1 => RED
+--- FAIL: TestAiScoresImmutable (0.54s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/store/assignments_schema_test.go:229
+        	Error:      	Not equal: 
+        	            	expected: "P0001"
+        	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/store	0.929s
+FAIL

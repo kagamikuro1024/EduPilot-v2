@@ -1,0 +1,19 @@
+=== RUN   TestQuoteOffsetsUTF16
+=== PAUSE TestQuoteOffsetsUTF16
+=== CONT  TestQuoteOffsetsUTF16
+--- PASS: TestQuoteOffsetsUTF16 (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/textfold	0.369s
+--- PASS: TestFoldParitySQL (0.66s)
+--- PASS: TestCollapseAndIndex (0.00s)
+--- PASS: TestWords (0.00s)
+--- PASS: TestQuoteOffsetsUTF16 (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/textfold	0.829s
+--- PASS: TestCitationVerified (0.94s)
+--- PASS: TestCitationNotFound (0.54s)
+--- PASS: TestCitationPageMissing (0.45s)
+--- PASS: TestCitationOCRTolerance (0.83s)
+--- PASS: TestCitationComparedAfterUnmask (0.89s)
+--- PASS: TestQuoteCheckedAfterUnmask (0.47s)
+ok  	github.com/edupilot/backend-go/internal/grading	4.913s

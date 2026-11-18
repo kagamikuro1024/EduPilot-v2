@@ -1,0 +1,3 @@
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestPermanentErrorNoRetry'
+rc=0
+ok  	github.com/edupilot/backend-go/internal/grading	1.754s

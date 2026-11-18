@@ -1,0 +1,9 @@
+$ jq -e ... rubric-bt03.json
+true
+rc=0
+API status 200 tiêu chí 4
+c1 True 2.5 2.5 True
+c2 True 2.5 2.5 True
+c3 True 2.5 2.5 True
+c4 True 2.5 2.5 True
+so khớp tên+max_score+guidance: True

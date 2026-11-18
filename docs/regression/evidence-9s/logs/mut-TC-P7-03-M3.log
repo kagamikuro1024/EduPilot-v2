@@ -1,0 +1,15 @@
+TC-P7-03-M3: thêm ai_total_before_late vào DTO mine
+backend-go/internal/assignment/dto_student.go: «LateDays   int       `json:"late_days"`
+}» -> «LateDays   int       `json:"late_days"`
+	AiTotalBeforeLate string `json:"ai_total_before_late"`
+}»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestMineDTOAllowlist'
+rc=1 => RED
+--- FAIL: TestMineDTOAllowlist (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/assignment/submit_test.go:597
+        	Error:      	Not equal: 
+        	            	expected: []string{"assignment", "assignment.allow_late", "assignment.appeal_days", "assignment.criteria", "assignment.criteria[].id", "assignment.criteria[].max_score", "assignment.criteria[].name", "assignment.description", "assignment.due_at", "assignment.id", "assignment.late_max_days", "assignment.late_penalty_per_day", "assignment.max_score", "assignment.title", "result", "result.appeal", "result.appeal.closes_at", "result.appeal.response", "result.appeal.state", "result.criteria", "result.criteria[].comment", "result.criteria[].evidence", "result.criteria[].max", "result.criteria[].name", "result.criteria[].score", "result.label", "result.late", "result.late.days", "result.late.penalty", "result.max", "result.overall_feedback", "result.published_at", "result.status", "result.total", "state", "submission", "submission.file_name", "submission.late_days", "submission.received_at", "submission.version"}
+        	            	actual  : []string{"assignment", "assignment.allow_late", "assignment.appeal_days", "assignment.criteria", "assignment.criteria[].id", "assignment.criteria[].max_score", "assignment.criteria[].name", "assignment.description", "assignment.due_at", "assignment.id", "assignment.late_max_days", "assignment.late_penalty_per_day", "assignment.max_score", "assignment.title", "result", "result.appeal", "result.appeal.closes_at", "result.appeal.response", "result.appeal.state", "result.criteria", "result.criteria[].comment", "result.criteria[].evidence", "result.criteria[].max", "result.criteria[].name", "result.criteria[].score", "result.label", "result.late", "result.late.days", "result.late.penalty", "result.max", "result.overall_feedback", "result.published_at", "result.status", "result.total", "state", "submission", "submission.ai_total_before_late", "submission.file_name", "submission.late_days", "submission.received_at", "submission.version"}
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	0.791s
+FAIL

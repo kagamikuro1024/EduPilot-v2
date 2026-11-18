@@ -1,0 +1,14 @@
+TC-P7-08-M4: bỏ SCORES_REQUIRED
+backend-go/internal/assignment/review.go: «if _, ok := criteriaSum(d.Criteria); !ok {
+			return apierr.New(http.StatusUnprocessableEn» -> «if _, ok := criteriaSum(d.Criteria); false && !ok {
+			return apierr.New(http.StatusUnprocessableEntity, apier»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestReviewNeedsScores'
+rc=1 => RED
+--- FAIL: TestReviewNeedsScores (0.80s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/assignment/review_test.go:336
+        	Error:      	Not equal: 
+        	            	expected: "SCORES_REQUIRED"
+        	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	1.467s
+FAIL

@@ -1,0 +1,12 @@
+TC-P7-11-M1b: bỏ @odata.nextLink (không đi trang kế)
+backend-go/internal/submission/source/teams.go: «next = p.Next» -> «next = ""»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/submission/source -run 'TestTeamsAdapterPagesAndNextLinkHost'
+rc=1 => RED
+--- FAIL: TestTeamsAdapterPagesAndNextLinkHost (0.04s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/submission/source/teams_test.go:252
+        	Error:      	Not equal: 
+        	            	expected: 6
+        	            	actual  : 2
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/submission/source	0.523s
+FAIL

@@ -1,0 +1,10 @@
+TC-P7-04-M3: bỏ ALREADY_REVIEWED ở Ingest (mọi nguồn)
+backend-go/internal/submission/ingest.go: «case err == nil && (cur.ResultStatus == "REVIEWED" || cur.ResultStatus == "PUBLISHED"):» -> «case false && err == nil && (cur.ResultStatus == "REVIEWED" || cur.ResultStatus == "PUBLISHED"):»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/submission -run 'TestIngestAlreadyReviewedAllSources'
+rc=1 => RED
+--- FAIL: TestIngestAlreadyReviewedAllSources (1.67s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/submission/upload_test.go:376
+        	Error:      	Should be false
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/submission	2.255s
+FAIL

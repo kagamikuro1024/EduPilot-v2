@@ -1,0 +1,11 @@
+TC-P7-11-M4: thêm nhánh mock vào teams.go
+backend-go/internal/submission/source/teams.go: «func (t *Teams) accessToken(ctx context.Context, c Credentials, renew bool) (string, error» -> «func (t *Teams) accessToken(ctx context.Context, c Credentials, renew bool) (string, error) {
+	if strings.Cont»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/submission/source -run 'TestTeamsAdapterHasNoMockBranch'
+rc=1 => RED
+--- FAIL: TestTeamsAdapterHasNoMockBranch (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/submission/source/teams_test.go:397
+        	Error:      	Should be false
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/submission/source	0.329s
+FAIL

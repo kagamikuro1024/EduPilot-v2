@@ -1,0 +1,12 @@
+TC-P7-07-M1: bỏ UNIQUE (course_id, submission_id, round)
+backend-go/db/migrations/00017_assignments.sql: «CONSTRAINT grading_results_round_key UNIQUE (course_id, submission_id, round)» -> «CONSTRAINT grading_results_round_key CHECK (true)»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestGradeAllConcurrentNoDuplicate'
+rc=1 => RED
+--- FAIL: TestGradeAllConcurrentNoDuplicate (1.76s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/grading/queue_test.go:299
+        	Error:      	Not equal: 
+        	            	expected: int(8)
+        	            	actual  : int64(0)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grading	2.532s
+FAIL

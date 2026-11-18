@@ -1,0 +1,8 @@
+TC-P7-06-M3: cắt câu chèn lệnh khỏi đầu vào LLM
+backend-go/internal/grading/essay.go: «hits := ScanInjection(text) // quét» -> «hits := ScanInjection(text)
+	for _, h := range hits {
+		cleaned = strings.ReplaceAll(cleaned, h.Sentence, "")
+»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestInjectionPromptKeepsAllSentences'
+rc=0 => GREEN
+ok  	github.com/edupilot/backend-go/internal/grading	0.793s

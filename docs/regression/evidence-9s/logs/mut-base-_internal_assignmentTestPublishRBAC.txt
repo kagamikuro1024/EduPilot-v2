@@ -1,0 +1,3 @@
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestPublishRBAC'
+rc=0
+ok  	github.com/edupilot/backend-go/internal/assignment	1.480s

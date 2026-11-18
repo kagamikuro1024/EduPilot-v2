@@ -1,0 +1,12 @@
+TC-P7-02-M1: bỏ kiểm Σ = max_score
+backend-go/internal/assignment/assignment.go: «if !sum.Equal(max) {» -> «if false && !sum.Equal(max) {»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestRubricSumEqualsMax'
+rc=1 => RED
+--- FAIL: TestRubricSumEqualsMax (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/assignment/assignment_test.go:207
+        	Error:      	Not equal: 
+        	            	expected: "RUBRIC_INVALID"
+        	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	0.895s
+FAIL

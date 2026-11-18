@@ -1,0 +1,4 @@
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment ./internal/submission -run 'TestSubmitContentSniff|TestSubmitSniff'
+rc=0
+ok  	github.com/edupilot/backend-go/internal/assignment	4.812s
+ok  	github.com/edupilot/backend-go/internal/submission	0.677s [no tests to run]

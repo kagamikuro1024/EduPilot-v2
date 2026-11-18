@@ -1,0 +1,12 @@
+TC-P7-11-M3b: gửi Authorization sang host khác
+backend-go/internal/submission/source/teams.go: «req.Header.Del("Authorization")» -> «»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestTeamsNoAuthHeaderToForeignHost'
+rc=1 => RED
+--- FAIL: TestTeamsNoAuthHeaderToForeignHost (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/integration/teams_test.go:359
+        	Error:      	Not equal: 
+        	            	expected: []string{""}
+        	            	actual  : []string{"Bearer tok-fake"}
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/integration	0.748s
+FAIL

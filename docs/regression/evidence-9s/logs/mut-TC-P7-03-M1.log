@@ -1,0 +1,18 @@
+TC-P7-03-M1: bỏ kiểm sniff nội dung ở máy chủ (upload + in-app)
+backend-go/internal/submission/inapp.go: «if !kind.Sniff(ctx, s.Blob, key, size) {» -> «if false && !kind.Sniff(ctx, s.Blob, key, size) {»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment ./internal/submission -run 'TestSubmitContentSniff|TestSubmitSniff'
+rc=1 => RED
+--- FAIL: TestSubmitSniff (1.14s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/assignment/submit_test.go:226
+        	Error:      	Not equal: 
+        	            	expected: "FILE_CONTENT_MISMATCH"
+        	            	actual  : ""
+--- FAIL: TestSubmitContentSniff (0.81s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/assignment/submit_test.go:226
+        	Error:      	Not equal: 
+        	            	expected: "FILE_CONTENT_MISMATCH"
+        	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	2.612s
+ok  	github.com/edupilot/backend-go/internal/submission	0.603s [no tests to run]
+FAIL

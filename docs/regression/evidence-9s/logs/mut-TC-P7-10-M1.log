@@ -1,0 +1,13 @@
+TC-P7-10-M1: hạn phúc khảo theo đồng hồ khác đồng hồ máy chủ (time.Now thay s.now())
+backend-go/internal/assignment/appeal.go: «if s.now().After(closes) {» -> «if time.Now().After(closes) {»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestAppealWindowBoundaryTable'
+rc=1 => RED
+--- FAIL: TestAppealWindowBoundaryTable (1.67s)
+    --- FAIL: TestAppealWindowBoundaryTable/quá_hạn_1_phút (0.50s)
+            	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/assignment/appeal_test.go:240
+            	Error:      	Not equal: 
+            	            	expected: "APPEAL_WINDOW_CLOSED"
+            	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	2.327s
+FAIL

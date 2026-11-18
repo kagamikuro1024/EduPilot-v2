@@ -1,0 +1,18 @@
+TC-P7-09-M5b: điểm item ASSIGNMENT đọc mọi trạng thái (gói grade)
+backend-go/internal/store/submission.sql.go: «join grading_results r on r.course_id = s.course_id and r.submission_id = s.id and r.statu» -> «join grading_results r on r.course_id = s.course_id and r.submission_id = s.id and r.status in ('DRAFT','REVIE»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grade -run 'Assignment'
+rc=1 => RED
+--- FAIL: TestAssignmentItemReadsPublishedLatest (0.88s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/grade/assignment_item_test.go:74
+        	Error:      	Should be false
+--- FAIL: TestAssignmentItemReadsPublishedDirect (0.46s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/grade/assignment_publish_test.go:51
+        	Error:      	Should be false
+--- FAIL: TestMeGradesShowsAssignmentComponent (0.48s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/grade/assignment_publish_test.go:324
+        	Error:      	Not equal: 
+        	            	expected: "PENDING"
+        	            	actual  : "PUBLISHED"
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	7.302s
+FAIL

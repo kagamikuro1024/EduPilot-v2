@@ -1,0 +1,12 @@
+TC-P7-11-M3a: bỏ allowlist host tệp
+backend-go/internal/submission/source/teams.go: «if err != nil || (u.Scheme != "https" && u.Scheme != "http") || !t.allowedHost(u.Host) {» -> «if err != nil || (u.Scheme != "https" && u.Scheme != "http") {»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestTeamsDownloadHostAllowlist'
+rc=1 => RED
+--- FAIL: TestTeamsDownloadHostAllowlist (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/integration/teams_test.go:319
+        	Error:      	Not equal: 
+        	            	expected: []source.Failure{source.Failure{SubmissionID:"sub-1", Code:"FILE_HOST_NOT_ALLOWED"}}
+        	            	actual  : []source.Failure(nil)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/integration	0.759s
+FAIL
