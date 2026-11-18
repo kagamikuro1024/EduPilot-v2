@@ -21,7 +21,7 @@ var (
 	// Giả định (neu, gia su, gia du, gia dinh, gia nhu, thu) + thành phần điểm + được/đạt/có + số 0–10 (QUESTIONS Q-QC-P3-04-7); "thì" tuỳ chọn.
 	reWhatIf   = regexp.MustCompile(`\b(neu|gia su|gia du|gia dinh|gia nhu|thu)\b.{0,40}\b(duoc|dat|co)\b.{0,20}\b(10|[0-9])([.,][0-9]+)?\b`)
 	reComp     = regexp.MustCompile(`\b(diem|giua ky|cuoi ky|qua trinh|bai tap|thuc hanh|chuyen can|tong ket|ket qua)\b`)
-	reFormula  = regexp.MustCompile(`\b(cach tinh diem|trong so|cong thuc|ty le diem|ti le diem|diem (tong ket |cuoi ky |qua trinh )?duoc tinh|tinh diem nhu the nao)\b`)
+	reFormula  = regexp.MustCompile(`\b(cach tinh diem|trong so|cong thuc|ty le diem|ti le diem|diem (tong ket |cuoi ky |qua trinh )?duoc tinh|tinh diem (mon nay |mon hoc |lop |lop minh |cua (lop|mon) (minh |nay )?)?(nhu )?(the nao|ra sao|kieu gi))\b`)
 	reSelf     = regexp.MustCompile(`\b(em|minh|toi|tao)\b`)
 	reAtt      = regexp.MustCompile(`\b(vang|nghi|diem danh|chuyen can)\b`)
 	rePart     = regexp.MustCompile(`\b(diem cong|phat bieu|diem phat bieu)\b`)
