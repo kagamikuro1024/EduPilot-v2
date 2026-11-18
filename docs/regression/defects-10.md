@@ -33,3 +33,9 @@ Ghi nhận không phải lỗi sản phẩm: (1) check-practice-seed.mjs đỏ d
 Đóng sau dựng lại ep-qc @4ac1638a (gateway + frontend, 2026-11-19 02:3x):
 - DEF-R10S-14 ĐÓNG — nguyên nhân thật (PM, P-11-66): thi thử không lưu `current_index` nên tải lại về câu 1; QC đã hiểu sai là «mất đáp án» (spec bấm tiếp «Câu sau» từ câu 1 nên ghi đè sai câu). TC-12-11 chạy lại: sau tải lại ở câu 8 trang ở đúng câu 8, lựa chọn còn tô, kết quả «đúng 15/20», DB correct_count 15.
 - DEF-R10S-15 ĐÓNG — đề 70 trang → 429 RATE_LIMITED {reason: pages}, jobs 16→16, llm_audit 61→61; đề đúng 60 trang → 202.
+| DEF-R10S-18 | Thấp | TC-12-13 | `/questions` (GV) tiêu đề «N câu chờ duyệt» đếm theo hàng đã tải (`QuestionBank.tsx:124` `rows.filter(PENDING)`, trang đầu 25 hàng) — DB có 43 PENDING nhưng hiện «25». |
+| DEF-R10S-19 | Thấp | TC-07-25 | `benchmarks/load/practice-mock.js` gửi `{answer:{text:'x'}}` cho câu không có phương án, gồm cả TRUE_FALSE → 422; với ngân hàng có TRUE_FALSE: 196/2.000 PUT lỗi, `http_req_failed` 8,9% vượt ngưỡng `<0,5%`. Cần nhánh `{value:true}` cho TRUE_FALSE (bản vá của QC ở evidence-9s/s10/perf/). |
+
+Mã xoá (LT có nguồn quyết định):
+- TC-04-08: xoá — nguồn handoff `docs/sprints/10/handoff/dev-sprint10.md` L50 («P9-03 sinh có trích dẫn ✓») + điều kiện trong `tc-US-P9-03.md` dòng 2 («chỉ chạy nếu handoff ghi đã làm»); PM xác nhận 2026-11-19.
+- TC-11-18: xoá — nguồn handoff `docs/sprints/10/handoff/dev-sprint10.md` L17 (mục «Nhập Forms (US-P9-11)») + điều kiện trong `tc-US-P9-11.md` dòng 2; PM xác nhận 2026-11-19.
