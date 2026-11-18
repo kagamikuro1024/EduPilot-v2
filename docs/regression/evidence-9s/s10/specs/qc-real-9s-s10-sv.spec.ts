@@ -415,8 +415,8 @@ test("TC-08-11 nhận xét tự luận khi LLM lỗi (stub 500): «Chưa nhận 
   const tk = await login(request, U); const TXT = "SQL injection là chèn lệnh SQL độc hại vào đầu vào. Cách chống: dùng prepared statement.";
   await call(request, tk, "PUT", `/courses/${id}/practice/attempts/${a!.id}/answers/${iid}`, { answer: { text: TXT } });
   await page.goto(`/practice/${a!.id}`); await page.waitForTimeout(1500);
-  // tới câu ESSAY (có thể không phải câu 1)
-  for (let n = 0; n < 25 && (await page.getByRole("button", { name: "Nhận xét" }).count()) === 0; n++) { const nx = page.getByRole("button", { name: /Câu tiếp theo|Câu sau|Kiểm tra/ }).first(); if (!(await nx.count())) break; await page.getByRole("list", { name: "Các đáp án" }).getByRole("button").first().click({ timeout: 1500 }).catch(() => {}); await nx.click().catch(() => {}); await page.waitForTimeout(500); }
+  for (const it of a!.items) { if (it.id === iid) continue; const q = it.question as unknown as { type: string; options?: { id: string }[] }; const ans = q.type === "TRUE_FALSE" ? { value: true } : q.type === "SHORT" ? { text: "x" } : { option_ids: [q.options![0].id] }; await call(request, tk, "PUT", `/courses/${id}/practice/attempts/${a!.id}/answers/${it.id}`, { answer: ans }); }
+  await page.reload(); await page.waitForTimeout(2500); const ei = a!.items.findIndex((x) => x.id === iid); console.log("NAV", JSON.stringify(await page.evaluate(() => [...document.querySelectorAll("main button")].map((b) => (b.getAttribute("aria-label") ?? "") + "|" + (b.textContent ?? "").trim().slice(0, 12)).slice(0, 16)))); const nb = page.locator("main button[aria-label*='" + (ei + 1) + "']").first(); if (await nb.count()) await nb.click(); await page.waitForTimeout(1200); await page.screenshot({ path: `${OUT}/s10-0811-pre.png` });
   const has = await page.getByRole("button", { name: "Nhận xét" }).count(); const ta = await page.getByRole("textbox").first().inputValue().catch(() => "");
   writeFileSync("/tmp/stub10_mode", "error");
   if (has) await page.getByRole("button", { name: "Nhận xét" }).click(); await page.waitForTimeout(4000);
