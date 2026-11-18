@@ -23,7 +23,11 @@ def newsess(u,course=C1,doc=None):
 def chat(u,text,sid=None,course=C1,idem=None,keep=True,maxsec=90):
     """gửi tin qua đường chat thật; trả dict: sid, events, text, notice, done, payload (provider giả), row"""
     sid=sid or newsess(u,course); reset()
-    tk=login(u); st,ev=sse('POST',f'/chat/sessions/{sid}/messages',tk,{'content':text},idem=idem,maxsec=maxsec)
+    tk=login(u)
+    for _try in range(4):
+        st,ev=sse('POST',f'/chat/sessions/{sid}/messages',tk,{'content':text},idem=idem if _try==0 else None,maxsec=maxsec)
+        if st!=429: break
+        time.sleep(15)
     its=pay(); dump(its)
     for e in ev: open(SSELOG,'a').write(f'{e[0]} {e[1]}\n')
     toks=''.join(json.loads(d).get('t',json.loads(d).get('text','')) if e=='token' else '' for e,d,*_ in ev if d.startswith('{'))

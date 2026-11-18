@@ -1,0 +1,146 @@
+<div class="Layout-module__rM7QnW__page Layout-module__rM7QnW__work" data-ep-page="work"><div class="Layout-module__rM7QnW__header" data-ep-page-header="true"><div class="Layout-module__rM7QnW__headRow"><h1 class="ep-page-title" data-part="page-title">Chat riêng</h1><div class="Layout-module__rM7QnW__actions " data-ep-header-actions="true"><span class="Layout-module__rM7QnW__lead"><button type="button" data-variant="secondary" class="Button-module__lwrakq__btn Button-module__lwrakq__secondary  ">Phiên mới</button></span></div></div></div><div class="Panel-module__zFMaDG__panel" data-ep-panel="true"><div class="Layout-module__rM7QnW__listDetail" data-ep-split="list-detail" data-ep-split-fill="" data-detail-open=""><div class="Layout-module__rM7QnW__ldList"><nav class="ChatScreen-module__YhGRVW__history" data-part="chat-history" aria-label="Phiên trước"><div class="RealChat-module__lbRsKG__historyHead"><p>Phiên trước</p><button type="button" aria-label="Thu gọn lịch sử" title="Thu gọn lịch sử" class="Button-module__lwrakq__iconBtn Button-module__lwrakq__iconSm "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left-close lucide-sidebar-close" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 3v18"></path><path d="m16 15-3-3 3-3"></path></svg></button></div><ul class="RealChat-module__lbRsKG__sheetList"><li class="RealChat-module__lbRsKG__rowActions"><button type="button" class="ChatScreen-module__YhGRVW__historyItem RealChat-module__lbRsKG__rowMain ChatScreen-module__YhGRVW__historyOn" aria-pressed="true"><span class="ChatScreen-module__YhGRVW__historyTitle RealChat-module__lbRsKG__clamp">qc3-s7</span><span class="ChatScreen-module__YhGRVW__historyMeta">Hôm nay, 22:30</span></button><div class="Menu-module__W6EquG__root"><button type="button" class="Menu-module__W6EquG__dots" aria-label="Thao tác với phiên qc3-s7" title="Thao tác với phiên qc3-s7" aria-expanded="false" aria-haspopup="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis lucide-more-horizontal" aria-hidden="true"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></button></div></li></ul></nav></div><div class="Layout-module__rM7QnW__ldDetail"><div class="ChatScreen-module__YhGRVW__convo"><button type="button" class="ChatScreen-module__YhGRVW__sessionsBtn " data-part="chat-sessions-button">Phiên trước (1)</button><div class="ChatScreen-module__YhGRVW__inner " data-part="chat-inner"><div class="ChatScreen-module__YhGRVW__thread" data-part="chat-thread" aria-live="polite"><div class="ChatScreen-module__YhGRVW__fromSv"><p class="ChatScreen-module__YhGRVW__who">Bạn</p><p class="ChatScreen-module__YhGRVW__text">Hỏi thường</p></div><div class="ChatScreen-module__YhGRVW__fromAi"><p class="ChatScreen-module__YhGRVW__who">Trợ lý AI</p><div class="Markdown-module__sTDq-a__md " data-part="markdown"><p>Trả lời thường QCUI-NORMAL</p></div><div class="ChatScreen-module__YhGRVW__feedback"><button type="button" class="ChatScreen-module__YhGRVW__linkBtn" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thumbs-up" aria-hidden="true"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path><path d="M7 10v12"></path></svg>Hữu ích</button><button type="button" class="ChatScreen-module__YhGRVW__linkBtn" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thumbs-down" aria-hidden="true"><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"></path><path d="M17 14V2"></path></svg>Không hữu ích</button><button type="button" data-variant="secondary" class="Button-module__lwrakq__btn Button-module__lwrakq__secondary Button-module__lwrakq__sm " data-part="ask-staff" title="Giảng viên sẽ đọc câu hỏi này và câu trả lời của AI" disabled="">Nhờ giảng viên hỗ trợ</button></div></div><div class="ChatScreen-module__YhGRVW__fromSv"><p class="ChatScreen-module__YhGRVW__who">Bạn</p><p class="ChatScreen-module__YhGRVW__text">hỏi crisis</p></div><div class="ChatScreen-module__YhGRVW__fromAi"><p class="ChatScreen-module__YhGRVW__who">Trợ lý AI</p><div class="Markdown-module__sTDq-a__md " data-part="markdown">
+BUTTONS=2 STATUS=0
+{
+ "NORMAL": {
+  "ask": 1,
+  "status": 0,
+  "text": "Trợ lý AI\n\nTrả lời thường QCUI-NORMAL\n\nHữu ích\nKhông hữu ích\nNhờ giảng viên hỗ trợ"
+ },
+ "CRISIS": {
+  "ask": 0,
+  "status": 0,
+  "text": "Trợ lý AI\n\nTrả lời QCUI-CRISIS\n\nHữu ích\nKhông hữu ích"
+ },
+ "OTHER": {
+  "ask": 0,
+  "status": 0,
+  "text": "Trợ lý AI\n\nTrả lời QCUI-OTHER\n\nHữu ích\nKhông hữu ích"
+ },
+ "SMALL": {
+  "ask": 0,
+  "status": 0,
+  "text": "Trợ lý AI\n\nTrả lời QCUI-SMALL\n\nHữu ích\nKhông hữu ích"
+ },
+ "FAILED": {
+  "ask": 0,
+  "status": 0,
+  "text": "Trợ lý AI\n\nTrả lời QCUI-FAILED\n\nAI đang gián đoạn. Thử lại sau.\nThử lại"
+ },
+ "CANCELLED": {
+  "ask": 0,
+  "status": 0,
+  "text": "Trợ lý AI\n\nTrả lời QCUI-CANCELLED\n\nĐã dừng.\nThử lại"
+ },
+ "STREAMING": {
+  "ask": 0,
+  "status": 0,
+  "text": "Trợ lý AI\n\nTrả lời QCUI-STREAMING\n\nCâu trả lời bị gián đoạn.\nThử lại"
+ },
+ "AUTO": {
+  "ask": 1,
+  "status": 0,
+  "text": "Trợ lý AI\n\nTrả lời yếu QCUI-AUTO\n\nAI chưa đủ chắc chắn về câu này\n\nHữu ích\nKhông hữu ích\nNhờ giảng viên hỗ trợ"
+ }
+}
+MSG TEXT=Chat riêng
+Phiên mới
+
+Phiên trước
+
+Tin nhắn từ giảng viên
+Hôm nay, 22:47
+qc3-s7
+Hôm nay, 22:30
+
+Bạn
+
+Hỏi thường
+
+Trợ lý AI
+
+Trả lời thường QCUI-NORMAL
+
+Hữu ích
+Không hữu ích
+Nhờ giảng viên hỗ trợ
+
+Bạn
+
+hỏi crisis
+
+Trợ lý AI
+
+Trả lời QCUI-CRISIS
+
+Hữu ích
+Không hữu ích
+
+Bạn
+
+hỏi other
+
+Trợ lý AI
+
+Trả lời QCUI-OTHER
+
+Hữu ích
+Không hữu ích
+
+Bạn
+
+hỏi small
+
+Trợ lý AI
+
+Trả lời QCUI-SMALL
+
+Hữu ích
+Không hữu ích
+
+Bạn
+
+hỏi failed
+
+Trợ lý AI
+
+Trả lời QCUI-FAILED
+
+AI đang gián đoạn. Thử lại sau.
+Thử lại
+
+Bạn
+
+hỏi cancelled
+
+Trợ lý AI
+
+Trả lời QCUI-CANCELLED
+
+Đã dừng.
+Thử lại
+
+Bạn
+
+hỏi streaming
+
+Trợ lý AI
+
+Trả lời QCUI-STREAMING
+
+Câu trả lời bị gián đoạn.
+Thử lại
+
+Bạn
+
+hỏi yếu
+
+Trợ lý AI
+
+Trả lời yếu QCUI-AUTO
+
+AI chưa đủ chắc chắn về câu này
+
+Hữu ích
+Không hữu ích
+Nhờ giảng viên hỗ trợ
+Gửi

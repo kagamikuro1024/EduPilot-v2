@@ -4,6 +4,7 @@ mở rộng dòng nhóm N thành từng ca, xoá ca lỗi thời có nguồn, gh
 import re,glob,os,sys,collections
 R='/Users/kuro/Documents/TA_Agent_qc3/docs/regression'
 TCD='/Users/kuro/Documents/TA_Agent_qc3p/docs/sprints/6/qc'
+HANDOFF=open(f'{R}/evidence-6/HANDOFF-qc3-s6.txt').read() if os.path.exists(f'{R}/evidence-6/HANDOFF-qc3-s6.txt') else ''
 SM=f'{R}/smoke-6.md'; RES=f'{R}/evidence-6/results-r3.tsv'; ORIG=f'{R}/evidence-6/smoke-6.orig.md'
 # Ca lỗi thời có nguồn quyết định: xoá hẳn (ghi vào defects-6.md)
 LT={'TC-P3-01-05':'proposals #13 (số 00009 bỏ trống, calendar là 00011)','TC-P3-03-31':'GET /admin/llm/usage mở cho TEACHER: openapi «ADMIN, TEACHER» (sprint 9/10)','TC-P3-04-45':'US-P4-07 2026-10-14: khủng hoảng hai tầng, câu mẫu đổi'}
@@ -48,7 +49,7 @@ for u,ids in us_ids.items():
     c=per[u]; t=sum(c.values()); tab+=f'| {u} | {t} | {c["P"]} | {c["F"]} | {t-c["P"]-c["F"]} |  |\n'
 body='\n## Kết quả từng ca\n| TC | KQ | Ghi chú |\n|---|---|---|\n'+''.join(f'| {i} | {k} | {n} |\n' for i,k,n in rows)
 tail=src[src.index('## Trượt: bước tái hiện'):src.index('## Ca K / T / N và lý do')]
-open(SM,'w').write(hdr+'\n'+mid+tab+body+'\n'+tail+'## Ca còn N\nXem bảng; mọi ca N nằm trong hàng đợi chạy của qc3 (không còn nhãn K/T).\n')
+open(SM,'w').write(hdr+'\n'+mid+tab+body+'\n'+tail+'## Ca còn N\nXem bảng; mọi ca N nằm trong hàng đợi chạy (không còn nhãn K/T).\n\n'+HANDOFF)
 d=f'{R}/defects-6.md'; s=open(d).read()
 for k,v in LT.items():
     line=f'- LT-đã-xoá {k}: {v}\n'
