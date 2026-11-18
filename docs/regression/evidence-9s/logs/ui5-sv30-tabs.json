@@ -1,0 +1,117 @@
+{
+ "sv30_1440_head": [
+  "Bài tập 03 — Phân tích một vụ tấn công thực tế",
+  "Thứ Ba, 17/11 · 02:00 · đã quá hạn 2 ngày",
+  "Đề bài"
+ ],
+ "sv30_1440_tail": [
+  "Tiêu chí chấm",
+  "Xác định tác nhân và bề mặt tấn công",
+  "2,5 điểm",
+  "Phân tích tấn công",
+  "2,5 điểm",
+  "Đánh giá tác động",
+  "2,5 điểm",
+  "Biện pháp phòng thủ",
+  "2,5 điểm",
+  "Bài nộp của bạn",
+  "Chọn tệp",
+  "Kéo thả tệp vào đây",
+  "Nộp bài",
+  "Chưa nộp"
+ ],
+ "sv30_1440_crit": [
+  "Loại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày",
+  "Tệp PDF, DOCX, TXT hoặc MD, tối đa 20 MB."
+ ],
+ "sv30_375_head": [
+  "Bài tập 03 — Phân tích một vụ tấn công thực tế",
+  "Thứ Ba, 17/11 · 02:00 · đã quá hạn 2 ngày",
+  "Đề bài"
+ ],
+ "sv30_375_tail": [
+  "Tiêu chí chấm",
+  "Xác định tác nhân và bề mặt tấn công",
+  "2,5 điểm",
+  "Phân tích tấn công",
+  "2,5 điểm",
+  "Đánh giá tác động",
+  "2,5 điểm",
+  "Biện pháp phòng thủ",
+  "2,5 điểm",
+  "Bài nộp của bạn",
+  "Chọn tệp",
+  "Kéo thả tệp vào đây",
+  "Nộp bài",
+  "Chưa nộp"
+ ],
+ "sv30_375_crit": [
+  "Loại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày",
+  "Tệp PDF, DOCX, TXT hoặc MD, tối đa 20 MB."
+ ],
+ "afterSubmitTail": [
+  "Đánh giá tác động",
+  "2,5 điểm",
+  "Biện pháp phòng thủ",
+  "2,5 điểm",
+  "Bài nộp của bạn",
+  "Chọn tệp",
+  "bai.md",
+  "Đã hết hạn nộp bài.",
+  "Nộp bài",
+  "Chưa nộp"
+ ],
+ "afterSubmitHead": [
+  "Bài tập 03 — Phân tích một vụ tấn công thực tế",
+  "Thứ Ba, 17/11 · 02:00 · đã quá hạn 2 ngày",
+  "Đề bài",
+  "# Bài tập 03 — Phân tích một vụ tấn công thực tế",
+  "Loại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày"
+ ],
+ "badAfter": [],
+ "teacher_tabs": [
+  "Hàng chờ",
+  "Bài tập",
+  "Chưa khớp"
+ ],
+ "teacher_defaultTab": [
+  "Hàng chờ"
+ ],
+ "teacher_panel": [
+  "Chấm bài",
+  "Tạo bài tập",
+  "Hàng chờ",
+  "Bài tập",
+  "Chưa khớp",
+  "Bài tập của lớp",
+  "Tiêu đề\tHạn\tTrạng thái\tĐã nộp / Tổng\tĐã chấm / Đã công bố",
+  "Bài tập 03 — Phân tích một vụ tấn công thực tế\tThứ Ba, 17/11 · 02:01",
+  "Đã công bố\t2 / 40\t2 / 2",
+  "Bài tập 03 — Phân tích một vụ tấn công thực tế\tThứ Ba, 17/11 · 02:00",
+  "Đã công bố\t22 / 40\t22 / 0"
+ ],
+ "teacher_createBtn": 1,
+ "teacher_panels": 0,
+ "ta_tabs": [
+  "Hàng chờ",
+  "Bài tập",
+  "Chưa khớp"
+ ],
+ "ta_defaultTab": [
+  "Hàng chờ"
+ ],
+ "ta_panel": [
+  "Chấm bài",
+  "Hàng chờ",
+  "Bài tập",
+  "Chưa khớp",
+  "Bài tập của lớp",
+  "Tiêu đề\tHạn\tTrạng thái\tĐã nộp / Tổng\tĐã chấm / Đã công bố",
+  "Bài tập 03 — Phân tích một vụ tấn công thực tế\tThứ Ba, 17/11 · 02:01",
+  "Đã công bố\t2 / 40\t2 / 2",
+  "Bài tập 03 — Phân tích một vụ tấn công thực tế\tThứ Ba, 17/11 · 02:00",
+  "Đã công bố\t22 / 40\t22 / 0"
+ ],
+ "ta_createBtn": 0,
+ "ta_panels": 0
+}

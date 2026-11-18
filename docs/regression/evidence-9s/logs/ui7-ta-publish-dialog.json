@@ -1,0 +1,20 @@
+{
+ "info": {
+  "vis": "visible",
+  "disp": "flex",
+  "w": 0,
+  "h": 0,
+  "y": 0,
+  "ariaHidden": false,
+  "inert": false,
+  "dis": false,
+  "anc": [
+   "BUTTON.Button-module__lwrakq__btn Button-module__lwrakq__primary  ",
+   "FOOTER.Dialog-module__rUw9Ha__foot",
+   "DIV.Dialog-module__rUw9Ha__frame",
+   "DIALOG.Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog"
+  ]
+ },
+ "visible": false,
+ "reqs": []
+}

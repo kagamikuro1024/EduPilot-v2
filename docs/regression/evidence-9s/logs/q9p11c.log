@@ -1,0 +1,6 @@
+   paged: SUCCEEDED|100|{"failed": [], "created": 25, "deduped": 0, "fetched": 25, "unmatched": 1}| MATCHED:24 UNMATCHED:1 trang submissions: 3 yêu cầu: 32
+PASS TC-P7-11-02 paged (30 bản ghi / trang 10): SUCCEEDED MATCHED:24 UNMATCHED:1 — 3 yêu cầu trang bài nộp 
+   lần hai: SUCCEEDED|100|{"failed": [], "created": 0, "deduped": 25, "fetched": 25, "unmatched": 0}| 25 → 25
+PASS TC-P7-11-02 đồng bộ lần hai ngay: 25 → 25 bài (0 bài mới, UNIQUE (course_id, source, external_ref, external_ts)) 
+SUMMARY {"TC-P7-11-02": true}
+RESULT: PASS (0 lỗi)

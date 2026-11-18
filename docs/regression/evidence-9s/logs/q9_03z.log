@@ -1,0 +1,9 @@
+PASS TC-P7-03-19 GET assignments (B): 200, thấy bài đã công bố, KHÔNG thấy bài nháp (1 bài) 
+PASS TC-P7-03-19 mỗi bài có my:{state} = {'state': 'NOT_SUBMITTED', 'late_days': 0, 'submitted_at': None}; không rubric/guidance/reference_answer/ai_scores 
+PASS TC-P7-03-19 GET chi tiết bài (B): không guidance/reference_answer 
+PASS TC-P7-03-19 bài nháp (B) → 404 (không lộ) 
+PASS TC-P7-03-19 lịch (B) có DEADLINE của bài đã công bố, không có bài nháp: 200 
+PASS TC-P7-03-19 Hôm nay (B, hạn +12 giờ, chưa nộp) có ASSIGNMENT_DUE: ['Còn 12 giờ — Nộp bài'] 
+PASS TC-P7-03-19 nộp xong (201) → ASSIGNMENT_DUE mất sau 0.5 s (≤ 5 s); C (chưa nộp) vẫn còn: 1 
+SUMMARY {"TC-P7-03-19": true}
+RESULT: PASS (0 lỗi)

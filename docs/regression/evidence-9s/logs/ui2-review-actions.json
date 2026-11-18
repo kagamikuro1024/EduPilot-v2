@@ -1,0 +1,28 @@
+{
+ "quote": "Kẻ tấn công là nhóm APT29, có liên quan tới nhà nước",
+ "highlights": [
+  {
+   "tag": "MARK",
+   "cls": "SubmissionReview-module__s4mt-a__evidenceMark",
+   "text": "Kẻ tấn công là nhóm APT29, có liên quan tới nhà nước",
+   "match": true
+  }
+ ],
+ "scrollBefore": 0,
+ "scrollAfter": 0,
+ "autosaveRestored": true,
+ "restoredTail": "iếu chi tiết kỹ thuật và số liệu. NHAN-XET-TAM-1795028536730",
+ "helperLabel": [
+  "Đã khôi phục nhận xét bạn đang soạn dở."
+ ],
+ "bar0": "Đã duyệt 0/22",
+ "bar1": "Đã duyệt 1/22",
+ "urlChanged": true,
+ "toasts": 0,
+ "focusStyle": {
+  "tag": "BUTTON",
+  "outline": "none 3px",
+  "shadow": "lab(100 0 0) 0px 0px 0px 2px, rgb(206, 22, 40) 0px 0px 0px 4"
+ },
+ "axe": []
+}
