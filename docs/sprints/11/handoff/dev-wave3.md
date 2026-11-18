@@ -72,3 +72,7 @@ Xong: DEF-R5-03, R5-04, R8-A2 (mỗi cái 1 commit, test đỏ-trước). Còn (
 
 ## 2026-11-18 dev2 — dừng (cắt đội xuống 1 cặp)
 Đã đẩy R5-06 0e52f1e5, R5-08 473472ec (P-11-60), R5-09 247bf4e4 + sửa lại 42c1ed09 (mobile). R3-01 đã sửa từ ffb46656. CI chưa có run trọn vẹn cho nhóm này (bị huỷ do push mới); không có việc dở, không có dữ liệu/lớp tạo thêm. Chưa nhận lô lỗi sprint 6 từ qc3.
+
+## 2026-11-18 dev — dừng theo lệnh chủ dự án (lô S10/S9/S7 của qc2)
+- Xong + đã đẩy: R10S-01 (notes bù, b6269c53), R10S-04/05/06/07 (luyện TOPIC, 3d5d341c; 1 commit gộp vì cùng TopicRun.tsx; e2e practice-topic.spec.ts desktop+mobile, đỏ→xanh), R7-02 (chuông gộp TICKET_NEW, commit «DEF-R7-02»; gói notify xanh; escalation/thread/assignment đang chạy dở, CHƯA có kết quả).
+- Còn: R10S-02 (mã lỗi INVALID_QUESTION của PUT answers; kiểm HEAD chưa xong), R10S-08 (hàng chờ MOCK localStorage → IndexedDB; SaveQueue.read đồng bộ, cần quyết định thiết kế/hỏi PM), R9S-01 (test lớp SQL PublishMark), R9S-03 (XADD trước COMMIT), R9S-02 (nêu nguyên nhân bài FAILED ở /grading). R10S-03 (PROGRESS) báo PM, không sửa code. TC-20 CI: run PR gần nhất 44338054835 = 807 s, các run khác 495–606 s ⇒ lượt lẻ (Lighthouse simulate B 762 s, e2e 1/4 620 s), không phải 16 phút. P3-01-49 nợ PR (D44), không sửa.
