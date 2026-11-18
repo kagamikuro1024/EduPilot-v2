@@ -160,6 +160,7 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 ## Lượt 2026-11-19 — chạy nốt 105 ca «N» (mã gateway 4ac1638a, worker 6abb09af, stack ep-qc; lớp riêng QD105A/QD105B; không đụng 761987/761988)
 | TC | KQ | Ghi chú |
 | --- | --- | --- |
+| TC-D01-07 | N | chưa xong: lần 1 (8 luồng, 200 đăng bài) p50=101/p95=150 ms trên 127 dòng ok (đúng ±20 %) nhưng 73/200 bị 'overloaded' (vượt RPM 150 của provider decision) nên không đủ 200 mẫu; lỗi 0,5: 46 error/102 lời gọi thực = 45,1 % (đúng ±10 điểm) nhưng cầu dao mở làm 84 dòng circuit_open. Lượt lặp có nhịp 1,6/s + mặc định 426/682 bị dừng khi ep-qc dựng lại — chạy lại sau |
 | TC-D01-11 | P | llm_audit task=DECIDE theo cổng (ep-qc, lớp QD105A): THREADS_PRECHECK → INTERACTIVE, CHAT_ROUTING → INTERACTIVE, INJECTION_FLAG → BATCH (đủ 3 cổng, SELECT cascade_gate,lane); đúng làn từng cổng |
 | TC-D01-18 | P | Go (test tạm của QC, evidence-10.5/s105/go/qc105_test.go) 2.000 lần Decide khi chưa có provider/khoá: p50 0,67 µs · p99 32 µs · max 0,68 ms < 1 ms, không treo; llm_audit đúng 2.000 dòng / 2.000 lần gọi (status not_configured, không lặp); thêm TestDecideNotConfigured của dev PASS |
 | TC-D01-21 | P | Go (test tạm QC): model gemini-decision-1 (máy chủ giả trong tiến trình), cap 3, 5 lời gọi → 3 đầu qua (provider gọi 3), lời 4–5 budget_blocked; Cascade lời 6 cùng ngày → path FALLBACK, fallback chạy 1 lần; 23:59:59 UTC+7 vẫn chặn, 00:00 UTC+7 (17:00 UTC) đếm lại: 3 lời qua, lời 4 chặn. Không gọi mạng thật |
