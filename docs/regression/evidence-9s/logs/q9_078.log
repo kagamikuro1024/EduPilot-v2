@@ -1,0 +1,6 @@
+k6 rc 99 time="2026-11-19T03:13:43+07:00" level=error msg="thresholds on metrics 'ttft_ms' have been crossed"
+
+baseline ttft p95 19.7366 | grading: first_event p95 29.36585 ttft p95 36.809799999999996 queued 22 http_req_failed 0
+ngưỡng: {"ttft_samples": {"count>0": {"ok": true}}, "first_event_samples": {"count>0": {"ok": true}}, "ttft_ms": {"p(95)<24": {"ok": false}}, "http_req_failed": {"rate<0.01": {"ok": true}}, "first_event_ms": {"p(95)<500": {"ok": true}}, "grading_queued": {"count>0": {"ok": true}}}
+EMBEDDING / INTERACTIVE = 48
+GRADING / BATCH = 42

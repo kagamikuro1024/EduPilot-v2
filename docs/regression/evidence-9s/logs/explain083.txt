@@ -1,0 +1,79 @@
+Limit  (cost=774.42..774.54 rows=50 width=309) (actual time=4.483..4.488 rows=50.00 loops=1)
+  Buffers: shared hit=4423
+  ->  Sort  (cost=774.42..776.27 rows=740 width=309) (actual time=4.482..4.486 rows=50.00 loops=1)
+        Sort Key: (CASE WHEN COALESCE(r.needs_review, false) THEN 0 ELSE 1 END), s.received_at, s.id
+        Sort Method: top-N heapsort  Memory: 46kB
+        Buffers: shared hit=4423
+        ->  Hash Left Join  (cost=385.28..749.84 rows=740 width=309) (actual time=1.716..4.158 rows=1000.00 loops=1)
+              Hash Cond: (s.student_id = e.user_id)
+              Buffers: shared hit=4414
+              ->  Hash Left Join  (cost=365.53..724.35 rows=707 width=238) (actual time=1.643..3.897 rows=1000.00 loops=1)
+                    Hash Cond: ((s.id = r.submission_id) AND ((SubPlan 2) = r.round))
+                    Buffers: shared hit=4407
+                    ->  Hash Left Join  (cost=201.00..403.84 rows=707 width=161) (actual time=0.892..1.446 rows=1000.00 loops=1)
+                          Hash Cond: (s.student_id = u.id)
+                          Buffers: shared hit=276
+                          ->  Hash Join  (cost=189.38..390.32 rows=707 width=148) (actual time=0.822..1.276 rows=1000.00 loops=1)
+                                Hash Cond: (s.assignment_id = a.id)
+                                Buffers: shared hit=268
+                                ->  Hash Anti Join  (cost=163.44..362.47 rows=707 width=90) (actual time=0.553..0.903 rows=1000.00 loops=1)
+                                      Hash Cond: ((s.assignment_id = n.assignment_id) AND (s.student_id = n.student_id))
+                                      Join Filter: (n.version > s.version)
+                                      Rows Removed by Join Filter: 1000
+                                      Buffers: shared hit=244
+                                      ->  Seq Scan on submissions s  (cost=0.00..147.66 rows=1052 width=90) (actual time=0.006..0.190 rows=1000.00 loops=1)
+                                            Filter: ((course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid) AND (match_status = 'MATCHED'::text))
+                                            Rows Removed by Filter: 639
+                                            Buffers: shared hit=122
+                                      ->  Hash  (cost=147.66..147.66 rows=1052 width=52) (actual time=0.540..0.541 rows=1000.00 loops=1)
+                                            Buckets: 2048  Batches: 1  Memory Usage: 99kB
+                                            Buffers: shared hit=122
+                                            ->  Seq Scan on submissions n  (cost=0.00..147.66 rows=1052 width=52) (actual time=0.002..0.434 rows=1000.00 loops=1)
+                                                  Filter: ((course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid) AND (match_status = 'MATCHED'::text))
+                                                  Rows Removed by Filter: 639
+                                                  Buffers: shared hit=122
+                                ->  Hash  (cost=25.62..25.62 rows=25 width=90) (actual time=0.260..0.260 rows=25.00 loops=1)
+                                      Buckets: 1024  Batches: 1  Memory Usage: 10kB
+                                      Buffers: shared hit=24
+                                      ->  Seq Scan on assignments a  (cost=0.00..25.62 rows=25 width=90) (actual time=0.006..0.256 rows=25.00 loops=1)
+                                            Filter: (course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid)
+                                            Rows Removed by Filter: 115
+                                            Buffers: shared hit=24
+                          ->  Hash  (cost=9.61..9.61 rows=161 width=29) (actual time=0.064..0.064 rows=161.00 loops=1)
+                                Buckets: 1024  Batches: 1  Memory Usage: 18kB
+                                Buffers: shared hit=8
+                                ->  Seq Scan on users u  (cost=0.00..9.61 rows=161 width=29) (actual time=0.004..0.047 rows=161.00 loops=1)
+                                      Buffers: shared hit=8
+                    ->  Hash  (cost=149.21..149.21 rows=1021 width=111) (actual time=0.728..0.729 rows=1000.00 loops=1)
+                          Buckets: 1024  Batches: 1  Memory Usage: 142kB
+                          Buffers: shared hit=130
+                          ->  Seq Scan on grading_results r  (cost=0.00..149.21 rows=1021 width=111) (actual time=0.004..0.522 rows=1000.00 loops=1)
+                                Filter: (course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid)
+                                Rows Removed by Filter: 537
+                                Buffers: shared hit=130
+                    SubPlan 2
+                      ->  Result  (cost=4.30..4.31 rows=1 width=2) (actual time=0.001..0.001 rows=1.00 loops=2000)
+                            Buffers: shared hit=4001
+                            InitPlan 1
+                              ->  Limit  (cost=0.28..4.30 rows=1 width=2) (actual time=0.001..0.001 rows=1.00 loops=2000)
+                                    Buffers: shared hit=4001
+                                    ->  Index Only Scan using grading_results_submission_idx on grading_results x  (cost=0.28..4.30 rows=1 width=2) (actual time=0.000..0.000 rows=1.00 loops=2000)
+                                          Index Cond: ((course_id = s.course_id) AND (submission_id = s.id))
+                                          Heap Fetches: 0
+                                          Index Searches: 2000
+                                          Buffers: shared hit=4001
+              ->  Hash  (cost=19.19..19.19 rows=45 width=45) (actual time=0.049..0.049 rows=42.00 loops=1)
+                    Buckets: 1024  Batches: 1  Memory Usage: 12kB
+                    Buffers: shared hit=4
+                    ->  Bitmap Heap Scan on enrollments e  (cost=4.62..19.19 rows=45 width=45) (actual time=0.032..0.042 rows=42.00 loops=1)
+                          Recheck Cond: (course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid)
+                          Heap Blocks: exact=2
+                          Buffers: shared hit=4
+                          ->  Bitmap Index Scan on enrollments_course_status_idx  (cost=0.00..4.61 rows=45 width=0) (actual time=0.015..0.015 rows=42.00 loops=1)
+                                Index Cond: (course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid)
+                                Index Searches: 1
+                                Buffers: shared hit=2
+Planning:
+  Buffers: shared hit=986
+Planning Time: 4.516 ms
+Execution Time: 4.590 ms

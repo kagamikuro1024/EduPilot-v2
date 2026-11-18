@@ -1,0 +1,13 @@
+--- PASS: TestOrphanUploadCleanup (5.95s)
+--- PASS: TestSuggestUsesBatchLane (4.98s)
+--- PASS: TestAssignmentItemEqualsStudentView (5.05s)
+--- PASS: TestGradingUsesBatchLane (3.49s)
+--- PASS: TestLaneRules (0.00s)
+--- PASS: TestBadLane (0.00s)
+--- PASS: TestLaneOrder (0.04s)
+--- PASS: TestToolGradeSummaryTrustedContext (0.96s)
+--- PASS: TestToolGradeNumbersMatchMeGrades (0.81s)
+ok  	github.com/edupilot/backend-go/internal/agent	2.121s
+--- PASS: TestLaneRules (0.00s)
+ok  	github.com/edupilot/backend-go/internal/llm	0.643s
+--- PASS: TestDefaultLaneTable (0.00s)

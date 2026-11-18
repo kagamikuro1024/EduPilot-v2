@@ -1,0 +1,7 @@
+--- PASS: TestAppealCreate (1.39s)
+--- PASS: TestAppealCreatesNoTicket (1.18s)
+--- PASS: TestAppealFileDoubleClick (1.34s)
+--- PASS: TestAppealDecideConcurrent (1.11s)
+--- PASS: TestAppealIdempotent (1.30s)
+--- PASS: TestAppealDecideIdempotent (1.19s)
+ok  	github.com/edupilot/backend-go/internal/assignment	8.146s

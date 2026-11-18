@@ -1,0 +1,36 @@
+[WebServer] (node:37873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:37896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 2 workers
+
+(node:37898) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › e2e/grade-appeal.spec.ts:28:5 › student files appeal: chọn tiêu chí theo tên, lý do, gửi một lần (570ms)
+  ✓   1 [desktop] › e2e/grade-appeal.spec.ts:49:5 › appeal window and states: hết hạn hoặc đã gửi thì không có nút, đã quyết thì hiện phản hồi (582ms)
+  ✓   3 [desktop] › e2e/grade-appeal.spec.ts:67:5 › appeal already filed: gửi lần hai bị từ chối bằng chữ, chữ đang gõ còn nguyên (395ms)
+  ✓   5 [desktop] › e2e/grade-appeal.spec.ts:109:5 › teacher decides appeal: sửa điểm kèm phản hồi bắt buộc, xác nhận không quyết lại (409ms)
+  ✓   6 [desktop] › e2e/grade-appeal.spec.ts:137:5 › ta cannot decide appeal: trợ giảng chỉ đọc khối phúc khảo (196ms)
+  ✓   7 [desktop] › e2e/grade-appeal.spec.ts:149:5 › appeal decided twice: 409 nói bằng chữ (384ms)
+  ✓   8 [desktop] › e2e/grade-appeal.spec.ts:166:5 › appeal locked gradebook drift: sửa điểm khi sổ đã chốt ⇒ Khác bản chốt, Mở khoá → Chốt điểm, sinh viên nhận thông báo (3.2s)
+  ✓   4 [desktop] › e2e/grade-appeal.spec.ts:82:5 › appeal offline draft: mất mạng không mất chữ, mở lại vẫn còn và gửi lại được (4.7s)
+(node:38114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   9 [mobile] › e2e/grade-appeal.spec.ts:28:5 › student files appeal: chọn tiêu chí theo tên, lý do, gửi một lần
+  -  11 [mobile] › e2e/grade-appeal.spec.ts:67:5 › appeal already filed: gửi lần hai bị từ chối bằng chữ, chữ đang gõ còn nguyên
+  -  12 [mobile] › e2e/grade-appeal.spec.ts:82:5 › appeal offline draft: mất mạng không mất chữ, mở lại vẫn còn và gửi lại được
+  -  13 [mobile] › e2e/grade-appeal.spec.ts:109:5 › teacher decides appeal: sửa điểm kèm phản hồi bắt buộc, xác nhận không quyết lại
+  -  10 [mobile] › e2e/grade-appeal.spec.ts:49:5 › appeal window and states: hết hạn hoặc đã gửi thì không có nút, đã quyết thì hiện phản hồi
+  -  14 [mobile] › e2e/grade-appeal.spec.ts:137:5 › ta cannot decide appeal: trợ giảng chỉ đọc khối phúc khảo
+  -  15 [mobile] › e2e/grade-appeal.spec.ts:149:5 › appeal decided twice: 409 nói bằng chữ
+  -  16 [mobile] › e2e/grade-appeal.spec.ts:166:5 › appeal locked gradebook drift: sửa điểm khi sổ đã chốt ⇒ Khác bản chốt, Mở khoá → Chốt điểm, sinh viên nhận thông báo
+
+  8 skipped
+  8 passed (7.0s)
+rc=0

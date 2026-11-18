@@ -1,0 +1,53 @@
+{
+ "id": "01a1f042-03ed-7dde-a009-f59d693d9e00",
+ "s1": [
+  "2,5 điểm",
+  "Biện pháp phòng thủ",
+  "2,5 điểm",
+  "Bài nộp của bạn",
+  "Chọn tệp",
+  "Kéo thả tệp vào đây",
+  "Nộp bài",
+  "Chưa nộp"
+ ],
+ "s2": [
+  "Biện pháp phòng thủ",
+  "2,5 điểm",
+  "Bài nộp của bạn",
+  "Nộp lại sau hạn sẽ tính nộp muộn",
+  "Chọn tệp",
+  "Kéo thả tệp vào đây",
+  "Nộp lại",
+  "Đã nhận bài lúc 03:03 Thứ Năm, 19/11"
+ ],
+ "s2bad": [],
+ "s3": [
+  "Biện pháp phòng thủ",
+  "2,5 điểm",
+  "Bài nộp của bạn",
+  "Nộp lại sau hạn sẽ tính nộp muộn",
+  "Chọn tệp",
+  "Kéo thả tệp vào đây",
+  "Nộp lại",
+  "Đang chấm · Nộp muộn 2 ngày"
+ ],
+ "s3bad": [],
+ "s3text": [
+  "Loại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày",
+  "Không ghi họ tên hay MSSV trong thân bài (hệ thống chấm không đọc phần đó; giảng viên biết bài của ai qua tài khoản nộp).",
+  "Tiêu chí chấm",
+  "2,5 điểm",
+  "2,5 điểm",
+  "2,5 điểm"
+ ],
+ "s5": [
+  "Kết quả",
+  "7,00 / 10,00",
+  "Trừ nộp muộn: −1,00 điểm",
+  "Loại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày",
+  "2,5 điểm",
+  "2,5 điểm",
+  "2,5 điểm",
+  "2,5 điểm"
+ ]
+}

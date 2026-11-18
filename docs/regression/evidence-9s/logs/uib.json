@@ -1,0 +1,33 @@
+{
+ "total": "Tổng tiêu chí 10 / 10  Tạo",
+ "posts": [
+  "201"
+ ],
+ "created": 3,
+ "dlgAfter": "Bài QC bấm đúp 1795031437659 | Tiêu đề · bắt buộc | Mô tả | Mã nộp thư | Điểm tối đa | Hạn nộp · bắt buộc | Hạn phúc khảo | Cho nộp muộn | Kênh nhận bài | Trong EduPilot | ZIP | Thư | Teams | Đáp án chuẩn | Tiêu chí chấm | Gợi ý tiêu chí | Thêm tiêu chí | Tổng tiêu chí | 10 / 10 | Chưa tính vào điểm | Mở công thức | Xoá | Công bố bài | Lưu",
+ "otherPut": 200,
+ "putCodes": [
+  "409"
+ ],
+ "conflictNotice": [
+  "Bài tập vừa được người khác sửa",
+  "Giữ của tôi",
+  "Dùng của họ"
+ ],
+ "conflictBtns": [
+  "",
+  "Giữ của tôi",
+  "Dùng của họ",
+  "",
+  "Gợi ý tiêu chí",
+  "",
+  "",
+  "Thêm tiêu chí",
+  "Xoá",
+  "Công bố bài",
+  "Lưu"
+ ],
+ "gradeLine": [
+  "Chưa tính vào điểm"
+ ]
+}

@@ -1,0 +1,295 @@
+{
+  "meta": {
+    "by": "Smoke9Runner",
+    "stack": "ep-qc"
+  },
+  "scenario": "grading",
+  "metrics": {
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 5.8668615384615395,
+        "med": 6.579,
+        "p(90)": 10.7442,
+        "p(95)": 12.024799999999999,
+        "p(99)": 12.62448,
+        "max": 13.468
+      }
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "passes": 0,
+        "fails": 65,
+        "rate": 0
+      },
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      }
+    },
+    "data_received": {
+      "contains": "data",
+      "values": {
+        "rate": 1912.3872567814549,
+        "count": 83475
+      },
+      "type": "counter"
+    },
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 49,
+        "fails": 0
+      }
+    },
+    "iteration_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(99)": 3541.93023684,
+        "max": 3542.226417,
+        "avg": 3447.4061708571435,
+        "med": 3515.128583,
+        "p(90)": 3523.3712918,
+        "p(95)": 3540.9796328
+      }
+    },
+    "first_event_ms": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 29.36585,
+        "p(99)": 31.16066,
+        "max": 31.171,
+        "avg": 9.971541666666665,
+        "med": 7.4955,
+        "p(90)": 15.699000000000002
+      },
+      "thresholds": {
+        "p(95)<500": {
+          "ok": true
+        }
+      }
+    },
+    "grading_queued": {
+      "thresholds": {
+        "count>0": {
+          "ok": true
+        }
+      },
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 22,
+        "rate": 0.5040134129882241
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 5,
+        "min": 5,
+        "max": 5
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 25559,
+        "rate": 585.5490373893646
+      }
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 14.464,
+        "p(90)": 41.6854,
+        "p(95)": 230.64759999999998,
+        "p(99)": 233.84856,
+        "max": 233.91,
+        "avg": 35.237676923076926
+      }
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 233.824,
+        "avg": 29.314307692307704,
+        "med": 7.353,
+        "p(90)": 31.1622,
+        "p(95)": 230.566,
+        "p(99)": 233.73311999999999
+      }
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 49,
+        "rate": 1.1225753289283174
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.019369230769230767,
+        "med": 0,
+        "p(90)": 0,
+        "p(95)": 0.1948,
+        "p(99)": 0.23139999999999997,
+        "max": 0.257
+      }
+    },
+    "ttft_samples": {
+      "values": {
+        "rate": 1.0996656283379433,
+        "count": 48
+      },
+      "thresholds": {
+        "count>0": {
+          "ok": true
+        }
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "first_event_samples": {
+      "values": {
+        "rate": 1.0996656283379433,
+        "count": 48
+      },
+      "thresholds": {
+        "count>0": {
+          "ok": true
+        }
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "http_reqs": {
+      "contains": "default",
+      "values": {
+        "count": 65,
+        "rate": 1.4891305383742983
+      },
+      "type": "counter"
+    },
+    "vus": {
+      "contains": "default",
+      "values": {
+        "value": 4,
+        "min": 0,
+        "max": 4
+      },
+      "type": "gauge"
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 35.237676923076926,
+        "med": 14.464,
+        "p(90)": 41.6854,
+        "p(95)": 230.64759999999998,
+        "p(99)": 233.84856,
+        "max": 233.91
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 3.334,
+        "avg": 0.2150153846153845,
+        "med": 0,
+        "p(90)": 0.001,
+        "p(95)": 2.1496,
+        "p(99)": 2.579439999999999
+      }
+    },
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0.054,
+        "p(90)": 0.0876,
+        "p(95)": 0.0924,
+        "p(99)": 0.1008,
+        "max": 0.104,
+        "avg": 0.056507692307692335
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(99)": 1.90936,
+        "max": 1.91,
+        "avg": 0.16827692307692307,
+        "med": 0,
+        "p(90)": 0,
+        "p(95)": 1.8501999999999994
+      }
+    },
+    "ttft_ms": {
+      "thresholds": {
+        "p(95)<24": {
+          "ok": false
+        }
+      },
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 21.399,
+        "p(95)": 36.809799999999996,
+        "p(99)": 39.32867,
+        "max": 39.488,
+        "avg": 15.825708333333338,
+        "med": 13.039000000000001
+      }
+    }
+  },
+  "thresholds": {
+    "ttft_samples": {
+      "count>0": {
+        "ok": true
+      }
+    },
+    "first_event_samples": {
+      "count>0": {
+        "ok": true
+      }
+    },
+    "ttft_ms": {
+      "p(95)<24": {
+        "ok": false
+      }
+    },
+    "http_req_failed": {
+      "rate<0.01": {
+        "ok": true
+      }
+    },
+    "first_event_ms": {
+      "p(95)<500": {
+        "ok": true
+      }
+    },
+    "grading_queued": {
+      "count>0": {
+        "ok": true
+      }
+    }
+  }
+}
