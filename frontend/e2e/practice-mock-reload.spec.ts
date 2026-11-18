@@ -37,3 +37,23 @@ for (const gap of [250, 1200]) {
     await expect(page.getByRole("heading", { name: "Bạn đúng cả 20 câu", level: 1 })).toBeVisible();
   });
 }
+
+// DEF-R10S-10 (TC-07-21, US-P9-07 AC9): mất mạng khi bấm Nộp → «Chưa nộp được. Đang thử lại.»; có mạng → tự nộp lại CÙNG Idempotency-Key, kết quả đúng.
+test("mock run: nộp khi mất mạng báo «Chưa nộp được. Đang thử lại.», có mạng tự nộp cùng khoá", async ({ page }) => {
+  let down = false;
+  const api = await practiceApi(page, { "POST submit": async (route, next) => (down ? route.abort("internetdisconnected") : next()) }, { mockCount: 5 });
+  await page.goto("/practice");
+  await page.getByRole("tab", { name: /Thi thử/ }).click();
+  await page.getByRole("button", { name: "Bắt đầu thi thử" }).click();
+  await page.waitForURL(/\/practice\/att-1/);
+  await page.getByRole("button", { name: /^Phương án B của câu 1/ }).click();
+  await expect(page.getByRole("status").first()).toContainText("Đã lưu lúc");
+  down = true;
+  await page.getByRole("button", { name: "Nộp bài" }).first().click();
+  await page.getByRole("dialog").getByRole("button", { name: "Nộp bài" }).click();
+  await expect(page.getByText("Chưa nộp được. Đang thử lại.")).toBeVisible({ timeout: 15_000 });
+  down = false;
+  await expect(page.getByRole("heading", { name: "Bạn đúng 1/5 câu", level: 1 })).toBeVisible({ timeout: 30_000 });
+  const submits = api.calls.filter((c) => c.method === "POST" && c.path.endsWith("/submit"));
+  expect(new Set(submits.map((c) => c.headers["idempotency-key"])).size).toBe(1);
+});
