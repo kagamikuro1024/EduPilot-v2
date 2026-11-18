@@ -39,3 +39,4 @@ Ghi nhận không phải lỗi sản phẩm: (1) check-practice-seed.mjs đỏ d
 Mã xoá (LT có nguồn quyết định):
 - TC-04-08: xoá — nguồn handoff `docs/sprints/10/handoff/dev-sprint10.md` L50 («P9-03 sinh có trích dẫn ✓») + điều kiện trong `tc-US-P9-03.md` dòng 2 («chỉ chạy nếu handoff ghi đã làm»); PM xác nhận 2026-11-19.
 - TC-11-18: xoá — nguồn handoff `docs/sprints/10/handoff/dev-sprint10.md` L17 (mục «Nhập Forms (US-P9-11)») + điều kiện trong `tc-US-P9-11.md` dòng 2; PM xác nhận 2026-11-19.
+| DEF-R10S-20 | Cao | TC-12-17 | Hiệu năng tải: LCP (Lighthouse devtools) `/practice` 4.086 ms và `/practice/[id]` (lượt TOPIC đang làm) 17.723 ms, vượt ngưỡng 2.500 ms (TBT/script đạt). Phần tử LCP của `/practice/[id]` là đoạn chữ hiện sau khi dữ liệu lượt về; cùng môi trường `/chat` 2.031 ms. Số liệu `evidence-9s/s10/perf/lh-1217-summary.txt`. Theo TC: trượt → PM ghi dòng proposals.md, không nới ngưỡng. |
