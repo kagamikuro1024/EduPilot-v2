@@ -162,9 +162,7 @@ test("TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở đư
   const t = await page.locator("main").innerText();
   console.log("INFO lỗi:", t.replace(/\s+/g, " ").slice(0, 200));
   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible({ timeout: 15_000 });
-  expect(await page.getByLabel("Trạng thái").inputValue(), "bộ lọc còn nguyên").not.toBe("");
-  const selVal = await page.getByLabel("Bài tập").evaluate((s: HTMLSelectElement) => s.selectedOptions[0].text);
-  expect(selVal).toMatch(/Bài tập 03/);
+  console.log("INFO bộ lọc hiện khi lỗi (Panel.fault thay vùng lọc):", await page.getByLabel("Trạng thái").count()); // QC SmkS3: kiểm giá trị bộ lọc sau khi Thử lại
   // QC SmkS: nút Thử lại có thể biến mất tạm thời khi truy vấn tự thử lại (probe rzprobe2) ⇒ bấm có thử lại, đo số request mới; mất lỗi sau khi bỏ chặn
   const retryReq0 = calls.length;
   await expect.poll(async () => { const b = page.getByRole("button", { name: "Thử lại" }); if (await b.count()) await b.click({ timeout: 3000 }).catch(() => undefined); return calls.length > retryReq0; }, { timeout: 20_000, intervals: [500] }).toBe(true);
@@ -172,6 +170,9 @@ test("TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở đư
   await expect.poll(async () => { const b = page.getByRole("button", { name: "Thử lại" }); if (await b.count()) await b.click({ timeout: 3000 }).catch(() => undefined); return b.count(); }, { timeout: 30_000, intervals: [1000] }).toBe(0);
   await page.waitForTimeout(1500);
   expect(await page.getByRole("button", { name: "Thử lại" }).count(), "tải lại được").toBe(0);
+  expect(await page.getByLabel("Trạng thái").inputValue(), "bộ lọc còn nguyên sau Thử lại").toBe(await page.getByLabel("Trạng thái").evaluate((e: HTMLSelectElement) => e.value));
+  expect(await page.getByLabel("Trạng thái").evaluate((e: HTMLSelectElement) => e.selectedOptions[0].text), "bộ lọc Trạng thái còn «Đã duyệt»").toBe("Đã duyệt");
+  expect(await page.getByLabel("Bài tập").evaluate((e: HTMLSelectElement) => e.selectedOptions[0].text)).toMatch(/Bài tập 03/);
   await ctx.close();
   // STUDENT / TA
   const cs = await browser.newContext({ ignoreHTTPSErrors: true });
@@ -192,8 +193,14 @@ test("TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở đư
   await login(pa, "admin");
   const all = ((await api<{ items: Array<{ id: string; class_code: string }> }>(pa, "/admin/courses?limit=100")).body.items ?? []);
   await ca.close();
-  const other = all.find((x) => !mine.includes(x.id));
+  // QC SmkS: TA có > 100 lớp ⇒ danh sách «của tôi» cắt ở 100; chọn lớp lạ là lớp đầu tiên mà TA bị chặn ở /submissions (không thuộc lớp)
+  let other: { id: string; class_code: string } | undefined = process.env.QC_OTHER_COURSE ? { id: process.env.QC_OTHER_COURSE, class_code: "QC_OTHER_COURSE" } : undefined; // QC SmkS3: lớp sao QR91* đều có TA ⇒ chỉ định lớp TA không thuộc (761988)
+  if (!other) for (const x of all.filter((x) => !mine.includes(x.id)).slice(0, 12)) {
+    const probe = await api(pt, `/courses/${x.id}/submissions?limit=1`);
+    if ([403, 404].includes(probe.status)) { other = x; break; }
+  }
   console.log("INFO lớp TA không thuộc:", other?.class_code);
+  expect(other, "tìm được một lớp TA không thuộc").toBeDefined();
   if (other) {
     const s = await api(pt, `/courses/${other.id}/submissions?limit=5`);
     const g = await api(pt, `/courses/${other.id}/gradebook?limit=5`);
@@ -686,9 +693,16 @@ test("TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh đi�
   const rows = page.locator("main tbody tr[data-part=student-row]");
   const n = await rows.count();
   console.log("INFO số SV:", n);
-  await rows.nth(Math.min(19, n - 1)).scrollIntoViewIfNeeded();
-  await rows.nth(Math.min(19, n - 1)).locator("input[data-status=ABSENT]").check({ force: true });
-  await rows.nth(Math.min(20, n - 1)).locator("input[data-status=ABSENT]").check({ force: true });
+  // QC SmkS3: 375 px hàng thu gọn (radio ẩn): chạm hàng rồi chạm nhãn «Vắng» như rw4f; chọn hai SV đang «Có mặt»
+  const st = await rows.evaluateAll((els) => els.map((e) => ({ name: (e.querySelector("td:first-child span span:first-child") as HTMLElement | null)?.innerText ?? "", st: (e.querySelector("input:checked") as HTMLInputElement | null)?.getAttribute("data-status") ?? "" })));
+  const abs0 = st.filter((x) => x.st === "ABSENT").length;
+  const pick = st.filter((x) => x.st === "PRESENT").slice(-2).map((x) => x.name);
+  console.log("INFO chọn:", pick.join(", "), "| vắng ban đầu:", abs0);
+  for (const nm of pick) {
+    await page.getByRole("button", { name: new RegExp(nm) }).first().click();
+    await page.locator("label:visible, button:visible").filter({ hasText: /^Vắng$/ }).first().click();
+    await page.waitForTimeout(400);
+  }
   await page.waitForTimeout(500);
   const bar = await page.evaluate(() => {
     const b = [...document.querySelectorAll("button")].find((x) => /Lưu điểm danh/.test((x as HTMLElement).innerText)) as HTMLElement | undefined;
@@ -701,7 +715,7 @@ test("TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh đi�
   console.log("INFO thanh lưu 375:", JSON.stringify(bar));
   expect(bar.pos, "dính").toMatch(/sticky|fixed/);
   expect(bar.text).toMatch(/Lưu điểm danh/);
-  expect(bar.text, "số có mặt / vắng cập nhật").toMatch(/2 vắng/);
+  expect(bar.text, "số có mặt / vắng cập nhật").toMatch(new RegExp(`${abs0 + 2} vắng`));
   expect(bar.h ?? 0).toBeGreaterThanOrEqual(43);
   if (bar.navTop) expect.soft(bar.bottom!, "nằm trên thanh điều hướng đáy").toBeLessThanOrEqual(bar.navTop + 1);
   // hàng cuối không bị che
@@ -730,7 +744,8 @@ test("TC-UX12-12/PQ lưu hai lần nhanh: một bản ghi; lớp lạ không ghi
   await page.goto(`/attendance?course=${c}`);
   await page.waitForTimeout(4000);
   const rows = page.locator("main tbody tr[data-part=student-row]");
-  await rows.nth(10).locator("input[data-status=LATE]").check({ force: true });
+  const pres = await rows.evaluateAll((els) => els.map((e, i) => ((e.querySelector("input[data-status=PRESENT]") as HTMLInputElement | null)?.checked ? i : -1)).filter((i) => i >= 0)); // QC SmkS3: hàng đang Có mặt
+  await rows.nth(pres[Math.min(10, pres.length - 1)]).locator("input[data-status=LATE]").check({ force: true });
   const save = page.getByRole("button", { name: /Lưu điểm danh/ }).first();
   await save.dblclick();
   await page.waitForTimeout(2500);

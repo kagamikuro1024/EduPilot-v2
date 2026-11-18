@@ -1,0 +1,39 @@
+
+Running 2 tests using 1 worker
+
+INFO trước: {"state":"CONFIRMED","unclear_count":0,"has_policy":false,"confirmed_at":"2026-11-15T12:26:01.756495Z","scheme_no":1,"pending_draft":false,"gradebook":{"status":"OPEN","snapshot_version":0}}
+INFO sau: {"state":"CONFIRMED","unclear_count":0,"has_policy":false,"confirmed_at":"2026-11-15T12:26:01.756495Z","scheme_no":1,"pending_draft":false,"gradebook":{"status":"LOCKED","snapshot_version":1}} | POST finalize: ["ep-2f40332e-e2df-4c79-b895-3ed7c920d222"]
+INFO snapshots: 200 {"items":[{"version":1,"students":30,"locked_at":"2026-11-18T19:59:07.901611Z","locked_by":"TS. Lê Thu Hà","unlock_reason":null}]}
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:108:1 › TC-UX16-17 Chốt điểm: bấm đúp xác nhận chỉ chốt một lần (9.2s)
+INFO ngoại tuyến: Điểm danh Lưu điểm danh buổi 10 · Chủ Nhật, 09:00–11:30 · P.302 Buổi Buổi 15 · 20/12 · Chưa Buổi 14 · 13/12 · Chưa Buổi 13 · 06/12 · Chưa Buổi 12 · 29/11 · Chưa Buổi 11 · 22/11 · Chưa Buổi 10 · 15/11 · Đã điểm danh Buổi  | dải: [ 'Chưa có mạng · 3 thay đổi chờ lưu' ]
+INFO thanh lưu: "Lưu điểm danh" | số PUT lúc offline: 0
+INFO bấm lưu khi offline: TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /Lưu điể
+INFO máy chủ: ABSENT = 0 | PUT: 1 | khoá: session,students
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ (15.2s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ 
+
+    Error: 3 SV Vắng đã lên máy chủ
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 3
+    Received:    0
+
+      165 |   const absent = rowsApi.filter((r) => (r.status ?? r.attendance?.status) === "ABSENT").length;
+      166 |   console.log("INFO máy chủ: ABSENT =", absent, "| PUT:", puts.length, "| khoá:", Object.keys(srv.body).join(","));
+    > 167 |   expect(absent, "3 SV Vắng đã lên máy chủ").toBeGreaterThanOrEqual(3);
+          |                                              ^
+      168 |   // trả lại
+      169 |   for (const i of pick) await rows.nth(i).locator("input[data-status=PRESENT]").check({ force: true });
+      170 |   await o.page.waitForTimeout(4000);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:167:46
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rn4-real-38d14-mạng-tự-đồng-bộ-lên-máy-chủ-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ 
+  1 passed (24.8s)

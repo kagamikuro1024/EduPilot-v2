@@ -21,8 +21,15 @@ export async function api<T = any>(page: Page, path: string, init?: { method?: s
   }, { path, init });
 }
 export async function courseId(page: Page, code: string): Promise<string> {
-  const r = await api(page, "/me/courses?limit=100");
-  return r.body.items.find((i: any) => i.course.class_code === code).course.id as string;
+  let cur = ""; // QC SmkS3: phân trang (GV/admin > 100 lớp)
+  for (let i = 0; i < 10; i++) {
+    const r = await api(page, `/me/courses?limit=100${cur}`);
+    const f = r.body.items.find((x: any) => x.course.class_code === code);
+    if (f) return f.course.id as string;
+    if (!r.body.next_cursor) break;
+    cur = `&cursor=${encodeURIComponent(r.body.next_cursor)}`;
+  }
+  throw new Error("không thấy lớp " + code);
 }
 export async function open(browser: Browser, user: string, w = 1440, h = 900): Promise<{ ctx: BrowserContext; page: Page; errs: string[] }> {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h }, hasTouch: w < 500, isMobile: w < 500, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" });

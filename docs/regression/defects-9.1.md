@@ -80,3 +80,18 @@ Phần tử LCP của landing ở 375 px là `p.lead` (không phải h1). Nhóm 
 - TC-UX09-17: US-09 AC2/AC5: không còn clip màn đầu; video đầy đủ chỉ mở bằng «Xem video» (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng lan
 - TC-UX09-18: US-09 AC2/AC5 (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log)
 - TC-UX09-20: US-09 AC2/AC13: không còn clip lặp để xem (P-107-13)
+
+## Lượt SmkS 2026-11-19 (HEAD 1409b04d / 8bbb6b88)
+### DEF-R9.1-06 — chấm đã chọn (Muộn / Vắng phép / Vắng) xám khi chuột đang rê lên ô (TC-UX12-2)
+- Mức: Thấp · Sprint gốc: 9.1 (US-UX91-12 AC1) · Hồi quy do sprint sau?: KHÔNG (luật rê có từ 0909d3f0, sprint 5; AC1 9.1 chỉ thêm ngoại lệ cho Có mặt)
+- Nguyên nhân: `frontend/src/shared/domain/AttendanceGrid.module.css` — `.cell:hover .radio { border-color: var(--ep-ink-3) }` (đặc hiệu 0,3,0) thắng `.radio:checked { border-color: var(--ep-red) }` (0,2,0); chỉ `PRESENT` có luật riêng 0,3,0 đặt sau.
+- Tái hiện: `/attendance` lớp có buổi, chọn Muộn ở một hàng, giữ chuột trên ô vừa chọn: chấm xám lab(45 4 2) thay vì đỏ rgb(206,22,40); rời chuột thì đỏ. Probe `frontend/e2e/qc2-r91/qc-uiux91-rzprobe-real.spec.ts`, log `evidence-9.1/logs/qc-uiux91-rzprobe-real.rerun7q.log` (LATE / EXCUSED / ABSENT đều «chuột-xa=rgb(206, 22, 40) chuột-trên-ô=lab(45.35 4.29 2.31)»). Sửa gợi ý: thêm `.cell:hover .radio:checked { border-color: var(--ep-red) }` (và giữ ink cho PRESENT).
+
+### DEF-R9.1-07 — nháy lưu ô sổ điểm khi `reduce`: giữ ≈ 160 ms thay vì ≥ 300 ms (TC-UX16-14; AC mâu thuẫn)
+- Mức: Thấp · Sprint gốc: 9.1 · Hồi quy?: KHÔNG
+- US-UX91-16 AC6: `reduce` → «đổi màu tức thì, giữ ≥ 300 ms»; US-UX91-04 AC9: `reduce` → «tắt sau ≤ 200 ms». Đo (rn4, QR91H, reduce): nền xanh từ 61 đến 222 ms, `ep-saved:200`, không transform ⇒ khớp AC9 của US-04, không khớp AC6 của US-16. Cần PM chốt AC đúng (nếu AC6 sai thì TC-UX16-14 chuyển LT). Log `evidence-9.1/logs/qc-uiux91-rn4-real.rerun7a.log`.
+
+### Ghi nhận không phải lỗi sản phẩm (đã xác lập, đừng ghi F)
+- `waitForURL`/`me/courses` rỗng: giới hạn auth 5/giờ/IP + nhiều agent cùng chạy Playwright; run7.sh xoá bộ đếm mỗi 3 s; chạy lại.
+- TC-UX16-24 28/30 ở lớp sao QR91A: lớp sao chép điểm danh + phát biểu đã bị QC ghi thêm; ở QR91G (seed gốc từ pristine dump) khớp 30/30.
+- TC-UX14-PQ: «lớp lạ» trong spec cũ lấy từ `me/courses?limit=100` của TA (TA có > 100 lớp ⇒ có thể là lớp TA thuộc); đã sửa spec chọn lớp bị chặn ở /submissions.

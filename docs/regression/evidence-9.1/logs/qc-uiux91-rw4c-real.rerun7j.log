@@ -1,0 +1,64 @@
+
+Running 5 tests using 1 worker
+
+INFO giá trị ô Trạng thái: ["","Liệt"] | cột: true
+INFO API trạng thái: ["COMPLETE/OK/","COMPLETE/LIET:final<3.0/"]
+INFO nút trong tiêu đề cột: 0
+INFO Chốt điểm aria-disabled: null
+INFO hộp xác nhận: Chốt điểm Chốt 30 sinh viên · phân bố: A+ 4, A 2, B+ 3, B 5, C+ 4, C 4, D+ 2, D 3, F 3 · 1 sinh viên liệt Để sau Chốt điểm
+INFO sổ sau Esc: OPEN
+INFO TA POST finalize: 403
+INFO TA nút Chốt điểm: 0 null
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:44:1 › TC-UX16 sổ điểm thật: cột Trạng thái, menu ⋯, Chốt điểm, TA không chốt được (2.0m)
+INFO ghi khi sửa điểm: ["PUT /api/v1/courses/‹id›/grading-results/‹id›"]
+INFO thanh dưới sau lỗi: Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Thử lại Đã duyệt 0/6 Duyệt bài A | URL: ing/01a1effc-21c6-7899-9040-feee872dcd32
+INFO sau 409: Phiên bản 1 · Nộp Thứ Ba, 10/11 · 14:58 · Chưa duyệt · bai-tap-03 | ô điểm: 0,75
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:93:1 › TC-UX15-13/14 lỗi duyệt bài báo tại thanh dưới, điểm còn, Thử lại; 409 khi lưu điểm (19.3s)
+INFO sổ điểm ep-saved: ["ep-saved:200"]
+INFO điểm danh ep-saved: ["ep-saved:200"]
+INFO nhận xét ep-saved: ["ep-saved:200"]
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:141:1 › TC-UX04-12/13/14 nháy lưu `ep-saved` ở sổ điểm, điểm danh, nhận xét chấm (US-04 AC7) (24.7s)
+INFO 1440: dòng cảnh báo 2 [{"t":"Công thức điểm chưa xác nhận","box":{"x":308,"y":293.78125,"width":210.390625,"height":18}},{"t":"Công thức chưa xác nhận","box":null}] | nút Xem công thức: {"x":1262.671875,"y":292.78125,"width":115.328125,"height":30}
+INFO 1440: khối cảnh báo {"h":48,"text":"Công thức điểm chưa xác nhận Xem công thức"}
+INFO 375: dòng cảnh báo 2 [{"t":"Công thức điểm chưa xác nhận","box":null},{"t":"Công thức chưa xác nhận","box":{"x":72,"y":350.890625,"width":173.171875,"height":18}}] | nút Xem công thức: {"x":280.359375,"y":341.890625,"width":52.59375,"height":44}
+INFO 375: khối cảnh báo {"h":46,"text":"Công thức chưa xác nhận Xem"}
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:186:1 › TC-UX12-14/15 cảnh báo công thức chưa xác nhận (lớp 761988): một dòng mỏng + Xem công thức; 375 px một hàng (14.0s)
+  ✓  5 [desktop] › e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:206:1 › K7 ảnh sau đợt 4 (1440 + 375) (48.0s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:44:1 › TC-UX16 sổ điểm thật: cột Trạng thái, menu ⋯, Chốt điểm, TA không chốt được 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: browserContext.close: Test ended.
+    Browser logs:
+
+    <launching> /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1255/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,AvoidCorsURLLoaderRestartOnRedirect,TcpPortRandomizationWin,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,PreconnectToSearch,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface,SkipListAccountsWithoutGaiaCookies --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --enable-unsafe-swiftshader --edge-skip-compat-layer-relaunch --disable-stack-profiler --disable-infobars --disable-sync --do-not-de-elevate --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_chromiumdev_profile-9Tfovy --remote-debugging-pipe --no-startup-window
+    <launched> pid=32197
+    [pid=32197][err] [1119/041127.097055:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=32197][err] [1119/041127.097275:WARNING:net/dns/address_sorter_posix.cc:559] FromSockAddr failed on netmask
+    [pid=32197][err] [1119/041127.133721:ERROR:ui/display/mac/cv_display_link_mac.mm:192] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=32197][err] [1119/041127.173114:ERROR:net/socket/ssl_client_socket_impl.cc:946] handshake failed; returned -1, SSL error code 1, net_error -202
+    [pid=32197][err] [1119/041127.189328:ERROR:ui/display/mac/cv_display_link_mac.mm:192] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=32197][err] [1119/041129.629825:ERROR:ui/display/mac/cv_display_link_mac.mm:192] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=32197][err] [1119/041137.740425:ERROR:ui/display/mac/cv_display_link_mac.mm:192] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=32197][err] [1119/041137.788579:ERROR:net/socket/ssl_client_socket_impl.cc:946] handshake failed; returned -1, SSL error code 1, net_error -202
+    [pid=32197][err] [1119/041137.798931:ERROR:ui/display/mac/cv_display_link_mac.mm:192] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=32197][err] [1119/041140.161552:ERROR:ui/display/mac/cv_display_link_mac.mm:192] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+    [pid=32197][err] [1119/041140.208854:WARNING:net/spdy/spdy_session.cc:3198] Received HEADERS for invalid stream 151
+    [pid=32197] <gracefully close start>
+
+      88 |   const tb = t.page.getByRole("button", { name: "Chốt điểm" });
+      89 |   console.log("INFO TA nút Chốt điểm:", await tb.count(), await tb.first().getAttribute("aria-disabled").catch(() => null));
+    > 90 |   await t.ctx.close();
+         |   ^
+      91 | });
+      92 |
+      93 | test("TC-UX15-13/14 lỗi duyệt bài báo tại thanh dưới, điểm còn, Thử lại; 409 khi lưu điểm", async ({ browser }, info) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:90:3
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4c-rea-23dac-hốt-điểm-TA-không-chốt-được-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:44:1 › TC-UX16 sổ điểm thật: cột Trạng thái, menu ⋯, Chốt điểm, TA không chốt được 
+  4 passed (3.8m)

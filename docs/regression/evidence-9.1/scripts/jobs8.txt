@@ -1,0 +1,8 @@
+qc-uiux91-r91sv-real QR91G a -
+qc-uiux91-rs0misc-real - a -
+qc-uiux91-rs0pq-real - a -
+qc-uiux91-rs06-real - a -
+qc-uiux91-rw2-real QR91G a TC-UX01-10|TC-UX01-1[ /]
+qc-uiux91-rw5a-real - a -
+qc-uiux91-rw5f-real - a -
+qc-uiux91-rw5g-real - a -

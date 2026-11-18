@@ -2,7 +2,7 @@
 import os; exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'qc2i-r4apia-lib.py')).read())
 WRONG='Sai-Mat-Khau-Qc2ia-1'
 def dbrow(em): return psql(f"select failed_logins, coalesce(locked_until::text,'NULL') from users where email='{em}'")
-u=reg('d26'); r16=reg('d16'); ok16=reg('d16ok'); s,j,h=lg(u); A1=j['access_token']; ck1=ck(h)
+u=reg('d26'); r16=reg('d16'); ok16=reg('d16ok'); s,j,h=lg(u); A1=j['access_token']; ck1=(h if isinstance(h,str) else ck(h))
 pre=[call('GET','/me/courses',A1,base=g,retry=False)[0] for g in (G1,G2)]
 t_stop=time.time(); sh('docker stop qc2i-redis',120); ts_stop=time.strftime('%Y-%m-%dT%H:%M:%S',time.gmtime(t_stop)).replace('T','T')
 try:
@@ -42,7 +42,7 @@ time.sleep(5)
 for _ in range(20):
     if rds('ping')=='PONG': break
     time.sleep(2)
-s2,j2,h2=lg(u); A2=j2['access_token']; ck2=ck(h2)
+s2,j2,h2=lg(u); A2=j2["access_token"]; ck2=(h2 if isinstance(h2,str) else ck(h2))
 r_pre=[call('GET','/me/courses',A2,base=g,retry=False)[0] for g in (G1,G2)]
 t=time.time(); call('POST','/auth/logout',None,{},hdr={'Cookie':ck2},base=G1); rv={}
 for n,g in (('gw1',G1),('gw2',G2)):

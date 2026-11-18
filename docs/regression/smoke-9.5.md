@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9.5 — kết quả (DỪNG theo lệnh chủ dự án, chưa N=0)
 Mã đã chạy: 88ab83e4 (sprint/11-p10-eval) · ep-r + stack riêng smk91 (seed sạch, đã docker stop) · Người chạy: qc2 · Ngày: 2026-11-18
-Tổng TC cũ: 161 · LT đã xoá khỏi tổng (có nguồn P-95-8 / luật LLM 2026-11-14): 19 · Tổng tính = 142 · Đạt: 116 · Trượt (F xác nhận): 9 · K: 0 · Chưa chạy (N): 17   (P+F+K+N = 142)  [cập nhật SmkR 2026-11-19, HEAD 1409b04d]
+Tổng TC cũ: 161 · LT đã xoá khỏi tổng (có nguồn P-95-8 / luật LLM 2026-11-14): 19 · Tổng tính = 142 · Đạt: 123 · Trượt (F xác nhận): 11 · K: 0 · Chưa chạy (N): 8   (P+F+K+N = 142)  [cập nhật SmkS3 2026-11-19, HEAD 1409b04d; smk91]
 HANDOFF CUỐI: lượt này chạy lại F dạng FILE/RUN nhẹ (N01-12/17, N02-01/02/03/04/09/11/13/14/15, N04-12, N07-10, N08-01/06/11, N09-01/04/05/07/11/13, N10-06/10). Còn N: các F cũ chưa rerun (N01-… N03-xx, N06-04 cần khoá toàn cục + dừng Redis ≤ 1 phút, N06-xx, N08-16/17 --resume, N09-xx/N10-xx còn lại), N02-06 (Admin rỗng hợp lệ theo P-11-61: chạy lại /me/today trên smk91 chưa xong), N02-08, CM (N01-03/04/14/16, N03-10/12, N05-02 + N05-03…14, N06-05..08/12/13, N07-02/04/09, N08-05/07/09/10/12/20, N10-04). Số mới: seed 589 s trên smk91 sạch; bằng chứng `evidence-9.5/rerun/`.
 
 ## Kết quả từng ca
@@ -8,7 +8,7 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC | KQ | Ghi chú |
 | --- | --- | --- |
 | TC-N01-01 | P | README có mục «Đo trên Mac» |
-| TC-N01-03 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N01-03 | F | RERUN 1409b04d: README «Đo trên Mac» bước «gateway admin create» chạy nguyên văn (không --email/--name) → «admin: cần cả --email và --name», rc=2; README thiếu bước ⇒ F theo TC (DEF-R9.5-22, Thấp) (evidence-9.5/rerun/n01-03-readme-1409b04d.log, evidence-9.5/n01-03-readme-steps.log) |
 | TC-N01-04 | P | RERUN 1409b04d: docker ps trên stack đo ep-qc đang chạy: 13/13 container tên ep-qc-*, cổng lệch (HTTP 580, HTTPS 943, PG 5933, Redis 6880, MinIO 9500…), 0 container dùng cổng demo 80/443/3000/5432/6379/9000; mock-graph/mock-imap bind 127.0.0.1 (evidence-9.5/rerun/n01-04-ep-qc-1409b04d.log) |
 | TC-N01-05 | P | Dòng «không chạy trên Mac» đã bỏ; có quy trình ep-research, cổng lệch, down -v |
 | TC-N01-10 | P | .env.local bị ignore (.gitignore:3); 0 tệp theo dõi |
@@ -17,7 +17,7 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N01-13 | P | check-meta quét mọi benchmarks/reports/**/*.json: «meta đủ», mã 0 |
 | TC-N01-14 | P | RERUN 1409b04d (FILE): đọc đầu ra mọi lệnh đo của README: k6 load-*.json 22/22, baseline 1/1, chaos 1/1, explain 1/1, real_llm 15/15, seed-t1/t0 3/3, demo-stack, lighthouse đều có khối meta |
 | TC-N01-15 | P | seed-t1 từ chối project không ep-* (1 dòng); vps-llm từ chối 127.0.0.1/localhost/https://localhost:3000|443 (có stack trace Node, không 1 dòng thuần) |
-| TC-N01-16 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N01-16 | P | RERUN 1409b04d: cùng lệnh vps-llm với BASE = cổng ep-qc (943/580/3500) KHÔNG bị từ chối (qua refuseDemo, dừng ở kiểm MODEL rc=1 sau đó), đối chứng 127.0.0.1:3000 → «Từ chối… stack demo» (evidence-9.5/rerun/n01-16-1409b04d.log) |
 | TC-N01-17 | P | RERUN 88ab83e4: 5 biến thể (localhost:3000, [::1]:3000, 127.0.0.1:3000/, host.docker.internal:3000, https://localhost) đều «Từ chối: … là stack demo», 1 dòng, mã 1; seed-t1 với COMPOSE_PROJECT_NAME=edupilot → «Từ chối» mã 1 (rerun/n01-n02-rerun.log) |
 | TC-N01-18 | P | canary-scan (ep-r, cần khoá ADMIN) mã 0, 7 dòng đếm = 0; 0 AIza/sk-; 'Bearer ' chỉ là mẫu mã. Ghi chú: script không tự xoá CN0/CN1 (sed tham lam lấy id model) — QC đã xoá tay |
 | TC-N01-19 | P | git log -S'AIza' chỉ khớp 1 chuỗi giả «AIzaFAKE000…» trong chính tệp TC (không phải khoá thật) |
@@ -28,7 +28,7 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N02-05 | P | Sửa tay điểm rồi chạy lại: seed dừng 1 dòng lỗi rõ, không ghi đè, không tạo trùng |
 | TC-N02-06 | P | RERUN 1409b04d (ep-r): đăng nhập 4 vai OK, sai mật khẩu 401; sv.kha/gioi/nguyco có recommended EXAM_OPEN, ta 113 việc (9 loại), teacher 162 việc (13 loại), admin 29 việc nguồn hợp lệ (COURSE_NO_TEACHER, COURSE_TICKETS_STALLED, INVITE_EXPIRED); SV gradebook 403 (evidence-9.5/rerun/n02-06-ep-r-1409b04d.log; Admin rỗng cũng hợp lệ theo P-11-61) |
 | TC-N02-07 | P | Lớp 1: 30 SV, công thức có ROUNDING; lớp 2: chưa có công thức, quy chế lớp 2 không có «làm tròn» (0 so với 3 ở lớp 1) |
-| TC-N02-08 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N02-08 | P | RERUN 1409b04d trên smk91 (seed sạch): BT03 có 22 bài NONE (chưa chấm); SV A/B/C tính tay: A QT 10 / HP 9,5 A+, B QT 8,25 / HP 7,0 B, C QT 1,25 / HP 3,0 F = gradebook API (công thức 20/20/60, cộng 0,25 tối đa 1, trừ 0,5 từ buổi vắng thứ 3); chat D1 (SSE: block attendance absent 2 + participation speak 2 đúng dữ liệu SV B; nguồn là khối dữ liệu, citations tài liệu rỗng), D3 → low_confidence + ticket (ngoài tài liệu, đúng kịch bản) (scripts n05/n02 trong rerun/, /tmp/smks/chat-*.txt) |
 | TC-N02-09 | P | RERUN 88ab83e4: cây không có .env.local/.env.example + env -u SEED_DEFAULT_PASSWORD → «Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).» 1 dòng mã 1, 0 request. Ghi nhận: trong checkout có .env.local (khoá đặt sẵn) seed dùng khoá đó theo b7d1e713 (không đặt trong env = đọc tệp env của repo) |
 | TC-N02-10 | P | Stack tắt: «Seed lỗi: fetch failed» 1 dòng, mã 1, 0,1 s |
 | TC-N02-11 | P | RERUN 88ab83e4: SEED_DEFAULT_PASSWORD rỗng, 3 dấu cách, tab+xuống dòng → «Thiếu SEED_DEFAULT_PASSWORD» mã 1 trước khi gọi mạng (rerun/n01-n02-rerun.log) |
@@ -73,22 +73,22 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N04-19 | P | k6-stack.yml nêu giá trị nới; không lọt vào docker-compose.local.yml (mặc định rỗng) |
 | TC-N04-20 | P | 0 Authorization/Bearer/email thật trong load-*.json |
 | TC-N05-01 | P | explain.json 10 truy vấn có kế hoạch, số dòng, thời gian; nguồn xếp hạng nêu ở docs/research/…-explain.md |
-| TC-N05-02 | N | chưa chạy (CM): chưa chạy (mẫu): pg_stat_statements chưa bật trên postgres riêng (cần restart cấu hình) |
+| TC-N05-02 | F | RERUN 1409b04d trên smk91 (pg_stat_statements bật, kịch bản nhẹ T0 60 SV, 2 lượt): top 10 theo total_exec_time chỉ có 5/10 và 4/10 truy vấn thuộc danh sách dev (students_list_360, rag_hybrid, students_count_360, roster_page, gradebook_signals…); thừa: threads list, notifications, kiểm quyền enrollments, insert audit_log, điểm sổ (grade_entries) — dev không liệt kê ⇒ < 7/10 (DEF-R9.5-23, Thấp; quy mô T0, TC cho phép kịch bản nhẹ) (evidence-9.5/rerun/n05-02-pgss-top10-smk91.txt, n05-02-pgss-top10-browse-mix-smk91.txt) |
 | TC-N05-05 | P | Không HNSW trong migration; báo cáo có kế hoạch cho thấy planner không chọn HNSW |
 | TC-N05-13 | P | TL-2c (rag_hybrid nối documents × content_chunks không lọc lớp) ghi thành lỗi, không dùng chỉ mục che |
 | TC-N06-01 | P | chaos.json: 3 tình huống, meta hợp lệ, bảng vào/xong/dead-letter/thất lạc/chấm đôi |
 | TC-N06-02 | P | vào = xong + dead-letter ở cả 3 tình huống (150=150; 3=3); thất lạc 0; chấm đôi 0 |
 | TC-N06-03 | P | kill -9 worker giữa 150 bài (script gốc, stack ep-r95): 150 = 150 DONE, 0 mồ côi, 0 chấm đôi, XPENDING 0, 279 s |
-| TC-N06-04 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-20: Redis tắt → gửi chat trả 200 suy giảm sau 39,5 s (> 10 s; dev ghi ≈ 19 s) = TL-2d còn mở; tạo phiên chat 503 sau 1,9 s) |
-| TC-N06-05 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N06-04 | P | RERUN 1409b04d trên smk91: tải chat 1 QPS, Redis tắt 70 s (t=10→81): 70/70 lời gọi trong lúc tắt trả 503 mã OVERLOADED (suy giảm có kiểm soát), thời gian tối đa 5,9 s (≤ 10 s), không treo; sau khi Redis lên 30/30 trả 200 («degraded»:false) — DEF-R9.5-20 (39,5 s) không còn tái hiện (evidence-9.5/rerun/n06-04-redis-smk91-calls.log) |
+| TC-N06-05 | P | RERUN 1409b04d trên smk91: client SSE mở trước, Redis tắt 20 s (push lúc tắt trả 503, không nhận), Redis lên → nối lại bằng Last-Event-ID: f2 nhận đủ n=9…13 (phát lại phần thiếu + sự kiện mới), 0 trùng, không 429 SSE_LIMIT_REACHED (DEF cũ không tái hiện) (evidence-9.5/rerun/n06-05-sse-smk91.log) |
 | TC-N06-06 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N06-07 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N06-08 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N06-09 | P | Đối chiếu từ DB + XLEN/XPENDING: vào = xong + dead-letter; 0 thất lạc (2 tình huống) |
 | TC-N06-10 | P | Không tình huống FAIL; TL-2d ghi ở techlead.md |
 | TC-N06-11 | P | chaos.mjs chỉ dùng docker compose -p $project / nhãn project; không docker kill/stop tên chung |
-| TC-N06-12 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N06-13 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N06-12 | P | RERUN 1409b04d: trong mọi kịch bản N06 (kill -9, Redis, SSE) chỉ đụng smk91-*; 6 container demo edupilot-*-1 ở trạng thái Exited trước/sau, edupilot-test-{postgres,redis,minio,mailpit} Up 4 giờ không đổi |
+| TC-N06-13 | P | RERUN 1409b04d trên smk91: kill -9 worker giữa lượt chấm BT03 (22 bài) 3 lần liên tiếp, khởi động lại worker sau mỗi lần: cả 3 lần 22/22 DONE, 0 FAILED, 0 chấm hai lần, 0 mồ côi, XPENDING 0, dead-letter 0 (evidence-9.5/rerun/n06-13-kill9-smk91.log) |
 | TC-N06-14 | P | Redis tắt: /readyz 503 (không 200 giả); bật lại 200 |
 | TC-N07-01 | P | baseline.json: 12 container (gateway, worker, postgres, pgbouncer, redis, minio, caddy, frontend, mailpit, mock×2, judge); tổng 570,2 MiB tính lại khớp; docling không bật |
 | TC-N07-02 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
@@ -138,7 +138,7 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N10-01 | P | techlead.md TL-2a…2j có tái hiện/mức/đề xuất/bằng chứng; mọi tệp benchmarks/ trích dẫn đều tồn tại |
 | TC-N10-02 | P | Tái hiện TL-2c (Seq Scan content_chunks/documents, 68,8 ms) và TL-2d (chat Redis tắt 39,5 s) |
 | TC-N10-03 | P | TL-2h2 (cao) sửa ở e1f9925f kèm test provider_test.go; hai lần đo trước/sau (extract-truoc-sua-400.json → extract.json) |
-| TC-N10-04 | N | chưa chạy (CM): chưa chạy (mẫu): chạy test hồi quy ở commit cha (worktree) chưa làm |
+| TC-N10-04 | P | worktree ở cha ad344b76 + chép riêng provider_test.go của e1f9925f: TestStructuredRequestShape FAIL ở cha, PASS ở e1f9925f (evidence-9.5/n10-04-pre-post.log) |
 | TC-N10-05 | P | Báo cáo ghi cả lần trượt và đạt (1.000 bài run1-hong → run2; extract trước/sau) |
 | TC-N10-06 | F | RERUN 88ab83e4: grep TL-2[cdef] docs/PROGRESS.md = 0 dòng; mục Nợ không có TL-2c/d/e/f (DEF-R9.5-06 còn) |
 | TC-N10-07 | P | Mọi commit sửa mã SP trong khoảng 9.5 đều có tiền tố «9.5:» (811afebd, e1f9925f, 9dcb9768) |

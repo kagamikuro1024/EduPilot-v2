@@ -1,0 +1,24 @@
+=== lần 1
+grade-all queued=22
+03:48:24 RUNNING|2 QUEUED|16 DONE|4  xpending=2 dead=0
+KILL -9 03:48:25
+03:48:29 RUNNING|2 QUEUED|16 DONE|4  xpending=2 dead=0
+worker start 03:48:30
+03:49:31 DONE|22  xpending=0 dead=0
+KQ lần 1: tổng=22 DONE=22 FAILED=0 hai_lần=0 mồ_côi=0 xpending=0 dead=0
+=== lần 2
+grade-all queued=22
+03:49:48 RUNNING|2 QUEUED|15 DONE|5  xpending=2 dead=0
+KILL -9 03:49:49
+03:49:53 RUNNING|2 QUEUED|15 DONE|5  xpending=2 dead=0
+worker start 03:49:53
+03:50:51 DONE|22  xpending=0 dead=0
+KQ lần 2: tổng=22 DONE=22 FAILED=0 hai_lần=0 mồ_côi=0 xpending=0 dead=0
+=== lần 3
+grade-all queued=22
+03:51:12 RUNNING|2 QUEUED|14 DONE|6  xpending=2 dead=0
+KILL -9 03:51:12
+03:51:16 RUNNING|2 QUEUED|14 DONE|6  xpending=2 dead=0
+worker start 03:51:16
+03:52:17 DONE|22  xpending=0 dead=0
+KQ lần 3: tổng=22 DONE=22 FAILED=0 hai_lần=0 mồ_côi=0 xpending=0 dead=0

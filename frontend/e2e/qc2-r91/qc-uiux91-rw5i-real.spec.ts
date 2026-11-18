@@ -17,7 +17,7 @@ const api = (page: Page, path: string) =>
     const r = await fetch(`/api/v1${p}`, { headers: { authorization: `Bearer ${a.access_token}` } });
     return { status: r.status, body: await r.json().catch(() => null) };
   }, path);
-const cid = async (page: Page, code: string) => (await api(page, "/me/courses?limit=100")).body.items.find((i: { course: { class_code: string } }) => i.course.class_code === code).course.id as string;
+const cid = async (page: Page, code: string) => { let cur = ""; for (let i = 0; i < 10; i++) { const r = await api(page, `/me/courses?limit=100${cur}`); const f = (r.body.items as any[]).find((x: any) => x.course.class_code === code); if (f) return f.course.id as string; if (!r.body.next_cursor) break; cur = `&cursor=${encodeURIComponent(r.body.next_cursor)}`; } throw new Error("không thấy lớp " + code); }; // QC SmkS3: phân trang /me/courses (GV/admin > 100 lớp)
 const fresh = async (browser: import("@playwright/test").Browser, mail: string, vp = { width: 1440, height: 900 }) => { const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: vp }); const page = await ctx.newPage(); page.setDefaultTimeout(10000); await login(page, mail); return { ctx, page }; };
 
 test("TC-UX19-10 danh sách lỗi → ApiErrorNotice + Thử lại", async ({ browser }, info) => {

@@ -1,0 +1,7 @@
+
+Running 1 test using 1 worker
+
+INFO UX06-6 mong đợi QR91H | thanh trên: "QR91H\n· QC nhóm D QR91H\nTìm nhanh hoặc đi đến…\n⌘\nK"
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rs06-real.spec.ts:42:1 › TC-UX06-6 ep:ui:course = UUID lạ ⇒ bỏ giá trị, chọn theo AC2, không pageerror, không trang trống (5.0s)
+
+  1 passed (5.4s)

@@ -1,0 +1,20 @@
+
+Running 4 tests using 1 worker
+
+INFO SV /observability: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và quản trị viên."
+INFO SV /analytics: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO SV /insights: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO SV /gradebook: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO SV /attendance: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO SV nav: ["/","/","/chat","/threads","/assignments","/practice","/exams","/library","/calendar","/me"]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:12:1 › TC-UX01-18 TC-UX07-PQ TC-UX04-PQ SV: /observability /analytics /insights /gradebook /attendance → 403 nguyên văn, không lộ nav, không chuyển động mới (14.4s)
+INFO TA /observability: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và quản trị viên."
+INFO TA /settings/llm: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và quản trị viên."
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:30:1 › TC-UX01-PQ TA: /observability /settings/llm → 403; SV /insights → 403 (đã ở trên); chữ bị xoá không lộ dữ liệu (6.6s)
+INFO UX21-PQ: / "Chào Trung Thứ Năm, 19/11 Việc nên làm tiếp Hôm nay bạn không có việc gấp" | nav: ["/","/","/chat","/threads","/assignments","/practice","/exams","/library","/calendar","/me"]
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:43:1 › TC-UX21-PQ SV đăng nhập → `/` là Hôm nay của sinh viên (không phải giảng viên) (5.4s)
+INFO UX15-PQ gv.s8f: 403 {"code":"FORBIDDEN","message":"Bạn không có quyền thực hiện thao tác này.","trace_id":"f7a486d8e6e430da4ec056fb66d8f286"
+INFO UX15-PQ SV: 403
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:58:1 › TC-UX15-PQ giảng viên khác lớp: GET /courses/‹lớp lạ›/submissions/‹sid› → 403/404 (4.3s)
+
+  4 passed (31.2s)

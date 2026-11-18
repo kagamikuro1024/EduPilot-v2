@@ -18,7 +18,7 @@ const api = (page: Page, path: string) =>
     const r = await fetch(`/api/v1${p}`, { headers: { authorization: `Bearer ${a.access_token}` } });
     return { status: r.status, body: await r.json().catch(() => null) };
   }, path);
-const cid = async (page: Page, code: string) => (await api(page, "/me/courses?limit=100")).body.items.find((i: any) => i.course.class_code === code).course.id as string;
+const cid = async (page: Page, code: string) => { let cur = ""; for (let i = 0; i < 10; i++) { const r = await api(page, `/me/courses?limit=100${cur}`); const f = (r.body.items as any[]).find((x: any) => x.course.class_code === code); if (f) return f.course.id as string; if (!r.body.next_cursor) break; cur = `&cursor=${encodeURIComponent(r.body.next_cursor)}`; } throw new Error("không thấy lớp " + code); }; // QC SmkS3: phân trang /me/courses (GV/admin > 100 lớp)
 
 test("TC-UX18 Tài liệu lớp 761987 (tài liệu của chính lớp): công tắc, lỗi + Thử lại, bấm nhanh", async ({ browser }, info) => {
   test.skip(info.project.name !== "desktop");

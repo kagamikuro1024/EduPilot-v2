@@ -1,0 +1,15 @@
+
+Running 2 tests using 1 worker
+
+INFO người kia PUT: 200 {"result":{"id":"01a1f027-7fe5-7eca-acd9-4924d448b2fc","round":1,"status":"DRAFT","run_state":"DONE","total":"5.50","ai_total_before_late":"5.25","overall_feedback":"Bài làm nắm được các nét chính của rid 01a1effc-21c6-78a8-903f-a39112053910 result.id 01a1f027-7fe5-7eca-acd9-4924d448b2fc | version 3 → 4
+INFO sau 409: thông báo: true | nút: ["Giữ của tôi","Dùng của họ"] | ô điểm: 0,75 | bản của họ: 1.50
+INFO ô điểm sau 409 (mong đợi: của tôi 0,75 hoặc của họ 1.50 ): 0.75 | ban đầu: 1,25
+INFO sau «Giữ của tôi»: điểm lưu = 0.75 | tôi đã nhập 0,75 | version 5
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập (11.2s)
+INFO người kia PUT: 200 {"entry":{"item_id":"01a1effc-212a-7f54-8709-4a98fb0e3421","student_id":"01a1df27-6542-7d57-9e5d-b61d2133eccc","score":"
+INFO hộp xung đột: TS. Lê Thu Hà vừa nhập 6 · vừa xong Giữ của tôi Dùng của họ | ô: 9,50
+INFO sau «Giữ của tôi»: điểm lưu = 9.5 | tôi nhập 9,50
+INFO khôi phục ô về 5.00 : 200
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:74:1 › TC-UX16-12 xung đột ô sổ điểm thật: hiện giá trị người kia, Giữ của tôi / Dùng của họ, không mất số đã nhập (19.3s)
+
+  2 passed (30.9s)

@@ -1,0 +1,21 @@
+import os; os.environ['SP']='4-t8b'
+from smkT import *
+A_=A()
+gv1m,GV1,gv1=staff('h1','TEACHER'); gv2m,GV2,gv2=staff('h2','TEACHER'); ta1m,_,ta1=staff('u1','TA'); ta2m,_,ta2=staff('u2','TA'); ta3m,_,ta3=staff('u3','TA'); svm,SV=stu('hs'); svid=uid(svm)
+cid=mkcourse('B',gv1,ta1)
+ta_set=lambda: sorted(x for x in psql(f"select u.email from enrollments e join users u on u.id=e.user_id where e.course_id='{cid}' and e.role_in_course='TA' and e.status='ACTIVE'").split('\n') if x)
+call('POST',f'/admin/courses/{cid}/assign',A_,{'ta_ids':[ta1,ta2]}); b0=ta_set()
+r1=call('POST',f'/admin/courses/{cid}/assign',A_,{'ta_ids':[ta3]}); b1=ta_set(); rem=psql(f"select count(*) from enrollments where course_id='{cid}' and role_in_course='TA' and status='REMOVED'")
+r2=call('POST',f'/admin/courses/{cid}/assign',A_,{}); b2=ta_set(); r2n=call('POST',f'/admin/courses/{cid}/assign',A_,{'ta_ids':None}); b2n=ta_set()
+r3=call('POST',f'/admin/courses/{cid}/assign',A_,{'ta_ids':[]}); b3=ta_set()
+rec('TC-P208-14','P' if b0==sorted([ta1m,ta2m]) and b1==[ta3m] and int(rem)>=2 and r2[0]==200 and b2==b1 and b2n==b1 and r3[0]==200 and b3==[] else 'F',f'[TA1,TA2]→{len(b0)} TA; assign {{ta_ids:[TA3]}} {r1[0]} → thay toàn bộ: {b1==[ta3m]}, TA1/TA2 REMOVED={rem}; assign {{}} {r2[0]} và {{ta_ids:null}} → giữ nguyên ({b2==b1},{b2n==b1}); assign {{ta_ids:[]}} {r3[0]} → còn {len(b3)} TA (hành vi ghi nhận: [] = gỡ hết, khớp SRS 4.4)')
+# 15: chỉ người MỚI có outbox; gán lại người đang có thì không
+call('POST',f'/admin/courses/{cid}/assign',A_,{'teacher_id':gv2,'ta_ids':[ta1]}); time.sleep(1)
+ob=lambda: int(psql(f"select count(*) from outbox where topic='course.assigned' and payload->>'course_id'='{cid}'"))
+o0=ob(); nt0=psql(f"select count(*) from notifications where link like '%{cid}' and type='COURSE_ASSIGNED'")
+ra=call('POST',f'/admin/courses/{cid}/assign',A_,{'teacher_id':gv2,'ta_ids':[ta1]}); time.sleep(2); o1=ob(); nt1=psql(f"select count(*) from notifications where link like '%{cid}' and type='COURSE_ASSIGNED'")
+tch=psql(f"select user_id from enrollments where course_id='{cid}' and role_in_course='TEACHER' and status='ACTIVE'")
+rb=call('POST',f'/admin/courses/{cid}/assign',A_,{'teacher_id':gv1,'ta_ids':[ta2,svid]}); o2=ob(); tch2=psql(f"select user_id from enrollments where course_id='{cid}' and role_in_course='TEACHER' and status='ACTIVE'"); ta_now=ta_set()
+rc=call('POST',f'/admin/courses/{cid}/assign',A_,{'teacher_id':gv1,'ta_ids':[ta1,ta2]}); time.sleep(2); o3=ob()
+newrows=psql(f"select payload->>'role'||':'||u.email from outbox o join users u on u.id=(o.payload->>'user_id')::uuid where o.topic='course.assigned' and o.payload->>'course_id'='{cid}' order by o.created_at desc limit 2").replace('\n',' ')
+rec('TC-P208-15','P' if ra[0]==200 and o1==o0 and nt1==nt0 and rb[0]==422 and tch2==tch and o2==o1 and ta_now==[ta1m] and rc[0]==200 and o3==o2+2 else 'F',f'gán lại đúng người đang có (GV2,TA1) {ra[0]}: outbox course.assigned {o0}→{o1}, notifications {nt0}→{nt1} (không thông báo lại); gán GV1 + TA2 + SV (sai vai) → {rb[0]}: GV vẫn như cũ={tch2==tch}, TA vẫn {len(ta_now)}, outbox {o2} (rollback nguyên vẹn); gán GV1 + TA1(cũ) + TA2(mới) hợp lệ {rc[0]} → outbox {o2}→{o3} (đúng +2: GV1 mới vào lại + TA2 mới; TA1 đã có không thêm); 2 dòng mới nhất: {newrows}; "ép outbox lỗi" = go test TestAssignNotifyOnce (đạt)')

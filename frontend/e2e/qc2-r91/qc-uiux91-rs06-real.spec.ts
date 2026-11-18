@@ -43,17 +43,18 @@ test("TC-UX06-6 ep:ui:course = UUID lạ ⇒ bỏ giá trị, chọn theo AC2, k
   D(info); test.setTimeout(240_000);
   const probe = await open(browser, "teacher");
   const all = await mine(probe.page);
-  const today = (await api(probe.page, "/me/today")).body;
   await probe.ctx.close();
   const act = all.filter((c) => c.status === "ACTIVE");
-  const withData = new Set<string>((today.actions ?? []).map((a: any) => a.course?.id).filter(Boolean));
-  const want = (act.find((c) => withData.has(c.id)) ?? act[0]).class_code;
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await ctx.newPage();
   const errs: string[] = []; page.on("pageerror", (e) => errs.push(e.message));
   await page.addInitScript((k) => localStorage.setItem(k, "00000000-0000-7000-8000-00000000dead"), KEY);
+  let appToday: any = null; // QC SmkS3: /me/today đổi theo thời gian (401 việc, 50 dòng đầu) ⇒ lấy đúng phản hồi mà ứng dụng nhận
+  page.on("response", async (r: any) => { if (/\/me\/today/.test(r.url()) && r.ok()) appToday = await r.json().catch(() => null); });
   await login(page, "teacher");
   await page.waitForTimeout(2500);
+  const withData = new Set<string>(((appToday?.actions ?? []) as any[]).map((a: any) => a.course?.id).filter(Boolean));
+  const want = (act.find((c) => withData.has(c.id)) ?? act[0]).class_code;
   console.log("INFO UX06-6 mong đợi", want, "| thanh trên:", JSON.stringify((await topbar(page).innerText()).slice(0, 50)));
   await expect(topbar(page)).toContainText(want);
   expect((await mainText(page)).trim().length, "không trang trống").toBeGreaterThan(20);

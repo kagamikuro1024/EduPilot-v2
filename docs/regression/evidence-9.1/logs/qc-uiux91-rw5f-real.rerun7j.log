@@ -1,0 +1,13 @@
+
+Running 2 tests using 1 worker
+
+INFO UX19-6 SV hàng: 0 []
+INFO UX19-12 ô nhập: 3
+INFO UX19-12 nút: ["Đăng","Huỷ"]
+INFO UX19-12 thông báo: ["Phát hiện Email, MSSV, Câu hỏi riêng tư"]
+INFO UX19-12 hộp thoại: 1 "Bài này có thông tin cá nhân Hỏi đáp công khai là nơi cả lớp cùng đọc. Chúng tôi tìm thấy: 1 email, 1 MSSV. Chuyển sang chat riêng Ẩn thông tin rồi đăng"
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5f-real.spec.ts:22:1 › TC-UX19-6/12 SV: danh sách không lộ câu trả lời AI chưa xác nhận; hộp thoại PII (10.0s)
+INFO UX19-11 SV không thuộc lớp: 403 403
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5f-real.spec.ts:48:1 › TC-UX19-11 SV không thuộc lớp: 403 (2.4s)
+
+  2 passed (12.9s)

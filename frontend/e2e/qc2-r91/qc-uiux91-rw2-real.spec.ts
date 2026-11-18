@@ -169,14 +169,27 @@ test("TC-UX01-3 khung máy chủ (PreShell): không câu phụ, Hỏi đáp côn
 test("TC-UX01-10 hộp xác nhận Chốt điểm còn mô tả hệ quả", async ({ page }, info) => {
   desktop(info);
   await login(page, "teacher");
-  const c1 = await courseId(page, "761987");
+  const open_ = process.env.QC_CLASS_OPEN ?? "761987"; // QC SmkS: sổ phải đang mở (761987 đã Chốt) ⇒ lớp sao QR91A
+  const c1 = await courseId(page, open_);
   await go(page, "/gradebook", c1);
   const btn = page.getByRole("button", { name: "Chốt điểm" });
   await expect(btn).toBeVisible();
   if ((await btn.getAttribute("aria-disabled")) === "true") test.skip(true, "Chốt điểm đang khoá ở lớp seed (công thức chưa xác nhận)");
   await btn.click();
   const d = page.getByRole("dialog").last();
+  const dt = (await d.innerText()).replace(/\s+/g, " ");
+  console.log("INFO UX01-10 Chốt điểm:", dt.slice(0, 300));
   await expect(d).toContainText(/sinh viên/);
+  await expect(d).toContainText(/phân bố/);
+  await page.keyboard.press("Escape");
+  // lớp phủ «Tạo lại mã» (DESIGN §10.11)
+  await go(page, "/class/settings", c1);
+  await page.getByRole("button", { name: "Tạo lại mã" }).first().click();
+  const d2 = page.getByRole("dialog").last();
+  const dt2 = (await d2.innerText()).replace(/\s+/g, " ");
+  console.log("INFO UX01-10 Tạo lại mã:", dt2.slice(0, 300));
+  await expect(d2).toContainText(/Mã cũ sẽ ngừng hoạt động/);
+  await expect(d2).toContainText(/sinh viên đang ở trong lớp/);
   await page.keyboard.press("Escape");
 });
 

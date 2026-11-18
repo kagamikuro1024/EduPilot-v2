@@ -1,0 +1,60 @@
+
+Running 5 tests using 1 worker
+
+INFO UX20-6 rỗng: "Kết quả của tôi Điểm Chưa có điểm nào được công bố Chuyên cần Bạn có mặt 7/9 buổi, vắng 2. Buổi 6 · 18/10 Vắng Buổi 4 · 04/10 Muộn Buổi 3 · 27/09 Vắng Điểm cộng đã ghi Phát biểu 2 lần · +0,50. Phát biểu +0,25 19/11, 19/11 Bài tập Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams) Hạn Chủ Nhật, 2"
+INFO UX20-7 lỗi: "Kết quả của tôi Điểm Không tải được điểm của bạn. Thử lại Chuyên cần Bạn có mặt 7/9 buổi, vắng 2. Buổi 6 · 18/10 Vắng Buổi 4 · 04/10 Muộn Buổi 3 · 27/09 Vắng Điểm cộng đã ghi Phát biểu 2 lần · +0,50. Phát biểu +0,25 19/11, 19/11 Bài tập Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams) Hạn Chủ " | Thử lại: 1
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:25:1 › TC-UX20-6/7 /me rỗng và lỗi (10.4s)
+INFO số phiên SV A: 36
+INFO UX13-23 SV B đọc phiên SV A: ["404","404","404"]
+INFO UX13-22 GV: API phiên SV ["403","403"] | /chat: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên."
+INFO UX13-22 TA: API phiên SV ["403","403"] | /chat: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên."
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:43:1 › TC-UX13-18/22/23 chat: kéo cuộn khi stream; phân quyền (11.9s)
+INFO UX13-20 dải mất mạng: "Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng." | cuối hội thoại: "Bạn Giải thích chi tiết quy chế điểm quá trình và cách tính điểm chuyên cần của lớp này Trợ lý AI Đang trả lời…" | Thử lại: 0
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:67:1 › TC-UX13-20 mất mạng giữa stream (16.9s)
+  ✘  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:86:1 › TC-UX17-8/9 admin xem prompt; lớp chưa có báo cáo (1.2s)
+INFO UX18-4 thuộc tính tên: ["","","","","","","","","",""]
+INFO UX18-4 công tắc có tên «Dùng cho AI: bật/tắt»: 11 | «Hiện cho sinh viên: …»: 11 | tổng: 22
+INFO UX18-4 aria-label: [null,null,null,null]
+INFO UX18-1 ô Loại (select): {"sw":171,"cw":171,"w":173,"val":"Đáp án","opts":["Bài giảng","Quy chế môn học","Đề tham khảo","Đáp án","Tài liệu khác"]}
+INFO UX18-8 SV /documents: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO UX18-8 SV API documents: 403
+INFO UX18-6 SV /library: 274 | có «Đáp án»: false | có «Đề tham khảo tuần 5»: false | "Thư viện Tìm tài liệu Loại Mọi loại Bài giảng Quy chế môn học Đề tham khảo Tài liệu khác Tuần Mọi tuần Tuần 1 Tuần 2 Tuần 3 Tuần 4 Tuần 5 Tuần 6 Tuần 7 Tuần 8 T"
+  ✘  5 [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:104:1 › TC-UX18-4/6/8/PQ tên công tắc, thư viện SV, quyền (17.0s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:86:1 › TC-UX17-8/9 admin xem prompt; lớp chưa có báo cáo 
+
+    TypeError: Cannot read properties of undefined (reading 'course')
+
+      20 |     return { status: r.status, text, body: (() => { try { return JSON.parse(text); } catch { return null; } })() };
+      21 |   }, path);
+    > 22 | const cid = async (page: Page, code: string) => (await api(page, "/me/courses?limit=100")).body.items.find((i: any) => i.course.class_code === code).course.id as string;
+         |                                                                                                                                                     ^
+      23 | const fresh = async (browser: import("@playwright/test").Browser, mail: string, vp = { width: 1440, height: 900 }) => { const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: vp }); const page = await ctx.newPage(); page.setDefaultTimeout(10000); await login(page, mail); return { ctx, page }; };
+      24 |
+      25 | test("TC-UX20-6/7 /me rỗng và lỗi", async ({ browser }, info) => {
+        at cid (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:22:149)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:90:13
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw5g-rea-8f56e--prompt-lớp-chưa-có-báo-cáo-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:104:1 › TC-UX18-4/6/8/PQ tên công tắc, thư viện SV, quyền 
+
+    TypeError: Cannot read properties of undefined (reading 'course')
+
+      20 |     return { status: r.status, text, body: (() => { try { return JSON.parse(text); } catch { return null; } })() };
+      21 |   }, path);
+    > 22 | const cid = async (page: Page, code: string) => (await api(page, "/me/courses?limit=100")).body.items.find((i: any) => i.course.class_code === code).course.id as string;
+         |                                                                                                                                                     ^
+      23 | const fresh = async (browser: import("@playwright/test").Browser, mail: string, vp = { width: 1440, height: 900 }) => { const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: vp }); const page = await ctx.newPage(); page.setDefaultTimeout(10000); await login(page, mail); return { ctx, page }; };
+      24 |
+      25 | test("TC-UX20-6/7 /me rỗng và lỗi", async ({ browser }, info) => {
+        at cid (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:22:149)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:132:16
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw5g-rea-826d6--công-tắc-thư-viện-SV-quyền-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:86:1 › TC-UX17-8/9 admin xem prompt; lớp chưa có báo cáo 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw5g-real.spec.ts:104:1 › TC-UX18-4/6/8/PQ tên công tắc, thư viện SV, quyền 
+  3 passed (58.1s)

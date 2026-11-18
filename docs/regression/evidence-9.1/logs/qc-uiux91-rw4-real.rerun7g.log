@@ -1,0 +1,76 @@
+
+Running 11 tests using 1 worker
+
+INFO DRAFT: Bùi Thanh Khải, Phạm Mai Chi, Ngô Văn Hà, Võ Hữu Bình
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:48:1 › SETUP chấm nháp thêm bài (Bài tập 03) để có bài chờ duyệt (2.6s)
+INFO th một bài: ["Sinh viên","Nguồn","Điểm","Trạng thái duyệt","Thời gian nộp","Duyệt"]
+INFO số 'Bài tập 03' trên trang: 2
+INFO th tất cả bài: ["Sinh viên","Bài tập","Nguồn","Điểm","Trạng thái duyệt","Thời gian nộp","Duyệt"]
+INFO ô Bài tập: {"ws":"nowrap","to":"ellipsis","ov":"hidden","w":200,"txt":"Bài tập 03 — Phân tích một vụ tấn công t"}
+INFO đáy: {"chip":331,"sels":[332,332]}
+INFO ô Bài tập rộng: {"w":456,"longest":54}
+INFO liên kết Duyệt: 1
+INFO cursor hàng: pointer
+INFO nền hàng: rgba(0, 0, 0, 0)|lab(100 0 0)|rgba(0, 0, 0, 0) → rgba(0, 0, 0, 0)|lab(96.4467 2.44418 1.31345)|lab(96.4467 2.44418 1.31345)
+INFO URL sau Enter: https://localhost:1143/grading/01a1effc-21c6-783d-916e-d6df694989fc?n=0&m=1&assignment=01a1effc-21c1-718a-87dc-dff9d42a8fef&status=DRAFT&needs=1
+INFO request danh sách: ?match_status=MATCHED&status=DRAFT&needs_review=true&limit=50 | ?match_status=MATCHED&status=NONE&limit=50 | ?match_status=MATCHED&assignment_id=01a1effc-21c1-718a-87dc-dff9d42a8fef&status=DRAFT&needs_review=true&limit=50
+  ✓   2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:62:1 › TC-UX14-1/2/4/5/6/7 hàng chờ: cột Bài tập, lý do cờ, hàng bấm được, căn đáy chip (13.7s)
+INFO hàng: [{"h":48,"kids":[{"t":"Bùi Thanh Khải","top":426},{"t":"20229002","top":447},{"t":"Hai lượt chấm lệch hơn 1 điểm","top":447}]}]
+INFO có lý do cờ: 1; không: 0
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:130:1 › TC-UX14-4 lý do cờ dưới tên sinh viên, hàng không cờ gọn (7.2s)
+INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Chi tiết kỹ thuật Thử lại
+INFO lớp TA không thuộc: QR91F
+INFO PQ TA lớp lạ: submissions 200 gradebook 200 attendance 404
+  ✘   4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit (40.3s)
+INFO 375 hàng chờ: {"ov":false,"row":{"rowH":0,"link":{"t":"Duyệt","w":0,"h":0},"text":"Bùi Thanh Khải20229002Hai lượt chấm lệch hơn 1 điểmTrong EduPilot6,50Chưa duyệtThứ Ba, 10/11 · 23:59 · muộn 1 ngàyDuyệt "}} | liên kết Duyệt: {"w":309,"height":44}
+  ✓   5 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:209:1 › TC-UX14-11 375 px: hàng xếp dọc, Duyệt riêng ≥ 44 px, không tràn (7.6s)
+INFO tiêu chí 1440: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":451,"inTop":451,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":759,"inTop":759,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1074,"inTop":1074,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1359,"inTop":1359,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false}]
+INFO số lần câu ghi chú trích: 1 | cũ: 0
+INFO thanh dưới lúc mở: {"top":793,"bottom":862,"pos":"sticky","text":"Đã duyệt 0/9 Duyệt bài A","innerH":900}
+INFO nút đỏ: ["Duyệt bài"]
+INFO nút Duyệt bài sau khi cuộn: {"top":693,"bottom":729,"innerH":900}
+INFO tiêu chí 1100: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":451,"inTop":451,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":788,"inTop":788,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1125,"inTop":1125,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1432,"inTop":1432,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false}]
+  ✓   6 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:230:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt (12.6s)
+INFO reduce=false: tô sáng từ 52 ms đến 1116 ms; mẫu cường độ: 52:17 205:17 365:17 521:17 681:17 845:17 1010:17
+INFO reduce=true: tô sáng từ 61 ms đến 1022 ms; mẫu cường độ: 61:17 218:17 374:17 531:17 693:17 858:17 1022:17
+  ✓   7 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:288:1 › TC-UX15-4 tô sáng đoạn trích: giữ ≈ 1 s rồi mờ ≤ 200 ms (và reduce tắt tức thì) (19.2s)
+INFO bản nháp khả dụng: 8
+INFO tiến độ trước: Đã duyệt 0/9
+INFO URL sau A: https://localhost:1143/grading/01a1effc-21c6-785e-89b2-cda4379de9d7 → https://localhost:1143/grading/01a1effc-21c6-7773-a92c-b5904d8505b3?n=1&m=9&from=01a1effc-21c6-785e-89b2-cda4379de9d7
+INFO yêu cầu ghi: []
+INFO yêu cầu duyệt: 0
+INFO trạng thái bài đã A: {"id":"01a1effc-21c6-785e-89b2-cda4379de9d7","assignment":{"id":"01a1effc-21c1-718a-87dc-dff9d42a8fef","title":"Bài tập 03 — Phân tích một vụ tấn công thực tế"}
+INFO tiến độ sau: Đã duyệt 1/9
+INFO sau ›: https://localhost:1143/grading/01a1effc-21c6-7773-a92c-b5904d8505b3?n=1&m=9&from=01a1effc-21c6-785e-89b2-cda4379de9d7 → https://localhost:1143/grading/01a1effc-21c6-7899-9040-feee872dcd32?n=1&m=9&from=01a1effc-21c6-785e-89b2-cda4379de9d7 | hoạt cảnh ngay sau: 2
+  ✓   8 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:332:1 › TC-UX15-8/9/10 phím A duyệt rồi sang bài kế; ‹ › đổi bài không hoạt cảnh; nhấn đúp chỉ một lần (11.1s)
+INFO sau reload: điểm 1,00 → nhập 1,50 → còn 1,50; ghi chú: QC ghi chú tự lưu 9.1
+INFO thanh dưới sau lỗi: Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Thử lại Đã duyệt 0/8 Duyệt bài A
+  ✓   9 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:368:1 › TC-UX15-12/13 tự lưu điểm + nháp khôi phục; lỗi duyệt báo tại thanh dưới, điểm còn (14.6s)
+INFO SV /assignments: Bài tập Cần nộp Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams) Chưa nộp Hạn Chủ Nhật, 22/11 · 23:59 · còn 3 ngày Nộp bài Đã nộp, chờ điểm Bài tập 03 — Phân tích một vụ tấn công thực tế Đã nộp Thứ Ba, 10/11 · 23:57 Hạn Thứ Ba, 10/11 · 23:59 · đã quá hạn
+INFO TA thấy nút Duyệt bài: 1
+  ✓  10 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:404:1 › TC-UX15-15/16/17/18 SV chưa thấy điểm; STUDENT 403; TA duyệt được (16.4s)
+INFO 375 duyệt bài: {"tabs":["Bài làm","Chấm"],"btn":{"top":704,"bottom":748,"h":44},"navTop":755,"ov":false,"innerH":812,"navFound":true}
+  ✓  11 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:430:1 › TC-UX14-11/UX15-19 375 px: hai tab Bài làm / Chấm, thanh duyệt dính đáy ≥ 44 px trên thanh điều hướng (6.0s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected value: 200
+    Received array: [403, 404]
+
+      200 |     const a = await api(pt, `/courses/${other.id}/attendance/sessions`);
+      201 |     console.log("INFO PQ TA lớp lạ: submissions", s.status, "gradebook", g.status, "attendance", a.status);
+    > 202 |     expect([403, 404]).toContain(s.status);
+          |                        ^
+      203 |     expect([403, 404]).toContain(g.status);
+      204 |     expect([403, 404]).toContain(a.status);
+      205 |   }
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:202:24
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-5e95e-403-TA-mở-được-lớp-lạ-limit-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit 
+  10 passed (2.5m)

@@ -1,0 +1,52 @@
+
+Running 4 tests using 1 worker
+
+INFO hàng: {"tab":-1,"role":null,"onkey":false,"focusables":["A:Duyệt:0"]}
+INFO Enter trên liên kết trong hàng → https://localhost:1143/grading/01a1effc-21c6-783d-916e-d6df694989fc?n=0&m=1&assignment=01a1effc-21c1-718a-87dc-dff9d42a8fef&status=DRAFT&needs=1
+INFO ô Bài tập: {"w":456,"text":409,"pad":"12px/32px"}
+INFO 375: {"links":[{"t":"Duyệt","x":0,"y":0,"w":0,"h":0,"vis":"visible:inline-flex"},{"t":"Bùi Thanh Khải\n20229002\nHai lượt chấm lệch hơn 1 điểm\n7,00\nChưa duyệt\nDuyệt","x":29,"y":564,"w":317,"h":167,"vis":"visible:grid"}],"rowDisplay":"table-row","rowH":0,"tds":["Bùi Thanh Khải20229002Ha@0","Trong EduPilot@0","7,00@0","Chưa duyệt@0","Thứ Ba, 10/11 · 23:59 · @0","Duyệt @0"],"nameBox":0}
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:36:1 › TC-UX14-3/5/7/11 hàng chờ bổ sung: Enter khi focus, 375 px, rộng ô Bài tập (18.1s)
+INFO DRAFT: 8 REVIEWED: 2
+INFO tiến độ: Đã duyệt 0/8
+INFO sau bấm Duyệt bài: URL https://localhost:1143/grading/01a1effc-21c6-7773-a92c-b5904d8505b3?n=1&m=8&from=01a1effc-21c6-783d-916e-d6df694989fc | tiến độ Đã duyệt 1/8 | ghi: ["POST /api/v1/courses/‹id›/grading-results/‹id›/review {\"version\":4}"]
+INFO REVIEWED: 2 → 3
+INFO phím A: URL https://localhost:1143/grading/01a1effc-21c6-7773-a92c-b5904d8505b3?n=1&m=8&from=01a1effc-21c6-783d-916e-d6df694989fc → https://localhost:1143/grading/01a1effc-21c6-7899-9040-feee872dcd32?n=2&m=8&from=01a1effc-21c6-7773-a92c-b5904d8505b3 | tiến độ Đã duyệt 2/8 | ghi: ["POST /api/v1/courses/‹id›/grading-results/‹id›/review {\"version\":2}"] | REVIEWED 3 → 4
+INFO hoạt cảnh ngay sau ›: []
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:77:1 › TC-UX15-8/9/13 bắt mạng khi bấm Duyệt bài / phím A; trạng thái bài; hoạt cảnh sau › (13.1s)
+INFO API: hàng 30 | chưa đủ: 0 | drift: 0
+INFO UX16-3: so 63 ô, lệch 0 
+INFO tiêu đề phụ: null | cột Trạng thái: true | chú giải đã công bố: true | chấm công bố ở tiêu đề: 2
+  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm (6.5s)
+INFO màu LATE: {"self":"rgb(206, 22, 40)|lab(100 0 0)","before":"rgba(0, 0, 0, 0)","after":"rgba(0, 0, 0, 0)","lab":"rgb(35, 31, 32)","checked":true}
+INFO màu ABSENT: {"self":"rgb(206, 22, 40)|lab(100 0 0)","before":"rgba(0, 0, 0, 0)","after":"rgba(0, 0, 0, 0)","lab":"rgb(35, 31, 32)","checked":true}
+INFO hàng Vắng text: Dương Tuấn Giang 20224852 · Vắng Có mặt — Dương Tuấn Giang Muộn — Dương Tuấn Giang Vắng phép — Dương Tuấn Giang Vắng — Dương Tuấn Giang 
+INFO radio: ["Có mặt — Dương Tuấn Giang:false","Muộn — Dương Tuấn Giang:false","Vắng phép — Dương Tuấn Giang:false","Vắng — Dương Tuấn Giang:true"]
+INFO phím P đổi nội dung bảng: true | hàng 5 ô cuối: +5 · +0,25×5 | hàng đang chọn: eccc
+INFO 761988 cảnh báo: {"t":"Điểm danh Mở điểm danh Lưu điểm danh buổi 4 · Chủ Nhật, 13:30–16:00 · P.405 Buổi Buổi 6 · 29/11 · Chưa Buổi 5 · 22/11 · ","h":993,"btn":true} | số dòng cảnh báo: 2 | Xem công thức: 1
+INFO 375 điểm danh: {"trs":[":table-row:0","student-row:table-row:0","student-row:table-row:0"],"radioCnt":120,"radioBox":[0,0,0],"save":null,"ov":false,"iH":812}
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:185:1 › TC-UX12-2/3/5/14/15 điểm danh bổ sung: màu Vắng, nhãn, phím P, cảnh báo công thức (761988), 375 px (21.1s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm 
+
+    Error: UX16-10 ẩn cột khi không ai thiếu
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      146 |   expect(bad, "UX16-3 UI khớp API từng ô").toEqual([]);
+      147 |   if (inc > 0) expect(ui.thieu, "UX16-9 tiêu đề phụ Thiếu điểm: N").toContain(`Thiếu điểm: ${inc} sinh viên`);
+    > 148 |   else expect(ui.heads.includes("Trạng thái"), "UX16-10 ẩn cột khi không ai thiếu").toBe(false);
+          |                                                                                     ^
+      149 |   // menu cột
+      150 |   const th = page.locator("main thead th").filter({ hasText: "Kiểm tra hằng tuần" }).first();
+      151 |   const mb = th.locator("button").first();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:148:85
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4b-rea-a2ee0-i-menu-cột-khi-rê-Chốt-điểm-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4b-real.spec.ts:116:1 › TC-UX16 sổ điểm: so từng ô với API, hàng thiếu / cột Trạng thái, menu cột khi rê, Chốt điểm 
+  3 passed (1.0m)

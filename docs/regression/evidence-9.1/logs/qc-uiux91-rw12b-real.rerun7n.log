@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw12b-real.spec.ts:94:1 › TC-UX06-2 chọn A rồi B, tải lại → vẫn B (4.8s)
+
+  1 passed (5.5s)

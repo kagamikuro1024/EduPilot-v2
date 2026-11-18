@@ -485,19 +485,19 @@
  ],
  "TC-UX06-3": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs06-real (qc-uiux91-rs06-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7j.log)"
  ],
  "TC-UX06-4": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs06-real (qc-uiux91-rs06-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7j.log)"
  ],
  "TC-UX06-5": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs06-real (qc-uiux91-rs06-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7j.log)"
  ],
  "TC-UX06-6": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs06-real (qc-uiux91-rs06-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7k.log)"
  ],
  "TC-UX08-48": [
   "P",
@@ -513,34 +513,478 @@
  ],
  "TC-UX02-6": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0misc-real (qc-uiux91-rs0misc-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0misc-real ✓ (qc-uiux91-rs0misc-real.rerun7j.log)"
  ],
  "TC-UX04-4": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0misc-real (qc-uiux91-rs0misc-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0misc-real ✓ (qc-uiux91-rs0misc-real.rerun7j.log)"
  ],
  "TC-UX05-7": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0misc-real (qc-uiux91-rs0misc-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0misc-real ✓ (qc-uiux91-rs0misc-real.rerun7j.log)"
  ],
  "TC-UX01-5": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0misc-real (qc-uiux91-rs0misc-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0misc-real ✓ (qc-uiux91-rs0misc-real.rerun7j.log)"
  ],
  "TC-UX04-PQ": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0pq-real (qc-uiux91-rs0pq-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log)"
  ],
  "TC-UX01-18": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0pq-real (qc-uiux91-rs0pq-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log)"
  ],
  "TC-UX07-PQ": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0pq-real (qc-uiux91-rs0pq-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log)"
  ],
  "TC-UX01-PQ": [
   "P",
-  "RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0pq-real (qc-uiux91-rs0pq-real.rerun6.log) xanh"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log)"
+ ],
+ "TC-UX20-3": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7b.log)"
+ ],
+ "TC-UX20-9": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7b.log)"
+ ],
+ "TC-UX20-2": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7b.log)"
+ ],
+ "TC-UX20-4": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7b.log)"
+ ],
+ "TC-UX20-1": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7b.log)"
+ ],
+ "TC-UX16-13": [
+  "P",
+  "qc-uiux91-rn4-real rerun7a (QR91H): sửa ô sổ điểm → Enter giữ cột + xuống dòng kế (row 1), Tab sang ô nhập kế (cột 1→3, bỏ cột Kiểm tra hằng tuần chỉ đọc); animation ep-saved:200, nền oklab xanh 28→218 ms rồi về trong suốt, không transform"
+ ],
+ "TC-UX04-19": [
+  "P",
+  "qc-uiux91-rn4-real rerun7a reduce=true: ô vẫn đổi nền (61→222 ms ≈ 160 ms, ep-saved:200), tắt ≤ 200 ms sau đỉnh, transform = none (US-04 AC9)"
+ ],
+ "TC-UX16-14": [
+  "F",
+  "qc-uiux91-rn4-real rerun7a reduce=true: nền đổi tức thì nhưng chỉ giữ ≈ 160 ms (61→222 ms), US-16 AC6 đòi «giữ ≥ 300 ms». US-04 AC9 lại đòi «tắt sau ≤ 200 ms» ⇒ hai AC mâu thuẫn; DEF-R9.1-07 (Thấp), cần PM chốt AC nào đúng"
+ ],
+ "TC-UX12-17": [
+  "P",
+  "qc-uiux91-rn4-real rerun7b (QR91H): TA sửa hàng 25 → Vắng, tự lưu; GV (trang cũ) sửa cùng hàng → Muộn: 409, hàng hiện «Phạm Quốc Bảo đã đánh Vắng», nút «Giữ của tôi» + «Lấy của Phạm Quốc Bảo», lựa chọn Muộn của GV còn"
+ ],
+ "TC-UX15-2": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-7": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-6": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-1": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-3": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-11": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX16-5": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log)"
+ ],
+ "TC-UX12-1": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX12-7": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX12-4": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX12-5": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log)"
+ ],
+ "TC-UX12-6": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX12-3": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log)"
+ ],
+ "TC-UX12-13": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX12-14": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log)"
+ ],
+ "TC-UX12-18": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX12-20": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX16-20": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX16-15": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX16-19": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX16-16": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log)"
+ ],
+ "TC-UX14-1": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX14-7": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log)"
+ ],
+ "TC-UX14-6": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX14-5": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log)"
+ ],
+ "TC-UX14-2": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX14-4": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX14-11": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log)"
+ ],
+ "TC-UX15-4": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-8": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log)"
+ ],
+ "TC-UX15-9": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log)"
+ ],
+ "TC-UX15-10": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-12": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-13": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4c-real ✓ (qc-uiux91-rw4c-real.rerun7j.log)"
+ ],
+ "TC-UX15-17": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-18": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-15": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-16": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX15-19": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log)"
+ ],
+ "TC-UX16-21": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log)"
+ ],
+ "TC-UX16-24": [
+  "P",
+  "RERUN7 trên lớp sao QR91G (seed gốc: điểm Giữa/Cuối kỳ IMPORT v1, điểm danh + phát biểu về bản /tmp/smk91-pristine.dump qua scripts/r91-fixgrades.sh + r91-fixseed.sh): rw4d khớp 30/30 (logs/qc-uiux91-rw4d-real.rerun7c.log). Lệch 28/30 ở QR91A là dữ liệu sao có phát biểu/điểm danh do QC ghi thêm"
+ ],
+ "TC-UX10-26": [
+  "P",
+  "today.spec.ts: 19 ✓ desktop, 0 ✘ (logs/devspecs-r6.log, build:gate @1409b04d); diff 9.1 (6a0e8584): +20 expect, −0; fixture có overdue/high/normal/EXAM_SIMILARITY (today.spec.ts:150-172); ảnh mốc hom-nay-gv-1440/390 có trong visual.spec.ts-snapshots"
+ ],
+ "TC-UX15-20": [
+  "P",
+  "assignment-lifecycle.spec.ts: 47 ✓ / 0 ✘ (devspecs-r6.log); diff 9.1: các expect bị bỏ đều thay bằng bản theo AC (cột «Duyệt», «Lệch … so với lượt 2», N/M, xung đột AC7); ảnh grading-review-1440 có"
+ ],
+ "TC-UX16-22": [
+  "P",
+  "gradebook.spec.ts: 42 ✓ / 0 ✘; diff 9.1: số đệm 2 chữ số (8,5→8,50), cột Trạng thái «Đủ»→rỗng, «Đã công bố» → aria-label: đúng AC1/AC4, không nới; ảnh gradebook-1440/390 có"
+ ],
+ "TC-UX12-21": [
+  "P",
+  "attendance.spec.ts: 20 ✓ desktop (+1 mobile) / 0 ✘; diff 9.1: speak-count «1»→/^\\+1\\b/ (AC5), +3 expect; ảnh attendance-1440/390 có"
+ ],
+ "TC-UX13-27": [
+  "P",
+  "private-chat.spec.ts: 24 ✓ / 0 ✘; diff 9.1 (ed0aa499, 3002ce33): +11 expect, −0; ảnh chat-1440/390 có"
+ ],
+ "TC-UX20-10": [
+  "P",
+  "me.spec.ts: 16 ✓ / 0 ✘; diff 9.1: calc li 3→5 thành phần (AC1), +6 expect, câu rỗng đổi chữ theo AC2; không nới"
+ ],
+ "TC-UX01-7": [
+  "P",
+  "lcp.spec.ts: 7 route (/, /chat, /threads, /me, /inbox, /gradebook, /settings/llm) ✓ + /assignments/<id> ✓, ứng viên LCP trước phiên = chữ PreShell, sau phiên không ứng viên mới (devspecs-r6.log)"
+ ],
+ "TC-UX13-2": [
+  "P",
+  "scripts/ui-antipatterns.sh exit 0, 12 phép ✓ (logs/antipatterns-r6.log) + panels.spec.ts 59 ✓ / 0 ✘ (devspecs-r6.log; NEST = 0, TITLE = 0 mọi route × vai)"
+ ],
+ "TC-UX03-5": [
+  "P",
+  "đủ bộ playwright dev (build:gate @1409b04d, devspecs-r6.log): 271 ✓, 225 skip, 0 đỏ vì toBeDisabled (0 dòng khớp); 22 đỏ chỉ ở qc2-r4/r4ui-today (spec QC cần fixture /tmp/qc2-i, không phải spec dev). git diff e2e 9.1: toBeDisabled/Enabled chỉ đổi nhãn (ed0aa499 AC3 US-UX91-18) + 1 toBeEnabled thêm (8ae5393f), không nới"
+ ],
+ "TC-UX04-22": [
+  "P",
+  "visual.spec chạy trên Linux ở CI (repo kagamikuro1024/EduPilot-v2 run 44343596969 @777bb5e2: Frontend e2e Playwright 1/4-4/4 success, gh run view); ảnh mốc đổi trong sprint 9.1 (git log --grep ^9.1 -- visual.spec.ts-snapshots): inbox-1440 + threads-390 (4b6389f1), hom-nay-gv-*, attendance/grading-queue/grading-review/gradebook (f8a744bd), chat/insights/observability/threads-390 (ed0aa499), chat + grading-review (e050e566) — đều có dòng giải thích trong handoff/dev-wave-1/3/4/5 + dev-sua-ci; dev-ui-* không đổi (không cần :active tĩnh)"
+ ],
+ "TC-UX06-10": [
+  "P",
+  "visual.spec Linux xanh ở CI (run 44343596969 @777bb5e2). Ảnh đổi cùng commit story 6 (4b6389f1) là inbox-1440 + threads-390: xem shots/visual-4b6389f1/ — chỉ đổi nhãn menu (Threads→Hỏi đáp công khai, Insights→Lỗ hổng kiến thức, Analytics→Số liệu lớp học: US-07) và dòng phụ hộp thư (US-01); không ảnh nào đổi vì chọn lớp mặc định (US-06)"
+ ],
+ "TC-UX16-10": [
+  "P",
+  "P-11-64 (AC4 mới): lớp sao QR91B (30 SV đủ điểm, không SV Liệt): sổ điểm không có cột «Trạng thái», không có «Thiếu điểm: N» (logs/qc-uiux91-rzprobe5-real.rerun7b.log). Đối chứng QR91C (3 SV thiếu Cuối kỳ): cột hiện, 3 ô «Thiếu điểm» + «Liệt», tiêu đề phụ «Thiếu điểm: 3»; QR91A (1 SV Liệt): cột hiện với đúng 1 ô"
+ ],
+ "TC-UX12-2": [
+  "F",
+  "DEF-R9.1-06: dot đã chọn Muộn / Vắng phép / Vắng chuyển XÁM (border lab(45 4 2) = --ep-ink-3) khi chuột đang rê lên đúng ô, vì `.cell:hover .radio` (0,3,0) thắng `.radio:checked` (0,2,0) trong AttendanceGrid.module.css; chuột rời ra mới đỏ rgb(206,22,40). Bằng chứng logs/qc-uiux91-rzprobe-real.rerun7q.log (LATE/EXCUSED/ABSENT: chuột-xa đỏ, chuột-trên-ô xám). Người dùng chuột bấm xong thấy dot xám ⇒ AC1 «chấm của lựa chọn đó đỏ» không đạt khi đang trỏ"
+ ],
+ "TC-UX21-PQ": [
+  "P",
+  "probe qc-uiux91-rzprobe4-real rerun7a: sv.gioi đăng nhập → `/` giữ nguyên, h1 «Chào Trung» (Hôm nay của SV) từ giây 1 đến 14, 3 yêu cầu (refresh, me/courses, courses/‹id›/today), không có /me/today của GV; GV cùng điều kiện: h1 «4 việc cần xử lý hôm nay». Đỏ lượt 6 là chụp lúc gateway vừa restart (h1 trang giới thiệu)"
+ ],
+ "TC-UX15-5": [
+  "P",
+  "rw4 TC-UX15-4 chạy reduce=true: có đoạn tô sáng, giữ + tắt < 1,5 s (rerun7g ✓ 19,2 s)"
+ ],
+ "TC-UX91-X2": [
+  "P",
+  "bộ playwright dev 271 ✓ / 0 đỏ spec dev (logs/devspecs-r6.log); scripts/ui-antipatterns.sh 12 phép ✓ (antipatterns-r6.log); eslint cây theo dõi: 36 lỗi đều ở e2e/qc2-* (spec QC), 0 ở src/ và spec dev (lint-tracked-r6.log); CI run 44343596969 @777bb5e2: Frontend (lint + build), 4 shard Playwright và 4 job Lighthouse (simulate A/B, devtools A/B) success"
+ ],
+ "TC-UX08-50": [
+  "P",
+  "axe landing / ở 1440 và 375, 3 lượt mỗi cỡ: 6/6 ✓, 0 serious/critical (logs/qc-uiux91-r91axe-real.rerun4.log; DEF-R9.1-03 đã sửa theo P-11-40)"
+ ],
+ "TC-UX16-17": [
+  "P",
+  "qc-uiux91-rn4-real rerun7d (lớp thử QR91D): bấm đúp xác nhận «Chốt điểm» → sổ LOCKED, snapshot_version = 1, đúng 1 POST finalize (Idempotency-Key ep-2f40332e…); không bản chốt thứ hai"
+ ],
+ "TC-UX06-7": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7b.log)"
+ ],
+ "TC-UX06-PQ": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7b.log)"
+ ],
+ "TC-UX14-8": [
+  "P",
+  "qc-uiux91-rn4-real rerun7c (QR91H): chọn «Bài tập 04» (0 bài nộp) → «Chấm tất cả» aria-disabled=true + tooltip «Chưa có bài nộp.»; chọn «Bài tập 03» (có bài) → aria-disabled=null, bấm được"
+ ],
+ "TC-UX20-5": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0misc-real ✓ (qc-uiux91-rs0misc-real.rerun7j.log)"
+ ],
+ "TC-UX15-PQ": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log)"
+ ],
+ "TC-UX01-1": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw2-real ✓ (qc-uiux91-rw2-real.rerun7j.log)"
+ ],
+ "TC-UX01-10": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw2-real ✓ (qc-uiux91-rw2-real.rerun7j.log)"
+ ],
+ "TC-UX16-2": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7i.log)"
+ ],
+ "TC-UX16-11": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7i.log)"
+ ],
+ "TC-UX16-4": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7i.log)"
+ ],
+ "TC-UX16-3": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7i.log)"
+ ],
+ "TC-UX16-7": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7i.log)"
+ ],
+ "TC-UX16-6": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7i.log)"
+ ],
+ "TC-UX14-PG": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log)"
+ ],
+ "TC-UX14-PQ": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log)"
+ ],
+ "TC-UX14-9": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log)"
+ ],
+ "TC-UX14-10": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log)"
+ ],
+ "TC-UX12-11": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log)"
+ ],
+ "TC-UX12-19": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log)"
+ ],
+ "TC-UX12-15": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log)"
+ ],
+ "TC-UX12-12": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log)"
+ ],
+ "TC-UX12-PQ": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log)"
+ ],
+ "TC-UX14-3": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log)"
+ ],
+ "TC-UX15-14": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4g-real ✓ (qc-uiux91-rw4g-real.rerun7j.log)"
+ ],
+ "TC-UX04-13": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4c-real ✓ (qc-uiux91-rw4c-real.rerun7j.log)"
+ ],
+ "TC-UX04-14": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4c-real ✓ (qc-uiux91-rw4c-real.rerun7j.log)"
+ ],
+ "TC-UX04-12": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4c-real ✓ (qc-uiux91-rw4c-real.rerun7j.log)"
+ ],
+ "TC-UX16-1": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log)"
+ ],
+ "TC-UX16-12": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4g-real ✓ (qc-uiux91-rw4g-real.rerun7j.log)"
+ ],
+ "TC-UX13-22": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5g-real ✓ (qc-uiux91-rw5g-real.rerun7j.log)"
+ ],
+ "TC-UX13-23": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5g-real ✓ (qc-uiux91-rw5g-real.rerun7j.log)"
+ ],
+ "TC-UX13-21": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5a-real ✓ (qc-uiux91-rw5a-real.rerun7j.log)"
+ ],
+ "TC-UX13-18": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5g-real ✓ (qc-uiux91-rw5g-real.rerun7j.log)"
+ ],
+ "TC-UX13-14": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5a-real ✓ (qc-uiux91-rw5a-real.rerun7j.log)"
+ ],
+ "TC-UX13-25": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5a-real ✓ (qc-uiux91-rw5a-real.rerun7j.log)"
+ ],
+ "TC-UX13-24": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5a-real ✓ (qc-uiux91-rw5a-real.rerun7j.log)"
+ ],
+ "TC-UX13-26": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5a-real ✓ (qc-uiux91-rw5a-real.rerun7j.log)"
+ ],
+ "TC-UX19-12": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5f-real ✓ (qc-uiux91-rw5f-real.rerun7j.log)"
+ ],
+ "TC-UX19-6": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5f-real ✓ (qc-uiux91-rw5f-real.rerun7j.log)"
+ ],
+ "TC-UX19-11": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5f-real ✓ (qc-uiux91-rw5f-real.rerun7j.log)"
+ ],
+ "TC-UX20-7": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5g-real ✓ (qc-uiux91-rw5g-real.rerun7j.log)"
+ ],
+ "TC-UX20-6": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5g-real ✓ (qc-uiux91-rw5g-real.rerun7j.log)"
+ ],
+ "TC-UX13-20": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5g-real ✓ (qc-uiux91-rw5g-real.rerun7j.log)"
  ]
 }

@@ -21,7 +21,9 @@ for f in sorted(glob.glob(H + "/logs/*.rerun7*.log")):
         for t in expand(title):
             last.setdefault(t, {})[os.path.basename(f)] = (st, file)
 n = 0
+SKIP = {'TC-UX16-9', 'TC-UX16-10', 'TC-UX12-2'}  # nhóm tiêu đề không có assertion riêng: chấm tay trong results-smkS.tsv
 for t, d in last.items():
+    if t in SKIP: continue
     logs = sorted(d)
     st, file = d[logs[-1]]
     if st == "✓":

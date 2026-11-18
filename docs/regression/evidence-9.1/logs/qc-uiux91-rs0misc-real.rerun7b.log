@@ -1,0 +1,34 @@
+
+Running 5 tests using 1 worker
+
+INFO UX02-6 hàng chuông: ["Mục thử 1 Hộp thư hỗ trợ · vừa xong","Mục thử 2 Hộp thư hỗ trợ · 5 phút trước","Mục thử 3 Hộp thư hỗ trợ · Hôm qua, 23:58","Mục thử 4 Hộp thư hỗ trợ · Hôm qua, 00:58"]
+INFO UX02-6 mong đợi: ["vừa xong","5 phút trước","Hôm qua, 23:58","Hôm qua, 00:58"]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:12:1 › TC-UX02-6 chuông thông báo: 30 s → «vừa xong», 5 phút → «5 phút trước», 3 giờ → «3 giờ trước» (cùng ngày) hoặc «Hôm qua, HH:mm», 26 giờ → «Hôm qua, HH:mm» (4.4s)
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:37:1 › TC-UX04-4 375 hasTouch: chạm một dòng danh sách rồi không giữ nền hover (1.2s)
+  -  3 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:55:1 › TC-UX05-7 sổ điểm lớp chưa có công thức: EmptyState đúng một nút «Thiết lập công thức», không câu «Điểm chính thức …»
+  -  4 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:74:1 › TC-UX01-5 dòng «Giữ»: /students «N sinh viên», /attendance dòng phụ buổi học không mã lớp (#11, #47, #48)
+  -  5 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:92:1 › TC-UX20-5 điểm đã công bố ⇒ đúng một nút phụ «Yêu cầu xem lại», bấm mở biểu mẫu như cũ
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:37:1 › TC-UX04-4 375 hasTouch: chạm một dòng danh sách rồi không giữ nền hover 
+
+    TypeError: Cannot read properties of undefined (reading 'course')
+
+       at qc2-r91/r91lib.ts:25
+
+      23 | export async function courseId(page: Page, code: string): Promise<string> {
+      24 |   const r = await api(page, "/me/courses?limit=100");
+    > 25 |   return r.body.items.find((i: any) => i.course.class_code === code).course.id as string;
+         |                                                                     ^
+      26 | }
+      27 | export async function open(browser: Browser, user: string, w = 1440, h = 900): Promise<{ ctx: BrowserContext; page: Page; errs: string[] }> {
+      28 |   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h }, hasTouch: w < 500, isMobile: w < 500, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" });
+        at courseId (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/r91lib.ts:25:69)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:39:65
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rs0misc--2eb5a-ách-rồi-không-giữ-nền-hover-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:37:1 › TC-UX04-4 375 hasTouch: chạm một dòng danh sách rồi không giữ nền hover 
+  3 did not run
+  1 passed (6.0s)

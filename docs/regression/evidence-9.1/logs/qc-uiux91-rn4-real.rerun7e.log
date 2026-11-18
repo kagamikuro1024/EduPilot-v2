@@ -1,0 +1,38 @@
+
+Running 1 test using 1 worker
+
+INFO ngoại tuyến: Điểm danh Đã lưu buổi 10 · Chủ Nhật, 09:00–11:30 · P.302 Buổi Buổi 15 · 20/12 · Chưa Buổi 14 · 13/12 · Chưa Buổi 13 · 06/12 · Chưa Buổi 12 · 29/11 · Chưa Buổi 11 · 22/11 · Chưa Buổi 10 · 15/11 · Đã điểm danh Buổi 9 · 08/ | dải: [
+  'Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.'
+]
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ (14.9s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('[data-part=offline-banner]')
+    Expected pattern: /Chưa có mạng/
+    Received string:  "Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng."
+    Timeout: 8000ms
+
+    Call log:
+      - Expect "toContainText" locator('[data-part=offline-banner]') with timeout 8000ms
+      - waiting for locator('[data-part=offline-banner]')
+        20 × locator resolved to <div data-part="offline-banner" class="OfflineBanner-module__PMl_CG__slot">…</div>
+           - unexpected value "Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng."
+
+
+      151 |   const txt = await bar;
+      152 |   console.log("INFO ngoại tuyến:", txt.slice(0, 220), "| dải:", await o.page.locator("[data-part=offline-banner]").allInnerTexts());
+    > 153 |   await expect(o.page.locator("[data-part=offline-banner]")).toContainText(/Chưa có mạng/);
+          |                                                              ^
+      154 |   const saveBtn = o.page.getByRole("button", { name: /Lưu điểm danh|Chờ mạng|Đã lưu/ }).first();
+      155 |   console.log("INFO thanh lưu:", JSON.stringify(await saveBtn.innerText()), "| số PUT lúc offline:", puts.length);
+      156 |   await saveBtn.click({ timeout: 4000 }).catch((e) => console.log("INFO bấm lưu khi offline:", String(e).slice(0, 120)));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:153:62
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rn4-real-38d14-mạng-tự-đồng-bộ-lên-máy-chủ-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ 

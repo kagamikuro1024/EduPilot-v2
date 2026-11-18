@@ -33,6 +33,7 @@ up)
 up0) # DB trống riêng (TC-P206-30)
   docker exec $PGC psql -U edupilot -d postgres -c "drop database if exists qc2i_empty with (force)" -c "create database qc2i_empty" || exit 1
   $HEAVY docker run --rm --network $NET -e DATABASE_URL="postgres://edupilot:edupilot-dev@postgres:5432/qc2i_empty?sslmode=disable" edupilot-gateway:latest migrate up | tail -2 ;;
+gw) shift; gw "$@" ;;
 down) docker rm -f qc2i-redis qc2i-mail qc2i-worker qc2i-gw1 qc2i-gw2 qc2i-gw3 >/dev/null 2>&1; docker exec $PGC psql -U edupilot -d postgres -c "drop database if exists $DB with (force)" -c "drop database if exists qc2i_empty with (force)" ;;
 status) docker ps -a --format '{{.Names}} {{.Status}}' | grep qc2i- ;;
 psql) shift; docker exec -i $PGC psql -U edupilot -d $DB -At -F '|' -c "$1" ;;

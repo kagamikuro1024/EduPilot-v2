@@ -1,0 +1,39 @@
+
+Running 4 tests using 1 worker
+
+INFO SV /observability: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và quản trị viên."
+INFO SV /analytics: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO SV /insights: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO SV /gradebook: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO SV /attendance: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO SV nav: ["/","/","/chat","/threads","/assignments","/practice","/exams","/library","/calendar","/me"]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:12:1 › TC-UX01-18 TC-UX07-PQ TC-UX04-PQ SV: /observability /analytics /insights /gradebook /attendance → 403 nguyên văn, không lộ nav, không chuyển động mới (13.9s)
+INFO TA /observability: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và quản trị viên."
+INFO TA /settings/llm: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và quản trị viên."
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:30:1 › TC-UX01-PQ TA: /observability /settings/llm → 403; SV /insights → 403 (đã ở trên); chữ bị xoá không lộ dữ liệu (6.3s)
+INFO UX21-PQ: / "Chào Trung Thứ Năm, 19/11 Việc nên làm tiếp Hôm nay bạn không có việc gấp" | nav: ["/","/","/chat","/threads","/assignments","/practice","/exams","/library","/calendar","/me"]
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:43:1 › TC-UX21-PQ SV đăng nhập → `/` là Hôm nay của sinh viên (không phải giảng viên) (4.8s)
+  ✘  4 [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:58:1 › TC-UX15-PQ giảng viên khác lớp: GET /courses/‹lớp lạ›/submissions/‹sid› → 403/404 (1.2s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:58:1 › TC-UX15-PQ giảng viên khác lớp: GET /courses/‹lớp lạ›/submissions/‹sid› → 403/404 
+
+    TypeError: Cannot read properties of undefined (reading 'course')
+
+       at qc2-r91/r91lib.ts:25
+
+      23 | export async function courseId(page: Page, code: string): Promise<string> {
+      24 |   const r = await api(page, "/me/courses?limit=100");
+    > 25 |   return r.body.items.find((i: any) => i.course.class_code === code).course.id as string;
+         |                                                                     ^
+      26 | }
+      27 | export async function open(browser: Browser, user: string, w = 1440, h = 900): Promise<{ ctx: BrowserContext; page: Page; errs: string[] }> {
+      28 |   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h }, hasTouch: w < 500, isMobile: w < 500, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" });
+        at courseId (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/r91lib.ts:25:69)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:60:55
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rs0pq-re-a238f-submissions-‹sid›-→-403-404-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rs0pq-real.spec.ts:58:1 › TC-UX15-PQ giảng viên khác lớp: GET /courses/‹lớp lạ›/submissions/‹sid› → 403/404 
+  3 passed (26.6s)

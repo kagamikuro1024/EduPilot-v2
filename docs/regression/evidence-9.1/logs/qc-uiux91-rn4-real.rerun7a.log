@@ -1,0 +1,40 @@
+
+Running 3 tests using 1 worker
+
+INFO UX14-8 QR91E: aria-disabled=true disabled=true tooltip="Chọn một bài tập trước. | Chọn bài đã duyệt. | Chọn một bài tập trước." title="null" describedby=_r_f_
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:12:1 › TC-UX14-8 «Chấm tất cả»: lớp chưa có bài nộp khoá + lý do; lớp có bài bấm được (5.6s)
+INFO reduce=false: nền gốc rgba(0, 0, 0, 0)|rgba(0, 0, 0, 0) | đổi nền từ 28 ms đến 218 ms (8/54 mẫu) | transform khác none: false | anim: ep-saved:200
+INFO mẫu: [[0,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[164,"oklab(0.489998 -0.1064","a(0, 0, 0, 0)"],[335,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[502,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[672,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[844,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1018,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1189,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1364,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"]]
+INFO sau Enter focus: {"tag":"INPUT","col":1,"row":1} cột ô gốc 1
+INFO sau Tab focus: {"tag":"INPUT","col":3,"row":0}
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:59:3 › TC-UX16-13 nháy lưu ô sổ điểm, Enter/Tab (reduce=false) (11.4s)
+INFO reduce=true: nền gốc rgba(0, 0, 0, 0)|rgba(0, 0, 0, 0) | đổi nền từ 61 ms đến 222 ms (7/54 mẫu) | transform khác none: false | anim: ep-saved:200
+INFO mẫu: [[0,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[167,"oklab(0.489998 -0.1064","a(0, 0, 0, 0)"],[336,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[504,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[678,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[851,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1020,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1192,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1360,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"]]
+INFO sau Enter focus: {"tag":"INPUT","col":1,"row":1} cột ô gốc 1
+INFO sau Tab focus: {"tag":"INPUT","col":3,"row":0}
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:59:3 › TC-UX16-14 TC-UX04-19 nháy lưu ô sổ điểm, Enter/Tab (reduce=true) (11.4s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:12:1 › TC-UX14-8 «Chấm tất cả»: lớp chưa có bài nộp khoá + lý do; lớp có bài bấm được 
+
+    Error: lý do
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /Chưa có bài nộp/
+    Received string:  "Chọn một bài tập trước. | Chọn bài đã duyệt. | Chọn một bài tập trước.  Chấm bài Tải bài lên Chọn một bài tập trước. Công bố Chọn bài đã duyệt. Chấm tất cả Chọn một bài tập trước. Hàng chờ Bài tập Chưa khớp Bài tập Tất cả bài tập Trạng thái Chưa duyệt Đã duyệt Đã công bố Chấm lỗi Đang chấm Chưa chấm Cần xem kỹ Không có bài chưa duyệt"
+
+      29 |       expect(dis === "true" || dd, "lớp rỗng: nút khoá").toBe(true);
+      30 |       const why = `${tip} ${title ?? ""} ${(await o.page.locator("main").innerText()).replace(/\s+/g, " ")}`;
+    > 31 |       expect(why, "lý do").toMatch(/Chưa có bài nộp/);
+         |                            ^
+      32 |     } else {
+      33 |       expect(dis === "true" || dd, "lớp có bài: không khoá").toBe(false);
+      34 |     }
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:31:28
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rn4-real-7471e-á-lý-do-lớp-có-bài-bấm-được-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:12:1 › TC-UX14-8 «Chấm tất cả»: lớp chưa có bài nộp khoá + lý do; lớp có bài bấm được 
+  2 passed (29.2s)

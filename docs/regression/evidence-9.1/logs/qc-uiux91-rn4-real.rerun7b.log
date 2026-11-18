@@ -1,0 +1,41 @@
+
+Running 3 tests using 1 worker
+
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:104:1 › TC-UX16-17 Chốt điểm: bấm đúp xác nhận chỉ chốt một lần (1.2s)
+INFO ngoại tuyến: Điểm danh Lưu điểm danh buổi 10 · Chủ Nhật, 09:00–11:30 · P.302 Buổi Buổi 15 · 20/12 · Chưa Buổi 14 · 13/12 · Chưa Buổi 13 · 06/12 · Chưa Buổi 12 · 29/11 · Chưa Buổi 11 · 22/11 · Chưa Buổi 10 · 15/11 · Đã điểm danh Buổi  | dải: [ 'Chưa có mạng · 3 thay đổi chờ lưu' ]
+INFO thanh lưu: "Lưu điểm danh" | số PUT lúc offline: 0
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:131:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ (4.0m)
+INFO B sau 409: Điểm danh Lưu điểm danh buổi 10 · Chủ Nhật, 09:00–11:30 · P.302 Buổi Buổi 15 · 20/12 · Chưa Buổi 14 · 13/12 · Chưa Buổi 13 · 06/12 · Chưa Buổi 12 · 29/11 · Chưa Buổi 11 · 22/11 · Chưa Buổi 10 · 15/11 · Đã điểm danh Buổi 9 · 08/11 · Đã điểm danh Buổi 8 · 01/11 · Đã điểm danh Buổi 7 · 25/10 · Đã điểm danh Buổi 6 · 18/10 · Đã điểm danh Buổi 5 · 11/10 · Đã điểm danh Buổi 4 · 04/10 · Đã điểm danh Buổi 
+INFO nút: ["Lưu điểm danh","","","","","","","","","","","","","","","","","","","","","","","","","","Giữ của tôi","Lấy của Phạm Quốc Bảo","","","","","","Bùi Khánh Việt20227706Có mặt","","Bùi Minh Yến20221975Có mặt","","Bùi Thanh Khải20229002Có mặt","","Bùi Thu Việt20226980Có mặt","","Đỗ Bảo Hải20226862Có mặt","","Đỗ Khánh Hà20223050Có mặt","","Dương Minh Yến20222003Có mặt","","Dương Quốc Hương20224019Có mặt","","Dương Tuấn Giang20224852Có mặt","","Hồ Đức Thảo20225401Có mặt","","Hồ Thu Chi20222839Có mặt","","Huỳnh Đức Dũng20229602Có mặt","","Huỳnh Hoàng Hương20226004Có mặt","","Huỳnh Thu Long20223579Có mặt","","Lê Thanh Hải20227053Có mặt","","Ngô Ngọc Cẩm20229003Có mặt","","Ngô Thu Khoa20227130Có mặt","","Ngô Văn Hà20224349Có mặt","","Ngô Văn Hải20227769Có mặt","","Nguyễn Anh Linh20223869Có mặt","","Phạm Mai Chi20226712Có mặt","","Phan Hoàng Nam20223354Có mặt","","Phan Ngọc Lan20226611Có mặt","","Phan Thu Hà20224880Có mặt","","Võ Gia Linh20226009Có mặt","","Võ Hữu Bình20223575Muộn","","Giữ của tôi","Lấy của Phạm Quốc Bảo","Võ Thanh Trang20227825Có mặt","","Võ Thị An20229049Có mặt","","Vũ Hoàng Giang20229001Có mặt","","Vũ Minh Long20224786Có mặt","","Lưu điểm danh · 30 có mặt · 0 vắng","","Để sau","Đánh vắng",""]
+INFO hàng xung đột: Võ Hữu Bình 20223575 · Muộn Phạm Quốc Bảo đã đánh Vắng Giữ của tôi Lấy của Phạm Quốc Bảo Có mặt — Võ Hữu Bình Muộn — Võ Hữu Bình Vắng phép — Võ Hữu Bình Vắng — Võ Hữu Bình 
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:171:1 › TC-UX12-17 điểm danh xung đột: A (TA) và B (giảng viên) cùng sửa, B lưu sau → 409, hiện giá trị của A và hai lựa chọn (26.2s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:104:1 › TC-UX16-17 Chốt điểm: bấm đúp xác nhận chỉ chốt một lần 
+
+    TypeError: Cannot read properties of undefined (reading 'find')
+
+       at qc2-r91/r91lib.ts:25
+
+      23 | export async function courseId(page: Page, code: string): Promise<string> {
+      24 |   const r = await api(page, "/me/courses?limit=100");
+    > 25 |   return r.body.items.find((i: any) => i.course.class_code === code).course.id as string;
+         |                       ^
+      26 | }
+      27 | export async function open(browser: Browser, user: string, w = 1440, h = 900): Promise<{ ctx: BrowserContext; page: Page; errs: string[] }> {
+      28 |   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h }, hasTouch: w < 500, isMobile: w < 500, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" });
+        at courseId (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/r91lib.ts:25:23)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:107:13
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rn4-real-45e27-p-xác-nhận-chỉ-chốt-một-lần-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:131:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ 
+
+    Test timeout of 240000ms exceeded.
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rn4-real-38d14-mạng-tự-đồng-bộ-lên-máy-chủ-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:104:1 › TC-UX16-17 Chốt điểm: bấm đúp xác nhận chỉ chốt một lần 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:131:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ 
+  1 passed (4.5m)

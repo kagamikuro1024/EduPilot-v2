@@ -51,11 +51,14 @@ test("[TC-P202-30] hai tab cùng context tải cùng lúc: refresh tuần tự, 
   const email = em("sv2");
   await apiLogin(page, email);
   const other = await context.newPage();
-  const iv: Array<{ a: number; b: number }> = [];
+  const iv: Array<{ a: number; b: number; h: number }> = [];
   for (const p of [page, other]) {
-    const open = new Map<unknown, number>();
-    p.on("request", (r) => r.url().endsWith("/auth/refresh") && open.set(r, Date.now()));
-    p.on("requestfinished", (r) => open.has(r) && iv.push({ a: open.get(r)!, b: Date.now() }));
+    // thời gian của trình duyệt (cùng đồng hồ cho hai tab): startTime + requestStart/responseStart/responseEnd
+    p.on("requestfinished", async (r) => {
+      if (!r.url().endsWith("/auth/refresh")) return;
+      const t = r.timing();
+      iv.push({ a: t.startTime + Math.max(t.requestStart, 0), h: t.startTime + t.responseStart, b: t.startTime + t.responseEnd });
+    });
   }
   clearRL();
   await Promise.all([page.goto("/"), other.goto("/")]);
@@ -63,7 +66,7 @@ test("[TC-P202-30] hai tab cùng context tải cùng lúc: refresh tuần tự, 
   await expect(topbar(other)).toBeVisible();
   await page.waitForTimeout(1500);
   iv.sort((x, y) => x.a - y.a);
-  note(`refresh: ${iv.length} lần; khoảng ${iv.map((i) => `${i.a % 100000}-${i.b % 100000}`).join(" | ")}`);
+  note(`refresh: ${iv.length} lần; (bắt đầu, nhận đầu thư, kết thúc) ms tương đối: ${iv.map((i) => `${Math.round(i.a - iv[0].a)},${Math.round(i.h - iv[0].a)},${Math.round(i.b - iv[0].a)}`).join(" | ")}`);
   expect(iv.length).toBeLessThanOrEqual(2);
   for (let i = 1; i < iv.length; i++) expect(iv[i].a).toBeGreaterThanOrEqual(iv[i - 1].b - 5); // không chồng thời gian (±5 ms đo)
   const [active, revoked] = sessions(email).split("|");
@@ -75,39 +78,48 @@ test("[TC-P202-30] hai tab cùng context tải cùng lúc: refresh tuần tự, 
 
 test("[TC-P202-31] 5 request song song nhận 401 TOKEN_EXPIRED: đúng 1 refresh, mỗi cái phát lại đúng 1 lần; POST giữ Idempotency-Key", async ({ page }, info) => {
   only(info, "desktop");
-  await apiLogin(page, em("adm"));
-  await page.goto("/admin/users");
-  await expect(page.getByRole("heading", { name: "Người dùng", level: 1 })).toBeVisible();
-  const refreshes: string[] = [];
+  await apiLogin(page, em("gv1")); // /grading tải lại: 6 đường dữ liệu cùng lúc (≥ 5 song song); /admin/users chỉ có 3
+  const refreshes: number[] = [];
   const seen = new Map<string, number>();
-  const hits: Array<{ k: string; status: number; idem?: string }> = [];
-  let armed = true;
+  const hits: Array<{ k: string; status: number; idem?: string; t: number }> = [];
+  let armed = false;
+  let stale: string | undefined; // access token của lần làm mới lúc tải trang: coi như "đã hết hạn" ở mọi request mang nó
   await page.route(/\/api\/v1\/(?!auth\/)/, async (route) => {
     const r = route.request();
     const k = `${r.method()} ${new URL(r.url()).pathname}${new URL(r.url()).search}`;
     if (!armed || r.url().includes("/events")) return route.fallback();
+    const auth = r.headers()["authorization"];
+    if (stale === undefined && auth) stale = auth;
     const n = (seen.get(k) ?? 0) + 1;
     seen.set(k, n);
-    if (n === 1) { hits.push({ k, status: 401, idem: r.headers()["idempotency-key"] }); return json(route, 401, err("TOKEN_EXPIRED")); }
-    hits.push({ k, status: -1, idem: r.headers()["idempotency-key"] });
+    // /me/courses cho qua để các request theo lớp phát đi khi access token cũ còn trong bộ nhớ (cùng lúc với request bị ép 401)
+    if (n === 1 && auth === stale && !k.includes("/api/v1/me/courses")) { hits.push({ k, status: 401, idem: r.headers()["idempotency-key"], t: Date.now() }); return json(route, 401, err("TOKEN_EXPIRED")); }
+    if (n >= 2) hits.push({ k, status: -1, idem: r.headers()["idempotency-key"], t: Date.now() });
     return route.fallback();
   });
-  page.on("request", (r) => r.url().endsWith("/auth/refresh") && refreshes.push(r.url()));
-  const t0 = refreshes.length;
-  // làm mới dữ liệu cùng lúc: tab quay lại tiêu điểm
-  await page.evaluate(() => {
-    document.dispatchEvent(new Event("visibilitychange"));
-    window.dispatchEvent(new Event("focus"));
-  });
+  page.on("request", (r) => r.url().endsWith("/auth/refresh") && refreshes.push(Date.now()));
+  // lần tải trang đầu: mọi request dữ liệu đầu tiên bị ép 401 TOKEN_EXPIRED (song song) → phải gộp thành 1 refresh
+  // lần 1 (chưa ép lỗi): trang nhớ lớp đã chọn; lần 2 (tải lại): mọi request lớp phát cùng một lúc ngay khi có access token
+  await page.goto("/grading");
+  await page.waitForTimeout(4000);
+  armed = true;
+  await page.reload();
+  await page.waitForTimeout(4000);
   await page.waitForTimeout(3000);
   const expired = hits.filter((h) => h.status === 401);
   const replays = hits.filter((h) => h.status === -1);
-  note(`401 TOKEN_EXPIRED ép: ${expired.length} request (${expired.map((e) => e.k.slice(0, 40)).join("; ")}); refresh ${refreshes.length - t0}; phát lại ${replays.length}`);
+  const t401 = Math.min(...expired.map((e) => e.t));
+  const refAfter = refreshes.filter((t) => t >= t401 - 50).length; // refresh phát ra từ lúc 401 đầu tiên
+  note(`401 TOKEN_EXPIRED ép: ${expired.length} request (${expired.map((e) => e.k.slice(0, 40)).join("; ")}); refresh sau 401 đầu: ${refAfter} (tổng ${refreshes.length}); phát lại ${replays.length}`);
   expect(expired.length).toBeGreaterThanOrEqual(5);
-  expect(refreshes.length - t0).toBe(1);
+  expect(refAfter).toBe(1);
   for (const e of expired) expect([...seen.entries()].find(([k]) => k === e.k)?.[1]).toBe(2); // mỗi cái đúng 1 lần phát lại
-  // POST: khung mời bị 401 một lần rồi thành công, cùng khoá
+  // POST: khung mời bị 401 một lần rồi thành công, cùng khoá (trang Admin)
   armed = false;
+  stale = undefined;
+  await apiLogin(page, em("adm"));
+  await page.goto("/admin/users");
+  await expect(page.getByRole("heading", { name: "Người dùng", level: 1 })).toBeVisible({ timeout: 30_000 });
   hits.length = 0;
   seen.clear();
   armed = true;
@@ -117,7 +129,7 @@ test("[TC-P202-31] 5 request song song nhận 401 TOKEN_EXPIRED: đúng 1 refres
   await page.getByRole("button", { name: "Gửi lời mời" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Đã gửi link mời, hạn 72 giờ." })).toBeVisible({ timeout: 20_000 });
   const posts = hits.filter((h) => h.k.startsWith("POST /api/v1/admin/users"));
-  note(`POST /admin/users: ${posts.length} lần, khoá ${posts.map((p) => p.idem?.slice(0, 12)).join(",")}; refresh tổng ${refreshes.length - t0}`);
+  note(`POST /admin/users: ${posts.length} lần, khoá ${posts.map((p) => p.idem?.slice(0, 12)).join(",")}; refresh tổng ${refreshes.length}`);
   expect(posts.length).toBe(2);
   expect(posts[0].idem).toBeTruthy();
   expect(posts[0].idem).toBe(posts[1].idem);
@@ -173,7 +185,8 @@ test("[TC-P202-36] JWT chỉ trong bộ nhớ: không biến toàn cục, không
     const out: string[] = [];
     if (JWT.test(document.documentElement.outerHTML)) out.push("outerHTML");
     for (const k of Object.getOwnPropertyNames(window)) {
-      if (/token|jwt|access/i.test(k) && !/^(on|webkit)/.test(k)) out.push("window." + k);
+      // bỏ lớp/hàm gốc của trình duyệt (DOMTokenList, MIDIAccess…): chỉ biến toàn cục do ứng dụng đặt mới tính
+      if (/token|jwt|access/i.test(k) && !/^(on|webkit)/.test(k) && typeof (window as unknown as Record<string, unknown>)[k] !== "function") out.push("window." + k);
       try { const v = (window as unknown as Record<string, unknown>)[k]; if (typeof v === "string" && JWT.test(v)) out.push("window." + k + "=jwt"); } catch { /* getter */ }
     }
     document.querySelectorAll("*").forEach((e) => { for (const a of Array.from(e.attributes)) if (a.name.startsWith("data-") && JWT.test(a.value)) out.push(e.tagName + "." + a.name); });

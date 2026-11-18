@@ -1,0 +1,9 @@
+# N01-03 (README «Đo trên Mac», HEAD 40a582b8) 03:36:23
+12:docker compose --env-file .env.local -f docker-compose.local.yml -p $COMPOSE_PROJECT_NAME exec -T gateway /gateway admin create   # nhập SEED_DEFAULT_PASSWORD
+### chạy nguyên văn lệnh README (gateway ep-r, image HEAD), không --email/--name:
+admin: cần cả --email và --name.
+Dùng: gateway admin create --email E --name N   (mật khẩu: biến ADMIN_PASSWORD hoặc stdin)
+rc=2
+### gateway admin create --help (cú pháp thật)
+admin: Dùng biến ADMIN_PASSWORD hoặc stdin.
+Dùng: gateway admin create --email E --name N   (mật khẩu: biến ADMIN_PASSWORD hoặc stdin)

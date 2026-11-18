@@ -1,0 +1,18 @@
+
+Running 1 test using 1 worker
+
+SHOT UX02-12 threads-375 overflowOK=true url=/threads
+SHOT UX02-12 inbox-375 overflowOK=true url=/inbox
+SHOT UX03-18 gradebook-375 overflowOK=true url=/gradebook
+SHOT UX01-19 home-gv-375 overflowOK=true url=/
+SHOT UX10-28 hom-nay-gv-375 overflowOK=true url=/
+SHOT UX14-12 grading-queue-375 overflowOK=true url=/grading?tab=queue
+SHOT UX15-21 grading-review-375 overflowOK=true url=/grading/01a1df2c-0335-7daa-8d53-4775d5eac906?n=0&m=6&status=DRAFT&needs=1
+SHOT UX12-22 attendance-375 overflowOK=true url=/attendance
+SHOT UX18-10 documents-375 overflowOK=true url=/documents
+SHOT UX17-14 insights-375 overflowOK=true url=/insights
+SHOT UX17-14 observability-375 overflowOK=true url=/observability
+SHOT UX07-17 settings-llm-375 overflowOK=true url=/settings/llm
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-r91shots-real.spec.ts:48:5 › shots teacher 375 (35.0s)
+
+  1 passed (35.6s)

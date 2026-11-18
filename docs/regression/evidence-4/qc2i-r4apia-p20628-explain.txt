@@ -1,0 +1,88 @@
+users: 60048|15 MB
+indexes: users_pkey
+users_email_key
+users_ics_token_key
+users_student_code_idx
+
+### mặc định (trang đầu)
+Limit  (cost=3311.47..3311.52 rows=21 width=87) (actual time=11.711..11.713 rows=21.00 loops=1)
+  Buffers: shared hit=1098
+  ->  Sort  (cost=3311.47..3461.59 rows=60048 width=87) (actual time=11.710..11.711 rows=21.00 loops=1)
+        Sort Key: created_at DESC, id DESC
+        Sort Method: top-N heapsort  Memory: 30kB
+        Buffers: shared hit=1098
+        ->  Seq Scan on users  (cost=0.00..1692.48 rows=60048 width=87) (actual time=0.005..6.013 rows=60048.00 loops=1)
+              Buffers: shared hit=1092
+Planning:
+  Buffers: shared hit=165
+Planning Time: 0.285 ms
+Execution Time: 11.733 ms
+
+### lọc role
+Limit  (cost=2382.91..2382.96 rows=21 width=87) (actual time=6.659..6.660 rows=21.00 loops=1)
+  Buffers: shared hit=1098
+  ->  Sort  (cost=2382.91..2433.01 rows=20040 width=87) (actual time=6.658..6.659 rows=21.00 loops=1)
+        Sort Key: created_at DESC, id DESC
+        Sort Method: top-N heapsort  Memory: 28kB
+        Buffers: shared hit=1098
+        ->  Seq Scan on users  (cost=0.00..1842.60 rows=20040 width=87) (actual time=0.005..4.754 rows=20009.00 loops=1)
+              Filter: (role = 'TEACHER'::user_role)
+              Rows Removed by Filter: 40039
+              Buffers: shared hit=1092
+Planning:
+  Buffers: shared hit=166
+Planning Time: 0.234 ms
+Execution Time: 6.675 ms
+
+### lọc status
+Limit  (cost=3461.00..3461.05 rows=21 width=87) (actual time=11.816..11.818 rows=21.00 loops=1)
+  Buffers: shared hit=1098
+  ->  Sort  (cost=3461.00..3611.06 rows=60026 width=87) (actual time=11.816..11.816 rows=21.00 loops=1)
+        Sort Key: created_at DESC, id DESC
+        Sort Method: top-N heapsort  Memory: 30kB
+        Buffers: shared hit=1098
+        ->  Seq Scan on users  (cost=0.00..1842.60 rows=60026 width=87) (actual time=0.009..6.263 rows=60023.00 loops=1)
+              Filter: (status = 'ACTIVE'::user_status)
+              Rows Removed by Filter: 25
+              Buffers: shared hit=1092
+Planning:
+  Buffers: shared hit=166
+Planning Time: 0.251 ms
+Execution Time: 11.838 ms
+
+### con trỏ
+Limit  (cost=3579.40..3581.79 rows=21 width=87) (actual time=8.220..9.408 rows=21.00 loops=1)
+  Buffers: shared hit=1108
+  ->  Gather Merge  (cost=3579.40..9191.31 rows=49240 width=87) (actual time=8.219..9.405 rows=21.00 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        Buffers: shared hit=1108
+        ->  Sort  (cost=2579.39..2651.80 rows=28965 width=87) (actual time=5.889..5.890 rows=21.00 loops=2)
+              Sort Key: created_at DESC, id DESC
+              Sort Method: top-N heapsort  Memory: 27kB
+              Buffers: shared hit=1108
+              Worker 0:  Sort Method: top-N heapsort  Memory: 27kB
+              ->  Parallel Seq Scan on users  (cost=0.00..1798.45 rows=28965 width=87) (actual time=0.421..3.394 rows=24601.00 loops=2)
+                    Filter: (ROW(created_at, id) < ROW((now() - '03:00:00'::interval), '00000000-0000-7000-8000-000000000000'::uuid))
+                    Rows Removed by Filter: 5423
+                    Buffers: shared hit=1092
+Planning:
+  Buffers: shared hit=162
+Planning Time: 0.259 ms
+Execution Time: 9.778 ms
+
+### tìm theo tên
+Limit  (cost=2293.18..2293.21 rows=12 width=87) (actual time=230.662..230.663 rows=11.00 loops=1)
+  Buffers: shared hit=1098
+  ->  Sort  (cost=2293.18..2293.21 rows=12 width=87) (actual time=230.661..230.661 rows=11.00 loops=1)
+        Sort Key: created_at DESC, id DESC
+        Sort Method: quicksort  Memory: 26kB
+        Buffers: shared hit=1098
+        ->  Seq Scan on users  (cost=0.00..2292.96 rows=12 width=87) (actual time=21.124..230.644 rows=11.00 loops=1)
+              Filter: ((translate(lower(full_name), 'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ'::text, 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd'::text) ~~ '%bulk user 5999%'::text) OR (email ~~ '%bulk5999%'::text))
+              Rows Removed by Filter: 60037
+              Buffers: shared hit=1092
+Planning:
+  Buffers: shared hit=177
+Planning Time: 0.323 ms
+Execution Time: 230.685 ms

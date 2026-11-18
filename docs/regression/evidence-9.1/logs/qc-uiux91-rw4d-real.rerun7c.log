@@ -1,0 +1,7 @@
+
+Running 1 test using 1 worker
+
+INFO khớp 30/30; lệch: 
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv (1.3s)
+
+  1 passed (1.7s)

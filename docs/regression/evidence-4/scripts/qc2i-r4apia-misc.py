@@ -61,7 +61,7 @@ time.sleep(2); logs=''.join(sh(f'docker logs {c} 2>&1',90) for c in ['qc2i-gw1',
 oa=sh("cd ~/Documents/TA_Agent_qc2/backend-go && grep -n -iE 'password|token' api/openapi.yaml | grep -E '/admin/' | wc -l").strip()
 rec('TC-P206-11','P' if oa=='0' and hits==0 and pw1[0]==422 and pw2[0] in(404,405,422) and pw3[0] in(404,405,422) and pw4[0] in(404,405,422) and logs.count(mk)==0 else 'F',f'grep openapi (password|token trên dòng /admin/) = {oa}; 6 phản hồi thật (invite, list×3, patch, resend) khớp password|hash|token = {hits}; PATCH {{"password"}} → {pw1[0]}; POST /admin/users/{{id}}/reset-password → {pw2[0]}; PUT …/password → {pw3[0]}; POST /admin/users/{{id}} → {pw4[0]}; chuỗi đặt ở thân (họ tên) xuất hiện trong log gateway = {logs.count(mk)}')
 # ---------- P206-28 EXPLAIN + số truy vấn
-psql("insert into users (email,full_name,role,status,created_at) select 'qc2ia-bulk'||g||'@example.test','Bulk User '||g, (array['STUDENT','TEACHER','TA'])[1+g%3]::user_role, 'ACTIVE', now()-(g||' seconds')::interval from generate_series(1,60000) g on conflict do nothing")
+psql("insert into users (email,full_name,role,status,created_at,password_hash,email_verified_at) select 'qc2ia-bulk'||g||'@example.test','Bulk User '||g, (array['STUDENT','TEACHER','TA'])[1+g%3]::user_role, 'ACTIVE', now()-(g||' seconds')::interval,'x',now() from generate_series(1,60000) g on conflict do nothing")
 psql("analyze users")
 q="select id, email, full_name, role, status, last_login_at, version, created_at from users where (%s) and (%s) and (%s) %s order by created_at desc, id desc limit 21"
 plans={}

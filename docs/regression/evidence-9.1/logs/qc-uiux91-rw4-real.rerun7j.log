@@ -1,0 +1,23 @@
+
+Running 3 tests using 1 worker
+
+INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Chi tiết kỹ thuật Thử lại
+INFO bộ lọc hiện khi lỗi (Panel.fault thay vùng lọc): 0
+INFO lớp TA không thuộc: QC_OTHER_COURSE
+INFO PQ TA lớp lạ: submissions 403 gradebook 403 attendance 404
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit (27.4s)
+INFO số SV: 30
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại (2.0m)
+INFO yêu cầu ghi: ["PUT /api/v1/courses/‹id›/sessions/‹id›/attendance"]
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:736:1 › TC-UX12-12/PQ lưu hai lần nhanh: một bản ghi; lớp lạ không ghi (9.1s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-e2f36-Vắng-≤-60-s-không-hộp-thoại-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 
+  2 passed (2.6m)

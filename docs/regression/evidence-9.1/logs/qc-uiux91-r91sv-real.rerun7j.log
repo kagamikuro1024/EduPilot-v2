@@ -1,0 +1,34 @@
+
+Running 2 tests using 1 worker
+
+INFO số phiên: 50
+INFO UX13-1 inner {"x":645,"y":189,"w":746,"h":519.390625,"r":1391,"b":708.390625} hist {"x":241,"y":173,"w":379,"h":3360.6875,"r":620,"b":3533.6875} main {"x":216,"r":1440} L 25 R 49
+INFO UX13-1 LỆCH LỀ (AC1 9.1: lề trái−24 = lề phải ±3; HEAD là Split 10.7): 48 px
+INFO UX13-1 kiểu cột lịch sử {"br":"0px","sh":"none","bg":"rgba(0, 0, 0, 0)","bl":"0px","brt":"0px"}
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) (5.4s)
+  -  2 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) 
+
+    Error: lịch sử không nằm trong Panel
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      69 |   console.log("INFO UX13-1 kiểu cột lịch sử", JSON.stringify(hs));
+      70 |   expect(hs.br).toBe("0px"); expect(hs.sh).toBe("none");
+    > 71 |   expect(await o.page.locator("[data-part=chat-history]").evaluate((e) => !!e.closest("[data-ep-panel]")), "lịch sử không nằm trong Panel").toBe(false);
+         |                                                                                                                                             ^
+      72 |   // UX13-5: xoá nằm trong menu ⋯
+      73 |   const trash = await rows.first().locator("button[aria-label*=Xoá]").count();
+      74 |   await rows.first().hover();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:71:141
+
+    Error Context: test-results/qc2-r91-qc-uiux91-r91sv-re-46645-t-1440-phiên-trống-lịch-sử--desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) 
+  1 did not run

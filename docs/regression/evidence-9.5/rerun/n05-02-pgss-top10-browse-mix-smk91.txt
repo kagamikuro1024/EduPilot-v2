@@ -1,0 +1,10 @@
+772|114.5|0.148|select t.id, t.title, left(t.body, $1)::text as preview, t.tags, t.week_no, t.state, t.ai_state, t.reply_count, t.last_a
+1671|63.3|0.038|select role_in_course, status from enrollments where course_id = $1 and user_id = $2
+419|42.7|0.102|select e.user_id as student_id, coalesce(p.bonus, $1)::numeric(8,2) as bonus_points, coalesce(p.penalty, $2)::numeric(8,
+388|40.4|0.104|select id, type, title, body, link, course_id, read_at, created_at from notifications where user_id = $1 and (not $2::bo
+388|34.4|0.089|select d.id, d.title, d.type, d.filename, d.mime_type, d.category, d.week_no, d.updated_at, d.page_count, (d.use_for_rag
+388|33.6|0.087|select s.id as session_id, s.session_no, s.starts_at, a.status, a.note from attendance_records a join class_sessions s o
+419|32.1|0.077|select id, course_id, scheme_no, status, source_document_id, source_title, extraction, extract_job_id, confirmed_by, con
+30|25.6|0.854|with base as ( select v.student_id, v.full_name, v.student_code, v.recorded, v.present, v.late, v.excused, v.absent, v.s
+419|25.5|0.061|select i.id as item_id, a.student_id, coalesce(a.adjusted_score, a.auto_score)::numeric(5,2) as score, x.max_score as ex
+419|24.2|0.058|select e.item_id, e.student_id, e.score, e.version from grade_entries e join grade_items i on i.course_id = e.course_id 

@@ -1,0 +1,58 @@
+
+Running 4 tests using 1 worker
+
+INFO UX13-9 nút «Phiên mới» khi phiên trống: 0
+INFO UX13-11 gợi ý: ["Tôi nên làm gì với “Giảng viên đã trả lời câu hỏi của bạn”?","Điểm quá trình của tôi hiện là bao nhiêu?","Tuần này tôi có những buổi học nào?"]
+INFO UX13-11 kiểu gợi ý: {"tag":"BUTTON","radius":"0px","bg":"rgba(0, 0, 0, 0)","border":"1px 0px","h":44}
+INFO UX13-17 có «chỉ bạn đọc được» trong main: true | body: true
+INFO UX13-14 từ kỹ thuật 1440: null
+INFO UX13-1 inner {"x":265,"y":189,"w":1126,"h":519.390625,"r":1391,"b":708.390625,"radius":"0px","shadow":"none","bg":"rgba(0, 0, 0, 0)","bl":"0px","br":"0px","bt":"0px","bb":"0px","ff":"DIV"} | main {"x":216,"r":1440} | history {"x":0,"y":0,"w":0,"h":0,"r":0,"b":0,"radius":"0px","shadow":"none","bg":"rgba(0, 0, 0, 0)","bl":"0px","br":"0px","bt":"0px","bb":"0px","ff":"NAV"} | tổ tiên [{"cls":"ChatScreen-module__YhGRVW__convo","w":1174,"x":241,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Layout-module__rM7QnW__ldDetail","w":1174,"x":241,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Layout-module__rM7QnW__listDetail","w":1174,"x":241,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Panel-module__zFMaDG__panel","w":1176,"x":240,"radius":"14px","bw":"1px","shadow":"shadow"},{"cls":"Layout-module__rM7QnW__page Layout-modul","w":1224,"x":216,"radius":"0px","bw":"0px","shadow":"none"}]
+INFO UX13-13 gap trên ô nhập 72 / khung 519 = 0.14
+INFO UX13-4 hàng lịch sử: 0 []
+INFO UX13-4 nút trên hàng: []
+INFO UX13-12 ô nhập sau bấm gợi ý: "Điểm quá trình của tôi hiện là bao nhiêu?" | POST mới: 0
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII (4.0m)
+INFO UX13-18 nút Dừng từng hiện: 1 | gõ được: true
+INFO UX13-19 sau tải lại, nháp: "nháp QC 2 giây"
+INFO UX13-21 sau lỗi: ô nhập "Tin QC kiểm gửi lại" | Gửi lại: 1 | alert: ["Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.\nGửi lại",""]
+INFO UX13-21 khoá idempotency: ["c5dd1552-0fac-40b2-b163-78ab96e90d18","c5dd1552-0fac-40b2-b163-78ab96e90d18"] | cùng khoá: true
+INFO UX13-21 số tin «Tin QC kiểm gửi lại» đã ghi: 0
+INFO UX13-23 SV khác đọc phiên của SV A: ["404:ok","404:ok","404:ok"]
+INFO UX13-22 GV: API phiên SV ["403","403"] | /chat: Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên.
+INFO UX13-22 TA: API phiên SV ["403","403"] | /chat: Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên.
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền (40.7s)
+INFO UX13-24 tràn ngang: {"sw":375,"cw":375} | nút Phiên trước: 1 {"x":25,"y":161,"width":325,"height":44}
+INFO UX13-24 ô nhập {"x":25,"y":614,"width":325,"height":59} | thanh dưới {"x":0,"y":755,"width":375,"height":57}
+INFO UX13-14 từ kỹ thuật 375: null | «chỉ bạn đọc»: true
+INFO UX13-24 khi khung nhìn thấp 480: ô nhập {"x":25,"y":466,"width":325,"height":59}
+INFO UX13-24 bảng phiên: 1 {"x":0,"y":642.921875,"width":375,"height":169.078125} | hàng: 4
+INFO UX13-24 vùng chạm trong bảng: [":44x44","Tuần này tôi có nh:273x65",":44x44"]
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh (7.6s)
+INFO UX13-25 hoạt cảnh (reduce=false): [{"name":"RealChat-module__lbRsKG__msgIn","prop":"","dur":160,"kf":"transform+opacity | transform+opacity"},{"name":"ChatScreen-module__YhGRVW__blink","prop":"","dur":1000,"kf":"opacity | opacity"}] | số luật :active có scale: 8
+INFO UX13-26 hoạt cảnh (reduce=true): [{"name":"ChatScreen-module__YhGRVW__blink","prop":"","dur":1,"kf":"opacity | opacity"}] | số luật :active có scale: 8
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:232:1 › TC-UX13-25/26 hoạt cảnh tin mới và reduce (24.6s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: 'Thu gọn lịch sử' })
+
+
+      64 |   await page.evaluate(() => { (window as any).__cls = 0; new PerformanceObserver((l) => { for (const e of l.getEntries() as any[]) if (!e.hadRecentInput) (window as any).__cls += e.value; }).observe({ type: "layout-shift", buffered: false }); });
+      65 |   const wBefore = (await rect(page.locator("[data-part=chat-inner]"))).w;
+    > 66 |   await page.getByRole("button", { name: "Thu gọn lịch sử" }).click();
+         |                                                               ^
+      67 |   await page.waitForTimeout(900);
+      68 |   const wAfter = (await rect(page.locator("[data-part=chat-inner]"))).w;
+      69 |   console.log("INFO UX13-3 thu gọn: rộng", Math.round(wBefore), "→", Math.round(wAfter), "| CLS", await page.evaluate(() => (window as any).__cls), "| nút mở lại:", await page.getByRole("button", { name: /^Phiên trước/ }).count());
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:66:63
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw5a-rea-7a697-iên-mới-xoá-có-hoàn-tác-PII-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII 
+  3 passed (5.2m)

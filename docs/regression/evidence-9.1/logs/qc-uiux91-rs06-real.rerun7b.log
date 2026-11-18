@@ -1,0 +1,18 @@
+
+Running 5 tests using 1 worker
+
+INFO TC-UX06-3 A=QSRI037 B=QSOTH9A8 mong đợi QSRI037; thanh trên: "QSRI037\n· Lớp QC2S4 QSRI037\nTìm nhanh hoặc đi đến…\n⌘\nK\nCó 28"
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rs06-real.spec.ts:22:3 › TC-UX06-3 today có việc ở cả A và B ⇒ lớp mặc định = A (đầu danh sách có dữ liệu) (5.0s)
+INFO TC-UX06-4 A=QR91H B=QR91G mong đợi QR91G; thanh trên: "QR91G\n· QC nhóm D QR91G\nTìm nhanh hoặc đi đến…\n⌘\nK\nCó 284 th"
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rs06-real.spec.ts:22:3 › TC-UX06-4 today chỉ có việc thuộc B ⇒ lớp mặc định = B (4.9s)
+INFO TC-UX06-5 A=QR91H B=QR91G mong đợi QR91H; thanh trên: "QR91H\n· QC nhóm D QR91H\nTìm nhanh hoặc đi đến…\n⌘\nK\nCó 284 th"
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rs06-real.spec.ts:22:3 › TC-UX06-5 today rỗng cả hai ⇒ lớp đầu danh sách (A) (4.9s)
+INFO UX06-6 mong đợi QR91A | thanh trên: "QR91A\n· QC nhóm D QR91A\nTìm nhanh hoặc đi đến…\n⌘\nK"
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rs06-real.spec.ts:42:1 › TC-UX06-6 ep:ui:course = UUID lạ ⇒ bỏ giá trị, chọn theo AC2, không pageerror, không trang trống (4.9s)
+INFO tạo lớp: 201 QC385888
+INFO PQ SV: /courses/‹id›/today = 403 | ep:ui:course = null
+INFO lưu trữ: 200
+INFO UX06-7 sau lưu trữ: ep:ui:course = null | lớp QC385888 trạng thái ARCHIVED
+  ✓  5 [desktop] › e2e/qc2-r91/qc-uiux91-rs06-real.spec.ts:65:1 › TC-UX06-7 TC-UX06-PQ lớp đã lưu trữ ⇒ bỏ giá trị; SV: lớp không thuộc ⇒ 403 và bỏ giá trị (11.4s)
+
+  5 passed (31.6s)

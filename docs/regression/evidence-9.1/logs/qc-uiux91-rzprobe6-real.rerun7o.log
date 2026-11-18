@@ -1,0 +1,22 @@
+
+Running 2 tests using 1 worker
+
+PROBE firefox LAUNCH LỖI: Error: browserType.launch: Failed to launch the browser process. Browser logs: <launching> /Users/kuro/Library/Caches/ms-playwright/firefox-1572/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_firefoxdev_profile-p1ZrkT -juggler-pipe -silent <launched> pid=65482 [pid=65482][err] *** You are running in headless mode. [pid=65482][err] Could not find profile folder. [pid=65482] <process did exit: exitCode=1, signal=null> [pid=65482] starting temporary directories cleanup Call log:  - <launching> /Users/kuro/Library/Caches/ms-playwright/firefox-1572/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headl
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe6-real.spec.ts:6:3 › probe firefox (931ms)
+PROBE webkit h3: [
+ "AI chấm nháp theo rubric :: hiện",
+ "Giảng viên sửa và duyệt :: hiện",
+ "Mã tính điểm học phần :: hiện",
+ "Chat riêng có nguồn :: hiện",
+ "Duyệt bài AI chấm nháp :: hiện",
+ "Sổ điểm có giải trình :: hiện",
+ "yêu cầu gửi AI: 0 lần lộ họ tê :: hiện",
+ "sinh viên mẫu có điểm học phần :: hiện",
+ "Chấm hàng loạt, thời gian đến  :: hiện",
+ "Giảng viên :: H3.Landing-module__H_TZ# op=1 vis=visible disp=none hidden=false role=null data=",
+ "Sinh viên :: H3.Landing-module__H_TZ# op=1 vis=hidden disp=none hidden=false role=null data= <- DIV.#p-sv op=1 vis=hidden disp=block hidden=true role=tabpanel data="
+]
+PROBE webkit supports animation-timeline: true 5 (KHTML, like Gecko) Version/27.2 Safari/605.1.15
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe6-real.spec.ts:6:3 › probe webkit (8.1s)
+
+  2 passed (9.4s)

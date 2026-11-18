@@ -1,0 +1,34 @@
+
+Running 3 tests using 1 worker
+
+INFO UX20-1 dòng: "Giữa kỳ · 20 % Căn cứ · tr. 1 9"
+INFO UX20-2 meta dưới h1: ""
+INFO UX20-3 số không có trong API: []
+INFO UX20-9 scrollHeight 375: 1374
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:10:1 › TC-UX20-1/2/3/4/9 /me sinh viên (9.2s)
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) (1.2s)
+  -  3 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) 
+
+    TypeError: Cannot read properties of undefined (reading 'find')
+
+       at qc2-r91/r91lib.ts:25
+
+      23 | export async function courseId(page: Page, code: string): Promise<string> {
+      24 |   const r = await api(page, "/me/courses?limit=100");
+    > 25 |   return r.body.items.find((i: any) => i.course.class_code === code).course.id as string;
+         |                       ^
+      26 | }
+      27 | export async function open(browser: Browser, user: string, w = 1440, h = 900): Promise<{ ctx: BrowserContext; page: Page; errs: string[] }> {
+      28 |   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h }, hasTouch: w < 500, isMobile: w < 500, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" });
+        at courseId (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/r91lib.ts:25:23)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:57:55
+
+    Error Context: test-results/qc2-r91-qc-uiux91-r91sv-re-46645-t-1440-phiên-trống-lịch-sử--desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) 
+  1 did not run
+  1 passed (10.9s)

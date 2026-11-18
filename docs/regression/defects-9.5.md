@@ -196,3 +196,10 @@ Hạ tầng: `docker exec <postgres> psql` thoát mã 2 (lỗi/ngắt kết nố
 - TC-N05-11: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
 - TC-N05-12: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
 - TC-N05-14: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+
+## Lượt SmkS3 2026-11-19 (HEAD 1409b04d, stack smk91)
+- DEF-R9.5-20 (N06-04, Redis tắt → chat treo 39,5 s): KHÔNG còn tái hiện — 70/70 lời gọi 503 OVERLOADED ≤ 5,9 s; TC-N06-04 P. DEF-R9.5-21 (SSE 429 SSE_LIMIT_REACHED sau Redis lên, bản cũ ghi ở state.md) không tái hiện; TC-N06-05 P.
+### DEF-R9.5-22 — README «Đo trên Mac» thiếu `--email E --name N` ở `gateway admin create` (TC-N01-03, Thấp)
+Bước tái hiện: chạy nguyên văn lệnh README → «admin: cần cả --email và --name», rc=2. Sprint gốc 9.5; không phải hồi quy. Bằng chứng: evidence-9.5/rerun/n01-03-readme-1409b04d.log.
+### DEF-R9.5-23 — 10 truy vấn «nặng nhất» của dev không khớp top theo total_exec_time (TC-N05-02, Thấp)
+Trên smk91 (T0, pg_stat_statements, 2 kịch bản nhẹ) chỉ 5/10 và 4/10 khớp; thiếu: threads list, notifications, kiểm quyền enrollments, insert audit_log, điểm sổ. Cần dev nêu cách chọn (P-95-7 Q11) hoặc QC đo ở T1. Bằng chứng: evidence-9.5/rerun/n05-02-pgss-top10-*.txt.

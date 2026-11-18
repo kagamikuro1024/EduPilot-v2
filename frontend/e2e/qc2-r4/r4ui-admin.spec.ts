@@ -14,7 +14,7 @@ async function openUsers(page: Page) {
   await apiLogin(page, em("adm"));
   await page.goto("/admin/users");
   await expect(page.getByRole("heading", { name: "Người dùng", level: 1 })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator("table tbody tr").first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator("table tbody tr:visible, main ul[aria-label] li:visible").first()).toBeVisible({ timeout: 30_000 });
 }
 async function openInvite(page: Page) {
   await expect(async () => {
@@ -73,7 +73,7 @@ test("[TC-P206-33] gửi lời mời: dòng tĩnh; Gửi lại lời mời ở h
   await expect(row).toBeVisible({ timeout: 20_000 });
   await row.getByRole("button", { name: "Gửi lại lời mời" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Đã gửi lại lời mời" })).toBeVisible({ timeout: 20_000 });
-  expect(Number(psql(`select count(*) from mail_outbox where to_email='${email}' or recipient='${email}'`) || 0)).toBeGreaterThanOrEqual(0);
+  expect(Number(psql(`select count(*) from mail_outbox where to_addr='${email}'`))).toBeGreaterThanOrEqual(2); // thư mời lần đầu + thư gửi lại (cột to_addr)
   // khoá lạc quan + Hoàn tác (tài khoản SV riêng qc2iu.sv7)
   await page.getByLabel("Tìm người dùng").fill(em("sv7"));
   const sv = page.locator("table tbody tr").filter({ hasText: em("sv7") }).first();
@@ -186,7 +186,8 @@ test("[TC-P206-39] lỗi Admin: 409 email trùng tại ô, 422, 403, offline G�
   await page.unroute("**/api/v1/admin/users");
   await page.route("**/api/v1/admin/users", (r) => (r.request().method() === "POST" ? json(r, 403, err("FORBIDDEN", { details: { reason: "role" } })) : r.fallback()));
   await page.getByRole("button", { name: "Gửi lời mời" }).click();
-  const a403 = await page.getByRole("alert").first().innerText();
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ }).first()).toBeVisible({ timeout: 15_000 }); // bỏ thẻ role=alert rỗng của Next route announcer
+  const a403 = await page.getByRole("alert").filter({ hasText: /\S/ }).first().innerText();
   note(`403 → "${a403.slice(0, 80)}"`);
   expect(a403).not.toMatch(/FORBIDDEN|403/);
   await page.unroute("**/api/v1/admin/users");
@@ -231,7 +232,7 @@ async function openCourses(page: Page) {
   await apiLogin(page, em("adm"));
   await page.goto("/admin/courses");
   await expect(page.getByRole("heading", { name: "Lớp học", level: 1 })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator("table tbody tr, [data-part=row]").first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator("table tbody tr:visible, main ul[aria-label] li:visible, [data-part=row]:visible").first()).toBeVisible({ timeout: 30_000 });
 }
 async function openCourseForm(page: Page) {
   await expect(async () => {
@@ -367,7 +368,7 @@ test("[TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N gi
     ["nyd", "(date_trunc('day', now() at time zone 'Asia/Ho_Chi_Minh') - interval '1 day' + interval '16 hours 40 minutes') at time zone 'Asia/Ho_Chi_Minh'"],
     ["n5d", "now() - interval '5 days'"],
   ];
-  for (const [k, ts] of rows) psql(`insert into notifications(user_id,type,title,body,link,created_at) values ('${uid}','QC2IU_TIME','Thử ${k}','b','/',${ts})`);
+  for (const [k, ts] of rows) psql(`insert into notifications(user_id,type,title,body,link,created_at) values ('${uid}','QC2IU_TIME','Thử ${k}','b','/settings',${ts})`);
   await apiLogin(page, u.email);
   await page.goto("/");
   await page.getByRole("button", { name: /^Thông báo/ }).click();

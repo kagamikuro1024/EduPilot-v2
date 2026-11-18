@@ -1,0 +1,24 @@
+06:34:51
+cảnh s0-intro 4 khung, 0.1 s
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.boundingBox: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /Giải thích giúp em|Điều kiện để được dự thi/ }).first()
+
+    at Object.move (/w/record.mjs:104:43)
+    at Object.click (/w/record.mjs:105:32)
+    at /w/record.mjs:146:11
+    at async scene (/w/record.mjs:108:3)
+    at async file:///w/record.mjs:137:1 {
+  log: [
+    "  - waiting for getByRole('button', { name: /Giải thích giúp em|Điều kiện để được dự thi/ }).first()"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.20.0
+rc=1
+06:35:35

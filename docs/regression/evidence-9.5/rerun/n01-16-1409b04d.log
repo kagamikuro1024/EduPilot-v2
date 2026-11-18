@@ -1,0 +1,22 @@
+# N01-16 (HEAD 40a582b8) 03:36:17: cùng lệnh ở TC-N01-15 nhưng BASE = cổng ep-qc (943/580/3500) — lệnh không ghi dữ liệu
+### vps-llm PHASE=live (thiếu MODEL) BASE=https://localhost:943
+if (PHASE === "live" && !MODEL) throw new Error("PHASE=live cần MODEL (chạy PHASE=probe để chọn)");
+Error: PHASE=live cần MODEL (chạy PHASE=probe để chọn)
+rc=1
+### vps-llm PHASE=live (thiếu MODEL) BASE=http://localhost:580
+if (PHASE === "live" && !MODEL) throw new Error("PHASE=live cần MODEL (chạy PHASE=probe để chọn)");
+Error: PHASE=live cần MODEL (chạy PHASE=probe để chọn)
+rc=1
+### vps-llm PHASE=live (thiếu MODEL) BASE=http://localhost:3500
+if (PHASE === "live" && !MODEL) throw new Error("PHASE=live cần MODEL (chạy PHASE=probe để chọn)");
+Error: PHASE=live cần MODEL (chạy PHASE=probe để chọn)
+rc=1
+### refuseDemo trực tiếp
+https://localhost:943 -> không từ chối (tiến hành)
+http://localhost:580 -> không từ chối (tiến hành)
+http://localhost:3500 -> không từ chối (tiến hành)
+https://localhost:1143 -> không từ chối (tiến hành)
+https://localhost:1343 -> không từ chối (tiến hành)
+### đối chứng demo
+Từ chối: http://127.0.0.1:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1

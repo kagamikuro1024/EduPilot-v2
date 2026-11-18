@@ -1,0 +1,35 @@
+
+Running 1 test using 1 worker
+
+INFO ngoại tuyến: Điểm danh Đã lưu buổi 10 · Chủ Nhật, 09:00–11:30 · P.302 Buổi Buổi 15 · 20/12 · Chưa Buổi 14 · 13/12 · Chưa Buổi 13 · 06/12 · Chưa Buổi 12 · 29/11 · Chưa Buổi 11 · 22/11 · Chưa Buổi 10 · 15/11 · Đã điểm danh Buổi 9 · 08/ | dải: [
+  'Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.'
+]
+INFO thanh lưu: "Đã lưu" | số PUT lúc offline: 0
+INFO bấm lưu khi offline: TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /Lưu điể
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ (12.2s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ 
+
+    Error: thanh lưu «Chờ mạng»
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      156 |   await saveBtn.click({ timeout: 4000 }).catch((e) => console.log("INFO bấm lưu khi offline:", String(e).slice(0, 120)));
+      157 |   await o.page.waitForTimeout(800);
+    > 158 |   expect(await o.page.getByRole("button", { name: /Chờ mạng/ }).count() + (/Chờ mạng/.test(await o.page.locator("main").innerText()) ? 1 : 0), "thanh lưu «Chờ mạng»").toBeGreaterThan(0);
+          |                                                                                                                                                                        ^
+      159 |   expect(puts.length, "chưa gửi gì lúc offline").toBe(0);
+      160 |   await o.ctx.setOffline(false);
+      161 |   await expect.poll(() => puts.length, { timeout: 30_000, intervals: [1000] }).toBeGreaterThan(0);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:158:168
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rn4-real-38d14-mạng-tự-đồng-bộ-lên-máy-chủ-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rn4-real.spec.ts:135:1 › TC-UX12-16 điểm danh ngoại tuyến: hàng đợi giữ thay đổi, dải mất mạng, bật mạng tự đồng bộ lên máy chủ 

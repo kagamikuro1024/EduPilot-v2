@@ -1,0 +1,22 @@
+06:33:11
+cảnh s0-intro 4 khung, 0.1 s
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.innerText: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /\d{6}\s*·/ }).first()
+
+    at login (/w/record.mjs:53:35)
+    at async scene (/w/record.mjs:71:25)
+    at async file:///w/record.mjs:137:1 {
+  log: [
+    "  - waiting for getByRole('button', { name: /\\d{6}\\s*·/ }).first()"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.20.0
+rc=1
+06:33:53

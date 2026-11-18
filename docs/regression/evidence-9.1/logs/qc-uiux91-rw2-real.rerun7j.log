@@ -1,0 +1,25 @@
+
+Running 18 tests using 1 worker
+
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses: không còn câu giải thích cũ (1.9s)
+  ✓   2 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses (mở form): không còn câu giải thích cũ (2.4s)
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/users: không còn câu giải thích cũ (1.9s)
+  ✓   4 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/users (mở form): không còn câu giải thích cũ (2.5s)
+  ✓   5 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /analytics: không còn câu giải thích cũ (1.9s)
+  ✓   6 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /exams: không còn câu giải thích cũ (1.9s)
+  ✓   7 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /exams: không còn câu giải thích cũ (1.9s)
+  ✓   8 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /insights: không còn câu giải thích cũ (1.9s)
+  ✓   9 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /join: không còn câu giải thích cũ (1.9s)
+  ✓  10 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /me: không còn câu giải thích cũ (1.9s)
+  ✓  11 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/settings: không còn câu giải thích cũ (1.9s)
+  ✓  12 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/members: không còn câu giải thích cũ (1.9s)
+  ✓  13 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /observability: không còn câu giải thích cũ (1.9s)
+  ✓  14 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /observability: không còn câu giải thích cũ (1.9s)
+  ✓  15 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /practice/history: không còn câu giải thích cũ (1.9s)
+  ✓  16 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /practice: không còn câu giải thích cũ (1.9s)
+  ✓  17 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /questions: không còn câu giải thích cũ (1.9s)
+INFO UX01-10 Chốt điểm: Chốt điểm Đang tính… Để sau Chốt điểm
+INFO UX01-10 Tạo lại mã: Tạo lại mã cho lớp QR91G? Mã cũ sẽ ngừng hoạt động ngay. 30 sinh viên đang ở trong lớp không bị ảnh hưởng. Để sau Tạo lại mã
+  ✓  18 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:169:1 › TC-UX01-10 hộp xác nhận Chốt điểm còn mô tả hệ quả (2.7s)
+
+  18 passed (36.5s)

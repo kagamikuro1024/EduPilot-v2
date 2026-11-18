@@ -26,7 +26,6 @@ const SHOTS: Array<{ tc: string; user: string; path: string; name: string }> = [
   { tc: "UX02-12", user: "sv.gioi", path: "/chat", name: "chat-sv" },
   { tc: "UX02-12", user: "teacher", path: "/inbox", name: "inbox" },
   { tc: "UX03-18", user: "teacher", path: "/gradebook", name: "gradebook" },
-  { tc: "UX03-18", user: "teacher", path: "/dev/ui", name: "dev-ui" },
   { tc: "UX01-19", user: "teacher", path: "/", name: "home-gv" },
   { tc: "UX05-12", user: "teacher", path: "/inbox", name: "inbox" },
   { tc: "UX10-28", user: "teacher", path: "/", name: "hom-nay-gv" },
@@ -54,7 +53,7 @@ for (const user of users) {
       page.on("pageerror", (e) => errs.push(e.message));
       await login(page, user);
       const staff = user === "teacher";
-      const c1 = staff || user.startsWith("sv.") ? await courseId(page, "761987") : "";
+      const c1 = staff || user.startsWith("sv.") ? await courseId(page, process.env.QC_CLASS ?? "761987") : "";
       const done = new Set<string>();
       for (const s of SHOTS.filter((x) => x.user === user)) {
         const key = `${s.name}-${w}`;
@@ -64,13 +63,14 @@ for (const user of users) {
         if (s.name === "grading-review") {
           await page.goto(`/grading?tab=queue&course=${c1}`);
           await page.waitForTimeout(2500);
-          const row = page.locator("main tbody tr").first();
-          if (await row.count()) { await row.click().catch(() => undefined); await page.waitForURL(/\/grading\//, { timeout: 10_000 }).catch(() => undefined); }
+          const lnk = page.locator("main a[href^='/grading/']").first(); // QC SmkS3: 375 px hàng xếp dọc ⇒ vào bằng liên kết «Duyệt»
+          const href = (await lnk.count()) ? await lnk.getAttribute("href") : null;
+          if (href) { await page.goto(href); await page.waitForURL(/\/grading\//, { timeout: 10_000 }).catch(() => undefined); }
         } else {
           path += (path.includes("?") ? "&" : "?") + `course=${c1}`;
           await page.goto(path);
         }
-        await page.locator("main").first().waitFor({ state: "attached" });
+        await page.locator("main").first().waitFor({ state: "attached", timeout: 20_000 }).catch(() => undefined);
         await page.waitForTimeout(2500);
         await page.screenshot({ path: `${OUT}/${s.name}-${w}.png`, fullPage: false });
         const noOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);

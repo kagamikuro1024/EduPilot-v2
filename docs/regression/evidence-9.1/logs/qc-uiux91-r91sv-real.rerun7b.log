@@ -1,0 +1,35 @@
+
+Running 3 tests using 1 worker
+
+INFO UX20-1 dòng: "Giữa kỳ · 20 % Căn cứ · tr. 1 9"
+INFO UX20-2 meta dưới h1: ""
+INFO UX20-3 số không có trong API: []
+INFO UX20-9 scrollHeight 375: 1374
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:10:1 › TC-UX20-1/2/3/4/9 /me sinh viên (13.1s)
+INFO số phiên: 0
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) (5.4s)
+  -  3 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 3
+    Received:    0
+
+      60 |   const rows = o.page.locator("[data-part=chat-history] li");
+      61 |   console.log("INFO số phiên:", await rows.count());
+    > 62 |   expect(await rows.count()).toBeGreaterThanOrEqual(3);
+         |                              ^
+      63 |   const inner = await rect(o.page.locator("[data-part=chat-inner]")); const hist = await rect(o.page.locator("[data-part=chat-history]")); const main = await rect(o.page.locator("main"));
+      64 |   const L = inner.x - hist.r, R = main.r - inner.r;
+      65 |   console.log("INFO UX13-1 inner", JSON.stringify(inner), "hist", JSON.stringify(hist), "main", JSON.stringify({ x: main.x, r: main.r }), "L", Math.round(L), "R", Math.round(R));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:62:30
+
+    Error Context: test-results/qc2-r91-qc-uiux91-r91sv-re-46645-t-1440-phiên-trống-lịch-sử--desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) 
+  1 did not run
+  1 passed (18.9s)

@@ -1,0 +1,67 @@
+
+Running 4 tests using 1 worker
+
+INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Chi tiết kỹ thuật Thử lại
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit (2.0m)
+INFO đầu bảng: [{"t":"Sinh viên","h":57,"pos":"sticky","lines":1},{"t":"Giữa kỳ","h":57,"pos":"sticky","lines":1},{"t":"Kiểm tra hằng tuần","h":57,"pos":"sticky","lines":1},{"t":"Thi cuối kỳ","h":57,"pos":"sticky","lines":1},{"t":"Điểm cộng","h":57,"pos":"sticky","lines":1},{"t":"Điểm trừ","h":57,"pos":"sticky","lines":1},{"t":"Quá trình","h":57,"pos":"sticky","lines":1},{"t":"Điểm học phần","h":57,"pos":"sticky","lines":1},{"t":"Điểm chữ","h":57,"pos":"sticky","lines":1},{"t":"Trạng thái","h":57,"pos":"sticky","lines":1},{"t":"Hành động","h":57,"pos":"sticky","lines":1}]
+INFO hàng: [["Bùi Khánh Việt\n20227706","","—","","1,00","0,00","6,500","5,50","C","",""],["Bùi Minh Yến\n20221975","","—","","0,25","0,00","5,750","4,00","D","",""],["Bùi Thanh Khải\n20229002","","—","","1,00","0,00","8,750","7,50","B","",""]]
+INFO cuộn: [{"h":600,"top":197,"cls":"DataTable-module__PUx__a__vscr"}] căn: right tabular-nums cột tên: sticky | đầu trang: Sổ điểm Xem công thức Chốt điểm Bảng điểm của lớp Sinh viên Giữa kỳ Kiểm tra hằng tuần Thi cuối kỳ Điểm cộng Điểm trừ Quá trình Điểm học phần Điểm chữ Trạng thái Hành động Bùi Khánh Việt 20227706 — 1,00 0,00 6,500 5,50 C Bùi Minh Yến 20221975 — 0,25 0,00 5,750 | chân:  Ngô Văn Hà 20224349 — 0,25 0,00 6,415 6,50 C+ Ngô Văn Hải 20227769 — 0,50 0,00 7,125 7,50 B Nguyễn Anh Linh 20223869 — 0,75 0,00 7,125 7,00 B Phạm Mai Chi 20226712 — 0,00 0,00 5,125 5,00 D+ đã công bố Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.
+INFO thiếu: null | cột Trạng thái: true
+INFO UX16-3: kiểm 0 ô số, lệch 0
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:459:1 › TC-UX16-2/3/4/5/6/7/9/10/11 sổ điểm thật: số khớp API, tiêu đề một dòng, một vùng cuộn, Thiếu điểm (6.5s)
+INFO số SV: 30
+  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:686:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại (2.0m)
+  ✘  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:731:1 › TC-UX12-12/PQ lưu hai lần nhanh: một bản ghi; lớp lạ không ghi (2.0m)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.inputValue: Test ended.
+    Call log:
+      - waiting for getByLabel('Trạng thái')
+
+
+      163 |   console.log("INFO lỗi:", t.replace(/\s+/g, " ").slice(0, 200));
+      164 |   await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible({ timeout: 15_000 });
+    > 165 |   expect(await page.getByLabel("Trạng thái").inputValue(), "bộ lọc còn nguyên").not.toBe("");
+          |                                              ^
+      166 |   const selVal = await page.getByLabel("Bài tập").evaluate((s: HTMLSelectElement) => s.selectedOptions[0].text);
+      167 |   expect(selVal).toMatch(/Bài tập 03/);
+      168 |   // QC SmkS: nút Thử lại có thể biến mất tạm thời khi truy vấn tự thử lại (probe rzprobe2) ⇒ bấm có thử lại, đo số request mới; mất lỗi sau khi bỏ chặn
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:165:46
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-5e95e-403-TA-mở-được-lớp-lạ-limit-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:686:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-e2f36-Vắng-≤-60-s-không-hộp-thoại-desktop/error-context.md
+
+  3) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:731:1 › TC-UX12-12/PQ lưu hai lần nhanh: một bản ghi; lớp lạ không ghi 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.dblclick: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: /Lưu điểm danh/ }).first()
+
+
+      739 |   await rows.nth(10).locator("input[data-status=LATE]").check({ force: true });
+      740 |   const save = page.getByRole("button", { name: /Lưu điểm danh/ }).first();
+    > 741 |   await save.dblclick();
+          |              ^
+      742 |   await page.waitForTimeout(2500);
+      743 |   console.log("INFO yêu cầu ghi:", JSON.stringify(posts));
+      744 |   expect(posts.length, "hai lần bấm không nhân đôi yêu cầu ghi").toBeLessThanOrEqual(1);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:741:14
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-a1b95-ột-bản-ghi-lớp-lạ-không-ghi-desktop/error-context.md
+
+  3 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:686:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:731:1 › TC-UX12-12/PQ lưu hai lần nhanh: một bản ghi; lớp lạ không ghi 
+  1 passed (6.1m)

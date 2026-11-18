@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { expect, test, type Page, type Route } from "@playwright/test";
 import { API, PWD, apiLogin, axeBad, call, clearRL, installRec, layout, linkToken, mailTo, note, psql, techWords } from "./r4ui-lib";
@@ -101,7 +101,9 @@ test("[TC-P204-28] /reset-password: Referrer-Policy no-referrer; token không r�
   const hd = (await request.get("/reset-password")).headers();
   const leak = seen.filter((s) => s.split(" ref=")[1]?.includes(token));
   const external = seen.filter((s) => !s.startsWith("https://localhost:1143"));
-  const logs = execFileSync("docker", ["logs", "ep-r-caddy-1", "--since", since], { maxBuffer: 1 << 28 }).toString() + execFileSync("docker", ["logs", "ep-r-caddy-1", "--since", since], { stdio: ["ignore", "ignore", "pipe"], maxBuffer: 1 << 28 }).toString();
+  // docker logs ghi log Caddy ra stderr: gom cả stdout và stderr
+  const dl = spawnSync("docker", ["logs", "ep-r-caddy-1", "--since", since], { maxBuffer: 1 << 28 });
+  const logs = dl.stdout.toString() + dl.stderr.toString();
   const cnt = logs.split(token).length - 1;
   const redacted = (logs.match(/reset-password\?token=REDACTED/g) ?? []).length;
   note(`Referrer-Policy=${hd["referrer-policy"]}; Cache-Control=${hd["cache-control"]}; request mang token ở Referer: ${leak.length}; request ra ngoài: ${external.length}; log Caddy đếm token=${cnt}, dòng REDACTED=${redacted}`);
@@ -115,6 +117,8 @@ test("[TC-P204-28] /reset-password: Referrer-Policy no-referrer; token không r�
 /** Tạo n phiên (đăng nhập API với UA khác nhau) cho tài khoản mới; trả email. */
 async function userWithSessions(tag: string) {
   const email = await freshUser(tag);
+  // /settings của SV chỉ mở khi đã có lớp (nav.ts needsCourse, SRS 4.3.2): ghi danh vào một lớp ACTIVE để có đủ khung app
+  psql(`insert into enrollments(course_id,user_id,role_in_course,status,joined_via) select c.id,u.id,'STUDENT','ACTIVE','CODE' from users u, (select id from courses where status='ACTIVE' order by created_at limit 1) c where u.email='${email}' on conflict do nothing`);
   for (const ua of ["Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"]) {
     clearRL();
     const r = await call("POST", "/auth/login", null, { email, password: PWD }, { "user-agent": ua });
@@ -169,7 +173,7 @@ test("[TC-P204-31] /settings: chỉ bàn phím, 375 px, ui-antipatterns.sh, axe,
   if (info.project.name === "desktop") {
     // bàn phím: Tab tới "Đăng xuất mọi thiết bị khác" → Enter mở hộp xác nhận → Esc đóng
     let reached = false;
-    for (let i = 0; i < 40 && !reached; i++) {
+    for (let i = 0; i < 150 && !reached; i++) {
       await page.keyboard.press("Tab");
       reached = await page.evaluate(() => /Đăng xuất mọi thiết bị khác/.test(document.activeElement?.textContent ?? ""));
     }
@@ -180,7 +184,7 @@ test("[TC-P204-31] /settings: chỉ bàn phím, 375 px, ui-antipatterns.sh, axe,
     await expect(page.getByRole("dialog")).toHaveCount(0);
     // menu của một hàng bằng phím
     let menu = false;
-    for (let i = 0; i < 40 && !menu; i++) {
+    for (let i = 0; i < 150 && !menu; i++) {
       await page.keyboard.press("Shift+Tab");
       menu = await page.evaluate(() => /Thao tác cho/.test(document.activeElement?.getAttribute("aria-label") ?? ""));
     }
