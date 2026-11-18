@@ -21,6 +21,20 @@ runs:
       with:
         path: ~/.cache/ms-playwright
         key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+    # `--with-deps` tải ~32 MB phông + mesa từ mirror Ubuntu mỗi job; mirror có lúc chỉ ~65 kB/s (8 phút/job, R7-01). Giữ các tệp .deb
+    # trong cache: lượt sau không tải gì, gói cài vẫn y nguyên. Miss thì tải như cũ.
+    - name: cache apt debs (playwright --with-deps)
+      if: inputs.browsers == 'true'
+      uses: actions/cache@v5
+      with:
+        path: ~/apt-archives/*.deb
+        key: apt-playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+    - name: apt dùng thư mục cache
+      if: inputs.browsers == 'true'
+      shell: bash
+      run: |
+        mkdir -p "$HOME/apt-archives/partial"
+        echo "Dir::Cache::archives \"$HOME/apt-archives\";" | sudo tee /etc/apt/apt.conf.d/99ep-archives
     - name: playwright install chromium
       if: inputs.browsers == 'true'
       shell: bash
