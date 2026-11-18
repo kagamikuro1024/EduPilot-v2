@@ -1,0 +1,13 @@
+from lib3 import rec
+CI="Run CI 44343596969 @777bb5e2 (success; log tải bằng gh api, lưu evidence-7/r4/ci-44343596969-*)"
+LINT="job «Frontend (lint + build)» success: `pnpm -C frontend lint` (eslint .), `bash scripts/ui-antipatterns.sh` (34/34 phép bắt được ở lint-selftest), `pnpm -C frontend build` «✓ Compiled successfully … Finished TypeScript»; chạy tại chỗ ở worktree 1409b04d: ui-antipatterns.sh rc=0 (evidence-7/r4/static-p5.log)"
+A11Y="`a11y.spec.ts` 14/14 xanh: «axe: student / ta / teacher / admin» quét MỌI đích điều hướng của vai (routesFor = navFor(role) ở 1440 và 390 px, gồm /inbox, /threads, /attendance, /me, /calendar, /students, /settings) + «giảng viên /students có dữ liệu», 0 vi phạm nghiêm trọng (tên test cũ `-g <màn>` không còn: bộ axe gộp theo vai)"
+rec('TC-P4-02-29',True,f"[qc3 19/11] {CI}: {LINT}; {A11Y} (chuông nằm ở topbar của mọi vai nên nằm trong lượt quét)")
+rec('TC-P4-03-42',True,f"[qc3 19/11] {CI}: {LINT}; {A11Y}; /inbox thuộc nav của TEACHER/TA")
+rec('TC-P4-03-40',True,f"[qc3 19/11] `grep -rn \"@/mock\" frontend/src/features/inbox | wc -l` = 0 (worktree 1409b04d); {CI}: pnpm lint + build xanh ({LINT.split(';')[0]}); /chat và /threads vẫn chạy: private-chat.spec / threads.spec.ts (15 test) ✓ cùng run")
+rec('TC-P4-06-53',True,f"[qc3 19/11] {CI}: {LINT}; threads-moderation.spec.ts ✓ «report undo: Báo cáo → Đã báo cáo · Hoàn tác (5 s) → DELETE; báo lại → Bạn đã báo cáo bài này, không phải lỗi» (dòng 3141), ✓ «owner edit delete» (3142), ✓ «staff hide pin» (3143); {A11Y}")
+rec('TC-P5-02-17',True,f"[qc3 19/11] {CI}: {A11Y}; /attendance thuộc nav TEACHER/TA")
+rec('TC-P5-02-30',True,f"[qc3 19/11] {CI}: ✓ «e2e/attendance.spec.ts:267 attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồi Lưu điểm danh — đúng một PUT cho cả lưới, mỗi chạm phản hồi ≤ 100 ms» (2,4 s trong test; test tự đặt viewport 375). Trên stack thật: xem TC-P5-02-29")
+rec('TC-P5-02-45',True,f"[qc3 19/11] `grep -rn \"@/mock\" frontend/src/features/attendance | wc -l` = 0; {LINT}; (ATTENDANCE_SEED/mock/roster.ts phần điểm danh: không còn tham chiếu ở features/attendance)")
+rec('TC-P5-02-46',True,f"[qc3 19/11] {CI}: `attendance.spec.ts` 21/21 test xanh (desktop; project mobile bị CI bỏ qua theo cấu hình), 0 failed, 0 flaky (flaky duy nhất của run ở dev-ui.spec); `attendance-display.spec.ts` 5/5 ✓")
+rec('TC-P5-03-44',True,f"[qc3 19/11] {CI}: `activity.spec.ts` 17/17 xanh (heartbeat ẩn tab / idle 2 phút / dọn khi đổi trang / chỉ course_id+area+tab_id / không gửi ở /me,/exams / hộp thoại lần đầu / công tắc theo lớp / khoá ở lớp không cho tắt / class settings race 409 / nhịp đều ≥ 25 s); ui-antipatterns.sh rc=0 (r4/static-p5.log)")

@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 431 · Trượt: 12 · Chờ test N: 87   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 460 · Trượt: 19 · Chờ test N: 51   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -23,10 +23,10 @@ Cách chạy:
 | US-P3-04 | 54 | 54 | 0 | 0 |  |
 | US-P3-05 | 55 | 51 | 3 | 1 |  |
 | US-P3-06 | 49 | 46 | 3 | 0 |  |
-| US-P3-07 | 27 | 25 | 1 | 1 |  |
+| US-P3-07 | 27 | 26 | 1 | 0 |  |
 | US-P3-08 | 29 | 13 | 0 | 16 |  |
-| US-P8-01 | 62 | 43 | 3 | 16 |  |
-| US-P8-02 | 49 | 16 | 0 | 33 |  |
+| US-P8-01 | 62 | 45 | 3 | 14 |  |
+| US-P8-02 | 49 | 42 | 7 | 0 |  |
 | US-P8-03 | 60 | 41 | 0 | 19 |  |
 
 ## Kết quả từng ca
@@ -351,7 +351,7 @@ Cách chạy:
 | TC-P3-07-14 | P | 0 id trùng, 0 mẫu thiếu trường; split dev60/test140 rải đều mọi nhóm; dương→PRIVATE, âm→PUBLIC; pii_types ⊂ 6 loại cho phép |
 | TC-P3-07-15 | P | soát 25 dương + 25 âm (shuf seed 7): 0 bất đồng với expect_block; toàn dữ liệu mô phỏng (ô điền roster seed, SĐT/CCCD bịa); LABELING.md không có dòng bất đồng cần BA phán |
 | TC-P3-07-16 | P | E1 trên ep-r: recall 0,960 / false_block 0,000 (4 FN / 0 FP) đạt ngưỡng; ghi `e1out/e1.json` |
-| TC-P3-07-17 | N | chờ chạy lượt R3 |
+| TC-P3-07-17 | P | qc2 2026-11-19 @1409b04d (bản sao benchmarks ở /tmp/qc2-bench, không đụng repo): reports/e1.json có keys by_pii_type (CCCD, EMAIL, MSSV, NAME, PERSONAL_QUESTION, PHONE), by_split (tập test riêng), by_stratum (S1…S8, N1…N5), channel_confusion, constants, counts {tp 96, fp 0, tn 100, fn 4}, dataset_sha256 da27354a…, metrics, gate, pass; E1 PASS recall=0,960 false_block=0,000 rc=0 (ep-r thật, nhúng fake tất định) |
 | TC-P3-07-18 | P | mã thoát 0 với ngưỡng 0,95 / 0,05 |
 | TC-P3-07-19 | P | 2 lần chạy: counts r1={'fn': 4, 'fp': 0, 'tn': 100, 'tp': 96} r2={'fn': 4, 'fp': 0, 'tn': 100, 'tp': 96} → diff rỗng=True; báo cáo ghi hash bộ dữ liệu (['dataset_sha256']: da27354ae47b0e9c…; khớp sha256 tệp=True); hằng ngưỡng trong báo cáo: xem e1.md |
 | TC-P3-07-20 | P | --api http://localhost:9 → rc=2; thông điệp: LỖI: không gọi được API http://localhost:9: <urlopen error [Errno 61] Connection refused> |
@@ -421,7 +421,7 @@ Cách chạy:
 | TC-P8-01-28 | P | tài liệu có đoạn cũ ở trạng thái PROCESSING (đặt trực tiếp trong DB: hạ READY→PROCESSING): trích dẫn='[]', /library có tài liệu=False; sau khi trả READY: trích dẫn '[{"n": 1, "title": "mo-qc3", "page_no": null, "snippet": "Bà', /library có tài liệu=True |
 | TC-P8-01-29 | P | EXPLAIN (ANALYZE,VERBOSE) trên lớp 761987: cả nhánh vec và kw có Filter d.use_for_rag/visible_to_students/type<>ANSWER_KEY/status=READY + c.course_ids @>/audience=ANY/embedding IS NOT NULL nằm dưới Li |
 | TC-P8-01-30 | N | chờ chạy lượt R3 |
-| TC-P8-01-31 | N | chờ chạy lượt R3 |
+| TC-P8-01-31 | P | nhúng giả tất định ⇒ cosine thật của từ khoá ≈ 0 (cổng RagSimFloor ⇒ no_context). QC dựng: một đoạn mồi không liên quan có vectơ = vectơ câu hỏi (cosine 1, hạng 1 nhánh vectơ) và các đoạn Quyche chứa «cảnh báo học vụ» có vectơ gần câu hỏi nhưng thấp hơn mồi (v+nhiễu, hạng 2–3): đoạn Quyche chỉ vượt mồi nếu nhánh từ khoá (tsv, RRF) cũng chọn nó: «điều kiện bị cảnh báo học vụ là gì» → trích dẫn đầu đúng đoạn Quyche chứa «cảnh báo học vụ» ('- Sinh viên bị cảnh báo học vụ hai lần liên tiếp h'; 1 trích dẫn); «dieu kien bi canh bao hoc vu la gi» → trích dẫn đầu đúng đoạn Quyche chứa «cảnh báo học vụ |
 | TC-P8-01-32 | P | tài liệu use_for_rag=false (đoạn/embedding=2/0); PATCH true → 200; ngay lập tức 5 lượt chat → HTTP [200, 200, 200, 200, 200], error_code=['', '', '', '', '']; llm_audit status=error từ lúc PATCH=0; sau reindex: 2/2 đoạn có embedding |
 | TC-P8-01-33 | P | phá rào bằng tay (audience→ALL + visible_to_students/use_for_rag=true trên tài liệu ANSWER_KEY có CANARY-7Q2X, không bị ràng buộc chặn: ['UPDATE 61', 'ERROR: new row for relation "documents" violates check constraint "documents_an']); 4 đường: (1) chat riêng, (2) Threads (thread 201), (3) hỏi tìm tài liệu, (4) chat giới hạn document_id=ANSWER_KEY → HTTP 404 NOT_FOUND; chữ của tài liệu ANSWER_KEY («Đáp án CANARY…») trong payload gửi provider giả=0 (chuỗi CANARY-7Q2X chỉ còn trong chính câu hỏi của SV: 3 lần), trong câu trả lời chat=0, trong trích dẫn chat/thread=0/0, bài AI Threads chứa CANARY= |
 | TC-P8-01-34 | P | SV gọi: {'/library': (200, 0), '/library/DK': (404, 0), '/library/DK/download': (404, 0), '/documents/DK/chunks': (403, 0), '/documents': (403, 0)}; ANSWER_KEY có trong /library=False; CANARY trong log gateway+worker 10 phút=0 (kể cả khi cờ hiển thị đã bị phá) |
@@ -430,7 +430,7 @@ Cách chạy:
 | TC-P8-01-37 | F | DEF-R6-P2 (Trung bình): 4/5 thao tác tăng ep:rag:ver:{lớp} trong ≤5 s và hỏi lại không trúng cache (tải tài liệu tới READY 21→22, PATCH cờ 22→23, sửa đoạn 23→24, xoá tài liệu 24→25; cache câu trả lời trúng ở lần hỏi lặp, tính lại sau mỗi thao tác); NHƯNG chia sẻ (POST /courses/{đích}/share-from, tài liệu mới vào document_courses/course_ids của lớp đích) không tăng ep:rag:ver: 26→26 suốt 24 s (đọc mỗi 2 s) → cache câu trả lời cũ của lớp đích còn trúng. Mã: backend-go/internal/course/share.go không phát outbox document.changed (chỉ document/manage.go và ingest/process.go phát). US-P8-01 AC14 liệ |
 | TC-P8-01-38 | N | chờ chạy lượt R3 |
 | TC-P8-01-39 | N | chờ chạy lượt R3 |
-| TC-P8-01-40 | N | chờ chạy lượt R3 |
+| TC-P8-01-40 | P | reindex cả lớp (≥3 tài liệu đã nhúng) → 202; 10 câu hỏi liên tiếp (mỗi câu = văn bản một đoạn, nhúng giả tất định nên cosine≈1 ⇒ có ngữ cảnh), có trích dẫn ở 10/10, HTTP [200], 10 lượt khi job còn chạy; job → SUCCEEDED; reindex lần hai → 202: số đoạn 998→998, id đoạn không đổi=True (và so với trước khi reindex=True) |
 | TC-P8-01-41 | P | tải lên với use_for_rag=f → READY, (đoạn/có embedding/dim)=3/0/0 (NULL); PATCH true → 200; job document.reindex 22→23; sau xử lý 3/3/1536: mọi đoạn có embedding 1536 chiều |
 | TC-P8-01-42 | N | chờ chạy lượt R3 |
 | TC-P8-01-43 | N | chờ chạy lượt R3 |
@@ -454,54 +454,54 @@ Cách chạy:
 | TC-P8-01-61 | F | presign/complete/retry/reindex trên lớp ARCHIVED → [409, 404, 409, 409] ['COURSE_ARCHIVED', 'UPLOAD_NOT_FOUND', 'COURSE_ARCHIVED', 'COURSE_ARCHIVED']; GET documents → 200 |
 | TC-P8-01-62 | P | SV A gọi job của SV B (01a1df2b) → 404; GET /documents → 403; /library/<tài liệu ẩn> → 404 NOT_FOUND; thân không chứa dữ liệu của B |
 | TC-P8-02-01 | P | UI: GV /documents «Tài liệu» tải ở 1440 và 375, 0 tràn |
-| TC-P8-02-02 | N | chờ chạy lượt R3 |
+| TC-P8-02-02 | P | lớp B: 14 hàng «Chia sẻ từ QC3P8A»; điều khiển trong hàng đầu: 2 (["BUTTON||true","BUTTON||true"]); PATCH trực tiếp → 409 DOCUMENT_SHARED_READONLY |
 | TC-P8-02-03 | P | limit=1 → 1 mục; limit 0/101 → 422/422 |
-| TC-P8-02-04 | N | chờ chạy lượt R3 |
-| TC-P8-02-05 | N | chờ chạy lượt R3 |
-| TC-P8-02-06 | N | chờ chạy lượt R3 |
-| TC-P8-02-07 | N | chờ chạy lượt R3 |
-| TC-P8-02-08 | N | chờ chạy lượt R3 |
-| TC-P8-02-09 | N | chờ chạy lượt R3 |
-| TC-P8-02-10 | N | chờ chạy lượt R3 |
-| TC-P8-02-11 | N | chờ chạy lượt R3 |
+| TC-P8-02-04 | P | (a) rỗng: «Lớp chưa có tài liệu»+nút «Tải tài liệu lên»=true; (b) 500 → lỗi+«Thử lại»=true, bấm gọi lại API=4 yêu cầu; (c) chậm 3 s: spinner=0, khung xương=1 |
+| TC-P8-02-05 | P | vùng thả (y=315) nằm trên bảng (y=485); hộp thoại hiện thấy trong lúc tải=0; trạng thái thấy trên hàng mới: ["Đang tải","Đang xử lý n %","Đang xử lý\tHôm nay, 02:50","Sẵn sàng"]; sang /calendar 31 s rồi quay lại: hàng vẫn có=1 |
+| TC-P8-02-06 | P | 4 tệp: số PUT chạy song song tối đa=3 (≤3, tệp thứ 4 xếp hàng); tệp thứ 4 hiện «ui06j3.docx Chờ tải» khi 3 tệp kia đang tải; hàng bảng của tệp đầu ngay khi tạo xong («ui06j0 Bài giảng Quy chế môn học Đề tham khảo Đáp án Tài liệu khác — D»): 1 ô chọn loại + 2 công tắc, đều bật được=true; sau khi đổi loại → Đề tham khảo và bật/tắt hai cờ, DB: EXAM_PAPER|rag=false|vis=false |
+| TC-P8-02-07 | F | .exe và PDF 60 MiB (đoạn thông báo trên trang: ["big60.pdf: quá 50 MB. Hãy nén hoặc tách tệp.","Đáp án không hiển thị cho sinh viên"]): yêu cầu presign/PUT=0 []; thông báo đúng chữ sau .exe=false, sau 60 MiB=false |
+| TC-P8-02-08 | P | chỉ bàn phím: Tab tới vùng thả=true, Enter mở hộp chọn tệp=true; Tab tới ô «Loại của ui08m»=true; ↓↓ đổi loại, Tab+Space bật/tắt «Dùng cho AI», Tab+Space «Hiện cho sinh viên»; DB trước LECTURE|rag=true|vis=true → sau LECTURE|rag=false|vis=false; phần tử nhận focus (có viền thấy được): [{"tag":"DIV","label":"Kéo thả hoặc chọn tệp","ring":true},{"tag":"SELECT","label":"Loại của ui08m","ring":true},{"tag":"BUTTON","label":"","ring":true},{"tag":"BUTTON","label":"","ring":true}] |
+| TC-P8-02-09 | F | hàng ANSWER_KEY: ["dapan-qc3","Bài giảng","Quy chế môn học","Đề tham khảo","Đáp án","Tài liệu khác","—","Dùng cho AI: bật · dapan-qc3","Hiện cho sinh viên: tắt · dapan-qc3","Đáp án không hiển thị cho sinh viên","Sẵn sàng\tHôm nay, 02:11"]; công tắc trong hàng=2 |
+| TC-P8-02-10 | P | PATCH visible_to_students=true trên ANSWER_KEY → 422 ANSWER_KEY_NOT_VISIBLE; UPDATE thẳng DB → 'ERROR: new row for relation "documents" violates check constraint "documents_answer_key_chk"\nDETAIL: Failing row contains (01a1f006-909b-7' |
+| TC-P8-02-11 | P | công tắc «Dùng cho AI» true→false ngay sau click (3 ms, trước khi API xong); «Đã đổi · Hoàn tác» hiện=true; biến mất sau ~6 s=true; DB t→f; đổi lần hai rồi bấm Hoàn tác ≤5 s → DB f, công tắc false |
 | TC-P8-02-12 | P | PATCH lần 1 → 200; version cũ → 409 VERSION_CONFLICT |
 | TC-P8-02-13 | P | thư viện SV: hiện 1 → ẩn 0 (ngay yêu cầu kế tiếp) |
 | TC-P8-02-14 | P | document.patch,document.patch,document.patch |
-| TC-P8-02-15 | N | chờ chạy lượt R3 |
+| TC-P8-02-15 | P | lớp QC3P8U (chưa có quy chế): đúng 1 thông báo «Lớp chưa có quy chế môn học.» + nút «Tải quy chế môn học»; bấm nút → hộp chọn tệp, tệp tải lên với loại COURSE_POLICY (DB READY|COURSE_POLICY); sau READY + tải lại: 0 thông báo; màn thư viện của SV không có thông báo thiếu quy chế |
 | TC-P8-02-16 | P | đọc chunks 200, sửa 200, DB đã đổi=True |
 | TC-P8-02-17 | P | text rỗng/4001 → 422/422 |
 | TC-P8-02-18 | P | {'total': 1, 'by_type': {'LECTURE': 1}, 'by_status': {'READY': 1}, 'chunks': 1, 'embedded_chunks': 1 |
-| TC-P8-02-19 | N | chờ chạy lượt R3 |
-| TC-P8-02-20 | N | chờ chạy lượt R3 |
+| TC-P8-02-19 | F | hộp xác nhận: «Xoá ui06j2? 1 đoạn và 0 lớp đang dùng tài liệu này sẽ mất nó. Để sau Xoá» (mong đợi «Xoá ui06j2? 1 đoạn và 1 lớp đang dùng tài liệu này sẽ mất nó.»); sau xác nhận documents/content_chunks/document_courses = 0,0,0; ep:rag:ver 10→11; object trong kho sau 36 s: ls: cannot access '/data/edupilot/courses/01a1f03c-40fc-77f6 |
+| TC-P8-02-20 | F | DB: chat_sessions.document_id=NULL, phiên mở lại được (API 200); UI mở phiên sau khi xoá tài liệu: trích dẫn cũ vẫn hiện tên «del20-qc3»; chữ «Nguồn đã gỡ» hiện=false (DEF-R6-D1; chuỗi này không có trong frontend/src hay backend-go/internal/chat) |
 | TC-P8-02-21 | P | TA xoá tài liệu → 403 |
-| TC-P8-02-22 | N | chờ chạy lượt R3 |
+| TC-P8-02-22 | F | DEF-R6-U9 (Thấp): /library SV: ô tìm kiếm là phần tử tương tác đầu tiên của vùng làm việc (INPUT search «AES, chữ ký số, quy chế…»), danh sách gọn có dấu loại tệp bằng chữ (PDF/DOCX) đạt; nhưng bộ lọc chỉ có «Loại» và «Tuần» (2 ô chọn) — thiếu bộ lọc «Chủ đề» (US-P8-02 AC9, SRS dòng 377: lọc theo tuần / chủ đề / loại; API đã có tham số category). |
 | TC-P8-02-23 | P | library q → [200, 200, 200] |
-| TC-P8-02-24 | N | chờ chạy lượt R3 |
-| TC-P8-02-25 | N | chờ chạy lượt R3 |
+| TC-P8-02-24 | F | DEF-R6-P3 (Thấp): /library?q=canh bao hoc vu → 1 dòng (nhóm theo tài liệu đạt, tên «Quy chế đào tạo QC3» không chứa cụm, tìm theo nội dung đạt) nhưng snippet = 160 ký tự đầu của đoạn khớp ĐẦU TIÊN theo ord (OR các cặp âm tiết): «Số: ...189.. /QĐÐ-TQT … CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM … QUYÉT ĐỊNH Về việc ban hàn» — không chứa «cảnh báo học vụ» (TC: đoạn trích 1 dòng chứa từ khoá). Mã: backend-go/internal/store/queries/library.sql:7-9 (order by c.ord limit 1 thay vì xếp hạng ts_rank) |
+| TC-P8-02-25 | P | /library của SV lớp A: 17 tài liệu = đúng tập READY+hiện+≠ANSWER_KEY (DB 17); lẫn tài liệu bị loại (ANSWER_KEY/ẩn/PROCESSING/FAILED: 6 cái)=0; lẫn tài liệu riêng lớp B (0 cái)=0 |
 | TC-P8-02-26 | P | limit=1 ok, 101 → 422 |
 | TC-P8-02-27 | P | chi tiết → 200, download → 200; keys=['id', 'title', 'type', 'file_kind', 'category', 'week_no', 'updated_at', 'snippet'] |
-| TC-P8-02-28 | N | chờ chạy lượt R3 |
-| TC-P8-02-29 | N | chờ chạy lượt R3 |
-| TC-P8-02-30 | N | chờ chạy lượt R3 |
-| TC-P8-02-31 | N | chờ chạy lượt R3 |
-| TC-P8-02-32 | N | chờ chạy lượt R3 |
-| TC-P8-02-33 | N | chờ chạy lượt R3 |
-| TC-P8-02-34 | N | chờ chạy lượt R3 |
-| TC-P8-02-35 | N | chờ chạy lượt R3 |
-| TC-P8-02-36 | N | chờ chạy lượt R3 |
+| TC-P8-02-28 | P | 20 lời gọi đồng thời /library/{id}/download → 20 lần 200 {url}; download_count 0→20 (+20); các HTTP khác: [200] |
+| TC-P8-02-29 | P | ETag W/"9y6pJ9fbxv37Pmdk"; If-None-Match lần 2 → 304 thân 0 byte; sau khi tải tài liệu mới tới READY: If-None-Match cũ → 200, ETag mới W/"Og8kvAJ9rk1RXhAS" |
+| TC-P8-02-30 | P | bấm «Hỏi AI về tài liệu» → /chat?session=01a1f04b-a500-7206-8ad3-e016a08026cc; phiên chat mới nhất của SV có document_id=đúng tài liệu đang xem; (trích dẫn chỉ thuộc tài liệu đó: kiểm ở API, TC-P8-02-30-api) |
+| TC-P8-02-31 | P | (a) đề tham khảo use_for_rag=false: nút «Hỏi AI…» ở danh sách=0, ở chi tiết=0; API: can_ask_ai=false, POST chat/sessions với (a)/(b PROCESSING)/(c ANSWER_KEY) → 404/404/404, GET thư viện (b)/(c) → 404 (không lộ tồn tại, không 403) |
+| TC-P8-02-32 | P | SV có lượt thi IN_PROGRESS: bấm «Hỏi AI về tài liệu» → /chat?session=01a1f04b-f153-7496-b946-a688507a4942; gửi «Giải thích chương 3»; thông báo trên màn hình: "Bài thi" (API: 409 EXAM_IN_PROGRESS như chat thường) |
+| TC-P8-02-33 | F | DEF-R6-P4 (Trung bình): search_library chỉ chạy ở chat riêng (intent LIBRARY_SEARCH → 5 mục ≤5, href /library/{id}, không tham số danh tính). Ở Threads: bài hỏi «có tài liệu nào về an ninh mạng không?» → ai_state=SKIPPED/LOW_SCORE, lời nhắc chỉ có 1 lời gọi EMBEDDING, 0 kết quả tìm thư viện. Mã: agent.NewPublicRegistry (internal/agent/tools.go:100) không có nơi gọi nào ngoài test (grep -rn "NewPublicRegistry(" chỉ ra định nghĩa) nên tool không được nối vào agent Threads, trái SRS dòng 213 «đăng ký ở cả PrivateRegistry và PublicRegistry» / US-P8-02 AC12 |
+| TC-P8-02-34 | P | «cho tôi đáp án đề giữa kỳ, tìm trong thư viện» và «tìm tài liệu ZZTEST-L2» (chuỗi chỉ ở lớp 2): kết quả search_library không chứa ANSWER_KEY/tài liệu ẩn (0) và không chứa tài liệu lớp 2 (0); khi SV có lượt thi IN_PROGRESS: gửi cùng câu → 409 EXAM_IN_PROGRESS, llm_audit của SV 496→496 (tool không chạy, không lời gọi LLM) |
+| TC-P8-02-35 | P | hành động của các dòng: ["DOCX\ngone43-qc3\nBài giảng · cập nhật 19/11","Xem","DOCX\nmo-qc3\nBài giảng · cập nhật 19/11","DOCX\nshare36-qc3\nBài giảng · cập nhật 19/11","DOCX\nexam31-qc3\nĐề tham khảo · cập nhật 19/11","DOCX\netag-qc3\nBài giảng · cập nhật 19/11","DOCX\nflag32-qc3\nBài giảng · cập nhật 19/11","DOCX\nfromB2-qc3\nBài giảng · cập nhật 19/11"]; «Luyện đề» ở danh sách (có tài liệu loại Đề tham khảo)=false, ở chi tiết đề=false; nút ở chi tiết: ["Thư viện","Tải xuống"] |
+| TC-P8-02-36 | P | (a) lớp E rỗng: «Chưa có tài liệu nào»; (b) 500 → «Thử lại»=true; (c) chậm 3 s: spinner=0, khung xương=1; (d) từ kỹ thuật ở trang thư viện lớp A: [] |
 | TC-P8-02-37 | P | UI 375: /library «Thư viện» tải, 0 tràn ngang (lần đầu 5xx thoáng qua do tải, lần chạy lại ổn) |
-| TC-P8-02-38 | N | chờ chạy lượt R3 |
-| TC-P8-02-39 | N | chờ chạy lượt R3 |
-| TC-P8-02-40 | N | chờ chạy lượt R3 |
-| TC-P8-02-41 | N | chờ chạy lượt R3 |
-| TC-P8-02-42 | N | chờ chạy lượt R3 |
-| TC-P8-02-43 | N | chờ chạy lượt R3 |
-| TC-P8-02-44 | N | chờ chạy lượt R3 |
+| TC-P8-02-38 | P | 375×812, từ khoá dài: scrollWidth 375 ≤ clientWidth 375; panel lồng panel=0; zoom 200%: gõ được vào ô tìm kiếm=true |
+| TC-P8-02-39 | P | PUT bị ngắt mạng: hàng «ui39j.docx Lỗi Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Tải» (giữ tên tệp, trạng thái Lỗi); nút «Tải lại»=1; sau Tải lại: documents cùng tên=1; hàng: «ui39j Bài giảng Quy chế môn học Đề tham khảo Đáp án Tài liệu» |
+| TC-P8-02-40 | P | PATCH 500: công tắc true→true (hoàn lại); DB t→t; «Đã đổi · Hoàn tác» hiện=false; thông báo: "Chưa lưu được. / Thử lại" |
+| TC-P8-02-41 | P | 500: lỗi+«Thử lại»=true; ô tìm kiếm giữ từ khoá=true; bấm «Thử lại» → yêu cầu mới: https://localhost:1143/api/v1/courses/01a1f000-2fbf-73a7-82d8-e820e18178db/library?q=cảnh báo học vụ&limit=30 |
+| TC-P8-02-42 | P | đường 503 không bắn được thật trên ep-r (EMBEDDING không có tuyến để chèn lỗi — chuỗi route rỗng, nhúng nội bộ tất định): go test -tags integration ./internal/document TestEditChunkEmbedFailureKeepsOld (nhúng lỗi → giữ nguyên văn bản + embedding cũ, không ghi nửa chừng), TestEditChunkAudited, TestEditChunkReEmbeds, TestEditChunkValidation đạt; UI: PATCH đoạn trả 503 → «Chưa lưu được. Thử lại.», văn bản đoạn trong DB giữ nguyên |
+| TC-P8-02-43 | P | API: 404 FILE_GONE (xem w40); UI bấm «Tải xuống»: «Tệp này không còn nữa.»=true; download_count 0→0 |
+| TC-P8-02-44 | P | 8 lượt (ANSWER_KEY, ẩn, tài liệu lớp B, id không tồn tại × {"", /download}) → [('01a1f0', 404), ('01a1f0/download', 404), ('01a1f0', 404), ('01a1f0/download', 404), ('', 404), ('/download', 404), ('efa3e4', 404), ('efa3e4/download', 404)]; số thân khác nhau (bỏ trace_id)=1: ['{"code":"NOT_FOUND","message":"Không tìm thấy.",}\n'] |
 | TC-P8-02-45 | P | {'sv.gioi': [403, 403, 403, 403], 'ta': [200, 200, 200, 200], 'teacher': [200, 200, 200, 200], 'admin': [403, 403, 403, 403]} |
-| TC-P8-02-46 | N | chờ chạy lượt R3 |
+| TC-P8-02-46 | P | PATCH: TA → 200, TEACHER → 200; DELETE: TA → 403, TEACHER → 204 |
 | TC-P8-02-47 | P | {'ta': 403, 'teacher': 403, 'admin': 403, 'sv.gioi': 200} |
 | TC-P8-02-48 | P | SV ngoài lớp: library 403, download 403 |
-| TC-P8-02-49 | N | chờ chạy lượt R3 |
+| TC-P8-02-49 | P | chủ phiên (sv.gioi) đọc phiên → 200; sv.kha đọc phiên của sv.gioi → 404; sv.gioi gọi /library lớp B (không thuộc) → 403; thân /library, /download, lỗi không chứa user_id/downloaded_by/student=True |
 | TC-P8-03-01 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
 | TC-P8-03-02 | P | cột=id,user_id,course_id,source_type,source_id,starts_at,kind,created_at; enum reminder_source={CLASS_SESSION,WEEKLY_EXAM,CALENDAR_EVENT,ASSIGNMENT} (nay 4 giá trị — ASSIGNMENT thêm ở sprint 9 proposals #3; 3 giá trị gốc vẫn có đủ); FK=reminder_log_course_fkey,reminder_log_user_fkey (source_id không FK); UNIQUE=UNIQUE (user_id, source_type, source_id, starts_at, kind); chèn trùng → 23505; kind≠T24H → 23514; chỉ mục (starts_at)=1 |
 | TC-P8-03-03 | P | token thô → 23514 (8-7d9b-8577-7497e45a2315, sv.gioi@edupilot.local, $2a$12$Rpx); 64 hex → OK; NULL → OK; PROGRESS.md ghi migration calendar: '' (số đã đổi 00009→00011 theo proposals #13) |

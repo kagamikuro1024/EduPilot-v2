@@ -1,0 +1,10 @@
+--- PASS: TestInjectionOR (7.68s)
+    --- PASS: TestInjectionOR/cổng_tắt:_không_tầng_nào_thêm (1.13s)
+    --- PASS: TestInjectionOR/decision_có_→_cờ (1.20s)
+    --- PASS: TestInjectionOR/Structured_báo_→_cờ_(decision_lưỡng_lự) (1.20s)
+    --- PASS: TestInjectionOR/decision_lỗi,_Structured_báo_→_cờ_(tầng_vắng) (1.33s)
+    --- PASS: TestInjectionOR/decision_lỗi,_Structured_không_→_không_cờ,_chấm_vẫn_xong (1.10s)
+    --- PASS: TestInjectionOR/không_tầng_nào_→_không_cờ (0.72s)
+    --- PASS: TestInjectionOR/bài_<_20_từ:_không_decision,_không_Structured_gắn_cờ (1.02s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	8.491s

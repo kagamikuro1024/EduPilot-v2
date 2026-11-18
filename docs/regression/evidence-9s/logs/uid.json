@@ -1,0 +1,64 @@
+{
+ "afterPutAbort": [
+  "Bài nộp của bạn",
+  "Chọn tệp",
+  "bai.md",
+  "Chưa gửi được",
+  "Thử lại",
+  "Nộp bài",
+  "Chưa nộp"
+ ],
+ "fileKept": true,
+ "retryBtn": 1,
+ "presignBefore": 1,
+ "presignAfterRetry": 2,
+ "afterRetry": [
+  "Biện pháp phòng thủ",
+  "2,5 điểm",
+  "Bài nộp của bạn",
+  "Chọn tệp",
+  "Kéo thả tệp vào đây",
+  "Nộp lại",
+  "Đã nhận bài lúc 03:02 Thứ Năm, 19/11"
+ ],
+ "subCount": "1",
+ "reqs": [
+  "POST /courses/01a1f006-7dcf-7e23-8901-06395b430d5b/assignments/01a1f041-1e74-7c85-b9ca-2a6dfae1f790/submit/presign",
+  "POST /courses/01a1f006-7dcf-7e23-8901-06395b430d5b/assignments/01a1f041-1e74-7c85-b9ca-2a6dfae1f790/submit/presign",
+  "POST /courses/01a1f006-7dcf-7e23-8901-06395b430d5b/assignments/01a1f041-1e74-7c85-b9ca-2a6dfae1f790/submit",
+  "POST /courses/01a1f006-7dcf-7e23-8901-06395b430d5b/assignments/01a1f041-5ae0-7074-9626-06f8769550da/submit/presign",
+  "POST /courses/01a1f006-7dcf-7e23-8901-06395b430d5b/assignments/01a1f041-5ae0-7074-9626-06f8769550da/submit",
+  "POST /courses/01a1f006-7dcf-7e23-8901-06395b430d5b/assignments/01a1f041-5ae0-7074-9626-06f8769550da/submit",
+  "POST /courses/01a1f006-7dcf-7e23-8901-06395b430d5b/assignments/01a1f041-5ae0-7074-9626-06f8769550da/submit",
+  "POST /courses/01a1f006-7dcf-7e23-8901-06395b430d5b/assignments/01a1f041-5ae0-7074-9626-06f8769550da/submit"
+ ],
+ "afterSubmitAbort": [
+  "Bài nộp của bạn",
+  "Chọn tệp",
+  "bai.md",
+  "Chưa gửi được",
+  "Thử lại",
+  "Nộp bài",
+  "Chưa nộp"
+ ],
+ "reopened": [
+  "Bài nộp của bạn",
+  "Chưa hoàn tất nộp · bai.md",
+  "Hoàn tất",
+  "Chọn tệp",
+  "Kéo thả tệp vào đây",
+  "Nộp bài",
+  "Chưa nộp"
+ ],
+ "finishBtn": 1,
+ "afterFinish": [
+  "Biện pháp phòng thủ",
+  "2,5 điểm",
+  "Bài nộp của bạn",
+  "Chọn tệp",
+  "Kéo thả tệp vào đây",
+  "Nộp lại",
+  "Đã nhận bài lúc 03:03 Thứ Năm, 19/11"
+ ],
+ "sub2": "1"
+}

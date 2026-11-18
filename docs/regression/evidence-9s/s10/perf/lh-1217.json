@@ -1,0 +1,70 @@
+[
+ {
+  "path": "/practice",
+  "method": "devtools",
+  "lcp_ms": 4086,
+  "tbt_ms": 0,
+  "script_kb": 207,
+  "lcp_all": [
+   4063,
+   4119,
+   4086
+  ],
+  "tbt_all": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "path": "/practice",
+  "method": "simulate",
+  "lcp_ms": 2858,
+  "tbt_ms": 17,
+  "script_kb": 207,
+  "lcp_all": [
+   2859,
+   2726,
+   2858
+  ],
+  "tbt_all": [
+   26,
+   17,
+   16
+  ]
+ },
+ {
+  "path": "/practice/[id]",
+  "method": "devtools",
+  "lcp_ms": 17723,
+  "tbt_ms": 0,
+  "script_kb": 218,
+  "lcp_all": [
+   17743,
+   17720,
+   17723
+  ],
+  "tbt_all": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "path": "/practice/[id]",
+  "method": "simulate",
+  "lcp_ms": 3154,
+  "tbt_ms": 17,
+  "script_kb": 218,
+  "lcp_all": [
+   3154,
+   3155,
+   3153
+  ],
+  "tbt_all": [
+   16,
+   20,
+   17
+  ]
+ }
+]

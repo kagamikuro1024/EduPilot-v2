@@ -1,0 +1,23 @@
+              * mock: 1 iterations for each of 100 VUs (maxDuration: 5m0s, gracefulStop: 30s)
+running (0m01.0s), 100/100 VUs, 0 complete and 0 interrupted iterations
+    http_req_failed
+    ✓ 'rate<0.005' rate=0.00%
+    ✓ 'p(95)<500' p(95)=55.6ms
+    ✓ 'p(95)<3000' p(95)=237.95ms
+    ✓ 'p(95)<1000' p(95)=131.02ms
+    checks_total.......: 2200    1693.567446/s
+    checks_succeeded...: 100.00% 2200 out of 2200
+    checks_failed......: 0.00%   0 out of 2200
+    ✓ start 201/200
+    ✓ save 200
+    ✓ submit 200
+    practice_save_ms...............: avg=46.57ms  min=25.71ms med=45.56ms  max=145.68ms p(90)=53.42ms  p(95)=55.6ms  
+    practice_start_ms..............: avg=188.15ms min=92.25ms med=200.02ms max=254.27ms p(90)=230.34ms p(95)=237.95ms
+    practice_submit_ms.............: avg=117.58ms min=89.16ms med=121.8ms  max=132.16ms p(90)=130.32ms p(95)=131.02ms
+    http_req_duration..............: avg=56.23ms  min=25.71ms med=46.51ms  max=254.27ms p(90)=90.41ms  p(95)=129.26ms
+      { expected_response:true }...: avg=56.23ms  min=25.71ms med=46.51ms  max=254.27ms p(90)=90.41ms  p(95)=129.26ms
+    http_req_failed................: 0.00%  0 out of 2200
+    iteration_duration.............: avg=1.25s    min=1.2s    med=1.26s    max=1.29s    p(90)=1.29s    p(95)=1.29s   
+    iterations.....................: 100    76.980338/s
+running (0m01.3s), 000/100 VUs, 100 complete and 0 interrupted iterations
+mock ✓ [ 100% ] 100 VUs  0m01.3s/5m0s  100/100 iters, 1 per VU

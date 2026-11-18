@@ -1,0 +1,11 @@
+{
+ "bannerOnLoad": [
+  "Sinh viên vừa nộp lại — xem phiên bản mới · Mở bản mới"
+ ],
+ "approveDisabledOnLoad": true,
+ "links": [
+  "Hàng chờ chấm",
+  "Mở bản mới",
+  "Về hàng chờ chấm"
+ ]
+}

@@ -1,0 +1,24 @@
+# TC-E4: shard rỗng (N=200 > 137 tệp spec)
+190
+15
+shard 150/200: số phần tử mảng files=1; phần tử 0='e2e/qc2-r8/real-08.spec.ts'
+--- playwright test --list --grep-invert @real "${files[@]}" (đúng câu lệnh bước CI):
+  [mobile] › qc2-r8/real-08.spec.ts:63:1 › [09-13,09-14,09-15] /me của SV: dòng điểm, GradeCalculation tuyến tính, quét gamify
+  [mobile] › qc2-r8/real-08.spec.ts:75:1 › [09-46] /me 375 px: skeleton / rỗng / lỗi + Thử lại, không cuộn ngang
+Total: 10 tests in 1 file
+--- so sánh: không tham số tệp:
+Total: 2816 tests in 174 files
+--- shard 1/4 bình thường:
+49 tệp
+Total: 576 tests in 46 files
+--- shard rỗng thật: N=200, shard 200/200
+shard 198: 0 s, 0 tệp
+shard 199: 0 s, 0 tệp
+shard 200: 0 s, 0 tệp
+files: 1 phần tử; phần tử 0=<>
+--- lệnh bước CI với mảng rỗng-dòng:
+  [mobile] › visual.spec.ts:79:5 › observability @390
+Total: 2816 tests in 174 files
+exit=0
+--- nếu mảng thật sự rỗng (không phần tử):
+Total: 2816 tests in 174 files

@@ -1,0 +1,39 @@
+{
+ "runs": [
+  {
+   "lcp": 84,
+   "cls": 0.06366341924700915
+  },
+  {
+   "lcp": 60,
+   "cls": 0.06366341924700915
+  },
+  {
+   "lcp": 60,
+   "cls": 0.06366341924700915
+  }
+ ],
+ "btn": {
+  "w": 317,
+  "h": 44
+ },
+ "zone": {
+  "w": 317,
+  "h": 96
+ },
+ "scrollOk": true,
+ "tabOrder": [
+  "Bỏ qua điều hướng",
+  "EduPilot — Hôm nay",
+  "Chọn lớp, đang xem QD9V · QC s",
+  "Tìm nhanh hoặc đi đến…⌘K",
+  "Thông báo, 9+ chưa đọc",
+  "NTài khoản: Huỳnh Bảo Nam",
+  "Chọn tệp bài nộp",
+  "Chọn tệp"
+ ],
+ "live": [
+  "polite",
+  "polite"
+ ]
+}

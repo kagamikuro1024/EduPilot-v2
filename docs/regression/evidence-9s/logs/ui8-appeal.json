@@ -1,0 +1,72 @@
+{
+ "dialogText": " | Tiêu chí muốn xem lại | Xác định tác nhân và bề mặt tấn công | Phân tích tấn công | Đánh giá tác động | Biện pháp phòng thủ | Lý do · 0/1000 | Gửi | Đề bài | # Bài tập 03 — Phân tích một vụ tấn công thực tế | Loại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày | ## Đề bài | Phân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng SolarWinds Orion (phát hiện tháng 12 năm 2020). Bài nộp dài khoảng một đến hai trang và trả lời bốn câu hỏi: | Ai là tác nhân và kẻ tấn công đã khai thác bề mặt tấn công nào? | Chuỗi tấn công diễn ra qua những bước nào? | Tác động của vụ việc là gì (dữ li",
+ "dialogInputs": [
+  {
+   "tag": "INPUT",
+   "type": "checkbox",
+   "label": "Xác định tác nhân và bề mặt tấn công"
+  },
+  {
+   "tag": "INPUT",
+   "type": "checkbox",
+   "label": "Phân tích tấn công"
+  },
+  {
+   "tag": "INPUT",
+   "type": "checkbox",
+   "label": "Đánh giá tác động"
+  },
+  {
+   "tag": "INPUT",
+   "type": "checkbox",
+   "label": "Biện pháp phòng thủ"
+  },
+  {
+   "tag": "TEXTAREA",
+   "type": "textarea",
+   "label": ""
+  },
+  {
+   "tag": "BUTTON",
+   "type": "button",
+   "label": "Gửi"
+  },
+  {
+   "tag": "INPUT",
+   "type": "file",
+   "label": "Chọn tệp bài nộp"
+  },
+  {
+   "tag": "BUTTON",
+   "type": "button",
+   "label": "Chọn tệp"
+  },
+  {
+   "tag": "BUTTON",
+   "type": "button",
+   "label": "Nộp lại"
+  }
+ ],
+ "draftRestored": true,
+ "c2Count": 1,
+ "sendBtn": [
+  "Gửi"
+ ],
+ "reqs": [
+  "201 {\"criteria_ids\":[\"c2\"],\"reason\":\"Em cho rằng tiêu chí 2 chưa ghi nhận phần phân tích chuỗi tấn công đã nêu ở đoạn 3.\"}"
+ ],
+ "afterText": [
+  "Yêu cầu xem lại",
+  "Đã gửi yêu cầu xem lại · Thứ Năm, 02:33"
+ ],
+ "todayLink": "/grading/01a1f008-d1a9-70dc-ae7e-3c59fc80dcc1",
+ "block": "Yêu cầu xem lại | Thứ Năm, 19/11 · 02:33 | Bùi Thanh Khải · 20229002 | Phân tích tấn công | Em cho rằng tiêu chí 2 chưa ghi nhận phần phân tích chuỗi tấn công đã nêu ở đoạn 3. | Điểm đã công bố 7,50 · AI chấm nháp 7,00 | Giữ nguyên điểm | Sửa điểm | Tổng điểm | 7,50 | Trừ nộp muộn · 1 ngày | Bấm một dòng trích để xem trong bài. | Xác định tác nhân và bề mặt tấn công | / 2,5 | “Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành” | Nhận xét cho sinh viên | Phân tích tấn công | / 2,5 | Lệch 1,5 điểm so với lượt 2 (1,00 và 2,50) | Đã sửa bởi giảng viên | “đánh cắp khoá ký SAML của máy chủ liên kết danh tính” | Nhận xét cho sinh viên | Đánh giá tác động | / 2,5 | “nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư” | Nhận xét cho sinh viên | Biện pháp phòng thủ | / 2,5 | “phân đoạn mạ",
+ "hasDraft": true,
+ "hasPub": true,
+ "btns": [
+  "Giữ nguyên điểm",
+  "Sửa điểm",
+  "Quyết định"
+ ],
+ "respField": 5
+}

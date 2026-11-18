@@ -1,0 +1,73 @@
+   trang đầu: n=40, p50 11 ms, p95 14 ms, max 22 ms | keys ['items', 'next_cursor']
+PASS TC-P7-08-03 p95 trang đầu 14 ms (≤ 300) 
+PASS TC-P7-08-03 con trỏ liên tiếp: 10 trang × ≤100 → 1000 bài, 1000 khác nhau; kỳ vọng 1000 (không lặp / sót) 
+PASS TC-P7-08-03 limit=500 → 422, 0 dòng (≤ 100 hoặc 422) 
+PASS TC-P7-08-03 tham số offset không có tác dụng (trang đầu giống không offset): 200 
+Limit  (cost=774.42..774.54 rows=50 width=309) (actual time=4.483..4.488 rows=50.00 loops=1)
+  Buffers: shared hit=4423
+  ->  Sort  (cost=774.42..776.27 rows=740 width=309) (actual time=4.482..4.486 rows=50.00 loops=1)
+        Sort Key: (CASE WHEN COALESCE(r.needs_review, false) THEN 0 ELSE 1 END), s.received_at, s.id
+        Sort Method: top-N heapsort  Memory: 46kB
+        Buffers: shared hit=4423
+        ->  Hash Left Join  (cost=385.28..749.84 rows=740 width=309) (actual time=1.716..4.158 rows=1000.00 loops=1)
+              Hash Cond: (s.student_id = e.user_id)
+              Buffers: shared hit=4414
+              ->  Hash Left Join  (cost=365.53..724.35 rows=707 width=238) (actual time=1.643..3.897 rows=1000.00 loops=1)
+                    Hash Cond: ((s.id = r.submission_id) AND ((SubPlan 2) = r.round))
+                    Buffers: shared hit=4407
+                    ->  Hash Left Join  (cost=201.00..403.84 rows=707 width=161) (actual time=0.892..1.446 rows=1000.00 loops=1)
+                          Hash Cond: (s.student_id = u.id)
+                          Buffers: shared hit=276
+                          ->  Hash Join  (cost=189.38..390.32 rows=707 width=148) (actual time=0.822..1.276 rows=1000.00 loops=1)
+                                Hash Cond: (s.assignment_id = a.id)
+                                Buffers: shared hit=268
+                                ->  Hash Anti Join  (cost=163.44..362.47 rows=707 width=90) (actual time=0.553..0.903 rows=1000.00 loops=1)
+                                      Hash Cond: ((s.assignment_id = n.assignment_id) AND (s.student_id = n.student_id))
+                                      Join Filter: (n.version > s.version)
+                                      Rows Removed by Join Filter: 1000
+                                      Buffers: shared hit=244
+                                      ->  Seq Scan on submissions s  (cost=0.00..147.66 rows=1052 width=90) (actual time=0.006..0.190 rows=1000.00 loops=1)
+                                            Filter: ((course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid) AND (match_status = 'MATCHED'::text))
+                                            Rows Removed by Filter: 639
+                                            Buffers: shared hit=122
+                                      ->  Hash  (cost=147.66..147.66 rows=1052 width=52) (actual time=0.540..0.541 rows=1000.00 loops=1)
+                                            Buckets: 2048  Batches: 1  Memory Usage: 99kB
+                                            Buffers: shared hit=122
+                                            ->  Seq Scan on submissions n  (cost=0.00..147.66 rows=1052 width=52) (actual time=0.002..0.434 rows=1000.00 loops=1)
+                                                  Filter: ((course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid) AND (match_status = 'MATCHED'::text))
+                                                  Rows Removed by Filter: 639
+                                    
+tổng dòng submissions: 1639 | index: submissions_pkey, submissions_course_id_key, submissions_matched_version_key, submissions_external_key, submissions_assignment_received_idx, submissions_student_version_idx, submissions_unmatched_idx
+--- enable_seqscan=off ---
+ SET
+Limit  (cost=886.45..886.57 rows=50 width=309) (actual time=3.816..3.823 rows=50.00 loops=1)
+  Buffers: shared hit=4312
+  ->  Sort  (cost=886.45..888.30 rows=740 width=309) (actual time=3.815..3.819 rows=50.00 loops=1)
+        Sort Key: (CASE WHEN COALESCE(r.needs_review, false) THEN 0 ELSE 1 END), s.received_at, s.id
+        Sort Method: top-N heapsort  Memory: 46kB
+        Buffers: shared hit=4312
+        ->  Hash Left Join  (cost=483.17..861.87 rows=740 width=309) (actual time=0.965..3.485 rows=1000.00 loops=1)
+              Hash Cond: (s.student_id = e.user_id)
+              Buffers: shared hit=4303
+              ->  Hash Left Join  (cost=463.42..836.38 rows=707 width=238) (actual time=0.911..3.254 rows=1000.00 loops=1)
+                    Hash Cond: ((s.id = r.submission_id) AND ((SubPlan 2) = r.round))
+                    Buffers: shared hit=4296
+                    ->  Nested Loop Left Join  (cost=281.16..498.13 rows=707 width=161) (actual time=0.485..1.120 rows=1000.00 loops=1)
+                          Buffers: shared hit=229
+                          ->  Hash Join  (cost=281.00..472.33 rows=707 width=148) (actual time=0.476..0.864 rows=1000.00 loops=1)
+                                Hash Cond: (s.assignment_id = a.id)
+                                Buffers: shared hit=149
+                                ->  Hash Anti Join  (cost=250.96..440.37 rows=707 width=90) (actual time=0.435..0.721 rows=1000.00 loops=1)
+                                      Hash Cond: ((s.assignment_id = n.assignment_id) AND (s.student_id = n.student_id))
+                                      Join Filter: (n.version > s.version)
+                                      Rows Removed by Join Filter: 1000
+                                      Buffers: shared hit=140
+                                      ->  Bitmap Heap Scan on submissions s  (cost=48.57..186.62 rows=1052 width=90) (actual time=0.105..0.221 rows=1000.00 loops=1)
+                                            Recheck Cond: (course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid)
+                                            Filter: (match_status = 'MATCHED'::text)
+                                            Heap Blocks: exact=61
+                                            Buffers: shared hit=70
+                                            ->  Bitmap Index Scan on submissions_course_id_key  (cost=0.00..48.30 rows=1070 width=0) (actual time=0.091..0.091 rows=1000.00 loops=1)
+                                        
+SUMMARY {"TC-P7-08-03": true}
+RESULT: PASS (0 lỗi)

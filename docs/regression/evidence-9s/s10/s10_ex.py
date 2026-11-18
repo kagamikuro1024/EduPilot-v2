@@ -116,3 +116,29 @@ elif stage == "e":  # TC-02-20 sau sửa R10S-15 (429 reason=pages)
     print("70 trang:", c, lastj(j, 220), "Retry-After", h.get("Retry-After"))
     c2, j2, _, h2 = raw("POST", f"/courses/{CC}/questions/extract", {"document_id": d60}, headers={"Idempotency-Key": str(uuid.uuid4())}, token=tok("teacher")); print("60 trang:", c2, lastj(j2, 160))
     chk("TC-02-20", ok70 and c2 == 202, f"tài liệu 70 trang: extract → {c} {lastj(j, 120)} (không tạo việc: jobs {j0}→{j1}; không gọi LLM: llm_audit {l0}→{l1}); tài liệu đúng 60 trang → {c2} (nhận việc)")
+elif stage == "f":  # QD10B: 02-16 biến thể B (tên là người dùng biết) + 02-15 restart worker
+    rec = json.load(open(os.path.expanduser("~/Documents/TA_Agent_qc106/seed/demo/fake_llm.json")))["recordings"]
+    qs = [r for r in rec if r["name"] == "practice-extract-de-mau"][0]["response"]["questions"]
+    lines = ["ĐỀ MẪU LUYỆN TẬP — MẠNG MÁY TÍNH", "Người ra đề: Nguyễn Văn Test"]
+    for q in qs:
+        lines.append(f"Câu {q['number']}. {q['stem']}"); lines += [f"{'ABCD'[i]}. {o['body']}" for i, o in enumerate(q["options"])]
+    dn = upb(docx(lines), f"de-ten-b-{SUF}.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", f"QC S10 đề có tên B {SUF}", "EXAM_PAPER", CB)
+    dm = upf("seed/practice/de-mau-trac-nghiem.pdf", f"QC S10 đề nhiều trang B {SUF}", "EXAM_PAPER", CB)
+    print("READY", ready(CB, dn, dm)); mode("ok")
+    U = "sv31@edupilot.local"; ORIG = sql(f"select full_name from users where email='{U}'")[0][0]
+    sql(f"update users set full_name='Nguyễn Văn Test' where email='{U}'"); os.system("docker exec ep-qc-redis-1 sh -c \"redis-cli --scan --pattern 'ep:*roster*' | xargs -r redis-cli del\" >/dev/null 2>&1")
+    try:
+        n0 = nreq(); t0 = sql("select now()")[0][0]; c, j, _ = ex(CB, {"document_id": dn}); J = wait_job(j["job_id"]); rq = reqs_since(n0); txt = "\n".join(x["text"] for x in rq)
+        pay = sql(f"select count(*) from llm_request_payloads p join llm_audit a on a.id=p.audit_id where a.created_at >= '{t0}' and p.masked_prompt like '%Nguyễn Văn Test%'")[0][0]
+        line = [l for l in txt.splitlines() if "Người ra đề" in l][:1]
+        stems = [r[0] for r in sql(f"select stem from question_bank where course_id='{CB}' and origin='EXTRACTED' and created_at >= '{t0}'") if len(r) == 1]
+        leak = [s for s in stems if re.search(r"\[[A-Z_]+_?\d*\]|<[A-Z_]+|Nguyễn|\bTest\b|PERSON|TÊN", s)]
+        print("B:", J.get("status"), "tên có trong lời nhắc:", "Nguyễn Văn Test" in txt, "dòng:", line, "masked_prompt chứa tên:", pay, "stems", len(stems), "leak", leak[:2])
+        chk("TC-02-16 (B)", J.get("status") == "SUCCEEDED" and "Nguyễn Văn Test" not in txt and pay == "0" and not leak, f"tên «Nguyễn Văn Test» là người dùng của lớp (sv31 đổi tên tạm): lời nhắc tới provider chứa tên: {'Nguyễn Văn Test' in txt}; dòng người ra đề: {line}; payload đã che chứa tên: {pay}; {len(stems)} stem lưu, rò: {leak[:2]}")
+    finally:
+        sql(f"update users set full_name=$q${ORIG}$q$ where email='{U}'")
+    # 02-15
+    mode("slow12"); q0 = len(sql(f"select 1 from question_bank where course_id='{CB}' and origin='EXTRACTED'")); n0 = nreq(); c, j, _ = ex(CB, {"document_id": dm}); jid = j["job_id"]; time.sleep(5)
+    subprocess.run(["docker", "restart", "ep-qc-worker-1"], capture_output=True); mode("ok"); t0 = time.time(); J = wait_job(jid, t=360); print("restart job", J.get("status"), f"{time.time()-t0:.0f}s", lastj(J.get("result"), 120))
+    sts = [r[0] for r in sql(f"select stem from question_bank where course_id='{CB}' and origin='EXTRACTED'") if len(r) == 1]
+    chk("TC-02-15", J.get("status") == "SUCCEEDED" and len(sts) == len(set(sts)) and len(sts) > q0, f"restart worker giữa việc (stub chậm 12 s, restart sau 5 s): job → {J.get('status')} sau {time.time()-t0:.0f} s; EXTRACTED {q0}→{len(sts)}; stem trùng {len(sts)-len(set(sts))}; lời gọi provider {len(reqs_since(n0))}")

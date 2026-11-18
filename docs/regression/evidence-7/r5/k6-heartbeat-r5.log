@@ -1,0 +1,17 @@
+              * heartbeat: 10.00 iterations/s for 1m0s (maxVUs: 20-60, gracefulStop: 30s)
+    checks
+    ✗ 'rate>0.999' rate=68.83%
+    http_req_duration
+    ✓ 'p(95)<20' p(95)=7.5ms
+    http_req_failed
+    ✗ 'rate<0.001' rate=31.16%
+    checks_total.......: 600    9.999805/s
+    checks_succeeded...: 68.83% 413 out of 600
+    checks_failed......: 31.16% 187 out of 600
+    ✗ heartbeat 204
+      ↳  68% — ✓ 413 / ✗ 187
+    http_req_duration..............: avg=3.26ms min=1.3ms  med=2.32ms max=31.96ms p(90)=5.23ms p(95)=7.5ms 
+    http_req_failed................: 31.16% 187 out of 600
+    iterations.....................: 600    9.999805/s
+heartbeat ✓ [ 100% ] 00/20 VUs  1m0s  10.00 iters/s
+time="2026-11-19T06:31:49+07:00" level=error msg="thresholds on metrics 'checks, http_req_failed' have been crossed"

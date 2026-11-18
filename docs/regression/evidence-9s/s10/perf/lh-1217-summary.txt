@@ -1,0 +1,6 @@
+TC-12-17 Lighthouse (performance, cấu hình mặc định lighthouse 12.6.1, chrome headless Playwright), ep-qc @4ac1638a, sv.kha, QD10A. Trung vị 3 lần (devtools = LCP; simulate = TBT).
+/practice        devtools LCP 4086 ms [4063, 4119, 4086]  TBT 0     script 207 KB   | simulate LCP 2858 ms [2859, 2726, 2858]  TBT 17 ms
+/practice/[id]   devtools LCP 17723 ms [17743, 17720, 17723] TBT 0   script 218 KB   | simulate LCP 3154 ms (1 lần)               TBT 19 ms (TOPIC đang làm; chạy chẩn đoán lại devtools = 17549 ms)
+Tham chiếu cùng môi trường (1 lần): /chat devtools 2031 ms; / (Hôm nay) devtools 5327 ms; simulate / 2894, /chat 2867.
+Phần tử LCP của /practice/[id]: <p> (đoạn chữ, hiện sau khi dữ liệu lượt tải về).
+Ngưỡng TC: LCP ≤ 2.500 ms (devtools), TBT ≤ 200 ms (simulate), script ≤ 256 KB → TBT, script đạt; LCP trượt ở cả hai trang.

@@ -1,0 +1,2 @@
+--- PASS: TestAssignmentItemLinkValidation (0.71s)
+ok  	github.com/edupilot/backend-go/internal/grade	1.501s

@@ -1,0 +1,498 @@
+﻿2026-11-18T16:08:23.9493661Z Current runner version: '2.338.2'
+##[group]Runner Image Provisioner
+Hosted Compute Agent
+Version: 20261103.629
+Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+Build Date: 2026-11-03T17:26:59Z
+Worker ID: {674a7f6c-67f5-44cd-9099-c98312fee1ce}
+Region: eastus2
+Cloud: Azure
+##[endgroup]
+##[group]Operating System
+Ubuntu
+24.04.5
+LTS
+##[endgroup]
+##[group]Runner Image
+Image: ubuntu-24.04
+Version: 20261111.370.1
+Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+##[endgroup]
+##[group]GITHUB_TOKEN Permissions
+Contents: read
+Metadata: read
+##[endgroup]
+Secret source: Actions
+Cache mode: write
+Prepare workflow directory
+Prepare all required actions
+Getting action download info
+Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+Complete job name: Frontend (lint + build)
+##[group]Run actions/checkout@v7
+with:
+  repository: kagamikuro1024/EduPilot-v2
+  token: ***
+  ssh-strict: true
+  ssh-user: git
+  persist-credentials: true
+  clean: true
+  sparse-checkout-cone-mode: true
+  fetch-depth: 1
+  fetch-tags: false
+  show-progress: true
+  lfs: false
+  submodules: false
+  set-safe-directory: true
+  allow-unsafe-pr-checkout: false
+##[endgroup]
+Syncing repository: kagamikuro1024/EduPilot-v2
+##[group]Getting Git version info
+Working directory is '/home/runner/work/EduPilot-v2/EduPilot-v2'
+[command]/usr/bin/git version
+git version 2.56.1
+##[endgroup]
+Temporarily overriding HOME='/home/runner/work/_temp/efc58a8e-7642-46c4-9547-675c2dd22a86' before making global git config changes
+Adding repository directory to the temporary git global config as a safe directory
+[command]/usr/bin/git config --global --add safe.directory /home/runner/work/EduPilot-v2/EduPilot-v2
+Deleting the contents of '/home/runner/work/EduPilot-v2/EduPilot-v2'
+##[group]Determining repository object format
+##[endgroup]
+##[group]Initializing the repository
+[command]/usr/bin/git init /home/runner/work/EduPilot-v2/EduPilot-v2
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /home/runner/work/EduPilot-v2/EduPilot-v2/.git/
+[command]/usr/bin/git remote add origin https://github.com/kagamikuro1024/EduPilot-v2
+##[endgroup]
+##[group]Disabling automatic garbage collection
+[command]/usr/bin/git config --local gc.auto 0
+##[endgroup]
+##[group]Setting up auth
+Removing SSH command configuration
+[command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Removing HTTP extra header
+[command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Removing includeIf entries pointing to credentials config files
+[command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+[command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+[command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+[command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/EduPilot-v2/EduPilot-v2/.git.path /home/runner/work/_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config
+[command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/EduPilot-v2/EduPilot-v2/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config
+[command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config
+[command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config
+##[endgroup]
+##[group]Fetching the repository
+[command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e8cfc5f531baf4cfebccfb5fade75ee9f72229a5:refs/remotes/pull/3/merge
+From https://github.com/kagamikuro1024/EduPilot-v2
+ * [new ref]         e8cfc5f531baf4cfebccfb5fade75ee9f72229a5 -> pull/3/merge
+##[endgroup]
+##[group]Determining the checkout info
+##[endgroup]
+[command]/usr/bin/git sparse-checkout disable
+[command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+##[group]Checking out the ref
+[command]/usr/bin/git checkout --progress --force refs/remotes/pull/3/merge
+Updating files:  50% (3767/7512)
+Updating files:  51% (3832/7512)
+Updating files:  52% (3907/7512)
+Updating files:  53% (3982/7512)
+Updating files:  54% (4057/7512)
+Updating files:  55% (4132/7512)
+Updating files:  56% (4207/7512)
+Updating files:  57% (4282/7512)
+Updating files:  58% (4357/7512)
+Updating files:  59% (4433/7512)
+Updating files:  60% (4508/7512)
+Updating files:  61% (4583/7512)
+Updating files:  62% (4658/7512)
+Updating files:  63% (4733/7512)
+Updating files:  63% (4799/7512)
+Updating files:  64% (4808/7512)
+Updating files:  65% (4883/7512)
+Updating files:  66% (4958/7512)
+Updating files:  67% (5034/7512)
+Updating files:  68% (5109/7512)
+Updating files:  69% (5184/7512)
+Updating files:  70% (5259/7512)
+Updating files:  71% (5334/7512)
+Updating files:  72% (5409/7512)
+Updating files:  73% (5484/7512)
+Updating files:  74% (5559/7512)
+Updating files:  75% (5634/7512)
+Updating files:  76% (5710/7512)
+Updating files:  77% (5785/7512)
+Updating files:  78% (5860/7512)
+Updating files:  79% (5935/7512)
+Updating files:  80% (6010/7512)
+Updating files:  81% (6085/7512)
+Updating files:  82% (6160/7512)
+Updating files:  83% (6235/7512)
+Updating files:  84% (6311/7512)
+Updating files:  85% (6386/7512)
+Updating files:  86% (6461/7512)
+Updating files:  87% (6536/7512)
+Updating files:  88% (6611/7512)
+Updating files:  89% (6686/7512)
+Updating files:  90% (6761/7512)
+Updating files:  91% (6836/7512)
+Updating files:  92% (6912/7512)
+Updating files:  93% (6987/7512)
+Updating files:  94% (7062/7512)
+Updating files:  95% (7137/7512)
+Updating files:  96% (7212/7512)
+Updating files:  97% (7287/7512)
+Updating files:  98% (7362/7512)
+Updating files:  99% (7437/7512)
+Updating files: 100% (7512/7512)
+Updating files: 100% (7512/7512), done.
+Note: switching to 'refs/remotes/pull/3/merge'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at e8cfc5f Merge 777bb5e2aeb03e07aa603b563a8ab6af7132162d into 8c9b1d6a385d429cb349aebfd1dc9d5beca0c619
+Encountered 2 files that should have been pointers, but weren't:
+	docs/sprints/11/handoff/lcp-dot3-raw.tar.xz
+	docs/sprints/11/qc/lcp-t1-raw.tar.gz
+##[endgroup]
+[command]/usr/bin/git log -1 --format=%H
+e8cfc5f531baf4cfebccfb5fade75ee9f72229a5
+Prepare all required actions
+Getting action download info
+Download action repository 'pnpm/action-setup@v6' (SHA:73e46992e05b19abd31f2f3c20e0e7370d762115)
+Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+Download action repository 'actions/cache@v5' (SHA:caa296126883cff596d87d8935842f9db880ef25)
+##[group]Run ./.github/actions/fe-setup
+with:
+  browsers: false
+##[endgroup]
+##[start-action display=Run pnpm/action-setup@v6;id=__self.__pnpm_action-setup]
+##[group]Run pnpm/action-setup@v6
+with:
+  dest: ~/setup-pnpm
+  run_install: null
+  cache: false
+  cache_dependency_path: pnpm-lock.yaml
+  package_json_file: package.json
+  standalone: false
+##[endgroup]
+##[group]Running self-installer...
+
+added 2 packages, and audited 3 packages in 3s
+
+found 0 vulnerabilities
+Checking for updates...
+Switching pnpm from v12.17.0 to v12.8.1...
+Downloading @pnpm/exe.linux-x64@12.8.1: 0.00 B/26.02 MB
+Packages are copied from the content-addressable store to the virtual store.
+  Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+  Virtual store is at:             node_modules/.bin/global/v11/98d-18e92f78c93d4ec5-0/node_modules/.pnpm
+.../global/v11/98d-18e92f78c93d4ec5-0    | Progress: resolved 2, reused 0, downloaded 2, added 2, done
+Successfully updated pnpm to v12.8.1
+##[endgroup]
+Installation Completed!
+##[end-action id=__self.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=6357]
+##[start-action display=Run actions/setup-node@v7;id=__self.__actions_setup-node]
+##[group]Run actions/setup-node@v7
+with:
+  node-version: 24
+  cache: pnpm
+  check-latest: false
+  token: ***
+  package-manager-cache: true
+env:
+  PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+##[endgroup]
+Found in cache @ /opt/hostedtoolcache/node/24.22.2/x64
+##[group]Environment details
+node: v24.22.2
+npm: 11.19.1
+yarn: 1.22.22
+##[endgroup]
+[command]/home/runner/setup-pnpm/node_modules/.bin/bin/pnpm store path --silent
+/home/runner/setup-pnpm/node_modules/.bin/store/v11
+Cache hit for: node-cache-Linux-x64-pnpm-ab0cf7c5a18ac1f4462f75194b79ba0b8e8b772a9eff9c20b008780745179168
+Received 177081023 of 177081023 (100.0%), 200.6 MBs/sec
+Cache Size: ~169 MB (177081023 B)
+[command]/usr/bin/tar -xf /home/runner/work/_temp/ba7c1655-6cd3-4fbd-912d-f1819238f870/cache.tzst -P -C /home/runner/work/EduPilot-v2/EduPilot-v2 --use-compress-program unzstd
+Cache restored successfully
+Cache restored from key: node-cache-Linux-x64-pnpm-ab0cf7c5a18ac1f4462f75194b79ba0b8e8b772a9eff9c20b008780745179168
+##[end-action id=__self.__actions_setup-node;outcome=success;conclusion=success;duration_ms=3077]
+##[start-action display=pnpm install;id=__self.__run]
+##[group]Run pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile
+shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+env:
+  PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+##[endgroup]
+Scope: all 2 workspace projects
+? Verifying lockfile against supply-chain policies (661 entries)...
+Packages are hard linked from the content-addressable store to the virtual store.
+  Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+  Virtual store is at:             node_modules/.pnpm
+✓ Lockfile passes supply-chain policies (661 entries in 4.5s)
+Lockfile is up to date, resolution step is skipped
+Packages: +603
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 603, reused 603, downloaded 0, added 603, done
+
+devDependencies:
++ @redocly/cli 2.57.0
+
+Done in 4.8s using pnpm v12.8.1
+##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=5051]
+##[start-action display=cache playwright browsers;id=__self.__actions_cache]
+##[end-action id=__self.__actions_cache;outcome=skipped;conclusion=skipped;duration_ms=0]
+##[start-action display=playwright install chromium;id=__self.__run_2]
+##[end-action id=__self.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+##[group]Run pnpm -C frontend lint
+pnpm -C frontend lint
+shell: /usr/bin/bash -e {0}
+env:
+  PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+##[endgroup]
+$ eslint .
+##[group]Run bash scripts/ui-antipatterns.sh
+bash scripts/ui-antipatterns.sh
+shell: /usr/bin/bash -e {0}
+env:
+  PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+##[endgroup]
+✓ Màu viết cứng ngoài shared/styles
+✓ Màu viết cứng trong style của .tsx
+✓ Xám chung chung của Tailwind
+✓ Bo góc kiểu SaaS / số cứng
+✓ Bóng ngoài Popover/Dialog/Menu/Drawer/Composer
+✓ Cỡ chữ tuỳ ý ngoài thang vai trò
+✓ z-index số cứng
+✓ fetch / XMLHttpRequest / axios ngoài shared/data
+✓ confirm / alert
+✓ Spinner riêng hoặc toàn trang
+✓ <table> thô ngoài DataTable
+✓ Hiệu ứng bị cấm (glass, chữ gradient, nảy)
+✓ Gamification (streak, leaderboard, confetti)
+✓ Khung vỏ dùng nền đặc
+✓ Từ kỹ thuật trong màn sinh viên
+✓ Dialog ngoài danh sách việc cần bảo vệ
+✓ Emoji làm icon chức năng
+✓ Token / bí mật ghi vào storage
+✓ Tailwind / @theme
+✓ Bóng elevation ngoài Panel
+✓ Bo góc panel ngoài Panel
+✓ Panel lồng Panel (cùng tệp)
+✓ Câu mô tả tĩnh dưới tiêu đề
+✓ Khung tự đặt độ rộng
+✓ Chiều cao theo màn ngoài shared/
+✓ Với tay vào primitive
+✓ Meta lặp lớp đang chọn
+✓ Tiêu đề tự dựng ngoài shared/ui
+✓ Nút rỗng trùng nút đầu trang
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+✓ Token màn chiếu ngoài /attendance/display
+✓ Chữ Threads / Insights / Analytics hiển thị
+✓ Luật :hover ngoài @media (hover: hover)
+##[group]Run bash scripts/lint-selftest.sh
+bash scripts/lint-selftest.sh
+shell: /usr/bin/bash -e {0}
+env:
+  PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+##[endgroup]
+7 / 7 luật ESLint bắt được
+34 / 34 phép ui-antipatterns bắt được
+##[group]Run node --test mobile/scripts/prepare.test.mjs
+node --test mobile/scripts/prepare.test.mjs
+shell: /usr/bin/bash -e {0}
+env:
+  PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+##[endgroup]
+✔ từ chối http://localhost:580 (41.587958ms)
+✔ từ chối http://127.0.0.1 (31.1256ms)
+✔ từ chối http://10.0.2.2:3000 (36.770809ms)
+✔ từ chối http://edupilot.example.com (32.921541ms)
+✔ từ chối không-phải-url (33.928582ms)
+✔ http báo gợi ý tunnel (34.200966ms)
+✔ thiếu APP_SERVER_URL → lỗi (34.343889ms)
+✔ https hợp lệ → sinh www/ (31.812889ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 337.49001
+##[group]Run node --test scripts/tokens-sync.test.mjs
+node --test scripts/tokens-sync.test.mjs
+shell: /usr/bin/bash -e {0}
+env:
+  PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+##[endgroup]
+✔ mọi khai báo của kit có mặt y nguyên ở tokens.css (2.742447ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 58.53564
+##[group]Run pnpm -C frontend build
+pnpm -C frontend build
+shell: /usr/bin/bash -e {0}
+env:
+  PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+##[endgroup]
+$ next build
+▲ Next.js 16.3.7 (Turbopack)
+✓ Running next.config.ts took 28ms
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+- Experiments (use with caution):
+  ✓ inlineCss
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.7s
+  Running TypeScript ...
+  Finished TypeScript in 13.6s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/40) ...
+  Generating static pages using 3 workers (10/40) 
+  Generating static pages using 3 workers (20/40) 
+  Generating static pages using 3 workers (30/40) 
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Generating static pages using 3 workers (40/40) in 969ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[...slug]
+├ ○ /admin/audit
+├ ○ /admin/courses
+├ ○ /admin/users
+├ ○ /analytics
+├ ○ /assignments
+├ ƒ /assignments/[id]
+├ ○ /attendance
+├ ○ /attendance/display
+├ ○ /calendar
+├ ○ /chat
+├ ○ /checkin
+├ ○ /class/members
+├ ○ /class/settings
+├ ƒ /dev/[...slug]
+├ ○ /documents
+├ ○ /exams
+├ ƒ /exams/[id]
+├ ƒ /exams/[id]/results
+├ ƒ /exams/[id]/similarity
+├ ƒ /exams/[id]/take
+├ ○ /forgot-password
+├ ○ /gradebook
+├ ○ /gradebook/scheme
+├ ○ /grading
+├ ƒ /grading/[submissionId]
+├ ○ /inbox
+├ ○ /insights
+├ ƒ /invite/[token]
+├ ○ /join
+├ ƒ /join/[code]
+├ ○ /library
+├ ƒ /library/[id]
+├ ○ /login
+├ ○ /manifest.webmanifest
+├ ○ /me
+├ ○ /observability
+├ ○ /practice
+├ ƒ /practice/[attemptId]
+├ ○ /practice/history
+├ ○ /questions
+├ ○ /register
+├ ○ /reset-password
+├ ○ /settings
+├ ○ /settings/integrations
+├ ○ /settings/llm
+├ ○ /students
+├ ƒ /students/[id]
+├ ○ /threads
+├ ƒ /threads/[id]
+└ ○ /verify-email
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+Post job cleanup.
+##[start-action display=Run actions/setup-node@v7;id=__38a07282-3ff5-4119-80b5-a720ff32e0e1.__actions_setup-node]
+Post job cleanup.
+Cache hit occurred on the primary key node-cache-Linux-x64-pnpm-ab0cf7c5a18ac1f4462f75194b79ba0b8e8b772a9eff9c20b008780745179168, not saving cache.
+##[end-action id=__38a07282-3ff5-4119-80b5-a720ff32e0e1.__actions_setup-node;outcome=success;conclusion=success;duration_ms=125]
+##[start-action display=Run pnpm/action-setup@v6;id=__38a07282-3ff5-4119-80b5-a720ff32e0e1.__pnpm_action-setup]
+Post job cleanup.
+Pruning is unnecessary.
+##[end-action id=__38a07282-3ff5-4119-80b5-a720ff32e0e1.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=161]
+Post job cleanup.
+[command]/usr/bin/git version
+git version 2.56.1
+Temporarily overriding HOME='/home/runner/work/_temp/cbee07b4-3816-4d86-8187-3e82484c7b61' before making global git config changes
+Adding repository directory to the temporary git global config as a safe directory
+[command]/usr/bin/git config --global --add safe.directory /home/runner/work/EduPilot-v2/EduPilot-v2
+Removing SSH command configuration
+[command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Removing HTTP extra header
+[command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Removing includeIf entries pointing to credentials config files
+[command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+includeif.gitdir:/home/runner/work/EduPilot-v2/EduPilot-v2/.git.path
+includeif.gitdir:/home/runner/work/EduPilot-v2/EduPilot-v2/.git/worktrees/*.path
+includeif.gitdir:/github/workspace/.git.path
+includeif.gitdir:/github/workspace/.git/worktrees/*.path
+[command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/EduPilot-v2/EduPilot-v2/.git.path
+/home/runner/work/_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config
+[command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/EduPilot-v2/EduPilot-v2/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-9bf9bd54\-94c0\-4507\-bfe7\-5959a4b1a38c\.config
+[command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/EduPilot-v2/EduPilot-v2/.git/worktrees/*.path
+/home/runner/work/_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config
+[command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/EduPilot-v2/EduPilot-v2/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-9bf9bd54\-94c0\-4507\-bfe7\-5959a4b1a38c\.config
+[command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+/github/runner_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config
+[command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-9bf9bd54\-94c0\-4507\-bfe7\-5959a4b1a38c\.config
+[command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+/github/runner_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config
+[command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-9bf9bd54\-94c0\-4507\-bfe7\-5959a4b1a38c\.config
+[command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Removing credentials config '/home/runner/work/_temp/git-credentials-9bf9bd54-94c0-4507-bfe7-5959a4b1a38c.config'
+Cleaning up orphan processes

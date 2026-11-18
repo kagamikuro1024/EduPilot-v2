@@ -1,0 +1,541 @@
+=== RUN   TestDecideCallersAllowlist
+=== PAUSE TestDecideCallersAllowlist
+=== RUN   TestDecideAudit
+=== PAUSE TestDecideAudit
+=== RUN   TestDecideMasked
+=== PAUSE TestDecideMasked
+=== RUN   TestDecideErrorMap
+=== PAUSE TestDecideErrorMap
+=== RUN   TestDecideNotConfigured
+=== PAUSE TestDecideNotConfigured
+=== RUN   TestDecideRealGuard
+=== PAUSE TestDecideRealGuard
+=== RUN   TestDecideBudgetNoCheapest
+=== PAUSE TestDecideBudgetNoCheapest
+=== RUN   TestDecideValidate
+=== PAUSE TestDecideValidate
+=== RUN   TestDecideInputCeiling
+=== PAUSE TestDecideInputCeiling
+=== RUN   TestCascadeTable
+=== PAUSE TestCascadeTable
+=== RUN   TestCascadeFailClosed
+=== PAUSE TestCascadeFailClosed
+=== RUN   TestCascadeNotUsed
+=== PAUSE TestCascadeNotUsed
+=== RUN   TestCascadeTimeout
+=== PAUSE TestCascadeTimeout
+=== RUN   TestDecisionPGSource
+2026/11/19 03:41:00 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8f59a38db9b86caa0b56796cccc8437cf8f39d5893c1f01c091add6e6e2bfa2f
+  Test ProcessID: 7a49405a-3219-460e-a3d8-9ed2c580d42e
+2026/11/19 03:41:00 ✅ Container started: 68f6ff853df5
+2026/11/19 03:41:00 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/19 03:41:00 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDecisionPGSource (1.65s)
+=== RUN   TestConfigEffective
+=== PAUSE TestConfigEffective
+=== RUN   TestConfigSnapshotRefresh
+=== PAUSE TestConfigSnapshotRefresh
+=== RUN   TestNotConfigured
+=== PAUSE TestNotConfigured
+=== CONT  TestDecideCallersAllowlist
+=== CONT  TestDecideInputCeiling
+=== CONT  TestCascadeTimeout
+=== CONT  TestDecideNotConfigured
+=== CONT  TestNotConfigured
+--- PASS: TestNotConfigured (0.00s)
+=== CONT  TestConfigSnapshotRefresh
+--- PASS: TestDecideNotConfigured (0.00s)
+=== CONT  TestDecideValidate
+--- PASS: TestConfigSnapshotRefresh (0.00s)
+=== CONT  TestConfigEffective
+--- PASS: TestConfigEffective (0.00s)
+=== CONT  TestDecideBudgetNoCheapest
+--- PASS: TestDecideBudgetNoCheapest (0.00s)
+=== CONT  TestCascadeFailClosed
+=== CONT  TestDecideMasked
+--- PASS: TestCascadeFailClosed (0.00s)
+=== CONT  TestCascadeNotUsed
+--- PASS: TestDecideValidate (0.00s)
+=== CONT  TestDecideRealGuard
+=== RUN   TestCascadeNotUsed/hệ_thống_tắt
+=== PAUSE TestCascadeNotUsed/hệ_thống_tắt
+=== RUN   TestCascadeNotUsed/lớp_tắt
+=== PAUSE TestCascadeNotUsed/lớp_tắt
+=== CONT  TestCascadeNotUsed/hệ_thống_tắt
+=== CONT  TestCascadeNotUsed/lớp_tắt
+--- PASS: TestDecideInputCeiling (0.00s)
+=== CONT  TestCascadeTable
+=== RUN   TestCascadeTable/AddOnly_có_≥0,5_→_FAST
+=== PAUSE TestCascadeTable/AddOnly_có_≥0,5_→_FAST
+=== RUN   TestCascadeTable/AddOnly_không_≤ε_→_FAST
+=== PAUSE TestCascadeTable/AddOnly_không_≤ε_→_FAST
+=== RUN   TestCascadeTable/AddOnly_0,06_(>ε)_→_fallback_có
+=== PAUSE TestCascadeTable/AddOnly_0,06_(>ε)_→_fallback_có
+=== RUN   TestCascadeTable/AddOnly_0,25_→_fallback_không
+=== PAUSE TestCascadeTable/AddOnly_0,25_→_fallback_không
+=== RUN   TestCascadeTable/AddOnly_lỗi_+_fallback_lỗi_→_FAIL_CLOSED
+=== PAUSE TestCascadeTable/AddOnly_lỗi_+_fallback_lỗi_→_FAIL_CLOSED
+=== RUN   TestCascadeTable/AddOnly_safety_→_fallback_(không_phải_'có')
+=== CONT  TestDecideAudit
+=== PAUSE TestCascadeTable/AddOnly_safety_→_fallback_(không_phải_'có')
+=== RUN   TestCascadeTable/Symmetric_0,96_≥_τ_→_FAST
+=== PAUSE TestCascadeTable/Symmetric_0,96_≥_τ_→_FAST
+=== RUN   TestCascadeTable/Symmetric_0,95_=_τ_→_FAST
+=== PAUSE TestCascadeTable/Symmetric_0,95_=_τ_→_FAST
+=== RUN   TestCascadeTable/Symmetric_0,94_→_fallback_luật
+=== PAUSE TestCascadeTable/Symmetric_0,94_→_fallback_luật
+=== RUN   TestCascadeTable/Symmetric_lỗi_→_fallback_luật
+=== PAUSE TestCascadeTable/Symmetric_lỗi_→_fallback_luật
+=== RUN   TestCascadeTable/OrFlag_0,5_≥_τ_→_FAST_cờ
+=== PAUSE TestCascadeTable/OrFlag_0,5_≥_τ_→_FAST_cờ
+=== RUN   TestCascadeTable/OrFlag_0,4_→_fallback
+=== PAUSE TestCascadeTable/OrFlag_0,4_→_fallback
+=== CONT  TestCascadeTable/AddOnly_có_≥0,5_→_FAST
+=== CONT  TestCascadeTable/Symmetric_0,95_=_τ_→_FAST
+=== CONT  TestCascadeTable/AddOnly_lỗi_+_fallback_lỗi_→_FAIL_CLOSED
+=== CONT  TestCascadeTable/AddOnly_0,25_→_fallback_không
+=== CONT  TestCascadeTable/Symmetric_0,96_≥_τ_→_FAST
+--- PASS: TestDecideRealGuard (0.00s)
+--- PASS: TestDecideAudit (0.00s)
+--- PASS: TestDecideMasked (0.00s)
+=== CONT  TestCascadeTable/OrFlag_0,4_→_fallback
+=== CONT  TestCascadeTable/AddOnly_0,06_(>ε)_→_fallback_có
+=== CONT  TestCascadeTable/AddOnly_safety_→_fallback_(không_phải_'có')
+=== CONT  TestCascadeTable/OrFlag_0,5_≥_τ_→_FAST_cờ
+=== CONT  TestDecideErrorMap
+=== RUN   TestDecideErrorMap/SERVER
+=== PAUSE TestDecideErrorMap/SERVER
+=== RUN   TestDecideErrorMap/RATE_LIMIT
+=== PAUSE TestDecideErrorMap/RATE_LIMIT
+=== RUN   TestDecideErrorMap/AUTH
+=== PAUSE TestDecideErrorMap/AUTH
+=== RUN   TestDecideErrorMap/SAFETY_BLOCK
+=== PAUSE TestDecideErrorMap/SAFETY_BLOCK
+=== RUN   TestDecideErrorMap/BAD_RESPONSE
+=== PAUSE TestDecideErrorMap/BAD_RESPONSE
+=== RUN   TestDecideErrorMap/TIMEOUT
+=== PAUSE TestDecideErrorMap/TIMEOUT
+=== CONT  TestCascadeTable/AddOnly_không_≤ε_→_FAST
+=== CONT  TestDecideErrorMap/TIMEOUT
+=== CONT  TestCascadeTable/Symmetric_0,94_→_fallback_luật
+=== CONT  TestCascadeTable/Symmetric_lỗi_→_fallback_luật
+=== CONT  TestDecideErrorMap/SAFETY_BLOCK
+=== CONT  TestDecideErrorMap/SERVER
+=== CONT  TestDecideErrorMap/AUTH
+=== CONT  TestDecideErrorMap/BAD_RESPONSE
+--- PASS: TestCascadeTable (0.00s)
+    --- PASS: TestCascadeTable/AddOnly_có_≥0,5_→_FAST (0.00s)
+    --- PASS: TestCascadeTable/AddOnly_lỗi_+_fallback_lỗi_→_FAIL_CLOSED (0.00s)
+    --- PASS: TestCascadeTable/Symmetric_0,95_=_τ_→_FAST (0.00s)
+    --- PASS: TestCascadeTable/AddOnly_0,25_→_fallback_không (0.00s)
+    --- PASS: TestCascadeTable/OrFlag_0,4_→_fallback (0.00s)
+    --- PASS: TestCascadeTable/Symmetric_0,96_≥_τ_→_FAST (0.00s)
+    --- PASS: TestCascadeTable/AddOnly_0,06_(>ε)_→_fallback_có (0.00s)
+    --- PASS: TestCascadeTable/AddOnly_safety_→_fallback_(không_phải_'có') (0.00s)
+    --- PASS: TestCascadeTable/OrFlag_0,5_≥_τ_→_FAST_cờ (0.00s)
+    --- PASS: TestCascadeTable/Symmetric_0,94_→_fallback_luật (0.00s)
+    --- PASS: TestCascadeTable/AddOnly_không_≤ε_→_FAST (0.00s)
+    --- PASS: TestCascadeTable/Symmetric_lỗi_→_fallback_luật (0.00s)
+=== CONT  TestDecideErrorMap/RATE_LIMIT
+--- PASS: TestDecideErrorMap (0.00s)
+    --- PASS: TestDecideErrorMap/TIMEOUT (0.00s)
+    --- PASS: TestDecideErrorMap/SAFETY_BLOCK (0.00s)
+    --- PASS: TestDecideErrorMap/AUTH (0.00s)
+    --- PASS: TestDecideErrorMap/SERVER (0.00s)
+    --- PASS: TestDecideErrorMap/RATE_LIMIT (0.00s)
+    --- PASS: TestDecideErrorMap/BAD_RESPONSE (0.00s)
+--- PASS: TestCascadeNotUsed (0.00s)
+    --- PASS: TestCascadeNotUsed/hệ_thống_tắt (0.00s)
+    --- PASS: TestCascadeNotUsed/lớp_tắt (0.00s)
+--- PASS: TestDecideCallersAllowlist (0.15s)
+--- PASS: TestCascadeTimeout (0.30s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm	2.618s
+?   	github.com/edupilot/backend-go/internal/llm/budget	[no test files]
+testing: warning: no tests to run
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/cost	0.316s [no tests to run]
+=== RUN   TestDecideFakeDeterministic
+=== PAUSE TestDecideFakeDeterministic
+=== RUN   TestDecideFakeOverrides
+=== PAUSE TestDecideFakeOverrides
+=== CONT  TestDecideFakeDeterministic
+=== CONT  TestDecideFakeOverrides
+--- PASS: TestDecideFakeDeterministic (0.00s)
+--- PASS: TestDecideFakeOverrides (0.10s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/fake	0.471s
+?   	github.com/edupilot/backend-go/internal/llm/llmrt	[no test files]
+?   	github.com/edupilot/backend-go/internal/llm/llmtest	[no test files]
+=== RUN   TestDecisionProviderContract
+=== PAUSE TestDecisionProviderContract
+=== RUN   TestDecisionNoulConfidenceIsMax
+=== PAUSE TestDecisionNoulConfidenceIsMax
+=== RUN   TestDecideErrorMap
+=== PAUSE TestDecideErrorMap
+=== RUN   TestDecideRejectsBadQuestions
+=== PAUSE TestDecideRejectsBadQuestions
+=== RUN   TestDecideTimeoutRedirectAndNoGeneration
+=== PAUSE TestDecideTimeoutRedirectAndNoGeneration
+=== RUN   TestDecideNoSDK
+=== PAUSE TestDecideNoSDK
+=== CONT  TestDecisionProviderContract
+=== CONT  TestDecideRejectsBadQuestions
+=== CONT  TestDecideErrorMap
+=== CONT  TestDecisionNoulConfidenceIsMax
+=== CONT  TestDecideNoSDK
+=== CONT  TestDecideTimeoutRedirectAndNoGeneration
+=== RUN   TestDecideErrorMap/401
+=== PAUSE TestDecideErrorMap/401
+=== RUN   TestDecideErrorMap/400_khoá_sai
+=== PAUSE TestDecideErrorMap/400_khoá_sai
+=== RUN   TestDecideErrorMap/404
+=== PAUSE TestDecideErrorMap/404
+=== RUN   TestDecideErrorMap/429_+_Retry-After
+=== PAUSE TestDecideErrorMap/429_+_Retry-After
+=== RUN   TestDecideErrorMap/503
+--- PASS: TestDecideRejectsBadQuestions (0.00s)
+=== PAUSE TestDecideErrorMap/503
+=== RUN   TestDecideErrorMap/400_safety
+=== PAUSE TestDecideErrorMap/400_safety
+=== RUN   TestDecideErrorMap/400_prohibited_content
+=== PAUSE TestDecideErrorMap/400_prohibited_content
+=== RUN   TestDecideErrorMap/400_blocklist
+=== PAUSE TestDecideErrorMap/400_blocklist
+=== RUN   TestDecideErrorMap/400_content_blocked
+=== PAUSE TestDecideErrorMap/400_content_blocked
+=== RUN   TestDecideErrorMap/400_thường
+=== PAUSE TestDecideErrorMap/400_thường
+=== RUN   TestDecideErrorMap/200_sai_định_dạng
+=== PAUSE TestDecideErrorMap/200_sai_định_dạng
+=== RUN   TestDecideErrorMap/200_thiếu_câu_trả_lời
+=== PAUSE TestDecideErrorMap/200_thiếu_câu_trả_lời
+=== RUN   TestDecideErrorMap/200_nhãn_lạ
+=== PAUSE TestDecideErrorMap/200_nhãn_lạ
+=== RUN   TestDecideErrorMap/200_noul_ngoài_khoảng
+=== PAUSE TestDecideErrorMap/200_noul_ngoài_khoảng
+=== RUN   TestDecideErrorMap/200_sai_kiểu
+=== PAUSE TestDecideErrorMap/200_sai_kiểu
+=== CONT  TestDecideErrorMap/401
+=== CONT  TestDecideErrorMap/200_sai_kiểu
+=== CONT  TestDecideErrorMap/200_noul_ngoài_khoảng
+=== CONT  TestDecideErrorMap/200_nhãn_lạ
+=== CONT  TestDecideErrorMap/200_thiếu_câu_trả_lời
+=== CONT  TestDecideErrorMap/200_sai_định_dạng
+=== CONT  TestDecideErrorMap/400_thường
+=== CONT  TestDecideErrorMap/400_safety
+=== CONT  TestDecideErrorMap/400_content_blocked
+=== CONT  TestDecideErrorMap/400_blocklist
+=== CONT  TestDecideErrorMap/400_prohibited_content
+--- PASS: TestDecisionProviderContract (0.00s)
+=== CONT  TestDecideErrorMap/404
+=== CONT  TestDecideErrorMap/429_+_Retry-After
+--- PASS: TestDecisionNoulConfidenceIsMax (0.00s)
+=== CONT  TestDecideErrorMap/503
+=== CONT  TestDecideErrorMap/400_khoá_sai
+--- PASS: TestDecideErrorMap (0.00s)
+    --- PASS: TestDecideErrorMap/401 (0.00s)
+    --- PASS: TestDecideErrorMap/200_sai_kiểu (0.00s)
+    --- PASS: TestDecideErrorMap/200_noul_ngoài_khoảng (0.00s)
+    --- PASS: TestDecideErrorMap/200_nhãn_lạ (0.00s)
+    --- PASS: TestDecideErrorMap/400_thường (0.00s)
+    --- PASS: TestDecideErrorMap/200_sai_định_dạng (0.00s)
+    --- PASS: TestDecideErrorMap/200_thiếu_câu_trả_lời (0.00s)
+    --- PASS: TestDecideErrorMap/400_content_blocked (0.00s)
+    --- PASS: TestDecideErrorMap/404 (0.00s)
+    --- PASS: TestDecideErrorMap/400_safety (0.00s)
+    --- PASS: TestDecideErrorMap/429_+_Retry-After (0.00s)
+    --- PASS: TestDecideErrorMap/400_prohibited_content (0.00s)
+    --- PASS: TestDecideErrorMap/400_blocklist (0.00s)
+    --- PASS: TestDecideErrorMap/503 (0.00s)
+    --- PASS: TestDecideErrorMap/400_khoá_sai (0.00s)
+--- PASS: TestDecideTimeoutRedirectAndNoGeneration (0.05s)
+--- PASS: TestDecideNoSDK (0.11s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/provider	0.549s
+=== RUN   TestDecideBucketAndNoWait
+=== PAUSE TestDecideBucketAndNoWait
+=== CONT  TestDecideBucketAndNoWait
+--- PASS: TestDecideBucketAndNoWait (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/scheduler	0.628s
+=== RUN   TestDecisionSeed
+2026/11/19 03:41:02 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8f59a38db9b86caa0b56796cccc8437cf8f39d5893c1f01c091add6e6e2bfa2f
+  Test ProcessID: 496cfccf-9329-42dd-9173-0250c6a11bc8
+2026/11/19 03:41:02 ✅ Container started: 68f6ff853df5
+2026/11/19 03:41:02 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/19 03:41:02 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDecisionSeed (7.99s)
+=== RUN   TestDecisionProviderRules
+--- PASS: TestDecisionProviderRules (7.90s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llmconfig	16.631s
+=== RUN   TestDecisionOverviewAndGateUpdate
+2026/11/19 03:41:01 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8f59a38db9b86caa0b56796cccc8437cf8f39d5893c1f01c091add6e6e2bfa2f
+  Test ProcessID: 6502d735-d701-4808-bc30-bbfb23620e81
+2026/11/19 03:41:01 ✅ Container started: 68f6ff853df5
+2026/11/19 03:41:01 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/19 03:41:02 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestDecisionOverviewAndGateUpdate (8.22s)
+=== RUN   TestDecisionCourseGates
+--- PASS: TestDecisionCourseGates (7.83s)
+=== RUN   TestDecisionAdminOnly
+--- PASS: TestDecisionAdminOnly (4.03s)
+=== RUN   TestDecisionObservability
+--- PASS: TestDecisionObservability (1.48s)
+=== RUN   TestDecisionFailClosedAlert
+--- PASS: TestDecisionFailClosedAlert (1.66s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/decision	23.741s
+=== RUN   TestThreadCrisisNotStored
+=== PAUSE TestThreadCrisisNotStored
+=== RUN   TestThreadCrisisNoAIAnswer
+=== PAUSE TestThreadCrisisNoAIAnswer
+=== RUN   TestCommentCrisisNotStored
+=== PAUSE TestCommentCrisisNotStored
+=== RUN   TestPrecheckNeverReturnsCrisisSupport
+=== PAUSE TestPrecheckNeverReturnsCrisisSupport
+=== RUN   TestThreadsDecisionFlow
+=== PAUSE TestThreadsDecisionFlow
+=== RUN   TestPrecheckAddOnly
+=== PAUSE TestPrecheckAddOnly
+=== RUN   TestThreadsDecisionComment
+=== PAUSE TestThreadsDecisionComment
+=== RUN   TestThreadsCrisisNeverReachesDecide
+=== PAUSE TestThreadsCrisisNeverReachesDecide
+=== RUN   TestPlaceholderOnlyBlockedByRules
+=== PAUSE TestPlaceholderOnlyBlockedByRules
+=== RUN   TestThreadsMatrix
+=== PAUSE TestThreadsMatrix
+=== RUN   TestPrecheckReasons
+=== PAUSE TestPrecheckReasons
+=== RUN   TestPrecheckNoWrites
+=== PAUSE TestPrecheckNoWrites
+=== RUN   TestPrecheckRateLimit
+=== PAUSE TestPrecheckRateLimit
+=== RUN   TestDecisionAudited
+=== PAUSE TestDecisionAudited
+=== RUN   TestDecisionIdempotent
+=== PAUSE TestDecisionIdempotent
+=== RUN   TestDecisionConflict409
+=== PAUSE TestDecisionConflict409
+=== RUN   TestSimilarThreads
+=== PAUSE TestSimilarThreads
+=== RUN   TestStaffConfidenceThreadsOnly
+=== PAUSE TestStaffConfidenceThreadsOnly
+=== CONT  TestThreadCrisisNotStored
+=== CONT  TestDecisionIdempotent
+=== CONT  TestThreadsMatrix
+=== CONT  TestPrecheckAddOnly
+=== CONT  TestDecisionAudited
+=== CONT  TestPrecheckRateLimit
+=== CONT  TestThreadsDecisionComment
+=== CONT  TestPrecheckNoWrites
+=== CONT  TestPrecheckReasons
+=== CONT  TestPlaceholderOnlyBlockedByRules
+=== CONT  TestThreadsCrisisNeverReachesDecide
+2026/11/19 03:41:02 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8f59a38db9b86caa0b56796cccc8437cf8f39d5893c1f01c091add6e6e2bfa2f
+  Test ProcessID: bfc4aae0-5819-4e5d-bd0d-7c92228f2223
+2026/11/19 03:41:02 ✅ Container started: 68f6ff853df5
+2026/11/19 03:41:02 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/19 03:41:02 🔔 Container is ready: 68f6ff853df5
+2026/11/19 03:41:08 ✅ Container started: 5636bc78d64d
+2026/11/19 03:41:08 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/19 03:41:08 🔔 Container is ready: 5636bc78d64d
+--- PASS: TestThreadCrisisNotStored (7.97s)
+=== CONT  TestSimilarThreads
+--- PASS: TestThreadsCrisisNeverReachesDecide (8.00s)
+=== CONT  TestPrecheckNeverReturnsCrisisSupport
+--- PASS: TestPrecheckReasons (8.20s)
+=== CONT  TestStaffConfidenceThreadsOnly
+--- PASS: TestPrecheckAddOnly (8.20s)
+=== CONT  TestThreadsDecisionFlow
+=== RUN   TestThreadsDecisionFlow/decision_có_→_chặn_FAST
+=== PAUSE TestThreadsDecisionFlow/decision_có_→_chặn_FAST
+=== RUN   TestThreadsDecisionFlow/decision_không_→_cho_qua_FAST
+=== PAUSE TestThreadsDecisionFlow/decision_không_→_cho_qua_FAST
+=== RUN   TestThreadsDecisionFlow/lưỡng_lự_→_Structured_không_→_qua
+=== PAUSE TestThreadsDecisionFlow/lưỡng_lự_→_Structured_không_→_qua
+=== RUN   TestThreadsDecisionFlow/lưỡng_lự_→_Structured_có_→_chặn
+=== PAUSE TestThreadsDecisionFlow/lưỡng_lự_→_Structured_có_→_chặn
+=== RUN   TestThreadsDecisionFlow/decision_lỗi_→_Structured_không_→_qua
+=== PAUSE TestThreadsDecisionFlow/decision_lỗi_→_Structured_không_→_qua
+=== RUN   TestThreadsDecisionFlow/decision_lỗi_→_Structured_có_→_chặn
+=== PAUSE TestThreadsDecisionFlow/decision_lỗi_→_Structured_có_→_chặn
+=== RUN   TestThreadsDecisionFlow/decision_lỗi_+_Structured_lỗi_→_FAIL_CLOSED_chặn
+=== PAUSE TestThreadsDecisionFlow/decision_lỗi_+_Structured_lỗi_→_FAIL_CLOSED_chặn
+=== RUN   TestThreadsDecisionFlow/decision_treo_+_Structured_quá_hạn_→_chặn
+=== PAUSE TestThreadsDecisionFlow/decision_treo_+_Structured_quá_hạn_→_chặn
+=== RUN   TestThreadsDecisionFlow/Structured_trả_sai_định_dạng_→_chặn
+=== PAUSE TestThreadsDecisionFlow/Structured_trả_sai_định_dạng_→_chặn
+=== RUN   TestThreadsDecisionFlow/cổng_tắt_ở_lớp_→_không_gọi_gì,_qua
+=== PAUSE TestThreadsDecisionFlow/cổng_tắt_ở_lớp_→_không_gọi_gì,_qua
+=== CONT  TestDecisionConflict409
+--- PASS: TestDecisionAudited (8.23s)
+=== CONT  TestCommentCrisisNotStored
+--- PASS: TestPlaceholderOnlyBlockedByRules (8.35s)
+=== CONT  TestThreadCrisisNoAIAnswer
+--- PASS: TestPrecheckNoWrites (8.36s)
+=== CONT  TestThreadsDecisionFlow/decision_có_→_chặn_FAST
+--- PASS: TestThreadsDecisionComment (8.36s)
+=== CONT  TestThreadsDecisionFlow/decision_lỗi_→_Structured_có_→_chặn
+--- PASS: TestDecisionIdempotent (8.48s)
+=== CONT  TestThreadsDecisionFlow/cổng_tắt_ở_lớp_→_không_gọi_gì,_qua
+--- PASS: TestPrecheckRateLimit (10.06s)
+=== CONT  TestThreadsDecisionFlow/Structured_trả_sai_định_dạng_→_chặn
+--- PASS: TestStaffConfidenceThreadsOnly (7.40s)
+=== CONT  TestThreadsDecisionFlow/decision_treo_+_Structured_quá_hạn_→_chặn
+--- PASS: TestDecisionConflict409 (7.70s)
+=== CONT  TestThreadsDecisionFlow/decision_lỗi_+_Structured_lỗi_→_FAIL_CLOSED_chặn
+--- PASS: TestCommentCrisisNotStored (7.70s)
+=== CONT  TestThreadsDecisionFlow/decision_lỗi_→_Structured_không_→_qua
+=== CONT  TestThreadsDecisionFlow/lưỡng_lự_→_Structured_có_→_chặn
+=== CONT  TestThreadsDecisionFlow/lưỡng_lự_→_Structured_không_→_qua
+--- PASS: TestThreadCrisisNoAIAnswer (7.62s)
+=== CONT  TestThreadsDecisionFlow/decision_không_→_cho_qua_FAST
+--- PASS: TestSimilarThreads (8.01s)
+--- PASS: TestThreadsMatrix (16.61s)
+--- PASS: TestPrecheckNeverReturnsCrisisSupport (11.60s)
+--- PASS: TestThreadsDecisionFlow (0.00s)
+    --- PASS: TestThreadsDecisionFlow/cổng_tắt_ở_lớp_→_không_gọi_gì,_qua (7.46s)
+    --- PASS: TestThreadsDecisionFlow/decision_lỗi_→_Structured_có_→_chặn (7.60s)
+    --- PASS: TestThreadsDecisionFlow/decision_có_→_chặn_FAST (7.62s)
+    --- PASS: TestThreadsDecisionFlow/Structured_trả_sai_định_dạng_→_chặn (6.00s)
+    --- PASS: TestThreadsDecisionFlow/lưỡng_lự_→_Structured_có_→_chặn (3.90s)
+    --- PASS: TestThreadsDecisionFlow/decision_không_→_cho_qua_FAST (4.04s)
+    --- PASS: TestThreadsDecisionFlow/decision_lỗi_→_Structured_không_→_qua (4.10s)
+    --- PASS: TestThreadsDecisionFlow/decision_lỗi_+_Structured_lỗi_→_FAIL_CLOSED_chặn (4.14s)
+    --- PASS: TestThreadsDecisionFlow/lưỡng_lự_→_Structured_không_→_qua (4.15s)
+    --- PASS: TestThreadsDecisionFlow/decision_treo_+_Structured_quá_hạn_→_chặn (4.72s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/thread	20.986s
+=== RUN   TestOneEmbedPerMessage
+=== PAUSE TestOneEmbedPerMessage
+=== RUN   TestThreadsAgentHasNoPersonalTools
+=== PAUSE TestThreadsAgentHasNoPersonalTools
+=== RUN   TestCrisisCannedReply
+=== PAUSE TestCrisisCannedReply
+=== RUN   TestCrisisNoLLMNoNotify
+=== PAUSE TestCrisisNoLLMNoNotify
+=== RUN   TestPromptKeepsPlaceholderRule
+=== PAUSE TestPromptKeepsPlaceholderRule
+=== RUN   TestCrisis20Recall
+=== PAUSE TestCrisis20Recall
+=== RUN   TestCrisisNegatives17
+=== PAUSE TestCrisisNegatives17
+=== RUN   TestCrisisAmbiguousNeedsFirstPerson
+=== PAUSE TestCrisisAmbiguousNeedsFirstPerson
+=== RUN   TestCrisisBeatsOtherIntents
+=== PAUSE TestCrisisBeatsOtherIntents
+=== RUN   TestCrisisHyperboleStillSupport
+=== PAUSE TestCrisisHyperboleStillSupport
+=== RUN   TestCrisisReplyTone
+=== PAUSE TestCrisisReplyTone
+=== RUN   TestCrisisReplyNoAdvice
+=== PAUSE TestCrisisReplyNoAdvice
+=== RUN   TestCrisisReplyNoJargon
+=== PAUSE TestCrisisReplyNoJargon
+=== RUN   TestCrisisReplyUsesSupportResources
+=== PAUSE TestCrisisReplyUsesSupportResources
+=== RUN   TestCrisisReplyDefaultSupport
+=== PAUSE TestCrisisReplyDefaultSupport
+=== RUN   TestQCCrisisSet
+    qc_p304_test.go:111: âm tính "tiến trình bị kill và chết (dead) thì sao" → COURSE_QA
+    qc_p304_test.go:111: âm tính "em mệt chết đi được vì bài lab" → COURSE_QA
+    qc_p304_test.go:111: âm tính "chết lặng trước đề thi" → COURSE_QA
+--- PASS: TestQCCrisisSet (0.00s)
+=== RUN   TestRouteDecisionTable
+=== RUN   TestRouteDecisionTable/≥_τ_→_nhận_nhãn
+=== RUN   TestRouteDecisionTable/=_τ_→_nhận_nhãn
+=== RUN   TestRouteDecisionTable/dưới_τ_→_giữ_luật
+=== RUN   TestRouteDecisionTable/đầu_vào_lạ_(chia_đều)_→_giữ_luật
+=== RUN   TestRouteDecisionTable/decision_lỗi_→_giữ_luật
+=== RUN   TestRouteDecisionTable/decision_treo_→_giữ_luật
+=== RUN   TestRouteDecisionTable/OTHER_PERSON_→_đường_từ_chối
+=== RUN   TestRouteDecisionTable/nhãn_lạ_(không_trong_11_nhãn)_→_giữ_luật
+=== RUN   TestRouteDecisionTable/cổng_tắt_ở_lớp_→_không_gọi
+--- PASS: TestRouteDecisionTable (0.81s)
+    --- PASS: TestRouteDecisionTable/≥_τ_→_nhận_nhãn (0.00s)
+    --- PASS: TestRouteDecisionTable/=_τ_→_nhận_nhãn (0.00s)
+    --- PASS: TestRouteDecisionTable/dưới_τ_→_giữ_luật (0.00s)
+    --- PASS: TestRouteDecisionTable/đầu_vào_lạ_(chia_đều)_→_giữ_luật (0.00s)
+    --- PASS: TestRouteDecisionTable/decision_lỗi_→_giữ_luật (0.00s)
+    --- PASS: TestRouteDecisionTable/decision_treo_→_giữ_luật (0.80s)
+    --- PASS: TestRouteDecisionTable/OTHER_PERSON_→_đường_từ_chối (0.00s)
+    --- PASS: TestRouteDecisionTable/nhãn_lạ_(không_trong_11_nhãn)_→_giữ_luật (0.00s)
+    --- PASS: TestRouteDecisionTable/cổng_tắt_ở_lớp_→_không_gọi (0.00s)
+=== RUN   TestRouteDecisionNoOverride
+--- PASS: TestRouteDecisionNoOverride (0.00s)
+=== RUN   TestCrisisNeverReachesDecide
+--- PASS: TestCrisisNeverReachesDecide (0.00s)
+=== RUN   TestRouteDecisionParallelWithEmbed
+--- PASS: TestRouteDecisionParallelWithEmbed (0.25s)
+=== RUN   TestCallBudgetPerMessage
+--- PASS: TestCallBudgetPerMessage (0.00s)
+=== CONT  TestOneEmbedPerMessage
+=== CONT  TestCrisisBeatsOtherIntents
+=== CONT  TestCrisisReplyNoJargon
+--- PASS: TestCrisisReplyNoJargon (0.00s)
+=== CONT  TestCrisisReplyTone
+--- PASS: TestCrisisReplyTone (0.00s)
+=== CONT  TestCrisisReplyNoAdvice
+--- PASS: TestCrisisBeatsOtherIntents (0.00s)
+=== CONT  TestCrisisReplyDefaultSupport
+--- PASS: TestCrisisReplyDefaultSupport (0.00s)
+=== CONT  TestThreadsAgentHasNoPersonalTools
+--- PASS: TestCrisisReplyNoAdvice (0.00s)
+=== CONT  TestCrisisReplyUsesSupportResources
+--- PASS: TestCrisisReplyUsesSupportResources (0.00s)
+=== CONT  TestCrisisHyperboleStillSupport
+--- PASS: TestCrisisHyperboleStillSupport (0.00s)
+=== CONT  TestCrisisAmbiguousNeedsFirstPerson
+=== CONT  TestCrisisNegatives17
+--- PASS: TestOneEmbedPerMessage (0.00s)
+=== CONT  TestCrisis20Recall
+=== CONT  TestCrisisCannedReply
+--- PASS: TestCrisisAmbiguousNeedsFirstPerson (0.00s)
+=== CONT  TestCrisisNoLLMNoNotify
+=== CONT  TestPromptKeepsPlaceholderRule
+--- PASS: TestThreadsAgentHasNoPersonalTools (0.00s)
+--- PASS: TestPromptKeepsPlaceholderRule (0.00s)
+=== NAME  TestCrisis20Recall
+    crisis_test.go:36: recall 20/20
+--- PASS: TestCrisis20Recall (0.00s)
+--- PASS: TestCrisisNoLLMNoNotify (0.00s)
+--- PASS: TestCrisisCannedReply (0.00s)
+--- PASS: TestCrisisNegatives17 (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/agent	1.632s
+done 0

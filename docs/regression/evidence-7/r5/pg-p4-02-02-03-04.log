@@ -1,0 +1,50 @@
+# log_statement=all (cửa sổ khoá 03:03:43–03:04:25 giờ máy, UTC 20:03:45–20:04:24), docker logs ep-r-postgres-1. Lớp QC3L 1.000 SV, 1.000 ticket.
+2026-11-18 19:55:48.726 UTC [43974] LOG:  execute <unnamed>: -- name: NotifyInsertMany :many
+	insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
+	select u, $1, $2, $3, $4, $5, $6::text || ':' || u::text
+	from unnest($7::text[]::uuid[]) as u
+	on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing
+	returning id, user_id, created_at
+2026-11-18 19:55:48.726 UTC [43974] DETAIL:  Parameters: $1 = '01a1f02f-d879-7908-b8ce-98cef0fe8b73', $2 = 'EXAM_SCHEDULED', $3 = 'Bài thi QC3 1k notify mở lúc Thứ Năm, 02:55 19/11, làm trong 20 phút', $4 = NULL, $5 = '/exams/01a1f03a-ce63-7315-8f16-306c02fd527d/take', $6 = 'exam.scheduled:01a1f03a-ce63-7315-8f16-306c02fd527d', $7 = '{01a1e082-d036-7621-ac78-1e295bba1a84,01a1e082-d036-7723-8e3c-9a24b52df3c5,01a1e082-d036-7735-8773-713dc14e23d0,01a1e082-d036-7739-af70-e270725c2ada,01a1e082-d036-773d-9e81-a1f17818f5f8,01a1e082-d036-7740-86cd-d77c089719c6,01a1e082-d036-7743-8c2a-e2b233db3525,01a1e082-d036-7746-b6e5-55f706c258c6,01a1e082-d036-774a-9614-c82bc63449d3,01a1e082-d036-774d-a3f5-442f73
+2026-11-18 19:55:48.758 UTC [43974] LOG:  execute <unnamed>: -- name: NotifyUnreadCounts :many
+	select user_id, count(*)::int as n from notifications
+	where user_id = any($1::text[]::uuid[]) and read_at is null
+	group by user_id
+2026-11-18 19:55:48.758 UTC [43974] DETAIL:  Parameters: $1 = '{01a1e082-d036-7621-ac78-1e295bba1a84,01a1e082-d036-7723-8e3c-9a24b52df3c5,01a1e082-d036-7735-8773-713dc14e23d0,01a1e082-d036-7739-af70-e270725c2ada,01a1e082-d036-773d-9e81-a1f17818f5f8,01a1e082-d036-7740-86cd-d77c089719c6,01a1e082-d036-7743-8c2a-e2b233db3525,01a1e082-d036-7746-b6e5-55f706c258c6,01a1e082-d036-774a-9614-c82bc63449d3,01a1e082-d036-774d-a3f5-442f734021fc,01a1e082-d036-7750-ad6f-cde7057076d3,01a1e082-d036-7753-91a7-597759e23430,01a1e082-d036-7757-addd-5b079a1dcf98,01a1e082-d036-775a-b82e-882c001fa37e,01a1e082-d036-775d-b724-85665adc351f,01a1e082-d036-7760-b2c1-964eddbd83f4,01a1e082-d036-7764-969f-4622bd355007,01a1e08
+----
+2026-11-18 20:03:53.730 UTC [53112] LOG:  execute <unnamed>: -- name: NotifyInsertMany :many
+	insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
+	select u, $1, $2, $3, $4, $5, $6::text || ':' || u::text
+	from unnest($7::text[]::uuid[]) as u
+	on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing
+	returning id, user_id, created_at
+2026-11-18 20:03:53.730 UTC [53112] DETAIL:  Parameters: $1 = '01a1f02f-d879-7908-b8ce-98cef0fe8b73', $2 = 'EXAM_SCHEDULED', $3 = 'Bài thi QC3 1k notify mở lúc Thứ Năm, 03:04 19/11, làm trong 20 phút', $4 = NULL, $5 = '/exams/01a1f042-3663-7f80-812a-eff1c408c625/take', $6 = 'exam.scheduled:01a1f042-3663-7f80-812a-eff1c408c625', $7 = '{01a1e082-d036-7621-ac78-1e295bba1a84,01a1e082-d036-7723-8e3c-9a24b52df3c5,01a1e082-d036-7735-8773-713dc14e23d0,01a1e082-d036-7739-af70-e270725c2ada,01a1e082-d036-773d-9e81-a1f17818f5f8,01a1e082-d036-7740-86cd-d77c089719c6,01a1e082-d036-7743-8c2a-e2b233db3525,01a1e082-d036-7746-b6e5-55f706c258c6,01a1e082-d036-774a-9614-c82bc63449d3,01a1e082-d036-774d-a3f5-442f73
+2026-11-18 20:03:53.761 UTC [53112] LOG:  execute <unnamed>: -- name: NotifyUnreadCounts :many
+	select user_id, count(*)::int as n from notifications
+	where user_id = any($1::text[]::uuid[]) and read_at is null
+	group by user_id
+2026-11-18 20:03:53.761 UTC [53112] DETAIL:  Parameters: $1 = '{01a1e082-d036-7621-ac78-1e295bba1a84,01a1e082-d036-7723-8e3c-9a24b52df3c5,01a1e082-d036-7735-8773-713dc14e23d0,01a1e082-d036-7739-af70-e270725c2ada,01a1e082-d036-773d-9e81-a1f17818f5f8,01a1e082-d036-7740-86cd-d77c089719c6,01a1e082-d036-7743-8c2a-e2b233db3525,01a1e082-d036-7746-b6e5-55f706c258c6,01a1e082-d036-774a-9614-c82bc63449d3,01a1e082-d036-774d-a3f5-442f734021fc,01a1e082-d036-7750-ad6f-cde7057076d3,01a1e082-d036-7753-91a7-597759e23430,01a1e082-d036-7757-addd-5b079a1dcf98,01a1e082-d036-775a-b82e-882c001fa37e,01a1e082-d036-775d-b724-85665adc351f,01a1e082-d036-7760-b2c1-964eddbd83f4,01a1e082-d036-7764-969f-4622bd355007,01a1e08
+----
+	select role_in_course, status from enrollments where course_id = $1 and user_id = $2
+2026-11-18 20:04:22.781 UTC [53112] DETAIL:  Parameters: $1 = '01a1f02f-d879-7908-b8ce-98cef0fe8b73', $2 = '01a1ef3e-bf59-778f-88b8-31a297080e08'
+2026-11-18 20:04:22.783 UTC [53112] LOG:  execute <unnamed>: -- name: TicketListStaff :many
+	select t.id, t.course_id, t.kind, t.status, t.student_id, s.full_name as student_name, t.claimed_by, cb.full_name as claimed_name, t.answered_by, t.sla_stage, t.waiting_since,
+	       t.reopened_count, t.save_as_knowledge, t.version, t.created_at, c.class_code,
+	       left(coalesce(q.content, ''), 140)::text as question_preview
+	from escalation_tickets t
+	join users s on s.id = t.student_id
+	join courses c on c.id = t.course_id
+	left join users cb on cb.id = t.claimed_by
+	left join chat_messages a on a.course_id = t.course_id and a.id = t.message_id
+	left join chat_messages q on q.course_id = a.course_id and q.id = a.reply_to
+	where t.course_id = any($1::text[]::uuid[])
+	  and ($2::text = 'ALL' or t.status = $2::ticket_status)
+	  and ($3::timestamptz is null or (t.created_at, t.id) > ($3::timestamptz, $4::uuid))
+	order by t.created_at, t.id
+	limit $5
+2026-11-18 20:04:22.783 UTC [53112] DETAIL:  Parameters: $1 = '{01a1f02f-d879-7908-b8ce-98cef0fe8b73}', $2 = 'OPEN', $3 = NULL, $4 = NULL, $5 = '101'
+2026-11-18 20:04:23.221 UTC [53112] LOG:  statement: SET application_name='edupilot-worker';
+2026-11-18 20:04:23.222 UTC [53112] LOG:  execute <unnamed>: -- name: RequeueStaleOutbox :many
+	update outbox
+	set enqueued_at = null
+	where enqueued_at is not null

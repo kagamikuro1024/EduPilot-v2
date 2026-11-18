@@ -1,0 +1,15 @@
+{
+ "rowsInDom": 22,
+ "scroller": {
+  "cls": "DataTable-module__PUx__a__vscroll",
+  "sh": 2493,
+  "ch": 560
+ },
+ "fps": {
+  "n": 149,
+  "avgMs": 16.7,
+  "p95Ms": 16.7,
+  "fps": 60,
+  "rowsAfter": 31
+ }
+}

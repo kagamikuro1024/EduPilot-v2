@@ -1,0 +1,8 @@
+201 id: 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "e9579c391fe725ca1c5b9de6db81869d", "details": [{"field": "result_ids", "code": "max", "message": "Tối đa 200 bài mỗi lần c
+200 id lạ: 422 {"code": "NOT_REVIEWED", "message": "Bài chưa được duyệt.", "trace_id": "dfd9eabf799c9409fa7c69838af44158", "details": {"ids": ["d59469da-54cf-4de3-ad30-92283ef
+ALL_REVIEWED: 200 {"published": 1, "skipped": 0, "exempt": {"ACCEPTED_AS_IS": 0, "EDITED": 0}}
+PUBLISHED trước/sau: 0 1 | DRAFT còn: 21
+PUBLISHED|t|t|0.00
+audit: grading_result.publish|1
+outbox: assignment.appeal_created|1
+assignment.result_published|1

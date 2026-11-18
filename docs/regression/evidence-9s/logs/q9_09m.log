@@ -1,0 +1,11 @@
+   REVIEWED: REVIEWED,REVIEWED
+   publish khi SMTP chết: 200 {'published': 2, 'skipped': 0, 'exempt': {'ACCEPTED_AS_IS': 0, 'EDITED': 0}}
+PASS TC-P7-09-09 công bố khi Mailpit dừng → 200, published 2 
+   khi SMTP chết: kết quả PUBLISHED,PUBLISHED | mail_outbox  | chuông 0
+PASS TC-P7-09-09 SMTP chết: kết quả PUBLISHED,PUBLISHED; thư chưa gửi (mail_outbox: ); chuông trong ứng dụng vẫn có (0) 
+   sau hồi phục: SENT 2 thư mới: {'sv.gioi@edupilot.local': 0, 'sv.kha@edupilot.local': 0}
+FAIL TC-P7-09-09 Mailpit bật lại → thư gửi lại: mail_outbox SENT 2/2, thư mới tới Mailpit [0, 0] ('2', {'sv.gioi@edupilot.local': 0, 'sv.kha@edupilot.local': 0}, {'sv.gioi@edupilot.local': 0, 'sv.kha@edupilot.local': 0})
+   replay: chuông 0 → 0 | mail_outbox 2 → 2 | thư {'sv.gioi@edupilot.local': 0, 'sv.kha@edupilot.local': 0}
+PASS TC-P7-09-09 replay outbox (dispatched_at=null): chuông 0→0, mail_outbox 2→2, thư mới [0, 0] (không trùng) 
+SUMMARY {"TC-P7-09-09": false}
+RESULT: FAIL (1 lỗi)

@@ -1,0 +1,28 @@
+{
+ "quoteBtns": 4,
+ "marks": 1,
+ "markText": "😀 é Em bắt đầu bài làm bằng một câu có biểu tượng 😀 và chữ ghép é để thử vị trí UTF-16, SUNBURST là điểm vào của chiến dịch",
+ "markEqQuote": true,
+ "markInViewport": true,
+ "last": {
+  "n": 4,
+  "mark": 1,
+  "inView": true,
+  "scroll": [
+   "Panel-module__zFMaDG__panel:809",
+   "Panel-module__zFMaDG__panel:1162"
+  ]
+ },
+ "editedLabelTeacher": 1,
+ "otherEmpty": true,
+ "draftBack": true,
+ "editedLabelStudent": 0,
+ "runningText": [
+  "Đang chấm — chưa duyệt được"
+ ],
+ "approveDisabled": true,
+ "approveTitle": "Đang chấm — chưa duyệt được",
+ "beforeBanner": false,
+ "banner": [],
+ "approveAfter": false
+}

@@ -1,0 +1,158 @@
+{
+"TC-P4-02-02": [
+"P",
+"[qc3 19/11] lớp QC3L 1.000 SV, GV đặt lịch thi (schedule, exam 01a1f042-3663…), log_statement=all (cửa sổ khoá ≤ 1 phút, đã trả none): docker logs ep-r-postgres-1 có ĐÚNG 1 câu `-- name: NotifyInsertMany` (`insert into notifications … select u, $1, $2, $3, $4, $5, $6::text || ':' || u::text from unnest($7::text[]::uuid[]) as u on conflict … do nothing`) với DETAIL `$2=EXAM_SCHEDULED, $6=exam.scheduled:<exam>`, mảng $7 = 1.000 uuid; notifications `dedupe_key like exam.scheduled:<exam>:%` = 1.000 dòng; không có 1.000 lượt `NotifyInsert` riêng (14 câu insert notifications trong cửa sổ: 12 là NotifyInsert TICKET_STALE của ticker khác, không thuộc exam). (Lần chạy trước dùng grep phân biệt hoa/thường «INSERT» nên báo 0; câu thật viết thường.) Bằng chứng: evidence-7/r5/pg-p4-02-02-03-04.log"
+],
+"TC-P4-03-04": [
+"P",
+"[qc3 19/11] lớp QC3L 1.000 ticket OPEN: GET /courses/{id}/tickets?limit=100&status=OPEN → 200, 100 mục, 12 ms; log_statement=all: gateway chạy đúng 2 câu cho yêu cầu — `GetMembership` và 1 câu `TicketListStaff` (join users/courses/chat_messages, `limit $5=101`, con trỏ `(t.created_at,t.id) > ($3,$4)`), không có câu theo từng ticket (không N+1); `grep -i offset` trong log của yêu cầu = 0. Bằng chứng: evidence-7/r5/pg-p4-02-02-03-04.log, /tmp/qc3e/p4-03-04.log"
+],
+"TC-P5-01-25": [
+"P",
+"[qc3 19/11] lớp mới QC3U9 (GV riêng qc3pa, tiêu đề «Chọn lớp, đang xem QC3U9» đúng lớp): GV thấy nút «Tạo lịch buổi học» =1, SV =0; ngăn kéo Thứ/T2…; «Xem trước» và «Tạo buổi» khoá khi chưa nhập; placeholder phòng «P.302»; Từ/Đến/Ngày nghỉ type=date; xem trước «Sẽ tạo 11 buổi · bỏ 1 ngày nghỉ», bảng 11 dòng cột Buổi/Ngày/Giờ (≤ 60), DB 0 buổi sau xem trước; nút «Tạo 11 buổi» bật; tạo → DB 11 buổi; danh sách buổi có menu «…» với Sửa, Xoá; nhập Đến ngày 2030-01-01 → lỗi 422 «Khoảng ngày tối đa 400 ngày.» ở ô, aria-invalid=true. (Lần chạy đầu trên QC3U8 là FAIL do lỗi script: regex /^Thêm với buổi 1/ khớp 3 nút; đã sửa script.) Bằng chứng: evidence-7/r3/ui-p501-r5.log, old/ui-p501.run2.log"
+],
+"TC-P5-01-26": [
+"F",
+"[qc3 19/11] theo dõi network lớp QC3U9: 3 lần «Xem trước» (dry_run=true) ĐỀU gửi Idempotency-Key (ep-f5d4678a…, ep-bbfe692e…, ep-2e8bbfcd…); 2 lần «Tạo N buổi» khoá khác nhau (ep-e44f925b… ≠ ep-a4916eea…) và không trùng khoá xem trước — vế «khoá mới mỗi lần» ĐẠT, nhưng vế «xem trước không có key» TRƯỢT (SRS crm-360 4.2.1 bước 1: dry_run «không đòi Idempotency-Key», TLR-12: khoá của xem trước chiếm suất lưu vô ích). Xem DEF-R7-10. Bằng chứng: evidence-7/r3/ui-p501-r5.log"
+],
+"TC-P5-01-33": [
+"P",
+"[qc3 19/11] lớp QC3U7: xem trước «Sẽ tạo 9 buổi»; setOffline khi bấm «Tạo 9 buổi» → ô lỗi «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.», nút bật lại, DB 0 buổi; online + thử lại → DB 9 buổi (đúng N), 4 yêu cầu tạo chỉ có 1 Idempotency-Key (thử lại dùng cùng khoá); ca phụ: máy chủ đã ghi nhưng phản hồi bị cắt → thử lại cùng khoá không tạo đôi (DB 17 = 9+8). Bằng chứng: evidence-7/r3/old/ui-p501.run2.log"
+],
+"TC-P5-01-34": [
+"P",
+"[qc3 19/11] (1) `bash scripts/ui-antipatterns.sh` trên 8c9b1d6a → exit 0, mọi quy tắc ✓; (2) calendar.spec.ts «generate sessions preview and create» và «edit delete session» ✓ ở CI run 44343596969 (desktop 16, 19; mobile bị bỏ qua theo cấu hình) — log evidence-7/r4/ci-44343596969-e2e-all.txt.gz; (3) tên «course setup sessions step ticks» không tồn tại trong lịch sử git của frontend/e2e (git log -S rỗng): hành vi tương đương = today.spec «staff today: Thiết lập lớp mới mở 4 bước tại chỗ…» ✓ (CI desktop 315, mobile 649) và bước «Tạo lịch buổi học» tick sau generate đã chạy thật ở TC-P5-01-27"
+],
+"TC-P5-02-10": [
+"P",
+"[qc3 19/11] lớp QC3U3 (30 SV; GV qc3pc + TA qc3pf, tiêu đề đúng lớp): hai ngữ cảnh trình duyệt cùng buổi, cả hai đổi hàng 4 (GV Vắng, TA Muộn), TA đổi thêm hàng 5 (Vắng); GV lưu trước, TA lưu → TA thấy InlineNotice «QC3 qc3pc01 vừa đổi 1 dòng» với «Giữ của tôi» =1 và «Lấy của …» =1; hàng 5 của TA giữ nguyên; chọn «Giữ của tôi» → gửi lại thành công: DB hàng 4 = LATE v2, hàng 5 = ABSENT v1. Bằng chứng: evidence-7/r3/ui-p502.log"
+],
+"TC-P5-02-24": [
+"P",
+"[qc3 19/11] lớp QC3U4: 3 buổi (quá khứ đã điểm danh, đang diễn ra, tương lai); mở /attendance không ?session= → mặc định buổi đang diễn ra; bộ chọn xếp gần nhất trước, nhãn «Chưa» / «Đã điểm danh»; ?session=<buổi đã điểm danh> chọn đúng; đổi buổi ghi ?session= vào URL. Bằng chứng: evidence-7/r3/ui-p502.log"
+],
+"TC-P5-02-25": [
+"P",
+"[qc3 19/11] lớp QC3U5 chưa có buổi: «Lớp chưa có lịch buổi học» + liên kết «Tạo lịch buổi học» → /calendar; lớp QC3U3: bấm Vắng 1 hàng rồi đổi buổi ngay → sau 3,5 s DB buổi cũ có 1 bản ghi ABSENT (tự lưu trước khi đổi, không mất). Bằng chứng: evidence-7/r3/ui-p502.log"
+],
+"TC-P5-02-31": [
+"P",
+"[qc3 19/11] setOffline(true), đánh Vắng 3 người: banner «Chưa có mạng · 3 thay đổi chờ lưu» hiện sau 310 ms, chỉ báo «Chờ mạng · 3 thay đổi», kho 1 khoá ep:draft:<user>:attendance:<lớp>:<buổi>; setOffline(false) → tự gửi (1 PUT) → «Đã lưu»; DB ABSENT = 3. Bằng chứng: evidence-7/r3/ui-p502.log"
+],
+"TC-P5-02-34": [
+"P",
+"[qc3 19/11] GV offline đổi hàng 7 + 8 (hàng 7 đã có bản ghi của TA); TA đổi hàng 7 trong lúc đó; có mạng lại: PUT tự gửi 1 lần → 409 → «QC3 qc3pf01 vừa đổi 1 dòng», «Giữ của tôi» =1, «Lấy của …» =1; chờ thêm 16 s số PUT vẫn 1 (hàng đợi dừng, không thử lại); thay đổi hàng 8 của GV giữ; chọn «Giữ của tôi» → DB hàng 7 = ABSENT version 2. Bằng chứng: evidence-7/r3/ui-p502.log"
+],
+"TC-P5-02-37": [
+"P",
+"[qc3 19/11] KHÔNG ÁP DỤNG theo chính TC («chỉ chạy khi PM xác nhận cắt AC13»): AC13 không bị cắt — nguồn: docs/specs/FEAT-crm-360/US.md:79 (cắt chỉ khi QC FAIL AC13 sau 2 vòng, PM 2026-10-13 Q20), docs/sprints/7/qc/report-US-P5-02.md:68 («37 AC13b KHÔNG ÁP DỤNG — AC13 không bị cắt»), report-GATE-P5.md:52 (AC13 chấm vòng 2, không đổi), docs/sprints/7/proposals.md và các proposals sau không có dòng cắt AC13. Ghi chú: hành vi thật ở HEAD đang giống AC13b (nút Lưu khoá khi offline) — xem DEF-R7-08 (TC-33)"
+],
+"TC-P5-02-E1": [
+"P",
+"[qc3 19/11] mạng 3G giả (CDP: độ trễ 400 ms, 50 kbps) ở cả hai ngữ cảnh, kịch bản TC-10: TA thấy «QC3 qc3pc01 vừa đổi 1 dòng» + «Giữ của tôi»/«Lấy của …», hàng 5 của TA giữ, sau «Giữ của tôi» DB hàng 4 = LATE v2, hàng 5 = ABSENT v1: luồng xung đột đúng, không mất dữ liệu. Bằng chứng: evidence-7/r3/ui-p502.log"
+],
+"TC-P5-02-E2": [
+"P",
+"[qc3 19/11] PUT đầu tới máy chủ (đã ghi) nhưng phản hồi bị cắt → client gửi lại: 2 PUT; bản ghi ABSENT = 2 (không nhân đôi), version lớn nhất = 1 (gửi lặp không tăng version); audit_log 2 phút gần nhất: đúng 1 dòng save (không trùng). Bằng chứng: evidence-7/r3/ui-p502.log"
+],
+"TC-P4-03-38": [
+"F",
+"[qc3 19/11] GV qc3pd, lớp QC3T1 (tiêu đề đúng lớp): GET tickets trễ 3,5 s → khung xương hiện (1 phần tử) ✓; chuyển Đang chờ → Đã nhận → Đã trả lời → Tất cả: CLS cộng dồn 0,0000 ✓, dòng ticket có chữ trạng thái («Đang chờ», «Đã trả lời») ✓; GET tickets 500 → «Có lỗi xảy ra. Dữ liệu của bạn vẫn an toàn. Thử lại sau ít phút.» + nút «Thử lại» ✓. TRƯỢT ở trạng thái rỗng: bộ lọc «Đã nhận» rỗng khi lớp còn ticket khác (lớp 2) và lớp không có ticket đều hiện «Chưa có câu hỏi cần xử lý», KHÔNG có «Không có câu hỏi nào đang chờ.» và KHÔNG có nút «Xem tất cả». Xem DEF-R7-11. Bằng chứng: evidence-7/r3/ui-p7c.log, shots/p7c-inbox-*.png"
+],
+"TC-P4-06-34": [
+"P",
+"[qc3 19/11] chủ bài qc3s11 (lớp QC3T1): menu … → Xoá → hộp «Xoá bài này | Câu hỏi và 3 bình luận sẽ bị xoá. | Để sau | Xoá» (bài có đúng 3 bình luận, DB 3); bấm «Để sau» → bài chưa xoá. Bằng chứng: evidence-7/r3/ui-p7c.log"
+],
+"TC-P4-06-47": [
+"F",
+"[qc3 19/11] lớp QC3T1. ĐẠT ở 1280 và 375: SV thấy menu … chỉ có mục «Báo cáo» (không nút phụ thứ ba; nút … 44×44 và mục 44 px ở 375; 32×32/38 px ở 1280); chọn lý do bằng danh sách <select> 6 lựa chọn; sau gửi «Đã báo cáo» + «Hoàn tác» biến mất sau ≈5,37 s; chủ bài thấy Sửa, Xoá; GV sau 3 báo cáo (bài tự ẩn «Đã ẩn · Nhiều báo cáo, chờ duyệt») thấy Bỏ ẩn, Giữ bài, Ghim; scrollWidth ≤ bề rộng; SV không thấy bài AI đã bị loại (Không hiển thị). TRƯỢT về chữ: bài AI «Chờ xác nhận» của GV có nút «Xác nhận», «Chỉnh sửa» và menu «Thêm hành động» với mục «Loại», không phải «Loại khỏi tri thức» (US-P4-06 AC14, DESIGN §13). Xem DEF-R7-12. Bằng chứng: evidence-7/r3/ui-p7c.log"
+],
+"TC-P4-06-50": [
+"P",
+"[qc3 19/11] lớp QC3T1, SV qc3s20: yêu cầu báo cáo tới máy chủ nhưng phản hồi bị cắt (DB 1 báo cáo; giao diện «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.»); gửi lại cùng người → 409 ALREADY_REPORTED: giao diện «Bạn đã báo cáo bài này», không có alert lỗi; DB vẫn 1 báo cáo. Bằng chứng: evidence-7/r3/ui-p7c.log"
+],
+"TC-P4-07-15": [
+"P",
+"[qc3 19/11] SV qc3s14, lớp QC3T1: gõ 46 ký tự trong 3 s → 1 request precheck (debounce 800 ms); bấm Đăng → hộp «Bạn không phải đi qua chuyện này một mình…» có «Mở chat riêng» (nút chính) và «Quay lại sửa»; DB forum_threads + forum_posts + chat_messages chứa nháp = 0; «Quay lại sửa» → Tiêu đề và Nội dung giữ nguyên; «Mở chat riêng» → /chat?session=… và ô nhập chat chứa đúng nháp. (Đường /threads/new không còn: form mở tại chỗ sau «Đặt câu hỏi».) Bằng chứng: evidence-7/r3/ui-p7c.log"
+],
+"TC-P5-03-15": [
+"P",
+"[qc3 19/11] worker phụ ep-r-worker-s7seed (cùng ảnh worker, DB qc3seed + Redis /13, ROLLUP_TICK=10 s, không chạm worker dùng chung): 12.600 khoá ep:study:… (30 SV × 140 ngày × 3 khu vực) đánh dấu dirty; vòng lặp kill -9 (docker kill -s KILL) KHI rollup đang ghi dở (tổng giây DB giữa giá trị cũ và mới: 328.710 / 8.157.000), 2 lần (exit 137), `docker start` lại; sau 2 phút: hàng DB 12.600 = khoá Redis 12.600, lệch 0, âm 0, DB>Redis 0, tổng DB 8.505.000 = tổng Redis (không đôi, không âm). Bằng chứng: evidence-7/scripts-r3/p7c_p515.py, p7c_p515cmp.py"
+],
+"TC-P5-02-36": [
+"P",
+"[qc3 19/11] lớp QC3U3: A (qc3pc, GV) đánh Vắng 2 hàng nhưng PUT bị chặn (nháp trong kho 1 khoá attendance), Đăng xuất (xác nhận «Còn điểm danh chưa lưu») → sau 3 s ở /login: kho còn khoá attendance 0, chuỗi có user_id của A không còn; bỏ chặn 6 s: DB 0 bản ghi của buổi (dữ liệu A không được gửi); B (qc3pf, TA) đăng nhập cùng trình duyệt, mở cùng buổi: 2 hàng của A KHÔNG hiện Vắng; B đánh Muộn 1 hàng → «Đã lưu», DB marked_by=B 1, marked_by=A 0, ghi chú 0. Ghi chú phụ: biến thể offline thật không dựng được (trình duyệt offline không tải được /login); lần đầu quan sát khi bấm Đăng xuất lúc offline rồi có mạng lại, 2 thay đổi của A vẫn được gửi bằng phiên A (marked_by=A) chứ không bằng phiên B. Bằng chứng: evidence-7/r3/ui-p502.log"
+],
+"TC-P5-03-07": [
+"P",
+"[qc3 19/11] /chat (đồng hồ giả): nhịp đầu 1; ẩn tab (visibilityState=hidden) 150 s giả lập: số nhịp 1 → 1 (không nhịp nào); hiện lại + thao tác: nhịp gửi tiếp sau 10 ms thật (≤ 1 s giả lập), tổng 2; trạng thái trả về [204,null] (evidence-7/r3/ui-p503.log)"
+],
+"TC-P5-03-09": [
+"P",
+"[qc3 19/11] /chat → nhịp CHAT; sang /library → nhịp kế area=LIBRARY (khu vực mới); sang / (không đo) rồi chạy 100 s giả lập: nhịp 5 → 5 (không nhịp thừa, bộ hẹn giờ đã dọn); chuỗi area=[\"CHAT\",\"LIBRARY\",\"LIBRARY\",\"LIBRARY\",\"LIBRARY\"] (evidence-7/r3/ui-p503.log)"
+],
+"TC-P5-03-13": [
+"P",
+"[qc3 19/11] SV duyệt /, /me, /exams, /settings (mỗi trang 100 s giả lập, /:0 /me:0 /exams:0 /settings:0): 0 nhịp; GV (qc3t) duyệt /gradebook, /students, /class/settings, /calendar, /chat, /threads: 0 nhịp; study_time_daily.area ∈ {CALENDAR,CHAT,LIBRARY,PRACTICE,THREADS}; cột bảng: id,course_id,student_id,date,area,active_seconds,created_at,updated_at (không nội dung / đường dẫn / tiêu đề / tên); khoá Redis ep:study:* sai khuôn=0/82 (evidence-7/r3/ui-p503.log)"
+],
+"TC-P5-03-18": [
+"P",
+"[qc3 19/11] SV chưa ack: hộp thoại «Thời gian học trên EduPilot | EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công khai, Luyện đề, Thư viện và Lịch khi tab đang mở và bạn đang thao tác. | Không ghi nội dung bạn xem hay gõ. | Giảng viên xem được; không dùng để tính điểm. | Bạn có thể tắt ở Cài đặt. | Đã hiểu»; bấm «Đã hiểu» → hộp đóng=true, users.tracking_notice_ack_at đặt=t; tải lại: hộp thoại 0 (chỉ một lần); (TC gốc ghi «Threads»: chữ hiển thị là «Hỏi đáp công khai» theo luật chữ UI) (evidence-7/r3/ui-p503.log)"
+],
+"TC-P5-06-22": [
+"P",
+"[qc3 19/11] /settings của qc3me01 (ghi danh M lớp cho tắt, M2 không cho tắt): nhóm «Thời gian học»; công tắc theo lớp M=1 (đổi được=true, bật=true), M2=1 (disabled=true, bật=true); tooltip lý do ở chính công tắc M2 «Lớp này luôn ghi thời gian học»; nhãn «Ghi thời gian học» chữ riêng=1 (tên công tắc dạng «mã lớp · tên»); bấm tắt M: đổi sau 151 ms, PUT [{\"track_study_time\":false,\"version\":1}]; toast=0 (evidence-7/r3/ui-p503.log)"
+],
+"TC-P5-06-23": [
+"P",
+"[qc3 19/11] tắt công tắc M (DB track_study_time=f); /me lớp M: «Thời gian học |  | Đang tắt» (Đang tắt=true); /me lớp M2: «Tuần này: 30 phút»; sai version (ngữ cảnh khác đổi trước): dòng thông báo [\"Nhập lại mật khẩu mới\"], công tắc sau đó bật=true, DB=t (evidence-7/r3/ui-p503.log)"
+],
+"TC-P5-06-24": [
+"P",
+"[qc3 19/11] mở /settings: SV chưa «Đã hiểu», TEACHER, TA, ADMIN — số phần tử nhóm «Thời gian học»/công tắc lớp: {\"qc3me04\":0,\"qc3t\":0,\"qc3ta\":0,\"admin\":0} (evidence-7/r3/ui-p503.log)"
+],
+"TC-P5-06-25": [
+"P",
+"[qc3 19/11] 375×812, /class/settings lớp M2 (đã có SV): công tắc «Cho sinh viên tắt đo thời gian học» cao 44 px (hàng 44), disabled=true, trạng thái bật=true (giá trị «Không» = tắt/không cho); ngữ cảnh: Cho sinh viên tắt đo thời gian học | Lớp đã có sinh viên | Học từ lần sửa | Lưu ý chấm (evidence-7/r3/ui-p503.log)"
+],
+"TC-P5-06-07": [
+"P",
+"[qc3 19/11] SV C (qc3me03, tuần học thấp) duyệt / , /me, /chat, /threads, /settings, /calendar (độ dài chữ /:401 /me:702 /chat:463 /threads:1308 /settings:693 /calendar:298): từ khoá nhận định rủi ro / canary tìm thấy ở: [] (evidence-7/r3/ui-p506.log)"
+],
+"TC-P5-06-08": [
+"P",
+"[qc3 19/11] /me?course=M (qc3me01, 2 lớp): tiêu đề «Kết quả của tôi»; thứ tự khối Chuyên cần(62) < Điểm cộng(144) < Thời gian học(247); câu «Bạn có mặt 7/9 buổi, vắng 2.»; danh sách buổi vắng: Buổi 6 · 22/10 Vắng ; Buổi 3 · 01/10 Vắng; «Phát biểu 2 lần · +0,50.»; sự kiện: Phát biểu +0,25 19/11, 19/11; biểu đồ svg cao 96 px (khung 123), «Tuần này: 45 phút»; bộ chọn lớp ở topbar: [\"QC3M5\\n· QC3 QC3M5\",\"Tìm nhanh hoặc đi đến…\\n⌘\\nK\",\"1\",\"q\\nTài khoản:\\nQC3 qc3me01\"]; dấu thập phân dùng phẩy (evidence-7/r3/ui-p506.log)"
+],
+"TC-P5-06-09": [
+"P",
+"[qc3 19/11] tìm điểm thành phần / giải trình điểm / «nếu cuối kỳ được…» / việc sắp tới có điểm / mô phỏng / giả: []; các tiêu đề thấy: [\"Kết quả của tôi\",\"Điểm\",\"Chuyên cần\",\"Điểm cộng đã ghi\",\"Bài tập\",\"Thời gian học\"] (evidence-7/r3/ui-p506.log)"
+],
+"TC-P5-06-10": [
+"P",
+"[qc3 19/11] grep -ciE 'streak|rank|progress ring|confetti|xếp hạng|huy hiệu|badge|cố lên|tuyệt vời' trong innerText+innerHTML = 6 [\"badge\",\"badge\",\"Badge\"]; <progress>=0, role=progressbar=0, meter=0, lưới ≥3 ô số lớn (thẻ KPI)=0; không so sánh với bạn học: «so với|xếp|lớp trung bình» = 0 — 6 khớp grep đều là token «badge»/«Badge» (tên lớp/thuộc tính của chip trạng thái trong innerHTML), không có chữ hiển thị nào về streak/rank/huy hiệu/động viên; không progressbar, KPI, so sánh bạn học (evidence-7/r3/ui-p506.log)"
+],
+"TC-P5-06-14": [
+"P",
+"[qc3 19/11] SV mới (qc3me04, chưa có dữ liệu): khối «Thời gian học» hiển thị=false, chữ «0 phút»=false; SV tắt đo (qc3me02, track_study_time=false, lớp cho tắt): «Thời gian học |  | Đang tắt» (có «Đang tắt»=true, không biểu đồ) (evidence-7/r3/ui-p506.log)"
+],
+"TC-P5-06-16": [
+"P",
+"[qc3 19/11] 375×812: scrollWidth 375/375 (sau khi mở khối gập 375); các khối cùng mép trái=[12] (một cột); phần tử bấm cao < 44 px: []; biểu đồ rộng 317 ≤ 375; nút Mở/Gập=2 (evidence-7/r3/ui-p506.log)"
+],
+"TC-P5-06-E1": [
+"P",
+"[qc3 19/11] mạng đứt/500 khi mở /me: PageState lỗi «Kết quả của tôi | Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất. | Thử lại» + nút Thử lại; Thử lại → nội dung về (evidence-7/r3/ui-p506.log)"
+],
+"TC-P5-06-E2": [
+"P",
+"[qc3 19/11] SV đang xem /me của lớp, bị REMOVED trong lúc xem → làm mới: Bỏ qua điều hướng | QC3AT | · QC3 QC3AT | Tìm nhanh hoặc đi đến… | ⌘ | K | q | Tài khoản: | QC3 qc3at129 | Hôm nay | Chat riêng | Hỏi đáp công khai | Bài tập | Luyện đề | Bài thi | Thư viện | Lịch | Kết quả của tôi | Thu gọn | Thời gian học trên EduPilot | EduPilot ghi thời gian bạn dùng Chat, Hỏi đ; còn dữ liệu cũ (Bạn có mặt/Phát biểu/Tuần này)=false (evidence-7/r3/ui-p506.log)"
+],
+"TC-P5-03-04": [
+"P",
+"[qc3 19/11] k6 benchmarks/load/heartbeat.js 10 req/s × 60 s (600 yêu cầu, 14 SV lớp QC3U3 đã «Đã hiểu», qua Caddy https://localhost:1143): http_req_duration p95 = 7,5 ms (< 20 ms; avg 3,26 ms, max 32 ms) ✓; ngưỡng http_req_failed của script đỏ (31,16 % = 187/600 không phải 204) — mỗi SV gọi lẻ ngay sau đó đều 204; [INFERENCE] phần không-204 là 429 của giới hạn IP RATE_LIMIT_IP_PER_MIN=300 vì cả 600 yêu cầu/phút đến từ một IP (k6 không in mã lỗi); không có dấu hiệu 5xx (p95 ổn, gateway không restart). Bằng chứng: evidence-7/r5/k6-heartbeat-r5.log"
+],
+"TC-17": [
+"P",
+"[qc3 19/11] [qc3 19/11] Lịch sử CI thật (gh api, repo kagamikuro1024/EduPilot-v2; không đẩy nhánh tạm vì bị cấm): (a) dòng «Go test (course)» đỏ: run 38446382605 @91391720 (course + rest đỏ, auth xanh) và 41220570102, 38400320967; (b) dòng «Go test (auth)» đỏ RIÊNG: run 38746889583 @5fa459d6 → workflow failure, rest-1, rest-2, course đều success; (c) một dòng «phần còn lại» đỏ riêng: run 43734516138 @d2253699 (rest-1 failure; course, rest-2, auth success) → workflow failure. Dòng đỏ không bị dòng xanh che; ci.yml không có continue-on-error (xem TC-E2/E3). Bằng chứng: gh api actions/runs/{38746889583,38446382605,43734516138}/jobs"
+]
+}

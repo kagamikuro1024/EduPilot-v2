@@ -1,0 +1,22 @@
+== push 22387b0646c312a62a66087365f0988df331a2ee
+22387b06 DEF-R8-A4: «tính điểm môn này thế nào / lớp mình ra sao» là GRADE_FORMULA (TC-P6-05-37)
+
+ backend-go/internal/agent/agent_test.go | 4 ++--
+ backend-go/internal/agent/intent.go     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+== push c09226922c0f15dcb6c5b9b259d4f24f58cc098b
+c0922692 11 QC: env cases (04-23/24, 02-10/12, 03-11, 01-13), obs spec
+
+ docs/sprints/11/qc/scripts/p10_1m.py         | 20 ++++++++++++++++++++
+ docs/sprints/11/qc/scripts/results-p10.jsonl | 15 ++++++++++++++-
+ frontend/e2e/qc-real-observability.spec.ts   |  7 ++++---
+ 3 files changed, 38 insertions(+), 4 deletions(-)
+== push e0bf1fc9de1f5ae194d18cd0e0ecc56759134850
+e0bf1fc9 11 LCP U1: lời gọi sớm đi tới API_BASE (NEXT_PUBLIC_API_URL; CI đo với API khác origin đỏ LCP 5 s vì gọi /api/v1 tương đối) + epoch của lời gọi sớm = lúc tải trang (account.spec: 401 cũ đến sau đăng nhập phải bị bỏ). CI-config Lighthouse cục bộ: mọi route ≤ 1,95 s
+
+ frontend/e2e/early-refresh.spec.ts       | 5 ++++-
+ frontend/src/shared/data/authSession.ts  | 7 +++++--
+ frontend/src/shared/data/earlyRefresh.ts | 3 ++-
+ 3 files changed, 11 insertions(+), 4 deletions(-)
+
+ci-changes selftest: 9/9

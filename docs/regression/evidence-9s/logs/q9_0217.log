@@ -1,0 +1,21 @@
+gắn BT03 (thang 10) vào item thang 20 → 422 ASSIGNMENT_SCALE_MISMATCH {"assignment_max_score": "10", "item_max_score": "20"}
+gắn BT03 (thang 10) vào item thang 10 → 200 2
+grade_items: bt03:ASSIGNMENT:10.00:true
+grade_entries của item bài tập: 0
+assignments có cột grade_item: 0
+PUT 200 [('WEIGHT_SUM', 'components'), ('LETTER_SCALE_MISSING', 'rules.LETTER_SCALE'), ('PARAM_INVALID', 'rules.FAIL_CONDITION'), ('PARAM_INVALID', 'rules.MISSING_SCORE')]
+confirm 422 {"code": "SCHEME_HAS_UNCLEAR", "message": "Công thức còn mục chưa rõ.", "trace_id": "4183fdd70165c8710e1b729ad230a06d", "details": {"codes": ["WEIGHT_SUM", "LETTER_SCALE_MISSING", "PARAM_INVALID"], "unclear_items": [{"source": "CODE", "code": "WEIGHT_SUM", "target": "components", "message": "Tổng tr
+PUT 200 [('PARAM_INVALID', 'rules.FAIL_CONDITION')]
+confirm 422 {"code": "SCHEME_HAS_UNCLEAR", "message": "Công thức còn mục chưa rõ.", "trace_id": "4861de47e33806578f97e08ff0b2439a", "details": {"codes": ["PARAM_INVALID"], "unclear_items": [{"source": "CODE", "code": "PARAM_INVALID", "target": "rules.FAIL_CONDITION", "message": "Điều kiện điểm cuối kỳ không dùn
+scheme: 1:DRAFT
+PUT 200 []
+confirm 200 {"scheme_id": "01a1f04e-37d9-70a5-a9ad-2fd0c2a850a1", "scheme_no": 1, "confirmed_at": "2026-11-18T20:18:32.789448Z", "impact": {"students_total": 40, "students_computable": 0, "changed_vs_confirmed": 
+scheme: 1:CONFIRMED
+status DRAFT/6.50
+review 200
+publish (200, {'published': 1, 'skipped': 0, 'exempt': {'ACCEPTED_AS_IS': 0, 'EDITED': 0}})
+kết quả đã công bố: 6.50
+me/grades 200 {"status": "IN_PROGRESS", "scheme": {"scheme_no": 1, "confirmed_at": "2026-11-18T20:18:32.789448Z", "components": [{"key": "bt", "name": "Bài tập", "grp": "QT", "weight": "100"}]}, "components": [{"key": "bt", "name": "Bài tập", "weight": "100", "status": "PUBLISHED", "score": "6.5"}], "bonus": {"applied": "0", "raw": "0", "cap": ""}, "penalty": {"value": "0", "absent": 0, "free": 0, "per": ""}, "qt": "6.5", "calculation": [{"label": "Bài tập (100%)", "text": "Bài tập: 6,5", "value": "6,5"}, {"label": "Điểm quá trình trước điểm cộng / trừ", "text": "Điểm quá trình trước điểm cộng / trừ 6,5", "value": "6,5"}, {"label": "Điểm quá trình", "text": "Điểm quá trình 6,5", "value": "6,5"}], "officia
+preview 200 {"summary": {"students": 40, "complete": 20, "incomplete": 20, "liet": 0, "distribution": {"C": 2, "F": 18}}, "items": [{"student_id": "01a1deef-dbab-709e-9c06-dc2fa2e1120f", "student_code": "20227706", "full_name": "Bùi Khánh Việt", "status": "COMPLETE", "qt": "0", "hp_raw": "0", "hp": "0", "letter
+grade_entries item bài tập: 0
+{'student_code': '20229002', 'full_name': 'Bùi Thanh Khải', 'status': 'COMPLETE', 'qt': '6.5', 'hp': '6.5', 'letter': 'C', 'verdict': 'OK'}

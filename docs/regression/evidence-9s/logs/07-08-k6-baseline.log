@@ -1,0 +1,147 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: benchmarks/load/grading-vs-chat.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 4 max VUs, 1m10s max duration (incl. graceful stop):
+              * chat: 4 looping VUs for 40s (exec: chatVU, gracefulStop: 30s)
+
+
+running (0m01.0s), 4/4 VUs, 0 complete and 0 interrupted iterations
+chat   [   0% ] 4 VUs  00.0s/40s
+
+running (0m02.0s), 4/4 VUs, 0 complete and 0 interrupted iterations
+chat   [   3% ] 4 VUs  01.0s/40s
+
+running (0m03.0s), 4/4 VUs, 0 complete and 0 interrupted iterations
+chat   [   5% ] 4 VUs  02.0s/40s
+
+running (0m04.0s), 4/4 VUs, 0 complete and 0 interrupted iterations
+chat   [   8% ] 4 VUs  03.0s/40s
+
+running (0m05.0s), 4/4 VUs, 4 complete and 0 interrupted iterations
+chat   [  10% ] 4 VUs  04.0s/40s
+
+running (0m06.0s), 4/4 VUs, 4 complete and 0 interrupted iterations
+chat   [  13% ] 4 VUs  05.0s/40s
+
+running (0m07.0s), 4/4 VUs, 4 complete and 0 interrupted iterations
+chat   [  15% ] 4 VUs  06.0s/40s
+
+running (0m08.0s), 4/4 VUs, 8 complete and 0 interrupted iterations
+chat   [  18% ] 4 VUs  07.0s/40s
+
+running (0m09.0s), 4/4 VUs, 8 complete and 0 interrupted iterations
+chat   [  20% ] 4 VUs  08.0s/40s
+
+running (0m10.0s), 4/4 VUs, 8 complete and 0 interrupted iterations
+chat   [  23% ] 4 VUs  09.0s/40s
+
+running (0m11.0s), 4/4 VUs, 8 complete and 0 interrupted iterations
+chat   [  25% ] 4 VUs  10.0s/40s
+
+running (0m12.0s), 4/4 VUs, 12 complete and 0 interrupted iterations
+chat   [  28% ] 4 VUs  11.0s/40s
+
+running (0m13.0s), 4/4 VUs, 12 complete and 0 interrupted iterations
+chat   [  30% ] 4 VUs  12.0s/40s
+
+running (0m14.0s), 4/4 VUs, 12 complete and 0 interrupted iterations
+chat   [  33% ] 4 VUs  13.0s/40s
+
+running (0m15.0s), 4/4 VUs, 12 complete and 0 interrupted iterations
+chat   [  35% ] 4 VUs  14.0s/40s
+
+running (0m16.0s), 4/4 VUs, 16 complete and 0 interrupted iterations
+chat   [  38% ] 4 VUs  15.0s/40s
+
+running (0m17.0s), 4/4 VUs, 16 complete and 0 interrupted iterations
+chat   [  40% ] 4 VUs  16.0s/40s
+
+running (0m18.0s), 4/4 VUs, 16 complete and 0 interrupted iterations
+chat   [  43% ] 4 VUs  17.0s/40s
+
+running (0m19.0s), 4/4 VUs, 20 complete and 0 interrupted iterations
+chat   [  45% ] 4 VUs  18.0s/40s
+
+running (0m20.0s), 4/4 VUs, 20 complete and 0 interrupted iterations
+chat   [  48% ] 4 VUs  19.0s/40s
+
+running (0m21.0s), 4/4 VUs, 20 complete and 0 interrupted iterations
+chat   [  50% ] 4 VUs  20.0s/40s
+
+running (0m22.0s), 4/4 VUs, 20 complete and 0 interrupted iterations
+chat   [  53% ] 4 VUs  21.0s/40s
+
+running (0m23.0s), 4/4 VUs, 24 complete and 0 interrupted iterations
+chat   [  55% ] 4 VUs  22.0s/40s
+
+running (0m24.0s), 4/4 VUs, 24 complete and 0 interrupted iterations
+chat   [  58% ] 4 VUs  23.0s/40s
+
+running (0m25.0s), 4/4 VUs, 24 complete and 0 interrupted iterations
+chat   [  60% ] 4 VUs  24.0s/40s
+
+running (0m26.0s), 4/4 VUs, 28 complete and 0 interrupted iterations
+chat   [  63% ] 4 VUs  25.0s/40s
+
+running (0m27.0s), 4/4 VUs, 28 complete and 0 interrupted iterations
+chat   [  65% ] 4 VUs  26.0s/40s
+
+running (0m28.0s), 4/4 VUs, 28 complete and 0 interrupted iterations
+chat   [  68% ] 4 VUs  27.0s/40s
+
+running (0m29.0s), 4/4 VUs, 28 complete and 0 interrupted iterations
+chat   [  70% ] 4 VUs  28.0s/40s
+
+running (0m30.0s), 4/4 VUs, 32 complete and 0 interrupted iterations
+chat   [  73% ] 4 VUs  29.0s/40s
+
+running (0m31.0s), 4/4 VUs, 32 complete and 0 interrupted iterations
+chat   [  75% ] 4 VUs  30.0s/40s
+
+running (0m32.0s), 4/4 VUs, 32 complete and 0 interrupted iterations
+chat   [  78% ] 4 VUs  31.0s/40s
+
+running (0m33.0s), 4/4 VUs, 36 complete and 0 interrupted iterations
+chat   [  80% ] 4 VUs  32.0s/40s
+
+running (0m34.0s), 4/4 VUs, 36 complete and 0 interrupted iterations
+chat   [  83% ] 4 VUs  33.0s/40s
+
+running (0m35.0s), 4/4 VUs, 36 complete and 0 interrupted iterations
+chat   [  85% ] 4 VUs  34.0s/40s
+
+running (0m36.0s), 4/4 VUs, 36 complete and 0 interrupted iterations
+chat   [  88% ] 4 VUs  35.0s/40s
+
+running (0m37.0s), 4/4 VUs, 40 complete and 0 interrupted iterations
+chat   [  90% ] 4 VUs  36.1s/40s
+
+running (0m38.0s), 4/4 VUs, 40 complete and 0 interrupted iterations
+chat   [  93% ] 4 VUs  37.0s/40s
+
+running (0m39.0s), 4/4 VUs, 40 complete and 0 interrupted iterations
+chat   [  95% ] 4 VUs  38.0s/40s
+
+running (0m40.0s), 4/4 VUs, 44 complete and 0 interrupted iterations
+chat   [  98% ] 4 VUs  39.0s/40s
+
+running (0m41.0s), 4/4 VUs, 44 complete and 0 interrupted iterations
+chat ↓ [ 100% ] 4 VUs  40s
+
+running (0m42.0s), 4/4 VUs, 44 complete and 0 interrupted iterations
+chat ↓ [ 100% ] 4 VUs  40s
+
+running (0m43.0s), 4/4 VUs, 44 complete and 0 interrupted iterations
+chat ↓ [ 100% ] 4 VUs  40s
+
+running (0m43.2s), 0/4 VUs, 48 complete and 0 interrupted iterations
+chat ✓ [ 100% ] 4 VUs  40s

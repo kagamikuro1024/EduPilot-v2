@@ -1,0 +1,5 @@
+students 30 keys 12600
+rnd0: tổng giây DB trước=0, kỳ vọng sau=7749000, lúc kill=None (giữa chừng=False), container running/0
+rnd1: tổng giây DB trước=0, kỳ vọng sau=8127000, lúc kill=328710 (giữa chừng=True), container exited/137
+rnd2: tổng giây DB trước=8127000, kỳ vọng sau=8505000, lúc kill=8157000 (giữa chừng=True), container exited/137
+đợi 2 phút sau lượt cuối…

@@ -15,10 +15,10 @@ class H(BaseHTTPRequestHandler):
         self.send_response(200); self.send_header("content-type", "application/json"); self.end_headers(); self.wfile.write(json.dumps({"data": [{"id": "stub10"}]}).encode())
     def do_POST(self):
         n = int(self.headers.get("content-length") or 0); body = json.loads(self.rfile.read(n) or b"{}")
-        mode = open("/tmp/stub10_mode").read().strip() if os.path.exists("/tmp/stub10_mode") else "ok"
+        MF = os.environ.get("STUB_MODE_FILE", "/tmp/stub10_mode"); mode = open(MF).read().strip() if os.path.exists(MF) else "ok"
         text = "\n".join(str(m.get("content", "")) for m in body.get("messages", []))
         rec = match(text)
-        with open("/tmp/stub10_req.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "rec": rec and rec["name"], "len": len(text), "maxpage": max([int(x) for x in __import__("re").findall(r"\[Trang (\d+)\]", text)] or [0]), "text": text[:6000]}, ensure_ascii=False) + "\n")
+        with open(os.environ.get("STUB_REQ_FILE", "/tmp/stub10_req.jsonl"), "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "rec": rec and rec["name"], "len": len(text), "maxpage": max([int(x) for x in __import__("re").findall(r"\[Trang (\d+)\]", text)] or [0]), "text": text[:6000]}, ensure_ascii=False) + "\n")
         if mode == "error": self.send_response(500); self.end_headers(); self.wfile.write(b'{"error":{"message":"stub error"}}'); return
         if mode == "overloaded": self.send_response(429); self.send_header("retry-after", "1"); self.end_headers(); self.wfile.write(b'{"error":{"message":"overloaded","type":"rate_limit"}}'); return
         if mode.startswith("slow"): time.sleep(int(mode[4:] or 12))
