@@ -47,6 +47,9 @@ func normalize(sn snapshot, raw json.RawMessage, topicMode bool) (answerDoc, []b
 	if err := json.Unmarshal(raw, &d); err != nil {
 		return d, nil, fieldErr("answer", "INVALID_ANSWER", "Câu trả lời không đúng định dạng.")
 	}
+	if foreignShape(sn.Type, d) {
+		return d, nil, apierr.New(http.StatusUnprocessableEntity, apierr.InvalidQuestion)
+	}
 	switch sn.Type {
 	case "MCQ_SINGLE", "MCQ_MULTI":
 		valid := map[string]bool{}
@@ -96,6 +99,19 @@ func normalize(sn snapshot, raw json.RawMessage, topicMode bool) (answerDoc, []b
 	}
 	b, _ := json.Marshal(d)
 	return d, b, nil
+}
+
+// foreignShape: câu trả lời mang trường của loại câu khác (vd. `text` cho câu trắc nghiệm) → dạng không hợp loại câu (US-P9-10 AC8).
+func foreignShape(typ string, d answerDoc) bool {
+	switch typ {
+	case "MCQ_SINGLE", "MCQ_MULTI":
+		return d.Value != nil || d.Text != nil
+	case "TRUE_FALSE":
+		return len(d.OptionIDs) > 0 || d.Text != nil
+	case "SHORT", "ESSAY":
+		return len(d.OptionIDs) > 0 || d.Value != nil
+	}
+	return false
 }
 
 // grade chấm một câu bằng Quiz Engine (code thuần, không LLM). nil = không chấm (tự luận). Id lạ / khoá hỏng → sai.

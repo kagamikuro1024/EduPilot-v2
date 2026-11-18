@@ -343,6 +343,37 @@ func TestAnswerTypes(t *testing.T) {
 	}
 }
 
+// TestAnswerShapeMismatch — US-P9-10 AC8 (P-11-63, DEF-R10S-02): dạng `answer` không hợp loại câu → 422 INVALID_QUESTION (không chấm, không lưu).
+func TestAnswerShapeMismatch(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	sv := r.student()
+	ctx := t.Context()
+	mk := func(in exam.QuestionIn) {
+		d, err := r.ex.Create(ctx, r.teacher, r.course, in)
+		require.NoError(t, err)
+		_, err = r.ex.Review(ctx, r.teacher, r.course, d.ID, "APPROVE", d.Version)
+		require.NoError(t, err)
+	}
+	for i := range 3 {
+		mk(exam.QuestionIn{Type: "SHORT", Title: "ngắn", Topic: "Dạng", Stem: fmt.Sprintf("Thủ đô %d?", i), Accepted: []string{"Hà Nội"}})
+		mk(exam.QuestionIn{Type: "TRUE_FALSE", Title: "đs", Topic: "Dạng", Stem: fmt.Sprintf("1 < 2 (%d)?", i), Value: new(true)})
+	}
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Dạng", Count: new(6)}, uuid.Nil)
+	require.NoError(t, err)
+	seen := map[string]bool{}
+	for _, it := range v.Items {
+		bad := map[string]string{"SHORT": `{"option_ids":["x"]}`, "TRUE_FALSE": `{"text":"đúng"}`}[it.Question.Type]
+		if bad == "" || seen[it.Question.Type] {
+			continue
+		}
+		seen[it.Question.Type] = true
+		_, err := r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, uuid.Nil, practice.AnswerIn{Answer: json.RawMessage(bad)})
+		require.Equal(t, "INVALID_QUESTION", code(t, err), it.Question.Type)
+	}
+	require.Len(t, seen, 2)
+}
+
 // TestOverviewWeakness — US-P9-06 AC1, US-P9-09 AC2: khuyến nghị theo lỗi 30 ngày; "Chủ đề cần ôn" kèm tài liệu từ citations của câu sai; ẩn khi < 10 câu.
 func TestOverviewWeakness(t *testing.T) {
 	t.Parallel()
