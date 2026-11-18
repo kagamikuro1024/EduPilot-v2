@@ -68,5 +68,5 @@ export function PracticeRun({ attemptId }: { attemptId: string }) {
   if (attempt.mode === "MOCK") {
     return <MockRun key={`${attempt.id}:${nonce}`} courseId={course} initial={attempt} tab={tab} clock={clock} userId={identity?.sub ?? "anon"} onDone={done} onTakeOver={() => { setLoad({ kind: "loading" }); setNonce((n) => n + 1); }} />;
   }
-  return <TopicRun key={attempt.id} courseId={course} initial={attempt} tab={tab} onDone={done} />;
+  return <TopicRun key={attempt.id} courseId={course} initial={attempt} tab={tab} userId={identity?.sub ?? "anon"} onDone={done} />;
 }

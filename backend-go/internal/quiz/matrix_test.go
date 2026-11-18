@@ -79,6 +79,21 @@ func TestBuildMatrix(t *testing.T) {
 		require.Len(t, ids, 4)
 		require.True(t, distinct(ids))
 	})
+	t.Run("bù từ chủ đề khác ghi notes (US-P9-05 AC1; DEF-R10S-01)", func(t *testing.T) {
+		var p []quiz.Candidate
+		for i := range 3 {
+			p = append(p, quiz.Candidate{ID: fmt.Sprintf("f%d", i), Topic: "F4", Difficulty: "MEDIUM"})
+		}
+		for i := range 10 {
+			p = append(p, quiz.Candidate{ID: fmt.Sprintf("b%d", i), Topic: "big", Difficulty: "MEDIUM"})
+		}
+		ids, notes := quiz.BuildMatrix(p, []quiz.Cell{{Topic: "F4", Count: 6}, {Topic: "big", Count: 4}}, quiz.History{}, 1)
+		require.Len(t, ids, 10, "đủ số câu nhờ bù")
+		require.Equal(t, []string{"bù 3 câu từ chủ đề khác cho ô F4"}, notes)
+		// có độ khó: bù theo bậc «chủ đề khác cùng độ khó» cũng ghi
+		_, notes = quiz.BuildMatrix(p, []quiz.Cell{{Topic: "F4", Difficulty: "MEDIUM", Count: 5}}, quiz.History{}, 1)
+		require.Equal(t, []string{"bù 2 câu từ chủ đề khác cho ô F4"}, notes)
+	})
 	t.Run("thiếu câu: đề ngắn hơn kèm notes, không lỗi", func(t *testing.T) {
 		p := []quiz.Candidate{{ID: "a", Topic: "X", Difficulty: "EASY"}, {ID: "b", Topic: "X", Difficulty: "EASY"}}
 		ids, notes := quiz.BuildMatrix(p, []quiz.Cell{{Topic: "X", Count: 10}}, quiz.History{}, 1)
