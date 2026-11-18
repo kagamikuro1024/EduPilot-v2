@@ -37,6 +37,16 @@ type Unclear struct {
 	Details map[string]any `json:"details,omitempty"`
 }
 
+// Static: mục CODE do bước trích đưa ra khi dữ liệu gốc không lưu nổi (trọng số ngoài [0;100] / sai dạng bị đổi thành 0 để lưu): bộ kiểm không tái tạo được từ DB nên phải được giữ qua `extraction`.
+const detailStatic = "static"
+
+// NewStatic dựng mục PARAM_INVALID loại Static (DEF-R8-A3).
+func NewStatic(target, msg string) Unclear {
+	return Unclear{Source: SourceCode, Code: CodeParamInvalid, Target: target, Message: msg, Details: map[string]any{detailStatic: true}}
+}
+
+func (u Unclear) isStatic() bool { return u.Source == SourceCode && u.Details[detailStatic] == true }
+
 // DraftComponent / DraftRule / Draft là bản nháp ở dạng thuần (từ DB hoặc từ đầu ra LLM). Weight là chuỗi decimal chưa kiểm.
 type DraftComponent struct {
 	Key, Name    string
