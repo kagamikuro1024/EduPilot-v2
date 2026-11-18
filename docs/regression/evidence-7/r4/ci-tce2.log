@@ -1,0 +1,23 @@
+run 44343596969 @777bb5e2 (gh api .../jobs) so với timeout-minutes trong ci.yml @1409b04d
+Changes | success | 0.4 phút | timeout-minutes=None | DƯỚI 2×/THIẾU
+Frontend (lint + build) | success | 1.8 phút | timeout-minutes=15 | ≥2×
+Frontend Lighthouse (devtools A) | success | 7.6 phút | timeout-minutes=25 | ≥2×
+Frontend Lighthouse (devtools B) | success | 14.2 phút | timeout-minutes=25 | DƯỚI 2×/THIẾU
+Frontend Lighthouse (simulate A) | success | 11.8 phút | timeout-minutes=25 | ≥2×
+Frontend Lighthouse (simulate B) | success | 5.5 phút | timeout-minutes=25 | ≥2×
+Frontend e2e (Playwright 1/4) | success | 6.9 phút | timeout-minutes=25 | ≥2×
+Frontend e2e (Playwright 2/4) | success | 6.7 phút | timeout-minutes=25 | ≥2×
+Frontend e2e (Playwright 3/4) | success | 11.2 phút | timeout-minutes=25 | ≥2×
+Frontend e2e (Playwright 4/4) | success | 8.2 phút | timeout-minutes=25 | ≥2×
+Go (static) | success | 6.3 phút | timeout-minutes=20 | ≥2×
+Go test (auth) | success | 4.6 phút | timeout-minutes=30 | ≥2×
+Go test (course) | success | 4.3 phút | timeout-minutes=30 | ≥2×
+Go test (rest-1) | success | 9.7 phút | timeout-minutes=30 | ≥2×
+Go test (rest-2) | success | 8.4 phút | timeout-minutes=30 | ≥2×
+Go test (rest-3) | success | 6.4 phút | timeout-minutes=30 | ≥2×
+Go test không tag (1/4) | success | 5.5 phút | timeout-minutes=25 | ≥2×
+Go test không tag (2/4) | success | 3.6 phút | timeout-minutes=25 | ≥2×
+Go test không tag (3/4) | success | 4.0 phút | timeout-minutes=25 | ≥2×
+Go test không tag (4/4) | success | 4.2 phút | timeout-minutes=25 | ≥2×
+Judge attacks (amd64, seccomp bật) | success | 3.0 phút | timeout-minutes=None | DƯỚI 2×/THIẾU
+VI PHẠM: 3

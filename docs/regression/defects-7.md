@@ -6,6 +6,7 @@
 - Kỳ vọng (PM 2026-10-13): lượt chạy đủ wall ≤ 10 phút và nhanh hơn mốc cũ 13 m 43 s; Thực tế: ~16 phút, chậm hơn mốc cũ.
 - Bằng chứng: `/tmp/qc2e/ci-run.json`, `/tmp/qc2e/ci-log.txt` · Nghi ngờ: `.github/workflows/ci.yml:235-253` (3 shard không cân bằng theo thời gian), job Lighthouse simulate 10,3 phút
 - Chạy lại lần 2: ổn định (hai run liên tiếp ≥ 16 phút)
+- **Chạy lại 19/11 (qc3, sau sửa gốc 842f431c cache .deb Playwright):** vẫn F nhưng giảm mạnh: run 44380364341 @07a6b69c wall 9,5 phút (545 s) nhưng chỉ frontend (Go skipped); lượt đủ job cùng SHA — PR run 44380374004: 10,8 phút (Go rest-1 10,2 phút); run đủ job 44371210850 @9b20fb14: attempt 1 = 16,1 phút (cache lạnh), attempt 2 = 9,5 phút (cache ấm). Ngưỡng ≤ 10 phút chỉ đạt khi cache ấm. Cần: cân lại dòng Go rest-1 (~10 phút) và/hoặc cache lạnh.
 
 ### DEF-R7-02 — Chuông gộp TICKET_NEW không báo ticket mới sau khi hàng chờ về 0
 - Mức: Trung bình
@@ -30,6 +31,34 @@
 - Sprint gốc: 7 · TC gốc: TC-P4-03-33 (US-P4-03 AC10, SRS 7: «ô trả lời dính đáy») · Hồi quy do sprint sau?: KHÔNG (chưa từng có position: sticky/fixed trong `RealInbox.module.css`, `Composer.module.css`)
 - Bước tái hiện: 375×812, GV mở phiếu đã nhận → ô trả lời nằm cuối nội dung (đáy y=488 trên viewport 812), không bám đáy màn hình. Phần còn lại của AC10 (danh sách/chi tiết toàn màn hình, ?ticket=, Quay lại giữ bộ lọc+cuộn, vùng chạm ≥44 px, không tràn ngang) đạt.
 - Bằng chứng: `evidence-7/r3/shots/p403-34-composer.png`, `ui-p403.log`
+
+### DEF-R7-06 — Timeout của job CI không đạt «≥ 2× thời gian thực tế»; `changes` và `judge-attacks` không có `timeout-minutes`
+- Mức: Thấp
+- Sprint gốc: 7 · TC gốc: TC-E2 (US-CI-02) · Hồi quy do sprint sau?: một phần (Lighthouse devtools B chậm dần; hai job không timeout có từ trước US-CI-02)
+- Bước tái hiện: so `timeout-minutes` trong `.github/workflows/ci.yml` @1409b04d với thời gian job của run 44343596969 (`gh api …/jobs`).
+- Kỳ vọng: timeout ≥ 2× thực tế (tránh treo 6 giờ). Thực tế: «Frontend Lighthouse (devtools B)» 14,2 phút vs timeout 25 (cần ≥ 28,4); `changes` và `judge-attacks` không khai báo (mặc định 360 phút). Huỷ ≠ xanh: đạt.
+- Bằng chứng: `evidence-7/r4/ci-tce2.log`
+
+### DEF-R7-07 — Shard Playwright rỗng chạy lại CẢ BỘ test thay vì 0 test
+- Mức: Thấp (tiềm ẩn: CI cố định 4 shard < 174 tệp spec nên chưa xảy ra)
+- Sprint gốc: 7 · TC gốc: TC-E4 (US-CI-02) · Hồi quy do sprint sau?: CÓ (cách chia bằng `frontend/e2e/support/shard.mjs` + `mapfile` ở ci.yml là của vòng DEF-R7-01)
+- Bước tái hiện: `node e2e/support/shard.mjs 200 200` in một dòng rỗng ⇒ `mapfile -t files` ra 1 phần tử rỗng ⇒ `playwright test --grep-invert @real ""` liệt kê 2816 test / 174 tệp.
+- Kỳ vọng: shard rỗng không chạy gì, không đỏ vô cớ, không ảnh hưởng TC-01 (mỗi test đúng một lần). Thực tế: chạy toàn bộ suite (mỗi test chạy thêm lần).
+- Bằng chứng: `evidence-7/r4/ci-tce4.log`
+
+### DEF-R7-08 — Nút «Lưu điểm danh» bị khoá khi mất mạng, không xếp hàng `complete:true`
+- Mức: Trung bình
+- Sprint gốc: 7 · TC gốc: TC-P5-02-33 (US-P5-02 AC13) · Hồi quy do sprint sau?: chưa xác định (`RealAttendance.tsx`: `locked = saved || conflicts || q.status === "offline"`)
+- Bước tái hiện: GV mở /attendance, `context.setOffline(true)`, đổi một hàng → nút đầu trang «Lưu điểm danh» và nút thanh dưới «Chờ mạng · … có mặt · … vắng» đều disabled; có mạng lại: `attendance_done_at` vẫn NULL.
+- Kỳ vọng (AC13, TC-33): bấm Lưu khi offline xếp hàng cùng `complete:true`, có mạng thì đặt `done_at`. Thực tế: hành vi của AC13b (khoá nút). Các ca AC13 khác (banner, kho `ep:draft:…`, tải lại, đăng xuất hỏi trước) đạt.
+- Bằng chứng: `evidence-7/r3/ui-p502.log` (TC-P5-02-33)
+
+### DEF-R7-09 — Nhịp heartbeat khi Redis dừng mất ~8 giây (SRS: ≤ 1 s)
+- Mức: Trung bình
+- Sprint gốc: 7 · TC gốc: TC-P5-03-29 (US-P5-03 AC10) · Hồi quy do sprint sau?: chưa xác định
+- Bước tái hiện: cửa sổ khoá 02:54–02:56 ngày 19/11: `docker stop ep-r-redis-1`, SV đã ack gửi `POST /activity/heartbeat` → 204 nhưng sau 7,98 s.
+- Kỳ vọng (SRS 4.6.1 bước 5, `RedisBudget` = 500 ms): 204 trong ≤ 1 s, tăng `activity_heartbeat_dropped_total`, log không PII. Thực tế: 204, log WARN `activity_heartbeat_dropped_total … context deadline exceeded` không PII (đạt), nhưng độ trễ ~8 s.
+- Bằng chứng: `evidence-7/scripts-r3/p53lock.py`, `master7.json` (TC-P5-03-29)
 
 ## Ca lỗi thời có nguồn quyết định (xoá khỏi smoke-7.md và khỏi tổng; qc3 18/11/2026)
 - TC-P5-06-19 (US-P5-06 AC8: giảng viên/TA/ADMIN mở `/me` «được chuyển về `/`») — thay bằng màn chặn chung «Bạn không có quyền xem màn này» + nút Về Hôm nay: `docs/sprints/7/proposals.md` #34 (PM ACCEPTED 2026-10-15).
