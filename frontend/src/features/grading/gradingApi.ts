@@ -76,6 +76,15 @@ export const FLAG_TEXT: Record<string, string> = {
   SCORE_ADJUSTED: "Điểm đã chỉnh tay",
 };
 
+/** Nguyên nhân bài «Chấm lỗi» bằng chữ (US-P7-06 AC10, US-P7-07 AC4), theo `error_code` của kết quả FAILED. */
+export const FAILED_TEXT: Record<string, string> = {
+  LLM_BUDGET_EXHAUSTED: "Hết ngân sách AI hôm nay — chấm lại ngày mai hoặc chấm tay",
+  LLM_UNAVAILABLE: "AI tạm thời không phản hồi",
+  GRADING_OUTPUT_INVALID: "AI trả kết quả không dùng được",
+  EXTRACT_FAILED: "Không đọc được nội dung tệp",
+  TEXT_TOO_LONG: "Bài quá dài để chấm",
+};
+
 /** Việc cần làm cho từng cờ ở màn duyệt (không từ kỹ thuật). */
 export const FLAG_TODO: Record<string, string> = {
   OFF_TOPIC: "Đọc bài rồi quyết định cho bao nhiêu điểm.",

@@ -103,9 +103,9 @@ Thứ tự thi công đề xuất: **NFR-01 → 02 → 03 → 05 → 04 → 06 �
 
 ### Tiêu chí nghiệm thu
 - AC1. Given T1 When lấy 10 truy vấn nặng nhất (theo thời gian từ `pg_stat_statements` hoặc log truy vấn chậm sau chạy kịch bản (d)) Then `docs/research/…-explain.md` liệt kê từng truy vấn, kế hoạch trước, số dòng, thời gian.
-- AC2. Given danh sách When thêm chỉ mục Then nằm trong **một** migration goose mới `00018_indexes_tuning.sql` (không sửa migration đã merge); mọi chỉ mục phức hợp bắt đầu bằng `course_id` (luật 13); chỉ mục HNSW cho `content_chunks.embedding` nếu `EXPLAIN` cho thấy tìm vector đang quét tuần tự; mỗi chỉ mục có một dòng lý do trong báo cáo.
-- AC3. Given migration áp dụng When chạy lại 10 truy vấn Then báo cáo có bảng trước / sau; mỗi truy vấn nhanh hơn hoặc "không đổi, không cần chỉ mục" (có lý do); không truy vấn nào chậm đi > 10%.
-- AC4. Given `goose up` rồi `goose down 1` rồi `up` trên DB T1 Then thành công cả ba lần; `sqlc diff` sạch; `go test ./...` các gói đụng truy vấn vẫn xanh.
+- AC2. Given danh sách When thêm chỉ mục Then **chỉ khi** có bằng chứng lợi ích mới thêm, trong **một** migration goose mới ở số kế tiếp còn trống (không sửa migration đã merge; không dùng số `00018` — P-95-8); mọi chỉ mục phức hợp bắt đầu bằng `course_id` (luật 13); chỉ mục HNSW cho `content_chunks.embedding` nếu `EXPLAIN` cho thấy tìm vector đang quét tuần tự; mỗi chỉ mục có một dòng lý do trong báo cáo.
+- AC3. Given danh sách đã xét (có hoặc không có chỉ mục mới) When chạy lại 10 truy vấn Then báo cáo có bảng trước / sau; mỗi truy vấn nhanh hơn hoặc "không đổi, không cần chỉ mục" (có lý do); không truy vấn nào chậm đi > 10%.
+- AC4. Given **có** migration chỉ mục mới When `goose up` rồi `goose down 1` rồi `up` trên DB T1 Then thành công cả ba lần; `sqlc diff` sạch; `go test ./...` các gói đụng truy vấn vẫn xanh. Given `EXPLAIN` 10 truy vấn nặng nhất không cho thấy truy vấn nào cần chỉ mục (kết quả đo ở T1: mỗi truy vấn ≤ 14 ms) Then **không tạo migration**, báo cáo ghi «không cần chỉ mục» kèm kế hoạch từng truy vấn và AC4 không áp dụng (P-95-8).
 - AC5 (nhánh lỗi). Given chỉ mục làm một truy vấn ghi (điểm danh, nộp bài) chậm hơn > 20% Then bỏ chỉ mục đó và ghi lý do.
 - AC6 (không phình). Given tổng kích thước chỉ mục mới Then ghi vào báo cáo (MB); nếu > 25% kích thước bảng chính thì nêu trong QUESTIONS với lý do giữ.
 
@@ -213,7 +213,7 @@ Mô hình: **Gemini Free Tier** qua khoá API của chủ dự án (P-95-4, P-95
 - AC1. Given mỗi lỗi do phép đo tìm ra When ghi Then một dòng `docs/sprints/9.5/techlead.md` (TL-n) hoặc `proposals.md`: tái hiện (lệnh), mức (cao / vừa / thấp), đề xuất, bằng chứng (tệp trong `benchmarks/reports/`).
 - AC2. Given lỗi mức cao (rò đáp án / điểm / PII; chèn lệnh kéo điểm lên mà không cờ; việc thất lạc; SLO TTFT / 5xx trượt) When PM duyệt Then dev sửa trong sprint, có test hồi quy; phép đo liên quan chạy lại và PASS; báo cáo ghi cả hai lần.
 - AC3. Given lỗi mức vừa / thấp When PM quyết Then chuyển sang `PROGRESS.md` mục Nợ hoặc sprint sau, không sửa tại sprint này.
-- AC4. Given sửa mã sản phẩm When commit Then thông điệp `9.5: <việc>` + số TL / proposal; không đổi hợp đồng API, không sửa migration đã merge (chỉ `00018_indexes_tuning`).
+- AC4. Given sửa mã sản phẩm When commit Then thông điệp `9.5: <việc>` + số TL / proposal; không đổi hợp đồng API, không sửa migration đã merge (không có migration mới ở sprint này, P-95-8).
 - AC5 (không phá). Given mỗi sửa When chạy `go test -race` gói đụng tới + test frontend liên quan Then xanh; cổng sprint chạy cả bộ một lần trước handoff.
 - AC6 (nhánh lỗi). Given một SLO không thể đạt bằng sửa nhỏ (cần đổi kiến trúc) Then dừng, ghi PM; không thêm hạ tầng (Kafka, K8s, shard — SYSTEM_DESIGN §4).
 

@@ -421,7 +421,7 @@ func (q *Queries) PracticeChunksByIDs(ctx context.Context, arg PracticeChunksByI
 }
 
 const practiceDocBrief = `-- name: PracticeDocBrief :one
-select id, type::text as type, status::text as status from documents where course_id = $1 and id = $2 and type::text <> 'THREAD_KNOWLEDGE'
+select id, type::text as type, status::text as status, page_count from documents where course_id = $1 and id = $2 and type::text <> 'THREAD_KNOWLEDGE'
 `
 
 type PracticeDocBriefParams struct {
@@ -430,16 +430,22 @@ type PracticeDocBriefParams struct {
 }
 
 type PracticeDocBriefRow struct {
-	ID     uuid.UUID
-	Type   string
-	Status string
+	ID        uuid.UUID
+	Type      string
+	Status    string
+	PageCount *int32
 }
 
-// Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái.
+// Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái + số trang (trần 60 trang của extract, kiểm trước khi tạo việc).
 func (q *Queries) PracticeDocBrief(ctx context.Context, arg PracticeDocBriefParams) (PracticeDocBriefRow, error) {
 	row := q.db.QueryRow(ctx, practiceDocBrief, arg.CourseID, arg.ID)
 	var i PracticeDocBriefRow
-	err := row.Scan(&i.ID, &i.Type, &i.Status)
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Status,
+		&i.PageCount,
+	)
 	return i, err
 }
 

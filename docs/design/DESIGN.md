@@ -908,7 +908,7 @@ Table:
 - Student, components, bonuses/penalties, current total, final exam, final grade, status.
 - Scores are displayed exactly as the server returns them, never rounded; each column pads zeros to its longest fraction, comma decimal, right-aligned, `tabular-nums`.
 - One vertical scroll area as tall as the remaining viewport, virtualised; header and student column are sticky inside it.
-- Status column reads **Thiếu điểm** (amber) only for students missing a component score, blank otherwise, and is hidden when nobody is missing.
+- Status column shows each row's status (Đã chốt vN / Thiếu điểm / Chưa tính được / Liệt / Khác bản chốt; **Thiếu điểm** in amber), blank when the row has none, and is hidden when no row has a status to show.
 - Freeze name and key total columns where useful.
 - Editing is inline.
 - Audit/history entry appears from row context, not always-visible button.

@@ -150,17 +150,19 @@ function ReadOnly({ courseId, doc }: { courseId: string; doc: SchemeDoc }) {
             </div>
           </Panel>
         }
-        aside={wide ? <Panel><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={sel?.cite ?? null} /></Panel> : null}
+        aside={wide ? <Panel><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} removed={sourceRemoved(doc)} cite={sel?.cite ?? null} /></Panel> : null}
       />
       {!wide && sel && <CiteDrawer open onClose={() => setSel(null)} courseId={courseId} doc={doc} cite={sel.cite} />}
     </>
   );
 }
 
+const sourceRemoved = (doc: SchemeDoc) => !doc.source_document_id && !!doc.source_title;
+
 function CiteDrawer({ open, onClose, courseId, doc, cite }: { open: boolean; onClose: () => void; courseId: string; doc: SchemeDoc; cite: Citation | null }) {
   return (
     <Drawer open={open} onClose={onClose} title={doc.source_title ?? "Quy chế"}>
-      <CitationPane course={courseId} docId={doc.source_document_id} title={undefined} cite={cite} />
+      <CitationPane course={courseId} docId={doc.source_document_id} title={undefined} removed={sourceRemoved(doc)} cite={cite} />
     </Drawer>
   );
 }
@@ -257,7 +259,7 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
         </div>
           </Panel>
         }
-        aside={wide ? <Panel><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={shown?.cite ?? null} /></Panel> : null}
+        aside={wide ? <Panel><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} removed={sourceRemoved(doc)} cite={shown?.cite ?? null} /></Panel> : null}
       />
       {!wide && sel && <CiteDrawer open onClose={() => setSel(null)} courseId={courseId} doc={doc} cite={sel.cite} />}
       {editable && (

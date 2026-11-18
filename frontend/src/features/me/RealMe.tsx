@@ -48,7 +48,7 @@ export function RealMe({ courseId }: { courseId: string }) {
     <Page kind="read">
       <PageHeader title="Kết quả của tôi" />
       {failed ? (
-        <ApiErrorNotice error={att.error ?? part.error} showTechnical onRetry={retry} title="Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất." />
+        <ApiErrorNotice error={att.error ?? part.error} onRetry={retry} title="Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất." />
       ) : !seen || !att.data || !part.data ? (
         <Panel><Skeleton lines={6} /></Panel>
       ) : (

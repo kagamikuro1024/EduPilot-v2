@@ -13,7 +13,7 @@ import { guidanceKey, regradeStale, useGuidance } from "@/features/assignments/g
 import { useSchemes } from "@/features/gradebook/gradeApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
 import { SOURCE_LABEL } from "./submissionApi";
-import { FLAG_TEXT, gradeAll, importSubmissions, publishResults, reviewStateText, syncFromTeams, useQueue, type QueueFilter, type QueueRow, type QueueStatus, type TeamsSyncResult } from "./gradingApi";
+import { FAILED_TEXT, FLAG_TEXT, gradeAll, importSubmissions, publishResults, reviewStateText, syncFromTeams, useQueue, type QueueFilter, type QueueRow, type QueueStatus, type TeamsSyncResult } from "./gradingApi";
 import s from "./Grading.module.css";
 
 const STATUS_OPTIONS: Array<{ value: QueueStatus; label: string }> = [
@@ -255,7 +255,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const schemes = useSchemes(courseId, false, teacher && chosen.length > 0);
   const assignmentIds = new Set(chosen.map((r) => r.assignment.id));
   const scheme = schemes.data?.confirmed ?? schemes.data?.draft ?? null;
-  const flagText = (r: QueueRow) => (r.result?.flags ?? []).map((f) => FLAG_TEXT[f] ?? f).join(" · ");
+  const flagText = (r: QueueRow) => [...(r.result?.run_state === "FAILED" && r.result.error_code ? [FAILED_TEXT[r.result.error_code] ?? "Chấm lỗi"] : []), ...(r.result?.flags ?? []).map((f) => FLAG_TEXT[f] ?? f)].join(" · ");
   // một bài tập (đang chọn, hoặc lớp chỉ có một): bỏ cột "Bài tập", tên bài hiện một lần trên bảng (US-UX91-14 AC1)
   const oneAssignment = assignmentId !== "" || assignments.items.length === 1;
   const tableTitle = oneAssignment ? (assignments.items.find((a) => a.id === assignmentId) ?? assignments.items[0])?.title : undefined;

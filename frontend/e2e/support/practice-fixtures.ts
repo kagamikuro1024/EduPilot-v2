@@ -10,7 +10,7 @@ const frame = (event: string, data: unknown) => `event: ${event}\ndata: ${JSON.s
 
 type Opt = { id: string; body: string };
 type Item = { id: string; position: number; type: string; stem: string; topic: string; options: Opt[]; correct: string; explanation: string; answer: { answer: Record<string, unknown>; version: number; locked: boolean } | null };
-type Attempt = { id: string; mode: "TOPIC" | "MOCK"; topic: string | null; status: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED"; started_at: string; deadline_at: string | null; items: Item[]; current_index: number; version: number; expired: boolean };
+type Attempt = { id: string; mode: "TOPIC" | "MOCK"; topic: string | null; status: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED"; tab?: string; started_at: string; deadline_at: string | null; items: Item[]; current_index: number; version: number; expired: boolean };
 export type Call = { method: string; path: string; body: string; headers: Record<string, string> };
 type Handler = (route: Route, next: () => Promise<void>) => Promise<void> | void;
 
@@ -72,16 +72,22 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
       return route.fulfill(json(view(attempts.get(id)!), 201));
     }
     if (!a) return route.fulfill(err(404, "NOT_FOUND"));
-    if (req.method() === "GET" && parts.length === 2) return route.fulfill(json(view(a)));
+    const tab = req.headers()["x-practice-tab"];
+    if (req.method() === "GET" && parts.length === 2) {
+      if (tab && a.status === "IN_PROGRESS") a.tab = tab; // như máy chủ thật: mở lượt ở tab này là giành quyền ghi
+      return route.fulfill(json(view(a)));
+    }
     if (req.method() === "PATCH") {
       a.current_index = (JSON.parse(body) as { current_index: number }).current_index;
       return route.fulfill(json({ current_index: a.current_index, version: ++a.version }));
     }
     if (req.method() === "PUT" && parts[2] === "answers") {
       if (a.status !== "IN_PROGRESS") return route.fulfill(err(409, "ATTEMPT_CLOSED"));
+      if (tab && a.tab && a.tab !== tab) return route.fulfill(err(409, "TAB_TAKEN_OVER"));
       const it = a.items.find((x) => x.id === parts[3])!;
       if (a.mode === "TOPIC" && it.answer) return route.fulfill(err(409, "ANSWER_LOCKED"));
-      const b = JSON.parse(body) as { answer: Record<string, unknown> };
+      const b = JSON.parse(body) as { answer: Record<string, unknown>; version?: number };
+      if (it.answer && JSON.stringify(it.answer.answer) !== JSON.stringify(b.answer) && (b.version ?? 0) !== it.answer.version) return route.fulfill(err(409, "VERSION_CONFLICT", { version: it.answer.version })); // như máy chủ thật
       it.answer = { answer: b.answer, version: (it.answer?.version ?? 0) + 1, locked: a.mode === "TOPIC" };
       const ok = (b.answer.option_ids as string[])[0] === it.correct;
       return route.fulfill(json({ version: it.answer.version, locked: it.answer.locked, feedback: a.mode === "TOPIC" ? { correct: ok, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [] } : null }));
