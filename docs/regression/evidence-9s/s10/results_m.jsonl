@@ -1,0 +1,66 @@
+{"tc": "TC-04-13 EXTRACTED", "kq": "P", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"0a5ca4c3a5316c3d2672ed03002f6459\", \"details\": [{\"field\": \"citations\", \"code\": \"CIT"}
+{"tc": "TC-04-13 GENERATED", "kq": "P", "note": "422 {\"code\": \"VALIDATION_FAILED\", \"message\": \"Dữ liệu chưa hợp lệ.\", \"trace_id\": \"7a2ffa658c85ddb1928e57bc94fc6bb7\", \"details\": [{\"field\": \"citations\", \"code\": \"CIT"}
+{"tc": "TC-05-05 (bước 1: nộp lượt A 5 đúng/5 sai)", "kq": "P", "note": "200 {\"id\": \"01a1ef3f-6f48-7696-bbed-c1a71373ebed\", \"mode\": \"TOPIC\", \"topic\": \"QC-r10-A\", \"status\": \"SUBMITTED\", \"started_at\""}
+{"tc": "TC-05-05 lượt A cách 10 ngày: 0 câu đúng cũ xuất hiện lại (3 lần dựng, chủ đề 30 câu)", "kq": "P", "note": "trùng với 5 câu đúng: [0, 0, 0]"}
+{"tc": "TC-05-06 lượt A cách 40 ngày (ngoài cửa sổ 30 ngày): câu đúng cũ có thể xuất hiện (xin cả 30 câu → đủ 30, gồm 5 câu đã đúng)", "kq": "P", "note": "201 đề 30 câu; trong đó 5/5 câu đúng cũ"}
+{"tc": "TC-05-15 SV enrollment PENDING start → 403/404", "kq": "P", "note": "403"}
+{"tc": "TC-05-04 ô X xin 6 chỉ có 3: bù từ ô khác, tổng đủ 10, notes mô tả", "kq": "F", "note": "201 items=10 F4=3 notes=[]"}
+{"tc": "TC-05-07 X1,X2,X3,X4,X6 không xuất hiện trong 40 đề (5 vòng × 8 SV); X5 được phép", "kq": "F", "note": "đếm theo X1..X6 = [0, 0, 0, 17, 15, 0]; rò phản hồi []"}
+{"tc": "TC-10-02 ≥ 50 lượt TOPIC/MOCK chủ đề T (40 lượt): X1-X4,X6 0 lần ở đề/phản hồi; X5 15", "kq": "F", "note": "40 lượt"}
+{"tc": "TC-10-02 ≥ 50 lượt (tổng 44): X1,X2,X3,X4,X6 = 0 lần; X5 = 15", "kq": "F", "note": "[0, 0, 0, 21, 15, 0]"}
+{"tc": "TC-10-02 explain: không nhắc nội dung X1..X4,X6", "kq": "P", "note": "2266 ký tự explain"}
+{"tc": "TC-05-09 X3: 0 lần khi OPEN/CLOSED; sau PUBLISHED xuất hiện (0 lần/12 đề)", "kq": "F", "note": "go test TestPracticeNoExamLeak: chạy riêng ở dòng sau"}
+{"tc": "TC-05-07 X1,X2,X3,X4,X6 không xuất hiện trong 40 đề (5 vòng × 8 SV) + đề trọn ngân hàng; X5 có (PUBLISHED)", "kq": "P", "note": "đếm theo X1..X6 = [0, 0, 0, 0, 27, 0]; rò phản hồi []"}
+{"tc": "TC-10-02 ≥ 50 lượt TOPIC/MOCK chủ đề T (40 lượt): X1-X4,X6 0 lần ở đề/phản hồi; X5 27", "kq": "P", "note": "40 lượt"}
+{"tc": "TC-10-02 ≥ 50 lượt (tổng 44): X1,X2,X3,X4,X6 = 0 lần; X5 = 31", "kq": "F", "note": "[0, 0, 0, 0, 31, 0]"}
+{"tc": "TC-10-02 explain: không nhắc nội dung X1..X4,X6", "kq": "P", "note": "2138 ký tự explain"}
+{"tc": "TC-05-09 X3: vắng khi OPEN và CLOSED, hiện sau PUBLISHED (đề trọn ngân hàng)", "kq": "P", "note": "{'OPEN': False, 'CLOSED': False, 'PUBLISHED': True}"}
+{"tc": "TC-10-17 SV đang có lượt thi OPEN dựng luyện cùng chủ đề: không có câu của bài thi OPEN", "kq": "P", "note": "exam_attempt=201 start=201 X3=0"}
+{"tc": "TC-06-02 SV chưa có lượt: khuyến nghị = chủ đề có nhiều câu APPROVED nhất", "kq": "P", "note": "khuyến nghị=QC-r10-A có 30/30 (max=['QC-r10-A'])"}
+{"tc": "TC-07-03 duration 9/181, count 4/51 → 422 VALIDATION_FAILED", "kq": "P", "note": "[(20, 9, 422, 'VALIDATION_FAILED'), (20, 181, 422, 'VALIDATION_FAILED'), (4, 20, 422, 'VALIDATION_FAILED'), (51, 20, 422, 'VALIDATION_FAILED')]"}
+{"tc": "TC-07-24 SV khác lớp/cùng lớp: 404 mọi API lượt; staff PUT answers: 403", "kq": "P", "note": "sv.gioi [404, 404, 404]; sv lớp khác [403, 403, 403]; GV/TA PUT [403, 403]"}
+{"tc": "TC-08-07 8 lượt MOCK ma trận mặc định: 0 câu ESSAY", "kq": "P", "note": "ESSAY=0"}
+{"tc": "TC-08-13 hồ sơ SV của GV (profile) không có bài viết / nhận xét luyện", "kq": "P", "note": "200 852 ký tự; khoá: ['student', 'risk', 'attendance', 'participation', 'study', 'activity']"}
+{"tc": "TC-10-16 question_id lớp 2 trong PUT answers → 422 INVALID_QUESTION; đọc câu lớp 2 → 403/404", "kq": "F", "note": "PUT 422 VALIDATION_FAILED; GET câu 403; GET ds 403"}
+{"tc": "TC-09-06 (nền) việc Ôn chủ đề khi chưa luyện > 3 ngày", "kq": "F", "note": "0 việc: []"}
+{"tc": "TC-09-07 luyện A cách 2 ngày: không có việc A; ép 4 ngày: có lại", "kq": "F", "note": "2 ngày: 0 việc; 4 ngày: 0 việc"}
+{"tc": "TC-09-06 (nền) việc Ôn chủ đề khi chưa luyện > 3 ngày", "kq": "F", "note": "0 việc: []"}
+{"tc": "TC-09-07 luyện A cách 2 ngày: không có việc A; ép 4 ngày: có lại", "kq": "F", "note": "2 ngày: 0 việc; 4 ngày: 0 việc"}
+{"tc": "TC-09-06 (nền) việc Ôn chủ đề khi chưa luyện > 3 ngày", "kq": "F", "note": "0 việc: []"}
+{"tc": "TC-09-07 luyện A cách 2 ngày: không có việc A; ép 4 ngày: có lại", "kq": "F", "note": "2 ngày: 0 việc; 4 ngày: 0 việc"}
+{"tc": "TC-09-06 (nền) việc Ôn chủ đề khi chưa luyện > 3 ngày", "kq": "P", "note": "1 việc: [{'id': 'PRACTICE_WEAK_TOPIC:01a1ef3e-8372-7b15-9e9e-902d23312b7d', 'kind': 'PRACTICE_WEAK_TOPIC', 'title': 'Ôn chủ đề QC-r10-W', 'reason': 'Sai 30 / 30 câu gần"}
+{"tc": "TC-09-07 luyện A cách 2 ngày: không có việc A; ép 4 ngày: có lại", "kq": "F", "note": "2 ngày: 1 việc; 4 ngày: 1 việc"}
+{"tc": "TC-09-08 submit lượt TOPIC của chủ đề xong: việc Ôn chủ đề biến mất ≤ 5 s", "kq": "F", "note": "biến mất sau None s"}
+{"tc": "TC-09-09 today của TEACHER/TA/ADMIN: không có PRACTICE_WEAK_TOPIC", "kq": "P", "note": "3 vai kiểm"}
+{"tc": "TC-09-06 (nền) việc Ôn chủ đề khi chưa luyện > 3 ngày", "kq": "F", "note": "0 việc: []"}
+{"tc": "TC-09-07 luyện chủ đề W cách 2 ngày: không có việc W; ép 4 ngày: có lại", "kq": "F", "note": "2 ngày: 0 việc; 4 ngày: 0 việc"}
+{"tc": "TC-09-06 (nền) việc Ôn chủ đề khi chưa luyện > 3 ngày", "kq": "P", "note": "1 việc: [{'id': 'PRACTICE_WEAK_TOPIC:01a1ef3e-8372-7b15-9e9e-902d23312b7d', 'kind': 'PRACTICE_WEAK_TOPIC', 'title': 'Ôn chủ đề QC-r10-W', 'reason': 'Sai 60 / 60 câu gần"}
+{"tc": "TC-09-07 luyện chủ đề W cách 2 ngày: không có việc W; ép 4 ngày: có lại", "kq": "P", "note": "2 ngày: 0 việc; 4 ngày: 1 việc"}
+{"tc": "TC-09-08 submit lượt TOPIC của chủ đề xong: việc Ôn chủ đề biến mất ≤ 5 s", "kq": "P", "note": "biến mất sau 1.0 s"}
+{"tc": "TC-09-09 today của TEACHER/TA/ADMIN: không có PRACTICE_WEAK_TOPIC", "kq": "P", "note": "3 vai kiểm"}
+{"tc": "TC-09-18 SV rời lớp (enrollment REMOVED): history lớp 1 → 403 hoặc rỗng (hành vi thật ghi lại)", "kq": "P", "note": "trước 1 lượt; sau khi REMOVED: 403 {\"code\": \"FORBIDDEN\", \"message\": \"B\\u1ea1n kh\\u00f4ng c\\u00f3 quy\\u1ec1n th\\u1ef1c hi\\u1ec7n thao t\\u00e1c n\\u00e0y.\", \"trace_id\": \"77f447bda13e3491804bffb95bf4"}
+{"tc": "TC-05-18", "kq": "P", "note": "SQL practice.sql: PracticePool + PracticeTopics có NOT EXISTS (exam_items ⋈ exams WHERE e.status <> 'PUBLISHED') ở truy vấn; start.go không lọc sau khi lấy; frontend/src/features/practice không có lọc used_in_exams/PUBLISHED"}
+{"tc": "TC-12-12", "kq": "P", "note": "grep '@/mock/practice' + 'mock/questions' trong frontend/src = 0; frontend/src/mock/practice.ts và questions.ts không còn; bash scripts/ui-antipatterns.sh exit 0"}
+{"tc": "TC-12-16", "kq": "F", "note": "docs/PROGRESS.md @dc67bd93: F12 ☐ (kỳ vọng ☑ sau khi luồng đạt) và P9 «Dev xong, chờ QC» chưa cập nhật theo kết quả QC sprint 10 — PM cập nhật (Thấp, tài liệu)"}
+{"tc": "TC-12-18", "kq": "P", "note": "ARCHITECTURE.md: dòng migration 00019 practice (l.132), route practice thật (l.179, 289); không còn practice_exams; DEMO_SCRIPT chỉ nhắc «các việc Luyện đề» ở bản ghi fake, chưa có bước Luyện đề riêng — TC cho phép «nếu PM đồng ý (ghi)»: ghi nhận"}
+{"tc": "TC-12-22", "kq": "P", "note": "git diff 8ae5393f..HEAD giới hạn đường dẫn practice/quiz/questions/00019 (39 commit): 0 t.Skip/float64 điểm/fetch trần/secret mới; test.skip chỉ lọc theo project playwright (desktop/mobile); contract test chỉ THÊM (0 dòng assert bị xoá), expected_final_grades.csv không đổi; không thêm thư viện cho practice"}
+{"tc": "TC-09-11", "kq": "P", "note": "go test qc9s_signals_test (bản sao tạm trong rig): P (3 SV) có students_affected=3; Q (2 SV) không có; khoá {topic,wrong_answers,students_affected,sample_question_ids}; JSON không chứa id SV; + TestWrongAnswerSignalsNoIdentity PASS"}
+{"tc": "TC-09-12", "kq": "P", "note": "ngoài dữ liệu → rỗng; from>to → len=0 err=nil, không panic (go test qc9s_signals_test)"}
+{"tc": "TC-09-13", "kq": "P", "note": "SV thứ 3 sai Q → Q students_affected=3, P vẫn 3 (go test qc9s_signals_test)"}
+{"tc": "TC-10-02", "kq": "P", "note": "64 lượt TOPIC/MOCK (8 SV × 8 vòng) chủ đề Y trên QD10A + 40 lượt lần trước: X1,X2,X4,X6 0 lần ở đề / phản hồi PUT answers (rò=0, phản hồi=0); explain không nhắc X1-X4,X6 (4 câu); X5 PUBLISHED xuất hiện 32 lần (được phép)"}
+{"tc": "TC-05-07", "kq": "P", "note": "X1,X2,X3,X4,X6 không xuất hiện trong 40 đề (5 vòng × 8 SV) + đề trọn ngân hàng; X5 có (PUBLISHED) — đếm theo X1..X6 = [0, 0, 0, 0, 27, 0]; rò phản hồi []"}
+{"tc": "TC-05-09", "kq": "P", "note": "X3: vắng khi OPEN và CLOSED, hiện sau PUBLISHED (đề trọn ngân hàng) — {'OPEN': False, 'CLOSED': False, 'PUBLISHED': True}"}
+{"tc": "TC-05-04", "kq": "F", "note": "ô X xin 6 chỉ có 3: bù từ ô khác, tổng đủ 10, notes mô tả — 201 items=10 F4=3 notes=[]"}
+{"tc": "TC-05-05", "kq": "P", "note": "lượt A cách 10 ngày: 0 câu đúng cũ xuất hiện lại (3 lần dựng, chủ đề 30 câu) — trùng với 5 câu đúng: [0, 0, 0]"}
+{"tc": "TC-05-06", "kq": "P", "note": "lượt A cách 40 ngày (ngoài cửa sổ 30 ngày): câu đúng cũ có thể xuất hiện (xin cả 30 câu → đủ 30, gồm 5 câu đã đúng) — 201 đề 30 câu; trong đó 5/5 câu đúng cũ"}
+{"tc": "TC-05-15", "kq": "P", "note": "SV enrollment PENDING start → 403/404 — 403"}
+{"tc": "TC-06-02", "kq": "P", "note": "SV chưa có lượt: khuyến nghị = chủ đề có nhiều câu APPROVED nhất — khuyến nghị=QC-r10-A có 30/30 (max=['QC-r10-A'])"}
+{"tc": "TC-07-03", "kq": "P", "note": "duration 9/181, count 4/51 → 422 VALIDATION_FAILED — [(20, 9, 422, 'VALIDATION_FAILED'), (20, 181, 422, 'VALIDATION_FAILED'), (4, 20, 422, 'VALIDATION_FAILED'), (51, 20, 422, 'VALIDATION_FAILED')]"}
+{"tc": "TC-07-24", "kq": "P", "note": "SV khác lớp/cùng lớp: 404 mọi API lượt; staff PUT answers: 403 — sv.gioi [404, 404, 404]; sv lớp khác [403, 403, 403]; GV/TA PUT [403, 403]"}
+{"tc": "TC-08-07", "kq": "P", "note": "8 lượt MOCK ma trận mặc định: 0 câu ESSAY — ESSAY=0"}
+{"tc": "TC-08-13", "kq": "P", "note": "hồ sơ SV của GV (profile) không có bài viết / nhận xét luyện — 200 852 ký tự; khoá: ['student', 'risk', 'attendance', 'participation', 'study', 'activity']"}
+{"tc": "TC-10-16", "kq": "F", "note": "question_id lớp 2 trong PUT answers → 422 INVALID_QUESTION; đọc câu lớp 2 → 403/404 — PUT 422 VALIDATION_FAILED; GET câu 403; GET ds 403"}
+{"tc": "TC-10-17", "kq": "P", "note": "SV đang có lượt thi OPEN dựng luyện cùng chủ đề: không có câu của bài thi OPEN — exam_attempt=201 start=201 X3=0"}
+{"tc": "TC-09-07", "kq": "P", "note": "luyện chủ đề W cách 2 ngày: không có việc W; ép 4 ngày: có lại — 2 ngày: 0 việc; 4 ngày: 1 việc"}
+{"tc": "TC-09-08", "kq": "P", "note": "submit lượt TOPIC của chủ đề xong: việc Ôn chủ đề biến mất ≤ 5 s — biến mất sau 1.0 s"}
+{"tc": "TC-09-18", "kq": "P", "note": "SV rời lớp (enrollment REMOVED): history lớp 1 → 403 hoặc rỗng (hành vi thật ghi lại) — trước 1 lượt; sau khi REMOVED: 403 {\"code\": \"FORBIDDEN\", \"message\": \"B\\u1ea1n kh\\u00f4ng c\\u00f3 quy\\u1ec1n th\\u1ef1c hi\\u1ec7n thao t\\u00e1c n\\u00e0y.\", \"trace_id\": \"77f447bda13e3491804bffb95bf4"}

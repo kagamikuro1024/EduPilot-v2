@@ -1,0 +1,74 @@
+package practice_test
+
+import (
+	"encoding/json"
+	"sort"
+	"testing"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
+
+	"github.com/edupilot/backend-go/internal/practice"
+)
+
+// QC r10: TC-09-11/12/13 (bản sao QC, không commit; nạp bằng go -overlay).
+func TestQCR10WrongSignals(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	ctx := t.Context()
+	r.approved("P", 5)
+	r.approved("Q", 5)
+	wrong := func(sv uuid.UUID, topic string) {
+		v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: topic, Count: new(5)}, uuid.Nil)
+		require.NoError(t, err)
+		_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, v.Items[0].ID, uuid.Nil, opt(r.wrongOption(v.Items[0].ID))) //nolint:contextcheck
+		require.NoError(t, err)
+	}
+	var all []uuid.UUID
+	for range 3 {
+		sv := r.student()
+		all = append(all, sv)
+		wrong(sv, "P")
+	}
+	q1, q2 := r.student(), r.student()
+	all = append(all, q1, q2)
+	wrong(q1, "Q")
+	wrong(q2, "Q")
+	from, to := time.Now().Add(-time.Hour), time.Now().Add(time.Hour)
+	sig, err := r.svc.WrongAnswerSignals(ctx, r.course, from, to)
+	require.NoError(t, err)
+	require.Len(t, sig, 1)
+	require.Equal(t, "P", sig[0].Topic)
+	require.GreaterOrEqual(t, sig[0].StudentsAffected, 3)
+	b, _ := json.Marshal(sig)
+	var rows []map[string]any
+	require.NoError(t, json.Unmarshal(b, &rows))
+	keys := []string{}
+	for k := range rows[0] {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	require.Equal(t, []string{"sample_question_ids", "students_affected", "topic", "wrong_answers"}, keys) // TC-09-11: đúng 4 khoá, không student_id/tên/MSSV/email
+	for _, sv := range all {
+		require.NotContains(t, string(b), sv.String())
+	}
+	require.NotContains(t, string(b), "example.test")
+	// TC-09-12: khoảng ngoài dữ liệu; from > to
+	none, err := r.svc.WrongAnswerSignals(ctx, r.course, time.Now().Add(-72*time.Hour), time.Now().Add(-48*time.Hour))
+	require.NoError(t, err)
+	require.Empty(t, none)
+	rev, err := r.svc.WrongAnswerSignals(ctx, r.course, to, from)
+	t.Logf("TC-09-12 from>to: err=%v len=%d", err, len(rev))
+	require.Empty(t, rev)
+	// TC-09-13: SV thứ 3 sai Q → Q xuất hiện
+	wrong(r.student(), "Q")
+	sig2, err := r.svc.WrongAnswerSignals(ctx, r.course, from, to)
+	require.NoError(t, err)
+	require.Len(t, sig2, 2)
+	got := map[string]int{}
+	for _, s := range sig2 {
+		got[s.Topic] = s.StudentsAffected
+	}
+	require.Equal(t, 3, got["Q"])
+}

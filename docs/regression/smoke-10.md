@@ -303,3 +303,32 @@ Lượt 2 (luật mới «không lấy mẫu»): chạy nốt 112 ca M bằng `p
 | TC-08-08 | K(c) | ngoài phạm vi theo spec (P-10-7 Q16) — giữ |
 | TC-11-09 | N | «LT» cũ chỉ ghi L12 (lỗi đã sửa), chưa có P-xx/D-xx duyệt đổi hành vi → chạy lại; kết luận ghi ở dòng sau |
 | TC-08-08 | N | không còn nhãn K(c): chạy tới kết luận (P-10-7 Q16 chỉ nêu phạm vi, chưa là quyết định bỏ ca) |
+
+## Lượt 2026-11-18 — kết quả chạy thật (mã dc67bd93, stack ep-qc, lớp riêng QD10A/QD10B; không đụng 761987/761988)
+| TC | KQ | Ghi chú |
+| --- | --- | --- |
+| TC-05-18 | P | SQL practice.sql: PracticePool + PracticeTopics có NOT EXISTS (exam_items ⋈ exams WHERE e.status <> 'PUBLISHED') ở truy vấn; start.go không lọc sau khi lấy; frontend/src/features/practice không có lọc used_in_exams/PUBLISHED |
+| TC-12-12 | P | grep '@/mock/practice' + 'mock/questions' trong frontend/src = 0; frontend/src/mock/practice.ts và questions.ts không còn; bash scripts/ui-antipatterns.sh exit 0 |
+| TC-12-16 | F | docs/PROGRESS.md @dc67bd93: F12 ☐ (kỳ vọng ☑ sau khi luồng đạt) và P9 «Dev xong, chờ QC» chưa cập nhật theo kết quả QC sprint 10 — PM cập nhật (Thấp, tài liệu) |
+| TC-12-18 | P | ARCHITECTURE.md: dòng migration 00019 practice (l.132), route practice thật (l.179, 289); không còn practice_exams; DEMO_SCRIPT chỉ nhắc «các việc Luyện đề» ở bản ghi fake, chưa có bước Luyện đề riêng — TC cho phép «nếu PM đồng ý (ghi)»: ghi nhận |
+| TC-12-22 | P | git diff 8ae5393f..HEAD giới hạn đường dẫn practice/quiz/questions/00019 (39 commit): 0 t.Skip/float64 điểm/fetch trần/secret mới; test.skip chỉ lọc theo project playwright (desktop/mobile); contract test chỉ THÊM (0 dòng assert bị xoá), expected_final_grades.csv không đổi; không thêm thư viện cho practice |
+| TC-09-11 | P | go test qc9s_signals_test (bản sao tạm trong rig): P (3 SV) có students_affected=3; Q (2 SV) không có; khoá {topic,wrong_answers,students_affected,sample_question_ids}; JSON không chứa id SV; + TestWrongAnswerSignalsNoIdentity PASS |
+| TC-09-12 | P | ngoài dữ liệu → rỗng; from>to → len=0 err=nil, không panic (go test qc9s_signals_test) |
+| TC-09-13 | P | SV thứ 3 sai Q → Q students_affected=3, P vẫn 3 (go test qc9s_signals_test) |
+| TC-10-02 | P | 64 lượt TOPIC/MOCK (8 SV × 8 vòng) chủ đề Y trên QD10A + 40 lượt lần trước: X1,X2,X4,X6 0 lần ở đề / phản hồi PUT answers (rò=0, phản hồi=0); explain không nhắc X1-X4,X6 (4 câu); X5 PUBLISHED xuất hiện 32 lần (được phép) |
+| TC-05-07 | P | X1,X2,X3,X4,X6 không xuất hiện trong 40 đề (5 vòng × 8 SV) + đề trọn ngân hàng; X5 có (PUBLISHED) — đếm theo X1..X6 = [0, 0, 0, 0, 27, 0]; rò phản hồi [] |
+| TC-05-09 | P | X3: vắng khi OPEN và CLOSED, hiện sau PUBLISHED (đề trọn ngân hàng) — {'OPEN': False, 'CLOSED': False, 'PUBLISHED': True} |
+| TC-05-04 | F | ô X xin 6 chỉ có 3: bù từ ô khác, tổng đủ 10, notes mô tả — 201 items=10 F4=3 notes=[] |
+| TC-05-05 | P | lượt A cách 10 ngày: 0 câu đúng cũ xuất hiện lại (3 lần dựng, chủ đề 30 câu) — trùng với 5 câu đúng: [0, 0, 0] |
+| TC-05-06 | P | lượt A cách 40 ngày (ngoài cửa sổ 30 ngày): câu đúng cũ có thể xuất hiện (xin cả 30 câu → đủ 30, gồm 5 câu đã đúng) — 201 đề 30 câu; trong đó 5/5 câu đúng cũ |
+| TC-05-15 | P | SV enrollment PENDING start → 403/404 — 403 |
+| TC-06-02 | P | SV chưa có lượt: khuyến nghị = chủ đề có nhiều câu APPROVED nhất — khuyến nghị=QC-r10-A có 30/30 (max=['QC-r10-A']) |
+| TC-07-03 | P | duration 9/181, count 4/51 → 422 VALIDATION_FAILED — [(20, 9, 422, 'VALIDATION_FAILED'), (20, 181, 422, 'VALIDATION_FAILED'), (4, 20, 422, 'VALIDATION_FAILED'), (51, 20, 422, 'VALIDATION_FAILED')] |
+| TC-07-24 | P | SV khác lớp/cùng lớp: 404 mọi API lượt; staff PUT answers: 403 — sv.gioi [404, 404, 404]; sv lớp khác [403, 403, 403]; GV/TA PUT [403, 403] |
+| TC-08-07 | P | 8 lượt MOCK ma trận mặc định: 0 câu ESSAY — ESSAY=0 |
+| TC-08-13 | P | hồ sơ SV của GV (profile) không có bài viết / nhận xét luyện — 200 852 ký tự; khoá: ['student', 'risk', 'attendance', 'participation', 'study', 'activity'] |
+| TC-10-16 | F | question_id lớp 2 trong PUT answers → 422 INVALID_QUESTION; đọc câu lớp 2 → 403/404 — PUT 422 VALIDATION_FAILED; GET câu 403; GET ds 403 |
+| TC-10-17 | P | SV đang có lượt thi OPEN dựng luyện cùng chủ đề: không có câu của bài thi OPEN — exam_attempt=201 start=201 X3=0 |
+| TC-09-07 | P | luyện chủ đề W cách 2 ngày: không có việc W; ép 4 ngày: có lại — 2 ngày: 0 việc; 4 ngày: 1 việc |
+| TC-09-08 | P | submit lượt TOPIC của chủ đề xong: việc Ôn chủ đề biến mất ≤ 5 s — biến mất sau 1.0 s |
+| TC-09-18 | P | SV rời lớp (enrollment REMOVED): history lớp 1 → 403 hoặc rỗng (hành vi thật ghi lại) — trước 1 lượt; sau khi REMOVED: 403 {"code": "FORBIDDEN", "message": "B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n th\u1ef1c hi\u1ec7n thao t\u00e1c n\u00e0y.", "trace_id": "77f447bda13e3491804bffb95bf4 |
