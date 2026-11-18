@@ -1,0 +1,28 @@
+TC-P3-01-45	P	update X→22P02, insert x→22P02; go test: ok github.com/edupilot/backend-go/internal/store 1.144s
+TC-P3-01-49	F	rolsuper|rolbypassrls=t|t (vai ứng dụng edupilot là siêu quyền, TC đòi KHÔNG); update pii_events → 42501 (trigger vẫn chặn). DEF-R6-01 mức Thấp
+TC-P3-01-50	P	SVB/TA/GV/ADMIN đọc tin phiên của SVA → sv.kha:404, ta:403, teacher:403, admin:403
+TC-P3-03-03	P	import privacy: {'agent': 1, 'chat': 1, 'thread': 1, 'ingest': 1, 'rag': 0}; mã (bỏ chú thích) gọi Mask*/Unmask*: 0; ký hiệu dùng: ['Channel', 'ChannelPrivate', 'Classifier', 'Detector', 'Entity', 'ErrMaskFailed', 'Kind', 'KindCCCD', 'KindEmail', 'KindMSSV', 'KindName', 'KindPhone', 'NewSession', 'ReasonPIICCCD', 'ReasonPIIEmail', 'ReasonPIIMSSV', 'ReasonPIIName', 'ReasonPIIPhone', 'ReasonPattern', 'ReasonSimilarty', 'Result', 'WithSession']
+TC-P3-03-04	P	gieo internal/chat/qc_probe.go (privacy.Mask): FAIL ; sau khi xoá: ok github.com/edupilot/backend-go/internal/llm 0.551s
+TC-P3-04-16	P	13 dòng mã (bỏ chú thích) chứa từ danh tính; dòng thuộc tham số/schema tool (tag json): 0. Mẫu: intent.go:var reDeclare = regexp.MustCompile(`(mssv|ma so si | gradesource.go:comps = append(comps, map[string]any{"name": c.Nam | tools.go:func (r *PrivateRegistry) Run(ctx context.Context, | tools.go:return run(ctx, r.tools, name, tc, args)
+TC-P3-04-16	P	đọc 13 dòng mã chứa từ danh tính trong internal/agent: toàn bộ là tên hàm/biến (tool name, Self ctor từ TrustedContext, weight name, regexp ý định) — 0 dòng thuộc kiểu tham số/JSON schema của 7 tool cá nhân
+TC-P3-04-17	P	gieo StudentCode `json:"student_code"` vào WhatIfArgs: test ĐỎ ([' \tMessages: \twhat_if_final_grade có tham số danh tính StudentCode']); sau khi hoàn lại: ok github.com/edupilot/backend-go/internal/agent 0.587s
+TC-P3-04-21	P	gieo qc_probe2.go gọi PublicRegistry.RegisterPersonal: go build → # github.com/edupilot/backend-go/internal/agent internal/agent/qc_probe2.go:2:53: r.RegisterPersonal undefined (type *PublicRegistry has no field or method Regi; xoá tệp: build sạch (rc=0)
+TC-P3-04-53	P	6 dòng UserID: types.go:UserID uuid.UUID | gradesource.go:m, err := a.Grade.MeGrades(ctx, tc.CourseID, tc. | gradesource.go:out, err := a.Grade.MeWhatIf(ctx, tc.CourseID, t | analyze.go:dctx = llm.WithIdentity(ctx, llm.Identity{UserID | infra.go:row, err := store.New(s.Pool).AgentSelf(ctx, sto | infra.go:CourseID: tc.CourseID, SessionID: sid, UserID: t ; go test: ok github.com/edupilot/backend-go/internal/agent 0.391s
+TC-P3-04-34	P	5 dòng khai báo giao diện: AttendanceSource interface {; ParticipationSource interface {; GradeSource interface {; GradeSchemeSource interface {; type LetterGradeSource interface {
+TC-P3-02-57	P	.277584ms | --- PASS: TestQCLongInput (0.02s) | === CONT TestDetectWindowedLongText | --- PASS: TestDetectWindowedLongText (0.00s) | PASS | ok github.com/edupilot/backend-go/internal/privacy 0.514s
+TC-P3-02-08	P	12 số + SĐT → [('CCCD', 1), ('PHONE', 1)] (tổng 2 khoảng thật, không đếm trùng); câu gốc của TC (chuỗi 13 chữ số không phải CCCD 12 số) → [('PHONE', 1)] (chỉ SĐT, 13 số không bị gán nhầm)
+TC-P3-02-17	P	"Võ Thị An" (roster C1) → allowed=False [{'type': 'NAME', 'count': 1}]; "Võ Thị Anh" → allowed=True reasons=[]
+TC-P3-02-60	P	SVB đọc tin phiên SVA → 404; route openapi chứa mask/mapping/placeholder: []; ep:mask:* chỉ ở Redis (0)
+TC-P3-02-30	P	payload1=['[[SV_1]] học nhóm với em']; payload2=['[[SV_1]] có nộp bài chưa']
+TC-P3-02-35	P	HGETALL có khoá p:[[SV_1]]/r:<sha256>/n:SV (giá trị không in ra); TTL=86400s → 86400s sau tin mới (≤86400, đặt lại)
+TC-P3-02-31	P	payload=[[SV_1]] và [[SV_2]] có MSSV [[MSSV_1]], email [[EMAIL_1]], SĐT [[SDT_1]], CCCD [[CCCD_1]]
+TC-P3-02-32	P	3 biến thể → ['[[SV_1]] làm bài', '[[SV_1]] làm bài', '[[SV_1]] làm bài']
+TC-P3-02-33	P	payload==gốc từng byte: True (placeholder: 0)
+TC-P3-02-38	P	văn bản cuối: 'Đây là câu trả lời giả lập cho: Bùi Thanh Khải'
+TC-P3-02-39	P	payload=['[[SV_1]] [[ SV_1 ]] và [[sv_1]]']; cuối: 'Đây là câu trả lời giả lập cho: Bùi Thanh Khải Bùi Thanh Khải và Bùi Thanh Khải'
+TC-P3-02-42	P	văn bản cuối: 'Đây là câu trả lời giả lập cho: Dùng [[ -f "$f" ]] và a[[i]] nhé'
+TC-P3-02-44	P	văn bản cuối: 'Đây là câu trả lời giả lập cho: Chào bạn nhé'
+TC-P3-02-46	P	văn bản cuối: 'Đây là câu trả lời giả lập cho: gửi cho bạn'
+TC-P3-02-52	P	phiên C1: payload='Huỳnh Quốc Hà làm bài tốt' (không che), precheck C1 allowed=True; cùng tên ở phiên C2: ['[[SV_1]] làm bài tốt']
+TC-P3-02-53	P	S1 có ánh xạ SV_1; ở S2 gõ [[SV_1]] → 'Đây là câu trả lời giả lập cho: Chào bạn nhé'
+TC-P3-02-49	P	ep:mask:qc3-s6-1795015727x sai kiểu (WRONGTYPE) → HTTP 200, payload='[[SV_1]] và [[MSSV_1]] học nhóm', WARN log: 1 dòng

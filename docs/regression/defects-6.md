@@ -24,3 +24,6 @@
 - Kỳ vọng / Thực tế: SRS FEAT-private-chat-pii 472 "Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau {HH:mm}." / hiện "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." (e2e threads.spec.ts:180 cũng khẳng định chữ chat).
 - Nghi ngờ mã: frontend/src/features/threads/RealThreads.tsx:186
 
+- LT-đã-xoá TC-P3-01-05: proposals #13 (số 00009 bỏ trống, calendar là 00011)
+- LT-đã-xoá TC-P3-03-31: GET /admin/llm/usage mở cho TEACHER: openapi «ADMIN, TEACHER» (sprint 9/10)
+- LT-đã-xoá TC-P3-04-45: US-P4-07 2026-10-14: khủng hoảng hai tầng, câu mẫu đổi
