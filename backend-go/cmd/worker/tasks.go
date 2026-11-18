@@ -60,6 +60,9 @@ func newTasks(d Deps) []Task {
 	if bs, ok := d.Blob.(submission.BlobAPI); ok { // *blob.Store thật; worker thử nghiệm không có object storage thì không chạy job
 		tasks = append(tasks, orphanTask{&submission.OrphanJob{Svc: &submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: time.Hour, Log: d.Log}})
 	}
+	if fb, ok := d.Blob.(practice.FormsBlob); ok { // tệp Forms gốc giữ tối đa 90 ngày (US-P9-11 AC8)
+		tasks = append(tasks, formsPurgeTask{&practice.FormsPurgeJob{Svc: &practice.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Blob: fb, Every: time.Hour, Log: d.Log}})
+	}
 	if gq := newGradingQueue(d); gq != nil {
 		tasks = append(tasks, gradingTask{gq})
 	}
@@ -152,6 +155,12 @@ type practiceCloseTask struct{ j *practice.CloseJob }
 
 func (practiceCloseTask) Name() string                    { return "practice.close" }
 func (t practiceCloseTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// formsPurgeTask chạy `practice.forms_purge` (US-P9-11 AC8) — mỗi giờ xoá tệp Forms gốc quá 90 ngày.
+type formsPurgeTask struct{ j *practice.FormsPurgeJob }
+
+func (formsPurgeTask) Name() string                    { return "practice.forms_purge" }
+func (t formsPurgeTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // gradeRemindTask chạy `grade.scheme_reminder` (US-P6-05) — mỗi tuần một lần sau 08:00 thứ Hai, một bản nhờ khoá leader + dấu tuần Redis.
 type gradeRemindTask struct{ j *grade.ReminderJob }

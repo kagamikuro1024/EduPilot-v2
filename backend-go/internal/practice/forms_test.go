@@ -31,6 +31,8 @@ func (m memBlob) Get(_ context.Context, key string) (io.ReadCloser, error) {
 	return io.NopCloser(bytes.NewReader(b)), nil
 }
 
+func (m memBlob) Delete(_ context.Context, key string) error { delete(m, key); return nil }
+
 // formsRig: lớp có công thức ĐÃ XÁC NHẬN + một cột điểm MANUAL (thang 10), Redis + "object storage" bộ nhớ.
 type formsRig struct {
 	*rig
@@ -293,5 +295,39 @@ func TestFormsImportNoLLM(t *testing.T) {
 	require.NoError(t, err)
 	var n int
 	require.NoError(t, f.pool.QueryRow(t.Context(), `select count(*) from llm_audit`).Scan(&n))
+	require.Zero(t, n)
+}
+
+// TestFormsBlobPurge — US-P9-11 AC8 / TC-11-13 (DEF-R10S-09, Q-P9-7): tệp Forms gốc giữ tối đa 90 ngày; quá hạn → xoá khỏi kho, ghi blob_purged_at + audit_log; lô và dòng điểm giữ nguyên; chạy lại không làm gì.
+func TestFormsBlobPurge(t *testing.T) {
+	f := newFormsRig(t)
+	add := func(hash, key string, ageDays int) uuid.UUID {
+		var id uuid.UUID
+		f.blob[key] = []byte("x")
+		require.NoError(t, f.pool.QueryRow(t.Context(), `insert into forms_import_batches (course_id, item_id, file_hash, blob_key, mapping, created_by, created_at)
+			values ($1, $2, $3, $4, '{}', $5, now() - make_interval(days => $6)) returning id`, f.course, f.item, hash, key, f.teacher, ageDays).Scan(&id))
+		return id
+	}
+	old := add(strings.Repeat("a", 64), "forms/old.csv", practice.FormsKeepDays+1)
+	fresh := add(strings.Repeat("b", 64), "forms/fresh.csv", practice.FormsKeepDays-1)
+
+	job := &practice.FormsPurgeJob{Svc: f.svc, Blob: f.blob}
+	n, err := job.Once(t.Context())
+	require.NoError(t, err)
+	require.Equal(t, 1, n)
+	require.NotContains(t, f.blob, "forms/old.csv")
+	require.Contains(t, f.blob, "forms/fresh.csv")
+
+	var purged bool
+	require.NoError(t, f.pool.QueryRow(t.Context(), `select blob_purged_at is not null from forms_import_batches where id = $1`, old).Scan(&purged))
+	require.True(t, purged)
+	require.NoError(t, f.pool.QueryRow(t.Context(), `select blob_purged_at is not null from forms_import_batches where id = $1`, fresh).Scan(&purged))
+	require.False(t, purged)
+	var audits int
+	require.NoError(t, f.pool.QueryRow(t.Context(), `select count(*) from audit_log where entity = 'forms_imports' and entity_id = $1 and action = 'purge_blob'`, old.String()).Scan(&audits))
+	require.Equal(t, 1, audits)
+
+	n, err = job.Once(t.Context())
+	require.NoError(t, err)
 	require.Zero(t, n)
 }

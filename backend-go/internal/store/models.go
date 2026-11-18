@@ -3208,16 +3208,17 @@ type FinalGradeSnapshot struct {
 }
 
 type FormsImportBatch struct {
-	ID        uuid.UUID
-	CourseID  uuid.UUID
-	ItemID    uuid.UUID
-	FileHash  string
-	BlobKey   string
-	Mapping   json.RawMessage
-	Matched   int32
-	Unmatched int32
-	CreatedBy uuid.UUID
-	CreatedAt time.Time
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	ItemID       uuid.UUID
+	FileHash     string
+	BlobKey      string
+	Mapping      json.RawMessage
+	Matched      int32
+	Unmatched    int32
+	CreatedBy    uuid.UUID
+	CreatedAt    time.Time
+	BlobPurgedAt *time.Time
 }
 
 type FormsImportRow struct {
