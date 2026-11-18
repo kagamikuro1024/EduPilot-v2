@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D, SmkD) · Ngày: 2026-11-15
-Tổng TC: 347 · Đạt: 250 · Trượt: 4 · Chưa xong (N): 93   (phiên Smoke9Runner, mã dc67bd93, stack ep-qc, 2026-11-18). Đột biến mã M1…: 41/44 đã chạy (39 P, 2 F), SEED-M2 N. Ca N còn lại: UI/Playwright, API 08–10, SEED, 02–05, 11 (script q9_08.py, q9p09/10/11.py, q9sweep.py đã viết, chưa chạy).
+Tổng TC: 347 · Đạt: 250 · Trượt: 4 · Chưa xong (N): 93   (phiên Smoke9Runner, mã dc67bd93, stack ep-qc, 2026-11-18). Đột biến mã M1…: 43/44 đã chạy (41 P, 2 F), SEED-M2 N. Ca N còn lại: UI/Playwright, API 08–10, SEED, 02–05, 11 (script q9_08.py, q9p09/10/11.py, q9sweep.py đã viết, chưa chạy).
 
 Cách chạy (script + log ở `docs/regression/evidence-9/`):
 - Hàng `-G` (119): `scripts/run-g-go.py` chạy đúng lệnh `go test` ghi ở TC (testcontainers, tuần tự) + `scripts/fix-g-go.py` (tìm gói thật cho tên test lệch, `-tags integration,testroutes`); Playwright mock `assignment-lifecycle`, `grade-appeal`, `settings-integrations`, `me`, `a11y`, `lcp` trên bản build gate (cổng 3731, `logs/pw-mock.json`).
