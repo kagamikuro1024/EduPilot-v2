@@ -128,12 +128,15 @@ function Table({ course, exam, teacher, e, onChanged }: { course: string; exam: 
   }
 
   const roomy = useMinWidth(720);
-  // Dưới 720 px chỉ giữ tên / trạng thái / điểm cho vừa khung; MSSV, giờ nộp, tín hiệu xem ở Drawer.
+  // Dưới 720 px chỉ giữ tên (kèm tín hiệu của Giảng viên ở dòng dưới) / trạng thái / điểm cho vừa khung; MSSV, giờ nộp xem ở Drawer.
   const cols: Column<Row>[] = [
-    { key: "name", header: "Họ tên", frozen: true, primary: true, width: roomy ? "220px" : "150px", render: (r) => r.student.full_name },
+    {
+      key: "name", header: "Họ tên", frozen: true, primary: true, width: roomy ? "220px" : "170px",
+      render: (r) => (roomy || !teacher || signal(r) === "—" ? r.student.full_name : <>{r.student.full_name}<span className={s.rowSub}>{signal(r)}</span></>),
+    },
     ...(roomy ? [{ key: "code", header: "MSSV", width: "120px", render: (r: Row) => r.student.student_code || "—" } satisfies Column<Row>] : []),
-    { key: "status", header: "Trạng thái", width: roomy ? "130px" : "110px", render: (r) => <StatusText tone={STATUS_TONE[r.status]}>{STATUS_VI[r.status]}</StatusText> },
-    { key: "score", header: "Điểm", align: "end", width: roomy ? "130px" : "80px", render: (r) => (r.score ? <span>{vnum(r.score)}{r.adjusted ? " (đã sửa)" : ""}</span> : "—") },
+    { key: "status", header: "Trạng thái", width: roomy ? "130px" : "90px", render: (r) => <StatusText tone={STATUS_TONE[r.status]}>{STATUS_VI[r.status]}</StatusText> },
+    { key: "score", header: "Điểm", align: "end", width: roomy ? "130px" : "70px", render: (r) => (r.score ? <span>{vnum(r.score)}{r.adjusted ? " (đã sửa)" : ""}</span> : "—") },
     ...(roomy ? [{ key: "at", header: "Nộp lúc", width: "150px", render: (r: Row) => (r.submitted_at ? `${fmtClock(r.submitted_at)}${r.submit_reason && r.submit_reason !== "MANUAL" ? ` · ${REASON_VI[r.submit_reason] ?? ""}` : ""}` : "—") } satisfies Column<Row>] : []),
     ...(teacher && roomy ? [{ key: "signal", header: "Tín hiệu", width: "190px", render: (r: Row) => signal(r) } satisfies Column<Row>] : []),
   ];

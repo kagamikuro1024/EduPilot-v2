@@ -32,3 +32,4 @@
 @media (max-width: 719px) { .statGrid { grid-template-columns: minmax(0, 1fr); } }
 .fold > summary { cursor: pointer; }
 .foldBody { display: grid; gap: var(--ep-space-2); margin-top: var(--ep-space-3); min-width: 0; }
+.rowSub { display: block; color: var(--ep-ink-3); font-size: var(--ep-text-label); }
