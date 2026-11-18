@@ -424,6 +424,9 @@ func TestIdempotency_RedisDown_FailClosed(t *testing.T) {
 	if got := c.n.Load(); got != 0 {
 		t.Fatalf("handler chạy %d lần khi Redis chết, muốn 0 (fail-closed)", got)
 	}
+	if got := w.Header().Get("Retry-After"); got != "5" {
+		t.Fatalf("Retry-After = %q, muốn 5 (P-11-70)", got)
+	}
 }
 
 func TestIdempotency_RedisFlushedFallsBackToTable(t *testing.T) {

@@ -33,6 +33,9 @@ const idemHeader = "Idempotency-Key"
 // idemScopeLen là số ký tự hex của sha256(endpoint) đi vào khoá Redis (SRS 5.6).
 const idemScopeLen = 16
 
+// idemRetryAfterSec: gợi ý gửi lại (cùng khoá) khi Redis chết → 503 (P-11-70).
+const idemRetryAfterSec = 5
+
 // Gửi đôi gần như đồng thời: chờ bản chạy trước tối đa idemWaitTotal trước khi trả 409.
 const (
 	idemWaitStep  = 50 * time.Millisecond
@@ -249,7 +252,7 @@ func idemUnavailable(d Deps, w http.ResponseWriter, r *http.Request) {
 			"method", r.Method, "path", r.URL.Path)
 	}
 	apierr.Write(w, r, apierr.New(http.StatusServiceUnavailable, apierr.ServiceUnavailable).
-		WithDetails(map[string]any{"redis": "down"}))
+		WithDetails(map[string]any{"redis": "down"}).WithRetryAfter(idemRetryAfterSec))
 }
 
 // idemWait chờ tối đa idemWaitTotal cho bản chạy trước lưu xong phản hồi (gửi đôi "hai tab" gần như luôn

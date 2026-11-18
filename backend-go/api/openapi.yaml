@@ -3508,6 +3508,16 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "503":
+          description: "Redis không trả lời: `Idempotency-Key` fail-closed (SRS 6.6, P-11-70) — không xếp hàng, không tạo dòng QUEUED; gửi lại cùng khoá sau `Retry-After` giây (`SERVICE_UNAVAILABLE`)"
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api/v1/courses/{id}/guidance-flags:
     get:
       operationId: listGuidanceFlags
