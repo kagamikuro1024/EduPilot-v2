@@ -471,3 +471,16 @@ func TestTodayWeakTopic(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, items, "chỉ STUDENT")
 }
+
+// TestStemKey — US-P9-03 AC5 / TC-03-09 (DEF-R10S-16): so trùng chuẩn hoá cả số thứ tự đầu câu; «3.14…» / «3-way» không bị cắt.
+func TestStemKey(t *testing.T) {
+	const base = "Thiết bị nào chuyển khung theo địa chỉ MAC?"
+	for _, same := range []string{"12. " + base, "Câu 3) " + base, "  CÂU 12:  " + base, "7 - " + base, "THIẾT BỊ  nào chuyển khung theo địa chỉ MAC"} {
+		require.Equal(t, practice.StemKey(base), practice.StemKey(same), same)
+	}
+	for _, other := range []string{"3.14 là giá trị của số pi?", "3-way handshake gồm mấy bước?", "2024 là năm nào?"} {
+		require.NotEqual(t, practice.StemKey(base), practice.StemKey(other))
+	}
+	require.Equal(t, "3.14 là giá trị của số pi", practice.StemKey("3.14 là giá trị của số pi?"))
+	require.Equal(t, "3-way handshake gồm mấy bước", practice.StemKey("3-way handshake gồm mấy bước?"))
+}

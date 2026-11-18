@@ -5,3 +5,5 @@ const (
 	ExtractSchema  = extractSchema
 	GenerateSchema = generateSchema
 )
+
+var StemKey = stemKey

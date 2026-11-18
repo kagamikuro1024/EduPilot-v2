@@ -21,7 +21,6 @@ import (
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
-	"github.com/edupilot/backend-go/internal/quiz"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -268,7 +267,7 @@ func (w *Worker) extract(ctx context.Context, j jobs.JobCtx) (any, error) {
 	}
 	seen := map[string]bool{}
 	for _, s := range existing {
-		seen[quiz.NormalizeShort(s)] = true
+		seen[stemKey(s)] = true
 	}
 	wins := windows(chunks, 6000)
 	byNumber := map[int]bool{}
@@ -329,7 +328,7 @@ func (w *Worker) save(ctx context.Context, q *store.Queries, p ExtractPayload, q
 			skip("INVALID")
 			continue
 		}
-		norm := quiz.NormalizeShort(c.Stem)
+		norm := stemKey(c.Stem)
 		if seen[norm] {
 			skip("DUPLICATE")
 			continue
