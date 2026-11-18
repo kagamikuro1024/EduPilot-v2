@@ -533,6 +533,15 @@ test("queue: toàn bài chưa chấm — lọc mặc định không che bài, Ch
   await expect(page.getByRole("button", { name: "Chấm tất cả" })).not.toHaveAttribute("aria-disabled", "true");
 });
 
+test("queue: lớp chưa có bài nộp — «Chưa có bài nộp» + Tải bài lên (DEF-R9S-07, TC-P7-08-13)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openQueue(page, context, { rows: [] });
+  const empty = page.locator("[data-ep-empty]");
+  await expect(empty.getByText("Chưa có bài nộp")).toBeVisible();
+  await expect(empty.getByRole("button", { name: "Tải bài lên" })).toBeVisible();
+  await expect(page.getByText(/^Không có bài/)).toHaveCount(0);
+});
+
 test("queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn trang, cuộn tải tiếp) — không còn mù số lượng (GV-BUG S2-3)", async ({ page, context }, info) => {
   desktopOnly(info);
   const all = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
@@ -807,7 +816,7 @@ test("grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Th�
 
   await gradingApi(page, { rows: [] });
   await page.reload();
-  await expect(page.getByText("Không có bài chưa duyệt")).toBeVisible();
+  await expect(page.getByText("Chưa có bài nộp")).toBeVisible(); // US-UX91-05 AC3 (P-11-68)
   await expect(page.getByRole("button", { name: "Tải bài lên" }).first()).toBeVisible(); // thanh công cụ + nút trong trạng thái rỗng (US-UX91-05 AC3)
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
