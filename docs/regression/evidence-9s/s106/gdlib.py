@@ -91,7 +91,7 @@ def mk_assignment(tag, n=12, typ="ESSAY", src=SRC_A):
     """Nhân bản BT03 (rubric + n bài nộp) thành bài tập mới của QD9G; trả id. Chấm bằng grade-all trong window()."""
     new = str(uuid.uuid4())
     sql(f"""create temp table ta as select * from assignments where id='{src}';
-update ta set id='{new}', title='QC106 {tag}', type='{typ}', guidance_version=0, published_at=null, version=1, submission_code='QC{tag[-6:].upper()}{int(time.time())%100000}', teams_class_id=null, teams_assignment_id=null;
+update ta set id='{new}', title='QC106 {tag}', type='{typ}', guidance_version=0, published_at=null, version=1, submission_code='QC'||upper(substr(md5(random()::text),1,8)), teams_class_id=null, teams_assignment_id=null;
 insert into assignments select * from ta;
 create temp table ts as select * from submissions where assignment_id='{src}' and match_status='MATCHED' order by created_at limit {n};
 update ts set id=uuidv7(), assignment_id='{new}', sha256=md5(random()::text)||md5(random()::text), blob_key='qc106/'||md5(random()::text), external_ref=null, version=1;
