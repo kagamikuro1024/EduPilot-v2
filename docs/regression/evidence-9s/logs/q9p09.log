@@ -1,0 +1,43 @@
+   kết quả: {'sv.gioi@edupilot.local': '01a1efd1', 'sv.kha@edupilot.local': '01a1efd1'}
+PASS 00 nhập điểm tay A (tổng 10) 
+PASS 00 nhập điểm tay B (tổng 4) 
+PASS 01 công bố bài DRAFT → 422 NOT_REVIEWED kèm ids 
+PASS 07 DRAFT: mine.result null cho sinh viên 
+PASS 01 all-or-nothing: A REVIEWED + B DRAFT → 422 NOT_REVIEWED [B], không bài nào PUBLISHED 
+   today TEACHER: ['PUBLISH_PENDING']
+PASS 10 'Hôm nay' TEACHER có PUBLISH_PENDING khi có bài REVIEWED chưa công bố 
+PASS 10 TA không có PUBLISH_PENDING (chỉ TEACHER) 
+PASS 09 TA công bố → 403 
+PASS 09 STUDENT công bố → 403 
+PASS 09 ADMIN công bố → 403 
+PASS 09 STUDENT GET stats → 403 
+PASS 09 ADMIN GET stats → 403 
+PASS 01 TEACHER công bố 2 bài REVIEWED → 200 published 2 
+PASS 01 cùng Idempotency-Key → cùng kết quả, không thông báo thêm 
+PASS 01 công bố lại bài đã PUBLISHED → 409 ALREADY_PUBLISHED 
+PASS 05 độ lệch lưu lúc công bố (A: AI NULL → có cột deviation) 
+   cột độ lệch: deviation,teacher_changed_criteria
+PASS 02 không ghi grade_entries cho bài tập 
+PASS 04 A nhận đúng 1 chuông GRADE_PUBLISHED 
+PASS 04 B nhận đúng 1 chuông GRADE_PUBLISHED 
+PASS 04 tổng chuông mới = 2 (không ai nhận bài của người khác) 
+   thư công bố: ['sv.gioi@edupilot.local', 'sv.kha@edupilot.local']
+PASS 04 đúng 2 thư công bố, tới sv.gioi@ và sv.kha@ (email đã xác minh), mỗi người một thư 
+   thư B: Điểm bài tập đã được công bố | Chào Bùi Thanh Khải,  Điểm Bài tập 03 — Phân tích một vụ tấn công thực tế của bạn đã được công bố: 4,00/10,00.  • Xác định tác nhân và bề mặt tấn công: 1,00/2,50 — Nhận xét giả cho c1. • Phân tíc
+PASS 04 thư của B không chứa điểm nháp / cờ / nhận xét của A (canary) / khoá nội bộ 
+PASS 04 thư của B có điểm 4 / 10 (dấu phẩy chuẩn hoá) 
+PASS 06 mine.result của B có tổng 4 / 10, bốn tiêu chí, nhãn duyệt 
+PASS 07 mine của B không khoá nháp / độ lệch / canary của A 
+PASS 06 A thấy kết quả của A (có canary nhận xét của chính mình), không thấy của B 
+PASS 07 B GET …/me/grades không lộ canary / nháp của A 
+PASS 07 B GET …/assignments không lộ canary / nháp của A 
+PASS 07 B GET …/assignments/01a1efd1-ec14-78ad-935e-7e3196ee32ce không lộ canary / nháp của A 
+   stats: {"submitted": 2, "graded": 2, "reviewed": 2, "published": 2, "mean_abs_deviation": "3.00", "teacher_changed_rate": "0.5000", "appealed": 0, "appeal_rate": "0.0000", "adjusted": 0, "appeal_success_rate": null}
+PASS 05 stats TEACHER: published 2, tỷ lệ là chuỗi decimal / null 
+PASS 08 sửa sau công bố → 409 RESULT_PUBLISHED 
+PASS 08 chấm lại bài đã công bố → 409 ALREADY_REVIEWED 
+   today B: [('ASSIGNMENT_GRADED', 'Bài tập 03 — Phân tích một vụ tấn công thực tế')]
+PASS 10 'Hôm nay' của B có ASSIGNMENT_GRADED 
+PASS 10 PUBLISH_PENDING biến mất sau khi công bố hết 
+PASS 11 log gateway + worker không chứa canary nhận xét 
+RESULT: PASS (0 lỗi)

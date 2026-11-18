@@ -40,9 +40,9 @@ with stub_ctx():
     # tái hiện đúng số TC: c2 1,00 → 2,00 trong khi các tiêu chí khác giữ nguyên bản AI
     aiB = rb["ai_scores"]; print("   AI B:", aiB, "total trước muộn", rb["ai_total_before_late"], "muộn", rb["late_penalty"], "total", rb["total"])
     s, x, _ = put(B, [aiB["c1"], "2.00", aiB["c3"], aiB["c4"]]); r3 = result(aid, "sv.kha")
-    R.chk("TC-P7-08-07", f"đúng số TC (B): c2 1,00→2,00: tổng trước muộn {rb['ai_total_before_late']} → {float(rb['ai_total_before_late']) + 1:.2f}, trừ muộn {r3['late_penalty']}, tổng {r3['total']}", abs(float(r3["total"]) - (float(rb["ai_total_before_late"]) + 1 - float(r3["late_penalty"]))) < 1e-9 and r3["late_penalty"] == "0.50", (rb["ai_total_before_late"], r3))
+    R.chk("TC-P7-08-07", f"đúng số TC (B): c2 1,00→2,00: tổng trước muộn {rb['ai_total_before_late']} → {float(rb['ai_total_before_late']) + 1:.2f}, trừ muộn {r3['late_penalty']}, tổng {r3['total']}", abs(float(r3["total"]) - (float(rb["ai_total_before_late"]) + 1 - float(r3["late_penalty"]))) < 1e-9 and float(r3["late_penalty"]) == 0.5, (rb["ai_total_before_late"], r3))
     # --- 08-08 trừ muộn tay + đổi hạn; version; sửa published
-    s, x, _ = put(B, [aiB["c1"], "2.00", aiB["c3"], aiB["c4"]], extra={"late_penalty": "0", "late_penalty_manual": True}); r4 = result(aid, "sv.kha"); print("   sửa muộn tay:", s, str(x)[:150], r4["late_penalty"], r4["late_penalty_manual"] if "late_penalty_manual" in r4 else "")
+    s, x, _ = put(B, [aiB["c1"], "2.00", aiB["c3"], aiB["c4"]], extra={"late_penalty": "0"}); r4 = result(aid, "sv.kha"); print("   sửa muộn tay:", s, str(x)[:150], r4["late_penalty"], r4.get("late_penalty_manual"))
     R.chk("TC-P7-08-08", f"sửa tay Trừ nộp muộn 0,50 → 0: {s}, late_penalty={r4['late_penalty']}", s == 200 and float(r4["late_penalty"]) == 0.0, (s, x))
     ad_ = call("GET", f"{Q}/assignments/{aid}", T)[1]; a_ = ad_.get("assignment", ad_)
     due2 = (time.time() - 2 * 86400); newdue = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(due2 - 5 * 86400))  # đẩy hạn lùi 5 ngày → bài sẽ muộn hơn nếu tính lại
@@ -96,12 +96,12 @@ with stub_ctx():
     ids = [i["result"]["id"] for i in call("GET", f"{Q}/submissions?assignment_id={aid}&needs_review=true&limit=100", T)[1].get("items", []) if i["result"]["status"] == "DRAFT"]
     for i_ in ids:
         v_ = ver(i_); call("POST", f"{Q}/grading-results/{i_}/review", T, {"version": v_})
-    t0 = time.time(); gone = False
-    for _ in range(12):
-        ks = [i["kind"] for i in today("teacher", C)[1] if i["kind"] == "GRADING_REVIEW" and "Q8A" in i["title"] or i["kind"] == "GRADING_REVIEW"]
-        if not ks: gone = True; break
-        time.sleep(0.5)
-    R.chk("TC-P7-08-14", f"duyệt hết bài cần xem kỹ → GRADING_REVIEW biến mất sau {time.time() - t0:.1f} s (≤5 s)", gone and time.time() - t0 <= 5.5, time.time() - t0)
+    gone = False; t0 = time.time()
+    for _ in range(80):
+        if not [i for i in today("teacher", C)[1] if i["kind"] == "GRADING_REVIEW"]: gone = True; break
+        time.sleep(0.2)
+    dt = time.time() - t0
+    R.chk("TC-P7-08-14", f"duyệt hết bài cần xem kỹ → GRADING_REVIEW biến mất sau {dt:.1f} s kể từ lần duyệt cuối (≤5 s)", gone and dt <= 5.0, dt)
     json.dump({"course": C, "aid": aid, "res": res, "sub": sub}, open(f"{TMP}/seed08.json", "w"))
     # --- 08-03 hiệu năng 1.000 bài (SQL generate_series, lớp riêng)
     CP = mkcourse("QD9P", ALL); QP = f"/api/v1/courses/{CP}"

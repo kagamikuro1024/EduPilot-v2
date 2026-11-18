@@ -1,1 +1,48 @@
    docker kill (SIGKILL) worker; trạng thái: ['QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'RUNNING|-', 'RUNNING|-']
+   sau khi worker sống lại:  ['DONE|-', 'DONE|-', 'DONE|-', 'DONE|-', 'DONE|-', 'DONE|-', 'DONE|-', 'DONE|-'] 140s | lời gọi LLM/bài: {'sv.gioi': 4, 'sv.kha': 4, 'sv.nguyco': 2, 'sv04': 2, 'sv05': 2, 'sv06': 2, 'sv07': 2, 'sv08': 2}
+PASS TC-P7-07-04 sau kill -9 + chờ thuê 60 s: đủ 8 DONE, không bài mất (['DONE|-']) 
+PASS TC-P7-07-04 đúng một kết quả mỗi bài (having count>1 = 0) 
+PASS TC-P7-07-04 số lời gọi LLM mỗi bài ≤ 4 (2 lượt × tối đa 2 lần chạy do bị kill), bài không bị kill đúng 2: {'sv.gioi': 4, 'sv.kha': 4, 'sv.nguyco': 2, 'sv04': 2, 'sv05': 2, 'sv06': 2, 'sv07': 2, 'sv08': 2} 
+   cướp thuê: ['DONE|-'] | 'mất thuê — bỏ kết quả' trong log: 1
+PASS TC-P7-07-04 worker mất thuê (lease_owner bị đổi) → ghi bị bỏ (log 'mất thuê' 1 lần), bài vẫn có đúng 1 kết quả ['DONE|-'] 
+   worker: GRADING_LEASE=10 HEARTBEAT=3 REQUEUE_AFTER=10
+    (0.1, 'QUEUED|-|0')
+    (3.2, 'RUNNING|46.287|1')
+    (6.3, 'RUNNING|49.288|1')
+    (9.4, 'RUNNING|52.290|1')
+    (12.5, 'RUNNING|58.288|1')
+    (15.6, 'RUNNING|01.288|1')
+    (18.7, 'RUNNING|04.288|1')
+    (21.8, 'RUNNING|07.288|1')
+    (25.0, 'RUNNING|10.289|1')
+    (28.1, 'DONE|-|1')
+PASS TC-P7-07-05 bài chậm 25 s với thuê 10 s: lease_until được gia hạn (9 giá trị khác nhau), kết thúc DONE|-|1 (attempts=1, không nhận lại oan) 
+PASS TC-P7-07-05 chỉ một lần chạy: 2 lời gọi stub (2 lượt) 
+   worker mặc định GRADING_WORKERS=2
+   108 bài: 108 DONE, 250s, RUNNING đồng thời tối đa 2 (977 mẫu)
+PASS TC-P7-07-09 108 bài xong (108 DONE); RUNNING đồng thời tối đa 2 ≤ GRADING_WORKERS×1 worker = 2 
+   hai lượt chạy song song (cách nhau <0,8 s): 0 / 36
+FAIL TC-P7-07-09 hai lượt (pass1/pass2) của một bài gọi gần như đồng thời: 0 cặp song song (0, 36)
+internal/grading/essay.go:49:	AttemptTimeout                time.Duration
+internal/grading/essay.go:56:		ExtractTimeout: 90 * time.Second, AttemptTimeout: 120 * time.Second, GuidanceEnabled: true}
+internal/grading/essay.go:303:	pctx, cancel := context.WithTimeout(ctx, g.Cfg.AttemptTimeout)
+cmd/worker/gradingq.go:34:	ec.AttemptTimeout = envSec("GRADING_ATTEMPT_TIMEOUT", ec.AttemptTimeout)
+cmd/worker/gradingq.go:58:// gradingTask chạy consumer ep:grading — tách khỏi consumer outbox để một bài chậm không chặn việc ngắn (AC6).
+cmd/worker/gradingq.go:59:type gradingTask struct{ q *grading.Queue }
+cmd/worker/gradingq.go:61:func (gradingTask) Name() string                    { return "grading.consumer" }
+cmd/worker/gradingq.go:62:func (t gradingTask) Run(ctx context.Context) error { return t.q.Run(ctx) }
+cmd/worker/registry.go:64:		gq.RegisterBatch(runner) // grading.batch: chỉ XADD ep:grading (US-P7-07); chấm chạy ở consumer ep:grading
+cmd/worker/tasks.go:64:		tasks = append(tasks, gradingTask{gq})
+
+PASS TC-P7-07-09 GRADING_ATTEMPT_TIMEOUT 120 s đi xuống lời gọi (context.WithTimeout trong passes) và consumer ep:grading là task riêng (gradingTask) không nằm trong outbox consumer 
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc9sub/docs/regression/evidence-9s/scripts/q9_07b.py", line 83, in <module>
+    a1 = mk(6, "", prefix="Q701R"); subprocess.run(["docker", "stop", "ep-qc-redis-1"], capture_output=True); time.sleep(2)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc9sub/docs/regression/evidence-9s/scripts/q9_07b.py", line 19, in mk
+    aid = mkassign(Q, T, prefix + code()); 
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc9sub/docs/regression/evidence-9s/scripts/q9.py", line 111, in mkassign
+    s, a, _ = call("POST", f"{Q}/assignments", T, b, idem()); assert s in (200, 201), (s, a); aid = a.get("assignment", a)["id"]
+                                                                     ^^^^^^^^^^^^^^^
+AssertionError: (401, {'code': 'TOKEN_EXPIRED', 'message': 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'trace_id': '54eca8ed5a38c38871d8b6f83e65c5dc'})

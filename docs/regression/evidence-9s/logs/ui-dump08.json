@@ -1,0 +1,89 @@
+{
+ "queue": "Chấm bài\nTải bài lên\nChọn một bài tập trước.\nCông bố\nChọn bài đã duyệt.\nChấm tất cả\nChọn một bài tập trước.\nHàng chờ\nBài tập\nChưa khớp\nBài tập\nTất cả bài tập\nBài tập 03 — Phân tích một vụ tấn công thực tế\nBài tập 03 — Phân tích một vụ tấn công thực tế\nBài tập 03 — Phân tích một vụ tấn công thực tế\nBài tập 03 — Phân tích một vụ tấn công thực tế\nBài tập 03 — Phân tích một vụ tấn công thực tế\nBài tập 03 — Phân tích một vụ tấn công thực tế\nBài tập 03 — Phân tích một vụ tấn công thực tế\nTrạng thái\nChưa duyệt\nĐã duyệt\nĐã công bố\nChấm lỗi\nĐang chấm\nChưa chấm\nCần xem kỹ\n\n10 bài\n\nHàng chờ chấm bài\nSinh viên\tBài tập\tNguồn\tĐiểm\tTrạng thái duyệt\tThời gian nộp\t\nDuyệt\n\n\nVũ Minh Long\n20224786\n\t\nBài tập 03 — Phân tích một vụ tấn công thực tế\n\tTrong EduPilot\t4,00\t\nChưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt\n\n\nNguyễn Anh Linh\n20223869\n\t\nBài tập 03 — Phân tích một vụ tấn công thực tế\n\tTrong EduPilot\t4,00\t\nChưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt\n\n\nĐỗ Bảo Hải\n20226862\n\t\nBài tập 03 — Phân tích một vụ tấn công thực tế\n\tTrong EduPilot\t4,00\t\nChưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt\n\n\nBùi Thu Việt\n20226980\n\t\nBài tập 03 — Phân tích một vụ tấn công thực tế\n\tTrong EduPilot\t4,00\t\nChưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt\n\n\nHuỳnh Hoàng Hương\n20226004\n\t\nBài tập 03 — Phân tích một vụ tấn công thực tế\n\tTrong EduPilot\t4,00\t\nChưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt\n\n\nVũ Minh Long\n20224786\n\t\nBài tập 03 — Phân tích một vụ tấn công thực tế\n\tTrong EduPilot\t4,00\t\nChưa duyệt\tThứ Năm, 19/11 · 01:06\tDuyệt\n\n\nNguyễn Anh Linh\n202",
+ "heads": [
+  "Sinh viên",
+  "Bài tập",
+  "Nguồn",
+  "Điểm",
+  "Trạng thái duyệt",
+  "Thời gian nộp",
+  "Duyệt"
+ ],
+ "rowCount": 10,
+ "first3": [
+  "Vũ Minh Long | 20224786 | \t | Bài tập 03 — Phân tích một vụ tấn công thực tế | \tTrong EduPilot\t4,00\t | Chưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt",
+  "Nguyễn Anh Linh | 20223869 | \t | Bài tập 03 — Phân tích một vụ tấn công thực tế | \tTrong EduPilot\t4,00\t | Chưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt",
+  "Đỗ Bảo Hải | 20226862 | \t | Bài tập 03 — Phân tích một vụ tấn công thực tế | \tTrong EduPilot\t4,00\t | Chưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt",
+  "Bùi Thu Việt | 20226980 | \t | Bài tập 03 — Phân tích một vụ tấn công thực tế | \tTrong EduPilot\t4,00\t | Chưa duyệt\tThứ Năm, 19/11 · 01:00\tDuyệt"
+ ],
+ "techWords": [],
+ "review": "Hàng chờ chấm\nBài tập 03 — Phân tích một vụ tấn công thực tế\nPhiên bản 1 · Nộp Thứ Năm, 19/11 · 01:06 · muộn 6 ngày · \nĐã duyệt ·\ns7-lech-hai-luot.md\nPhiên bản 1\nMở tệp gốc\n\nBài viết phân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng SolarWinds Orion, bị phát hiện tháng 12 năm 2020. Đây là ví dụ điển hình cho việc kẻ tấn công không đánh thẳng vào mục tiêu cuối, mà chọn một nhà cung cấp phần mềm được hàng nghìn tổ chức tin tưởng và cài đặt sẵn trong mạng nội bộ.\n\nTác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước, hoạt động kiên trì và ưu tiên gián điệp hơn phá hoại. Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng.\n\nKẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll. Vì bản cập nhật vẫn được ký bằng chứng thư số hợp lệ của SolarWinds nên mọi cơ chế kiểm tra chữ ký ở phía khách hàng đều cho qua. Khoảng 18.000 tổ chức tải bản cập nhật có mã độc, nhưng kẻ tấn công chỉ chọn khoảng 100 mục tiêu để khai thác tiếp.\n\nChuỗi tấn công gồm bốn bước: xâm nhập môi trường dựng phần mềm, cấy mã vào bản phát hành chính thức, nằm im 12–14 ngày để vượt qua các phép kiểm tra tự động, rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com với lưu lượng giả dạng giao thức cập nhật hợp lệ của chính Orion.\n\nỞ giai đoạn sau, nhóm tấn công nạp TEARDROP và Cobalt Strike để di chuyển ngang trong mạng, rồi đánh cắp khoá ký SAML của máy chủ liên kết danh tính. Với khoá này họ tự phát hành thẻ truy cập cho chính mình (kỹ thuật Golden SAML) và leo thang lên quyền quản trị dịch vụ thư điện tử đám mây mà không cần biết mật khẩu hay vượt qua xác thực đa yếu tố.\n\nThiệt hại không nằm ở dữ liệu bị xoá mà ở niềm tin: nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư. Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó.\n\nEm chưa tìm được số liệu đáng tin về thời gian gián đoạn dịch vụ của từng tổ chức bị ảnh hưởng, nên phần đánh giá tác động vận hành ở đây mới dừng ở mức định tính.\n\nVề phòng thủ, em đề xuất ba nhóm biện pháp: (1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet, (2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định ",
+ "hasPublishBtn": 0,
+ "hasApprove": 0,
+ "cols": [
+  {
+   "tag": "DIV",
+   "cls": "Layout-module__rM7QnW__page Layout-modul",
+   "x": 216,
+   "w": 1224
+  },
+  {
+   "tag": "DIV",
+   "cls": "SubmissionReview-module__s4mt-a__reviewG",
+   "x": 240,
+   "w": 1176
+  },
+  {
+   "tag": "DIV",
+   "cls": "Layout-module__rM7QnW__split Layout-modu",
+   "x": 240,
+   "w": 1176
+  },
+  {
+   "tag": "DIV",
+   "cls": "Layout-module__rM7QnW__splitMain",
+   "x": 240,
+   "w": 576
+  },
+  {
+   "tag": "DIV",
+   "cls": "Panel-module__zFMaDG__panel",
+   "x": 240,
+   "w": 576
+  },
+  {
+   "tag": "DIV",
+   "cls": "SubmissionReview-module__s4mt-a__doc",
+   "x": 265,
+   "w": 526
+  },
+  {
+   "tag": "ASIDE",
+   "cls": "Layout-module__rM7QnW__splitAside",
+   "x": 840,
+   "w": 576
+  },
+  {
+   "tag": "DIV",
+   "cls": "Panel-module__zFMaDG__panel",
+   "x": 840,
+   "w": 576
+  },
+  {
+   "tag": "DIV",
+   "cls": "SubmissionReview-module__s4mt-a__panel",
+   "x": 865,
+   "w": 526
+  },
+  {
+   "tag": "SECTION",
+   "cls": "SubmissionReview-module__s4mt-a__crit",
+   "x": 865,
+   "w": 526
+  }
+ ],
+ "vw": 1440,
+ "notice": [
+  "Lệch 1,5 điểm so với lượt 2 (1,00 và 2,50)"
+ ]
+}

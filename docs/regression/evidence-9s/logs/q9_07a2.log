@@ -1,0 +1,36 @@
+PASS TC-P7-07-01 202 {job_id, queued:24} 
+PASS TC-P7-07-01 ngay sau 202: 24 dòng grading_results round=1 (đủ 24 trước khi chấm xong) 
+NOTE TC-P7-07-01 job: {"status": "RUNNING", "progress": 0, "result": null} | {"status": "RUNNING", "progress": 12, "result": {"done": 3, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 16, "result": {"done": 4, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 20, "result": {"done": 5, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 25, "result": {"done": 6, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 29, "result": {"done": 7, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 33, "result": {"done": 8, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 37, "result": {"done": 9, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 41, "result": {"done": 10, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 45, "result": {"done": 11, "total": 24, "failed": 0}} | {"status": "RUNNING", "progress": 50, "res
+   job cuối: {"id": "01a1efe2-5624-74f3-95df-01ee56b0d0ff", "kind": "grading.batch", "status": "SUCCEEDED", "progress": 100, "result": {"failed": 0, "graded": 24, "flagged": 0}, "created_at": "2026-11-18T18:19:10.238115Z", "updated_at": "2026-11-18T18:19:57.347995Z", "finished_at": "2026-11-18T18:19:57.347872Z"}
+PASS TC-P7-07-01 xong: result {graded, failed} 
+PASS TC-P7-07-01 24 DONE: {'DONE:-:1'} 
+PASS TC-P7-07-02 không còn bài chưa chấm → 200 queued 0 
+   thân: {"queued": 0}
+PASS TC-P7-07-02 bài nộp mới (v2) chưa có kết quả → chỉ 1 bài xếp: queued 1 
+   ['sv.gioi@edupilot.local|FAILED|GRADING_OUTPUT_INVALID|1', 'sv.kha@edupilot.local|FAILED|TEXT_TOO_LONG|1']
+PASS TC-P7-07-07 invalid → FAILED GRADING_OUTPUT_INVALID, attempts=1 
+PASS TC-P7-07-07 bài 61.000 ký tự → FAILED TEXT_TOO_LONG, attempts=1 
+   t=0.1 sv.gioi@edupilot.local|QUEUED|0|00.-52 ; sv.kha@edupilot.local|QUEUED|0|00.-52 ; sv.nguyco@edupilot.local|QUEUED|0|00.-52
+   t=6.3 sv.gioi@edupilot.local|DONE|1|-06.-304 ; sv.kha@edupilot.local|QUEUED|1|03.996 ; sv.nguyco@edupilot.local|RUNNING|1|-06.-304
+   t=12.6 sv.gioi@edupilot.local|DONE|1|-12.-566 ; sv.kha@edupilot.local|QUEUED|1|-02.-265 ; sv.nguyco@edupilot.local|DONE|1|-12.-566
+   t=18.8 sv.gioi@edupilot.local|DONE|1|-18.-805 ; sv.kha@edupilot.local|QUEUED|2|15.281 ; sv.nguyco@edupilot.local|DONE|1|-18.-805
+   t=25.0 sv.gioi@edupilot.local|DONE|1|-25.-29 ; sv.kha@edupilot.local|QUEUED|2|09.057 ; sv.nguyco@edupilot.local|DONE|1|-25.-29
+   t=31.3 sv.gioi@edupilot.local|DONE|1|-31.-252 ; sv.kha@edupilot.local|QUEUED|2|02.835 ; sv.nguyco@edupilot.local|DONE|1|-31.-252
+   t=37.5 sv.gioi@edupilot.local|DONE|1|-37.-490 ; sv.kha@edupilot.local|QUEUED|2|-03.-403 ; sv.nguyco@edupilot.local|DONE|1|-37.-490
+   t=40.6 sv.gioi@edupilot.local|DONE|1|-40.-612 ; sv.kha@edupilot.local|FAILED|3|-06.-525 ; sv.nguyco@edupilot.local|DONE|1|-40.-612
+   ['sv.gioi@edupilot.local|DONE|1|-', 'sv.kha@edupilot.local|FAILED|3|LLM_UNAVAILABLE', 'sv.nguyco@edupilot.local|DONE|1|-']
+PASS TC-P7-07-06 bài lành DONE; bài lỗi tạm 1 lần rồi OK (attempts>=2, DONE); bài lỗi liên tục FAILED attempts=3 
+PASS TC-P7-07-06 hết lượt: FAILED có mã nguyên nhân (không INTERNAL rỗng) 
+PASS TC-P7-07-06 retry → 202, run_state sau retry QUEUED (QUEUED/RUNNING/FAILED lại) 
+PASS TC-P7-07-06 ep:grading.dead XLEN=14 (chỉ đếm) 
+PASS TC-P7-07-06 Hôm nay TEACHER có GRADING_ERROR: ['GRADING_ERROR', 'GRADING_REVIEW', 'GRADE_SCHEME_UNCONFIRMED', 'COURSE_SETUP'] 
+   grade-all sau nộp lại: 202 {'job_id': '01a1efe3-f594-75d9-b6b4-3763b9caa336', 'queued': 1}
+   v1 lúc nộp lại: QUEUED | kết quả: ['1|FAILED|SUPERSEDED', '2|DONE|-'] | lời gọi LLM v1/v2: 0 4
+PASS TC-P7-07-10 v1 đang QUEUED khi nộp lại → kết quả v1 1|FAILED|SUPERSEDED (SUPERSEDED), 0 lời gọi LLM cho v1 (0) 
+FAIL TC-P7-07-10 chỉ v2 được chấm (DONE) với 4 lời gọi (['1|FAILED|SUPERSEDED', '2|DONE|-'], 4)
+   hàng chờ dòng của B: []
+FAIL TC-P7-07-10 hàng chờ chỉ có v2 của B ([]) []
+PASS TC-P7-07-13 ep-qc-gateway-1: log 20 phút: trace_id 1584 dòng, canary/văn bản bài/MSSV [] 
+PASS TC-P7-07-13 ep-qc-worker-1: log 20 phút: trace_id 2078 dòng, canary/văn bản bài/MSSV [] 
+SUMMARY {"TC-P7-07-01": true, "TC-P7-07-02": true, "TC-P7-07-07": true, "TC-P7-07-06": true, "TC-P7-07-10": false, "TC-P7-07-13": true}
+RESULT: FAIL (2 lỗi)

@@ -1,0 +1,49 @@
+   bài 01a1efd2-2343-722f-a13a-20fb5609ea87 đã công bố 3 kết quả
+PASS 02 lý do 9 ký tự → 422 
+PASS 02 lý do 1.001 ký tự → 422 
+PASS 02 không chọn tiêu chí → 422 
+PASS 02 tiêu chí lạ → 422 
+PASS 01 B gửi (lý do 10 ký tự, tiêu chí c2) → 201 OPEN 
+PASS 03 gửi lần hai → 409 APPEAL_ALREADY_FILED 
+PASS 01 một dòng grade_appeals, không escalation_tickets, 0 lời gọi LLM 
+PASS 03 quá hạn −7 ngày −1 phút → 409 APPEAL_WINDOW_CLOSED kèm closes_at 
+PASS 03 đúng hạn −7 ngày +1 phút → 201 
+PASS 03 bài chưa công bố / chưa có kết quả → 404 ASSIGNMENT_NOT_FOUND 
+PASS 10 STUDENT GET appeals → 403 
+PASS 10 ADMIN GET appeals → 403 
+PASS 10 TA GET appeals → 200 
+PASS 10 TEACHER GET appeals → 200 
+PASS 10 STUDENT A đọc phúc khảo của B → 403 
+PASS 10 ADMIN đọc phúc khảo của B → 403 
+PASS 10 TA decide → 403 
+PASS 10 STUDENT decide → 403 
+PASS 10 ADMIN decide → 403 
+PASS 10 TEACHER gửi phúc khảo → 403 
+   today APPEAL: [{"id": "APPEAL:01a1efd1-e55f-7679-be96-0eda1d97b29b", "kind": "APPEAL", "title": "2 yêu cầu xem lại điểm · Bài tập 03 — Phân tích một vụ tấn công thực tế", "reason": "Giữ hoặc sửa điểm kèm phản hồi.", "urgency": "overdue", "href": "/grading/01a1efd2-2361-7fc1-b521-f93a220c2001", "course": {"id": "0
+PASS 06 TEACHER: đúng một mục APPEAL, urgency overdue khi chờ > 48 giờ, chữ '… yêu cầu xem lại điểm …' 
+PASS 06 TA không có APPEAL (chỉ TEACHER) 
+   chuông APPEAL_NEW: 2
+   chi tiết: {"id": "01a1efd2-3de8-732b-824c-93dcbcdfba69", "assignment": {"id": "01a1efd2-2343-722f-a13a-20fb5609ea87", "title": "Bài tập 03 — Phân tích một vụ tấn công thực tế"}, "student": {"id": "01a1deef-db93-76dd-b927-7dc573ce7fc2", "full_name": "Bùi Thanh Khải", "student_code": "20229002"}, "submission_id": "01a1efd2-2361-7fc1-b521-f93a220c2001", "result_id": "01a1efd2-2373-7cb9-b4e6-6f3c547b49c0", "cri
+PASS 03 phản hồi 9 ký tự → 422 RESPONSE_REQUIRED 
+PASS 03 ADJUSTED không đổi tiêu chí nào → 422 NO_CHANGE 
+PASS 11 hai lần quyết cùng lúc → một 200, một 409 APPEAL_ALREADY_DECIDED 
+PASS 03 ADJUSTED: kết quả sửa tại chỗ (tổng 4,00 → 4,50), vẫn PUBLISHED, version + 1, giữ published_at và ai_scores 
+PASS 03 score_after ghi, status ADJUSTED 
+PASS 03 UPHELD → 200, điểm giữ 8,00 
+PASS 11 quyết lần hai → 409 
+   mine.result.appeal: {'state': 'ADJUSTED', 'closes_at': '2026-11-25T18:01:35.332345Z', 'response': 'Đã xem lại: tiêu chí 2 được cộng thêm.'}
+PASS 06 B: mine.result thấy 4,50 và appeal {state, response} 
+PASS 10 A không thấy phản hồi / lý do của B 
+FAIL 06 chuông APPEAL_REPLIED tới đúng B và C (mỗi người một) sv.kha@edupilot.local,sv.kha@edupilot.local,sv.kha@edupilot.local,sv.nguyco@edupilot.local
+   thư phúc khảo: [('Giảng viên đã trả lời yêu cầu xem lại điểm', 'sv.nguyco@edupilot.local'), ('Giảng viên đã trả lời yêu cầu xem lại điểm', 'sv.kha@edupilot.local')]
+PASS 06 thư tới đúng 2 người (B, C), mỗi người một 
+   thư B: Chào Bùi Thanh Khải, |  | Yêu cầu xem lại điểm Bài tập 03 — Phân tích một vụ tấn công thực tế của bạn đã có quyết định: Đã sửa điểm. |  | Điểm: 4,00 → 4,50 |  | Phản hồi của giảng viên: Đã xem lại: tiêu chí 2 được cộng thêm. |  | Xem chi tiết: http
+PASS 06 thư B: 'Đã sửa điểm', 4,00 → 4,50, phản hồi nguyên văn, không nhắc AI / nháp 
+   stats: {"submitted": 3, "graded": 3, "reviewed": 3, "published": 3, "mean_abs_deviation": "3.33", "teacher_changed_rate": "0.6667", "appealed": 2, "appeal_rate": "0.6667", "adjusted": 1, "appeal_success_rate": "0.5000"}
+PASS 08 stats: appealed 2, adjusted 1, appeal_rate 2/3, success 1/2 (chuỗi decimal) 
+PASS 09 không dòng escalation_tickets nào sinh ra suốt vòng đời 
+PASS 05 0 lời gọi LLM suốt vòng đời phúc khảo (llm_audit không tăng) 
+PASS 09 route cũ claim với id phúc khảo → 404 / 405 
+PASS 09 route cũ answer với id phúc khảo → 404 / 405 
+PASS log không chứa lý do / phản hồi phúc khảo 
+RESULT: FAIL (1 lỗi)

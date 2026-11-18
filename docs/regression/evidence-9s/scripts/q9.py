@@ -19,7 +19,7 @@ def _tc():
     except Exception: return {}
 def tok(user, fresh=False):
     e = user if "@" in user else user + "@edupilot.local"; c = _tc(); n = time.time()
-    if not fresh and e in c and n - c[e][1] < 600: return c[e][0]
+    if not fresh and e in c and n - c[e][1] < 200: return c[e][0]
     for i in range(5):
         s, j, _ = call("POST", "/api/v1/auth/login", body={"email": e, "password": PW})
         if s == 200: break
