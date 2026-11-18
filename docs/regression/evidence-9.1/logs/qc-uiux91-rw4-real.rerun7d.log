@@ -1,0 +1,31 @@
+
+Running 1 test using 1 worker
+
+INFO menu cột: opacity 0 → 1
+INFO Chốt điểm aria-disabled: null
+INFO hộp xác nhận chốt: Chốt điểm Chốt 30 sinh viên · phân bố: A+ 2, A 3, B+ 4, B 4, C+ 4, C 4, D+ 3, D 3, F 3 · 1 sinh viên liệt Để sau Chốt điểm
+INFO trạng thái sổ sau Esc: {"state":"CONFIRMED","unclear_count":0,"has_policy":false,"confirmed_at":"2026-11-15T12:26:01.756495Z","scheme_no":1,"pending_draft":false,"gradebook":{"status":"OPEN","snapshot_version":0}}
+INFO TA: nút Chốt điểm 0 aria-disabled null
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:503:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được (4.0m)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:503:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: page.evaluate: Target page, context or browser has been closed
+
+      17 | }
+      18 | const api = <T = unknown>(page: Page, path: string, init?: { method?: string; body?: unknown }) =>
+    > 19 |   page.evaluate(async ([p, i]) => {
+         |        ^
+      20 |     const a = await (await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "include" })).json();
+      21 |     const headers: Record<string, string> = { authorization: `Bearer ${a.access_token}`, "content-type": "application/json" };
+      22 |     if (i && (i as { method?: string }).method === "POST") headers["Idempotency-Key"] = crypto.randomUUID();
+        at api (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:19:8)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:546:21
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-f1273-DENT-403-TA-không-chốt-được-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:503:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được 

@@ -1,0 +1,35 @@
+
+Running 2 tests using 1 worker
+
+INFO tiêu chí 1440: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":451,"inTop":451,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":759,"inTop":759,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1074,"inTop":1074,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1359,"inTop":1359,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false}]
+INFO số lần câu ghi chú trích: 1 | cũ: 0
+INFO thanh dưới lúc mở: {"top":793,"bottom":862,"pos":"sticky","text":"Đã duyệt 0/4 Duyệt bài A","innerH":900}
+INFO nút đỏ: ["Duyệt bài"]
+INFO nút Duyệt bài sau khi cuộn: {"top":693,"bottom":729,"innerH":900}
+INFO tiêu chí 1100: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":451,"inTop":451,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":788,"inTop":788,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1125,"inTop":1125,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1432,"inTop":1432,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false}]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt (12.6s)
+INFO bố cục: {"noSave":["Đã lưu","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","Bùi Khánh Việt20227706 · +3 · +0,25×3Có ","","Bùi Minh Yến20221975 · +1 · +0,25×1Muộn","","Bùi Thanh Khải20229002 · +1 · +0,25×1Có ","","Bùi Thu Việt20226980Có mặt","","Đỗ Bảo Hải20226862Vắng phép","","Đỗ Khánh Hà20223050 · +4 · +0,25×4Có mặt","","Dương Minh Yến20222003Có mặt","","Dương Quốc Hương20224019Có mặt","","Dương Tuấn Giang20224852Vắng","","Hồ Đức Thảo20225401Có mặt","","Hồ Thu Chi20222839Muộn","","Huỳnh Đức Dũng20229602Có mặt","","Huỳnh Hoàng Hương20226004Có mặt","","Huỳnh Thu Long20223579Có mặt","","Lê Thanh Hải20227053Có mặt","","Ngô Ngọc Cẩm20229003Có mặt","","Ngô Thu Khoa20227130Có mặt","","Ngô Văn Hà20224349Có mặt","","Ngô Văn Hải20227769Có mặt","","Nguyễn Anh Linh20223869Có mặt","","Phạm Mai Chi20226712Có mặt","","Phan Hoàng Nam20223354Có mặt","","Phan Ngọc Lan20226611Có mặt","","Phan Thu Hà20224880Có mặt","","Võ Gia Linh20226009Có mặt","","Võ Hữu Bình20223575Có mặt","","Võ Thanh Trang20227825Có mặt","","Võ Thị An20229049Có mặt","","Vũ Hoàng Giang20229001Có mặt","","Vũ Minh Long20224786Có mặt","","Đã lưu · 28 có mặt · 2 vắng","","Để sau","Đánh vắng",""],"rows":30,"head":"Điểm danh Đã lưu buổi 10 · Chủ Nhật, 09:00–11:30 · P.302 Buổi Buổi 15 · 20/12 · Chưa Buổi 14 · 13/12 · Chưa Buổi 13 · 06/12 · Chưa Buổi 12 · 29/11 · Chưa Buổi 11 · 22/11 · Chưa Buổi 10 · 15/11 · Đã điểm danh Buổi 9 · 08/11 · Đã điểm danh Buổi 8 · 01/11 · Đã điểm danh Buổi 7 · 25/10 · Đã điểm danh Bu"}
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:640:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms (6.5s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:640:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "sticky"
+    Received: undefined
+
+      651 |   });
+      652 |   console.log("INFO bố cục:", JSON.stringify(g));
+    > 653 |   expect(g.thPos).toBe("sticky");
+          |                   ^
+      654 |   expect(g.namePos).toBe("sticky");
+      655 |   expect(g.saveBottom, "nút lưu cùng hàng đầu / trên đầu bảng").toBeLessThanOrEqual(g.thTop + 4);
+      656 |   // UX12-20: đổi chấm ≤ 100 ms
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:653:19
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-98faa-UDENT-403-đổi-chấm-≤-100-ms-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:640:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms 
+  1 passed (19.6s)

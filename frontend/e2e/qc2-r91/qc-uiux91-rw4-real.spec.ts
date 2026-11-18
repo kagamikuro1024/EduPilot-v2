@@ -24,7 +24,7 @@ const api = <T = unknown>(page: Page, path: string, init?: { method?: string; bo
     return { status: r.status, body: (await r.json().catch(() => null)) as unknown };
   }, [path, init ?? null] as const) as Promise<{ status: number; body: T }>;
 type Mine = { items: Array<{ course: { id: string; class_code: string } }> };
-const courseOf = async (page: Page, code = "761987") => (await api<Mine>(page, "/me/courses?limit=100")).body.items.find((i) => i.course.class_code === code)!.course.id;
+const courseOf = async (page: Page, code = (process.env.QC_CLASS ?? "761987")) => (await api<Mine>(page, "/me/courses?limit=100")).body.items.find((i) => i.course.class_code === code)!.course.id;
 async function teacher(browser: Browser, w = 1440, h = 900) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h }, hasTouch: w < 500, isMobile: w < 500, locale: "vi-VN" });
   const page = await ctx.newPage();
@@ -165,9 +165,12 @@ test("TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở đư
   expect(await page.getByLabel("Trạng thái").inputValue(), "bộ lọc còn nguyên").not.toBe("");
   const selVal = await page.getByLabel("Bài tập").evaluate((s: HTMLSelectElement) => s.selectedOptions[0].text);
   expect(selVal).toMatch(/Bài tập 03/);
+  // QC SmkS: nút Thử lại có thể biến mất tạm thời khi truy vấn tự thử lại (probe rzprobe2) ⇒ bấm có thử lại, đo số request mới; mất lỗi sau khi bỏ chặn
+  const retryReq0 = calls.length;
+  await expect.poll(async () => { const b = page.getByRole("button", { name: "Thử lại" }); if (await b.count()) await b.click({ timeout: 3000 }).catch(() => undefined); return calls.length > retryReq0; }, { timeout: 20_000, intervals: [500] }).toBe(true);
   fail = false;
-  await page.getByRole("button", { name: "Thử lại" }).click();
-  await page.waitForTimeout(2500);
+  await expect.poll(async () => { const b = page.getByRole("button", { name: "Thử lại" }); if (await b.count()) await b.click({ timeout: 3000 }).catch(() => undefined); return b.count(); }, { timeout: 30_000, intervals: [1000] }).toBe(0);
+  await page.waitForTimeout(1500);
   expect(await page.getByRole("button", { name: "Thử lại" }).count(), "tải lại được").toBe(0);
   await ctx.close();
   // STUDENT / TA
@@ -585,6 +588,7 @@ test("TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ ch
   await rows.nth(1).locator("input[data-status=LATE]").check({ force: true });
   await rows.nth(4).locator("input[data-status=EXCUSED]").check({ force: true });
   await rows.nth(8).locator("input[data-status=ABSENT]").check({ force: true });
+  await page.mouse.move(5, 5); // QC SmkS: chuột rời ô vừa chọn (đang rê thì chấm xám: DEF-R9.1-06, xem rzprobe)
   await page.waitForTimeout(500);
   const after = await radios(page);
   const isRed = (cols: string[]) => cols.some((x) => { const m = x.match(/\d+(\.\d+)?/g)?.map(Number) ?? []; return /lab|oklch|rgb|color/.test(x) && (/^rgb/.test(x) ? m[0] > 170 && m[1] < 80 : /^lab/.test(x) ? m[0] > 30 && m[0] < 55 && m[1] > 50 : /^oklch/.test(x) ? m[2] > 15 && m[2] < 40 : false); });
@@ -642,8 +646,9 @@ test("TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng
   await page.goto(`/attendance?course=${c}`);
   await page.waitForTimeout(4000);
   const g = await page.evaluate(() => {
-    const save = [...document.querySelectorAll("main button")].find((b) => /Lưu điểm danh/.test((b as HTMLElement).innerText)) as HTMLElement;
+    const save = [...document.querySelectorAll("main button")].find((b) => /Lưu điểm danh|^Đã lưu/.test((b as HTMLElement).innerText)) as HTMLElement;
     const th = document.querySelector("main thead th") as HTMLElement;
+    if (!save) return { noSave: [...document.querySelectorAll("main button")].map((b) => (b as HTMLElement).innerText.replace(/\s+/g, " ").slice(0, 40)), rows: document.querySelectorAll("main tbody tr").length, head: (document.querySelector("main") as HTMLElement).innerText.replace(/\s+/g, " ").slice(0, 300) } as never;
     const sb = save.getBoundingClientRect(), tb = th.getBoundingClientRect();
     return { saveTop: Math.round(sb.top), saveBottom: Math.round(sb.bottom), thTop: Math.round(tb.top), saveRight: Math.round(sb.right), tableRight: Math.round((document.querySelector("main table") as HTMLElement).getBoundingClientRect().right), thPos: getComputedStyle(th).position, namePos: getComputedStyle(document.querySelector("main tbody td") as HTMLElement).position, status: (document.querySelector("main") as HTMLElement).innerText.match(/Chưa có thay đổi|Đã lưu \d+:\d+|Chờ mạng/)?.[0] ?? null, warn: (document.querySelector("main") as HTMLElement).innerText.match(/Công thức[^\n]*chưa xác nhận[^\n]*/)?.[0] ?? null };
   });

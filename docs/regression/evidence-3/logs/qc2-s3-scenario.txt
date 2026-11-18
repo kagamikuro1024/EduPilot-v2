@@ -1,0 +1,13 @@
+3 POST Chinh 201 has_key=True key_status=ok last_test.ok=True api_key_in_body=False
+4 POST Phu 201
+5 PUT CHAT=[Chinh] 200
+6 CHAT=[Phu,Chinh] 200; chat×4: [('QC2S-Phu', 'fake-chat-2', '0', 'ok'), ('QC2S-Phu', 'fake-chat-2', '0', 'ok'), ('QC2S-Phu', 'fake-chat-2', '0', 'ok'), ('QC2S-Phu', 'fake-chat-2', '0', 'ok')]
+7 test khoá sai 200 {"ok": false, "error_kind": "AUTH", "message": "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.", "latency_ms": 13}
+8 POST Sai 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "45fc6ce57f396d19fb1ac1c10f76bcfa", "details": [{"field": "api_key", "code": "PROVIDER_AUTH_FAILED", "message": "Khoá API không được nhà cung cấp chấp nh
+9 GET providers: có QC2S-Sai True; chuỗi sai-khoa False; good-key False
+10 tắt Phu 200; chat×4: [('QC2S-Chinh', 'fake-chat', '0', 'ok'), ('QC2S-Chinh', 'fake-chat', '0', 'ok'), ('QC2S-Chinh', 'fake-chat', '0', 'ok'), ('QC2S-Chinh', 'fake-chat', '0', 'ok')]
+11 bật Phu 200; chat×4: [('QC2S-Phu', 'fake-chat-2', '0', 'ok'), ('QC2S-Phu', 'fake-chat-2', '0', 'ok'), ('QC2S-Phu', 'fake-chat-2', '0', 'ok'), ('QC2S-Phu', 'fake-chat-2', '0', 'ok')]
+12a POST Q 201
+12 CHAT=[Q,Chinh] 200; chat×4: [('QC2S-Q', 'm-ext', '0', 'ok'), None, ('QC2S-Q', 'm-ext', '0', 'ok'), ('QC2S-Q', 'm-ext', '0', 'ok')]
+13 stub trả lỗi: chat×4: [('QC2S-Chinh', 'fake-chat', '1', 'ok'), None, ('QC2S-Chinh', 'fake-chat', '1', 'ok'), ('QC2S-Chinh', 'fake-chat', '1', 'ok')]; stub nhận 8 yêu cầu
+13b audit: [['QC2S-Chinh', 'fake-chat', '1', 'ok'], ['QC2S-Chinh', 'fake-chat', '1', 'ok'], ['QC2S-Chinh', 'fake-chat', '1', 'ok'], ['QC2S-Chinh', 'fake-chat', '1', 'ok'], ['QC2S-Q', 'm-ext', '0', 'ok'], ['QC2S-Q', 'm-ext', '0', 'ok']]

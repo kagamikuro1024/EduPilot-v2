@@ -1,0 +1,51 @@
+
+Running 3 tests using 1 worker
+
+INFO tiêu chí 1440: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":451,"inTop":451,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":854,"inTop":854,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1375,"inTop":1375,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1828,"inTop":1828,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false}]
+INFO số lần câu ghi chú trích: 1 | cũ: 0
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt (6.3s)
+INFO chấm mặc định (3 hàng): [{"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"},{"st":"LATE","cols":["lab(100 0 0)","rgb(206, 22, 40)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"},{"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"}]
+INFO đỏ sau khi đổi: ["1:LATE","4:EXCUSED","8:ABSENT","10:LATE"] | Có mặt đỏ: 0 | mẫu LATE: {"st":"LATE","cols":["lab(100 0 0)","rgb(206, 22, 40)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"} | mẫu PRESENT: {"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"}
+INFO hàng Vắng: Dương Tuấn Giang 20224852 · Vắng Có mặt — Dương Tuấn Giang Muộn — Dương Tuấn Giang Vắng phép — Dương Tuấn Giang Vắng — Dương Tuấn Giang  {"name":"Vắng — Dương Tuấn Giang","checked":true}
+INFO số lần '+ phát biểu': 0
+INFO nút phát biểu opacity: 0 → 1
+INFO hàng sau 2 lần phát biểu: Bùi Thanh Khải 20229002 Có mặt — Bùi Thanh Khải Muộn — Bùi Thanh Khải Vắng phép — Bùi Thanh Khải Vắng — Bùi Thanh Khải +2 · +0,25×2
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:577:1 › TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ cho Muộn / Vắng phép / Vắng; phát biểu + (8.0s)
+  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:640:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms (6.5s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /Lệch 1,5 điểm so với lượt 2/
+    Received string:  "Hàng chờ chấm Bài tập 03 — Phân tích một vụ tấn công thực tế Phiên bản 1 · Nộp Thứ Ba, 10/11 · 23:59 · muộn 1 ngày · Chưa duyệt · bai-tap-03.md Phiên bản 1 Mở tệp gốc Bài viết phân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng SolarWinds Orion, bị phát hiện tháng 12 năm 2020. Đây là ví dụ điển hình cho việc kẻ tấn công không đánh thẳng vào mục tiêu cuối, mà chọn một nhà cung cấp phần mềm được hàng nghìn tổ chức tin tưởng và cài đặt sẵn trong mạng nội bộ. Tác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước, hoạt động kiên trì và ưu tiên gián điệp hơn phá hoại. Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng. Kẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll. Vì bản cập nhật vẫn được ký bằng chứng thư số hợp lệ của SolarWinds nên mọi cơ chế kiểm tra chữ ký ở phía khách hàng đều cho qua. Khoảng 18.000 tổ chức tải bản cập nhật có mã độc, nhưng kẻ tấn công chỉ chọn khoảng 100 mục tiêu để khai thác tiếp. Chuỗi tấn công gồm bốn bước: xâm nhập môi trường dựng phần mềm, cấy mã vào bản phát hành chính thức, nằm im 12–14 ngày để vượt qua các phép kiểm tra tự động, rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com với lưu lượng giả dạng giao thức cập nhật hợp lệ của chính Orion. Ở giai đoạn sau, nhóm tấn công nạp TEARDROP và Cobalt Strike để di chuyển ngang trong mạng, rồi đánh cắp khoá ký SAML của máy chủ liên kết danh tính. Với khoá này họ tự phát hành thẻ truy cập cho chính mình (kỹ thuật Golden SAML) và leo thang lên quyền quản trị dịch vụ thư điện tử đám mây mà không cần biết mật khẩu hay vượt qua xác thực đa yếu tố. Thiệt hại không nằm ở dữ liệu bị xoá mà ở niềm tin: nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư. Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó. Em chưa tìm được số liệu đáng tin về thời gian gián đoạn dịch vụ của từng tổ chức bị ảnh hưởng, nên phần đánh giá tác động vận hành ở đây mới dừng ở mức định tính. Về phòng thủ, em đề xuất ba nhóm biện pháp: (1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet, (2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ, (3) kiểm tra tính toàn vẹn của bản dựng bằng quy trình build tái lập được và bản kê thành phần phần mềm (SBOM). Ngoài ra cần giám sát hành vi bất thường của tiến trình hợp lệ, ví dụ Orion tự mở kết nối DNS tới một tên miền lạ ngoài danh sách đã biết, vì chữ ký số hợp lệ không còn là bằng chứng đủ để tin một bản cập nhật. Bài học rút ra: trong mô hình không tin mặc định, phần mềm của bên thứ ba cũng là một bề mặt tấn công. Kiểm soát phải đặt cả ở nơi nhận bản cập nhật chứ không chỉ ở nơi phát hành. Tổng điểm 9,50 Trừ nộp muộn · 1 ngày Bấm một dòng trích để xem trong bài. Xác định tác nhân và bề mặt tấn công / 2,5 “Tác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước, hoạt động kiên trì và ưu tiên gián điệp hơn phá hoại.” “Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng.” Nhận xét cho sinh viên Phân tích tấn công / 2,5 “Kẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll.” “Chuỗi tấn công gồm bốn bước: xâm nhập môi trường dựng phần mềm, cấy mã vào bản phát hành chính thức, nằm im 12–14 ngày để vượt qua các phép kiểm tra tự động, rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com” “Ở giai đoạn sau, nhóm tấn công nạp TEARDROP và Cobalt Strike để di chuyển ngang trong mạng, rồi đánh cắp khoá ký SAML của máy chủ liên kết danh tính. Với khoá này họ tự phát hành thẻ truy cập cho chính mình (kỹ thuật Golden SAML)” Nhận xét cho sinh viên Đánh giá tác động / 2,5 “nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư.” “Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó.” “Em chưa tìm được số liệu đáng tin về thời gian gián đoạn dịch vụ của từng tổ chức bị ảnh hưởng, nên phần đánh giá tác động vận hành ở đây mới dừng ở mức định tính.” Nhận xét cho sinh viên Biện pháp phòng thủ / 2,5 “(1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet, (2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ, (3) kiểm tra tính toàn vẹn của bản dựng bằng quy trình build tái lập được và bản kê thành phần phần mềm (SBOM).” “Ngoài ra cần giám sát hành vi bất thường của tiến trình hợp lệ, ví dụ Orion tự mở kết nối DNS tới một tên miền lạ ngoài danh sách đã biết” Nhận xét cho sinh viên Nhận xét chung Đã duyệt 0/4 Duyệt bài A Về hàng chờ chấm"
+
+      255 |       console.log("INFO số lần câu ghi chú trích:", (text.match(/Bấm một dòng trích để xem trong bài/g) ?? []).length, "| cũ:", (text.match(/Đoạn trích từ bài làm · bấm/g) ?? []).length);
+      256 |       expect((text.match(/Đoạn trích từ bài làm/g) ?? []).length, "UX15-3: ghi chú cũ tối đa 1 lần").toBeLessThanOrEqual(1);
+    > 257 |       expect(text).toMatch(/Lệch 1,5 điểm so với lượt 2/);
+          |                    ^
+      258 |       expect(await page.getByRole("dialog").count(), "không modal").toBe(0);
+      259 |       const bar = await page.evaluate(() => {
+      260 |         const btn = [...document.querySelectorAll("main button")].find((b) => (b as HTMLElement).innerText.trim() === "Duyệt bài") as HTMLElement | undefined;
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:257:20
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-bacc4-ới-trọn-khung-lệch-hai-lượt-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:640:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms 
+
+    Error: page.evaluate: TypeError: Cannot read properties of undefined (reading 'getBoundingClientRect')
+        at eval (eval at evaluate (:370:30), <anonymous>:5:21)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at eval (eval at evaluate (:370:30), <anonymous>:5:21)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:645:24
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-98faa-UDENT-403-đổi-chấm-≤-100-ms-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:640:1 › TC-UX12-13/14/18/20 điểm danh 1440: nút lưu cùng cột đầu bảng, tiêu đề / cột tên dính; STUDENT 403; đổi chấm ≤ 100 ms 
+  1 passed (22.2s)

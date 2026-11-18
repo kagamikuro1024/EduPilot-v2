@@ -18,7 +18,7 @@ test("TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv", a
     const a = await (await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "include" })).json();
     const h = { authorization: `Bearer ${a.access_token}` };
     const m = await (await fetch("/api/v1/me/courses?limit=100", { headers: h })).json();
-    const c = m.items.find((i: { course: { class_code: string } }) => i.course.class_code === "761987").course.id;
+    const c = m.items.find((i: { course: { class_code: string } }) => i.course.class_code === (process.env.QC_CLASS ?? "761987")).course.id;
     const g = await (await fetch(`/api/v1/courses/${c}/gradebook?limit=100`, { headers: h })).json();
     return g.rows.map((r: { student: { student_code: string }; result: { hp?: string; letter?: string } | null }) => [r.student.student_code, r.result?.hp ?? "", r.result?.letter ?? ""]);
   });

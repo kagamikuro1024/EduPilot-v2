@@ -20,39 +20,38 @@ Cách chạy:
 | TC | KQ | Ghi chú |
 | --- | --- | --- |
 | **US-P0-01** | | |
-| P0-01/TC-01 | D | DEMO_SCRIPT v2 (bd032bf2): 8 bước, thêm F7 điểm danh QR + bước nhật ký — TC kiểm cấu trúc v1 (7 bước) |
-| P0-01/TC-02 | D | DEMO_SCRIPT v2: 8 bảng mốc — TC kiểm 7 bảng |
-| P0-01/TC-03 | D | DEMO_SCRIPT v2: tổng thời lượng/mốc «12:15» thay «13:45» |
-| P0-01/TC-04 | D | DEMO_SCRIPT v2: route /checkin?c=… + vai «2 sinh viên» ngoài danh sách TC |
+| P0-01/TC-02 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): DEMO_SCRIPT v2: 8 bảng mốc — TC kiểm 7 bảng |
+| P0-01/TC-03 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): DEMO_SCRIPT v2: tổng thời lượng/mốc «12:15» thay «13:45» |
+| P0-01/TC-04 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): DEMO_SCRIPT v2: route /checkin?c=… + vai «2 sinh viên» ngoài danh sách TC |
 | P0-01/TC-05 | P | không từ khoá cấm ở lời SV |
-| P0-01/TC-06 | D | DEMO_SCRIPT v2 viết lại mục 5 (dự phòng): khoá DEMO_MODE/«Ai bật»/«lỗi 2 lần» không còn |
+| P0-01/TC-06 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): DEMO_SCRIPT v2 viết lại mục 5 (dự phòng): khoá DEMO_MODE/«Ai bật»/«lỗi 2 lần» không còn |
 | P0-01/TC-07 | F | DEF-R1-01: DEMO_SCRIPT trích attendance-checkin/-display/checkin-code/audit/insights.spec.ts nhưng FLOWS.md không có mục tương ứng |
 | P0-01/TC-08 | P | 4 cụm phân quyền nằm đúng hàng bảng |
 | P0-01/TC-09 | P |  |
 | P0-01/TC-10 | P | email @edupilot.local, không secret |
 | P0-01/TC-11 | P | đường dẫn trích dẫn tồn tại |
 | P0-01/TC-12 | P |  |
-| P0-01/TC-13 | D | script đòi dòng «Phiên bản 1»; tài liệu nay «Phiên bản 2» |
+| P0-01/TC-13 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): script đòi dòng «Phiên bản 1»; tài liệu nay «Phiên bản 2» |
 | P0-01/TC-14 | P |  |
 | **US-P0-02** | | |
-| P0-02/TC-01 | D | gốc repo nay có benchmarks/ deploy/ infra/ mobile/ … |
+| P0-02/TC-01 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): gốc repo nay có benchmarks/ deploy/ infra/ mobile/ … |
 | P0-02/TC-02 | P |  |
 | P0-02/TC-03 | P |  |
 | P0-02/TC-04 | P |  |
-| P0-02/TC-05 | D | tokens.css + brand: 6 tệp, tokens đã đổi qua nhiều sprint UI |
+| P0-02/TC-05 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): tokens.css + brand: 6 tệp, tokens đã đổi qua nhiều sprint UI |
 | P0-02/TC-06 | P |  |
-| P0-02/TC-07 | D | legacy/ có tệp mới (sprint sau) |
-| P0-02/TC-08 | D | script đòi commit dời thuần rename — cây đã đổi ≥ 1.700 commit |
-| P0-02/TC-09 | D | compose nay 13 service (thêm caddy, pgbouncer, judge, mock-*, worker…) — TC đòi 6 |
-| P0-02/TC-10 | X | `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `docker compose config` rc 0, `pnpm dev:status` 13 service healthy (run-logs/s1-second-stack-static.log) |
-| P0-02/TC-11 | D | `dev:status` 6 service — nay 13 |
+| P0-02/TC-07 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): legacy/ có tệp mới (sprint sau) |
+| P0-02/TC-08 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): script đòi commit dời thuần rename — cây đã đổi ≥ 1.700 commit |
+| P0-02/TC-09 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): compose nay 13 service (thêm caddy, pgbouncer, judge, mock-*, worker…) — TC đòi 6 |
+| P0-02/TC-10 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
+| P0-02/TC-11 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): `dev:status` 6 service — nay 13 |
 | P0-02/TC-12 | P | kiểm tương đương: GET /api/v1/healthz qua Caddy 1143 = 200 {"status":"ok"} JSON (cổng 8080 không còn công bố: US-PG-07 AC17) |
 | P0-02/TC-13 | P | kiểm tương đương trên cổng ep-r: Mailpit info 200, MinIO live+console 200, PG 18.6 + vector, Redis 8.10 PONG, SMTP mở |
 | P0-02/TC-14 | P | lang="vi", logo tham chiếu và phục vụ 200 (frontend :3700) |
 | P0-02/TC-15 | P | gateway user nonroot; healthcheck `/gateway -healthcheck`; image không có sh/curl/wget |
-| P0-02/TC-16…P0-02/TC-17 | X | `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `docker compose config` rc 0, `pnpm dev:status` 13 service healthy (run-logs/s1-second-stack-static.log) |
+| P0-02/TC-16…P0-02/TC-17 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
 | P0-02/TC-18 | P | PATH không docker → thoát 1, thông báo Docker, không stack trace |
-| P0-02/TC-19 | D | có phụ thuộc mới (uqr, react-dom 19.3…) ngoài phạm vi TC |
+| P0-02/TC-19 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): có phụ thuộc mới (uqr, react-dom 19.3…) ngoài phạm vi TC |
 | P0-02/TC-20 | F | DEF-R2-04 (xem defects-2.md): `go vet ./...` rc 0; `go test -race ./...` không tag: contract đỏ cố định; bản `-tags testroutes` xanh (3424 PASS, 0 FAIL) |
 | P0-02/TC-21 | P | RERUN 2026-11-16 sau 816498c6 (DEF-R2-01 đã sửa): `redocly lint backend-go/api/openapi.yaml` → «valid», 0 lỗi (21 cảnh báo) |
 | P0-02/TC-22 | P | `pnpm -C frontend lint` rc 0, `build` rc 0 |
@@ -60,33 +59,32 @@ Cách chạy:
 | P0-02/TC-24 | P |  |
 | P0-02/TC-25 | P |  |
 | P0-02/TC-26 | P |  |
-| P0-02/TC-27 | D | gateway nay thoát 1 khi thiếu DB/Redis (US-PG-01 AC1) — TC đòi /healthz sống |
-| P0-02/TC-28 | X | `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `docker compose config` rc 0, `pnpm dev:status` 13 service healthy (run-logs/s1-second-stack-static.log) |
+| P0-02/TC-27 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): gateway nay thoát 1 khi thiếu DB/Redis (US-PG-01 AC1) — TC đòi /healthz sống |
+| P0-02/TC-28 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
 | P0-02/TC-29 | P | container gateway thật (image edupilot-gateway) trên mạng tạm qc2-j: `docker stop` → ExitCode 0, 4,7 s (<8 s), log «gateway stopped»; run-logs/s1-tc29-j.log |
-| P0-02/TC-30 | X | `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `docker compose config` rc 0, `pnpm dev:status` 13 service healthy (run-logs/s1-second-stack-static.log) |
-| P0-02/TC-31 | D | grep «legacy» trúng testdata/lib `kin-openapi/routers/legacy`, test mask — không phải tham chiếu thư mục legacy |
+| P0-02/TC-30 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
+| P0-02/TC-31 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): grep «legacy» trúng testdata/lib `kin-openapi/routers/legacy`, test mask — không phải tham chiếu thư mục legacy |
 | P0-02/TC-32 | P | không mount legacy (chỉ ./seed/demo); `go list ./...` không gói legacy; history image không «legacy» |
 | P0-02/TC-33 | P | kiểm tương đương /api/v1/healthz: body {"status":"ok"}, POST 405, đường dẫn lạ 404 JSON, có/không Authorization đều 200 |
-| P0-02/TC-34 | D | .env.example nay > 10 nhóm biến; «8640…» là số TTL trùng, không phải secret |
+| P0-02/TC-34 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): .env.example nay > 10 nhóm biến; «8640…» là số TTL trùng, không phải secret |
 | P0-02/TC-35 | P |  |
-| P0-02/TC-36 | D | phạm vi diff từ sprint 1 → HEAD: trúng dữ liệu giả trong test (token=AAAA…, sk-ABCDEFGH) |
-| P0-02/TC-37 | D | luật «gateway không ghi đĩa»: nay có cmd/regress, fake llm ghi tệp (đã duyệt) |
-| P0-02/TC-38 | D | benchmarks/ và 20 tệp .py ngoài legacy/docs (judge/benchmark — sprint sau) |
+| P0-02/TC-36 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): phạm vi diff từ sprint 1 → HEAD: trúng dữ liệu giả trong test (token=AAAA…, sk-ABCDEFGH) |
+| P0-02/TC-37 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): luật «gateway không ghi đĩa»: nay có cmd/regress, fake llm ghi tệp (đã duyệt) |
+| P0-02/TC-38 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): benchmarks/ và 20 tệp .py ngoài legacy/docs (judge/benchmark — sprint sau) |
 | **US-P0-03** | | |
-| P0-03/TC-01 | D | bằng chứng là run GitHub Actions của nhánh sprint/1-p0-prep — nhánh/run đã đóng |
-| P0-03/TC-02…P0-03/TC-03 | D | như TC-01 |
-| P0-03/TC-04 | D | ci.yml đã tái cấu trúc (US-CI-02/TL-CI: matrix, job tách, Node 24, cache tự quản) |
+| P0-03/TC-01 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): bằng chứng là run GitHub Actions của nhánh sprint/1-p0-prep — nhánh/run đã đóng |
+| P0-03/TC-02…P0-03/TC-03 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): như TC-01 |
+| P0-03/TC-04 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): ci.yml đã tái cấu trúc (US-CI-02/TL-CI: matrix, job tách, Node 24, cache tự quản) |
 | P0-03/TC-05 | P |  |
-| P0-03/TC-06 | D | như TC-01 (log run cũ) |
-| P0-03/TC-07 | D | cần RUN_RED_GO; nhánh ci/red-check đã xoá |
-| P0-03/TC-08…P0-03/TC-09 | D | như TC-07 |
-| P0-03/TC-10 | D | cần RUN_RED_UI; nhánh ci/red-check đã xoá |
-| P0-03/TC-11 | D | như TC-10 |
-| P0-03/TC-12 | D | nhánh ci/red-check đã xoá — TC chỉ chấm sau khi dev xoá |
+| P0-03/TC-06 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): như TC-01 (log run cũ) |
+| P0-03/TC-07 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): cần RUN_RED_GO; nhánh ci/red-check đã xoá |
+| P0-03/TC-08…P0-03/TC-09 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): như TC-07 |
+| P0-03/TC-10 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): cần RUN_RED_UI; nhánh ci/red-check đã xoá |
+| P0-03/TC-11 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): như TC-10 |
+| P0-03/TC-12 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): nhánh ci/red-check đã xoá — TC chỉ chấm sau khi dev xoá |
 | P0-03/TC-13 | P | permissions: contents: read |
-| P0-03/TC-14 | D | diff .github từ 1b72f54: thêm actions/fe-setup, xoá keep-huggingface (sprint sau) |
 | P0-03/TC-15 | F | DEF-R2-04: lệnh Go `go test -race ./...` không tag đỏ ở internal/contract; FE: install --frozen-lockfile/lint/build/antipatterns rc 0; bản -tags testroutes xanh |
-| P0-03/TC-16 | D | HEAD detached/1.740 commit chưa so với origin — không còn nghĩa |
+| P0-03/TC-16 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): HEAD detached/1.740 commit chưa so với origin — không còn nghĩa |
 
 ## Trượt: bước tái hiện
 ### DEF-R1-01 — DEMO_SCRIPT trích spec E2E không có trong FLOWS (TC-07)

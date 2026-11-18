@@ -1,0 +1,22 @@
+
+Running 1 test using 1 worker
+
+PROBE visible; trạng thái= REVIEWED
+PROBE sau-fail=false t=0s count=0 req=11
+PROBE sau-fail=false t=0.3s count=0 req=11
+PROBE sau-fail=false t=0.6s count=0 req=13
+PROBE sau-fail=false t=0.8999999999999999s count=0 req=13
+PROBE sau-fail=false t=1.2s count=0 req=13
+PROBE sau-fail=false t=1.5s count=0 req=13
+PROBE sau-fail=false t=1.7999999999999998s count=0 req=13
+PROBE sau-fail=false t=2.1s count=0 req=13
+PROBE sau-fail=false t=2.4s count=0 req=13
+PROBE sau-fail=false t=2.6999999999999997s count=0 req=13
+PROBE click FAIL TimeoutError: locator.click: Timeout 8000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Thử lại' })
+
+PROBE cuối count= 0 main= Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Bài tập Tất cả bài tập Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams) Bài tập 03 — Phân tích một vụ tấn c
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe2-real.spec.ts:5:1 › probe grading error retry (31.7s)
+
+  1 passed (33.1s)

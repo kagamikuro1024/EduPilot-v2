@@ -1,0 +1,54 @@
+{
+ "etag": [
+  200,
+  "W/\"V9YJJRPj6RplRcgp\"",
+  304
+ ],
+ "409": [
+  200,
+  409,
+  "VERSION_CONFLICT"
+ ],
+ "422/409 sai": [
+  422,
+  "VALIDATION_FAILED"
+ ],
+ "422": [
+  422,
+  "VALIDATION_FAILED"
+ ],
+ "cursor": {
+  "p1": 200,
+  "rows1": 1,
+  "next": true,
+  "p2": 200,
+  "rows2": 1,
+  "khac_nhau": true,
+  "cursor_hong": 200,
+  "limit500": "status 422"
+ },
+ "sse": [
+  200,
+  "text/event-stream",
+  [
+   "retry: 3000",
+   "event: ready",
+   "data: {\"connection_id\":\"a8218e6a-7cf6-427a-83af-91361a8c0530\",\"server_time\":\"2026-11-18T19:12:13.905602612Z\"}",
+   "read:TimeoutError"
+  ]
+ ],
+ "sse_last_event_id": 200,
+ "job": [
+  200,
+  [
+   "id",
+   "kind",
+   "status",
+   "progress",
+   "result",
+   "created_at",
+   "updated_at",
+   "finished_at"
+  ]
+ ]
+}

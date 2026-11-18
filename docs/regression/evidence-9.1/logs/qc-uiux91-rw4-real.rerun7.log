@@ -1,0 +1,59 @@
+
+Running 3 tests using 1 worker
+
+INFO tiêu chí 1440: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":451,"inTop":451,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":854,"inTop":854,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1375,"inTop":1375,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1828,"inTop":1828,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false}]
+INFO số lần câu ghi chú trích: 1 | cũ: 0
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt (6.0s)
+INFO đầu bảng: [{"t":"Sinh viên","h":57,"pos":"sticky","lines":1},{"t":"Giữa kỳ","h":57,"pos":"sticky","lines":1},{"t":"Kiểm tra hằng tuần","h":57,"pos":"sticky","lines":1},{"t":"Thi cuối kỳ","h":57,"pos":"sticky","lines":1},{"t":"Điểm cộng","h":57,"pos":"sticky","lines":1},{"t":"Điểm trừ","h":57,"pos":"sticky","lines":1},{"t":"Quá trình","h":57,"pos":"sticky","lines":1},{"t":"Điểm học phần","h":57,"pos":"sticky","lines":1},{"t":"Điểm chữ","h":57,"pos":"sticky","lines":1},{"t":"Trạng thái","h":57,"pos":"sticky","lines":1},{"t":"Hành động","h":57,"pos":"sticky","lines":1}]
+INFO hàng: [["Bùi Khánh Việt\n20227706","","—","","1,00","0,00","6,500","5,50","C","",""],["Bùi Minh Yến\n20221975","","—","","0,25","0,00","5,750","4,00","D","",""],["Bùi Thanh Khải\n20229002","","—","","0,50","0,00","8,250","7,00","B","",""]]
+INFO cuộn: [{"h":600,"top":197,"cls":"DataTable-module__PUx__a__vscr"}] căn: right tabular-nums cột tên: sticky | đầu trang: Sổ điểm Xem công thức Chốt điểm Bảng điểm của lớp Sinh viên Giữa kỳ Kiểm tra hằng tuần Thi cuối kỳ Điểm cộng Điểm trừ Quá trình Điểm học phần Điểm chữ Trạng thái Hành động Bùi Khánh Việt 20227706 — 1,00 0,00 6,500 5,50 C Bùi Minh Yến 20221975 — 0,25 0,00 5,750 | chân:  Ngô Văn Hà 20224349 — 0,25 0,00 6,415 6,50 C+ Ngô Văn Hải 20227769 — 0,50 0,00 7,125 7,50 B Nguyễn Anh Linh 20223869 — 0,75 0,00 4,750 6,00 C Phạm Mai Chi 20226712 — 0,00 0,00 5,125 5,00 D+ đã công bố Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.
+INFO thiếu: null | cột Trạng thái: true
+INFO UX16-3: kiểm 0 ô số, lệch 0
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:450:1 › TC-UX16-2/3/4/5/6/7/9/10/11 sổ điểm thật: số khớp API, tiêu đề một dòng, một vùng cuộn, Thiếu điểm (6.5s)
+INFO chấm mặc định (3 hàng): [{"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"},{"st":"LATE","cols":["lab(100 0 0)","rgb(206, 22, 40)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"},{"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"}]
+INFO đỏ sau khi đổi: ["1:LATE","8:ABSENT","10:LATE"] | Có mặt đỏ: 0 | mẫu LATE: {"st":"LATE","cols":["lab(100 0 0)","rgb(206, 22, 40)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"} | mẫu PRESENT: {"st":"PRESENT","cols":["lab(100 0 0)","rgb(35, 31, 32)","rgb(0, 0, 0)","rgb(0, 0, 0)"],"accent":"auto","appearance":"none"}
+  ✘  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:577:1 › TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ cho Muộn / Vắng phép / Vắng; phát biểu + (7.0s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /Lệch 1,5 điểm so với lượt 2/
+    Received string:  "Hàng chờ chấm Bài tập 03 — Phân tích một vụ tấn công thực tế Phiên bản 1 · Nộp Thứ Ba, 10/11 · 23:59 · muộn 1 ngày · Chưa duyệt · bai-tap-03.md Phiên bản 1 Mở tệp gốc Bài viết phân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng SolarWinds Orion, bị phát hiện tháng 12 năm 2020. Đây là ví dụ điển hình cho việc kẻ tấn công không đánh thẳng vào mục tiêu cuối, mà chọn một nhà cung cấp phần mềm được hàng nghìn tổ chức tin tưởng và cài đặt sẵn trong mạng nội bộ. Tác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước, hoạt động kiên trì và ưu tiên gián điệp hơn phá hoại. Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng. Kẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll. Vì bản cập nhật vẫn được ký bằng chứng thư số hợp lệ của SolarWinds nên mọi cơ chế kiểm tra chữ ký ở phía khách hàng đều cho qua. Khoảng 18.000 tổ chức tải bản cập nhật có mã độc, nhưng kẻ tấn công chỉ chọn khoảng 100 mục tiêu để khai thác tiếp. Chuỗi tấn công gồm bốn bước: xâm nhập môi trường dựng phần mềm, cấy mã vào bản phát hành chính thức, nằm im 12–14 ngày để vượt qua các phép kiểm tra tự động, rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com với lưu lượng giả dạng giao thức cập nhật hợp lệ của chính Orion. Ở giai đoạn sau, nhóm tấn công nạp TEARDROP và Cobalt Strike để di chuyển ngang trong mạng, rồi đánh cắp khoá ký SAML của máy chủ liên kết danh tính. Với khoá này họ tự phát hành thẻ truy cập cho chính mình (kỹ thuật Golden SAML) và leo thang lên quyền quản trị dịch vụ thư điện tử đám mây mà không cần biết mật khẩu hay vượt qua xác thực đa yếu tố. Thiệt hại không nằm ở dữ liệu bị xoá mà ở niềm tin: nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư. Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó. Em chưa tìm được số liệu đáng tin về thời gian gián đoạn dịch vụ của từng tổ chức bị ảnh hưởng, nên phần đánh giá tác động vận hành ở đây mới dừng ở mức định tính. Về phòng thủ, em đề xuất ba nhóm biện pháp: (1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet, (2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ, (3) kiểm tra tính toàn vẹn của bản dựng bằng quy trình build tái lập được và bản kê thành phần phần mềm (SBOM). Ngoài ra cần giám sát hành vi bất thường của tiến trình hợp lệ, ví dụ Orion tự mở kết nối DNS tới một tên miền lạ ngoài danh sách đã biết, vì chữ ký số hợp lệ không còn là bằng chứng đủ để tin một bản cập nhật. Bài học rút ra: trong mô hình không tin mặc định, phần mềm của bên thứ ba cũng là một bề mặt tấn công. Kiểm soát phải đặt cả ở nơi nhận bản cập nhật chứ không chỉ ở nơi phát hành. Tổng điểm 9,50 Trừ nộp muộn · 1 ngày Bấm một dòng trích để xem trong bài. Xác định tác nhân và bề mặt tấn công / 2,5 “Tác nhân được các hãng an ninh quy cho nhóm APT29 (còn gọi là Cozy Bear), một nhóm tấn công có tài trợ nhà nước, hoạt động kiên trì và ưu tiên gián điệp hơn phá hoại.” “Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành — chứ không phải máy chủ của khách hàng.” Nhận xét cho sinh viên Phân tích tấn công / 2,5 “Kẻ tấn công cấy một thư viện độc hại tên SUNBURST vào tệp SolarWinds.Orion.Core.BusinessLayer.dll.” “Chuỗi tấn công gồm bốn bước: xâm nhập môi trường dựng phần mềm, cấy mã vào bản phát hành chính thức, nằm im 12–14 ngày để vượt qua các phép kiểm tra tự động, rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com” “Ở giai đoạn sau, nhóm tấn công nạp TEARDROP và Cobalt Strike để di chuyển ngang trong mạng, rồi đánh cắp khoá ký SAML của máy chủ liên kết danh tính. Với khoá này họ tự phát hành thẻ truy cập cho chính mình (kỹ thuật Golden SAML)” Nhận xét cho sinh viên Đánh giá tác động / 2,5 “nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư.” “Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó.” “Em chưa tìm được số liệu đáng tin về thời gian gián đoạn dịch vụ của từng tổ chức bị ảnh hưởng, nên phần đánh giá tác động vận hành ở đây mới dừng ở mức định tính.” Nhận xét cho sinh viên Biện pháp phòng thủ / 2,5 “(1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet, (2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ, (3) kiểm tra tính toàn vẹn của bản dựng bằng quy trình build tái lập được và bản kê thành phần phần mềm (SBOM).” “Ngoài ra cần giám sát hành vi bất thường của tiến trình hợp lệ, ví dụ Orion tự mở kết nối DNS tới một tên miền lạ ngoài danh sách đã biết” Nhận xét cho sinh viên Nhận xét chung Đã duyệt 0/4 Duyệt bài A Về hàng chờ chấm"
+
+      255 |       console.log("INFO số lần câu ghi chú trích:", (text.match(/Bấm một dòng trích để xem trong bài/g) ?? []).length, "| cũ:", (text.match(/Đoạn trích từ bài làm · bấm/g) ?? []).length);
+      256 |       expect((text.match(/Đoạn trích từ bài làm/g) ?? []).length, "UX15-3: ghi chú cũ tối đa 1 lần").toBeLessThanOrEqual(1);
+    > 257 |       expect(text).toMatch(/Lệch 1,5 điểm so với lượt 2/);
+          |                    ^
+      258 |       expect(await page.getByRole("dialog").count(), "không modal").toBe(0);
+      259 |       const bar = await page.evaluate(() => {
+      260 |         const btn = [...document.querySelectorAll("main button")].find((b) => (b as HTMLElement).innerText.trim() === "Duyệt bài") as HTMLElement | undefined;
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:257:20
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-bacc4-ới-trọn-khung-lệch-hai-lượt-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:577:1 › TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ cho Muộn / Vắng phép / Vắng; phát biểu + 
+
+    Error: UX12-2: số chấm đỏ = số hàng khác Có mặt
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 4
+    Received: 3
+
+      593 |   console.log("INFO đỏ sau khi đổi:", JSON.stringify(redIdx), "| Có mặt đỏ:", presentRed, "| mẫu LATE:", JSON.stringify(after[1]), "| mẫu PRESENT:", JSON.stringify(after[0]));
+      594 |   expect(presentRed, "UX12-1: Có mặt không đỏ").toBe(0);
+    > 595 |   expect(redIdx.length, "UX12-2: số chấm đỏ = số hàng khác Có mặt").toBe(after.filter((r) => r.st !== "PRESENT").length);
+          |                                                                     ^
+      596 |   expect(after.filter((r) => r.st !== "PRESENT" && !isRed(r.cols)).map((r) => r.st), "UX12-2: mọi hàng Muộn / Vắng phép / Vắng đỏ").toEqual([]);
+      597 |   // UX12-3: nhãn chữ trạng thái + radio có tên
+      598 |   const txt = await rows.nth(8).innerText();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:595:69
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-c7205-n-Vắng-phép-Vắng-phát-biểu--desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:577:1 › TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ cho Muộn / Vắng phép / Vắng; phát biểu + 
+  1 passed (20.4s)

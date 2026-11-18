@@ -62,3 +62,29 @@
 - Mức: Thấp · Sprint gốc: 3 (handoff PU-05: «dev xoá được») · Hồi quy: không
 - Bước: `git ls-remote --heads origin ci/ui-drift` → `5e32bb50…` (EduPilot-v2); `git ls-remote --heads old-private ci/ui-drift` → `38073d08…` (TA_Agent_v2). Kỳ vọng: không in gì.
 - Ghi chú: 3 run đỏ của nhánh (37139595531 / 37140069267 / 37140802309 ở repo TA_Agent_v2) vẫn đọc được bằng `gh run view -R kagamikuro1024/TA_Agent_v2`; các ca TC-PU05-29/31/32/33/34/28, GATEP1-11, GATEPU-09 đã đạt bằng chúng (CI sprint 3 nằm ở repo old-private TA_Agent_v2, không phải origin).
+
+### DEF-R3-SMK-03 — Sinh viên thấy «Chi tiết kỹ thuật … trace_id» ở màn lỗi /me và /threads (TC-PU05-40, TC-GATEPU-15)
+- Mức: Trung bình (vi phạm luật «Sinh viên không bao giờ thấy từ kỹ thuật», chỉ lộ mã lỗi + trace_id, không dữ liệu cá nhân)
+- Sprint gốc: 5/6 (US-P5-06 `/me` thật d6f61728; `RealThreads`) — hợp đồng từ sprint 3 (US-PU-03: `ApiErrorNotice` ghi «`trace_id` CHỈ khi `showTechnical` (TA / GV / Admin) — Sinh viên không bao giờ thấy»). Hồi quy do sprint sau? KHÔNG (từ khi có màn).
+- Tái hiện (stack ep-r thật, sv.kha): mở /me hoặc /threads, chặn mọi GET /api/v1/* trả 500 {code:INTERNAL, trace_id}, tải lại. /me hiện «Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất. Chi tiết kỹ thuật Thử lại»; mở «Chi tiết kỹ thuật» hiện «NOT_FOUND · trace_id 000…» (gate build, student). /threads cũng có phần «Chi tiết kỹ thuật».
+- Kỳ vọng: STUDENT không có «Chi tiết kỹ thuật» (showTechnical chỉ cho TA/GV/Admin). Thực tế: `frontend/src/features/me/RealMe.tsx:51` và `features/threads/RealThreads.tsx:88` truyền `showTechnical` vô điều kiện (cả hai là màn của sinh viên). 5/7 route SV khác sạch (/, /chat, /practice, /library, /calendar).
+- Bằng chứng: frontend/e2e/qc2-r8/real-tech.spec.ts (ep-r thật), frontend/e2e/qc2-r3/stu-tech.spec.ts (gate), evidence-3/gate-self/.
+
+
+## Ca lỗi thời đã XOÁ khỏi smoke (lệnh chủ dự án; mỗi mã một dòng + nguồn)
+- TC-GATEP1-10: smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.m
+- TC-GATEPU-10: smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.m
+- TC-P105-50: smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.m
+- TC-PU01-01: LỖI THỜI: docs/design/DESIGN_TOKENS.css đổi hợp lệ sau sprint 3 (P-107-8/10 bộ màu ĐHBK, màn chiếu P-108-8); còn 2 token lệch giữa kit và tokens.css: --ep-ink-3 (kit 58 % / code 53 %, góp ý #25) và --
+- TC-PU01-03: LỖI THỜI: DESIGN_TOKENS.css nay 62 dòng khai báo (sửa hợp lệ ở 51eab447 / ac670244 / 8999086f)
+- TC-PU01-32: smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.m
+- TC-PU01-33: smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.m
+- TC-PU02-39: smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.m
+- TC-PU04-59: smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.m
+- TC-PU05-20: lighthouserc.json nay 9 URL × 5 lượt, LCP đo ở lượt devtools riêng (lighthouserc.devtools.json) — đổi hợp lệ ở US-PU-06 #14 (commit 77b4833e) và US-P5-06; không còn «7 URL × 3 lượt, LCP trong cùng ass
+- TC-PU05-38: smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.m
+
+
+## Ca lỗi thời đã XOÁ khỏi smoke (lệnh chủ dự án; mỗi mã một dòng + nguồn)
+- TC-P104-40: golden PG không bị sửa, redocly lint rc=0 (đã chạy P); riêng «operationId = 18 / openapi.test = 18» LỖI THỜI: số thao tác đổi hợp lệ ở mọi sprint sau (a7a887f5 sinh contract; proposals sprint 8 #9/#12
+- TC-PU01-21: LỖI THỜI: layout.tsx nay 3 độ đậm 400/600/700 (commit 1d6e611f «thực hiện góp ý #26 (phông 400/600/700, LCP warn tạm)»); tokens.spec.ts (QC cũ) kiểm 3 độ đậm — spec đổi hợp lệ

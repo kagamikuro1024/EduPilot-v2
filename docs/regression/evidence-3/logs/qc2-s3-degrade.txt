@@ -1,0 +1,1 @@
+tắt hết (nhà duy nhất không kết nối được): 0.5 s; câu trả lời «AI đang gián đoạn. Thử lại sau.»; done=[{"citations": [], "content": "AI đang gián đoạn. Thử lại sau.", "degraded": true, "low_confidence": false, "message_id": "01a1f019-ee71-7cb5-a832-fa91b405f4d4", "ticket": null}]; audit=[]

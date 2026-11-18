@@ -1,0 +1,22 @@
+
+Running 6 tests using 1 worker
+
+(node:13016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX19-10 lỗi: "Đăng nhập EduPilot Email Mật khẩu Đăng nhập Quên mật khẩu? Chưa có tài khoản? Đăng ký Cần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn." | Thử lại: 0
+INFO UX19-10 sau Thử lại: số hàng 0
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:23:1 › TC-UX19-10 danh sách lỗi → ApiErrorNotice + Thử lại (6.3s)
+INFO UX20-8 qt của A: 8.25 | qt của B: 10 | A gọi ?user_id=B: 200 8.25 | bằng của A: true
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:38:1 › TC-UX20-8 tham số user_id không đổi danh tính (16.1s)
+INFO UX13-1 trước thu gọn: {"x":240,"r":1416,"w":1176,"mainL":216,"mainR":1440}
+INFO UX13-3 sau thu gọn: {"x":240,"r":1416,"w":1176,"mainL":216,"mainR":1440}
+INFO UX13-4 hàng: "Giải thích chi tiết quy chế điểm quá trình và cách tính điểm ⏎ Hôm nay, 01:38" {"lh":"24px","h":83,"clamp":"none","ov":"visible"}
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài (14.4s)
+(node:13847) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  4 [mobile] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:23:1 › TC-UX19-10 danh sách lỗi → ApiErrorNotice + Thử lại
+  -  5 [mobile] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:38:1 › TC-UX20-8 tham số user_id không đổi danh tính
+  -  6 [mobile] › e2e/qc2-r91/qc-uiux91-rw5i-real.spec.ts:52:1 › TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài
+
+  3 skipped
+  3 passed (37.5s)

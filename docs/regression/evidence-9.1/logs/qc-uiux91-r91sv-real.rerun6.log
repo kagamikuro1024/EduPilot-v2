@@ -1,0 +1,41 @@
+
+Running 6 tests using 1 worker
+
+(node:18614) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX20-1 dòng: "Giữa kỳ · 20 % Căn cứ · tr. 1 9"
+INFO UX20-2 meta dưới h1: ""
+INFO UX20-3 số không có trong API: []
+INFO UX20-9 scrollHeight 375: 1637
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:10:1 › TC-UX20-1/2/3/4/9 /me sinh viên (9.4s)
+  -  2 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử)
+  -  3 [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác
+(node:18758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  4 [mobile] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:10:1 › TC-UX20-1/2/3/4/9 /me sinh viên
+  -  5 [mobile] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử)
+  -  6 [mobile] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:10:1 › TC-UX20-1/2/3/4/9 /me sinh viên ───
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1600
+    Received:    1637
+
+      47 |   const h = await m.page.evaluate(() => document.documentElement.scrollHeight);
+      48 |   console.log("INFO UX20-9 scrollHeight 375:", h);
+    > 49 |   expect(h).toBeLessThanOrEqual(1600);
+         |             ^
+      50 |   expect(await noOverflow(m.page)).toBe(true);
+      51 |   await m.ctx.close();
+      52 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:49:13
+
+    Error Context: test-results/qc2-r91-qc-uiux91-r91sv-real-TC-UX20-1-2-3-4-9-me-sinh-viên-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-r91sv-real.spec.ts:10:1 › TC-UX20-1/2/3/4/9 /me sinh viên ────
+  3 skipped
+  2 did not run

@@ -25,7 +25,7 @@ test("TC-UX15-14 xung đột phiên bản thật: hiện giá trị của ngư�
       return { status: r.status, body: await r.json().catch(() => null) };
     }, [path, method, body ?? null] as const);
   const mine = await api("/me/courses?limit=100");
-  const c = mine.body.items.find((i: { course: { class_code: string } }) => i.course.class_code === "761987").course.id as string;
+  const c = mine.body.items.find((i: { course: { class_code: string } }) => i.course.class_code === (process.env.QC_CLASS ?? "761987")).course.id as string;
   const as = await api(`/courses/${c}/assignments?limit=50`);
   const aid = as.body.items.find((a: { title: string }) => /Bài tập 03/.test(a.title)).id as string;
   const dr = await api(`/courses/${c}/submissions?limit=100&assignment_id=${aid}&status=DRAFT`);
@@ -91,7 +91,7 @@ test("TC-UX16-12 xung đột ô sổ điểm thật: hiện giá trị người 
       return { status: r.status, body: await r.json().catch(() => null) };
     }, [path, method, body ?? null] as const);
   const mine = await api("/me/courses?limit=100");
-  const c = mine.body.items.find((i: { course: { class_code: string } }) => i.course.class_code === "761987").course.id as string;
+  const c = mine.body.items.find((i: { course: { class_code: string } }) => i.course.class_code === (process.env.QC_CLASS ?? "761987")).course.id as string;
   let req: { item_id: string; student_id: string; score: string; version: number } | null = null;
   page.on("request", (r) => { if (r.method() === "PUT" && /grade-entries$/.test(r.url())) req = JSON.parse(r.postData() ?? "null"); });
   await page.goto(`/gradebook?course=${c}`);

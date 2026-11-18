@@ -36,3 +36,6 @@
 - Bước tái hiện: 1. `cd backend-go && go test -count=1 ./internal/contract` → FAIL: `TestChatThreadsContract` («POST /api/v1/_test/llm/fake → 404 (cần 200)»), `TestContract_ResponsesMatchSpec` («chỉ có 0 quan sát»), `TestSpec_EveryDocumentedStatusExercised` (hàng trăm trạng thái «không test nào sinh ra»). 2. Cùng lệnh thêm `-tags testroutes` → ok.
 - Kỳ vọng: gói contract xanh ở cả hai bản dựng (hoặc các kịch bản dùng route thử có `//go:build testroutes`) · Thực tế: đỏ ở bản mặc định
 - Bằng chứng: /tmp/qc2-j-gate-notag/internal_contract.json · Nghi mã: backend-go/internal/contract/scenarios_assignment_test.go:91 (và mọi kịch bản dùng route `_test`), contract_test.go:114/174. Đề xuất: PM quyết — thêm `//go:build testroutes` cho các tệp kịch bản (khi đó cổng «không tag» xanh) hoặc xác nhận `-tags testroutes` là cách chạy chuẩn (khi đó GATE-03/06, P0-02/TC-20, P0-03/TC-15 chuyển LT).
+
+
+## Ca lỗi thời đã XOÁ khỏi smoke (lệnh chủ dự án; mỗi mã một dòng + nguồn)

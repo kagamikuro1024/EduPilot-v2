@@ -31,7 +31,7 @@ test("TC-UX12-11/19 điểm danh 375: chạm 2 SV sang Vắng, lưu ≤ 60 s, kh
   page.setDefaultTimeout(10_000);
   const dialogs: string[] = [];
   page.on("dialog", (d) => { dialogs.push(d.message()); void d.dismiss(); });
-  await page.goto(`/attendance?course=${ids["761987"]}`);
+  await page.goto(`/attendance?course=${ids[(process.env.QC_CLASS ?? "761987")]}`);
   await page.waitForTimeout(4500);
   const names = await page.locator("main tbody tr[data-part=student-row] td:first-child span span:first-child").allInnerTexts();
   const pick = [names[18], names[19]];
@@ -85,7 +85,7 @@ test("TC-UX12-14/15 cảnh báo công thức 375 (lớp 761988): một khối �
 test("TC-UX16-1/5 sổ điểm 1440: ô nhập đệm 0 khi không focus, giá trị thô khi focus; ⋯ tiêu đề chỉ hiện khi rê / focus", async ({ browser }, info) => {
   desktopOnly(info);
   const { ctx, page, ids } = await open(browser, 1440, 900);
-  await page.goto(`/gradebook?course=${ids["761987"]}`);
+  await page.goto(`/gradebook?course=${ids[(process.env.QC_CLASS ?? "761987")]}`);
   await page.waitForTimeout(5000);
   const vals = await page.locator("main tbody tr input").evaluateAll((es) => es.map((e) => (e as HTMLInputElement).value).filter((v) => v !== ""));
   console.log("INFO ô nhập (không focus):", JSON.stringify([...new Set(vals)]));
@@ -120,7 +120,7 @@ test("TC-UX16-1/5 sổ điểm 1440: ô nhập đệm 0 khi không focus, giá t
 test("TC-UX16-21 sổ điểm 375: ô nhập cao ≥ 44, cuộn ngang trong bảng, không tràn trang", async ({ browser }, info) => {
   desktopOnly(info);
   const { ctx, page, ids } = await open(browser, 375, 812);
-  await page.goto(`/gradebook?course=${ids["761987"]}`);
+  await page.goto(`/gradebook?course=${ids[(process.env.QC_CLASS ?? "761987")]}`);
   await page.waitForTimeout(5000);
   const r = await page.evaluate(() => ({
     ov: document.documentElement.scrollWidth > document.documentElement.clientWidth,

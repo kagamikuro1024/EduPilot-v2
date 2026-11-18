@@ -1,2 +1,20 @@
 # N08-16 pha 2: --resume với Retry-After 0 2026-11-19 01:31:38
   429 GET /me/courses?limit=100 → chờ 5s
+  429 GET /me/courses?limit=100 → chờ 10s
+  429 GET /me/courses?limit=100 → chờ 20s
+  429 GET /me/courses?limit=100 → chờ 40s
+  429 GET /me/courses?limit=100 → chờ 60s
+LỖI: GET /me/courses?limit=100 → 429 {"code":"RATE_LIMITED","message":"giả"}
+real 135.12
+user 0.06
+sys 0.02
+rc=2
+--- số yêu cầu: 7
+fake-gateway 429 18099
+1.0 POST /api/v1/auth/login → 200
+1.0 GET /api/v1/me/courses?limit=100 → 429
+6.0 GET /api/v1/me/courses?limit=100 → 429
+16.0 GET /api/v1/me/courses?limit=100 → 429
+36.0 GET /api/v1/me/courses?limit=100 → 429
+76.1 GET /api/v1/me/courses?limit=100 → 429
+136.1 GET /api/v1/me/courses?limit=100 → 429

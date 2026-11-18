@@ -7,7 +7,7 @@ const D = (info: { project: { name: string } }) => test.skip(info.project.name !
 test.describe.configure({ mode: "serial" });
 
 // ---------------- US-UX91-20 (/me, sinh viên) ----------------
-test("TC-UX20-1/2/3/4/5/9 /me sinh viên", async ({ browser }, info) => {
+test("TC-UX20-1/2/3/4/9 /me sinh viên", async ({ browser }, info) => {
   D(info); test.setTimeout(240_000);
   const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, "761987");
   await go(o.page, "/me", c, 3000);
@@ -40,11 +40,7 @@ test("TC-UX20-1/2/3/4/5/9 /me sinh viên", async ({ browser }, info) => {
   expect(bad).toEqual([]);
   // UX20-4: không lộ nháp / ghi chú / rủi ro
   expect(t).not.toMatch(/bản nháp|nháp|ghi chú quan sát|nguy cơ|AT_RISK|rủi ro/i);
-  // UX20-5: một nút phụ «Yêu cầu xem lại» (nếu có điểm công bố)
-  const btn = o.page.getByRole("button", { name: /Yêu cầu xem lại/ });
-  console.log("INFO UX20-5 số nút:", await btn.count());
-  expect(await btn.count()).toBe(1);
-  expect(await btn.first().getAttribute("data-variant")).not.toBe("primary");
+  // UX20-5 (nút «Yêu cầu xem lại») nằm ở /assignments/‹id›, kiểm trong qc-uiux91-rs0misc-real.spec.ts
   await o.ctx.close();
   // UX20-9: 375
   const m = await open(browser, "sv.gioi", 375, 812); await go(m.page, "/me", c, 3500);

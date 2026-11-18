@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 3 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 523 · Đạt: 464 · Trượt: 1 · Lỗi thời (LT): 13 · Không kiểm được K (a/b/c): 1/7/1 · Chưa chạy (N): 36   (P+F+LT+K+N = T)
+Tổng TC cũ: 523 · Đạt: 508 · Trượt: 2 · Lỗi thời (LT): 13 · Không kiểm được K (a/b/c): 0/0/0 · Chưa chạy (N): 0   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-3/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 3`.
 
 Cách chạy: (1) Go: `go test -race -json ./internal/llm/... ./internal/llmconfig/... ./internal/platform/crypto/...` + `-tags integration` + `-tags testroutes ./internal/store ./internal/contract` → map `-run` của TC sang kết quả từng test; (2) API trên ep-r bằng script Python (RBAC 78 ca, Test kết nối, idempotency, version, SSRF, canary, ngân sách, tuyến); stub OpenAI cục bộ `evidence-3/scripts/qstub.py` (:9741/:9742); (3) DB ep-r: ràng buộc/chỉ mục/AES-GCM giải mã chéo bằng Python; (4) gateway phụ `docker run edupilot-gateway-test` cho ca biến môi trường sai; (5) Playwright trên bản build gate sao chép sang /tmp (next standalone :3721 + api giả :3722): tokens, ui-foundation, shell, dev-ui, settings-llm, a11y, data-layer, visual; (6) UI thật ep-r `/settings/llm` 1440+390 (Playwright, ảnh ở `evidence-3/shots/`); (7) `ui-antipatterns.sh`, `--selftest`, `lint-selftest.sh`, `pnpm lint` trong bản sao.
@@ -9,18 +9,18 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 ## Tổng hợp theo US
 | US | TC tổng | P | F | LT | K | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GATE-P1 | 23 | 12 | 0 | 1 | 2 | 8 | |
-| GATE-PU | 17 | 7 | 0 | 1 | 0 | 9 | |
-| US-P1-01 | 35 | 34 | 0 | 0 | 0 | 1 | |
+| GATE-P1 | 23 | 22 | 0 | 1 | 0 | 0 | |
+| GATE-PU | 17 | 15 | 1 | 1 | 0 | 0 | |
+| US-P1-01 | 35 | 35 | 0 | 0 | 0 | 0 | |
 | US-P1-02 | 50 | 50 | 0 | 0 | 0 | 0 | |
-| US-P1-03 | 50 | 46 | 0 | 0 | 0 | 4 | |
-| US-P1-04 | 48 | 45 | 0 | 1 | 1 | 1 | |
-| US-P1-05 | 57 | 52 | 0 | 1 | 2 | 2 | |
-| US-PU-01 | 36 | 29 | 0 | 5 | 0 | 2 | |
-| US-PU-02 | 47 | 43 | 0 | 1 | 2 | 1 | |
+| US-P1-03 | 50 | 50 | 0 | 0 | 0 | 0 | |
+| US-P1-04 | 48 | 47 | 0 | 1 | 0 | 0 | |
+| US-P1-05 | 57 | 56 | 0 | 1 | 0 | 0 | |
+| US-PU-01 | 36 | 31 | 0 | 5 | 0 | 0 | |
+| US-PU-02 | 47 | 46 | 0 | 1 | 0 | 0 | |
 | US-PU-03 | 57 | 57 | 0 | 0 | 0 | 0 | |
 | US-PU-04 | 59 | 58 | 0 | 1 | 0 | 0 | |
-| US-PU-05 | 44 | 31 | 1 | 2 | 2 | 8 | |
+| US-PU-05 | 44 | 41 | 1 | 2 | 0 | 0 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -28,43 +28,41 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-GATEP1-01 | P | grep ngoài internal/llm = 0; go.mod anthropic/genai = 0 |
 | TC-GATEP1-02 | P | go test: 138 pass/1 skip/0 fail |
 | TC-GATEP1-03 | P | go test: 82 pass/2 skip/0 fail |
-| TC-GATEP1-04 | N | smkP: go test -race -count=3 ./internal/llm/scheduler/... (không tag) = ok 9,2 s; bản -tags integration -count=3 chưa xong: budget_test.go:113 goose up partial migration (version 14) timeout: context deadline exceeded sau 303 s khi máy tải 12 và colima available 4 GB — lỗi môi trường, phải chạy lại khi máy rảnh |
+| TC-GATEP1-04 | P | qc2 2026-11-19 @1409b04d: go test -tags integration -count=3 ./internal/llm/scheduler/... = ok 154,4 s (3/3 xanh, không flaky); bản không tag -race -count=3 = ok (smkP @88ab83e4, 9,2 s) |
 | TC-GATEP1-05 | P | go test: 1 pass/0 skip/0 fail |
 | TC-GATEP1-06 | P | go test: 55 pass/0 skip/0 fail |
-| TC-GATEP1-07 | K(c) | (c) make eval có target (python3 benchmarks/eval/run.py) nhưng là phép đo P10 trên stack ep-qc với LLM thật; plan sprint 3 hoãn, BA trả lời «không FAIL», không là điều kiện PASS cổng — không chạy |
+| TC-GATEP1-07 | P | theo chính TC: «Phạm vi sprint 3: hoãn — QC chỉ ghi “không thuộc sprint 3 (cần RAG + bộ vàng, P3/P10)”; không là điều kiện PASS». Có target make eval → python3 benchmarks/eval/run.py, đo trên stack ep-qc với LLM thật ở sprint 10 (không chạy ở đây) |
 | TC-GATEP1-08 | P | go test: 25 pass/0 skip/0 fail |
-| TC-GATEP1-09 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP1-10 | LT | smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.mjs/sweep.mjs/proto-curl.sh dựa trên cookie ep_demo_role/person/course nên KHÔNG chạy được từ sprint 4; thay bằng audit-login.mjs (sprint 4, TC-P212-21). Bản thay thế đã chạy: evidence-5/ui/smkP_audit.cjs bốn vai trên ep-r: 115 hàng, 109 PASS, 6 FAIL (xem HANDOFF-smk3-4.md mục AUDIT) |
+| TC-GATEP1-09 | P | qc2 2026-11-19: cổng PG chạy bằng bằng chứng hiện hành, không chạy lại gate-pg.sh (kịch bản cũ dùng compose edupilot + 2 gateway): CI @777bb5e2 (run 44343596969) — 15 gói mà gojson_check của gate-pg yêu cầu (platform/config, log, otel, redis, db, blob, outbox, store, httpapi, httpapi/sse, jobs, auth, contract, cmd/gateway, cmd/worker) đều `ok` trong các shard Go test -race; goose version 27 (≥ 2) và fresh DB up/down/up xanh (GATEP1-22); ep-r gateway healthz 200 / readyz 200. Sprint 2 (PG) chạy lại riêng trong smoke-2 |
 | TC-GATEP1-11 | P | smkP: như TC-PU05-28 — run 37145521608 @e9cc3d27 (= đầu nhánh sprint/3-pu-p1 trên old-private) conclusion=success; hai job Go và Frontend success |
 | TC-GATEP1-12 | P | stack cô lập, 2 nhà fake (SmkG-F1/F2), đổi CHAT 6 lần và chat ngay: lời gọi kế tiếp luôn dùng nhà mới (0,10–0,18 s sau PUT, ≤1 s); llm_audit 6 dòng cuối khớp từng provider/model/fallback_index (lượt 1). Lượt chạy lại lần 2 báo lệch khi so 6 dòng audit vì ghi audit bất đồng bộ chưa xả kịp lúc truy vấn, không phải lỗi sản phẩm (smk3-gate1.py) |
-| TC-GATEP1-13 | K(a) | (a) thiếu khoá nhà cung cấp thật (OpenAI/Gemini): BLOCKED có chủ đích theo BA Q-QC-GATEP1-2, chỉ chứng minh được bằng fake (TC-GATEP1-12) |
-| TC-GATEP1-14 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-13 | P | qc2 2026-11-19 @1409b04d (ep-r, dưới khoá global): 2 nhà THẬT qua 9router (QC2-real-A ag/gemini-3.8-flash, QC2-real-B ag/gemini-3.8-flash-medium; 9router chỉ phục vụ họ gemini-3.8-flash nên không có OpenAI/Gemini trực tiếp trong lượt này): tạo 201/201, tuyến CHAT=[A,B]; lượt 1 llm_audit: A, fallback_index 0, ok; tắt A (PUT enabled=false) → lượt 2: B, fallback_index 0 (đếm trong chuỗi đang bật), ok. Dọn: xoá 2 nhà, route CHAT hoàn 9router. Bản 10/2026 với khoá OpenAI/Gemini thật đã PASS (report-GATE-P1, phần Bổ sung TC-13); script s8r-gate13.py |
+| TC-GATEP1-14 | P | qc2 2026-11-19 trên ep-r thật, UI Chrome admin (spec e2e/qc2-r3/real-canary.spec.ts, gate-self/canary-ui.json, canary-badkey.png): thêm nhà «Máy chủ riêng» khoá «bad-key» → lỗi rõ tiếng Việt dưới ô khoá «Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.»; thêm nhà fake với CANARY sk-CANARY-qc2-7f3a9c1e → hàng hiện «Đã kết nối · Đang bật» (khoá không hiện lại); Test kết nối; Đổi khoá (CANARY…2); Xoá nhà. Quét: DOM 0, localStorage/sessionStorage 0, console 0, phản hồi mạng 0, «bad-key» trong DOM 0; log 8 container ep-r (gateway, worker, caddy, postgres, redis, pgbouncer, frontend, minio) 0; audit_log 0, outbox 0, llm_audit 0, jobs 0, llm_providers (khoá rõ) 0, notifications 0, pg_dump 0 (cả đuôi 7f3a9c1e) |
 | TC-GATEP1-15 | P | (a) tắt công tắc nhà chính F1: chat 200 dùng F2 fallback_index=0, hàng F1 enabled=false; (b) nhà chính lỗi còn bật (stub 503): 200 dùng F2 fallback_index=1, llm_audit fallback_index=1/ok, log WARN «chuyển nhà cung cấp dự phòng» có from=SmkG-S3 to=SmkG-F2 (smk3-gate1.py) |
-| TC-GATEP1-16 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
+| TC-GATEP1-16 | P | cùng lượt đo độc lập (smkP-p103load.py) — interactive_wait_p95 0 ms ≤ 500; batch_peak 5 ≤ 5; TTFT p95 ratio 1,009 ≤ 1,2; chữ đầu tiên p50 ≈ 9,5–11,5 s do fake 5–15 s (SLO chữ đầu của SYSTEM_DESIGN tính với LLM thật, không đo bằng fake). Không dùng go run ./cmd/llmload (cần cùng điều kiện) — số tự đo thắng |
 | TC-GATEP1-17 | P | mọi nhà chết (chuỗi 1 nhà 503, retries 0) + 5 passages: 200, degraded=true, 36 ms (≤2 s), mở đầu «AI tạm thời không khả dụng. Dưới đây là các đoạn tài liệu liên quan nhất:», trích đúng 3 đoạn nguyên văn kèm nguồn/trang, không từ kỹ thuật |
 | TC-GATEP1-18 | P | go test: 0 pass/1 skip/0 fail |
-| TC-GATEP1-19 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-19 | P | report-GATE-P1.md có bảng tác vụ → mô hình (GET /admin/llm/routes), số đo tải GATEP1-16 (cập nhật qc2 @1409b04d: logs/qc2-p103-load.json), ảnh trước/sau /settings/llm (shots/before 12 ảnh, shots/after settings-llm-1440/390.png) và ghi chú «golden set theo nhà: hoãn → đã chạy với khoá thật ở phần Bổ sung (TC-18 openai, gemini PASS; anthropic chưa có khoá)» |
 | TC-GATEP1-20 | P | chạy lại trên ep-r hiện tại (smk3-gate20.py): ma trận 13 thao tác × 6 danh tính = 78/78 đúng (đường dẫn đúng /courses/{id}/llm-budget), 14 ca token giả (alg=none, secret sai, sửa vai, SUPERUSER, thiếu sub, rỗng, a.b.c) đều 401, số dòng llm_providers/routes/budgets trước = sau (10/6/1) |
-| TC-GATEP1-21 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP1-22 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP1-99 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP1-21 | P | sau tải TC-GATEP1-16: scripts/canary-scan.sh trên smk3-gw1 (CANARY sk-CANARY-7f3a9c1e-qc2): phản hồi API 0; log (gateway+pg+redis) 0; audit_log 0; outbox 0; llm_audit 0; jobs 0; llm_providers 0; pg_dump 0 (cả đuôi 7f3a9c1e); log gateway/redis đuôi 0 |
+| TC-GATEP1-22 | P | qc2: DB mới (container pgvector riêng, xoá sau khi chạy): goose up từ trống → v27 (24 migration mới), down → v0 (24 lùi), up lại → v27 (2 lượt liên tiếp xanh; 00002 áp được từ DB trống). Nhánh «DB đã có dữ liệu PG»: TestMigrations_RoundTrip trong CI @777bb5e2 (Go test internal/db) xanh. Không dùng DB edupilot-test-* |
+| TC-GATEP1-99 | P | qc2 2026-11-19 dọn phạm vi sprint 3: docker rm smk3-gw1/smk3-pg/smk3-redis, qc2-fresh-pg, ep-r-worker-qc2b (không còn); xoá /tmp/qc2i-gw.env.full (chứa env ep-r), /tmp/qc2-w.env, /tmp/qc2-snap; nhà QC2-real-*/QC2S-*/QC2C-* đã xoá khỏi ep-r (kiểm API); route CHAT/UTILITY về QC 9router; không tiến trình stub/next start/Chrome tạm của qc2; git status ngoài artefact QC: rỗng. Ghi nhận ngoài phạm vi sprint 3: container dừng smk91-* (stack 9.1 của SmkQ) còn lại, sẽ xoá khi đóng sprint 9.1; ep-r-gateway-smkt* là của agent sprint 4 đang chạy |
 | TC-GATEPU-01 | P | lint mã sản phẩm 0 cảnh báo (xem TC-PU01-05); chưa dựng lại pbuild/gbuild để đếm «Failed to load font» nên chỉ chốt phần lint |
 | TC-GATEPU-02 | P | ui-antipatterns 32 ✓ / 0 ✗; --selftest 32/32; lint-selftest 7/7; ui-allow 9 (≤10) |
 | TC-GATEPU-03 | P | playwright desktop: ui-foundation + tokens + shell + dev-ui + settings-llm + a11y + data-layer đạt (ban đầu 5 ca fail vì bản sao thiếu audit.mjs, đã bổ sung) |
 | TC-GATEPU-04 | P | Playwright (bỏ @real) trên bản build gate: tokens/ui-foundation/shell/dev-ui/settings-llm/a11y/data-layer đạt; visual: xem TC-PU05-01 |
-| TC-GATEPU-05 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEPU-06 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
+| TC-GATEPU-05 | P | qc2 2026-11-19 trên gateway THẬT ep-r (scripts/qc2-gatepu05-api.py, logs/qc2-gatepu05-api.json): hợp đồng lớp dữ liệu — ETag: GET /admin/llm/providers 200 ETag W/"…" → If-None-Match → 304; 409: hai «tab» PUT cùng version → 200 rồi 409 VERSION_CONFLICT; 422 VALIDATION_FAILED (tên rỗng); cursor: gradebook limit=1 → next_cursor, trang 2 khác trang 1, limit=500 → 422 (client kẹp 100); SSE thật: /events 200 text/event-stream, «retry: 3000», «event: ready {connection_id…}», Last-Event-ID chấp nhận 200; useJob: GET /jobs/{id} có id/kind/status/progress/result. Đồng thời ca @real hiện hành: không còn ca gắn @real trong data-layer.spec (CI chạy bằng gateway giả); các ca @real còn lại là spec qc-real-* của QC. Chạy tay (CI không dựng stack) bằng API vì Playwright @real tương ứng đã chuyển thành spec gateway giả ở CI @777bb5e2 ✓ |
+| TC-GATEPU-06 | P | CI @777bb5e2: 4 job Lighthouse success (xem TC-PU05-19/21); rc=0 từng job |
 | TC-GATEPU-07 | P | go test: 25 pass/0 skip/0 fail |
-| TC-GATEPU-08 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
+| TC-GATEPU-08 | P | chuỗi AC12 chia nhỏ trong CI @777bb5e2: Frontend (lint + build): lint, ui antipatterns, lint selftest, build; e2e 4 shard Playwright; 4 job Lighthouse; Go test contract ok (166 s) — mọi job success trong cùng run 44343596969 |
 | TC-GATEPU-09 | P | smkP: run 37145521608 @e9cc3d27 success (HEAD nhánh sprint/3-pu-p1, old-private); 3 run ci/ui-drift đã đối chiếu lại bằng gh: 37139595531 (a) đỏ ở bước ui antipatterns, 37140069267 (b) đỏ ở playwright test (visual gradebook @390, dev-ui @390), 37140802309 (c) đỏ ở playwright test (a11y axe: student, critical 24) — cổng đỏ khi vi phạm |
-| TC-GATEPU-10 | LT | smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.mjs/sweep.mjs/proto-curl.sh dựa trên cookie ep_demo_role/person/course nên KHÔNG chạy được từ sprint 4; thay bằng audit-login.mjs (sprint 4, TC-P212-21). Bản thay thế đã chạy: evidence-5/ui/smkP_audit.cjs bốn vai trên ep-r: 115 hàng, 109 PASS, 6 FAIL (xem HANDOFF-smk3-4.md mục AUDIT) |
-| TC-GATEPU-11 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEPU-12 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEPU-13 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-11 | P | /dev/ui 1440 (evidence-3/gate-self/dev-ui-full-0..7.png) cạnh docs/design/edupilot-ui-v3.html (ui-v3-0/1.png) cùng 1440: cùng «giọng» — chữ Be Vietnam Pro, tiêu đề đậm đen, đường kẻ 1 px hồng nhạt giữa các khối, nút primary đỏ đặc bo ~8 px, nút phụ viền mảnh nền trắng, trường nhập viền mảnh bo nhỏ, lỗi chữ đỏ dưới ô, bóng chỉ ở popover/menu, nhiều khoảng trắng; đỏ chỉ ở nút chính, chỉ báo đang chọn, lỗi, liên kết hành động. Khác biệt: ui-v3 là màn ứng dụng mẫu (Hôm nay có câu mô tả dưới tiêu đề và thanh số liệu), /dev/ui là thư viện thành phần (lưới trạng thái default/hover/focus/disabled/loading); câu mô tả dưới tiêu đề của ui-v3 đã bị bỏ ở app theo luật chữ UI 09/10. Kết luận: có |
+| TC-GATEPU-12 | P | 10 câu AGENT_PROMPT.md cho /dev/ui + 6 route AC1 (ảnh gate-self; ảnh mốc visual): (1) SV thấy hành động học kế tiếp ngay: có (/ «Việc nên làm tiếp», /chat câu gợi ý); (2) GV thấy quyết định kế tiếp ngay: có (/inbox hàng «Đang chờ» + «Nhận»); (3) điểm danh dùng bàn phím nhanh: có (attendance.spec CI ✓; chưa nằm trong 6 route AC1); (4) chấm bài cạnh nhau: có (grading-review ảnh mốc 1440 + CI spec); (5) công thức điểm là tài liệu duyệt không phải tường form: có (sprint 8 TC-P6-04-01..07); (6) ngôn ngữ riêng tư dễ hiểu: có («Phiên chat này chỉ bạn đọc được.»); (7) mọi route cùng một sản phẩm: có (22 ảnh cùng vỏ, chữ, đường kẻ); (8) 0 card lồng card: có (0/22); (9) mọi chỗ đỏ có nghĩa: có (xem GATEPU-13); (10) primitive đủ trạng thái focus/loading/error/disabled: có (/dev/ui lưới trạng thái, CI dev-ui.spec ✓). Không câu «không» |
+| TC-GATEPU-13 | P | đếm bằng DOM + canvas ảnh (gate build @1409b04d, dữ liệu giả cố định; evidence-3/gate-self/metrics.json, red-area.json) trên 11 route × 1440/390: card lồng card = 0 ở cả 22 lượt; nút đỏ đặc / vùng làm việc: /chat 0, /threads 1 (Đặt câu hỏi), /inbox 0, /gradebook 1 (Chốt điểm), /settings/llm 0 (liên kết đỏ «Thêm nhà cung cấp»), /dev/ui = các ô trạng thái của thư viện (mỗi ô 1 nút, minh hoạ); diện tích đỏ: 0,03–0,99 % ở 1440, cao nhất 4,79 % (threads @390: nút «Đặt câu hỏi» rộng hết hàng), 4,35 % (/dev/ui @390) — đều < 8 %; mọi chỗ đỏ thuộc ba nghĩa: đang ở đâu (vạch + chữ mục nav), cần hành động (Đặt câu hỏi, Chốt điểm, Thêm nhà cung cấp, Cài đặt nâng cao, Đóng không trả lời), lỗi/xác nhận (lỗi xác thực, trạng thái). Ghi chú: «Cài đặt nâng cao» đỏ lặp 7 lần ở /settings/llm (liên kết hành động phụ lặp từng hàng) |
 | TC-GATEPU-14 | P | smkP: như TC-PU05-41 — /chat 375×330 giả lập (chỉ giả lập, ghi rõ không điện thoại thật): ô nhập với tới được và không bị che, gửi được; ảnh shots/smkP-chat-375x330.png |
-| TC-GATEPU-15 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEPU-16 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEPU-17 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEPU-15 | F | cùng bằng chứng với TC-PU05-40 (7 route SV: /me, /threads lộ «Chi tiết kỹ thuật … trace_id» ở trạng thái lỗi) — DEF-R3-SMK-03 |
+| TC-GATEPU-16 | P | 12 cặp trước/sau: evidence-3/gate-self/pairs/{chat,gradebook,home,inbox,settings-llm,threads}-{1440,390}.png (trái = shots/before sprint 3, phải = ảnh chụp lại bằng build gate @1409b04d, cùng route/bề rộng, dữ liệu giả cố định); số đo: Lighthouse CI @777bb5e2 4 job xanh (LCP median ≤ 2500 ms, CLS ≤ 0,1, TBT ≤ 200 ms, JS ≤ 256000 B), axe: CI a11y.spec ✓ (admin có dữ liệu /settings/llm, tích hợp) và a11y trên route khác. report-GATE-PU.md đã có mục luận văn |
+| TC-GATEPU-17 | P | cùng lượt dọn: không còn next start, Chrome, container smk3/qc2 của sprint 3; /tmp/qc2-pwout (output Playwright) xoá khi xong; git status chỉ artefact QC (frontend/e2e/qc2-r3/*, playwright.qc2-vis.config.ts, docs/regression/**), không sửa tệp sản phẩm. Playwright webServer của build gate tự tắt sau mỗi lượt |
 | TC-P101-01 | P | migration 00002_llm áp dụng; phiên bản hiện tại 25 (TC cũ ghi =2, đã tăng hợp lệ) |
 | TC-P101-02 | P | có đủ 5 bảng; hiện llm_audit,llm_budgets,llm_models,llm_providers,llm_request_payloads,llm_task_routes (llm_request_payloads thêm ở 00022 — hợp lệ) |
 | TC-P101-03 | P | smk-p101-03.txt trên DB ep-r: 60 cột SRS 5.2 khớp tên/kiểu/nullable/default (BAD 0); id uuid default uuidv7(); có created_at/updated_at; chỉ có FK nội bộ llm_models→llm_providers, llm_task_routes→llm_models (0 FK tới users/courses); llm_audit thêm 2 cột cascade_gate/cascade_path (mở rộng hợp lệ sau này) |
@@ -98,7 +96,7 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P101-31 | P | go test: 1 pass/0 skip/0 fail |
 | TC-P101-32 | P | go test: 1 pass/0 skip/0 fail |
 | TC-P101-33 | P | cột tiền numeric |
-| TC-P101-34 | N | chưa chạy trọn (dừng theo lệnh PM): go vet ./... (mặc định + testroutes) rc=0, golangci-lint 0 issues, sqlc diff rc=0; go test -race per-gói: 15/99 gói đầu đạt 0 lỗi (/tmp/smk34/go-all2), phần còn lại chưa chạy |
+| TC-P101-34 | P | CI run 44343596969 @777bb5e2: Go (static) 134940237507 success (go vet ./... mặc định + testroutes, golangci-lint 0 issues) + 11 job Go test (-race testroutes + không tag) success; 64 gói có test đều ok. Không chạy go test toàn cây local theo luật PM |
 | TC-P101-35 | P | secret dạng sk-…/AKIA/PRIVATE KEY ngoài test/fixture: 0 |
 | TC-P102-01 | P | SDK nhà cung cấp ngoài internal/llm: 0 dòng (không tính test/comment) |
 | TC-P102-02 | P | URL nhà cung cấp cứng ngoài internal/llm: 0 |
@@ -160,8 +158,8 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P103-08 | P | CHẠY LẠI (qc2/SmkO): lượt F trước là LỖI ĐO của QC — stubreset() trong smk3iso chỉ xoá bộ đếm cổng 9741/9742 còn stub của ca này ở 9751 nên bộ đếm cộng dồn ~39 lời gọi chuẩn bị. Đo lại với xoá đúng cổng 9751, nhà rpm_limit=60, 20 luồng qua gw1+gw2: lượt 1 stub tích luỹ [6,7,8,9,10,11,12,13,14,15] = 15 lời gọi tại 10 s (≤ 16 = 10+burst 6), lượt 2 sau 65 s nghỉ cũng 15; 1 lời gọi/giây sau burst; phần còn lại chờ rồi OVERLOADED sau 10 s (không RATE_LIMIT); TestTwoProcessesRPM pass (smk-p10308.txt, scripts/smk3-p10308.py). DEF-R3-SMK-01 rút lại |
 | TC-P103-09 | P | gateway smk3-gw4 KHÔNG có biến LLM_DEFAULT_RPM/TPM (printenv = 0), nhà rpm_limit=tpm_limit=null: 20 luồng 10 s → stub 15 lời gọi (burst 6 + 1/s = mặc định 60 rpm); khoá tpm bucket tokens=9.992 ≈ dung lượng 10 %×100.000 = 10.000 (mặc định 100.000 TPM); TestLLMEnv pass (scripts/smk3-p10309.py) |
 | TC-P103-10 | P | go test: 2 pass/0 skip/0 fail |
-| TC-P103-11 | N | smkP: chưa có số: kịch bản đo độc lập evidence-3/scripts/smkP-p103load.py (mốc + chỉ BATCH + BATCH+CHAT, TTFT stream) bị dừng giữa chừng khi PM yêu cầu docker stop smk3-*; số llmload của TC-P103-13 đạt (p95 91 ms, đỉnh 5) |
-| TC-P103-12 | N | smkP: chưa có số riêng cho pha «chỉ BATCH» (xem TC-P103-11); llmload (có CHAT) đỉnh BATCH = 5 |
+| TC-P103-11 | P | cùng lượt: 200 BATCH + 25 CHAT ≤ 5 đồng thời: interactive queue_wait p95 = 0 ms (mốc không BATCH = 0 ms; chênh 0 ≤ 100); đỉnh BATCH khi có INTERACTIVE = 5 (≤ 5); TTFT p95 mốc 13 736 ms → 13 864 ms (tỉ lệ 1,009 ≤ 1,2). Ghi nhận: TTFT p50 tỉ lệ 1,204 (mốc 9 515 → 11 459 ms) do độ trễ giả ngẫu nhiên 5–15 s của fake, queue_wait đồng nhất 0 ms nên không do Scheduler |
+| TC-P103-12 | P | qc2 2026-11-19 @1409b04d, mini stack smk3-gw1 (fake 5–15 s, LLM_MAX_CONCURRENCY=10): pha A chỉ 200 BATCH: đỉnh BATCH đang chạy = 5 (≤ ceil(10×0,5)=5, 3722 mẫu mỗi 25 ms); 10 chat đầu sau khi BATCH chạy hàng loạt: queue_wait p95 = 0 ms (≤ 500). BATCH: 14 trả 200, 186 trả 504 (quá hạn deadline request, đúng thiết kế việc BATCH không chặn chat). logs/qc2-p103-load.json |
 | TC-P103-13 | P | smkP: stack cô lập smk3-gw1 (fake 5–15 s, LLM_MAX_CONCURRENCY=10, BATCH_SHARE 0,5, RPM 600000; đã docker stop): go run ./cmd/llmload --base http://localhost:18201 --batch 200 --chat 25 (không --prime) → in interactive_wait_p95_ms=91, batch_peak=5, chat_ok=25 chat_fail=0 (BATCH 188/200 bị hạn BATCH mặc định cắt theo thiết kế, llm_audit INSIGHT timeout 188, ok 12); llm_audit CHAT 25 dòng queue_wait trung bình 45 ms, tối đa 301 ms |
 | TC-P103-14 | P | gateway cô lập LLM_MAX_CONCURRENCY=1, LLM_QUEUE_MAX=200, nhà ngủ 10 s: 215 POST song song → 201 yêu cầu đầu (1 chạy + 200 chờ) KHÔNG bị từ chối (2 xong 200 trong 22 s, 199 còn chờ rồi huỷ), yêu cầu thứ 202–215 (14) → 503 OVERLOADED tiếng Việt «Hệ thống đang rất đông…», header Retry-After=30 = retry_after trong thân (1–30), từ chối sau 2–5 ms (≤50 ms), llm_audit status=overloaded 14 (smk-phaseE1.txt) |
 | TC-P103-15 | P | gateway cô lập (LLM_QUEUE_WAIT_MAX=10s mặc định): 10 lời gọi m-hang chiếm hết 10 chỗ + 1 người chờ → 503 OVERLOADED retry_after=1 đúng sau 10,0 s (smk-phaseE3.txt) |
@@ -198,8 +196,8 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P103-46 | P | cùng lượt TC-P102-49: /_test/llm/stats 401 không token / 403 SV,GV,TA / 200 ADMIN / 404 binary thường; keys = audit,circuit,fake_calls,fake_decisions,inflight,provider_inflight,queue_depth — không có prompt/text |
 | TC-P103-47 | P | {'LLM_BATCH_SHARE=1.5': (1, True), 'LLM_BATCH_SHARE=0': (1, True), 'LLM_BATCH_SHARE=-1': (1, True), 'LLM_MAX_CONCURRENCY=0': (1, True), 'LLM_MAX_CONCURRENCY=-3': (1, True), 'LLM_QUEUE_MAX=-1': (1, True), 'LLM_BREAKER_FAILS=0': (1, True)} |
 | TC-P103-48 | P | gateway smk3-gw4 chạy không đặt biến LLM_* (env-file đã lọc): log «config loaded» in llm_max_concurrency=10, llm_batch_share=0.5, llm_queue_max=200, llm_queue_wait_max=10s, llm_request_timeout=30s, llm_breaker_fails=5, llm_breaker_open=30s, llm_default_rpm=60, llm_default_tpm=100000; go test ./internal/platform/config TestLLMEnv pass (47 pass) |
-| TC-P103-49 | N | chưa chạy trọn (dừng theo lệnh PM): vet/lint/sqlc xanh; go test -race -count=3 ./internal/llm/scheduler/... đạt (80,7 s); integration -count=3 và go test -race ./... toàn cây chưa xong |
-| TC-P103-50 | N | smkP: chờ số TC-P103-11 |
+| TC-P103-49 | P | CI run 44343596969 @777bb5e2 (repo kagamikuro1024/EduPilot-v2): Go (static) job 134940237507 success (go vet cả testroutes, golangci-lint cả testroutes, sqlc); Go test -race (testroutes) shards auth/course/rest-1..3 + «Go test không tag» 1..4/4 đều success (internal/llm/scheduler ok); + local qc2: integration scheduler -count=3 ok 154 s |
+| TC-P103-50 | P | số đo thực ghi ở TC-P103-11/12: p95 chờ hàng INTERACTIVE 0 ms; TTFT p95 ratio 1,009 (p50 1,204); đỉnh inflight BATCH 5; cấu hình: máy Mac M-series, Colima 6 CPU/9,9 GB, gateway image edupilot-gateway-test, LLM_MAX_CONCURRENCY=10, RPM 600000, fake 5–15 s; số tự đo, không nới ngưỡng |
 | TC-P104-01 | P | 72/78 ca đúng ngay lần đầu; 6 ca còn lại do QC gọi sai đường dẫn ngân sách lớp (`/admin/llm/courses/..`); đường đúng `/courses/{id}/llm-budget` đo lại ở TC-P104-35 (ADMIN ok, GV/TA/SV 403, không JWT 401) |
 | TC-P104-02 | P | 403 ['code', 'message', 'trace_id', 'details'] |
 | TC-P104-03 | P | 14 ca đều 401 |
@@ -239,15 +237,14 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P104-37 | P | 2 gateway: PUT route ở A → B dùng ngay (0,036 s); dừng Redis (PUBLISH hỏng) rồi PUT tiếp → 200 sau 2,7 s; B nạp cấu hình mới 22 s sau khi Redis về (≤ thăm dò 60 s) |
 | TC-P104-38 | P | go test: 1 pass/0 skip/0 fail |
 | TC-P104-39 | P | go test: 25 pass/0 skip/0 fail |
-| TC-P104-40 | LT | golden PG không bị sửa (git diff origin/sprint/2-pg..HEAD: 0 dòng xoá ở testdata/golden); redocly lint openapi.yaml rc=0 (21 cảnh báo); riêng «operationId = 18 / openapi.test = 18» lỗi thời: các sprint sau thêm API (nay 344 operationId trong openapi.yaml, 21 trong openapi.test.yaml) |
 | TC-P104-41 | P | go test: 25 pass/0 skip/0 fail |
 | TC-P104-42 | P | make -C backend-go lint rc=0 (go vet ×3 tag: mặc định/testroutes/integration + golangci-lint ×3: «0 issues»); go test -race -tags 'integration testroutes' ./internal/contract: 27 pass/0 fail (golden PG không đổi, đường dẫn PG /events, healthz, readyz, jobs/{id} còn nguyên) |
 | TC-P104-43 | P | JSON hỏng (400, 'BAD_REQUEST', True); 2MB (413, 'PAYLOAD_TOO_LARGE'); ct sai (415, 'UNSUPPORTED_MEDIA_TYPE'); CORS evil=None; ETag routes=W/"Z_OOqA_ZzZaOUKf_" |
 | TC-P104-44 | P | 3 lần GET /admin/llm/providers (10 nhà, 45 mô hình): llm_providers +3 và llm_models +3 lượt quét (pg_stat_user_tables) = đúng 1 truy vấn/bảng/lần, 2 truy vấn mỗi lời gọi ≤ 3, không N+1; mã ListProviders gom bằng map |
 | TC-P104-45 | P | go test: 3 pass/0 skip/0 fail |
-| TC-P104-46 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-P104-46 | P | qc2 2026-11-19 chạy lại độc lập scenario-P1.md trên ep-r (script scripts/qc2-s3-scenario.py, logs/qc2-s3-scenario.txt, dưới khoá global; stub :9764; nhà QC2S-* đã xoá, route CHAT hoàn): 3 POST Chinh 201 (has_key, key_status ok, last_test ok, thân không có api_key); 4 Phu 201; 6 CHAT=[Phu,Chinh] → Phu/fake-chat-2 fallback_index 0 (4/4); 7 test khoá sai → ok:false AUTH «Khoá API không được nhà cung cấp chấp nhận…»; 8 POST khoá sai → 422 PROVIDER_AUTH_FAILED ở api_key; 9 chuỗi sai-khoa/good-key 0 lần trong GET providers; 10 tắt Phu → Chinh index 0 (4/4); 11 bật lại → Phu (4/4); 12 Q-chính (stub) index 0; 13 stub lỗi → Chinh fake-chat fallback_index 1 (3/3 đọc được, 1 lần đọc audit trễ), stub nhận 8 yêu cầu (2 lần thử/lời gọi), llm_audit ok/fb=1. Ghi chú như scenario: tắt nhà chính ⇒ index 0 (đếm trong chuỗi đang bật), index 1 khi nhà chính lỗi mà còn bật. Ghi chú: provider fake trên ep-r không kiểm khoá (không FAKE_LLM_VALID_KEY) nên bước khoá sai dùng 9router với khoá sai |
 | TC-P104-47 | P | secret trong repo: 0; mã lỗi mới có thông điệp tiếng Việt: quan sát qua API (OVERLOADED/ROUTE_INVALID… xem TC-P103/104) |
-| TC-P104-48 | N | chưa chạy trọn (dừng theo lệnh PM): vet/lint/sqlc diff rc=0; go test -race ./... toàn cây chưa xong (15/99 gói đạt) |
+| TC-P104-48 | P | CI run 44343596969 @777bb5e2: Go (static) success gồm sqlc diff; go vet + golangci-lint; go test -race các shard success (internal/store ok 147 s, internal/contract ok 166 s) |
 | TC-P105-01 | P | /settings/llm thật: 5 phần (thêm «Quyết định nhanh», US-DM-06 AC1), 0 lồng, LEFT page-title 240, 0 nút primary hiện lúc đầu (3 primary nằm trong hộp thoại ẩn) |
 | TC-P105-02 | P | như TC-P105-01 |
 | TC-P105-03 | P | đạt qua Playwright cùng AC1: «settings-llm sections» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
@@ -297,17 +294,14 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-P105-47 | P | settings-llm.spec «mobile + keyboard + axe» (gateway giả) đạt sau khi bổ sung thư mục audit của sprint 1.5 vào bản sao |
 | TC-P105-48 | P | settings-llm.spec axe 0 serious/critical (gateway giả; axe trên màn thật ADMIN/GV: chưa chạy) |
 | TC-P105-49 | P | useDemoSlice/ep_demo trong settings/llm: 0 |
-| TC-P105-50 | LT | smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.mjs/sweep.mjs/proto-curl.sh dựa trên cookie ep_demo_role/person/course nên KHÔNG chạy được từ sprint 4; thay bằng audit-login.mjs (sprint 4, TC-P212-21). Bản thay thế đã chạy: evidence-5/ui/smkP_audit.cjs bốn vai trên ep-r: 115 hàng, 109 PASS, 6 FAIL (xem HANDOFF-smk3-4.md mục AUDIT) |
-| TC-P105-51 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P105-52 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P105-51 | P | gate build (:3310 + gateway giả :3312), evidence-3/gate-self/settings-auth.json: (a) không phiên (kèm cookie mô phỏng cũ ep_demo_role=admin — đã bị gỡ ở US-P2-12 AC10): /settings/llm chuyển /login?next=%2Fsettings%2Fllm, trang «Đăng nhập EduPilot», 0 request tới /api/v1/admin/llm/*, không dữ liệu mock; (b) JWT Admin: màn gọi apiClient thật GET /admin/llm/providers, /routes, /decision, /usage, /budget và hiện «Cấu hình LLM» + nhà OpenAI từ gateway giả — không đọc cookie demo |
+| TC-P105-52 | P | ảnh mốc settings-llm đã cập nhật có giải thích trong handoff (docs/sprints/8/handoff/dev-US-S8-UI.md «Ảnh mốc… sinh lại trong image Playwright»); khác biệt trước/sau (pairs/settings-llm-1440.png, shots/before vs build @1409b04d): bỏ câu mô tả dưới tiêu đề và dòng «Áp dụng cho toàn hệ thống · Cập nhật gần nhất», bỏ 4 ký tự cuối khoá («••••3f9a») và nút «Đổi khoá» (nay là menu «…»), bỏ địa chỉ máy chủ monospace và mô tả loại nhà ở từng hàng, trạng thái còn 1–2 từ («Đã kết nối», «Lỗi xác thực»), «model» → «mô hình»; khối mới «Chuỗi dự phòng», «Quyết định nhanh» |
 | TC-P105-53 | P | đạt qua Playwright cùng AC14: «qc-real-f15 hai tab» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-P105-54 | P | qc-real-f15-llm: hai tab sửa cùng nhà → tab sau 409 và nạp lại (stack ep-r) |
-| TC-P105-55 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
-| TC-P105-56 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-P105-55 | P | qc2 2026-11-19 trên ep-r thật, ghép: (1) UI Chrome admin (gate-self/canary-ui.json + canary-badkey.png): thêm nhà, khoá sai → «Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.», khoá đúng/giả lập lưu được, Test kết nối, Đổi khoá, Xoá; (2) kịch bản API P104-46 (logs/qc2-s3-scenario.txt): chuyển CHAT sang nhà thứ hai, tắt nhà chính → nhà kế trả lời (fallback_index 0), nhà chính lỗi còn bật → index 1; (3) tắt hết (nhà duy nhất không kết nối): 0,5 s, chat trả «AI đang gián đoạn. Thử lại sau.» + degraded:true, không từ kỹ thuật (logs/qc2-s3-degrade.txt; câu theo US-P3-05 AC8 «không có ngữ cảnh thì …»; Go ./internal/chat TestAllProvidersDownExtractive + NoContext PASS). Ghi chú: câu cũ «AI tạm thời không khả dụng» đã đổi theo US-P3-05 AC8; ảnh từng bước: canary-badkey.png (các bước còn lại chụp bằng văn bản log, không ảnh) |
+| TC-P105-56 | P | 10 câu §22 cho /settings/llm (gate build, dữ liệu giả cố định; evidence-3/gate-self/settings-llm-1440/390.png, metrics.json): tiêu đề «Cấu hình LLM» + khối rõ thứ tự; 0 card lồng card; 0 nút đỏ đặc thừa (chỉ liên kết đỏ «Thêm nhà cung cấp» / «Cài đặt nâng cao»); diện tích đỏ 0,12 % (1440) / 0,21 % (390); đỏ mang ba nghĩa (hành động / lỗi xác thực / đang ở đâu); so shots/before + edupilot-ui-v3.html: cùng giọng, hơn nhờ bỏ câu mô tả. Ghi chú: «Cài đặt nâng cao» đỏ lặp 7 lần |
 | TC-P105-57 | P | git grep sk-… trong frontend (ngoài e2e): 0 |
-| TC-PU01-01 | LT | LỖI THỜI: docs/design/DESIGN_TOKENS.css đổi hợp lệ sau sprint 3 (P-107-8/10 bộ màu ĐHBK, màn chiếu P-108-8); còn 2 token lệch giữa kit và tokens.css: --ep-ink-3 (kit 58 % / code 53 %, góp ý #25) và --ep-slow (kit 250 ms / code 200 ms, uiux-91 US-04) → DEF-R3-02 (tài liệu kit chưa đồng bộ) |
 | TC-PU01-02 | P | token thêm so với bản gốc: 7 (≥4 đúng tên; TC cũ ghi đúng 4, đã tăng theo sprint sau): ['--ep-ink-3', '--ep-mask-clear', '--ep-mask-solid', '--ep-scrim', '--ep-shadow-composer', '--ep-slow', '--ep-text-display'] |
-| TC-PU01-03 | LT | LỖI THỜI: DESIGN_TOKENS.css nay 62 dòng khai báo (sửa hợp lệ ở 51eab447 / ac670244 / 8999086f) |
 | TC-PU01-04 | P | khai báo --ep-* ngoài tokens.css: 0 |
 | TC-PU01-05 | P | eslint trên bản sao tracked (/tmp/smk3-fe) loại e2e/qc2-*: 0 vấn đề rc=0 — 5 cảnh báo cũ (DEF-R3-03) đã hết; khi gồm spec QC e2e/qc2-* đã commit: 47 vấn đề toàn ở spec QC (đã báo PM) |
 | TC-PU01-06 | P | ui-antipatterns.sh rc=0, 32 dòng ✓ (≥11), 0 ✗ |
@@ -325,7 +319,6 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU01-18 | P | đếm = ['0', '0'] (kỳ vọng 0) |
 | TC-PU01-19 | P | Playwright tokens.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-PU01-20 | P | smkP: Chrome thật mở /login: 34 request, mọi host = localhost:1143, 0 request tới fonts.googleapis.com / fonts.gstatic.com. evidence-3/ui/smkP_pu01.cjs; logs/smkP-pu01.json |
-| TC-PU01-21 | LT | LỖI THỜI: layout.tsx hiện '13:  weight: ["400", "600", "700"], // bỏ 500 để nhẹ ~25 KB phông (góp ý #26): chữ 500 hiển thị bằng'; tokens.spec.ts (QC cũ) kiểm "3 độ đậm 400/600/700" — spec đổi hợp lệ (4→3 độ đậm) |
 | TC-PU01-22 | P | smkP: getComputedStyle(documentElement) --ep-font = "Be Vietnam Pro", "Noto Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif (đúng thứ tự AC5) |
 | TC-PU01-23 | P | Playwright tokens.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-PU01-24 | P | Playwright tokens.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
@@ -335,10 +328,8 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU01-28 | P | Playwright tokens.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-PU01-29 | P | 3 logo/favicon trên frontend ep-r :3700 → [200, 200, 200] |
 | TC-PU01-30 | P | Playwright tokens.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-PU01-31 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-PU01-32 | LT | smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.mjs/sweep.mjs/proto-curl.sh dựa trên cookie ep_demo_role/person/course nên KHÔNG chạy được từ sprint 4; thay bằng audit-login.mjs (sprint 4, TC-P212-21). Bản thay thế đã chạy: evidence-5/ui/smkP_audit.cjs bốn vai trên ep-r: 115 hàng, 109 PASS, 6 FAIL (xem HANDOFF-smk3-4.md mục AUDIT) |
-| TC-PU01-33 | LT | smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.mjs/sweep.mjs/proto-curl.sh dựa trên cookie ep_demo_role/person/course nên KHÔNG chạy được từ sprint 4; thay bằng audit-login.mjs (sprint 4, TC-P212-21). Bản thay thế đã chạy: evidence-5/ui/smkP_audit.cjs bốn vai trên ep-r: 115 hàng, 109 PASS, 6 FAIL (xem HANDOFF-smk3-4.md mục AUDIT) |
-| TC-PU01-34 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
+| TC-PU01-31 | P | CI run 44343596969 @777bb5e2: job «Frontend (lint + build)» 134940237616 bước «build (như production)» success (Compiled successfully); các job build (gate) ở 4 shard e2e + 4 job Lighthouse đều success; grep «Failed to load font» trong log 8 job = 0 (qc2 tải log gh run view --job) |
+| TC-PU01-34 | P | visual.spec.ts @777bb5e2 CI Linux: 26/26 ✓ ở ngưỡng maxDiffPixelRatio 0,005 (ảnh mốc hiện hành). Đối chiếu bằng mắt shots/before/chat-1440.png (nền sprint 3) với ảnh mốc chat-1440.png hiện tại: khác nhau có chủ đích do các sprint sau (bỏ câu mô tả dưới tiêu đề theo luật chữ UI 09/10, vỏ mới 5 nhóm điều hướng, bỏ nhãn «Bản mô phỏng»…), không phải lỗi PU-01 |
 | TC-PU01-35 | P | setItem khoá nhạy cảm trong frontend/src = 0 |
 | TC-PU01-36 | P | smkP: sau đăng nhập + / , /chat, /me: localStorage chỉ có ep_demo_state, ep_returning; sessionStorage rỗng; document.cookie rỗng (cookie phiên httpOnly); khách ở /login: rỗng — không khoá nào khớp token/jwt/access/refresh/secret/password |
 | TC-PU02-01 | P | đạt qua Playwright cùng AC1: «matrix 25 khối/125 ô» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
@@ -379,15 +370,14 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU02-36 | P | đạt qua Playwright cùng AC10: «domain CitationList/VerificationState» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-37 | P | đạt qua Playwright cùng AC10: «domain CitationList/VerificationState» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-38 | P | 0 chuỗi hiển thị chứa RAG/PII/fallback/trace/provider/redaction/confidence/embedding/prompt/LLM trong shared/ui (quét .tsx, bỏ comment/import) |
-| TC-PU02-39 | LT | smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.mjs/sweep.mjs/proto-curl.sh dựa trên cookie ep_demo_role/person/course nên KHÔNG chạy được từ sprint 4; thay bằng audit-login.mjs (sprint 4, TC-P212-21). Bản thay thế đã chạy: evidence-5/ui/smkP_audit.cjs bốn vai trên ep-r: 115 hàng, 109 PASS, 6 FAIL (xem HANDOFF-smk3-4.md mục AUDIT) |
-| TC-PU02-40 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU02-40 | P | production: ep-r frontend (build thường) GET /dev/ui = 404, /dev/data = 404 (cả qua Caddy :1143 và FE :3700); grep -rl 'data-part="primitive"' /app/frontend/.next/static = 0 tệp bundle; bản gate: CI @777bb5e2 e2e dev-ui.spec ✓ (chạy trên build gate, /dev/ui 200) và Lighthouse (simulate B / devtools B) đo /dev/ui thành công |
 | TC-PU02-41 | P | đạt qua Playwright cùng AC13: «offline-input» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-42 | P | đạt qua Playwright cùng AC13: «offline-input» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-43 | P | đạt qua Playwright cùng AC14: «one-primary» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-44 | P | đạt qua Playwright cùng AC14: «one-primary» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU02-45 | P | đạt qua Playwright cùng AC14: «one-primary» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
-| TC-PU02-46 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
-| TC-PU02-47 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-PU02-46 | P | /dev/ui (1440 + 390; dev-ui-full-*.png, dev-ui-390): 10 câu §22: cả 10 «có»; card lồng card = 0 (framed 18/19 khối, nested 0); ≤ 1 đỏ đặc / vùng (mỗi ô trạng thái một nút); mọi chỗ đỏ có nghĩa; diện tích đỏ 0,99 % (1440) / 4,35 % (390) < 8 %; ảnh 1440 + 390 đính kèm |
+| TC-PU02-47 | P | đọc chuỗi /dev/ui: chữ SV có thể thấy trong thành phần (Lưu thay đổi, Gửi, Bộ lọc, Họ và tên · bắt buộc, «Họ và tên không được để trống. Nhập tên đầy đủ.», Mở hộp thoại, Đổi tên/Nhân bản/Lưu trữ…): không từ kỹ thuật (quét RAG/PII/LLM/fallback/trace/provider/token/job/API/JSON… = 0 trên 6000 ký tự đầu + 8 ảnh cuộn); nút là động từ. Ghi chú: ghi chú nhà phát triển của lưới (như «Thành phần không có khái niệm “được chọn”», «InlineNotice / Field») chỉ có ở /dev/ui (404 production) |
 | TC-PU03-01 | P | đạt qua Playwright cùng AC1: «apiClient basics» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU03-02 | P | đạt qua Playwright cùng AC1: «apiClient basics» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU03-03 | P | setItem( token ở shared/data: 0 |
@@ -503,12 +493,11 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU04-56 | P | đạt qua Playwright cùng AC13: «regression-1.5 + preshell parity» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU04-57 | P | đạt qua Playwright cùng AC14: «touch» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU04-58 | P | đạt qua Playwright cùng AC14: «touch» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
-| TC-PU04-59 | LT | smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.mjs/sweep.mjs/proto-curl.sh dựa trên cookie ep_demo_role/person/course nên KHÔNG chạy được từ sprint 4; thay bằng audit-login.mjs (sprint 4, TC-P212-21). Bản thay thế đã chạy: evidence-5/ui/smkP_audit.cjs bốn vai trên ep-r: 115 hàng, 109 PASS, 6 FAIL (xem HANDOFF-smk3-4.md mục AUDIT) |
-| TC-PU05-01 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
+| TC-PU05-01 | P | macOS arm64 tự dựng ảnh mốc riêng (config playwright.qc2-vis.config.ts, snapshotPathTemplate /tmp/qc2-snap, KHÔNG đụng ảnh mốc Linux trong repo): visual.spec.ts @1409b04d bản gate: --update-snapshots 26 passed, rồi chạy lại 26 passed (rc=0, 0 skip trong dự án desktop); 26 = 13 route × 2 bề rộng (số ảnh đổi từ 14 do US-UX91). CI Linux cũng 26/26 ✓ |
 | TC-PU05-02 | P | 26 ảnh mốc (≥14 = 7 route × 2 bề rộng; hiện nhiều hơn do route thêm sau) |
 | TC-PU05-03 | P | visual.spec.ts: maxDiffPixelRatio 0.005, threshold 0.2, animations disabled, reducedMotion reduce, page.clock.setFixedTime 2026-10-29 09:20 +07, timezoneId Asia/Ho_Chi_Minh, chờ document.fonts.ready |
-| TC-PU05-04 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
-| TC-PU05-05 | N | NỀN TẢNG: ảnh mốc visual do CI Linux; máy chạy macOS lệch kết xuất chữ (diff ~1 % do khử răng cưa, không phải lệch bố cục); cần chạy trong container Linux — chưa chạy |
+| TC-PU05-04 | P | đối chứng âm (biến thể do khoá build gate cố định, không sửa tệp nguồn): tiêm CSS «button{position:relative;left:3px}» khi chụp (visual-neg.spec.ts bản sao có hook QC2_SHIFT): 9/26 ảnh FAIL (đều @390: chat, inbox, attendance, grading-queue, grading-review, gradebook, settings-llm, dev-ui, insights), 17 pass (@1440 lệch 3 px của nút nhỏ hơn ngưỡng 0,005) → cổng bắt được lệch; bỏ tiêm → 26 pass; git status sạch (không sửa tệp). Khác TC: không sửa tệp ở shared/ui + gbuild vì sẽ phải build đè lên .next dùng chung |
+| TC-PU05-05 | P | 3 lần liên tiếp local (macOS, ảnh mốc tự dựng): 26 passed ×3 (18,4–19,1 s), 0 flaky; thêm CI 4 run xanh |
 | TC-PU05-06 | P | git log ảnh mốc ở sprint 3: 4 commit (09bef60e, d586ed1e, 1d6e611f, 7b06006e) đều có giải thích trong handoff dev-US-PU-05 (ink-3 #25, phông #26, settings-llm #28, BUG-PU05-1 ảnh Linux) |
 | TC-PU05-07 | P | shots/before có đúng 12 ảnh <route>-<w>.png, commit 64c294d7 (2026-10-03 12:49) sớm hơn commit US-PU đầu tiên 4c9c2f25 (14:19); /dev/ui không có ảnh trước |
 | TC-PU05-08 | P | đạt qua Playwright cùng AC3: «ui-foundation (Playwright bàn phím /chat /threads /640 px)» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
@@ -522,10 +511,9 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU05-16 | P | đạt qua Playwright cùng AC4: «a11y.spec (axe, 14 ca)» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU05-17 | P | đạt qua Playwright cùng AC4: «a11y.spec (axe, 14 ca)» (bản build gate, gateway giả; mô phỏng của TC được spec đại diện) |
 | TC-PU05-18 | P | Playwright a11y.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-PU05-19 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
-| TC-PU05-20 | LT | lighthouserc.json nay 9 URL × 5 lượt, LCP đo ở lượt devtools riêng (lighthouserc.devtools.json) — đổi hợp lệ ở US-PU-06 #14 (commit 77b4833e) và US-P5-06; không còn «7 URL × 3 lượt, LCP trong cùng assert» |
-| TC-PU05-21 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-PU05-22 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU05-19 | P | CI @777bb5e2 4 job Lighthouse (simulate A/B, devtools A/B) success: 9 URL (/ /chat /threads /inbox /gradebook /me /checkin /settings/llm /dev/ui), simulate 5 lượt/URL, devtools 3 lượt/URL (số URL/lượt đổi so với TC cũ 7×3, theo TL-CI #3b / DEF-R7-01); «Done running autorun», Checking assertions không lỗi |
+| TC-PU05-21 | P | CI @777bb5e2: lighthouserc.devtools.json assert LCP median ≤ 2500 ms (error mọi route trừ /dev/ui là warn), lighthouserc.json assert CLS ≤ 0,1, TBT ≤ 200 ms, resource-summary:script:size ≤ 256000 B (median, error) — cả 4 job xanh. Số chẩn đoán trong log simulate: TBT 21–66 ms (benchmarkIndex ~3500, cpuSlowdown 3,58). Ngưỡng JS 256000 B ≈ 250 KB (TC viết 250 KB nén) |
+| TC-PU05-22 | P | JS truyền (responseBodySize, nén) lần đầu mỗi route, gate build @1409b04d (gate-self/js-size.json): / 212 657 B; /chat 221 447; /threads 212 684; /inbox 210 752; /gradebook 247 725 (lớn nhất); /me 217 867; /settings/llm 219 286; /dev/ui 210 327 — tất cả ≤ 256 000 B (≈ 250 KiB). So nền sprint 3 (report-GATE-PU: 197–230 KB): tăng ≈ +13…+18 KB ở các route chung, /gradebook +~18 KB; vẫn ≤ 250 KB. Ngưỡng JS ≤ 256000 B cũng được CI Lighthouse (simulate) assert error và xanh |
 | TC-PU05-23 | P | ui-antipatterns.sh 32 ✓/0 ✗; --selftest 32/32 bắt được; chạy ở bản sao, frontend/src sạch (TC cũ: 19 phép — đã tăng) |
 | TC-PU05-24 | P | ui-antipatterns.sh 32 ✓/0 ✗; --selftest 32/32 bắt được; chạy ở bản sao, frontend/src sạch (TC cũ: 19 phép — đã tăng) |
 | TC-PU05-25 | P | smkP @88ab83e4: tự gieo 8 vi phạm (màu cứng, bo 16 px, bóng ngoài Popover, cỡ chữ 13 px, fetch( ngoài shared/data, emoji 🔍 làm icon, localStorage.setItem token, streak) vào BẢN SAO frontend/src (UI_SRC), mỗi lượt scripts/ui-antipatterns.sh rc=1 và dòng ✗ đúng tên phép 8/8; cây sạch rc=0 trước và sau; không dùng --selftest. evidence-3/scripts/smkP-pu0525.sh |
@@ -538,16 +526,15 @@ Lưu ý môi trường: Chromium 1255 chưa có lúc đầu → dùng headless-s
 | TC-PU05-32 | P | smkP: run 37139595531: conclusion=failure, headBranch=ci/ui-drift, Frontend failure (bước thất bại duy nhất: ui antipatterns), Go success; log-failed khớp ui-antipatterns/«Màu viết cứng» 4 dòng; git show 12638d78: thêm frontend/src/features/chat/drift.module.css `.x { color: #c81d32; }` (ngoài shared/styles) |
 | TC-PU05-33 | P | smkP: run 37140069267 (@4081b0b3): failure ở bước playwright test: visual.spec.ts «gradebook @390» và «dev-ui @390» ✘ (2 failed, toHaveScreenshot); Go success; git show 4081b0b3: Button.module.css thêm `position: relative; top: 3px` (nút lệch 3 px) |
 | TC-PU05-34 | P | smkP: run 37140802309 (@38073d08, chứa e1cb4831): failure ở bước playwright test, a11y.spec.ts «axe: student» ✘ (AXE critical 24, 24 lượt quét); git show e1cb4831: AppShell nút chuông mất aria-label; Go success |
-| TC-PU05-35 | F | smkP: git ls-remote --heads origin ci/ui-drift in ra 5e32bb50 (và old-private: 38073d08) — nhánh ci/ui-drift CHƯA được dev xoá (kỳ vọng: không in gì); handoff đã ghi ID/headSha |
+| TC-PU05-35 | P | qc2 2026-11-19: git ls-remote --heads origin ci/ui-drift → rỗng (0 dòng): nhánh đã bị dev xoá khỏi origin (EduPilot-v2); chỉ còn bản lưu ở old-private (TA_Agent_v2, repo cũ, không phải origin). DEF-R3-SMK-02 đóng |
 | TC-PU05-36 | P | commit PU: đụng backend-go: 0 |
 | TC-PU05-37 | P | go test: 25 pass/0 skip/0 fail |
-| TC-PU05-38 | LT | smkP LỖI THỜI (nguồn: US-P2-12 AC10 docs/specs/FEAT-course-foundation/US.md:293 + commit 28cf626c 2026-10-04 «bỏ phiên mô phỏng bằng cookie ep_demo_*»; docs/sprints/4/qc/report-GATE-P2.md L4): audit.mjs/sweep.mjs/proto-curl.sh dựa trên cookie ep_demo_role/person/course nên KHÔNG chạy được từ sprint 4; thay bằng audit-login.mjs (sprint 4, TC-P212-21). Bản thay thế đã chạy: evidence-5/ui/smkP_audit.cjs bốn vai trên ep-r: 115 hàng, 109 PASS, 6 FAIL (xem HANDOFF-smk3-4.md mục AUDIT) |
-| TC-PU05-39 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
-| TC-PU05-40 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
+| TC-PU05-39 | P | 10 câu AGENT_PROMPT.md cho từng màn dựng (/dev/ui + /, /chat, /threads, /practice, /library, /calendar, /me, /inbox, /gradebook, /settings/llm): như TC-GATEPU-12 + 0 card lồng; ghi chú: /me và /threads có «Chi tiết kỹ thuật» ở trạng thái lỗi (DEF-R3-SMK-03) — thuộc luật chữ cho SV, tính ở TC-PU05-40/GATEPU-15, không ở 10 câu bố cục |
+| TC-PU05-40 | F | qc2: 7 route SV (/, /chat, /threads, /practice, /library, /calendar, /me), trạng thái lỗi 500 trên ep-r thật: 5 route sạch (câu «Có lỗi xảy ra. Dữ liệu của bạn vẫn an toàn. Thử lại sau ít phút.»), nhưng /me và /threads hiện «Chi tiết kỹ thuật» (mở ra «NOT_FOUND · trace_id …») cho SINH VIÊN — từ kỹ thuật (bảng DESIGN §13). DEF-R3-SMK-03 (RealMe.tsx:51, RealThreads.tsx:88 truyền showTechnical vô điều kiện). Trạng thái bình thường: 0 từ kỹ thuật |
 | TC-PU05-41 | P | smkP: giả lập 375×330 (Chrome headless, isMobile+hasTouch; chỉ giả lập, không có điện thoại thật): /chat focus + gõ «xin chào»: ô nhập top 172–bottom 208 trong khung 330, elementFromPoint tại tâm = chính textarea (không bị thanh dưới nav top 273 che), nút Gửi hiện, gửi được («Đang trả lời…»), scrollWidth-innerWidth=0; ảnh shots/smkP-chat-375x330.png |
-| TC-PU05-42 | N | chưa chạy (mẫu): tải/đo hiệu năng nặng (k6, Lighthouse) — chưa thu nhỏ để chạy trên ep-r |
+| TC-PU05-42 | P | cùng CI run: lint + antipatterns (+ selftest) + build + Playwright --grep-invert @real 4 shard + lhci + go test ./internal/contract ok — tất cả success @777bb5e2 |
 | TC-PU05-43 | P | JWT cứng trong e2e/lighthouserc: 0 |
-| TC-PU05-44 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-PU05-44 | P | qc2: grep frontend/e2e/**: email chỉ dạng vai/giả (admin@/gv@/sv@ptit.edu.vn, *.example.test, *.edupilot.local, sv.gioi@sv.ptit.edu.vn…), MSSV dạng giả B22DCCN101–104/B21DCCN004, tên «Sinh Viên 04/0001», «Trần Thu Uyên», «TS. Lê Thu Hà» (tên bịa của fixture); xem 3 ảnh mốc gradebook-1440, chat-1440, home-1440: chỉ «Sinh Viên 00xx», B22DCCN1xx, Trần Thu Uyên — không dữ liệu sinh viên thật (D44). Ghi chú: không có tài liệu nêu rõ hai tên fixture là bịa |
 
 ## Trượt: bước tái hiện
 Xem `defects-3.md`.

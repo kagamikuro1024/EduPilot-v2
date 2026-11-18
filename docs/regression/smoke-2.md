@@ -36,12 +36,12 @@ Cách chạy:
 | TC-PG01-08 | P | (stack tạm ep-r2) |
 | TC-PG01-09 | P | (stack tạm ep-r2) |
 | TC-PG01-10 | P | (stack tạm ep-r2) |
-| TC-PG01-11 | D | biến JWT_EXPIRATION không còn (thay bằng ACCESS_TOKEN_TTL, sprint 3) — giá trị abc không còn bị báo |
+| TC-PG01-11 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): biến JWT_EXPIRATION không còn (thay bằng ACCESS_TOKEN_TTL, sprint 3) — giá trị abc không còn bị báo |
 | TC-PG01-12 | P | (stack tạm ep-r2) |
 | TC-PG01-13 | P | (stack tạm ep-r2) |
 | TC-PG01-14 | P | chạy lại lần 2 (đã thêm APP_ENCRYPTION_KEY vào env TC — bắt buộc từ sprint 3, proposals#4) |
 | TC-PG01-15 | P | chạy lại lần 2 (đã thêm APP_ENCRYPTION_KEY vào env TC — bắt buộc từ sprint 3, proposals#4) |
-| TC-PG01-16 | D | APP_ENV=production thoát ngay (<100 ms): sprint sau thêm kiểm tra bắt buộc cho production (khoá/CORS) — không còn "đợi phụ thuộc" |
+| TC-PG01-16 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): APP_ENV=production thoát ngay (<100 ms): sprint sau thêm kiểm tra bắt buộc cho production (khoá/CORS) — không còn "đợi phụ thuộc" |
 | TC-PG01-17 | P | (stack tạm ep-r2) |
 | TC-PG01-18 | P | (stack tạm ep-r2) |
 | TC-PG01-19 | P | chạy lại lần 2 (đã thêm APP_ENCRYPTION_KEY vào env TC — bắt buộc từ sprint 3, proposals#4) |
@@ -59,7 +59,7 @@ Cách chạy:
 | TC-PG01-31 | P |  |
 | TC-PG01-32 | P |  |
 | TC-PG01-33 | P |  |
-| TC-PG01-34 | D | khoá Redis ngoài quy ước: Redis ep-r dùng chung với 7 nhóm khác (ep:auth:*, ep:llm:* … thêm sau sprint 2) |
+| TC-PG01-34 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): khoá Redis ngoài quy ước: Redis ep-r dùng chung với 7 nhóm khác (ep:auth:*, ep:llm:* … thêm sau sprint 2) |
 | TC-PG01-35 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG01-36 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG01-37 | P | cửa sổ khoá global (gateway=2/chaos) |
@@ -93,7 +93,7 @@ Cách chạy:
 | TC-PG01-65 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG01-66 | P |  |
 | TC-PG01-67 | P |  |
-| TC-PG01-68 | D | test Ryuk: 2 lần RYUK_DISABLED=true (Makefile sprint sau) |
+| TC-PG01-68 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): test Ryuk: 2 lần RYUK_DISABLED=true (Makefile sprint sau) |
 | TC-PG01-69 | P |  |
 | TC-PG01-70 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG01-71 | P | cửa sổ khoá global (gateway=2/chaos) |
@@ -110,9 +110,9 @@ Cách chạy:
 | TC-PG01-82 | P |  |
 | TC-PG01-83 | P | chạy lại lần 2 (đã thêm APP_ENCRYPTION_KEY vào env TC — bắt buộc từ sprint 3, proposals#4) |
 | TC-PG01-84 | P |  |
-| TC-PG01-85 | D | golangci-lint gọi 3 lần thay vì 2 (Makefile/CI sprint sau) |
+| TC-PG01-85 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): golangci-lint gọi 3 lần thay vì 2 (Makefile/CI sprint sau) |
 | **US-PG-02** | | |
-| TC-PG02-01…TC-PG02-02 | D | schema 00001 → 00025: nay 60+ bảng/enum/index (sprint 3…11) — TC đếm cố định theo 00001 |
+| TC-PG02-01…TC-PG02-02 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): schema 00001 → 00025: nay 60+ bảng/enum/index (sprint 3…11) — TC đếm cố định theo 00001 |
 | TC-PG02-03 | P |  |
 | TC-PG02-04 | P |  |
 | TC-PG02-05 | P |  |
@@ -129,9 +129,9 @@ Cách chạy:
 | TC-PG02-16 | P |  |
 | TC-PG02-17 | P |  |
 | TC-PG02-18 | P |  |
-| TC-PG02-19 | D | schema 00001 → 00025: nay 60+ bảng/enum/index (sprint 3…11) — TC đếm cố định theo 00001 |
+| TC-PG02-19 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): schema 00001 → 00025: nay 60+ bảng/enum/index (sprint 3…11) — TC đếm cố định theo 00001 |
 | TC-PG02-20 | P |  |
-| TC-PG02-21 | D | schema 00001 → 00025: nay 60+ bảng/enum/index (sprint 3…11) — TC đếm cố định theo 00001 |
+| TC-PG02-21 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): schema 00001 → 00025: nay 60+ bảng/enum/index (sprint 3…11) — TC đếm cố định theo 00001 |
 | TC-PG02-22 | P |  |
 | TC-PG02-23 | P |  |
 | TC-PG02-24 | P |  |
@@ -151,15 +151,15 @@ Cách chạy:
 | TC-PG02-38 | P |  |
 | TC-PG02-39 | P | chạy trên Postgres tạm qc2-j-pg (không chạm ep-r): down→up, pg_dump -s trước/sau giống hệt (7333 dòng); run-logs/02-j.log |
 | TC-PG02-40 | P | Postgres tạm qc2-j-pg: sau down 0/5 bảng nền, extension vector giữ, up khôi phục 5 bảng; run-logs/02-j.log |
-| TC-PG02-41 | D | Postgres tạm: `migrate up` lần hai rc 0 và goose_db_version không thêm dòng (AC6 đạt); chỉ ý «đúng 5 bảng+goose» lỗi thời: nay 80 bảng (schema 00001→00025, sprint 3…11); run-logs/02-j.log |
-| TC-PG02-42 | D | goose version mới nhất 25 (TC đòi 1) |
+| TC-PG02-41 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): Postgres tạm: `migrate up` lần hai rc 0 và goose_db_version không thêm dòng (AC6 đạt); chỉ ý «đúng 5 bảng+goose» lỗi thời: nay 80 bảng (sche |
+| TC-PG02-42 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): goose version mới nhất 25 (TC đòi 1) |
 | TC-PG02-43 | P |  |
-| TC-PG02-44 | X | cần `pnpm dev` từ volume trống = dừng + xoá volume của stack `edupilot` MẶC ĐỊNH đang chạy (13 service healthy, của nhóm khác) — chạy khi mọi nhóm dừng. Bằng chứng một phần: `migrate up` trên Postgres trống rc 0, 1 container exited 0, không thao tác tay (run-logs/02-44-j.log); `docker compose config` rc 0 |
+| TC-PG02-44 | N | chưa chạy (trước đây X: cần `pnpm dev` từ volume trống = dừng + xoá volume của stack `edupilot` MẶC ĐỊNH đang chạy (13 service healthy, của nhóm khác) — c) |
 | TC-PG02-45 | P |  |
 | TC-PG02-46 | P |  |
 | TC-PG02-47 | P |  |
-| TC-PG02-48 | D | float64 trong mã sqlc sinh ra từ cột double precision (sprint sau) |
-| TC-PG02-49 | D | chuỗi «OFFSET» chỉ trong dòng chú thích «không OFFSET» (observability.sql:2); không có OFFSET trong câu SQL — grep quá chặt |
+| TC-PG02-48 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): float64 trong mã sqlc sinh ra từ cột double precision (sprint sau) |
+| TC-PG02-49 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): chuỗi «OFFSET» chỉ trong dòng chú thích «không OFFSET» (observability.sql:2); không có OFFSET trong câu SQL — grep quá chặt |
 | TC-PG02-50 | P |  |
 | TC-PG02-51 | P |  |
 | TC-PG02-52 | P |  |
@@ -180,7 +180,7 @@ Cách chạy:
 | TC-PG02-67 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG02-68 | P |  |
 | TC-PG02-69 | P |  |
-| TC-PG02-70 | D | schema 00001 → 00025: nay 60+ bảng/enum/index (sprint 3…11) — TC đếm cố định theo 00001 |
+| TC-PG02-70 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): schema 00001 → 00025: nay 60+ bảng/enum/index (sprint 3…11) — TC đếm cố định theo 00001 |
 | **US-PG-03** | | |
 | TC-PG03-01 | P |  |
 | TC-PG03-02 | P |  |
@@ -232,7 +232,7 @@ Cách chạy:
 | TC-PG03-48 | P |  |
 | TC-PG03-49 | P |  |
 | TC-PG03-50 | P |  |
-| TC-PG03-51 | D | OFFSET nằm trong câu chú thích/SQL truy vấn sau sprint 2 (xem `grep`): TC đòi 0 |
+| TC-PG03-51 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): OFFSET nằm trong câu chú thích/SQL truy vấn sau sprint 2 (xem `grep`): TC đòi 0 |
 | TC-PG03-52 | P |  |
 | TC-PG03-53 | P |  |
 | TC-PG03-54 | P |  |
@@ -279,7 +279,7 @@ Cách chạy:
 | TC-PG03-95 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG03-96 | P |  |
 | TC-PG03-97 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG03-98 | D | APP_ENV=production: log lỗi nêu biến production khác, không nêu APP_ENV (kiểm tra production sprint sau) |
+| TC-PG03-98 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): APP_ENV=production: log lỗi nêu biến production khác, không nêu APP_ENV (kiểm tra production sprint sau) |
 | TC-PG03-99 | P |  |
 | TC-PG03-100 | P |  |
 | TC-PG03-101 | P |  |
@@ -334,9 +334,9 @@ Cách chạy:
 | TC-PG04-41 | P | chạy lại lần 2 (đã thêm APP_ENCRYPTION_KEY vào env TC — bắt buộc từ sprint 3, proposals#4) |
 | TC-PG04-42 | P |  |
 | TC-PG04-43 | P |  |
-| TC-PG04-44 | D | TC đòi 0 đường dẫn /auth/ /me/ /admin/ trong openapi — nay có (US-PU-01…) |
-| TC-PG04-45 | D | GET /api/v1/auth/login → 405 (route auth có thật từ sprint 3), /admin/users → 200 — TC đòi 404 |
-| TC-PG04-46 | D | auth routes (/auth/login, /me, /admin/users…) có thật từ sprint 3 (US-PU-01…) — TC đòi 404 ở chế độ default; cùng lý do TC-PG04-44/45 |
+| TC-PG04-44 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): TC đòi 0 đường dẫn /auth/ /me/ /admin/ trong openapi — nay có (US-PU-01…) |
+| TC-PG04-45 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): GET /api/v1/auth/login → 405 (route auth có thật từ sprint 3), /admin/users → 200 — TC đòi 404 |
+| TC-PG04-46 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): auth routes (/auth/login, /me, /admin/users…) có thật từ sprint 3 (US-PU-01…) — TC đòi 404 ở chế độ default; cùng lý do TC-PG04-44/45 |
 | TC-PG04-47 | P |  |
 | TC-PG04-48 | P |  |
 | TC-PG04-49 | P |  |
@@ -428,7 +428,7 @@ Cách chạy:
 | TC-PG06-01 | P | RERUN 2026-11-16 sau 816498c6 (DEF-R2-01 đã sửa): `redocly lint backend-go/api/openapi.yaml` rc 0, 0 lỗi (21 cảnh báo) |
 | TC-PG06-02 | P |  |
 | TC-PG06-03 | P |  |
-| TC-PG06-04…TC-PG06-07 | D | openapi.yaml 5 đường dẫn (sprint 2) → 298 đường dẫn / 344 thao tác (sprint 3…11); 2 chữ «_test» trong mô tả |
+| TC-PG06-04…TC-PG06-07 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): openapi.yaml 5 đường dẫn (sprint 2) → 298 đường dẫn / 344 thao tác (sprint 3…11); 2 chữ «_test» trong mô tả |
 | TC-PG06-08 | P |  |
 | TC-PG06-09 | P |  |
 | TC-PG06-10 | P | DEF-R2-02 = do tải, đóng: `go test -count=1 -tags testroutes ./internal/contract/...` ok 37 s lúc load ≈ 6 (bản dbf48ed0); thêm TestStatusParity riêng PASS 2/3 lượt (110 s, 46 s); evidence-2/logs-contract-rerun2.log |
@@ -445,11 +445,11 @@ Cách chạy:
 | TC-PG06-21 | P |  |
 | TC-PG06-22 | P |  |
 | TC-PG06-23 | P |  |
-| TC-PG06-24 | D | thông báo lỗi hợp đồng nêu GET /api/v1/jobs/{id} — spec nay 298 route, thông báo nêu route khác |
+| TC-PG06-24 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): thông báo lỗi hợp đồng nêu GET /api/v1/jobs/{id} — spec nay 298 route, thông báo nêu route khác |
 | TC-PG06-25 | P |  |
 | TC-PG06-26 | P |  |
 | TC-PG06-27 | P |  |
-| TC-PG06-28 | D | -run chỉ 2 test: TestSpec_EveryDocumentedStatusExercised cần chạy cả bộ kịch bản — TC lỗi thời theo cách chọn test |
+| TC-PG06-28 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): -run chỉ 2 test: TestSpec_EveryDocumentedStatusExercised cần chạy cả bộ kịch bản — TC lỗi thời theo cách chọn test |
 | TC-PG06-29 | P |  |
 | TC-PG06-30 | P |  |
 | TC-PG06-31 | P |  |
@@ -459,21 +459,21 @@ Cách chạy:
 | TC-PG06-35 | P |  |
 | TC-PG06-36 | P |  |
 | TC-PG06-37 | P |  |
-| TC-PG06-38 | D | handoff sprint 2 (dev-US-PG-06.md): `exempt.go` «rỗng»; nay 24 mục miễn trừ do sprint 3…11 thêm (mỗi mục có lý do trong tệp) — danh sách đối chiếu cũ không còn đúng |
+| TC-PG06-38 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): handoff sprint 2 (dev-US-PG-06.md): `exempt.go` «rỗng»; nay 24 mục miễn trừ do sprint 3…11 thêm (mỗi mục có lý do trong tệp) — danh sách đối |
 | **US-PG-07** | | |
-| TC-PG07-01…TC-PG07-02 | D | compose nay 13 service (thêm judge, docling, mock-*, migrate…) — TC đòi 6–8 service, không python/docling |
+| TC-PG07-01…TC-PG07-02 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): compose nay 13 service (thêm judge, docling, mock-*, migrate…) — TC đòi 6–8 service, không python/docling |
 | TC-PG07-03 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-04 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-05 | P |  |
 | TC-PG07-06 | P |  |
 | TC-PG07-07 | P |  |
 | TC-PG07-08 | P |  |
-| TC-PG07-09 | D | cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
+| TC-PG07-09 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
 | TC-PG07-10 | P |  |
 | TC-PG07-11 | P |  |
 | TC-PG07-12 | P |  |
 | TC-PG07-13 | P |  |
-| TC-PG07-14 | D | cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
+| TC-PG07-14 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
 | TC-PG07-15 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-16 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-17 | P |  |
@@ -481,7 +481,7 @@ Cách chạy:
 | TC-PG07-19 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-20 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-21 | P |  |
-| TC-PG07-22 | D | cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
+| TC-PG07-22 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): cổng/chứng chỉ chuẩn 80/443/5433 — ep-r chạy cổng offset 780/1143/6133 (khác biệt cấu hình stack, không phải mã) |
 | TC-PG07-23 | P |  |
 | TC-PG07-24 | P |  |
 | TC-PG07-25 | P |  |
@@ -494,12 +494,12 @@ Cách chạy:
 | TC-PG07-32 | P |  |
 | TC-PG07-33 | P |  |
 | TC-PG07-34 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-PG07-35 | D | mã sản xuất nay có ghi đĩa (regress, fake llm) / thay đổi FS container worker |
+| TC-PG07-35 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): mã sản xuất nay có ghi đĩa (regress, fake llm) / thay đổi FS container worker |
 | TC-PG07-36 | P |  |
-| TC-PG07-37 | D | mã sản xuất nay có ghi đĩa (regress, fake llm) / thay đổi FS container worker |
-| TC-PG07-38…TC-PG07-41 | D | bằng chứng là run GitHub Actions của nhánh ci/sqlc-drift (nhánh đã xoá) và ci.yml tái cấu trúc (US-CI-02) |
+| TC-PG07-37 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): mã sản xuất nay có ghi đĩa (regress, fake llm) / thay đổi FS container worker |
+| TC-PG07-38…TC-PG07-41 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): bằng chứng là run GitHub Actions của nhánh ci/sqlc-drift (nhánh đã xoá) và ci.yml tái cấu trúc (US-CI-02) |
 | TC-PG07-42 | P |  |
-| TC-PG07-43…TC-PG07-44 | D | bằng chứng là run GitHub Actions của nhánh ci/sqlc-drift (nhánh đã xoá) và ci.yml tái cấu trúc (US-CI-02) |
+| TC-PG07-43…TC-PG07-44 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): bằng chứng là run GitHub Actions của nhánh ci/sqlc-drift (nhánh đã xoá) và ci.yml tái cấu trúc (US-CI-02) |
 | TC-PG07-45 | P |  |
 | TC-PG07-46 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-47 | P |  |
@@ -511,9 +511,9 @@ Cách chạy:
 | TC-PG07-53 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-54 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-55 | P |  |
-| TC-PG07-56 | D | nay thêm mock-graph/mock-imap công bố cổng (sprint 7/10.8) |
+| TC-PG07-56 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): nay thêm mock-graph/mock-imap công bố cổng (sprint 7/10.8) |
 | TC-PG07-57 | P |  |
-| TC-PG07-58 | D | .env.example có giá trị bí mật không chứa «-dev» (khoá demo sprint sau) |
+| TC-PG07-58 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): .env.example có giá trị bí mật không chứa «-dev» (khoá demo sprint sau) |
 | TC-PG07-59 | P |  |
 | TC-PG07-60 | P |  |
 | TC-PG07-61 | P | cửa sổ khoá global (gateway=2/chaos) |
@@ -521,7 +521,7 @@ Cách chạy:
 | TC-PG07-63 | F | DEF-R2-04: cổng GATE-PG chạy trọn còn 2 ca đỏ (GATE-03, GATE-06: contract không tag); 01–02, 04–24, 26, 28–29 đạt; GATE-25/27 (trình duyệt), GATE-20 (pnpm dev) chưa chạy |
 | TC-PG07-64 | P |  |
 | TC-PG07-65 | P |  |
-| TC-PG07-66 | D | compose nay 13 service (thêm judge, docling, mock-*, migrate…) — TC đòi 6–8 service, không python/docling |
+| TC-PG07-66 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): compose nay 13 service (thêm judge, docling, mock-*, migrate…) — TC đòi 6–8 service, không python/docling |
 | TC-PG07-67 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-68 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-PG07-69 | P |  |
@@ -539,18 +539,18 @@ Cách chạy:
 | TC-GATE-11 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-12 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-13 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-20 | X | cần `pnpm dev` từ volume trống = dừng + xoá volume của stack `edupilot` MẶC ĐỊNH đang chạy (13 service healthy, của nhóm khác) — chạy khi mọi nhóm dừng. Bằng chứng một phần: `migrate up` trên Postgres trống rc 0, 1 container exited 0, không thao tác tay (run-logs/02-44-j.log); `docker compose config` rc 0 |
+| TC-GATE-20 | N | chưa chạy (trước đây X: cần `pnpm dev` từ volume trống = dừng + xoá volume của stack `edupilot` MẶC ĐỊNH đang chạy (13 service healthy, của nhóm khác) — c) |
 | TC-GATE-21 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-22 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-23 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-24 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-25 | X | cần trình duyệt thật (Playwright qua eval `sse-browser-cut.mjs` / `idem-two-tabs.mjs`, ≥ 1 cửa sổ khoá) — chưa chạy; phần tương đương bằng curl (GATE-23/24/26) đạt |
+| TC-GATE-25 | N | chưa chạy (trước đây X: cần trình duyệt thật (Playwright qua eval `sse-browser-cut.mjs` / `idem-two-tabs.mjs`, ≥ 1 cửa sổ khoá) — chưa chạy; phần tương đư) |
 | TC-GATE-26 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-27 | X | cần trình duyệt thật (Playwright qua eval `sse-browser-cut.mjs` / `idem-two-tabs.mjs`, ≥ 1 cửa sổ khoá) — chưa chạy; phần tương đương bằng curl (GATE-23/24/26) đạt |
+| TC-GATE-27 | N | chưa chạy (trước đây X: cần trình duyệt thật (Playwright qua eval `sse-browser-cut.mjs` / `idem-two-tabs.mjs`, ≥ 1 cửa sổ khoá) — chưa chạy; phần tương đư) |
 | TC-GATE-28 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-29 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-30 | Kb | đọc tay toàn bộ diff internal/auth + internal/httpapi theo checklist — cần người đọc (script gom ứng viên đã chạy rc 0: run-logs/gate-lock.log) |
-| TC-GATE-99 | D | dọn cuối của cổng cũ (trả stack về image mặc định, 2 gateway): nay baseline ep-r do PM đặt là 1 gateway + image edupilot-*-test; mọi cửa sổ khoá đã khôi phục baseline đó, readyz 200 |
+| TC-GATE-30 | N | chưa chạy (trước đây Kb: đọc tay toàn bộ diff internal/auth + internal/httpapi theo checklist — cần người đọc (script gom ứng viên đã chạy rc 0: run-logs/g) |
+| TC-GATE-99 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): dọn cuối của cổng cũ (trả stack về image mặc định, 2 gateway): nay baseline ep-r do PM đặt là 1 gateway + image edupilot-*-test; mọi cửa sổ  |
 
 ## Trượt: bước tái hiện
 ### DEF-R2-01 — ĐÃ SỬA (816498c6): `redocly lint` hợp lệ, TC-PG06-01 và P0-02/TC-21 đạt — chi tiết `defects-2.md`

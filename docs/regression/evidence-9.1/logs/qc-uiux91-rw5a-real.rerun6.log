@@ -1,0 +1,53 @@
+
+Running 8 tests using 1 worker
+
+(node:7337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX13-9 nút «Phiên mới» khi phiên trống: 0
+INFO UX13-11 gợi ý: ["Tôi nên làm gì với “Bài thi QC3 khoá chat s6 đang mở”?","Điểm quá trình của tôi hiện là bao nhiêu?","Tuần này tôi có những buổi học nào?"]
+INFO UX13-11 kiểu gợi ý: {"tag":"BUTTON","radius":"0px","bg":"rgba(0, 0, 0, 0)","border":"1px 0px","h":44}
+INFO UX13-17 có «chỉ bạn đọc được» trong main: true | body: true
+INFO UX13-14 từ kỹ thuật 1440: null
+INFO UX13-1 inner {"x":645,"y":189,"w":746,"h":519.390625,"r":1391,"b":708.390625,"radius":"0px","shadow":"none","bg":"rgba(0, 0, 0, 0)","bl":"0px","br":"0px","bt":"0px","bb":"0px","ff":"DIV"} | main {"x":216,"r":1440} | history {"x":241,"y":173,"w":379,"h":887.71875,"r":620,"b":1060.71875,"radius":"0px","shadow":"none","bg":"rgba(0, 0, 0, 0)","bl":"0px","br":"0px","bt":"0px","bb":"0px","ff":"NAV"} | tổ tiên [{"cls":"ChatScreen-module__YhGRVW__convo","w":794,"x":621,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Layout-module__rM7QnW__ldDetail","w":794,"x":621,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Layout-module__rM7QnW__listDetail","w":1174,"x":241,"radius":"0px","bw":"0px","shadow":"none"},{"cls":"Panel-module__zFMaDG__panel","w":1176,"x":240,"radius":"14px","bw":"1px","shadow":"shadow"},{"cls":"Layout-module__rM7QnW__page Layout-modul","w":1224,"x":216,"radius":"0px","bw":"0px","shadow":"none"}]
+INFO UX13-13 gap trên ô nhập 72 / khung 519 = 0.14
+INFO UX13-4 hàng lịch sử: 12 ["Giải thích chi tiết quy chế điểm quá trình và cách tính điểm\nHôm nay, 01:33","Giải thích chi tiết quy chế điểm quá trình và cách tính điểm\nHôm nay, 01:30","Điểm quá trình của tôi hiện là bao nhiêu?\nHôm nay, 01:29","Điểm quá trình của tôi hiện là bao nhiêu?\nHôm nay, 01:29","Tuần này tôi có những buổi học nào?\nHôm nay, 01:28","Cuộc trò chuyện mới\nHôm nay, 01:28","Cách tính điểm môn này thế nào?\nHôm nay, 00:53","Cách tính điểm môn này thế nào?\nHôm nay, 00:53","Cách tính điểm môn này thế nào?\nHôm nay, 00:52","Cách tính điểm môn này thế nào?\nHôm nay, 00:52","Cách tính điểm môn này thế nào?\nHôm nay, 00:51","Cách tính điểm môn này thế nào?\nHôm nay, 00:50"]
+INFO UX13-4 nút trên hàng: ["null|315x83","Thao tác với phiên Giải thích chi tiết quy chế điểm quá trình và cách tính điểm|32x32"]
+INFO UX13-12 ô nhập sau bấm gợi ý: "Điểm quá trình của tôi hiện là bao nhiêu?" | POST mới: 0
+INFO UX13-3 thu gọn: rộng 746 → 1126 | CLS 0 | nút mở lại: 1
+INFO UX13-10 «Phiên mới» sau 1 tin: 1 {"x":1314.53125,"y":96,"w":101.46875,"h":36,"r":1416,"b":132,"radius":"6px","shadow":"none","bg":"lab(100 0 0)","bl":"1px","br":"1px","bt":"1px","bb":"1px","ff":"BUTTON"}
+INFO UX13-15 dòng che: null | lộ tên/MSSV/email trong màn: false
+INFO UX13-14 từ kỹ thuật sau gửi: null
+INFO UX13-6 hàng 12 → 11 | hộp thoại: 1 0 | Hoàn tác: 1 | dòng: ["Đã xoá phiên"]
+INFO UX13-7 sau Hoàn tác: hàng 14 | DELETE: 0 | hàng đầu giữ nguyên: false
+INFO UX13-8 DELETE sau 251 ms
+INFO UX13-8 sau tải lại: hàng 13 (trước 12 ) | phiên đã xoá còn: true
+INFO reqs ["POST /api/v1/chat/sessions","POST /api/v1/chat/sessions/‹id›/messages","POST /api/v1/chat/sessions","POST /api/v1/chat/sessions/‹id›/messages","DELETE /api/v1/chat/sessions/‹id›","POST /api/v1/chat/sessions/‹id›/restore","DELETE /api/v1/chat/sessions/‹id›"]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII (30.2s)
+INFO UX13-18 nút Dừng từng hiện: 1 | gõ được: true
+INFO UX13-19 sau tải lại, nháp: "nháp QC 2 giây"
+INFO UX13-21 sau lỗi: ô nhập "Tin QC kiểm gửi lại" | Gửi lại: 1 | alert: ["Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.\nGửi lại",""]
+INFO UX13-21 khoá idempotency: ["f1f3b407-add8-4f06-b367-c1fefd7d38b9","f1f3b407-add8-4f06-b367-c1fefd7d38b9"] | cùng khoá: true
+INFO UX13-21 số tin «Tin QC kiểm gửi lại» đã ghi: 0
+INFO UX13-23 SV khác đọc phiên của SV A: ["404:ok","404:ok","404:ok"]
+INFO UX13-22 GV: API phiên SV ["403","403"] | /chat: Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên.
+INFO UX13-22 TA: API phiên SV ["403","403"] | /chat: Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho sinh viên.
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền (40.6s)
+INFO UX13-24 tràn ngang: {"sw":375,"cw":375} | nút Phiên trước: 1 {"x":25,"y":161,"width":325,"height":44}
+INFO UX13-24 ô nhập {"x":25,"y":614,"width":325,"height":59} | thanh dưới {"x":0,"y":755,"width":375,"height":57}
+INFO UX13-14 từ kỹ thuật 375: null | «chỉ bạn đọc»: true
+INFO UX13-24 khi khung nhìn thấp 480: ô nhập {"x":25,"y":466,"width":325,"height":59}
+INFO UX13-24 bảng phiên: 1 {"x":0,"y":48,"width":375,"height":764} | hàng: 43
+INFO UX13-24 vùng chạm trong bảng: [":44x44","Tuần này tôi có nh:273x65",":44x44","Cuộc trò chuyện mớ:273x65",":44x44","Giải thích chi tiế:273x84",":44x44","Giải thích chi tiế:273x84",":44x44","Điểm quá trình của:273x84",":44x44","Điểm quá trình của:273x84"]
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh (7.6s)
+INFO UX13-25 hoạt cảnh (reduce=false): [{"name":"RealChat-module__lbRsKG__msgIn","prop":"","dur":160,"kf":"transform+opacity | transform+opacity"},{"name":"ChatScreen-module__YhGRVW__blink","prop":"","dur":1000,"kf":"opacity | opacity"}] | số luật :active có scale: 8
+INFO UX13-26 hoạt cảnh (reduce=true): [] | số luật :active có scale: 8
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:232:1 › TC-UX13-25/26 hoạt cảnh tin mới và reduce (25.9s)
+(node:9517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  5 [mobile] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:23:1 › TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá có hoàn tác, PII
+  -  6 [mobile] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:119:1 › TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Idempotency-Key, phân quyền
+  -  7 [mobile] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:198:1 › TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt cảnh
+  -  8 [mobile] › e2e/qc2-r91/qc-uiux91-rw5a-real.spec.ts:232:1 › TC-UX13-25/26 hoạt cảnh tin mới và reduce
+
+  4 skipped
+  4 passed (1.8m)

@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9.5 — kết quả (DỪNG theo lệnh chủ dự án, chưa N=0)
 Mã đã chạy: 88ab83e4 (sprint/11-p10-eval) · ep-r + stack riêng smk91 (seed sạch, đã docker stop) · Người chạy: qc2 · Ngày: 2026-11-18
-Tổng TC cũ: 161 · LT (loại khỏi tổng, có nguồn P-95-8 dòng PM / luật LLM 2026-11-14): 9 · Tổng tính = 152 · Đạt: 106 · Trượt (F xác nhận lượt này): 8 · K: 0 · Chưa chạy (N): 38   (P+F+K+N = 152)
+Tổng TC cũ: 161 · LT đã xoá khỏi tổng (có nguồn P-95-8 / luật LLM 2026-11-14): 19 · Tổng tính = 142 · Đạt: 116 · Trượt (F xác nhận): 9 · K: 0 · Chưa chạy (N): 17   (P+F+K+N = 142)  [cập nhật SmkR 2026-11-19, HEAD 1409b04d]
 HANDOFF CUỐI: lượt này chạy lại F dạng FILE/RUN nhẹ (N01-12/17, N02-01/02/03/04/09/11/13/14/15, N04-12, N07-10, N08-01/06/11, N09-01/04/05/07/11/13, N10-06/10). Còn N: các F cũ chưa rerun (N01-… N03-xx, N06-04 cần khoá toàn cục + dừng Redis ≤ 1 phút, N06-xx, N08-16/17 --resume, N09-xx/N10-xx còn lại), N02-06 (Admin rỗng hợp lệ theo P-11-61: chạy lại /me/today trên smk91 chưa xong), N02-08, CM (N01-03/04/14/16, N03-10/12, N05-02 + N05-03…14, N06-05..08/12/13, N07-02/04/09, N08-05/07/09/10/12/20, N10-04). Số mới: seed 589 s trên smk91 sạch; bằng chứng `evidence-9.5/rerun/`.
 
 ## Kết quả từng ca
@@ -9,13 +9,13 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | --- | --- | --- |
 | TC-N01-01 | P | README có mục «Đo trên Mac» |
 | TC-N01-03 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N01-04 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N01-04 | P | RERUN 1409b04d: docker ps trên stack đo ep-qc đang chạy: 13/13 container tên ep-qc-*, cổng lệch (HTTP 580, HTTPS 943, PG 5933, Redis 6880, MinIO 9500…), 0 container dùng cổng demo 80/443/3000/5432/6379/9000; mock-graph/mock-imap bind 127.0.0.1 (evidence-9.5/rerun/n01-04-ep-qc-1409b04d.log) |
 | TC-N01-05 | P | Dòng «không chạy trên Mac» đã bỏ; có quy trình ep-research, cổng lệch, down -v |
 | TC-N01-10 | P | .env.local bị ignore (.gitignore:3); 0 tệp theo dõi |
 | TC-N01-11 | P | check-meta.mjs mã 0 «meta đủ» (khoá thực: commit, timestamp, machine, runs, config, k6_cpus, demo_stack) |
 | TC-N01-12 | P | RERUN 88ab83e4: check-meta cho 7 bản thiếu 1 khoá (commit, timestamp, machine, runs, config, k6_cpus, demo_stack) → mã 1 nêu đúng tên khoá; bản demo_stack="unknown" → mã 1 «demo_stack «unknown» ∉ stopped|running» (rerun/n01-n02-rerun.log, doc-rerun.log). Khoá config.model/rpm_limit nay có ở 15/15 tệp real-llm (DEF-R9.5-09) |
 | TC-N01-13 | P | check-meta quét mọi benchmarks/reports/**/*.json: «meta đủ», mã 0 |
-| TC-N01-14 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N01-14 | P | RERUN 1409b04d (FILE): đọc đầu ra mọi lệnh đo của README: k6 load-*.json 22/22, baseline 1/1, chaos 1/1, explain 1/1, real_llm 15/15, seed-t1/t0 3/3, demo-stack, lighthouse đều có khối meta |
 | TC-N01-15 | P | seed-t1 từ chối project không ep-* (1 dòng); vps-llm từ chối 127.0.0.1/localhost/https://localhost:3000|443 (có stack trace Node, không 1 dòng thuần) |
 | TC-N01-16 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N01-17 | P | RERUN 88ab83e4: 5 biến thể (localhost:3000, [::1]:3000, 127.0.0.1:3000/, host.docker.internal:3000, https://localhost) đều «Từ chối: … là stack demo», 1 dòng, mã 1; seed-t1 với COMPOSE_PROJECT_NAME=edupilot → «Từ chối» mã 1 (rerun/n01-n02-rerun.log) |
@@ -26,7 +26,7 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N02-03 | P | chạy lại seed.mjs ba lần trên smk91 sạch: mã 0, đếm không đổi (idempotent=ok ở chat/crm/docs, grade counts không đổi) |
 | TC-N02-04 | P | lần 3 (n02-04-third-run.log): mã 0; log gateway --since: 0 `409`, 0 `429`; log Postgres 0 `23505`; seed in 2 dòng «Đã có …» |
 | TC-N02-05 | P | Sửa tay điểm rồi chạy lại: seed dừng 1 dòng lỗi rõ, không ghi đè, không tạo trùng |
-| TC-N02-06 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-18: đăng nhập 4 vai OK, sai mật khẩu 401; GV/TA/SV có việc đúng nguồn; Admin Hôm nay = 0 việc (nguồn Admin chỉ phát sinh khi lỗi hệ thống) — ) |
+| TC-N02-06 | P | RERUN 1409b04d (ep-r): đăng nhập 4 vai OK, sai mật khẩu 401; sv.kha/gioi/nguyco có recommended EXAM_OPEN, ta 113 việc (9 loại), teacher 162 việc (13 loại), admin 29 việc nguồn hợp lệ (COURSE_NO_TEACHER, COURSE_TICKETS_STALLED, INVITE_EXPIRED); SV gradebook 403 (evidence-9.5/rerun/n02-06-ep-r-1409b04d.log; Admin rỗng cũng hợp lệ theo P-11-61) |
 | TC-N02-07 | P | Lớp 1: 30 SV, công thức có ROUNDING; lớp 2: chưa có công thức, quy chế lớp 2 không có «làm tròn» (0 so với 3 ở lớp 1) |
 | TC-N02-08 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N02-09 | P | RERUN 88ab83e4: cây không có .env.local/.env.example + env -u SEED_DEFAULT_PASSWORD → «Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).» 1 dòng mã 1, 0 request. Ghi nhận: trong checkout có .env.local (khoá đặt sẵn) seed dùng khoá đó theo b7d1e713 (không đặt trong env = đọc tệp env của repo) |
@@ -74,18 +74,8 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N04-20 | P | 0 Authorization/Bearer/email thật trong load-*.json |
 | TC-N05-01 | P | explain.json 10 truy vấn có kế hoạch, số dòng, thời gian; nguồn xếp hạng nêu ở docs/research/…-explain.md |
 | TC-N05-02 | N | chưa chạy (CM): chưa chạy (mẫu): pg_stat_statements chưa bật trên postgres riêng (cần restart cấu hình) |
-| TC-N05-03 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-04: không có 00018_indexes_tuning.sql (P-95-8 dev: «không tạo», cột quyết định PM để trống)) |
-| TC-N05-04 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
 | TC-N05-05 | P | Không HNSW trong migration; báo cáo có kế hoạch cho thấy planner không chọn HNSW |
-| TC-N05-06 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
-| TC-N05-07 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
-| TC-N05-08 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
-| TC-N05-09 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
-| TC-N05-10 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
-| TC-N05-11 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
-| TC-N05-12 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
 | TC-N05-13 | P | TL-2c (rag_hybrid nối documents × content_chunks không lọc lớp) ghi thành lỗi, không dùng chỉ mục che |
-| TC-N05-14 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
 | TC-N06-01 | P | chaos.json: 3 tình huống, meta hợp lệ, bảng vào/xong/dead-letter/thất lạc/chấm đôi |
 | TC-N06-02 | P | vào = xong + dead-letter ở cả 3 tình huống (150=150; 3=3); thất lạc 0; chấm đôi 0 |
 | TC-N06-03 | P | kill -9 worker giữa 150 bài (script gốc, stack ep-r95): 150 = 150 DONE, 0 mồ côi, 0 chấm đôi, XPENDING 0, 279 s |
@@ -116,20 +106,20 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N08-02 | P | R1: 10/10 SUCCEEDED 9,1–15,3 s; lớp 2 phát hiện ROUNDING_MISSING 5/5; trích dẫn 85/85 đúng trang — khớp report.md |
 | TC-N08-03 | P | R2 tính lại từ rows thô: MAE 0,792/0,729/0,688, trong ±0,5 = 6/7/9 trên 12 — khớp grade-report.json |
 | TC-N08-04 | P | 6 biến thể (S6 + INJ v1–v5) mỗi vòng, AI 4,25–5,5 so mốc 5,75: không bị kéo lên (Δ ≤ 0); cờ chỉ bắt S6 (đã ghi ở giới hạn) |
-| TC-N08-05 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-05 | P | RERUN 1409b04d: go test ./internal/grading -run Injection xanh 7/7 (TestInjectionCasesTable 6 ca I01–I06 gắn cờ; TestInjectionDoesNotRaiseScore; TestInjectionFlagAndHighlight; TestInjectionOR; Extra) + ./internal/llm -run Structured xanh (TestStructuredInvalidFallsBack: đầu ra sai schema bị loại, không trả JSON sai schema). Kiểm bằng Go test, không qua nút «Chấm tất cả» (evidence-9.5/rerun/n08-05-go-1409b04d.log) |
 | TC-N08-06 | P | RERUN 88ab83e4: mask.json 31 probe, 24 tới mô hình, khôi phục 35/35 (100 % ≥ 95 %), đổi/bỏ 0, còn sót 0, spell_leak 0 (DEF-R9.5-10 đã sửa, a8b3a8cc/4612b006/d080ea35) |
-| TC-N08-07 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-07 | P | RERUN 1409b04d (ep-r, scripts/n08-chat-harness-epr.mjs mask): SV sv.kha gửi 15 câu có họ tên/MSSV/email thật của seed → 15/15 HTTP 200; payload gửi LLM (llm_request_payloads, 8 lời gọi CHAT, 58 mục đã che): 0 lần họ tên, MSSV A/B/C, sv.kha@, số điện thoại; log gateway 20 phút: 0. Khôi phục tên: fake LLM không lặp nhãn nên kiểm bằng test đơn vị privacy TestUnmask* + llm TestUnmaskBeforeCaller/TestStructuredUnmaskAfterSchema xanh (rerun/n08-chat-mask-1409b04d.log, n08-07-restore-unit-1409b04d.log) |
 | TC-N08-08 | P | R4: 26 câu; sự kiện đầu p95 14 ms; Q19/Q20 hỏi điểm người khác bị từ chối; «% bám tài liệu» cần người đánh dấu — chưa có (embedding giả) |
-| TC-N08-09 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N08-10 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-09 | P | RERUN 1409b04d (ep-r): sv.kha hỏi điểm của sv.gioi/MSSV/tên/«bạn cùng nhóm»/Ngô Ngọc Cẩm: 5/6 «Mình chỉ xem được dữ liệu của chính bạn.», 1/6 (chỉ gõ tài khoản sv.gioi, không @) «Mình chưa tìm thấy nội dung này…»; không số điểm A trong câu trả lời; 0 lời gọi LLM sinh chữ (payload 0 dòng, llm_audit rỗng); payload không chứa tên/MSSV của A, C (rerun/n08-chat-other-1409b04d.log) |
+| TC-N08-10 | P | RERUN 1409b04d (ep-r): sv.gioi hỏi điểm mình → «Điểm giữa kỳ của bạn là 9 và điểm quá trình là 10» = me/grades (midterm 9, QT 10); sv.kha → 7,5 / 8,25 = me/grades; sv.gioi nêu MSSV của sv.kha → «Mình chỉ xem được dữ liệu của chính bạn.» (danh tính từ JWT, không nhận student_code từ chat) (rerun/n08-10-self-1409b04d.log) |
 | TC-N08-11 | F | RERUN 88ab83e4: SuggestRubric 3, tóm tắt AI 3, Threads 5/5 AI trả lời, khủng hoảng 4/4 CRISIS (đạt ≥ 3); còn: «escalation theo độ tin cậy» chỉ 2 mẫu (chat.json escalated/ticket) và không có dòng đánh giá định tính từng mẫu (báo cáo ghi «độ đúng nội dung Threads chưa đo») — DEF-R9.5-11 còn một phần |
-| TC-N08-12 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-12 | P | RERUN 1409b04d (ep-r): 3 tin khủng hoảng → intent CRISIS 3/3, đường an toàn cố định «Mình rất tiếc… Phòng Công tác sinh viên, phòng 101 nhà A1…» (SSE status/token/done), 0 lời gọi LLM (llm_audit rỗng), không ticket theo thiết kế (chat/crisis_test.go TestCrisisNeverTicketed) (rerun/n08-chat-crisis-1409b04d.log) |
 | TC-N08-13 | P | R6: TTFT p95 nền 16.916 ms vs chấm 6.699 ms (không xấu đi); ghi «mẫu nhỏ» |
-| TC-N08-16 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-12: real_llm.py không có --resume / không ghi «chưa hoàn tất — hết hạn mức»; 429 Retry-After 120 → chờ 60 s ×5 (≈300 s) rồi LỖI rc=2, không l) |
-| TC-N08-17 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-12: không có --resume (README nói có); xem TC-N08-16) |
+| TC-N08-16 | P | RERUN 7c9f8b56 (máy chủ giả MODE=429 RA=120): real_llm.py setup dừng sau 2 yêu cầu (login + 1 GET → 429), 0,09 s, rc=3, in «CHƯA HOÀN TẤT — hết hạn mức … Chạy tiếp sau 120s: --resume setup», ghi resume.json {reason: «chưa hoàn tất — hết hạn mức», retry_after_s 120}; không chờ vô hạn. RA=0: 6 lần thử (lùi 5-10-20-40-60 s) rồi LỖI rc=2, 7 yêu cầu (≤ ngưỡng). --resume bỏ qua lệnh đã có state.json (mức lệnh, không mức từng mục) (rerun/n08-16-run-…, n08-16b-run-…) |
+| TC-N08-17 | F | RERUN 7c9f8b56 (MODE=drop, server đóng kết nối): real_llm.py setup chết bằng Traceback http.client.RemoteDisconnected, rc=1, không ghi resume.json / state, không dòng «chưa hoàn tất»; --resume chỉ bỏ qua lệnh đã có tệp kết quả (mức lệnh) nên mục đã xong trong lệnh bị cắt vẫn chạy lại. Kỳ vọng: lưu tiến độ, --resume không chấm lại mục đã xong, kết quả từng phần ghi «chưa hoàn tất» (DEF-R9.5-21; evidence-9.5/rerun/n08-17-run-1409b04d.log) |
 | TC-N08-18 | P | 401 → đăng nhập lại 1 lần rồi dừng: 1 dòng «LỖI: … 401», rc=2, không in khoá, không lặp vô hạn |
 | TC-N08-19 | P | 0 khoá AIza thật; chỉ chuỗi giả «AIzaFAKE…» trong tệp TC; .env.local bị ignore |
-| TC-N08-20 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-20 | P | RERUN 1409b04d (ep-r): TEACHER/TA/STUDENT POST /admin/observability/requests/{id}/open → 403; ADMIN → 200 (nội dung đã che) và audit_log +1 dòng entity=llm_request action=VIEW_DETAIL (actor admin, after.reason). Đường TC cũ GET /admin/llm/audit/{id} nay 404 (đổi sang observability/requests/{id}/open ở P10) (evidence-9.5/rerun/n08-20-1409b04d.log) |
 | TC-N08-22 | P | benchmarks/reports/real-llm có kết quả thô từng mẫu, llm-audit-summary (không payload), masked-payloads (146) |
 | TC-N08-23 | P | 0 Authorization/Bearer/email thật trong real-llm/*.json (trừ phụ lục lan-1 đã được giữ riêng) |
 | TC-N09-01 | F | RERUN 88ab83e4: báo cáo vẫn không có mục NFR-02/03 (seed T0/T1) và mục (b),(c),(d), Baseline, Chaos, EXPLAIN không đủ «6 phần» (DEF-R9.5-13 còn) |

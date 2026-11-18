@@ -161,9 +161,17 @@ Còn F (xác nhận lần này, bằng chứng `evidence-9.5/rerun/`):
 - DEF-R9.5-13 (TC-N09-01) Thấp — thiếu mục NFR-02/03, mục (b)(c)(d)/Baseline/Chaos/EXPLAIN không đủ «6 phần».
 - DEF-R9.5-14 còn 2 số (TC-N09-04) Thấp — «nền 410 ms» (nguồn 409,06) và «TTFT RAG 633,9 ms» (nguồn 633,993 → 634,0); 126/128 số truy được (`rerun/trace-numbers.py`).
 - DEF-R9.5-15 (TC-N09-07) Thấp — «câu cần vá» không có tệp:dòng.
-Chưa rerun (N, cần HEAD mới): DEF-R9.5-02, -04, -12 (N08-16/17 --resume), -18 (N02-06, theo P-11-61 Admin rỗng hợp lệ), -20 (N06-04, cần khoá toàn cục dừng Redis ≤ 1 phút).
+Cập nhật 2026-11-19 (SmkR): DEF-R9.5-04 ĐÓNG (PM chấp nhận P-95-8 hàng 12); -12 còn lại DEF-R9.5-21 (N08-16 đạt, N08-17 trượt); -18 đạt (N02-06 P theo P-11-61). Chưa rerun: DEF-R9.5-02, -20 (N06-04 cần khoá toàn cục dừng Redis ≤ 1 phút).
 Hạ tầng: `docker exec <postgres> psql` thoát mã 2 (lỗi/ngắt kết nối) làm postmaster tưởng tiến trình con chết và reinit DB (đã thấy 4 lần ở smk91; có thể là nguyên nhân sự cố ep-r 9.5). Dùng `sh -c 'psql …; exit 0'`.
 
+
+### DEF-R9.5-21 — `real_llm.py` chết bằng Traceback khi server đóng kết nối; `--resume` chỉ ở mức lệnh
+- Mức: Trung bình
+- Sprint gốc: 9.5 · TC gốc: TC-N08-17 (còn lại của DEF-R9.5-12 sau khi dev thêm --resume cho 429) · Hồi quy do sprint sau?: KHÔNG
+- Môi trường: máy chủ giả MODE=drop (evidence-9.5/scripts/fake-gateway.mjs), HEAD 7c9f8b56
+- Bước tái hiện: `MODE=drop PORT=18098 node …/fake-gateway.mjs`; `BASE=http://127.0.0.1:18098 OUT=/tmp/x python3 benchmarks/real-llm/real_llm.py setup` → Traceback `RemoteDisconnected`, rc=1, không có resume.json / state; `--resume` chỉ bỏ qua lệnh đã có tệp kết quả (real_llm.py:74, 907)
+- Kỳ vọng: lưu tiến độ, `--resume` không chấm lại mục đã xong (đếm request theo mục = 1), kết quả từng phần ghi «chưa hoàn tất» · Thực tế: như trên
+- Bằng chứng: evidence-9.5/rerun/n08-17-run-1409b04d.log · Chạy lại lần 2: ổn định (mã luôn 1)
 
 ## Ca lỗi thời đã XOÁ khỏi smoke (lệnh chủ dự án; mỗi mã một dòng + nguồn)
 - TC-N01-02: LỖI THỜI (P-95-8/luật LLM 2026-11-14): README nhắc 9router theo quyết định; 0 'ssh'/'/srv/work/research'
@@ -175,3 +183,16 @@ Hạ tầng: `docker exec <postgres> psql` thoát mã 2 (lỗi/ngắt kết nố
 - TC-N08-14: LỖI THỜI (P-95-8): ngân sách Gemini <200 lời gọi/ngày thay bằng 9router; llm-audit-summary.json là lượt Gemini 14/11
 - TC-N08-15: LỖI THỜI (P-95-8): fallback_index Gemini không còn (một model 9router)
 - TC-N08-21: LỖI THỜI (P-95-8): câu về Gemini Free thay bằng 9router; báo cáo mô tả dữ liệu mô phỏng (D44)
+
+
+## Ca lỗi thời đã XOÁ khỏi smoke (lệnh chủ dự án; mỗi mã một dòng + nguồn)
+- TC-N05-03: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-04: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-06: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-07: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-08: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-09: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-10: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-11: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-12: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng
+- TC-N05-14: dev đề xuất P-95-8 hàng 12 (không tạo 00018_indexes_tuning); PM chấp nhận 2026-11-19 (cột quyết định ghi ở docs/sprints/9.5/proposals.md); AC2 và các TC kiểm 00018 không áp dụng; DEF-R9.5-04 đóng

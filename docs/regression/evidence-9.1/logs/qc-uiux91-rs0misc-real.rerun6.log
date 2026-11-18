@@ -1,0 +1,49 @@
+
+Running 10 tests using 1 worker
+
+(node:16417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX02-6 hàng chuông: ["Mục thử 1 Hộp thư hỗ trợ · vừa xong","Mục thử 2 Hộp thư hỗ trợ · 5 phút trước","Mục thử 3 Hộp thư hỗ trợ · Hôm qua, 22:41","Mục thử 4 Hộp thư hỗ trợ · Thứ Ba, 23:41"]
+INFO UX02-6 mong đợi: ["vừa xong","5 phút trước","Hôm qua, 22:41","Thứ"]
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:12:1 › TC-UX02-6 chuông thông báo: 30 s → «vừa xong», 5 phút → «5 phút trước», 3 giờ → «3 giờ trước» (cùng ngày) hoặc «Hôm qua, HH:mm», 26 giờ → «Hôm qua, HH:mm» (8.1s)
+INFO UX04-4 nền dòng 2 (không chạm): ["rgba(0, 0, 0, 0)","rgba(0, 0, 0, 0)"] | dòng 1 sau chạm: ["rgba(0, 0, 0, 0)","rgba(0, 0, 0, 0)"]
+  ✓   2 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:37:1 › TC-UX04-4 375 hasTouch: chạm một dòng danh sách rồi không giữ nền hover (5.4s)
+INFO UX05-7 lớp QC266985 state NO_POLICY
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:55:1 › TC-UX05-7 sổ điểm lớp chưa có công thức: EmptyState đúng một nút «Thiết lập công thức», không câu «Điểm chính thức …» (4.8s)
+INFO #48 dòng phụ /students: 30 sinh viên
+INFO #11 /attendance: buổi 10 · Chủ Nhật, 09:00–11:30 · P.302
+  ✓   4 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:74:1 › TC-UX01-5 dòng «Giữ»: /students «N sinh viên», /attendance dòng phụ buổi học không mã lớp (#11, #47, #48) (7.9s)
+INFO UX20-5 số bài: 2
+  ✘   5 [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:92:1 › TC-UX20-5 điểm đã công bố ⇒ đúng một nút phụ «Yêu cầu xem lại», bấm mở biểu mẫu như cũ (9.5s)
+(node:17137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   6 [mobile] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:12:1 › TC-UX02-6 chuông thông báo: 30 s → «vừa xong», 5 phút → «5 phút trước», 3 giờ → «3 giờ trước» (cùng ngày) hoặc «Hôm qua, HH:mm», 26 giờ → «Hôm qua, HH:mm»
+  -   7 [mobile] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:37:1 › TC-UX04-4 375 hasTouch: chạm một dòng danh sách rồi không giữ nền hover
+  -   8 [mobile] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:55:1 › TC-UX05-7 sổ điểm lớp chưa có công thức: EmptyState đúng một nút «Thiết lập công thức», không câu «Điểm chính thức …»
+  -   9 [mobile] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:74:1 › TC-UX01-5 dòng «Giữ»: /students «N sinh viên», /attendance dòng phụ buổi học không mã lớp (#11, #47, #48)
+  -  10 [mobile] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:92:1 › TC-UX20-5 điểm đã công bố ⇒ đúng một nút phụ «Yêu cầu xem lại», bấm mở biểu mẫu như cũ
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:92:1 › TC-UX20-5 điểm đã công bố ⇒ đúng một nút phụ «Yêu cầu xem lại», bấm mở biểu mẫu như cũ 
+
+    Error: có bài đã công bố điểm với nút «Yêu cầu xem lại»
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not ""
+
+      102 |     if (await b.count()) { found = h; break; }
+      103 |   }
+    > 104 |   expect(found, "có bài đã công bố điểm với nút «Yêu cầu xem lại»").not.toBe("");
+          |                                                                         ^
+      105 |   const btn = o.page.getByRole("button", { name: "Yêu cầu xem lại" });
+      106 |   console.log("INFO UX20-5 trang:", found, "| số nút:", await btn.count(), "| variant:", await btn.first().getAttribute("data-variant"));
+      107 |   expect(await btn.count(), "đúng một nút").toBe(1);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:104:73
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rs0misc--dd49d-lại»-bấm-mở-biểu-mẫu-như-cũ-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rs0misc-real.spec.ts:92:1 › TC-UX20-5 điểm đã công bố ⇒ đúng một nút phụ «Yêu cầu xem lại», bấm mở biểu mẫu như cũ 
+  5 skipped
+  4 passed (36.6s)

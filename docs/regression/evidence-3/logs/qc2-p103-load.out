@@ -1,0 +1,55 @@
+pha 0 (mốc)
+{'n': 25, 'ok': 25, 'status': [200], 'wait_p95_ms': 0, 'wait_max_ms': 0, 'ttft_p50_ms': 9515.0, 'ttft_p95_ms': 13736.0}
+pha A (TC-12: chỉ BATCH)
+{'A_first_chats_after_batch_running': {'n': 10, 'ok': 10, 'status': [200], 'wait_p95_ms': 0, 'wait_max_ms': 0, 'ttft_p50_ms': 11094.0, 'ttft_p95_ms': 13022.0}, 'A_batch_peak': 5, 'A_samples': 3722, 'A_batch_status': {'200': 14, '504': 186}}
+pha B (TC-11: 200 BATCH + 25 CHAT ≤5 đồng thời)
+{
+ "baseline": {
+  "n": 25,
+  "ok": 25,
+  "status": [
+   200
+  ],
+  "wait_p95_ms": 0,
+  "wait_max_ms": 0,
+  "ttft_p50_ms": 9515.0,
+  "ttft_p95_ms": 13736.0
+ },
+ "A_first_chats_after_batch_running": {
+  "n": 10,
+  "ok": 10,
+  "status": [
+   200
+  ],
+  "wait_p95_ms": 0,
+  "wait_max_ms": 0,
+  "ttft_p50_ms": 11094.0,
+  "ttft_p95_ms": 13022.0
+ },
+ "A_batch_peak": 5,
+ "A_samples": 3722,
+ "A_batch_status": {
+  "200": 14,
+  "504": 186
+ },
+ "B_mixed": {
+  "n": 25,
+  "ok": 25,
+  "status": [
+   200
+  ],
+  "wait_p95_ms": 0,
+  "wait_max_ms": 0,
+  "ttft_p50_ms": 11459.0,
+  "ttft_p95_ms": 13864.0
+ },
+ "B_batch_peak_all": 5,
+ "B_batch_peak_when_interactive": 5,
+ "B_batch_status": {
+  "200": 15,
+  "504": 185
+ },
+ "B_wait_p95_delta_ms": 0,
+ "B_ttft_p95_ratio": 1.009,
+ "B_ttft_p50_ratio": 1.204
+}

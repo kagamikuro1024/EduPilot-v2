@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+PROBE LATE chuột-xa=rgb(206, 22, 40) chuột-trên-ô=lab(45.3509 4.28858 2.31123)
+PROBE EXCUSED chuột-xa=rgb(206, 22, 40) chuột-trên-ô=lab(45.3509 4.28858 2.31123)
+PROBE ABSENT chuột-xa=rgb(206, 22, 40) chuột-trên-ô=lab(45.3509 4.28858 2.31123)
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe-real.spec.ts:5:1 › probe attendance hover vs checked dot (6.5s)
+
+  1 passed (7.1s)

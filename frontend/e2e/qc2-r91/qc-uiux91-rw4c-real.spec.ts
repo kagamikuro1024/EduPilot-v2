@@ -22,7 +22,7 @@ const api = <T = unknown>(page: Page, path: string, init?: { method?: string; bo
     return { status: r.status, body: (await r.json().catch(() => null)) as unknown };
   }, [path, init ?? null] as const) as Promise<{ status: number; body: T }>;
 type Mine = { items: Array<{ course: { id: string; class_code: string } }> };
-async function who(browser: Browser, w = 1440, h = 900, user = "teacher", code = "761987") {
+async function who(browser: Browser, w = 1440, h = 900, user = "teacher", code = (process.env.QC_CLASS ?? "761987")) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h }, hasTouch: w < 500, isMobile: w < 500, locale: "vi-VN" });
   const page = await ctx.newPage();
   await login(page, user);

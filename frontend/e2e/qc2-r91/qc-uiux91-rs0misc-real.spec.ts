@@ -70,3 +70,44 @@ test("TC-UX05-7 sổ điểm lớp chưa có công thức: EmptyState đúng m�
   expect(await main.innerText()).not.toContain("Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.");
   await o.ctx.close();
 });
+
+test("TC-UX01-5 dòng «Giữ»: /students «N sinh viên», /attendance dòng phụ buổi học không mã lớp (#11, #47, #48)", async ({ browser }, info) => {
+  D(info); test.setTimeout(240_000);
+  const o = await open(browser, "teacher"); const c = await courseId(o.page, "761987");
+  await go(o.page, "/students", c, 3000);
+  const t1 = await o.page.locator("main").innerText();
+  const sub = t1.match(/\d+ sinh viên[^\n]*/)?.[0] ?? "";
+  console.log("INFO #48 dòng phụ /students:", sub);
+  expect(sub).toMatch(/^\d+ sinh viên$/);
+  expect(t1).toMatch(/\b\d{8}\b/);
+  await go(o.page, "/attendance", c, 3500);
+  const t2 = (await o.page.locator("main").innerText()).replace(/\n/g, " ");
+  const line = t2.match(/buổi \d+ · [^·]*\d{2}:\d{2}[–-]\d{2}:\d{2} · P\.\d+/i)?.[0] ?? "";
+  console.log("INFO #11 /attendance:", line || t2.slice(0, 200));
+  expect(line, "dòng phụ buổi học").not.toBe("");
+  expect(line).not.toMatch(/\b76198[78]\b/);
+  await o.ctx.close();
+});
+
+test("TC-UX20-5 điểm đã công bố ⇒ đúng một nút phụ «Yêu cầu xem lại», bấm mở biểu mẫu như cũ", async ({ browser }, info) => {
+  D(info); test.setTimeout(300_000);
+  const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, "761987");
+  await go(o.page, "/assignments", c, 3000);
+  const hrefs: string[] = await o.page.locator("main a[href^='/assignments/']").evaluateAll((as: Element[]) => [...new Set(as.map((a) => a.getAttribute("href") as string))]);
+  console.log("INFO UX20-5 số bài:", hrefs.length);
+  let found = "";
+  for (const h of hrefs.slice(0, 14)) {
+    await go(o.page, h, c, 2500);
+    const b = o.page.getByRole("button", { name: "Yêu cầu xem lại" });
+    if (await b.count()) { found = h; break; }
+  }
+  expect(found, "có bài đã công bố điểm với nút «Yêu cầu xem lại»").not.toBe("");
+  const btn = o.page.getByRole("button", { name: "Yêu cầu xem lại" });
+  console.log("INFO UX20-5 trang:", found, "| số nút:", await btn.count(), "| variant:", await btn.first().getAttribute("data-variant"));
+  expect(await btn.count(), "đúng một nút").toBe(1);
+  expect(await btn.first().getAttribute("data-variant")).not.toBe("primary");
+  await btn.first().click(); await o.page.waitForTimeout(800);
+  const form = (await o.page.locator("main").innerText()).replace(/\s+/g, " ");
+  expect(form, "mở biểu mẫu (tiêu chí + lý do)").toMatch(/lý do/i);
+  await o.ctx.close();
+});

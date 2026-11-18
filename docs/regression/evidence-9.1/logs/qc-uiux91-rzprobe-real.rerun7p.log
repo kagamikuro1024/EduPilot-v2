@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+PROBE html Đỗ Bảo Hải 20226862 · Vắng phép Có mặt — Đỗ Bảo Hải Muộn — Đỗ Bảo Hải Vắng phép — Đỗ Bảo Hải Vắng — Đỗ Bảo Hải 
+PROBE row 1 {"s":"LATE","bc":"rgb(206, 22, 40)"}
+PROBE row 4 {"s":"EXCUSED","bc":"rgb(206, 22, 40)"}
+PROBE row 8 {"s":"ABSENT","bc":"rgb(206, 22, 40)"}
+PROBE radios [{"s":"PRESENT","ck":false,"dis":false,"bc":"lab(87.1298 3.66905 1.97326)","bw":"1px"},{"s":"LATE","ck":false,"dis":false,"bc":"lab(87.1298 3.66905 1.97326)","bw":"1px"},{"s":"EXCUSED","ck":true,"dis":false,"bc":"rgb(206, 22, 40)","bw":"6px"},{"s":"ABSENT","ck":false,"dis":false,"bc":"lab(87.1298 3.66905 1.97326)","bw":"1px"}]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe-real.spec.ts:4:1 › probe attendance row 4 (5.6s)
+
+  1 passed (6.2s)

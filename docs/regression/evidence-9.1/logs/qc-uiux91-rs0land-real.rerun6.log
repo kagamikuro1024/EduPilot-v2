@@ -1,0 +1,99 @@
+
+Running 12 tests using 1 worker
+
+(node:17802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:20:3 › TC-UX08-28 firefox 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang (2.4s)
+(node:17817) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX08-28 webkit: CSS.supports(animation-timeline: view()) = true | ua like Gecko) Version/27.2 Safari/605.1.15
+INFO UX08-28 webkit khối ẩn: ["H3.Landing-module__H_TZ-W__:Giảng viên"]
+  ✘   2 [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:20:3 › TC-UX08-28 webkit 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang (11.6s)
+(node:18196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO UX08-48 JS tắt: độ dài chữ 2676 | khối ẩn: []
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:42:1 › TC-UX08-48 Chromium tắt JavaScript: hiện đủ nội dung, không khối ẩn vĩnh viễn (opacity 0 / visibility hidden) (2.7s)
+INFO UX09-11 video: {"controls":true,"w":327,"h":204,"left":24,"right":351,"ready":0}
+INFO UX09-11 phát bằng Space: true
+INFO UX09-11 nút đóng: {"x":262.140625,"y":486.1875,"width":76.859375,"height":44}
+  ✓   4 [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:58:1 › TC-UX09-11 375 hasTouch: hộp thoại video, điều khiển gốc, vùng chạm nút đóng ≥ 44 px, video co theo bề rộng (4.9s)
+INFO UX09-13 chromium: {"t0":1.2035,"dur":64.733333,"t1":30.0001,"t2":32.5019,"paused":false,"ended":false,"err":null}
+  ✓   5 [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:89:3 › TC-UX09-13 chromium: phát rồi currentTime = 30 ⇒ phát tiếp từ 30 s (5.3s)
+INFO UX09-13 webkit: {"t0":1.1961507923301316,"dur":64.734,"t1":30.000496458334965,"t2":32.502283500666735,"paused":false,"ended":false,"err":null}
+  ✓   6 [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:89:3 › TC-UX09-13 webkit: phát rồi currentTime = 30 ⇒ phát tiếp từ 30 s (6.3s)
+(node:18431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   7 [mobile] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:20:3 › TC-UX08-28 firefox 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang
+  -   8 [mobile] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:20:3 › TC-UX08-28 webkit 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang
+  -   9 [mobile] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:42:1 › TC-UX08-48 Chromium tắt JavaScript: hiện đủ nội dung, không khối ẩn vĩnh viễn (opacity 0 / visibility hidden)
+  -  10 [mobile] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:58:1 › TC-UX09-11 375 hasTouch: hộp thoại video, điều khiển gốc, vùng chạm nút đóng ≥ 44 px, video co theo bề rộng
+  -  11 [mobile] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:89:3 › TC-UX09-13 chromium: phát rồi currentTime = 30 ⇒ phát tiếp từ 30 s
+  -  12 [mobile] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:89:3 › TC-UX09-13 webkit: phát rồi currentTime = 30 ⇒ phát tiếp từ 30 s
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:20:3 › TC-UX08-28 firefox 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang 
+
+    Error: browserType.launch: Failed to launch the browser process.
+    Browser logs:
+
+    <launching> /Users/kuro/Library/Caches/ms-playwright/firefox-1572/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_firefoxdev_profile-NP6gsD -juggler-pipe -silent
+    <launched> pid=17803
+    [pid=17803][err] *** You are running in headless mode.
+    [pid=17803][err] Could not find profile folder.
+    [pid=17803] <process did exit: exitCode=1, signal=null>
+    [pid=17803] starting temporary directories cleanup
+    Call log:
+      - <launching> /Users/kuro/Library/Caches/ms-playwright/firefox-1572/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/37/vyp9wqpx059gq6yf9z4_nms80000gn/T/playwright_firefoxdev_profile-NP6gsD -juggler-pipe -silent
+      - <launched> pid=17803
+      - [pid=17803][err] *** You are running in headless mode.
+      - [pid=17803][err] Could not find profile folder.
+      - [pid=17803] <process did exit: exitCode=1, signal=null>
+      - [pid=17803] starting temporary directories cleanup
+      - [pid=17803] <gracefully close start>
+      - [pid=17803] <kill>
+      - [pid=17803] <skipped force kill spawnedProcess.killed=false processClosed=true>
+      - [pid=17803] finished temporary directories cleanup
+      - [pid=17803] <gracefully close end>
+
+
+      20 |   test(`TC-UX08-28 ${name} 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang`, async ({}, info) => {
+      21 |     D(info); test.setTimeout(180_000);
+    > 22 |     const b: Browser = await bt.launch();
+         |                                 ^
+      23 |     const ctx = await b.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 }, baseURL: BASE });
+      24 |     const page = await ctx.newPage();
+      25 |     const errs: string[] = []; page.on("pageerror", (e) => errs.push(e.message));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:22:33
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rs0land--3ce10-ng-khối-ẩn-không-tràn-ngang-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:20:3 › TC-UX08-28 webkit 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang 
+
+    Error: mọi khối chữ hiện (opacity > 0, không ẩn)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "H3.Landing-module__H_TZ-W__:Giảng viên",
+    + ]
+
+      31 |     const hid = await hiddenBlocks(page);
+      32 |     console.log(`INFO UX08-28 ${name} khối ẩn:`, JSON.stringify(hid));
+    > 33 |     expect(hid, "mọi khối chữ hiện (opacity > 0, không ẩn)").toEqual([]);
+         |                                                              ^
+      34 |     const secs = await page.locator("main section, main > div > section").count();
+      35 |     expect(secs, "có các mục của trang").toBeGreaterThanOrEqual(5);
+      36 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:33:62
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rs0land--97701-ng-khối-ẩn-không-tràn-ngang-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:20:3 › TC-UX08-28 firefox 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rs0land-real.spec.ts:20:3 › TC-UX08-28 webkit 1440: không có animation-timeline ⇒ trang hiện đủ nội dung, không khối ẩn, không tràn ngang 
+  6 skipped
+  4 passed (34.4s)

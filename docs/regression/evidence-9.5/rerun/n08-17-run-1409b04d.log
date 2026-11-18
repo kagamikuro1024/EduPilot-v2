@@ -1,0 +1,50 @@
+# N08-17 2026-11-19 01:34:04 HEAD 7c9f8b56: server giả đóng kết nối (MODE=drop)
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/benchmarks/real-llm/real_llm.py", line 923, in <module>
+    main()
+  File "/Users/kuro/Documents/TA_Agent_qc2/benchmarks/real-llm/real_llm.py", line 911, in main
+    globals()["cmd_" + a.cmd.replace("-", "_")](Api(), a)
+  File "/Users/kuro/Documents/TA_Agent_qc2/benchmarks/real-llm/real_llm.py", line 341, in cmd_setup
+    cs = courses_of(api, "teacher")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/benchmarks/real-llm/real_llm.py", line 306, in courses_of
+    return {it["course"]["class_code"]: it["course"]["id"] for it in api.req("GET", "/me/courses?limit=100", auth=account)["items"]}
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/benchmarks/real-llm/real_llm.py", line 143, in req
+    with urllib.request.urlopen(rq, context=CTX, timeout=120) as resp:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 1390, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/urllib/request.py", line 1365, in do_open
+    r = h.getresponse()
+        ^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 1443, in getresponse
+    response.begin()
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 337, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.11/3.11.17/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/client.py", line 306, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+http.client.RemoteDisconnected: Remote end closed connection without response
+rc=1
+ls: cannot access '/tmp/smkr-reallm-out2': No such file or directory
+--- --resume khi đã có state.json:
+--resume: đã có /tmp/smkr-reallm-out2/state.json, bỏ qua setup
+rc=0
+--- yêu cầu tới server:
+fake-gateway drop 18098
+1.1 POST /api/v1/auth/login → 200
+1.1 GET /api/v1/me/courses?limit=100 → drop
