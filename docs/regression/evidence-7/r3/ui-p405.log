@@ -1,0 +1,5 @@
+PASS TC-P4-03-18 tin trả lời của GV trong /chat của SV: «Giảng viên · QC3 qc3t01 | Đây là câu trả lời của giảng viên QCANS. | Hỏi tiếp | Đã rõ»; nút dưới tin: ["Hỏi tiếp","Đã rõ"] (mong nhãn «Giảng viên · {tên}», không «Trợ lý AI», không Hữu ích / Không hữu ích)
+PASS TC-P4-05-15 ticket CLOSED/AUTO_7D, SV mở /chat: dòng trạng thái ["Đã đóng"], «Đã đóng» trong trang=true, nút «Hỏi tiếp»=1; (≤30 ngày kể từ đóng: API followup 200 đã kiểm ở 05-15 phần API)
+PASS TC-P4-05-28 giữ /chat mở 125 s: «Giảng viên đã nhận · đã chờ 6 phút» → «Giảng viên đã nhận · đã chờ 8 phút» (Age đổi); vị trí khối y 368.5 → 368.5, cao 19.2 → 19.2, scrollHeight main 750 → 750 (không nhảy layout)
+FAIL TC-P4-05-49 khối «Ngưỡng chuyển cho giảng viên»: «Ngưỡng chuyển cho giảng viên»; kéo thanh 0.8 → 0.95; DB courses.escalation_threshold=0.95; audit_log mới nhất: {"version": 3, "escalation_threshold": "0.80"} => {"version": 4, "escalation_threshold": "0.95"}; đầu «Ít chuyển», cuối «Chuyển nhiều», không câu mô tả khác
+INFO kb42 phase A: «Chưa nạp vào tri thức | Thử lại | Gỡ», nút Thử lại=1, outbox knowledge.sync gần đây 4→5

@@ -105,3 +105,14 @@ elif stage == "d":  # 02-20 làm lại (cửa sổ 60 trang, mọi cửa sổ đ
     mode("ok"); n0 = nreq(); c, j, _ = ex(CC, {"document_id": d70}); print("70p", c, lastj(j, 200)); J = wait_job(j["job_id"]) if c == 202 else {}; rq = reqs_since(n0)
     mp = max([x.get("maxpage", 0) for x in rq] or [0]); sk = (J.get("result") or {}).get("skipped", [])
     chk("TC-02-20", c == 202 and mp == 60 and any(s.get("reason") == "PAGE_LIMIT" for s in sk), f"tài liệu 70 trang: extract {c} → job {J.get('status')}; {len(rq)} lời gọi, trang lớn nhất gửi LLM = {mp}; skipped {sk[:2]} (PAGE_LIMIT từ trang 61: «chỉ trích 60 trang, báo rõ»; US AC9 viết 429 reason=pages nhưng TC-02-20 chấp nhận «chỉ trích 60 hoặc báo rõ»)")
+elif stage == "e":  # TC-02-20 sau sửa R10S-15 (429 reason=pages)
+    d70 = sql(f"select id from documents where course_id='{CC}' and title like 'QC S10 đề 70 trang%' order by created_at desc limit 1")[0][0]
+    d60 = upb(minipdf.make([f"Trang {i} dong {j}: noi dung cau hoi on tap mon mang may tinh gom nhieu van ban dai de docling doc duoc chu {i}-{j}" for i in range(1, 61) for j in range(1, 13)], pages=60, per_page=12), f"60trang-{SUF}.pdf", "application/pdf", f"QC S10 đề 60 trang {SUF}", "EXAM_PAPER", CC)
+    print("READY", ready(CC, d60)); mode("ok")
+    j0 = int(sql("select count(*) from jobs where kind='question.extract'")[0][0]); l0 = int(sql("select count(*) from llm_audit where task='QUESTION_GEN'")[0][0])
+    c, j, _, h = raw("POST", f"/courses/{CC}/questions/extract", {"document_id": d70}, headers={"Idempotency-Key": str(uuid.uuid4())}, token=tok("teacher"))
+    j1 = int(sql("select count(*) from jobs where kind='question.extract'")[0][0]); l1 = int(sql("select count(*) from llm_audit where task='QUESTION_GEN'")[0][0])
+    ok70 = c == 429 and "RATE_LIMITED" in lastj(j, 400) and "pages" in lastj(j, 400) and j1 == j0 and l1 == l0
+    print("70 trang:", c, lastj(j, 220), "Retry-After", h.get("Retry-After"))
+    c2, j2, _, h2 = raw("POST", f"/courses/{CC}/questions/extract", {"document_id": d60}, headers={"Idempotency-Key": str(uuid.uuid4())}, token=tok("teacher")); print("60 trang:", c2, lastj(j2, 160))
+    chk("TC-02-20", ok70 and c2 == 202, f"tài liệu 70 trang: extract → {c} {lastj(j, 120)} (không tạo việc: jobs {j0}→{j1}; không gọi LLM: llm_audit {l0}→{l1}); tài liệu đúng 60 trang → {c2} (nhận việc)")

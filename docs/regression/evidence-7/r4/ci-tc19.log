@@ -1,0 +1,4 @@
+--- ci.yml: bước kiểm hợp A∪B∪C?
+(không có bước nào)
+--- bộ lọc bị đổi: thêm -e /internal/today vào grep -v (mô phỏng lệnh của bước go test)
+hợp các dòng: 99 / go list: 100; gói bị bỏ sót: github.com/edupilot/backend-go/internal/today 

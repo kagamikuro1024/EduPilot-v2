@@ -1,146 +1,28 @@
-<div class="Layout-module__rM7QnW__page Layout-module__rM7QnW__work" data-ep-page="work"><div class="Layout-module__rM7QnW__header" data-ep-page-header="true"><div class="Layout-module__rM7QnW__headRow"><h1 class="ep-page-title" data-part="page-title">Chat riêng</h1><div class="Layout-module__rM7QnW__actions " data-ep-header-actions="true"><span class="Layout-module__rM7QnW__lead"><button type="button" data-variant="secondary" class="Button-module__lwrakq__btn Button-module__lwrakq__secondary  ">Phiên mới</button></span></div></div></div><div class="Panel-module__zFMaDG__panel" data-ep-panel="true"><div class="Layout-module__rM7QnW__listDetail" data-ep-split="list-detail" data-ep-split-fill="" data-detail-open=""><div class="Layout-module__rM7QnW__ldList"><nav class="ChatScreen-module__YhGRVW__history" data-part="chat-history" aria-label="Phiên trước"><div class="RealChat-module__lbRsKG__historyHead"><p>Phiên trước</p><button type="button" aria-label="Thu gọn lịch sử" title="Thu gọn lịch sử" class="Button-module__lwrakq__iconBtn Button-module__lwrakq__iconSm "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left-close lucide-sidebar-close" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 3v18"></path><path d="m16 15-3-3 3-3"></path></svg></button></div><ul class="RealChat-module__lbRsKG__sheetList"><li class="RealChat-module__lbRsKG__rowActions"><button type="button" class="ChatScreen-module__YhGRVW__historyItem RealChat-module__lbRsKG__rowMain ChatScreen-module__YhGRVW__historyOn" aria-pressed="true"><span class="ChatScreen-module__YhGRVW__historyTitle RealChat-module__lbRsKG__clamp">qc3-s7</span><span class="ChatScreen-module__YhGRVW__historyMeta">Hôm nay, 22:30</span></button><div class="Menu-module__W6EquG__root"><button type="button" class="Menu-module__W6EquG__dots" aria-label="Thao tác với phiên qc3-s7" title="Thao tác với phiên qc3-s7" aria-expanded="false" aria-haspopup="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis lucide-more-horizontal" aria-hidden="true"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></button></div></li></ul></nav></div><div class="Layout-module__rM7QnW__ldDetail"><div class="ChatScreen-module__YhGRVW__convo"><button type="button" class="ChatScreen-module__YhGRVW__sessionsBtn " data-part="chat-sessions-button">Phiên trước (1)</button><div class="ChatScreen-module__YhGRVW__inner " data-part="chat-inner"><div class="ChatScreen-module__YhGRVW__thread" data-part="chat-thread" aria-live="polite"><div class="ChatScreen-module__YhGRVW__fromSv"><p class="ChatScreen-module__YhGRVW__who">Bạn</p><p class="ChatScreen-module__YhGRVW__text">Hỏi thường</p></div><div class="ChatScreen-module__YhGRVW__fromAi"><p class="ChatScreen-module__YhGRVW__who">Trợ lý AI</p><div class="Markdown-module__sTDq-a__md " data-part="markdown"><p>Trả lời thường QCUI-NORMAL</p></div><div class="ChatScreen-module__YhGRVW__feedback"><button type="button" class="ChatScreen-module__YhGRVW__linkBtn" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thumbs-up" aria-hidden="true"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path><path d="M7 10v12"></path></svg>Hữu ích</button><button type="button" class="ChatScreen-module__YhGRVW__linkBtn" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thumbs-down" aria-hidden="true"><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"></path><path d="M17 14V2"></path></svg>Không hữu ích</button><button type="button" data-variant="secondary" class="Button-module__lwrakq__btn Button-module__lwrakq__secondary Button-module__lwrakq__sm " data-part="ask-staff" title="Giảng viên sẽ đọc câu hỏi này và câu trả lời của AI" disabled="">Nhờ giảng viên hỗ trợ</button></div></div><div class="ChatScreen-module__YhGRVW__fromSv"><p class="ChatScreen-module__YhGRVW__who">Bạn</p><p class="ChatScreen-module__YhGRVW__text">hỏi crisis</p></div><div class="ChatScreen-module__YhGRVW__fromAi"><p class="ChatScreen-module__YhGRVW__who">Trợ lý AI</p><div class="Markdown-module__sTDq-a__md " data-part="markdown">
-BUTTONS=2 STATUS=0
-{
- "NORMAL": {
-  "ask": 1,
-  "status": 0,
-  "text": "Trợ lý AI\n\nTrả lời thường QCUI-NORMAL\n\nHữu ích\nKhông hữu ích\nNhờ giảng viên hỗ trợ"
- },
- "CRISIS": {
-  "ask": 0,
-  "status": 0,
-  "text": "Trợ lý AI\n\nTrả lời QCUI-CRISIS\n\nHữu ích\nKhông hữu ích"
- },
- "OTHER": {
-  "ask": 0,
-  "status": 0,
-  "text": "Trợ lý AI\n\nTrả lời QCUI-OTHER\n\nHữu ích\nKhông hữu ích"
- },
- "SMALL": {
-  "ask": 0,
-  "status": 0,
-  "text": "Trợ lý AI\n\nTrả lời QCUI-SMALL\n\nHữu ích\nKhông hữu ích"
- },
- "FAILED": {
-  "ask": 0,
-  "status": 0,
-  "text": "Trợ lý AI\n\nTrả lời QCUI-FAILED\n\nAI đang gián đoạn. Thử lại sau.\nThử lại"
- },
- "CANCELLED": {
-  "ask": 0,
-  "status": 0,
-  "text": "Trợ lý AI\n\nTrả lời QCUI-CANCELLED\n\nĐã dừng.\nThử lại"
- },
- "STREAMING": {
-  "ask": 0,
-  "status": 0,
-  "text": "Trợ lý AI\n\nTrả lời QCUI-STREAMING\n\nCâu trả lời bị gián đoạn.\nThử lại"
- },
- "AUTO": {
-  "ask": 1,
-  "status": 0,
-  "text": "Trợ lý AI\n\nTrả lời yếu QCUI-AUTO\n\nAI chưa đủ chắc chắn về câu này\n\nHữu ích\nKhông hữu ích\nNhờ giảng viên hỗ trợ"
- }
-}
-MSG TEXT=Chat riêng
-Phiên mới
-
-Phiên trước
-
-Tin nhắn từ giảng viên
-Hôm nay, 22:47
-qc3-s7
-Hôm nay, 22:30
-
-Bạn
-
-Hỏi thường
-
-Trợ lý AI
-
-Trả lời thường QCUI-NORMAL
-
-Hữu ích
-Không hữu ích
-Nhờ giảng viên hỗ trợ
-
-Bạn
-
-hỏi crisis
-
-Trợ lý AI
-
-Trả lời QCUI-CRISIS
-
-Hữu ích
-Không hữu ích
-
-Bạn
-
-hỏi other
-
-Trợ lý AI
-
-Trả lời QCUI-OTHER
-
-Hữu ích
-Không hữu ích
-
-Bạn
-
-hỏi small
-
-Trợ lý AI
-
-Trả lời QCUI-SMALL
-
-Hữu ích
-Không hữu ích
-
-Bạn
-
-hỏi failed
-
-Trợ lý AI
-
-Trả lời QCUI-FAILED
-
-AI đang gián đoạn. Thử lại sau.
-Thử lại
-
-Bạn
-
-hỏi cancelled
-
-Trợ lý AI
-
-Trả lời QCUI-CANCELLED
-
-Đã dừng.
-Thử lại
-
-Bạn
-
-hỏi streaming
-
-Trợ lý AI
-
-Trả lời QCUI-STREAMING
-
-Câu trả lời bị gián đoạn.
-Thử lại
-
-Bạn
-
-hỏi yếu
-
-Trợ lý AI
-
-Trả lời yếu QCUI-AUTO
-
-AI chưa đủ chắc chắn về câu này
-
-Hữu ích
-Không hữu ích
-Nhờ giảng viên hỗ trợ
-Gửi
+== qc3t /settings
+Tài khoản và bảo mật | Mật khẩu | Mật khẩu hiện tại | Mật khẩu mới | Ít nhất 10 ký tự, không phải mật khẩu phổ biến. | Nhập lại mật khẩu mới | Đổi mật khẩu | Thiết bị đang đăng nhập | Chrome trên macOS · Thiết bị này | 172.22.*.* · Lần cuối: Hôm nay, 01:51 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:49 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:48 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:48 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:47 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:47 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:46 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:46 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:45 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:45 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:45 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:45 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:43 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:40 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:40 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:39 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:39 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:39 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:38 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:38 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:37 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm nay, 01:32 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm nay, 00:53 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm nay, 00:43 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm qua, 22:47 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm qua, 22:37 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm 
+SWITCH=["_r_f_:false:en"]
+SLIDER=0
+== qc3ta /settings
+Tài khoản và bảo mật | Mật khẩu | Mật khẩu hiện tại | Mật khẩu mới | Ít nhất 10 ký tự, không phải mật khẩu phổ biến. | Nhập lại mật khẩu mới | Đổi mật khẩu | Thiết bị đang đăng nhập | Chrome trên macOS · Thiết bị này | 172.22.*.* · Lần cuối: Hôm nay, 01:51 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm nay, 01:51 | Chrome trên macOS | 172.22.*.* · Lần cuối: Hôm nay, 01:38 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm nay, 00:43 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm qua, 22:47 | Đăng xuất mọi thiết bị khác | Thư | Mail báo ticket mới
+SWITCH=["_r_f_:false:en"]
+SLIDER=0
+== qc3s30 /settings
+Tài khoản và bảo mật | Mật khẩu | Mật khẩu hiện tại | Mật khẩu mới | Ít nhất 10 ký tự, không phải mật khẩu phổ biến. | Nhập lại mật khẩu mới | Đổi mật khẩu | Thiết bị đang đăng nhập | Chrome trên macOS · Thiết bị này | 172.22.*.* · Lần cuối: Hôm nay, 01:52 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm nay, 00:48 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm qua, 22:47 | Trình duyệt khác | 172.22.*.* · Lần cuối: Hôm qua, 22:24 | Đăng xuất mọi thiết bị khác | Thư | Mail khi giảng viên trả lời | Nhắc trước 24 giờ | Bài thi | Buổi học | Sự kiện khác | Thời gian học | QC3A · QC3 QC3A | QC3H · QC3 QC3H
+SWITCH=["_r_i_:true:en","_r_k_:true:en","_r_m_:false:en","_r_o_:true:en","_r_q_:true:en","_r_s_:true:en"]
+SLIDER=0
+== qc3t /class/settings?course=01a1ef3e-d6a7-7c9c-b202-0d77f275c2cc
+Mã và cài đặt tham gia | Thành viên lớp | Mã tham gia | QKQ3AAA | Sao chép mã | Sao chép liên kết | Tạo lại mã | 28 sinh viên đang học. | Cài đặt tham gia | Cho phép tham gia bằng mã | Cần giảng viên duyệt | Sinh viên vào bằng mã sẽ chờ bạn duyệt. | Hết hạn | Để trống nếu không giới hạn. | Giới hạn sĩ số | Để trống nếu không giới hạn. | Giới hạn tên miền email | Ví dụ ptit.edu.vn. Để trống nếu không giới hạn. | Lưu cài đặt | Ngưỡng chuyển cho giảng viên | Ít chuyển | Chuyển nhiều | 0,80 | Ngưỡng cần chú ý | Tỷ lệ có mặt tối thiểu | 0,70 | Hoạt động tối thiểu mỗi tuần | 1 | Phút học tối thiểu mỗi tuần | 60 | Số tín hiệu thấp để tính | 2 | Vắng nhiều từ | 3 buổi | Điểm danh bằng mã | Điểm danh bằng mã | Đo thời gian học | Cho sinh viên tắt đo thời gian học | Lớp đã có sinh viên | Học từ lần sửa | Lưu ý chấm | Tắt | Ca kiểm thử | Chỉ quản trị viên bật | Tắt | Gợi ý câu hỏi tương tự | Tắt | Gợi ý khi sinh câu hỏi | Tắt | Dùng lại nội dung từ lớp khác | Lớp QC3B · QC3 QC3B · 2026-2027-HK1 · 0 tài liệu | Dùng lại tài liệu | Lớp QC3H · QC3 QC3H · 2026-2027-HK1 · 0 tài liệu | Dùng lại tài liệu
+SWITCH=["_r_d_:true:en","_r_f_:false:en","_r_v_:false:en","_r_11_:true:en","_r_n_:false:en","_r_p_:false:en","_r_r_:false:en","_r_t_:false:en"]
+SLIDER=6
+== qc3s24 /threads/01a1f00f-f23f-71c5-bd1b-bd78a9101d8d?course=01a1ef3
+Tất cả câu hỏi | Thảo luận QCUI6 để thử menu | QC3 qc3s24 | Hôm nay, 02:08 | Nội dung thảo luận QCUI6 cho kiểm thử giao diện. | QC3 qc3s25 | Hôm nay, 02:08 | Bình luận QCUI6-25 của sinh viên. | QC3 qc3s26 | Hôm nay, 02:08 | Bình luận QCUI6-26 của sinh viên. | QC3 qc3s27 | Hôm nay, 02:08 | Bình luận QCUI6-27 của sinh viên. | Bình luận | Đăng
+MENUS=4
+== qc3s26 /threads/01a1f00f-f2b0-7723-9538-df4b29dabb64?course=01a1ef3
+Tất cả câu hỏi | Thảo luận QCUI6B bài người khác | QC3 qc3s25 | Hôm nay, 02:08 | Bài của người khác QCUI6B để báo cáo. | AI | Chờ xác nhận | Câu trả lời AI QCUI6B | Bình luận | Đăng
+MENUS=2
+== qc3t /threads/01a1f00f-f2b0-7723-9538-df4b29dabb64?course=01a1ef3
+Tất cả câu hỏi | Thảo luận QCUI6B bài người khác | QC3 qc3s25 | Hôm nay, 02:08 | Bài của người khác QCUI6B để báo cáo. | AI chưa trả lời: Tài liệu chưa đủ sát | AI | Chờ xác nhận | Độ tin cậy 0,50 | Câu trả lời AI QCUI6B | Xác nhận | Chỉnh sửa | Bình luận | Đăng
+MENUS=2
+== qc3s26 /threads?course=01a1ef3e-d6a7-7c9c-b202-0d77f275c2cc
+Hỏi đáp công khai | Đặt câu hỏi | Tìm theo tiêu đề | Chủ đề | Tuần | Mọi tuần | Tuần 1 | Tuần 2 | Tuần 3 | Tuần 4 | Tuần 5 | Tuần 6 | Tuần 7 | Tuần 8 | Tuần 9 | Tuần 10 | Tuần 11 | Tuần 12 | Tuần 13 | Tuần 14 | Tuần 15 | Tuần 16 | Tuần 17 | Tuần 18 | Tuần 19 | Tuần 20 | Trạng thái | Mọi trạng thái | Chờ xác nhận | Đã xác nhận | Chưa có câu trả lời | Thảo luận QCUI6C báo cáo offline | Bài QCUI6C để báo cáo khi offline. | QC3 qc3s25 | Hôm nay, 02:08 | Thảo luận QCUI6B bài người khác | Bài của người khác QCUI6B để báo cáo. | QC3 qc3s25 | Chờ xác nhận | Hôm nay, 02:08 | Thảo luận QCUI6 để thử menu | Nội dung thảo luận QCUI6 cho kiểm thử giao diện. | QC3 qc3s24 | Hôm nay, 02:08 | Thảo luận QCV44-2 | Nội dung câu hỏi cho bài AI chờ duyệt. | QC3 qc3s27 | Chờ xác nhận | Hôm nay, 02:03 | Thảo luận QCV44-1 | Nội dung câu hỏi cho bài AI chờ duyệt. | QC3 qc3s27 | Đã được giảng viên xác nhận | Hôm nay, 02:03 | Thảo luận QCE bình luận | Nội dung thảo luận để thử bình luận. | QC3 qc3s24 | Hôm nay, 02:01 | Thảo luận QCV44 AI | Nội dung câu hỏi cho bài AI chờ duyệt QCV44. | QC3 qc3s14 | Đã được giảng viên xác nhận | Hôm nay, 01:56 | Thảo luận QC3 mail | Nội dung thảo luận thử cho kiểm thử thư. | QC
+MENUS=0

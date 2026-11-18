@@ -1,0 +1,14 @@
+tổng gói: 101
+dòng course: 1 gói; có zzqcprobe: 0
+dòng auth: 1 gói; có zzqcprobe: 0
+dòng rest-1: 33 gói; có zzqcprobe: 1
+dòng rest-2: 33 gói; có zzqcprobe: 0
+dòng rest-3: 33 gói; có zzqcprobe: 0
+tổng số lần zzqcprobe xuất hiện (mọi dòng): 1
+tổng gói các dòng: 101 (= tổng 101; sort -u: 101); thiếu: 0
+--- chạy thật go test -race -tags testroutes -v gói mới:
+=== RUN   TestProbe
+--- PASS: TestProbe (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/zzqcprobe	1.302s
+--- git status ci.yml sửa? 0 dòng

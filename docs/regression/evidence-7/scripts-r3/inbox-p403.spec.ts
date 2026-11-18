@@ -1,0 +1,124 @@
+import { test } from "@playwright/test";
+import { login, go, FX, shot, log, psql, newUser } from "./lib";
+import { execFileSync } from "node:child_process";
+const R = (tc: string, ok: boolean, note: string) => log("p403", `${ok ? "PASS" : "FAIL"} ${tc} ${note}`);
+const api = (args: string) => execFileSync("python3", ["-c", `import sys; sys.path.insert(0,'/tmp/qc3e')\nfrom lib3 import *\n${args}`], { encoding: "utf8" }).trim();
+const openT = async (p: any, A: string, T: string, filter = "Đã nhận") => { await go(p, `/inbox?course=${A}`); await p.getByRole("radio", { name: filter }).click(); await p.waitForTimeout(1200); await p.locator(`[data-ticket-id="${T}"]`).click(); await p.waitForTimeout(1200); };
+const rows = (p: any) => p.locator("[data-part=inbox-list] [data-ticket-id]");
+
+test("08", async ({ browser }) => {
+  const f = FX("fx_ui4"); const { ctx, page } = await newUser(browser, "qc3t");
+  await go(page, `/inbox?course=${f.A}`); await page.getByRole("button", { name: /^Chọn lớp/ }).click(); await page.waitForTimeout(500);
+  await page.getByText("Tất cả lớp của tôi").last().click(); await page.waitForTimeout(2500);
+  const texts = await rows(page).allInnerTexts();
+  const hasA = texts.filter((x) => /QC3A/.test(x)).length, hasB = texts.filter((x) => /QC3B/.test(x)).length;
+  await shot(page, "p403-08");
+  const selector = await page.locator("main select, [role=combobox], button:has-text('Tất cả lớp')").count();
+  R("TC-P4-03-08", hasA > 0 && hasB > 0, `Bộ chọn lớp → «Tất cả lớp của tôi» (GV qc3t có lớp QC3A/B/C/H), URL ${page.url().replace("https://localhost:1143","")}: ${texts.length} dòng, mã lớp ở dòng: QC3A=${hasA}, QC3B=${hasB}; bộ chọn lớp ('Tất cả lớp…') phần tử=${selector}; mẫu: «${texts[0]?.replace(/\n/g, " | ")}»`);
+  await ctx.close();
+});
+test("16", async ({ browser }) => {
+  const f = FX("fx_ui4"); const t = await newUser(browser, "qc3t"), a = await newUser(browser, "qc3ta");
+  const T3 = f.tickets[2];
+  await go(t.page, `/inbox?course=${f.A}&ticket=${T3}`); await go(a.page, `/inbox?course=${f.A}&ticket=${T3}`);
+  const bt = t.page.getByRole("button", { name: "Nhận", exact: true }), ba = a.page.getByRole("button", { name: "Nhận", exact: true });
+  await Promise.all([bt.click(), ba.click()]); await t.page.waitForTimeout(3000);
+  const notes = [await t.page.locator("[data-part=inbox-reply]").innerText(), await a.page.locator("[data-part=inbox-reply]").innerText()];
+  const loser = notes.findIndex((x) => /đã nhận lúc \d\d:\d\d/.test(x));
+  const winnerHasReply = loser >= 0 ? (loser === 0 ? await a.page.getByLabel("Câu trả lời gửi sinh viên").count() : await t.page.getByLabel("Câu trả lời gửi sinh viên").count()) : 0;
+  await shot(t.page, "p403-16-t"); await shot(a.page, "p403-16-ta");
+  R("TC-P4-03-16", loser >= 0, `teacher và TA cùng bấm «Nhận» (Promise.all): người thua thấy InlineNotice «${(notes[loser] ?? "").split("\n").find((l: string) => /đã nhận/.test(l))}» (ngữ cảnh ${loser === 0 ? "GV" : "TA"}); người thắng có ô trả lời=${winnerHasReply}; DB: ${psql(`select status||'/'||(select role from users where id=claimed_by) from escalation_tickets where id='${T3}'`)}; lưu ý chữ thực «{tên} đã nhận lúc HH:MM.» (TC gốc: «Cô … đã nhận câu này lúc HH:MM» — chữ đã đổi theo spec hiện hành, cùng ý)`);
+  await t.ctx.close(); await a.ctx.close();
+});
+test("31-32", async ({ browser }) => {
+  const f = FX("fx_ui4"); const { ctx, page } = await newUser(browser, "qc3t");
+  const [T1, T2] = [f.tickets[3], f.tickets[4]];
+  // nhận T1, T2 để có ô trả lời
+  for (const T of [T1, T2]) { await openT(page, f.A, T, "Đang chờ").catch(() => undefined); const nb = page.getByRole("button", { name: "Nhận", exact: true }); if (await nb.count()) { await nb.click(); await page.waitForTimeout(1500); } }
+  const box = () => page.getByLabel("Câu trả lời gửi sinh viên");
+  await openT(page, f.A, T1); await box().fill("NHAP-T1 đang gõ dở"); await page.waitForTimeout(2600);
+  await page.keyboard.press("Escape");
+  await openT(page, f.A, T2); const v2a = await box().inputValue(); await box().fill("NHAP-T2 riêng"); await page.waitForTimeout(2600);
+  await openT(page, f.A, T1); const v1b = await box().inputValue();
+  await page.reload(); await page.waitForTimeout(2500); const deep = await page.getByLabel("Câu trả lời gửi sinh viên").count(); await openT(page, f.A, T1); const v1c = await box().inputValue();
+  const state = await ctx.storageState(); await ctx.close();
+  const ctx2 = await browser.newContext({ ignoreHTTPSErrors: true, baseURL: "https://localhost:1143", storageState: state, viewport: { width: 1280, height: 800 }, locale: "vi-VN" }); const p2 = await ctx2.newPage();
+  await openT(p2, f.A, T1); const v1d = await p2.getByLabel("Câu trả lời gửi sinh viên").inputValue();
+  await openT(p2, f.A, T2); const v2d = await p2.getByLabel("Câu trả lời gửi sinh viên").inputValue();
+  R("TC-P4-03-31", v2a === "" && v1b.includes("NHAP-T1") && v1c.includes("NHAP-T1") && v1d.includes("NHAP-T1") && v2d.includes("NHAP-T2"), `gõ dở T1 → sang T2 (ô trống=${v2a === ""}, gõ nháp riêng) → về T1: «${v1b}»; tải lại (URL ?ticket= của phiếu đã nhận, bộ lọc mặc định «Đang chờ»: ô trả lời hiện=${deep}; sau chọn lại «Đã nhận»/phiếu): «${v1c}»; đóng trình duyệt + mở lại (storageState): T1 «${v1d}», T2 «${v2d}»; chờ ≥2 s giữa các lần gõ`);
+  // 32: lỗi 500 rồi thành công
+  const bodies: string[] = []; p2.on("request", (r) => { const d = r.postData() ?? ""; if (d.includes("NHAP-T1") || r.url().includes("NHAP-T1")) bodies.push(r.method() + " " + r.url().split("/api/v1")[1]); });
+  await openT(p2, f.A, T1);
+  let fail = true; await p2.route("**/answer", (r) => (fail ? r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "x" }) }) : r.continue()));
+  await p2.getByRole("button", { name: "Gửi trả lời" }).click(); await p2.waitForTimeout(2000);
+  const keep = await p2.getByLabel("Câu trả lời gửi sinh viên").inputValue(); const retry = await p2.getByRole("button", { name: /Gửi lại|Thử lại/ }).count(); const sendBtn = await p2.getByRole("button", { name: "Gửi trả lời" }).count();
+  const sentBeforeOk = bodies.filter((x) => !/\/answer$/.test(x)).length;
+  fail = false; await p2.getByRole("button", { name: /Gửi lại|Thử lại/ }).first().click(); await p2.waitForTimeout(2500);
+  const after = await p2.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith("ep:draft:") && /ticket:/.test(k)).length);
+  const st = psql(`select status from escalation_tickets where id='${T1}'`);
+  R("TC-P4-03-32", keep.includes("NHAP-T1") && retry >= 1 && sentBeforeOk === 0 && st === "ANSWERED", `lỗi 500 khi gửi: nháp giữ «${keep}», nút «Gửi trả lời»=${sendBtn}, nút «Gửi lại» (TC gốc «Thử lại»)=${retry}, thông báo role=alert «Có lỗi xảy ra. Dữ liệu của bạn vẫn an toàn…»; request chứa nháp ngoài /answer trước khi gửi: ${sentBeforeOk} (nháp không ra khỏi máy); bỏ chặn → Thử lại → ticket ${st}; khoá nháp ticket còn trong localStorage: ${after}`);
+  await ctx2.close();
+});
+test("33-35", async ({ browser }) => {
+  const f = FX("fx_ui4"); const { ctx, page } = await newUser(browser, "qc3t", { width: 375, height: 812 });
+  await go(page, `/inbox?course=${f.A}`); await page.waitForTimeout(1500);
+  const sw0 = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
+  const listVisible = await page.locator("[data-part=inbox-list]").isVisible(); const detailVisible = await page.locator("[data-part=inbox-detail]").isVisible();
+  await page.getByRole("button", { name: "Đang chờ" }).click().catch(() => undefined); await page.waitForTimeout(500);
+  await page.evaluate(() => window.scrollTo(0, 300)); const sc0 = await page.evaluate(() => window.scrollY);
+  const rowsN = await rows(page).count();
+  await page.evaluate(() => window.scrollTo(0, 300)); const sc0c = await page.evaluate(() => window.scrollY);
+  await rows(page).nth(Math.min(rowsN - 1, 6)).click(); await page.waitForTimeout(1500);
+  const url1 = page.url(); const dv = await page.locator("[data-part=inbox-detail]").isVisible(); const lv = await page.locator("[data-part=inbox-list]").isVisible();
+  const replyBox = await page.locator("[data-part=inbox-reply]").boundingBox().catch(() => null);
+  await shot(page, "p403-33-detail");
+  const tgt = await page.evaluate(() => Array.from(document.querySelectorAll("button,a,[role=button],textarea")).filter((e) => (e as HTMLElement).offsetParent !== null).map((e) => { const r = (e as HTMLElement).getBoundingClientRect(); return [((e as HTMLElement).innerText || e.getAttribute("aria-label") || e.tagName).slice(0, 20), Math.round(r.width), Math.round(r.height)]; }));
+  const small = tgt.filter((x: any) => x[2] < 44 && x[1] > 0 && !/Bỏ qua điều hướng/.test(x[0]));
+  await page.getByRole("button", { name: "Hộp thư" }).first().click(); await page.waitForTimeout(1200);
+  const url2 = page.url(); const lv2 = await page.locator("[data-part=inbox-list]").isVisible(); const sc2 = await page.evaluate(() => window.scrollY); const filt = await page.getByRole("radio", { name: "Đang chờ" }).first().getAttribute("aria-checked").catch(() => null);
+  await page.getByRole("radio", { name: "Đã nhận" }).click(); await page.waitForTimeout(1000); await page.locator(`[data-ticket-id="${f.tickets[2]}"]`).click(); await page.waitForTimeout(1500);
+  const comp = await page.getByLabel("Câu trả lời gửi sinh viên").evaluate((e: HTMLElement) => { let n: HTMLElement | null = e; let pos = ""; while (n && n !== document.body) { const cs = getComputedStyle(n); if (cs.position === "sticky" || cs.position === "fixed") { pos = cs.position + " (đáy cách đáy màn hình " + (innerHeight - Math.round(n.getBoundingClientRect().bottom)) + " px)"; break; } n = n.parentElement; } return pos || "static: đáy ô tại y=" + Math.round(e.getBoundingClientRect().bottom); }).catch(() => "không có ô trả lời"); await shot(page, "p403-34-composer");
+  const sw1 = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
+  R("TC-P4-03-33", /ticket=/.test(url1) && dv && !/ticket=/.test(url2) && lv2 && Math.abs(sc2 - sc0c) < 40 && /sticky|fixed/.test(comp), `375×812: danh sách toàn màn hình (danh sách ${listVisible}, chi tiết ẩn=${!detailVisible}); bấm dòng ${Math.min(rowsN - 1, 6) + 1}/${rowsN} → URL ${url1.split("/inbox")[1]} chi tiết ${dv}, danh sách ẩn=${!lv}; ô trả lời (phiếu đã nhận): vị trí ${comp} (viewport 812); Quay lại → ${url2.split("/inbox")[1]}, bộ lọc «Đang chờ» checked=${filt}, cuộn trước ${sc0c} sau ${sc2}`);
+  R("TC-P4-03-34", small.length === 0 && sw0[0] <= sw0[1] && sw1[0] <= sw1[1], `vùng chạm: ${tgt.length} phần tử (bỏ liên kết ẩn «Bỏ qua điều hướng» — hiện khi focus), nhỏ hơn 44 px cao: ${JSON.stringify(small.slice(0, 8))}; scrollWidth ${sw0[0]}/${sw0[1]} (danh sách), ${sw1[0]}/${sw1[1]} (sau quay lại)`);
+  await ctx.close();
+  const d = await newUser(browser, "qc3t", { width: 1280, height: 800 }); await go(d.page, `/inbox?course=${f.A}`); await d.page.waitForTimeout(1200);
+  const lw = await d.page.locator("[data-part=inbox-list]").evaluate((e: HTMLElement) => Math.round(e.getBoundingClientRect().width)); const dw = await d.page.locator("[data-part=inbox-detail]").evaluate((e: HTMLElement) => Math.round(e.getBoundingClientRect().width)).catch(() => 0);
+  await shot(d.page, "p403-35");
+  R("TC-P4-03-35", Math.abs(lw - 380) <= 6 && dw > 0, `1280×800: danh sách rộng ${lw} px (kỳ vọng 380), chi tiết ${dw} px cùng màn hình`);
+  await d.ctx.close();
+});
+test("36", async ({ browser }) => {
+  const f = FX("fx_ui4"); const { ctx, page } = await newUser(browser, "qc3t");
+  await go(page, `/inbox?course=${f.A}`); await page.waitForTimeout(1200);
+  const sel = () => page.url().split("ticket=")[1];
+  await page.locator("[data-part=inbox-list] [data-ticket-id]").first().click(); await page.waitForTimeout(800);
+  const s0 = sel(); await page.keyboard.press("j"); await page.waitForTimeout(700); const s1 = sel(); await page.keyboard.press("k"); await page.waitForTimeout(700); const s2 = sel();
+  const nhanBtn = page.getByRole("button", { name: "Nhận", exact: true }); await nhanBtn.click(); await page.waitForTimeout(1500);
+  await page.keyboard.press("r"); const focused = await page.evaluate(() => document.activeElement?.tagName + ":" + (document.activeElement?.getAttribute("aria-label") ?? ""));
+  await page.keyboard.type("jjkk không đổi ticket"); const s3 = sel(); const val = await page.getByLabel("Câu trả lời gửi sinh viên").inputValue();
+  const title = await page.getByRole("button", { name: "Gửi trả lời" }).getAttribute("title");
+  await page.keyboard.press("Control+Enter"); await page.waitForTimeout(2500); const s4 = sel();
+  const st = psql(`select status from escalation_tickets where id='${s2}'`);
+  await shot(page, "p403-36");
+  R("TC-P4-03-36", s1 !== s0 && s2 === s0 && /TEXTAREA/.test(focused) && s3 === s2 && val.startsWith("jjkk") && st === "ANSWERED" && s4 !== s2 && /Ctrl/.test(title ?? ""), `J → ticket kế (${s0?.slice(-6)}→${s1?.slice(-6)}), K → trước (${s2?.slice(-6)}); «R» focus ${focused}; gõ «jjkk…» trong ô: không chuyển ticket (${s3 === s2}), nội dung «${val}»; Ctrl+Enter gửi (ticket ${st}) rồi sang ${s4?.slice(-6)} (s3=${s3?.slice(-6)}); tooltip nút «Gửi trả lời»=«${title}»`);
+  await ctx.close();
+});
+test("36b", async ({ browser }) => {
+  const g = FX("fx_ui5"); const { ctx, page } = await newUser(browser, "qc3t5");
+  await go(page, `/inbox?course=${g.G}`); await page.waitForTimeout(1200);
+  const rowIds = await page.locator("[data-part=inbox-list] [data-ticket-id]").evaluateAll((els) => els.map((e) => e.getAttribute("data-ticket-id")));
+  const first = rowIds[0]; await page.locator(`[data-ticket-id="${first}"]`).click(); await page.waitForTimeout(800);
+  const nb = page.getByRole("button", { name: "Nhận", exact: true }); if (await nb.count()) { await nb.click(); await page.waitForTimeout(1500); }
+  await page.getByLabel("Câu trả lời gửi sinh viên").fill("Trả lời thử phím tắt (a)"); await page.keyboard.press("Control+Enter"); await page.waitForTimeout(2500);
+  const a = page.url().split("ticket=")[1]; const stA = psql(`select status from escalation_tickets where id='${first}'`);
+  await go(page, `/inbox?course=${g.G}`); await page.getByRole("radio", { name: "Tất cả" }).click(); await page.waitForTimeout(1200);
+  const rowIds2 = await page.locator("[data-part=inbox-list] [data-ticket-id]").evaluateAll((els) => els.map((e) => e.getAttribute("data-ticket-id")));
+  const cand = rowIds2.find((id) => psql(`select status from escalation_tickets where id='${id}'`) === "CLAIMED")!;
+  await page.locator(`[data-ticket-id="${cand}"]`).click(); await page.waitForTimeout(800);
+  const canType = await page.getByLabel("Câu trả lời gửi sinh viên").count();
+  await page.getByLabel("Câu trả lời gửi sinh viên").fill("Trả lời thử phím tắt (b)"); await page.keyboard.press("Control+Enter"); await page.waitForTimeout(2500);
+  const b = page.url().split("ticket=")[1];
+  log("p403", `INFO 36b (a) bộ lọc «Đang chờ»: Nhận ${first?.slice(-6)} + Ctrl+Enter → ticket=${a?.slice(-6)} (trạng thái ${stA}; ${a === first ? "KHÔNG sang phiếu kế" : "sang " + a?.slice(-6)}); (b) bộ lọc «Tất cả» (${rowIds2.length} dòng): ${cand?.slice(-6)} + Ctrl+Enter → ${b?.slice(-6)} (${b === cand ? "KHÔNG sang phiếu kế" : "sang phiếu kế"}), có ô trả lời=${canType}`);
+  await ctx.close();
+});

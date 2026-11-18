@@ -230,3 +230,25 @@ def startexam(course,eid,u):
     aid=j['attempt']['id']; H={'X-Exam-Tab':str(uuid.uuid4())}; A(u,'POST',f'{Eb}/{eid}/attempts/{aid}/takeover',{},headers=H); return aid,s,j
 def submitexam(course,eid,aid,u):
     Eb=f'/courses/{course}/exams'; H={'X-Exam-Tab':str(uuid.uuid4())}; A(u,'POST',f'{Eb}/{eid}/attempts/{aid}/takeover',{},headers=H); return A(u,'POST',f'{Eb}/{eid}/attempts/{aid}/submit',{},headers=H)
+class SSEConn2(SSEConn):
+    def _open(self,u,last,path):
+        self.u=u; self.frames=[]; self.status=None; self.body=''; self.stop=False
+        h={'Authorization':'Bearer '+login(u),'Accept':'text/event-stream'}
+        if last is not None: h['Last-Event-ID']=last
+        self.conn=http.client.HTTPConnection('localhost',self.port,timeout=130)
+        self.conn.request('GET','/api/v1'+path,headers=h); self.r=self.conn.getresponse(); self.status=self.r.status
+        if self.status!=200: self.body=self.r.read().decode(); return False
+        self.th=threading.Thread(target=self._run,daemon=True); self.th.start(); return True
+    def __init__(self,u,port=18090,last=None,path='/events'):
+        self.port=port; self.u=u
+        self._open(u,last,path)
+def rawB(method,path,token,body=None,port=18090,idem=None):
+    h={'content-type':'application/json','authorization':'Bearer '+token}
+    if idem: h['Idempotency-Key']=idem
+    c=http.client.HTTPConnection('localhost',port,timeout=60)
+    try:
+        c.request(method,'/api/v1'+path,body=None if body is None else json.dumps(body),headers=h); r=c.getresponse(); t=r.read().decode()
+        try: return r.status,json.loads(t) if t else None
+        except Exception: return r.status,t
+    except Exception as e: return 0,str(e)
+    finally: c.close()
