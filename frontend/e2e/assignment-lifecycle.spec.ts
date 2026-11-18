@@ -301,6 +301,21 @@ test("submit confirms with server timestamp: presign → PUT kho tệp → submi
   expect(submits[0].headers["idempotency-key"]).toBeTruthy();
 });
 
+test("submit late: xác nhận vừa nộp kèm «Nộp muộn n ngày» ngay (không đợi tải lại); có điểm thì dòng trạng thái là «Đã có điểm» (DEF-R9S-09, US-P7-03 AC1/AC3)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let graded = false;
+  await openStudent(page, context, {
+    lateDays: 1,
+    h: { "GET assignments/:id/mine": (r, next) => (graded ? r.fulfill(json(mineOut({ state: "GRADED", submission: { version: 1, file_name: "bt03.pdf", received_at: RECEIVED, late_days: 1 } }))) : next(r)) },
+  });
+  await picker(page).setInputFiles(PDF);
+  await page.getByRole("button", { name: "Nộp bài" }).click();
+  await expect(statusLine(page)).toHaveText("Đã nhận bài lúc 08:10 Thứ Sáu, 23/10 · Nộp muộn 1 ngày");
+  graded = true; // giảng viên công bố điểm; trang đang mở lấy lại dữ liệu khi lấy lại tiêu điểm
+  await page.evaluate(() => window.dispatchEvent(new Event("visibilitychange")));
+  await expect(statusLine(page)).toHaveText("Đã có điểm");
+});
+
 test("submit offline retry: kho tệp hỏng giữ nguyên tệp đã chọn, Thử lại xin presign mới", async ({ page, context }, info) => {
   desktopOnly(info);
   let down = true;
