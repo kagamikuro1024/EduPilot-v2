@@ -9,7 +9,7 @@ test.describe.configure({ mode: "serial" });
 // ---------------- US-UX91-20 (/me, sinh viên) ----------------
 test("TC-UX20-1/2/3/4/9 /me sinh viên", async ({ browser }, info) => {
   D(info); test.setTimeout(240_000);
-  const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, "761987");
+  const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, process.env.QC_CLASS ?? "761987");
   await go(o.page, "/me", c, 3000);
   const t = await mainText(o.page);
   // UX20-1: một khối giải trình; dòng «Tên · trọng số % · điểm» kèm «Căn cứ · tr. N» cùng dòng; không khối liệt kê thành phần riêng
@@ -54,7 +54,7 @@ test("TC-UX20-1/2/3/4/9 /me sinh viên", async ({ browser }, info) => {
 // ---------------- US-UX91-13 (/chat, sinh viên) ----------------
 test("TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử)", async ({ browser }, info) => {
   D(info); test.setTimeout(240_000);
-  const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, "761987");
+  const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, process.env.QC_CLASS ?? "761987");
   const posts: string[] = []; o.page.on("request", (r) => { if (r.method() !== "GET" && /\/chat\//.test(r.url())) posts.push(r.method() + " " + new URL(r.url()).pathname); });
   await go(o.page, "/chat", c, 4000);
   const rows = o.page.locator("[data-part=chat-history] li");
@@ -104,7 +104,7 @@ test("TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử)", async
 
 test("TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác", async ({ browser }, info) => {
   D(info); test.setTimeout(280_000);
-  const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, "761987");
+  const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, process.env.QC_CLASS ?? "761987");
   const reqs: string[] = []; o.page.on("request", (r) => { if (r.method() !== "GET" && /\/chat\//.test(r.url())) reqs.push(r.method() + " " + new URL(r.url()).pathname.replace(/[0-9a-f-]{36}/g, "‹id›")); });
   await go(o.page, "/chat", c, 4000);
   const composer = o.page.getByRole("textbox", { name: "Câu hỏi của bạn" });

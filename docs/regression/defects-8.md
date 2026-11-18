@@ -54,7 +54,7 @@ Công thức không đổi (1 bản CONFIRMED v3, scheme_no 1). Nguyên nhân l�
 - Bằng chứng: evidence-8/scripts/s8r-chat05.py, part-s8r.tsv.
 - Quan sát thêm (không F): hỏi lại cùng câu GRADE_FORMULA trong cùng hội thoại mở thêm ticket AUTO_NO_FORMULA thứ hai (mỗi tin một ticket; TC 05-38 «QC ghi nhận thực tế»).
 
-### DEF-R8-A5 — Xoá tài liệu nguồn của công thức đã xác nhận: UI không hiện «Tài liệu nguồn đã gỡ» (TC-P6-05-42)
+### DEF-R8-A5 — [ĐÓNG @2479feb9, TC PASS 2026-11-19] Xoá tài liệu nguồn của công thức đã xác nhận: UI không hiện «Tài liệu nguồn đã gỡ» (TC-P6-05-42)
 - Mức: Thấp (cosmetic; số liệu đúng)
 - Sprint gốc: 8 (US-P6-05 AC8) · Hồi quy do sprint sau? KHÔNG RÕ
 - Bước tái hiện: lớp có công thức CONFIRMED với tài liệu nguồn (QD8H3), GV xoá tài liệu (DELETE /courses/{id}/documents/{doc} → 204), mở /gradebook/scheme, bấm «Trang 1».

@@ -49,7 +49,7 @@ def mail_to(addr,subj=None,since='',wait=40,after=None):
 def iso(): return time.strftime('%Y-%m-%dT%H:%M:%S',time.gmtime(time.time()-3))+'Z'
 def link_token(m,needle):
     for u in re.findall(r'https?://[^\s<>")]+',m.get('Text','')):
-        if re.search(needle,u): return urllib.parse.parse_qs(urllib.parse.urlparse(u).query).get('token',[''])[0]
+        if re.search(needle,u): return urllib.parse.parse_qs(urllib.parse.urlparse(u).query).get('token',[''])[0] or u.split('?')[0].rsplit('/',1)[-1]
 TAG=uuid.uuid4().hex[:5]
 PWD='Qc2ia!Pass-'+TAG+'x7'
 def claims(t): return json.loads(base64.urlsafe_b64decode(t.split('.')[1]+'=='))

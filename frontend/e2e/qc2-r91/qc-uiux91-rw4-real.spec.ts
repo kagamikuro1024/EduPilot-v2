@@ -542,7 +542,7 @@ test("TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA 
   const tc = await courseOf(pt);
   await pt.goto(`/gradebook?course=${tc}`); await pt.waitForTimeout(3500);
   const tb = pt.getByRole("button", { name: "Chốt điểm" });
-  console.log("INFO TA: nút Chốt điểm", await tb.count(), "aria-disabled", await tb.first().getAttribute("aria-disabled").catch(() => null));
+  console.log("INFO TA: nút Chốt điểm", await tb.count(), "aria-disabled", ((await tb.count()) ? await tb.first().getAttribute("aria-disabled") : null) /* QC SmkS: getAttribute trên phần tử không có thì treo tới hết giờ test */);
   const fin = await api(pt, `/courses/${tc}/gradebook/finalize`, { method: "POST", body: {} });
   console.log("INFO TA POST finalize:", fin.status);
   expect([403, 404]).toContain(fin.status);

@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+PROBE QR91B: cột Trạng thái=false số hàng=0 ô có chữ=[] (0) tiêu đề phụ Thiếu=null | th=["Sinh viên","Giữa kỳ","Kiểm tra hằng tuần","Thi cuối kỳ","Điểm cộng","Điểm trừ","Quá trình","Điểm học phần","Điểm chữ","Hành động"]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe5-real.spec.ts:5:68 › probe sổ điểm QR91B (5.7s)
+PROBE QR91C: cột Trạng thái=true số hàng=22 ô có chữ=["Thiếu điểm","Thiếu điểm","Liệt","Thiếu điểm"] (4) tiêu đề phụ Thiếu=Thiếu điểm: 3 | th=["Sinh viên","Giữa kỳ","Kiểm tra hằng tuần","Thi cuối kỳ","Điểm cộng","Điểm trừ","Quá trình","Điểm học phần","Điểm chữ","Trạng thái","Hành động"]
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe5-real.spec.ts:5:68 › probe sổ điểm QR91C (5.3s)
+
+  2 passed (11.8s)

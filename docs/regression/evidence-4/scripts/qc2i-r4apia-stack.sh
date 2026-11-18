@@ -22,17 +22,17 @@ up)
   $HEAVY docker run -d --name qc2i-mail --network $NET -p 127.0.0.1:18223:8025 axllent/mailpit:v1.27 >/dev/null
   docker exec $PGC psql -U edupilot -d postgres -c "drop database if exists $DB with (force)" -c "create database $DB" || exit 1
   envs > /tmp/qc2i-r4apia.env
-  ${MIGHEAVY-/tmp/qc2-i/heavy.sh} docker run --rm --network $NET --env-file /tmp/qc2i-r4apia.env $IMG_GW /gateway migrate up | tail -3
+  ${MIGHEAVY-/tmp/qc2-i/heavy.sh} docker run --rm --network $NET --env-file /tmp/qc2i-r4apia.env edupilot-gateway:latest migrate up | tail -3
   gw qc2i-gw1 18221 >/dev/null
   gw qc2i-gw2 18222 >/dev/null
   gw qc2i-gw3 18224 -e AUTH_LOGIN_IP_PER_MIN=100000 -e AUTH_LOGIN_IP_FAIL_PER_15M=1000000 -e AUTH_REGISTER_IP_PER_HOUR=100000 -e AUTH_FORGOT_IP_PER_HOUR=100000 -e AUTH_TOKEN_IP_PER_MIN=100000 -e AUTH_FORGOT_EMAIL_PER_HOUR=1000 >/dev/null
   $HEAVY docker run -d --name qc2i-worker --network $NET --env-file /tmp/qc2i-r4apia.env -v $REPO/seed/demo:/seed/demo:ro $IMG_WK >/dev/null
   for i in $(seq 60); do curl -sf http://127.0.0.1:18221/api/v1/healthz >/dev/null && curl -sf http://127.0.0.1:18222/api/v1/healthz >/dev/null && curl -sf http://127.0.0.1:18224/api/v1/healthz >/dev/null && { echo ready; break; }; sleep 3; done
-  ADMIN_PASSWORD='Qc2ia!Admin-Pw-2026x' $HEAVY docker run --rm --network $NET --env-file /tmp/qc2i-r4apia.env -e ADMIN_PASSWORD $IMG_GW /gateway admin create --email qc2ia-admin@edupilot.local --name 'QC2IA Admin'
-  ADMIN_PASSWORD='Qc2ia!Admin-Pw-2026x' $HEAVY docker run --rm --network $NET --env-file /tmp/qc2i-r4apia.env -e ADMIN_PASSWORD $IMG_GW /gateway admin create --email qc2ia-admin2@edupilot.local --name 'QC2IA Admin 2' ;;
+  ADMIN_PASSWORD='Qc2ia!Admin-Pw-2026x' $HEAVY docker run --rm --network $NET --env-file /tmp/qc2i-r4apia.env -e ADMIN_PASSWORD edupilot-gateway:latest admin create --email qc2ia-admin@edupilot.local --name 'QC2IA Admin'
+  ADMIN_PASSWORD='Qc2ia!Admin-Pw-2026x' $HEAVY docker run --rm --network $NET --env-file /tmp/qc2i-r4apia.env -e ADMIN_PASSWORD edupilot-gateway:latest admin create --email qc2ia-admin2@edupilot.local --name 'QC2IA Admin 2' ;;
 up0) # DB trống riêng (TC-P206-30)
   docker exec $PGC psql -U edupilot -d postgres -c "drop database if exists qc2i_empty with (force)" -c "create database qc2i_empty" || exit 1
-  $HEAVY docker run --rm --network $NET -e DATABASE_URL="postgres://edupilot:edupilot-dev@postgres:5432/qc2i_empty?sslmode=disable" $IMG_GW /gateway migrate up | tail -2 ;;
+  $HEAVY docker run --rm --network $NET -e DATABASE_URL="postgres://edupilot:edupilot-dev@postgres:5432/qc2i_empty?sslmode=disable" edupilot-gateway:latest migrate up | tail -2 ;;
 down) docker rm -f qc2i-redis qc2i-mail qc2i-worker qc2i-gw1 qc2i-gw2 qc2i-gw3 >/dev/null 2>&1; docker exec $PGC psql -U edupilot -d postgres -c "drop database if exists $DB with (force)" -c "drop database if exists qc2i_empty with (force)" ;;
 status) docker ps -a --format '{{.Names}} {{.Status}}' | grep qc2i- ;;
 psql) shift; docker exec -i $PGC psql -U edupilot -d $DB -At -F '|' -c "$1" ;;

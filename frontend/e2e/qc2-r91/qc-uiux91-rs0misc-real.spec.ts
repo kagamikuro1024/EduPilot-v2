@@ -91,7 +91,7 @@ test("TC-UX01-5 dòng «Giữ»: /students «N sinh viên», /attendance dòng p
 
 test("TC-UX20-5 điểm đã công bố ⇒ đúng một nút phụ «Yêu cầu xem lại», bấm mở biểu mẫu như cũ", async ({ browser }, info) => {
   D(info); test.setTimeout(300_000);
-  const o = await open(browser, "sv.gioi"); const c = await courseId(o.page, "761987");
+  const o = await open(browser, "sv.kha"); const c = await courseId(o.page, "QD9A"); // QC SmkS: 761987 không có bài đã công bố cho SV; sv.kha có 1 kết quả công bố ở QD9A (chỉ đọc)
   await go(o.page, "/assignments", c, 3000);
   const hrefs: string[] = await o.page.locator("main a[href^='/assignments/']").evaluateAll((as: Element[]) => [...new Set(as.map((a) => a.getAttribute("href") as string))]);
   console.log("INFO UX20-5 số bài:", hrefs.length);

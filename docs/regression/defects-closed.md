@@ -50,4 +50,5 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 
 ## Cập nhật 2026-11-19 (qc2)
 - DEF-R8-A4 (TC-P6-05-37): ĐÓNG — sha 22387b06 (có trong 777bb5e2), chạy lại trên ep-r 1409b04d: câu «Cô tính điểm môn này thế nào?» → câu mẫu, 0 LLM; 05-38/39 P (s8r-chat05.py).
-- DEF-R8-A5 (TC-P6-05-42): CHỜ CHẠY LẠI — sha 2479feb9, chưa ở ep-r.
+- DEF-R8-A5 (TC-P6-05-42): ĐÓNG — sha 2479feb9, chạy lại 2026-11-19 trên ep-r đã rebuild: P («Tài liệu nguồn đã gỡ» hiện đúng).
+- DEF-R3-SMK-03 (TC-PU05-40, TC-GATEPU-15): ĐÓNG — sha 07a6b69c, chạy lại 2026-11-19: 7/7 route SV sạch, cả hai TC P.

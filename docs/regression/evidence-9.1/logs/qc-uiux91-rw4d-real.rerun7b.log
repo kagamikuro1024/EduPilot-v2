@@ -1,0 +1,33 @@
+
+Running 1 test using 1 worker
+
+INFO khớp 28/30; lệch: 20229002: API 7.5/B ≠ CSV 7.0/B ; 20223050: API 9/A+ ≠ CSV 8.5/A
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv (1.3s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "20229002: API 7.5/B ≠ CSV 7.0/B",
+    +   "20223050: API 9/A+ ≠ CSV 8.5/A",
+    + ]
+
+      33 |   }
+      34 |   console.log(`INFO khớp ${ok}/${csv.length}; lệch: ${bad.slice(0, 5).join(" ; ")}`);
+    > 35 |   expect(bad).toEqual([]);
+         |               ^
+      36 |   expect(ok).toBe(30);
+      37 |   await ctx.close();
+      38 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:35:15
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4d-rea-66e8a-p-expected-final-grades-csv-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv 

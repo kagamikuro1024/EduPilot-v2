@@ -1,0 +1,22 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv (1.5s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv 
+
+    Error: page.evaluate: ReferenceError: process is not defined
+        at eval (eval at evaluate (:370:30), <anonymous>:14:64)
+        at Array.find (<anonymous>)
+        at eval (eval at evaluate (:370:30), <anonymous>:12:23)
+        at async <anonymous>:381:23
+        at eval (eval at evaluate (:370:30), <anonymous>:14:64)
+        at eval (eval at evaluate (:370:30), <anonymous>:12:23)
+        at async <anonymous>:381:23
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:17:27
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4d-rea-66e8a-p-expected-final-grades-csv-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4d-real.spec.ts:7:1 › TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv 

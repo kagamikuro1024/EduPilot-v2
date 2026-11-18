@@ -1,0 +1,50 @@
+
+Running 2 tests using 1 worker
+
+INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Chi tiết kỹ thuật Thử lại
+  ✘  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit (1.3m)
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:503:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được (30.2s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      12 |   await page.locator("input[type=password]").fill(PW);
+      13 |   await page.keyboard.press("Enter");
+    > 14 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30_000 });
+         |              ^
+      15 |   await page.locator("[data-part=topbar]").waitFor({ timeout: 15_000 });
+      16 |   await page.waitForTimeout(1200);
+      17 | }
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:14:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:179:3
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-5e95e-403-TA-mở-được-lớp-lạ-limit-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:503:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      12 |   await page.locator("input[type=password]").fill(PW);
+      13 |   await page.keyboard.press("Enter");
+    > 14 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30_000 });
+         |              ^
+      15 |   await page.locator("[data-part=topbar]").waitFor({ timeout: 15_000 });
+      16 |   await page.waitForTimeout(1200);
+      17 | }
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:14:14)
+        at teacher (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:31:3)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:506:28
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4-real-f1273-DENT-403-TA-không-chốt-được-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:503:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được 

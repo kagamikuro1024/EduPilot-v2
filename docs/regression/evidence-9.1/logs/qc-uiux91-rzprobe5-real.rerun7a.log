@@ -1,0 +1,7 @@
+
+Running 1 test using 1 worker
+
+PROBE QR91A: cột Trạng thái=true số hàng=22 ô có chữ=["Liệt"] (1) tiêu đề phụ Thiếu=null | th=["Sinh viên","Giữa kỳ","Kiểm tra hằng tuần","Thi cuối kỳ","Điểm cộng","Điểm trừ","Quá trình","Điểm học phần","Điểm chữ","Trạng thái","Hành động"]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe5-real.spec.ts:5:68 › probe sổ điểm QR91A (5.7s)
+
+  1 passed (6.4s)

@@ -1,0 +1,37 @@
+
+Running 2 tests using 1 worker
+
+PROBE sv.gioi t=1s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=2s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=3s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=4s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=5s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=6s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=7s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=8s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=9s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=10s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=11s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=12s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=13s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE sv.gioi t=14s url=/ h1="Chào Trung" topbar=1 req=3
+PROBE reqs ["POST /api/v1/auth/refresh","GET /api/v1/me/courses","GET /api/v1/courses/01a1f000-2fbf-73a7-82d8-e820e18178db/today"]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe4-real.spec.ts:5:44 › probe / sau đăng nhập sv.gioi (15.7s)
+PROBE teacher t=1s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=2s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=3s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=4s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=5s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=6s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=7s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=8s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=9s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=10s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=11s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=12s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=13s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE teacher t=14s url=/ h1="4 việc cần xử lý hôm nay" topbar=1 req=5
+PROBE reqs ["POST /api/v1/auth/refresh","GET /api/v1/me/courses","GET /api/v1/courses/01a1f000-309a-7197-9b84-b092993bc47c/today","GET /api/v1/me/today","GET /api/v1/courses/01a1f000-2fbf-73a7-82d8-e820e18178db/today"]
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe4-real.spec.ts:5:44 › probe / sau đăng nhập teacher (15.3s)
+
+  2 passed (31.8s)

@@ -1,0 +1,16 @@
+
+Running 2 tests using 1 worker
+
+INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. Chi tiết kỹ thuật Thử lại
+INFO lớp TA không thuộc: QC3AT
+INFO PQ TA lớp lạ: submissions 403 gradebook 403 attendance 404
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit (28.6s)
+INFO menu cột: opacity 0 → 1
+INFO Chốt điểm aria-disabled: null
+INFO hộp xác nhận chốt: Chốt điểm Chốt 30 sinh viên · phân bố: A+ 2, A 3, B+ 4, B 4, C+ 4, C 4, D+ 3, D 3, F 3 · 1 sinh viên liệt Để sau Chốt điểm
+INFO trạng thái sổ sau Esc: {"state":"CONFIRMED","unclear_count":0,"has_policy":false,"confirmed_at":"2026-11-15T12:26:01.756495Z","scheme_no":1,"pending_draft":false,"gradebook":{"status":"OPEN","snapshot_version":0}}
+INFO TA: nút Chốt điểm 0 aria-disabled null
+INFO TA POST finalize: 403
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:503:1 › TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được (19.9s)
+
+  2 passed (48.9s)

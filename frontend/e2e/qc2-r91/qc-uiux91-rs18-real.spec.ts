@@ -51,12 +51,12 @@ test("TC-UX18-3 tài liệu chia sẻ từ lớp khác hiện «Chia sẻ từ {
   await rows(o.page).first().waitFor({ timeout: 30_000 });
   const titles = await rows(o.page).evaluateAll((trs: Element[]) => trs.map((tr) => (tr.querySelector("td") as HTMLElement).innerText.replace(/\n/g, " | ")));
   for (const d of shared) {
-    const t = titles.find((x) => x.includes(String(d.title).slice(0, 14)));
+    const t = titles.find((x: string) => x.includes(String(d.title).slice(0, 14)));
     expect(t, `hàng «${d.title}»`).toBeTruthy();
     expect(t, `«Chia sẻ từ ${d.shared_from}»`).toContain(`Chia sẻ từ ${d.shared_from}`);
   }
   for (const d of items.filter((x) => !x.shared_from)) {
-    const t = titles.find((x) => x.includes(String(d.title).slice(0, 14)));
+    const t = titles.find((x: string) => x.includes(String(d.title).slice(0, 14)));
     if (t) expect(t, "tài liệu của chính lớp không có dòng «Chia sẻ từ»").not.toContain("Chia sẻ từ");
   }
   await o.ctx.close();

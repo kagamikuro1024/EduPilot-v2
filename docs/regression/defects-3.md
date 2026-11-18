@@ -63,7 +63,7 @@
 - Bước: `git ls-remote --heads origin ci/ui-drift` → `5e32bb50…` (EduPilot-v2); `git ls-remote --heads old-private ci/ui-drift` → `38073d08…` (TA_Agent_v2). Kỳ vọng: không in gì.
 - Ghi chú: 3 run đỏ của nhánh (37139595531 / 37140069267 / 37140802309 ở repo TA_Agent_v2) vẫn đọc được bằng `gh run view -R kagamikuro1024/TA_Agent_v2`; các ca TC-PU05-29/31/32/33/34/28, GATEP1-11, GATEPU-09 đã đạt bằng chúng (CI sprint 3 nằm ở repo old-private TA_Agent_v2, không phải origin).
 
-### DEF-R3-SMK-03 — Sinh viên thấy «Chi tiết kỹ thuật … trace_id» ở màn lỗi /me và /threads (TC-PU05-40, TC-GATEPU-15)
+### DEF-R3-SMK-03 — [ĐÓNG @07a6b69c, TC PASS 2026-11-19] Sinh viên thấy «Chi tiết kỹ thuật … trace_id» ở màn lỗi /me và /threads (TC-PU05-40, TC-GATEPU-15)
 - Mức: Trung bình (vi phạm luật «Sinh viên không bao giờ thấy từ kỹ thuật», chỉ lộ mã lỗi + trace_id, không dữ liệu cá nhân)
 - Sprint gốc: 5/6 (US-P5-06 `/me` thật d6f61728; `RealThreads`) — hợp đồng từ sprint 3 (US-PU-03: `ApiErrorNotice` ghi «`trace_id` CHỈ khi `showTechnical` (TA / GV / Admin) — Sinh viên không bao giờ thấy»). Hồi quy do sprint sau? KHÔNG (từ khi có màn).
 - Tái hiện (stack ep-r thật, sv.kha): mở /me hoặc /threads, chặn mọi GET /api/v1/* trả 500 {code:INTERNAL, trace_id}, tải lại. /me hiện «Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất. Chi tiết kỹ thuật Thử lại»; mở «Chi tiết kỹ thuật» hiện «NOT_FOUND · trace_id 000…» (gate build, student). /threads cũng có phần «Chi tiết kỹ thuật».

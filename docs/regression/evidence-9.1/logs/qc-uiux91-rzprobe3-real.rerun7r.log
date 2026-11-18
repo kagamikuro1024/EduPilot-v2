@@ -1,8 +1,7 @@
 
 Running 1 test using 1 worker
 
-PROBE th [{"t":"Sinh viên","b":0},{"t":"Giữa kỳ","b":1},{"t":"Kiểm tra hằng tuần","b":0},{"t":"Thi cuối kỳ","b":1},{"t":"Điểm cộng","b":0},{"t":"Điểm trừ","b":0},{"t":"Quá trình","b":0},{"t":"Điểm học phần","b":0},{"t":"Điểm chữ","b":0},{"t":"Trạng thái","b":0},{"t":"Hành động","b":0}]
-PROBE nút chốt 1 Sổ điểm Xem công thức Chốt điểm Bảng điểm của lớp Sinh viên Giữa kỳ Kiểm tra hằng tuần Thi cuối kỳ Điểm cộng Điểm trừ Quá trình Điểm học phần Điểm chữ Trạng thái Hành động Bùi Khánh Việt 20227706 — 1,00 0,00 6,500 5,50 C Bùi Minh Yến 20221975 — 0,25 
-  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe3-real.spec.ts:5:1 › probe gradebook headers (4.8s)
+PROBE finalize {"status":403,"body":{"code":"FORBIDDEN","message":"Bạn không có quyền thực hiện thao tác này.","trace_id":"7679a81434f223cc6e091f5be5946428","details":{"reason":"course"}}} 26 ms
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rzprobe3-real.spec.ts:5:1 › probe TA finalize (5.5s)
 
-  1 passed (5.3s)
+  1 passed (6.1s)

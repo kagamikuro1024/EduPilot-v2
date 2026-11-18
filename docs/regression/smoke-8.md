@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
-Mã đã chạy: 1409b04d (= 777bb5e2 + merge nhánh QC; sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 · Ngày: 2026-11-19 · Còn N: 33 ca SEED (chờ ep-sd seed sạch do PM bật); 05-42 F chờ rebuild có 2479feb9
-Tổng TC cũ: 512 · Đạt: 478 · Trượt: 1 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 33   (P+F+LT+K+N = T)
+Mã đã chạy: 1409b04d (= 777bb5e2 + merge nhánh QC; sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 · Ngày: 2026-11-19 · Còn N: 33 ca SEED (chờ ep-sd seed sạch do PM bật); 05-42 đã chạy lại P sau rebuild có 2479feb9 (DEF-R8-A5 đóng)
+Tổng TC cũ: 512 · Đạt: 479 · Trượt: 0 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 33   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -11,7 +11,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | P6-02 | 49 | 49 | 0 | 0 | 0 | 0 |
 | P6-03 | 48 | 48 | 0 | 0 | 0 | 0 |
 | P6-04 | 49 | 49 | 0 | 0 | 0 | 0 |
-| P6-05 | 46 | 45 | 1 | 0 | 0 | 0 |
+| P6-05 | 46 | 46 | 0 | 0 | 0 | 0 |
 | P6-06 | 63 | 63 | 0 | 0 | 0 | 0 |
 | P6-07 | 59 | 59 | 0 | 0 | 0 | 0 |
 | P6-08 | 47 | 47 | 0 | 0 | 0 | 0 |
@@ -250,7 +250,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-05-39 | P | PERSONAL_GRADE «Lớp chưa có công thức điểm chính thức do giảng viên xác nhận», WHAT_IF «Lớp chưa có công thức điểm chính thức do giảng viên xác nhận»: cùng câu mẫu True;  |
 | TC-P6-05-40 | P | lớp CONFIRMED QD8R6U: 3 câu → không câu mẫu «chưa có công thức» ([False, False, False]); AUTO_NO_FORMULA 0→0; trả lời: «Mình chưa tìm thấy nội dung này trong tài liệu của |
 | TC-P6-05-41 | P | go test 4 test PASS (log s8flow-go-*.log) |
-| TC-P6-05-42 | F | DELETE documents → 204; scheme vẫn CONFIRMED, source_document_id NULL, source_title «Quy chế lớp 2» còn; /gradebook tính đúng (HP 7 B khớp tay: QT 7,5; CK 6,5) và UI khôn |
+| TC-P6-05-42 | P | qc2 chạy lại sau rebuild @HEAD gồm 2479feb9: sau khi xoá tài liệu nguồn QD8H3, cột trích dẫn «Quy chế lớp 2 Trang 1 · Tài liệu nguồn đã gỡ …», không lỗi 5xx; số liệu HP v |
 | TC-P6-05-43 | P | go test 1 test PASS (log s8flow-go-*.log) |
 | TC-P6-05-44 | P | GV lớp khác (teacher@ gọi lớp QD8F8 do gv.s8f dạy) → 403 FORBIDDEN reason=course |
 | TC-P6-05-45 | P | RERUN 2026-11-18 lớp QD8H3 (s8flow-us05h3.py; Hôm nay có TTL 60 s nên chờ tới 75 s): xoá khoá Redis giữa 2 lần chạy: dedupe_key mức thông báo chặn trùng, count 1→1 |
