@@ -1469,12 +1469,27 @@ async function studentResultSetup(page: Page, examStatus: "PUBLISHED" | "CLOSED"
   return st;
 }
 
+// DEF-R5-08 (TC-PE08-31, US-PE-08 AC7): dưới điểm có một dòng tóm tắt; từng câu mặc định gập, mở từng câu.
+test("student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu", async ({ page }) => {
+  await studentResultSetup(page, "PUBLISHED");
+  await page.goto(`/exams/${E_R}/take?course=${C1}`);
+  const r = page.locator("[data-part=student-result]");
+  await expect(r.locator("[data-part=result-summary]")).toHaveText("Bạn đúng 1/1 câu trắc nghiệm · bài lập trình: 3/4 test ẩn đạt");
+  await expect(r.locator("[data-part=result-item]")).toHaveCount(2);
+  await expect(r.locator("[data-part=result-item] details[open]")).toHaveCount(0);
+  await expect(r.getByText("Bạn chọn").first()).toBeHidden();
+  await r.locator("[data-part=result-item]").first().locator("summary").click();
+  await expect(r.getByText("Bạn chọn").first()).toBeVisible();
+  await expect(r.locator("[data-part=result-item] details[open]")).toHaveCount(1);
+});
+
 test("student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần", async ({ page }) => {
   const st = await studentResultSetup(page, "PUBLISHED");
   await page.goto(`/exams/${E_R}/take?course=${C1}`);
   const r = page.locator("[data-part=student-result]");
   await expect(r.locator("[data-part=final-score]")).toHaveText("7,75 / 10,00");
   await expect(r.getByText("Điểm đã được giảng viên điều chỉnh.")).toBeVisible();
+  for (const sum of await r.locator("[data-part=result-item] summary").all()) await sum.click(); // P-11-60: từng câu mặc định gập (US-PE-08 AC7)
   await expect(r.getByText("Bạn chọn").first()).toBeVisible();
   await expect(r.getByText("Đáp án đúng").first()).toBeVisible();
   await expect(r.locator("[data-part=explanation]").getByText("Phép cộng.")).toBeVisible();
@@ -1499,7 +1514,8 @@ test("student result: 375 px — phần trắc nghiệm dùng được, mã code
   await page.goto(`/exams/${E_R}/take?course=${C1}`);
   const r = page.locator("[data-part=student-result]");
   await expect(r.locator("[data-part=final-score]")).toBeVisible();
-  await r.locator("details summary").first().click();
+  await r.locator("[data-part=result-item] summary").nth(1).click(); // P-11-60: mở câu code, rồi khối mã
+  await r.getByText("Mã của bạn", { exact: false }).click();
   await expect(r.locator("pre").first()).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);

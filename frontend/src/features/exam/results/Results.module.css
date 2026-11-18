@@ -30,3 +30,5 @@
 .statGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ep-space-5); }
 .big { font-size: var(--ep-text-section); font-weight: 600; font-variant-numeric: tabular-nums; }
 @media (max-width: 719px) { .statGrid { grid-template-columns: minmax(0, 1fr); } }
+.fold > summary { cursor: pointer; }
+.foldBody { display: grid; gap: var(--ep-space-2); margin-top: var(--ep-space-3); min-width: 0; }
