@@ -11,3 +11,14 @@
 - TC-D04-01, D04-09 ghi `LỖI THỜI (P-11-26)`: `FAKE_DECISION_PROB` chỉ ghi đè đầu vào NGOÀI `decision-replay.json`; sau P-11-26 replay chứa mẫu chấm của seed (20 FALLBACK + 1 FAST ở P=0,9) nên kịch bản `dm_c.py` (14 cờ mới ở P=0,9) không còn dựng được. Cần dev/PM cho cách điều khiển mới nếu muốn kiểm OR ba tầng.
 - TC-D04-02/03 PASS: lỗi decision (circuit_open) → chấm xong 22/22, điểm y hệt giữa cổng tắt / bật / lỗi cùng điều kiện. Chênh điểm so với round 1 trong `dm_c.py` KHÔNG do cổng (cổng tắt cũng chênh y hệt): round 1 chấm lúc route GRADING do nhóm khác đang đổi.
 - Lưu ý môi trường: Postgres vào recovery giữa lượt B5a (nhóm khác chaos) làm hỏng một lượt; đã chạy lại ở B6.
+
+## Lượt 2026-11-19 — chạy nốt 105 ca «N» (gateway 4ac1638a, worker 6abb09af, stack ep-qc)
+
+### DEF-R105S-01 — `cascade.spec.ts` không phủ các nhánh (a)–(f) của US-DM-08 AC3
+- Mức: Trung bình
+- TC: TC-D08-06 (US-DM-08 AC3: «E2E `cascade.spec.ts`: (a) lưỡng lự → Structured; (b) decision lỗi → Structured; (c) cả hai lỗi → chặn; (d) chèn lệnh decision lỗi → cờ regex + Structured, điểm không đổi; (e) chat dưới τ / lỗi → như tắt; (f) khủng hoảng → 0 lời gọi decision; đúng `cascade_path` ở `llm_audit` mỗi nhánh»)
+- Môi trường: tĩnh (repo `4ac1638a`), không cần stack
+- Bước tái hiện: 1. Mở `frontend/e2e/cascade.spec.ts` (58 dòng). 2. Liệt kê `test(...)`: chỉ 2 ca — «bài bị chặn bởi cổng decision: cùng hộp thoại hai lối…» và «kiểm duyệt chậm > 800 ms: hiện «Đang kiểm tra»». 3. Cả hai dùng `threadApi`/`json(...)` (API giả hoàn toàn), không có nhánh (a)–(f), không có assert nào về `cascade_path` / `llm_audit`.
+- Kỳ vọng (theo AC): spec đủ 6 nhánh + assert `cascade_path` từng nhánh · Thực tế: 2 ca giao diện; 6 nhánh nằm ở Go (`TestCascadeThreadsHTTP` a,b,c,f; `TestInjectionOR` d; `TestRouteDecisionTable` e) — chú thích đầu spec và handoff L5 («Chưa làm (có chủ đích): cascade.spec.ts bản chạy trên stack thật») thừa nhận
+- Bằng chứng: `evidence-10.5/s105/logs/cascade-spec-lines.txt`; tự chạy lại 6 nhánh bằng API ở TC-D08-07 (kết quả ở smoke)
+- Lưu ý: nhánh vẫn được kiểm ở mức Go + API của QC; thiếu là bản E2E theo đúng chữ của AC3 → BA/PM quyết «sửa AC cho khớp (Go + contract)» hoặc dev bổ sung spec

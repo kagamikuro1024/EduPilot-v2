@@ -1,0 +1,8 @@
+    qc105_test.go:26: n=2000 min=291ns p50=416ns p99=24.583µs max=222.875µs
+--- PASS: TestQC105NotConfiguredFast (0.00s)
+    qc105_test.go:51: lượt 1–5: [ok ok ok blocked blocked] · provider gọi 3 lần
+    qc105_test.go:62: cascade lời 6 cùng ngày: path=FALLBACK fallback chạy 1 lần
+    qc105_test.go:80: sang 00:00 UTC+7: 3 lời qua, lời 4 chặn · provider gọi tổng 6
+--- PASS: TestQC105RealDailyCap3 (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm	0.627s
