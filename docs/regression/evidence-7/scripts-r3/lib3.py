@@ -212,3 +212,21 @@ def mp(path):
     return json.loads(urllib.request.urlopen('http://localhost:8725'+path,timeout=20).read())
 def mpq(q,limit=50): return mp('/api/v1/search?query='+urllib.parse.quote(q)+f'&limit={limit}')['messages']
 import urllib.parse
+import datetime as dt
+def iso(**k): return (dt.datetime.now(dt.timezone.utc)+dt.timedelta(**k)).strftime('%Y-%m-%dT%H:%M:%SZ')
+def mkexam3(course,teacher='qc3t',ta='qc3ta',open_s=8,win=1800,dur=20,nq=2,title='QC3 bài'):
+    Qb=f'/courses/{course}/questions'; Eb=f'/courses/{course}/exams'; ids=[]
+    for i in range(nq):
+        s,q=A(teacher,'POST',Qb,{'type':'MCQ_SINGLE','title':f'qc3-{i}','topic':'QC3','stem':f'Câu {i}?','options':[{'body':f'Đáp án {k}'} for k in range(4)],'correct':[1],'explanation':'gt'}); assert s in(200,201),(s,q); qid=q['id']
+        g=A(teacher,'GET',f'{Qb}/{qid}')[1]; A(teacher,'PUT',f'{Qb}/{qid}/review',{'decision':'REQUEST','version':g['version']}); g=A(ta,'GET',f'{Qb}/{qid}')[1]; s,_=A(ta,'PUT',f'{Qb}/{qid}/review',{'decision':'APPROVE','version':g['version']}); ids.append(qid)
+    s,j=A(teacher,'POST',Eb,{'title':title,'opens_at':iso(seconds=open_s),'closes_at':iso(seconds=open_s+win),'duration_minutes':dur}); assert s==201,(s,j); eid=j['id']
+    g=A(teacher,'GET',f'{Eb}/{eid}')[1]; s,_=A(teacher,'PUT',f'{Eb}/{eid}/items',{'items':[{'question_id':q,'points':'1'} for q in ids],'version':g['version']}); assert s==200,(s,_)
+    g=A(teacher,'GET',f'{Eb}/{eid}')[1]; s,_=A(teacher,'PUT',f'{Eb}/{eid}',{'title':title,'opens_at':iso(seconds=open_s),'closes_at':iso(seconds=open_s+win),'duration_minutes':dur,'version':g['version']}); assert s==200,(s,_)
+    s,_=A(teacher,'POST',f'{Eb}/{eid}/schedule',{}); assert s==200,(s,_)
+    time.sleep(open_s+2); return eid
+def startexam(course,eid,u):
+    Eb=f'/courses/{course}/exams'; s,j=A(u,'POST',f'{Eb}/{eid}/attempts',{}); 
+    if s not in(200,201): return None,s,j
+    aid=j['attempt']['id']; H={'X-Exam-Tab':str(uuid.uuid4())}; A(u,'POST',f'{Eb}/{eid}/attempts/{aid}/takeover',{},headers=H); return aid,s,j
+def submitexam(course,eid,aid,u):
+    Eb=f'/courses/{course}/exams'; H={'X-Exam-Tab':str(uuid.uuid4())}; A(u,'POST',f'{Eb}/{eid}/attempts/{aid}/takeover',{},headers=H); return A(u,'POST',f'{Eb}/{eid}/attempts/{aid}/submit',{},headers=H)

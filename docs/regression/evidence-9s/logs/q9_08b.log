@@ -1,0 +1,74 @@
+   seed: {"sv.gioi": "01a1efd6", "sv.kha": "01a1efd6", "sv04": "01a1efd6", "sv08": "01a1efd6", "sv10": "01a1efd6", "sv12": "01a1efd6", "sv14": "01a1efd6", "sv19": "01a1efd6", "sv24": "01a1efd6"}
+   cờ: {'sv.gioi': [], 'sv.kha': ['NEEDS_REVIEW'], 'sv04': ['EVIDENCE_NOT_FOUND'], 'sv08': ['EVIDENCE_NOT_FOUND'], 'sv10': ['TOTAL_MISMATCH'], 'sv12': ['EVIDENCE_NOT_FOUND'], 'sv14': ['INJECTION_SUSPECTED'], 'sv19': ['OFF_TOPIC'], 'sv24': ['EMPTY_SUBMISSION']}
+   B pass_detail: {"c1": {"pass1": "2.00", "pass2": "2.00"}, "c2": {"pass1": "1.00", "pass2": "2.50"}, "c3": {"pass1": "2.00", "pass2": "2.00"}, "c4": {"pass1": "2.00", "pass2": "2.00"}, "total": {"pass1": "7.00", "pass2": "8.50"}, "_dropped": [], "_injection": []}
+PASS TC-P7-08-06 B (S7) cờ NEEDS_REVIEW và pass_detail lượt 1/lượt 2 tiêu chí 2 = {'pass1': '1.00', 'pass2': '2.50'} 
+PASS TC-P7-08-02 FLAG_TEXT có đủ 8 câu đúng danh sách AC1 (EMPTY_SUBMISSION = «Thiếu nội dung» theo P-11-17 thay «Bài trống»); thiếu/sai: {} 
+   cờ bổ sung: {'sv.gioi': ['LOW_CONFIDENCE'], 'sv.kha': ['ANSWER_ECHO'], 'sv.nguyco': ['OFF_TOPIC'], 'sv04': ['LATE_AFTER_CUTOFF']}
+PASS TC-P7-08-02 cờ thực sinh ra ở dữ liệu thử: ['ANSWER_ECHO', 'EMPTY_SUBMISSION', 'EVIDENCE_NOT_FOUND', 'INJECTION_SUSPECTED', 'LATE_AFTER_CUTOFF', 'LOW_CONFIDENCE', 'NEEDS_REVIEW', 'OFF_TOPIC', 'TOTAL_MISMATCH'] ⊇ 8 loại cần kiểm 
+PASS TC-P7-08-07 c2='2,00' → 200  ({'result': {'id': '01a1efd6-9b40-7e7c-aba9-e43cfb724975', 'round': 1, 'status': 'DRAFT', ') 
+PASS TC-P7-08-07 c2='2.25' → 200  ({'result': {'id': '01a1efd6-9b40-7e7c-aba9-e43cfb724975', 'round': 1, 'status': 'DRAFT', ') 
+PASS TC-P7-08-07 c2='2,3' → 422 SCORE_STEP ({'code': 'SCORE_STEP', 'message': 'Điểm phải là bội của 0,25.', 'trace_id': '3cce4a4c94c4d) 
+PASS TC-P7-08-07 c2='2,555' → 422 SCORE_PRECISION ({'code': 'SCORE_PRECISION', 'message': 'Điểm có quá 2 chữ số thập phân.', 'trace_id': '040) 
+PASS TC-P7-08-07 c2='-1' → 422 SCORE_OUT_OF_RANGE ({'code': 'SCORE_OUT_OF_RANGE', 'message': 'Điểm ngoài thang của cột.', 'trace_id': 'af2969) 
+PASS TC-P7-08-07 c2='2,75' → 422 SCORE_OUT_OF_RANGE ({'code': 'SCORE_OUT_OF_RANGE', 'message': 'Điểm ngoài thang của cột.', 'trace_id': 'aeb6a3) 
+PASS TC-P7-08-07 c2='abc' → 422  ({'code': 'SCORE_OUT_OF_RANGE', 'message': 'Điểm ngoài thang của cột.', 'trace_id': '9a2aca) 
+PASS TC-P7-08-07 tổng/dòng muộn tính lại ở máy chủ bằng decimal: ai_total_before_late=7.0 (giữ nguyên), total=7.5, late_penalty=0.5 
+PASS TC-P7-08-07 ai_scores không đổi sau khi sửa ({'c1': '2.00', 'c2': '1.00', 'c3': '2.00', 'c4': '2.00'} → {'c1': '2.00', 'c2': '1.00', 'c3': '2.00', 'c4': '2.00'}) 
+   AI B: {'c1': '2.00', 'c2': '1.00', 'c3': '2.00', 'c4': '2.00'} total trước muộn 7.0 muộn 0.5 total 6.5
+PASS TC-P7-08-07 đúng số TC (B): c2 1,00→2,00: tổng trước muộn 7.0 → 8.00, trừ muộn 0.5, tổng 7.5 
+   sửa muộn tay: 200 {'result': {'id': '01a1efd6-9b40-7e7c-aba9-e43cfb724975', 'round': 1, 'status': 'DRAFT', 'run_state': 'DONE', 'total': '8.00', 'ai_total_before_late': 0.0 True
+PASS TC-P7-08-08 sửa tay Trừ nộp muộn 0,50 → 0: 200, late_penalty=0.0 
+   đổi hạn: 200 {'id': '01a1efd6-987d-7773-b476-53e9aab7e74e', 'title': 'Bài tập 03 — Phân tích một vụ tấn công thực tế', 'description': late_penalty sau: 0.0
+PASS TC-P7-08-08 đổi hạn không tính đè khoản trừ sửa tay (late_penalty vẫn 0.0) [PUT hạn → 200] 
+PASS TC-P7-08-08 sai version → 409 VERSION_CONFLICT kèm giá trị của người kia 
+   thân 409: {"code": "VERSION_CONFLICT", "message": "Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lại.", "trace_id": "cf6d183fb687eb67d7a75fbe2bf89e54", "details": {"current": {"result": {"id": "01a1efd6-9b40-7e7c-aba9-e43cfb724975", "round": 1, "status": "DRAFT", "run_state": "DONE", "total": "8.00
+PASS TC-P7-08-10 POST review → 200; DB REVIEWED|01a1deef-d3…; audit_log review 1 dòng 
+PASS TC-P7-08-10 duyệt lại → idempotent (200) 
+PASS TC-P7-08-10 duyệt bài còn cờ/không cờ được (200) 
+   sv24 (S4 trống): DONE DRAFT 0.0 [{'id': 'c1', 'score': '0.00', 'edited': False, 'comment': '', 'evidence': []}]
+PASS TC-P7-08-10 bài trống/FAILED chưa có điểm đủ → 422 SCORES_REQUIRED (200) — S4 có 0 điểm cờ EMPTY nên được duyệt 
+PASS TC-P7-08-11 bài QUEUED → review 409 NOT_READY 
+PASS TC-P7-08-11 sinh viên nộp lại khi giảng viên mở bản cũ → review bản cũ 409 SUPERSEDED 
+   RBAC: []
+PASS TC-P7-08-12 TA/TEACHER 200; STUDENT/ADMIN 403 cho grading-results, submissions, chi tiết, tệp (16 ca, lệch 0) 
+PASS TC-P7-08-12 TA publish → 403 (403) 
+PASS TC-P7-08-12 TA sửa điểm nháp → 200 
+PASS TC-P7-08-12 TA duyệt → 200 
+PASS TC-P7-08-12 giảng viên lớp khác (qct2) → 403 403 
+   TEACHER 200 [('GRADING_REVIEW', '13 bài cần xem kỹ · Bài tập 03 — Phân tích m', '/grading'), ('PUBLISH_PENDING', '13 bài đã duyệt chờ công bố · Bài tập 03 — P', '/grading'), ('GRADE_SCHEME_UNCONFIRMED', 'Công thức điểm chưa xác nhận · QD9U', '/gradebook/scheme?course=01a1efd0-59a6-7497-a2bb-49ed8b79b03a'), ('COURSE_SETUP', 'Thiết lập lớp mới · QD9U', '/class/settings?course=01a1efd0-59a6-7497-a2bb-49ed8b79b03a')]
+   TA 200 [('GRADING_REVIEW', '13 bài cần xem kỹ · Bài tập 03 — Phân tích m', '/grading'), ('GRADE_SCHEME_UNCONFIRMED', 'Công thức điểm chưa xác nhận · QD9U', '/gradebook/scheme?course=01a1efd0-59a6-7497-a2bb-49ed8b79b03a')]
+   STUDENT 200 []
+   ADMIN 403 []
+PASS TC-P7-08-14 TEACHER: GRADING_REVIEW [('GRADING_REVIEW', '13 bài cần xem kỹ · Bài tập 03 — Phân tích m', '/grading')] (href /grading) và GRADING_ERROR [] (href /grading?status=FAILED) 
+PASS TC-P7-08-14 TA có cùng việc; STUDENT/ADMIN không có GRADING_* 
+FAIL TC-P7-08-14 duyệt hết bài cần xem kỹ → GRADING_REVIEW biến mất sau 17.3 s kể từ lần duyệt cuối (≤5 s) 17.286102771759033
+   lớp perf: 1000 bài
+PASS TC-P7-08-03 1000 bài: GET submissions trang đầu p95=12 ms (≤300), p50=9 ms 
+PASS TC-P7-08-03 phân trang con trỏ 10 trang liên tiếp: 1000 dòng, trùng 0, đủ 1.000 (1000) 
+PASS TC-P7-08-03 limit=101 → 422 422 (limit ≤ 100); không OFFSET (cursor) 
+PASS TC-P7-08-03 needs_review là cột sinh (ALWAYS) 
+Limit (actual time=0.606..0.610 rows=50.00 loops=1)
+  Buffers: shared hit=139
+  ->  Sort (actual time=0.606..0.608 rows=50.00 loops=1)
+        Sort Key: s.submitted_at DESC, s.id DESC
+        Sort Method: top-N heapsort  Memory: 32kB
+        Buffers: shared hit=139
+        ->  Hash Join (actual time=0.216..0.553 rows=333.00 loops=1)
+              Hash Cond: (s.id = r.submission_id)
+              Buffers: shared hit=133
+              ->  Seq Scan on submissions s (actual time=0.006..0.287 rows=1000.00 loops=1)
+                    Filter: ((course_id = '01a1efd1-c4f8-71de-a530-bc6d1bf728c3'::uuid) AND (match_status = 'MATCHED'::text))
+                    Rows Removed by Filter: 400
+                    Buffers: shared hit=79
+              ->  Hash (actual time=0.183..0.183 rows=333.00 loops=1)
+                    Buckets: 1024  Batches: 1  Memory Usage: 29kB
+                    Buffers: sha
+FAIL TC-P7-08-03 EXPLAIN (ANALYZE) truy vấn hàng chờ: không Seq Scan trên submissions/grading_results Limit (actual time=0.606..0.610 rows=50.00 loops=1)
+  Buffers: shared hit=139
+  ->  Sort (actual time=0.606..0.608 rows=50.00 loops=1)
+        Sort Key: s.submitted_at DESC, s.id DESC
+        Sort Method: top-N heapsort  Memory: 32kB
+        Buffers: shared hit=139
+        ->  Hash Join (actual time
+SUMMARY {"TC-P7-08-06": true, "TC-P7-08-02": true, "TC-P7-08-07": true, "TC-P7-08-08": true, "TC-P7-08-10": true, "TC-P7-08-11": true, "TC-P7-08-12": true, "TC-P7-08-14": false, "TC-P7-08-03": false}
+RESULT: FAIL (2 lỗi)

@@ -1,0 +1,6 @@
+   trước: ['3 bài cần xem kỹ · Bài tập 03 — Phân tíc']
+PASS TC-P7-08-14 3 bài có cờ → GRADING_REVIEW hiện (['3 bài cần xem kỹ · Bài tập 03 ']) 
+   biến mất sau 0.22 s kể từ lần duyệt cuối
+PASS TC-P7-08-14 duyệt hết bài cần xem kỹ ở trạng thái tĩnh → GRADING_REVIEW biến mất sau 0.2 s (≤ 5 s) 
+SUMMARY {"TC-P7-08-14": true}
+RESULT: PASS (0 lỗi)

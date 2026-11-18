@@ -1,0 +1,16 @@
+   hai lượt của một bài (slow=4): cách nhau 1.16 s [(1795025076.756759, False), (1795025077.914367, True)]
+FAIL TC-P7-07-09 hai lượt gửi tới provider cách nhau 1.16 s (<1 s = song song; stub ngủ 4 s mỗi lời gọi) [(1795025076.756759, False), (1795025077.914367, True)]
+   Redis dừng: grade-all 503 {'code': 'SERVICE_UNAVAILABLE', 'message': 'Dịch vụ tạm thời không khả dụng. Hãy thử lại sau.', 'trace_id': '9e843b8c59476436e8a6abd4216c729c', 'detai | QUEUED rows 0
+FAIL TC-P7-07-01 Redis dừng: grade-all trả 503 (202) và DB có 0/6 dòng QUEUED (503, {'code': 'SERVICE_UNAVAILABLE', 'message': 'Dịch vụ tạm thời không khả dụng. Hãy thử lại sau.', 'trace_id': '9e843b8c59476436e8a6abd4216c729c', 'details': {'redis': 'down'}}, '0')
+   sau khi Redis bật lại: []
+FAIL TC-P7-07-11 Redis dừng 70 s rồi bật: bài QUEUED quá hạn ≥60 s được nạp lại bởi máy quét, không mất ([]) []
+   hai nhân viên Chấm lại: {'T': (202, "{'job_id': '01a1efd6-44de-78ea-83bb-d5cb14eaaba9', 'queued': 1}"), 'TA': (409, "{'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hã")}
+PASS TC-P7-07-11 hai nhân viên bấm Chấm lại: một thắng 202, người sau 409 ([202, 409]) 
+   đặt ngân sách lớp 900: 200
+   30 bài: 3 DONE, 27 FAILED LLM_BUDGET_EXHAUSTED; thông báo gộp mới 2 (người nhận 2)
+PASS TC-P7-07-11 hết ngân sách giữa chừng: 3 DONE + 27 FAILED LLM_BUDGET_EXHAUSTED = 30 
+PASS TC-P7-07-11 đúng MỘT thông báo gộp mỗi nhân viên (mới 2 dòng cho 2 người nhận, không một thông báo mỗi bài) 
+PASS TC-P7-07-07 LLM_BUDGET_EXHAUSTED không thử lại (attempts tối đa 1 = 1) 
+   gỡ ngân sách: 200
+SUMMARY {"TC-P7-07-09": false, "TC-P7-07-01": false, "TC-P7-07-11": false, "TC-P7-07-07": true}
+RESULT: FAIL (3 lỗi)

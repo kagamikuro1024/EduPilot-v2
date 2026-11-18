@@ -2,4 +2,4 @@ TC-P7-09-M6: bỏ AND status='REVIEWED' ở UPDATE công bố
 backend-go/internal/store/review.sql.go: «where course_id = $6 and id = $7 and status = 'REVIEWED' and version = $8» -> «where course_id = $6 and id = $7 and version = $8»
 $ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestPublishConcurrentOnce'
 rc=0 => GREEN
-ok  	github.com/edupilot/backend-go/internal/assignment	1.407s
+ok  	github.com/edupilot/backend-go/internal/assignment	2.495s

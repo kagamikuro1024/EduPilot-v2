@@ -1,0 +1,7 @@
+   trước khi dừng Redis: ['QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'RUNNING|-', 'RUNNING|-']
+   Redis dừng 72 s rồi bật; ['DONE|-', 'DONE|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'RUNNING|-', 'RUNNING|-']
+   cuối: ['DONE|-'] 12
+PASS TC-P7-07-11 Redis dừng 70 s giữa lúc chấm 12 bài rồi bật: không bài nào mất, 12 kết quả, trạng thái ['DONE|-'] 
+PASS TC-P7-07-11 mỗi bài đúng một kết quả sau khi Redis hồi phục (trùng 0) 
+SUMMARY {"TC-P7-07-11": true}
+RESULT: PASS (0 lỗi)

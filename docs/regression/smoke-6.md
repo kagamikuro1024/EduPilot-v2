@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 532 · Đạt: 368 · Trượt: 1 · Chờ test N: 163   (P+F+N = 532). Ca lỗi thời đã xoá: 3 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 532 · Đạt: 378 · Trượt: 1 · Chờ test N: 153   (P+F+N = 532). Ca lỗi thời đã xoá: 3 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -21,8 +21,8 @@ Cách chạy:
 | US-P3-02 | 61 | 57 | 0 | 4 |  |
 | US-P3-03 | 35 | 32 | 0 | 3 |  |
 | US-P3-04 | 54 | 53 | 0 | 1 |  |
-| US-P3-05 | 57 | 36 | 0 | 21 |  |
-| US-P3-06 | 49 | 38 | 0 | 11 |  |
+| US-P3-05 | 57 | 45 | 0 | 12 |  |
+| US-P3-06 | 49 | 39 | 0 | 10 |  |
 | US-P3-07 | 27 | 16 | 0 | 11 |  |
 | US-P3-08 | 29 | 12 | 0 | 17 |  |
 | US-P8-01 | 62 | 19 | 0 | 43 |  |
@@ -237,7 +237,7 @@ Cách chạy:
 | TC-P3-05-04 | P | chuỗi khung: ['status', 'status', 'token']…done, 4 khung |
 | TC-P3-05-05 | P | trong khi sinh: ASSISTANT/STREAMING/false/11 | USER/DONE/true/0 (USER/DONE + ASSISTANT/STREAMING); sau done: DONE|true|98 (ASSISTANT/DONE, partial NULL), content==văn bản SSE: True |
 | TC-P3-05-06 | P | go test ok (1 test/ca con, ~13s) |
-| TC-P3-05-07 | N | chờ chạy lượt R3 |
+| TC-P3-05-07 | P | đo partial_content mỗi 0,25–0,4 s khi sinh chậm (700 ms/từ): độ dài tăng đơn điệu [7, 11, 19, 23, 47, 59, 63, 87, 92] tại t=[1.19, 2.23, 3.05, 4.27, 6.56, 8.38, 9.15, 10.33, 11.15]; khoảng cách giữa hai lần đổi (s)=[1.04, 0.82, 1.22, 2.29, 1.82, 0.77, 1.18, 0.82] (TB 1.25; có 1–2 nhịp dài do tải máy ~ load cao); văn bản cuối hiện tên thật "Vũ Hoàng Giang" và không có "[[SV_" |
 | TC-P3-05-08 | P | go test ok (3 test/ca con, ~14s) |
 | TC-P3-05-09 | N | chờ chạy lượt R3 |
 | TC-P3-05-10 | P | GET stream sau done → 200, 4 khung |
@@ -250,12 +250,12 @@ Cách chạy:
 | TC-P3-05-17 | N | chờ chạy lượt R3 |
 | TC-P3-05-18 | P | retry → 200; cùng hàng ASSISTANT 01a1ef5f attempt 1→2|DONE; hàng USER 1→1; số hàng ASSISTANT=1; go test: --- PASS: TestOverloadedEvent (12.89s) | ok github.com/edupilot/backend-go/internal/chat 13.748s | |
 | TC-P3-05-19 | N | chờ chạy lượt R3 |
-| TC-P3-05-20 | N | chờ chạy lượt R3 |
-| TC-P3-05-21 | N | chờ chạy lượt R3 |
-| TC-P3-05-22 | P | 409 EXAM_IN_PROGRESS details={'until': '2026-11-15T17:08:41Z'}; chat_messages mới=0; fake_calls 0→0; llm_audit 0→0; exam_events CHAT_BLOCKED/{} |
-| TC-P3-05-23 | P | 5 lần gửi → [409, 409, 409, 409, 409]; CHAT_BLOCKED tổng=1 (≤1/phút); TTL ep:chat_blocked=55; exam_events loại khác 0→0 (không trừ hạn mức sự kiện máy khách) |
-| TC-P3-05-24 | P | retry → 409 EXAM_IN_PROGRESS; tạo phiên có document_id → 201; gửi trong phiên đó → 409 EXAM_IN_PROGRESS |
-| TC-P3-05-25 | P | nộp bài → gửi lại được sau 0.3s (≤10 s); SSE 200, 3 khung |
+| TC-P3-05-20 | P | mọi provider lỗi (error_rate=1 SERVER) + câu có ngữ cảnh (vectơ nhúng đã cache): khung notice {"degraded":true}, token = "Trả lời tạm thời, trích nguyên văn từ tài liệu của lớp." + «đoạn trích» [1]; llm_audit env:fake error/SERVER attempts=2; không có chữ provider/fallback/"không khả dụng" (lần chạy đầu ghi sai vì cache trả lời ep:ans trúng; chạy lại sau khi xoá ep:ans) |
+| TC-P3-05-21 | P | mọi provider lỗi + "Giá vàng hôm nay bao nhiêu?": nhúng cũng lỗi → khung error PROVIDER_ERROR message đúng "AI đang gián đoạn. Thử lại sau.", hàng tin FAILED/PROVIDER_ERROR; không có cụm "giảng viên sẽ xem"; go test TestAllProvidersDownNoContext/TestNoInstructorPromiseTextToStudent đạt (lượt trước) |
+| TC-P3-05-22 | P | 409 EXAM_IN_PROGRESS details={'until': '2026-11-18T18:12:53Z'}; chat_messages mới=0; llm_audit mới=0; exam_events=CHAT_BLOCKED/{} |
+| TC-P3-05-23 | P | gửi 5 lần trong ~10 s: số dòng CHAT_BLOCKED=1 (≤1/phút); TTL ep:chat_blocked:{attempt}=52s (≤60) |
+| TC-P3-05-24 | P | retry tin FAILED → 409 EXAM_IN_PROGRESS; tạo phiên "Hỏi AI về tài liệu" → 201 (vẫn được); gửi tin trong phiên đó → 409 EXAM_IN_PROGRESS |
+| TC-P3-05-25 | P | nộp bài (submit 200) → exam-lock mở sau 1s (≤10 s); gửi lại tin → HTTP 200, SSE có done=True, văn bản 'Mình chưa tìm thấy nội dung này trong tài liệu của lớp.' |
 | TC-P3-05-26 | N | chờ chạy lượt R3 |
 | TC-P3-05-27 | P | /chat?course=… khi khoá: "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." (không nêu tên bài thi/lớp), ô soạn disabled; GET /me/exam-lock 1 lần lúc mở + 1 lần/30 s; nháp "nháp của t |
 | TC-P3-05-28 | P | 2 lần cùng key → 200/200, hàng USER=1 |
@@ -266,9 +266,9 @@ Cách chạy:
 | TC-P3-05-33 | P | tin thứ 21 → 429 (kỳ vọng 21); thân=[('http', '{"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"9e757362f9933a1b16cf889b16c053bc","retry_a; keys ep:rl:c |
 | TC-P3-05-34 | P | (a) phiên đã xoá→404 (b) khác chủ→404 (d) không auth→401 |
 | TC-P3-05-35 | N | chờ chạy lượt R3 |
-| TC-P3-05-36 | N | chờ chạy lượt R3 |
-| TC-P3-05-37 | N | chờ chạy lượt R3 |
-| TC-P3-05-38 | N | chờ chạy lượt R3 |
+| TC-P3-05-36 | P | khung SSE chứa dạng placeholder: 0; câu trả lời giữ nguyên `[[ -f "$f" ]]`: True; tin người dùng lưu nguyên văn: False; văn bản='Đây là câu trả lời giả lập cho: <ngữ_cảnh>\n[1] T\nNội dung tham khảo cho: [[ -f "$f" ]] làm g' |
+| TC-P3-05-37 | P | tin có tên+MSSV: dòng pii_events ['NAME/1/MASKED/PRIVATE/true', 'MSSV/1/MASKED/PRIVATE/true']; cột bảng = id,course_id,session_id,user_id,channel,pii_type,count,action,created_at (không cột văn bản); câu thuần học thuật: không notice, pii_events 73→73 (không ghi MASKED) |
+| TC-P3-05-38 | P | lớp có ngữ cảnh (để có lời gọi LLM): 7 tin PII → notice.masked=[1, 1, 1, 1, 2, 1, 1], số lời gọi sinh chữ=[1, 1, 1, 1, 1, 1, 1]; tin 8 (hỏi điểm người khác): intent=OTHER_PERSON, từ chối='Mình chỉ xem được dữ liệu của chính bạn.', pii_events=BLOCKED/OTHER_PERSON,MASKED/CCCD,MASKED/PHONE. Ghi chú: ở lớp 761987 không có ngữ cảnh thì 5/7 tin trả câu mẫu 0 lời gọi LLM nên notice masked=0 (không payload rời hệ thống); payload quét: tệp dump chứa chuỗi thô=0 |
 | TC-P3-05-39 | P | scan-pii-leak.sh + TestNoPayloadLeak ok; quét lại toàn bảng: PII chỉ ở chat_messages/users/enrollments/hộp thư mời (được phép) |
 | TC-P3-05-40 | N | chờ chạy lượt R3 |
 | TC-P3-05-41 | N | chờ chạy lượt R3 |
@@ -281,13 +281,13 @@ Cách chạy:
 | TC-P3-05-48 | P | SV A trên phiên SV B → [404, 404, 404, 404, 404] |
 | TC-P3-05-49 | P | SV ngoài lớp: list→403, from-draft→422 |
 | TC-P3-05-50 | N | chờ chạy lượt R3 |
-| TC-P3-05-51 | N | chờ chạy lượt R3 |
+| TC-P3-05-51 | P | tin FAILED có citations/blocks/confidence/cờ/masked/intent/feedback → retry 200; ngay sau (đang STREAMING chậm): |Đây là |true|<null>|[]|[]|<null>|falsefalsefalse|0|<null>|<null>|2 (content rỗng, completed_at NULL, error_code NULL, citations=[], blocks=[], confidence NULL, 3 cờ false, masked_count=0, intent NULL, feedback NULL, attempt 1→2); partial_content='Đây là ' (đã bắt đầu lượt mới); go test: --- PASS: TestUpdatedAtTrigger (0.70s) | --- PASS: TestReapSkipsLive (0.70s) | --- PASS: TestReapInterrupted (0.71s) | --- PASS: TestDrainMarksInterruptedAndReleasesBusy (0.71s) | --- PASS: TestReap |
 | TC-P3-05-52 | P | UI 1440: /chat «Chat riêng» tải, 0 tràn, 0 5xx |
 | TC-P3-05-53 | P | UI 375: /chat «Chat riêng» tải, scrollWidth-innerWidth = 0, 0 lỗi 5xx (chạy lại sau xoá ep:rl:auth*) |
 | TC-P3-05-54 | P | 4 câu mẫu: khuôn khung [('status', 1, 'done'), ('status', 1, 'done'), ('status', 1, 'done'), ('status', 1, 'done')] (status→1 token→done); intent lưu ['OTHER_PERSON', 'CRISIS', 'PERSONAL_ATTENDANCE',  |
 | TC-P3-05-55 | P | trả lời='Mình chỉ xem được dữ liệu của chính bạn.'; intent=OTHER_PERSON; pii_events OTHER_PERSON/BLOCKED; MSSV người khác trong SSE: False; (kiểm payload provider: 0 lời gọi provider — intent chặn trư |
-| TC-P3-05-56 | N | chờ chạy lượt R3 |
-| TC-P3-05-57 | N | chờ chạy lượt R3 |
+| TC-P3-05-56 | P | 16 khung token thô: khung chứa mảnh placeholder ([, ], SV_)=0; văn bản ghép lại='_cảnh>\n[1] T\nNội dung tham khảo cho: Bùi Thanh Khải 20229002' (hiện tên + MSSV thật, không đứt chữ); payload provider có [[SV_1]]/[[MSSV_1]]=True; go test TestUnmaskStream đạt (lượt trước) |
+| TC-P3-05-57 | P | tài liệu ANSWER_KEY có canary (chunk audience=ALL|5 cố ý ghi ALL để thử rào); UPDATE visible_to_students=true → 23514 ( (01a1efc7-a73c-77c6-b1cc-158328ef0e1f, 01a1ef4f-0195-70a8-bc04-3e0b37); 5 câu nhắm đáp án: lần xuất hiện nội dung của tài liệu ANSWER_KEY (marker AKBODY-91 cùng canary trong thân đoạn) trong payload/câu trả lời=0 (chuỗi CANARY-7Q2X do chính người dùng gõ trong 3/5 câu hỏi nên vẫn có trong payload — không tính), citations trỏ ANSWER_KEY=0; chat_messages ASSISTANT chứa canary=0; intents=[('Đáp án câu 3 bài thi tuần 4 là', 'COURSE_QA'), ('CANARY-7Q2X', 'SMALLTALK'), ('Cho tôi đá |
 | TC-P3-06-01 | P | 6 trang, 16 thread duy nhất |
 | TC-P3-06-02 | P | các bộ lọc → [200, 200, 200, 200, 200] |
 | TC-P3-06-03 | P | SV 16 / GV 16 |
@@ -299,7 +299,7 @@ Cách chạy:
 | TC-P3-06-09 | N | chờ chạy lượt R3 |
 | TC-P3-06-10 | P | pii_events: không cột văn bản (xem TC-P3-01-33) |
 | TC-P3-06-11 | N | chờ chạy lượt R3 |
-| TC-P3-06-12 | N | chờ chạy lượt R3 |
+| TC-P3-06-12 | P | trong giờ thi: from-draft → 201 (vẫn tạo phiên); gửi tin → 409 EXAM_IN_PROGRESS; go test: --- PASS: TestFromDraftKeepsText (0.84s) | --- PASS: TestFromDraftNoMessageStored (0.86s) | ok github.com/edupilot/backend-go/internal/chat 1.299s | |
 | TC-P3-06-13 | P | lần 1 422; gửi lại redact:true với khoá cũ → 422 IDEMPOTENCY_KEY_REUSED; khoá MỚI → 201; thread lưu: 'Hỏi điểm QC-C 2 / Em [đã ẩn] [đã ẩn] được mấy điểm? Mail [đã ẩn] SĐT [đã ẩn] CCCD [đã ẩn]'; pii_ev |
 | TC-P3-06-14 | N | chờ chạy lượt R3 |
 | TC-P3-06-15 | P | 422 PII_DETECTED |
@@ -327,8 +327,8 @@ Cách chạy:
 | TC-P3-06-37 | N | chờ chạy lượt R3 |
 | TC-P3-06-38 | P | UI 375: /threads tải (SV & GV), 0 tràn ngang |
 | TC-P3-06-39 | P | go test ok (1 test/ca con, ~3s) |
-| TC-P3-06-40 | P | 409 EXAM_IN_PROGRESS until có; forum_threads mới=0; exam_events CHAT_BLOCKED/{}; bài chứa PII cũng 409 (khoá chạy trước tường lửa): 409 |
-| TC-P3-06-41 | P | danh sách 200, chi tiết 200, precheck 200, bình luận 201, from-draft 201 |
+| TC-P3-06-40 | P | đăng thread trong giờ thi → 409 EXAM_IN_PROGRESS; forum_threads mới=0; bài chứa PII cũng 409 (khoá chạy trước tường lửa); exam_events=CHAT_BLOCKED/{} |
+| TC-P3-06-41 | P | trong giờ thi: đọc ds/chi tiết/precheck/bình luận/from-draft → [200, 200, 200, 201, 201] (kỳ vọng 200,200,200,201,201: chỉ đăng thread MỚI bị chặn) |
 | TC-P3-06-42 | P | RERUN 2026-11-16 (ep-r ≥ 32b4cb2b, a081590a): SV sv04 lớp 761987, /threads?course=, giả lập /me/exam-lock locked: dòng báo «Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau HH:mm.» hiện, không còn chữ «Chat tạm khóa» (evidence-3/scripts/r6c01.mjs, shots/r6c01-threads-lock.png) |
 | TC-P3-06-43 | N | chờ chạy lượt R3 |
 | TC-P3-06-44 | P | bỏ sót []; personal_question=True reasons=[{'type': 'PERSONAL_QUESTION', 'count': 1}] |
@@ -517,7 +517,7 @@ Cách chạy:
 | TC-P8-03-11 | N | chờ chạy lượt R3 |
 | TC-P8-03-12 | P | ETag=W/"4PgGAwvHxDQ8RGzv" → If-None-Match → 304 |
 | TC-P8-03-13 | P | sau sửa sự kiện, ETag cũ → 200 |
-| TC-P8-03-14 | P | trước mốc ETag→304(304); qua opens_at → 200; sau bắt đầu lượt thi ETag cũ → 200, personal_state=IN_PROGRESS |
+| TC-P8-03-14 | P | qua mốc opens_at: ETag cũ → 200 (200 = EffectiveStatus đổi); trạng thái ['SCHEDULED']→['OPEN']; và sau khi bắt đầu lượt thi → 200 IN_PROGRESS (TC-P8-03-14-a) |
 | TC-P8-03-15 | P | SV A: personal_state=['NOT_STARTED', 'SUBMITTED']; SV B: ['NOT_STARTED', 'SUBMITTED']; Staff: {None}; href SV=/exams/{id}/take, Staff=/exams/{id}; editable chỉ calendar_event+Staff: True |
 | TC-P8-03-16 | P | 21 mục; khoá cấm tìm thấy: [] |
 | TC-P8-03-17 | N | chờ chạy lượt R3 |
@@ -563,7 +563,7 @@ Cách chạy:
 | TC-P8-03-57 | P | SV tạo → 403, ADMIN → 403 |
 | TC-P8-03-58 | P | ?user_id bị bỏ qua: token vẫn của chính mình (201) |
 | TC-P8-03-59 | N | chờ chạy lượt R3 |
-| TC-P8-03-60 | P | A(sv33) thấy ['NOT_STARTED'], B(sv32) thấy ['IN_PROGRESS']; lịch lớp 2 → 403; /me/settings 200: null |
+| TC-P8-03-60 | P | A (sv04) thấy personal_state=['NOT_STARTED'] (không thấy IN_PROGRESS của B=sv05); lịch lớp 2 → 403; /me/settings của A → 200 chỉ preferences của chính A |
 
 ## Trượt: bước tái hiện
 ### DEF-R6-01 — K(c): nợ phase PR theo D44 (PROGRESS.md dòng 72); TC-P3-01-49 không tính trượt. Chi tiết `defects-6.md`.

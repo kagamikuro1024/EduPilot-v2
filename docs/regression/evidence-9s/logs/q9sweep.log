@@ -1,0 +1,21 @@
+   bài sweep 01a1efd2-7318-776d-9c13-7dbf5ddf1afa | trạng thái sau chấm: DRAFT/DONE,DRAFT/DONE,DRAFT/DONE,DRAFT/DONE,DRAFT/DONE
+   kết quả chưa công bố: 5
+   chuỗi nháp dùng làm mồi: 40
+PASS NONE     sv.nguyco: mine.result null, state không lộ nháp; 12 bề mặt không có chuỗi nháp / cờ / tiến độ (0 lỗi) 
+           state=NOT_SUBMITTED codes={'assignments': 200, '01a1efd2-7318-': 200, 'mine': 200, 'today': 200, 'grades': 404, 'notifications': 200, 'calendar?from=': 200, 'courses': 200, 'me': 404}
+PASS QUEUED   sv06: mine.result null, state không lộ nháp; 12 bề mặt không có chuỗi nháp / cờ / tiến độ (0 lỗi) 
+           state=GRADING codes={'assignments': 200, '01a1efd2-7318-': 200, 'mine': 200, 'today': 200, 'grades': 404, 'notifications': 200, 'calendar?from=': 200, 'courses': 200, 'me': 404}
+PASS RUNNING  sv07: mine.result null, state không lộ nháp; 12 bề mặt không có chuỗi nháp / cờ / tiến độ (0 lỗi) 
+           state=GRADING codes={'assignments': 200, '01a1efd2-7318-': 200, 'mine': 200, 'today': 200, 'grades': 404, 'notifications': 200, 'calendar?from=': 200, 'courses': 200, 'me': 404}
+PASS DRAFT    sv.gioi: mine.result null, state không lộ nháp; 12 bề mặt không có chuỗi nháp / cờ / tiến độ (0 lỗi) 
+           state=GRADING codes={'assignments': 200, '01a1efd2-7318-': 200, 'mine': 200, 'today': 200, 'grades': 404, 'notifications': 200, 'calendar?from=': 200, 'courses': 200, 'me': 404}
+PASS REVIEWED sv04: mine.result null, state không lộ nháp; 12 bề mặt không có chuỗi nháp / cờ / tiến độ (0 lỗi) 
+           state=GRADING codes={'assignments': 200, '01a1efd2-7318-': 200, 'mine': 200, 'today': 200, 'grades': 404, 'notifications': 200, 'calendar?from=': 200, 'courses': 200, 'me': 404}
+PASS FAILED   sv05: mine.result null, state không lộ nháp; 12 bề mặt không có chuỗi nháp / cờ / tiến độ (0 lỗi) 
+           state=GRADING codes={'assignments': 200, '01a1efd2-7318-': 200, 'mine': 200, 'today': 200, 'grades': 404, 'notifications': 200, 'calendar?from=': 200, 'courses': 200, 'me': 404}
+PASS tiến độ lô: sinh viên GET /jobs/{id} của job chấm → 404 
+PASS SSE của sinh viên không có job.progress / grading 
+   chat (S1, nháp 7.00 ):  1:1795024927327-0 event: done data: {"citations":[],"degraded":false,"low_confidence":false,"message_id":"01a1efd2-ba5c-71ef-9ea1-ce52cc6fdb81","ticket":null} 
+PASS chat không nêu điểm nháp (9,00 / 9.00) của chính mình khi chưa công bố 
+FAIL B sau công bố: thấy 7,50 và không thấy dấu vết nháp (ai_scores, cờ, tiến độ) {"code": "ASSIGNMENT_NOT_FOUND", "message": "Không tìm thấy bài tập.", "trace_id": "b8167bcee727a6e085f0262ecccac02d"}
+RESULT: FAIL (1 lỗi)
