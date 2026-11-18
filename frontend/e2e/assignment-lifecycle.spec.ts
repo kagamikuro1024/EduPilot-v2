@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { A1, RECEIVED, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mailRow, mineOut, mineResult, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
+import { A1, RECEIVED, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mailRow, mineOut, mineResult, queueRow, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -585,6 +585,16 @@ test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + C
   await page.getByRole("button", { name: "Cần xem kỹ" }).click();
   await expect(qRows(page)).toHaveCount(2);
   await expect(page.locator("[data-part=virtual-scroll]")).toBeVisible();
+});
+
+test("queue: bài «Chấm lỗi» nêu nguyên nhân bằng chữ (US-P7-06 AC10, US-P7-07 AC4; DEF-R9S-02)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const failed = (id: string, code: string) => queueRow({ id, result: { id: `r-${id}`, status: "DRAFT", run_state: "FAILED", flags: [], needs_review: false, error_code: code, version: 1 } });
+  await openQueue(page, context, { rows: [failed(SUB_B, "LLM_BUDGET_EXHAUSTED"), failed(SUB_C, "LLM_UNAVAILABLE")] });
+  await page.getByLabel("Trạng thái").selectOption("FAILED");
+  await expect(qRows(page)).toHaveCount(2);
+  await expect(qRows(page).nth(0)).toContainText("Hết ngân sách AI hôm nay — chấm lại ngày mai hoặc chấm tay");
+  await expect(qRows(page).nth(1)).toContainText("AI tạm thời không phản hồi");
 });
 
 test("grading ta cannot see publish: TA duyệt được nhưng không có nút Công bố", async ({ page, context }, info) => {
