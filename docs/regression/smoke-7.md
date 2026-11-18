@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 7 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval, bản dựng trên ep-r) · Stack ep-r · Người chạy: qc3 (Qc3S7 → Qc3S7b, chạy lại từ bản ghi qc2 ngày 2026-11-15) · Ngày: 2026-11-18/19 (ep-r dựng lại ngày 19/11 ~02:30; CI đối chiếu run 44343596969 @777bb5e2, 44380364341/44380374004 @07a6b69c)
-Tổng TC: 579 (582 cũ − 2 lỗi thời có nguồn đã xoá) · Đạt: 511 · Trượt: 7 · Chưa chạy N: 61   (P+F+N = 579 = 579)
+Tổng TC: 579 (582 cũ − 2 lỗi thời có nguồn đã xoá) · Đạt: 516 · Trượt: 8 · Chưa chạy N: 55   (P+F+N = 579 = 579)
 
 Quy ước: P = đạt; F = trượt; N = chưa chạy (chạy tới P/F thật, không còn K/T). Ca lỗi thời có nguồn quyết định đã xoá khỏi bảng, xem cuối defects-7.md. Bản ghi mới của qc3 ghi «[qc3 18/11]».
 
@@ -18,13 +18,13 @@ Cách chạy:
 | US | TC tổng | P | F | N | Ghi chú |
 |---|---|---|---|---|---|
 | US-P4-01 | 42 | 42 | 0 | 0 |  |
-| US-P4-02 | 31 | 30 | 0 | 1 |  |
-| US-P4-03 | 45 | 41 | 2 | 2 |  |
+| US-P4-02 | 31 | 31 | 0 | 0 |  |
+| US-P4-03 | 45 | 42 | 2 | 1 |  |
 | US-P4-04 | 39 | 39 | 0 | 0 |  |
 | US-P4-05 | 53 | 53 | 0 | 0 |  |
 | US-P4-06 | 55 | 52 | 0 | 3 |  |
 | US-P4-07 | 29 | 28 | 0 | 1 |  |
-| US-P5-01 | 36 | 32 | 0 | 4 |  |
+| US-P5-01 | 36 | 35 | 1 | 0 |  |
 | US-P5-02 | 48 | 38 | 1 | 9 |  |
 | US-P5-03 | 47 | 34 | 1 | 12 |  |
 | US-P5-04 | 37 | 37 | 0 | 0 |  |
@@ -80,7 +80,7 @@ Cách chạy:
 | TC-P4-01-E3 | P | [qc3 18/11] tin chứa CANARY-9K3Z đã gửi (st=200); escalate 200; grep log gateway/worker = ['0', '0'] |
 | TC-P4-01-P1 | P | [qc3 18/11] SVB GET messages phiên SVA → 404; GET ticket → 403; danh sách phiên của SVB có ticket SVA=False |
 | TC-P4-02-01 | P | [qc3 18/11] grep -rn 'InsertNotification/insert into notifications' backend-go (go+sql) / grep -v 'internal/notify/store/queries/notify.sql' → chỉ còn mã sinh sqlc store/notify.sql.go (sinh từ notify.sql) và các tệp *_test.go; không mã sản phẩm nào khác; go test ./internal/notify (gồm TestNotificationsOnlyViaNotify) ok 4.9s (@1409b04d) |
-| TC-P4-02-02 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-02 | P | [qc3 19/11] lớp QC3L 1.000 SV, GV đặt lịch thi (schedule, exam 01a1f042-3663…), log_statement=all (cửa sổ khoá ≤ 1 phút, đã trả none): docker logs ep-r-postgres-1 có ĐÚNG 1 câu `-- name: NotifyInsertMany` (`insert into notifications … select u, $1, $2, $3, $4, $5, $6::text || ':' || u::text from unnest($7::text[]::uuid[]) as u on conflict … do nothing`) với DETAIL `$2=EXAM_SCHEDULED, $6=exam.scheduled:<exam>`, mảng $7 = 1.000 uuid; notifications `dedupe_key like exam.scheduled:<exam>:%` = 1.000 dòng; không có 1.000 lượt `NotifyInsert` riêng (14 câu insert notifications trong cửa sổ: 12 là NotifyInsert TICKET_STALE của ticker khác, không thuộc exam). (Lần chạy trước dùng grep phân biệt hoa/thường «INSERT» nên báo 0; câu thật viết thường.) Bằng chứng: evidence-7/r5/pg-p4-02-02-03-04.log |
 | TC-P4-02-03 | P | [qc3 18/11] go test ./internal/course ok 90.8s; ./internal/exam ok 41.7s; ./internal/thread ok 18.4s; ./internal/calendar ok 8.4s (-count=1, từng gói, @1409b04d; log /tmp/qc3e/go/p402_*.log). Phần «git diff 1518f83.. chỉ #8/#10» chỉ đúng tại thời điểm sprint 7; các sprint sau sửa test hợp lệ nên không dùng làm tiêu chí |
 | TC-P4-02-04 | P | SSE /events của GV nhận khung `notification` (TICKET_NEW) < 1 s sau khi ticket tạo |
 | TC-P4-02-05 | P | [qc3 18/11] 20 lần: nhận 20/20 khung; p50=0.32s p95=0.40s max=0.41s (ms: [176, 178, 335, 142, 193, 239, 73, 166, 304, 351, 399, 309, 346, 357, 409, 339, 383, 308, 340, 402]) |
@@ -113,7 +113,7 @@ Cách chạy:
 | TC-P4-03-01 | P | limit=2 → 2 mục, cursor=True |
 | TC-P4-03-02 | P | limit 101/0 → [422, 422] |
 | TC-P4-03-03 | P | status ANSWERED/ALL/CLAIMED → [200, 200, 200] |
-| TC-P4-03-04 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-04 | P | [qc3 19/11] lớp QC3L 1.000 ticket OPEN: GET /courses/{id}/tickets?limit=100&status=OPEN → 200, 100 mục, 12 ms; log_statement=all: gateway chạy đúng 2 câu cho yêu cầu — `GetMembership` và 1 câu `TicketListStaff` (join users/courses/chat_messages, `limit $5=101`, con trỏ `(t.created_at,t.id) > ($3,$4)`), không có câu theo từng ticket (không N+1); `grep -i offset` trong log của yêu cầu = 0. Bằng chứng: evidence-7/r5/pg-p4-02-02-03-04.log, /tmp/qc3e/p4-03-04.log |
 | TC-P4-03-05 | P | me/tickets GV 200, 15 mục |
 | TC-P4-03-06 | P | TA 200 |
 | TC-P4-03-07 | P | ADMIN/SV me/tickets → 403/403 |
@@ -355,14 +355,16 @@ Cách chạy:
 | TC-P5-01-22 | P | xoá buổi 5 (và 6) → 204/204; buổi mới → 201 {'created': 1, 'first_session_no': 5, 'last_session_no': 5, 'skipped': 0} (kỳ vọng 5) |
 | TC-P5-01-23 | P | SV 403, ADMIN 403, SV ghi 403, SV ngoài lớp 403; TA dry_run 200 |
 | TC-P5-01-24 | P | PUT buổi lớp 1 qua URL lớp 2 → 404 |
-| TC-P5-01-25 … TC-P5-01-26 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-01-25 | P | [qc3 19/11] lớp mới QC3U9 (GV riêng qc3pa, tiêu đề «Chọn lớp, đang xem QC3U9» đúng lớp): GV thấy nút «Tạo lịch buổi học» =1, SV =0; ngăn kéo Thứ/T2…; «Xem trước» và «Tạo buổi» khoá khi chưa nhập; placeholder phòng «P.302»; Từ/Đến/Ngày nghỉ type=date; xem trước «Sẽ tạo 11 buổi · bỏ 1 ngày nghỉ», bảng 11 dòng cột Buổi/Ngày/Giờ (≤ 60), DB 0 buổi sau xem trước; nút «Tạo 11 buổi» bật; tạo → DB 11 buổi; danh sách buổi có menu «…» với Sửa, Xoá; nhập Đến ngày 2030-01-01 → lỗi 422 «Khoảng ngày tối đa 400 ngày.» ở ô, aria-invalid=true. (Lần chạy đầu trên QC3U8 là FAIL do lỗi script: regex /^Thêm với buổi 1/ khớp 3 nút; đã sửa script.) Bằng chứng: evidence-7/r3/ui-p501-r5.log, old/ui-p501.run2.log |
+| TC-P5-01-26 | F | [qc3 19/11] theo dõi network lớp QC3U9: 3 lần «Xem trước» (dry_run=true) ĐỀU gửi Idempotency-Key (ep-f5d4678a…, ep-bbfe692e…, ep-2e8bbfcd…); 2 lần «Tạo N buổi» khoá khác nhau (ep-e44f925b… ≠ ep-a4916eea…) và không trùng khoá xem trước — vế «khoá mới mỗi lần» ĐẠT, nhưng vế «xem trước không có key» TRƯỢT (SRS crm-360 4.2.1 bước 1: dry_run «không đòi Idempotency-Key», TLR-12: khoá của xem trước chiếm suất lưu vô ích). Xem DEF-R7-10. Bằng chứng: evidence-7/r3/ui-p501-r5.log |
 | TC-P5-01-27 | P | [qc3 18/11] COURSE_SETUP QC3H: trước generate «1/4 bước», bước «Tạo lịch buổi học» done=false (Href lịch); sau generate 201 → «2/4 bước xong», steps={'share_code': True, 'policy': False, 'sessions': True, 'documents': False} (tự tick) |
 | TC-P5-01-28 | P | [qc3 18/11] [qc3 19/11] 375×812: ngăn kéo rộng 375/375, cao 812/812 (toàn màn hình); scrollWidth trang 375 ≤ 375, ngăn kéo 375 ≤ 375; phần tử tương tác cao < 44 px: [] |
 | TC-P5-01-29 | P | [qc3 18/11] GET /courses/{id}/today (GV qc3t, lớp QC3H): «Điểm danh buổi 105 đang diễn ra · QC3H» urgency=high (không overdue), «Buổi 104 đã kết thúc, chưa điểm danh · QC3H» urgency=overdue (kết thúc 3 giờ trước, ≤24h), href=/attendance?course=…&session=… ; 5 buổi chưa điểm danh → chỉ 3 mục hiện (≤3 mỗi lớp) |
 | TC-P5-01-30 | P | [qc3 18/11] thứ tự kind trong today lớp: ['SESSION_UNMARKED', 'SESSION_UNMARKED', 'JOIN_REQUEST', 'GRADE_SCHEME_UNCONFIRMED', 'COURSE_SETUP'] (SESSION_UNMARKED bậc 12 đứng trước JOIN_REQUEST/GRADE_SCHEME…; EXAM_GRADE_ERROR không có); sau Lưu điểm danh hai buổi → mục biến mất sau 1.0s (≤60) |
 | TC-P5-01-31 | P | [qc3 18/11] SV (me/today) SESSION_UNMARKED=0; ADMIN=0; lớp QC3C ARCHIVED có buổi đang diễn ra: me/today=0, today lớp (200)=0 |
 | TC-P5-01-32 | P | [qc3 18/11] hai generate song song (qc3t teacher + qc3ta TA, khoá Idempotency khác) cùng khoảng 2026-12-29…2027-01-12: TA → 201 created 3 (no 11–13) skipped 2; teacher → 201 created 0 skipped 5 (DUPLICATE, gồm 3 buổi vừa tạo + 2 buổi có sẵn); DB 10→13 (+3 đúng một lần), session_no trùng=0, starts_at trùng=0, không 500 |
-| TC-P5-01-33 … TC-P5-01-34 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-01-33 | P | [qc3 19/11] lớp QC3U7: xem trước «Sẽ tạo 9 buổi»; setOffline khi bấm «Tạo 9 buổi» → ô lỗi «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.», nút bật lại, DB 0 buổi; online + thử lại → DB 9 buổi (đúng N), 4 yêu cầu tạo chỉ có 1 Idempotency-Key (thử lại dùng cùng khoá); ca phụ: máy chủ đã ghi nhưng phản hồi bị cắt → thử lại cùng khoá không tạo đôi (DB 17 = 9+8). Bằng chứng: evidence-7/r3/old/ui-p501.run2.log |
+| TC-P5-01-34 | P | [qc3 19/11] (1) `bash scripts/ui-antipatterns.sh` trên 8c9b1d6a → exit 0, mọi quy tắc ✓; (2) calendar.spec.ts «generate sessions preview and create» và «edit delete session» ✓ ở CI run 44343596969 (desktop 16, 19; mobile bị bỏ qua theo cấu hình) — log evidence-7/r4/ci-44343596969-e2e-all.txt.gz; (3) tên «course setup sessions step ticks» không tồn tại trong lịch sử git của frontend/e2e (git log -S rỗng): hành vi tương đương = today.spec «staff today: Thiết lập lớp mới mở 4 bước tại chỗ…» ✓ (CI desktop 315, mobile 649) và bước «Tạo lịch buổi học» tick sau generate đã chạy thật ở TC-P5-01-27 |
 | TC-P5-01-E1 | P | [qc3 18/11] dry_run lớp ARCHIVED → 409 COURSE_ARCHIVED (SRS 6.1: 409 COURSE_ARCHIVED) |
 | TC-P5-01-E2 | P | [qc3 18/11] Postgres chết khi generate → 503 SERVICE_UNAVAILABLE; số buổi 19→19 (không buổi nửa vời). Ghi chú E2 nêu Redis/DB: Redis chết → generate không dùng Redis (xem dưới) |
 | TC-P5-02-01 | P | lưới điểm danh → 200; keys=['session', 'students'] |
@@ -388,7 +390,8 @@ Cách chạy:
 | TC-P5-02-21 | P | [qc3 18/11] [qc3 19/11] 3 thay đổi trong ≈0,5 s: số PUT=1 (complete:false, 3 bản ghi) gửi sau 2594 ms (2 s yên lặng sau thay đổi cuối ≈ 500 ms ⇒ ≈2500); chỉ báo: ["Đang lưu…","Đã lưu 02:38"] |
 | TC-P5-02-22 | P | [qc3 18/11] [qc3 19/11] PUT trả 500: dòng «Chưa lưu được. Thử lại» hiện, nút Thử lại=1, lựa chọn Vắng vẫn đánh dấu=true (UI giữ lựa chọn của người dùng, không hoàn về Có mặt); bỏ chặn → Thử lại → «Đã lưu HH:MM»; ABSENT trong DB cho buổi=3 |
 | TC-P5-02-23 | P | [qc3 18/11] [qc3 19/11] bấm Lưu điểm danh: PUT complete:true=1 lần, 30 bản ghi (cả lưới); dòng «Đã lưu điểm danh · 30 sinh viên · vắng 6» (số vắng theo dữ liệu, DB ABSENT=6); hộp thoại=0, toast=0; nút «Đã lưu · 23 có mặt · 7 vắng» khoá=true; bộ chọn buổi «Buổi 5 · 19/11 · Đã điểm danh»; thêm một thay đổi → nút mở lại=true |
-| TC-P5-02-24 … TC-P5-02-25 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-24 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-25 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-26 | P | [qc3 18/11] [qc3 19/11] bấm «+» 1 lần: bộ đếm «+1» sau 170 ms; POST …/participation {"student_id":"01a1f01d-a849-7459-ab94-dfaec44c43c4","session_id":"01a1f02a-6ea3-7830-8e05-d470d33374f2","type":"SPEAK","client_event_id":"0d9d2af8…"}; bấm thêm 3 lần: bộ đếm «+4», số POST=4, client_event_id khác nhau=4, DB participation_events SPEAK=4; nhãn nút: aria-label «Ghi phát biểu · QC3 qc3at112», tooltip «Ghi phát biểu (P)» (TC gốc: «+ phát biểu · +0,25»: nhãn hiện là biểu tượng + với aria «Ghi phát biểu», bộ đếm dạng «+n · +0,25×n» khi công thức đã có điểm cộng) |
 | TC-P5-02-27 | P | POST phát biểu → 201; lặp client_event_id → 200; số dòng=1 |
 | TC-P5-02-28 | P | SV/ADMIN/SV ngoài lớp → [403, 403, 422] |
@@ -399,7 +402,8 @@ Cách chạy:
 | TC-P5-02-33 | F | [qc3 18/11] [qc3 19/11] offline: nút thanh dưới «Chờ mạng · 997 có mặt · 3 vắng» khoá=true; nút đầu trang «Lưu điểm danh» khoá=true; KHÔNG bấm được khi offline (nút bị khoá); sau khi có mạng 6 s: session.attendance_done_at đặt=f (kỳ vọng AC13: xếp hàng complete:true rồi done_at) — nút «Lưu điểm danh» (đầu trang và thanh dưới «Chờ mạng · … ») bị KHOÁ khi mất mạng nên không xếp hàng complete:true (đúng thiết kế AC13b, không phải AC13). Xem DEF-R7-08 |
 | TC-P5-02-34 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-35 | P | [qc3 18/11] [qc3 19/11] offline, 3 thay đổi chờ lưu → Đăng xuất: hộp «Còn điểm danh chưa lưu / 3 thay đổi chưa lên máy chủ sẽ bị xoá khỏi máy này. / Ở lại / Đăng xuất» (hỏi trước, nút «Ở lại»/«Đăng xuất»); bấm Ở lại → vẫn ở /attendance?session=01a1f034-4922-778a-a74c-fe8c77cd5ffd (true) |
-| TC-P5-02-36 … TC-P5-02-37 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-36 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-37 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-38 | P | sv.kha (DB: vắng 1): Hiện tại bạn đã vắng 1 buổi học. |
 | TC-P5-02-39 | P | sv.gioi (DB vắng 0) hỏi cùng câu → «chưa vắng buổi nào (0)»; mỗi SV nhận số của chính mình |
 | TC-P5-02-40 | P | [qc3 18/11] lớp QC3A (chưa buổi/điểm danh): «Hệ thống chưa có dữ liệu điểm danh của bạn.»; llm_audit 4399→4399 (0 lời gọi LLM) |
@@ -409,13 +413,21 @@ Cách chạy:
 | TC-P5-02-44 | P | [qc3 18/11] [qc3 19/11] chậm (GET lưới trễ 3,5 s): khung xương=1 phần tử; GET 500: «Điểm danh / Lưu điểm danh / Có lỗi xảy ra. Dữ liệu của bạn vẫn an toàn. Thử lại sau ít phút. / Chi tiết kỹ thuật / Thử lại» + nút Thử lại; buổi đang chọn còn trong URL=true; bấm Thử lại → lưới 1000 hàng |
 | TC-P5-02-45 | P | [qc3 18/11] [qc3 19/11] `grep -rn "@/mock" frontend/src/features/attendance / wc -l` = 0; job «Frontend (lint + build)» success: `pnpm -C frontend lint` (eslint .), `bash scripts/ui-antipatterns.sh` (34/34 phép bắt được ở lint-selftest), `pnpm -C frontend build` «✓ Compiled successfully … Finished TypeScript»; chạy tại chỗ ở worktree 1409b04d: ui-antipatterns.sh rc=0 (evidence-7/r4/static-p5.log); (ATTENDANCE_SEED/mock/roster.ts phần điểm danh: không còn tham chiếu ở features/attendance) |
 | TC-P5-02-46 | P | [qc3 18/11] [qc3 19/11] Run CI 44343596969 @777bb5e2 (success; log tải bằng gh api, lưu evidence-7/r4/ci-44343596969-*): `attendance.spec.ts` 21/21 test xanh (desktop; project mobile bị CI bỏ qua theo cấu hình), 0 failed, 0 flaky (flaky duy nhất của run ở dev-ui.spec); `attendance-display.spec.ts` 5/5 ✓ |
-| TC-P5-02-E1 … TC-P5-02-E2 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-E1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-E2 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-03-01 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
 | TC-P5-03-02 | P | [qc3 18/11] area='X' → 23514; -1 → 23514; 86401 → 23514; trùng (course,student,date,area) → 23505; biên 86400/0 → OK/OK; ràng buộc: study_time_daily_area_chk: CHECK ((area = ANY (ARRAY['CHAT'::text, 'THREADS'::text, 'PRACTICE'::text, 'LIBRARY'::text, 'CALENDAR'::text]))) / study_time_daily_key: UNIQUE (course_id, student_id, date, area) / study_time_daily_seconds_chk: CHECK (((active_seconds >= 0) AND (active_seconds <= 86400))); insight_reports cột: id uuid NO; course_id uuid NO; kind text NO; period_from date YES; period_to date YES; payload jsonb NO; data_watermark timestamp with time zone NO; generated_by uuid NO; version integer NO; created_at timestamp with time zone NO; updated_at timestamp with time zone NO; check/FK: insight_reports_course_id_fkey: FOREIGN KEY (course_id) REFERENCES courses(id) / insight_reports_generated_by_fkey: FOREIGN KEY (generated_by) REFERENCES users(id) / insight_reports_kind_chk: CHECK ((kind = 'KNOWLEDGE_GAP'::text)) / insight_reports_payload_chk: CHECK ((jsonb_typeof(payload) = 'object'::text)) / insight_reports_version_chk: CHECK ((version >= 1)); CREATE INDEX insight_reports_course_kind_idx ON public.insight_reports USING btree (course_id, kind, created_at DESC) |
 | TC-P5-03-03 | P | [qc3 18/11] [qc3 19/11] log_statement=all trong cửa sổ khoá 98 s (02:54–02:56, đã hoàn lại none): nhịp CHAT của SV mới → 204; Redis ep…:CHAT 30 → 60 (+30); mục log nhắc user_id của SV: 0 (toàn SELECT: đọc đệm ep:trk/ep:enr), trong đó INSERT/UPDATE: 0; mục log nhắc study_time_daily trong cửa sổ: 0 ; tổng INSERT/UPDATE của mọi người dùng khác trong cửa sổ 1,5 s: 0 (không thuộc request này: không chứa user_id/course của nó) — không có câu INSERT/UPDATE nào trong cửa sổ; nhịp hợp lệ không chạm Postgres (đệm ep:trk/ep:enr đã nạp ở nhịp trước) |
 | TC-P5-03-04 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-03-05 | P | hai tab (t1,t2) cùng khung 30 s → study_time_daily chỉ +30 s (không nhân đôi) |
-| TC-P5-03-06 … TC-P5-03-13 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-06 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-07 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-08 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-09 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-10 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-11 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-13 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-03-14 | P | rollup mỗi phút: nhịp CHAT/THREADS/LIBRARY của SV được ghi vào study_time_daily |
 | TC-P5-03-15 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-03-16 | P | [qc3 18/11] DB giữ X=90; $RDS DEL khoá → rollup (≥75 s) → DB=90 (không giảm, không âm); đặt lại khoá 30 (Redis "mất" tích luỹ rồi đếm lại) → rollup → DB=90 (GREATEST giữ 90) |
@@ -500,7 +512,8 @@ Cách chạy:
 | TC-P5-05-11 | P | tags>5/tag rỗng/tag 31/body rỗng/body 2001 → [422, 422, 422, 422, 422] |
 | TC-P5-05-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-05-13 | P | SV không thấy CANARY-OBS trong me/today, me/attendance, me/participation |
-| TC-P5-05-14 … TC-P5-05-15 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-14 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-15 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-05-16 | P | POST …/students/{g7s01}/ai-summary (teacher g7t) → 200 {draft:{summary,strengths[1],concerns[…],suggestions[…]}}. Mỗi yêu cầu đúng 1 dòng llm_audit (2 yêu cầu → 2 dòng task=UTILITY, lane=NEAR_REALTIME |
 | TC-P5-05-17 | P | student_observations trước/sau ai-summary: 1 → 1 (không lưu); API trả 200 {draft}; hiển thị bản nháp nhãn AI trong ô sửa được: CI students.spec "ai summary edit then save" ✓ + UI thật trong lượt UI |
 | TC-P5-05-18 | P | POST observations kind=AI_SUMMARY (ai_edited=false) → 201 kind=AI_SUMMARY ai_edited=False; sửa chữ rồi lưu (PUT ai_edited=true) → 200 ai_edited=True version 2. Nhãn "Nhận xét tổng hợp · AI" / "· Đã sử |
@@ -515,7 +528,8 @@ Cách chạy:
 | TC-P5-05-27 | P | 4 outreach/ngày tới g7s02 (2 nhân viên g7t, g7ta cộng lại): [(201, 'ok'), (201, 'ok'), (201, 'ok'), (429, 'OUTREACH_LIMIT')] — tin thứ 4 → 429 OUTREACH_LIMIT; tin STAFF_ANSWER thực có 3; REMOVED (g7s1 |
 | TC-P5-05-28 | P | Như TC-P5-04-31 trên g7s01 (AT_RISK + ghi chú canary): trả lời mẫu, không `[[…]]`, payload LLM/RAG không chứa ghi chú hay nhãn rủi ro; dev test TestStudentAsksAboutOwnNotes, TestNoToolReadsObservation |
 | TC-P5-05-29 | P | go test ./internal/agent -run TestStudentAsksAboutOwnNotes/TestNoToolReadsObservations -v: ok (2 PASS) |
-| TC-P5-05-30 … TC-P5-05-31 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-30 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-31 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-05-32 | P | grep -rn "@/mock" frontend/src/features/students / wc -l = 0 (cây be0c0d96); CI fe-check: pnpm lint + next build xanh; Hôm nay staff (today) lấy attention từ API: /me/today có khối attention thật (761 |
 | TC-P5-05-33 | P | ui-antipatterns.sh exit 0; run PR 43712425198 @be0c0d96 (CI Playwright, cùng test, khung mô phỏng gateway): students.spec toàn bộ 14 test desktop ✓ (mobile skip theo thiết kế "đo một lần"), 0 flaky, 0 |
 | TC-P5-05-E1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
@@ -526,16 +540,27 @@ Cách chạy:
 | TC-P5-06-04 | P | TA/GV/ADMIN me/* → [403, 403, 403, 403, 403, 403] |
 | TC-P5-06-05 | P | limit=2 → 200 0 mục; keys=['attendance', 'next_cursor'] |
 | TC-P5-06-06 | P | Crawl tài khoản g7s01 (AT_RISK, ghi chú CANARY-OBS-4F, đã nhận outreach): /me/{courses,profile,settings,today,sessions}, /notifications, /chat/sessions + messages 2 phiên, /courses/{id}/me/{attendance |
-| TC-P5-06-07 … TC-P5-06-10 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-07 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-08 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-09 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-10 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-06-11 | P | g7s02 (vắng 2 buổi, 2 SPEAK = +0,50): /me/attendance absent=2, /me/participation points_total 0.50 (2 lần); chat "Em đã nghỉ mấy buổi và được cộng bao nhiêu điểm phát biểu rồi ạ?" → "Chào bạn, hiện tạ |
 | TC-P5-06-12 | P | giảng viên (ngữ cảnh khác) ghi thêm 1 SPEAK cho g7s02 → sau 3,6 s: /me/participation points_total=0.75 (3 lần), chat "Bạn đã nghỉ 2 buổi và hiện có tổng cộng 0.75 điểm cộng phát biểu (tương ứng với 3 |
 | TC-P5-06-13 | P | GET …/me/study-time?weeks=8 (g7s08, đã Đã hiểu): 200 {weeks:[{week_start,minutes,by_area}] (8 tuần), this_week_minutes=100, tracking={'enabled': True, 'locked': False}}; chỉ của mình; người khác/…/stu |
-| TC-P5-06-14 … TC-P5-06-18 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-14 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-15 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-16 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-17 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-18 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-06-20 | P | g7s11 ghi danh G7A và G7N: /me/attendance G7A recorded=4 (DB 4), G7N recorded=0 (DB 0); study this_week G7A=100, G7N=0; số đổi theo lớp, không lẫn (dev TestMeTwoCoursesIsolated PASS; UI đổi bộ chọn: C |
 | TC-P5-06-21 | P | grep -rn "@/mock" frontend/src/features/me / wc -l = 0; CI fe-check (pnpm lint + build) xanh |
-| TC-P5-06-22 … TC-P5-06-25 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-22 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-23 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-24 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-25 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-06-26 | P | ui-antipatterns.sh exit 0; run PR 43712425198 @be0c0d96 (CI Playwright, cùng test, khung mô phỏng gateway): me.spec 25 test desktop ✓; activity.spec (nay chứa "study time opt out on allowed course", " |
-| TC-P5-06-E1 … TC-P5-06-E2 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-E1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-E2 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-S7-SEED-01 | P | 761987: attendance_records tạo bởi seed (created_at 12:25:54, trước 12:30) = 270 dòng, buổi 1–9 `attendance_done_at` có giá trị, buổi 10 (2026-11-15 09:00) lúc seed chưa có dòng nào/chưa điểm danh. (H |
 | TC-S7-SEED-02 | P | Buổi 1–9 (dữ liệu seed): sv.gioi vắng 0/có mặt 9; sv.kha vắng 2, muộn 1, có mặt 6; sv.nguyco vắng 5, muộn 1, có mặt 3 — khớp seed/expected_crm.csv từng cột (speak_count 12/2/1, points 3,00/0,50/0,25). |
 | TC-S7-SEED-03 | P | ABSENT buổi 1–9 = 21 (18–26); participation_events lúc seed = 65 (≈60), A nhiều nhất 12; B (sv.kha) đúng 2 sự kiện SPEAK = +0,50 |

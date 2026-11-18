@@ -121,3 +121,32 @@ test("P5-06 22/23/24/25 settings", async ({ browser }) => {
   R("TC-P5-06-25", box.h >= 44 || box.rowH >= 44, `375×812, /class/settings lớp M2 (đã có SV): công tắc «Cho sinh viên tắt đo thời gian học» cao ${box.h} px (hàng ${box.rowH}), disabled=${dis}, trạng thái bật=${chk} (giá trị «Không» = tắt/không cho); ngữ cảnh: ${(sec.match(/Cho sinh viên tắt đo[\s\S]{0,60}/) ?? [""])[0].replace(/\n/g, " | ")}`);
   await m.ctx.close();
 });
+
+/** 06 / 11 / 12: thời gian THẬT 10 phút (máy chủ chia khung 30 s theo đồng hồ thật nên đồng hồ giả không đo được số giây tích luỹ). Ba sinh viên chạy song song. */
+test("06/11/12 mười phút thật: hai tab, thao tác 3 phút, ẩn 4 phút", async ({ browser }) => {
+  test.setTimeout(1_200_000);
+  const H = FX("fx_hb") as { C: string; U: string[] }; const [u1, u2, u3] = H.U;
+  const day = new Date(Date.now() + 7 * 3600_000).toISOString().slice(0, 10).replace(/-/g, "");
+  const key = (u: string) => `ep:study:${H.C}:${uid(u)}:${day}:CHAT`; const val = (u: string) => Number(rds("GET", key(u)) || "0");
+  const base = [val(u1), val(u2), val(u3)];
+  const mk = async (u: string) => { const x = await newUser(browser, u); const beats: Array<{ t: number; tab?: string }> = []; x.page.on("request", (r) => { if (r.url().includes("/activity/heartbeat") && r.method() === "POST") beats.push({ t: Date.now(), tab: JSON.parse(r.postData() ?? "{}").tab_id }); }); return { ...x, beats }; };
+  const A1 = await mk(u1); const p2 = await A1.ctx.newPage(); const b2: Array<{ t: number; tab?: string }> = []; p2.on("request", (r) => { if (r.url().includes("/activity/heartbeat") && r.method() === "POST") b2.push({ t: Date.now(), tab: JSON.parse(r.postData() ?? "{}").tab_id }); }); const A2 = { ctx: A1.ctx, page: p2, beats: b2 }; const B = await mk(u2); const Cc = await mk(u3);
+  const t0 = Date.now(); const st = (ms: number) => Date.now() - t0 < ms;
+  for (const x of [A1, A2, B, Cc]) await x.page.goto(`/chat?course=${H.C}`);
+  await Promise.all([A1, A2, B, Cc].map((x) => x.page.waitForTimeout(2500)));
+  const poke = (p: Page) => p.keyboard.press("Shift").catch(() => undefined);
+  let hid = false;
+  while (st(600_000)) {
+    const el = Date.now() - t0;
+    await poke(A1.page); await poke(A2.page); if (el < 180_000) await poke(B.page);
+    if (el >= 180_000 && el < 420_000) { if (!hid) { await hide(Cc.page, true); hid = true; } } else { if (hid) { await hide(Cc.page, false); hid = false; } await poke(Cc.page); }
+    await A1.page.waitForTimeout(15_000);
+  }
+  await Promise.all([A1, A2, B, Cc].map((x) => x.page.waitForTimeout(1500)));
+  const d1 = val(u1) - base[0], d2 = val(u2) - base[1], d3 = val(u3) - base[2];
+  const tabs = new Set([...A1.beats, ...A2.beats].map((b) => b.tab)).size;
+  R("TC-P5-03-06", d1 > 0 && d1 <= 630 && tabs === 2 && A1.beats.length >= 15 && A2.beats.length >= 15, `hai tab /chat cùng người dùng, thao tác cả hai, 600 s thật: tab 1 gửi ${A1.beats.length} nhịp, tab 2 gửi ${A2.beats.length} nhịp (tab_id khác nhau=${tabs}); Redis ${key(u1).replace(/[0-9a-f]{8}-[0-9a-f-]{27}/g, "<uuid>")} tăng ${d1} s (≤ 600 + 30; không gấp đôi 1.200)`);
+  R("TC-P5-03-11", d2 >= 270 && d2 <= 330, `tab /chat hiện suốt 600 s thật, thao tác 180 s đầu rồi dừng (nhịp ngừng sau mốc idle 120 s): ${B.beats.length} nhịp gửi, Redis tăng ${d2} s (kỳ vọng 300 ± 30)`);
+  R("TC-P5-03-12", d3 >= 330 && d3 <= 390, `tab /chat, thao tác liên tục, ẩn tab (visibilityState=hidden) từ giây 180 đến 420 (4 phút): ${Cc.beats.length} nhịp gửi, Redis tăng ${d3} s (kỳ vọng 360 ± 30: đúng 6 phút hiện, 4 phút ẩn không cộng)`);
+  for (const x of [A1, B, Cc]) await x.ctx.close();
+});

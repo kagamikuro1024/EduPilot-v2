@@ -14,7 +14,7 @@ const count = (S: string, st: string) => psql(`select count(*) from attendance_r
 const nameOf = async (p: Page, i: number) => (await rows(p).nth(i).locator(".ep-item-title").first().innerText()).trim();
 
 test("18 lưới ≥1100px", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const S = ses(F.C); await openAtt(page, F.C, S);
+  const { ctx, page } = await newUser(browser, F.teacher); const S = ses(F.C); await openAtt(page, F.C, S);
   const info = await page.evaluate(() => {
     const th = Array.from(document.querySelectorAll("[data-part=attendance-grid] thead th")).map((e) => (e as HTMLElement).innerText.replace(/\s+/g, " ").trim());
     const t = document.querySelector("[data-part=attendance-grid] thead th") as HTMLElement; const td = document.querySelector("[data-part=attendance-grid] tbody td") as HTMLElement;
@@ -42,7 +42,7 @@ test("18 lưới ≥1100px", async ({ browser }) => {
 });
 
 test("19 30 SV bằng phím ≤ 60 s", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const S = ses(F.C); await openAtt(page, F.C, S);
+  const { ctx, page } = await newUser(browser, F.teacher); const S = ses(F.C); await openAtt(page, F.C, S);
   const n = await rows(page).count(); await page.getByLabel(/Bảng điểm danh/).focus();
   const t0 = Date.now(); for (let i = 0; i < n; i++) await page.keyboard.press([4, 12, 20].includes(i) ? "4" : i === 8 ? "2" : "1");
   await page.getByRole("button", { name: /^Lưu điểm danh/ }).first().click(); await page.getByText(/Đã lưu điểm danh · \d+ sinh viên/).waitFor({ timeout: 30000 }); const dt = (Date.now() - t0) / 1000;
@@ -54,7 +54,7 @@ test("19 30 SV bằng phím ≤ 60 s", async ({ browser }) => {
 });
 
 test("20/21/22/23/26 thao tác trên lưới", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const S = ses(F.C); const reqs = puts(page);
+  const { ctx, page } = await newUser(browser, F.teacher); const S = ses(F.C); const reqs = puts(page);
   const posts: any[] = []; page.on("request", (r) => { if (r.method() === "POST" && /\/participation$/.test(r.url())) posts.push(JSON.parse(r.postData() ?? "{}")); });
   await openAtt(page, F.C, S);
   // 20
@@ -102,9 +102,9 @@ test("20/21/22/23/26 thao tác trên lưới", async ({ browser }) => {
 });
 
 test("24/25 bộ chọn buổi, rỗng, đổi buổi giữ thay đổi", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t");
+  const { ctx, page } = await newUser(browser, F.teacher);
   const sPast = ses(F.C0, -60 * 48, 90), sNow = ses(F.C0, -20, 90), sFut = ses(F.C0, 60 * 24, 90);
-  psql(`update class_sessions set attendance_done_at=now(), attendance_done_by=(select id from users where email='qc3t@edupilot.local') where id='${sPast}'`);
+  psql(`update class_sessions set attendance_done_at=now(), attendance_done_by=(select id from users where email='${F.teacher}@edupilot.local') where id='${sPast}'`);
   await go(page, `/attendance?course=${F.C0}`); await page.locator("[data-part=att-session-select]").waitFor();
   const sel = page.locator("[data-part=att-session-select]"); const v0 = await sel.inputValue(); const opts = await sel.locator("option").allInnerTexts();
   await go(page, `/attendance?course=${F.C0}&session=${sPast}`); await page.locator("[data-part=att-session-select]").waitFor(); const v1 = await page.locator("[data-part=att-session-select]").inputValue(); const url1 = page.url();
@@ -121,7 +121,7 @@ test("24/25 bộ chọn buổi, rỗng, đổi buổi giữ thay đổi", async 
 });
 
 test("31/32/33/35/36 mất mạng", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const S = ses(F.C); const reqs = puts(page); await openAtt(page, F.C, S);
+  const { ctx, page } = await newUser(browser, F.teacher); const S = ses(F.C); const reqs = puts(page); await openAtt(page, F.C, S);
   const userId = await page.evaluate(() => Object.keys(localStorage).find((k) => k.startsWith("ep:draft:")) ?? "");
   await ctx.setOffline(true); await page.waitForTimeout(500);
   const t0 = Date.now(); await rad(page, 3, "ABSENT").click(); await rad(page, 4, "ABSENT").click(); await rad(page, 5, "ABSENT").click();
@@ -149,6 +149,7 @@ test("31/32/33/35/36 mất mạng", async ({ browser }) => {
   R("TC-P5-02-33", queued && doneAt === "t", `offline: nút thanh dưới «${barTxt}» khoá=${barDis}; nút đầu trang «Lưu điểm danh» khoá=${hdrDis}; ${queued ? "đã bấm khi offline" : "KHÔNG bấm được khi offline (nút bị khoá)"}; sau khi có mạng 6 s: session.attendance_done_at đặt=${doneAt} (kỳ vọng AC13: xếp hàng complete:true rồi done_at)`);
   await shot(page, "p502-33");
   // 32: tải lại giữ hàng đợi (PUT bị chặn bằng route abort, trang tải được)
+  await page.evaluate(() => Object.keys(localStorage).filter((k) => k.includes(":attendance:")).forEach((k) => localStorage.removeItem(k))); // bỏ nháp dư của ca 33 (hàng LATE chưa lưu) để đếm kho của riêng ca 32
   const S2 = ses(F.C); await ctx.route(/\/sessions\/[^/]+\/attendance$/, (r) => (r.request().method() === "PUT" ? r.abort("failed") : r.continue()));
   await openAtt(page, F.C, S2); await rad(page, 1, "ABSENT").click(); await rad(page, 2, "ABSENT").click(); await rad(page, 3, "ABSENT").click(); await page.waitForTimeout(3000);
   const key = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.includes(":attendance:")));
@@ -164,9 +165,9 @@ test("31/32/33/35/36 mất mạng", async ({ browser }) => {
 });
 
 test("34 409 khi mạng về", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const S = ses(F.C); const reqs = puts(page); await openAtt(page, F.C, S);
+  const { ctx, page } = await newUser(browser, F.teacher); const S = ses(F.C); const reqs = puts(page); await openAtt(page, F.C, S);
   // tạo bản ghi gốc để có version: TA đánh vắng hàng 6 trước, GV tải lại để có version
-  const ta = await newUser(browser, "qc3ta"); await openAtt(ta.page, F.C, S); await rad(ta.page, 6, "LATE").click(); await ta.page.waitForTimeout(3500);
+  const ta = await newUser(browser, F.ta); await openAtt(ta.page, F.C, S); await rad(ta.page, 6, "LATE").click(); await ta.page.waitForTimeout(3500);
   await page.reload(); await page.locator("[data-part=student-row]").first().waitFor({ timeout: 30000 }); await page.waitForTimeout(800);
   await ctx.setOffline(true); await page.waitForTimeout(400);
   await rad(page, 6, "ABSENT").click(); await rad(page, 7, "ABSENT").click(); await page.waitForTimeout(300);
@@ -184,7 +185,7 @@ test("34 409 khi mạng về", async ({ browser }) => {
 
 test("10/E1/E2 xung đột hai người", async ({ browser }) => {
   for (const slow of [false, true]) {
-    const A1 = await newUser(browser, "qc3t"); const B1 = await newUser(browser, "qc3ta"); const S = ses(F.C);
+    const A1 = await newUser(browser, F.teacher); const B1 = await newUser(browser, F.ta); const S = ses(F.C);
     if (slow) for (const x of [A1, B1]) { const c = await x.ctx.newCDPSession(x.page); await c.send("Network.enable"); await c.send("Network.emulateNetworkConditions", { offline: false, latency: 400, downloadThroughput: (50 * 1024) / 8, uploadThroughput: (50 * 1024) / 8 }); }
     await openAtt(A1.page, F.C, S); await openAtt(B1.page, F.C, S);
     await rad(A1.page, 3, "ABSENT").click(); await rad(B1.page, 3, "LATE").click(); await rad(B1.page, 4, "ABSENT").click();
@@ -193,15 +194,16 @@ test("10/E1/E2 xung đột hai người", async ({ browser }) => {
     const body = (await B1.page.locator("main").innerText()); const notice = body.match(/[^\n]*vừa đổi \d+ dòng[^\n]*/)?.[0] ?? "";
     const mine = await B1.page.getByRole("button", { name: "Giữ của tôi" }).count(); const theirs = await B1.page.getByRole("button", { name: /^Lấy của/ }).count(); const keep4 = await rad(B1.page, 4, "ABSENT").isChecked();
     await B1.page.getByRole("button", { name: "Giữ của tôi" }).first().click().catch(() => undefined); await B1.page.waitForTimeout(slow ? 9000 : 5000);
-    const db3 = psql(`select r.status from attendance_records r join enrollments e on e.user_id=r.student_id and e.course_id=r.course_id where r.session_id='${S}' order by e.student_code_snapshot limit 1 offset 3`); const db4 = psql(`select r.status from attendance_records r join enrollments e on e.user_id=r.student_id and e.course_id=r.course_id where r.session_id='${S}' order by e.student_code_snapshot limit 1 offset 4`);
-    const tc = slow ? "TC-P5-02-E1" : "TC-P5-02-10"; const ok = /vừa đổi 1 dòng/.test(notice) && mine === 1 && theirs === 1 && keep4;
-    R(tc, ok && db3 !== "", `${slow ? "mạng 3G giả (độ trễ 400 ms, 50 kbps) ở cả hai ngữ cảnh: " : ""}GV (qc3t) và TA (qc3ta) cùng /attendance?session=…: cả hai đổi hàng 4 (GV Vắng, TA Muộn), TA còn đổi hàng 5 (Vắng); GV lưu trước, TA lưu: TA thấy «${notice}» + «Giữ của tôi»=${mine} / «Lấy của …»=${theirs}; thay đổi còn lại của TA (hàng 5 Vắng) giữ=${keep4}; chọn «Giữ của tôi» → gửi lại với version mới; DB hàng 4=${db3 || "—"}, hàng 5=${db4 || "—"}`);
+    const dbAt = (k: number) => psql(`select status||'/v'||version from attendance_records where session_id='${S}' and student_id=(select user_id from enrollments where course_id='${F.C}' and role_in_course='STUDENT' order by student_code_snapshot limit 1 offset ${k})`);
+    const db3 = dbAt(3), db4 = dbAt(4);
+    const tc = slow ? "TC-P5-02-E1" : "TC-P5-02-10"; const ok = /vừa đổi 1 dòng/.test(notice) && mine === 1 && theirs === 1 && keep4 && /^LATE\/v2$/.test(db3) && /^ABSENT\/v/.test(db4);
+    R(tc, ok, `${slow ? "mạng 3G giả (độ trễ 400 ms, 50 kbps) ở cả hai ngữ cảnh: " : ""}GV (qc3t) và TA (qc3ta) cùng /attendance?session=…: cả hai đổi hàng 4 (GV Vắng, TA Muộn), TA còn đổi hàng 5 (Vắng); GV lưu trước, TA lưu: TA thấy «${notice}» + «Giữ của tôi»=${mine} / «Lấy của …»=${theirs}; thay đổi còn lại của TA (hàng 5 Vắng) giữ=${keep4}; chọn «Giữ của tôi» → gửi lại với version mới; DB hàng 4=${db3 || "—"}, hàng 5=${db4 || "—"}`);
     await shot(B1.page, slow ? "p502-e1" : "p502-10"); await A1.ctx.close(); await B1.ctx.close();
   }
 });
 
 test("E2 PUT lặp sau mất mạng không audit trùng", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const S = ses(F.C); await openAtt(page, F.C, S);
+  const { ctx, page } = await newUser(browser, F.teacher); const S = ses(F.C); await openAtt(page, F.C, S);
   const before = psql(`select count(*) from audit_log where course_id='${F.C}' and entity_id::text='${S}'`);
   let n = 0; await page.route(/\/sessions\/[^/]+\/attendance$/, async (r) => { if (r.request().method() !== "PUT") return r.continue(); n++; if (n === 1) { await r.fetch(); return r.abort("failed"); } return r.continue(); });
   await rad(page, 2, "ABSENT").click(); await rad(page, 3, "ABSENT").click(); await page.waitForTimeout(2500); await page.getByText(/Đã lưu \d\d:\d\d/).waitFor({ timeout: 40000 }).catch(() => undefined); await page.waitForTimeout(1000);
@@ -212,7 +214,7 @@ test("E2 PUT lặp sau mất mạng không audit trùng", async ({ browser }) =>
 });
 
 test("44 trạng thái tải/lỗi", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const S = ses(F.C);
+  const { ctx, page } = await newUser(browser, F.teacher); const S = ses(F.C);
   await page.route(/\/sessions\/[^/]+\/attendance$/, async (r) => { if (r.request().method() === "GET") { await new Promise((x) => setTimeout(x, 3500)); return r.continue(); } return r.continue(); });
   await page.goto(`/attendance?course=${F.C}&session=${S}`); await page.waitForTimeout(1500);
   const sk = await page.evaluate(() => document.querySelectorAll("[class*=skeleton],[data-skeleton],[aria-busy=true]").length); await page.locator("[data-part=student-row]").first().waitFor({ timeout: 30000 });
@@ -221,5 +223,27 @@ test("44 trạng thái tải/lỗi", async ({ browser }) => {
   await page.reload(); await page.getByRole("button", { name: "Thử lại" }).waitFor({ timeout: 40000 }); const et = (await page.locator("main").innerText()).replace(/\n+/g, " | ").slice(0, 200); const sel = page.url().includes(S);
   await page.unroute(/\/sessions\/[^/]+\/attendance$/); await page.getByRole("button", { name: "Thử lại" }).click(); await page.locator("[data-part=student-row]").first().waitFor({ timeout: 30000 });
   R("TC-P5-02-44", sk >= 1 && /Thử lại/.test(et) && sel, `chậm (GET lưới trễ 3,5 s): khung xương=${sk} phần tử; GET 500: «${et}» + nút Thử lại; buổi đang chọn còn trong URL=${sel}; bấm Thử lại → lưới ${await rows(page).count()} hàng`);
+  await ctx.close();
+});
+
+test("36 máy dùng chung A đăng xuất, B đăng nhập", async ({ browser }) => {
+  const ctx = await browser.newContext({ ignoreHTTPSErrors: true, baseURL: "https://localhost:1143", viewport: { width: 1280, height: 800 }, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh" });
+  const page = await ctx.newPage(); await login(page, F.teacher); const S = ses(F.C); await openAtt(page, F.C, S);
+  const aId = psql(`select id from users where email='${F.teacher}@edupilot.local'`); const bId = psql(`select id from users where email='${F.ta}@edupilot.local'`);
+  await ctx.setOffline(true); await page.waitForTimeout(400); await rad(page, 2, "ABSENT").click(); await rad(page, 3, "ABSENT").click(); await page.waitForTimeout(600);
+  const keysA = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.includes(":attendance:")));
+  const trg = page.locator("[data-part=topbar] button[aria-haspopup]").last(); await trg.click().catch(() => undefined);
+  const menu = page.getByRole("menuitem", { name: "Đăng xuất" }).or(page.getByRole("button", { name: "Đăng xuất" })); await menu.first().click();
+  await page.getByText("Còn điểm danh chưa lưu").waitFor({ timeout: 8000 }); await page.getByRole("dialog").getByRole("button", { name: "Đăng xuất" }).click();
+  await ctx.setOffline(false); await page.waitForURL(/\/login/, { timeout: 30000 }).catch(() => undefined); await page.waitForTimeout(1500);
+  const afterOut = await page.evaluate(() => ({ keys: Object.keys(localStorage), blob: JSON.stringify(Object.entries(localStorage)) }));
+  const draftLeft = afterOut.keys.filter((k) => k.includes(":attendance:")); const aTrace = afterOut.blob.includes(aId);
+  const t0 = psql("select now()");
+  await login(page, F.ta); await openAtt(page, F.C, S); await page.waitForTimeout(1000);
+  const seenA = [await rad(page, 2, "ABSENT").isChecked(), await rad(page, 3, "ABSENT").isChecked()];
+  await rad(page, 7, "LATE").click(); await page.getByText(/Đã lưu \d\d:\d\d/).waitFor({ timeout: 20000 }); await page.waitForTimeout(800);
+  const byA = psql(`select count(*) from attendance_records where session_id='${S}' and marked_by='${aId}'`); const byB = psql(`select count(*) from attendance_records where session_id='${S}' and marked_by='${bId}'`);
+  const absA = psql(`select count(*) from attendance_records where session_id='${S}' and status='ABSENT'`); const noteA = psql(`select count(*) from attendance_records where session_id='${S}' and note is not null and note<>''`);
+  R("TC-P5-02-36", keysA.length === 1 && draftLeft.length === 0 && !aTrace && seenA.every((x) => !x) && byA === "0" && Number(byB) >= 1 && absA === "0" && noteA === "0", `A (${F.teacher}) offline đánh Vắng 2 hàng (kho ${JSON.stringify(keysA.map((k) => k.replace(/[0-9a-f]{8}-[0-9a-f-]{27}/g, "<uuid>")))}), Đăng xuất (xác nhận «Còn điểm danh chưa lưu»); sau đăng xuất kho còn khoá attendance: ${draftLeft.length}, chuỗi có user_id của A: ${aTrace}; B (${F.ta}) đăng nhập cùng trình duyệt, mở cùng buổi: 2 hàng của A hiển thị Vắng=${JSON.stringify(seenA)} (kỳ vọng false); B đánh Muộn 1 hàng → «Đã lưu»; DB: bản ghi marked_by=A ${byA}, marked_by=B ${byB}, ABSENT ${absA} (dữ liệu A không bị gửi), ghi chú ${noteA}`);
   await ctx.close();
 });

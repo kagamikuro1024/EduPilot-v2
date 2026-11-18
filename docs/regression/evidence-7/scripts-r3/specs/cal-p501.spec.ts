@@ -2,7 +2,7 @@ import { test, type Page } from "@playwright/test";
 import { go, FX, shot, log, psql, newUser, expect } from "./lib";
 const R = (tc: string, ok: boolean, note: string) => log("p501", `${ok ? "PASS" : "FAIL"} ${tc} ${note}`);
 const I = (tc: string, note: string) => log("p501", `INFO ${tc} ${note}`);
-const F = FX("fx_att") as { C: string; C0: string; CE: string; CF: string; S: string[] };
+const F = FX("fx_cal") as { CE: string; CF: string; tE: string; tF: string; S: string[] };
 const nS = (c: string) => psql(`select count(*) from class_sessions where course_id='${c}'`);
 async function plan(p: Page, o: { day: string; from: string; to: string; skip?: string }) {
   const d = p.getByRole("dialog");
@@ -14,7 +14,7 @@ async function plan(p: Page, o: { day: string; from: string; to: string; skip?: 
 const track = (p: Page) => { const a: Array<{ url: string; key: string | undefined; body: any }> = []; p.on("request", (r) => { if (r.method() === "POST" && /\/sessions\/generate/.test(r.url())) a.push({ url: r.url(), key: r.headers()["idempotency-key"], body: JSON.parse(r.postData() ?? "{}") }); }); return a; };
 
 test("25/26 calendar vi tạo lịch", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const calls = track(page);
+  const { ctx, page } = await newUser(browser, F.tE); const calls = track(page);
   await go(page, `/calendar?course=${F.CE}`);
   const btn = await page.getByRole("button", { name: "Tạo lịch buổi học" }).count();
   const stu = await newUser(browser, "qc3at100"); await go(stu.page, `/calendar?course=${F.CE}`); const btnStu = await stu.page.getByRole("button", { name: "Tạo lịch buổi học" }).count(); await stu.ctx.close();
@@ -30,12 +30,15 @@ test("25/26 calendar vi tạo lịch", async ({ browser }) => {
   await tbtn.click(); await d.getByText(/Đã tạo \d+ buổi/).waitFor({ timeout: 20000 }); const k1 = calls.filter((c) => !/dry_run/.test(c.url));
   const menu = d.getByRole("button", { name: /^Thêm với buổi 1/ }); const hasMenu = await menu.count(); let items: string[] = []; if (hasMenu) { await menu.first().click(); items = await page.getByRole("menuitem").allInnerTexts(); await page.keyboard.press("Escape"); }
   const created = nS(F.CE);
-  R("TC-P5-01-25", btn === 1 && btnStu === 0 && dis0[0] && dis0[1] && ph === "P.302" && types.every((t) => t === "date") && st === "Sẽ tạo 11 buổi · bỏ 1 ngày nghỉ" && rowsN <= 61 && rowsN === 12 && cols.join("|").replace(/\s/g, "") === "Buổi|Ngày|Giờ" && afterPrev === "0" && tTxt === "Tạo 11 buổi" && tEn && created === "11" && hasMenu === 1 && items.some((x) => /Sửa/.test(x)) && items.some((x) => /Xoá/.test(x)), `nút «Tạo lịch buổi học»: GV=${btn}, SV=${btnStu}; ngăn kéo đầu: «${head}»; trước xem trước «Tạo buổi»/«Xem trước» khoá=${dis0}; placeholder phòng «${ph}», ô Từ/Đến/Ngày nghỉ type=${types}; xem trước: «${st}», bảng ${rowsN - 1} dòng (cột ${cols.join("/")}); xem trước không ghi (DB ${afterPrev} buổi); nút «${tTxt}» bật=${tEn}; tạo → DB ${created} buổi; danh sách buổi có menu …: ${JSON.stringify(items)}`);
-  // 422
+  I("TC-P5-01-25", JSON.stringify({btn,btnStu,dis0,ph,types,st,rowsN,cols,afterPrev,tTxt,tEn,created,hasMenu,items}));
+  R("TC-P5-01-25", btn === 1 && btnStu === 0 && dis0[0] && dis0[1] && ph === "P.302" && types.every((t) => t === "date") && st === "Sẽ tạo 11 buổi · bỏ 1 ngày nghỉ" && rowsN <= 61 && rowsN === 12 && cols.join("|").replace(/\s/g, "") === "Buổi|Ngày|Giờ" && afterPrev === "0" && tTxt === "Tạo 11 buổi" && tEn && created === "11" && hasMenu >= 1 && items.some((x) => /Sửa/.test(x)) && items.some((x) => /Xoá/.test(x)), `nút «Tạo lịch buổi học»: GV=${btn}, SV=${btnStu}; ngăn kéo đầu: «${head}»; trước xem trước «Tạo buổi»/«Xem trước» khoá=${dis0}; placeholder phòng «${ph}», ô Từ/Đến/Ngày nghỉ type=${types}; xem trước: «${st}», bảng ${rowsN - 1} dòng (cột ${cols.join("/")}); xem trước không ghi (DB ${afterPrev} buổi); nút «${tTxt}» bật=${tEn}; tạo → DB ${created} buổi; danh sách buổi có menu …: ${JSON.stringify(items)}`);
+  // 422 (Esc ở menu đóng luôn ngăn kéo: mở lại, đổi sang T4 để đợt tạo thứ hai không trùng buổi đã có)
+  if ((await page.getByRole("dialog").count()) === 0) { await page.getByRole("button", { name: "Tạo lịch buổi học" }).click(); await d.waitFor(); }
+  await plan(page, { day: "T4", from: "2027-03-01", to: "2027-05-17" });
   await d.getByLabel("Đến ngày").fill("2030-01-01"); await d.getByRole("button", { name: "Xem trước" }).click(); await page.waitForTimeout(2500); const err = (await d.innerText()).replace(/\n+/g, " | "); const inv = await d.getByLabel("Đến ngày").getAttribute("aria-invalid"); const m422 = err.match(/Khoảng ngày[^|]*/)?.[0] ?? err.slice(-160);
   R("TC-P5-01-25b", true, `lỗi 422 hiện tại ô: «${m422}», Đến ngày aria-invalid=${inv}`);
   // 26: khoá
-  await d.getByLabel("Đến ngày").fill("2027-05-17"); await d.getByRole("button", { name: "T2", exact: true }).click(); await d.getByRole("button", { name: "T4", exact: true }).click(); await d.getByRole("button", { name: "Xem trước" }).click(); await d.getByText(/Sẽ tạo \d+ buổi/).waitFor();
+  await d.getByLabel("Đến ngày").fill("2027-05-17"); await d.getByRole("button", { name: "Xem trước" }).click(); await d.getByText(/Sẽ tạo \d+ buổi/).waitFor();
   await d.getByRole("button", { name: /^Tạo \d+ buổi$/ }).click(); await d.getByText(/Đã tạo \d+ buổi/).waitFor({ timeout: 20000 });
   const prevs = calls.filter((c) => /dry_run=true/.test(c.url)); const reals = calls.filter((c) => !/dry_run/.test(c.url));
   R("TC-P5-01-26", prevs.length >= 2 && prevs.every((c) => !c.key) && reals.length === 2 && !!reals[0].key && !!reals[1].key && reals[0].key !== reals[1].key, `mạng: ${prevs.length} lần xem trước, Idempotency-Key = ${JSON.stringify(prevs.map((c) => c.key ?? null))} (không có khoá); ${reals.length} lần tạo thật, khoá lần 1 «${reals[0]?.key}» ≠ lần 2 «${reals[1]?.key}»`);
@@ -43,7 +46,7 @@ test("25/26 calendar vi tạo lịch", async ({ browser }) => {
 });
 
 test("28 375 px", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t", { width: 375, height: 812 }); await go(page, `/calendar?course=${F.CE}`);
+  const { ctx, page } = await newUser(browser, F.tE, { width: 375, height: 812 }); await go(page, `/calendar?course=${F.CE}`);
   await page.getByRole("button", { name: "Tạo lịch buổi học" }).click(); const d = page.getByRole("dialog"); await d.waitFor(); await page.waitForTimeout(600);
   const g = await page.evaluate(() => { const dl = document.querySelector("[role=dialog]") as HTMLElement; const r = dl.getBoundingClientRect(); const small = Array.from(dl.querySelectorAll("button,input,select,a")).filter((e) => { const b = e.getBoundingClientRect(); const s = getComputedStyle(e); return b.width > 0 && b.height > 0 && b.height < 44 && s.visibility !== "hidden" && !(e as HTMLInputElement).hidden; }).map((e) => `${(e as HTMLElement).innerText?.slice(0, 14) || e.getAttribute("aria-label") || (e as HTMLInputElement).type}:${Math.round(e.getBoundingClientRect().height)}`); return { l: r.left, w: r.width, h: r.height, iw: window.innerWidth, ih: window.innerHeight, sw: document.documentElement.scrollWidth, dsw: dl.scrollWidth, dcw: dl.clientWidth, small }; });
   await shot(page, "p501-28");
@@ -52,7 +55,7 @@ test("28 375 px", async ({ browser }) => {
 });
 
 test("33 mất mạng khi tạo", async ({ browser }) => {
-  const { ctx, page } = await newUser(browser, "qc3t"); const calls = track(page); await go(page, `/calendar?course=${F.CF}`);
+  const { ctx, page } = await newUser(browser, F.tF); const calls = track(page); await go(page, `/calendar?course=${F.CF}`);
   await page.getByRole("button", { name: "Tạo lịch buổi học" }).click(); const d = page.getByRole("dialog"); await d.waitFor();
   await plan(page, { day: "T6", from: "2027-06-04", to: "2027-07-30" }); await d.getByRole("button", { name: "Xem trước" }).click(); const sum = await d.getByText(/Sẽ tạo \d+ buổi/).innerText(); const N = Number(/(\d+)/.exec(sum)![1]);
   // (a) mất mạng thật: request không tới máy chủ
