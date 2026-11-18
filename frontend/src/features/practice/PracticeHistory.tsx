@@ -27,7 +27,7 @@ function History({ courseId }: { courseId: string }) {
         query={list}
         isEmpty={() => list.items.length === 0}
         loading={<Panel><Skeleton lines={6} /></Panel>}
-        empty={<Panel><EmptyState title="Chưa có lượt luyện nào" /></Panel>}
+        empty={<Panel><EmptyState title="Chưa có lượt luyện nào" action={<ButtonLink href="/practice" variant="primary">Luyện ngay</ButtonLink>} /></Panel>}
       >
         {topics.length > 0 && (
           <Section title="Chủ đề bạn hay sai">
