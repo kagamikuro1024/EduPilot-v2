@@ -29,10 +29,10 @@ export function useIntegrityEvents({ courseId, examId, attemptId, tab, currentIt
       buf.current.push(e);
       if (buf.current.length > BUFFER_MAX) buf.current.splice(0, buf.current.length - BUFFER_MAX);
     };
-    const flush = () => {
+    const flush = (keepalive = false) => {
       if (buf.current.length === 0) return;
       const batch = buf.current.splice(0, BATCH);
-      apiClient.post(`${examBase(courseId, examId)}/attempts/${attemptId}/events`, { events: batch }, { headers: { "X-Exam-Tab": tab } }).catch(() => {
+      apiClient.post(`${examBase(courseId, examId)}/attempts/${attemptId}/events`, { events: batch }, { headers: { "X-Exam-Tab": tab }, keepalive }).catch(() => {
         buf.current.unshift(...batch); // gửi lại ở nhịp sau
         if (buf.current.length > BUFFER_MAX) buf.current.splice(BUFFER_MAX);
       });
@@ -58,14 +58,14 @@ export function useIntegrityEvents({ courseId, examId, attemptId, tab, currentIt
     const onOnline = () => push({ type: "ONLINE", client_at: now() });
     const onHide = () => {
       closeHidden();
-      flush();
+      flush(true); // đóng tab: fetch thường bị huỷ, keepalive thì còn sống (R5-07)
     };
     document.addEventListener("visibilitychange", onVis);
     document.addEventListener("paste", onPaste, true);
     window.addEventListener("offline", onOffline);
     window.addEventListener("online", onOnline);
     window.addEventListener("pagehide", onHide);
-    const t = window.setInterval(flush, FLUSH_MS);
+    const t = window.setInterval(() => flush(), FLUSH_MS);
     return () => {
       window.clearInterval(t);
       document.removeEventListener("visibilitychange", onVis);

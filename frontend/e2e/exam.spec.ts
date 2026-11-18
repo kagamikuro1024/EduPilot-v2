@@ -1226,6 +1226,29 @@ test("take: integrity events — rời tab / dán / mất mạng được ghi g�
   expect(wire).not.toContain("SECRET");
 });
 
+// R5-07 (TC-PE07-18): lô cuối gửi lúc pagehide phải là fetch keepalive — nếu không trình duyệt huỷ yêu cầu khi đóng tab và tín hiệu cuối mất.
+test("take: integrity events — pagehide gửi lô cuối bằng fetch keepalive", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __evKeepalive: boolean[] };
+    w.__evKeepalive = [];
+    const orig = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+      if (String(input instanceof Request ? input.url : input).includes("/attempts/") && String(input instanceof Request ? input.url : input).endsWith("/events")) w.__evKeepalive.push(init?.keepalive === true);
+      return orig(input, init);
+    };
+  });
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  await page.evaluate(() => {
+    document.body.dispatchEvent(new ClipboardEvent("paste", { clipboardData: Object.assign(new DataTransfer(), {}), bubbles: true }));
+    window.dispatchEvent(new Event("offline"));
+    window.dispatchEvent(new Event("pagehide"));
+  });
+  await expect.poll(() => f.st.events.length, { timeout: 8000 }).toBeGreaterThanOrEqual(2);
+  expect(await page.evaluate(() => (window as unknown as { __evKeepalive: boolean[] }).__evKeepalive)).toEqual([true]);
+});
+
 const SIM_C = "e-sim";
 function simPair(over: Json = {}) {
   return {
