@@ -387,6 +387,43 @@ func TestExtractGatewayBadOutput(t *testing.T) {
 	require.Equal(t, 1, f.count())
 }
 
+// DEF-R8-A3 (TC-P6-03-19): trọng số ngoài [0;100] / sai dạng: bản nháp lưu 0 nhưng mục PARAM_INVALID phải còn khi đọc lại (GET) và chặn xác nhận
+// (SRS gradebook 4.2.5); trọng số hợp lệ (0, 100) không bị cảnh báo. Quy ước phép cộng: thành phần thứ hai đổi trọng số, tổng lệch → WEIGHT_SUM thêm cũng được.
+func TestExtractInvalidWeightSurvivesRead(t *testing.T) {
+	for _, c := range []struct {
+		weight  string
+		invalid bool
+	}{{"150", true}, {"-5", true}, {"100.5", true}, {"abc", true}, {"0", false}, {"100", false}} {
+		t.Run(c.weight, func(t *testing.T) {
+			e := newEnv(t, constLLM(recorded(t, "extraction-lop1.json", func(m map[string]any) {
+				m["components"].([]any)[1].(map[string]any)["weight"] = c.weight
+			})))
+			_, err := e.run(e.policyDoc("quy-che-lop1.md"), false, 0)
+			require.NoError(t, err)
+			svc := &grade.Service{Pool: e.pool}
+			v, err := svc.Schemes(e.ctx, e.course, false)
+			require.NoError(t, err)
+			key := ""
+			e.one(&key, `select key from grade_components where course_id = $1 order by position offset 1 limit 1`, e.course)
+			var got []string
+			for _, u := range v.Draft.UnclearItems {
+				if u.Code == grade.CodeParamInvalid {
+					got = append(got, u.Target)
+				}
+			}
+			if !c.invalid {
+				require.Empty(t, got)
+				return
+			}
+			require.Equal(t, []string{"components." + key}, got, "đúng MỘT mục, không nhân đôi")
+			_, err = svc.ConfirmScheme(e.ctx, e.teacher, e.course, v.Draft.Version)
+			status, code := apiCode(t, err)
+			require.Equal(t, 422, status)
+			require.Equal(t, "SCHEME_HAS_UNCLEAR", code)
+		})
+	}
+}
+
 // TestExtractFailureKeepsConfirmed — AC7: việc thất bại không đụng bản CONFIRMED.
 func TestExtractFailureKeepsConfirmed(t *testing.T) {
 	f := constLLM(lop1(t))
