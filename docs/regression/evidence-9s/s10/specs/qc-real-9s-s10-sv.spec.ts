@@ -252,16 +252,16 @@ test("TC-07-15 + TC-07-21/22 nộp: xác nhận một lần; mất mạng khi n�
   await page.getByRole("button", { name: "Nộp bài" }).first().click();
   const dlg = page.getByRole("dialog"); await dlg.waitFor();
   const dtxt = await dlg.innerText(); const n1 = await page.getByRole("dialog").count();
-  verdict("TC-07-15", n1 === 1 && /không thể|không đảo ngược|không hoàn tác|sau khi nộp/i.test(dtxt) && subs.length === 0, `hộp xác nhận ${n1} lần, trước xác nhận POST submit = ${subs.length}; chữ: «${dtxt.replace(/\n/g, " ").slice(0, 160)}»`);
+  verdict("TC-07-15", n1 === 1 && /không sửa được|không thể|không đảo ngược|không hoàn tác/i.test(dtxt) && subs.length === 0, `hộp xác nhận ${n1} lần, trước xác nhận POST submit = ${subs.length}; chữ: «${dtxt.replace(/\n/g, " ").slice(0, 160)}»`);
   // nhánh mất mạng
   await ctx.setOffline(true); await dlg.getByRole("button", { name: "Nộp bài" }).click(); await page.waitForTimeout(3000);
-  const off = await page.locator("body").innerText(); const notice = /Chưa nộp được\. Đang thử lại/.test(off);
+  const off = await page.locator("body").innerText(); const notice = /Chưa nộp được\. Đang thử lại/.test(off); await page.screenshot({ path: `${OUT}/s10-0721-offline.png` }); const bar = off.replace(/\n/g, " ").match(/(Chưa [^.]*\.[^.]*\.?)/g) ?? [];
   await ctx.setOffline(false);
   await page.waitForFunction(() => /Bạn đúng \d+\/\d+ câu/.test(document.body.innerText), null, { timeout: 60_000 }).catch(() => {});
   const done = /Bạn đúng \d+\/\d+ câu/.test(await page.locator("body").innerText());
   const idems = [...new Set(subs.map((s) => s.idem))];
   const nSub = dbCount(`select count(*) from practice_attempts where id='${a.id}' and status='SUBMITTED'`);
-  verdict("TC-07-21", notice && done && idems.length === 1 && subs.length >= 2 && nSub === 1, `offline: «Chưa nộp được. Đang thử lại.» ${notice}; có mạng: kết quả ${done}; POST submit ${subs.length} lần với ${idems.length} Idempotency-Key; lượt SUBMITTED ${nSub}`);
+  verdict("TC-07-21", notice && done && idems.length === 1 && subs.length >= 2 && nSub === 1, `offline: «Chưa nộp được. Đang thử lại.» ${notice} (chữ thật: ${JSON.stringify(bar).slice(0, 160)}); có mạng: kết quả ${done}; POST submit ${subs.length} lần với ${idems.length} Idempotency-Key; lượt SUBMITTED ${nSub}`);
   await ctx.close();
 });
 
@@ -306,5 +306,34 @@ test("DBG mock screen", async ({ browser, request }) => {
   await page.goto(`/practice/${a.id}`); await page.waitForTimeout(2000);
   await page.screenshot({ path: `${OUT}/s10-dbg-mock.png` });
   console.log("OPT", await page.getByText("A đúng").first().evaluate((e) => { let n: HTMLElement = e as HTMLElement; for (let i = 0; i < 3; i++) n = n.parentElement as HTMLElement; return n.outerHTML.slice(0, 700); }));
+  await ctx.close();
+});
+
+test("TC-09-02 + TC-09-05 + TC-09-19 + TC-09-20 lịch sử luyện tập", async ({ browser, request }) => {
+  // 09-19: SV chưa có lượt nào (sv37)
+  const { ctx, page, id } = await pageAs(browser, "sv37");
+  await page.goto("/practice/history"); await page.waitForTimeout(2000);
+  const t19 = await page.locator("main").innerText(); const btn19 = await page.getByRole("button", { name: "Luyện ngay" }).or(page.getByRole("link", { name: "Luyện ngay" })).count();
+  await page.screenshot({ path: `${OUT}/s10-0919.png` });
+  verdict("TC-09-19", /Chưa có lượt luyện/.test(t19) && btn19 > 0, `SV chưa luyện lượt nào: «${t19.replace(/\n/g, " ").slice(0, 120)}»; nút «Luyện ngay» ×${btn19}`);
+  // 09-05: < 10 câu đã làm → khối «Chủ đề cần ôn» ẩn (không rỗng chữ)
+  const a = await startVia(request, "sv37", id, { mode: "TOPIC", topic: T, count: 5 });
+  const t = await login(request, "sv37");
+  for (const it of a.items.slice(0, 3)) await call(request, t, "PUT", `/courses/${id}/practice/attempts/${a.id}/answers/${it.id}`, { answer: { option_ids: [(it as unknown as { question: { options: { id: string }[] } }).question.options[0].id] } });
+  await call(request, t, "POST", `/courses/${id}/practice/attempts/${a.id}/submit`, {});
+  await page.goto("/practice/history"); await page.waitForTimeout(2000);
+  const t05 = await page.locator("main").innerText(); await page.screenshot({ path: `${OUT}/s10-0905.png` });
+  verdict("TC-09-05", !/Chủ đề cần ôn/.test(t05), `3 câu đã làm (<10): «Chủ đề cần ôn» ${/Chủ đề cần ôn/.test(t05) ? "HIỆN" : "ẩn"}; chữ trang: «${t05.replace(/\n/g, " ").slice(0, 140)}»`);
+  // 09-02: bấm một hàng → xem lại từng câu
+  await page.getByRole("row").nth(1).click().catch(async () => { await page.locator("main a, main [role=button]").nth(1).click(); });
+  await page.waitForTimeout(2000); const t02 = await page.locator("main").innerText(); await page.screenshot({ path: `${OUT}/s10-0902.png` });
+  verdict("TC-09-02", /Đáp án|đáp án|Đúng|Sai|Chưa đúng/.test(t02) && /Giải thích|giải thích|Nguồn/.test(t02) || /Đáp án đúng/.test(t02), `bấm một hàng lịch sử → ${new URL(page.url()).pathname}: «${t02.replace(/\n/g, " ").slice(0, 200)}»`);
+  // 09-20: route.abort history → PageState lỗi + Thử lại
+  const H = (r: import("@playwright/test").Route) => r.abort();
+  await page.route("**/api/v1/courses/*/practice/history*", H); await page.goto("/practice/history"); await page.waitForTimeout(9000);
+  const te = await page.locator("main").innerText(); const nr = await page.getByRole("button", { name: "Thử lại" }).count();
+  await page.unroute("**/api/v1/courses/*/practice/history*", H); if (nr) await page.getByRole("button", { name: "Thử lại" }).first().click(); await page.waitForTimeout(2500);
+  const ok = !/Không kết nối|Thử lại/.test(await page.locator("main").innerText()); await page.screenshot({ path: `${OUT}/s10-0920.png` });
+  verdict("TC-09-20", nr > 0 && ok, `abort API history: «${te.replace(/\n/g, " ").slice(0, 120)}» nút Thử lại ×${nr}; bấm → tải được ${ok}`);
   await ctx.close();
 });
