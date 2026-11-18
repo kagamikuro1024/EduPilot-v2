@@ -20,6 +20,7 @@ const day = (d: string, over: Record<string, unknown> = {}) => ({ day: d, reques
 const summary = () => ({
   window: "24h",
   totals: { requests: 480, p50_ms: 900, p95_ms: 3100, errors: 12, error_rate: 0.025, fallbacks: 20, fallback_rate: 0.0417, cost: "21040.2", pii_masked: 60, window_seconds: 86400 },
+  grading: { jobs_total: { QUEUED: 3, RUNNING: 2, DONE: 40, FAILED: 4 }, queue_depth: 3, dead_total: 4, duration_p50_s: 12, duration_p95_s: 95 },
   days: [day("2026-10-29"), day("2026-10-28", { requests: 95, errors: 0 })],
   tasks: [{ task: "CHAT", requests: 300, cost: "9000", tokens_in: 120000, tokens_out: 20000 }, { task: "GRADING", requests: 40, cost: "11000", tokens_in: 90000, tokens_out: 10000 }],
 });
@@ -44,6 +45,7 @@ test("ADMIN: dải 24 giờ, bảng 7 ngày, chi phí theo tác vụ, bảng yê
   await openAdmin(page);
   await expect(page.locator("[data-part=obs-today]")).toContainText("480 yêu cầu");
   await expect(page.locator("[data-part=obs-today]")).toContainText("lỗi 2,5%");
+  await expect(page.locator("[data-part=obs-grading]")).toHaveText("Chấm bài: 3 chờ · 2 đang chạy · 4 lỗi hết lượt thử · p95 95 s"); // US-P7-07 AC10 (DEF-R9S-06)
   await expect(page.getByRole("table", { name: "Số liệu theo ngày" }).locator("tbody tr")).toHaveCount(2);
   await expect(page.getByRole("table", { name: "Chi phí 7 ngày theo tác vụ" })).toContainText("Chấm bài");
   const t = page.getByRole("table", { name: /Yêu cầu gửi tới model/ });

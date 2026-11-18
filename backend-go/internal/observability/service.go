@@ -107,12 +107,23 @@ type TaskCost struct {
 	TokensOut int64  `json:"tokens_out"`
 }
 
+// GradingStats là bộ đếm hàng chờ chấm bài (US-P7-07 AC10), tính từ `grading_results` lúc đọc (gateway không giữ trạng thái, luật 10).
+// JobsTotal theo run_state; QueueDepth = số bài đang chờ; DeadTotal = bài đã hết lượt thử (FAILED); duration p50 / p95 giây gồm cả thời gian chờ hàng.
+type GradingStats struct {
+	JobsTotal    map[string]int64 `json:"jobs_total"`
+	QueueDepth   int64            `json:"queue_depth"`
+	DeadTotal    int64            `json:"dead_total"`
+	DurationP50S float64          `json:"duration_p50_s"`
+	DurationP95S float64          `json:"duration_p95_s"`
+}
+
 // AdminSummary là phản hồi của `GET /admin/observability/summary`.
 type AdminSummary struct {
-	Window string     `json:"window"`
-	Totals Totals     `json:"totals"`
-	Days   []DayRow   `json:"days"`
-	Tasks  []TaskCost `json:"tasks"`
+	Window  string       `json:"window"`
+	Totals  Totals       `json:"totals"`
+	Days    []DayRow     `json:"days"`
+	Tasks   []TaskCost   `json:"tasks"`
+	Grading GradingStats `json:"grading"`
 }
 
 func rate(n, d int64) float64 {
@@ -203,8 +214,14 @@ func (s *Service) Summary(ctx context.Context, window string) (AdminSummary, err
 		}
 		return tasks[i].Requests > tasks[j].Requests
 	})
+	gs, err := q.ObsGradingStats(ctx, now.Add(-dur))
+	if err != nil {
+		return AdminSummary{}, fmt.Errorf("observability: hàng chờ chấm bài: %w", err)
+	}
+	grading := GradingStats{JobsTotal: map[string]int64{"QUEUED": gs.Queued, "RUNNING": gs.Running, "DONE": gs.Done, "FAILED": gs.Failed},
+		QueueDepth: gs.Queued, DeadTotal: gs.Failed, DurationP50S: gs.P50S, DurationP95S: gs.P95S}
 	a := win.all
-	return AdminSummary{Window: window, Totals: Totals{Requests: a.requests, P50Ms: quantile(&a.lat, 0.5), P95Ms: quantile(&a.lat, 0.95), Errors: a.errors, ErrorRate: rate(a.errors, a.requests),
+	return AdminSummary{Grading: grading, Window: window, Totals: Totals{Requests: a.requests, P50Ms: quantile(&a.lat, 0.5), P95Ms: quantile(&a.lat, 0.95), Errors: a.errors, ErrorRate: rate(a.errors, a.requests),
 		Fallbacks: a.fallbacks, FallbackRate: rate(a.fallbacks, a.requests), Cost: a.cost.String(), PIIMasked: a.pii, WindowSeconds: int64(dur.Seconds())}, Days: days, Tasks: tasks}, nil
 }
 
