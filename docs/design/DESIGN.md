@@ -1425,7 +1425,7 @@ meta · meta · meta                                          row 2, optional, o
 - Side-by-side regions exist only through `Split`:
   - `ratio="main-aside"`: main `1fr`, aside 340 px, gap `--ep-space-6`; stacks below 1100 px.
   - `ratio="list-detail"` with `fill`: one panel, list 380 px + detail, as tall as the viewport (`100dvh − top bar − header`), panes scroll on their own; below 1100 px it becomes list → detail navigation. `fill` applies only while the list has rows. An empty or failed list renders a normal content-height panel.
-  - `ratio="review"` (`/grading/[submissionId]`): left 55 % (submission) / right 45 % (rubric + score); allowed range 52–58 / 42–48 per §14.13; below 1100 px it becomes list → detail navigation like the other `Split`s.
+  - `ratio="review"` (`/grading/[submissionId]`): left 55 % (submission) / right 45 % (rubric + score); allowed range 52–58 / 42–48 per §14.13; two columns from 1024 px; below 1024 px it stacks (submission on top, rubric + score below), like `main-aside`.
   - Viewport-relative heights are allowed nowhere else.
 
 ## 23.4 EmptyState: one pattern
