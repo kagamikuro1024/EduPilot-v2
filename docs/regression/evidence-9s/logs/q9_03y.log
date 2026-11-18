@@ -1,0 +1,3 @@
+thân kèm student_id: 422 {"code": "VALIDATION_FAILED", "message": "Dữ liệu chưa hợp lệ.", "trace_id": "fc7c390b50d9f713bdfc3a7de0998c91", "details": [{"field": "student_id", "code": "unknown", "message": "Trường không được hỗ trợ."}]}
+thân chuẩn: 201 {"submission": {"id": "01a1effa-cd3d-774c-978e-caadff522174", "version": 1, "received_at": "2026-11-18T18:45:53.597258Z"
+chủ bài: sv.kha@edupilot.local | bài của A: 0
