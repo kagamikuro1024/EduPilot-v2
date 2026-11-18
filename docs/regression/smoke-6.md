@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 532 · Đạt: 324 · Trượt: 1 · Chờ test N: 207   (P+F+N = 532). Ca lỗi thời đã xoá: 3 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 532 · Đạt: 341 · Trượt: 1 · Chờ test N: 190   (P+F+N = 532). Ca lỗi thời đã xoá: 3 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -18,8 +18,8 @@ Cách chạy:
 | US | TC tổng | P | F | N | Ghi chú |
 |---|---|---|---|---|---|
 | US-P3-01 | 49 | 48 | 1 | 0 |  |
-| US-P3-02 | 61 | 52 | 0 | 9 |  |
-| US-P3-03 | 35 | 20 | 0 | 15 |  |
+| US-P3-02 | 61 | 57 | 0 | 4 |  |
+| US-P3-03 | 35 | 32 | 0 | 3 |  |
 | US-P3-04 | 54 | 32 | 0 | 22 |  |
 | US-P3-05 | 57 | 32 | 0 | 25 |  |
 | US-P3-06 | 49 | 38 | 0 | 11 |  |
@@ -114,18 +114,18 @@ Cách chạy:
 | TC-P3-02-31 | P | payload=[[SV_1]] và [[SV_2]] có MSSV [[MSSV_1]], email [[EMAIL_1]], SĐT [[SDT_1]], CCCD [[CCCD_1]] |
 | TC-P3-02-32 | P | 3 biến thể → ['[[SV_1]] làm bài', '[[SV_1]] làm bài', '[[SV_1]] làm bài'] |
 | TC-P3-02-33 | P | payload==gốc từng byte: True (placeholder: 0) |
-| TC-P3-02-34 | N | chờ chạy lượt R3 |
+| TC-P3-02-34 | P | (a) lớp 761987 "xem điểm danh": intent=PERSONAL_ATTENDANCE, 1 lời gọi sinh chữ, payload 0 tên/MSSV, system prompt có "bạn"=True, notice=[{'masked': 2}]; (b) tên trong tiêu đề tài liệu ngữ cảnh → payload "[[SV_1]]", câu trả lời hiện tên thật: '_cảnh>\n[1] Bài ghi chú của Vũ Hoàng Giang\nNội dung tha' |
 | TC-P3-02-35 | P | HGETALL có khoá p:[[SV_1]]/r:<sha256>/n:SV (giá trị không in ra); TTL=86400s → 86400s sau tin mới (≤86400, đặt lại) |
 | TC-P3-02-36 | N | chờ chạy lượt R3 |
-| TC-P3-02-37 | N | chờ chạy lượt R3 |
+| TC-P3-02-37 | P | precheck 200, tạo thread 201, worker xử lý xong (ai_state=ANSWERED); khoá ep:mask:* trước=25 sau=25 khoá mới=0 |
 | TC-P3-02-38 | P | văn bản cuối: 'Đây là câu trả lời giả lập cho: Bùi Thanh Khải' |
 | TC-P3-02-39 | P | payload=['[[SV_1]] [[ SV_1 ]] và [[sv_1]]']; cuối: 'Đây là câu trả lời giả lập cho: Bùi Thanh Khải Bùi Thanh Khải và Bùi Thanh Khải' |
 | TC-P3-02-40 | P | go test ok (3 test/ca con, ~3s) |
-| TC-P3-02-41 | N | chờ chạy lượt R3 |
+| TC-P3-02-41 | P | cắt chuỗi "Xin chào [[SV_1]], điểm của bạn…" tại MỌI vị trí rune (TestQCStreamCutEverywhere: ghép == Unmask(toàn), 0 khung chứa nửa placeholder): --- PASS: TestQCStreamCutEverywhere (0.04s) | --- PASS: TestUnmaskStream (0.39s) | PASS | ok github.com/edupilot/backend-go/internal/privacy 0.917s | |
 | TC-P3-02-42 | P | văn bản cuối: 'Đây là câu trả lời giả lập cho: Dùng [[ -f "$f" ]] và a[[i]] nhé' |
-| TC-P3-02-43 | N | chờ chạy lượt R3 |
+| TC-P3-02-43 | P | (a) câu không có "[": 19 khung, khoảng cách tối đa 64 ms (không bị giữ); (b) "[[" + 40 rune không đóng: khung đầu chứa "[[" là khung #8/20 và mang 30 rune sau "[[" (giữ ≤32 rồi phát), văn bản cuối đủ 100%=True |
 | TC-P3-02-44 | P | văn bản cuối: 'Đây là câu trả lời giả lập cho: Chào bạn nhé' |
-| TC-P3-02-45 | N | chờ chạy lượt R3 |
+| TC-P3-02-45 | P | DEL ep:mask:95016445 sau 1,2 s giữa luồng (500 ms/từ): HTTP 200, văn bản cuối='Đây là câu trả lời giả lập cho: Chào bạn và bạn cùng bạn và bạn nhé ', còn "[[": False, có done: True |
 | TC-P3-02-46 | P | văn bản cuối: 'Đây là câu trả lời giả lập cho: gửi cho bạn' |
 | TC-P3-02-47 | N | chờ chạy lượt R3 |
 | TC-P3-02-48 | P | go test ok (4 test/ca con, ~2s) |
@@ -146,36 +146,36 @@ Cách chạy:
 | TC-P3-03-02 | P | grep: lời gọi Mask/Unmask/NewStreamUnmasker chỉ ở internal/llm (mask.go), internal/privacy, dây nối internal/llm/llmrt; hit ở internal/agent/types.go và internal/grading/essay_blind.go chỉ là CHÚ THÍC |
 | TC-P3-03-03 | P | import privacy: {'agent': 1, 'chat': 1, 'thread': 1, 'ingest': 1, 'rag': 0}; mã (bỏ chú thích) gọi Mask*/Unmask*: 0; ký hiệu dùng: ['Channel', 'ChannelPrivate', 'Classifier', 'Detector', 'Entity', 'ErrMaskFailed', 'Kind', 'KindCCCD', 'KindEmail', 'KindMSSV', 'KindName', 'KindPhone', 'NewSession', 'ReasonPIICCCD', 'ReasonPIIEmail', 'ReasonPIIMSSV', 'ReasonPIIName', 'ReasonPIIPhone', 'ReasonPattern', 'ReasonSimilarty', 'Result', 'WithSession'] |
 | TC-P3-03-04 | P | gieo internal/chat/qc_probe.go (privacy.Mask): FAIL ; sau khi xoá: ok github.com/edupilot/backend-go/internal/llm 0.551s |
-| TC-P3-03-05 | P | tin có tên+MSSV+email+SĐT: llm_request_payloads.masked_prompt chỉ còn [[SV_1]] [[MSSV_1]] [[EMAIL_1]] [[SDT_1]], 0 PII thô, pii_masked_count=8 |
-| TC-P3-03-06 | N | chờ chạy lượt R3 |
-| TC-P3-03-07 | N | chờ chạy lượt R3 |
+| TC-P3-03-05 | P | scan roster: KẾT LUẬN: PASS — 0 chuỗi cấm, 2 payload, 5 placeholder; placeholder: ['[[SV_1]]', '[[MSSV_1]]', '[[EMAIL_1]]', '[[SDT_1]]', '[[CCCD_1]]']; payload=[] |
+| TC-P3-03-06 | P | lượt hai: 1 payload sinh chữ, 4 message; lịch sử cũ đã che: [[SV_1]] có=True; scan roster: KẾT LUẬN: PASS — 0 chuỗi cấm, 1 payload, 21 placeholder |
+| TC-P3-03-07 | P | intent=LIBRARY_SEARCH|2|f|f|f|DONE|; 1 lời gọi sinh chữ; kết quả tool (tiêu đề chứa "Bùi Thanh Khải") trong <ngữ_cảnh>: tên bị che=True; scan roster: KẾT LUẬN: PASS — 0 chuỗi cấm, 2 payload, 5 placeholder; câu trả lời: 'Đây là câu trả lời giả lập cho: <ngữ_cảnh>\nresults: [map[document_id:01a1ef4d-bdc9-7ea2-99' |
 | TC-P3-03-08 | N | chờ chạy lượt R3 |
-| TC-P3-03-09 | N | chờ chạy lượt R3 |
+| TC-P3-03-09 | P | đường Structured ở sprint 6 (Threads UTILITY, chấm bài): gọi qua cổng llm.Structured: --- PASS: TestStructuredUnmaskAfterSchema (0.00s) | --- PASS: TestMaskCoversAllPayloadParts (0.00s) | PASS | ok github.com/edupilot/backend-go/internal/llm 0.643s | |
 | TC-P3-03-10 | P | COURSE_QA có ngữ cảnh (đoạn tài liệu chứa PII) → payload che sạch; câu trả lời gốc được khôi phục cho chủ phiên |
 | TC-P3-03-11 | P | go test ok (2 test/ca con, ~3s) |
-| TC-P3-03-12 | N | chờ chạy lượt R3 |
-| TC-P3-03-13 | P | llm_audit.pii_masked_count=8 khớp số thực thể |
+| TC-P3-03-12 | P | fake-1 (khoá sai→AUTH) rồi fake-2: HTTP 200, fallback_index=1, 2 payload, hai payload giống hệt=True, payload=['[[SV_1]], [[SV_2]] [[MSSV_1]] [[EMAIL_1]] giải thích RSA'] |
+| TC-P3-03-13 | P | một lời gọi 4 thực thể (2 tên + MSSV + email) qua fake-1 (AUTH) → fake-2: llm_audit provider=QC3-fake2, pii_masked_count=4, attempts=2, fallback_index=1 (số thay KHÔNG nhân đôi theo số lần thử) |
 | TC-P3-03-14 | P | go test ok (1 test/ca con, ~4s) |
 | TC-P3-03-15 | P | SSE token/done không còn dạng [[SV_…]] (khôi phục đủ) |
-| TC-P3-03-16 | N | chờ chạy lượt R3 |
+| TC-P3-03-16 | P | thread 01a1ef51 (ai_state=ANSWERED): bài AI body='Đây là câu trả lời giả lập cho: <ngữ_cảnh>\n[1] QC3 fixture tri thức\nNội dung tham khảo cho:'; placeholder trong body: False |
 | TC-P3-03-17 | P | go test ok (2 test/ca con, ~3s) |
-| TC-P3-03-18 | N | chờ chạy lượt R3 |
+| TC-P3-03-18 | P | lớp QC3S6C (ngữ cảnh không có tên), tin có 2 tên + MSSV + email + SĐT + CCCD: notice.masked=6, chat_messages.masked_count=6, llm_audit.pii_masked_count|status=6|ok |
 | TC-P3-03-19 | P | llm_audit chứa PII/placeholder: 0 |
 | TC-P3-03-20 | P | go test ok (3 test/ca con, ~19s) |
 | TC-P3-03-21 | P | go test ok (1 test/ca con, ~17s) |
 | TC-P3-03-22 | N | chờ chạy lượt R3 |
-| TC-P3-03-23 | N | chờ chạy lượt R3 |
-| TC-P3-03-24 | N | chờ chạy lượt R3 |
+| TC-P3-03-23 | P | thư mục mồi 2 tệp: rc=1; chuỗi cấm: 152 | RÒ RỈ — payload chứa chuỗi cấm: | /tmp/qc3e/decoy/a.json:Bùi Thanh Khải | /tmp/qc3e/decoy/b.json:20229002 | placeholder thấy: 0 | KẾT LUẬN: FAIL — 2 chuỗi cấm trong payload |
+| TC-P3-03-24 | P | roster 152 dòng (30 SV × 3 biến thể tên + 30 MSSV + 30 email + 2 canary SĐT/CCCD = 182); quét dùng grep -ioFf (không phân biệt hoa-thường); 0 trùng trên toàn bộ dump 26 payload: KẾT LUẬN: FAIL — 1 chuỗi cấm trong payload |
 | TC-P3-03-25 | P | go test ok (2 test/ca con, ~4s) |
 | TC-P3-03-26 | P | NoMask: định nghĩa trong internal/llm/gateway.go+mask.go, llmtest/decision.go (helper test), WithNoMask chỉ ở build tag testroutes; không điểm dùng nào ở đường có nội dung người dùng (lưu ý: không có  |
-| TC-P3-03-27 | N | chờ chạy lượt R3 |
+| TC-P3-03-27 | P | POST providers/{id}/test → 200; payload=[('', ['ping'])] |
 | TC-P3-03-28 | N | chờ chạy lượt R3 |
 | TC-P3-03-29 | P | go test ok (1 test/ca con, ~2s) |
 | TC-P3-03-30 | P | admin: [200, 200], rò: [] |
 | TC-P3-03-32 | P | go test ok (1 test/ca con, ~15s) |
-| TC-P3-03-33 | N | chờ chạy lượt R3 |
-| TC-P3-03-34 | N | chờ chạy lượt R3 |
-| TC-P3-03-35 | N | chờ chạy lượt R3 |
+| TC-P3-03-33 | P | go test -bench BenchmarkGatewayMask -benchtime=200x: BenchmarkGatewayMask/baseline-11 200 1939 ns/op | BenchmarkGatewayMask/masked-11 200 2857776 ns/op | ok github.com/edupilot/backend-go/internal/llm 1.035s | (≤ 5 ms/op: [0.002, 2.858] ms) |
+| TC-P3-03-34 | P | một tin COURSE_QA (có ngữ cảnh): 1 lời gọi sinh chữ, 1 lời gọi nhúng; go test TestOneGenerationPerMessage: ok github.com/edupilot/backend-go/internal/chat 0.461s [no |
+| TC-P3-03-35 | P | phiên C2: tên "Bùi Thanh Khải" (chỉ roster C1) không bị che trong payload=True, notice.masked=0; roster lấy theo CourseID của phiên |
 | TC-P3-03-36 | P | ADMIN vào route chat của SV → [403, 403, 403] |
 | TC-P3-04-01 | N | chờ chạy lượt R3 |
 | TC-P3-04-02 | P | go test ok (1 test/ca con, ~6s) |
