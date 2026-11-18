@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D, SmkD) · Ngày: 2026-11-15
-Tổng TC: 347 · Đạt: 305 · Trượt: 5 · Chưa xong (N): 37   (phiên Smoke9Runner, mã dc67bd93, stack ep-qc, 2026-11-18). Đột biến mã M1…: 43/44 đã chạy (41 P, 2 F), SEED-M2 N. Ca N còn lại: UI/Playwright, API 08–10, SEED, 02–05, 11 (script q9_08.py, q9p09/10/11.py, q9sweep.py đã viết, chưa chạy).
+Tổng TC: 347 · Đạt: 306 · Trượt: 5 · Chưa xong (N): 36   (phiên Smoke9Runner, mã dc67bd93, stack ep-qc, 2026-11-18). Đột biến mã M1…: 43/44 đã chạy (41 P, 2 F), SEED-M2 N. Ca N còn lại: UI/Playwright, API 08–10, SEED, 02–05, 11 (script q9_08.py, q9p09/10/11.py, q9sweep.py đã viết, chưa chạy).
 
 Cách chạy (script + log ở `docs/regression/evidence-9/`):
 - Hàng `-G` (119): `scripts/run-g-go.py` chạy đúng lệnh `go test` ghi ở TC (testcontainers, tuần tự) + `scripts/fix-g-go.py` (tìm gói thật cho tên test lệch, `-tags integration,testroutes`); Playwright mock `assignment-lifecycle`, `grade-appeal`, `settings-integrations`, `me`, `a11y`, `lcp` trên bản build gate (cổng 3731, `logs/pw-mock.json`).
@@ -409,3 +409,7 @@ Không còn ca trượt. DEF-R9-01 đóng bằng P-11-42.
 | TC-P7-02-09 | P | Go TestSuggestRubricLargestRemainder PASS: weight_pct [33,33,34] × max 10 → tổng đúng 10, mọi giá trị bội 0,25 (logs/10-06-07-09-go.log) |
 
 > HANDOFF 3 (2026-11-19): N=37 (P=305, F=5: DEF-R9S-04/05/06/07/08, mọi mức Thấp). Còn: SEED-* (15, cần ep-sd sạch), 02-17/18, 03-02/14/18, 04-04/17, 05-11, 07-08, 08-03/05/09/11, 09-01/06/09/12/15, 10-01/04/11/13, 11-01…; chi tiết từng ca thiếu bước nào xem hàng N/ghi chú ở trên. Specs UI: evidence-9s/specs/qc-real-9s-ui*.spec.ts; dữ liệu UI: q9_ui_seed.py (lớp QD9V).
+| TC-P7-09-15 | P | canary-scan.sh (đã chỉnh COMPOSE/PSQL cho ep-qc) sau khi chạy các trạng thái sprint 9: phản hồi API 0, log compose 0 (97.866 dòng), audit_log/outbox/llm_audit/jobs/llm_providers đều 0; thêm: «CANARY-TEAMS-SECRET-4D1» và secret mock không có trong log 10+ container ep-qc, audit_log, outbox, jobs (logs/09-15-canary.log) |
+
+> PAUSED 02:25 (2026-11-19) theo lệnh Main (rebuild ep-qc). Dở: q9_09m.py (09-09, chờ khoá global), qc-real-9s-ui8.spec.ts (10-01/10-04/10-11, chưa chạy). N=36.
+
