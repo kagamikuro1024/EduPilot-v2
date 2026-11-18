@@ -1,0 +1,7 @@
+TC-P7-07-M4 @186bfe7b (QC cặp 3, 2026-11-19)
+$ go test ./internal/grading -run TestXAddOnlyAfterCommit   (bản sao ~/Documents/qc9s-mut/m4-xadd)
+--- PASS: TestXAddOnlyAfterCommit
+Đột biến: queue_api.go, ngay trước tx.Commit trong Batches.enqueue chèn «_ = (&Queue{}).Signal(ctx, course, uuid.Nil, uuid.Nil, 0)» (XADD trước COMMIT)
+$ go build ./internal/grading → biên dịch được
+$ go test ./internal/grading -run TestXAddOnlyAfterCommit
+--- FAIL: TestXAddOnlyAfterCommit — «đường nạp (enqueue) không được tự XADD / dùng Redis: XADD chỉ ở handler sau COMMIT» => đột biến bị bắt (đỏ)

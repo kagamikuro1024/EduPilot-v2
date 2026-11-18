@@ -1,5 +1,13 @@
 TC-P7-09-M6b: bỏ status='REVIEWED' ở UPDATE công bố (chạy cả gói assignment)
 backend-go/internal/store/review.sql.go: «where course_id = $6 and id = $7 and status = 'REVIEWED' and version = $8» -> «where course_id = $6 and id = $7 and version = $8»
 $ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'Publish'
-rc=0 => GREEN
-ok  	github.com/edupilot/backend-go/internal/assignment	11.520s
+rc=1 => RED
+--- FAIL: TestPublishMarkOnlyReviewedSQL (0.40s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w4/backend-go/internal/assignment/publish_test.go:79
+        	Error:      	Should be zero, but was 1
+--- FAIL: TestPublishOnlyFromHandler (0.04s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w4/backend-go/internal/assignment/publish_test.go:156
+        	Error:      	Received unexpected error:
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	11.120s
+FAIL
