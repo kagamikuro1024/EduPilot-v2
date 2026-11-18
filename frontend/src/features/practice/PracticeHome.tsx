@@ -7,20 +7,15 @@ import { ApiError, ApiErrorNotice, useCursorList, useIdempotentMutation } from "
 import { fmtWhen } from "@/features/exam/examApi";
 import { ActionList, ActionRow, Button, ButtonLink, EmptyState, Field, Input, Page, PageHeader, PageState, Panel, Section, Skeleton, Tabs } from "@/shared/ui";
 import { getOverview, MIN_COUNT, newTabId, pKey, pPath, startPractice, useStudentCourse, type Mode, type PAttempt, type PHistoryRow, type POverview } from "./practiceApi";
+import { HEAD, HomeShell, IdleTabs } from "./PracticeShell";
 import s from "./Practice.module.css";
 
 const href = (id: string, course: string) => `/practice/${id}?course=${course}`;
 
-const HEAD = { title: "Luyện đề", secondary: [{ label: "Lịch sử luyện tập", href: "/practice/history" }] as const };
-/** Khung tab khi chưa có dữ liệu (đang tải lớp / tổng quan, lỗi): nhãn như khi có dữ liệu, không số đếm (X3, DEF-R10.7-03). */
-function IdleTabs({ mode = "topic", onChange = () => {} }: { mode?: "topic" | "mock"; onChange?: (m: "topic" | "mock") => void }) {
-  return <Tabs label="Cách luyện" value={mode} onChange={onChange} options={[{ value: "topic", label: "Theo chủ đề", count: 0 }, { value: "mock", label: "Thi thử" }]} />;
-}
-
 /** Luyện đề: chọn cách luyện có ích nhất lúc này (DESIGN §14.18). */
 export function PracticeHome() {
   const c = useStudentCourse();
-  if (c.state === "loading") return <Page kind="read"><PageHeader {...HEAD} /><IdleTabs /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (c.state === "loading") return <HomeShell />;
   if (c.state === "none") return <Page kind="read"><PageHeader title="Luyện đề" /><Panel><EmptyState title="Chưa có lớp" /></Panel></Page>;
   return <Home courseId={c.id} />;
 }

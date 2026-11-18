@@ -4,6 +4,7 @@ import { BASE_URL } from "./support/env";
 import { mockMe } from "./support/meMock";
 import { mockLlmApi } from "./support/staffMock";
 import { gradebookApi } from "./support/gradebook-fixtures";
+import { practiceApi } from "./support/practice-fixtures";
 
 // US-PU-06 AC8: lần vẽ chữ đầu tiên là chữ của khung máy chủ (PreShell) và SAU KHI có phiên không có ứng viên LCP nào mới.
 // Mạng giả 1,6 Mbps / 150 ms + CPU 4× như Lighthouse để phông chữ về muộn (phông đổi làm chữ rộng hơn ⇒ ứng viên mới — lỗi từng gặp).
@@ -11,7 +12,7 @@ import { gradebookApi } from "./support/gradebook-fixtures";
 test.describe.configure({ retries: 0 });
 test.beforeEach(({}, info) => test.skip(info.project.name !== "desktop", "tự đặt bề rộng 412"));
 
-const CASES: Array<[string, DemoRole]> = [["/", "student"], ["/chat", "student"], ["/threads", "student"], ["/me", "student"], ["/inbox", "teacher"], ["/gradebook", "teacher"], ["/settings/llm", "admin"]];
+const CASES: Array<[string, DemoRole]> = [["/", "student"], ["/chat", "student"], ["/threads", "student"], ["/me", "student"], ["/inbox", "teacher"], ["/gradebook", "teacher"], ["/settings/llm", "admin"], ["/practice", "student"], ["/practice/history", "student"]];
 const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
 
 for (const [path, role] of CASES) {
@@ -25,6 +26,7 @@ for (const [path, role] of CASES) {
       await gate;
       await route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody(role === "student" ? "STUDENT" : role === "teacher" ? "TEACHER" : "ADMIN", {})) });
     });
+    if (path.startsWith("/practice")) await practiceApi(page); // DEF-R10S-20: có dữ liệu thật của màn Luyện đề
     if (path === "/me") await mockMe(page); // có dữ liệu thật của màn: khối chữ nào lớn hơn h1 sau phiên sẽ hiện ra
     if (path === "/settings/llm") await mockLlmApi(page, { noProviders: true }); // trạng thái T1 (chưa có nhà cung cấp): câu giải thích dài từng là ứng viên LCP mới; không giả API thì hiện thông báo lỗi lớn hơn h1 (proposal #1)
     if (path === "/gradebook") await gradebookApi(page, { warnings: ["PENALTY_NOT_IN_SCHEME", "BONUS_NOT_IN_SCHEME"] }); // T1: có điểm cộng / trừ ghi tay — câu cảnh báo dài từng là ứng viên LCP mới (P-11-6a)
@@ -68,6 +70,25 @@ test("lcp before refresh /assignments/<id>: ứng viên đầu là chữ PreShel
   });
   await page.goto("/assignments/00000000-0000-7000-8000-0000000a0001");
   await expect(page.locator("[data-part=pre-shell] h1")).toHaveText("Bài tập");
+  await page.waitForTimeout(1500);
+  const seen = await page.evaluate(() => (window as unknown as { __lcp: Array<{ fromPre: boolean }> }).__lcp);
+  expect(seen.length).toBeGreaterThan(0);
+  expect(seen.every((c) => c.fromPre)).toBe(true);
+});
+
+// DEF-R10S-20: `/practice/<id>` có PreShell theo tiền tố; chữ đầu tiên trước phiên là chữ máy chủ. Câu hỏi (dữ liệu) lớn hơn h1 nên LCP sau dữ liệu ghi nợ theo US-P10-08 AC6; chỉ kiểm phần trước phiên.
+test("lcp before refresh /practice/<id>: ứng viên đầu là chữ PreShell", async ({ page, context }) => {
+  test.setTimeout(60_000);
+  await page.setViewportSize({ width: 412, height: 823 });
+  await asDemo(context, "student");
+  await page.route("**/api/v1/auth/refresh", () => new Promise(() => undefined));
+  await page.addInitScript(() => {
+    const w = window as unknown as { __lcp: Array<{ fromPre: boolean }> };
+    w.__lcp = [];
+    new PerformanceObserver((l) => l.getEntries().forEach((e) => w.__lcp.push({ fromPre: !!(e as unknown as { element?: Element }).element?.closest("[data-part=pre-shell]") }))).observe({ type: "largest-contentful-paint", buffered: true });
+  });
+  await page.goto("/practice/att-1?course=00000000-0000-7000-8000-00000000c001");
+  await expect(page.locator("[data-part=pre-shell] h1")).toHaveText("Làm bài");
   await page.waitForTimeout(1500);
   const seen = await page.evaluate(() => (window as unknown as { __lcp: Array<{ fromPre: boolean }> }).__lcp);
   expect(seen.length).toBeGreaterThan(0);

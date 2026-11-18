@@ -5,12 +5,13 @@ import { useCursorList } from "@/shared/data";
 import { fmtWhen } from "@/features/exam/examApi";
 import { ActionList, ActionRow, BarList, Button, ButtonLink, EmptyState, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText } from "@/shared/ui";
 import { getWeakness, pKey, pPath, useStudentCourse, type PHistoryRow } from "./practiceApi";
+import { HistoryShell } from "./PracticeShell";
 import s from "./Practice.module.css";
 
 /** Lịch sử luyện tập: nhìn ra chủ đề cần luyện tiếp (DESIGN §14.20). */
 export function PracticeHistory() {
   const c = useStudentCourse();
-  if (c.state === "loading") return <Page kind="read"><PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (c.state === "loading") return <HistoryShell />;
   if (c.state === "none") return <Page kind="read"><PageHeader title="Lịch sử luyện tập" back={{ href: "/practice", label: "Luyện đề" }} /><Panel><EmptyState title="Chưa có lớp" /></Panel></Page>;
   return <History courseId={c.id} />;
 }

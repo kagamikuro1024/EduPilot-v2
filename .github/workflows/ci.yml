@@ -324,7 +324,7 @@ jobs:
           - { name: simulate A, slug: simulate-a, config: lighthouserc.json, out: .lighthouseci, paths: "/ /chat /threads /inbox /gradebook" }
           - { name: simulate B, slug: simulate-b, config: lighthouserc.json, out: .lighthouseci, paths: "/me /checkin /settings/llm /dev/ui" }
           - { name: devtools A, slug: devtools-a, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/ /chat /threads /inbox" }
-          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /settings/llm /dev/ui" }
+          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /practice /practice/history /settings/llm /dev/ui" }
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/fe-setup
