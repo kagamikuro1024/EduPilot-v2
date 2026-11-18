@@ -107,6 +107,15 @@ test("me states: lớp chưa điểm danh → câu rỗng không nút; lỗi →
   await expect(page.locator("main section", { hasText: "Chuyên cần" }).getByRole("link")).toHaveCount(0);
 });
 
+// DEF-R3-SMK-03 (TC-PU05-40, TC-GATEPU-15): Sinh viên không bao giờ thấy «Chi tiết kỹ thuật» / mã lỗi / trace_id, kể cả ở màn lỗi.
+test("me error: Sinh viên không thấy Chi tiết kỹ thuật", async ({ page }) => {
+  await api(page, COURSE, { attendance: () => null });
+  await page.goto("/me");
+  await expect(page.getByText(/Không tải được kết quả của bạn/)).toBeVisible();
+  await expect(page.getByText("Chi tiết kỹ thuật")).toHaveCount(0);
+  expect(await page.locator("main").innerText()).not.toMatch(/INTERNAL|trace_id|[0-9a-f]{32}/);
+});
+
 test("me offline keeps content: lỗi khi làm mới không xoá nội dung đã tải", async ({ page }) => {
   let down = false;
   await api(page, COURSE, { attendance: () => (down ? null : att()) });

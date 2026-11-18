@@ -85,7 +85,7 @@ export function RealThreads({ courseId }: { courseId: string }) {
             </Drawer>
           </>
         )}
-        <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical onRetry={() => void list.refetch()} /> : null}>
+        <Panel fault={list.isError && list.items.length === 0 ? <ApiErrorNotice error={list.error} showTechnical={role !== "student"} onRetry={() => void list.refetch()} /> : null}>
           <PageState
             query={list}
             isEmpty={() => list.items.length === 0 && pinned.length === 0}

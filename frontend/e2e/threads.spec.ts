@@ -77,6 +77,23 @@ test("empty: câu dạy bước kế + Đặt câu hỏi", async ({ page, contex
   await expect(page.getByText("Chưa có câu hỏi nào")).toBeVisible();
 });
 
+// DEF-R3-SMK-03: màn lỗi danh sách hỏi đáp — Sinh viên không thấy Chi tiết kỹ thuật; trợ giảng vẫn thấy.
+async function openBroken(page: Page, context: BrowserContext, role: "student" | "ta") {
+  await asDemo(context, role, role === "student" ? { person: "sv-2" } : {});
+  await threadApi(page, { [`GET ${T}`]: err(500, "INTERNAL") });
+  await page.goto("/threads");
+  await expect(page.getByRole("button", { name: "Thử lại" }).first()).toBeVisible();
+}
+test("list error: Sinh viên không thấy Chi tiết kỹ thuật", async ({ page, context }) => {
+  await openBroken(page, context, "student");
+  await expect(page.getByText("Chi tiết kỹ thuật")).toHaveCount(0);
+});
+
+test("list error: trợ giảng thấy Chi tiết kỹ thuật", async ({ page, context }) => {
+  await openBroken(page, context, "ta");
+  await expect(page.getByText("Chi tiết kỹ thuật")).toBeVisible();
+});
+
 test("precheck debounce: gõ liên tục chỉ phát yêu cầu sau khi ngừng ≥ 800 ms; notice while typing hiện một dòng loại", async ({ page, context }) => {
   const calls = await openList(page, context, { [`POST ${T}/precheck`]: json({ allowed: false, reasons: [{ type: "MSSV", count: 1 }, { type: "EMAIL", count: 1 }], redacted_text: "x", redacted_title: "", personal_question: false }) });
   await ask(page).click();
