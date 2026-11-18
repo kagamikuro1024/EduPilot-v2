@@ -548,18 +548,16 @@ test("queue: toàn bài chưa chấm — lọc mặc định không che bài, Ch
   await expect(page.getByRole("button", { name: "Chấm tất cả" })).not.toHaveAttribute("aria-disabled", "true");
 });
 
-test("queue: lớp chưa có bài nộp — «Chưa có bài nộp» + Tải bài lên (DEF-R9S-07, TC-P7-08-13)", async ({ page, context }, info) => {
-  desktopOnly(info);
-  await openQueue(page, context, { rows: [] });
+test("queue: lớp chưa có bài nộp — «Chưa có bài nộp» + Tải bài lên (DEF-R9S-07, TC-P7-08-13)", async ({ page, context }) => {
+    await openQueue(page, context, { rows: [] });
   const empty = page.locator("[data-ep-empty]");
   await expect(empty.getByText("Chưa có bài nộp")).toBeVisible();
   await expect(empty.getByRole("button", { name: "Tải bài lên" })).toBeVisible();
   await expect(page.getByText(/^Không có bài/)).toHaveCount(0);
 });
 
-test("grading: không có ?tab= — mở «Hàng chờ» khi còn việc chờ, ngược lại «Bài tập» (DEF-R9S-08, US-P7-02 AC1)", async ({ page, context }, info) => {
-  desktopOnly(info);
-  await asDemo(context, "teacher");
+test("grading: không có ?tab= — mở «Hàng chờ» khi còn việc chờ, ngược lại «Bài tập» (DEF-R9S-08, US-P7-02 AC1)", async ({ page, context }) => {
+    await asDemo(context, "teacher");
   await gradingApi(page, { rows: defaultRows() });
   await page.goto("/grading");
   await expect(page.getByRole("tab", { name: "Hàng chờ" })).toHaveAttribute("aria-selected", "true");
