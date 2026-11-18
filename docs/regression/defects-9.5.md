@@ -148,3 +148,18 @@ Chạy trên ep-r (dữ liệu dùng chung, nhiễm bởi ca khác) và stack ri
 - Môi trường: stack riêng ep-r95 (gateway + redis + 2 worker), DB T1
 - Bước tái hiện: `docker stop ep-r95-redis`; SV `POST /chat/sessions/{sid}/messages` → 200 suy giảm sau 39,5 s; `/readyz` 503 (đúng); tạo phiên 503 sau 1,9 s
 - Kỳ vọng: ≤ 10 s, thông điệp «đang bận, thử lại» · Thực tế: 39,5 s · Bằng chứng: n06-redis-chat.log · Chạy lại lần 2: chưa lặp (1 lượt)
+
+
+## Lượt chạy lại 2026-11-18 (HEAD 88ab83e4) — qc2
+Đã sửa, xác nhận P: DEF-R9.5-01 (TC-N01-17: 5 biến thể + seed-t1 project edupilot bị từ chối), DEF-R9.5-09 (TC-N08-01), DEF-R9.5-10 (TC-N08-06: 35/35), DEF-R9.5-16 (TC-N01-12), DEF-R9.5-17 (TC-N02-02/03: do dữ liệu ep-r; trên smk91 sạch 7 check + seed lặp 3 lần đều đạt), DEF-R9.5-19 (TC-N02-09/11: rỗng/trắng bị từ chối; chưa đặt hẳn = «Thiếu SEED_DEFAULT_PASSWORD»; ghi nhận: có `.env.local` trong checkout thì seed dùng khoá đó theo b7d1e713), DEF-R9.5-05 (TC-N10-10, P-11-36).
+Còn F (xác nhận lần này, bằng chứng `evidence-9.5/rerun/`):
+- DEF-R9.5-03 (TC-N04-12) Thấp — vẫn không có mục `docker stats`/«không OOM» ở load-a/c.
+- DEF-R9.5-06 (TC-N10-06) Thấp — `grep TL-2[cdef] docs/PROGRESS.md` = 0.
+- DEF-R9.5-07 (TC-N09-11) Thấp — hạn chế Mac/loopback không có ở từng mục báo cáo.
+- DEF-R9.5-08 (TC-N07-10) Thấp — không ghi lần đo bị nhiễu.
+- DEF-R9.5-11 còn một phần (TC-N08-11) Thấp — «escalation theo độ tin cậy» chỉ 2 mẫu, không có đánh giá định tính từng mẫu.
+- DEF-R9.5-13 (TC-N09-01) Thấp — thiếu mục NFR-02/03, mục (b)(c)(d)/Baseline/Chaos/EXPLAIN không đủ «6 phần».
+- DEF-R9.5-14 còn 2 số (TC-N09-04) Thấp — «nền 410 ms» (nguồn 409,06) và «TTFT RAG 633,9 ms» (nguồn 633,993 → 634,0); 126/128 số truy được (`rerun/trace-numbers.py`).
+- DEF-R9.5-15 (TC-N09-07) Thấp — «câu cần vá» không có tệp:dòng.
+Chưa rerun (N, cần HEAD mới): DEF-R9.5-02, -04, -12 (N08-16/17 --resume), -18 (N02-06, theo P-11-61 Admin rỗng hợp lệ), -20 (N06-04, cần khoá toàn cục dừng Redis ≤ 1 phút).
+Hạ tầng: `docker exec <postgres> psql` thoát mã 2 (lỗi/ngắt kết nối) làm postmaster tưởng tiến trình con chết và reinit DB (đã thấy 4 lần ở smk91; có thể là nguyên nhân sự cố ep-r 9.5). Dùng `sh -c 'psql …; exit 0'`.

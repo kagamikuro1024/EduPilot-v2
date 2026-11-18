@@ -1,0 +1,10 @@
+import { chromium } from "/Users/kuro/Documents/TA_Agent_qc2/frontend/node_modules/@playwright/test/index.mjs";
+const [,, user, path, code="761987"] = process.argv;
+const b = await chromium.launch(); const ctx = await b.newContext({ ignoreHTTPSErrors: true, viewport: {width:1440,height:900}, locale:"vi-VN" });
+const p = await ctx.newPage();
+await p.goto("https://localhost:1343/login"); await p.fill("input[type=email]", user+"@edupilot.local"); await p.fill("input[type=password]", "Edupilot#Seed-2026"); await p.keyboard.press("Enter");
+await p.waitForURL(u=>!u.pathname.startsWith("/login"),{timeout:60000}); await p.waitForTimeout(1500);
+const c = await p.evaluate(async ()=>{const a=await (await fetch("/api/v1/auth/refresh",{method:"POST",credentials:"include"})).text(); return a.slice(0,300)}); console.log(c); await b.close(); process.exit(0);
+await p.goto("https://localhost:1343"+path+(path.includes("?")?"&":"?")+"course="+c); await p.waitForTimeout(4000);
+console.log(await p.locator("main").innerText());
+await b.close();
