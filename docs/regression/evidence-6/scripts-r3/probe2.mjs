@@ -1,0 +1,11 @@
+import { chromium, newCtx, BASE, text } from "./ulib.mjs";
+const b = await chromium.launch({ headless: true });
+const { ctx, page } = await newCtx(b, "sv.gioi");
+await page.goto(`${BASE}/chat`); await page.waitForTimeout(3000);
+await page.getByRole("button", { name: /Chọn lớp/ }).click(); await page.waitForTimeout(800);
+console.log((await text(page)).split("\n").filter(l=>/QC3|7619|·/.test(l)).slice(0,15));
+console.log(JSON.stringify(await page.evaluate(() => Object.fromEntries(Object.entries(localStorage).map(([k,v])=>[k,v.slice(0,80)])))));
+await page.getByText(/QC3S6C/).first().click().catch(e=>console.log("noclick",String(e).slice(0,80))); await page.waitForTimeout(1500);
+console.log(page.url(), JSON.stringify(await page.evaluate(() => Object.fromEntries(Object.entries(localStorage).map(([k,v])=>[k,v.slice(0,80)])))));
+console.log(await page.evaluate(()=>[...document.querySelectorAll("textarea,input")].map(e=>e.tagName+":"+(e.placeholder||e.getAttribute("aria-label")||"")).join("|")));
+await b.close();

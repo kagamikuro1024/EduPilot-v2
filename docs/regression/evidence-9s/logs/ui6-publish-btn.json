@@ -1,0 +1,33 @@
+{
+ "ta_user": "B Tài khoản: Phạm Quốc Bảo",
+ "ta_btns": [
+  "Tải bài lên",
+  "Thêm",
+  "Chấm tất cả",
+  "Hàng chờ",
+  "Bài tập",
+  "Chưa khớp",
+  "Cần xem kỹ",
+  "",
+  "Để sau",
+  "Công bố"
+ ],
+ "ta_publish": 1,
+ "ta_publishDisabled": false,
+ "teacher_user": "H Tài khoản: TS. Lê Thu Hà",
+ "teacher_btns": [
+  "Tải bài lên",
+  "Công bố",
+  "Thêm",
+  "Chấm tất cả",
+  "Hàng chờ",
+  "Bài tập",
+  "Chưa khớp",
+  "Cần xem kỹ",
+  "",
+  "Để sau",
+  "Công bố"
+ ],
+ "teacher_publish": 2,
+ "teacher_publishDisabled": true
+}

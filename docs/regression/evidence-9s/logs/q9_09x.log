@@ -1,0 +1,53 @@
+PASS TC-P7-09-10 stats khi chưa công bố: có đủ 7 khoá, tỷ lệ null (không NaN/0): {'submitted': 5, 'graded': 5, 'reviewed': 0, 'published': 0, 'mean_abs_deviation': None, 'teacher_changed_rate': None, 'appealed': 0, 'appeal_rate': None, 'adjusted': 0, 'appeal_success_rate': None} 
+PASS TC-P7-09-10 B sửa c2 → 200 (nháp 7.0) 
+   TEACHER today: [('GRADING_REVIEW', '1 bài cần xem kỹ · Bài tập 03 — Phân tích một vụ tấn công thực tế | Xem lại các bài có cờ trước khi duyệt.', '/grading'), ('PUBLISH_PENDING', '3 bài đã duyệt chờ công bố · Bài tập 03 — Phân tích một vụ tấn công thực tế | Chọn các bài đã duyệt rồi công bố.', '/grading'), ('GRADE_SCHEME_UNCONFIRMED', 'Công thức điểm chưa xác nhận · QD9K324 | Lớp chưa có quy chế môn học.', '/gradebook/scheme?course=01a1eff7-5095-73fd-850f-f0a0ed4a9ac2'), ('COURSE_SETUP', 'Thiết lập lớp mới · QD9K324 | 1/4 bước xong: chia sẻ mã lớp → tải quy chế môn học → tạo lịch buổi học → tải tài liệu.', '/class/settings?course=01a1eff7-5095-73fd-850f-f0a0ed4a9ac2')]
+   TA today: [('GRADING_REVIEW', '1 bài cần xem kỹ · Bài tập 03 — Phân tích một vụ tấn công thực tế | Xem lại các bài có cờ trước khi duyệt.', '/grading'), ('GRADE_SCHEME_UNCONFIRMED', 'Công thức điểm chưa xác nhận · QD9K324 | Lớp chưa có quy chế môn học.', '/gradebook/scheme?course=01a1eff7-5095-73fd-850f-f0a0ed4a9ac2')]
+PASS TC-P7-09-18 TEACHER có PUBLISH_PENDING «3 bài đã duyệt chờ công bố · Bài tập 03 — Phân tích một vụ tấn công thực tế | Chọn các bài đã duyệt rồi công bố.» href /grading; TA không 
+PASS TC-P7-09-17 publish: TA/STUDENT/ADMIN/GV lớp khác → {'TA': 403, 'STUDENT': 403, 'ADMIN': 403, 'GV lớp khác': 403} (đều 403) 
+PASS TC-P7-09-17 stats: {'TEACHER': 200, 'TA': 200, 'STUDENT': 403, 'ADMIN': 403, 'GV khác': 403} (TEACHER/TA 200, còn lại 403) 
+PASS TC-P7-09-17 A đọc kết quả của B → 403; id không tồn tại → 403; thân giống nhau (trừ trace_id): True 
+NOTE TC-P7-09-14 B/ sv05 đoán…
+   đoán: {'sv04 DRAFT': [403, 403, (200, True), (200, True), (200, True)], 'sv05 REVIEWED': [403, 403, (200, True), (200, True), (200, True)]}
+PASS TC-P7-09-14 grading-results/{id} và submissions/{id} của chính mình → 403; ?include=draft, ?debug=1, X-Include-Draft bị bỏ qua (không lộ nháp/cờ): {'sv04 DRAFT': [403, 403, (200, True), (200, True), (200, True)], 'sv05 REVIEWED': [403, 403, (200, True), (200, True), (200, True)]} 
+   nộp lại DRAFT: 409 {'code': 'SUBMISSION_CLOSED', 'message': 'Đã hết hạn nộp bài.', 'trace_id': '7f84ba927bd6cdc647d331e04e4ae582'} | REVIEWED: 409 {'code': 'SUBMISSION_CLOSED', 'message': 'Đã hết hạn nộp bài.', 'trace_id': '9bb5129b16e1f4a7e15370fb1b240946'}
+PASS TC-P7-09-14 nộp lại: bài DRAFT → 409 {"code": "SUBMISSION_CLOSED", "message": "Đã hết hạn nộp bài."} | bài REVIEWED → 409 {"code": "SUBMISSION_CLOSED", "message": "Đã hết hạn nộp bài."}: thân lỗi giống hệt (chữ + mã): True 
+PASS TC-P7-09-10 TEACHER công bố A,B,sv05 → 200 
+   B deviation|changed: 1.00|{c2}
+PASS TC-P7-09-10 B: deviation|teacher_changed_criteria = 1.00|{c2} (1.00 và {c2}) 
+PASS TC-P7-09-10 stats TA sau công bố: {'submitted': 5, 'graded': 5, 'reviewed': 3, 'published': 3, 'mean_abs_deviation': '0.33', 'teacher_changed_rate': '0.3333', 'appealed': 0, 'appeal_rate': '0.0000', 'adjusted': 0, 'appeal_success_rate': None} 
+PASS TC-P7-09-10 stats TEACHER sau công bố: {'submitted': 5, 'graded': 5, 'reviewed': 3, 'published': 3, 'mean_abs_deviation': '0.33', 'teacher_changed_rate': '0.3333', 'appealed': 0, 'appeal_rate': '0.0000', 'adjusted': 0, 'appeal_success_rate': None} 
+PASS TC-P7-09-10 sinh viên GET stats → 403 
+   B today: [('ASSIGNMENT_GRADED', 'Bài tập 03 — Phân tích một vụ tấn công thực tế | Điểm Bài tập 03 — Phân tích một vụ tấn công thực tế đã có — Xem', '/assignments/01a1eff7-7d33-7821-8299-b549856aed9e')] | sv04 (chưa có điểm): []
+PASS TC-P7-09-18 B có ASSIGNMENT_GRADED «Bài tập 03 — Phân tích một vụ tấn công thực tế | Điểm Bài tập 03 — Phân tích một vụ tấn công thực tế đã có — Xem» href /assignments/01a1eff7-7d33-7821-8299-b549856aed9e; sv04 (chưa công bố) không có 
+PASS TC-P7-09-18 công bố hết → PUBLISH_PENDING biến mất sau 0.3 s (≤ 5 s) 
+PASS TC-P7-10-02 9 ký tự → 422 REASON_LENGTH 
+PASS TC-P7-10-02 1.001 ký tự → 422 REASON_LENGTH 
+PASS TC-P7-10-02 không tiêu chí → 422 VALIDATION_FAILED 
+PASS TC-P7-10-02 tiêu chí lạ → 422 CRITERION_UNKNOWN 
+PASS TC-P7-10-02 1.000 ký tự hợp lệ → 201 201 
+PASS TC-P7-10-02 10 ký tự hợp lệ → 201 201 
+   chuông teacher: APPEAL_NEW|2 yêu cầu xem lại mới
+   today APPEAL: [('APPEAL', '2 yêu cầu xem lại điểm · Bài tập 03 — Phân tích một vụ tấn công thực tế | Giữ hoặc sửa điểm kèm phản hồi.', '/grading/01a1eff7-7d4f-73d9-a59d-bd79f16db432')]
+PASS TC-P7-10-08 TEACHER Hôm nay: đúng 1 mục APPEAL «2 yêu cầu xem lại điểm · Bài tập 03 — Phân tích một vụ tấn công thực tế | Giữ hoặc sửa điểm kèm phản hồi.»; TA không có 
+PASS TC-P7-10-08 chuông gộp TEACHER (không một chuông mỗi phúc khảo): 'APPEAL_NEW|2 yêu cầu xem lại mới' 
+   decide: 200 {'id': '01a1eff7-b5a8-71c7-9a1a-8a8240a06978', 'status': 'ADJUSTED', 'score_after': '8.00', 'version': 2}
+   stats: {'submitted': 5, 'graded': 5, 'reviewed': 3, 'published': 3, 'mean_abs_deviation': '0.33', 'teacher_changed_rate': '0.3333', 'appealed': 2, 'appeal_rate': '0.6667', 'adjusted': 1, 'appeal_success_rate': '0.5000'}
+PASS TC-P7-10-10 1 phúc khảo ADJUSTED trên 3 bài công bố: {'submitted': 5, 'graded': 5, 'reviewed': 3, 'published': 3, 'mean_abs_deviation': '0.33', 'teacher_changed_rate': '0.3333', 'appealed': 2, 'appeal_rate': '0.6667', 'adjusted': 1, 'appeal_success_rate': '0.5000'} 
+   B today sau quyết: [('ASSIGNMENT_GRADED', 'Bài tập 03 — Phân tích một vụ tấn công thực tế | Điểm Bài tập 03 — Phân tích một vụ tấn công thực tế đã có — Xem', '/assignments/01a1eff7-7d33-7821-8299-b549856aed9e')]
+   sau 8 ngày: GRADED biến mất False 30.5 s; B today: [('ASSIGNMENT_GRADED', 'Bài tập 03 — Phân tích một vụ tấn công thực tế | Điểm Bài tập 03 — Phân tích một vụ tấn công thực tế đã có — Xem', '/assignments/01a1eff7-7d33-7821-8299-b549856aed9e')]
+FAIL TC-P7-09-18 hết 7 ngày kể từ công bố: ASSIGNMENT_GRADED của B biến mất sau 30.5 s (≤ 5 s kể từ khi cache nguội; cache 60 s) [('ASSIGNMENT_GRADED', 'Bài tập 03 — Phân tích một vụ tấn công thực tế | Điểm Bài tập 03 — Phân tích một vụ tấn công thực tế đã có — Xem', '/assignments/01a1eff7-7d33-7821-8299-b549856aed9e')]
+FAIL TC-P7-10-08 B nhận ASSIGNMENT_APPEAL_REPLY (bậc 48) sau khi mục GRADED (bậc 43) hết hạn: [] [('ASSIGNMENT_GRADED', 'Bài tập 03 — Phân tích một vụ tấn công thực tế | Điểm Bài tập 03 — Phân tích một vụ tấn công thực tế đã có — Xem', '/assignments/01a1eff7-7d33-7821-8299-b549856aed9e')]
+PASS TC-P7-10-03 bài chưa công bố (đã nộp) → 404 ASSIGNMENT_NOT_FOUND 
+PASS TC-P7-10-03 appeal_days=0 → 409 APPEAL_DISABLED 
+PASS TC-P7-10-03 lần hai (đã trả lời) → 409 APPEAL_ALREADY_FILED 
+PASS TC-P7-10-03 quá hạn −7 ngày −1 phút, gửi kèm header Date lùi → 409 APPEAL_WINDOW_CLOSED (theo giờ máy chủ) 
+   appeal_days 7→30 sau công bố: 200 {'id': '01a1eff7-7d33-7821-8299-b549856aed9e', 'title': 'Bài tập 03 — Phân tích một vụ tấn công thực | sv04 gửi (−7d−1m): 201 {'appeal': {'id': '01a1eff8-5794-769f-8ddb-cc9ee849827f', 'status': 'OPEN', 'created_at': '2026-11-1
+PASS TC-P7-10-03 appeal_days đổi 7→30 sau công bố: PUT 200; sv04 (published −7 ngày −1 phút) gửi → 201 
+   muộn: 1 0.5
+PASS TC-P7-02-14 nộp lúc +8 giờ so với hạn → late_days 1, trừ 0.5 (1 ngày / 0,50) 
+PASS TC-P7-02-14 PUT due_at sang +2 ngày (200) → late_days 0, trừ 0.0 (0 / 0) 
+PASS TC-P7-02-14 đưa hạn về cũ (200) → trừ 0.5 (0,50 lại) 
+   mã trả về mỗi vòng: [[200, 409, 409], [200, 409, 409], [200, 409, 409], [200, 409, 409]] published 10 outbox 10
+PASS TC-P7-09-16 10 vòng × 3 yêu cầu song song: mỗi vòng đúng 1 lần 200 (còn lại 409/skipped); 10 PUBLISHED, 10 sự kiện outbox (=10) 
+SUMMARY {"TC-P7-09-10": true, "TC-P7-09-18": false, "TC-P7-09-17": true, "TC-P7-09-14": true, "TC-P7-10-02": true, "TC-P7-10-08": false, "TC-P7-10-10": true, "TC-P7-10-03": true, "TC-P7-02-14": true, "TC-P7-09-16": true}
+RESULT: FAIL (2 lỗi)

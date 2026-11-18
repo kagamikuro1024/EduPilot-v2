@@ -1,0 +1,10 @@
+--- PASS: TestTodayAssignmentDue (0.73s)
+--- PASS: TestProviderAssignmentGradedPublishedOnly (0.50s)
+ok  	github.com/edupilot/backend-go/internal/today	2.271s
+--- PASS: TestProviderPublishPendingTier33 (0.60s)
+--- PASS: TestPublishPendingNotSameTierAsExamHold (0.00s)
+--- PASS: TestProviderPublishPendingTeacherOnly (0.51s)
+--- PASS: TestProviderAppealTeacherOnly (0.52s)
+--- PASS: TestProviderAppealOverdue48h (0.49s)
+--- PASS: TestProviderAppealReplyStudentOnly (0.47s)
+ok  	github.com/edupilot/backend-go/internal/today	3.137s

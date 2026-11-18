@@ -1,0 +1,6 @@
+{
+ "empty": "Chấm bài | Tải bài lên | Chọn một bài tập trước. | Công bố | Chọn bài đã duyệt. | Chấm tất cả | Chọn một bài tập trước. | Hàng chờ | Bài tập | Chưa khớp | Bài tập | Tất cả bài tập | Trạng thái | Chưa duyệt | Đã duyệt | Đã công bố | Chấm lỗi | Đang chấm | Chưa chấm | Cần xem kỹ | Không có bài chưa duyệt",
+ "error": "Chấm bài | Tải bài lên | Chọn một bài tập trước. | Công bố | Chọn bài đã duyệt. | Chấm tất cả | Chọn một bài tập trước. | Hàng chờ | Bài tập | Chưa khớp | Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. | Chi tiết kỹ thuật | Thử lại",
+ "retryBtn": 1,
+ "editedLabel": 0
+}

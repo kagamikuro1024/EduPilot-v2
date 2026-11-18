@@ -1,0 +1,11 @@
+FAIL TC-P7-03-09 B gửi submit kèm student_id/user_id của A → 422; bài thuộc B (False), A có 0 bài (422, {'code': 'VALIDATION_FAILED', 'message': 'Dữ liệu chưa hợp lệ.', 'trace_id': '3d5a23f96ced2ab9ed6e532558a57e2e', 'details': [{'field': 'student_id', 'code': 'unknown', 'message': 'Trường không được hỗ trợ.'}, {'field': 'user_id', 'code': 'unknown', 'message': 'Trường không được hỗ trợ.'}]})
+   header presign: ['Content-Length', 'Content-Type', 'x-amz-checksum-sha256']
+PASS TC-P7-03-06 PUT MinIO với x-amz-checksum-sha256 sai (['x-amz-checksum-sha256']) → 403 
+PASS TC-P7-03-06 submit sau đó (object không có) → 422 UPLOAD_INCOMPLETE 
+PASS TC-P7-03-06 PUT với thân ngắn hơn size đã ký (Content-Length lệch) → 499 
+PASS TC-P7-03-06 submit sau đó → 422; không bài nộp mới (0 = 0) 
+   URL expires: ['X-Amz-Expires=600']
+PASS TC-P7-03-06 PUT sau 620 s (>10 phút) → 403 
+PASS TC-P7-03-06 submit sau URL hết hạn → 422; không bài nộp mới (0 = 0) 
+SUMMARY {"TC-P7-03-09": false, "TC-P7-03-06": true}
+RESULT: FAIL (1 lỗi)

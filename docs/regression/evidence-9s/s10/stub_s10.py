@@ -18,12 +18,13 @@ class H(BaseHTTPRequestHandler):
         mode = open("/tmp/stub10_mode").read().strip() if os.path.exists("/tmp/stub10_mode") else "ok"
         text = "\n".join(str(m.get("content", "")) for m in body.get("messages", []))
         rec = match(text)
-        with open("/tmp/stub10_req.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "rec": rec and rec["name"], "len": len(text), "text": text[:6000]}, ensure_ascii=False) + "\n")
+        with open("/tmp/stub10_req.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "rec": rec and rec["name"], "len": len(text), "maxpage": max([int(x) for x in __import__("re").findall(r"\[Trang (\d+)\]", text)] or [0]), "text": text[:6000]}, ensure_ascii=False) + "\n")
         if mode == "error": self.send_response(500); self.end_headers(); self.wfile.write(b'{"error":{"message":"stub error"}}'); return
         if mode == "overloaded": self.send_response(429); self.send_header("retry-after", "1"); self.end_headers(); self.wfile.write(b'{"error":{"message":"overloaded","type":"rate_limit"}}'); return
-        if mode == "slow": time.sleep(12)
+        if mode.startswith("slow"): time.sleep(int(mode[4:] or 12))
         if mode == "invalid": content = "khong phai json {{"
         elif rec: r = rec["response"]; content = r if isinstance(r, str) else json.dumps(r, ensure_ascii=False)
+        elif "Bạn trích câu hỏi trắc nghiệm" in text: content = '{"questions": []}'
         else: content = "Bản ghi giả: không có bản ghi khớp lời nhắc."
         out = {"id": "x", "object": "chat.completion", "created": int(time.time()), "model": "stub10", "choices": [{"index": 0, "message": {"role": "assistant", "content": content}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15}}
         if body.get("stream"):

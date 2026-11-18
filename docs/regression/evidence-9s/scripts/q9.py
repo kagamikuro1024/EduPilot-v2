@@ -146,7 +146,7 @@ def stub_ctx(paid=False):
     return C()
 def today(user, course=None):
     s, j, _ = call("GET", f"/api/v1/courses/{course}/today" if course else "/api/v1/me/today", tok(user))
-    items = (j.get("actions") or []) if isinstance(j, dict) else []
+    items = ((j.get("actions") or []) + (j.get("attention") or []) + ([j["recommended"]] if j.get("recommended") else [])) if isinstance(j, dict) else []
     return s, items, j
 import csv
 def seed_bt03(Q, T, code, accounts=None, grade=True, due_days=2, wait=180):

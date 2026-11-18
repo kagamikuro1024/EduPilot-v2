@@ -27,3 +27,5 @@
 - LT-đã-xoá TC-P3-01-05: proposals #13 (số 00009 bỏ trống, calendar là 00011)
 - LT-đã-xoá TC-P3-03-31: GET /admin/llm/usage mở cho TEACHER: openapi «ADMIN, TEACHER» (sprint 9/10)
 - LT-đã-xoá TC-P3-04-45: US-P4-07 2026-10-14: khủng hoảng hai tầng, câu mẫu đổi
+- LT-đã-xoá TC-P3-05-19: FEAT-escalation-notify US-P4-01 AC7 (sprint 7, APPROVED): nút «Nhờ giảng viên hỗ trợ» nay hiện dưới mọi câu trả lời DONE; quyết định ẩn 2026-10-10 chỉ tới sprint 7
+- LT-đã-xoá TC-P3-05-44: như TC-P3-05-19 (US-P4-01 AC7 thay quyết định ẩn nút 2026-10-10)

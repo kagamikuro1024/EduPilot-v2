@@ -7,7 +7,7 @@ TCD='/Users/kuro/Documents/TA_Agent_qc3p/docs/sprints/6/qc'
 HANDOFF=open(f'{R}/evidence-6/HANDOFF-qc3-s6.txt').read() if os.path.exists(f'{R}/evidence-6/HANDOFF-qc3-s6.txt') else ''
 SM=f'{R}/smoke-6.md'; RES=f'{R}/evidence-6/results-r3.tsv'; ORIG=f'{R}/evidence-6/smoke-6.orig.md'
 # Ca lỗi thời có nguồn quyết định: xoá hẳn (ghi vào defects-6.md)
-LT={'TC-P3-01-05':'proposals #13 (số 00009 bỏ trống, calendar là 00011)','TC-P3-03-31':'GET /admin/llm/usage mở cho TEACHER: openapi «ADMIN, TEACHER» (sprint 9/10)','TC-P3-04-45':'US-P4-07 2026-10-14: khủng hoảng hai tầng, câu mẫu đổi'}
+LT={'TC-P3-05-19':'FEAT-escalation-notify US-P4-01 AC7 (sprint 7, APPROVED): nút «Nhờ giảng viên hỗ trợ» nay hiện dưới mọi câu trả lời DONE; quyết định ẩn 2026-10-10 chỉ tới sprint 7','TC-P3-05-44':'như TC-P3-05-19 (US-P4-01 AC7 thay quyết định ẩn nút 2026-10-10)','TC-P3-01-05':'proposals #13 (số 00009 bỏ trống, calendar là 00011)','TC-P3-03-31':'GET /admin/llm/usage mở cho TEACHER: openapi «ADMIN, TEACHER» (sprint 9/10)','TC-P3-04-45':'US-P4-07 2026-10-14: khủng hoảng hai tầng, câu mẫu đổi'}
 if not os.path.exists(ORIG): open(ORIG,'w').write(open(SM).read())
 src=open(ORIG).read()
 us_ids=collections.OrderedDict()

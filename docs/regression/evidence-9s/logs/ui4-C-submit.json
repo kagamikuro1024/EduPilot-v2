@@ -1,0 +1,23 @@
+{
+ "C1": "Bài tập 03 — Phân tích một vụ tấn công thực tế\nThứ Ba, 17/11 · 02:00 · đã quá hạn 2 ngày\nĐề bài\n\n# Bài tập 03 — Phân tích một vụ tấn công thực tế\n\nLoại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày\n\n## Đề bài\n\nPhân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng SolarWinds Orion (phát hiện tháng 12 năm 2020). Bài nộp dài khoảng một đến hai trang và trả lời bốn câu hỏi:\n\nAi là tác nhân và kẻ tấn công đã khai thác bề mặt tấn công nào?\nChuỗi tấn công diễn ra qua những bước nào?\nTác động của vụ việc là gì (dữ liệu, vận hành, niềm tin, chi phí)?\nTổ chức nên phòng thủ như thế nào để giảm rủi ro tương tự?\n\nMỗi nhận định cần nêu căn cứ cụ thể (tên công cụ, kỹ thuật, số liệu công khai). Nếu không tìm được số liệu thì nói rõ là chưa có số liệu, đừng đoán.\n\n## Yêu cầu nộp\n\nTệp PDF, DOCX, TXT hoặc MD, tối đa 20 MB.\nKhông ghi họ tên hay MSSV trong thân bài (hệ thống chấm không đọc phần đó; giảng viên biết bài của ai qua tài khoản nộp).\nNộp trong EduPilot, hoặc gửi thư tới hộp thư lớp với tiêu đề [BT03] <MSSV>, hoặc nộp qua ZIP do trợ giảng gom (tên tệp chứa MSSV).\nTiêu chí chấm\nXác định tác nhân và bề mặt tấn công\n2,5 điểm\nPhân tích tấn công\n2,5 điểm\nĐánh giá tác động\n2,5 điểm\nBiện pháp phòng thủ\n2,5 điểm\nBài nộp của bạn\nChọn tệp\n\nKéo thả tệp vào đây\n\nNộp bài\n\nChưa nộp",
+ "Cbad": [],
+ "sidebarHasAssignmentEntry": 0,
+ "errs": {
+  "exe": "Chỉ nhận PDF, DOCX, TXT, MD",
+  "rong": "Tệp rỗng",
+  "PDF hoa": "",
+  "big": "Tệp lớn hơn 20 MB"
+ },
+ "presignsBeforeValid": 0,
+ "submitBtn": 1,
+ "C2": "Bài tập 03 — Phân tích một vụ tấn công thực tế\nThứ Ba, 17/11 · 02:00 · đã quá hạn 2 ngày\nĐề bài\n\n# Bài tập 03 — Phân tích một vụ tấn công thực tế\n\nLoại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày\n\n## Đề bài\n\nPhân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng SolarWinds Orion (phát hiện tháng 12 năm 2020). Bài nộp dài khoảng một đến hai trang và trả lời bốn câu hỏi:\n\nAi là tác nhân và kẻ tấn công đã khai thác bề mặt tấn công nào?\nChuỗi tấn công diễn ra qua những bước nào?\nTác động của vụ việc là gì (dữ liệu, vận hành, niềm tin, chi phí)?\nTổ chức nên phòng thủ như thế nào để giảm rủi ro tương tự?\n\nMỗi nhận định cần nêu căn cứ cụ thể (tên công cụ, kỹ thuật, số liệu công khai). Nếu không tìm được số liệu thì nói rõ là chưa có số liệu, đừng đoán.\n\n## Yêu cầu nộp\n\nTệp PDF, DOC",
+ "presignsAfterValid": 1,
+ "drop375": {
+  "h": 96,
+  "scrollW": 375,
+  "innerW": 375,
+  "aria": "Vùng nộp bài: kéo thả tệp hoặc chọn tệp",
+  "live": 2
+ },
+ "axeC375": []
+}

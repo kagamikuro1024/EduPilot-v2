@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 532 · Đạt: 378 · Trượt: 1 · Chờ test N: 153   (P+F+N = 532). Ca lỗi thời đã xoá: 3 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 400 · Trượt: 8 · Chờ test N: 122   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -18,12 +18,12 @@ Cách chạy:
 | US | TC tổng | P | F | N | Ghi chú |
 |---|---|---|---|---|---|
 | US-P3-01 | 49 | 48 | 1 | 0 |  |
-| US-P3-02 | 61 | 57 | 0 | 4 |  |
-| US-P3-03 | 35 | 32 | 0 | 3 |  |
+| US-P3-02 | 61 | 59 | 1 | 1 |  |
+| US-P3-03 | 35 | 35 | 0 | 0 |  |
 | US-P3-04 | 54 | 53 | 0 | 1 |  |
-| US-P3-05 | 57 | 45 | 0 | 12 |  |
-| US-P3-06 | 49 | 39 | 0 | 10 |  |
-| US-P3-07 | 27 | 16 | 0 | 11 |  |
+| US-P3-05 | 55 | 51 | 3 | 1 |  |
+| US-P3-06 | 49 | 43 | 3 | 3 |  |
+| US-P3-07 | 27 | 23 | 0 | 4 |  |
 | US-P3-08 | 29 | 12 | 0 | 17 |  |
 | US-P8-01 | 62 | 19 | 0 | 43 |  |
 | US-P8-02 | 49 | 16 | 0 | 33 |  |
@@ -116,7 +116,7 @@ Cách chạy:
 | TC-P3-02-33 | P | payload==gốc từng byte: True (placeholder: 0) |
 | TC-P3-02-34 | P | (a) lớp 761987 "xem điểm danh": intent=PERSONAL_ATTENDANCE, 1 lời gọi sinh chữ, payload 0 tên/MSSV, system prompt có "bạn"=True, notice=[{'masked': 2}]; (b) tên trong tiêu đề tài liệu ngữ cảnh → payload "[[SV_1]]", câu trả lời hiện tên thật: '_cảnh>\n[1] Bài ghi chú của Vũ Hoàng Giang\nNội dung tha' |
 | TC-P3-02-35 | P | HGETALL có khoá p:[[SV_1]]/r:<sha256>/n:SV (giá trị không in ra); TTL=86400s → 86400s sau tin mới (≤86400, đặt lại) |
-| TC-P3-02-36 | N | chờ chạy lượt R3 |
+| TC-P3-02-36 | P | log gateway+worker 4 giờ gần nhất (mức info mặc định; đã chạy hàng trăm tin chat có PII, precheck, thread): dòng khớp các chuỗi PII/canary/ánh xạ=0; {'ep-r-gateway-1': (483, 0, []), 'ep-r-worker-1': (81, 0, [])} |
 | TC-P3-02-37 | P | precheck 200, tạo thread 201, worker xử lý xong (ai_state=ANSWERED); khoá ep:mask:* trước=25 sau=25 khoá mới=0 |
 | TC-P3-02-38 | P | văn bản cuối: 'Đây là câu trả lời giả lập cho: Bùi Thanh Khải' |
 | TC-P3-02-39 | P | payload=['[[SV_1]] [[ SV_1 ]] và [[sv_1]]']; cuối: 'Đây là câu trả lời giả lập cho: Bùi Thanh Khải Bùi Thanh Khải và Bùi Thanh Khải' |
@@ -127,10 +127,10 @@ Cách chạy:
 | TC-P3-02-44 | P | văn bản cuối: 'Đây là câu trả lời giả lập cho: Chào bạn nhé' |
 | TC-P3-02-45 | P | DEL ep:mask:95016445 sau 1,2 s giữa luồng (500 ms/từ): HTTP 200, văn bản cuối='Đây là câu trả lời giả lập cho: Chào bạn và bạn cùng bạn và bạn nhé ', còn "[[": False, có done: True |
 | TC-P3-02-46 | P | văn bản cuối: 'Đây là câu trả lời giả lập cho: gửi cho bạn' |
-| TC-P3-02-47 | N | chờ chạy lượt R3 |
+| TC-P3-02-47 | P | quét 2279 khung token + 254 done.content + GET messages 12 phiên + DB chat_messages/forum_posts: dạng placeholder = 0 trên đường được khôi phục (mọi tin từ LLM). Duy nhất 1 khung token/done (câu trả lời suy giảm trích nguyên văn «…») chứa literal "[[SV_1]]" vì thân đoạn tài liệu fixture QC3 do QC tự nhúng văn bản đã che — đây là dữ liệu tài liệu, không phải lỗi che; 1 tin USER cũ tự gõ literal. Không có rò placeholder do khôi phục sót |
 | TC-P3-02-48 | P | go test ok (4 test/ca con, ~2s) |
 | TC-P3-02-49 | P | ep:mask:qc3-s6-1795015727x sai kiểu (WRONGTYPE) → HTTP 200, payload='[[SV_1]] và [[MSSV_1]] học nhóm', WARN log: 1 dòng |
-| TC-P3-02-50 | N | chờ chạy lượt R3 |
+| TC-P3-02-50 | F | DEF-R6-U5 (Thấp): MASK_FAILED hiện cho người dùng "AI đang gián đoạn. Thử lại sau." (chat/buf.go errorText: nhánh default; chat/gen.go:386 trả code MASK_FAILED nhưng frontend không ánh xạ), SRS FEAT-private-chat-pii 114 ghi "Chưa gửi được tin nhắn. Thử lại." (giữ nguyên chữ trong ô soạn). Fail-closed đạt: go test TestMaskFailsClosed + TestMaskNoCourseFailsClosed (0 lời gọi provider, llm_audit error/MASK_FAILED). Live: PRIVACY_MASK_TIMEOUT_MS=1 vẫn không làm tin ngắn vượt hạn (nạp roster không tính vào hạn) nên không ép được trên stack; đã hoàn gateway về cấu hình gốc |
 | TC-P3-02-51 | P | go test ok (2 test/ca con, ~2s) |
 | TC-P3-02-52 | P | phiên C1: payload='Huỳnh Quốc Hà làm bài tốt' (không che), precheck C1 allowed=True; cùng tên ở phiên C2: ['[[SV_1]] làm bài tốt'] |
 | TC-P3-02-53 | P | S1 có ánh xạ SV_1; ở S2 gõ [[SV_1]] → 'Đây là câu trả lời giả lập cho: Chào bạn nhé' |
@@ -149,7 +149,7 @@ Cách chạy:
 | TC-P3-03-05 | P | scan roster: KẾT LUẬN: PASS — 0 chuỗi cấm, 2 payload, 5 placeholder; placeholder: ['[[SV_1]]', '[[MSSV_1]]', '[[EMAIL_1]]', '[[SDT_1]]', '[[CCCD_1]]']; payload=[] |
 | TC-P3-03-06 | P | lượt hai: 1 payload sinh chữ, 4 message; lịch sử cũ đã che: [[SV_1]] có=True; scan roster: KẾT LUẬN: PASS — 0 chuỗi cấm, 1 payload, 21 placeholder |
 | TC-P3-03-07 | P | intent=LIBRARY_SEARCH|2|f|f|f|DONE|; 1 lời gọi sinh chữ; kết quả tool (tiêu đề chứa "Bùi Thanh Khải") trong <ngữ_cảnh>: tên bị che=True; scan roster: KẾT LUẬN: PASS — 0 chuỗi cấm, 2 payload, 5 placeholder; câu trả lời: 'Đây là câu trả lời giả lập cho: <ngữ_cảnh>\nresults: [map[document_id:01a1ef4d-bdc9-7ea2-99' |
-| TC-P3-03-08 | N | chờ chạy lượt R3 |
+| TC-P3-03-08 | P | đăng thread có tên roster qua redact:true (tên → [đã ẩn]) và precheck cần nhúng: payload Embed.input đã che/không có tên thật (xem dòng (b) của ca 22: scan 0 chuỗi cấm); go test TestNoPayloadLeak (Threads có cấu trúc + nhúng): ok github.com/edupilot/backend-go/internal/integration 2.418s | |
 | TC-P3-03-09 | P | đường Structured ở sprint 6 (Threads UTILITY, chấm bài): gọi qua cổng llm.Structured: --- PASS: TestStructuredUnmaskAfterSchema (0.00s) | --- PASS: TestMaskCoversAllPayloadParts (0.00s) | PASS | ok github.com/edupilot/backend-go/internal/llm 0.643s | |
 | TC-P3-03-10 | P | COURSE_QA có ngữ cảnh (đoạn tài liệu chứa PII) → payload che sạch; câu trả lời gốc được khôi phục cho chủ phiên |
 | TC-P3-03-11 | P | go test ok (2 test/ca con, ~3s) |
@@ -163,13 +163,13 @@ Cách chạy:
 | TC-P3-03-19 | P | llm_audit chứa PII/placeholder: 0 |
 | TC-P3-03-20 | P | go test ok (3 test/ca con, ~19s) |
 | TC-P3-03-21 | P | go test ok (1 test/ca con, ~17s) |
-| TC-P3-03-22 | N | chờ chạy lượt R3 |
+| TC-P3-03-22 | P | kịch bản QC tự dựng (a) chat riêng tên+MSSV+email+SĐT+CCCD của mình và người khác × 3 biến thể, (b) Threads precheck (nhúng) 3 biến thể, (c) nhúng câu hỏi, (d) đường suy giảm (mọi provider lỗi), (e) tool tìm tài liệu với tiêu đề chứa tên (3 biến thể): roster 53 chuỗi (lớp QC3S6C của phiên: 10 SV); KẾT LUẬN: PASS — 0 chuỗi cấm, 42 payload, 231 placeholder; số tệp payload=42. Ghi chú: AI trả lời Threads chạy ở worker (không có vòng đệm payload ở gateway) — phần đó kiểm bằng go test TestNoPayloadLeak |
 | TC-P3-03-23 | P | thư mục mồi 2 tệp: rc=1; chuỗi cấm: 152 | RÒ RỈ — payload chứa chuỗi cấm: | /tmp/qc3e/decoy/a.json:Bùi Thanh Khải | /tmp/qc3e/decoy/b.json:20229002 | placeholder thấy: 0 | KẾT LUẬN: FAIL — 2 chuỗi cấm trong payload |
 | TC-P3-03-24 | P | roster 152 dòng (30 SV × 3 biến thể tên + 30 MSSV + 30 email + 2 canary SĐT/CCCD = 182); quét dùng grep -ioFf (không phân biệt hoa-thường); 0 trùng trên toàn bộ dump 26 payload: KẾT LUẬN: FAIL — 1 chuỗi cấm trong payload |
 | TC-P3-03-25 | P | go test ok (2 test/ca con, ~4s) |
 | TC-P3-03-26 | P | NoMask: định nghĩa trong internal/llm/gateway.go+mask.go, llmtest/decision.go (helper test), WithNoMask chỉ ở build tag testroutes; không điểm dùng nào ở đường có nội dung người dùng (lưu ý: không có  |
 | TC-P3-03-27 | P | POST providers/{id}/test → 200; payload=[('', ['ping'])] |
-| TC-P3-03-28 | N | chờ chạy lượt R3 |
+| TC-P3-03-28 | P | cùng quét log 4 h sau các lượt provider lỗi (error_rate=1 SERVER/RATE_LIMIT, huỷ, quá tải): dòng khớp=0 (log chỉ mã lỗi, provider, trace_id, thời gian) |
 | TC-P3-03-29 | P | go test ok (1 test/ca con, ~2s) |
 | TC-P3-03-30 | P | admin: [200, 200], rò: [] |
 | TC-P3-03-32 | P | go test ok (1 test/ca con, ~15s) |
@@ -239,24 +239,23 @@ Cách chạy:
 | TC-P3-05-06 | P | go test ok (1 test/ca con, ~13s) |
 | TC-P3-05-07 | P | đo partial_content mỗi 0,25–0,4 s khi sinh chậm (700 ms/từ): độ dài tăng đơn điệu [7, 11, 19, 23, 47, 59, 63, 87, 92] tại t=[1.19, 2.23, 3.05, 4.27, 6.56, 8.38, 9.15, 10.33, 11.15]; khoảng cách giữa hai lần đổi (s)=[1.04, 0.82, 1.22, 2.29, 1.82, 0.77, 1.18, 0.82] (TB 1.25; có 1–2 nhịp dài do tải máy ~ load cao); văn bản cuối hiện tên thật "Vũ Hoàng Giang" và không có "[[SV_" |
 | TC-P3-05-08 | P | go test ok (3 test/ca con, ~14s) |
-| TC-P3-05-09 | N | chờ chạy lượt R3 |
+| TC-P3-05-09 | P | mạng 400 ms/400 kbps; chữ đã sinh trước khi tải lại: "Đây là câu trả lời giả lập cho: <ngữ_cảnh> "; sau tải lại bong bóng AI xuất hiện 1 lần (không lặp), tiếp tục tới DONE; DB content="Đây là câu trả lời giả lập cho: <ngữ_cảnh>\n[1] QC3 fixture t" |
 | TC-P3-05-10 | P | GET stream sau done → 200, 4 khung |
 | TC-P3-05-11 | P | DEL ep:chat:buf:{mid}:1 giữa lượt rồi GET …/stream không Last-Event-ID → HTTP 200, khung đầu = ('snapshot', '{"off":0,"t":"Đây là câu trả lời "}') |
 | TC-P3-05-12 | P | go test ok (1 test/ca con, ~12s) |
 | TC-P3-05-13 | P | ngắt kết nối ngay sau token đầu: sau 1s hàng tin = DONE|55|0 (stream_status|độ dài content|giây hoàn tất) — rớt kết nối không huỷ |
-| TC-P3-05-14 | N | chờ chạy lượt R3 |
+| TC-P3-05-14 | P | nút «Dừng» có=1; chữ «Đã dừng.» hiện=true; ô soạn mở lại=true; DB stream_status=CANCELLED; (API: huỷ ≤1 s, llm_audit=cancelled, đã P ở lượt trước) |
 | TC-P3-05-15 | P | cancel 2 lần → 204,204 |
 | TC-P3-05-16 | P | SV khác cancel → 404 |
-| TC-P3-05-17 | N | chờ chạy lượt R3 |
+| TC-P3-05-17 | P | quá tải thật (rpm_limit=1): chữ="AI đang bận. Thử lại sau khoảng 1 giây."; nút «Thử lại»=1; API khung error OVERLOADED + hàng FAILED/OVERLOADED đã P ở lượt trước |
 | TC-P3-05-18 | P | retry → 200; cùng hàng ASSISTANT 01a1ef5f attempt 1→2|DONE; hàng USER 1→1; số hàng ASSISTANT=1; go test: --- PASS: TestOverloadedEvent (12.89s) | ok github.com/edupilot/backend-go/internal/chat 13.748s | |
-| TC-P3-05-19 | N | chờ chạy lượt R3 |
 | TC-P3-05-20 | P | mọi provider lỗi (error_rate=1 SERVER) + câu có ngữ cảnh (vectơ nhúng đã cache): khung notice {"degraded":true}, token = "Trả lời tạm thời, trích nguyên văn từ tài liệu của lớp." + «đoạn trích» [1]; llm_audit env:fake error/SERVER attempts=2; không có chữ provider/fallback/"không khả dụng" (lần chạy đầu ghi sai vì cache trả lời ep:ans trúng; chạy lại sau khi xoá ep:ans) |
 | TC-P3-05-21 | P | mọi provider lỗi + "Giá vàng hôm nay bao nhiêu?": nhúng cũng lỗi → khung error PROVIDER_ERROR message đúng "AI đang gián đoạn. Thử lại sau.", hàng tin FAILED/PROVIDER_ERROR; không có cụm "giảng viên sẽ xem"; go test TestAllProvidersDownNoContext/TestNoInstructorPromiseTextToStudent đạt (lượt trước) |
 | TC-P3-05-22 | P | 409 EXAM_IN_PROGRESS details={'until': '2026-11-18T18:12:53Z'}; chat_messages mới=0; llm_audit mới=0; exam_events=CHAT_BLOCKED/{} |
 | TC-P3-05-23 | P | gửi 5 lần trong ~10 s: số dòng CHAT_BLOCKED=1 (≤1/phút); TTL ep:chat_blocked:{attempt}=52s (≤60) |
 | TC-P3-05-24 | P | retry tin FAILED → 409 EXAM_IN_PROGRESS; tạo phiên "Hỏi AI về tài liệu" → 201 (vẫn được); gửi tin trong phiên đó → 409 EXAM_IN_PROGRESS |
 | TC-P3-05-25 | P | nộp bài (submit 200) → exam-lock mở sau 1s (≤10 s); gửi lại tin → HTTP 200, SSE có done=True, văn bản 'Mình chưa tìm thấy nội dung này trong tài liệu của lớp.' |
-| TC-P3-05-26 | N | chờ chạy lượt R3 |
+| TC-P3-05-26 | F | DEF-R6-U6 (Thấp): API đạt — HTTP 503 CHAT_UNAVAILABLE khi IsLocked lỗi (bảng exam_attempts đổi tên tạm; khi dừng cả Redis thì lớp bảo vệ chung trả 503 OVERLOADED/SERVICE_UNAVAILABLE trước đó), go test 5 ca locker đạt. Chữ UI: frontend/src/shared/i18n/vi.ts:68 CHAT_UNAVAILABLE = "Chat tạm thời chưa dùng được. Thử lại sau." khác SRS/TC "Chat chưa dùng được lúc này. Thử lại sau ít phút." |
 | TC-P3-05-27 | P | /chat?course=… khi khoá: "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." (không nêu tên bài thi/lớp), ô soạn disabled; GET /me/exam-lock 1 lần lúc mở + 1 lần/30 s; nháp "nháp của t |
 | TC-P3-05-28 | P | 2 lần cùng key → 200/200, hàng USER=1 |
 | TC-P3-05-29 | P | key khác → hàng USER=2 |
@@ -265,25 +264,24 @@ Cách chạy:
 | TC-P3-05-32 | P | 4100 ký tự → 422 {'code': 'MESSAGE_TOO_LONG', 'message': 'Tin nhắn quá dài.', |
 | TC-P3-05-33 | P | tin thứ 21 → 429 (kỳ vọng 21); thân=[('http', '{"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"9e757362f9933a1b16cf889b16c053bc","retry_a; keys ep:rl:c |
 | TC-P3-05-34 | P | (a) phiên đã xoá→404 (b) khác chủ→404 (d) không auth→401 |
-| TC-P3-05-35 | N | chờ chạy lượt R3 |
+| TC-P3-05-35 | F | dòng «Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI»=true; liên kết «Tìm hiểu»=1, mở tại chỗ đúng câu=false; masked_count DB=2 |
 | TC-P3-05-36 | P | khung SSE chứa dạng placeholder: 0; câu trả lời giữ nguyên `[[ -f "$f" ]]`: True; tin người dùng lưu nguyên văn: False; văn bản='Đây là câu trả lời giả lập cho: <ngữ_cảnh>\n[1] T\nNội dung tham khảo cho: [[ -f "$f" ]] làm g' |
 | TC-P3-05-37 | P | tin có tên+MSSV: dòng pii_events ['NAME/1/MASKED/PRIVATE/true', 'MSSV/1/MASKED/PRIVATE/true']; cột bảng = id,course_id,session_id,user_id,channel,pii_type,count,action,created_at (không cột văn bản); câu thuần học thuật: không notice, pii_events 73→73 (không ghi MASKED) |
 | TC-P3-05-38 | P | lớp có ngữ cảnh (để có lời gọi LLM): 7 tin PII → notice.masked=[1, 1, 1, 1, 2, 1, 1], số lời gọi sinh chữ=[1, 1, 1, 1, 1, 1, 1]; tin 8 (hỏi điểm người khác): intent=OTHER_PERSON, từ chối='Mình chỉ xem được dữ liệu của chính bạn.', pii_events=BLOCKED/OTHER_PERSON,MASKED/CCCD,MASKED/PHONE. Ghi chú: ở lớp 761987 không có ngữ cảnh thì 5/7 tin trả câu mẫu 0 lời gọi LLM nên notice masked=0 (không payload rời hệ thống); payload quét: tệp dump chứa chuỗi thô=0 |
 | TC-P3-05-39 | P | scan-pii-leak.sh + TestNoPayloadLeak ok; quét lại toàn bảng: PII chỉ ở chat_messages/users/enrollments/hộp thư mời (được phép) |
-| TC-P3-05-40 | N | chờ chạy lượt R3 |
-| TC-P3-05-41 | N | chờ chạy lượt R3 |
-| TC-P3-05-42 | N | chờ chạy lượt R3 |
+| TC-P3-05-40 | P | khối «Lịch sắp tới» hiện sau khi gửi=true; mở lại phiên (tải lại) vẫn còn=true; chat_messages.blocks có upcoming_events=t |
+| TC-P3-05-41 | P | liên kết «Xem tài liệu»=1, href=/library/01a1efc6-8ff7-7c49-9a81-b72ce7f85263; hiển thị nguồn [n]=true (done.citations đủ trường đã P ở API) |
+| TC-P3-05-42 | F | sau khi GV xoá tài liệu: mở lại tin cũ → «Nguồn đã gỡ»=false; chat_sessions.document_id còn=NULL; (a) [9] bị bỏ đã P ở API |
 | TC-P3-05-43 | P | chủ phiên 204, SV khác 404 |
-| TC-P3-05-44 | N | chờ chạy lượt R3 |
 | TC-P3-05-45 | P | limit=2→200 2 mục, cursor=True; limit 0/101→422/422 |
 | TC-P3-05-46 | P | delete lặp→404, restore→200, đọc lại→200 |
 | TC-P3-05-47 | P | danh sách TA/TCH/ADM [403, 403, 403], tin [403, 403, 403] |
 | TC-P3-05-48 | P | SV A trên phiên SV B → [404, 404, 404, 404, 404] |
 | TC-P3-05-49 | P | SV ngoài lớp: list→403, from-draft→422 |
-| TC-P3-05-50 | N | chờ chạy lượt R3 |
+| TC-P3-05-50 | P | UI mở phiên có tin INTERRUPTED: chữ «Câu trả lời bị gián đoạn.»=true, nút «Thử lại»=1, phần đã sinh hiển thị=true; DB: tắt có chủ đích → INTERRUPTED sau 3,2 s (không chờ 150 s) và SIGKILL → reaper INTERRUPTED sau ~157 s, partial_content giữ nguyên (xem 05-50-a/b) |
 | TC-P3-05-51 | P | tin FAILED có citations/blocks/confidence/cờ/masked/intent/feedback → retry 200; ngay sau (đang STREAMING chậm): |Đây là |true|<null>|[]|[]|<null>|falsefalsefalse|0|<null>|<null>|2 (content rỗng, completed_at NULL, error_code NULL, citations=[], blocks=[], confidence NULL, 3 cờ false, masked_count=0, intent NULL, feedback NULL, attempt 1→2); partial_content='Đây là ' (đã bắt đầu lượt mới); go test: --- PASS: TestUpdatedAtTrigger (0.70s) | --- PASS: TestReapSkipsLive (0.70s) | --- PASS: TestReapInterrupted (0.71s) | --- PASS: TestDrainMarksInterruptedAndReleasesBusy (0.71s) | --- PASS: TestReap |
-| TC-P3-05-52 | P | UI 1440: /chat «Chat riêng» tải, 0 tràn, 0 5xx |
-| TC-P3-05-53 | P | UI 375: /chat «Chat riêng» tải, scrollWidth-innerWidth = 0, 0 lỗi 5xx (chạy lại sau xoá ep:rl:auth*) |
+| TC-P3-05-52 | P | Panel trong vùng làm việc=1 (toàn trang 1); cột giữa rộng nhất=746 px (≤840); trạng thái rỗng «Hỏi bất cứ điều gì về lớp này» (không dấu chấm cuối)=true + gợi ý bấm được=3; nháp khôi phục sau tải lại=true; ngoại tuyến giữ chữ=true, dải báo mạng=true; ui-antipatterns.sh rc=0 (đã chạy) |
+| TC-P3-05-53 | P | 375 px /chat: tràn ngang=0; vùng chạm <44 px=0 [] |
 | TC-P3-05-54 | P | 4 câu mẫu: khuôn khung [('status', 1, 'done'), ('status', 1, 'done'), ('status', 1, 'done'), ('status', 1, 'done')] (status→1 token→done); intent lưu ['OTHER_PERSON', 'CRISIS', 'PERSONAL_ATTENDANCE',  |
 | TC-P3-05-55 | P | trả lời='Mình chỉ xem được dữ liệu của chính bạn.'; intent=OTHER_PERSON; pii_events OTHER_PERSON/BLOCKED; MSSV người khác trong SSE: False; (kiểm payload provider: 0 lời gọi provider — intent chặn trư |
 | TC-P3-05-56 | P | 16 khung token thô: khung chứa mảnh placeholder ([, ], SV_)=0; văn bản ghép lại='_cảnh>\n[1] T\nNội dung tham khảo cho: Bùi Thanh Khải 20229002' (hiện tên + MSSV thật, không đứt chữ); payload provider có [[SV_1]]/[[MSSV_1]]=True; go test TestUnmaskStream đạt (lượt trước) |
@@ -294,13 +292,13 @@ Cách chạy:
 | TC-P3-06-04 | P | allowed=True, số thread không đổi |
 | TC-P3-06-05 | P | [{'type': 'EMAIL', 'count': 1}, {'type': 'MSSV', 'count': 1}, {'type': 'PHONE', 'count': 1}] |
 | TC-P3-06-06 | P | 61 yêu cầu liên tiếp, 429 xuất hiện ở lần 61; 200 trước đó=60 (PRECHECK_RATE_PER_MIN=60); go test TestPrecheck* ok (3 pass) |
-| TC-P3-06-07 | N | chờ chạy lượt R3 |
-| TC-P3-06-08 | N | chờ chạy lượt R3 |
-| TC-P3-06-09 | N | chờ chạy lượt R3 |
+| TC-P3-06-07 | P | gõ liên tục 3 s: precheck trong lúc gõ=0 (≤1, không mỗi phím); sau khi ngừng ≥800 ms: +1 |
+| TC-P3-06-08 | P | dòng báo=["Phát hiện Email, MSSV"] (đúng 1 dòng); hộp thoại mở=0; xoá hết chữ → dòng biến mất=true |
+| TC-P3-06-09 | F | HTTP đầu=422; tiêu đề hộp thoại="Bài viết có thông tin cá nhân"=false; nút hành động=["Chuyển sang chat riêng","Ẩn thông tin rồi đăng"] (đúng 2, ngoài nút đóng); Esc chỉ quay lại ô soạn, chữ nguyên=true |
 | TC-P3-06-10 | P | pii_events: không cột văn bản (xem TC-P3-01-33) |
-| TC-P3-06-11 | N | chờ chạy lượt R3 |
+| TC-P3-06-11 | P | URL=https://localhost:1143/chat?session=01a1efde-20d9-7b45-bfa2-cc30cc4e2588; ô soạn khớp bản nháp từng byte (kể cả \n)=true; phiên mới có 0 tin; forum_threads 7→7; pii_events SWITCHED 0→2; không tự gửi |
 | TC-P3-06-12 | P | trong giờ thi: from-draft → 201 (vẫn tạo phiên); gửi tin → 409 EXAM_IN_PROGRESS; go test: --- PASS: TestFromDraftKeepsText (0.84s) | --- PASS: TestFromDraftNoMessageStored (0.86s) | ok github.com/edupilot/backend-go/internal/chat 1.299s | |
-| TC-P3-06-13 | P | lần 1 422; gửi lại redact:true với khoá cũ → 422 IDEMPOTENCY_KEY_REUSED; khoá MỚI → 201; thread lưu: 'Hỏi điểm QC-C 2 / Em [đã ẩn] [đã ẩn] được mấy điểm? Mail [đã ẩn] SĐT [đã ẩn] CCCD [đã ẩn]'; pii_ev |
+| TC-P3-06-13 | P | yêu cầu lần hai redact=true, Idempotency-Key mới=true; trả 201=true; thread lưu bản đã thay: "Dòng một có dấu tiếng Việt\nDòng hai: Em [đã ẩn] [đã ẩn] được mấy điểm?"; pii_events REDACTED mới=2 |
 | TC-P3-06-14 | N | chờ chạy lượt R3 |
 | TC-P3-06-15 | P | 422 PII_DETECTED |
 | TC-P3-06-16 | P | PII ở tiêu đề→422, ở bình luận→422 |
@@ -321,16 +319,16 @@ Cách chạy:
 | TC-P3-06-31 | P | SV verify → 403; TA verify → 200 |
 | TC-P3-06-32 | P | SV ngoài lớp list→403, chi tiết→403 |
 | TC-P3-06-33 | P | {'full_name': 'Vũ Hoàng Giang', 'role': 'STUDENT', 'is_me': False} |
-| TC-P3-06-34 | N | chờ chạy lượt R3 |
+| TC-P3-06-34 | F | ngoại tuyến: chữ trong ô soạn giữ nguyên=true; nút «Đăng lại»=0; sau tải lại nháp tiêu đề+nội dung khôi phục=true |
 | TC-P3-06-35 | P | 10 yêu cầu song song cùng key → 1 thread, mã [201] |
-| TC-P3-06-36 | P | UI 1440: /threads «Hỏi đáp công khai» tải (SV & GV), 0 tràn, 0 5xx |
-| TC-P3-06-37 | N | chờ chạy lượt R3 |
-| TC-P3-06-38 | P | UI 375: /threads tải (SV & GV), 0 tràn ngang |
+| TC-P3-06-36 | P | 1440 px: Panel trong vùng làm việc=1; bộ lọc chủ đề hiện ở ≥1100 px (số nút/nhãn «Chủ đề»=1); thu lại ở 1024 px=true; soạn tại chỗ (không modal): đã thấy ở ca 06-07; Staff thấy «Xác nhận»=true, «Chỉnh sửa»=true, menu «Loại»=false; ui-antipatterns rc=0 |
+| TC-P3-06-37 | F | lớp rỗng: «Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên.»+nút Đặt câu hỏi=false; API 500 → có nút «Thử lại»=0; (khung xương khi tải: kiểm bằng route delay ở ca 52) |
+| TC-P3-06-38 | P | 375 px /threads: tràn ngang=0; vùng chạm <44 px=0 [] |
 | TC-P3-06-39 | P | go test ok (1 test/ca con, ~3s) |
 | TC-P3-06-40 | P | đăng thread trong giờ thi → 409 EXAM_IN_PROGRESS; forum_threads mới=0; bài chứa PII cũng 409 (khoá chạy trước tường lửa); exam_events=CHAT_BLOCKED/{} |
 | TC-P3-06-41 | P | trong giờ thi: đọc ds/chi tiết/precheck/bình luận/from-draft → [200, 200, 200, 201, 201] (kỳ vọng 200,200,200,201,201: chỉ đăng thread MỚI bị chặn) |
 | TC-P3-06-42 | P | RERUN 2026-11-16 (ep-r ≥ 32b4cb2b, a081590a): SV sv04 lớp 761987, /threads?course=, giả lập /me/exam-lock locked: dòng báo «Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau HH:mm.» hiện, không còn chữ «Chat tạm khóa» (evidence-3/scripts/r6c01.mjs, shots/r6c01-threads-lock.png) |
-| TC-P3-06-43 | N | chờ chạy lượt R3 |
+| TC-P3-06-43 | P | cùng điều kiện: đăng thread → HTTP 503 CHAT_UNAVAILABLE; forum_threads mới=0; go test 5 ca locker (thread) đạt |
 | TC-P3-06-44 | P | bỏ sót []; personal_question=True reasons=[{'type': 'PERSONAL_QUESTION', 'count': 1}] |
 | TC-P3-06-45 | P | 5 mẫu âm, chặn nhầm: [] |
 | TC-P3-06-46 | N | chờ chạy lượt R3 |
@@ -338,14 +336,14 @@ Cách chạy:
 | TC-P3-06-48 | P | ai_state=SKIPPED/LOW_SCORE; bài AI chứa canary=0 |
 | TC-P3-06-49 | P | duyệt con trỏ 6 trang không trùng |
 | TC-P3-07-01 | P | go test ok (3 test/ca con, ~3s) |
-| TC-P3-07-02 | N | chờ chạy lượt R3 |
-| TC-P3-07-03 | N | chờ chạy lượt R3 |
+| TC-P3-07-02 | P | GV GET thread: confidence=1.000 (nhiều nhất 3 chữ số, ∈[0,1]); DB confidence (trước khi ca 09 ghi 0,72 lên một thread khác)=1.0; cos top1 thật=1.000 → retr=clamp((cos−0,25)/0,40)=1.000 ⇒ confidence phải ∈ [0,6·retr, 0,6·retr+0,4]=[0.600,1.000]; go test TestConfidence* (công thức, đủ trường ResponseMetadata) ở dòng ghi chú kế |
+| TC-P3-07-03 | P | một câu COURSE_QA: fake_calls 58→59 (+1 lời gọi sinh chữ) + 0 lần nhúng; không có lời gọi thêm để chấm độ tin cậy (D47) |
 | TC-P3-07-04 | P | tin "Tuần này em có lịch gì?" → intent UPCOMING_EVENTS, chat_messages.confidence=1.000, low_confidence=false; khối upcoming_events có 6 mục |
-| TC-P3-07-05 | N | chờ chạy lượt R3 |
-| TC-P3-07-06 | N | chờ chạy lượt R3 |
-| TC-P3-07-07 | N | chờ chạy lượt R3 |
-| TC-P3-07-08 | N | chờ chạy lượt R3 |
-| TC-P3-07-09 | N | chờ chạy lượt R3 |
+| TC-P3-07-05 | P | chunk có cos với câu hỏi ≈0.47 (confidence trung gian); ngưỡng 0,95 → tin kế tiếp low_confidence|no_context=true|false; ngưỡng 0,50 → false|false (cùng câu, hiệu lực ở tin kế tiếp); 0,99 và 0,40 bị từ chối → 422,422; trả lại 0,80 → 200; go test: --- PASS: TestLowConfidenceUsesCourseThreshold (0.00s) | ok github.com/edupilot/backend-go/internal/agent 0.473s | |
+| TC-P3-07-06 | P | khoá confidence/retrieval_score/groundedness ở: chat messages, GET threads, GET thread, similar = 0; tất cả khung SSE đã ghi (>3209 dòng) chứa chúng=0; chỉ có low_confidence (bool); go test: --- PASS: TestStudentNeverSeesConfidence (1.67s) | ok github.com/edupilot/backend-go/internal/chat 2.124s | --- PASS: TestStudentNeverSees |
+| TC-P3-07-07 | P | escalation_threshold=0.95: hiện «AI chưa đủ chắc chắn về câu này»=true; (phần «Nhờ giảng viên» = 0 của TC là LT theo US-P4-01 AC7: nay có dòng trạng thái/nút) |
+| TC-P3-07-08 | P | body innerText chứa từ kỹ thuật AI (RAG/PII/provider/fallback/trace/confidence/độ tin cậy)=[] |
+| TC-P3-07-09 | P | GV thấy «Độ tin cậy 0,72»=true (dấu phẩy); TA thấy giống=true |
 | TC-P3-07-10 | P | GET tin chat riêng: GV/TA/ADMIN → [403, 403, 403]; go test TestStaffConfidenceThreadsOnly/TestStaffCannotReadPrivateConfidence ok (2 pass) |
 | TC-P3-07-11 | P | trả lời='Mình chưa tìm thấy nội dung này trong tài liệu của lớp.'; no_context/low_confidence/intent=t/t/COURSE_QA; llm_audit 6→6; go test TestNoContextCannedReply ok |
 | TC-P3-07-12 | P | eval_pii.py --validate: 200 mẫu, strata đúng |

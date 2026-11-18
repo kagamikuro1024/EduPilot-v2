@@ -1,0 +1,10 @@
+--- PASS: TestImapPollNewOnly (0.71s)
+--- PASS: TestImapPollIdempotentRestart (0.44s)
+--- PASS: TestImapUidValidityChange (0.43s)
+--- PASS: TestImapToDraftGrade (0.42s)
+--- PASS: TestTeamsResubmitNewVersion (0.82s)
+--- PASS: TestTeamsInvalidJSON (0.43s)
+--- PASS: TestTeamsSyncTimeout (1.94s)
+ok  	github.com/edupilot/backend-go/internal/integration	5.994s
+--- PASS: TestIngestAlreadyReviewedAllSources (0.66s)
+ok  	github.com/edupilot/backend-go/internal/submission	1.243s

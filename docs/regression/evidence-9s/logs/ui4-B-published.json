@@ -1,0 +1,35 @@
+{
+ "B1440": "Bài tập 03 — Phân tích một vụ tấn công thực tế\nThứ Ba, 17/11 · 02:01 · đã quá hạn 2 ngày\nKết quả\n\n7,50 / 10,00\n\nXác định tác nhân và bề mặt tấn công\n2,00 / 2,50\n\nBài nêu rõ nhóm tác nhân và các điểm vào của hệ thống bị tấn công.\n\nBề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành\n\nPhân tích tấn công\n2,00 / 2,50\n\nMô tả chuỗi tấn công còn thiếu bước leo thang đặc quyền.\n\nđánh cắp khoá ký SAML của máy chủ liên kết danh tính\n\nĐánh giá tác động\n2,00 / 2,50\n\nĐánh giá được thiệt hại dữ liệu nhưng chưa định lượng thời gian gián đoạn.\n\nnhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư\n\nBiện pháp phòng thủ\n2,00 / 2,50\n\nCó đề xuất phân đoạn mạng và xác thực đa yếu tố, chưa nêu cách giám sát.\n\nphân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet\n\nTrừ nộp muộn: −0,50 điểm\n\nNhận xét giảng viên cho bài làm.\n\nNhận xét · đã được giảng viên duyệt\n\nYêu cầu xem lại\nYêu cầu xem lại\nĐề bài\n\n# Bài tập 03 — Phân tích một vụ tấn công thực tế\n\nLoại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày\n\n## Đề bài\n\nPhân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng SolarWinds Orion (phát hiện tháng 12 năm 2020). Bài nộp dài khoảng một đến hai trang và trả lời bốn câu hỏi:\n\nAi là tác nhân và kẻ tấn công đã khai thác bề mặt tấn công nào?\nChuỗi tấn công diễn ra qua những bước nào?\nTác động của vụ việc là gì (dữ liệu, vận hành, niềm tin, chi phí)?\nTổ chức nên phòng thủ như thế nào để giảm rủi ro tương tự?\n\nMỗi nhận định cần nêu căn cứ cụ thể (tên công cụ, kỹ thuật, số liệu công khai). Nếu không tìm được số liệu thì nói rõ",
+ "B1440x": {
+  "label": true,
+  "reviewer": [],
+  "others": [],
+  "lines": [
+   "Trừ nộp muộn: −0,50 điểm",
+   "Nhận xét giảng viên cho bài làm.",
+   "Nhận xét · đã được giảng viên duyệt"
+  ]
+ },
+ "B1440bad": [],
+ "B1440btn": 1,
+ "B1440small": [
+  "Yêu cầu xem lại",
+  "Chọn tệp",
+  "Nộp lại"
+ ],
+ "B375": "Bài tập 03 — Phân tích một vụ tấn công thực tế\nThứ Ba, 17/11 · 02:01 · đã quá hạn 2 ngày\nKết quả\n\n7,50 / 10,00\n\nXác định tác nhân và bề mặt tấn công\n2,00 / 2,50\n\nBài nêu rõ nhóm tác nhân và các điểm vào của hệ thống bị tấn công.\n\nBề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành\n\nPhân tích tấn công\n2,00 / 2,50\n\nMô tả chuỗi tấn công còn thiếu bước leo thang đặc quyền.\n\nđánh cắp khoá ký SAML của máy chủ liên kết danh tính\n\nĐánh giá tác động\n2,00 / 2,50\n\nĐánh giá được thiệt hại dữ liệu nhưng chưa định lượng thời gian gián đoạn.\n\nnhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư\n\nBiện pháp phòng thủ\n2,00 / 2,50\n\nCó đề xuất phân đoạn mạng và xác thực đa yếu tố, chưa nêu cách giám sát.\n\nphân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet\n\nTrừ nộp muộn: −0,50 điểm\n\nNhận xét giảng viên cho bài làm.\n\nNhận xét · đã được giảng viên duyệt\n\nYêu cầu xem lại\nYêu cầu xem lại\nĐề bài\n\n# Bài tập 03 — Phân tích một vụ tấn công thực tế\n\nLoại: tự luận (ESSAY) · Thang điểm: 10 · Hạn nộp: 23:59 ngày hạn (giờ Việt Nam) · Nộp muộn: được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày\n\n## Đề bài\n\nPhân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng SolarWinds Orion (phát hiện tháng 12 năm 2020). Bài nộp dài khoảng một đến hai trang và trả lời bốn câu hỏi:\n\nAi là tác nhân và kẻ tấn công đã khai thác bề mặt tấn công nào?\nChuỗi tấn công diễn ra qua những bước nào?\nTác động của vụ việc là gì (dữ liệu, vận hành, niềm tin, chi phí)?\nTổ chức nên phòng thủ như thế nào để giảm rủi ro tương tự?\n\nMỗi nhận định cần nêu căn cứ cụ thể (tên công cụ, kỹ thuật, số liệu công khai). Nếu không tìm được số liệu thì nói rõ",
+ "B375x": {
+  "label": true,
+  "reviewer": [],
+  "others": [],
+  "lines": [
+   "Trừ nộp muộn: −0,50 điểm",
+   "Nhận xét giảng viên cho bài làm.",
+   "Nhận xét · đã được giảng viên duyệt"
+  ]
+ },
+ "B375bad": [],
+ "B375btn": 1,
+ "B375small": [],
+ "axeB375": []
+}

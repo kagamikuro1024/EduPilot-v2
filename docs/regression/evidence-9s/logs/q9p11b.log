@@ -1,0 +1,13 @@
+   paged: QUEUED|0||  trang submissions: 0 yêu cầu: 0
+FAIL TC-P7-11-02 paged (30 bản ghi / trang 10): QUEUED  — 0 yêu cầu trang bài nộp ('QUEUED|0||', '')
+   lần hai: SUCCEEDED|100|{"failed": [], "created": 25, "deduped": 0, "fetched": 25, "unmatched": 1}| 0 → 25
+FAIL TC-P7-11-02 đồng bộ lần hai ngay: 0 → 25 bài (0 bài mới, UNIQUE (course_id, source, external_ref, external_ts)) ('0', '25', 'SUCCEEDED|100|{"failed": [], "created": 25, "deduped": 0, "fetched": 25, "unmatched": 1}|')
+   happy: SUCCEEDED|100|{"failed": [], "created": 25, "deduped": 0, "fetched": 25, "unmatched": 1}| 0.8s tiến độ: ['0', '100']
+PASS TC-P7-11-08 happy: SUCCEEDED đủ 25 (MATCHED:24 UNMATCHED:1), tiến độ tăng dần ['0', '100'] 
+   throttle: SUCCEEDED|100|{"failed": [], "created": 25, "deduped": 0, "fetched": 25, "unmatched": 1}| 2.3s throttled: 2
+PASS TC-P7-11-08 throttle: SUCCEEDED đủ 25 (MATCHED:24 UNMATCHED:1) sau 2 lần 429, 2.3 s, tiến độ không đứng: ['0', '100'] 
+   mock-graph tắt giữa chừng: FAILED||{"code": "UNREACHABLE", "message": "Không kết nối được Teams. Các bài đã lấy vẫn giữ nguyên."} bài đã về:  khoá: ''
+PASS TC-P7-11-10 tắt mock-graph giữa chừng → FAILED||{"code": "UNREACHABLE", "message": "Không kết nối được Teams. Các bài đã; khoá ep:lock:teams* rỗng ('') 
+PASS TC-P7-11-10 chạy lại sau khi mock-graph bật: SUCCEEDED, MATCHED:24 UNMATCHED:1 (đủ 25, không đôi, không panic), khoá '' 
+SUMMARY {"TC-P7-11-02": false, "TC-P7-11-08": true, "TC-P7-11-10": true}
+RESULT: FAIL (2 lỗi)

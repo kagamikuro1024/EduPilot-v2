@@ -1,0 +1,161 @@
+{
+ "heads": [
+  "Sinh viên",
+  "Bài tập",
+  "Nguồn",
+  "Điểm",
+  "Trạng thái duyệt",
+  "Thời gian nộp",
+  "Duyệt"
+ ],
+ "selects": [
+  {
+   "label": "",
+   "value": "",
+   "text": "Tất cả bài tập"
+  },
+  {
+   "label": "",
+   "value": "DRAFT",
+   "text": "Chưa duyệt"
+  }
+ ],
+ "chips": [
+  "Hàng chờ",
+  "Cần xem kỹ"
+ ],
+ "rowCount": 17,
+ "rows": [
+  "Bùi Thanh Khải | 20229002 | Hai lượt chấm lệch hơn 1 điểm | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t6,50 | Chưa duyệt\tThứ Năm, 19/11 · 02:00 · muộn 1 ngày\tDuyệt",
+  "Vũ Minh Long | 20224786 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t5,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Bùi Thu Việt | 20226980 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t5,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Dương Minh Yến | 20222003 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t4,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00 · muộn 2 ngày\tDuyệt",
+  "Huỳnh Hoàng Hương | 20226004 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t5,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Võ Thanh Trang | 20227825 | Tổng điểm chưa khớp | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t3,00 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Ngô Văn Hà | 20224349 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t5,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Võ Thị An | 20229049 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t5,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Dương Tuấn Giang | 20224852 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t5,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Ngô Văn Hải | 20227769 | Nghi chèn lệnh | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t4,50 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Ngô Thu Khoa | 20227130 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t5,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Dương Quốc Hương | 20224019 | Tổng điểm chưa khớp | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t3,00 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Võ Gia Linh | 20226009 | Bài lạc đề | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t0,00 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt",
+  "Huỳnh Đức Dũng | 20229602 | Trích dẫn không có trong bài | Bài tập 03 — Phân tích một vụ tấn công thực tế | Trong EduPilot\t5,75 | Chưa duyệt\tThứ Năm, 19/11 · 02:00\tDuyệt"
+ ],
+ "tech": [],
+ "flagTexts": [
+  "Hai lượt chấm lệch hơn 1 điểm",
+  "Bài lạc đề",
+  "Nghi chèn lệnh",
+  "Thiếu nội dung",
+  "Trích dẫn không có trong bài"
+ ],
+ "sourceLabels": [
+  "Trong EduPilot"
+ ],
+ "reviewText": "Hàng chờ chấm\nBài tập 03 — Phân tích một vụ tấn công thực tế\nPhiên bản 1 · Nộp Thứ Năm, 19/11 · 02:00 · muộn 1 ngày · \nChưa duyệt ·\ns7-lech-hai-luot.md\nPhiên bản 1\nMở tệp gốc\n\nBài viết phân tích chiến … ng thư. Riêng SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la, chưa kể thiệt hại thương hiệu và các vụ kiện sau đó.\n\nEm chưa tìm được số liệu đáng tin về thời gian gián đoạn dịch vụ của từng tổ chức bị ảnh hưởng, nên phần đánh giá tác động vận hành ở đây mới dừng ở mức định tính.\n\nVề phòng thủ, em đề xuất ba nhóm biện pháp: (1) phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet, (2) xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, kèm xoay vòng khoá ký định kỳ, (3) kiểm tra tính toàn vẹn của bản dựng bằng quy trình build tái lập được và bản kê thành phần phần mềm (SBOM).\n\nNgoài ra cần giám sát hành vi bất thường của tiến trình hợp lệ, ví dụ Orion tự mở kết nối DNS tới một tên miền lạ ngoài danh sách đã biết, vì chữ ký số hợp lệ không còn là bằng chứng đủ để tin một bản cập nhật.\n\nBài học rút ra: trong mô hình không tin mặc định, phần mềm của bên thứ ba cũng là một bề mặt tấn công. Kiểm soát phải đặt cả ở nơi nhận bản cập nhật chứ không chỉ ở nơi phát hành.\n\nTổng điểm\n6,50\nTrừ nộp muộn · 1 ngày\n\nBấm một dòng trích để xem trong bài.\n\nXác định tác nhân và bề mặt tấn công\n/ 2,5\n“Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành”\nNhận xét cho sinh viên\nPhân tích tấn công\n/ 2,5\nLệch 1,5 điểm so với lượt 2 (1,00 và 2,50)\n“đánh cắp khoá ký SAML của máy chủ liên kết danh tính”\nNhận xét cho sinh viên\nĐánh giá tác động\n/ 2,5\n“nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư”\nNhận xét cho sinh viên\nBiện pháp phòng thủ\n/ 2,5\n“phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet”\nNhận xét cho sinh viên\nNhận xét chung\n\nĐã duyệt 0/22\n\nDuyệt bài\nA\nVề hàng chờ chấm",
+ "btns": [
+  "Bài làm",
+  "Chấm",
+  "Mở tệp gốc",
+  "“Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành”",
+  "“đánh cắp khoá ký SAML của máy chủ liên kết danh tính”",
+  "“nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư”",
+  "“phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet”",
+  "",
+  "",
+  "Duyệt bài"
+ ],
+ "marks": 0,
+ "quoteEls": 4,
+ "inputs": [
+  {
+   "t": "text",
+   "a": null,
+   "v": "0,50"
+  },
+  {
+   "t": "text",
+   "a": "Điểm Xác định tác nhân và bề mặt tấn công",
+   "v": "2,00"
+  },
+  {
+   "t": "textarea",
+   "a": null,
+   "v": "Bài nêu rõ nhóm tác "
+  },
+  {
+   "t": "text",
+   "a": "Điểm Phân tích tấn công",
+   "v": "1,00"
+  },
+  {
+   "t": "textarea",
+   "a": null,
+   "v": "Mô tả chuỗi tấn công"
+  },
+  {
+   "t": "text",
+   "a": "Điểm Đánh giá tác động",
+   "v": "2,00"
+  },
+  {
+   "t": "textarea",
+   "a": null,
+   "v": "Đánh giá được thiệt "
+  },
+  {
+   "t": "text",
+   "a": "Điểm Biện pháp phòng thủ",
+   "v": "2,00"
+  },
+  {
+   "t": "textarea",
+   "a": null,
+   "v": "Có đề xuất phân đoạn"
+  },
+  {
+   "t": "textarea",
+   "a": null,
+   "v": "Bài phân tích chắc, "
+  }
+ ],
+ "notices": [
+  "Lệch 1,5 điểm so với lượt 2 (1,00 và 2,50)"
+ ],
+ "layout": {
+  "main": {
+   "x": 240,
+   "w": 576
+  },
+  "aside": {
+   "x": 840,
+   "w": 576
+  }
+ },
+ "taQueueBtns": [
+  "Tải bài lên",
+  "Thêm",
+  "Chấm tất cả",
+  "Hàng chờ",
+  "Bài tập",
+  "Chưa khớp",
+  "Cần xem kỹ",
+  "",
+  "Để sau",
+  "Công bố"
+ ],
+ "taPublishInDom": 3,
+ "taReviewBtns": [
+  "Bài làm",
+  "Chấm",
+  "Mở tệp gốc",
+  "“Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành”",
+  "“đánh cắp khoá ký SAML của máy chủ liên kết danh tính”",
+  "“nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư”",
+  "“phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet”",
+  "",
+  "",
+  "Duyệt bài"
+ ],
+ "taReviewPublish": 0
+}

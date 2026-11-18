@@ -1,0 +1,4 @@
+--- PASS: TestReminderOnlyNotSubmitted (0.77s)
+--- PASS: TestReminderDedupe (0.77s)
+--- PASS: TestReminderOncePerEvent (0.78s)
+ok  	github.com/edupilot/backend-go/internal/calendar	1.571s
