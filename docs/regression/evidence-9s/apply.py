@@ -8,7 +8,7 @@ for l in open(res, encoding="utf8"):
     r = json.loads(l)
     if re.fullmatch(r"TC-[A-Za-z0-9-]+", r["tc"]): last[r["tc"]] = r
 txt = open(md, encoding="utf8").read()
-H = "\n## Lượt 2026-11-18 — kết quả chạy thật (mã dc67bd93, stack ep-qc, lớp riêng QD10A/QD10B; không đụng 761987/761988)\n| TC | KQ | Ghi chú |\n| --- | --- | --- |\n"
+H = "\n## " + (sys.argv[3] if len(sys.argv) > 3 else "Lượt 2026-11-18 — kết quả chạy thật (mã dc67bd93, stack ep-qc, lớp riêng QD10A/QD10B; không đụng 761987/761988)") + "\n| TC | KQ | Ghi chú |\n| --- | --- | --- |\n"
 if H not in txt: txt += H
 # gỡ dòng cũ của chính khối này để ghi lại bản mới nhất
 head, _, tail = txt.partition(H)

@@ -107,3 +107,33 @@ def grade_all_wait(a, t=120):
     return c, j, n
 def fxa(tag, n=12, typ="ESSAY"):
     a = mk_assignment(tag, n, typ); c, j, nn = grade_all_wait(a); assert nn[0] == nn[1], (c, j, nn); return a
+
+def D(a, iid): return f"{G(a)}/items/{iid}/decide"
+def items_of(a, status=None):
+    c, j, _ = api("teacher", "GET", G(a)); it = j.get("items") or []
+    return [x for x in it if status is None or x["status"] == status]
+def decide(a, iid, dec="APPROVE", text=None):
+    it = [x for x in items_of(a) if x["id"] == iid][0]; b = {"decision": dec, "version": it["version"]}
+    if text: b["text"] = text
+    return api("teacher", "POST", D(a, iid), b)
+def apply_v(a, expected, key=None): return api("teacher", "POST", G(a) + "/apply", {"expected_version": expected}, idem=key or str(uuid.uuid4()))
+def guided(tag, n=12, k=8, approve=2, do_apply=True):
+    """Bài tập đã có lưu ý: chấm n bài, duyệt k bài có sửa (c2,c3 → 0), reflect rf_many, duyệt `approve` mục, áp dụng → v1. Gọi TRONG window()."""
+    flag("GRADING_GUIDANCE", True); a = fxa(tag, n)
+    review_with(a, [(i, {"c2": "0.00", "c3": "0.00"}) for i in range(k)])
+    c, j, jb = reflect(a, "rf_many"); stub("allow")
+    ids = [x["id"] for x in items_of(a, "DRAFT")]
+    for iid in ids[:approve]: decide(a, iid)
+    v = None
+    if do_apply: v = apply_v(a, 0)
+    return a, ids, (c, jb and jb[0], v)
+def stub_prompts(t0, marker=None):
+    """Các yêu cầu GRADING (system chứa «Lưu ý» hoặc rubric) gửi tới stub kể từ t0: [(mode, có_khối, phiên_bản)]."""
+    out = []
+    for l in open("/tmp/stub_req.jsonl"):
+        r = json.loads(l)
+        if r["t"] < t0: continue
+        txt = "\n".join(m.get("content", "") if isinstance(m.get("content"), str) else "" for m in r["body"].get("messages", []))
+        m = re.search(r"Lưu ý của giảng viên \(bản v(\d+)\)", txt)
+        out.append((r["mode"], bool(m), m.group(1) if m else None, "rút ra lưu ý chấm" in txt))
+    return out
