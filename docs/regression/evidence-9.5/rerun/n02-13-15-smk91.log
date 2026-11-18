@@ -1,0 +1,29 @@
+== N02-13 smk91 (seed không GEMINI_API_KEY: env của shell seed không có khoá, gateway/worker không có GEMINI_API_KEY)
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+-- chunk embedding NULL/tổng
+5|132
+-- llm_audit theo provider
+ERROR:  column "provider_name" does not exist
+LINE 1: select provider_name, kind, count(*) from llm_audit group by...
+               ^
+-- providers
+ERROR:  column "kind" does not exist
+LINE 1: select name, kind, enabled from llm_providers
+                     ^
+HINT:  Perhaps you meant to reference the column "llm_providers.id".
+-- chunk embedding NULL chỉ ở 2 tài liệu use_for_rag=false (đề mẫu / đề tham khảo): RAG chunks NULL =
+0
+-- llm_audit provider/task
+fake|CHAT|250
+fake|GRADING|87
+fake|UTILITY|86
+fake|INSIGHT|86
+fake|EMBEDDING|82
+fake|CLASSIFY|81
+env:fake|EMBEDDING|41
+env:fake|CHAT|19
+env:fake|QUESTION_GEN|7
+env:fake|UTILITY|1
+-- llm_providers
+decision|Quyết định||t

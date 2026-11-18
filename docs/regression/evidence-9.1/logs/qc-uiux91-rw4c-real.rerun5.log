@@ -1,0 +1,8 @@
+
+Running 10 tests using 1 worker
+
+(node:13786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4c-real.spec.ts:44:1 › TC-UX16 sổ điểm thật: cột Trạng thái, menu ⋯, Chốt điểm, TA không chốt được (46.8s)
+(node:14487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

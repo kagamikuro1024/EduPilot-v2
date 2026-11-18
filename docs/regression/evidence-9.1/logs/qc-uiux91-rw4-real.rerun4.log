@@ -24,3 +24,34 @@ INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Ch�
   ✘   4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit (5.0m)
 (node:6663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:206:1 › TC-UX14-11 375 px: hàng xếp dọc, Duyệt riêng ≥ 44 px, không tràn (5.0m)
+(node:13056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO tiêu chí 1440: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":462,"inTop":462,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":770,"inTop":770,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1085,"inTop":1085,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1370,"inTop":1370,"nameR":1263,"inL":1275,"overlap":false,"max":true,"visibleLabel":false}]
+INFO số lần câu ghi chú trích: 1 | cũ: 0
+INFO thanh dưới lúc mở: {"top":804,"bottom":873,"pos":"sticky","text":"Đã duyệt 0/11 Duyệt bài A","innerH":900}
+INFO nút đỏ: ["Duyệt bài"]
+INFO nút Duyệt bài sau khi cuộn: {"top":693,"bottom":729,"innerH":900}
+INFO tiêu chí 1100: [{"name":"Xác định tác nhân và bề mặt tấ","nameTop":462,"inTop":462,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Phân tích tấn công","nameTop":798,"inTop":798,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Đánh giá tác động","nameTop":1135,"inTop":1135,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false},{"name":"Biện pháp phòng thủ","nameTop":1443,"inTop":1443,"nameR":923,"inL":935,"overlap":false,"max":true,"visibleLabel":false}]
+  ✓   6 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:227:1 › TC-UX15-1/2/3/6/7/11 duyệt bài (S7): mỗi tiêu chí một hàng, không chồng, ghi chú một lần, thanh dưới trọn khung, lệch hai lượt (22.7s)
+INFO reduce=false: tô sáng từ undefined ms đến undefined ms; mẫu cường độ: 
+  ✘   7 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:285:1 › TC-UX15-4 tô sáng đoạn trích: giữ ≈ 1 s rồi mờ ≤ 200 ms (và reduce tắt tức thì) (58.6s)
+(node:14327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:329:1 › TC-UX15-8/9/10 phím A duyệt rồi sang bài kế; ‹ › đổi bài không hoạt cảnh; nhấn đúp chỉ một lần (42.4s)
+(node:15253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:365:1 › TC-UX15-12/13 tự lưu điểm + nháp khôi phục; lỗi duyệt báo tại thanh dưới, điểm còn (1.4m)
+(node:16697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO SV /assignments: Bài tập Chưa có bài tập
+INFO TA thấy nút Duyệt bài: 1
+  ✓  10 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:401:1 › TC-UX15-15/16/17/18 SV chưa thấy điểm; STUDENT 403; TA duyệt được (19.6s)
+INFO 375 duyệt bài: {"tabs":["Bài làm","Chấm"],"btn":{"top":704,"bottom":748,"h":44},"navTop":755,"ov":false,"innerH":812,"navFound":true}
+  ✓  11 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:427:1 › TC-UX14-11/UX15-19 375 px: hai tab Bài làm / Chấm, thanh duyệt dính đáy ≥ 44 px trên thanh điều hướng (6.2s)
+INFO đầu bảng: [{"t":"Sinh viên","h":45,"pos":"sticky","lines":1},{"t":"Giữa kỳ","h":45,"pos":"sticky","lines":1},{"t":"Kiểm tra hằng tuần","h":45,"pos":"sticky","lines":1},{"t":"Thi cuối kỳ","h":45,"pos":"sticky","lines":1},{"t":"Điểm cộng","h":45,"pos":"sticky","lines":1},{"t":"Điểm trừ","h":45,"pos":"sticky","lines":1},{"t":"Quá trình","h":45,"pos":"sticky","lines":1},{"t":"Điểm học phần","h":45,"pos":"sticky","lines":1},{"t":"Điểm chữ","h":45,"pos":"sticky","lines":1},{"t":"Trạng thái","h":45,"pos":"sticky","lines":1},{"t":"Hành động","h":45,"pos":"sticky","lines":1}]
+INFO hàng: [["Bùi Khánh Việt\n20227706","5,00","—","5,00","0,50","0,00","6,000","5,50","C","Đã chốt v1",""],["Bùi Minh Yến\n20221975","3,00","—","3,00","0,25","0,00","5,750","4,00","D","Đã chốt v1",""],["Bùi Thanh Khải\n20229002","7,50","—","6,50","0,50","0,00","8,250","7,00","B","Đã chốt v1",""]]
+INFO cuộn: [{"h":600,"top":224,"cls":"DataTable-module__PUx__a__vscr"}] căn: right tabular-nums cột tên: sticky | đầu trang: Sổ điểm Xem công thức Đã chốt v1 · Chủ Nhật, 23:27 Bảng điểm của lớp Sinh viên Giữa kỳ Kiểm tra hằng tuần Thi cuối kỳ Điểm cộng Điểm trừ Quá trình Điểm học phần Điểm chữ Trạng thái Hành động Bùi Khánh Việt 20227706 5,00 — 5,00 0,50 0,00 6,000 5,50 C Đã chốt v1 | chân: 7769 7,25 — 7,75 0,50 0,00 7,125 7,50 B Đã chốt v1 Nguyễn Anh Linh 20223869 2,00 — 6,50 0,75 0,00 4,750 6,00 C Đã chốt v1 Phạm Mai Chi 20226712 4,25 — 4,50 0,00 0,00 5,125 5,00 D+ Đã chốt v1 đã công bố Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.
+INFO thiếu: null | cột Trạng thái: true
+INFO UX16-3: kiểm 0 ô số, lệch 0
+  ✓  12 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:450:1 › TC-UX16-2/3/4/5/6/7/9/10/11 sổ điểm thật: số khớp API, tiêu đề một dòng, một vùng cuộn, Thiếu điểm (6.7s)

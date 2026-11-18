@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 439 · Trượt: 2 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 71   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 443 · Trượt: 2 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 67   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -16,7 +16,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | P6-07 | 59 | 59 | 0 | 0 | 0 | 0 |
 | P6-08 | 47 | 47 | 0 | 0 | 0 | 0 |
 | P6-09 | 50 | 45 | 0 | 0 | 0 | 5 |
-| P6-SEED | 37 | 0 | 0 | 0 | 0 | 37 |
+| P6-SEED | 37 | 4 | 0 | 0 | 0 | 33 |
 | S8-UI | 23 | 0 | 0 | 0 | 0 | 23 |
 
 ## Kết quả từng ca
@@ -486,17 +486,17 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-SEED-10 | N | chưa chạy |
 | TC-P6-SEED-11 | N | chưa chạy |
 | TC-P6-SEED-12 | N | chưa chạy |
-| TC-P6-SEED-13 | N | chưa chạy |
+| TC-P6-SEED-13 | P | seed/demo/quy-che-lop2.pdf có, 2 trang; số lần «làm tròn|quy tròn|bước điểm» = 0; 7/7 đoạn x.y. của fixtures/quy-che-lop2.md có đúng chữ trong PDF (python pypdf — máy khô |
 | TC-P6-SEED-14 | N | chưa chạy |
 | TC-P6-SEED-15 | N | chưa chạy |
-| TC-P6-SEED-16 | N | chưa chạy |
+| TC-P6-SEED-16 | P | fake_llm.json có khoá recordings (31 bản ghi); Go narrow -run 'TestExtractLop2OneUnclear|TestDemoModeRecordingsCoverPolicies' ./internal/grading: 2/2 PASS (2026-11-18) |
 | TC-P6-SEED-17 | N | chưa chạy |
 | TC-P6-SEED-18 | N | chưa chạy |
 | TC-P6-SEED-19 | N | chưa chạy |
-| TC-P6-SEED-20 | N | chưa chạy |
+| TC-P6-SEED-20 | P | NODE_ENV=production node scripts/seed.mjs → «Seed bị chặn: NODE_ENV=production. Seed chỉ chạy ở môi trường dev / test.» rc=1 (chạy trên ep-sd, trước mọi lời gọi API) |
 | TC-P6-SEED-21 | N | chưa chạy |
 | TC-P6-SEED-22 | N | chưa chạy |
-| TC-P6-SEED-23 | N | chưa chạy |
+| TC-P6-SEED-23 | P | git show 6711408d -- scripts/check-crm-seed.mjs: đúng 1 dòng đổi, WATCH === 2 → WATCH === 3 (sv12, sv19, sv26); seed/expected_risk.csv có WATCH 3, AT_RISK 1 — khớp; không |
 | TC-P6-SEED-24 | N | chưa chạy |
 | TC-P6-SEED-25 | N | chưa chạy |
 | TC-P6-SEED-26 | N | chưa chạy |

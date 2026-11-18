@@ -1,28 +1,7 @@
-# Smoke hồi quy sprint 9.5 — kết quả
-Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r + stack riêng ep-r95-* · Người chạy: qc2 · Ngày: 2026-11-15
-Tổng TC cũ: 161 · Đạt: 90 · Trượt: 24 · Không chạy (K, loại a/b/c): 0 · Lỗi thời (LT): 18 · Chưa chạy (mẫu, CM): 29   (P+F+K+LT+CM = T)
-Cách chạy:
-- FILE/SCAN/DIFF: đọc tệp, `check-meta`, `canary-scan.sh` (ADMIN, ep-r), `git log/diff ff00b5aa..2d730a4e` (khoảng sprint 9.5), tính lại số liệu bằng Python từ `benchmarks/reports/**`.
-- API/seed trên ep-r: `check-*-seed.mjs`, đăng nhập 4 vai, `/me/today`, sổ điểm, chạy lại `seed.mjs`. ep-r bị 7 agent dùng chung nên dữ liệu seed đã bị đổi (xem DEF-R9.5-17).
-- Stack riêng (bản sao script trong `evidence-9.5/scripts/`, mã sản phẩm không sửa): postgres `ep-r95-pg`, gateway/worker/redis `ep-r95-*`, DB `edupilot_t1_r95` do `seed-t1` nạp (1.000 SV); chạy `check-t1-seed`, `check-t1-api`, vòng lặp 403 + p95 200 lần, `explain.mjs`, `chaos.mjs` (kill -9 worker, Redis tắt 70 s), k6 `dashboard` (container 1,5 CPU / 1,5 GB), Redis tắt + chat.
-- Máy chủ giả `fake-gateway.mjs` cho TC harness 429/401 (real_llm.py).
-- Sự cố: lúc 12:59:54 UTC `ep-r-postgres-1` crash/recovery khi qc2 nạp seed-t1 vào DB phụ của chính postgres đó (I/O quá tải, checkpoint 268 s); hết recovery 13:02:05; qc2 xoá 2 DB phụ và chuyển sang postgres riêng. Không kill/stop container ep-r-*.
-- Quy ước kết quả: ca môi trường bị chặn đã chạy lại; K (a/b/c) = 0 vì không ca nào cần thiết bị thật / người thật / ngoài đồ án; LT = spec/quyết định sau (P-95-8: 9router thay Gemini trực tiếp, không tạo 00018); CM = chưa chạy (mẫu) do hết quỹ lượt chạy, chưa có script hoặc cần dựng thêm (docling riêng, pg_stat_statements, Lighthouse, README Mac sạch): PM quyết có chạy nốt không.
-
-## Tổng hợp theo US
-| US | TC tổng | P | F | K (a/b/c) | LT | CM | Ghi chú |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| US-NFR-01 | 19 | 8 | 2 | 0 | 5 | 4 | Guard demo, meta, secret chạy thật; ca README Mac sạch/ep-qc chưa chạy |
-| US-NFR-02 | 15 | 4 | 5 | 0 | 0 | 6 | ep-r nhiễu (DEF-17); seed sạch trên DB riêng chưa xong → các ca RUN còn lại CM |
-| US-NFR-03 | 17 | 15 | 0 | 0 | 0 | 2 | seed-t1 1.000 SV chạy thật trên postgres riêng; API/403/guard đạt; ngắt postgres giữa seed chưa chạy |
-| US-NFR-04 | 20 | 18 | 1 | 0 | 1 | 0 | File tính lại 87 ngưỡng; 403 ×100, k6 container, (d) rerun đạt |
-| US-NFR-05 | 14 | 3 | 1 | 0 | 9 | 1 | Không có 00018 (P-95-8) → LT; EXPLAIN rerun tái hiện TL-2c |
-| US-NFR-06 | 14 | 7 | 1 | 0 | 0 | 6 | kill -9 worker, Redis 70 s đạt; Redis tắt + chat 39,5 s (DEF-20); docling chưa chạy |
-| US-NFR-07 | 12 | 8 | 1 | 0 | 0 | 3 | File đạt (trừ DEF-08); rerun RAM/khởi động lạnh/Lighthouse CM |
-| US-NFR-08 | 23 | 9 | 5 | 0 | 3 | 6 | Tính lại R1/R2 khớp; harness 429 trượt (DEF-12); RUN fake chưa chạy |
-| US-NFR-09 | 13 | 7 | 6 | 0 | 0 | 0 | Báo cáo research lệch nguồn (DEF-14) |
-| US-NFR-10 | 14 | 11 | 2 | 0 | 0 | 1 | DIFF đạt, sửa test có sẵn (DEF-05); go test -race chỉ gói llm |
-| **Cộng** | **161** | **90** | **24** | **0** | **18** | **29** | |
+# Smoke hồi quy sprint 9.5 — kết quả (DỪNG theo lệnh chủ dự án, chưa N=0)
+Mã đã chạy: 88ab83e4 (sprint/11-p10-eval) · ep-r + stack riêng smk91 (seed sạch, đã docker stop) · Người chạy: qc2 · Ngày: 2026-11-18
+Tổng TC cũ: 161 · LT (loại khỏi tổng, có nguồn P-95-8 dòng PM / luật LLM 2026-11-14): 9 · Tổng tính = 152 · Đạt: 106 · Trượt (F xác nhận lượt này): 8 · K: 0 · Chưa chạy (N): 38   (P+F+K+N = 152)
+HANDOFF CUỐI: lượt này chạy lại F dạng FILE/RUN nhẹ (N01-12/17, N02-01/02/03/04/09/11/13/14/15, N04-12, N07-10, N08-01/06/11, N09-01/04/05/07/11/13, N10-06/10). Còn N: các F cũ chưa rerun (N01-… N03-xx, N06-04 cần khoá toàn cục + dừng Redis ≤ 1 phút, N06-xx, N08-16/17 --resume, N09-xx/N10-xx còn lại), N02-06 (Admin rỗng hợp lệ theo P-11-61: chạy lại /me/today trên smk91 chưa xong), N02-08, CM (N01-03/04/14/16, N03-10/12, N05-02 + N05-03…14, N06-05..08/12/13, N07-02/04/09, N08-05/07/09/10/12/20, N10-04). Số mới: seed 589 s trên smk91 sạch; bằng chứng `evidence-9.5/rerun/`.
 
 ## Kết quả từng ca
 Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b người thật · c ngoài phạm vi) · LT lỗi thời (spec/quyết định sau đổi) · CM chưa chạy (mẫu).
@@ -30,7 +9,8 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | --- | --- | --- |
 | TC-N01-01 | P | README có mục «Đo trên Mac» |
 | TC-N01-02 | LT | LỖI THỜI (P-95-8/luật LLM 2026-11-14): README nhắc 9router theo quyết định; 0 'ssh'/'/srv/work/research' |
-| TC-N01-03…TC-N01-04 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N01-03 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N01-04 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N01-05 | P | Dòng «không chạy trên Mac» đã bỏ; có quy trình ep-research, cổng lệch, down -v |
 | TC-N01-06 | LT | LỖI THỜI (P-95-8): vps-llm.mjs nay đọc khoá 9router (sqlite3) theo quyết định; không còn EP_HOST |
 | TC-N01-07 | LT | LỖI THỜI (P-95-8): provider gemini-chat thay bằng router-chat (openai_compatible) qua 9router; đổi cấu hình LLM toàn cục |
@@ -38,27 +18,29 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N01-09 | LT | LỖI THỜI (P-95-8): không còn GEMINI_API_KEY bắt buộc; PHASE=live thiếu MODEL → dừng |
 | TC-N01-10 | P | .env.local bị ignore (.gitignore:3); 0 tệp theo dõi |
 | TC-N01-11 | P | check-meta.mjs mã 0 «meta đủ» (khoá thực: commit, timestamp, machine, runs, config, k6_cpus, demo_stack) |
-| TC-N01-12 | F | DEF-R9.5-16: check-meta nêu đúng tên 7 trường thiếu nhưng `demo_stack:"unknown"` vẫn «meta đủ» (không kiểm giá trị) |
+| TC-N01-12 | P | RERUN 88ab83e4: check-meta cho 7 bản thiếu 1 khoá (commit, timestamp, machine, runs, config, k6_cpus, demo_stack) → mã 1 nêu đúng tên khoá; bản demo_stack="unknown" → mã 1 «demo_stack «unknown» ∉ stopped|running» (rerun/n01-n02-rerun.log, doc-rerun.log). Khoá config.model/rpm_limit nay có ở 15/15 tệp real-llm (DEF-R9.5-09) |
 | TC-N01-13 | P | check-meta quét mọi benchmarks/reports/**/*.json: «meta đủ», mã 0 |
-| TC-N01-14 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N01-14 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N01-15 | P | seed-t1 từ chối project không ep-* (1 dòng); vps-llm từ chối 127.0.0.1/localhost/https://localhost:3000|443 (có stack trace Node, không 1 dòng thuần) |
-| TC-N01-16 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N01-17 | F | DEF-R9.5-01: BASE=http://[::1]:3000 và host.docker.internal:3000 KHÔNG bị refuseDemo (chỉ lỗi kết nối) |
+| TC-N01-16 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N01-17 | P | RERUN 88ab83e4: 5 biến thể (localhost:3000, [::1]:3000, 127.0.0.1:3000/, host.docker.internal:3000, https://localhost) đều «Từ chối: … là stack demo», 1 dòng, mã 1; seed-t1 với COMPOSE_PROJECT_NAME=edupilot → «Từ chối» mã 1 (rerun/n01-n02-rerun.log) |
 | TC-N01-18 | P | canary-scan (ep-r, cần khoá ADMIN) mã 0, 7 dòng đếm = 0; 0 AIza/sk-; 'Bearer ' chỉ là mẫu mã. Ghi chú: script không tự xoá CN0/CN1 (sed tham lam lấy id model) — QC đã xoá tay |
 | TC-N01-19 | P | git log -S'AIza' chỉ khớp 1 chuỗi giả «AIzaFAKE000…» trong chính tệp TC (không phải khoá thật) |
-| TC-N02-01 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N02-02 | F | DEF-R9.5-17: trên ep-r 4/7 check-*-seed đạt (chat, crm, docs, grade ×3); assignments/exam/knowledge đỏ do dữ liệu bị ca khác thêm (BT03 đã chấm, 10 câu MCQ_MULTI QC, 429) — môi trường, không phải mã |
-| TC-N02-03 | F | DEF-R9.5-17: chạy lại seed.mjs trên ep-r: mã 1 «422 IDEMPOTENCY_KEY_REUSED» ở bước 15 (6 điểm giữa kỳ bị ca khác sửa); lượt chạy sau bước 15 tạo thêm 43 attendance_checkins, 32 practice_attempts |
-| TC-N02-04 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N02-01 | P | seed trên stack trống smk91 (project smk91, cổng 1343): «Seed xong trong 589 s», mã 0 (logs 9.1/smk91-seed.log) |
+| TC-N02-02 | P | 7 check-*-seed trên smk91 sạch: assignments 22/22, chat idempotent=ok, crm 270 điểm danh idempotent=ok, docs idempotent=ok, exam bank OK, grade 30/30 + A B C OK, knowledge 6/6 (rerun/n02-checks-smk91*.log). Lỗi cũ là dữ liệu ep-r bị ca khác đổi (DEF-R9.5-17) |
+| TC-N02-03 | P | chạy lại seed.mjs ba lần trên smk91 sạch: mã 0, đếm không đổi (idempotent=ok ở chat/crm/docs, grade counts không đổi) |
+| TC-N02-04 | P | lần 3 (n02-04-third-run.log): mã 0; log gateway --since: 0 `409`, 0 `429`; log Postgres 0 `23505`; seed in 2 dòng «Đã có …» |
 | TC-N02-05 | P | Sửa tay điểm rồi chạy lại: seed dừng 1 dòng lỗi rõ, không ghi đè, không tạo trùng |
-| TC-N02-06 | F | DEF-R9.5-18: đăng nhập 4 vai OK, sai mật khẩu 401; GV/TA/SV có việc đúng nguồn; Admin Hôm nay = 0 việc (nguồn Admin chỉ phát sinh khi lỗi hệ thống) — spec đòi ≥ 1 |
+| TC-N02-06 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-18: đăng nhập 4 vai OK, sai mật khẩu 401; GV/TA/SV có việc đúng nguồn; Admin Hôm nay = 0 việc (nguồn Admin chỉ phát sinh khi lỗi hệ thống) — ) |
 | TC-N02-07 | P | Lớp 1: 30 SV, công thức có ROUNDING; lớp 2: chưa có công thức, quy chế lớp 2 không có «làm tròn» (0 so với 3 ở lớp 1) |
-| TC-N02-08 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N02-09 | F | DEF-R9.5-19: bỏ SEED_DEFAULT_PASSWORD vẫn chạy tiếp (đọc .env.local/.env.example), không «Thiếu SEED_DEFAULT_PASSWORD» |
+| TC-N02-08 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N02-09 | P | RERUN 88ab83e4: cây không có .env.local/.env.example + env -u SEED_DEFAULT_PASSWORD → «Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).» 1 dòng mã 1, 0 request. Ghi nhận: trong checkout có .env.local (khoá đặt sẵn) seed dùng khoá đó theo b7d1e713 (không đặt trong env = đọc tệp env của repo) |
 | TC-N02-10 | P | Stack tắt: «Seed lỗi: fetch failed» 1 dòng, mã 1, 0,1 s |
-| TC-N02-11 | F | DEF-R9.5-19: mật khẩu rỗng / toàn khoảng trắng không bị coi là chưa đặt (rơi về .env.local) |
+| TC-N02-11 | P | RERUN 88ab83e4: SEED_DEFAULT_PASSWORD rỗng, 3 dấu cách, tab+xuống dòng → «Thiếu SEED_DEFAULT_PASSWORD» mã 1 trước khi gọi mạng (rerun/n01-n02-rerun.log) |
 | TC-N02-12 | P | canary-scan mã 0, 7 dòng đếm = 0 (xem TC-N01-18) |
-| TC-N02-13…TC-N02-15 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N02-13 | P | smk91: gateway/worker không có GEMINI_API_KEY; llm_audit chỉ provider fake / env:fake; content_chunks RAG NULL = 0 (5 chunk NULL thuộc 2 tài liệu use_for_rag=false) |
+| TC-N02-14 | P | hash 20 chunk (text+embedding) của «Network Security Threats» giống nhau giữa smk91 và ep-r (b0a5cbaa…), hai stack seed riêng |
+| TC-N02-15 | P | log gateway (3.860 dòng) + worker (467 dòng) smk91: 0 email ngoài *.local; không PII thật (một số 12 chữ số là mã vết) |
 | TC-N03-01 | P | seed-t1 mã 0, 115 s trên pg riêng (371 s khi tranh I/O), DB riêng tạo, DB edupilot nguyên |
 | TC-N03-02 | P | SV 1.000 · lớp 20 (50 SV/lớp) · TA 5 · GV 3 · chat 90.000 · study_time 525.000 · bài nộp 4.000 · điểm danh 15.000 |
 | TC-N03-03 | P | check-t1-seed 15/15 OK, mã 0 |
@@ -68,9 +50,9 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N03-07 | P | 5 SV + TA + GV đăng nhập 200; sai mật khẩu 401; 1 bản băm bcrypt, 0 mật khẩu rõ trong mã |
 | TC-N03-08 | P | check-t1-api: 6 trang × SV/GV, 0 5xx |
 | TC-N03-09 | P | 24 cặp SV lớp X → lớp Y: 72 lời gọi toàn 403, 0 rò |
-| TC-N03-10 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N03-10 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N03-11 | P | --reset chỉ xoá DB riêng (3 lượt) ; users DB edupilot của ep-r 81 → 81 |
-| TC-N03-12 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N03-12 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N03-13 | P | seed-t1 từ chối DB ≠ edupilot_t1 (edupilot, postgres, tên khác) và project không ep-*; DB edupilot nguyên |
 | TC-N03-14 | P | Không có cờ xác nhận; DB chưa có → báo lỗi psql (thông điệp «dữ liệu dở dang» gây hiểu nhầm), không xoá gì |
 | TC-N03-15 | P | DB 404 MB vs báo cáo 409 MB (−1,2 %); RAM postgres 282 MiB vs 330 MiB (−14 %) |
@@ -87,7 +69,7 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N04-09 | P | first_event p95 66,9 ms; TTFT cache 103,8 ms; TTFT RAG 633,9 ms (ghi riêng) |
 | TC-N04-10 | P | Mọi FAIL (1.000 bài lần 1, Lighthouse) có số thật, nguyên nhân (P-11-23 / TL-2f), giữ file lần trượt |
 | TC-N04-11 | P | TL-2c/d/e/f ở techlead.md có bằng chứng |
-| TC-N04-12 | F | DEF-R9.5-03: load-a/c không có mục docker stats / ghi 'không OOM, CPU<95 %' |
+| TC-N04-12 | F | RERUN 88ab83e4: grep oom|docker stats|cpu trong load-*.json = 0 tệp; không có mục mẫu docker stats / ghi «không OOM, CPU < 95 %» ở load-a/c (DEF-R9.5-03 còn) |
 | TC-N04-13 | P | k6 container NanoCpus 1,5e9, Memory 1.610.612.736, cùng mạng compose (không qua localhost host) |
 | TC-N04-14 | P | demo-stack.json có sự kiện stop/start khớp mốc thời gian meta (demo_stack stopped/running) |
 | TC-N04-15 | P | Hạn chế loopback/6 vCPU nêu ở techlead.md:74 và dev-lat-2 (không có load-*.md); báo cáo cuối không lặp lại (xem DEF-R9.5-07) |
@@ -97,85 +79,91 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N04-19 | P | k6-stack.yml nêu giá trị nới; không lọt vào docker-compose.local.yml (mặc định rỗng) |
 | TC-N04-20 | P | 0 Authorization/Bearer/email thật trong load-*.json |
 | TC-N05-01 | P | explain.json 10 truy vấn có kế hoạch, số dòng, thời gian; nguồn xếp hạng nêu ở docs/research/…-explain.md |
-| TC-N05-02 | CM | chưa chạy (mẫu): pg_stat_statements chưa bật trên postgres riêng (cần restart cấu hình) |
-| TC-N05-03 | F | DEF-R9.5-04: không có 00018_indexes_tuning.sql (P-95-8 dev: «không tạo», cột quyết định PM để trống) |
-| TC-N05-04 | LT | LỖI THỜI (P-95-8): không có 00018 nên không có chỉ mục để kiểm |
+| TC-N05-02 | N | chưa chạy (CM): chưa chạy (mẫu): pg_stat_statements chưa bật trên postgres riêng (cần restart cấu hình) |
+| TC-N05-03 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-04: không có 00018_indexes_tuning.sql (P-95-8 dev: «không tạo», cột quyết định PM để trống)) |
+| TC-N05-04 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
 | TC-N05-05 | P | Không HNSW trong migration; báo cáo có kế hoạch cho thấy planner không chọn HNSW |
-| TC-N05-06 | LT | LỖI THỜI (P-95-8): không có chỉ mục mới |
-| TC-N05-07 | LT | LỖI THỜI (P-95-8): không có trước/sau 00018 (QC chạy lại EXPLAIN 10 truy vấn trên T1: rag_hybrid 68,8 ms vs 13,1 ms của dev, còn lại ≤ 11 ms; TL-2c tái hiện) |
-| TC-N05-08 | LT | LỖI THỜI (P-95-8): không có chỉ mục mới |
-| TC-N05-09 | LT | LỖI THỜI (P-95-8): goose up/down/up của 00018 không áp dụng |
-| TC-N05-10 | LT | LỖI THỜI (P-95-8): AC4 sqlc diff của 00018 không áp dụng |
-| TC-N05-11…TC-N05-12 | LT | LỖI THỜI (P-95-8) |
+| TC-N05-06 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
+| TC-N05-07 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
+| TC-N05-08 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
+| TC-N05-09 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
+| TC-N05-10 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
+| TC-N05-11 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
+| TC-N05-12 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
 | TC-N05-13 | P | TL-2c (rag_hybrid nối documents × content_chunks không lọc lớp) ghi thành lỗi, không dùng chỉ mục che |
-| TC-N05-14 | LT | LỖI THỜI (P-95-8): không có 00018 |
+| TC-N05-14 | N | chưa chạy: LT chỉ dựa trên đề xuất dev P-95-8 hàng 1 (00018), cột «Quyết định PM» trống → chưa có nguồn duyệt, phải chạy |
 | TC-N06-01 | P | chaos.json: 3 tình huống, meta hợp lệ, bảng vào/xong/dead-letter/thất lạc/chấm đôi |
 | TC-N06-02 | P | vào = xong + dead-letter ở cả 3 tình huống (150=150; 3=3); thất lạc 0; chấm đôi 0 |
 | TC-N06-03 | P | kill -9 worker giữa 150 bài (script gốc, stack ep-r95): 150 = 150 DONE, 0 mồ côi, 0 chấm đôi, XPENDING 0, 279 s |
-| TC-N06-04 | F | DEF-R9.5-20: Redis tắt → gửi chat trả 200 suy giảm sau 39,5 s (> 10 s; dev ghi ≈ 19 s) = TL-2d còn mở; tạo phiên chat 503 sau 1,9 s |
-| TC-N06-05…TC-N06-08 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N06-04 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-20: Redis tắt → gửi chat trả 200 suy giảm sau 39,5 s (> 10 s; dev ghi ≈ 19 s) = TL-2d còn mở; tạo phiên chat 503 sau 1,9 s) |
+| TC-N06-05 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N06-06 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N06-07 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N06-08 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N06-09 | P | Đối chiếu từ DB + XLEN/XPENDING: vào = xong + dead-letter; 0 thất lạc (2 tình huống) |
 | TC-N06-10 | P | Không tình huống FAIL; TL-2d ghi ở techlead.md |
 | TC-N06-11 | P | chaos.mjs chỉ dùng docker compose -p $project / nhãn project; không docker kill/stop tên chung |
-| TC-N06-12…TC-N06-13 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N06-12 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N06-13 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N06-14 | P | Redis tắt: /readyz 503 (không 200 giả); bật lại 200 |
 | TC-N07-01 | P | baseline.json: 12 container (gateway, worker, postgres, pgbouncer, redis, minio, caddy, frontend, mailpit, mock×2, judge); tổng 570,2 MiB tính lại khớp; docling không bật |
-| TC-N07-02 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N07-02 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N07-03 | P | Image: gateway 18,2 / worker 17,1 / frontend 93,9 MB vs báo cáo 17,7 / 16,7 / 96,2 (≤ 3 %) |
-| TC-N07-04 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N07-04 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N07-05 | P | 13 endpoint (10 đọc + 3 ghi) × 200 lần; mọi p95 ≤ ngưỡng (ghi lớn nhất w_thread 327,5 ms) |
 | TC-N07-06 | P | QC200 lần tuần tự trên T1: Hôm nay p95 26 ms, sổ điểm 108 ms, heartbeat 64 ms — cùng PASS (≤ 300/500), số lớn hơn báo cáo do tải chung |
 | TC-N07-07 | P | Frontend ep-r chạy `node frontend/server.js` (next-server v16, standalone production), không next dev |
 | TC-N07-08 | P | lighthouse.json 8 route (6 + /settings/llm + /assignments/[id]); LCP devtools / TBT mô phỏng; ngưỡng lighthouserc.ep.json không đổi qua 9.5 |
-| TC-N07-09 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N07-10 | F | DEF-R9.5-08: báo cáo/handoff không ghi lần đo bị nhiễu (CPU nền > 30 %) |
+| TC-N07-09 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N07-10 | F | RERUN 88ab83e4: grep nhiễu|CPU nền trong báo cáo research/handoff/report.md = 0 dòng về lần đo bị nhiễu (DEF-R9.5-08 còn) |
 | TC-N07-11 | P | Câu «MacBook Apple Silicon, Colima 6 CPU / 10 GB» có mặt; «VPS» chỉ ở dòng ngoài phạm vi, không đối chiếu hệ cũ |
 | TC-N07-12 | P | Bảng «Chưa đo được»: judge amd64/seccomp không đo trên arm64 (D58) |
-| TC-N08-01 | F | DEF-R9.5-09: meta.config của 12/13 tệp real-llm chỉ có `note`, không có chuỗi model thực đo và RPM |
+| TC-N08-01 | P | RERUN 88ab83e4: check-meta benchmarks/reports/real-llm «meta đủ»; 15/15 tệp có meta.config.model (ag/gemini-3.8-flash) + rpm_limit (hoặc rpm_chat/rpm_embed ở probe.json), probe.json 9 lời gọi (≤ 9) (DEF-R9.5-09 đã sửa) |
 | TC-N08-02 | P | R1: 10/10 SUCCEEDED 9,1–15,3 s; lớp 2 phát hiện ROUNDING_MISSING 5/5; trích dẫn 85/85 đúng trang — khớp report.md |
 | TC-N08-03 | P | R2 tính lại từ rows thô: MAE 0,792/0,729/0,688, trong ±0,5 = 6/7/9 trên 12 — khớp grade-report.json |
 | TC-N08-04 | P | 6 biến thể (S6 + INJ v1–v5) mỗi vòng, AI 4,25–5,5 so mốc 5,75: không bị kéo lên (Δ ≤ 0); cờ chỉ bắt S6 (đã ghi ở giới hạn) |
-| TC-N08-05 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N08-06 | F | DEF-R9.5-10: 15 lượt mask nhưng không có tỷ lệ placeholder giữ/khôi phục (≥ 95 %) và số lần mô hình đổi placeholder; report.md «chưa so khớp tự động» |
-| TC-N08-07 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-05 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-06 | P | RERUN 88ab83e4: mask.json 31 probe, 24 tới mô hình, khôi phục 35/35 (100 % ≥ 95 %), đổi/bỏ 0, còn sót 0, spell_leak 0 (DEF-R9.5-10 đã sửa, a8b3a8cc/4612b006/d080ea35) |
+| TC-N08-07 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N08-08 | P | R4: 26 câu; sự kiện đầu p95 14 ms; Q19/Q20 hỏi điểm người khác bị từ chối; «% bám tài liệu» cần người đánh dấu — chưa có (embedding giả) |
-| TC-N08-09…TC-N08-10 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N08-11 | F | DEF-R9.5-11: R5 Threads 3/3 AI SKIPPED (embedding giả); khủng hoảng chỉ 1 mẫu (Q24), không đủ ≥ 3 mẫu/việc |
-| TC-N08-12 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-09 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-10 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-11 | F | RERUN 88ab83e4: SuggestRubric 3, tóm tắt AI 3, Threads 5/5 AI trả lời, khủng hoảng 4/4 CRISIS (đạt ≥ 3); còn: «escalation theo độ tin cậy» chỉ 2 mẫu (chat.json escalated/ticket) và không có dòng đánh giá định tính từng mẫu (báo cáo ghi «độ đúng nội dung Threads chưa đo») — DEF-R9.5-11 còn một phần |
+| TC-N08-12 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N08-13 | P | R6: TTFT p95 nền 16.916 ms vs chấm 6.699 ms (không xấu đi); ghi «mẫu nhỏ» |
 | TC-N08-14 | LT | LỖI THỜI (P-95-8): ngân sách Gemini <200 lời gọi/ngày thay bằng 9router; llm-audit-summary.json là lượt Gemini 14/11 |
 | TC-N08-15 | LT | LỖI THỜI (P-95-8): fallback_index Gemini không còn (một model 9router) |
-| TC-N08-16 | F | DEF-R9.5-12: real_llm.py không có --resume / không ghi «chưa hoàn tất — hết hạn mức»; 429 Retry-After 120 → chờ 60 s ×5 (≈300 s) rồi LỖI rc=2, không lưu tiến độ |
-| TC-N08-17 | F | DEF-R9.5-12: không có --resume (README nói có); xem TC-N08-16 |
+| TC-N08-16 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-12: real_llm.py không có --resume / không ghi «chưa hoàn tất — hết hạn mức»; 429 Retry-After 120 → chờ 60 s ×5 (≈300 s) rồi LỖI rc=2, không l) |
+| TC-N08-17 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-12: không có --resume (README nói có); xem TC-N08-16) |
 | TC-N08-18 | P | 401 → đăng nhập lại 1 lần rồi dừng: 1 dòng «LỖI: … 401», rc=2, không in khoá, không lặp vô hạn |
 | TC-N08-19 | P | 0 khoá AIza thật; chỉ chuỗi giả «AIzaFAKE…» trong tệp TC; .env.local bị ignore |
-| TC-N08-20 | CM | chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N08-20 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N08-21 | LT | LỖI THỜI (P-95-8): câu về Gemini Free thay bằng 9router; báo cáo mô tả dữ liệu mô phỏng (D44) |
 | TC-N08-22 | P | benchmarks/reports/real-llm có kết quả thô từng mẫu, llm-audit-summary (không payload), masked-payloads (146) |
 | TC-N08-23 | P | 0 Authorization/Bearer/email thật trong real-llm/*.json (trừ phụ lục lan-1 đã được giữ riêng) |
-| TC-N09-01 | F | DEF-R9.5-13: báo cáo research không có mục riêng NFR-02/03 và không đủ «6 phần» ở từng mục |
+| TC-N09-01 | F | RERUN 88ab83e4: báo cáo vẫn không có mục NFR-02/03 (seed T0/T1) và mục (b),(c),(d), Baseline, Chaos, EXPLAIN không đủ «6 phần» (DEF-R9.5-13 còn) |
 | TC-N09-02 | P | Bảng SLO→số đo→kết quả đủ hàng SLO §5 (a)(b)(c)(d), baseline, chaos, Lighthouse, EXPLAIN |
 | TC-N09-03 | P | Mục «Chưa đo được»: judge amd64 (D58), E3, nhiều provider (E4), mạng thật — mỗi cái một lý do |
-| TC-N09-04 | F | DEF-R9.5-14: số R2–R4 trong research report (MAE 1,19; token đầu p95 9,5 s…) không có trong tệp nguồn cùng tên (nay chứa số 9router: MAE 0,688; first_token p95 4.217 ms) |
-| TC-N09-05 | F | DEF-R9.5-14: 3/15 số mẫu không khớp tệp nguồn (R2 vòng 3, R4 first_token, R4 sự kiện đầu 15 vs 14 ms) |
+| TC-N09-04 | F | RERUN 88ab83e4 (rerun/trace-numbers.py): 128 số có đơn vị, 126 truy được; 2 số lệch ở chữ số cuối: «nền 410 ms» (nguồn load-c-baseline.json p(95)=409,06 → 409) và «TTFT RAG 633,9 ms» (nguồn 633,993 → 634,0, bị cắt chứ không làm tròn) — DEF-R9.5-14 còn 2 số (Thấp) |
+| TC-N09-05 | P | RERUN 88ab83e4: mẫu 15 số (random seed 95) trong bảng SLO: 15/15 đúng theo làm tròn, tệp nguồn có thật (jq trên load-a/b/c/d, baseline, explain, lighthouse) |
 | TC-N09-06 | P | grep «ước tính/ngoại suy» 0 kết quả |
-| TC-N09-07 | F | DEF-R9.5-15: danh sách «câu cần vá» chỉ nêu tệp, không có tệp:dòng |
+| TC-N09-07 | F | RERUN 88ab83e4: «Danh sách câu cần vá» chỉ nêu tệp (docs/sprints/8/report.md…), không có tệp:dòng (DEF-R9.5-15 còn) |
 | TC-N09-08 | P | docs/sprints/8,9/report.md và PROGRESS.md không bị sửa trong khoảng 9.5 |
 | TC-N09-09 | P | 0 TBD/TODO/?? ở bảng số |
 | TC-N09-10 | P | Tóm tắt ≈ 330 từ (≤ 1.500), tiếng Việt, có bảng, không chép log; thời gian đọc ước lượng 200 từ/phút ≈ 2 phút [INFERENCE: chưa đo bằng đồng hồ] |
-| TC-N09-11 | F | DEF-R9.5-07: câu «MacBook Apple Silicon, Colima 6 CPU / 10 GB» chỉ 1 lần; hạn chế loopback/cận dưới không ở từng mục |
+| TC-N09-11 | F | RERUN 88ab83e4: chuỗi «MacBook Apple Silicon … Colima 6 CPU / 10 GB» ở dòng 3 và 54; grep «cận dưới|loopback|cận trên» = 0: hạn chế Mac không có ở từng mục (DEF-R9.5-07 còn) |
 | TC-N09-12 | P | 0 AIza / sk- / token trong báo cáo |
-| TC-N09-13 | F | DEF-R9.5-14: FAIL «1.000 bài lần 1» (322/1000, 678 FAILED) và run1 không có ở bảng tổng của research report (bảng ghi «chưa có kết quả») |
+| TC-N09-13 | P | RERUN 88ab83e4: bảng tổng nay ghi lần 1 FAIL (322/1.000, 678 FAILED) và lần 2 PASS (1.000/1.000), cả lần Gemini trực tiếp dừng 235/1.000; 0 ngưỡng k6 trượt còn lại trong load-*.json ngoài các tệp «không hợp lệ» đã nêu (DEF-R9.5-14 phần FAIL đã sửa) |
 | TC-N10-01 | P | techlead.md TL-2a…2j có tái hiện/mức/đề xuất/bằng chứng; mọi tệp benchmarks/ trích dẫn đều tồn tại |
 | TC-N10-02 | P | Tái hiện TL-2c (Seq Scan content_chunks/documents, 68,8 ms) và TL-2d (chat Redis tắt 39,5 s) |
 | TC-N10-03 | P | TL-2h2 (cao) sửa ở e1f9925f kèm test provider_test.go; hai lần đo trước/sau (extract-truoc-sua-400.json → extract.json) |
-| TC-N10-04 | CM | chưa chạy (mẫu): chạy test hồi quy ở commit cha (worktree) chưa làm |
+| TC-N10-04 | N | chưa chạy (CM): chưa chạy (mẫu): chạy test hồi quy ở commit cha (worktree) chưa làm |
 | TC-N10-05 | P | Báo cáo ghi cả lần trượt và đạt (1.000 bài run1-hong → run2; extract trước/sau) |
-| TC-N10-06 | F | DEF-R9.5-06: PROGRESS.md không có dòng Nợ TL-2c/d/e/f dù techlead.md ghi «chuyển Nợ» |
+| TC-N10-06 | F | RERUN 88ab83e4: grep TL-2[cdef] docs/PROGRESS.md = 0 dòng; mục Nợ không có TL-2c/d/e/f (DEF-R9.5-06 còn) |
 | TC-N10-07 | P | Mọi commit sửa mã SP trong khoảng 9.5 đều có tiền tố «9.5:» (811afebd, e1f9925f, 9dcb9768) |
 | TC-N10-08 | P | openapi.yaml không đổi; không thêm/sửa migration (00018 vắng — xem DEF-R9.5-04) |
 | TC-N10-09 | P | go test -race ./internal/llm/... xanh (cả bộ ./... và playwright chưa chạy) |
-| TC-N10-10 | F | DEF-R9.5-05: 9.5 sửa test có sẵn (bf9aa0bb 2 test guard; 811afebd kỳ vọng 429) |
+| TC-N10-10 | P | RERUN 88ab83e4: P-11-36 (PM 2026-11-16, hồi tố) chấp nhận bf9aa0bb (2 test guard); 811afebd (429) có PM duyệt ở P-95-8 (TL-2j, dòng PM 2026-11-14) |
 | TC-N10-11 | P | docker-compose*, go.mod/sum, package.json, pnpm-lock không đổi |
 | TC-N10-12 | P | 1 lỗi mức cao (TL-2h/2h2) ≤ 5, đã sửa |
 | TC-N10-13 | P | Diff mã SP không có float64 mới/fetch trần/secret |
