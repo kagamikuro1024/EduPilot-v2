@@ -1,0 +1,77 @@
+
+Running 12 tests using 1 worker
+
+(node:89594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO #3 Mở lớp: {"title":null,"desc":"Người được gán nhận thông báo kèm mã tham gia.","label":null}
+INFO #4 gửi lời mời: {"title":null,"desc":"Liên kết đặt mật khẩu dùng trong 72 giờ.","label":null}
+INFO #34 nhãn: {"title":null,"desc":null} switch: {"title":null,"desc":"Sinh viên vào bằng mã sẽ chờ bạn duyệt.","label":null}
+INFO #29 placeholder: AN7K2MQ
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:26:1 › TC-UX01-4/11 tooltip thay câu mô tả: có chữ, ≤ 12 từ, aria-describedby (hoặc title) trỏ tới (19.6s)
+INFO #48 dòng phụ /students: 10 sinh viên
+INFO #11 /attendance: Điểm danh Lưu điểm danh  Lớp chưa có lịch buổi học  Tạo lịch buổi học
+  ✘   2 [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) (7.8s)
+(node:89996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO /students: CLS=0.013 phần tử kế h1: null
+INFO /class/members: CLS=0.001 phần tử kế h1: {"h":36,"t":"Mã và cài đặt tham gia"}
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:91:1 › TC-UX01-16 meta rỗng: CLS ≤ 0,05 khi chuyển khung máy chủ → màn thật (/students, /class/members) (8.8s)
+INFO teacher: ep:ui:course sau đăng nhập = null; lớp của tôi = QC3S6D,QC3S6C,QC3S6,QD8R6Q,QD8R6P,QD8R6E,QD8A4,QD8A5,QD8R7U,QD8R6U,QD8R71,QD8R82,QD8R81,LOAD1000,QD8R6W,QD8R6Z,QD8R6Y,QD8R9,QD8R8,QD8R7,QD8R6X,SK21D91,C6C3,QD8A3,QD8B1,QD8A2,QCEMPTYr107,QD8A1,F7G87051,F7E8CCA8,D7C1,F7DFB178,F7C15752,D7C2,F7BC6911,F7A648C5,A6P8B,A6P8A,C6C1,C6C2,E7C2,E7C1,QD9GB,QD9GA,F7P5A3,F7P5A2,F7P5A1,QD9P1,QFMWHVUFAZVI,QD8C,QD8B,SK20D91,QD9T,QD9E,QD9D,QD9C,QC196964,QC117283,QD9B,QD9A,E6C2,E6C1,QC-ASr108-bo2,QC-ASr108-bo1,761988,761987
+INFO sv.gioi: ep:ui:course sau đăng nhập = null; lớp của tôi = QD8C1,QD8H9,QD8H8,QC3S6D,QD8FM5,QC3S6C,QD8FM4,QD8FM3,QD8FM2,QD8FM1,QD8FM0,QD8FL4,QD8FL3,QD8FL2,QD8FL1,QD8FL0,QD8H7,QD8H6,QD8H5,QD8H4,QC3S6,QD8H3,QD8H2,QD8R6Q,QD8R6P,QD8A4,QD8A5,QD8R7U,QD8R6U,QD8R71,QD8R82,QD8R81,QD8R6W,QD8R6Z,QD8R6Y,QD8R9,QD8R8,QD8R7,QD8R6X,QD8R6,QC-K6r108,QD8A3,QD8B1,QD8F4,QD8A2,QD8F3,QD8A1,QD8F2,QD9GA,QD8F8,QD9P1,QC-AS,QC-AS7r108,QD8C,QD8B,QC-AS6r108,QC-AS5r108,QC-AS4r108,QD9T,QC-AS3r108,QD9E,QD9D,QD9C,QD9B,QD9A,E6C1,QC-AS2r108,QC-ASr108,QC-ASr108-bo2,QC-ASr108-bo1,761988,761987
+INFO lớp SV không thuộc: QC3H | tất cả: QD8C1,QC3H,QC3G,QD8H9,QD8H8,QC3S6D,QC3F,QC3E,QD8FM5,QC3S6C,QD8FM4,QD8FM3,QD8FM2,QD8FM1,QD8FM0,QC3D,QD8FL4,QD8FL3,QD8FL2,QD8FL1,QD8FL0,QD8H7,QD8H6,QD8H5,QD8H4,QC3S6,QD8H3,QD8H2,QC3C,QC3B,QC3A,R5C4,QD8R6Q,QD8R6P,QD8R6E,QD8A4,QD8A5,QD8R7U,QD8R6U,QD8R71,QD8R82,QD8R81,LOAD1000,QD8R6W,QD8R6Z,QD8R6Y,QD8R9,QD8R8,QD8R7,QD8R6X,QD8R6,E7K3,E7K2,E7K1,SK21D91,E7SCL,C6C3,QC-K6r108,QD8A3,QD8B1,QD8F4,QD8A2,QCEMPTYr107,G7N,G7B,G7A,QD8F3,QD8A1,F7G87051,F7E8CCA8,D7C1,F7DFB178,F7C15752,E7S23,D7C2,E7S22,F7BC6911,F7A648C5,E7S21,E7S19,E7S18,A6P8C,A6P8B,A6P8A,C6C1,C6C2,QD8F2,E7C2,E7C1,QD9GB,QD9GA,F7P5A3,F7P5A2,F7P5A1,QD8F8,QD9P1,SHSACDD0,SHRACDD0,SHAACDD0,QC-AS
+INFO SV với lớp lạ → ep:ui:course = null
+  ✓   4 [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:109:1 › TC-UX06-6/7/PQ ep:ui:course là lớp không còn / không thuộc mình → bỏ giá trị, chọn lớp theo AC2; SV chỉ lớp của mình (18.3s)
+INFO teacher: 50 thông báo; loại: COURSE_ASSIGNED,TICKET_NEW,GRADE_SCHEME_REMINDER,TICKET_STALE
+INFO ta: 50 thông báo; loại: COURSE_ASSIGNED,TICKET_NEW,TICKET_STALE,AI_PENDING
+INFO sv.gioi: 50 thông báo; loại: EXAM_SCHEDULED,THREAD_REPLY,THREAD_ANSWERED,GRADE_FINALIZED,EXAM_PUBLISHED,ASSIGNMENT_PUBLISHED,SUBMISSION_MAIL_RECEIVED,GRADE_PUBLISHED
+  ✓   5 [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:154:1 › TC-UX07-9 thông báo của giảng viên / SV không còn «Threads» / «Insights» / «Analytics» (10.5s)
+  ✘   6 [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course (2.7s)
+(node:90675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   7 [mobile] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:26:1 › TC-UX01-4/11 tooltip thay câu mô tả: có chữ, ≤ 12 từ, aria-describedby (hoặc title) trỏ tới
+  -   8 [mobile] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48)
+  -   9 [mobile] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:91:1 › TC-UX01-16 meta rỗng: CLS ≤ 0,05 khi chuyển khung máy chủ → màn thật (/students, /class/members)
+  -  10 [mobile] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:109:1 › TC-UX06-6/7/PQ ep:ui:course là lớp không còn / không thuộc mình → bỏ giá trị, chọn lớp theo AC2; SV chỉ lớp của mình
+  -  11 [mobile] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:154:1 › TC-UX07-9 thông báo của giảng viên / SV không còn «Threads» / «Insights» / «Analytics»
+  -  12 [mobile] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) 
+
+    Error: dòng phụ buổi học
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not ""
+
+      84 |   const line = t2.match(/buổi \d+ · [^·]*\d{2}:\d{2}[–-]\d{2}:\d{2} · P\.\d+/i)?.[0] ?? "";
+      85 |   console.log("INFO #11 /attendance:", line || t2.slice(0, 160));
+    > 86 |   expect(line, "dòng phụ buổi học").not.toBe("");
+         |                                         ^
+      87 |   expect(line).not.toMatch(/\b76198[78]\b/);
+      88 |   await ctx.close();
+      89 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:86:41
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw12c-re-1f56e-mã-lớp-ở-dòng-phụ-11-47-48--desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course 
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      185 |   const teacher = users.find((u) => u.email === "teacher@edupilot.local")!;
+      186 |   const code = `QC${Date.now().toString().slice(-6)}`;
+    > 187 |   const mk = await post(pa, "/admin/courses", { subject_code: "INT1006", class_code: code, name: "Lớp thử QC", semester: "2026-2027-HK1", teacher_id: teacher.id });
+          |                                                                                                                                                               ^
+      188 |   console.log("INFO tạo lớp:", mk.status, code);
+      189 |   expect(mk.status).toBeLessThan(300);
+      190 |   const id = (mk.body as { id?: string; course?: { id: string } }).id ?? (mk.body as { course: { id: string } }).course.id;
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:187:159
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw12c-re-a3b56-c-→-bỏ-giá-trị-ep-ui-course-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:71:1 › TC-UX01-5 dòng «Giữ»: chữ dữ liệu vẫn hiện, bỏ mã lớp ở dòng phụ (#11, #47, #48) 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw12c-real.spec.ts:179:1 › TC-UX06-7/PQ lớp đã lưu trữ và lớp SV không thuộc → bỏ giá trị ep:ui:course 
+  6 skipped
+  4 passed (1.1m)

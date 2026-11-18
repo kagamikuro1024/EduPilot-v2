@@ -1,0 +1,5 @@
+ok  	github.com/edupilot/backend-go/internal/privacy	2.895s
+--- PASS: TestUnmaskBeforeCaller (0.00s)
+--- PASS: TestStructuredUnmaskAfterSchema (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm	0.627s

@@ -1,0 +1,21 @@
+# N02-06 chạy lại trên ep-r, HEAD 1409b04d, 2026-11-19 01:11:08
+sai mật khẩu → HTTP 401
+sv.kha token_len=428
+{"count":null,"kinds":null}
+sv.gioi token_len=429
+{"count":null,"kinds":null}
+sv.nguyco token_len=432
+{"count":null,"kinds":null}
+ta token_len=416
+{"count":113,"kinds":{"AI_CONFIRM":5,"GRADE_SCHEME_UNCONFIRMED":6,"GRADING_ERROR":1,"GRADING_REVIEW":1,"JOIN_REQUEST":2,"POST_REPORTED":3,"SESSION_UNMARKED":10,"TICKET":17,"UNMATCHED_SUBMISSION":5}}
+teacher token_len=429
+{"count":162,"kinds":{"AI_CONFIRM":6,"CHECKIN_REVIEW":1,"EMAIL_MISMATCH":5,"EXAM_SIMILARITY":1,"GRADE_SCHEME_UNCONFIRMED":8,"GRADING_ERROR":1,"GRADING_REVIEW":1,"JOIN_REQUEST":3,"POST_REPORTED":3,"PUBLISH_PENDING":2,"SESSION_UNMARKED":2,"TICKET":12,"UNMATCHED_SUBMISSION":5}}
+admin token_len=424
+{"count":29,"kinds":{"COURSE_NO_TEACHER":1,"COURSE_TICKETS_STALLED":27,"INVITE_EXPIRED":1}}
+sv.kha GET /courses/761987/gradebook → HTTP 403
+sv.kha /me/today keys+kinds:
+{"keys":["continue","email_verified","no_course","recommended","timeline"],"rec":"EXAM_OPEN","n":0}
+sv.gioi /me/today keys+kinds:
+{"keys":["continue","email_verified","no_course","recommended","timeline"],"rec":"EXAM_OPEN","n":0}
+sv.nguyco /me/today keys+kinds:
+{"keys":["continue","email_verified","no_course","recommended","timeline"],"rec":"EXAM_OPEN","n":0}

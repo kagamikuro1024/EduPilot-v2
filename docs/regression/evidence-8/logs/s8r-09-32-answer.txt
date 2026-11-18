@@ -1,0 +1,19 @@
+Cách tính điểm môn học được quy định như sau:
+
+- **Các thành phần điểm:**
+  - Kiểm tra hằng tuần: 20%
+  - Giữa kỳ: 20%
+  - Thi cuối kỳ: 60%
+- **Điểm cộng (bonus):** 0.25 điểm cho mỗi lần phát biểu, tối đa 1 điểm.
+- **Điểm trừ (penalty):** Được vắng 2 buổi miễn phí; mỗi buổi vắng thêm bị trừ 0.5 điểm.
+- **Làm tròn:** Làm tròn theo bước 0.5 (HALF_UP).
+- **Thang điểm chữ quy đổi:**
+  - A+: từ 9 trở lên
+  - A: từ 8.5 trở lên
+  - B+: từ 8 trở lên
+  - B: từ 7 trở lên
+  - C+: từ 6.5 trở lên
+  - C: từ 5.5 trở lên
+  - D+: từ 5 trở lên
+  - D: từ 4 trở lên
+  - F: từ 0 trở lên

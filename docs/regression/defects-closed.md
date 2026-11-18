@@ -47,3 +47,7 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - **DEF-R8-A2** (dev2): ĐÓNG — TC-P6-04-03 PASS (focus về nút Trang sau Esc), TC-P6-07-47 PASS (focus về «Thêm hành động»).
 - **DEF-R8-A3** (TC-P6-03-19): MỞ, đã giao dev (trọng số ngoài [0;100] bị đổi thầm thành 0, mất PARAM_INVALID).
 - **DEF-R3-05**: ĐÓNG (lỗi kịch bản QC). **DEF-R3-SMK-01/P103-08**: RÚT LẠI (lỗi kịch bản QC).
+
+## Cập nhật 2026-11-19 (qc2)
+- DEF-R8-A4 (TC-P6-05-37): ĐÓNG — sha 22387b06 (có trong 777bb5e2), chạy lại trên ep-r 1409b04d: câu «Cô tính điểm môn này thế nào?» → câu mẫu, 0 LLM; 05-38/39 P (s8r-chat05.py).
+- DEF-R8-A5 (TC-P6-05-42): CHỜ CHẠY LẠI — sha 2479feb9, chưa ở ep-r.

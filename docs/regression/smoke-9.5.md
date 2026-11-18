@@ -8,14 +8,9 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC | KQ | Ghi chú |
 | --- | --- | --- |
 | TC-N01-01 | P | README có mục «Đo trên Mac» |
-| TC-N01-02 | LT | LỖI THỜI (P-95-8/luật LLM 2026-11-14): README nhắc 9router theo quyết định; 0 'ssh'/'/srv/work/research' |
 | TC-N01-03 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N01-04 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N01-05 | P | Dòng «không chạy trên Mac» đã bỏ; có quy trình ep-research, cổng lệch, down -v |
-| TC-N01-06 | LT | LỖI THỜI (P-95-8): vps-llm.mjs nay đọc khoá 9router (sqlite3) theo quyết định; không còn EP_HOST |
-| TC-N01-07 | LT | LỖI THỜI (P-95-8): provider gemini-chat thay bằng router-chat (openai_compatible) qua 9router; đổi cấu hình LLM toàn cục |
-| TC-N01-08 | LT | LỖI THỜI (P-95-8): PHASE=seed nay đặt chat-gia + embed-gia (fake) |
-| TC-N01-09 | LT | LỖI THỜI (P-95-8): không còn GEMINI_API_KEY bắt buộc; PHASE=live thiếu MODEL → dừng |
 | TC-N01-10 | P | .env.local bị ignore (.gitignore:3); 0 tệp theo dõi |
 | TC-N01-11 | P | check-meta.mjs mã 0 «meta đủ» (khoá thực: commit, timestamp, machine, runs, config, k6_cpus, demo_stack) |
 | TC-N01-12 | P | RERUN 88ab83e4: check-meta cho 7 bản thiếu 1 khoá (commit, timestamp, machine, runs, config, k6_cpus, demo_stack) → mã 1 nêu đúng tên khoá; bản demo_stack="unknown" → mã 1 «demo_stack «unknown» ∉ stopped|running» (rerun/n01-n02-rerun.log, doc-rerun.log). Khoá config.model/rpm_limit nay có ở 15/15 tệp real-llm (DEF-R9.5-09) |
@@ -73,7 +68,6 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N04-13 | P | k6 container NanoCpus 1,5e9, Memory 1.610.612.736, cùng mạng compose (không qua localhost host) |
 | TC-N04-14 | P | demo-stack.json có sự kiện stop/start khớp mốc thời gian meta (demo_stack stopped/running) |
 | TC-N04-15 | P | Hạn chế loopback/6 vCPU nêu ở techlead.md:74 và dev-lat-2 (không có load-*.md); báo cáo cuối không lặp lại (xem DEF-R9.5-07) |
-| TC-N04-16 | LT | LỖI THỜI (P-95-8: chấm 1.000 bài qua 9router ag/gemini-3.8-flash thay provider fake 20 s); số mới 1000/1000 trong 1,68 h, không ngoại suy |
 | TC-N04-17 | P | R6 VUS=4 ghi «mẫu nhỏ» ở báo cáo research |
 | TC-N04-18 | P | load-d.qc.json meta hợp lệ, cùng PASS; p95 187 ms vs 18,3 ms (tải chung với seed/docling: «cần quyết định», không FAIL) |
 | TC-N04-19 | P | k6-stack.yml nêu giá trị nới; không lọt vào docker-compose.local.yml (mặc định rỗng) |
@@ -131,14 +125,11 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N08-11 | F | RERUN 88ab83e4: SuggestRubric 3, tóm tắt AI 3, Threads 5/5 AI trả lời, khủng hoảng 4/4 CRISIS (đạt ≥ 3); còn: «escalation theo độ tin cậy» chỉ 2 mẫu (chat.json escalated/ticket) và không có dòng đánh giá định tính từng mẫu (báo cáo ghi «độ đúng nội dung Threads chưa đo») — DEF-R9.5-11 còn một phần |
 | TC-N08-12 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
 | TC-N08-13 | P | R6: TTFT p95 nền 16.916 ms vs chấm 6.699 ms (không xấu đi); ghi «mẫu nhỏ» |
-| TC-N08-14 | LT | LỖI THỜI (P-95-8): ngân sách Gemini <200 lời gọi/ngày thay bằng 9router; llm-audit-summary.json là lượt Gemini 14/11 |
-| TC-N08-15 | LT | LỖI THỜI (P-95-8): fallback_index Gemini không còn (một model 9router) |
 | TC-N08-16 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-12: real_llm.py không có --resume / không ghi «chưa hoàn tất — hết hạn mức»; 429 Retry-After 120 → chờ 60 s ×5 (≈300 s) rồi LỖI rc=2, không l) |
 | TC-N08-17 | N | chưa chạy lại trên HEAD 88ab83e4 (lượt cũ be0c0d96 trượt: DEF-R9.5-12: không có --resume (README nói có); xem TC-N08-16) |
 | TC-N08-18 | P | 401 → đăng nhập lại 1 lần rồi dừng: 1 dòng «LỖI: … 401», rc=2, không in khoá, không lặp vô hạn |
 | TC-N08-19 | P | 0 khoá AIza thật; chỉ chuỗi giả «AIzaFAKE…» trong tệp TC; .env.local bị ignore |
 | TC-N08-20 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
-| TC-N08-21 | LT | LỖI THỜI (P-95-8): câu về Gemini Free thay bằng 9router; báo cáo mô tả dữ liệu mô phỏng (D44) |
 | TC-N08-22 | P | benchmarks/reports/real-llm có kết quả thô từng mẫu, llm-audit-summary (không payload), masked-payloads (146) |
 | TC-N08-23 | P | 0 Authorization/Bearer/email thật trong real-llm/*.json (trừ phụ lục lan-1 đã được giữ riêng) |
 | TC-N09-01 | F | RERUN 88ab83e4: báo cáo vẫn không có mục NFR-02/03 (seed T0/T1) và mục (b),(c),(d), Baseline, Chaos, EXPLAIN không đủ «6 phần» (DEF-R9.5-13 còn) |

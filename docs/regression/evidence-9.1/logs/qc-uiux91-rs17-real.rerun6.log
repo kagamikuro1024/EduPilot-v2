@@ -1,0 +1,27 @@
+
+Running 6 tests using 1 worker
+
+INFO UX17-1 geom: {"topN":3,"nested":[],"sections":[{"t":"Chủ đề nên dạy lại","panels":1,"hTop":235.1875,"hBottom":262.1875,"pTop":278.1875,"pBottom":1015.875,"hInPanel":false},{"t":"Tài liệu chưa đề cập","panels":1,"hTop":1063.875,"hBottom":1090.875,"pTop":1106.875,"pBottom":1234.65625,"hInPanel":false},{"t":"So với báo cáo ngày","panels":1,"hTop":1282.65625,"hBottom":1309.65625,"pTop":1325.65625,"pBottom":1425.65625,"hInPanel":false}]}
+INFO UX17-3 meta: ["Báo cáo 15/11/2026, 09:00"," · 120 câu hỏi · 28 sinh viên"," · Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy"]
+INFO UX17-6 khối 1: khoảng trên 48 / dưới tiêu đề 16
+INFO UX17-6 khối 2: khoảng trên 48 / dưới tiêu đề 16
+INFO UX17-13 hoạt cảnh đang chạy trong main: []
+INFO UX17-13 :active transform: matrix(0.97, 0, 0, 0.97, 0, 0)
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rs17-real.spec.ts:33:1 › TC-UX17-1/2/3/6/13 Insights (báo cáo giả có đủ ba khối): một Panel mỗi khối, không khung lồng, chữ ngắn, khoảng cách, chuyển động (6.6s)
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rs17-real.spec.ts:73:1 › TC-UX17-12 375: ba khối xếp dọc, không tràn ngang (Insights giả + Quan sát AI) (8.4s)
+INFO UX17-10 chỉ báo: "Đang gom câu hỏi của lớp…"
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rs17-real.spec.ts:88:1 › TC-UX17-10 Tạo báo cáo mới: chỉ báo giai đoạn, rời trang được, quay lại báo cáo cũ vẫn xem được (8.9s)
+INFO UX17-4/5: {"line":["24 giờ qua: 462 yêu cầu · p95 7,2 s · lỗi 4,8% · dự phòng 0,2% · chi phí 0 đ"],"head":["Ngày","Yêu cầu","p95","Lỗi","Chuyển giảng viên","Che thông tin","Chi phí"],"body":[["Thứ 5, 19/11","140","11,4 s","9","30","74","0 đ"],["Thứ 4, 18/11","322","1,2 s","13","150","181","0 đ"],["Thứ 2, 16/11","148","8,1 s","45","6","22","0 đ"],["CN, 15/11","3.254","10,2 s","1105","89","61","3.964 đ"],["Thứ 7, 14/11","98","3,5 s","3","13","8","2.169 đ"],["Thứ 6, 13/11","97","3,5 s","10","1","12","2.030 đ"]],"tiles":0}
+INFO UX17-7 trước khi nêu lý do: "Trả lời sinh viên · 01a1efd7 01:07:06 19/11/2026 · fake-chat Nội dung là câu hỏi của sinh viên Tên và mã số đã được thay bằng nhãn. Lý do của bạn được ghi vào nhật ký kiểm toán. Lý do · bắt buộc Xem c"
+INFO UX17-7 sau: "Trả lời sinh viên · 01a1efd7 01:07:06 19/11/2026 · fake-chat Nội dung đã che [system] Bạn là trợ giảng của một lớp đại học. Hãy xưng \"bạn\" với người dùng và trả lời bằng tiếng Việt, ngắn gọn. Quy tắc: - Giữ nguyên mọi chuỗi dạng [[...]] (ví dụ [[SV_1]]) đúng như đã nhận; không giải thích, không sửa, không đoán nghĩa. - Chỉ dùng thông tin nằm trong khối <ngữ_cảnh>. Nếu ngữ cảnh không trả lời được c"
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rs17-real.spec.ts:109:1 › TC-UX17-4/5/7 Quan sát AI (admin): số hôm nay một dòng, số 7 ngày một bảng, hàng đầu có số; chi tiết yêu cầu chỉ nội dung đã che (8.6s)
+  ✓  5 [desktop] › e2e/qc2-r91/qc-uiux91-rs17-real.spec.ts:154:1 › TC-UX17-4/7 giảng viên: không bảng yêu cầu, không nội dung, mỗi chỉ số một chỗ (5.8s)
+INFO UX17-11 SV /insights: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO UX17-11 SV /analytics: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO UX17-11 SV /observability: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và quản trị viên."
+INFO UX17-11 TA /observability: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và quản trị viên."
+INFO UX17-11 TA insights API: 404 | payload có câu hỏi chat riêng? false
+INFO UX17-PQ gv.s8f lớp lạ: 403 404
+  ✓  6 [desktop] › e2e/qc2-r91/qc-uiux91-rs17-real.spec.ts:166:1 › TC-UX17-11/PQ phân quyền: SV 403 ba trang; TA /observability 403, /insights /analytics theo quyền; giảng viên lớp lạ 403/404 (15.0s)
+
+  6 passed (53.7s)

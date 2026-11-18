@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+INFO UX19-9 [{"t":"T6","p":[]},{"t":"T11","p":["Nội dung thường 11"]},{"t":"T11 rỗng","p":[]}]
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rs19-real.spec.ts:21:1 › TC-UX19-1/2/3/9 GV: đoạn trích sạch, nhãn đa số (17/21 ≥ 80 %), đoạn rỗng (2.1s)
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rs19-real.spec.ts:52:1 › TC-UX19-4/5/13 SV + GV: < 80 % thì mọi thread có nhãn; nhãn xác nhận trên từng thread; h1 (6.1s)
+INFO UX19-8 thời gian: ["Chủ Nhật, 19:25","Chủ Nhật, 19:25","Chủ Nhật, 19:25"]
+INFO UX19-PG request: ["?limit=30"]
+INFO UX19-PG trang hai: ["?limit=30","?limit=30&cursor=CUR1"]
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rs19-real.spec.ts:72:1 › TC-UX19-8/PG dữ liệu thật: thời gian đúng US-02; limit ≤ 100 + cursor, Xem thêm (3.3s)
+
+  3 passed (11.9s)

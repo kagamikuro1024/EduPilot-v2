@@ -1,0 +1,31 @@
+# N08-20 ep-r HEAD 1409b04d 2026-11-19 01:11:43
+GET /admin/llm/audit/{id} (đường TC cũ): admin → 404
+teacher POST /admin/observability/requests/{id}/open → 403
+ta POST /admin/observability/requests/{id}/open → 403
+sv.kha POST /admin/observability/requests/{id}/open → 403
+12929
+admin open:
+{"code":"PAYLOAD_EXPIRED","message":"Nội dung đã hết hạn lưu.","trace_id":"59bc1ba16ac899cd1891a3d0f363b8ac"}
+
+HTTP 410
+12930
+ERROR:  column "detail" does not exist
+LINE 1: ..., actor_id is not null, created_at, left(coalesce(detail::te...
+                                                             ^
+id|uuid||not null|uuidv7()
+course_id|uuid|||
+actor_id|uuid|||
+entity|text||not null|
+entity_id|text||not null|
+action|text||not null|
+before|jsonb|||
+after|jsonb|||
+trace_id|text|||
+created_at|timestamp with time zone||not null|now()
+--- thử các yêu cầu mới nhất tới khi 200
+01a1efdb-10ea-78dd-96cc-2108d673f60f audit_log 12930→12931 :: {"code":"PAYLOAD_EXPIRED","message":"Nội dung đã hết hạn lưu.","trace_id":"82459f7a0c9fadcbe308009efcf96803"} HTTP 410
+01a1efd7-49d5-719d-a5d2-5b8d9ecd9e06 audit_log 12931→12932 :: {"id":"01a1efd7-49d5-719d-a5d2-5b8d9ecd9e06","at":"2026-11-18T18:07:06.1971Z","task":"CHAT","provider":"QC fake","model":"fake-chat","status":"ok","trace_id":"9
+llm_request|VIEW_DETAIL|t|{"reason": "kiểm tra quyền QC 9.5 N08-20"}|2026-11-18 18:11:52.363152+00
+llm_request|VIEW_DETAIL|t|{"reason": "kiểm tra quyền QC 9.5 N08-20"}|2026-11-18 18:11:52.248626+00
+llm_request|VIEW_DETAIL|t|{"reason": "kiểm tra quyền QC 9.5"}|2026-11-18 18:11:43.707369+00
+admin@edupilot.local

@@ -1,0 +1,86 @@
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r10/qc-s10-zmobile-real.spec.ts
+   1:10  warning  'writeFileSync' is defined but never used  @typescript-eslint/no-unused-vars
+  19:7   warning  'rows' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-acct.spec.ts
+  9:7  warning  'json' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts
+  13:151  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:14   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  75:86   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  80:46   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  80:68   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:19   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:27   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  89:30   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts
+  3:38   warning  'clearRL' is defined but never used    @typescript-eslint/no-unused-vars
+  3:112  warning  'psql' is defined but never used       @typescript-eslint/no-unused-vars
+  3:118  warning  'techWords' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r8/lib.ts
+   1:10   warning  'expect' is defined but never used        @typescript-eslint/no-unused-vars
+  22:158  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:34   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:52   error    A `require()` style import is forbidden   @typescript-eslint/no-require-imports
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r8/probe.spec.ts
+  2:32  warning  'IDS' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r8/real-04.spec.ts
+   9:28  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  40:55  error    'tip' is never reassigned. Use 'const' instead  prefer-const
+  91:57  warning  'et' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r8/real-06.spec.ts
+   5:77   warning  'WK' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  11:125  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  15:13   error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  36:23   warning  'r' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  38:9    warning  'first' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  38:90   warning  'n0' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  99:23   warning  'hist' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r8/real-06b.spec.ts
+   2:37   warning  'IDS' is defined but never used           @typescript-eslint/no-unused-vars
+   4:29   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   9:39   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   9:131  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:38   warning  't' is defined but never used             @typescript-eslint/no-unused-vars
+  10:112  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:119  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:48   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r8/real-07.spec.ts
+  13:28  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:30  warning  's1' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r8/real-08.spec.ts
+  35:9    error    't' is never reassigned. Use 'const' instead  prefer-const
+  35:206  warning  'inList' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  35:277  warning  'links' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  65:153  warning  'html' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-r91land-real.spec.ts
+  56:49   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:142  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:199  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:234  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:300  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:427  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:510  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:549  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  59:60   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  59:88   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/r91lib.ts
+  13:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 56 problems (36 errors, 20 warnings)
+  2 errors and 0 warnings potentially fixable with the `--fix` option.
+

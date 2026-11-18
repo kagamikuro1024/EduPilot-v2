@@ -6,7 +6,7 @@ for pf in sorted(glob.glob(f"{E}/part-*.tsv")):
         a = l.rstrip("\n").split("\t")
         if len(a) >= 3 and a[0] in tcs and a[1] in ("P", "F", "LT", "K"): res[a[0]] = (a[1], a[2])
 T = len(tcs); cnt = collections.Counter(res.get(t, ("N",))[0] for t in tcs)
-md = ["# Smoke hồi quy sprint 8 — kết quả", "Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15",
+md = ["# Smoke hồi quy sprint 8 — kết quả", "Mã đã chạy: 1409b04d (= 777bb5e2 + merge nhánh QC; sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 · Ngày: 2026-11-19 · Còn N: 33 ca SEED (chờ ep-sd seed sạch do PM bật); 05-42 F chờ rebuild có 2479feb9",
       f"Tổng TC cũ: {T} · Đạt: {cnt['P']} · Trượt: {cnt['F']} · Lỗi thời (LT): {cnt['LT']} · Không chạy K (a/b/c): {cnt['K']} · Chưa chạy (N): {cnt['N']}   (P+F+LT+K+N = T)", "",
       "Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.", "",
       "## Tổng hợp theo US", "| US | TC tổng | P | F | LT | K | N |", "|---|---|---|---|---|---|---|"]

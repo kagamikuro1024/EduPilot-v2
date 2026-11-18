@@ -1,0 +1,1375 @@
+[WebServer] (node:44441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:44467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 510 tests using 2 workers
+
+(node:44468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:44469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    2 [desktop] › e2e/assignment-lifecycle.spec.ts:23:1 › assignments tab: «Đã nộp / Tổng» lấy lại khi cửa sổ lấy lại tiêu điểm — bài nộp tải lên / ZIP vào sau không còn hiện 0 (GV-BUG S2-2) (365ms)
+  ✓    1 [desktop] › e2e/assignment-lifecycle.spec.ts:39:1 › assignments tab: dòng bài tập là LIÊN KẾT thật (href sâu), bấm thường mở ngăn, mở thẳng bằng ?open= (GV-BUG j) (572ms)
+  ✓    3 [desktop] › e2e/assignment-lifecycle.spec.ts:50:1 › assignments tab layout: Tabs, một Panel + bảng năm cột, Tạo bài tập chỉ của giảng viên, TA chỉ xem (996ms)
+  ✓    5 [desktop] › e2e/assignment-lifecycle.spec.ts:128:1 › drawer conflict: 409 VERSION_CONFLICT hiện dòng báo + Giữ của tôi / Dùng của họ (635ms)
+  ✓    6 [desktop] › e2e/assignment-lifecycle.spec.ts:159:1 › drawer double submit: bấm đúp Tạo chỉ gửi một POST (3.1s)
+  ✓    7 [desktop] › e2e/assignment-lifecycle.spec.ts:195:1 › assignments tab states: khung xương, rỗng, lỗi kèm Thử lại (402ms)
+  ✓    8 [desktop] › e2e/assignment-lifecycle.spec.ts:238:1 › student page states: bốn trạng thái, đề bài Markdown, tiêu chí, có mục «Bài tập» ở thanh điều hướng (P-11-14) (553ms)
+  ✓    4 [desktop] › e2e/assignment-lifecycle.spec.ts:98:1 › drawer offline draft: chữ đã gõ giữ nguyên sau khi tải lại, mất mạng thì xếp hàng và tự gửi lại (6.4s)
+  ✓   10 [desktop] › e2e/assignment-lifecycle.spec.ts:284:1 › submit confirms with server timestamp: presign → PUT kho tệp → submit, xác nhận bằng giờ máy chủ (323ms)
+  ✓    9 [desktop] › e2e/assignment-lifecycle.spec.ts:267:1 › dropzone rejects before upload: sai đuôi / quá 20 MB / rỗng báo tại chỗ, không có presign (1.5s)
+  ✓   11 [desktop] › e2e/assignment-lifecycle.spec.ts:304:1 › submit offline retry: kho tệp hỏng giữ nguyên tệp đã chọn, Thử lại xin presign mới (395ms)
+  ✓   13 [desktop] › e2e/assignment-lifecycle.spec.ts:338:1 › submit resume complete: vé còn hạn hiện Chưa hoàn tất nộp, Hoàn tất dùng lại upload_id (432ms)
+  ✓   14 [desktop] › e2e/assignment-lifecycle.spec.ts:354:1 › assignment page 375: một cột, vùng nộp ≥ 48 px, nút đủ rộng, không cuộn ngang (199ms)
+  ✓   12 [desktop] › e2e/assignment-lifecycle.spec.ts:320:1 › submit double click: bấm đúp Nộp bài chỉ tạo một bản nộp (2.4s)
+  ✓   16 [desktop] › e2e/assignment-lifecycle.spec.ts:435:1 › unmatched dismiss: lý do rỗng không gửi, bỏ qua xong có Hoàn tác trong 5 giây (600ms)
+  ✓   15 [desktop] › e2e/assignment-lifecycle.spec.ts:380:1 › unmatched assign: chọn bài + sinh viên gợi ý rồi Gán, 409 và 403 báo bằng chữ (2.5s)
+  ✓   17 [desktop] › e2e/assignment-lifecycle.spec.ts:456:1 › unmatched states: khung xương, rỗng, lỗi kèm Thử lại (417ms)
+  ✓   18 [desktop] › e2e/assignment-lifecycle.spec.ts:481:1 › unmatched mail ignored: mục Thư không xử lý được chỉ hiện khi có thư, lý do bằng tiếng Việt (374ms)
+  ✓   19 [desktop] › e2e/assignment-lifecycle.spec.ts:527:1 › queue: toàn bài chưa chấm — lọc mặc định không che bài, Chấm tất cả bấm được (GV-BUG lọc mặc định + khoá Chấm tất cả) (1.1s)
+  ✓   21 [desktop] › e2e/assignment-lifecycle.spec.ts:548:1 › queue: người khác chấm lại — hàng chờ lấy lại khi tab hiện ra lại, không giữ số cũ (GV-BUG o) (228ms)
+  ✓   20 [desktop] › e2e/assignment-lifecycle.spec.ts:536:1 › queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn trang, cuộn tải tiếp) — không còn mù số lượng (GV-BUG S2-3) (1.1s)
+  ✓   22 [desktop] › e2e/assignment-lifecycle.spec.ts:566:1 › queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ (1.1s)
+  ✓   23 [desktop] › e2e/assignment-lifecycle.spec.ts:590:1 › grading ta cannot see publish: TA duyệt được nhưng không có nút Công bố (1.1s)
+  ✓   24 [desktop] › e2e/assignment-lifecycle.spec.ts:600:1 › review two columns: hai nửa bằng nhau, tiêu chí phẳng, Duyệt bài cuối cột (259ms)
+  ✓   25 [desktop] › e2e/assignment-lifecycle.spec.ts:617:1 › evidence scroll and highlight: bấm trích dẫn thì cột trái tô sáng đúng đoạn (300ms)
+  ✓   26 [desktop] › e2e/assignment-lifecycle.spec.ts:628:1 › review amber notice for disagree: nêu đúng số của hai lượt chấm (215ms)
+  ✓   28 [desktop] › e2e/assignment-lifecycle.spec.ts:657:1 › review version conflict: 409 giữ điểm đã gõ, nêu giá trị người kia, MỘT thông báo (US-15 AC7, lỗi #8) (356ms)
+  ✓   27 [desktop] › e2e/assignment-lifecycle.spec.ts:637:1 › review edit score undo: lưu lạc quan, bước 0,25 báo tại ô, hoàn tác đưa về giá trị cũ (572ms)
+  ✓   29 [desktop] › e2e/assignment-lifecycle.spec.ts:685:1 › review version conflict: Dùng của họ đổi ô sang giá trị người kia (284ms)
+  ✓   30 [desktop] › e2e/assignment-lifecycle.spec.ts:698:1 › review comment autosave: nháp lưu vào máy mỗi 2 giây (2.5s)
+  ✓   32 [desktop] › e2e/assignment-lifecycle.spec.ts:719:1 › review key A next: duyệt rồi sang bài kế, có thanh tiến độ (287ms)
+  ✓   31 [desktop] › e2e/assignment-lifecycle.spec.ts:708:1 › review draft restore: mở lại bài thì nhận xét đang soạn còn nguyên (2.6s)
+  ✓   33 [desktop] › e2e/assignment-lifecycle.spec.ts:737:1 › queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (M = số bài lúc mở, cố định) và lọc «Cần xem kỹ» bỏ đi thì GIỮ khi vào lại (GV-BUG c, d) (472ms)
+  ✓   34 [desktop] › e2e/assignment-lifecycle.spec.ts:755:1 › review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng (1.1s)
+  ✓   36 [desktop] › e2e/assignment-lifecycle.spec.ts:777:1 › review running locked: đang chấm thì khoá Duyệt bài kèm lý do (189ms)
+  ✓   37 [desktop] › e2e/assignment-lifecycle.spec.ts:787:1 › grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Thử lại (431ms)
+  ✓   38 [desktop] › e2e/assignment-lifecycle.spec.ts:814:1 › publish bulk confirm: chọn bài đã duyệt, xác nhận hậu quả bằng số, dòng đổi sang Đã công bố (655ms)
+  ✓   35 [desktop] › e2e/assignment-lifecycle.spec.ts:765:1 › review approve fails: lỗi hiện ở thanh dưới kèm Thử lại, điểm đã nhập còn nguyên (2.1s)
+  ✓   40 [desktop] › e2e/assignment-lifecycle.spec.ts:857:1 › student sees published result: điểm, tiêu chí, trích dẫn, trừ muộn — không có chữ nháp hay AI (211ms)
+  ✓   41 [desktop] › e2e/assignment-lifecycle.spec.ts:874:1 › student grading shows no score: chưa công bố thì chỉ thấy Đang chấm (181ms)
+  ✓   39 [desktop] › e2e/assignment-lifecycle.spec.ts:841:1 › publish bulk conflict: bài bị sửa chen ngang thì cả lô dừng và nói rõ số bài (727ms)
+  ✓   43 [desktop] › e2e/assignment-lifecycle.spec.ts:900:1 › teams sync happy then throttle: tiến độ, danh sách không lấy được, lần hai 429 khoá nút kèm lý do (3.2s)
+  ✓   44 [desktop] › e2e/assignment-lifecycle.spec.ts:932:1 › teams sync no_consent: việc hỏng nói bằng chữ, trang vẫn dùng được (343ms)
+  ✓   45 [desktop] › e2e/assignment-lifecycle.spec.ts:946:1 › teams sync hidden: bài không có kênh Teams thì không có nút (184ms)
+  ✓   46 [desktop] › e2e/assignment-lifecycle.spec.ts:955:1 › demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu chí 2, duyệt, công bố → B thấy 7,5 cùng nhận xét (1.0s)
+  ✓   47 [desktop] › e2e/assignment-lifecycle.spec.ts:1017:1 › student page hides html comment: chú thích nội bộ của tệp đề bài không hiện thành chữ (196ms)
+  ✓   42 [desktop] › e2e/assignment-lifecycle.spec.ts:884:1 › queue progress: tiến độ lô lấy từ job, không đếm theo số dòng đã tải (5.1s)
+  ✓   49 [desktop] › e2e/attendance.spec.ts:33:1 › attendance empty no sessions: 'Lớp chưa có lịch buổi học' và nút về /calendar (978ms)
+  ✓   48 [desktop] › e2e/attendance.spec.ts:22:1 › attendance session picker: mặc định buổi đang diễn ra, gần nhất trước, nhãn Đã điểm danh / Chưa, ?session= chọn buổi (1.9s)
+  ✓   50 [desktop] › e2e/attendance.spec.ts:42:1 › attendance states: tải lưới lỗi nói chuyện gì xảy ra và có Thử lại (1.1s)
+  ✓   51 [desktop] › e2e/attendance.spec.ts:54:1 › attendance grid keyboard: 1–4 đặt trạng thái rồi xuống hàng kế, ↑↓ đổi hàng, Shift+số giữ hàng, P ghi phát biểu; 30 hàng gửi MỘT lần (1.3s)
+  ✓   52 [desktop] › e2e/attendance.spec.ts:74:1 › attendance optimistic undo: đổi ngay, dòng 'Đã đánh Vắng · … Hoàn tác' tại chỗ, không toast, không hộp thoại; Hoàn tác trả trạng thái trước (1.9s)
+  ✓   54 [desktop] › e2e/attendance.spec.ts:102:1 › attendance 5xx keeps changes: PUT lỗi giữ lựa chọn, 'Chưa lưu được. Thử lại' rồi lưu thành công (3.5s)
+  ✓   55 [desktop] › e2e/attendance.spec.ts:117:1 › attendance complete inline confirm: Lưu điểm danh gửi complete:true một lần, dòng 'Đã lưu điểm danh · 30 sinh viên · vắng 3', nút thành Đã lưu, không toast / hộp thoại (1.3s)
+  ✓   53 [desktop] › e2e/attendance.spec.ts:85:1 › attendance save indicator: Đang lưu… rồi Đã lưu HH:MM sau 2 s yên lặng, một PUT complete:false với version đúng (6.2s)
+  ✓   56 [desktop] › e2e/attendance.spec.ts:135:1 › attendance complete không có thay đổi vẫn gửi complete:true cho cả lưới (mặc định mọi người có mặt) (1.0s)
+  ✓   57 [desktop] › e2e/attendance.spec.ts:144:1 › attendance speak plus undo: + phát biểu · +0,25 tăng đếm ngay, POST có client_event_id, ba lần bấm = ba sự kiện, Hoàn tác = DELETE (2.1s)
+  ✓   59 [desktop] › e2e/attendance.spec.ts:187:1 › attendance offline queue sync: mất mạng đánh vắng 3 người → banner 'Chưa có mạng · 3 thay đổi chờ lưu'; có mạng lại tự gửi đủ 3 (1.2s)
+  ✓   58 [desktop] › e2e/attendance.spec.ts:161:1 › attendance two teachers conflict: 409 → 'Thầy Nam vừa đổi 1 dòng', chọn từng dòng, giữ phần còn lại; Lấy của Thầy Nam bỏ bản của mình, Giữ của tôi gửi lại với version mới (3.7s)
+  ✓   60 [desktop] › e2e/attendance.spec.ts:202:1 › attendance offline reload keeps queue: tải lại giữa chừng vẫn thấy lựa chọn và gửi tiếp (1.9s)
+  ✓   61 [desktop] › e2e/attendance.spec.ts:215:1 › attendance logout asks first: còn thay đổi chưa lưu thì hỏi; Ở lại giữ nguyên, Đăng xuất xoá khoá attendance của người đó ở máy (2.2s)
+  ✓   62 [desktop] › e2e/attendance.spec.ts:236:1 › attendance switch session keeps changes: đổi buổi khi còn thay đổi chưa lưu thì vẫn gửi phần của buổi cũ (1.2s)
+  ✓   63 [desktop] › e2e/attendance.spec.ts:246:1 › attendance 375: hàng chỉ có chữ trạng thái, bấm hàng mở bốn lựa chọn ≥ 44 px, đổi một người ≤ 2 chạm, không tràn ngang (1.1s)
+  ✓   64 [desktop] › e2e/attendance.spec.ts:267:1 › attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồi Lưu điểm danh — đúng một PUT cho cả lưới, mỗi chạm phản hồi ≤ 100 ms (1.7s)
+  ✓   65 [desktop] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức NO_POLICY hiện dòng nhắc (1.0s)
+  ✓   66 [desktop] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức DRAFT_READY hiện dòng nhắc (990ms)
+  -   68 [desktop] › e2e/attendance.spec.ts:322:1 › attendance notice mobile: khối cảnh báo công thức cao ≤ 56 px
+  ✓   69 [desktop] › e2e/datetime.spec.ts:8:1 › formatWhen: bảng quy ước AC2 (1ms)
+  ✓   70 [desktop] › e2e/datetime.spec.ts:19:1 › formatWhen: ranh giới nửa đêm theo giờ Việt Nam, không theo UTC (0ms)
+  ✓   71 [desktop] › e2e/datetime.spec.ts:25:1 › formatDay / formatTime / dateInputValue / longDate (0ms)
+  ✓   72 [desktop] › e2e/datetime.spec.ts:34:1 › chuỗi sai / null → '—', không ném lỗi (1ms)
+  ✓   73 [desktop] › e2e/datetime.spec.ts:43:1 › múi giờ của máy khác không đổi kết quả (mọi bộ định dạng đặt timeZone tường minh) (4ms)
+  ✓   67 [desktop] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức CONFIRMED không có dòng nhắc (970ms)
+frame ta: 0 / 112 lượt lệch
+  ✓   75 [desktop] › e2e/frame.spec.ts:24:3 › frame ta: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi) (1.5m)
+frame student: 0 / 112 lượt lệch
+  ✓   74 [desktop] › e2e/frame.spec.ts:24:3 › frame student: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi) (1.6m)
+frame admin: 0 / 56 lượt lệch
+  ✓   77 [desktop] › e2e/frame.spec.ts:24:3 › frame admin: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi) (42.8s)
+  ✓   78 [desktop] › e2e/gradebook.spec.ts:23:1 › scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả (359ms)
+  ✓   79 [desktop] › e2e/gradebook.spec.ts:49:1 › unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có lý do ở chính nút, điền xong thì mở (304ms)
+  ✓   80 [desktop] › e2e/gradebook.spec.ts:67:1 › scheme edit optimistic: số sai báo tại ô và giữ chữ; số đúng lưu ngay khi rời ô, version + 1; 409 hoàn lại kèm dòng báo (332ms)
+  ✓   81 [desktop] › e2e/gradebook.spec.ts:94:1 › scheme edit conflict: 409 VERSION_CONFLICT nạp bản hiện tại và báo bằng InlineNotice (264ms)
+  ✓   82 [desktop] › e2e/gradebook.spec.ts:106:1 › impact preview: ba sinh viên mẫu trước → sau; lớp chưa đủ điểm hiện dòng chưa đủ điểm (211ms)
+  ✓   83 [desktop] › e2e/gradebook.spec.ts:116:1 › impact preview empty: chưa đủ điểm (189ms)
+  ✓   84 [desktop] › e2e/gradebook.spec.ts:122:1 › confirm irreversible: hộp thoại nêu ba con số, gửi version + Idempotency-Key, xong đổi chữ tại chỗ (không toast) (310ms)
+  ✓   85 [desktop] › e2e/gradebook.spec.ts:137:1 › confirm irreversible dropped: số điểm bị bỏ và lý do hiện trong hộp thoại (244ms)
+  ✓   86 [desktop] › e2e/gradebook.spec.ts:144:1 › new policy diff: có bản nháp cạnh bản đã xác nhận → chế độ so sánh do máy chủ tính (318ms)
+  ✓   87 [desktop] › e2e/gradebook.spec.ts:155:1 › scheme offline retry: mất mạng giữ chữ, báo Chưa lưu 1–2 từ, tự gửi lại khi có mạng (3.6s)
+  ✓   88 [desktop] › e2e/gradebook.spec.ts:170:1 › scheme rbac: TA đọc được nhưng không có nút xác nhận, tải quy chế, ô điền; sinh viên bị chặn (394ms)
+  ✓   89 [desktop] › e2e/gradebook.spec.ts:185:1 › scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại (2.3s)
+  ✓   90 [desktop] › e2e/gradebook.spec.ts:202:1 › scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px (305ms)
+  ✓   91 [desktop] › e2e/gradebook.spec.ts:220:1 › new policy upload: tải → đọc → trích có tiến độ, xong có bản nháp; trích dùng Idempotency-Key (3.5s)
+  ✓   92 [desktop] › e2e/gradebook.spec.ts:242:1 › new policy upload failed: tải hỏng giữ tên tệp và có Tải lại (226ms)
+  ✓   93 [desktop] › e2e/gradebook.spec.ts:262:1 › gradebook layout: một Panel, cột Sinh viên cố định, cột theo item + Điểm cộng… Trạng thái, không thẻ KPI (980ms)
+  ✓   94 [desktop] › e2e/gradebook.spec.ts:275:1 › official note: đúng một dòng ghi chú cố định dưới bảng (200ms)
+  ✓   95 [desktop] › e2e/gradebook.spec.ts:281:1 › cell edit keys: Enter lưu và xuống ô dưới, Tab lưu và sang phải, Esc hoàn tác, xoá ô = xoá điểm; lỗi giữ chữ (1.1s)
+  ✓   96 [desktop] › e2e/gradebook.spec.ts:323:1 › cell edit instant: cột tính hiện … trong lúc chờ rồi đổi theo phản hồi của máy chủ (1.8s)
+  ✓   97 [desktop] › e2e/gradebook.spec.ts:336:1 › cell conflict choose: người sau nhận 409, hiện giá trị người kia, chọn Giữ của tôi hoặc Dùng của họ (1.3s)
+  ✓   98 [desktop] › e2e/gradebook.spec.ts:366:1 › explain student B: Giải trình từ menu dòng, từng dòng phép tính, căn cứ mở đoạn trích, dòng do giảng viên đặt (1.6s)
+  ✓   99 [desktop] › e2e/gradebook.spec.ts:386:1 › virtualized 1000: DOM ≤ 60 dòng, cuộn tải trang kế theo con trỏ (1.2s)
+  ✓  100 [desktop] › e2e/gradebook.spec.ts:400:1 › type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn về, chữ còn (272ms)
+  ✓  101 [desktop] › e2e/gradebook.spec.ts:412:1 › gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại (1.4s)
+  ✓  102 [desktop] › e2e/gradebook.spec.ts:433:1 › offline cell: mất mạng giữ chữ, nhãn Chưa lưu tại ô, tự gửi lại khi có mạng (4.3s)
+  ✓  103 [desktop] › e2e/gradebook.spec.ts:447:1 › gradebook rbac: TA đọc bảng, giải trình, lịch sử nhưng không có ô nhập, menu cột, Chốt điểm; sổ đã chốt khoá mọi ô (1.5s)
+  ✓  104 [desktop] › e2e/gradebook.spec.ts:461:1 › publish column: menu cột công bố / gỡ; cột bài thi không có menu (1.1s)
+  ✓  105 [desktop] › e2e/gradebook.spec.ts:477:1 › penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện (403ms)
+  ✓  106 [desktop] › e2e/gradebook.spec.ts:491:1 › gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức (390ms)
+  ✓  107 [desktop] › e2e/gradebook.spec.ts:516:1 › import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đổi không cần tải lại, công bố mặc định tắt (710ms)
+  ✓  108 [desktop] › e2e/gradebook.spec.ts:546:1 › forms import flow: ba bước, xem trước có bảng điểm + dòng chưa khớp, ghi không công bố, xác nhận cần Idempotency-Key (US-P9-11) (750ms)
+  ✓  109 [desktop] › e2e/gradebook.spec.ts:579:1 › forms import teacher only: TA không có menu nhập nào (170ms)
+  ✓  110 [desktop] › e2e/gradebook.spec.ts:585:1 › import errors listed: dòng lỗi theo hàng bằng chữ tiếng Việt, nút Bỏ qua N dòng lỗi và ghi M dòng gửi skip_errors (718ms)
+  ✓  111 [desktop] › e2e/gradebook.spec.ts:606:1 › import upload failed: giữ tên tệp và có Tải lại; chọn cột và hạng mục không mất (2.0s)
+  ✓  112 [desktop] › e2e/gradebook.spec.ts:621:1 › import publish option: bật Công bố cột thì ghi xong gọi công bố đúng cột (692ms)
+  ✓  113 [desktop] › e2e/gradebook.spec.ts:634:1 › export xlsx: Xuất XLSX tải tệp; TA và sổ đã chốt không có Nhập (1.5s)
+  ✓  114 [desktop] › e2e/gradebook.spec.ts:665:1 › finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu bảng Đã chốt v1, ô khoá, Mở khoá ở menu, không toast (644ms)
+  ✓  115 [desktop] › e2e/gradebook.spec.ts:690:1 › finalize incomplete list: 409 hiện danh sách sinh viên thiếu kèm liên kết tới ô, chữ tiếng Việt (1.4s)
+  ✓  116 [desktop] › e2e/gradebook.spec.ts:708:1 › unlock reason: hậu quả bằng số, lý do 10–500 ký tự khoá nút, mở khoá xong ô nhập lại được (620ms)
+  ✓  117 [desktop] › e2e/gradebook.spec.ts:729:1 › snapshot history: Lịch sử chốt liệt kê các phiên bản kèm lý do mở khoá, chọn bản cũ xem điểm đã chốt; TA cũng xem được (1.6s)
+  ✓  118 [desktop] › e2e/gradebook.spec.ts:754:1 › lop2 demo step 6: tải quy chế lớp 2 (bản dựng thật) → một mục chưa rõ chặn xác nhận → điền làm tròn → xác nhận → banner mất, Chốt điểm mở (1.3s)
+  ✓  119 [desktop] › e2e/gradebook.spec.ts:787:1 › f10 main path: sửa ô → giải trình → chốt v1 → ô khoá → mở khoá có lý do → sửa → chốt lại v2; TA chỉ đọc (2.2s)
+  ✓  120 [desktop] › e2e/lcp.spec.ts:18:3 › lcp before refresh / (6.2s)
+  ✓  121 [desktop] › e2e/lcp.spec.ts:18:3 › lcp before refresh /chat (6.4s)
+  ✓  122 [desktop] › e2e/lcp.spec.ts:18:3 › lcp before refresh /threads (6.3s)
+  ✓  123 [desktop] › e2e/lcp.spec.ts:18:3 › lcp before refresh /me (6.3s)
+frame teacher: 0 / 144 lượt lệch
+  ✓   76 [desktop] › e2e/frame.spec.ts:24:3 › frame teacher: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi) (2.0m)
+  ✓  124 [desktop] › e2e/lcp.spec.ts:18:3 › lcp before refresh /inbox (6.4s)
+  ✓  125 [desktop] › e2e/lcp.spec.ts:18:3 › lcp before refresh /gradebook (6.5s)
+  ✓  127 [desktop] › e2e/lcp.spec.ts:59:1 › lcp before refresh /assignments/<id>: ứng viên đầu là chữ PreShell (1.7s)
+  ✓  126 [desktop] › e2e/lcp.spec.ts:18:3 › lcp before refresh /settings/llm (6.4s)
+  ✓  128 [desktop] › e2e/me.spec.ts:48:1 › me content and layout: chuyên cần một câu + buổi vắng / muộn; điểm cộng một câu; thời gian học ở CUỐI; không khối điểm giả (1.0s)
+  ✓  129 [desktop] › e2e/me.spec.ts:64:1 › me no gamification (no gamify): không streak, xếp hạng, vòng tiến độ, huy hiệu, confetti, so sánh bạn học (962ms)
+  ✓  130 [desktop] › e2e/me.spec.ts:73:1 › me study trend small no judgement: biểu đồ thấp (≈ 96 px), không mục tiêu, không tô đỏ tuần thấp (987ms)
+  ✓  132 [desktop] › e2e/me.spec.ts:98:1 › me states: lớp chưa điểm danh → câu rỗng không nút; lỗi → Thử lại rồi tải được (1.1s)
+  ✓  131 [desktop] › e2e/me.spec.ts:84:1 › me study time off shows state: tắt đo → 'Đang tắt' thay biểu đồ; chưa có dữ liệu → khối ẩn (1.8s)
+  ✓  134 [desktop] › e2e/me.spec.ts:122:1 › me staff blocked: TA / giảng viên / admin vào /me thấy màn chặn chung (không chuyển hướng), có nút Về Hôm nay, không gọi API của sinh viên (551ms)
+  ✓  133 [desktop] › e2e/me.spec.ts:110:1 › me offline keeps content: lỗi khi làm mới không xoá nội dung đã tải (1.3s)
+  ✓  135 [desktop] › e2e/me.spec.ts:137:1 › me two courses isolated: đổi lớp ở bộ chọn → số đổi theo, không lẫn (1.0s)
+  ✓  136 [desktop] › e2e/me.spec.ts:154:1 › me 375: một cột, không tràn ngang, chữ Việt dài không vỡ (934ms)
+  ✓  138 [desktop] › e2e/me.spec.ts:201:1 › calculation linear: phép tính từng dòng cùng thứ tự, Căn cứ mở đoạn quy chế tại chỗ, số dấu phẩy, không gamify (995ms)
+  ✓  137 [desktop] › e2e/me.spec.ts:179:1 › grade section: câu nhận định theo trạng thái, thành phần đã công bố / chưa công bố, đúng một dòng ghi chú cố định (2.7s)
+  ✓  140 [desktop] › e2e/me.spec.ts:253:1 › grade states: lỗi → nguyên nhân + Thử lại; chưa công bố gì → câu rỗng; mất mạng không xoá nội dung khác (1.1s)
+  ✓  139 [desktop] › e2e/me.spec.ts:223:1 › what if inline: gõ số → tính tại chỗ bằng máy chủ, ngoài thang báo tại ô và không gọi, mạng lỗi giữ số đã gõ (3.2s)
+  ✓  141 [desktop] › e2e/me.spec.ts:264:1 › grade mobile 375: khối điểm một cột, không tràn ngang (934ms)
+  ✓  142 [desktop] › e2e/me.spec.ts:272:1 › assignments section: mỗi bài một dòng tên · hạn · trạng thái, mở sang trang bài tập (US-P7-03 AC10) (943ms)
+INFO me 375 scrollHeight 1395
+  ✓  144 [desktop] › e2e/panels.spec.ts:30:3 › tokens › năm token đúng giá trị phương án (a); token nền cũ đã bị xoá (307ms)
+  ✓  143 [desktop] › e2e/me.spec.ts:292:1 › me 375: Thời gian học và Bài tập gập sẵn, Mở hiện nội dung; trang ≤ 1.600 px (US-UX91-20 AC8) (995ms)
+  ✓  145 [desktop] › e2e/panels.spec.ts:50:3 › dom contract › Panel, PanelSection, ô nhấn: nền, viền, bán kính, bóng, padding, h3 (đọc computed ở /dev/ui#panel) (307ms)
+  ✓  147 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai student: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (2.0s)
+  ✓  148 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai ta: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (2.0s)
+  ✓  146 [desktop] › e2e/panels.spec.ts:74:3 › nest › /dev/ui: NEST = 0, TITLE = 0, kể cả khi mở Dialog / Drawer / Popover (5.5s)
+  ✓  150 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai admin: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (1.1s)
+  ✓  151 [desktop] › e2e/panels.spec.ts:105:3 › strong cap / kpi wall › ca gieo vi phạm bị bắt: 4 ô nhấn trong một panel; 3 Panel bằng nhau cùng hàng ở đầu trang (361ms)
+  ✓  149 [desktop] › e2e/panels.spec.ts:88:5 › nest › route × vai teacher: NEST = 0, TITLE = 0 (trạng thái có dữ liệu) (2.7s)
+  ✓  152 [desktop] › e2e/panels.spec.ts:117:3 › primitives in panel › DataTable, ActionList, Tabs, DefinitionList, Composer: gốc không viền / bóng / bo góc riêng (327ms)
+  ✓  153 [desktop] › e2e/panels.spec.ts:131:3 › primitives in panel › /dev/ui#panel: AUDIT sạch ở 1440 và 390 px (488ms)
+  ✓  154 [desktop] › e2e/panels.spec.ts:146:3 › token only › ghi đè năm token → canvas, panel, ô nhấn, viền, bóng đổi đúng (không giá trị cứng trong Panel / khung) (267ms)
+  ✓  155 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /login: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (333ms)
+  ✓  156 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /register: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (471ms)
+  ✓  157 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /forgot-password: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (304ms)
+  ✓  158 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /reset-password?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (346ms)
+  ✓  159 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /verify-email?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (299ms)
+  ✓  160 [desktop] › e2e/panels.spec.ts:170:5 › auth shell › /invite/x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0 (295ms)
+  ✓  161 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @1440: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (947ms)
+  ✓  162 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @1024: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (924ms)
+  ✓  163 [desktop] › e2e/panels.spec.ts:215:5 › student home › / @375: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375 (926ms)
+  ✓  165 [desktop] › e2e/panels.spec.ts:270:3 › student mock routes › /chat, /threads, /threads/[id], /practice/[id], /me, /calendar: panel đúng chỗ; Composer trong panel; bộ lọc ngoài panel (4.5s)
+  ✓  166 [desktop] › e2e/panels.spec.ts:305:3 › exams student › /exams: số Panel = số nhóm có dữ liệu; hàng không có Panel; tiêu đề nhóm ngoài panel; rỗng = một Panel (243ms)
+  ✓  167 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (196ms)
+  ✓  168 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (164ms)
+  ✓  169 [desktop] › e2e/panels.spec.ts:334:7 › take states › intro @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (162ms)
+  ✓  170 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (184ms)
+  ✓  171 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (171ms)
+  ✓  172 [desktop] › e2e/panels.spec.ts:334:7 › take states › running @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (214ms)
+  ✓  173 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (201ms)
+  ✓  174 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (218ms)
+  ✓  175 [desktop] › e2e/panels.spec.ts:334:7 › take states › submitted @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (210ms)
+  ✓  176 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (188ms)
+  ✓  177 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (211ms)
+  ✓  178 [desktop] › e2e/panels.spec.ts:334:7 › take states › published @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch (173ms)
+  ✓  179 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /join: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (165ms)
+  ✓  180 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /join/ABC123: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (193ms)
+  ✓  181 [desktop] › e2e/panels.spec.ts:359:5 › join|settings › /settings: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0 (168ms)
+  ✓  164 [desktop] › e2e/panels.spec.ts:247:3 › student routes › 16 route Sinh viên: main có ≥ 1 Panel, tiêu đề vùng ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (13.1s)
+  ✓  182 [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @375; AUDIT + vùng chạm sạch (6.9s)
+  ✓  184 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (930ms)
+  ✓  185 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (929ms)
+  ✓  186 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / ta @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (925ms)
+  ✓  187 [desktop] › e2e/panels.spec.ts:425:7 › staff home › / ta @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu (941ms)
+  ✓  188 [desktop] › e2e/panels.spec.ts:443:3 › members › /class/members: Tabs ngoài panel; mỗi tab đúng 1 Panel; STRONG ≤ 3; NEST = 0 (359ms)
+  ✓  189 [desktop] › e2e/panels.spec.ts:461:3 › exams staff › /exams Staff: số Panel = số nhóm có dữ liệu; một nút chính; h2 ngoài panel; rỗng = 1 Panel (194ms)
+  ✓  190 [desktop] › e2e/panels.spec.ts:477:3 › exams empty › QC B1: /exams rỗng (Giảng viên và Sinh viên) = đúng 1 Panel + EmptyState; Staff có nút `Tạo bài thi` (527ms)
+  ✓  183 [desktop] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @390; AUDIT + vùng chạm sạch (7.1s)
+  ✓  192 [desktop] › e2e/panels.spec.ts:523:3 › questions › /questions: Toolbar + bảng trong 1 Panel, 1 nút chính; hàng mở Drawer không chứa Panel (229ms)
+  ✓  191 [desktop] › e2e/panels.spec.ts:499:3 › exam editor › /exams/[id]: Tabs ngoài; mỗi tab 1 Panel; NEST = 0 kể cả khi mở Drawer; tổng điểm là 1 ô nhấn; Panel không là hậu duệ của Drawer (494ms)
+  ✓  193 [desktop] › e2e/panels.spec.ts:538:3 › exam results|similarity › results: 1 Panel, Tabs ngoài, tab Nghi giống nhau chỉ Giảng viên; similarity: bảng cặp 1 Panel, hai khối mã là 2 ô strong ≥ 1024 (1.5s)
+  ✓  195 [desktop] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai ta: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (21.9s)
+  ✓  196 [desktop] › e2e/panels.spec.ts:592:3 › staff routes › /grading/[submissionId]: bài + rubric = 2 Panel cạnh nhau, không lồng (198ms)
+  ✓  197 [desktop] › e2e/panels.spec.ts:602:3 › staff routes › /attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px (1.9s)
+  ✓  198 [desktop] › e2e/panels.spec.ts:630:3 › admin users › /admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375 (416ms)
+  ✓  199 [desktop] › e2e/panels.spec.ts:649:3 › admin courses › /admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375 (412ms)
+  ✓  200 [desktop] › e2e/panels.spec.ts:667:3 › settings llm › /settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375 (423ms)
+  ✓  194 [desktop] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai teacher: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (28.1s)
+  ✓  201 [desktop] › e2e/panels.spec.ts:687:3 › admin routes › bảng 7.2 × vai admin: main ≥ 1 Panel, TITLE / NEST / WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024 (6.5s)
+  ✓  203 [desktop] › e2e/private-chat.spec.ts:24:1 › layout / empty: một Panel, gợi ý bấm được, không nút nhờ giảng viên (968ms)
+  ✓  204 [desktop] › e2e/private-chat.spec.ts:31:1 › 10.7 X1: danh sách phiên lỗi → đúng một thông báo lỗi có «Thử lại» (917ms)
+  ✓  205 [desktop] › e2e/private-chat.spec.ts:39:1 › US-UX91-13 trạng thái đầu: ≤ 3 gợi ý hàng chữ (1 từ Hôm nay + 2 cố định), bấm chỉ điền ô nhập, không tự gửi (936ms)
+  ✓  206 [desktop] › e2e/private-chat.spec.ts:50:1 › US-UX91-13 phiên mới + xoá: không nút `Phiên mới` khi phiên trống, có khi ≥ 1 tin; xoá nằm trong menu ⋯ của hàng, không thùng rác (1.3s)
+| Màn | Diện tích đỏ | Panel | WALL |
+|---|---|---|---|
+| home-student | 0.42 % | 2 | 0 |
+| exams-student | 0.02 % | 3 | 0 |
+| take-pre | 0.37 % | 1 | 0 |
+| take-run | 0.03 % | 2 | 0 |
+| home-teacher | 0.23 % | 2 | 0 |
+| members | 0.02 % | 1 | 0 |
+| questions | 0.44 % | 1 | 0 |
+| exam-editor | 0.26 % | 1 | 0 |
+| exam-results | 0.03 % | 1 | 0 |
+| admin-users | 0.41 % | 1 | 0 |
+| admin-courses | 0.29 % | 1 | 0 |
+| settings-llm | 0.13 % | 6 | 0 |
+| login | 0.03 % | 1 | 0 |
+  ✓  202 [desktop] › e2e/panels.spec.ts:708:3 › red area › 13 màn chính ở 1440 px: diện tích đỏ (ΔE2000 ≤ 10 so với --ep-red, không tính --ep-red-soft) < 8 % toàn ảnh; WALL = 0 (9.8s)
+  ✓  207 [desktop] › e2e/private-chat.spec.ts:66:1 › send: token chạy ra, trích nguồn mở tại chỗ, phản hồi có Hoàn tác, không placeholder (1.1s)
+  ✓  208 [desktop] › e2e/private-chat.spec.ts:91:1 › low confidence sentence only: một câu nhạt, không nút Nhờ giảng viên, không gọi /escalate (983ms)
+  ✓  209 [desktop] › e2e/private-chat.spec.ts:111:1 › overloaded retry: có dòng thời gian chờ + Thử lại, không thêm bong bóng người dùng, không nút nhờ giảng viên (1.1s)
+  ✓  210 [desktop] › e2e/private-chat.spec.ts:130:1 › exam lock: ô soạn khoá kèm giờ mở lại, không nêu tên bài thi, nháp không mất (940ms)
+  ✓  211 [desktop] › e2e/private-chat.spec.ts:141:1 › 409 EXAM_IN_PROGRESS khi gửi: giữ chữ trong ô soạn (956ms)
+  ✓  212 [desktop] › e2e/private-chat.spec.ts:152:1 › draft: nháp tự lưu 2 s và khôi phục sau tải lại (4.3s)
+  ✓  213 [desktop] › e2e/private-chat.spec.ts:161:1 › draft theo phiên: đang xem một phiên, gõ nháp, tải lại → vẫn đúng phiên đó và nháp còn (UX13-19) (4.3s)
+  ✓  214 [desktop] › e2e/private-chat.spec.ts:176:1 › reload mid-stream: tin đang sinh được nối lại bằng Last-Event-ID, câu trả lời đủ (1.0s)
+  ✓  215 [desktop] › e2e/private-chat.spec.ts:192:1 › đang chảy: dấu trích dẫn thô [1, 2] không lộ cho sinh viên (QC dot-r «chữ thô») (1.0s)
+  ✓  216 [desktop] › e2e/private-chat.spec.ts:203:1 › calendar tool block: lịch hiện thành danh sách dòng, không JSON thô (967ms)
+  ✓  217 [desktop] › e2e/private-chat.spec.ts:221:1 › my grade question: câu hỏi điểm của mình → câu trả lời có số, khối dữ liệu điểm không hiện thô, không nút nhờ giảng viên (969ms)
+  ✓  218 [desktop] › e2e/private-chat.spec.ts:263:1 › escalate button: có ở câu thường, một tooltip duy nhất, bấm đổi thành dòng trạng thái (1.1s)
+  ✓  219 [desktop] › e2e/private-chat.spec.ts:273:1 › escalate button: câu mẫu (can_escalate = false) không có nút (1.0s)
+  ✓  220 [desktop] › e2e/private-chat.spec.ts:283:1 › escalate double click: bấm đúp chỉ phát một request (1.1s)
+  ✓  221 [desktop] › e2e/private-chat.spec.ts:290:1 › escalate error: 500 hoàn lại nút kèm Thử lại, bấm lại thành công (1.1s)
+  ✓  222 [desktop] › e2e/private-chat.spec.ts:302:1 › escalate offline: giữ Đang gửi… rồi gửi lại khi có mạng, đúng một ticket (1.1s)
+  ✓  223 [desktop] › e2e/private-chat.spec.ts:312:1 › escalate cap: đã có 5 ticket mở thì nút khoá, tooltip nêu lý do (1.0s)
+  ✓  224 [desktop] › e2e/private-chat.spec.ts:318:1 › auto ticket: dưới ngưỡng đã tự mở → câu nhạt + dòng trạng thái, không nút, không số (1.0s)
+  ✓  225 [desktop] › e2e/private-chat.spec.ts:329:1 › claimed: 'đã chờ N phút' tự tăng mỗi phút khi để trang mở (QC US-P4-05 TC-28) (1.0s)
+  ✘  227 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:17:1 › [TC-P211-32] / sinh viên (375): D có ô nhập mã 7 ký tự → /join/<mã>; B/A ≤ 1 button.primary, lời chào + ngày, một khuyến nghị, timeline, không thẻ số liệu (48ms)
+  -  228 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:17:1 › [TC-P211-32] / sinh viên (375): D có ô nhập mã 7 ký tự → /join/<mã>; B/A ≤ 1 button.primary, lời chào + ngày, một khuyến nghị, timeline, không thẻ số liệu (retry #1)
+  ✓  226 [desktop] › e2e/private-chat.spec.ts:338:1 › 375: không tràn ngang, vùng chạm ≥ 44 px (922ms)
+  ✘  229 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:108:1 › [TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống (63ms)
+(node:51638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  230 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:56:1 › [TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s (85ms)
+(node:51642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51651) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  231 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:108:1 › [TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống (retry #1) (66ms)
+(node:51657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  232 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:56:1 › [TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s (retry #1) (65ms)
+(node:51663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  233 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:161:1 › [TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s (71ms)
+(node:51670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  234 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:191:1 › [TC-P211-38] / không dữ liệu mô phỏng cũ; grep mock = 0; việc của phase chưa làm không hiện; PROGRESS.md Nợ có Provider (187ms)
+  ✘  235 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:161:1 › [TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s (retry #1) (70ms)
+(node:51692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  237 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:221:1 › [TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner (68ms)
+  ✘  236 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:191:1 › [TC-P211-38] / không dữ liệu mô phỏng cũ; grep mock = 0; việc của phase chưa làm không hiện; PROGRESS.md Nợ có Provider (retry #1) (173ms)
+(node:51717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51718) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  238 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:221:1 › [TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner (retry #1) (74ms)
+
+  ✘  239 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:255:1 › [TC-P212-06] 7 tài khoản seed: số mục nav SV 7 / TA 12 / GV 15 / Admin 6; D chỉ Hôm nay (170ms)
+(node:51741) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51742) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  241 [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:255:1 › [TC-P212-06] 7 tài khoản seed: số mục nav SV 7 / TA 12 / GV 15 / Admin 6; D chỉ Hôm nay (retry #1) (171ms)
+(node:51764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  240 [desktop] › e2e/today.spec.ts:54:1 › student today: chưa vào lớp ⇒ ô nhập mã ngay trên trang; nhập xong chuyển /join/<mã> (1.1s)
+  ✓  242 [desktop] › e2e/today.spec.ts:74:1 › student today: email chưa xác minh đứng trước, ô nhập mã vẫn ở dưới; chỉ một nút chính (967ms)
+  ✓  243 [desktop] › e2e/today.spec.ts:90:1 › student today: chỉ có yêu cầu chờ duyệt ⇒ 'Chờ giảng viên duyệt', không nút hành động (931ms)
+  ✓  244 [desktop] › e2e/today.spec.ts:99:1 › student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không có việc gấp' + dòng thời gian; 'Tiếp tục học' ẩn khi rỗng (929ms)
+  ✓  245 [desktop] › e2e/today.spec.ts:116:1 › student today: continue learning — tối đa 3 phiên chat, mở đúng /chat?session=, có mã lớp; rỗng thì không có vùng (933ms)
+  ✓  246 [desktop] › e2e/today.spec.ts:125:1 › student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11) (925ms)
+  ✓  247 [desktop] › e2e/today.spec.ts:142:1 › student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today (923ms)
+  ✓  248 [desktop] › e2e/today.spec.ts:148:1 › staff today: tiêu đề đếm việc, hàng đúng thứ tự, 'lớp 761988' ở chế độ tất cả lớp (1.0s)
+  ✓  249 [desktop] › e2e/today.spec.ts:170:1 › staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn chữ, đúng một nút đỏ, không lặp mã lớp (US-UX91-10) (948ms)
+  ✓  250 [desktop] › e2e/today.spec.ts:191:1 › staff today: nhóm rỗng không hiện; chỉ việc thường ⇒ chỉ nhóm Hôm nay (923ms)
+  ✓  251 [desktop] › e2e/today.spec.ts:196:1 › staff today: nguồn Khi rảnh nhưng urgency high ⇒ vẫn là Gấp (961ms)
+  ✓  252 [desktop] › e2e/today.spec.ts:201:1 › staff today ≥ 1440: Lớp cần chú ý và Sắp tới nằm cột phải cạnh danh sách; 1024 nằm dưới (944ms)
+  ✓  253 [desktop] › e2e/today.spec.ts:217:1 › staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ qua gọi setup/dismiss và hàng biến mất (1.0s)
+  ✓  254 [desktop] › e2e/today.spec.ts:238:1 › staff today: TA không có nút Bỏ qua; 0 việc ⇒ 'Không có việc cần xử lý hôm nay.' (936ms)
+  ✓  255 [desktop] › e2e/today.spec.ts:244:1 › admin today: việc của hệ thống, không có lớp (924ms)
+  ✓  257 [desktop] › e2e/today.spec.ts:272:1 › no mock items: trang / không chứa dữ liệu mô phỏng cũ (931ms)
+  -  258 [desktop] › e2e/today.spec.ts:280:1 › today 375 px: sinh viên và giảng viên không tràn ngang, vùng chạm sạch
+  -  259 [desktop] › e2e/today.spec.ts:294:1 › today 375 px: giảng viên với bốn bước mở ra
+  -  260 [desktop] › e2e/today.spec.ts:310:1 › @real today: student / staff / admin với seed — D thấy ô nhập mã; B và A ≤ 1 nút chính, timeline có 'Buổi 10'; GV: tiêu đề '^\d+ việc cần xử lý hôm nay$'
+  ✓  256 [desktop] › e2e/today.spec.ts:257:1 › today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu (2.0s)
+  ✓  261 [desktop] › e2e/today.spec.ts:315:1 › staff attention block: liệt kê sinh viên + lý do ngắn + Xem tất cả (n) (934ms)
+(node:51970) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  263 [mobile] › e2e/assignment-lifecycle.spec.ts:23:1 › assignments tab: «Đã nộp / Tổng» lấy lại khi cửa sổ lấy lại tiêu điểm — bài nộp tải lên / ZIP vào sau không còn hiện 0 (GV-BUG S2-2)
+  -  264 [mobile] › e2e/assignment-lifecycle.spec.ts:39:1 › assignments tab: dòng bài tập là LIÊN KẾT thật (href sâu), bấm thường mở ngăn, mở thẳng bằng ?open= (GV-BUG j)
+  ✓  262 [desktop] › e2e/today.spec.ts:324:1 › staff attention block: không có AT_RISK thì không hiện khối (927ms)
+  -  265 [mobile] › e2e/assignment-lifecycle.spec.ts:50:1 › assignments tab layout: Tabs, một Panel + bảng năm cột, Tạo bài tập chỉ của giảng viên, TA chỉ xem
+  -  266 [mobile] › e2e/assignment-lifecycle.spec.ts:128:1 › drawer conflict: 409 VERSION_CONFLICT hiện dòng báo + Giữ của tôi / Dùng của họ
+  -  267 [mobile] › e2e/assignment-lifecycle.spec.ts:159:1 › drawer double submit: bấm đúp Tạo chỉ gửi một POST
+  -  268 [mobile] › e2e/assignment-lifecycle.spec.ts:195:1 › assignments tab states: khung xương, rỗng, lỗi kèm Thử lại
+  -  269 [mobile] › e2e/assignment-lifecycle.spec.ts:238:1 › student page states: bốn trạng thái, đề bài Markdown, tiêu chí, có mục «Bài tập» ở thanh điều hướng (P-11-14)
+  -  270 [mobile] › e2e/assignment-lifecycle.spec.ts:267:1 › dropzone rejects before upload: sai đuôi / quá 20 MB / rỗng báo tại chỗ, không có presign
+(node:51977) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  271 [mobile] › e2e/assignment-lifecycle.spec.ts:284:1 › submit confirms with server timestamp: presign → PUT kho tệp → submit, xác nhận bằng giờ máy chủ
+  -  272 [mobile] › e2e/assignment-lifecycle.spec.ts:304:1 › submit offline retry: kho tệp hỏng giữ nguyên tệp đã chọn, Thử lại xin presign mới
+  -  274 [mobile] › e2e/assignment-lifecycle.spec.ts:320:1 › submit double click: bấm đúp Nộp bài chỉ tạo một bản nộp
+  -  275 [mobile] › e2e/assignment-lifecycle.spec.ts:338:1 › submit resume complete: vé còn hạn hiện Chưa hoàn tất nộp, Hoàn tất dùng lại upload_id
+  -  276 [mobile] › e2e/assignment-lifecycle.spec.ts:354:1 › assignment page 375: một cột, vùng nộp ≥ 48 px, nút đủ rộng, không cuộn ngang
+  -  273 [mobile] › e2e/assignment-lifecycle.spec.ts:98:1 › drawer offline draft: chữ đã gõ giữ nguyên sau khi tải lại, mất mạng thì xếp hàng và tự gửi lại
+  -  277 [mobile] › e2e/assignment-lifecycle.spec.ts:380:1 › unmatched assign: chọn bài + sinh viên gợi ý rồi Gán, 409 và 403 báo bằng chữ
+  -  278 [mobile] › e2e/assignment-lifecycle.spec.ts:435:1 › unmatched dismiss: lý do rỗng không gửi, bỏ qua xong có Hoàn tác trong 5 giây
+  -  279 [mobile] › e2e/assignment-lifecycle.spec.ts:456:1 › unmatched states: khung xương, rỗng, lỗi kèm Thử lại
+  -  280 [mobile] › e2e/assignment-lifecycle.spec.ts:481:1 › unmatched mail ignored: mục Thư không xử lý được chỉ hiện khi có thư, lý do bằng tiếng Việt
+  -  281 [mobile] › e2e/assignment-lifecycle.spec.ts:527:1 › queue: toàn bài chưa chấm — lọc mặc định không che bài, Chấm tất cả bấm được (GV-BUG lọc mặc định + khoá Chấm tất cả)
+  -  282 [mobile] › e2e/assignment-lifecycle.spec.ts:536:1 › queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn trang, cuộn tải tiếp) — không còn mù số lượng (GV-BUG S2-3)
+  -  284 [mobile] › e2e/assignment-lifecycle.spec.ts:548:1 › queue: người khác chấm lại — hàng chờ lấy lại khi tab hiện ra lại, không giữ số cũ (GV-BUG o)
+  -  283 [mobile] › e2e/assignment-lifecycle.spec.ts:566:1 › queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ
+  -  285 [mobile] › e2e/assignment-lifecycle.spec.ts:590:1 › grading ta cannot see publish: TA duyệt được nhưng không có nút Công bố
+  -  286 [mobile] › e2e/assignment-lifecycle.spec.ts:600:1 › review two columns: hai nửa bằng nhau, tiêu chí phẳng, Duyệt bài cuối cột
+  -  287 [mobile] › e2e/assignment-lifecycle.spec.ts:617:1 › evidence scroll and highlight: bấm trích dẫn thì cột trái tô sáng đúng đoạn
+  -  288 [mobile] › e2e/assignment-lifecycle.spec.ts:628:1 › review amber notice for disagree: nêu đúng số của hai lượt chấm
+  -  289 [mobile] › e2e/assignment-lifecycle.spec.ts:637:1 › review edit score undo: lưu lạc quan, bước 0,25 báo tại ô, hoàn tác đưa về giá trị cũ
+  -  290 [mobile] › e2e/assignment-lifecycle.spec.ts:657:1 › review version conflict: 409 giữ điểm đã gõ, nêu giá trị người kia, MỘT thông báo (US-15 AC7, lỗi #8)
+  -  291 [mobile] › e2e/assignment-lifecycle.spec.ts:685:1 › review version conflict: Dùng của họ đổi ô sang giá trị người kia
+  -  292 [mobile] › e2e/assignment-lifecycle.spec.ts:698:1 › review comment autosave: nháp lưu vào máy mỗi 2 giây
+  -  293 [mobile] › e2e/assignment-lifecycle.spec.ts:708:1 › review draft restore: mở lại bài thì nhận xét đang soạn còn nguyên
+  -  294 [mobile] › e2e/assignment-lifecycle.spec.ts:719:1 › review key A next: duyệt rồi sang bài kế, có thanh tiến độ
+  -  295 [mobile] › e2e/assignment-lifecycle.spec.ts:737:1 › queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (M = số bài lúc mở, cố định) và lọc «Cần xem kỹ» bỏ đi thì GIỮ khi vào lại (GV-BUG c, d)
+  -  296 [mobile] › e2e/assignment-lifecycle.spec.ts:755:1 › review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng
+  -  297 [mobile] › e2e/assignment-lifecycle.spec.ts:765:1 › review approve fails: lỗi hiện ở thanh dưới kèm Thử lại, điểm đã nhập còn nguyên
+  -  298 [mobile] › e2e/assignment-lifecycle.spec.ts:777:1 › review running locked: đang chấm thì khoá Duyệt bài kèm lý do
+  -  300 [mobile] › e2e/assignment-lifecycle.spec.ts:814:1 › publish bulk confirm: chọn bài đã duyệt, xác nhận hậu quả bằng số, dòng đổi sang Đã công bố
+  -  299 [mobile] › e2e/assignment-lifecycle.spec.ts:787:1 › grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Thử lại
+  -  301 [mobile] › e2e/assignment-lifecycle.spec.ts:841:1 › publish bulk conflict: bài bị sửa chen ngang thì cả lô dừng và nói rõ số bài
+  -  302 [mobile] › e2e/assignment-lifecycle.spec.ts:857:1 › student sees published result: điểm, tiêu chí, trích dẫn, trừ muộn — không có chữ nháp hay AI
+  -  304 [mobile] › e2e/assignment-lifecycle.spec.ts:884:1 › queue progress: tiến độ lô lấy từ job, không đếm theo số dòng đã tải
+  -  303 [mobile] › e2e/assignment-lifecycle.spec.ts:874:1 › student grading shows no score: chưa công bố thì chỉ thấy Đang chấm
+  -  305 [mobile] › e2e/assignment-lifecycle.spec.ts:900:1 › teams sync happy then throttle: tiến độ, danh sách không lấy được, lần hai 429 khoá nút kèm lý do
+  -  306 [mobile] › e2e/assignment-lifecycle.spec.ts:932:1 › teams sync no_consent: việc hỏng nói bằng chữ, trang vẫn dùng được
+  -  307 [mobile] › e2e/assignment-lifecycle.spec.ts:946:1 › teams sync hidden: bài không có kênh Teams thì không có nút
+  -  308 [mobile] › e2e/assignment-lifecycle.spec.ts:955:1 › demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu chí 2, duyệt, công bố → B thấy 7,5 cùng nhận xét
+  -  309 [mobile] › e2e/assignment-lifecycle.spec.ts:1017:1 › student page hides html comment: chú thích nội bộ của tệp đề bài không hiện thành chữ
+  -  310 [mobile] › e2e/attendance.spec.ts:22:1 › attendance session picker: mặc định buổi đang diễn ra, gần nhất trước, nhãn Đã điểm danh / Chưa, ?session= chọn buổi
+  -  311 [mobile] › e2e/attendance.spec.ts:33:1 › attendance empty no sessions: 'Lớp chưa có lịch buổi học' và nút về /calendar
+  -  312 [mobile] › e2e/attendance.spec.ts:42:1 › attendance states: tải lưới lỗi nói chuyện gì xảy ra và có Thử lại
+  -  313 [mobile] › e2e/attendance.spec.ts:54:1 › attendance grid keyboard: 1–4 đặt trạng thái rồi xuống hàng kế, ↑↓ đổi hàng, Shift+số giữ hàng, P ghi phát biểu; 30 hàng gửi MỘT lần
+  -  314 [mobile] › e2e/attendance.spec.ts:74:1 › attendance optimistic undo: đổi ngay, dòng 'Đã đánh Vắng · … Hoàn tác' tại chỗ, không toast, không hộp thoại; Hoàn tác trả trạng thái trước
+  -  316 [mobile] › e2e/attendance.spec.ts:85:1 › attendance save indicator: Đang lưu… rồi Đã lưu HH:MM sau 2 s yên lặng, một PUT complete:false với version đúng
+  -  315 [mobile] › e2e/attendance.spec.ts:102:1 › attendance 5xx keeps changes: PUT lỗi giữ lựa chọn, 'Chưa lưu được. Thử lại' rồi lưu thành công
+  -  318 [mobile] › e2e/attendance.spec.ts:135:1 › attendance complete không có thay đổi vẫn gửi complete:true cho cả lưới (mặc định mọi người có mặt)
+  -  317 [mobile] › e2e/attendance.spec.ts:117:1 › attendance complete inline confirm: Lưu điểm danh gửi complete:true một lần, dòng 'Đã lưu điểm danh · 30 sinh viên · vắng 3', nút thành Đã lưu, không toast / hộp thoại
+  -  319 [mobile] › e2e/attendance.spec.ts:144:1 › attendance speak plus undo: + phát biểu · +0,25 tăng đếm ngay, POST có client_event_id, ba lần bấm = ba sự kiện, Hoàn tác = DELETE
+  -  320 [mobile] › e2e/attendance.spec.ts:161:1 › attendance two teachers conflict: 409 → 'Thầy Nam vừa đổi 1 dòng', chọn từng dòng, giữ phần còn lại; Lấy của Thầy Nam bỏ bản của mình, Giữ của tôi gửi lại với version mới
+  -  322 [mobile] › e2e/attendance.spec.ts:202:1 › attendance offline reload keeps queue: tải lại giữa chừng vẫn thấy lựa chọn và gửi tiếp
+  -  321 [mobile] › e2e/attendance.spec.ts:187:1 › attendance offline queue sync: mất mạng đánh vắng 3 người → banner 'Chưa có mạng · 3 thay đổi chờ lưu'; có mạng lại tự gửi đủ 3
+  -  323 [mobile] › e2e/attendance.spec.ts:215:1 › attendance logout asks first: còn thay đổi chưa lưu thì hỏi; Ở lại giữ nguyên, Đăng xuất xoá khoá attendance của người đó ở máy
+  -  324 [mobile] › e2e/attendance.spec.ts:236:1 › attendance switch session keeps changes: đổi buổi khi còn thay đổi chưa lưu thì vẫn gửi phần của buổi cũ
+  -  325 [mobile] › e2e/attendance.spec.ts:246:1 › attendance 375: hàng chỉ có chữ trạng thái, bấm hàng mở bốn lựa chọn ≥ 44 px, đổi một người ≤ 2 chạm, không tràn ngang
+  -  326 [mobile] › e2e/attendance.spec.ts:267:1 › attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồi Lưu điểm danh — đúng một PUT cho cả lưới, mỗi chạm phản hồi ≤ 100 ms
+  -  327 [mobile] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức NO_POLICY hiện dòng nhắc
+  -  328 [mobile] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức DRAFT_READY hiện dòng nhắc
+  -  329 [mobile] › e2e/attendance.spec.ts:297:3 › attendance notice: công thức CONFIRMED không có dòng nhắc
+  ✓  331 [mobile] › e2e/datetime.spec.ts:8:1 › formatWhen: bảng quy ước AC2 (5ms)
+  ✓  332 [mobile] › e2e/datetime.spec.ts:19:1 › formatWhen: ranh giới nửa đêm theo giờ Việt Nam, không theo UTC (1ms)
+  ✓  333 [mobile] › e2e/datetime.spec.ts:25:1 › formatDay / formatTime / dateInputValue / longDate (1ms)
+  ✓  334 [mobile] › e2e/datetime.spec.ts:34:1 › chuỗi sai / null → '—', không ném lỗi (1ms)
+  ✓  335 [mobile] › e2e/datetime.spec.ts:43:1 › múi giờ của máy khác không đổi kết quả (mọi bộ định dạng đặt timeZone tường minh) (2ms)
+  -  336 [mobile] › e2e/frame.spec.ts:24:3 › frame student: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+  -  337 [mobile] › e2e/frame.spec.ts:24:3 › frame ta: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+  -  338 [mobile] › e2e/frame.spec.ts:24:3 › frame teacher: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+  -  339 [mobile] › e2e/frame.spec.ts:24:3 › frame admin: mọi route × 1440 / 375 × (dữ liệu, rỗng, đang tải, lỗi)
+  -  340 [mobile] › e2e/gradebook.spec.ts:23:1 › scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả
+  -  341 [mobile] › e2e/gradebook.spec.ts:49:1 › unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có lý do ở chính nút, điền xong thì mở
+  -  342 [mobile] › e2e/gradebook.spec.ts:67:1 › scheme edit optimistic: số sai báo tại ô và giữ chữ; số đúng lưu ngay khi rời ô, version + 1; 409 hoàn lại kèm dòng báo
+  -  343 [mobile] › e2e/gradebook.spec.ts:94:1 › scheme edit conflict: 409 VERSION_CONFLICT nạp bản hiện tại và báo bằng InlineNotice
+  -  344 [mobile] › e2e/gradebook.spec.ts:106:1 › impact preview: ba sinh viên mẫu trước → sau; lớp chưa đủ điểm hiện dòng chưa đủ điểm
+  -  345 [mobile] › e2e/gradebook.spec.ts:116:1 › impact preview empty: chưa đủ điểm
+  -  346 [mobile] › e2e/gradebook.spec.ts:122:1 › confirm irreversible: hộp thoại nêu ba con số, gửi version + Idempotency-Key, xong đổi chữ tại chỗ (không toast)
+  -  347 [mobile] › e2e/gradebook.spec.ts:137:1 › confirm irreversible dropped: số điểm bị bỏ và lý do hiện trong hộp thoại
+  -  348 [mobile] › e2e/gradebook.spec.ts:144:1 › new policy diff: có bản nháp cạnh bản đã xác nhận → chế độ so sánh do máy chủ tính
+  -  349 [mobile] › e2e/gradebook.spec.ts:155:1 › scheme offline retry: mất mạng giữ chữ, báo Chưa lưu 1–2 từ, tự gửi lại khi có mạng
+  -  350 [mobile] › e2e/gradebook.spec.ts:170:1 › scheme rbac: TA đọc được nhưng không có nút xác nhận, tải quy chế, ô điền; sinh viên bị chặn
+  -  351 [mobile] › e2e/gradebook.spec.ts:185:1 › scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại
+  -  352 [mobile] › e2e/gradebook.spec.ts:202:1 › scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px
+  -  353 [mobile] › e2e/gradebook.spec.ts:220:1 › new policy upload: tải → đọc → trích có tiến độ, xong có bản nháp; trích dùng Idempotency-Key
+  -  354 [mobile] › e2e/gradebook.spec.ts:242:1 › new policy upload failed: tải hỏng giữ tên tệp và có Tải lại
+  -  355 [mobile] › e2e/gradebook.spec.ts:262:1 › gradebook layout: một Panel, cột Sinh viên cố định, cột theo item + Điểm cộng… Trạng thái, không thẻ KPI
+  -  356 [mobile] › e2e/gradebook.spec.ts:275:1 › official note: đúng một dòng ghi chú cố định dưới bảng
+  ✓  330 [mobile] › e2e/attendance.spec.ts:322:1 › attendance notice mobile: khối cảnh báo công thức cao ≤ 56 px (979ms)
+  -  357 [mobile] › e2e/gradebook.spec.ts:281:1 › cell edit keys: Enter lưu và xuống ô dưới, Tab lưu và sang phải, Esc hoàn tác, xoá ô = xoá điểm; lỗi giữ chữ
+  -  358 [mobile] › e2e/gradebook.spec.ts:323:1 › cell edit instant: cột tính hiện … trong lúc chờ rồi đổi theo phản hồi của máy chủ
+  -  359 [mobile] › e2e/gradebook.spec.ts:336:1 › cell conflict choose: người sau nhận 409, hiện giá trị người kia, chọn Giữ của tôi hoặc Dùng của họ
+  -  360 [mobile] › e2e/gradebook.spec.ts:366:1 › explain student B: Giải trình từ menu dòng, từng dòng phép tính, căn cứ mở đoạn trích, dòng do giảng viên đặt
+  -  361 [mobile] › e2e/gradebook.spec.ts:386:1 › virtualized 1000: DOM ≤ 60 dòng, cuộn tải trang kế theo con trỏ
+  -  363 [mobile] › e2e/gradebook.spec.ts:412:1 › gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại
+  -  362 [mobile] › e2e/gradebook.spec.ts:400:1 › type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn về, chữ còn
+  -  365 [mobile] › e2e/gradebook.spec.ts:433:1 › offline cell: mất mạng giữ chữ, nhãn Chưa lưu tại ô, tự gửi lại khi có mạng
+  -  364 [mobile] › e2e/gradebook.spec.ts:447:1 › gradebook rbac: TA đọc bảng, giải trình, lịch sử nhưng không có ô nhập, menu cột, Chốt điểm; sổ đã chốt khoá mọi ô
+  -  366 [mobile] › e2e/gradebook.spec.ts:461:1 › publish column: menu cột công bố / gỡ; cột bài thi không có menu
+  -  367 [mobile] › e2e/gradebook.spec.ts:477:1 › penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện
+  -  368 [mobile] › e2e/gradebook.spec.ts:491:1 › gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức
+  -  369 [mobile] › e2e/gradebook.spec.ts:516:1 › import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đổi không cần tải lại, công bố mặc định tắt
+  -  371 [mobile] › e2e/gradebook.spec.ts:579:1 › forms import teacher only: TA không có menu nhập nào
+  -  370 [mobile] › e2e/gradebook.spec.ts:546:1 › forms import flow: ba bước, xem trước có bảng điểm + dòng chưa khớp, ghi không công bố, xác nhận cần Idempotency-Key (US-P9-11)
+  -  373 [mobile] › e2e/gradebook.spec.ts:606:1 › import upload failed: giữ tên tệp và có Tải lại; chọn cột và hạng mục không mất
+  -  372 [mobile] › e2e/gradebook.spec.ts:585:1 › import errors listed: dòng lỗi theo hàng bằng chữ tiếng Việt, nút Bỏ qua N dòng lỗi và ghi M dòng gửi skip_errors
+  -  374 [mobile] › e2e/gradebook.spec.ts:634:1 › export xlsx: Xuất XLSX tải tệp; TA và sổ đã chốt không có Nhập
+  -  375 [mobile] › e2e/gradebook.spec.ts:621:1 › import publish option: bật Công bố cột thì ghi xong gọi công bố đúng cột
+  -  376 [mobile] › e2e/gradebook.spec.ts:665:1 › finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu bảng Đã chốt v1, ô khoá, Mở khoá ở menu, không toast
+  -  377 [mobile] › e2e/gradebook.spec.ts:690:1 › finalize incomplete list: 409 hiện danh sách sinh viên thiếu kèm liên kết tới ô, chữ tiếng Việt
+  -  378 [mobile] › e2e/gradebook.spec.ts:729:1 › snapshot history: Lịch sử chốt liệt kê các phiên bản kèm lý do mở khoá, chọn bản cũ xem điểm đã chốt; TA cũng xem được
+  -  379 [mobile] › e2e/gradebook.spec.ts:708:1 › unlock reason: hậu quả bằng số, lý do 10–500 ký tự khoá nút, mở khoá xong ô nhập lại được
+  -  380 [mobile] › e2e/gradebook.spec.ts:754:1 › lop2 demo step 6: tải quy chế lớp 2 (bản dựng thật) → một mục chưa rõ chặn xác nhận → điền làm tròn → xác nhận → banner mất, Chốt điểm mở
+  -  381 [mobile] › e2e/gradebook.spec.ts:787:1 › f10 main path: sửa ô → giải trình → chốt v1 → ô khoá → mở khoá có lý do → sửa → chốt lại v2; TA chỉ đọc
+  -  382 [mobile] › e2e/lcp.spec.ts:18:3 › lcp before refresh /
+  -  383 [mobile] › e2e/lcp.spec.ts:18:3 › lcp before refresh /chat
+  -  384 [mobile] › e2e/lcp.spec.ts:18:3 › lcp before refresh /threads
+  -  385 [mobile] › e2e/lcp.spec.ts:18:3 › lcp before refresh /me
+  -  387 [mobile] › e2e/lcp.spec.ts:18:3 › lcp before refresh /gradebook
+  -  386 [mobile] › e2e/lcp.spec.ts:18:3 › lcp before refresh /inbox
+  -  389 [mobile] › e2e/lcp.spec.ts:59:1 › lcp before refresh /assignments/<id>: ứng viên đầu là chữ PreShell
+  -  388 [mobile] › e2e/lcp.spec.ts:18:3 › lcp before refresh /settings/llm
+  -  391 [mobile] › e2e/me.spec.ts:48:1 › me content and layout: chuyên cần một câu + buổi vắng / muộn; điểm cộng một câu; thời gian học ở CUỐI; không khối điểm giả
+  -  390 [mobile] › e2e/me.spec.ts:64:1 › me no gamification (no gamify): không streak, xếp hạng, vòng tiến độ, huy hiệu, confetti, so sánh bạn học
+  -  392 [mobile] › e2e/me.spec.ts:73:1 › me study trend small no judgement: biểu đồ thấp (≈ 96 px), không mục tiêu, không tô đỏ tuần thấp
+  -  393 [mobile] › e2e/me.spec.ts:84:1 › me study time off shows state: tắt đo → 'Đang tắt' thay biểu đồ; chưa có dữ liệu → khối ẩn
+  -  394 [mobile] › e2e/me.spec.ts:98:1 › me states: lớp chưa điểm danh → câu rỗng không nút; lỗi → Thử lại rồi tải được
+  -  395 [mobile] › e2e/me.spec.ts:110:1 › me offline keeps content: lỗi khi làm mới không xoá nội dung đã tải
+  -  396 [mobile] › e2e/me.spec.ts:122:1 › me staff blocked: TA / giảng viên / admin vào /me thấy màn chặn chung (không chuyển hướng), có nút Về Hôm nay, không gọi API của sinh viên
+  -  397 [mobile] › e2e/me.spec.ts:137:1 › me two courses isolated: đổi lớp ở bộ chọn → số đổi theo, không lẫn
+  -  398 [mobile] › e2e/me.spec.ts:154:1 › me 375: một cột, không tràn ngang, chữ Việt dài không vỡ
+  -  399 [mobile] › e2e/me.spec.ts:179:1 › grade section: câu nhận định theo trạng thái, thành phần đã công bố / chưa công bố, đúng một dòng ghi chú cố định
+  -  400 [mobile] › e2e/me.spec.ts:201:1 › calculation linear: phép tính từng dòng cùng thứ tự, Căn cứ mở đoạn quy chế tại chỗ, số dấu phẩy, không gamify
+  -  401 [mobile] › e2e/me.spec.ts:223:1 › what if inline: gõ số → tính tại chỗ bằng máy chủ, ngoài thang báo tại ô và không gọi, mạng lỗi giữ số đã gõ
+  -  402 [mobile] › e2e/me.spec.ts:253:1 › grade states: lỗi → nguyên nhân + Thử lại; chưa công bố gì → câu rỗng; mất mạng không xoá nội dung khác
+  -  403 [mobile] › e2e/me.spec.ts:264:1 › grade mobile 375: khối điểm một cột, không tràn ngang
+  -  404 [mobile] › e2e/me.spec.ts:272:1 › assignments section: mỗi bài một dòng tên · hạn · trạng thái, mở sang trang bài tập (US-P7-03 AC10)
+  -  405 [mobile] › e2e/me.spec.ts:292:1 › me 375: Thời gian học và Bài tập gập sẵn, Mở hiện nội dung; trang ≤ 1.600 px (US-UX91-20 AC8)
+  -  406 [mobile] › e2e/panels.spec.ts:30:3 › tokens › năm token đúng giá trị phương án (a); token nền cũ đã bị xoá
+  -  407 [mobile] › e2e/panels.spec.ts:50:3 › dom contract › Panel, PanelSection, ô nhấn: nền, viền, bán kính, bóng, padding, h3 (đọc computed ở /dev/ui#panel)
+  -  408 [mobile] › e2e/panels.spec.ts:74:3 › nest › /dev/ui: NEST = 0, TITLE = 0, kể cả khi mở Dialog / Drawer / Popover
+  -  409 [mobile] › e2e/panels.spec.ts:88:5 › nest › route × vai student: NEST = 0, TITLE = 0 (trạng thái có dữ liệu)
+  -  410 [mobile] › e2e/panels.spec.ts:88:5 › nest › route × vai ta: NEST = 0, TITLE = 0 (trạng thái có dữ liệu)
+  -  411 [mobile] › e2e/panels.spec.ts:88:5 › nest › route × vai teacher: NEST = 0, TITLE = 0 (trạng thái có dữ liệu)
+  -  412 [mobile] › e2e/panels.spec.ts:88:5 › nest › route × vai admin: NEST = 0, TITLE = 0 (trạng thái có dữ liệu)
+  -  413 [mobile] › e2e/panels.spec.ts:105:3 › strong cap / kpi wall › ca gieo vi phạm bị bắt: 4 ô nhấn trong một panel; 3 Panel bằng nhau cùng hàng ở đầu trang
+  -  414 [mobile] › e2e/panels.spec.ts:117:3 › primitives in panel › DataTable, ActionList, Tabs, DefinitionList, Composer: gốc không viền / bóng / bo góc riêng
+  -  416 [mobile] › e2e/panels.spec.ts:146:3 › token only › ghi đè năm token → canvas, panel, ô nhấn, viền, bóng đổi đúng (không giá trị cứng trong Panel / khung)
+  -  415 [mobile] › e2e/panels.spec.ts:131:3 › primitives in panel › /dev/ui#panel: AUDIT sạch ở 1440 và 390 px
+  -  417 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /login: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -  418 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /register: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -  419 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /forgot-password: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -  420 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /reset-password?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -  421 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /verify-email?token=x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -  422 [mobile] › e2e/panels.spec.ts:170:5 › auth shell › /invite/x: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0
+  -  424 [mobile] › e2e/panels.spec.ts:215:5 › student home › / @1024: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375
+  -  423 [mobile] › e2e/panels.spec.ts:215:5 › student home › / @1440: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375
+  -  425 [mobile] › e2e/panels.spec.ts:215:5 › student home › / @375: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375
+  -  426 [mobile] › e2e/panels.spec.ts:247:3 › student routes › 16 route Sinh viên: main có ≥ 1 Panel, tiêu đề vùng ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024
+  -  427 [mobile] › e2e/panels.spec.ts:270:3 › student mock routes › /chat, /threads, /threads/[id], /practice/[id], /me, /calendar: panel đúng chỗ; Composer trong panel; bộ lọc ngoài panel
+  -  428 [mobile] › e2e/panels.spec.ts:305:3 › exams student › /exams: số Panel = số nhóm có dữ liệu; hàng không có Panel; tiêu đề nhóm ngoài panel; rỗng = một Panel
+  -  430 [mobile] › e2e/panels.spec.ts:334:7 › take states › intro @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  429 [mobile] › e2e/panels.spec.ts:334:7 › take states › intro @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  432 [mobile] › e2e/panels.spec.ts:334:7 › take states › running @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  431 [mobile] › e2e/panels.spec.ts:334:7 › take states › intro @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  434 [mobile] › e2e/panels.spec.ts:334:7 › take states › running @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  433 [mobile] › e2e/panels.spec.ts:334:7 › take states › running @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  435 [mobile] › e2e/panels.spec.ts:334:7 › take states › submitted @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  436 [mobile] › e2e/panels.spec.ts:334:7 › take states › submitted @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  438 [mobile] › e2e/panels.spec.ts:334:7 › take states › published @1440: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  437 [mobile] › e2e/panels.spec.ts:334:7 › take states › submitted @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  440 [mobile] › e2e/panels.spec.ts:334:7 › take states › published @375: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  439 [mobile] › e2e/panels.spec.ts:334:7 › take states › published @1024: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch
+  -  441 [mobile] › e2e/panels.spec.ts:359:5 › join|settings › /join: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0
+  -  442 [mobile] › e2e/panels.spec.ts:359:5 › join|settings › /join/ABC123: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0
+  -  444 [mobile] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @375; AUDIT + vùng chạm sạch
+  -  443 [mobile] › e2e/panels.spec.ts:359:5 › join|settings › /settings: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0
+  -  445 [mobile] › e2e/panels.spec.ts:375:5 › mobile gutter › mọi Panel con của main cách mép viewport đúng 12 px @390; AUDIT + vùng chạm sạch
+  -  446 [mobile] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu
+  -  448 [mobile] › e2e/panels.spec.ts:425:7 › staff home › / ta @1440: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu
+  -  447 [mobile] › e2e/panels.spec.ts:425:7 › staff home › / teacher @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu
+  -  449 [mobile] › e2e/panels.spec.ts:425:7 › staff home › / ta @1024: nhóm việc (h3) | panel phụ «Sắp tới», NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu
+  -  450 [mobile] › e2e/panels.spec.ts:443:3 › members › /class/members: Tabs ngoài panel; mỗi tab đúng 1 Panel; STRONG ≤ 3; NEST = 0
+  -  451 [mobile] › e2e/panels.spec.ts:461:3 › exams staff › /exams Staff: số Panel = số nhóm có dữ liệu; một nút chính; h2 ngoài panel; rỗng = 1 Panel
+  -  452 [mobile] › e2e/panels.spec.ts:477:3 › exams empty › QC B1: /exams rỗng (Giảng viên và Sinh viên) = đúng 1 Panel + EmptyState; Staff có nút `Tạo bài thi`
+  -  453 [mobile] › e2e/panels.spec.ts:499:3 › exam editor › /exams/[id]: Tabs ngoài; mỗi tab 1 Panel; NEST = 0 kể cả khi mở Drawer; tổng điểm là 1 ô nhấn; Panel không là hậu duệ của Drawer
+  -  454 [mobile] › e2e/panels.spec.ts:523:3 › questions › /questions: Toolbar + bảng trong 1 Panel, 1 nút chính; hàng mở Drawer không chứa Panel
+  -  456 [mobile] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai teacher: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024
+  -  455 [mobile] › e2e/panels.spec.ts:538:3 › exam results|similarity › results: 1 Panel, Tabs ngoài, tab Nghi giống nhau chỉ Giảng viên; similarity: bảng cặp 1 Panel, hai khối mã là 2 ô strong ≥ 1024
+  -  457 [mobile] › e2e/panels.spec.ts:569:5 › staff routes › bảng 7.2 × vai ta: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024
+  -  458 [mobile] › e2e/panels.spec.ts:592:3 › staff routes › /grading/[submissionId]: bài + rubric = 2 Panel cạnh nhau, không lồng
+  -  459 [mobile] › e2e/panels.spec.ts:602:3 › staff routes › /attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px
+  -  460 [mobile] › e2e/panels.spec.ts:630:3 › admin users › /admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375
+  -  462 [mobile] › e2e/panels.spec.ts:667:3 › settings llm › /settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375
+  -  461 [mobile] › e2e/panels.spec.ts:649:3 › admin courses › /admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375
+  -  463 [mobile] › e2e/panels.spec.ts:687:3 › admin routes › bảng 7.2 × vai admin: main ≥ 1 Panel, TITLE / NEST / WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024
+  -  464 [mobile] › e2e/panels.spec.ts:708:3 › red area › 13 màn chính ở 1440 px: diện tích đỏ (ΔE2000 ≤ 10 so với --ep-red, không tính --ep-red-soft) < 8 % toàn ảnh; WALL = 0
+  -  465 [mobile] › e2e/private-chat.spec.ts:24:1 › layout / empty: một Panel, gợi ý bấm được, không nút nhờ giảng viên
+  -  466 [mobile] › e2e/private-chat.spec.ts:31:1 › 10.7 X1: danh sách phiên lỗi → đúng một thông báo lỗi có «Thử lại»
+  -  467 [mobile] › e2e/private-chat.spec.ts:39:1 › US-UX91-13 trạng thái đầu: ≤ 3 gợi ý hàng chữ (1 từ Hôm nay + 2 cố định), bấm chỉ điền ô nhập, không tự gửi
+  -  468 [mobile] › e2e/private-chat.spec.ts:50:1 › US-UX91-13 phiên mới + xoá: không nút `Phiên mới` khi phiên trống, có khi ≥ 1 tin; xoá nằm trong menu ⋯ của hàng, không thùng rác
+  -  470 [mobile] › e2e/private-chat.spec.ts:91:1 › low confidence sentence only: một câu nhạt, không nút Nhờ giảng viên, không gọi /escalate
+  -  469 [mobile] › e2e/private-chat.spec.ts:66:1 › send: token chạy ra, trích nguồn mở tại chỗ, phản hồi có Hoàn tác, không placeholder
+  -  471 [mobile] › e2e/private-chat.spec.ts:130:1 › exam lock: ô soạn khoá kèm giờ mở lại, không nêu tên bài thi, nháp không mất
+  -  472 [mobile] › e2e/private-chat.spec.ts:111:1 › overloaded retry: có dòng thời gian chờ + Thử lại, không thêm bong bóng người dùng, không nút nhờ giảng viên
+  -  473 [mobile] › e2e/private-chat.spec.ts:141:1 › 409 EXAM_IN_PROGRESS khi gửi: giữ chữ trong ô soạn
+  -  474 [mobile] › e2e/private-chat.spec.ts:152:1 › draft: nháp tự lưu 2 s và khôi phục sau tải lại
+  -  475 [mobile] › e2e/private-chat.spec.ts:161:1 › draft theo phiên: đang xem một phiên, gõ nháp, tải lại → vẫn đúng phiên đó và nháp còn (UX13-19)
+  -  476 [mobile] › e2e/private-chat.spec.ts:176:1 › reload mid-stream: tin đang sinh được nối lại bằng Last-Event-ID, câu trả lời đủ
+  -  478 [mobile] › e2e/private-chat.spec.ts:203:1 › calendar tool block: lịch hiện thành danh sách dòng, không JSON thô
+  -  477 [mobile] › e2e/private-chat.spec.ts:192:1 › đang chảy: dấu trích dẫn thô [1, 2] không lộ cho sinh viên (QC dot-r «chữ thô»)
+  -  479 [mobile] › e2e/private-chat.spec.ts:221:1 › my grade question: câu hỏi điểm của mình → câu trả lời có số, khối dữ liệu điểm không hiện thô, không nút nhờ giảng viên
+  -  480 [mobile] › e2e/private-chat.spec.ts:263:1 › escalate button: có ở câu thường, một tooltip duy nhất, bấm đổi thành dòng trạng thái
+  -  481 [mobile] › e2e/private-chat.spec.ts:273:1 › escalate button: câu mẫu (can_escalate = false) không có nút
+  -  482 [mobile] › e2e/private-chat.spec.ts:283:1 › escalate double click: bấm đúp chỉ phát một request
+  -  483 [mobile] › e2e/private-chat.spec.ts:290:1 › escalate error: 500 hoàn lại nút kèm Thử lại, bấm lại thành công
+  -  484 [mobile] › e2e/private-chat.spec.ts:302:1 › escalate offline: giữ Đang gửi… rồi gửi lại khi có mạng, đúng một ticket
+  -  485 [mobile] › e2e/private-chat.spec.ts:312:1 › escalate cap: đã có 5 ticket mở thì nút khoá, tooltip nêu lý do
+  -  486 [mobile] › e2e/private-chat.spec.ts:318:1 › auto ticket: dưới ngưỡng đã tự mở → câu nhạt + dòng trạng thái, không nút, không số
+  -  487 [mobile] › e2e/private-chat.spec.ts:338:1 › 375: không tràn ngang, vùng chạm ≥ 44 px
+  -  488 [mobile] › e2e/private-chat.spec.ts:329:1 › claimed: 'đã chờ N phút' tự tăng mỗi phút khi để trang mở (QC US-P4-05 TC-28)
+  ✘  490 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:56:1 › [TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s (57ms)
+
+  ✘  489 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:17:1 › [TC-P211-32] / sinh viên (375): D có ô nhập mã 7 ký tự → /join/<mã>; B/A ≤ 1 button.primary, lời chào + ngày, một khuyến nghị, timeline, không thẻ số liệu (148ms)
+(node:52183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  491 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:56:1 › [TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s (retry #1) (86ms)
+
+  ✘  492 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:17:1 › [TC-P211-32] / sinh viên (375): D có ô nhập mã 7 ký tự → /join/<mã>; B/A ≤ 1 button.primary, lời chào + ngày, một khuyến nghị, timeline, không thẻ số liệu (retry #1) (160ms)
+(node:52262) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52367) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  493 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:108:1 › [TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống (69ms)
+  -  495 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:108:1 › [TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống (retry #1)
+  ✘  494 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:161:1 › [TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s (67ms)
+  -  496 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:161:1 › [TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s (retry #1)
+(node:52383) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  497 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:191:1 › [TC-P211-38] / không dữ liệu mô phỏng cũ; grep mock = 0; việc của phase chưa làm không hiện; PROGRESS.md Nợ có Provider (70ms)
+  -  499 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:191:1 › [TC-P211-38] / không dữ liệu mô phỏng cũ; grep mock = 0; việc của phase chưa làm không hiện; PROGRESS.md Nợ có Provider (retry #1)
+  ✘  498 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:221:1 › [TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner (70ms)
+  -  500 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:221:1 › [TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner (retry #1)
+(node:52408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  501 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:255:1 › [TC-P212-06] 7 tài khoản seed: số mục nav SV 7 / TA 12 / GV 15 / Admin 6; D chỉ Hôm nay (70ms)
+  -  503 [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:255:1 › [TC-P212-06] 7 tài khoản seed: số mục nav SV 7 / TA 12 / GV 15 / Admin 6; D chỉ Hôm nay (retry #1)
+(node:52425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  502 [mobile] › e2e/today.spec.ts:54:1 › student today: chưa vào lớp ⇒ ô nhập mã ngay trên trang; nhập xong chuyển /join/<mã> (1.1s)
+  ✓  504 [mobile] › e2e/today.spec.ts:74:1 › student today: email chưa xác minh đứng trước, ô nhập mã vẫn ở dưới; chỉ một nút chính (974ms)
+  ✓  505 [mobile] › e2e/today.spec.ts:90:1 › student today: chỉ có yêu cầu chờ duyệt ⇒ 'Chờ giảng viên duyệt', không nút hành động (923ms)
+  ✓  506 [mobile] › e2e/today.spec.ts:99:1 › student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không có việc gấp' + dòng thời gian; 'Tiếp tục học' ẩn khi rỗng (931ms)
+  ✓  507 [mobile] › e2e/today.spec.ts:116:1 › student today: continue learning — tối đa 3 phiên chat, mở đúng /chat?session=, có mã lớp; rỗng thì không có vùng (934ms)
+  ✓  508 [mobile] › e2e/today.spec.ts:125:1 › student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11) (938ms)
+  ✓  509 [mobile] › e2e/today.spec.ts:142:1 › student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today (925ms)
+  ✓  510 [mobile] › e2e/today.spec.ts:148:1 › staff today: tiêu đề đếm việc, hàng đúng thứ tự, 'lớp 761988' ở chế độ tất cả lớp (1.0s)
+  ✓  511 [mobile] › e2e/today.spec.ts:170:1 › staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn chữ, đúng một nút đỏ, không lặp mã lớp (US-UX91-10) (940ms)
+  ✓  512 [mobile] › e2e/today.spec.ts:191:1 › staff today: nhóm rỗng không hiện; chỉ việc thường ⇒ chỉ nhóm Hôm nay (926ms)
+  ✓  513 [mobile] › e2e/today.spec.ts:196:1 › staff today: nguồn Khi rảnh nhưng urgency high ⇒ vẫn là Gấp (926ms)
+  ✓  514 [mobile] › e2e/today.spec.ts:201:1 › staff today ≥ 1440: Lớp cần chú ý và Sắp tới nằm cột phải cạnh danh sách; 1024 nằm dưới (944ms)
+  ✓  515 [mobile] › e2e/today.spec.ts:217:1 › staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ qua gọi setup/dismiss và hàng biến mất (1.0s)
+  ✓  516 [mobile] › e2e/today.spec.ts:238:1 › staff today: TA không có nút Bỏ qua; 0 việc ⇒ 'Không có việc cần xử lý hôm nay.' (926ms)
+  ✓  517 [mobile] › e2e/today.spec.ts:244:1 › admin today: việc của hệ thống, không có lớp (932ms)
+  ✓  519 [mobile] › e2e/today.spec.ts:272:1 › no mock items: trang / không chứa dữ liệu mô phỏng cũ (928ms)
+  ✓  518 [mobile] › e2e/today.spec.ts:257:1 › today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu (2.8s)
+  ✓  520 [mobile] › e2e/today.spec.ts:280:1 › today 375 px: sinh viên và giảng viên không tràn ngang, vùng chạm sạch (1.1s)
+  -  522 [mobile] › e2e/today.spec.ts:310:1 › @real today: student / staff / admin với seed — D thấy ô nhập mã; B và A ≤ 1 nút chính, timeline có 'Buổi 10'; GV: tiêu đề '^\d+ việc cần xử lý hôm nay$'
+  ✓  523 [mobile] › e2e/today.spec.ts:315:1 › staff attention block: liệt kê sinh viên + lý do ngắn + Xem tất cả (n) (944ms)
+  ✓  521 [mobile] › e2e/today.spec.ts:294:1 › today 375 px: giảng viên với bốn bước mở ra (1.2s)
+  ✓  524 [mobile] › e2e/today.spec.ts:324:1 › staff attention block: không có AT_RISK thì không hiện khối (936ms)
+
+
+  1) [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:56:1 › [TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s 
+
+    TypeError: Cannot read properties of undefined (reading 'email')
+
+      55 |
+      56 | test("[TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s", async ({ page }, info) => {
+    > 57 |   await apiLogin(page, S.gv1.email);
+         |                              ^
+      58 |   if (info.project.name === "desktop") {
+      59 |     // khung xương khi tải chậm
+      60 |     await page.route(/\/api\/v1\/(me|courses\/[^/]+)\/today/, async (r) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:57:30
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TypeError: Cannot read properties of undefined (reading 'email')
+
+      55 |
+      56 | test("[TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s", async ({ page }, info) => {
+    > 57 |   await apiLogin(page, S.gv1.email);
+         |                              ^
+      58 |   if (info.project.name === "desktop") {
+      59 |     // khung xương khi tải chậm
+      60 |     await page.route(/\/api\/v1\/(me|courses\/[^/]+)\/today/, async (r) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:57:30
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-desktop-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:108:1 › [TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống 
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      108 | test("[TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống", async ({ page }, info) => {
+      109 |   only(info, "desktop");
+    > 110 |   await newCourse(S.gv1.id, "T"); // bảo đảm có lớp mới chưa thiết lập → COURSE_SETUP
+          |                         ^
+      111 |   await apiLogin(page, S.gv1.email);
+      112 |   await page.goto("/");
+      113 |   await ready(page);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:110:25
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      108 | test("[TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống", async ({ page }, info) => {
+      109 |   only(info, "desktop");
+    > 110 |   await newCourse(S.gv1.id, "T"); // bảo đảm có lớp mới chưa thiết lập → COURSE_SETUP
+          |                         ^
+      111 |   await apiLogin(page, S.gv1.email);
+      112 |   await page.goto("/");
+      113 |   await ready(page);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:110:25
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-desktop-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:161:1 › [TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s 
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      161 | test("[TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s", async ({ page }, info) => {
+      162 |   only(info, "desktop");
+    > 163 |   const C = await newCourse(S.gv1.id, "W");
+          |                                   ^
+      164 |   const cj = await joinInfo(C.id, S.gv1.email);
+      165 |   expect((await call("PUT", `/courses/${C.id}/join-settings`, cj.token, { require_approval: true, version: cj.version })).status).toBe(200);
+      166 |   const code = String((await joinInfo(C.id, S.gv1.email)).join_code);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:163:35
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      161 | test("[TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s", async ({ page }, info) => {
+      162 |   only(info, "desktop");
+    > 163 |   const C = await newCourse(S.gv1.id, "W");
+          |                                   ^
+      164 |   const cj = await joinInfo(C.id, S.gv1.email);
+      165 |   expect((await call("PUT", `/courses/${C.id}/join-settings`, cj.token, { require_approval: true, version: cj.version })).status).toBe(200);
+      166 |   const code = String((await joinInfo(C.id, S.gv1.email)).join_code);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:163:35
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-desktop-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:191:1 › [TC-P211-38] / không dữ liệu mô phỏng cũ; grep mock = 0; việc của phase chưa làm không hiện; PROGRESS.md Nợ có Provider 
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+
+       at qc2-r4/r4ui-lib.ts:60
+
+      58 |   const r = await ctx.request.post("/api/v1/auth/login", { data: { email, password: pw }, headers: { "Idempotency-Key": randomUUID() } });
+      59 |   expect(r.status(), `login ${email}`).toBe(200);
+    > 60 |   return (await r.json()).access_token as string;
+         |           ^
+      61 | }
+      62 | /** Đăng nhập thật qua màn /login. */
+      63 | export async function uiLogin(page: Page, email: string, pw = PWD, next?: string) {
+        at apiLogin (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:60:11)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:205:5
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+
+       at qc2-r4/r4ui-lib.ts:60
+
+      58 |   const r = await ctx.request.post("/api/v1/auth/login", { data: { email, password: pw }, headers: { "Idempotency-Key": randomUUID() } });
+      59 |   expect(r.status(), `login ${email}`).toBe(200);
+    > 60 |   return (await r.json()).access_token as string;
+         |           ^
+      61 | }
+      62 | /** Đăng nhập thật qua màn /login. */
+      63 | export async function uiLogin(page: Page, email: string, pw = PWD, next?: string) {
+        at apiLogin (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:60:11)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:205:5
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-desktop-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:221:1 › [TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner 
+
+    TypeError: Cannot read properties of undefined (reading 'email')
+
+      221 | test("[TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner", async ({ page, context }, info) => {
+      222 |   only(info, "desktop");
+    > 223 |   await apiLogin(page, S.gv1.email);
+          |                              ^
+      224 |   const todayRe = /\/api\/v1\/(me\/today|courses\/[^/]+\/today)/;
+      225 |   let fail = true;
+      226 |   const calls: number[] = [];
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:223:30
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TypeError: Cannot read properties of undefined (reading 'email')
+
+      221 | test("[TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner", async ({ page, context }, info) => {
+      222 |   only(info, "desktop");
+    > 223 |   await apiLogin(page, S.gv1.email);
+          |                              ^
+      224 |   const todayRe = /\/api\/v1\/(me\/today|courses\/[^/]+\/today)/;
+      225 |   let fail = true;
+      226 |   const calls: number[] = [];
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:223:30
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-desktop-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:255:1 › [TC-P212-06] 7 tài khoản seed: số mục nav SV 7 / TA 12 / GV 15 / Admin 6; D chỉ Hôm nay 
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+
+       at qc2-r4/r4ui-lib.ts:60
+
+      58 |   const r = await ctx.request.post("/api/v1/auth/login", { data: { email, password: pw }, headers: { "Idempotency-Key": randomUUID() } });
+      59 |   expect(r.status(), `login ${email}`).toBe(200);
+    > 60 |   return (await r.json()).access_token as string;
+         |           ^
+      61 | }
+      62 | /** Đăng nhập thật qua màn /login. */
+      63 | export async function uiLogin(page: Page, email: string, pw = PWD, next?: string) {
+        at apiLogin (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:60:11)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:262:5
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+
+       at qc2-r4/r4ui-lib.ts:60
+
+      58 |   const r = await ctx.request.post("/api/v1/auth/login", { data: { email, password: pw }, headers: { "Idempotency-Key": randomUUID() } });
+      59 |   expect(r.status(), `login ${email}`).toBe(200);
+    > 60 |   return (await r.json()).access_token as string;
+         |           ^
+      61 | }
+      62 | /** Đăng nhập thật qua màn /login. */
+      63 | export async function uiLogin(page: Page, email: string, pw = PWD, next?: string) {
+        at apiLogin (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:60:11)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:262:5
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-desktop-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-desktop-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-desktop-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:17:1 › [TC-P211-32] / sinh viên (375): D có ô nhập mã 7 ký tự → /join/<mã>; B/A ≤ 1 button.primary, lời chào + ngày, một khuyến nghị, timeline, không thẻ số liệu 
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+
+       at qc2-r4/r4ui-lib.ts:60
+
+      58 |   const r = await ctx.request.post("/api/v1/auth/login", { data: { email, password: pw }, headers: { "Idempotency-Key": randomUUID() } });
+      59 |   expect(r.status(), `login ${email}`).toBe(200);
+    > 60 |   return (await r.json()).access_token as string;
+         |           ^
+      61 | }
+      62 | /** Đăng nhập thật qua màn /login. */
+      63 | export async function uiLogin(page: Page, email: string, pw = PWD, next?: string) {
+        at apiLogin (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:60:11)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:20:3
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+
+       at qc2-r4/r4ui-lib.ts:60
+
+      58 |   const r = await ctx.request.post("/api/v1/auth/login", { data: { email, password: pw }, headers: { "Idempotency-Key": randomUUID() } });
+      59 |   expect(r.status(), `login ${email}`).toBe(200);
+    > 60 |   return (await r.json()).access_token as string;
+         |           ^
+      61 | }
+      62 | /** Đăng nhập thật qua màn /login. */
+      63 | export async function uiLogin(page: Page, email: string, pw = PWD, next?: string) {
+        at apiLogin (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:60:11)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:20:3
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-mobile-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:56:1 › [TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s 
+
+    TypeError: Cannot read properties of undefined (reading 'email')
+
+      55 |
+      56 | test("[TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s", async ({ page }, info) => {
+    > 57 |   await apiLogin(page, S.gv1.email);
+         |                              ^
+      58 |   if (info.project.name === "desktop") {
+      59 |     // khung xương khi tải chậm
+      60 |     await page.route(/\/api\/v1\/(me|courses\/[^/]+)\/today/, async (r) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:57:30
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TypeError: Cannot read properties of undefined (reading 'email')
+
+      55 |
+      56 | test("[TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s", async ({ page }, info) => {
+    > 57 |   await apiLogin(page, S.gv1.email);
+         |                              ^
+      58 |   if (info.project.name === "desktop") {
+      59 |     // khung xương khi tải chậm
+      60 |     await page.route(/\/api\/v1\/(me|courses\/[^/]+)\/today/, async (r) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-today.spec.ts:57:30
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-mobile-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-mobile-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-e941d-TOUCH-hành-động-chính-≈-3-s-mobile-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:17:1 › [TC-P211-32] / sinh viên (375): D có ô nhập mã 7 ký tự → /join/<mã>; B/A ≤ 1 button.primary, lời chào + ngày, một khuyến nghị, timeline, không thẻ số liệu 
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-18c6b--timeline-không-thẻ-số-liệu-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:108:1 › [TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống 
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-08270-ISMATCH-Admin-việc-hệ-thống-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:161:1 › [TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s 
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-5bba6-ng-JOIN-REQUEST-biến-≤-60-s-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:191:1 › [TC-P211-38] / không dữ liệu mô phỏng cũ; grep mock = 0; việc của phase chưa làm không hiện; PROGRESS.md Nợ có Provider 
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-903e8--PROGRESS-md-Nợ-có-Provider-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:221:1 › [TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner 
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P211-661ae--cũ-offline-→-OfflineBanner-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:255:1 › [TC-P212-06] 7 tài khoản seed: số mục nav SV 7 / TA 12 / GV 15 / Admin 6; D chỉ Hôm nay 
+
+    Error: ENOENT: no such file or directory, open '/tmp/qc2-i/res/r4ui-today.jsonl'
+
+       at qc2-r4/r4ui-lib.ts:107
+
+      105 |     const notes = info.annotations.filter((a) => a.type === "note").map((a) => a.description).join(" ; ");
+      106 |     for (const id of ids)
+    > 107 |       appendFileSync(`/tmp/qc2-i/res/${file}.jsonl`, JSON.stringify({ id, project: info.project.name, status: info.status, ms: info.duration, notes, err: (info.error?.message ?? "").split("\n").slice(0, 6).join(" ").slice(0, 500) }) + "\n");
+          |       ^
+      108 |   });
+      109 | }
+      110 | export const note = (s: string) => test.info().annotations.push({ type: "note", description: s });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-lib.ts:107:7
+
+    Error Context: test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/qc2-r4-r4ui-today--TC-P212-7b1a0-GV-15-Admin-6-D-chỉ-Hôm-nay-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:56:1 › [TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s 
+    [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:108:1 › [TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống 
+    [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:161:1 › [TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s 
+    [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:191:1 › [TC-P211-38] / không dữ liệu mô phỏng cũ; grep mock = 0; việc của phase chưa làm không hiện; PROGRESS.md Nợ có Provider 
+    [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:221:1 › [TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner 
+    [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:255:1 › [TC-P212-06] 7 tài khoản seed: số mục nav SV 7 / TA 12 / GV 15 / Admin 6; D chỉ Hôm nay 
+    [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:17:1 › [TC-P211-32] / sinh viên (375): D có ô nhập mã 7 ký tự → /join/<mã>; B/A ≤ 1 button.primary, lời chào + ngày, một khuyến nghị, timeline, không thẻ số liệu 
+    [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:56:1 › [TC-P211-33] / : khung xương aria-busy, lỗi chuẩn + Thử lại, không từ kỹ thuật, 375 AUDIT/TOUCH, hành động chính ≈ 3 s 
+  6 flaky
+    [desktop] › e2e/qc2-r4/r4ui-today.spec.ts:17:1 › [TC-P211-32] / sinh viên (375): D có ô nhập mã 7 ký tự → /join/<mã>; B/A ≤ 1 button.primary, lời chào + ngày, một khuyến nghị, timeline, không thẻ số liệu 
+    [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:108:1 › [TC-P211-35] / GV, TA, Admin: tiêu đề đếm việc, ActionList, COURSE_SETUP mở dần tại chỗ, Sắp tới, Lớp cần chú ý ẩn khi rỗng, Tất cả lớp; TA không thấy COURSE_SETUP/EMAIL_MISMATCH; Admin việc hệ thống 
+    [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:161:1 › [TC-P211-36] duyệt hết yêu cầu ở /class/members rồi về / : hàng JOIN_REQUEST biến ≤ 60 s 
+    [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:191:1 › [TC-P211-38] / không dữ liệu mô phỏng cũ; grep mock = 0; việc của phase chưa làm không hiện; PROGRESS.md Nợ có Provider 
+    [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:221:1 › [TC-P211-41] /: 500 → lỗi chuẩn + Thử lại đúng 1 request; làm mới thất bại khi đã có dữ liệu giữ dữ liệu cũ; offline → OfflineBanner 
+    [mobile] › e2e/qc2-r4/r4ui-today.spec.ts:255:1 › [TC-P212-06] 7 tài khoản seed: số mục nav SV 7 / TA 12 / GV 15 / Admin 6; D chỉ Hôm nay 
+  225 skipped
+  271 passed (6.5m)
+done 1

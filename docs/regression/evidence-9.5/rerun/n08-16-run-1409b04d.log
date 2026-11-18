@@ -1,0 +1,18 @@
+# N08-16 2026-11-19 01:31:31 HEAD 1409b04d
+CHƯA HOÀN TẤT — hết hạn mức (GET /me/courses?limit=100 → 429 Retry-After 120s). Chạy tiếp sau 120s: real_llm.py --resume setup
+real 0.09
+user 0.05
+sys 0.01
+rc=3
+--- resume.json
+{
+ "cmd": "setup",
+ "at": "2026-11-18T18:31:31.585Z",
+ "reason": "chưa hoàn tất — hết hạn mức",
+ "retry_after_s": 120.0,
+ "detail": "GET /me/courses?limit=100 → 429 Retry-After 120s"
+}
+--- request log
+fake-gateway 429 18099
+1.0 POST /api/v1/auth/login → 200
+1.0 GET /api/v1/me/courses?limit=100 → 429

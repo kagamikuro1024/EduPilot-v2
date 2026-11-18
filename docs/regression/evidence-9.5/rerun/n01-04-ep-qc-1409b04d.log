@@ -1,0 +1,17 @@
+# N01-04 trên stack đo ep-qc đang chạy, 2026-11-19 01:30:41, HEAD 1409b04d
+ep-qc-worker-1	8081/tcp
+ep-qc-frontend-1	0.0.0.0:3500->3000/tcp, [::]:3500->3000/tcp
+ep-qc-gateway-1	8080/tcp
+ep-qc-judge-1	5050/tcp
+ep-qc-caddy-1	443/udp, 2019/tcp, 0.0.0.0:580->80/tcp, [::]:580->80/tcp, 0.0.0.0:943->443/tcp, [::]:943->443/tcp
+ep-qc-pgbouncer-1	5432/tcp
+ep-qc-redis-1	0.0.0.0:6880->6379/tcp, [::]:6880->6379/tcp
+ep-qc-postgres-1	0.0.0.0:5933->5432/tcp, [::]:5933->5432/tcp
+ep-qc-mock-graph-1	127.0.0.1:8590->8090/tcp
+ep-qc-docling-1	5001/tcp, 8080/tcp
+ep-qc-mock-imap-1	1143/tcp, 127.0.0.1:8591->8091/tcp
+ep-qc-minio-1	0.0.0.0:9500->9000/tcp, [::]:9500->9000/tcp, 0.0.0.0:9501->9001/tcp, [::]:9501->9001/tcp
+ep-qc-mailpit-1	1110/tcp, 0.0.0.0:1525->1025/tcp, [::]:1525->1025/tcp, 0.0.0.0:8525->8025/tcp, [::]:8525->8025/tcp
+--- cổng demo (compose edupilot): mặc định 80/443/3000/5432 — không container ep-qc nào dùng; tên toàn bộ ep-qc-*
+13
+0

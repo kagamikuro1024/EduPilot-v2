@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
-Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 443 · Trượt: 2 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 67   (P+F+LT+K+N = T)
+Mã đã chạy: 1409b04d (= 777bb5e2 + merge nhánh QC; sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 · Ngày: 2026-11-19 · Còn N: 33 ca SEED (chờ ep-sd seed sạch do PM bật); 05-42 F chờ rebuild có 2479feb9
+Tổng TC cũ: 512 · Đạt: 478 · Trượt: 1 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 33   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -10,14 +10,14 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | P6-01 | 41 | 41 | 0 | 0 | 0 | 0 |
 | P6-02 | 49 | 49 | 0 | 0 | 0 | 0 |
 | P6-03 | 48 | 48 | 0 | 0 | 0 | 0 |
-| P6-04 | 49 | 44 | 0 | 0 | 0 | 5 |
-| P6-05 | 46 | 44 | 2 | 0 | 0 | 0 |
-| P6-06 | 63 | 62 | 0 | 0 | 0 | 1 |
+| P6-04 | 49 | 49 | 0 | 0 | 0 | 0 |
+| P6-05 | 46 | 45 | 1 | 0 | 0 | 0 |
+| P6-06 | 63 | 63 | 0 | 0 | 0 | 0 |
 | P6-07 | 59 | 59 | 0 | 0 | 0 | 0 |
 | P6-08 | 47 | 47 | 0 | 0 | 0 | 0 |
-| P6-09 | 50 | 45 | 0 | 0 | 0 | 5 |
+| P6-09 | 50 | 50 | 0 | 0 | 0 | 0 |
 | P6-SEED | 37 | 4 | 0 | 0 | 0 | 33 |
-| S8-UI | 23 | 0 | 0 | 0 | 0 | 23 |
+| S8-UI | 23 | 23 | 0 | 0 | 0 | 0 |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -164,7 +164,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-04-02 | P | click quote: Giữa kỳ → «Trang 1», Điểm cộng → «Trang 2», Thang chữ → «Trang 2» (khớp extraction-lop2); đoạn trích được <mark> nhấn mạnh |
 | TC-P6-04-03 | P | RERUN ep-r 634d59c5 (sau R8-A2 dev2): 1024 px cột cố định; 1023 px Drawer; Esc đóng; Enter trên nút Trang → Drawer → Esc → focus về «Trang 1» (real-04.spec.ts 04-03r) |
 | TC-P6-04-04 | P | icon Info/CircleHelp 0; hai dòng sau tiêu đề «Tải quy chế | Bản nháp» (không câu mô tả) |
-| TC-P6-04-05 | N | chưa chạy |
+| TC-P6-04-05 | P | ui-antipatterns.sh rc=0 (local logs/s8r-antipatterns2.log) + CI run 44343596969 @777bb5e2 job «Frontend e2e (Playwright 1/4)» (jobs 134940238701): ✓ gradebook.spec.ts:23  |
 | TC-P6-04-06 | P | khối Làm tròn trống tại chỗ có ô chọn bước; nút Xác nhận công thức aria-disabled=true; tooltip trên chính nút «Còn 1 mục chưa rõ: làm tròn» (hover và focus); không modal |
 | TC-P6-04-07 | P | chọn «Làm tròn đến 0,1»: mục chưa rõ biến mất, nút bật (disabled=false), tooltip hết; xác nhận được (TC-04-22/41) |
 | TC-P6-04-08 | P | confirm khi còn mục chưa rõ → 422 SCHEME_HAS_UNCLEAR details {"codes": ["WEIGHT_SUM"], "unclear_items": [{"source": "CODE; status vẫn DRAFT |
@@ -188,12 +188,12 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-04-26 | P | midterm max 10→100: impact/confirm entries_dropped=[midterm: 30, MAX_CHANGED]; điểm KHÔNG sang item thang 100 (mới 0 điểm), 30 điểm còn ở item cũ SUPERSEDE |
 | TC-P6-04-27 | P | sổ LOCKED: confirm → 409 GRADEBOOK_LOCKED; DRAFT không đổi [['DRAFT', '2']] |
 | TC-P6-04-28 | P | TestConfirmCarryOverEntries/NoCarryOnMaxScoreChange/NoCarryOnSourceChange/SupersedeBeforeConfirm/CreatesGradebookRow/BlockedWhenLocked PASS |
-| TC-P6-04-29 | N | chưa chạy |
-| TC-P6-04-30 | N | chưa chạy |
-| TC-P6-04-31 | N | chưa chạy |
+| TC-P6-04-29 | P | upload presign→PUT→complete→doc READY; extract 202 job SUCCEEDED jobs.progress [['SUCCEEDED', '100']]; nháp mới v1 cạnh CONFIRMED (state CONFIRMED, pending_draft Tru |
+| TC-P6-04-30 | P | GET grade-scheme?diff=confirmed trên QD8C1 (nháp v2 trích bằng stub cạnh CONFIRMED): diff do code {weight_changed: midterm 20→15, weekly 20→25; rules_changed: BONUS cap 1 |
+| TC-P6-04-31 | P | real-04b.spec.ts (gv.s8f, QD8FM5): chặn PUT lên kho (connectionreset) giữa lúc tải quy-che-lop1-v2.pdf → InlineNotice giữ tên tệp «quy-che-lop1-v2.pdf: …» + nút «Tải lại» |
 | TC-P6-04-32 | P | TestNewPolicyMakesNewDraft/DiffAgainstConfirmed/ConfirmedUnchangedUntilConfirm PASS + e2e 'new policy diff' xanh |
 | TC-P6-04-33 | P | confirm với version cũ → 409 VERSION_CONFLICT; status vẫn DRAFT; sau đó confirm version mới (bước kế) → 200 |
-| TC-P6-04-34 | N | chưa chạy |
+| TC-P6-04-34 | P | trích FAILED (stub JSON hỏng; bấm «Thay bản nháp» true): khối lỗi «qc2-pdf34.pdf: Chưa trích được. Thử lại Bỏ qua Xác nhận công thức Thành phần Tổng 100% Trang 1 Giữa kỳ  |
 | TC-P6-04-35 | P | offline: sửa trọng số rồi Tab → nhãn «Chưa lưu», chữ vẫn trong ô; có mạng lại tự gửi: DB weight midterm = 24.00; không mất chữ |
 | TC-P6-04-36 | P | TestSchemeEditRace/TestConfirmStaleVersion PASS + e2e 'scheme offline retry' xanh |
 | TC-P6-04-37 | P | grep mock/gradebook frontend/src rỗng; frontend/src/mock/gradebook.ts không tồn tại |
@@ -245,8 +245,8 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-05-34 | P | TestReminderCatchUp: worker lên thứ Tư 14:00 chưa nhắc tuần → Once=true, 1 chuông; TestReminderWeeklyOncePerWeek: tick kế cùng tuần Once=false, 48 giờ sau vẫn 1 chuông (k |
 | TC-P6-05-35 | P | RERUN 2026-11-18 lớp QD8H3 (s8flow-us05h3.py; Hôm nay có TTL 60 s nên chờ tới 75 s): người nhận (distinct role)=TEACHER |
 | TC-P6-05-36 | P | go test 5 test PASS (log s8flow-go-*.log) |
-| TC-P6-05-37 | F | câu đúng nguyên văn TC «Cô tính điểm môn này thế nào?» (QD8H7 chưa công thức): trả «Mình chưa tìm thấy nội dung này trong tài liệu của lớp.» (kỳ vọng câu mẫu «Lớp chưa có |
-| TC-P6-05-38 | P | câu «Công thức tính điểm học phần là gì?» (GRADE_FORMULA): câu mẫu True, llm_audit +0, không số True; ticket AUTO_NO_FORMULA 1; hỏi lại CÙNG câu trong cùng hội thoại → 2  |
+| TC-P6-05-37 | P | câu đúng nguyên văn TC «Cô tính điểm môn này thế nào?» (QD8H9 chưa công thức): trả «Lớp chưa có công thức điểm chính thức do giảng viên xác nhận.» (kỳ vọng câu mẫu «Lớp c |
+| TC-P6-05-38 | P | câu «Công thức tính điểm học phần là gì?» (GRADE_FORMULA): câu mẫu True, llm_audit +0, không số True; ticket AUTO_NO_FORMULA 1→2 (+1); hỏi lại CÙNG câu trong cùng hội tho |
 | TC-P6-05-39 | P | PERSONAL_GRADE «Lớp chưa có công thức điểm chính thức do giảng viên xác nhận», WHAT_IF «Lớp chưa có công thức điểm chính thức do giảng viên xác nhận»: cùng câu mẫu True;  |
 | TC-P6-05-40 | P | lớp CONFIRMED QD8R6U: 3 câu → không câu mẫu «chưa có công thức» ([False, False, False]); AUTO_NO_FORMULA 0→0; trả lời: «Mình chưa tìm thấy nội dung này trong tài liệu của |
 | TC-P6-05-41 | P | go test 4 test PASS (log s8flow-go-*.log) |
@@ -285,7 +285,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-06-28 | P | UI thật ep-r: Lịch sử ở menu dòng — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-29 | P | go test 1 test PASS (log s8flow-go-*.log) |
 | TC-P6-06-30 | P | LOAD1000 trang đầu limit=100 ×20: p50 20 ms, p95 51 ms (≤500); limit=101 → 422; thứ tự vn_fold(tên),id đúng trên lớp 30 SV có dấu: True |
-| TC-P6-06-31 | N | chưa chạy |
+| TC-P6-06-31 | P | LOAD1000 teacher: hàng trong DOM lúc đầu 23, tối đa khi cuộn 32 (≤ 60); cuộn tới cuối [47458,48058]: hàng cuối «Tải 1000 30001000 0,00 0,00 5,50 6,00 C »; 13 lần gọi grad |
 | TC-P6-06-32 | P | LOAD1000 (đã mở khoá bằng API): gõ dở «7,» ở hàng 5, cuộn tới cuối (9 yêu cầu có cursor) rồi cuộn về: ô vẫn giữ «7,» (real-06b.spec.ts, 3 lượt) |
 | TC-P6-06-33 | P | LOAD1000: ArrowDown/Enter qua cuối cửa sổ ảo hoá: focus đi qua >2 ô khác nhau, focus cuối là INPUT; thead dính (sticky) (real-06b.spec.ts) |
 | TC-P6-06-34 | P | LOAD1000 limit=100: seq_scan +0 trên grade_entries/participation_events/attendance_records (pg_stat_user_tables, min 3 lượt); đếm câu SQL không đo được qua log DB dù |
@@ -446,17 +446,17 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-20 | P | 10 lần what-if: grade_entries/audit_log/final_grade_snapshots/notifications/outbox [3845, 10326, 4108, 3387, 6131] → [3845, 10326, 4108, 3387, 6131] không đổi (hàng  |
 | TC-P6-09-21 | P | giữa kỳ chưa công bố → what-if 409 NOT_ENOUGH_GRADES; không số bịa |
 | TC-P6-09-22 | P | status FINAL → what-if 409 FINAL_ALREADY_LOCKED; UI ẩn ô what-if: dev e2e 'grade section' xanh |
-| TC-P6-09-23 | N | chưa chạy |
+| TC-P6-09-23 | P | real-09.spec.ts (sv.kha, /me QD8R6U): gõ 8 → «Điểm học phần sẽ là 8 (B+).»; setOffline(true) rồi gõ 9: ô giữ «9», hiện Thử lại/báo lỗi; có mạng lại: ô vẫn «9», kết quả «Đ |
 | TC-P6-09-24 | P | go test 4 test PASS (log s8flow-go-*.log) |
 | TC-P6-09-25 | P | /me/grades midterm=7.5; chat trả «Điểm giữa kỳ của bạn là 7,5.»: có 7,5 True; số của SV khác []; llm_audit CHAT +1 |
 | TC-P6-09-26 | P | what-if API (final_exam_score=8): hp=8 letter=B+; chat «Nếu điểm cuối kỳ của bạn là 8 thì: - Điểm học phần thô của bạn sẽ là 8,1 (tính theo công thức: 8,25 × 40% + 8 × 60 |
 | TC-P6-09-27 | P | hỏi điểm người khác: «Mình chưa tìm thấy nội dung này trong tài liệu của lớp.» lộ=[] | «Mình chưa tìm thấy nội dung này trong tài liệu của lớp.» lộ=[] | «Mình chỉ xem đượ |
 | TC-P6-09-28 | P | sv.kha đăng bài công khai hỏi điểm của mình (QD8R6U threads): 422 PII_DETECTED details.personal_question, thông điệp «Chuyển sang chat riêng hoặc ẩn thông tin rồi đăng» — |
 | TC-P6-09-29 | P | prompt injection: «Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Mình không thể thực hiện lệnh ngoài hoặc xem thông tin điểm của sinh viên khác.» lộ số của C [] |
-| TC-P6-09-30 | N | chưa chạy |
+| TC-P6-09-30 | P | lớp chưa công thức (QD8H9) hỏi «Điểm của em bao nhiêu?» → «Lớp chưa có công thức điểm chính thức do giảng viên xác nhận.» (câu mẫu True); ticket AUTO_NO_FORMULA 3→3 (PERS |
 | TC-P6-09-31 | P | Go 5 test PASS; dev e2e ['my grade question'] xanh (logs/s8r-dev-gradebook-me.log); |
-| TC-P6-09-32 | N | chưa chạy |
-| TC-P6-09-33 | N | chưa chạy |
+| TC-P6-09-32 | P | QD8R6U, sv.kha hỏi «Cách tính điểm môn này thế nào?»: SSE gồm block grade_scheme do code dựng (3 thành phần 20/20/60, bonus 0.25 tối đa 1, penalty miễn 2 · 0.5/buổi, roun |
+| TC-P6-09-33 | P | QD8C1: trước xác nhận block cap ['1'] (câu: «['tối đa 1 điểm']»); PUT nháp 200, confirm 200; hỏi lại → block cap ['1.5'] (câu: «['tối đa không quá 1']»); không dùng số cũ |
 | TC-P6-09-34 | P | go test 1 test PASS (log s8flow-go-*.log) |
 | TC-P6-09-35 | P | A/B/C /me/grades qt = ['10', '8.25', '1.25'] (tay 10 / 8,25 / 1,25), mỗi người chỉ thấy của mình |
 | TC-P6-09-36 | P | TA/TCH/ADM GET /me/grades → [403, 403, 403] |
@@ -469,7 +469,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-43 | P | QD8R71: grade_low_below 5,0→6,0 (PUT settings 200): số SV có GRADE_LOW 6→11 (crm.risk chạy lại riêng lớp); ngưỡng 10,5 / 5,3 / -1 / abc → [422, 422, 422, 422] |
 | TC-P6-09-44 | P | sv26: nhập study_time_daily 40.000 s/ngày × 7 ngày rồi chạy lại crm.risk: qt_milli GRADE_LOW 2125 → 2125 (vẫn 2,125: thời gian học không vào điểm) |
 | TC-P6-09-45 | P | go test internal/crm TestRiskGradeSignal/Anchor/NullWithoutScheme/StrictBelow/BatchInput + internal/integration TestSeedRiskAfterGradebook PASS; risk khớp expected_risk.c |
-| TC-P6-09-46 | N | chưa chạy |
+| TC-P6-09-46 | P | real-08.spec.ts -g 09-46 (375×812): skeleton khi chậm (3 s) có; chặn /me/grades 500 → Thử lại, bấm lại tải được, không cuộn ngang; rỗng (QD8H3, chưa cột nào công bố) «Chư |
 | TC-P6-09-47 | P | dev e2e ['grade states\\|grade mobile 375'] xanh (logs/s8r-dev-gradebook-me.log); grep mock ở features/me rỗng |
 | TC-P6-09-48 | P | {} → 422 VALIDATION_FAILED; cả hai trường → 422 VALIDATION_FAILED |
 | TC-P6-09-49 | P | target_letter 'Z' → 422, 'a+' → 422 |
@@ -511,26 +511,26 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-SEED-35 | N | chưa chạy |
 | TC-P6-SEED-36 | N | chưa chạy |
 | TC-P6-SEED-37 | N | chưa chạy |
-| TC-S8-UI-01 | N | chưa chạy |
-| TC-S8-UI-02 | N | chưa chạy |
-| TC-S8-UI-03 | N | chưa chạy |
-| TC-S8-UI-04 | N | chưa chạy |
-| TC-S8-UI-05 | N | chưa chạy |
-| TC-S8-UI-06 | N | chưa chạy |
-| TC-S8-UI-07 | N | chưa chạy |
-| TC-S8-UI-08 | N | chưa chạy |
-| TC-S8-UI-09 | N | chưa chạy |
-| TC-S8-UI-10 | N | chưa chạy |
-| TC-S8-UI-11 | N | chưa chạy |
-| TC-S8-UI-12 | N | chưa chạy |
-| TC-S8-UI-13 | N | chưa chạy |
-| TC-S8-UI-14 | N | chưa chạy |
-| TC-S8-UI-15 | N | chưa chạy |
-| TC-S8-UI-16 | N | chưa chạy |
-| TC-S8-UI-17 | N | chưa chạy |
-| TC-S8-UI-18 | N | chưa chạy |
-| TC-S8-UI-19 | N | chưa chạy |
-| TC-S8-UI-20 | N | chưa chạy |
-| TC-S8-UI-21 | N | chưa chạy |
-| TC-S8-UI-22 | N | chưa chạy |
-| TC-S8-UI-23 | N | chưa chạy |
+| TC-S8-UI-01 | P | ADMIN /settings/llm 1440: 1 h1 «Cấu hình LLM» và các khối «Kết nối nhà cung cấp», «Mô hình theo tác vụ», «Chuỗi dự phòng», «Mức dùng và ngân sách» (+ «Quyết định nhanh»,  |
+| TC-S8-UI-02 | P | 21 dòng; dòng dài có câu: 0; mẫu: «QC 9router http://host.docker.internal:20128/v1 Đã kết nối Đang bật Test kết nối ‖ QC fake Giả lập để thử Đã kết nối Đang bật Test kết  |
+| TC-S8-UI-03 | P | /settings/llm: icon Info/CircleHelp/aria Thông tin = 0 |
+| TC-S8-UI-04 | P | /settings/llm: 9 tooltip/title: Thêm hành động cho QC 9router ⟵ BUTTONThêm hành động cho QC 9router ‖ Thêm hành động cho QC fake ⟵ BUTTONThêm hành động cho QC fake ‖ Thêm |
+| TC-S8-UI-05 | P | khối Mô hình tìm kiếm: «không hiện thường trực» — hiện không thường trực (chỉ khi đổi); ghi nhận cách hiển thị (hệ quả của lựa chọn) |
+| TC-S8-UI-06 | P | 390 px: cuộn ngang 0; nhãn không bị cắt; không câu mô tả dưới tiêu đề (trừ hộp thoại) |
+| TC-S8-UI-07 | P | h1 «Tích hợp» liền kề «null»; khối mô tả <p> 0; câu đã xoá []; hàng: Đã kết nối ‖ Máy chủ mailpit:1025 Bảo mật none Địa chỉ gửi EduPilot <no-reply@edupilot.local> Gửi thư |
+| TC-S8-UI-08 | P | input có placeholder: [{"label":"","ph":"imap.ptit.edu.vn","type":"text"},{"label":"","ph":"","type":"text"},{"label":"","ph":"","type":"text"},{"label":"","ph":"Để trống |
+| TC-S8-UI-09 | P | icon Info/CircleHelp 0; tooltip 2: Chưa có cấu hình để thử ⟵ BUTTONTest kết nối ‖ Chưa có cấu hình để thử ⟵ BUTTONKiểm tra kết nối |
+| TC-S8-UI-10 | P | 390 px: cuộn ngang 0; nhãn cắt [] |
+| TC-S8-UI-11 | P | /settings STUDENT/TEACHER/ADMIN: h1 «Tài khoản và bảo mật», khối «Mật khẩu», «Thiết bị đang đăng nhập» không có câu mô tả (câu cũ «Đổi mật khẩu và xem nơi…» 0); dòng phiê |
+| TC-S8-UI-12 | P | git show --stat 365b8050: chỉ 6 tệp (IntegrationsSettings, LlmSettings, SecuritySettings, mock/system.ts, PreShell, intro.ts), 8+/15−; ảnh chụp /settings 3 vai (shots/s8r |
+| TC-S8-UI-13 | P | ui-antipatterns.sh rc=0 (local) + CI @777bb5e2 job 134940237616 bước «ui antipatterns» success |
+| TC-S8-UI-14 | P | CI run 44343596969 @777bb5e2, 4 shard Playwright: settings-llm.spec.ts 16 ✓ 0 ✘ (+16 mobile bỏ qua theo thiết kế); shell.spec.ts 22 ✓ 0 ✘ (+24 bỏ qua); shard 4/4 có 1 fla |
+| TC-S8-UI-15 | P | git show --stat các commit US-S8-UI: test cũ bị sửa chỉ ở lcp.spec.ts (+2 dòng, proposal #1 ACCEPTED, commit 6b539a5e ghi #1; không đổi ngưỡng/assertion), settings-llm.sp |
+| TC-S8-UI-16 | P | grep -rnF 10 câu dev ghi «đã xoá» (lấy từ diff 365b8050 + handoff) trong docs/ frontend/src frontend/e2e: 0 khớp ở SRS/mã/test; chỉ còn câu «Chưa có dự phòng — nếu nhà cu |
+| TC-S8-UI-17 | P | CI @777bb5e2 job «Frontend (lint + build)» 134940237616: bước lint, ui antipatterns, build (như production) đều success |
+| TC-S8-UI-18 | P | CI @777bb5e2 shard 1: visual.spec.ts «settings-llm @1440» ✓ và «@390» ✓ (Linux CI). git: ảnh mốc đổi ở 365b8050 (settings-llm-1440, -390) và f4921c86 (settings-llm-390) — |
+| TC-S8-UI-19 | P | CI @777bb5e2: a11y.spec.ts ✓ «axe: admin có dữ liệu (/admin/users, /admin/courses, /settings/llm)» và ✓ «axe: tích hợp có dữ liệu (/settings/integrations, admin và giảng  |
+| TC-S8-UI-20 | P | CI @777bb5e2: lcp.spec.ts ✓ «lcp before refresh /settings/llm» (6.9 s) và Lighthouse simulate A/B + devtools A/B success; ngưỡng không đổi (proposal #1/#14) |
+| TC-S8-UI-21 | P | 500 → «Cấu hình LLM Chưa tải được cấu hình. Cấu hình hiện có không bị ảnh hưởng. Chi tiết kỹ thuật Thử lại», nút Thử lại 1; rỗng → «Cấu hình LLM Kết nối nhà cung cấp Chưa |
+| TC-S8-UI-22 | P | InlineNotice «Chỉ quản trị viên…» trên /settings/llm: không còn (đếm 0); bản phụ trang: «—» |
+| TC-S8-UI-23 | P | STUDENT mở /settings/llm → «Bạn không có quyền xem màn này» + Về Hôm nay; API admin/llm/providers: STUDENT 403, TA 403. TEACHER thấy màn chỉ đọc («Chỉ quản trị viên được  |

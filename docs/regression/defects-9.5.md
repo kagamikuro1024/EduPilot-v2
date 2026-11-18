@@ -163,3 +163,15 @@ Còn F (xác nhận lần này, bằng chứng `evidence-9.5/rerun/`):
 - DEF-R9.5-15 (TC-N09-07) Thấp — «câu cần vá» không có tệp:dòng.
 Chưa rerun (N, cần HEAD mới): DEF-R9.5-02, -04, -12 (N08-16/17 --resume), -18 (N02-06, theo P-11-61 Admin rỗng hợp lệ), -20 (N06-04, cần khoá toàn cục dừng Redis ≤ 1 phút).
 Hạ tầng: `docker exec <postgres> psql` thoát mã 2 (lỗi/ngắt kết nối) làm postmaster tưởng tiến trình con chết và reinit DB (đã thấy 4 lần ở smk91; có thể là nguyên nhân sự cố ep-r 9.5). Dùng `sh -c 'psql …; exit 0'`.
+
+
+## Ca lỗi thời đã XOÁ khỏi smoke (lệnh chủ dự án; mỗi mã một dòng + nguồn)
+- TC-N01-02: LỖI THỜI (P-95-8/luật LLM 2026-11-14): README nhắc 9router theo quyết định; 0 'ssh'/'/srv/work/research'
+- TC-N01-06: LỖI THỜI (P-95-8): vps-llm.mjs nay đọc khoá 9router (sqlite3) theo quyết định; không còn EP_HOST
+- TC-N01-07: LỖI THỜI (P-95-8): provider gemini-chat thay bằng router-chat (openai_compatible) qua 9router; đổi cấu hình LLM toàn cục
+- TC-N01-08: LỖI THỜI (P-95-8): PHASE=seed nay đặt chat-gia + embed-gia (fake)
+- TC-N01-09: LỖI THỜI (P-95-8): không còn GEMINI_API_KEY bắt buộc; PHASE=live thiếu MODEL → dừng
+- TC-N04-16: LỖI THỜI (P-95-8: chấm 1.000 bài qua 9router ag/gemini-3.8-flash thay provider fake 20 s); số mới 1000/1000 trong 1,68 h, không ngoại suy
+- TC-N08-14: LỖI THỜI (P-95-8): ngân sách Gemini <200 lời gọi/ngày thay bằng 9router; llm-audit-summary.json là lượt Gemini 14/11
+- TC-N08-15: LỖI THỜI (P-95-8): fallback_index Gemini không còn (một model 9router)
+- TC-N08-21: LỖI THỜI (P-95-8): câu về Gemini Free thay bằng 9router; báo cáo mô tả dữ liệu mô phỏng (D44)

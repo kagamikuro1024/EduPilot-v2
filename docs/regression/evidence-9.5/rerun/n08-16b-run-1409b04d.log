@@ -1,0 +1,2 @@
+# N08-16 pha 2: --resume với Retry-After 0 2026-11-19 01:31:38
+  429 GET /me/courses?limit=100 → chờ 5s

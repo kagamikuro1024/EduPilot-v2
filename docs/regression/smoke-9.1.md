@@ -122,17 +122,12 @@ HANDOFF CUỐI: dở = chạy sạch trên smk91 (đã `docker stop`, volume cò
 | TC-UX01-18 | N | chưa chạy: chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX01-19 | N | chưa chạy: chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
 | TC-UX01-PQ | N | chưa chạy: chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
-| TC-UX05-1 | LT | P-107-2: trạng thái rỗng = tiêu đề ngắn + tối đa một nút; bỏ câu giải thích (luật chữ UI 09/10/2026); DESIGN.md §15, UX.md đã vá. Hộp thư nay hiện «Chưa có câu hỏi cần xử lý» |
-| TC-UX05-2 | LT | P-107-2: trạng thái rỗng = tiêu đề ngắn + tối đa một nút; bỏ câu giải thích (luật chữ UI 09/10/2026); DESIGN.md §15, UX.md đã vá. Hộp thư nay hiện «Chưa có câu hỏi cần xử lý» |
-| TC-UX05-3 | LT | P-107-2: trạng thái rỗng = tiêu đề ngắn + tối đa một nút; bỏ câu giải thích (luật chữ UI 09/10/2026); DESIGN.md §15, UX.md đã vá. Hộp thư nay hiện «Chưa có câu hỏi cần xử lý» |
 | TC-UX05-4 | P | spec w2-real |
-| TC-UX05-5 | LT | P-107-2: trạng thái rỗng = tiêu đề ngắn + tối đa một nút; bỏ câu giải thích (luật chữ UI 09/10/2026); DESIGN.md §15, UX.md đã vá. Hộp thư nay hiện «Chưa có câu hỏi cần xử lý» |
 | TC-UX05-6 | P | spec w12b-real |
 | TC-UX05-7 | N | chưa chạy: chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
 | TC-UX05-8 | P | spec w12b-real |
 | TC-UX05-9 | P | spec w2-real |
 | TC-UX05-10 | P | spec w2-real |
-| TC-UX05-11 | LT | P-107-2: trạng thái rỗng = tiêu đề ngắn + tối đa một nút; bỏ câu giải thích (luật chữ UI 09/10/2026); DESIGN.md §15, UX.md đã vá. Hộp thư nay hiện «Chưa có câu hỏi cần xử lý» |
 | TC-UX05-12 | N | chưa chạy: chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
 | TC-UX06-1 | P | spec w2-real |
 | TC-UX06-2 | N | chưa phân loại: lượt đỏ trên ep-r (dữ liệu 761987 bị đổi / DB postgres khởi động lại / hết giờ đăng nhập) và smk91; chưa chạy lại sạch tới P/F — spec w12b-real: 1 lượt đỏ / 1 xanh (xem logs/) |
@@ -371,69 +366,26 @@ HANDOFF CUỐI: dở = chạy sạch trên smk91 (đã `docker stop`, volume cò
 | TC-UX91-X2 | N | chưa chạy: chưa chạy (mẫu; dạng E2E + LH, không có test tự động hoặc test bị skip) |
 | TC-UX91-X3 | P | git diff --stat 2c15dfce^1 2c15dfce: không có backend-go/db/migrations mới; không `fetch(` trần mới ngoài shared/api; Demo*.tsx chỉ đổi như UX01-6 |
 | TC-UX91-X4 | P | spec w5h-real |
-| TC-UX08-1 | LT | AC1: h1 đổi còn 8 từ «Vận hành lớp học có trợ lý AI», sáu mục mới (P-107-9, P-107-11). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-2 | LT | AC1: danh sách h2 đổi theo TC-UX08-1 (P-107-9, P-107-11). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-3 | LT | AC2: màn đầu đúng hai nút «Đăng nhập» + «Xem video» (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-4 | LT | AC2: như UX08-3 (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-5 | P | RERUN 634d59c5 sau 7322ac62 (DEF-R9.1-01): node hover-check.mjs frontend/src → 85 luật :hover, 0 ngoài @media (hover: hover); Landing.module.css sạch |
-| TC-UX08-6 | LT | AC3 + US-09 AC2: clip/poster màn đầu bị bỏ, thay bằng đoạn sản phẩm HTML (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-7 | LT | AC3 + US-09 AC2: không còn clip để đo (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-8 | LT | AC3 + US-09 AC2: không còn clip (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-9 | LT | AC3/AC14: không còn clip, reduce theo AC14 mới (P-107-12, P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-10 | LT | AC3/AC14: không còn clip (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-11 | LT | AC3: không còn clip (tab ẩn) (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-12 | LT | AC3 + AC19: không còn clip tải lỗi (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-13 | LT | AC3: màn đầu không còn clip/poster; đoạn sản phẩm HTML (P-107-13) |
-| TC-UX08-14 | LT | AC4 mới: nút Tạm dừng/Phát 32 px, vùng chạm ≥ 44 px hoặc vùng đệm (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-15 | LT | AC4 mới (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-16 | P | spec w6-real |
 | TC-UX08-17 | P | spec w6-real |
 | TC-UX08-18 | P | spec w6-real |
 | TC-UX08-19 | P | spec w6-real |
-| TC-UX08-20 | LT | AC5/AC13 sửa 10.7: ngưỡng «chênh ≤ 1,5 KB so với v1 216 KB» bị thay bằng tổng ≤ 256 KB và script riêng ≤ 5 KB (P-107-12/13); số đo hiện hành ở UX08-44 |
 | TC-UX08-21 | P | spec w6-real |
-| TC-UX08-22 | LT | AC6: khung ghim đổi: ba tên màn ngang + ảnh rộng hết khung (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-23 | LT | AC6 mới (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-24 | LT | AC6: ảnh khung ghim rộng 1280 px, không còn giới hạn 92.160 B (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-25 | LT | AC6/AC12: hoạt cảnh khung ghim theo techlead 8.3 (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-26 | LT | AC7 đổi theo khung ghim mới (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-27 | LT | AC7 đổi theo khung ghim mới (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-28 | N | chưa phân loại: lượt đỏ trên ep-r (dữ liệu 761987 bị đổi / DB postgres khởi động lại / hết giờ đăng nhập) và smk91; chưa chạy lại sạch tới P/F — spec w6-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX08-29 | LT | AC8: ba bước dùng IntersectionObserver thay view-timeline (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-30 | LT | AC8 mới (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-31 | LT | AC8/AC9: số đếm do script (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-32 | LT | AC8/AC9 mới (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-33 | LT | AC9: tiêu đề khối «Ba số đo trên dữ liệu mô phỏng», bỏ dòng chú thích (P-107-11; BA 14/11). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-34 | LT | AC9 mới: bỏ chú thích riêng (P-107-11). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-35 | LT | AC10: hai cột vai thành hai tab (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-36 | LT | AC10 mới (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-37 | P | AC10a: story-chat/review/gradebook-v1-1280.webp chụp lại ở commit aa4343f8 (15/11, 10.7 lô 8–9) sau đợt 3–5; xem ảnh story-review: có «Đã duyệt 0/4», phím A, «Duyệt bài», nhãn nav mới (Hỏi đáp công khai, Lỗ hổng kiến thức) = UI hiện hành |
-| TC-UX08-38 | LT | AC11 sửa: chữ thân ≥ 16 px, dẫn ≥ 18 px (P-107-9). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-39 | LT | AC11: bỏ điều kiện «một h2 mỗi khung nhìn» (P-91-8 (b)) và khoảng cách đổi theo sáu mục 100svh (P-107-9). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-40 | LT | AC12: vi mô khi rê đổi (nhích 1 px, mũi tên 3 px; P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-41 | LT | AC12 mới (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-42 | LT | AC12 mới (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-43 | P | Lighthouse mobile 3 lượt: LCP 2419/2190/2087 ms, CLS 0; desktop LCP 437 ms (lượt 1 lạnh 2177 ms), CLS 0; a11y 1,0. Máy chủ ép tải ~40 nên số mobile sát trần; ghi nhận p.lead là LCP ở 375 (DEF-R9.1-05) |
 | TC-UX08-44 | P | logs/r91land.log: JS tĩnh route / = 214,5 KB gzip (11 tệp) ≤ 256 KB; script nội tuyến tự viết 0,48 KB gzip (≤ 5 KB, AC13) |
 | TC-UX08-45 | P | git diff package.json merge 9.1: chỉ bỏ framer-motion/embla; curl / (không JS) có h1 «Vận hành lớp học có trợ lý AI» và nội dung chính (Server Component) |
-| TC-UX08-46 | LT | AC14 mới: reduce → không gắn m-on (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX08-47 | LT | AC13/AC15: không còn animation-timeline trong Landing.module.css; thay bằng IntersectionObserver (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-48 | N | chưa phân loại: lượt đỏ trên ep-r (dữ liệu 761987 bị đổi / DB postgres khởi động lại / hết giờ đăng nhập) và smk91; chưa chạy lại sạch tới P/F — spec w6-real: 3 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX08-49 | LT | AC15: nay có đúng MỘT IntersectionObserver (LandingMotion.tsx:143) thay P-91-2 «không IntersectionObserver» (P-107-12). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-50 | N | chưa phân loại: lượt đỏ trên ep-r (dữ liệu 761987 bị đổi / DB postgres khởi động lại / hết giờ đăng nhập) và smk91; chưa chạy lại sạch tới P/F — spec 91axe-real,w6-real: 2 lượt đỏ / 6 xanh (xem logs/) |
 | TC-UX08-51 | P | spec w6-real |
 | TC-UX08-52 | P | spec w6-real |
-| TC-UX08-53 | LT | AC19: lỗi clip không còn; ảnh khung giữ kích thước theo AC19 mới (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-54 | P | spec w6-real |
-| TC-UX08-55 | LT | AC21 sửa 10.7: landing.spec.ts nay kiểm đoạn sản phẩm/Tạm dừng/Xem video/ghim/hai tab; bản mới 21/21 xanh (logs/devspecs.log); TC cũ ghi «hai cột vai (không tab)», «clip không tải khi reduce» (P-107-12/13) |
-| TC-UX08-56 | LT | AC21 mới: ảnh mốc landing-1440/390 anonymous reduce (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX08-PQ | P | logs/r91land.log: khách mở /chat, /gradebook → /login?next=…; HTML `/` không có @edupilot.local, Edupilot#, Bearer/JWT, sk-…, MSSV 2022xxxx |
 | TC-UX09-1 | P | ffprobe gioi-thieu-v1.mp4: duration 64,73 s (60–90) |
 | TC-UX09-2 | P | ffprobe: h264 1440×900, không luồng audio (cả .mp4 và .webm vp9 1440×900) |
 | TC-UX09-3 | P | ffmpeg trích 65 khung (1 khung/s), 22 khung đã xem qua ảnh ghép frames/sheet-1..3.png: thẻ tiêu đề → chat riêng (có che tên: «Đã ẩn 3 thông tin cá nhân trước khi gửi cho AI») → Hộp thư hỗ trợ → Chấm bài + duyệt bài → Sổ điểm + giải trình → Hôm nay → thẻ kết; con trỏ đỏ hiện; phụ đề tiếng Việt in vào hình, dấu đúng, không tràn. Người xem: qc2 qua công cụ đọc ảnh; người thật chấm cảm nhận mượt: ngoài phạm vi kiểm tự động |
-| TC-UX09-4 | LT | US-09 AC2 «clip màn đầu — bỏ»: gioi-thieu-clip-v1.* và poster đã xoá khỏi public/landing (P-107-13); ls public/landing không còn tệp clip |
-| TC-UX09-5 | LT | US-09 AC2: không còn clip (P-107-13) |
-| TC-UX09-6 | LT | US-09 AC2: không còn clip để kiểm faststart (P-107-13); video đầy đủ vẫn có moov trước mdat (ftyp,moov,free,mdat), h264 |
 | TC-UX09-7 | P | public/landing/: gioi-thieu-v1.mp4 1,06 MB, .webm 1,56 MB, .webp 51,7 KB (< 8 MB); curl -I https://localhost:1143/landing/gioi-thieu-v1.mp4 → 200, accept-ranges: bytes |
 | TC-UX09-8 | P | logs/r91land.log: <video> trong hộp thoại có controls, preload=none, playsinline, poster=/landing/gioi-thieu-v1.webp, không autoplay; 0 request video trước khi bấm «Xem video» |
 | TC-UX09-9 | P | Lighthouse mobile devtools-throttle 3 lượt LCP 2419/2190/2087 ms (≤ 2500), CLS 0, desktop 437 ms (+ 1 lượt lạnh 2177 ms khi máy tải 40): logs/lh-*.json; poster không còn là ứng viên LCP (US-09 AC5 sửa 10.7); ghi nhận: ở 375 phần tử LCP là p.lead chứ không phải h1 (DEF-R9.1-05) |
@@ -444,8 +396,5 @@ HANDOFF CUỐI: dở = chạy sạch trên smk91 (đã `docker stop`, volume cò
 | TC-UX09-14 | P | scripts/landing-video/record.mjs + README: chỉ đọc; không gửi chat, không Duyệt/Công bố/sửa điểm (rg Duyệt|Công bố|Gửi|type(|Enter = 0) |
 | TC-UX09-15 | P | tesseract OCR 65 khung (frames/ocr.txt, logs): không có email, localhost, .local, IP, 9router, khoá; MSSV 2022xxxx là dữ liệu seed mô phỏng (D44) |
 | TC-UX09-16 | N | chưa chạy: chưa chạy (mẫu; dạng FFP, không có test tự động hoặc test bị skip) |
-| TC-UX09-17 | LT | US-09 AC2/AC5: không còn clip màn đầu; video đầy đủ chỉ mở bằng «Xem video» (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
-| TC-UX09-18 | LT | US-09 AC2/AC5 (P-107-13). Spec đã sửa ở 10.7: docs/specs/FEAT-uiux-91/US.md US-08 «Sửa 10.7»; P-107-9/11/12/13. Bản mới chạy xanh bằng landing.spec.ts 21/21 (logs/devspecs.log) |
 | TC-UX09-19 | P | spec w6-real |
-| TC-UX09-20 | LT | US-09 AC2/AC13: không còn clip lặp để xem (P-107-13) |
 | TC-UX09-PQ | P | /landing/../package.json, /landing/%2e%2e/package.json, /landing/..%2f..%2fnext.config.ts, /edupilot/x.mp4: đều trả khung ứng dụng (HTML), không có nội dung tệp riêng; không tới MinIO |

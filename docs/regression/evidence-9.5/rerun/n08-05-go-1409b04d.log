@@ -1,0 +1,14 @@
+--- PASS: TestInjectionFlagAndHighlight (0.54s)
+--- PASS: TestInjectionOR (2.75s)
+--- PASS: TestInjectionExtraPatterns (0.03s)
+--- PASS: TestInjectionHighlightOffsetsUTF16 (0.00s)
+--- PASS: TestInjectionPromptKeepsAllSentences (0.00s)
+--- PASS: TestInjectionDoesNotRaiseScore (0.00s)
+--- PASS: TestInjectionCasesTable (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	5.191s
+--- PASS: TestStructuredJSONSchema (0.00s)
+--- PASS: TestStructuredUnmaskAfterSchema (0.00s)
+--- PASS: TestStructuredInvalidFallsBack (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm	0.622s

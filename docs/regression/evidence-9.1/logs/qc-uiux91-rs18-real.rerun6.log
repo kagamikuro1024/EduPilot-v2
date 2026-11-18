@@ -1,0 +1,19 @@
+
+Running 4 tests using 1 worker
+
+INFO UX18-1 @1440: ["Đáp án:53/127","Đề tham khảo:103/127","Đề tham khảo:103/127","Đáp án:53/127","Đề tham khảo:103/127","Quy chế môn học:126/127","Đáp án:53/127","Đề tham khảo:103/127","Tài liệu khác:91/127","Bài giảng:69/127","Bài giảng:69/127"]
+INFO UX18-2 @1440 hàng có «Chia sẻ từ»: 0 / 11 (API shared_from khác rỗng: 0 )
+INFO UX18-1 @1100: ["Đáp án:53/127","Đề tham khảo:103/127","Đề tham khảo:103/127","Đáp án:53/127","Đề tham khảo:103/127","Quy chế môn học:126/127","Đáp án:53/127","Đề tham khảo:103/127","Tài liệu khác:91/127","Bài giảng:69/127","Bài giảng:69/127"]
+INFO UX18-2 @1100 hàng có «Chia sẻ từ»: 0 / 11 (API shared_from khác rỗng: 0 )
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rs18-real.spec.ts:10:1 › TC-UX18-1/2 nhãn «Loại» đủ chữ ở 1440 và 1100; không «Chia sẻ từ» với tài liệu của chính lớp (8.6s)
+INFO UX18-3 API: [["QC r10 đáp án ","∅"],["QC r10 đề riên","∅"],["Đáp án đề tham","761987"],["Đề tham khảo t","761987"],["Quy chế học vụ","761987"],["Forecasting (Q","761987"],["Network Securi","761987"]]
+  ✓  2 [desktop] › e2e/qc2-r91/qc-uiux91-rs18-real.spec.ts:42:1 › TC-UX18-3 tài liệu chia sẻ từ lớp khác hiện «Chia sẻ từ {lớp}» (4.3s)
+INFO UX18 công tắc bật được (chỉ số): [0,2,3,4,5,6,8,9,10,11,12,14,15,16,17,18,19,20,21]
+INFO UX18-7 công tắc: true → true | lỗi: "Chưa lưu được.\nThử lại " | Thử lại: 1
+INFO UX18-ID false → UI true → máy chủ true
+  ✓  3 [desktop] › e2e/qc2-r91/qc-uiux91-rs18-real.spec.ts:65:1 › TC-UX18-7/ID công tắc: lỗi → hoàn lại + Thử lại; bấm nhanh 5 lần khớp lần cuối (24.4s)
+INFO UX18-5 vùng chạm: [{"w":44,"h":44,"ok":6},{"w":44,"h":44,"ok":6},{"w":44,"h":44,"ok":6},{"w":44,"h":44,"ok":6},{"w":44,"h":44,"ok":6},{"w":44,"h":44,"ok":6},{"w":44,"h":44,"ok":6},{"w":44,"h":44,"ok":6}]
+INFO UX18-9 thẻ (top,bottom,width): [[725,951,309],[1012,1239,309],[1300,1526,309],[1587,1813,309],[1874,2100,309]]
+  ✓  4 [desktop] › e2e/qc2-r91/qc-uiux91-rs18-real.spec.ts:102:1 › TC-UX18-5/9 375: vùng chạm công tắc ≥ 44 px; hàng thành thẻ xếp dọc; không tràn ngang (4.8s)
+
+  4 passed (42.5s)

@@ -81,7 +81,7 @@ test("[09-46] /me 375 px: skeleton / rỗng / lỗi + Thử lại, không cuộn
   fail = false; if (hasRetry) { await retry.first().click(); await p.waitForTimeout(3000); } const back = (await p.locator("main").innerText()).includes("Điểm");
   await p.unroute("**/me/grades");
   // rỗng: lớp mới chưa công bố cột nào — bản sao QD8R7U? dùng lớp có công thức, SV chưa có cột công bố
-  const e = await c.newPage(); const empty = "QD8R6P"; const E = cid(empty); const kha = IDS[empty]?.students?.["sv.kha"] ?? sql(`select id from users where email='sv.kha@edupilot.local'`);
+  const e = await c.newPage(); const empty = "QD8H3"; const E = cid(empty); const kha = IDS[empty]?.students?.["sv.kha"] ?? sql(`select id from users where email='sv.kha@edupilot.local'`);
   const wk = `from grade_entries where course_id='${E}' and student_id='${kha}' and item_id in (select i.id from grade_items i join grade_schemes s on s.id=i.scheme_id where s.course_id='${E}' and s.status='CONFIRMED' and i.key='weekly')`;
   const bak = sql(`select * ${wk}`); sql(`delete ${wk}`);
   let emptyTxt = "";
