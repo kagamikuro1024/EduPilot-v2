@@ -293,3 +293,12 @@ Lượt 2 (luật mới «không lấy mẫu»): chạy nốt 112 ca M bằng `p
 - Cần khoá global: TC-02-07/07a/07b, TC-03-09 (route QUESTION_GEN → QC fake + fixture), TC-06-20 (restart gateway LLM_MAX_CONCURRENCY=1), TC-02-14/TC-03-08 (OVERLOADED việc nền: không có đường kích hoạt, như lần gốc).
 - TC-12-05: seed lớp 1 bị chính ca QC đổi → cần reseed sạch rồi chạy `node scripts/check-practice-seed.mjs` (API_URL, SEED_DEFAULT_PASSWORD).
 - Còn lại: dạng tài liệu / E2E chưa có assertion theo TC, ngoài mẫu smoke.
+
+## Lượt 2026-11-18 — luật chủ dự án: ca «chặn/hoãn» phải chạy tới kết luận thật (mã dc67bd93, stack ep-qc)
+| TC | KQ | Ghi chú |
+| --- | --- | --- |
+| TC-02-18 | N | (b) «Lighthouse/k6 hoãn» không còn hợp lệ (lệnh chủ dự án 11-18): chạy thật, thu nhỏ tải nếu cần ghi rõ |
+| TC-07-25 | N | như TC-02-18 |
+| TC-12-17 | N | như TC-02-18 |
+| TC-08-08 | K(c) | ngoài phạm vi theo spec (P-10-7 Q16) — giữ |
+| TC-11-09 | N | «LT» cũ chỉ ghi L12 (lỗi đã sửa), chưa có P-xx/D-xx duyệt đổi hành vi → chạy lại; kết luận ghi ở dòng sau |

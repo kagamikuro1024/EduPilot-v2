@@ -230,3 +230,9 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 
 ## Chưa chạy (mẫu)
 118 ca: dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có script; liệt kê theo dải ở bảng trên (cột «chưa chạy (mẫu)»).
+
+## Lượt 2026-11-18 — luật chủ dự án: ca «chặn» phải chạy tới kết luận thật (mã dc67bd93, stack ep-qc)
+| TC | KQ | Ghi chú |
+| --- | --- | --- |
+| TC-G07-12 | N | «chờ phép PM» đã hết hiệu lực (lệnh 11-18): chạy regress export thật |
+| TC-G10-13 | K(b) | cần chủ dự án / người chấm nhãn E3 (gán nhãn) — giữ K(b) theo lệnh 11-18 |
