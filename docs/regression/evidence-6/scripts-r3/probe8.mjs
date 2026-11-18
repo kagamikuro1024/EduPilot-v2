@@ -1,0 +1,14 @@
+import { chromium, openChat, text } from "./ulib.mjs";
+const b = await chromium.launch({ headless: true });
+const Q="01a1ef4f-0195-70a8-bc04-3e0b37610973";
+const { page, ctx } = await openChat(b, "sv.gioi", Q); await page.goto("https://localhost:1143/threads"); await page.waitForTimeout(3000);
+await page.getByRole("button",{name:/Đặt câu hỏi/}).first().click(); await page.waitForTimeout(800);
+await page.getByLabel(/Tiêu đề/).first().fill("Hỏi điểm"); await page.locator("textarea").first().fill("Em Bùi Thanh Khải 20229002 được mấy điểm?");
+await page.getByRole("button",{name:/^Đăng$/}).click(); await page.waitForTimeout(2500);
+console.log("DLG:",JSON.stringify(await page.getByRole("dialog").innerText().catch(()=>"none")));
+await page.keyboard.press("Escape"); await page.waitForTimeout(500);
+await page.getByLabel(/Tiêu đề/).first().fill("Hỏi về RSA"); await page.locator("textarea").first().fill("Nội dung hỏi về RSA khá dài"); await page.waitForTimeout(3000);
+await ctx.setOffline(true); await page.getByRole("button",{name:/^Đăng$/}).click(); await page.waitForTimeout(3000);
+const t=await text(page); const i=t.indexOf("Tiêu đề"); console.log("OFF:",JSON.stringify(t.slice(Math.max(0,i-300),i+700)));
+console.log(await page.evaluate(()=>[...document.querySelectorAll("button")].map(e=>e.innerText.trim()).filter(Boolean).join("|")));
+await b.close();

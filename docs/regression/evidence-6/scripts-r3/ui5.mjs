@@ -1,0 +1,11 @@
+import { chromium, openChat, text, out, BASE } from "./ulib.mjs";
+import { readFileSync } from "node:fs"; import { execFileSync } from "node:child_process";
+const P = JSON.parse(readFileSync("/tmp/qc3e/ui/prep.json", "utf8")); const Q = P.Q;
+const psql = (sql) => execFileSync("docker", ["exec","-i","ep-r-postgres-1","psql","-U","edupilot","-d","edupilot","-At","-c",sql],{encoding:"utf8"}).trim();
+const b = await chromium.launch({ headless: true });
+const { page } = await openChat(b, "sv.gioi", Q);
+const sid = psql(`select session_id from chat_messages where error_code='INTERRUPTED' and user_id=(select id from users where email='sv.gioi@edupilot.local') order by created_at desc limit 1`);
+await page.goto(`${BASE}/chat?session=${sid}`); await page.waitForTimeout(3500);
+const t = await text(page); const retry = await page.getByRole("button", { name: /Thử lại/ }).count();
+out("TC-P3-05-50", /Câu trả lời bị gián đoạn\./.test(t) && retry > 0 && /Quy chế bảo mật/.test(t) || (/Câu trả lời bị gián đoạn\./.test(t) && retry > 0), `UI mở phiên có tin INTERRUPTED: chữ «Câu trả lời bị gián đoạn.»=${/Câu trả lời bị gián đoạn\./.test(t)}, nút «Thử lại»=${retry}, phần đã sinh hiển thị=${/Đây là câu/.test(t)}; DB: tắt có chủ đích → INTERRUPTED sau 3,2 s (không chờ 150 s) và SIGKILL → reaper INTERRUPTED sau ~157 s, partial_content giữ nguyên (xem 05-50-a/b)`);
+await b.close();

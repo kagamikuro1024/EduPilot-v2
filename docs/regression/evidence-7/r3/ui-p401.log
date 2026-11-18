@@ -1,0 +1,15 @@
+PASS TC-P4-01-18 nút «Nhờ giảng viên hỗ trợ» dưới từng tin (1280×800): {"normal":1,"crisis":0,"other":0,"small":0,"failed":0,"cancelled":0,"streaming":0,"auto":1} (mong normal=1, còn lại 0)
+PASS TC-P4-01-21 SV có 5 ticket mở, tin AI thứ 6: nút hiện=1, disabled=true, tooltip=«Bạn đang có 5 câu hỏi chờ giảng viên»
+PASS TC-P4-01-22 3 lần click liên tiếp (script, 0 ms giữa các lần): POST /escalate=1; dòng trạng thái hiện sau 2 ms (≤100); «Đang chờ giảng viên · vừa gửi»; DB ticket=1
+PASS TC-P4-01-18 nút «Nhờ giảng viên hỗ trợ» dưới từng tin (1280×800): {"normal":1,"crisis":0,"other":0,"small":0,"failed":0,"cancelled":0,"streaming":0,"auto":1} (mong normal=1, còn lại 0)
+PASS TC-P4-01-23 offline→bấm: «Đang gửi…» (DB 0 ticket); online sau 5 s: DB 1 ticket, giao diện «Đang chờ giảng viên · vừa gửi»
+PASS TC-P4-01-24 chặn route 500: nút hoàn lại=1, InlineNotice «Chưa gửi được. Thử lại»=1, nút «Thử lại»=1
+PASS TC-P4-01-E1 hai tab cùng phiên bấm đồng thời: ticket=1; sau làm mới dòng trạng thái tab1=1, tab2=1
+PASS TC-P4-01-18 nút «Nhờ giảng viên hỗ trợ» dưới từng tin (1280×800): {"normal":1,"crisis":0,"other":0,"small":0,"failed":0,"cancelled":0,"streaming":0,"auto":1} (mong normal=1, còn lại 0)
+PASS TC-P4-01-18 nút «Nhờ giảng viên hỗ trợ» dưới từng tin (1280×800): {"normal":1,"crisis":0,"other":0,"small":0,"failed":0,"cancelled":0,"streaming":0,"auto":0} (mong normal=1, còn lại 0)
+PASS TC-P4-01-18 nút «Nhờ giảng viên hỗ trợ» dưới từng tin (1280×800): {"normal":1,"crisis":0,"other":0,"small":0,"failed":0,"cancelled":0,"streaming":0,"auto":0} (mong normal=1, còn lại 0)
+PASS TC-P4-01-18 nút «Nhờ giảng viên hỗ trợ» dưới từng tin (1280×800): {"normal":1,"crisis":0,"other":0,"small":0,"failed":0,"cancelled":0,"streaming":0,"auto":0} (mong normal=1, còn lại 0)
+FAIL TC-P4-01-19 tin low_confidence đã tự mở ticket: nút=0, dòng trạng thái=["Đang chờ giảng viên · đã gửi 7 phút trước"]
+PASS TC-P4-01-20 tooltip (title)=«Giảng viên sẽ đọc câu hỏi này và câu trả lời của AI»; chữ quanh nút: «Hữu ích | Không hữu ích | Nhờ giảng viên hỗ trợ» (không câu mô tả khác)
+FAIL TC-P4-01-19 tin low_confidence đã tự mở ticket (ticket tạo ~20 s trước): nút=0, dòng trạng thái=["Đang chờ giảng viên · đã gửi 15 phút trước"]
+PASS TC-P4-01-19 tin low_confidence đã tự mở ticket (ticket tạo ~20 s trước): nút=0, dòng trạng thái=["Đang chờ giảng viên · vừa gửi"]

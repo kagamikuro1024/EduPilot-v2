@@ -1,0 +1,12 @@
+import { chromium, openChat, text } from "./ulib.mjs";
+import { execFileSync } from "node:child_process";
+const psql = (sql) => execFileSync("docker", ["exec","-i","ep-r-postgres-1","psql","-U","edupilot","-d","edupilot","-At","-c",sql],{encoding:"utf8"}).trim();
+const b = await chromium.launch({ headless: true });
+const Q="01a1ef4f-0195-70a8-bc04-3e0b37610973";
+let { page } = await openChat(b, "sv.gioi", Q); await page.goto("https://localhost:1143/threads"); await page.waitForTimeout(3000);
+await page.getByRole("button",{name:/Đặt câu hỏi/}).first().click(); await page.waitForTimeout(1000);
+console.log(await page.evaluate(()=>{const ta=document.querySelector("textarea");let p=ta;for(let i=0;i<4&&p;i++)p=p.parentElement;return p.outerHTML.replace(/class="[^"]*"/g,"").replace(/<svg.*?<\/svg>/g,"").slice(0,1500)}));
+const D=psql("select id from courses where class_code='QC3S6D'");
+({page}=await openChat(b,"sv.gioi",D)); await page.goto("https://localhost:1143/threads"); await page.waitForTimeout(3500);
+console.log(JSON.stringify((await text(page)).split("Hỏi đáp công khai").slice(-1)[0].slice(0,500)));
+await b.close();
