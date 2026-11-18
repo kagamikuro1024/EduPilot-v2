@@ -18,6 +18,7 @@ import (
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/store"
 )
 
 func (e *env) reviewed(a assignment.Assignment) rrow {
@@ -63,6 +64,24 @@ func TestPublishBulkOnlyReviewed(t *testing.T) {
 	require.Equal(t, 2, n)
 	e.one(&n, `select count(*)::int from grade_entries where course_id = $1`, e.course)
 	require.Zero(t, n, "công bố không ghi grade_entries (TLR-14 A)")
+}
+
+// TestPublishMarkOnlyReviewedSQL — DEF-R9S-01 (TC-P7-09-M6): lớp SQL tự chặn: PublishMark chỉ chạm hàng REVIEWED, dù tầng Go đã lọc (đột biến bỏ `status = 'REVIEWED'` phải làm test này đỏ).
+func TestPublishMarkOnlyReviewedSQL(t *testing.T) {
+	e := newEnv(t)
+	a := e.create("BT03")
+	for _, st := range []string{"DRAFT", "PUBLISHED"} {
+		r := e.rrow(a, e.student(), 1, time.Now().UTC().Add(-time.Hour), "DONE", st, crit10, nil)
+		var ver int32
+		e.one(&ver, `select version from grading_results where id = $1`, r.res)
+		n, err := store.New(e.pool).PublishMark(e.ctx, store.PublishMarkParams{Publisher: &e.teacher, Deviation: decimal.NullDecimal{Decimal: decimal.Zero, Valid: true}, Changed: []string{}, LatePenalty: decimal.Zero, CourseID: e.course, ID: r.res, Version: ver})
+		require.NoError(t, err)
+		require.Zero(t, n, "hàng %s không được công bố", st)
+		require.Equal(t, st, e.status(r.res))
+		var v2 int32
+		e.one(&v2, `select version from grading_results where id = $1`, r.res)
+		require.Equal(t, ver, v2, "không đổi version")
+	}
 }
 
 // TestPublishAllOrNothingExplicit — AC1: một bài không REVIEWED trong danh sách tường minh → 422 NOT_REVIEWED {ids}, không công bố gì.
