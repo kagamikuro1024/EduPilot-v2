@@ -103,7 +103,6 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | TC-G03-19 | P | DRAFT.support = số id kết quả, source_result_ids không trùng users.id |
 | TC-G03-20 | P | llm_audit reflect: task GRADING, lane BATCH, không nội dung |
 | TC-G03-21 | P | stub rỗng → job SUCCEEDED, 0 DRAFT |
-| TC-G03-22 | K (lỗi thời) | LỖI THỜI (P-11-23): lỗi nhà cung cấp (stub error/invalid) → hoãn không tính lượt (llm.AwaitOutage, OutageMax) nên job FAILED sau ≈10 phút thay vì 3 lần/≈30 s; đã quan sát: FAILED REFLECT_FAILED «Chưa rút được lưu ý. Thử lại.», 0 DRAFT |
 | TC-G03-23 | P | 4 lần/giờ/bài tập: lần 4 → 429 RATE_LIMITED |
 | TC-G03-24 | P | RERUN 2026-11-16 sau sửa DEF-R10.6-01 (dev, 1c0700e2): TA/SV/ADMIN 403, không token 401, cờ tắt 409 đúng; reflect với bài tập của lớp khác qua đường lớp 2 (cờ tắt) → 404 ASSIGNMENT_NOT_FOUND |
 | TC-G03-25 | P | overview: enabled, eligible theo số bài duyệt (lượt đầu 0 bài → eligible=false) |
@@ -224,7 +223,6 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 ## Ca K và lý do (bảng gom)
 | Mã loại | Ca | Lý do |
 | --- | --- | --- |
-| KL | TC-G03-22 | LỖI THỜI (P-11-23): lỗi nhà cung cấp (stub error/invalid) → hoãn không tính lượt (llm.AwaitOutage, OutageMax) nên job FAILED sau ≈10 phút thay vì 3 lần/≈30 s; đã quan sát: FAILED REFLECT_FAILED «Chưa rút được lưu ý. Thử lại.», 0 DRAFT |
 | Kb | TC-G07-12 | regress export thật chờ phép PM («KHÔNG KIỂM ĐƯỢC (chờ phép)») |
 | Kb | TC-G10-13 | cần PM giao agent «Giáo viên» / người chấm nhãn E3 (chưa giao) |
 
@@ -236,3 +234,4 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.6/scripts/`, s�
 | --- | --- | --- |
 | TC-G07-12 | N | «chờ phép PM» đã hết hiệu lực (lệnh 11-18): chạy regress export thật |
 | TC-G10-13 | K(b) | cần chủ dự án / người chấm nhãn E3 (gán nhãn) — giữ K(b) theo lệnh 11-18 |
+| TC-G10-13 | N | không còn nhãn K(b): chạy tới kết luận (QC tự gán nhãn E3 theo rubric TC, ghi rõ nguồn nhãn) |

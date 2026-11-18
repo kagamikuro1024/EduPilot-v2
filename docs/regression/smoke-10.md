@@ -302,3 +302,4 @@ Lượt 2 (luật mới «không lấy mẫu»): chạy nốt 112 ca M bằng `p
 | TC-12-17 | N | như TC-02-18 |
 | TC-08-08 | K(c) | ngoài phạm vi theo spec (P-10-7 Q16) — giữ |
 | TC-11-09 | N | «LT» cũ chỉ ghi L12 (lỗi đã sửa), chưa có P-xx/D-xx duyệt đổi hành vi → chạy lại; kết luận ghi ở dòng sau |
+| TC-08-08 | N | không còn nhãn K(c): chạy tới kết luận (P-10-7 Q16 chỉ nêu phạm vi, chưa là quyết định bỏ ca) |
