@@ -80,3 +80,7 @@ Bằng chứng: `evidence-5/results-q2.jsonl` (bản ghi cuối thắng), `evide
 ### DEF-R5-12 — `pnpm lint` ở frontend rc=1 (TC-PU06-17, TC-UI7-06)
 - Mức: Trung bình (CI chạy đúng lệnh này sẽ đỏ) · Nguyên nhân: 32 lỗi + 15 cảnh báo hoàn toàn ở 10 tệp QC đã commit `frontend/e2e/qc2-*`; mã sản phẩm lint rc=0 · Sprint gốc: không phải sprint 5 (tệp QC đợt hồi quy) · Đề xuất: sửa/loại `qc2-*` khỏi lint hoặc `eslint-ignore`.
 ### Ghi nhận Thấp — `next build` cảnh báo `metadataBase` (trang giới thiệu thêm ở sprint sau).
+
+
+## Chạy lại sau sửa của dev (qc2/SmkP, 2026-11-18, ep-r dựng lại @634d59c5 rồi @88ab83e4)
+Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản ghi F cũ giữ nguyên): DEF-R5-03 (TC-PE03-49) ĐÃ SỬA 46bf5626; DEF-R5-04 (TC-PE03-51) ĐÃ SỬA 4cd9c07e; DEF-R5-06 (TC-PE06-27) ĐÃ SỬA 0e52f1e5; DEF-R5-07 (TC-PE07-18) ĐÃ SỬA d7fecdc2 (đóng tab thật bằng page.close({runBeforeUnload:true}); biến thể browserContext.close() không phát pagehide — hạn chế của Playwright, không phải lỗi); DEF-R5-08 (TC-PE08-31) ĐÃ SỬA 473472ec (P-11-60); DEF-R5-09 (TC-PE08-38) ĐÃ SỬA 247bf4e4 (P-11-59); DEF-R5-10 (TC-PE03-33) ĐÃ SỬA dd160463; DEF-R5-11 (TC-PE08-04) ĐÃ SỬA 3f748ec2. Còn mở: DEF-R5-12 (lint spec QC, agent chính).

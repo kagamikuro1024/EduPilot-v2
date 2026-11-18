@@ -1,0 +1,4 @@
+setroute 200
+P TC-P6-03-36 RERUN sau R8-A1 (6c75bd54): đầu ra không phải JSON → job FAILED EXTRACTION_INVALID; stub nhận 1 lời gọi (spec: EXTRACTION_INVALID, đúng 1); llm_audit [['1', 'error',
+F TC-P6-03-19 RERUN: weight «abc» bị schema strict (pattern số) chặn ở cổng gateway → job FAILED EXTRACTION_INVALID, 1 lời gọi (mạnh hơn PARAM_INVALID: không lưu gì); FINAL_BELOW 
+restore 200

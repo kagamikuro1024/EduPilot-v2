@@ -1,0 +1,41 @@
+
+Running 4 tests using 1 worker
+
+(node:95369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO người kia PUT: 200 {"result":{"id":"01a1e00a-1983-7b2f-99ec-9b26772237e9","round":10,"status":"DRAFT","run_state":"DONE","total":"5.50","ai_total_before_late":"5.75","overall_feedback":"Bài hiểu đúng bản chất tấn công c rid 01a1df2c-0335-7daa-8d53-4775d5eac906 result.id 01a1e00a-1983-7b2f-99ec-9b26772237e9 | version 2 → 3
+INFO sau 409: thông báo: true | nút: ["Giữ của tôi","Dùng của họ"] | ô điểm: 0,75 | bản của họ: 1.25
+INFO ô điểm sau 409 (mong đợi: của tôi 0,75 hoặc của họ 1.25 ): 0.75 | ban đầu: 1,50
+INFO sau «Giữ của tôi»: điểm lưu = 0.75 | tôi đã nhập 0,75 | version 4
+  ✓  1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập (11.3s)
+  ✘  2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:74:1 › TC-UX16-12 xung đột ô sổ điểm thật: hiện giá trị người kia, Giữ của tôi / Dùng của họ, không mất số đã nhập (2.0m)
+(node:98422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  3 [mobile] › e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:8:1 › TC-UX15-14 xung đột phiên bản thật: hiện giá trị của người kia, hỏi giữ bên nào, không mất điểm đã nhập
+  -  4 [mobile] › e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:74:1 › TC-UX16-12 xung đột ô sổ điểm thật: hiện giá trị người kia, Giữ của tôi / Dùng của họ, không mất số đã nhập
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:74:1 › TC-UX16-12 xung đột ô sổ điểm thật: hiện giá trị người kia, Giữ của tôi / Dùng của họ, không mất số đã nhập 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.inputValue: Test ended.
+    Call log:
+      - waiting for locator('main tbody tr').first().locator('input').first()
+
+
+       98 |   await page.waitForTimeout(4500);
+       99 |   const inp = page.locator("main tbody tr").first().locator("input").first();
+    > 100 |   const orig = (await inp.inputValue()).replace(",", ".");
+          |                           ^
+      101 |   // lần sửa đầu để bắt item_id / student_id / version hiện tại của ô
+      102 |   const first = orig === "5.25" ? "5,50" : "5,25";
+      103 |   await inp.click(); await inp.fill(first); await page.keyboard.press("Tab"); await page.waitForTimeout(2500);
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:100:27
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw4g-rea-c5bd3-của-họ-không-mất-số-đã-nhập-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw4g-real.spec.ts:74:1 › TC-UX16-12 xung đột ô sổ điểm thật: hiện giá trị người kia, Giữ của tôi / Dùng của họ, không mất số đã nhập 
+  2 skipped
+  1 passed (2.2m)

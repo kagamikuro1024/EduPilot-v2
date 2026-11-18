@@ -348,8 +348,8 @@
 "git diff package.json merge 9.1: chỉ bỏ framer-motion/embla; curl / (không JS) có h1 «Vận hành lớp học có trợ lý AI» và nội dung chính (Server Component)"
 ],
 "TC-UX08-5": [
-"F",
-"luật :hover màu (border-color/color/background) ở Landing.module.css:35,39,40,73,97,144,226 nằm ngoài @media (hover: hover) and (pointer: fine) → hover dính trên cảm ứng; xem DEF-R9.1-02"
+"P",
+"RERUN 634d59c5 sau 7322ac62 (DEF-R9.1-01): node hover-check.mjs frontend/src → 85 luật :hover, 0 ngoài @media (hover: hover); Landing.module.css sạch"
 ],
 "TC-UX08-13": [
 "LT",

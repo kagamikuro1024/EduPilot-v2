@@ -146,6 +146,8 @@ for (const c of CHECKS) {
     const cid = c.course ? (cache.c1 ??= await courseId(page, "761987")) : undefined;
     await go(page, c.url, cid);
     if (c.open) { await c.open(page); await page.waitForTimeout(500); }
+    // US-01 #34: câu giải thích chuyển vào tooltip (role=tooltip, opacity 0 tới khi focus/rê): loại khỏi văn bản hiển thị
+    await page.addStyleTag({ content: "[role=tooltip]{display:none !important}" });
     const t = await mainText(page);
     expect((await page.getByRole("heading", { level: 1 }).first().innerText()).length, "trang có h1").toBeGreaterThan(0);
     for (const f of c.frags) expect(t, `còn «${f}»`).not.toContain(f);

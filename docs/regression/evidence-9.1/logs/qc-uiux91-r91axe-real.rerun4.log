@@ -1,0 +1,28 @@
+
+Running 12 tests using 1 worker
+
+(node:43717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+AXE 1440 []
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 1440 lượt 1 (1.4s)
+AXE 1440 []
+  ✓   2 [desktop] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 1440 lượt 2 (1.3s)
+AXE 1440 []
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 1440 lượt 3 (1.4s)
+AXE 375 []
+  ✓   4 [desktop] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 375 lượt 1 (1.6s)
+AXE 375 []
+  ✓   5 [desktop] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 375 lượt 2 (1.5s)
+AXE 375 []
+  ✓   6 [desktop] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 375 lượt 3 (1.4s)
+(node:44038) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   7 [mobile] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 1440 lượt 1
+  -   8 [mobile] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 1440 lượt 2
+  -   9 [mobile] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 1440 lượt 3
+  -  10 [mobile] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 375 lượt 1
+  -  11 [mobile] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 375 lượt 2
+  -  12 [mobile] › e2e/qc2-r91/qc-uiux91-r91axe-real.spec.ts:7:5 › TC-UX08-50 axe landing 375 lượt 3
+
+  6 skipped
+  6 passed (10.3s)

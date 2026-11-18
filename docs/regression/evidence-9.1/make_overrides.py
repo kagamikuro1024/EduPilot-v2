@@ -95,7 +95,7 @@ put("UX08-43", "P", "Lighthouse mobile 3 lượt: LCP 2419/2190/2087 ms, CLS 0; 
 put("UX08-44", "P", "logs/r91land.log: JS tĩnh route / = 214,5 KB gzip (11 tệp) ≤ 256 KB; script nội tuyến tự viết 0,48 KB gzip (≤ 5 KB, AC13)")
 put("UX08-20", "LT", "AC5/AC13 sửa 10.7: ngưỡng «chênh ≤ 1,5 KB so với v1 216 KB» bị thay bằng tổng ≤ 256 KB và script riêng ≤ 5 KB (P-107-12/13); số đo hiện hành ở UX08-44")
 put("UX08-45", "P", "git diff package.json merge 9.1: chỉ bỏ framer-motion/embla; curl / (không JS) có h1 «Vận hành lớp học có trợ lý AI» và nội dung chính (Server Component)")
-put("UX08-5", "F", "luật :hover màu (border-color/color/background) ở Landing.module.css:35,39,40,73,97,144,226 nằm ngoài @media (hover: hover) and (pointer: fine) → hover dính trên cảm ứng; xem DEF-R9.1-02")
+put("UX08-5", "P", "RERUN 634d59c5 sau 7322ac62 (DEF-R9.1-01): node hover-check.mjs frontend/src → 85 luật :hover, 0 ngoài @media (hover: hover); Landing.module.css sạch")
 put("UX08-13", "LT", "AC3: màn đầu không còn clip/poster; đoạn sản phẩm HTML (P-107-13)")
 put("UX08-55", "LT", "AC21 sửa 10.7: landing.spec.ts nay kiểm đoạn sản phẩm/Tạm dừng/Xem video/ghim/hai tab; bản mới 21/21 xanh (logs/devspecs.log); TC cũ ghi «hai cột vai (không tab)», «clip không tải khi reduce» (P-107-12/13)")
 put("UX08-PQ", "P", "logs/r91land.log: khách mở /chat, /gradebook → /login?next=…; HTML `/` không có @edupilot.local, Edupilot#, Bearer/JWT, sk-…, MSSV 2022xxxx")

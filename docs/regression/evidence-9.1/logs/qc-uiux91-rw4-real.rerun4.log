@@ -1,0 +1,26 @@
+
+Running 38 tests using 1 worker
+
+(node:99427) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+INFO DRAFT: Hồ Đức Thảo, Dương Tuấn Giang, Dương Quốc Hương, Lê Thanh Hải, Bùi Thanh Khải, Dương Minh Yến, Phạm Mai Chi, Vũ Hoàng Giang, Đỗ Bảo Hải, Đỗ Khánh Hà, Nguyễn Anh Linh
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:48:1 › SETUP chấm nháp thêm bài (Bài tập 03) để có bài chờ duyệt (2.6s)
+INFO th một bài: ["Sinh viên","Nguồn","Điểm","Trạng thái duyệt","Thời gian nộp","Duyệt"]
+INFO số 'Bài tập 03' trên trang: 2
+INFO th tất cả bài: ["Sinh viên","Bài tập","Nguồn","Điểm","Trạng thái duyệt","Thời gian nộp","Duyệt"]
+INFO ô Bài tập: {"ws":"nowrap","to":"ellipsis","ov":"hidden","w":200,"txt":"Bài tập 03 — Phân tích một vụ tấn công t"}
+INFO đáy: {"chip":331,"sels":[332,332]}
+INFO ô Bài tập rộng: {"w":456,"longest":54}
+INFO liên kết Duyệt: 1
+INFO cursor hàng: pointer
+INFO nền hàng: rgba(0, 0, 0, 0)|lab(100 0 0)|rgba(0, 0, 0, 0) → rgba(0, 0, 0, 0)|lab(96.4467 2.44418 1.31345)|lab(96.4467 2.44418 1.31345)
+INFO URL sau Enter: https://localhost:1143/grading/01a1df2c-0335-7daa-8d53-4775d5eac906?n=0&m=6&assignment=01a1df2b-f786-72db-85e8-a10086f68b3d&status=DRAFT&needs=1
+INFO request danh sách: ?match_status=MATCHED&status=DRAFT&needs_review=true&limit=50 | ?match_status=MATCHED&status=NONE&limit=50 | ?match_status=MATCHED&assignment_id=01a1df2b-f786-72db-85e8-a10086f68b3d&status=DRAFT&needs_review=true&limit=50
+  ✓   2 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:62:1 › TC-UX14-1/2/4/5/6/7 hàng chờ: cột Bài tập, lý do cờ, hàng bấm được, căn đáy chip (20.7s)
+INFO hàng: [{"h":48,"kids":[{"t":"Hồ Đức Thảo","top":426},{"t":"20225401","top":447},{"t":"Trích dẫn không có trong bài","top":447}]},{"h":48,"kids":[{"t":"Dương Tuấn Giang","top":474},{"t":"20224852","top":495},{"t":"Trích dẫn không có trong bài","top":495}]},{"h":48,"kids":[{"t":"Dương Quốc Hương","top":522},{"t":"20224019","top":543},{"t":"Tổng điểm chưa khớp","top":543}]},{"h":48,"kids":[{"t":"Lê Thanh Hải","top":570},{"t":"20227053","top":591},{"t":"Thiếu nội dung","top":591}]},{"h":48,"kids":[{"t":"Bùi Thanh Khải","top":618},{"t":"20229002","top":639},{"t":"Hai lượt chấm lệch hơn 1 điểm","top":639}]}]
+INFO có lý do cờ: 6; không: 0
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:130:1 › TC-UX14-4 lý do cờ dưới tên sinh viên, hàng không cờ gọn (9.7s)
+INFO lỗi: Chấm bài Tải bài lên Công bố Chọn bài đã duyệt. Chấm tất cả Hàng chờ Bài tập Chưa khớp Bài tập Tất cả bài tập Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams) Bài tập 03 — Phân tích một vụ tấn c
+  ✘   4 [desktop] › e2e/qc2-r91/qc-uiux91-rw4-real.spec.ts:147:1 › TC-UX14-9/10/PQ/PG lỗi tải giữ bộ lọc; STUDENT 403, TA mở được; lớp lạ; limit (5.0m)
+(node:6663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

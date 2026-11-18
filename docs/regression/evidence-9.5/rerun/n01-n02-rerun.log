@@ -1,0 +1,39 @@
+== N01-17 refuseDemo (HEAD 88ab83e4)
+-- BASE=http://localhost:3000
+Từ chối: http://localhost:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+-- BASE=http://[::1]:3000
+Từ chối: http://[::1]:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+-- BASE=http://127.0.0.1:3000/
+Từ chối: http://127.0.0.1:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+-- BASE=http://host.docker.internal:3000
+Từ chối: http://host.docker.internal:3000 là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+-- BASE=https://localhost
+Từ chối: https://localhost là stack demo. Dùng stack -p ep-<vai> với EP_PORT_OFFSET ≠ 0.
+rc=1
+-- COMPOSE_PROJECT_NAME=edupilot seed-t1
+Thiếu SEED_DEFAULT_PASSWORD (mật khẩu của admin trong stack đo).
+rc=0
+-- seed-t1 COMPOSE_PROJECT_NAME=edupilot
+Từ chối: COMPOSE_PROJECT_NAME phải là stack đo ep-<vai> (không phải stack demo).
+rc=1
+== N02-09/11 seed password (API trỏ cổng không có dịch vụ)
+-- env -u SEED_DEFAULT_PASSWORD
+[1/20] Admin đầu tiên (gateway admin create)…
+Seed lỗi: fetch failed
+rc=1
+-- rỗng
+Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).
+rc=1
+-- khoảng trắng
+Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).
+rc=1
+-- tab/xuống dòng
+Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).
+rc=1
+-- cây không có .env.local/.env.example, env -u SEED_DEFAULT_PASSWORD
+Thiếu SEED_DEFAULT_PASSWORD (xem .env.example).
+rc=1

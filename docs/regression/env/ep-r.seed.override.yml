@@ -1,0 +1,17 @@
+# Override compose cho stack QC ep-r (chép vào /tmp/ep-r.seed.override.yml trước khi dựng: cp docs/regression/env/ep-r.seed.override.yml /tmp/)
+# gateway: URL ký sẵn của kho tệp đi qua Caddy cùng origin (CSP connect-src 'self'), như scripts/dev.mjs khi cổng HTTPS ≠ 443
+services:
+  gateway:
+    environment:
+      BLOB_PUBLIC_ENDPOINT: localhost:1143
+      BLOB_PUBLIC_USE_SSL: "true"
+  worker:
+    environment:
+      TICKET_SLA_TICK: 1m
+      REMINDER_TICK: 30s
+      OBS_ALERT_TICK: 20s
+      OBS_PURGE_TICK: 30s
+  judge:
+    environment:
+      OBS_ALERT_TICK: 20s
+      OBS_PURGE_TICK: 30s

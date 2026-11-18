@@ -1,0 +1,23 @@
+== HEAD 88ab83e4
+-- N04-12: grep oom/docker stats/cpu trong load-*.json
+benchmarks/reports/pg-baseline.md
+rc=0
+-- N07-10: nhiễu
+docs/sprints/9.5/report.md:44:Nhà cung cấp mất tạm thời là ca hệ thống phải chịu được, nên đây là **lỗi mã** (luật 12), không chỉ lỗi vận hành. Sửa ở **P-11-23** (`fix/dr-06`, m
+-- N09-01 mục lục
+5:## Tóm tắt (đọc trong ≤ 5 phút)
+14:## Bảng SLO → số đo → kết quả
+36:## Từng phép đo
+37:### (a) 300 người duyệt + 300 SSE + heartbeat 10/s (US-NFR-04 AC1, AC3, AC4)
+39:### (b) chat (AC5)
+41:### (c) chấm bài khi chat (AC2)
+43:### (d) dashboard (AC1)
+45:### Baseline (US-NFR-07)
+47:### Chaos (US-NFR-06)
+49:### EXPLAIN và chỉ mục (US-NFR-05)
+51:### LLM thật (US-NFR-08)
+67:## Chưa đo được và vì sao
+75:## Danh sách câu cần vá ở báo cáo cũ (US-NFR-09 AC3)
+-- N09-11
+0
+-- N10-06 TL-2c..f trong PROGRESS.md

@@ -1,0 +1,104 @@
+{
+ "pu20": {
+  "total": 34,
+  "google": 0,
+  "hosts": [
+   "localhost:1143"
+  ]
+ },
+ "pu22": "\"Be Vietnam Pro\", \"Noto Sans\", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+ "pu27": {
+  "colorScheme": "light",
+  "selectionBg": "rgb(253, 238, 240)",
+  "redSoft": "rgb(253, 238, 240)",
+  "scrollbarWidth": "thin",
+  "webkitScrollbarRule": false,
+  "prefersDark": false,
+  "cssBytes": 0
+ },
+ "pu25": {
+  "tokens": {
+   "--ep-text-display": "52px",
+   "--ep-text-page": "28px",
+   "--ep-text-section": "20px",
+   "--ep-text-item": "16px",
+   "--ep-text-body": "15px",
+   "--ep-text-label": "14px",
+   "--ep-text-meta": "12px",
+   "--ep-text-projector-code": "126px",
+   "--ep-text-projector-count": "72px",
+   "--ep-text-projector-meta": "36px"
+  },
+  "perRoute": {
+   "sv.gioi/": {
+    "15px": 2,
+    "14px": 17,
+    "12px": 5,
+    "28px": 1,
+    "20px": 2,
+    "16px": 2
+   },
+   "sv.gioi/chat": {
+    "15px": 4,
+    "14px": 26,
+    "12px": 10,
+    "28px": 1,
+    "16px": 1
+   },
+   "sv.gioi/threads": {
+    "15px": 2,
+    "14px": 21,
+    "12px": 4,
+    "28px": 1,
+    "16px": 1
+   },
+   "teacher/gradebook": {
+    "15px": 2,
+    "14px": 27,
+    "12px": 11,
+    "28px": 1,
+    "16px": 1
+   }
+  },
+  "strange": {
+   "sv.gioi/": [],
+   "sv.gioi/chat": [],
+   "sv.gioi/threads": [],
+   "teacher/gradebook": []
+  }
+ },
+ "pu36": {
+  "ls": [
+   "ep_demo_state",
+   "ep_returning"
+  ],
+  "ss": [],
+  "cookie": []
+ },
+ "pu36guest": {
+  "ls": [],
+  "cookie": ""
+ },
+ "pu41": {
+  "rect": {
+   "top": 172,
+   "bottom": 208,
+   "left": 25,
+   "right": 350
+  },
+  "vh": 330,
+  "inViewport": true,
+  "covered": false,
+  "topEl": "TEXTAREA.Composer-module__H4tyeW__input",
+  "fixedBars": [
+   {
+    "tag": "NAV",
+    "top": 273,
+    "h": 57
+   }
+  ],
+  "scrollW": 0,
+  "sendVisible": true,
+  "afterSend": "Chat riêng | Phiên mới | Phiên trước (6) |  | Bạn |  | xin chào |  | Trợ lý AI |  | Đang trả lời… |  | Dừng"
+ }
+}

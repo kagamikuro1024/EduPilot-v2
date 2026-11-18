@@ -12,23 +12,55 @@
   "{\"state\": \"NO_POLICY\", \"unclear_count\": 0, \"has_policy\": false, \"pending_draft\": false, \"gradebook\": {\"status\": \"OPEN\", \"snapshot_version\": 0}, \"finalize_blocke"
  ],
  "TC-P6-05-23": [
-  "F",
-  "GS=[{\"id\": \"GRADE_SCHEME_UNCONFIRMED:01a1dff6-f018-7550-b9bb-abfaa2cf3d9d\", \"kind\": setup=[]"
+  "P",
+  "GS=[{\"id\": \"GRADE_SCHEME_UNCONFIRMED:01a1ef44-3f04-7c40-993e-3a18f739c973\", \"kind\": setup=['Thiết lập lớp mới · QD8H3']"
  ],
  "TC-P6-05-02": [
   "P",
   "doc=READY status={\"state\": \"NOT_EXTRACTED\", \"unclear_count\": 0, \"has_policy\": true, \"pending_draft\": false, \"gradebook\": {\"stat"
  ],
  "TC-P6-05-03": [
-  "F",
-  "status={\"state\": \"DRAFT_UNCLEAR\", \"unclear_count\": 3, \"has_policy\": true, \"pending_draft\": true, \"gradebook\": {\"status\": \"OPEN\", \"snapsho"
+  "P",
+  "status={\"state\": \"DRAFT_UNCLEAR\", \"unclear_count\": 1, \"has_policy\": true, \"pending_draft\": true, \"gradebook\": {\"status\": \"OPEN\", \"snapsho"
  ],
  "TC-P6-05-04": [
   "P",
   "status={\"state\": \"DRAFT_READY\", \"unclear_count\": 0, \"has_policy\": true, \"pending_draft\": true, \"gradebook\": {\"status\": \"OPEN\", \"snapshot_"
  ],
  "TC-P6-05-24": [
-  "F",
-  "['Đã có quy chế, chưa trích công thức.']|['Đã có quy chế, chưa trích công thức.']|['Đã có quy chế, chưa trích công thức.']"
+  "P",
+  "['Đã có quy chế, chưa trích công thức.']|['Bản nháp còn 1 mục chưa rõ.']|['Bản nháp sẵn sàng, chờ xác nhận.'] (chờ 1.0/57.1/60.6s)"
+ ],
+ "TC-P6-05-30": [
+  "P",
+  "job chạy (khoá tuần tạo lại=True); QD8H3 0→1, QD8F8(CONFIRMED) 0→0"
+ ],
+ "TC-P6-05-35": [
+  "P",
+  "người nhận (distinct role)=TEACHER"
+ ],
+ "TC-P6-05-31": [
+  "P",
+  "chạy lại cùng tuần (xoá ep:grade.remind:*): QD8H3 1→1, khoá tuần có lại=True"
+ ],
+ "TC-P6-05-45": [
+  "P",
+  "xoá khoá Redis giữa 2 lần chạy: dedupe_key mức thông báo chặn trùng, count 1→1"
+ ],
+ "TC-P6-05-34": [
+  "P",
+  "live: hôm nay CN 15/11 (sau T2 08:00): job chạy bù đúng 1 lần trong tuần (khoá tuần NX); + TestReminderCatchUp PASS"
+ ],
+ "TC-P6-05-05": [
+  "P",
+  "confirm=200 status={\"state\": \"CONFIRMED\", \"unclear_count\": 0, \"has_policy\": true, \"confirmed_at\": \"2026-11-18T15:34:29.274341Z\", "
+ ],
+ "TC-P6-05-33": [
+  "P",
+  "QD8H3 đã CONFIRMED: job chạy (khoá=True) count 1→1"
+ ],
+ "TC-P6-05-27": [
+  "P",
+  "5 lần confirm→mục biến mất: [0.5, 0.0, 0.0, 0.7, 0.5]s, max=0.7s (yêu cầu ≤5s)"
  ]
 }

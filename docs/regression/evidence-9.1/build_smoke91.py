@@ -19,7 +19,7 @@ def expand(title):
     return out
 LINE = re.compile(r'^\s+(✓|✘|-)\s+\d+ \[(\w+)\] › e2e/(?:qc2-r91/)?(\S+?)\.spec\.ts:\d+:\d+ › (.*?)(?: \([\d.]+m?s\))?$')
 res = {}   # (file,title,project) -> st
-for f in sorted(glob.glob(L + "/*.log"), key=lambda x: ("rerun3" in x, ".rerun" in x, x)):
+for f in sorted(glob.glob(L + "/*.log"), key=lambda x: (int((re.search(r"rerun(\d)", x) or [0, 0])[1]) if re.search(r"rerun(\d)", x) else (1 if ".rerun" in x else 0), x)):
     if "grep-batch" in f: continue
     rerun = ".rerun" in os.path.basename(f)
     for ln in open(f, errors="ignore"):
@@ -28,7 +28,7 @@ for f in sorted(glob.glob(L + "/*.log"), key=lambda x: ("rerun3" in x, ".rerun" 
         st, proj, file, title = m.groups()
         if st == '-': continue
         fk = file.replace("qc-uiux91-", "")
-        if "rerun3" in os.path.basename(f) and fk.startswith("r"): fk = fk[1:]
+        if re.search(r"rerun\d", os.path.basename(f)) and fk.startswith("r"): fk = fk[1:]
         key = (fk, title.strip(), proj)
         if rerun or key not in res: res[key] = "P" if st == "✓" else "F"
 tc = collections.defaultdict(lambda: [0, 0, set()])

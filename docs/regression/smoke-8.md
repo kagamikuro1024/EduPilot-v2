@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm D: SmkD + S8Core/S8Flow/S8Seed) · Ngày: 2026-11-15
-Tổng TC cũ: 512 · Đạt: 405 · Trượt: 4 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 103   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 439 · Trượt: 2 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 71   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -9,13 +9,13 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 |---|---|---|---|---|---|---|
 | P6-01 | 41 | 41 | 0 | 0 | 0 | 0 |
 | P6-02 | 49 | 49 | 0 | 0 | 0 | 0 |
-| P6-03 | 48 | 46 | 2 | 0 | 0 | 0 |
-| P6-04 | 49 | 43 | 1 | 0 | 0 | 5 |
-| P6-05 | 46 | 19 | 0 | 0 | 0 | 27 |
+| P6-03 | 48 | 48 | 0 | 0 | 0 | 0 |
+| P6-04 | 49 | 44 | 0 | 0 | 0 | 5 |
+| P6-05 | 46 | 44 | 2 | 0 | 0 | 0 |
 | P6-06 | 63 | 62 | 0 | 0 | 0 | 1 |
-| P6-07 | 59 | 58 | 1 | 0 | 0 | 0 |
+| P6-07 | 59 | 59 | 0 | 0 | 0 | 0 |
 | P6-08 | 47 | 47 | 0 | 0 | 0 | 0 |
-| P6-09 | 50 | 40 | 0 | 0 | 0 | 10 |
+| P6-09 | 50 | 45 | 0 | 0 | 0 | 5 |
 | P6-SEED | 37 | 0 | 0 | 0 | 0 | 37 |
 | S8-UI | 23 | 0 | 0 | 0 | 0 | 23 |
 
@@ -130,7 +130,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-03-16 | P | 8 test TestChecker* PASS (WeightSum, NoComponents, Bonus, BonusCap, Absence, Rounding, LetterScale, ParamInvalid) |
 | TC-P6-03-17 | P | WEIGHT_SUM có tổng 90 ([{"source": "CODE", "code": "WEIGHT_SUM", "target": "components", "message": "Tổng trọng s); bản nháp vẫn lưu (3 thành phần); confirm → 422 SC |
 | TC-P6-03-18 | P | bỏ thang → ['LETTER_SCALE_MISSING']; A+≥9,A≥9,B≥7 → ['LETTER_SCALE_INVALID']; thang bắt đầu từ 1 → ['LETTER_SCALE_INVALID'] |
-| TC-P6-03-19 | F | [] (202, 'FAILED', 'LLM_UNAVAILABLE') / ['PARAM_INVALID', 'WEIGHT_SUM'] |
+| TC-P6-03-19 | P | RERUN sau R8-A3 (7d2de170) bản nháp trích mới: weight 150 → PARAM_INVALID ở components.weekly «Trọng số phải là số trong [0; 100].», confirm → 422 SCHEME_HAS_UNCLEAR; 20. |
 | TC-P6-03-20 | P | LLM trả unclear_items [] nhưng ROUNDING_MISSING vẫn có, source=CODE |
 | TC-P6-03-21 | P | quote bịa ở c6 → CITATION_NOT_FOUND 1 mục, target ['rules.ROUNDING']; mã khác: ['CITATION_NOT_FOUND'] |
 | TC-P6-03-22 | P | page=9 → 1 CITATION_NOT_FOUND (['rules.FAIL_CONDITION']); quote trang 1 gán page=2 → 1 (['components.final']) |
@@ -147,7 +147,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-03-33 | P | tài liệu PROCESSING → 409 DOCUMENT_NOT_READY |
 | TC-P6-03-34 | P | quy chế dài → 422 POLICY_TOO_LONG, số job không đổi (23→23); đã dọn chunk thêm (3→3) |
 | TC-P6-03-35 | P | nhà cung cấp 503: job FAILED LLM_UNAVAILABLE; stub nhận 9 yêu cầu, llm_audit [['3', 'error', 'SERVER'], ['3', 'error', 'SERVER'], ['3', 'error', 'SERVER']]; DRAFT rá |
-| TC-P6-03-36 | F | đầu ra không phải JSON (stub 'invalid'): job FAILED LLM_UNAVAILABLE (spec: EXTRACTION_INVALID); stub nhận 3 lời gọi (spec: đúng 1); llm_audit [['1', 'error', 'BAD_RE |
+| TC-P6-03-36 | P | RERUN sau R8-A1 (6c75bd54) ở 634d59c5: đầu ra không phải JSON → job FAILED EXTRACTION_INVALID, stub nhận đúng 1 lời gọi (s8r-03e.py) |
 | TC-P6-03-37 | P | QD8A2 CONFIRMED (confirm→200): grade_schemes trước [['CONFIRMED', '1']] = sau [['CONFIRMED', '1']] sau 2 lần trích lỗi (FAILED/FAILED); /gradebook 200 |
 | TC-P6-03-38 | P | extract hai lần cùng khoá → job_id giống; grade_schemes mới 1 |
 | TC-P6-03-39 | P | kill worker ở giây 5/14: job nhận lại → SUCCEEDED; số DRAFT 1; stub nhận 2 lời gọi |
@@ -162,7 +162,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-03-48 | P | TestExtractRBAC PASS |
 | TC-P6-04-01 | P | /gradebook/scheme lớp 2 (QD8B1) 1440 px: [data-ep-panel] 2 (công thức + cột trích dẫn), lồng nhau 0, có cột trích dẫn (real-04.spec.ts) |
 | TC-P6-04-02 | P | click quote: Giữa kỳ → «Trang 1», Điểm cộng → «Trang 2», Thang chữ → «Trang 2» (khớp extraction-lop2); đoạn trích được <mark> nhấn mạnh |
-| TC-P6-04-03 | F | 1024 px: cột trích dẫn cố định; 1023 px: Drawer (đúng) nhưng sau Esc focus rơi về <BODY>, không về nút Trang đã mở (Enter trên nút → Drawer → Esc) → DEF-R8-A1 Thấp |
+| TC-P6-04-03 | P | RERUN ep-r 634d59c5 (sau R8-A2 dev2): 1024 px cột cố định; 1023 px Drawer; Esc đóng; Enter trên nút Trang → Drawer → Esc → focus về «Trang 1» (real-04.spec.ts 04-03r) |
 | TC-P6-04-04 | P | icon Info/CircleHelp 0; hai dòng sau tiêu đề «Tải quy chế | Bản nháp» (không câu mô tả) |
 | TC-P6-04-05 | N | chưa chạy |
 | TC-P6-04-06 | P | khối Làm tròn trống tại chỗ có ô chọn bước; nút Xác nhận công thức aria-disabled=true; tooltip trên chính nút «Còn 1 mục chưa rõ: làm tròn» (hover và focus); không modal |
@@ -211,50 +211,50 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-04-49 | P | ADMIN GET grade-scheme → 403 |
 | TC-P6-05-01 | P | L2={"state": "NO_POLICY", "unclear_count": 0, "has_policy": false, "pending_draft": false, "gradebook": {"status": "OPEN", "snapshot_version": 0}, "fi |
 | TC-P6-05-02 | P | doc=READY status={"state": "NOT_EXTRACTED", "unclear_count": 0, "has_policy": true, "pending_draft": false, "gradebook": {"stat |
-| TC-P6-05-03 | N | chưa chạy |
+| TC-P6-05-03 | P | RERUN 2026-11-18 lớp QD8H3 (s8flow-us05h3.py; Hôm nay có TTL 60 s nên chờ tới 75 s): status={"state": "DRAFT_UNCLEAR", "unclear_count": 1, "has_policy": true, "pending_dr |
 | TC-P6-05-04 | P | status={"state": "DRAFT_READY", "unclear_count": 0, "has_policy": true, "pending_draft": true, "gradebook": {"status": "OPEN", "snapshot_ |
-| TC-P6-05-05 | N | chưa chạy |
-| TC-P6-05-06 | N | chưa chạy |
+| TC-P6-05-05 | P | RERUN QD8H3: confirm 200 → status CONFIRMED, finalize_blocked_reason biến mất (s8flow-us05h3.py confirm) |
+| TC-P6-05-06 | P | QD8R6W CONFIRMED + nháp mới: status state=CONFIRMED pending_draft=True |
 | TC-P6-05-07 | P | SV/ADM/TA=[403, 403, 200] |
 | TC-P6-05-08 | P | go test 3 test PASS (log s8flow-go-*.log) |
 | TC-P6-05-09 | P | QD8F2 NO_POLICY: 1 banner 'Công thức điểm chưa xác nhận' + liên kết 'Tải quy chế' (Xem công thức, Thiết lập công thức); shot s8flow-us05-nopolicy-gradebook-teac |
 | TC-P6-05-10 | P | TA /gradebook & /attendance lớp NO_POLICY: banner cùng chữ, liên kết 'Xem công thức' (không 'Tải quy chế', không 'Chốt điểm') |
 | TC-P6-05-11 | P | QD8F2 DRAFT_READY: banner + liên kết 'Xác nhận công thức' (TEACHER) |
 | TC-P6-05-12 | P | TEACHER lớp 1 CONFIRMED: 0 banner (gradebook, attendance); STUDENT: 0 banner ở /me,/attendance,/gradebook,/chat |
-| TC-P6-05-13 | N | chưa chạy |
+| TC-P6-05-13 | P | QD8H3 sau xác nhận, tải lại /gradebook: banner «Công thức điểm chưa xác nhận» đã biến mất (real-05.spec.ts) |
 | TC-P6-05-14 | P | dev e2e ['banner unconfirmed'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-05-15 | P | Chốt điểm disabled+aria-disabled=true; tooltip 'Chưa có công thức điểm đã xác nhận' khi hover và focus; 0 icon Info |
-| TC-P6-05-16 | N | chưa chạy |
-| TC-P6-05-17 | N | chưa chạy |
+| TC-P6-05-16 | P | POST finalize lớp DRAFT_READY (chưa CONFIRMED) → 409 SCHEME_NOT_CONFIRMED |
+| TC-P6-05-17 | P | thiếu Idempotency-Key → 422 IDEMPOTENCY_KEY_REQUIRED; TA → 403; STUDENT → 403 |
 | TC-P6-05-18 | P | dev e2e ['finalize locked reason'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-05-19 | P | /attendance QD8F2: banner 'Công thức điểm chưa xác nhận'+'Xem công thức' phía trên lưới 1 dòng; lưu thao tác xem TC-20 |
-| TC-P6-05-20 | N | chưa chạy |
-| TC-P6-05-21 | N | chưa chạy |
+| TC-P6-05-20 | P | QD8FM5 chưa xác nhận: banner hiện true; 30 hàng; bấm phím 1–4 cho 30 SV trong 2410 ms (≤ 60000); PUT điểm danh 200; hộp thoại 0; banner che lưới false (real-05.spec.ts) |
+| TC-P6-05-21 | P | /attendance lớp CONFIRMED (QD8R6U): banner không; lưới điểm danh có true (real-05.spec.ts) |
 | TC-P6-05-22 | P | dev e2e ['attendance notice'] xanh (logs/s8r-dev-gradebook-me.log); |
-| TC-P6-05-23 | N | chưa chạy |
-| TC-P6-05-24 | N | chưa chạy |
-| TC-P6-05-25 | N | chưa chạy |
-| TC-P6-05-26 | N | chưa chạy |
-| TC-P6-05-27 | N | chưa chạy |
-| TC-P6-05-28 | N | chưa chạy |
+| TC-P6-05-23 | P | RERUN 2026-11-18 lớp QD8H3 (s8flow-us05h3.py; Hôm nay có TTL 60 s nên chờ tới 75 s): GS=[{"id": "GRADE_SCHEME_UNCONFIRMED:01a1ef44-3f04-7c40-993e-3a18f739c973", "kind": s |
+| TC-P6-05-24 | P | RERUN 2026-11-18 lớp QD8H3 (s8flow-us05h3.py; Hôm nay có TTL 60 s nên chờ tới 75 s): ['Đã có quy chế, chưa trích công thức.']|['Bản nháp còn 1 mục chưa rõ.']|['Bản nháp s |
+| TC-P6-05-25 | P | TA chỉ ở lớp QD8H2 (tài khoản QC qc2ta1, bản sao ta@): /me/today có 1 mục GRADE_SCHEME_UNCONFIRMED [('Công thức điểm chưa xác nhận · QD8H2', 'Bản nháp sẵn sàng, chờ xác n |
+| TC-P6-05-26 | P | STUDENT/ADMIN: [('sv.gioi', 200, 0), ('admin', 200, 0)] (không có mục GRADE_SCHEME_UNCONFIRMED) |
+| TC-P6-05-27 | P | RERUN 2026-11-18: 5 lớp nháp riêng (QD8FM0..4), xoá cache Hôm nay, mục có mặt trước (5/5); confirm 200 → mục biến mất sau [0.5, 0.0, 0.0, 0.7, 0.5] s, max 0.7 s (yêu cầu  |
+| TC-P6-05-28 | P | QD8H2 chuyển ARCHIVED (SQL, archived_at đặt) + xoá cache: mục công thức [] (kỳ vọng rỗng); trả ACTIVE: mục 1 (kỳ vọng 1) |
 | TC-P6-05-29 | P | go test 2 test PASS (log s8flow-go-*.log) |
-| TC-P6-05-30 | N | chưa chạy |
-| TC-P6-05-31 | N | chưa chạy |
-| TC-P6-05-32 | N | chưa chạy |
-| TC-P6-05-33 | N | chưa chạy |
-| TC-P6-05-34 | N | chưa chạy |
-| TC-P6-05-35 | N | chưa chạy |
+| TC-P6-05-30 | P | Go test đồng hồ giả (TC cho phép) scheme_test.go TestReminderWeeklyOncePerWeek: trước 08:00 T2 không nhắc; 08:00 → nhắc 1 (Once=true) cho TEACHER; TestReminderStopsWhenCo |
+| TC-P6-05-31 | P | RERUN 2026-11-18 lớp QD8H3 (s8flow-us05h3.py; Hôm nay có TTL 60 s nên chờ tới 75 s): chạy lại cùng tuần (xoá ep:grade.remind:*): QD8H3 1→1, khoá tuần có lại=True |
+| TC-P6-05-32 | P | cùng TestReminderWeeklyOncePerWeek: tuần kế (mon+7d 08:00) lớp vẫn chưa xác nhận → Once=true, tổng chuông 1→2 (đúng thêm 1); đã đọc thân test |
+| TC-P6-05-33 | P | QD8H3 đã CONFIRMED: job nhắc chạy (khoá tuần tạo lại) số chuông 1→1: không gửi thêm (s8flow-us05h3.py remind2) |
+| TC-P6-05-34 | P | TestReminderCatchUp: worker lên thứ Tư 14:00 chưa nhắc tuần → Once=true, 1 chuông; TestReminderWeeklyOncePerWeek: tick kế cùng tuần Once=false, 48 giờ sau vẫn 1 chuông (k |
+| TC-P6-05-35 | P | RERUN 2026-11-18 lớp QD8H3 (s8flow-us05h3.py; Hôm nay có TTL 60 s nên chờ tới 75 s): người nhận (distinct role)=TEACHER |
 | TC-P6-05-36 | P | go test 5 test PASS (log s8flow-go-*.log) |
-| TC-P6-05-37 | N | chưa chạy |
-| TC-P6-05-38 | N | chưa chạy |
-| TC-P6-05-39 | N | chưa chạy |
-| TC-P6-05-40 | N | chưa chạy |
+| TC-P6-05-37 | F | câu đúng nguyên văn TC «Cô tính điểm môn này thế nào?» (QD8H7 chưa công thức): trả «Mình chưa tìm thấy nội dung này trong tài liệu của lớp.» (kỳ vọng câu mẫu «Lớp chưa có |
+| TC-P6-05-38 | P | câu «Công thức tính điểm học phần là gì?» (GRADE_FORMULA): câu mẫu True, llm_audit +0, không số True; ticket AUTO_NO_FORMULA 1; hỏi lại CÙNG câu trong cùng hội thoại → 2  |
+| TC-P6-05-39 | P | PERSONAL_GRADE «Lớp chưa có công thức điểm chính thức do giảng viên xác nhận», WHAT_IF «Lớp chưa có công thức điểm chính thức do giảng viên xác nhận»: cùng câu mẫu True;  |
+| TC-P6-05-40 | P | lớp CONFIRMED QD8R6U: 3 câu → không câu mẫu «chưa có công thức» ([False, False, False]); AUTO_NO_FORMULA 0→0; trả lời: «Mình chưa tìm thấy nội dung này trong tài liệu của |
 | TC-P6-05-41 | P | go test 4 test PASS (log s8flow-go-*.log) |
-| TC-P6-05-42 | N | chưa chạy |
+| TC-P6-05-42 | F | DELETE documents → 204; scheme vẫn CONFIRMED, source_document_id NULL, source_title «Quy chế lớp 2» còn; /gradebook tính đúng (HP 7 B khớp tay: QT 7,5; CK 6,5) và UI khôn |
 | TC-P6-05-43 | P | go test 1 test PASS (log s8flow-go-*.log) |
 | TC-P6-05-44 | P | GV lớp khác (teacher@ gọi lớp QD8F8 do gv.s8f dạy) → 403 FORBIDDEN reason=course |
-| TC-P6-05-45 | N | chưa chạy |
-| TC-P6-05-46 | N | chưa chạy |
+| TC-P6-05-45 | P | RERUN 2026-11-18 lớp QD8H3 (s8flow-us05h3.py; Hôm nay có TTL 60 s nên chờ tới 75 s): xoá khoá Redis giữa 2 lần chạy: dedupe_key mức thông báo chặn trùng, count 1→1 |
+| TC-P6-05-46 | P | dừng worker-1, xoá khoá tuần + 87 chuông cũ; chạy HAI worker cùng lúc (ep-r-worker-1 + container phụ cùng image/env, 2 phút = 2 tick) → 87 chuông, 87 cặp (GV, lớp) khác n |
 | TC-P6-06-01 | P | UI thật ep-r: bố cục, hàng A/B/C, ghi chú chính thức — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-02 | P | UI thật ep-r: bố cục, hàng A/B/C, ghi chú chính thức — xanh (specs: frontend/e2e/qc2-r8/real-06.spec.ts) |
 | TC-P6-06-03 | P | dev e2e ['gradebook layout'] xanh (logs/s8r-dev-gradebook-me.log); ui-antipatterns rc=0 |
@@ -364,7 +364,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-07-44 | P | Dialog 3 bước (Tiếp tục → Xem trước → «Ghi 30 dòng» / «Bỏ qua 6 dòng lỗi và ghi 3 dòng»); lỗi theo hàng bằng chữ Việt (MSSV không có trong lớp, MSSV bị lặp trong tệp, Điể |
 | TC-P6-07-45 | P | «Công bố cột cho sinh viên» mặc định tắt; ghi khi tắt → published_at không đặt; bật + ghi → cột final có published_at (đo DB) |
 | TC-P6-07-46 | P | ngắt mạng lúc tải tệp lên: «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.» + nút Tải lại; tên tệp errors.xlsx và item đã chọn còn nguyên; có mạng → Tải lạ |
-| TC-P6-07-47 | F | ghi xong ô cập nhật không tải lại trang (ô Bùi Thanh Khải 7,00), hộp thoại đóng, NHƯNG focus rơi về <body>, không về nút menu «Thêm hành động» → DEF-R8-A2 |
+| TC-P6-07-47 | P | RERUN 634d59c5 (sau R8-A2): ghi xong không tải lại trang, hộp thoại đóng, focus về nút «Thêm hành động»; ô điểm cập nhật 7,00 (real-07.spec.ts) |
 | TC-P6-07-48 | P | 375 px: /gradebook không tràn ngang; Nhập từ XLSX mở được hộp thoại, không tràn ngang |
 | TC-P6-07-49 | P | dev e2e ['import xlsx flow\\|import errors listed'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-07-50 | P | upload_id lớp khác → 404 UPLOAD_NOT_FOUND; upload_id không tồn tại → 404; không ghi |
@@ -448,11 +448,11 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-09-22 | P | status FINAL → what-if 409 FINAL_ALREADY_LOCKED; UI ẩn ô what-if: dev e2e 'grade section' xanh |
 | TC-P6-09-23 | N | chưa chạy |
 | TC-P6-09-24 | P | go test 4 test PASS (log s8flow-go-*.log) |
-| TC-P6-09-25 | N | chưa chạy |
-| TC-P6-09-26 | N | chưa chạy |
-| TC-P6-09-27 | N | chưa chạy |
-| TC-P6-09-28 | N | chưa chạy |
-| TC-P6-09-29 | N | chưa chạy |
+| TC-P6-09-25 | P | /me/grades midterm=7.5; chat trả «Điểm giữa kỳ của bạn là 7,5.»: có 7,5 True; số của SV khác []; llm_audit CHAT +1 |
+| TC-P6-09-26 | P | what-if API (final_exam_score=8): hp=8 letter=B+; chat «Nếu điểm cuối kỳ của bạn là 8 thì: - Điểm học phần thô của bạn sẽ là 8,1 (tính theo công thức: 8,25 × 40% + 8 × 60 |
+| TC-P6-09-27 | P | hỏi điểm người khác: «Mình chưa tìm thấy nội dung này trong tài liệu của lớp.» lộ=[] | «Mình chưa tìm thấy nội dung này trong tài liệu của lớp.» lộ=[] | «Mình chỉ xem đượ |
+| TC-P6-09-28 | P | sv.kha đăng bài công khai hỏi điểm của mình (QD8R6U threads): 422 PII_DETECTED details.personal_question, thông điệp «Chuyển sang chat riêng hoặc ẩn thông tin rồi đăng» — |
+| TC-P6-09-29 | P | prompt injection: «Mình chưa tìm thấy nội dung này trong tài liệu của lớp. Mình không thể thực hiện lệnh ngoài hoặc xem thông tin điểm của sinh viên khác.» lộ số của C [] |
 | TC-P6-09-30 | N | chưa chạy |
 | TC-P6-09-31 | P | Go 5 test PASS; dev e2e ['my grade question'] xanh (logs/s8r-dev-gradebook-me.log); |
 | TC-P6-09-32 | N | chưa chạy |

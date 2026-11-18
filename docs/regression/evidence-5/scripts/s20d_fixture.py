@@ -1,5 +1,5 @@
 """QC2 smoke sprint 5 (SmkM) — bài thi cho UI (class R5C1; tái dùng câu code đã xác minh). Ghi /tmp/qc2L/uix2.json. Chạy: python3 s20d_fixture.py"""
-import os; os.environ['SUITE'] = 'UIM'
+import os; os.environ['SUITE'] = 'smkP'
 from r5lib import *
 CODE = '01a1e14f-5763-7788-822f-5658704a1bc8'
 q = [mkq(800 + i, 'MCQ_SINGLE', 4, (1,)) for i in range(2)] + [mkq(802, 'MCQ_MULTI', 5, (0, 2)), mkq(803, 'TRUE_FALSE')]

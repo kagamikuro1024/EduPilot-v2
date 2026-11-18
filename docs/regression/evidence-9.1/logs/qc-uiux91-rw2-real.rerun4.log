@@ -1,0 +1,424 @@
+
+Running 80 tests using 1 worker
+
+(node:25917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — student (2.3s)
+  ✓   2 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — teacher (2.0s)
+  ✓   3 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — ta (2.0s)
+  ✓   4 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — admin (2.0s)
+  ✓   5 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:57:1 › TC-UX07-4 thanh dưới / Thêm ở 375 — sinh viên + giảng viên (2.4s)
+(node:25917) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓   6 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:76:1 › TC-UX07-5/6/7/11 tiêu đề trang = nhãn nav, <title>, HTML máy chủ, URL cũ còn (3.3s)
+  ✓   7 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:95:1 › TC-UX07-7 /threads/‹id›: liên kết quay lại (1.9s)
+  ✘   8 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:106:1 › TC-UX07-15 số mục nav theo vai không đổi (SV 8, TA 12, GV 15, admin 6) (32.6s)
+(node:27145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses: không còn câu giải thích cũ (30.3s)
+(node:28004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses (mở form): không còn câu giải thích cũ (2.5s)
+  ✓  11 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/users: không còn câu giải thích cũ (1.9s)
+  ✓  12 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/users (mở form): không còn câu giải thích cũ (2.4s)
+  ✓  13 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /analytics: không còn câu giải thích cũ (1.9s)
+  ✓  14 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /exams: không còn câu giải thích cũ (1.9s)
+  ✓  15 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /exams: không còn câu giải thích cũ (1.9s)
+  ✓  16 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /insights: không còn câu giải thích cũ (1.9s)
+  ✓  17 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /join: không còn câu giải thích cũ (1.9s)
+  ✓  18 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /me: không còn câu giải thích cũ (1.9s)
+  ✘  19 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/settings: không còn câu giải thích cũ (1.9s)
+(node:28459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/members: không còn câu giải thích cũ (2.0s)
+  ✓  21 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /observability: không còn câu giải thích cũ (2.1s)
+  ✓  22 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /observability: không còn câu giải thích cũ (2.1s)
+  ✓  23 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /practice/history: không còn câu giải thích cũ (5.1s)
+  ✓  24 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /practice: không còn câu giải thích cũ (2.3s)
+  ✘  25 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /questions: không còn câu giải thích cũ (30.2s)
+(node:30704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30704) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  26 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:155:1 › TC-UX01-3 khung máy chủ (PreShell): không câu phụ, Hỏi đáp công khai (137ms)
+  ✘  27 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:167:1 › TC-UX01-10 hộp xác nhận Chốt điểm còn mô tả hệ quả (9.9s)
+(node:30932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:181:1 › TC-UX01-9 SV mở /observability, /analytics → 403 giữ nguyên (3.2s)
+  ✓  29 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:190:1 › TC-UX01-17 375 px: dưới h1 không còn dòng phụ trống, không tràn ngang (6.2s)
+  ✘  30 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:205:1 › TC-UX05-1/2/3 Hộp thư rỗng: EmptyState đúng mẫu, không «Chọn một câu hỏi», nút ghost căn trái (1.9s)
+(node:31147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  31 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:224:1 › TC-UX05-5 Chấm bài chưa có bài nộp: EmptyState + Tải bài lên (2.0s)
+(node:31174) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  32 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:236:1 › TC-UX05-9 lỗi tải: ApiErrorNotice + Thử lại, không EmptyState (5.7s)
+  ✓  33 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:250:1 › TC-UX05-10 STUDENT: /inbox, /grading, /gradebook → 403, không EmptyState giảng viên (3.3s)
+  ✓  34 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:260:1 › TC-UX05-4 chi tiết ticket: không còn «Đã chờ …» / «Trạng thái …» lặp (2.8s)
+  ✘  35 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:273:1 › TC-UX05-11 375: Hộp thư rỗng không tràn, nút ≥ 44 px (5.0m)
+(node:41168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:288:1 › TC-UX06-1 nhớ lớp đã chọn sau đăng xuất / đăng nhập lại (4.9s)
+  ✘  37 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:303:1 › TC-UX06-3/4/5 lớp mặc định lần đầu theo `me/today` (14.2s)
+(node:41942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  38 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:329:1 › TC-UX06-6/7 ep:ui:course trỏ tới lớp không tồn tại → bỏ, không lỗi, không trang trống (1.0s)
+  ✓  39 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:344:1 › TC-UX06-8 STUDENT / TA: bộ chọn lớp chỉ lớp của mình, không mục quản lý (2.8s)
+  ✓  40 [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:358:1 › TC-UX06-9 375: mục bộ chọn lớp cao ≥ 44 px (1.9s)
+(node:42284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  41 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — student
+  -  42 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — teacher
+  -  43 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — ta
+  -  44 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:43:3 › TC-UX07-1/2/3 nhãn nav + ⌘K — admin
+  ✓  45 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:57:1 › TC-UX07-4 thanh dưới / Thêm ở 375 — sinh viên + giảng viên (3.2s)
+  -  46 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:76:1 › TC-UX07-5/6/7/11 tiêu đề trang = nhãn nav, <title>, HTML máy chủ, URL cũ còn
+  -  47 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:95:1 › TC-UX07-7 /threads/‹id›: liên kết quay lại
+  -  48 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:106:1 › TC-UX07-15 số mục nav theo vai không đổi (SV 8, TA 12, GV 15, admin 6)
+  -  49 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses: không còn câu giải thích cũ
+  -  50 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses (mở form): không còn câu giải thích cũ
+  -  51 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/users: không còn câu giải thích cũ
+  -  52 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/users (mở form): không còn câu giải thích cũ
+  -  53 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /analytics: không còn câu giải thích cũ
+  -  54 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /exams: không còn câu giải thích cũ
+  -  55 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /exams: không còn câu giải thích cũ
+  -  56 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /insights: không còn câu giải thích cũ
+  -  57 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /join: không còn câu giải thích cũ
+  -  58 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /me: không còn câu giải thích cũ
+  -  59 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/settings: không còn câu giải thích cũ
+  -  60 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/members: không còn câu giải thích cũ
+  -  61 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /observability: không còn câu giải thích cũ
+  -  62 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /observability: không còn câu giải thích cũ
+  -  63 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /practice/history: không còn câu giải thích cũ
+  -  64 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 student /practice: không còn câu giải thích cũ
+  -  65 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /questions: không còn câu giải thích cũ
+(node:42284) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  66 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:155:1 › TC-UX01-3 khung máy chủ (PreShell): không câu phụ, Hỏi đáp công khai (243ms)
+  -  67 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:167:1 › TC-UX01-10 hộp xác nhận Chốt điểm còn mô tả hệ quả
+  -  68 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:181:1 › TC-UX01-9 SV mở /observability, /analytics → 403 giữ nguyên
+  ✓  69 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:190:1 › TC-UX01-17 375 px: dưới h1 không còn dòng phụ trống, không tràn ngang (7.1s)
+  -  70 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:205:1 › TC-UX05-1/2/3 Hộp thư rỗng: EmptyState đúng mẫu, không «Chọn một câu hỏi», nút ghost căn trái
+  -  71 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:224:1 › TC-UX05-5 Chấm bài chưa có bài nộp: EmptyState + Tải bài lên
+  -  72 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:236:1 › TC-UX05-9 lỗi tải: ApiErrorNotice + Thử lại, không EmptyState
+  -  73 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:250:1 › TC-UX05-10 STUDENT: /inbox, /grading, /gradebook → 403, không EmptyState giảng viên
+  -  74 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:260:1 › TC-UX05-4 chi tiết ticket: không còn «Đã chờ …» / «Trạng thái …» lặp
+  ✘  75 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:273:1 › TC-UX05-11 375: Hộp thư rỗng không tràn, nút ≥ 44 px (5.0m)
+(node:51290) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  76 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:288:1 › TC-UX06-1 nhớ lớp đã chọn sau đăng xuất / đăng nhập lại
+  -  77 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:303:1 › TC-UX06-3/4/5 lớp mặc định lần đầu theo `me/today`
+  -  78 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:329:1 › TC-UX06-6/7 ep:ui:course trỏ tới lớp không tồn tại → bỏ, không lỗi, không trang trống
+  -  79 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:344:1 › TC-UX06-8 STUDENT / TA: bộ chọn lớp chỉ lớp của mình, không mục quản lý
+  ✓  80 [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:358:1 › TC-UX06-9 375: mục bộ chọn lớp cao ≥ 44 px (1.6s)
+
+
+  1) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:106:1 › TC-UX07-15 số mục nav theo vai không đổi (SV 8, TA 12, GV 15, admin 6) 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      13 |   await page.locator("input[type=password]").fill(PW);
+      14 |   await page.keyboard.press("Enter");
+    > 15 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30_000 });
+         |              ^
+      16 |   await page.locator("[data-part=topbar]").waitFor({ timeout: 15_000 });
+      17 | }
+      18 | async function courseId(page: Page, code: string) {
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:15:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:112:5
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-9f167-i-SV-8-TA-12-GV-15-admin-6--desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses: không còn câu giải thích cũ 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      13 |   await page.locator("input[type=password]").fill(PW);
+      14 |   await page.keyboard.press("Enter");
+    > 15 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30_000 });
+         |              ^
+      16 |   await page.locator("[data-part=topbar]").waitFor({ timeout: 15_000 });
+      17 | }
+      18 | async function courseId(page: Page, code: string) {
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:15:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:145:5
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-5d3b6-không-còn-câu-giải-thích-cũ-desktop/error-context.md
+
+  3) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/settings: không còn câu giải thích cũ 
+
+    Error: còn «Sinh viên vào bằng mã sẽ chờ bạn duyệt»
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "Sinh viên vào bằng mã sẽ chờ bạn duyệt"
+    Received string:        "Mã và cài đặt tham gia
+    Thành viên lớp
+    Mã tham gia
+    
+    AN7K2MQ
+    
+    Sao chép mã
+    Sao chép liên kết
+    Tạo lại mã
+    
+    30 sinh viên đang học · 1 chờ duyệt.
+    
+    Cài đặt tham gia
+    Cho phép tham gia bằng mã
+    Cần giảng viên duyệt
+    Sinh viên vào bằng mã sẽ chờ bạn duyệt.
+    Hết hạn
+    
+    Để trống nếu không giới hạn.
+    
+    Giới hạn sĩ số
+    
+    Để trống nếu không giới hạn.
+    
+    Giới hạn tên miền email
+    
+    Ví dụ ptit.edu.vn. Để trống nếu không giới hạn.
+    
+    Lưu cài đặt
+    Ngưỡng chuyển cho giảng viên
+    Ít chuyển
+    Chuyển nhiều
+    0,80
+    Ngưỡng cần chú ý
+    Tỷ lệ có mặt tối thiểu
+    0,70
+    Hoạt động tối thiểu mỗi tuần
+    1
+    Phút học tối thiểu mỗi tuần
+    60
+    Số tín hiệu thấp để tính
+    2
+    Vắng nhiều từ
+    3 buổi
+    Điểm danh bằng mã
+    Điểm danh bằng mã
+    Đo thời gian học
+    Cho sinh viên tắt đo thời gian học
+    Lớp đã có sinh viên
+    Học từ lần sửa
+    Lưu ý chấm
+    Bật
+    Ca kiểm thử
+    Chỉ quản trị viên bật
+    Tắt
+    Gợi ý câu hỏi tương tự
+    Tắt
+    Gợi ý khi sinh câu hỏi
+    Tắt
+    Dùng lại nội dung từ lớp khác
+    Lớp 761988 · An ninh mạng · 2026-2027-HK1 · 2 tài liệu
+    Dùng lại tài liệu
+    Lớp LOAD1000 · Lớp tải 1.000 · 2026-2027-HK1 · 0 tài liệu
+    Dùng lại tài liệu
+    Lớp SK21D91 · R4 hoa-thuong SK21D91 · 2026-2027-HK1 · 0 tài liệu
+    Dùng lại tài liệu"
+
+      149 |     const t = await mainText(page);
+      150 |     expect((await page.getByRole("heading", { level: 1 }).first().innerText()).length, "trang có h1").toBeGreaterThan(0);
+    > 151 |     for (const f of c.frags) expect(t, `còn «${f}»`).not.toContain(f);
+          |                                                          ^
+      152 |   });
+      153 | }
+      154 |
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:151:58
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-81660-không-còn-câu-giải-thích-cũ-desktop/error-context.md
+
+  4) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /questions: không còn câu giải thích cũ 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      13 |   await page.locator("input[type=password]").fill(PW);
+      14 |   await page.keyboard.press("Enter");
+    > 15 |   await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30_000 });
+         |              ^
+      16 |   await page.locator("[data-part=topbar]").waitFor({ timeout: 15_000 });
+      17 | }
+      18 | async function courseId(page: Page, code: string) {
+        at login (/Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:15:14)
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:145:5
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-ead71-không-còn-câu-giải-thích-cũ-desktop/error-context.md
+
+  5) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:167:1 › TC-UX01-10 hộp xác nhận Chốt điểm còn mô tả hệ quả 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Chốt điểm' })
+    Expected: visible
+    Timeout: 8000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Chốt điểm' }) with timeout 8000ms
+      - waiting for getByRole('button', { name: 'Chốt điểm' })
+
+
+      171 |   await go(page, "/gradebook", c1);
+      172 |   const btn = page.getByRole("button", { name: "Chốt điểm" });
+    > 173 |   await expect(btn).toBeVisible();
+          |                     ^
+      174 |   if ((await btn.getAttribute("aria-disabled")) === "true") test.skip(true, "Chốt điểm đang khoá ở lớp seed (công thức chưa xác nhận)");
+      175 |   await btn.click();
+      176 |   const d = page.getByRole("dialog").last();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:173:21
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-e4540--Chốt-điểm-còn-mô-tả-hệ-quả-desktop/error-context.md
+
+  6) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:205:1 › TC-UX05-1/2/3 Hộp thư rỗng: EmptyState đúng mẫu, không «Chọn một câu hỏi», nút ghost căn trái 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Chưa có câu hỏi nào cần thầy/cô xử lý."
+    Received string:    "Hộp thư hỗ trợ
+    Đang chờ
+    Đã nhận
+    Đã trả lời
+    Tất cả·
+    Chưa có câu hỏi cần xử lý"
+
+      210 |   await go(page, "/inbox", c1);
+      211 |   const t = await mainText(page);
+    > 212 |   expect(t).toContain("Chưa có câu hỏi nào cần thầy/cô xử lý.");
+          |             ^
+      213 |   expect(t).toContain("Khi AI không đủ chắc chắn hoặc sinh viên nhờ hỗ trợ, câu sẽ hiện ở đây.");
+      214 |   expect(t).not.toContain("Chọn một câu hỏi để xem");
+      215 |   const h1 = await page.getByRole("heading", { level: 1 }).boundingBox();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:212:13
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-8fb5a-câu-hỏi»-nút-ghost-căn-trái-desktop/error-context.md
+
+  7) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:224:1 › TC-UX05-5 Chấm bài chưa có bài nộp: EmptyState + Tải bài lên 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Chưa có bài nộp."
+    Received string:    "Chấm bài
+    Tải bài lên
+    Chọn một bài tập trước.
+    Công bố
+    Chọn bài đã duyệt.
+    Chấm tất cả
+    Chọn một bài tập trước.
+    Hàng chờ
+    Bài tập
+    Chưa khớp
+    Bài tập
+    Tất cả bài tập
+    Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams)
+    Bài tập 03 — Phân tích một vụ tấn công thực tế
+    Trạng thái
+    Chưa duyệt
+    Đã duyệt
+    Đã công bố
+    Chấm lỗi
+    Đang chấm
+    Chưa chấm
+    Cần xem kỹ·
+    Không có bài chưa duyệt"
+
+      229 |   await go(page, "/grading?tab=queue", c1);
+      230 |   const t = await mainText(page);
+    > 231 |   expect(t).toContain("Chưa có bài nộp.");
+          |             ^
+      232 |   expect(t).toContain("Sinh viên nộp trong ứng dụng, hoặc thầy/cô tải ZIP lên.");
+      233 |   await expect(page.getByRole("button", { name: "Tải bài lên" }).first()).toBeVisible();
+      234 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:231:13
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-ca99c--nộp-EmptyState-Tải-bài-lên-desktop/error-context.md
+
+  8) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:273:1 › TC-UX05-11 375: Hộp thư rỗng không tràn, nút ≥ 44 px 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.boundingBox: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: 'Xem tất cả' }).first()
+
+
+      279 |   await go(page, "/inbox", c1);
+      280 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+    > 281 |   const bb = await page.getByRole("button", { name: "Xem tất cả" }).first().boundingBox();
+          |                                                                             ^
+      282 |   expect(bb!.height).toBeGreaterThanOrEqual(44);
+      283 |   await ctx.close();
+      284 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:281:77
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-f2eb2-rỗng-không-tràn-nút-≥-44-px-desktop/error-context.md
+
+  9) [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:303:1 › TC-UX06-3/4/5 lớp mặc định lần đầu theo `me/today` 
+
+    Error: không lớp nào có việc
+
+    expect(locator).toContainText(expected) failed
+
+    Locator: locator('[data-part=topbar]')
+    Expected substring: "761988"
+    Received string:    "QD8R6Q · QC s8core QD8R6QTìm nhanh hoặc đi đến…⌘KCó 122 thông báo mới9+HTài khoản: TS. Lê Thu Hà"
+    Timeout: 8000ms
+
+    Call log:
+      - không lớp nào có việc locator('[data-part=topbar]') with timeout 8000ms
+      - waiting for locator('[data-part=topbar]')
+        20 × locator resolved to <header data-part="topbar" class="AppShell-module__f1vhnG__topbar">…</header>
+           - unexpected value "QD8R6Q · QC s8core QD8R6QTìm nhanh hoặc đi đến…⌘KCó 122 thông báo mới9+HTài khoản: TS. Lê Thu Hà"
+
+
+      322 |     await page.route("**/api/v1/me/today**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(todayFor(...ids)) }));
+      323 |     await login(page, "teacher");
+    > 324 |     await expect(page.locator("[data-part=topbar]"), name).toContainText(want);
+          |                                                            ^
+      325 |     await ctx.close();
+      326 |   }
+      327 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:324:60
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-0f1ab-định-lần-đầu-theo-me-today--desktop/error-context.md
+
+  10) [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:273:1 › TC-UX05-11 375: Hộp thư rỗng không tràn, nút ≥ 44 px 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.boundingBox: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: 'Xem tất cả' }).first()
+
+
+      279 |   await go(page, "/inbox", c1);
+      280 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+    > 281 |   const bb = await page.getByRole("button", { name: "Xem tất cả" }).first().boundingBox();
+          |                                                                             ^
+      282 |   expect(bb!.height).toBeGreaterThanOrEqual(44);
+      283 |   await ctx.close();
+      284 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:281:77
+
+    Error Context: test-results/qc2-r91-qc-uiux91-rw2-real-f2eb2-rỗng-không-tràn-nút-≥-44-px-mobile/error-context.md
+
+  10 failed
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:106:1 › TC-UX07-15 số mục nav theo vai không đổi (SV 8, TA 12, GV 15, admin 6) 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 admin /admin/courses: không còn câu giải thích cũ 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /class/settings: không còn câu giải thích cũ 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:143:3 › TC-UX01-1 teacher /questions: không còn câu giải thích cũ 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:167:1 › TC-UX01-10 hộp xác nhận Chốt điểm còn mô tả hệ quả 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:205:1 › TC-UX05-1/2/3 Hộp thư rỗng: EmptyState đúng mẫu, không «Chọn một câu hỏi», nút ghost căn trái 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:224:1 › TC-UX05-5 Chấm bài chưa có bài nộp: EmptyState + Tải bài lên 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:273:1 › TC-UX05-11 375: Hộp thư rỗng không tràn, nút ≥ 44 px 
+    [desktop] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:303:1 › TC-UX06-3/4/5 lớp mặc định lần đầu theo `me/today` 
+    [mobile] › e2e/qc2-r91/qc-uiux91-rw2-real.spec.ts:273:1 › TC-UX05-11 375: Hộp thư rỗng không tràn, nút ≥ 44 px 
+  35 skipped
+  35 passed (13.8m)

@@ -41,3 +41,9 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - **DEF-R3-05** (RERUN 2026-11-16, ep-r ≥ 32b4cb2b): ĐÓNG — TC-P102-14/P103-19/P103-20 PASS bằng llm_audit; nguyên nhân là kịch bản QC (lib.py call() thử lại 502/503 ×5), không phải sản phẩm. Evidence: `evidence-3/logs-p10x3c.log`, `evidence-3/scripts/p10x3.py`.
 - **DEF-R6-C-01** (RERUN, a081590a): ĐÓNG — TC-P3-06-42 PASS trên UI thật (r6c01.mjs: có «Đăng bài tạm khóa…», không còn «Chat tạm khóa»).
 - **DEF-R5-02** (RERUN, d1374b09): ĐÓNG — TC-PE06-08 PASS (axe 1440 /exams/<id>/take sau Chạy thử = 0).
+
+## Đợt chạy lại 2026-11-18 (ep-r dựng lại ở 634d59c5, gồm dc67bd93 + 247bf4e4 + 7391aa9e)
+- **DEF-R8-A1** (6c75bd54): ĐÓNG — TC-P6-03-36 PASS (EXTRACTION_INVALID, 1 lời gọi; s8r-03e.py).
+- **DEF-R8-A2** (dev2): ĐÓNG — TC-P6-04-03 PASS (focus về nút Trang sau Esc), TC-P6-07-47 PASS (focus về «Thêm hành động»).
+- **DEF-R8-A3** (TC-P6-03-19): MỞ, đã giao dev (trọng số ngoài [0;100] bị đổi thầm thành 0, mất PARAM_INVALID).
+- **DEF-R3-05**: ĐÓNG (lỗi kịch bản QC). **DEF-R3-SMK-01/P103-08**: RÚT LẠI (lỗi kịch bản QC).

@@ -1,0 +1,45 @@
+=== check-assignments-seed
+(Use `node --trace-warnings ...` to show where the warning was created)
+OK 22/22 khớp ngay + 3 chưa khớp + 6 không nộp; bản ghi: IN_APP 13 · IMAP 8 (kèm sv29 + thư lạ) · UPLOAD 5 (kèm sv30)
+
+rc=0
+=== check-chat-seed
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async chatCounts (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-chat-seed.mjs:16:21)
+    at async snap (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-chat-seed.mjs:51:35)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-chat-seed.mjs:52:11
+
+Node.js v24.21.0
+rc=1
+=== check-crm-seed
+    at tok (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:70:45)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-crm-seed.mjs:11:20
+
+Node.js v24.21.0
+rc=1
+=== check-docs-seed
+    at tok (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:70:45)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-docs-seed.mjs:10:20
+
+Node.js v24.21.0
+rc=1
+=== check-exam-seed
+(Use `node --trace-warnings ...` to show where the warning was created)
+OK bank
+rc=0
+=== check-grade-seed
+  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)
+30/30 OK
+A B C OK
+lớp 2: chốt điểm 409
+impact p95 52 ms (≤ 300)
+counts {"docs":8,"columns":3,"entries":60} — không đổi sau lần chạy hai
+rc=0
+=== check-knowledge-seed
+(Use `node --trace-warnings ...` to show where the warning was created)
+tri thức=6 (POST 5, TICKET 1) có trích dẫn=6
+rc=0

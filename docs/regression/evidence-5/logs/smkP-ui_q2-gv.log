@@ -1,0 +1,5 @@
+P TC-PE03-48 GV /questions R5C1 1440: cột 7/7; bộ lọc 6/6; primary=["Tạo câu hỏi"] (1); ô Trạng thái = "Vừa" (chữ; icon=false); nhãn Nguồn AI=true Soạn tay=true; menu "Tạo c
+ERR TimeoutError: locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByText('r5l-noref', { exact: true }).first()
+

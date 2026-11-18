@@ -55,3 +55,10 @@
 - Đo lại sạch (`evidence-3/scripts/smk3-p10308.py`, `smk-p10308.txt`): nhà rpm_limit=60, 20 luồng qua 2 gateway, xoá đúng bộ đếm 9751: lượt 1 stub tích luỹ mỗi giây [6,7,8,9,10,11,12,13,14,15] = 15 tại t=10 s; lượt 2 (nghỉ 65 s) cũng 15; trần TC 16. Người gọi dư thừa chờ rồi nhận OVERLOADED sau 10 s (không RATE_LIMIT). Thêm TC-P103-09: nhà null/null trên gateway không đặt LLM_DEFAULT_* → cũng 15/10 s, TPM bucket cap 10.000 (= 10 % × 100.000). `TestTwoProcessesRPM` đạt.
 - Hồi quy do sprint sau?: KHÔNG. `scheduler/redis.go` chỉ có 2 commit, cả hai ở sprint 3 (c9a1a04e US-P1-03 và 27d44ae8 sửa BUG-P103-1/2, 2026-10-03); `bucketLua`/`burst()` không đổi từ đó (git log, chỉ đọc). Sprint 10.5 chỉ đụng `scheduler.go` (thêm L1 Decide, 425d2a74).
 - Bài học QC: dùng bộ đếm từ chính cổng stub của ca, hoặc đếm `llm_audit` trong cửa sổ; `smk3-p10308b.py` cũ giữ làm bằng chứng của lỗi đo.
+
+## Lượt qc2/SmkP (2026-11-18, ep-r @88ab83e4)
+- DEF-R3-01 (TC-P105-44): ĐÃ SỬA ffb46656 — chạy lại: Admin 1440/390 + Teacher 1440 ở /settings/llm (mở nâng cao + hộp thoại): 0 khớp `embedding|RAG|PII|trace|fallback|prompt`; hàng nay là «Đánh chỉ mục tài liệu» → TC-P105-44 = P (`evidence-3/ui/smkP_p10544.cjs`).
+### DEF-R3-SMK-02 — Nhánh `ci/ui-drift` chưa được xoá (TC-PU05-35)
+- Mức: Thấp · Sprint gốc: 3 (handoff PU-05: «dev xoá được») · Hồi quy: không
+- Bước: `git ls-remote --heads origin ci/ui-drift` → `5e32bb50…` (EduPilot-v2); `git ls-remote --heads old-private ci/ui-drift` → `38073d08…` (TA_Agent_v2). Kỳ vọng: không in gì.
+- Ghi chú: 3 run đỏ của nhánh (37139595531 / 37140069267 / 37140802309 ở repo TA_Agent_v2) vẫn đọc được bằng `gh run view -R kagamikuro1024/TA_Agent_v2`; các ca TC-PU05-29/31/32/33/34/28, GATEP1-11, GATEPU-09 đã đạt bằng chúng (CI sprint 3 nằm ở repo old-private TA_Agent_v2, không phải origin).

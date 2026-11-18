@@ -14,3 +14,29 @@
 - Bước tái hiện: 1. Đăng nhập ta@edupilot.local. 2. Viewport 375×812 (390×812) → `document.documentElement.scrollWidth - innerWidth` = 24 (9). 3. Phần tử tràn: `AppShell topEnd` / `Menu root` / `profile` (right = 399). GV cùng viewport: 0; 414 px: 0.
 - Kỳ vọng: không cuộn ngang ở 375/390 · Thực tế: tràn 24/9 px · Bằng chứng: evidence-1.5/matrix-ta.json (overflow), evidence-1.5/scripts/dbg-overflow.mjs · Nghi ngờ mã: frontend/src/shared/shell/AppShell (khối topEnd không co lại khi bộ chọn lớp dài)
 - Chạy lại lần 2: ổn định
+
+
+## Ca lỗi thời đã XOÁ khỏi smoke (lệnh chủ dự án; mỗi mã một dòng + nguồn)
+- TC-00-01: cookie ep_demo_role/dải «Bản mô phỏng» đã bỏ (D51); phần chuyển /inbox,/chat,/gradebook,/me → /login vẫn đúng, «/» nay là trang giới thiệu
+- TC-00-02…TC-00-08: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-00-11…TC-00-16: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-00-20…TC-00-35: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-00-38…TC-00-47: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-00-49…TC-00-53: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-00-55…TC-00-56: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-00-58: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-00-61…TC-00-67: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-00-69: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-01-02…TC-01-25: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-01-28…TC-01-99: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-02-02…TC-02-20: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-02-22…TC-02-91: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-03-02…TC-03-22: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-03-24…TC-03-41: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-04-02…TC-04-03: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-04-05…TC-04-09: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-04-11…TC-04-13: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-04-15…TC-04-16: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-04-19…TC-04-48: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-04-50: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)
+- TC-DEMO-00…TC-DEMO-38: mốc đã bị thay (D51: màn mock → màn thật; dữ liệu D1–D5/id mock/cookie vai/`?state=` không còn)

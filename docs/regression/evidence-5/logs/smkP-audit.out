@@ -1,0 +1,7 @@
+AUDIT rows 115 FAIL 6
+{"role":"student","route":"/chat","w":"1440","pass":false,"ox":0,"cut":["Phiên trước (6)"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"ta","route":"/students","w":"390","pass":false,"ox":0,"cut":["Hoạt động học","Rủi ro","0 phút · 0 câu hỏi"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"admin","route":"/settings/llm","w":"1440","pass":false,"ox":0,"cut":["QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"admin","route":"/settings/integrations","w":"1440","pass":false,"ox":0,"cut":["SK21D91 · R4 hoa-thuong SK21D9","QFMWHVUFAZVI · QC luồng F2 mwh","QC-AS7r108 · QC điểm danh QC-A"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"admin","route":"/settings/llm","w":"390","pass":false,"ox":0,"cut":["QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"admin","route":"/settings/integrations","w":"390","pass":false,"ox":0,"cut":["SK21D91 · R4 hoa-thuong SK21D9","QFMWHVUFAZVI · QC luồng F2 mwh","QC-AS7r108 · QC điểm danh QC-A"],"ell":[],"touch":[],"forb":0,"notFound":false}
