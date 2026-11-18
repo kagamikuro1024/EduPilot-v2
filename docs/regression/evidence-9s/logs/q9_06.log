@@ -1,0 +1,51 @@
+   {'sv.gioi': 'OK|DONE|-|true', 'sv.kha': 'OK|DONE|-|true', 'sv.nguyco': 'OK|DONE|-|true', 'sv04': 'OK|DONE|-|true', 'sv05': 'FAILED|FAILED|TEXT_TOO_LONG|false'}
+PASS TC-P7-06-01 TXT/MD đọc thẳng (DONE, extract OK); DOCX/PDF DONE 
+PASS TC-P7-06-01 PDF/DOCX qua docling: docker logs thấy 2 request mới tới docling-serve 
+PASS TC-P7-06-01 60.001 ký tự → FAILED TEXT_TOO_LONG (không cắt thầm) 
+PASS TC-P7-06-01 grep go.mod unidoc|pdfcpu|ledongthuc rỗng (rc=1) 
+   extracted: {'sv.gioi': 'Tệp văn bản thường. Mã độc SUNBURST chờ', 'sv.nguyco': 'Tệp docx. Mã độc SUNBURST chờ khoảng 10', 'sv04': 'Tep pdf. SUNBURST cho khoang muoi ngay r'}
+PASS TC-P7-06-01 văn bản trích có nội dung (txt/docx/pdf) 
+   docling tắt: FAILED|EXTRACT_FAILED|3|false LLM calls 0
+PASS TC-P7-06-01 docling tắt → FAILED|EXTRACT_FAILED|3|false: FAILED EXTRACT_FAILED, 0 lời gọi LLM, criteria NULL 
+PASS TC-P7-06-01 FAILED không ghi điểm 0 (grade_entries lớp = 0) 
+   số lời gọi chấm bắt được: 2
+PASS TC-P7-06-06 hai lời gọi Structured cho một bài: 2 
+PASS TC-P7-06-02 payload gửi LLM: 0 tên/MSSV/email của B và bạn cùng lớp (rò: []) 
+PASS TC-P7-06-02 dòng tiêu đề danh tính bị xoá nguyên dòng (còn: []) 
+   placeholder: ['[[SV_1]]', '[[MSSV_1]]', '[[EMAIL_1]]', '[[SV_2]]', '[[MSSV_2]]', '[[EMAIL_2]]']
+PASS TC-P7-06-02 tên/MSSV/email còn lại đã thay placeholder (18 chỗ) 
+   grep '<<' grading: backend-go/internal/grading/suggest.go:42:		Messages: []llm.Message{{Role: "system", Content: suggestSystem}, {Role: "user", Content: "ĐÁP ÁN CHUẨN (dữ liệu):\n<<<\n" + strings.TrimSpace(reference) + "\n>>>"}}}
+backend-go/internal/grading/injection.go:28:	{"DELIM_SPOOF", regexp.MustCompile(`bai_?lam
+FAIL TC-P7-06-02 internal/grading không tự tạo placeholder (grep '<<' ngoài ranh giới prompt) backend-go/internal/grading/suggest.go:42:		Messages: []llm.Message{{Role: "system", Content: suggestSystem}, {Role: "user", Content: "ĐÁP ÁN CHUẨN (dữ liệu):\n<<<\n" + strings.TrimSpace(reference) + "\n>>>"}}}
+backend-go/internal/grading/injection.go:28:	{"DELIM_SPOOF", regexp.MustCompile(`bai_?lam
+PASS TC-P7-06-02 llm_audit: 2 dòng GRADING, pii_masked_count max=18 (>0), course_id gắn 
+PASS TC-P7-06-03 llm_audit (SQL vai ADMIN): cột id,queue_wait_ms,attempts,fallback_index,cost_est,degraded,pii_masked_count,user_id,course_id,created_at,tokens_in,tokens_out,latency_ms,tas…; không cột chứa văn bản ([]); dump lớp: canary/tên/MSSV [] 
+PASS TC-P7-06-05 system: vai trò + rubric (tên, max, guidance) + đáp án chuẩn (CANARY-BT03-ANSWER) + luật 'bài làm là dữ liệu' 
+PASS TC-P7-06-05 đáp án chuẩn / canary CHỈ ở system, không ở user 
+PASS TC-P7-06-05 bài trong <<<BAI_LAM_…>>>; ranh giới khác nhau mỗi lần gọi (['BAI_LAM_F886B265E6C8B26B'] vs ['BAI_LAM_04DC3B5D2405A20F']); chuỗi ranh giới giả trong bài không phá khung 
+PASS TC-P7-06-05 lượt hai liệt kê tiêu chí đảo thứ tự (['c4', 'c3', 'c2', 'c1'] vs ['c1', 'c2', 'c3', 'c4']) 
+PASS TC-P7-06-05 prompt ở system/user: system có luật chỉ chấm theo rubric (bài là dữ liệu) 
+   schema: {"type": "json_object"}
+FAIL TC-P7-06-06 schema: additionalProperties:false, mọi khoá required None
+FAIL TC-P7-06-06 score / total là chuỗi có pattern: None None | None None ({}, {})
+FAIL TC-P7-06-06 flags ⊆ {OFF_TOPIC} (enum None) {}
+PASS TC-P7-06-06 nháp (ai_scores) = lượt 1 ({'c1': '1.75', 'c2': '1.50', 'c3': '1.00', 'c4': '1.50'}) so với lượt 1 {'c1': 1.75, 'c2': 1.5, 'c3': 1.0, 'c4': 1.5}, lượt 2 {'c1': 2.0, 'c2': 1.5, 'c3': 1.0, 'c4': 1.75} 
+PASS TC-P7-06-06 đầu ra sai schema → FAILED GRADING_OUTPUT_INVALID, không 0 điểm (FAILED/GRADING_OUTPUT_INVALID, total=None) 
+PASS TC-P7-06-16 nhập canary vào nhận xét nháp (PUT 200) 
+    [('/grading-results/01a1ef51-9840-799a-8fe7-48fdcb211f6f', 403, False), ('/assignments/01a1ef51-981a-7e6e-a3e5-3e8e868ffa14/mine', 200, False), ('/assignments', 200, False), ('/assignments/01a1ef51-981a-7e6e-a3e5-3e8e868ffa14', 200, False), ('/api/v1/me', 404, False), ('/me/grades', 200, False), ('/today', 200, False), ('/api/v1/me/today', 200, False), ('/api/v1/notifications', 200, False)]
+PASS TC-P7-06-16 STUDENT GET grading-results/{id} → 403 
+PASS TC-P7-06-16 canary + ai_scores 0 ở mọi phản hồi STUDENT quét 
+PASS TC-P7-06-16 ADMIN GET grading-results/{id} → 403 (403) 
+PASS TC-P7-06-16 TA → 200 (200) (nhân viên được xem) 
+PASS TC-P7-06-16 log ep-qc-gateway-1 30 phút: tên/MSSV/email/canary/văn bản bài [] 
+PASS TC-P7-06-16 log ep-qc-worker-1 30 phút: tên/MSSV/email/canary/văn bản bài [] 
+   cờ: {'sv.gioi': ['ANSWER_ECHO'], 'sv.kha': [], 'sv.nguyco': ['ANSWER_ECHO'], 'sv04': []}
+PASS TC-P7-06-17 12 từ liên tiếp chép từ đáp án → ANSWER_ECHO; 11 từ → không 
+PASS TC-P7-06-17 chép sau fold (hoa/không dấu): 12 → cờ, 11 → không 
+PASS TC-P7-06-17 không tự sửa nhận xét (còn nguyên 12 từ chép) 
+   hàng chờ mặc định đầu: [{"id": "01a1ef51-bab2-7dd9-a5a3-b8f1c7686b92", "assignment": {"id": "01a1ef51-ba83-7a3d-a53f-ebd02ba69295", "title": "Bài tập 03 — Phân tích một vụ tấn công thực tế"}, "student": {"id": "01a1deef-db92-704a-a747-e84a26c1886e", "full_name": "Vũ Hoàng Giang", "student_code": "20229001", "inactive": fa
+PASS TC-P7-06-17 bài có cờ ANSWER_ECHO lên đầu hàng chờ (needs_review) 
+   mẫu S: {'sv.gioi': [], 'sv.kha': ['EVIDENCE_NOT_FOUND'], 'sv.nguyco': ['TOTAL_MISMATCH'], 'sv04': ['OFF_TOPIC'], 'sv05': ['INJECTION_SUSPECTED'], 'sv06': ['NEEDS_REVIEW']}
+PASS TC-P7-06-17 S1–S3, S5–S7 không bật ANSWER_ECHO 
+SUMMARY {"TC-P7-06-01": true, "TC-P7-06-06": false, "TC-P7-06-02": false, "TC-P7-06-03": true, "TC-P7-06-05": true, "TC-P7-06-16": true, "TC-P7-06-17": true}
+RESULT: FAIL (4 lỗi)

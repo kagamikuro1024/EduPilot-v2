@@ -1,0 +1,14 @@
+TC-P7-06-M2: dùng total của LLM thay cho Σ
+backend-go/internal/grading/check.go: «res.Reported = &t» -> «res.Reported = &t
+		res.Total = t»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestCheckTable'
+rc=1 => RED
+--- FAIL: TestCheckTable (0.00s)
+    --- FAIL: TestCheckTable/K05 (0.00s)
+            	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/grading/check_test.go:109
+            	Error:      	Not equal: 
+            	            	expected: "7.00"
+            	            	actual  : "7.50"
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grading	0.768s
+FAIL

@@ -1,0 +1,10 @@
+TC-P7-08-M2: sửa điểm ghi đè ai_scores
+backend-go/internal/store/review.sql.go: «reviewed_by = null, reviewed_at = null, pass_detail = $8,» -> «ai_scores = $1, reviewed_by = null, reviewed_at = null, pass_detail = $8,»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestEditKeepsAiScores'
+rc=1 => RED
+--- FAIL: TestEditKeepsAiScores (1.43s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/assignment/review_test.go:253
+        	Error:      	Received unexpected error:
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	2.091s
+FAIL

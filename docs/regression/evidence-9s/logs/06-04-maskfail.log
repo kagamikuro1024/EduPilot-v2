@@ -1,0 +1,3 @@
+--- PASS: TestMaskFailedNoLLMCall (1.53s)
+ok  	github.com/edupilot/backend-go/internal/grading	2.278s
+ok  	github.com/edupilot/backend-go/internal/llm	0.654s [no tests to run]

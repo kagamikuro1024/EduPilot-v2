@@ -1,0 +1,9 @@
+TC-P7-11-M2: 401 lặp xin token vô hạn
+backend-go/internal/submission/source/teams.go: «if renewed {
+				return nil, fail(CodeAuthFailed, errors.New("token mới vẫn bị từ chối"))» -> «if renewed && false {
+				return nil, fail(CodeAuthFailed, errors.New("token mới vẫn bị từ chối"))»
+$ go test -count=1 -tags integration,testroutes -timeout 60s ./internal/submission/source -run 'TestTeamsAdapterExpiredTokenRenewsOnce'
+rc=1 => RED
+panic: test timed out after 1m0s
+FAIL	github.com/edupilot/backend-go/internal/submission/source	60.328s
+FAIL

@@ -1,0 +1,13 @@
+TC-P7-09-M2: công bố ghi grade_entries
+backend-go/internal/assignment/publish.go: «if n == 0 {
+				return idsDetail(apierr.VersionConflict» -> «if _, err := tx.Exec(ctx, "insert into grade_entries (course_id, item_id, student_id, score, entered_by) selec»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grade -run 'TestPublishWritesNoGradeEntries'
+rc=1 => RED
+--- FAIL: TestPublishWritesNoGradeEntries (1.78s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/grade/assignment_publish_test.go:68
+        	Error:      	Not equal: 
+        	            	expected: 3
+        	            	actual  : 5
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grade	2.449s
+FAIL

@@ -1,0 +1,13 @@
+TC-P7-07-M4: XADD trước COMMIT (enqueue báo tín hiệu ngay trong giao dịch, trước tx.Commit)
+backend-go/internal/grading/queue.go: «r.Register(KindBatch, func(ctx context.Context, j jobs.JobCtx) (any, error) {» -> «earlySignal = q.Signal
+	r.Register(KindBatch, func(ctx context.Context, j jobs.JobCtx) (any, error) {»
+backend-go/internal/grading/queue.go: «func (q *Queue) stream() string {» -> «var earlySignal func(ctx context.Context, course, submission, result uuid.UUID, round int16) error
+
+func (q *Q»
+backend-go/internal/grading/queue_api.go: «if err := tx.Commit(ctx); err != nil {
+		return Enqueued{}, fmt.Errorf("grading: commit: %» -> «if earlySignal != nil {
+		rows, _ := store.New(tx).GradingBatchRows(ctx, uuidStrings(ids))
+		for _, r := range»
+$ go test -count=1 -tags integration,testroutes -timeout 300s ./internal/grading -run 'TestGradeAll|TestGradeOne|TestRetry|TestDeadLetter|TestQueue|TestGrading'
+rc=0 => GREEN
+ok  	github.com/edupilot/backend-go/internal/grading	12.312s

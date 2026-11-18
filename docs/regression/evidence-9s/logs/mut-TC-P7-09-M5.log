@@ -1,0 +1,5 @@
+TC-P7-09-M5: /me/grades đọc điểm bài tập mọi trạng thái
+backend-go/internal/store/submission.sql.go: «join grading_results r on r.course_id = s.course_id and r.submission_id = s.id and r.statu» -> «join grading_results r on r.course_id = s.course_id and r.submission_id = s.id and r.status in ('DRAFT','REVIE»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestStudentNeverSeesDraftGrade'
+rc=0 => GREEN
+ok  	github.com/edupilot/backend-go/internal/integration	2.364s

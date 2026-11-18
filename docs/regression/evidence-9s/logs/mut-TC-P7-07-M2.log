@@ -1,0 +1,11 @@
+TC-P7-07-M2: ghi kết quả không kiểm lease_owner (SaveDraft + SaveFailed)
+backend-go/internal/store/essay_grading.sql.go: «and ($16::text is null or (run_state = 'RUNNING' and lease_owner = $16))» -> «and ($16::text is null or true)»
+backend-go/internal/store/essay_grading.sql.go: «and ($7::text is null or (run_state = 'RUNNING' and lease_owner = $7))» -> «and ($7::text is null or true)»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestGradingJobSurvivesWorkerKill'
+rc=1 => RED
+--- FAIL: TestGradingJobSurvivesWorkerKill (1.16s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/integration/grading_queue_test.go:177
+        	Error:      	Expected error with "grading: mất thuê" in chain but got nil.
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/integration	1.892s
+FAIL

@@ -1,0 +1,13 @@
+TC-P7-09-M1: TA gọi publish (assignment/{aid}/publish + results/publish -> staff)
+backend-go/internal/httpapi/assignmenthttp/handler.go: «r.With(teacher, h.Idem).Post("/courses/{id}/assignments/{aid}/publish", h.publish)» -> «r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/publish", h.publish)»
+backend-go/internal/httpapi/assignmenthttp/handler.go: «r.With(teacher, h.Idem).Post("/courses/{id}/grading-results/publish", h.publishResults)» -> «r.With(staff, h.Idem).Post("/courses/{id}/grading-results/publish", h.publishResults)»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestPublishRBAC'
+rc=1 => RED
+--- FAIL: TestPublishRBAC (1.01s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/assignment/rbac_http_test.go:80
+        	Error:      	Not equal: 
+        	            	expected: 403
+        	            	actual  : 200
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	1.651s
+FAIL

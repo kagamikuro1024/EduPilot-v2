@@ -1,0 +1,4 @@
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment ./internal/integration -run 'TestMineDTOAllowlist|TestStudentNeverSeesDraftGrade'
+rc=0
+ok  	github.com/edupilot/backend-go/internal/assignment	0.495s
+ok  	github.com/edupilot/backend-go/internal/integration	2.808s

@@ -150,3 +150,9 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 
 ## Chưa chạy (mẫu)
 103 ca: dạng tài liệu / cần dữ liệu lớn hoặc kịch bản chưa có script; liệt kê theo dải ở bảng trên (cột «chưa chạy (mẫu)»).
+
+## Lượt 2026-11-18 — luật chủ dự án: không còn nhãn chặn/LT thiếu nguồn; chạy tới P/F (mã dc67bd93, stack ep-qc)
+| TC | KQ | Ghi chú |
+| --- | --- | --- |
+| TC-D04-01 | N | «LT (P-11-26)» cũ thiếu nguồn quyết định (P-11-26 không đổi hành vi TC) → chạy lại (dựng bảng OR bằng bộ replay/đầu vào ngoài replay) |
+| TC-D04-09 | N | như TC-D04-01 |

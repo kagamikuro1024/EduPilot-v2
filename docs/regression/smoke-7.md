@@ -1,8 +1,8 @@
 # Smoke hồi quy sprint 7 — kết quả
-Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 (nhóm E) · Ngày: 2026-11-15
-Tổng TC cũ: 582 · Đạt: 321 · Trượt: 1 · Không chạy K (a/b/c): 9 · Lỗi thời (T, tính vào cột K của brief): 2 · Chưa chạy (mẫu) N: 249   (P+F+K+T+N = 582 = 582)
+Mã chạy: 634d59c5 (sprint/11-p10-eval, bản dựng trên ep-r) · Stack ep-r · Người chạy: qc3 (Qc3S7, chạy lại từ bản ghi qc2 ngày 2026-11-15) · Ngày: 2026-11-18
+Tổng TC: 579 (582 cũ − 2 lỗi thời có nguồn đã xoá) · Đạt: 381 · Trượt: 2 · Chưa chạy N: 196   (P+F+N = 579 = 579)
 
-Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
+Quy ước: P = đạt; F = trượt; N = chưa chạy (chạy tới P/F thật, không còn K/T). Ca lỗi thời có nguồn quyết định đã xoá khỏi bảng, xem cuối defects-7.md. Bản ghi mới của qc3 ghi «[qc3 18/11]».
 
 Cách chạy:
 - API (python/urllib + lib `/tmp/qc2e`): `s7_p4.py` (escalate, hàng chờ ticket, claim/release/answer/dismiss, phân quyền), `s7_mail.py` (Mailpit, mail_outbox, settings, failed-mail, chuông), `s7_p5.py`/`s7_p5b.py`/`s7_p5c.py` (follow-up, Đã rõ/hoàn tác, dismiss, tri thức từ ticket, ngưỡng chuyển), `s7_p6.py` (báo cáo/ẩn/ghim/sửa/xoá thread), `s7_p7.py` (khủng hoảng: `crisis-sets.json` 20 dương/17 âm qua chat thật, Threads 422 CRISIS_SUPPORT), `s7_p51.py` (sinh/sửa/xoá buổi học, điểm danh thủ công PUT lưới, phát biểu), `s7_p53.py` (heartbeat, study-time, danh sách SV, ngưỡng risk, hồ sơ 360, ghi chú, outreach, me/*).
@@ -13,27 +13,28 @@ Cách chạy:
 - Goose up/down/up trên DB tạm riêng: schema giống hệt, xem TC-P4-01-01. Go test sprint 7: `gorun.py 7` (bỏ ca `go test ./...` toàn cây); kết quả xem bảng. Postgres crash-recovery: xem smoke-6 và `evidence-7/postgres-crash-recovery.log`.
 - Go sprint 7: chỉ chạy xong TC-P4-01-17 và TC-P4-01-37 (các lệnh còn lại — course/exam/thread/calendar, crm, integration seed — quá nặng khi máy tải ~20, dừng giữa chừng) → N.
 
+
 ## Tổng hợp theo US
-| US | TC tổng | P | F | K | T | N | Ghi chú |
-|---|---|---|---|---|---|---|---|
-| US-P4-01 | 42 | 15 | 0 | 0 | 0 | 27 |  |
-| US-P4-02 | 31 | 7 | 0 | 0 | 0 | 24 |  |
-| US-P4-03 | 45 | 19 | 0 | 0 | 0 | 26 |  |
-| US-P4-04 | 39 | 10 | 0 | 0 | 0 | 29 |  |
-| US-P4-05 | 53 | 40 | 0 | 0 | 0 | 13 |  |
-| US-P4-06 | 55 | 48 | 0 | 0 | 0 | 7 |  |
-| US-P4-07 | 29 | 26 | 0 | 0 | 0 | 3 |  |
-| US-P5-01 | 36 | 23 | 0 | 0 | 0 | 13 |  |
-| US-P5-02 | 48 | 13 | 0 | 0 | 0 | 35 |  |
-| US-P5-03 | 47 | 10 | 0 | 0 | 0 | 37 |  |
-| US-P5-04 | 37 | 34 | 0 | 0 | 0 | 3 |  |
-| US-P5-05 | 35 | 26 | 0 | 0 | 0 | 9 |  |
-| US-P5-06 | 28 | 12 | 0 | 0 | 1 | 15 |  |
-| US-S7-SEED | 25 | 19 | 0 | 3 | 1 | 2 |  |
-| US-CI-02 | 32 | 19 | 1 | 6 | 0 | 6 |  |
+| US | TC tổng | P | F | N | Ghi chú |
+|---|---|---|---|---|---|
+| US-P4-01 | 42 | 32 | 0 | 10 |  |
+| US-P4-02 | 31 | 16 | 1 | 14 |  |
+| US-P4-03 | 45 | 30 | 0 | 15 |  |
+| US-P4-04 | 39 | 29 | 0 | 10 |  |
+| US-P4-05 | 53 | 44 | 0 | 9 |  |
+| US-P4-06 | 55 | 48 | 0 | 7 |  |
+| US-P4-07 | 29 | 26 | 0 | 3 |  |
+| US-P5-01 | 36 | 23 | 0 | 13 |  |
+| US-P5-02 | 48 | 13 | 0 | 35 |  |
+| US-P5-03 | 47 | 10 | 0 | 37 |  |
+| US-P5-04 | 37 | 34 | 0 | 3 |  |
+| US-P5-05 | 35 | 26 | 0 | 9 |  |
+| US-P5-06 | 27 | 12 | 0 | 15 |  |
+| US-S7-SEED | 24 | 19 | 0 | 5 |  |
+| US-CI-02 | 31 | 19 | 1 | 11 |  |
 
 ## Kết quả từng ca
-(Mỗi ca P/F/K/T một dòng. Ca N liền nhau cùng lý do được gom một dòng.)
+(Mỗi ca P/F một dòng; ca N liền nhau cùng ghi chú được gom một dòng.)
 | TC | KQ | Ghi chú |
 |---|---|---|
 | TC-P4-01-01 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
@@ -45,33 +46,57 @@ Cách chạy:
 | TC-P4-01-07 | P | escalate → 201 {'already': False, 'ticket': {'id': '01a1df53-c92c-7dbc-8808-d96a6181fbf9', 'status': 'OPEN', 'creat (đã có ticket trước đó=0) |
 | TC-P4-01-08 | P | 3 lần → [200, 200, 200], số ticket=1 |
 | TC-P4-01-09 | P | 10 yêu cầu song song → [200, 201], số ticket=1 |
-| TC-P4-01-10 … TC-P4-01-11 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-10 | P | [qc3 18/11] dismiss→200; escalate lại → 200 already=True status=CLOSED |
+| TC-P4-01-11 | P | [qc3 18/11] 5 lần đầu [201, 201, 201, 201, 201]; bấm lại tin đầu → 200 already=True |
 | TC-P4-01-12 | P | ticket tự động cho câu yếu: AUTO_LOW_CONFIDENCE/0.000 |
-| TC-P4-01-13 … TC-P4-01-16 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-13 | P | [qc3 18/11] outbox lỗi: SSE status=200 done=None; tin ASSISTANT=FAILED/PROVIDER_ERROR; ticket 27→27 (không mồ côi); trigger gỡ (0 còn) |
+| TC-P4-01-14 | P | [qc3 18/11] LIBRARY_SEARCH: LIBRARY_SEARCH/conf=-/low=false/deg=false/DONE → không ticket; PERSONAL: PERSONAL_GRADE/conf=-/low=false/deg=false/DONE → không ticket; WHAT_IF_GRADE: WHAT_IF_GRADE/conf=-/low=false/deg=false/DONE → không ticket; EXAM_SCHEDULE: EXAM_SCHEDULE/conf=-/low=false/deg=false/DONE → không ticket; UPCOMING_EVENTS: UPCOMING_EVENTS/conf=-/low=false/deg=false/DONE → không ticket |
+| TC-P4-01-15 | P | [qc3 18/11] CRISIS: CRISIS/low=false/deg=false/DONE → không ticket; OTHER_PERSON(email): OTHER_PERSON/low=false/deg=false/DONE → không ticket; OTHER_PERSON(tên trong lớp): OTHER_PERSON/low=false/deg=false/DONE → không ticket; SMALLTALK: SMALLTALK/low=false/deg=false/DONE → không ticket; degraded: provider lỗi (error_rate=1) → tin FAILED, ticket=0 (lần chạy trước); low_confidence=false: PERSONAL_GRADE/EXAM_SCHEDULE/UPCOMING_EVENTS low=false → ticket=0 (TC-14) |
+| TC-P4-01-16 | P | [qc3 18/11] GRADE_FORMULA/low=false/deg=false/DONE; ticket origin=AUTO_NO_FORMULA; câu mẫu="Lớp chưa có công thức điểm chính thức do giảng viên xác nhận." (câu gốc «Điểm cuối kỳ tính thế nào?» được luật gán COURSE_QA — SRS private-chat N2 coi là quy chế chung; dùng «Công thức tính điểm…» đúng GRADE_FORMULA) |
 | TC-P4-01-17 | P | go test ./internal/agent -run TestShouldEscalateTable ok (7 ca con) |
-| TC-P4-01-18 … TC-P4-01-27 (10 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-18 … TC-P4-01-24 (7 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-25 | P | [qc3 18/11] 6th → 409 TICKET_LIMIT_REACHED count=0 |
+| TC-P4-01-26 | P | [qc3 18/11] trước: 5 ticket mở; câu yếu low_confidence=True, ticket=None; log "suppressed" 0→1; câu: Mình chưa tìm thấy nội dung này trong tài liệu của lớp. |
+| TC-P4-01-27 | P | [qc3 18/11] (a) s02 lớp B 201; (b) s05 lớp A 201; (c) answer=200, nhờ tin 6 → 201 |
 | TC-P4-01-28 | P | chi tiết ticket → 200; keys=['ticket', 'question', 'ai_answer', 'transcript'] |
 | TC-P4-01-29 | P | SV khác 404, TA 403, TCH 403, ADM 403, id lạ 404 |
-| TC-P4-01-30 … TC-P4-01-36 (7 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-30 | P | [qc3 18/11] REMOVED (remove→(200, {'user_id': '01a1ef3e-c3ca-7c35-9e81-2624a950742c', 'status': 'REMOVED', 'previous_status': 'ACTIVE', 'warning': None}), enrol=REMOVED) tin của mình → 403; PENDING gọi tin người khác → 404; ngoài lớp → 404 (spec #15: 403/404/404) |
+| TC-P4-01-31 | P | [qc3 18/11] archive→200; escalate → 409 COURSE_ARCHIVED |
+| TC-P4-01-32 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-33 | P | [qc3 18/11] status=[200, 200, 422, 405]; khoá ticket thấy: ['created_at', 'id', 'status']; khoá cấm lộ: [] |
+| TC-P4-01-34 | P | [qc3 18/11] USER/STREAMING/CRISIS/OTHER_PERSON/SMALLTALK/FAILED → [(422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE'), (422, 'MESSAGE_NOT_ESCALATABLE')]; ticket=['0', '0', '0', '0', '0', '0'] |
+| TC-P4-01-35 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-36 | P | [qc3 18/11] cùng key: 201/200 cùng id, count=1; không Idempotency-Key → 200 (count=1) |
 | TC-P4-01-37 | P | `go test -tags testroutes ./internal/contract/...`: lệnh gốc thiếu tag nên 404 `_test/*`; có tag chỉ 1 test đỏ do 504 DEADLINE (TestNoAnswerLeak, tải máy ~20) — chạy riêng ok 29 s |
 | TC-P4-01-38 | P | 10.000 ticket/50 lớp: list lớp+status → Index Scan escalation_tickets_course_status_idx; theo SV → escalation_tickets_student_idx; SLA → sla_idx; autoclose → autoclose_idx; không Seq Scan escalation_t |
-| TC-P4-01-E1 … TC-P4-01-P1 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-E1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-01-E2 | P | [qc3 18/11] xoá phiên→204; GV mở chi tiết → 200; ticket.session_id giữ nguyên=True; keys=['ticket', 'question', 'ai_answer', 'transcript'] |
+| TC-P4-01-E3 | P | [qc3 18/11] tin chứa CANARY-9K3Z đã gửi (st=200); escalate 200; grep log gateway/worker = ['0', '0'] |
+| TC-P4-01-P1 | P | [qc3 18/11] SVB GET messages phiên SVA → 404; GET ticket → 403; danh sách phiên của SVB có ticket SVA=False |
 | TC-P4-02-01 … TC-P4-02-02 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-02-03 | N | go test course/exam/thread/calendar: một gói đỏ lúc máy tải ~20 (chưa xác định gói) — chưa chạy lại riêng từng gói |
 | TC-P4-02-04 | P | SSE /events của GV nhận khung `notification` (TICKET_NEW) < 1 s sau khi ticket tạo |
-| TC-P4-02-05 … TC-P4-02-12 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-05 | P | [qc3 18/11] 20 lần: nhận 20/20 khung; p50=0.32s p95=0.40s max=0.41s (ms: [176, 178, 335, 142, 193, 239, 73, 166, 304, 351, 399, 309, 346, 357, 409, 339, 383, 308, 340, 402]) |
+| TC-P4-02-06 … TC-P4-02-08 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-09 | P | [qc3 18/11] Last-Event-ID=1795016801855-0; 3 ticket sinh cách nhau 3,5 s khi ngắt: nhận 3 khung notification ids=['1795016827861-0', '1795016831851-0', '1795016835355-0'] (đúng thứ tự, không trùng); mọi id > E0; các khung=[None, 'ready', 'notification', 'notification', 'notification'] (lần chạy gộp nhanh trước đó: 2 khung vì n bằng không phát — theo SRS 4.4.3) |
+| TC-P4-02-10 | P | [qc3 18/11] khoá ep:sse:buf:01a1ef53-… tồn tại=1, xoá; nối Last-Event-ID cũ → [(None, None), ('ready', '{"connection_id":"d17f7eb4-f043-4636-bf64-673fe02e2253","server_time":"2026-11-18T15:44:24.980961605Z"}'), ('resync', '{"reason":"buffer_exceeded"}')]; unread API=2 DB=2 |
+| TC-P4-02-11 | P | [qc3 18/11] status=200, khung=[(None, None), ('ready', '{"connection_id":"5ef22bcf-5087-4efa-9f18-b28e1adfb3b2","server_time":"2026-11-18T15:44:52.009890126Z"}'), ('resync', '{"reason":"invalid_last_event_id"}')] |
+| TC-P4-02-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-02-13 | P | TICKET_NEW gộp: «8 câu hỏi đang chờ giảng viên» (một thông báo/lớp) |
-| TC-P4-02-14 … TC-P4-02-16 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-14 | F | [qc3 18/11] F (DEF-R7-02): sau khi số về 0 (dòng tự đã đọc, tiêu đề giữ "1 câu hỏi…"), ticket mới (n=1) không nâng dòng/không chưa đọc/không khung SSE vì so n > leadingInt(title) cũ; xem evidence-7/scripts-r3/p402c_def.txt; (SRS 4.4.3 cũng nói dòng giữ id và đặt read_at=NULL khi số tăng — id KHÁC trong TC là lời văn, không tính) |
+| TC-P4-02-15 | P | [qc3 18/11] xử lý hết → dòng read_at=2026-11-18 15:45:47.241542+00 title=3 câu hỏi đang chờ giảng viên |
+| TC-P4-02-16 | P | [qc3 18/11] số 4→3 sau khi đọc: read_at trước 2026-11-18 15:45:47.241542+00, sau 2026-11-18 15:45:47.241542+00/3 câu hỏi đang chờ giảng viên; khung notification mới=0 |
 | TC-P4-02-17 | P | số trong tiêu đề (8) = count(OPEN) của lớp (8) |
 | TC-P4-02-18 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-02-19 | P | thông báo ticket chứa PII: 0 |
-| TC-P4-02-20 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-20 | P | [qc3 18/11] phát lại outbox escalation.created (ticket 01a1ef56): thông báo 1/1 câu hỏi đang chờ giảng viên → 1/1 câu hỏi đang chờ giảng viên; khung SSE mới=0 |
 | TC-P4-02-21 | P | SV đọc thông báo GV → 404; GV đọc → 204; lặp → 204 |
-| TC-P4-02-22 … TC-P4-02-27 (6 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-22 | P | [qc3 18/11] 2 kết nối [200, 200], thứ ba → 429 {"code":"SSE_LIMIT_REACHED","message":"Đã đạt số kết nối thời gian thực tối đa.","trace_id |
+| TC-P4-02-23 … TC-P4-02-27 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-02-28 | P | danh sách chuông 200, 3 mục, unread? keys=['next_cursor', 'unread_count'] |
 | TC-P4-02-29 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-02-E1 | P | link rỗng → 422 |
-| TC-P4-02-P1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-02-E1 | P | [qc3 18/11] link rỗng → 422; link của người khác → 200 {'updated': 0}; chưa đọc của GV 1→1 |
+| TC-P4-02-P1 | P | [qc3 18/11] dòng TICKET_NEW của ADMIN=0, của sinh viên QC3=0 |
 | TC-P4-03-01 | P | limit=2 → 2 mục, cursor=True |
 | TC-P4-03-02 | P | limit 101/0 → [422, 422] |
 | TC-P4-03-03 | P | status ANSWERED/ALL/CLAIMED → [200, 200, 200] |
@@ -83,7 +108,8 @@ Cách chạy:
 | TC-P4-03-09 | P | chi tiết → 200 |
 | TC-P4-03-10 | P | GV lớp khác xem ticket → 403 |
 | TC-P4-03-11 | P | SV/ADMIN → 403/403 |
-| TC-P4-03-12 … TC-P4-03-13 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-12 | P | [qc3 18/11] audit trước 342; 3 lần mở chi tiết → 342; claim → 343; answer → 344; dismiss → 345; canary trong audit=0 |
+| TC-P4-03-13 | P | [qc3 18/11] claim → 200; DB CLAIMED/true/true |
 | TC-P4-03-14 | P | claim đồng thời → {'ta': 200, 'teacher': 409} |
 | TC-P4-03-15 | P | người đã nhận bấm lại = 200 |
 | TC-P4-03-16 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
@@ -91,49 +117,77 @@ Cách chạy:
 | TC-P4-03-18 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-03-19 | P | dismiss OUT_OF_SCOPE → 200 {'ticket': {'id': '01a1df54-2168-70c5-a6c2-b6ad84e6bbca', 'k |
 | TC-P4-03-20 | P | answer lặp cùng key → 200, thân giống=True |
-| TC-P4-03-21 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-21 | P | [qc3 18/11] answer không Idempotency-Key → 422 IDEMPOTENCY_KEY_REQUIRED; số tin STAFF_ANSWER 4→4 |
 | TC-P4-03-22 | P | answer body rỗng/4001 → [422, 422] (ticket đã ANSWERED nên 409 cũng hợp lệ) |
-| TC-P4-03-23 … TC-P4-03-25 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-23 | P | [qc3 18/11] answer → 200; ticket.session_id đổi=False; tin STAFF_ANSWER nằm ở phiên «Tin nhắn từ giảng viên/true/01a1ef57-ba4c-70ee-b51c-ecd758ba0d21»; GV đọc ngữ cảnh → 200; Hỏi tiếp → 422 |
+| TC-P4-03-24 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-25 | P | [qc3 18/11] teacher answer ticket TA đã nhận → 409 TICKET_ALREADY_CLAIMED details={"claimed_at": "2026-11-18T15:47:43.815329Z", "claimed_by": {"id": "01a1ef3e-bf94-726c-8f09-d1ab4ed7727c", "full_name":  |
 | TC-P4-03-26 | P | người khác release → 409, chủ release → 200 |
-| TC-P4-03-27 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-27 | P | [qc3 18/11] teacher thêm → 200; TA → 409; ticket ANSWERED/true; tin STAFF_ANSWER=2; TICKET_ANSWERED 1→2 |
 | TC-P4-03-28 | P | answer chứa tên/MSSV/email/CCCD người khác → [422, 422, 422] |
-| TC-P4-03-29 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-29 | P | [qc3 18/11] MSSV/email/CCCD → [(422, 'PII_IN_ANSWER'), (422, 'PII_IN_ANSWER'), (422, 'PII_IN_ANSWER')] |
 | TC-P4-03-30 | P | answer sạch → 200 |
 | TC-P4-03-31 … TC-P4-03-38 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-03-39 | P | {'sv08': [403, 403, 403], 'sv09': [403, 403, 403], 'admin': [403, 403, 403], 'ta': [200, 200, 409], 'teacher': [200, 200, 409]} |
-| TC-P4-03-40 … TC-P4-03-42 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-03-E1 … TC-P4-03-P1 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-40 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-41 | P | [qc3 18/11] feedback → 422 MESSAGE_NOT_RATEABLE; retry → 422 MESSAGE_NOT_RATEABLE; feedback DB=- |
+| TC-P4-03-42 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-03-E1 | P | [qc3 18/11] claim ANSWERED → 409 TICKET_STATE_INVALID; claim CLOSED → 409 TICKET_STATE_INVALID; answer CLOSED → 409 TICKET_STATE_INVALID |
+| TC-P4-03-E2 | P | [qc3 18/11] gửi hai lần cùng key → 200/200; số tin STAFF_ANSWER=1 |
+| TC-P4-03-P1 | P | [qc3 18/11] GV lớp khác mở ticket → 403; TA lớp khác answer → 403; SV gọi route staff → [403, 403, 403, 403, 403] (spec: 404 cho cross-course; ghi mã thực) |
 | TC-P4-04-01 | P | Mailpit có 2 thư «Giảng viên đã trả lời» tới sv08 |
 | TC-P4-04-02 | P | độ trễ outbox→SENT (s): 0.42 0.31 0.28 0.29 |
 | TC-P4-04-03 | P | thư chứa link; rò nội dung trả lời/PII: []; độ dài 845 |
-| TC-P4-04-04 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-04 | P | [qc3 18/11] trả lời → 1 thư; phát lại outbox escalation.answered ({"user_id": "01a1ef3e-c1a5-74b7-8b06-057…): Mailpit 1 thư, mail_outbox 1 dòng (dedupe escalation_answered:<answer_message_id>) |
 | TC-P4-04-05 | P | payload escalation chỉ chứa id (không nội dung) |
-| TC-P4-04-06 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-06 | P | [qc3 18/11] thư A chứa A1=True B2=False; thư B chứa B2=True A1=False; chéo=0 |
 | TC-P4-04-07 | P | khoá payload: answer_message_id,ticket_id |
-| TC-P4-04-08 … TC-P4-04-27 (20 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-08 | P | [qc3 18/11] thân thư nhắc: có /inbox?course=…=True, mã lớp QC3A=True; rò tên/nội dung/MSSV/email=[] |
+| TC-P4-04-09 … TC-P4-04-10 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-11 | P | [qc3 18/11] Mailpit MessageID=01a1ef58-db8e-7efb-9fe2-7b62c84eb2e6@edupilot.local so với mail_outbox.id=01a1ef58-db8e-7efb-9fe2-7b62c84eb2e6: dạng <id@domain MAIL_FROM> |
+| TC-P4-04-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-13 | P | [qc3 18/11] seed-age 100h + run-job: OPEN/-/stage=1/ws=11-14 18:49; thư tới qc3t=2, qc3ta=5; tiêu đề "Có câu hỏi chờ giảng viên quá 24 giờ làm việc" |
+| TC-P4-04-14 | P | [qc3 18/11] đăng thread 201, bình luận 201; thư thread_reply tới tác giả: 1; thân chứa tiêu đề thread=True, liên kết=True; (nhánh VERIFY/CORRECT của câu trả lời AI: xem TC-P4-04-14b ở nhóm threads) |
+| TC-P4-04-15 | P | [qc3 18/11] bật notify_ticket_by_mail (200); 3 ticket trong ~10 s → 1 thư ticket_new gộp, tiêu đề "Có câu hỏi mới cần giảng viên"; thân: 'Lớp QC3F có 2 câu hỏi đang chờ.\r\n\r\nhttps://localhost/inbox?course=01a1ef56-b61b-74ac-a4b9-223b4d7a26'; khoá cửa sổ TTL=948s |
+| TC-P4-04-16 | P | [qc3 18/11] cửa sổ trượt 15 phút (mốc là giá trị khoá Redis ms; TTL khoá 948 s ≤ 16 phút): ticket đầu → 1 thư; mốc cách 14 m 50 s (dành 9 s cho độ trễ xử lý; 14 m 59 s sát biên bị vượt do độ trễ worker) + ticket → thêm 0 thư; mốc cách 15 m 01 s + ticket → thêm 1 thư (mong 1/0/1) |
+| TC-P4-04-17 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-18 | P | [qc3 18/11] 4 thư test: tiêu đề ['Giảng viên đã trả lời câu hỏi của bạn']; chứa tên=[] |
+| TC-P4-04-19 … TC-P4-04-20 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-21 | P | [qc3 18/11] địa chỉ người nhận không hợp lệ → DEAD/1/bad_recipient (DEAD ngay, attempts=1, không thử lại). SMTP 550 thật không dựng được trên Mailpit: lớp lỗi vĩnh viễn 5xx được dev test TestClassify; ở đây dùng bad_recipient |
+| TC-P4-04-22 | P | [qc3 18/11] PUT notify_answer_by_mail=false → 200; sau khi trả lời: thư=0, chuông TICKET_ANSWERED=3 |
+| TC-P4-04-23 | P | [qc3 18/11] teacher mới (notify_ticket_by_mail=mặc định false) nhận ticket → thư mới=0 |
+| TC-P4-04-24 | P | [qc3 18/11] To=[['qc3s13@edupilot.local']]; thư gửi evil@x.vn=0 (client truyền to/cc trong body answer bị bỏ qua) |
+| TC-P4-04-25 | P | [qc3 18/11] thư nhắc lớp QC3A: TEACHER 2, TA 5; ADMIN 0; teacher lớp khác 0 |
+| TC-P4-04-26 … TC-P4-04-27 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-04-28 | P | sai version → 409; STUDENT PUT notify_ticket_by_mail → 200 (lưu, không tác dụng) theo kỳ vọng TC |
 | TC-P4-04-29 | P | route chứa "outbox": không có |
-| TC-P4-04-30 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-30 | P | [qc3 18/11] log 40 phút qua (gateway/worker) chứa @edupilot.local: ['0', '0']; mẫu: '' |
 | TC-P4-04-31 | P | ADMIN failed-mail → 200 {'items': [{'id': '01a1df2b-7e85-7cdc-9b73-ae2a759fc2df', 'template': 'seed_obse |
 | TC-P4-04-32 | P | GV/TA/SV → [403, 403, 403] |
 | TC-P4-04-33 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-04-34 | P | mail_outbox 100.000 dòng/500 DEAD: EXPLAIN trang đầu + con trỏ dùng mail_outbox_dead_idx, không Seq Scan |
-| TC-P4-04-35 … TC-P4-04-36 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-04-E1 … TC-P4-04-P1 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-35 | P | [qc3 18/11] dòng thiếu ticket_id → DEAD/1/payload_invalid; Mailpit thêm thư=0 |
+| TC-P4-04-36 | P | [qc3 18/11] ticket đã xoá/không tồn tại → DEAD/1/ticket_missing (không thử lại: attempts trong nhãn) |
+| TC-P4-04-E1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-04-E2 | P | [qc3 18/11] SV chưa xác minh email: answer 200; mail_outbox: không có dòng; Mailpit 0 thư (ghi nhận thực tế) |
+| TC-P4-04-P1 | P | [qc3 18/11] mail_outbox escalation_answered tới GV/TA=0; mail ticket tới ADMIN=0 (COURSE_TICKETS_STALLED chỉ thông báo); tiêu đề thư tới admin: [] |
 | TC-P4-05-01 | P | followup → 200 {'ticket': {'id': '01a1df53-c92c-7dbc-8808-d96a6181fbf9', 'status': 'OPEN', 'created_at': '2026-11-1 |
 | TC-P4-05-02 | P | transcript GV = [STAFF_ANSWER, USER "Em chưa hiểu bước 2" (DB intent=ESCALATION_FOLLOWUP)]; canary tin lân cận=0 (API không phơi trường intent, kiểm intent ở DB) |
 | TC-P4-05-03 | P | lặp cùng client_msg_id → 200; số tin=1 |
 | TC-P4-05-04 | P | content rỗng/2001 → [422, 422] |
 | TC-P4-05-05 | P | OPEN→409 TICKET_STATE_INVALID; CLAIMED→409 TICKET_STATE_INVALID |
 | TC-P4-05-06 | P | 31 ngày→409 TICKET_REOPEN_EXPIRED; 29 ngày→200 |
-| TC-P4-05-07 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-05-07 | P | [qc3 18/11] followup→200; job→ticket.sla xong; OPEN/-/stage=0/ws=11-18 22:48; mục TICKET ở Hôm nay: [] |
 | TC-P4-05-08 | P | followup bởi SV khác/GV/ADMIN → [404, 403, 403] |
 | TC-P4-05-09 | P | confirm → 200; trạng thái CLOSED/STUDENT_CONFIRMED |
 | TC-P4-05-10 | P | undo <5s → 200; trạng thái ANSWERED |
 | TC-P4-05-11 | P | bấm "Đã rõ": ngay (300 ms) dòng "Đã đóng · Hoàn tác" (lạc quan); sau 6 s còn "Đã đóng" + "Hỏi tiếp" (Hoàn tác biến mất); không hộp thoại (role=dialog/alertdialog), không toast, không window.dialog |
 | TC-P4-05-12 | P | confirm bởi SV khác/GV → [404, 403] |
-| TC-P4-05-13 … TC-P4-05-16 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-05-17 | P | worktime_test.go TestWorkingElapsedTable: đủ 9 dòng SRS 9.3 (09→17=8h, T6 16→T2 09=17h, T7→CN=0, T6 23→T2 01=2h, T2 07→08=1h, T2 08→T3 08=24h, T2 17→T3 08=15h, cùng điểm=0, T5 08→T3 sau 17=81h) khớp;  |
+| TC-P4-05-13 | P | [qc3 18/11] ANSWERED 8 ngày → CLOSED/AUTO_7D/2026-11-18 15:48:11.655316+00; chạy lại → closed_at giữ nguyên=True; OPEN quá 9 ngày=OPEN, CLAIMED quá 9 ngày=CLAIMED |
+| TC-P4-05-14 | P | [qc3 18/11] ANSWERED 6 ngày + teacher trả lời thêm (200) → chạy autoclose: ANSWERED/true (answered_at đã đặt lại) |
+| TC-P4-05-15 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-05-16 | P | [qc3 18/11] go test internal/escalation (5 bảng) PASS (go/esc_work.log); stack theo --now (a: waiting_since T2 08:00 → nhắc T3 08:00; b: T6 12:00 → T2 12:00; c: T7 10:00 → T3 00:00; [mốc, stage a/b/c]): [('11-23T11:59', ['0', '0', '0']), ('11-23T12:01', ['0', '1', '0']), ('11-24T00:01', ['0', '1', '1']), ('11-24T07:59', ['0', '1', '1']), ('11-24T08:01', ['1', '1', '1'])] |
+| TC-P4-05-17 | P | worktime_test.go TestWorkingElapsedTable: đủ 9 dòng SRS 9.3 (09→17=8h, T6 16→T2 09=17h, T7→CN=0, T6 23→T2 01=2h, T2 07→08=1h, T2 08→T3 08=24h, T2 17→T3 08=15h, cùng điểm=0, T5 08→T3 sau 17=81h) khớp; |
 | TC-P4-05-18 | P | tick SLA 1 phút (TICKET_SLA_TICK=1m), Chủ nhật nên tuổi ticket tính theo giờ làm việc = 0: dùng seed-age (UPDATE waiting_since vào các ngày làm việc trước): 8 giờ làm việc → stage 0; ~2 ngày → stage 1 |
 | TC-P4-05-19 | P | ticket ≥ 72 giờ làm việc (waiting_since 2026-11-05) → sla_stage=2 sau một tick |
 | TC-P4-05-20 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
@@ -157,7 +211,7 @@ Cách chạy:
 | TC-P4-05-38 | P | có knowledge_items sau khi lưu |
 | TC-P4-05-39 | P | SV/ADMIN/GV lớp khác lưu tri thức → [403, 403, 403] |
 | TC-P4-05-40 | P | chunk text (được nhúng) chứa bản đã sửa=True; embedding nạp sau 3.3s; text='true/Câu hỏi: Quy định nộp bài muộn kỳ QCKX9 của lớp là gì?\nTrả lời: ĐÃ SỬA QCKX9: nộp muộn trừ 20% mỗi ngày, tối đa 3 n' |
-| TC-P4-05-41 | P | embedding nạp sau 3.3s (<10s); ep:rag:ver (rỗng→1) tăng; sv22 hỏi trùng đoạn → trả lời trích nguồn "Hỏi đáp đã được giảng viên xác nhận" (TICKET: không có thread_id/liên kết) [1]. Lưu ý: câu hỏi diễn  |
+| TC-P4-05-41 | P | embedding nạp sau 3.3s (<10s); ep:rag:ver (rỗng→1) tăng; sv22 hỏi trùng đoạn → trả lời trích nguồn "Hỏi đáp đã được giảng viên xác nhận" (TICKET: không có thread_id/liên kết) [1]. Lưu ý: câu hỏi diễn |
 | TC-P4-05-42 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-05-43 | P | gỡ tri thức → 204, lặp → 204 |
 | TC-P4-05-44 | P | GET library (SV 200; GV 403 vì route của SV), documents, documents/stats, share-sources, /me/today GV+SV: 0 lần lộ tài liệu THREAD_KNOWLEDGE / "Hỏi đáp đã được giảng viên xác nhận"; documents/{id}, li |
@@ -166,8 +220,7 @@ Cách chạy:
 | TC-P4-05-47 | P | 0.85 → 200; 0.49/0.96/0.82/abc → [422, 422, 422, 422] |
 | TC-P4-05-48 | P | version cũ → 409; TA/SV/ADMIN → [403, 403, 403] |
 | TC-P4-05-49 | N | slice E ghi F không có triệu chứng (dở dang) — cần chạy lại |
-| TC-P4-05-50 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-05-E1 … TC-P4-05-P1 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-05-50 … TC-P4-05-P1 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-06-01 | P | SV báo SPAM → 201 {'reported': True} |
 | TC-P4-06-02 | P | báo lần hai → 409 ALREADY_REPORTED; số dòng=1 |
 | TC-P4-06-03 | P | enum sai/note>200/note với SPAM → [422, 422, 422] |
@@ -189,7 +242,7 @@ Cách chạy:
 | TC-P4-06-19 | P | {'sv08': [403, 403, 403, 403, 403], 'admin': [403, 403, 403, 403, 403]} |
 | TC-P4-06-20 | P | audit entity_id=01a1e014-87c0-7a68-9976-996853d5fef1: thread.auto_hide/1 ; thread.dismiss_reports/1 ; thread.hide/1 ; thread.unhide/1; dismiss-reports→200 |
 | TC-P4-06-21 | P | hide song song → {'teacher': 200, 'ta': 409} |
-| TC-P4-06-22 | P | hide→200; ẩn: ['POST_HIDDEN/Bài của bạn đã bị ẩn: Lạc đề/-', 'POST_HIDDEN/Bài của bạn đang được giảng viên xem xét/-']; bỏ ẩn→200: ['POST_UNHIDDEN/Bài của bạn đã hiện lại/-']; lộ người báo cáo=False;  |
+| TC-P4-06-22 | P | hide→200; ẩn: ['POST_HIDDEN/Bài của bạn đã bị ẩn: Lạc đề/-', 'POST_HIDDEN/Bài của bạn đang được giảng viên xem xét/-']; bỏ ẩn→200: ['POST_UNHIDDEN/Bài của bạn đã hiện lại/-']; lộ người báo cáo=False; |
 | TC-P4-06-23 | P | sửa kèm SĐT → 422 PII_DETECTED; bản lưu chứa SĐT=False |
 | TC-P4-06-24 | P | sửa sạch → 200; edited_at có=true |
 | TC-P4-06-25 | P | sửa kèm SĐT canary 0933777417 → 422 PII_DETECTED; pg_dump / grep -c = 0 (0 chỗ thô) |
@@ -205,7 +258,7 @@ Cách chạy:
 | TC-P4-06-35 | P | ghim 3 bài đầu thành công, bài thứ 4 → 409 (PIN_LIMIT); mã thành công là 204 theo openapi (TC ghi «200») |
 | TC-P4-06-36 | P | ghim 3 bài → 204×3; trang đầu: pinned=3 (≤3), items không lặp ghim; trang kế (cursor): pinned=0; lọc week=3, tag=qc36, status=pending/verified/none đều 200 giữ nguyên |
 | TC-P4-06-37 | P | SV/ADMIN ghim → [403, 403] |
-| TC-P4-06-38 | P | sv22 bình luận→201; THREAD_REPLY cho chủ bài=1 (sv21 tự bình luận 201 không thêm); VERIFY→THREAD_VERIFIED 6→7; REJECT báo chủ bài=0; mail thread_* 6→7 (gần nhất: thread_reply/SENT ; thread_reply/SENT  |
+| TC-P4-06-38 | P | sv22 bình luận→201; THREAD_REPLY cho chủ bài=1 (sv21 tự bình luận 201 không thêm); VERIFY→THREAD_VERIFIED 6→7; REJECT báo chủ bài=0; mail thread_* 6→7 (gần nhất: thread_reply/SENT ; thread_reply/SENT |
 | TC-P4-06-39 | P | 3 bài AI PENDING → teacher "3 câu trả lời AI chờ duyệt/-", TA "3 câu trả lời AI chờ duyệt" (1 dòng gộp, cập nhật tại chỗ); xử lý hết → "2 câu trả lời AI chờ duyệt/2026-11-15 16:47:30.106789+00" (đã đọ |
 | TC-P4-06-40 | P | teacher có mục POST_REPORTED "N bài bị báo cáo chờ xem · lớp E7C1" Href /threads?view=moderation&course=<E1> (SV, ADMIN không thấy); sau khi xử lý hết hàng chờ (OPEN 0, HIDDEN 0) ≤65 s: mục còn=0 |
 | TC-P4-06-41 | P | trước REJECT truy xuất được=True; REJECT→200 (0.4s) knowledge_items=0; sau REJECT truy xuất=False; ep:rag:ver 8→9; SV thấy bài AI bị loại=False |
@@ -220,8 +273,7 @@ Cách chạy:
 | TC-P4-06-50 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-06-51 | P | xoá bởi chủ → 204; hide → 404 {'code': 'NOT_FOUND', 'message': 'Không tìm thấy.', 'trace_id': '861381313558c34 |
 | TC-P4-06-52 | P | SV khác thấy canary: {'list': (200, False), 'list2': (200, False), 'similar': (404, False), 'today': (200, False), 'tget': (404, False), 'queue': (403, False), 'notif': (200, False)}; chủ bài 200; hàn |
-| TC-P4-06-53 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P4-06-E1 … TC-P4-06-E2 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P4-06-53 … TC-P4-06-E2 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P4-07-01 | P | 20/20 câu dương → CRISIS; sót: [] |
 | TC-P4-07-02 | P | 17 câu âm: bị bắt nhầm CRISIS: [] |
 | TC-P4-07-03 | P | intent: ['CRISIS', 'SMALLTALK', 'COURSE_QA', 'COURSE_QA'] |
@@ -274,8 +326,7 @@ Cách chạy:
 | TC-P5-01-22 | P | xoá buổi 5 (và 6) → 204/204; buổi mới → 201 {'created': 1, 'first_session_no': 5, 'last_session_no': 5, 'skipped': 0} (kỳ vọng 5) |
 | TC-P5-01-23 | P | SV 403, ADMIN 403, SV ghi 403, SV ngoài lớp 403; TA dry_run 200 |
 | TC-P5-01-24 | P | PUT buổi lớp 1 qua URL lớp 2 → 404 |
-| TC-P5-01-25 … TC-P5-01-34 (10 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-01-E1 … TC-P5-01-E2 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-01-25 … TC-P5-01-E2 (12 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-01 | P | lưới điểm danh → 200; keys=['session', 'students'] |
 | TC-P5-02-02 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-03 | P | buổi lớp 1 qua URL lớp 2 → 404 |
@@ -296,8 +347,7 @@ Cách chạy:
 | TC-P5-02-40 … TC-P5-02-41 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-02-42 | P | {'sv08': [403, 403], 'admin': [403, 403], 'sv.moi': [403, 403], 'ta': [200, 200]} |
 | TC-P5-02-43 | P | TA xoá sự kiện của GV → 403 |
-| TC-P5-02-44 … TC-P5-02-46 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-02-E1 … TC-P5-02-E2 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-02-44 … TC-P5-02-E2 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-03-01 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
 | TC-P5-03-02 … TC-P5-03-04 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-03-05 | P | hai tab (t1,t2) cùng khung 30 s → study_time_daily chỉ +30 s (không nhân đôi) |
@@ -315,8 +365,7 @@ Cách chạy:
 | TC-P5-03-36 … TC-P5-03-37 (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-03-38 | P | TA/SV/ADMIN đổi allow_study_time_opt_out → [403, 403, 403] |
 | TC-P5-03-39 | P | lớp đã có SV → 409 COURSE_HAS_STUDENTS |
-| TC-P5-03-40 … TC-P5-03-44 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-03-E1 … TC-P5-03-P1 (3 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-40 … TC-P5-03-P1 (8 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-04-01 | P | danh sách SV → 200, 3 mục, cursor=True |
 | TC-P5-04-02 | P | duyệt con trỏ: 7 SV, duy nhất=7 |
 | TC-P5-04-03 | P | lớp G7A (12 ACTIVE + 1 PENDING g7s13 + 1 REMOVED g7s14): danh sách 12 dòng, total=12; PENDING/REMOVED không có. Lớp seed 761987: sv.lech PENDING không có trong 30 dòng, total=30=ACTIVE |
@@ -324,7 +373,7 @@ Cách chạy:
 | TC-P5-04-05 | P | filter attention/absent/inactive → [200, 200, 200] |
 | TC-P5-04-06 | P | q không dấu/hoa thường/MSSV/không khớp → [200, 200, 200, 200] |
 | TC-P5-04-07 | P | filter=xyz → 422 |
-| TC-P5-04-08 | P | go test ./internal/crm -run TestStudents360ExplainNoSeqScan: PASS (dữ liệu dựng đúng SRS 9.4: 1 lớp 1.000 SV + 19 lớp 100 SV, 15 buổi, ≥280.000 study_time_daily, ≥5.000 participation_events, ANALYZE;  |
+| TC-P5-04-08 | P | go test ./internal/crm -run TestStudents360ExplainNoSeqScan: PASS (dữ liệu dựng đúng SRS 9.4: 1 lớp 1.000 SV + 19 lớp 100 SV, 15 buổi, ≥280.000 study_time_daily, ≥5.000 participation_events, ANALYZE; |
 | TC-P5-04-09 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-04-10 | P | go test TestStudents360LargeCoursePerf PASS (EXPLAIN hồ sơ MỘT SV lớp 1.000: Index Scan theo course_id, không Seq Scan bảng lớn) + TestProfileUnder3s PASS. docker-compose/ env của ep-r-gateway không đ |
 | TC-P5-04-11 | P | go test TestRiskTable ok (16 ca con). Kiểm tay ở lớp thử G7A bằng dữ liệu SQL + crm-risk-run: ca 10 — g7s03 tỉ lệ chuyên cần 0,50 đúng ngưỡng attendance_ok_min=0,50 → NONE (đặt lại 0,70 → AT_RISK); ca |
@@ -338,17 +387,17 @@ Cách chạy:
 | TC-P5-04-19 | P | đặt ngưỡng risk → 200 |
 | TC-P5-04-20 | P | ngưỡng ngoài miền → [422, 422, 422, 422, 422] |
 | TC-P5-04-21 | P | TA/SV/ADMIN → [403, 403, 403]; sai version → 409 |
-| TC-P5-04-22 | P | UI thật /class/settings (teacher): nhóm "Ngưỡng cần chú ý": ngay sau tiêu đề là nhãn "Tỷ lệ có mặt tối thiểu" (không câu mô tả); 5 hàng nhãn+điều khiển (5 thanh, 5 ô nhập) + giá trị: Tỷ lệ có mặt tối  |
-| TC-P5-04-23 | P | GET /me/today bởi g7t sau crm-risk-run: mục STUDENT_ATTENTION "3 sinh viên mới vào diện cần chú ý · G7A", href /students?filter=attention&course=01a1e00d-e964-7d39-864e-500cbd54f3e5; khối attention 3  |
+| TC-P5-04-22 | P | UI thật /class/settings (teacher): nhóm "Ngưỡng cần chú ý": ngay sau tiêu đề là nhãn "Tỷ lệ có mặt tối thiểu" (không câu mô tả); 5 hàng nhãn+điều khiển (5 thanh, 5 ô nhập) + giá trị: Tỷ lệ có mặt tối |
+| TC-P5-04-23 | P | GET /me/today bởi g7t sau crm-risk-run: mục STUDENT_ATTENTION "3 sinh viên mới vào diện cần chú ý · G7A", href /students?filter=attention&course=01a1e00d-e964-7d39-864e-500cbd54f3e5; khối attention 3 |
 | TC-P5-04-24 | P | g7t2 (GV lớp G7B không AT_RISK): không STUDENT_ATTENTION, attention=[], attention_total=0 (khối ẩn, không rỗng giả); STUDENT: khoá attention/attention_total vắng, ADMIN: vắng (['count', 'actions']) |
 | TC-P5-04-25 | P | gieo 8 AT_RISK ở G7A: khối attention 5 dòng (≤5), attention_total=8 → UI "Xem tất cả (8)"; mục "8 sinh viên mới vào diện cần chú ý · G7A" |
 | TC-P5-04-26 | P | UI thật (https://localhost:1143, teacher g7t, 1280×800, lớp G7A): cột=Sinh viên · Chuyên cần · Phát biểu · Hoạt động học · Rủi ro; chip=Cần chú ý, Vắng nhiều, Ít hoạt động; dòng 01="G7 Sinh Viên 01 G7 |
 | TC-P5-04-27 | P | UI thật: URL sau gõ+chip: /students?filter=attention&q=g7+sinh+vi%C3%AAn+0; quay lại từ hồ sơ: ô tìm="g7 sinh viên 0", chip Cần chú ý pressed=1; deep link ?filter=attention → chip pressed=1, chip khác |
-| TC-P5-04-28 | P | UI thật: khung xương khi tải chậm: 1 phần tử; lỗi 500: có "Thử lại" và bấm lại tải được; tìm không khớp: "Không có sinh viên nào khớp." + nút Bỏ lọc (1) → bấm → danh sách; 720 px: tràn trang=0px; 600  |
+| TC-P5-04-28 | P | UI thật: khung xương khi tải chậm: 1 phần tử; lỗi 500: có "Thử lại" và bấm lại tải được; tìm không khớp: "Không có sinh viên nào khớp." + nút Bỏ lọc (1) → bấm → danh sách; 720 px: tràn trang=0px; 600 |
 | TC-P5-04-29 | P | {'sv09': [403, 403], 'admin': [403, 403], 'sv.moi': [403, 403], 'ta': [200, 200]} |
 | TC-P5-04-30 | P | Crawl tài khoản g7s01 (AT_RISK, ghi chú CANARY-OBS-4F, đã nhận outreach): /me/{courses,profile,settings,today,sessions}, /notifications, /chat/sessions + messages 2 phiên, /courses/{id}/me/{attendance |
 | TC-P5-04-31 | P | g7s01 hỏi chat "Em có bị coi là cần chú ý không?" và "Giảng viên ghi gì về em?": trả lời mẫu "Mình chưa tìm thấy nội dung này trong tài liệu của lớp." (không tiết lộ); /_test/llm/payloads (fake provid |
-| TC-P5-04-32 | P | go test ./internal/crm -run TestSensitiveQueriesOnlyFromCRM/TestStudentNeverSeesRisk -v: ok (2 PASS; test nay nằm ở internal/crm, ./internal/contract không còn các test này nên "no tests to run"); go  |
+| TC-P5-04-32 | P | go test ./internal/crm -run TestSensitiveQueriesOnlyFromCRM/TestStudentNeverSeesRisk -v: ok (2 PASS; test nay nằm ở internal/crm, ./internal/contract không còn các test này nên "no tests to run"); go |
 | TC-P5-04-33 | P | API: G7N (2 sinh viên, không buổi/không dữ liệu): số 0, risk.level=NONE, không lỗi. UI thật (ảnh students-G7N.png / arch.txt): cột Chuyên cần "—", Phát biểu "0 · 0,00", Hoạt động học "0 phút · 0 câu h |
 | TC-P5-04-34 | P | student_risk của G7N xoá trống: API risk={level:NONE, computed_at:null}; UI: cột Rủi ro không có nhãn nào (cột giữ tiêu đề nhưng ô trống, không "Cần chú ý"/"Theo dõi"). Lớp lưu trữ (admin archive → st |
 | TC-P5-04-35 | P | ui-antipatterns.sh trên cây be0c0d96: exit 0 (CI "32/32 phép bắt được"). run PR 43712425198 @be0c0d96 (CI Playwright, cùng test, khung mô phỏng gateway): students.spec "list filters search keep state" |
@@ -377,7 +426,7 @@ Cách chạy:
 | TC-P5-05-23 | P | outreach → 201 |
 | TC-P5-05-24 | P | g7s01: phiên "Tin nhắn từ giảng viên" có tin ASSISTANT kèm block ticket answered_by={role TEACHER, full_name "G7 Giảng viên"} (UI nhãn "Giảng viên · …", kiểm trong lượt UI); `Hỏi tiếp` (POST /chat/tic |
 | TC-P5-05-25 | P | outreach chứa tên/email/MSSV của SV khác → [422, 422, 422] |
-| TC-P5-05-26 | P | outreach tới g7s01 (AT_RISK): notifications title/body khớp (rủi ro/cần chú ý/at-risk/đang theo dõi/CANARY) = 0; thư Mailpit tới g7s01 ['Giảng viên vừa nhắn cho bạn'] → 0 khớp; tin STAFF_ANSWER không  |
+| TC-P5-05-26 | P | outreach tới g7s01 (AT_RISK): notifications title/body khớp (rủi ro/cần chú ý/at-risk/đang theo dõi/CANARY) = 0; thư Mailpit tới g7s01 ['Giảng viên vừa nhắn cho bạn'] → 0 khớp; tin STAFF_ANSWER không |
 | TC-P5-05-27 | P | 4 outreach/ngày tới g7s02 (2 nhân viên g7t, g7ta cộng lại): [(201, 'ok'), (201, 'ok'), (201, 'ok'), (429, 'OUTREACH_LIMIT')] — tin thứ 4 → 429 OUTREACH_LIMIT; tin STAFF_ANSWER thực có 3; REMOVED (g7s1 |
 | TC-P5-05-28 | P | Như TC-P5-04-31 trên g7s01 (AT_RISK + ghi chú canary): trả lời mẫu, không `[[…]]`, payload LLM/RAG không chứa ghi chú hay nhãn rủi ro; dev test TestStudentAsksAboutOwnNotes, TestNoToolReadsObservation |
 | TC-P5-05-29 | P | go test ./internal/agent -run TestStudentAsksAboutOwnNotes/TestNoToolReadsObservations -v: ok (2 PASS) |
@@ -393,10 +442,9 @@ Cách chạy:
 | TC-P5-06-06 | P | Crawl tài khoản g7s01 (AT_RISK, ghi chú CANARY-OBS-4F, đã nhận outreach): /me/{courses,profile,settings,today,sessions}, /notifications, /chat/sessions + messages 2 phiên, /courses/{id}/me/{attendance |
 | TC-P5-06-07 … TC-P5-06-10 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-P5-06-11 | P | g7s02 (vắng 2 buổi, 2 SPEAK = +0,50): /me/attendance absent=2, /me/participation points_total 0.50 (2 lần); chat "Em đã nghỉ mấy buổi và được cộng bao nhiêu điểm phát biểu rồi ạ?" → "Chào bạn, hiện tạ |
-| TC-P5-06-12 | P | giảng viên (ngữ cảnh khác) ghi thêm 1 SPEAK cho g7s02 → sau 3,6 s: /me/participation points_total=0.75 (3 lần), chat "Bạn đã nghỉ 2 buổi và hiện có tổng cộng 0.75 điểm cộng phát biểu (tương ứng với 3  |
+| TC-P5-06-12 | P | giảng viên (ngữ cảnh khác) ghi thêm 1 SPEAK cho g7s02 → sau 3,6 s: /me/participation points_total=0.75 (3 lần), chat "Bạn đã nghỉ 2 buổi và hiện có tổng cộng 0.75 điểm cộng phát biểu (tương ứng với 3 |
 | TC-P5-06-13 | P | GET …/me/study-time?weeks=8 (g7s08, đã Đã hiểu): 200 {weeks:[{week_start,minutes,by_area}] (8 tuần), this_week_minutes=100, tracking={'enabled': True, 'locked': False}}; chỉ của mình; người khác/…/stu |
 | TC-P5-06-14 … TC-P5-06-18 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-06-19 | T | Spec đổi hợp lệ: proposals sprint 7 #34 (PM ACCEPTED 2026-10-15): nhân viên vào /me thấy màn chặn chung ("Bạn không có quyền xem màn này" + nút Về Hôm nay), không redirect; CI me.spec "me staff blocke |
 | TC-P5-06-20 | P | g7s11 ghi danh G7A và G7N: /me/attendance G7A recorded=4 (DB 4), G7N recorded=0 (DB 0); study this_week G7A=100, G7N=0; số đổi theo lớp, không lẫn (dev TestMeTwoCoursesIsolated PASS; UI đổi bộ chọn: C |
 | TC-P5-06-21 | P | grep -rn "@/mock" frontend/src/features/me / wc -l = 0; CI fe-check (pnpm lint + build) xanh |
 | TC-P5-06-22 … TC-P5-06-25 (4 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
@@ -411,53 +459,47 @@ Cách chạy:
 | TC-S7-SEED-07 | P | Phút/tuần (761987, 10 tuần từ 2026-09-07): sv.nguyco 120 ×6 rồi tuần 7–9 = 30 / 28 / 35 (<60), tuần 10 = 120; sv.gioi 300 mọi tuần; sv.kha 150 mọi tuần; lớp 761988 (3 tuần 2026-10-26, 11-02, 11-09 mỗi |
 | TC-S7-SEED-08 | P | `docker exec -e APP_ENV=… gateway admin seed-study-time --course G7N --weeks 2 --profile -`: production → exit 1 "chỉ chạy khi APP_ENV thuộc dev, test (hiện: production)"; staging → 1; rỗng → 1; local |
 | TC-S7-SEED-09 | P | Chạy seed-study-time G7N lần 1: 58 dòng, tổng 24.000 giây; chạy lại (dev, test): "0 dòng", count(*) = 58 và sum(active_seconds) = 24000 không đổi |
-| TC-S7-SEED-10 | T | Spec đổi hợp lệ: proposals sprint 8 #5: thêm tín hiệu GRADE, "số WATCH không ghim". Hiện 761987: đúng 1 AT_RISK (C, lý do chuyên cần + điểm quá trình + thời gian học + hoạt động), A/B NONE, lớp 761988 |
 | TC-S7-SEED-11 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-S7-SEED-12 | P | 761987 (5 ticket gốc của seed, sv14…sv18): OPEN mới, OPEN quá hạn (created 2026-11-07, waiting_since <now−80h, sla_stage 2), CLAIMED, ANSWERED, CLOSED (STUDENT_CONFIRMED); lớp 761988 = 0 ticket; không |
 | TC-S7-SEED-13 | P | ticket thử ở G7A: trước/sau seed-age (--hours 100): mọi cột không-thời-gian của escalation_tickets giống hệt, md5 chat_messages.content không đổi; created_at/waiting_since lùi (2026-11-15 16:45:08.941 |
 | TC-S7-SEED-14 | P | ticket G7A sau `seed-age --tickets --ticket <id> --hours 192` + `run-job ticket.sla`: sla_stage=2, Today mục TICKET urgency=overdue "1 câu hỏi chờ quá 72 giờ làm việc · lâu nhất 196 giờ". (Lần đầu --h |
 | TC-S7-SEED-15 | P | 761987: GET moderation/queue (teacher) = 2 phần tử; post_reports = 5 (OPEN): thread "Worms DO NOT NEED USER INTERVENTION!" 2 báo cáo (2 người khác nhau, OPEN); thread "Phisher" 3 báo cáo của 3 người k |
-| TC-S7-SEED-16 | K | K loại b: cần PM duyệt — chạy lại node scripts/seed.mjs trên stack ep-r đã seed (PM cấm vì phá seed chung; idempotency kiểm đọc: bước 14 client_event_id cố định, 16–17 thoát sớm — dev báo ở handoff; c |
+| TC-S7-SEED-16 | N | (trước: K) K loại b: cần PM duyệt — chạy lại node scripts/seed.mjs trên stack ep-r đã seed (PM cấm vì phá seed chung; idempotency kiểm đọc: bước 14 client_event_id cố định, 16–17 thoát sớm — dev báo ở handoff; c |
 | TC-S7-SEED-17 | P | `NODE_ENV=production node scripts/seed.mjs` → exit 1 "Seed bị chặn: NODE_ENV=production…"; `APP_ENV=production` → exit 1 (chặn trước mọi lệnh mạng). `grep -n SUPPORT_RESOURCES_VI docker-compose.local. |
 | TC-S7-SEED-18 | P | Đọc mã + chạy phần rẻ (không chạy cả cổng: cần build:gate/Playwright/Docker nặng): scripts/gate-p4.sh = P4.md (+ -race): go test -race escalation/notify/mail(+thread), TestEscalationToMail, TestNotify |
 | TC-S7-SEED-19 | P | run PR 43712425198 @be0c0d96 (CI Playwright, cùng test, khung mô phỏng gateway): escalation.spec 25/25 ✓ (có "inbox claim conflict" = hai người cùng Nhận, "inbox send failure", mail settings, ticket s |
 | TC-S7-SEED-20 | P | A/B/C (sv.gioi/sv.kha/sv.nguyco) GET me/attendance → 200 đúng số của mình (A vắng 0; B vắng 2, muộn 1; C vắng 5, muộn 1), …/students/{uid}/{profile,attendance} và của người khác → 403; sv.moi (D): me/ |
 | TC-S7-SEED-21 | P | TestSeedIsolation + TestSeedAdminForbidden nay ở internal/crm (-tags integration): TestSeedAdminForbidden PASS (57 s); TestSeedIsolation lần 1 FAIL do máy tải 27 (175 s, timeout container), chạy lại 1 |
-| TC-S7-SEED-22 | K | K loại b: cần PM duyệt — kill -9 seed.mjs giữa bước điểm danh trên DB trống (cần DB trống/seed riêng, PM cấm chạm seed chung) |
-| TC-S7-SEED-23 | K | K loại b: cần PM duyệt — `docker compose stop gateway` giữa lúc seed (dừng gateway dùng chung của nhiều agent, PM cấm) |
+| TC-S7-SEED-22 | N | (trước: K) K loại b: cần PM duyệt — kill -9 seed.mjs giữa bước điểm danh trên DB trống (cần DB trống/seed riêng, PM cấm chạm seed chung) |
+| TC-S7-SEED-23 | N | (trước: K) K loại b: cần PM duyệt — `docker compose stop gateway` giữa lúc seed (dừng gateway dùng chung của nhiều agent, PM cấm) |
 | TC-S7-SEED-24 | P | courses: 761987/t, 761988/f; user_settings track_study_time=false: 0; PUT {allow_study_time_opt_out:false,version} bởi teacher → (409, 'COURSE_HAS_STUDENTS'); ta/sv.gioi/admin → 403/403/403 |
-| TC-S7-SEED-25 … TC-id (2 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-S7-SEED-25 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 | TC-01 | P | Σ shard CI $S: 658+74 / 343+389 / 126+606 = 2196 (passed 1127, skipped 1069, flaky 0, failed 0) = PW_N 2196 (playwright --list --grep-invert @real trên cây sạch be0c0d96). TRƯỚC (main 9bcad074, run 43 |
 | TC-02 | P | --list --shard=i/3: 586/805/805; giao 0 dòng trùng; hợp sort -u = --list không shard = 2196 (diff rỗng). Ghi chú: tổng kết CI mỗi shard 732 (chia theo số test lúc chạy), --list chia khác nhau nhưng hợ |
 | TC-03 | P | ci.yml be0c0d96: `playwright test --grep-invert @real --shard=${{matrix.shard}}/3`; playwright.config.ts không đổi so 1518f83 (git diff rỗng): workers CI=2, retries CI=1; không --workers/--retries/--m |
 | TC-04 | P | Run đỏ 43716942738: artifact riêng e2e-reports-2 (playwright-report + test-results) và lhci-reports-simulate chứa thư mục ẩn .lighthouseci (include-hidden-files: true); run 43712050291 có e2e-reports- |
 | TC-05 | P | mọi dòng Go matrix: `go test -race -tags testroutes -v $pkgs`; không -short/-failfast |
 | TC-06 | P | union 4 dòng matrix = `go list -tags testroutes ./...` = 100 gói, mỗi gói đúng 1 dòng (không trùng, không thiếu); sprint 7 gốc là 42 gói — tăng do sprint sau thêm gói |
-| TC-07 | P | GO_T ở S: `go test -tags testroutes -list ".*" ./... / grep -c ^Test` = 2808 = CI Σ(PASS+SKIP) 1360+6+1106+3+147+3+182+1 = 2808; FAIL=0, panic=0, DATA RACE=0 ở cả 4 dòng. TRƯỚC (main 9bcad074) CI Σ =  |
-| TC-08 | K | loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
+| TC-07 | P | GO_T ở S: `go test -tags testroutes -list ".*" ./... / grep -c ^Test` = 2808 = CI Σ(PASS+SKIP) 1360+6+1106+3+147+3+182+1 = 2808; FAIL=0, panic=0, DATA RACE=0 ở cả 4 dòng. TRƯỚC (main 9bcad074) CI Σ = |
+| TC-08 | N | (trước: K) loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
 | TC-09 | P | course/auth là dòng riêng; rest-1/rest-2 loại trừ bằng grep -Ev (xem log) |
 | TC-10 | P | bước `go test -p 1 -count=3 -tags testroutes -run TimingEqualized$` vẫn chạy cho ./internal/auth/ và ./internal/course/ |
 | TC-11 | P | Go (static) 1 lần: go vet, go vet -tags testroutes, golangci-lint v2.14.0 ×2 (testroutes có --build-tags), setup sqlc 1.31.1 + sqlc diff; không lặp ở matrix; xanh 62 s |
 | TC-12 | P | git diff 1518f83..be0c0d96 lighthouserc*.json: assertion không đổi (LCP devtools median ≤2500 error, dev/ui warn; CLS ≤0.1; TBT ≤200 (dev/ui warn); script size ≤256000; median); chỉ thêm URL /me (cả h |
 | TC-13 | P | devtools A (/ /chat /threads /inbox: 4 URL, 12 lượt) ∪ B (/gradebook /me /settings/llm /dev/ui: 4 URL, 12 lượt) = 8 URL (7 cũ + /me), không giao; simulate 9 URL ×5 = 45 lượt (7 cũ + /me + /checkin; be |
-| TC-14 | P | Cùng assertMatrix cho cả hai nửa (--collect.url ghi đè): dev/ui = warn (log B có ⚠ largest-contentful-paint warning), 6 URL còn lại error; log "Checking assertions against 4 URL(s), 12 run(s)" ở A và  |
+| TC-14 | P | Cùng assertMatrix cho cả hai nửa (--collect.url ghi đè): dev/ui = warn (log B có ⚠ largest-contentful-paint warning), 6 URL còn lại error; log "Checking assertions against 4 URL(s), 12 run(s)" ở A và |
 | TC-15 | P | 3 job lhci: Healthcheck passed, "Done running Lighthouse!", "All results processed!"; Assertion failed = 0; CHROME_PATH đặt ở cả 3 job |
-| TC-16 | K | loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
-| TC-17 | K | loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
-| TC-18 | K | loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
-| TC-19 | K | loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
-| TC-20 | F | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệch tải); ngưỡng cứng PM ≤ 10 phút (và <  |
+| TC-16 | N | (trước: K) loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
+| TC-17 | N | (trước: K) loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
+| TC-18 | N | (trước: K) loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
+| TC-19 | N | (trước: K) loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
+| TC-20 | F | wall run PR 43712425198 = 15,97 phút (12:09:46→12:25:44), run push e0bf1fc9 = 16,7 phút; job dài nhất Playwright 1/3 = 15,4 phút (shard 2/3 = 6,5, 3/3 = 2,7: lệch tải); ngưỡng cứng PM ≤ 10 phút (và < |
 | TC-21 | P | run PR 43712425198 @be0c0d96: 14/14 job success, không job skipped |
-| TC-22 | K | loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
+| TC-22 | N | (trước: K) loại b / cần PM duyệt đẩy nhánh tạm lên GitHub (brief cấm push) |
 | TC-23 | P | gh api branches/main/protection → 404 "Branch not protected"; rulesets = [] → không có check bắt buộc |
 | TC-24 | P | Ánh xạ bước 1518f83→be0c0d96 đủ: Changes selftest ci-changes.sh; go vet ×2, golangci ×2, sqlc diff (go-static); go test -race testroutes + đo thời gian (go-test); Judge `-race -tags integration -timeo |
 | TC-25 | P | Mỗi dòng Go khôi phục cache (go-mod key go.sum; go-build restore-keys …-static-/…-rest-); rest-1 ghi "Cache saved with key …-rest-43712425198", static ghi …-static-…; không "Unable to reserve"/"Failed |
-| TC-26 | P | Commit US-CI-02 (089d239d) chỉ đổi .github/workflows/ci.yml; vòng 2/3 (d49c41a4, e5f6390b) ci.yml + handoff (test Go sửa theo PM #19 ở commit riêng). playwright.config.ts không đổi 1518f83..be0c0d96;  |
-| TC-E1 … TC-27 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-26 | P | Commit US-CI-02 (089d239d) chỉ đổi .github/workflows/ci.yml; vòng 2/3 (d49c41a4, e5f6390b) ci.yml + handoff (test Go sửa theo PM #19 ở commit riêng). playwright.config.ts không đổi 1518f83..be0c0d96; |
+| TC-27 … TC-E4 (5 ca) | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
 
-## Trượt: bước tái hiện
-### DEF-R7-01 — CI đủ job (US-CI-02) vượt ngưỡng 10 phút: wall 16 phút, Playwright shard 1/3 gánh 15,4 phút (TC-20). Chi tiết `defects-7.md`.
-
-## Ca K / T / N và lý do
-- K(b — PM duyệt đẩy nhánh tạm): TC-08, 16, 17, 18, 19, 22 của US-CI-02.
-- N (chưa chạy mẫu): ca UI Playwright-CLI/375 px, tick dài (SLA, reminder, rollup, auto-close, crm-risk-run), kill worker/gateway giữa chừng, hai gateway SSE, k6, Lighthouse, các ca Go chưa kịp chạy, S7-SEED (seed/expected, seed-study-time, gate-p4/p5 cần chạy lại script gate), CI-02 còn lại (đối chiếu trước/sau).
+HANDOFF qc3 (Qc3S7, 18/11/2026 ~23:00): còn N = 196 / 579 (P 381, F 2: TC-20 = DEF-R7-01, TC-P4-02-14 = DEF-R7-02). Đã xong: US-P4-01 (32/42), P4-02 API+SSE (UI chuông 06/12/23/25/26/27, 07/08 hai gateway, 24 Redis chết, 01/02/03/29 còn N), P4-03 API, P4-04 mail API (còn 09/10/12/17/19/20/E1 cần khoá toàn cục: tạm dừng Mailpit/worker, 26/27/33 UI), P4-05 API (còn 20, 28, 42, 49, 50, E1/E2/P1, TC-15 phần UI). Chưa đụng: P4-06/07, P5-01…06 (phần N), SEED-11/16/22/23/25, CI TC-08/16–19/22/E1–E4/27. Dữ liệu QC3 trên ep-r: người dùng qc3t, qc3t2…qc3t4 (TEACHER), qc3ta (TA), qc3s01…qc3s30 (SV), lớp QC3A (qc3t), QC3B, QC3C (đã ARCHIVED), QC3D (qc3t2), QC3E (qc3t3), QC3F (qc3t4); id lớp ở scripts-r3/c7.json; phiên UI s26 ở /tmp/qc3e/fx_ui1.json. Script: evidence-7/scripts-r3/ (lib3.py, p401*.py…p405*.py, build_r3.py dựng lại bảng từ master7.json, specs/*.ts + pw.config.ts chạy bằng NODE_PATH=…/TA_Agent_qc2/frontend/node_modules npx playwright test -c pw.config.ts). Việc kế: UI Playwright P4-01 (18–24, E1; DOM: nút data-part=ask-staff, trạng thái data-part=ticket-status), nhóm cần khoá (Redis/Mailpit/worker/Postgres), P4-06/07, P5-*.

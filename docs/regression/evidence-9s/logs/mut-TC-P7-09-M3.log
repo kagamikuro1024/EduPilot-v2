@@ -1,0 +1,16 @@
+TC-P7-09-M3: thư assignment_feedback kèm ai_total_before_late
+backend-go/internal/assignment/feedback.go: «LatePenalty     string       `json:"late_penalty,omitempty"`
+}» -> «LatePenalty     string       `json:"late_penalty,omitempty"`
+	AiTotalBeforeLate string     `json:"ai_total_bef»
+backend-go/internal/assignment/feedback.go: «if v.Result.Total != nil {
+			fp.Total = *v.Result.Total» -> «fp.AiTotalBeforeLate = d.AiTotalBeforeLate.Decimal.String()
+		if v.Result.Total != nil {
+			fp.Total = *v.Resu»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestFeedbackMailNoDraftNoFlags'
+rc=1 => RED
+--- FAIL: TestFeedbackMailNoDraftNoFlags (1.55s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/assignment/feedback_test.go:143
+        	Error:      	"{\"max\": \"10.00\", \"total\": \"10.00\", \"criteria\": [{\"max\": \"4.00\", \"name\": \"khái niệm\", \"score\": \"4\", \"comment\": \"\"}, {\"max\": \"6.00\", \"name\": \"ví dụ\", \"score\": \"6\", \"comment\": \"\"}], \"student_name\": \"người thử\", \"assignment_id\": \"01a1ef44-5f2c-73d5-bd1b-377c5c5392e0\", \"assignment_title\": \"bt03\", \"overall_feedback\": \"nhận xét canary-draft-7k3 là của giảng viên.\", \"ai_total_before_late\": \"10\"}" should not contain "ai_"
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	2.291s
+FAIL

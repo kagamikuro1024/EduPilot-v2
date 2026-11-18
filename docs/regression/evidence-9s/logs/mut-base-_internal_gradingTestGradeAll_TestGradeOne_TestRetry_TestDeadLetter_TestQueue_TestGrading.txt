@@ -1,0 +1,3 @@
+$ go test -count=1 -tags integration,testroutes -timeout 300s ./internal/grading -run 'TestGradeAll|TestGradeOne|TestRetry|TestDeadLetter|TestQueue|TestGrading'
+rc=0
+ok  	github.com/edupilot/backend-go/internal/grading	12.970s

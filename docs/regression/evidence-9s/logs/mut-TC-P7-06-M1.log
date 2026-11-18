@@ -1,0 +1,10 @@
+TC-P7-06-M1: giữ nguyên dòng MSSV trong payload
+backend-go/internal/grading/essay_blind.go: «if identityLine.MatchString(textfold.Fold(l)) {» -> «if false && identityLine.MatchString(textfold.Fold(l)) {»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestBlindStripsHeaderLines'
+rc=1 => RED
+--- FAIL: TestBlindStripsHeaderLines (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/grading/essay_prompt_test.go:25
+        	Error:      	"Họ tên: Nguyễn Văn A\nMSSV: 20229001\nMã số: 123\nEMAIL: a@x.test\nHo ten: không dấu\nTên tác nhân là APT29.\n\nMSSV của em là gì thì cũng thế.\nCòn lại." should not contain "20229001"
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grading	0.867s
+FAIL

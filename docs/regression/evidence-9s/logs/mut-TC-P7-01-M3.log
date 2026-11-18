@@ -1,0 +1,14 @@
+TC-P7-01-M3: grade_items FK assignments: thêm ON DELETE CASCADE (thay cho chế độ chặn xoá)
+backend-go/db/migrations/00017_assignments.sql: «REFERENCES assignments (course_id, id);
+ALTER TYPE reminder_source» -> «REFERENCES assignments (course_id, id) ON DELETE CASCADE;
+ALTER TYPE reminder_source»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/store -run 'TestAssignmentDeleteRestrictedByGradeItem'
+rc=1 => RED
+--- FAIL: TestAssignmentDeleteRestrictedByGradeItem (2.20s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/store/assignments_schema_test.go:314
+        	Error:      	Not equal: 
+        	            	expected: "23503"
+        	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/store	2.691s
+FAIL

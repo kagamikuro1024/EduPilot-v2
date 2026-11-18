@@ -1,0 +1,43 @@
+testdata/graph-docs/list-class-members.json: https://learn.microsoft.com/en-us/graph/api/educationclass-list-members?view=graph-rest-1.0
+testdata/graph-docs/list-classes.json: https://learn.microsoft.com/en-us/graph/api/educationroot-list-classes?view=graph-rest-1.0
+testdata/graph-docs/list-submissions-expand-submittedresources.json: https://learn.microsoft.com/en-us/graph/api/educationassignment-list-submissions?view=graph-rest-1.0 (Example 2 shape, $expand=sub
+testdata/graph-docs/list-submissions.json: https://learn.microsoft.com/en-us/graph/api/educationassignment-list-submissions?view=graph-rest-1.0 (Example 1: Get submissions)
+testdata/graph-docs/token.json: https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#successful-response
+--- PASS: TestTeamsAdapterCallOrder (0.03s)
+--- PASS: TestTeamsAdapterPagesAndNextLinkHost (0.06s)
+--- PASS: TestTeamsAdapterThrottleWaitsRetryAfter (0.03s)
+--- PASS: TestTeamsAdapterExpiredTokenRenewsOnce (0.03s)
+--- PASS: TestTeamsAdapterConsentRequired (0.00s)
+--- PASS: TestTeamsAdapterDownloadParallelBound (0.09s)
+--- PASS: TestTeamsAdapterFileRetryThenPerItemFailure (0.09s)
+--- PASS: TestTeamsAdapterInvalidJSON (0.00s)
+--- PASS: TestTeamsAdapterUnreachableAndTimeout (0.40s)
+--- PASS: TestTeamsAdapterHasNoMockBranch (0.00s)
+--- PASS: TestMockGraphNotImported (0.34s)
+ok  	github.com/edupilot/backend-go/internal/submission/source	1.423s
+--- PASS: TestMockGraphMatchesDocs (0.01s)
+--- PASS: TestMockTokenExpires60s (0.00s)
+--- PASS: TestMockDataFromPlan (0.00s)
+--- PASS: TestMockScenarioHappyAndPaged (0.00s)
+--- PASS: TestMockScenarioThrottle (0.00s)
+--- PASS: TestMockScenarioExpiredToken (0.00s)
+--- PASS: TestMockScenarioUnauthorizedAndNoConsent (0.00s)
+--- PASS: TestMockScenarioSlow (0.24s)
+--- PASS: TestMockScenarioPartialFailureAndFiles (0.01s)
+--- PASS: TestMockRequestLog (0.00s)
+ok  	github.com/edupilot/backend-go/cmd/mock-graph/server	0.591s
+--- PASS: TestTeamsSyncAgainstMockGraph (36.00s)
+ok  	github.com/edupilot/backend-go/internal/integration	36.818s
+105:// Report là kết quả một đợt: số bài `submitted` liệt kê được và các bài lỗi riêng.
+182:	u := strings.TrimRight(t.Cfg.AuthURL, "/") + "/" + url.PathEscape(c.Tenant) + "/oauth2/v2.0/token"
+341:	err := t.pages(ctx, c, t.Cfg.BaseURL+"/education/classes/"+url.PathEscape(class)+"/members", func(raw json.RawMessage) error {
+366:	SubmittedDateTime *time.Time `json:"submittedDateTime"`
+370:	SubmittedResources []resource `json:"submittedResources"`
+373:// pending là một bài `submitted` chờ tải tệp.
+380:// Sync đi chuỗi Graph của SRS 4.11.1: token → thành viên → bài nộp (`$expand=submittedResources`) → tải tệp song song. `onFile` được gọi tuần tự từng bài đã tải xong;
+381:// trả lỗi từ onFile thì dừng đợt. Lỗi tải tệp của một bài thành Failure riêng, đợt vẫn tiếp tục. `progress(done, total)` báo số bài đã xử lý / tổng số bài `submitted`.
+389:	listURL := t.Cfg.BaseURL + "/education/classes/" + url.PathEscape(classID) + "/assignments/" + url.PathEscape(assignmentID) + "/submissions?$expand=submittedResources"
+395:		if s.Status != "submitted" { // bỏ working, returned, reassigned
+399:			return fail(CodeResponseInvalid, errors.New("bài nộp thiếu submittedDateTime hoặc recipient.userId"))
+604:// Probe kiểm tra kết nối: xin token + `GET /education/classes`. nil = ok.
+609:	raw, err := t.call(ctx, c, t.Cfg.BaseURL+"/education/classes")

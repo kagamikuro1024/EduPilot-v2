@@ -1,0 +1,15 @@
+TC-P7-05-M2: GET integrations/imap trả password
+backend-go/internal/mailin/config.go: «return viewOf(r)
+}
+
+// PutIn» -> «v, err := viewOf(r)
+	if err == nil {
+		if p, e := s.Cipher.Decrypt(r.ConfigEnc, aad(course, KindIMAP)); e == n»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestImapConfigSecretWriteOnly'
+rc=1 => RED
+--- FAIL: TestImapConfigSecretWriteOnly (3.36s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/integration/imap_test.go:44
+        	Error:      	"{\"kind\":\"IMAP\",\"configured\":true,\"enabled\":true,\"status\":\"NOT_CONNECTED\",\"config\":{\"password\":\"{\\\"password\\\":\\\"CANARY-IMAP-PASS-9917\\\"}\",\"pub\":{\"host\":\"127.0.0.1\",\"port\":49181,\"security\":\"NONE\",\"username\":\"nop@truong.edu\",\"mailbox\":\"INBOX\",\"poll_seconds\":60}},\"read_only\":false,\"last_ok_at\":null,\"last_sync_at\":null,\"last_error\":null,\"error_since\":null,\"version\":1}" should not contain "CANARY"
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/integration	4.140s
+FAIL

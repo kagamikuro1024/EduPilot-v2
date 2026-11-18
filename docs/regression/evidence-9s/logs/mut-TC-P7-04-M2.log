@@ -1,0 +1,12 @@
+TC-P7-04-M2: bỏ kiểm .. ở tên mục ZIP
+backend-go/internal/submission/upload.go: «|| slices.Contains(strings.Split(name, "/"), "..") ||» -> «||»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/submission -run 'TestZipSlipRejected'
+rc=1 => RED
+--- FAIL: TestZipSlipRejected (1.88s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/submission/upload_test.go:213
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 3
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/submission	2.464s
+FAIL

@@ -1,0 +1,12 @@
+TC-P7-08-M1: bỏ kiểm SCORE_STEP
+backend-go/internal/assignment/review.go: «if step && !d.Mod(scoreStep()).IsZero() {» -> «if false && step && !d.Mod(scoreStep()).IsZero() {»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestEditScoreStep'
+rc=1 => RED
+--- FAIL: TestEditScoreStep (1.80s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/assignment/review_test.go:210
+        	Error:      	Not equal: 
+        	            	expected: "SCORE_STEP"
+        	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	2.530s
+FAIL

@@ -1,0 +1,5 @@
+TC-P7-06-M5: FAILED ghi điểm 0 từng tiêu chí
+backend-go/internal/grading/essay.go: «crit[i] = critJSON{ID: r.ID, Evidence: []Evidence{}}» -> «crit[i] = critJSON{ID: r.ID, Score: ptr("0.00"), Evidence: []Evidence{}}»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestLLMDownFailedNotZero'
+rc=0 => GREEN
+ok  	github.com/edupilot/backend-go/internal/grading	1.299s

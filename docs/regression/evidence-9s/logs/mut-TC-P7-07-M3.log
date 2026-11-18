@@ -1,0 +1,12 @@
+TC-P7-07-M3: lỗi vĩnh viễn (hết ngân sách) vẫn thử lại
+backend-go/internal/grading/essay.go: «return errors.New(ErrLLMBudgetExhausted)» -> «return &TransientError{Code: ErrLLMBudgetExhausted, Err: err}»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestPermanentErrorNoRetry'
+rc=1 => RED
+--- FAIL: TestPermanentErrorNoRetry (2.49s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/grading/queue_more_test.go:133
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 3
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grading	3.234s
+FAIL

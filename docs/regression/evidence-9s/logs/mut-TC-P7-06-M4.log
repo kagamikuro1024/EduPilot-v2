@@ -1,0 +1,12 @@
+TC-P7-06-M4: bỏ kẹp late_max_days
+backend-go/internal/grading/essay_late.go: «n := min(lateDays, p.MaxDays)» -> «n := lateDays»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestLatePenaltyCappedByMaxDays'
+rc=1 => RED
+--- FAIL: TestLatePenaltyCappedByMaxDays (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/grading/essay_late_test.go:38
+        	Error:      	Not equal: 
+        	            	expected: "1"
+        	            	actual  : "2.5"
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grading	0.797s
+FAIL

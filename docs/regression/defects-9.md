@@ -11,3 +11,10 @@
 ### DEF-R9-02 — ĐÃ LOẠI: `go test ./internal/contract/...` đỏ lúc tải cao
 - Chạy lại `go test -count=1 -tags testroutes ./internal/contract/...` lúc máy rảnh: ok (25 PASS, rc=0, logs/contract-rerun.log). Lần đỏ trước do timeout/504 khi tải ~20 → môi trường, không phải lỗi.
 
+
+## Smoke 9 — phiên Smoke9Runner (dc67bd93, ep-qc, 2026-11-18)
+| ID | Mức | TC | Mô tả / tái hiện | Bằng chứng |
+|---|---|---|---|---|
+| DEF-R9S-01 | Thấp | TC-P7-09-M6 | Đột biến bỏ `AND status='REVIEWED'` ở UPDATE công bố (store/review.sql.go `PublishMark`) sống: toàn bộ test Publish* xanh (tầng Go đã chặn bằng khoá + kiểm trạng thái, SQL chỉ là lớp phòng thủ thứ hai) — thiếu test cho lớp SQL | logs/mut-TC-P7-09-M6.log, mut-TC-P7-09-M6b.log |
+| DEF-R9S-02 | Thấp | TC-P7-06-15, TC-P7-07-06 | Hàng chờ `/grading` bài FAILED chỉ hiện «Chấm lỗi», không nêu nguyên nhân bằng chữ; chữ «Hết ngân sách AI hôm nay — chấm lại ngày mai hoặc chấm tay» không có trong frontend/mã. Tái hiện: lớp có ngân sách ngày hết → grade-all → bài FAILED LLM_BUDGET_EXHAUSTED; API trả flags [] + error_code; QueueTab chỉ dựng chữ từ FLAG_TEXT. (Chưa chụp UI — kiểm bằng API + đọc mã) | logs/q9_06b.log, logs/q9_07a.log |
+| DEF-R9S-03 | Thấp | TC-P7-07-M4 | Đột biến XADD trước COMMIT (Signal gọi trong enqueue trước tx.Commit) sống: nhóm test TestGradeAll*/GradeOne/Retry/DeadLetter/Queue xanh; TestGradeAllEnqueuesOnlyUngraded không có queue/Redis trong rig nên XLen=0 vô nghĩa; Tick tự nạp lại che lỗi | logs/mut-TC-P7-07-M4.log |

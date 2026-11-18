@@ -1,0 +1,10 @@
+TC-P7-11-M1a: bỏ UNIQUE submissions_external_key
+backend-go/db/migrations/00017_assignments.sql: «CREATE UNIQUE INDEX submissions_external_key ON submissions (course_id, source, external_r» -> «-- MUT»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestTeamsSyncTwiceNoDuplicate'
+rc=1 => RED
+--- FAIL: TestTeamsSyncTwiceNoDuplicate (0.70s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/integration/teams_rig_test.go:140
+        	Error:      	Received unexpected error:
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/integration	1.444s
+FAIL

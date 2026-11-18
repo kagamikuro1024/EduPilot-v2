@@ -11,3 +11,6 @@
 - TC-G03-22 (reflect `error` / `invalid` → FAILED sau 3 lần): hành vi đổi theo P-11-23 (`llm.AwaitOutage`: mất nhà cung cấp không tiêu lượt, hoãn tới OutageMax) → job FAILED sau ≈ 10 phút, vẫn 0 DRAFT, mã `REFLECT_FAILED`. Ghi `LỖI THỜI (P-11-23)`.
 - TC-G01-05 «lớp lạ → 404»: GV/TA/SV không thuộc lớp nhận 403 từ CourseAccessGuard (không đổi từ 10-2026; tc-00 sprint 10: «403 hoặc 404»); ADMIN nhận 404.
 - `go test -tags testroutes ./internal/contract` đỏ ở `TestNoAnswerLeak` khi chạy trong shell đã export `QC_*`/`SEED_DEFAULT_PASSWORD`; chạy trong môi trường sạch: PASS (cả gói 57 s). Do môi trường chạy của QC, không phải lỗi.
+
+## Đã xoá (lỗi thời có nguồn quyết định; lệnh chủ dự án 2026-11-18)
+- TC-G03-22: xoá khỏi smoke-10.6.md và khỏi tổng — nguồn P-11-23 (PM 2026-11-15 chấp nhận: lỗi LLM_UNAVAILABLE/circuit_open xếp lại không tiêu lượt thử, nên hành vi «FAILED sau 3 lần ≈30 s» đã đổi).

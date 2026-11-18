@@ -1,0 +1,23 @@
+TC-P7-02-M3: thêm reference_answer vào DTO sinh viên (StudentView)
+backend-go/internal/assignment/assignment.go: «PublishedAt       time.Time          `json:"published_at"`
+}
+
+// Page là» -> «PublishedAt       time.Time          `json:"published_at"`
+	ReferenceAnswer   *string            `json:"refere»
+backend-go/internal/assignment/assignment.go: «if a.PublishedAt != nil {
+		v.PublishedAt = *a.PublishedAt
+	}
+	return v
+}» -> «v.ReferenceAnswer = a.ReferenceAnswer
+	if a.PublishedAt != nil {
+		v.PublishedAt = *a.PublishedAt
+	}
+	return v»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestReferenceAnswerNeverToStudent'
+rc=1 => RED
+--- FAIL: TestReferenceAnswerNeverToStudent (2.30s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/assignment/assignment_test.go:508
+        	Error:      	"{\"id\":\"01a1ef43-a11e-7e9c-af5f-a0626fa95ba2\",\"title\":\"BT03\",\"description\":\"\",\"max_score\":\"10\",\"due_at\":\"2026-11-21T22:25:46+07:00\",\"allow_late\":false,\"late_penalty_per_day\":\"0\",\"late_max_days\":0,\"appeal_days\":7,\"channels\":[\"IN_APP\"],\"rubric\":[{\"id\":\"c1\",\"name\":\"Khái niệm\",\"max_score\":\"4\"},{\"id\":\"c2\",\"name\":\"Ví dụ\",\"max_score\":\"6\"}],\"published_at\":\"2026-11-18T22:25:49.218983+07:00\",\"reference_answer\":\"CANARY-BT03-ANSWER\"}" should not contain "CANARY"
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	3.024s
+FAIL

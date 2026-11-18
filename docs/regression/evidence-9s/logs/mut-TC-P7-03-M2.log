@@ -1,0 +1,14 @@
+TC-P7-03-M2: late_days: ceil -> floor
+backend-go/internal/grading/essay_late.go: «if d%(24*time.Hour) != 0 {
+		days++
+	}» -> «»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestLateDaysCeil'
+rc=1 => RED
+--- FAIL: TestLateDaysCeil (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/assignment/submit_test.go:346
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 0
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	0.657s
+FAIL

@@ -1,0 +1,12 @@
+TC-P7-04-M1b: SQL bộ khớp đọc users.student_code
+backend-go/internal/store/submission.sql.go: «coalesce(e.student_code_snapshot, '')::text as code» -> «coalesce(u.student_code, '')::text as code»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/submission -run 'TestMatcherUsesEnrollmentSnapshotOnly'
+rc=1 => RED
+--- FAIL: TestMatcherUsesEnrollmentSnapshotOnly (0.66s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/submission/upload_test.go:553
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 0
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/submission	1.245s
+FAIL

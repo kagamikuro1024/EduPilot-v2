@@ -1,0 +1,1 @@
+   docker kill (SIGKILL) worker; trạng thái: ['QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'QUEUED|-', 'RUNNING|-', 'RUNNING|-']

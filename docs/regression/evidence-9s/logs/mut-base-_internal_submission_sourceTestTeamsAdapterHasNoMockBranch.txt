@@ -1,0 +1,3 @@
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/submission/source -run 'TestTeamsAdapterHasNoMockBranch'
+rc=0
+ok  	github.com/edupilot/backend-go/internal/submission/source	0.141s

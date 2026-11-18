@@ -1,0 +1,15 @@
+TC-P7-10-M3: decide gọi llm.Structured
+backend-go/internal/assignment/appeal.go: «n, err := q.GradeAppealDecide(» -> «if s.LLM != nil {
+			_, _ = s.LLM.Structured(ctx, llm.Request{}, json.RawMessage("{}"))
+		}
+		n, err := q.Grad»
+backend-go/internal/assignment/appeal.go: «"github.com/edupilot/backend-go/internal/grading"» -> «"github.com/edupilot/backend-go/internal/grading"
+	"github.com/edupilot/backend-go/internal/llm"»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestAppealPathNeverCallsLLM'
+rc=1 => RED
+--- FAIL: TestAppealPathNeverCallsLLM (0.57s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w3/backend-go/internal/assignment/appeal_test.go:607
+        	Error:      	Should be zero, but was 1
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	1.218s
+FAIL

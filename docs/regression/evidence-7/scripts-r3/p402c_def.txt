@@ -1,0 +1,7 @@
+DEF-R7-02 (qc3, 2026-11-18 ~22:42) — TC-P4-02-14 — lớp QC3B, GV qc3t, SV qc3s01/qc3s02 (kịch bản /tmp/qc3e: clearopen → ticket → dismiss → ticket)
+start (dòng gộp đã đọc từ lần trước)  : 01a1ef41-6fbf-7151-a053-8292aa9620b4 | read_at=2026-11-18 15:42:10 | "1 câu hỏi đang chờ giảng viên"
+1) sau ticket 1 (OPEN=1)               : không đổi (vẫn đã đọc, updated_at 15:42:10.351)
+2) sau dismiss (OPEN=0)                : không đổi (title vẫn "1 câu hỏi…")
+3) sau ticket 2 (OPEN=1, chờ 8 s)      : không đổi: read_at vẫn có, title "1 câu hỏi…", 0 khung SSE notification mới; ticket2 status=OPEN
+Nguyên nhân (đọc mã, internal/notify/aggregate.go): nhánh n==0 chỉ NotifyAggMarkRead, không đổi title; lần sau so n > leadingInt(cur.Title) với số cũ → n(1) không > 1 ⇒ không nâng/đặt chưa đọc/phát SSE. Chuông của GV không báo câu hỏi mới cho tới khi số chờ vượt số cũ.
+Lặp lại ở lớp QC3D (GV qc3t2): xoá 3 ticket → 2 s / 6 s sau ticket mới → không khung SSE, row read.

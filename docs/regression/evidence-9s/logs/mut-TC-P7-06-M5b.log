@@ -1,0 +1,10 @@
+TC-P7-06-M5b: FAILED ghi điểm 0 (kiểm bởi TestBudgetExhaustedNoRetry + TestLLMDownFailedNotZero)
+backend-go/internal/grading/essay.go: «crit[i] = critJSON{ID: r.ID, Evidence: []Evidence{}}» -> «crit[i] = critJSON{ID: r.ID, Score: ptr("0.00"), Evidence: []Evidence{}}»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/grading -run 'TestLLMDownFailedNotZero|TestBudgetExhaustedNoRetry|TestExtractFailed'
+rc=1 => RED
+--- FAIL: TestExtractFailedNotZero (0.77s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/grading/essay_qc_test.go:117
+        	Error:      	Expected nil, but got: (*string)(0x267e2ad16800)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/grading	2.678s
+FAIL

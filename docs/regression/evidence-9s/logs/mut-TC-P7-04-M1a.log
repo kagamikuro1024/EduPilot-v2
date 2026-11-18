@@ -1,0 +1,15 @@
+TC-P7-04-M1a: bộ khớp tin MSSV tự khai (bỏ điều kiện joined_via ROSTER/ADMIN)
+backend-go/internal/submission/match.go: «if r.JoinedVia == "ROSTER" || r.JoinedVia == "ADMIN" {» -> «if true {»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/submission -run 'TestSelfDeclaredCodeNeverMatches|TestCodeJoinedXWithYCodeNeverMatchesX'
+rc=1 => RED
+--- FAIL: TestSelfDeclaredCodeNeverMatches (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/submission/match_test.go:120
+        	Error:      	Should be false
+--- FAIL: TestCodeJoinedXWithYCodeNeverMatchesX (0.00s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/submission/match_test.go:126
+        	Error:      	Not equal: 
+        	            	expected: &uuid.UUID{0x7e, 0x91, 0xb8, 0x42, 0x98, 0xc, 0x43, 0x8d, 0x99, 0x12, 0xa9, 0xf8, 0x1e, 0x54, 0x58, 0xd3}
+        	            	actual  : (*uuid.UUID)(nil)
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/submission	0.591s
+FAIL

@@ -1,0 +1,5 @@
+TC-P7-04-M1: bộ khớp đọc users.student_code thay vì snapshot
+backend-go/internal/store/submission.sql.go: «coalesce(e.student_code_snapshot, '')::text as code» -> «coalesce(u.student_code, '')::text as code»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/submission -run 'TestSelfDeclaredCodeNeverMatches'
+rc=0 => GREEN
+ok  	github.com/edupilot/backend-go/internal/submission	0.590s

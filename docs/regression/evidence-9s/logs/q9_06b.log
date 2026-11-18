@@ -1,0 +1,22 @@
+   roster cache còn: 
+   khoá AccessExclusive trên enrollments: 1
+   grade-all khi enrollments bị khoá: 202 {'job_id': '01a1ef57-260e-785f-825e-57f45c618404', 'queued': 1}
+   kết quả: DONE|-|1|false|4.00 | lời gọi stub: 2 | llm_audit MASK_FAILED: 0
+FAIL TC-P7-06-04 Masker không nạp được roster (enrollments khoá 20 s) → llm_audit MASK_FAILED=0, lời gọi tới provider=2 ('DONE|-|1|false|4.00', '0', 2)
+PASS TC-P7-06-04 kết quả DONE|-|1|false|4.00: không 0 điểm (total null, criteria null khi FAILED; nếu thử lại thành công sau mở khoá thì DONE, không điểm 0 giả) 
+   budget lớp trước: 200 {'scope': 'course', 'course_id': '01a1ef4b-c031-7e69-9f10-d8bed34c8239', 'daily_limit': None, 'monthly_limit': None, 'spent_today': '1800.0000', 'spent_month': '1800.0000', 'pct_today': None, 'pct_mon
+   provider lỗi: FAILED|LLM_UNAVAILABLE|3|true
+PASS TC-P7-06-15 mọi nhà cung cấp lỗi (HTTP 404) → thử lại tới hết lượt rồi FAILED|LLM_UNAVAILABLE|3|true 
+   đặt ngân sách lớp: 200 {'scope': 'course', 'course_id': '01a1ef4b-c031-7e69-9f10-d8bed34c8239', 'daily_limit': '400.00', 'monthly_limit': None, 'spent_today': '1800.0000', 'spent_month': '1800.0000', 'pct_today': 450.0, 'pc
+   ['FAILED|LLM_BUDGET_EXHAUSTED|1|false', 'FAILED|LLM_BUDGET_EXHAUSTED|1|false', 'FAILED|LLM_BUDGET_EXHAUSTED|1|false']
+FAIL TC-P7-06-15 hết ngân sách lớp giữa chừng: 0 bài kịp chấm, 0 bài FAILED LLM_BUDGET_EXHAUSTED attempts=1 (không thử lại), criteria NULL ['FAILED|LLM_BUDGET_EXHAUSTED|1|false', 'FAILED|LLM_BUDGET_EXHAUSTED|1|false', 'FAILED|LLM_BUDGET_EXHAUSTED|1|false']
+PASS TC-P7-06-15 mọi FAILED: 0 dòng grade_entries (0), total NULL 
+PASS TC-P7-06-15 FAILED không có total (0 dòng có total) 
+   gỡ ngân sách lớp: 200
+PASS TC-P7-06-15 giảng viên chấm tay bài FAILED → 200 
+   ngân sách lớp sau: 200 {'scope': 'course', 'course_id': '01a1ef4b-c031-7e69-9f10-d8bed34c8239', 'daily_limit': None, 'monthly_limit': None, 'spent_today': '1800.0000', 'spent_month': '1800.0000', 'pct_today': None, 'pct_mon
+   hàng chờ FAILED (API): []
+   FE: 
+FAIL TC-P7-06-15 chữ 'Hết ngân sách AI hôm nay — chấm lại ngày mai hoặc chấm tay' có trong giao diện (frontend/src) 
+SUMMARY {"TC-P7-06-04": false, "TC-P7-06-15": false}
+RESULT: FAIL (3 lỗi)

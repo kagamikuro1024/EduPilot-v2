@@ -1,0 +1,13 @@
+TC-P7-05-M1: tin From bất kể Authentication-Results
+backend-go/internal/mailin/authres.go: «func SenderVerified(authResults []string, from, trusted string) bool {» -> «func SenderVerified(authResults []string, from, trusted string) bool {
+	return from != ""»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/integration -run 'TestImapSpoofedFromNotMatched'
+rc=1 => RED
+--- FAIL: TestImapSpoofedFromNotMatched (1.84s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/integration/imap_test.go:627
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 0
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/integration	2.648s
+FAIL

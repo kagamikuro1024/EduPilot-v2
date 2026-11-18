@@ -1,0 +1,5 @@
+TC-P7-09-M6b: bỏ status='REVIEWED' ở UPDATE công bố (chạy cả gói assignment)
+backend-go/internal/store/review.sql.go: «where course_id = $6 and id = $7 and status = 'REVIEWED' and version = $8» -> «where course_id = $6 and id = $7 and version = $8»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'Publish'
+rc=0 => GREEN
+ok  	github.com/edupilot/backend-go/internal/assignment	11.520s

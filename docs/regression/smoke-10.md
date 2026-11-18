@@ -293,3 +293,59 @@ Lượt 2 (luật mới «không lấy mẫu»): chạy nốt 112 ca M bằng `p
 - Cần khoá global: TC-02-07/07a/07b, TC-03-09 (route QUESTION_GEN → QC fake + fixture), TC-06-20 (restart gateway LLM_MAX_CONCURRENCY=1), TC-02-14/TC-03-08 (OVERLOADED việc nền: không có đường kích hoạt, như lần gốc).
 - TC-12-05: seed lớp 1 bị chính ca QC đổi → cần reseed sạch rồi chạy `node scripts/check-practice-seed.mjs` (API_URL, SEED_DEFAULT_PASSWORD).
 - Còn lại: dạng tài liệu / E2E chưa có assertion theo TC, ngoài mẫu smoke.
+
+## Lượt 2026-11-18 — luật chủ dự án: ca «chặn/hoãn» phải chạy tới kết luận thật (mã dc67bd93, stack ep-qc)
+| TC | KQ | Ghi chú |
+| --- | --- | --- |
+| TC-02-18 | N | (b) «Lighthouse/k6 hoãn» không còn hợp lệ (lệnh chủ dự án 11-18): chạy thật, thu nhỏ tải nếu cần ghi rõ |
+| TC-07-25 | N | như TC-02-18 |
+| TC-12-17 | N | như TC-02-18 |
+| TC-08-08 | K(c) | ngoài phạm vi theo spec (P-10-7 Q16) — giữ |
+| TC-11-09 | N | «LT» cũ chỉ ghi L12 (lỗi đã sửa), chưa có P-xx/D-xx duyệt đổi hành vi → chạy lại; kết luận ghi ở dòng sau |
+| TC-08-08 | N | không còn nhãn K(c): chạy tới kết luận (P-10-7 Q16 chỉ nêu phạm vi, chưa là quyết định bỏ ca) |
+
+## Lượt 2026-11-18 — kết quả chạy thật (mã dc67bd93, stack ep-qc, lớp riêng QD10A/QD10B; không đụng 761987/761988)
+| TC | KQ | Ghi chú |
+| --- | --- | --- |
+| TC-05-18 | P | SQL practice.sql: PracticePool + PracticeTopics có NOT EXISTS (exam_items ⋈ exams WHERE e.status <> 'PUBLISHED') ở truy vấn; start.go không lọc sau khi lấy; frontend/src/features/practice không có lọc used_in_exams/PUBLISHED |
+| TC-12-12 | P | grep '@/mock/practice' + 'mock/questions' trong frontend/src = 0; frontend/src/mock/practice.ts và questions.ts không còn; bash scripts/ui-antipatterns.sh exit 0 |
+| TC-12-16 | F | docs/PROGRESS.md @dc67bd93: F12 ☐ (kỳ vọng ☑ sau khi luồng đạt) và P9 «Dev xong, chờ QC» chưa cập nhật theo kết quả QC sprint 10 — PM cập nhật (Thấp, tài liệu) |
+| TC-12-18 | P | ARCHITECTURE.md: dòng migration 00019 practice (l.132), route practice thật (l.179, 289); không còn practice_exams; DEMO_SCRIPT chỉ nhắc «các việc Luyện đề» ở bản ghi fake, chưa có bước Luyện đề riêng — TC cho phép «nếu PM đồng ý (ghi)»: ghi nhận |
+| TC-12-22 | P | git diff 8ae5393f..HEAD giới hạn đường dẫn practice/quiz/questions/00019 (39 commit): 0 t.Skip/float64 điểm/fetch trần/secret mới; test.skip chỉ lọc theo project playwright (desktop/mobile); contract test chỉ THÊM (0 dòng assert bị xoá), expected_final_grades.csv không đổi; không thêm thư viện cho practice |
+| TC-09-11 | P | go test qc9s_signals_test (bản sao tạm trong rig): P (3 SV) có students_affected=3; Q (2 SV) không có; khoá {topic,wrong_answers,students_affected,sample_question_ids}; JSON không chứa id SV; + TestWrongAnswerSignalsNoIdentity PASS |
+| TC-09-12 | P | ngoài dữ liệu → rỗng; from>to → len=0 err=nil, không panic (go test qc9s_signals_test) |
+| TC-09-13 | P | SV thứ 3 sai Q → Q students_affected=3, P vẫn 3 (go test qc9s_signals_test) |
+| TC-10-02 | P | 64 lượt TOPIC/MOCK (8 SV × 8 vòng) chủ đề Y trên QD10A + 40 lượt lần trước: X1,X2,X4,X6 0 lần ở đề / phản hồi PUT answers (rò=0, phản hồi=0); explain không nhắc X1-X4,X6 (4 câu); X5 PUBLISHED xuất hiện 32 lần (được phép) |
+| TC-05-07 | P | X1,X2,X3,X4,X6 không xuất hiện trong 40 đề (5 vòng × 8 SV) + đề trọn ngân hàng; X5 có (PUBLISHED) — đếm theo X1..X6 = [0, 0, 0, 0, 27, 0]; rò phản hồi [] |
+| TC-05-09 | P | X3: vắng khi OPEN và CLOSED, hiện sau PUBLISHED (đề trọn ngân hàng) — {'OPEN': False, 'CLOSED': False, 'PUBLISHED': True} |
+| TC-05-04 | F | ô X xin 6 chỉ có 3: bù từ ô khác, tổng đủ 10, notes mô tả — 201 items=10 F4=3 notes=[] |
+| TC-05-05 | P | lượt A cách 10 ngày: 0 câu đúng cũ xuất hiện lại (3 lần dựng, chủ đề 30 câu) — trùng với 5 câu đúng: [0, 0, 0] |
+| TC-05-06 | P | lượt A cách 40 ngày (ngoài cửa sổ 30 ngày): câu đúng cũ có thể xuất hiện (xin cả 30 câu → đủ 30, gồm 5 câu đã đúng) — 201 đề 30 câu; trong đó 5/5 câu đúng cũ |
+| TC-05-15 | P | SV enrollment PENDING start → 403/404 — 403 |
+| TC-06-02 | P | SV chưa có lượt: khuyến nghị = chủ đề có nhiều câu APPROVED nhất — khuyến nghị=QC-r10-A có 30/30 (max=['QC-r10-A']) |
+| TC-07-03 | P | duration 9/181, count 4/51 → 422 VALIDATION_FAILED — [(20, 9, 422, 'VALIDATION_FAILED'), (20, 181, 422, 'VALIDATION_FAILED'), (4, 20, 422, 'VALIDATION_FAILED'), (51, 20, 422, 'VALIDATION_FAILED')] |
+| TC-07-24 | P | SV khác lớp/cùng lớp: 404 mọi API lượt; staff PUT answers: 403 — sv.gioi [404, 404, 404]; sv lớp khác [403, 403, 403]; GV/TA PUT [403, 403] |
+| TC-08-07 | P | 8 lượt MOCK ma trận mặc định: 0 câu ESSAY — ESSAY=0 |
+| TC-08-13 | P | hồ sơ SV của GV (profile) không có bài viết / nhận xét luyện — 200 852 ký tự; khoá: ['student', 'risk', 'attendance', 'participation', 'study', 'activity'] |
+| TC-10-16 | F | question_id lớp 2 trong PUT answers → 422 INVALID_QUESTION; đọc câu lớp 2 → 403/404 — PUT 422 VALIDATION_FAILED; GET câu 403; GET ds 403 |
+| TC-10-17 | P | SV đang có lượt thi OPEN dựng luyện cùng chủ đề: không có câu của bài thi OPEN — exam_attempt=201 start=201 X3=0 |
+| TC-09-07 | P | luyện chủ đề W cách 2 ngày: không có việc W; ép 4 ngày: có lại — 2 ngày: 0 việc; 4 ngày: 1 việc |
+| TC-09-08 | P | submit lượt TOPIC của chủ đề xong: việc Ôn chủ đề biến mất ≤ 5 s — biến mất sau 1.0 s |
+| TC-09-18 | P | SV rời lớp (enrollment REMOVED): history lớp 1 → 403 hoặc rỗng (hành vi thật ghi lại) — trước 1 lượt; sau khi REMOVED: 403 {"code": "FORBIDDEN", "message": "B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n th\u1ef1c hi\u1ec7n thao t\u00e1c n\u00e0y.", "trace_id": "77f447bda13e3491804bffb95bf4 |
+| TC-06-07 | F | lượt TOPIC 10 câu: «Câu 1/10 · Đúng 0» + «Thoát về Luyện đề» + không đồng hồ + không tràn ngang ở 1440 và 375; NHƯNG ≥1024 px KHÔNG có danh sách số câu thu gọn (TopicRun không dựng «Danh sách câu»; chỉ MockRun có aside) — [{"w":1440,"hasIdx":true,"hasExit":true,"clock":false,"list":false,"noOverflow":true},{"w":375,"hasIdx":true,"hasExit":true,"clock":false,"list":false,"noOverflow":true}] |
+| TC-06-10 | F | offline: «Chưa gửi được» false, phản hồi lộ false; online: phản hồi hiện false; practice_answers của lượt = 0 (kỳ vọng 1) |
+| TC-06-21 | F | trước tải lại đã chọn (Kiểm tra bật=true); sau tải lại: «Câu 6/10» true; 5 câu trước đã chấm (DB 5); lựa chọn chưa gửi còn (Kiểm tra bật=false, aria-pressed=false) |
+| TC-06-23 | P | chữ: «Luyện đề Lịch sử luyện tập  Giảng viên chưa mở câu hỏi»; nút trong main: [] |
+| TC-06-24 | F | lượt 10 câu bằng thao tác chạm ở 375: tràn ngang []; điều khiển <44 px []; thanh hành động sticky/fixed false |
+| TC-06-26 | P | quét chữ SV ở 375 (/practice, câu, phản hồi, kết quả, /practice/history): chữ cấm []; «Nguồn trong tài liệu» có false; nút là động từ: «Kiểm tra», «Câu tiếp theo», «Xem kết quả» (TC ghi «Trả lời» — UI dùng «Kiểm tra») |
+| TC-07-04 | P | máy khách lệch +5 phút (Date ghi đè): 1440px: hiển thị 19:58 (1198s) vs máy chủ 1197.3s, chênh 0.7s; font-variant-numeric «tabular-nums» / 375px: hiển thị 19:58 (1198s) vs máy chủ 1197.4s, chênh 0.6s; font-variant-numeric «tabular-nums» |
+| TC-07-05 | P | PUT answers 2 lần (ms kể từ lúc chọn: [2079,9317]): [{"v":0,"tab":"58efff9d-10bb-4848-82f4-eaec2771b4d4"},{"v":0,"tab":"58efff9d-10bb-4848-82f4-eaec2771b4d4"}]; trạng thái sau 1,2 s «Đang lưu…», sau 7 s «Đã lưu lúc 22:50:44», sau câu 2 «Đã lưu lúc 22:50:52» |
+| TC-07-09 | F | offline, chọn 5 câu: thanh dưới «Chưa gửi được 5 câu» (kỳ vọng 5); IndexedDB mục = 0 {}; localStorage ["ep:ui:course=36B","ep:draft:01a1deef-db94-77c8-9b76-05f2df6145d3:practice:01a1ef5a-aa48-7c8c-ae4d-047e1b8c4294=635B"] |
+| TC-07-10 | P | online: thanh dưới biến mất true; practice_answers = 5 (kỳ vọng 5); thứ tự gửi ["bb7d","ad0d","3283","6db0","c096"] vs chọn ["bb7d","ad0d","3283","6db0","c096"] |
+| TC-07-12 | P | trước ngưỡng «Tự lưu/»; tới 5:00: cảnh báo true (màu lab(30.233 5.52832 2.9892)), dialog 0; tải lại khi còn ~4:00: hiện lại false |
+| TC-07-26 | P | 375 MOCK 20 câu: tràn ngang []; điều khiển <44 px []; thanh dưới sticky/fixed true; vị trí/chiều cao đồng hồ khác nhau 1 giá trị |
+| TC-07-15 | P | hộp xác nhận hiện 1 lần («Nộp bài thi thử? Bạn đã trả lời 5/5 câu. Nộp xong không sửa được.»), trước khi xác nhận POST submit = 0; xác nhận → POST submit (regex kiểm cũ chỉ chặt hơn chữ «không đảo ngược»; nội dung cảnh báo đủ ý) |
+| TC-07-21 | N | lượt UI: sau khi có mạng bài tự nộp (1 POST submit, 1 Idempotency-Key, lượt SUBMITTED 1) nhưng KHÔNG thấy đúng chữ «Chưa nộp được. Đang thử lại.» khi offline và chỉ 1 lần POST (không thấy gửi lại cùng khoá) — cần chạy lại có ghi chữ thật ở thanh dưới |
+| TC-07-22 | N | chạy lỗi: API khởi tạo lượt quá thời gian 30 s (DB ep-qc vừa phục hồi sau sự cố Postgres) — chạy lại |
+
+**HANDOFF QC cặp 3 (2026-11-18, dừng theo lệnh chủ dự án):** sprint 10 còn 75 N (xem `python3 docs/regression/evidence-9s/progress9s.py`). Đã chạy xong: API/DB/Go/DIFF nhóm 05-xx,06-02,07-03,07-24,08-07/13,09-07..13/18,10-02/16/17,12-12/16/18/22 và UI SV 06-07/10/21/23/24/26, 07-04/05/09/10/12/15/26. Đang dở/N: 07-21 (cần chạy lại ghi chữ thật), 07-22 (API quá thời gian sau sự cố Postgres), UI GV `/questions` (04-xx) chưa viết spec, nhóm extract/generate/LLM (02-xx, 03-xx, 06-13/14/15/20, 08-05/10/11, 10-10/11/12), Forms (11-xx), seed (12-01..06), UI còn lại (09-02/05/19/20, 10-09, 12-09..15/19/20). Dữ liệu: lớp QD10A (193 câu: 107 bản sao APPROVED từ 761987 đọc-chỉ + chủ đề QC-r10-A/X/Y/W; 12 PENDING; tài liệu «QC S10 Đề mẫu/Đáp án mẫu» READY), QD10B (12 câu), QD10C (rỗng); SV tham gia sv.kha/gioi/nguyco/moi/sv31-37; script: `evidence-9s/s10/` (`mkclass10.py`, `s10a.py`, `s10b.py`, `s10_docs.py`, `rec.py`/`fin.py`, `specs/qc-real-9s-s10-sv.spec.ts`; chạy spec từ `~/Documents/TA_Agent_qc5/frontend`, QC_RES=…/s10/results_m.jsonl); ghi KQ vào smoke bằng `evidence-9s/apply.py smoke-10.md s10/results_m.jsonl`. Lưu ý: sửa DB bằng SQL phải xoá khoá Redis `ep:today:{uid}:{course}`. Không đụng 761987/761988.

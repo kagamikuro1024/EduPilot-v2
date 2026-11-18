@@ -1,0 +1,10 @@
+TC-P7-SEED-M1: fake_llm.json: S2 5.75 -> 6.00
+seed/demo/fake_llm.json: «"total": "5.75"» -> «"total": "6.00"»
+$ go test -count=1 -tags integration,testroutes -timeout 300s ./internal/integration -run 'TestSeedGradeAllMatchesExpected'
+rc=1 => RED
+--- FAIL: TestSeedGradeAllMatchesExpected (0.92s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/integration/seed_assignments_test.go:232
+        	Error:      	elements differ
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/integration	1.462s
+FAIL

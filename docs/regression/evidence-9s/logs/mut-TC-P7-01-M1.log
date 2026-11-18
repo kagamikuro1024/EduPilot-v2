@@ -1,0 +1,12 @@
+TC-P7-01-M1: bỏ UNIQUE (course_id, assignment_id, student_id, version) WHERE MATCHED
+backend-go/db/migrations/00017_assignments.sql: «CREATE UNIQUE INDEX submissions_matched_version_key ON submissions (course_id, assignment_» -> «-- MUT: bỏ unique»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/store -run 'TestSubmissionsMatchedChecks'
+rc=1 => RED
+--- FAIL: TestSubmissionsMatchedChecks (0.64s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/backend-go/internal/store/chat_schema_test.go:63
+        	Error:      	Not equal: 
+        	            	expected: "23505"
+        	            	actual  : ""
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/store	1.036s
+FAIL

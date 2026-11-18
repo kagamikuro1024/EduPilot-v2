@@ -1,0 +1,13 @@
+TC-P7-10-M2: FileAppeal ghi thêm escalation_tickets
+backend-go/internal/assignment/appeal.go: «if _, err := outbox.Write(ctx, tx, TopicAppealCreated,» -> «if _, err := tx.Exec(ctx, "insert into escalation_tickets (course_id, kind, origin, source_type, source_id, st»
+$ go test -count=1 -tags integration,testroutes -timeout 240s ./internal/assignment -run 'TestAppealWritesNoEscalationRows|TestAppealCreatesNoTicket'
+rc=1 => RED
+--- FAIL: TestAppealWritesNoEscalationRows (2.73s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/assignment/appeal_test.go:56
+        	Error:      	Received unexpected error:
+--- FAIL: TestAppealCreatesNoTicket (0.58s)
+        	Error Trace:	/Users/kuro/Documents/qc9s-mut/w2/backend-go/internal/assignment/appeal_test.go:115
+        	Error:      	Received unexpected error:
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/assignment	4.013s
+FAIL
