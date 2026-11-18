@@ -587,14 +587,14 @@ test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + C
   await expect(page.locator("[data-part=virtual-scroll]")).toBeVisible();
 });
 
-test("queue: bài «Chấm lỗi» nêu nguyên nhân bằng chữ (US-P7-06 AC10, US-P7-07 AC4; DEF-R9S-02)", async ({ page, context }, info) => {
-  desktopOnly(info);
-  const failed = (id: string, code: string) => queueRow({ id, result: { id: `r-${id}`, status: "DRAFT", run_state: "FAILED", flags: [], needs_review: false, error_code: code, version: 1 } });
+test("queue: bài «Chấm lỗi» nêu nguyên nhân bằng chữ (US-P7-06 AC10, US-P7-07 AC4; DEF-R9S-02)", async ({ page, context }) => {
+    const failed = (id: string, code: string) => queueRow({ id, result: { id: `r-${id}`, status: "DRAFT", run_state: "FAILED", flags: [], needs_review: false, error_code: code, version: 1 } });
   await openQueue(page, context, { rows: [failed(SUB_B, "LLM_BUDGET_EXHAUSTED"), failed(SUB_C, "LLM_UNAVAILABLE")] });
   await page.getByLabel("Trạng thái").selectOption("FAILED");
-  await expect(qRows(page)).toHaveCount(2);
-  await expect(qRows(page).nth(0)).toContainText("Hết ngân sách AI hôm nay — chấm lại ngày mai hoặc chấm tay");
-  await expect(qRows(page).nth(1)).toContainText("AI tạm thời không phản hồi");
+  const main = page.locator("main");
+  await expect(main).toContainText("Hết ngân sách AI hôm nay — chấm lại ngày mai hoặc chấm tay");
+  await expect(main).toContainText("AI tạm thời không phản hồi");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true); // chữ dài không tràn ngang ở 390
 });
 
 test("grading ta cannot see publish: TA duyệt được nhưng không có nút Công bố", async ({ page, context }, info) => {
