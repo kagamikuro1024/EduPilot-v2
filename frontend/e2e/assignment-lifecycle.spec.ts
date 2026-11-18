@@ -542,6 +542,18 @@ test("queue: lớp chưa có bài nộp — «Chưa có bài nộp» + Tải bà
   await expect(page.getByText(/^Không có bài/)).toHaveCount(0);
 });
 
+test("grading: không có ?tab= — mở «Hàng chờ» khi còn việc chờ, ngược lại «Bài tập» (DEF-R9S-08, US-P7-02 AC1)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await asDemo(context, "teacher");
+  await gradingApi(page, { rows: defaultRows() });
+  await page.goto("/grading");
+  await expect(page.getByRole("tab", { name: "Hàng chờ" })).toHaveAttribute("aria-selected", "true");
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await gradingApi(page, { rows: [] });
+  await page.goto("/grading");
+  await expect(page.getByRole("tab", { name: "Bài tập" })).toHaveAttribute("aria-selected", "true");
+});
+
 test("queue: dòng tổng «N bài» (hết trang) hoặc «N+ bài» (còn trang, cuộn tải tiếp) — không còn mù số lượng (GV-BUG S2-3)", async ({ page, context }, info) => {
   desktopOnly(info);
   const all = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
