@@ -69,3 +69,6 @@ Xong: DEF-R5-03, R5-04, R8-A2 (mỗi cái 1 commit, test đỏ-trước). Còn (
 ## 2026-11-16 dev — dừng theo lệnh chủ dự án (5 lỗi qc2)
 - Xong: DEF-R8-A1 (6c75bd54), R5-11 (3f748ec2), R5-10 (dd160463: `tests_stale` ở `GET …/results/{aid}`).
 - Còn: R5-07 (tín hiệu liêm chính mất khi đóng tab: `useIntegrityEvents.ts` flush không `keepalive`/`sendBeacon` lúc `pagehide`; xem lại số 9,4 s). P103-08 bị qc2 rút (lỗi kịch bản QC).
+
+## 2026-11-18 dev2 — dừng (cắt đội xuống 1 cặp)
+Đã đẩy R5-06 0e52f1e5, R5-08 473472ec (P-11-60), R5-09 247bf4e4 + sửa lại 42c1ed09 (mobile). R3-01 đã sửa từ ffb46656. CI chưa có run trọn vẹn cho nhóm này (bị huỷ do push mới); không có việc dở, không có dữ liệu/lớp tạo thêm. Chưa nhận lô lỗi sprint 6 từ qc3.
