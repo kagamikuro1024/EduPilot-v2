@@ -986,5 +986,129 @@
  "TC-UX13-20": [
   "P",
   "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5g-real ✓ (qc-uiux91-rw5g-real.rerun7j.log)"
+ ],
+ "TC-UX12-16": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rn4-real ✓ (qc-uiux91-rn4-real.rerun7p.log)"
+ ],
+ "TC-UX06-2": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw12b-real ✓ (qc-uiux91-rw12b-real.rerun7n.log)"
+ ],
+ "TC-UX03-16": [
+  "P",
+  "đọc nguồn: lý do khoá là chuỗi tĩnh / chữ của mã: «Chưa có công thức điểm đã xác nhận» (Gradebook.tsx:357, mặc định; finalize_blocked_reason = hằng BlockedNoScheme backend-go/internal/grade/scheme.go:300), «Còn N mục chưa rõ: <tên khối công thức>» (GradeScheme.tsx:184, tên khối cố định BLOCKS.short), «Chọn một bài tập trước.» / «Chưa có bài nộp.» (QueueTab.tsx:248-250): không tên SV / MSSV / điểm; ca TC-6…8 hiển thị đúng ở rw12b/w1 (logs/…rerun7j, devspec-devui.log: nút khoá có lý do ✓)"
+ ],
+ "TC-UX03-18": [
+  "P",
+  "bộ dev-ui.spec (build:gate sẵn có, ep-r không dùng) 25 ✓ / 0 đỏ (logs/devspec-devui.log): «nút khoá có lý do: focus / rê / chạm hiện lý do, bấm không kích hoạt; lý do mà không khoá thì bỏ qua» ✓ + «confirm: disabledReason khoá nút xác nhận…» ✓; /dev/ui bị 404 ở bản như production (NEXT_PUBLIC_DEV_TOOLS) nên ảnh chụp bằng spec dev; ảnh mốc dev-ui-*, gradebook-* KHÔNG đổi ở 4b6389f1 (ca đặc biệt dưới màn đầu, dev-wave-1.md); ảnh sau gradebook-1440/375 ở shots/ (nút «Chốt điểm» khoá kèm lý do)"
+ ],
+ "TC-UX02-12": [
+  "P",
+  "chụp ở HEAD trên ep-r (r91shots, logs/qc-uiux91-r91shots-real.rerun7k/m.log; overflowOK): shots/threads-1440.png + threads-375.png, shots/chat-sv-1440.png + chat-sv-375.png, shots/inbox-1440.png + inbox-375.png; ảnh trước docs/sprints/9.1/audit/shots/{threads__teacher__1440,chat__student__1440,inbox__teacher__1440}.png. Đọc ảnh sau: ngày giờ dạng «Chủ Nhật, 19:25» / «Hôm nay, 00:42» (AC2), bố cục không đổi gì khác; ảnh mốc CI cùng đợt: shots/visual-4b6389f1/"
+ ],
+ "TC-UX01-19": [
+  "P",
+  "ảnh sau ở HEAD 1440 + 375: shots/home-gv-*, home-sv-*, chat-sv-*, threads-*, inbox-*, gradebook-* (.png); ảnh trước audit/shots/{home__teacher,home__student,chat__student,threads__teacher,inbox__teacher,gradebook__teacher}__1440.png. Mất dòng phụ dưới h1 (threads-1440.png chỉ còn h1 «Hỏi đáp công khai»); visual.spec Linux ở CI xanh (run 44343596969 @777bb5e2)"
+ ],
+ "TC-UX05-12": [
+  "P",
+  "shots/inbox-1440.png + inbox-375.png (ep-r, HEAD); trước audit/shots/inbox__teacher__1440.png. Dữ liệu cố định của visual.spec có hộp thư nên ảnh mốc đổi ở 4b6389f1 (inbox-1440: 85732→85363 B, shots/visual-4b6389f1/) và dev giải thích ở handoff/dev-wave-1.md (dòng phụ hộp thư, US-01); CI Linux xanh"
+ ],
+ "TC-UX07-17": [
+  "P",
+  "shots/threads-1440.png, home-gv-1440.png, chat-sv-1440.png, inbox-1440.png, gradebook-1440.png, settings-llm-1440.png (+375); sidebar có nhãn mới «Hỏi đáp công khai», «Lỗ hổng kiến thức», «Số liệu lớp học» (đọc settings-llm-1440.png); trước audit/shots/…__teacher__1440.png (nhãn Threads / Insights / Analytics)"
+ ],
+ "TC-UX10-28": [
+  "P",
+  "shots/hom-nay-gv-1440.png + hom-nay-gv-375.png (ep-r, HEAD, teacher; overflowOK); ảnh trước audit/shots/home__teacher__1440.png (+375): đủ ảnh 1440 / 375; ảnh mốc visual hom-nay-gv-1440/390 trong visual.spec.ts-snapshots, CI Linux xanh"
+ ],
+ "TC-UX11-10": [
+  "P",
+  "shots/home-sv-1440.png + home-sv-375.png (ep-r, HEAD, sv.gioi; đọc ảnh: «Chào Trung», Việc nên làm tiếp, Hôm nay, Tiếp tục học); trước audit/shots/home__student__1440.png + __375.png: đủ ảnh; CI Linux xanh (visual.spec)"
+ ],
+ "TC-UX14-12": [
+  "P",
+  "shots/grading-queue-1440.png + grading-queue-375.png (ep-r, HEAD); trước audit/shots/grading__teacher__1440.png; ảnh mốc grading-queue-1440 đổi ở f8a744bd (CI Linux xanh)"
+ ],
+ "TC-UX15-21": [
+  "P",
+  "shots/grading-review-1440.png + grading-review-375.png (ep-r, HEAD; vào bằng liên kết «Duyệt»); trước audit/shots/grading-ID__teacher__1440.png (audit không chụp 375); ảnh mốc grading-review-1440 đổi ở f8a744bd + e050e566 (CI Linux xanh)"
+ ],
+ "TC-UX16-23": [
+  "P",
+  "shots/gradebook-1440.png + gradebook-375.png (ep-r, HEAD); trước audit/shots/gradebook__teacher__1440.png (audit không chụp 375 của giảng viên); ảnh mốc gradebook-1440/390 đổi ở f8a744bd (CI Linux xanh)"
+ ],
+ "TC-UX12-22": [
+  "P",
+  "shots/attendance-1440.png + attendance-375.png (ep-r, HEAD); trước audit/shots/attendance__teacher__1440.png + __375.png: đủ ảnh; ảnh mốc attendance-1440/390 đổi ở f8a744bd (CI Linux xanh)"
+ ],
+ "TC-UX13-28": [
+  "P",
+  "shots/chat-sv-1440.png + chat-sv-375.png (ep-r, HEAD, sv.gioi); trước audit/shots/chat__student__1440.png + __375.png: đủ ảnh; ảnh mốc chat-1440/390 đổi ở ed0aa499 + e050e566 (CI Linux xanh)"
+ ],
+ "TC-UX19-14": [
+  "P",
+  "shots/threads-1440.png + threads-375.png (ep-r, HEAD); trước audit/shots/threads__teacher__1440.png + threads__student__375.png; ảnh mốc threads-390 đổi ở 4b6389f1 (shots/visual-4b6389f1/)"
+ ],
+ "TC-UX20-11": [
+  "P",
+  "shots/me-sv-375.png (+1440) (ep-r, HEAD, sv.gioi); trước audit/shots/me__student__375.png: đủ ảnh"
+ ],
+ "TC-UX18-10": [
+  "P",
+  "shots/documents-1440.png + documents-375.png (ep-r, HEAD, teacher); trước audit/shots/documents__teacher__1440.png: đủ ảnh"
+ ],
+ "TC-UX17-14": [
+  "P",
+  "shots/insights-1440.png, observability-1440.png (+375) (ep-r, HEAD, teacher); trước audit/shots/insights__teacher__1440.png, observability__teacher__1440.png: đủ ảnh; ảnh mốc insights-/observability- đổi ở ed0aa499 (CI Linux xanh)"
+ ],
+ "TC-UX08-28": [
+  "F",
+  "Firefox 155 (container mcr playwright:v1.63.0-noble, logs/ux08-28-firefox-docker.log): CSS.supports(animation-timeline: view()) = false, 1440 px: 5 mục, không tràn ngang, không pageerror; nhưng khung kể chuyện VẪN ghim (div Landing…wrap, sticky, cao 900 px) và có 1 H3 «Giảng viên» ẩn; WebKit (Safari 27.2) hỗ trợ animation-timeline = true nên không dùng được (logs/qc-uiux91-rzprobe6-real.rerun7o.log). TC cũ («không animation-timeline ⇒ không ghim») bị AC7 hiện hành thay: ghim theo bề rộng ≥ 1100 bằng JS (LandingMotion.tsx:181 toggle is-pinned theo matchMedia), không theo animation-timeline ⇒ ĐỀ NGHỊ LT (nguồn AC7 / P-107-12 / P-11-40), không phải lỗi sản phẩm"
+ ],
+ "TC-UX09-16": [
+  "F",
+  "bash scripts/landing-video/run.sh (bản sao ở ~/Documents/smks-lv, không đụng frontend/public/landing) trên ep-r: dừng ở cảnh đăng nhập vì không thấy nút chọn lớp dạng «\\d{6} ·» (lớp mặc định QR91H) — nguyên nhân do ep-r đông lớp; chạy lại trên stack seed sạch smk91 (lớp mặc định 761987): đăng nhập qua, cảnh chat dừng ở getByRole(button, /Giải thích giúp em|Điều kiện để được dự thi/) timeout 30 s: gợi ý chat đã đổi chữ ở 10.7 (chat Split) nên record.mjs lỗi thời ⇒ không sinh lại được clip / video / poster (logs/ux09-16-landing-run-smk91.log, rc=1). README nêu đủ lệnh. DEF-R9.1-08 (Thấp): record.mjs không chạy được ở HEAD"
+ ],
+ "TC-UX13-1": [
+  "F",
+  "logs/qc-uiux91-r91sv-real.rerun7j.log: /chat 1440 — 50 phiên; hộp hội thoại rộng 746 px (≤ 840 ✓) nhưng lề trái−24 = 1 px, lề phải 49 px (lệch 48 px > ±3) và cột lịch sử rộng 379 px nằm TRONG Panel (AC1 9.1: Panel căn giữa phần phải, cột lịch sử rộng 240 ngoài Panel). Bố cục /chat đã được 10.7 lô 2 đổi sang Split list-detail (3b259963; P-107-15 «chat là Split fill») ⇒ AC1 cũ bị thay, cột lịch sử vẫn phẳng (border-radius 0, không bóng, nền trong suốt) ⇒ ĐỀ NGHỊ LT (nguồn 3b259963 / P-107-15)"
+ ],
+ "TC-N01-03": [
+  "F",
+  "RERUN 1409b04d: README «Đo trên Mac» bước «gateway admin create» chạy nguyên văn (không --email/--name) → «admin: cần cả --email và --name», rc=2; README thiếu bước ⇒ F theo TC (DEF-R9.5-22, Thấp) (evidence-9.5/rerun/n01-03-readme-1409b04d.log, evidence-9.5/n01-03-readme-steps.log)"
+ ],
+ "TC-N01-16": [
+  "P",
+  "RERUN 1409b04d: cùng lệnh vps-llm với BASE = cổng ep-qc (943/580/3500) KHÔNG bị từ chối (qua refuseDemo, dừng ở kiểm MODEL rc=1 sau đó), đối chứng 127.0.0.1:3000 → «Từ chối… stack demo» (evidence-9.5/rerun/n01-16-1409b04d.log)"
+ ],
+ "TC-N02-08": [
+  "P",
+  "RERUN 1409b04d trên smk91 (seed sạch): BT03 có 22 bài NONE (chưa chấm); SV A/B/C tính tay: A QT 10 / HP 9,5 A+, B QT 8,25 / HP 7,0 B, C QT 1,25 / HP 3,0 F = gradebook API (công thức 20/20/60, cộng 0,25 tối đa 1, trừ 0,5 từ buổi vắng thứ 3); chat D1 (SSE: block attendance absent 2 + participation speak 2 đúng dữ liệu SV B; nguồn là khối dữ liệu, citations tài liệu rỗng), D3 → low_confidence + ticket (ngoài tài liệu, đúng kịch bản) (scripts n05/n02 trong rerun/, /tmp/smks/chat-*.txt)"
+ ],
+ "TC-N05-02": [
+  "F",
+  "RERUN 1409b04d trên smk91 (pg_stat_statements bật, kịch bản nhẹ T0 60 SV, 2 lượt): top 10 theo total_exec_time chỉ có 5/10 và 4/10 truy vấn thuộc danh sách dev (students_list_360, rag_hybrid, students_count_360, roster_page, gradebook_signals…); thừa: threads list, notifications, kiểm quyền enrollments, insert audit_log, điểm sổ (grade_entries) — dev không liệt kê ⇒ < 7/10 (DEF-R9.5-23, Thấp; quy mô T0, TC cho phép kịch bản nhẹ) (evidence-9.5/rerun/n05-02-pgss-top10-smk91.txt, n05-02-pgss-top10-browse-mix-smk91.txt)"
+ ],
+ "TC-N06-04": [
+  "P",
+  "RERUN 1409b04d trên smk91: tải chat 1 QPS, Redis tắt 70 s (t=10→81): 70/70 lời gọi trong lúc tắt trả 503 mã OVERLOADED (suy giảm có kiểm soát), thời gian tối đa 5,9 s (≤ 10 s), không treo; sau khi Redis lên 30/30 trả 200 («degraded»:false) — DEF-R9.5-20 (39,5 s) không còn tái hiện (evidence-9.5/rerun/n06-04-redis-smk91-calls.log)"
+ ],
+ "TC-N06-05": [
+  "P",
+  "RERUN 1409b04d trên smk91: client SSE mở trước, Redis tắt 20 s (push lúc tắt trả 503, không nhận), Redis lên → nối lại bằng Last-Event-ID: f2 nhận đủ n=9…13 (phát lại phần thiếu + sự kiện mới), 0 trùng, không 429 SSE_LIMIT_REACHED (DEF cũ không tái hiện) (evidence-9.5/rerun/n06-05-sse-smk91.log)"
+ ],
+ "TC-N06-12": [
+  "P",
+  "RERUN 1409b04d: trong mọi kịch bản N06 (kill -9, Redis, SSE) chỉ đụng smk91-*; 6 container demo edupilot-*-1 ở trạng thái Exited trước/sau, edupilot-test-{postgres,redis,minio,mailpit} Up 4 giờ không đổi"
+ ],
+ "TC-N06-13": [
+  "P",
+  "RERUN 1409b04d trên smk91: kill -9 worker giữa lượt chấm BT03 (22 bài) 3 lần liên tiếp, khởi động lại worker sau mỗi lần: cả 3 lần 22/22 DONE, 0 FAILED, 0 chấm hai lần, 0 mồ côi, XPENDING 0, dead-letter 0 (evidence-9.5/rerun/n06-13-kill9-smk91.log)"
+ ],
+ "TC-N10-04": [
+  "P",
+  "worktree ở cha ad344b76 + chép riêng provider_test.go của e1f9925f: TestStructuredRequestShape FAIL ở cha, PASS ở e1f9925f (evidence-9.5/n10-04-pre-post.log)"
  ]
 }

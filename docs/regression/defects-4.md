@@ -47,3 +47,11 @@
 - Triệu chứng: `node scripts/seed.mjs --if-empty` trên DB đã seed nhưng có hơn 100 lớp không in «Đã có dữ liệu, không seed.» mà chạy lại seed từ bước 1 và dừng ở bước 3 với «Seed lỗi: Cannot read properties of undefined (reading 'teacher')» (không ghi gì vào DB).
 - Tái hiện: ep-r (447 lớp, lớp seed 761987/761988 là hai lớp cũ nhất): `API_URL=https://localhost:1143/api/v1 MAILPIT_URL=http://localhost:8725 SEED_DEFAULT_PASSWORD=… node scripts/seed.mjs --if-empty`. Trên DB có đúng hai lớp seed in đúng câu và không đổi số dòng (users/courses/enrollments trước = sau).
 - Nguồn: `scripts/seed.mjs:233-239` `isSeeded()` chỉ đọc trang đầu `GET /admin/courses?limit=100` (mới nhất trước) rồi tìm mã 761987/761988. Chỉ chạm DB nhiều lớp (như stack QC); stack demo seed sạch không bị. Không phải hồi quy.
+
+### DEF-Q2-S4-01 — Seed tự chạy trên DB trống mất 752 s, spec AC7 (US-P2-12) đòi ≤ 3 phút (TC-P212-14)
+- Mức: Thấp (lệch spec; seed vẫn đúng và chạy lại được)
+- Sprint gốc: 4 (US-P2-12 AC7) · Hồi quy do sprint sau? Có: seed tăng từ 9 lên 20 bước (tài liệu docling thật, bài tập, luyện đề, ...), nhưng US.md AC7 và nhãn «[1/9]» chưa được cập nhật.
+- Bước tái hiện: DB trống qc2i_seed, `node scripts/seed.mjs --if-empty` (cùng lệnh scripts/dev.mjs gọi khi SEED_ON_EMPTY_DB=true) với giới hạn đăng nhập kiểu dev: «Seed xong trong 752 s», 20 bước («[n/20]»).
+- Kỳ vọng (AC7 + Q-QC-P212-2): ≤ 3 phút tính từ readyz 200 tới «Seed xong»; nhãn «[1/9] Admin…».
+- Thực tế: 752 s; nhãn «[n/20]»; README 5.2 đã ghi «≈ 10 phút» (không phải nguồn quyết định). Phần còn lại của AC7 đạt: lần hai in «Đã có dữ liệu, không seed» (SmkT2, DB riêng), SEED_ON_EMPTY_DB khác true thì không chạy và seed lỗi chỉ in cảnh báo (scripts/dev.mjs dòng 80–86).
+- Đề xuất: BA cập nhật AC7 (≤ thời gian thực tế, 20 bước) bằng proposal; hoặc dev tách seed nhanh. Bằng chứng: docs/regression/evidence-4/logs/qc2s/seed13.log.

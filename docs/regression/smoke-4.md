@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 542 · Đạt: 459 · Trượt: 5 · Lỗi thời (LT): 2 · Không kiểm được K (a/b/c): 0/2/2 · Chưa chạy (N): 72   (P+F+LT+K+N = T)
+Tổng TC cũ: 542 · Đạt: 467 · Trượt: 8 · Lỗi thời (LT): 3 · Không kiểm được K (a/b/c): 0/2/2 · Chưa chạy (N): 60   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-4/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 4`.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -9,19 +9,19 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 ## Tổng hợp theo US
 | US | TC tổng | P | F | LT | K | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GATE-P2 | 44 | 19 | 0 | 0 | 2 | 23 | |
+| GATE-P2 | 44 | 20 | 2 | 1 | 2 | 19 | |
 | US-P2-01 | 34 | 32 | 2 | 0 | 0 | 0 | |
 | US-P2-02 | 52 | 43 | 2 | 0 | 0 | 7 | |
 | US-P2-03 | 39 | 39 | 0 | 0 | 0 | 0 | |
 | US-P2-04 | 40 | 36 | 0 | 0 | 0 | 4 | |
 | US-P2-05 | 40 | 40 | 0 | 0 | 0 | 0 | |
-| US-P2-06 | 43 | 39 | 1 | 0 | 0 | 3 | |
+| US-P2-06 | 43 | 40 | 1 | 0 | 0 | 2 | |
 | US-P2-07 | 39 | 37 | 0 | 1 | 0 | 1 | |
 | US-P2-08 | 42 | 38 | 0 | 0 | 0 | 4 | |
 | US-P2-09 | 54 | 48 | 0 | 0 | 0 | 6 | |
 | US-P2-10 | 40 | 37 | 0 | 0 | 0 | 3 | |
 | US-P2-11 | 44 | 33 | 0 | 0 | 0 | 11 | |
-| US-P2-12 | 27 | 14 | 0 | 1 | 2 | 10 | |
+| US-P2-12 | 27 | 20 | 1 | 1 | 2 | 3 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -34,7 +34,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-GATEP2-06 | P | go test -count=1 ./internal/integration -run TestAssignTeacherNotifies → pass 1/1 (logs/smkT2/go-g06.json); đo tay ca nền TC-P208-17 (P): gán GV2 → thông báo COURSE_ASSIGNED có mã tham gia sau 0,1 s (≤ 60 s), đúng 1 dòng, khớp SRS |
 | TC-GATEP2-07 | P | go test -count=1 ./internal/integration -run TestCourseIsolation → pass 1/1 (logs/smkT2/go-g07.json); ca nền P: TC-P207-15 (mọi route lớp 403 với người ngoài lớp), TC-P207-17 (ChunksForCourse không lộ chunk lớp khác), TC-P211-18 (me/today không dữ liệu lớp 2), TC-P207-14 (route gieo không guard làm test đỏ, LT) |
 | TC-GATEP2-08 | P | go test -count=1 ./internal/contract/... → rc=0, 28 test pass/0 fail/0 skip (logs/smkT2/go-g08.json); git diff cc8e0952~1 HEAD (đầu sprint 4 → HEAD) trên testdata/golden: 16 tệp, tất cả trạng thái A (thêm mới trong golden/auth), 0 dòng xoá, golden PG + llm không bị sửa; git diff origin/main = 0; openapi.yaml có đủ /auth/* (10 đường), /me/* (13), /admin/* (23), /courses/* (228), /notifications (3) |
-| TC-GATEP2-09 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP2-09 | LT | TC yêu cầu pnpm dev:down && pnpm dev trên DB trống và seed ≤ 180 s: pnpm dev bị cấm theo luật an toàn của đợt này và tiêu chí thời gian đã đổi theo sprint sau: seed hiện 20 bước, ≈ 10 phút (9 phút 39 giây khi đo, README 5.2, scripts/seed.mjs 20 bước, cần docling). Phần chạy được đã đo bằng chính scripts/seed.mjs trên DB trống riêng (gateway smkt2-gw + worker): --if-empty tự chạy và in từng bước [1/20]…[5/20] trong 25 s (cắt có chủ đích); trên DB đã có hai lớp 761987/761988: in «Đã có dữ liệu, không seed.», số dòng users/courses/enrollments không đổi; dev.mjs:79-82 chỉ seed khi SEED_ON_EMPTY_DB=true và lỗi seed không làm hỏng pnpm dev; 7 tài khoản mẫu đăng nhập được (TC-P212-05 P). Phát hiện phụ DEF-R4-08 (Thấp); smkt2-seedif.py |
 | TC-GATEP2-10 | P | go test -race -count=1 ./internal/httpapi/... ./internal/platform/outbox/... → rc=0, 6 gói pass, 79 test cấp trên pass/0 fail/0 skip + 30 test con (logs/smkT2/go-g10.json); API P2 trên ep-r: POST /admin/courses hai lần cùng Idempotency-Key → 201 và 201 cùng id, đếm lớp 1; PUT sai version → 409 VERSION_CONFLICT; cursor /admin/users 2+2 mục không trùng; /notifications 200; ca nền TC-P208-01, P208-09 P; smkt2-gate-http.py |
 | TC-GATEP2-11 | P | go test -race -count=1 ./internal/today/... → rc=0, 98 test pass/0 fail/0 skip (logs/smkT2/go-g11.json); ca nền P: TC-P211-04 (xếp hạng theo luật: TestRankTierOrder, TestRankOverdueFirst…), TC-P211-19 (SV không thấy việc staff: TestStaffKindsNeverInStudentResponse) |
 | TC-GATEP2-12 | P | bash scripts/ui-antipatterns.sh → rc=0, 34 dòng ✓ (≥ 19 nền sprint 3), không dòng lỗi; ui-allow: ở frontend/src = 9 chỗ (≤ 10; 27 khi đếm cả chính script); pnpm lint: 0 lỗi ở mã sản phẩm (frontend/src), 55 lỗi/39 cảnh báo chỉ nằm ở tệp QC e2e/qc2-*, dbg91b.mjs, playwright.qc2-vis.config.ts; today.spec.ts (không @real) chạy trong CI run 44394768852 @a5fb185d (Frontend e2e Playwright 1–4/4 success, gồm today.spec.ts) |
@@ -56,10 +56,10 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-GATEP2-30 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP2-31 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP2-40 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP2-41 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP2-41 | P | HTTP trên ep-r: access trước 200; kẻ trộm xoay T1→T2 200; nạn nhân mang T1 → 401 SESSION_REVOKED; sau đó access cũ 401, access mới của kẻ trộm 401, T2 401 (mọi thứ 401 ≤ 0.11 s từ lúc phát hiện); auth_sessions REFRESH_REUSE/t; audit_log refresh_reuse=1; ca nền TC-P202-11/12/13/14 đều P (smkt3-gate-http.py) |
 | TC-GATEP2-42 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP2-43 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP2-44 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP2-44 | F | TC-P201-11 F (DEF-R4-05): token mời rõ nằm trong log Caddy (tiêu đề Next-Url và Next-Router-State-Tree); quét 229 token thật: gateway, worker, postgres, redis, pgbouncer, qc2i-* = 0; token_hash/refresh_hash 64 hex và bcrypt: ca nền TC-P201-09, P201-10, P202-08, P204-09, P206-09 đều P |
 | TC-GATEP2-45 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP2-46 | P | SV A xoá phiên của B → 404 NOT_FOUND; Admin xoá qua /me/sessions → 404; id không tồn tại → 404 NOT_FOUND (đồng nhất); phiên B vẫn dùng được (200); SV A / Admin đánh dấu đọc thông báo của B → 404/404, thông báo B vẫn chưa đọc (t); ca nền TC-P204-23, P204-24, P208-23 đều P |
 | TC-GATEP2-47 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
@@ -68,7 +68,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-GATEP2-50 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP2-51 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP2-52 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP2-53 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP2-53 | F | quét log 2026-11-19 bằng mật khẩu thử, token, email thử: gateway, worker, redis, pgbouncer, qc2i-* = 0 dòng; Caddy: đường dẫn /api/v1/courses/join/REDACTED và /invite/REDACTED đã che đúng, nhưng 1 dòng chứa token mời rõ ở tiêu đề Next-Url / Next-Router-State-Tree (DEF-R4-05); postgres có dòng email thử nhưng do chính câu lệnh psql của QC (statement log), không phải sản phẩm; repo: chỉ .env.example (và legacy/.env.example) được commit, không .env.local, .pem là gốc tin cậy/testdata công khai |
 | TC-GATEP2-99 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P201-01 | P | 00003 và 00004 áp dụng; phiên bản hiện tại 25 |
 | TC-P201-02 | P | 4 bảng 00004 có đủ; enum kind: VERIFY_EMAIL,RESET_PASSWORD,INVITE |
@@ -307,7 +307,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P206-30 | P | DB trống qc2i_empty (migrate up0, users=0): admin create với ADMIN_PASSWORD hợp lệ → rc=0, bản ghi ADMIN/ACTIVE/true, audit_log (actor_id NULL, admin_bootstrap) t/admin_bootstrap; lần hai → rc=0 «Quản trị viên này đã tồn tại; không đổi gì.», md5(password_hash) không đổi (True), count(ADMIN)=1; ADMIN_PASSWORD=123 → rc=1 «admin: password: Mật khẩu cần ít nhất 10 ký tự và không quá 72 byte.», chưa tạo (0); --password trên dòng lệnh → rc=2 «admin: Dùng biến ADMIN_PASSWORD hoặc stdin. Dùng: gateway admin create --email E --name N », chưa tạo (0) (mật khẩu chỉ đọc từ biến môi trường, cli không có cờ --password nên không thể lộ ở ps); không route HTTP tạo ADMIN: /auth/register role=ADMIN → 422, POST /admin/users role=ADMIN → 422 (Admin), 403 (SV); smkt2-p206-30.py |
 | TC-P206-31 | P | register role ADMIN 422; admin/users role ADMIN 422 |
 | TC-P206-32 | P | Playwright thật trên ep-r (frontend/e2e/qc2-r4/r4ui-admin.spec.ts, qc2-r4 config, HEAD ep-r 7c9f8b56): [desktop] getByRole('dialog') hiện = 0 ; Vai: Giảng viên/Trợ giảng |
-| TC-P206-33 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P206-33 | P | playwright r4ui-admin (ep-r, spec sửa cột mail_outbox to_addr): mời → dòng tĩnh «Đã gửi link mời, hạn 72 giờ.» (users INVITED); Gửi lại lời mời ở hàng INVITED → «Đã gửi lại lời mời», mail_outbox ≥ 2 thư cho địa chỉ đó; Khoá tài khoản → «Đã khoá … Hoàn tác» lạc quan, DB DISABLED rồi Hoàn tác → ACTIVE; rỗng «Chưa có người dùng khớp…»; không hộp thoại |
 | TC-P206-34 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P206-35 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P206-36 | P | Playwright thật trên ep-r (frontend/e2e/qc2-r4/r4ui-admin.spec.ts, qc2-r4 config, HEAD ep-r 7c9f8b56): [desktop] lời chào đúng; preview 1 lần; URL /invite/·; sau đặt mật khẩu → / |
@@ -538,7 +538,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P211-43 | P | llm_audit trước/sau 3 lần me/today: 2235→2235 (chênh do nhóm khác dùng chung stack) |
 | TC-P211-44 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P212-01 | P | seed.mjs: 0 psql/INSERT/pg/_test; ≥1 api/v1 |
-| TC-P212-02 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P212-02 | P | qc2 2026-11-19 trên DB trống qc2i_seed (stack qc2s, PM duyệt): lấy mẫu pg_stat_activity mỗi 2 s × 25 lần trong lúc seed.mjs chạy lại — mọi kết nối tới DB chỉ từ 172.22.0.24 (application_name edupilot-worker, 10 kết nối) và 172.22.0.23 (edupilot-gateway, 4 kết nối); không kết nối nào từ máy chạy seed; grep -nE "psql/INSERT /UPDATE /require.pg./from .pg./_test/" scripts/seed.mjs = 0. Ghi chú: log_line_prefix của Postgres ep-r là «%m [%p] » (không có application_name) nên không lọc được câu INSERT theo application_name; dùng pg_stat_activity thay thế |
 | TC-P212-03 | P | users @edupilot.local theo vai (stack đã dùng chung nên lớn hơn seed gốc): ADMIN=1 STUDENT=74 TA=3 TEACHER=3 |
 | TC-P212-04 | P | lớp 2 join_require_approval=t; SV theo lớp/trạng thái: ; sv.moi enrollments=1 |
 | TC-P212-05 | P | 7 tài khoản mẫu đăng nhập: [('admin', 200), ('teacher', 200), ('ta', 200), ('sv.gioi', 200), ('sv.kha', 200), ('sv.nguyco', 200), ('sv.moi', 200)] |
@@ -548,18 +548,18 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P212-09 | P | 4 tuần, thứ 2+4, loại trừ 1 ngày: 201 created 7 (session_no 1,2,3,4,5,6,7); ngày loại trừ có buổi: 0; chạy lại: created 0, tổng 7, trùng starts_at 0; >60 buổi → 422; TA → 201; SV → 403; GV lớp khác → 403; ADMIN → 403 (ghi hành vi: không) |
 | TC-P212-10 | P | buổi học lớp 1=15, lớp 2=6 (seed gốc 15/6) |
 | TC-P212-11 | P | go test ./internal/course -count=1 -json -v (HEAD 7c9f8b56): 5/5 test pass; log docs/regression/evidence-4/logs/smkT/ |
-| TC-P212-12 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P212-13 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P212-14 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P212-12 | P | sau seed đủ trên DB trống: đếm (users, enrollments, mail_outbox, notifications, class_sessions, courses) = 60/61/79/240/21/2; chạy lại seed (rc=0, 24 s, in «Đã tạo 0 lượt luyện mới») → 60/61/79/240/21/2; diff = «files are identical» (SAME). Log evidence-4/logs/qc2s/seed12.log |
+| TC-P212-13 | P | DB trống qc2i_seed, giới hạn đăng nhập nới như dev.mjs: ngắt bằng timeout 10 s, 30 s, 60 s (rc=124 mỗi lần, dừng ở bước 3–6) rồi chạy đủ: tiếp tục từ chỗ dở, rc=0, «Seed xong trong 752 s». Số liệu AC2: ADMIN 1, TEACHER 1, TA 1, STUDENT 57; lớp 761987 ACTIVE 30 + PENDING 1; lớp 761988 ACTIVE 24 + PENDING 3; 3 sinh viên học cả hai lớp; mã AN7K2MQ / BX4P9TW; buổi học 15 / 6. mail_outbox DEAD = 1: đó là mẫu cố ý của màn quan sát (to_addr khong-ton-tai@example.invalid, template seed_observability_failed, dedupe_key seed-obs-dead-mail), không phải do ngắt giữa chừng (không có DEAD nào sau ba lần ngắt). Log seed13.log. Ghi nhận: hai lần chạy đầu thất bại do hạ tầng QC (PGBOUNCER_URL, mạng judge, bucket) — đã sửa script qc2s-stack.sh, không phải lỗi sản phẩm |
+| TC-P212-14 | F | seed --if-empty trên DB trống: 20 bước, «Seed xong trong 752 s» (AC7 đòi ≤ 3 phút, nhãn [1/9]); các phần khác của AC7 đạt (lần hai «Đã có dữ liệu, không seed» do SmkT2 đo trên DB riêng; SEED_ON_EMPTY_DB khác true thì không chạy và seed lỗi chỉ cảnh báo theo scripts/dev.mjs 80–86). DEF-Q2-S4-01 (Thấp, lệch spec); log evidence-4/logs/qc2s/seed13.log |
 | TC-P212-15 | P | APP_ENV=production → rc=1: Seed bị chặn: APP_ENV=production. Seed chỉ chạy ở môi trường dev / test. |
 | TC-P212-16 | P | seed.mjs không chứa secret/mật khẩu cứng |
 | TC-P212-17 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P212-18 | LT | LỖI THỜI: seed sprint 11 (observability) cố ý thêm 1 thư DEAD `seed_observability_failed`; còn lại SENT |
-| TC-P212-19 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P212-19 | P | grep -nE "RATE_LIMIT_IP_PER_MIN/AUTH_(LOGIN/REGISTER/TOKEN)" docker-compose.test.yml / wc -l = 0; docker-compose.local.yml có các biến này (dòng 196–202) và scripts/dev.mjs devLimits nới (5000/1000/1000/1000). Seed trên giới hạn MẶC ĐỊNH (AUTH_LOGIN_IP_PER_MIN=10): dừng ở bước 5–6, đăng nhập bị 429 (17 lần 429 trong log gateway, evidence-4/logs/qc2s/seed-default-limits.log); với cấu hình dev seed xong rc=0 → «chỉ chạy trên cấu hình dev» đúng như TC cho phép ghi rõ |
 | TC-P212-20 | P | ep_demo_*: 0 |
 | TC-P212-21 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P212-22 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P212-23 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P212-22 | P | seed.mjs --verbose (636 dòng, rc=0): đếm mật khẩu seed = 0; token=<43 ký tự> = 0; chuỗi ≥ 40 ký tự = 0; liên kết /invite/ hoặc /verify-email = 0 (dòng log che cursor và token bằng ***); git status --short / grep -E ".env" / wc -l = 0. Log evidence-4/logs/qc2s/seed22-verbose.log |
+| TC-P212-23 | P | đọc scripts/seed.mjs: token Admin (ctx.tokens.admin) chỉ dùng cho /admin/users, /admin/users/{id}/resend-invite, /admin/courses, /admin/courses/{id}/assign, /courses/{c1}/integrations/{imap/teams} (cấu hình tích hợp theo thiết kế ADMIN) và, khi SEED_DECISION_DEMO=1, /admin/llm/decision + /courses/{c1}/decision-gates (cổng quyết định, ADMIN); việc của GV (import, setup/dismiss, sessions/generate, duyệt) dùng ctx.tokens.teacher, của sinh viên (join) dùng token từng người; không dùng token Admin làm việc của GV/SV. Ghi chú: đối chiếu theo mã nguồn vì gateway ghi log truy cập không có sub/vai; Caddy của ep-r không nằm trên đường qc2s |
 | TC-P212-24 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
 | TC-P212-25 | K(b) | (b) cần người thật chấm / kịch bản tay có ảnh |
 | TC-P212-26 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |

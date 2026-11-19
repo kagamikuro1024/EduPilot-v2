@@ -1,0 +1,7 @@
+qc-uiux91-rn4-real QR91H n UX12-16
+qc-uiux91-rw12b-real - n TC-UX06-2
+qc-uiux91-rs06-real - n TC-UX06-6
+qc-uiux91-rw4-real QR91A n TC-UX12-9/10
+qc-uiux91-r91sv-real 761987 n UX13
+qc-uiux91-rw5g-real - n TC-UX17-8|TC-UX18-4
+qc-uiux91-rw5a-real - n -

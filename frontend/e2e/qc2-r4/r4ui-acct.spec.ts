@@ -114,6 +114,13 @@ test("[TC-P204-28] /reset-password: Referrer-Policy no-referrer; token không r�
   expect(redacted).toBeGreaterThanOrEqual(1);
 });
 
+/** Hộp "Thời gian học trên EduPilot" chặn SV vừa vào lớp (nhất quán với US-P5-03): xác nhận để làm tiếp. */
+async function ackNotice(page: Page) {
+  const ok = page.getByRole("button", { name: "Đã hiểu" });
+  if (await ok.isVisible({ timeout: 4000 }).catch(() => false)) await ok.click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
 /** Tạo n phiên (đăng nhập API với UA khác nhau) cho tài khoản mới; trả email. */
 async function userWithSessions(tag: string) {
   const email = await freshUser(tag);
@@ -133,6 +140,7 @@ test("[TC-P204-30] /settings: Đổi mật khẩu primary; Thiết bị này; đ
   await apiLogin(page, email);
   await page.goto("/settings");
   await expect(page.getByRole("heading", { name: "Tài khoản và bảo mật" })).toBeVisible({ timeout: 30_000 });
+  await ackNotice(page);
   await expect(page.getByRole("heading", { name: "Mật khẩu", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Thiết bị đang đăng nhập" })).toBeVisible();
   const change = page.getByRole("button", { name: "Đổi mật khẩu", exact: true });
@@ -169,6 +177,7 @@ test("[TC-P204-31] /settings: chỉ bàn phím, 375 px, ui-antipatterns.sh, axe,
   await apiLogin(page, email);
   await page.goto("/settings");
   await expect(page.getByRole("heading", { name: "Thiết bị đang đăng nhập" })).toBeVisible({ timeout: 30_000 });
+  await ackNotice(page);
   await expect(page.locator("ul li").filter({ hasText: /Lần cuối/ })).toHaveCount(3);
   if (info.project.name === "desktop") {
     // bàn phím: Tab tới "Đăng xuất mọi thiết bị khác" → Enter mở hộp xác nhận → Esc đóng

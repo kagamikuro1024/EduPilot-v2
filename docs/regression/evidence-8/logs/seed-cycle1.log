@@ -1,0 +1,8 @@
+07:00:54 cycle1: up DB trống
+available MB: 3338
+DROP DATABASE
+CREATE DATABASE
+goose: applied 00027_llm_audit_rollup.sql (2.466296ms)
+goose: up to date, version=27 (24 migration mới)
+{"db":"up","redis":"up","status":"ready"}
+

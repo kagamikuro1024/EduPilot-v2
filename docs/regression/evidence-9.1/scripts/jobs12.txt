@@ -1,0 +1,14 @@
+qc-uiux91-rw4-real QR91A i TC-UX14-9/10|TC-UX16-2/3|TC-UX12-9/10|TC-UX12-12/PQ
+qc-uiux91-rs0misc-real - i -
+qc-uiux91-rs0pq-real - i -
+qc-uiux91-rs06-real - i -
+qc-uiux91-rw2-real QR91G i TC-UX01-10|TC-UX01-1[ /]
+qc-uiux91-rw4b-real QR91A i -
+qc-uiux91-rw4f-real QR91A i -
+qc-uiux91-rw4c-real QR91A i -
+qc-uiux91-rw4g-real QR91A i -
+qc-uiux91-r91shots-real - i -
+qc-uiux91-rw5a-real - i -
+qc-uiux91-rw5f-real - i -
+qc-uiux91-rw5g-real - i -
+qc-uiux91-rw4-real QR91A j TC-UX14-9/10|TC-UX12-9/10|TC-UX12-12/PQ

@@ -95,3 +95,10 @@ Phần tử LCP của landing ở 375 px là `p.lead` (không phải h1). Nhóm 
 - `waitForURL`/`me/courses` rỗng: giới hạn auth 5/giờ/IP + nhiều agent cùng chạy Playwright; run7.sh xoá bộ đếm mỗi 3 s; chạy lại.
 - TC-UX16-24 28/30 ở lớp sao QR91A: lớp sao chép điểm danh + phát biểu đã bị QC ghi thêm; ở QR91G (seed gốc từ pristine dump) khớp 30/30.
 - TC-UX14-PQ: «lớp lạ» trong spec cũ lấy từ `me/courses?limit=100` của TA (TA có > 100 lớp ⇒ có thể là lớp TA thuộc); đã sửa spec chọn lớp bị chặn ở /submissions.
+
+## Lượt SmkS3 2026-11-19 (HEAD 1409b04d, ep-r + lớp sao QR91A…H)
+- TC-UX13-1 F (đề nghị LT): AC1 9.1 (Panel hội thoại căn giữa, cột lịch sử 240 px ngoài Panel) bị 10.7 lô 2 thay bằng Split list-detail (3b259963; P-107-15). Bằng chứng logs/qc-uiux91-r91sv-real.rerun7j.log.
+- TC-UX08-28 F (đề nghị LT): TC dựa vào animation-timeline; AC7 hiện hành ghim theo bề rộng ≥ 1100 bằng JS (LandingMotion.tsx:181). Firefox 155: khung ghim sticky 900 px + 1 H3 «Giảng viên» ẩn. logs/ux08-28-firefox-docker.log.
+### DEF-R9.1-08 — `scripts/landing-video/record.mjs` không chạy được ở HEAD (TC-UX09-16, Thấp)
+Trên smk91 (seed sạch) đăng nhập qua, cảnh chat chờ nút «Giải thích giúp em|Điều kiện để được dự thi» quá 30 s (chữ gợi ý đã đổi); rc=1, không sinh clip / video / poster. Trên ep-r đông lớp dừng sớm hơn ở bộ chọn lớp «\d{6} ·». Bằng chứng logs/ux09-16-landing-run-*.log. Sửa gợi ý: cập nhật bộ chọn trong record.mjs theo chữ gợi ý hiện hành.
+- Sửa kịch bản QC (không phải lỗi sản phẩm): rw4 (lớp lạ TA = QC_OTHER_COURSE; chọn hàng đang «Có mặt»; Panel.fault ẩn vùng lọc ⇒ kiểm bộ lọc sau Thử lại), rs06 UX06-6 (lấy /me/today đúng phản hồi ứng dụng), r91lib + rw5d/e/g/i (phân trang /me/courses), rn4 UX12-16 (dải «Mất kết nối mạng», hàng Có mặt), r91shots (bỏ /dev/ui 404).

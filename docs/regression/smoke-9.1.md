@@ -1,35 +1,35 @@
 # Smoke hồi quy sprint 9.1 — kết quả (chưa N=0; SmkS lượt 7 dừng vì hết ngân sách lượt)
 Mã đã chạy: 1409b04d / 8bbb6b88 (sprint/11-p10-eval) · ep-r + lớp sao sạch QR91A…H (evidence-9.1/scripts/r91-clone.sh + r91-fixgrades.sh + r91-fixseed.sh) · Người chạy: qc2 / SmkS · Ngày: 2026-11-19
-Tổng TC cũ: 414 · Lỗi thời (LT, loại khỏi tổng): 51 · Tổng tính = 363 · Đạt: 317 · Trượt (F xác nhận): 2 · K: 0 · Chưa chạy (N): 44   (P+F+K+N = 363)
+Tổng TC cũ: 414 · Lỗi thời (LT, loại khỏi tổng): 51 · Tổng tính = 363 · Đạt: 336 · Trượt (F xác nhận): 5 · K: 0 · Chưa chạy (N): 22   (P+F+K+N = 363)
 Cách chạy: `evidence-9.1/run7.sh <spec> <lớp> [grep]` (khoá /tmp/qc2-pw.lock, xoá bộ đếm auth mỗi 3 s, log logs/*.rerun7*.log); `make_overrides7.py` ghi P từ ✓ thật + kết quả chấm tay `results-smkS.tsv`; `build_smoke91.py` dựng `s91-rows.json`. Dữ liệu sạch: 761987 đã bị QC ghi đè (QUIZ v2 ×6, MANUAL v9, thêm điểm danh/phát biểu) nên chạy trên lớp sao.
 F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, Thấp, AC mâu thuẫn) — xem defects-9.1.md. N còn lại phần lớn do đăng nhập/`me/courses` lỗi tạm khi nhiều agent chạy Playwright cùng lúc (không phải F), chạy lại bằng hàng đợi /tmp/smks/queue.sh (jobs8.txt).
 
 ## Tổng hợp theo US
 | US | TC | P | F | LT | N |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| UX02 | 14 | 13 | 0 | 0 | 1 |
-| UX03 | 18 | 15 | 0 | 0 | 3 |
+| UX02 | 14 | 14 | 0 | 0 | 0 |
+| UX03 | 18 | 17 | 0 | 0 | 1 |
 | UX04 | 23 | 23 | 0 | 0 | 0 |
 | UX21 | 12 | 12 | 0 | 0 | 0 |
-| UX01 | 20 | 18 | 0 | 0 | 2 |
-| UX05 | 12 | 6 | 0 | 5 | 1 |
-| UX06 | 11 | 10 | 0 | 0 | 1 |
-| UX07 | 18 | 17 | 0 | 0 | 1 |
-| UX10 | 29 | 28 | 0 | 0 | 1 |
-| UX11 | 11 | 10 | 0 | 0 | 1 |
-| UX14 | 14 | 13 | 0 | 0 | 1 |
-| UX15 | 22 | 21 | 0 | 0 | 1 |
-| UX16 | 24 | 22 | 1 | 0 | 1 |
-| UX12 | 23 | 18 | 1 | 0 | 4 |
-| UX13 | 28 | 14 | 0 | 0 | 14 |
-| UX19 | 15 | 14 | 0 | 0 | 1 |
-| UX20 | 11 | 10 | 0 | 0 | 1 |
-| UX18 | 12 | 7 | 0 | 0 | 5 |
-| UX17 | 15 | 12 | 0 | 0 | 3 |
+| UX01 | 20 | 19 | 0 | 0 | 1 |
+| UX05 | 12 | 7 | 0 | 5 | 0 |
+| UX06 | 11 | 11 | 0 | 0 | 0 |
+| UX07 | 18 | 18 | 0 | 0 | 0 |
+| UX10 | 29 | 29 | 0 | 0 | 0 |
+| UX11 | 11 | 11 | 0 | 0 | 0 |
+| UX14 | 14 | 14 | 0 | 0 | 0 |
+| UX15 | 22 | 22 | 0 | 0 | 0 |
+| UX16 | 24 | 23 | 1 | 0 | 0 |
+| UX12 | 23 | 20 | 1 | 0 | 2 |
+| UX13 | 28 | 15 | 1 | 0 | 12 |
+| UX19 | 15 | 15 | 0 | 0 | 0 |
+| UX20 | 11 | 11 | 0 | 0 | 0 |
+| UX18 | 12 | 8 | 0 | 0 | 4 |
+| UX17 | 15 | 13 | 0 | 0 | 2 |
 | UX91 | 4 | 4 | 0 | 0 | 0 |
-| UX08 | 57 | 16 | 0 | 40 | 1 |
-| UX09 | 21 | 14 | 0 | 6 | 1 |
-| **Cộng** | **414** | **317** | **2** | **51** | **44** |
+| UX08 | 57 | 16 | 1 | 40 | 0 |
+| UX09 | 21 | 14 | 1 | 6 | 0 |
+| **Cộng** | **414** | **336** | **5** | **51** | **22** |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -45,7 +45,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX02-9 | P | spec w1 |
 | TC-UX02-10 | P | frontend/e2e/datetime.spec.ts (5 ca: bảng AC2, 23:59/00:01 ICT, ranh giới nửa đêm, null → «—», múi giờ máy khác) xanh trên bản dựng cổng; không có vitest ở HEAD (script test đã bỏ) |
 | TC-UX02-11 | P | frontend/e2e/datetime.spec.ts (5 ca: bảng AC2, 23:59/00:01 ICT, ranh giới nửa đêm, null → «—», múi giờ máy khác) xanh trên bản dựng cổng; không có vitest ở HEAD (script test đã bỏ) |
-| TC-UX02-12 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX02-12 | P | chụp ở HEAD trên ep-r (r91shots, logs/qc-uiux91-r91shots-real.rerun7k/m.log; overflowOK): shots/threads-1440.png + threads-375.png, shots/chat-sv-1440.png + chat-sv-375.png, shots/inbox-1440.png + inbox-375.png; ảnh trước docs/sprints/9.1/audit/shots/{threads__teacher__1440,chat__student__1440,inbox__teacher__1440}.png. Đọc ảnh sau: ngày giờ dạng «Chủ Nhật, 19:25» / «Hôm nay, 00:42» (AC2), bố cục không đổi gì khác; ảnh mốc CI cùng đợt: shots/visual-4b6389f1/ |
 | TC-UX02-13 | P | spec w1 |
 | TC-UX02-PQ | P | spec w12b-real |
 | TC-UX03-1 | P | spec w1 |
@@ -63,9 +63,9 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX03-13 | P | spec w1 |
 | TC-UX03-14 | P | spec w1 |
 | TC-UX03-15 | P | spec w1 |
-| TC-UX03-16 | N | chưa chạy (mẫu; dạng E2E, không có test tự động hoặc test bị skip) |
+| TC-UX03-16 | P | đọc nguồn: lý do khoá là chuỗi tĩnh / chữ của mã: «Chưa có công thức điểm đã xác nhận» (Gradebook.tsx:357, mặc định; finalize_blocked_reason = hằng BlockedNoScheme backend-go/internal/grade/scheme.go:300), «Còn N mục chưa rõ: <tên khối công thức>» (GradeScheme.tsx:184, tên khối cố định BLOCKS.short), «Chọn một bài tập trước.» / «Chưa có bài nộp.» (QueueTab.tsx:248-250): không tên SV / MSSV / điểm; ca TC-6…8 hiển thị đúng ở rw12b/w1 (logs/…rerun7j, devspec-devui.log: nút khoá có lý do ✓) |
 | TC-UX03-17 | P | spec w1 |
-| TC-UX03-18 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX03-18 | P | bộ dev-ui.spec (build:gate sẵn có, ep-r không dùng) 25 ✓ / 0 đỏ (logs/devspec-devui.log): «nút khoá có lý do: focus / rê / chạm hiện lý do, bấm không kích hoạt; lý do mà không khoá thì bỏ qua» ✓ + «confirm: disabledReason khoá nút xác nhận…» ✓; /dev/ui bị 404 ở bản như production (NEXT_PUBLIC_DEV_TOOLS) nên ảnh chụp bằng spec dev; ảnh mốc dev-ui-*, gradebook-* KHÔNG đổi ở 4b6389f1 (ca đặc biệt dưới màn đầu, dev-wave-1.md); ảnh sau gradebook-1440/375 ở shots/ (nút «Chốt điểm» khoá kèm lý do) |
 | TC-UX04-1 | P | spec w1 đỏ vì selector `class*=Button-module` không khớp bản dựng cổng (tên lớp băm); bản sửa qc2-r91-mock-extra.spec.ts (data-variant) xanh: 5 biến thể nút, transform 0,97 ≤ 100 ms, trở lại |
 | TC-UX04-2 | P | spec w1 đỏ vì selector `class*=Button-module` không khớp bản dựng cổng (tên lớp băm); bản sửa qc2-r91-mock-extra.spec.ts (data-variant) xanh: 5 biến thể nút, transform 0,97 ≤ 100 ms, trở lại |
 | TC-UX04-3 | P | RERUN 2026-11-16 sau 25cd3352 (P-11-57, DEF-R9.1-02): quét frontend/src/**/*.css: 0 luật :hover ngoài @media (hover: hover) |
@@ -119,7 +119,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX01-16 | P | spec w12c-real |
 | TC-UX01-17 | P | spec w2-real |
 | TC-UX01-18 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log) |
-| TC-UX01-19 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX01-19 | P | ảnh sau ở HEAD 1440 + 375: shots/home-gv-*, home-sv-*, chat-sv-*, threads-*, inbox-*, gradebook-* (.png); ảnh trước audit/shots/{home__teacher,home__student,chat__student,threads__teacher,inbox__teacher,gradebook__teacher}__1440.png. Mất dòng phụ dưới h1 (threads-1440.png chỉ còn h1 «Hỏi đáp công khai»); visual.spec Linux ở CI xanh (run 44343596969 @777bb5e2) |
 | TC-UX01-PQ | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log) |
 | TC-UX05-4 | P | spec w2-real |
 | TC-UX05-6 | P | spec w12b-real |
@@ -127,9 +127,9 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX05-8 | P | spec w12b-real |
 | TC-UX05-9 | P | spec w2-real |
 | TC-UX05-10 | P | spec w2-real |
-| TC-UX05-12 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX05-12 | P | shots/inbox-1440.png + inbox-375.png (ep-r, HEAD); trước audit/shots/inbox__teacher__1440.png. Dữ liệu cố định của visual.spec có hộp thư nên ảnh mốc đổi ở 4b6389f1 (inbox-1440: 85732→85363 B, shots/visual-4b6389f1/) và dev giải thích ở handoff/dev-wave-1.md (dòng phụ hộp thư, US-01); CI Linux xanh |
 | TC-UX06-1 | P | spec w2-real |
-| TC-UX06-2 | N | chưa chạy sạch: spec w12b-real: 1 lượt đỏ / 1 xanh (xem logs/) |
+| TC-UX06-2 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw12b-real ✓ (qc-uiux91-rw12b-real.rerun7n.log) |
 | TC-UX06-3 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7j.log) |
 | TC-UX06-4 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7j.log) |
 | TC-UX06-5 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7j.log) |
@@ -155,7 +155,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX07-14 | P | diff shell.spec.ts của merge 9.1: chỉ đổi nhãn nav + chuyển sang toHaveText tự thử lại; không xoá/nới assertion |
 | TC-UX07-15 | P | spec w2-real |
 | TC-UX07-16 | P | rg DESIGN.md: còn duy nhất dòng 42 «Hỏi đáp công khai (Threads)» là ghi chú đổi tên có chủ ý |
-| TC-UX07-17 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX07-17 | P | shots/threads-1440.png, home-gv-1440.png, chat-sv-1440.png, inbox-1440.png, gradebook-1440.png, settings-llm-1440.png (+375); sidebar có nhãn mới «Hỏi đáp công khai», «Lỗ hổng kiến thức», «Số liệu lớp học» (đọc settings-llm-1440.png); trước audit/shots/…__teacher__1440.png (nhãn Threads / Insights / Analytics) |
 | TC-UX07-PQ | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log) |
 | TC-UX10-1 | P | spec w3 |
 | TC-UX10-2 | P | spec w3 |
@@ -184,7 +184,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX10-25 | P | spec w3 |
 | TC-UX10-26 | P | today.spec.ts: 19 ✓ desktop, 0 ✘ (logs/devspecs-r6.log, build:gate @1409b04d); diff 9.1 (6a0e8584): +20 expect, −0; fixture có overdue/high/normal/EXAM_SIMILARITY (today.spec.ts:150-172); ảnh mốc hom-nay-gv-1440/390 có trong visual.spec.ts-snapshots |
 | TC-UX10-27 | P | spec w3 |
-| TC-UX10-28 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX10-28 | P | shots/hom-nay-gv-1440.png + hom-nay-gv-375.png (ep-r, HEAD, teacher; overflowOK); ảnh trước audit/shots/home__teacher__1440.png (+375): đủ ảnh 1440 / 375; ảnh mốc visual hom-nay-gv-1440/390 trong visual.spec.ts-snapshots, CI Linux xanh |
 | TC-UX10-PQ | P | spec w3 |
 | TC-UX11-1 | P | spec w3 |
 | TC-UX11-2 | P | spec w3 |
@@ -195,7 +195,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX11-7 | P | spec w3 |
 | TC-UX11-8 | P | spec w3 |
 | TC-UX11-9 | P | spec w3 |
-| TC-UX11-10 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX11-10 | P | shots/home-sv-1440.png + home-sv-375.png (ep-r, HEAD, sv.gioi; đọc ảnh: «Chào Trung», Việc nên làm tiếp, Hôm nay, Tiếp tục học); trước audit/shots/home__student__1440.png + __375.png: đủ ảnh; CI Linux xanh (visual.spec) |
 | TC-UX11-PQ | P | spec w3 |
 | TC-UX14-1 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log) |
 | TC-UX14-2 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log) |
@@ -208,7 +208,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX14-9 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log) |
 | TC-UX14-10 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log) |
 | TC-UX14-11 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log) |
-| TC-UX14-12 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX14-12 | P | shots/grading-queue-1440.png + grading-queue-375.png (ep-r, HEAD); trước audit/shots/grading__teacher__1440.png; ảnh mốc grading-queue-1440 đổi ở f8a744bd (CI Linux xanh) |
 | TC-UX14-PQ | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log) |
 | TC-UX14-PG | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log) |
 | TC-UX15-1 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log) |
@@ -231,7 +231,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX15-18 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log) |
 | TC-UX15-19 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7g.log) |
 | TC-UX15-20 | P | assignment-lifecycle.spec.ts: 47 ✓ / 0 ✘ (devspecs-r6.log); diff 9.1: các expect bị bỏ đều thay bằng bản theo AC (cột «Duyệt», «Lệch … so với lượt 2», N/M, xung đột AC7); ảnh grading-review-1440 có |
-| TC-UX15-21 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX15-21 | P | shots/grading-review-1440.png + grading-review-375.png (ep-r, HEAD; vào bằng liên kết «Duyệt»); trước audit/shots/grading-ID__teacher__1440.png (audit không chụp 375); ảnh mốc grading-review-1440 đổi ở f8a744bd + e050e566 (CI Linux xanh) |
 | TC-UX15-PQ | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs0pq-real ✓ (qc-uiux91-rs0pq-real.rerun7j.log) |
 | TC-UX16-1 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log) |
 | TC-UX16-2 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7i.log) |
@@ -255,7 +255,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX16-20 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
 | TC-UX16-21 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log) |
 | TC-UX16-22 | P | gradebook.spec.ts: 42 ✓ / 0 ✘; diff 9.1: số đệm 2 chữ số (8,5→8,50), cột Trạng thái «Đủ»→rỗng, «Đã công bố» → aria-label: đúng AC1/AC4, không nới; ảnh gradebook-1440/390 có |
-| TC-UX16-23 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX16-23 | P | shots/gradebook-1440.png + gradebook-375.png (ep-r, HEAD); trước audit/shots/gradebook__teacher__1440.png (audit không chụp 375 của giảng viên); ảnh mốc gradebook-1440/390 đổi ở f8a744bd (CI Linux xanh) |
 | TC-UX16-24 | P | RERUN7 trên lớp sao QR91G (seed gốc: điểm Giữa/Cuối kỳ IMPORT v1, điểm danh + phát biểu về bản /tmp/smk91-pristine.dump qua scripts/r91-fixgrades.sh + r91-fixseed.sh): rw4d khớp 30/30 (logs/qc-uiux91-rw4d-real.rerun7c.log). Lệch 28/30 ở QR91A là dữ liệu sao có phát biểu/điểm danh do QC ghi thêm |
 | TC-UX12-1 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
 | TC-UX12-2 | F | DEF-R9.1-06: dot đã chọn Muộn / Vắng phép / Vắng chuyển XÁM (border lab(45 4 2) = --ep-ink-3) khi chuột đang rê lên đúng ô, vì `.cell:hover .radio` (0,3,0) thắng `.radio:checked` (0,2,0) trong AttendanceGrid.module.css; chuột rời ra mới đỏ rgb(206,22,40). Bằng chứng logs/qc-uiux91-rzprobe-real.rerun7q.log (LATE/EXCUSED/ABSENT: chuột-xa đỏ, chuột-trên-ô xám). Người dùng chuột bấm xong thấy dot xám ⇒ AC1 «chấm của lựa chọn đó đỏ» không đạt khi đang trỏ |
@@ -272,15 +272,15 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX12-13 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
 | TC-UX12-14 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log) |
 | TC-UX12-15 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log) |
-| TC-UX12-16 | N | chưa chạy sạch: spec n4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX12-16 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rn4-real ✓ (qc-uiux91-rn4-real.rerun7p.log) |
 | TC-UX12-17 | P | qc-uiux91-rn4-real rerun7b (QR91H): TA sửa hàng 25 → Vắng, tự lưu; GV (trang cũ) sửa cùng hàng → Muộn: 409, hàng hiện «Phạm Quốc Bảo đã đánh Vắng», nút «Giữ của tôi» + «Lấy của Phạm Quốc Bảo», lựa chọn Muộn của GV còn |
 | TC-UX12-18 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
 | TC-UX12-19 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log) |
 | TC-UX12-20 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
 | TC-UX12-21 | P | attendance.spec.ts: 20 ✓ desktop (+1 mobile) / 0 ✘; diff 9.1: speak-count «1»→/^\+1\b/ (AC5), +3 expect; ảnh attendance-1440/390 có |
-| TC-UX12-22 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX12-22 | P | shots/attendance-1440.png + attendance-375.png (ep-r, HEAD); trước audit/shots/attendance__teacher__1440.png + __375.png: đủ ảnh; ảnh mốc attendance-1440/390 đổi ở f8a744bd (CI Linux xanh) |
 | TC-UX12-PQ | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log) |
-| TC-UX13-1 | N | chưa chạy sạch: spec 91sv-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX13-1 | F | logs/qc-uiux91-r91sv-real.rerun7j.log: /chat 1440 — 50 phiên; hộp hội thoại rộng 746 px (≤ 840 ✓) nhưng lề trái−24 = 1 px, lề phải 49 px (lệch 48 px > ±3) và cột lịch sử rộng 379 px nằm TRONG Panel (AC1 9.1: Panel căn giữa phần phải, cột lịch sử rộng 240 ngoài Panel). Bố cục /chat đã được 10.7 lô 2 đổi sang Split list-detail (3b259963; P-107-15 «chat là Split fill») ⇒ AC1 cũ bị thay, cột lịch sử vẫn phẳng (border-radius 0, không bóng, nền trong suốt) ⇒ ĐỀ NGHỊ LT (nguồn 3b259963 / P-107-15) |
 | TC-UX13-2 | P | scripts/ui-antipatterns.sh exit 0, 12 phép ✓ (logs/antipatterns-r6.log) + panels.spec.ts 59 ✓ / 0 ✘ (devspecs-r6.log; NEST = 0, TITLE = 0 mọi route × vai) |
 | TC-UX13-3 | P | spec w5i-real |
 | TC-UX13-4 | P | spec w5i-real |
@@ -307,7 +307,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX13-25 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5a-real ✓ (qc-uiux91-rw5a-real.rerun7j.log) |
 | TC-UX13-26 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5a-real ✓ (qc-uiux91-rw5a-real.rerun7j.log) |
 | TC-UX13-27 | P | private-chat.spec.ts: 24 ✓ / 0 ✘; diff 9.1 (ed0aa499, 3002ce33): +11 expect, −0; ảnh chat-1440/390 có |
-| TC-UX13-28 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX13-28 | P | shots/chat-sv-1440.png + chat-sv-375.png (ep-r, HEAD, sv.gioi); trước audit/shots/chat__student__1440.png + __375.png: đủ ảnh; ảnh mốc chat-1440/390 đổi ở ed0aa499 + e050e566 (CI Linux xanh) |
 | TC-UX19-1 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs19-real (qc-uiux91-rs19-real.rerun6.log) xanh |
 | TC-UX19-2 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs19-real (qc-uiux91-rs19-real.rerun6.log) xanh |
 | TC-UX19-3 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs19-real (qc-uiux91-rs19-real.rerun6.log) xanh |
@@ -321,7 +321,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX19-11 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5f-real ✓ (qc-uiux91-rw5f-real.rerun7j.log) |
 | TC-UX19-12 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw5f-real ✓ (qc-uiux91-rw5f-real.rerun7j.log) |
 | TC-UX19-13 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs19-real (qc-uiux91-rs19-real.rerun6.log) xanh |
-| TC-UX19-14 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX19-14 | P | shots/threads-1440.png + threads-375.png (ep-r, HEAD); trước audit/shots/threads__teacher__1440.png + threads__student__375.png; ảnh mốc threads-390 đổi ở 4b6389f1 (shots/visual-4b6389f1/) |
 | TC-UX19-PG | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs19-real (qc-uiux91-rs19-real.rerun6.log) xanh |
 | TC-UX20-1 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7b.log) |
 | TC-UX20-2 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7b.log) |
@@ -333,7 +333,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX20-8 | P | spec w5i-real |
 | TC-UX20-9 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7b.log) |
 | TC-UX20-10 | P | me.spec.ts: 16 ✓ / 0 ✘; diff 9.1: calc li 3→5 thành phần (AC1), +6 expect, câu rỗng đổi chữ theo AC2; không nới |
-| TC-UX20-11 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX20-11 | P | shots/me-sv-375.png (+1440) (ep-r, HEAD, sv.gioi); trước audit/shots/me__student__375.png: đủ ảnh |
 | TC-UX18-1 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
 | TC-UX18-2 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
 | TC-UX18-3 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
@@ -343,7 +343,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX18-7 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
 | TC-UX18-8 | N | chưa chạy sạch: spec w5g-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX18-9 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
-| TC-UX18-10 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX18-10 | P | shots/documents-1440.png + documents-375.png (ep-r, HEAD, teacher); trước audit/shots/documents__teacher__1440.png: đủ ảnh |
 | TC-UX18-PQ | N | chưa chạy sạch: spec w5g-real: 1 lượt đỏ / 0 xanh (xem logs/) |
 | TC-UX18-ID | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
 | TC-UX17-1 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs17-real (qc-uiux91-rs17-real.rerun6.log) xanh |
@@ -359,7 +359,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX17-11 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs17-real (qc-uiux91-rs17-real.rerun6.log) xanh |
 | TC-UX17-12 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs17-real (qc-uiux91-rs17-real.rerun6.log) xanh |
 | TC-UX17-13 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs17-real (qc-uiux91-rs17-real.rerun6.log) xanh |
-| TC-UX17-14 | N | chưa chạy (mẫu; dạng MAC, không có test tự động hoặc test bị skip) |
+| TC-UX17-14 | P | shots/insights-1440.png, observability-1440.png (+375) (ep-r, HEAD, teacher); trước audit/shots/insights__teacher__1440.png, observability__teacher__1440.png: đủ ảnh; ảnh mốc insights-/observability- đổi ở ed0aa499 (CI Linux xanh) |
 | TC-UX17-PQ | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs17-real (qc-uiux91-rs17-real.rerun6.log) xanh |
 | TC-UX91-X1 | P | như UX08-37 (AC10a US-08) |
 | TC-UX91-X2 | P | bộ playwright dev 271 ✓ / 0 đỏ spec dev (logs/devspecs-r6.log); scripts/ui-antipatterns.sh 12 phép ✓ (antipatterns-r6.log); eslint cây theo dõi: 36 lỗi đều ở e2e/qc2-* (spec QC), 0 ở src/ và spec dev (lint-tracked-r6.log); CI run 44343596969 @777bb5e2: Frontend (lint + build), 4 shard Playwright và 4 job Lighthouse (simulate A/B, devtools A/B) success |
@@ -371,7 +371,7 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX08-18 | P | spec w6-real |
 | TC-UX08-19 | P | spec w6-real |
 | TC-UX08-21 | P | spec w6-real |
-| TC-UX08-28 | N | chưa chạy sạch: spec s0land-real,w6-real: 4 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX08-28 | F | Firefox 155 (container mcr playwright:v1.63.0-noble, logs/ux08-28-firefox-docker.log): CSS.supports(animation-timeline: view()) = false, 1440 px: 5 mục, không tràn ngang, không pageerror; nhưng khung kể chuyện VẪN ghim (div Landing…wrap, sticky, cao 900 px) và có 1 H3 «Giảng viên» ẩn; WebKit (Safari 27.2) hỗ trợ animation-timeline = true nên không dùng được (logs/qc-uiux91-rzprobe6-real.rerun7o.log). TC cũ («không animation-timeline ⇒ không ghim») bị AC7 hiện hành thay: ghim theo bề rộng ≥ 1100 bằng JS (LandingMotion.tsx:181 toggle is-pinned theo matchMedia), không theo animation-timeline ⇒ ĐỀ NGHỊ LT (nguồn AC7 / P-107-12 / P-11-40), không phải lỗi sản phẩm |
 | TC-UX08-37 | P | AC10a: story-chat/review/gradebook-v1-1280.webp chụp lại ở commit aa4343f8 (15/11, 10.7 lô 8–9) sau đợt 3–5; xem ảnh story-review: có «Đã duyệt 0/4», phím A, «Duyệt bài», nhãn nav mới (Hỏi đáp công khai, Lỗ hổng kiến thức) = UI hiện hành |
 | TC-UX08-43 | P | Lighthouse mobile 3 lượt: LCP 2419/2190/2087 ms, CLS 0; desktop LCP 437 ms (lượt 1 lạnh 2177 ms), CLS 0; a11y 1,0. Máy chủ ép tải ~40 nên số mobile sát trần; ghi nhận p.lead là LCP ở 375 (DEF-R9.1-05) |
 | TC-UX08-44 | P | logs/r91land.log: JS tĩnh route / = 214,5 KB gzip (11 tệp) ≤ 256 KB; script nội tuyến tự viết 0,48 KB gzip (≤ 5 KB, AC13) |
@@ -394,6 +394,6 @@ F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, 
 | TC-UX09-13 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs0land-real (qc-uiux91-rs0land-real.rerun6.log) xanh |
 | TC-UX09-14 | P | scripts/landing-video/record.mjs + README: chỉ đọc; không gửi chat, không Duyệt/Công bố/sửa điểm (rg Duyệt/Công bố/Gửi/type(/Enter = 0) |
 | TC-UX09-15 | P | tesseract OCR 65 khung (frames/ocr.txt, logs): không có email, localhost, .local, IP, 9router, khoá; MSSV 2022xxxx là dữ liệu seed mô phỏng (D44) |
-| TC-UX09-16 | N | chưa chạy (mẫu; dạng FFP, không có test tự động hoặc test bị skip) |
+| TC-UX09-16 | F | bash scripts/landing-video/run.sh (bản sao ở ~/Documents/smks-lv, không đụng frontend/public/landing) trên ep-r: dừng ở cảnh đăng nhập vì không thấy nút chọn lớp dạng «\d{6} ·» (lớp mặc định QR91H) — nguyên nhân do ep-r đông lớp; chạy lại trên stack seed sạch smk91 (lớp mặc định 761987): đăng nhập qua, cảnh chat dừng ở getByRole(button, /Giải thích giúp em/Điều kiện để được dự thi/) timeout 30 s: gợi ý chat đã đổi chữ ở 10.7 (chat Split) nên record.mjs lỗi thời ⇒ không sinh lại được clip / video / poster (logs/ux09-16-landing-run-smk91.log, rc=1). README nêu đủ lệnh. DEF-R9.1-08 (Thấp): record.mjs không chạy được ở HEAD |
 | TC-UX09-19 | P | spec w6-real |
 | TC-UX09-PQ | P | /landing/../package.json, /landing/%2e%2e/package.json, /landing/..%2f..%2fnext.config.ts, /edupilot/x.mp4: đều trả khung ứng dụng (HTML), không có nội dung tệp riêng; không tới MinIO |

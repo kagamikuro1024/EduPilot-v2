@@ -205,6 +205,8 @@ test("[TC-P206-39] lỗi Admin: 409 email trùng tại ô, 422, 403, offline G�
   await page.getByRole("button", { name: "Gửi lời mời" }).click();
   await expect(page.locator("[data-part=offline-banner]").getByText("Mất kết nối mạng.")).toBeVisible({ timeout: 40_000 });
   await expect(name).toHaveValue("QC2IU Mất Mạng");
+  // gói ApiClient tự thử lại 3 lần (0,3 s + 0,9 s) cùng khoá: giữ mạng chết tới khi hiện "Gửi lại", rồi mới cho mạng về
+  await expect(page.getByRole("alert").getByRole("button", { name: "Gửi lại" })).toBeVisible({ timeout: 20_000 });
   down = false;
   await page.getByRole("alert").getByRole("button", { name: "Gửi lại" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Đã gửi link mời, hạn 72 giờ." })).toBeVisible({ timeout: 30_000 });
@@ -362,15 +364,19 @@ test("[TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N gi
   const uid = psql(`select id from users where email='${u.email}'`);
   psql(`delete from notifications where user_id='${uid}' and type='QC2IU_TIME'`);
   const rows: Array<[string, string]> = [
-    ["n59s", "now() - interval '59 seconds'"],
+    ["n59s", "now() - interval '58 seconds'"], // 59 s trừ trễ truy vấn + tải khung (≈1 s)
     ["n5m", "now() - interval '5 minutes'"],
     ["n3h", "now() - interval '3 hours'"],
     ["nyd", "(date_trunc('day', now() at time zone 'Asia/Ho_Chi_Minh') - interval '1 day' + interval '16 hours 40 minutes') at time zone 'Asia/Ho_Chi_Minh'"],
     ["n5d", "now() - interval '5 days'"],
+    ["n10d", "now() - interval '10 days'"],
   ];
-  for (const [k, ts] of rows) psql(`insert into notifications(user_id,type,title,body,link,created_at) values ('${uid}','QC2IU_TIME','Thử ${k}','b','/settings',${ts})`);
+  const ins = (k: string, ts: string) => psql(`insert into notifications(user_id,type,title,body,link,created_at) values ('${uid}','QC2IU_TIME','Thử ${k}','b','/settings',${ts})`);
+  for (const [k, ts] of rows.slice(1)) ins(k, ts);
   await apiLogin(page, u.email);
   await page.goto("/");
+  await expect(topbar(page)).toBeVisible({ timeout: 30_000 });
+  ins(rows[0][0], rows[0][1]); // 59 giây: chèn ngay trước khi mở khung (trang tải mất > 1 s nên chèn từ đầu sẽ thành "1 phút trước")
   await page.getByRole("button", { name: /^Thông báo/ }).click();
   const panel = page.locator("[data-part=notifications]");
   await expect(panel).toContainText("Thử n59s", { timeout: 20_000 });
@@ -381,11 +387,13 @@ test("[TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N gi
   expect(lk.n59s).toMatch(/vừa xong/);
   expect(lk.n5m).toMatch(/5 phút trước/);
   expect(lk.n3h).toMatch(/3 giờ trước/);
-  expect(lk.nyd).toMatch(/hôm qua 16:40/);
-  const d5 = new Date(Date.now() - 5 * 86400_000);
-  const dd = new Date(d5.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+  expect(lk.nyd).toMatch(/hôm qua,? 16:40/i); // 9.1: formatWhen viết "Hôm qua, 16:40"
+  // 5 ngày: TC gốc "dd/MM"; từ 9.1 trong 6 ngày là "Thứ X, HH:mm" (formatWhen, LT mệnh đề này) → đo thêm 10 ngày = "Thứ X, dd/MM · HH:mm"
+  expect(lk.n5d).toMatch(/(Thứ|Chủ nhật)[^,]*, \d\d:\d\d/);
+  const d10 = new Date(Date.now() - 10 * 86400_000);
+  const dd = new Date(d10.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
   const ddmm = `${String(dd.getDate()).padStart(2, "0")}/${String(dd.getMonth() + 1).padStart(2, "0")}`;
-  expect(lk.n5d).toContain(ddmm);
+  expect(lk.n10d).toContain(ddmm);
   const grep = execFileSync("bash", ["-c", "grep -rnE '[0-9]+ (ngày|giờ|phút) trước' src | grep -v shared/lib/timeAgo | grep -v test | wc -l"], { cwd: __dirname + "/../.." }).toString().trim();
   note(`grep chuỗi 'N … trước' ngoài timeAgo = ${grep}`);
   expect(grep).toBe("0");
@@ -426,6 +434,8 @@ test("[TC-P208-37] lỗi Admin lớp: mã trùng 409 tại ô, 422 sai vai, VERS
   await page.getByRole("button", { name: "Mở lớp" }).click();
   await expect(page.locator("[data-part=offline-banner]").getByText("Mất kết nối mạng.")).toBeVisible({ timeout: 40_000 });
   await expect(name).toHaveValue("Tên giữ nguyên");
+  // gói ApiClient tự thử lại 3 lần (0,3 s + 0,9 s) cùng khoá: giữ mạng chết tới khi hiện "Gửi lại", rồi mới cho mạng về
+  await expect(page.getByRole("alert").getByRole("button", { name: "Gửi lại" })).toBeVisible({ timeout: 20_000 });
   down = false;
   await page.getByRole("alert").getByRole("button", { name: "Gửi lại" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Đã mở lớp." })).toBeVisible({ timeout: 30_000 });
@@ -438,7 +448,7 @@ test("[TC-P208-37] lỗi Admin lớp: mã trùng 409 tại ô, 422 sai vai, VERS
   const row = page.locator("table tbody tr").filter({ hasText: first.code });
   await page.reload();
   await expect(row).toBeVisible({ timeout: 30_000 });
-  const list = (await call("GET", "/admin/courses?limit=200", adm)).body.items as Array<{ id: string; class_code: string; version: number; name: string; capacity?: number }>;
+  const list = (await call("GET", `/admin/courses?limit=50&q=${encodeURIComponent(first.code)}`, adm)).body.items as Array<{ id: string; class_code: string; version: number; name: string; capacity?: number }>;
   const cur = list.find((c) => c.class_code === first.code)!;
   const put = await call("PUT", `/admin/courses/${first.id}`, adm, { name: "Đổi bằng API", class_code: first.code, version: cur.version, capacity: cur.capacity ?? 30 });
   note(`PUT API đổi phiên bản: ${put.status}`);

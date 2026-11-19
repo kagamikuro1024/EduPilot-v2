@@ -21,7 +21,9 @@ export async function login(page: Page, email: string, pw = SEEDPW) {
     if (ok) { await page.locator("[data-part=topbar]").waitFor({ timeout: 20_000 }).catch(() => undefined); await page.waitForTimeout(1200); return; }
     await page.waitForTimeout(8000);
   }
-  throw new Error("login failed " + email);
+  const bt = (await page.locator("body").innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 300);
+  await page.screenshot({ path: `${EV}/shots/s4-loginfail-${Date.now()}.png` }).catch(() => undefined);
+  throw new Error("login failed " + email + " url=" + page.url() + " body=" + bt);
 }
 export const settle = async (page: Page, ms = 2500) => { await page.waitForLoadState("networkidle").catch(() => undefined); await page.waitForTimeout(ms); };
 export const text = async (page: Page, sel = "main") => ((await page.locator(sel).first().innerText().catch(() => "")) as string).replace(/\s+/g, " ");
