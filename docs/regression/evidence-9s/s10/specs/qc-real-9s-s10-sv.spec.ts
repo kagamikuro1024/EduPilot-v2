@@ -311,7 +311,7 @@ test("DBG mock screen", async ({ browser, request }) => {
 
 test("TC-09-02 + TC-09-05 + TC-09-19 + TC-09-20 lịch sử luyện tập", async ({ browser, request }) => {
   // 09-19: SV chưa có lượt nào (sv37)
-  const { ctx, page, id } = await pageAs(browser, "sv37");
+  const { ctx, page, id } = await pageAs(browser, process.env.QC_SV19 ?? "sv37");
   await page.goto("/practice/history"); await page.waitForTimeout(2000);
   const t19 = await page.locator("main").innerText(); const btn19 = await page.getByRole("button", { name: "Luyện ngay" }).or(page.getByRole("link", { name: "Luyện ngay" })).count();
   await page.screenshot({ path: `${OUT}/s10-0919.png` });
@@ -325,7 +325,7 @@ test("TC-09-02 + TC-09-05 + TC-09-19 + TC-09-20 lịch sử luyện tập", asyn
   const t05 = await page.locator("main").innerText(); await page.screenshot({ path: `${OUT}/s10-0905.png` });
   verdict("TC-09-05", !/Chủ đề cần ôn/.test(t05), `3 câu đã làm (<10): «Chủ đề cần ôn» ${/Chủ đề cần ôn/.test(t05) ? "HIỆN" : "ẩn"}; chữ trang: «${t05.replace(/\n/g, " ").slice(0, 140)}»`);
   // 09-02: bấm một hàng → xem lại từng câu
-  await page.getByRole("row").nth(1).click().catch(async () => { await page.locator("main a, main [role=button]").nth(1).click(); });
+  await page.locator("main").getByText(/Đúng \d+\/\d+/).first().click();
   await page.waitForTimeout(2000); const t02 = await page.locator("main").innerText(); await page.screenshot({ path: `${OUT}/s10-0902.png` });
   verdict("TC-09-02", /Đáp án|đáp án|Đúng|Sai|Chưa đúng/.test(t02) && /Giải thích|giải thích|Nguồn/.test(t02) || /Đáp án đúng/.test(t02), `bấm một hàng lịch sử → ${new URL(page.url()).pathname}: «${t02.replace(/\n/g, " ").slice(0, 200)}»`);
   // 09-20: route.abort history → PageState lỗi + Thử lại

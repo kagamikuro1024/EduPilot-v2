@@ -58,8 +58,8 @@ if stage == "a2":
     n0 = len(stems()); c, j, _ = gen({"document_ids": [L1], "topic": "Mạng máy tính cơ bản", "difficulty": "MEDIUM", "count": 5, "types": ["MCQ_SINGLE"]}); print("gen", c, j); J = wait_job(j["job_id"]); r = J.get("result") or {}
     sk = r.get("skipped", []); n1 = len(stems()); dup = sorted(s.get("number") for s in sk if s.get("reason") == "DUPLICATE")
     chk("TC-03-09", J.get("status") == "SUCCEEDED" and dup == [1, 2, 3] and len(r.get("created", [])) == 2, f"câu X ở REJECTED («GIAO THỨC… ??» hoa + dấu cách + dấu câu cuối), APPROVED («12. Thiết bị…» số thứ tự đầu), PENDING (hai dấu cách, thiếu «?»): sinh 5 → DUPLICATE ở câu {dup}, created={len(r.get('created', []))}, skipped={[(s.get('number'), s.get('reason')) for s in sk]}; GENERATED {n0}→{n1}. NormalizeShort (NFC, gộp khoảng trắng, chữ thường, bỏ dấu câu CUỐI) không bỏ số thứ tự đầu")
-if stage == "a3":  # lớp sạch QD10C
-    CCx = sql("select id from courses where class_code='QD10C'")[0][0]; mode("ok")
+if stage == "a3":  # lớp sạch " + os.environ.get('QC_GEN_CLASS', 'QD10C') + "
+    CCx = sql("select id from courses where class_code='" + os.environ.get('QC_GEN_CLASS', 'QD10C') + "'")[0][0]; mode("ok")
     Lc = upb(open(ROOT + "seed/demo/quy-che-lop1.pdf", "rb").read() + f"\n%QC-S10-GEN-C-{SUF}\n".encode(), "quy-che-lop1.pdf", "application/pdf", f"QC S10 bài giảng C {SUF}", "LECTURE", CCx); print("READY", wait_doc(Lc, C=CCx)["status"])
     var = ["  GIAO THỨC NÀO THIẾT LẬP KẾT NỐI TRƯỚC KHI TRUYỀN DỮ LIỆU??  ", "12. Thiết bị nào chuyển khung theo địa chỉ MAC?", "Tầng  nào của OSI   chịu trách nhiệm định tuyến"]
     ids = []
@@ -70,7 +70,7 @@ if stage == "a3":  # lớp sạch QD10C
     n0 = int(sql(f"select count(*) from question_bank where course_id='{CCx}' and origin='GENERATED'")[0][0])
     c, j, _ = api("teacher", "POST", f"/courses/{CCx}/questions/generate", {"document_ids": [Lc], "topic": "Mạng máy tính cơ bản", "difficulty": "MEDIUM", "count": 5, "types": ["MCQ_SINGLE"]}); print("gen", c, j); J = wait_job(j["job_id"]); r = J.get("result") or {}
     sk = r.get("skipped", []); n1 = int(sql(f"select count(*) from question_bank where course_id='{CCx}' and origin='GENERATED'")[0][0]); dup = sorted(s.get("number") for s in sk if s.get("reason") == "DUPLICATE")
-    chk("TC-03-09", J.get("status") == "SUCCEEDED" and dup == [1, 2, 3] and len(r.get("created", [])) == 2, f"lớp sạch QD10C, câu X ở REJECTED («GIAO THỨC… ??» hoa + dấu cách + dấu câu cuối), APPROVED («12. Thiết bị…» số thứ tự đầu), PENDING (hai dấu cách, thiếu «?»): sinh 5 → DUPLICATE ở câu {dup}, created={len(r.get('created', []))}, skipped={[(s.get('number'), s.get('reason')) for s in sk]}; GENERATED {n0}→{n1}. NormalizeShort (NFC, gộp khoảng trắng, chữ thường, bỏ dấu câu CUỐI) không bỏ số thứ tự đầu. Ở QD10A lần đầu: biến thể «12. … HOA» và «3) …» cũng không bị coi trùng")
+    chk("TC-03-09", J.get("status") == "SUCCEEDED" and dup == [1, 2, 3] and len(r.get("created", [])) == 2, f"lớp sạch " + os.environ.get('QC_GEN_CLASS', 'QD10C') + f", câu X ở REJECTED («GIAO THỨC… ??» hoa + dấu cách + dấu câu cuối), APPROVED («12. Thiết bị…» số thứ tự đầu), PENDING (hai dấu cách, thiếu «?»): sinh 5 → DUPLICATE ở câu {dup}, created={len(r.get('created', []))}, skipped={[(s.get('number'), s.get('reason')) for s in sk]}; GENERATED {n0}→{n1}. NormalizeShort (NFC, gộp khoảng trắng, chữ thường, bỏ dấu câu CUỐI) không bỏ số thứ tự đầu. Ở QD10A lần đầu: biến thể «12. … HOA» và «3) …» cũng không bị coi trùng")
 if stage == "c":  # TC-03-05 ở QD10C: sv.kha được ghi danh; tài liệu ẩn
     CCx = sql("select id from courses where class_code='QD10C'")[0][0]; mode("ok")
     Lh = upb(open(ROOT + "seed/demo/quy-che-lop2.pdf", "rb").read() + f"\n%QC-S10-GEN-H-{SUF}\n".encode(), "quy-che-lop2.pdf", "application/pdf", f"QC S10 bài giảng ẩn C {SUF}", "LECTURE", CCx); print("READY", wait_doc(Lh, C=CCx)["status"])

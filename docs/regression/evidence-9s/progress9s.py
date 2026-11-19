@@ -2,7 +2,7 @@
 """Ghi /tmp/qc-progress.tsv: nhóm⇥tổng⇥đạt⇥trượt⇥chặn⇥đang_làm. Số thật từ smoke-*.md (dòng sau thắng; N = chưa chạy)."""
 import re,sys,os
 H=os.path.expanduser("~/Documents")
-DIR={"9":H+"/TA_Agent_qc9sub/docs/regression"}  # smoke 9 do worktree riêng của agent con
+DIR={}
 D=H+"/TA_Agent_qc9s/docs/regression"
 UX=["S21","S22","S23","a","a2","b","c","d","f","g","h","i","j","k","l","m","n","o","p","17"]
 def expand(a,b):
