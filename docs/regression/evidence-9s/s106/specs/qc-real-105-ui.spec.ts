@@ -1,6 +1,7 @@
 import { appendFileSync, readFileSync } from "node:fs";
 import { test, type Browser } from "@playwright/test";
 import { sql, PW, OUT } from "./qc-real-lib";
+import { writeFileSync } from "node:fs";
 const RES = "/Users/kuro/Documents/TA_Agent_qc9s/docs/regression/evidence-9s/s106/results_106.jsonl";
 const D = JSON.parse(readFileSync("/Users/kuro/.config/edupilot-team/qc3-work/ux60.json", "utf8")) as { a: string };
 const verdict = (tc: string, cond: boolean, why: string) => { appendFileSync(RES, JSON.stringify({ tc, kq: cond ? "P" : "F", note: why }) + "\n"); console.log("VERDICT", cond ? "P" : "F", tc, why.slice(0, 380)); };
@@ -73,4 +74,15 @@ test("D07", async ({ browser }) => {
   { const { ctx, page } = await pageAs(browser, "admin"); let n = 0; await page.route(/observability\/decision/, (r) => { n++; return r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "x" }) }); });
     await page.goto("/observability"); await page.waitForTimeout(6000); const retry = await page.getByRole("button", { name: /Thử lại/ }).count(); out.push(`12 lỗi: yêu cầu ${n}, nút «Thử lại» ${retry}`); if (retry) { await page.unroute(/observability\/decision/); await page.getByRole("button", { name: /Thử lại/ }).first().click(); await page.waitForTimeout(3000); out.push(`12 sau thử lại: «Thử lại» còn ${await page.getByRole("button", { name: /Thử lại/ }).count()}`); } await ctx.close(); }
   console.log("VERDICT D07", JSON.stringify(out));
+});
+
+test("D03-12", async ({ browser }) => {
+  const label = process.env.D3_LABEL ?? "x"; const body = process.env.D3_BODY ?? ""; const { ctx, page } = await pageAs(browser, "sv.kha"); const codes: string[] = [];
+  page.on("response", (r) => { if (/\/threads$/.test(r.url()) && r.request().method() === "POST") codes.push(String(r.status())); });
+  await page.goto("/threads"); await page.waitForTimeout(2500); await page.getByRole("button", { name: "Đặt câu hỏi" }).click(); await page.waitForTimeout(700);
+  const f = page.locator("[data-part=thread-form]"); await f.getByLabel("Tiêu đề").fill("QC105 hộp thoại " + label + " " + Date.now()); await f.getByLabel("Nội dung").fill(body); await page.waitForTimeout(1500);
+  await f.getByRole("button", { name: "Đăng", exact: true }).click(); await page.waitForTimeout(2500);
+  const dlg = page.getByRole("dialog").or(page.getByRole("alertdialog")).last(); const dt = (await dlg.innerText().catch(() => "")).replace(/\n+/g, " ¦ "); const btns = await dlg.getByRole("button").allInnerTexts().catch(() => []);
+  const bad = /(decision|cascade|embedding|fallback|FAIL|RAG|PII|classif|AI)/i.test(dt);
+  console.log("VERDICT D03-12", JSON.stringify({ label, codes, dt: dt.slice(0, 420), btns, forbidden: bad })); await page.screenshot({ path: `${OUT}/s105-d0312-${label}.png` }); await ctx.close();
 });
