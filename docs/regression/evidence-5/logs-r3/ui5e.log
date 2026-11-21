@@ -1,0 +1,12 @@
+· CE chạy thử Lỗi biên dịch
+· CE nộp Lần nộp / Lần nộp tính điểm / Lỗi biên dịch
+· nộp lại (sửa lỗi) Lần nộp / Lần nộp tính điểm / Lỗi biên dịch
+· DB SV1 code CE:DONE:0,AC:DONE:6
+· SV2 thấy ô mã true
+· SV2 sau hết giờ (không thấy)
+· DB SV2 GRADED|TIMEOUT|submit=1|auto=true|len=91
+· công bố 2026-11-21T14:09:01.000Z
+· rò TRƯỚC công bố (phản hồi mạng của SV1+SV2) 0
+· canary/khoá cấm SAU công bố SV2 /attempts/01a1fe6b-f103-72b0-b583-a4c77a92d974/result QCR5CANARYa174b2ee; SV1 /attempts/01a1fe6b-e6b7-76ca-9cb6-fb3da5e7b8db/result QCR5CANARYa174b2ee
+· kết quả SV 375 tràn ngang (gập / mở hết câu) 0 / 287; phần tử vượt: DIV.DataTable-module__PUx__a__root r=662 «Vuốt ngang để xem th» ; P.DataTable-module__PUx__a__scrollHint r=662 «Vuốt ngang để xem th» ; DIV.DataTable-module__PUx__a__scroll  r=662 «Kết quả test mẫuTest» ; TABLE.DataTable-module__PUx__a__table DataTabl r=662 «Kết quả test mẫuTe
+· DB cuối r5s19@edupilot.local:GRADED:2.50:TIMEOUT ; r5s20@edupilot.local:GRADED:0.00:TIMEOUT

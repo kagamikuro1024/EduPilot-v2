@@ -1,0 +1,122 @@
+[
+ [
+  "1 GV tạo câu (UI)",
+  "DRAFT|MCQ_SINGLE"
+ ],
+ [
+  "2 bài nháp",
+  "01a1fe60-e6e8-7cfb-a1ff-d6bccc77adbf"
+ ],
+ [
+  "2 lỗi lên lịch (nhánh lỗi)",
+  "Cần giờ mở bài. Điền ở Thông tin | Cần giờ đóng bài. Điền ở Thông tin | Cần thời lượng làm bài. Điền ở Thông tin | Bài thi cần ít nhất một câu hỏi. Thêm câu hỏi"
+ ],
+ [
+  "3 xem trước không lộ đáp án/canary",
+  true
+ ],
+ [
+  "4 TA thấy nút Lên lịch",
+  0
+ ],
+ [
+  "5 đã lên lịch",
+  "SCHEDULED|2026-11-21 13:53:00+00|2026-11-21 14:01:00+00"
+ ],
+ [
+  "mở bài",
+  "2026-11-21T13:53:04.002Z"
+ ],
+ [
+  "6 SV thấy bài trong /exams",
+  true
+ ],
+ [
+  "7 màn bắt đầu có «≥ 1024 px»",
+  true
+ ],
+ [
+  "8 3G",
+  "400 kbps / RTT 400 ms bật"
+ ],
+ [
+  "8 sau 3G: đáp án trên máy chủ",
+  "3 (đã làm 3 câu bằng bàn phím trong 11 s; trang còn dùng được)"
+ ],
+ [
+  "9 ngắt 30 s",
+  "dải «Mất mạng — bài vẫn được giữ trên máy bạn»; đáp án trên máy chủ trước 3 → sau bật mạng 3; «Đã lưu lúc 20:54:03»"
+ ],
+ [
+  "9 đủ 3 câu trắc nghiệm trên máy chủ",
+  "3"
+ ],
+ [
+  "10 375 px tràn ngang",
+  0
+ ],
+ [
+  "11 Chạy thử",
+  "Lỗi biên dịch"
+ ],
+ [
+  "11 Nộp lời giải",
+  "Lần nộp / Lần nộp tính điểm"
+ ],
+ [
+  "12 xác nhận nộp",
+  "Nộp bài thi? |  | Bạn đã trả lời 4/4 câu. Còn 0 câu chưa trả lời. Sau khi nộp bạn không sửa được. |  | Làm tiếp | Nộp bài"
+ ],
+ [
+  "12 sau nộp",
+  "Đã nộp lúc 20:54:50. / Điểm sẽ hiện khi bài thi đóng với cả lớp (Thứ Bảy, 21:01 21/11)."
+ ],
+ [
+  "LỖI SV2",
+  "TimeoutError: locator.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('textbox', { name: /Mã nguồn bài/ }).first()\n"
+ ],
+ [
+  "13 SV2 hết giờ khi đang gõ",
+  "(không thấy)"
+ ],
+ [
+  "13 DB SV2",
+  "GRADED|CLOSED|0|auto="
+ ],
+ [
+  "14 trạng thái bài",
+  "PUBLISHED|published_at=2026-11-21 14:01:11.673599+00|closes=2026-11-21 14:01:00+00"
+ ],
+ [
+  "15 SV kết quả 375",
+  "điểm 2,50 / 10,00; đáp án đúng 4; giải thích 3; test ẩn Test ẩn: đạt 0 trên 0; tràn ngang 287"
+ ],
+ [
+  "16 phúc khảo",
+  "Yêu cầu xem lại của bạn đã gửi, giảng viên sẽ trả lời."
+ ],
+ [
+  "17 GV bảng điểm",
+  "Đã chấm 2 · Vắng 32 / Đã chấm / Vắng ; r5s17 "
+ ],
+ [
+  "17 CSV",
+  "ket-qua-bai-thi.csv 36 dòng"
+ ],
+ [
+  "18 GV trả lời phúc khảo",
+  "UPHELD|Đã xem lại, giữ nguyên điểm (qc3)."
+ ],
+ [
+  "19 SV thấy phản hồi",
+  true
+ ],
+ [
+  "11/21 rò đáp án: số lần thấy canary / tên test ẩn / answer_key trong MỌI phản hồi mạng của SV1+SV2 (trước và sau công bố)",
+  "SV1 /courses/01a1df30-523a-7d7a-a240-c120dbd57ac3/exams/01a1fe60-e6e8-7cfb chứa QCR5CANARYa174b2ee; SV2 /courses/01a1df30-523a-7d7a-a240-c120dbd57ac3/exams/01a1fe60-e6e8-7cfb chứa QCR5CANARYa174b2ee; SV1 /courses/01a1df30-523a-7d7a-a240-c120dbd57ac3/exams/01a1fe60-e6e8-7cfb chứa QCR5CANARYa174b2ee; SV1 /courses/01a1df30-523a-7d7a-a240-c120dbd57ac3/exams/01a1fe60-e6e8-7cfb chứa QCR5CANARYa174b2ee; SV1 /courses/01a1df30-523a-7d7a-a240-c120dbd57ac3/exams/01a1fe60-e6e8-7cfb chứa QCR5CANARYa174b2ee"
+ ],
+ [
+  "DB cuối",
+  "r5s17@edupilot.local:GRADED:2.50:MANUAL ; r5s18@edupilot.local:GRADED:0.00:CLOSED"
+ ]
+]
