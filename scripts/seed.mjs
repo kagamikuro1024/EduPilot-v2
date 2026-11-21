@@ -78,7 +78,7 @@ const step = (n, text) => { marks.push([n, Date.now()]); console.log(`[${n}/${ST
 // US-NFR-02 AC1 (P-95-7 Q2): thời gian chạy ghi ở benchmarks/reports/seed-t0.json (`seconds_total`, `seconds_by_step`); bỏ qua khi seed vào stack demo (cổng 80/443/3000).
 process.on("exit", (code) => {
   const port = new URL(API).port;
-  if (code !== 0 || ["", "80", "443", "3000"].includes(port)) return;
+  if (code !== 0 || marks.length === 0 || ["", "80", "443", "3000"].includes(port)) return; // marks rỗng = `--if-empty` không seed: không ghi đè số đo lần chạy thật
   const by = {};
   marks.forEach(([n, at], i) => { by[n] = Math.round(((marks[i + 1]?.[1] ?? Date.now()) - at) / 1000); });
   const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "benchmarks", "reports");
