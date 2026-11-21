@@ -1,0 +1,381 @@
+name: CI
+
+on:
+  push:
+    paths-ignore: ["docs/**"]
+  pull_request:
+    paths-ignore: ["docs/**"]
+
+# Một lượt chạy mỗi nhánh: push mới huỷ lượt cũ đang chạy của cùng nhánh.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Changes
+    # TL-CI #1: lọc theo đường dẫn ở mức job. PR và push vào main, nhánh mới / force-push (before không còn trong lịch sử) LUÔN chạy đủ.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      fe: ${{ steps.f.outputs.fe }}
+      go: ${{ steps.f.outputs.go }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: selftest bộ lọc
+        run: bash scripts/ci-changes.sh --selftest
+      - id: f
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: bash scripts/ci-changes.sh >> "$GITHUB_OUTPUT"
+
+  go-static:
+    # TL-CI #5: phần tĩnh (vet, lint, sqlc) chạy song song với ma trận test.
+    name: Go (static)
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend-go
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache: false # TL-CI #4: cache do job này tự quản (setup-go ghi khoá chung với Judge: bản ghi sớm của Judge thiếu module và không bao giờ được ghi lại)
+      - name: go cache paths
+        id: gopath
+        run: |
+          echo "mod=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+      - name: cache module Go
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.gopath.outputs.mod }}
+          key: go-mod-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}
+      - name: cache biên dịch Go
+        # Khoá có run_id nên mỗi lượt GHI lại; restore-keys khôi phục bản gần nhất của cùng go.sum (dòng thứ hai: bản cũ không có hậu tố, lượt đầu sau khi đổi tên khoá).
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.gopath.outputs.build }}
+          key: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-static-${{ github.run_id }}
+          restore-keys: |
+            go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-static-
+            go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-
+      - name: Caddy - URL ký sẵn của MinIO cùng origin (local + VPS)
+        working-directory: .
+        run: node --test deploy/caddy/blob-route.test.mjs deploy/caddy/log-redact.test.mjs
+      - name: Script - canary-scan xoá đủ hai nhà cung cấp, seed từ chối mật khẩu trắng
+        working-directory: .
+        run: |
+          bash scripts/canary-scan.test.sh
+          node --test scripts/seed-password.test.mjs scripts/seed-clock.test.mjs scripts/seed-if-empty.test.mjs
+      - name: go vet
+        run: go vet ./...
+      - name: go vet (testroutes)
+        run: go vet -tags testroutes ./...
+      - name: Số test có tag testroutes không giảm (P-11-50)
+        working-directory: .
+        run: bash scripts/go-test-count.sh
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
+          working-directory: backend-go
+      - name: golangci-lint (testroutes)
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
+          working-directory: backend-go
+          args: --build-tags testroutes
+      - name: setup sqlc
+        uses: sqlc-dev/setup-sqlc@v5
+        with:
+          sqlc-version: '1.31.1'
+      - name: sqlc diff
+        run: sqlc diff
+
+  go-test:
+    # TL-CI #5: `course` và `auth` mỗi gói một dòng (dài nhất, kèm bước đo thời gian); ba dòng `rest-1` / `rest-2` / `rest-3` (DEF-R7-01: hai dòng 10–11 phút) = MỌI gói còn lại (gói lẻ / chẵn theo thứ tự `go list`), tính lúc chạy
+    # từ `go list` nên gói mới không bao giờ bị rơi; tách đôi để mỗi dòng ≤ 10 phút (BUG-S7-01 BUG-2). Dòng nào không có gói nào thì đỏ (tránh `go test` chạy nhầm thư mục hiện tại).
+    name: Go test (${{ matrix.name }})
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: course, timing: ./internal/course/ }
+          - { name: auth, timing: ./internal/auth/ }
+          - { name: rest-1, save: true }
+          - { name: rest-2 }
+          - { name: rest-3 }
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend-go
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache: false
+      - name: go cache paths
+        id: gopath
+        run: |
+          echo "mod=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+      - name: cache module Go (khôi phục)
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ steps.gopath.outputs.mod }}
+          key: go-mod-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}
+      - name: cache biên dịch Go (khôi phục)
+        # Chỉ dòng `rest-1` ghi lại (cuối job, khoá có run_id); `course` / `auth` biên dịch phần lớn cùng phụ thuộc nên dùng chung bản của `rest-1`.
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ steps.gopath.outputs.build }}
+          key: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-rest-none
+          restore-keys: |
+            go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-rest-
+            go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-
+      - name: go test -race (testroutes)
+        # internal/testutil dùng chung container (tên cố định, Reuse) giữa các gói test chạy song song. Ryuk giết container khi
+        # tiến trình ĐÃ TẠO ra nó thoát — các gói còn lại gặp "connection refused" giữa chừng (CI đỏ ngẫu nhiên). Runner dùng một lần nên tắt Ryuk.
+        # -v để đếm test đã chạy mỗi dòng (cuối bước in tổng; tổng các dòng = số test cấp cao nhất của cả cây).
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+          EP_SKIP_TIMING: "1"
+          ROW: ${{ matrix.name }}
+        run: |
+          all=$(go list -tags testroutes ./...)
+          case "$ROW" in
+            course) pkgs=$(grep -E '/internal/course(/|$)' <<<"$all" || true) ;;
+            auth) pkgs=$(grep -E '/internal/auth(/|$)' <<<"$all" || true) ;;
+            rest-[0-9]) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | ../scripts/go-shard.sh "${ROW#rest-}" 3 || true) ;; # LPT theo thời gian: backend-go/ci-shard-weights.txt (DEF-R7-01)
+            *) echo "dòng $ROW không có trong bảng"; exit 1 ;;
+          esac
+          [ -n "$pkgs" ] || { echo "dòng $ROW không có gói nào"; exit 1; }
+          echo "gói: $(wc -l <<<"$pkgs")"
+          log="$RUNNER_TEMP/go-test.log"
+          # Không -p 1 (#19): các test từng đỏ ngẫu nhiên khi 4 gói chạy cùng lúc đã được sửa ở gốc (chờ sự kiện / kênh / hạn đủ dài trong test thay cho đồng hồ thật;
+          # danh sách ở docs/sprints/7/handoff/dev-US-CI-02.md, vòng 3). Đo: 6/6 lượt nguội xanh, dòng `rest` 6–8 phút trước khi tách đôi (-p 1 mất 10–12 phút, vượt ngưỡng TC-20).
+          go test -race -tags testroutes -v $pkgs 2>&1 | tee "$log"
+          echo "go test [$ROW] test cấp cao nhất: PASS=$(grep -c '^--- PASS' "$log") SKIP=$(grep -c '^--- SKIP' "$log") FAIL=$(grep -c '^--- FAIL' "$log")"
+      - name: go test (đo thời gian, tuần tự, không -race)
+        # Các test `*TimingEqualized` bị bỏ qua ở bước trên bằng EP_SKIP_TIMING=1 (không dùng -short: cờ đó bỏ qua mọi test cần container) (đo mili-giây không ổn định khi nhiều gói chạy song song). Chạy riêng, một gói một lúc, ngưỡng giữ nguyên (TL-3).
+        if: matrix.timing != ''
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: go test -p 1 -count=3 -tags testroutes -run 'TimingEqualized$' ${{ matrix.timing }}
+      - name: cache biên dịch Go (ghi)
+        if: success() && matrix.save
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ steps.gopath.outputs.build }}
+          key: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-rest-${{ github.run_id }}
+
+  go-test-default:
+    # P-11-50: lệnh chuẩn trong AGENTS.md là `go test ./...` KHÔNG tag; mọi gói phải xanh ở bản dựng mặc định (route thử chỉ có khi có tag). Các dòng `go-test` chạy cả cây CÓ tag, -race.
+    # Không -race cho nhanh; chia bốn dòng theo thời gian bằng cùng scripts/go-shard.sh (trọng số: backend-go/ci-shard-weights.txt).
+    name: Go test không tag (${{ matrix.shard }}/4)
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend-go
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+      - name: go test ./... (không tag)
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+          EP_SKIP_TIMING: "1"
+        run: |
+          pkgs=$(go list ./... | ../scripts/go-shard.sh "${{ matrix.shard }}" 4)
+          [ -n "$pkgs" ] || { echo "dòng ${{ matrix.shard }} không có gói nào"; exit 1; }
+          echo "gói: $(wc -l <<<"$pkgs")"
+          go test -count=1 $pkgs
+
+  judge-attacks:
+    name: Judge attacks (amd64, seccomp bật)
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
+    # US-PE-02 AC3/AC5: 15 đòn tấn công (A1–A15) trên go-judge thật, KHÔNG -no-seccomp. runner ubuntu-24.04 là amd64.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend-go
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache: false # chỉ khôi phục (bên dưới); job Go ghi cache, để bản ghi thiếu module của Judge không chiếm khoá
+      - name: go cache paths
+        id: gopath
+        run: |
+          echo "mod=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@v5
+        with:
+          path: ${{ steps.gopath.outputs.mod }}
+          key: go-mod-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}
+      - uses: actions/cache/restore@v5
+        with:
+          path: ${{ steps.gopath.outputs.build }}
+          key: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-none
+          restore-keys: |
+            go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-rest-
+            go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-
+      - name: go test -tags integration ./internal/judge
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: go test -race -tags integration ./internal/judge -timeout 15m
+
+  fe-check:
+    name: Frontend (lint + build)
+    needs: changes
+    if: needs.changes.outputs.fe == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/fe-setup
+      - name: lint
+        run: pnpm -C frontend lint
+      - name: ui antipatterns
+        run: bash scripts/ui-antipatterns.sh
+      - name: lint selftest
+        run: bash scripts/lint-selftest.sh
+      - name: mobile prepare.mjs (chỉ nhận HTTPS)
+        run: node --test mobile/scripts/prepare.test.mjs
+      - name: kit token ⊆ tokens.css (DEF-R3-02)
+        run: node --test scripts/tokens-sync.test.mjs
+      - name: CI guard (timeout mọi job, shard e2e rỗng — DEF-R7-06/07)
+        run: node --test scripts/ci-guard.test.mjs
+      - name: build (như production)
+        run: pnpm -C frontend build
+
+  e2e:
+    # TL-CI #3a + DEF-R7-01: Playwright chia 4 shard THEO THỜI GIAN (frontend/e2e/support/shard.mjs: LPT từ giây CPU của từng tệp ở shard-weights.json), không theo số test:
+    # chia theo số test dồn frame / a11y / panels / exam vào một shard (1.646 s CPU vs 561 / 153 → 17 phút). Đổi số shard thì đổi cả `matrix.shard` lẫn `/4`. workers: 2, retries: 1 giữ nguyên.
+    name: Frontend e2e (Playwright ${{ matrix.shard }}/4)
+    needs: changes
+    if: needs.changes.outputs.fe == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/fe-setup
+        with:
+          browsers: "true"
+      - name: build (gate)
+        run: pnpm -C frontend build:gate
+      - name: playwright test
+        working-directory: frontend
+        run: |
+          mapfile -t files < <(node e2e/support/shard.mjs ${{ matrix.shard }} 4)
+          if [ "${#files[@]}" -eq 0 ]; then echo "shard rỗng: không có tệp nào để chạy"; exit 0; fi
+          pnpm exec playwright test --grep-invert @real "${files[@]}"
+      - name: upload reports
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: e2e-reports-${{ matrix.shard }}
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          if-no-files-found: ignore
+
+  lhci:
+    # TL-CI #3b + DEF-R7-01: simulate (TBT / CLS / dung lượng JS) hai job (A / B, mỗi job một nửa URL; một job 9 URL × 5 lượt = 10 phút); devtools (LCP) ba job. Cùng tệp cấu hình, cùng ngưỡng,
+    # cùng numberOfRuns: nửa URL ghi đè bằng --collect.url (lhci thay cả mảng url của tệp cấu hình, không nối thêm). Hợp hai nửa = đủ URL của tệp cấu hình; devtools ≈ 95 s mỗi URL (3 lượt, throttle thật) nên chia 3 job 4 / 3 / 3 URL (lượt 658 s khi job B có 6 URL sau khi thêm /practice, /practice/history). Simulate chạy 5 lượt mỗi URL (devtools 3): TBT trên runner có đuôi dài (một lượt 270–490 ms giữa các lượt 40–70 ms) nên trung vị của 3 lượt đỏ ngẫu nhiên; ngưỡng giữ 200 ms.
+    name: Frontend Lighthouse (${{ matrix.name }})
+    needs: changes
+    if: needs.changes.outputs.fe == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: simulate A, slug: simulate-a, config: lighthouserc.json, out: .lighthouseci, paths: "/ /chat /threads /inbox /gradebook" }
+          - { name: simulate B, slug: simulate-b, config: lighthouserc.json, out: .lighthouseci, paths: "/me /checkin /settings/llm /dev/ui" }
+          - { name: devtools A, slug: devtools-a, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/ /chat /threads /inbox" }
+          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /practice" }
+          - { name: devtools C, slug: devtools-c, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/practice/history /settings/llm /dev/ui" }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/fe-setup
+        with:
+          browsers: "true"
+      - name: build (gate)
+        run: pnpm -C frontend build:gate
+      - name: lighthouse ci
+        # lhci cần một Chrome: dùng đúng Chromium của Playwright (cùng phiên bản với bộ test).
+        # devtools: US-PU-06 / góp ý #14 (b'): LCP đo bằng throttle THẬT, vì mô phỏng (simulate) tính cả ~254 KB JS vào đồ thị LCP kể cả khi chữ đã có trong HTML.
+        # Lượt simulate giữ TBT / CLS / dung lượng JS (4× và ngưỡng không đổi); LCP ở đó không chấm.
+        env:
+          CONFIG: ${{ matrix.config }}
+          URL_PATHS: ${{ matrix.paths }}
+        run: |
+          export CHROME_PATH="$(pnpm -C frontend exec node -p "require('@playwright/test').chromium.executablePath()")"
+          echo "CHROME_PATH=$CHROME_PATH"
+          args=()
+          for p in $URL_PATHS; do args+=("--collect.url=http://localhost:3310$p"); done
+          if [ "$CONFIG" = lighthouserc.json ]; then
+            # P-11-46: multiplier CPU của lượt simulate theo tốc độ máy chạy (4 × benchmarkIndex / 4200, kẹp [2, 8]); benchmarkIndex đo ngay đây và in ra log. Ngưỡng không đổi.
+            M="$(pnpm -C frontend exec node lighthouse-multiplier.cjs)"
+            echo "cpuSlowdownMultiplier=$M"
+            args+=("--collect.settings.throttling.cpuSlowdownMultiplier=$M")
+          fi
+          pnpm -C frontend exec lhci autorun --config="$CONFIG" "${args[@]}"
+      - name: lighthouse benchmark (chẩn đoán máy chạy)
+        if: always()
+        env:
+          OUT: ${{ matrix.out }}
+        run: |
+          node -e "
+          const fs=require('fs');const d='frontend/'+process.env.OUT;
+          if(!fs.existsSync(d))process.exit(0);
+          for(const f of fs.readdirSync(d).filter(f=>/^lhr-.*\.json$/.test(f))){
+            const r=JSON.parse(fs.readFileSync(d+'/'+f));
+            console.log(new URL(r.finalUrl).pathname.padEnd(14),'benchmarkIndex',r.environment.benchmarkIndex,'TBT',Math.round(r.audits['total-blocking-time'].numericValue),'LCP',Math.round(r.audits['largest-contentful-paint'].numericValue),'cpuSlowdown',r.configSettings.throttling.cpuSlowdownMultiplier);
+          }"
+      - name: upload reports
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: lhci-reports-${{ matrix.slug || matrix.name }}
+          path: |
+            frontend/.lighthouseci
+            frontend/.lighthouseci-devtools
+          include-hidden-files: true # frontend/.lighthouseci là thư mục ẩn: không có cờ này báo cáo Lighthouse không được tải lên
+          if-no-files-found: ignore

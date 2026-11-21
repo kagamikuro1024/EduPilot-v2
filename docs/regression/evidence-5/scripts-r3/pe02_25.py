@@ -4,7 +4,7 @@ from r5lib import *
 import rl3 as rl
 LOG = '/tmp/qc2-global-changes.log'
 def glog(m): open(LOG, 'a').write(time.strftime('%H:%M:%S') + ' qc3-s5: ' + m + '\n')
-SLOW = '#include <stdio.h>\nint main(){long long a,b;scanf("%lld %lld",&a,&b);volatile long long x=0;for(long long i=0;i<400000000LL;i++)x+=i;printf("%lld\\n",a+b);return 0;}\n'
+SLOW = '#include <stdio.h>\nint main(){long long a,b;scanf("%lld %lld",&a,&b);volatile long long x=0;for(long long i=0;i<2000000000LL;i++)x+=i;printf("%lld\\n",a+b);return 0;}\n'
 STU = SLOW.replace('printf("%lld\\n",a+b)', 'if(a<10)printf("%lld\\n",a+b);else printf("%lld\\n",a+b+1)')
 tests = [('t%02d' % k, '%d %d\n' % (k, k + 1), '%d\n' % (2 * k + 1), k <= 2, 1) for k in range(1, 11)]
 qid = mkcode(250, tests=tests, ref=SLOW, tl=4000)
@@ -15,7 +15,7 @@ def sub(u):
     return aid, H, j.get('submission_id'), s
 def row(sid): return db(f"select status||'|'||coalesce(verdict::text,'')||'|'||coalesce(passed_weight::text,'')||'/'||coalesce(total_weight::text,'')||'|fc='||fail_count||'|att='||attempts||'|'||coalesce(jsonb_array_length(results)::text,'0') from code_submissions where id='{sid}'")
 # đối chứng
-a0, H0, s0, st0 = sub('r5s36'); t0 = time.time(); seq0 = []
+a0, H0, s0, st0 = sub('r5s33'); t0 = time.time(); seq0 = []
 for _ in range(200):
     r = row(s0)
     if not seq0 or seq0[-1][1] != r: seq0.append((round(time.time() - t0, 1), r))
@@ -24,7 +24,7 @@ for _ in range(200):
 ctrl = row(s0); dur0 = time.time() - t0
 print('đối chứng', st0, ctrl, round(dur0, 1), seq0)
 # kill
-a1, H1, s1, st1 = sub('r5s37'); t1 = time.time()
+a1, H1, s1, st1 = sub('r5s34'); t1 = time.time()
 for _ in range(120):
     if row(s1).startswith('RUNNING'): break
     time.sleep(0.2)
@@ -55,14 +55,14 @@ n = db(f"select count(*) from code_submissions where attempt_id='{a1}'"); n0 = d
 res_a = db(f"select results::text from code_submissions where id='{s0}'"); res_b = db(f"select results::text from code_submissions where id='{s1}'")
 strip = lambda t: [(x.get('name'), x.get('verdict') or x.get('status'), x.get('passed')) for x in json.loads(t)] if t else None
 same = strip(res_a) == strip(res_b)
-for u, a, H in (('r5s36', a0, H0), ('r5s37', a1, H1)): submit_exam(e, a, u, H, E)
+for u, a, H in (('r5s33', a0, H0), ('r5s34', a1, H1)): submit_exam(e, a, u, H, E)
 for _ in range(120):
     if db(f"select count(*) from exam_attempts where id in ('{a0}','{a1}') and status='GRADED'") == '2': break
     time.sleep(1)
 sc0, sc1 = db(f"select auto_score from exam_attempts where id='{a0}'"), db(f"select auto_score from exam_attempts where id='{a1}'")
 wst = subprocess.run(['docker', 'inspect', 'ep-r-worker-1', '--format', '{{.State.Health.Status}}'], capture_output=True, text=True).stdout.strip()
 ok = fin.startswith('DONE') and fin == fin2 and fin.split('|')[2:3] == ctrl.split('|')[2:3] and n == '1' and same and sc0 == sc1 and mid.startswith('RUNNING')
-msg = (f'bài 1 câu code, 10 test ≈{dur0/10:.1f} s/test (đối chứng chấm trọn {dur0:.0f} s: {ctrl}); lượt thử r5s37: kill -9 worker lúc {pre} (hết thuê {lease0}); sau kill 8 s vẫn {mid} (không ai chấm); docker start → chuỗi (giây, trạng thái) {seq}; '
+msg = (f'bài 1 câu code, 10 test ≈{dur0/10:.1f} s/test (đối chứng chấm trọn {dur0:.0f} s: {ctrl}); lượt thử r5s34: kill -9 worker lúc {pre} (hết thuê {lease0}); sau kill 8 s vẫn {mid} (không ai chấm); docker start → chuỗi (giây, trạng thái) {seq}; '
        f'chấm lại xong sau {rec_s:.0f} s kể từ khi bật worker (thuê 30 s + nhịp tick 5 s; JUDGE_CLAIM_IDLE=10 phút chỉ là ngưỡng đưa lại tín hiệu Stream mất tin, không chặn); kết quả cuối {fin}, sau 35 s {fin2}; số dòng code_submissions của lượt: {n} (đối chứng {n0}); '
        f'kết quả từng test trùng đối chứng: {same}; điểm tự động sau nộp bài thi: đối chứng {sc0} = lượt kill {sc1}; worker health sau: {wst}')
 rec('TC-PE02-25', ok, msg); rl.R('TC-PE02-25', 'P' if ok else 'F', msg)
