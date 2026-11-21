@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 7 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval, bản dựng trên ep-r) · Stack ep-r · Người chạy: qc3 (Qc3S7 → Qc3S7b, chạy lại từ bản ghi qc2 ngày 2026-11-15) · Ngày: 2026-11-18/19 (ep-r dựng lại ngày 19/11 ~02:30; CI đối chiếu run 44343596969 @777bb5e2, 44380364341/44380374004 @07a6b69c)
-Tổng TC: 579 (582 cũ − 2 lỗi thời có nguồn đã xoá) · Đạt: 547 · Trượt: 10 · Chưa chạy N: 22   (P+F+N = 579 = 579)
+Tổng TC: 579 (582 cũ − 2 lỗi thời có nguồn đã xoá) · Đạt: 563 · Trượt: 11 · Chưa chạy N: 5   (P+F+N = 579 = 579)
 
 Quy ước: P = đạt; F = trượt; N = chưa chạy (chạy tới P/F thật, không còn K/T). Ca lỗi thời có nguồn quyết định đã xoá khỏi bảng, xem cuối defects-7.md. Bản ghi mới của qc3 ghi «[qc3 18/11]».
 
@@ -26,10 +26,10 @@ Cách chạy:
 | US-P4-07 | 29 | 29 | 0 | 0 |  |
 | US-P5-01 | 36 | 35 | 1 | 0 |  |
 | US-P5-02 | 48 | 47 | 1 | 0 |  |
-| US-P5-03 | 47 | 40 | 1 | 6 |  |
+| US-P5-03 | 47 | 46 | 1 | 0 |  |
 | US-P5-04 | 37 | 37 | 0 | 0 |  |
-| US-P5-05 | 35 | 27 | 0 | 8 |  |
-| US-P5-06 | 27 | 24 | 0 | 3 |  |
+| US-P5-05 | 35 | 35 | 0 | 0 |  |
+| US-P5-06 | 27 | 26 | 1 | 0 |  |
 | US-S7-SEED | 24 | 19 | 0 | 5 |  |
 | US-CI-02 | 31 | 28 | 3 | 0 |  |
 
@@ -420,13 +420,13 @@ Cách chạy:
 | TC-P5-03-03 | P | [qc3 18/11] [qc3 19/11] log_statement=all trong cửa sổ khoá 98 s (02:54–02:56, đã hoàn lại none): nhịp CHAT của SV mới → 204; Redis ep…:CHAT 30 → 60 (+30); mục log nhắc user_id của SV: 0 (toàn SELECT: đọc đệm ep:trk/ep:enr), trong đó INSERT/UPDATE: 0; mục log nhắc study_time_daily trong cửa sổ: 0 ; tổng INSERT/UPDATE của mọi người dùng khác trong cửa sổ 1,5 s: 0 (không thuộc request này: không chứa user_id/course của nó) — không có câu INSERT/UPDATE nào trong cửa sổ; nhịp hợp lệ không chạm Postgres (đệm ep:trk/ep:enr đã nạp ở nhịp trước) |
 | TC-P5-03-04 | P | [qc3 19/11] k6 benchmarks/load/heartbeat.js 10 req/s × 60 s (600 yêu cầu, 14 SV lớp QC3U3 đã «Đã hiểu», qua Caddy https://localhost:1143): http_req_duration p95 = 7,5 ms (< 20 ms; avg 3,26 ms, max 32 ms) ✓; ngưỡng http_req_failed của script đỏ (31,16 % = 187/600 không phải 204) — mỗi SV gọi lẻ ngay sau đó đều 204; [INFERENCE] phần không-204 là 429 của giới hạn IP RATE_LIMIT_IP_PER_MIN=300 vì cả 600 yêu cầu/phút đến từ một IP (k6 không in mã lỗi); không có dấu hiệu 5xx (p95 ổn, gateway không restart). Bằng chứng: evidence-7/r5/k6-heartbeat-r5.log |
 | TC-P5-03-05 | P | hai tab (t1,t2) cùng khung 30 s → study_time_daily chỉ +30 s (không nhân đôi) |
-| TC-P5-03-06 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-06 | P | [qc3 19/11] 10 phút THẬT (đồng hồ giả không đo được số giây tích luỹ vì máy chủ chia khung 30 s theo giờ thật): hai tab /chat cùng người dùng (qc3hb01), thao tác cả hai, 600 s: tab 1 gửi 20 nhịp, tab 2 gửi 20 nhịp (tab_id khác nhau); Redis ep:study:<lớp>:<uid>:20261119:CHAT tăng 600 s (≤ 600+30; không gấp đôi 1.200) (evidence-7/r5/hb-long-p503.log) |
 | TC-P5-03-07 | P | [qc3 19/11] /chat (đồng hồ giả): nhịp đầu 1; ẩn tab (visibilityState=hidden) 150 s giả lập: số nhịp 1 → 1 (không nhịp nào); hiện lại + thao tác: nhịp gửi tiếp sau 10 ms thật (≤ 1 s giả lập), tổng 2; trạng thái trả về [204,null] (evidence-7/r3/ui-p503.log) |
-| TC-P5-03-08 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-08 | P | [qc3 19/11] Đo từng nhịp (đồng hồ giả, runFor từng bước 10/20/30 s, lớp X, /threads): nhịp ở giây −2, 28, 58, 88 (4 nhịp, cách đúng 30 s), không nhịp nào sau mốc idle 120 s; chạy thêm đến 310 s: vẫn 4; chạm chuột lúc 310 s → nhịp mới ở 319 s (tiếp tục). Kết quả FAIL cũ (10 nhịp/130 s) là lỗi kịch bản: một lệnh runFor(130 s) hoặc bước 65 s làm đồng hồ giả bắn dồn các bộ hẹn giờ (chuỗi …58,58,73,88,88…), khi chia bước ≤ 30 s chuỗi đúng; kiểm chứng bằng thật: TC-P5-03-11 (600 s thật, thao tác 180 s rồi dừng → 9 nhịp, Redis +270 s, nhịp ngừng sau idle) (evidence-7/r3/ui-p503d.log dòng 08, 08b, 08d; evidence-7/r5/hb-long-p503.log) |
 | TC-P5-03-09 | P | [qc3 19/11] /chat → nhịp CHAT; sang /library → nhịp kế area=LIBRARY (khu vực mới); sang / (không đo) rồi chạy 100 s giả lập: nhịp 5 → 5 (không nhịp thừa, bộ hẹn giờ đã dọn); chuỗi area=["CHAT","LIBRARY","LIBRARY","LIBRARY","LIBRARY"] (evidence-7/r3/ui-p503.log) |
-| TC-P5-03-10 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-03-11 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-03-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-10 | P | [qc3 19/11] Đo từng nhịp (đồng hồ giả, bước 5 s, /chat): setOffline 65 s → các yêu cầu nhịp «failed» (apiClient thử lại tối đa 2 lần trong ≤ 1,2 s cho mỗi nhịp, không xếp hàng sang chu kỳ sau); online → nhịp 204 trở lại đúng chu kỳ 30 s, không gửi bù dồn; máy chủ trả 403 → đúng 1 yêu cầu rồi ngừng (65 s không thêm nhịp), 422 → đúng 1 yêu cầu rồi ngừng; không toast/hộp thoại (phần tử role=alert rỗng của vùng thông báo chung; dải «Mất kết nối mạng» là dải offline chung của ứng dụng, không phải của hook); FAIL cũ do đếm nhịp bằng runFor dồn 95 s và nhận nhầm vùng alert rỗng là toast (evidence-7/r3/ui-p503d.log dòng 10e) |
+| TC-P5-03-11 | P | [qc3 19/11] tab /chat (qc3hb02) hiện suốt 600 s thật, thao tác 180 s đầu rồi dừng: 9 nhịp gửi, Redis tăng 270 s (kỳ vọng 300 ± 30: nhịp cuối trước mốc idle 120 s sau thao tác cuối ⇒ 9 × 30 s = 270, đúng với quy tắc «nhịp cuối là nhịp trước mốc idle», trong biên) (evidence-7/r5/hb-long-p503.log) |
+| TC-P5-03-12 | P | [qc3 19/11] tab /chat (qc3hb03), thao tác liên tục, ẩn tab (visibilityState=hidden) giây 180–420 (4 phút thật): 12 nhịp gửi, Redis tăng 360 s (= 6 phút hiện, 4 phút ẩn không cộng) (evidence-7/r5/hb-long-p503.log) |
 | TC-P5-03-13 | P | [qc3 19/11] SV duyệt /, /me, /exams, /settings (mỗi trang 100 s giả lập, /:0 /me:0 /exams:0 /settings:0): 0 nhịp; GV (qc3t) duyệt /gradebook, /students, /class/settings, /calendar, /chat, /threads: 0 nhịp; study_time_daily.area ∈ {CALENDAR,CHAT,LIBRARY,PRACTICE,THREADS}; cột bảng: id,course_id,student_id,date,area,active_seconds,created_at,updated_at (không nội dung / đường dẫn / tiêu đề / tên); khoá Redis ep:study:* sai khuôn=0/82 (evidence-7/r3/ui-p503.log) |
 | TC-P5-03-14 | P | rollup mỗi phút: nhịp CHAT/THREADS/LIBRARY của SV được ghi vào study_time_daily |
 | TC-P5-03-15 | P | [qc3 19/11] worker phụ ep-r-worker-s7seed (cùng ảnh worker, DB qc3seed + Redis /13, ROLLUP_TICK=10 s, không chạm worker dùng chung): 12.600 khoá ep:study:… (30 SV × 140 ngày × 3 khu vực) đánh dấu dirty; vòng lặp kill -9 (docker kill -s KILL) KHI rollup đang ghi dở (tổng giây DB giữa giá trị cũ và mới: 328.710 / 8.157.000), 2 lần (exit 137), `docker start` lại; sau 2 phút: hàng DB 12.600 = khoá Redis 12.600, lệch 0, âm 0, DB>Redis 0, tổng DB 8.505.000 = tổng Redis (không đôi, không âm). Bằng chứng: evidence-7/scripts-r3/p7c_p515.py, p7c_p515cmp.py |
@@ -455,7 +455,7 @@ Cách chạy:
 | TC-P5-03-38 | P | TA/SV/ADMIN đổi allow_study_time_opt_out → [403, 403, 403] |
 | TC-P5-03-39 | P | lớp đã có SV → 409 COURSE_HAS_STUDENTS |
 | TC-P5-03-40 | P | [qc3 18/11] 50 lượt song song (lớp mới mỗi lượt, 25 SV luân phiên, PUT trễ ngẫu nhiên 0–250 ms): (1) PUT thắng (200, cờ=false) rồi SV vào lớp dưới luật mới: 8; (2) SV vào trước, PUT 409 COURSE_HAS_STUDENTS (cờ giữ true): 42; lượt lệch/khác: 0 [] |
-| TC-P5-03-41 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-03-41 | P | [qc3 19/11] GV riêng qc3pg + TA qc3ph, lớp QC3P5D (chưa SV) / QC3P5 (có SV): công tắc «Cho sinh viên tắt đo thời gian học» ở lớp chưa SV đổi được (DB t→f→t); lớp đã có SV disabled, giá trị bật, tooltip lý do «Lớp đã có sinh viên» ở chính công tắc (không dòng mô tả riêng); TA: disabled (chỉ đọc); cờ trả về Member kiểm qua API ở TC-P5-03-36/43 (evidence-7/r3/ui-p503d.log) |
 | TC-P5-03-42 | P | [qc3 18/11] ADMIN GET /me/settings → 200; kèm ?user_id=<SV>&student_id → giống hệt (=True); PUT thân có user_id/student_id → 422, PUT ?user_id=<SV> → 200; track_study_time của SV: trước '', sau ''/'' (không đổi); của ADMIN (hàng riêng): 'f'; khoá GET: ['notify_ticket_by_mail', 'notify_answer_by_mail', 'remind_deadline_by_mail', 'track_study_time', 'reminders', 'version', 'study_time'] |
 | TC-P5-03-43 | P | [qc3 18/11] SV ghi danh X (cho tắt) + Y (không cho tắt), track_study_time=false: nhịp CHAT cùng khung 30 s cho X rồi Y → 204/204; Redis X=0 (không đo, không chiếm khung), Y=30; study_time_daily sau rollup: Y=30 s, hàng của X=0; GET X me/study-time tracking={'enabled': False, 'locked': False}, Y={'enabled': True, 'locked': True}; /me/settings nhóm thời gian học: {"acked": true, "courses": [{"course_id": "01a1f016-3d18-728c-ae7c-5277e9ad3fd9", "class_code": "QC3X5", "name": "QC3 QC3X5", "locked": false}, {"course_id": "01a1f016-3dbd-72c7-9d2c-10fc9ee4be10", "c; bật lại → nhịp kế ở X → 204, Redis X=30 (đo) |
 | TC-P5-03-44 | P | [qc3 18/11] [qc3 19/11] Run CI 44343596969 @777bb5e2 (success; log tải bằng gh api, lưu evidence-7/r4/ci-44343596969-*): `activity.spec.ts` 17/17 xanh (heartbeat ẩn tab / idle 2 phút / dọn khi đổi trang / chỉ course_id+area+tab_id / không gửi ở /me,/exams / hộp thoại lần đầu / công tắc theo lớp / khoá ở lớp không cho tắt / class settings race 409 / nhịp đều ≥ 25 s); ui-antipatterns.sh rc=0 (r4/static-p5.log) |
@@ -501,7 +501,7 @@ Cách chạy:
 | TC-P5-04-P1 | P | [qc3 18/11] TA lớp khác (qc3ta, không thuộc LOAD1000) GET students → 403, profile → 403; teacher lớp khác (qc3t2, không thuộc QC3M5) GET students → 403, profile → 403; teacher đúng lớp → 200 |
 | TC-P5-05-01 | P | hồ sơ 360 → 200; keys=['student', 'risk', 'attendance', 'participation', 'study', 'activity'] |
 | TC-P5-05-02 | P | audit_log entity=student_profile entity_id=<g7s01> action=view: 0 → 3 (+3 sau 3 lần GET profile); dòng: actor_id=teacher ✓, course_id ✓; before/after không có nội dung ghi chú |
-| TC-P5-05-03 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-03 | P | [qc3 19/11] GV riêng qc3pg, lớp QC3P5: mở /students/<uid> 3 lần bằng URL (mỗi lần Back): request GET …/profile = 3, audit_log (entity=student_profile, action=view) +3; thêm 1 lần bấm dòng ở /students: 4 request, +4 dòng — không cache (evidence-7/r3/ui-p505.log) |
 | TC-P5-05-04 | P | trigger tạm (chỉ cho entity_id=g7s01) làm INSERT audit_log lỗi → GET profile 503, thân không có dữ liệu ({"code":"SERVICE_UNAVAILABLE","message":"Dịch vụ tạm thời không khả dụng. Hãy th); gỡ trigger → |
 | TC-P5-05-05 | P | GET observations → 200; audit view_observations 0→1 (+1); grep CANARY-OBS-4F trong toàn audit_log = 0 |
 | TC-P5-05-06 | P | hồ sơ không chứa nội dung chat riêng |
@@ -510,15 +510,15 @@ Cách chạy:
 | TC-P5-05-09 | P | TA sửa/xoá ghi chú của GV → [403, 403] |
 | TC-P5-05-10 | P | tạo ghi chú → 201 |
 | TC-P5-05-11 | P | tags>5/tag rỗng/tag 31/body rỗng/body 2001 → [422, 422, 422, 422, 422] |
-| TC-P5-05-12 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-12 | P | [qc3 19/11] tab Ghi chú: «Chỉ giảng viên/TA thấy»; nháp tự lưu ở localStorage ep:draft:<lớp>:obs:<uid>; offline bấm Lưu: «Chưa lưu được ghi chú. Chữ của bạn vẫn còn trong ô.», chữ giữ nguyên, có «Thử lại», nút Lưu hoàn lại; online + Thử lại → DB 1 ghi chú (evidence-7/r3/ui-p505.log) |
 | TC-P5-05-13 | P | SV không thấy CANARY-OBS trong me/today, me/attendance, me/participation |
-| TC-P5-05-14 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-05-15 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-14 | P | [qc3 19/11] đầu trang: tên, MSSV, hai nút phụ «Thêm ghi chú» / «Nhắn sinh viên» (không nút chính thứ ba); khối rủi ro chỉ khi WATCH («Đang theo dõi: chưa đủ dữ liệu.») / AT_RISK, không có khi NONE; tab Tổng quan¦Chuyên cần¦Điểm¦Hoạt động học¦Ghi chú; Tổng quan: câu tóm tắt + term/value, không thẻ KPI; Điểm: «Điểm cộng đã ghi» + «Lớp chưa có công thức điểm đã xác nhận.» + «Xác nhận công thức»; biểu đồ (svg ≥100 px) chỉ ở «Hoạt động học» (Tổng quan 0, Chuyên cần 0, Điểm 0, Hoạt động học 1) (evidence-7/r3/ui-p505.log) |
+| TC-P5-05-15 | P | [qc3 19/11] tải chậm 3 s: khung xương; 500: «Không tải được hồ sơ sinh viên. Dữ liệu và ghi chú đang gõ không bị mất.» + Thử lại; 720×900 không tràn ngang; «Tuần trước» ở khối hoạt động; không câu mô tả dưới tiêu đề khối (evidence-7/r3/ui-p505.log) |
 | TC-P5-05-16 | P | POST …/students/{g7s01}/ai-summary (teacher g7t) → 200 {draft:{summary,strengths[1],concerns[…],suggestions[…]}}. Mỗi yêu cầu đúng 1 dòng llm_audit (2 yêu cầu → 2 dòng task=UTILITY, lane=NEAR_REALTIME |
 | TC-P5-05-17 | P | student_observations trước/sau ai-summary: 1 → 1 (không lưu); API trả 200 {draft}; hiển thị bản nháp nhãn AI trong ô sửa được: CI students.spec "ai summary edit then save" ✓ + UI thật trong lượt UI |
 | TC-P5-05-18 | P | POST observations kind=AI_SUMMARY (ai_edited=false) → 201 kind=AI_SUMMARY ai_edited=False; sửa chữ rồi lưu (PUT ai_edited=true) → 200 ai_edited=True version 2. Nhãn "Nhận xét tổng hợp · AI" / "· Đã sử |
 | TC-P5-05-19 | P | Stack ep-r: UTILITY đi qua provider thật nên không ép được bản nháp bịa tên → chấm bằng go test ./internal/crm -run TestAISummaryRedactsInventedName: PASS (provider giả trả bản nháp chứa tên sinh viên |
-| TC-P5-05-20 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-20 | P | [qc3 19/11] «Soạn nhận xét tổng hợp» (LLM thật qua 9router): nháp 786 ký tự; localStorage ep:draft:<lớp>:aisum:<uid>; tải lại trang: nháp còn nguyên (786 ký tự) (evidence-7/r3/ui-p505.log) |
 | TC-P5-05-21 | P | Dev test (provider giả chết/chậm/quá tải): TestAISummaryLLMDown503 PASS (503 LLM_UNAVAILABLE + retry_after), TestAISummaryTimeout504 PASS (>20 s → 504 DEADLINE_EXCEEDED), TestAISummaryNoDataNoLLM PASS |
 | TC-P5-05-22 | P | lớp mới không dữ liệu (g7s11 ở G7N) → 409 NOT_ENOUGH_DATA, llm_audit UTILITY 2→2 (không gọi LLM); SV/ADMIN → [403, 403]; gọi liên tiếp (đã 2 lượt trước): 9 lượt, kết quả [200, 200, 200, 200, 200, 200, |
 | TC-P5-05-23 | P | outreach → 201 |
@@ -528,11 +528,11 @@ Cách chạy:
 | TC-P5-05-27 | P | 4 outreach/ngày tới g7s02 (2 nhân viên g7t, g7ta cộng lại): [(201, 'ok'), (201, 'ok'), (201, 'ok'), (429, 'OUTREACH_LIMIT')] — tin thứ 4 → 429 OUTREACH_LIMIT; tin STAFF_ANSWER thực có 3; REMOVED (g7s1 |
 | TC-P5-05-28 | P | Như TC-P5-04-31 trên g7s01 (AT_RISK + ghi chú canary): trả lời mẫu, không `[[…]]`, payload LLM/RAG không chứa ghi chú hay nhãn rủi ro; dev test TestStudentAsksAboutOwnNotes, TestNoToolReadsObservation |
 | TC-P5-05-29 | P | go test ./internal/agent -run TestStudentAsksAboutOwnNotes/TestNoToolReadsObservations -v: ok (2 PASS) |
-| TC-P5-05-30 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-05-31 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-30 | P | [qc3 19/11] hai GV (qc3pg ở hai ngữ cảnh) cùng sửa một ghi chú: người sửa sau (từ bản cũ) thấy bản của người kia «Bản sửa của GV» + nút «Giữ bản của tôi» (409 VERSION_CONFLICT); mất mạng giữ nháp: xem TC-P5-05-12 (evidence-7/r3/ui-p505.log) |
+| TC-P5-05-31 | P | [qc3 19/11] abort / 500 ở …/profile: «Không tải được hồ sơ sinh viên. Dữ liệu và ghi chú đang gõ không bị mất.» + Thử lại; audit_log của lớp 44 → 44 → 44 (không dòng mới khi dữ liệu chưa trả về); Thử lại thành công → 45 (+1) (evidence-7/r3/ui-p505.log) |
 | TC-P5-05-32 | P | grep -rn "@/mock" frontend/src/features/students / wc -l = 0 (cây be0c0d96); CI fe-check: pnpm lint + next build xanh; Hôm nay staff (today) lấy attention từ API: /me/today có khối attention thật (761 |
 | TC-P5-05-33 | P | ui-antipatterns.sh exit 0; run PR 43712425198 @be0c0d96 (CI Playwright, cùng test, khung mô phỏng gateway): students.spec toàn bộ 14 test desktop ✓ (mobile skip theo thiết kế "đo một lần"), 0 flaky, 0 |
-| TC-P5-05-E1 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-05-E1 | P | [qc3 21/11] ai-summary khi nhà cung cấp trả JSON SAI SCHEMA: không có sẵn ở ep-r (UTILITY đi provider thật) nên chạy test tạm (không commit, evidence-7/scripts-r3/zz_qc3e1_test.go.txt) qua llm.Gateway thật + provider giả (DemoFile trả {"summary":123,"strengths":"…"}): AISummary trả lỗi LLM_UNAVAILABLE (503 + retry_after 30), draft rỗng, student_observations không đổi, llm_audit task=UTILITY status=error error_kind=BAD_RESPONSE — lỗi rõ có mã, không lưu. Gateway.Structured luôn kiểm schema ở Go (TestStructuredJSONSchema PASS) |
 | TC-P5-05-P1 | P | [qc3 18/11] SV qc3me01 đọc observations của CHÍNH MÌNH → 403; đọc profile → 403; ghi observation → 403; SV khác đọc → 403; GV → 200; nội dung ghi chú không xuất hiện ở /me/today, me/attendance, me/participation |
 | TC-P5-06-01 | P | me/attendance, me/participation → [200, 200] |
 | TC-P5-06-02 | P | tham số student/student_id bị bỏ qua (cùng kết quả của chính mình) |
@@ -548,10 +548,10 @@ Cách chạy:
 | TC-P5-06-12 | P | giảng viên (ngữ cảnh khác) ghi thêm 1 SPEAK cho g7s02 → sau 3,6 s: /me/participation points_total=0.75 (3 lần), chat "Bạn đã nghỉ 2 buổi và hiện có tổng cộng 0.75 điểm cộng phát biểu (tương ứng với 3 |
 | TC-P5-06-13 | P | GET …/me/study-time?weeks=8 (g7s08, đã Đã hiểu): 200 {weeks:[{week_start,minutes,by_area}] (8 tuần), this_week_minutes=100, tracking={'enabled': True, 'locked': False}}; chỉ của mình; người khác/…/stu |
 | TC-P5-06-14 | P | [qc3 19/11] SV mới (qc3me04, chưa có dữ liệu): khối «Thời gian học» hiển thị=false, chữ «0 phút»=false; SV tắt đo (qc3me02, track_study_time=false, lớp cho tắt): «Thời gian học |  | Đang tắt» (có «Đang tắt»=true, không biểu đồ) (evidence-7/r3/ui-p506.log) |
-| TC-P5-06-15 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-15 | P | [qc3 19/11] /me của qc3me03 (tuần 130/120/30/45/50 phút): chữ «Thấp» duy nhất nằm ở chú thích chung của biểu đồ «Cao nhất: 130 phút · Thấp nhất: 30 phút» (FIGCAPTION của shared/ui/Chart, màu chữ phụ như mọi chú thích, không tô nổi); tập màu fill/stroke của biểu đồ không có đỏ (0), không «mục tiêu / so với / trung bình / giảm / nên học»; không so sánh với bạn học; cột/điểm tuần thấp cùng màu thường. Hai giá trị cực trị của chính dữ liệu của sinh viên không phải phán xét/so sánh (evidence-7/r3/ui-p506d.log, shots/p506d-15.png) |
 | TC-P5-06-16 | P | [qc3 19/11] 375×812: scrollWidth 375/375 (sau khi mở khối gập 375); các khối cùng mép trái=[12] (một cột); phần tử bấm cao < 44 px: []; biểu đồ rộng 317 ≤ 375; nút Mở/Gập=2 (evidence-7/r3/ui-p506.log) |
-| TC-P5-06-17 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
-| TC-P5-06-18 | N | chưa chạy (mẫu): ngoài mẫu smoke 1 chính + 1 lỗi / US |
+| TC-P5-06-17 | P | [qc3 21/11] axe (wcag2a/2aa/21a/21aa) trên /me thật ep-r, 8 lượt (đủ dữ liệu / tuần thấp / chưa dữ liệu / lớp chưa điểm danh × 1440 và 390 px): 0 vi phạm cả critical/serious/color-contrast. Lighthouse mobile (CLI lighthouse, cùng cấu hình lhci; đăng nhập SV thật qua cookie ep_rt): simulate ×3 LCP 1065–1135 ms, TBT 8–10 ms, CLS 0; devtools ×5 LCP 1930, 1967, 2005, 2024, 4741 ms (trung vị 2005 ≤ 2500; lượt 4741 là nhiễu máy tải, không lặp), TBT 24–42 ms, CLS 0; JS truyền 214 KB ≤ 250 KB; accessibility 100. Không chạy nguyên văn `pnpm exec lhci autorun` (lhci dựng bản build cổng riêng, cấu hình CI đã kiểm ở TC-12..15) (evidence-7/r3/ui-p506d.log, r5/lh-me-*.json) |
+| TC-P5-06-18 | F | [qc3 19/11] khung xương khi tải chậm; 500: «Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất.» + Thử lại → tải lại được; offline sau khi tải: nội dung cũ còn + dải «Mất kết nối mạng…»; lớp chưa điểm danh (qc3p5s04 ở QC3P5B, qc3p5s05 ở QC3P5C có buổi chưa điểm danh): khối Chuyên cần ghi «Chưa có buổi nào được điểm danh» (không nút) — thiếu dấu chấm cuối so với chữ trong US/TC «Chưa có buổi nào được điểm danh.» ⇒ F Thấp theo quy ước chữ lệch SRS: DEF-R7-13 (evidence-7/r3/ui-p506.log, ui-p506d.log) |
 | TC-P5-06-20 | P | g7s11 ghi danh G7A và G7N: /me/attendance G7A recorded=4 (DB 4), G7N recorded=0 (DB 0); study this_week G7A=100, G7N=0; số đổi theo lớp, không lẫn (dev TestMeTwoCoursesIsolated PASS; UI đổi bộ chọn: C |
 | TC-P5-06-21 | P | grep -rn "@/mock" frontend/src/features/me / wc -l = 0; CI fe-check (pnpm lint + build) xanh |
 | TC-P5-06-22 | P | [qc3 19/11] /settings của qc3me01 (ghi danh M lớp cho tắt, M2 không cho tắt): nhóm «Thời gian học»; công tắc theo lớp M=1 (đổi được=true, bật=true), M2=1 (disabled=true, bật=true); tooltip lý do ở chính công tắc M2 «Lớp này luôn ghi thời gian học»; nhãn «Ghi thời gian học» chữ riêng=1 (tên công tắc dạng «mã lớp · tên»); bấm tắt M: đổi sau 151 ms, PUT [{"track_study_time":false,"version":1}]; toast=0 (evidence-7/r3/ui-p503.log) |
