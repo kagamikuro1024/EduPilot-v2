@@ -982,17 +982,12 @@ func (q *Queries) KnowledgeSimilarPosts(ctx context.Context, arg KnowledgeSimila
 }
 
 const practiceGenHints = `-- name: PracticeGenHints :one
-select coalesce(result -> 'hints', '[]'::jsonb) as hints from jobs where id = $1 and payload ->> 'course_id' = $2::text
+select coalesce(result -> 'hints', '[]'::jsonb) as hints from jobs where id = $1
 `
 
-type PracticeGenHintsParams struct {
-	JobID    uuid.UUID
-	CourseID string
-}
-
-// Lý do «Tránh» đã dùng cho một lô sinh câu (lưu vào jobs.result lúc chạy, không tính lại).
-func (q *Queries) PracticeGenHints(ctx context.Context, arg PracticeGenHintsParams) (interface{}, error) {
-	row := q.db.QueryRow(ctx, practiceGenHints, arg.JobID, arg.CourseID)
+// Lý do «Tránh» đã dùng cho một lô sinh câu (lưu vào jobs.result lúc chạy, không tính lại). Bảng jobs không có cột lớp: người gọi đã kiểm lô thuộc lớp qua PracticeGenStats (câu hỏi của lô).
+func (q *Queries) PracticeGenHints(ctx context.Context, jobID uuid.UUID) (interface{}, error) {
+	row := q.db.QueryRow(ctx, practiceGenHints, jobID)
 	var hints interface{}
 	err := row.Scan(&hints)
 	return hints, err

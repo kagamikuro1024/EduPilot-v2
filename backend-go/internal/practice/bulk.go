@@ -141,9 +141,16 @@ func (s *Service) GenStatsOf(ctx context.Context, courseID, jobID uuid.UUID) (Ge
 		return GenStats{}, notFound()
 	}
 	out := GenStats{Unchanged: int(row.Unchanged), Edited: int(row.Edited), Rejected: int(row.Rejected), Pending: int(row.Pending)}
-	if raw, herr := store.New(s.Pool).PracticeGenHints(ctx, store.PracticeGenHintsParams{JobID: jobID, CourseID: courseID.String()}); herr == nil {
-		b, _ := json.Marshal(raw) // sqlc trả interface{} cho coalesce(jsonb)
-		_ = json.Unmarshal(b, &out.Hints)
+	raw, err := store.New(s.Pool).PracticeGenHints(ctx, jobID)
+	if err != nil {
+		return GenStats{}, fmt.Errorf("practice: lý do lô: %w", err)
+	}
+	b, _ := json.Marshal(raw) // sqlc trả interface{} cho coalesce(jsonb)
+	if err := json.Unmarshal(b, &out.Hints); err != nil {
+		return GenStats{}, fmt.Errorf("practice: lý do lô: %w", err)
+	}
+	if len(out.Hints) == 0 {
+		out.Hints = nil
 	}
 	return out, nil
 }

@@ -273,6 +273,11 @@ func TestGenerateCitations(t *testing.T) {
 	st, err := r.svc.GenStatsOf(ctx, r.course, jobID)
 	require.NoError(t, err)
 	require.Equal(t, practice.GenStats{Unchanged: 1, Edited: 1}, st, "a: nguyên; b: có sửa nhãn trước khi duyệt")
+	// DEF-R106S-17: lý do «Tránh» lưu ở jobs.result.hints lúc chạy phải ra được ở gen-stats (jobs không có cột payload)
+	r.exec(`update jobs set result = coalesce(result, '{}'::jsonb) || '{"hints":["MO_HO","LAC_DE"]}'::jsonb where id = $1`, jobID)
+	st, err = r.svc.GenStatsOf(ctx, r.course, jobID)
+	require.NoError(t, err)
+	require.Equal(t, []string{"MO_HO", "LAC_DE"}, st.Hints)
 	_, err = r.svc.GenStatsOf(ctx, r.course, uuid.New())
 	require.Equal(t, "NOT_FOUND", code(t, err))
 }
