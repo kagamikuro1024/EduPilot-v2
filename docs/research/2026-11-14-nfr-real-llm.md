@@ -61,6 +61,7 @@ Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phươ
 - **Số liệu:** bảng «SLO → số đo» ở trên, dòng (a)–(d); tệp `load-a*.json`, `load-b-*.json`, `load-c-*.json`, `load-d.json`.
 - **PASS/FAIL:** (a), (b), (c) 50 bài, (d) PASS ở ×1 và ×2; (c) 1.000 bài: lần 1 FAIL (322/1.000, 678 `FAILED`, 0,55 h; 9router bị khởi động lại giữa lượt, sửa ở P-11-23), lần 2 PASS (1.000/1.000, 1,68 h).
 - **Giới hạn:** provider giả ở (a)–(c) 50 bài nên độ trễ không gồm LLM thật; (d) chạy trước `k6-stack.yml`. Hạn chế Mac: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB; k6 (VM 1,5 CPU) và stack chung 6 vCPU nên độ trễ là cận trên bảo thủ [INFERENCE: chưa kiểm bằng máy đo riêng]; mạng loopback trong VM nên p95 là cận dưới về phần mạng; chấm 1.000 bài gọi 9router chạy cùng máy.
+- **Tài nguyên trong lúc tải (AC7): không đo.** `benchmarks/load/run-t1.mjs` không lấy mẫu `docker stats`, nên `load-a*.json` và `load-c*.json` không có RAM / CPU từng container, không có dòng OOM, không có CPU theo thời gian. Báo cáo không khẳng định «không OOM» hay «CPU < 95 %» cho (a) và (c). Gián tiếp: không lượt nào hạ quy mô (`seed-t1.json` quy mô 1), (a) có 0 lỗi 5xx; điều này không thay được số đo. `docker stats` chỉ có lúc nghỉ (US-NFR-07, `baseline.json`).
 
 ### US-NFR-05: EXPLAIN 10 truy vấn nặng nhất và chỉ mục
 - **Câu hỏi:** ở T1 truy vấn nào nặng nhất, có cần thêm chỉ mục không.
@@ -114,6 +115,7 @@ Phát hiện từ lượt Gemini trực tiếp (đã sửa mã, giữ lại): Ge
 | Đo LLM thật trên khoá trả phí, nhiều provider (E4) | chỉ có khoá Free Tier; thuộc P10 |
 | Judge amd64 có seccomp | không đo được trên arm64 (D58) |
 | E3 chấm tay, E4 nhiều provider | thuộc P10 |
+| `docker stats` trong lúc tải (a), (c): OOM, CPU ≥ 95 % suốt ≥ 60 s | harness k6 không lấy mẫu; cần thêm bước lấy mẫu vào `run-t1.mjs` rồi đo lại |
 | Mạng thật / VPS | ngoài phạm vi (CONTEXT mục 4) |
 
 ## Lần đo bị nhiễu, lần đo lại
