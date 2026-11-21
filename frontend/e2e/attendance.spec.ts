@@ -246,7 +246,7 @@ test("attendance offline complete (AC13, TC-P5-02-33): Lưu điểm danh lúc m�
 
 test("attendance offline complete không còn thay đổi chờ: bấm Lưu điểm danh khi offline vẫn gửi complete:true lúc có mạng", async ({ page, context }, info) => {
   desktopOnly(info);
-  const api = await open(page, context);
+  await open(page, context);
   await context.setOffline(true);
   await page.getByRole("button", { name: "Lưu điểm danh" }).first().click();
   await context.setOffline(false);
