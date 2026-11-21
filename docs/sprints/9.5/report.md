@@ -27,7 +27,7 @@ Chi tiết các dòng (a)(b)(d) và chaos: `handoff/dev-lat-2.md`. Dòng (c) 1.0
 
 ## 2. Chấm 1.000 bài qua 9router (US-NFR-04 AC9)
 
-Cấu hình: ep-t1, 20 lớp × 50 SV, 5 luồng chấm, mỗi bài 2 lượt LLM, `ag/gemini-3.8-flash`, rpm 20. Tiếp từ đầu cả hai lần, không tiếp lần cũ. Lần cũ 235/1000 dùng Gemini trực tiếp, đã dừng theo chủ dự án (`load-c-1000-dung-theo-chu-du-an.json`): không phải số đo.
+Cấu hình: ep-t1, 20 lớp × 50 SV, 5 luồng chấm, mỗi bài 2 lượt LLM, `ag/gemini-3.8-flash`, rpm 20. Tiếp từ đầu cả hai lần, không tiếp lần cũ. Lần cũ 235/1000 (`load-c-1000-dung-theo-chu-du-an.json`): nhà cung cấp giả trễ 20 s (`meta.config`), dừng ở 235/1.000 vì AC9 đòi LLM thật, không tính là số đo.
 
 | | Lần 1 (`…-run1-hong.json`) | Lần 2 (`…-run2.json`) |
 | --- | --- | --- |
