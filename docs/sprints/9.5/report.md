@@ -23,6 +23,8 @@
 
 Chi tiết các dòng (a)(b)(d) và chaos: `handoff/dev-lat-2.md`. Dòng (c) 1.000 bài trong tệp đó (chưa có kết quả) được báo cáo này thay thế.
 
+`[HẠN CHẾ MAC]` Đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB: k6 (VM 1,5 CPU) và stack chung 6 vCPU nên độ trễ là cận trên bảo thủ [INFERENCE: chưa kiểm bằng máy đo riêng]; mạng là loopback trong VM nên p95 là cận dưới về phần mạng. Lighthouse chạy cùng máy với stack.
+
 ## 2. Chấm 1.000 bài qua 9router (US-NFR-04 AC9)
 
 Cấu hình: ep-t1, 20 lớp × 50 SV, 5 luồng chấm, mỗi bài 2 lượt LLM, `ag/gemini-3.8-flash`, rpm 20. Tiếp từ đầu cả hai lần, không tiếp lần cũ. Lần cũ 235/1000 dùng Gemini trực tiếp, đã dừng theo chủ dự án (`load-c-1000-dung-theo-chu-du-an.json`): không phải số đo.
@@ -45,6 +47,7 @@ Nhà cung cấp mất tạm thời là ca hệ thống phải chịu được, n
 
 **Lần 2:** 0 lượt FAILED, không có dòng khởi động lại 9router trong khoảng 13:26–15:07 (+07); `watchdog.log` chỉ có `13:13:41 watchdog v4 (port-gone only)`. Stack demo `edupilot-*` dừng trong lúc đo, đã start lại, `https://localhost` trả 200 lúc 08:08Z.
 `[GIỚI HẠN]` Độ trễ TB mỗi lượt LLM của lần 2 KHÔNG đo được: `ep-t1` bị `down -v` trước khi trích `llm_audit`. Tốc độ 10 bài/phút × 5 luồng ≈ 30 s/bài khớp độ trễ mỗi lượt ≈ 12–13 s của R3 `[SUY LUẬN]`.
+`[HẠN CHẾ MAC]` Đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB: worker, Postgres và 9router chạy cùng một máy; 1,68 h là thời gian trên máy này, không phải máy chủ.
 
 ## 3. Đo LLM thật R1–R6 qua 9router (US-NFR-08), ep-qc, 2026-11-15
 
@@ -61,6 +64,8 @@ Tất cả rc=0. Tệp ở `benchmarks/reports/real-llm/`.
 | **R5 Threads + khủng hoảng** (`threads.json`, `crisis.json`, đo lại, DEF-R9.5-11) | Threads: **5/5 bài có AI trả lời**, sau 6,1–12,1 s (p50 9,1 s), cả 5 có trích dẫn tài liệu lớp; 1/5 (Phishing qua email) trả lời một phần, nói rõ tài liệu chưa có phần nhận diện email lừa đảo. Khủng hoảng: **4/4** nhận `CRISIS`, đúng câu an toàn, không sinh chữ, không mở phiếu; sự kiện đầu p50 7 ms, max 11 ms | đạt cỡ mẫu (≥ 3 mỗi việc). Threads chạy với nhúng thật `gemini-embedding-001` chỉ cho lớp 761987 (P-11-37); KHÔNG đo độ đúng nội dung |
 | **R6 gợi ý rubric / tóm tắt AI** (`misc.json`) | rubric 3/3 có 4 tiêu chí, tổng 10,0 (10,4–12,9 s); tóm tắt hồ sơ SV 3/3 (6,8–8,7 s), 0/3 chứa tên / MSSV; mẫu đầu đúng số liệu (11/11 buổi, 300 phút/tuần, 12 lần phát biểu) | đạt |
 | **Guidance** (`guidance-20261115-112429.json`, BT03) | reflect SUCCEEDED, 1 bản nháp; áp phiên bản 1 (3 mục); 0 bản chấm cũ; MAE tiêu chí 0,25 (n=8) trước khi áp | chưa chấm lại sau khi áp nên chưa có số «sau» |
+
+`[HẠN CHẾ MAC]` Đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB: 9router chạy cùng máy với stack nên độ trễ LLM gồm đường mạng từ Mac tới nhà cung cấp; sự kiện đầu đi qua loopback trong VM nên là cận dưới về phần mạng.
 
 ### 3a. Đo lại R4 mask và R5 (ep-qc, 2026-11-15 21:10–21:28 UTC, DEF-R9.5-10/11)
 
@@ -82,6 +87,7 @@ Bộ probe mới `benchmarks/real-llm/data/mask_probes.json`: mỗi probe là c�
 - `under_masked` (che thiếu) từ lượt 2 chỉ xét probe có bước sinh chữ; lượt 1 liệt kê P17–P23 vì bị chặn trước khi che (không phải che thiếu).
 - **Nhúng thật (P-11-37):** `gemini-embedding-001` chỉ cho lớp 761987 (reindex 127/132 đoạn có vectơ), từ 19:01:31 UTC đến khi trả tuyến. `llm_audit`: 16 dòng = 12 thành công + 4 `rate_limited` × 3 lần thử ⇒ **24 request HTTP** (trần 300). Mask và khủng hoảng không gọi nhúng (ý định do luật quyết). Sau lượt đo: xoá provider `gemini-embed-eval`, reindex lớp 761987 bằng nhúng giả (`fake-eval`). Sáu tuyến sinh chữ không đổi (vốn là `QC 9router`). Tuyến EMBEDDING trước lượt đo trỏ `QC lỗi embed` / `bad-embed` (provider hỏng của ca thử QC, nay đã tắt): trả lại bị từ chối 422 `provider_disabled`, nên EMBEDDING để ở `fake-eval`; QC quyết có đặt lại hay không.
 - Threads chưa đo độ đúng nội dung (không có mốc); số trên là AI có trả lời, có trích dẫn, và thời gian.
+- `[HẠN CHẾ MAC]` Đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB, như mục 3.
 
 ## 4. Decision model trước / sau (`decision-before-after.md`) — ĐÍNH CHÍNH P-11-25(1) / P-11-27
 

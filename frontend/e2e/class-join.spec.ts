@@ -663,6 +663,27 @@ test("class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng
   await expect(page.locator("[data-part=guidance-flags]")).toHaveCount(0);
 });
 
+test("class settings guidance flags: 409 do người khác vừa sửa → hàng tải lại đúng giá trị máy chủ + báo tại chỗ (DEF-R106S-01, TC-G01-17)", async ({ page }) => {
+  const server = { enabled: true, version: 4 }; // tab khác đã bật
+  const flags = () => ["GRADING_GUIDANCE", "THREAD_SUGGEST", "QUESTION_HINTS", "REGRESSION_CAPTURE"].map((feature) => ({ feature, enabled: feature === "GRADING_GUIDANCE" ? server.enabled : false, version: feature === "GRADING_GUIDANCE" ? server.version : 1, can_edit: true }));
+  let first = true; // lần tải đầu trả bản CŨ (tab này mở trước khi tab kia sửa)
+  await openSettings(page, "TEACHER", {
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags`, (r) => {
+        const items = flags();
+        if (first) { first = false; items[0] = { ...items[0], enabled: false, version: 3 }; }
+        return fulfill(r, 200, { items });
+      });
+      await page.route(`**/api/v1/courses/${C1}/guidance-flags/*`, (r) => fulfill(r, 409, { code: "VERSION_CONFLICT", message: "m", trace_id: "t", details: { version: 4 } }));
+    },
+  });
+  const row = page.locator("[data-part=guidance-flags] [data-feature=GRADING_GUIDANCE]");
+  await expect(row).toContainText("Tắt");
+  await row.getByRole("switch", { name: "Lưu ý chấm" }).click();
+  await expect(row.getByText("Thử lại")).toBeVisible(); // báo tại chỗ
+  await expect(row).toContainText("Bật"); // hàng đã tải lại: công tắc theo máy chủ (bật), không nói dối «Tắt»
+});
+
 test("class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   const log = await openSettings(page, "TEACHER");

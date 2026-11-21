@@ -2,8 +2,8 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ApiError, newIdempotencyKey, useAutosaveDraft, useJob, useUndoableAction } from "@/shared/data";
-import { Button, ConfirmIrreversible, InlineNotice, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { ApiError, ApiErrorNotice, newIdempotencyKey, useAutosaveDraft, useJob, useUndoableAction } from "@/shared/data";
+import { Button, ConfirmIrreversible, EmptyState, InlineNotice, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import type { Criterion } from "./assignmentApi";
 import {
   DIRECTION_TEXT, applyGuidance, decideGuidance, guidanceKey, reflectGuidance, regradeStale, useGuidance, useGuidanceStats,
@@ -18,7 +18,7 @@ function stateOf(i: GuidanceItem): { text: string; tone: "amber" | "green" | "ne
   if (i.status === "DRAFT") return { text: "Chờ duyệt", tone: "amber" };
   if (i.status === "APPROVED" && i.approved_in_version === null) return { text: "Chờ áp dụng", tone: "blue" };
   if (i.status === "APPROVED" && i.pending_retire) return { text: "Chờ nghỉ", tone: "amber" };
-  if (i.status === "APPROVED") return { text: `Đang dùng · v${i.approved_in_version}`, tone: "green" };
+  if (i.status === "APPROVED") return { text: "Đã áp dụng", tone: "green" };
   return { text: i.status === "REJECTED" ? "Đã bỏ" : "Đã nghỉ", tone: "neutral" };
 }
 
@@ -122,7 +122,7 @@ function ItemRow({ courseId, aid, item, teacher, userId, onDecided, onError }: {
       <div className={s.meta}>
         <StatusText tone={st.tone}>{st.text}</StatusText>
         <span>{DIRECTION_TEXT[view.direction]}</span>
-        <span>{view.support} bài đổi điểm</span>
+        <span>{view.support} lần sửa</span>
         {view.needs_recheck && <StatusText tone="amber">Cần xem lại</StatusText>}
       </div>
       {undo.node}
@@ -174,10 +174,12 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
   }, [regrade.status, qc, aid, courseId]);
 
   if (q.isPending) return <Skeleton lines={2} />;
+  if (q.isError && !d) return <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} />;
   if (!d || !d.enabled) return null;
 
   const names = new Map(rubric.map((c) => [c.id, c.name]));
-  const groups = rubric.map((c) => ({ id: c.id, name: c.name, items: d.items.filter((i) => i.criterion_id === c.id && (i.status === "DRAFT" || i.status === "APPROVED" || i.status === "REJECTED")) })).filter((g) => g.items.length > 0);
+  const groups = rubric.map((c) => ({ id: c.id, name: c.name, items: d.items.filter((i) => i.criterion_id === c.id && (i.status === "DRAFT" || i.status === "APPROVED" || i.status === "REJECTED" || i.status === "RETIRED")) })).filter((g) => g.items.length > 0);
+  const pendingReview = d.counts.draft ?? d.items.filter((i) => i.status === "DRAFT").length; // cả lớp, không theo trang đã tải
   const adding = d.items.filter((i) => i.status === "APPROVED" && i.approved_in_version === null).length;
   const retiring = d.items.filter((i) => i.status === "APPROVED" && i.pending_retire).length;
   const waiting = d.items.filter((i) => i.status === "APPROVED" && (i.approved_in_version === null || i.pending_retire)).length;
@@ -240,7 +242,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
       <div className={s.head}>
         <h3 className={s.title}>
           Lưu ý chấm
-          <StatusText tone="neutral">{d.current_version === 0 ? "Chưa có bản" : `Bản v${d.current_version}`}</StatusText>
+          <StatusText tone="neutral">{`${d.current_version === 0 ? "Chưa có bản" : `Bản v${d.current_version}`}${pendingReview > 0 ? ` · ${pendingReview} chờ duyệt` : ""}`}</StatusText>
         </h3>
         {teacher && (
           <div className={s.actions}>
@@ -293,6 +295,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
         loading={busy === "apply"}
       />
 
+      {d.items.length === 0 && <EmptyState title="Chưa có lưu ý" />}
       {groups.map((g) => (
         <div key={g.id} className={s.group}>
           <p className={s.crit}>{names.get(g.id)}</p>

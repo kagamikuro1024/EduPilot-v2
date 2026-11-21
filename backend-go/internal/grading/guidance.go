@@ -344,11 +344,14 @@ func (s *GuidanceService) Reflect(ctx context.Context, a GuidanceActor, course, 
 	}
 	q := store.New(s.Pool)
 	cur, err := q.GuidanceCurrentVersion(ctx, store.GuidanceCurrentVersionParams{CourseID: course, AssignmentID: assignment})
-	if errors.Is(err, pgx.ErrNoRows) || (err == nil && cur.Type != "ESSAY") {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return ReflectEnqueued{}, apierr.New(http.StatusNotFound, apierr.AssignmentNotFound)
 	}
 	if err != nil {
 		return ReflectEnqueued{}, fmt.Errorf("guidance: đọc bài tập: %w", err)
+	}
+	if cur.Type != "ESSAY" { // bài có tồn tại nhưng không phải tự luận: nói rõ lý do, không giả «không tìm thấy» (DEF-R106S-03)
+		return ReflectEnqueued{}, apierr.New(http.StatusConflict, apierr.TypeNotSupported).WithMessage("Chỉ bài tự luận mới rút được lưu ý chấm.")
 	}
 	cases, err := q.GuidanceCases(ctx, store.GuidanceCasesParams{CourseID: course, AssignmentID: assignment})
 	if err != nil {
@@ -365,7 +368,16 @@ func (s *GuidanceService) Reflect(ctx context.Context, a GuidanceActor, course, 
 	sum := sha256.Sum256(fmt.Appendf(nil, "%s|%s|%d", assignment, stamp, cur.GuidanceVersion))
 	idemKey := "ep:guidance:reflect:" + hex.EncodeToString(sum[:])
 	if id, err := s.Redis.Get(ctx, idemKey).Result(); err == nil && id != "" {
-		return ReflectEnqueued{JobID: id}, nil
+		// Việc đã FAILED thì bấm lại là thử lại: bỏ khoá, xếp việc mới (DEF-R106S-02). Đang chạy / đã xong → cùng job_id.
+		if jid, perr := uuid.Parse(id); perr == nil {
+			if j, gerr := store.New(s.Pool).GetJob(ctx, jid); gerr == nil && j.Status == store.JobStatusFAILED {
+				s.Redis.Del(ctx, idemKey)
+				id = ""
+			}
+		}
+		if id != "" {
+			return ReflectEnqueued{JobID: id}, nil
+		}
 	}
 	rl := "ep:rl:reflect:" + assignment.String()
 	n, err := s.Redis.Incr(ctx, rl).Result()
