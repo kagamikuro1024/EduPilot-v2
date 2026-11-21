@@ -7,8 +7,8 @@ const MIME: Record<string, string> = { pdf: "application/pdf", docx: "applicatio
 
 /** Kiểm tệp TRƯỚC khi tải: trả câu báo kèm cách sửa, hoặc null nếu hợp lệ (SRS FEAT-docs-calendar 4.1). */
 export function checkDocumentFile(f: File): string | null {
-  if (!EXT.test(f.name)) return `${f.name}: chỉ nhận PDF, DOCX hoặc PPTX. Hãy chọn tệp khác.`;
-  if (f.size > DOC_MAX_BYTES) return `${f.name}: quá 50 MB. Hãy nén hoặc tách tệp.`;
+  if (!EXT.test(f.name)) return `${f.name}: Dùng PDF, DOCX hoặc PPTX, tối đa 50 MB.`;
+  if (f.size > DOC_MAX_BYTES) return `${f.name}: Dùng PDF, DOCX hoặc PPTX, tối đa 50 MB.`;
   if (f.size === 0) return `${f.name}: tệp rỗng.`;
   return null;
 }

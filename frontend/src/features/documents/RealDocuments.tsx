@@ -109,6 +109,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
         <div>
           <button type="button" className={r.name} onClick={() => setOpen(d)}>{d.title}</button>
           {d.shared_from && <div className={r.meta}>Chia sẻ từ {d.shared_from}</div>}
+          {d.type === "ANSWER_KEY" && <><div className={r.meta}>Không hiển thị cho sinh viên</div><div className={r.meta}>Không dùng cho AI của sinh viên</div></>}
         </div>
       ),
     },
