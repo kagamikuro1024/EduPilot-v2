@@ -1,2 +1,41 @@
 ▶ go vet ./...
 ▶ go test -race exam + judge + quiz
+2026/11/21 20:22:06 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 08dbaaa2c6319e500dc7055f99c682dc73e7b51bdac913c2f6d71785f632b598
+  Test ProcessID: 60f0ac67-05b6-4588-af79-291bd0266b7f
+2026/11/21 20:22:06 ✅ Container started: 68f6ff853df5
+2026/11/21 20:22:06 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/21 20:22:06 🔔 Container is ready: 68f6ff853df5
+2026/11/21 20:22:13 ✅ Container started: 5636bc78d64d
+2026/11/21 20:22:13 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/21 20:22:13 🔔 Container is ready: 5636bc78d64d
+leak_matrix 20x6 clean (216 lời gọi: 17 endpoint + Hôm nay + SSE × 6 tình huống, PUBLISHED hai lần)
+--- FAIL: TestQC3RedTemp (0.00s)
+    zz_qc3_red_test.go:6: qc3: lỗi gieo tạm
+2026/11/21 20:22:27 WARN lô sự kiện liêm chính vượt giới hạn: bỏ phần dư attempt_id=01a1fe45-c53b-7705-ab5a-81dd9447ae92 dropped=50
+2026/11/21 20:22:27 WARN lô sự kiện liêm chính vượt giới hạn: bỏ phần dư attempt_id=01a1fe45-c53b-7705-ab5a-81dd9447ae92 dropped=50
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/exam	86.931s
+ok  	github.com/edupilot/backend-go/internal/exam/similarity	1.437s
+ok  	github.com/edupilot/backend-go/internal/judge	4.514s
+ok  	github.com/edupilot/backend-go/internal/quiz	1.461s
+FAIL
+
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 1 |
+| FAIL | go test -race exam + judge + quiz | 96 |
+
+GATE PE: FAIL
+
+real	1m37.230s
+user	3m1.084s
+sys	0m35.857s
+rc=1

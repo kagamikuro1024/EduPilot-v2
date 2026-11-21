@@ -1,0 +1,4 @@
+0 issues.
+lint rc=0
+vet rc=0
+sqlc rc=0

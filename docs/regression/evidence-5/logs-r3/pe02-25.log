@@ -1,0 +1,3 @@
+đối chứng 202 DONE|WA|9/10|fc=0|att=1|10 14.1 [(0.1, 'QUEUED||/|fc=0|att=0|0'), (0.7, 'RUNNING||/|fc=0|att=1|0'), (14.0, 'DONE|WA|9/10|fc=0|att=1|10')]
+PASS TC-PE02-25 bài 1 câu code, 10 test ≈1.4 s/test (đối chứng chấm trọn 14 s: DONE|WA|9/10|fc=0|att=1|10); lượt thử r5s34: kill -9 worker lúc RUNNING||/|fc=0|att=1|0 (hết thuê 2026-11-21 13:18:31.314203+00); sau kil
+P TC-PE02-25 bài 1 câu code, 10 test ≈1.4 s/test (đối chứng chấm trọn 14 s: DONE|WA|9/10|fc=0|att=1|10); lượt thử r5s34: kill -9 worker lúc RUNNING||/|fc=0|att=1|0 (hết thuê

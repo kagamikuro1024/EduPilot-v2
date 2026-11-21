@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: 425396a7 (sprint/11-p10-eval) · Stack ep-r + qc3s · Người chạy: qc2 (SmkC, SmkL), qc3 (lượt bù S/N, 2026-11-21) · Cập nhật: 2026-11-21
-Tổng TC cũ: 477 · Đạt: 435 · Trượt: 7 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 19   (P+F+K+LT+S = 477)
+Tổng TC cũ: 477 · Đạt: 437 · Trượt: 10 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 14   (P+F+K+LT+S = 477)
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -11,14 +11,14 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | --- | --- | --- | --- | --- | --- | --- |
 | US-PU-06 | 21 | 11 | 0 | 5 | 5 | |
 | US-PE-01 | 40 | 36 | 0 | 4 | 0 | |
-| US-PE-02 | 57 | 54 | 0 | 1 | 2 | |
+| US-PE-02 | 57 | 56 | 0 | 1 | 0 | |
 | US-PE-03 | 55 | 54 | 0 | 1 | 0 | |
 | US-PE-04 | 50 | 47 | 1 | 2 | 0 | |
 | US-PE-05 | 60 | 58 | 1 | 1 | 0 | |
 | US-PE-06 | 47 | 46 | 1 | 0 | 0 | |
-| US-PE-07 | 48 | 48 | 0 | 0 | 0 | |
-| US-PE-08 | 68 | 66 | 1 | 0 | 1 | |
-| US-PE-09 | 31 | 15 | 3 | 2 | 11 | |
+| US-PE-07 | 48 | 47 | 1 | 0 | 0 | |
+| US-PE-08 | 68 | 64 | 3 | 0 | 1 | |
+| US-PE-09 | 31 | 18 | 3 | 2 | 8 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -88,7 +88,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE02-22 | P | Go: judge pass=4 skip=0 fail=0 |
 | TC-PE02-23 | P | outbox topic/payload: exam.submission_done/1 judge.enqueue/1; xinfo groups ok |
 | TC-PE02-24 | P | giao lại tin 2 lần: judged_at không đổi 1/2026-11-15 12:42:27.317014+00 -> 1/2026-11-15 12:42:27.317014+00 |
-| TC-PE02-25 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE02-25 | P | bài 1 câu code, 10 test ≈1.4 s/test (đối chứng chấm trọn 14 s: DONE/WA/9/10/fc=0/att=1/10); lượt thử r5s34: kill -9 worker lúc RUNNING////fc=0/att=1/0 (hết thuê 2026-11-21 13:18:31.314203+00); sau kill 8 s vẫn RUNNING////fc=0/att=1/0 (không ai chấm); docker start → chuỗi (giây, trạng thái) [(0.5, 'RUNNING////fc=0/att=1/0'), (21.0, 'RUNNING////fc=0/att=2/0'), (29.3, 'DONE/WA/9/10/fc=0/att=2/10')]; chấm lại xong sau 29 s kể từ khi bật worker (thuê 30 s + nhịp tick 5 s; JUDGE_CLAIM_IDLE=10 phút chỉ là ngưỡng đưa lại tín hiệu Stream mất tin, không chặn); kết quả cuối DONE/WA/9/10/fc=0/att=2/10, sau 35 s DONE/WA/9/10/fc=0/att=2/10; số dòng code_submissions của lượt: 1 (đối chứng 1); kết quả từng  |
 | TC-PE02-26 | P | judge dừng, worker chạy: tiến trình thử lại (giây, status/verdict/attempts/fail_count) = [[6.3, "QUEUED//1/1"], [10.6, "QUEUED//2/2"], [20.9, "QUEUED//3/3"], [56.7, "ERROR/IE/4/4"]]; dead-letter sau 56.7 s; judge.submit.dead 2→3 (1 tin), tin cuối có mã nguồn: False |
 | TC-PE02-27 | P | hàng nộp có 56 bài chờ/đang chạy (gửi 60 bài trong 0s); SV khác Chạy thử: 202, xong sau 1.56s (≤5); verdict run None |
 | TC-PE02-28 | P | Go: judge pass=4 skip=0 fail=0 |
@@ -111,7 +111,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE02-45 | P | Go: judge pass=1 skip=0 fail=0 |
 | TC-PE02-46 | P | JUDGE_PARALLELISM=2 (cấu hình ep-r hiện tại; mức 4 cần đổi cấu hình toàn cục): 60 bài bits/stdc++.h × 10 test gửi cùng lúc, tới DONE cuối 25s từ lúc gửi; (n,AC,IE,p95,max)=60/60/0/22.904326/24.378250; máy load 3.0 |
 | TC-PE02-47 | P | Chạy thử ×20 (biên dịch + 2 test mẫu, 10 SV × 2, máy load 6.7): p50=0.64s p95=0.95s max=0.97s; thành công 20/20 |
-| TC-PE02-48 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE02-48 | P | k6 bản QC judge240.js (copy exam-submit.js, rate 48/phút × 5 phút = 240 bài code cpp17 10 test, 30 SV, stack qc3s, judge ep-r JUDGE_PARALLELISM=2, máy dùng chung load 5–21): đo từ DB code_submissions kỳ thi «Tải k6 judge_burst 03:37:01Z»: 240 bài nộp 03:37:19→03:42:18Z, bài cuối chấm xong 03:44:14Z = 416 s (6,9 phút ≤ 8) kể từ bài đầu; thông lượng nhận 240 bài/5 phút = 48 bài/phút; kết quả 173 AC + 2 CE («Biên dịch quá thời gian» ở 03:40, lúc load máy 21) + 65 SUPERSEDED (bài cũ của cùng SV bị bài mới thay khi còn hàng chờ — thiết kế sản phẩm; k6 đếm 65 bài này là judge_ie vì chờ DONE/ERROR quá 120 s nên judge_ie của bản k6 = 65 là lỗi đo, không phải IE); 0 verdict IE; 0 bài kẹt QUEUED/RUNNI |
 | TC-PE02-49 | P | k6 run benchmarks/load/exam-submit.js SCENARIO=judge_burst (60 lần nộp code cpp17 10 test, 30 SV, 12/phút × 5 phút), stack qc3s (gateway-test + worker-test, judge thật của ep-r JUDGE_PARALLELISM=2, FAKE_LLM_LATENCY=300-300, LLM_MAX_CONCURRENCY=100, hạn mức nới), máy Mac arm64 11 CPU/Colima 6 CPU 10 GiB dùng chung (load ≈ 11): rc=0; judge_done_ms p95 = 5 190 ms (<60 000), max 6 267 ms; judge_ie = 0; http_req_failed = 0 (0/387 yêu cầu); checks 60/60; 3 ngưỡng k6 đạt. Báo cáo evidence-6/k6/pe/benchmarks/reports/pe-exam-submit-2026-11-21-judge_burst.json, log evidence-6/k6/pe/out |
 | TC-PE02-50 | P | canary QCR5CANARY/QCHID: 0 lần ở log gateway/worker/judge; compile_log dùng main.cpp, không đường dẫn tuyệt đối |
 | TC-PE02-51 | P | Go: judge pass=2 skip=0 fail=0 |
@@ -312,7 +312,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE06-24 | P | lần hai trong 15 s: 429 ['RATE_LIMITED'] retry_after=15 |
 | TC-PE06-25 | P | (29 dòng SUBMIT chèn bằng SQL để khỏi chờ cooldown 15 s) lần 30: 202; lần 31: 409 ['SUBMISSION_LIMIT_REACHED'] cap={"cap": 30} |
 | TC-PE06-26 | P | sau 15 s nộp ok 202; lần 1 DONE (lần 1 nộp wa trước khi lần 2 vào hàng: DONE); lần 2 DONE is_final=True |
-| TC-PE06-27 | P | smkP @88ab83e4 (0e52f1e5 R5-06): r5s31 nộp code khi 30 SV khác đang xếp hàng chấm (smkP_flood.py): chuỗi trạng thái ["…@0.0s","Đã nhận, đang xếp hàng@0.2s","KẾT QUẢ@11.2s"]; nhãn «Đã nhận, đang xếp hàng» hiện=true; mỗi trạng thái một lần=true; từ kỹ thuật trong màn=false |
+| TC-PE06-27 | P | smkP @634d59c5: r5s31 nộp code khi 30 SV khác đang xếp hàng chấm (smkP_flood.py): chuỗi trạng thái ["…@0.0s","Đã nhận, đang xếp hàng@0.2s","KẾT QUẢ@15.6s"]; nhãn «Đã nhận, đang xếp hàng» hiện=true; mỗi trạng thái một lần=true; từ kỹ thuật trong màn=false |
 | TC-PE06-28 | P | Go (chỉ các test còn tồn tại; tên TC cũ không còn trong repo): exam pass=4 skip=0 fail=0; thiếu test: TestSubmitSupersedes |
 | TC-PE06-29 | P | khoá: ['compile_ok', 'created_at', 'id', 'is_final', 'language', 'samples', 'source', 'status']; 0 canary test ẩn; ẩn chỉ đếm? hidden-khoá: [] |
 | TC-PE06-30 | P | CE: compile_log "main.cpp: In function 'int main()':\nmain.cpp:1:13: error: 'undefined_fn' was not declared " |
@@ -350,7 +350,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE07-15 | P | sự kiện vào lượt của người khác: 404 |
 | TC-PE07-16 | P | canary clipboard/ip trong exam_events: 0; log gateway+worker 0 (pg_dump có 1 dòng = mã nguồn tấn công x15 của chính QC, không phải sự kiện) |
 | TC-PE07-17 | P | Go: exam pass=5 skip=0 fail=0 |
-| TC-PE07-18 | P | smkP @634d59c5 (d7fecdc2 R5-07), Chrome headless thật, SV dán 328 ký tự vào ô mã rồi đóng NGAY (<1 s, trước nhịp 15 s), đối chiếu exam_events trong DB sau 3 s: rời trang (about:blank) PASTE 0→1 (r5s23); ĐÓNG TAB page.close({runBeforeUnload:true}) PASTE 0→1 (r5s24); meta chỉ {chars,item_id}, nội dung dán không có trong DB (leak=false). Biến thể browserContext.close() (r5s25) không gửi gì: CDP dispose renderer không phát pagehide — không phải thao tác đóng tab của người dùng, ghi nhận không tính lỗi. Lô 15 s đã đạt ở lượt trước (9,4 s). smkP_m.cjs ONLY=s18 |
+| TC-PE07-18 | F | smkP @634d59c5 (d7fecdc2 R5-07): dán 328 ký tự vào ô mã rồi ĐÓNG THẬT ngay (trước nhịp 15 s), đối chiếu exam_events trong DB sau 3 s: {"navigate":{"u":"r5s23","nBefore":0,"nAfter":1,"pBefore":0,"pAfter":1,"leak":false,"meta":"{\"chars\": 320, \"item_id\": \"01a1fc29-bb42-7106-b062-cb3dadc7addb\"}"},"close":{"u":"r5s24","nBefore":0,"nAfter":1,"pBefore":0,"pAfter":1,"leak":false,"meta":"{\"chars\": 320, \"item_id\": \"01a1fc29-bb42-7106-b062-cb3dadc7addb\"}"},"ctxclose":{"u":"r5s25","nBefore":0,"nAfter":0,"pBefore":0,"pAfter":0,"leak":false,"meta":""}}; Chrome headless thật, close = page.close({runBeforeUnload:true}) / browserContext.close() |
 | TC-PE07-19 | P | [200, 403, 403, 403, 403] |
 | TC-PE07-20 | P | GV thấy tóm tắt liêm chính: False; TA: False; khoá GV: ['adjusted', 'attempt_id', 'auto_score', 'flags', 'score', 'status', 'student', 'submit_reason', 'submitted_at'] |
 | TC-PE07-21 | P | quét 57 thao tác của exam.Routes() bằng SV r5s01 (lượt có 1 sự kiện liêm chính trong DB): 20 GET + 28 thao tác sửa của Staff/Teacher; thân phản hồi chứa exam_events/TAB_*/PASTE/integrity: 0 route; #51 GET events → 403; #50/#44/#45 → [403, 403, 403]; route route-của-SV POST (29,31,32,33,35,38,39,40,42) không chạy (đổi trạng thái), không có đường trả sự kiện cho SV trong mã (chỉ events.go #51 Teacher) |
@@ -384,9 +384,9 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE08-01 | P | E30: 30 lượt tự nộp/đóng (20 MANUAL + 10 TIMEOUT), outbox exam.closed = 1 dòng, khoá chat Redis gỡ; điểm 29 lượt (trừ lượt đã sửa điểm ở TC-PE08-46) = điểm tính tay (Fraction; câu TF bỏ trống = 0 như F19): lệch [] |
 | TC-PE08-02 | P | sau đóng: bắt đầu 409 ['ATTEMPT_ALREADY_SUBMITTED']; lưu 409 ['ATTEMPT_ALREADY_SUBMITTED'] |
 | TC-PE08-03 | P | Go: exam pass=3 skip=0 fail=0 |
-| TC-PE08-04 | P | MCQ-only (r5s36): nộp → 200 trong 0.04 s (≤1 s); ngay sau nộp trong DB: status=GRADED, auto_score=2.50, graded_at đặt=t; breakdown 4 mục [{item_id,earned,max}]=True; SSE chủ lượt nhận 2 dòng liên quan (vd ['event: exam.attempt', 'data: {"attempt_id":"01a1ef43-5feb-7814-b8e3-9107f33183b7","exam_id":"01a1ef43-2754-7568-8c5e-d70e1840d6b3","status":"GRADED"}']) |
+| TC-PE08-04 | P | MCQ-only (r5s36): nộp → 200 trong 0.05 s (≤1 s); ngay sau nộp trong DB: status=GRADED, auto_score=2.50, graded_at đặt=t; breakdown 4 mục [{item_id,earned,max}]=True; SSE chủ lượt nhận 2 dòng liên quan (vd ['event: exam.attempt', 'data: {"attempt_id":"01a1fc14-dd42-791b-98c1-a5e19cb7352a","exam_id":"01a1fc14-91ad-7e10-bf19-041ff2b94516","status":"GRADED"}']) |
 | TC-PE08-05 | P | bài 1 câu code (5 test trọng số 1/1/2/2/2, mỗi test ≈1 s), SV nộp code đạt 3 test (trọng số 4/8) rồi nộp bài thi khi code còn chạy: chuỗi (giây, lượt/điểm/bản nộp/verdict) = [(0.1, 'GRADING//RUNNING/'), (1.7, 'GRADED/5.00/DONE/WA')]; không GRADED sớm khi bản nộp chưa DONE: True; điểm = max_score 10 × 4/8 = 5.00 → 5.00; passed_weight/total_weight 4/8 |
-| TC-PE08-06 | P | dead-letter IE: lượt ở GRADING/TIMEOUT (không GRADED, không 0 điểm); việc EXAM_GRADE_ERROR cho GV+TA; judge lên + regrade scope=errors → 202; lượt GRADED/5.00, bài nộp DONE/AC |
+| TC-PE08-06 | F | dead-letter IE: lượt ở GRADING/TIMEOUT (không GRADED, không 0 điểm); việc EXAM_GRADE_ERROR cho GV+TA; judge lên + regrade scope=errors → 202; lượt GRADED/5.00, bài nộp DONE/AC |
 | TC-PE08-07 | P | câu code không có bản nộp: earned=['0', '0', '0'] (0, không IE); IE trong bài: 0 |
 | TC-PE08-08 | P | Go: exam pass=4 skip=0 fail=0 |
 | TC-PE08-09 | P | 12 lượt: điểm hệ thống = điểm tính tay (Decimal; MCQ_SINGLE/MULTI PARTIAL, code theo trọng số 6/4/0, TF bỏ trống=0): lệch [] |
@@ -418,7 +418,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE08-35 | P | Go: exam pass=2 skip=0 fail=0 |
 | TC-PE08-36 | P | progress ['absent', 'graded', 'grading', 'in_progress', 'not_started']; flags: GV có, TA không có khoá; sort=score giảm ✓ ([Decimal('9.00'), Decimal('9.00'), Decimal('9.00')]), cursor không trùng trang (0 trùng); ETag=False; SV 403, ADMIN 403 |
 | TC-PE08-37 | P | Go: exam pass=4 skip=0 fail=0 |
-| TC-PE08-38 | P | smkP @88ab83e4 (247bf4e4, P-11-59): ≥720 cột ["Họ tên","MSSV","Trạng thái","Điểm","Nộp lúc","Tín hiệu"] (GV có Tín hiệu=true) ok=true; <720 (719/390 GV, 390 TA) chỉ ["Họ tên","Trạng thái","Điểm"], AUDIT 390 {"ox":0,"cut":0,"ell":0,"touch":0}, 719 {"ox":0,"cut":0,"ell":0,"touch":0}, MSSV (mã SV cạnh tên)/Nộp lúc ở Drawer=true/true ok=true; TA không Tín hiệu/Nghi giống nhau ok=true; Drawer test ẩn chỉ "Test ẩn: đạt 2 trên 2", verdict từng test ẩn=false ok=true; bài chưa ai làm: 20 hàng, 20× «Chưa bắt đầu» ok=true; tab Thống kê=true, Nghi giống nhau=true |
+| TC-PE08-38 | F | smkP @88ab83e4 (247bf4e4, P-11-59): ≥720 cột ["Họ tên","MSSV","Trạng thái","Điểm","Nộp lúc","Tín hiệu"] (GV có Tín hiệu=true) ok=true; <720 (719/390 GV, 390 TA) chỉ ["Họ tên","Trạng thái","Điểm"], AUDIT 390 {"ox":0,"cut":0,"ell":0,"touch":0}, 719 {"ox":0,"cut":0,"ell":0,"touch":0}, MSSV (mã SV cạnh tên)/Nộp lúc ở Drawer=true/true ok=true; TA không Tín hiệu/Nghi giống nhau ok=true; Drawer test ẩn chỉ "Test ẩn: đạt 2 trên 2", verdict từng test ẩn=false ok=true; bài chưa ai làm: 20 hàng, 0× «Chưa bắt đầu» ok=false; tab Thống kê=true, Nghi giống nhau=true |
 | TC-PE08-39 | P | stats: mean 2.72 median 2.00 hardest r5-2 |
 | TC-PE08-40 | P | 30 lượt: distribution hệ thống [5, 3, 6, 2, 2, 3, 5, 0, 1, 3] = tính tay [5, 3, 6, 2, 2, 3, 5, 0, 1, 3]; mean 3.73 = 3.73; median 3.33 = 3.33; Σcount 30; hardest [('r5-2', '0.00'), ('r5-1', '0.10'), ('r5-0', '0.50')]; code [{"item_id": "01a1e136-5a90-7185-b960-45d0dc4dec73", "title": "r5code-88", "mean_ratio": "0.51", "ce_rate": "0.20"}]; không định danh SV trong thân |
 | TC-PE08-41 | P | Go: exam pass=3 skip=0 fail=0 |
@@ -459,7 +459,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE09-08 | P | check-exam-seed.mjs scores: matched 30/30 (so với seed/expected_exam_scores.csv) |
 | TC-PE09-09 | P | multi_scoring của bài trắc nghiệm = PARTIAL; 76 lượt của «Mật mã» có câu earned phân số (điểm một phần); check-exam-seed scores khớp 30/30 với expected_exam_scores.csv |
 | TC-PE09-10 | P | check-exam-seed.mjs demo: OK (A/C/D, GV, TA, CE) |
-| TC-PE09-11 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE09-11 | P | Chrome thật (Playwright, ep-r @c12be038, lớp 761987 seed gốc, ảnh evidence-5/ui-r3/shots/pe09-11-*.png: /Hôm nay, /exams, /exams/[id]/take (kết quả), /exams/[id]/results của A, B, C, D, GV, TA): A (sv.gioi) «10,00 / 10,00», «Bạn đúng 10/10», mở 10 câu có «Bạn chọn»/«Đáp án đúng»/giải thích, điểm cao nhất lớp 10,00; B 8,00; C (sv.nguyco) «Bạn không làm bài này.»; D (sv.moi) «Không tìm thấy bài thi»/không có bài tuần 9; GV: Bảng điểm, Thống kê, tab «Nghi giống nhau», cột Tín hiệu; TA: bảng điểm, KHÔNG có Tín hiệu/Công bố điểm/Nghi giống nhau. Spec @real «seed demo state» (E2E_REAL_API, exam.spec.ts) 1 passed rc=0 (logs-r3/pe09-11-real-spec.log). Ca CE/cặp giống phủ bởi check-exam-seed demo OK  |
 | TC-PE09-12 | F | qc3s: chạy seed.mjs lần hai/ba/bốn trên DB đã seed — dữ liệu không đổi (đếm dòng 85 bảng trước/sau giữ nguyên: users, courses, enrollments, question_bank, exams, exam_attempts, code_submissions, forum_threads…; Mailpit 168 = 168; chỉ tăng phiên đăng nhập/outbox/audit do seed tự đăng nhập; «Kiểm tra tuần 9» vẫn 2 bài) nhưng KHÔNG in «Seed xong (không đổi)» mà in «Seed xong trong 25 s.» mỗi lần (logs-r3/pe09-12-*): ctx.changed bị đặt ở seedThreads (scripts/seed.mjs:1010) vì thread mẫu «Modern Network Security Threats» không khớp danh sách thread hiện có (11 trong DB còn thấy, 1 thread «· Phisher» bị ẩn ở bước 18) và bị POST lại (Idempotency-Key trả dòng cũ, không tạo thêm). DEF-R5-15 (Thấp) |
 | TC-PE09-13 | F | qc3s: seed sạch từ readyz → «Seed xong trong 652 s» (evidence-6/k6/seed/seed3.log, seed-t0-clean.json; bước 11 tài liệu docling thật 241 s, bước 20 luyện đề 204 s, bước 19 78 s, bước 10 PE 40 s; P2+PE (bước 1–10) 91 s) > trần ≤ 6 phút (US-PE-09 AC5 sau P-11-76; TC ghi ≤ 5 phút). Đo trên máy chung tải 9–14 (không đạt điều kiện «máy không chạy stack khác»; PM đo 314 s ngày 13/11 máy sạch). Cùng nhóm DEF-Q2-S4-01. DEF-R5-16 (Thấp) |
 | TC-PE09-14 | P | APP_ENV=production node scripts/seed.mjs → rc=1, không request tới gateway |
@@ -471,12 +471,12 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE09-20 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-21 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-22 | P | bash scripts/gate-pe.sh @425396a7 (ovnfs qc3s5, E2E_PORT=3330 E2E_API_PORT=3334): thứ tự go vet → go test -race exam/judge/quiz → TestSandboxAttacks → TestScoringDecimal → TestNoAnswerLeak → go test contract → sqlc diff → expected_exam_scores.csv → ui-antipatterns.sh → Playwright exam.spec.ts+a11y.spec.ts (120 passed, 18 skipped, 2 dự án); bảng PASS 10/10 có giây (tổng 13 phút 8 s), rc=0, dòng cuối «GATE PE: PASS» (logs-r3/gate-pe-run1.log). Chạy mặc định không GATE_K6; 3 kịch bản k6 do ca PE09-15/16/17/19 phủ riêng. Lưu ý: script đặt ui-antipatterns TRƯỚC Playwright (TC ghi sau) |
-| TC-PE09-23 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE09-23 | P | Gieo test đỏ tạm TestQC3RedTemp (t.Fatal) vào bản sao ovnfs qc3s5 (@c12be038; KHÔNG sửa worktree chung): gate-pe.sh dừng ở bước 2 «go test -race exam + judge + quiz» → bảng PASS go vet / FAIL go test -race (96 s), các bước sau không chạy, dòng cuối «GATE PE: FAIL», rc=1 (logs-r3/gate-pe-run2-red.log). Xoá test gieo rồi chạy lại ở @58448e0a (đầu nhánh sprint/11-p10-eval): bảng PASS 10/10, «GATE PE: PASS», rc=0 (logs-r3/gate-pe-run3-green.log) |
 | TC-PE09-24 | P | GATE PE trong handoff: 4 |
 | TC-PE09-25 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-26 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-27 | LT | RERUN lhci/Lighthouse mobile trên /exams/<id>/take (ep-r thật, SV chưa bắt đầu): LCP 3,01–3,03 s (simulate, 3 lượt) và 5,45–5,51 s (devtools, 3 lượt) > 2,5 s; phần tử LCP = <p integrityText> (dòng hiện sau khi dữ liệu bài thi về), CLS 0,00006. Theo Q-QC-PE09-2 / quyết định sprint 3 #26 (LCP Lighthouse mobile 2,86–3,55 s → PASS có điều kiện) và #14 sprint 5 (cổng LCP 2,5 s chỉ cho 6 route người dùng khung PreShell; route dữ liệu như /assignments/[id] chỉ kiểm phần trước phiên) ghi số, không FAIL riêng. JS /take 232,8–233,1 KB truyền (≤ 250 KB gzip ĐẠT); package.json không có codemirror/monaco/ace/prism (grep 0) ĐẠT. lh/take/, lh/take_nav.out, take_navd.out |
-| TC-PE09-28 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE09-28 | P | grep -rnE 'sandbox/verdict/go-judge/provider/trace' frontend/src/features/exam* @58448e0a: 13 dòng, tất cả là tên trường/kiểu/hàm (x.verdict, VerdictIcon, resultsApi.ts) hoặc bảng nhãn VERDICT_VI/VERDICT_LABEL; KHÔNG có chuỗi hiển thị. Quét innerText 4 SV (A, B, C, D) × 5 màn (Hôm nay, /exams, làm bài/kết quả MCQ, bài code) trên ep-r (Chrome thật, ui-r3/ui5a.cjs): 0 từ kỹ thuật (sandbox, verdict, go-judge, provider, trace, RAG, PII, QUEUED, RUNNING, IE/MLE/TLE/RE, answer_key, canary); ui-antipatterns.sh «Từ kỹ thuật trong màn sinh viên» ✓ (gate) |
 | TC-PE09-29 | P | ui-antipatterns.sh rc=0, 32/32 ✓ (TC gốc 19/19: nay 32 phép), --selftest "32 / 32 phép bắt được" |
 | TC-PE09-30 | P | weekly_exam trong PROGRESS.md 2 dòng; report.md có; đủ 6 nợ (tách sandbox, precompiled header, checker tuỳ chỉnh, nối sổ điểm P6, chat khoá P3, retention RUN/exam_events) |
 | TC-PE09-31 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |

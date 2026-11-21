@@ -1,0 +1,32 @@
+[
+ {
+  "id": "s5-11-A",
+  "ok": false,
+  "note": "A mcq: 10,00 / 10,00; có «Đáp án đúng»=false"
+ },
+ {
+  "id": "s5-11-C",
+  "ok": true,
+  "note": "C mcq: Bạn không làm bài này."
+ },
+ {
+  "id": "s5-11-D",
+  "ok": true,
+  "note": "D exams: Bỏ qua điều hướng | QC3P8A | · QC3 P8 QC3P8A | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 2 thông báo mới | 2 | L | Tài khoản: | Phạm Ngọc Linh | Hôm nay | Chat riêng "
+ },
+ {
+  "id": "s5-11-GV",
+  "ok": true,
+  "note": "GV results: Bỏ qua điều hướng | 761987 | · An ninh mạng | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 415 thông báo mới | 9+ | H | Tài khoản: | TS. Lê Thu Hà |  | Làm việc |  | Hôm nay | Hộp thư hỗ trợ | Sinh viên | Điểm danh |  | Đánh giá |  | Sổ điểm | Chấm bài | Ngân hàng câu "
+ },
+ {
+  "id": "s5-11-TA",
+  "ok": true,
+  "note": "TA results có Tín hiệu/Công bố/Nghi giống nhau=false; Bỏ qua điều hướng | 761987 | · An ninh mạng | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 153 thông báo mới | 9+ | B | Tài khoản: | Phạm Quốc Bảo |  | Làm việc |  | Hôm nay | Hộp thư hỗ trợ | Sinh viên | Điểm"
+ },
+ {
+  "id": "s5-28",
+  "ok": true,
+  "note": "quét innerText 4 SV × 5 màn (Hôm nay, /exams, làm bài/kết quả MCQ, bài code): từ kỹ thuật = không có"
+ }
+]

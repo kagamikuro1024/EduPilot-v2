@@ -1,0 +1,7 @@
+dialog: Thời gian học trên EduPilot |  | EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công 
+FAIL s5-11-A A mcq: 10,00 / 10,00; có «Đáp án đúng»=false
+PASS s5-11-C C mcq: Bạn không làm bài này.
+PASS s5-11-D D exams: Bỏ qua điều hướng | QC3P8A | · QC3 P8 QC3P8A | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 2 thông báo mới | 2 | L | Tài khoản: | Phạm Ngọc Linh | Hôm nay | Chat riêng 
+PASS s5-11-GV GV results: Bỏ qua điều hướng | 761987 | · An ninh mạng | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 415 thông báo mới | 9+ | H | Tài khoản: | TS. Lê Thu Hà |  | Làm việc |  | Hôm nay | Hộp thư hỗ trợ | Sinh viên | Điểm danh |  | Đánh giá |  | Sổ điểm | Chấm bài | Ngân hàng câu 
+PASS s5-11-TA TA results có Tín hiệu/Công bố/Nghi giống nhau=false; Bỏ qua điều hướng | 761987 | · An ninh mạng | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 153 thông báo mới | 9+ | B | Tài khoản: | Phạm Quốc Bảo |  | Làm việc |  | Hôm nay | Hộp thư hỗ trợ | Sinh viên | Điểm
+PASS s5-28 quét innerText 4 SV × 5 màn (Hôm nay, /exams, làm bài/kết quả MCQ, bài code): từ kỹ thuật = không có
