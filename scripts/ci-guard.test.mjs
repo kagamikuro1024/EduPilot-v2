@@ -22,3 +22,8 @@ test("mọi job trong ci.yml khai báo timeout-minutes", () => {
   for (let i = 1; i < jobs.length; i += 2) if (!/^ {4}timeout-minutes:\s*\d+/m.test(jobs[i + 1])) missing.push(jobs[i]);
   assert.deepEqual(missing, []);
 });
+
+test("push chỉ trên main: nhánh có PR không chạy hai lượt (push + pull_request) cho cùng một SHA", () => {
+  const on = readFileSync(".github/workflows/ci.yml", "utf8").split(/^on:\s*$/m)[1].split(/^\S/m)[0];
+  assert.match(on, /^ {2}push:\s*\n(?: {4}#.*\n)* {4}branches:\s*\[main\]/m);
+});
