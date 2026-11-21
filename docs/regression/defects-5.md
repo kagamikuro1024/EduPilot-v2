@@ -112,3 +112,5 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - Ghi chú kịch bản: bản `smkP_audit.cjs` cũ báo thêm 6 hàng `/settings/llm`, `/settings/integrations` do phần tử `<option>` (không có hộp vẽ); `evidence-5/ui-r3/audit.cjs` đã loại. Nghi ngờ mã: `shared/ui/DataTable.tsx` nhánh ảo hoá không gắn `useScrollRow` / `data-scroll-x` (DataTable.tsx:137). Log `evidence-5/logs-r3/audit.out`, `cutdbg.json`.
 
 **Chạy lại DEF-R5-12 (qc3, 2026-11-21, @425396a7):** `pnpm -C frontend lint` rc=0 (0 lỗi, 1 cảnh báo ở `frontend/dbg91b.mjs`), 13 tệp `qc2-*` đã chuyển sang `docs/regression/specs-qc2` → ĐÃ SỬA; TC-PU06-17 = P.
+
+**Ghi nhận chưa thành DEF (qc3, 2026-11-21):** TC-PE09-20 — `exam.spec.ts` (53 ca, 120 pass ở gate) chưa có ca đọc mọi phản hồi mạng của trình trình duyệt với canary (AC7 ý 11; chỉ có Go `TestNoAnswerLeak`) và chat-gate nằm ở `private-chat.spec.ts` (ý 9); chưa chấm, chờ lượt chạy `@real` + đối chiếu 12 ý.

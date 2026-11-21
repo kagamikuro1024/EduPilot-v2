@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: 425396a7 (sprint/11-p10-eval) · Stack ep-r + qc3s · Người chạy: qc2 (SmkC, SmkL), qc3 (lượt bù S/N, 2026-11-21) · Cập nhật: 2026-11-21
-Tổng TC cũ: 477 · Đạt: 434 · Trượt: 7 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 20   (P+F+K+LT+S = 477)
+Tổng TC cũ: 477 · Đạt: 435 · Trượt: 7 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 19   (P+F+K+LT+S = 477)
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -18,7 +18,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | US-PE-06 | 47 | 46 | 1 | 0 | 0 | |
 | US-PE-07 | 48 | 48 | 0 | 0 | 0 | |
 | US-PE-08 | 68 | 66 | 1 | 0 | 1 | |
-| US-PE-09 | 31 | 14 | 3 | 2 | 12 | |
+| US-PE-09 | 31 | 15 | 3 | 2 | 11 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -470,7 +470,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE09-19 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-20 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-21 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
-| TC-PE09-22 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE09-22 | P | bash scripts/gate-pe.sh @425396a7 (ovnfs qc3s5, E2E_PORT=3330 E2E_API_PORT=3334): thứ tự go vet → go test -race exam/judge/quiz → TestSandboxAttacks → TestScoringDecimal → TestNoAnswerLeak → go test contract → sqlc diff → expected_exam_scores.csv → ui-antipatterns.sh → Playwright exam.spec.ts+a11y.spec.ts (120 passed, 18 skipped, 2 dự án); bảng PASS 10/10 có giây (tổng 13 phút 8 s), rc=0, dòng cuối «GATE PE: PASS» (logs-r3/gate-pe-run1.log). Chạy mặc định không GATE_K6; 3 kịch bản k6 do ca PE09-15/16/17/19 phủ riêng. Lưu ý: script đặt ui-antipatterns TRƯỚC Playwright (TC ghi sau) |
 | TC-PE09-23 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-24 | P | GATE PE trong handoff: 4 |
 | TC-PE09-25 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
