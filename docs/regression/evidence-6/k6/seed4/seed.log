@@ -10,7 +10,7 @@
 [10/20] Ngân hàng câu hỏi, hai bài thi mẫu và lượt làm (lớp 761987)…
    Đã nộp 24 lượt trắc nghiệm + 6 lượt code; bộ lập lịch sẽ đóng và công bố (≤ 3 phút).
 [11/20] Tài liệu (docling thật) và sự kiện lịch…
-(node:44293) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(node:70198) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
 (Use `node --trace-warnings ...` to show where the warning was created)
 [12/20] Lịch sử chat riêng của sinh viên lớp 761987 (≈ 150 câu, ghi thẳng, không tự mở ticket)…
 [13/20] Thread lớp 761987 (12) và 761988 (3), đủ trạng thái bài AI…
@@ -20,20 +20,3 @@
 [17/20] Ticket đủ trạng thái lớp 761987 (qua chat + escalate + trả lời thật)…
 [18/20] Kiểm duyệt Threads lớp 761987: 2 báo cáo, 1 thread tự ẩn, 1 bình luận bị ẩn, 1 thread ghim…
 [19/20] Bài tập 03 / 04 lớp 761987: 26 bài nộp (app, ZIP, thư IMAP thử), thẻ IMAP + Teams…
-[20/20] Luyện đề: ngân hàng, hàng chờ duyệt, Quiz và lượt luyện của 13 sinh viên (lớp 761987)…
-   Đã tạo 41 lượt luyện mới (còn lại giữ nguyên nếu đã có).
-[+] Điểm danh bằng mã: lớp 761988 bật, buổi 1 có hai cửa sổ đã đóng…
-Seed xong trong 640 s.
-  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)
-  60 tài khoản (1 Admin, 1 giảng viên, 1 TA, 57 sinh viên); mật khẩu = SEED_DEFAULT_PASSWORD
-  Lớp 761987: 20 câu trắc nghiệm APPROVED + 5 câu AI_DRAFT + 2 bài code; hai bài thi mẫu (24 lượt trắc nghiệm + 6 lượt code) tự đóng và công bố ≤ 3 phút — `node scripts/check-exam-seed.mjs bank|scores|demo`
-  Lớp 761987: 6 tài liệu READY (quy chế trường scan = OTHER, quy chế học phần = COURSE_POLICY, 2 bài giảng, 1 đề tham khảo, 1 đáp án canary) + 2 sự kiện thi; lớp 761988: bài giảng dùng chung + 1 sự kiện — `node scripts/check-docs-seed.mjs`
-  ≈ 150 câu hỏi chat riêng (sinh viên lớp 761987), 12 thread lớp 761987 + 3 thread lớp 761988 — `node scripts/check-chat-seed.mjs [threads]`
-  Lớp 761987: điểm danh buổi 1–9 (270 dòng) + ≈ 60 lần phát biểu, thời gian học 10 tuần, at-risk C (AT_RISK) + sv12 / sv19 / sv26 (WATCH); 5 ticket đủ trạng thái; kiểm duyệt Threads (2 + 3 báo cáo, 1 ghim, 1 bình luận ẩn) — `node scripts/check-crm-seed.mjs`
-  Lớp 761987: công thức điểm CONFIRMED (trích từ quy chế học phần bằng provider giả, TEACHER xác nhận), điểm giữa kỳ / cuối kỳ nhập bằng XLSX và đã công bố, sổ CHƯA chốt; lớp 761988: chưa có quy chế — `node scripts/check-grade-seed.mjs`
-  Lớp 761987: Bài tập 03 (26 bài nộp: 13 app, 5 ZIP, 8 thư IMAP thử; 3 chưa khớp; chưa chấm) + Bài tập 04 (kênh Teams, chưa đồng bộ) — `node scripts/check-assignments-seed.mjs`
-  Lớp 761987: Luyện đề — 82 câu APPROVED (8 chủ đề, gồm 8 trả lời ngắn + 2 tự luận) + 20 câu PENDING + 1 Quiz tính điểm (đã công bố, 3 lượt) + câu EXTRACTED / GENERATED có trích dẫn + ngân hàng riêng của lớp 761988 + ≈ 40 lượt của 13 sinh viên (B sai nhiều An toàn ứng dụng web; C đang dở 1 lượt) — `node scripts/check-practice-seed.mjs`
-  Decision model: provider `decision-fake` + 3 cổng tắt (SEED_DECISION_DEMO=1 bật cả ba cho lớp 761987) — `node scripts/check-decision-seed.mjs`
-  Học từ lần sửa: tắt (SEED_GUIDANCE_DEMO=1 bật cờ + dữ liệu demo cho BT03) — `node scripts/check-guidance-seed.mjs`
-  Điểm danh bằng mã: lớp 761988 bật; buổi 1 có 2 cửa sổ đã đóng (22 lượt vòng 1 đủ ca cờ, vòng 2 + RECHECK_MISS, over_headcount); sv.gioi chưa có lượt — `node scripts/check-checkin-seed.mjs`
-  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)

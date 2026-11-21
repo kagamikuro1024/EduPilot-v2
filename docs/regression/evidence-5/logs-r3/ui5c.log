@@ -1,0 +1,17 @@
+sv.gioi / {"cls":0,"flash":false,"h1":["Chào Trung"]}
+sv.gioi /chat {"cls":0.1617644632556638,"flash":false,"h1":["Chat riêng"]}
+sv.gioi /threads {"cls":0.00016392741890110596,"flash":false,"h1":["Hỏi đáp công khai"]}
+sv.gioi /me {"cls":0.00016392741890110596,"flash":false,"h1":["Kết quả của tôi"]}
+sv.gioi /exams {"cls":0.00016392741890110596,"flash":false,"h1":["Bài thi"]}
+sv.gioi /library {"cls":0,"flash":false,"h1":["Thư viện"]}
+teacher / {"cls":0.00005528730227623457,"flash":false,"h1":["4 việc cần xử lý hôm nay"]}
+teacher /inbox {"cls":0.00016392741890110596,"flash":false,"h1":["Hộp thư hỗ trợ"]}
+teacher /gradebook {"cls":0.00016392741890110596,"flash":false,"h1":["Sổ điểm"]}
+teacher /threads {"cls":0.00016392741890110596,"flash":false,"h1":["Hỏi đáp công khai"]}
+teacher /exams {"cls":0.00016392741890110596,"flash":false,"h1":["Bài thi"]}
+teacher /settings/llm {"cls":0.00016392741890110596,"flash":false,"h1":["Cấu hình LLM"]}
+admin / {"cls":0,"flash":false,"h1":["35 việc cần xử lý hôm nay"]}
+admin /settings/llm {"cls":0,"flash":false,"h1":["Cấu hình LLM"]}
+admin /admin/users {"cls":0,"flash":false,"h1":["Người dùng"]}
+FAIL s5-PU06-11-tay CLS lớn nhất 0.1618 (sv.gioi /chat); 15 (vai, route) 1440; «Không có quyền» thoáng hiện: 0; h1 mỗi màn có = 15/15
+FAIL s5-PU06-16-tay F5 khi đăng nhập: vẫn ở /me=true (1 lời gọi refresh); xoá cookie phiên (ep_rt) rồi mở /me → /login?next=%2Fme; refresh giả 401 + tải lại → /

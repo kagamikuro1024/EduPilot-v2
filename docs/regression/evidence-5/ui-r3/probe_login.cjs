@@ -1,0 +1,4 @@
+const L = require('./ui_lib.cjs'); const { chromium, B, PW, SH } = L;
+(async () => { const br = await chromium.launch(); const ctx = await br.newContext({ ignoreHTTPSErrors: true, locale: 'vi-VN' }); const p = await ctx.newPage();
+  p.on('response', (r) => { if (r.url().includes('/auth/')) console.log(r.status(), r.url().split('/api/v1')[1]); }); p.on('console', (m) => { if (m.type() === 'error') console.log('console', m.text().slice(0, 150)); });
+  await p.goto(B + '/login'); await p.waitForTimeout(2000); await p.getByLabel(/email/i).fill('sv.gioi@edupilot.local'); await p.getByLabel(/mật khẩu/i).first().fill(PW); await p.getByRole('button', { name: /đăng nhập/i }).click(); await p.waitForTimeout(6000); console.log(p.url()); console.log((await p.locator('body').innerText()).slice(0, 300)); await p.screenshot({ path: SH + '/probe-login.png' }); await br.close(); })();

@@ -1,0 +1,322 @@
+[WebServer] (node:62154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:62179) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 294 tests using 2 workers
+
+(node:62199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:62200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    2 [desktop] › e2e/a11y.spec.ts:32:5 › axe-allow.json: tối đa 3 ngoại lệ, mỗi mục đủ luật / route / lý do / người duyệt (214ms)
+  ✓    1 [desktop] › e2e/account.spec.ts:53:5 › login page: nhãn, thuộc tính nhập, một nút primary, logo, liên kết, không từ kỹ thuật (1.6s)
+  ✓    4 [desktop] › e2e/account.spec.ts:78:5 › login page: 375 px không tràn ngang, vùng chạm ≥ 44 px, AUDIT/TOUCH sạch (917ms)
+  ✓    5 [desktop] › e2e/account.spec.ts:91:5 › login page: sai ⇒ dòng lỗi role=alert, giữ email, xoá mật khẩu; đang gửi chỉ một request (2.0s)
+  ✓    6 [desktop] › e2e/account.spec.ts:108:7 › login throttled (LOGIN_THROTTLED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã (4.1s)
+  ✓    7 [desktop] › e2e/account.spec.ts:108:7 › login throttled (RATE_LIMITED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã (4.2s)
+  ✓    8 [desktop] › e2e/account.spec.ts:134:5 › login page: phiên bị thu hồi ⇒ dòng thông báo (915ms)
+  ✓    9 [desktop] › e2e/account.spec.ts:142:5 › open redirect: next lạ bị bỏ, location.origin không đổi (6.7s)
+  ✓   10 [desktop] › e2e/account.spec.ts:155:5 › next hợp lệ: quay lại đúng trang sau đăng nhập; vào route cần phiên khi chưa đăng nhập ⇒ /login?next= (1.6s)
+  ✓   11 [desktop] › e2e/account.spec.ts:165:7 › login lần đầu: làm mới cookie cũ trả 401 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login (2.7s)
+  ✓   12 [desktop] › e2e/account.spec.ts:165:7 › login lần đầu: làm mới cookie cũ trả 200 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login (2.7s)
+  ✓    3 [desktop] › e2e/a11y.spec.ts:57:7 › axe: student (27.7s)
+  ✓   13 [desktop] › e2e/account.spec.ts:181:5 › no token in storage: không có JWT / refresh ở storage, cookie; tải lại ⇒ đúng một refresh, không nháy /login (1.3s)
+  ✓   15 [desktop] › e2e/account.spec.ts:207:5 › nav per role after login: Sinh viên 9 · TA 13 · Giảng viên 16 · Admin 7 mục (4.5s)
+  ✓   16 [desktop] › e2e/account.spec.ts:223:5 › mock identity from session: sv.kha ⇒ Trần Thu Uyên; email lạ ⇒ tên thật; không đọc cookie ep_demo_* (1.9s)
+  ✓   17 [desktop] › e2e/account.spec.ts:236:5 › two tabs refresh: hai tab cùng tải ⇒ refresh tuần tự, không chồng nhau (646ms)
+  ✓   18 [desktop] › e2e/account.spec.ts:259:5 › refresh hỏng giữa chừng ⇒ /login?next=; phiên bị thu hồi ⇒ /login kèm thông báo (1.3s)
+  ✓   19 [desktop] › e2e/account.spec.ts:281:5 › register page: nhãn, chú thích, autocomplete, một nút primary, lỗi từng ô, màn Kiểm tra email + đếm ngược gửi lại (1.2s)
+  ✓   20 [desktop] › e2e/account.spec.ts:332:5 › register page: 375 px không tràn ngang, vùng chạm ≥ 44 px (458ms)
+  ✓   21 [desktop] › e2e/account.spec.ts:344:5 › verify page: xác minh tự động đúng một lần, token rời khỏi URL; thành công / đã dùng / hết hạn + gửi lại (2.6s)
+  ✓   22 [desktop] › e2e/account.spec.ts:396:5 › forgot page: một ô email, một nút Gửi hướng dẫn, câu chung bất kể email, nút gửi lại khoá đếm ngược (946ms)
+  ✓   23 [desktop] › e2e/account.spec.ts:422:5 › reset page: kiểm liên kết khi mở, token rời URL, form hai ô, lỗi mật khẩu tại ô, thành công; liên kết xấu (3.0s)
+  ✓   24 [desktop] › e2e/account.spec.ts:483:5 › reset page: Referrer-Policy no-referrer, no-store (kể cả forgot không cần) (133ms)
+  ✓   25 [desktop] › e2e/account.spec.ts:492:5 › settings security: đổi mật khẩu (3 ô, 1 nút primary, lỗi tại ô), thiết bị: Thiết bị này, đăng xuất ngay + dòng tĩnh, xác nhận có số (2.5s)
+  ✓   26 [desktop] › e2e/account.spec.ts:577:5 › settings security: khung xương, lỗi chuẩn, 375 px dạng danh sách không tràn (1.4s)
+  ✓   27 [desktop] › e2e/account.spec.ts:663:5 › admin users page: bảng, một nút chính, lọc theo vai, tìm, khung mời mở tại chỗ, khoá lạc quan + Hoàn tác, gửi lại lời mời (3.3s)
+  ✓   14 [desktop] › e2e/a11y.spec.ts:57:7 › axe: ta (26.0s)
+  ✓   28 [desktop] › e2e/account.spec.ts:711:5 › admin users page: khung mời mở tại chỗ (không dialog), gửi xong có dòng tĩnh, không từ kỹ thuật; 375 px sạch (1.5s)
+  ✓   30 [desktop] › e2e/account.spec.ts:738:5 › admin users errors: email trùng tại ô, 422 tại ô, gửi lại cùng khoá, xung đột phiên bản, tự khoá, 403 (3.0s)
+  ✓   31 [desktop] › e2e/account.spec.ts:795:5 › admin users errors: mạng đứt khi mời ⇒ giữ chữ + banner ngoại tuyến + Gửi lại cùng khoá (4.3s)
+  ✓   32 [desktop] › e2e/account.spec.ts:819:5 › invite page: xem trước, token rời URL, hai ô mật khẩu, thành công vào /; liên kết hỏng (4.1s)
+  ✓   33 [desktop] › e2e/account.spec.ts:871:5 › invite page: Referrer-Policy no-referrer, no-store (186ms)
+  ✓   34 [desktop] › e2e/account.spec.ts:890:5 › seed accounts nav: số mục theo vai (9 / 13 / 16 / 7 / 1) (5.2s)
+  ✓   35 [desktop] › e2e/class-join.spec.ts:44:5 › course picker: giảng viên 2 lớp thấy cả hai, 'Tất cả lớp của tôi' và 'Quản lý lớp này' (1.6s)
+  ✓   36 [desktop] › e2e/class-join.spec.ts:56:5 › course picker: sinh viên thấy lớp ACTIVE của mình, lớp PENDING không chọn được, không có 'Tất cả lớp' (863ms)
+  ✓   37 [desktop] › e2e/class-join.spec.ts:67:5 › course picker: sinh viên 1 lớp ACTIVE + 1 PENDING chỉ thấy lớp ACTIVE (690ms)
+  ✓   38 [desktop] › e2e/class-join.spec.ts:75:5 › course picker: ?course= của lớp không thuộc người này bị bỏ, về lớp đầu (2.3s)
+  ✓   39 [desktop] › e2e/class-join.spec.ts:82:5 › course picker: ?course= của lớp thuộc người này đè lựa chọn và được nhớ ở localStorage (1.4s)
+  ✓   40 [desktop] › e2e/class-join.spec.ts:92:5 › course picker: lớp đã lưu trữ không là mặc định và không được nhớ (US-UX91-06 AC3, P-91-9) (2.1s)
+  ✓   29 [desktop] › e2e/a11y.spec.ts:57:7 › axe: teacher (28.0s)
+  ✓   41 [desktop] › e2e/class-join.spec.ts:108:5 › course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390 (2.8s)
+  ✓   43 [desktop] › e2e/class-join.spec.ts:125:5 › no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 route và không gọi API lớp (4.3s)
+  ✓   44 [desktop] › e2e/class-join.spec.ts:141:5 › mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp (1.1s)
+  ✓   45 [desktop] › e2e/class-join.spec.ts:152:5 › mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, không mượn lớp mô phỏng 761987 (10.7 lô 1) (672ms)
+  ✓   46 [desktop] › e2e/class-join.spec.ts:233:5 › admin courses page: bảng đúng cột, một nút chính, khung mở tại chỗ, gửi xong có dòng tĩnh, bấm đúp một lớp, lưu trữ có xác nhận nêu số (2.6s)
+  ✓   42 [desktop] › e2e/a11y.spec.ts:57:7 › axe: admin (10.9s)
+  ✓   47 [desktop] › e2e/class-join.spec.ts:274:5 › admin courses page: sửa và gán lại dùng PUT / assign; rỗng có lời mời mở lớp; không có đường thêm sinh viên; 375 px sạch (2.5s)
+  ✓   49 [desktop] › e2e/class-join.spec.ts:302:5 › admin courses page: chưa có lớp → lời mời mở lớp đầu tiên (834ms)
+  ✓   48 [desktop] › e2e/a11y.spec.ts:67:5 › axe: admin có dữ liệu (/admin/users, /admin/courses, /settings/llm) (4.7s)
+  ✓   50 [desktop] › e2e/class-join.spec.ts:308:5 › admin courses errors: mã lớp trùng tại ô, 422 theo ô giữ chữ, gửi lại cùng khoá, sai version, sai vai, lưu trữ lại (4.6s)
+  ✓   52 [desktop] › e2e/class-join.spec.ts:366:5 › bell real: chấm theo unread_count, mở khung không xoá chấm, bấm mục đánh dấu đã đọc và đi tới link, làm mới 30 s (2.1s)
+  ✓   53 [desktop] › e2e/class-join.spec.ts:417:5 › bell real: thông báo Phân công lớp làm mới danh sách lớp ngay, bộ chọn có lớp mới (1.1s)
+  ✓   54 [desktop] › e2e/class-join.spec.ts:439:5 › bell real sse open: không làm mới ở 30 s, làm mới ở 120 s (1.5s)
+  ✓   55 [desktop] › e2e/class-join.spec.ts:475:5 › bell real: lỗi tải → dòng 'Chưa tải được thông báo.' không chặn app; hết chưa đọc thì chấm biến (2.0s)
+  ✓   56 [desktop] › e2e/class-join.spec.ts:509:5 › join page: ô nhập tự viết hoa và bỏ ký tự cấm, một nút chính, xem trước rồi tham gia (1.4s)
+  ✓   51 [desktop] › e2e/a11y.spec.ts:77:5 › axe: giảng viên có dữ liệu (bài thi, soạn, kết quả, giống nhau, câu hỏi, thành viên, cài đặt lớp) (11.9s)
+  ✓   57 [desktop] › e2e/class-join.spec.ts:529:5 › join page: cần duyệt, chờ duyệt, sai mã, đầy lớp, bị giới hạn đếm ngược, chưa xác minh email (1.9s)
+  ✓   59 [desktop] › e2e/class-join.spec.ts:569:5 › join page: lớp cần duyệt hiện câu cần duyệt và kết quả chờ duyệt (1.8s)
+  ✓   58 [desktop] › e2e/a11y.spec.ts:87:5 › axe: giảng viên /students có dữ liệu (danh sách thật, đủ ba mức rủi ro) (2.5s)
+  ✓   60 [desktop] › e2e/class-join.spec.ts:582:5 › join page: 375 px sạch (tràn ngang, vùng chạm, chữ bị cắt) (1.1s)
+  ✓   62 [desktop] › e2e/class-join.spec.ts:596:5 › join link login redirect: /join/<mã> chưa đăng nhập → /login?next=… → quay lại, xem trước ngay, mã rời khỏi URL (1.2s)
+  ✓   63 [desktop] › e2e/class-join.spec.ts:621:5 › join page: /join/<mã> gửi Referrer-Policy no-referrer và Cache-Control no-store (201ms)
+  ✓   64 [desktop] › e2e/class-join.spec.ts:656:5 › class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng thái Bật/Tắt, lạc quan + Hoàn tác; «Ca kiểm thử» khoá với giảng viên; TA không thấy khối (2.7s)
+  ✓   65 [desktop] › e2e/class-join.spec.ts:688:5 › class settings guidance flags: 409 do người khác vừa sửa → hàng tải lại đúng giá trị máy chủ + báo tại chỗ (DEF-R106S-01, TC-G01-17) (1.2s)
+  ✓   66 [desktop] › e2e/class-join.spec.ts:709:5 › class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính (2.7s)
+  ✓   61 [desktop] › e2e/a11y.spec.ts:101:5 › axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước giờ / đang làm / đã công bố) (10.3s)
+  ✓   67 [desktop] › e2e/class-join.spec.ts:738:5 › class settings page: lỗi tại ô và xung đột phiên bản (1.9s)
+  ✓   69 [desktop] › e2e/class-join.spec.ts:759:5 › class settings page: TA thấy mã nhưng chỉ đọc; sinh viên bị chặn và không gọi join-code (892ms)
+  ✓   68 [desktop] › e2e/a11y.spec.ts:117:5 › axe: assignment a11y — sinh viên mở bài tập (chưa nộp / đã nộp) (4.7s)
+  ✓   70 [desktop] › e2e/class-join.spec.ts:788:5 › threshold slider: kéo đổi giá trị ngay (dấu phẩy), lưu một lần sau khi dừng; 409 nạp lại giá trị của máy chủ (4.9s)
+  ✓   72 [desktop] › e2e/class-join.spec.ts:815:5 › threshold slider: TA chỉ xem, không gửi PUT (1.1s)
+  ✓   73 [desktop] › e2e/class-join.spec.ts:823:5 › class settings page: sinh viên → màn chặn quyền, 0 yêu cầu tới join-code (916ms)
+  ✓   71 [desktop] › e2e/a11y.spec.ts:134:5 › axe: grading a11y — hàng chờ chấm và màn duyệt của giảng viên (4.7s)
+  ✓   74 [desktop] › e2e/class-join.spec.ts:866:5 › class members page: bảng thành viên, tìm, đếm tab, mời ra có Hoàn tác (chỉ giảng viên) (2.5s)
+  ✓   76 [desktop] › e2e/class-join.spec.ts:886:5 › class members page: chọn nhiều → Duyệt N, Hoàn tác gọi undo cho từng người; từ chối; ?tab=pending (2.1s)
+  ✓   75 [desktop] › e2e/a11y.spec.ts:144:5 › axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): không critical, activedescendant hợp lệ khi dòng ở trong / ngoài cửa sổ (3.7s)
+  ✓   77 [desktop] › e2e/class-join.spec.ts:905:5 › class members page: hàng email chưa khớp MSSV — giảng viên xác nhận ngắn rồi duyệt; TA không thấy nút Duyệt (1.3s)
+  ✓   79 [desktop] › e2e/class-join.spec.ts:919:5 › class members page: TA không có nút Duyệt ở hàng email chưa khớp (1.2s)
+  ✓   80 [desktop] › e2e/class-join.spec.ts:928:5 › class members page: rỗng, tab Trợ giảng (thêm / bớt), sinh viên bị chặn, 375 px sạch (1.6s)
+  ✓   78 [desktop] › e2e/a11y.spec.ts:179:5 › axe: tích hợp có dữ liệu (/settings/integrations, admin và giảng viên) (4.0s)
+  ✓   81 [desktop] › e2e/class-join.spec.ts:950:5 › class members page: sinh viên → màn chặn quyền (827ms)
+  ✓   83 [desktop] › e2e/class-join.spec.ts:964:5 › roster import ui: chọn tệp → xem trước đúng dòng 7 và 19 → Nhập 28 sinh viên; TA không thấy tab (1.2s)
+  ✓   84 [desktop] › e2e/class-join.spec.ts:996:5 › roster import ui: TA không thấy tab (2.0s)
+  ✓   85 [desktop] › e2e/class-join.spec.ts:1002:5 › roster import ui: tệp sai loại / quá lớn báo tại vùng thả; mất mạng giữ tệp và Gửi lại dùng cùng khoá (2.3s)
+  -   86 [desktop] › e2e/class-join.spec.ts:1041:5 › roster import ui: 375 px không tràn ngang
+  ✓   87 [desktop] › e2e/class-join.spec.ts:1056:5 › share sources section: chỉ hiện khi có nguồn đủ điều kiện; dùng lại tại chỗ, không toast; TA không thấy (2.0s)
+  ✓   88 [desktop] › e2e/class-join.spec.ts:1083:5 › share sources section: TA không gọi share-sources và không thấy mục (875ms)
+  ✓   89 [desktop] › e2e/class-join.spec.ts:1124:5 › risk thresholds: năm dòng nhãn + thanh + giá trị; kéo đổi ngay, lưu MỘT lần sau khi dừng; 409 hoàn lại (3.5s)
+  ✓   90 [desktop] › e2e/class-join.spec.ts:1151:5 › risk thresholds: TA chỉ xem, không gửi PUT (1.1s)
+  ✓   91 [desktop] › e2e/class-join.spec.ts:1160:5 › class settings attendance: bật hiện chu kỳ / muộn / yêu cầu; vị trí hiện dòng thông báo; lưu CẢ chính sách; 422 tại ô; TA chỉ xem (4.8s)
+  ✓   92 [desktop] › e2e/class-join.spec.ts:1206:5 › class settings attendance: TA thấy chính sách nhưng mọi ô bị khoá, không gửi PUT (486ms)
+  ✓   93 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh / (6.3s)
+  ✓   94 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh /chat (6.5s)
+  ✓   95 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh /threads (6.7s)
+AXE incomplete color-contrast: 95 lượt có mục cần xem tay (chi tiết test-results/axe-incomplete-contrast.json)
+AXE: 158 lượt quét (route × vai × bề rộng); critical 0, serious 0, moderate 0, minor 0
+  ✓   82 [desktop] › e2e/a11y.spec.ts:191:5 › axe: route PU không cần vai (/login, /dev/ui, /dev/data) (38.9s)
+  ✓   96 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh /me (6.5s)
+  ✓   97 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh /inbox (6.6s)
+  ✓   98 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh /gradebook (6.7s)
+  ✓   99 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh /settings/llm (6.6s)
+  ✓  100 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh /practice (6.7s)
+  ✓  101 [desktop] › e2e/lcp.spec.ts:19:7 › lcp before refresh /practice/history (6.5s)
+  ✓  102 [desktop] › e2e/lcp.spec.ts:61:5 › lcp before refresh /assignments/<id>: ứng viên đầu là chữ PreShell (1.9s)
+  ✓  103 [desktop] › e2e/lcp.spec.ts:80:5 › lcp before refresh /practice/<id>: ứng viên đầu là chữ PreShell (2.0s)
+  ✓  105 [desktop] › e2e/shell.spec.ts:59:5 › metrics: thanh dưới không che nút cuối nội dung (375) (1.3s)
+  ✓  106 [desktop] › e2e/shell.spec.ts:77:5 › active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền đặc (616ms)
+  ✓  104 [desktop] › e2e/shell.spec.ts:26:5 › metrics: sidebar 216 / 72 / ẩn; header 56; thu gọn nhớ ở ep:ui:sidebar (6.2s)
+  ✓  107 [desktop] › e2e/shell.spec.ts:128:5 › nav per role: nhãn + href + thứ tự khớp SRS 7.5 (4.6s)
+  ✓  108 [desktop] › e2e/shell.spec.ts:149:5 › badges: chỉ inbox / grading; không viết cứng số trong nav.ts (1.1s)
+  ✓  110 [desktop] › e2e/shell.spec.ts:184:5 › topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài khoản (1.1s)
+  ✓  111 [desktop] › e2e/shell.spec.ts:201:5 › palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV không thấy Điểm danh (2.9s)
+  ✓  109 [desktop] › e2e/shell.spec.ts:160:5 › mobile: ≤ 5 đích, Thêm đủ mục còn lại, đóng bằng Esc trả focus, không tràn ngang (7.4s)
+  ✓  113 [desktop] › e2e/shell.spec.ts:282:7 › session › phiên ADMIN thật: nav Admin, không đổi vai, có Đăng xuất; token không lộ ra storage / DOM / URL (1.6s)
+  ✓  114 [desktop] › e2e/shell.spec.ts:301:7 › session › phiên STUDENT thật: màn mock dùng sv-2 + tên thật, SV bị chặn /settings/llm (696ms)
+  ✓  115 [desktop] › e2e/shell.spec.ts:313:5 › forbidden: màn chặn, nút Về Hôm nay, 0 request /api/v1 (2.1s)
+  -  116 [desktop] › e2e/shell.spec.ts:340:5 › no-backend: MOCK_SCREENS=0 → empty-no-backend đúng phase, 1 nút, nav còn
+  ✓  117 [desktop] › e2e/shell.spec.ts:365:5 › keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự header → sidebar → nội dung, Esc trả focus (1.9s)
+  ✓  118 [desktop] › e2e/shell.spec.ts:396:5 › regression-1.5: LEFT page-title 240 / 12, brand 56, logo 32, mark 28 (817ms)
+  ✓  112 [desktop] › e2e/shell.spec.ts:246:5 › notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần (16.1s)
+  ✓  120 [desktop] › e2e/shell.spec.ts:436:5 › BUG-PU04-1: bảng Thêm ở điện thoại là bảng trượt — đóng bằng bấm ngoài, vuốt xuống, Esc và trả focus về nút Thêm (2.3s)
+  ✓  121 [desktop] › e2e/shell.spec.ts:483:5 › frame layers: body = canvas; sidebar và thanh trên = surface (đặc) + đường kẻ; main không tự đặt nền (1.5s)
+  ✓  122 [desktop] › e2e/shell.spec.ts:507:5 › nav states: hover / đang chọn = surface-subtle; vạch đỏ 2 px; focus-visible thấy rõ; nhãn nhóm ≥ 4,5 : 1 (1.8s)
+  ✓  123 [desktop] › e2e/shell.spec.ts:536:5 › preshell parity: nền ba vùng của PreShell và AppShell giống nhau, h1 không dịch chỗ khi phiên về (1.0s)
+  ✓  124 [desktop] › e2e/shell.spec.ts:565:5 › bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; bảng Thêm là lớp nổi (surface, shadow-popover, radius-lg), không phải Panel (633ms)
+  ✓  125 [desktop] › e2e/shell.spec.ts:585:5 › route access: số mục nav 9 / 13 / 16 / 7 theo vai; canOpen không đổi (95ms)
+  ✓  126 [desktop] › e2e/shell.spec.ts:591:5 › demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng · dữ liệu giả'; phiên không có lớp thật vẫn có (2.1s)
+  ✓  119 [desktop] › e2e/shell.spec.ts:413:5 › touch: vùng chạm và tràn ngang ở 4 vai × 375/390 (16.7s)
+  ✓  127 [desktop] › e2e/today.spec.ts:54:5 › student today: chưa vào lớp ⇒ ô nhập mã ngay trên trang; nhập xong chuyển /join/<mã> (1.5s)
+  ✓  128 [desktop] › e2e/today.spec.ts:74:5 › student today: email chưa xác minh đứng trước, ô nhập mã vẫn ở dưới; chỉ một nút chính (692ms)
+  ✓  129 [desktop] › e2e/today.spec.ts:90:5 › student today: chỉ có yêu cầu chờ duyệt ⇒ 'Chờ giảng viên duyệt', không nút hành động (646ms)
+  ✓  131 [desktop] › e2e/today.spec.ts:116:5 › student today: continue learning — tối đa 3 phiên chat, mở đúng /chat?session=, có mã lớp; rỗng thì không có vùng (375ms)
+  ✓  130 [desktop] › e2e/today.spec.ts:99:5 › student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không có việc gấp' + dòng thời gian; 'Tiếp tục học' ẩn khi rỗng (1.1s)
+  ✓  132 [desktop] › e2e/today.spec.ts:125:5 › student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11) (985ms)
+  ✓  133 [desktop] › e2e/today.spec.ts:142:5 › student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today (984ms)
+  ✓  134 [desktop] › e2e/today.spec.ts:148:5 › staff today: tiêu đề đếm việc, hàng đúng thứ tự, 'lớp 761988' ở chế độ tất cả lớp (1.1s)
+  ✓  135 [desktop] › e2e/today.spec.ts:170:5 › staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn chữ, đúng một nút đỏ, không lặp mã lớp (US-UX91-10) (1.0s)
+  ✓  136 [desktop] › e2e/today.spec.ts:191:5 › staff today: nhóm rỗng không hiện; chỉ việc thường ⇒ chỉ nhóm Hôm nay (969ms)
+  ✓  137 [desktop] › e2e/today.spec.ts:196:5 › staff today: nguồn Khi rảnh nhưng urgency high ⇒ vẫn là Gấp (1.0s)
+  ✓  138 [desktop] › e2e/today.spec.ts:201:5 › staff today ≥ 1440: Lớp cần chú ý và Sắp tới nằm cột phải cạnh danh sách; 1024 nằm dưới (572ms)
+  ✓  139 [desktop] › e2e/today.spec.ts:217:5 › staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ qua gọi setup/dismiss và hàng biến mất (1.1s)
+  ✓  140 [desktop] › e2e/today.spec.ts:238:5 › staff today: TA không có nút Bỏ qua; 0 việc ⇒ 'Không có việc cần xử lý hôm nay.' (980ms)
+  ✓  141 [desktop] › e2e/today.spec.ts:244:5 › admin today: việc của hệ thống, không có lớp (968ms)
+  ✓  143 [desktop] › e2e/today.spec.ts:272:5 › no mock items: trang / không chứa dữ liệu mô phỏng cũ (987ms)
+  -  144 [desktop] › e2e/today.spec.ts:280:5 › today 375 px: sinh viên và giảng viên không tràn ngang, vùng chạm sạch
+  -  145 [desktop] › e2e/today.spec.ts:294:5 › today 375 px: giảng viên với bốn bước mở ra
+  ✓  142 [desktop] › e2e/today.spec.ts:257:5 › today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu (2.9s)
+  ✓  146 [desktop] › e2e/today.spec.ts:315:5 › staff attention block: liệt kê sinh viên + lý do ngắn + Xem tất cả (n) (1.0s)
+  ✓  147 [desktop] › e2e/today.spec.ts:324:5 › staff attention block: không có AT_RISK thì không hiện khối (1.0s)
+(node:67533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  148 [mobile] › e2e/a11y.spec.ts:32:5 › axe-allow.json: tối đa 3 ngoại lệ, mỗi mục đủ luật / route / lý do / người duyệt
+  -  149 [mobile] › e2e/a11y.spec.ts:57:7 › axe: student
+  -  150 [mobile] › e2e/a11y.spec.ts:57:7 › axe: ta
+  -  151 [mobile] › e2e/a11y.spec.ts:57:7 › axe: teacher
+  -  152 [mobile] › e2e/a11y.spec.ts:57:7 › axe: admin
+  -  153 [mobile] › e2e/a11y.spec.ts:67:5 › axe: admin có dữ liệu (/admin/users, /admin/courses, /settings/llm)
+  -  154 [mobile] › e2e/a11y.spec.ts:77:5 › axe: giảng viên có dữ liệu (bài thi, soạn, kết quả, giống nhau, câu hỏi, thành viên, cài đặt lớp)
+  -  155 [mobile] › e2e/a11y.spec.ts:87:5 › axe: giảng viên /students có dữ liệu (danh sách thật, đủ ba mức rủi ro)
+  -  156 [mobile] › e2e/a11y.spec.ts:101:5 › axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước giờ / đang làm / đã công bố)
+  -  157 [mobile] › e2e/a11y.spec.ts:117:5 › axe: assignment a11y — sinh viên mở bài tập (chưa nộp / đã nộp)
+  -  158 [mobile] › e2e/a11y.spec.ts:134:5 › axe: grading a11y — hàng chờ chấm và màn duyệt của giảng viên
+  -  159 [mobile] › e2e/a11y.spec.ts:144:5 › axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): không critical, activedescendant hợp lệ khi dòng ở trong / ngoài cửa sổ
+  -  160 [mobile] › e2e/a11y.spec.ts:179:5 › axe: tích hợp có dữ liệu (/settings/integrations, admin và giảng viên)
+AXE incomplete color-contrast: 0 lượt có mục cần xem tay (chi tiết test-results/axe-incomplete-contrast.json)
+AXE: 0 lượt quét (route × vai × bề rộng); critical 0, serious 0, moderate 0, minor 0
+  -  161 [mobile] › e2e/a11y.spec.ts:191:5 › axe: route PU không cần vai (/login, /dev/ui, /dev/data)
+  ✓  162 [mobile] › e2e/account.spec.ts:78:5 › login page: 375 px không tràn ngang, vùng chạm ≥ 44 px, AUDIT/TOUCH sạch (706ms)
+  ✓  163 [mobile] › e2e/account.spec.ts:91:5 › login page: sai ⇒ dòng lỗi role=alert, giữ email, xoá mật khẩu; đang gửi chỉ một request (1.1s)
+(node:67676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  165 [mobile] › e2e/account.spec.ts:53:5 › login page: nhãn, thuộc tính nhập, một nút primary, logo, liên kết, không từ kỹ thuật (575ms)
+  ✓  164 [mobile] › e2e/account.spec.ts:108:7 › login throttled (LOGIN_THROTTLED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã (3.7s)
+  ✓  167 [mobile] › e2e/account.spec.ts:134:5 › login page: phiên bị thu hồi ⇒ dòng thông báo (764ms)
+  ✓  166 [mobile] › e2e/account.spec.ts:108:7 › login throttled (RATE_LIMITED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã (3.8s)
+  ✓  169 [mobile] › e2e/account.spec.ts:155:5 › next hợp lệ: quay lại đúng trang sau đăng nhập; vào route cần phiên khi chưa đăng nhập ⇒ /login?next= (873ms)
+  ✓  170 [mobile] › e2e/account.spec.ts:165:7 › login lần đầu: làm mới cookie cũ trả 401 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login (2.6s)
+  ✓  168 [mobile] › e2e/account.spec.ts:142:5 › open redirect: next lạ bị bỏ, location.origin không đổi (5.0s)
+  ✓  172 [mobile] › e2e/account.spec.ts:181:5 › no token in storage: không có JWT / refresh ở storage, cookie; tải lại ⇒ đúng một refresh, không nháy /login (1.3s)
+  -  173 [mobile] › e2e/account.spec.ts:207:5 › nav per role after login: Sinh viên 9 · TA 13 · Giảng viên 16 · Admin 7 mục
+  ✓  171 [mobile] › e2e/account.spec.ts:165:7 › login lần đầu: làm mới cookie cũ trả 200 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login (2.7s)
+  ✓  175 [mobile] › e2e/account.spec.ts:236:5 › two tabs refresh: hai tab cùng tải ⇒ refresh tuần tự, không chồng nhau (482ms)
+  ✓  174 [mobile] › e2e/account.spec.ts:223:5 › mock identity from session: sv.kha ⇒ Trần Thu Uyên; email lạ ⇒ tên thật; không đọc cookie ep_demo_* (1.7s)
+  ✓  177 [mobile] › e2e/account.spec.ts:281:5 › register page: nhãn, chú thích, autocomplete, một nút primary, lỗi từng ô, màn Kiểm tra email + đếm ngược gửi lại (752ms)
+  ✓  176 [mobile] › e2e/account.spec.ts:259:5 › refresh hỏng giữa chừng ⇒ /login?next=; phiên bị thu hồi ⇒ /login kèm thông báo (945ms)
+  ✓  178 [mobile] › e2e/account.spec.ts:332:5 › register page: 375 px không tràn ngang, vùng chạm ≥ 44 px (248ms)
+  ✓  180 [mobile] › e2e/account.spec.ts:396:5 › forgot page: một ô email, một nút Gửi hướng dẫn, câu chung bất kể email, nút gửi lại khoá đếm ngược (533ms)
+  ✓  179 [mobile] › e2e/account.spec.ts:344:5 › verify page: xác minh tự động đúng một lần, token rời khỏi URL; thành công / đã dùng / hết hạn + gửi lại (2.1s)
+  ✓  182 [mobile] › e2e/account.spec.ts:483:5 › reset page: Referrer-Policy no-referrer, no-store (kể cả forgot không cần) (99ms)
+  ✓  181 [mobile] › e2e/account.spec.ts:422:5 › reset page: kiểm liên kết khi mở, token rời URL, form hai ô, lỗi mật khẩu tại ô, thành công; liên kết xấu (1.6s)
+  ✓  184 [mobile] › e2e/account.spec.ts:577:5 › settings security: khung xương, lỗi chuẩn, 375 px dạng danh sách không tràn (969ms)
+  -  185 [mobile] › e2e/account.spec.ts:663:5 › admin users page: bảng, một nút chính, lọc theo vai, tìm, khung mời mở tại chỗ, khoá lạc quan + Hoàn tác, gửi lại lời mời
+  -  186 [mobile] › e2e/account.spec.ts:711:5 › admin users page: khung mời mở tại chỗ (không dialog), gửi xong có dòng tĩnh, không từ kỹ thuật; 375 px sạch
+  -  187 [mobile] › e2e/account.spec.ts:738:5 › admin users errors: email trùng tại ô, 422 tại ô, gửi lại cùng khoá, xung đột phiên bản, tự khoá, 403
+  -  188 [mobile] › e2e/account.spec.ts:795:5 › admin users errors: mạng đứt khi mời ⇒ giữ chữ + banner ngoại tuyến + Gửi lại cùng khoá
+  ✓  183 [mobile] › e2e/account.spec.ts:492:5 › settings security: đổi mật khẩu (3 ô, 1 nút primary, lỗi tại ô), thiết bị: Thiết bị này, đăng xuất ngay + dòng tĩnh, xác nhận có số (1.5s)
+  ✓  190 [mobile] › e2e/account.spec.ts:871:5 › invite page: Referrer-Policy no-referrer, no-store (92ms)
+  -  191 [mobile] › e2e/account.spec.ts:890:5 › seed accounts nav: số mục theo vai (9 / 13 / 16 / 7 / 1)
+  ✓  192 [mobile] › e2e/class-join.spec.ts:44:5 › course picker: giảng viên 2 lớp thấy cả hai, 'Tất cả lớp của tôi' và 'Quản lý lớp này' (1.1s)
+  ✓  189 [mobile] › e2e/account.spec.ts:819:5 › invite page: xem trước, token rời URL, hai ô mật khẩu, thành công vào /; liên kết hỏng (2.2s)
+  ✓  193 [mobile] › e2e/class-join.spec.ts:56:5 › course picker: sinh viên thấy lớp ACTIVE của mình, lớp PENDING không chọn được, không có 'Tất cả lớp' (1.2s)
+  ✓  194 [mobile] › e2e/class-join.spec.ts:67:5 › course picker: sinh viên 1 lớp ACTIVE + 1 PENDING chỉ thấy lớp ACTIVE (1.3s)
+  ✓  195 [mobile] › e2e/class-join.spec.ts:75:5 › course picker: ?course= của lớp không thuộc người này bị bỏ, về lớp đầu (1.3s)
+  ✓  196 [mobile] › e2e/class-join.spec.ts:82:5 › course picker: ?course= của lớp thuộc người này đè lựa chọn và được nhớ ở localStorage (1.8s)
+  ✓  197 [mobile] › e2e/class-join.spec.ts:92:5 › course picker: lớp đã lưu trữ không là mặc định và không được nhớ (US-UX91-06 AC3, P-91-9) (2.1s)
+  ✓  198 [mobile] › e2e/class-join.spec.ts:108:5 › course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390 (1.3s)
+  ✓  200 [mobile] › e2e/class-join.spec.ts:141:5 › mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp (724ms)
+  ✓  201 [mobile] › e2e/class-join.spec.ts:152:5 › mock course mapping: lớp có class_code lạ giữ mã / tên THẬT, không mượn lớp mô phỏng 761987 (10.7 lô 1) (404ms)
+  -  202 [mobile] › e2e/class-join.spec.ts:233:5 › admin courses page: bảng đúng cột, một nút chính, khung mở tại chỗ, gửi xong có dòng tĩnh, bấm đúp một lớp, lưu trữ có xác nhận nêu số
+  -  203 [mobile] › e2e/class-join.spec.ts:274:5 › admin courses page: sửa và gán lại dùng PUT / assign; rỗng có lời mời mở lớp; không có đường thêm sinh viên; 375 px sạch
+  -  204 [mobile] › e2e/class-join.spec.ts:302:5 › admin courses page: chưa có lớp → lời mời mở lớp đầu tiên
+  -  205 [mobile] › e2e/class-join.spec.ts:308:5 › admin courses errors: mã lớp trùng tại ô, 422 theo ô giữ chữ, gửi lại cùng khoá, sai version, sai vai, lưu trữ lại
+  ✓  199 [mobile] › e2e/class-join.spec.ts:125:5 › no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 route và không gọi API lớp (2.9s)
+  ✓  207 [mobile] › e2e/class-join.spec.ts:417:5 › bell real: thông báo Phân công lớp làm mới danh sách lớp ngay, bộ chọn có lớp mới (735ms)
+  ✓  206 [mobile] › e2e/class-join.spec.ts:366:5 › bell real: chấm theo unread_count, mở khung không xoá chấm, bấm mục đánh dấu đã đọc và đi tới link, làm mới 30 s (1.9s)
+  ✓  208 [mobile] › e2e/class-join.spec.ts:439:5 › bell real sse open: không làm mới ở 30 s, làm mới ở 120 s (603ms)
+  ✓  210 [mobile] › e2e/class-join.spec.ts:509:5 › join page: ô nhập tự viết hoa và bỏ ký tự cấm, một nút chính, xem trước rồi tham gia (458ms)
+  ✓  211 [mobile] › e2e/class-join.spec.ts:529:5 › join page: cần duyệt, chờ duyệt, sai mã, đầy lớp, bị giới hạn đếm ngược, chưa xác minh email (681ms)
+  ✓  209 [mobile] › e2e/class-join.spec.ts:475:5 › bell real: lỗi tải → dòng 'Chưa tải được thông báo.' không chặn app; hết chưa đọc thì chấm biến (1.8s)
+  ✓  212 [mobile] › e2e/class-join.spec.ts:569:5 › join page: lớp cần duyệt hiện câu cần duyệt và kết quả chờ duyệt (457ms)
+  ✓  213 [mobile] › e2e/class-join.spec.ts:582:5 › join page: 375 px sạch (tràn ngang, vùng chạm, chữ bị cắt) (537ms)
+  ✓  215 [mobile] › e2e/class-join.spec.ts:621:5 › join page: /join/<mã> gửi Referrer-Policy no-referrer và Cache-Control no-store (141ms)
+  ✓  214 [mobile] › e2e/class-join.spec.ts:596:5 › join link login redirect: /join/<mã> chưa đăng nhập → /login?next=… → quay lại, xem trước ngay, mã rời khỏi URL (898ms)
+  ✓  217 [mobile] › e2e/class-join.spec.ts:688:5 › class settings guidance flags: 409 do người khác vừa sửa → hàng tải lại đúng giá trị máy chủ + báo tại chỗ (DEF-R106S-01, TC-G01-17) (1.3s)
+  ✓  216 [mobile] › e2e/class-join.spec.ts:656:5 › class settings guidance flags: bốn công tắc đúng nhãn AC5, trạng thái Bật/Tắt, lạc quan + Hoàn tác; «Ca kiểm thử» khoá với giảng viên; TA không thấy khối (2.7s)
+  ✓  218 [mobile] › e2e/class-join.spec.ts:709:5 › class settings page: mã lớn, sao chép, tạo lại mã có xác nhận nêu số, lưu cài đặt một nút chính (1.8s)
+  ✓  219 [mobile] › e2e/class-join.spec.ts:738:5 › class settings page: lỗi tại ô và xung đột phiên bản (1.0s)
+  ✓  220 [mobile] › e2e/class-join.spec.ts:759:5 › class settings page: TA thấy mã nhưng chỉ đọc; sinh viên bị chặn và không gọi join-code (544ms)
+  ✓  222 [mobile] › e2e/class-join.spec.ts:815:5 › threshold slider: TA chỉ xem, không gửi PUT (546ms)
+  ✓  223 [mobile] › e2e/class-join.spec.ts:823:5 › class settings page: sinh viên → màn chặn quyền, 0 yêu cầu tới join-code (461ms)
+  -  224 [mobile] › e2e/class-join.spec.ts:866:5 › class members page: bảng thành viên, tìm, đếm tab, mời ra có Hoàn tác (chỉ giảng viên)
+  -  225 [mobile] › e2e/class-join.spec.ts:886:5 › class members page: chọn nhiều → Duyệt N, Hoàn tác gọi undo cho từng người; từ chối; ?tab=pending
+  -  226 [mobile] › e2e/class-join.spec.ts:905:5 › class members page: hàng email chưa khớp MSSV — giảng viên xác nhận ngắn rồi duyệt; TA không thấy nút Duyệt
+  -  227 [mobile] › e2e/class-join.spec.ts:919:5 › class members page: TA không có nút Duyệt ở hàng email chưa khớp
+  -  228 [mobile] › e2e/class-join.spec.ts:928:5 › class members page: rỗng, tab Trợ giảng (thêm / bớt), sinh viên bị chặn, 375 px sạch
+  ✓  229 [mobile] › e2e/class-join.spec.ts:950:5 › class members page: sinh viên → màn chặn quyền (521ms)
+  -  230 [mobile] › e2e/class-join.spec.ts:964:5 › roster import ui: chọn tệp → xem trước đúng dòng 7 và 19 → Nhập 28 sinh viên; TA không thấy tab
+  -  231 [mobile] › e2e/class-join.spec.ts:996:5 › roster import ui: TA không thấy tab
+  ✓  221 [mobile] › e2e/class-join.spec.ts:788:5 › threshold slider: kéo đổi giá trị ngay (dấu phẩy), lưu một lần sau khi dừng; 409 nạp lại giá trị của máy chủ (2.2s)
+  -  232 [mobile] › e2e/class-join.spec.ts:1002:5 › roster import ui: tệp sai loại / quá lớn báo tại vùng thả; mất mạng giữ tệp và Gửi lại dùng cùng khoá
+  -  234 [mobile] › e2e/class-join.spec.ts:1056:5 › share sources section: chỉ hiện khi có nguồn đủ điều kiện; dùng lại tại chỗ, không toast; TA không thấy
+  -  235 [mobile] › e2e/class-join.spec.ts:1083:5 › share sources section: TA không gọi share-sources và không thấy mục
+  ✓  233 [mobile] › e2e/class-join.spec.ts:1041:5 › roster import ui: 375 px không tràn ngang (714ms)
+  ✓  237 [mobile] › e2e/class-join.spec.ts:1151:5 › risk thresholds: TA chỉ xem, không gửi PUT (694ms)
+  ✓  236 [mobile] › e2e/class-join.spec.ts:1124:5 › risk thresholds: năm dòng nhãn + thanh + giá trị; kéo đổi ngay, lưu MỘT lần sau khi dừng; 409 hoàn lại (2.2s)
+  ✓  239 [mobile] › e2e/class-join.spec.ts:1206:5 › class settings attendance: TA thấy chính sách nhưng mọi ô bị khoá, không gửi PUT (421ms)
+  -  240 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /
+  -  241 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /chat
+  -  242 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /threads
+  -  243 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /me
+  -  244 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /inbox
+  -  245 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /gradebook
+  -  246 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /settings/llm
+  -  247 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /practice
+  -  248 [mobile] › e2e/lcp.spec.ts:19:7 › lcp before refresh /practice/history
+  -  249 [mobile] › e2e/lcp.spec.ts:61:5 › lcp before refresh /assignments/<id>: ứng viên đầu là chữ PreShell
+  -  250 [mobile] › e2e/lcp.spec.ts:80:5 › lcp before refresh /practice/<id>: ứng viên đầu là chữ PreShell
+  -  251 [mobile] › e2e/shell.spec.ts:26:5 › metrics: sidebar 216 / 72 / ẩn; header 56; thu gọn nhớ ở ep:ui:sidebar
+  -  252 [mobile] › e2e/shell.spec.ts:59:5 › metrics: thanh dưới không che nút cuối nội dung (375)
+  -  253 [mobile] › e2e/shell.spec.ts:77:5 › active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền đặc
+  -  254 [mobile] › e2e/shell.spec.ts:128:5 › nav per role: nhãn + href + thứ tự khớp SRS 7.5
+  -  255 [mobile] › e2e/shell.spec.ts:149:5 › badges: chỉ inbox / grading; không viết cứng số trong nav.ts
+  -  256 [mobile] › e2e/shell.spec.ts:160:5 › mobile: ≤ 5 đích, Thêm đủ mục còn lại, đóng bằng Esc trả focus, không tràn ngang
+  -  257 [mobile] › e2e/shell.spec.ts:184:5 › topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài khoản
+  -  258 [mobile] › e2e/shell.spec.ts:201:5 › palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV không thấy Điểm danh
+  -  259 [mobile] › e2e/shell.spec.ts:246:5 › notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần
+  -  260 [mobile] › e2e/shell.spec.ts:282:7 › session › phiên ADMIN thật: nav Admin, không đổi vai, có Đăng xuất; token không lộ ra storage / DOM / URL
+  -  261 [mobile] › e2e/shell.spec.ts:301:7 › session › phiên STUDENT thật: màn mock dùng sv-2 + tên thật, SV bị chặn /settings/llm
+  -  262 [mobile] › e2e/shell.spec.ts:313:5 › forbidden: màn chặn, nút Về Hôm nay, 0 request /api/v1
+  -  263 [mobile] › e2e/shell.spec.ts:340:5 › no-backend: MOCK_SCREENS=0 → empty-no-backend đúng phase, 1 nút, nav còn
+  -  264 [mobile] › e2e/shell.spec.ts:365:5 › keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự header → sidebar → nội dung, Esc trả focus
+  -  265 [mobile] › e2e/shell.spec.ts:396:5 › regression-1.5: LEFT page-title 240 / 12, brand 56, logo 32, mark 28
+  -  266 [mobile] › e2e/shell.spec.ts:413:5 › touch: vùng chạm và tràn ngang ở 4 vai × 375/390
+  -  267 [mobile] › e2e/shell.spec.ts:436:5 › BUG-PU04-1: bảng Thêm ở điện thoại là bảng trượt — đóng bằng bấm ngoài, vuốt xuống, Esc và trả focus về nút Thêm
+  -  268 [mobile] › e2e/shell.spec.ts:483:5 › frame layers: body = canvas; sidebar và thanh trên = surface (đặc) + đường kẻ; main không tự đặt nền
+  -  269 [mobile] › e2e/shell.spec.ts:507:5 › nav states: hover / đang chọn = surface-subtle; vạch đỏ 2 px; focus-visible thấy rõ; nhãn nhóm ≥ 4,5 : 1
+  -  270 [mobile] › e2e/shell.spec.ts:536:5 › preshell parity: nền ba vùng của PreShell và AppShell giống nhau, h1 không dịch chỗ khi phiên về
+  -  271 [mobile] › e2e/shell.spec.ts:565:5 › bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; bảng Thêm là lớp nổi (surface, shadow-popover, radius-lg), không phải Panel
+  -  272 [mobile] › e2e/shell.spec.ts:585:5 › route access: số mục nav 9 / 13 / 16 / 7 theo vai; canOpen không đổi
+  -  273 [mobile] › e2e/shell.spec.ts:591:5 › demo label: phiên có lớp thật không có nhãn 'Bản mô phỏng · dữ liệu giả'; phiên không có lớp thật vẫn có
+  ✓  274 [mobile] › e2e/today.spec.ts:54:5 › student today: chưa vào lớp ⇒ ô nhập mã ngay trên trang; nhập xong chuyển /join/<mã> (1.3s)
+  ✓  275 [mobile] › e2e/today.spec.ts:74:5 › student today: email chưa xác minh đứng trước, ô nhập mã vẫn ở dưới; chỉ một nút chính (1.0s)
+  ✓  238 [mobile] › e2e/class-join.spec.ts:1160:5 › class settings attendance: bật hiện chu kỳ / muộn / yêu cầu; vị trí hiện dòng thông báo; lưu CẢ chính sách; 422 tại ô; TA chỉ xem (4.8s)
+  ✓  276 [mobile] › e2e/today.spec.ts:90:5 › student today: chỉ có yêu cầu chờ duyệt ⇒ 'Chờ giảng viên duyệt', không nút hành động (993ms)
+  ✓  277 [mobile] › e2e/today.spec.ts:99:5 › student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không có việc gấp' + dòng thời gian; 'Tiếp tục học' ẩn khi rỗng (1.1s)
+  ✓  278 [mobile] › e2e/today.spec.ts:116:5 › student today: continue learning — tối đa 3 phiên chat, mở đúng /chat?session=, có mã lớp; rỗng thì không có vùng (1.0s)
+  ✓  279 [mobile] › e2e/today.spec.ts:125:5 › student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11) (1.1s)
+  ✓  280 [mobile] › e2e/today.spec.ts:142:5 › student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today (1.0s)
+  ✓  281 [mobile] › e2e/today.spec.ts:148:5 › staff today: tiêu đề đếm việc, hàng đúng thứ tự, 'lớp 761988' ở chế độ tất cả lớp (1.3s)
+  ✓  282 [mobile] › e2e/today.spec.ts:170:5 › staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn chữ, đúng một nút đỏ, không lặp mã lớp (US-UX91-10) (1.2s)
+  ✓  283 [mobile] › e2e/today.spec.ts:191:5 › staff today: nhóm rỗng không hiện; chỉ việc thường ⇒ chỉ nhóm Hôm nay (941ms)
+  ✓  284 [mobile] › e2e/today.spec.ts:196:5 › staff today: nguồn Khi rảnh nhưng urgency high ⇒ vẫn là Gấp (797ms)
+  ✓  285 [mobile] › e2e/today.spec.ts:201:5 › staff today ≥ 1440: Lớp cần chú ý và Sắp tới nằm cột phải cạnh danh sách; 1024 nằm dưới (1.3s)
+  ✓  286 [mobile] › e2e/today.spec.ts:217:5 › staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ qua gọi setup/dismiss và hàng biến mất (1.5s)
+  ✓  288 [mobile] › e2e/today.spec.ts:244:5 › admin today: việc của hệ thống, không có lớp (811ms)
+  ✓  287 [mobile] › e2e/today.spec.ts:238:5 › staff today: TA không có nút Bỏ qua; 0 việc ⇒ 'Không có việc cần xử lý hôm nay.' (1.2s)
+  ✓  290 [mobile] › e2e/today.spec.ts:272:5 › no mock items: trang / không chứa dữ liệu mô phỏng cũ (1.0s)
+  ✓  291 [mobile] › e2e/today.spec.ts:280:5 › today 375 px: sinh viên và giảng viên không tràn ngang, vùng chạm sạch (1.0s)
+  ✓  289 [mobile] › e2e/today.spec.ts:257:5 › today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu (2.5s)
+  ✓  292 [mobile] › e2e/today.spec.ts:294:5 › today 375 px: giảng viên với bốn bước mở ra (1.1s)
+  ✓  293 [mobile] › e2e/today.spec.ts:315:5 › staff attention block: liệt kê sinh viên + lý do ngắn + Xem tất cả (n) (1.1s)
+  ✓  294 [mobile] › e2e/today.spec.ts:324:5 › staff attention block: không có AT_RISK thì không hiện khối (1.0s)
+
+  72 skipped
+  222 passed (5.2m)
+
+real	5m12.961s
+user	5m37.782s
+sys	1m32.137s
+rc=0

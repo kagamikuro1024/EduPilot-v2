@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 516 · Trượt: 13 · Chờ test N: 1   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 516 · Trượt: 14 · Chờ test N: 0   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -27,7 +27,7 @@ Cách chạy:
 | US-P3-08 | 29 | 29 | 0 | 0 |  |
 | US-P8-01 | 62 | 59 | 3 | 0 |  |
 | US-P8-02 | 49 | 42 | 7 | 0 |  |
-| US-P8-03 | 60 | 58 | 1 | 1 |  |
+| US-P8-03 | 60 | 58 | 2 | 0 |  |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -552,7 +552,7 @@ Cách chạy:
 | TC-P8-03-48 | P | (a) lớp rỗng: «Chưa có gì trong lịch» + hành động SV: ["Thêm vào lịch","Tuần","Tháng","Danh sách","Hôm nay"]; Staff: ["Thêm vào lịch","Thêm sự kiện","Thêm","Tạo lịch buổi học","Tuần","Tháng"]; (b) 500 → «Thử lại»=true; (c) chậm 3 s: spinner=0, khung xương=1 |
 | TC-P8-03-49 | P | UI 375: /calendar (SV & GV) tải, 0 tràn ngang |
 | TC-P8-03-50 | P | theo PM: không chạy nguyên cổng. Thứ tự gate-p8.sh: go vet → go test -race rag+library+calendar+document+ingest → TestAnswerKeyNeverRetrieved → contract → feed ICS → Playwright documents+library+calendar → ui-antipatterns. Bằng chứng: CI run 44380374004 (@07a6b69c): ok internal/rag/library/document (rest-1, -race), ingest+rag (shard 1/4), calendar (4/4), TestAnswerKeyNeverRetrieved --- PASS (rest-1, 4,14 s), TestContract_* PASS, ui-antipatterns 34/34, e2e documents.spec 14 ✓, library.spec 7 ✓, calendar.spec 14 ✓ (0 đỏ); feed ICS: QC chạy thật trên ep-r — POST ics-token → curl feed dòng đầu «BE |
-| TC-P8-03-51 | N | chờ chạy lượt R3 |
+| TC-P8-03-51 | F | DB trống + seed.mjs trên stack qc3s (docling thật của ep-r): kiểm chức năng đạt — check-docs-seed.mjs «docs=8 READY=5 answer_key=1 shared=5 reembedded=0 events=2/1 idempotent=ok»; lớp 761987 có 2 sự kiện EXAM «Thi giữa kỳ» «Thi cuối kỳ» (tương lai), lớp 761988 có 1 OTHER «Nộp báo cáo nhóm»; chạy seed lần hai: documents/content_chunks/calendar_events/document_courses = 9/132/3/5 trước và sau (không thêm dòng nào). THỜI GIAN không đạt ngưỡng ≤ 4 phút: bước 11 (tài liệu docling thật + sự kiện) đo trên DB trống 3 lần = 241 s, 268 s, 264 s (seed-t0.json seconds_by_step[11]; từng tệp lần 3: Network  |
 | TC-P8-03-52 | P | tiêu đề rỗng/kết thúc<bắt đầu/type sai → [422, 422, 422] |
 | TC-P8-03-53 | P | PUT 200; version cũ 409 |
 | TC-P8-03-54 | P | token rỗng/sai/không tồn tại → [404, 404, 404] |

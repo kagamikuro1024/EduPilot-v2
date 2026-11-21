@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5.5 — kết quả
 Mã đã chạy: HEAD sprint/11-p10-eval (worktree qc2, bản dựng cổng `pnpm build:gate`) · Người chạy: qc2 (SmkC, SmkL) · Ngày: 2026-11-16
-Tổng TC cũ: 58 · Đạt: 50 · Trượt: 1 · K (a/b/c): 0 · LT: 7 · Chưa chạy: 0   (P+F+K+LT+S = 58)
+Tổng TC cũ: 58 · Đạt: 51 · Trượt: 0 · K (a/b/c): 0 · LT: 7 · Chưa chạy: 0   (P+F+K+LT+S = 58)
 
 Cách chạy: server bản dựng cổng `next start -p 3310` + gateway giả `api-server.mjs` :3312; `pnpm exec playwright test --workers=1 --reporter=json` (không `@real`) → `/tmp/qc2-c5/pw55b.json`, bảng theo spec ở dưới (`scripts/finalize_55.py`); TC đối chiếu spec theo tên `-g` của lệnh TC (`scripts/make55.py`); lệnh tĩnh (grep/ls/ui-antipatterns) chạy trực tiếp.
 
@@ -13,7 +13,7 @@ Cách chạy: server bản dựng cổng `next start -p 3310` + gateway giả `a
 | US-UI-04 | 8 | 8 | 0 | 0 | 0 |
 | US-UI-05 | 8 | 8 | 0 | 0 | 0 |
 | US-UI-06 | 6 | 6 | 0 | 0 | 0 |
-| US-UI-07 | 9 | 7 | 1 | 1 | 0 |
+| US-UI-07 | 9 | 8 | 0 | 1 | 0 |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -72,7 +72,7 @@ Cách chạy: server bản dựng cổng `next start -p 3310` + gateway giả `a
 | TC-UI7-03 | P | spec mock Playwright (bản dựng cổng `build:gate`, gateway giả; pw55b.json 388 pass / 0 FAIL / 150 skip do dự án mobile): a11y.spec.ts 14/14, contrast.spec.ts 4/4 pass; axe-allow.json = [] (0 mục) |
 | TC-UI7-04 | P | spec mock Playwright (bản dựng cổng `build:gate`, gateway giả; pw55b.json 388 pass / 0 FAIL / 150 skip do dự án mobile): panels.spec.ts 59/59; ui-antipatterns.sh: 32 ✓ (TC gốc 22 phép; thêm phép do sprint sau), rc=0, --selftest 32/32 |
 | TC-UI7-05 | P | lhci autorun bản dựng cổng: lighthouserc.json 9 URL × 5 rc=0 (TBT 24–60 ms, JS ≤ 248 KB, CLS ≤ 0,001); devtools 8 URL × 5 rc=0 (LCP 1448–2334; /dev/ui 2965 warn); diff cấu hình 5.5: 0 dòng nới ngưỡng |
-| TC-UI7-06 | F | pnpm -C frontend lint rc=1 ở HEAD: 32 lỗi ở 10 tệp QC đã commit frontend/e2e/qc2-* (mã sản phẩm sạch, rc=0 khi loại); build rc=0 (1 cảnh báo metadataBase); build:gate rc=0; package.json/lock 5.5: 0 dòng thêm. Xem defects-draft-perf.md |
+| TC-UI7-06 | P | chạy lại ep-r @aba738ef (ngày 2026-11-21, qc3): pnpm -C frontend lint rc=0 (0 lỗi, 1 cảnh báo ở frontend/dbg91b.mjs); 32 lỗi cũ ở frontend/e2e/qc2-* không còn vì spec QC đã chuyển sang docs/regression/specs-qc2 (DEF-R5.5-01 = DEF-R5-12 đóng). Log: evidence-5/lint-aba738ef.txt |
 | TC-UI7-07 | P | spec mock Playwright (bản dựng cổng `build:gate`, gateway giả; pw55b.json 388 pass / 0 FAIL / 150 skip do dự án mobile): shell nav per role + panels wall/strong pass |
 | TC-UI7-08 | P | spec mock Playwright (bản dựng cổng `build:gate`, gateway giả; pw55b.json 388 pass / 0 FAIL / 150 skip do dự án mobile): shell nav per role + panels wall/strong pass |
 | TC-UI7-09 | LT | handoff dev-US-UI-07.md có; PROGRESS dòng 24, 55 có; grep "sprint 5.5"/"UI-0[1-7]" = 0 và không có dòng "Chủ dự án đã xem… gật"; cổng duyệt bị thay bằng quyết định chủ dự án 14/11 «Nền trắng» (P-107-10, D59 sửa ở 10.7) |
