@@ -27,7 +27,25 @@ const FIXED = {
 };
 const SPEAK_FIXED = { "sv.gioi": 12, "sv.kha": 2, "sv.nguyco": 1 };
 
-export function crmPlan(rngSeed = 20261029) {
+const DEFAULT_RNG = 20261029;
+
+/**
+ * Điểm cộng phát biểu vào điểm học phần nên `speak` KHÔNG đổi theo SEED_RNG: sổ điểm lớp 1 luôn khớp `seed/expected_final_grades.csv` theo account
+ * (DEF-Q2-S8-02). Chỉ điểm danh (vắng / muộn rải) đổi theo RNG; `totals.speak` và `expected` lấy theo `speak` cố định.
+ */
+export function crmPlan(rngSeed = DEFAULT_RNG) {
+  const fixed = rngSeed === DEFAULT_RNG ? null : spread(DEFAULT_RNG).speak;
+  const plan = spread(rngSeed);
+  return fixed ? withSpeak(plan, fixed) : plan;
+}
+
+function withSpeak(plan, speak) {
+  const totals = { ...plan.totals, speak: ROSTER1.reduce((a, k) => a + speak[k], 0) };
+  const expected = Object.fromEntries(Object.entries(plan.expected).map(([k, e]) => [k, { ...e, speak_count: speak[k], points_total: (speak[k] * 0.25).toFixed(2) }]));
+  return { ...plan, speak, totals, expected };
+}
+
+function spread(rngSeed) {
   const rand = mulberry32((Number(rngSeed) ^ 0xc4d1) >>> 0);
   const free = ROSTER1.filter((k) => !(k in FIXED)); // 25 người rải ngẫu nhiên
   const shuffled = [...free];
