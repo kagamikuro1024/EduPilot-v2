@@ -838,8 +838,9 @@ async function step19Practice() {
   // một lượt đang dở (sv.nguyco dừng giữa chừng) để màn Luyện đề có "Lượt đang dở"
   if (!(await call("GET", `/courses/${course}/practice/overview`, { token: ctx.tokens["sv.nguyco"] })).body.in_progress.length) {
     await runAttempt("sv.nguyco", 20, { mode: "TOPIC", topic: "Xác thực và phân quyền", count: 8 }, { leave: 5 });
+    attempts++;
   }
-  ctx.changed = true;
+  if (attempts > 0) ctx.changed = true; // lần hai không tạo lượt nào ⇒ «Seed xong (không đổi)» (DEF-R5-20)
   console.log(`   Đã tạo ${attempts} lượt luyện mới (còn lại giữ nguyên nếu đã có).`);
   const until = Date.now() + 360_000; // Quiz phải PUBLISHED (câu của nó mới vào ngân hàng luyện đề)
   for (;;) {
