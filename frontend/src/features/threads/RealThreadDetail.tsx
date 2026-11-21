@@ -159,7 +159,7 @@ function AiPost({ courseId, threadId, p, staff }: { courseId: string; threadId: 
         <div className={r.actions}>
           {state !== "VERIFIED" && <Button disabled={busy} onClick={() => void act(() => apiClient.post(`${base}/verify`))}>Xác nhận</Button>}
           <Button variant="ghost" disabled={busy} onClick={() => { setText(p.body); setEditing(true); }}>Chỉnh sửa</Button>
-          <OverflowMenu items={[{ label: "Loại", danger: true, onSelect: () => void act(() => apiClient.post(`${base}/reject`)) }]} />
+          <OverflowMenu items={[{ label: "Loại khỏi tri thức", danger: true, onSelect: () => void act(() => apiClient.post(`${base}/reject`)) }]} />
         </div>
       )}
       {error && <InlineNotice tone="danger" compact>{error.code === "VERSION_CONFLICT" ? "Có người vừa sửa câu trả lời này. Tải lại để xem bản mới." : error.userMessage}</InlineNotice>}

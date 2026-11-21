@@ -235,6 +235,17 @@ test("staff review: Xác nhận / Chỉnh sửa / Loại cạnh bản nháp, đ�
   await expect(page.getByText("Đã loại một câu trả lời AI.")).toBeVisible();
 });
 
+test("staff review menu (DEF-R7-12, DESIGN §13): mục loại bản nháp AI ghi «Loại khỏi tri thức»", async ({ page, context }) => {
+  await asDemo(context, "ta");
+  await threadApi(page, {
+    [`GET ${T}/${TID}`]: (r) => r.fulfill(json(view([aiPost({ verification_state: "PENDING", confidence: "0.720" })], { ai_state: "ANSWERED" }))),
+    [`GET ${T}/${TID}/similar`]: json({ items: [] }),
+  });
+  await page.goto(`/threads/${TID}`);
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await expect(page.getByRole("menuitem", { name: "Loại khỏi tri thức", exact: true })).toBeVisible();
+});
+
 test("375: danh sách và soạn không tràn ngang", async ({ page, context }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await openList(page, context);
