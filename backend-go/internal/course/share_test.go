@@ -188,6 +188,20 @@ func TestShareSourcesTeacherOnly(t *testing.T) {
 	}
 }
 
+// TestShareEmitsDocumentChanged — DEF-R6-P2 (US-P8-01 AC14): chia sẻ tài liệu vào lớp đích phát document.changed của LỚP ĐÍCH (tăng ep:rag:ver); chia sẻ không có gì thì không phát.
+func TestShareEmitsDocumentChanged(t *testing.T) {
+	r := newRig(t)
+	c := r.twoClasses()
+	changed := func() int {
+		return r.count(`select count(*) from outbox where topic = 'document.changed' and payload->>'course_id' = $1`, c.k.id)
+	}
+	require.Equal(t, 200, r.share(c.k.a.G, c.k.id, c.src, "documents").code)
+	require.Equal(t, 0, changed(), "lớp nguồn chưa có tài liệu: không có gì để vô hiệu")
+	r.document(c.src, "LECTURE", "READY", true, "ALL", 1)
+	require.Equal(t, 200, r.share(c.k.a.G, c.k.id, c.src, "documents").code)
+	require.Equal(t, 1, changed())
+}
+
 // TestKnowledgeNotShared — AC11: tài liệu ảo của kho tri thức không được chia sẻ sang lớp khác (tri thức theo lớp), không tính trong số chia sẻ được.
 func TestKnowledgeNotShared(t *testing.T) {
 	r := newRig(t)

@@ -8,8 +8,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
+
+// topicDocumentChanged: cùng chuỗi với ingest.TopicDocumentChanged (rag.BumpVersion đăng ký) — tài liệu mới vào lớp đích phải vô hiệu cache câu trả lời của lớp đó.
+const topicDocumentChanged = "document.changed"
 
 // Loại nội dung chia sẻ được ở P2. `questions` (P9) và `grade_scheme` (P6) chưa có bảng ⇒ NOT_AVAILABLE kèm tên phase sở hữu.
 // ponytail: switch thay cho bộ đăng ký Sharer — thêm một case khi P6 / P9 có bảng; chưa cần cơ chế đăng ký cho hai ca.
@@ -122,6 +126,11 @@ func (s Service) ShareFrom(ctx context.Context, targetID, teacherID, sourceID uu
 	}
 	if err := emitChanged(ctx, tx, targetID); err != nil {
 		return ShareResult{}, err
+	}
+	if res.Documents > 0 {
+		if _, err := outbox.Write(ctx, tx, topicDocumentChanged, map[string]string{"course_id": targetID.String()}); err != nil {
+			return ShareResult{}, fmt.Errorf("course: outbox document.changed: %w", err)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return ShareResult{}, fmt.Errorf("course: commit chia sẻ: %w", err)
