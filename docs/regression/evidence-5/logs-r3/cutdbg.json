@@ -1,0 +1,442 @@
+[
+ {
+  "role": "admin",
+  "route": "/settings/llm",
+  "w": 1440,
+  "n": 528,
+  "sample": [
+   {
+    "tag": "OPTION",
+    "text": "QC 9router · ag/gemini-3.8-flash",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     974,
+     1254
+    ],
+    "tableP": false,
+    "part": "route-row"
+   },
+   {
+    "tag": "OPTION",
+    "text": "QC fake · fake-chat",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     974,
+     1254
+    ],
+    "tableP": false,
+    "part": "route-row"
+   },
+   {
+    "tag": "OPTION",
+    "text": "SmkB-S1 · m-ok",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     974,
+     1254
+    ],
+    "tableP": false,
+    "part": "route-row"
+   },
+   {
+    "tag": "OPTION",
+    "text": "SmkB-S1 · m-429",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     974,
+     1254
+    ],
+    "tableP": false,
+    "part": "route-row"
+   },
+   {
+    "tag": "OPTION",
+    "text": "SmkB-S1 · m-404",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     974,
+     1254
+    ],
+    "tableP": false,
+    "part": "route-row"
+   },
+   {
+    "tag": "OPTION",
+    "text": "SmkB-S1 · m-500",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     974,
+     1254
+    ],
+    "tableP": false,
+    "part": "route-row"
+   }
+  ]
+ },
+ {
+  "role": "admin",
+  "route": "/settings/integrations",
+  "w": 1440,
+  "n": 103,
+  "sample": [
+   {
+    "tag": "OPTION",
+    "text": "QSDB761 · Lớp QC2S4 double",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     428,
+     1228
+    ],
+    "tableP": false,
+    "part": "course-picker"
+   },
+   {
+    "tag": "OPTION",
+    "text": "QC2IUA2MWPTEKUE · QC2IU A2",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     428,
+     1228
+    ],
+    "tableP": false,
+    "part": "course-picker"
+   },
+   {
+    "tag": "OPTION",
+    "text": "QC2IUAAMWPTEDS7 · QC2IU AA",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     428,
+     1228
+    ],
+    "tableP": false,
+    "part": "course-picker"
+   },
+   {
+    "tag": "OPTION",
+    "text": "QC2IUBBMWPTE7P3 · QC2IU BB",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     428,
+     1228
+    ],
+    "tableP": false,
+    "part": "course-picker"
+   },
+   {
+    "tag": "OPTION",
+    "text": "QSRI2ED · Lớp QC2S4 QSRI2ED",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     428,
+     1228
+    ],
+    "tableP": false,
+    "part": "course-picker"
+   },
+   {
+    "tag": "OPTION",
+    "text": "QSOTHE4F · Lớp QC2S4 QSOTHE4F",
+    "cls": "",
+    "a": [
+     0,
+     0
+    ],
+    "parent": "SELECT.Field-module__M16HFW__control Field-module__M16HFW",
+    "pOver": "clip",
+    "b": [
+     428,
+     1228
+    ],
+    "tableP": false,
+    "part": "course-picker"
+   }
+  ]
+ },
+ {
+  "role": "teacher",
+  "route": "/students",
+  "w": 390,
+  "n": 22,
+  "sample": [
+   {
+    "tag": "SPAN",
+    "text": "Hoạt động học",
+    "cls": "",
+    "a": [
+     304,
+     393
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TH",
+    "text": "Rủi ro",
+    "cls": " ",
+    "a": [
+     405,
+     478
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   }
+  ]
+ },
+ {
+  "role": "teacher",
+  "route": "/gradebook",
+  "w": 390,
+  "n": 135,
+  "sample": [
+   {
+    "tag": "SPAN",
+    "text": "Kiểm tra hằng tuần",
+    "cls": "Gradebook-module__s9VCcW__colName",
+    "a": [
+     330,
+     443
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "SPAN",
+    "text": "Thi cuối kỳ",
+    "cls": "Gradebook-module__s9VCcW__colName",
+    "a": [
+     477,
+     541
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TH",
+    "text": "Điểm cộng",
+    "cls": " ",
+    "a": [
+     601,
+     689
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TH",
+    "text": "Điểm trừ",
+    "cls": " ",
+    "a": [
+     689,
+     764
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TH",
+    "text": "Quá trình",
+    "cls": " ",
+    "a": [
+     764,
+     844
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   },
+   {
+    "tag": "TH",
+    "text": "Điểm học phần",
+    "cls": " ",
+    "a": [
+     844,
+     957
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pOver": "auto",
+    "b": [
+     29,
+     361
+    ],
+    "tableP": true,
+    "part": "virtual-scroll"
+   }
+  ]
+ }
+]

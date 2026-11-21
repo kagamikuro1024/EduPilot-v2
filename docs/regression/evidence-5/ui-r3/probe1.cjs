@@ -1,0 +1,13 @@
+const L = require('./ui_lib.cjs'); const { chromium, B, SH } = L; const C1 = L.sql("select id from courses where class_code='R5C1'");
+(async () => { const br = await chromium.launch(); const { ctx, p } = await L.login(br, 'r5t', { width: 1440, height: 900 });
+  await p.goto(B + '/questions?course=' + C1); await p.waitForTimeout(2500); await L.sw(p);
+  console.log('URL', p.url(), (await p.locator('main').innerText()).slice(0, 300).replace(/\n/g, ' | '));
+  await p.getByRole('button', { name: 'Tạo câu hỏi' }).first().click(); await p.waitForTimeout(500);
+  console.log('MENU', await p.getByRole('menuitem').allInnerTexts());
+  await p.getByRole('menuitem', { name: 'Soạn tay', exact: true }).click(); await p.waitForTimeout(300);
+  console.log('MENU2', await p.getByRole('menuitem').allInnerTexts());
+  await p.getByRole('menuitem', { name: 'Câu trắc nghiệm', exact: true }).click(); await p.waitForTimeout(800);
+  const d = p.getByRole('dialog'); console.log('DLG', (await d.innerText()).replace(/\n/g, ' | ').slice(0, 900));
+  console.log('LABELS', await d.locator('label').allInnerTexts().then(a => a.slice(0, 30)));
+  await p.screenshot({ path: SH + '/probe-q-create.png' });
+  await br.close(); })();

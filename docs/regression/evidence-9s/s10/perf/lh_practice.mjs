@@ -6,12 +6,12 @@ const req = createRequire("/Users/kuro/Documents/TA_Agent_qc5/frontend/package.j
 const { chromium } = req("@playwright/test");
 const lh = (await import("/Users/kuro/Documents/TA_Agent_qc5/node_modules/.pnpm/lighthouse@12.6.1_supports-color@7.2.0/node_modules/lighthouse/core/index.js")).default;
 const BASE = "https://localhost:943", CID = process.env.CID, AID = process.env.AID, PW = process.env.QC_PW, RUNS = Number(process.env.RUNS || 3);
-const ctx = await chromium.launchPersistentContext("/tmp/qc-lh-profile", { headless: true, ignoreHTTPSErrors: true, args: ["--remote-debugging-port=9333", "--ignore-certificate-errors", "--no-sandbox"] });
+const ctx = await chromium.launchPersistentContext(process.env.PROFILE ?? "/Users/kuro/.config/edupilot-team/qc3-work/lh-profile", { headless: true, ignoreHTTPSErrors: true, args: ["--remote-debugging-port=9333", "--ignore-certificate-errors", "--no-sandbox"] });
 await ctx.addInitScript((c) => localStorage.setItem("ep:ui:course", c), CID);
 const page = await ctx.newPage();
 console.log("launch ok"); await page.goto(BASE + "/login"); await page.locator("input[type=email]").fill("sv.kha@edupilot.local"); await page.locator("input[type=password]").fill(PW); await page.keyboard.press("Enter");
 await page.waitForURL((u) => !u.pathname.startsWith("/login")); await page.locator("[data-part=topbar]").waitFor();
-const b = page.getByRole("button", { name: "Đã hiểu" }); if (await b.count()) await b.click().catch(() => {});
+const b = page.getByRole("button", { name: "Đã hiểu" }); if (!process.env.NOACK && await b.count()) await b.click().catch(() => {});
 console.log("login ok", page.url()); await page.goto(BASE + "/practice"); await page.waitForTimeout(2000); console.log("practice ok");
 const med = (a) => a.slice().sort((x, y) => x - y)[Math.floor(a.length / 2)];
 const out = [];

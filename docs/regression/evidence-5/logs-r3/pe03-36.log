@@ -1,0 +1,47 @@
+=== RUN   TestSuggestMCQ
+=== PAUSE TestSuggestMCQ
+=== RUN   TestSuggestDropsInvalid
+=== PAUSE TestSuggestDropsInvalid
+=== RUN   TestSuggestNotConfigured
+=== PAUSE TestSuggestNotConfigured
+=== RUN   TestSuggestPromptHasNoStudentData
+=== PAUSE TestSuggestPromptHasNoStudentData
+=== RUN   TestSuggestUsesBatchLane
+=== PAUSE TestSuggestUsesBatchLane
+=== RUN   TestSuggestTestsExpectedFromReference
+=== PAUSE TestSuggestTestsExpectedFromReference
+=== RUN   TestSuggestedTestsNotJudgedUntilApproved
+=== PAUSE TestSuggestedTestsNotJudgedUntilApproved
+=== RUN   TestSuggestTestsNeedsReference
+=== PAUSE TestSuggestTestsNeedsReference
+=== CONT  TestSuggestMCQ
+=== CONT  TestSuggestUsesBatchLane
+=== CONT  TestSuggestPromptHasNoStudentData
+=== CONT  TestSuggestNotConfigured
+=== CONT  TestSuggestTestsExpectedFromReference
+=== CONT  TestSuggestTestsNeedsReference
+=== CONT  TestSuggestDropsInvalid
+=== CONT  TestSuggestedTestsNotJudgedUntilApproved
+2026/11/21 09:50:35 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: b411b647e8d6573ebd4928c28839f78624099fb00bb7191a3a4b63330ac9811a
+  Test ProcessID: b0670e0a-6878-4536-919b-379c4f383492
+2026/11/21 09:50:35 ✅ Container started: 68f6ff853df5
+2026/11/21 09:50:35 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/21 09:50:36 🔔 Container is ready: 68f6ff853df5
+--- PASS: TestSuggestPromptHasNoStudentData (4.99s)
+--- PASS: TestSuggestMCQ (5.00s)
+--- PASS: TestSuggestTestsNeedsReference (5.00s)
+--- PASS: TestSuggestDropsInvalid (5.00s)
+--- PASS: TestSuggestUsesBatchLane (5.01s)
+--- PASS: TestSuggestNotConfigured (5.01s)
+--- PASS: TestSuggestTestsExpectedFromReference (5.02s)
+--- PASS: TestSuggestedTestsNotJudgedUntilApproved (5.04s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/exam	5.717s
