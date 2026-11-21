@@ -34,3 +34,4 @@
 | DEF-R106S-13 | Thấp | TC-G07-08 | `regress run` không kiểm ADMIN / môi trường đo (chỉ `export` có cổng REGRESSION_EXPORT_ALLOWED) | MỞ |
 | DEF-R106S-14 | Thấp | TC-G07-09 | `regressed()` chỉ xét MAE và \|lệch TB\|; `worse` không vào mã thoát, baseline không theo tiêu chí → «tiêu chí vốn đúng nay sai 0,6» không bị bắt; thiếu `benchmarks/guidance/baseline.json` | MỞ |
 | DEF-R106S-15 | Thấp | TC-G07-10 | Thiếu checklist PR ghi lệnh `regress run` (guide có, CI đúng không chạy) | MỞ |
+| DEF-R106S-16 | Thấp | TC-G08-07 | Gợi ý khi soạn thread: debounce thực ≈ 800 ms (`usePostGate.tsx`, precheck 783–801 ms rồi similar-confirmed ~890–910 ms) thay vì 600 ms (US-GD-08 AC3); mục gợi ý chỉ có tiêu đề liên kết, không nhãn «Đã xác nhận» cạnh từng mục | MỞ |
