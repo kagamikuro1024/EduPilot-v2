@@ -183,6 +183,20 @@ test("khối «Lưu ý chấm»: chưa có lưu ý → «Chưa có lưu ý» m�
   await expect(page.locator("[data-part=guidance-panel]")).toContainText("Bản v1");
 });
 
+test("khối «Lưu ý chấm»: stats 500 → «—» + Thử lại (không nói «chưa đủ bài»), bấm thì tải lại (DEF-R106S-11, US-GD-06 AC7)", async ({ page, context }) => {
+  let fail = true;
+  const ok = { items: [], regression_cases: 0 };
+  const api = await openDrawer(page, context, () => overview(), { "GET assignments/:id/guidance/stats": (r) => (fail ? r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) : r.fulfill(json(ok))) }, true);
+  const stat = page.locator("[data-part=guidance-panel] [data-part=guidance-stats]");
+  await expect(stat).toHaveText(/^Bản v1 \(đang dùng\) · —/);
+  await expect(page.locator("[data-part=guidance-panel]")).not.toContainText("chưa đủ bài");
+  fail = false;
+  const before = api.calls.length;
+  await page.locator("[data-part=guidance-panel]").getByRole("button", { name: "Thử lại" }).click();
+  await expect.poll(() => api.calls.length).toBeGreaterThan(before);
+  await expect(stat).toHaveText("Bản v1 (đang dùng) · chưa đủ bài đã duyệt để đo");
+});
+
 test("lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm»", async ({ page, context }, info) => {
   desktopOnly(info);
   await openDrawer(page, context, () => overview({ enabled: false }));
@@ -196,7 +210,7 @@ test("hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố b
   const JOB = "00000000-0000-7000-8000-0000000e0009";
   let job: Record<string, unknown> = { id: JOB, status: "RUNNING", progress: 33, result: { done: 1, failed: 0, total: 3 } };
   await page.route(/\/api\/v1\/jobs\/[^/]+$/, (r) => r.fulfill(json(job)));
-  const reviewed = defaultRows().map((r, i) => (i > 0 && r.result ? { ...r, result: { ...r.result, status: "REVIEWED", run_state: "DONE", needs_review: false } } : r));
+  const reviewed = defaultRows().map((r, i) => (i > 0 && r.result ? { ...r, result: { ...r.result, status: "REVIEWED", run_state: "DONE", needs_review: false, stale_review: i === 1 ? "EDITED" : "ACCEPTED_AS_IS" } } : r));
   const api = await gradingApi(page, {
     rows: reviewed,
     h: {
@@ -213,30 +227,32 @@ test("hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố b
   expect(api.calls.some((c) => c.path.endsWith(`/assignments/${A1}/regrade-stale`))).toBe(true);
   // (k) chấm lại dùng chung thanh tiến độ lô; xong có MỘT dòng báo
   await expect(page.locator("[data-part=grading-progress]")).toHaveText("Đang chấm 1/3 bài");
+  await expect(page.getByRole("button", { name: "Đang chấm lại …" })).toBeDisabled(); // TC-G05-12: nút khoá + n/N, không biến mất ngay
+  await expect(page.getByText("1/3 bài", { exact: true })).toBeVisible();
   job = { id: JOB, status: "SUCCEEDED", progress: 100, result: { done: 3, failed: 0, total: 3 } };
   await expect(page.getByText("Đã chấm xong 3 bài")).toBeVisible({ timeout: 15_000 });
   await expect(page.locator("[data-part=grading-progress]")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Cần xem kỹ" }).click();
   await page.getByLabel("Trạng thái").selectOption("REVIEWED");
-  await page.locator("[data-part=queue-row]").first().getByRole("checkbox").check();
+  await page.getByLabel("Chọn tất cả đã duyệt").check();
   await page.getByRole("button", { name: "Công bố" }).click();
-  await expect(page.getByRole("dialog")).toContainText("2 bài đã duyệt chấm theo bản lưu ý cũ, vẫn công bố được"); // (n)
+  await expect(page.getByRole("dialog")).toContainText("2 bài chấm theo bản cũ: 1 đã sửa tay, 1 duyệt nguyên nháp"); // (n) US-GD-05 AC6a: dòng nằm TRONG hộp xác nhận
   await page.getByRole("dialog").getByRole("button", { name: "Công bố" }).click();
   await expect(page.getByText(/Còn bài nháp chấm theo bản lưu ý cũ/)).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
-test("màn duyệt: «bản v1 · 1 lưu ý» mở danh sách theo tiêu chí; chip Bản cũ + Chấm lại xác nhận rồi gửi", async ({ page, context }, info) => {
+test("màn duyệt: «bản v1 · 3 lần sửa» trên nhãn tiêu chí mở lưu ý của tiêu chí đó; chip Bản cũ + Chấm lại xác nhận rồi gửi", async ({ page, context }, info) => {
   desktopOnly(info);
   await asDemo(context, "teacher");
-  const v = resultView({ guidance: { version: 1, current_version: 2, stale: true, items_by_criterion: { c2: ["Chỉ cho điểm tối đa khi có ví dụ thực tế."] } } });
+  const v = resultView({ guidance: { version: 1, current_version: 2, stale: true, items_by_criterion: { c2: ["Chỉ cho điểm tối đa khi có ví dụ thực tế."] }, support_by_criterion: { c2: 3 } } });
   const api = await gradingApi(page, { views: { [SUB_B]: v }, h: { "POST submissions/:id/grade": (r) => r.fulfill(json({ job_id: "00000000-0000-7000-8000-0000000e0009", queued: 1 }, 202)) } });
   await page.goto(`/grading/${SUB_B}?status=DRAFT&needs=1`);
-  const meta = page.locator("[data-part=guidance-meta]");
-  await expect(meta).toHaveText("bản v1 · 1 lưu ý");
+  const meta = page.locator("[data-part=criterion][data-criterion=c2] [data-part=guidance-meta]");
+  await expect(page.locator("[data-part=guidance-meta]")).toHaveCount(1); // chỉ tiêu chí có lưu ý áp dụng, không nút ở thanh công cụ
+  await expect(meta).toHaveText("bản v1 · 3 lần sửa");
   await meta.click();
-  await expect(page.locator("[data-part=guidance-popover]")).toContainText("Phân tích tấn công");
   await expect(page.locator("[data-part=guidance-popover]")).toContainText("Chỉ cho điểm tối đa khi có ví dụ thực tế.");
   await page.keyboard.press("Escape");
   await expect(page.getByText("Bản cũ", { exact: true })).toBeVisible();

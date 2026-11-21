@@ -310,7 +310,13 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
           {`Bản v${r.version}${r.version === d.current_version ? " (đang dùng)" : ""} · ${r.n} bài đã duyệt · lệch tiêu chí ${fmt(r.mae_criterion)} · lệch tổng ${fmt(r.mae_total)} · đổi điểm ${pct(r.edited_rate)}`}
         </p>
       ))}
-      {d.current_version > 0 && !rows.some((r) => r.version === d.current_version) && (
+      {d.current_version > 0 && stats.isError && (
+        <p className={s.stats} data-part="guidance-stats">
+          {`Bản v${d.current_version} (đang dùng) · —`}{" "}
+          <Button size="sm" variant="ghost" onClick={() => void stats.refetch()}>Thử lại</Button>
+        </p>
+      )}
+      {d.current_version > 0 && stats.isSuccess && !rows.some((r) => r.version === d.current_version) && (
         <p className={s.stats} data-part="guidance-stats">{`Bản v${d.current_version} (đang dùng) · chưa đủ bài đã duyệt để đo`}</p>
       )}
       {(stats.data?.regression_cases ?? 0) > 0 && <p className={s.stats} data-part="guidance-cases">{`Ca kiểm thử ${stats.data?.regression_cases}`}</p>}

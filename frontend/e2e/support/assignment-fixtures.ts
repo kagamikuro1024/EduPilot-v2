@@ -480,7 +480,7 @@ export type View = {
   flags: string[];
   pass_detail: Record<string, { pass1?: string; pass2?: string }> | null;
   appeal?: AppealFx | null;
-  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]> };
+  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]>; support_by_criterion?: Record<string, number> };
   late: { days: number; penalty: string; max_days: number; per_day: string; manual: boolean };
 };
 

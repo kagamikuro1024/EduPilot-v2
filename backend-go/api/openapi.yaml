@@ -15107,6 +15107,7 @@ components:
                   needs_review: {type: boolean}
                   error_code: {type: string}
                   version: {type: integer}
+                  stale_review: {type: string, enum: [EDITED, ACCEPTED_AS_IS], description: "Chỉ khi bài đã duyệt chấm theo bản lưu ý cũ: có tiêu chí sửa tay (EDITED) hay duyệt nguyên nháp (ACCEPTED_AS_IS)"}
         next_cursor: {type: [string, "null"]}
     GradingResultEdit:
       type: object
@@ -15144,6 +15145,10 @@ components:
               additionalProperties:
                 type: array
                 items: {type: string}
+            support_by_criterion:
+              type: object
+              description: "Tổng số lần sửa (support) của các lưu ý áp dụng, theo tiêu chí; vắng khi không có lưu ý"
+              additionalProperties: {type: integer}
         appeal:
           type: object
           description: "Phúc khảo của bài (cùng dạng AssignmentAppeal); chỉ có ở GET chi tiết khi sinh viên đã gửi"

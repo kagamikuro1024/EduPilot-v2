@@ -427,6 +427,33 @@ func TestPublishMixedGuidance(t *testing.T) {
 	require.Equal(t, 1, out.Published)
 }
 
+// TestQueueStaleReview — US-GD-05 AC6a: hàng chờ nêu bài ĐÃ DUYỆT chấm theo bản lưu ý cũ là EDITED hay ACCEPTED_AS_IS để hộp công bố đếm trước; cùng bản / chưa duyệt → không có trường.
+func TestQueueStaleReview(t *testing.T) {
+	e := newEnv(t)
+	a := e.create("BT03")
+	edited := `[{"id":"c1","score":"5.00","comment":"","edited":true,"evidence":[]},{"id":"c2","score":"5.00","comment":"","edited":true,"evidence":[]}]`
+	mk := func(crit string, first bool) uuid.UUID {
+		r := e.rrow(a, e.student(), 1, time.Now().UTC().Add(-time.Hour), "DONE", "REVIEWED", crit, nil)
+		if first {
+			e.exec(`update grading_results set first_reviewed_by = $2, first_reviewed_at = now() where id = $1`, r.res, e.teacher)
+		}
+		return r.res
+	}
+	asIs, ed := mk(crit10, true), mk(edited, true)
+	e.exec(`update assignments set guidance_version = 1 where id = $1`, a.ID)
+	b := e.create("BT04") // bài tập khác, chưa đổi bản: không lệch
+	same := e.rrow(b, e.student(), 1, time.Now().UTC().Add(-time.Hour), "DONE", "REVIEWED", crit10, nil).res
+	e.exec(`update grading_results set first_reviewed_by = $2, first_reviewed_at = now() where id = $1`, same, e.teacher)
+	st := "REVIEWED"
+	page, err := e.svc.Queue(e.ctx, e.course, assignment.QueueFilter{Status: st, Limit: 100})
+	require.NoError(t, err)
+	got := map[uuid.UUID]string{}
+	for _, r := range page.Items {
+		got[r.Result.ID] = r.Result.StaleReview
+	}
+	require.Equal(t, map[uuid.UUID]string{asIs: "ACCEPTED_AS_IS", ed: "EDITED", same: ""}, got)
+}
+
 // TestResultViewGuidance — màn duyệt thấy bản lưu ý ĐÃ GHIM của kết quả, không phải bản hiện hành; `stale` chỉ cho nháp chưa từng duyệt; cờ tắt → không có khối `guidance`.
 func TestResultViewGuidance(t *testing.T) {
 	e := newEnv(t)
@@ -447,4 +474,13 @@ func TestResultViewGuidance(t *testing.T) {
 	v, err = e.svc.ResultDetail(e.ctx, e.course, r.res)
 	require.NoError(t, err)
 	require.False(t, v.Guidance.Stale, "đã từng duyệt thì không còn «bản cũ»")
+
+	// kết quả ghim v1: phụ đề nhãn tiêu chí «n lần sửa» = tổng support của lưu ý áp dụng cho tiêu chí (US-GD-06 AC3)
+	e.exec(`insert into grading_guidance_items (course_id, assignment_id, criterion_id, text, direction, support, status, decided_by, approved_in_version) values ($1, $2, 'c1', 'Lưu ý khác.', 'LENIENT', 2, 'APPROVED', $3, 1)`, e.course, a.ID, e.teacher)
+	var sub, res uuid.UUID
+	e.one(&sub, `select submission_id from grading_results where id = $1`, r.res)
+	e.one(&res, `insert into grading_results (course_id, submission_id, round, run_state, status, criteria, total, ai_total_before_late, ai_scores, guidance_version) values ($1, $2, 2, 'DONE', 'DRAFT', $3::jsonb, 10, 10, '{"c1":"4.00","c2":"6.00"}'::jsonb, 1) returning id`, e.course, sub, crit10)
+	v, err = e.svc.ResultDetail(e.ctx, e.course, res)
+	require.NoError(t, err)
+	require.Equal(t, map[string]int{"c1": 5}, v.Guidance.SupportByCriterion)
 }

@@ -1,7 +1,10 @@
 name: CI
 
 on:
+  # push chỉ trên main: nhánh có PR chạy qua pull_request. Chạy cả hai làm mỗi SHA có HAI lượt (≈ 44 job, 2 nhóm concurrency khác nhau: `head_ref` ≠ `ref`) vượt số runner
+  # đồng thời của tài khoản ⇒ job xếp hàng 150–225 s tính vào wall (DEF-R7-01: run push 712 s dù job dài nhất 489 s).
   push:
+    branches: [main]
     paths-ignore: ["docs/**"]
   pull_request:
     paths-ignore: ["docs/**"]
