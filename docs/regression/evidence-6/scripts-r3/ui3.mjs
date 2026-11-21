@@ -73,10 +73,10 @@ try {
     const { page } = await open("01a1ef4f-0195-70a8-bc04-3e0b37610973"); // QC3S6C có thread
     const D = psql("select id from courses where class_code='QC3S6D'");
     const { page: pe } = await open(D);
-    const te = await text(pe); const emptyTitle = /Chưa có câu hỏi nào/.test(te); const emptyFull = /Chưa có câu hỏi nào\. Đặt câu hỏi đầu tiên\./.test(te); const empty = emptyFull && (await pe.getByRole("button", { name: /Đặt câu hỏi/ }).count()) > 0;
-    await pe.route("**/threads*", (r) => r.request().url().includes("/threads") && r.request().method() === "GET" ? r.fulfill({ status: 500, body: "{}" }) : r.continue());
+    const te = await text(pe); const emptyTitle = /Chưa có câu hỏi nào/.test(te); const emptyFull = /Chưa có câu hỏi nào\. Đặt câu hỏi đầu tiên\./.test(te); const emptyBtns = await pe.getByText("Chưa có câu hỏi nào", { exact: true }).locator("xpath=..").getByRole("button").count(); const empty = emptyTitle && !emptyFull && emptyBtns === 0;
+    await pe.route("**/threads*", (r) => r.request().url().includes("/api/v1/") && r.request().url().includes("/threads") && r.request().method() === "GET" ? r.fulfill({ status: 500, body: "{}" }) : r.continue());
     await pe.reload(); await pe.waitForTimeout(4000); const t5 = await text(pe); const errBtn = await pe.getByRole("button", { name: /Thử lại/ }).count();
-    out("TC-P3-06-37", empty && errBtn > 0, `lớp rỗng: chỉ hiện «Chưa có câu hỏi nào» (có tiêu đề=${emptyTitle}), thiếu câu «Đặt câu hỏi đầu tiên.» của SRS/US-P3-06 AC18=${!emptyFull}; nút «Đặt câu hỏi» có=${(await pe.getByRole("button", { name: /Đặt câu hỏi/ }).count()) > 0}; API 500 → có nút «Thử lại»=${errBtn}; (khung xương khi tải: kiểm bằng route delay ở ca 52)`);
+    out("TC-P3-06-37", empty && errBtn > 0, `lớp rỗng: theo P-11-80 (BA 263920fb): chữ «Chưa có câu hỏi nào»=${emptyTitle}, không câu mời «Đặt câu hỏi đầu tiên.»=${!emptyFull}, số nút trong khối rỗng=${emptyBtns} (mong 0); API 500 → có nút «Thử lại»=${errBtn}; (khung xương khi tải: kiểm bằng route delay ở ca 52)`);
   }
 } catch (e) { out("ERR-" + which, false, String(e).slice(0, 300)); }
 await b.close();

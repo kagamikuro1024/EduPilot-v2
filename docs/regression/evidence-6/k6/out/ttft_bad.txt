@@ -1,0 +1,2 @@
+rc=99
+time="2026-11-21T08:53:33+07:00" level=error msg="thresholds on metrics 'ttft_rag_ms' have been crossed"

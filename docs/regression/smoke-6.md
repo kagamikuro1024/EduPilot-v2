@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 484 · Trượt: 22 · Chờ test N: 24   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 511 · Trượt: 13 · Chờ test N: 6   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -18,16 +18,16 @@ Cách chạy:
 | US | TC tổng | P | F | N | Ghi chú |
 |---|---|---|---|---|---|
 | US-P3-01 | 49 | 48 | 1 | 0 |  |
-| US-P3-02 | 61 | 60 | 1 | 0 |  |
+| US-P3-02 | 61 | 61 | 0 | 0 |  |
 | US-P3-03 | 35 | 35 | 0 | 0 |  |
 | US-P3-04 | 54 | 54 | 0 | 0 |  |
-| US-P3-05 | 55 | 51 | 3 | 1 |  |
-| US-P3-06 | 49 | 46 | 3 | 0 |  |
+| US-P3-05 | 55 | 54 | 1 | 0 |  |
+| US-P3-06 | 49 | 49 | 0 | 0 |  |
 | US-P3-07 | 27 | 27 | 0 | 0 |  |
-| US-P3-08 | 29 | 14 | 0 | 15 |  |
-| US-P8-01 | 62 | 52 | 5 | 5 |  |
+| US-P3-08 | 29 | 27 | 0 | 2 |  |
+| US-P8-01 | 62 | 56 | 3 | 3 |  |
 | US-P8-02 | 49 | 42 | 7 | 0 |  |
-| US-P8-03 | 60 | 55 | 2 | 3 |  |
+| US-P8-03 | 60 | 58 | 1 | 1 |  |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -130,7 +130,7 @@ Cách chạy:
 | TC-P3-02-47 | P | quét 2279 khung token + 254 done.content + GET messages 12 phiên + DB chat_messages/forum_posts: dạng placeholder = 0 trên đường được khôi phục (mọi tin từ LLM). Duy nhất 1 khung token/done (câu trả lời suy giảm trích nguyên văn «…») chứa literal "[[SV_1]]" vì thân đoạn tài liệu fixture QC3 do QC tự nhúng văn bản đã che — đây là dữ liệu tài liệu, không phải lỗi che; 1 tin USER cũ tự gõ literal. Không có rò placeholder do khôi phục sót |
 | TC-P3-02-48 | P | go test ok (4 test/ca con, ~2s) |
 | TC-P3-02-49 | P | ep:mask:qc3-s6-1795015727x sai kiểu (WRONGTYPE) → HTTP 200, payload='[[SV_1]] và [[MSSV_1]] học nhóm', WARN log: 1 dòng |
-| TC-P3-02-50 | F | DEF-R6-U5 (Thấp): MASK_FAILED hiện cho người dùng "AI đang gián đoạn. Thử lại sau." (chat/buf.go errorText: nhánh default; chat/gen.go:386 trả code MASK_FAILED nhưng frontend không ánh xạ), SRS FEAT-private-chat-pii 114 ghi "Chưa gửi được tin nhắn. Thử lại." (giữ nguyên chữ trong ô soạn). Fail-closed đạt: go test TestMaskFailsClosed + TestMaskNoCourseFailsClosed (0 lời gọi provider, llm_audit error/MASK_FAILED). Live: PRIVACY_MASK_TIMEOUT_MS=1 vẫn không làm tin ngắn vượt hạn (nạp roster không tính vào hạn) nên không ép được trên stack; đã hoàn gateway về cấu hình gốc |
+| TC-P3-02-50 | P | chạy lại sau 425396a7 (DEF-R6-U5): chữ lỗi MASK_FAILED = «Chưa gửi được tin nhắn. Thử lại.» (buf.go errorText; khác chữ lỗi nhà cung cấp «AI đang gián đoạn…») — go test ./internal/chat TestErrorTextMaskFailed PASS (QC chạy tay); hành vi fail-closed (không gọi LLM, không lưu) đã P ở lượt trước (TestMaskFailsClosed, TestMaskNoCourseFailsClosed) |
 | TC-P3-02-51 | P | go test ok (2 test/ca con, ~2s) |
 | TC-P3-02-52 | P | phiên C1: payload='Huỳnh Quốc Hà làm bài tốt' (không che), precheck C1 allowed=True; cùng tên ở phiên C2: ['[[SV_1]] làm bài tốt'] |
 | TC-P3-02-53 | P | S1 có ánh xạ SV_1; ở S2 gõ [[SV_1]] → 'Đây là câu trả lời giả lập cho: Chào bạn nhé' |
@@ -232,7 +232,7 @@ Cách chạy:
 | TC-P3-04-54 | P | SVB gửi vào phiên SVA → 404 |
 | TC-P3-04-55 | P | SV ngoài lớp tạo phiên → 403 |
 | TC-P3-05-01 | P | go test ok (2 test/ca con, ~22s) |
-| TC-P3-05-02 | N | chờ chạy lượt R3 |
+| TC-P3-05-02 | P | SCENARIO=first_event, 49 VU (50 tài khoản seed trừ sv38 bị khoá; script gốc 50 VU, TC ghi 100 VU nhưng chat riêng mỗi người một lượt nên script đặt = số tài khoản), 60 s, FAKE_LLM_LATENCY=5000-15000: k6 thoát 0 (thresholds first_event_ms p(95)<300, samples>0, http_req_failed<1% đều đạt). k6 chat.js (bản QC chat_qc3.js: chỉ khác danh sách tài khoản seed còn dùng được + lớp 761987/761988 ACTIVE vì sv.gioi nay có lớp ARCHIVED đứng đầu) qua gateway phụ :18096 (cùng DB/Redis ep-r, hạn mức nới như k6-stack.yml), route CHAT→QC fake trong khoá global; k6 -q nên chỉ có mã thoát; kết quả: evidence-6/k6/ |
 | TC-P3-05-03 | P | status=200, khung đầu 0.054s, các khung=['done', 'status', 'token'] |
 | TC-P3-05-04 | P | chuỗi khung: ['status', 'status', 'token']…done, 4 khung |
 | TC-P3-05-05 | P | trong khi sinh: ASSISTANT/STREAMING/false/11 | USER/DONE/true/0 (USER/DONE + ASSISTANT/STREAMING); sau done: DONE|true|98 (ASSISTANT/DONE, partial NULL), content==văn bản SSE: True |
@@ -255,7 +255,7 @@ Cách chạy:
 | TC-P3-05-23 | P | gửi 5 lần trong ~10 s: số dòng CHAT_BLOCKED=1 (≤1/phút); TTL ep:chat_blocked:{attempt}=52s (≤60) |
 | TC-P3-05-24 | P | retry tin FAILED → 409 EXAM_IN_PROGRESS; tạo phiên "Hỏi AI về tài liệu" → 201 (vẫn được); gửi tin trong phiên đó → 409 EXAM_IN_PROGRESS |
 | TC-P3-05-25 | P | nộp bài (submit 200) → exam-lock mở sau 1s (≤10 s); gửi lại tin → HTTP 200, SSE có done=True, văn bản 'Mình chưa tìm thấy nội dung này trong tài liệu của lớp.' |
-| TC-P3-05-26 | F | DEF-R6-U6 (Thấp): API đạt — HTTP 503 CHAT_UNAVAILABLE khi IsLocked lỗi (bảng exam_attempts đổi tên tạm; khi dừng cả Redis thì lớp bảo vệ chung trả 503 OVERLOADED/SERVICE_UNAVAILABLE trước đó), go test 5 ca locker đạt. Chữ UI: frontend/src/shared/i18n/vi.ts:68 CHAT_UNAVAILABLE = "Chat tạm thời chưa dùng được. Thử lại sau." khác SRS/TC "Chat chưa dùng được lúc này. Thử lại sau ít phút." |
+| TC-P3-05-26 | P | bảng exam_attempts đổi tên tạm ~4 s (khoá không tra được) → UI chat hiện «Chat chưa dùng được lúc này. Thử lại sau ít phút.»=true (chữ cũ không còn); API 503 CHAT_UNAVAILABLE (lượt trước); bảng đã đổi lại=exam_attempts |
 | TC-P3-05-27 | P | /chat?course=… khi khoá: "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 00:08." (không nêu tên bài thi/lớp), ô soạn disabled; GET /me/exam-lock 1 lần lúc mở + 1 lần/30 s; nháp "nháp của t |
 | TC-P3-05-28 | P | 2 lần cùng key → 200/200, hàng USER=1 |
 | TC-P3-05-29 | P | key khác → hàng USER=2 |
@@ -264,7 +264,7 @@ Cách chạy:
 | TC-P3-05-32 | P | 4100 ký tự → 422 {'code': 'MESSAGE_TOO_LONG', 'message': 'Tin nhắn quá dài.', |
 | TC-P3-05-33 | P | tin thứ 21 → 429 (kỳ vọng 21); thân=[('http', '{"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.","trace_id":"9e757362f9933a1b16cf889b16c053bc","retry_a; keys ep:rl:c |
 | TC-P3-05-34 | P | (a) phiên đã xoá→404 (b) khác chủ→404 (d) không auth→401 |
-| TC-P3-05-35 | F | dòng «Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI»=true; liên kết «Tìm hiểu»=1, mở tại chỗ đúng câu=false; masked_count DB=2 |
+| TC-P3-05-35 | P | dòng «Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI»=true; liên kết «Tìm hiểu»=1, mở tại chỗ đúng câu=true; masked_count DB=2 |
 | TC-P3-05-36 | P | khung SSE chứa dạng placeholder: 0; câu trả lời giữ nguyên `[[ -f "$f" ]]`: True; tin người dùng lưu nguyên văn: False; văn bản='Đây là câu trả lời giả lập cho: <ngữ_cảnh>\n[1] T\nNội dung tham khảo cho: [[ -f "$f" ]] làm g' |
 | TC-P3-05-37 | P | tin có tên+MSSV: dòng pii_events ['NAME/1/MASKED/PRIVATE/true', 'MSSV/1/MASKED/PRIVATE/true']; cột bảng = id,course_id,session_id,user_id,channel,pii_type,count,action,created_at (không cột văn bản); câu thuần học thuật: không notice, pii_events 73→73 (không ghi MASKED) |
 | TC-P3-05-38 | P | lớp có ngữ cảnh (để có lời gọi LLM): 7 tin PII → notice.masked=[1, 1, 1, 1, 2, 1, 1], số lời gọi sinh chữ=[1, 1, 1, 1, 1, 1, 1]; tin 8 (hỏi điểm người khác): intent=OTHER_PERSON, từ chối='Mình chỉ xem được dữ liệu của chính bạn.', pii_events=BLOCKED/OTHER_PERSON,MASKED/CCCD,MASKED/PHONE. Ghi chú: ở lớp 761987 không có ngữ cảnh thì 5/7 tin trả câu mẫu 0 lời gọi LLM nên notice masked=0 (không payload rời hệ thống); payload quét: tệp dump chứa chuỗi thô=0 |
@@ -294,7 +294,7 @@ Cách chạy:
 | TC-P3-06-06 | P | 61 yêu cầu liên tiếp, 429 xuất hiện ở lần 61; 200 trước đó=60 (PRECHECK_RATE_PER_MIN=60); go test TestPrecheck* ok (3 pass) |
 | TC-P3-06-07 | P | gõ liên tục 3 s: precheck trong lúc gõ=0 (≤1, không mỗi phím); sau khi ngừng ≥800 ms: +1 |
 | TC-P3-06-08 | P | dòng báo=["Phát hiện Email, MSSV"] (đúng 1 dòng); hộp thoại mở=0; xoá hết chữ → dòng biến mất=true |
-| TC-P3-06-09 | F | HTTP đầu=422; tiêu đề hộp thoại="Bài viết có thông tin cá nhân"=false; nút hành động=["Chuyển sang chat riêng","Ẩn thông tin rồi đăng"] (đúng 2, ngoài nút đóng); Esc chỉ quay lại ô soạn, chữ nguyên=true |
+| TC-P3-06-09 | P | HTTP đầu=422; tiêu đề hộp thoại="Bài viết có thông tin cá nhân"=true; nút hành động=["Chuyển sang chat riêng","Ẩn thông tin rồi đăng"] (đúng 2, ngoài nút đóng); Esc chỉ quay lại ô soạn, chữ nguyên=true |
 | TC-P3-06-10 | P | pii_events: không cột văn bản (xem TC-P3-01-33) |
 | TC-P3-06-11 | P | URL=https://localhost:1143/chat?session=01a1efde-20d9-7b45-bfa2-cc30cc4e2588; ô soạn khớp bản nháp từng byte (kể cả \n)=true; phiên mới có 0 tin; forum_threads 7→7; pii_events SWITCHED 0→2; không tự gửi |
 | TC-P3-06-12 | P | trong giờ thi: from-draft → 201 (vẫn tạo phiên); gửi tin → 409 EXAM_IN_PROGRESS; go test: --- PASS: TestFromDraftKeepsText (0.84s) | --- PASS: TestFromDraftNoMessageStored (0.86s) | ok github.com/edupilot/backend-go/internal/chat 1.299s | |
@@ -319,10 +319,10 @@ Cách chạy:
 | TC-P3-06-31 | P | SV verify → 403; TA verify → 200 |
 | TC-P3-06-32 | P | SV ngoài lớp list→403, chi tiết→403 |
 | TC-P3-06-33 | P | {'full_name': 'Vũ Hoàng Giang', 'role': 'STUDENT', 'is_me': False} |
-| TC-P3-06-34 | F | ngoại tuyến: chữ trong ô soạn giữ nguyên=true; nút «Đăng lại»=0; sau tải lại nháp tiêu đề+nội dung khôi phục=true |
+| TC-P3-06-34 | P | ngoại tuyến: chữ trong ô soạn giữ nguyên=true; nút «Đăng lại»=1; sau tải lại nháp tiêu đề+nội dung khôi phục=true |
 | TC-P3-06-35 | P | 10 yêu cầu song song cùng key → 1 thread, mã [201] |
 | TC-P3-06-36 | P | 1440 px: Panel trong vùng làm việc=1; bộ lọc chủ đề hiện ở ≥1100 px (số nút/nhãn «Chủ đề»=1); thu lại ở 1024 px=true; soạn tại chỗ (không modal): đã thấy ở ca 06-07; Staff thấy «Xác nhận»=true, «Chỉnh sửa»=true, menu «Loại»=false; ui-antipatterns rc=0 |
-| TC-P3-06-37 | F | lớp rỗng: «Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên.»+nút Đặt câu hỏi=false; API 500 → có nút «Thử lại»=0; (khung xương khi tải: kiểm bằng route delay ở ca 52) |
+| TC-P3-06-37 | P | lớp rỗng: theo P-11-80 (BA 263920fb): chữ «Chưa có câu hỏi nào»=true, không câu mời «Đặt câu hỏi đầu tiên.»=true, số nút trong khối rỗng=0 (mong 0); API 500 → có nút «Thử lại»=1; (khung xương khi tải: kiểm bằng route delay ở ca 52) |
 | TC-P3-06-38 | P | 375 px /threads: tràn ngang=0; vùng chạm <44 px=0 [] |
 | TC-P3-06-39 | P | go test ok (1 test/ca con, ~3s) |
 | TC-P3-06-40 | P | đăng thread trong giờ thi → 409 EXAM_IN_PROGRESS; forum_threads mới=0; bài chứa PII cũng 409 (khoá chạy trước tường lửa); exam_events=CHAT_BLOCKED/{} |
@@ -362,12 +362,12 @@ Cách chạy:
 | TC-P3-07-25 | P | --validate --strict-synthetic với một mẫu âm đổi thành tên «Hoàng Phương Zeta Quỳnh» (không thuộc roster seed, không thuộc outside_roster_names) → rc=2 «N1-01: cụm viết hoa … không thuộc roster seed / danh sách bịa»; bản gốc → OK 200 items; không có --strict-synthetic thì validate OK (chỉ strict mới chặn); SĐT/CCCD/email trong bộ dữ liệu: QC soát nhãn ở 07-15 đều là số bịa |
 | TC-P3-07-26 | P | e1.md có mục «Giới hạn đã biết» nêu S7 (4/4 mẫu lọt, vẫn tính vào chỉ số chung, recall tối đa 0,96); by_stratum.S7={'fn': 4, 'fp': 0, 'recall': 0.0, 'tn': 0, 'tp': 0}; tổng FN=4 = đúng 4 mẫu S7 → dư địa còn 1 mẫu lọt khác (FN còn lại 0 ≤ 1) |
 | TC-P3-07-27 | P | scripts/gate-p3.sh dòng 19: run "E1: eval_pii.py --min-recall 0.95 --max-false-block 0.05"; hàm run (gate-lib.sh) ghi FAIL khi rc≠0: True; finish P3 đếm lỗi |
-| TC-P3-08-01 | N | chờ chạy lượt R3 |
-| TC-P3-08-02 | N | chờ chạy lượt R3 |
+| TC-P3-08-01 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): seed.mjs 20 bước xong (bước 19 phải bật lại mock-graph rồi chạy tiếp); node scripts/check-chat-seed.mjs → «chat=151 sessions=34 outside=10 threads=12/3 states={PENDING:4,REJECTED:1,CORRECTED:2,VERIFIED:3,SKIPPED:2} idempotent=ok» (150±5; 10 câu ngoài tài liệu). Cách ghi: bước 12 dùng gateway admin seed-chat (ghi thẳng bằng mã sản phẩm, id suy từ khoá) — lệch với chữ «đúng luồng chat» của AC1 nhưng là quyết định của PM (BUG-S1, docs/sprints/7/handoff/dev-US-S7-SEED.md: provider giả làm mọi câu tự nhiên th |
+| TC-P3-08-02 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): đếm chat_sessions/chat_messages/forum_threads/forum_posts (+documents, calendar_events, enrollments) trước = 54/383/15/14 (9 tài liệu, 3 sự kiện, 61 ghi danh); chạy lại seed.mjs (trong check-chat-seed) → sau = 54/383/15/14 (9/3/61): không hàng nào thêm; check in «idempotent=ok»; lần chạy lại 38 s |
 | TC-P3-08-03 | N | chờ chạy lượt R3 |
-| TC-P3-08-04 | N | chờ chạy lượt R3 |
-| TC-P3-08-05 | N | chờ chạy lượt R3 |
-| TC-P3-08-06 | N | chờ chạy lượt R3 |
+| TC-P3-08-04 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): check-chat-seed.mjs threads in bảng PENDING 4, REJECTED 1, CORRECTED 2, VERIFIED 3, SKIPPED 2; SQL forum_posts kind=AI lớp 761987: PENDING 4, VERIFIED 3, CORRECTED 2, REJECTED 1; forum_threads lớp 761987 = 12, ai_state=SKIPPED 2 (+ANSWERED 10); lớp 761988 = 3 thread. (Câu SQL không lọc lớp của TC gộp thêm 3 bài PENDING của lớp 2 → 7; lọc theo lớp 1 như AC2 thì đúng 4) |
+| TC-P3-08-05 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): GET /courses/{lớp 1}/threads bằng sv.gioi: items=10 + pinned=1 = 11 thread khác nhau (API trả thread ghim ở mảng pinned riêng, chữ TC «.items length» thiếu pinned; check-chat-seed gộp pinned theo #41); thread có bài REJECTED vẫn có trong danh sách và GET thread trả posts=[] (bài AI REJECTED biến mất); 1 thread tự ẩn không hiện |
+| TC-P3-08-06 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): không chạy được nguyên văn scan-pii-leak.sh vì lỗi của chính script (tách biểu thức ở «::» cuối nên forum_posts/pii_events/outbox/jobs/audit_log trả ERR; log compose cần shim) → quét bằng Python/psql row::text ILIKE: 7 bảng (forum_threads 15 dòng, forum_posts 14, pii_events 0, outbox, jobs, audit_log, llm_audit 717) × 6 chuỗi canary (Vũ Hoàng Giang, Vu Hoang Giang, 20229001, sv.gioi@edupilot.local, 0912345678, 001099012345) = 42 phép đếm, mọi ô = 0; log qc3s-gw + qc3s-worker: 0/6 khớp (evidence-6/k6/seed |
 | TC-P3-08-07 | P | me/today SV có continue: 3 mục |
 | TC-P3-08-08 | P | SV chưa vào lớp: continue=[] |
 | TC-P3-08-09 | P | continue của sv07 ⊂ phiên của sv07: 3/3 |
@@ -375,19 +375,19 @@ Cách chạy:
 | TC-P3-08-11 | P | /courses/{id}/today: GV & TA có AI_CONFIRM (/me/today gom bị cắt 12 mục, bị GRADE_SCHEME_UNCONFIRMED lấn — không phải lỗi) |
 | TC-P3-08-12 | P | xác nhận 2 bài AI + GV bình luận các thread SKIPPED → mục AI_CONFIRM biến mất sau 2.0 s (≤60); go test: --- PASS: TestAIConfirmProviderStaffOnly (0.72s) | --- PASS: TestAIConfirmInvalidatedOnDecision (0.46s) | ok github.co |
 | TC-P3-08-13 | P | SV/ADMIN không có AI_CONFIRM |
-| TC-P3-08-14 | N | chờ chạy lượt R3 |
-| TC-P3-08-15 | N | chờ chạy lượt R3 |
-| TC-P3-08-16 | N | chờ chạy lượt R3 |
-| TC-P3-08-17 | N | chờ chạy lượt R3 |
+| TC-P3-08-14 | P | như TC-P3-05-02 (cùng lệnh SCENARIO=first_event): k6 rc=0 ⇒ first_event_p95 < 300 ms. k6 chat.js (bản QC chat_qc3.js: chỉ khác danh sách tài khoản seed còn dùng được + lớp 761987/761988 ACTIVE vì sv.gioi nay có lớp ARCHIVED đứng đầu) qua gateway phụ :18096 (cùng DB/Redis ep-r, hạn mức nới như k6-stack.yml), route CHAT→QC fake trong khoá global; k6 -q nên chỉ có mã thoát; kết quả: evidence-6/k6/out/*.txt |
+| TC-P3-08-15 | P | SCENARIO=ttft, 20 VU, 60 s, FAKE_LLM_LATENCY=300-300: k6 rc=0 ⇒ ttft_cache_ms p95<1500 và ttft_rag_ms p95<4000, cả hai có mẫu. k6 chat.js (bản QC chat_qc3.js: chỉ khác danh sách tài khoản seed còn dùng được + lớp 761987/761988 ACTIVE vì sv.gioi nay có lớp ARCHIVED đứng đầu) qua gateway phụ :18096 (cùng DB/Redis ep-r, hạn mức nới như k6-stack.yml), route CHAT→QC fake trong khoá global; k6 -q nên chỉ có mã thoát; kết quả: evidence-6/k6/out/*.txt |
+| TC-P3-08-16 | P | SCENARIO=ttft với FAKE_LLM_LATENCY=3000-3000 (ép vượt ngưỡng như TC gợi ý): k6 rc=99 («thresholds on metrics ttft_rag_ms have been crossed») — không xanh lặng lẽ. k6 chat.js (bản QC chat_qc3.js: chỉ khác danh sách tài khoản seed còn dùng được + lớp 761987/761988 ACTIVE vì sv.gioi nay có lớp ARCHIVED đứng đầu) qua gateway phụ :18096 (cùng DB/Redis ep-r, hạn mức nới như k6-stack.yml), route CHAT→QC fake trong khoá global; k6 -q nên chỉ có mã thoát; kết quả: evidence-6/k6/out/*.txt |
+| TC-P3-08-17 | P | theo PM: không chạy nguyên cổng. Thứ tự bước đọc từ scripts/gate-p3.sh: go vet → go test -race privacy/agent/chat/thread (+TestChatMatrix, TestThreadsMatrix strict) → TestUnmaskStream → TestNoPayloadLeak → TestThreadsAgentHasNoPersonalTools → TestStudentNeverSeesConfidence → contract → eval_pii.py → Playwright 3 spec → ui-antipatterns, đúng thứ tự TC. Từng bước có bằng chứng thật: CI run 44380374004 (@07a6b69c, full-job run; Go jobs rest-1/2/3, course, auth, static xanh; job 3/4 của «Go test không tag» đỏ ở gói khác — không thuộc cổng P3) và 44380364341 (frontend e2e/lint xanh): --- PASS TestU |
 | TC-P3-08-18 | P | mô phỏng bằng gate-lib (không có biến môi trường tắt che): bước hỏng → bước sau không chạy; "GATE P3: FAIL" rc=1 |
-| TC-P3-08-19 | N | chờ chạy lượt R3 |
-| TC-P3-08-20 | N | chờ chạy lượt R3 |
-| TC-P3-08-21 | N | chờ chạy lượt R3 |
+| TC-P3-08-19 | P | GATE_K6=1 thêm hai bước k6: QC chạy đúng hai kịch bản trong cửa sổ k6 được PM duyệt (first_event, ttft): cả hai rc=0 (TC-P3-08-14/15); gate-lib finish() in «GATE P3: PASS» khi không FAILED/SKIPPED (đã chạy harness gate-lib: FAIL → «GATE P3: FAIL», chỉ SKIP → «PASS (có SKIP)»); bước go/Playwright của cổng lấy từ CI (xanh) |
+| TC-P3-08-20 | P | CI run 44380374004 (@07a6b69c, full-job run; Go jobs rest-1/2/3, course, auth, static xanh; job 3/4 của «Go test không tag» đỏ ở gói khác — không thuộc cổng P3) và 44380364341 (frontend e2e/lint xanh): Playwright e2e privacy.spec.ts 2 ca ✓ (masked=2, masked=0 không lộ ký hiệu), private-chat.spec.ts 24 ca ✓, threads.spec.ts 18 ca ✓ (gồm «offline keeps draft: mất mạng giữ chữ, gửi lại cùng khoá», «dialog two paths: chặn 422 → hai nút», «switch keeps text», «exam lock»); 0 ca đỏ; Playwright 4 shard 253+278+368+315 passed |
+| TC-P3-08-21 | P | 5 kịch bản «Bạn tự kiểm» chạy tay bằng Playwright (script QC) trên ep-r: chat TC-P3-05-09, 22, 38 (đạt), 35 (hành vi đạt, chữ Tìm hiểu lệch SRS → F riêng DEF-R6-U1), 55 (nhóm 05-5x đạt) và threads TC-P3-06-09 (chặn + chuyển kênh đạt, tiêu đề hộp thoại lệch SRS → F riêng DEF-R6-U2), 11, 40 (đạt): hành vi giống spec E2E (CI xanh); ảnh chụp trong evidence-6/ui và evidence-6/shots |
 | TC-P3-08-22 | P | `go test -tags testroutes ./internal/contract -run TestChatThreadsContract` ok (lệnh gốc thiếu `-tags testroutes` nên lần đầu 404 `_test/llm/fake`) |
 | TC-P3-08-23 | P | contract/testdata/golden chỉ có auth/ và llm/ — 0 khoá cấm (confidence/retrieval_score/groundedness/ai_body/hidden_reason/verified_by); chat_threads_contract_test.go cưỡng chế phản hồi sinh viên không |
 | TC-P3-08-24 | P | gate-p3.sh chạy TestChatMatrix + TestThreadsMatrix; router_test.go dựng STUDENT + TA + TEACHER + ADMIN (+PENDING, ngoài lớp) — đủ bốn vai |
 | TC-P3-08-25 | P | PATH không có k6: "SKIP k6 chat.js: chưa cài", dòng cuối "GATE P3: PASS (có SKIP)", rc=0 (chạy khối k6 của gate-lib, không chạy toàn gate) |
-| TC-P3-08-26 | N | chờ chạy lượt R3 |
+| TC-P3-08-26 | P | harness dùng đúng scripts/gate-lib.sh với Docker không tới được (DOCKER_HOST sai): strict_test TestNoPayloadLeak → «FAIL … thiếu stack (Docker không tới được)», bảng FAIL, «GATE P3: FAIL» (finish() exit 1) — khớp US-P3-08 AC9 (TestNoPayloadLeak thiếu stack → FAIL, không SKIP); eval_pii.py khi API không tới được → rc=2 (TC-P3-07-20); chỉ bước k6 được SKIP → «GATE P3: PASS (có SKIP)» (chạy harness). Chữ TC «các bước cần stack ghi SKIP» là diễn đạt lỏng hơn AC9 |
 | TC-P3-08-27 | N | chờ chạy lượt R3 |
 | TC-P3-08-28 | P | fetch( ngoài shared/: 0; OFFSET trong store/queries: 1 dòng chỉ là chú thích «không OFFSET» |
 | TC-P3-08-29 | P | ui-antipatterns.sh rc=0 |
@@ -408,7 +408,7 @@ Cách chạy:
 | TC-P8-01-15 | P | READY/1 sau 69s |
 | TC-P8-01-16 | P | SSE /events mở trước khi tải: progress [5, 11, 50, 65, 75, 85, 95, 100]; đơn điệu=True; mốc 10–45=True, 50=True, 55–95=True; sự kiện cuối status SUCCEEDED=True, result.document_id=True; READY sau 50s |
 | TC-P8-01-17 | F | tải tệp bằng API (không qua trang) khi /documents đang mở: hàng mới tự xuất hiện; trạng thái quan sát: []; điều hướng/tải trang mới sau lần đầu: 0/0 |
-| TC-P8-01-18 | F | DEF-R6-P1 (Thấp): PDF 23 trang slide (QMB12ch6b.pdf) → 19 đoạn: ord liên tục, ≤800 rune (max 796), duy nhất, token_count NULL, chèn trùng (document_id,ord) → 23505 đạt; nhưng 4 đoạn < 200 rune không phải đoạn cuối (152, 39, 117, 88 rune ở ord 0,1,5,6) dù kề nhau gộp được (117+88=205 ≤ 800) — SRS 142 / US-P8-01 AC6: mẩu <200 rune gộp vào mẩu kề nếu tổng ≤800 (bộ chia đoạn không gộp qua ranh giới trang) |
+| TC-P8-01-18 | P | chấm lại theo P-11-79 (BA 263920fb): mẩu <200 rune ở cuối trang hợp lệ, chỉ gộp cùng trang. PDF 23 trang QMB12ch6b → 19 đoạn: ord liên tục 0..18, max 796 rune (≤800), đoạn duy nhất, token_count NULL, chèn trùng (document_id,ord) → 23505; 4 đoạn <200 rune (ord 0: 152 rune tr.1; ord 1: 39 rune tr.2; ord 5: 117 rune tr.7; ord 6: 88 rune tr.8) mỗi đoạn nằm trên trang khác với đoạn liền kề (page_no 1,2,3,5,6,7,8,9…) nên là mẩu cuối trang, không có mẩu cùng trang nào gộp được |
 | TC-P8-01-19 | P | Quyche.pdf (bản scan, 5 trang) → READY sau 68s (13.6s/trang); đoạn chứa "học vụ" đúng dấu=8; page_no không giảm=True (15 đoạn) |
 | TC-P8-01-20 | P | share-from A→B (teacher là TEACHER cả hai lớp) → 200 {'shared': {'documents': 11}, 'skipped': []}; course_ids của đoạn chứa cả A và B=True; số đoạn 19→19 (không đoạn mới) |
 | TC-P8-01-21 | P | vector_dims=1536 |
@@ -427,7 +427,7 @@ Cách chạy:
 | TC-P8-01-34 | P | SV gọi: {'/library': (200, 0), '/library/DK': (404, 0), '/library/DK/download': (404, 0), '/documents/DK/chunks': (403, 0), '/documents': (403, 0)}; ANSWER_KEY có trong /library=False; CANARY trong log gateway+worker 10 phút=0 (kể cả khi cờ hiển thị đã bị phá) |
 | TC-P8-01-35 | P | SV lớp A hỏi «ZZTEST-L2 nghĩa là gì» (đoạn lớp B có vectơ trùng câu hỏi): trích dẫn='[]', câu trả lời không chứa nội dung lớp B, payload không chứa đoạn lớp B=True; /library?q=ZZTEST-L2 → items=[]; đối chứng SV lớp B (sv.moi) hỏi cùng câu → trích dẫn '[{"n": 1, "title": "QMB12 gv.s8f", "page_no": null, "snippet": "ZZTEST' |
 | TC-P8-01-36 | P | chia sẻ A→B (200 {'shared': {'documents': 14}, 'skipped': []}); sau 10 s: SV lớp B trích dẫn '[{"n": 1, "title": "share36-qc3", "page_no": 1, "snippet": "SHARE36-QC'; SV lớp A vẫn nhận '[{"n": 1, "title": "share36-qc3", "page_no": 1, "snippet": "SHARE36-QC'; vectơ/đoạn của tài liệu không đổi sau share=True; lời gọi nhúng chỉ cho câu hỏi (đầu vào dài nhất 53 ký tự, không có đầu vào đoạn); llm_audit EMBEDDING 1199→1199 (tăng do 2 câu hỏi) |
-| TC-P8-01-37 | F | DEF-R6-P2 (Trung bình): 4/5 thao tác tăng ep:rag:ver:{lớp} trong ≤5 s và hỏi lại không trúng cache (tải tài liệu tới READY 21→22, PATCH cờ 22→23, sửa đoạn 23→24, xoá tài liệu 24→25; cache câu trả lời trúng ở lần hỏi lặp, tính lại sau mỗi thao tác); NHƯNG chia sẻ (POST /courses/{đích}/share-from, tài liệu mới vào document_courses/course_ids của lớp đích) không tăng ep:rag:ver: 26→26 suốt 24 s (đọc mỗi 2 s) → cache câu trả lời cũ của lớp đích còn trúng. Mã: backend-go/internal/course/share.go không phát outbox document.changed (chỉ document/manage.go và ingest/process.go phát). US-P8-01 AC14 liệ |
+| TC-P8-01-37 | P | chạy lại sau 425396a7 (DEF-R6-P2): tải tài liệu mới vào lớp A rồi POST /courses/B/share-from (HTTP 200); document_courses có (tài liệu, lớp đích)=1; ep:rag:ver:<lớp đích> 4→5 sau 1 s (mong tăng ≤ 5 s); các thao tác tải/PATCH/sửa đoạn/xoá đã P ở lượt trước |
 | TC-P8-01-38 | P | trong lúc tệp 143 trang PROCESSING: PATCH cờ tài liệu khác → ep:rag:ver 44→45 sau 5 s (tăng ≤5 s dù ingest đang chạy); ep:today:* sau thao tác: số khoá 8 (consumer outbox không bị ingest chặn) |
 | TC-P8-01-39 | P | docling TẮT: POST reindex tài liệu READY → 202 01a1f04f; job → SUCCEEDED (không gọi docling); (đoạn/embedding) trước 10/10 → sau 10/10: số đoạn không đổi, mọi đoạn có embedding |
 | TC-P8-01-40 | P | reindex cả lớp (≥3 tài liệu đã nhúng) → 202; 10 câu hỏi liên tiếp (mỗi câu = văn bản một đoạn, nhúng giả tất định nên cosine≈1 ⇒ có ngữ cảnh), có trích dẫn ở 10/10, HTTP [200], 10 lượt khi job còn chạy; job → SUCCEEDED; reindex lần hai → 202: số đoạn 998→998, id đoạn không đổi=True (và so với trước khi reindex=True) |
@@ -445,8 +445,8 @@ Cách chạy:
 | TC-P8-01-52 | P | PDF 2 trang ảnh trắng (OCR): complete 202; documents.status=FAILED sau ≤6 s (không thử lại); jobs.error.code=NO_TEXT; documents.error (câu hiển thị)='Không đọc được chữ trong tệp (có thể là bản quét). Hãy tải bản có chữ.'; mã nằm ở jobs.error.code, documents.error là câu tiếng Việt đúng bảng SRS dòng 100 |
 | TC-P8-01-53 | P | PDF 401 trang: complete 202; documents.status=FAILED sau ≤6 s (không thử lại); jobs.error.code=TOO_MANY_PAGES; documents.error (câu hiển thị)='Tệp dài hơn 400 trang. Hãy tách nhỏ.'; mã nằm ở jobs.error.code, documents.error là câu tiếng Việt đúng bảng SRS dòng 100 |
 | TC-P8-01-54 | P | PUT tệp khác cùng kích thước (1006 byte): complete 202; documents.status=FAILED sau ≤6 s (không thử lại); jobs.error.code=HASH_MISMATCH; documents.error (câu hiển thị)='Tệp bị lỗi khi tải lên. Tải lại.'; mã nằm ở jobs.error.code, documents.error là câu tiếng Việt đúng bảng SRS dòng 100 |
-| TC-P8-01-55 | N | chờ chạy lượt R3 |
-| TC-P8-01-56 | N | chờ chạy lượt R3 |
+| TC-P8-01-55 | P | trên ep-r: định tuyến EMBEDDING sang mô hình fake trả vectơ 512 chiều bị chặn NGAY khi cấu hình: PUT /admin/llm/routes → 422 MODEL_DIMS_MISMATCH {actual:512, expected:1536} nên tài liệu không thể vào đường nhúng sai chiều (chặn mạnh hơn TC); chạy đường ingest thật bằng go test -tags integration ./internal/ingest TestEmbedDimsMismatchFails (embed trả 768 chiều): documents.status=FAILED, thông điệp chứa «Chưa lập chỉ mục», jobs.error chứa EMBED_FAILED, 0 đoạn được ghi (không đoạn nào có embedding sai chiều); route/provider đã hoàn như cũ |
+| TC-P8-01-56 | P | documents FAILED trong DB: 10 dòng, thông điệp riêng biệt: 4 câu tiếng Việt (EXTRACT_UNAVAILABLE «Chưa đọc được tài liệu lúc này. Thử lại sau.», NO_TEXT, HASH_MISMATCH, TOO_MANY_PAGES), dài nhất 70 ký tự (≤1000); grep mẫu (URL, /var/, /tmp/, /data/, blob_key, minio, docling, s3://, trace, stack, .go:, panic, postgres, redis) trên documents.error = 0 dòng; GET /jobs/{id} (chủ job) cho 12/12 job document.ingest FAILED: error.code theo mã {'DOCUMENT_NOT_READY': 1, 'EXTRACT_UNAVAILABLE': 4, 'HASH_MISMATCH': 2, 'TOO_MANY_PAGES': 1, 'NO_TEXT': 4} (mã DOCUMENT_NOT_READY là của luồng tải lại), message |
 | TC-P8-01-57 | P | retry lần 1 → 202 job 01a1f00b, status ngay sau=QUEUED (QUEUED→xử lý lại, lại FAILED vì tệp vẫn hỏng); lần 2 cùng khoá → 202 cùng job=True; retry trên READY → 409 DOCUMENT_NOT_FAILED; reindex trên tài liệu FAILED → 409 DOCUMENT_NOT_READY |
 | TC-P8-01-58 | P | {'sv.gioi': [403, 403, 403, 403], 'ta': [422, 422, 409, 202], 'teacher': [422, 422, 409, 202], 'admin': [403, 403, 403, 403]} |
 | TC-P8-01-59 | P | reindex cả lớp: TA 403, TEACHER 202 |
@@ -512,13 +512,13 @@ Cách chạy:
 | TC-P8-03-08 | P | sv04 (chỉ lớp 1): lịch lớp 1 → 200 (21 mục), lịch lớp 2 → 403; không mục nào thuộc riêng lớp 2 |
 | TC-P8-03-09 | P | tạo → 201 |
 | TC-P8-03-10 | P | GV lớp khác tạo ở lớp này → 403 |
-| TC-P8-03-11 | F | xoá tại chỗ (menu «Thêm với …» → Xoá): dòng «Đã xoá sự kiện · Hoàn tác»=true; DB count 1 (còn trong 5 s) → 1 sau 6,5 s; dòng biến mất=true; sự kiện thứ hai xoá rồi bấm Hoàn tác ≤5 s → DB count 1, hiện lại trên lịch=true; hộp thoại khi mở menu=1 |
+| TC-P8-03-11 | P | xoá tại chỗ (menu «Thêm với …» → Xoá) trên ep-r @6201b665 (có eb8f16a0): trước 1; dòng «Đã xoá sự kiện · Hoàn tác»=true; DB count 1 (trong 5 s) → 0 sau 6,5 s; dòng biến mất=true; sự kiện thứ hai xoá rồi Hoàn tác ≤5 s → DB 1, hiện lại=true; hộp thoại modal (<dialog open>)=0; menu «Thêm với…» là popover role=dialog, không phải modal |
 | TC-P8-03-12 | P | ETag=W/"4PgGAwvHxDQ8RGzv" → If-None-Match → 304 |
 | TC-P8-03-13 | P | sau sửa sự kiện, ETag cũ → 200 |
 | TC-P8-03-14 | P | qua mốc opens_at: ETag cũ → 200 (200 = EffectiveStatus đổi); trạng thái ['SCHEDULED']→['OPEN']; và sau khi bắt đầu lượt thi → 200 IN_PROGRESS (TC-P8-03-14-a) |
 | TC-P8-03-15 | P | SV A: personal_state=['NOT_STARTED', 'SUBMITTED']; SV B: ['NOT_STARTED', 'SUBMITTED']; Staff: {None}; href SV=/exams/{id}/take, Staff=/exams/{id}; editable chỉ calendar_event+Staff: True |
 | TC-P8-03-16 | P | 21 mục; khoá cấm tìm thấy: [] |
-| TC-P8-03-17 | N | chờ chạy lượt R3 |
+| TC-P8-03-17 | P | PUT giờ sự kiện EXAM → 200; lịch SV ngay: ['2026-11-27T05:04:03Z'] (mong 2026-11-27T05:04:03Z); ep:today:* 1→0 sau 5 s (SV gọi lại /me/today sinh khoá mới: 0); hỏi chat «Lịch thi của lớp mình thế nào?» trước sửa: giờ mới có=False; sau sửa: kết quả tool chứa «Thứ Sáu, 27/11 · 12:04»=True |
 | TC-P8-03-18 | P | tạo token 201; url có token=True |
 | TC-P8-03-19 | P | token cũ sau xoay → 404; token mới → 200 |
 | TC-P8-03-20 | P | thu hồi → 204; token sau thu hồi → 404 |
@@ -551,7 +551,7 @@ Cách chạy:
 | TC-P8-03-47 | P | «Thêm vào lịch» là nút phụ (class ["Button-module__lwrakq__btn Button-module__lwrakq__secondary "]); vùng nhỏ có URL=true, «Sao chép»=1, «Đặt lại liên kết»=1; /settings có công tắc nhắc=true: ["Nhắc trước 24 giờ"] |
 | TC-P8-03-48 | P | (a) lớp rỗng: «Chưa có gì trong lịch» + hành động SV: ["Thêm vào lịch","Tuần","Tháng","Danh sách","Hôm nay"]; Staff: ["Thêm vào lịch","Thêm sự kiện","Thêm","Tạo lịch buổi học","Tuần","Tháng"]; (b) 500 → «Thử lại»=true; (c) chậm 3 s: spinner=0, khung xương=1 |
 | TC-P8-03-49 | P | UI 375: /calendar (SV & GV) tải, 0 tràn ngang |
-| TC-P8-03-50 | N | chờ chạy lượt R3 |
+| TC-P8-03-50 | P | theo PM: không chạy nguyên cổng. Thứ tự gate-p8.sh: go vet → go test -race rag+library+calendar+document+ingest → TestAnswerKeyNeverRetrieved → contract → feed ICS → Playwright documents+library+calendar → ui-antipatterns. Bằng chứng: CI run 44380374004 (@07a6b69c): ok internal/rag/library/document (rest-1, -race), ingest+rag (shard 1/4), calendar (4/4), TestAnswerKeyNeverRetrieved --- PASS (rest-1, 4,14 s), TestContract_* PASS, ui-antipatterns 34/34, e2e documents.spec 14 ✓, library.spec 7 ✓, calendar.spec 14 ✓ (0 đỏ); feed ICS: QC chạy thật trên ep-r — POST ics-token → curl feed dòng đầu «BE |
 | TC-P8-03-51 | N | chờ chạy lượt R3 |
 | TC-P8-03-52 | P | tiêu đề rỗng/kết thúc<bắt đầu/type sai → [422, 422, 422] |
 | TC-P8-03-53 | P | PUT 200; version cũ 409 |

@@ -55,4 +55,4 @@ for k,v in LT.items():
     line=f'- LT-đã-xoá {k}: {v}\n'
     if line not in s: s+= ('' if s.endswith('\n') else '\n')+line; open(d,'w').write(s)
 print(tot,P,F,N)
-open('/tmp/qc3-progress.tsv.s6','w').write(f'sprint 6\t{tot}\t{P}\t{F}\t0\t')
+open(''+os.path.expanduser('~/.config/edupilot-team/progress/qc3.s6')+'','w').write(f'sprint 6\t{tot}\t{P}\t{F}\t0\t')
