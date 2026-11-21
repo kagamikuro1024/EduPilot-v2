@@ -1,0 +1,28 @@
+// Nguồn của /tmp/qc3e/qcvec: đặt vào backend-go/cmd/qcvec/main.go, `go build -o /tmp/qc3e/qcvec ./cmd/qcvec`, rồi xoá thư mục (không để lại trong cây sản phẩm).
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+
+	"github.com/edupilot/backend-go/internal/llm/fake"
+)
+
+func main() {
+	sc := bufio.NewScanner(os.Stdin)
+	sc.Buffer(make([]byte, 1<<20), 1<<24)
+	w := bufio.NewWriter(os.Stdout)
+	defer w.Flush()
+	for sc.Scan() {
+		s := strings.ReplaceAll(sc.Text(), `\n`, "\n")
+		v := fake.Vector(s, 1536)
+		parts := make([]string, len(v))
+		for i, x := range v {
+			parts[i] = strconv.FormatFloat(float64(x), 'g', -1, 32)
+		}
+		fmt.Fprintf(w, "[%s]\n", strings.Join(parts, ","))
+	}
+}
