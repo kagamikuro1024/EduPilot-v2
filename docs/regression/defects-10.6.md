@@ -24,4 +24,4 @@
 | DEF-R106S-04 | Thấp | TC-G04-01 | Khối «Lưu ý chấm» thiếu «M chờ duyệt» | ĐÓNG (87073119; «Bản v2 · 3 chờ duyệt») |
 | DEF-R106S-05 | Thấp | TC-G04-02 | «Đang dùng · vN» thay «Đã áp dụng», «bài đổi điểm» thay «lần sửa», mục «Đã nghỉ» không hiện | ĐÓNG (c3632cdc, P-11-77) |
 | DEF-R106S-06 | Thấp | TC-G04-15 | Không EmptyState; GET 500 làm khối biến mất không «Thử lại» | ĐÓNG (81e58ce6); chữ sửa còn sau tải lại: P |
-| DEF-R106S-07 | Thấp | TC-G04-02 | Chữ chiều lưu ý: UI «Chấm chặt hơn / Chấm rộng hơn / Làm rõ tiêu chí» (`guidanceApi.ts:85`) ≠ US-GD-04 AC2 «Gắt hơn / Nhẹ hơn / Làm rõ» | MỞ (chờ dev3 / PM–BA xác nhận chữ chuẩn) |
+| DEF-R106S-07 | Thấp | TC-G04-02 | Chữ chiều lưu ý: UI «Chấm chặt hơn / Chấm rộng hơn / Làm rõ tiêu chí» (`guidanceApi.ts:85`) ≠ US-GD-04 AC2 «Gắt hơn / Nhẹ hơn / Làm rõ» | ĐÓNG (1595bfa1; chạy lại P: «Gắt hơn»…) |

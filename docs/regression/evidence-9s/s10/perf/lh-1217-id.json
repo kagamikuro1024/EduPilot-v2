@@ -1,28 +1,36 @@
 [
  {
-  "path": "/practice/[id]",
+  "path": "/practice/[id]?course=01a1ef3e-8372-7b15-9e9e-902d23312b7d",
   "method": "devtools",
-  "lcp_ms": 18436,
-  "tbt_ms": 50,
+  "lcp_ms": 4454,
+  "tbt_ms": 29,
   "script_kb": 218,
   "lcp_all": [
-   18436
+   4476,
+   4454,
+   4434
   ],
   "tbt_all": [
-   50
+   43,
+   29,
+   23
   ]
  },
  {
-  "path": "/practice/[id]",
+  "path": "/practice/[id]?course=01a1ef3e-8372-7b15-9e9e-902d23312b7d",
   "method": "simulate",
-  "lcp_ms": 3173,
-  "tbt_ms": 27,
-  "script_kb": 219,
+  "lcp_ms": 3163,
+  "tbt_ms": 19,
+  "script_kb": 218,
   "lcp_all": [
-   3173
+   2875,
+   3163,
+   3179
   ],
   "tbt_all": [
-   27
+   17,
+   19,
+   26
   ]
  }
 ]
