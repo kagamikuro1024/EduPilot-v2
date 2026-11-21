@@ -1,0 +1,54 @@
+{
+ "gv1": {
+  "email": "qc2iu.gv1@edupilot.local",
+  "id": "01a1f028-7583-7dac-b329-8a94de312f83",
+  "name": "Giảng viên QC2IU Một"
+ },
+ "gv2": {
+  "email": "qc2iu.gv2@edupilot.local",
+  "id": "01a1f028-7af4-7600-ab9d-b23da62c4b7d",
+  "name": "Giảng viên QC2IU Hai"
+ },
+ "ta": {
+  "email": "qc2iu.ta@edupilot.local",
+  "id": "01a1f028-8032-755b-998f-aaebbf64abea",
+  "name": "Trợ giảng QC2IU"
+ },
+ "adm": {
+  "email": "qc2iu.adm@edupilot.local",
+  "id": "01a1f028-8579-7c71-b4ea-592af1adc44a",
+  "name": "Quản trị QC2IU"
+ },
+ "sv1": {
+  "email": "qc2iu.sv1@edupilot.local"
+ },
+ "sv2": {
+  "email": "qc2iu.sv2@edupilot.local"
+ },
+ "sv3": {
+  "email": "qc2iu.sv3@edupilot.local"
+ },
+ "sv4": {
+  "email": "qc2iu.sv4@edupilot.local"
+ },
+ "sv5": {
+  "email": "qc2iu.sv5@edupilot.local"
+ },
+ "sv6": {
+  "email": "qc2iu.sv6@edupilot.local"
+ },
+ "sv7": {
+  "email": "qc2iu.sv7@edupilot.local"
+ },
+ "svd": {
+  "email": "qc2iu.svd@edupilot.local"
+ },
+ "svm": {
+  "email": "qc2iu.svm@edupilot.local"
+ },
+ "courseA": {
+  "id": "01a1f028-ba85-754a-bab6-4f2f01127e63",
+  "code": "QC2IUA",
+  "join_code": "DQVKAMV"
+ }
+}

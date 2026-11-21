@@ -1,0 +1,21 @@
+--reset: xoá dữ liệu T1…
+users: 0 s
+courses: 0 s
+enrollments: 0 s
+class_sessions: 0 s
+attendance_records: 0 s
+participation_events: 0 s
+study_time_daily: 8 s
+chat_sessions: 0 s
+chat_messages: 2 s
+grade_schemes: 0 s
+grade_entries: 0 s
+assignments: 0 s
+submissions: 0 s
+documents: 0 s
+Lỗi khi ghi content_chunks (dữ liệu dở dang — chạy lại với --reset):
+FATAL:  terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+connection to server was lost

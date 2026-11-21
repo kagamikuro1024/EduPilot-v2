@@ -1,0 +1,29 @@
+
+Running 1 test using 1 worker
+
+INFO UX13-10 Phiên mới {"v":"secondary","bg":"lab(100 0 0)"}
+INFO UX13-15 null
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác (14.9s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác 
+
+    Error: dòng che PII
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      123 |   const m = txt.match(/Đã ẩn (\d+) thông tin cá nhân trước khi gửi cho AI/);
+      124 |   console.log("INFO UX13-15", JSON.stringify(m));
+    > 125 |   expect(m, "dòng che PII").not.toBeNull(); expect(+m![1]).toBeGreaterThanOrEqual(2);
+          |                                 ^
+      126 |   // UX13-6/7/8: xoá phiên vừa tạo
+      127 |   const rows = o.page.locator("[data-part=chat-history] li"); const n0 = await rows.count();
+      128 |   const dels = () => reqs.filter((x) => x.startsWith("DELETE")).length;
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:125:33
+
+    Error Context: ../docs/regression/evidence-9.1/pw-out/qc-uiux91-r91sv-real-TC-UX-0733a-iên-mới-PII-xoá-có-hoàn-tác-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác 

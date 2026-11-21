@@ -16,4 +16,4 @@ for u in pool[21:25]: resetjoin(); call('POST', '/courses/join', L(u), {'code': 
 emX, tX = mk('ux', bcode); resetjoin(); call('POST', '/courses/join', tX, {'code': codeR}); S['X'] = emX; S['pend'] = pend; S['B'] = uB
 # TA vào lớp R để thử quyền
 psql(f"insert into enrollments(course_id,user_id,role_in_course,status,joined_via) select '{cR}',id,'TA','ACTIVE','ADMIN' from users where email='ta@edupilot.local' on conflict do nothing")
-json.dump(S, open('/tmp/qc2-s4-ui.json', 'w'), ensure_ascii=False, indent=1); print(json.dumps(S, ensure_ascii=False)[:600])
+json.dump(S, open('/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-4/qc2-s4-ui.json', 'w'), ensure_ascii=False, indent=1); print(json.dumps(S, ensure_ascii=False)[:600])

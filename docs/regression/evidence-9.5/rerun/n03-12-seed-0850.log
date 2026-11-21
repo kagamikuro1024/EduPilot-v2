@@ -1,0 +1,13 @@
+--reset: xoá dữ liệu T1…
+users: 0 s
+courses: 4 s
+enrollments: 1 s
+class_sessions: 1 s
+attendance_records: 0 s
+participation_events: 0 s
+Lỗi khi ghi study_time_daily (dữ liệu dở dang — chạy lại với --reset):
+PANIC:  could not write to file "pg_wal/xlogtemp.193": No space left on device
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+connection to server was lost

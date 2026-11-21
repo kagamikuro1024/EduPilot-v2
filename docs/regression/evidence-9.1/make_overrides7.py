@@ -2,7 +2,7 @@
 # Chạy: python3 make_overrides7.py && python3 build_smoke91.py && python3 build_defects91.py(nếu có)
 import json, os, re, glob
 H = os.path.dirname(os.path.abspath(__file__)); ov = json.load(open(H + "/overrides91.json"))
-LINE = re.compile(r'^\s+(✓|✘)\s+\d+ \[desktop\] › e2e/(?:qc2-r91/)?(\S+?)\.spec\.ts:\d+:\d+ › (.*?)(?: \([\d.]+m?s\))?$')
+LINE = re.compile(r'^\s+(✓|✘)\s+\d+ \[desktop\] › (?:e2e/)?(?:qc2-r91/)?(\S+?)\.spec\.ts:\d+:\d+ › (.*?)(?: \([\d.]+m?s\))?$')
 def expand(title):
     out = set()
     for m in re.finditer(r'TC-UX(\d\d)-([0-9A-Za-z/,]+)', title):
@@ -32,6 +32,6 @@ man = H + "/results-smkS.tsv"
 if os.path.exists(man):
     for ln in open(man, encoding="utf-8"):
         p = ln.rstrip("\n").split("\t")
-        if len(p) >= 3 and p[1] in ("P", "F"): ov[p[0]] = [p[1], p[2]]; n += 1
+        if len(p) >= 3 and p[1] in ("P", "F", "LT"): ov[p[0]] = [p[1], p[2]]; n += 1
 json.dump(ov, open(H + "/overrides91.json", "w"), ensure_ascii=False, indent=1)
 print("ghi", n)

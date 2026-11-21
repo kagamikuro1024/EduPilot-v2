@@ -1,7 +1,11 @@
 # Dựng smoke-9.1.md từ log Playwright (lượt 1 + lượt chạy lại ca lỗi) + ca GREP chạy tay
 import re, json, glob, os, collections
 H = os.path.dirname(os.path.abspath(__file__)); L = H + "/logs"
-rows = json.load(open('/tmp/qc2-f-s91.json'))
+rows = {}  # tc -> [tệp TC, dạng, ...] (dựng từ docs/sprints/9.1/qc/tc-*.md; bản cũ đọc /tmp/qc2-f-s91.json đã mất)
+for f in sorted(glob.glob(H + "/../../sprints/9.1/qc/tc-*.md")):
+    for ln in open(f, encoding="utf-8"):
+        m = re.match(r"\| (TC-UX\d\d-\w+) \|", ln)
+        if m: rows[m.group(1)] = [f, ln.rstrip().rstrip("|").split("|")[-1].strip(), []]
 def expand(title):
     out = set()
     for m in re.finditer(r'TC-UX(\d\d)-([0-9A-Za-z/\-,]+)', title):
@@ -17,7 +21,7 @@ def expand(title):
         for n in [x for x in m.group(4).split(',') if x]: out.add(f"TC-UX{st}-{n}")
     for m in re.finditer(r'TC-UX91-(X\d)', title): out.add(f"TC-UX91-{m.group(1)}")
     return out
-LINE = re.compile(r'^\s+(✓|✘|-)\s+\d+ \[(\w+)\] › e2e/(?:qc2-r91/)?(\S+?)\.spec\.ts:\d+:\d+ › (.*?)(?: \([\d.]+m?s\))?$')
+LINE = re.compile(r'^\s+(✓|✘|-)\s+\d+ \[(\w+)\] › (?:e2e/)?(?:qc2-r91/)?(\S+?)\.spec\.ts:\d+:\d+ › (.*?)(?: \([\d.]+m?s\))?$')
 res = {}   # (file,title,project) -> st
 for f in sorted(glob.glob(L + "/*.log"), key=lambda x: (int((re.search(r"rerun(\d)", x) or [0, 0])[1]) if re.search(r"rerun(\d)", x) else (1 if ".rerun" in x else 0), x)):
     if "grep-batch" in f: continue

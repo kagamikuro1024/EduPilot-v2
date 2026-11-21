@@ -1,0 +1,7 @@
+# STATE SmkT4N (sprint 4, chạy nốt N + chạy lại F đã sửa) — cập nhật 2026-11-21 09:10
+Kết quả: results-smk34/results-s4n.tsv (bản ghi sau thắng) + results-smk34/ui-s4.tsv (spec ui-s4*). Ghi bằng scripts/s4n-rec.sh TC P|F "ghi chú".
+Tệp trạng thái UI (không còn ở /tmp): evidence-4/qc2-s4-ui.json (dựng bằng scripts/q4-ui-setup.py + q4-ui-setup2.py), evidence-4/qc2iu-state.json (dựng từ DB: gv1, gv2, ta, adm, courseA). fx/ = tệp roster thử (gen.py), xoá khi xong.
+Chạy Playwright: scripts/s4n-pw.sh <tên> desktop <spec…> (khoá /tmp/qc2-pw.lock hỏi 2 s/lần, ≤ 8 phút). Hàng đợi: s4n-queue.sh (s4a…s4d), s4n-queue2.sh (smkt3-nav/p20231, mock/g21, bell, journey+s4n-caddy, r4ui-audit ×2). Đã dừng khi qc2 rebuild ep-r 09:1x: chạy lại sau «ep-r lên lại».
+ĐÃ XONG: P206-28 P, P202-46 P, P202-47 P, P201-19 P, P212-17 P, P211-44 F + P212-27 F (DEF-R4-09 lint gochecknoglobals), P209-42 P (ui-s4a 4/4), GATEP2-40/42/45/49 P, GATEP2-09 giữ LT (kèm DEF-R4-08 P), P212-14 N (qc2 đo).
+CÒN: P201-11/GATEP2-44/53 (spec s4n-caddy), P209-45/46/48/49 (ui-s4b), P210-15/32/34 (s4c), P211-32/33/35/36/38/41 (s4d), P202-31/44/48, P207-35, P208-34, P212-21/24 + GATEP2-05/21/22/24/26/27/28/30/31/99 (smkt3-*, r4ui-audit), P211-02/28/30/40 (scripts/s4n-today.sh: gateway phụ + DB bản sao qc2i_s4t, k6; chạy khi ep-r lên lại), P209-51, GATEP2-99 (dọn).
+Phụ gồm: pw-out/ (xoá khi xong), docker: không còn s4n-* (script tự dọn).

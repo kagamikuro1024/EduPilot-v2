@@ -102,3 +102,8 @@ Phần tử LCP của landing ở 375 px là `p.lead` (không phải h1). Nhóm 
 ### DEF-R9.1-08 — `scripts/landing-video/record.mjs` không chạy được ở HEAD (TC-UX09-16, Thấp)
 Trên smk91 (seed sạch) đăng nhập qua, cảnh chat chờ nút «Giải thích giúp em|Điều kiện để được dự thi» quá 30 s (chữ gợi ý đã đổi); rc=1, không sinh clip / video / poster. Trên ep-r đông lớp dừng sớm hơn ở bộ chọn lớp «\d{6} ·». Bằng chứng logs/ux09-16-landing-run-*.log. Sửa gợi ý: cập nhật bộ chọn trong record.mjs theo chữ gợi ý hiện hành.
 - Sửa kịch bản QC (không phải lỗi sản phẩm): rw4 (lớp lạ TA = QC_OTHER_COURSE; chọn hàng đang «Có mặt»; Panel.fault ẩn vùng lọc ⇒ kiểm bộ lọc sau Thử lại), rs06 UX06-6 (lấy /me/today đúng phản hồi ứng dụng), r91lib + rw5d/e/g/i (phân trang /me/courses), rn4 UX12-16 (dải «Mất kết nối mạng», hàng Có mặt), r91shots (bỏ /dev/ui 404).
+
+## Lượt SmkS4 2026-11-21 (HEAD 425396a7)
+- TC-UX13-7 / TC-UX13-8 (chưa chốt, đang chạy lại bằng spec đã sửa): AC3 US-UX91-13 viết «hành vi `useUndoableAction` hiện có; quá 5 giây xoá thật» — mã gửi `DELETE` NGAY (commit lạc quan) rồi `POST /chat/sessions/{id}/restore` khi bấm Hoàn tác (RealChat.tsx:168-181, useUndoableAction.tsx). TC cũ đòi «Hoàn tác: không có DELETE» và «DELETE sau ≈ 5 s» ⇒ lệch AC (đã đo: DELETE=1 ngay sau khi xoá, rerun7w). Đề nghị BA/PM chốt: sửa TC theo AC (hoặc đổi mã sang xoá trễ 5 s). Chưa ghi P/F cho hai ca này.
+- DEF-R9.1-06 (6d127b88): đã sửa mã (.radio:not(:checked) trong @media hover); TC-UX12-2 chạy lại bằng ru1 (test «UX12-2») CHƯA chạy xong ⇒ vẫn ghi F lượt cũ.
+- DEF-R9.1-07: TC-UX16-14 P theo P-11-75. DEF-R9.1-08: TC-UX09-16 P (record.mjs chạy hết, rc=0).

@@ -1,0 +1,4 @@
+  [mobile] › gradebook.spec.ts:766:1 › lop2 demo step 6: tải quy chế lớp 2 (bản dựng thật) → một mục chưa rõ chặn xác nhận → điền làm tròn → xác nhận → banner mất, Chốt điểm mở
+  [mobile] › gradebook.spec.ts:799:1 › f10 main path: sửa ô → giải trình → chốt v1 → ô khoá → mở khoá có lý do → sửa → chốt lại v2; TA chỉ đọc
+Total: 86 tests in 1 file
+86

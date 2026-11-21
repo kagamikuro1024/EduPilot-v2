@@ -1,0 +1,77 @@
+(node:95084) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{
+ "stamp": 1795226198436,
+ "course": "01a1ef53-79d0-75ea-8b95-e44216e58f21",
+ "docling_status_before": "running",
+ "chat_before": {
+  "label": "trước khi tắt docling",
+  "status": 200,
+  "seconds": 0.1,
+  "citations": 0,
+  "degraded": false,
+  "has_done": true,
+  "error": null
+ },
+ "chat_during": [
+  {
+   "label": "docling tắt, lần 1",
+   "status": 200,
+   "seconds": 0,
+   "citations": 0,
+   "degraded": false,
+   "has_done": true,
+   "error": null
+  },
+  {
+   "label": "docling tắt, lần 2",
+   "status": 200,
+   "seconds": 0,
+   "citations": 0,
+   "degraded": false,
+   "has_done": true,
+   "error": null
+  },
+  {
+   "label": "docling tắt, lần 3",
+   "status": 200,
+   "seconds": 0.1,
+   "citations": 0,
+   "degraded": false,
+   "has_done": true,
+   "error": null
+  }
+ ],
+ "docling_down_seconds": 120,
+ "rows_at_restart": "chaos-docling-1795226198436-1|QUEUED|\nchaos-docling-1795226198436-2|QUEUED|\nchaos-docling-1795226198436-3|QUEUED|",
+ "seconds_to_terminal_after_up": 96,
+ "rows_final": [
+  [
+   "chaos-docling-1795226198436-1",
+   "FAILED",
+   "Chưa đọc được tài liệu lúc này. Thử lại sau."
+  ],
+  [
+   "chaos-docling-1795226198436-2",
+   "READY",
+   ""
+  ],
+  [
+   "chaos-docling-1795226198436-3",
+   "READY",
+   ""
+  ]
+ ],
+ "stuck_processing_gt_10min": 0,
+ "status_counts": "READY|2\nFAILED|1",
+ "chat_after": {
+  "label": "sau khi docling lên",
+  "status": 200,
+  "seconds": 0.1,
+  "citations": 0,
+  "degraded": false,
+  "has_done": true,
+  "error": null
+ },
+ "started_at": "2026-11-21T01:56:38.519Z"
+}

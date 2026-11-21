@@ -1,0 +1,35 @@
+{
+ "stamp": 1795226754747,
+ "ready_before_stop": "chaos-docling-1795226754747-1|READY\nchaos-docling-1795226754747-2|READY\nchaos-docling-1795226754747-3|READY",
+ "docling_after_stop": "exited",
+ "chat_during": [
+  {
+   "label": "docling tắt, hỏi nguyên văn đoạn của tài liệu 1",
+   "status": 200,
+   "seconds": 0.3,
+   "citations": 1,
+   "degraded": false,
+   "has_done": true,
+   "error": null
+  },
+  {
+   "label": "docling tắt, hỏi nguyên văn đoạn của tài liệu 2",
+   "status": 200,
+   "seconds": 0.3,
+   "citations": 1,
+   "degraded": false,
+   "has_done": true,
+   "error": null
+  },
+  {
+   "label": "docling tắt, hỏi nguyên văn đoạn của tài liệu 3",
+   "status": 200,
+   "seconds": 0.4,
+   "citations": 1,
+   "degraded": false,
+   "has_done": true,
+   "error": null
+  }
+ ],
+ "docling_still_down": "exited"
+}

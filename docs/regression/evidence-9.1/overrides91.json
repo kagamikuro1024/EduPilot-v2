@@ -5,7 +5,7 @@
  ],
  "TC-UX04-3": [
   "P",
-  "RERUN 2026-11-16 sau 25cd3352 (P-11-57, DEF-R9.1-02): quét frontend/src/**/*.css: 0 luật :hover ngoài @media (hover: hover)"
+  "RERUN 425396a7 sau 6d127b88 (DEF-R9.1-06): node docs/sprints/9.1/qc/scripts/hover-check.mjs → «quy tắc :hover: 85, ngoài @media (hover: hover): 0»; luật rê của .radio nay là .radio:not(:checked) trong @media (hover: hover)"
  ],
  "TC-UX04-5": [
   "P",
@@ -349,7 +349,7 @@
  ],
  "TC-UX08-5": [
   "P",
-  "RERUN 634d59c5 sau 7322ac62 (DEF-R9.1-01): node hover-check.mjs frontend/src → 85 luật :hover, 0 ngoài @media (hover: hover); Landing.module.css sạch"
+  "RERUN 425396a7: hover-check.mjs 85 luật :hover, 0 ngoài @media (hover: hover); Landing.module.css sạch (cảm ứng: kiểm .radio ở TC-UX12-2)"
  ],
  "TC-UX08-13": [
   "LT",
@@ -497,7 +497,7 @@
  ],
  "TC-UX06-6": [
   "P",
-  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7k.log)"
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rs06-real ✓ (qc-uiux91-rs06-real.rerun7n.log)"
  ],
  "TC-UX08-48": [
   "P",
@@ -572,8 +572,8 @@
   "qc-uiux91-rn4-real rerun7a reduce=true: ô vẫn đổi nền (61→222 ms ≈ 160 ms, ep-saved:200), tắt ≤ 200 ms sau đỉnh, transform = none (US-04 AC9)"
  ],
  "TC-UX16-14": [
-  "F",
-  "qc-uiux91-rn4-real rerun7a reduce=true: nền đổi tức thì nhưng chỉ giữ ≈ 160 ms (61→222 ms), US-16 AC6 đòi «giữ ≥ 300 ms». US-04 AC9 lại đòi «tắt sau ≤ 200 ms» ⇒ hai AC mâu thuẫn; DEF-R9.1-07 (Thấp), cần PM chốt AC nào đúng"
+  "P",
+  "RERUN 425396a7 theo P-11-75 (PM 2026-11-21: AC6 sửa thành «đổi màu tức thì và tắt sau ≤ 200 ms»; DEF-R9.1-07 đóng): qc-uiux91-rn4-real rerun7a reduce=true: nền ô đổi 61→222 ms (≈ 161 ms ≤ 200 ms), animation ep-saved:200, transform = none (logs/qc-uiux91-rn4-real.rerun7a.log); mã không đổi từ lượt đó (chỉ tài liệu)"
  ],
  "TC-UX12-17": [
   "P",
@@ -1064,16 +1064,16 @@
   "shots/insights-1440.png, observability-1440.png (+375) (ep-r, HEAD, teacher); trước audit/shots/insights__teacher__1440.png, observability__teacher__1440.png: đủ ảnh; ảnh mốc insights-/observability- đổi ở ed0aa499 (CI Linux xanh)"
  ],
  "TC-UX08-28": [
-  "F",
-  "Firefox 155 (container mcr playwright:v1.63.0-noble, logs/ux08-28-firefox-docker.log): CSS.supports(animation-timeline: view()) = false, 1440 px: 5 mục, không tràn ngang, không pageerror; nhưng khung kể chuyện VẪN ghim (div Landing…wrap, sticky, cao 900 px) và có 1 H3 «Giảng viên» ẩn; WebKit (Safari 27.2) hỗ trợ animation-timeline = true nên không dùng được (logs/qc-uiux91-rzprobe6-real.rerun7o.log). TC cũ («không animation-timeline ⇒ không ghim») bị AC7 hiện hành thay: ghim theo bề rộng ≥ 1100 bằng JS (LandingMotion.tsx:181 toggle is-pinned theo matchMedia), không theo animation-timeline ⇒ ĐỀ NGHỊ LT (nguồn AC7 / P-107-12 / P-11-40), không phải lỗi sản phẩm"
+  "LT",
+  "LỖI THỜI theo US-08 AC7 «Sửa 10.7» (docs/specs/FEAT-uiux-91/US.md:295, P-107-12/P-107-13 PM 2026-11-14): ghim theo bề rộng ≥ 1100 px bằng JS (LandingMotion.tsx), không còn phụ thuộc animation-timeline nên TC «không animation-timeline ⇒ không ghim» hết nghĩa. Hành vi mới đã đo: Firefox 155 ở 1440: 5 mục, không tràn ngang, không pageerror, khung ghim sticky, đọc đủ nội dung (logs/ux08-28-firefox-docker.log)"
  ],
  "TC-UX09-16": [
-  "F",
-  "bash scripts/landing-video/run.sh (bản sao ở ~/Documents/smks-lv, không đụng frontend/public/landing) trên ep-r: dừng ở cảnh đăng nhập vì không thấy nút chọn lớp dạng «\\d{6} ·» (lớp mặc định QR91H) — nguyên nhân do ep-r đông lớp; chạy lại trên stack seed sạch smk91 (lớp mặc định 761987): đăng nhập qua, cảnh chat dừng ở getByRole(button, /Giải thích giúp em|Điều kiện để được dự thi/) timeout 30 s: gợi ý chat đã đổi chữ ở 10.7 (chat Split) nên record.mjs lỗi thời ⇒ không sinh lại được clip / video / poster (logs/ux09-16-landing-run-smk91.log, rc=1). README nêu đủ lệnh. DEF-R9.1-08 (Thấp): record.mjs không chạy được ở HEAD"
+  "P",
+  "RERUN 425396a7 (sau e0ac8dc9, DEF-R9.1-08) trên stack seed sạch smk91 (lớp mặc định 761987, sv.kha có phiên chat): bash scripts/landing-video/run.sh (bản sao ~/Documents/smks-lv, không đụng frontend/public/landing) EP_BASE_URL=https://localhost:1343 → record.mjs chạy hết 8 cảnh (s1-chat qua được, trước đây timeout), encode xong, rc=0 (logs/ux09-16-landing-run-smk91-b.log). Quy cách so với tệp đang có ở frontend/public/landing: gioi-thieu-v1.mp4 h264 1440x900, 65,8 s / 1,07 MB (hiện có 64,7 s / 1,11 MB: +1,7 % / −3 %); webm 65,8 s / 1,61 MB (hiện 64,7 s / 1,64 MB); poster gioi-thieu-v1.webp 49 KB (hiện 52 KB; shots/ux09-16/); clip gioi-thieu-clip-v1.mp4/webm/webp 11,0 s, 1440x900, 262 KB (clip màn đầu đã bỏ khỏi trang ở 10.7 P-107-13 nên repo không còn tệp clip; script vẫn sinh). README nêu đủ lệnh"
  ],
  "TC-UX13-1": [
-  "F",
-  "logs/qc-uiux91-r91sv-real.rerun7j.log: /chat 1440 — 50 phiên; hộp hội thoại rộng 746 px (≤ 840 ✓) nhưng lề trái−24 = 1 px, lề phải 49 px (lệch 48 px > ±3) và cột lịch sử rộng 379 px nằm TRONG Panel (AC1 9.1: Panel căn giữa phần phải, cột lịch sử rộng 240 ngoài Panel). Bố cục /chat đã được 10.7 lô 2 đổi sang Split list-detail (3b259963; P-107-15 «chat là Split fill») ⇒ AC1 cũ bị thay, cột lịch sử vẫn phẳng (border-radius 0, không bóng, nền trong suốt) ⇒ ĐỀ NGHỊ LT (nguồn 3b259963 / P-107-15)"
+  "LT",
+  "LỖI THỜI theo commit 3b259963 («10.7 lô 2: /chat = Split list-detail fill») + P-107-15 (PM 2026-11-15, docs/sprints/10.7/proposals.md: «chat là Split fill»): AC1 9.1 (Panel căn giữa, cột lịch sử 240 px ngoài Panel) bị thay; phần còn hiệu lực (hộp hội thoại ≤ 840 px = 746; cột lịch sử phẳng: bo 0, không bóng, nền trong suốt) đã đo ở logs/qc-uiux91-r91sv-real.rerun7j.log"
  ],
  "TC-N01-03": [
   "F",
@@ -1110,5 +1110,61 @@
  "TC-N10-04": [
   "P",
   "worktree ở cha ad344b76 + chép riêng provider_test.go của e1f9925f: TestStructuredRequestShape FAIL ở cha, PASS ở e1f9925f (evidence-9.5/n10-04-pre-post.log)"
+ ],
+ "TC-UX13-12": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log)"
+ ],
+ "TC-UX13-13": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log)"
+ ],
+ "TC-UX13-11": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log)"
+ ],
+ "TC-UX13-17": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log)"
+ ],
+ "TC-UX13-9": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log)"
+ ],
+ "TC-UX13-5": [
+  "P",
+  "RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log)"
+ ],
+ "TC-UX17-9": [
+  "P",
+  "RERUN 425396a7 (ru1 7u, lớp QR91A chưa có insight_reports): main = «Lỗ hổng kiến thức · Chưa có báo cáo · Tạo báo cáo mới»; đúng 1 nút «Tạo báo cáo mới» (ngoài ra chỉ 4 nút chọn kỳ 7/14/30 ngày/Toàn kỳ); EmptyState «Chưa có báo cáo» (logs/qc-uiux91-ru1-real.rerun7u.log)"
+ ],
+ "TC-UX17-8": [
+  "P",
+  "RERUN 425396a7 (ru1 7u): admin /observability → hàng yêu cầu 01a1fbe8 → nhập lý do → «Xem chi tiết» thấy «Nội dung đã che [system] Bạn là trợ giảng…»; audit_log VIEW_DETAIL entity llm_request 4 → 5 (đúng +1, actor admin, reason «QC SmkS kiểm tra nội dung đã che») (logs/qc-uiux91-ru1-real.rerun7u.log)"
+ ],
+ "TC-UX13-10": [
+  "P",
+  "RERUN 425396a7 (r91sv 7v, sv.kha): sau khi gửi 1 tin nút «Phiên mới» hiện, data-variant=secondary, nền lab(100 0 0) (trắng, không --ep-red / rgb(206,22,40)); đo trước dòng che PII nên giữ dù ca PII còn chờ (logs/qc-uiux91-r91sv-real.rerun7v.log)"
+ ],
+ "TC-UX03-11": [
+  "P",
+  "RERUN 425396a7: «Phiên mới» không thuộc nút khoá US-03: /chat trống không có nút «Phiên mới» (UX13-9: 0 nút, rerun7u ✓) và sau khi gửi 1 tin nút hiện, là nút phụ, không khoá (UX13-10, rerun7v)"
+ ],
+ "TC-UX01-8": [
+  "P",
+  "RERUN 425396a7 trên ep-r (qc-uiux91-rx1-real, logs/qc-uiux91-rx1-real.rerun7w.log): LCP bằng PerformanceObserver (cùng cách audit/scripts/shoot.mjs), 1440 px, 3 lượt, trung vị; «trước» = audit 9.1 (docs/sprints/9.1/audit/data/*.json, cùng vai, trước khi sửa) → sau: GV / 268→152 ms, /threads 504→444, /inbox 1752→508, /gradebook 504→212, /settings/llm 488→68; SV /chat 524→104, /me 2008→108; cả 7 sau ≤ trước + 100 ms (hiệu −60…−1900 ms). Ghi chú: «trước» là số của audit (1 lượt/route, khác thời điểm và dữ liệu), không dựng lại bản trước 9.1"
+ ],
+ "TC-UX13-16": [
+  "P",
+  "RERUN 425396a7 trên ep-r (logs/ux13-16-pii-grep.log): câu «Em tên Bùi Thanh Khải, MSSV 20229002, email sv.kha@edupilot.local, hỏi điểm giữa kỳ» (tên thật của sv.kha) → SSE notice masked=3; llm_request_payloads: 0 dòng có tên / MSSV / email thật, câu hỏi gửi LLM = «Em tên [[SV_1]], MSSV [[MSSV_1]], email [[EMAIL_1]]…»; log gateway + worker (5 phút): 0 dòng chứa tên / MSSV / email. Ghi chú: tên gõ trong TC («Nguyễn Minh Trung») không có trong danh sách lớp của ep-r (seed khác) nên KHÔNG bị che (MSSV + email vẫn che, masked=2) — che tên dựa vào danh sách lớp"
+ ],
+ "TC-UX13-6": [
+  "P",
+  "RERUN 425396a7 (r91sv 7w, sv.kha): ⋯ → Xoá: hàng 49→48 ngay, 0 hộp thoại sau khi bấm Xoá, dòng «Đã xoá · Hoàn tác» hiện (logs/qc-uiux91-r91sv-real.rerun7w.log)"
+ ],
+ "TC-UX13-15": [
+  "P",
+  "RERUN 425396a7 (r91sv 7w, sv.kha): gửi «Em tên Nguyễn Minh Trung, MSSV 20229002, email sv.kha@…» → dòng «Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI» (N = 2 ≥ 2) còn nguyên (logs/qc-uiux91-r91sv-real.rerun7w.log); lượt đầu với sv.gioi bị bộ chặn «Mình chỉ xem được dữ liệu của chính bạn» vì MSSV/email của người khác (đúng thiết kế)"
  ]
 }

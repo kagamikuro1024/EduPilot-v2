@@ -1,0 +1,4 @@
+máy: Mem: 9923 5369 1154 401 4006 4553 | image gateway: 1
+lần 1: 19.7 s tới readyz=200 {"db":"up","redis":"up","status":"ready"} | container Up: 13
+lần 2: 18.5 s tới readyz=200 {"db":"up","redis":"up","status":"ready"} | container Up: 13
+lần 3: 19.9 s tới readyz=200 {"db":"up","redis":"up","status":"ready"} | container Up: 13

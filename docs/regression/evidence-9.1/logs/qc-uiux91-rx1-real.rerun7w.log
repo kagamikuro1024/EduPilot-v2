@@ -1,0 +1,13 @@
+
+Running 1 test using 1 worker
+
+INFO UX01-8 teacher|/: trước 268 ms | sau [376,112,152] trung vị 152 ms | ĐẠT (hiệu -116 ms)
+INFO UX01-8 teacher|/threads: trước 504 ms | sau [488,444,396] trung vị 444 ms | ĐẠT (hiệu -60 ms)
+INFO UX01-8 teacher|/inbox: trước 1752 ms | sau [700,432,508] trung vị 508 ms | ĐẠT (hiệu -1244 ms)
+INFO UX01-8 teacher|/gradebook: trước 504 ms | sau [212,196,224] trung vị 212 ms | ĐẠT (hiệu -292 ms)
+INFO UX01-8 teacher|/settings/llm: trước 488 ms | sau [80,56,68] trung vị 68 ms | ĐẠT (hiệu -420 ms)
+INFO UX01-8 student|/chat: trước 524 ms | sau [468,104,48] trung vị 104 ms | ĐẠT (hiệu -420 ms)
+INFO UX01-8 student|/me: trước 2008 ms | sau [108,44,184] trung vị 108 ms | ĐẠT (hiệu -1900 ms)
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rx1-real.spec.ts:13:1 › TC-UX01-8 LCP sau ≤ trước + 100 ms trên 7 route (3 lượt, trung vị) (1.0m)
+
+  1 passed (1.0m)

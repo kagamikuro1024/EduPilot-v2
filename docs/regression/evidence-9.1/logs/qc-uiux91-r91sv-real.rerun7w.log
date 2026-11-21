@@ -1,0 +1,32 @@
+
+Running 1 test using 1 worker
+
+INFO UX13-10 Phiên mới {"v":"secondary","bg":"lab(100 0 0)"}
+INFO UX13-15 ["Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI","2"]
+INFO UX13-6 hàng 49 → 48 hộp thoại 1 0 Hoàn tác 1
+INFO UX13-7 hàng 49 DELETE 1
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác (15.4s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác 
+
+    Error: Hoàn tác: không DELETE
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      139 |   await undo.first().click(); await o.page.waitForTimeout(1500);
+      140 |   console.log("INFO UX13-7 hàng", await rows.count(), "DELETE", dels());
+    > 141 |   expect(await rows.count()).toBe(n0); expect(dels(), "Hoàn tác: không DELETE").toBe(0);
+          |                                                                                 ^
+      142 |   await rows.first().getByRole("button", { name: /Thao tác với phiên/ }).click();
+      143 |   await o.page.getByRole("menuitem", { name: "Xoá" }).click();
+      144 |   const t0 = Date.now(); let at = -1;
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:141:81
+
+    Error Context: ../docs/regression/evidence-9.1/pw-out/qc-uiux91-r91sv-real-TC-UX-0733a-iên-mới-PII-xoá-có-hoàn-tác-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác 

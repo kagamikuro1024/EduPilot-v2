@@ -55,3 +55,15 @@
 - Kỳ vọng (AC7 + Q-QC-P212-2): ≤ 3 phút tính từ readyz 200 tới «Seed xong»; nhãn «[1/9] Admin…».
 - Thực tế: 752 s; nhãn «[n/20]»; README 5.2 đã ghi «≈ 10 phút» (không phải nguồn quyết định). Phần còn lại của AC7 đạt: lần hai in «Đã có dữ liệu, không seed» (SmkT2, DB riêng), SEED_ON_EMPTY_DB khác true thì không chạy và seed lỗi chỉ in cảnh báo (scripts/dev.mjs dòng 80–86).
 - Đề xuất: BA cập nhật AC7 (≤ thời gian thực tế, 20 bước) bằng proposal; hoặc dev tách seed nhanh. Bằng chứng: docs/regression/evidence-4/logs/qc2s/seed13.log.
+
+## DEF-R4-09 — Thấp — TC-P211-44 / TC-P212-27 (sprint gốc 4, US-P2-11 / US-P2-12; hồi quy do sprint 11)
+- Triệu chứng: `cd backend-go && golangci-lint run` (v2.14.0, `.golangci.yml` của repo) trả rc=1: `internal/practice/extract.go:130:5: defaultRetryWait is a global variable (gochecknoglobals)`. TC đòi `go vet && golangci-lint run && …` rc=0. `go vet ./...` rc=0; `go test -race -count=1 ./internal/today/...` ok (128 s); `go test -tags integration -count=1 ./internal/integration/...` ok (107 s).
+- Tái hiện: ở HEAD qc2 (sprint/11 @6201b665 + qc2): `cd backend-go && golangci-lint run`. Cũng đỏ ở CI: job «Go (static)» của run 44850023210 (nhánh sprint/11-p10-eval, sha 3121bda8) failure.
+- Nguồn: dòng `var defaultRetryWait = []time.Duration{2 * time.Second, 5 * time.Second}` thêm ở e42d8b49 (DEF-R10S-12, ngày 2026-11-19). Hồi quy của sprint 11, không phải mã sprint 4. Đề xuất: đổi thành hằng/hàm hoặc `//nolint:gochecknoglobals` có lý do.
+- Bằng chứng: evidence-4/logs/s4n-go44-lint.log, s4n-go44-vet.log, s4n-go44-today.log, s4n-go44-integ.log (scripts/s4n-go44.sh).
+
+## DEF-R4-10 — Thấp — TC-P208-34 (sprint gốc 4, US-P2-08 AC11; biến thể «trang đã mở»)
+- Triệu chứng: GV đang mở sẵn trang, Admin gán lớp mới → chuông hiện thông báo «Bạn được phân công lớp …» ≤ 35 s. Bấm thông báo ngay (trong 60 s kể từ lần tải `/me/courses` trước): pathname đúng `/class/settings` nhưng bộ chọn lớp vẫn hiện lớp CŨ («QC2IUBB… · QC2IU BB», mong «QC2IUAA…»). Chờ > 60 s (staleTime `/me/courses`) rồi bấm, hoặc đăng nhập sau khi được gán: bộ chọn lớp đúng.
+- Tái hiện: `specs-qc2/qc2-r4/smkt3-bell.spec.ts` ca «A» (fail) so với «B» (đăng nhập sau khi gán, P) và «A2» (chờ 65 s, P); ep-r HEAD 425396a7.
+- Mức ảnh hưởng: chỉ cửa sổ ≤ 60 s sau lúc được gán lớp khi trang đã mở; tự khỏi. Gợi ý: vô hiệu `/me/courses` khi chuông nhận thông báo phân công. TC gốc (đăng nhập sau khi được gán) đạt.
+- Bằng chứng: evidence-4/logs/s4n-res/smkt3-bell.jsonl, logs/s4n-pw-s7bell.log.

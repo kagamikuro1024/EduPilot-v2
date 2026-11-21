@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 8 — kết quả
 Mã đã chạy: 1409b04d (= 777bb5e2 + merge nhánh QC; sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2 · Ngày: 2026-11-19 · Còn N: 33 ca SEED (chờ ep-sd seed sạch do PM bật); 05-42 F chờ rebuild có 2479feb9
-Tổng TC cũ: 512 · Đạt: 497 · Trượt: 1 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 14   (P+F+LT+K+N = T)
+Tổng TC cũ: 512 · Đạt: 505 · Trượt: 0 · Lỗi thời (LT): 0 · Không chạy K (a/b/c): 0 · Chưa chạy (N): 7   (P+F+LT+K+N = T)
 
 Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./internal/grade` 5 test lõi PASS (logs/). Ghi chú từng ca: các file `part-*.tsv`, script/log ở `docs/regression/evidence-8/`.
 
@@ -16,7 +16,7 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | P6-07 | 59 | 59 | 0 | 0 | 0 | 0 |
 | P6-08 | 47 | 47 | 0 | 0 | 0 | 0 |
 | P6-09 | 50 | 50 | 0 | 0 | 0 | 0 |
-| P6-SEED | 37 | 22 | 1 | 0 | 0 | 14 |
+| P6-SEED | 37 | 30 | 0 | 0 | 0 | 7 |
 | S8-UI | 23 | 23 | 0 | 0 | 0 | 0 |
 
 ## Kết quả từng ca
@@ -487,11 +487,11 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-SEED-11 | P | giải trình B (staff explain): {"Kiểm tra hằng tuần (20%)": ["8", "8"], "Điểm cộng": ["min(0,5; 1)", "0,5"], "Điểm trừ": ["max(0; 2 − 2) × 0,5 + 0", "0"]}; sinh viên B (me |
 | TC-P6-SEED-12 | P | gradebooks: «OPEN|0» (lớp 1 OPEN, snapshot_version 0); lớp 2 GET gradebook → 200 {"scheme": null, "state": {"status": "OPEN", "snapshot_version": 0}, "columns": [], "rows |
 | TC-P6-SEED-13 | P | seed/demo/quy-che-lop2.pdf có, 2 trang; số lần «làm tròn|quy tròn|bước điểm» = 0; 7/7 đoạn x.y. của fixtures/quy-che-lop2.md có đúng chữ trong PDF (python pypdf — máy khô |
-| TC-P6-SEED-14 | N | chưa chạy |
-| TC-P6-SEED-15 | N | chưa chạy |
+| TC-P6-SEED-14 | P | qc2 21/11 qc2s (provider giả DEMO) lớp 2: upload quy-che-lop2.pdf READY → extract 202 (job) → state DRAFT_UNCLEAR, unclear_count 1; 3 thành phần Giữa kỳ 25 / Bài thực hàn |
+| TC-P6-SEED-15 | P | lớp 2: trước khi điền, Chốt điểm bị khoá («Chưa có công thức điểm đã xác nhận», finalize → 409 SCHEME_NOT_CONFIRMED); điền «Làm tròn đến 0,1» (HALF_UP, bước 0.1) PUT → 20 |
 | TC-P6-SEED-16 | P | fake_llm.json có khoá recordings (31 bản ghi); Go narrow -run 'TestExtractLop2OneUnclear|TestDemoModeRecordingsCoverPolicies' ./internal/grading: 2/2 PASS (2026-11-18) |
-| TC-P6-SEED-17 | N | chưa chạy |
-| TC-P6-SEED-18 | F | (grade_schemes, grade_components, grade_items, grade_entries, documents) trước 1|3|3|60|9 → sau seed lần hai (rc=1, 19 s) 1|3|3|60|9; tài liệu quy-che-lop1.pdf của lớp 1  |
+| TC-P6-SEED-17 | P | qc2 21/11 @9f05e1b2: build:gate + playwright gradebook.spec.ts -g 'lop2 demo step 6' → desktop 1 passed (mobile skip theo spec), rc=0 (log evidence-8/logs/seed17.log) |
+| TC-P6-SEED-18 | P | (grade_schemes, grade_components, grade_items, grade_entries, documents) trước 1|3|3|60|9 → sau seed lần hai (rc=0, 36 s) 1|3|3|60|9; tài liệu quy-che-lop1.pdf của lớp 1  |
 | TC-P6-SEED-19 | N | chưa chạy |
 | TC-P6-SEED-20 | P | NODE_ENV=production node scripts/seed.mjs → «Seed bị chặn: NODE_ENV=production. Seed chỉ chạy ở môi trường dev / test.» rc=1 (chạy trên ep-sd, trước mọi lời gọi API) |
 | TC-P6-SEED-21 | N | chưa chạy |
@@ -499,15 +499,15 @@ Bằng chứng chung: `p6-hand-calc.py` 30/30 + 18/18 khớp; `go test ./interna
 | TC-P6-SEED-23 | P | git show 6711408d -- scripts/check-crm-seed.mjs: đúng 1 dòng đổi, WATCH === 2 → WATCH === 3 (sv12, sv19, sv26); seed/expected_risk.csv có WATCH 3, AT_RISK 1 — khớp; không |
 | TC-P6-SEED-24 | N | chưa chạy |
 | TC-P6-SEED-25 | N | chưa chạy |
-| TC-P6-SEED-26 | N | chưa chạy |
-| TC-P6-SEED-27 | N | chưa chạy |
+| TC-P6-SEED-26 | P | qc2 21/11 @9f05e1b2: playwright gradebook.spec.ts --workers=2 → 43 passed, 0 failed, 0 flaky (43 ca mobile skip theo thiết kế spec), rc=0, 33,7 s; gồm F10 main path, lop2 |
+| TC-P6-SEED-27 | P | qc2 21/11: gradebook.spec.ts --list = 86 mục (43 × 2 dự án); đối chiếu 31 tên -g của TC: đủ ≥1 test mỗi tên; riêng «attendance notice» nằm ở attendance.spec.ts (US-P6-05  |
 | TC-P6-SEED-28 | P | A, B, C gọi me/grades → [200, 200, 200]; SV B gọi gradebook/students/<id của C>/explain → 403 FORBIDDEN |
 | TC-P6-SEED-29 | P | D (sv.moi): /me/courses 200 items=0; me/grades lớp 1 → 403, lớp 2 → 403 (403) |
 | TC-P6-SEED-30 | P | TA gradebook lớp 1 → 200; lớp 2 → 403 (seed gán TA vào: 761987; nếu TA thuộc cả hai lớp thì 200 là đúng theo seed — TC dặn ghi nhận và đối chiếu ARCHITECTURE §9) |
 | TC-P6-SEED-31 | P | p6-rbac.sh trên qc2s: 20 dòng [ADM], FAIL 0; tổng kết «RBAC: PASS»; log evidence-8/logs/seed-p6-rbac.log |
 | TC-P6-SEED-32 | P | ghi chú quan sát của B mang «CANARY-GRADE-7Q» (SQL fixture, đã xoá sau quét); quét 55 route GET của sinh viên (me/* và courses/{id}/*) bằng token B: 20 trả 200, 34 trả 40 |
-| TC-P6-SEED-33 | N | chưa chạy |
-| TC-P6-SEED-34 | N | chưa chạy |
+| TC-P6-SEED-33 | P | qc2 21/11 @HEAD: go test -tags integration ./internal/integration -run TestSeedGradebookExpected|Isolation|AdminForbidden -v → 3 PASS (2,20 / 2,10 / 3,73 s), ok 8,8 s (lo |
+| TC-P6-SEED-34 | P | qc2 21/11 qc2s (provider giả DEMO): tải seed/documents/Quyche.pdf (quy chế của trường, không có bản ghi trong fake_llm.json) làm COURSE_POLICY ở lớp 2 → ingest READY → PO |
 | TC-P6-SEED-35 | N | chưa chạy |
 | TC-P6-SEED-36 | N | chưa chạy |
 | TC-P6-SEED-37 | P | lớp 1 ACTIVE theo joined_via: ROSTER|30; sinh viên có điểm IMPORT = 30 (30); ô điểm IMPORT của người có joined_via ROSTER/ADMIN = 60/60 (nhập XLSX khớp theo student_code_ |

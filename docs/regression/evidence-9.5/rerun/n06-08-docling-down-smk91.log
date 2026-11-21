@@ -1,0 +1,9 @@
+Docling trước: running
+trước khi tắt  [Hỏi đáp đã được giảng viên xác nhận #0] | http+giây=200 0.043537 | trích_dẫn=0 | degraded=false low_conf=true | trả lời: 
+DOCLING STOP 09:04:53 trạng thái=exited
+docling tắt 1 [Quy chế học phần #1] | http+giây=200 0.300327 | trích_dẫn=0 | degraded=false low_conf=false | trả lời: 
+docling tắt 2 [Quy chế học phần #2] | http+giây=200 0.351821 | trích_dẫn=0 | degraded=false low_conf=false | trả lời: 
+docling tắt 3 [Đề tham khảo tuần 5 #0] | http+giây=200 0.051409 | trích_dẫn=0 | degraded=false low_conf=true | trả lời: 
+docling tắt 4 [Hỏi đáp #1] | http+giây=200 0.080709 | trích_dẫn=0 | degraded=false low_conf=true | trả lời: 
+docling vẫn tắt: exited
+DOCLING START 09:05:43

@@ -15,11 +15,11 @@ us=collections.OrderedDict()
 for t,k,n,w in d['rows']:
     u=t.split('-')[1]; c=us.setdefault(u,collections.Counter()); c['T']+=1
     kk='F' if (k=='F' and t in ov and ov[t][0]=='F') else ('P' if k=='P' else ('LT' if k=='LT' else 'N')); c[kk]+=1
-head=f"""# Smoke hồi quy sprint 9.1 — kết quả (chưa N=0; SmkS lượt 7 dừng vì hết ngân sách lượt)
-Mã đã chạy: 1409b04d / 8bbb6b88 (sprint/11-p10-eval) · ep-r + lớp sao sạch QR91A…H (evidence-9.1/scripts/r91-clone.sh + r91-fixgrades.sh + r91-fixseed.sh) · Người chạy: qc2 / SmkS · Ngày: 2026-11-19
+head=f"""# Smoke hồi quy sprint 9.1 — kết quả (SmkS4 2026-11-21: chạy nốt N còn lại + chạy lại F đã sửa)
+Mã đã chạy: 425396a7 (sprint/11-p10-eval) · ep-r + lớp sao sạch QR91A…H (evidence-9.1/scripts/r91-clone.sh + r91-fixgrades.sh + r91-fixseed.sh) + stack smk91 (UX09-16) · Người chạy: qc2 / SmkS · Ngày: 2026-11-21
 Tổng TC cũ: 414 · Lỗi thời (LT, loại khỏi tổng): {len(lt)} · Tổng tính = {len(rows)} · Đạt: {P} · Trượt (F xác nhận): {len(Fconf)} · K: 0 · Chưa chạy (N): {N}   (P+F+K+N = {len(rows)})
-Cách chạy: `evidence-9.1/run7.sh <spec> <lớp> [grep]` (khoá /tmp/qc2-pw.lock, xoá bộ đếm auth mỗi 3 s, log logs/*.rerun7*.log); `make_overrides7.py` ghi P từ ✓ thật + kết quả chấm tay `results-smkS.tsv`; `build_smoke91.py` dựng `s91-rows.json`. Dữ liệu sạch: 761987 đã bị QC ghi đè (QUIZ v2 ×6, MANUAL v9, thêm điểm danh/phát biểu) nên chạy trên lớp sao.
-F mới lượt này: DEF-R9.1-06 (TC-UX12-2, Thấp), DEF-R9.1-07 (TC-UX16-14, Thấp, AC mâu thuẫn) — xem defects-9.1.md. N còn lại phần lớn do đăng nhập/`me/courses` lỗi tạm khi nhiều agent chạy Playwright cùng lúc (không phải F), chạy lại bằng hàng đợi /tmp/smks/queue.sh (jobs8.txt).
+Cách chạy: `evidence-9.1/run8.sh <spec> <lớp> [grep]` (spec ở docs/regression/specs-qc2/qc2-r91, config qc2g; khoá /tmp/qc2-pw.lock qua scripts/pwlock.sh, xoá bộ đếm auth mỗi 3 s, log logs/*.rerun7*.log); `make_overrides7.py` ghi P từ ✓ thật + kết quả chấm tay `results-smkS.tsv` (P/F/LT, dòng sau thắng); `build_smoke91.py` dựng `s91-rows.json` (đọc TC từ docs/sprints/9.1/qc); `build_smoke91_md.py` dựng tệp này. Dữ liệu sạch: 761987 đã bị QC ghi đè nên chạy trên lớp sao QR91*.
+Lượt SmkS4: LT mới có nguồn: TC-UX13-1 (3b259963 + P-107-15), TC-UX08-28 (US-08 AC7 sửa 10.7, P-107-12/13). Chạy lại DEF đã sửa: DEF-R9.1-06 (6d127b88, TC-UX12-2), DEF-R9.1-07 (TC-UX16-14 theo P-11-75, ≤ 200 ms), DEF-R9.1-08 (e0ac8dc9, TC-UX09-16), TC-UX16-10 theo P-11-64. Chi tiết từng ca ở cột Ghi chú.
 """
 tbl=["## Tổng hợp theo US","| US | TC | P | F | LT | N |","| --- | ---: | ---: | ---: | ---: | ---: |"]
 for u,c in us.items(): tbl.append(f"| {u} | {c['T']} | {c['P']} | {c['F']} | {c['LT']} | {c['N']} |")

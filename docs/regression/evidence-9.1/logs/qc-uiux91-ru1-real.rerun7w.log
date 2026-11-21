@@ -1,0 +1,28 @@
+
+Running 1 test using 1 worker
+
+INFO UX18-4 tổng công tắc: 22 | theo tên: {"aiOn":7,"aiOff":4,"svOn":8,"svOff":3} | màu: {"aiOn":["lab(100 0 0)"],"aiOff":["lab(100 0 0)"],"svOn":["lab(100 0 0)"],"svOff":["lab(100 0 0)"]}
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:59:1 › TC-UX18-4/6/8/PQ công tắc tài liệu, thư viện SV, quyền (6.8s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:59:1 › TC-UX18-4/6/8/PQ công tắc tài liệu, thư viện SV, quyền 
+
+    Error: bật khác tắt về màu
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "lab(100 0 0)"
+
+      76 |   const cOn = [...new Set([...colors.aiOn, ...colors.svOn])], cOff = [...new Set([...colors.aiOff, ...colors.svOff])];
+      77 |   expect(cOn.length, "màu bật đồng nhất mọi hàng").toBe(1); expect(cOff.length, "màu tắt đồng nhất mọi hàng").toBe(1);
+    > 78 |   expect(cOn[0], "bật khác tắt về màu").not.toBe(cOff[0]);
+         |                                             ^
+      79 |   // UX18-6: tài liệu «Hiện cho sinh viên: tắt» không có trong /library của SV
+      80 |   const hidden = [...new Set(await t.page.getByRole("switch", { name: grp.svOff }).evaluateAll((els) => els.map((e) => (e.closest("tr")?.querySelector("td")?.textContent ?? "").trim()).filter(Boolean)))];
+      81 |   console.log("INFO UX18-6 tài liệu ẩn với SV:", JSON.stringify(hidden));
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:78:45
+
+    Error Context: ../docs/regression/evidence-9.1/pw-out/qc-uiux91-ru1-real-TC-UX18-d4f05--tài-liệu-thư-viện-SV-quyền-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:59:1 › TC-UX18-4/6/8/PQ công tắc tài liệu, thư viện SV, quyền 

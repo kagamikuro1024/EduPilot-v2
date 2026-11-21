@@ -1,0 +1,41 @@
+
+Running 2 tests using 1 worker
+
+INFO số phiên: 50
+INFO UX13-1 inner {"x":645,"y":189,"w":746,"h":519.390625,"r":1391,"b":708.390625} hist {"x":241,"y":173,"w":379,"h":3360.6875,"r":620,"b":3533.6875} main {"x":216,"r":1440} L 25 R 49
+INFO UX13-1 LỆCH LỀ (AC1 9.1: lề trái−24 = lề phải ±3; HEAD là Split 10.7): 48 px
+INFO UX13-1 kiểu cột lịch sử {"br":"0px","sh":"none","bg":"rgba(0, 0, 0, 0)","bl":"0px","brt":"0px"}
+INFO UX13-1 lịch sử trong Panel (AC1 9.1 đòi ngoài Panel; HEAD Split 10.7): true
+INFO UX13-9 nút Phiên mới khi trống: 0
+INFO UX13-11 gợi ý: ["Tôi nên làm gì với “Bài tập 03 — Phân tích một vụ tấn công thực tế”?","Điểm quá trình của tôi hiện là bao nhiêu?","Tuần này tôi có những buổi học nào?"]
+INFO UX13-11 kiểu {"br":"0px","bg":"rgba(0, 0, 0, 0)","bd":"1px"}
+INFO UX13-12 ô nhập: "Điểm quá trình của tôi hiện là bao nhiêu?" POST mới: 0
+INFO UX13-13 khoảng trống 72 / 519
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:55:1 › TC-UX13-1/5/9/11/12/13/17 /chat 1440 (phiên trống, lịch sử) (7.0s)
+INFO UX13-10 Phiên mới {"v":"secondary","bg":"lab(100 0 0)"}
+INFO UX13-15 null
+  ✘  2 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác (15.3s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác 
+
+    Error: dòng che PII
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      122 |   const m = txt.match(/Đã ẩn (\d+) thông tin cá nhân trước khi gửi cho AI/);
+      123 |   console.log("INFO UX13-15", JSON.stringify(m));
+    > 124 |   expect(m, "dòng che PII").not.toBeNull(); expect(+m![1]).toBeGreaterThanOrEqual(2);
+          |                                 ^
+      125 |   // UX13-6/7/8: xoá phiên vừa tạo
+      126 |   const rows = o.page.locator("[data-part=chat-history] li"); const n0 = await rows.count();
+      127 |   const dels = () => reqs.filter((x) => x.startsWith("DELETE")).length;
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:124:33
+
+    Error Context: ../docs/regression/evidence-9.1/pw-out/qc-uiux91-r91sv-real-TC-UX-0733a-iên-mới-PII-xoá-có-hoàn-tác-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác 
+  1 passed (23.1s)

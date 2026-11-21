@@ -1,0 +1,23 @@
+cảnh s0-intro 46 khung, 4.3 s
+cảnh s1-chat 175 khung, 14.6 s
+cảnh s1b-inbox 110 khung, 8.0 s
+cảnh s2-review 205 khung, 14.6 s
+cảnh s3-gradebook 188 khung, 13.6 s
+cảnh clip-review 178 khung, 10.9 s
+cảnh s4-today 62 khung, 6.0 s
+cảnh s5-outro 46 khung, 4.4 s
+tổng 65.49 s; poster ở 31.9 s
+-rw-r--r-- 1 root root 21058 Nov 21 02:13 /dest/story-chat-v1-800.webp
+-rw-r--r-- 1 root root 49718 Nov 21 02:13 /dest/story-chat-v1.webp
+-rw-r--r-- 1 root root 24080 Nov 21 02:13 /dest/story-gradebook-v1-800.webp
+-rw-r--r-- 1 root root 53230 Nov 21 02:13 /dest/story-gradebook-v1.webp
+-rw-r--r-- 1 root root 36596 Nov 21 02:13 /dest/story-review-v1-800.webp
+-rw-r--r-- 1 root root 85776 Nov 21 02:13 /dest/story-review-v1.webp
+-rw-r--r-- 1 root root  262003 Nov 21 02:12 /dest/gioi-thieu-clip-v1.mp4
+-rw-r--r-- 1 root root  365285 Nov 21 02:13 /dest/gioi-thieu-clip-v1.webm
+-rw-r--r-- 1 root root   54346 Nov 21 02:13 /dest/gioi-thieu-clip-v1.webp
+-rw-r--r-- 1 root root 1072873 Nov 21 02:12 /dest/gioi-thieu-v1.mp4
+-rw-r--r-- 1 root root 1605847 Nov 21 02:12 /dest/gioi-thieu-v1.webm
+-rw-r--r-- 1 root root   49024 Nov 21 02:12 /dest/gioi-thieu-v1.webp
+10.966667
+duration=65.800000|size=1072873|bit_rate=130440

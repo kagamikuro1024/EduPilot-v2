@@ -52,3 +52,11 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - DEF-R8-A4 (TC-P6-05-37): ĐÓNG — sha 22387b06 (có trong 777bb5e2), chạy lại trên ep-r 1409b04d: câu «Cô tính điểm môn này thế nào?» → câu mẫu, 0 LLM; 05-38/39 P (s8r-chat05.py).
 - DEF-R8-A5 (TC-P6-05-42): ĐÓNG — sha 2479feb9, chạy lại 2026-11-19 trên ep-r đã rebuild: P («Tài liệu nguồn đã gỡ» hiện đúng).
 - DEF-R3-SMK-03 (TC-PU05-40, TC-GATEPU-15): ĐÓNG — sha 07a6b69c, chạy lại 2026-11-19: 7/7 route SV sạch, cả hai TC P.
+
+## Đợt chạy lại DefR (qc2, 2026-11-21; HEAD qc2 9f05e1b2, ep-r dựng ở 6201b665 + fix). Bảng: evidence-defrerun/results-DefR.tsv
+- **DEF-R2-04** (562f5a45): ĐÓNG — `go test -count=1 ./internal/contract` KHÔNG tag ok 56,3 s; có `-tags testroutes` ok (TC-PG06-10/11 và TC sprint 1/2 tương ứng).
+- **DEF-R9.5-16** (6ec47f79): ĐÓNG — TC-N01-12 P (demo_stack=unknown → check-meta rc=1).
+- **DEF-R9.5-22** (239df7fc): ĐÓNG — TC-N01-03 P (lệnh README chạy nguyên văn rc=0 «đã tồn tại»).
+- **DEF-R10.8-02** (b8c43df8): ĐÓNG — TC-AS13-05, TC-AS14-11 P (34/34 tên test SRS §11 có trong mã; 7 test PASS).
+- **DEF-R9.5-20** (98d4373d): ĐÓNG — TC-N06-04 P (Redis tắt trên ep-r: 503 OVERLOADED 3,7 s; cũ 39,5 s; TestSendRedisDownFailsFast xanh).
+- **DEF-R5-03** (46bf5626), **DEF-R5-04** (4cd9c07e): ĐÓNG — TC-PE03-49, TC-PE03-51 P (ui lượt smkP_q.cjs 08:56).

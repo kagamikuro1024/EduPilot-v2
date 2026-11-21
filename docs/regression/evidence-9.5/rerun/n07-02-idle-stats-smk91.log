@@ -1,0 +1,13 @@
+smk91-caddy-1 11.57MiB / 9.69GiB 0.00%
+smk91-worker-1 15.65MiB / 9.69GiB 0.68%
+smk91-gateway-1 12.27MiB / 9.69GiB 0.05%
+smk91-pgbouncer-1 7.762MiB / 9.69GiB 0.13%
+smk91-redis-1 7.242MiB / 9.69GiB 0.33%
+smk91-postgres-1 67.45MiB / 9.69GiB 0.61%
+smk91-docling-1 512.2MiB / 3GiB 0.11%
+smk91-mock-graph-1 2.621MiB / 9.69GiB 0.00%
+smk91-mock-imap-1 2.129MiB / 9.69GiB 0.00%
+smk91-minio-1 88.67MiB / 9.69GiB 1.59%
+smk91-frontend-1 45.95MiB / 9.69GiB 0.00%
+smk91-mailpit-1 6.5MiB / 9.69GiB 0.00%
+smk91-judge-1 10.55MiB / 2GiB 0.82%

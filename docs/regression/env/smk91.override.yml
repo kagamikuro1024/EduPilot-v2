@@ -1,0 +1,6 @@
+# Dựng lại SmkS4 2026-11-21 từ docker inspect (bản /tmp/smk91.override.yml bị macOS dọn): chỉ worker khác bản test thường.  cp ra /tmp/smk91.override.yml trước khi dùng $SMK_C.
+services:
+  worker:
+    environment:
+      REMINDER_TICK: 30s
+      TICKET_SLA_TICK: 1m

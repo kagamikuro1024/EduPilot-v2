@@ -1,0 +1,5 @@
+--- PASS: TestSeedGradebookExpected (2.20s)
+--- PASS: TestSeedGradebookIsolation (2.10s)
+--- PASS: TestSeedGradebookAdminForbidden (3.73s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/integration	8.811s

@@ -1,0 +1,107 @@
+[WebServer] (node:94082) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:94107) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 86 tests using 2 workers
+
+(node:94109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › e2e/gradebook.spec.ts:49:1 › unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có lý do ở chính nút, điền xong thì mở (499ms)
+  ✓   1 [desktop] › e2e/gradebook.spec.ts:23:1 › scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả (632ms)
+  ✓   3 [desktop] › e2e/gradebook.spec.ts:67:1 › scheme edit optimistic: số sai báo tại ô và giữ chữ; số đúng lưu ngay khi rời ô, version + 1; 409 hoàn lại kèm dòng báo (399ms)
+  ✓   4 [desktop] › e2e/gradebook.spec.ts:94:1 › scheme edit conflict: 409 VERSION_CONFLICT nạp bản hiện tại và báo bằng InlineNotice (318ms)
+  ✓   5 [desktop] › e2e/gradebook.spec.ts:106:1 › impact preview: ba sinh viên mẫu trước → sau; lớp chưa đủ điểm hiện dòng chưa đủ điểm (256ms)
+  ✓   6 [desktop] › e2e/gradebook.spec.ts:116:1 › impact preview empty: chưa đủ điểm (248ms)
+  ✓   8 [desktop] › e2e/gradebook.spec.ts:137:1 › confirm irreversible dropped: số điểm bị bỏ và lý do hiện trong hộp thoại (376ms)
+  ✓   7 [desktop] › e2e/gradebook.spec.ts:122:1 › confirm irreversible: hộp thoại nêu ba con số, gửi version + Idempotency-Key, xong đổi chữ tại chỗ (không toast) (508ms)
+  ✓   9 [desktop] › e2e/gradebook.spec.ts:144:1 › new policy diff: có bản nháp cạnh bản đã xác nhận → chế độ so sánh do máy chủ tính (367ms)
+  ✓  11 [desktop] › e2e/gradebook.spec.ts:170:1 › scheme rbac: TA đọc được nhưng không có nút xác nhận, tải quy chế, ô điền; sinh viên bị chặn (445ms)
+  ✓  12 [desktop] › e2e/gradebook.spec.ts:185:1 › scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại (2.3s)
+  ✓  13 [desktop] › e2e/gradebook.spec.ts:203:1 › scheme source removed: trích dẫn hiện «Tài liệu nguồn đã gỡ», còn đoạn trích, không có liên kết mở trang (218ms)
+  ✓  10 [desktop] › e2e/gradebook.spec.ts:155:1 › scheme offline retry: mất mạng giữ chữ, báo Chưa lưu 1–2 từ, tự gửi lại khi có mạng (3.6s)
+  ✓  14 [desktop] › e2e/gradebook.spec.ts:214:1 › scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px (370ms)
+  ✓  16 [desktop] › e2e/gradebook.spec.ts:254:1 › new policy upload failed: tải hỏng giữ tên tệp và có Tải lại (280ms)
+  ✓  17 [desktop] › e2e/gradebook.spec.ts:274:1 › gradebook layout: một Panel, cột Sinh viên cố định, cột theo item + Điểm cộng… Trạng thái, không thẻ KPI (1.2s)
+  ✓  18 [desktop] › e2e/gradebook.spec.ts:287:1 › official note: đúng một dòng ghi chú cố định dưới bảng (238ms)
+  ✓  19 [desktop] › e2e/gradebook.spec.ts:293:1 › cell edit keys: Enter lưu và xuống ô dưới, Tab lưu và sang phải, Esc hoàn tác, xoá ô = xoá điểm; lỗi giữ chữ (774ms)
+  ✓  20 [desktop] › e2e/gradebook.spec.ts:335:1 › cell edit instant: cột tính hiện … trong lúc chờ rồi đổi theo phản hồi của máy chủ (1.8s)
+  ✓  15 [desktop] › e2e/gradebook.spec.ts:232:1 › new policy upload: tải → đọc → trích có tiến độ, xong có bản nháp; trích dùng Idempotency-Key (5.2s)
+  ✓  21 [desktop] › e2e/gradebook.spec.ts:348:1 › cell conflict choose: người sau nhận 409, hiện giá trị người kia, chọn Giữ của tôi hoặc Dùng của họ (1.4s)
+  ✓  22 [desktop] › e2e/gradebook.spec.ts:378:1 › explain student B: Giải trình từ menu dòng, từng dòng phép tính, căn cứ mở đoạn trích, dòng do giảng viên đặt (1.9s)
+  ✓  23 [desktop] › e2e/gradebook.spec.ts:398:1 › virtualized 1000: DOM ≤ 60 dòng, cuộn tải trang kế theo con trỏ (2.1s)
+  ✓  24 [desktop] › e2e/gradebook.spec.ts:412:1 › type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn về, chữ còn (1.1s)
+  ✓  25 [desktop] › e2e/gradebook.spec.ts:424:1 › gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại (1.9s)
+  ✓  27 [desktop] › e2e/gradebook.spec.ts:459:1 › gradebook rbac: TA đọc bảng, giải trình, lịch sử nhưng không có ô nhập, menu cột, Chốt điểm; sổ đã chốt khoá mọi ô (2.1s)
+  ✓  26 [desktop] › e2e/gradebook.spec.ts:445:1 › offline cell: mất mạng giữ chữ, nhãn Chưa lưu tại ô, tự gửi lại khi có mạng (4.4s)
+  ✓  28 [desktop] › e2e/gradebook.spec.ts:473:1 › publish column: menu cột công bố / gỡ; cột bài thi không có menu (1.4s)
+  ✓  29 [desktop] › e2e/gradebook.spec.ts:489:1 › penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện (618ms)
+  ✓  30 [desktop] › e2e/gradebook.spec.ts:503:1 › gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức (846ms)
+  ✓  31 [desktop] › e2e/gradebook.spec.ts:528:1 › import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đổi không cần tải lại, công bố mặc định tắt (1.8s)
+  ✓  32 [desktop] › e2e/gradebook.spec.ts:558:1 › forms import flow: ba bước, xem trước có bảng điểm + dòng chưa khớp, ghi không công bố, xác nhận cần Idempotency-Key (US-P9-11) (1.9s)
+  ✓  33 [desktop] › e2e/gradebook.spec.ts:591:1 › forms import teacher only: TA không có menu nhập nào (902ms)
+  ✓  34 [desktop] › e2e/gradebook.spec.ts:597:1 › import errors listed: dòng lỗi theo hàng bằng chữ tiếng Việt, nút Bỏ qua N dòng lỗi và ghi M dòng gửi skip_errors (2.0s)
+  ✓  36 [desktop] › e2e/gradebook.spec.ts:633:1 › import publish option: bật Công bố cột thì ghi xong gọi công bố đúng cột (985ms)
+  ✓  35 [desktop] › e2e/gradebook.spec.ts:618:1 › import upload failed: giữ tên tệp và có Tải lại; chọn cột và hạng mục không mất (3.4s)
+  ✓  38 [desktop] › e2e/gradebook.spec.ts:677:1 › finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu bảng Đã chốt v1, ô khoá, Mở khoá ở menu, không toast (1.1s)
+  ✓  37 [desktop] › e2e/gradebook.spec.ts:646:1 › export xlsx: Xuất XLSX tải tệp; TA và sổ đã chốt không có Nhập (2.6s)
+  ✓  39 [desktop] › e2e/gradebook.spec.ts:702:1 › finalize incomplete list: 409 hiện danh sách sinh viên thiếu kèm liên kết tới ô, chữ tiếng Việt (1.6s)
+  ✓  40 [desktop] › e2e/gradebook.spec.ts:720:1 › unlock reason: hậu quả bằng số, lý do 10–500 ký tự khoá nút, mở khoá xong ô nhập lại được (674ms)
+  ✓  41 [desktop] › e2e/gradebook.spec.ts:741:1 › snapshot history: Lịch sử chốt liệt kê các phiên bản kèm lý do mở khoá, chọn bản cũ xem điểm đã chốt; TA cũng xem được (1.4s)
+  ✓  42 [desktop] › e2e/gradebook.spec.ts:766:1 › lop2 demo step 6: tải quy chế lớp 2 (bản dựng thật) → một mục chưa rõ chặn xác nhận → điền làm tròn → xác nhận → banner mất, Chốt điểm mở (1.7s)
+(node:94971) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  44 [mobile] › e2e/gradebook.spec.ts:23:1 › scheme review layout: hai Panel (công thức | trích dẫn), sáu khối đúng thứ tự, cột trích dẫn mở đúng trang, không câu mô tả
+  -  45 [mobile] › e2e/gradebook.spec.ts:49:1 › unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có lý do ở chính nút, điền xong thì mở
+  -  46 [mobile] › e2e/gradebook.spec.ts:67:1 › scheme edit optimistic: số sai báo tại ô và giữ chữ; số đúng lưu ngay khi rời ô, version + 1; 409 hoàn lại kèm dòng báo
+  -  47 [mobile] › e2e/gradebook.spec.ts:94:1 › scheme edit conflict: 409 VERSION_CONFLICT nạp bản hiện tại và báo bằng InlineNotice
+  -  48 [mobile] › e2e/gradebook.spec.ts:106:1 › impact preview: ba sinh viên mẫu trước → sau; lớp chưa đủ điểm hiện dòng chưa đủ điểm
+  -  49 [mobile] › e2e/gradebook.spec.ts:116:1 › impact preview empty: chưa đủ điểm
+  -  50 [mobile] › e2e/gradebook.spec.ts:122:1 › confirm irreversible: hộp thoại nêu ba con số, gửi version + Idempotency-Key, xong đổi chữ tại chỗ (không toast)
+  -  51 [mobile] › e2e/gradebook.spec.ts:137:1 › confirm irreversible dropped: số điểm bị bỏ và lý do hiện trong hộp thoại
+  -  52 [mobile] › e2e/gradebook.spec.ts:144:1 › new policy diff: có bản nháp cạnh bản đã xác nhận → chế độ so sánh do máy chủ tính
+  -  53 [mobile] › e2e/gradebook.spec.ts:155:1 › scheme offline retry: mất mạng giữ chữ, báo Chưa lưu 1–2 từ, tự gửi lại khi có mạng
+  -  54 [mobile] › e2e/gradebook.spec.ts:170:1 › scheme rbac: TA đọc được nhưng không có nút xác nhận, tải quy chế, ô điền; sinh viên bị chặn
+  -  55 [mobile] › e2e/gradebook.spec.ts:185:1 › scheme states: rỗng có Tải quy chế, đang tải có khung xương, lỗi có nguyên nhân và Thử lại
+  -  56 [mobile] › e2e/gradebook.spec.ts:203:1 › scheme source removed: trích dẫn hiện «Tài liệu nguồn đã gỡ», còn đoạn trích, không có liên kết mở trang
+  -  57 [mobile] › e2e/gradebook.spec.ts:214:1 › scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không tràn ngang, nút chính ≥ 44 px
+  -  58 [mobile] › e2e/gradebook.spec.ts:232:1 › new policy upload: tải → đọc → trích có tiến độ, xong có bản nháp; trích dùng Idempotency-Key
+  -  59 [mobile] › e2e/gradebook.spec.ts:254:1 › new policy upload failed: tải hỏng giữ tên tệp và có Tải lại
+  -  60 [mobile] › e2e/gradebook.spec.ts:274:1 › gradebook layout: một Panel, cột Sinh viên cố định, cột theo item + Điểm cộng… Trạng thái, không thẻ KPI
+  -  61 [mobile] › e2e/gradebook.spec.ts:287:1 › official note: đúng một dòng ghi chú cố định dưới bảng
+  -  62 [mobile] › e2e/gradebook.spec.ts:293:1 › cell edit keys: Enter lưu và xuống ô dưới, Tab lưu và sang phải, Esc hoàn tác, xoá ô = xoá điểm; lỗi giữ chữ
+  -  63 [mobile] › e2e/gradebook.spec.ts:335:1 › cell edit instant: cột tính hiện … trong lúc chờ rồi đổi theo phản hồi của máy chủ
+  -  64 [mobile] › e2e/gradebook.spec.ts:348:1 › cell conflict choose: người sau nhận 409, hiện giá trị người kia, chọn Giữ của tôi hoặc Dùng của họ
+  -  65 [mobile] › e2e/gradebook.spec.ts:378:1 › explain student B: Giải trình từ menu dòng, từng dòng phép tính, căn cứ mở đoạn trích, dòng do giảng viên đặt
+  -  66 [mobile] › e2e/gradebook.spec.ts:398:1 › virtualized 1000: DOM ≤ 60 dòng, cuộn tải trang kế theo con trỏ
+  -  67 [mobile] › e2e/gradebook.spec.ts:412:1 › type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn về, chữ còn
+  -  68 [mobile] › e2e/gradebook.spec.ts:424:1 › gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại
+  -  69 [mobile] › e2e/gradebook.spec.ts:445:1 › offline cell: mất mạng giữ chữ, nhãn Chưa lưu tại ô, tự gửi lại khi có mạng
+  ✓  43 [desktop] › e2e/gradebook.spec.ts:799:1 › f10 main path: sửa ô → giải trình → chốt v1 → ô khoá → mở khoá có lý do → sửa → chốt lại v2; TA chỉ đọc (2.8s)
+  -  70 [mobile] › e2e/gradebook.spec.ts:459:1 › gradebook rbac: TA đọc bảng, giải trình, lịch sử nhưng không có ô nhập, menu cột, Chốt điểm; sổ đã chốt khoá mọi ô
+  -  71 [mobile] › e2e/gradebook.spec.ts:489:1 › penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện
+  -  72 [mobile] › e2e/gradebook.spec.ts:503:1 › gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức
+  -  73 [mobile] › e2e/gradebook.spec.ts:528:1 › import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đổi không cần tải lại, công bố mặc định tắt
+  -  74 [mobile] › e2e/gradebook.spec.ts:558:1 › forms import flow: ba bước, xem trước có bảng điểm + dòng chưa khớp, ghi không công bố, xác nhận cần Idempotency-Key (US-P9-11)
+  -  75 [mobile] › e2e/gradebook.spec.ts:591:1 › forms import teacher only: TA không có menu nhập nào
+  -  76 [mobile] › e2e/gradebook.spec.ts:597:1 › import errors listed: dòng lỗi theo hàng bằng chữ tiếng Việt, nút Bỏ qua N dòng lỗi và ghi M dòng gửi skip_errors
+  -  77 [mobile] › e2e/gradebook.spec.ts:618:1 › import upload failed: giữ tên tệp và có Tải lại; chọn cột và hạng mục không mất
+(node:95079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  78 [mobile] › e2e/gradebook.spec.ts:633:1 › import publish option: bật Công bố cột thì ghi xong gọi công bố đúng cột
+  -  79 [mobile] › e2e/gradebook.spec.ts:646:1 › export xlsx: Xuất XLSX tải tệp; TA và sổ đã chốt không có Nhập
+  -  81 [mobile] › e2e/gradebook.spec.ts:677:1 › finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu bảng Đã chốt v1, ô khoá, Mở khoá ở menu, không toast
+  -  82 [mobile] › e2e/gradebook.spec.ts:702:1 › finalize incomplete list: 409 hiện danh sách sinh viên thiếu kèm liên kết tới ô, chữ tiếng Việt
+  -  83 [mobile] › e2e/gradebook.spec.ts:720:1 › unlock reason: hậu quả bằng số, lý do 10–500 ký tự khoá nút, mở khoá xong ô nhập lại được
+  -  80 [mobile] › e2e/gradebook.spec.ts:473:1 › publish column: menu cột công bố / gỡ; cột bài thi không có menu
+  -  84 [mobile] › e2e/gradebook.spec.ts:741:1 › snapshot history: Lịch sử chốt liệt kê các phiên bản kèm lý do mở khoá, chọn bản cũ xem điểm đã chốt; TA cũng xem được
+  -  85 [mobile] › e2e/gradebook.spec.ts:766:1 › lop2 demo step 6: tải quy chế lớp 2 (bản dựng thật) → một mục chưa rõ chặn xác nhận → điền làm tròn → xác nhận → banner mất, Chốt điểm mở
+  -  86 [mobile] › e2e/gradebook.spec.ts:799:1 › f10 main path: sửa ô → giải trình → chốt v1 → ô khoá → mở khoá có lý do → sửa → chốt lại v2; TA chỉ đọc
+
+  43 skipped
+  43 passed (33.7s)
+rc=0
+DONE

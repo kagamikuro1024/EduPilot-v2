@@ -29,7 +29,7 @@ up)
   docker network connect ep-r_judge_net qc2s-worker 2>/dev/null; docker network connect ep-r_judge_net qc2s-gw 2>/dev/null
   for i in $(seq 60); do curl -sf http://127.0.0.1:18231/api/v1/readyz >/dev/null && break; sleep 2; done; curl -s http://127.0.0.1:18231/api/v1/readyz; echo ;;
 seed) shift
-  cd $REPO && API_URL=http://127.0.0.1:18231/api/v1 MAILPIT_URL=http://127.0.0.1:18233 SEED_DEFAULT_PASSWORD='Edupilot#Seed-2026' SEED_ADMIN_CMD="docker exec -i qc2s-gw /gateway admin create" node scripts/seed.mjs "$@" ;;
+  cd $REPO && MOCK_IMAP_URL=http://127.0.0.1:8791 MOCK_GRAPH_URL=http://127.0.0.1:8790 NODE_TLS_REJECT_UNAUTHORIZED=0 API_URL=http://127.0.0.1:18231/api/v1 MAILPIT_URL=http://127.0.0.1:18233 SEED_DEFAULT_PASSWORD='Edupilot#Seed-2026' SEED_ADMIN_CMD="docker exec -i qc2s-gw /gateway admin create" node scripts/seed.mjs "$@" ;;
 down)
   docker rm -f qc2s-redis qc2s-mail qc2s-worker qc2s-gw >/dev/null 2>&1
   docker exec $PGC psql -U edupilot -d postgres -c "drop database if exists $DB with (force)"; rm -f $GWENV $WKENV; echo "qc2s: đã gỡ + DROP DATABASE $DB" ;;

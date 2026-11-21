@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 542 · Đạt: 467 · Trượt: 8 · Lỗi thời (LT): 3 · Không kiểm được K (a/b/c): 0/2/2 · Chưa chạy (N): 60   (P+F+LT+K+N = T)
+Tổng TC cũ: 542 · Đạt: 484 · Trượt: 8 · Lỗi thời (LT): 3 · Không kiểm được K (a/b/c): 0/2/2 · Chưa chạy (N): 43   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-4/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 4`.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -9,15 +9,15 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 ## Tổng hợp theo US
 | US | TC tổng | P | F | LT | K | N | Ghi chú |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GATE-P2 | 44 | 20 | 2 | 1 | 2 | 19 | |
+| GATE-P2 | 44 | 25 | 2 | 1 | 2 | 14 | |
 | US-P2-01 | 34 | 32 | 2 | 0 | 0 | 0 | |
-| US-P2-02 | 52 | 43 | 2 | 0 | 0 | 7 | |
+| US-P2-02 | 52 | 46 | 2 | 0 | 0 | 4 | |
 | US-P2-03 | 39 | 39 | 0 | 0 | 0 | 0 | |
-| US-P2-04 | 40 | 36 | 0 | 0 | 0 | 4 | |
+| US-P2-04 | 40 | 40 | 0 | 0 | 0 | 0 | |
 | US-P2-05 | 40 | 40 | 0 | 0 | 0 | 0 | |
-| US-P2-06 | 43 | 40 | 1 | 0 | 0 | 2 | |
+| US-P2-06 | 43 | 42 | 1 | 0 | 0 | 0 | |
 | US-P2-07 | 39 | 37 | 0 | 1 | 0 | 1 | |
-| US-P2-08 | 42 | 38 | 0 | 0 | 0 | 4 | |
+| US-P2-08 | 42 | 41 | 0 | 0 | 0 | 1 | |
 | US-P2-09 | 54 | 48 | 0 | 0 | 0 | 6 | |
 | US-P2-10 | 40 | 37 | 0 | 0 | 0 | 3 | |
 | US-P2-11 | 44 | 33 | 0 | 0 | 0 | 11 | |
@@ -58,16 +58,16 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-GATEP2-40 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP2-41 | P | HTTP trên ep-r: access trước 200; kẻ trộm xoay T1→T2 200; nạn nhân mang T1 → 401 SESSION_REVOKED; sau đó access cũ 401, access mới của kẻ trộm 401, T2 401 (mọi thứ 401 ≤ 0.11 s từ lúc phát hiện); auth_sessions REFRESH_REUSE/t; audit_log refresh_reuse=1; ca nền TC-P202-11/12/13/14 đều P (smkt3-gate-http.py) |
 | TC-GATEP2-42 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP2-43 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP2-43 | P | 50 yêu cầu song song mỗi loại trên ep-r: xác minh: mã {410: 49, 200: 1}, lý do {'used': 49}, code {'LINK_INVALID': 49}, ACTIVE; đặt lại: mã {200: 1, 410: 49}, lý do {'used': 49}, code {'LINK_INVALID': 49}; mời: mã {410: 49, 200: 1}, lý do {'used': 49}, code {'LINK_INVALID': 49}, phiên=1; ca nền TC-P203-13/14, P204-05/06, P206-06/07 đều P |
 | TC-GATEP2-44 | F | TC-P201-11 F (DEF-R4-05): token mời rõ nằm trong log Caddy (tiêu đề Next-Url và Next-Router-State-Tree); quét 229 token thật: gateway, worker, postgres, redis, pgbouncer, qc2i-* = 0; token_hash/refresh_hash 64 hex và bcrypt: ca nền TC-P201-09, P201-10, P202-08, P204-09, P206-09 đều P |
 | TC-GATEP2-45 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-GATEP2-46 | P | SV A xoá phiên của B → 404 NOT_FOUND; Admin xoá qua /me/sessions → 404; id không tồn tại → 404 NOT_FOUND (đồng nhất); phiên B vẫn dùng được (200); SV A / Admin đánh dấu đọc thông báo của B → 404/404, thông báo B vẫn chưa đọc (t); ca nền TC-P204-23, P204-24, P208-23 đều P |
-| TC-GATEP2-47 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP2-47 | P | SV sv.kha (không thuộc lớp QS470E05F) gọi 258 thao tác (mọi phương thức) của mọi route lớp theo openapi: 2xx/5xx = 0; /today?user_id=lạ, /members, /threads, header X-Course-Id → [403, 403, 403, 403]; DB lớp trước/sau =; ca nền TC-P207-08/15, P209-37/38, P211-20/21 đều P |
 | TC-GATEP2-48 | P | /admin/users với alg=none / sửa role / secret sai → {'alg=none': 401, 'sửa role=ADMIN, giữ chữ ký sai': 401, 'HS256 secret sai': 401} (kỳ vọng 401); SV gửi X-Role/X-User-Id giả → 403; SV POST /admin/users role=ADMIN → 403; GV gọi assign → 403; md5 bảng users trước/sau khớp: True; ca nền TC-P202-29, P203-02, P206-02, P206-22, P206-23, P208-27 đều P |
 | TC-GATEP2-49 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP2-50 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP2-51 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-GATEP2-52 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-GATEP2-50 | P | có–không tài khoản, trên ep-r, 3–7 lần mỗi bên: forgot-password: cùng mã/thân=True (mã [202]), trung vị 85 ms vs 85 ms (tỉ lệ 1.00); login sai: cùng mã/thân=True (mã [401]), trung vị 235 ms vs 233 ms (tỉ lệ 0.99); register: cùng mã/thân=True (mã [202]), trung vị 234 ms vs 230 ms (tỉ lệ 0.99); resend-verification: cùng mã/thân=True (mã [202]), trung vị 61035 ms vs 61043 ms (tỉ lệ 1.00); mã tham gia: cùng mã/thân=True (mã [404]), trung vị 6 ms vs 5 ms (tỉ lệ 0.90); ca nền TC-P202-04/05, P203-04, P204-01, P205-10/28, P206-16, P209-07/08 đều P |
+| TC-GATEP2-51 | P | ep-r: 14 lần sai, mỗi lần X-Forwarded-For khác → [401, 401, 401, 401, 401, 429, 429, 429, 429, 429, 429, 429, 429, 429]; đăng nhập ĐÚNG ngay sau → 429 RATE_LIMITED; DB failed_logins/locked 5/f (header giả vô tác dụng); các bước chờ tăng dần, khoá 15 phút (đo thật 899,8 s), IP chặn 40 lần, Admin cũng bị: ca nền TC-P205-01…19, P205-35, P205-36 đều P |
+| TC-GATEP2-52 | P | dry_run: {'ELF→.csv': 422, 'PNG→.csv': 422, 'zip bomb .xlsx': 422, 'rỗng': 422} (zip bomb 60 MB giải nén → 422 sau 0.0 s; gateway còn sống 200); tệp công thức =HYPERLINK / @SUM / +1+1: dry_run 200, nhập thật 200; tên lưu trong users: '+1+1' (lưu nguyên văn như chữ, không thực thi); ca nền TC-P210-03/04/36; ghi nhận DEF-R4-02 (.xlsx thực chất là văn bản được đọc như CSV, vẫn qua kiểm tra dòng: Thấp) không thuộc ca độc hại |
 | TC-GATEP2-53 | F | quét log 2026-11-19 bằng mật khẩu thử, token, email thử: gateway, worker, redis, pgbouncer, qc2i-* = 0 dòng; Caddy: đường dẫn /api/v1/courses/join/REDACTED và /invite/REDACTED đã che đúng, nhưng 1 dòng chứa token mời rõ ở tiêu đề Next-Url / Next-Router-State-Tree (DEF-R4-05); postgres có dòng email thử nhưng do chính câu lệnh psql của QC (statement log), không phải sản phẩm; repo: chỉ .env.example (và legacy/.env.example) được commit, không .env.local, .pem là gốc tin cậy/testdata công khai |
 | TC-GATEP2-99 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P201-01 | P | 00003 và 00004 áp dụng; phiên bản hiện tại 25 |
@@ -135,16 +135,16 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P202-29 | P | token A(sub) + sid phiên B (ký đúng secret) → 200, dữ liệu vẫn của A (không đoạt phiên B); sid ngẫu nhiên ký đúng secret → 200 (kiểm thu hồi theo sid bị thu hồi, không bắt buộc sid tồn tại); 7 ca giả khác (secret sai, none, exp, nbf, iss, aud, sub đổi) đều 401 |
 | TC-P202-30 | P | playwright r4ui-auth (ep-r, spec chỉnh đo bằng request.timing() của trình duyệt thay cho Date.now() hai tab, vì sai số ~50 ms của đo ngoài làm 2 lần chạy trước báo chồng): 2 request /auth/refresh từ 2 tab cùng context: tab 1 bắt đầu 0 ms nhận đầu thư 12 ms xong 13 ms; tab 2 bắt đầu 19 ms (sau khi tab 1 xong) xong 34 ms → tuần tự, không chồng, đúng 2 (≤ 2); auth_sessions còn hiệu lực 4, thu hồi 0; không dòng revoked_reason reuse (navigator.locks ep-refresh trong authSession.ts / earlyRefresh.ts); /tmp/qc2-i/res/r4ui-auth.jsonl |
 | TC-P202-31 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P202-32 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P202-32 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-auth desktop: (a) refresh 401 → /login?next=%2Fsettings, refresh gọi 2 lần (1 lúc tải trang + 1 khi 401), không vòng lặp; (b) phát lại vẫn 401 → báo lỗi, không làm mới nữa (refresh 2 lần, GET /me/sessions 2 lần, ở lại /settings); (c) SESSION_REVOKED → không làm mới (refresh 1 lần, chỉ lúc tải), /login?next=%2Fsettings&revoked=refresh_reuse kèm thông báo bị đăng xuất |
 | TC-P202-33 | P | Playwright data-layer.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P202-34 | P | qc-real-f1: không token ở storage/cookie đọc được sau đăng nhập+tải lại (spec @real chạy trên ep-r, 6/6 đạt) |
 | TC-P202-35 | P | bundle build ep-r: 0 tệp; frontend/src: 0 |
 | TC-P202-36 | P | playwright r4ui-auth (ep-r, GV): quét outerHTML, mọi thuộc tính data-*, biến toàn cục window (bỏ lớp/hàm gốc của trình trình duyệt như DOMTokenList, MIDIAccess mà lần chạy trước tính nhầm), localStorage/sessionStorage, URL → 0 vi phạm; window.__token = undefined |
 | TC-P202-37 | P | Playwright thật trên ep-r (frontend/e2e/qc2-r4/r4ui-auth.spec.ts, qc2-r4 config, HEAD ep-r 7c9f8b56): [desktop] logo cao 40px @desktop ; [mobile] logo cao 32px @mobile |
-| TC-P202-38 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P202-38 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-auth desktop: đăng nhập sai → role=alert «Email hoặc mật khẩu không đúng.» (không nêu cái nào sai); bấm đúp nhanh → 1 request /auth/login; email giữ, mật khẩu xoá; nút loading |
 | TC-P202-39 | P | Playwright thật trên ep-r (frontend/e2e/qc2-r4/r4ui-auth.spec.ts, qc2-r4 config, HEAD ep-r 7c9f8b56): [mobile] ox=0 cut=0 touch=0 axe=[] |
 | TC-P202-40 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-P202-41 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P202-41 | P | playwright smkt2-next.spec.ts (ep-r, đăng nhập thật qua /login?next=…, tài khoản qc2iu.gv1, 15 lượt context mới): 11 giá trị độc hại (//evil.example, https://evil.example, /\evil.example, javascript:alert(1), /%2F%2Fevil.example, /%5Cevil.example, /foo%0d%0aSet-Cookie:x=1, /a:b, data:text/html,x, ///evil.example, ' //evil.example') đều về «/», origin giữ https://localhost:1143, 0 request ra ngoài origin, không cookie x; 4 giá trị hợp lệ giữ đường dẫn (/threads, /class/x?tab=a, /settings/llm, /ok?x=//evil); log /tmp/qc2-i/res/smkt2-next.jsonl |
 | TC-P202-42 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
 | TC-P202-43 | P | {'admin': 200, 'teacher': 403, 'ta': 403, 'student': 403} |
 | TC-P202-44 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
@@ -221,11 +221,11 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P204-24 | P | Admin DELETE /me/sessions/{sid của k} → 404; kèm ?user_id → 404; DELETE /me/sessions?user_id=k → 200; thân {"user_id"} → 200 (hai lệnh sau chỉ tác động phiên KHÁC của chính Admin: 3 phiên Admin bị thu hồi); phiên của k còn 2/2, access của k [200, 200] [stack auth riêng qc2i-*: DB qc2i_auth trên ep-r-postgres; script evidence-4/scripts/qc2i-r4apia-*.py] |
 | TC-P204-25 | P | DELETE phiên khác 204; (máy bị đăng xuất ≤1 s: kiểm refresh dưới) |
 | TC-P204-26 | P | go test: 4 pass/0 skip/0 fail |
-| TC-P204-27 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P204-28 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P204-27 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-acct desktop: /forgot-password 1 ô Email + 1 nút primary «Gửi hướng dẫn», cùng câu AC1 cho email có / không, nút «Gửi lại hướng dẫn» khoá có đếm giây; /reset-password token hợp lệ: «Mật khẩu mới» + «Nhập lại mật khẩu» type=password autocomplete=new-password, nêu chính sách, location.search rỗng; thành công «Mật khẩu đã được đổi. Hãy đăng nhập lại.» + «Đăng nhập» href /login; dùng lại / token rác / thiếu token → «Liên kết đã hết hạn hoặc đã được dùng.» + «Yêu cầu liên kết mới»; mật khẩu mới đăng nhập 200, cũ 401 (lần trước thất bại vì Mailpit khởi động lại: fetch failed 0,5 s, lỗi môi trường chạy lại) |
+| TC-P204-28 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-acct desktop: /reset-password Referrer-Policy=no-referrer, Cache-Control=no-store; request mang token ở Referer 0, request ra ngoài origin 0; docker logs ep-r-caddy-1 đếm token rõ = 0, dòng reset-password?token=REDACTED = 1 |
 | TC-P204-29 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-P204-30 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P204-31 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P204-30 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-acct desktop (SV có lớp, 3 phiên): «Đổi mật khẩu» primary, «Đăng xuất mọi thiết bị khác» không primary; đúng 1 hàng «Thiết bị này»; xác nhận nêu «Đăng xuất 2 thiết bị khác. Họ sẽ phải đăng nhập lại.»; Đăng xuất thiết bị này thực hiện ngay (không hộp thoại) + dòng tĩnh «Đã đăng xuất thiết bị này»; còn 1 thiết bị khác → «Đăng xuất 1 thiết bị khác…»; hết → «Không có thiết bị nào khác.»; DB còn 1 phiên hiệu lực. (Sửa kịch bản: hộp «Thời gian học trên EduPilot» chặn SV vừa vào lớp, thêm bước «Đã hiểu») |
+| TC-P204-31 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-acct desktop + mobile: desktop chỉ bàn phím (Tab tới «Đăng xuất mọi thiết bị khác» → Enter mở xác nhận «Đăng xuất 2 thiết bị khác» → Esc; Shift+Tab tới «Thao tác cho…» → Enter mở menu «Đăng xuất thiết bị này»); scripts/ui-antipatterns.sh exit 0; axe serious/critical = []; không «session»/«IP» trần, không từ token/refresh/jwt/bcrypt; 375: tràn ngang 0, cắt 0, vùng bấm < 44 px = 0, axe = [] |
 | TC-P204-32 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P204-33 | P | không JWT: [401, 401, 401] |
 | TC-P204-34 | P | go test: 5 pass/0 skip/0 fail |
@@ -308,12 +308,12 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P206-31 | P | register role ADMIN 422; admin/users role ADMIN 422 |
 | TC-P206-32 | P | Playwright thật trên ep-r (frontend/e2e/qc2-r4/r4ui-admin.spec.ts, qc2-r4 config, HEAD ep-r 7c9f8b56): [desktop] getByRole('dialog') hiện = 0 ; Vai: Giảng viên/Trợ giảng |
 | TC-P206-33 | P | playwright r4ui-admin (ep-r, spec sửa cột mail_outbox to_addr): mời → dòng tĩnh «Đã gửi link mời, hạn 72 giờ.» (users INVITED); Gửi lại lời mời ở hàng INVITED → «Đã gửi lại lời mời», mail_outbox ≥ 2 thư cho địa chỉ đó; Khoá tài khoản → «Đã khoá … Hoàn tác» lạc quan, DB DISABLED rồi Hoàn tác → ACTIVE; rỗng «Chưa có người dùng khớp…»; không hộp thoại |
-| TC-P206-34 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P206-34 | P | playwright qc2-r4 r4ui-admin mobile 375 /admin/users (ep-r, HEAD eb903410; /tmp/qc2-i/res/r4ui-admin.jsonl): tràn ngang 0, AUDIT cut 0, TOUCH 0, axe serious/critical = [], bảng hiện ở 375 = 0 (thành danh sách), grep useDemoSlice ở admin = 0, không từ kỹ thuật |
 | TC-P206-35 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P206-36 | P | Playwright thật trên ep-r (frontend/e2e/qc2-r4/r4ui-admin.spec.ts, qc2-r4 config, HEAD ep-r 7c9f8b56): [desktop] lời chào đúng; preview 1 lần; URL /invite/·; sau đặt mật khẩu → / |
 | TC-P206-37 | P | Playwright thật trên ep-r (frontend/e2e/qc2-r4/r4ui-admin.spec.ts, qc2-r4 config, HEAD ep-r 7c9f8b56): [desktop] Referrer-Policy=no-referrer; log Caddy đếm token=0, dòng /invite/REDACTED=4 |
 | TC-P206-38 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-P206-39 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P206-39 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-admin desktop: 409 email trùng → «Email này đã có tài khoản.» tại ô (aria-invalid, tên giữ); 422 → «Họ và tên cần từ 1 đến 100 ký tự.» tại ô; 403 → alert «Bạn không có quyền thực hiện việc này.» (không lộ FORBIDDEN/403); offline (abort POST) → OfflineBanner «Mất kết nối mạng.», chữ giữ, «Gửi lại» → thành công, 3 lần gửi (gói apiClient tự thử lại 0,3 s + 0,9 s) cùng 1 Idempotency-Key, DB 1 user; VERSION_CONFLICT thật → «Tài khoản này vừa được người khác sửa. Giữ thay đổi của bạn hay dùng bản mới?» (lần trước treo vì kịch bản cho mạng về trước khi hiện «Gửi lại»; đã sửa) |
 | TC-P206-40 | P | Playwright account.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P206-41 | P | qc-real-f1: Admin mời GV → Mailpit → đặt mật khẩu → khoá → mất phiên → mở khoá (spec @real chạy trên ep-r, 6/6 đạt) |
 | TC-P206-42 | P | email GV/token/mật khẩu trong log gateway+worker: 0/0/0 |
@@ -388,12 +388,12 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P208-29 | P | khoá mục lớp: ['assistants_count', 'capacity', 'class_code', 'id', 'name', 'semester', 'status', 'students_active', 'students_pending', 'subject_code', 'teacher', 'version'] |
 | TC-P208-30 | P | go test: 4 pass/0 skip/0 fail |
 | TC-P208-31 | P | Playwright thật trên ep-r (frontend/e2e/qc2-r4/r4ui-admin.spec.ts, qc2-r4 config, HEAD ep-r 7c9f8b56): [desktop] nhấp đúp → 1 lớp QC2IUNMWMJG86J |
-| TC-P208-32 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P208-32 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-admin: desktop bàn phím Tab tới «Mở lớp», Enter mở khung tại chỗ, không từ token/session/join_code; mobile 375: tràn ngang 0, cut 0, touch 0, axe = [], bảng hiện = 0 (danh sách); grep useDemoSlice ở admin = 0 |
 | TC-P208-33 | P | Playwright class-join.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P208-34 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
-| TC-P208-35 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P208-35 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-admin desktop (SV svd, sửa created_at trong DB): 58 s → «vừa xong» (59 s trừ ≈1 s trễ tải khung), 5 phút → «5 phút trước», 3 giờ → «3 giờ trước», hôm qua 16:40 → «Hôm qua, 16:40», 5 ngày → «Thứ Bảy, 07:04», 10 ngày → «Thứ Hai, 09/11 · 07:04»; grep -rnE 'N (ngày/giờ/phút) trước' frontend/src ngoài shared/lib/timeAgo = 0. Mệnh đề 5 ngày → dd/MM của TC gốc đã đổi từ 9.1 (formatWhen: trong 6 ngày «Thứ X, HH:mm», từ 7 ngày «Thứ X, dd/MM · HH:mm»; src/shared/lib/datetime.ts) nên đo thêm mốc 10 ngày; chữ «Hôm qua, 16:40» (viết hoa + dấu phẩy) thay «hôm qua 16:40» |
 | TC-P208-36 | P | Playwright class-join.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
-| TC-P208-37 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P208-37 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-admin desktop: mã lớp trùng 409 → «Mã lớp này đã có.» tại ô (aria-invalid, tên giữ); 422 sai vai → «Người này không phải giảng viên.»; offline → OfflineBanner + «Gửi lại», 3 lần gửi cùng 1 Idempotency-Key, DB 1 lớp; sai version → «Lớp này vừa được người khác sửa. Giữ thay đổi của bạn hay dùng bản mới?»; sửa lớp đã lưu trữ (API lưu trữ khi khung sửa còn mở) → 409 COURSE_ARCHIVED, «Lớp này đã được lưu trữ.» tại khung, chữ giữ; lưu trữ lần hai = 200 không đổi theo TC-P208-09 (đã sửa kịch bản: «lưu trữ lớp đã lưu trữ» của AC12 là thao tác ghi lên lớp ARCHIVED; list API tối đa limit 100) |
 | TC-P208-38 | P | Playwright class-join.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P208-39 | P | DB trống riêng qc2i_empty (gateway smkt2-gw + worker smkt2-wk, chỉ Admin bootstrap): Admin mở lớp (201) + gán GV (200/201) → GV thấy thông báo «Bạn được phân công lớp Lớp cô lập – ISO101» sau 0.4 s (≤ 60 s), nội dung có mã tham gia V2G74VB=True; GET /courses/{id}/join-code của GV trả V2G74VB = courses.join_code (True); /me/courses của GV 1 lớp. Phần giao diện (chuông, «Quản lý lớp này») xem TC-GATEP2-24; smkt2-iso.py |
 | TC-P208-40 | P | grep openapi POST …/admin/courses/…/(students/members/enroll) = 0; thử /members,/enroll,/students,assign{student_ids} → [404, 404, 404, 422]; enrollments STUDENT mới của lớp = 0; nút "Thêm sinh viên" kiểm ở TC-P208-31 (r4ui-admin) |

@@ -1,0 +1,10 @@
+grade-all queued=22
+08:54:35 RUNNING|2 QUEUED|16 DONE|4  xpending=2 dead=0 keys_batch=1
+REDIS STOP 08:54:35
+Error response from daemon: container 260a48a31cabaed3a0fe45e2b43fe08d47f40ab0ee412d5866f161f21e21c282 is not running
+Error response from daemon: container 260a48a31cabaed3a0fe45e2b43fe08d47f40ab0ee412d5866f161f21e21c282 is not running
+Error response from daemon: container 260a48a31cabaed3a0fe45e2b43fe08d47f40ab0ee412d5866f161f21e21c282 is not running
+REDIS START 08:55:36
+08:56:17 DONE|22  xpending=0 dead=0 keys_batch=2
+KQ: tổng=22 DONE=22 FAILED=0 hai_lần=0 mồ_côi=0 chưa_có_kq=1
+GHI CHÚ QC: chưa_có_kq=1 KHÔNG phải mồ côi: BT03 có 22 SV, 23 bài MATCHED; 1 bài là phiên bản v1 bị thay (cùng student_id có bài khác), grade-all xếp hàng đúng 22 (queued=22) ⇒ 22/22 DONE.

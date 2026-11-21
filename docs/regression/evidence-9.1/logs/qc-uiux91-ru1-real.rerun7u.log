@@ -1,0 +1,39 @@
+
+Running 4 tests using 1 worker
+
+INFO UX17-9 lớp không có insight_reports: QR91A
+INFO UX17-9 main: "Lỗ hổng kiến thức 7 ngày 14 ngày 30 ngày Toàn kỳ Chưa có báo cáo Tạo báo cáo mới" | nút trong main: ["7 ngày","14 ngày","30 ngày","Toàn kỳ","Tạo báo cáo mới"] | «Tạo báo cáo mới»: 1
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:11:1 › TC-UX17-9 lớp chưa có báo cáo Insights: EmptyState + đúng một nút «Tạo báo cáo mới» (6.4s)
+INFO UX17-8 số hàng yêu cầu: 50 | audit VIEW_DETAIL trước: 4
+INFO UX17-8 thấy nội dung: "Trả lời sinh viên · 01a1fbe8 09:21:22 21/11/2026 · ag/gemini-3.8-flash Nội dung đã che [system] Bạn là trợ giảng của một lớp đại học. Hãy xưng \"bạn\" với người dùng và trả lời bằng tiếng Việt, ngắn gọn. Quy tắc: - Giữ nguyên mọi chuỗi dạng [[...]] (ví dụ [[SV_1"
+INFO UX17-8 audit sau: 5 | số lần mở: 1 | dòng cuối: 01a1df27-5b08-7b34-9fe2-6f75798688c1|01a1fbe8-8595-72ca-b155-3a221f9e9da2|{"reason": "QC SmkS kiểm tra nội dung đã che (TC-UX17-8)"} | tiêu đề ngăn: Trả lời sinh viên · 01a1fbe8
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:29:1 › TC-UX17-8 admin xem nội dung prompt + audit_log mới (9.8s)
+INFO UX18-4 công tắc: 22 | «Dùng cho AI»: 0 | «Hiện cho sinh viên»: 0 | nhãn mẫu: [""]
+  ✘  3 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:59:1 › TC-UX18-4/6/8/PQ công tắc tài liệu, thư viện SV, quyền (6.5s)
+  -  4 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:108:1 › TC-UX12-2 chấm điểm danh đã chọn giữ đỏ khi rê (desktop) + luật rê không áp trên cảm ứng 375
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:59:1 › TC-UX18-4/6/8/PQ công tắc tài liệu, thư viện SV, quyền 
+
+    Error: mọi công tắc có tên «…: bật/tắt»
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 22
+    Received: 0
+
+      72 |   const ai = sw.filter((x) => /^Dùng cho AI/.test(x.lab)), sv = sw.filter((x) => /^Hiện cho sinh viên/.test(x.lab));
+      73 |   console.log("INFO UX18-4 công tắc:", sw.length, "| «Dùng cho AI»:", ai.length, "| «Hiện cho sinh viên»:", sv.length, "| nhãn mẫu:", JSON.stringify([...new Set(sw.map((x) => x.lab))]));
+    > 74 |   expect(ai.length + sv.length, "mọi công tắc có tên «…: bật/tắt»").toBe(sw.length);
+         |                                                                     ^
+      75 |   expect(sw.length).toBeGreaterThan(0);
+      76 |   for (const x of sw) expect(x.lab, "tên theo trạng thái").toMatch(x.on ? /: bật$/ : /: tắt$/);
+      77 |   const col = (g: typeof sw, on: boolean) => [...new Set(g.filter((x) => x.on === on).map((x) => x.bg))];
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:74:69
+
+    Error Context: ../docs/regression/evidence-9.1/pw-out/qc-uiux91-ru1-real-TC-UX18-d4f05--tài-liệu-thư-viện-SV-quyền-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:59:1 › TC-UX18-4/6/8/PQ công tắc tài liệu, thư viện SV, quyền 
+  1 did not run
+  2 passed (23.7s)

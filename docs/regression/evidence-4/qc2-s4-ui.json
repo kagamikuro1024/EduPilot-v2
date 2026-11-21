@@ -1,0 +1,44 @@
+{
+ "pwd": "Q2s4!Pass-4c76ex7",
+ "O": {
+  "id": "01a1fbc7-adc9-7b66-90b6-81ab19497ba4",
+  "class_code": "QSUOFD1",
+  "code": "VFZZZMY"
+ },
+ "R": {
+  "id": "01a1fbc7-b049-7113-9303-76f53552cb98",
+  "class_code": "QSURA5C",
+  "code": "EFPTM94"
+ },
+ "F": {
+  "id": "01a1fbc7-b134-7779-a4aa-8b9146b81c3c",
+  "class_code": "QSUFD03",
+  "code": "BBKWKQW"
+ },
+ "D1": "qc2s4.ud1.4c76e@edupilot.local",
+ "D2": "qc2s4.ud2.4c76e@edupilot.local",
+ "D3": "qc2s4.ud3.4c76e@edupilot.local",
+ "X": "qc2s4.ux.4c76e@edupilot.local",
+ "pend": [
+  "sv25",
+  "sv26",
+  "sv27",
+  "sv28"
+ ],
+ "B": "sv24",
+ "OTH": {
+  "id": "01a1fbc7-dd44-7cb9-a152-1df812f8800b",
+  "class_code": "QSOTHE4F"
+ },
+ "RI": {
+  "id": "01a1fbc7-dec0-7f6a-9928-fdc716725ff2",
+  "class_code": "QSRI2ED",
+  "code": "K3A9M2P"
+ },
+ "UNV": "qc2s4.unv.e0248@edupilot.local",
+ "EMPTYSRC": {
+  "id": "01a1fbc7-adc9-7b66-90b6-81ab19497ba4",
+  "class_code": "QSUOFD1",
+  "code": "VFZZZMY"
+ }
+}
