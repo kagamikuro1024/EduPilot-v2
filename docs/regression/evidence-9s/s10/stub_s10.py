@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Máy chủ giả tương thích OpenAI cho QC sprint 10: phát lại bản ghi seed/demo/fake_llm.json (khớp mọi chuỗi `match` trong lời nhắc);
-# chế độ đọc từ /tmp/stub10_mode mỗi yêu cầu: ok | error (500) | overloaded (429) | slow (12 s) | invalid (không phải JSON) | ungrounded
-# Mọi yêu cầu ghi /tmp/stub10_req.jsonl (t, mode, tên bản ghi khớp, độ dài).  Chạy: python3 stub_s10.py 9761
+# chế độ đọc từ /Users/kuro/.config/edupilot-team/qc3-work/stub10_mode mỗi yêu cầu: ok | error (500) | overloaded (429) | slow (12 s) | invalid (không phải JSON) | ungrounded
+# Mọi yêu cầu ghi /Users/kuro/.config/edupilot-team/qc3-work/stub10_req.jsonl (t, mode, tên bản ghi khớp, độ dài).  Chạy: python3 stub_s10.py 9761
 import json, os, sys, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 REC = json.load(open(os.path.expanduser("~/Documents/TA_Agent_qc106/seed/demo/fake_llm.json")))["recordings"]
@@ -15,10 +15,10 @@ class H(BaseHTTPRequestHandler):
         self.send_response(200); self.send_header("content-type", "application/json"); self.end_headers(); self.wfile.write(json.dumps({"data": [{"id": "stub10"}]}).encode())
     def do_POST(self):
         n = int(self.headers.get("content-length") or 0); body = json.loads(self.rfile.read(n) or b"{}")
-        MF = os.environ.get("STUB_MODE_FILE", "/tmp/stub10_mode"); mode = open(MF).read().strip() if os.path.exists(MF) else "ok"
+        MF = os.environ.get("STUB_MODE_FILE", "/Users/kuro/.config/edupilot-team/qc3-work/stub10_mode"); mode = open(MF).read().strip() if os.path.exists(MF) else "ok"
         text = "\n".join(str(m.get("content", "")) for m in body.get("messages", []))
         rec = match(text)
-        with open(os.environ.get("STUB_REQ_FILE", "/tmp/stub10_req.jsonl"), "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "rec": rec and rec["name"], "len": len(text), "maxpage": max([int(x) for x in __import__("re").findall(r"\[Trang (\d+)\]", text)] or [0]), "text": text[:6000]}, ensure_ascii=False) + "\n")
+        with open(os.environ.get("STUB_REQ_FILE", "/Users/kuro/.config/edupilot-team/qc3-work/stub10_req.jsonl"), "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "rec": rec and rec["name"], "len": len(text), "maxpage": max([int(x) for x in __import__("re").findall(r"\[Trang (\d+)\]", text)] or [0]), "text": text[:6000]}, ensure_ascii=False) + "\n")
         if mode == "error": self.send_response(500); self.end_headers(); self.wfile.write(b'{"error":{"message":"stub error"}}'); return
         if mode == "overloaded": self.send_response(429); self.send_header("retry-after", "1"); self.end_headers(); self.wfile.write(b'{"error":{"message":"overloaded","type":"rate_limit"}}'); return
         if mode.startswith("slow"): time.sleep(int(mode[4:] or 12))

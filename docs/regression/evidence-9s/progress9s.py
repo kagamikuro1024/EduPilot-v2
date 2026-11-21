@@ -34,4 +34,4 @@ out=["#nhóm\ttổng\tđạt\ttrượt\tchặn\tđang_làm"]
 out.append("sprint 11\t275\t273\t1\t0\t1")
 note=dict(a.split("=",1) for a in sys.argv[1:] if "=" in a)
 for n,t,p,f,k,nn,lt in rows: out.append(f"{n}\t{t}\t{p}\t{f}\t{k}\t{note.get(n.split()[1],nn)}")
-open("/tmp/qc-progress.tsv","w",encoding="utf8").write("\n".join(out)+"\n"); print("\n".join(out))
+open(os.path.expanduser("~/.config/edupilot-team/progress/qc3.tsv"),"w",encoding="utf8").write("\n".join(out)+"\n"); print("\n".join(out))

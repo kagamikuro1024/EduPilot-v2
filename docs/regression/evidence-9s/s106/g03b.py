@@ -13,7 +13,7 @@ def run():
         sql(f"""update grading_results set status='REVIEWED', reviewed_by='{teacher}', first_reviewed_by='{teacher}', reviewed_at=now() - interval '1 day' + {i} * interval '1 minute', first_reviewed_at=now() - interval '1 day' + {i} * interval '1 minute',
  criteria={expr} where id='{rid}'""")
     c, ov, _ = api("teacher", "GET", G(a)); print("overview", lastj(ov.get("reflect"), 100))
-    cR, jR, job = reflect(a, "rf_ok"); d = json.load(open("/tmp/stub_reflect_in.json")); cs = d["cases"]
+    cR, jR, job = reflect(a, "rf_ok"); d = json.load(open("/Users/kuro/.config/edupilot-team/qc3-work/stub_reflect_in.json")); cs = d["cases"]
     from collections import Counter
     got = Counter((x["criterion_id"], x["teacher_score"]) for x in cs); exp_new = Counter((f"c{k+1}", tv(i)[f"c{k+1}"]) for i in range(7, 22) for k in range(4)); exp_old = Counter((f"c{k+1}", tv(i)[f"c{k+1}"]) for i in range(1, 16) for k in range(4))
     labels = [f"{len(got)} cặp"]

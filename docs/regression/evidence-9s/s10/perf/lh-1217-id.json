@@ -1,0 +1,36 @@
+[
+ {
+  "path": "/practice/[id]",
+  "method": "devtools",
+  "lcp_ms": 18164,
+  "tbt_ms": 35,
+  "script_kb": 218,
+  "lcp_all": [
+   18164,
+   18139,
+   18292
+  ],
+  "tbt_all": [
+   35,
+   29,
+   51
+  ]
+ },
+ {
+  "path": "/practice/[id]",
+  "method": "simulate",
+  "lcp_ms": 3154,
+  "tbt_ms": 19,
+  "script_kb": 218,
+  "lcp_all": [
+   3156,
+   3153,
+   3154
+  ],
+  "tbt_all": [
+   17,
+   19,
+   22
+  ]
+ }
+]

@@ -1,8 +1,8 @@
-# Máy chủ giả tương thích OpenAI cho QC (không 9router, không Gemini). Chế độ đọc từ /tmp/stub_mode mỗi yêu cầu.
+# Máy chủ giả tương thích OpenAI cho QC (không 9router, không Gemini). Chế độ đọc từ /Users/kuro/.config/edupilot-team/qc3-work/stub_mode mỗi yêu cầu.
 #  Chung: allow | block | error | slow | invalid (lấp schema bằng giá trị mặc định / yes-no; xem sprint 10.5)
 #  Riêng cho tác vụ `reflect` (lời nhắc hệ thống chứa «rút ra lưu ý chấm»): rf_ok | rf_bad_criterion | rf_bad_case | rf_wrong_direction |
 #   rf_total_keyword | rf_pii_text | rf_dup_text | rf_low_support | rf_many | rf_empty | rf_fake_support  (cùng error / slow / invalid)
-# Mọi yêu cầu ghi vào /tmp/stub_req.jsonl; đầu vào reflect gần nhất ghi vào /tmp/stub_reflect_in.json.
+# Mọi yêu cầu ghi vào /Users/kuro/.config/edupilot-team/qc3-work/stub_req.jsonl; đầu vào reflect gần nhất ghi vào /Users/kuro/.config/edupilot-team/qc3-work/stub_reflect_in.json.
 import json, os, re, sys, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -59,7 +59,7 @@ def reflect_items(mode, data):
         for t in ("Tổng điểm của bài nên được tính chặt hơn.", "Trừ muộn theo quy định nhà trường cho mọi bài.", "Làm tròn lên khi gần ngưỡng.", "Phạt nặng bài sao chép.", "TONG diem phai khop rubric.", "Cần LAM TRON theo 0,5."):
             items.append({"criterion_id": cid, "text": t, "direction": d, "case_ids": ids[:3]})
     elif mode == "rf_pii_text":
-        pii = json.load(open("/tmp/stub_pii.json")) if os.path.exists("/tmp/stub_pii.json") else {}
+        pii = json.load(open("/Users/kuro/.config/edupilot-team/qc3-work/stub_pii.json")) if os.path.exists("/Users/kuro/.config/edupilot-team/qc3-work/stub_pii.json") else {}
         (cid, d), ids = good[0]
         for t in (f"Bài của {pii.get('name', 'Nguyễn Văn Kha')} thường thiếu ví dụ cụ thể.", f"Sinh viên mã {pii.get('mssv', '20229001')} hay viết quá ngắn.", f"Liên hệ {pii.get('email', 'kha@edupilot.local')} để hỏi lại ý.", "Gọi 0912345678 nếu cần làm rõ."):
             items.append({"criterion_id": cid, "text": t, "direction": d, "case_ids": ids[:3]})
@@ -76,8 +76,10 @@ class H(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps({"data": [{"id": "stub-chat"}]}).encode())
     def do_POST(self):
         n = int(self.headers.get("content-length") or 0); body = json.loads(self.rfile.read(n) or b"{}")
-        mode = (open("/tmp/stub_mode").read().strip() if os.path.exists("/tmp/stub_mode") else "allow")
-        with open("/tmp/stub_req.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "body": body}, ensure_ascii=False) + "\n")
+        mode = (open("/Users/kuro/.config/edupilot-team/qc3-work/stub_mode").read().strip() if os.path.exists("/Users/kuro/.config/edupilot-team/qc3-work/stub_mode") else "allow")
+        with open("/Users/kuro/.config/edupilot-team/qc3-work/stub_req.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "body": body}, ensure_ascii=False) + "\n")
+        if "[[QCERR]]" in json.dumps(body, ensure_ascii=False) and "rút ra lưu ý chấm" not in json.dumps(body, ensure_ascii=False):  # bài có dấu [[QCERR]] luôn lỗi 500
+            self.send_response(500); self.end_headers(); self.wfile.write(b'{"error":{"message":"stub error (QCERR)"}}'); return
         if mode == "error":
             self.send_response(500); self.end_headers(); self.wfile.write(b'{"error":{"message":"stub error"}}'); return
         if mode == "slow": time.sleep(12)
@@ -88,10 +90,10 @@ class H(BaseHTTPRequestHandler):
             user = " ".join(m.get("content", "") for m in msgs if m.get("role") == "user")
             x = re.search(r"<<<[^\n]*\n(\{.*\})\n[^\n]*>>>", user, re.S)
             data = json.loads(x.group(1)) if x else {}
-            json.dump(data, open("/tmp/stub_reflect_in.json", "w"), ensure_ascii=False)
+            json.dump(data, open("/Users/kuro/.config/edupilot-team/qc3-work/stub_reflect_in.json", "w"), ensure_ascii=False)
             content = json.dumps({"items": reflect_items(mode if mode.startswith("rf_") else "rf_ok", data)}, ensure_ascii=False)
-        elif "RUBRIC (thứ tự chấm)" in system:  # chấm bài tự luận: ghi system vào /tmp/stub_grading_sys.jsonl, trả đầu ra hợp lệ
-            with open("/tmp/stub_grading_sys.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "system": system}, ensure_ascii=False) + "\n")
+        elif "RUBRIC (thứ tự chấm)" in system:  # chấm bài tự luận: ghi system vào /Users/kuro/.config/edupilot-team/qc3-work/stub_grading_sys.jsonl, trả đầu ra hợp lệ
+            with open("/Users/kuro/.config/edupilot-team/qc3-work/stub_grading_sys.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "system": system}, ensure_ascii=False) + "\n")
             sm = re.search(r"JSON Schema sau[^\n]*\n(\{.*\})", system)
             ids = json.loads(sm.group(1))["properties"]["criteria"]["items"]["properties"]["id"]["enum"] if sm else []
             content = json.dumps({"criteria": [{"id": i, "score": "1.00", "evidence_quotes": [], "comment": f"Nhận xét giả của stub cho {i}."} for i in ids],

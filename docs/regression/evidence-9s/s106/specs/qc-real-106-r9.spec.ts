@@ -2,7 +2,7 @@ import { appendFileSync, readFileSync } from "node:fs";
 import { test } from "@playwright/test";
 import { sql, PW, OUT } from "./qc-real-lib";
 test.skip(!process.env.QC_REAL, "cần stack thật");
-const W = JSON.parse(readFileSync("/tmp/r9_w.json", "utf8")) as { course: string; aid: string };
+const W = JSON.parse(readFileSync("/Users/kuro/.config/edupilot-team/qc3-work/r9_w.json", "utf8")) as { course: string; aid: string };
 const RES = "/Users/kuro/Documents/TA_Agent_qc9s/docs/regression/evidence-9s/results_9rerun.jsonl";
 const verdict = (tc: string, cond: boolean, why: string) => { appendFileSync(RES, JSON.stringify({ tc, kq: cond ? "P" : "F", note: why }) + "\n"); console.log("VERDICT", cond ? "P" : "F", tc, why.slice(0, 300)); };
 async function login(browser: any, user: string, course: string, w = 1440) {
