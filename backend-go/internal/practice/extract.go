@@ -127,14 +127,14 @@ func (w *Worker) Register(r *jobs.Runner) {
 }
 
 // defaultRetryWait: quá tải → thử lại sau 2 s rồi 5 s (3 lời gọi tất cả), hết thì «Chưa trích được. Thử lại.».
-var defaultRetryWait = []time.Duration{2 * time.Second, 5 * time.Second}
+func defaultRetryWait() []time.Duration { return []time.Duration{2 * time.Second, 5 * time.Second} }
 
 func (w *Worker) call(ctx context.Context, system, user string, schema string) (json.RawMessage, error) {
 	temp := 0.2
 	req := llm.Request{Task: llm.TaskQuestionGen, Messages: []llm.Message{{Role: "system", Content: system}, {Role: "user", Content: user}}, Params: llm.Params{Temperature: &temp, MaxTokens: 4096}}
 	backoff := w.RetryWait
 	if backoff == nil {
-		backoff = defaultRetryWait
+		backoff = defaultRetryWait()
 	}
 	outage := 0
 	for attempt := 0; ; attempt++ {
