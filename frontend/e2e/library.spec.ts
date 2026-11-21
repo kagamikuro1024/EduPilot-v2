@@ -57,6 +57,23 @@ test("search: q ≥ 2 ký tự mới gửi; một ký tự bị bỏ qua; error 
   expect(calls.some((c) => /q=quy\+ch%E1%BA%BF|q=quy%20ch/.test(c.path))).toBe(true);
 });
 
+for (const [w, h] of [[1440, 900], [375, 812]] as const) {
+  test(`topic filter @${w} (DEF-R6-U9, US-P8-02 AC9): bộ lọc «Chủ đề» (cạnh Loại, Tuần) gửi category và lọc danh sách`, async ({ page, context }) => {
+    await page.setViewportSize({ width: w, height: h });
+    const calls = await open(page, context, {
+      [`GET ${L}`]: (r) => {
+        const cat = new URL(r.request().url()).searchParams.get("category");
+        const all = [libItem({ id: "d1", title: "Quy chế học vụ", category: "Quy chế" }), libItem({ id: "d2", title: "Slide AES", category: "Mật mã" })];
+        return r.fulfill(list(cat ? all.filter((d) => d.category === cat) : all));
+      },
+    });
+    await page.getByLabel("Chủ đề").selectOption("Mật mã");
+    await expect(page.getByText("Slide AES")).toBeVisible();
+    await expect(page.getByText("Quy chế học vụ")).toHaveCount(0);
+    expect(calls.some((c) => c.path.includes("category=M"))).toBe(true);
+  });
+}
+
 test("ask about document: tạo phiên có document_id rồi sang /chat?session=", async ({ page, context }) => {
   await context.route("**/api/v1/chat/sessions?**", (r) => r.fulfill(json({ items: [], next_cursor: null })));
   await context.route(`**/api/v1/chat/sessions/${SID}/messages**`, (r) => r.fulfill(json({ items: [], next_cursor: null })));

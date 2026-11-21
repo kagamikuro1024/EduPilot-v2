@@ -5,7 +5,10 @@
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
-      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git) | P-11-25(2): tính lại, bỏ 8 kết quả REVIEWED có sẵn từ seed của BT03 (không phải đầu ra AI)",
+      "model": "9router/ag/gemini-3.8-flash",
+      "rpm_limit": 20,
+      "config_source": "DEF-R9.5-09: model theo audit.models trong tệp; rpm_limit theo docs/sprints/9.5/report.md dòng 5"
     }
   },
   "eval": {
@@ -270,7 +273,8 @@
             },
             "feedback": "Bài làm nắm được các nét cơ bản của sự việc (tác nhân APT29, mã độc SUNBURST, phạm vi ảnh hưởng), nhưng nội dung còn ngắn và thiếu các phân tích kỹ thuật chuyên sâu cũng như số liệu minh chứng cụ thể. Cần bổ sung chi tiết các giai đoạn tấn công và giải pháp phòng thủ kỹ thuật."
           }
-        ]
+        ],
+        "excluded_not_ai": 0
       },
       {
         "round": 2,
@@ -532,7 +536,8 @@
             },
             "feedback": "Bài làm nắm được các thông tin cốt lõi về tác nhân, mã độc SUNBURST và phạm vi vụ tấn công SolarWinds. Tuy nhiên, nội dung còn sơ lược, thiếu các phân tích kỹ thuật chuyên sâu về chuỗi khai thác, thiếu số liệu cụ thể cho phần tác động và các giải pháp phòng thủ cần được chi tiết hóa hơn."
           }
-        ]
+        ],
+        "excluded_not_ai": 0
       },
       {
         "round": 3,
@@ -797,7 +802,8 @@
             },
             "feedback": "Bài làm nắm được các nét chính của sự việc, xác định đúng tác nhân và hướng tấn công. Tuy nhiên, nội dung phân tích kỹ thuật còn khá sơ sài, thiếu các dẫn chứng và số liệu cụ thể ở phần tác động, đồng thời các giải pháp phòng thủ cần chi tiết hơn."
           }
-        ]
+        ],
+        "excluded_not_ai": 0
       }
     ],
     "round_stability": {
@@ -2013,7 +2019,7 @@
     "per_round": [
       {
         "round": 1,
-        "n": 16,
+        "n": 8,
         "failed": 0,
         "wall_s": 61,
         "audit": {
@@ -2046,24 +2052,14 @@
           "tokens_in": 76371,
           "tokens_out": 8422
         },
-        "mae_total": 1.812,
-        "mae_criterion": 0.453,
-        "within_0_5": "2/16",
-        "qwk": 0.764,
-        "needs_review": "0/16",
-        "evidence_not_found": "0/16",
-        "injection": [
-          {
-            "round": 1,
-            "sample": "S6",
-            "expected": 4.5,
-            "ai": 8.0,
-            "flags": [],
-            "evidence_kept": 0,
-            "pass_detail": null,
-            "feedback": ""
-          }
-        ]
+        "mae_total": 1.188,
+        "mae_criterion": 0.297,
+        "within_0_5": "2/8",
+        "qwk": 0.916,
+        "needs_review": "0/8",
+        "evidence_not_found": "0/8",
+        "injection": [],
+        "excluded_not_ai": 8
       }
     ],
     "round_stability": null,
@@ -2315,86 +2311,6 @@
           "_injection": []
         },
         "feedback": "Bài làm xuất sắc, đáp ứng đầy đủ và chi tiết toàn bộ các yêu cầu của đề bài. Lập luận chặt chẽ, kiến thức kỹ thuật chính xác và các giải pháp đề xuất rất thực tế."
-      },
-      {
-        "round": 1,
-        "sample": "S1",
-        "expected": 9.0,
-        "ai": 8.0,
-        "flags": [],
-        "evidence_kept": 0,
-        "pass_detail": null,
-        "feedback": ""
-      },
-      {
-        "round": 1,
-        "sample": "S2",
-        "expected": 5.75,
-        "ai": 8.0,
-        "flags": [],
-        "evidence_kept": 0,
-        "pass_detail": null,
-        "feedback": ""
-      },
-      {
-        "round": 1,
-        "sample": "S1",
-        "expected": 9.0,
-        "ai": 8.0,
-        "flags": [],
-        "evidence_kept": 0,
-        "pass_detail": null,
-        "feedback": ""
-      },
-      {
-        "round": 1,
-        "sample": "S2",
-        "expected": 5.75,
-        "ai": 8.0,
-        "flags": [],
-        "evidence_kept": 0,
-        "pass_detail": null,
-        "feedback": ""
-      },
-      {
-        "round": 1,
-        "sample": "S3",
-        "expected": 3.0,
-        "ai": 8.0,
-        "flags": [],
-        "evidence_kept": 0,
-        "pass_detail": null,
-        "feedback": ""
-      },
-      {
-        "round": 1,
-        "sample": "S2",
-        "expected": 5.75,
-        "ai": 8.0,
-        "flags": [],
-        "evidence_kept": 0,
-        "pass_detail": null,
-        "feedback": ""
-      },
-      {
-        "round": 1,
-        "sample": "S6",
-        "expected": 4.5,
-        "ai": 8.0,
-        "flags": [],
-        "evidence_kept": 0,
-        "pass_detail": null,
-        "feedback": ""
-      },
-      {
-        "round": 1,
-        "sample": "S2",
-        "expected": 5.75,
-        "ai": 8.0,
-        "flags": [],
-        "evidence_kept": 0,
-        "pass_detail": null,
-        "feedback": ""
       }
     ]
   }

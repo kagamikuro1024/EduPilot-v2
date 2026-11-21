@@ -184,8 +184,8 @@ select id, title from documents
 where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER') and type::text <> 'THREAD_KNOWLEDGE';
 
 -- name: PracticeDocBrief :one
--- Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái.
-select id, type::text as type, status::text as status from documents where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and type::text <> 'THREAD_KNOWLEDGE';
+-- Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái + số trang (trần 60 trang của extract, kiểm trước khi tạo việc).
+select id, type::text as type, status::text as status, page_count from documents where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and type::text <> 'THREAD_KNOWLEDGE';
 
 -- name: PracticeDocChunks :many
 select id, page_no, heading, text from content_chunks
@@ -222,3 +222,7 @@ select count(*) filter (where qb.review_status = 'APPROVED' and coalesce((a.befo
 from question_bank qb
 left join lateral (select before from audit_log where entity = 'question' and entity_id = qb.id::text and action = 'question.review' order by created_at desc limit 1) a on true
 where qb.course_id = sqlc.arg(course_id) and qb.ai_job_id = sqlc.arg(job_id);
+
+-- name: PracticeAttemptCourse :one
+-- Lớp của MỘT lượt thuộc về `student_id` (trang /practice/[id] không biết lớp: hỏi một lần thay vì dò từng lớp, luật 13). Lượt của người khác / không có → không dòng.
+select course_id from practice_attempts where id = sqlc.arg(id) and student_id = sqlc.arg(student_id);

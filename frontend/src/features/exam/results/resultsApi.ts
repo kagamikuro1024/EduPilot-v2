@@ -57,6 +57,7 @@ export type StaffSubmission = {
   compile_ok: boolean | null;
   compile_log: string | null;
   tests: Array<{ position: number; is_sample: boolean; verdict: string; time_ms: number; memory_kb: number }>;
+  tests_stale: boolean;
 };
 export type Appeal = {
   id: string;

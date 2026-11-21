@@ -30,6 +30,7 @@ func (g *Gateway) Stream(ctx context.Context, r Request) (<-chan Chunk, error) {
 	if err != nil {
 		return nil, err
 	}
+	c.recordPrompt(mk, rm)
 	ch, err := runChain(c,
 		func(t Target) int { return estTokens(c.opts(t, rm, nil)) },
 		func(ctx context.Context, t Target) (opened, int, error) {
@@ -57,7 +58,7 @@ func (g *Gateway) Stream(ctx context.Context, r Request) (<-chan Chunk, error) {
 		})
 	if errors.Is(err, ErrAllProvidersFailed) {
 		if c.lane != LaneInteractive {
-			err = &ErrUnavailable{Reason: ReasonAllFailed, Outage: IsOutage(err)}
+			err = unavailable(err)
 		} else { // chưa phát byte nào: trả câu suy giảm trích nguyên văn
 			resp := degraded(r)
 			c.finish(&resp, nil)

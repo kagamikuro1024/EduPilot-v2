@@ -4,6 +4,9 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"strconv"
 	"testing"
@@ -263,4 +266,134 @@ func TestPlaceActivity(t *testing.T) {
 	require.Error(t, err)
 	_, err = seedtool.ParseActivityPlan([]byte(`[{"student_code":"1","week9":"nhiều"}]`))
 	require.Error(t, err)
+}
+
+// TestSeedExamHistory — US-P10-07 AC2: bốn bài PUBLISHED + lượt GRADED; chỉ đúng hai sinh viên giảm nghiêm ngặt ở 3 bài liên tiếp; chạy lại không đổi.
+func TestSeedExamHistory(t *testing.T) {
+	pool, err := pgxpool.New(t.Context(), testutil.MigratedPostgresURL(t))
+	require.NoError(t, err)
+	t.Cleanup(pool.Close)
+	ctx := t.Context()
+	var teacher, course uuid.UUID
+	require.NoError(t, pool.QueryRow(ctx, `insert into users (email, full_name, role) values ('gv.eh@example.test', 'GV', 'TEACHER') returning id`).Scan(&teacher))
+	require.NoError(t, pool.QueryRow(ctx, `insert into courses (subject_code, class_code, name, semester, join_code, created_by) values ('INT1006', '761987', 'An ninh mạng', '2026-2027-HK1', 'ABCDEFG', $1) returning id`, teacher).Scan(&course))
+	_, err = pool.Exec(ctx, `insert into enrollments (course_id, user_id, role_in_course, status, joined_via) values ($1, $2, 'TEACHER', 'ACTIVE', 'ADMIN')`, course, teacher)
+	require.NoError(t, err)
+	for i := range 12 {
+		var id uuid.UUID
+		require.NoError(t, pool.QueryRow(ctx, `insert into users (email, full_name, role) values ($1, $2, 'STUDENT') returning id`, fmt.Sprintf("sv%02d.eh@example.test", i), fmt.Sprintf("SV %02d", i)).Scan(&id))
+		_, err = pool.Exec(ctx, `insert into enrollments (course_id, user_id, role_in_course, status, joined_via) values ($1, $2, 'STUDENT', 'ACTIVE', 'ADMIN')`, course, id)
+		require.NoError(t, err)
+	}
+	for i := range 4 {
+		_, err = pool.Exec(ctx, `insert into question_bank (course_id, type, title, topic, difficulty, stem, answer_key, review_status, created_by, reviewed_by, reviewed_at)
+			values ($1, 'MCQ_SINGLE', $2, 'Mật mã', 'EASY', 'Câu?', '{"option_ids": []}'::jsonb, 'APPROVED', $3, $3, now())`, course, fmt.Sprintf("Câu %d", i), teacher)
+		require.NoError(t, err)
+	}
+
+	n, err := seedtool.SeedExamHistory(ctx, pool, course, today)
+	require.NoError(t, err)
+	require.Equal(t, 12*4-1, n, "12 sinh viên × 4 bài, trừ một lượt vắng")
+	again, err := seedtool.SeedExamHistory(ctx, pool, course, today)
+	require.NoError(t, err)
+	require.Zero(t, again, "chạy lại không ghi thêm")
+
+	var published int
+	require.NoError(t, pool.QueryRow(ctx, `select count(*) from exams where course_id = $1 and status = 'PUBLISHED'`, course).Scan(&published))
+	require.Equal(t, 4, published)
+	rows, err := store.New(pool).ExamAnalyticsDeclining(ctx, store.ExamAnalyticsDecliningParams{CourseID: course, MaxRows: 50})
+	require.NoError(t, err)
+	var names []string
+	for _, r := range rows {
+		names = append(names, r.FullName)
+	}
+	require.Equal(t, []string{"SV 00", "SV 01"}, names, "chỉ ca giảm 3 liên tiếp; ca vắng / đi ngang / không nghiêm ngặt không vào")
+}
+
+// TestSeedLLMAudit — US-P10-07 AC1: ≥ 300 dòng / 7 ngày có lỗi, degraded, chuyển dự phòng, che thông tin; payload đã che; một thư DEAD; chạy lại không đổi.
+func TestSeedLLMAudit(t *testing.T) {
+	pool, err := pgxpool.New(t.Context(), testutil.MigratedPostgresURL(t))
+	require.NoError(t, err)
+	t.Cleanup(pool.Close)
+	ctx := t.Context()
+	var teacher, course uuid.UUID
+	require.NoError(t, pool.QueryRow(ctx, `insert into users (email, full_name, role) values ('gv.la@example.test', 'GV', 'TEACHER') returning id`).Scan(&teacher))
+	require.NoError(t, pool.QueryRow(ctx, `insert into courses (subject_code, class_code, name, semester, join_code, created_by) values ('INT1006', '761987', 'An ninh mạng', '2026-2027-HK1', 'ABCDEFG', $1) returning id`, teacher).Scan(&course))
+	n, err := seedtool.SeedLLMAudit(ctx, pool, course, today)
+	require.NoError(t, err)
+	require.GreaterOrEqual(t, n, 300)
+	again, err := seedtool.SeedLLMAudit(ctx, pool, course, today)
+	require.NoError(t, err)
+	require.Zero(t, again)
+	count := func(sql string) (c int) {
+		require.NoError(t, pool.QueryRow(ctx, sql).Scan(&c))
+		return c
+	}
+	require.Positive(t, count(`select count(*) from llm_audit where status not in ('ok', 'degraded', 'cancelled')`))
+	require.Positive(t, count(`select count(*) from llm_audit where degraded`))
+	require.Positive(t, count(`select count(*) from llm_audit where fallback_index > 0`))
+	require.Positive(t, count(`select count(*) from llm_audit where pii_masked_count > 0`))
+	require.GreaterOrEqual(t, count(`select count(*) from llm_request_payloads`), 20)
+	require.Equal(t, 1, count(`select count(*) from mail_outbox where status = 'DEAD'`))
+	require.Zero(t, count(`select count(*) from llm_request_payloads where masked_prompt ~ '[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[a-z]{2,}|[0-9]{8,}'`), "chỉ nhãn [STUDENT_n], không email / MSSV thật")
+}
+
+// P-11-48 / TC-07-03: seed lại sau khi lịch dịch ngày (+1, +7, +30) KHÔNG để lại hàng của lần trước — study_time_daily ra đúng tập hàng của lần seed sau, và at-risk vẫn 1 AT_RISK + 2 WATCH.
+func TestSeedStudyTimeRerunShiftedCalendar(t *testing.T) {
+	var p plan
+	readJSON(t, "../../../seed/crm_plan.json", &p)
+	prof, err := os.ReadFile("../../../seed/study_profile.json")
+	require.NoError(t, err)
+	profile, err := seedtool.ParseProfile(prof)
+	require.NoError(t, err)
+	for _, days := range []int{1, 7, 30} {
+		t.Run(fmt.Sprintf("+%d ngày", days), func(t *testing.T) {
+			w := newWorld(t, p)
+			_, err := seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, today)
+			require.NoError(t, err)
+			later := today.AddDate(0, 0, days)
+			_, err = seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, later)
+			require.NoError(t, err)
+			const sum = `select count(*) * 1000000 + coalesce(sum(active_seconds), 0)::int from study_time_daily where course_id = $1` // số hàng VÀ tổng giây: hàng trùng khoá phải lấy giây mới, không giữ giây lớn hơn của lần trước
+			rows := count(t, w, sum, w.course)
+			_, err = w.pool.Exec(t.Context(), `delete from study_time_daily where course_id = $1`, w.course)
+			require.NoError(t, err)
+			_, err = seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, later)
+			require.NoError(t, err)
+			require.Equal(t, count(t, w, sum, w.course), rows, "seed lại sau khi dịch %d ngày để lại hàng của lần trước", days)
+			again, err := seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, later)
+			require.NoError(t, err)
+			require.Zero(t, again, "cùng ngày: không đổi dòng nào")
+
+			// CHỈ phần STUDY + điểm danh của seed: 1 AT_RISK (sv.nguyco) + 2 WATCH (sv12, sv19), như TestSeedCRMExpected. WATCH thứ 3 của bước 16 là sv26 (điểm quá trình LOW + hoạt động tuần 9 = 0,
+			// seed/expected_risk.csv) — cần điểm số và seed-activity nên KHÔNG có trong thế giới thử này; tổng "AT_RISK 1, WATCH 3" kiểm ở seed.mjs trên stack thật.
+			_, err = seedtool.SeedStudyTime(t.Context(), w.pool, w.course, 10, profile, today)
+			require.NoError(t, err)
+			svc := &crm.Service{Pool: w.pool, Clock: clock.NewFake(today)}
+			require.NoError(t, svc.RunCourse(t.Context(), w.course, today))
+			var atRisk, watch []string
+			for e, l := range levels(t, w) {
+				switch l {
+				case "AT_RISK":
+					atRisk = append(atRisk, e)
+				case "WATCH":
+					watch = append(watch, e)
+				}
+			}
+			require.ElementsMatch(t, []string{"sv.nguyco@edupilot.local"}, atRisk)
+			require.ElementsMatch(t, []string{"sv12@edupilot.local", "sv19@edupilot.local"}, watch)
+		})
+	}
+}
+
+// TC-P6-02-15 (luật 5): điểm thi của seed-exam-history không đi qua float — AST của examhistory.go không có float32 / float64 (cùng cách TestNoFloatInGrade quét `grade`).
+func TestSeedExamHistoryNoFloat(t *testing.T) {
+	file, err := parser.ParseFile(token.NewFileSet(), "examhistory.go", nil, 0)
+	require.NoError(t, err)
+	ast.Inspect(file, func(n ast.Node) bool {
+		if id, ok := n.(*ast.Ident); ok {
+			require.NotContains(t, []string{"float32", "float64"}, id.Name, "examhistory.go: %s", id.Name)
+		}
+		return true
+	})
 }

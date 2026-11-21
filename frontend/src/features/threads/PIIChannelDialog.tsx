@@ -30,7 +30,7 @@ export function PIIChannelDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      title="Bài này có thông tin cá nhân"
+      title="Bài viết có thông tin cá nhân"
       description={`Hỏi đáp công khai là nơi cả lớp cùng đọc. Chúng tôi tìm thấy: ${summary}.`}
       footer={
         <>

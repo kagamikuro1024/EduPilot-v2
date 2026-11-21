@@ -45,6 +45,7 @@ export function Landing() {
       <header className={`${cx("nav")} nav`}>
   <div className={`${cx("wrap")} wrap`}>
     <a className={cx("skip")} href="#landing-main">Tới nội dung</a>
+    {/* eslint-disable-next-line @next/next/no-img-element -- logo SVG tĩnh: next/image không tối ưu SVG, chỉ thêm JS */}
     <a href="#top" aria-label="EduPilot"><img src="/brand/logo-edupilot.svg" alt="" height={36} className={cx("logo")} /></a>
     <div className={cx("nav__end")}><Link className={cx("nav__link")} href="/register">Tạo tài khoản</Link><Link className={cx("btn btn--primary btn--sm")} href="/login">Đăng nhập</Link></div>
   </div>

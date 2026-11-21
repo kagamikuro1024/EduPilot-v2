@@ -32,12 +32,12 @@
 .nav__end { display: flex; align-items: center; gap: 24px; font-size: var(--t-1); font-weight: 500; }
 .nav__link { position: relative; display: inline-flex; align-items: center; min-height: 44px; color: var(--ep-ink-2); }
 .nav__link::after { content: ""; position: absolute; left: 0; right: 0; bottom: 9px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform 150ms var(--ease-out); }
-.nav__link:hover { color: var(--ep-ink); } .nav__link:hover::after { transform: none; }
+@media (hover: hover) and (pointer: fine) { .nav__link:hover { color: var(--ep-ink); } .nav__link:hover::after { transform: none; } }
 
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 24px; border: 1px solid transparent; border-radius: var(--ep-radius-sm); font-size: var(--t-1); font-weight: 600; white-space: nowrap; transition: transform 150ms var(--ease-out); }
 .btn .arr { transition: transform 150ms var(--ease-out); }
-.btn--primary { background: var(--ep-red); color: var(--ep-surface); } .btn--primary:hover { background: var(--ep-red-hover); }
-.btn--secondary { background: var(--ep-surface); color: var(--ep-ink); border-color: var(--ep-rule); } .btn--secondary:hover { border-color: var(--ep-ink-3); }
+.btn--primary { background: var(--ep-red); color: var(--ep-surface); } @media (hover: hover) and (pointer: fine) { .btn--primary:hover { background: var(--ep-red-hover); } }
+.btn--secondary { background: var(--ep-surface); color: var(--ep-ink); border-color: var(--ep-rule); } @media (hover: hover) and (pointer: fine) { .btn--secondary:hover { border-color: var(--ep-ink-3); } }
 .btn--sm { min-height: 44px; padding: 0 16px; }
 @media (hover: hover) and (pointer: fine) { .btn:hover { transform: translateY(-1px); } .btn:hover .arr { transform: translateX(3px); } }
 .btn:active { transform: translateY(1px) scale(.985); transition-duration: 90ms; }
@@ -70,7 +70,7 @@
 .demo__bar { display: flex; align-items: baseline; gap: 10px; height: 60px; padding: 19px 56px 0 24px; border-bottom: 1px solid var(--ep-rule); white-space: nowrap; }
 .demo__bar b { font-weight: 600; } .demo__bar span { font-size: var(--t-p8125); font-weight: 500; color: var(--ep-ink-2); }
 .pause { position: absolute; right: 12px; top: 12px; z-index: 3; display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--ep-radius-pill); background: var(--ep-surface); outline: 1px solid var(--ep-rule); outline-offset: -1px; color: var(--ep-ink-2); }
-.pause:hover { color: var(--ep-ink); outline-color: var(--ep-ink-3); } .pause .ic { width: 14px; height: 14px; fill: currentColor; stroke-width: 0; }
+@media (hover: hover) and (pointer: fine) { .pause:hover { color: var(--ep-ink); outline-color: var(--ep-ink-3); } } .pause .ic { width: 14px; height: 14px; fill: currentColor; stroke-width: 0; }
 :global(html:not(.m-on)) .pause, :global(html:not(.m-on)) .ptr { display: none; }
 .demo__body { display: grid; gap: 16px; padding: 20px 24px 24px; }
 .quote { padding: 16px 18px; border-radius: var(--ep-radius-md); background: var(--ep-surface-subtle); line-height: 1.5; } .quote small { display: block; margin-bottom: 4px; font-size: var(--t-p8125); font-weight: 600; color: var(--ep-ink-2); }
@@ -94,7 +94,7 @@
 .step { display: grid; grid-template-rows: auto 1fr; gap: 20px; }
 .mark { position: relative; display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--ep-radius-pill); background: var(--ep-red); color: var(--ep-surface); font-weight: 600; font-variant-numeric: tabular-nums; outline: 6px solid var(--ep-canvas); }
 .card { background: var(--ep-surface); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-lg); padding: 32px; display: grid; gap: 20px; align-content: start; } .card .h3 { font-size: var(--t-1p375); }
-.card:hover { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .card:hover { border-color: var(--ep-ink-3); } }
 .spec { display: grid; gap: 12px; padding: 20px; border-radius: var(--ep-radius-md); background: var(--ep-surface-subtle); font-variant-numeric: tabular-nums; }
 .spec p { display: flex; justify-content: space-between; gap: 12px; } .spec b { font-weight: 600; } .spec s { color: var(--ep-ink-3); font-weight: 400; margin-right: 8px; } .spec__sum { padding-top: 12px; border-top: 1px solid var(--ep-rule); font-weight: 600; }
 
@@ -141,13 +141,14 @@
 .close__shot { grid-column: 7 / span 6; } .close__shot img { width: 100%; height: auto; max-height: 400px; object-fit: cover; object-position: left top; }
 .legal { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid var(--ep-rule); color: var(--ep-ink-2); }
 .legal a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ep-ink); text-decoration: underline; text-decoration-color: var(--ep-rule); text-underline-offset: 4px; }
-.legal a:hover { text-decoration-color: var(--ep-red); }
+@media (hover: hover) and (pointer: fine) { .legal a:hover { text-decoration-color: var(--ep-red); } }
 
 .dlg { width: min(960px, 100% - 48px); padding: 0; border: 0; border-radius: var(--ep-radius-lg); box-shadow: var(--ep-shadow-popover); overflow: hidden; } .dlg::backdrop { background: var(--ep-scrim); }
 .dlg video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; background: var(--ep-ink); } .dlg form { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px; }
 .dlg__link { display: inline-flex; align-items: center; min-height: 44px; color: var(--ep-ink); text-decoration: underline; text-decoration-color: var(--ep-rule); text-underline-offset: 4px; }
 
-/* =================== CHUYỂN ĐỘNG (chỉ khi html.m-on; chỉ transform + opacity) =================== */
+/* =================== CHUYỂN ĐỘNG (chỉ khi html.m-on) =================== */
+/* Hiện theo cuộn CHỈ dịch transform, opacity luôn 1 (UX08-50): chữ mờ lúc chưa vào khung là nội dung gần như vô hình nếu observer không bắn, và axe đo tương phản lúc đó. */
 /* màn đầu vào một lần, khoảng 1,1 s; h1 chỉ dịch, không ẩn (LCP) */
 :global(.m-on) .h1 .ln { animation: rise 700ms var(--ease-out) both; } :global(.m-on) .h1 .ln + .ln { animation-delay: 80ms; }
 :global(.m-on) .hero .stripe { transform-origin: left; animation: draw 700ms var(--ease-out) 250ms both; }
@@ -183,9 +184,9 @@
 
 /* ba bước: sợi chỉ vẽ trong 1 s, tới nút nào nút đó và thẻ của nó hiện */
 :global(.m-armed) .steps3::before { transform: scaleX(0); transition: transform 1s linear; }
-:global(.m-armed) .step .mark { opacity: 0; transform: scale(.6); transition: opacity 300ms, transform 400ms var(--ease-out); transition-delay: calc(var(--i) * 500ms); }
-:global(.m-armed) .step .card { opacity: 0; transform: translateY(16px); transition: opacity 500ms, transform 600ms var(--ease-out); transition-delay: calc(100ms + var(--i) * 500ms); }
-:global(.m-armed) :global(.is-in) .steps3::before, :global(.m-armed) :global(.is-in) .step .mark, :global(.m-armed) :global(.is-in) .step .card { opacity: 1; transform: none; }
+:global(.m-armed) .step .mark { transform: scale(.6); transition: transform 400ms var(--ease-out); transition-delay: calc(var(--i) * 500ms); }
+:global(.m-armed) .step .card { transform: translateY(16px); transition: transform 600ms var(--ease-out); transition-delay: calc(100ms + var(--i) * 500ms); }
+:global(.m-armed) :global(.is-in) .steps3::before, :global(.m-armed) :global(.is-in) .step .mark, :global(.m-armed) :global(.is-in) .step .card { transform: none; }
 /* rê chuột: thẻ diễn lại bước của nó */
 @media (hover: hover) and (pointer: fine) {
   :global(.m-on) .card:hover .k { animation: up 400ms var(--ease-out) both; animation-delay: calc(var(--k) * 300ms); }
@@ -198,8 +199,8 @@
 
 /* ba số đo: vạch kẻ vẽ ra, chữ hiện theo */
 :global(.m-armed) .stat::before { transform: scaleX(0); transition: transform 800ms var(--ease-out); transition-delay: calc(var(--i) * 120ms); }
-:global(.m-armed) .stat > * { opacity: 0; transform: translateY(12px); transition: opacity 500ms, transform 600ms var(--ease-out); transition-delay: calc(150ms + var(--i) * 120ms); }
-:global(.m-armed) :global(.is-in) .stat::before, :global(.m-armed) :global(.is-in) .stat > * { opacity: 1; transform: none; }
+:global(.m-armed) .stat > * { transform: translateY(12px); transition: transform 600ms var(--ease-out); transition-delay: calc(150ms + var(--i) * 120ms); }
+:global(.m-armed) :global(.is-in) .stat::before, :global(.m-armed) :global(.is-in) .stat > * { transform: none; }
 
 /* lời kết: dải đỏ vàng vẽ ra */
 :global(.m-armed) .closing .stripe { transform: scaleX(0); transform-origin: left; transition: transform 700ms var(--ease-out) 100ms; } :global(.m-armed) .closing:global(.is-in) .stripe { transform: none; }
@@ -223,7 +224,7 @@
   .sodosec { min-height: 200svh; } .sodosec .wrap { min-height: calc(200svh - var(--padt) - var(--padb)); display: flex; flex-direction: column; } .sodosec .stats { flex: 1; align-content: space-between; } /* ba số đo + ảnh dàn đều hai màn ở 390 */
   .flowsec { min-height: 200svh; } .flowsec .wrap { min-height: calc(200svh - var(--padt) - var(--padb)); display: flex; flex-direction: column; } .flowsec .steps3 { flex: 1; align-content: space-between; } /* ba bước dàn đều hai màn: khoảng trống nằm giữa các bước, không dồn ra khoảng giữa hai mục */
   .proof .ic { display: none; } /* chữ dữ kiện bắt đầu ở mép trái khung chứa */
-  .card { padding: 0; border: 0; background: none; } .card:hover { border-color: transparent; }
+  .card { padding: 0; border: 0; background: none; } @media (hover: hover) and (pointer: fine) { .card:hover { border-color: transparent; } }
   .stats { row-gap: 16px; } .stats__shot { aspect-ratio: 3 / 2; }
   .stat { padding: 16px 0; } .stat__num { font-size: var(--t-1p5); } .close .h2 { font-size: var(--t-1p875); }
   .seg { display: grid; justify-self: stretch; border-bottom: 0; } .seg button { padding: 0 16px; font-size: var(--t-1); }

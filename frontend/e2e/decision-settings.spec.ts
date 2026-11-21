@@ -25,7 +25,7 @@ test("vị trí và hàng: một khối sau Chuỗi dự phòng; provider «Quy�
   const block = page.locator("[data-part=decision-section]");
   await expect(block.locator("[data-part=decision-provider-status]")).toHaveText("Giả");
   await expect(rows(page)).toHaveCount(3);
-  await expect(rows(page).locator("label")).toHaveText(["Kiểm duyệt Threads", "Cờ chèn lệnh khi chấm", "Định tuyến câu hỏi chat"]);
+  await expect(rows(page).locator("label")).toHaveText(["Kiểm duyệt Hỏi đáp công khai", "Cờ chèn lệnh khi chấm", "Định tuyến câu hỏi chat"]);
   await expect(rows(page).locator("[data-part=decision-gate-state]")).toHaveText(["Tắt", "Tắt", "Tắt"]);
   // nhà «Quyết định» không lẫn vào danh sách nhà cung cấp
   await expect(page.locator("[data-part=provider-row]")).toHaveCount(1);
@@ -41,9 +41,9 @@ test("công tắc cổng: lạc quan + «Hoàn tác» ghi ngay; không toast «T
     ],
   });
   const row = rows(page).first();
-  await row.getByRole("switch", { name: "Kiểm duyệt Threads" }).click();
+  await row.getByRole("switch", { name: "Kiểm duyệt Hỏi đáp công khai" }).click();
   await expect(row.getByRole("switch")).toHaveAttribute("aria-checked", "true");
-  await expect(row.getByText("Đã bật Kiểm duyệt Threads")).toBeVisible();
+  await expect(row.getByText("Đã bật Kiểm duyệt Hỏi đáp công khai")).toBeVisible();
   await expect(row.locator("[data-part=decision-gate-state]")).toContainText("Bật ở 0 lớp");
   await expect(page.locator('[role="status"]:has-text("Thành công")')).toHaveCount(0);
   expect(JSON.parse((await puts(page, THREADS))[0].body)).toEqual({ enabled: true, version: 1 });
@@ -56,7 +56,7 @@ test("công tắc cổng: lạc quan + «Hoàn tác» ghi ngay; không toast «T
 test("409 VERSION_CONFLICT: tải lại hàng và báo tại chỗ, không đè im lặng", async ({ page }) => {
   await open(page, { [`PUT ${THREADS}`]: [err(409, "VERSION_CONFLICT", { details: { current_version: 5 } })] });
   const row = rows(page).first();
-  await row.getByRole("switch", { name: "Kiểm duyệt Threads" }).click();
+  await row.getByRole("switch", { name: "Kiểm duyệt Hỏi đáp công khai" }).click();
   await expect(row.getByText("Cài đặt vừa được người khác đổi. Đã tải lại.")).toBeVisible();
   await expect.poll(async () => (await getLog(page, `${P}/decision`)).filter((l) => l.method === "GET").length).toBeGreaterThanOrEqual(2);
 });

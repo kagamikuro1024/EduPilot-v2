@@ -29,6 +29,10 @@
 		format filter {
 			wrap json
 			request>uri regexp (token=|/invite/|/join/)[A-Za-z0-9_-]+ ${1}REDACTED
+			# Điều hướng RSC của Next.js lặp lại đường dẫn (kèm token) trong tiêu đề: bỏ hẳn khỏi log, Referer che như uri.
+			request>headers>Next-Url delete
+			request>headers>Next-Router-State-Tree delete
+			request>headers>Referer regexp (token=|/invite/|/join/)[A-Za-z0-9_-]+ ${1}REDACTED
 		}
 	}
 

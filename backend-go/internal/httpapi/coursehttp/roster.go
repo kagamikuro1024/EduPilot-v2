@@ -69,6 +69,9 @@ func (h *Handler) rosterImport(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, apierr.New(http.StatusBadRequest, apierr.BadRequest))
 		return
 	}
+	if err := course.CheckRosterFileName(hdr.Filename, data); h.fail(w, r, "roster-import", err) {
+		return
+	}
 	dry := r.URL.Query().Get("dry_run") == "true"
 	invites := !strings.EqualFold(strings.TrimSpace(r.FormValue("send_invites")), "false")
 	rep, err := h.Courses.ImportRoster(r.Context(), courseID, teacher, data, course.RosterOptions{DryRun: dry, SendInvites: invites})

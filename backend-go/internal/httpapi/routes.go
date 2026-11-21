@@ -10,6 +10,7 @@ import (
 	"github.com/edupilot/backend-go/internal/assignment"
 	"github.com/edupilot/backend-go/internal/attendance"
 	"github.com/edupilot/backend-go/internal/attendance/attest"
+	"github.com/edupilot/backend-go/internal/audit"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
@@ -23,6 +24,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/activityhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/assignmenthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/attendancehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/audithttp"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
@@ -32,18 +34,22 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/gradehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/insighthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/integrationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/observabilityhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/practicehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
+	"github.com/edupilot/backend-go/internal/insight"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/mailin"
 	"github.com/edupilot/backend-go/internal/notify"
+	"github.com/edupilot/backend-go/internal/observability"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/crypto"
 	"github.com/edupilot/backend-go/internal/practice"
@@ -124,6 +130,8 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			(&attendancehttp.Handler{Svc: attendanceService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), PublicURL: d.Cfg.AppPublicURL, ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r) // 10.8: điểm danh tự phục vụ
 			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                                                                                                      // US-P5-03: heartbeat, ack, đọc thời gian học
 			(&practicehttp.Handler{Svc: practiceService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)                                                                  // US-P9-05…09: luyện đề, thi thử
+			(&audithttp.Handler{Svc: &audit.Service{Pool: d.DB, Clock: d.Clock}, Log: d.Log}).Mount(r)                                                                                                                                     // US-P10-14: nhật ký kiểm toán
+			(&insighthttp.Handler{Svc: &insight.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, Redis: d.Redis, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)                                   // US-P10-04: báo cáo lỗ hổng kiến thức
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {
@@ -188,6 +196,8 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.DB != nil {
 			(&mailhttp.Handler{Pool: d.DB, Log: d.Log}).Mount(r) // US-P4-04 AC9: thư gửi lỗi (ADMIN)
+			// US-P10-01/02: quan sát AI (ADMIN) + bản tổng hợp một lớp (TEACHER của lớp / ADMIN).
+			(&observabilityhttp.Handler{Svc: &observability.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, JaegerBaseURL: d.Cfg.JaegerBaseURL, PayloadDays: d.Cfg.ObsPayloadDays}, Guard: courseGuard, Log: d.Log}).Mount(r)
 		}
 	})
 

@@ -245,3 +245,21 @@ func TestRosterDiacriticSubset(t *testing.T) {
 		require.Equal(t, KindName, fs[0].Kind, text)
 	}
 }
+
+// TestRosterIndexMemo — DEF-R106S-18: chỉ mục chỉ dựng lại khi roster ĐỔI (dấu vân); đổi roster thì tên mới bị bắt ngay, không cần chờ gì.
+func TestRosterIndexMemo(t *testing.T) {
+	d, src := newDetector(map[uuid.UUID][]Member{courseA: {{Name: "Nguyễn Văn An"}}})
+	ctx := context.Background()
+	a, err := d.Roster.index(ctx, courseA)
+	require.NoError(t, err)
+	b, err := d.Roster.index(ctx, courseA)
+	require.NoError(t, err)
+	require.Same(t, a, b, "cùng roster → cùng chỉ mục")
+	fs, err := d.Detect(ctx, courseA, "gặp Lê Thị Bình")
+	require.NoError(t, err)
+	require.Empty(t, fs)
+	src.byCourse[courseA] = []Member{{Name: "Nguyễn Văn An"}, {Name: "Lê Thị Bình"}}
+	fs, err = d.Detect(ctx, courseA, "gặp Lê Thị Bình")
+	require.NoError(t, err)
+	require.Equal(t, []string{"NAME:Lê Thị Bình"}, spans(t, "gặp Lê Thị Bình", fs), "roster đổi → chỉ mục mới")
+}

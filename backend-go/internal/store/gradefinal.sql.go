@@ -188,7 +188,7 @@ func (q *Queries) GradeSnapshotVersions(ctx context.Context, courseID uuid.UUID)
 }
 
 const gradeSnapshotsForStudents = `-- name: GradeSnapshotsForStudents :many
-select student_id, breakdown, numeric_grade, letter, failed_reason
+select student_id, breakdown, numeric_grade, letter, failed_reason, locked_at
 from final_grade_snapshots
 where course_id = $1 and version = $2 and student_id = any($3::text[]::uuid[])
 `
@@ -205,6 +205,7 @@ type GradeSnapshotsForStudentsRow struct {
 	NumericGrade decimal.Decimal
 	Letter       string
 	FailedReason *string
+	LockedAt     time.Time
 }
 
 // Bản chốt mới nhất của một lô sinh viên (nguồn của kết quả và cờ drift khi sổ LOCKED).
@@ -223,6 +224,7 @@ func (q *Queries) GradeSnapshotsForStudents(ctx context.Context, arg GradeSnapsh
 			&i.NumericGrade,
 			&i.Letter,
 			&i.FailedReason,
+			&i.LockedAt,
 		); err != nil {
 			return nil, err
 		}

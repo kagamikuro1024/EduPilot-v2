@@ -216,7 +216,12 @@ export function DataTable<T>({
                 className={[clickable ? s.clickable : "", key === activeKey || selection?.selected.has(key) ? s.active : ""].join(" ")}
                 aria-current={key === activeKey ? "true" : undefined}
                 onClick={clickable ? () => activate(row) : undefined}
-                onKeyDown={clickable ? (e) => e.key === "Enter" && activate(row) : undefined}
+                onKeyDown={clickable ? (e) => {
+                  // Chỉ Enter của chính hàng; chặn mặc định để phím Enter này không bấm tiếp nút «Đóng» mà Drawer vừa chuyển focus tới.
+                  if (e.key !== "Enter" || e.target !== e.currentTarget) return;
+                  e.preventDefault();
+                  activate(row);
+                } : undefined}
                 tabIndex={clickable ? 0 : undefined}
                 {...rowAttrs?.(row)}
               >

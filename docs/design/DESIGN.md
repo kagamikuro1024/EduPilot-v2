@@ -908,7 +908,7 @@ Table:
 - Student, components, bonuses/penalties, current total, final exam, final grade, status.
 - Scores are displayed exactly as the server returns them, never rounded; each column pads zeros to its longest fraction, comma decimal, right-aligned, `tabular-nums`.
 - One vertical scroll area as tall as the remaining viewport, virtualised; header and student column are sticky inside it.
-- Status column reads **Thiếu điểm** (amber) only for students missing a component score, blank otherwise, and is hidden when nobody is missing.
+- Status column shows each row's status (Đã chốt vN / Thiếu điểm / Chưa tính được / Liệt / Khác bản chốt; **Thiếu điểm** in amber), blank when the row has none, and is hidden when no row has a status to show.
 - Freeze name and key total columns where useful.
 - Editing is inline.
 - Audit/history entry appears from row context, not always-visible button.
@@ -1425,6 +1425,7 @@ meta · meta · meta                                          row 2, optional, o
 - Side-by-side regions exist only through `Split`:
   - `ratio="main-aside"`: main `1fr`, aside 340 px, gap `--ep-space-6`; stacks below 1100 px.
   - `ratio="list-detail"` with `fill`: one panel, list 380 px + detail, as tall as the viewport (`100dvh − top bar − header`), panes scroll on their own; below 1100 px it becomes list → detail navigation. `fill` applies only while the list has rows. An empty or failed list renders a normal content-height panel.
+  - `ratio="review"` (`/grading/[submissionId]`): left 55 % (submission) / right 45 % (rubric + score); allowed range 52–58 / 42–48 per §14.13; two columns from 1024 px; below 1024 px it stacks (submission on top, rubric + score below), like `main-aside`.
   - Viewport-relative heights are allowed nowhere else.
 
 ## 23.4 EmptyState: one pattern

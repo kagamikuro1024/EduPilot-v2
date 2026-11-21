@@ -58,7 +58,7 @@ func TestLLMSchema(t *testing.T) {
 	var tables int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from information_schema.tables
 		where table_schema='public' and table_name like 'llm\_%'`).Scan(&tables))
-	require.Equal(t, 5, tables)
+	require.Equal(t, 9, tables) // + llm_request_payloads (00022, quan sát AI) + llm_audit_hourly / _hourly_lat / _rollup_state (00027, P-11-44: bảng cộng gộp theo giờ)
 
 	for table, cols := range want {
 		rows, err := conn.Query(ctx, `
@@ -235,7 +235,7 @@ func TestLLMIndexes(t *testing.T) {
 		got = append(got, s)
 	}
 	require.NoError(t, rows.Err())
-	require.Equal(t, []string{"llm_audit_course_created_idx", "llm_audit_created_idx", "llm_audit_decide_idx", "llm_audit_pkey", "llm_audit_task_created_idx", "llm_audit_trace_idx"}, got)
+	require.Equal(t, []string{"llm_audit_course_created_idx", "llm_audit_created_idx", "llm_audit_decide_idx", "llm_audit_pkey", "llm_audit_status_created_idx", "llm_audit_task_created_idx", "llm_audit_trace_idx"}, got)
 
 	// Chỉ mục duy nhất từng phần của llm_budgets và (task, fallback_order), (provider_id, model).
 	rows2, err := conn.Query(ctx, `select tablename || '.' || indexname from pg_indexes

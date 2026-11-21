@@ -12,6 +12,7 @@ type Exemption struct {
 // Khi một phase sau khai báo status không thể sinh ra trong test (ví dụ 503 khi kéo sập hạ tầng thật), thêm vào đây kèm lý do.
 func Exemptions() []Exemption {
 	return []Exemption{
+		{"POST /api/v1/courses/{id}/assignments/{aid}/grade-all", 503, "503 chỉ khi Redis chết (Idempotency-Key fail-closed, SRS 6.6, P-11-70); không kéo sập Redis dùng chung của bộ hợp đồng. Hành vi được `httpapi.TestIdempotency_RedisDown_FailClosed` kiểm (503 SERVICE_UNAVAILABLE + Retry-After, handler không chạy)."},
 		{"GET /api/v1/me/today", 504, "Quá hạn yêu cầu chỉ sinh ra khi DB chậm thật; hành vi được `today.TestTodayDeadline504` kiểm bằng ngữ cảnh đã hết hạn."},
 		{"GET /api/v1/courses/{id}/today", 504, "Như trên: `today.TestTodayDeadline504`."},
 		{"GET /api/v1/me/today", 304, "304 không có thân; ETag / If-None-Match được `today.TestTodayETag` kiểm."},

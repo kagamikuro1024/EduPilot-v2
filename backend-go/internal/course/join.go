@@ -265,6 +265,11 @@ func (s Service) Join(ctx context.Context, userID uuid.UUID, ip, code string) (J
 	if err := s.auditEnrollment(ctx, tq, c.ID, &userID, row.ID, "member_joined", nil, map[string]any{"status": row.Status, "warning": row.Warning, "via": "CODE"}); err != nil {
 		return JoinResult{}, err
 	}
+	if row.Status == store.EnrollmentStatusACTIVE { // vào lớp ngay: từ điển PII (ep:roster) phải đổi ≤ vài giây, không đợi TTL (DEF-R6-02)
+		if _, err := outbox.Write(ctx, tx, TopicMemberChanged, map[string]string{"course_id": c.ID.String(), "user_id": userID.String()}); err != nil {
+			return JoinResult{}, err
+		}
+	}
 	if row.Status == store.EnrollmentStatusPENDING {
 		if _, err := outbox.Write(ctx, tx, TopicJoinRequested, map[string]any{"course_id": c.ID.String(), "user_id": userID.String(), "mismatch": warning != nil}); err != nil {
 			return JoinResult{}, err

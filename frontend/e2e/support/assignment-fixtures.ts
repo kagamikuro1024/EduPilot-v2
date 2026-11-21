@@ -7,7 +7,7 @@ export const COURSE = "00000000-0000-7000-8000-00000000c001";
 export const A1 = "00000000-0000-7000-8000-0000000a0001";
 export const A2 = "00000000-0000-7000-8000-0000000a0002";
 const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
-const j = (body: unknown, status = 200) => ({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+export const j = (body: unknown, status = 200) => ({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
 const e = (status: number, code: string, details?: unknown) => j({ code, message: code, trace_id: "t", ...(details === undefined ? {} : { details }) }, status);
 
 export type Criterion = { id: string; name: string; max_score: string; guidance: string };
@@ -252,6 +252,8 @@ type SOpts = {
   mine?: Mine;
   items?: StudentItem[];
   h?: Record<string, Handler>;
+  /** số ngày nộp muộn máy chủ trả khi nộp (mặc định 0) */
+  lateDays?: number;
   /** hành vi của kho tệp giả (mặc định 200) */
   storage?: (route: Route) => Promise<void> | void;
 };
@@ -312,7 +314,7 @@ export async function studentApi(p: Page, opts: SOpts = {}) {
       if (done.has(idem)) return route.fulfill(j(done.get(idem), 201));
       const b = JSON.parse(body) as { upload_id: string };
       if (b.upload_id !== UPLOAD_ID) return route.fulfill(e(404, "UPLOAD_NOT_FOUND"));
-      const sub: MineSub = { version: (out.submission?.version ?? 0) + 1, file_name: filename || "bt03.pdf", received_at: RECEIVED, late_days: 0 };
+      const sub: MineSub = { version: (out.submission?.version ?? 0) + 1, file_name: filename || "bt03.pdf", received_at: RECEIVED, late_days: opts.lateDays ?? 0 };
       out = { ...out, submission: sub, state: "SUBMITTED" };
       const res = { submission: { id: "00000000-0000-7000-8000-0000000e0001", ...sub } };
       done.set(idem, res);
@@ -478,7 +480,7 @@ export type View = {
   flags: string[];
   pass_detail: Record<string, { pass1?: string; pass2?: string }> | null;
   appeal?: AppealFx | null;
-  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]> };
+  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]>; support_by_criterion?: Record<string, number> };
   late: { days: number; penalty: string; max_days: number; per_day: string; manual: boolean };
 };
 

@@ -3208,16 +3208,17 @@ type FinalGradeSnapshot struct {
 }
 
 type FormsImportBatch struct {
-	ID        uuid.UUID
-	CourseID  uuid.UUID
-	ItemID    uuid.UUID
-	FileHash  string
-	BlobKey   string
-	Mapping   json.RawMessage
-	Matched   int32
-	Unmatched int32
-	CreatedBy uuid.UUID
-	CreatedAt time.Time
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	ItemID       uuid.UUID
+	FileHash     string
+	BlobKey      string
+	Mapping      json.RawMessage
+	Matched      int32
+	Unmatched    int32
+	CreatedBy    uuid.UUID
+	CreatedAt    time.Time
+	BlobPurgedAt *time.Time
 }
 
 type FormsImportRow struct {
@@ -3562,6 +3563,30 @@ type LlmAudit struct {
 	CascadePath    *string
 }
 
+type LlmAuditHourly struct {
+	Hour      time.Time
+	Task      string
+	Requests  int64
+	Errors    int64
+	Fallbacks int64
+	Cost      decimal.Decimal
+	TokensIn  int64
+	TokensOut int64
+	PiiMasked int64
+}
+
+type LlmAuditHourlyLat struct {
+	Hour   time.Time
+	Bucket int16
+	N      int64
+}
+
+type LlmAuditRollupState struct {
+	ID        bool
+	Watermark time.Time
+	UpdatedAt time.Time
+}
+
 type LlmBudget struct {
 	ID           uuid.UUID
 	Scope        string
@@ -3601,6 +3626,15 @@ type LlmProvider struct {
 	Version       int32
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+}
+
+type LlmRequestPayload struct {
+	AuditID      uuid.UUID
+	CourseID     *uuid.UUID
+	MaskedPrompt string
+	Tools        json.RawMessage
+	Confidence   decimal.NullDecimal
+	CreatedAt    time.Time
 }
 
 type LlmTaskRoute struct {

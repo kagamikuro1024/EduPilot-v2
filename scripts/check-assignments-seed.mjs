@@ -15,7 +15,7 @@ import { accountCodes } from "./assignment-accounts.mjs";
 
 const modes = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const run = (m) => modes.includes(m);
-const MOCK_GRAPH = (process.env.MOCK_GRAPH_URL || "http://localhost:8090").replace(/\/$/, "");
+const MOCK_GRAPH = (process.env.MOCK_GRAPH_URL || `http://localhost:${process.env.EP_PORT_MOCK_GRAPH || 8090}`).replace(/\/$/, "");
 const { c1 } = await courses();
 const t = await tok("teacher");
 const plan = loadPlan(root);
@@ -79,6 +79,11 @@ if (run("bt03")) {
   must(allAsg.length === 2 && bt03.published_at && bt04.published_at, "cần đúng 2 bài tập đã công bố");
   must(bt03.counts.graded === 0, "seed không được chạy chấm (chưa có grading_results)");
   // BUG-S9-02: chú thích HTML nội bộ của tệp đề bài / đáp án không được nạp (đề bài hiện cho sinh viên, đáp án cho nhân viên)
+  // P-11-13: mô tả ghi «Hạn nộp 23:59» ⇒ due_at phải đúng 23:59:00 giờ Việt Nam (+07)
+  for (const a of [bt03, bt04]) {
+    const hhmmss = new Date(a.due_at).toLocaleTimeString("en-GB", { timeZone: "Asia/Ho_Chi_Minh", hour12: false });
+    must(hhmmss === "23:59:00", `${a.submission_code}: hạn nộp ${hhmmss} (+07) ≠ 23:59:00`);
+  }
   for (const a of [bt03, bt04]) must(!/<!--|-->|BA sở hữu|NỘI DUNG GỐC|D44/.test(`${a.description}\n${a.reference_answer ?? ""}`), `${a.submission_code}: đề / đáp án còn chú thích HTML nội bộ`);
   const mine = await call("GET", `/courses/${c1}/assignments/${bt03.id}/mine`, { token: await tok("sv.gioi") });
   must(mine.status === 200 && !/<!--|BA sở hữu|NỘI DUNG GỐC|D44|CANARY/.test(JSON.stringify(mine.body)), "trang sinh viên BT03 còn chữ nội bộ / canary");

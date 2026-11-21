@@ -62,8 +62,8 @@ func DefaultQueueConfig() QueueConfig {
 		Backoff: []time.Duration{5 * time.Second, 20 * time.Second}, OutageDelay: llm.OutageDelay, OutageRetries: llm.OutageMax, Poll: 500 * time.Millisecond, Tick: 5 * time.Second}
 }
 
-// Metrics là bộ đếm KHÔNG PII (SRS 4.7 AC10): chỉ số đếm theo trạng thái, độ sâu, thời lượng. `/observability` (P10) đọc Snapshot.
-// ponytail: bộ đếm trong tiến trình (mỗi worker một bản); xuất Prometheus khi P10 dựng đường thu thập.
+// Metrics là bộ đếm KHÔNG PII trong tiến trình (mỗi worker một bản), chỉ để test và chẩn đoán. Số liệu AC10 (SRS 4.7) cho `/observability` do
+// `observability.Service.Summary` tính từ `grading_results` lúc đọc (PM quyết 2026-11-19), không đọc bộ đếm này.
 type Metrics struct {
 	mu        sync.Mutex
 	states    map[string]int64

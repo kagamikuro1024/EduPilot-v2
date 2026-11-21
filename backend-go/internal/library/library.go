@@ -22,6 +22,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/textfold"
 )
 
 // MinQuery: `q` ngắn hơn bị bỏ qua (coi như không có `q`, không 422 — #12).
@@ -72,6 +73,47 @@ type Page struct {
 
 func escapeLike(q string) string {
 	return strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(q)
+}
+
+// snippetRunes: độ dài đoạn trích hiển thị.
+const snippetRunes = 160
+
+// snippetAround cắt cửa sổ ≤ snippetRunes quanh từ khoá của q trong đoạn khớp (so không dấu, không phân biệt hoa thường). Khớp theo cặp âm tiết liền nhau trước
+// (đúng cách vn_bigram_query khớp đoạn), rồi tới từ đơn dài ≥ 3 ký tự; không thấy (khớp theo tên tài liệu) → phần đầu đoạn. Chữ tiếng Việt NFC nằm trong BMP nên chỉ số UTF-16 của textfold.Index cũng là chỉ số rune.
+func snippetAround(text, q string) string {
+	r := []rune(text)
+	if len(r) <= snippetRunes {
+		return text
+	}
+	words := textfold.Words(q)
+	best := -1
+	probe := func(k string) {
+		if st, _, ok := textfold.Index(text, k); ok && (best < 0 || st < best) {
+			best = st
+		}
+	}
+	for i := 0; i+1 < len(words); i++ {
+		probe(words[i] + " " + words[i+1])
+	}
+	if best < 0 {
+		for _, w := range words {
+			if utf8.RuneCountInString(w) >= 3 {
+				probe(w)
+			}
+		}
+	}
+	start := 0
+	if best > 30 {
+		start = best - 30
+	}
+	if start+snippetRunes > len(r) {
+		start = len(r) - snippetRunes
+	}
+	out := strings.TrimSpace(string(r[start : start+snippetRunes]))
+	if start > 0 {
+		out = "…" + out
+	}
+	return out
 }
 
 func fileKind(filename *string) string {
@@ -126,7 +168,7 @@ func (s *Service) List(ctx context.Context, course uuid.UUID, f Filter, p httpx.
 		out.NextCursor = &c
 	}
 	for _, r := range rows {
-		out.Items = append(out.Items, Item{ID: r.ID, Title: r.Title, Type: string(r.Type), FileKind: fileKind(r.Filename), Category: r.Category, WeekNo: r.WeekNo, UpdatedAt: r.UpdatedAt, Snippet: r.Snippet, CanAskAI: r.CanAskAi})
+		out.Items = append(out.Items, Item{ID: r.ID, Title: r.Title, Type: string(r.Type), FileKind: fileKind(r.Filename), Category: r.Category, WeekNo: r.WeekNo, UpdatedAt: r.UpdatedAt, Snippet: snippetAround(r.Snippet, f.Q), CanAskAI: r.CanAskAi})
 	}
 	return out, nil
 }
@@ -218,7 +260,7 @@ func (s *Service) Search(ctx context.Context, tc agent.TrustedContext, query str
 	res := make([]map[string]any, 0, len(rows))
 	srcs := make([]agent.Source, 0, len(rows))
 	for _, r := range rows {
-		m := map[string]any{"document_id": r.ID, "title": r.Title, "type": string(r.Type), "week_no": r.WeekNo, "snippet": r.Snippet, "href": "/library/" + r.ID.String()}
+		m := map[string]any{"document_id": r.ID, "title": r.Title, "type": string(r.Type), "week_no": r.WeekNo, "snippet": snippetAround(r.Snippet, q), "href": "/library/" + r.ID.String()}
 		src := agent.Source{Title: r.Title}
 		if r.PageNo > 0 {
 			m["page_no"] = r.PageNo

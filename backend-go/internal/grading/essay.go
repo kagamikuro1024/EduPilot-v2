@@ -365,7 +365,7 @@ func classify(err error) error {
 	switch {
 	case errors.As(err, &un) && un.Reason == llm.ReasonBudgetExhausted:
 		return errors.New(ErrLLMBudgetExhausted)
-	case errors.Is(err, llm.ErrBadRequest):
+	case errors.Is(err, llm.ErrBadRequest), llm.IsBadOutput(err):
 		return errors.New(ErrOutputInvalid)
 	case errors.Is(err, llm.ErrMaskFailed):
 		return errors.New(ErrInternal)

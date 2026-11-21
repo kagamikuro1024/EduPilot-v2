@@ -216,7 +216,7 @@ function Sheet({ courseId, userId, classCode, grid, picker, selfCheckin, rotate,
     if (!open) return;
     setActionError(null);
     try {
-      await acts.close.mutateAsync(open.id);
+      await acts.close.run(open.id);
       setCloseQueued(false);
       void refreshGrid();
     } catch (e) {
@@ -283,7 +283,7 @@ function Sheet({ courseId, userId, classCode, grid, picker, selfCheckin, rotate,
   const present = rows.filter((r) => r.status === "PRESENT" || r.status === "LATE").length;
   const absent = rows.length - present;
   const barState = q.status === "offline" ? "Chờ mạng" : saved ? "Đã lưu" : "Lưu điểm danh";
-  const locked = saved || a.conflicts.length > 0 || q.status === "offline";
+  const locked = saved || a.conflicts.length > 0;
   const moreActions: HeaderAction[] = [];
   if (hasWindow && !open && windows.length < 3) moreActions.push({ label: `Mở vòng ${(latest?.round ?? 0) + 1}`, onClick: () => void openWindow() });
   if (hasWindow) {
@@ -333,7 +333,7 @@ function Sheet({ courseId, userId, classCode, grid, picker, selfCheckin, rotate,
             active={rows.length}
             summary={{ present: rows.filter((r) => r.status === "PRESENT").length, late: rows.filter((r) => r.status === "LATE").length, unchecked }}
             closeQueued={closeQueued}
-            closing={acts.close.isPending}
+            closing={acts.close.pending}
             displayHref={displayHref}
             editingHeadcount={editingHeadcount}
             onHeadcount={(v) => latest && acts.headcount.mutate({ wid: (open ?? latest).id, headcount: v })}

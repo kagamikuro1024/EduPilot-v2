@@ -77,6 +77,23 @@ test("empty: câu dạy bước kế + Đặt câu hỏi", async ({ page, contex
   await expect(page.getByText("Chưa có câu hỏi nào")).toBeVisible();
 });
 
+// DEF-R3-SMK-03: màn lỗi danh sách hỏi đáp — Sinh viên không thấy Chi tiết kỹ thuật; trợ giảng vẫn thấy.
+async function openBroken(page: Page, context: BrowserContext, role: "student" | "ta") {
+  await asDemo(context, role, role === "student" ? { person: "sv-2" } : {});
+  await threadApi(page, { [`GET ${T}`]: err(500, "INTERNAL") });
+  await page.goto("/threads");
+  await expect(page.getByRole("button", { name: "Thử lại" }).first()).toBeVisible();
+}
+test("list error: Sinh viên không thấy Chi tiết kỹ thuật", async ({ page, context }) => {
+  await openBroken(page, context, "student");
+  await expect(page.getByText("Chi tiết kỹ thuật")).toHaveCount(0);
+});
+
+test("list error: trợ giảng thấy Chi tiết kỹ thuật", async ({ page, context }) => {
+  await openBroken(page, context, "ta");
+  await expect(page.getByText("Chi tiết kỹ thuật")).toBeVisible();
+});
+
 test("precheck debounce: gõ liên tục chỉ phát yêu cầu sau khi ngừng ≥ 800 ms; notice while typing hiện một dòng loại", async ({ page, context }) => {
   const calls = await openList(page, context, { [`POST ${T}/precheck`]: json({ allowed: false, reasons: [{ type: "MSSV", count: 1 }, { type: "EMAIL", count: 1 }], redacted_text: "x", redacted_title: "", personal_question: false }) });
   await ask(page).click();
@@ -137,6 +154,13 @@ test("switch keeps text: Chuyển sang chat riêng giữ đúng từng byte, m�
   await expect(page.getByRole("textbox", { name: "Câu hỏi của bạn" })).toHaveValue(body);
 });
 
+test("SRS wording (DEF-R6-U2): hộp thoại chặn PII đề «Bài viết có thông tin cá nhân»", async ({ page, context }) => {
+  await openList(page, context, { [`POST ${T}`]: piiBlocked });
+  await fillForm(page, "Hỏi", "Câu hỏi có MSSV 20229001");
+  await page.locator("[data-part=thread-form]").getByRole("button", { name: "Đăng" }).click();
+  await expect(page.getByRole("dialog", { name: "Bài viết có thông tin cá nhân" })).toBeVisible();
+});
+
 test("personal question: Ẩn thông tin rồi đăng bị khoá, còn Chuyển sang chat riêng", async ({ page, context }) => {
   await openList(page, context, { [`POST ${T}`]: err(422, "PII_DETECTED", { reasons: [{ type: "PERSONAL_QUESTION", count: 1 }], redacted_text: "x", redacted_title: "", personal_question: true }) });
   await fillForm(page, "Điểm", "Em được mấy điểm giữa kỳ?");
@@ -155,7 +179,7 @@ test("offline keeps draft: mất mạng giữ chữ, gửi lại cùng khoá; re
   await expect(page.getByRole("alert").filter({ hasText: /kết nối/i })).toBeVisible();
   await expect(page.getByLabel(/Nội dung/)).toHaveValue("Câu hỏi sạch về Điều 5");
   offline = false;
-  await page.getByRole("button", { name: "Gửi lại" }).click();
+  await page.getByRole("button", { name: "Đăng lại" }).click(); // P-11-78: SRS FEAT-private-chat-pii §7 «Đăng lại»
   await expect(page.locator("[data-part=thread-form]")).toHaveCount(0);
   const posts = calls.filter((c) => c.method === "POST" && c.path === T);
   expect(new Set(posts.map((c) => c.headers["idempotency-key"])).size).toBe(1);
@@ -177,7 +201,7 @@ test("exam lock: ô soạn khoá kèm giờ mở lại", async ({ page, context 
   await threadApi(page, { [`GET ${T}`]: list() });
   await page.goto("/threads");
   await ask(page).click();
-  await expect(page.getByText(/Chat tạm khóa trong lúc bạn làm bài thi\. Dùng lại được sau/)).toBeVisible();
+  await expect(page.getByText(/Đăng bài tạm khóa trong lúc bạn làm bài thi\. Dùng lại được sau \d{2}:\d{2}\./)).toBeVisible();
   await expect(page.getByLabel(/Nội dung/)).toBeDisabled();
 });
 
@@ -216,6 +240,17 @@ test("staff review: Xác nhận / Chỉnh sửa / Loại cạnh bản nháp, đ�
   await page.getByRole("button", { name: "Thêm hành động" }).click();
   await page.getByRole("menuitem", { name: "Loại" }).click();
   await expect(page.getByText("Đã loại một câu trả lời AI.")).toBeVisible();
+});
+
+test("staff review menu (DEF-R7-12, DESIGN §13): mục loại bản nháp AI ghi «Loại khỏi tri thức»", async ({ page, context }) => {
+  await asDemo(context, "ta");
+  await threadApi(page, {
+    [`GET ${T}/${TID}`]: (r) => r.fulfill(json(view([aiPost({ verification_state: "PENDING", confidence: "0.720" })], { ai_state: "ANSWERED" }))),
+    [`GET ${T}/${TID}/similar`]: json({ items: [] }),
+  });
+  await page.goto(`/threads/${TID}`);
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await expect(page.getByRole("menuitem", { name: "Loại khỏi tri thức", exact: true })).toBeVisible();
 });
 
 test("375: danh sách và soạn không tràn ngang", async ({ page, context }) => {

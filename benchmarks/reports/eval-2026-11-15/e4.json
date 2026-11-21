@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "commit": "5233fa86",
+    "timestamp": "2026-11-15T23:05:13.574Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "stack": "ep-qc",
+      "providers": {
+        "meta": {
+          "commit": "4c919bf5",
+          "timestamp": "2026-11-15T11:13:28.312Z",
+          "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+          "runs": 1,
+          "config": {
+            "stack": "ep-qc",
+            "raw": "providers.json"
+          }
+        },
+        "embedding": "giả (fake) — đã trả về sau lượt đo",
+        "P1": {
+          "model": "ag/gemini-3.8-flash",
+          "via": "9router (openai_compatible)",
+          "since": "2026-11-15T11:13:28.298Z"
+        },
+        "embed_real_since": "2026-11-15T09:51:48.511Z",
+        "P2": {
+          "model": "ag/claude-sonnet-4-6",
+          "via": "9router (openai_compatible)",
+          "since": "2026-11-15T10:15:53.476Z"
+        },
+        "embed_real_calls": 395,
+        "embed_real_tokens": 0,
+        "embed_real_until": "2026-11-15T10:27:59.437Z"
+      },
+      "price_date": "2026-11-15"
+    }
+  },
+  "status": "OK",
+  "by_provider": {
+    "P1": {
+      "model": "ag/gemini-3.8-flash",
+      "status": "OK",
+      "via": "9router (openai_compatible)",
+      "quality": {
+        "e2_accuracy_answerable": 0.8617,
+        "e2_fabrication_unanswerable": 0.0,
+        "e2_at_080": {
+          "t": 0.8,
+          "n": 137,
+          "escalate_rate": 0.4599,
+          "error_rate": 0.0135,
+          "false_ticket_rate": 0.0988,
+          "catch_rate": 0.9821
+        },
+        "e3_vs_human": "WAITING_HUMAN",
+        "e3_stability": {
+          "a": "P1r1",
+          "b": "P1r2",
+          "qwk": 0.885,
+          "mae": 0.325
+        }
+      },
+      "latency_llm_ms": {
+        "n": 133,
+        "p50": 3693,
+        "p95": 6029,
+        "max": 17699,
+        "mean": 4038.2
+      },
+      "latency_client_to_answer_ms": {
+        "n": 133,
+        "p50": 4976,
+        "p95": 17148,
+        "max": 71501,
+        "mean": 6878.3
+      },
+      "calls": 148,
+      "errors": 15,
+      "tokens_in_avg": 3858,
+      "tokens_out_avg": 41,
+      "price_usd_per_1m": {
+        "in": 0.75,
+        "out": 3.75
+      },
+      "cost_usd_per_100_measured": 0.3048,
+      "cost_usd_per_100_direct_est": 0.1398
+    },
+    "P2": {
+      "model": "ag/claude-sonnet-4-6",
+      "status": "OK",
+      "via": "9router (openai_compatible)",
+      "quality": {
+        "e2_accuracy_answerable": 0.8602,
+        "e2_fabrication_unanswerable": 0.0,
+        "e2_at_080": {
+          "t": 0.8,
+          "n": 138,
+          "escalate_rate": 0.5,
+          "error_rate": 0.029,
+          "false_ticket_rate": 0.1625,
+          "catch_rate": 0.9655
+        },
+        "e3_vs_human": "WAITING_HUMAN",
+        "e3_stability": {
+          "a": "P1r1",
+          "b": "P2r1",
+          "qwk": 0.4505,
+          "mae": 0.7292
+        }
+      },
+      "latency_llm_ms": {
+        "n": 134,
+        "p50": 2812,
+        "p95": 5811,
+        "max": 10373,
+        "mean": 3218.0
+      },
+      "latency_client_to_answer_ms": {
+        "n": 134,
+        "p50": 4925,
+        "p95": 8030,
+        "max": 24581,
+        "mean": 4988.3
+      },
+      "calls": 143,
+      "errors": 9,
+      "tokens_in_avg": 4159,
+      "tokens_out_avg": 109,
+      "price_usd_per_1m": {
+        "in": 3.0,
+        "out": 15.0
+      },
+      "cost_usd_per_100_measured": 1.4105,
+      "cost_usd_per_100_direct_est": 0.7505
+    }
+  },
+  "notes": [
+    "Chi phí quy đổi: 9router là thuê bao, chi phí biên thực 0.",
+    "Token vào qua 9router đội ≈ 2200 do lời nhắc hệ thống đường ag/ (ước tính, PoC Jev mục 4); cột «gọi thẳng» trừ phần này."
+  ]
+}

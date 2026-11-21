@@ -255,8 +255,14 @@ func (a *Accounts) VerifyEmail(ctx context.Context, plain string) error {
 	if _, err := q.MarkEmailVerified(ctx, store.MarkEmailVerifiedParams{ID: uid, Now: now}); err != nil {
 		return fmt.Errorf("auth: xác minh email: %w", err)
 	}
-	if _, err := q.PromoteUnverifiedRosterEnrollments(ctx, store.PromoteUnverifiedRosterEnrollmentsParams{UserID: uid, Now: now}); err != nil {
+	promoted, err := q.PromoteUnverifiedRosterEnrollments(ctx, store.PromoteUnverifiedRosterEnrollmentsParams{UserID: uid, Now: now})
+	if err != nil {
 		return fmt.Errorf("auth: đẩy danh sách lớp: %w", err)
+	}
+	for _, cid := range promoted { // thành viên ACTIVE mới ⇒ xoá cache từ điển PII của lớp đó (course.member_changed; DEF-R6-02)
+		if _, err := outbox.Write(ctx, tx, "course.member_changed", map[string]string{"course_id": cid.String(), "user_id": uid.String()}); err != nil {
+			return err
+		}
 	}
 	if _, err := outbox.Write(ctx, tx, TopicUserVerified, map[string]string{"user_id": uid.String()}); err != nil {
 		return err

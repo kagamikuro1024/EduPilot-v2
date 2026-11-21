@@ -8,23 +8,46 @@ import s from "./Results.module.css";
 const chosen = (a: AnswerShape, id: string) => Boolean(a?.option_ids?.includes(id));
 
 /** Các câu của một kết quả (sinh viên sau công bố / Staff): câu trắc nghiệm có lựa chọn + đúng / sai, câu code có bảng test mẫu, số test ẩn và mã gập. Dùng chung nên hai nơi không lệch nhau. */
-export function ResultItems({ items, staff }: { items: ResultItem[]; staff?: boolean }) {
+export function ResultItems({ items, staff, collapsible }: { items: ResultItem[]; staff?: boolean; /** mặc định gập, mở từng câu (US-PE-08 AC7, màn của sinh viên) */ collapsible?: boolean }) {
   return (
     <ol className={s.items} data-part="result-items">
       {items.map((it) => (
         <li key={it.item_id} className={s.item} data-part="result-item" data-correct={it.correct === null ? undefined : String(it.correct)}>
-          <header className={s.itemHead}>
-            <span className={s.itemNo}>Câu {it.position}</span>
-            <span className={s.itemScore}>{vnum(it.earned)} / {vnum(it.max)} điểm</span>
-            {it.type !== "CODE" && it.correct === true && <StatusText tone="green">Đúng</StatusText>}
-            {it.type !== "CODE" && it.correct === false && <StatusText tone="red">Sai</StatusText>}
-            {it.overridden && <StatusText tone="blue">{staff ? "Đã điều chỉnh" : "Câu này đã được điều chỉnh bởi giảng viên"}</StatusText>}
-          </header>
-          <Markdown source={it.stem} />
-          {it.type === "CODE" ? <CodeResult it={it} /> : <Choice it={it} />}
+          {collapsible ? (
+            <details className={s.fold}>
+              <summary><ItemHead it={it} staff={staff} /></summary>
+              <div className={s.foldBody}><ItemBody it={it} /></div>
+            </details>
+          ) : (
+            <>
+              <ItemHead it={it} staff={staff} />
+              <ItemBody it={it} />
+            </>
+          )}
         </li>
       ))}
     </ol>
+  );
+}
+
+function ItemHead({ it, staff }: { it: ResultItem; staff?: boolean }) {
+  return (
+    <span className={s.itemHead}>
+      <span className={s.itemNo}>Câu {it.position}</span>
+      <span className={s.itemScore}>{vnum(it.earned)} / {vnum(it.max)} điểm</span>
+      {it.type !== "CODE" && it.correct === true && <StatusText tone="green">Đúng</StatusText>}
+      {it.type !== "CODE" && it.correct === false && <StatusText tone="red">Sai</StatusText>}
+      {it.overridden && <StatusText tone="blue">{staff ? "Đã điều chỉnh" : "Câu này đã được điều chỉnh bởi giảng viên"}</StatusText>}
+    </span>
+  );
+}
+
+function ItemBody({ it }: { it: ResultItem }) {
+  return (
+    <>
+      <Markdown source={it.stem} />
+      {it.type === "CODE" ? <CodeResult it={it} /> : <Choice it={it} />}
+    </>
   );
 }
 
@@ -103,4 +126,15 @@ function CodeResult({ it }: { it: ResultItem }) {
       )}
     </div>
   );
+}
+
+/** Dòng tóm tắt dưới điểm (US-PE-08 AC7): «Bạn đúng 8/10 câu trắc nghiệm · bài lập trình: 3/4 test ẩn đạt»; phần nào không có câu thì bỏ. */
+export function resultSummary(items: ResultItem[]): string {
+  const mcq = items.filter((i) => i.type !== "CODE");
+  const hidden = items.flatMap((i) => (i.type === "CODE" && i.hidden ? [i.hidden] : []));
+  const parts = [
+    ...(mcq.length > 0 ? [`Bạn đúng ${mcq.filter((i) => i.correct === true).length}/${mcq.length} câu trắc nghiệm`] : []),
+    ...(hidden.length > 0 ? [`bài lập trình: ${hidden.reduce((n, h) => n + h.passed, 0)}/${hidden.reduce((n, h) => n + h.total, 0)} test ẩn đạt`] : []),
+  ];
+  return parts.join(" · ");
 }

@@ -6,9 +6,30 @@ import { ApiError, newIdempotencyKey } from "@/shared/data";
 import { Button, ConfirmIrreversible, Popover, StatusText } from "@/shared/ui";
 import { gradeOne, type ResultView } from "./gradingApi";
 
+/** Phụ đề `meta` trên nhãn một tiêu chí: «bản v1 · 3 lần sửa», bấm mở lưu ý áp dụng cho tiêu chí đó (US-GD-06 AC3). Không có lưu ý → không hiện. */
+export function CriterionGuidance({ view, criterionId }: { view: ResultView; criterionId: string }) {
+  const g = view.guidance;
+  const items = g?.items_by_criterion[criterionId] ?? [];
+  if (!g || g.version === 0 || items.length === 0) return null;
+  return (
+    <Popover
+      label="Lưu ý chấm đã dùng"
+      align="start"
+      trigger={(p) => (
+        <Button size="sm" variant="ghost" data-part="guidance-meta" onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">{`bản v${g.version} · ${g.support_by_criterion?.[criterionId] ?? 0} lần sửa`}</Button>
+      )}
+    >
+      <div data-part="guidance-popover">
+        {items.map((t, i) => (
+          <p key={i}>{t}</p>
+        ))}
+      </div>
+    </Popover>
+  );
+}
+
 /**
- * Dòng phụ đề của màn duyệt cho «Lưu ý chấm» (10.6): bản đã ghim cho KẾT QUẢ NÀY, danh sách lưu ý theo tiêu chí,
- * chip «Bản cũ» + `Chấm lại` khi nháp chưa duyệt chấm theo bản cũ. Chỉ có khi lớp bật tính năng (view.guidance).
+ * Chip «Bản cũ» + `Chấm lại` trên đầu màn duyệt cho «Lưu ý chấm» (10.6) khi nháp chưa duyệt chấm theo bản cũ. Chỉ có khi lớp bật tính năng (view.guidance).
  */
 export function GuidanceMeta({ courseId, view }: { courseId: string; view: ResultView }) {
   const g = view.guidance;
@@ -17,7 +38,6 @@ export function GuidanceMeta({ courseId, view }: { courseId: string; view: Resul
   const [state, setState] = useState<{ loading: boolean; error?: string }>({ loading: false });
   const idem = useRef<string | null>(null);
   if (!g || (g.version === 0 && !g.stale)) return null;
-  const count = Object.values(g.items_by_criterion).reduce((n, l) => n + l.length, 0);
   const edited = view.criteria.some((c) => c.edited);
 
   async function regrade() {
@@ -37,28 +57,6 @@ export function GuidanceMeta({ courseId, view }: { courseId: string; view: Resul
 
   return (
     <>
-      {g.version > 0 && (
-        <Popover
-          label="Lưu ý chấm đã dùng"
-          align="start"
-          trigger={(p) => (
-            <Button size="sm" variant="ghost" data-part="guidance-meta" onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">{`bản v${g.version} · ${count} lưu ý`}</Button>
-          )}
-        >
-          <div data-part="guidance-popover">
-            {view.criteria
-              .filter((c) => (g.items_by_criterion[c.id] ?? []).length > 0)
-              .map((c) => (
-                <div key={c.id}>
-                  <strong>{c.name}</strong>
-                  {g.items_by_criterion[c.id]!.map((t, i) => (
-                    <p key={i}>{t}</p>
-                  ))}
-                </div>
-              ))}
-          </div>
-        </Popover>
-      )}
       {g.stale && view.result.status === "DRAFT" && (
         <>
           <StatusText tone="amber" chip>Bản cũ</StatusText>

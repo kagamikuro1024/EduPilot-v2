@@ -11,6 +11,7 @@ import { useSession } from "@/shared/session/session";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, Composer, EmptyState, IconButton, OverflowMenu, Page, PageHeader, PageState, Skeleton, Split } from "@/shared/ui";
 import {
+  hideRawCites,
   LOCK_KEY,
   messagesKey,
   sessionsKey,
@@ -42,6 +43,7 @@ const newKey = () => crypto.randomUUID();
 function errorLine(code: string | null, retryAfter?: number): string {
   if (code === "OVERLOADED") return retryAfter ? `AI đang bận. Thử lại sau khoảng ${retryAfter} giây.` : "AI đang bận. Thử lại sau ít giây.";
   if (code === "INTERRUPTED") return "Câu trả lời bị gián đoạn.";
+  if (code === "MASK_FAILED") return "Chưa gửi được tin nhắn. Thử lại.";
   if (code === "NETWORK") return "Mất kết nối. Câu trả lời vẫn được lưu nếu AI đã trả lời xong.";
   return "AI đang gián đoạn. Thử lại sau.";
 }
@@ -212,6 +214,7 @@ export function RealChat({ courseId }: { courseId: string }) {
         fill
         detailOpen
         listCollapsed={collapsed || noSessions || sessions.isError}
+        pending={sessions.isPending}
         main={
           <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
             <div className={r.historyHead}>
@@ -335,7 +338,7 @@ function Row({ m, fb, onVote, onRetry, disabled, openTickets, onTicket, userId, 
     <div className={s.fromAi}>
       <p className={s.who}>Trợ lý AI</p>
       <Masked n={m.masked_count} />
-      {m.stream_status === "DONE" ? <Markdown source={m.content} /> : m.content && <p className={r.plain}>{m.content}</p>}
+      {m.stream_status === "DONE" ? <Markdown source={m.content} /> : m.content && <p className={r.plain}>{hideRawCites(m.content)}</p>}
       <Blocks blocks={m.blocks} />
       <Citations items={m.citations} />
       {m.low_confidence && m.stream_status === "DONE" && <Unsure />}
@@ -380,7 +383,7 @@ function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {
         <p className={s.who}>Trợ lý AI</p>
         <Masked n={live.masked} />
         <Blocks blocks={live.blocks} />
-        {live.text ? done ? <Markdown source={live.text} /> : <p className={r.plain}>{live.text}{live.status === "streaming" && <span className={s.caret} aria-hidden />}</p> : live.status === "streaming" && <p className={s.who}>{live.stage === "searching" ? "Đang tìm trong tài liệu…" : "Đang trả lời…"}</p>}
+        {live.text ? done ? <Markdown source={live.text} /> : <p className={r.plain}>{hideRawCites(live.text)}{live.status === "streaming" && <span className={s.caret} aria-hidden />}</p> : live.status === "streaming" && <p className={s.who}>{live.stage === "searching" ? "Đang tìm trong tài liệu…" : "Đang trả lời…"}</p>}
         {done && <Citations items={live.citations} />}
         {done && live.low && <Unsure />}
         {live.status === "cancelled" && <div className={r.actions}><span>Đã dừng.</span></div>}
@@ -412,7 +415,7 @@ function Masked({ n }: { n: number }) {
           Tìm hiểu
         </button>
       </p>
-      {why && <p className={s.privacyWhy}>Tên, MSSV, email, số điện thoại được thay bằng ký hiệu trước khi gửi cho AI và khôi phục khi hiển thị cho bạn.</p>}
+      {why && <p className={s.privacyWhy}>Tên, mã số sinh viên, email và số điện thoại được thay bằng ký hiệu trước khi gửi cho AI, rồi hiện lại cho bạn.</p>}
     </>
   );
 }
@@ -463,26 +466,30 @@ function Citations({ items }: { items: ChatCitation[] }) {
   if (!items || items.length === 0) return null;
   return (
     <CitationList
-      items={items.map((c) => ({
-        id: String(c.n),
-        title: c.title,
-        page: c.page_no ?? undefined,
-        excerpt: (
-          <>
-            {c.snippet}{" "}
-            {!c.knowledge && (
-              <Link href={`/library/${c.document_id}`} className={s.linkBtn}>
-                Xem tài liệu
-              </Link>
-            )}
-            {c.knowledge && c.thread_id && (
-              <Link href={`/threads/${c.thread_id}`} className={s.linkBtn}>
-                Xem hỏi đáp
-              </Link>
-            )}
-          </>
-        ),
-      }))}
+      items={items.map((c) =>
+        c.removed
+          ? { id: String(c.n), title: "Nguồn đã gỡ" }
+          : {
+              id: String(c.n),
+              title: c.title,
+              page: c.page_no ?? undefined,
+              excerpt: (
+                <>
+                  {c.snippet}{" "}
+                  {!c.knowledge && (
+                    <Link href={`/library/${c.document_id}`} className={s.linkBtn}>
+                      Xem tài liệu
+                    </Link>
+                  )}
+                  {c.knowledge && c.thread_id && (
+                    <Link href={`/threads/${c.thread_id}`} className={s.linkBtn}>
+                      Xem hỏi đáp
+                    </Link>
+                  )}
+                </>
+              ),
+            },
+      )}
     />
   );
 }

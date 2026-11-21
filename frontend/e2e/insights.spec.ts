@@ -1,0 +1,286 @@
+import { expect, test, type Page } from "@playwright/test";
+import { asJwt } from "./support/session";
+import { COURSE, cors, fail, insightsApi, ok, REPORT } from "./support/insights-fixtures";
+
+const GEN = "**/api/v1/courses/*/insights/knowledge-gap/generate";
+const JOB = { id: "00000000-0000-7000-8000-0000000000b1" };
+
+async function open(page: Page, latest: unknown | null) {
+  await asJwt(page, "TEACHER");
+  const calls = await insightsApi(page, { latest });
+  await page.goto("/insights");
+  return calls;
+}
+
+test("lớp chưa có báo cáo: một EmptyState + đúng một nút «Tạo báo cáo mới», không vẽ báo cáo mô phỏng (AC2)", async ({ page }) => {
+  await open(page, null);
+  await expect(page.getByText("Chưa có báo cáo")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tạo báo cáo mới" })).toHaveCount(1);
+  await expect(page.getByText("Chủ đề nên dạy lại")).toHaveCount(0);
+});
+
+test("375 px: mục gập «Câu hỏi mẫu» / «Chủ đề khác» có vùng chạm ≥ 44 px (TC-05-21)", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const base = REPORT.report.payload.topics;
+  const topics = Array.from({ length: 10 }, (_, i) => ({ ...base[i % 2], rank: i + 1, name: `Chủ đề thử ${i + 1}` })); // > 8 chủ đề → có «Chủ đề khác»
+  await open(page, { ...REPORT, report: { ...REPORT.report, payload: { ...REPORT.report.payload, topics } } });
+  await expect(page.getByText(/^Chủ đề khác \(\d+\)$/)).toBeVisible();
+  const boxes = await page.locator("main summary").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
+  expect(boxes.length).toBeGreaterThan(1);
+  for (const h of boxes) expect(h).toBeGreaterThanOrEqual(44);
+});
+
+test("có báo cáo: chủ đề xếp hạng, câu mẫu gập, «Ít người hỏi» không có câu mẫu, chưa đề cập, so sánh, dòng ẩn danh (AC3, 6, 7, 11)", async ({ page }) => {
+  await open(page, REPORT);
+  await expect(page.getByRole("heading", { name: "Bắt tay ba bước TCP" })).toBeVisible();
+  const names = await page.locator("h3.ep-item-title").allTextContents();
+  expect(names).toEqual(["Bắt tay ba bước TCP", "Truy vấn SQL nhiều bảng", "Docker compose"]);
+  await expect(page.getByText("Câu hỏi đã ẩn danh, dùng để cải thiện giảng dạy")).toBeVisible();
+  // câu mẫu: gập; chủ đề < 3 sinh viên: nhãn, không mục gập
+  await expect(page.getByText("Bắt tay ba bước TCP là gì?")).toBeHidden();
+  await page.getByText("Câu hỏi mẫu (3)").first().click();
+  await expect(page.getByText("Bắt tay ba bước TCP là gì?")).toBeVisible();
+  await expect(page.getByText("Ít người hỏi")).toHaveCount(1);
+  await expect(page.getByText("Câu hỏi mẫu")).toHaveCount(2);
+  await expect(page.getByText("Chưa đặt được tên chủ đề")).toBeVisible();
+  await expect(page.getByText("Cách cấu hình bộ định tuyến lượng tử")).toBeVisible();
+  await expect(page.getByText("10 lần")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "So với báo cáo ngày 22/10/2026" })).toBeVisible();
+  await expect(page.getByText("Chủ đề mới: Docker compose")).toBeVisible();
+  await expect(page.getByText(/Giảm hạng: Truy vấn SQL nhiều bảng \(hạng 1 → 2\)/)).toBeVisible();
+});
+
+test("tạo báo cáo: chỉ báo giai đoạn, xong tải lại báo cáo (AC4)", async ({ page }) => {
+  let state = 0;
+  let latest: unknown = null;
+  await asJwt(page, "TEACHER");
+  await insightsApi(page, {});
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => (latest ? ok(r, latest) : fail(r, 404, "NOT_FOUND")));
+  await page.route(GEN, (r) => {
+    expect(r.request().headers()["idempotency-key"]).toMatch(/^[A-Za-z0-9._:-]{8,128}$/);
+    return ok(r, { job_id: JOB.id }, 202);
+  });
+  await page.route(`**/api/v1/jobs/${JOB.id}`, (r) => {
+    state += 1;
+    if (state >= 3) latest = REPORT;
+    return ok(r, { id: JOB.id, status: state >= 3 ? "SUCCEEDED" : "RUNNING", progress: state >= 3 ? 100 : 40, result: state >= 3 ? { report_id: REPORT.report.id } : undefined });
+  });
+  await page.goto("/insights");
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect(page.getByText("Đang nhóm câu hỏi theo chủ đề…")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bắt tay ba bước TCP" })).toBeVisible({ timeout: 15_000 });
+});
+
+test("không có dữ liệu mới → reused; dưới 20 câu → 409; vượt trần → 429 (AC5)", async ({ page }) => {
+  await open(page, REPORT);
+  await page.route(GEN, (r) => ok(r, { report_id: REPORT.report.id, reused: true }));
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect(page.getByText("Chưa có câu hỏi mới từ ngày 14/11/2026")).toBeVisible();
+
+  await page.unroute(GEN);
+  await page.route(GEN, (r) => fail(r, 409, "NOT_ENOUGH_DATA"));
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect(page.getByText("Chưa đủ câu hỏi để gom (cần ≥ 20).")).toBeVisible();
+
+  await page.unroute(GEN);
+  await page.route(GEN, (r) => fail(r, 429, "RATE_LIMITED"));
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toBeVisible();
+});
+
+test("có dữ liệu mới: «Tạo báo cáo mới» là nút chính (AC3)", async ({ page }) => {
+  await open(page, { ...REPORT, has_new_data: true });
+  await expect(page.locator('[data-ep-header-actions] [data-variant="primary"]')).toHaveText(/Tạo báo cáo mới/);
+});
+
+test("tạo thread ghim: nháp sửa được → Đăng tạo thread rồi ghim; lỗi giữ chữ (AC8, AC13)", async ({ page }) => {
+  await open(page, REPORT);
+  let posted: { title: string; body: string } | null = null;
+  let pinned = false;
+  await page.route("**/api/v1/courses/*/threads", (r) => {
+    if (r.request().method() !== "POST") return r.fallback();
+    posted = r.request().postDataJSON();
+    return ok(r, { thread: { id: "00000000-0000-7000-8000-0000000000c1" } }, 201);
+  });
+  await page.route("**/api/v1/courses/*/threads/*/pin", (r) => {
+    pinned = true;
+    return r.fulfill({ status: 204, headers: cors });
+  });
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  const dlg = page.getByRole("group", { name: "Tạo thread ghim" });
+  await expect(dlg.getByLabel("Tiêu đề")).toHaveValue("Chủ đề đang vướng: Bắt tay ba bước TCP");
+  const body = dlg.getByLabel("Nội dung");
+  await expect(body).toHaveValue(/Ôn lại Bắt tay ba bước TCP/);
+  await body.fill("Tuần này ta ôn lại bắt tay ba bước.");
+  await dlg.getByRole("button", { name: "Đăng" }).click();
+  await expect(dlg.getByText("Đã đăng và ghim thread.")).toBeVisible();
+  expect(posted).toMatchObject({ title: "Chủ đề đang vướng: Bắt tay ba bước TCP", body: "Tuần này ta ôn lại bắt tay ba bước.", week_no: 3 });
+  expect(JSON.stringify(posted)).not.toContain("là gì?"); // không chứa câu hỏi mẫu
+  expect(pinned).toBe(true);
+});
+
+test("tạo thread lỗi: hộp giữ nguyên chữ đã sửa, báo tại chỗ (AC13)", async ({ page }) => {
+  await open(page, REPORT);
+  await page.route("**/api/v1/courses/*/threads", (r) => (r.request().method() === "POST" ? fail(r, 422, "PII_DETECTED", "Có thông tin cá nhân") : r.fallback()));
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  const dlg = page.getByRole("group", { name: "Tạo thread ghim" });
+  await dlg.getByLabel("Nội dung").fill("Chữ đã sửa của giảng viên");
+  await dlg.getByRole("button", { name: "Đăng" }).click();
+  await expect(dlg.getByRole("alert")).toBeVisible();
+  await expect(dlg.getByLabel("Nội dung")).toHaveValue("Chữ đã sửa của giảng viên");
+});
+
+test("buổi ôn tập: sự kiện lịch loại OTHER «Ôn tập: <chủ đề>» (AC9)", async ({ page }) => {
+  await open(page, REPORT);
+  let body: Record<string, unknown> | null = null;
+  await page.route(`**/api/v1/courses/${COURSE.id}/calendar/events`, (r) => {
+    if (r.request().method() !== "POST") return r.fallback();
+    body = r.request().postDataJSON();
+    return ok(r, { id: "00000000-0000-7000-8000-0000000000d1" }, 201);
+  });
+  await page.getByRole("button", { name: "Tạo buổi ôn tập" }).first().click();
+  const dlg = page.getByRole("group", { name: "Tạo buổi ôn tập" });
+  await expect(dlg.getByLabel("Tên buổi")).toHaveValue("Ôn tập: Bắt tay ba bước TCP");
+  await expect(dlg.getByRole("button", { name: "Lưu" })).toBeDisabled();
+  await dlg.getByLabel("Bắt đầu").fill("2026-11-20T18:00");
+  await dlg.getByRole("button", { name: "Lưu" }).click();
+  await expect(dlg.getByText("Đã thêm buổi ôn tập vào lịch của lớp.")).toBeVisible();
+  expect(body).toMatchObject({ type: "OTHER", title: "Ôn tập: Bắt tay ba bước TCP", starts_at: "2026-11-20T11:00:00.000Z" });
+});
+
+test("xuất Markdown gọi đúng đường export (AC10)", async ({ page }) => {
+  await open(page, REPORT);
+  const asked = page.waitForRequest((r) => r.url().includes(`/insights/knowledge-gap/${REPORT.report.id}/export`) && r.url().includes("format=md"));
+  await page.route("**/knowledge-gap/*/export**", (r) => r.fulfill({ status: 200, contentType: "text/markdown", headers: cors, body: "# Lỗ hổng" }));
+  await page.locator("[data-ep-header-actions]").getByRole("button", { name: "Thêm" }).click();
+  await page.getByRole("menuitem", { name: "Xuất Markdown" }).click();
+  await asked;
+});
+
+test("API lỗi: một thông báo + Thử lại (AC13)", async ({ page }) => {
+  await asJwt(page, "TEACHER");
+  await insightsApi(page, {});
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => fail(r, 500, "INTERNAL"));
+  await page.goto("/insights");
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
+});
+
+test("375 px: không tràn ngang, mục gập và nút đủ vùng chạm (AC14)", async ({ page }, info) => {
+  test.skip(info.project.name !== "mobile", "chỉ bề rộng di động");
+  await open(page, REPORT);
+  await expect(page.getByRole("heading", { name: "Bắt tay ba bước TCP" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  for (const b of await page.getByRole("button", { name: /Tạo (thread ghim|buổi ôn tập)/ }).all()) expect((await b.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+});
+
+// TC-04-04b (FR-9, US-P10-04 AC1): bộ chọn kỳ 7 / 14 / 30 / Toàn kỳ, mặc định 14; «Tạo báo cáo mới» gửi kỳ đang chọn; «Toàn kỳ» = 120 ngày, gợi ý trên chính nhãn.
+test("bộ chọn kỳ: mặc định 14, «Toàn kỳ» = 120 có gợi ý trên nhãn, «Tạo báo cáo mới» gửi period_days đang chọn", async ({ page }) => {
+  await asJwt(page, "TEACHER");
+  await insightsApi(page, {});
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => fail(r, 404, "NOT_FOUND"));
+  const sent: unknown[] = [];
+  await page.route(GEN, (r) => {
+    sent.push(r.request().postDataJSON());
+    return ok(r, { report_id: REPORT.report.id, reused: true });
+  });
+  await page.goto("/insights");
+  const group = page.getByRole("radiogroup", { name: "Kỳ báo cáo" });
+  await expect(group.getByRole("radio")).toHaveText(["7 ngày", "14 ngày", "30 ngày", "Toàn kỳ"]);
+  await expect(group.getByRole("radio", { name: "14 ngày" })).toBeChecked();
+  await expect(group.getByRole("radio", { name: "Toàn kỳ" })).toHaveAttribute("title", "120 ngày gần nhất");
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect.poll(() => sent.length).toBe(1);
+  expect(sent[0]).toEqual({ period_days: 14 });
+  await group.getByRole("radio", { name: "Toàn kỳ" }).click();
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect.poll(() => sent.length).toBe(2);
+  expect(sent[1]).toEqual({ period_days: 120 });
+});
+
+// Luật UX: không để mất chữ đã gõ — tiêu đề nháp thread ghim cũng tự lưu (cùng nội dung); tải lại còn nguyên.
+test("nháp thread ghim: gõ tiêu đề, tải lại trang, tiêu đề còn nguyên", async ({ page }) => {
+  await open(page, REPORT);
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  let dlg = page.getByRole("group", { name: "Tạo thread ghim" });
+  await dlg.getByLabel("Tiêu đề").fill("Ôn gấp bắt tay ba bước trước buổi kiểm tra");
+  await expect.poll(() => page.evaluate(() => Object.entries(localStorage).filter(([k]) => k.startsWith("ep:draft:") && k.endsWith(":title")).map(([, v]) => v).join(""))).toContain("Ôn gấp bắt tay ba bước");
+  await page.reload();
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  dlg = page.getByRole("group", { name: "Tạo thread ghim" });
+  await expect(dlg.getByLabel("Tiêu đề")).toHaveValue("Ôn gấp bắt tay ba bước trước buổi kiểm tra");
+});
+
+// D-11-20 / US-P10-04 AC4 (E2E F17): các nhánh còn thiếu của `insights.spec.ts` — đổi lớp 2, thread ghim hiện ở /threads, LLM lỗi → tên tạm.
+const COURSE2 = { ...COURSE, id: "00000000-0000-7000-8000-00000000c002", class_code: "761988", name: "An ninh mạng nâng cao" };
+const topicTitles = (page: Page) => page.locator("h3.ep-item-title").allTextContents();
+const named = (t: { name: string; named_by?: string; rank: number }) => ({
+  ...REPORT.report.payload.topics[0], ...t, why: `Chủ đề ${t.name}`, recommendation: `Ôn lại ${t.name} bằng một ví dụ`, examples: [`${t.name}: câu hỏi mẫu 1`, `${t.name}: câu hỏi mẫu 2`, `${t.name}: câu hỏi mẫu 3`],
+});
+
+test("đổi sang lớp 2: «Tường lửa và phân đoạn mạng» đứng đầu lớp 2 và không xuất hiện ở lớp 1 (AC4, AC7)", async ({ page }) => {
+  const REPORT2 = { ...REPORT, report: { ...REPORT.report, payload: { ...REPORT.report.payload, topics: [named({ rank: 1, name: "Tường lửa và phân đoạn mạng" }), named({ rank: 2, name: "Mật mã đối xứng" })] } }, previous: null };
+  await asJwt(page, "TEACHER");
+  await page.route("**/api/v1/me/courses**", (r) => ok(r, { items: [COURSE, COURSE2].map((course) => ({ course, role_in_course: "TEACHER", enrollment_status: "ACTIVE" })), next_cursor: null }));
+  await page.route("**/api/v1/me/today**", (r) => ok(r, { count: 0, actions: [] }));
+  await page.route("**/api/v1/notifications**", (r) => ok(r, { items: [], next_cursor: null, unread_count: 0 }));
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => ok(r, r.request().url().includes(COURSE2.id) ? REPORT2 : REPORT));
+  await page.goto("/insights");
+  await expect(page.getByRole("heading", { name: "Bắt tay ba bước TCP" })).toBeVisible();
+  expect((await topicTitles(page))[0]).toBe("Bắt tay ba bước TCP");
+  await expect(page.getByText("Tường lửa và phân đoạn mạng")).toHaveCount(0);
+
+  await page.getByRole("button", { name: /^Chọn lớp, đang xem/ }).click();
+  await page.getByRole("dialog", { name: "Chọn lớp" }).getByRole("menuitem", { name: /761988/ }).click();
+  await expect(page.getByRole("heading", { name: "Tường lửa và phân đoạn mạng" })).toBeVisible();
+  expect((await topicTitles(page))[0]).toBe("Tường lửa và phân đoạn mạng");
+  await expect(page.getByText("Bắt tay ba bước TCP")).toHaveCount(0);
+});
+
+test("thread ghim tạo từ báo cáo hiện ở /threads (AC4)", async ({ page }) => {
+  const created: { id: string; title: string }[] = [];
+  const TH = "00000000-0000-7000-8000-0000000000c1";
+  await open(page, REPORT);
+  await page.route((u) => /\/api\/v1\/courses\/[^/]+\/threads$/.test(u.pathname), (r) => {
+    if (r.request().method() === "POST") {
+      created.push({ id: TH, title: r.request().postDataJSON().title });
+      return ok(r, { thread: { id: TH } }, 201);
+    }
+    // GET danh sách: thread đã ghim nằm ở `pinned[]` (hợp đồng thật)
+    const row = { id: TH, title: created[0]?.title ?? "", preview: "Tuần này ta ôn lại bắt tay ba bước.", tags: [], week_no: 3, pinned: true, author: { full_name: "Giảng viên", role: "TEACHER", is_me: true }, answer_state: null, reply_count: 0, last_activity_at: "2026-11-14T09:00:00Z", created_at: "2026-11-14T09:00:00Z" };
+    return ok(r, { items: [], pinned: created.length ? [row] : [], next_cursor: null });
+  });
+  await page.route("**/api/v1/courses/*/threads/*/pin", (r) => r.fulfill({ status: 204, headers: cors }));
+  await page.getByRole("button", { name: "Tạo thread ghim" }).first().click();
+  const dlg = page.getByRole("group", { name: "Tạo thread ghim" });
+  await dlg.getByRole("button", { name: "Đăng" }).click();
+  await expect(dlg.getByText("Đã đăng và ghim thread.")).toBeVisible();
+  expect(created).toHaveLength(1);
+
+  await page.goto("/threads");
+  const row = page.locator("[data-part=pinned-row]");
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText("Chủ đề đang vướng: Bắt tay ba bước TCP");
+  await expect(row.getByLabel("Đã ghim")).toBeVisible();
+});
+
+test("LLM đặt tên lỗi: báo cáo vẫn ra, mọi chủ đề mang tên tạm từ từ khoá và nhãn «Chưa đặt được tên chủ đề» (AC4)", async ({ page }) => {
+  const FALLBACK = { ...REPORT, has_new_data: false, previous: null, report: { ...REPORT.report, payload: { ...REPORT.report.payload, topics: [
+    named({ rank: 1, name: "tcp · bắt · tay", named_by: "fallback" }), named({ rank: 2, name: "sql · join · bảng", named_by: "fallback" }), named({ rank: 3, name: "Chủ đề 3", named_by: "fallback" }),
+  ] } } };
+  let latest: unknown = null;
+  await asJwt(page, "TEACHER");
+  await insightsApi(page, {});
+  await page.route("**/api/v1/courses/*/insights/knowledge-gap/latest", (r) => (latest ? ok(r, latest) : fail(r, 404, "NOT_FOUND")));
+  await page.route(GEN, (r) => ok(r, { job_id: JOB.id }, 202));
+  await page.route(`**/api/v1/jobs/${JOB.id}`, (r) => {
+    latest = FALLBACK; // LLM đặt tên hỏng ⇒ vẫn SUCCEEDED (lỗi NAME không làm hỏng việc)
+    return ok(r, { id: JOB.id, status: "SUCCEEDED", progress: 100, result: { report_id: FALLBACK.report.id } });
+  });
+  await page.goto("/insights");
+  await page.getByRole("button", { name: "Tạo báo cáo mới" }).click();
+  await expect(page.getByRole("heading", { name: "tcp · bắt · tay" })).toBeVisible({ timeout: 15_000 });
+  expect(await topicTitles(page)).toEqual(["tcp · bắt · tay", "sql · join · bảng", "Chủ đề 3"]);
+  await expect(page.getByText("Chưa đặt được tên chủ đề")).toHaveCount(3);
+  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(0);
+});

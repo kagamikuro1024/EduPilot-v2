@@ -117,11 +117,11 @@ test("active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền �
 
 type Row = [string, string];
 const NAV: Record<string, Row[]> = {
-  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Hỏi đáp công khai", "/threads"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
+  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Hỏi đáp công khai", "/threads"], ["Bài tập", "/assignments"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
   "student-no-course": [["Hôm nay", "/"]],
   ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Hỏi đáp công khai", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Lỗ hổng kiến thức", "/insights"], ["Số liệu lớp học", "/analytics"]],
   teacher: [],
-  admin: [["Hôm nay", "/"], ["Quan sát AI", "/observability"], ["Lớp học", "/admin/courses"], ["Người dùng", "/admin/users"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]],
+  admin: [["Hôm nay", "/"], ["Quan sát AI", "/observability"], ["Lớp học", "/admin/courses"], ["Người dùng", "/admin/users"], ["Nhật ký", "/admin/audit"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]],
 };
 NAV.teacher = [...NAV.ta, ["Quan sát AI", "/observability"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]];
 
@@ -189,9 +189,9 @@ test("topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài k
   await expect(page.locator("header > button, header > div > button, header > div > div > button")).not.toHaveCount(0);
   const groups = await page.evaluate(() => ({
     course: !!document.querySelector('header button[aria-label^="Chọn lớp"]'),
-    search: !!document.querySelector('header button[aria-label="Tìm nhanh hoặc đi đến"]'),
+    search: !!document.querySelector("header button:has(kbd)"),
     bell: !!document.querySelector('header button[aria-label^="Thông báo"]'),
-    profile: !!document.querySelector('header button[aria-label^="Tài khoản: "]'),
+    profile: !![...document.querySelectorAll("header button")].some((b) => /Tài khoản: /.test(b.textContent ?? "")),
   }));
   expect(groups).toEqual({ course: true, search: true, bell: true, profile: true });
   await page.getByRole("button", { name: /^Tài khoản: / }).click();
@@ -240,7 +240,7 @@ test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV kh�
   await page.getByRole("combobox").fill("zzzz");
   await expect(page.getByText("Không thấy mục nào khớp.")).toBeVisible();
   await page.getByRole("combobox").fill("");
-  await expect(page.getByRole("option")).toHaveCount(8);
+  await expect(page.getByRole("option")).toHaveCount(9);
 });
 
 test("notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần", async ({ page }) => {
@@ -582,9 +582,9 @@ test("bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; b�
   for (const h of await sheet.locator("a").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().height))) expect(h, "mục ≥ 48 px").toBeGreaterThanOrEqual(48);
 });
 
-test("route access: số mục nav 8 / 13 / 16 / 6 theo vai; canOpen không đổi", async () => {
+test("route access: số mục nav 9 / 13 / 16 / 7 theo vai; canOpen không đổi", async () => {
   const count = (r: DemoRole) => navFor(r === "student" ? "student" : r, true).flatMap((g) => g.items).length;
-  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([8, 13, 16, 6]);
+  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([9, 13, 16, 7]);
 });
 
 // BUG-S9-01 (proposals sprint 9 #12): nhãn bản mô phỏng chỉ thuộc về bản D51, không được hiện ở màn thật.

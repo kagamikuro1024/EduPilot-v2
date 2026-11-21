@@ -1,0 +1,20 @@
+{
+  "n": 29,
+  "mae": "0.28",
+  "bias": "0.28",
+  "old_mae": "1.00",
+  "worse": 0,
+  "better": 29,
+  "flipped": 0,
+  "skipped": 1,
+  "meta": {
+    "date": "2026-11-21",
+    "model": "ag/gemini-3.8-flash (9router)",
+    "assignment": "07ed415d-9df5-4fc6-b184-06dc9c22e4ad",
+    "env": "ep-qc, lớp QD9G, bài QC106 g0509",
+    "commit": "6b94ce1e",
+    "cases": 30,
+    "command": "regress run --assignment <id> --limit 30 --write-baseline",
+    "note": "30 ca GRADING_EDIT (giảng viên sửa c2→0); 1 ca bỏ vì chấm lại lỗi GRADING_OUTPUT_INVALID. Số do máy đo; đo lại khi đổi prompt / model / rubric."
+  }
+}

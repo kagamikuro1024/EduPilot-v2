@@ -28,4 +28,4 @@ CODE,sv.kha,B,CODE,8.75,(5 x 6/8 + 5 x 5/5) x 10 / 10,gcd-lon-nhat:WA;dem-tu:AC
 CODE,sv04,S04,CODE,3.00,(5 x 0/8 + 5 x 3/5) x 10 / 10,gcd-lon-nhat:CE;dem-tu:WA
 CODE,sv05,S05,CODE,10.00,(5 x 8/8 + 5 x 5/5) x 10 / 10,gcd-lon-nhat:AC;dem-tu:AC
 CODE,sv06,S06,CODE,8.00,(5 x 8/8 + 5 x 3/5) x 10 / 10,gcd-lon-nhat:AC;dem-tu:WA
-CODE,sv07,S07,CODE,5.00,(5 x 0/8 + 5 x 5/5) x 10 / 10,gcd-lon-nhat:NONE;dem-tu:AC
+CODE,sv07,S07,CODE,5.00,(5 x 0/8 + 5 x 5/5) x 10 / 10,gcd-lon-nhat:TLE;dem-tu:AC

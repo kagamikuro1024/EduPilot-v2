@@ -15,10 +15,12 @@ export const metaOf = (d: Pick<LibItem, "type" | "week_no" | "updated_at">) => [
 /** Thư viện thật của sinh viên (DESIGN §14.15): ô tìm kiếm trước, lọc loại / tuần, dòng gọn có dấu loại tệp bằng chữ. */
 export function RealLibrary({ courseId }: { courseId: string }) {
   const router = useRouter();
-  const [f, setF] = useState({ q: "", type: "", week: "" });
+  const [f, setF] = useState({ q: "", type: "", week: "", category: "" });
   const list = useLibrary(courseId, f);
+  const all = useLibrary(courseId, { q: "", type: "", week: "", category: "" }); // danh sách không lọc (đã đệm khi chưa lọc): nguồn các chủ đề để chọn
+  const categories = [...new Set(all.items.map((d) => d.category).filter((c): c is string => !!c))].sort((a, b) => a.localeCompare(b, "vi"));
   const [err, setErr] = useState<string | null>(null);
-  const filtered = f.q.trim().length >= 2 || f.type !== "" || f.week !== "";
+  const filtered = f.q.trim().length >= 2 || f.type !== "" || f.week !== "" || f.category !== "";
 
   async function ask(d: LibItem) {
     setErr(null);
@@ -42,6 +44,16 @@ export function RealLibrary({ courseId }: { courseId: string }) {
             </Select>
           )}
         </Field>
+        {(categories.length > 0 || f.category !== "") && (
+          <Field label="Chủ đề">
+            {(id) => (
+              <Select id={id} value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })}>
+                <option value="">Mọi chủ đề</option>
+                {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+              </Select>
+            )}
+          </Field>
+        )}
         <Field label="Tuần">
           {(id) => (
             <Select id={id} value={f.week} onChange={(e) => setF({ ...f, week: e.target.value })}>

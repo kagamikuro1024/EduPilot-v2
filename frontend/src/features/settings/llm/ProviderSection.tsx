@@ -65,7 +65,7 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
           tone="info"
           action={canEdit && form?.mode !== "add" ? <Button size="sm" onClick={() => setForm({ mode: "add" })}>Thêm nhà cung cấp</Button> : undefined}
         >
-          Đang dùng cấu hình mặc định của máy chủ. Thêm nhà cung cấp để thay đổi.
+          Chưa có nhà cung cấp
         </InlineNotice>
       )}
       <ul className={s.list}>
@@ -77,7 +77,7 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
               <div className={s.providerGrid}>
                 <div className={s.info}>
                   <p className="ep-item-title">{p.name}</p>
-                  {(TYPE_LABEL[p.type] ?? p.type) !== p.name && <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>}
+                  {(TYPE_LABEL[p.type] ?? p.type) !== p.name && !(p.type === "openai_compatible" && p.base_url) && <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>}
                   {p.type === "openai_compatible" && p.base_url && <p className={s.mono}>{p.base_url}</p>}
                 </div>
                 <div className={s.status} data-part="provider-status">

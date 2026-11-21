@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { panelViolations as violations } from "./support/panels";
+import { loadAudit, runAudit } from "./support/audit";
 import { asDemo } from "./support/session";
 import { COURSE, err, json } from "./support/cal-fixtures";
 
@@ -90,6 +91,20 @@ test("students states: lỗi có Thử lại; rỗng khi lọc có Bỏ lọc; l
   await page.getByRole("button", { name: "Bỏ lọc" }).click();
   await expect(page.getByRole("row", { name: /Sinh Viên 001/ })).toBeVisible();
   await expect(page).not.toHaveURL(/filter=/);
+});
+
+// DEF-R5-17 (TC-PE04-50, TC-PU06-18): bảng ảo hoá ở 390 px cuộn ngang trong khung riêng ⇒ khung đó phải mang data-scroll-x (AUDIT 1.5 không tính là chữ bị cắt).
+test("students virtual mobile: khung cuộn ngang của bảng ảo hoá có data-scroll-x, AUDIT cut rỗng", async ({ page }, info) => {
+  test.skip(info.project.name !== "mobile", "đo ở 390 px");
+  await open(page, () => pageOf(Array.from({ length: 12 }, (_, i) => stu(i + 1)), null, 12));
+  await expect(page.getByText("12 sinh viên")).toBeVisible();
+  const scroller = page.locator("[data-part=virtual-scroll]");
+  expect(await scroller.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+  await expect(scroller).toHaveAttribute("data-scroll-x", "");
+  const { AUDIT_SRC } = await loadAudit();
+  const a = await runAudit(page, AUDIT_SRC);
+  expect(a.ox).toBe(0);
+  expect(a.cut).toEqual([]);
 });
 
 test("students virtual cursor: 1.000 dòng chỉ dựng phần nhìn thấy, cuộn tới đáy xin trang kế bằng con trỏ", async ({ page }, info) => {

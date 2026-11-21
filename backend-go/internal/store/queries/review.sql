@@ -6,6 +6,9 @@ select s.id, s.assignment_id, a.title as assignment_title, s.student_id, coalesc
        coalesce(e.student_code_snapshot, '')::text as student_code, coalesce(e.status::text, '') as enrollment_status,
        s.source, s.version, s.received_at, s.submitted_at, a.due_at,
        r.id as result_id, r.status as result_status, r.run_state, r.total, r.flags, r.needs_review as result_needs_review, r.error_code, r.version as result_version,
+       r.first_reviewed_at as result_first_reviewed_at, r.guidance_version as result_guidance_version, a.guidance_version as assignment_guidance_version,
+       (case when r.status = 'REVIEWED' and r.first_reviewed_at is not null and r.guidance_version <> a.guidance_version then r.criteria end)::jsonb as stale_criteria,
+       (case when r.status = 'REVIEWED' and r.first_reviewed_at is not null and r.guidance_version <> a.guidance_version then r.ai_scores end)::jsonb as stale_ai_scores,
        (case when coalesce(r.needs_review, false) then 0 else 1 end)::int as rank
 from submissions s
 join assignments a on a.course_id = s.course_id and a.id = s.assignment_id

@@ -15,7 +15,7 @@ import {
   type Criterion, type QueueStatus, type ResultView,
 } from "./gradingApi";
 import { AppealPanel } from "./AppealPanel";
-import { GuidanceMeta } from "./GuidanceMeta";
+import { CriterionGuidance, GuidanceMeta } from "./GuidanceMeta";
 import s from "./SubmissionReview.module.css";
 
 type Draft = { overall: string; comments: Record<string, string> };
@@ -360,7 +360,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
         <button type="button" role="tab" aria-selected={tab === "grade"} onClick={() => setTab("grade")}>Chấm</button>
       </div>
       <Split
-        ratio="half"
+        ratio="review"
         fill
         only={tab === "doc" ? "main" : "aside"}
         main={
@@ -491,6 +491,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
               <section key={c.id} className={s.crit} data-part="criterion" data-criterion={c.id} data-active={activeCrit === c.id || undefined}>
                 <div className={s.critHead}>
                   <span className={s.critName}>{c.name}</span>
+                  <CriterionGuidance view={view} criterionId={c.id} />
                   <span className={s.critScore}>
                       <span className={s.scoreBox}>
                         <Input

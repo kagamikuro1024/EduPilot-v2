@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiError, apiClient } from "@/shared/data";
+import { ApiError, apiClient, useIdempotentMutation } from "@/shared/data";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (12 thao tác điểm danh tự phục vụ, tag `attendance`).
 export type CheckinWindow = {
@@ -96,9 +96,16 @@ export const useCheckins = (course: string, session: string | undefined, enabled
 export function useCheckinActions(course: string, session: string) {
   const qc = useQueryClient();
   const refresh = () => Promise.all([qc.invalidateQueries({ queryKey: windowsKey(course, session) }), qc.invalidateQueries({ queryKey: checkinsKey(course, session) })]);
+  // «Đóng» mất mạng / 5xx rồi thử lại là CÙNG một thao tác: giữ một Idempotency-Key tới khi thành công (luật 14, DEF-R10.8-03). Bấm khi chưa có lần lỗi nào = thao tác mới.
+  const closeM = useIdempotentMutation(async (wid: string, key: string) => {
+    const r = await apiClient.post<CloseResult>(`/courses/${course}/checkin-windows/${wid}/close`, {}, { idempotencyKey: key });
+    await refresh();
+    return r;
+  });
+  const closeWindow = { ...closeM, run: (wid: string) => (closeM.key() ? (closeM.retry() as Promise<{ data: CloseResult; replayed: boolean }>) : closeM.mutate(wid)) };
   return {
     open: useMutation({ mutationFn: async () => (await apiClient.post<{ id: string; round: number; closes_at: string }>(`/courses/${course}/sessions/${session}/checkin-windows`, {})).data, onSuccess: refresh }),
-    close: useMutation({ mutationFn: async (wid: string) => (await apiClient.post<CloseResult>(`/courses/${course}/checkin-windows/${wid}/close`, {})).data, onSuccess: refresh }),
+    close: closeWindow,
     headcount: useMutation({ mutationFn: async (v: { wid: string; headcount: number | null }) => (await apiClient.patch<CheckinWindow>(`/courses/${course}/checkin-windows/${v.wid}`, { headcount: v.headcount })).data, onSuccess: refresh }),
     spot: useMutation({ mutationFn: async (wid: string) => (await apiClient.post<{ students: SpotStudent[] }>(`/courses/${course}/checkin-windows/${wid}/spot-check`, { n: 5 })).data.students }),
     absent: useMutation({ mutationFn: async () => (await apiClient.post<{ marked: number }>(`/courses/${course}/sessions/${session}/absent-unchecked`, {})).data, onSuccess: () => Promise.all([refresh(), qc.invalidateQueries({ queryKey: ["attendance", course, session] })]) }),

@@ -47,6 +47,9 @@ func normalize(sn snapshot, raw json.RawMessage, topicMode bool) (answerDoc, []b
 	if err := json.Unmarshal(raw, &d); err != nil {
 		return d, nil, fieldErr("answer", "INVALID_ANSWER", "Câu trả lời không đúng định dạng.")
 	}
+	if foreignShape(sn.Type, d) {
+		return d, nil, apierr.New(http.StatusUnprocessableEntity, apierr.InvalidQuestion)
+	}
 	switch sn.Type {
 	case "MCQ_SINGLE", "MCQ_MULTI":
 		valid := map[string]bool{}
@@ -96,6 +99,19 @@ func normalize(sn snapshot, raw json.RawMessage, topicMode bool) (answerDoc, []b
 	}
 	b, _ := json.Marshal(d)
 	return d, b, nil
+}
+
+// foreignShape: câu trả lời mang trường của loại câu khác (vd. `text` cho câu trắc nghiệm) → dạng không hợp loại câu (US-P9-10 AC8).
+func foreignShape(typ string, d answerDoc) bool {
+	switch typ {
+	case "MCQ_SINGLE", "MCQ_MULTI":
+		return d.Value != nil || d.Text != nil
+	case "TRUE_FALSE":
+		return len(d.OptionIDs) > 0 || d.Text != nil
+	case "SHORT", "ESSAY":
+		return len(d.OptionIDs) > 0 || d.Value != nil
+	}
+	return false
 }
 
 // grade chấm một câu bằng Quiz Engine (code thuần, không LLM). nil = không chấm (tự luận). Id lạ / khoá hỏng → sai.
@@ -269,6 +285,18 @@ func (s *Service) Get(ctx context.Context, userID, courseID, attemptID, tab uuid
 		return AttemptView{}, err
 	}
 	return s.view(ctx, q, att, tab)
+}
+
+// AttemptCourse trả lớp của lượt của CHÍNH người gọi; lượt của người khác hoặc không có → 404 (không lộ tồn tại).
+func (s *Service) AttemptCourse(ctx context.Context, userID, attemptID uuid.UUID) (uuid.UUID, error) {
+	c, err := store.New(s.Pool).PracticeAttemptCourse(ctx, store.PracticeAttemptCourseParams{ID: attemptID, StudentID: userID})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return uuid.Nil, notFound()
+	}
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("practice: lớp của lượt: %w", err)
+	}
+	return c, nil
 }
 
 func tabCheck(att store.PracticeAttempt, tab uuid.UUID) error {

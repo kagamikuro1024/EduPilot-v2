@@ -365,6 +365,21 @@ func TestEditChunkAudited(t *testing.T) {
 	require.Equal(t, "Chữ sau", page.Items[0].Text)
 }
 
+// TestImpactCountsOriginCourse — DEF-R6-U10 (TC-P8-02-19, P-11-88): «{m} lớp đang dùng tài liệu này» gồm lớp gốc: chưa chia sẻ → 1; chia sẻ tới 2 lớp → 3.
+func TestImpactCountsOriginCourse(t *testing.T) {
+	t.Parallel()
+	f := newFx(t)
+	id := f.doc(t, f.course, "Bài", "LECTURE", true, true, 1)
+	imp, err := f.svc.Impact(t.Context(), f.course, id)
+	require.NoError(t, err)
+	require.EqualValues(t, 1, imp.Courses, "chưa chia sẻ")
+	f.share(t, id, f.newCourse(t, f.teacher, "ACTIVE"))
+	f.share(t, id, f.newCourse(t, f.teacher, "ACTIVE"))
+	imp, err = f.svc.Impact(t.Context(), f.course, id)
+	require.NoError(t, err)
+	require.EqualValues(t, 3, imp.Courses, "gốc + 2 lớp chia sẻ tới")
+}
+
 // TestDeleteDocument — AC8: xoá dòng, đoạn và document_courses theo CASCADE, document.changed, audit; xoá lần hai → 404.
 func TestDeleteDocument(t *testing.T) {
 	t.Parallel()
@@ -374,7 +389,7 @@ func TestDeleteDocument(t *testing.T) {
 	f.share(t, id, other)
 	imp, err := f.svc.Impact(t.Context(), f.course, id)
 	require.NoError(t, err)
-	require.Equal(t, document.Impact{Chunks: 3, Courses: 1}, imp)
+	require.Equal(t, document.Impact{Chunks: 3, Courses: 2}, imp) // P-11-88: lớp gốc + 1 lớp được chia sẻ tới
 	require.NoError(t, f.svc.Delete(t.Context(), f.teacher, f.course, id, ""))
 	require.Zero(t, f.count(t, `select count(*) from documents where id=$1`, id))
 	require.Zero(t, f.count(t, `select count(*) from content_chunks where document_id=$1`, id)+f.count(t, `select count(*) from document_courses where document_id=$1`, id))

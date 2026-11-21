@@ -78,9 +78,9 @@ async function bank() {
   const { c1, c2, t } = await courseIds();
   const qs = await listAll(`/courses/${c1}/questions`, t);
   const count = (f) => qs.filter(f).length;
-  must(count((q) => q.type === "MCQ_SINGLE" && q.review_status === "APPROVED" && q.origin === "MANUAL") === 12, "MCQ_SINGLE APPROVED ≠ 12");
-  must(count((q) => q.type === "MCQ_MULTI" && q.review_status === "APPROVED" && q.origin === "MANUAL") === 4, "MCQ_MULTI APPROVED ≠ 4");
-  must(count((q) => q.type === "TRUE_FALSE" && q.review_status === "APPROVED" && q.origin === "MANUAL") === 4, "TRUE_FALSE APPROVED ≠ 4");
+  must(count((q) => q.type === "MCQ_SINGLE" && q.review_status === "APPROVED" && q.origin === "MANUAL") === 60, "MCQ_SINGLE APPROVED ≠ 60 (12 của seed Thi + 48 của seed Luyện đề)");
+  must(count((q) => q.type === "MCQ_MULTI" && q.review_status === "APPROVED" && q.origin === "MANUAL") === 12, "MCQ_MULTI APPROVED ≠ 12 (4 + 8)");
+  must(count((q) => q.type === "TRUE_FALSE" && q.review_status === "APPROVED" && q.origin === "MANUAL") === 20, "TRUE_FALSE APPROVED ≠ 20 (4 + 16)");
   must(count((q) => q.origin === "AI_DRAFT" && q.review_status === "PENDING") === 5, `AI_DRAFT PENDING ≠ 5 (có ${count((q) => q.origin === "AI_DRAFT")})`);
   const codes = qs.filter((q) => q.type === "CODE" && q.review_status === "APPROVED" && q.title.startsWith("Bài code — ")); // bỏ câu "Tải k6 …" do kịch bản tải tạo thêm
   must(codes.length === 2, `bài code APPROVED ≠ 2 (có ${codes.length})`);
@@ -95,7 +95,8 @@ async function bank() {
     must(d.code && d.code.reference_verified_version != null, `${c.title}: lời giải mẫu chưa xác minh`);
   }
   const other = await call("GET", `/courses/${c2}/questions?limit=100`, { token: t });
-  must(other.status === 200 && other.body.items.length === 0, `lớp 761988 phải KHÔNG có câu hỏi (có ${other.body?.items?.length})`);
+  // D-R-02: seed Luyện đề (US-P9-12 AC1) cho lớp 761988 một ngân hàng nhỏ riêng: 20 câu đã duyệt (12 MCQ_SINGLE · 2 MCQ_MULTI · 4 TRUE_FALSE · 2 SHORT)
+  must(other.status === 200 && other.body.items.length === 20 && other.body.items.every((q) => q.review_status === "APPROVED"), `lớp 761988 phải có đúng 20 câu đã duyệt (có ${other.body?.items?.length})`);
 }
 
 function parseCsv() {
@@ -184,7 +185,8 @@ async function demo() {
   // D chưa vào lớp: không có bài thi nào
   const dTok = await tok("sv.moi");
   const dc = await call("GET", "/me/courses?limit=50", { token: dTok });
-  must(dc.body.items.length === 0, `D thuộc ${dc.body.items.length} lớp (cần 0)`);
+  const seeded = dc.body.items.filter((i) => ["761987", "761988"].includes(i.course?.class_code)); // lớp do người khác tạo thêm (QC, thử tay) không tính
+  must(seeded.length === 0, `D thuộc ${seeded.length} lớp seed (cần 0)`);
   const dEx = await call("GET", `/courses/${c1}/exams?limit=50`, { token: dTok });
   must(dEx.status === 403 || dEx.status === 404, `D xem được bài thi (${dEx.status})`);
   // Giảng viên: phân bố, câu sai nhiều, cặp giống nhau

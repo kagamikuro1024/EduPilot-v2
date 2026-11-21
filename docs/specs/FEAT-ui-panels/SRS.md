@@ -206,6 +206,7 @@ Quy ước cột: **Vùng → Panel** = mỗi vùng một `Panel`; "ngoài panel
 | Route | Khung nhìn đầu (theo `DESIGN.md`) | Vùng → Panel | Ghi chú |
 | --- | --- | --- | --- |
 | `/` | §14.1 Student: lời chào + ngày, **một** hành động nên làm, dòng thời gian | "Việc nên làm tiếp" (1 hành động chính + lý do + thời gian ước lượng) · "Hôm nay" (timeline) · "Tiếp tục học" **chỉ khi có dữ liệu** (hợp đồng do P3 / P9 định nghĩa — góp ý #2) | ≤ 1 ô nhấn; chưa vào lớp: một panel + `EmptyState` + `Vào lớp bằng mã`; 375 |
+| `/assignments` (P-11-14) | `h1` «Bài tập»; ba nhóm `Cần nộp` / `Đã nộp, chờ điểm` / `Đã có điểm` | mỗi nhóm có dữ liệu một panel, hàng ngăn đường kẻ, mỗi hàng 1 hành động | kiểu `work`; rỗng «Chưa có bài tập» không nút; 375 |
 | `/exams` | nhóm `Đang mở` / `Sắp tới` / `Đã có điểm` | mỗi nhóm có dữ liệu một panel, hàng ngăn đường kẻ, mỗi hàng 1 hành động | 375; rỗng = một panel + `EmptyState` |
 | `/exams/[id]/take` | trước giờ / đang làm (trắc nghiệm, code) / đã nộp / đã công bố | trước giờ: 1 panel · trắc nghiệm: panel câu hiện tại (+ danh sách câu: cột ≥ 1100 px hoặc bảng trượt) · code ≥ 1024 px: 2 panel (đề + test mẫu \| soạn mã + kết quả) · đã công bố: 1 panel (≤ 3 ô nhấn: điểm, số đúng, trạng thái) | thanh trên cố định (`Câu i/n`, đồng hồ, lưu) là **thanh nền `--ep-surface`**, không `Panel`; 375 |
 | `/join`, `/join/[code]` | nhập mã / xác nhận | 1 panel, 1 nút chính | 375 |

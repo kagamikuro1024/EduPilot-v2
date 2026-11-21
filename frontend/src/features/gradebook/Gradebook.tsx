@@ -7,7 +7,7 @@ import { GradeCalculation } from "@/shared/domain";
 import { Button, ButtonLink, type Column as TableColumn, DataTable, Drawer, EmptyState, InlineNotice, OverflowMenu, type HeaderAction, Page, PageHeader, PageState, Panel, Skeleton, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import {
-  exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus, useSnapshots,
+  exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus, useSnapshots, type SchemeStatus,
   type Column, type GEntry, type GradebookPage, type GRow, type Incomplete,
 } from "./gradeApi";
 import { FinalizeDialog, SnapshotHistory, UnlockDialog, stamp } from "./FinalizeGrades";
@@ -61,13 +61,26 @@ const ago = (iso?: string) => {
   return m < 1 ? "vừa xong" : m < 60 ? `${m} phút trước` : `${Math.round(m / 60)} giờ trước`;
 };
 
+/** Đầu trang khi chưa có dữ liệu (đang tải / lỗi / chưa chọn lớp): nút phụ thuộc trạng thái công thức / khoá CHỈ hiện khi đã biết trạng thái và đúng như lúc có dữ liệu; chưa biết thì không hiện (TL 14.6; P-11-58). «Xem công thức» luôn hiện. */
+function IdleHeader({ teacher, status }: { teacher: boolean; status?: SchemeStatus }) {
+  const sealed = status?.state === "CONFIRMED" && status.gradebook.status === "LOCKED";
+  return (
+    <PageHeader
+      title="Sổ điểm"
+      primary={teacher && status && !sealed ? { label: "Chốt điểm", disabled: true } : undefined}
+      secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
+      more={teacher && status?.state === "CONFIRMED" ? [{ label: "Xuất XLSX", disabled: true }] : []}
+    />
+  );
+}
+
 /** Sổ điểm: chỉ có thật, Giảng viên / TA của lớp (TA chỉ đọc). */
 export function Gradebook() {
   const { role, realCourseId, realPending } = useSession();
   if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) {
     return (
       <Page kind="work">
-        <PageHeader title="Sổ điểm" />
+        {role === "teacher" || role === "ta" ? <IdleHeader teacher={role === "teacher"} /> : <PageHeader title="Sổ điểm" />}
         <Panel>{realPending ? <Skeleton lines={10} /> : <EmptyState title="Chọn một lớp để xem" />}</Panel>
       </Page>
     );
@@ -301,9 +314,9 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     { key: "qt", header: "Quá trình", align: "end", width: "92px", part: "col-qt", render: (r) => calc(r, r.result?.qt, dec.qt) },
     { key: "hp", header: "Điểm học phần", align: "end", width: "112px", part: "col-hp", render: (r) => calc(r, r.result?.hp, dec.hp) },
     { key: "letter", header: "Điểm chữ", align: "center", width: "88px", part: "col-letter", render: (r) => (pending.has(r.student.id) ? "…" : r.result?.letter ?? "—") },
-    ...(showStatus ? [{ key: "status", header: "Trạng thái", width: "130px", part: "col-status", render: (r: GRow) => {
+    ...(showStatus ? [{ key: "status", header: "Trạng thái", width: rows.some((r) => r.drift) ? "184px" : "130px", part: "col-status", render: (r: GRow) => {
       const t = pending.has(r.student.id) ? "…" : statusText(r);
-      return <span data-part="row-status">{t === "Thiếu điểm" && <i className={s.missDot} aria-hidden />}{t}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span>;
+      return <span className={s.rowStatus} data-part="row-status">{t === "Thiếu điểm" && <i className={s.missDot} aria-hidden />}{t}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span>;
     } }] : []),
     {
       key: "menu", header: <span className="ep-sr-only">Hành động</span>, width: "56px", align: "end",
@@ -325,7 +338,8 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
       Công thức điểm chưa xác nhận
     </InlineNotice>
   );
-  const warnLabel = first?.warnings?.map((w) => (w === "PENALTY_NOT_IN_SCHEME" ? "Có điểm trừ ghi tay không được tính theo công thức" : "Có điểm cộng ghi tay không được tính theo công thức")) ?? [];
+  // P-11-6a (US-P10-08 AC3a): nhãn ngắn thay câu dài — câu dài là khối chữ lớn nhất sau phiên (lớn hơn h1 «Sổ điểm») nên kéo LCP về lúc có dữ liệu
+  const warnLabel = first?.warnings?.map((w) => (w === "PENALTY_NOT_IN_SCHEME" ? "Điểm trừ ghi tay" : "Điểm cộng ghi tay")) ?? [];
 
   const moreItems: HeaderAction[] =
     hasScheme && (teacher || (first?.state.snapshot_version ?? 0) > 0)
@@ -344,14 +358,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         : undefined;
 
   // MỘT PageHeader cho tải / lỗi / có dữ liệu (TL 14.6): nút cần dữ liệu hiện nhưng khoá, liên kết bấm được
-  const noData = (
-    <PageHeader
-      title="Sổ điểm"
-      primary={teacher ? { label: "Chốt điểm", disabled: true } : undefined}
-      secondary={[{ label: "Xem công thức", href: "/gradebook/scheme" }]}
-      more={teacher ? [{ label: "Xuất XLSX", disabled: true }] : []}
-    />
-  );
+  const noData = <IdleHeader teacher={teacher} status={status} />;
   return (
     <Page kind="work">
       <PageState

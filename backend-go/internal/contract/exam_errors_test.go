@@ -49,7 +49,7 @@ func TestExamRoutesNotAheadOfSpec(t *testing.T) {
 		known[r.Method+" "+normalizeParams("/api/v1/courses/{id}"+r.Path)] = true
 	}
 	for path, item := range prod.Doc.Paths.Map() {
-		isExam := containsAny(path, "/questions", "/exams", "/exam-lock")
+		isExam := containsAny(path, "/questions", "/exams", "/exam-lock") && !containsAny(path, "/analytics/") // thống kê điểm thi (P10, US-P10-06) có bảng riêng ở openapi + contract
 		if !isExam {
 			continue
 		}

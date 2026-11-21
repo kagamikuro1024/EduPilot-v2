@@ -4,6 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { loadAudit, runAudit } from "./support/audit";
 import { BASE_URL } from "./support/env";
 import { asJwt } from "./support/session";
+import { chatApi, frame, json as chatJson, sse as chatSse, MID } from "./support/chat-fixtures";
 
 // US-PE-03 AC13 — `/questions` thật (ngân hàng câu hỏi). Gateway giả bằng page.route; bản chạy với gateway thật là `@real` (không chạy ở CI).
 
@@ -623,7 +624,7 @@ const TAKE_ITEMS = [
 type CodeSample = { name: string; verdict: string; time_ms: number; memory_kb: number; input?: string; expected?: string; got?: string };
 type CodeOut = { compile_ok: boolean; compile_log?: string; samples: CodeSample[] };
 type CodeSub = { id: string; language: string; source: string; created_at: string; polls: number };
-type CodeState = { drafts: Record<string, { source: string; rev: number; at: string }>; runs: Record<string, { language: string; polls: number }>; subs: CodeSub[]; runOut: CodeOut; subOut: CodeOut; pollsBeforeDone: number; runStatus: number; submitStatus: number };
+type CodeState = { drafts: Record<string, { source: string; rev: number; at: string }>; runs: Record<string, { language: string; polls: number }>; subs: CodeSub[]; runOut: CodeOut; subOut: CodeOut; pollsBeforeDone: number; queuedPolls: number; runStatus: number; submitStatus: number };
 type TakeState = { code: CodeState | null; started: boolean; submitted: null | { at: string; reason: string }; writer: string | null; answers: Record<string, Json>; skewMs: number; durationMs: number; deadline: number; calls: Array<{ m: string; url: string; tab: string | null; key: string | null; body: unknown }>; offlineSave: boolean; graceMs: number; events: Json[]; instructions: string | null };
 function codeItem(c: CodeState) {
   const langs = Object.keys(c.drafts);
@@ -638,7 +639,7 @@ function codeItem(c: CodeState) {
   };
 }
 const newCode = (): CodeState => ({
-  drafts: {}, runs: {}, subs: [], pollsBeforeDone: 1, runStatus: 202, submitStatus: 202,
+  drafts: {}, runs: {}, subs: [], pollsBeforeDone: 1, queuedPolls: 0, runStatus: 202, submitStatus: 202,
   runOut: { compile_ok: true, samples: [{ name: "sample1", verdict: "AC", time_ms: 3, memory_kb: 1024 }] },
   subOut: { compile_ok: true, samples: [{ name: "sample1", verdict: "AC", time_ms: 3, memory_kb: 1024 }] },
 });
@@ -746,7 +747,7 @@ function fakeTake(over: Partial<TakeState> = {}) {
     }
     const subView = (x: CodeSub, full: boolean) => {
       const done = x.polls > c.pollsBeforeDone;
-      return { ...view(x.id, done ? "DONE" : "RUNNING", x.language, x.created_at, c.subOut), is_final: x === c.subs[c.subs.length - 1], ...(full ? { source: x.source } : {}) };
+      return { ...view(x.id, done ? "DONE" : x.polls <= c.queuedPolls ? "QUEUED" : "RUNNING", x.language, x.created_at, c.subOut), is_final: x === c.subs[c.subs.length - 1], ...(full ? { source: x.source } : {}) };
     };
     if (m === "GET" && path.endsWith("/submissions")) {
       c.subs.forEach((x) => x.polls++);
@@ -1119,6 +1120,20 @@ test("take: submission history — Đang chấm → kết quả, nhãn Lần n�
   await expect(page.getByText(/Bạn đã nộp đủ số lần cho bài này/)).toBeVisible();
 });
 
+// DEF-R5-06 (TC-PE06-27, US-PE-06 AC8): lần nộp còn trong hàng đợi hiện «Đã nhận, đang xếp hàng», tới lượt mới «Đang chấm».
+test("take: lần nộp QUEUED hiện «Đã nhận, đang xếp hàng» rồi «Đang chấm» rồi kết quả", async ({ page }) => {
+  const f = await codeSetup(page, {});
+  f.st.code!.queuedPolls = 1;
+  f.st.code!.pollsBeforeDone = 3;
+  await startCode(page);
+  await editor(page).fill("int main(){return 1;}");
+  await page.getByRole("button", { name: "Nộp lời giải" }).click();
+  const row = page.locator("[data-part=submission]").first();
+  await expect(row).toContainText("Đã nhận, đang xếp hàng");
+  await expect(row).toContainText("Đang chấm", { timeout: 10_000 });
+  await expect(row).toContainText("Biên dịch được · 1/1 test mẫu đúng", { timeout: 10_000 });
+});
+
 test("take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ", async ({ page }) => {
   const f = await codeSetup(page, { durationMs: 7000, graceMs: 10_000 }); // như máy chủ thật: nhận bản lưu tới hạn + 10 s
   await startCode(page);
@@ -1132,6 +1147,21 @@ test("take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản
   expect(text.length).toBeLessThan(60); // ký tự gõ sau giờ bị bỏ
   await expect.poll(() => f.st.code!.drafts.c11?.source, { timeout: 8000 }).toBe(text); // bản cuối lên máy chủ NGAY khi hết giờ
   await expect(page.getByRole("button", { name: "Nộp lời giải" })).toBeDisabled();
+});
+
+// DEF-R5-02 (TC-PE06-08): khối kết quả chạy thử có max-height + cuộn → vùng cuộn phải tới được bằng Tab (axe `scrollable-region-focusable` = 0).
+test("take: kết quả chạy thử dài — vùng cuộn tới được bằng bàn phím, axe scrollable-region-focusable = 0", async ({ page }) => {
+  const f = await codeSetup(page, {});
+  await startCode(page);
+  await editor(page).fill("int main(){}");
+  const long = Array.from({ length: 40 }, (_, i) => `dòng kết quả số ${i + 1}`).join("\n");
+  f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "WA", time_ms: 4, memory_kb: 2048, input: "1 2\n", expected: long, got: long + "\nthừa" }] };
+  await page.getByRole("button", { name: "Chạy thử" }).click();
+  await expect(page.locator("#main").getByText("Sai kết quả")).toBeVisible();
+  const scrolls = await page.locator("#main pre").evaluateAll((els) => els.filter((e) => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1).length);
+  expect(scrolls, "ca thử phải có vùng cuộn thật").toBeGreaterThan(0);
+  const a = await new AxeBuilder({ page }).withRules(["scrollable-region-focusable"]).analyze();
+  expect(a.violations.map((v) => `${v.id} ×${v.nodes.length}`)).toEqual([]);
 });
 
 test("take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần", async ({ page }) => {
@@ -1209,6 +1239,29 @@ test("take: integrity events — rời tab / dán / mất mạng được ghi g�
   expect(paste.meta.chars).toBe("SECRET-PASTE-CONTENT".length);
   const wire = f.st.calls.filter((c) => c.m === "EVENTS").map((c) => c.body).join("");
   expect(wire).not.toContain("SECRET");
+});
+
+// R5-07 (TC-PE07-18): lô cuối gửi lúc pagehide phải là fetch keepalive — nếu không trình duyệt huỷ yêu cầu khi đóng tab và tín hiệu cuối mất.
+test("take: integrity events — pagehide gửi lô cuối bằng fetch keepalive", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __evKeepalive: boolean[] };
+    w.__evKeepalive = [];
+    const orig = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+      if (String(input instanceof Request ? input.url : input).includes("/attempts/") && String(input instanceof Request ? input.url : input).endsWith("/events")) w.__evKeepalive.push(init?.keepalive === true);
+      return orig(input, init);
+    };
+  });
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  await page.evaluate(() => {
+    document.body.dispatchEvent(new ClipboardEvent("paste", { clipboardData: Object.assign(new DataTransfer(), {}), bubbles: true }));
+    window.dispatchEvent(new Event("offline"));
+    window.dispatchEvent(new Event("pagehide"));
+  });
+  await expect.poll(() => f.st.events.length, { timeout: 8000 }).toBeGreaterThanOrEqual(2);
+  expect(await page.evaluate(() => (window as unknown as { __evKeepalive: boolean[] }).__evKeepalive)).toEqual([true]);
 });
 
 const SIM_C = "e-sim";
@@ -1363,6 +1416,18 @@ test("results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng
   expect(st.scores[0]).toEqual({ score: "8.5", reason: "chấm tay câu 2", version: 3 });
 });
 
+// DEF-R5-09 điểm 3 (TC-PE08-38): ở 390 px bảng điểm không có cột nằm ngoài khung cuộn ngang; chi tiết còn lại ở Drawer.
+test("results (Giảng viên) 390 px: mọi cột của bảng điểm nằm trong khung, không phải cuộn ngang", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await resultsSetup(page, "TEACHER");
+  await page.goto(`/exams/${E_R}/results?course=${C1}`);
+  await expect(page.getByRole("row", { name: /Nguyễn Văn A/ })).toBeVisible();
+  const box = await page.locator("[data-part=virtual-scroll]").evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth }));
+  expect(box.sw).toBeLessThanOrEqual(box.cw);
+  await page.getByRole("row", { name: /Nguyễn Văn A/ }).click();
+  await expect(page.locator("[data-part=result-drawer]").getByText("Nộp lúc")).toBeVisible();
+});
+
 test("results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm", async ({ page }) => {
   await resultsSetup(page, "TA");
   await page.goto(`/exams/${E_R}/results?course=${C1}`);
@@ -1417,12 +1482,27 @@ async function studentResultSetup(page: Page, examStatus: "PUBLISHED" | "CLOSED"
   return st;
 }
 
+// DEF-R5-08 (TC-PE08-31, US-PE-08 AC7): dưới điểm có một dòng tóm tắt; từng câu mặc định gập, mở từng câu.
+test("student result: dòng tóm tắt dưới điểm; từng câu mặc định gập, mở từng câu", async ({ page }) => {
+  await studentResultSetup(page, "PUBLISHED");
+  await page.goto(`/exams/${E_R}/take?course=${C1}`);
+  const r = page.locator("[data-part=student-result]");
+  await expect(r.locator("[data-part=result-summary]")).toHaveText("Bạn đúng 1/1 câu trắc nghiệm · bài lập trình: 3/4 test ẩn đạt");
+  await expect(r.locator("[data-part=result-item]")).toHaveCount(2);
+  await expect(r.locator("[data-part=result-item] details[open]")).toHaveCount(0);
+  await expect(r.getByText("Bạn chọn").first()).toBeHidden();
+  await r.locator("[data-part=result-item]").first().locator("summary").click();
+  await expect(r.getByText("Bạn chọn").first()).toBeVisible();
+  await expect(r.locator("[data-part=result-item] details[open]")).toHaveCount(1);
+});
+
 test("student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần", async ({ page }) => {
   const st = await studentResultSetup(page, "PUBLISHED");
   await page.goto(`/exams/${E_R}/take?course=${C1}`);
   const r = page.locator("[data-part=student-result]");
   await expect(r.locator("[data-part=final-score]")).toHaveText("7,75 / 10,00");
   await expect(r.getByText("Điểm đã được giảng viên điều chỉnh.")).toBeVisible();
+  for (const sum of await r.locator("[data-part=result-item] summary").all()) await sum.click(); // P-11-60: từng câu mặc định gập (US-PE-08 AC7)
   await expect(r.getByText("Bạn chọn").first()).toBeVisible();
   await expect(r.getByText("Đáp án đúng").first()).toBeVisible();
   await expect(r.locator("[data-part=explanation]").getByText("Phép cộng.")).toBeVisible();
@@ -1447,10 +1527,74 @@ test("student result: 375 px — phần trắc nghiệm dùng được, mã code
   await page.goto(`/exams/${E_R}/take?course=${C1}`);
   const r = page.locator("[data-part=student-result]");
   await expect(r.locator("[data-part=final-score]")).toBeVisible();
-  await r.locator("details summary").first().click();
+  await r.locator("[data-part=result-item] summary").nth(1).click(); // P-11-60: mở câu code, rồi khối mã
+  await r.getByText("Mã của bạn", { exact: false }).click();
   await expect(r.locator("pre").first()).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+});
+
+// DEF-R5-21 (TC-PE09-25, US-PE-09 AC9): câu code có bảng «Kết quả test mẫu» — mở câu ở 375 / 720 px không làm trang tràn ngang; bảng cuộn trong khung data-scroll-x.
+for (const w of [375, 720]) {
+  test(`student result: bảng test mẫu ở ${w} px không làm trang tràn ngang`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: 800 });
+    await studentResultSetup(page, "PUBLISHED");
+    const body = studentResultBody({ status: null, response: null }) as { items: Array<{ samples?: unknown[] }> };
+    const samples = [1, 2, 3].map((n) => ({ name: `kiem_tra_mau_so_${n}_voi_ten_rat_dai_khong_ngat`, verdict: "WA", time_ms: 1200 + n, memory_kb: 123456 + n }));
+    body.items.forEach((it) => { if (Array.isArray(it.samples)) it.samples = samples; });
+    body.items.forEach((it) => { const f = (it as { final_submission?: { source: string } }).final_submission; if (f) f.source = `#include <cstdio>\nint main(){long long a,b;scanf("%lld %lld",&a,&b);printf("%lld\\n",a+b);return 0;} // ${"x".repeat(80)}`; });
+    await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E_R}/attempts/${A_1}/result`), (route) =>
+      route.request().method() === "OPTIONS" ? route.fallback() : route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(body) }));
+    await page.goto(`/exams/${E_R}/take?course=${C1}`);
+    const r = page.locator("[data-part=student-result]");
+    await expect(r.locator("[data-part=final-score]")).toBeVisible();
+    await r.locator("[data-part=result-item] summary").nth(1).click();
+    await r.getByText("Mã của bạn", { exact: false }).click(); // dòng mã dài trong khối mã không được kéo rộng cả cột
+    await expect(r.getByRole("table", { name: "Kết quả test mẫu" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+  });
+}
+
+// DEF-R5-22 (TC-PE09-20, US-PE-09 AC7 ý 9): trong giờ làm bài chat bị từ chối (ô khoá, tin không gửi, chữ còn); sau nộp (khoá gỡ) gửi được.
+test("chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép", async ({ page }) => {
+  await studentSetup(page, []);
+  let locked = true;
+  await page.route("**/api/v1/me/exam-lock", (r) => r.request().method() === "OPTIONS" ? r.fallback() : r.fulfill(chatJson(locked ? { locked: true, until: new Date(Date.now() + 600_000).toISOString() } : { locked: false })));
+  const calls = await chatApi(page, {
+    "POST /chat/sessions": chatJson({ id: "00000000-0000-7000-8000-0000000000d1", title: "Mới", last_message_at: "2026-10-11T02:00:00Z", document_id: null }, 201),
+    "POST /chat/sessions/00000000-0000-7000-8000-0000000000d1/messages": (route) => route.fulfill(locked
+      ? chatJson({ code: "EXAM_IN_PROGRESS", message: "m", trace_id: "b".repeat(32) }, 409)
+      : chatSse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("done", { message_id: MID, citations: [], low_confidence: false, degraded: false }, "1:2-0"))),
+  });
+  await page.goto("/chat");
+  const box = page.getByRole("textbox", { name: "Câu hỏi của bạn" });
+  await expect(page.getByRole("status").filter({ hasText: "Chat tạm khóa trong lúc bạn làm bài thi" })).toBeVisible();
+  await expect(box).toBeDisabled();
+  expect(calls.filter((c) => c.method === "POST")).toEqual([]);
+  locked = false; // đã nộp bài
+  await page.reload();
+  await expect(box).toBeEnabled();
+  await box.fill("Cho mình hỏi về quy chế");
+  await box.press("Enter");
+  await expect.poll(() => calls.filter((c) => c.method === "POST" && c.path.endsWith("/messages")).length).toBe(1);
+});
+
+// DEF-R5-22 (ý 11): trước công bố, trình duyệt không gọi tới điểm / đáp án và không phản hồi mạng nào (cũng như DOM) chứa canary đáp án.
+test("answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án", async ({ page }) => {
+  const CANARY = "QCR5CANARYa174b2ee";
+  await studentResultSetup(page, "CLOSED");
+  const leaked: string[] = [];
+  const asked: string[] = [];
+  const secret = studentResultBody({ status: null, response: null });
+  (secret.items[0] as { explanation?: string }).explanation = CANARY;
+  await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E_R}/attempts/${A_1}/result`), (route) => { asked.push(route.request().url()); return route.request().method() === "OPTIONS" ? route.fallback() : route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(secret) }); });
+  page.on("response", async (res) => { try { if ((await res.text()).includes(CANARY)) leaked.push(res.url()); } catch { /* phản hồi không đọc được (chuyển hướng) */ } });
+  await page.goto(`/exams/${E_R}/take?course=${C1}`);
+  await expect(page.getByText("Điểm đang được chấm.")).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(leaked).toEqual([]);
+  expect(asked).toEqual([]);
+  expect(await page.locator("body").innerText()).not.toContain(CANARY);
 });
 
 test("student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án", async ({ page }) => {

@@ -19,7 +19,9 @@ import (
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
+	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/notify"
+	"github.com/edupilot/backend-go/internal/observability"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/practice"
@@ -59,6 +61,9 @@ func newTasks(d Deps) []Task {
 	if bs, ok := d.Blob.(submission.BlobAPI); ok { // *blob.Store thật; worker thử nghiệm không có object storage thì không chạy job
 		tasks = append(tasks, orphanTask{&submission.OrphanJob{Svc: &submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: time.Hour, Log: d.Log}})
 	}
+	if fb, ok := d.Blob.(practice.FormsBlob); ok { // tệp Forms gốc giữ tối đa 90 ngày (US-P9-11 AC8)
+		tasks = append(tasks, formsPurgeTask{&practice.FormsPurgeJob{Svc: &practice.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Blob: fb, Every: time.Hour, Log: d.Log}})
+	}
 	if gq := newGradingQueue(d); gq != nil {
 		tasks = append(tasks, gradingTask{gq})
 	}
@@ -68,6 +73,15 @@ func newTasks(d Deps) []Task {
 	if ys := newImapSyncer(d); ys != nil {
 		tasks = append(tasks, imapTask{ys})
 	}
+	obs := &observability.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}
+	alerter := &observability.Alerter{Svc: obs, Notify: nt, Dedupe: d.Cfg.ObsAlertDedupe}
+	tasks = append(tasks,
+		obsTask{name: "observability.alert", j: &observability.Job{Name: "observability.alert", Holder: name, Redis: d.Redis, Every: d.Cfg.ObsAlertTick, Log: d.Log,
+			Fn: func(ctx context.Context) (int64, error) { n, err := alerter.Tick(ctx); return int64(n), err }}},
+		obsTask{name: "observability.rollup", j: &observability.Job{Name: "observability.rollup", Holder: name, Redis: d.Redis, Every: time.Minute, Log: d.Log,
+			Fn: func(ctx context.Context) (int64, error) { return obs.Rollup(ctx) }}}, // bảng cộng gộp theo giờ của llm_audit (TC-01-13, P-11-44)
+		obsTask{name: "observability.purge", j: &observability.Job{Name: "observability.purge", Holder: name, Redis: d.Redis, Every: d.Cfg.ObsPurgeTick, Log: d.Log,
+			Fn: func(ctx context.Context) (int64, error) { return obs.PurgePayloads(ctx, d.Cfg.ObsPayloadDays) }}})
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
@@ -77,7 +91,7 @@ func newTasks(d Deps) []Task {
 		pub := sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL)
 		proc := &ingest.Processor{Pool: d.DB, Blob: d.Blob, Docling: &ingest.Docling{BaseURL: set.DoclingURL, Poll: set.PollInterval}, LLM: d.LLM,
 			Jobs: jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log), Log: d.Log, Set: set}
-		ts := &thread.Service{Pool: d.DB, Redis: d.Redis, Rag: &rag.Service{DB: d.DB}, LLM: d.LLM, Embed: agent.NewEmbedder(d.LLM, d.Redis), Run: proc.Jobs, Clock: clock.Real{}, Log: d.Log, Notify: nt}
+		ts := &thread.Service{Pool: d.DB, Redis: d.Redis, Rag: &rag.Service{DB: d.DB}, LLM: d.LLM, Embed: agent.NewEmbedder(d.LLM, d.Redis), Run: proc.Jobs, Clock: clock.Real{}, Log: d.Log, Notify: nt, Public: agent.NewPublicRegistry(agent.NewLibraryTool(&library.Service{Pool: d.DB, Log: d.Log}))}
 		tasks = append(tasks, ingestTask{&ingest.Queue{P: proc, Redis: d.Redis, Consumer: d.Cfg.InstanceID, Log: d.Log, Extra: map[string]func(context.Context, uuid.UUID, uuid.UUID, uuid.UUID) error{thread.KindAnswer: ts.AnswerHandler}}})
 	}
 	return tasks
@@ -143,6 +157,12 @@ type practiceCloseTask struct{ j *practice.CloseJob }
 func (practiceCloseTask) Name() string                    { return "practice.close" }
 func (t practiceCloseTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
+// formsPurgeTask chạy `practice.forms_purge` (US-P9-11 AC8) — mỗi giờ xoá tệp Forms gốc quá 90 ngày.
+type formsPurgeTask struct{ j *practice.FormsPurgeJob }
+
+func (formsPurgeTask) Name() string                    { return "practice.forms_purge" }
+func (t formsPurgeTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
 // gradeRemindTask chạy `grade.scheme_reminder` (US-P6-05) — mỗi tuần một lần sau 08:00 thứ Hai, một bản nhờ khoá leader + dấu tuần Redis.
 type gradeRemindTask struct{ j *grade.ReminderJob }
 
@@ -154,6 +174,15 @@ type orphanTask struct{ j *submission.OrphanJob }
 
 func (orphanTask) Name() string                    { return "submission.orphan_cleanup" }
 func (t orphanTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// obsTask chạy cảnh báo LLM (US-P10-03, mỗi OBS_ALERT_TICK) và dọn payload prompt > OBS_PAYLOAD_DAYS ngày (US-P10-02 AC8, mỗi OBS_PURGE_TICK) — một bản nhờ khoá leader Redis.
+type obsTask struct {
+	name string
+	j    *observability.Job
+}
+
+func (t obsTask) Name() string                  { return t.name }
+func (t obsTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // judgeTask chạy consumer chấm code (chỉ ở bản worker JUDGE_CONSUMER=true).
 type judgeTask struct{ q *judge.Queue }

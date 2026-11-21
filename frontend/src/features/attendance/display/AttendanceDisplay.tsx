@@ -82,8 +82,8 @@ function Live({ course, session }: { course: string; session: string }) {
     if (d.state.kind !== "live") return;
     setCloseError(null);
     try {
-      const r = await actions.close.mutateAsync(d.state.window.id);
-      d.markClosed(r.window.checked_in);
+      const r = await actions.close.run(d.state.window.id);
+      d.markClosed(r.data.window.checked_in);
     } catch (e) {
       setCloseError(e instanceof ApiError ? e.userMessage : "Chưa đóng được. Thử lại.");
     }
@@ -129,7 +129,7 @@ function Live({ course, session }: { course: string; session: string }) {
         {st.kind === "closed" && round >= 2 && <p className={s.meta}>Vòng {round}</p>}
         {closeError && <p className={s.metaWarn} role="alert">{closeError}</p>}
         <div className={s.actions}>
-          {st.kind === "live" && <Button onClick={() => void close()} disabled={actions.close.isPending}>Đóng điểm danh</Button>}
+          {st.kind === "live" && <Button onClick={() => void close()} disabled={actions.close.pending}>Đóng điểm danh</Button>}
           <Button variant="ghost" onClick={exit}>Thoát</Button>
         </div>
       </section>

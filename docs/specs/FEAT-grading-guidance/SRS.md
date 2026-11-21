@@ -53,6 +53,7 @@ PoC (mô phỏng, `docs/research/2026-11-14-agent-memory.md` mục 5): lưu ý *
 | Ghi lý do loại câu hỏi (M6) | – | ✓ | ✓ | 403 |
 | Đọc / chạy / xuất ca hồi quy (CLI) | ✓ | 403 (chỉ thấy số ca) | 403 | 403 |
 | Thấy lưu ý, bản, cờ, số đo, lý do loại | ✓ | ✓ | ✓ | **không bao giờ** |
+`cmd/regress` là CLI vận hành, **không có phiên đăng nhập**: người chạy được là người có shell trên máy đo cùng khoá DB và khoá LLM, tức ADMIN vận hành; ngoài ra chỉ chạy khi `REGRESSION_RUN_ALLOWED=true` (4.1; P-11-86).
 Lớp khác → `404`; mọi API lớp qua `CourseAccessGuard`. (Q-G-2, PM xác nhận P-106-1) vai bật cờ và TA có duyệt không; viết theo cột trên (an toàn: TA chỉ đọc, chỉ ADMIN bật cờ dữ liệu).
 
 ## 3. Luồng chính và nhánh lỗi
@@ -150,7 +151,7 @@ sequenceDiagram
   participant G as Gateway
   participant E as Embed (dùng lại cache)
   participant DB as Postgres (pgvector)
-  U->>G: POST threads/similar-confirmed {q} (thân yêu cầu, không ở URL; debounce 600 ms, ≥ 3 từ)
+  U->>G: POST threads/similar-confirmed {q} (thân yêu cầu, không ở URL; debounce 600 ms và sau `precheck` của cùng nội dung — chữ có PII không được gửi, P-11-89; ≥ 3 từ)
   G->>G: cờ bật? rate limit 30/phút
   G->>E: nhúng q (1 lần)
   G->>DB: top 3 chunk knowledge_items(POST) cùng lớp, cosine ≥ 0,80 → thread VERIFIED/CORRECTED, chưa ẩn
@@ -209,6 +210,7 @@ sequenceDiagram
 | Tập công bố có bài **chưa duyệt** khác bản hiện hành (lưới an toàn) | `409 MIXED_GUIDANCE {versions, counts}` | Dòng báo + `Chấm lại` |
 | Gợi ý M4 lỗi nhúng / DB | Bỏ qua im lặng | Không hiện gì |
 | Cờ tắt giữa lúc chạy | Việc chưa nhận chạy với bản hiện hành (0) | Không đổi |
+| `cmd/regress run` khi `REGRESSION_RUN_ALLOWED` ≠ `true` | Từ chối, thoát ≠ 0, nêu tên biến, không đọc DB, không gọi LLM | – (CLI) |
 | `cmd/regress export` khi chưa cho phép | Từ chối, thoát ≠ 0 | – (CLI) |
 | Xoá dữ liệu sinh viên | Bỏ id khỏi `source_result_ids`; `support < 2` → `needs_recheck`; xoá ca liên quan | Nhãn «Cần xem lại» |
 
@@ -225,6 +227,7 @@ sequenceDiagram
 | `REFLECT_MAX_PER_HOUR` | `3` | trần việc `reflect` / bài tập / giờ |
 | `REGRADE_MAX_BATCH` | `200` | số bài tối đa mỗi lần `regrade-stale` |
 | `REGRESSION_MIN_DELTA` / `REGRESSION_MAX_REL` | `1.0` / `0.10` | ngưỡng ghi ca / ngưỡng «lùi» |
+| `REGRESSION_RUN_ALLOWED` | `false` | cho phép `cmd/regress run` (CLI không có phiên; chỉ môi trường đo của ADMIN vận hành bật; P-11-86) |
 | `REGRESSION_EXPORT_ALLOWED` | `false` | cho phép `cmd/regress export` (Q-G-3) |
 | `THREAD_SUGGEST_MIN` / `THREAD_SUGGEST_RPM` | `0.80` / `30` | cosine tối thiểu / lần gợi ý mỗi phút mỗi người |
 | `GUIDANCE_KEYWORD_EXEMPT` | (cố định trong mã, không phải biến môi trường) | cụm vô hại miễn cho từ khoá cấm (P-106-12): «tổng quát», «tổng quan», «tổng thể», «tổng hợp», «tổng kết», «trừ khi», «ngoại trừ», «loại trừ». Thêm / bớt cụm = sửa SRS + `TestReflectKeywordExempt` |
@@ -269,7 +272,7 @@ Sắp theo vị trí tiêu chí trong rubric, rồi `approved_in_version`, rồi
 
 ### 4.3 M2 — Ca hồi quy
 - Ghi ca khi cờ `REGRESSION_CAPTURE` bật: (a) `review` kết quả có tiêu chí lệch ≥ `REGRESSION_MIN_DELTA` → `GRADING_EDIT` (`source_id` = id kết quả, `criterion_id`); (b) phúc khảo `ADJUSTED` → `GRADING_APPEAL`; (c) thread `CORRECTED` → `THREAD_CORRECTED`, `REJECTED` → `THREAD_REJECTED` (`source_id` = id bài). `expected` chỉ số / enum: `{ai_score, teacher_score, direction, rubric_hash}` hoặc `{state}`; **không** văn bản.
-- `cmd/regress` (Go, CLI vận hành, môi trường đo; cùng module; không service thường trực): `run` đọc ca và nội dung **trong DB**, gọi `internal/llm` (9router), in báo cáo; so `benchmarks/guidance/baseline.json`; `export` mặc định từ chối (`REGRESSION_EXPORT_ALLOWED=false`); khi cho phép: `privacy.Mask` + `Detect`, id băm, ghi **ngoài repo**, `audit_log`.
+- `cmd/regress` (Go, CLI vận hành, môi trường đo; cùng module; không service thường trực): `run` chỉ chạy khi `REGRESSION_RUN_ALLOWED=true` (mặc định `false`: từ chối, thoát ≠ 0, nêu tên biến), đọc ca và nội dung **trong DB**, gọi `internal/llm` (9router), in báo cáo; so `benchmarks/guidance/baseline.json`; `export` mặc định từ chối (`REGRESSION_EXPORT_ALLOWED=false`); khi cho phép: `privacy.Mask` + `Detect`, id băm, ghi **ngoài repo**, `audit_log`.
 - Ca `THREAD_*` phục vụ E2 (golden set escalation): `run` có chế độ `--e2` đọc câu hỏi + đáp án xác nhận trong DB để đối chiếu `confidence`/chuyển giảng viên; chi tiết chấm ở `benchmarks/e2/README.md`.
 
 ### 4.4 M4 — Câu tương tự lúc soạn

@@ -188,6 +188,14 @@ func TestReflectIdempotent(t *testing.T) {
 	st, code = apiCode(t, err)
 	require.Equal(t, http.StatusConflict, st)
 	require.Equal(t, "GUIDANCE_DISABLED", code)
+	// DEF-R10.6-01: bài tập không thuộc lớp → 404 dù cờ tắt (không lộ khác biệt giữa lớp tắt / bật cờ)
+	_, err = off.Reflect(t.Context(), a, g.course, uuid.New())
+	st, code = apiCode(t, err)
+	require.Equal(t, http.StatusNotFound, st)
+	require.Equal(t, "ASSIGNMENT_NOT_FOUND", code)
+	_, err = off.RegradeStale(t.Context(), a, g.course, uuid.New())
+	st, _ = apiCode(t, err)
+	require.Equal(t, http.StatusNotFound, st)
 }
 
 // TestGuidanceFlags — GET đủ bốn cờ; REGRESSION_CAPTURE chỉ ADMIN; version cũ → 409; hàng chưa có là version 1; công tắc cứng tắt → 409.
@@ -343,4 +351,43 @@ func TestGuidanceFlagsUnknownCourse(t *testing.T) {
 	_, err = svc.ListFlags(t.Context(), admin, uuid.New())
 	st, _ = apiCode(t, err)
 	require.Equal(t, 404, st)
+}
+
+// DEF-R106S-03 (TC-G03-03, US-GD-03 AC1): bài tập không phải ESSAY → 409 TYPE_NOT_SUPPORTED nói rõ lý do (không phải 404 «không tìm thấy»), không tạo việc.
+func TestReflectRejectsNonEssay(t *testing.T) {
+	g := newGradeEnv(t, nil)
+	svc, _ := newGuidanceSvc(t, g, true)
+	g.tenReviewed("x")
+	g.exec(`update assignments set type = 'QUIZ' where id = $1`, g.asg)
+	_, err := svc.Reflect(t.Context(), grading.GuidanceActor{UserID: g.teacher}, g.course, g.asg)
+	st, code := apiCode(t, err)
+	require.Equal(t, http.StatusConflict, st)
+	require.Equal(t, "TYPE_NOT_SUPPORTED", code)
+	var ae *apierr.Error
+	require.ErrorAs(t, err, &ae)
+	require.Contains(t, ae.Message, "tự luận")
+	var n int
+	g.one(&n, `select count(*) from jobs where kind = 'grading.reflect'`)
+	require.Zero(t, n)
+}
+
+// DEF-R106S-02 (TC-G03-14): việc rút lưu ý FAILED → bấm lại (cùng dữ liệu, khoá mới) tạo việc MỚI; việc đang chạy vẫn trả cùng job_id.
+func TestReflectRetriesAfterFailed(t *testing.T) {
+	g := newGradeEnv(t, nil)
+	svc, _ := newGuidanceSvc(t, g, true)
+	a := grading.GuidanceActor{UserID: g.teacher}
+	g.tenReviewed("x")
+	j1, err := svc.Reflect(t.Context(), a, g.course, g.asg)
+	require.NoError(t, err)
+	j1b, err := svc.Reflect(t.Context(), a, g.course, g.asg)
+	require.NoError(t, err)
+	require.Equal(t, j1.JobID, j1b.JobID, "đang chạy → cùng job")
+
+	g.exec(`update jobs set status = 'FAILED', finished_at = now() where id = $1`, j1.JobID)
+	j2, err := svc.Reflect(t.Context(), a, g.course, g.asg)
+	require.NoError(t, err)
+	require.NotEqual(t, j1.JobID, j2.JobID, "FAILED → việc mới")
+	var n int
+	g.one(&n, `select count(*) from jobs where kind = 'grading.reflect'`)
+	require.Equal(t, 2, n)
 }

@@ -19,3 +19,8 @@
   .row { grid-template-columns: 1fr; }
   .criterion { grid-template-columns: minmax(0, 1fr) 4.5rem auto; }
 }
+
+/* Điện thoại: liên kết tiêu đề là vùng chạm ≥ 44 px, rộng hết hàng (DEF-R106S-22) */
+@media (max-width: 719px) {
+  .titleLink { display: flex; align-items: center; min-height: 44px; }
+}

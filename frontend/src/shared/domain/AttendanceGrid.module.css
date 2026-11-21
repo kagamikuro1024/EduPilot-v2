@@ -6,7 +6,7 @@
 .radio {
   appearance: none; width: 20px; height: 20px; margin: 0; border: 1.5px solid var(--ep-rule); border-radius: var(--ep-radius-pill); background: var(--ep-surface);
 }
-@media (hover: hover) and (pointer: fine) { .cell:hover .radio { border-color: var(--ep-ink-3); } }
+@media (hover: hover) and (pointer: fine) { .cell:hover .radio:not(:checked) { border-color: var(--ep-ink-3); } }
 /* chấm mực cho "Có mặt" (mặc định cả lớp); đỏ chỉ cho Muộn / Vắng phép / Vắng (US-UX91-12 AC1) */
 .radio:checked { border-color: var(--ep-red); border-width: 6px; }
 .radio[data-status="PRESENT"]:checked { border-color: var(--ep-ink); }

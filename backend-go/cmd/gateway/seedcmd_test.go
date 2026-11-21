@@ -227,6 +227,9 @@ func TestSeedAgeAssignment(t *testing.T) {
 	after, age := gap()
 	require.Equal(t, before, after, "khoảng cách tương đối giữ nguyên")
 	require.Greater(t, age, 95*time.Hour)
+	var dueLocal string
+	require.NoError(t, w.pool.QueryRow(ctx, `select to_char(due_at at time zone 'Asia/Ho_Chi_Minh', 'HH24:MI:SS') from assignments where id = $1`, a3).Scan(&dueLocal))
+	require.Equal(t, "23:59:00", dueLocal, "P-11-13: hạn seed = 23:59 giờ Việt Nam, khớp mô tả")
 	var other2 time.Time
 	require.NoError(t, w.pool.QueryRow(ctx, `select received_at from submissions where id = $1`, s4).Scan(&other2))
 	require.True(t, other.Equal(other2), "bài nộp của bài khác không bị chạm")

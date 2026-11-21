@@ -5,7 +5,7 @@ import { apiClient } from "@/shared/data";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/chat/*`, `/me/exam-lock`).
 export type ChatSession = { id: string; title: string | null; last_message_at: string; document_id: string | null };
-export type ChatCitation = { n: number; document_id: string; title: string; page_no: number | null; snippet: string; knowledge?: boolean; thread_id?: string };
+export type ChatCitation = { n: number; document_id: string; title: string; page_no: number | null; snippet: string; knowledge?: boolean; thread_id?: string; /** tài liệu nguồn đã bị xoá (tên và đoạn trích đã bỏ) */ removed?: boolean };
 export type ChatBlock = { kind: string; data: unknown };
 /** Ticket "Nhờ giảng viên" mà sinh viên được thấy: đúng bốn trường (không độ tin cậy, người nhận, nguồn gốc). */
 export type StudentTicket = { id: string; status: "OPEN" | "CLAIMED" | "ANSWERED" | "CLOSED"; created_at: string; answered_at?: string };
@@ -57,3 +57,9 @@ export const useExamLock = () =>
     refetchInterval: 30_000,
     queryFn: async ({ signal }) => (await apiClient.get<{ locked: boolean; until?: string }>("/me/exam-lock", { signal })).data,
   });
+
+/**
+ * Chữ đang chảy / chưa xong: bỏ dấu trích dẫn thô (`[1]`, `[1, 2]`, và `[1, ` đang dở ở cuối) — máy chủ gỡ và đánh số lại khi xong,
+ * sinh viên không được thấy `[1, 2]` thoáng qua (QC dot-r «chữ thô»).
+ */
+export const hideRawCites = (t: string) => t.replace(/\s?\[\d{1,3}(?:\s*,\s*\d{1,3})*\s*,?\s*\]/g, "").replace(/\s?\[[\d,\s]*$/, "");

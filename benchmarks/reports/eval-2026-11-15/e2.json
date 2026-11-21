@@ -1,0 +1,762 @@
+{
+  "meta": {
+    "commit": "5233fa86",
+    "timestamp": "2026-11-15T23:05:11.663Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "stack": "ep-qc",
+      "providers": {
+        "meta": {
+          "commit": "4c919bf5",
+          "timestamp": "2026-11-15T11:13:28.312Z",
+          "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+          "runs": 1,
+          "config": {
+            "stack": "ep-qc",
+            "raw": "providers.json"
+          }
+        },
+        "embedding": "giả (fake) — đã trả về sau lượt đo",
+        "P1": {
+          "model": "ag/gemini-3.8-flash",
+          "via": "9router (openai_compatible)",
+          "since": "2026-11-15T11:13:28.298Z"
+        },
+        "embed_real_since": "2026-11-15T09:51:48.511Z",
+        "P2": {
+          "model": "ag/claude-sonnet-4-6",
+          "via": "9router (openai_compatible)",
+          "since": "2026-11-15T10:15:53.476Z"
+        },
+        "embed_real_calls": 395,
+        "embed_real_tokens": 0,
+        "embed_real_until": "2026-11-15T10:27:59.437Z"
+      },
+      "embedding": "thật `gemini-embedding-001` (1536 chiều) trong lượt đo — 395 lời gọi nhúng (llm_audit), xong đã trả về nhúng giả",
+      "constants_at_run": {
+        "RAG_SIM_FLOOR": 0.25,
+        "RAG_SIM_CEIL": 0.65,
+        "w_retr": 0.6,
+        "escalation_threshold": 0.8
+      }
+    }
+  },
+  "status": "OK",
+  "labels": "WAITING_HUMAN",
+  "human_review": null,
+  "labels_note": "Nhãn do BA soạn; chủ dự án soát 20 % (24 mục): gói e2-soat-nhan.csv → benchmarks/eval/human/e2_soat.csv.",
+  "thresholds": [
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9
+  ],
+  "recommendation": {
+    "floor": 0.25,
+    "ceil": 0.6,
+    "w": 0.6,
+    "t": 0.8,
+    "n": 275,
+    "escalate_rate": 0.4727,
+    "error_rate": 0.0207,
+    "false_ticket_rate": 0.118,
+    "catch_rate": 0.9737,
+    "floor_same_range": [
+      0.25,
+      0.515
+    ],
+    "per_provider": {
+      "P1": {
+        "t": 0.8,
+        "n": 137,
+        "escalate_rate": 0.4599,
+        "error_rate": 0.0135,
+        "false_ticket_rate": 0.0988,
+        "catch_rate": 0.9821
+      },
+      "P2": {
+        "t": 0.8,
+        "n": 138,
+        "escalate_rate": 0.4855,
+        "error_rate": 0.0282,
+        "false_ticket_rate": 0.1375,
+        "catch_rate": 0.9655
+      }
+    },
+    "current_per_provider": {
+      "P1": {
+        "t": 0.8,
+        "n": 137,
+        "escalate_rate": 0.4599,
+        "error_rate": 0.0135,
+        "false_ticket_rate": 0.0988,
+        "catch_rate": 0.9821
+      },
+      "P2": {
+        "t": 0.8,
+        "n": 138,
+        "escalate_rate": 0.5,
+        "error_rate": 0.029,
+        "false_ticket_rate": 0.1625,
+        "catch_rate": 0.9655
+      }
+    }
+  },
+  "by_provider": {
+    "P1": {
+      "tag": "P1",
+      "n_rows": 137,
+      "n_golden": 118,
+      "excluded": {
+        "E2-011": "SKIPPED LLM_UNAVAILABLE",
+        "E2-097": "SKIPPED LLM_UNAVAILABLE",
+        "OT-15": "SKIPPED LLM_UNAVAILABLE"
+      },
+      "inconsistent_ground": [],
+      "accuracy_answerable": 0.8617,
+      "fabrication_unanswerable": 0.0,
+      "cos_distribution": {
+        "in_answerable": {
+          "n": 94,
+          "p50": 0.7061,
+          "p95": 0.7915,
+          "max": 0.8468,
+          "mean": 0.7
+        },
+        "out_golden_unanswerable": {
+          "n": 24,
+          "p50": 0.5669,
+          "p95": 0.6829,
+          "max": 0.7068,
+          "mean": 0.6
+        },
+        "out_offtopic": {
+          "n": 19,
+          "p50": 0.5042,
+          "p95": 0.6043,
+          "max": 0.6043,
+          "mean": 0.5
+        }
+      },
+      "curve_current": [
+        {
+          "t": 0.3,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.35,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.4,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.45,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.5,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.55,
+          "n": 118,
+          "escalate_rate": 0.3136,
+          "error_rate": 0.0123,
+          "false_ticket_rate": 0.0123,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.6,
+          "n": 118,
+          "escalate_rate": 0.322,
+          "error_rate": 0.0125,
+          "false_ticket_rate": 0.0247,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.65,
+          "n": 118,
+          "escalate_rate": 0.3475,
+          "error_rate": 0.013,
+          "false_ticket_rate": 0.0617,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.7,
+          "n": 118,
+          "escalate_rate": 0.3475,
+          "error_rate": 0.013,
+          "false_ticket_rate": 0.0617,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.75,
+          "n": 118,
+          "escalate_rate": 0.3729,
+          "error_rate": 0.0135,
+          "false_ticket_rate": 0.0988,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.8,
+          "n": 118,
+          "escalate_rate": 0.3729,
+          "error_rate": 0.0135,
+          "false_ticket_rate": 0.0988,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.85,
+          "n": 118,
+          "escalate_rate": 0.3983,
+          "error_rate": 0.0141,
+          "false_ticket_rate": 0.1358,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.9,
+          "n": 118,
+          "escalate_rate": 0.4237,
+          "error_rate": 0.0147,
+          "false_ticket_rate": 0.1728,
+          "catch_rate": 0.973
+        }
+      ],
+      "current_at_t0": {
+        "t": 0.8,
+        "n": 137,
+        "escalate_rate": 0.4599,
+        "error_rate": 0.0135,
+        "false_ticket_rate": 0.0988,
+        "catch_rate": 0.9821
+      },
+      "recommended": {
+        "floor": 0.25,
+        "ceil": 0.6,
+        "w": 0.8,
+        "t": 0.8,
+        "n": 137,
+        "escalate_rate": 0.4015,
+        "error_rate": 0.0122,
+        "false_ticket_rate": 0.0,
+        "catch_rate": 0.9821
+      },
+      "split_check": {
+        "fit_odd_eval_even": {
+          "params": {
+            "floor": 0.25,
+            "ceil": 0.65,
+            "w": 0.8
+          },
+          "fit": {
+            "false_ticket_rate": 0.0,
+            "catch_rate": 0.9615
+          },
+          "holdout": {
+            "t": 0.8,
+            "n": 70,
+            "escalate_rate": 0.4571,
+            "error_rate": 0.0,
+            "false_ticket_rate": 0.05,
+            "catch_rate": 1.0
+          }
+        },
+        "fit_even_eval_odd": {
+          "params": {
+            "floor": 0.25,
+            "ceil": 0.6,
+            "w": 0.8
+          },
+          "fit": {
+            "false_ticket_rate": 0.0,
+            "catch_rate": 1.0
+          },
+          "holdout": {
+            "t": 0.8,
+            "n": 67,
+            "escalate_rate": 0.3731,
+            "error_rate": 0.0238,
+            "false_ticket_rate": 0.0,
+            "catch_rate": 0.9615
+          }
+        }
+      },
+      "curve_recommended": [
+        {
+          "t": 0.3,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.35,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.4,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.45,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.5,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.55,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.6,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.65,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.7,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.75,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.8,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.0122,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.85,
+          "n": 118,
+          "escalate_rate": 0.3475,
+          "error_rate": 0.013,
+          "false_ticket_rate": 0.0617,
+          "catch_rate": 0.973
+        },
+        {
+          "t": 0.9,
+          "n": 118,
+          "escalate_rate": 0.3729,
+          "error_rate": 0.0135,
+          "false_ticket_rate": 0.0988,
+          "catch_rate": 0.973
+        }
+      ],
+      "leaked_at_t0": [
+        "E2-079"
+      ],
+      "false_tickets_at_t0": [
+        "E2-016",
+        "E2-022",
+        "E2-037",
+        "E2-038",
+        "E2-040",
+        "E2-064",
+        "E2-065",
+        "E2-068"
+      ]
+    },
+    "P2": {
+      "tag": "P2",
+      "n_rows": 138,
+      "n_golden": 118,
+      "excluded": {
+        "E2-003": "SKIPPED LLM_UNAVAILABLE",
+        "E2-004": "SKIPPED LLM_UNAVAILABLE"
+      },
+      "inconsistent_ground": [],
+      "accuracy_answerable": 0.8602,
+      "fabrication_unanswerable": 0.0,
+      "cos_distribution": {
+        "in_answerable": {
+          "n": 93,
+          "p50": 0.7065,
+          "p95": 0.7915,
+          "max": 0.8468,
+          "mean": 0.7
+        },
+        "out_golden_unanswerable": {
+          "n": 25,
+          "p50": 0.568,
+          "p95": 0.6829,
+          "max": 0.7068,
+          "mean": 0.6
+        },
+        "out_offtopic": {
+          "n": 20,
+          "p50": 0.5032,
+          "p95": 0.5535,
+          "max": 0.6043,
+          "mean": 0.5
+        }
+      },
+      "curve_current": [
+        {
+          "t": 0.3,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.35,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.4,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.45,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.5,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.55,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.6,
+          "n": 118,
+          "escalate_rate": 0.3051,
+          "error_rate": 0.061,
+          "false_ticket_rate": 0.0375,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.65,
+          "n": 118,
+          "escalate_rate": 0.339,
+          "error_rate": 0.0641,
+          "false_ticket_rate": 0.0875,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.7,
+          "n": 118,
+          "escalate_rate": 0.3475,
+          "error_rate": 0.0649,
+          "false_ticket_rate": 0.1,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.75,
+          "n": 118,
+          "escalate_rate": 0.3644,
+          "error_rate": 0.0533,
+          "false_ticket_rate": 0.1125,
+          "catch_rate": 0.8947
+        },
+        {
+          "t": 0.8,
+          "n": 118,
+          "escalate_rate": 0.4153,
+          "error_rate": 0.029,
+          "false_ticket_rate": 0.1625,
+          "catch_rate": 0.9474
+        },
+        {
+          "t": 0.85,
+          "n": 118,
+          "escalate_rate": 0.4831,
+          "error_rate": 0.0164,
+          "false_ticket_rate": 0.25,
+          "catch_rate": 0.9737
+        },
+        {
+          "t": 0.9,
+          "n": 118,
+          "escalate_rate": 0.5339,
+          "error_rate": 0.0182,
+          "false_ticket_rate": 0.325,
+          "catch_rate": 0.9737
+        }
+      ],
+      "current_at_t0": {
+        "t": 0.8,
+        "n": 138,
+        "escalate_rate": 0.5,
+        "error_rate": 0.029,
+        "false_ticket_rate": 0.1625,
+        "catch_rate": 0.9655
+      },
+      "recommended": {
+        "floor": 0.25,
+        "ceil": 0.6,
+        "w": 0.6,
+        "t": 0.8,
+        "n": 138,
+        "escalate_rate": 0.4855,
+        "error_rate": 0.0282,
+        "false_ticket_rate": 0.1375,
+        "catch_rate": 0.9655
+      },
+      "split_check": {
+        "fit_odd_eval_even": {
+          "params": {
+            "floor": 0.25,
+            "ceil": 0.6,
+            "w": 0.6
+          },
+          "fit": {
+            "false_ticket_rate": 0.122,
+            "catch_rate": 0.9643
+          },
+          "holdout": {
+            "t": 0.8,
+            "n": 69,
+            "escalate_rate": 0.5072,
+            "error_rate": 0.0294,
+            "false_ticket_rate": 0.1538,
+            "catch_rate": 0.9667
+          }
+        },
+        "fit_even_eval_odd": {
+          "params": {
+            "floor": 0.25,
+            "ceil": 0.65,
+            "w": 0.6
+          },
+          "fit": {
+            "false_ticket_rate": 0.1538,
+            "catch_rate": 0.9667
+          },
+          "holdout": {
+            "t": 0.8,
+            "n": 69,
+            "escalate_rate": 0.4928,
+            "error_rate": 0.0286,
+            "false_ticket_rate": 0.1707,
+            "catch_rate": 0.9643
+          }
+        }
+      },
+      "curve_recommended": [
+        {
+          "t": 0.3,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.35,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.4,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.45,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.5,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.55,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.6,
+          "n": 118,
+          "escalate_rate": 0.2797,
+          "error_rate": 0.0588,
+          "false_ticket_rate": 0.0,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.65,
+          "n": 118,
+          "escalate_rate": 0.3305,
+          "error_rate": 0.0633,
+          "false_ticket_rate": 0.075,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.7,
+          "n": 118,
+          "escalate_rate": 0.3475,
+          "error_rate": 0.0649,
+          "false_ticket_rate": 0.1,
+          "catch_rate": 0.8684
+        },
+        {
+          "t": 0.75,
+          "n": 118,
+          "escalate_rate": 0.3644,
+          "error_rate": 0.0533,
+          "false_ticket_rate": 0.1125,
+          "catch_rate": 0.8947
+        },
+        {
+          "t": 0.8,
+          "n": 118,
+          "escalate_rate": 0.3983,
+          "error_rate": 0.0282,
+          "false_ticket_rate": 0.1375,
+          "catch_rate": 0.9474
+        },
+        {
+          "t": 0.85,
+          "n": 118,
+          "escalate_rate": 0.4746,
+          "error_rate": 0.0161,
+          "false_ticket_rate": 0.2375,
+          "catch_rate": 0.9737
+        },
+        {
+          "t": 0.9,
+          "n": 118,
+          "escalate_rate": 0.5254,
+          "error_rate": 0.0179,
+          "false_ticket_rate": 0.3125,
+          "catch_rate": 0.9737
+        }
+      ],
+      "leaked_at_t0": [
+        "E2-050",
+        "E2-079"
+      ],
+      "false_tickets_at_t0": [
+        "E2-015",
+        "E2-016",
+        "E2-021",
+        "E2-022",
+        "E2-024",
+        "E2-037",
+        "E2-040",
+        "E2-043",
+        "E2-063",
+        "E2-065",
+        "E2-068",
+        "E2-069",
+        "E2-072"
+      ]
+    }
+  }
+}

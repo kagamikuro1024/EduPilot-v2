@@ -88,6 +88,25 @@ test("staff add event: Thêm sự kiện mở form tại chỗ (không hộp tho
   await expect.poll(() => calls.some((c) => c.method === "DELETE"), { timeout: 8000 }).toBe(true);
 });
 
+test("staff edit/xoá sự kiện: PUT/DELETE đi tới uuid nguồn, không phải id gộp «calendar_event:<uuid>»", async ({ page, context }) => {
+  const uuid = "00000000-0000-7000-8000-0000000000b2";
+  const calls = await open(page, context, "ta", {
+    [`GET ${C}`]: (r) => r.fulfill(pageOf([item({ id: `calendar_event:${uuid}`, editable: true, version: 1 })])),
+    [`PUT ${C}/events/${uuid}`]: (r) => r.fulfill(json({ id: uuid, version: 2 })),
+    [`DELETE ${C}/events/${uuid}`]: noContent,
+  });
+  await page.getByRole("radio", { name: "Danh sách" }).click();
+  await page.getByRole("button", { name: /Thêm với Nộp báo cáo/ }).click();
+  await page.getByRole("menuitem", { name: "Sửa" }).click();
+  await page.getByLabel("Tên sự kiện").fill("Nộp báo cáo cuối kỳ");
+  await page.getByRole("button", { name: "Lưu" }).click();
+  await expect.poll(() => calls.find((c) => c.method === "PUT")?.path).toBe(`${C}/events/${uuid}`);
+  await expect(page.getByText("Đã xoá sự kiện")).toHaveCount(0);
+  await page.getByRole("button", { name: /Thêm với Nộp báo cáo/ }).click();
+  await page.getByRole("menuitem", { name: "Xoá" }).click();
+  await expect.poll(() => calls.find((c) => c.method === "DELETE")?.path, { timeout: 8000 }).toBe(`${C}/events/${uuid}`);
+});
+
 test("staff add event: sinh viên không thấy Thêm sự kiện lẫn menu sửa / xoá", async ({ page, context }, info) => {
   test.skip(info.project.name !== "desktop", "đo một lần");
   await open(page, context, "student", { [`GET ${C}`]: pageOf([item()]) });
@@ -217,6 +236,27 @@ test("generate sessions: sửa form sau khi xem trước thì phải xem trướ
   await expect(dlg.getByText(/Khoảng ngày này có 74 buổi/)).toBeVisible();
   await expect(dlg.getByLabel("Đến ngày")).toHaveAttribute("aria-invalid", "true");
   await expect(dlg.getByRole("button", { name: "Tạo buổi" })).toBeDisabled();
+});
+
+test("generate sessions preview (DEF-R7-10, TLR-12): xem trước chỉ đọc nên KHÔNG gửi Idempotency-Key; tạo thật vẫn gửi", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "đo một lần");
+  const calls = await open(page, context, "ta", {
+    [`GET ${S}`]: json({ items: [], next_cursor: null }),
+    [`POST ${S}/generate`]: (r) =>
+      r.fulfill(r.request().url().includes("dry_run=true")
+        ? json({ would_create: WOULD, skipped: [{ date: "2026-11-02", reason: "EXCLUDED" }] })
+        : json({ created: 11, first_session_no: 1, last_session_no: 11, skipped: 0 }, 201)),
+  });
+  await page.getByRole("button", { name: "Tạo lịch buổi học" }).click();
+  const dlg = page.getByRole("dialog");
+  await fillPlan(page);
+  for (let i = 0; i < 3; i++) await dlg.getByRole("button", { name: "Xem trước" }).click();
+  await expect(dlg.getByText("Sẽ tạo 11 buổi · bỏ 1 ngày nghỉ")).toBeVisible();
+  await dlg.getByRole("button", { name: "Tạo 11 buổi" }).click();
+  await expect(dlg.getByText("Đã tạo 11 buổi")).toBeVisible();
+  const posts = calls.filter((c) => c.method === "POST");
+  expect(posts.filter((c) => c.path.includes("dry_run")).map((c) => c.key).filter(Boolean)).toEqual([]);
+  expect(posts.filter((c) => !c.path.includes("dry_run")).map((c) => c.key)).toEqual([expect.stringMatching(/^ep-/)]);
 });
 
 test("generate sessions offline retry: mất mạng thì nút trở lại, thử lại dùng CÙNG Idempotency-Key", async ({ page, context }, info) => {

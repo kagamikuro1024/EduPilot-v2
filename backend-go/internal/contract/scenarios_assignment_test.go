@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/llm/provider"
 	"github.com/google/uuid"
 )
 
@@ -88,9 +89,18 @@ func (r *runner) assignmentScenarios(x examRig) {
 	r.must(call{method: "POST", path: base + "/00000000-0000-7000-8000-000000000000/rubric/suggest", token: x.gv, headers: x.idem()}, 404)
 	_, b = r.must(call{method: "POST", path: base, token: x.gv, headers: x.idem(), body: `{"title":"Không đáp án","submission_code":"NOREF","due_at":"` + due + `"}`}, 201)
 	r.must(call{method: "POST", path: base + "/" + parse(b).ID + "/rubric/suggest", token: x.gv, headers: x.idem()}, 422) // REFERENCE_ANSWER_REQUIRED
-	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: x.admin, body: `{"error_rate":1,"error_kind":"AUTH"}`}, 200)
+	fakeLLM := func(rate float64, kind provider.Kind) {                                                                   // route thử khi có tag (còn sinh quan sát cho openapi.test.yaml); không tag: chỉnh thẳng bộ điều khiển — cùng hiệu ứng, bản dựng mặc định vẫn chạy trọn kịch bản
+		if hasTestRoutes {
+			r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: x.admin, body: fmt.Sprintf(`{"error_rate":%g,"error_kind":%q}`, rate, kind)}, 200)
+			return
+		}
+		st := ctl.Get()
+		st.ErrorRate, st.ErrorKind = rate, kind
+		ctl.Set(st)
+	}
+	fakeLLM(1, provider.KindAuth)
 	r.must(call{method: "POST", path: sg, token: x.gv, headers: x.idem()}, 503) // LLM_UNAVAILABLE
-	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: x.admin, body: `{"error_rate":0,"error_kind":"SERVER"}`}, 200)
+	fakeLLM(0, provider.KindServer)
 
 	// 7: lưu rubric.
 	R := A + "/rubric"

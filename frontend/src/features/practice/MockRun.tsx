@@ -9,7 +9,7 @@ import { SaveQueue, type QueueState, type Sender } from "@/shared/lib/saveQueue"
 import { useMinWidth } from "@/shared/lib/useMinWidth";
 import { Button, ConfirmIrreversible, Drawer, InlineNotice, Page, PageHeader, Panel, Split, StatusText } from "@/shared/ui";
 import { QuestionInput, filled } from "./QuestionInput";
-import { newIdempotencyKey, putAnswer, submitAttempt, type Ans, type PAttempt, type PItem } from "./practiceApi";
+import { newIdempotencyKey, patchIndex, putAnswer, submitAttempt, type Ans, type PAttempt, type PItem } from "./practiceApi";
 import s from "./Practice.module.css";
 
 type Qd = Ans & { ts?: number }; // `ts`: lúc người làm bài đổi đáp án (ms) — gửi thành client_ts để dung sai ghi ngoại tuyến (Q-P9-5)
@@ -42,6 +42,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
   const [confirm, setConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitErr, setSubmitErr] = useState<ApiError | null>(null);
+  const [submitRetry, setSubmitRetry] = useState(false); // nộp chưa được (mạng): đang thử lại cùng khoá
   const [warn, setWarn] = useState<1 | 5 | null>(null);
   const [expired, setExpired] = useState(false);
   const [other, setOther] = useState(false); // tab khác đã giành quyền ghi
@@ -104,7 +105,12 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
   const canWrite = !other && !expired;
   const done = (it: PItem) => filled(it.question, answers[it.id]);
   const answeredCount = items.filter(done).length;
-  const go = useCallback((i: number) => setIndex(Math.max(0, Math.min(items.length - 1, i))), [items.length]);
+  // Vị trí câu lưu máy chủ (FR-14, US-P9-07 AC6): tải lại quay đúng câu; mất lượt PATCH không sao (chỉ để quay lại đúng câu).
+  const go = useCallback((i: number) => {
+    const to = Math.max(0, Math.min(items.length - 1, i));
+    setIndex(to);
+    if (canWrite) void patchIndex(courseId, initial.id, tab, to).catch(() => undefined);
+  }, [items.length, canWrite, courseId, initial.id, tab]);
 
   function choose(it: PItem, v: Ans) {
     const next: Qd = { ...v, ts: Date.now() };
@@ -123,6 +129,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
         if (!other && !closedByServer.current && queue.state.pending > 0) throw new ApiError({ status: 0, code: "NETWORK" });
         const r = await submitAttempt(courseId, initial.id, submitKey.current);
         queue.clear();
+        setSubmitRetry(false);
         onDone(r);
         return;
       } catch (e) {
@@ -131,6 +138,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
           setSubmitting(false);
           return;
         }
+        setSubmitRetry(true);
         await sleep(delays[Math.min(n, delays.length - 1)]); // chập chờn: giữ "Đang nộp…", gửi lại CÙNG khoá
       }
     }
@@ -162,7 +170,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
       </header>
       <p className={s.warnLine} role="status" aria-live="polite">{warn === 5 ? "Còn 5 phút." : warn === 1 ? "Còn 1 phút." : ""}</p>
       {expired && <InlineNotice compact>Hết giờ — đang nộp bài của bạn.</InlineNotice>}
-      {offline && !expired && <InlineNotice tone="warning" compact>Chưa gửi được. Bài vẫn giữ trên máy bạn.</InlineNotice>}
+      {submitRetry ? <InlineNotice tone="warning" compact>Chưa nộp được. Đang thử lại.</InlineNotice> : offline && !expired && <InlineNotice tone="warning" compact>Chưa gửi được. Bài vẫn giữ trên máy bạn.</InlineNotice>}
       {other && (
         <InlineNotice tone="warning" compact title="Bài đang mở ở tab khác" action={<Button size="sm" onClick={onTakeOver}>Làm tiếp ở tab này</Button>}>
           Tab này chỉ để xem.

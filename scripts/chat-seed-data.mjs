@@ -44,8 +44,8 @@ export const TOPIC_B = [
   "Điểm trung bình tích luỹ được tính thế nào?",
 ];
 
-/** Các câu có trong tài liệu nhưng không thuộc A, B. */
-export const TOPIC_C = [
+/** Chủ đề D của lớp 1 (dự báo): có trong tài liệu nhưng CHỈ đúng 2 sinh viên hỏi (US-P10-07 AC2: ví dụ «Ít người hỏi» của báo cáo lỗ hổng). */
+export const TOPIC_D = [
   "Dự báo bằng trung bình trượt là gì?",
   "Hồi quy tuyến tính đơn dùng để làm gì?",
   "Sai số dự báo MAD được tính thế nào?",
@@ -58,39 +58,62 @@ export const TOPIC_C = [
   "Chọn hằng số làm trơn alpha như thế nào?",
 ];
 
-/** 10 câu ngoài tài liệu — trợ lý phải trả lời "chưa tìm thấy trong tài liệu của lớp". */
+/**
+ * 10 tin ngoài tài liệu của lớp 1 — trợ lý phải trả lời "chưa tìm thấy trong tài liệu của lớp" — chia 3 nhóm câu (P-11-31, US-P10-04 AC4):
+ * N1 do 3 sinh viên khác nhau hỏi (3 tin), N2 do 4 sinh viên (4 tin), N3 do MỘT sinh viên hỏi 3 lần (3 tin).
+ * «Tài liệu chưa đề cập» chỉ hiện N1, N2 (≥ 3 sinh viên); N3 bị bỏ. `who` = chỉ số trong ROSTER1 (sv.gioi = 0).
+ */
 export const OUTSIDE = [
   "Hôm nay thời tiết ở Hà Nội thế nào?",
   "Công thức nấu phở bò gồm những gì?",
   "Đội tuyển bóng đá quốc gia đá trận nào tới?",
-  "Giá vàng hôm nay là bao nhiêu?",
-  "Gợi ý bộ phim hay để xem cuối tuần?",
-  "Cách trồng cây xương rồng trong chậu nhỏ?",
-  "Nên mua điện thoại nào trong tầm giá mười triệu?",
-  "Lịch thi đấu giải bóng rổ chuyên nghiệp?",
-  "Cách pha cà phê muối ngon tại nhà?",
-  "Địa điểm du lịch đẹp ở miền Trung?",
+];
+export const OUTSIDE_PLAN = [
+  { text: OUTSIDE[0], who: [4, 5, 6] },
+  { text: OUTSIDE[1], who: [7, 8, 9, 10] },
+  { text: OUTSIDE[2], who: [11, 11, 11] },
 ];
 
-const PREFIX = ["", "Cho em hỏi: ", "Giải thích giúp em: "];
+/** Chủ đề C của lớp 2 (mạng máy tính): lớp 1 không có câu nào thuộc chủ đề này (US-P10-07 AC2, TC-04-17). */
+export const TOPIC_C = [
+  "Giao thức TCP bắt tay ba bước như thế nào?",
+  "UDP khác TCP ở điểm nào?",
+  "Địa chỉ IP và địa chỉ MAC khác nhau ra sao?",
+  "DNS phân giải tên miền theo các bước nào?",
+  "Subnet mask dùng để làm gì?",
+  "NAT cho phép nhiều máy dùng chung một địa chỉ IP như thế nào?",
+  "Router khác switch ở điểm nào?",
+  "DHCP cấp địa chỉ cho máy trạm ra sao?",
+  "Mô hình OSI gồm những tầng nào?",
+  "HTTP và HTTPS khác nhau ở điểm nào?",
+];
 
 /**
- * 150 câu hỏi cố định (theo `rand` có hạt giống): lệch về A và B (≈ 53 % + 33 % trong các câu trong tài liệu), 10 câu ngoài tài liệu.
+ * 150 câu hỏi cố định của lớp 1 (theo `rand` có hạt giống): lệch về A và B (85 + 45), chủ đề D 10 câu (chỉ 2 sinh viên hỏi — chia ở seed.mjs), 10 tin ngoài tài liệu.
  * Mỗi câu một khoá riêng (`#n`) để chạy lại không nhân đôi.
  */
 export function chatQuestions(rand) {
   const out = [];
   const add = (list, n) => {
-    for (let i = 0; i < n; i++) out.push(`${PREFIX[Math.floor(i / list.length) % PREFIX.length]}${list[i % list.length]}`);
+    for (let i = 0; i < n; i++) out.push(list[i % list.length]);
   };
-  add(TOPIC_A, 70);
+  add(TOPIC_A, 85);
   add(TOPIC_B, 45);
-  add(TOPIC_C, 25);
-  add(OUTSIDE, 10);
+  add(TOPIC_D, 10);
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [out[i], out[j]] = [out[j], out[i]];
   }
+  return out;
+}
+
+/** Câu thuộc chủ đề D (để chia cho đúng 2 sinh viên). */
+export const isTopicD = (text) => TOPIC_D.some((q) => text.endsWith(q));
+
+/** 40 câu của lớp 2, lệch hẳn về chủ đề C. */
+export function chatQuestionsLop2() {
+  const out = [];
+  for (let i = 0; i < 40; i++) out.push(TOPIC_C[i % TOPIC_C.length]);
   return out;
 }
 

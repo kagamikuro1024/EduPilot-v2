@@ -187,7 +187,10 @@ where a.course_id = sqlc.arg(course_id) and a.exam_id = sqlc.arg(exam_id) and a.
 
 -- name: AttemptSubmitHistory :many
 -- Mọi bản nộp (SUBMIT) của lượt, cho Staff: verdict TỪNG test kể cả test ẩn nằm trong `results`.
-select id, item_id, status, verdict, language, source, created_at, judged_at, compile_ok, compile_log, results, tests_version, passed_weight, total_weight
-from code_submissions
-where course_id = sqlc.arg(course_id) and attempt_id = sqlc.arg(attempt_id) and kind = 'SUBMIT'
-order by item_id, created_at, id;
+-- `current_tests_version`: bộ test hiện hành của câu; bản nộp có `tests_version` nhỏ hơn = đã chấm theo bộ test cũ (US-PE-03 AC8).
+select s.id, s.item_id, s.status, s.verdict, s.language, s.source, s.created_at, s.judged_at, s.compile_ok, s.compile_log, s.results, s.tests_version, s.passed_weight, s.total_weight,
+       p.tests_version as current_tests_version
+from code_submissions s
+join code_problems p on p.course_id = s.course_id and p.question_id = s.problem_id
+where s.course_id = sqlc.arg(course_id) and s.attempt_id = sqlc.arg(attempt_id) and s.kind = 'SUBMIT'
+order by s.item_id, s.created_at, s.id;

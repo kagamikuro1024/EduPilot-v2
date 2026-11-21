@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApiErrorNotice, apiClient, useCursorList } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
+import { useMinWidth } from "@/shared/lib/useMinWidth";
 import { useSession } from "@/shared/session/session";
 import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, InlineNotice, Input, Page, PageHeader, Panel, SegmentedControl, Select, Skeleton, StatusText, Tabs, Textarea } from "@/shared/ui";
 import { eKey, fmtClock, type ExamDetail } from "../examApi";
@@ -126,15 +127,18 @@ function Table({ course, exam, teacher, e, onChanged }: { course: string; exam: 
     }
   }
 
+  const roomy = useMinWidth(720);
+  // Dưới 720 px chỉ giữ tên (kèm tín hiệu của Giảng viên ở dòng dưới) / trạng thái / điểm cho vừa khung; MSSV, giờ nộp xem ở Drawer.
   const cols: Column<Row>[] = [
-    { key: "name", header: "Họ tên", frozen: true, primary: true, width: "220px", render: (r) => r.student.full_name },
-    { key: "code", header: "MSSV", width: "120px", render: (r) => r.student.student_code || "—" },
-    { key: "status", header: "Trạng thái", width: "130px", render: (r) => <StatusText tone={STATUS_TONE[r.status]}>{STATUS_VI[r.status]}</StatusText> },
-    { key: "score", header: "Điểm", align: "end", width: "130px", render: (r) => (r.score ? <span>{vnum(r.score)}{r.adjusted ? " (đã sửa)" : ""}</span> : "—") },
-    { key: "at", header: "Nộp lúc", width: "150px", render: (r) => (r.submitted_at ? `${fmtClock(r.submitted_at)}${r.submit_reason && r.submit_reason !== "MANUAL" ? ` · ${REASON_VI[r.submit_reason] ?? ""}` : ""}` : "—") },
-    ...(teacher
-      ? [{ key: "signal", header: "Tín hiệu", width: "190px", render: (r: Row) => signal(r) } satisfies Column<Row>]
-      : []),
+    {
+      key: "name", header: "Họ tên", frozen: true, primary: true, width: roomy ? "220px" : "170px",
+      render: (r) => (roomy || !teacher || signal(r) === "—" ? r.student.full_name : <>{r.student.full_name}<span className={s.rowSub}>{signal(r)}</span></>),
+    },
+    ...(roomy ? [{ key: "code", header: "MSSV", width: "120px", render: (r: Row) => r.student.student_code || "—" } satisfies Column<Row>] : []),
+    { key: "status", header: "Trạng thái", width: roomy ? "130px" : "90px", render: (r) => <StatusText tone={STATUS_TONE[r.status]}>{STATUS_VI[r.status]}</StatusText> },
+    { key: "score", header: "Điểm", align: "end", width: roomy ? "130px" : "70px", render: (r) => (r.score ? <span>{vnum(r.score)}{r.adjusted ? " (đã sửa)" : ""}</span> : "—") },
+    ...(roomy ? [{ key: "at", header: "Nộp lúc", width: "150px", render: (r: Row) => (r.submitted_at ? `${fmtClock(r.submitted_at)}${r.submit_reason && r.submit_reason !== "MANUAL" ? ` · ${REASON_VI[r.submit_reason] ?? ""}` : ""}` : "—") } satisfies Column<Row>] : []),
+    ...(teacher && roomy ? [{ key: "signal", header: "Tín hiệu", width: "190px", render: (r: Row) => signal(r) } satisfies Column<Row>] : []),
   ];
 
   const graded = first?.progress.graded ?? 0;

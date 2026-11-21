@@ -313,7 +313,7 @@ func ParseScore(raw string) (decimal.Decimal, error) {
 // ghi → audit (lỗi audit → không ghi điểm) → `Compute` của hàng.
 func (s *Service) PutEntry(ctx context.Context, actor, courseID uuid.UUID, in PutEntryInput) (PutEntryOut, error) {
 	var score *decimal.Decimal
-	if in.Score != nil && strings.TrimSpace(*in.Score) != "" {
+	if in.Score != nil { // chỉ `null` xoá ô; chuỗi trắng đi qua ParseScore → 422 (TC-P6-06-11: « » từng xoá mất điểm)
 		d, err := ParseScore(*in.Score)
 		if err != nil {
 			return PutEntryOut{}, err

@@ -136,13 +136,15 @@ Mọi bảng: UUID, `created_at`, `updated_at`; bảng nghiệp vụ có `course
 | 00023 *(bỏ trống)* | – | Số này không dùng nữa; không tái dùng. |
 | 00024 attendance_checkin | 10.8 | §11.2 |
 | 00025 audit_log_indexes | 11 (P-11-30) | `audit_log (created_at DESC, id DESC)` và `audit_log (entity, created_at DESC, id DESC)` cho `GET /admin/audit` (US-P10-14 AC9); chỉ `CREATE INDEX`, không sửa migration đã merge |
-| *(số tiếp theo còn trống)* production | PR | `consents`, `retention_policies`, `data_requests(user_id, kind EXPORT/DELETE, status)`, `course_features(course_id, chat, thread_auto_answer, auto_grading)` *(đổi số 00021 → 00022 → 00023 → số tiếp theo còn trống)*. Job xoá dữ liệu sinh viên phải gọi bước "quên" của lưu ý chấm và ca hồi quy (SRS FEAT-grading-guidance 4.2.14) |
+| 00026 courses_class_code_ci | 11 (P-11-41, DEF-R4-01) | chỉ mục duy nhất `lower(class_code)` trên `courses`; chỉ `CREATE UNIQUE INDEX`, không sửa migration đã merge |
+| 00027 llm_audit_rollup | 11 (P-11-44, TC-01-13) | bảng cộng gộp `llm_audit_hourly` (giờ × tác vụ: đếm, lỗi, dự phòng, chi phí, token, PII, histogram độ trễ 140 nhóm tỉ lệ 1,1) + hàm `obs_lat_bucket`; worker `observability.rollup` mỗi phút (idempotent); chỉ thêm bảng / hàm, không sửa migration đã merge |
+| *(số tiếp theo còn trống, từ 00028)* production | PR | `consents`, `retention_policies`, `data_requests(user_id, kind EXPORT/DELETE, status)`, `course_features(course_id, chat, thread_auto_answer, auto_grading)` *(đổi số 00021 → 00022 → 00023 → số tiếp theo còn trống)*. Job xoá dữ liệu sinh viên phải gọi bước "quên" của lưu ý chấm và ca hồi quy (SRS FEAT-grading-guidance 4.2.14) |
 
 **Nguyên tắc sở hữu bảng (D45): phase đầu tiên dùng bảng là phase tạo nó, ở dạng cuối cùng.** Số migration tăng dần theo thứ tự phase chạy, bắt đầu từ `00001` — không kế thừa đánh số của Project III; vì PE chèn sau P2 (D54), số của các phase sau lùi theo thứ tự thi công. Số từ `00012` trở đi (P4…PR) là **dự kiến**, đã dời sau sprint 6; số thật ghi ở `PROGRESS.md`. Đã dùng đến `00011`; `00009` bỏ trống có chủ ý. Khi thi công, ghi ánh xạ số thật ↔ hạng mục ở đây vào mục "Ánh xạ migration" trong `PROGRESS.md`.
 
 Mã hoá: `APP_ENCRYPTION_KEY` (32 byte base64), AES-256-GCM, IV ngẫu nhiên mỗi bản ghi, cho `api_key_enc` và `config_enc`.
 
-Số migration thật (chốt 2026-11-15, P-11-30): `00022` = `llm_request_payloads` (P10, đã dùng); `00023` **bỏ trống, không dùng nữa** (không tái dùng); `00024_attendance_checkin` (sprint 10.8, §11.2); `00025_audit_log_indexes` (sprint 11, US-P10-14); phase PR và mọi việc sau lấy **số tiếp theo còn trống** (từ `00026`), ghi số thật ở `PROGRESS.md`.
+Số migration thật (chốt 2026-11-15, P-11-30): `00022` = `llm_request_payloads` (P10, đã dùng); `00023` **bỏ trống, không dùng nữa** (không tái dùng); `00024_attendance_checkin` (sprint 10.8, §11.2); `00025_audit_log_indexes` (sprint 11, US-P10-14); phase PR và mọi việc sau lấy **số tiếp theo còn trống** (từ `00028`), ghi số thật ở `PROGRESS.md`; `00026_courses_class_code_ci` (sprint 11, P-11-41, DEF-R4-01); `00027_llm_audit_rollup` (sprint 11, P-11-44).
 
 ## 5. REST (dưới `/api/v1`, phần lớp dưới `/courses/{courseId}`)
 

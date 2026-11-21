@@ -218,7 +218,8 @@ func TestNoQueryLinksByStudentCode(t *testing.T) {
 	// ListMembers: ô tìm của GIẢNG VIÊN / TA trong lớp của họ (US-P2-09 AC13: `q` tìm MSSV) — chỉ lọc hiển thị, không nối, không mở dữ liệu (đề xuất #10).
 	// CrmStudentsList, CrmStudentsCount: ô tìm của nhân viên trong lớp họ phụ trách (US-P5-04 AC2: `q` khớp MSSV tiền tố) — chỉ lọc hiển thị, không nối tài khoản, không mở dữ liệu (đề xuất #30).
 	// AssignmentQueue: ô tìm của nhân viên ở hàng chờ chấm (US-P7-08 AC1, `q` khớp tên / MSSV) — chỉ lọc hiển thị trong lớp họ phụ trách, không nối tài khoản, không mở dữ liệu (proposals sprint 9 #13).
-	allowed := map[string]bool{"EnrollmentConflictByStudentCode": true, "RosterStudentCodeConflict": true, "UpdateProfile": true, "ListMembers": true, "CrmStudentsList": true, "CrmStudentsCount": true, "AssignmentQueue": true}
+	// ExamAnalyticsDeclining: cột MSSV hiển thị trong danh sách «điểm giảm 3 bài liên tiếp» cho giảng viên lớp đó (US-P10-06) — chỉ đọc `student_code_snapshot` để hiển thị, không nối tài khoản, không mở dữ liệu.
+	allowed := map[string]bool{"ExamAnalyticsDeclining": true, "EnrollmentConflictByStudentCode": true, "RosterStudentCodeConflict": true, "UpdateProfile": true, "ListMembers": true, "CrmStudentsList": true, "CrmStudentsCount": true, "AssignmentQueue": true}
 	dir := filepath.Join("..", "store", "queries")
 	files, err := filepath.Glob(filepath.Join(dir, "*.sql"))
 	require.NoError(t, err)
@@ -428,6 +429,9 @@ func TestVerifyPromotesRosterPending(t *testing.T) {
 	require.NoError(t, r.pool.QueryRow(t.Context(), `select status::text, warning from enrollments where user_id = $1`, uid).Scan(&status, &warning))
 	require.Equal(t, "ACTIVE", status)
 	require.Nil(t, warning)
+	var n int
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select count(*) from outbox where topic = 'course.member_changed' and payload->>'course_id' = $1`, course.String()).Scan(&n))
+	require.Equal(t, 1, n, "SV ACTIVE mới ⇒ ep:roster của lớp phải bị xoá (DEF-R6-02)")
 }
 
 // AC8.

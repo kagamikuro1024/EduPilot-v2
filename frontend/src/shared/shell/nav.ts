@@ -17,6 +17,7 @@ import {
   NotebookPen,
   Plug,
   SlidersHorizontal,
+  ScrollText,
   UserRound,
   Users,
   type LucideIcon,
@@ -36,6 +37,7 @@ const STUDENT: NavGroup[] = [
       { href: "/", label: "Hôm nay", icon: House },
       { href: "/chat", label: "Chat riêng", icon: MessageSquare },
       { href: "/threads", label: "Hỏi đáp công khai", short: "Hỏi đáp", icon: MessagesSquare },
+      { href: "/assignments", label: "Bài tập", icon: ClipboardCheck },
       { href: "/practice", label: "Luyện đề", icon: CircleHelp },
       { href: "/exams", label: "Bài thi", icon: ClipboardList },
       { href: "/library", label: "Thư viện", icon: Library },
@@ -107,6 +109,7 @@ const ADMIN: NavGroup[] = [
     items: [
       { href: "/admin/courses", label: "Lớp học", icon: Building2 },
       { href: "/admin/users", label: "Người dùng", icon: UserRound },
+      { href: "/admin/audit", label: "Nhật ký", icon: ScrollText },
     ],
   },
   {
@@ -224,12 +227,14 @@ const MOCK_BACKEND: Array<[string, Backend]> = [
 
 /** Route chưa có backend thật → phase sẽ dựng nó; `null` = backend thật (`/settings/llm`) hoặc route PU (`/dev/*`). `/` là "Hôm nay" (P2). */
 export function mockBackend(pathname: string): Backend | null {
+  if (pathname === "/admin/audit") return null; // US-P10-14: màn thật
   if (pathname === "/admin/users" || pathname.startsWith("/admin/users/")) return null; // US-P2-06: màn thật
   if (pathname === "/admin/courses" || pathname.startsWith("/admin/courses/")) return null; // US-P2-08: màn thật
   if (pathname === "/join" || pathname.startsWith("/join/") || pathname.startsWith("/class/")) return null; // US-P2-09: màn thật
   if (pathname === "/") return null; // US-P2-11: "Hôm nay" thật
   if (pathname === "/questions" || pathname === "/exams" || pathname.startsWith("/exams/")) return null; // US-PE-03 / PE-04: màn thật
   if (pathname === "/practice" || pathname.startsWith("/practice/")) return null; // US-P9-05…09: màn thật
+  if (pathname === "/assignments" || pathname.startsWith("/assignments/")) return null; // US-P7-03 AC11 / P-11-14: màn thật
   const hit = MOCK_BACKEND.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
   return hit ? hit[1] : null;
 }

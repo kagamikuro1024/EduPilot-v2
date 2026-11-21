@@ -10,7 +10,7 @@ const frame = (event: string, data: unknown) => `event: ${event}\ndata: ${JSON.s
 
 type Opt = { id: string; body: string };
 type Item = { id: string; position: number; type: string; stem: string; topic: string; options: Opt[]; correct: string; explanation: string; answer: { answer: Record<string, unknown>; version: number; locked: boolean } | null };
-type Attempt = { id: string; mode: "TOPIC" | "MOCK"; topic: string | null; status: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED"; started_at: string; deadline_at: string | null; items: Item[]; current_index: number; version: number; expired: boolean };
+type Attempt = { id: string; mode: "TOPIC" | "MOCK"; topic: string | null; status: "IN_PROGRESS" | "SUBMITTED" | "EXPIRED"; tab?: string; started_at: string; deadline_at: string | null; items: Item[]; current_index: number; version: number; expired: boolean };
 export type Call = { method: string; path: string; body: string; headers: Record<string, string> };
 type Handler = (route: Route, next: () => Promise<void>) => Promise<void> | void;
 
@@ -24,7 +24,7 @@ function makeItems(n: number, topic: string): Item[] {
 }
 
 /** `h` ghi đè theo khoá "METHOD đuôi" (vd. "PUT answers", "POST submit"); `next()` chạy xử lý mặc định. `now` đặt đồng hồ máy chủ giả (mặc định: giờ thật). */
-export async function practiceApi(page: Page, h: Record<string, Handler> = {}, opts: { mockCount?: number; minutes?: number } = {}) {
+export async function practiceApi(page: Page, h: Record<string, Handler> = {}, opts: { mockCount?: number; topicCount?: number; minutes?: number } = {}) {
   const calls: Call[] = [];
   const attempts = new Map<string, Attempt>();
   let seq = 0;
@@ -39,7 +39,7 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
       items: a.items.map((it) => ({
         id: it.id, position: it.position, question: { type: it.type, topic: it.topic, stem: it.stem, options: it.options },
         answer: it.answer,
-        feedback: showFb(it) ? { correct: (it.answer!.answer.option_ids as string[])[0] === it.correct, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [] } : null,
+        feedback: showFb(it) ? { correct: (it.answer!.answer.option_ids as string[])[0] === it.correct, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [{ document_id: "doc-hidden", page: 1 }] } : null,
       })),
       result: closed ? { correct, total: a.items.length, score: ((correct * 10) / a.items.length).toFixed(1), topics: [], weakest_topic: null, expired: a.expired } : null,
     };
@@ -67,24 +67,30 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
     if (req.method() === "POST" && parts[0] === "start") {
       const b = JSON.parse(body) as { mode: "TOPIC" | "MOCK"; topic?: string; count?: number; duration_minutes?: number };
       const id = `att-${++seq}`;
-      const n = b.mode === "MOCK" ? (opts.mockCount ?? b.count ?? 20) : Math.min(5, b.count ?? 5);
+      const n = b.mode === "MOCK" ? (opts.mockCount ?? b.count ?? 20) : (opts.topicCount ?? Math.min(5, b.count ?? 5));
       attempts.set(id, { id, mode: b.mode, topic: b.topic ?? null, status: "IN_PROGRESS", started_at: new Date().toISOString(), deadline_at: b.mode === "MOCK" ? new Date(Date.now() + (opts.minutes ?? b.duration_minutes ?? 30) * 60_000).toISOString() : null, items: makeItems(n, b.topic ?? "Thi thử"), current_index: 0, version: 1, expired: false });
       return route.fulfill(json(view(attempts.get(id)!), 201));
     }
     if (!a) return route.fulfill(err(404, "NOT_FOUND"));
-    if (req.method() === "GET" && parts.length === 2) return route.fulfill(json(view(a)));
+    const tab = req.headers()["x-practice-tab"];
+    if (req.method() === "GET" && parts.length === 2) {
+      if (tab && a.status === "IN_PROGRESS") a.tab = tab; // như máy chủ thật: mở lượt ở tab này là giành quyền ghi
+      return route.fulfill(json(view(a)));
+    }
     if (req.method() === "PATCH") {
       a.current_index = (JSON.parse(body) as { current_index: number }).current_index;
       return route.fulfill(json({ current_index: a.current_index, version: ++a.version }));
     }
     if (req.method() === "PUT" && parts[2] === "answers") {
       if (a.status !== "IN_PROGRESS") return route.fulfill(err(409, "ATTEMPT_CLOSED"));
+      if (tab && a.tab && a.tab !== tab) return route.fulfill(err(409, "TAB_TAKEN_OVER"));
       const it = a.items.find((x) => x.id === parts[3])!;
       if (a.mode === "TOPIC" && it.answer) return route.fulfill(err(409, "ANSWER_LOCKED"));
-      const b = JSON.parse(body) as { answer: Record<string, unknown> };
+      const b = JSON.parse(body) as { answer: Record<string, unknown>; version?: number };
+      if (it.answer && JSON.stringify(it.answer.answer) !== JSON.stringify(b.answer) && (b.version ?? 0) !== it.answer.version) return route.fulfill(err(409, "VERSION_CONFLICT", { version: it.answer.version })); // như máy chủ thật
       it.answer = { answer: b.answer, version: (it.answer?.version ?? 0) + 1, locked: a.mode === "TOPIC" };
       const ok = (b.answer.option_ids as string[])[0] === it.correct;
-      return route.fulfill(json({ version: it.answer.version, locked: it.answer.locked, feedback: a.mode === "TOPIC" ? { correct: ok, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [] } : null }));
+      return route.fulfill(json({ version: it.answer.version, locked: it.answer.locked, feedback: a.mode === "TOPIC" ? { correct: ok, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [{ document_id: "doc-hidden", page: 1 }] } : null }));
     }
     if (req.method() === "POST" && parts[2] === "submit") {
       a.status = "SUBMITTED";
@@ -96,6 +102,11 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
     return route.fulfill(err(404, "NOT_FOUND"));
   };
   await page.route(/\/api\/v1\/courses\/[^/]+\/practice/, (r) => handle(r));
+  // `GET /me/practice/attempts/{id}` → lớp của lượt của chính mình (trang không có ?course= hỏi MỘT lần, không dò lớp)
+  await page.route(/\/api\/v1\/me\/practice\/attempts\/[^/]+$/, (r) => {
+    if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: CORS });
+    return attempts.has(r.request().url().split("/").pop()!) ? r.fulfill(json({ course_id: COURSE })) : r.fulfill(err(404, "NOT_FOUND"));
+  });
   await page.route("**/api/v1/me/exam-lock", (r) => r.fulfill(json({ locked: false })));
   return { calls, attempts, closeOnServer: (id: string, expired = true) => { const a = attempts.get(id)!; a.status = expired ? "EXPIRED" : "SUBMITTED"; a.expired = expired; } };
 }

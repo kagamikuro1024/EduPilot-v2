@@ -65,7 +65,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   EXAM_IN_PROGRESS: "Chat tạm khóa trong lúc bạn làm bài thi.",
   CHAT_BUSY: "AI đang trả lời câu trước.",
   MESSAGE_TOO_LONG: "Tin nhắn dài quá 4.000 ký tự.",
-  CHAT_UNAVAILABLE: "Chat tạm thời chưa dùng được. Thử lại sau.",
+  CHAT_UNAVAILABLE: "Chat chưa dùng được lúc này. Thử lại sau ít phút.",
   ANSWER_KEY_NOT_VISIBLE: "Đáp án không hiện cho sinh viên.",
   FILE_GONE: "Tệp này không còn nữa.",
   DOCUMENT_SHARED_READONLY: "Tài liệu chia sẻ từ lớp khác nên chỉ lớp gốc sửa được.",

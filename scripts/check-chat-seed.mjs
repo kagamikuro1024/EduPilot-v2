@@ -9,18 +9,22 @@ const noRerun = process.argv.includes("--no-rerun");
 
 async function chatCounts(c1) {
   let sessions = 0, messages = 0;
-  const outside = new Set();
+  let outside = 0;
+  const outsideTexts = new Set();
   for (const k of STUDENTS) {
     const t = await tok(k);
     for (const s of await listAll(`/chat/sessions?course_id=${c1}`, t)) {
       sessions++;
       for (const m of (await listAll(`/chat/sessions/${s.id}/messages`, t)).filter((x) => x.role === "USER")) {
         messages++;
-        if (/thời tiết|phở bò|bóng đá|giá vàng|bộ phim|xương rồng|điện thoại|bóng rổ|cà phê muối|du lịch/i.test(m.content)) outside.add(m.content);
+        if (/thời tiết|phở bò|bóng đá/i.test(m.content)) {
+          outside++;
+          outsideTexts.add(m.content);
+        }
       }
     }
   }
-  return { sessions, messages, outside: outside.size };
+  return { sessions, messages, outside, outsideGroups: outsideTexts.size };
 }
 
 /** Mọi thread một người thấy: thread ghim nằm ở mảng `pinned` riêng của trang đầu (không có trong `items`), nên phải gộp (#41). */
@@ -48,7 +52,7 @@ const snap = async () => ({ chat: await chatCounts(c1), t1: await threadTable(c1
 const a = await snap();
 
 must(a.chat.messages >= 145 && a.chat.messages <= 155, `chat=${a.chat.messages} (cần 150±5)`);
-must(a.chat.outside === 10, `câu ngoài tài liệu (khác nhau) = ${a.chat.outside} (cần 10)`);
+must(a.chat.outside === 10 && a.chat.outsideGroups === 3, `tin ngoài tài liệu = ${a.chat.outside} thuộc ${a.chat.outsideGroups} nhóm câu (cần 10 tin, 3 nhóm)`);
 must(a.chat.sessions >= 33, `phiên chat = ${a.chat.sessions} (cần ≥ 33: sv.gioi 4 phiên + 29 người)`);
 must(a.t1.total === 12, `thread lớp 1 = ${a.t1.total} (cần 12)`);
 must(a.t2.total === 3, `thread lớp 2 = ${a.t2.total} (cần 3)`);

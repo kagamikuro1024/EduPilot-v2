@@ -87,15 +87,20 @@ func (s *Service) Answer(ctx context.Context, jobID, owner, threadID uuid.UUID) 
 	if len(vec) > 0 {
 		_ = q.ThreadSetSimilarOf(ctx, store.ThreadSetSimilarOfParams{ID: threadID, MinCosine: SimilarOfMin})
 	}
-	hits, err := s.Rag.SearchStudent(ctx, rag.Query{CourseID: t.CourseID, Vec: vec, Text: text})
+	hits, err := s.libraryHits(ctx, t.CourseID, t.AuthorID, text)
 	if err != nil {
-		return s.unavailable(ctx, jobID, threadID, fmt.Errorf("truy xuất: %w", err))
+		return s.unavailable(ctx, jobID, threadID, fmt.Errorf("tìm thư viện: %w", err))
 	}
-	switch {
-	case len(hits) == 0:
-		return s.skip(ctx, jobID, threadID, SkipNoContext)
-	case hits[0].Cosine < agent.RagSimFloor:
-		return s.skip(ctx, jobID, threadID, SkipLowScore)
+	if hits == nil {
+		if hits, err = s.Rag.SearchStudent(ctx, rag.Query{CourseID: t.CourseID, Vec: vec, Text: text}); err != nil {
+			return s.unavailable(ctx, jobID, threadID, fmt.Errorf("truy xuất: %w", err))
+		}
+		switch {
+		case len(hits) == 0:
+			return s.skip(ctx, jobID, threadID, SkipNoContext)
+		case hits[0].Cosine < agent.RagSimFloor:
+			return s.skip(ctx, jobID, threadID, SkipLowScore)
+		}
 	}
 	lane := llm.LaneNearRealtime // không chạm làn INTERACTIVE của chat riêng
 	resp, err := s.LLM.Chat(ctx, llm.Request{Task: llm.TaskChat, Lane: &lane, Messages: agent.BuildMessages(nil, agent.ContextFromHits(hits), text)})
@@ -145,6 +150,36 @@ func (s *Service) Answer(ctx context.Context, jobID, owner, threadID uuid.UUID) 
 		s.Notify.Announce(ctx, nr)
 	}
 	return s.finish(ctx, jobID, map[string]any{"thread_id": threadID, "ai_state": "ANSWERED"})
+}
+
+// libraryHits: câu hỏi hỏi tài liệu («có tài liệu nào về X») chạy tool search_library của kênh công khai (cùng bộ lọc với chat riêng: chỉ tài liệu sinh viên được thấy, không đáp án)
+// và dùng kết quả làm nguồn thay cho truy xuất ngữ nghĩa. nil = không áp dụng / tool không có kết quả → đi đường truy xuất thường.
+func (s *Service) libraryHits(ctx context.Context, course, author uuid.UUID, text string) ([]rag.Hit, error) {
+	if s.Public == nil || agent.DetectIntent(text) != agent.IntentLibrary {
+		return nil, nil
+	}
+	args, _ := json.Marshal(agent.LibraryArgs{Query: text})
+	res, err := s.Public.Run(ctx, "search_library", agent.TrustedContext{UserID: author, CourseID: course, Role: "STUDENT"}, args)
+	if err != nil {
+		return nil, err
+	}
+	rows, _ := res.Facts["results"].([]map[string]any)
+	var hits []rag.Hit
+	for _, m := range rows {
+		id, ok := m["document_id"].(uuid.UUID)
+		if !ok {
+			continue
+		}
+		title, _ := m["title"].(string)
+		snippet, _ := m["snippet"].(string)
+		h := rag.Hit{DocumentID: id, Title: title, Text: strings.TrimSpace(title + ". " + snippet), Cosine: 1, Score: 1} // khớp từ khoá tất định: không có độ tương đồng ngữ nghĩa
+		if pn, ok := m["page_no"].(int32); ok && pn > 0 {
+			p := int(pn)
+			h.PageNo = &p
+		}
+		hits = append(hits, h)
+	}
+	return hits, nil
 }
 
 // unavailable: lỗi tạm thời — thử lại (trả error) cho tới lần thứ maxAnswerTries rồi SKIPPED LLM_UNAVAILABLE.

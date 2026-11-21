@@ -1,16 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
-import { EmptyState, Page, PageHeader, Panel, Tabs } from "@/shared/ui";
+import { EmptyState, Page, PageHeader, Panel, Skeleton, Tabs } from "@/shared/ui";
 import { AssignmentsTab } from "@/features/assignments/AssignmentsTab";
 import { useSession } from "@/shared/session/session";
+import { useQueue } from "./gradingApi";
 import { QueueTab, type QueueHeader } from "./QueueTab";
 import { UnmatchedTab } from "./UnmatchedTab";
 import s from "./Grading.module.css";
 
 type Tab = "queue" | "assignments" | "unmatched";
+
+/** Không có `?tab=`: `Hàng chờ` khi còn việc chờ, ngược lại `Bài tập` (US-P7-02 AC1). Chọn xong mới dựng tab (không để QueueTab ghi `?tab=queue` trước). Dùng chung bộ nhớ với «mọi bài nộp» của QueueTab. */
+function DefaultTab({ courseId, onPick }: { courseId: string; onPick: (t: Tab) => void }) {
+  const all = useQueue(courseId, {});
+  const ready = !all.isPending;
+  const work = all.isError || all.items.some((r) => r.result?.status !== "PUBLISHED"); // lỗi tải: giữ Hàng chờ (tự báo lỗi)
+  useEffect(() => { if (ready) onPick(work ? "queue" : "assignments"); }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <Panel><Skeleton lines={6} /></Panel>;
+}
 
 /** `/grading` (TA, TEACHER): ba tab — hàng chờ chấm, bài tập, bài chưa khớp. Tab nằm ở URL (`?tab=`). */
 export function GradingQueue() {
@@ -50,6 +60,8 @@ export function GradingQueue() {
         <Panel>
           <EmptyState title="Chọn một lớp để chấm bài" />
         </Panel>
+      ) : !asked ? (
+        <DefaultTab courseId={realCourseId} onPick={setTab} />
       ) : tab === "assignments" ? (
         <AssignmentsTab courseId={realCourseId} teacher={teacher} creating={creating} onCreatingChange={setCreating} />
       ) : tab === "unmatched" ? (

@@ -5,7 +5,10 @@
     "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
     "runs": 1,
     "config": {
-      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)"
+      "note": "tệp thô do script đo ghi; khối meta bổ sung khi gộp 9.5 (commit = lúc tệp được thêm vào git)",
+      "model": "9router/ag/gemini-3.8-flash",
+      "rpm_limit": 20,
+      "config_source": "DEF-R9.5-09: model theo audit.models trong tệp; rpm_limit theo docs/sprints/9.5/report.md dòng 5"
     }
   },
   "target": "bt03",

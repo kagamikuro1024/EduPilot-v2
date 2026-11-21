@@ -204,10 +204,10 @@ func TestOneEmbedPerMessage(t *testing.T) {
 var routeCases = map[Intent][]string{
 	IntentCrisis:        {"Em không muốn sống nữa", "em muốn chết", "tôi nghĩ tới chuyện tự tử", "em khong muon song nua"},
 	IntentWhatIf:        {"Nếu em được 8 điểm cuối kỳ thì tổng kết bao nhiêu", "nếu thi cuối kỳ đạt 7 thì điểm tổng kết của em là bao nhiêu", "Nếu giữa kỳ em được 9 thì em có qua môn không"},
-	IntentGradeFormula:  {"Điểm tổng kết được tính như thế nào", "Cách tính điểm môn này ra sao", "trọng số các thành phần là bao nhiêu", "công thức điểm cuối kỳ thế nào"},
+	IntentGradeFormula:  {"Điểm tổng kết được tính như thế nào", "Cách tính điểm môn này ra sao", "trọng số các thành phần là bao nhiêu", "công thức điểm cuối kỳ thế nào", "Cô tính điểm môn này thế nào?", "Thầy tính điểm lớp mình ra sao ạ"},
 	IntentAttendance:    {"Em đã vắng mấy buổi rồi", "số buổi nghỉ của em là bao nhiêu", "điểm danh của em tuần trước có ghi không", "Em nghỉ bao nhiêu buổi tới giờ"},
 	IntentParticipation: {"Điểm cộng của em được bao nhiêu", "em được cộng mấy điểm phát biểu", "điểm cộng của mình hiện giờ"},
-	IntentGrade:         {"Điểm giữa kỳ của em là bao nhiêu", "cho em xem điểm quá trình của em", "điểm tổng kết của mình sao rồi", "Em muốn biết kết quả bài kiểm tra của em"},
+	IntentGrade:         {"Điểm giữa kỳ của em là bao nhiêu", "cho em xem điểm quá trình của em", "điểm tổng kết của mình sao rồi", "Em muốn biết kết quả bài kiểm tra của em", "Cô tính điểm em thế nào"},
 	IntentExamSchedule:  {"Lịch thi khi nào vậy ạ", "Khi nào thi cuối kỳ", "phòng thi cuối kỳ ở đâu", "cho hỏi ngày thi giữa kỳ", "Khi nào em thi cuối kỳ?", "Bao giờ mình thi giữa kỳ vậy ạ", "Thi cuối kỳ khi nào ạ", "Mình thi môn này lúc nào"},
 	IntentUpcoming:      {"Tuần này có gì sắp tới không", "hạn nộp bài tập tuần này là khi nào", "ngày mai có lịch học không", "sắp tới có sự kiện gì", "Tuần tới có gì không?", "30 ngày tới có gì?", "60 ngày tới có gì?", "2 tuần tới có việc gì không ạ", "Sắp tới có gì không"},
 	IntentLibrary:       {"Tìm tài liệu về mạng máy tính giúp mình", "có slide chương 3 không ạ", "cho mình giáo trình môn này", "tìm tài liệu về TCP"},

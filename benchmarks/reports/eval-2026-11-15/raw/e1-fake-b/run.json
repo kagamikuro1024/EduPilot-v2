@@ -1,0 +1,19 @@
+{
+ "meta": {
+  "commit": "4c919bf5",
+  "timestamp": "2026-11-15T11:16:11.469Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "stack": "ep-qc",
+   "raw": "e1-fake-b/run.json"
+  }
+ },
+ "tag": "fake-b",
+ "embedding": "giả (fake)",
+ "window": [
+  "2026-11-15T09:27:37.013Z",
+  "2026-11-15T09:31:11.009Z"
+ ],
+ "exit": 0
+}

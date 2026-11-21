@@ -60,6 +60,8 @@ func TestDemoModeRecordingsCoverPolicies(t *testing.T) {
 			got["suggest"]++
 		case strings.HasPrefix(r.Name, "practice-"): // luyện đề: kiểm ở internal/practice (demo_fixture_test.go)
 			continue
+		case strings.HasPrefix(r.Name, "chat-"), strings.HasPrefix(r.Name, "insight-"): // chat D1/D3: internal/agent (demo_chat_test.go); đặt tên chủ đề: internal/insight (guard_test.go)
+			continue
 		default: // bt03-sN-p1|p2: bản chấm mẫu của BA (sprint 9)
 			require.NoError(t, llm.ValidateJSON(grading.EssaySchema(rubric), r.Response), r.Name)
 			got["grading"]++

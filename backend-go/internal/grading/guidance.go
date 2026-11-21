@@ -44,6 +44,19 @@ func (s *GuidanceService) on(course uuid.UUID) bool {
 	return s.Cfg.Enabled && s.Flags.On(course, FlagGradingGuidance)
 }
 
+// gate: bài tập phải thuộc lớp (404) trước khi xét cờ lớp (409): lớp tắt cờ không được lộ «bài này có / không» khác với lớp bật cờ (DEF-R10.6-01).
+func (s *GuidanceService) gate(ctx context.Context, course, assignment uuid.UUID) error {
+	if _, err := store.New(s.Pool).GuidanceCurrentVersion(ctx, store.GuidanceCurrentVersionParams{CourseID: course, AssignmentID: assignment}); errors.Is(err, pgx.ErrNoRows) {
+		return apierr.New(http.StatusNotFound, apierr.AssignmentNotFound)
+	} else if err != nil {
+		return fmt.Errorf("guidance: đọc bài tập: %w", err)
+	}
+	if !s.on(course) {
+		return disabled()
+	}
+	return nil
+}
+
 func disabled() *apierr.Error { return apierr.New(http.StatusConflict, apierr.GuidanceDisabled) }
 
 func (s *GuidanceService) audit(ctx context.Context, q *store.Queries, a GuidanceActor, course uuid.UUID, entity, id, action string, before, after any) error {
@@ -326,16 +339,19 @@ type ReflectEnqueued struct {
 // Reflect kiểm theo thứ tự rồi xếp việc (TL-1 mục 4.1): cờ → ESSAY → đủ điều kiện → khoá idempotent → trần giờ → xếp hàng.
 // Hai lần bấm cùng dữ liệu (cùng max(reviewed_at), cùng bản) trả CÙNG job_id, không tạo việc mới và không tính vào trần.
 func (s *GuidanceService) Reflect(ctx context.Context, a GuidanceActor, course, assignment uuid.UUID) (ReflectEnqueued, error) {
-	if !s.on(course) {
-		return ReflectEnqueued{}, disabled()
+	if err := s.gate(ctx, course, assignment); err != nil {
+		return ReflectEnqueued{}, err
 	}
 	q := store.New(s.Pool)
 	cur, err := q.GuidanceCurrentVersion(ctx, store.GuidanceCurrentVersionParams{CourseID: course, AssignmentID: assignment})
-	if errors.Is(err, pgx.ErrNoRows) || (err == nil && cur.Type != "ESSAY") {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return ReflectEnqueued{}, apierr.New(http.StatusNotFound, apierr.AssignmentNotFound)
 	}
 	if err != nil {
 		return ReflectEnqueued{}, fmt.Errorf("guidance: đọc bài tập: %w", err)
+	}
+	if cur.Type != "ESSAY" { // bài có tồn tại nhưng không phải tự luận: nói rõ lý do, không giả «không tìm thấy» (DEF-R106S-03)
+		return ReflectEnqueued{}, apierr.New(http.StatusConflict, apierr.TypeNotSupported).WithMessage("Chỉ bài tự luận mới rút được lưu ý chấm.")
 	}
 	cases, err := q.GuidanceCases(ctx, store.GuidanceCasesParams{CourseID: course, AssignmentID: assignment})
 	if err != nil {
@@ -352,7 +368,16 @@ func (s *GuidanceService) Reflect(ctx context.Context, a GuidanceActor, course, 
 	sum := sha256.Sum256(fmt.Appendf(nil, "%s|%s|%d", assignment, stamp, cur.GuidanceVersion))
 	idemKey := "ep:guidance:reflect:" + hex.EncodeToString(sum[:])
 	if id, err := s.Redis.Get(ctx, idemKey).Result(); err == nil && id != "" {
-		return ReflectEnqueued{JobID: id}, nil
+		// Việc đã FAILED thì bấm lại là thử lại: bỏ khoá, xếp việc mới (DEF-R106S-02). Đang chạy / đã xong → cùng job_id.
+		if jid, perr := uuid.Parse(id); perr == nil {
+			if j, gerr := store.New(s.Pool).GetJob(ctx, jid); gerr == nil && j.Status == store.JobStatusFAILED {
+				s.Redis.Del(ctx, idemKey)
+				id = ""
+			}
+		}
+		if id != "" {
+			return ReflectEnqueued{JobID: id}, nil
+		}
 	}
 	rl := "ep:rl:reflect:" + assignment.String()
 	n, err := s.Redis.Incr(ctx, rl).Result()

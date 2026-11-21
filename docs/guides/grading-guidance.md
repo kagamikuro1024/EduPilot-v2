@@ -24,11 +24,12 @@ Dành cho giảng viên (dùng) và người vận hành (bật, đo, sự cố)
 Ghi ca trong giao dịch nghiệp vụ khi cờ `REGRESSION_CAPTURE` bật (ADMIN). `expected` chỉ số / enum, chuỗi ≤ 64 ký tự, không văn bản. CLI vận hành, không trong image, CI không chạy:
 ```bash
 cd backend-go
-go run ./cmd/regress run --course <uuid> --write-baseline ../benchmarks/guidance/baseline.json   # lần đầu
-go run ./cmd/regress run --course <uuid> --baseline ../benchmarks/guidance/baseline.json         # thoát 1 nếu «Có lùi»
+export REGRESSION_RUN_ALLOWED=true   # chỉ ở môi trường đo, do ADMIN; thiếu → từ chối (thoát 3)
+go run ./cmd/regress run --assignment <uuid> --write-baseline ../benchmarks/guidance/baseline.json   # lần đầu, đo thật qua 9router
+go run ./cmd/regress run --assignment <uuid> --baseline ../benchmarks/guidance/baseline.json         # thoát 1 nếu «Có lùi»
 go run ./cmd/regress run --course <uuid> --e2                                                   # ca THREAD_*: bài AI bị sửa / loại mà vẫn tự tin
 ```
-Cần `DATABASE_URL`, `REDIS_URL`, cấu hình LLM (9router ở môi trường đo). «Có lùi» = MAE tăng quá `REGRESSION_MAX_REL` (0,10) so baseline, hoặc |lệch TB| xấu thêm > 0,20. `export` từ chối mặc định (`REGRESSION_EXPORT_ALLOWED=false`); khi cho phép chỉ ghi NGOÀI repo, đã che PII, id băm, có `audit_log`.
+Báo cáo `{n, mae, bias, old_mae, worse, better, flipped, skipped}`: `worse` / `better` = số tiêu chí AI mới xa / gần giảng viên hơn lúc đó; `flipped` = số tiêu chí vốn đúng (|Δ| ≤ 0,25) nay sai > 0,5. Cần `DATABASE_URL`, `REDIS_URL`, cấu hình LLM (9router ở môi trường đo). «Có lùi» = `flipped` > 0, hoặc MAE tăng quá `REGRESSION_MAX_REL` (0,10) so baseline, hoặc |lệch TB| xấu thêm > 0,20. **Đổi prompt / model phải chạy lệnh này** (ô tương ứng trong `.github/pull_request_template.md`); `baseline.json` do ADMIN ghi từ lần đo thật đầu tiên, không soạn tay. `export` từ chối mặc định (`REGRESSION_EXPORT_ALLOWED=false`); khi cho phép chỉ ghi NGOÀI repo, đã che PII, id băm, có `audit_log`.
 
 ## 4. Demo và đo
 ```bash
@@ -51,3 +52,11 @@ Giảng viên: «Lưu ý chấm chờ duyệt · <bài>». Giảng viên + TA: �
 | Lệch TB đổi dấu sau khi áp dụng | `Cho nghỉ` lưu ý quá tay rồi `Áp dụng`; hoặc tắt «Lưu ý chấm» (chấm mới ghim v0) |
 | Compose không nhận biến | `TestComposeGuidanceEnvReachesGatewayAndWorker` — thêm biến vào cả gateway và worker |
 | Xoá sinh viên | Lưu ý và ca không chứa danh tính nên không cần dọn riêng (`TestGuidanceDeleteStudent`) |
+
+## 7. Chi phí
+| Thao tác | Lời gọi LLM |
+| --- | --- |
+| Rút lưu ý (`reflect`) | 1 lời gọi mỗi lần, ≈ 3–6 k token vào |
+| Chấm lại bài cũ (`regrade-stale`) | N bài × 2 lượt như chấm thường; trần 200 bài mỗi lần |
+| Gợi ý câu tương tự (M4) | 1 lần nhúng mỗi lần gõ, sau debounce; không sinh chữ |
+| Mẫu âm khi sinh câu hỏi (M6) | 0 lời gọi thêm |

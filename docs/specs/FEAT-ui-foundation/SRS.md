@@ -500,7 +500,7 @@ Ví dụ câu đạt cho UndoLine: "Không hoàn tác được. Thay đổi vẫ
 
 | Nhóm | Mục (href, nhãn) | Sinh viên | TA | Giảng viên | Admin |
 | --- | --- | --- | --- | --- | --- |
-| (không nhóm) SV | `/` Hôm nay · `/chat` Chat riêng · `/threads` Threads · `/practice` Luyện đề · `/exams` Bài thi · `/library` Thư viện · `/calendar` Lịch · `/me` Kết quả của tôi | 8 | — | — | — |
+| (không nhóm) SV | `/` Hôm nay · `/chat` Chat riêng · `/threads` Threads · `/assignments` Bài tập (P-11-14) · `/practice` Luyện đề · `/exams` Bài thi · `/library` Thư viện · `/calendar` Lịch · `/me` Kết quả của tôi | 9 | — | — | — |
 | Làm việc | `/` Hôm nay · `/inbox` Hộp thư hỗ trợ (huy hiệu `inbox`) · `/students` Sinh viên · `/attendance` Điểm danh | — | 4 | 4 | — |
 | Đánh giá | `/gradebook` Sổ điểm · `/grading` Chấm bài (huy hiệu `grading`) · `/exams` Bài thi · `/questions` Ngân hàng câu hỏi | — | 4 | 4 | — |
 | Nội dung | `/threads` Threads · `/documents` Tài liệu · `/calendar` Lịch | — | 3 | 3 | — |

@@ -1,0 +1,260 @@
+{
+  "meta": {
+    "commit": "5233fa86",
+    "timestamp": "2026-11-15T23:05:11.162Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 3,
+    "config": {
+      "stack": "ep-qc",
+      "dataset": "benchmarks/pii/e1_dataset.jsonl (200)",
+      "runs": {
+        "fake-a": "giả (fake)",
+        "fake-b": "giả (fake)",
+        "real": "thật: gemini-embedding-001 (1536 chiều, Gemini trực tiếp — PM cho phép, trần 1.000 lời gọi)"
+      }
+    }
+  },
+  "status": "OK",
+  "labels": "WAITING_HUMAN",
+  "human_review": null,
+  "labels_note": "200 nhãn do agent viết (benchmarks/pii/LABELING.md); chủ dự án gán mù ≥ 50 mẫu phân tầng (P-11-3): gói e1-soat-nhan.csv → benchmarks/eval/human/e1_soat.csv.",
+  "main_run": "real",
+  "channel": {
+    "f1": 0.9796,
+    "false_block": 0.0,
+    "precision": 1.0,
+    "recall": 0.96,
+    "fn": 4,
+    "fp": 0,
+    "tn": 100,
+    "tp": 96
+  },
+  "targets": {
+    "f1_channel": ">= 0.90 (mục tiêu)",
+    "payload_leak": "= 0 (mục tiêu)"
+  },
+  "by_pii_type_recall": {
+    "CCCD": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 6
+    },
+    "EMAIL": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 11
+    },
+    "MSSV": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 16
+    },
+    "NAME": {
+      "fn": 4,
+      "fp": 0,
+      "recall": 0.8571,
+      "tn": 0,
+      "tp": 24
+    },
+    "PERSONAL_QUESTION": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 38
+    },
+    "PHONE": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 9
+    }
+  },
+  "by_stratum": {
+    "N1": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 50,
+      "tp": 0
+    },
+    "N2": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 15,
+      "tp": 0
+    },
+    "N3": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 15,
+      "tp": 0
+    },
+    "N4": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 10,
+      "tp": 0
+    },
+    "N5": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 10,
+      "tp": 0
+    },
+    "S1": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 12
+    },
+    "S2": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 8
+    },
+    "S3": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 8
+    },
+    "S4": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 6
+    },
+    "S5": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 20
+    },
+    "S6": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 38
+    },
+    "S7": {
+      "fn": 4,
+      "fp": 0,
+      "recall": 0.0,
+      "tn": 0,
+      "tp": 0
+    },
+    "S8": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 4
+    }
+  },
+  "channel_confusion": {
+    "PRIVATE->PRIVATE": 96,
+    "PRIVATE->PUBLIC": 4,
+    "PUBLIC->PUBLIC": 100
+  },
+  "payload_leak": {
+    "rows_scanned": 2723,
+    "hits": {
+      "name": 0,
+      "mssv": 0,
+      "email": 0
+    },
+    "total": 0,
+    "by_task": [
+      {
+        "n": 2156,
+        "task": "GRADING"
+      },
+      {
+        "n": 549,
+        "task": "CHAT"
+      },
+      {
+        "n": 17,
+        "task": "QUESTION_GEN"
+      },
+      {
+        "n": 1,
+        "task": "UTILITY"
+      }
+    ]
+  },
+  "runs": {
+    "fake-a": {
+      "metrics": {
+        "f1": 0.9796,
+        "false_block": 0.0,
+        "precision": 1.0,
+        "recall": 0.96
+      },
+      "counts": {
+        "fn": 4,
+        "fp": 0,
+        "tn": 100,
+        "tp": 96
+      },
+      "embedding": "giả (fake)"
+    },
+    "fake-b": {
+      "metrics": {
+        "f1": 0.9796,
+        "false_block": 0.0,
+        "precision": 1.0,
+        "recall": 0.96
+      },
+      "counts": {
+        "fn": 4,
+        "fp": 0,
+        "tn": 100,
+        "tp": 96
+      },
+      "embedding": "giả (fake)"
+    },
+    "real": {
+      "metrics": {
+        "f1": 0.9796,
+        "false_block": 0.0,
+        "precision": 1.0,
+        "recall": 0.96
+      },
+      "counts": {
+        "fn": 4,
+        "fp": 0,
+        "tn": 100,
+        "tp": 96
+      },
+      "embedding": "thật: gemini-embedding-001 (1536 chiều, Gemini trực tiếp — PM cho phép, trần 1.000 lời gọi)"
+    }
+  },
+  "reproducibility": {
+    "tags": [
+      "fake-a",
+      "fake-b"
+    ],
+    "identical_counts": true,
+    "tolerance": "bằng nhau tuyệt đối với nhúng giả (Q-S11-13)"
+  }
+}

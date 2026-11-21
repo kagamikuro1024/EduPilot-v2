@@ -1,0 +1,72 @@
+# Đợt R · F19 Thi hằng tuần (trắc nghiệm) + khoá chat khi đang thi
+from rlib import *
+import json, time, datetime as dt
+c1 = C("teacher"); import uuid; TAB = {"X-Exam-Tab": str(uuid.uuid4())}
+def at(sec): return (dt.datetime.utcnow() + dt.timedelta(seconds=sec)).replace(microsecond=0).isoformat() + "Z"
+c, q, _ = api("teacher", "GET", f"/courses/{c1}/questions?review_status=APPROVED&type=MCQ_SINGLE&limit=10")
+qs = [x for x in (q.get("items") or [])][:4]
+ok("R-F19-00 ngân hàng có câu APPROVED", len(qs) == 4, f"{c} {len(qs)}")
+c, e, _ = api("teacher", "POST", f"/courses/{c1}/exams", {"title": "QC-R Quiz tuần", "instructions": "Làm trong 2 phút.", "opens_at": at(25), "closes_at": at(160), "duration_minutes": 2, "shuffle_questions": True, "shuffle_options": True, "max_score": "10"})
+ok("R-F19-01 GV tạo bài thi (nháp)", c in (200, 201), f"{c} {str(e)[:140]}")
+eid = e["id"]; ver = e.get("version", 1)
+c, it, _ = api("teacher", "PUT", f"/courses/{c1}/exams/{eid}/items", {"items": [{"question_id": x["id"], "points": "2.5"} for x in qs], "version": ver})
+ok("R-F19-02 chọn 4 câu × 2,5đ", c == 200, f"{c} {str(it)[:140]}")
+c, pv, _ = api("teacher", "GET", f"/courses/{c1}/exams/{eid}/preview")
+ok("R-F19-03 xem trước đúng như SV", c == 200, f"{c}")
+c, sc, _ = api("teacher", "POST", f"/courses/{c1}/exams/{eid}/schedule", {})
+ok("R-F19-04 lên lịch → SV thấy trong lịch/Hôm nay", c in (200, 201), f"{c} {str(sc)[:140]}")
+c, sl, _ = api("sv.kha", "GET", f"/courses/{c1}/exams")
+ok("R-F19-05 SV thấy bài thi đã lên lịch", c == 200 and eid in json.dumps(sl), f"{c}")
+c, early, _ = api("sv.kha", "POST", f"/courses/{c1}/exams/{eid}/attempts", {})
+ok("R-F19-06 chưa tới giờ mở: không vào thi được (409/423)", c in (403, 409, 423, 422), f"{c} {str(early)[:100]}")
+time.sleep(max(0, 27))
+c, at_, _ = api("sv.kha", "POST", f"/courses/{c1}/exams/{eid}/attempts", {}, headers=TAB)
+ok("R-F19-07 SV bắt đầu làm bài", c in (200, 201), f"{c} {json.dumps(at_, ensure_ascii=False)[:200]}")
+aid = at_["attempt"]["id"]
+blob = json.dumps(at_, ensure_ascii=False)
+ok("R-F19-08 đề gửi cho SV KHÔNG chứa đáp án đúng", not any(k in blob for k in ('"is_correct"', '"correct_option', '"answer_key"', '"explanation"')), "kiểm JSON")
+c, lk, _ = api("sv.kha", "GET", "/me/exam-lock")
+ok("R-F19-09 đang thi → exam-lock bật", c == 200 and "true" in json.dumps(lk).lower(), f"{c} {str(lk)[:100]}")
+c, cs, _ = api("sv.kha", "POST", "/chat/sessions", {"course_id": c1})
+sid = (cs or {}).get("id")
+r = sse("sv.kha", f"/chat/sessions/{sid}/messages", {"content": "Hash là gì?"}) if sid else None
+ok("R-F19-10 đang thi: chat bị khoá", r is not None and ("EXAM" in json.dumps(r, ensure_ascii=False) or r[0] in (403, 409, 423)), f"{str(r)[:200]}")
+items = at_["items"]
+ans = [{"item_id": i["item_id"], "answer": {"option_ids": [i["options"][0]["id"]]}} for i in items if i.get("options")]
+c, sv_, _ = api("sv.kha", "PUT", f"/courses/{c1}/exams/{eid}/attempts/{aid}/answers", {"items": ans}, headers=TAB)
+ok("R-F19-11 tự lưu đáp án", c in (200, 204), f"{c} {str(sv_)[:100]}")
+c, ev, _ = api("sv.kha", "POST", f"/courses/{c1}/exams/{eid}/attempts/{aid}/events", {"events": [{"type": "TAB_HIDDEN", "meta": {"duration_ms": 3000}}, {"type": "PASTE", "meta": {"chars": 20}}]})
+ok("R-F19-12 ghi sự kiện tab/dán (chỉ tín hiệu, không tự phạt)", c in (200, 202, 204), f"{c}")
+c, sb, _ = api("sv.kha", "POST", f"/courses/{c1}/exams/{eid}/attempts/{aid}/submit", {}, headers=TAB)
+ok("R-F19-13 nộp bài", c in (200, 201), f"{c} {str(sb)[:160]}")
+c, rs, _ = api("sv.kha", "GET", f"/courses/{c1}/exams/{eid}/attempts/{aid}/result")
+ok("R-F19-14 chưa công bố: SV không thấy điểm", c in (403, 404, 409) or "score" not in json.dumps(rs), f"{c} {str(rs)[:120]}")
+c, ot, _ = api("sv.nguyco", "GET", f"/courses/{c1}/exams/{eid}/attempts/{aid}/result")
+ok("R-F19-15 SV khác không đọc bài làm (403/404)", c in (403, 404), f"{c}")
+c, e2, _ = api("sv.kha", "POST", f"/courses/{c1}/exams/{eid}/attempts", {})
+ok("R-F19-16 vào lại sau khi nộp: không tạo lượt mới", c in (200, 409, 403), f"{c}")
+st = None
+for _ in range(100):
+    c, e3, _ = api("teacher", "GET", f"/courses/{c1}/exams/{eid}")
+    st = e3.get("effective_status") or e3.get("status")
+    if st in ("PUBLISHED", "CLOSED", "GRADED"): break
+    time.sleep(3)
+ok("R-F19-17 hết giờ → tự đóng/chấm/công bố (≤ 5 phút)", st in ("PUBLISHED", "CLOSED"), f"status={st}")
+time.sleep(5)
+c, rs, _ = api("sv.kha", "GET", f"/courses/{c1}/exams/{eid}/attempts/{aid}/result")
+ok("R-F19-18 SV thấy điểm + đáp án sau công bố", c == 200, f"{c} {json.dumps(rs, ensure_ascii=False)[:240]}")
+c, ap, _ = api("sv.kha", "POST", f"/courses/{c1}/exams/{eid}/attempts/{aid}/appeal", {"reason": "QC-R: em muốn xem lại câu 2."})
+ok("R-F19-19 SV phúc khảo", c in (200, 201), f"{c} {str(ap)[:120]}")
+c, al, _ = api("teacher", "GET", f"/courses/{c1}/exams/{eid}/appeals")
+pid = ((al.get("items") or [{}])[0]).get("id"); pv_ = ((al.get("items") or [{}])[0]).get("version", 1)
+c, an, _ = api("teacher", "POST", f"/courses/{c1}/exams/{eid}/appeals/{pid}/answer", {"decision": "UPHELD", "response": "Giữ nguyên.", "version": pv_}) if pid else (0, None, 0)
+ok("R-F19-20 GV trả lời phúc khảo", c in (200, 201), f"{c} {str(an)[:120]}")
+c, rl, _ = api("teacher", "GET", f"/courses/{c1}/exams/{eid}/results")
+ok("R-F19-21 bảng kết quả + CSV", c == 200, f"{c}")
+c, cs_, _ = api("teacher", "GET", f"/courses/{c1}/exams/{eid}/results.csv")
+ok("R-F19-22 xuất CSV", c == 200, f"{c}")
+c, sv2, _ = api("sv.kha", "GET", f"/courses/{c1}/exams/{eid}/results")
+ok("R-F19-23 SV không xem bảng kết quả cả lớp (403)", c == 403, f"{c}")
+c, ls_, _ = api("sv.kha", "GET", "/me/exam-lock")
+ok("R-F19-24 hết thi → mở khoá chat", c == 200 and "true" not in json.dumps(ls_).lower(), f"{c} {str(ls_)[:100]}")
+print("w6 done")

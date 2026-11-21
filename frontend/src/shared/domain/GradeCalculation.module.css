@@ -9,6 +9,7 @@
 @media (hover: hover) and (pointer: fine) { .cite:hover { color: var(--ep-red); } }
 .quote { margin: 0; padding-left: var(--ep-space-4); border-left: 2px solid var(--ep-rule); font-size: var(--ep-text-label); color: var(--ep-ink-2); line-height: 1.6; }
 .aside { display: contents; }
+.detail { margin: 0; padding-left: var(--ep-space-4); font-size: var(--ep-text-label); color: var(--ep-ink-2); line-height: 1.6; }
 /* < 720 px: tên + giá trị một hàng, phép tính + căn cứ hàng dưới (US-UX91-20 AC8). */
 @media (max-width: 719px) {
   .list { gap: var(--ep-space-2); }

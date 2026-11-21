@@ -225,8 +225,13 @@ func (s *Service) Messages(ctx context.Context, a Actor, sid uuid.UUID, p httpx.
 	if err != nil {
 		return MessagePage{}, err
 	}
+	gone, err := s.removedSources(ctx, rows)
+	if err != nil {
+		return MessagePage{}, err
+	}
 	for _, r := range rows {
 		m := messageOut(r)
+		m.Citations = markRemoved(m.Citations, gone)
 		if t, ok := tickets[r.ID]; ok {
 			m.Ticket = &t
 		} else if tid, ok := staffTicket[r.ID]; ok {
@@ -237,6 +242,68 @@ func (s *Service) Messages(ctx context.Context, a Actor, sid uuid.UUID, p httpx.
 		out.Items = append(out.Items, m)
 	}
 	return out, nil
+}
+
+// removedSources: các `document_id` trong trích dẫn của trang tin mà tài liệu đã bị xoá (SRS FEAT-docs-calendar dòng 105: chat cũ còn trích dẫn → «Nguồn đã gỡ»).
+func (s *Service) removedSources(ctx context.Context, rows []store.ChatMessage) (map[uuid.UUID]bool, error) {
+	var ids []uuid.UUID
+	for _, r := range rows {
+		var cs []struct {
+			DocumentID uuid.UUID `json:"document_id"`
+		}
+		if json.Unmarshal(r.Citations, &cs) == nil {
+			for _, c := range cs {
+				if c.DocumentID != uuid.Nil {
+					ids = append(ids, c.DocumentID)
+				}
+			}
+		}
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	strs := make([]string, len(ids)) // text[] rồi ép ::uuid[]: pool chạy QueryExecModeExec (PgBouncer) không mã hoá được []uuid.UUID (OID 0) — DEF-R6-D2
+	for i, id := range ids {
+		strs[i] = id.String()
+	}
+	res, err := s.Pool.Query(ctx, `select id from documents where id = any($1::text[]::uuid[])`, strs)
+	if err != nil {
+		return nil, fmt.Errorf("chat: tài liệu của trích dẫn: %w", err)
+	}
+	defer res.Close()
+	gone := map[uuid.UUID]bool{}
+	for _, id := range ids {
+		gone[id] = true
+	}
+	for res.Next() {
+		var id uuid.UUID
+		if err := res.Scan(&id); err != nil {
+			return nil, fmt.Errorf("chat: tài liệu của trích dẫn: %w", err)
+		}
+		delete(gone, id)
+	}
+	return gone, res.Err()
+}
+
+// markRemoved đặt `removed:true` và bỏ tên / đoạn trích của mục có tài liệu đã xoá (không để lộ tên tài liệu đã gỡ); mục khác giữ nguyên.
+func markRemoved(raw json.RawMessage, gone map[uuid.UUID]bool) json.RawMessage {
+	if len(gone) == 0 {
+		return raw
+	}
+	var cs []map[string]any
+	if json.Unmarshal(raw, &cs) != nil {
+		return raw
+	}
+	for _, c := range cs {
+		if id, err := uuid.Parse(fmt.Sprint(c["document_id"])); err == nil && gone[id] {
+			c["removed"], c["title"], c["snippet"] = true, "", ""
+		}
+	}
+	out, err := json.Marshal(cs)
+	if err != nil {
+		return raw
+	}
+	return out
 }
 
 // Message nạp tin của CHÍNH MÌNH (cho route stream); không phải của mình → 404.

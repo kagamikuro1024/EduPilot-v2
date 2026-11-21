@@ -42,6 +42,7 @@ export function AssignmentsTab({ courseId, teacher, creating, onCreatingChange }
       render: (a) => (
         <Link
           href={`/grading?tab=assignments&open=${a.id}`}
+          className={s.titleLink}
           onClick={(e) => {
             if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
             e.preventDefault();
