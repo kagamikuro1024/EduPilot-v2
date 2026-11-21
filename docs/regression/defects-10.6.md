@@ -14,3 +14,14 @@
 
 ## Đã xoá (lỗi thời có nguồn quyết định; lệnh chủ dự án 2026-11-18)
 - TC-G03-22: xoá khỏi smoke-10.6.md và khỏi tổng — nguồn P-11-23 (PM 2026-11-15 chấp nhận: lỗi LLM_UNAVAILABLE/circuit_open xếp lại không tiêu lượt thử, nên hành vi «FAILED sau 3 lần ≈30 s» đã đổi).
+
+## Lượt 2026-11-18…21 (QC cặp 3, mã 4ac1638a → chạy lại 0bdef404, ep-qc, lớp QD9G)
+| Mã | Mức | TC | Tóm tắt | Trạng thái |
+| --- | --- | --- | --- | --- |
+| DEF-R106S-01 | Thấp | TC-G01-17 | 409 khi lưu công tắc nhưng hàng không tải lại (tab 2 vẫn «Tắt» khi DB bật) | ĐÓNG (a4f0a8b3; chạy lại P) |
+| DEF-R106S-02 | Trung bình | TC-G03-14 | «Rút lưu ý» FAILED, bấm lại trong 1 giờ trả lại đúng job FAILED dù Idempotency-Key khác (khoá Redis `ep:guidance:reflect:<sha>` không xoá khi FAILED) | ĐÓNG (ab89d82b; lần 2 ra job mới SUCCEEDED, lần 3 cùng dữ liệu → cùng job lần 2) |
+| DEF-R106S-03 | Thấp | TC-G03-03 | reflect với bài tập QUIZ trả 404 ASSIGNMENT_NOT_FOUND | ĐÓNG (ff09501f; nay 409 TYPE_NOT_SUPPORTED, không tạo job) |
+| DEF-R106S-04 | Thấp | TC-G04-01 | Khối «Lưu ý chấm» thiếu «M chờ duyệt» | ĐÓNG (87073119; «Bản v2 · 3 chờ duyệt») |
+| DEF-R106S-05 | Thấp | TC-G04-02 | «Đang dùng · vN» thay «Đã áp dụng», «bài đổi điểm» thay «lần sửa», mục «Đã nghỉ» không hiện | ĐÓNG (c3632cdc, P-11-77) |
+| DEF-R106S-06 | Thấp | TC-G04-15 | Không EmptyState; GET 500 làm khối biến mất không «Thử lại» | ĐÓNG (81e58ce6); chữ sửa còn sau tải lại: P |
+| DEF-R106S-07 | Thấp | TC-G04-02 | Chữ chiều lưu ý: UI «Chấm chặt hơn / Chấm rộng hơn / Làm rõ tiêu chí» (`guidanceApi.ts:85`) ≠ US-GD-04 AC2 «Gắt hơn / Nhẹ hơn / Làm rõ» | MỞ (chờ dev3 / PM–BA xác nhận chữ chuẩn) |

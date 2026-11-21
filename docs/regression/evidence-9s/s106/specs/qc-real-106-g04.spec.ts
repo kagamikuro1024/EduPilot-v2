@@ -33,7 +33,7 @@ test("TC-G04-01 khối «Lưu ý chấm» dưới rubric, dòng bản + Rút lư
   verdict("TC-G04-01", n === 1 && /Bản v\d/.test(t) && /\d+ chờ duyệt/.test(t) && order.panelAfterRubric && bt !== ap, `cờ bật: ${n} khối; đầu khối «${head}»; có «N chờ duyệt» ${/\d+ chờ duyệt/.test(t)}; khối nằm sau rubric ${order.panelAfterRubric}; nền Rút lưu ý ${bt} vs Áp dụng ${ap}`);
   await ctx.close();
 });
-test("TC-G04-01b cờ tắt → khối ẩn", async ({ browser }) => {
+test("TC-G04-01b cờ tắt (QC_FLAG_OFF=1) → khối ẩn", async ({ browser }) => {
   const { ctx, page } = await pageAs(browser, "teacher"); await open(page); const n = await panel(page).count(); const t = await page.locator("main").innerText();
   verdict("TC-G04-01", n === 0 && !/Lưu ý chấm/.test(t), `[cờ tắt] khối guidance-panel=${n}; chữ «Lưu ý chấm» trong màn=${/Lưu ý chấm/.test(t)}`); await ctx.close();
 });
@@ -120,16 +120,20 @@ test("TC-G04-27 offline khi Hoàn tác: giữ trạng thái, báo tại chỗ + 
   verdict("TC-G04-27", st1 === "APPROVED" && s1 && keep && retry + (body.includes("Thử lại") ? 1 : 0) > 0 && during === 0 && dbs === "DRAFT" && resets.filter((x) => x === "200").length === 1, `Duyệt → «Chờ áp dụng»; offline + Hoàn tác: mục vẫn «Chờ áp dụng» ${keep}; nút «Thử lại» ×${retry}; chữ mục: «${body.slice(0, 200)}»; RESET tới máy chủ khi offline: ${during}; có mạng + Thử lại → DB status=${dbs}; số RESET thành công=${resets.filter((x) => x === "200").length} (mọi mã: ${JSON.stringify(resets)})`); await ctx.close();
 });
 test("TC-G04-15 rỗng một dòng; GET 500 → PageState + Thử lại", async ({ browser }) => {
-  const { ctx, page } = await pageAs(browser, "teacher"); await open(page, AID2); const pt = (await panel(page).innerText()).replace(/\n/g, " ¦ "); const emp = await panel(page).locator("[data-part=empty-state], [role=status]").count();
+  const { ctx, page } = await pageAs(browser, "teacher"); await open(page, AID2); const pt = (await panel(page).innerText()).replace(/\n+/g, " ¦ "); await panel(page).scrollIntoViewIfNeeded(); await panel(page).screenshot({ path: `${OUT}/s106-g0415-empty.png` });
+  const emptyLine = /Chưa có lưu ý/.test(pt);
   await page.route(/\/guidance(\?.*)?$/, (r) => (r.request().method() === "GET" ? r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "Đã xảy ra lỗi." }) }) : r.continue()));
-  await page.goto(`/grading?tab=assignments&open=${AID}`); await page.waitForTimeout(5000); const pn = await panel(page).count(); const drawer = await page.locator("[data-part=assignment-drawer], [role=dialog]").first().innerText().catch(() => ""); const retryN = await page.getByRole("button", { name: "Thử lại" }).count(); await page.screenshot({ path: `${OUT}/s106-g0415-500.png` });
-  verdict("TC-G04-15", emp > 0 && retryN > 0, `AID2 chưa có lưu ý: khối chỉ có «${pt.slice(0, 120)}», phần tử EmptyState/status=${emp} (không có dòng «Chưa có lưu ý»); chặn GET /guidance → 500: khối guidance-panel=${pn} (biến mất, không PageState), nút «Thử lại» ×${retryN}; ngăn bài tập: «${drawer.replace(/\n/g, " ¦ ").slice(0, 120)}»`); await ctx.close();
+  await page.goto(`/grading?tab=assignments&open=${AID}`); await page.waitForTimeout(5000);
+  const dr = page.locator("[role=dialog], aside").last(); const drt = (await dr.innerText().catch(() => "")).replace(/\n+/g, " ¦ "); const k = drt.indexOf("Không kết nối"); const k2 = drt.search(/Thử lại/);
+  const retry = page.getByRole("button", { name: "Thử lại" }); const rn = await retry.count(); await retry.first().scrollIntoViewIfNeeded().catch(() => {}); await page.screenshot({ path: `${OUT}/s106-g0415-500.png` });
+  await page.unroute(/\/guidance(\?.*)?$/); if (rn) await retry.first().click(); await page.waitForTimeout(3500); const back = await panel(page).count();
+  verdict("TC-G04-15", emptyLine && rn > 0 && back === 1, `AID2 chưa có lưu ý: khối «${pt.slice(0, 220)}» (dòng «Chưa có lưu ý» ${emptyLine}); chặn GET /guidance → 500: nút «Thử lại» ×${rn}, chữ quanh lỗi «${k >= 0 ? drt.slice(Math.max(0, k - 20), k + 120) : k2 >= 0 ? drt.slice(Math.max(0, k2 - 100), k2 + 20) : "không thấy"}»; bỏ chặn + Thử lại → khối trở lại=${back}`); await ctx.close();
 });
 test("TC-G04-15c chữ sửa còn sau tải lại", async ({ browser }) => {
   const { ctx, page } = await pageAs(browser, "teacher"); await open(page); const it = panel(page).locator("[data-part=guidance-item][data-status=DRAFT]").first(); const key = (await it.locator("p").first().innerText()).slice(0, 25);
-  await it.getByRole("button", { name: "Sửa" }).click(); await page.waitForTimeout(500); await panel(page).getByRole("textbox").first().fill("Chữ sửa dở của QC106 giữ sau tải lại."); await page.waitForTimeout(1500);
-  await page.reload(); await page.waitForTimeout(5000); const it2 = panel(page).locator("[data-part=guidance-item]").filter({ hasText: key }).first(); const shownRaw = await it2.innerText().catch(() => ""); await it2.getByRole("button", { name: "Sửa" }).click(); await page.waitForTimeout(500); const v = await it2.getByRole("textbox").inputValue().catch(() => "?");
-  console.log("VERDICT-INFO", "TC-G04-15c", key, "→", JSON.stringify(v), JSON.stringify(shownRaw.slice(0, 60))); await ctx.close();
+  await it.getByRole("button", { name: "Sửa" }).click(); await page.waitForTimeout(500); console.log("DBG1 textareas", await it.locator("textarea").count(), (await it.innerHTML()).slice(0, 300)); await it.locator("textarea").first().fill("Chữ sửa dở của QC106 giữ sau tải lại."); await page.waitForTimeout(1500);
+  await page.reload(); await page.waitForTimeout(5000); const it2 = panel(page).locator("[data-part=guidance-item]").filter({ hasText: key }).first(); const shownRaw = await it2.innerText().catch(() => ""); await it2.getByRole("button", { name: "Sửa" }).click(); await page.waitForTimeout(800); console.log("DBG2 textareas", await it2.locator("textarea").count(), await panel(page).locator("textarea").count(), JSON.stringify(await page.evaluate(() => Object.keys(localStorage).filter((k) => /guidance|draft/i.test(k))))); const v = await panel(page).locator("textarea").first().inputValue().catch(() => "?");
+  verdict("TC-G04-15c", v.startsWith("Chữ sửa dở của QC106"), `sửa mục «${key}» thành «Chữ sửa dở…», chờ 1,5 s (autosave), tải lại: ô «Sửa» chứa «${v.slice(0, 60)}»; thẻ hiển thị «${shownRaw.replace(/\n+/g, " ¦ ").slice(0, 80)}»`); await ctx.close();
 });
 test("TC-G04-17 quét chữ + icon", async ({ browser }) => {
   const { ctx, page } = await pageAs(browser, "teacher"); await open(page); const t = await panel(page).innerText(); const icons = await panel(page).locator("svg").evaluateAll((e) => e.map((x) => x.getAttribute("class") ?? ""));
