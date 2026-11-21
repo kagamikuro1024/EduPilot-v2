@@ -82,6 +82,24 @@ test("attendance optimistic undo: đổi ngay, dòng 'Đã đánh Vắng · … 
   await expect(radio(page, 3, "Có mặt")).toBeChecked();
 });
 
+// DEF-R9.1-06 (TC-UX12-2): chấm đã chọn Muộn / Vắng phép / Vắng giữ đỏ khi chuột rê lên ô (luật rê chỉ cho ô chưa chọn).
+test("attendance hover: chấm đã chọn giữ màu khi rê chuột, ô chưa chọn đổi sang mực", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await open(page, context);
+  const color = (loc: ReturnType<typeof radio>) => loc.evaluate((el) => getComputedStyle(el).borderTopColor);
+  for (const label of ["Muộn", "Vắng phép", "Vắng"]) {
+    await radio(page, 3, label).check();
+    await page.mouse.move(0, 0);
+    const away = await color(radio(page, 3, label));
+    await radio(page, 3, label).hover();
+    expect(await color(radio(page, 3, label)), label).toBe(away);
+  }
+  await page.mouse.move(0, 0);
+  const idle = await color(radio(page, 3, "Có mặt"));
+  await radio(page, 3, "Có mặt").hover({ force: true });
+  expect(await color(radio(page, 3, "Có mặt"))).not.toBe(idle);
+});
+
 test("attendance save indicator: Đang lưu… rồi Đã lưu HH:MM sau 2 s yên lặng, một PUT complete:false với version đúng", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await open(page, context);
