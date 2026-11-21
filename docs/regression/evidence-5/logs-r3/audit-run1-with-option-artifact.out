@@ -1,0 +1,11 @@
+AUDIT rows 115 FAIL 10
+{"role":"ta","route":"/students","w":"390","pass":false,"ox":0,"cut":["Hoạt động học","Rủi ro","0 phút · 0 câu hỏi"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"ta","route":"/gradebook","w":"390","pass":false,"ox":0,"cut":["Kiểm tra hằng tuần","Thi cuối kỳ","Điểm cộng"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"teacher","route":"/settings/llm","w":"1440","pass":false,"ox":0,"cut":["QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"teacher","route":"/students","w":"390","pass":false,"ox":0,"cut":["Hoạt động học","Rủi ro","0 phút · 0 câu hỏi"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"teacher","route":"/gradebook","w":"390","pass":false,"ox":0,"cut":["Kiểm tra hằng tuần","Thi cuối kỳ","Điểm cộng"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"teacher","route":"/settings/llm","w":"390","pass":false,"ox":0,"cut":["QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"admin","route":"/settings/llm","w":"1440","pass":false,"ox":0,"cut":["QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"admin","route":"/settings/integrations","w":"1440","pass":false,"ox":0,"cut":["QS520E05F · Lớp tệp độc QS520E","QC2IUDMWMSFE96 · Tên giữ nguyê","QC2IUDMWMSEORY · Tên giữ nguyê"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"admin","route":"/settings/llm","w":"390","pass":false,"ox":0,"cut":["QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla","QC 9router · ag/gemini-3.8-fla"],"ell":[],"touch":[],"forb":0,"notFound":false}
+{"role":"admin","route":"/settings/integrations","w":"390","pass":false,"ox":0,"cut":["QS520E05F · Lớp tệp độc QS520E","QC2IUDMWMSFE96 · Tên giữ nguyê","QC2IUDMWMSEORY · Tên giữ nguyê"],"ell":[],"touch":[],"forb":0,"notFound":false}

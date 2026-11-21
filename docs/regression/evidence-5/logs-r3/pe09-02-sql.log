@@ -1,0 +1,21 @@
+bank20|20|12|4|4|5|Hàm băm;Mạng;Mật mã công khai;Mật mã đối xứng;Xác thực|3|EASY,HARD,MEDIUM|20|20
+Thuật toán nào sau đây là mật mã khối đối xứng?
+Trong RSA, khoá nào được dùng để KÝ một thông điệp?
+Hàm băm nào cho đầu ra 256 bit?
+Yếu tố xác thực nào là "thứ bạn biết"?
+Giao thức nào cung cấp mã hoá cho trang web?
+Cổng mặc định của HTTPS là bao nhiêu?
+Bài code — Ước chung lớn nhất|{c11,cpp17}|cpp17|8|8|1s/1s/2h/2h/2h|5|2|Cho hai số nguyên không âm a và b (không đồng thời
+Bài code — Đếm từ|{cpp17}|cpp17|8|8|1s/1s/1h/1h/1h|5|2|Đọc một dòng văn bản và in ra số từ. Các từ cách n
+ERROR:  column "mode" does not exist
+LINE 1: select title, status, mode, duration_minutes, multi_scoring,...
+                              ^
+Kiểm tra tuần 9 — Mật mã|MCQ|PUBLISHED|2|PARTIAL|10|24
+Kiểm tra tuần 9 — Lập trình|CODE|PUBLISHED|2|PARTIAL|2|6
+Kiểm tra tuần 2 — Ôn tập|MCQ|PUBLISHED|30|PARTIAL|4|20
+Kiểm tra tuần 4 — Ôn tập|MCQ|PUBLISHED|30|PARTIAL|4|20
+Kiểm tra tuần 6 — Ôn tập|MCQ|PUBLISHED|30|PARTIAL|4|19
+Kiểm tra tuần 8 — Ôn tập|MCQ|PUBLISHED|30|PARTIAL|4|20
+Quiz 01 — Hàm băm và chữ ký|MCQ|PUBLISHED|2|PARTIAL|5|3
+Tải k6 judge_burst 2026-11-21T02:48:35.963Z|MIXED|OPEN|20|PARTIAL|2|30
+Tải k6 autosave 2026-11-21T02:54:14.274Z|MIXED|OPEN|20|PARTIAL|2|23

@@ -1,0 +1,52 @@
+=== race exam
+ok  	github.com/edupilot/backend-go/internal/exam	124.682s
+ok  	github.com/edupilot/backend-go/internal/exam/similarity	1.456s
+real 139.97
+user 191.49
+sys 36.51
+rc=0 exam
+=== race judge
+ok  	github.com/edupilot/backend-go/internal/judge	4.524s
+real 8.90
+user 1.01
+sys 1.06
+rc=0 judge
+=== race quiz
+ok  	github.com/edupilot/backend-go/internal/quiz	1.352s
+real 2.04
+user 0.40
+sys 0.37
+rc=0 quiz
+=== contract default
+ok  	github.com/edupilot/backend-go/internal/contract	36.814s
+rc=0 contract-default
+=== contract testroutes
+2026/11/21 09:54:17 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: f9aa370902b03a8c9800ebb9c12752f9ff66c2ccd4d4b50e9ff79456f7da7c03
+  Test ProcessID: 6ee81942-6b5a-499f-9cdc-f3865c8fa8cf
+2026/11/21 09:54:17 ✅ Container started: 68f6ff853df5
+2026/11/21 09:54:17 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/21 09:54:17 🔔 Container is ready: 68f6ff853df5
+2026/11/21 09:54:17 ✅ Container started: 5636bc78d64d
+2026/11/21 09:54:17 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/21 09:54:17 🔔 Container is ready: 5636bc78d64d
+2026/11/21 09:54:18 ✅ Container started: b8d9c357e377
+2026/11/21 09:54:18 ⏳ Waiting for container id b8d9c357e377 image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z. Waiting for: HTTP GET request on port 9000 path "/minio/health/live"
+2026/11/21 09:54:18 🔔 Container is ready: b8d9c357e377
+--- FAIL: TestNoAnswerLeak (28.35s)
+    rig_test.go:51: {"time":"2026-11-21T09:54:53.17574+07:00","level":"ERROR","msg":"exam: lỗi không lường trước","service":"gateway","instance":"contract-gw","error":"exam: đọc trạng thái lớp: timeout: context deadline exceeded","path":"/api/v1/courses/01a1fc07-0be5-7086-8315-bfe7bcb4b24f/exams/01a1fc07-0c7d-756e-b4c1-81c764447be0/attempts","trace_id":"01c005cb243610f37b2cc46caa4946a5"}
+    exam_results_http_test.go:303: [CLOSED chưa công bố] POST /api/v1/courses/01a1fc07-0be5-7086-8315-bfe7bcb4b24f/exams/01a1fc07-0c7d-756e-b4c1-81c764447be0/attempts → 504 (lỗi máy chủ): {"code":"DEADLINE_EXCEEDED","message":"Xử lý quá thời hạn.","trace_id":"01c005cb243610f37b2cc46caa4946a5"}
+    rig_test.go:51: {"time":"2026-11-21T09:54:53.503365+07:00","level":"ERROR","msg":"Redis không với tới: bỏ qua kiểm thu hồi access token (chấp nhận token)","service":"gateway","instance":"contract-gw","error":"context deadline exceeded","trace_id":"127fe79f2ff2ad4a5d498c08c4f0b3d0"}
+    rig_test.go:51: {"time":"2026-11-21T09:54:56.372666+07:00","level":"ERROR","msg":"exam: lỗi không lường trước","service":"gateway","instance":"contract-gw","error":"exam: mở transaction: timeout: context deadline exceeded","path":"/api/v1/courses/01a1fc07-0be5-7086-8315-bfe7bcb4b24f/exams/01a1fc07-0c7d-756e-b4c1-81c764447be0/attempts/01a1fc07-0caf-7483-9912-678ed87b38fb/takeover","trace_id":"2219c332606681231dba03344da41497"}
+    exam_results_http_test.go:303: [CLOSED chưa công bố] POST /api/v1/courses/01a1fc07-0be5-7086-8315-bfe7bcb4b24f/exams/01a1fc07-0c7d-756e-b4c1-81c764447be0/attempts/01a1fc07-0caf-7483-9912-678ed87b38fb/takeover → 504 (lỗi máy chủ): {"code":"DEADLINE_EXCEEDED","message":"Xử lý quá thời hạn.","trace_id":"2219c332606681231dba03344da41497"}
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/contract	57.300s
+FAIL
+rc=1 contract-testroutes

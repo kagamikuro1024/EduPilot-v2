@@ -84,3 +84,31 @@ Bằng chứng: `evidence-5/results-q2.jsonl` (bản ghi cuối thắng), `evide
 
 ## Chạy lại sau sửa của dev (qc2/SmkP, 2026-11-18, ep-r dựng lại @634d59c5 rồi @88ab83e4)
 Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản ghi F cũ giữ nguyên): DEF-R5-03 (TC-PE03-49) ĐÃ SỬA 46bf5626; DEF-R5-04 (TC-PE03-51) ĐÃ SỬA 4cd9c07e; DEF-R5-06 (TC-PE06-27) ĐÃ SỬA 0e52f1e5; DEF-R5-07 (TC-PE07-18) ĐÃ SỬA d7fecdc2 (đóng tab thật bằng page.close({runBeforeUnload:true}); biến thể browserContext.close() không phát pagehide — hạn chế của Playwright, không phải lỗi); DEF-R5-08 (TC-PE08-31) ĐÃ SỬA 473472ec (P-11-60); DEF-R5-09 (TC-PE08-38) ĐÃ SỬA 247bf4e4 (P-11-59); DEF-R5-10 (TC-PE03-33) ĐÃ SỬA dd160463; DEF-R5-11 (TC-PE08-04) ĐÃ SỬA 3f748ec2. Còn mở: DEF-R5-12 (lint spec QC, agent chính).
+
+## Lượt bù qc3 (2026-11-21, ep-r + qc3s @425396a7)
+
+### DEF-R5-13 — `golangci-lint run` còn 1 vấn đề (gochecknoglobals) — cổng tổng đỏ (TC-PE04-50, PE05-60, PE06-47, PE08-68)
+- Mức: Trung bình (`.github/workflows/ci.yml` chạy golangci-lint, bước này đỏ) · Sprint gốc: không phải sprint 5 (đưa vào ở sprint 11, commit e42d8b49 «DEF-R10S-12», 2026-11-19) · Hồi quy: có (@88ab83e4 báo «0 issues»)
+- Tái hiện: `cd backend-go && golangci-lint run` → `internal/practice/extract.go:130:5: defaultRetryWait is a global variable (gochecknoglobals)`, `1 issues`, rc=1. Các bước còn lại của cổng đạt: `go vet ./...` rc=0, `sqlc diff` rc=0, `go test -race` exam/judge/quiz rc=0, `go test` contract (có và không `-tags testroutes`) rc=0, `pnpm lint` rc=0, `build:gate` rc=0.
+- Nghi ngờ mã: `var defaultRetryWait = []time.Duration{…}` ở extract.go:130 (đổi thành hàm trả giá trị hoặc `//nolint:gochecknoglobals` có lý do). Log: `evidence-5/logs-r3/g1-static.log`.
+
+### DEF-R5-14 — Seed PE không có lượt nộp code `TLE` (TC-PE09-07)
+- Mức: Thấp · Sprint gốc: 5 (US-PE-09 AC2) · Hồi quy: KHÔNG
+- US AC2 / TC: 6 bài code «AC đủ, một phần, `CE`, `TLE`, `WA`» + một cặp giống nhau. Seed sạch trên qc3s: verdict thực tế chỉ có AC (sv.gioi, sv05, sv07 dem-tu, sv.kha dem-tu), WA một phần (sv.kha gcd 6/8, sv04/sv06 dem-tu 3/5), CE (sv04 gcd), NONE (sv07 gcd); không có `TLE`. `seed/expected_exam_scores.csv` cũng không có TLE. Điểm 30/30 khớp, hai DB seed sạch độc lập cho điểm giống hệt.
+- Nghi ngờ mã: `scripts/exam-seed-data.mjs` CODE_ATTEMPTS (`wordsLoop` thực ra AC, không có lời giải vòng lặp vô hạn). Cần BA/PM chọn: thêm lời giải TLE hoặc bỏ «TLE» khỏi US AC2.
+
+### DEF-R5-15 — Seed lần hai không in «Seed xong (không đổi)» (TC-PE09-12)
+- Mức: Thấp · Sprint gốc: 5 (US-PE-09 AC5) nhưng lỗi nằm ở bước thêm sau · Hồi quy: không rõ
+- Tái hiện (qc3s, DB đã seed): `node scripts/seed.mjs` lần 2, 3, 4 → «Seed xong trong 25 s.» (không có dòng «Seed xong (không đổi)»). Đếm dòng 85 bảng trước/sau: nghiệp vụ không đổi (users, courses, exams, question_bank, exam_attempts, code_submissions, forum_threads; Mailpit 168 = 168), chỉ tăng phiên đăng nhập / outbox / audit do chính seed đăng nhập.
+- Nguyên nhân (bằng cách gắn dò vào bản sao seed.mjs): `ctx.changed = true` ở `seedThreads` (scripts/seed.mjs:1010): thread mẫu «Modern Network Security Threats» không khớp danh sách thread hiện có (11 thread thấy được, thread «· Phisher» bị ẩn ở bước 18) nên bị POST lại; Idempotency-Key trả dòng cũ nên không tạo thêm. Log: `evidence-5/logs-r3/pe09-12-*`.
+
+### DEF-R5-16 — Seed trên DB trống mất 652 s, trần ≤ 6 phút (TC-PE09-13)
+- Mức: Thấp (cùng nhóm DEF-Q2-S4-01 / DEF-R4-08) · Sprint gốc: 5 (US-PE-09 AC5, ngân sách đổi ≤ 6 phút theo P-11-76) · Hồi quy: có thể do máy chung
+- qc3s `up` → `seed`: «Seed xong trong 652 s» (log `evidence-5/logs-r3/seed3.log`, `seed-t0-clean.json`): bước 11 tài liệu docling thật 241 s, bước 20 luyện đề 204 s, bước 19 78 s, bước 10 (PE) 40 s; P2 + PE (bước 1–10) = 91 s. Máy chung tải 9–14 (không đạt «máy không chạy stack khác»; PM đo 314 s ngày 13/11). Cần đo lại trên máy trống; phần dài là các bước thêm sau sprint 5 (11, 19, 20).
+
+### DEF-R5-17 — AUDIT `cut` ≠ 0 ở bảng ảo hoá DataTable 390 px: TA/GV `/students`, `/gradebook` (TC-PE04-50…, TC-PU06-18)
+- Mức: Thấp · Sprint gốc: không phải sprint 5 (DataTable ảo hoá, bảng điểm / sinh viên) · Hồi quy: không rõ
+- Tái hiện: đăng nhập `teacher@` (hoặc `ta@`), 390 px, `/students` và `/gradebook`, dán AUDIT_SRC (docs/sprints/1.5/spec/US.md): `ox=0` nhưng `cut` = «Hoạt động học», «Rủi ro», «0 phút · 0 câu hỏi» (`/students`) và «Kiểm tra hằng tuần», «Thi cuối kỳ», «Điểm cộng» (`/gradebook`). Các phần tử nằm trong `DIV.DataTable…vscroll` (`overflow-x: auto`, `data-part=virtual-scroll`) đang cuộn ngang đúng ý, nhưng vùng này không có `data-scroll-x` nên phép đo tính là chữ bị cắt. 4/115 hàng FAIL (SV, admin: 0).
+- Ghi chú kịch bản: bản `smkP_audit.cjs` cũ báo thêm 6 hàng `/settings/llm`, `/settings/integrations` do phần tử `<option>` (không có hộp vẽ); `evidence-5/ui-r3/audit.cjs` đã loại. Nghi ngờ mã: `shared/ui/DataTable.tsx` nhánh ảo hoá không gắn `useScrollRow` / `data-scroll-x` (DataTable.tsx:137). Log `evidence-5/logs-r3/audit.out`, `cutdbg.json`.
+
+**Chạy lại DEF-R5-12 (qc3, 2026-11-21, @425396a7):** `pnpm -C frontend lint` rc=0 (0 lỗi, 1 cảnh báo ở `frontend/dbg91b.mjs`), 13 tệp `qc2-*` đã chuyển sang `docs/regression/specs-qc2` → ĐÃ SỬA; TC-PU06-17 = P.

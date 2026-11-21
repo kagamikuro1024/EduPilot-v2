@@ -1,0 +1,11 @@
+$ eslint .
+
+/Users/kuro/checkouts/qc3s5/frontend/dbg91b.mjs
+  2:23  warning  'code' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+real	0m40.325s
+user	0m34.832s
+sys	0m5.099s
