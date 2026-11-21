@@ -232,3 +232,9 @@ rc=0
 P TC-PE08-31 smkP @88ab83e4 (473472ec, P-11-60): SV r5s01 (E30 đã công bố) 1440/375: điểm "9,00 / 10,00"; dòng tóm tắt "Bạn đúng 2/3 câu trắc nghiệm · bài lập trình: 2/2 tes
 rc=0
 == staff 21:12:58
+ERR TimeoutError: page.waitForURL: Timeout 15000ms exceeded.
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================
+rc=124
+== stale-ui 21:21:00

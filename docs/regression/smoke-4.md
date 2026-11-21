@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 547 · Đạt: 531 · Trượt: 3 · Lỗi thời (LT): 6 · Không kiểm được K (a/b/c): 0/1/2 · Chưa chạy (N): 4   (P+F+LT+K+N = T)
+Tổng TC cũ: 547 · Đạt: 533 · Trượt: 3 · Lỗi thời (LT): 6 · Không kiểm được K (a/b/c): 0/1/2 · Chưa chạy (N): 2   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-4/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 4`.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -11,7 +11,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GATE-P2 | 44 | 39 | 0 | 2 | 2 | 1 | |
 | US-P2-01 | 34 | 34 | 0 | 0 | 0 | 0 | |
-| US-P2-02 | 52 | 50 | 0 | 1 | 0 | 1 | |
+| US-P2-02 | 52 | 51 | 0 | 1 | 0 | 0 | |
 | US-P2-03 | 39 | 39 | 0 | 0 | 0 | 0 | |
 | US-P2-04 | 40 | 40 | 0 | 0 | 0 | 0 | |
 | US-P2-05 | 40 | 40 | 0 | 0 | 0 | 0 | |
@@ -21,7 +21,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | US-P2-09 | 54 | 53 | 1 | 0 | 0 | 0 | |
 | US-P2-10 | 40 | 40 | 0 | 0 | 0 | 0 | |
 | US-P2-11 | 44 | 42 | 1 | 1 | 0 | 0 | |
-| US-P2-12 | 27 | 22 | 1 | 1 | 1 | 2 | |
+| US-P2-12 | 27 | 23 | 1 | 1 | 1 | 1 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -134,7 +134,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P202-28 | P | go test: 5 pass/0 skip/0 fail |
 | TC-P202-29 | P | token A(sub) + sid phiên B (ký đúng secret) → 200, dữ liệu vẫn của A (không đoạt phiên B); sid ngẫu nhiên ký đúng secret → 200 (kiểm thu hồi theo sid bị thu hồi, không bắt buộc sid tồn tại); 7 ca giả khác (secret sai, none, exp, nbf, iss, aud, sub đổi) đều 401 |
 | TC-P202-30 | P | playwright r4ui-auth (ep-r, spec chỉnh đo bằng request.timing() của trình duyệt thay cho Date.now() hai tab, vì sai số ~50 ms của đo ngoài làm 2 lần chạy trước báo chồng): 2 request /auth/refresh từ 2 tab cùng context: tab 1 bắt đầu 0 ms nhận đầu thư 12 ms xong 13 ms; tab 2 bắt đầu 19 ms (sau khi tab 1 xong) xong 34 ms → tuần tự, không chồng, đúng 2 (≤ 2); auth_sessions còn hiệu lực 4, thu hồi 0; không dòng revoked_reason reuse (navigator.locks ep-refresh trong authSession.ts / earlyRefresh.ts); /tmp/qc2-i/res/r4ui-auth.jsonl |
-| TC-P202-31 | N | Lượt smkt3-p20231: trang nào cũng tối đa 3 request song song bị ép 401 (/ 3, /gradebook 3), 1 POST /auth/refresh, mỗi request phát lại đúng 1 lần, POST phát lại cùng Idempotency-Key (ca POST /admin/users P). Spec đã đổi sang làm mới đồng loạt (focus) để đạt ≥ 5 song song; chạy lại ở lượt s5nav2 chưa xong khi ngân sách lượt gọi hết  |
+| TC-P202-31 | P | Playwright smkt3-p20231 (ep-r @aba738ef, lượt s4x2b, 2026-11-21): admin /observability, ép 401 TOKEN_EXPIRED lên 5 request song song (GET /notifications?limit=30, /admin/observability/summary, /requests, /failed, /decision…) bằng page.route sau khi truy vấn quá staleTime 30 s và phát visibilitychange: POST /auth/refresh sau 401 đầu = 1 (tổng 2 kể cả lần làm mới sớm lúc tải trang); mỗi request tới mạng đúng 2 lần (1 bị ép + 1 phát lại) = [2,2,2,2,2], đều thành công; ca POST /admin/users bị ép 401 một lần: phát lại cùng Idempotency-Key (2 lần, cùng khoá ep-b4a61cf2-…), refresh = 1, 1 bản ghi. logs/s4n-pw-s4x2b.log, logs/s4n-res/smkt3-p20231.jsonl |
 | TC-P202-32 | P | playwright qc2-r4 (ep-r, HEAD eb903410, spec frontend/e2e/qc2-r4/r4ui-*.spec.ts, kết quả /tmp/qc2-i/res/*.jsonl, log evidence-4/logs/smkT3/pw-run*.out) r4ui-auth desktop: (a) refresh 401 → /login?next=%2Fsettings, refresh gọi 2 lần (1 lúc tải trang + 1 khi 401), không vòng lặp; (b) phát lại vẫn 401 → báo lỗi, không làm mới nữa (refresh 2 lần, GET /me/sessions 2 lần, ở lại /settings); (c) SESSION_REVOKED → không làm mới (refresh 1 lần, chỉ lúc tải), /login?next=%2Fsettings&revoked=refresh_reuse kèm thông báo bị đăng xuất |
 | TC-P202-33 | P | Playwright data-layer.spec.ts (bản build gate, gateway giả): 0 ca đỏ |
 | TC-P202-34 | P | qc-real-f1: không token ở storage/cookie đọc được sau đăng nhập+tải lại (spec @real chạy trên ep-r, 6/6 đạt) |
@@ -557,7 +557,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P212-18 | LT | LỖI THỜI: seed sprint 11 (observability) cố ý thêm 1 thư DEAD `seed_observability_failed`; còn lại SENT |
 | TC-P212-19 | P | grep -nE "RATE_LIMIT_IP_PER_MIN/AUTH_(LOGIN/REGISTER/TOKEN)" docker-compose.test.yml / wc -l = 0; docker-compose.local.yml có các biến này (dòng 196–202) và scripts/dev.mjs devLimits nới (5000/1000/1000/1000). Seed trên giới hạn MẶC ĐỊNH (AUTH_LOGIN_IP_PER_MIN=10): dừng ở bước 5–6, đăng nhập bị 429 (17 lần 429 trong log gateway, evidence-4/logs/qc2s/seed-default-limits.log); với cấu hình dev seed xong rc=0 → «chỉ chạy trên cấu hình dev» đúng như TC cho phép ghi rõ |
 | TC-P212-20 | P | ep_demo_*: 0 |
-| TC-P212-21 | N | chưa chạy (mẫu): dạng tài liệu / ngoài mẫu smoke «1 chính + 1 lỗi mỗi US» |
+| TC-P212-21 | P | Playwright r4ui-audit (bản đăng nhập thật của audit-login.mjs + ma trận vai × route, ep-r @aba738ef, lượt s4x5/6/7, 2026-11-21; AUDIT_SRC/TOUCH_SRC nguyên văn QC 1.5, chuỗi cấm, màn «Không tìm thấy»): student 42/42 PASS, TA 34/34, GV 42/42, Admin 12/12 (tổng 130/130, FAIL 0, FORBIDDEN=0); ma trận vai × route 32/32 đúng ở cả 4 vai (SV vào 11 route nhân viên → «Bạn không có quyền xem màn này»). Lần đo trước sửa DEF-R5-17 (58448e0a) có cut ≠ 0 ở /students, /gradebook 390 px của TA/GV — nay 0. Phép đo SPEC riêng của audit.mjs (bản mock) và sweep.mjs/proto-curl.sh không chạy trên stack thật (cookie demo đã bỏ); bản tương đương là AUDIT + ma trận ở trên nên không so được với con số nền sprint 3 (SV 165, GV 170, TA 106, Admin 54), route / đã thay. logs/s4n-res/r4ui-audit-*.json, r4ui-matrix-*.json, logs/s4n-pw-s4x5/6/7.log |
 | TC-P212-22 | P | seed.mjs --verbose (636 dòng, rc=0): đếm mật khẩu seed = 0; token=<43 ký tự> = 0; chuỗi ≥ 40 ký tự = 0; liên kết /invite/ hoặc /verify-email = 0 (dòng log che cursor và token bằng ***); git status --short / grep -E ".env" / wc -l = 0. Log evidence-4/logs/qc2s/seed22-verbose.log |
 | TC-P212-23 | P | đọc scripts/seed.mjs: token Admin (ctx.tokens.admin) chỉ dùng cho /admin/users, /admin/users/{id}/resend-invite, /admin/courses, /admin/courses/{id}/assign, /courses/{c1}/integrations/{imap/teams} (cấu hình tích hợp theo thiết kế ADMIN) và, khi SEED_DECISION_DEMO=1, /admin/llm/decision + /courses/{c1}/decision-gates (cổng quyết định, ADMIN); việc của GV (import, setup/dismiss, sessions/generate, duyệt) dùng ctx.tokens.teacher, của sinh viên (join) dùng token từng người; không dùng token Admin làm việc của GV/SV. Ghi chú: đối chiếu theo mã nguồn vì gateway ghi log truy cập không có sub/vai; Caddy của ep-r không nằm trên đường qc2s |
 | TC-P212-24 | P | Playwright smkt3-journey (ep-r @c12be038, lượt s4x1, 2026-11-21): Admin mở lớp QC2IUJMWQFS733 qua UI (courses=1), gán GV QC2IU Hai; GV thấy chuông «Bạn được phân công lớp …QC2IUJMWQFS733», thông báo nêu mã tham gia, bộ chọn lớp đúng; SV mới qc2iu.jr1795267277539 ở 375 px /join/KYNHY36: xem trước đúng lớp, tràn ngang 0, tham gia → enrollments ACTIVE; GV /class/members?course= thấy «QC2IU jr» (ảnh evidence-4/shots/gatep2-24-1…5). logs/s4n-res/smkt3-journey.jsonl |

@@ -1,0 +1,26 @@
+PASS TC-04: có khối on
+PASS TC-04: trigger push
+PASS TC-04: trigger pull_request
+FAIL TC-04: push không lọc nhánh/đường dẫn (mọi nhánh) — got [2] want [0]
+PASS TC-04: Go: working-directory backend-go
+PASS TC-04: go-version-file
+PASS TC-04: golangci-lint không latest
+PASS TC-04: có bản ghim cụ thể (golangci-lint/pnpm/…)
+FAIL TC-04: không Node 24
+FAIL TC-04: không cache pnpm
+PASS TC-04: package.json có packageManager ghim
+FAIL TC-04: thiếu --frozen-lockfile
+FAIL TC-04: hai job không needs (FR-4) — got [7] want [0]
+PASS TC-04: action không trỏ @main/@master
+PASS TC-04: không pull_request_target
+thứ tự dòng lệnh: 86 87 88 89 157 178 259 271 273 283 303 343
+docs/sprints/1/qc/scripts/tc-US-P0-03.sh: line 46: [: 86
+88: integer expected
+FAIL TC-04: thứ tự/tên bước Go sai (86
+88,93
+98,157)
+FAIL TC-04: lệnh Go không dùng ./...
+PASS TC-04: đúng 3 lệnh frontend
+FAIL TC-04: tên job Go, Frontend — got [0] want [2]
+FAIL TC-16: không còn commit chưa push (AC1 cần HEAD đã push) — got [2213] want [0]
+info: nhánh ci/red-check chỉ xoá sau khi QC chấm AC3/AC4 (spec v2) — kiểm lại bằng TC-12 sau khi dev xoá

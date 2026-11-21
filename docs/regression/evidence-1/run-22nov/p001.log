@@ -1,0 +1,45 @@
+PASS TC-02: mọi hàng có đúng 6 cột (NF=8)
+PASS TC-02: ≥ 30 hàng (35)
+PASS TC-02: không ô nào trống
+FAIL TC-02: 7 bảng, mỗi bước một bảng đúng 6 tiêu đề cột — got [8] want [7]
+PASS TC-02: Bước 1 có ≥ 3 hàng
+PASS TC-02: Bước 2 có ≥ 3 hàng
+PASS TC-02: Bước 3 có ≥ 3 hàng
+PASS TC-02: Bước 4 có ≥ 3 hàng
+PASS TC-02: Bước 5 có ≥ 3 hàng
+PASS TC-02: Bước 6 có ≥ 3 hàng
+PASS TC-02: Bước 7 có ≥ 3 hàng
+PASS TC-03: mốc không giảm (lệnh AC3)
+PASS TC-03: không hai hàng trùng mốc (kỹ hơn AC: tăng chặt)
+PASS TC-03: hàng cuối 11:45 < 15:00
+PASS TC-03: tổng thời lượng bảng mục 1 = 12:15 ≤ 15:00
+FAIL TC-03: tổng khớp mốc 'Hết kịch bản' 13:45 (825 s trừ mở đầu = 13:45 tính cả 0:30) — got [735] want [825]
+FAIL TC-03: không thấy dòng 'Hết kịch bản'
+PASS TC-03: Bước 1: hàng 00:30…01:35 nằm trong 00:30–02:00
+PASS TC-03: Bước 2: hàng 02:00…02:55 nằm trong 02:00–03:30
+PASS TC-03: Bước 3: hàng 03:30…05:05 nằm trong 03:30–05:15
+PASS TC-03: Bước 4: hàng 05:15…06:55 nằm trong 05:15–07:30
+PASS TC-03: Bước 5: hàng 07:30…08:45 nằm trong 07:30–09:00
+PASS TC-03: Bước 6: hàng 09:00…10:20 nằm trong 09:00–10:30
+PASS TC-03: Bước 7: hàng 10:30…11:00 nằm trong 10:30–11:30
+PASS TC-04: 16 route khác nhau được trích
+THIẾU /checkin?c=…
+FAIL TC-04: route bịa (lệnh AC4)
+NGOÀI §14/§7: /checkin?c=…
+FAIL TC-04: route chỉ xuất hiện ngoài §14/§7 (xem tay)
+FAIL TC-04: vai trò chỉ gồm Admin / Giảng viên / Sinh viên (+ A–D) / Người trình bày (chỉ cho Mailpit, công cụ dev) — got [2 sinh viên Admin Giảng viên Người trình bày Sinh viên] want [Admin Giảng viên Người trình bày Sinh viên]
+THIẾU DEMO_MODE=true
+THIẾU Ai bật
+THIẾU lỗi 2 lần
+FAIL TC-06: lệnh AC6
+THIẾU trong mục 5: DEMO_MODE=true
+THIẾU trong mục 5: Ai bật
+THIẾU trong mục 5: lỗi 2 lần
+FAIL TC-06: khoá không nằm trong mục 5
+PASS TC-06: 3 tầng 1/2/3
+PASS TC-06: lệnh bật tầng 2 khớp stack US-P0-02 (--env-file .env.local -f docker-compose.local.yml -p edupilot)
+PASS TC-06: ghi ai bật (Chủ dự án)
+info: ARCHITECTURE §8 chưa có DEMO_MODE (kịch bản nói P1 thêm — mục 6)
+PASS TC-13: không placeholder TODO/TBD/lorem
+FAIL TC-13: thiếu dòng phiên bản
+PASS TC-13: QUESTIONS.md tồn tại (Q1–Q9 không chặn)

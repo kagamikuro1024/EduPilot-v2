@@ -544,9 +544,9 @@ Cách chạy:
 | TC-GATE-22 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-23 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-24 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-25 | N | chưa chạy (trước đây X: cần trình duyệt thật (Playwright qua eval `sse-browser-cut.mjs` / `idem-two-tabs.mjs`, ≥ 1 cửa sổ khoá) — chưa chạy; phần tương đư) |
+| TC-GATE-25 | P | RERUN 22/11 Playwright Chromium thật (docs/regression/specs-qc2/qc2-r2/gate-browser.spec.ts, bản chuyển từ sse-browser-cut.mjs vì eval browser của máy này không có CDP target(); cùng origin qua Caddy https://localhost:1143; log evidence-2/run-logs-22nov/gate-2527.log) @aba738ef: K1…K9 đều PASS: stream 200, 30 POST 202, nhận đúng 1..30 thứ tự không trùng, 4 lần nối lại, Last-Event-ID gửi = id của n=7, 2 lỗi «Failed to fetch» khi offline, không resync, mọi lần nối lại HTTP 200; ok=true |
 | TC-GATE-26 | P | cửa sổ khoá global (gateway=2/chaos) |
-| TC-GATE-27 | N | chưa chạy (trước đây X: cần trình duyệt thật (Playwright qua eval `sse-browser-cut.mjs` / `idem-two-tabs.mjs`, ≥ 1 cửa sổ khoá) — chưa chạy; phần tương đư) |
+| TC-GATE-27 | P | RERUN 22/11 Playwright Chromium thật (docs/regression/specs-qc2/qc2-r2/gate-browser.spec.ts, bản chuyển từ idem-two-tabs.mjs vì eval browser của máy này không có CDP target(); cùng origin qua Caddy https://localhost:1143; log evidence-2/run-logs-22nov/gate-2527.log) @aba738ef: I1…I5 đều PASS: 1 bản ghi, hai phản hồi 201/201 giống hệt (body, Content-Type), đúng một Idempotent-Replayed: true đọc được từ trình duyệt (null / true); ok=true |
 | TC-GATE-28 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-29 | P | cửa sổ khoá global (gateway=2/chaos) |
 | TC-GATE-30 | N | chưa chạy (trước đây Kb: đọc tay toàn bộ diff internal/auth + internal/httpapi theo checklist — cần người đọc (script gom ứng viên đã chạy rc 0: run-logs/g) |

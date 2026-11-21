@@ -1,1 +1,4 @@
 == d0107.py a 21:12:46
+F TC-D01-07a cấu hình P50=100/P95=150, 200 lời gọi (nhịp 1,6/s): llm_audit 200 dòng {'ok': 199, 'timeout': 1}; latency_ms p50=209 p95=609 (±20 %: 80–120 / 120–180); HTTP [201, 422]
+rc=0
+== d0107.py b 21:16:23
