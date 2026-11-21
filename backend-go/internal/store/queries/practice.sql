@@ -222,3 +222,7 @@ select count(*) filter (where qb.review_status = 'APPROVED' and coalesce((a.befo
 from question_bank qb
 left join lateral (select before from audit_log where entity = 'question' and entity_id = qb.id::text and action = 'question.review' order by created_at desc limit 1) a on true
 where qb.course_id = sqlc.arg(course_id) and qb.ai_job_id = sqlc.arg(job_id);
+
+-- name: PracticeAttemptCourse :one
+-- Lớp của MỘT lượt thuộc về `student_id` (trang /practice/[id] không biết lớp: hỏi một lần thay vì dò từng lớp, luật 13). Lượt của người khác / không có → không dòng.
+select course_id from practice_attempts where id = sqlc.arg(id) and student_id = sqlc.arg(student_id);

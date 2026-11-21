@@ -287,6 +287,18 @@ func (s *Service) Get(ctx context.Context, userID, courseID, attemptID, tab uuid
 	return s.view(ctx, q, att, tab)
 }
 
+// AttemptCourse trả lớp của lượt của CHÍNH người gọi; lượt của người khác hoặc không có → 404 (không lộ tồn tại).
+func (s *Service) AttemptCourse(ctx context.Context, userID, attemptID uuid.UUID) (uuid.UUID, error) {
+	c, err := store.New(s.Pool).PracticeAttemptCourse(ctx, store.PracticeAttemptCourseParams{ID: attemptID, StudentID: userID})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return uuid.Nil, notFound()
+	}
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("practice: lớp của lượt: %w", err)
+	}
+	return c, nil
+}
+
 func tabCheck(att store.PracticeAttempt, tab uuid.UUID) error {
 	if att.Mode == store.PracticeModeMOCK && tab == uuid.Nil {
 		return fieldErr("X-Practice-Tab", "VALUE_REQUIRED", "Thiếu mã tab (X-Practice-Tab, uuid).")

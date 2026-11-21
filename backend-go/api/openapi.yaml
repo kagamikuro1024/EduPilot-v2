@@ -11041,6 +11041,35 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/practice/attempts/{aid}:
+    get:
+      operationId: getMyPracticeAttemptCourse
+      tags: [practice]
+      summary: "Lớp của một lượt luyện của CHÍNH mình (chỉ STUDENT): trang /practice/[id] hỏi một lần thay vì dò từng lớp. Lượt của người khác / không có / id sai → 404; vai khác → 403"
+      parameters:
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lớp của lượt
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [course_id]
+                additionalProperties: false
+                properties:
+                  course_id: {type: string, format: uuid}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/courses/{id}/practice/attempts/{aid}:
     get:
       operationId: getPracticeAttempt

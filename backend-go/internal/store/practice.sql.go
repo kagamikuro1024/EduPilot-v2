@@ -140,6 +140,23 @@ func (q *Queries) PracticeAttemptClose(ctx context.Context, arg PracticeAttemptC
 	return i, err
 }
 
+const practiceAttemptCourse = `-- name: PracticeAttemptCourse :one
+select course_id from practice_attempts where id = $1 and student_id = $2
+`
+
+type PracticeAttemptCourseParams struct {
+	ID        uuid.UUID
+	StudentID uuid.UUID
+}
+
+// Lớp của MỘT lượt thuộc về `student_id` (trang /practice/[id] không biết lớp: hỏi một lần thay vì dò từng lớp, luật 13). Lượt của người khác / không có → không dòng.
+func (q *Queries) PracticeAttemptCourse(ctx context.Context, arg PracticeAttemptCourseParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, practiceAttemptCourse, arg.ID, arg.StudentID)
+	var course_id uuid.UUID
+	err := row.Scan(&course_id)
+	return course_id, err
+}
+
 const practiceAttemptGet = `-- name: PracticeAttemptGet :one
 select id, course_id, student_id, mode, topic, status, started_at, deadline_at, submitted_at, item_count, current_index, correct_count, score, matrix, notes, tab_id, version, created_at, updated_at from practice_attempts where course_id = $1 and id = $2
 `

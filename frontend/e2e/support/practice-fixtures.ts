@@ -102,6 +102,11 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
     return route.fulfill(err(404, "NOT_FOUND"));
   };
   await page.route(/\/api\/v1\/courses\/[^/]+\/practice/, (r) => handle(r));
+  // `GET /me/practice/attempts/{id}` → lớp của lượt của chính mình (trang không có ?course= hỏi MỘT lần, không dò lớp)
+  await page.route(/\/api\/v1\/me\/practice\/attempts\/[^/]+$/, (r) => {
+    if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: CORS });
+    return attempts.has(r.request().url().split("/").pop()!) ? r.fulfill(json({ course_id: COURSE })) : r.fulfill(err(404, "NOT_FOUND"));
+  });
   await page.route("**/api/v1/me/exam-lock", (r) => r.fulfill(json({ locked: false })));
   return { calls, attempts, closeOnServer: (id: string, expired = true) => { const a = attempts.get(id)!; a.status = expired ? "EXPIRED" : "SUBMITTED"; a.expired = expired; } };
 }
