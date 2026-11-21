@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: 425396a7 (sprint/11-p10-eval) · Stack ep-r + qc3s · Người chạy: qc2 (SmkC, SmkL), qc3 (lượt bù S/N, 2026-11-21) · Cập nhật: 2026-11-21
-Tổng TC cũ: 477 · Đạt: 450 · Trượt: 10 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 1   (P+F+K+LT+S = 477)
+Tổng TC cũ: 477 · Đạt: 451 · Trượt: 9 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 1   (P+F+K+LT+S = 477)
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -17,7 +17,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | US-PE-05 | 60 | 58 | 1 | 1 | 0 | |
 | US-PE-06 | 47 | 46 | 1 | 0 | 0 | |
 | US-PE-07 | 48 | 48 | 0 | 0 | 0 | |
-| US-PE-08 | 68 | 66 | 2 | 0 | 0 | |
+| US-PE-08 | 68 | 67 | 1 | 0 | 0 | |
 | US-PE-09 | 31 | 25 | 4 | 2 | 0 | |
 
 ## Kết quả từng ca
@@ -418,7 +418,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE08-35 | P | Go: exam pass=2 skip=0 fail=0 |
 | TC-PE08-36 | P | progress ['absent', 'graded', 'grading', 'in_progress', 'not_started']; flags: GV có, TA không có khoá; sort=score giảm ✓ ([Decimal('9.00'), Decimal('9.00'), Decimal('9.00')]), cursor không trùng trang (0 trùng); ETag=False; SV 403, ADMIN 403 |
 | TC-PE08-37 | P | Go: exam pass=4 skip=0 fail=0 |
-| TC-PE08-38 | F | smkP @88ab83e4 (247bf4e4, P-11-59): ≥720 cột ["Họ tên","MSSV","Trạng thái","Điểm","Nộp lúc","Tín hiệu"] (GV có Tín hiệu=true) ok=true; <720 (719/390 GV, 390 TA) chỉ ["Họ tên","Trạng thái","Điểm"], AUDIT 390 {"ox":0,"cut":0,"ell":0,"touch":0}, 719 {"ox":0,"cut":0,"ell":0,"touch":0}, MSSV (mã SV cạnh tên)/Nộp lúc ở Drawer=true/true ok=true; TA không Tín hiệu/Nghi giống nhau ok=true; Drawer test ẩn chỉ "Test ẩn: đạt 2 trên 2", verdict từng test ẩn=false ok=true; bài chưa ai làm: 20 hàng, 0× «Chưa bắt đầu» ok=false; tab Thống kê=true, Nghi giống nhau=true |
+| TC-PE08-38 | P | smkP @88ab83e4 (247bf4e4, P-11-59): ≥720 cột ["Họ tên","MSSV","Trạng thái","Điểm","Nộp lúc","Tín hiệu"] (GV có Tín hiệu=true) ok=true; <720 (719/390 GV, 390 TA) chỉ ["Họ tên","Trạng thái","Điểm"], AUDIT 390 {"ox":0,"cut":0,"ell":0,"touch":0}, 719 {"ox":0,"cut":0,"ell":0,"touch":0}, MSSV (mã SV cạnh tên)/Nộp lúc ở Drawer=true/true ok=true; TA không Tín hiệu/Nghi giống nhau ok=true; Drawer test ẩn chỉ "Test ẩn: đạt 2 trên 2", verdict từng test ẩn=false ok=true; bài chưa ai làm: 20 hàng, 20× «Chưa bắt đầu» ok=true; tab Thống kê=true, Nghi giống nhau=true |
 | TC-PE08-39 | P | stats: mean 2.72 median 2.00 hardest r5-2 |
 | TC-PE08-40 | P | 30 lượt: distribution hệ thống [5, 3, 6, 2, 2, 3, 5, 0, 1, 3] = tính tay [5, 3, 6, 2, 2, 3, 5, 0, 1, 3]; mean 3.73 = 3.73; median 3.33 = 3.33; Σcount 30; hardest [('r5-2', '0.00'), ('r5-1', '0.10'), ('r5-0', '0.50')]; code [{"item_id": "01a1e136-5a90-7185-b960-45d0dc4dec73", "title": "r5code-88", "mean_ratio": "0.51", "ce_rate": "0.20"}]; không định danh SV trong thân |
 | TC-PE08-41 | P | Go: exam pass=3 skip=0 fail=0 |
