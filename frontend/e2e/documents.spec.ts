@@ -94,6 +94,14 @@ test("course policy reminder: một dòng khi thiếu quy chế, nút mở chọ
   await expect(page.getByText("Lớp chưa có quy chế môn học.")).toHaveCount(0);
 });
 
+test("answer key row (DEF-R6-U7, US-P8-02 AC3): hàng ANSWER_KEY ghi đúng hai dòng «Không hiển thị cho sinh viên» và «Không dùng cho AI của sinh viên»", async ({ page, context }) => {
+  await open(page, context, { [`GET ${D}`]: list([doc({ id: "k1", title: "Đáp án tuần 1", type: "ANSWER_KEY", visible_to_students: false, use_for_rag: false }), doc()]) });
+  const key = page.locator("[data-part=doc-row]", { hasText: "Đáp án tuần 1" });
+  await expect(key.getByText("Không hiển thị cho sinh viên", { exact: true })).toBeVisible();
+  await expect(key.getByText("Không dùng cho AI của sinh viên", { exact: true })).toBeVisible();
+  await expect(page.locator("[data-part=doc-row]", { hasText: "Quy chế học vụ" }).getByText("Không hiển thị cho sinh viên")).toHaveCount(0);
+});
+
 test("reject before upload: sai loại / quá 50 MB báo ngay, không gọi presign", async ({ page, context }) => {
   const calls = await open(page, context);
   const big = join(tmpdir(), "lon.pdf");
@@ -101,8 +109,8 @@ test("reject before upload: sai loại / quá 50 MB báo ngay, không gọi pres
   const txt = join(tmpdir(), "ghi-chu.txt");
   writeFileSync(txt, "x");
   await page.locator("[data-part=file-input]").setInputFiles([txt, big]);
-  await expect(page.getByText("ghi-chu.txt: chỉ nhận PDF, DOCX hoặc PPTX. Hãy chọn tệp khác.")).toBeVisible();
-  await expect(page.getByText("lon.pdf: quá 50 MB. Hãy nén hoặc tách tệp.")).toBeVisible();
+  await expect(page.getByText("ghi-chu.txt: Dùng PDF, DOCX hoặc PPTX, tối đa 50 MB.")).toBeVisible(); // P-11-87: chữ theo SRS FEAT-docs-calendar 94
+  await expect(page.getByText("lon.pdf: Dùng PDF, DOCX hoặc PPTX, tối đa 50 MB.")).toBeVisible();
   expect(calls.some((c) => c.path.includes("/uploads/"))).toBe(false);
 });
 

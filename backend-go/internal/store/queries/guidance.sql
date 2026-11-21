@@ -202,8 +202,8 @@ join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
 where r.course_id = sqlc.arg(course_id) and r.id = sqlc.arg(id);
 
 -- name: PracticeGenHints :one
--- Lý do «Tránh» đã dùng cho một lô sinh câu (lưu vào jobs.result lúc chạy, không tính lại).
-select coalesce(result -> 'hints', '[]'::jsonb) as hints from jobs where id = sqlc.arg(job_id) and payload ->> 'course_id' = sqlc.arg(course_id)::text;
+-- Lý do «Tránh» đã dùng cho một lô sinh câu (lưu vào jobs.result lúc chạy, không tính lại). Bảng jobs không có cột lớp: người gọi đã kiểm lô thuộc lớp qua PracticeGenStats (câu hỏi của lô).
+select coalesce(result -> 'hints', '[]'::jsonb) as hints from jobs where id = sqlc.arg(job_id);
 
 -- name: RegressionAIScores :one
 select coalesce(ai_scores, '{}'::jsonb) as ai_scores from grading_results where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);

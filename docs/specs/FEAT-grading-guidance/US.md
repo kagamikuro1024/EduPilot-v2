@@ -176,9 +176,9 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 Ưu tiên: Should · Ước lượng: S · Sprint: 10.6 · **L5** · M4 · F4
 
 ### Tiêu chí nghiệm thu
-- AC1 (khi nào). Given lớp bật `THREAD_SUGGEST` When sinh viên đang soạn tiêu đề ≥ 3 từ ở `/threads` (debounce 600 ms) Then `POST …/threads/similar-confirmed {q}` (chỉ đọc, không cần `Idempotency-Key`; P-106-3) trả tối đa **3** thread **công khai** cùng lớp, câu trả lời AI đã `VERIFIED` / `CORRECTED`, chưa `Ẩn`/`Loại`, độ tương tự ≥ `THREAD_SUGGEST_MIN` (0,80, cosine); xếp theo độ tương tự giảm dần.
+- AC1 (khi nào). Given lớp bật `THREAD_SUGGEST` When sinh viên đang soạn tiêu đề ≥ 3 từ ở `/threads` (debounce 600 ms, chạy **sau** `precheck` của chính nội dung đó — `FEAT-private-chat-pii` SRS 4.9.2; P-11-89) Then `POST …/threads/similar-confirmed {q}` (chỉ đọc, không cần `Idempotency-Key`; P-106-3) trả tối đa **3** thread **công khai** cùng lớp, câu trả lời AI đã `VERIFIED` / `CORRECTED`, chưa `Ẩn`/`Loại`, độ tương tự ≥ `THREAD_SUGGEST_MIN` (0,80, cosine); xếp theo độ tương tự giảm dần.
 - AC2 (nguồn tin cậy). Given nguồn Then chỉ thread **đăng công khai** qua tường lửa (`knowledge_items.source_type='POST'`); **không** dùng mục `TICKET` (nguồn từ kênh riêng) để hiện ra công khai. (Q-G-5, PM xác nhận P-106-1) mặc định chỉ `POST`.
-- AC3 (hiển thị). Given có kết quả Then một danh sách dưới ô tiêu đề: tiêu đề thread (liên kết mở `/threads/[id]`) + `Đã xác nhận`; không đoạn giải thích; không đẩy ô đăng xuống quá 3 dòng; không có kết quả → **không hiện gì** (không «không tìm thấy»).
+- AC3 (hiển thị). Given có kết quả Then một danh sách dưới ô tiêu đề: tiêu đề thread (liên kết mở `/threads/[id]`) + `Đã xác nhận`; không đoạn giải thích; không đẩy ô đăng xuống quá 3 dòng; không có kết quả → **không hiện gì** (không «không tìm thấy»); nội dung `precheck` báo có PII hoặc câu hỏi riêng thì **không** gọi `similar-confirmed` và không hiện gợi ý (P-11-89).
 - AC4 (không chặn đăng). Given sinh viên vẫn bấm đăng Then đăng bình thường (gợi ý không bắt buộc, không hộp thoại); luồng tường lửa / gộp thread tương tự (`THREAD_SIMILAR_MIN`) giữ nguyên.
 - AC5 (hiệu năng và chi phí). Given mỗi lần gợi ý Then đúng **một** lần nhúng câu đang soạn (không LLM sinh chữ) + một truy vấn SQL theo `course_id` (HNSW, lọc trong cùng truy vấn); p95 ≤ 300 ms với embedding giả; rate limit 30 lần / phút / người; không gọi khi cờ tắt; dùng lại cache nhúng nếu cùng chuỗi.
 - AC6 (đúng và mới). Given tài liệu nguồn của đáp án đã đổi (`document.changed`) Then mục kho tri thức liên quan đã bị đánh dấu lỗi thời theo cơ chế sẵn có và **không** được gợi ý; thread bị ẩn sau đó biến mất khỏi gợi ý trong ≤ 60 s.
@@ -223,7 +223,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 - AC1 (seed). Given stack trống When `node scripts/seed.mjs` Then provider `fake` có sẵn; bài tập BT03 lớp 1 có ≥ 8 kết quả `REVIEWED` với ≥ 4 tiêu chí bị sửa ≥ 0,5 theo một «sở thích» (ví dụ c2 chấm gắt hơn); `SEED_GUIDANCE_DEMO=1` bật `GRADING_GUIDANCE` cho lớp 1 và nạp bản nháp lưu ý mẫu; bài tập khác để nguyên; `scripts/check-guidance-seed.mjs` xanh; chạy lại idempotent.
 - AC2 (cổng). Given repo When chạy:
   - `cd backend-go && go test ./internal/grading -run 'TestGuidanceSetAtVersion|TestEssayPromptUnchangedAtV0|TestGuidanceBlockDeterministic|TestReflect|TestRegradeKeepsLatePolicy' -v`
-  - `cd backend-go && go test ./internal/assignment ./internal/guidance -run 'TestPublishMixedGuidance|TestApplyVersion|TestRegradeStale|TestGuidanceRBAC' -v`
+  - `cd backend-go && go test ./internal/assignment ./internal/grading -run 'TestPublishMixedGuidance|TestApplyVersion|TestRegradeStale|TestGuidanceRBAC' -v` (không có gói `internal/guidance`; `TestPublishMixedGuidance`, `TestGuidanceRBAC` ở `internal/assignment`, `TestApplyVersion`, `TestRegradeStale` ở `internal/grading`; P-11-91)
   - `cd backend-go && go test ./internal/thread ./internal/practice -run 'TestSimilarConfirmed|TestRejectReasonHints' -v`
   - `pnpm -C frontend exec playwright test grading-guidance.spec.ts thread-suggest.spec.ts question-hints.spec.ts`
   Then tất cả xanh (provider `fake`, không gọi mạng thật).

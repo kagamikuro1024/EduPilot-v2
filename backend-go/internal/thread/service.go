@@ -75,6 +75,8 @@ type Service struct {
 	Notify *notify.Service
 	// Suggest: M4 «câu tương tự đã xác nhận lúc soạn» (cờ THREAD_SUGGEST, THREAD_SUGGEST_MIN / _RPM); Gate nil = tắt.
 	Suggest SuggestConfig
+	// Public: registry tool của kênh công khai (chỉ search_library, SRS FEAT-docs-calendar 213 / US-P8-02 AC12); nil = tắt. Câu hỏi «có tài liệu nào về X» được trả lời từ kết quả tool.
+	Public *agent.PublicRegistry
 	// Regress: cờ REGRESSION_CAPTURE theo lớp (ca hồi quy khi bài đăng bị sửa / loại); nil = tắt.
 	Regress SuggestGate
 }

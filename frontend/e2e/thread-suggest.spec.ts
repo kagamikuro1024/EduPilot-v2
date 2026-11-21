@@ -23,8 +23,13 @@ async function compose(page: Page, context: Parameters<typeof asDemo>[0], h: Par
 
 test("sau precheck sạch: ≤ 3 thread đã xác nhận dưới ô tiêu đề, là liên kết; chữ đi trong thân, URL không có chữ", async ({ page, context }) => {
   const calls = await compose(page, context, { [SIM]: json([{ thread_id: T1, title: "Thi lại được mấy lần?" }, { thread_id: "00000000-0000-7000-8000-0000000000c2", title: "Điều kiện thi lại" }]) });
+  // DEF-R106S-16 (US-GD-08 AC1): debounce 600 ms, không phải 800 ms — sau 720 ms yêu cầu đã đi
+  await page.waitForTimeout(720);
+  expect(calls.some((c) => c.path.endsWith("/similar-confirmed"))).toBe(true);
   const list = page.locator("[data-part=similar-confirmed]");
   await expect(list.getByRole("link")).toHaveCount(2);
+  // AC3: mỗi mục có «Đã xác nhận»
+  await expect(list.getByText("Đã xác nhận", { exact: true })).toHaveCount(2);
   await expect(list.getByRole("link", { name: "Thi lại được mấy lần?" })).toHaveAttribute("href", `/threads/${T1}`);
   const sim = calls.find((c) => c.path.endsWith("/threads/similar-confirmed"))!;
   expect(sim.method).toBe("POST");

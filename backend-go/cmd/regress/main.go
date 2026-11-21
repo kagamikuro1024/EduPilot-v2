@@ -209,9 +209,6 @@ type Report struct {
 
 type pair struct{ old, now, teacher decimal.Decimal }
 
-// Ngưỡng «tiêu chí vốn đúng nay sai» (US-GD-07 AC4).
-var flipRight, flipWrong = decimal.RequireFromString("0.25"), decimal.RequireFromString("0.5")
-
 // compare gom các cặp (điểm AI lúc đó, điểm AI mới, điểm giảng viên) thành báo cáo.
 func compare(ps []pair, skipped int) Report {
 	r := Report{N: len(ps), Skipped: skipped, MAE: "0.00", Bias: "0.00", OldMAE: "0.00"}
@@ -219,6 +216,7 @@ func compare(ps []pair, skipped int) Report {
 		return r
 	}
 	var mae, bias, old decimal.Decimal
+	flipRight, flipWrong := decimal.RequireFromString("0.25"), decimal.RequireFromString("0.5") // «tiêu chí vốn đúng nay sai» (US-GD-07 AC4)
 	for _, p := range ps {
 		mae = mae.Add(p.now.Sub(p.teacher).Abs())
 		bias = bias.Add(p.now.Sub(p.teacher))

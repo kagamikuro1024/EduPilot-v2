@@ -19,6 +19,7 @@ import (
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
+	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/observability"
 	"github.com/edupilot/backend-go/internal/platform/clock"
@@ -90,7 +91,7 @@ func newTasks(d Deps) []Task {
 		pub := sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL)
 		proc := &ingest.Processor{Pool: d.DB, Blob: d.Blob, Docling: &ingest.Docling{BaseURL: set.DoclingURL, Poll: set.PollInterval}, LLM: d.LLM,
 			Jobs: jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log), Log: d.Log, Set: set}
-		ts := &thread.Service{Pool: d.DB, Redis: d.Redis, Rag: &rag.Service{DB: d.DB}, LLM: d.LLM, Embed: agent.NewEmbedder(d.LLM, d.Redis), Run: proc.Jobs, Clock: clock.Real{}, Log: d.Log, Notify: nt}
+		ts := &thread.Service{Pool: d.DB, Redis: d.Redis, Rag: &rag.Service{DB: d.DB}, LLM: d.LLM, Embed: agent.NewEmbedder(d.LLM, d.Redis), Run: proc.Jobs, Clock: clock.Real{}, Log: d.Log, Notify: nt, Public: agent.NewPublicRegistry(agent.NewLibraryTool(&library.Service{Pool: d.DB, Log: d.Log}))}
 		tasks = append(tasks, ingestTask{&ingest.Queue{P: proc, Redis: d.Redis, Consumer: d.Cfg.InstanceID, Log: d.Log, Extra: map[string]func(context.Context, uuid.UUID, uuid.UUID, uuid.UUID) error{thread.KindAnswer: ts.AnswerHandler}}})
 	}
 	return tasks

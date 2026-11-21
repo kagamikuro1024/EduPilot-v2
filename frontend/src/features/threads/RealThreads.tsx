@@ -164,7 +164,9 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       {gate.similar.length > 0 && (
         <ul className={r.similar} data-part="similar-confirmed" aria-label="Đã có câu trả lời xác nhận">
           {gate.similar.map((x) => (
-            <li key={x.thread_id}><Link href={`/threads/${x.thread_id}`} prefetch={false}>{x.title}</Link></li>
+            <li key={x.thread_id}>
+              <Link href={`/threads/${x.thread_id}`} prefetch={false}>{x.title}</Link> <StatusText tone="green">Đã xác nhận</StatusText>
+            </li>
           ))}
         </ul>
       )}

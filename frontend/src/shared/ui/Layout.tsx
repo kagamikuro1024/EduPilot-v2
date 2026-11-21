@@ -230,6 +230,7 @@ export function Split({
   fill = false,
   detailOpen = false,
   listCollapsed = false,
+  pending = false,
   only,
 }: {
   main: ReactNode;
@@ -241,13 +242,15 @@ export function Split({
   detailOpen?: boolean;
   /** `list-detail`: người dùng thu gọn danh sách (chat); chi tiết chiếm cả bề rộng */
   listCollapsed?: boolean;
+  /** `list-detail`: chưa biết có danh sách hay không (đang tải); ẩn (giữ chỗ) tới khi biết để cột không hiện rồi biến mất làm bố cục dịch */
+  pending?: boolean;
   /** `main-aside` / `half` dưới 1100 px: chỉ hiện một ngăn (màn có tab «Bài làm / Chấm») */
   only?: "main" | "aside";
 }) {
   if (ratio === "list-detail") {
     return (
       <Panel>
-        <div className={s.listDetail} data-ep-split="list-detail" data-ep-split-fill={fill ? "" : undefined} data-detail-open={detailOpen ? "" : undefined} data-list-collapsed={listCollapsed ? "" : undefined}>
+        <div className={s.listDetail} data-ep-split="list-detail" data-ep-split-fill={fill ? "" : undefined} data-detail-open={detailOpen ? "" : undefined} data-list-collapsed={listCollapsed ? "" : undefined} data-pending={pending ? "" : undefined}>
           <div className={s.ldList}>{main}</div>
           <div className={s.ldDetail}>{aside}</div>
         </div>

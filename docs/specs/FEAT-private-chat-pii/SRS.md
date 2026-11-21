@@ -85,7 +85,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-  A[Soạn bài] -->|dừng gõ 800 ms| B[POST precheck]
+  A[Soạn bài] -->|dừng gõ 800 ms; 600 ms nếu lớp bật gợi ý tương tự| B[POST precheck]
   B -->|có PII hoặc câu hỏi riêng| C[Dòng PIIProtectionNotice trên ô soạn]
   A -->|bấm Đăng| D[POST threads — máy chủ chạy lại tường lửa]
   D -->|sạch| E[Lưu thread + outbox thread.created]
@@ -293,7 +293,7 @@ Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo m�
 
 **4.9.1 Tường lửa** `CheckPost(ctx, courseID, title, body) Verdict{Allowed, Reasons[{Kind,Count}], Redacted{Title,Body}, Personal}`: `Detect` trên tiêu đề và nội dung + `Classify`. `Allowed = len(Findings)==0 && !Personal`. `Redacted` chỉ thay các `Finding` (câu hỏi cá nhân không có khoảng để thay → `Redacted` bằng bản gốc và `Personal=true`).
 
-**4.9.2 `precheck`** không ghi gì (không `forum_*`, không `pii_events`); rate limit; trả `{allowed, reasons, redacted_text, personal_question}`.
+**4.9.2 `precheck`** không ghi gì (không `forum_*`, không `pii_events`); rate limit; trả `{allowed, reasons, redacted_text, personal_question}`. **Debounce phía máy khách:** 800 ms; riêng lớp bật `THREAD_SUGGEST` («Gợi ý câu hỏi tương tự», `FEAT-grading-guidance` US-GD-08) là **600 ms** để gợi ý hiện sớm. Gợi ý `threads/similar-confirmed` luôn đi **sau** `precheck` của cùng nội dung (gửi ngay khi `precheck` trả về, tức 600 ms + RTT `precheck`): chữ mà `precheck` báo có PII hoặc câu hỏi riêng **không** được gửi tới `similar-confirmed` (P-11-89).
 
 **4.9.3 Đăng** (`POST …/threads`, `Idempotency-Key` bắt buộc): **trước hết** kiểm khoá giờ thi (`exam.Locker.IsLocked`, Q2): khoá → gọi `exam.RecordChatBlocked(ctx, userID, lock.AttemptID)` (cùng hàm và cùng khử trùng như 4.7.1 bước 3) + 409 `EXAM_IN_PROGRESS {until}`, lỗi → 503 `CHAT_UNAVAILABLE`; sau đó luôn chạy lại `CheckPost`; `Allowed` → lưu; không → nếu `redact:true` **và** `!Personal` → lưu bản `Redacted` **sau khi kiểm lại** bản đó sạch (nếu còn PII → 422), ghi `REDACTED`; còn lại 422 `PII_DETECTED` (kèm `reasons`, `redacted_text`, `personal_question`), ghi `BLOCKED` một dòng mỗi loại. Giao dịch: `forum_threads` (kèm `embedding` nếu đã có, 4.4) + outbox `thread.created`. **Quy tắc `Idempotency-Key` phía máy khách (TLR-2):** middleware idempotency của router lưu cả phản hồi 4xx và so băm thân, nên máy khách **giữ khoá** khi lỗi mạng hoặc 5xx, và **sinh khoá mới** sau mọi phản hồi 4xx cũng như mỗi khi thân đổi (lối `redact:true`, sửa chữ, hết khoá giờ thi); nếu không, `Ẩn thông tin rồi đăng` nhận 422 `IDEMPOTENCY_KEY_REUSED` và đăng sau giờ thi nhận lại 409 cũ.
 

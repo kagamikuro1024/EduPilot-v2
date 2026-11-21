@@ -151,7 +151,7 @@ sequenceDiagram
   participant G as Gateway
   participant E as Embed (dùng lại cache)
   participant DB as Postgres (pgvector)
-  U->>G: POST threads/similar-confirmed {q} (thân yêu cầu, không ở URL; debounce 600 ms, ≥ 3 từ)
+  U->>G: POST threads/similar-confirmed {q} (thân yêu cầu, không ở URL; debounce 600 ms và sau `precheck` của cùng nội dung — chữ có PII không được gửi, P-11-89; ≥ 3 từ)
   G->>G: cờ bật? rate limit 30/phút
   G->>E: nhúng q (1 lần)
   G->>DB: top 3 chunk knowledge_items(POST) cùng lớp, cosine ≥ 0,80 → thread VERIFIED/CORRECTED, chưa ẩn

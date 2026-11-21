@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { A1, RECEIVED, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mailRow, mineOut, mineResult, queueRow, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
+import { A1, RECEIVED, j, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mailRow, mineOut, mineResult, queueRow, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -807,6 +807,59 @@ test("queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (
   await page.getByRole("link", { name: "Hàng chờ chấm" }).first().click(); // về hàng chờ: bộ lọc đi theo URL
   await expect(page.getByRole("button", { name: "Cần xem kỹ" })).toHaveAttribute("aria-pressed", "false"); // không tự bật lại
   expect(page.url()).toContain("needs=0");
+});
+
+test("queue: lọc «Cần xem kỹ» người dùng đã tắt GIỮ khi sang tab Bài tập rồi về, và khi tải lại (DEF-R106S-20, P-106-13 d)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const rowsAll = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, { rows: rowsAll });
+  const flag = () => page.getByRole("button", { name: "Cần xem kỹ" });
+  await expect(flag()).toHaveAttribute("aria-pressed", "true");
+  await flag().click();
+  await expect(flag()).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("tab", { name: "Bài tập" }).click();
+  await expect(page).toHaveURL(/tab=assignments/);
+  await page.getByRole("tab", { name: "Hàng chờ" }).click();
+  await expect(flag()).toHaveAttribute("aria-pressed", "false");
+  await page.goto("/grading?tab=queue");
+  await expect(flag()).toHaveAttribute("aria-pressed", "false");
+  await flag().click(); // bật lại là lựa chọn mới của người dùng
+  await page.goto("/grading?tab=queue");
+  await expect(flag()).toHaveAttribute("aria-pressed", "true");
+});
+
+test("queue: người khác duyệt bớt bài → hàng chờ làm mới khi cửa sổ lấy lại tiêu điểm / tab hiện lại, không cần tải lại (DEF-R106S-21)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let others = false;
+  const rowsAll = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, {
+    rows: rowsAll,
+    h: { "GET submissions": (route, next) => (others ? route.fulfill(j({ items: rowsAll.slice(0, 1), next_cursor: null })) : next(route)) },
+  });
+  const count = page.locator("[data-part=queue-count]");
+  await expect(count).toHaveText("2 bài"); // lọc «Cần xem kỹ» + Chưa duyệt của fixture
+  others = true;
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(count).toHaveText("1 bài");
+  others = false;
+  await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+  await expect(count).toHaveText("2 bài");
+});
+
+test("tab Bài tập ở 375 px: liên kết tiêu đề là vùng chạm ≥ 44 px cao, rộng hết hàng; chạm sát mép phải vẫn mở bài (DEF-R106S-22, P-106-13 j)", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "mobile", "ca điện thoại");
+  await page.setViewportSize({ width: 375, height: 800 });
+  await asDemo(context, "teacher");
+  await gradingApi(page);
+  await page.goto("/grading?tab=assignments");
+  const link = page.locator("a[href*='open=']:visible").first();
+  await expect(link).toBeVisible();
+  const b = (await link.boundingBox())!;
+  expect(b.height).toBeGreaterThanOrEqual(44);
+  const row = (await page.locator("[role=button]:has(a[href*='open='])").first().boundingBox())!;
+  expect(b.width).toBeGreaterThanOrEqual(row.width - 24); // gần hết bề rộng hàng, không chỉ bằng chữ
+  await page.mouse.click(row.x + row.width - 6, b.y + b.height - 6);
+  await expect(page.getByRole("dialog")).toBeVisible();
 });
 
 test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {

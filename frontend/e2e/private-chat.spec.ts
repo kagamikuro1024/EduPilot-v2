@@ -28,6 +28,20 @@ test("layout / empty: một Panel, gợi ý bấm được, không nút nhờ gi
   expect(await page.locator("[data-part=chat-thread]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
 });
 
+// DEF-R5-19 (TC-PU06-11, US-PU-06 AC1): lớp chưa có phiên nào — cột phiên không được hiện rồi biến mất khi danh sách về chậm (CLS ≤ 0,1).
+test("CLS: danh sách phiên về chậm và rỗng không làm cột chi tiết dịch (layout-shift ≤ 0,1)", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 });
+  await page.addInitScript(() => {
+    (window as unknown as { __cls: number }).__cls = 0;
+    new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean }>) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+  });
+  await chatApi(page, { "GET /chat/sessions": async (r) => { await new Promise((ok) => setTimeout(ok, 500)); await r.fulfill(json({ items: [], next_cursor: null })); } });
+  await page.goto("/chat");
+  await page.locator("[data-part=chat-thread]").waitFor();
+  await page.waitForTimeout(800);
+  expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThanOrEqual(0.1);
+});
+
 test("10.7 X1: danh sách phiên lỗi → đúng một thông báo lỗi có «Thử lại»", async ({ page, context }) => {
   await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 });
   await chatApi(page, { "GET /chat/sessions": json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500) });
@@ -148,6 +162,19 @@ test("chat unavailable (DEF-R6-U6): 503 CHAT_UNAVAILABLE hiện «Chat chưa dù
   await composer(page).fill("hỏi");
   await composer(page).press("Enter");
   await expect(page.getByText("Chat chưa dùng được lúc này. Thử lại sau ít phút.").first()).toBeVisible();
+});
+
+for (const [w, h] of [[1440, 900], [375, 812]] as const) test(`removed source @${w} (DEF-R6-D1, SRS FEAT-docs-calendar 105): mở lại phiên có trích dẫn tài liệu đã xoá → «Nguồn đã gỡ», không tên cũ, không nút mở, không «Xem tài liệu»`, async ({ page, context }) => {
+  await page.setViewportSize({ width: w, height: h });
+  await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 });
+  await chatApi(page, {
+    "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: [msg({ citations: [{ n: 1, document_id: "00000000-0000-7000-8000-0000000000f1", title: "", page_no: null, snippet: "", removed: true }] }), msg({ id: "u1", role: "USER", content: "hỏi", citations: [] })], next_cursor: null })),
+  });
+  await page.goto(`/chat?session=${SID}`);
+  await expect(page.getByText("Nguồn đã gỡ", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Nguồn đã gỡ/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Xem tài liệu" })).toHaveCount(0);
 });
 
 test("exam lock: ô soạn khoá kèm giờ mở lại, không nêu tên bài thi, nháp không mất", async ({ page, context }) => {
