@@ -67,6 +67,6 @@
 - LT-đã-xoá TC-P3-05-19: FEAT-escalation-notify US-P4-01 AC7 (sprint 7, APPROVED): nút «Nhờ giảng viên hỗ trợ» nay hiện dưới mọi câu trả lời DONE; quyết định ẩn 2026-10-10 chỉ tới sprint 7
 - LT-đã-xoá TC-P3-05-44: như TC-P3-05-19 (US-P4-01 AC7 thay quyết định ẩn nút 2026-10-10)
 
-### DEF-R6-T1 — Seed bước 11 (tài liệu docling thật) vượt 4 phút trên DB trống
+### DEF-R6-T1 — [N: PM 2026-11-21 — đo lại ở cửa sổ SEED cuối khi các stack khác dừng; còn > 4 phút thì F gửi dev] Seed bước 11 (tài liệu docling thật) vượt 4 phút trên DB trống
 - Mức: Thấp (đo trên máy dùng chung; PM quyết nới ngưỡng hay chạy lại trên máy rảnh) · TC: TC-P8-03-51 (AC17) · Sprint gốc: 6
 - Kỳ vọng: seed tăng thêm ≤ 4 phút (docling thật). Thực tế: bước 11 = 241 s, 268 s, 264 s ở ba lần seed DB trống (evidence-6/k6/seed/seed-t0-clean.json, seed4/); phần chức năng (docs=8 READY=5 answer_key=1 shared=5 reembedded=0 events=2/1 idempotent=ok, lần hai không thêm dòng) đạt.

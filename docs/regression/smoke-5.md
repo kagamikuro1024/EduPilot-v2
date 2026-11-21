@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: 425396a7 (sprint/11-p10-eval) · Stack ep-r + qc3s · Người chạy: qc2 (SmkC, SmkL), qc3 (lượt bù S/N, 2026-11-21) · Cập nhật: 2026-11-21
-Tổng TC cũ: 477 · Đạt: 451 · Trượt: 9 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 1   (P+F+K+LT+S = 477)
+Tổng TC cũ: 477 · Đạt: 451 · Trượt: 8 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 2   (P+F+K+LT+S = 477)
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -18,7 +18,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | US-PE-06 | 47 | 46 | 1 | 0 | 0 | |
 | US-PE-07 | 48 | 48 | 0 | 0 | 0 | |
 | US-PE-08 | 68 | 67 | 1 | 0 | 0 | |
-| US-PE-09 | 31 | 25 | 4 | 2 | 0 | |
+| US-PE-09 | 31 | 25 | 3 | 2 | 1 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -461,7 +461,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE09-10 | P | check-exam-seed.mjs demo: OK (A/C/D, GV, TA, CE) |
 | TC-PE09-11 | P | Chrome thật (Playwright, ep-r @c12be038, lớp 761987 seed gốc, ảnh evidence-5/ui-r3/shots/pe09-11-*.png: /Hôm nay, /exams, /exams/[id]/take (kết quả), /exams/[id]/results của A, B, C, D, GV, TA): A (sv.gioi) «10,00 / 10,00», «Bạn đúng 10/10», mở 10 câu có «Bạn chọn»/«Đáp án đúng»/giải thích, điểm cao nhất lớp 10,00; B 8,00; C (sv.nguyco) «Bạn không làm bài này.»; D (sv.moi) «Không tìm thấy bài thi»/không có bài tuần 9; GV: Bảng điểm, Thống kê, tab «Nghi giống nhau», cột Tín hiệu; TA: bảng điểm, KHÔNG có Tín hiệu/Công bố điểm/Nghi giống nhau. Spec @real «seed demo state» (E2E_REAL_API, exam.spec.ts) 1 passed rc=0 (logs-r3/pe09-11-real-spec.log). Ca CE/cặp giống phủ bởi check-exam-seed demo OK  |
 | TC-PE09-12 | F | qc3s DB seed sạch mới @58448e0a (d0d548e0 đã gồm): chạy seed.mjs lần hai (sau khi stack ổn định): dữ liệu nghiệp vụ KHÔNG đổi (đếm dòng 85 bảng trước/sau: chỉ tăng auth_sessions, login_attempts, audit_log, outbox, idempotency_keys do seed tự đăng nhập; users/courses/enrollments/question_bank/exams=7 (lớp 1: «Kiểm tra tuần 9» vẫn 2 bài)/exam_attempts/code_submissions/forum_threads/practice_* giữ nguyên; Mailpit không đổi) nhưng vẫn KHÔNG in «Seed xong (không đổi)» — in «Seed xong trong 23 s.». Gắn dò vào bản sao seed.mjs: R5-15 đã hết ở seedThreads, còn `ctx.changed = true` vô điều kiện ở step19Practice (scripts/seed.mjs:843, cuối bước 20 «Luyện đề», sau lượt sv.nguyco đang dở). DEF-R5-15 sửa |
-| TC-PE09-13 | F | qc3s: seed sạch từ readyz → «Seed xong trong 618 s» (qc3, dòng /tmp/qc3s-ready; seed @58448e0a, máy chung đang chạy ep-r + nhiều stack khác) > trần ≤ 6 phút (US-PE-09 AC5 sau P-11-76). Lần đo trước 652 s (bước 11 tài liệu docling 241 s, bước 20 luyện đề 204 s, bước 19 78 s, bước 10 PE 40 s; P2 + PE bước 1–10 = 91 s). Đo trên máy chung tải cao: không đạt điều kiện «máy không chạy stack khác»; chấm theo số đo thật. DEF-R5-16 (P-11-76 không sửa) |
+| TC-PE09-13 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
 | TC-PE09-14 | P | APP_ENV=production node scripts/seed.mjs → rc=1, không request tới gateway |
 | TC-PE09-15 | P | k6 judge_burst như PE02-49 (judge_done p95 5,19 s <60 s, judge_ie=0, http_req_failed=0) VÀ số QC tự đo từ DB (code_submissions.updated_at − created_at, kỳ thi «Tải k6 judge_burst»): 60 bài, trung bình 2,50 s, p95 4,84 s, lớn nhất 6,03 s, 0 bài không DONE, 0 IE — hai số khớp (lệch <0,4 s); stack qc3s (gateway-test + worker-test, judge thật của ep-r JUDGE_PARALLELISM=2, FAKE_LLM_LATENCY=300-300, LLM_MAX_CONCURRENCY=100, hạn mức nới), máy Mac arm64 11 CPU/Colima 6 CPU 10 GiB dùng chung (load ≈ 11) |
 | TC-PE09-16 | P | k6 SCENARIO=autosave (300 VU, PUT …/answers mỗi 2 s × 3 phút) = kịch bản QC riêng 300 VU/2 s, stack qc3s (gateway-test, hạn mức nới, judge ep-r), máy dùng chung: lần chạy lúc máy rảnh (load 6–9) autosave p95 = 75,2 ms (≤150), p50 5,9 ms, trung bình 23,9 ms, lớn nhất 731 ms; 26 846 yêu cầu, http_req_failed 0, 5xx = 0. Lần đầu lúc load 17,9 (go vet/lint của QC khác) p95 698 ms: không tính, ghi để tham khảo |
