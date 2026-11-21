@@ -66,3 +66,10 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - DEF-R4-06 · TC-P202-47 · P-11-73 (sửa TC, phạm vi AC15) · P: grep JWT_EXPIRATION phạm vi sản phẩm = 0, go test ./internal/contract ok
 - DEF-R4-07 · TC-P201-19 · P-11-74 (sửa TC, dung sai +0,5 s +0,1 s) · P: 1,49–1,50 / 5,5 / 30,5 s nằm trong dung sai
 - **DEF-R9.1-06** (6d127b88): ĐÓNG — TC-UX12-2 P (ep-r: Muộn / Vắng phép / Vắng giữ đỏ rgb(206,22,40) khi rê chuột, trước sửa xám; 375 cảm ứng luật rê không áp; evidence-9.1/logs/qc-uiux91-ru1-real.rerun7z2.log).
+
+## Đợt chạy lại S4X (qc2 pair 1, 2026-11-21; ep-r @c12be038). Bảng: evidence-defrerun/results-S4X.tsv
+- **DEF-R4-10** (d1f278f4): ĐÓNG — TC-P208-34 P (GV đã mở sẵn trang, bấm thông báo phân công trong 60 s → bộ chọn lớp đúng lớp mới; smkt3-bell 3/3).
+- **DEF-R4-05** (f5f8a8be): ĐÓNG — TC-P201-11, TC-GATEP2-44, TC-GATEP2-53 P (log Caddy 0 dòng chứa token mời / token đặt lại / mã tham gia, 0 Next-Url/Next-Router-State-Tree).
+- **DEF-R5-10** (dd160463) phần API: TC-PE03-33 P (tests_stale=[True], GV 200 tests_version 7→8, TA 403, QUESTION_IN_USE 409); phần giao diện chờ chạy lại sau rebuild.
+- **DEF-R5-11** (3f748ec2): ĐÓNG — TC-PE08-04 P (nộp MCQ-only 200 trong 0,02 s, GRADED; chủ lượt nhận SSE `exam.attempt` status GRADED).
+- **DEF-R7-02** (e4b82a05): ĐÓNG — TC-P4-02-14 P (số về 0 → ticket mới: dòng gộp chưa đọc + 1 khung SSE; evidence-defrerun/R7-02/p402-14.log).

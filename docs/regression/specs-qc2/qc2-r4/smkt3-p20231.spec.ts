@@ -5,8 +5,8 @@ import { apiLogin, em, installRec, note } from "./r4ui-lib";
 // mỗi request phát lại đúng 1 lần; POST phát lại mang CÙNG Idempotency-Key. Ép 401 bằng page.route lên mọi request mang access token của lần làm mới lúc tải trang.
 installRec("smkt3-p20231");
 const json = (route: Route, status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-const ROUTES = ["/", "/documents", "/library", "/exams", "/assignments", "/attendance", "/calendar", "/threads", "/observability", "/settings/llm", "/questions", "/class/members", "/gradebook", "/inbox", "/insights", "/grading", "/analytics"];
-const ADMIN_ROUTES = ["/admin/courses", "/admin/users", "/admin/audit", "/observability", "/settings/llm", "/settings/integrations", "/"];
+const ROUTES = ["/", "/class/members", "/gradebook", "/inbox", "/documents", "/exams"]; // ưu tiên trang nhiều truy vấn; mỗi trang ≥ 36 s
+const ADMIN_ROUTES = ["/observability", "/admin/courses", "/admin/users"];
 
 type Hit = { k: string; t: number; idem?: string; forced: boolean };
 async function scan(page: Page, path: string, armWith: (arm: () => void) => Promise<void>, armEarly = false) {
@@ -37,10 +37,10 @@ async function scan(page: Page, path: string, armWith: (arm: () => void) => Prom
   const onReq = (r: { url(): string }) => r.url().endsWith("/auth/refresh") && (refresh.push(Date.now()), log("REFRESH →"));
   page.on("request", onReq);
   await page.goto(path);
-  await page.waitForTimeout(3500);
+  await page.waitForTimeout(31_500); // queryClient staleTime 30 s: sau đó focus làm mọi truy vấn đang mở của trang refetch cùng lúc
   await armWith(() => { armed = true; log("--- armed"); });
   // làm mới đồng loạt: sự kiện focus / visibilitychange khiến mọi truy vấn đang mở của trang refetch cùng lúc (React Query refetchOnWindowFocus)
-  await page.evaluate(() => { window.dispatchEvent(new Event("focus")); document.dispatchEvent(new Event("visibilitychange")); });
+  await page.evaluate(() => { window.dispatchEvent(new Event("focus")); document.dispatchEvent(new Event("visibilitychange", { bubbles: true })); });
   await page.waitForTimeout(6000);
   page.off("request", onReq);
   await page.unroute(/\/api\/v1\/(?!auth\/)/);
@@ -56,10 +56,10 @@ test("[TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refres
   test.setTimeout(420_000);
   let best: Awaited<ReturnType<typeof scan>> | null = null;
   let route = "";
-  outer: for (const [who, routes] of [["gv1", ROUTES], ["adm", ADMIN_ROUTES]] as const) {
+  outer: for (const [who, routes] of [["adm", ADMIN_ROUTES], ["gv1", ROUTES]] as const) {
     await apiLogin(page, em(who));
     for (const path of routes) {
-      const r = await scan(page, path, async (arm) => arm(), true);
+      const r = await scan(page, path, async (arm) => arm());
       console.log(`ROUTE ${who} ${path}: ép ${r.forced.length}, refresh sau 401 đầu ${r.afterFirst}, tổng refresh ${r.refreshAll}\n${r.tl.join("\n")}`);
       if (!best || r.forced.length > best.forced.length) { best = r; route = `${who} ${path}`; }
       if (r.forced.length >= 5) break outer;

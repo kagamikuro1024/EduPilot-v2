@@ -1,0 +1,17 @@
+=== RUN   TestQCS10xRegexAlone
+    qcs10x_tmp_test.go:21: v1-gia-loi-giang-vien.md                 regex_hits=1 (len=1143)
+    qcs10x_tmp_test.go:21: v2-tieng-anh-system-note.md              regex_hits=1 (len=1231)
+    qcs10x_tmp_test.go:21: v3-chen-json.md                          regex_hits=1 (len=1409)
+    qcs10x_tmp_test.go:21: v4-tinh-vi-khong-tu-khoa.md              regex_hits=1 (len=1174)
+    qcs10x_tmp_test.go:21: v5-pha-ranh-gioi.md                      regex_hits=3 (len=1169)
+    qcs10x_tmp_test.go:21: s1-tot.md                                regex_hits=0 (len=1869)
+    qcs10x_tmp_test.go:21: s2-kha.md                                regex_hits=0 (len=965)
+    qcs10x_tmp_test.go:21: s3-kem.md                                regex_hits=0 (len=251)
+    qcs10x_tmp_test.go:21: s4-trong.md                              regex_hits=0 (len=41)
+    qcs10x_tmp_test.go:21: s5-lac-de.md                             regex_hits=0 (len=595)
+    qcs10x_tmp_test.go:21: s6-injection.md                          regex_hits=2 (len=563)
+    qcs10x_tmp_test.go:21: s7-lech-hai-luot.md                      regex_hits=0 (len=2836)
+    qcs10x_tmp_test.go:26: TỔNG bài có ≥1 khớp regex: 6 / 12
+--- PASS: TestQCS10xRegexAlone (0.01s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/grading	0.762s

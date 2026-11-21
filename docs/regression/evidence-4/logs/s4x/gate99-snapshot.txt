@@ -1,0 +1,79 @@
+== container không thuộc ep-r (đang chạy):
+strange_hypatia	Up 6 minutes
+qc3s-worker	Up 7 minutes
+qc3s-gw	Up 7 minutes
+qc3s-mail	Up 7 minutes (healthy)
+qc3s-imap	Up 7 minutes
+qc3s-redis	Up 7 minutes
+qc2s-worker	Up 13 minutes
+qc2s-gw	Up 13 minutes
+qc2s-mail	Up 13 minutes (healthy)
+qc2s-redis	Up 13 minutes
+ep-qc-worker-1	Up 17 minutes (unhealthy)
+ep-qc-frontend-1	Up 17 minutes (healthy)
+ep-qc-gateway-1	Up 18 minutes (healthy)
+ep-qc-judge-1	Up 21 minutes (healthy)
+ep-qc-caddy-1	Up 21 minutes (healthy)
+edupilot-test-minio	Up 11 minutes
+edupilot-test-redis	Up 11 minutes
+edupilot-test-postgres	Up 18 minutes
+ep-qc-redis-1	Up 21 minutes (healthy)
+ep-qc-postgres-1	Up 21 minutes (healthy)
+ep-qc-mock-graph-1	Up 21 minutes (healthy)
+ep-qc-mock-imap-1	Up 21 minutes (healthy)
+ep-qc-minio-1	Up 21 minutes (healthy)
+ep-qc-mailpit-1	Up 21 minutes (healthy)
+== container không thuộc ep-r (đã dừng, còn lại):
+60
+== DB tạm trong ep-r-postgres-1:
+qc2d_mig
+qc2i_r4b
+qc2i_r3go
+qc2_s5
+smkpr
+qc2i_auth
+qc2i_seed
+qc3_seed
+== tiến trình QC (chrome/playwright/node seed/python3 QC):
+ 3044 /Users/Shared/Riot Games/Riot Client.app/Contents/Frameworks/Riot Client.app/Contents/Frameworks/Electron Framework.framework/Helpers/chrome_cra
+ 8990 /Applications/Discord.app/Contents/Frameworks/Electron Framework.framework/Helpers/chrome_crashpad_handler --no-rate-limit --monitor-self-annota
+25161 node server.mjs
+40641 /bin/bash /tmp/qc2-pw.sh timeout 480 npx playwright test -c playwright.qc-audit.config.ts --output=/Users/kuro/Documents/TA_Agent_qc2/docs/regre
+41124 bash run-s4x-r5.sh
+41128 /bin/bash /tmp/qc2-pw.sh timeout 400 node smkP_p10544.cjs
+44107 /bin/bash /tmp/qc2-pw.sh python3 d0107.py
+44293 node scripts/seed.mjs
+48406 /bin/bash /tmp/qc2-pw.sh bash s8-gates.sh p6
+49139 bash scripts/s4x-queue3.sh
+51111 node e2e/support/api-server.mjs
+51112 /opt/homebrew/Cellar/node@24/24.21.0/bin/node /Users/kuro/checkouts/qc3s5/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/lib/worke
+51113 /opt/homebrew/Cellar/node@24/24.21.0/bin/node /Users/kuro/checkouts/qc3s5/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/lib/worke
+51114 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-tria
+51115 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-tria
+51133 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=gpu-process -
+51134 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=gpu-process -
+51135 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=utility --uti
+51136 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=utility --uti
+51243 timeout 150 npx playwright test -c playwright.qc-real-flow.config.ts e2e/qc-real-106-g08.spec.ts -g TC-G08-17
+51246 npm exec playwright test -c playwright.qc-real-flow.config.ts e2e/qc-real-106-g08.spec.ts -g TC-G08-17
+51304 node /Users/kuro/Documents/TA_Agent_qc5/frontend/node_modules/.bin/../../../node_modules/.pnpm/@playwright+test@1.63.0/node_modules/@playwright/
+51412 /opt/homebrew/Cellar/node@24/24.21.0/bin/node /Users/kuro/Documents/TA_Agent_qc5/node_modules/.pnpm/playwright@1.63.0/node_modules/playwright/li
+51414 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-tria
+51415 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=gpu-process -
+51416 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=utility --uti
+51432 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=renderer --he
+51896 bash scripts/s4n-pw.sh s4x2b desktop smkt3-p20231.spec.ts
+52718 /bin/bash /tmp/qc2-pw.sh node scripts/check-docs-seed.mjs
+52940 /bin/bash /tmp/qc2-pw.sh bash -c (while sleep 1; do docker exec ep-r-redis-1 sh -c "(redis-cli --scan --pattern 'ep:rl:auth*'; redis-cli --scan 
+53341 bash scripts/s4x-queue4.sh
+53342 bash scripts/s4n-pw.sh s4x5 desktop r4ui-audit.spec.ts -g · (student|ta)$
+53542 bash run-s4x-r5api.sh
+53547 /bin/bash /tmp/qc2-pw.sh timeout 480 python3 smkP_s5api.py p0333
+53726 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=renderer --he
+53769 /Users/kuro/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --type=renderer --he
+== khoá Playwright:
+/tmp/qc2-pw.lock
+== cây git ngoài artefact QC (docs/regression, specs, benchmarks/reports):
+ D "docs/regression/evidence-defrerun/R10.7/pw-out/qc-ui-audit-real-ch\341\273\245p-teacher-empty-1440-desktop/error-context.md"
+ D "docs/regression/evidence-defrerun/R10.7/pw-out/qc-ui-audit-real-ch\341\273\245p-teacher-empty-375-desktop/error-context.md"
+== tệp nhị phân > 5 MB trong docs/regression:

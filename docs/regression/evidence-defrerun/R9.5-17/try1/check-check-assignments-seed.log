@@ -1,0 +1,13 @@
+(node:45780) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51
+  if (r.status !== 200) throw new Error(`Không đăng nhập được ${key}: ${r.status}`);
+                              ^
+
+Error: Không đăng nhập được teacher: 429
+    at tok (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async courses (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:70:45)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-assignments-seed.mjs:19:16
+
+Node.js v24.21.0

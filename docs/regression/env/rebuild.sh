@@ -8,7 +8,7 @@ LOCK=/tmp/qc2-lock-global; LOG=/tmp/qc2-global-changes.log
 for i in $(seq 1 80); do mkdir $LOCK 2>/dev/null && break; sleep 15; done
 echo qc2 > $LOCK/owner
 echo "$(date +%T) qc2: LOCK rebuild ep-r gateway/worker/frontend/migrate trên HEAD $(git rev-parse --short HEAD); ≤15 phút" >> $LOG
-$EPR_C build gateway worker frontend migrate 2>&1 | tail -5
+for sv in gateway worker frontend migrate; do fr=$(colima ssh -- free -m | awk '/^Mem/{print $7}'); echo "build $sv free=$fr"; [ "${fr:-0}" -ge 2500 ] || { echo 'RAM < 2500, dừng'; exit 3; }; $EPR_C build $sv 2>&1 | tail -3; done
 $EPR_C up -d --force-recreate migrate 2>&1 | tail -3
 $EPR_C up -d 2>&1 | tail -15
 for i in $(seq 1 60); do [ "$(curl -ks -o /dev/null -w '%{http_code}' https://localhost:1143/api/v1/readyz)" = 200 ] && break; sleep 5; done

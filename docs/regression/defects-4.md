@@ -32,6 +32,7 @@
 - Tái hiện: `docker logs ep-r-caddy-1 2>&1 | grep -c -F -f <danh sách token lấy từ thư Mailpit>` → 1 (dòng `GET /?_rsc=… status 200`, ts 1795031441 = 2026-11-19 02:50:41, HeadlessChrome sau khi mở và chấp nhận lời mời bằng Playwright). Gateway, worker, postgres, redis, pgbouncer, qc2i-*: 0.
 - Nguồn: `deploy/caddy/Caddyfile:25-28` (`format filter … request>uri regexp (token=|/invite/|/join/)…`); không có bộ lọc cho `request>headers>Next-Url` / `Next-Router-State-Tree`. Mã tham gia `/join/<mã>` rơi vào cùng đường (tiêu đề `Next-Url`). Đề xuất: `delete`/`replace` hai tiêu đề này (hoặc không ghi `request>headers`) trong filter.
 - Bằng chứng: evidence-4/logs/smkT2/p20111-scan.txt. Không phải hồi quy do sprint sau (bộ lọc chỉ che uri từ s4).
+- **CHẠY LẠI P (qc2/S4X, 2026-11-21, ep-r @c12be038, sửa f5f8a8be):** lời mời mới + đặt lại mật khẩu + `/join/<mã>` khi đã đăng nhập → quét `docker logs ep-r-caddy-1` từ 13:21:28Z: dòng chứa token mời / token đặt lại / mã tham gia = 0; tiêu đề Next-Url / Next-Router-State-Tree trong log = 0; `/invite|/join` REDACTED=3, `token=REDACTED`=1; gateway/worker/pgbouncer/redis/postgres = 0. TC-P201-11, TC-GATEP2-44, TC-GATEP2-53 = P → ĐÓNG. Bằng chứng evidence-4/logs/s4n-caddy-scan.txt, logs/s4n-pw-s4x3.log.
 
 ## DEF-R4-06 — Thấp — TC-P202-47 (sprint gốc 4, US-P2-02 AC15)
 - Triệu chứng: lệnh nguyên văn của TC (`grep -rn JWT_EXPIRATION . --include=*.go --include=*.yml --include=.env.example --include=*.md | grep -v 'docs/specs/FEAT-pg-foundation\|docs/sprints' | wc -l`) trả 8, TC kỳ vọng 0.
@@ -67,3 +68,4 @@
 - Tái hiện: `specs-qc2/qc2-r4/smkt3-bell.spec.ts` ca «A» (fail) so với «B» (đăng nhập sau khi gán, P) và «A2» (chờ 65 s, P); ep-r HEAD 425396a7.
 - Mức ảnh hưởng: chỉ cửa sổ ≤ 60 s sau lúc được gán lớp khi trang đã mở; tự khỏi. Gợi ý: vô hiệu `/me/courses` khi chuông nhận thông báo phân công. TC gốc (đăng nhập sau khi được gán) đạt.
 - Bằng chứng: evidence-4/logs/s4n-res/smkt3-bell.jsonl, logs/s4n-pw-s7bell.log.
+- **CHẠY LẠI P (qc2/S4X, 2026-11-21, ep-r @c12be038, sửa d1f278f4):** `smkt3-bell.spec.ts` 3/3 đạt (lượt s4x1). Ca A (trang GV2 đã mở sẵn, Admin gán lớp mới, bấm thông báo trong 60 s): chấm sau 0,0 s, pathname `/class/settings`, bộ chọn lớp «QC2IUAAMWQFQKHL · QC2IU AA» = lớp MỚI (trước sửa: lớp cũ), `/me/courses` gọi lại 2 lần sau lúc gán; ca A2 (chờ 65 s) và B (đăng nhập sau khi gán) vẫn đúng. TC-P208-34 = P → ĐÓNG. Bằng chứng evidence-4/logs/s4n-res/smkt3-bell.jsonl, logs/s4n-pw-s4x1.log.

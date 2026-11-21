@@ -1,0 +1,14 @@
+[5/20] Lớp 761987: nhập danh sách 30 sinh viên, nhận lời mời…
+Seed lỗi: Không đăng nhập được sv08@edupilot.local
+rc=1 113 s
+[5/20] Lớp 761987: nhập danh sách 30 sinh viên, nhận lời mời…
+Seed lỗi: Không đăng nhập được sv18@edupilot.local
+rc=1 46 s
+scripts/check-assignments-seed.mjs 0
+scripts/check-chat-seed.mjs 1
+run.sh: line 14: 51128 Terminated: 15          /tmp/qc2-pw.sh node $f > $D/check-$(basename $f .mjs).log 2>&1
+scripts/check-crm-seed.mjs 143
+run.sh: line 14: 52718 Terminated: 15          /tmp/qc2-pw.sh node $f > $D/check-$(basename $f .mjs).log 2>&1
+scripts/check-docs-seed.mjs 143
+scripts/check-exam-seed.mjs 2
+scripts/check-grade-seed.mjs 1

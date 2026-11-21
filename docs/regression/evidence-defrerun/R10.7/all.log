@@ -1,49 +1,15 @@
-== data-student 09:42:13
+== data-student 20:16:55
   -  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440
   -  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375
 
   6 skipped
-  2 passed (49.7s)
+  2 passed (47.9s)
 rc=0
-== data-ta 09:46:50
+== data-ta 20:18:14
   -  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440
   -  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375
 
   6 skipped
   2 passed (1.3m)
 rc=0
-== data-teacher 09:48:56
-  -  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440
-  -  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375
-
-  6 skipped
-  2 passed (1.5m)
-rc=0
-== data-admin 10:26:32
-  ✓  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440 (15.2s)
-  ✓  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375 (15.4s)
-
-  6 skipped
-  2 passed (31.2s)
-rc=0
-== empty-student 10:31:41
-  -  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @1440
-  -  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @375
-
-  4 skipped
-  2 passed (45.0s)
-rc=0
-== empty-ta 10:39:38
-  -  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @1440
-  -  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @375
-
-  4 skipped
-  2 passed (1.7m)
-rc=0
-== empty-teacher 10:41:55
-
-  2 failed
-    [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @1440 ──────────────────────
-    [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @375 ───────────────────────
-  4 skipped
-rc=1
+== data-teacher 20:20:00

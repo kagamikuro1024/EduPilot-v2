@@ -187,3 +187,9 @@ Cách chạy (bản sao script ở `docs/regression/evidence-10.5/scripts/`, s�
 | TC-D08-19 | P | go test ./db -run TestMigrations: RoundTrip PASS (goose up trên DB trống → up lần hai no-op → down về 0 → up lại, lược đồ giống hệt) + UpAppliesMissingOlder PASS. git diff 8a1d4d02..8f5615b8 -- migrations: chỉ THÊM 00020_decision.sql (+00021 của nhánh khác), không sửa tệp cũ; 00020 liền sau 00019 (cuối đã merge lúc tách nhánh) |
 | TC-D09-02 | P | Bản sao tạm (ovnfs ~/checkouts/qc105go) gọi .Decide( trong internal/grade (qcMutation) → TestDecideCallersAllowlist ĐỎ «grade.qcMutation (internal/grade/qc105_mut.go)»; xoá bản sao → PASS lại; không commit |
 | TC-D09-07 | P | docs/PRODUCTION_READINESS.md §1 dòng 23: «Triển khai thật bắt buộc dùng gói trả phí cho khoá Gemini»; .env.example dòng 54: LLM_DECISION_ALLOW_REAL=false (chú thích dòng 51); docs/guides/decision-model.md đoạn đầu: «Trước khi dùng dữ liệu sinh viên thật… Free Tier… triển khai thật bắt buộc…» |
+
+## Lượt 2026-11-21 — S10X (ep-r, HEAD c12be038; bằng chứng `evidence-10.5/s10x/`)
+| TC | KQ | Ghi chú |
+| --- | --- | --- |
+| TC-D08-14 | F | DEF-R105S-02: `run.sh` chỉ gọi `run.py`; `run.py` không có đường «thật»: từ chối cứng (dòng 374) khi provider không phải bản giả, dòng 356 ghi cứng «Cột «thật» (AC6): chờ phép PM.»; không có ALLOW_REAL / cờ xác nhận / trần 300 / cột «thật» (d0814.txt) |
+| TC-D04-11 | N | Chạy lại không được: lượt thật cần khoá Gemini; `GEMINI_API_KEY` rỗng ở `.env.local` và ở gateway ep-r (`LLM_DECISION_ALLOW_REAL=false`), `/admin/llm/decision` → `real_allowed:false`; thêm nữa không có công cụ đo lượt thật (DEF-R105S-02). Cần PM cấp khoá trả phí + bật ALLOW_REAL rồi chạy tay ≤ 300 lời gọi |

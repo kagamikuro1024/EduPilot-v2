@@ -1,0 +1,1 @@
+run-s4x-stale.sh: line 8: 63021 Terminated: 15          env ONLY=stale E=$E A=$A /tmp/qc2-pw.sh timeout 300 node smkP_m.cjs > $D/s4x-stale-ui.log 2>&1

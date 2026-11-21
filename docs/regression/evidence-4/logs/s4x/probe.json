@@ -1,0 +1,248 @@
+{
+ "SV /@375": {
+  "cut": [],
+  "cutN": 0,
+  "touch": []
+ },
+ "TA /students@390": {
+  "cut": [
+   {
+    "tag": "SPAN",
+    "text": "Hoạt động học",
+    "cls": "",
+    "a": [
+     304,
+     393
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TH",
+    "text": "Rủi ro",
+    "cls": " ",
+    "a": [
+     405,
+     463
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   }
+  ],
+  "cutN": 18,
+  "touch": []
+ },
+ "TA /gradebook@390": {
+  "cut": [],
+  "cutN": 0,
+  "touch": []
+ },
+ "GV /students@390": {
+  "cut": [
+   {
+    "tag": "SPAN",
+    "text": "Hoạt động học",
+    "cls": "",
+    "a": [
+     304,
+     393
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TH",
+    "text": "Rủi ro",
+    "cls": " ",
+    "a": [
+     405,
+     463
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   },
+   {
+    "tag": "TD",
+    "text": "0 phút · 0 câu hỏi",
+    "cls": "",
+    "a": [
+     292,
+     405
+    ],
+    "parent": "DIV.DataTable-module__PUx__a__vscroll",
+    "pdata": "class,data-part,style",
+    "b": [
+     29,
+     361
+    ],
+    "ovx": "auto"
+   }
+  ],
+  "cutN": 18,
+  "touch": []
+ },
+ "SV chặn quyền": {
+  "/inbox": {
+   "url": "/inbox",
+   "h1": "Bạn không có quyền xem màn này",
+   "text": "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+  },
+  "/students": {
+   "url": "/students",
+   "h1": "Bạn không có quyền xem màn này",
+   "text": "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+  },
+  "/gradebook": {
+   "url": "/gradebook",
+   "h1": "Bạn không có quyền xem màn này",
+   "text": "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+  },
+  "/documents": {
+   "url": "/documents",
+   "h1": "Bạn không có quyền xem màn này",
+   "text": "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+  },
+  "/insights": {
+   "url": "/insights",
+   "h1": "Bạn không có quyền xem màn này",
+   "text": "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+  },
+  "/class/members": {
+   "url": "/class/members",
+   "h1": "Bạn không có quyền xem màn này",
+   "text": "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+  }
+ }
+}

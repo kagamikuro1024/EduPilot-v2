@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Đo trước / sau của decision model (US-DM-08 AC4, AC5, AC9). Chỉ thư viện chuẩn, chỉ HTTP (D46): chạy như một client ngoài.
+
+  bash benchmarks/decision/run.sh            (stack đã dựng + seed; provider decision GIẢ; sinh chữ qua cấu hình sẵn có)
+Biến: API_URL (https://localhost/api/v1), SEED_DEFAULT_PASSWORD (bắt buộc), CHAT_ROUNDS (3), BENCH_COURSE (761987),
+      GRADE_TIMEOUT (900 s), BENCH_OUT (benchmarks/reports).
+Mỗi kịch bản chạy HAI lần trên cùng stack: cổng TẮT («trước») rồi cổng BẬT («sau», qua API ADMIN, công tắc hệ thống + lớp).
+Không gọi nhà cung cấp thật: provider decision phải là bản giả (`provider.fake`); lượt thật chờ phép PM (AC6).
+Thoát mã 2 «Gateway chưa chạy» khi không nối được (không ghi báo cáo rỗng).
+"""
+import hashlib, json, os, re, ssl, statistics, sys, time, urllib.error, urllib.request, uuid
+from pathlib import Path
+          "- Cột «thật» (AC6): chờ phép PM."]
+    prov = ov.get("provider") or {}
+    if not prov.get("fake"):
+        die("Provider decision không phải bản giả: lượt thật cần phép PM (AC6). Dừng.")
+    tag = time.strftime("%d%H%M")  # submission_code ≤ 12 ký tự: «DM» + chế độ + 6 chữ số
+8:Không gọi nhà cung cấp thật: provider decision phải là bản giả (`provider.fake`); lượt thật chờ phép PM (AC6).
+237:    inj = sorted((ROOT / "benchmarks/real-llm/data/injection").glob("*.md"))
+325:            w = 300 * (v or 0) / m
+356:          "- Cột «thật» (AC6): chờ phép PM."]
+374:        die("Provider decision không phải bản giả: lượt thật cần phép PM (AC6). Dừng.")

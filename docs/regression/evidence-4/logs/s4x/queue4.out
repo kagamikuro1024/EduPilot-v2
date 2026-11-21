@@ -1,0 +1,2 @@
+scripts/s4x-queue4.sh: line 3: 53342 Terminated: 15          bash scripts/s4n-pw.sh s4x5 desktop r4ui-audit.spec.ts -g "· (student|ta)$"
+scripts/s4x-queue4.sh: line 4: 63996 Terminated: 15          bash scripts/s4n-pw.sh s4x6 desktop r4ui-audit.spec.ts -g "· (teacher|admin)$"

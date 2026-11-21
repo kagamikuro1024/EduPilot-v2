@@ -1,0 +1,3 @@
+scripts/check-docs-seed.mjs 143
+scripts/check-exam-seed.mjs 2
+scripts/check-grade-seed.mjs 1

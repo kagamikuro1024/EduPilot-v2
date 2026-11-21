@@ -22,3 +22,14 @@
 - Kỳ vọng (theo AC): spec đủ 6 nhánh + assert `cascade_path` từng nhánh · Thực tế: 2 ca giao diện; 6 nhánh nằm ở Go (`TestCascadeThreadsHTTP` a,b,c,f; `TestInjectionOR` d; `TestRouteDecisionTable` e) — chú thích đầu spec và handoff L5 («Chưa làm (có chủ đích): cascade.spec.ts bản chạy trên stack thật») thừa nhận
 - Bằng chứng: `evidence-10.5/s105/logs/cascade-spec-lines.txt`; tự chạy lại 6 nhánh bằng API ở TC-D08-07 (kết quả ở smoke)
 - Lưu ý: nhánh vẫn được kiểm ở mức Go + API của QC; thiếu là bản E2E theo đúng chữ của AC3 → BA/PM quyết «sửa AC cho khớp (Go + contract)» hoặc dev bổ sung spec
+
+## Lượt 2026-11-21 — S10X (tĩnh, HEAD c12be038)
+
+### DEF-R105S-02 — `benchmarks/decision/run.py` không có đường «lượt thật» (cột «thật», cờ xác nhận, trần 300)
+- Mức: Thấp
+- TC: TC-D08-14 (US-DM-08 AC6: «PM cho phép bằng văn bản và `LLM_DECISION_ALLOW_REAL=true` → tối đa 300 lời gọi; báo cáo thêm cột «thật»»)
+- Môi trường: tĩnh (repo `c12be038`), không cần stack
+- Bước tái hiện: 1. Đọc `benchmarks/decision/run.sh` (chỉ `exec python3 run.py`). 2. `grep -n -i "real\|thật\|ALLOW\|300\|xác nhận" benchmarks/decision/run.py` → dòng 8 (docstring), 356 («Cột «thật» (AC6): chờ phép PM.» ghi cứng vào báo cáo), 374 (`die("Provider decision không phải bản giả: lượt thật cần phép PM (AC6). Dừng.")`). 3. Không có biến `LLM_DECISION_ALLOW_REAL`, cờ xác nhận, bộ đếm / trần 300, cột «thật» (nhà cung cấp, model, ngày, độ trễ, chi phí).
+- Kỳ vọng (theo TC/AC): cột «thật» chỉ chạy khi ALLOW_REAL=true **và** có xác nhận rõ; mặc định bỏ qua; trần 300 · Thực tế: từ chối cứng khi provider không phải bản giả; không có mã cho lượt thật nên không có chặn «có xác nhận» / trần 300 để kiểm (mặc định an toàn nhưng AC chưa có mã)
+- Bằng chứng: `evidence-10.5/s10x/d0814.txt`
+- Lưu ý: kéo theo TC-D04-11 (lượt thật ≤ 300 lời gọi) chưa chạy được ở ep-r: không có `GEMINI_API_KEY` (.env.local và gateway ep-r đều rỗng) và không có công cụ đo lượt thật → ghi N.

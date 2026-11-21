@@ -1,0 +1,5 @@
+=== RUN   TestQCS10xReal
+    qcs10x_tmp_test.go:17: không có khoá
+--- SKIP: TestQCS10xReal (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/llm/provider	0.378s

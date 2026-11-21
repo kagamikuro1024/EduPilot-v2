@@ -1,0 +1,13 @@
+GET /courses/{C}/regression -> 404
+POST /courses/{C}/regression -> 404
+GET /courses/{C}/regression-cases -> 404
+POST /courses/{C}/regression-cases -> 404
+GET /courses/{C}/guidance/regression -> 404
+POST /courses/{C}/guidance/regression -> 404
+GET /courses/{C}/grading-regression-cases -> 404
+POST /courses/{C}/grading-regression-cases -> 404
+GET /courses/{C}/assignments/01a1effc-21c1-718a-87dc-dff9d42a8fef/regression -> 404
+POST /courses/{C}/assignments/01a1effc-21c1-718a-87dc-dff9d42a8fef/regression -> 404
+GET /courses/{C}/assignments/01a1effc-21c1-718a-87dc-dff9d42a8fef/guidance/regression -> 404
+POST /courses/{C}/assignments/01a1effc-21c1-718a-87dc-dff9d42a8fef/guidance/regression -> 404
+export -> 404

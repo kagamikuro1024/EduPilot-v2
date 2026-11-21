@@ -1,0 +1,6 @@
+1) sau ticket 1: ['01a1fe44-64a6-7618-ab70-fd2fa938f127|-|1 câu hỏi đang chờ giảng viên']
+read (200, {'updated': 1})
+2) đã đọc: 01a1fe44-64a6-7618-ab70-fd2fa938f127|2026-11-21 13:21:03.386857+00|1 câu hỏi đang chờ giảng viên
+3) sau dismiss (OPEN=0): 01a1fe44-64a6-7618-ab70-fd2fa938f127|2026-11-21 13:21:03.386857+00|0 câu hỏi đang chờ giảng viên OPEN= 0
+4) sau ticket mới (n=1, chờ 8 s): 01a1fe44-64a6-7618-ab70-fd2fa938f127|-|1 câu hỏi đang chờ giảng viên khung SSE notification mới = 1
+P TC-P4-02-14 lớp S4X7 (GV s4x7t, SV s4x7s01/02): dòng gộp đã đọc (n=1) → dismiss (n=0): read_at=2026-11-21 13:21:03 tiêu đề="0 câu hỏi đang chờ giảng viên"; ticket mới (n=1) sau 8 s: read_at=- (- = chưa đọc), tiêu đề="1 câu hỏi đang chờ giảng viên", khung SSE notification mới=1, ticket OPEN, 1 dòng TICKET_NEW

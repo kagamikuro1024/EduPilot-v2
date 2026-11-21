@@ -1,0 +1,21 @@
+
+Running 6 tests using 1 worker
+
+(node:40476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40476) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:15:1 › [TC-P208-34] B: được gán rồi đăng nhập → bấm thông báo → đúng đường dẫn, bộ chọn lớp đúng lớp, unread giảm 1 (2.5s)
+
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp (7.2s)
+
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:65:1 › [TC-P208-34] A2 (chờ 65 s > staleTime 60 s của /me/courses trước khi bấm): GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp (1.2m)
+
+  ✓  4 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-journey.spec.ts:10:1 › [TC-P212-24 GATEP2-24] Admin mở lớp → GV thấy chuông + mã → SV 375 /join/MÃ → xem trước → tham gia → GV thấy thành viên mới (5.1s)
+
+  ✓  5 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-nav.spec.ts:13:1 › [TC-P202-44] chưa đăng nhập → /login?next; số mục nav theo vai; không bộ đổi vai ở build thường (9.2s)
+
+  ✓  6 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-nav.spec.ts:44:1 › [TC-P202-48] sv.kha: hồ sơ người mock B, /chat phiên mock B, không đọc cookie ep_demo_*, email lạ → theo vai; kho trình duyệt sạch (3.5s)
+
+  6 passed (1.7m)
+done rc=0

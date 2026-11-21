@@ -71,7 +71,7 @@ for (const role of Object.keys(ROUTES)) {
       for (const r of routes) {
         const want = ALLOW[role].includes(g) ? "MO" : "CHAN";
         await page.goto(r);
-        await settle(page, 1200);
+        await settle(page, 2600);
         const txt = await page.evaluate(() => document.body.innerText);
         out.push({ route: r, want, got: /Bạn không có quyền (mở trang|xem màn) này/.test(txt) ? "CHAN" : "MO" });
       }

@@ -1,0 +1,41 @@
+== r301 20:20:22
+== p0333 20:29:33
+== p0333 20:33:16
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/smkP_s5api.py", line 3, in <module>
+    from r5lib import *
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 64, in <module>
+    T, TA, AD = login('r5t'), login('r5ta'), login('admin')
+                ^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 32, in login
+    _tok[u] = j['access_token']; tf = _tokfile(); tf[u] = [_tok[u], time.time() + 780]; json.dump(tf, open(TOKF, 'w')); return _tok[u]
+                                                                                                      ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/qc2-c5/toks.json'
+rc=1
+== p0804 20:33:17
+Traceback (most recent call last):
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/smkP_s5api.py", line 3, in <module>
+    from r5lib import *
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 64, in <module>
+    T, TA, AD = login('r5t'), login('r5ta'), login('admin')
+                ^^^^^^^^^^^^
+  File "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/scripts/r5lib.py", line 32, in login
+    _tok[u] = j['access_token']; tf = _tokfile(); tf[u] = [_tok[u], time.time() + 780]; json.dump(tf, open(TOKF, 'w')); return _tok[u]
+                                                                                                      ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/qc2-c5/toks.json'
+rc=1
+API-ALLDONE
+== p0333 20:33:43
+EXAMID 01a1fe50-207d-7fc5-8635-1ea57f44a98b 01a1fe50-510a-7ff8-94a6-d80fc168e24e
+P TC-PE03-33 sửa test ẩn của câu đã dùng ở bài PUBLISHED: GV 200 (tests_version 7 → 8); TA 403; điểm bài cũ 10.00 → 10.00 (chưa đổi tới khi regrade); API kết quả S
+rc=0
+== p0804 20:35:27
+P TC-PE08-04 MCQ-only (r5s36): nộp → 200 trong 0.02 s (≤1 s); ngay sau nộp trong DB: status=GRADED, auto_score=0.00, graded_at đặt=t; breakdown 4 mục [{item_id,ear
+rc=0
+API-ALLDONE
+rc=143
+== s27 20:37:00
+rc=143
+== s18 20:37:07
+rc=137
+== stale 20:37:35

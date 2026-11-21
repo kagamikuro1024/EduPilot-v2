@@ -34,3 +34,6 @@
 | DEF-R106S-13 | Thấp | TC-G07-08 | `regress run` không kiểm ADMIN / môi trường đo (chỉ `export` có cổng REGRESSION_EXPORT_ALLOWED) | MỞ |
 | DEF-R106S-14 | Thấp | TC-G07-09 | `regressed()` chỉ xét MAE và \|lệch TB\|; `worse` không vào mã thoát, baseline không theo tiêu chí → «tiêu chí vốn đúng nay sai 0,6» không bị bắt; thiếu `benchmarks/guidance/baseline.json` | MỞ |
 | DEF-R106S-15 | Thấp | TC-G07-10 | Thiếu checklist PR ghi lệnh `regress run` (guide có, CI đúng không chạy) | MỞ |
+
+## Lượt 2026-11-21 — S10X (ep-r, HEAD c12be038)
+| DEF-R106S-16 | Thấp | TC-G07-12 | `cmd/regress export` (REGRESSION_EXPORT_ALLOWED=true) ghi `audit_log` `regress.export` với `after={"cases":N}` nhưng `actor_id` rỗng và không có người chạy / OS user ở `before`/`after`: thiếu «ai» (US-GD-07 AC5, US-GD-11 AC9 «ai, gì, trước / sau»). Phần còn lại đạt: JSONL ngoài repo (`--out` trong repo bị từ chối rc=2), mặc định từ chối rc=3, PII (tên, MSSV, email, SĐT) thành «[đã ẩn]», id băm 16 hex, không `student_id`, 13/13 đường HTTP `…/regression*` = 404. Bằng chứng: `evidence-10.6/s10x/g07-12-export.log`, `g07-12-audit.txt`, `g07-12-http.txt` | MỞ |

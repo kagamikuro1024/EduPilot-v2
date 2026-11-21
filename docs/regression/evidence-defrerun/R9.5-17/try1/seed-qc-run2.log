@@ -1,0 +1,6 @@
+[1/20] Admin đầu tiên (gateway admin create)…
+(node:45250) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2/20] Mời giảng viên và trợ giảng, nhận lời mời…
+Seed lỗi: Không đăng nhập được ta@edupilot.local
+rc=1 31 s

@@ -1,0 +1,9 @@
+== crm
+attendance=270 absent=21 speak=65 risk={"AT_RISK":1,"WATCH":3,"NONE":26} tickets=5 {"OPEN":2,"CLAIMED":1,"ANSWERED":1,"CLOSED":1} queue=2 idempotent=bỏ qua (--no-rerun)
+== chat
+chat=151 sessions=34 outside=10 threads=12/3 states={"PENDING":4,"REJECTED":1,"CORRECTED":2,"VERIFIED":3,"SKIPPED":2} idempotent=bỏ qua (--no-rerun)
+== docs
+docs=8 READY=5 answer_key=1 shared=5 reembedded=0 events=2/1 idempotent=bỏ qua (--no-rerun)
+OK bank
+  - chỉ khớp 29/30
+OK demo

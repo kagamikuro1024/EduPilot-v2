@@ -1,0 +1,3 @@
+scripts/check-assignments-seed.mjs 0
+scripts/check-chat-seed.mjs 1
+scripts/check-crm-seed.mjs 143

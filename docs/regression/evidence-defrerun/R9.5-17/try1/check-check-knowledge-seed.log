@@ -1,0 +1,12 @@
+(node:46382) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51
+  if (r.status !== 200) throw new Error(`Không đăng nhập được ${key}: ${r.status}`);
+                              ^
+
+Error: Không đăng nhập được sv.gioi: 429
+    at tok (file:///Users/kuro/Documents/TA_Agent_qc2/scripts/seed-check-lib.mjs:51:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-knowledge-seed.mjs:19:12
+
+Node.js v24.21.0
