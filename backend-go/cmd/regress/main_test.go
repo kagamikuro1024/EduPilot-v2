@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -84,4 +85,14 @@ func TestRegressRunNeedsMeasureEnv(t *testing.T) {
 	code := run([]string{"run"}, func(k string) string { return map[string]string{"REGRESSION_RUN_ALLOWED": "true"}[k] }, &so, &se)
 	require.Equal(t, 2, code)
 	require.Contains(t, se.String(), "--assignment")
+}
+
+// TestBaselineFileParses — benchmarks/guidance/baseline.json (US-GD-07 AC4) đọc được thành Report với MAE / lệch là decimal hợp lệ: `regress run --baseline` không chết vì tệp hỏng.
+func TestBaselineFileParses(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("..", "..", "..", "benchmarks", "guidance", "baseline.json"))
+	require.NoError(t, err)
+	var b Report
+	require.NoError(t, json.Unmarshal(raw, &b))
+	require.Positive(t, b.N)
+	require.NotPanics(t, func() { regressed(Report{MAE: "0.00", Bias: "0.00"}, b, 0.10) })
 }
