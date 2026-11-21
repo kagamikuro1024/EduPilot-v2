@@ -52,10 +52,10 @@ test("ngăn bài tập: Duyệt → Chờ áp dụng → Áp dụng gửi expect
   const panel = page.locator("[data-part=guidance-panel]");
   await expect(panel).toContainText("Bản v1 · 1 chờ duyệt");
   await expect(panel.locator("[data-part=guidance-cases]")).toHaveText("Ca kiểm thử 3");
-  // (h)(i): nhãn tự giải thích — «đổi điểm», «N bài đổi điểm»; dòng bản đang dùng luôn có mặt dù chưa đủ bài để đo
+  // (h)(i): nhãn tự giải thích — «đổi điểm», «N lần sửa» (US-GD-04 AC2, P-11-77); dòng bản đang dùng luôn có mặt dù chưa đủ bài để đo
   await expect(panel.locator("[data-part=guidance-stats]").first()).toHaveText("Bản v0 · 20 bài đã duyệt · lệch tiêu chí 0,18 · lệch tổng 0,70 · đổi điểm 24%");
   await expect(panel.locator("[data-part=guidance-stats]").nth(1)).toHaveText("Bản v1 (đang dùng) · chưa đủ bài đã duyệt để đo");
-  await expect(panel.locator("[data-part=guidance-item]")).toContainText("bài đổi điểm");
+  await expect(panel.locator("[data-part=guidance-item]")).toContainText("6 lần sửa");
   await expect(panel.locator("[data-part=guidance-item]")).toContainText("Chấm chặt hơn khi chỉ nêu tên tác nhân");
   await expect(panel.getByRole("button", { name: "Áp dụng" })).toBeDisabled();
   await panel.getByRole("button", { name: "Duyệt" }).click();
@@ -139,6 +139,24 @@ test("rút ra 0 lưu ý (API bỏ khoá draft khi 0): hiện «Không có lưu �
   await expect(panel.getByText("Không có lưu ý mới", { exact: true })).toBeVisible();
   await expect(panel.locator("[data-part=guidance-dropped]")).toHaveText("2 lưu ý bị loại");
   await expect(panel.locator("[data-part=guidance-reflected]")).toHaveCount(0);
+});
+
+test("khối «Lưu ý chấm»: «Bản v2 · 3 chờ duyệt»; nhãn «Đã áp dụng» / «lần sửa»; mục «Đã nghỉ» vẫn hiện (DEF-R106S-04/05, US-GD-04 AC1/AC2)", async ({ page, context }) => {
+  const items = [
+    item({ id: "i-d1", status: "DRAFT" }), item({ id: "i-d2", status: "DRAFT" }), item({ id: "i-d3", status: "DRAFT" }),
+    item({ id: "i-a", status: "APPROVED", approved_in_version: null }),
+    item({ id: "i-u", status: "APPROVED", approved_in_version: 2 }),
+    item({ id: "i-p", status: "APPROVED", approved_in_version: 2, pending_retire: true }),
+    item({ id: "i-r", status: "REJECTED" }),
+    item({ id: "i-x", status: "RETIRED", approved_in_version: 1, retired_in_version: 2 }),
+  ];
+  await openDrawer(page, context, () => overview({ current_version: 2, items, counts: { draft: 3, approved: 2, pending_retire: 1, rejected: 1, retired: 1 } }), {}, true);
+  const panel = page.locator("[data-part=guidance-panel]");
+  await expect(panel).toContainText("Bản v2 · 3 chờ duyệt");
+  for (const t of ["Chờ duyệt", "Chờ áp dụng", "Đã áp dụng", "Chờ nghỉ", "Đã bỏ", "Đã nghỉ"]) await expect(panel.getByText(t, { exact: true }).first()).toBeVisible();
+  await expect(panel.getByText(/Đang dùng · v/)).toHaveCount(0);
+  await expect(panel.locator("[data-part=guidance-item]").first()).toContainText("6 lần sửa");
+  await expect(panel.getByText(/bài đổi điểm/)).toHaveCount(0);
 });
 
 test("lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm»", async ({ page, context }, info) => {
