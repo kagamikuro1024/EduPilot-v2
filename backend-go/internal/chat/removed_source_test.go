@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
+
+	"github.com/edupilot/backend-go/internal/chat"
 )
 
 // DEF-R6-D1 (TC-P3-05-42 b, SRS FEAT-docs-calendar 105): chat cũ còn trích dẫn tài liệu đã xoá → mục đó `removed:true`, không còn tên / đoạn trích; mục còn tài liệu giữ nguyên.
@@ -22,7 +26,17 @@ func TestMessagesMarkRemovedSource(t *testing.T) {
 	_, err = r.pool.Exec(t.Context(), `delete from documents where id = $1`, gone)
 	require.NoError(t, err)
 
-	page, err := r.svc.Messages(t.Context(), r.student, r.sess, pageOf(10))
+	// DEF-R6-D2: đúng cấu hình kết nối của gateway (QueryExecModeExec, như qua PgBouncer): trước đây []uuid.UUID không mã hoá được → 500 với MỌI phiên có trích dẫn
+	cfg, err := pgxpool.ParseConfig(r.pool.Config().ConnString())
+	require.NoError(t, err)
+	cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeExec
+	execPool, err := pgxpool.NewWithConfig(t.Context(), cfg)
+	require.NoError(t, err)
+	t.Cleanup(execPool.Close)
+	svc := r.service(chat.Config{})
+	svc.Pool = execPool
+
+	page, err := svc.Messages(t.Context(), r.student, r.sess, pageOf(10))
 	require.NoError(t, err)
 	var got []map[string]any
 	for _, m := range page.Items {
