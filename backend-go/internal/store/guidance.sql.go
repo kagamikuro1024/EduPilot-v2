@@ -642,7 +642,7 @@ func (q *Queries) GuidanceResetRetire(ctx context.Context, arg GuidanceResetReti
 }
 
 const guidanceSetAt = `-- name: GuidanceSetAt :many
-select id, criterion_id, text, approved_in_version
+select id, criterion_id, text, approved_in_version, support
 from grading_guidance_items
 where course_id = $1 and assignment_id = $2
   and status in ('APPROVED', 'RETIRED') and approved_in_version is not null and approved_in_version <= $3::smallint
@@ -661,6 +661,7 @@ type GuidanceSetAtRow struct {
 	CriterionID       string
 	Text              string
 	ApprovedInVersion *int16
+	Support           int16
 }
 
 // Tập lưu ý tại phiên bản v (SRS 4.2.3), hàm thuần theo (assignment_id, v).
@@ -678,6 +679,7 @@ func (q *Queries) GuidanceSetAt(ctx context.Context, arg GuidanceSetAtParams) ([
 			&i.CriterionID,
 			&i.Text,
 			&i.ApprovedInVersion,
+			&i.Support,
 		); err != nil {
 			return nil, err
 		}

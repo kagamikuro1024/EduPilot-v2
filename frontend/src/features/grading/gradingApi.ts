@@ -59,7 +59,7 @@ export type ResultView = {
   late: { days: number; penalty: string; max_days: number; per_day: string; manual: boolean };
   appeal?: Appeal | null;
   /** chỉ khi lớp bật «Lưu ý chấm»: bản lưu ý ĐÃ GHIM cho kết quả này (10.6) */
-  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]> };
+  guidance?: { version: number; current_version: number; stale: boolean; items_by_criterion: Record<string, string[]>; support_by_criterion?: Record<string, number> };
 };
 
 /** Lý do cờ bằng chữ (AC1). Màn của nhân viên: dùng đúng cụm của AC. */

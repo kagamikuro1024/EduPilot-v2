@@ -15145,6 +15145,10 @@ components:
               additionalProperties:
                 type: array
                 items: {type: string}
+            support_by_criterion:
+              type: object
+              description: "Tổng số lần sửa (support) của các lưu ý áp dụng, theo tiêu chí; vắng khi không có lưu ý"
+              additionalProperties: {type: integer}
         appeal:
           type: object
           description: "Phúc khảo của bài (cùng dạng AssignmentAppeal); chỉ có ở GET chi tiết khi sinh viên đã gửi"

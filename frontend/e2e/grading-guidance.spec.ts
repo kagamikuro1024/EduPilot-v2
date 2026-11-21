@@ -229,16 +229,16 @@ test("hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố b
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
-test("màn duyệt: «bản v1 · 1 lưu ý» mở danh sách theo tiêu chí; chip Bản cũ + Chấm lại xác nhận rồi gửi", async ({ page, context }, info) => {
+test("màn duyệt: «bản v1 · 3 lần sửa» trên nhãn tiêu chí mở lưu ý của tiêu chí đó; chip Bản cũ + Chấm lại xác nhận rồi gửi", async ({ page, context }, info) => {
   desktopOnly(info);
   await asDemo(context, "teacher");
-  const v = resultView({ guidance: { version: 1, current_version: 2, stale: true, items_by_criterion: { c2: ["Chỉ cho điểm tối đa khi có ví dụ thực tế."] } } });
+  const v = resultView({ guidance: { version: 1, current_version: 2, stale: true, items_by_criterion: { c2: ["Chỉ cho điểm tối đa khi có ví dụ thực tế."] }, support_by_criterion: { c2: 3 } } });
   const api = await gradingApi(page, { views: { [SUB_B]: v }, h: { "POST submissions/:id/grade": (r) => r.fulfill(json({ job_id: "00000000-0000-7000-8000-0000000e0009", queued: 1 }, 202)) } });
   await page.goto(`/grading/${SUB_B}?status=DRAFT&needs=1`);
-  const meta = page.locator("[data-part=guidance-meta]");
-  await expect(meta).toHaveText("bản v1 · 1 lưu ý");
+  const meta = page.locator("[data-part=criterion][data-criterion=c2] [data-part=guidance-meta]");
+  await expect(page.locator("[data-part=guidance-meta]")).toHaveCount(1); // chỉ tiêu chí có lưu ý áp dụng, không nút ở thanh công cụ
+  await expect(meta).toHaveText("bản v1 · 3 lần sửa");
   await meta.click();
-  await expect(page.locator("[data-part=guidance-popover]")).toContainText("Phân tích tấn công");
   await expect(page.locator("[data-part=guidance-popover]")).toContainText("Chỉ cho điểm tối đa khi có ví dụ thực tế.");
   await page.keyboard.press("Escape");
   await expect(page.getByText("Bản cũ", { exact: true })).toBeVisible();

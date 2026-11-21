@@ -474,4 +474,13 @@ func TestResultViewGuidance(t *testing.T) {
 	v, err = e.svc.ResultDetail(e.ctx, e.course, r.res)
 	require.NoError(t, err)
 	require.False(t, v.Guidance.Stale, "đã từng duyệt thì không còn «bản cũ»")
+
+	// kết quả ghim v1: phụ đề nhãn tiêu chí «n lần sửa» = tổng support của lưu ý áp dụng cho tiêu chí (US-GD-06 AC3)
+	e.exec(`insert into grading_guidance_items (course_id, assignment_id, criterion_id, text, direction, support, status, decided_by, approved_in_version) values ($1, $2, 'c1', 'Lưu ý khác.', 'LENIENT', 2, 'APPROVED', $3, 1)`, e.course, a.ID, e.teacher)
+	var sub, res uuid.UUID
+	e.one(&sub, `select submission_id from grading_results where id = $1`, r.res)
+	e.one(&res, `insert into grading_results (course_id, submission_id, round, run_state, status, criteria, total, ai_total_before_late, ai_scores, guidance_version) values ($1, $2, 2, 'DONE', 'DRAFT', $3::jsonb, 10, 10, '{"c1":"4.00","c2":"6.00"}'::jsonb, 1) returning id`, e.course, sub, crit10)
+	v, err = e.svc.ResultDetail(e.ctx, e.course, res)
+	require.NoError(t, err)
+	require.Equal(t, map[string]int{"c1": 5}, v.Guidance.SupportByCriterion)
 }

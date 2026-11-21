@@ -22,7 +22,7 @@ select guidance_version, type from assignments where course_id = sqlc.arg(course
 
 -- Tập lưu ý tại phiên bản v (SRS 4.2.3), hàm thuần theo (assignment_id, v).
 -- name: GuidanceSetAt :many
-select id, criterion_id, text, approved_in_version
+select id, criterion_id, text, approved_in_version, support
 from grading_guidance_items
 where course_id = sqlc.arg(course_id) and assignment_id = sqlc.arg(assignment_id)
   and status in ('APPROVED', 'RETIRED') and approved_in_version is not null and approved_in_version <= sqlc.arg(v)::smallint

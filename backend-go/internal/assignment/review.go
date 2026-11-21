@@ -263,6 +263,8 @@ type ResultGuidance struct {
 	CurrentVersion   int                 `json:"current_version"`
 	Stale            bool                `json:"stale"`
 	ItemsByCriterion map[string][]string `json:"items_by_criterion"`
+	// SupportByCriterion: tổng số lần sửa (support) của các lưu ý áp dụng cho tiêu chí — phụ đề «bản v1 · n lần sửa» trên nhãn tiêu chí (US-GD-06 AC3).
+	SupportByCriterion map[string]int `json:"support_by_criterion,omitempty"`
 }
 
 type critRow struct {
@@ -391,6 +393,10 @@ func (s *Service) ResultDetail(ctx context.Context, course, id uuid.UUID) (Resul
 				Stale: g.GuidanceVersion < g.CurrentVersion && g.Status == "DRAFT" && !g.WasReviewed}
 			for _, it := range items {
 				rg.ItemsByCriterion[it.CriterionID] = append(rg.ItemsByCriterion[it.CriterionID], it.Text)
+				if rg.SupportByCriterion == nil {
+					rg.SupportByCriterion = map[string]int{}
+				}
+				rg.SupportByCriterion[it.CriterionID] += int(it.Support)
 			}
 			v.Guidance = rg
 		}
