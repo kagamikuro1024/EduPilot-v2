@@ -17,6 +17,7 @@
 - Nguyên nhân (đọc mã): nhánh `n == 0` chỉ `NotifyAggMarkRead`, giữ nguyên tiêu đề; lần sau `case n > leadingInt(cur.Title)` so với số cũ nên n ≤ số cũ thì bị bỏ qua. Cùng cơ chế cho mọi loại gộp (AI_PENDING, POST_REPORTED, TICKET_STALE).
 - Bằng chứng: `evidence-7/scripts-r3/p402c_def.txt`, `p402c.py`
 - **ĐÃ SỬA (e4b82a05, ep-r @1409b04d):** chạy lại TC-P4-02-14 ngày 19/11: ticket → xử lý hết (dòng tự đọc «0 câu hỏi…») → ticket mới ⇒ cùng dòng được nâng «1 câu hỏi đang chờ giảng viên», chưa đọc, 1 khung SSE ⇒ P.
+- **ĐÃ SỬA (e4b82a05) — xác nhận sau 425396a7 ngày 2026-11-21:** TC-P4-02-14 chạy lại (lớp QC3G, GV qc3t5): ticket → xử lý hết → ticket mới ⇒ dòng gộp chưa đọc, «1 câu hỏi đang chờ giảng viên», có khung SSE; GV đã đọc rồi xử lý hết, ticket mới ⇒ vẫn chưa đọc + SSE (n không lớn hơn số cũ); thêm ticket ⇒ «2 câu hỏi…» ⇒ P. Bằng chứng: `evidence-7/r7/r14-p402-14.log`, `scripts-r7/r14_r7.py`.
 
 ### DEF-R7-04 — Ctrl+↵ gửi trả lời không sang phiếu kế khi bộ lọc là «Đang chờ»
 - Mức: Thấp
@@ -96,6 +97,7 @@
 - Bước tái hiện: SV vào /me của lớp có buổi học nhưng chưa điểm danh lần nào (hoặc chưa có dữ liệu).
 - Kỳ vọng (US-P5-06 AC7, TC-P5-06-18): «Chưa có buổi nào được điểm danh.» Thực tế: «Chưa có buổi nào được điểm danh» (EmptyState title, không dấu chấm; e2e me.spec cũng khớp chữ không chấm). Các vế còn lại của TC (khung xương, 500 + Thử lại, offline giữ nội dung + dải mất mạng, không nút) đạt. Lệch chỉ ở dấu câu; nếu PM chốt quy ước tiêu đề EmptyState không có dấu chấm thì sửa SRS/TC.
 - Bằng chứng: `evidence-7/r3/ui-p506.log`, `ui-p506d.log`, `shots/p506d-18-qc3p5s04.png`
+- **ĐÃ CHỐT (P-11-82) — xác nhận sau 425396a7 ngày 2026-11-21:** PM chọn DESIGN §23.4 (tiêu đề EmptyState không dấu chấm); BA vá US-P5-06 AC7 (xem `docs/specs/FEAT-crm-360/US.md` dòng 228 trên sprint/11-p10-eval, commit 0081082e). TC-P5-06-18 chấm lại: «Chưa có buổi nào được điểm danh» không dấu chấm, không nút; khung xương, 500 + Thử lại, offline giữ nội dung đạt ⇒ P. Bằng chứng: `evidence-7/r7/ui-r7-me.log`, `r7/shots/r7-me-empty-18.png`.
 
 ## Ca lỗi thời có nguồn quyết định (xoá khỏi smoke-7.md và khỏi tổng; qc3 18/11/2026)
 - TC-P5-06-19 (US-P5-06 AC8: giảng viên/TA/ADMIN mở `/me` «được chuyển về `/`») — thay bằng màn chặn chung «Bạn không có quyền xem màn này» + nút Về Hôm nay: `docs/sprints/7/proposals.md` #34 (PM ACCEPTED 2026-10-15).

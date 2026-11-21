@@ -1,0 +1,9 @@
+A1 ticket 1 (n=1) 01a1efc0-80f3-79df-b6f9-960a2fbd2241|-|1 câu hỏi đang chờ giảng viên|2026-11-21 02:32:33.448+00
+A2 dismiss (n=0) 01a1efc0-80f3-79df-b6f9-960a2fbd2241|2026-11-21 02:32:37.946563+00|0 câu hỏi đang chờ giảng viên|2026-11-21 02:32:37.951492+00
+A3 ticket mới (n=1) 01a1efc0-80f3-79df-b6f9-960a2fbd2241|-|1 câu hỏi đang chờ giảng viên|2026-11-21 02:32:42.460449+00
+B0 GV đọc (n=1) 01a1efc0-80f3-79df-b6f9-960a2fbd2241|2026-11-21 02:32:48.930357+00|1 câu hỏi đang chờ giảng viên|2026-11-21 02:32:48.9313+00
+B1 dismiss (n=0) 01a1efc0-80f3-79df-b6f9-960a2fbd2241|2026-11-21 02:32:48.930357+00|0 câu hỏi đang chờ giảng viên|2026-11-21 02:32:50.469546+00
+B2 ticket mới (n=1) 01a1efc0-80f3-79df-b6f9-960a2fbd2241|-|1 câu hỏi đang chờ giảng viên|2026-11-21 02:32:54.947326+00
+C1 thêm ticket (n=2) 01a1efc0-80f3-79df-b6f9-960a2fbd2241|-|2 câu hỏi đang chờ giảng viên|2026-11-21 02:33:01.457249+00
+khung SSE notification: [('1795228353451-0', '{"id":"01a1efc0-80f3-79df-b6f9-960a2fbd2241","type":"TICKET_NEW","title":"1 câu hỏi đang c'), ('1795228362468-0', '{"id":"01a1efc0-80f3-79df-b6f9-960a2fbd2241","type":"TICKET_NEW","title":"1 câu hỏi đang c'), ('1795228374952-0', '{"id":"01a1efc0-80f3-79df-b6f9-960a2fbd2241","type":"TICKET_NEW","title":"1 câu hỏi đang c'), ('1795228381461-0', '{"id":"01a1efc0-80f3-79df-b6f9-960a2fbd2241","type":"TICKET_NEW","title":"2 câu hỏi đang c')]
+PASS TC-P4-02-14 lớp QC3G (GV qc3t5, 09:32:31): A) ticket → xử lý hết (dòng tự đọc «0 câu hỏi đang chờ giảng viên», read_at đặt) → ticket mới ⇒ cùng dòng 01a
