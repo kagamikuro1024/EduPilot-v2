@@ -16,6 +16,7 @@ import { createHash } from "node:crypto";
 import { XLSX_MIME, lop1Column, lop1Faulty, zip } from "./grade-seed-data.mjs";
 import { FOREIGN_MAIL, PERSONAL_MAIL, TEAMS_TITLE_04, createBody, loadPlan, sampleText, teamsMeta } from "./assignment-seed-data.mjs";
 import { ROSTER1, crmPlan } from "./crm-plan.mjs";
+import { findCourse } from "./seed-courses.mjs";
 import { meta } from "../benchmarks/lib/meta.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 import { APPROVED as P9_APPROVED, C2_APPROVED as P9_C2, ESSAYS as P9_ESSAYS, PENDING as P9_PENDING } from "./practice-seed-data.mjs";
@@ -103,7 +104,7 @@ async function call(method, route, { token, json, form, key, ok = [200, 201, 202
     if (token) headers.Authorization = `Bearer ${token}`;
     if (key) headers["Idempotency-Key"] = key.replace(/[^A-Za-z0-9._:-]/g, "-"); // khoá chỉ nhận [A-Za-z0-9._:-]
     if (json !== undefined) headers["Content-Type"] = "application/json";
-    const res = await fetch(API + route, { method, headers, body: form ?? (json === undefined ? undefined : JSON.stringify(json)), tls: { rejectUnauthorized: false } });
+    const res = await fetch(API + route, { method, headers, body: form ?? (json === undefined ? undefined : JSON.stringify(json)), tls: { rejectUnauthorized: false } })
     let body = null;
     if (res.status !== 204) body = await res.json().catch(() => null);
     vlog(method, route, "→", res.status);
@@ -233,11 +234,7 @@ async function adminLogin() {
 async function isSeeded() {
   const a = await adminLogin();
   if (!a) return false;
-  // Tìm theo tiền tố mã lớp: DB có > 100 lớp thì hai lớp seed không nằm ở trang đầu của danh sách (DEF-R4-08)
-  for (const code of ["761987", "761988"]) {
-    const r = await call("GET", `/admin/courses?limit=100&q=${code}`, { token: a.access_token });
-    if (!r.body.items.some((c) => c.class_code === code)) return false;
-  }
+  for (const code of ["761987", "761988"]) if (!(await findCourse(call, a.access_token, code))) return false;
   return true;
 }
 
@@ -304,16 +301,15 @@ const COURSES = [
 async function step3Courses() {
   step(3, "Mở hai lớp 761987 / 761988, gán giảng viên và TA…");
   for (const c of COURSES) {
-    const list = await call("GET", "/admin/courses?limit=100", { token: ctx.tokens.admin });
-    let row = list.body.items.find((x) => x.class_code === c.code);
+    let row = await findCourse(call, ctx.tokens.admin, c.code);
     if (!row) {
       const body = { subject_code: "INT1006", class_code: c.code, name: "An ninh mạng", semester: SEMESTER, join_code: c.join };
       if (c.capacity) body.capacity = c.capacity;
       const r = await call("POST", "/admin/courses", { token: ctx.tokens.admin, key: `seed-course-${c.code}`, json: body, ok: [201, 409] });
-      row = r.status === 201 ? r.body : (await call("GET", "/admin/courses?limit=100", { token: ctx.tokens.admin })).body.items.find((x) => x.class_code === c.code);
+      row = r.status === 201 ? r.body : await findCourse(call, ctx.tokens.admin, c.code);
     }
     ctx.ids[c.code] = row.id;
-    const full = (await call("GET", "/admin/courses?limit=100", { token: ctx.tokens.admin })).body.items.find((x) => x.id === row.id);
+    const full = await findCourse(call, ctx.tokens.admin, c.code);
     const wantTA = c.code === "761987";
     const hasTeacher = full.teacher?.id === ctx.ids.teacher;
     const hasTA = !wantTA || full.assistants_count >= 1;
