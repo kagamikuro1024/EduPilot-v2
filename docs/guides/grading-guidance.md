@@ -52,3 +52,11 @@ Giảng viên: «Lưu ý chấm chờ duyệt · <bài>». Giảng viên + TA: �
 | Lệch TB đổi dấu sau khi áp dụng | `Cho nghỉ` lưu ý quá tay rồi `Áp dụng`; hoặc tắt «Lưu ý chấm» (chấm mới ghim v0) |
 | Compose không nhận biến | `TestComposeGuidanceEnvReachesGatewayAndWorker` — thêm biến vào cả gateway và worker |
 | Xoá sinh viên | Lưu ý và ca không chứa danh tính nên không cần dọn riêng (`TestGuidanceDeleteStudent`) |
+
+## 7. Chi phí
+| Thao tác | Lời gọi LLM |
+| --- | --- |
+| Rút lưu ý (`reflect`) | 1 lời gọi mỗi lần, ≈ 3–6 k token vào |
+| Chấm lại bài cũ (`regrade-stale`) | N bài × 2 lượt như chấm thường; trần 200 bài mỗi lần |
+| Gợi ý câu tương tự (M4) | 1 lần nhúng mỗi lần gõ, sau debounce; không sinh chữ |
+| Mẫu âm khi sinh câu hỏi (M6) | 0 lời gọi thêm |
