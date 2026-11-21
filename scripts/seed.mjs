@@ -112,7 +112,7 @@ async function call(method, route, { token, json, form, key, ok = [200, 201, 202
       continue;
     }
     if (!ok.includes(res.status)) throw new ApiFail(method, route, res.status, body);
-    return { status: res.status, body };
+    return { status: res.status, body, replayed: res.headers.get("Idempotent-Replayed") === "true" };
   }
 }
 
@@ -1005,8 +1005,9 @@ async function seedThreads(course, plan, token) {
       // Tường lửa PII là luật, không phải lỗi của seed: kiểm trước và báo ĐÚNG thread nào, vì sao (chữ chung, không định danh, không "em … của em").
       const pre = await call("POST", `/courses/${course}/threads/precheck`, { token: author, json: { title: th.title, body: th.body }, ok: [200, 422] });
       if (pre.status !== 200 || !pre.body.allowed) throw new Error(`Thread mẫu "${th.title}" (${th.k}) bị tường lửa PII chặn: ${JSON.stringify(pre.body?.reasons ?? pre.body)} — đổi nội dung trong scripts/chat-seed-data.mjs thành câu hỏi chung`);
-      row = (await call("POST", `/courses/${course}/threads`, { token: author, json: { title: th.title, body: th.body, week_no: th.week ?? null, tags: [] }, key: `seed-thread-${course}-${createHash("sha1").update(th.title + th.body).digest("hex").slice(0, 16)}` })).body.thread;
-      ctx.changed = true;
+      const made = await call("POST", `/courses/${course}/threads`, { token: author, json: { title: th.title, body: th.body, week_no: th.week ?? null, tags: [] }, key: `seed-thread-${course}-${createHash("sha1").update(th.title + th.body).digest("hex").slice(0, 16)}` });
+      row = made.body.thread;
+      if (!made.replayed) ctx.changed = true; // thread ẩn / đã có nhưng không thấy trong danh sách: khoá Idempotency phát lại bản cũ, không phải thay đổi (DEF-R5-15)
     }
     out.push({ th, id: row.id });
   }
