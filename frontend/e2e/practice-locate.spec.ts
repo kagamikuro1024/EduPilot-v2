@@ -24,6 +24,7 @@ test("mở /practice/[id] không ?course=: đúng 1 request tìm lượt, không
   await page.goto("/practice");
   await page.getByRole("listitem").filter({ hasText: "Hàm băm" }).getByRole("button").click();
   await page.waitForURL(/\/practice\/att-1/);
+  await expect(page.getByRole("button", { name: /^Phương án B của câu 1/ })).toBeVisible(); // lần mở đầu (hint lớp 1 → 404 → hỏi lớp) xong hẳn rồi mới đếm
   probes.length = 0;
   locates = 0;
   await page.goto("/practice/att-1");
