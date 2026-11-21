@@ -183,6 +183,20 @@ test("khối «Lưu ý chấm»: chưa có lưu ý → «Chưa có lưu ý» m�
   await expect(page.locator("[data-part=guidance-panel]")).toContainText("Bản v1");
 });
 
+test("khối «Lưu ý chấm»: stats 500 → «—» + Thử lại (không nói «chưa đủ bài»), bấm thì tải lại (DEF-R106S-11, US-GD-06 AC7)", async ({ page, context }) => {
+  let fail = true;
+  const ok = { items: [], regression_cases: 0 };
+  const api = await openDrawer(page, context, () => overview(), { "GET assignments/:id/guidance/stats": (r) => (fail ? r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) : r.fulfill(json(ok))) }, true);
+  const stat = page.locator("[data-part=guidance-panel] [data-part=guidance-stats]");
+  await expect(stat).toHaveText(/^Bản v1 \(đang dùng\) · —/);
+  await expect(page.locator("[data-part=guidance-panel]")).not.toContainText("chưa đủ bài");
+  fail = false;
+  const before = api.calls.length;
+  await page.locator("[data-part=guidance-panel]").getByRole("button", { name: "Thử lại" }).click();
+  await expect.poll(() => api.calls.length).toBeGreaterThan(before);
+  await expect(stat).toHaveText("Bản v1 (đang dùng) · chưa đủ bài đã duyệt để đo");
+});
+
 test("lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm»", async ({ page, context }, info) => {
   desktopOnly(info);
   await openDrawer(page, context, () => overview({ enabled: false }));
