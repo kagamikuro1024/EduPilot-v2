@@ -1,15 +1,14 @@
-== data-student 20:16:55
+== data-student 21:24:13
   -  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440
   -  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375
 
   6 skipped
-  2 passed (47.9s)
+  2 passed (46.7s)
 rc=0
-== data-ta 20:18:14
+== data-ta 21:25:30
   -  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440
   -  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375
 
   6 skipped
-  2 passed (1.3m)
+  2 passed (1.2m)
 rc=0
-== data-teacher 20:20:00

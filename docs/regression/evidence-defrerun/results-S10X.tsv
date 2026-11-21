@@ -2,4 +2,6 @@ TC	KQ	Bằng chứng
 TC-G07-12	F	DEF-R106S-16 (chuyển qc3 ghi 10.6); evidence-10.6/s10x/KETLUAN.md
 TC-G10-13	P	(chuyển qc3 ghi 10.6); evidence-10.6/s10x/g10-13.md
 TC-D08-14	F	DEF-R105S-02; evidence-10.5/s10x/d0814.txt
+TC-D04-09	P	evidence-10.5/s10x/run-s10x.log, regex-alone.log
+TC-D01-07	N	đo lệch do tải/bản giả dùng chung, cần ep-r riêng; xem smoke-10.5.md
 TC-D04-11	N	không có GEMINI_API_KEY (ep-r real_allowed:false); xem smoke-10.5.md

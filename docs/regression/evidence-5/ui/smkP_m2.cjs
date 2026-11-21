@@ -1,6 +1,6 @@
 // smkP: chạy lại TC-PE08-31 (R5-08/P-11-60) và TC-PE08-38 (R5-09/P-11-59) trên ep-r HEAD 88ab83e4. ONLY=res|staff node smkP_m2.cjs
 const L = require('./ui_lib.cjs'); const { chromium, login, B, R, SH, metrics, axe, AUDIT_SRC, TOUCH_SRC } = L; const fs = require('fs');
-const E30 = '01a1e136-5a4e-7b5d-a18d-a7ab3720c726', EMPTY = '01a1ef4d-c267-7355-982a-49fc185e67be', C1 = '01a1df30-523a-7d7a-a240-c120dbd57ac3'; const ONLY = process.env.ONLY || 'res';
+const E30 = '01a1e136-5a4e-7b5d-a18d-a7ab3720c726', EMPTY = process.env.EMPTY || '01a1ef4d-c267-7355-982a-49fc185e67be', C1 = '01a1df30-523a-7d7a-a240-c120dbd57ac3'; const ONLY = process.env.ONLY || 'res';
 const main = (p) => p.locator('main').innerText();
 const audit = async (p, w) => { const a = await p.evaluate(`(${AUDIT_SRC.trim()})`); const opts = await p.evaluate(() => [...document.querySelectorAll('option')].map((o) => o.textContent.trim())); a.cut = a.cut.filter((c) => !opts.includes(c)); const t = w < 600 ? await p.evaluate(TOUCH_SRC) : []; return { ox: a.ox, cut: a.cut.length, ell: a.ell.length, touch: t.length }; };
 (async () => { process.on('unhandledRejection', (e) => console.log('ERR', String(e).slice(0, 300)));

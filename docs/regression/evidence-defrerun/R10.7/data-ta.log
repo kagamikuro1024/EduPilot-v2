@@ -1,17 +1,17 @@
 
 Running 8 tests using 1 worker
 
-(node:38327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:31088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
   -  1 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp student data @1440
   -  2 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp student data @375
-  ✓  3 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp ta data @1440 (37.3s)
-  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp ta data @375 (36.9s)
+  ✓  3 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp ta data @1440 (36.6s)
+  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp ta data @375 (37.2s)
   -  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher data @1440
   -  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher data @375
   -  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440
   -  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375
 
   6 skipped
-  2 passed (1.3m)
+  2 passed (1.2m)
 rc=0

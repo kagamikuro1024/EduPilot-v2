@@ -9,7 +9,7 @@ for sp in ['1', '1.5', '2', '3', '4', '8', '9.1', '9.5', '10.5', '10.6']:
     if not os.path.exists(p): continue
     c = {}
     for l in open(p):
-        m = re.match(r'\| (TC-[^|]+?) \| (P|F|N|LT|D|X|K\w*)(?: \||\s)', l)
+        m = re.match(r'\| ((?:TC-|P0-)[^|]+?) \| (P|F|N|LT|D|X|K\w*)(?: \||\s)', l)
         if m: c[m.group(2)] = c.get(m.group(2), 0) + 1
     P, F, N = c.get('P', 0), c.get('F', 0), sum(v for k, v in c.items() if k not in ('P', 'F', 'LT'))
     tot = P + F + N

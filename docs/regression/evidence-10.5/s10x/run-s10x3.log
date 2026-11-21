@@ -1,1 +1,16 @@
 == d0409.py always_yes 21:13:20
+always_yes regrade 12 nhận 12
+rc=124
+== d0409.py always_no 21:28:50
+regrade sv.gioi@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv.kha@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv.nguyco@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv04@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv05@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv06@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv07@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv08@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv09@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv10@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv11@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+regrade sv12@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
