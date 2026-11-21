@@ -7,6 +7,7 @@
 - Bằng chứng: `/tmp/qc2e/ci-run.json`, `/tmp/qc2e/ci-log.txt` · Nghi ngờ: `.github/workflows/ci.yml:235-253` (3 shard không cân bằng theo thời gian), job Lighthouse simulate 10,3 phút
 - Chạy lại lần 2: ổn định (hai run liên tiếp ≥ 16 phút)
 - **Chạy lại 19/11 (qc3, sau sửa gốc 842f431c cache .deb Playwright):** vẫn F nhưng giảm mạnh: run 44380364341 @07a6b69c wall 9,5 phút (545 s) nhưng chỉ frontend (Go skipped); lượt đủ job cùng SHA — PR run 44380374004: 10,8 phút (Go rest-1 10,2 phút); run đủ job 44371210850 @9b20fb14: attempt 1 = 16,1 phút (cache lạnh), attempt 2 = 9,5 phút (cache ấm). Ngưỡng ≤ 10 phút chỉ đạt khi cache ấm. Cần: cân lại dòng Go rest-1 (~10 phút) và/hoặc cache lạnh.
+- **Số đo CI mới của PM (21/11, sau 7a3ebd35 / eb57f6d3), tính từ job đầu bắt đầu tới job cuối kết thúc, đối chiếu lại bằng `gh api …/jobs`:** run PR 44862671196 @eb57f6d3 wall **512 s** (đạt ≤ 600 s; job lâu nhất Go course 491 s); run push 44862637349 @7a3ebd35 wall **636 s** (vượt 600 s; Go rest-2 617 s, rest-3 585 s). ⇒ TC-20 **giữ F** (một trong hai run vượt ngưỡng); dev2 đang cân lại shard Go (523d9076: làm mới `ci-shard-weights.txt`). Chưa đo lại sau 523d9076.
 
 ### DEF-R7-02 — Chuông gộp TICKET_NEW không báo ticket mới sau khi hàng chờ về 0
 - Mức: Trung bình
@@ -82,6 +83,7 @@
 - Kỳ vọng: «Không có câu hỏi nào đang chờ.» + nút `Xem tất cả` (lớp 2). Thực tế: «Chưa có câu hỏi cần xử lý», không có nút/liên kết «Xem tất cả» (khung xương, lỗi + «Thử lại», CLS 0 đều đạt).
 - Bằng chứng: `evidence-7/r3/ui-p7c.log`, `shots/p7c-inbox-empty2.png`
 - **Chạy lại sau 425396a7 (2026-11-21), chấm theo P-11-81 (BA 263920fb): vẫn F.** Đạt: lớp không ticket → «Chưa có câu hỏi cần xử lý» (không dấu chấm, không nút «Xem tất cả»); khung xương, lỗi + «Thử lại», CLS 0. **Trượt:** bộ lọc «Đã nhận» rỗng khi lớp QC3T1 còn ticket khác hiện «Chưa có câu hỏi cần xử lý», kỳ vọng «Không có câu hỏi trong bộ lọc này» (US-P4-03 AC13; SRS escalation-notify 541). Lặp cả khi đang chọn một phiếu rồi đổi bộ lọc. Nguyên nhân (đọc mã `RealInbox.tsx`): `hasRows = rows.length > 0 || !!selected` — bộ lọc rỗng không có phiếu đang chọn vào nhánh «Chưa có câu hỏi cần xử lý» (dòng 169), chỉ vào dòng 135 khi còn phiếu chọn (vd. vừa Nhận phiếu cuối của bộ lọc). Cách sửa gợi ý: phân biệt «lớp không có ticket nào» với «bộ lọc rỗng» (số ticket mọi trạng thái). Bằng chứng: `evidence-7/r7/ui-r7-ui.log` (TC-P4-03-38, 38dbg A–D), `r7/shots/r7-inbox-filter-empty.png`, `r7-38dbg-B.png`, `r7-38dbg-D.png`.
+- **ĐÃ SỬA (debd2d05) — xác nhận sau ep-r rebuild ngày 2026-11-21:** TC-P4-03-38 chạy lại ở 1440 và 375: bộ lọc rỗng khi lớp còn phiếu → «Không có câu hỏi trong bộ lọc này» (kể cả khi đã chọn một phiếu rồi đổi bộ lọc); lớp không có phiếu → «Chưa có câu hỏi cần xử lý», không nút «Xem tất cả»; khung xương, lỗi + «Thử lại», CLS 0 đạt ⇒ P (P-11-81). Bằng chứng: `evidence-7/r7/ui-r7-i38.log`, `r7/shots/r7-i38-*.png`, `scripts-r7/specs/inbox38-r7.spec.ts`.
 
 ### DEF-R7-12 — Menu bài AI của giảng viên ghi «Loại», không phải «Loại khỏi tri thức»
 - Mức: Thấp
