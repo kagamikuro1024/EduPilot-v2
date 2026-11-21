@@ -61,6 +61,8 @@ type QueueResult struct {
 	NeedsReview bool      `json:"needs_review"`
 	ErrorCode   *string   `json:"error_code,omitempty"`
 	Version     int32     `json:"version"`
+	// StaleReview: bài đã duyệt chấm theo bản lưu ý cũ — công bố được (miễn so phiên bản), hộp công bố đếm theo EDITED / ACCEPTED_AS_IS (US-GD-05 AC6a). Rỗng khi không lệch bản.
+	StaleReview string `json:"stale_review,omitempty"`
 }
 
 // QueueRow là một dòng của hàng chờ.
@@ -154,11 +156,22 @@ func (s *Service) Queue(ctx context.Context, course uuid.UUID, f QueueFilter) (Q
 			if r.ResultVersion != nil {
 				qr.Version = *r.ResultVersion
 			}
+			if r.StaleCriteria != nil {
+				qr.StaleReview = staleReview(r.StaleCriteria, r.StaleAiScores)
+			}
 			row.Result = qr
 		}
 		out.Items = append(out.Items, row)
 	}
 	return out, nil
+}
+
+// staleReview: bài đã duyệt mà lệch bản lưu ý — EDITED nếu có tiêu chí sửa tay, ngược lại ACCEPTED_AS_IS (cùng quy tắc với Publish).
+func staleReview(criteria, ai json.RawMessage) string {
+	if len(changedCriteria(criteria, ai)) > 0 {
+		return "EDITED"
+	}
+	return "ACCEPTED_AS_IS"
 }
 
 func ptrOr[T any](p *T, def T) T {

@@ -18,7 +18,7 @@ export type QueueRow = {
   received_at: string;
   late_days: number;
   match_status: string;
-  result: { id: string; status: ResultStatus; run_state: RunState; total?: string; flags: string[]; needs_review: boolean; error_code?: string; version: number } | null;
+  result: { id: string; status: ResultStatus; run_state: RunState; total?: string; flags: string[]; needs_review: boolean; error_code?: string; version: number; stale_review?: "EDITED" | "ACCEPTED_AS_IS" } | null;
 };
 
 export type Criterion = {

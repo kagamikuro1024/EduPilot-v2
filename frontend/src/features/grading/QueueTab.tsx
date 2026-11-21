@@ -96,7 +96,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const picker = useRef<HTMLInputElement>(null);
   const running = useRef(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
-  const [job, setJob] = useState<{ id: string; queued: number } | null>(null);
+  const [job, setJob] = useState<{ id: string; queued: number; regrade?: boolean } | null>(null);
   const [confirming, setConfirming] = useState(false);
   const publishIdem = useRef<string | null>(null);
   const relaxed = useRef(params.has("needs")); // người dùng đã chọn (URL có tham số): không tự nới lại
@@ -136,6 +136,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const batchDone = (batch?.done ?? 0) + (batch?.failed ?? 0);
   const batchTotal = batch?.total ?? job?.queued ?? 0;
   const batchRunning = Boolean(job) && jobState.status !== "SUCCEEDED" && jobState.status !== "FAILED";
+  const regrading = batchRunning && Boolean(job?.regrade);
   // Lô xong (chấm tất cả hoặc chấm lại): MỘT dòng báo, làm mới hàng chờ và số «bài chấm theo bản cũ»
   const batchEnded = useRef<string | null>(null);
   useEffect(() => {
@@ -203,7 +204,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
       void qc.invalidateQueries({ queryKey: guidanceKey(assignmentId) });
       refresh();
       // GV-BUG (k): dùng chung thanh tiến độ «Đang chấm n/N» của lô và dòng báo xong
-      if (r.job_id && r.queued > 0) setJob({ id: r.job_id, queued: r.queued });
+      if (r.job_id && r.queued > 0) setJob({ id: r.job_id, queued: r.queued, regrade: true });
       setNotice(r.queued > 0 ? `Đã xếp ${r.queued} bài chấm lại` : "Không có bài nào cần chấm lại");
     });
 
@@ -267,7 +268,9 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
       ? scheme?.components.flatMap((c) => c.items).find((i) => i.assignment_id && assignmentIds.has(i.assignment_id))?.name
       : undefined;
   const students = new Set(chosen.map((r) => r.student?.id).filter(Boolean)).size;
-  const oldReviewed = stale && assignmentIds.size === 1 && assignmentIds.has(assignmentId) ? stale.reviewed : 0;
+  // Bài đã chọn, đã duyệt mà chấm theo bản lưu ý cũ: công bố được; số a / b do máy chủ nêu trên từng dòng (US-GD-05 AC6a)
+  const oldEdited = chosen.filter((r) => r.result?.stale_review === "EDITED").length;
+  const oldAsIs = chosen.filter((r) => r.result?.stale_review === "ACCEPTED_AS_IS").length;
   // Hành động cấp trang đi lên PageHeader: «Chấm tất cả» (chính), «Tải bài lên» + «Công bố» (phụ), «Đồng bộ từ Teams» (menu). Dùng ref để callback luôn mới mà không đẩy lại mỗi lần render.
   const acts = useRef({ pick: () => {}, grade: () => {}, publish: () => {} });
   useEffect(() => {
@@ -286,7 +289,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hdrKey]);
 
-  const consequence = `Công bố ${chosen.length} bài · ${students} sinh viên nhận thư · ${column ? `điểm vào sổ điểm cột ${column}` : `không tính vào sổ điểm (${scheme ? "bài chưa gắn vào cột điểm" : "chưa có công thức điểm"})`}${oldReviewed > 0 ? ` · ${oldReviewed} bài đã duyệt chấm theo bản lưu ý cũ, vẫn công bố được` : ""}`;
+  const consequence = `Công bố ${chosen.length} bài · ${students} sinh viên nhận thư · ${column ? `điểm vào sổ điểm cột ${column}` : `không tính vào sổ điểm (${scheme ? "bài chưa gắn vào cột điểm" : "chưa có công thức điểm"})`}${oldEdited + oldAsIs > 0 ? ` · ${oldEdited + oldAsIs} bài chấm theo bản cũ: ${oldEdited} đã sửa tay, ${oldAsIs} duyệt nguyên nháp` : ""}`;
 
   const publishNow = () =>
     void run(async () => {
@@ -294,9 +297,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
       const versions: Record<string, number> = {};
       for (const r of chosen) if (r.result) versions[r.result.id] = r.result.version;
       try {
-        const out = await publishResults(courseId, { result_ids: chosen.map((r) => r.result!.id), versions }, publishIdem.current);
-        const ex = out.exempt.EDITED + out.exempt.ACCEPTED_AS_IS;
-        if (ex > 0) setNotice(`${ex} bài chấm theo bản lưu ý cũ: ${out.exempt.EDITED} đã sửa tay, ${out.exempt.ACCEPTED_AS_IS} duyệt nguyên nháp`);
+        await publishResults(courseId, { result_ids: chosen.map((r) => r.result!.id), versions }, publishIdem.current);
       } catch (e) {
         if (e instanceof ApiError && (e.code === "MIXED_GUIDANCE" || e.code === "NOT_REVIEWED" || e.code === "VERSION_CONFLICT" || e.code === "LATE_RECOMPUTED" || e.code === "ALREADY_PUBLISHED")) {
           const ids = (e.details as { ids?: string[] } | undefined)?.ids ?? [];
@@ -457,7 +458,12 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
             if (f) upload(f);
           }}
         />
-        {stale && stale.count + stale.editing > 0 && (
+        {regrading && (
+          <InlineNotice tone="warning" compact action={<Button size="sm" disabled>Đang chấm lại …</Button>}>
+            {`${batchDone}/${batchTotal} bài`}
+          </InlineNotice>
+        )}
+        {!regrading && stale && stale.count + stale.editing > 0 && (
           <InlineNotice
             tone="warning"
             compact

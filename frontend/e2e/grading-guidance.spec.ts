@@ -196,7 +196,7 @@ test("hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố b
   const JOB = "00000000-0000-7000-8000-0000000e0009";
   let job: Record<string, unknown> = { id: JOB, status: "RUNNING", progress: 33, result: { done: 1, failed: 0, total: 3 } };
   await page.route(/\/api\/v1\/jobs\/[^/]+$/, (r) => r.fulfill(json(job)));
-  const reviewed = defaultRows().map((r, i) => (i > 0 && r.result ? { ...r, result: { ...r.result, status: "REVIEWED", run_state: "DONE", needs_review: false } } : r));
+  const reviewed = defaultRows().map((r, i) => (i > 0 && r.result ? { ...r, result: { ...r.result, status: "REVIEWED", run_state: "DONE", needs_review: false, stale_review: i === 1 ? "EDITED" : "ACCEPTED_AS_IS" } } : r));
   const api = await gradingApi(page, {
     rows: reviewed,
     h: {
@@ -213,15 +213,17 @@ test("hàng chờ: «N bài chấm theo bản cũ» + Chấm lại; công bố b
   expect(api.calls.some((c) => c.path.endsWith(`/assignments/${A1}/regrade-stale`))).toBe(true);
   // (k) chấm lại dùng chung thanh tiến độ lô; xong có MỘT dòng báo
   await expect(page.locator("[data-part=grading-progress]")).toHaveText("Đang chấm 1/3 bài");
+  await expect(page.getByRole("button", { name: "Đang chấm lại …" })).toBeDisabled(); // TC-G05-12: nút khoá + n/N, không biến mất ngay
+  await expect(page.getByText("1/3 bài", { exact: true })).toBeVisible();
   job = { id: JOB, status: "SUCCEEDED", progress: 100, result: { done: 3, failed: 0, total: 3 } };
   await expect(page.getByText("Đã chấm xong 3 bài")).toBeVisible({ timeout: 15_000 });
   await expect(page.locator("[data-part=grading-progress]")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Cần xem kỹ" }).click();
   await page.getByLabel("Trạng thái").selectOption("REVIEWED");
-  await page.locator("[data-part=queue-row]").first().getByRole("checkbox").check();
+  await page.getByLabel("Chọn tất cả đã duyệt").check();
   await page.getByRole("button", { name: "Công bố" }).click();
-  await expect(page.getByRole("dialog")).toContainText("2 bài đã duyệt chấm theo bản lưu ý cũ, vẫn công bố được"); // (n)
+  await expect(page.getByRole("dialog")).toContainText("2 bài chấm theo bản cũ: 1 đã sửa tay, 1 duyệt nguyên nháp"); // (n) US-GD-05 AC6a: dòng nằm TRONG hộp xác nhận
   await page.getByRole("dialog").getByRole("button", { name: "Công bố" }).click();
   await expect(page.getByText(/Còn bài nháp chấm theo bản lưu ý cũ/)).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);

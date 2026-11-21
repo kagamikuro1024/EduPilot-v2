@@ -427,6 +427,33 @@ func TestPublishMixedGuidance(t *testing.T) {
 	require.Equal(t, 1, out.Published)
 }
 
+// TestQueueStaleReview — US-GD-05 AC6a: hàng chờ nêu bài ĐÃ DUYỆT chấm theo bản lưu ý cũ là EDITED hay ACCEPTED_AS_IS để hộp công bố đếm trước; cùng bản / chưa duyệt → không có trường.
+func TestQueueStaleReview(t *testing.T) {
+	e := newEnv(t)
+	a := e.create("BT03")
+	edited := `[{"id":"c1","score":"5.00","comment":"","edited":true,"evidence":[]},{"id":"c2","score":"5.00","comment":"","edited":true,"evidence":[]}]`
+	mk := func(crit string, first bool) uuid.UUID {
+		r := e.rrow(a, e.student(), 1, time.Now().UTC().Add(-time.Hour), "DONE", "REVIEWED", crit, nil)
+		if first {
+			e.exec(`update grading_results set first_reviewed_by = $2, first_reviewed_at = now() where id = $1`, r.res, e.teacher)
+		}
+		return r.res
+	}
+	asIs, ed := mk(crit10, true), mk(edited, true)
+	e.exec(`update assignments set guidance_version = 1 where id = $1`, a.ID)
+	b := e.create("BT04") // bài tập khác, chưa đổi bản: không lệch
+	same := e.rrow(b, e.student(), 1, time.Now().UTC().Add(-time.Hour), "DONE", "REVIEWED", crit10, nil).res
+	e.exec(`update grading_results set first_reviewed_by = $2, first_reviewed_at = now() where id = $1`, same, e.teacher)
+	st := "REVIEWED"
+	page, err := e.svc.Queue(e.ctx, e.course, assignment.QueueFilter{Status: st, Limit: 100})
+	require.NoError(t, err)
+	got := map[uuid.UUID]string{}
+	for _, r := range page.Items {
+		got[r.Result.ID] = r.Result.StaleReview
+	}
+	require.Equal(t, map[uuid.UUID]string{asIs: "ACCEPTED_AS_IS", ed: "EDITED", same: ""}, got)
+}
+
 // TestResultViewGuidance — màn duyệt thấy bản lưu ý ĐÃ GHIM của kết quả, không phải bản hiện hành; `stale` chỉ cho nháp chưa từng duyệt; cờ tắt → không có khối `guidance`.
 func TestResultViewGuidance(t *testing.T) {
 	e := newEnv(t)
