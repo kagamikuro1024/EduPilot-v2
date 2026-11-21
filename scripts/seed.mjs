@@ -233,9 +233,12 @@ async function adminLogin() {
 async function isSeeded() {
   const a = await adminLogin();
   if (!a) return false;
-  const r = await call("GET", "/admin/courses?limit=100", { token: a.access_token });
-  const codes = new Set(r.body.items.map((c) => c.class_code));
-  return codes.has("761987") && codes.has("761988");
+  // Tìm theo tiền tố mã lớp: DB có > 100 lớp thì hai lớp seed không nằm ở trang đầu của danh sách (DEF-R4-08)
+  for (const code of ["761987", "761988"]) {
+    const r = await call("GET", `/admin/courses?limit=100&q=${code}`, { token: a.access_token });
+    if (!r.body.items.some((c) => c.class_code === code)) return false;
+  }
+  return true;
 }
 
 async function step1Admin() {
