@@ -142,6 +142,9 @@ func (s *Service) GenStatsOf(ctx context.Context, courseID, jobID uuid.UUID) (Ge
 	}
 	out := GenStats{Unchanged: int(row.Unchanged), Edited: int(row.Edited), Rejected: int(row.Rejected), Pending: int(row.Pending)}
 	raw, err := store.New(s.Pool).PracticeGenHints(ctx, jobID)
+	if errors.Is(err, pgx.ErrNoRows) { // lô có câu hỏi nhưng không còn dòng jobs (đã dọn / nhập tay): không có lý do để hiện
+		return out, nil
+	}
 	if err != nil {
 		return GenStats{}, fmt.Errorf("practice: lý do lô: %w", err)
 	}
