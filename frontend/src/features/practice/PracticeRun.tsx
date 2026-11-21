@@ -19,17 +19,16 @@ type Load = { kind: "loading" } | { kind: "error"; error: unknown } | { kind: "r
  * Lớp của lượt không có trong đường dẫn: thử lớp gợi ý (`?course=`), rồi các lớp sinh viên còn lại; mở lượt MOCK bằng trang này là giành quyền ghi cho tab này.
  */
 export function PracticeRun({ attemptId }: { attemptId: string }) {
-  const hint = useSearchParams().get("course");
+  const params = useSearchParams();
+  const [hint] = useState(() => params.get("course")); // đọc ở lượt dựng đầu: tải lượt chạy SONG SONG với /me/courses, không đợi danh sách lớp
   const c = useStudentCourse();
   const { identity } = useSession();
   const [clock] = useState(makeExamClock);
   const [tab] = useState(newTabId);
   const [load, setLoad] = useState<Load>({ kind: "loading" });
   const [nonce, setNonce] = useState(0);
-  const ready = c.state === "ready";
   // Lớp từ ?course= (liên kết trong app luôn mang theo); thiếu hoặc sai thì hỏi MỘT lần lớp của lượt — không dò từng lớp (luật 13).
   useEffect(() => {
-    if (!ready) return;
     let alive = true;
     (async () => {
       const gone = (e: unknown) => e instanceof ApiError && (e.status === 404 || e.status === 403);
@@ -54,7 +53,7 @@ export function PracticeRun({ attemptId }: { attemptId: string }) {
     })();
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, hint, attemptId, nonce]);
+  }, [hint, attemptId, nonce]);
 
   const back = { href: "/practice", label: "Luyện đề" };
   if (c.state === "none") return <Page kind="work"><PageHeader title="Làm bài" back={back} /><Panel><EmptyState title="Chưa có lớp" /></Panel></Page>;

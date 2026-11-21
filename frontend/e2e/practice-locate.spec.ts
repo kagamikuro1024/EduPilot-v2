@@ -53,3 +53,20 @@ test("bắt đầu luyện: 0 request tìm lượt, ?course= ở lại URL, tả
   await expect(page.getByRole("button", { name: /^Phương án B của câu 1/ })).toBeVisible();
   expect(locates).toBe(0);
 });
+
+// DEF-R10S-20 (3): URL đã có ?course= thì GET lượt chạy SONG SONG với /me/courses (LCP 4,4 s vì chờ /me/courses 3,7 s). /me/courses trễ 1,5 s: GET lượt phải bắt đầu TRƯỚC khi nó trả.
+test("mở /practice/<id>?course=…: GET lượt không chờ /me/courses", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2" });
+  await practiceApi(page, {}, { topicCount: 5 });
+  await page.goto("/practice");
+  await page.getByRole("listitem").filter({ hasText: "Hàm băm" }).getByRole("button").click();
+  await page.waitForURL(/\/practice\/att-1\?course=/);
+
+  let coursesDone = false;
+  await page.route("**/api/v1/me/courses**", async (r) => { await new Promise((res) => setTimeout(res, 1500)); await r.fallback(); coursesDone = true; });
+  let coursesDoneAtAttemptGet: boolean | null = null;
+  page.on("request", (r) => { if (coursesDoneAtAttemptGet === null && /\/courses\/[^/]+\/practice\/attempts\/[^/]+$/.test(r.url()) && r.method() === "GET") coursesDoneAtAttemptGet = coursesDone; });
+  await page.reload();
+  await expect(page.getByRole("button", { name: /^Phương án B của câu 1/ })).toBeVisible();
+  expect(coursesDoneAtAttemptGet).toBe(false);
+});
