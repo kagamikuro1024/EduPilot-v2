@@ -133,7 +133,11 @@ Các lượt bị lặp hoặc không dùng đều có lý do khác và được
 | `real-llm/mask-luot1.json` | chỉ 17 probe tới mô hình (cần ≥ 20) | `real-llm/mask.json` |
 
 ## Danh sách câu cần vá ở báo cáo cũ (US-NFR-09 AC3)
-| Vị trí | Câu hiện có | Câu mới đề xuất |
+Cách tìm: `grep -nEi 'giả lập|chưa đo|chưa test LLM thật' docs/sprints/8/report.md docs/sprints/9/report.md docs/PROGRESS.md` trên `sprint/11-p10-eval` @ `b2b4ec59` → 3 vị trí (sprint 8: 0). Số dòng có thể lệch khi tệp đổi sau mốc này. Ba vị trí dưới đây là đủ; câu «chưa đo T1» ở bản trước của danh sách không có trong tệp nào nên đã bỏ.
+
+| Vị trí (tệp:dòng) | Câu hiện có | Câu mới đề xuất |
 | --- | --- | --- |
-| `docs/sprints/8/report.md`, `docs/sprints/9/report.md`, `PROGRESS.md` (các dòng "giả lập" / "chưa đo" về T1) | "chưa đo T1" | "Đo trên MacBook Apple Silicon (Colima 6 CPU / 10 GB): T1 1.000 SV đạt SLO đọc / ghi / SSE / TTFT / dashboard ở ×1 và ×2; số trong `docs/research/2026-11-14-nfr-real-llm.md`" |
-| `PROGRESS.md` mục Nợ | – | thêm: TL-2c (truy vấn tìm lai), TL-2d (chat treo khi Redis tắt), TL-2e (nhúng trong request tạo thread) |
+| `docs/sprints/9/report.md:19` | thẻ Teams "Môi trường giả lập" | giữ nguyên: là tên thẻ giao diện của nguồn Teams giả (`cmd/mock-graph`), không nói về phép đo |
+| `docs/PROGRESS.md:68` | «chưa đo độ chính xác LLM thật (trích công thức, chấm bài).» | «độ chính xác LLM thật đã đo ở 9.5 qua 9router `ag/gemini-3.8-flash`: trích công thức 10/10 `SUCCEEDED`, 0 luật bịa; chấm `EVAL03` MAE tổng 0,688–0,792, QWK 0,905–0,913 (`docs/research/2026-11-14-nfr-real-llm.md`, R1, R2).» |
+| `docs/PROGRESS.md:71` | «chưa đo lại 3G chậm.» | giữ nguyên: 9.5 không đo mạng chậm |
+| `docs/PROGRESS.md:45` (mục Nợ; thêm dòng, không sửa dòng cũ) | – | thêm: TL-2c (truy vấn tìm lai nối `documents × content_chunks` không lọc lớp), TL-2d (chat treo ≈ 19 s khi Redis tắt), TL-2e (nhúng trong request tạo thread); nguồn `docs/sprints/9.5/techlead.md` |
