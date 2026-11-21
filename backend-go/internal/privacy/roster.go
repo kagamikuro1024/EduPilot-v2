@@ -2,11 +2,13 @@ package privacy
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
@@ -34,13 +36,38 @@ type RosterSource interface {
 }
 
 // Roster giữ từ điển theo lớp: Redis `ep:roster:{course_id}` (JSON, TTL 1 giờ), trượt thì dựng lại bằng một truy vấn.
-// ponytail: dựng chỉ mục (vài chục biến thể tên) mỗi lần gọi thay vì cache trong tiến trình — cache cục bộ sẽ làm chậm vô hiệu theo sự kiện; thêm khi lớp > ~500 sinh viên.
+// Chỉ mục biến thể tên (hoán vị 3–4 âm tiết: hàng chục nghìn khoá với 1.000 sinh viên) được nhớ theo DẤU VÂN của danh sách (DEF-R106S-18): đổi roster → dấu vân đổi → dựng lại,
+// nên không có chuyện «cũ» sau vô hiệu theo sự kiện. ponytail: một chỉ mục mỗi lớp, tối đa rosterMemoMax lớp (đầy thì xoá hết); đổi sang LRU nếu một gateway phục vụ nhiều lớp đồng thời hơn thế.
 type Roster struct {
 	Src   RosterSource
 	Redis *appredis.Client // nil = không cache
 	Log   *slog.Logger
 	// OpTimeout: hạn mỗi lệnh Redis; 0 = redisOpTimeout (30 ms, quá hạn thì dựng lại từ DB). Test đặt dài để kết quả không phụ thuộc tải máy (#19).
 	OpTimeout time.Duration
+
+	memoMu sync.Mutex
+	memo   map[uuid.UUID]memoEntry
+}
+
+const rosterMemoMax = 64
+
+type memoEntry struct {
+	sum [sha256.Size]byte
+	idx *rosterIndex
+}
+
+// fingerprint: băm tên + mã theo thứ tự danh sách.
+func fingerprint(ms []Member) [sha256.Size]byte {
+	h := sha256.New()
+	for _, m := range ms {
+		h.Write([]byte(m.Name))
+		h.Write([]byte{0})
+		h.Write([]byte(m.Code))
+		h.Write([]byte{1})
+	}
+	var out [sha256.Size]byte
+	h.Sum(out[:0])
+	return out
 }
 
 func (r *Roster) opTimeout() time.Duration {
@@ -96,7 +123,18 @@ func (r *Roster) index(ctx context.Context, courseID uuid.UUID) (*rosterIndex, e
 	if err != nil {
 		return nil, err
 	}
-	return buildIndex(ms), nil
+	sum := fingerprint(ms)
+	r.memoMu.Lock()
+	defer r.memoMu.Unlock()
+	if e, ok := r.memo[courseID]; ok && e.sum == sum {
+		return e.idx, nil
+	}
+	if r.memo == nil || len(r.memo) >= rosterMemoMax {
+		r.memo = map[uuid.UUID]memoEntry{}
+	}
+	idx := buildIndex(ms)
+	r.memo[courseID] = memoEntry{sum: sum, idx: idx}
+	return idx, nil
 }
 
 // Invalidate là outbox.Handler cho `course.member_changed` và `roster.imported`: xoá cache của lớp trong payload. Idempotent.
