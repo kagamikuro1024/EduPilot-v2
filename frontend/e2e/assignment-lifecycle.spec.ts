@@ -846,6 +846,22 @@ test("queue: người khác duyệt bớt bài → hàng chờ làm mới khi c�
   await expect(count).toHaveText("2 bài");
 });
 
+test("tab Bài tập ở 375 px: liên kết tiêu đề là vùng chạm ≥ 44 px cao, rộng hết hàng; chạm sát mép phải vẫn mở bài (DEF-R106S-22, P-106-13 j)", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "mobile", "ca điện thoại");
+  await page.setViewportSize({ width: 375, height: 800 });
+  await asDemo(context, "teacher");
+  await gradingApi(page);
+  await page.goto("/grading?tab=assignments");
+  const link = page.locator("a[href*='open=']:visible").first();
+  await expect(link).toBeVisible();
+  const b = (await link.boundingBox())!;
+  expect(b.height).toBeGreaterThanOrEqual(44);
+  const row = (await page.locator("[role=button]:has(a[href*='open='])").first().boundingBox())!;
+  expect(b.width).toBeGreaterThanOrEqual(row.width - 24); // gần hết bề rộng hàng, không chỉ bằng chữ
+  await page.mouse.click(row.x + row.width - 6, b.y + b.height - 6);
+  await expect(page.getByRole("dialog")).toBeVisible();
+});
+
 test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openReview(page, context, { h: { "PUT grading-results/:id": async (r, next) => { await new Promise((res) => setTimeout(res, 600)); return next(r); } } });
