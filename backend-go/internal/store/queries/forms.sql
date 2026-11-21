@@ -32,3 +32,12 @@ left join users u on u.id = r.student_id
 left join enrollments e on e.course_id = r.course_id and e.user_id = r.student_id
 where r.course_id = sqlc.arg(course_id) and r.batch_id = sqlc.arg(batch_id)
 order by r.row_no;
+
+-- name: FormsBatchesExpired :many
+-- Lô có tệp gốc quá hạn giữ (chưa xoá), cũ nhất trước.
+select id, course_id, blob_key from forms_import_batches
+where blob_purged_at is null and created_at < now() - make_interval(days => sqlc.arg(keep_days)::int)
+order by created_at, id limit sqlc.arg(max_rows);
+
+-- name: FormsBatchMarkPurged :execrows
+update forms_import_batches set blob_purged_at = now() where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and blob_purged_at is null;

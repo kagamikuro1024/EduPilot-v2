@@ -62,6 +62,61 @@ func (q *Queries) FormsBatchInsert(ctx context.Context, arg FormsBatchInsertPara
 	return id, err
 }
 
+const formsBatchMarkPurged = `-- name: FormsBatchMarkPurged :execrows
+update forms_import_batches set blob_purged_at = now() where course_id = $1 and id = $2 and blob_purged_at is null
+`
+
+type FormsBatchMarkPurgedParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+func (q *Queries) FormsBatchMarkPurged(ctx context.Context, arg FormsBatchMarkPurgedParams) (int64, error) {
+	result, err := q.db.Exec(ctx, formsBatchMarkPurged, arg.CourseID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const formsBatchesExpired = `-- name: FormsBatchesExpired :many
+select id, course_id, blob_key from forms_import_batches
+where blob_purged_at is null and created_at < now() - make_interval(days => $1::int)
+order by created_at, id limit $2
+`
+
+type FormsBatchesExpiredParams struct {
+	KeepDays int32
+	MaxRows  int32
+}
+
+type FormsBatchesExpiredRow struct {
+	ID       uuid.UUID
+	CourseID uuid.UUID
+	BlobKey  string
+}
+
+// Lô có tệp gốc quá hạn giữ (chưa xoá), cũ nhất trước.
+func (q *Queries) FormsBatchesExpired(ctx context.Context, arg FormsBatchesExpiredParams) ([]FormsBatchesExpiredRow, error) {
+	rows, err := q.db.Query(ctx, formsBatchesExpired, arg.KeepDays, arg.MaxRows)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []FormsBatchesExpiredRow{}
+	for rows.Next() {
+		var i FormsBatchesExpiredRow
+		if err := rows.Scan(&i.ID, &i.CourseID, &i.BlobKey); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const formsRoster = `-- name: FormsRoster :many
 select e.user_id as student_id, u.full_name, case when u.email_verified_at is not null then lower(u.email) else '' end::text as email,
        e.student_code_snapshot as student_code, e.joined_via

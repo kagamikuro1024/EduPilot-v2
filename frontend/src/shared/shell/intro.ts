@@ -21,6 +21,9 @@ const INTROS: Record<string, RouteIntro> = {
   // h1 thật = "Kết quả của tôi" + mã lớp (RealMe); các khối sau phiên nhỏ hơn h1 nên h1 là ứng viên LCP duy nhất
   "/me": { title: "Kết quả của tôi" },
   "/gradebook": { title: "Sổ điểm", width: "work" },
+  // `/practice` (h1 «Luyện đề») và `/practice/<id>` (h1 «Làm bài») chờ cả chuỗi chunk nạp lười → phiên → dữ liệu: chữ tiêu đề từ máy chủ là ứng viên LCP đầu tiên (DEF-R10S-20)
+  "/practice": { title: "Luyện đề" },
+  "/practice/history": { title: "Lịch sử luyện tập" },
   "/chat": {
     title: "Chat riêng",
     width: "work",
@@ -33,6 +36,6 @@ const INTROS: Record<string, RouteIntro> = {
 
 // Route động: tra theo tiền tố (US-P10-08; `/assignments/<id>` không có PreShell thì FCP chờ tới khi có phiên). h1 thật của màn là tiêu đề bài tập (dữ liệu); trước khi có
 // dữ liệu nó là «Bài tập» (StudentAssignment), nên chữ máy chủ dùng đúng chữ đó.
-const PREFIX_INTROS: Array<[string, RouteIntro]> = [["/assignments/", { title: "Bài tập" }]];
+const PREFIX_INTROS: Array<[string, RouteIntro]> = [["/assignments/", { title: "Bài tập" }], ["/practice/", { title: "Làm bài", width: "work" }]];
 
 export const introFor = (pathname: string): RouteIntro | null => INTROS[pathname] ?? PREFIX_INTROS.find(([p]) => pathname.startsWith(p))?.[1] ?? null;

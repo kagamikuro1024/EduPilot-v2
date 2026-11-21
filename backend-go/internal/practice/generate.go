@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
@@ -45,6 +46,12 @@ type GeneratePayload struct {
 var genTypes = map[string]bool{exam.TypeMCQSingle: true, exam.TypeMCQMulti: true, exam.TypeTrueFalse: true} //nolint:gochecknoglobals // tập loại cho phép, bất biến
 
 // EnqueueGenerate xếp việc sinh câu từ đoạn tài liệu (US-P9-03): nguồn là `document_ids` HOẶC `chunk_ids`, không phải ANSWER_KEY (422 WRONG_DOCUMENT_TYPE).
+// leadNumberRE: số thứ tự đầu câu («12. », «Câu 3) ») — chỉ khi theo sau là khoảng trắng, để «3.14…» / «3-way» không bị cắt.
+var leadNumberRE = regexp.MustCompile(`(?i)^\s*(?:câu\s*)?\d{1,3}\s*[.:)\-–]\s+`)
+
+// stemKey: khoá so trùng câu hỏi (US-P9-03 AC5) = NormalizeShort sau khi bỏ số thứ tự đầu câu.
+func stemKey(stem string) string { return quiz.NormalizeShort(leadNumberRE.ReplaceAllString(stem, "")) }
+
 func (s *Service) EnqueueGenerate(ctx context.Context, owner, courseID uuid.UUID, in GenerateIn) (uuid.UUID, error) {
 	var errs []apierr.FieldError
 	bad := func(f, c, m string) { errs = append(errs, apierr.FieldError{Field: f, Code: c, Message: m}) }
@@ -264,7 +271,7 @@ func (w *Worker) generate(ctx context.Context, j jobs.JobCtx) (any, error) {
 			skip("INVALID")
 			continue
 		}
-		norm := quiz.NormalizeShort(c.Stem)
+		norm := stemKey(c.Stem)
 		if seen[norm] {
 			skip("DUPLICATE")
 			continue

@@ -36,7 +36,7 @@ export default function () {
   group('save', () => {
     for (const it of attempt.items) {
       const opt = it.question.options[0];
-      const body = opt ? { answer: { option_ids: [opt.id] }, version: 0 } : { answer: { text: 'x' }, version: 0 };
+      const body = it.question.type === 'TRUE_FALSE' ? { answer: { value: true }, version: 0 } : opt ? { answer: { option_ids: [opt.id] }, version: 0 } : { answer: { text: 'x' }, version: 0 }; // TRUE_FALSE nhận {value}, không {text} (DEF-R10S-19)
       const r = http.put(`${P}/attempts/${attempt.id}/answers/${it.id}`, JSON.stringify(body), h());
       saveMs.add(r.timings.duration);
       check(r, { 'save 200': (x) => x.status === 200 });

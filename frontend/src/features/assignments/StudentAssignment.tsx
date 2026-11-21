@@ -90,7 +90,7 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [err, setErr] = useState<unknown>(null);
-  const [receipt, setReceipt] = useState<string | null>(null);
+  const [receipt, setReceipt] = useState<{ at: string; late: number } | null>(null);
   const [resume, setResume] = useState<Resume | null>(null);
   const [over, setOver] = useState(false);
 
@@ -104,8 +104,9 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
   const overdue = new Date(a.due_at).getTime() < now;
   const sub = data.submission;
   const lateTag = sub && sub.late_days > 0 ? ` · Nộp muộn ${sub.late_days} ngày` : "";
-  const status = receipt
-    ? `Đã nhận bài lúc ${at(receipt)}`
+  // Xác nhận vừa nộp (AC3) chỉ giữ tới khi bài có điểm; từ đó dòng trạng thái là «Đã có điểm».
+  const status = receipt && data.state !== "GRADED"
+    ? `Đã nhận bài lúc ${at(receipt.at)}${receipt.late > 0 ? ` · Nộp muộn ${receipt.late} ngày` : ""}`
     : data.state === "NOT_SUBMITTED" || !sub
       ? "Chưa nộp"
       : data.state === "GRADING"
@@ -160,7 +161,7 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
     } catch { /* kho bị chặn */ }
     setResume(null);
     setFile(null);
-    setReceipt(out.submission.received_at);
+    setReceipt({ at: out.submission.received_at, late: out.submission.late_days });
     await qc.invalidateQueries({ queryKey: mineKey(courseId, id) });
   }
 

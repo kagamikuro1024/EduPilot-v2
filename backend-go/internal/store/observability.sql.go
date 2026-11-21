@@ -271,6 +271,41 @@ func (q *Queries) ObsEscalationsDaily(ctx context.Context, arg ObsEscalationsDai
 	return items, nil
 }
 
+const obsGradingStats = `-- name: ObsGradingStats :one
+select count(*) filter (where run_state = 'QUEUED')::bigint as queued,
+       count(*) filter (where run_state = 'RUNNING')::bigint as running,
+       count(*) filter (where run_state = 'DONE')::bigint as done,
+       count(*) filter (where run_state = 'FAILED')::bigint as failed,
+       coalesce(percentile_cont(0.5) within group (order by extract(epoch from updated_at - created_at)) filter (where run_state = 'DONE' and reviewed_at is null and created_at >= $1), 0)::float8 as p50_s,
+       coalesce(percentile_cont(0.95) within group (order by extract(epoch from updated_at - created_at)) filter (where run_state = 'DONE' and reviewed_at is null and created_at >= $1), 0)::float8 as p95_s
+from grading_results
+`
+
+type ObsGradingStatsRow struct {
+	Queued  int64
+	Running int64
+	Done    int64
+	Failed  int64
+	P50S    float64
+	P95S    float64
+}
+
+// Hàng chờ chấm bài (US-P7-07 AC10): đếm theo run_state (toàn bộ), thời lượng p50 / p95 giây của bài AI chấm xong chưa ai sửa (updated_at − created_at, gồm cả chờ hàng) tạo từ from_ts.
+// FAILED = đã hết lượt thử (cùng tập với dead-letter `ep:grading.dead`).
+func (q *Queries) ObsGradingStats(ctx context.Context, fromTs time.Time) (ObsGradingStatsRow, error) {
+	row := q.db.QueryRow(ctx, obsGradingStats, fromTs)
+	var i ObsGradingStatsRow
+	err := row.Scan(
+		&i.Queued,
+		&i.Running,
+		&i.Done,
+		&i.Failed,
+		&i.P50S,
+		&i.P95S,
+	)
+	return i, err
+}
+
 const obsPayloadsPurge = `-- name: ObsPayloadsPurge :execrows
 delete from llm_request_payloads where created_at < $1
 `

@@ -42,6 +42,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
   const [confirm, setConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitErr, setSubmitErr] = useState<ApiError | null>(null);
+  const [submitRetry, setSubmitRetry] = useState(false); // nộp chưa được (mạng): đang thử lại cùng khoá
   const [warn, setWarn] = useState<1 | 5 | null>(null);
   const [expired, setExpired] = useState(false);
   const [other, setOther] = useState(false); // tab khác đã giành quyền ghi
@@ -128,6 +129,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
         if (!other && !closedByServer.current && queue.state.pending > 0) throw new ApiError({ status: 0, code: "NETWORK" });
         const r = await submitAttempt(courseId, initial.id, submitKey.current);
         queue.clear();
+        setSubmitRetry(false);
         onDone(r);
         return;
       } catch (e) {
@@ -136,6 +138,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
           setSubmitting(false);
           return;
         }
+        setSubmitRetry(true);
         await sleep(delays[Math.min(n, delays.length - 1)]); // chập chờn: giữ "Đang nộp…", gửi lại CÙNG khoá
       }
     }
@@ -167,7 +170,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
       </header>
       <p className={s.warnLine} role="status" aria-live="polite">{warn === 5 ? "Còn 5 phút." : warn === 1 ? "Còn 1 phút." : ""}</p>
       {expired && <InlineNotice compact>Hết giờ — đang nộp bài của bạn.</InlineNotice>}
-      {offline && !expired && <InlineNotice tone="warning" compact>Chưa gửi được. Bài vẫn giữ trên máy bạn.</InlineNotice>}
+      {submitRetry ? <InlineNotice tone="warning" compact>Chưa nộp được. Đang thử lại.</InlineNotice> : offline && !expired && <InlineNotice tone="warning" compact>Chưa gửi được. Bài vẫn giữ trên máy bạn.</InlineNotice>}
       {other && (
         <InlineNotice tone="warning" compact title="Bài đang mở ở tab khác" action={<Button size="sm" onClick={onTakeOver}>Làm tiếp ở tab này</Button>}>
           Tab này chỉ để xem.

@@ -3508,6 +3508,16 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "503":
+          description: "Redis không trả lời: `Idempotency-Key` fail-closed (SRS 6.6, P-11-70) — không xếp hàng, không tạo dòng QUEUED; gửi lại cùng khoá sau `Retry-After` giây (`SERVICE_UNAVAILABLE`)"
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api/v1/courses/{id}/guidance-flags:
     get:
       operationId: listGuidanceFlags
@@ -18219,12 +18229,33 @@ components:
         cost: {type: string}
         tokens_in: {type: integer}
         tokens_out: {type: integer}
+    ObsGrading:
+      type: object
+      description: "Hàng chờ chấm bài (US-P7-07 AC10): tính từ grading_results lúc đọc; không PII. `duration_*` = giây từ xếp hàng tới xong (gồm chờ hàng) của bài AI chấm xong chưa ai sửa, tạo trong cửa sổ"
+      required: [jobs_total, queue_depth, dead_total, duration_p50_s, duration_p95_s]
+      additionalProperties: false
+      properties:
+        jobs_total:
+          type: object
+          required: [QUEUED, RUNNING, DONE, FAILED]
+          additionalProperties: false
+          properties:
+            QUEUED: {type: integer, format: int64}
+            RUNNING: {type: integer, format: int64}
+            DONE: {type: integer, format: int64}
+            FAILED: {type: integer, format: int64}
+        queue_depth: {type: integer, format: int64}
+        dead_total: {type: integer, format: int64, description: "Bài đã hết lượt thử (FAILED), cùng tập với dead-letter ep:grading.dead"}
+        duration_p50_s: {type: number}
+        duration_p95_s: {type: number}
     ObsAdminSummary:
       type: object
-      required: [window, totals, days, tasks]
+      required: [window, totals, days, tasks, grading]
       additionalProperties: false
       properties:
         window: {type: string}
+        grading:
+          $ref: "#/components/schemas/ObsGrading"
         totals:
           $ref: "#/components/schemas/ObsTotals"
         days:

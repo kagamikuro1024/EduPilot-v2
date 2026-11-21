@@ -24,7 +24,7 @@ function makeItems(n: number, topic: string): Item[] {
 }
 
 /** `h` ghi đè theo khoá "METHOD đuôi" (vd. "PUT answers", "POST submit"); `next()` chạy xử lý mặc định. `now` đặt đồng hồ máy chủ giả (mặc định: giờ thật). */
-export async function practiceApi(page: Page, h: Record<string, Handler> = {}, opts: { mockCount?: number; minutes?: number } = {}) {
+export async function practiceApi(page: Page, h: Record<string, Handler> = {}, opts: { mockCount?: number; topicCount?: number; minutes?: number } = {}) {
   const calls: Call[] = [];
   const attempts = new Map<string, Attempt>();
   let seq = 0;
@@ -39,7 +39,7 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
       items: a.items.map((it) => ({
         id: it.id, position: it.position, question: { type: it.type, topic: it.topic, stem: it.stem, options: it.options },
         answer: it.answer,
-        feedback: showFb(it) ? { correct: (it.answer!.answer.option_ids as string[])[0] === it.correct, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [] } : null,
+        feedback: showFb(it) ? { correct: (it.answer!.answer.option_ids as string[])[0] === it.correct, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [{ document_id: "doc-hidden", page: 1 }] } : null,
       })),
       result: closed ? { correct, total: a.items.length, score: ((correct * 10) / a.items.length).toFixed(1), topics: [], weakest_topic: null, expired: a.expired } : null,
     };
@@ -67,7 +67,7 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
     if (req.method() === "POST" && parts[0] === "start") {
       const b = JSON.parse(body) as { mode: "TOPIC" | "MOCK"; topic?: string; count?: number; duration_minutes?: number };
       const id = `att-${++seq}`;
-      const n = b.mode === "MOCK" ? (opts.mockCount ?? b.count ?? 20) : Math.min(5, b.count ?? 5);
+      const n = b.mode === "MOCK" ? (opts.mockCount ?? b.count ?? 20) : (opts.topicCount ?? Math.min(5, b.count ?? 5));
       attempts.set(id, { id, mode: b.mode, topic: b.topic ?? null, status: "IN_PROGRESS", started_at: new Date().toISOString(), deadline_at: b.mode === "MOCK" ? new Date(Date.now() + (opts.minutes ?? b.duration_minutes ?? 30) * 60_000).toISOString() : null, items: makeItems(n, b.topic ?? "Thi thử"), current_index: 0, version: 1, expired: false });
       return route.fulfill(json(view(attempts.get(id)!), 201));
     }
@@ -90,7 +90,7 @@ export async function practiceApi(page: Page, h: Record<string, Handler> = {}, o
       if (it.answer && JSON.stringify(it.answer.answer) !== JSON.stringify(b.answer) && (b.version ?? 0) !== it.answer.version) return route.fulfill(err(409, "VERSION_CONFLICT", { version: it.answer.version })); // như máy chủ thật
       it.answer = { answer: b.answer, version: (it.answer?.version ?? 0) + 1, locked: a.mode === "TOPIC" };
       const ok = (b.answer.option_ids as string[])[0] === it.correct;
-      return route.fulfill(json({ version: it.answer.version, locked: it.answer.locked, feedback: a.mode === "TOPIC" ? { correct: ok, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [] } : null }));
+      return route.fulfill(json({ version: it.answer.version, locked: it.answer.locked, feedback: a.mode === "TOPIC" ? { correct: ok, key: { option_ids: [it.correct] }, explanation: it.explanation, citations: [{ document_id: "doc-hidden", page: 1 }] } : null }));
     }
     if (req.method() === "POST" && parts[2] === "submit") {
       a.status = "SUBMITTED";

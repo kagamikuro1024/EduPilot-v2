@@ -5,7 +5,8 @@ import { apiClient } from "@/shared/data";
 export type Totals = { requests: number; p50_ms: number; p95_ms: number; errors: number; error_rate: number; fallbacks: number; fallback_rate: number; cost: string; pii_masked: number; window_seconds: number };
 export type DayRow = { day: string; requests: number; p95_ms: number; errors: number; escalations: number; pii_masked: number; cost: string };
 export type TaskCost = { task: string; requests: number; cost: string; tokens_in: number; tokens_out: number };
-export type AdminSummary = { window: string; totals: Totals; days: DayRow[]; tasks: TaskCost[] };
+export type GradingStats = { jobs_total: { QUEUED: number; RUNNING: number; DONE: number; FAILED: number }; queue_depth: number; dead_total: number; duration_p50_s: number; duration_p95_s: number };
+export type AdminSummary = { window: string; totals: Totals; days: DayRow[]; tasks: TaskCost[]; grading: GradingStats };
 export type RequestRow = {
   id: string; at: string; task: string; lane: string; provider: string | null; model: string | null; latency_ms: number; status: string; error_kind: string | null;
   degraded: boolean; fallback_index: number; pii_masked_count: number; course_id: string | null; course_code: string | null;

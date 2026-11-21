@@ -126,7 +126,7 @@ export function TopicRun({ courseId, initial, tab, userId, onDone }: { courseId:
             <p className={s.feedbackHead}>{fb.correct ? "Đúng rồi" : "Chưa đúng"}</p>
             {!fb.correct && <p className={s.reviewLine}>Đáp án đúng: {answerKeyText(item)}</p>}
             {fb.explanation && <p className={s.explain}>{fb.explanation}</p>}
-            {fb.citations.length > 0 && <p className={s.cite}>Nguồn: {fb.citations.map((c) => (c.page ? `trang ${c.page}` : "tài liệu")).join(", ")}</p>}
+            {fb.citations.length > 0 && <p className={s.cite}>Nguồn trong tài liệu{fb.citations.some((c) => c.page) ? ` · trang ${fb.citations.flatMap((c) => (c.page ? [c.page] : [])).join(", ")}` : ""}</p>}
             <ExplainMore key={item.id} course={courseId} attempt={initial.id} item={item.id} />
           </div>
         )}

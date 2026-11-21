@@ -21,7 +21,6 @@ import (
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
-	"github.com/edupilot/backend-go/internal/quiz"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -127,12 +126,15 @@ func (w *Worker) Register(r *jobs.Runner) {
 	r.Register(KindGenerate, w.generate)
 }
 
+// defaultRetryWait: quá tải → thử lại sau 2 s rồi 5 s (3 lời gọi tất cả), hết thì «Chưa trích được. Thử lại.».
+var defaultRetryWait = []time.Duration{2 * time.Second, 5 * time.Second}
+
 func (w *Worker) call(ctx context.Context, system, user string, schema string) (json.RawMessage, error) {
 	temp := 0.2
 	req := llm.Request{Task: llm.TaskQuestionGen, Messages: []llm.Message{{Role: "system", Content: system}, {Role: "user", Content: user}}, Params: llm.Params{Temperature: &temp, MaxTokens: 4096}}
 	backoff := w.RetryWait
 	if backoff == nil {
-		backoff = []time.Duration{2 * time.Second, 5 * time.Second}
+		backoff = defaultRetryWait
 	}
 	outage := 0
 	for attempt := 0; ; attempt++ {
@@ -268,7 +270,7 @@ func (w *Worker) extract(ctx context.Context, j jobs.JobCtx) (any, error) {
 	}
 	seen := map[string]bool{}
 	for _, s := range existing {
-		seen[quiz.NormalizeShort(s)] = true
+		seen[stemKey(s)] = true
 	}
 	wins := windows(chunks, 6000)
 	byNumber := map[int]bool{}
@@ -329,7 +331,7 @@ func (w *Worker) save(ctx context.Context, q *store.Queries, p ExtractPayload, q
 			skip("INVALID")
 			continue
 		}
-		norm := quiz.NormalizeShort(c.Stem)
+		norm := stemKey(c.Stem)
 		if seen[norm] {
 			skip("DUPLICATE")
 			continue

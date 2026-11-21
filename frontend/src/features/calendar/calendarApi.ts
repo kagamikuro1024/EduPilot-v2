@@ -62,10 +62,11 @@ export function useEventMutations(course: string) {
   const qc = useQueryClient();
   const done = () => qc.invalidateQueries({ queryKey: calKey(course) });
   const base = `/courses/${course}/calendar/events`;
+  const uuid = (id: string) => id.slice(id.indexOf(":") + 1); // id lịch hợp nhất = "<source>:<uuid>" (SRS FEAT-docs-calendar); API sự kiện nhận uuid
   return {
     create: useMutation({ mutationFn: (b: EventInput) => apiClient.post(base, b), onSuccess: done }),
-    update: useMutation({ mutationFn: ({ id, ...b }: EventInput & { id: string }) => apiClient.put(`${base}/${id}`, b), onSuccess: done }),
-    remove: useMutation({ mutationFn: (id: string) => apiClient.delete(`${base}/${id}`), onSuccess: done }),
+    update: useMutation({ mutationFn: ({ id, ...b }: EventInput & { id: string }) => apiClient.put(`${base}/${uuid(id)}`, b), onSuccess: done }),
+    remove: useMutation({ mutationFn: (id: string) => apiClient.delete(`${base}/${uuid(id)}`), onSuccess: done }),
   };
 }
 

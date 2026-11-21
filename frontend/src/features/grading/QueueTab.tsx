@@ -110,6 +110,9 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const rows = list.items;
   // Bài CHƯA CHẤM của bài tập đang chọn (độc lập với bộ lọc đang xem): nguồn cho nút «Chấm tất cả» và cho việc tự chuyển khỏi hàng chờ trống (GV-BUG lọc mặc định che bài chưa chấm)
   const ungraded = useQueue(courseId, { assignment_id: assignmentId || undefined, status: "NONE" });
+  // Mọi bài nộp đã khớp của bài tập đang chọn (không lọc trạng thái): rỗng = lớp chưa có bài nộp nào (TC-P7-08-13).
+  const everything = useQueue(courseId, { assignment_id: assignmentId || undefined });
+  const classEmpty = !everything.isPending && !everything.isError && everything.items.length === 0;
 
   // Lọc mặc định có `Cần xem kỹ`; nếu không còn việc chờ nào thì bỏ lọc cờ MỘT lần (AC1).
   useEffect(() => {
@@ -501,7 +504,19 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
       isEmpty={(d) => (d as QueueRow[]).length === 0}
       loading={<Skeleton lines={10} />}
       empty={
-        <EmptyState title={flagOnly ? "Không có bài cần xem kỹ" : `Không có bài ${(STATUS_OPTIONS.find((o) => o.value === status)?.label ?? "").toLowerCase()}`} />
+        classEmpty ? (
+          <EmptyState
+            title="Chưa có bài nộp"
+            action={
+              <>
+                <Button disabled={Boolean(needAssignment) || busy} onClick={() => acts.current.pick()}>Tải bài lên</Button>
+                {teamsChannel && <Button disabled={busy || teamsRunning || teamsWait > 0} onClick={teamsSync}>Đồng bộ từ Teams</Button>}
+              </>
+            }
+          />
+        ) : (
+          <EmptyState title={flagOnly ? "Không có bài cần xem kỹ" : `Không có bài ${(STATUS_OPTIONS.find((o) => o.value === status)?.label ?? "").toLowerCase()}`} />
+        )
       }
       showTechnical
     >

@@ -88,6 +88,25 @@ test("staff add event: Thêm sự kiện mở form tại chỗ (không hộp tho
   await expect.poll(() => calls.some((c) => c.method === "DELETE"), { timeout: 8000 }).toBe(true);
 });
 
+test("staff edit/xoá sự kiện: PUT/DELETE đi tới uuid nguồn, không phải id gộp «calendar_event:<uuid>»", async ({ page, context }) => {
+  const uuid = "00000000-0000-7000-8000-0000000000b2";
+  const calls = await open(page, context, "ta", {
+    [`GET ${C}`]: (r) => r.fulfill(pageOf([item({ id: `calendar_event:${uuid}`, editable: true, version: 1 })])),
+    [`PUT ${C}/events/${uuid}`]: (r) => r.fulfill(json({ id: uuid, version: 2 })),
+    [`DELETE ${C}/events/${uuid}`]: noContent,
+  });
+  await page.getByRole("radio", { name: "Danh sách" }).click();
+  await page.getByRole("button", { name: /Thêm với Nộp báo cáo/ }).click();
+  await page.getByRole("menuitem", { name: "Sửa" }).click();
+  await page.getByLabel("Tên sự kiện").fill("Nộp báo cáo cuối kỳ");
+  await page.getByRole("button", { name: "Lưu" }).click();
+  await expect.poll(() => calls.find((c) => c.method === "PUT")?.path).toBe(`${C}/events/${uuid}`);
+  await expect(page.getByText("Đã xoá sự kiện")).toHaveCount(0);
+  await page.getByRole("button", { name: /Thêm với Nộp báo cáo/ }).click();
+  await page.getByRole("menuitem", { name: "Xoá" }).click();
+  await expect.poll(() => calls.find((c) => c.method === "DELETE")?.path, { timeout: 8000 }).toBe(`${C}/events/${uuid}`);
+});
+
 test("staff add event: sinh viên không thấy Thêm sự kiện lẫn menu sửa / xoá", async ({ page, context }, info) => {
   test.skip(info.project.name !== "desktop", "đo một lần");
   await open(page, context, "student", { [`GET ${C}`]: pageOf([item()]) });

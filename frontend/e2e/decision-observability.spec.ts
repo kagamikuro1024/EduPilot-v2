@@ -24,7 +24,7 @@ const body = (over: Record<string, unknown>[] = []) => ({
   ],
 });
 
-const SUMMARY = { window: "24h", totals: { requests: 10, p50_ms: 900, p95_ms: 2000, errors: 0, error_rate: 0, fallbacks: 0, fallback_rate: 0, cost: "100", pii_masked: 0, window_seconds: 86400 }, days: [], tasks: [] };
+const SUMMARY = { window: "24h", grading: { jobs_total: { QUEUED: 0, RUNNING: 0, DONE: 0, FAILED: 0 }, queue_depth: 0, dead_total: 0, duration_p50_s: 0, duration_p95_s: 0 }, totals: { requests: 10, p50_ms: 900, p95_ms: 2000, errors: 0, error_rate: 0, fallbacks: 0, fallback_rate: 0, cost: "100", pii_masked: 0, window_seconds: 86400 }, days: [], tasks: [] };
 
 async function openObs(page: Page, scripts: Record<string, unknown[]>, role: "ADMIN" | "TEACHER" = "ADMIN") {
   await reset(page);

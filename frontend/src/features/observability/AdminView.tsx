@@ -52,6 +52,7 @@ export function AdminView() {
   ];
 
   const t = summary.data?.totals;
+  const g = summary.data?.grading;
   return (
     <>
       <FailedMail />
@@ -60,6 +61,11 @@ export function AdminView() {
           {t && (
             <p className={s.today} data-part="obs-today">
               {`24 giờ qua: ${t.requests.toLocaleString("vi-VN")} yêu cầu · p95 ${secs(t.p95_ms)} · lỗi ${pct(t.error_rate)} · dự phòng ${pct(t.fallback_rate)} · chi phí ${money(t.cost)}`}
+            </p>
+          )}
+          {g && (
+            <p className={s.today} data-part="obs-grading">
+              {`Chấm bài: ${g.queue_depth.toLocaleString("vi-VN")} chờ · ${g.jobs_total.RUNNING.toLocaleString("vi-VN")} đang chạy · ${g.dead_total.toLocaleString("vi-VN")} lỗi hết lượt thử · p95 ${secs(g.duration_p95_s * 1000)}`}
             </p>
           )}
           <DataTable caption="Số liệu theo ngày" columns={DAY_COLUMNS} rows={summary.data?.days ?? []} rowKey={(d) => d.day} dense />

@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import { ApiError, ApiErrorNotice } from "@/shared/data";
 import { makeExamClock } from "@/shared/lib/examClock";
 import { useSession } from "@/shared/session/session";
-import { EmptyState, Page, PageHeader, Panel, Skeleton } from "@/shared/ui";
+import { EmptyState, Page, PageHeader, Panel } from "@/shared/ui";
 import { MockRun } from "./MockRun";
+import { RunShell } from "./PracticeShell";
 import { PracticeResult } from "./PracticeResult";
 import { TopicRun } from "./TopicRun";
 import { getAttempt, newTabId, useStudentCourse, type PAttempt } from "./practiceApi";
@@ -52,7 +53,7 @@ export function PracticeRun({ attemptId }: { attemptId: string }) {
 
   const back = { href: "/practice", label: "Luyện đề" };
   if (c.state === "none") return <Page kind="work"><PageHeader title="Làm bài" back={back} /><Panel><EmptyState title="Chưa có lớp" /></Panel></Page>;
-  if (load.kind === "loading") return <Page kind="work"><PageHeader title="Làm bài" back={back} /><Panel><Skeleton lines={6} /></Panel></Page>;
+  if (load.kind === "loading") return <RunShell />;
   if (load.kind === "error") {
     const gone = load.error instanceof ApiError && (load.error.status === 404 || load.error.status === 403);
     return (
