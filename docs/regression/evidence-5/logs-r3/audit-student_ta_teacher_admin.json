@@ -627,13 +627,9 @@
   "role": "ta",
   "route": "/students",
   "w": "390",
-  "pass": false,
+  "pass": true,
   "ox": 0,
-  "cut": [
-   "Hoạt động học",
-   "Rủi ro",
-   "0 phút · 0 câu hỏi"
-  ],
+  "cut": [],
   "ell": [],
   "touch": [],
   "forb": 0,
@@ -667,13 +663,9 @@
   "role": "ta",
   "route": "/gradebook",
   "w": "390",
-  "pass": false,
+  "pass": true,
   "ox": 0,
-  "cut": [
-   "Kiểm tra hằng tuần",
-   "Thi cuối kỳ",
-   "Điểm cộng"
-  ],
+  "cut": [],
   "ell": [],
   "touch": [],
   "forb": 0,
@@ -1043,13 +1035,9 @@
   "role": "teacher",
   "route": "/students",
   "w": "390",
-  "pass": false,
+  "pass": true,
   "ox": 0,
-  "cut": [
-   "Hoạt động học",
-   "Rủi ro",
-   "0 phút · 0 câu hỏi"
-  ],
+  "cut": [],
   "ell": [],
   "touch": [],
   "forb": 0,
@@ -1083,13 +1071,9 @@
   "role": "teacher",
   "route": "/gradebook",
   "w": "390",
-  "pass": false,
+  "pass": true,
   "ox": 0,
-  "cut": [
-   "Kiểm tra hằng tuần",
-   "Thi cuối kỳ",
-   "Điểm cộng"
-  ],
+  "cut": [],
   "ell": [],
   "touch": [],
   "forb": 0,

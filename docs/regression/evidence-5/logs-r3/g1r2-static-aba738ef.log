@@ -1,0 +1,8 @@
+cmd/regress/main.go:213:5: flipRight is a global variable (gochecknoglobals)
+var flipRight, flipWrong = decimal.RequireFromString("0.25"), decimal.RequireFromString("0.5")
+    ^
+1 issues:
+* gochecknoglobals: 1
+lint rc=1
+vet rc=0
+sqlc rc=0

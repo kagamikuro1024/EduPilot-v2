@@ -87,7 +87,7 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 
 ## Lượt bù qc3 (2026-11-21, ep-r + qc3s @425396a7)
 
-### DEF-R5-13 — `golangci-lint run` còn 1 vấn đề (gochecknoglobals) — cổng tổng đỏ (TC-PE04-50, PE05-60, PE06-47, PE08-68)
+### DEF-R5-13 — [ĐÃ SỬA 9754c523 (practice/extract.go sạch, chạy lại 2026-11-21 @aba738ef); cổng vẫn đỏ vì DEF-R5-18] `golangci-lint run` còn 1 vấn đề (gochecknoglobals) — cổng tổng đỏ (TC-PE04-50, PE05-60, PE06-47, PE08-68)
 - Mức: Trung bình (`.github/workflows/ci.yml` chạy golangci-lint, bước này đỏ) · Sprint gốc: không phải sprint 5 (đưa vào ở sprint 11, commit e42d8b49 «DEF-R10S-12», 2026-11-19) · Hồi quy: có (@88ab83e4 báo «0 issues»)
 - Tái hiện: `cd backend-go && golangci-lint run` → `internal/practice/extract.go:130:5: defaultRetryWait is a global variable (gochecknoglobals)`, `1 issues`, rc=1. Các bước còn lại của cổng đạt: `go vet ./...` rc=0, `sqlc diff` rc=0, `go test -race` exam/judge/quiz rc=0, `go test` contract (có và không `-tags testroutes`) rc=0, `pnpm lint` rc=0, `build:gate` rc=0.
 - Nghi ngờ mã: `var defaultRetryWait = []time.Duration{…}` ở extract.go:130 (đổi thành hàm trả giá trị hoặc `//nolint:gochecknoglobals` có lý do). Log: `evidence-5/logs-r3/g1-static.log`.
@@ -106,7 +106,7 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - Mức: Thấp (cùng nhóm DEF-Q2-S4-01 / DEF-R4-08) · Sprint gốc: 5 (US-PE-09 AC5, ngân sách đổi ≤ 6 phút theo P-11-76) · Hồi quy: có thể do máy chung
 - qc3s `up` → `seed`: «Seed xong trong 652 s» (log `evidence-5/logs-r3/seed3.log`, `seed-t0-clean.json`): bước 11 tài liệu docling thật 241 s, bước 20 luyện đề 204 s, bước 19 78 s, bước 10 (PE) 40 s; P2 + PE (bước 1–10) = 91 s. Máy chung tải 9–14 (không đạt «máy không chạy stack khác»; PM đo 314 s ngày 13/11). Cần đo lại trên máy trống; phần dài là các bước thêm sau sprint 5 (11, 19, 20).
 
-### DEF-R5-17 — AUDIT `cut` ≠ 0 ở bảng ảo hoá DataTable 390 px: TA/GV `/students`, `/gradebook` (TC-PE04-50…, TC-PU06-18)
+### DEF-R5-17 — [ĐÃ SỬA 58448e0a, chạy lại 2026-11-21 @aba738ef: audit 115 hàng FAIL 0] AUDIT `cut` ≠ 0 ở bảng ảo hoá DataTable 390 px: TA/GV `/students`, `/gradebook` (TC-PE04-50…, TC-PU06-18)
 - Mức: Thấp · Sprint gốc: không phải sprint 5 (DataTable ảo hoá, bảng điểm / sinh viên) · Hồi quy: không rõ
 - Tái hiện: đăng nhập `teacher@` (hoặc `ta@`), 390 px, `/students` và `/gradebook`, dán AUDIT_SRC (docs/sprints/1.5/spec/US.md): `ox=0` nhưng `cut` = «Hoạt động học», «Rủi ro», «0 phút · 0 câu hỏi» (`/students`) và «Kiểm tra hằng tuần», «Thi cuối kỳ», «Điểm cộng» (`/gradebook`). Các phần tử nằm trong `DIV.DataTable…vscroll` (`overflow-x: auto`, `data-part=virtual-scroll`) đang cuộn ngang đúng ý, nhưng vùng này không có `data-scroll-x` nên phép đo tính là chữ bị cắt. 4/115 hàng FAIL (SV, admin: 0).
 - Ghi chú kịch bản: bản `smkP_audit.cjs` cũ báo thêm 6 hàng `/settings/llm`, `/settings/integrations` do phần tử `<option>` (không có hộp vẽ); `evidence-5/ui-r3/audit.cjs` đã loại. Nghi ngờ mã: `shared/ui/DataTable.tsx` nhánh ảo hoá không gắn `useScrollRow` / `data-scroll-x` (DataTable.tsx:137). Log `evidence-5/logs-r3/audit.out`, `cutdbg.json`.
@@ -114,3 +114,13 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 **Chạy lại DEF-R5-12 (qc3, 2026-11-21, @425396a7):** `pnpm -C frontend lint` rc=0 (0 lỗi, 1 cảnh báo ở `frontend/dbg91b.mjs`), 13 tệp `qc2-*` đã chuyển sang `docs/regression/specs-qc2` → ĐÃ SỬA; TC-PU06-17 = P.
 
 **Ghi nhận chưa thành DEF (qc3, 2026-11-21):** TC-PE09-20 — `exam.spec.ts` (53 ca, 120 pass ở gate) chưa có ca đọc mọi phản hồi mạng của trình trình duyệt với canary (AC7 ý 11; chỉ có Go `TestNoAnswerLeak`) và chat-gate nằm ở `private-chat.spec.ts` (ý 9); chưa chấm, chờ lượt chạy `@real` + đối chiếu 12 ý.
+
+### DEF-R5-18 — `golangci-lint run` đỏ lại: cmd/regress/main.go:213 `flipRight` biến toàn cục (cổng tổng TC-PE04-50, PE05-60, PE06-47, PE08-68)
+- Mức: Trung bình (CI chạy golangci-lint) · Sprint gốc: không phải sprint 5 (commit 658e6719 «DEF-R106S-12/13/14», 2026-11-21) · Hồi quy: có
+- Tái hiện (@aba738ef): `cd backend-go && golangci-lint run` → `cmd/regress/main.go:213:5: flipRight is a global variable (gochecknoglobals)` (`var flipRight, flipWrong = decimal.RequireFromString("0.25"), …("0.5")`), `1 issues`, rc=1. Còn lại đạt: go vet rc=0, sqlc diff rc=0, pnpm lint rc=0, audit 115 hàng FAIL 0. Log `evidence-5/logs-r3/g1r2-static-aba738ef.log`.
+
+### DEF-R5-19 — `/chat` Sinh viên: CLS thật 0,16 > 0,1 (cột danh sách phiên biến mất làm cả cột chi tiết dịch) (TC-PU06-11, US-PU-06 AC1)
+- Mức: Thấp · Sprint gốc: 5 (US-PU-06 AC1: CLS ≤ 0,1) · Hồi quy: có thể (đo tay cũ 0,0869 ở sprint 5)
+- Tái hiện: ep-r @aba738ef, đăng nhập `sv.gioi@edupilot.local`, 1440 × 900, vào `/chat`, đo `PerformanceObserver('layout-shift')` (bỏ hadRecentInput): 0,1618 / 0,1560 / 0,1618. Một dịch 0,156 lúc ~370 ms: `DIV.Layout-module__…ldDetail` («Hỏi bất cứ điều gì về lớp») x 621 → 241, rộng 794 → 1174; kéo `Composer`, `UL…suggest` (3 LI). 14 route khác của SV/GV/Admin ≤ 0,0002.
+- Nghi ngờ mã: bố cục hai cột của Chat (`Layout…ldDetail`, features/chat RealChat/ChatScreen): chỗ cột danh sách phiên chỉ được bỏ sau khi dữ liệu phiên về. Script `evidence-5/ui-r3/ui5d.cjs`.
+
