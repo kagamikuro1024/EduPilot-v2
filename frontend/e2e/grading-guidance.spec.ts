@@ -18,7 +18,7 @@ const overview = (over: Record<string, unknown> = {}) => ({
   reflect: { eligible: true, results: 8, edits: 7 }, ...over,
 });
 
-async function openDrawer(page: Page, context: Parameters<typeof asDemo>[0], ov: () => unknown, h: NonNullable<Parameters<typeof assignmentsApi>[1]>["h"] = {}) {
+async function openDrawer(page: Page, context: Parameters<typeof asDemo>[0], ov: () => unknown, h: NonNullable<Parameters<typeof assignmentsApi>[1]>["h"] = {}, deep = false) {
   await asDemo(context, "teacher");
   const api = await assignmentsApi(page, {
     h: {
@@ -27,6 +27,10 @@ async function openDrawer(page: Page, context: Parameters<typeof asDemo>[0], ov:
       ...h,
     },
   });
+  if (deep) { // điện thoại: bảng bài tập không hiện hàng → mở thẳng bằng ?open=
+    await page.goto(`/grading?tab=assignments&open=${A1}`);
+    return api;
+  }
   await page.goto("/grading?tab=assignments");
   await page.locator("[data-part=assignment-row]").first().click();
   return api;
@@ -46,7 +50,7 @@ test("ngăn bài tập: Duyệt → Chờ áp dụng → Áp dụng gửi expect
     },
   });
   const panel = page.locator("[data-part=guidance-panel]");
-  await expect(panel).toContainText("Bản v1");
+  await expect(panel).toContainText("Bản v1 · 1 chờ duyệt");
   await expect(panel.locator("[data-part=guidance-cases]")).toHaveText("Ca kiểm thử 3");
   // (h)(i): nhãn tự giải thích — «đổi điểm», «N bài đổi điểm»; dòng bản đang dùng luôn có mặt dù chưa đủ bài để đo
   await expect(panel.locator("[data-part=guidance-stats]").first()).toHaveText("Bản v0 · 20 bài đã duyệt · lệch tiêu chí 0,18 · lệch tổng 0,70 · đổi điểm 24%");

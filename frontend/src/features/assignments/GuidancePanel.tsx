@@ -178,6 +178,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
 
   const names = new Map(rubric.map((c) => [c.id, c.name]));
   const groups = rubric.map((c) => ({ id: c.id, name: c.name, items: d.items.filter((i) => i.criterion_id === c.id && (i.status === "DRAFT" || i.status === "APPROVED" || i.status === "REJECTED")) })).filter((g) => g.items.length > 0);
+  const pendingReview = d.counts.draft ?? d.items.filter((i) => i.status === "DRAFT").length; // cả lớp, không theo trang đã tải
   const adding = d.items.filter((i) => i.status === "APPROVED" && i.approved_in_version === null).length;
   const retiring = d.items.filter((i) => i.status === "APPROVED" && i.pending_retire).length;
   const waiting = d.items.filter((i) => i.status === "APPROVED" && (i.approved_in_version === null || i.pending_retire)).length;
@@ -240,7 +241,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
       <div className={s.head}>
         <h3 className={s.title}>
           Lưu ý chấm
-          <StatusText tone="neutral">{d.current_version === 0 ? "Chưa có bản" : `Bản v${d.current_version}`}</StatusText>
+          <StatusText tone="neutral">{`${d.current_version === 0 ? "Chưa có bản" : `Bản v${d.current_version}`}${pendingReview > 0 ? ` · ${pendingReview} chờ duyệt` : ""}`}</StatusText>
         </h3>
         {teacher && (
           <div className={s.actions}>
