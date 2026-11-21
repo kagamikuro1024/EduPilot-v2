@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { apiClient, useSSE, useSSEStatus, type CursorPage, type SSEEvent } from "@/shared/data";
 import { timeAgo } from "@/shared/lib/timeAgo";
 import type { NotificationItem } from "@/shared/shell/NotificationPopover";
@@ -56,6 +56,17 @@ export function useRealNotifications(enabled: boolean, live = enabled) {
     refetchOnWindowFocus: true,
     queryFn: async ({ signal }): Promise<Page> => (await apiClient.get<Page>("/notifications", { signal, query: { limit: 30 } })).data,
   });
+
+  // Thông báo «Phân công lớp» MỚI (SSE hoặc làm mới) ⇒ danh sách lớp của người này đã đổi: đọc lại ngay, không chờ staleTime 60 s của `/me/courses`.
+  // Lần tải đầu chỉ ghi nhớ id đã có.
+  const seen = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (!q.data) return;
+    const assigned = q.data.items.filter((n) => n.type === "COURSE_ASSIGNED").map((n) => n.id);
+    const known = seen.current;
+    seen.current = new Set(assigned);
+    if (known && assigned.some((id) => !known.has(id))) void qc.invalidateQueries({ queryKey: ["me", "courses"] });
+  }, [q.data, qc]);
 
   const items = useMemo<NotificationItem[]>(
     () =>

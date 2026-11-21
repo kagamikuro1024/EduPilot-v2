@@ -413,6 +413,28 @@ test("bell real: chấm theo unread_count, mở khung không xoá chấm, bấm 
   await expect(page.getByRole("button", { name: /^Thông báo, 1 chưa đọc/ })).toBeVisible();
 });
 
+// DEF-R4-10 (TC-P208-34, US-P2-08 AC11): trang đã mở, Admin gán thêm lớp → thông báo «Phân công lớp» tới thì danh sách lớp được làm mới ngay, bộ chọn lớp thấy lớp mới (không chờ staleTime 60 s).
+test("bell real: thông báo Phân công lớp làm mới danh sách lớp ngay, bộ chọn có lớp mới", async ({ page }) => {
+  const noon = new Date("2026-10-29T10:00:00+07:00");
+  await page.clock.install({ time: noon });
+  await asJwt(page, "TEACHER");
+  await page.route("**/api/v1/events", (r) => r.fulfill({ status: 429, contentType: "application/json", body: "{}" }));
+  let courses = [item(C1, "761987", "TEACHER")];
+  let courseCalls = 0;
+  await page.route("**/api/v1/me/courses**", (r) => { courseCalls++; return fulfill(r, 200, { items: courses, next_cursor: null }); });
+  let state: unknown[] = [];
+  await page.route("**/api/v1/notifications**", (r) => fulfill(r, 200, { items: state, next_cursor: null, unread_count: state.length }));
+  await page.goto("/class/settings");
+  await expect(picker(page)).toContainText("761987");
+  const before = courseCalls;
+  courses = [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")];
+  state = [{ id: "n9", type: "COURSE_ASSIGNED", title: "Bạn được phân công lớp 761988", body: "b", link: `/class/settings?course=${C2}`, course_id: C2, read_at: null, created_at: noon.toISOString() }];
+  await page.clock.runFor(31_000);
+  await expect.poll(() => courseCalls).toBeGreaterThan(before);
+  await picker(page).click();
+  await expect(page.getByRole("option", { name: /761988/ }).or(page.getByRole("menuitem", { name: /761988/ })).first()).toBeVisible();
+});
+
 // SSE MỞ (luồng không kết thúc): chuông chỉ làm mới lưới an toàn 120 s, không thăm dò 30 s (`useRealNotifications`, #17).
 test("bell real sse open: không làm mới ở 30 s, làm mới ở 120 s", async ({ page }) => {
   const noon = new Date("2026-10-29T10:00:00+07:00");
