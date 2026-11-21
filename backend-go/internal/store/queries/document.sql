@@ -74,9 +74,9 @@ update content_chunks c set audience = sqlc.arg(new_audience) where c.document_i
 delete from documents where id = sqlc.arg(id) and course_id = sqlc.arg(course_id) and category is distinct from 'THREAD_KNOWLEDGE';
 
 -- name: DocDeleteImpact :one
--- Số đoạn và số lớp khác đang dùng tài liệu (chia sẻ) — cho câu xác nhận xoá.
+-- Số đoạn và số lớp đang dùng tài liệu — GỒM lớp gốc (1 + số lớp được chia sẻ tới) — cho câu xác nhận xoá.
 select (select count(*) from content_chunks c where c.document_id = sqlc.arg(id)::uuid and c.course_ids @> array[sqlc.arg(course_id)::uuid])::bigint as chunks,
-       (select count(*) from document_courses dc where dc.document_id = sqlc.arg(id)::uuid)::bigint as courses;
+       (1 + (select count(*) from document_courses dc where dc.document_id = sqlc.arg(id)::uuid))::bigint as courses;
 
 -- name: DocChunks :many
 select c.id, c.ord, c.page_no, c.heading, c.text, c.audience, (c.embedding is not null)::bool as embedded from content_chunks c
