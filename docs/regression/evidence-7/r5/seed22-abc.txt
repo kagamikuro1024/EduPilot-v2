@@ -1,0 +1,3 @@
+sv.gioi@edupilot.local,9,0,0,0,12,3.00
+sv.kha@edupilot.local,6,1,0,2,2,0.50
+sv.nguyco@edupilot.local,3,1,0,5,1,0.25

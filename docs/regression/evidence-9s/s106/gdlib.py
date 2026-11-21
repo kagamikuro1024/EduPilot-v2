@@ -16,7 +16,7 @@ def FL(c=CG): return f"/courses/{c}/guidance-flags"
 def flag(feature, enabled, c=CG, user="teacher"):
     cc, j, _ = api(user, "GET", FL(c)); f = [x for x in (j.get("items") or []) if x["feature"] == feature][0]
     return api(user, "PUT", f"{FL(c)}/{feature}", {"enabled": enabled, "version": f["version"]})
-def stub(mode): open("/tmp/stub_mode", "w").write(mode)
+def stub(mode): open("/Users/kuro/.config/edupilot-team/qc3-work/stub_mode", "w").write(mode)
 def results(a): return sql(f"select r.id, r.version, r.status, r.round, r.guidance_version, r.run_state from grading_results r join submissions s on s.course_id=r.course_id and s.id=r.submission_id where s.assignment_id='{a}' order by r.created_at")
 def wait_job(jid, t=60):
     for _ in range(t):
@@ -55,10 +55,10 @@ def window(wait=600):
         import shutil; shutil.rmtree("/tmp/qc-global.lock", ignore_errors=True)
 
 def fresh(k=1):
-    """Bài tập QD9P còn nguyên (40 kết quả DRAFT/DONE, chưa duyệt, chưa có lưu ý, version 0, chưa dùng trong tệp /tmp/gd_used.json)."""
-    used = set(json.load(open("/tmp/gd_used.json"))) if os.path.exists("/tmp/gd_used.json") else set()
+    """Bài tập QD9P còn nguyên (40 kết quả DRAFT/DONE, chưa duyệt, chưa có lưu ý, version 0, chưa dùng trong tệp /Users/kuro/.config/edupilot-team/qc3-work/gd_used.json)."""
+    used = set(json.load(open("/Users/kuro/.config/edupilot-team/qc3-work/gd_used.json"))) if os.path.exists("/Users/kuro/.config/edupilot-team/qc3-work/gd_used.json") else set()
     rows = [r[0] for r in sql(f"select a.id from assignments a where a.course_id='{CG}' and a.type='ESSAY' and a.guidance_version=0 and not exists (select 1 from grading_guidance_items i where i.assignment_id=a.id) and (select count(*) from grading_results r join submissions s on s.id=r.submission_id and s.course_id=r.course_id where s.assignment_id=a.id and r.status='DRAFT' and r.run_state='DONE')=40 order by a.id") if r[0] not in used]
-    pick = rows[:k]; used |= set(pick); json.dump(sorted(used), open("/tmp/gd_used.json", "w")); return pick[0] if k == 1 else pick
+    pick = rows[:k]; used |= set(pick); json.dump(sorted(used), open("/Users/kuro/.config/edupilot-team/qc3-work/gd_used.json", "w")); return pick[0] if k == 1 else pick
 def done_results(a, n=None): 
     r = [x for x in results(a) if x[2] == "DRAFT" and x[5] == "DONE"]
     return r[:n] if n else r
@@ -130,7 +130,7 @@ def guided(tag, n=12, k=8, approve=2, do_apply=True, late=False):
 def stub_prompts(t0, marker=None):
     """Các yêu cầu GRADING (system chứa «Lưu ý» hoặc rubric) gửi tới stub kể từ t0: [(mode, có_khối, phiên_bản)]."""
     out = []
-    for l in open("/tmp/stub_req.jsonl"):
+    for l in open("/Users/kuro/.config/edupilot-team/qc3-work/stub_req.jsonl"):
         r = json.loads(l)
         if r["t"] < t0: continue
         txt = "\n".join(m.get("content", "") if isinstance(m.get("content"), str) else "" for m in r["body"].get("messages", []))

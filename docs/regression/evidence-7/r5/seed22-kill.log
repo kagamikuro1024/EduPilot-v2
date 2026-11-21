@@ -1,0 +1,3 @@
+pid=71122
+08:41:12 kill -9 ngay khi dòng PUT điểm danh đầu tiên của bước 14 hiện ra; bước cuối trong log: [14/20] Điểm danh buổi 1–9 và phát biểu lớp 761987 (270 dòng, kế hoạch theo SEED_RNG)…
+final attendance_records=240; sessions_done=8

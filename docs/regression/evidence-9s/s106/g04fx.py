@@ -13,5 +13,5 @@ def run():
     st = {}
     for x in items_of(a): st.setdefault((x["status"], x.get("approved_in_version"), x.get("pending_retire")), []).append(x["id"][-4:])
     print("trạng thái", {str(k): len(v) for k, v in st.items()})
-    json.dump({"a": a}, open("/tmp/gd_ui_a.json", "w"))
+    json.dump({"a": a}, open("/Users/kuro/.config/edupilot-team/qc3-work/gd_ui_a.json", "w"))
 with window(): run()

@@ -10,7 +10,7 @@ def setroute(task, name, model):
     p = prov()[name]; mid = [m["id"] for m in p["models"] if m["model"] == model][0]
     rt = api("admin", "GET", "/admin/llm/routes")[1]["items"]; r = [x for x in rt if x["task"] == task][0]
     return api("admin", "PUT", "/admin/llm/routes", {"task": task, "chain": [mid], "params": r["params"], "version": r["version"]})[0]
-env = dict(os.environ, STUB_MODE_FILE="/tmp/stub10b_mode", STUB_REQ_FILE="/tmp/stub10b_req.jsonl"); open("/tmp/stub10b_mode", "w").write("slow8"); open("/tmp/stub10_mode", "w").write("ok")
+env = dict(os.environ, STUB_MODE_FILE="/Users/kuro/.config/edupilot-team/qc3-work/stub10b_mode", STUB_REQ_FILE="/Users/kuro/.config/edupilot-team/qc3-work/stub10b_req.jsonl"); open("/Users/kuro/.config/edupilot-team/qc3-work/stub10b_mode", "w").write("slow8"); open("/Users/kuro/.config/edupilot-team/qc3-work/stub10_mode", "w").write("ok")
 st2 = subprocess.Popen(["python3", os.path.join(S, "stub_s10.py"), "9762"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
 if "Q10-stub2" not in prov(): print("tạo stub2", api("admin", "POST", "/admin/llm/providers", {"name": "Q10-stub2", "type": "openai_compatible", "base_url": "http://host.docker.internal:9762/v1", "api_key": "stub", "enabled": True, "models": [{"model": "stub10", "kind": "chat", "price_in": "0", "price_out": "0", "enabled": True}]})[0])
 CID = sql("select id from courses where class_code='QD10A'")[0][0]; toks = ",".join(tok(f"qcperf{i:03d}") for i in range(1, 21))
@@ -22,7 +22,7 @@ try:
         g = lambda x: (float(x.group(1)) * (1000 if x.group(2) == "s" else 1)) if x else None
         return g(m), g(f), int(n.group(1)) if n else 0, fail.group(1) if fail else "?", o[-600:]
     base = k6("base"); print("NỀN", base[:4])
-    CD = sql("select id from courses where class_code='QD10D'")[0][0]; DD = sql(f"select id from documents where course_id='{CD}' and status='READY' order by created_at desc limit 1")[0][0]
+    CD = sql("select id from courses where class_code='QD10D'")[0][0]; DD = sql(f"select id from documents where course_id='{CD}' and status='READY' and type='EXAM_PAPER' order by created_at desc limit 1")[0][0]
     rj = api("teacher", "POST", f"/courses/{CD}/questions/extract", {"document_id": DD}); print("extract nền", rj[0], str(rj[1])[:80]); time.sleep(8)
     load = k6("load"); print("TẢI", load[:4]); jid = rj[1].get("job_id"); jst = api("teacher", "GET", f"/jobs/{jid}")[1]; print("job nền sau k6:", jst.get("status"), jst.get("progress"))
     t0 = sql("select count(*) from jobs where kind='question.extract' and created_at > now() - interval '5 minutes'")[0][0]

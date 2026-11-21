@@ -1,0 +1,11 @@
+'lane': 'NEAR_REALTIME', 'chain': [{'model_id': '01a1df2d-a
+
+ready
+first_event 0 89
+ready
+ttft 0 77
+ready
+ttft_bad 99 77
+restore CHAT 200
+restore CLASSIFY 200
+

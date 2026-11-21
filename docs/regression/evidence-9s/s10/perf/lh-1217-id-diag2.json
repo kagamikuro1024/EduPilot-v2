@@ -1,0 +1,386 @@
+{
+ "lcp": 5031.255,
+ "lcpElement": {
+  "type": "list",
+  "items": [
+   {
+    "type": "table",
+    "headings": [
+     {
+      "key": "node",
+      "valueType": "node",
+      "label": "Element"
+     }
+    ],
+    "items": [
+     {
+      "node": {
+       "type": "node",
+       "lhId": "page-0-H1",
+       "path": "1,HTML,1,BODY,8,DIV,3,MAIN,0,DIV,0,DIV,1,DIV,0,H1",
+       "selector": "div.Layout-module__rM7QnW__page > div.Layout-module__rM7QnW__header > div.Layout-module__rM7QnW__headRow > h1.ep-page-title",
+       "boundingRect": {
+        "top": 124,
+        "bottom": 160,
+        "left": 12,
+        "right": 400,
+        "width": 388,
+        "height": 36
+       },
+       "snippet": "<h1 class=\"ep-page-title\" data-part=\"page-title\">",
+       "nodeLabel": "QC-r10-Y"
+      }
+     }
+    ]
+   },
+   {
+    "type": "table",
+    "headings": [
+     {
+      "key": "phase",
+      "valueType": "text",
+      "label": "Phase"
+     },
+     {
+      "key": "percent",
+      "valueType": "text",
+      "label": "% of LCP"
+     },
+     {
+      "key": "timing",
+      "valueType": "ms",
+      "label": "Timing"
+     }
+    ],
+    "items": [
+     {
+      "phase": "TTFB",
+      "timing": 104.074,
+      "percent": "2%"
+     },
+     {
+      "phase": "Load Delay",
+      "timing": 0,
+      "percent": "0%"
+     },
+     {
+      "phase": "Load Time",
+      "timing": 0,
+      "percent": "0%"
+     },
+     {
+      "phase": "Render Delay",
+      "timing": 4927.1810000000005,
+      "percent": "98%"
+     }
+    ]
+   }
+  ]
+ },
+ "phases": null,
+ "fcp": 842.154,
+ "tti_main": [
+  {
+   "duration": 5.452,
+   "startTime": -0.029
+  },
+  {
+   "duration": 38.634,
+   "startTime": 580.097
+  },
+  {
+   "duration": 12.073,
+   "startTime": 685.18
+  },
+  {
+   "duration": 5.796,
+   "startTime": 697.321
+  },
+  {
+   "duration": 38.559,
+   "startTime": 801.26
+  }
+ ],
+ "network": [
+  {
+   "url": "/practice/01a1f123-5d57-77d8-baa6-cdd1bb42cf9e",
+   "start": 0,
+   "end": 913,
+   "status": 200,
+   "size": 65433
+  },
+  {
+   "url": "/_next/static/media/3c285486269019b7-s.p.2g-0we2o5_ngd.woff2",
+   "start": 599,
+   "end": 1955,
+   "status": 200,
+   "size": 13004
+  },
+  {
+   "url": "/_next/static/media/53e45098eac42afb-s.p.1uklb5el4zgvl.woff2",
+   "start": 599,
+   "end": 1311,
+   "status": 200,
+   "size": 4869
+  },
+  {
+   "url": "/_next/static/media/6f42e0a3b0519c4d-s.p.13y-iz2lazqtb.woff2",
+   "start": 599,
+   "end": 1970,
+   "status": 200,
+   "size": 13420
+  },
+  {
+   "url": "/_next/static/media/8f46d218c8f79e34-s.p.2wu4yy186g04j.woff2",
+   "start": 599,
+   "end": 1962,
+   "status": 200,
+   "size": 13500
+  },
+  {
+   "url": "/_next/static/media/8ffc259da9d23054-s.p.10uaeld2xxvpt.woff2",
+   "start": 600,
+   "end": 1461,
+   "status": 200,
+   "size": 5194
+  },
+  {
+   "url": "/_next/static/media/a3bcb02a0e9e5d11-s.p.25pbmqxk8u2s7.woff2",
+   "start": 600,
+   "end": 1477,
+   "status": 200,
+   "size": 5186
+  },
+  {
+   "url": "/brand/logo-edupilot-mark.svg",
+   "start": 699,
+   "end": 1318,
+   "status": 200,
+   "size": 532
+  },
+  {
+   "url": "/brand/logo-edupilot.svg",
+   "start": 699,
+   "end": 1358,
+   "status": 200,
+   "size": 572
+  },
+  {
+   "url": "/_next/static/chunks/33gxwpagwfjx8.js",
+   "start": 699,
+   "end": 1788,
+   "status": 200,
+   "size": 4873
+  },
+  {
+   "url": "/_next/static/chunks/0cmo30gr_do01.js",
+   "start": 699,
+   "end": 1842,
+   "status": 200,
+   "size": 7470
+  },
+  {
+   "url": "/_next/static/chunks/0307lsdce-dar.js",
+   "start": 699,
+   "end": 2638,
+   "status": 200,
+   "size": 71741
+  },
+  {
+   "url": "/_next/static/chunks/0cs49m5ef18m-.js",
+   "start": 699,
+   "end": 2487,
+   "status": 200,
+   "size": 42997
+  },
+  {
+   "url": "/_next/static/chunks/turbopack-0ua1g7reqmdbb.js",
+   "start": 699,
+   "end": 1701,
+   "status": 200,
+   "size": 3906
+  },
+  {
+   "url": "/_next/static/chunks/0chcev0fpznpo.js",
+   "start": 699,
+   "end": 1685,
+   "status": 200,
+   "size": 4371
+  },
+  {
+   "url": "/_next/static/chunks/1-8y5fv0t76lj.js",
+   "start": 699,
+   "end": 2208,
+   "status": 200,
+   "size": 17895
+  },
+  {
+   "url": "/_next/static/chunks/33-6uxb-mt3u-.js",
+   "start": 700,
+   "end": 1779,
+   "status": 200,
+   "size": 5781
+  },
+  {
+   "url": "/_next/static/chunks/1hnreucmzef5d.js",
+   "start": 700,
+   "end": 2178,
+   "status": 200,
+   "size": 15727
+  },
+  {
+   "url": "/_next/static/chunks/3dw34e-k42hn3.js",
+   "start": 700,
+   "end": 1556,
+   "status": 200,
+   "size": 2259
+  },
+  {
+   "url": "/_next/static/chunks/3i__ea5uaahqk.js",
+   "start": 700,
+   "end": 1986,
+   "status": 200,
+   "size": 9630
+  },
+  {
+   "url": "/_next/static/chunks/1mcii2zktpvu6.js",
+   "start": 700,
+   "end": 2216,
+   "status": 200,
+   "size": 18285
+  },
+  {
+   "url": "/_next/static/chunks/3-q16kjrbsog8.js",
+   "start": 700,
+   "end": 1438,
+   "status": 200,
+   "size": 602
+  },
+  {
+   "url": "/_next/static/chunks/1xx7jkkcnw6o6.js",
+   "start": 700,
+   "end": 1518,
+   "status": 200,
+   "size": 2262
+  },
+  {
+   "url": "/api/v1/auth/refresh",
+   "start": 704,
+   "end": 1446,
+   "status": 200,
+   "size": 1046
+  },
+  {
+   "url": "/_next/static/chunks/0_8dpf1y0pfkl.js",
+   "start": 2842,
+   "end": 3791,
+   "status": 200,
+   "size": 16087
+  },
+  {
+   "url": "/_next/static/chunks/3zbnot1397ia0.css",
+   "start": 2843,
+   "end": 3806,
+   "status": 200,
+   "size": 16617
+  },
+  {
+   "url": "/_next/static/chunks/2u_g1ck-ye5n2.css",
+   "start": 2844,
+   "end": 3496,
+   "status": 200,
+   "size": 4442
+  },
+  {
+   "url": "/api/v1/events",
+   "start": 2871,
+   "end": 3465,
+   "status": 200,
+   "size": 248
+  },
+  {
+   "url": "/api/v1/notifications?limit=30",
+   "start": 2879,
+   "end": 3782,
+   "status": 200,
+   "size": 10910
+  },
+  {
+   "url": "/api/v1/me/courses?limit=100",
+   "start": 2885,
+   "end": 3695,
+   "status": 200,
+   "size": 6091
+  },
+  {
+   "url": "/_next/static/media/85ea1b3aadcead52-s.05i4gb4p0piv4.woff2",
+   "start": 2912,
+   "end": 3718,
+   "status": 200,
+   "size": 6973
+  },
+  {
+   "url": "/_next/static/media/b35fd19aef91b293-s.0n_ln9vqskgts.woff2",
+   "start": 2912,
+   "end": 3727,
+   "status": 200,
+   "size": 7214
+  },
+  {
+   "url": "/practice?_rsc=3MaFRh65eiXkVFa-",
+   "start": 2922,
+   "end": 3545,
+   "status": 200,
+   "size": 783
+  },
+  {
+   "url": "/practice?_rsc=CvLNPBPs4QNWMQ2o",
+   "start": 3554,
+   "end": 4259,
+   "status": 200,
+   "size": 22122
+  },
+  {
+   "url": "/practice?_rsc=BDeSkW6bd1GbeOYM",
+   "start": 3555,
+   "end": 4147,
+   "status": 200,
+   "size": 3002
+  },
+  {
+   "url": "/practice?_rsc=QGCh-WjuOwGS5JdN",
+   "start": 3555,
+   "end": 4123,
+   "status": 200,
+   "size": 1002
+  },
+  {
+   "url": "/api/v1/me/practice/attempts/01a1f123-5d57-77d8-baa6-cdd1bb42cf9e",
+   "start": 3834,
+   "end": 4409,
+   "status": 200,
+   "size": 130
+  },
+  {
+   "url": "/api/v1/activity/heartbeat",
+   "start": 4280,
+   "end": 4864,
+   "status": 204,
+   "size": 79
+  },
+  {
+   "url": "/api/v1/courses/01a1ef3e-8372-7b15-9e9e-902d23312b7d/practice/attempts/01a1f123-5d57-77d8-",
+   "start": 4413,
+   "end": 5006,
+   "status": 200,
+   "size": 4779
+  },
+  {
+   "url": "/api/v1/activity/heartbeat",
+   "start": 34288,
+   "end": 34866,
+   "status": 204,
+   "size": 114
+  }
+ ]
+}
