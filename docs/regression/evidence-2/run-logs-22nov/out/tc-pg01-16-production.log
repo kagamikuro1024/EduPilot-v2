@@ -1,0 +1,1 @@
+{"time":"2026-11-21T20:52:25.148136+07:00","level":"ERROR","msg":"giá trị biến môi trường không hợp lệ: ATTENDANCE_TOKEN_KEY: cần 32 byte mã hoá base64","service":"gateway","instance":"KuroKami","invalid":["ATTENDANCE_TOKEN_KEY"],"trace_id":"f9a82451acebbe6e072588ad9efc4c60"}

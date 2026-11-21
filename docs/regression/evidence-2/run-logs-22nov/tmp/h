@@ -1,0 +1,17 @@
+HTTP/2 405 
+allow: GET
+alt-svc: h3=":443"; ma=2592000
+cache-control: no-store
+content-type: application/json; charset=utf-8
+date: Sat, 21 Nov 2026 13:54:07 GMT
+pragma: no-cache
+strict-transport-security: max-age=31536000
+vary: Origin
+via: 1.1 Caddy
+x-content-type-options: nosniff
+x-instance-id: 3f795726d9e1
+x-ratelimit-limit: 300
+x-ratelimit-remaining: 281
+x-request-id: 873a7bc99b4648f5e9377c4cc9af34ea
+content-length: 132
+

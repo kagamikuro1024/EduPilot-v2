@@ -1,0 +1,4 @@
+internal/llm/fake/fake.go:513:	if err := os.MkdirAll(dir, 0o750); err != nil {
+internal/llm/fake/fake.go:516:	return os.WriteFile(filepath.Join(dir, ReplayKey(o)+".json"), b, 0o600)
+cmd/regress/main.go:117:	f, err := os.OpenFile(out, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600) //nolint:gosec // đường dẫn do người vận hành chỉ định (đã kiểm tuyệt đối, ngoài repo)
+cmd/regress/main.go:312:		if err := os.WriteFile(*write, append(b, '\n'), 0o644); err != nil { //nolint:gosec // baseline công khai (chỉ số)

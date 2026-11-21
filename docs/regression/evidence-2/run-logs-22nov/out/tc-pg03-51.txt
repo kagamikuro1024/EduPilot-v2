@@ -1,0 +1,11 @@
+backend-go/internal/assignment/review.go:96:// Queue trả hàng chờ chấm theo SRS 4.8.1: mặc định MATCHED + DRAFT, `needs_review` lên đầu rồi `(received_at, id)`; keyset, không OFFSET.
+backend-go/internal/attendance/staff.go:36:// ListCheckins: con trỏ (created_at, id), limit ≤ 100, không OFFSET (luật 13). `flagged` lọc lượt còn cờ chưa bỏ; `round` 0 = mọi vòng.
+backend-go/internal/platform/blob/blob.go:307:// GetRange đọc `length` byte từ `offset` (Range GET) — dùng để đọc thư mục trung tâm ở cuối tệp zip mà không tải cả tệp. Vượt cuối tệp: trả phần còn lại.
+backend-go/internal/platform/blob/blob.go:308:func (s *Store) GetRange(ctx context.Context, key string, offset, length int64) ([]byte, error) {
+backend-go/internal/platform/blob/blob.go:313:	if err := opts.SetRange(offset, offset+length-1); err != nil {
+backend-go/internal/seedtool/checkin.go:106:		offset := fmt.Sprintf("%d seconds", 30+i*45) // dồn trong ~17 phút đầu
+backend-go/internal/seedtool/checkin.go:109:			offset, status = "1200 seconds", "LATE"
+backend-go/internal/seedtool/checkin.go:112:			values ($1, $2, $3, $4, $5, $6::checkin_channel, $7, $8, $9, now() - interval '95 minutes' + $10::interval)`, courseID, sid, w1, u, dev, channel, assurance, age, flags, offset); err != nil {
+backend-go/internal/store/observability.sql.go:734:// Ngày theo múi giờ Asia/Ho_Chi_Minh. Lỗi = status ∉ {ok, degraded, cancelled}. Mọi truy vấn lọc theo created_at (chỉ mục), không OFFSET.
+backend-go/internal/store/queries/observability.sql:2:-- Ngày theo múi giờ Asia/Ho_Chi_Minh. Lỗi = status ∉ {ok, degraded, cancelled}. Mọi truy vấn lọc theo created_at (chỉ mục), không OFFSET.
+backend-go/internal/submission/kinds.go:14:	GetRange(ctx context.Context, key string, offset, length int64) ([]byte, error)

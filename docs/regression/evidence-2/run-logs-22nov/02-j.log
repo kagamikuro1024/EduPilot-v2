@@ -1,0 +1,18 @@
+== TC-PG02-39
+    (chuẩn bị) migrate up rc=0; version=29
+    ok   migrate down rc = [0]
+    ok   migrate up rc = [0]
+    ok   lược đồ sau down+up giống hệt (diff rỗng; 7432 dòng)
+-- TC-PG02-39 PASS
+== TC-PG02-40
+    ok   migrate down rc = [0]
+    ok   số bảng của 00001 còn lại sau down = [0]
+    ok   extension vector còn sau down = [vector]
+    ok   migrate up rc = [0]
+    ok   5 bảng trở lại sau up = [5]
+-- TC-PG02-40 PASS
+== TC-PG02-41
+    ok   migrate up lần hai rc = [0]
+    ok   goose_db_version không thêm dòng = [27]
+    FAIL vẫn đúng 5 bảng + goose_db_version: thực tế [83] ≠ mong đợi [6]
+-- TC-PG02-41 FAIL

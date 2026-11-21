@@ -1,5 +1,5 @@
 {
- "admin1440_idx": "Đánh chỉ mục tài liệu\t2.684\t2.759.969 / 2.680\t372 đ\t13.745 ms\t41\t3",
+ "admin1440_idx": "Đánh chỉ mục tài liệu\t3.165\t2.804.146 / 1.968\t272 đ\t13.267 ms\t41\t3",
  "admin1440": {
   "hits": [],
   "usage": true,
@@ -143,12 +143,12 @@
    "30 ngày"
   ]
  },
- "teacher1440_idx": "Đánh chỉ mục tài liệu\t2.684\t2.759.969 / 2.680\t372 đ\t13.745 ms\t41\t3",
+ "teacher1440_idx": "Đánh chỉ mục tài liệu\t3.180\t2.804.858 / 1.968\t272 đ\t13.265 ms\t41\t3",
  "teacher1440": {
   "hits": [],
   "usage": true,
   "names": [
-   "Chọn lớp, đang xem QSE2EB05 · Lớp QC2S4 QSE2EB05",
+   "Chọn lớp, đang xem QD105A · QC smoke10.5 QD105A",
    "Tìm nhanh hoặc đi đến…\n⌘\nK",
    "Thông báo, 9+ chưa đọc",
    "H\nTài khoản:\nTS. Lê Thu Hà",
@@ -164,7 +164,7 @@
    "nâng cao"
   ],
   "nonVerbSample": [
-   "Chọn lớp, đang xem QSE2EB05 · Lớp QC2S4 QSE2EB05",
+   "Chọn lớp, đang xem QD105A · QC smoke10.5 QD105A",
    "Tìm nhanh hoặc đi đến…\n⌘\nK",
    "Thông báo, 9+ chưa đọc",
    "H\nTài khoản:\nTS. Lê Thu Hà",

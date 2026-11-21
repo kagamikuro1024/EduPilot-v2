@@ -1,0 +1,26 @@
+
+Running 2 tests using 1 worker
+
+(node:9276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9276) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+PASS K1 stream 200 — status=200
+PASS K2 30 POST 2xx — 202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202,202
+PASS K3 nhận đúng 1..30 thứ tự — 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+PASS K4 không trùng — trùng=0
+PASS K5 ≥ 1 lần nối lại — reconnects=4
+PASS K6 Last-Event-ID = id n=7/8 — gửi=1795270368161-0 (n7/8 id=1795270368161-0,1795270369186-0)
+PASS K7 ≥ 1 lỗi fetch khi offline — signal is aborted without reason | Failed to fetch | Failed to fetch
+PASS K8 không resync — []
+PASS K9 mọi lần nối lại HTTP 200 — status=200,200
+=> ok=true
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r2/gate-browser.spec.ts:13:1 › TC-GATE-25 SSE: mất mạng 10 s, tự nối lại bằng Last-Event-ID, không mất / không trùng (38.4s)
+PASS I1 đúng 1 bản ghi — count=1
+PASS I2 hai status giống và 2xx — lần đầu 201/201 · cuối 201/201
+PASS I3 hai thân giống hệt — {"id":"01a1fe74-5881-72fb-95b4-b9ea6ada417a","name":"two-tabs-1795270399848","ve
+PASS I4 Content-Type giống — application/json; charset=utf-8 / application/json; charset=utf-8
+PASS I5 đúng một Idempotent-Replayed: true đọc được từ trình duyệt — null / true
+=> ok=true
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r2/gate-browser.spec.ts:70:1 › TC-GATE-27 hai tab cùng Idempotency-Key: 1 bản ghi, 2 phản hồi giống nhau, Idempotent-Replayed đọc được (607ms)
+
+  2 passed (39.5s)

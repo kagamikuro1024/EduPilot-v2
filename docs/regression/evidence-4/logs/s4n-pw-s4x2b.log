@@ -1,0 +1,27 @@
+
+Running 2 tests using 1 worker
+
+(node:82236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:82236) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+ROUTE adm /observability: ép 5, refresh sau 401 đầu 1, tổng refresh 2
+  228 REFRESH →
+31910 --- armed
+31981 pass GET /api/v1/me/courses?limit=100 n=1
+31983 401! GET /api/v1/notifications?limit=30 n=1
+31985 401! GET /api/v1/admin/observability/summary?window=24h n=1
+31986 401! GET /api/v1/admin/observability/requests?filter=all&from=2026-11 n=1
+31987 401! GET /api/v1/admin/observability/failed-mail?limit=30 n=1
+31988 401! GET /api/v1/admin/observability/decision?window=24h n=1
+32016 REFRESH →
+32044 pass GET /api/v1/notifications?limit=30 n=2
+32045 pass GET /api/v1/admin/observability/summary?window=24h n=2
+32046 pass GET /api/v1/admin/observability/requests?filter=all&from=2026-11 n=2
+32046 pass GET /api/v1/admin/observability/failed-mail?limit=30 n=2
+32046 pass GET /api/v1/admin/observability/decision?window=24h n=2
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:54:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key (39.6s)
+
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:75:1 › [TC-P202-31] POST bị 401 một lần rồi thành công: phát lại mang cùng Idempotency-Key, đúng 1 bản ghi (897ms)
+
+  2 passed (42.6s)
+done rc=0

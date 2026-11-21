@@ -1,0 +1,33 @@
+docs/regression/evidence-2/scripts/pg01.sh: line 11: /tmp/ep-r.env: No such file or directory
+== TC-PG01-11
+    ok   rc khi JWT_EXPIRATION sai = [1]
+    FAIL ms khi JWT_EXPIRATION sai: thực tế [2457] phải ≤ 1000
+    FAIL dòng lỗi mức error nêu JWT_EXPIRATION: thực tế [0] phải ≥ 1
+    ok   log không in giá trị của JWT_EXPIRATION = [0]
+-- TC-PG01-11 FAIL
+== TC-PG01-16
+    ok   APP_ENV=dev: số dòng error nêu APP_ENV = [0]
+    ok   APP_ENV=dev: đi tới bước chờ phụ thuộc (ms) = 2478 (≥ 1500)
+    ok   APP_ENV=test: số dòng error nêu APP_ENV = [0]
+    ok   APP_ENV=test: đi tới bước chờ phụ thuộc (ms) = 2457 (≥ 1500)
+    ok   APP_ENV=production: số dòng error nêu APP_ENV = [0]
+    FAIL APP_ENV=production: đi tới bước chờ phụ thuộc (ms): thực tế [48] phải ≥ 1500
+-- TC-PG01-16 FAIL
+== TC-PG01-34
+    FAIL số khoá Redis ngoài quy ước: thực tế [4] ≠ mong đợi [0]
+-- TC-PG01-34 FAIL
+== TC-PG01-68
+    FAIL số lần RYUK_DISABLED=true: thực tế [2] ≠ mong đợi [1]
+    ok   có cờ -race = 2 (≥ 1)
+    ok   chạy toàn bộ gói (./...) = 1 (≥ 1)
+-- TC-PG01-68 FAIL
+== TC-PG01-85
+    FAIL số lần gọi golangci-lint: thực tế [3] ≠ mong đợi [2]
+    ok   số lần golangci-lint chạy với tag testroutes = [1]
+-- TC-PG01-85 FAIL
+TỔNG story 01: PASS=0 FAIL=5 MANUAL=0 K=0
+FAIL: TC-PG01-11 TC-PG01-16 TC-PG01-34 TC-PG01-68 TC-PG01-85
+
+real	0m28.917s
+user	0m34.139s
+sys	0m8.663s

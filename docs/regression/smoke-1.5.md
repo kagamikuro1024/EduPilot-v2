@@ -23,7 +23,7 @@ Cách chạy:
 | --- | --- | --- |
 | **US-PROTO-00** | | |
 | TC-00-09 | P | `pnpm -C frontend lint` + `build` rc 0; ui-antipatterns sạch |
-| TC-00-10 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): thêm phụ thuộc uqr (10.8) + sessionStorage của mã điểm danh (DESIGN §14.8.2) ngoài luật cũ |
+| TC-00-10 | F | RERUN 22/11 @aba738ef: package.json dependencies = @tanstack/react-query, @tanstack/react-virtual, lucide-react, next, react, react-dom, uqr (TC: không thêm phụ thuộc ngoài lucide-react); màu cứng #CE1628 trong src/shared/styles/brand.ts ngoài tokens.css; sessionStorage dùng ở app/error.tsx (+ mã điểm danh); fetch( ngoài shared/ = 0, localStorage không còn khoá ep_demo_state. TC viết cho prototype; sản phẩm thật đã đổi — chờ PM quyết sửa TC/LT (proposal) |
 | TC-00-17 | P | GV/Admin bị chặn ở route SV; SV/Admin bị chặn ở route GV (ma trận 4 vai × 25 route cố định, 1440 px) |
 | TC-00-18 | P | màn chặn: «Bạn không có quyền xem màn này», nút «Về Hôm nay», «Trang này dành cho giảng viên và trợ giảng.» |
 | TC-00-19 | P | ma trận 4 vai × 25 route cố định: 0 lệch (6 route id mock bỏ: không còn tồn tại) |
@@ -33,7 +33,7 @@ Cách chạy:
 | TC-00-54 | P | tc_00_15: không backdrop-filter/transparent; antipatterns có mẫu. Bước «thử đỏ» trong worktree tạm không chạy |
 | TC-00-57 | P | RERUN 2026-11-16 sau 36c960f5: đã đăng nhập (GV, SV, Admin) mở /duong-dan-khong-co-that → màn «Không tìm thấy trang», URL giữ nguyên, không về /login (evidence-1.5/notfound-r1.log). DEF-R1.5-01 đã sửa |
 | TC-00-59 | P | RERUN 2026-11-16: nút «Về Hôm nay» có (3 vai), bấm → «/» |
-| TC-00-60 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): chuỗi «hôm qua 16:40» là dữ liệu mock |
+| TC-00-60 | F | RERUN 22/11 @aba738ef: grep «N ngày/giờ/phút trước» ngoài mock/derive.ts = 0 (đạt) nhưng «hôm qua 16:40» không còn ở Admin / và /admin/courses (grep src = 0; dữ liệu mock đã thay bằng API thật) — TC viết cho prototype mock; chờ PM quyết sửa TC/LT (proposal) |
 | TC-00-68 | P | tc_00_16 7/7 |
 | **US-PROTO-01** | | |
 | TC-01-01 | P | 9 route SV cố định mở được (3 route id mock không còn) |
@@ -44,7 +44,7 @@ Cách chạy:
 | TC-02-21 | P | SV, Admin bị chặn ở route GV/TA |
 | **US-PROTO-03** | | |
 | TC-03-01 | P | GV mở /gradebook, /gradebook/scheme, /grading, /questions, /documents (id mock bỏ) |
-| TC-03-23 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): câu chữ «Chỉ giảng viên công bố điểm» đã đổi trên màn thật |
+| TC-03-23 | F | RERUN 22/11 @aba738ef: chuỗi «Chỉ giảng viên công bố điểm» không còn trong frontend/src (grep = 0; TA chỉ đọc đơn khiếu nại: AppealPanel «Chỉ TEACHER quyết; TA chỉ đọc»); «Xác nhận công thức» chỉ có ở GradeScheme.tsx:248,270 (TA không thấy theo phân quyền, kiểm ở S8) — TC lệch câu chữ, chờ PM quyết sửa TC (proposal) |
 | **US-PROTO-04** | | |
 | TC-04-01 | P | GV 5 route + Admin 6 route mở được |
 | TC-04-04 | P | GV /insights không MSSV |

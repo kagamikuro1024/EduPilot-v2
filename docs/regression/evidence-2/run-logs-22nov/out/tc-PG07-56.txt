@@ -1,0 +1,15 @@
+caddy 443/udp, 2019/tcp, 0.0.0.0:780->80/tcp, [::]:780->80/tcp, 0.0.0.0:1143->443/tcp, [::]:1143->443/tcp
+docling 5001/tcp, 8080/tcp
+frontend 0.0.0.0:3700->3000/tcp, [::]:3700->3000/tcp
+gateway 8080/tcp
+gateway 8080/tcp
+judge 5050/tcp
+mailpit 0.0.0.0:1025->1025/tcp, [::]:1025->1025/tcp, 0.0.0.0:8025->8025/tcp, [::]:8025->8025/tcp, 1110/tcp
+migrate 
+minio 0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp
+mock-graph 127.0.0.1:8090->8090/tcp
+mock-imap 1143/tcp, 127.0.0.1:8791->8091/tcp
+pgbouncer 5432/tcp
+postgres 0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp
+redis 0.0.0.0:6380->6379/tcp, [::]:6380->6379/tcp
+worker 8081/tcp

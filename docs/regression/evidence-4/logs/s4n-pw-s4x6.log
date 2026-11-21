@@ -1,0 +1,16 @@
+
+Running 4 tests using 1 worker
+
+(node:88741) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:88741) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · teacher (1.2m)
+
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:65:3 › [TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · teacher (1.4m)
+
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · admin (21.4s)
+
+  ✓  4 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:65:3 › [TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · admin (1.4m)
+
+  4 passed (4.4m)
+done rc=0

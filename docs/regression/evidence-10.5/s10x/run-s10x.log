@@ -1,1 +1,26 @@
-== d0107.py a 20:42:49
+== d0107.py a 20:51:49
+F TC-D01-07a cấu hình P50=100/P95=150, 200 lời gọi (nhịp 1,6/s): llm_audit 198 dòng {'ok': 197, 'timeout': 1}; latency_ms p50=116 p95=603 (±20 %: 80–120 / 120–180); HTTP [201, 409, 422]
+rc=0
+== d0107.py c 20:55:10
+P TC-D01-07c mặc định (p50/p95 = 426/682, lỗi 0): 120 lời gọi → {'ok': 120}; latency_ms p50=434 p95=627 (kỳ vọng ≈426 / ≈682 ±20 %)
+rc=0
+== d0107.py b 20:57:32
+F TC-D01-07b error_rate=0,5, 220 bài đăng nhịp 1,6/s: llm_audit 220 dòng {('ok', ''): 165, ('error', 'SERVER'): 52, ('timeout', 'TIMEOUT'): 3}; lời gọi thực 217 (ok 165, error 52) tỉ lệ lỗi 0.240 (kỳ vọng 0,4–0,6)
+rc=0
+== d0409.py p1 21:02:48
+scenario_grading: {'graded': 12, 'of': 12, 'flag_correct': 6, 'flag_expected': 6, 'flag_false': 0, 'controls': 6, 'wall_s': 142.9, 'avg_s_per_essay': 11.9}
+P TC-D04-09 QD105A, cổng INJECTION_FLAG bật (hệ thống + lớp), decision = bản phát lại: 12/12 bài chấm; cờ trên 6 chèn lệnh 6/6, trên 6 đối chứng 0/6 (s4-trong <20 từ không gọi decision); DECIDE {('INJECTION_FLAG', 'FAST', 'ok', 'BATCH'): 6, ('INJECTION_FLAG', 'FALLBACK', 'ok', 'BATCH'): 5}; regex mộ
+rc=0
+== d0409.py always_yes 21:05:33
+always_yes regrade 12 nhận 12
+rc=0
+== d0409.py always_no 21:07:57
+always_no regrade 12 nhận 12
+rc=0
+== d0409.py error 21:10:19
+error regrade 12 nhận 12
+rc=0
+== d0409.py fin 21:12:37
+F TC-D04-01 bảng OR: 12 bài × 3 cấu hình decision (always_yes/always_no/error), cổng bật; regex true (6 chèn lệnh): cờ ở cả 3 cấu hình; regex false: cờ khi decision «có»; decision «không» và lỗi cho cùng kết quả (tầng vắng = false); s4-trong không cờ. Lệch: [('s1-tot', 'decision «có» mà không cờ', [
+rc=0
+ALLDONE

@@ -34,7 +34,9 @@ else:
     subs = {em: sid for sid, em in sql(f"select s.id,u.email from submissions s join users u on u.id=s.student_id where s.assignment_id='{aid}'")}
     if PH in ("always_yes", "always_no", "error"):
         mode = PH
-        set_gates(C1, on=("INJECTION_FLAG",)); fake_reset(); fake(decision_mode=mode, decision_p50_ms=100, decision_p95_ms=150)
+        # tầng decision của cờ chèn lệnh chạy ở WORKER (không ở gateway) → route thử /_test/llm/fake không điều khiển được; đặt env LLM_DECISION_FAKE_MODE cho worker rồi khôi phục
+        wk = lambda m: os.system(f"bash -c 'source ~/Documents/TA_Agent_qc2/docs/regression/env/ep-r-env.sh; LLM_DECISION_FAKE_MODE={m} $EPR_C up -d --no-deps --force-recreate worker' > /dev/null 2>&1; sleep 35")
+        wk(mode); set_gates(C1, on=("INJECTION_FLAG",)); fake_reset()
         t0 = now_db(); n = 0
         for em, sid in subs.items():
             c, j, _ = api("teacher", "POST", f"/courses/{C1}/submissions/{sid}/grade", {})
@@ -47,7 +49,7 @@ else:
         rows = sql(f"select u.email, g.round, g.run_state, g.flags from grading_results g join submissions s on s.id=g.submission_id join users u on u.id=s.student_id where s.assignment_id='{aid}' and g.created_at>='{t0}'")
         table[mode] = {ACCT[em.split('@')[0]]: ["INJECTION_SUSPECTED" in f, st_] for em, _, st_, f in rows if em.split('@')[0] in ACCT}
         json.dump(table, open(TBL, "w"), ensure_ascii=False); print(mode, "regrade", n, "nhận", len(table[mode]))
-        fake_reset(); all_off(C1)
+        fake_reset(); all_off(C1); wk("")
     if PH == "fin":
         bad = []
         for n in NAMES:

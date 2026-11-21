@@ -1,0 +1,17 @@
+docs/regression/evidence-2/scripts/pg03.sh: line 11: /tmp/ep-r.env: No such file or directory
+== TC-PG03-51
+    FAIL số dòng có OFFSET (ngoài _test.go): thực tế [11] ≠ mong đợi [0]
+-- TC-PG03-51 FAIL
+== TC-PG03-98
+    ok   mã thoát = [1]
+    FAIL log nêu APP_ENV: thực tế [0] phải ≥ 1
+    ok   thời gian thoát (ms) = 920 (≤ 5000)
+    ok   go test ./cmd/gateway -run 'TestTestBinary_RefusesProduction' rc = [0]
+    ok   --- PASS: TestTestBinary_RefusesProduction
+-- TC-PG03-98 FAIL
+TỔNG story 03: PASS=0 FAIL=2 MANUAL=0 K=0
+FAIL: TC-PG03-51 TC-PG03-98
+
+real	0m34.630s
+user	0m55.126s
+sys	0m12.853s

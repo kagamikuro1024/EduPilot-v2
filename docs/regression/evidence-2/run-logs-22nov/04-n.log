@@ -1,0 +1,41 @@
+docs/regression/evidence-2/scripts/pg04.sh: line 11: /tmp/ep-r.env: No such file or directory
+== TC-PG04-44
+    ok   có tệp backend-go/api/openapi.yaml
+    FAIL grep -c '/auth/' backend-go/api/openapi.yaml: thực tế [11] ≠ mong đợi [0]
+    FAIL grep -c '/me/' backend-go/api/openapi.yaml: thực tế [21] ≠ mong đợi [0]
+    FAIL grep -c '/admin/' backend-go/api/openapi.yaml: thực tế [24] ≠ mong đợi [0]
+-- TC-PG04-44 FAIL
+== TC-PG04-45
+    FAIL GET /api/v1/auth/login (chế độ test) · status: thực tế [405] ≠ mong đợi [404]
+    FAIL GET /api/v1/auth/login · code: thực tế [METHOD_NOT_ALLOWED] ≠ mong đợi [NOT_FOUND]
+    FAIL GET /api/v1/auth/register (chế độ test) · status: thực tế [405] ≠ mong đợi [404]
+    FAIL GET /api/v1/auth/register · code: thực tế [METHOD_NOT_ALLOWED] ≠ mong đợi [NOT_FOUND]
+    FAIL GET /api/v1/auth/refresh (chế độ test) · status: thực tế [405] ≠ mong đợi [404]
+    FAIL GET /api/v1/auth/refresh · code: thực tế [METHOD_NOT_ALLOWED] ≠ mong đợi [NOT_FOUND]
+    ok   GET /api/v1/auth/verify (chế độ test) · status = [404]
+    ok   GET /api/v1/auth/verify · code = [NOT_FOUND]
+    ok   GET /api/v1/me (chế độ test) · status = [404]
+    ok   GET /api/v1/me · code = [NOT_FOUND]
+    ok   GET /api/v1/me/profile (chế độ test) · status = [404]
+    ok   GET /api/v1/me/profile · code = [NOT_FOUND]
+    ok   GET /api/v1/admin/x (chế độ test) · status = [404]
+    ok   GET /api/v1/admin/x · code = [NOT_FOUND]
+    FAIL GET /api/v1/admin/users (chế độ test) · status: thực tế [200] ≠ mong đợi [404]
+    FAIL GET /api/v1/admin/users · code: thực tế [?] ≠ mong đợi [NOT_FOUND]
+    FAIL POST /api/v1/auth/login (chế độ test): thực tế [415] ≠ mong đợi [404]
+-- TC-PG04-45 FAIL
+== TC-PG04-46
+    FAIL không vào được chế độ default
+    FAIL POST /api/v1/auth/login: thực tế [415] ≠ mong đợi [404]
+    FAIL GET /api/v1/auth/login · code: thực tế [METHOD_NOT_ALLOWED] ≠ mong đợi [NOT_FOUND]
+    ok   GET /api/v1/auth/login · trace_id ~ /^[0-9a-f]{32}$/
+    FAIL GET /api/v1/me (chế độ default): thực tế [401] ≠ mong đợi [404]
+    FAIL GET /api/v1/admin/users (chế độ default): thực tế [401] ≠ mong đợi [404]
+    FAIL GET /api/v1/auth/refresh (chế độ default): thực tế [405] ≠ mong đợi [404]
+-- TC-PG04-46 FAIL
+TỔNG story 04: PASS=0 FAIL=3 MANUAL=0 K=0
+FAIL: TC-PG04-44 TC-PG04-45 TC-PG04-46
+
+real	0m51.040s
+user	0m7.934s
+sys	0m6.151s

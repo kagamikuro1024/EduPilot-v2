@@ -1,0 +1,84 @@
+docs/regression/evidence-2/scripts/pg07.sh: line 11: /tmp/ep-r.env: No such file or directory
+== TC-PG07-01
+    FAIL danh sách service của docker-compose.local.yml: thực tế [caddy frontend gateway judge mailpit migrate minio mock-graph mock-imap pgbouncer postgres redis worker] ≠ mong đợi [caddy frontend gateway mailpit migrate minio pgbouncer postgres redis worker]
+-- TC-PG07-01 FAIL
+== TC-PG07-02
+    ok   service có tên python|docling = [0]
+    FAIL chuỗi docling trong compose: thực tế [11] ≠ mong đợi [0]
+-- TC-PG07-02 FAIL
+== TC-PG07-09
+    FAIL dòng trạng thái: [] không khớp /^HTTP/[0-9.]+ (301|308)/
+    FAIL header location: [] không khớp /^https://localhost/?$/
+-- TC-PG07-09 FAIL
+== TC-PG07-14
+    FAIL số dòng chứa 'Caddy Local Authority': thực tế [0] phải ≥ 1
+    FAIL SAN DNS:localhost: thực tế [0] phải ≥ 1
+    FAIL có notAfter (hạn chứng chỉ): thực tế [0] phải ≥ 1
+-- TC-PG07-14 FAIL
+== TC-PG07-22
+    ok   số cổng công bố của pgbouncer = [0]
+    ok   đối chứng: cổng 5433 (postgres) mở được từ host
+    ok   cổng 6432 KHÔNG mở được từ host
+-- TC-PG07-22 PASS
+== TC-PG07-35
+    FAIL số chỗ ghi đĩa trong mã sản xuất: thực tế [4] ≠ mong đợi [0]
+-- TC-PG07-35 FAIL
+== TC-PG07-37
+    FAIL số thay đổi hệ thống file của 325f91ee45ade8bf9413ae65629e6695dfe9051dd6f40ccb0885db34462815a0: thực tế [2] ≠ mong đợi [0]
+    FAIL số thay đổi hệ thống file của 3f795726d9e117e6d4e764a5d709231e4a7604e86c32f7e887729b39eebae007: thực tế [2] ≠ mong đợi [0]
+    FAIL số thay đổi hệ thống file của ff39a2c39cbad5f351a87b99f69252e93776505854b9fd6949df70358383fff1: thực tế [2] ≠ mong đợi [0]
+-- TC-PG07-37 FAIL
+== TC-PG07-38
+    FAIL headSha của run mới nhất: thực tế [KHÔNG CÓ] ≠ mong đợi [06f164c780e58475cbdcc3dd74228ff32635a344]
+    FAIL conclusion: thực tế [KHÔNG CÓ] ≠ mong đợi [success]
+-- TC-PG07-38 FAIL
+== TC-PG07-39
+    FAIL tìm được run id: [] không khớp /^[0-9]+$/
+    FAIL số bước khớp sqlc|race|vet|golangci: thực tế [0] phải ≥ 6
+-- TC-PG07-39 FAIL
+== TC-PG07-40
+    FAIL số bước có 'vet': thực tế [0] phải ≥ 2
+    FAIL số bước có 'golangci': thực tế [0] phải ≥ 2
+    FAIL số bước có 'sqlc': thực tế [0] phải ≥ 1
+-- TC-PG07-40 FAIL
+== TC-PG07-41
+    FAIL số job tên chứa Frontend: thực tế [0] phải ≥ 1
+    ok   job Frontend không success = [0]
+    ok   job Go không success = [0]
+-- TC-PG07-41 FAIL
+== TC-PG07-43
+    FAIL không tìm thấy run ci.yml của nhánh ci/sqlc-drift (chạy lại với RUN_ID=<id> lấy từ handoff; nhánh bị xoá sớm hơn lúc QC chấm = FAIL)
+-- TC-PG07-43 FAIL
+== TC-PG07-44
+    FAIL không có run ci/sqlc-drift để đối chiếu
+-- TC-PG07-44 FAIL
+== TC-PG07-56
+    FAIL tập service có cổng công bố: thực tế [caddy frontend mailpit minio mock-graph mock-imap postgres redis] ≠ mong đợi [caddy frontend mailpit minio postgres redis]
+    FAIL caddy công bố 80: thực tế [0] phải ≥ 1
+    FAIL caddy công bố 443: thực tế [0] phải ≥ 1
+    ok   postgres 5433 = 1 (≥ 1)
+    ok   redis 6380 = 1 (≥ 1)
+    ok   minio 9000 = 1 (≥ 1)
+    ok   mailpit 8025 = 1 (≥ 1)
+    FAIL frontend 3000: thực tế [0] phải ≥ 1
+-- TC-PG07-56 FAIL
+== TC-PG07-58
+    ok   số biến bí mật trong .env.example (không đo rỗng) = 6 (≥ 1)
+    FAIL số giá trị bí mật của .env.example KHÔNG chứa '-dev': thực tế [1] ≠ mong đợi [0]
+    ok   .env.local bị git bỏ qua
+    ok   số chỗ lộ JWT_SECRET_KEY ngoài .env.example/docs = [0]
+    ok   .env.example có mục JWT_SECRET_KEY = 1 (≥ 1)
+-- TC-PG07-58 FAIL
+== TC-PG07-66
+    FAIL danh sách service khi có override: thực tế [caddy frontend gateway judge mailpit migrate minio mock-graph mock-imap pgbouncer postgres redis worker] ≠ mong đợi [caddy frontend gateway mailpit migrate minio pgbouncer postgres redis worker]
+    ok   số dòng 'image: edupilot-(gateway|worker)-test' = [2]
+    ok   số dòng 'target: (gateway|worker)-test' = [2]
+    ok   APP_ENV của gateway ở override ~ /APP_ENV[^,]*test/
+    ok   APP_ENV của worker ở override ~ /APP_ENV[^,]*test/
+-- TC-PG07-66 FAIL
+TỔNG story 07: PASS=1 FAIL=15 MANUAL=0 K=0
+FAIL: TC-PG07-01 TC-PG07-02 TC-PG07-09 TC-PG07-14 TC-PG07-35 TC-PG07-37 TC-PG07-38 TC-PG07-39 TC-PG07-40 TC-PG07-41 TC-PG07-43 TC-PG07-44 TC-PG07-56 TC-PG07-58 TC-PG07-66
+
+real	0m17.412s
+user	0m5.814s
+sys	0m3.051s

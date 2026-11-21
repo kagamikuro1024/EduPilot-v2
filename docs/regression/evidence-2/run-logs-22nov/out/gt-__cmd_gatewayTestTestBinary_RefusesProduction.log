@@ -1,0 +1,6 @@
+=== RUN   TestTestBinary_RefusesProduction
+=== PAUSE TestTestBinary_RefusesProduction
+=== CONT  TestTestBinary_RefusesProduction
+--- PASS: TestTestBinary_RefusesProduction (0.00s)
+PASS
+ok  	github.com/edupilot/backend-go/cmd/gateway	1.978s

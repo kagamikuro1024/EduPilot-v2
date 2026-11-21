@@ -1,0 +1,70 @@
+
+Running 4 tests using 1 worker
+
+(node:83457) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:83457) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · student (1.3m)
+Error response from daemon: container 176886fe6846fbce7be76272814476a529f8cc984b3b2f0e736e9d2171cef0c6 is not running
+  ✘  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:65:3 › [TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · student (5.4s)
+(node:86236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86236) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✘  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · ta (5.5s)
+(node:86506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86506) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  4 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:65:3 › [TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · ta (1.4m)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:65:3 › [TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · student 
+
+    Error: login sv.gioi@edupilot.local
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 502
+
+       at r4ui-lib.ts:59
+
+      57 |   await ctx.addInitScript(() => localStorage.setItem("ep_returning", "1"));
+      58 |   const r = await ctx.request.post("/api/v1/auth/login", { data: { email, password: pw }, headers: { "Idempotency-Key": randomUUID() } });
+    > 59 |   expect(r.status(), `login ${email}`).toBe(200);
+         |                                        ^
+      60 |   return (await r.json()).access_token as string;
+      61 | }
+      62 | /** Đăng nhập thật qua màn /login. */
+        at apiLogin (/Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/r4ui-lib.ts:59:40)
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:68:5
+
+    Error Context: ../docs/regression/evidence-4/pw-out/r4ui-audit--TC-P212-21-ma--6fc05-proto-curl-matrix-·-student-desktop/error-context.md
+
+  2) [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · ta 
+
+    Error: login ta@edupilot.local
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 503
+
+       at r4ui-lib.ts:59
+
+      57 |   await ctx.addInitScript(() => localStorage.setItem("ep_returning", "1"));
+      58 |   const r = await ctx.request.post("/api/v1/auth/login", { data: { email, password: pw }, headers: { "Idempotency-Key": randomUUID() } });
+    > 59 |   expect(r.status(), `login ${email}`).toBe(200);
+         |                                        ^
+      60 |   return (await r.json()).access_token as string;
+      61 | }
+      62 | /** Đăng nhập thật qua màn /login. */
+        at apiLogin (/Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/r4ui-lib.ts:59:40)
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:36:5
+
+    Error Context: ../docs/regression/evidence-4/pw-out/r4ui-audit--TC-P212-21-audit-đăng-nhập-thật-·-ta-desktop/error-context.md
+
+  2 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:65:3 › [TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · student 
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · ta 
+  2 passed (3.0m)
+done rc=1

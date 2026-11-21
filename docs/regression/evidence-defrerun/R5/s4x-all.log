@@ -39,3 +39,196 @@ rc=143
 == s18 20:37:07
 rc=137
 == stale 20:37:35
+== r301 20:59:54
+{
+ "admin1440_idx": "Đánh chỉ mục tài liệu\t3.165\t2.804.146 / 1.968\t272 đ\t13.267 ms\t41\t3",
+ "admin1440": {
+  "hits": [],
+  "usage": true,
+  "names": [
+   "Tìm nhanh hoặc đi đến…\n⌘\nK",
+   "Thông báo, 9+ chưa đọc",
+   "N\nTài khoản:\nĐỗ Hoàng Nam",
+   "Thu gọn thanh bên",
+   "Test kết nối",
+   "Thêm hành động cho QC 9router",
+   "Thêm hành động cho QC fake",
+   "Thêm hành động cho SmkB-S1",
+   "Thêm hành động cho SmkB-S2",
+   "Thêm hành động cho SmkB-S3",
+   "Thêm hành động cho SmkB-S4",
+   "Thêm hành động cho SmkB-S5",
+   "Thêm hành động cho S9G-stub",
+   "Thêm hành động cho S8R-stub",
+   "Thêm hành động cho S8R-stub2",
+   "Thêm nhà cung cấp",
+   "Cài đặt nâng cao",
+   "Lưu",
+   "Thêm",
+   "decision-fake",
+   "gemini-decision-1",
+   "Theo lớp",
+   "Đổi hạn mức",
+   "7 ngày",
+   "30 ngày"
+  ],
+  "statusSuccess": 0,
+  "dialogs": [
+   "trang",
+   "mở details",
+   "nâng cao",
+   "hộp thoại Test kết nối",
+   "hộp thoại Thêm hành động cho QC 9router",
+   "hộp thoại Thêm hành động cho QC fake",
+   "hộp thoại Thêm hành động cho SmkB-S1",
+   "hộp thoại Thêm hành động cho SmkB-S2",
+   "hộp thoại Thêm hành động cho SmkB-S3",
+   "hộp thoại Thêm hành động cho SmkB-S4",
+   "hộp thoại Thêm hành động cho SmkB-S5"
+  ],
+  "nonVerbSample": [
+   "Tìm nhanh hoặc đi đến…\n⌘\nK",
+   "Thông báo, 9+ chưa đọc",
+   "N\nTài khoản:\nĐỗ Hoàng Nam",
+   "Thu gọn thanh bên",
+   "Test kết nối",
+   "Thêm hành động cho QC 9router",
+   "Thêm hành động cho QC fake",
+   "Thêm hành động cho SmkB-S1",
+   "Thêm hành động cho SmkB-S2",
+   "Thêm hành động cho SmkB-S3",
+   "Thêm hành động cho SmkB-S4",
+   "Thêm hành động cho SmkB-S5",
+   "Thêm hành động cho S9G-stub",
+   "Thêm hành động cho S8R-stub",
+   "Thêm hành động cho S8R-stub2",
+   "Thêm nhà cung cấp",
+   "Cài đặt nâng cao",
+   "Lưu",
+   "Thêm",
+   "decision-fake",
+   "gemini-decision-1",
+   "Theo lớp",
+   "Đổi hạn mức",
+   "7 ngày",
+   "30 ngày"
+  ]
+ },
+ "admin390_idx": "Đánh chỉ mục tài liệu",
+ "admin390": {
+  "hits": [],
+  "usage": false,
+  "names": [
+   "Tìm nhanh hoặc đi đến…",
+   "Thông báo, 9+ chưa đọc",
+   "N\nTài khoản:\nĐỗ Hoàng Nam",
+   "Test kết nối",
+   "Thêm hành động cho QC 9router",
+   "Thêm hành động cho QC fake",
+   "Thêm hành động cho SmkB-S1",
+   "Thêm hành động cho SmkB-S2",
+   "Thêm hành động cho SmkB-S3",
+   "Thêm hành động cho SmkB-S4",
+   "Thêm hành động cho SmkB-S5",
+   "Thêm hành động cho S9G-stub",
+   "Thêm hành động cho S8R-stub",
+   "Thêm hành động cho S8R-stub2",
+   "Thêm nhà cung cấp",
+   "Cài đặt nâng cao",
+   "Lưu",
+   "Thêm",
+   "decision-fake",
+   "gemini-decision-1",
+   "Theo lớp",
+   "Đổi hạn mức",
+   "7 ngày",
+   "30 ngày"
+  ],
+  "statusSuccess": 0,
+  "dialogs": [
+   "trang",
+   "mở details",
+   "nâng cao",
+   "hộp thoại Test kết nối",
+   "hộp thoại Thêm hành động cho QC 9router",
+   "hộp thoại Thêm hành động cho QC fake",
+   "hộp thoại Thêm hành động cho SmkB-S1",
+   "hộp thoại Thêm hành động cho SmkB-S2",
+   "hộp thoại Thêm hành động cho SmkB-S3",
+   "hộp thoại Thêm hành động cho SmkB-S4",
+   "hộp thoại Thêm hành động cho SmkB-S5"
+  ],
+  "nonVerbSample": [
+   "Tìm nhanh hoặc đi đến…",
+   "Thông báo, 9+ chưa đọc",
+   "N\nTài khoản:\nĐỗ Hoàng Nam",
+   "Test kết nối",
+   "Thêm hành động cho QC 9router",
+   "Thêm hành động cho QC fake",
+   "Thêm hành động cho SmkB-S1",
+   "Thêm hành động cho SmkB-S2",
+   "Thêm hành động cho SmkB-S3",
+   "Thêm hành động cho SmkB-S4",
+   "Thêm hành động cho SmkB-S5",
+   "Thêm hành động cho S9G-stub",
+   "Thêm hành động cho S8R-stub",
+   "Thêm hành động cho S8R-stub2",
+   "Thêm nhà cung cấp",
+   "Cài đặt nâng cao",
+   "Lưu",
+   "Thêm",
+   "decision-fake",
+   "gemini-decision-1",
+   "Theo lớp",
+   "Đổi hạn mức",
+   "7 ngày",
+   "30 ngày"
+  ]
+ },
+ "teacher1440_idx": "Đánh chỉ mục tài liệu\t3.180\t2.804.858 / 1.968\t272 đ\t13.265 ms\t41\t3",
+ "teacher1440": {
+  "hits": [],
+  "usage": true,
+  "names": [
+   "Chọn lớp, đang xem QD105A · QC smoke10.5 QD105A",
+   "Tìm nhanh hoặc đi đến…\n⌘\nK",
+   "Thông báo, 9+ chưa đọc",
+   "H\nTài khoản:\nTS. Lê Thu Hà",
+   "Thu gọn thanh bên",
+   "Cài đặt nâng cao",
+   "7 ngày",
+   "30 ngày"
+  ],
+  "statusSuccess": 0,
+  "dialogs": [
+   "trang",
+   "mở details",
+   "nâng cao"
+  ],
+  "nonVerbSample": [
+   "Chọn lớp, đang xem QD105A · QC smoke10.5 QD105A",
+   "Tìm nhanh hoặc đi đến…\n⌘\nK",
+   "Thông báo, 9+ chưa đọc",
+   "H\nTài khoản:\nTS. Lê Thu Hà",
+   "Thu gọn thanh bên",
+   "Cài đặt nâng cao",
+   "7 ngày",
+   "30 ngày"
+  ]
+ }
+}
+rc=0
+== s27 21:00:36
+ERR TimeoutError: locator.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('textarea').first()
+
+rc=124
+== s18 21:08:37
+F TC-PE07-18 smkP @634d59c5 (d7fecdc2 R5-07): dán 328 ký tự vào ô mã rồi ĐÓNG THẬT ngay (trước nhịp 15 s), đối chiếu exam_events trong DB sau 3 s: {"navigate":{"u":"r5s23","
+rc=0
+== res 21:12:43
+{"375":{"score":"9,00 / 10,00","summary":"Bạn đúng 2/3 câu trắc nghiệm · bài lập trình: 2/2 test ẩn đạt","items":4,"fold":4,"open0":0,"hid0":false,"hid1":"Test ẩn: đạt 2 trên 2","open1":4,"btns":["Gửi yêu cầu xem lại"],"ox":0,"a0":{"ox":0,"cut":0,"ell":0,"touch":0},"a1":{"ox":0,"cut":0,"ell":0,"touch":0},"ax":[]},"1440":{"score":"9,00 / 10,00","summary":"Bạn đúng 2/3 câu trắc nghiệm · bài lập trình: 2/2 test ẩn đạt","items":4,"fold":4,"open0":0,"hid0":false,"hid1":"Test ẩn: đạt 2 trên 2","open1":4,"btns":["Gửi yêu cầu xem lại"],"ox":0,"a0":{"ox":0,"cut":0,"ell":0,"touch":0},"a1":{"ox":0,"cut":0,"ell":0,"touch":0},"ax":[]}}
+P TC-PE08-31 smkP @88ab83e4 (473472ec, P-11-60): SV r5s01 (E30 đã công bố) 1440/375: điểm "9,00 / 10,00"; dòng tóm tắt "Bạn đúng 2/3 câu trắc nghiệm · bài lập trình: 2/2 tes
+rc=0
+== staff 21:12:58

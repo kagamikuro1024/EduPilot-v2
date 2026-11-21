@@ -1,0 +1,4 @@
+== d0107.py a 20:42:49
+rc=124
+== d0107.py c 20:51:09
+/tmp/qc2-pw.sh: line 5: 81452 Terminated: 15          "$@"
