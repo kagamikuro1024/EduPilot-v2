@@ -228,8 +228,8 @@ test("UX-j2", async ({ browser }) => {
   const { ctx, page } = await pageAs(browser, "teacher", 375); await page.goto("/grading?tab=assignments"); await page.waitForTimeout(5000); const out: string[] = [];
   const a = page.locator("a[href*='open=']:visible").first(); await a.scrollIntoViewIfNeeded(); const b = (await a.boundingBox())!; const href = await a.getAttribute("href");
   const info = await a.evaluate((e) => { const cs = getComputedStyle(e, "::after"); return { after: cs.content, pos: cs.position, w: cs.width, h: cs.height }; });
-  const hits = await page.evaluate(([x, y]) => { const el = document.elementFromPoint(x as number, y as number); return el ? `${el.tagName}.${(el as HTMLElement).className.toString().slice(0, 30)} ${(el.closest("a") as HTMLAnchorElement | null)?.getAttribute("href") ?? "-"}` : "none"; }, [350, b.y + b.height / 2 + 14] as [number, number]);
-  out.push(`liên kết ${Math.round(b.width)}x${Math.round(b.height)} tại y=${Math.round(b.y)}; ::after ${JSON.stringify(info)}; điểm chạm cách 14 px dưới / x=350: ${hits}`);
-  await page.mouse.click(350, b.y + b.height / 2 + 14); await page.waitForTimeout(1500); out.push("sau chạm: " + page.url().replace(/^.*grading/, "").replace(/[0-9a-f-]{36}/, "·"));
+  const hits = await page.evaluate(([x, y]) => { const el = document.elementFromPoint(x as number, y as number); return el ? `${el.tagName}.${(el as HTMLElement).className.toString().slice(0, 30)} ${(el.closest("a") as HTMLAnchorElement | null)?.getAttribute("href") ?? "-"}` : "none"; }, [200, b.y + b.height / 2 + 14] as [number, number]);
+  out.push(`liên kết ${Math.round(b.width)}x${Math.round(b.height)} tại y=${Math.round(b.y)}; ::after ${JSON.stringify(info)}; điểm chạm cách 14 px dưới / x=200: ${hits}`);
+  await page.mouse.click(200, b.y + b.height / 2 + 14); await page.waitForTimeout(1500); out.push("sau chạm: " + page.url().replace(/^.*grading/, "").replace(/[0-9a-f-]{36}/, "·"));
   console.log("VERDICT UX-j2", JSON.stringify(out)); await ctx.close();
 });
