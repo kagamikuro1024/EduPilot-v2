@@ -216,7 +216,12 @@ join grading_results r on r.course_id = c.course_id and r.id = c.source_id
 join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
 where c.course_id = sqlc.arg(course_id) and c.kind in ('GRADING_EDIT', 'GRADING_APPEAL')
+  and (sqlc.narg(assignment_id)::uuid is null or a.id = sqlc.narg(assignment_id))
 order by c.created_at, c.id limit sqlc.arg(page_limit);
+
+-- name: RegressionAssignmentCourse :one
+-- hidden-ok: công cụ vận hành ở môi trường đo (cmd/regress run --assignment): tìm lớp của bài tập; không hiển thị cho người dùng.
+select course_id from assignments where id = sqlc.arg(id);
 
 -- name: RegressionThreadCases :many
 -- Ca THREAD_* cho chế độ --e2: độ tự tin của bài AI bị sửa / loại so với ngưỡng chuyển giảng viên của lớp.

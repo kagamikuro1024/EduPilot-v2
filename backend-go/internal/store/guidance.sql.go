@@ -1050,6 +1050,18 @@ func (q *Queries) RegressionAIScores(ctx context.Context, arg RegressionAIScores
 	return ai_scores, err
 }
 
+const regressionAssignmentCourse = `-- name: RegressionAssignmentCourse :one
+select course_id from assignments where id = $1
+`
+
+// hidden-ok: công cụ vận hành ở môi trường đo (cmd/regress run --assignment): tìm lớp của bài tập; không hiển thị cho người dùng.
+func (q *Queries) RegressionAssignmentCourse(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, regressionAssignmentCourse, id)
+	var course_id uuid.UUID
+	err := row.Scan(&course_id)
+	return course_id, err
+}
+
 const regressionCaseCount = `-- name: RegressionCaseCount :many
 select kind, count(*)::int as n from grading_regression_cases where course_id = $1 group by kind
 `
@@ -1158,12 +1170,14 @@ join grading_results r on r.course_id = c.course_id and r.id = c.source_id
 join submissions s on s.course_id = r.course_id and s.id = r.submission_id
 join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
 where c.course_id = $1 and c.kind in ('GRADING_EDIT', 'GRADING_APPEAL')
-order by c.created_at, c.id limit $2
+  and ($2::uuid is null or a.id = $2)
+order by c.created_at, c.id limit $3
 `
 
 type RegressionRunCasesParams struct {
-	CourseID  uuid.UUID
-	PageLimit int32
+	CourseID     uuid.UUID
+	AssignmentID *uuid.UUID
+	PageLimit    int32
 }
 
 type RegressionRunCasesRow struct {
@@ -1183,7 +1197,7 @@ type RegressionRunCasesRow struct {
 
 // Ca chấm cùng nội dung ngay trong DB cho `cmd/regress run` (môi trường đo). Văn bản không bao giờ ra khỏi DB trừ khi chạy `export`.
 func (q *Queries) RegressionRunCases(ctx context.Context, arg RegressionRunCasesParams) ([]RegressionRunCasesRow, error) {
-	rows, err := q.db.Query(ctx, regressionRunCases, arg.CourseID, arg.PageLimit)
+	rows, err := q.db.Query(ctx, regressionRunCases, arg.CourseID, arg.AssignmentID, arg.PageLimit)
 	if err != nil {
 		return nil, err
 	}
