@@ -368,7 +368,16 @@ func (s *GuidanceService) Reflect(ctx context.Context, a GuidanceActor, course, 
 	sum := sha256.Sum256(fmt.Appendf(nil, "%s|%s|%d", assignment, stamp, cur.GuidanceVersion))
 	idemKey := "ep:guidance:reflect:" + hex.EncodeToString(sum[:])
 	if id, err := s.Redis.Get(ctx, idemKey).Result(); err == nil && id != "" {
-		return ReflectEnqueued{JobID: id}, nil
+		// Việc đã FAILED thì bấm lại là thử lại: bỏ khoá, xếp việc mới (DEF-R106S-02). Đang chạy / đã xong → cùng job_id.
+		if jid, perr := uuid.Parse(id); perr == nil {
+			if j, gerr := store.New(s.Pool).GetJob(ctx, jid); gerr == nil && j.Status == store.JobStatusFAILED {
+				s.Redis.Del(ctx, idemKey)
+				id = ""
+			}
+		}
+		if id != "" {
+			return ReflectEnqueued{JobID: id}, nil
+		}
 	}
 	rl := "ep:rl:reflect:" + assignment.String()
 	n, err := s.Redis.Incr(ctx, rl).Result()
