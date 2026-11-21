@@ -262,7 +262,11 @@ func (s *Service) removedSources(ctx context.Context, rows []store.ChatMessage) 
 	if len(ids) == 0 {
 		return nil, nil
 	}
-	res, err := s.Pool.Query(ctx, `select id from documents where id = any($1)`, ids)
+	strs := make([]string, len(ids)) // text[] rồi ép ::uuid[]: pool chạy QueryExecModeExec (PgBouncer) không mã hoá được []uuid.UUID (OID 0) — DEF-R6-D2
+	for i, id := range ids {
+		strs[i] = id.String()
+	}
+	res, err := s.Pool.Query(ctx, `select id from documents where id = any($1::text[]::uuid[])`, strs)
 	if err != nil {
 		return nil, fmt.Errorf("chat: tài liệu của trích dẫn: %w", err)
 	}
