@@ -223,7 +223,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. Từ ngữ giao diện: «Lưu ý chấm»
 - AC1 (seed). Given stack trống When `node scripts/seed.mjs` Then provider `fake` có sẵn; bài tập BT03 lớp 1 có ≥ 8 kết quả `REVIEWED` với ≥ 4 tiêu chí bị sửa ≥ 0,5 theo một «sở thích» (ví dụ c2 chấm gắt hơn); `SEED_GUIDANCE_DEMO=1` bật `GRADING_GUIDANCE` cho lớp 1 và nạp bản nháp lưu ý mẫu; bài tập khác để nguyên; `scripts/check-guidance-seed.mjs` xanh; chạy lại idempotent.
 - AC2 (cổng). Given repo When chạy:
   - `cd backend-go && go test ./internal/grading -run 'TestGuidanceSetAtVersion|TestEssayPromptUnchangedAtV0|TestGuidanceBlockDeterministic|TestReflect|TestRegradeKeepsLatePolicy' -v`
-  - `cd backend-go && go test ./internal/assignment ./internal/guidance -run 'TestPublishMixedGuidance|TestApplyVersion|TestRegradeStale|TestGuidanceRBAC' -v`
+  - `cd backend-go && go test ./internal/assignment ./internal/grading -run 'TestPublishMixedGuidance|TestApplyVersion|TestRegradeStale|TestGuidanceRBAC' -v` (không có gói `internal/guidance`; `TestPublishMixedGuidance`, `TestGuidanceRBAC` ở `internal/assignment`, `TestApplyVersion`, `TestRegradeStale` ở `internal/grading`; P-11-91)
   - `cd backend-go && go test ./internal/thread ./internal/practice -run 'TestSimilarConfirmed|TestRejectReasonHints' -v`
   - `pnpm -C frontend exec playwright test grading-guidance.spec.ts thread-suggest.spec.ts question-hints.spec.ts`
   Then tất cả xanh (provider `fake`, không gọi mạng thật).
