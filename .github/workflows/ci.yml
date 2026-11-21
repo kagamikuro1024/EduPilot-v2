@@ -315,8 +315,8 @@ jobs:
           if-no-files-found: ignore
 
   lhci:
-    # TL-CI #3b + DEF-R7-01: simulate (TBT / CLS / dung lượng JS) hai job (A / B, mỗi job một nửa URL; một job 9 URL × 5 lượt = 10 phút); devtools (LCP) hai job, mỗi job một nửa URL. Cùng tệp cấu hình, cùng ngưỡng,
-    # cùng numberOfRuns: nửa URL ghi đè bằng --collect.url (lhci thay cả mảng url của tệp cấu hình, không nối thêm). Hợp hai nửa = đủ 8 URL (có /me). Simulate chạy 5 lượt mỗi URL (devtools 3): TBT trên runner có đuôi dài (một lượt 270–490 ms giữa các lượt 40–70 ms) nên trung vị của 3 lượt đỏ ngẫu nhiên; ngưỡng giữ 200 ms.
+    # TL-CI #3b + DEF-R7-01: simulate (TBT / CLS / dung lượng JS) hai job (A / B, mỗi job một nửa URL; một job 9 URL × 5 lượt = 10 phút); devtools (LCP) ba job. Cùng tệp cấu hình, cùng ngưỡng,
+    # cùng numberOfRuns: nửa URL ghi đè bằng --collect.url (lhci thay cả mảng url của tệp cấu hình, không nối thêm). Hợp hai nửa = đủ URL của tệp cấu hình; devtools ≈ 95 s mỗi URL (3 lượt, throttle thật) nên chia 3 job 4 / 3 / 3 URL (lượt 658 s khi job B có 6 URL sau khi thêm /practice, /practice/history). Simulate chạy 5 lượt mỗi URL (devtools 3): TBT trên runner có đuôi dài (một lượt 270–490 ms giữa các lượt 40–70 ms) nên trung vị của 3 lượt đỏ ngẫu nhiên; ngưỡng giữ 200 ms.
     name: Frontend Lighthouse (${{ matrix.name }})
     needs: changes
     if: needs.changes.outputs.fe == 'true'
@@ -329,7 +329,8 @@ jobs:
           - { name: simulate A, slug: simulate-a, config: lighthouserc.json, out: .lighthouseci, paths: "/ /chat /threads /inbox /gradebook" }
           - { name: simulate B, slug: simulate-b, config: lighthouserc.json, out: .lighthouseci, paths: "/me /checkin /settings/llm /dev/ui" }
           - { name: devtools A, slug: devtools-a, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/ /chat /threads /inbox" }
-          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /practice /practice/history /settings/llm /dev/ui" }
+          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /practice" }
+          - { name: devtools C, slug: devtools-c, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/practice/history /settings/llm /dev/ui" }
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/fe-setup
