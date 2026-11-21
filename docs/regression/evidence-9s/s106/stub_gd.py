@@ -79,7 +79,8 @@ class H(BaseHTTPRequestHandler):
         mode = (open("/Users/kuro/.config/edupilot-team/qc3-work/stub_mode").read().strip() if os.path.exists("/Users/kuro/.config/edupilot-team/qc3-work/stub_mode") else "allow")
         with open("/Users/kuro/.config/edupilot-team/qc3-work/stub_req.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "mode": mode, "body": body}, ensure_ascii=False) + "\n")
         if "[[QCERR]]" in json.dumps(body, ensure_ascii=False) and "rút ra lưu ý chấm" not in json.dumps(body, ensure_ascii=False):  # bài có dấu [[QCERR]] luôn lỗi 500
-            self.send_response(500); self.end_headers(); self.wfile.write(b'{"error":{"message":"stub error (QCERR)"}}'); return
+            out = {"id": "x", "object": "chat.completion", "created": 0, "model": "stub-chat", "choices": [{"index": 0, "message": {"role": "assistant", "content": "khong phai json {{"}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2}}
+            self.send_response(200); self.send_header("content-type", "application/json"); self.end_headers(); self.wfile.write(json.dumps(out).encode()); return
         if mode == "error":
             self.send_response(500); self.end_headers(); self.wfile.write(b'{"error":{"message":"stub error"}}'); return
         if mode == "slow": time.sleep(12)
