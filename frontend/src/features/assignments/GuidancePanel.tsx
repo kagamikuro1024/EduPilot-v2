@@ -2,8 +2,8 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ApiError, newIdempotencyKey, useAutosaveDraft, useJob, useUndoableAction } from "@/shared/data";
-import { Button, ConfirmIrreversible, InlineNotice, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { ApiError, ApiErrorNotice, newIdempotencyKey, useAutosaveDraft, useJob, useUndoableAction } from "@/shared/data";
+import { Button, ConfirmIrreversible, EmptyState, InlineNotice, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import type { Criterion } from "./assignmentApi";
 import {
   DIRECTION_TEXT, applyGuidance, decideGuidance, guidanceKey, reflectGuidance, regradeStale, useGuidance, useGuidanceStats,
@@ -174,6 +174,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
   }, [regrade.status, qc, aid, courseId]);
 
   if (q.isPending) return <Skeleton lines={2} />;
+  if (q.isError && !d) return <ApiErrorNotice error={q.error} onRetry={() => void q.refetch()} />;
   if (!d || !d.enabled) return null;
 
   const names = new Map(rubric.map((c) => [c.id, c.name]));
@@ -294,6 +295,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
         loading={busy === "apply"}
       />
 
+      {d.items.length === 0 && <EmptyState title="Chưa có lưu ý" />}
       {groups.map((g) => (
         <div key={g.id} className={s.group}>
           <p className={s.crit}>{names.get(g.id)}</p>

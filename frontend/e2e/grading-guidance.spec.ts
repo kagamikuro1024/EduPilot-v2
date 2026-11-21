@@ -159,6 +159,22 @@ test("khối «Lưu ý chấm»: «Bản v2 · 3 chờ duyệt»; nhãn «Đã �
   await expect(panel.getByText(/bài đổi điểm/)).toHaveCount(0);
 });
 
+test("khối «Lưu ý chấm»: chưa có lưu ý → «Chưa có lưu ý» một dòng; GET lỗi 500 → báo lỗi + Thử lại, bấm thì tải lại (DEF-R106S-06, US-GD-04 AC9)", async ({ page, context }) => {
+  await openDrawer(page, context, () => overview({ items: [], counts: {}, current_version: 0 }), {}, true);
+  await expect(page.locator("[data-part=guidance-panel] [data-ep-empty]")).toHaveText("Chưa có lưu ý");
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+
+  let fail = true;
+  const api = await openDrawer(page, context, () => overview(), { "GET assignments/:id/guidance": (r) => (fail ? r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) : r.fulfill(json(overview()))) }, true);
+  const dlg = page.getByRole("dialog");
+  await expect(dlg.getByRole("button", { name: "Thử lại" })).toBeVisible();
+  fail = false;
+  const before = api.calls.length;
+  await dlg.getByRole("button", { name: "Thử lại" }).click();
+  await expect.poll(() => api.calls.length).toBeGreaterThan(before);
+  await expect(page.locator("[data-part=guidance-panel]")).toContainText("Bản v1");
+});
+
 test("lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm»", async ({ page, context }, info) => {
   desktopOnly(info);
   await openDrawer(page, context, () => overview({ enabled: false }));
