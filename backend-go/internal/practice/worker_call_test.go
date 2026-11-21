@@ -32,7 +32,7 @@ func (s *seqLLM) Structured(context.Context, llm.Request, json.RawMessage) (json
 // TestWorkerCallOverloaded — US-P9-02 AC / TC-02-14, TC-03-08 (DEF-R10S-12): quá tải → thử lại đúng 2 lần (tổng 3 lời gọi, chờ 2 s rồi 5 s) → «Chưa trích được. Thử lại.» (OVERLOADED); lỗi khác không thử lại.
 func TestWorkerCallOverloaded(t *testing.T) {
 	over := &llm.ErrOverloaded{RetryAfter: time.Second}
-	require.Equal(t, []time.Duration{2 * time.Second, 5 * time.Second}, practice.DefaultRetryWait)
+	require.Equal(t, []time.Duration{2 * time.Second, 5 * time.Second}, practice.DefaultRetryWait())
 	fast := []time.Duration{time.Millisecond, time.Millisecond}
 
 	for _, tc := range []struct {

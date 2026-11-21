@@ -93,6 +93,14 @@ func (r *runner) practiceScenarios(x examRig) {
 	r.must(call{method: "GET", path: A, token: x.gv}, 403)
 	r.must(call{method: "GET", path: A, token: sv2}, 404) // lượt của người khác
 	r.must(call{method: "GET", path: p + "/attempts/" + uuid.NewString(), token: x.sv}, 404)
+	// lớp của lượt (DEF-R10S-20): chỉ chủ lượt; người khác / không có / id sai → 404; vai khác → 403; chưa đăng nhập → 401
+	my := "/api/v1/me/practice/attempts/"
+	r.must(call{method: "GET", path: my + att.ID, token: x.sv}, 200)
+	r.must(call{method: "GET", path: my + att.ID}, 401)
+	r.must(call{method: "GET", path: my + att.ID, token: x.gv}, 403)
+	r.must(call{method: "GET", path: my + att.ID, token: sv2}, 404)
+	r.must(call{method: "GET", path: my + uuid.NewString(), token: x.sv}, 404)
+	r.must(call{method: "GET", path: my + "khong-phai-uuid", token: x.sv}, 404)
 
 	// 8: ghi câu (TOPIC: phản hồi ngay, khoá đáp án).
 	it := att.Items[0]

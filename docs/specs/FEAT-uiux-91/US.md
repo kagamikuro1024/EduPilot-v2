@@ -217,7 +217,7 @@ Căn cứ: plan 9.1 "Hướng chuyển động" (ứng dụng: chỉ chuyển đ
 **ui-empty (chủ dự án 2026-11-14; luật chữ UI 09/10/2026):** trạng thái rỗng = **tiêu đề ngắn + tối đa một hành động**, không câu giải thích; thay luật cũ «nói vì sao rỗng». AC1, AC3, AC6 dưới đây đã sửa theo đó.
 
 ### Tiêu chí nghiệm thu
-- AC1 (hộp thư). Given giảng viên mở `/inbox` với tab "Đang chờ" không có ticket When tải xong Then hiện `EmptyState`: **chỉ** tiêu đề "Chưa có câu hỏi nào cần thầy/cô xử lý.", không câu giải thích, căn giữa vùng danh sách; **không** hiện vùng chi tiết "Chọn một câu hỏi để xem" khi danh sách rỗng; **không** có nút "Xem tất cả" (trùng tab «Tất cả»).
+- AC1 (hộp thư). Given giảng viên mở `/inbox` với tab "Đang chờ" không có ticket When tải xong Then hiện `EmptyState`: **chỉ** tiêu đề «Chưa có câu hỏi cần xử lý» (không dấu chấm; P-11-81), không câu giải thích, căn giữa vùng danh sách; **không** hiện vùng chi tiết "Chọn một câu hỏi để xem" khi danh sách rỗng; **không** có nút "Xem tất cả" (trùng tab «Tất cả»).
 - AC2 (chi tiết hộp thư). Given ticket đang mở When xem chi tiết Then không còn hai hàng "Đã chờ …" và "Trạng thái …" lặp thông tin; tuổi ticket hiện một lần cạnh tên sinh viên.
 - AC3 (hàng chờ chấm). Given `/grading` chưa có bài nộp When tải xong Then `EmptyState`: "Chưa có bài nộp." + nút `Tải bài lên` (nếu có quyền); không câu giải thích.
 - AC4 (sổ điểm trống). Given lớp chưa có công thức When mở `/gradebook` Then `EmptyState` có một nút chính `Thiết lập công thức`; câu nhỏ "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường." không còn ở trạng thái rỗng (nếu cần, đặt ở chân bảng khi **có** dữ liệu, một dòng `meta`).

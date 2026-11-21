@@ -484,3 +484,21 @@ func TestStemKey(t *testing.T) {
 	require.Equal(t, "3.14 là giá trị của số pi", practice.StemKey("3.14 là giá trị của số pi?"))
 	require.Equal(t, "3-way handshake gồm mấy bước", practice.StemKey("3-way handshake gồm mấy bước?"))
 }
+
+// DEF-R10S-20: AttemptCourse trả lớp của lượt của CHÍNH người gọi (một truy vấn, không dò từng lớp); người khác / không có → 404.
+func TestAttemptCourse(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	sv, other := r.student(), r.student()
+	r.approved("Mạng", 12)
+	v, _, err := r.svc.Start(t.Context(), sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng"}, uuid.Nil)
+	require.NoError(t, err)
+
+	got, err := r.svc.AttemptCourse(t.Context(), sv, v.ID)
+	require.NoError(t, err)
+	require.Equal(t, r.course, got)
+	_, err = r.svc.AttemptCourse(t.Context(), other, v.ID)
+	require.Equal(t, 404, status(t, err))
+	_, err = r.svc.AttemptCourse(t.Context(), sv, uuid.New())
+	require.Equal(t, 404, status(t, err))
+}

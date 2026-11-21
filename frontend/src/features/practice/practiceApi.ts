@@ -76,6 +76,8 @@ export const startPractice = (c: string, body: { mode: Mode; topic?: string; cou
   apiClient.post<PAttempt>(`${pPath(c)}/start`, body, { headers: tabH(tab), idempotencyKey: key });
 export const getAttempt = (c: string, id: string, clock: ExamClock | null, tab?: string, signal?: AbortSignal) =>
   timed(clock, () => apiClient.get<PAttempt>(`${pPath(c)}/attempts/${id}`, { headers: tabH(tab), signal })).then((r) => r.data);
+/** Lớp của lượt của chính mình: MỘT request thay vì dò từng lớp của sinh viên (luật 13, DEF-R10S-20). */
+export const locateAttempt = (id: string, signal?: AbortSignal) => apiClient.get<{ course_id: string }>(`/me/practice/attempts/${id}`, { signal }).then((r) => r.data.course_id);
 export const patchIndex = (c: string, id: string, tab: string, index: number) => apiClient.patch(`${pPath(c)}/attempts/${id}`, { current_index: index }, { headers: tabH(tab) });
 export const submitAttempt = (c: string, id: string, key: string) => apiClient.post<PAttempt>(`${pPath(c)}/attempts/${id}/submit`, undefined, { idempotencyKey: key }).then((r) => r.data);
 

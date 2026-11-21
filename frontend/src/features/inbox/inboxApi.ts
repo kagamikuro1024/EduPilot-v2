@@ -27,6 +27,14 @@ export const ticketsKey = ["tickets"] as const;
 export const useTicketList = (courseId: string, f: InboxFilter) =>
   useCursorList<TicketRow>([...ticketsKey, "list", courseId, f], courseId === "all" ? "/me/tickets" : `/courses/${courseId}/tickets`, { limit: 30, query: { status: API_STATUS[f] } });
 
+/** Lớp (hoặc "all") có phiếu nào không, bất kể bộ lọc — chỉ hỏi khi bộ lọc đang rỗng, để phân biệt «lớp chưa có câu hỏi» với «bộ lọc rỗng». */
+export const useHasAnyTicket = (courseId: string, enabled: boolean) =>
+  useQuery({
+    queryKey: [...ticketsKey, "any", courseId],
+    enabled,
+    queryFn: async ({ signal }) => ((await apiClient.get<{ items: unknown[] }>(courseId === "all" ? "/me/tickets" : `/courses/${courseId}/tickets`, { signal, query: { status: API_STATUS.all, limit: 1 } })).data.items.length > 0),
+  });
+
 export const useTicketDetail = (course: string | undefined, id: string | undefined) =>
   useQuery({
     queryKey: [...ticketsKey, "one", course, id],

@@ -38,6 +38,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Get(q+"/gen-stats", h.genStats)
 	r.With(teacher).Post("/courses/{id}/forms-import/preview", h.formsPreview)
 	r.With(teacher, h.Idem).Post("/courses/{id}/forms-import", h.formsImport)
+	r.With(auth.RequireRole(auth.RoleStudent)).Get("/me/practice/attempts/{aid}", h.attemptCourse)
 	const p = "/courses/{id}/practice"
 	r.With(student).Get(p+"/overview", h.overview)
 	r.With(student, h.Idem).Post(p+"/start", h.start)
@@ -151,6 +152,28 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	}
 	noStore(w)
 	httpx.WriteJSON(w, http.StatusOK, v)
+}
+
+// attemptCourse: `GET /me/practice/attempts/{aid}` → `{course_id}` của lượt của chính mình (không dò từng lớp ở trình duyệt).
+func (h *Handler) attemptCourse(w http.ResponseWriter, r *http.Request) {
+	p := auth.MustFromContext(r.Context())
+	user, err := uuid.Parse(p.Sub)
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusUnauthorized, apierr.Unauthenticated))
+		return
+	}
+	aid, err := uuid.Parse(chi.URLParam(r, "aid"))
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	}
+	course, err := h.Svc.AttemptCourse(r.Context(), user, aid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	noStore(w)
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{"course_id": course.String()})
 }
 
 // patchIn là thân `PATCH …/attempts/{aid}`.

@@ -9,7 +9,7 @@ import { timeAgo } from "@/shared/lib/timeAgo";
 import { useSession } from "@/shared/session/session";
 import { ActionList, ActionRow, Button, Composer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, SegmentedControl, Skeleton, Split, StatusText } from "@/shared/ui";
 import { KnowledgeBox } from "./KnowledgeBox";
-import { ticketsKey, useTicketDetail, useTicketList, waitLabel, type InboxFilter, type TicketDetail, type TicketRow, type TicketStatus } from "./inboxApi";
+import { ticketsKey, useHasAnyTicket, useTicketDetail, useTicketList, waitLabel, type InboxFilter, type TicketDetail, type TicketRow, type TicketStatus } from "./inboxApi";
 import s from "./RealInbox.module.css";
 import { formatTime } from "@/shared/lib/datetime";
 
@@ -114,6 +114,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
     />
   );
   const hasRows = rows.length > 0 || !!selected;
+  const anyTicket = useHasAnyTicket(courseId, !hasRows && list.isSuccess && filter !== "all");
 
   return (
     <Page kind="work">
@@ -166,7 +167,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
           <Panel>
             <div className={s.bare}>
               {filterBar}
-              <EmptyState title="Chưa có câu hỏi cần xử lý" />
+              {(filter === "all" || !anyTicket.isPending) && <EmptyState title={anyTicket.data ? "Không có câu hỏi trong bộ lọc này" : "Chưa có câu hỏi cần xử lý"} />}
             </div>
           </Panel>
         )}
