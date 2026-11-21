@@ -214,6 +214,7 @@ export function RealChat({ courseId }: { courseId: string }) {
         fill
         detailOpen
         listCollapsed={collapsed || noSessions || sessions.isError}
+        pending={sessions.isPending}
         main={
           <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
             <div className={r.historyHead}>

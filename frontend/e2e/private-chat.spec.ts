@@ -28,6 +28,20 @@ test("layout / empty: một Panel, gợi ý bấm được, không nút nhờ gi
   expect(await page.locator("[data-part=chat-thread]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
 });
 
+// DEF-R5-19 (TC-PU06-11, US-PU-06 AC1): lớp chưa có phiên nào — cột phiên không được hiện rồi biến mất khi danh sách về chậm (CLS ≤ 0,1).
+test("CLS: danh sách phiên về chậm và rỗng không làm cột chi tiết dịch (layout-shift ≤ 0,1)", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 });
+  await page.addInitScript(() => {
+    (window as unknown as { __cls: number }).__cls = 0;
+    new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean }>) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+  });
+  await chatApi(page, { "GET /chat/sessions": async (r) => { await new Promise((ok) => setTimeout(ok, 500)); await r.fulfill(json({ items: [], next_cursor: null })); } });
+  await page.goto("/chat");
+  await page.locator("[data-part=chat-thread]").waitFor();
+  await page.waitForTimeout(800);
+  expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThanOrEqual(0.1);
+});
+
 test("10.7 X1: danh sách phiên lỗi → đúng một thông báo lỗi có «Thử lại»", async ({ page, context }) => {
   await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 });
   await chatApi(page, { "GET /chat/sessions": json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500) });
