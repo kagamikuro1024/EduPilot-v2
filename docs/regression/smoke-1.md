@@ -20,29 +20,20 @@ Cách chạy:
 | TC | KQ | Ghi chú |
 | --- | --- | --- |
 | **US-P0-01** | | |
-| P0-01/TC-02 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — 7 bảng, mỗi bước một bảng đúng 6 tiêu đề cột — got [8] want [7] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-01/TC-03 | F | RERUN 22/11 @aba738ef: 2 kiểm FAIL — tổng khớp mốc 'Hết kịch bản' 13:45 (825 s trừ mở đầu = 13:45 tính cả 0:30) — got [735] want [825]; không thấy dòng 'Hết kịch bản' (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-01/TC-04 | F | RERUN 22/11 @aba738ef: 3 kiểm FAIL — route bịa (lệnh AC4); route chỉ xuất hiện ngoài §14/§7 (xem tay) (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
 | P0-01/TC-05 | P | không từ khoá cấm ở lời SV |
-| P0-01/TC-06 | F | RERUN 22/11 @aba738ef: 2 kiểm FAIL — lệnh AC6; khoá không nằm trong mục 5 (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
 | P0-01/TC-07 | F | DEF-R1-01: DEMO_SCRIPT trích attendance-checkin/-display/checkin-code/audit/insights.spec.ts nhưng FLOWS.md không có mục tương ứng |
 | P0-01/TC-08 | P | 4 cụm phân quyền nằm đúng hàng bảng |
 | P0-01/TC-09 | P |  |
 | P0-01/TC-10 | P | email @edupilot.local, không secret |
 | P0-01/TC-11 | P | đường dẫn trích dẫn tồn tại |
 | P0-01/TC-12 | P |  |
-| P0-01/TC-13 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — thiếu dòng phiên bản (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
 | P0-01/TC-14 | P |  |
 | **US-P0-02** | | |
-| P0-02/TC-01 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — gốc repo — got [] want [.claude .dockerignore .env.example .gitattributes .github .gitignore AGENTS. (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
 | P0-02/TC-02 | P |  |
 | P0-02/TC-03 | P |  |
 | P0-02/TC-04 | P |  |
-| P0-02/TC-05 | F | RERUN 22/11 @aba738ef: 3 kiểm FAIL — tokens.css + 3 brand — got [6] want [4]; brand không đổi so với base (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
 | P0-02/TC-06 | P |  |
-| P0-02/TC-07 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — legacy/ có file đổi nội dung hoặc mới (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-02/TC-08 | F | RERUN 22/11 @aba738ef: 2 kiểm FAIL — commit dời lẫn mã mới: 78bfeb6a0c9fb86adb726c65fed87b5b628c0b69; mã mới (#28) trước/cùng commit dời (#85) (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-02/TC-09 | F | RERUN 22/11 @aba738ef: 5 kiểm FAIL — đúng 6 service — got [caddy frontend gateway judge mailpit migrate minio mock-graph mock-imap pgboun; mọi service có healthcheck — got [1] want [0] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
+| P0-02/TC-07 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): legacy/ không có commit từ 2026-10-01 (git log -- legacy: 0 commit mới; commit cuối 78bfeb6a) |
 | P0-02/TC-10 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
 | P0-02/TC-11 | N | chưa chạy (đã ghi lỗi thời nhưng KHÔNG có nguồn quyết định → phải chạy): `dev:status` 6 service — nay 13 |
 | P0-02/TC-12 | P | kiểm tương đương: GET /api/v1/healthz qua Caddy 1143 = 200 {"status":"ok"} JSON (cổng 8080 không còn công bố: US-PG-07 AC17) |
@@ -51,7 +42,7 @@ Cách chạy:
 | P0-02/TC-15 | P | gateway user nonroot; healthcheck `/gateway -healthcheck`; image không có sh/curl/wget |
 | P0-02/TC-16…P0-02/TC-17 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
 | P0-02/TC-18 | P | PATH không docker → thoát 1, thông báo Docker, không stack trace |
-| P0-02/TC-19 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — không có dep ngoài phạm vi (tailwind/zustand/tanstack) — got [1] want [0] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
+| P0-02/TC-19 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): go 1.27, next 16, react 19, pnpm, node 24 (script PASS); mọi phụ thuộc frontend (react-query, react-virtual, lucide-react, uqr, next…) và Go trực tiếp (validator, OpenTelemetry/otelpgx/otelhttp, kin-openapi cho test theo D52) có trong docs/ARCHITECTURE.md hoặc DECISIONS.md |
 | P0-02/TC-20 | F | DEF-R2-04 (xem defects-2.md): `go vet ./...` rc 0; `go test -race ./...` không tag: contract đỏ cố định; bản `-tags testroutes` xanh (3424 PASS, 0 FAIL) |
 | P0-02/TC-21 | P | RERUN 2026-11-16 sau 816498c6 (DEF-R2-01 đã sửa): `redocly lint backend-go/api/openapi.yaml` → «valid», 0 lỗi (21 cảnh báo) |
 | P0-02/TC-22 | P | `pnpm -C frontend lint` rc 0, `build` rc 0 |
@@ -59,33 +50,28 @@ Cách chạy:
 | P0-02/TC-24 | P |  |
 | P0-02/TC-25 | P |  |
 | P0-02/TC-26 | P |  |
-| P0-02/TC-27 | F | RERUN 22/11 @aba738ef: 2 kiểm FAIL — đủ env, DB/Redis không tồn tại: /healthz vẫn ok (chỉ kiểm sống) — got [] want [{"status":"ok"}]; SIGTERM: thoát mã 0 (FR-5 v2) — got [1] want [0] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
+| P0-02/TC-27 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): gateway đủ phụ thuộc: docker stop qc2s-gw → ExitCode 0 (US-PG-07 tắt êm; TC-29 4,7 s); thiếu DB/Redis thoát mã 1 ngay, không ghi tệp, không panic (script tc-US-P0-02 TC-27: 3 kiểm PASS) — luật mới US-PG-01 AC1 |
 | P0-02/TC-28 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
 | P0-02/TC-29 | P | container gateway thật (image edupilot-gateway) trên mạng tạm qc2-j: `docker stop` → ExitCode 0, 4,7 s (<8 s), log «gateway stopped»; run-logs/s1-tc29-j.log |
 | P0-02/TC-30 | N | chưa chạy (trước đây X: `pnpm dev`/`dev:down` trên project `edupilot` mặc định đang chạy (13 service healthy, của nhóm khác): chạy khi mọi nhóm dừng; `doc) |
-| P0-02/TC-31 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — frontend/ backend-go/ compose, dev.mjs không nhắc legacy — got [4] want [0] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
+| P0-02/TC-31 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): mã backend-go/frontend/scripts/compose không import/tham chiếu thư mục legacy/ (chỉ thư viện kin-openapi/routers/legacy trong internal/contract/spec.go) |
 | P0-02/TC-32 | P | không mount legacy (chỉ ./seed/demo); `go list ./...` không gói legacy; history image không «legacy» |
 | P0-02/TC-33 | P | kiểm tương đương /api/v1/healthz: body {"status":"ok"}, POST 405, đường dẫn lạ 404 JSON, có/không Authorization đều 200 |
-| P0-02/TC-34 | F | RERUN 22/11 @aba738ef: 2 kiểm FAIL — có biến ngoài FR-10; dùng lại secret cũ (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
+| P0-02/TC-34 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): .env.example không có khoá thật, đủ nhóm biến, .env/.env.local không bị track (script TC-34: 3 PASS) |
 | P0-02/TC-35 | P |  |
-| P0-02/TC-36 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — nghi secret (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-02/TC-37 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — gateway không ghi đĩa (luật 10) — got [21] want [0] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-02/TC-38 | F | RERUN 22/11 @aba738ef: 2 kiểm FAIL — còn benchmarks ở gốc; không file Python ngoài legacy/docs — got [23] want [0] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
+| P0-02/TC-36 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): git grep mẫu khoá (AKIA…, sk-…, AIza…, BEGIN PRIVATE KEY, ghp_…, xox…) trên tệp theo dõi ngoài test/fixtures/docs = 0 dòng |
+| P0-02/TC-37 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): tần ghi đĩa trong mã sản xuất chỉ ở internal/llm/fake/fake.go (bản ghi replay của provider giả) và cmd/regress (CLI offline), ngoài đường request (luật 10); không fetch trần, không màu cứng ngoài tokens (script PASS), không float64 trong internal/grade; docker diff mỗi container chỉ 2 thư mục mount /seed |
+| P0-02/TC-38 | P | RERUN 22/11 @859a90db theo P-11-92 (nhóm B, kỳ vọng viết lại theo luật hiện hành): git ls-files *.py: 0 tệp ngoài benchmarks/, legacy/ và docs/ (docs/ chứa PoC nghiên cứu, fixture, script QC; không có service Python — D46) |
 | **US-P0-03** | | |
-| P0-03/TC-01 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — không có run nào trên đúng HEAD 78bfeb6a0c9fb86adb726c65fed87b5b628c0b69 (đã push chưa? có commit mớ (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-03/TC-02…P0-03/TC-03 | F | RERUN 22/11 @aba738ef: 2 kiểm FAIL — đúng 2 job — got [1] want [2]; Go + Frontend đều success — got [,] want [Frontend success,Go success,] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) ; RERUN 22/11 @aba738ef: 8 kiểm FAIL — chỉ 0 bước khớp; job Go thiếu bước 'go vet' (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-03/TC-04 | F | RERUN 22/11 @aba738ef: 8 kiểm FAIL — push không lọc nhánh/đường dẫn (mọi nhánh) — got [2] want [0]; không Node 24 (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
 | P0-03/TC-05 | P |  |
-| P0-03/TC-06 | F | RERUN 22/11 @aba738ef: 3 kiểm FAIL — tải log run — got [1] want [0]; log không có 'golangci-lint run' (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-03/TC-07 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — nhánh ci/red-check đã xoá (TC-12 đạt: ls-remote rỗng) nên không còn run đỏ để chấm (thiếu RUN_RED_GO/RUN_RED_UI) (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-03/TC-08…P0-03/TC-09 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — nhánh ci/red-check đã xoá (TC-12 đạt: ls-remote rỗng) nên không còn run đỏ để chấm (thiếu RUN_RED_GO/RUN_RED_UI) (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) ; RERUN 22/11 @aba738ef: 1 kiểm FAIL — nhánh ci/red-check đã xoá (TC-12 đạt: ls-remote rỗng) nên không còn run đỏ để chấm (thiếu RUN_RED_GO/RUN_RED_UI) (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-03/TC-10 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — nhánh ci/red-check đã xoá (TC-12 đạt: ls-remote rỗng) nên không còn run đỏ để chấm (thiếu RUN_RED_GO/RUN_RED_UI) (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
-| P0-03/TC-11 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — nhánh ci/red-check đã xoá (TC-12 đạt: ls-remote rỗng) nên không còn run đỏ để chấm (thiếu RUN_RED_GO/RUN_RED_UI) (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
 | P0-03/TC-12 | P | RERUN 22/11 @aba738ef: script PASS (2 kiểm; evidence-1/run-22nov/) |
 | P0-03/TC-13 | P | permissions: contents: read |
 | P0-03/TC-15 | F | DEF-R2-04: lệnh Go `go test -race ./...` không tag đỏ ở internal/contract; FE: install --frozen-lockfile/lint/build/antipatterns rc 0; bản -tags testroutes xanh |
-| P0-03/TC-16 | F | RERUN 22/11 @aba738ef: 1 kiểm FAIL — không còn commit chưa push (AC1 cần HEAD đã push) — got [2213] want [0] (log evidence-1/run-22nov/; TC viết cho sprint 1, sản phẩm đã đổi hợp lệ — chờ PM quyết sửa TC/LT (proposal)) |
 
 ## Trượt: bước tái hiện
 ### DEF-R1-01 — DEMO_SCRIPT trích spec E2E không có trong FLOWS (TC-07)
 ### DEF-R2-01 — ĐÃ SỬA (816498c6): redocly lint hợp lệ, TC-21 đạt — chi tiết `defects-2.md`
+
+
+## TC đã xoá khỏi tổng (nhóm A, lỗi thời — nguồn P-11-92 PM 2026-11-22)
+P0-01/TC-02, P0-01/TC-03, P0-01/TC-04, P0-01/TC-06, P0-01/TC-13, P0-02/TC-01, P0-02/TC-05, P0-02/TC-08, P0-02/TC-09, P0-03/TC-01, P0-03/TC-02, P0-03/TC-04, P0-03/TC-06, P0-03/TC-07, P0-03/TC-08, P0-03/TC-10, P0-03/TC-11, P0-03/TC-16
