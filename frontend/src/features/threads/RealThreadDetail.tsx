@@ -186,7 +186,7 @@ function Reply({ courseId, threadId, canChat }: { courseId: string; threadId: st
     <form className={r.composer} onSubmit={(e) => { e.preventDefault(); if (draft.value.trim()) void gate.submit(false); }} data-part="reply-form">
       <Field label="Bình luận">{(fid) => <Textarea id={fid} rows={3} value={draft.value} onChange={(e) => draft.setValue(e.target.value)} />}</Field>
       {gate.check && !gate.check.allowed && <p className={r.noticeLine} role="status" data-part="pii-notice">Phát hiện {describeReasons(gate.check.reasons)}</p>}
-      {gate.error && <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Gửi lại</Button>}>{gate.error.userMessage}</InlineNotice>}
+      {gate.error && <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Đăng lại</Button>}>{gate.error.userMessage}</InlineNotice>}
       <div className={r.actions}>
         <Button type="submit" variant="primary" disabled={!draft.value.trim() || gate.pending}>Đăng</Button>
         {draft.status === "saved" && <StatusText>Đã lưu nháp</StatusText>}

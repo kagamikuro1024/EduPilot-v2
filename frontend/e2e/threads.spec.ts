@@ -154,6 +154,13 @@ test("switch keeps text: Chuyển sang chat riêng giữ đúng từng byte, m�
   await expect(page.getByRole("textbox", { name: "Câu hỏi của bạn" })).toHaveValue(body);
 });
 
+test("SRS wording (DEF-R6-U2): hộp thoại chặn PII đề «Bài viết có thông tin cá nhân»", async ({ page, context }) => {
+  await openList(page, context, { [`POST ${T}`]: piiBlocked });
+  await fillForm(page, "Hỏi", "Câu hỏi có MSSV 20229001");
+  await page.locator("[data-part=thread-form]").getByRole("button", { name: "Đăng" }).click();
+  await expect(page.getByRole("dialog", { name: "Bài viết có thông tin cá nhân" })).toBeVisible();
+});
+
 test("personal question: Ẩn thông tin rồi đăng bị khoá, còn Chuyển sang chat riêng", async ({ page, context }) => {
   await openList(page, context, { [`POST ${T}`]: err(422, "PII_DETECTED", { reasons: [{ type: "PERSONAL_QUESTION", count: 1 }], redacted_text: "x", redacted_title: "", personal_question: true }) });
   await fillForm(page, "Điểm", "Em được mấy điểm giữa kỳ?");
@@ -172,7 +179,7 @@ test("offline keeps draft: mất mạng giữ chữ, gửi lại cùng khoá; re
   await expect(page.getByRole("alert").filter({ hasText: /kết nối/i })).toBeVisible();
   await expect(page.getByLabel(/Nội dung/)).toHaveValue("Câu hỏi sạch về Điều 5");
   offline = false;
-  await page.getByRole("button", { name: "Gửi lại" }).click();
+  await page.getByRole("button", { name: "Đăng lại" }).click(); // P-11-78: SRS FEAT-private-chat-pii §7 «Đăng lại»
   await expect(page.locator("[data-part=thread-form]")).toHaveCount(0);
   const posts = calls.filter((c) => c.method === "POST" && c.path === T);
   expect(new Set(posts.map((c) => c.headers["idempotency-key"])).size).toBe(1);

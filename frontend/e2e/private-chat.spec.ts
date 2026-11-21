@@ -127,6 +127,29 @@ test("overloaded retry: có dòng thời gian chờ + Thử lại, không thêm 
   expect(await page.locator("[data-part=chat-thread]").getByText("hỏi", { exact: true }).count()).toBeLessThanOrEqual(bubbles);
 });
 
+test("mask failed (DEF-R6-U5): lỗi che thông tin hiện «Chưa gửi được tin nhắn. Thử lại.»", async ({ page, context }) => {
+  await open(page, context, {
+    "GET /chat/sessions": json({ items: [], next_cursor: null }),
+    "POST /chat/sessions": json(session(), 201),
+    [`POST /chat/sessions/${SID}/messages`]: (r) => r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("error", { code: "MASK_FAILED", message: "m" }, "1:2-0"))),
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: [msg({ content: "", stream_status: "FAILED", error_code: "MASK_FAILED", citations: [] }), msg({ id: "u1", role: "USER", content: "hỏi", citations: [] })], next_cursor: null })),
+  });
+  await composer(page).fill("hỏi");
+  await composer(page).press("Enter");
+  await expect(page.getByText("Chưa gửi được tin nhắn. Thử lại.")).toBeVisible();
+});
+
+test("chat unavailable (DEF-R6-U6): 503 CHAT_UNAVAILABLE hiện «Chat chưa dùng được lúc này. Thử lại sau ít phút.»", async ({ page, context }) => {
+  await open(page, context, {
+    "GET /chat/sessions": json({ items: [], next_cursor: null }),
+    "POST /chat/sessions": json(session(), 201),
+    [`POST /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ code: "CHAT_UNAVAILABLE", message: "m", trace_id: "b".repeat(32), details: { retry_after: 30 } }, 503)),
+  });
+  await composer(page).fill("hỏi");
+  await composer(page).press("Enter");
+  await expect(page.getByText("Chat chưa dùng được lúc này. Thử lại sau ít phút.").first()).toBeVisible();
+});
+
 test("exam lock: ô soạn khoá kèm giờ mở lại, không nêu tên bài thi, nháp không mất", async ({ page, context }) => {
   await asDemo(context, "student", { person: "sv-2" });
   const until = new Date(Date.now() + 40 * 60_000).toISOString();

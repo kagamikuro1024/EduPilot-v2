@@ -239,6 +239,8 @@ func errorText(code string) string {
 		return "Câu trả lời bị gián đoạn."
 	case "OVERLOADED":
 		return "AI đang bận."
+	case "MASK_FAILED":
+		return "Chưa gửi được tin nhắn. Thử lại."
 	default:
 		return "AI đang gián đoạn. Thử lại sau."
 	}
