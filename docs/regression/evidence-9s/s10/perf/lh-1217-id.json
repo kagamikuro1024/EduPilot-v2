@@ -2,35 +2,27 @@
  {
   "path": "/practice/[id]",
   "method": "devtools",
-  "lcp_ms": 18164,
-  "tbt_ms": 35,
+  "lcp_ms": 18436,
+  "tbt_ms": 50,
   "script_kb": 218,
   "lcp_all": [
-   18164,
-   18139,
-   18292
+   18436
   ],
   "tbt_all": [
-   35,
-   29,
-   51
+   50
   ]
  },
  {
   "path": "/practice/[id]",
   "method": "simulate",
-  "lcp_ms": 3154,
-  "tbt_ms": 19,
-  "script_kb": 218,
+  "lcp_ms": 3173,
+  "tbt_ms": 27,
+  "script_kb": 219,
   "lcp_all": [
-   3156,
-   3153,
-   3154
+   3173
   ],
   "tbt_all": [
-   17,
-   19,
-   22
+   27
   ]
  }
 ]
