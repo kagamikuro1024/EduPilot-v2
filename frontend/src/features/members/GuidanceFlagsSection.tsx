@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { useUndoableAction } from "@/shared/data";
+import { ApiError, useUndoableAction } from "@/shared/data";
 import { Section, Skeleton, StatusText, Switch } from "@/shared/ui";
 import { flagsKey, setGuidanceFlag, useGuidanceFlags, type GuidanceFeature, type GuidanceFlag } from "@/features/assignments/guidanceApi";
 import s from "./ClassSettings.module.css";
@@ -20,11 +20,24 @@ function FlagRow({ courseId, flag }: { courseId: string; flag: GuidanceFlag }) {
   const qc = useQueryClient();
   const [on, setOn] = useState(flag.enabled); // lạc quan: hiện ngay, lùi nếu máy chủ từ chối
   const ver = useRef(flag.version);
+  const fresh = useRef<boolean | null>(null); // giá trị máy chủ vừa trả sau 409: hàng lùi về ĐÚNG giá trị đó, không đoán «ngược lại»
   const undo = useUndoableAction<boolean>({
     apply: (next) => setOn(next),
-    rollback: (next) => setOn(!next),
+    rollback: (next) => {
+      setOn(fresh.current ?? !next);
+      fresh.current = null;
+    },
     commit: async (next) => {
-      ver.current = (await setGuidanceFlag(courseId, flag.feature, next, ver.current)).version;
+      try {
+        ver.current = (await setGuidanceFlag(courseId, flag.feature, next, ver.current)).version;
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 409) { // người khác vừa sửa: tải lại hàng (giá trị + version), báo tại chỗ (US-GD-01 AC6)
+          await qc.invalidateQueries({ queryKey: flagsKey(courseId) });
+          const row = qc.getQueryData<GuidanceFlag[]>(flagsKey(courseId))?.find((f) => f.feature === flag.feature);
+          if (row) { ver.current = row.version; fresh.current = row.enabled; }
+        }
+        throw e;
+      }
     },
     compensate: async (next) => {
       ver.current = (await setGuidanceFlag(courseId, flag.feature, !next, ver.current)).version;
