@@ -109,6 +109,7 @@ class H(BaseHTTPRequestHandler):
             self.send_response(200); self.send_header("content-type", "application/json"); self.end_headers(); self.wfile.write(json.dumps(out).encode()); return
         if mode == "error":
             self.send_response(500); self.end_headers(); self.wfile.write(b'{"error":{"message":"stub error"}}'); return
+        if mode.endswith("_slow"): time.sleep(7); mode = mode[:-5]
         if mode == "slow": time.sleep(12)
         msgs = body.get("messages", [])
         system = " ".join(m.get("content", "") for m in msgs if m.get("role") == "system")
