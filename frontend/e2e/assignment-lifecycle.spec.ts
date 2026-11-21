@@ -828,6 +828,24 @@ test("queue: lọc «Cần xem kỹ» người dùng đã tắt GIỮ khi sang t
   await expect(flag()).toHaveAttribute("aria-pressed", "true");
 });
 
+test("queue: người khác duyệt bớt bài → hàng chờ làm mới khi cửa sổ lấy lại tiêu điểm / tab hiện lại, không cần tải lại (DEF-R106S-21)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let others = false;
+  const rowsAll = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, {
+    rows: rowsAll,
+    h: { "GET submissions": (route, next) => (others ? route.fulfill(j({ items: rowsAll.slice(0, 1), next_cursor: null })) : next(route)) },
+  });
+  const count = page.locator("[data-part=queue-count]");
+  await expect(count).toHaveText("2 bài"); // lọc «Cần xem kỹ» + Chưa duyệt của fixture
+  others = true;
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(count).toHaveText("1 bài");
+  others = false;
+  await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+  await expect(count).toHaveText("2 bài");
+});
+
 test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openReview(page, context, { h: { "PUT grading-results/:id": async (r, next) => { await new Promise((res) => setTimeout(res, 600)); return next(r); } } });

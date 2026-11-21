@@ -7,7 +7,7 @@ export const COURSE = "00000000-0000-7000-8000-00000000c001";
 export const A1 = "00000000-0000-7000-8000-0000000a0001";
 export const A2 = "00000000-0000-7000-8000-0000000a0002";
 const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
-const j = (body: unknown, status = 200) => ({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+export const j = (body: unknown, status = 200) => ({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
 const e = (status: number, code: string, details?: unknown) => j({ code, message: code, trace_id: "t", ...(details === undefined ? {} : { details }) }, status);
 
 export type Criterion = { id: string; name: string; max_score: string; guidance: string };

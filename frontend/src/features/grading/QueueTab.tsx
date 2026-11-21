@@ -173,6 +173,23 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
     return () => clearInterval(t);
   }, [waiting, batchRunning, list]);
 
+  // Người khác duyệt / chấm lại không có sự kiện riêng: lấy lại hàng chờ khi cửa sổ lấy lại tiêu điểm hoặc tab hiện ra (DEF-R106S-21; không dựa vào `visibilitychange` của QueryClient vì cửa sổ đổi tiêu điểm không đổi visibility)
+  const refetchRef = useRef(list.refetch);
+  useEffect(() => {
+    refetchRef.current = list.refetch;
+  });
+  useEffect(() => {
+    const again = () => {
+      if (document.visibilityState !== "hidden") void refetchRef.current();
+    };
+    window.addEventListener("focus", again);
+    document.addEventListener("visibilitychange", again);
+    return () => {
+      window.removeEventListener("focus", again);
+      document.removeEventListener("visibilitychange", again);
+    };
+  }, []);
+
   // Lấy bài từ Teams (US-P7-11 AC4): chỉ cho bài có kênh TEAMS; tiến độ và danh sách không lấy được đọc từ cùng một việc.
   const teamsState = useJob(teamsJob);
   const teams = (teamsState.result ?? null) as TeamsSyncResult | null;
