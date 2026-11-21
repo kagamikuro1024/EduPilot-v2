@@ -354,6 +354,27 @@ test("inbox 375 (DEF-R7-05, AC10): ô trả lời dính đáy, nằm ngay trên 
   expect(bottom).toBeLessThanOrEqual(Math.min(pane, vh - 56) + 1);
 });
 
+for (const [w, h] of [[1440, 900], [375, 812]] as const) {
+  test(`inbox empty filter @${w} (DEF-R7-11, P-11-81): bộ lọc «Đã nhận» rỗng khi lớp còn phiếu khác → «Không có câu hỏi trong bộ lọc này»; lớp không có phiếu → «Chưa có câu hỏi cần xử lý»`, async ({ page, context }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await asDemo(context, "teacher");
+    let classHasTickets = true;
+    await page.route("**/api/v1/courses/*/tickets**", (r) => {
+      if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+      const want = new URL(r.request().url()).searchParams.get("status");
+      return r.fulfill(json({ items: classHasTickets && want === "ALL" ? [row(ticket({ status: "ANSWERED" }))] : [], next_cursor: null }));
+    });
+    await page.goto("/inbox");
+    await expect(page.getByText("Không có câu hỏi trong bộ lọc này", { exact: true })).toBeVisible(); // «Đang chờ» rỗng, lớp còn phiếu đã trả lời
+    await page.getByRole("radio", { name: "Đã nhận" }).click();
+    await expect(page.getByText("Không có câu hỏi trong bộ lọc này", { exact: true })).toBeVisible();
+    await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toHaveCount(0);
+    classHasTickets = false;
+    await page.reload();
+    await expect(page.getByText("Chưa có câu hỏi cần xử lý", { exact: true })).toBeVisible();
+  });
+}
+
 test("bell count: số chưa đọc trên chuông, tối đa 9+", async ({ page }) => {
   await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 15 }) });
   await page.goto("/");
