@@ -104,7 +104,9 @@ async function call(method, route, { token, json, form, key, ok = [200, 201, 202
     if (token) headers.Authorization = `Bearer ${token}`;
     if (key) headers["Idempotency-Key"] = key.replace(/[^A-Za-z0-9._:-]/g, "-"); // khoá chỉ nhận [A-Za-z0-9._:-]
     if (json !== undefined) headers["Content-Type"] = "application/json";
-    const res = await fetch(API + route, { method, headers, body: form ?? (json === undefined ? undefined : JSON.stringify(json)), tls: { rejectUnauthorized: false } })
+    const res = await fetch(API + route, { method, headers, body: form ?? (json === undefined ? undefined : JSON.stringify(json)), tls: { rejectUnauthorized: false } }).catch((e) => {
+      throw new Error(`Gateway ${API} chưa sẵn sàng (${e.cause?.code ?? e.message}). Bật stack (pnpm dev) hoặc đặt API_URL, rồi chạy lại.`);
+    });
     let body = null;
     if (res.status !== 204) body = await res.json().catch(() => null);
     vlog(method, route, "→", res.status);
