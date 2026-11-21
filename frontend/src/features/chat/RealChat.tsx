@@ -465,26 +465,30 @@ function Citations({ items }: { items: ChatCitation[] }) {
   if (!items || items.length === 0) return null;
   return (
     <CitationList
-      items={items.map((c) => ({
-        id: String(c.n),
-        title: c.title,
-        page: c.page_no ?? undefined,
-        excerpt: (
-          <>
-            {c.snippet}{" "}
-            {!c.knowledge && (
-              <Link href={`/library/${c.document_id}`} className={s.linkBtn}>
-                Xem tài liệu
-              </Link>
-            )}
-            {c.knowledge && c.thread_id && (
-              <Link href={`/threads/${c.thread_id}`} className={s.linkBtn}>
-                Xem hỏi đáp
-              </Link>
-            )}
-          </>
-        ),
-      }))}
+      items={items.map((c) =>
+        c.removed
+          ? { id: String(c.n), title: "Nguồn đã gỡ" }
+          : {
+              id: String(c.n),
+              title: c.title,
+              page: c.page_no ?? undefined,
+              excerpt: (
+                <>
+                  {c.snippet}{" "}
+                  {!c.knowledge && (
+                    <Link href={`/library/${c.document_id}`} className={s.linkBtn}>
+                      Xem tài liệu
+                    </Link>
+                  )}
+                  {c.knowledge && c.thread_id && (
+                    <Link href={`/threads/${c.thread_id}`} className={s.linkBtn}>
+                      Xem hỏi đáp
+                    </Link>
+                  )}
+                </>
+              ),
+            },
+      )}
     />
   );
 }

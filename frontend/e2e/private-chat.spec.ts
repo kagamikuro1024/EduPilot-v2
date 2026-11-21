@@ -150,6 +150,19 @@ test("chat unavailable (DEF-R6-U6): 503 CHAT_UNAVAILABLE hiện «Chat chưa dù
   await expect(page.getByText("Chat chưa dùng được lúc này. Thử lại sau ít phút.").first()).toBeVisible();
 });
 
+for (const [w, h] of [[1440, 900], [375, 812]] as const) test(`removed source @${w} (DEF-R6-D1, SRS FEAT-docs-calendar 105): mở lại phiên có trích dẫn tài liệu đã xoá → «Nguồn đã gỡ», không tên cũ, không nút mở, không «Xem tài liệu»`, async ({ page, context }) => {
+  await page.setViewportSize({ width: w, height: h });
+  await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 });
+  await chatApi(page, {
+    "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: [msg({ citations: [{ n: 1, document_id: "00000000-0000-7000-8000-0000000000f1", title: "", page_no: null, snippet: "", removed: true }] }), msg({ id: "u1", role: "USER", content: "hỏi", citations: [] })], next_cursor: null })),
+  });
+  await page.goto(`/chat?session=${SID}`);
+  await expect(page.getByText("Nguồn đã gỡ", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Nguồn đã gỡ/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Xem tài liệu" })).toHaveCount(0);
+});
+
 test("exam lock: ô soạn khoá kèm giờ mở lại, không nêu tên bài thi, nháp không mất", async ({ page, context }) => {
   await asDemo(context, "student", { person: "sv-2" });
   const until = new Date(Date.now() + 40 * 60_000).toISOString();
