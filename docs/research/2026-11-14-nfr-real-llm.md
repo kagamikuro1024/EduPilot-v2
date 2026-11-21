@@ -34,21 +34,63 @@ Thiết bị: **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1
 | EXPLAIN 10 truy vấn | ≤ 13,1 ms (1 truy vấn), chín truy vấn ≤ 1,3 ms | – | không cần chỉ mục | `explain.json`, `docs/research/2026-11-14-explain.md` |
 
 ## Từng phép đo
-### (a) 300 người duyệt + 300 SSE + heartbeat 10/s (US-NFR-04 AC1, AC3, AC4)
-Câu hỏi: ở T1 hệ thống có giữ đọc p95 ≤ 300 ms, ghi p95 ≤ 500 ms, SSE đầu ≤ 300 ms, 5xx < 0,5 % không, và nhân đôi gateway / worker có đổi gì không. Phương pháp: `node benchmarks/load/run-t1.mjs browse [--tag x2]`, 5 phút, k6 trong VM, 300 SV rải 20 lớp, tỉ lệ đọc : ghi ≈ 20 : 1, thêm 1 yêu cầu/giây của SV gọi `gradebook` (phải 403). Kết quả: xem bảng. Giới hạn: provider giả; k6 và stack chung 6 vCPU.
-### (b) chat (AC5)
-`chat-first_event` (50 luồng, provider giả trễ 5–15 s) và `chat-ttft` (20 luồng, 300 ms). Sự kiện đầu p95 66,9 ms (×1) và 118,9 ms (×2); TTFT cache p95 103,8 / 102,3 ms; TTFT RAG p95 633,9 / 626,4 ms. Ghi riêng hai nhóm theo yêu cầu.
-### (c) chấm bài khi chat (AC2)
-`grading-baseline` rồi `grading-grading` cùng một lần chạy cấu hình: TTFT chat p95 lúc nền 410 ms, lúc chấm 381 ms (×1); 415 và 401 ms (×2). 50 bài BT4 lớp T1-01, hai lượt mỗi bài. **Chấm 1.000 bài thời gian thật** (AC9, 9router `ag/gemini-3.8-flash`, 20 lớp, 5 luồng): lần 1 **FAIL**: 322/1.000 xong, 678 `FAILED` sau 0,55 h, 0 mồ côi, 0 chấm hai lần (`load-c-1000-9router-run1-hong.json`; nguyên nhân: 9router bị khởi động lại giữa lượt → mạch LLM mở → hàng đợi hết lượt thử, sửa ở P-11-23, xem `docs/sprints/9.5/report.md` mục 2). Lần 2 **PASS**: 1.000/1.000, 0 `FAILED`, 0 mồ côi, 0 chấm hai lần, 1,68 h (`load-c-1000-9router-run2.json`). Lần Gemini trực tiếp trước đó dừng theo chủ dự án ở 235/1.000 (`load-c-1000-dung-theo-chu-du-an.json`).
-### (d) dashboard (AC1)
-`dashboard` 2 phút, 5 người, giảng viên đọc Hôm nay / danh sách SV / sổ điểm / hồ sơ 360: p95 18,3 ms (SLO 3.000 ms). Bảng truy vấn nặng nhất rút ra từ kịch bản này ở `docs/research/2026-11-14-explain.md`.
-### Baseline (US-NFR-07)
-RAM nghỉ 570 MiB cả stack (postgres 330 MiB), image gateway 17,7 MB, worker 16,7 MB, frontend 96,2 MB, khởi động lạnh trung vị 18,1 s; 13 endpoint tuần tự × 200: mọi đọc p95 ≤ 11,0 ms, ghi lớn nhất `w_thread` 327,5 ms. Lighthouse: bản build production, đăng nhập thật bằng tài khoản T1, 3 lần mỗi route, trung vị (`lighthouse.json`). TBT mô phỏng ≤ 36 ms, CLS ≤ 0,028, script ≤ 248 KB đạt ngưỡng ở mọi route. **LCP devtools trượt (≤ 2.500 ms) ở 6 trong 8 route:** `/threads` 4896 ms, `/inbox` 6717 ms, `/gradebook` 5887 ms, `/me` 6256 ms, `/settings/llm` 4786 ms, `/assignments/[id]` 4639 ms (đạt: `/` 1574 ms, `/chat` 1554 ms). LCP mô phỏng 2.857–3.459 ms. `/assignments/[id]` (nợ G7-23: 4,7 s) vẫn 4.639 ms. Không nới ngưỡng; nguyên nhân chưa điều tra (nghi ngờ: LCP đợi dữ liệu API sau bước làm mới phiên; mạng devtools giả lập 150 ms).
-### Chaos (US-NFR-06)
-`kill -9` một trong hai worker giữa lượt chấm 150 bài: 150 vào = 150 xong, 0 mồ côi, 0 chấm hai lần, `XPENDING` 0, hồi trong 113 s. Redis tắt 70 s giữa lượt chấm 150 bài: 150 = 150, 0 mồ côi, 0 chấm hai lần, hồi trong 129 s; `/me/today` trả 200 suốt lúc Redis tắt. Chat lúc Redis tắt treo ≈ 19 s rồi trả câu suy giảm (TL-2d). `docling-serve` dừng 2 phút giữa lúc nạp 3 tài liệu: 3/3 `READY`, 0 mồ côi, 0 hàng mở, hồi trong 41 s (`chaos.json`, khoá `docling_down_120s`).
-### EXPLAIN và chỉ mục (US-NFR-05)
-Xem `docs/research/2026-11-14-explain.md`.
-### LLM thật (US-NFR-08)
+Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phương pháp · cấu hình · số liệu · PASS/FAIL · giới hạn.
+
+### US-NFR-02: seed T0 trên Mac
+- **Câu hỏi:** seed demo T0 có chạy qua sạch trên Mac, chạy lại lần hai không tạo trùng không.
+- **Phương pháp:** `node scripts/seed.mjs` trên stack trống, rồi các `scripts/check-*-seed.mjs`; chạy lại lần hai, so số dòng các bảng chính trước / sau.
+- **Cấu hình:** stack `ep-research`, provider giả (chat + nhúng) như `pnpm dev`, `docling-serve` thật (`--profile ingest`), `SEED_RNG` 20261029, bản `9d2b02b3`, 2026-11-13.
+- **Số liệu:** lần 1 mã thoát 0, 314 s (bước chậm nhất: bước 11 135 s, bước 19 78 s, bước 10 38 s); lần 2 mã thoát 0, 20 s; 10/10 kiểm tra xanh (assignments, chat, crm, docs, knowledge, exam bank, exam scores, exam demo, grade, docs timing); số dòng trước = sau (`rows_before_equals_after: true`). Nguồn: `seed-t0.json`, `seed-t0-checks.json`.
+- **PASS/FAIL:** AC1, AC2 PASS. AC3 (Hôm nay từng vai), AC4 (đối chiếu DEMO_SCRIPT), AC6 (quét canary): không có số trong `benchmarks/reports/`, báo cáo này không kết luận.
+- **Giới hạn:** một lượt; thời gian seed phụ thuộc `docling-serve` (bước 11, 15 cần profile `ingest`).
+
+### US-NFR-03: dữ liệu T1
+- **Câu hỏi:** bộ sinh T1 có tạo đúng quy mô thiết kế (1.000 SV, 20 lớp, một học kỳ) để các phép đo tải có nghĩa không.
+- **Phương pháp:** `node scripts/seed-t1.mjs` (SQL trực tiếp, tất định theo `SEED_RNG`) vào DB riêng `edupilot_t1`; đếm dòng từng bảng, đo kích thước DB và RAM Postgres nghỉ.
+- **Cấu hình:** stack `ep-t1`, quy mô 1 (không hạ), có vectơ, `SEED_RNG` 20261029. Lượt ghi trong `seed-t1.json`: bản `a96bf120`, 2026-11-15.
+- **Số liệu:** 50 s; 1.009 tài khoản, 20 lớp, 1.040 ghi danh, 300 buổi, 15.000 điểm danh, 90.000 tin chat, 525.000 dòng `study_time_daily`, 4.000 bài nộp, 3.000 kết quả chấm, 100 tài liệu, 20.000 đoạn; DB 404 MB; RAM Postgres 227,5 MiB. Lúc đo EXPLAIN (13–14/11) DB ghi 409 MB (`docs/research/2026-11-14-explain.md`). Kiểm cô lập lớp (`benchmarks/check-t1-api.mjs`, bản `e006e845`, 2026-11-13): 24 cặp SV lớp X đọc lớp Y, 0 rò rỉ, 0 lỗi 5xx (`t1-api-check.json`).
+- **PASS/FAIL:** AC1, AC7 PASS (đủ quy mô, không thu nhỏ); AC4 PASS (24 cặp ≥ 20, 0 rò rỉ, 0 5xx). AC2 (tất định qua hai DB), AC3 (đếm `course_id` mồ côi): không có số trong tệp nguồn, không kết luận.
+- **Giới hạn:** chỉ một lượt có tệp; dữ liệu mô phỏng (D44), phân bố không lấy từ lớp thật.
+
+### US-NFR-04: tải T1 với LLM giả, ×1 và ×2
+- **Câu hỏi:** ở T1 hệ thống có giữ SLO đọc / ghi / SSE / TTFT / dashboard / chấm-khi-chat không, và nhân đôi gateway / worker có đổi gì không.
+- **Phương pháp:** k6 qua `node benchmarks/load/run-t1.mjs <kịch bản> [--tag x2]`: (a) `browse` 5 phút, 300 SV rải 20 lớp, đọc : ghi ≈ 20 : 1, thêm 1 yêu cầu/giây SV gọi `gradebook` (phải 403); (b) `chat-first_event` (50 luồng) và `chat-ttft` (20 luồng); (c) `grading-baseline` rồi `grading-grading` (50 bài BT4 lớp T1-01, hai lượt mỗi bài) và chấm 1.000 bài (`benchmarks/load/grade-all-t1.mjs`); (d) `dashboard` 2 phút, 5 người.
+- **Cấu hình:** stack `ep-t1`, DB `edupilot_t1`, k6 trong VM 1,5 CPU; ×1 = 1 gateway 1 worker, ×2 = `--scale gateway=2 worker=2`, không đổi mã; `benchmarks/load/k6-stack.yml` (nới hạn mức IP / người, `LLM_MAX_CONCURRENCY` 100) từ lượt thứ hai, `load-d.json` và các tệp `*-lan1` chạy trước khi bật tệp này; provider giả trễ 5–15 s ở (b) sự kiện đầu, 300 ms ở (b) TTFT và (c) 50 bài; chấm 1.000 bài dùng 9router `ag/gemini-3.8-flash`, 5 luồng.
+- **Số liệu:** bảng «SLO → số đo» ở trên, dòng (a)–(d); tệp `load-a*.json`, `load-b-*.json`, `load-c-*.json`, `load-d.json`.
+- **PASS/FAIL:** (a), (b), (c) 50 bài, (d) PASS ở ×1 và ×2; (c) 1.000 bài: lần 1 FAIL (322/1.000, 678 `FAILED`, 0,55 h; 9router bị khởi động lại giữa lượt, sửa ở P-11-23), lần 2 PASS (1.000/1.000, 1,68 h).
+- **Giới hạn:** provider giả ở (a)–(c) 50 bài nên độ trễ không gồm LLM thật; (d) chạy trước `k6-stack.yml`.
+
+### US-NFR-05: EXPLAIN 10 truy vấn nặng nhất và chỉ mục
+- **Câu hỏi:** ở T1 truy vấn nào nặng nhất, có cần thêm chỉ mục không.
+- **Phương pháp:** `EXPLAIN (ANALYZE, BUFFERS)` từng truy vấn qua `node benchmarks/explain.mjs before`; thử chỉ mục ứng viên trong giao dịch rồi `rollback`.
+- **Cấu hình:** stack `ep-t1`, DB `edupilot_t1`, tham số đại diện lớp `T1-01`. Cách chọn 10 truy vấn: `docs/research/2026-11-14-explain.md`.
+- **Số liệu:** truy vấn nặng nhất `rag_hybrid` 13,1 ms; chín truy vấn còn lại ≤ 1,3 ms; HNSW và hai chỉ mục ghép không được planner chọn hoặc không đổi kế hoạch. Nguồn: `explain.json`.
+- **PASS/FAIL:** không truy vấn nào chạm SLO đọc 300 ms; không cần chỉ mục, không tạo `00018` (P-95-8).
+- **Giới hạn:** tham số một lớp; văn bản truy vấn trong `explain.mjs` là bản viết lại tham số cố định của SQL ứng dụng.
+
+### US-NFR-06: hỗn loạn
+- **Câu hỏi:** giết worker, tắt Redis, tắt `docling-serve` giữa lượt việc nền có làm mất hay lặp việc không.
+- **Phương pháp:** `node benchmarks/chaos.mjs`: `kill -9` một trong hai worker giữa lượt chấm 150 bài; dừng Redis 70 s giữa lượt chấm 150 bài; dừng `docling-serve` 2 phút giữa lúc nạp 3 tài liệu; đếm việc vào / xong / mồ côi / chấm hai lần, `XPENDING`.
+- **Cấu hình:** stack `ep-t1`, bản `6402ddff`, 2026-11-13; tải nền: chấm 150 bài (3 lớp × BT4) + chat, provider giả trễ 2 s mỗi lượt chấm (`K6_GRADE_LAT=2000-2000`); 2 worker ở ca `kill -9`.
+- **Số liệu:** `kill -9`: 150 vào = 150 xong, 0 mồ côi, 0 chấm hai lần, `XPENDING` 0, hồi trong 113 s. Redis tắt 70 s: 150 = 150, 0 mồ côi, 0 chấm hai lần, hồi trong 129 s; `/me/today` trả 200 suốt lúc Redis tắt; chat treo ≈ 19 s rồi trả câu suy giảm (TL-2d). `docling-serve` dừng 2 phút: 3/3 `READY`, 0 mồ côi, 0 hàng mở, hồi trong 41 s. Nguồn: `chaos.json`.
+- **PASS/FAIL:** PASS cả ba ca về việc nền; chat lúc Redis tắt là phát hiện TL-2d (chuyển PM).
+- **Giới hạn:** mỗi ca một lượt.
+
+### US-NFR-07: số đo nền của bản Go
+- **Câu hỏi:** bản Go tốn bao nhiêu RAM, khởi động bao lâu, image lớn bao nhiêu, p95 endpoint đơn lẻ và Lighthouse ra sao.
+- **Phương pháp:** `node benchmarks/baseline.mjs` (RAM nghỉ qua `docker stats`, khởi động lạnh `up → /readyz 200` × 3, kích thước image); 13 endpoint tuần tự × 200; Lighthouse 3 lần mỗi route, lấy trung vị.
+- **Cấu hình:** stack `ep-t1` (DB `edupilot_t1`) lúc nghỉ, bản `6402ddff`, 2026-11-13; Lighthouse chạy bản build production, đăng nhập thật bằng tài khoản T1.
+- **Số liệu:** RAM nghỉ 570 MiB cả stack (postgres 330 MiB); image gateway 17,7 MB, worker 16,7 MB, frontend 96,2 MB; khởi động lạnh trung vị 18,1 s; mọi đọc p95 ≤ 11,0 ms, ghi lớn nhất `w_thread` 327,5 ms; Lighthouse: TBT mô phỏng ≤ 36 ms, CLS ≤ 0,028, script ≤ 248 KB ở mọi route; LCP devtools `/` 1574, `/chat` 1554, `/threads` 4896, `/inbox` 6717, `/gradebook` 5887, `/me` 6256, `/settings/llm` 4786, `/assignments/[id]` 4639 ms; LCP mô phỏng 2.857–3.459 ms. Nguồn: `baseline.json`, `load-baseline-p95.json`, `lighthouse.json`.
+- **PASS/FAIL:** RAM, khởi động, image: ghi nhận (không có ngưỡng). p95 endpoint PASS. Lighthouse FAIL: LCP devtools > 2.500 ms ở 6/8 route; TBT, CLS, script PASS. Không nới ngưỡng; nguyên nhân chưa điều tra trong 9.5 (nghi ngờ: LCP đợi dữ liệu API sau bước làm mới phiên; mạng devtools giả lập 150 ms).
+- **Giới hạn:** Lighthouse đo trên cùng máy với stack.
+
+### US-NFR-08: LLM thật
+- **Câu hỏi:** các việc LLM (trích công thức, chấm, che danh tính, chat, Threads, khủng hoảng, gợi ý rubric, tóm tắt, chat khi chấm) chạy với mô hình thật ra sao.
+- **Phương pháp:** `benchmarks/real-llm/real_llm.py` (R1–R5) và k6 (R6); mỗi phép đo một bộ dữ liệu cố định, ghi kết quả thô vào `benchmarks/reports/real-llm/*.json`.
+- **Cấu hình, số liệu:** hai đoạn và bảng R1–R6 ngay dưới đây.
+- **PASS/FAIL:** theo ngưỡng của US-NFR-08: R3 lượt 2 PASS (khôi phục 35/35 ≥ 95 %; lượt 1 không đủ ≥ 20 probe); R4 sự kiện đầu p95 14 ms ≤ 300 ms PASS; R5 khủng hoảng 4/4 đi đường an toàn PASS; R6 TTFT lúc chấm không xấu đi (mẫu nhỏ, chỉ lượt Gemini trực tiếp). R1, R2 và độ đúng nội dung R4/R5: AC không đặt ngưỡng, chỉ ghi số.
+- **Giới hạn:** dưới bảng.
+
 **Cấu hình LLM áp dụng từ 2026-11-14 (luật của chủ dự án):** sinh chữ (chat, chấm, trích công thức, insight, eval) chỉ qua 9router trên Mac (`http://127.0.0.1:20128/v1`; từ container `http://host.docker.internal:20128/v1`; model `ag/gemini-3.8-flash`); dựng bằng `CHAT_PROVIDER=9router PHASE=live MODEL=ag/gemini-3.8-flash BASE=https://localhost:<cổng> node deploy/vps-llm.mjs` (nhà cung cấp `router-chat`, loại `openai_compatible`, khoá lấy từ `~/.9router/db/data.sqlite` bảng `apiKeys`, không ghi vào repo). Embedding mặc định `embed-gia` (fake); `GEMINI_API_KEY` chỉ còn cho decision model và embedding khi PM cho phép (`EMBED_PROVIDER=gemini`).
 
 **R1–R5:** đo lại qua 9router trên **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB**, stack `ep-qc`, 2026-11-15, `9router/ag/gemini-3.8-flash` (`audit.models` trong `extract.json`, `grade-*.json`), `rpm_limit` 20, embedding giả; riêng Threads (R5) dùng nhúng thật `gemini-embedding-001` cho lớp 761987 (P-11-37, 24 request HTTP). Kết quả thô: `benchmarks/reports/real-llm/*.json` (`meta.config` ghi model + RPM); báo cáo lượt đo: `docs/sprints/9.5/report.md` mục 3, 3a. **R6:** chỉ có lượt Gemini trực tiếp (`gemini-3.1-flash-lite` Free Tier, `ep-research`, 2026-11-14; `meta.config.provider` của `load-c-*-real.json`). Số R1–R5 của lượt Gemini trực tiếp không còn tệp nguồn (lượt 9router đã ghi đè) nên đã bỏ; `real-llm/lan-1-khong-hop-le/` là lượt hỏng, không dùng (DEF-R9.5-14).
