@@ -67,6 +67,32 @@ def reflect_items(mode, data):
         (cid, d), ids = good[0]
         base = existing[0]["text"] if existing else TEXTS[d].format(c=cid)
         items.append({"criterion_id": existing[0]["criterion_id"] if existing else cid, "text": base, "direction": d, "case_ids": ids[:3]})
+    elif mode == "rf_ok_plus1":
+        for (cid, d), ids in good: items.append({"criterion_id": cid, "text": TEXTS[d].format(c=cid), "direction": d, "case_ids": ids[:5]})
+        items = items[:2] + [{"criterion_id": good[0][0][0], "text": "Tính tổng điểm của bài theo trọng số cho đúng.", "direction": good[0][0][1], "case_ids": good[0][1][:3]}]
+    elif mode in ("rf_kw_exempt", "rf_kw_forbidden", "rf_mix14", "rf_n3"):
+        crit = []
+        for c in cases:
+            if c["criterion_id"] not in crit: crit.append(c["criterion_id"])
+        def ids_of(cid): return [c["case_id"] for c in cases if c["criterion_id"] == cid]
+        def dir_of(cid): return direction([c for c in cases if c["criterion_id"] == cid][0])
+        c2 = good[0][0][0]; c1 = [x for x in crit if x != c2][0]
+        def it(cid, t, ids=None): return {"criterion_id": cid, "text": t, "direction": dir_of(cid) if ids is None else good[0][0][1], "case_ids": (ids or ids_of(cid))[:3]}
+        d2 = good[0][0][1]; g2 = good[0][1]
+        if mode == "rf_kw_exempt":
+            for t in ("Tổng quát hoá kết luận nhưng nêu rõ giả định.", "Khuyến khích tổng hợp nhiều nguồn khi lập luận.", "Tổng quan ngắn gọn rồi đi vào phân tích."):
+                items.append({"criterion_id": c2, "text": t, "direction": d2, "case_ids": g2[:3]})
+        elif mode == "rf_kw_forbidden":
+            for t in ("Tính tổng điểm của bài theo trọng số cho đúng.", "Tổng quát nhưng đừng quên trừ điểm khi thiếu ví dụ."):
+                items.append({"criterion_id": c2, "text": t, "direction": d2, "case_ids": g2[:3]})
+        elif mode in ("rf_mix14", "rf_n3"):
+            for t in ("Tính tổng điểm của bài theo trọng số cho đúng.", "Tổng quát nhưng đừng quên trừ điểm khi thiếu ví dụ."):
+                items.append({"criterion_id": c2, "text": t, "direction": d2, "case_ids": g2[:3]})
+            mixed = None
+            for cid in crit:
+                ca = [c["case_id"] for c in cases if c["criterion_id"] == cid and direction(c) == "STRICTER"]; cb = [c["case_id"] for c in cases if c["criterion_id"] == cid and direction(c) == "LENIENT"]
+                if ca and cb: mixed = (cid, ca[0], cb[0]); break
+            if mixed: items.append({"criterion_id": mixed[0], "text": "Nêu rõ bằng chứng cho mỗi nhận định trong phần phân tích.", "direction": "STRICTER", "case_ids": [mixed[1], mixed[2]]})
     return items
 
 class H(BaseHTTPRequestHandler):
