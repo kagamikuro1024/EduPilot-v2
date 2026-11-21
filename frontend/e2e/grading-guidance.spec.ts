@@ -159,6 +159,14 @@ test("khối «Lưu ý chấm»: «Bản v2 · 3 chờ duyệt»; nhãn «Đã �
   await expect(panel.getByText(/bài đổi điểm/)).toHaveCount(0);
 });
 
+test("khối «Lưu ý chấm»: chữ chiều «Gắt hơn / Nhẹ hơn / Làm rõ» (DEF-R106S-07, US-GD-04 AC2)", async ({ page, context }) => {
+  const items = [item({ id: "i-1", direction: "STRICTER" }), item({ id: "i-2", direction: "LENIENT" }), item({ id: "i-3", direction: "CLARIFY" })];
+  await openDrawer(page, context, () => overview({ items, counts: { draft: 3 } }), {}, true);
+  const panel = page.locator("[data-part=guidance-panel]");
+  for (const t of ["Gắt hơn", "Nhẹ hơn", "Làm rõ"]) await expect(panel.getByText(t, { exact: true })).toBeVisible();
+  await expect(panel.getByText(/Chấm rộng hơn|Làm rõ tiêu chí/)).toHaveCount(0);
+});
+
 test("khối «Lưu ý chấm»: chưa có lưu ý → «Chưa có lưu ý» một dòng; GET lỗi 500 → báo lỗi + Thử lại, bấm thì tải lại (DEF-R106S-06, US-GD-04 AC9)", async ({ page, context }) => {
   await openDrawer(page, context, () => overview({ items: [], counts: {}, current_version: 0 }), {}, true);
   await expect(page.locator("[data-part=guidance-panel] [data-ep-empty]")).toHaveText("Chưa có lưu ý");

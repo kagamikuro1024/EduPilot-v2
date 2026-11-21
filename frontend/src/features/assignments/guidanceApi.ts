@@ -81,5 +81,5 @@ export const useGuidanceFlags = (course: string, enabled: boolean) =>
 export const setGuidanceFlag = async (course: string, feature: GuidanceFeature, enabled: boolean, version: number) =>
   (await apiClient.put<GuidanceFlag>(`/courses/${course}/guidance-flags/${feature}`, { enabled, version })).data;
 
-/** Chữ hướng của lưu ý: chữ thường dùng cho giảng viên (không thuật ngữ kỹ thuật). */
-export const DIRECTION_TEXT: Record<GuidanceItem["direction"], string> = { STRICTER: "Chấm chặt hơn", LENIENT: "Chấm rộng hơn", CLARIFY: "Làm rõ tiêu chí" };
+/** Chữ chiều của lưu ý theo US-GD-04 AC2: Gắt hơn / Nhẹ hơn / Làm rõ. */
+export const DIRECTION_TEXT: Record<GuidanceItem["direction"], string> = { STRICTER: "Gắt hơn", LENIENT: "Nhẹ hơn", CLARIFY: "Làm rõ" };
