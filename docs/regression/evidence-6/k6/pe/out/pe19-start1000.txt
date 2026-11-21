@@ -1,1 +1,1328 @@
-time="2026-11-21T10:36:41+07:00" level=error msg="could not initialize 'pe19.js': could not load JS test 'file:///Users/kuro/Documents/TA_Agent_qc3/docs/regression/evidence-6/k6/pe/pe19.js': unknown executor type 'per-vru-iterations'"
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: pe19.js
+        output: -
+
+     scenarios: (100.00%) 2 scenarios, 301 max VUs, 6m45s max duration (incl. graceful stop):
+              * start1000: 17.00 iterations/s for 1m0s (maxVUs: 60-300, exec: startVU, gracefulStop: 30s)
+              * results: 30 iterations for each of 1 VUs (maxDuration: 5m0s, exec: resultsVU, startTime: 1m15s, gracefulStop: 30s)
+
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+Run         [ 100% ] setup()
+start1000   [   0% ]
+results     [   0% ]
+
+running (4m05.0s), 000/061 VUs, 5 complete and 0 interrupted iterations
+start1000   [   0% ] 000/060 VUs  0m00.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m14.7s      
+
+running (4m06.0s), 000/061 VUs, 22 complete and 0 interrupted iterations
+start1000   [   2% ] 000/060 VUs  0m01.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m13.7s      
+
+running (4m07.0s), 000/061 VUs, 39 complete and 0 interrupted iterations
+start1000   [   4% ] 000/060 VUs  0m02.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m12.7s      
+
+running (4m08.0s), 000/061 VUs, 56 complete and 0 interrupted iterations
+start1000   [   5% ] 000/060 VUs  0m03.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m11.7s      
+
+running (4m09.0s), 001/061 VUs, 73 complete and 0 interrupted iterations
+start1000   [   7% ] 001/060 VUs  0m04.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m10.7s      
+
+running (4m10.0s), 000/061 VUs, 90 complete and 0 interrupted iterations
+start1000   [   9% ] 000/060 VUs  0m05.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m09.7s      
+
+running (4m11.0s), 000/061 VUs, 107 complete and 0 interrupted iterations
+start1000   [  10% ] 000/060 VUs  0m06.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m08.7s      
+
+running (4m12.0s), 000/061 VUs, 124 complete and 0 interrupted iterations
+start1000   [  12% ] 000/060 VUs  0m07.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m07.7s      
+
+running (4m13.0s), 000/061 VUs, 141 complete and 0 interrupted iterations
+start1000   [  14% ] 000/060 VUs  0m08.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m06.7s      
+
+running (4m14.0s), 000/061 VUs, 158 complete and 0 interrupted iterations
+start1000   [  15% ] 000/060 VUs  0m09.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m05.7s      
+
+running (4m15.0s), 000/061 VUs, 175 complete and 0 interrupted iterations
+start1000   [  17% ] 000/060 VUs  0m10.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m04.7s      
+
+running (4m16.0s), 000/061 VUs, 192 complete and 0 interrupted iterations
+start1000   [  19% ] 000/060 VUs  0m11.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m03.7s      
+
+running (4m17.0s), 000/061 VUs, 209 complete and 0 interrupted iterations
+start1000   [  20% ] 000/060 VUs  0m12.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m02.7s      
+
+running (4m18.0s), 000/061 VUs, 226 complete and 0 interrupted iterations
+start1000   [  22% ] 000/060 VUs  0m13.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m01.7s      
+
+running (4m19.0s), 000/061 VUs, 243 complete and 0 interrupted iterations
+start1000   [  24% ] 000/060 VUs  0m14.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      1m00.7s      
+
+running (4m20.0s), 000/061 VUs, 260 complete and 0 interrupted iterations
+start1000   [  25% ] 000/060 VUs  0m15.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m59.7s      
+
+running (4m21.0s), 000/061 VUs, 277 complete and 0 interrupted iterations
+start1000   [  27% ] 000/060 VUs  0m16.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m58.7s      
+
+running (4m22.0s), 000/061 VUs, 294 complete and 0 interrupted iterations
+start1000   [  29% ] 000/060 VUs  0m17.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m57.7s      
+
+running (4m23.0s), 000/061 VUs, 311 complete and 0 interrupted iterations
+start1000   [  30% ] 000/060 VUs  0m18.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m56.7s      
+
+running (4m24.0s), 001/061 VUs, 327 complete and 0 interrupted iterations
+start1000   [  32% ] 001/060 VUs  0m19.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m55.7s      
+
+running (4m25.0s), 000/061 VUs, 345 complete and 0 interrupted iterations
+start1000   [  34% ] 000/060 VUs  0m20.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m54.7s      
+
+running (4m26.0s), 000/061 VUs, 362 complete and 0 interrupted iterations
+start1000   [  35% ] 000/060 VUs  0m21.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m53.7s      
+
+running (4m27.0s), 000/061 VUs, 379 complete and 0 interrupted iterations
+start1000   [  37% ] 000/060 VUs  0m22.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m52.7s      
+
+running (4m28.0s), 000/061 VUs, 396 complete and 0 interrupted iterations
+start1000   [  39% ] 000/060 VUs  0m23.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m51.7s      
+
+running (4m29.0s), 000/061 VUs, 413 complete and 0 interrupted iterations
+start1000   [  40% ] 000/060 VUs  0m24.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m50.7s      
+
+running (4m30.0s), 000/061 VUs, 430 complete and 0 interrupted iterations
+start1000   [  42% ] 000/060 VUs  0m25.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m49.7s      
+
+running (4m31.0s), 000/061 VUs, 447 complete and 0 interrupted iterations
+start1000   [  44% ] 000/060 VUs  0m26.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m48.7s      
+
+running (4m32.0s), 000/061 VUs, 464 complete and 0 interrupted iterations
+start1000   [  45% ] 000/060 VUs  0m27.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m47.7s      
+
+running (4m33.0s), 000/061 VUs, 481 complete and 0 interrupted iterations
+start1000   [  47% ] 000/060 VUs  0m28.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m46.7s      
+
+running (4m34.0s), 000/061 VUs, 498 complete and 0 interrupted iterations
+start1000   [  49% ] 000/060 VUs  0m29.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m45.7s      
+
+running (4m35.0s), 002/061 VUs, 513 complete and 0 interrupted iterations
+start1000   [  50% ] 002/060 VUs  0m30.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m44.7s      
+
+running (4m36.0s), 000/061 VUs, 532 complete and 0 interrupted iterations
+start1000   [  52% ] 000/060 VUs  0m31.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m43.7s      
+
+running (4m37.0s), 000/061 VUs, 549 complete and 0 interrupted iterations
+start1000   [  54% ] 000/060 VUs  0m32.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m42.7s      
+
+running (4m38.0s), 000/061 VUs, 566 complete and 0 interrupted iterations
+start1000   [  55% ] 000/060 VUs  0m33.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m41.7s      
+
+running (4m39.0s), 000/061 VUs, 583 complete and 0 interrupted iterations
+start1000   [  57% ] 000/060 VUs  0m34.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m40.7s      
+
+running (4m40.0s), 002/061 VUs, 598 complete and 0 interrupted iterations
+start1000   [  59% ] 002/060 VUs  0m35.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m39.7s      
+
+running (4m41.0s), 000/061 VUs, 617 complete and 0 interrupted iterations
+start1000   [  60% ] 000/060 VUs  0m36.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m38.7s      
+
+running (4m42.0s), 000/061 VUs, 634 complete and 0 interrupted iterations
+start1000   [  62% ] 000/060 VUs  0m37.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m37.7s      
+
+running (4m43.0s), 000/061 VUs, 651 complete and 0 interrupted iterations
+start1000   [  64% ] 000/060 VUs  0m38.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m36.7s      
+
+running (4m44.0s), 000/061 VUs, 668 complete and 0 interrupted iterations
+start1000   [  65% ] 000/060 VUs  0m39.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m35.7s      
+
+running (4m45.0s), 000/061 VUs, 685 complete and 0 interrupted iterations
+start1000   [  67% ] 000/060 VUs  0m40.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m34.7s      
+
+running (4m46.0s), 000/061 VUs, 702 complete and 0 interrupted iterations
+start1000   [  69% ] 000/060 VUs  0m41.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m33.7s      
+
+running (4m47.0s), 000/061 VUs, 719 complete and 0 interrupted iterations
+start1000   [  70% ] 000/060 VUs  0m42.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m32.7s      
+
+running (4m48.0s), 000/061 VUs, 736 complete and 0 interrupted iterations
+start1000   [  72% ] 000/060 VUs  0m43.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m31.7s      
+
+running (4m49.0s), 000/061 VUs, 753 complete and 0 interrupted iterations
+start1000   [  74% ] 000/060 VUs  0m44.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m30.7s      
+
+running (4m50.0s), 000/061 VUs, 770 complete and 0 interrupted iterations
+start1000   [  75% ] 000/060 VUs  0m45.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m29.7s      
+
+running (4m51.0s), 000/061 VUs, 787 complete and 0 interrupted iterations
+start1000   [  77% ] 000/060 VUs  0m46.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m28.7s      
+
+running (4m52.0s), 000/061 VUs, 804 complete and 0 interrupted iterations
+start1000   [  79% ] 000/060 VUs  0m47.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m27.7s      
+
+running (4m53.0s), 000/061 VUs, 821 complete and 0 interrupted iterations
+start1000   [  80% ] 000/060 VUs  0m48.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m26.7s      
+
+running (4m54.0s), 000/061 VUs, 838 complete and 0 interrupted iterations
+start1000   [  82% ] 000/060 VUs  0m49.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m25.7s      
+
+running (4m55.0s), 000/061 VUs, 855 complete and 0 interrupted iterations
+start1000   [  84% ] 000/060 VUs  0m50.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m24.7s      
+
+running (4m56.0s), 000/061 VUs, 872 complete and 0 interrupted iterations
+start1000   [  85% ] 000/060 VUs  0m51.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m23.7s      
+
+running (4m57.0s), 000/061 VUs, 889 complete and 0 interrupted iterations
+start1000   [  87% ] 000/060 VUs  0m52.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m22.7s      
+
+running (4m58.0s), 000/061 VUs, 906 complete and 0 interrupted iterations
+start1000   [  89% ] 000/060 VUs  0m53.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m21.7s      
+
+running (4m59.0s), 000/061 VUs, 923 complete and 0 interrupted iterations
+start1000   [  90% ] 000/060 VUs  0m54.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m20.7s      
+
+running (5m00.0s), 000/061 VUs, 940 complete and 0 interrupted iterations
+start1000   [  92% ] 000/060 VUs  0m55.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m19.7s      
+
+running (5m01.0s), 000/061 VUs, 957 complete and 0 interrupted iterations
+start1000   [  94% ] 000/060 VUs  0m56.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m18.7s      
+
+running (5m02.0s), 000/061 VUs, 974 complete and 0 interrupted iterations
+start1000   [  95% ] 000/060 VUs  0m57.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m17.7s      
+
+running (5m03.0s), 000/061 VUs, 991 complete and 0 interrupted iterations
+start1000   [  97% ] 000/060 VUs  0m58.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m16.7s      
+
+running (5m04.0s), 000/061 VUs, 1008 complete and 0 interrupted iterations
+start1000   [  99% ] 000/060 VUs  0m59.3s/1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m15.7s      
+
+running (5m05.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m14.7s
+
+running (5m06.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m13.7s
+
+running (5m07.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m12.7s
+
+running (5m08.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m11.7s
+
+running (5m09.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m10.7s
+
+running (5m10.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m09.7s
+
+running (5m11.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m08.7s
+
+running (5m12.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m07.7s
+
+running (5m13.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m06.7s
+
+running (5m14.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m05.7s
+
+running (5m15.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m04.7s
+
+running (5m16.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m03.7s
+
+running (5m17.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m02.7s
+
+running (5m18.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m01.7s
+
+running (5m19.0s), 000/061 VUs, 1020 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s  17.00 iters/s
+results   • [   0% ] waiting      0m00.7s
+
+running (5m20.0s), 001/061 VUs, 1021 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s          17.00 iters/s
+results     [   3% ] 1 VUs        0m00.3s/5m0s  01/30 iters, 30 per VU
+
+running (5m21.0s), 001/061 VUs, 1026 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s          17.00 iters/s
+results     [  20% ] 1 VUs        0m01.3s/5m0s  06/30 iters, 30 per VU
+
+running (5m22.0s), 001/061 VUs, 1031 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s          17.00 iters/s
+results     [  37% ] 1 VUs        0m02.3s/5m0s  11/30 iters, 30 per VU
+
+running (5m23.0s), 001/061 VUs, 1035 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s          17.00 iters/s
+results     [  50% ] 1 VUs        0m03.3s/5m0s  15/30 iters, 30 per VU
+
+running (5m24.0s), 001/061 VUs, 1039 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s          17.00 iters/s
+results     [  63% ] 1 VUs        0m04.3s/5m0s  19/30 iters, 30 per VU
+
+running (5m25.0s), 001/061 VUs, 1047 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s          17.00 iters/s
+results     [  90% ] 1 VUs        0m05.3s/5m0s  27/30 iters, 30 per VU
+
+=== pe-exam-submit · start1000 ===
+start_ms: p(50)=16.715 p(95)=60.992 max=227.72 avg=23.058
+results_ms: avg=16.572 p(50)=13.572 p(95)=39.271 max=85.448
+http_req_failed: rate=0 passes=0 fails=2357
+ngưỡng http_req_failed: rate<0.005 PASS
+ngưỡng start_ms: p(95)<300 PASS
+ngưỡng results_ms: p(95)<300 PASS
+
+running (5m25.4s), 000/061 VUs, 1050 complete and 0 interrupted iterations
+start1000 ✓ [ 100% ] 000/060 VUs  1m0s          17.00 iters/s
+results   ✓ [ 100% ] 1 VUs        0m05.7s/5m0s  30/30 iters, 30 per VU

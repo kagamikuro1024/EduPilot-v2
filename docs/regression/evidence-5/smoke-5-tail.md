@@ -1,8 +1,8 @@
-**Ca trượt còn lại (F=1):** TC-PU06-17 → DEF-R5-12 (lint spec QC, agent chính sửa). **Chạy lại sau sửa của dev (qc2/SmkP, ep-r @634d59c5/88ab83e4, 2026-11-18): 8 ca F → P:** TC-PE03-49 (R5-03, nháp khôi phục), TC-PE03-51 (R5-04, Enter mở Drawer), TC-PE03-33 (R5-10, API tests_stale + nhãn «Chấm theo bộ test cũ» ở Drawer), TC-PE06-27 (R5-06, nhãn QUEUED thật khi hàng chấm đầy 30 SV), TC-PE07-18 (R5-07, đóng tab thật: PASTE tới DB), TC-PE08-04 (R5-11, SSE exam.attempt), TC-PE08-31 (R5-08/P-11-60), TC-PE08-38 (R5-09/P-11-59). Script: `ui/smkP_q.cjs`, `ui/smkP_m.cjs`, `ui/smkP_m2.cjs`, `scripts/smkP_s5api.py`, `scripts/smkP_flood.py`. TC-PE04-40: lượt đầu ghi F do lỗi đo, đo lại đạt (xem defects-5.md).
 
-## Còn chưa chạy (S=33) — lý do và việc cần làm
-- Cần DB sạch (stack tạm seed từ đầu, ≈12 phút + máy rảnh): TC-PE09-02, 03, 07, 12, 13 (class 761987 ở ep-r đã bị QC khác/sprint sau mở rộng: «Mật mã» có 456 lượt thay 24).
-- k6 / tải (binary có: /opt/homebrew/bin/k6; chưa chạy vì tải máy và lệnh dừng): TC-PE02-48, 49, PE05-25, PE09-15, 16, 17, 19.
-- Cổng/E2E tổng (gate-pe.sh, exam.spec.ts @real, F19 trọn, audit.mjs 4 vai): TC-PE04-50, PE05-60, PE06-47, PE08-68 (phần Go + lint + build đã đạt, thiếu audit.mjs), PE08-67, PE09-11, 20, 21, 22, 23, 25, 26, 28 (phần grep đã làm: chỉ định danh/chú thích; còn quét innerText), 31.
-- PE02-25 (kill -9 worker khi đang chấm, cần khoá toàn cục), PE03-36 (nhà cung cấp AI giả: bỏ câu sai / chưa cấu hình / quá tải — có test Go `jobs_test.go` chưa chạy), PU06-11, 14, 16, 18 (spec shell/account/lcp/a11y/today chưa chạy; đo tay đã có trong `evidence-5/lh/`).
-- Môi trường dùng chung: kịch bản/dữ liệu QC của lượt này: lớp R5C4 (SV r5x) + bài «R5M …» trong R5C1; 5.000 SV `qc2m5-bulk-*` đã xoá sau khi đo.
+K (a/b/c) = 0; không còn ca S: mọi ca ra P, F hoặc LT. (Dòng «TC-id» ở đầu bảng là dòng mẫu của bảng nguồn, không phải ca.)
+
+**F còn lại (9):** TC-PE04-50, TC-PE05-60, TC-PE06-47, TC-PE08-68 → DEF-R5-18 (golangci-lint ở cmd/regress/main.go:213, commit 658e6719 của dev3); TC-PE09-12 → DEF-R5-20 (seed lần hai in «Seed xong trong 23 s»: ctx.changed = true vô điều kiện, scripts/seed.mjs:843); TC-PE09-13 → DEF-R5-16 (seed sạch 618 s; P-11-76 đặt trần ≤ 6 phút trên máy KHÔNG chạy stack khác — máy QC dùng chung nên điều kiện đo chưa đạt); TC-PE09-25 → DEF-R5-21 (kết quả SV tràn ngang 375/720 px); TC-PE09-20 → DEF-R5-22 (exam.spec.ts thiếu ca cho ý 9, 11 của AC7); TC-PU06-11 → DEF-R5-19 (CLS /chat 0,16).
+
+**Đã chạy lại sau sửa của dev:** R5-03/04/06/07/08/09/10/11 (qc2, 2026-11-18); R5-12 (lint spec QC chuyển specs-qc2), R5-13 (9754c523), R5-14 (d27b87b0: TLE, 30/30), R5-17 (58448e0a, audit 4 vai 115 hàng FAIL 0) — qc3, 2026-11-21; R5-15 (d0d548e0) sửa chưa đủ → R5-20.
+
+**k6 (qc3, stack qc3s, 2026-11-21):** PE02-48/49, PE05-25, PE09-15/16/17/19 đều P; số đo trong ghi chú từng ca.
