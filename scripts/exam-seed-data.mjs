@@ -126,6 +126,8 @@ export const SOLUTIONS = {
   gcdZero: "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  long long a, b;\n  scanf(\"%lld %lld\", &a, &b);\n  if (!a) { puts(\"0\"); return 0; }\n  while (b) { a %= b; swap(a, b); }\n  printf(\"%lld\\n\", a);\n}\n",
   gcdRec: "#include <bits/stdc++.h>\nusing namespace std;\nlong long g(long long a, long long b) { return b == 0 ? a : g(b, a % b); }\nint main() {\n  long long p, q;\n  cin >> p >> q;\n  cout << g(p, q) << endl;\n}\n",
   gcdCe: "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  long long a, b\n  cin >> a >> b;\n  cout << a << \"\\n\";\n}\n",
+  // `volatile` giữ vòng lặp (trình biên dịch không được bỏ vòng lặp vô hạn không tác dụng phụ) ⇒ mọi test quá giới hạn thời gian
+  gcdTle: "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  long long a, b;\n  cin >> a >> b;\n  volatile long long spin = 0;\n  while (true) spin = spin + 1;\n  return 0;\n}\n",
   wordsOk: CODE[1].reference,
   wordsSpaces: "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  string line;\n  getline(cin, line);\n  int spaces = 0;\n  for (char c : line) if (c == ' ') spaces++;\n  cout << spaces + 1 << \"\\n\";\n  return 0;\n}\n",
   wordsSpaces2: "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  string s;\n  getline(cin, s);\n  printf(\"%d\\n\", (int)count(s.begin(), s.end(), ' ') + 1);\n}\n",
@@ -141,7 +143,7 @@ export const CODE_ATTEMPTS = [
   { who: "sv04", label: "S04", gcd: "gcdCe", words: "wordsSpaces" },
   { who: "sv05", label: "S05", gcd: "gcdOk2", words: "wordsStream" }, // cặp (A, S05) giống nhau
   { who: "sv06", label: "S06", gcd: "gcdRec", words: "wordsSpaces2" },
-  { who: "sv07", label: "S07", gcd: null, words: "wordsFind" },
+  { who: "sv07", label: "S07", gcd: "gcdTle", words: "wordsFind" }, // gcdTle: vòng lặp vô hạn → TLE (điểm 0 như không nộp)
 ];
 
 /** Kết quả mong đợi của một lời giải trên một bài: { passedWeight, verdict } theo mô hình độc lập (chạy "bằng tay" các test). */
@@ -150,6 +152,7 @@ export function expectedCode(problemIdx, solution) {
   const total = p.weights.reduce((a, b) => a + b, 0);
   if (solution == null) return { passed: 0, total, verdict: "" };
   if (solution === "gcdCe") return { passed: 0, total, verdict: "CE" };
+  if (solution === "gcdTle") return { passed: 0, total, verdict: "TLE" };
   // gcdZero sai ở test có a = 0 (hidden1); wordsSpaces sai ở các test có dấu cách thừa (sample2, hidden1); còn lại đúng hết
   const failing = solution === "gcdZero" ? [2] : solution.startsWith("wordsSpaces") ? [1, 2] : [];
   const passed = p.weights.reduce((a, w, i) => a + (failing.includes(i) ? 0 : w), 0);
