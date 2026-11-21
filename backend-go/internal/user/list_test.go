@@ -1,11 +1,13 @@
 package user_test
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
 	"testing"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/store"
@@ -136,4 +138,40 @@ func TestAdminListNoNPlusOne(t *testing.T) {
 	require.Equal(t, http.StatusOK, res.code)
 	require.Len(t, items(res), 41)
 	require.EqualValues(t, 1, r.qc.n.Load()-before, "đúng một câu SQL cho cả trang (không N+1)")
+}
+
+// explainConn chạy EXPLAIN (FORMAT JSON) cho đúng câu sqlc rồi chuyển câu thật đi tiếp.
+type explainConn struct {
+	store.DBTX
+	plan string
+}
+
+func (e *explainConn) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error) {
+	if err := e.DBTX.QueryRow(ctx, "explain (format json) "+sql, args...).Scan(&e.plan); err != nil {
+		return nil, err
+	}
+	return e.DBTX.Query(ctx, sql, args...)
+}
+
+// DEF-R4-04 (TC-P206-28, US-P2-06 AC8): trang đầu danh sách người dùng đọc theo chỉ mục (created_at, id) — không quét tuần tự + sắp xếp toàn bảng.
+// `enable_seqscan=off` để kiểm CÓ chỉ mục phục vụ thứ tự (kế hoạch thật ở bảng nhỏ vẫn có thể chọn quét tuần tự).
+func TestAdminListUsesIndex(t *testing.T) {
+	r := newRig(t)
+	ctx := t.Context()
+	_, err := r.pool.Exec(ctx, `insert into users (email, full_name, role, status, password_hash)
+		select 'bulk' || g || '@example.test', 'Người Thử ' || g, 'STUDENT', 'ACTIVE', 'x' from generate_series(1, 3000) g`)
+	require.NoError(t, err)
+	_, err = r.pool.Exec(ctx, `analyze users`)
+	require.NoError(t, err)
+	conn, err := r.pool.Acquire(ctx)
+	require.NoError(t, err)
+	defer conn.Release()
+	_, err = conn.Exec(ctx, `set enable_seqscan = off`)
+	require.NoError(t, err)
+	ex := &explainConn{DBTX: conn}
+	rows, err := store.New(ex).ListUsersAdmin(ctx, store.ListUsersAdminParams{Lim: 26})
+	require.NoError(t, err)
+	require.Len(t, rows, 26)
+	require.NotContains(t, ex.plan, "Seq Scan")
+	require.NotContains(t, ex.plan, `"Node Type": "Sort"`)
 }
