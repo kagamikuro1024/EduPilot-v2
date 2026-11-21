@@ -106,6 +106,21 @@
   .detail {
     padding: var(--ep-space-4);
   }
+  /* ô trả lời dính đáy (AC10): ngăn chi tiết (tự cuộn trong Split) cao tối thiểu bằng ngăn, ô trả lời xuống đáy rồi bám đáy khi nội dung dài */
+  .detail {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+  .detail > * { flex: none; }
+  .dock {
+    margin-top: auto;
+    position: sticky;
+    bottom: calc(-1 * var(--ep-space-4));
+    z-index: 1;
+    padding-block: var(--ep-space-2);
+    background: var(--ep-surface);
+  }
 }
 
 .knowledgeForm { display: grid; gap: var(--ep-space-3); }
