@@ -1,0 +1,9 @@
+--- PASS: TestWindowOpenRules (0.93s)
+--- PASS: TestOverHeadcount (0.80s)
+--- PASS: TestDisplayNoStore (0.82s)
+--- PASS: TestDeviceSharedRace (0.69s)
+--- PASS: TestFlagCampus (0.64s)
+--- PASS: TestNoCoordsOrIPStored (1.02s)
+--- PASS: TestGeoFlagsAndAssurance (1.32s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/attendance	6.908s

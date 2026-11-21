@@ -1,0 +1,100 @@
+[WebServer] (node:6809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:6843) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 80 tests using 2 workers
+
+(node:6849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › e2e/account.spec.ts:53:1 › login page: nhãn, thuộc tính nhập, một nút primary, logo, liên kết, không từ kỹ thuật (576ms)
+  ✓   1 [desktop] › e2e/account.spec.ts:78:1 › login page: 375 px không tràn ngang, vùng chạm ≥ 44 px, AUDIT/TOUCH sạch (760ms)
+  ✓   3 [desktop] › e2e/account.spec.ts:91:1 › login page: sai ⇒ dòng lỗi role=alert, giữ email, xoá mật khẩu; đang gửi chỉ một request (1.2s)
+  ✓   4 [desktop] › e2e/account.spec.ts:108:3 › login throttled (LOGIN_THROTTLED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã (3.8s)
+  ✓   6 [desktop] › e2e/account.spec.ts:134:1 › login page: phiên bị thu hồi ⇒ dòng thông báo (396ms)
+  ✓   5 [desktop] › e2e/account.spec.ts:108:3 › login throttled (RATE_LIMITED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã (3.8s)
+  ✓   8 [desktop] › e2e/account.spec.ts:155:1 › next hợp lệ: quay lại đúng trang sau đăng nhập; vào route cần phiên khi chưa đăng nhập ⇒ /login?next= (563ms)
+  ✓   9 [desktop] › e2e/account.spec.ts:165:3 › login lần đầu: làm mới cookie cũ trả 401 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login (2.7s)
+  ✓   7 [desktop] › e2e/account.spec.ts:142:1 › open redirect: next lạ bị bỏ, location.origin không đổi (4.5s)
+  ✓  11 [desktop] › e2e/account.spec.ts:181:1 › no token in storage: không có JWT / refresh ở storage, cookie; tải lại ⇒ đúng một refresh, không nháy /login (1.3s)
+  ✓  10 [desktop] › e2e/account.spec.ts:165:3 › login lần đầu: làm mới cookie cũ trả 200 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login (2.9s)
+  ✓  13 [desktop] › e2e/account.spec.ts:223:1 › mock identity from session: sv.kha ⇒ Trần Thu Uyên; email lạ ⇒ tên thật; không đọc cookie ep_demo_* (1.2s)
+  ✓  14 [desktop] › e2e/account.spec.ts:236:1 › two tabs refresh: hai tab cùng tải ⇒ refresh tuần tự, không chồng nhau (538ms)
+  ✓  15 [desktop] › e2e/account.spec.ts:259:1 › refresh hỏng giữa chừng ⇒ /login?next=; phiên bị thu hồi ⇒ /login kèm thông báo (568ms)
+  ✓  16 [desktop] › e2e/account.spec.ts:281:1 › register page: nhãn, chú thích, autocomplete, một nút primary, lỗi từng ô, màn Kiểm tra email + đếm ngược gửi lại (514ms)
+  ✓  12 [desktop] › e2e/account.spec.ts:207:1 › nav per role after login: Sinh viên 9 · TA 13 · Giảng viên 16 · Admin 7 mục (4.1s)
+  ✓  17 [desktop] › e2e/account.spec.ts:332:1 › register page: 375 px không tràn ngang, vùng chạm ≥ 44 px (501ms)
+  ✓  19 [desktop] › e2e/account.spec.ts:396:1 › forgot page: một ô email, một nút Gửi hướng dẫn, câu chung bất kể email, nút gửi lại khoá đếm ngược (488ms)
+  ✓  18 [desktop] › e2e/account.spec.ts:344:1 › verify page: xác minh tự động đúng một lần, token rời khỏi URL; thành công / đã dùng / hết hạn + gửi lại (1.4s)
+  ✓  21 [desktop] › e2e/account.spec.ts:483:1 › reset page: Referrer-Policy no-referrer, no-store (kể cả forgot không cần) (38ms)
+  ✓  20 [desktop] › e2e/account.spec.ts:422:1 › reset page: kiểm liên kết khi mở, token rời URL, form hai ô, lỗi mật khẩu tại ô, thành công; liên kết xấu (1.3s)
+  ✓  22 [desktop] › e2e/account.spec.ts:492:1 › settings security: đổi mật khẩu (3 ô, 1 nút primary, lỗi tại ô), thiết bị: Thiết bị này, đăng xuất ngay + dòng tĩnh, xác nhận có số (1.4s)
+  ✓  23 [desktop] › e2e/account.spec.ts:577:1 › settings security: khung xương, lỗi chuẩn, 375 px dạng danh sách không tràn (945ms)
+  -  24 [desktop] › e2e/account.spec.ts:599:1 › @real reset logs out other device (hai context: máy B bị đăng xuất, /login kèm dòng thông báo)
+  ✓  26 [desktop] › e2e/account.spec.ts:711:1 › admin users page: khung mời mở tại chỗ (không dialog), gửi xong có dòng tĩnh, không từ kỹ thuật; 375 px sạch (675ms)
+  ✓  25 [desktop] › e2e/account.spec.ts:663:1 › admin users page: bảng, một nút chính, lọc theo vai, tìm, khung mời mở tại chỗ, khoá lạc quan + Hoàn tác, gửi lại lời mời (1.9s)
+  ✓  27 [desktop] › e2e/account.spec.ts:738:1 › admin users errors: email trùng tại ô, 422 tại ô, gửi lại cùng khoá, xung đột phiên bản, tự khoá, 403 (1.4s)
+  ✓  28 [desktop] › e2e/account.spec.ts:795:1 › admin users errors: mạng đứt khi mời ⇒ giữ chữ + banner ngoại tuyến + Gửi lại cùng khoá (2.2s)
+  ✓  30 [desktop] › e2e/account.spec.ts:871:1 › invite page: Referrer-Policy no-referrer, no-store (84ms)
+  -  31 [desktop] › e2e/account.spec.ts:877:1 › @real invite flow (Admin mời → đọc Mailpit → đặt mật khẩu → khoá → bị đăng xuất → mở khoá)
+  -  32 [desktop] › e2e/account.spec.ts:881:1 › @real login + refresh qua Caddy cùng origin (cần stack Go: docker-compose.test.yml)
+  -  33 [desktop] › e2e/account.spec.ts:885:1 › @real register verify login (cần stack Go + Mailpit: đăng ký → đọc Mailpit → xác minh → đăng nhập → vào /)
+  ✓  29 [desktop] › e2e/account.spec.ts:819:1 › invite page: xem trước, token rời URL, hai ô mật khẩu, thành công vào /; liên kết hỏng (2.3s)
+  -  35 [desktop] › e2e/qc-real-f1-account.spec.ts:13:1 › @real register → Mailpit → xác minh → đăng nhập → vào / (ô nhập mã lớp)
+  -  36 [desktop] › e2e/qc-real-f1-account.spec.ts:49:1 › @real login + refresh qua Caddy cùng origin: tải lại giữ phiên, đúng một refresh, không token ở storage/cookie đọc được
+  -  37 [desktop] › e2e/qc-real-f1-account.spec.ts:72:1 › @real reset mật khẩu thu hồi phiên máy khác: token máy B chết ngay, mở nguội về /login
+  -  38 [desktop] › e2e/qc-real-f1-account.spec.ts:104:1 › @real mời giảng viên: Admin mời → Mailpit → đặt mật khẩu → bị khoá → mất phiên → mở khoá
+  -  39 [desktop] › e2e/qc-real-f1-account.spec.ts:139:1 › @real mạo danh MSSV: đăng ký bằng MSSV của SV trong lớp, email khác → PENDING + cảnh báo lệch, không thấy dữ liệu của SV thật
+  -  40 [desktop] › e2e/qc-real-f1-account.spec.ts:179:1 › @real dò mật khẩu: 5 lần sai → chờ tăng dần (429/423); lần thứ 10 sai → khoá 15 phút + đúng MỘT thư cảnh báo; đúng mật khẩu cũng bị từ chối
+(node:7373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  41 [mobile] › e2e/account.spec.ts:53:1 › login page: nhãn, thuộc tính nhập, một nút primary, logo, liên kết, không từ kỹ thuật (493ms)
+  ✓  42 [mobile] › e2e/account.spec.ts:78:1 › login page: 375 px không tràn ngang, vùng chạm ≥ 44 px, AUDIT/TOUCH sạch (764ms)
+  ✓  43 [mobile] › e2e/account.spec.ts:91:1 › login page: sai ⇒ dòng lỗi role=alert, giữ email, xoá mật khẩu; đang gửi chỉ một request (748ms)
+  ✓  34 [desktop] › e2e/account.spec.ts:890:1 › seed accounts nav: số mục theo vai (9 / 13 / 16 / 7 / 1) (3.2s)
+(node:7404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  44 [mobile] › e2e/account.spec.ts:108:3 › login throttled (LOGIN_THROTTLED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã (3.8s)
+  ✓  46 [mobile] › e2e/account.spec.ts:134:1 › login page: phiên bị thu hồi ⇒ dòng thông báo (423ms)
+  ✓  45 [mobile] › e2e/account.spec.ts:108:3 › login throttled (RATE_LIMITED): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã (3.9s)
+  ✓  48 [mobile] › e2e/account.spec.ts:155:1 › next hợp lệ: quay lại đúng trang sau đăng nhập; vào route cần phiên khi chưa đăng nhập ⇒ /login?next= (646ms)
+  ✓  49 [mobile] › e2e/account.spec.ts:165:3 › login lần đầu: làm mới cookie cũ trả 401 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login (2.8s)
+  ✓  47 [mobile] › e2e/account.spec.ts:142:1 › open redirect: next lạ bị bỏ, location.origin không đổi (4.4s)
+  ✓  51 [mobile] › e2e/account.spec.ts:181:1 › no token in storage: không có JWT / refresh ở storage, cookie; tải lại ⇒ đúng một refresh, không nháy /login (1.3s)
+  -  52 [mobile] › e2e/account.spec.ts:207:1 › nav per role after login: Sinh viên 9 · TA 13 · Giảng viên 16 · Admin 7 mục
+  ✓  50 [mobile] › e2e/account.spec.ts:165:3 › login lần đầu: làm mới cookie cũ trả 200 SAU khi đăng nhập xong ⇒ vẫn vào được trang đích, không bật về /login (2.6s)
+  ✓  54 [mobile] › e2e/account.spec.ts:236:1 › two tabs refresh: hai tab cùng tải ⇒ refresh tuần tự, không chồng nhau (376ms)
+  ✓  53 [mobile] › e2e/account.spec.ts:223:1 › mock identity from session: sv.kha ⇒ Trần Thu Uyên; email lạ ⇒ tên thật; không đọc cookie ep_demo_* (1.5s)
+  ✓  55 [mobile] › e2e/account.spec.ts:259:1 › refresh hỏng giữa chừng ⇒ /login?next=; phiên bị thu hồi ⇒ /login kèm thông báo (507ms)
+  ✓  56 [mobile] › e2e/account.spec.ts:281:1 › register page: nhãn, chú thích, autocomplete, một nút primary, lỗi từng ô, màn Kiểm tra email + đếm ngược gửi lại (530ms)
+  ✓  57 [mobile] › e2e/account.spec.ts:332:1 › register page: 375 px không tràn ngang, vùng chạm ≥ 44 px (596ms)
+  ✓  59 [mobile] › e2e/account.spec.ts:396:1 › forgot page: một ô email, một nút Gửi hướng dẫn, câu chung bất kể email, nút gửi lại khoá đếm ngược (445ms)
+  ✓  58 [mobile] › e2e/account.spec.ts:344:1 › verify page: xác minh tự động đúng một lần, token rời khỏi URL; thành công / đã dùng / hết hạn + gửi lại (1.5s)
+  ✓  61 [mobile] › e2e/account.spec.ts:483:1 › reset page: Referrer-Policy no-referrer, no-store (kể cả forgot không cần) (60ms)
+  ✓  60 [mobile] › e2e/account.spec.ts:422:1 › reset page: kiểm liên kết khi mở, token rời URL, form hai ô, lỗi mật khẩu tại ô, thành công; liên kết xấu (1.3s)
+  ✓  62 [mobile] › e2e/account.spec.ts:492:1 › settings security: đổi mật khẩu (3 ô, 1 nút primary, lỗi tại ô), thiết bị: Thiết bị này, đăng xuất ngay + dòng tĩnh, xác nhận có số (1.1s)
+  -  64 [mobile] › e2e/account.spec.ts:599:1 › @real reset logs out other device (hai context: máy B bị đăng xuất, /login kèm dòng thông báo)
+  ✓  63 [mobile] › e2e/account.spec.ts:577:1 › settings security: khung xương, lỗi chuẩn, 375 px dạng danh sách không tràn (885ms)
+  -  65 [mobile] › e2e/account.spec.ts:663:1 › admin users page: bảng, một nút chính, lọc theo vai, tìm, khung mời mở tại chỗ, khoá lạc quan + Hoàn tác, gửi lại lời mời
+  -  66 [mobile] › e2e/account.spec.ts:711:1 › admin users page: khung mời mở tại chỗ (không dialog), gửi xong có dòng tĩnh, không từ kỹ thuật; 375 px sạch
+  -  68 [mobile] › e2e/account.spec.ts:795:1 › admin users errors: mạng đứt khi mời ⇒ giữ chữ + banner ngoại tuyến + Gửi lại cùng khoá
+  -  67 [mobile] › e2e/account.spec.ts:738:1 › admin users errors: email trùng tại ô, 422 tại ô, gửi lại cùng khoá, xung đột phiên bản, tự khoá, 403
+  ✓  70 [mobile] › e2e/account.spec.ts:871:1 › invite page: Referrer-Policy no-referrer, no-store (211ms)
+  -  71 [mobile] › e2e/account.spec.ts:877:1 › @real invite flow (Admin mời → đọc Mailpit → đặt mật khẩu → khoá → bị đăng xuất → mở khoá)
+  -  72 [mobile] › e2e/account.spec.ts:881:1 › @real login + refresh qua Caddy cùng origin (cần stack Go: docker-compose.test.yml)
+  -  73 [mobile] › e2e/account.spec.ts:885:1 › @real register verify login (cần stack Go + Mailpit: đăng ký → đọc Mailpit → xác minh → đăng nhập → vào /)
+  -  74 [mobile] › e2e/account.spec.ts:890:1 › seed accounts nav: số mục theo vai (9 / 13 / 16 / 7 / 1)
+  -  75 [mobile] › e2e/qc-real-f1-account.spec.ts:13:1 › @real register → Mailpit → xác minh → đăng nhập → vào / (ô nhập mã lớp)
+  -  76 [mobile] › e2e/qc-real-f1-account.spec.ts:49:1 › @real login + refresh qua Caddy cùng origin: tải lại giữ phiên, đúng một refresh, không token ở storage/cookie đọc được
+  -  77 [mobile] › e2e/qc-real-f1-account.spec.ts:72:1 › @real reset mật khẩu thu hồi phiên máy khác: token máy B chết ngay, mở nguội về /login
+  -  78 [mobile] › e2e/qc-real-f1-account.spec.ts:104:1 › @real mời giảng viên: Admin mời → Mailpit → đặt mật khẩu → bị khoá → mất phiên → mở khoá
+  -  79 [mobile] › e2e/qc-real-f1-account.spec.ts:139:1 › @real mạo danh MSSV: đăng ký bằng MSSV của SV trong lớp, email khác → PENDING + cảnh báo lệch, không thấy dữ liệu của SV thật
+  -  80 [mobile] › e2e/qc-real-f1-account.spec.ts:179:1 › @real dò mật khẩu: 5 lần sai → chờ tăng dần (429/423); lần thứ 10 sai → khoá 15 phút + đúng MỘT thư cảnh báo; đúng mật khẩu cũng bị từ chối
+  ✓  69 [mobile] › e2e/account.spec.ts:819:1 › invite page: xem trước, token rời URL, hai ô mật khẩu, thành công vào /; liên kết hỏng (2.3s)
+
+  26 skipped
+  54 passed (45.8s)
+rc=0

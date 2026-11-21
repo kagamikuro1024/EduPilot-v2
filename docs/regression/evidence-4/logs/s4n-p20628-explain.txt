@@ -1,0 +1,46 @@
+users: 60000
+indexes: users_pkey,users_created_idx,users_email_key,users_ics_token_key,users_student_code_idx,
+### mặc định
+Limit  (cost=0.29..1.91 rows=21 width=87) (actual time=0.015..0.018 rows=21.00 loops=1)
+  Buffers: shared hit=3
+  ->  Index Scan using users_created_idx on users  (cost=0.29..4614.60 rows=60000 width=87) (actual time=0.014..0.016 rows=21.00 loops=1)
+        Index Searches: 1
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=186
+Planning Time: 0.330 ms
+Execution Time: 0.046 ms
+### lọc role
+Limit  (cost=0.29..5.33 rows=21 width=87) (actual time=0.015..0.025 rows=21.00 loops=1)
+  Buffers: shared hit=4
+  ->  Index Scan using users_created_idx on users  (cost=0.29..4764.60 rows=19866 width=87) (actual time=0.014..0.023 rows=21.00 loops=1)
+        Filter: (role = 'TEACHER'::user_role)
+        Rows Removed by Filter: 40
+        Index Searches: 1
+        Buffers: shared hit=4
+Planning:
+  Buffers: shared hit=189
+Planning Time: 0.327 ms
+Execution Time: 0.043 ms
+### lọc status
+Limit  (cost=0.29..1.96 rows=21 width=87) (actual time=0.051..0.055 rows=21.00 loops=1)
+  Buffers: shared hit=3
+  ->  Index Scan using users_created_idx on users  (cost=0.29..4764.60 rows=60000 width=87) (actual time=0.050..0.053 rows=21.00 loops=1)
+        Filter: (status = 'ACTIVE'::user_status)
+        Index Searches: 1
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=189
+Planning Time: 0.283 ms
+Execution Time: 0.070 ms
+### con trỏ
+Limit  (cost=0.29..2.11 rows=21 width=87) (actual time=0.022..0.025 rows=21.00 loops=1)
+  Buffers: shared hit=3
+  ->  Index Scan using users_created_idx on users  (cost=0.29..4254.11 rows=49211 width=87) (actual time=0.021..0.023 rows=21.00 loops=1)
+        Index Cond: (ROW(created_at, id) < ROW((now() - '03:00:00'::interval), '00000000-0000-7000-8000-000000000000'::uuid))
+        Index Searches: 1
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=185
+Planning Time: 0.357 ms
+Execution Time: 0.066 ms

@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+INFO reduce=true: nền gốc rgba(0, 0, 0, 0)|rgba(0, 0, 0, 0) | đổi nền từ 70 ms đến 229 ms (7/55 mẫu) | transform khác none: false | anim: background-color:1,background-position-x:1,background-position-y:1;ep-saved:200
+INFO mẫu: [[1,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[176,"oklab(0.489998 -0.1064","a(0, 0, 0, 0)"],[342,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[510,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[676,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[846,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1010,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1171,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1342,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"],[1510,"a(0, 0, 0, 0)","a(0, 0, 0, 0)"]]
+INFO sau Enter focus: {"tag":"INPUT","col":1,"row":1} cột ô gốc 1
+INFO sau Tab focus: {"tag":"INPUT","col":3,"row":0}
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rn4-real.spec.ts:63:3 › TC-UX16-14 TC-UX04-19 nháy lưu ô sổ điểm, Enter/Tab (reduce=true) (11.5s)
+
+  1 passed (12.0s)

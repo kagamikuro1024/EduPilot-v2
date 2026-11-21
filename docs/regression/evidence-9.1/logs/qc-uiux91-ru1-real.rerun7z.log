@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+INFO UX18-4 tổng công tắc: 22 | theo tên: {"aiOn":7,"aiOff":4,"svOn":8,"svOff":3} | màu: {"aiOn":["rgb(35, 31, 32)"],"aiOff":["lab(87.1298 3.66905 1.97326)"],"svOn":["rgb(35, 31, 32)"],"svOff":["lab(87.1298 3.66905 1.97326)"]}
+INFO UX18-6 tài liệu ẩn với SV: ["QC Đáp án thiếu","Đáp án đề mẫu luyện tập","Đáp án đề tham khảo tuần 5"]
+INFO UX18-8 SV /documents: "Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng."
+INFO UX18-8 API: 403 | /library dài 274
+INFO UX18-PQ GV lớp lạ 01a1df30-523a-7d7a-a240-c120dbd57ac3 → 403
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:59:1 › TC-UX18-4/6/8/PQ công tắc tài liệu, thư viện SV, quyền (18.2s)
+
+  1 passed (19.2s)

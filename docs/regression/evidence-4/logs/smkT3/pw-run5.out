@@ -1,0 +1,119 @@
+
+Running 6 tests using 1 worker
+
+(node:17390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17390) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  1 [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:15:1 › [TC-P208-34] B: được gán rồi đăng nhập → bấm thông báo → đúng đường dẫn, bộ chọn lớp đúng lớp, unread giảm 1 (2.6s)
+
+  ✘  2 [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp (7.3s)
+(node:17667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17667) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  3 [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:65:1 › [TC-P208-34] A2 (chờ 65 s > staleTime 60 s của /me/courses trước khi bấm): GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp (1.2m)
+
+  ✓  4 [desktop] › e2e/qc2-r4/smkt3-g21.spec.ts:7:1 › [TC-P204-14 GATEP2-21] đặt lại mật khẩu ở máy A → máy B bị đăng xuất, thấy câu giải thích (4.1s)
+ROUTE /grading: ép 4, refresh sau 401 đầu 1, tổng refresh 3
+   28 REFRESH →
+ 3578 --- armed
+ 3611 REFRESH →
+ 3671 401! GET /api/v1/notifications?limit=30 n=1
+ 3672 pass GET /api/v1/me/courses?limit=100 n=1
+ 3678 REFRESH →
+ 3694 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/assignm n=1
+ 3697 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/submiss n=1
+ 3699 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/submiss n=1
+ 3701 pass GET /api/v1/notifications?limit=30 n=2
+ 3702 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/assignm n=2
+ 3705 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/submiss n=2
+ 3707 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/submiss n=2
+ROUTE /gradebook: ép 3, refresh sau 401 đầu 1, tổng refresh 3
+   45 REFRESH →
+ 3624 --- armed
+ 3659 REFRESH →
+ 3728 401! GET /api/v1/notifications?limit=30 n=1
+ 3729 pass GET /api/v1/me/courses?limit=100 n=1
+ 3733 REFRESH →
+ 3757 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/gradebo n=1
+ 3762 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/grade-s n=1
+ 3763 pass GET /api/v1/notifications?limit=30 n=2
+ 3766 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/gradebo n=2
+ 3768 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/grade-s n=2
+ROUTE /students: ép 1, refresh sau 401 đầu 1, tổng refresh 3
+   41 REFRESH →
+ 3606 --- armed
+ 3631 REFRESH →
+ 3670 401! GET /api/v1/notifications?limit=30 n=1
+ 3671 pass GET /api/v1/me/courses?limit=100 n=1
+ 3672 REFRESH →
+ 3691 pass GET /api/v1/notifications?limit=30 n=2
+ 3986 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/student n=1
+ROUTE /assignments: ép 1, refresh sau 401 đầu 1, tổng refresh 3
+   65 REFRESH →
+ 3619 --- armed
+ 3655 REFRESH →
+ 3707 401! GET /api/v1/notifications?limit=30 n=1
+ 3711 pass GET /api/v1/me/courses?limit=100 n=1
+ 3719 REFRESH →
+ 3735 pass GET /api/v1/notifications?limit=30 n=2
+ROUTE /: ép 3, refresh sau 401 đầu 1, tổng refresh 3
+   38 REFRESH →
+ 3580 --- armed
+ 3603 REFRESH →
+ 3950 401! GET /api/v1/notifications?limit=30 n=1
+ 3950 pass GET /api/v1/me/courses?limit=100 n=1
+ 3953 REFRESH →
+ 3958 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/today n=1
+ 3959 401! GET /api/v1/me/today n=1
+ 3960 pass GET /api/v1/notifications?limit=30 n=2
+ 3961 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/today n=2
+ 3961 pass GET /api/v1/me/today n=2
+  ✘  5 [desktop] › e2e/qc2-r4/smkt3-p20231.spec.ts:52:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key (48.9s)
+(node:20223) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20223) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  6 [desktop] › e2e/qc2-r4/smkt3-p20231.spec.ts:71:1 › [TC-P202-31] POST bị 401 một lần rồi thành công: phát lại mang cùng Idempotency-Key, đúng 1 bản ghi (762ms)
+
+
+  1) [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "QC2IUAAMWMSKD3T"
+    Received string:    "QC2IUBBMWMSK8MM · QC2IU BB"
+
+      60 |   const opts = await page.getByRole("dialog", { name: "Chọn lớp" }).getByRole("menuitem").allInnerTexts();
+      61 |   note(`A: chấm sau ${dt.toFixed(1)} s; sau bấm url=${url1} bộ chọn="${sel1}" (mong ${c.code}); /me/courses gọi lại sau gán: ${reqs.length}; sau tải lại, danh sách chọn lớp chứa ${c.code}: ${opts.join("|").includes(c.code)}`);
+    > 62 |   expect(sel1).toContain(c.code);
+         |                ^
+      63 | });
+      64 |
+      65 | test("[TC-P208-34] A2 (chờ 65 s > staleTime 60 s của /me/courses trước khi bấm): GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp", async ({ page }, info) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/smkt3-bell.spec.ts:62:16
+
+    Error Context: ../../../../../tmp/qc2-pwout3/smkt3-bell--TC-P208-34-A-G-b041f-bấm-thông-báo-→-bộ-chọn-lớp-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r4/smkt3-p20231.spec.ts:52:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 5
+    Received:    4
+
+      64 |   const b = best!;
+      65 |   note(`${route}: ép 401 TOKEN_EXPIRED ${b.forced.length} request song song (${b.forced.map((h) => h.k.replace("/api/v1", "").slice(0, 30)).join("; ")}); POST /auth/refresh sau 401 đầu = ${b.afterFirst} (tổng kể cả lần làm mới sớm lúc tải trang = ${b.refreshAll}); số lần mỗi request tới mạng (1 bị ép + 1 phát lại = 2) = [${b.replays.join(",")}]`);
+    > 66 |   expect(b.forced.length).toBeGreaterThanOrEqual(5);
+         |                           ^
+      67 |   expect(b.afterFirst).toBe(1);
+      68 |   for (const n of b.replays) expect(n).toBe(2);
+      69 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/smkt3-p20231.spec.ts:66:27
+
+    Error Context: ../../../../../tmp/qc2-pwout3/smkt3-p20231--TC-P202-31-≥-0d267-n-POST-cùng-Idempotency-Key-desktop/error-context.md
+
+  2 failed
+    [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp 
+    [desktop] › e2e/qc2-r4/smkt3-p20231.spec.ts:52:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key 
+  4 passed (2.3m)

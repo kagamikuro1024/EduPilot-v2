@@ -1,0 +1,94 @@
+
+Running 7 tests using 1 worker
+
+(node:3991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3991) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  1 [desktop] › e2e/qc2-r4/r4ui-acct.spec.ts:31:1 › [TC-P204-27] forgot / reset: một ô, một nút, câu chung, gửi lại khoá; reset hợp lệ / không hợp lệ / sau thành công, token rời URL (4.2s)
+
+  ✓  2 [desktop] › e2e/qc2-r4/r4ui-acct.spec.ts:91:1 › [TC-P204-28] /reset-password: Referrer-Policy no-referrer; token không rò qua Referer và log Caddy (8.9s)
+
+  ✘  3 [desktop] › e2e/qc2-r4/r4ui-acct.spec.ts:130:1 › [TC-P204-30] /settings: Đổi mật khẩu primary; Thiết bị này; đăng xuất 1 thiết bị ngay + dòng tĩnh; mọi thiết bị khác có số; rỗng (2.0m)
+(node:6573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6573) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✘  4 [desktop] › e2e/qc2-r4/r4ui-acct.spec.ts:167:1 › [TC-P204-31] /settings: chỉ bàn phím, 375 px, ui-antipatterns.sh, axe, không từ kỹ thuật (2.9s)
+(node:6649) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6649) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  5 [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:166:1 › [TC-P206-39] lỗi Admin: 409 email trùng tại ô, 422, 403, offline Gửi lại cùng khoá, xung đột phiên bản (5.1s)
+
+  ✘  6 [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:361:1 › [TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N giờ trước / hôm qua HH:mm / dd/MM; không chuỗi cứng ngoài timeAgo (1.2s)
+(node:6983) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6983) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✘  7 [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:400:1 › [TC-P208-37] lỗi Admin lớp: mã trùng 409 tại ô, 422 sai vai, VERSION_CONFLICT, offline cùng khoá, lưu trữ lớp đã lưu trữ (3.6s)
+
+
+  1) [desktop] › e2e/qc2-r4/r4ui-acct.spec.ts:130:1 › [TC-P204-30] /settings: Đổi mật khẩu primary; Thiết bị này; đăng xuất 1 thiết bị ngay + dòng tĩnh; mọi thiết bị khác có số; rỗng 
+
+    Test timeout of 120000ms exceeded.
+
+    Error Context: ../../../../../tmp/qc2-pwout3/r4ui-acct--TC-P204-30-sett-730c5-ọi-thiết-bị-khác-có-số-rỗng-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r4/r4ui-acct.spec.ts:167:1 › [TC-P204-31] /settings: chỉ bàn phím, 375 px, ui-antipatterns.sh, axe, không từ kỹ thuật 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      178 |       reached = await page.evaluate(() => /Đăng xuất mọi thiết bị khác/.test(document.activeElement?.textContent ?? ""));
+      179 |     }
+    > 180 |     expect(reached).toBe(true);
+          |                     ^
+      181 |     await page.keyboard.press("Enter");
+      182 |     await expect(page.getByRole("dialog")).toContainText("Đăng xuất 2 thiết bị khác");
+      183 |     await page.keyboard.press("Escape");
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-acct.spec.ts:180:21
+
+    Error Context: ../../../../../tmp/qc2-pwout3/r4ui-acct--TC-P204-31-sett-cad33-ns-sh-axe-không-từ-kỹ-thuật-desktop/error-context.md
+
+  3) [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:361:1 › [TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N giờ trước / hôm qua HH:mm / dd/MM; không chuỗi cứng ngoài timeAgo 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /hôm qua 16:40/
+    Received string:  "Thử nyd Thông báo · Hôm qua, 16:40 "
+
+      387 |   expect(lk.n5m).toMatch(/5 phút trước/);
+      388 |   expect(lk.n3h).toMatch(/3 giờ trước/);
+    > 389 |   expect(lk.nyd).toMatch(/hôm qua 16:40/);
+          |                  ^
+      390 |   const d5 = new Date(Date.now() - 5 * 86400_000);
+      391 |   const dd = new Date(d5.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+      392 |   const ddmm = `${String(dd.getDate()).padStart(2, "0")}/${String(dd.getMonth() + 1).padStart(2, "0")}`;
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-admin.spec.ts:389:18
+
+    Error Context: ../../../../../tmp/qc2-pwout3/r4ui-admin--TC-P208-35-thờ-bd1cb-ng-chuỗi-cứng-ngoài-timeAgo-desktop/error-context.md
+
+  4) [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:400:1 › [TC-P208-37] lỗi Admin lớp: mã trùng 409 tại ô, 422 sai vai, VERSION_CONFLICT, offline cùng khoá, lưu trữ lớp đã lưu trữ 
+
+    TypeError: Cannot read properties of undefined (reading 'find')
+
+      447 |   await expect(row).toBeVisible({ timeout: 30_000 });
+      448 |   const list = (await call("GET", "/admin/courses?limit=200", adm)).body.items as Array<{ id: string; class_code: string; version: number; name: string; capacity?: number }>;
+    > 449 |   const cur = list.find((c) => c.class_code === first.code)!;
+          |                    ^
+      450 |   const put = await call("PUT", `/admin/courses/${first.id}`, adm, { name: "Đổi bằng API", class_code: first.code, version: cur.version, capacity: cur.capacity ?? 30 });
+      451 |   note(`PUT API đổi phiên bản: ${put.status}`);
+      452 |   await row.getByRole("button", { name: /Hành động cho lớp/ }).click();
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-admin.spec.ts:449:20
+
+    Error Context: ../../../../../tmp/qc2-pwout3/r4ui-admin--TC-P208-37-lỗi-482e8-khoá-lưu-trữ-lớp-đã-lưu-trữ-desktop/error-context.md
+
+  4 failed
+    [desktop] › e2e/qc2-r4/r4ui-acct.spec.ts:130:1 › [TC-P204-30] /settings: Đổi mật khẩu primary; Thiết bị này; đăng xuất 1 thiết bị ngay + dòng tĩnh; mọi thiết bị khác có số; rỗng 
+    [desktop] › e2e/qc2-r4/r4ui-acct.spec.ts:167:1 › [TC-P204-31] /settings: chỉ bàn phím, 375 px, ui-antipatterns.sh, axe, không từ kỹ thuật 
+    [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:361:1 › [TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N giờ trước / hôm qua HH:mm / dd/MM; không chuỗi cứng ngoài timeAgo 
+    [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:400:1 › [TC-P208-37] lỗi Admin lớp: mã trùng 409 tại ô, 422 sai vai, VERSION_CONFLICT, offline cùng khoá, lưu trữ lớp đã lưu trữ 
+  3 passed (2.5m)

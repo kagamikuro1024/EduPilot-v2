@@ -128,7 +128,7 @@ test("TC-UX12-2 chấm điểm danh đã chọn giữ đỏ khi rê (desktop) + 
     const out: { sel: string; cond: string | null; applies: boolean | null }[] = [];
     const walk = (rules: CSSRuleList, cond: string | null) => { for (const ru of Array.from(rules)) {
       if (ru instanceof CSSMediaRule) walk(ru.cssRules, ru.conditionText);
-      else if (ru instanceof CSSStyleRule && /\.radio/.test(ru.selectorText) && /:hover/.test(ru.selectorText)) out.push({ sel: ru.selectorText, cond, applies: cond === null ? true : matchMedia(cond).matches });
+      else if (ru instanceof CSSStyleRule && /radio/.test(ru.selectorText) && /:hover/.test(ru.selectorText)) out.push({ sel: ru.selectorText, cond, applies: cond === null ? true : matchMedia(cond).matches });
     } };
     for (const sh of Array.from(document.styleSheets)) { try { walk(sh.cssRules, null); } catch { /* tệp ngoài miền */ } }
     return { hoverHover: matchMedia("(hover: hover)").matches, rules: out };

@@ -1,0 +1,2 @@
+F TC-PE07-18 smkP @634d59c5 (d7fecdc2 R5-07): dán 328 ký tự vào ô mã rồi ĐÓNG THẬT ngay (trước nhịp 15 s), đối chiếu exam_events trong DB sau 3 s: {"navigate":{"u":"r5s23","
+rc=0

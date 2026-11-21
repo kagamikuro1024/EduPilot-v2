@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:27470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+F TC-P210-32 lớp cùng học phần: mục «Dùng lại nội dung từ lớp khác» hiện=1; bấm nguồn 761987 → tại chỗ «Đã dùng lại 10 tài liệu từ lớp 761987.»; nguồn chưa có tài liệu (QSRI2ED) → «Lớp QSRI2ED chưa có tài liệu để dùng lại.»; toast=["Đã dùng lại 10 tài liệu từ lớp 761987."]; GV có lớp học phần duy nhất QCOTH → mụ
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:19:3 › GV 1440 › [P210-32] Dùng lại nội dung từ lớp khác (38.7s)
+
+  1 passed (39.3s)
+done rc=0

@@ -1,0 +1,12 @@
+
+Running 2 tests using 1 worker
+
+(node:29199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+P TC-P211-33 khung xương: phần tử aria-busy=1 khi API chậm 2,5 s (1 lượt gọi); lỗi 500 → «Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng. Thử lại» + nút Thử lại=1; từ kỹ thuật (RAG|PII|trace|provider): không; 375 px tràn ngang 0; mục chạm < 40 px: 0; axe serious/critical []; thời gian tới hành độ
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:27:3 › 375 SV › [P211-33] khung xương, lỗi, 3 giây (14.6s)
+P TC-P211-41 500 → «Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng. Thử lại» + Thử lại; bấm Thử lại → 1 yêu cầu mới (đúng 1) và hiện dữ liệu; làm mới lỗi khi đã có dữ liệu: dữ liệu cũ vẫn hiện=true, dòng cảnh báo=0; ngoại tuyến → banner=true
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:40:3 › 375 SV › [P211-41] lỗi UI: thử lại, giữ dữ liệu cũ, ngoại tuyến (20.9s)
+
+  2 passed (36.1s)
+done rc=0

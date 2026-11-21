@@ -1,0 +1,6 @@
+start 08:50:15
+vet rc=0
+lint rc=1
+today rc=0
+integ rc=0
+end 08:55:09

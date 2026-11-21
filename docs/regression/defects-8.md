@@ -60,3 +60,12 @@ Công thức không đổi (1 bản CONFIRMED v3, scheme_no 1). Nguyên nhân l�
 - Bước tái hiện: lớp có công thức CONFIRMED với tài liệu nguồn (QD8H3), GV xoá tài liệu (DELETE /courses/{id}/documents/{doc} → 204), mở /gradebook/scheme, bấm «Trang 1».
 - Kỳ vọng (SRS FEAT-gradebook dòng 96, US AC8): trích dẫn hiện «Tài liệu nguồn đã gỡ». Thực tế: cột trích dẫn hiện «Quy chế lớp 2 · Trang 1 · <đoạn trích>» (source_title sao chép) không có chữ «đã gỡ»; không lỗi.
 - Bằng chứng: frontend/e2e/qc2-r8/real-05.spec.ts, part-s8r.tsv; mã frontend/src/features/gradebook/CitationPane.tsx (không nhánh docId rỗng).
+
+### DEF-Q2-S8-02 — SEED_RNG khác: sổ điểm lớp 1 không còn khớp expected theo account (TC-P6-SEED-36)
+- Mức: Thấp (dữ liệu seed/tài liệu; không ảnh hưởng điểm thật)
+- Sprint gốc: 8 (US-S8-SEED AC5) · Hồi quy: không
+- Bước tái hiện: DB trống; `SEED_RNG=1 node scripts/seed.mjs`; so sổ điểm lớp 761987 với `seed/expected_final_grades.csv` THEO `account`.
+- Kỳ vọng (TC-P6-SEED-36, fixtures/README.md dòng 42): MSSV đổi, preview vẫn 30/30 khi so bằng account. Thực tế: 25/30 (lệch sv04, sv08, sv10, sv20, sv25).
+- Nguyên nhân: `seed/crm_plan.json` (số lần phát biểu) phụ thuộc `SEED_RNG` — `SEED_RNG=1 node scripts/crm-plan.mjs --json` đổi sv04 2→0, sv08 3→0, sv10 2→0…, tổng phát biểu 65→52 → điểm cộng phát biểu và HP đổi. MSSV không phải nguyên nhân.
+- Cách sửa gợi ý (dev/BA chọn): sửa TC + README «30/30 chỉ với SEED_RNG mặc định; đổi RNG: A, B, C vẫn khớp, các tài khoản còn lại đổi theo kế hoạch phát biểu», hoặc cố định kế hoạch phát biểu không phụ thuộc RNG.
+- Bằng chứng: evidence-8/scripts/s8seed-g.py, evidence-8/logs/winB-*.log, part-s8r.tsv.

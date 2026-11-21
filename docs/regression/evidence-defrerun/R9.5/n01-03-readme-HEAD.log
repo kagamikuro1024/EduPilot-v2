@@ -1,0 +1,7 @@
+# README benchmarks/README.md:12 (239df7fc), chạy trong ep-r-gateway-1 (APP_ENV local)
+Quản trị viên này đã tồn tại; không đổi gì.
+rc=0
+# thiếu cờ (lệnh cũ):
+admin: cần cả --email và --name.
+Dùng: gateway admin create --email E --name N   (mật khẩu: biến ADMIN_PASSWORD hoặc stdin)
+rc=2

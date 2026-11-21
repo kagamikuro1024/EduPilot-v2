@@ -1,0 +1,15 @@
+[1/20] Admin đầu tiên (gateway admin create)…
+(node:96033) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+    POST /auth/login → 200
+[2/20] Mời giảng viên và trợ giảng, nhận lời mời…
+    GET /admin/users?q=teacher%40edupilot.local&limit=10 → 200
+    POST /auth/login → 200
+    GET /admin/users?q=ta%40edupilot.local&limit=10 → 200
+    POST /auth/login → 200
+[3/20] Mở hai lớp 761987 / 761988, gán giảng viên và TA…
+    GET /admin/courses?limit=100 → 200
+    POST /admin/courses → 201
+    GET /admin/courses?limit=100 → 200
+Seed lỗi: Cannot read properties of undefined (reading 'teacher')
+rc=1

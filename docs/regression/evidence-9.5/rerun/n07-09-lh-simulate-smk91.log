@@ -1,0 +1,12 @@
+ack 204
+rt=ep_rt=K_3eE2… course=01a1ef53-79d0-75ea-8b95-e44216e58f21 assignment=01a1ef58-36f1-7141-a305-c1ffc8ccdcef
+simulate / 1 rc=0
+simulate / 2 rc=0
+simulate / 3 rc=0
+simulate /assignments/01a1ef58-36f1-7141-a305-c1ffc8ccdcef 1 rc=0
+simulate /assignments/01a1ef58-36f1-7141-a305-c1ffc8ccdcef 2 rc=0
+simulate /assignments/01a1ef58-36f1-7141-a305-c1ffc8ccdcef 3 rc=0
+('devtools', '/') 3 LCP 2179 TBT 69 CLS 0.0 script KB 189
+('devtools', '/assignments/[id]') 3 LCP 4543 TBT 69 CLS 0.063 script KB 213
+('simulate', '/') 3 LCP 2464 TBT 59 CLS 0 script KB 189
+('simulate', '/assignments/[id]') 3 LCP 2610 TBT 48 CLS 0.063 script KB 213

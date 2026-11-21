@@ -1,0 +1,3 @@
+--- PASS: TestSendRedisDownFailsFast (7.73s)
+PASS
+ok  	github.com/edupilot/backend-go/internal/chat	8.416s

@@ -1,0 +1,107 @@
+
+Running 2 tests using 1 worker
+
+(node:16120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16120) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+P48 login ok
+P48 p1 
+
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-nav.spec.ts:44:1 › [TC-P202-48] sv.kha: hồ sơ người mock B, /chat phiên mock B, không đọc cookie ep_demo_*, email lạ → theo vai; kho trình duyệt sạch (7.0s)
+ROUTE /: ép 3, refresh sau 401 đầu 1, tổng refresh 2
+  163 REFRESH →
+  639 401! GET /api/v1/notifications?limit=30 n=1
+  640 pass GET /api/v1/me/courses?limit=100 n=1
+  645 REFRESH →
+  736 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/today n=1
+  739 401! GET /api/v1/me/today n=1
+  831 pass GET /api/v1/notifications?limit=30 n=2
+  832 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/today n=2
+  833 pass GET /api/v1/me/today n=2
+ 3791 --- armed
+ROUTE /class/members: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+  106 REFRESH →
+  205 401! GET /api/v1/notifications?limit=30 n=1
+  206 pass GET /api/v1/me/courses?limit=100 n=1
+  210 REFRESH →
+  229 pass GET /api/v1/notifications?limit=30 n=2
+  239 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/members n=1
+  242 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/members n=1
+ 3711 --- armed
+ROUTE /gradebook: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+  107 REFRESH →
+  287 401! GET /api/v1/notifications?limit=30 n=1
+  288 pass GET /api/v1/me/courses?limit=100 n=1
+  290 REFRESH →
+  317 pass GET /api/v1/notifications?limit=30 n=2
+  323 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/gradebo n=1
+  324 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/grade-s n=1
+ 3788 --- armed
+ROUTE /inbox: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+  382 REFRESH →
+  630 401! GET /api/v1/notifications?limit=30 n=1
+  647 pass GET /api/v1/me/courses?limit=100 n=1
+  651 REFRESH →
+  682 pass GET /api/v1/notifications?limit=30 n=2
+  998 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/tickets n=1
+ 4128 --- armed
+ROUTE /insights: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+  325 REFRESH →
+  571 401! GET /api/v1/notifications?limit=30 n=1
+  573 pass GET /api/v1/me/courses?limit=100 n=1
+  580 REFRESH →
+  642 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/insight n=1
+  644 pass GET /api/v1/notifications?limit=30 n=2
+ 4062 --- armed
+ROUTE /grading: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+  107 REFRESH →
+  416 401! GET /api/v1/notifications?limit=30 n=1
+  423 pass GET /api/v1/me/courses?limit=100 n=1
+  426 REFRESH →
+  505 pass GET /api/v1/notifications?limit=30 n=2
+  537 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/submiss n=1
+  633 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/assignm n=1
+ 3964 --- armed
+ROUTE /documents: ép 3, refresh sau 401 đầu 1, tổng refresh 2
+  231 REFRESH →
+  855 401! GET /api/v1/notifications?limit=30 n=1
+  858 pass GET /api/v1/me/courses?limit=100 n=1
+  882 REFRESH →
+ 1435 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/documen n=1
+ 1437 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/documen n=1
+ 1777 pass GET /api/v1/notifications?limit=30 n=2
+ 1778 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/documen n=2
+ 1779 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/documen n=2
+ 4281 --- armed
+ROUTE /analytics: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+  436 REFRESH →
+  575 401! GET /api/v1/notifications?limit=30 n=1
+  579 pass GET /api/v1/me/courses?limit=100 n=1
+  584 REFRESH →
+  640 pass GET /api/v1/notifications?limit=30 n=2
+ 4047 --- armed
+  ✘  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:53:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key (1.4m)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:53:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 5
+    Received:    3
+
+      65 |   const b = best!;
+      66 |   note(`${route}: ép 401 TOKEN_EXPIRED ${b.forced.length} request song song (${b.forced.map((h) => h.k.replace("/api/v1", "").slice(0, 30)).join("; ")}); POST /auth/refresh sau 401 đầu = ${b.afterFirst} (tổng kể cả lần làm mới sớm lúc tải trang = ${b.refreshAll}); số lần mỗi request tới mạng (1 bị ép + 1 phát lại = 2) = [${b.replays.join(",")}]`);
+    > 67 |   expect(b.forced.length).toBeGreaterThanOrEqual(5);
+         |                           ^
+      68 |   expect(b.afterFirst).toBe(1);
+      69 |   for (const n of b.replays) expect(n).toBe(2);
+      70 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:67:27
+
+    Error Context: ../docs/regression/evidence-4/pw-out/smkt3-p20231--TC-P202-31-≥-0d267-n-POST-cùng-Idempotency-Key-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:53:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key 
+  1 passed (1.5m)
+done rc=1

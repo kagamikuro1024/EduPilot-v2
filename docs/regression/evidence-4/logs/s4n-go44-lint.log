@@ -1,0 +1,5 @@
+internal/practice/extract.go:130:5: defaultRetryWait is a global variable (gochecknoglobals)
+var defaultRetryWait = []time.Duration{2 * time.Second, 5 * time.Second}
+    ^
+1 issues:
+* gochecknoglobals: 1

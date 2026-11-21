@@ -1,0 +1,11 @@
+gwprod logs: {"time":"2026-11-21T01:56:34.495666727Z","level":"INFO","msg":"gateway ready","service":"gateway","instance":"b972520b5380","addr":":8080","startup_ms":100,"trace_id":"f4e1b88a5ff7272f0b9f220365d35bb0"}
+{"time":"2026-11-21T01:56:34.743756333Z","level":"INFO","msg":"request","service":"gateway","instance":"b972520b5380","method":"GET","path":"/api/v1/healthz","status":200,"duration_ms":0,"request_id":"0c35edb067cfb6ef2ad27b1a4a585638","trace_id":"0c35edb067cfb6ef2ad27b1a4a585638"}
+APP_ENV=production body có join_code=1: {"code":"VALIDATION_FAILED","message":"Dữ liệu chưa hợp lệ.","trace_id":"c5e288f96764406e58612e22d38f96fe","details":[{"field":"join_code","code":"NOT_ALLOWED","message":"Không đặt được mã tham gia ở môi trường chạy thật."}]}
+ HTTP 422
+APP_ENV=production body có join_code=0: {"id":"01a1fbd1-e330-7eba-a932-a232a98261d7","class_code":"S4Qproduction","subject_code":"INT1006","name":"x","semester":"2026-2027-HK1","status":"ACTIVE","version":1,"teacher":null}
+ HTTP 201
+APP_ENV=test body có join_code=1: {"id":"01a1fbd1-e621-72c7-948f-ac9ab3553b68","class_code":"S4Ptest","subject_code":"INT1006","name":"x","semester":"2026-2027-HK1","status":"ACTIVE","version":1,"teacher":null}
+ HTTP 201
+APP_ENV=test body có join_code=0: {"id":"01a1fbd1-e63e-78f9-9a79-1d48d8579c84","class_code":"S4Qtest","subject_code":"INT1006","name":"x","semester":"2026-2027-HK1","status":"ACTIVE","version":1,"teacher":null}
+ HTTP 201
+DB courses: S4Ptest,ABCDEFG S4Qproduction,ERF36JM S4Qtest,WNR2YTQ 

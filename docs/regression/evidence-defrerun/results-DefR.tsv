@@ -1,0 +1,7 @@
+DEF-R2-04	TC-PG06-10/11 (contract, sprint1/2 tương ứng)	P	HEAD 9f05e1b2: go test -count=1 ./internal/contract KHÔNG tag ok 56,3 s rc=0; có -tags testroutes ok rc=0; R2-04/notag.log, tag.log
+DEF-R9.5-16	TC-N01-12	P	check-meta.mjs: demo_stack=unknown → rc=1 «demo_stack «unknown» ∉ stopped|running»; reports thật «meta đủ» rc=0; R9.5/n01-12-*.log
+DEF-R9.5-22	TC-N01-03	P	benchmarks/README.md:12 (239df7fc) chạy nguyên văn trong ep-r-gateway-1: «Quản trị viên này đã tồn tại; không đổi gì.» rc=0 (thiếu cờ cũ → rc=2); R9.5/n01-03-readme-HEAD.log
+DEF-R10.8-02	TC-AS13-05, TC-AS14-11	P	34/34 tên test ở SRS §11 có func trong backend-go (R10.8-02/grep.txt; «Test» là tiêu đề cột); 7 test PASS: TestWindowOpenRules, OverHeadcount, DisplayNoStore, DeviceSharedRace, FlagCampus, NoCoordsOrIPStored, GeoFlagsAndAssurance (go-tests.log)
+DEF-R9.5-20	TC-N06-04	P	ep-r 08:55 (khoá toàn cục, Redis tắt 14 s): 3/3 lời gửi chat 503 OVERLOADED trong 3,69/3,72/3,78 s (cũ 39,5 s; ≤10 s); tạo phiên 503 sau 1,96 s; Redis chạy đối chứng 200 ở 0,05 s; TestSendRedisDownFailsFast PASS (7,7 s); R9.5/n06-04-redis-epr.log, n06-04-go.log
+DEF-R5-03	TC-PE03-49	P	ep-r (build 6201b665+fix) 08:56: GV r5t, gõ dở rồi đóng tab, mở lại → chữ còn + banner «khôi phục»; R5/q.log. [ep-r vừa rebuild lên 4e9d1d3a: nên chạy lại 1 lượt xác nhận]
+DEF-R5-04	TC-PE03-51	P	cùng lượt: Tab tới hàng (31 lần) → Enter mở Drawer, focus trong Drawer, Esc trả focus, 5 mốc bề rộng sạch; R5/q.log

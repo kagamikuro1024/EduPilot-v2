@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9.5 — kết quả (DỪNG theo lệnh chủ dự án, chưa N=0)
 Mã đã chạy: 88ab83e4 (sprint/11-p10-eval) · ep-r + stack riêng smk91 (seed sạch, đã docker stop) · Người chạy: qc2 · Ngày: 2026-11-18
-Tổng TC cũ: 161 · LT đã xoá khỏi tổng (có nguồn P-95-8 / luật LLM 2026-11-14): 19 · Tổng tính = 142 · Đạt: 136 · Trượt (F xác nhận): 5 · K: 0 · Chưa chạy (N): 1   (P+F+K+N = 142)  [cập nhật SmkS4 2026-11-21, HEAD b98b9926; smk91 + ep-r]
+Tổng TC cũ: 161 · LT đã xoá khỏi tổng (có nguồn P-95-8 / luật LLM 2026-11-14): 19 · Tổng tính = 142 · Đạt: 137 · Trượt (F xác nhận): 5 · K: 0 · Chưa chạy (N): 0   (P+F+K+N = 142)  [cập nhật SmkS4 2026-11-21, HEAD b98b9926; smk91 + ep-r]
 HANDOFF SmkS4 (2026-11-21): đã chạy nốt N03-10/12, N06-06/07/08, N07-02/04, ghi N08-16/17 (qc2 chạy), chạy lại DEF tài liệu (N09-01/07/11, N07-10, N04-12, N05-02; DEF-R9.5-13/07/08/03/15/23/24 đạt; DEF-R9.5-24 ghi ở results-21nov.tsv). Còn N: TC-N07-09 (Lighthouse, đang chờ khoá Playwright: evidence-9.5/scripts/master-lh.sh → rerun/n07-09-lh-*-smk91.log; so nhãn báo cáo: `/` PASS, `/assignments/[id]` FAIL, LCP devtools ≤ 2500). F mới: TC-N07-02 (DEF-R9.5-25). Chi tiết: evidence-9.1/STATE-S9N.md, evidence-9.5/results-21nov.tsv.
 
 ## Kết quả từng ca
@@ -98,7 +98,7 @@ Ký hiệu: P đạt · F trượt · K không chạy (a thiết bị · b ngư�
 | TC-N07-06 | P | QC200 lần tuần tự trên T1: Hôm nay p95 26 ms, sổ điểm 108 ms, heartbeat 64 ms — cùng PASS (≤ 300/500), số lớn hơn báo cáo do tải chung |
 | TC-N07-07 | P | Frontend ep-r chạy `node frontend/server.js` (next-server v16, standalone production), không next dev |
 | TC-N07-08 | P | lighthouse.json 8 route (6 + /settings/llm + /assignments/[id]); LCP devtools / TBT mô phỏng; ngưỡng lighthouserc.ep.json không đổi qua 9.5 |
-| TC-N07-09 | N | chưa chạy (CM): chưa chạy (mẫu): chưa có script, ngoài mẫu «chính + nhánh lỗi/phân quyền» |
+| TC-N07-09 | P | RERUN 425396a7 trên smk91 (production, SV sv.kha, cookie ep_rt; scripts/lh-smk91.sh; rerun/n07-09-lh-{devtools,simulate}-smk91.log, rerun/lh-smk91/*.json; 3 lượt mỗi ô, trung vị). LCP devtools: / 2179 ms (2116/2179/2239) ≤ 2500 → PASS; /assignments/[id] 4543 ms (4751/4543/4296) > 2500 → FAIL (số thật; nợ G7-23, báo cáo dev 4639 ms). Simulate: / 2464, /assignments/[id] 2610 ms. TBT 59–69 ms, CLS / 0, /assignments/[id] 0,063; script 189 / 213 KB. Nhãn khớp báo cáo dev: / PASS, /assignments/[id] FAIL; dev đo / 1574 ms (cùng nhãn, số QC cao hơn do máy chung khoá + smk91 13 container) |
 | TC-N07-10 | P | RERUN 571eee15 (DEF-R9.5-08 = 51575e31): grep -niE 'nhiễu/CPU nền' trên báo cáo research → 2 dòng (mục «## Lần đo bị nhiễu, lần đo lại» dòng 121-122: «CPU nền: không đo… không biết lượt nào có CPU nền > 30 %»; nêu 3 tệp load-*.json có demo_stack=running có thể bị nhiễu: load-c-baseline-real, load-c-grading-real, load-c-1000-9router-run1-hong) + bảng 6 hàng lượt lặp / không dùng có lý do, giữ tệp (trước = 0). Lưu ý: báo cáo ghi «không đo» chứ không «đã đo lại sau khi tắt tiến trình nền» — đúng thực tế, không loại lượt nào mà không ghi |
 | TC-N07-11 | P | Câu «MacBook Apple Silicon, Colima 6 CPU / 10 GB» có mặt; «VPS» chỉ ở dòng ngoài phạm vi, không đối chiếu hệ cũ |
 | TC-N07-12 | P | Bảng «Chưa đo được»: judge amd64/seccomp không đo trên arm64 (D58) |

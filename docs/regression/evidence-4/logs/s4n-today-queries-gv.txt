@@ -1,0 +1,10 @@
+2026-11-21 02:47:30.746 UTC [21939] LOG:  statement: -- ping
+2026-11-21 02:47:30.748 UTC [21939] LOG:  execute <unnamed>: -- name: TodayViewer :many
+2026-11-21 02:47:30.772 UTC [21939] LOG:  execute <unnamed>: -- name: CrmAttention :many
+2026-11-21 02:47:30.775 UTC [21938] LOG:  statement: -- ping
+2026-11-21 02:47:30.775 UTC [21910] LOG:  statement: -- ping
+2026-11-21 02:47:30.778 UTC [21938] LOG:  execute <unnamed>: -- name: GradeStatusFacts :many
+2026-11-21 02:47:30.788 UTC [21939] LOG:  execute <unnamed>: -- name: TodayStaffAssignmentBatch :many
+2026-11-21 02:47:30.802 UTC [21910] LOG:  execute <unnamed>: -- name: TodayStaffPending :many
+2026-11-21 02:47:30.828 UTC [21910] LOG:  execute <unnamed>: -- name: TodaySetup :many
+2026-11-21 02:47:30.832 UTC [21910] LOG:  execute <unnamed>: -- name: TodaySessions :many

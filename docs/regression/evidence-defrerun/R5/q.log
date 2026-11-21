@@ -1,0 +1,3 @@
+P TC-PE03-49 smkP @634d59c5: GV r5t, Chỉnh sửa câu AI chờ duyệt, gõ dở "NHAPDOQC21795226222202", đóng tab, mở tab mới, vào lại Chỉnh sửa: chữ còn=true, banner "khôi phục"=tr
+P TC-PE03-51 smkP @634d59c5: Tab tới hàng (sau 31 lần), Enter mở Drawer=true, focus trong Drawer=true, tới nút Duyệt/Chỉnh sửa=true, Esc trả focus=true; AUDIT ox/cut/ell/bản
+rc=0

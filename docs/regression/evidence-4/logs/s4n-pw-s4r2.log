@@ -1,0 +1,20 @@
+
+Running 1 test using 1 worker
+
+(node:5754) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts:8:1 › [P209-51] join flow end to end (7.0m)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts:8:1 › [P209-51] join flow end to end 
+
+    Test timeout of 420000ms exceeded.
+
+    Error Context: ../docs/regression/evidence-4/pw-out/s4r-join-e2e--P209-51-join-flow-end-to-end-desktop/error-context.md
+
+  Slow test file: [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts (7.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts:8:1 › [P209-51] join flow end to end 
+done rc=1

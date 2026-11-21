@@ -1,0 +1,75 @@
+
+Running 5 tests using 1 worker
+
+(node:95089) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95089) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4n-dbg.spec.ts:5:1 › [dbg] home DOM (20.1s)
+
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-nav.spec.ts:16:1 › [TC-P202-44] chưa đăng nhập → /login?next; số mục nav theo vai; không bộ đổi vai ở build thường (10.1s)
+
+  ✘  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-nav.spec.ts:47:1 › [TC-P202-48] sv.kha: hồ sơ người mock B, /chat phiên mock B, không đọc cookie ep_demo_*, email lạ → theo vai; kho trình duyệt sạch (4.0m)
+(node:3642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3642) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+ROUTE /: ép 0, refresh sau 401 đầu 0, tổng refresh 1
+  126 REFRESH →
+ 3844 --- armed
+ROUTE /class/members: ép 0, refresh sau 401 đầu 0, tổng refresh 1
+  136 REFRESH →
+ 3797 --- armed
+ROUTE /gradebook: ép 0, refresh sau 401 đầu 0, tổng refresh 1
+   97 REFRESH →
+ 3967 --- armed
+ROUTE /inbox: ép 0, refresh sau 401 đầu 0, tổng refresh 1
+   94 REFRESH →
+ 3887 --- armed
+ROUTE /insights: ép 0, refresh sau 401 đầu 0, tổng refresh 1
+  102 REFRESH →
+ 3812 --- armed
+ROUTE /grading: ép 0, refresh sau 401 đầu 0, tổng refresh 1
+  121 REFRESH →
+ 3796 --- armed
+ROUTE /documents: ép 0, refresh sau 401 đầu 0, tổng refresh 1
+  515 REFRESH →
+ 4317 --- armed
+ROUTE /analytics: ép 0, refresh sau 401 đầu 0, tổng refresh 1
+  145 REFRESH →
+ 3772 --- armed
+  ✘  4 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:53:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key (1.3m)
+(node:5541) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5541) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  5 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:72:1 › [TC-P202-31] POST bị 401 một lần rồi thành công: phát lại mang cùng Idempotency-Key, đúng 1 bản ghi (1.5s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-nav.spec.ts:47:1 › [TC-P202-48] sv.kha: hồ sơ người mock B, /chat phiên mock B, không đọc cookie ep_demo_*, email lạ → theo vai; kho trình duyệt sạch 
+
+    Test timeout of 240000ms exceeded.
+
+    Error Context: ../docs/regression/evidence-4/pw-out/smkt3-nav--TC-P202-48-sv-k-839be-eo-vai-kho-trình-duyệt-sạch-desktop/error-context.md
+
+  2) [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:53:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 5
+    Received:    0
+
+      65 |   const b = best!;
+      66 |   note(`${route}: ép 401 TOKEN_EXPIRED ${b.forced.length} request song song (${b.forced.map((h) => h.k.replace("/api/v1", "").slice(0, 30)).join("; ")}); POST /auth/refresh sau 401 đầu = ${b.afterFirst} (tổng kể cả lần làm mới sớm lúc tải trang = ${b.refreshAll}); số lần mỗi request tới mạng (1 bị ép + 1 phát lại = 2) = [${b.replays.join(",")}]`);
+    > 67 |   expect(b.forced.length).toBeGreaterThanOrEqual(5);
+         |                           ^
+      68 |   expect(b.afterFirst).toBe(1);
+      69 |   for (const n of b.replays) expect(n).toBe(2);
+      70 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:67:27
+
+    Error Context: ../docs/regression/evidence-4/pw-out/smkt3-p20231--TC-P202-31-≥-0d267-n-POST-cùng-Idempotency-Key-desktop/error-context.md
+
+  2 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-nav.spec.ts:47:1 › [TC-P202-48] sv.kha: hồ sơ người mock B, /chat phiên mock B, không đọc cookie ep_demo_*, email lạ → theo vai; kho trình duyệt sạch 
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:53:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key 
+  3 passed (5.9m)
+done rc=1

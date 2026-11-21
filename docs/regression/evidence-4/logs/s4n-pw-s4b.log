@@ -1,0 +1,43 @@
+
+Running 3 tests using 1 worker
+
+(node:16888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4b.spec.ts:8:3 › GV 1440 › [P209-45] /class/settings (31.7s)
+(node:17449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+F TC-P209-48a tab «Chờ duyệt
+5»; chọn 3 hàng → «Duyệt 4»; sau bấm: «Đã duyệt 4 yêu cầu Hoàn tác Tìm thành viên Yêu cầu chờ duyệt» có Hoàn tác=1; DB PENDING trước 5 → sau duyệt 1 → sau Hoàn tác 5
+P TC-P209-48b hàng nhãn «Email chưa khớp MSSV»=true; nút Duyệt riêng ở hàng=1; xác nhận ngắn tại chỗ có «Duyệt <tên>» và «Để sau»=true
+P TC-P209-48c GV mời ra: «Đã mời Lê Thanh Hải ra khỏi lớp Hoàn tác Tất cả Sinh viên Tì» + Hoàn tác=1; TA: nút Mời ra (menu thao tác)=0, nút Duyệt ở hàng EMAIL_MISMATCH=0
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4b.spec.ts:34:3 › GV 1440 › [P209-48] /class/members (48.6s)
+P TC-P209-49 375 px: tràn ngang 0; mục chạm < 44 px (đếm phần tử): 1; axe serious/critical []; lớp 1000 SV đang học → số hàng trong DOM = 3 (< 80 ⇒ ảo hoá); Tab đi qua: A:Bỏ qua điều hướn | A: | BUTTON:QSURA5C · Lớp QC | BUTTON:Tìm nhanh hoặc đ | BUTTON:9+ | BUTTON:HTài khoản: TS.  | A:Mã và cài đặt th | BUTTON:
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4b.spec.ts:63:3 › 375 › [P209-49] /class/members 375 (26.2s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4b.spec.ts:8:3 › GV 1440 › [P209-45] /class/settings 
+
+    Error: page.goto: net::ERR_CONNECTION_CLOSED at https://localhost:1143/login
+    Call log:
+      - navigating to "https://localhost:1143/login", waiting until "load"
+
+
+       at lib.ts:16
+
+      14 |   for (let t = 0; t < 4; t++) {
+      15 |     execFileSync("docker", ["exec", "ep-r-redis-1", "sh", "-c", "(redis-cli --scan --pattern 'ep:rl:auth*'; redis-cli --scan --pattern 'ep:rl:ip:*') | xargs -r redis-cli del"]);
+    > 16 |     await page.goto("/login"); await page.waitForLoadState("networkidle", { timeout: 6000 }).catch(() => undefined); await page.waitForTimeout(1200);
+         |                ^
+      17 |     const e = page.locator("input[type=email]"), p = page.locator("input[type=password]");
+      18 |     for (let k = 0; k < 4; k++) { await e.fill(em); await p.fill(pw); await page.waitForTimeout(300); if ((await p.inputValue()) === pw && (await e.inputValue()) === em) break; }
+      19 |     await page.keyboard.press("Enter");
+        at login (/Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/lib.ts:16:16)
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/ui-s4b.spec.ts:24:190
+
+    Error Context: ../docs/regression/evidence-4/pw-out/ui-s4b-GV-1440-P209-45-class-settings-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4b.spec.ts:8:3 › GV 1440 › [P209-45] /class/settings 
+  2 passed (1.8m)
+done rc=1

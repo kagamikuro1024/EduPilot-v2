@@ -1,0 +1,4 @@
+ACCESS_TOKEN_TTL=2h rc=1 names="invalid":["ACCESS_TOKEN_TTL"] grepc=1
+ACCESS_TOKEN_TTL=30s rc=1 names="invalid":["ACCESS_TOKEN_TTL"] grepc=1
+REFRESH_TOKEN_TTL=30m rc=1 names="invalid":["REFRESH_TOKEN_TTL"] grepc=1
+SESSION_ABSOLUTE_TTL=1h rc=1 names="invalid":["SESSION_ABSOLUTE_TTL"] grepc=1

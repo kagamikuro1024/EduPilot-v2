@@ -1,0 +1,60 @@
+
+Running 2 tests using 1 worker
+
+(node:87827) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:87827) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4n-caddy.spec.ts:8:1 › [P201-11] quét log sau lời mời, đặt lại mật khẩu, /join/<mã> (4.0m)
+(node:94638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94638) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✘  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-journey.spec.ts:10:1 › [TC-P212-24 GATEP2-24] Admin mở lớp → GV thấy chuông + mã → SV 375 /join/MÃ → xem trước → tham gia → GV thấy thành viên mới (7.1s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4n-caddy.spec.ts:8:1 › [P201-11] quét log sau lời mời, đặt lại mật khẩu, /join/<mã> 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.fill: Test timeout of 240000ms exceeded.
+    Call log:
+      - waiting for locator('input[type=email]')
+
+
+       at lib.ts:18
+
+      16 |     await page.goto("/login"); await page.waitForLoadState("networkidle", { timeout: 6000 }).catch(() => undefined); await page.waitForTimeout(1200);
+      17 |     const e = page.locator("input[type=email]"), p = page.locator("input[type=password]");
+    > 18 |     for (let k = 0; k < 4; k++) { await e.fill(em); await p.fill(pw); await page.waitForTimeout(300); if ((await p.inputValue()) === pw && (await e.inputValue()) === em) break; }
+         |                                           ^
+      19 |     await page.keyboard.press("Enter");
+      20 |     const ok = await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30_000 }).then(() => true).catch(() => false);
+      21 |     if (ok) { await page.locator("[data-part=topbar]").waitFor({ timeout: 20_000 }).catch(() => undefined); await page.waitForTimeout(1200); return; }
+        at login (/Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/lib.ts:18:43)
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/s4n-caddy.spec.ts:27:3
+
+    Error Context: ../docs/regression/evidence-4/pw-out/s4n-caddy--P201-11-quét-lo-48166-i-đặt-lại-mật-khẩu-join-mã--desktop/error-context.md
+
+  2) [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-journey.spec.ts:10:1 › [TC-P212-24 GATEP2-24] Admin mở lớp → GV thấy chuông + mã → SV 375 /join/MÃ → xem trước → tham gia → GV thấy thành viên mới 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "QC2IU jr"
+    Received string:    ""
+
+      71 |   note(steps.join(" ; "));
+      72 |   expect(st).toBe("ACTIVE");
+    > 73 |   expect(mem).toContain(dName);
+         |               ^
+      74 |   void call;
+      75 |   void tokenOf;
+      76 |   await gv.close();
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/smkt3-journey.spec.ts:73:15
+
+    Error Context: ../docs/regression/evidence-4/pw-out/smkt3-journey--TC-P212-24--93567-ia-→-GV-thấy-thành-viên-mới-desktop/error-context.md
+
+  2 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4n-caddy.spec.ts:8:1 › [P201-11] quét log sau lời mời, đặt lại mật khẩu, /join/<mã> 
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-journey.spec.ts:10:1 › [TC-P212-24 GATEP2-24] Admin mở lớp → GV thấy chuông + mã → SV 375 /join/MÃ → xem trước → tham gia → GV thấy thành viên mới 
+done rc=1

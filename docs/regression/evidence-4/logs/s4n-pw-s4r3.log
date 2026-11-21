@@ -1,0 +1,13 @@
+
+Running 2 tests using 1 worker
+
+(node:4489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4489) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+P TC-P201-11 DEF-R4-05 @f5f8a8be: lời mời mới (token 43 ký tự, mở /invite/<token>, đặt mật khẩu, đi /settings và /), đặt lại mật khẩu (?token=), /join/<mã> khi đã đăng nhập → quét docker logs ep-r-caddy-1 từ 2026-11-21T03:13:28.520Z: dòng chứa token mời=0, token đặt lại=0, mã tham gia=0; tiêu đề Next-Url/Next-Ro
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4n-caddy.spec.ts:8:1 › [P201-11] quét log sau lời mời, đặt lại mật khẩu, /join/<mã> (1.1m)
+
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-journey.spec.ts:10:1 › [TC-P212-24 GATEP2-24] Admin mở lớp → GV thấy chuông + mã → SV 375 /join/MÃ → xem trước → tham gia → GV thấy thành viên mới (10.2s)
+
+  2 passed (1.3m)
+done rc=0

@@ -1,0 +1,16 @@
+
+Running 4 tests using 1 worker
+
+(node:8594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+P TC-P209-42a ô mã 375 px: gõ «an7k2mq» → «AN7K2MQ» (tự viết hoa); gõ «0O1IL» → «» (không nhận); « a n 7 k » → «AN7K»; nút chính Xem lớp (≤ 1 primary: 1; khoá khi chưa đủ 7 ký tự: true); xem trước «Lớp QC2S4 QSUOFD1 · QSUOFD1 · TS. Lê Thu Hà · HK1 2026–2027 Tham gia lớp»; nút «Tham gia lớp» 1; tràn ngang 0; sau t
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4a.spec.ts:8:1 › [P209-42] /join 375 (28.8s)
+P TC-P209-42b lớp cần duyệt: xem trước «Lớp QC2S4 QSUFD03 · QSUFD03 · TS. Lê Thu Hà · HK1 2026–2027 Lớp này cần giảng viên duyệt. Tham gia lớp», sau tham gia «Tham gia lớp Đã gửi yêu cầu, chờ giảng viên duyệt. Về Hôm nay»
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4a.spec.ts:23:1 › [P209-42b] lớp cần duyệt + 6 mã sai (28.7s)
+P TC-P209-42c mã sai lần 1: «Tham gia lớp Mã tham gia Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên. Xem lớp»; sau 6 mã sai: «Bạn đã thử quá nhiều lần. Thử lại sau 09:49. Xem lớp» (đếm ngược mm:ss, ô khoá); không từ kỹ thuật
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4a.spec.ts:28:1 › [P209-42c] 6 mã sai (26.4s)
+P TC-P209-43 chưa đăng nhập mở /join/EFPTM94 → https://localhost:1143/login?next=%2Fjoin%2F<mã>; sau đăng nhập → https://localhost:1143/join (mã bị xoá khỏi thanh địa chỉ bằng history.replaceState); xem trước hiện «Tham gia lớp Mã tham gia 7 ký tự, không có 0, O, 1, I, L. Bạn đã thử quá nhiều lần. Thử lại sau 09
+  ✓  4 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4a.spec.ts:34:1 › [P209-43] /join/[code] chưa đăng nhập (25.6s)
+
+  4 passed (1.8m)
+done rc=0

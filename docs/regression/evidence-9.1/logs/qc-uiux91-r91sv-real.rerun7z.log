@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+INFO UX13-10 Phiên mới {"v":"secondary","bg":"lab(100 0 0)"}
+INFO UX13-15 ["Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI","2"]
+INFO UX13-6 hàng 50 → 49 hộp thoại 1 0 Hoàn tác 1
+INFO UX13-7 hàng 50 DELETE 1
+INFO UX13-7 yêu cầu: ["POST /api/v1/chat/sessions","POST /api/v1/chat/sessions/‹id›/messages","DELETE /api/v1/chat/sessions/‹id›","POST /api/v1/chat/sessions/‹id›/restore"]
+INFO UX13-8 DELETE tổng sau 6,5 s: 2 (AC3: quá 5 giây xoá thật)
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real.spec.ts:105:1 › TC-UX13-6/7/8/10/15 gửi tin, Phiên mới, PII, xoá có hoàn tác (29.0s)
+
+  1 passed (29.5s)

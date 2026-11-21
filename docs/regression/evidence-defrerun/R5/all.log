@@ -1,0 +1,30 @@
+== q 08:56:43
+P TC-PE03-49 smkP @634d59c5: GV r5t, Chỉnh sửa câu AI chờ duyệt, gõ dở "NHAPDOQC21795226222202", đóng tab, mở tab mới, vào lại Chỉnh sửa: chữ còn=true, banner "khôi phục"=tr
+P TC-PE03-51 smkP @634d59c5: Tab tới hàng (sau 31 lần), Enter mở Drawer=true, focus trong Drawer=true, tới nút Duyệt/Chỉnh sửa=true, Esc trả focus=true; AUDIT ox/cut/ell/bản
+rc=0
+== s27 08:58:01
+node:fs:621
+  return binding.open(
+                 ^
+
+Error: ENOENT: no such file or directory, open '/tmp/qc2L/uix2.json'
+    at Object.openSync (node:fs:621:18)
+    at Object.readFileSync (node:fs:487:35)
+    at Object.<anonymous> (/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-5/ui/smkP_m.cjs:3:26)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/tmp/qc2L/uix2.json'
+}
+
+Node.js v24.21.0
+rc=1
+== s18 08:58:51
+== s27 09:01:56

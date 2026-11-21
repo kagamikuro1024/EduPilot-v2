@@ -1,0 +1,13 @@
+
+Running 4 tests using 1 worker
+
+(node:81146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4a.spec.ts:8:1 › [P209-42] /join 375 (4.0m)
+(node:86208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4a.spec.ts:23:1 › [P209-42b] lớp cần duyệt + 6 mã sai (4.0m)
+(node:91697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

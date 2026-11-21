@@ -1,0 +1,3 @@
+2026-11-21 02:47:28.476 UTC [21939] LOG:  statement: -- ping
+2026-11-21 02:47:28.479 UTC [21939] LOG:  execute <unnamed>: -- name: GetMembership :one
+2026-11-21 02:47:28.733 UTC [21939] LOG:  execute <unnamed>: -- name: TodayViewer :many

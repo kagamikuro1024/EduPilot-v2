@@ -1,0 +1,40 @@
+40a582b8
+build rc=0
+=== today.spec.ts -g 'student today'
+  ✓   8 [mobile] › e2e/today.spec.ts:54:1 › student today: chưa vào lớp ⇒ ô nhập mã ngay trên trang; nhập xong chuyển /join/<mã> (1.2s)
+  ✓   9 [mobile] › e2e/today.spec.ts:74:1 › student today: email chưa xác minh đứng trước, ô nhập mã vẫn ở dưới; chỉ một nút chính (556ms)
+  ✓  10 [mobile] › e2e/today.spec.ts:90:1 › student today: chỉ có yêu cầu chờ duyệt ⇒ 'Chờ giảng viên duyệt', không nút hành động (942ms)
+  ✓  11 [mobile] › e2e/today.spec.ts:99:1 › student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không có việc gấp' + dòng thời gian; 'Tiếp tục học' ẩn khi rỗng (938ms)
+  ✓  12 [mobile] › e2e/today.spec.ts:116:1 › student today: continue learning — tối đa 3 phiên chat, mở đúng /chat?session=, có mã lớp; rỗng thì không có vùng (947ms)
+  ✓  13 [mobile] › e2e/today.spec.ts:125:1 › student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11) (949ms)
+  ✓  14 [mobile] › e2e/today.spec.ts:142:1 › student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today (932ms)
+  14 passed (9.2s)
+rc=0
+=== today.spec.ts -g 'staff today|admin today'
+  ✓  10 [mobile] › e2e/today.spec.ts:170:1 › staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn chữ, đúng một nút đỏ, không lặp mã lớp (US-UX91-10) (537ms)
+  ✓  11 [mobile] › e2e/today.spec.ts:191:1 › staff today: nhóm rỗng không hiện; chỉ việc thường ⇒ chỉ nhóm Hôm nay (941ms)
+  ✓  12 [mobile] › e2e/today.spec.ts:196:1 › staff today: nguồn Khi rảnh nhưng urgency high ⇒ vẫn là Gấp (925ms)
+  ✓  13 [mobile] › e2e/today.spec.ts:201:1 › staff today ≥ 1440: Lớp cần chú ý và Sắp tới nằm cột phải cạnh danh sách; 1024 nằm dưới (976ms)
+  ✓  14 [mobile] › e2e/today.spec.ts:217:1 › staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ qua gọi setup/dismiss và hàng biến mất (1.0s)
+  ✓  15 [mobile] › e2e/today.spec.ts:238:1 › staff today: TA không có nút Bỏ qua; 0 việc ⇒ 'Không có việc cần xử lý hôm nay.' (936ms)
+  ✓  16 [mobile] › e2e/today.spec.ts:244:1 › admin today: việc của hệ thống, không có lớp (929ms)
+  16 passed (8.7s)
+rc=0
+=== today.spec.ts -g 'no mock items'
+  ✓  2 [mobile] › e2e/today.spec.ts:272:1 › no mock items: trang / không chứa dữ liệu mô phỏng cũ (1.0s)
+  ✓  1 [desktop] › e2e/today.spec.ts:272:1 › no mock items: trang / không chứa dữ liệu mô phỏng cũ (1.0s)
+  2 passed (2.0s)
+rc=0
+=== today.spec.ts -g 'today errors'
+  ✓  1 [desktop] › e2e/today.spec.ts:257:1 › today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu (2.4s)
+  ✓  2 [mobile] › e2e/today.spec.ts:257:1 › today errors: lỗi chuẩn đúng chuỗi, Thử lại gọi lại đúng 1 yêu cầu (2.8s)
+  2 passed (3.8s)
+rc=0
+=== class-join.spec.ts -g 'join flow end to end'
+  2 skipped
+rc=0
+=== account.spec.ts -g 'seed accounts nav'
+  ✓  2 [desktop] › e2e/account.spec.ts:890:1 › seed accounts nav: số mục theo vai (9 / 13 / 16 / 7 / 1) (2.3s)
+  1 skipped
+  1 passed (3.4s)
+rc=0

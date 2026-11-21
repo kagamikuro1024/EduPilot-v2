@@ -1,0 +1,3 @@
+Quét 2026-11-19 03:3x: 229 token (33 từ /tmp/smkT/seen.txt + 226 token trích từ thư Mailpit ep-r :8725 và qc2i :18223) bằng grep -c -F -f
+ep-r-gateway-1 0 · ep-r-worker-1 0 · ep-r-caddy-1 1 · ep-r-postgres-1 0 · ep-r-redis-1 0 · ep-r-pgbouncer-1 0 · qc2i-gw1/gw2/gw3 0 · qc2i-worker 0 · qc2i-redis 0
+Dòng Caddy: GET /?_rsc=… 200; request.headers.Next-Url = ["/invite/<TOKEN43>"]; Next-Router-State-Tree chứa ["token","<TOKEN43>","d"]; request.uri đã REDACTED nhưng tiêu đề thì không.

@@ -792,8 +792,8 @@
   "P-11-64 (AC4 mới): lớp sao QR91B (30 SV đủ điểm, không SV Liệt): sổ điểm không có cột «Trạng thái», không có «Thiếu điểm: N» (logs/qc-uiux91-rzprobe5-real.rerun7b.log). Đối chứng QR91C (3 SV thiếu Cuối kỳ): cột hiện, 3 ô «Thiếu điểm» + «Liệt», tiêu đề phụ «Thiếu điểm: 3»; QR91A (1 SV Liệt): cột hiện với đúng 1 ô"
  ],
  "TC-UX12-2": [
-  "F",
-  "DEF-R9.1-06: dot đã chọn Muộn / Vắng phép / Vắng chuyển XÁM (border lab(45 4 2) = --ep-ink-3) khi chuột đang rê lên đúng ô, vì `.cell:hover .radio` (0,3,0) thắng `.radio:checked` (0,2,0) trong AttendanceGrid.module.css; chuột rời ra mới đỏ rgb(206,22,40). Bằng chứng logs/qc-uiux91-rzprobe-real.rerun7q.log (LATE/EXCUSED/ABSENT: chuột-xa đỏ, chuột-trên-ô xám). Người dùng chuột bấm xong thấy dot xám ⇒ AC1 «chấm của lựa chọn đó đỏ» không đạt khi đang trỏ"
+  "P",
+  "RERUN S9R sau sửa 6d127b88 (ep-r, lớp QR91A, ru1 «UX12-2», logs/qc-uiux91-ru1-real.rerun7z2.log ✓): chọn Muộn / Vắng phép / Vắng ở hàng 5 → viền ba chấm rgb(206,22,40) (đỏ) cả khi chuột xa lẫn khi rê lên đúng ô (trước sửa: lab(45 4 2) xám); 375 cảm ứng: (hover: hover) = false, 2 luật `.cell:hover .radio:not(:checked)` nằm trong @media (hover: hover) and (pointer: fine) ⇒ applies=false"
  ],
  "TC-UX21-PQ": [
   "P",
@@ -1166,5 +1166,37 @@
  "TC-UX13-15": [
   "P",
   "RERUN 425396a7 (r91sv 7w, sv.kha): gửi «Em tên Nguyễn Minh Trung, MSSV 20229002, email sv.kha@…» → dòng «Đã ẩn 2 thông tin cá nhân trước khi gửi cho AI» (N = 2 ≥ 2) còn nguyên (logs/qc-uiux91-r91sv-real.rerun7w.log); lượt đầu với sv.gioi bị bộ chặn «Mình chỉ xem được dữ liệu của chính bạn» vì MSSV/email của người khác (đúng thiết kế)"
+ ],
+ "TC-UX13-8": [
+  "P",
+  "RERUN S9R (cùng lượt z): Xoá, không Hoàn tác, đợi 6,5 s → DELETE tổng 2 (≥ 2, tức có DELETE của lần xoá thứ hai); tải lại → lịch sử không còn phiên vừa xoá (đối chiếu nội dung phiên)"
+ ],
+ "TC-UX13-7": [
+  "P",
+  "RERUN S9R (r91sv «UX13-6/7/8/10/15», logs/qc-uiux91-r91sv-real.rerun7z.log ✓, sv.kha): chấm theo AC3 US-UX91-13 (useUndoableAction hiện có: DELETE ngay rồi POST restore). Bấm Hoàn tác trong 5 s → hàng 49→50 trở lại đúng chỗ; yêu cầu ghi nhận: POST sessions, POST messages, DELETE sessions/‹id›, POST sessions/‹id›/restore. Lệch TC cũ («không DELETE») đã ghi ở defects-9.1.md mục SmkS4: TC ≠ AC, mã theo AC"
+ ],
+ "TC-UX12-10": [
+  "P",
+  "RERUN S9R (cùng lượt z6, đã cuộn hết cỡ): thẻ cuối «Vũ Minh Long» cách thanh lưu 289 px (≥ 0), không bị che"
+ ],
+ "TC-UX12-9": [
+  "P",
+  "RERUN S9R (rw4 «UX12-9/10/11/15/19», logs/qc-uiux91-rw4-real.rerun7z6.log ✓, 375×812): chọn 2 SV Vắng → thanh «Lưu điểm danh · 20 có mặt · 10 vắng» (vắng +2 so với 8 trước đó; vắng = tổng − Có mặt − Muộn, RealAttendance.tsx:283), position fixed, cao 44 px, đáy 748 < đỉnh thanh điều hướng 755. Spec đã sửa 3 lỗi kịch bản (nút ẩn trùng tên, đếm vắng gồm Vắng phép, hàng thật ở 375 là li)"
+ ],
+ "TC-UX18-4": [
+  "P",
+  "RERUN S9R (ru1 «UX18-4/6/8/PQ», logs/qc-uiux91-ru1-real.rerun7z.log ✓, GV, lớp 761987): 22 công tắc, 100 % có tên «Dùng cho AI: bật/tắt» (7+4) hoặc «Hiện cho sinh viên: bật/tắt» (8+3); màu đường ray ::before bật rgb(35,31,32) khác tắt lab(87.1 3.7 2.0), đồng nhất mọi hàng (1 giá trị mỗi trạng thái)"
+ ],
+ "TC-UX18-6": [
+  "P",
+  "RERUN S9R (cùng lượt z): 3 tài liệu «Hiện cho sinh viên: tắt» («QC Đáp án thiếu», «Đáp án đề mẫu luyện tập», «Đáp án đề tham khảo tuần 5») không có trong /library của sv.kha (274 ký tự)"
+ ],
+ "TC-UX18-8": [
+  "P",
+  "RERUN S9R (cùng lượt z): SV /documents → «Bạn không có quyền xem màn này … dành cho giảng viên và trợ giảng»; API GET /courses/‹id›/documents = 403; /library mở được (274 ký tự)"
+ ],
+ "TC-UX18-PQ": [
+  "P",
+  "RERUN S9R (cùng lượt z): GV gọi GET /courses/01a1df30-…/documents của lớp mình không phụ trách → 403"
  ]
 }

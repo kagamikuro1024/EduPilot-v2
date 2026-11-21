@@ -1,0 +1,39 @@
+
+Running 3 tests using 1 worker
+
+(node:73788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73788) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:15:1 › [TC-P208-34] B: được gán rồi đăng nhập → bấm thông báo → đúng đường dẫn, bộ chọn lớp đúng lớp, unread giảm 1 (2.4s)
+
+  ✘  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp (10.0s)
+(node:74219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:74219) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:65:1 › [TC-P208-34] A2 (chờ 65 s > staleTime 60 s của /me/courses trước khi bấm): GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp (1.2m)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "QC2IUAAMWPTEDS7"
+    Received string:    "QC2IUBBMWPTE7P3 · QC2IU BB"
+
+      60 |   const opts = await page.getByRole("dialog", { name: "Chọn lớp" }).getByRole("menuitem").allInnerTexts();
+      61 |   note(`A: chấm sau ${dt.toFixed(1)} s; sau bấm url=${url1} bộ chọn="${sel1}" (mong ${c.code}); /me/courses gọi lại sau gán: ${reqs.length}; sau tải lại, danh sách chọn lớp chứa ${c.code}: ${opts.join("|").includes(c.code)}`);
+    > 62 |   expect(sel1).toContain(c.code);
+         |                ^
+      63 | });
+      64 |
+      65 | test("[TC-P208-34] A2 (chờ 65 s > staleTime 60 s của /me/courses trước khi bấm): GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp", async ({ page }, info) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:62:16
+
+    Error Context: ../docs/regression/evidence-4/pw-out/smkt3-bell--TC-P208-34-A-G-b041f-bấm-thông-báo-→-bộ-chọn-lớp-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp 
+  2 passed (1.4m)
+done rc=1

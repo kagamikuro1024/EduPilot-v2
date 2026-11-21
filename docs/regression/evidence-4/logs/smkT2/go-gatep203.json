@@ -1,0 +1,380 @@
+{"Time":"2026-11-19T03:27:28.385121+07:00","Action":"start","Package":"github.com/edupilot/backend-go/internal/auth"}
+{"Time":"2026-11-19T03:27:29.191994+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table"}
+{"Time":"2026-11-19T03:27:29.192373+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table","Output":"=== RUN   TestVerify_Table\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.193513+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/hợp_lệ_(đối_chứng_dương)"}
+{"Time":"2026-11-19T03:27:29.19358+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/hợp_lệ_(đối_chứng_dương)","Output":"=== RUN   TestVerify_Table/hợp_lệ_(đối_chứng_dương)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.193961+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/hợp_lệ_(đối_chứng_dương)","Output":"--- PASS: TestVerify_Table/hợp_lệ_(đối_chứng_dương) (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.193987+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/hợp_lệ_(đối_chứng_dương)","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.194014+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/hết_hạn_1_giờ"}
+{"Time":"2026-11-19T03:27:29.194032+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/hết_hạn_1_giờ","Output":"=== RUN   TestVerify_Table/hết_hạn_1_giờ\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.194196+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/hết_hạn_1_giờ","Output":"--- PASS: TestVerify_Table/hết_hạn_1_giờ (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.194239+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/hết_hạn_1_giờ","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.194252+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/ký_bằng_secret_khác"}
+{"Time":"2026-11-19T03:27:29.194258+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/ký_bằng_secret_khác","Output":"=== RUN   TestVerify_Table/ký_bằng_secret_khác\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.194386+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/ký_bằng_secret_khác","Output":"--- PASS: TestVerify_Table/ký_bằng_secret_khác (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.194396+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/ký_bằng_secret_khác","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.194439+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chữ_ký_đổi_1_ký_tự"}
+{"Time":"2026-11-19T03:27:29.194453+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chữ_ký_đổi_1_ký_tự","Output":"=== RUN   TestVerify_Table/chữ_ký_đổi_1_ký_tự\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.194596+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chữ_ký_đổi_1_ký_tự","Output":"--- PASS: TestVerify_Table/chữ_ký_đổi_1_ký_tự (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.194629+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chữ_ký_đổi_1_ký_tự","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.194646+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chữ_ký_rỗng"}
+{"Time":"2026-11-19T03:27:29.194697+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chữ_ký_rỗng","Output":"=== RUN   TestVerify_Table/chữ_ký_rỗng\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.19486+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chữ_ký_rỗng","Output":"--- PASS: TestVerify_Table/chữ_ký_rỗng (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.194882+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chữ_ký_rỗng","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.195013+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=none"}
+{"Time":"2026-11-19T03:27:29.195047+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=none","Output":"=== RUN   TestVerify_Table/alg=none\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.19516+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=none","Output":"--- PASS: TestVerify_Table/alg=none (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.195254+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=none","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.195273+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=HS512_ký_đúng_secret"}
+{"Time":"2026-11-19T03:27:29.195279+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=HS512_ký_đúng_secret","Output":"=== RUN   TestVerify_Table/alg=HS512_ký_đúng_secret\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.195378+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=HS512_ký_đúng_secret","Output":"--- PASS: TestVerify_Table/alg=HS512_ký_đúng_secret (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.19543+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=HS512_ký_đúng_secret","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.195449+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=RS256_chữ_ký_rác"}
+{"Time":"2026-11-19T03:27:29.195459+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=RS256_chữ_ký_rác","Output":"=== RUN   TestVerify_Table/alg=RS256_chữ_ký_rác\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.195531+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=RS256_chữ_ký_rác","Output":"--- PASS: TestVerify_Table/alg=RS256_chữ_ký_rác (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.195557+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/alg=RS256_chữ_ký_rác","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.195804+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_exp"}
+{"Time":"2026-11-19T03:27:29.195818+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_exp","Output":"=== RUN   TestVerify_Table/thiếu_exp\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.196148+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_exp","Output":"--- PASS: TestVerify_Table/thiếu_exp (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.196162+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_exp","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.196304+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/role=SUPERUSER"}
+{"Time":"2026-11-19T03:27:29.196353+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/role=SUPERUSER","Output":"=== RUN   TestVerify_Table/role=SUPERUSER\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.196626+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/role=SUPERUSER","Output":"--- PASS: TestVerify_Table/role=SUPERUSER (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.196646+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/role=SUPERUSER","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.196855+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/role_chữ_thường"}
+{"Time":"2026-11-19T03:27:29.196862+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/role_chữ_thường","Output":"=== RUN   TestVerify_Table/role_chữ_thường\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.197482+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/role_chữ_thường","Output":"--- PASS: TestVerify_Table/role_chữ_thường (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.197557+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/role_chữ_thường","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.197583+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_role"}
+{"Time":"2026-11-19T03:27:29.197619+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_role","Output":"=== RUN   TestVerify_Table/thiếu_role\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.197841+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_role","Output":"--- PASS: TestVerify_Table/thiếu_role (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.197889+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_role","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.197902+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/iss_sai"}
+{"Time":"2026-11-19T03:27:29.197908+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/iss_sai","Output":"=== RUN   TestVerify_Table/iss_sai\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198113+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/iss_sai","Output":"--- PASS: TestVerify_Table/iss_sai (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198121+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/iss_sai","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.198171+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_iss"}
+{"Time":"2026-11-19T03:27:29.198176+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_iss","Output":"=== RUN   TestVerify_Table/thiếu_iss\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198332+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_iss","Output":"--- PASS: TestVerify_Table/thiếu_iss (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198388+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_iss","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.198401+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/aud_sai"}
+{"Time":"2026-11-19T03:27:29.198409+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/aud_sai","Output":"=== RUN   TestVerify_Table/aud_sai\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198525+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/aud_sai","Output":"--- PASS: TestVerify_Table/aud_sai (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198545+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/aud_sai","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.19859+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_aud"}
+{"Time":"2026-11-19T03:27:29.198618+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_aud","Output":"=== RUN   TestVerify_Table/thiếu_aud\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.19872+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_aud","Output":"--- PASS: TestVerify_Table/thiếu_aud (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198739+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/thiếu_aud","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.198778+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/nbf_ở_tương_lai"}
+{"Time":"2026-11-19T03:27:29.198789+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/nbf_ở_tương_lai","Output":"=== RUN   TestVerify_Table/nbf_ở_tương_lai\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198921+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/nbf_ở_tương_lai","Output":"--- PASS: TestVerify_Table/nbf_ở_tương_lai (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.198939+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/nbf_ở_tương_lai","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.198977+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/sub_rỗng"}
+{"Time":"2026-11-19T03:27:29.198991+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/sub_rỗng","Output":"=== RUN   TestVerify_Table/sub_rỗng\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199112+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/sub_rỗng","Output":"--- PASS: TestVerify_Table/sub_rỗng (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.19916+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/sub_rỗng","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.199297+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chỉ_2_đoạn"}
+{"Time":"2026-11-19T03:27:29.199308+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chỉ_2_đoạn","Output":"=== RUN   TestVerify_Table/chỉ_2_đoạn\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199354+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chỉ_2_đoạn","Output":"--- PASS: TestVerify_Table/chỉ_2_đoạn (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199371+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chỉ_2_đoạn","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.199381+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/4_đoạn"}
+{"Time":"2026-11-19T03:27:29.199389+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/4_đoạn","Output":"=== RUN   TestVerify_Table/4_đoạn\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199418+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/4_đoạn","Output":"--- PASS: TestVerify_Table/4_đoạn (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199427+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/4_đoạn","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.199498+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chuỗi_rác"}
+{"Time":"2026-11-19T03:27:29.199512+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chuỗi_rác","Output":"=== RUN   TestVerify_Table/chuỗi_rác\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199524+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chuỗi_rác","Output":"--- PASS: TestVerify_Table/chuỗi_rác (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199541+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chuỗi_rác","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.199553+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chuỗi_rỗng"}
+{"Time":"2026-11-19T03:27:29.199562+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chuỗi_rỗng","Output":"=== RUN   TestVerify_Table/chuỗi_rỗng\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.19959+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chuỗi_rỗng","Output":"--- PASS: TestVerify_Table/chuỗi_rỗng (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199603+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/chuỗi_rỗng","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.19966+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/payload_không_phải_base64url"}
+{"Time":"2026-11-19T03:27:29.199673+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/payload_không_phải_base64url","Output":"=== RUN   TestVerify_Table/payload_không_phải_base64url\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199714+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/payload_không_phải_base64url","Output":"--- PASS: TestVerify_Table/payload_không_phải_base64url (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199743+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table/payload_không_phải_base64url","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.19975+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table","Output":"--- PASS: TestVerify_Table (0.01s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.199756+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Table","Elapsed":0.01}
+{"Time":"2026-11-19T03:27:29.199814+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway"}
+{"Time":"2026-11-19T03:27:29.19982+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway","Output":"=== RUN   TestVerify_Leeway\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200004+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/còn_hạn"}
+{"Time":"2026-11-19T03:27:29.200029+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/còn_hạn","Output":"=== RUN   TestVerify_Leeway/còn_hạn\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200164+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/còn_hạn","Output":"--- PASS: TestVerify_Leeway/còn_hạn (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200171+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/còn_hạn","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.200237+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/đúng_lúc_hết_hạn"}
+{"Time":"2026-11-19T03:27:29.20026+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/đúng_lúc_hết_hạn","Output":"=== RUN   TestVerify_Leeway/đúng_lúc_hết_hạn\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200405+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/đúng_lúc_hết_hạn","Output":"--- PASS: TestVerify_Leeway/đúng_lúc_hết_hạn (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200428+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/đúng_lúc_hết_hạn","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.200498+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_3_s_(trong_leeway)"}
+{"Time":"2026-11-19T03:27:29.200509+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_3_s_(trong_leeway)","Output":"=== RUN   TestVerify_Leeway/hết_hạn_3_s_(trong_leeway)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200672+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_3_s_(trong_leeway)","Output":"--- PASS: TestVerify_Leeway/hết_hạn_3_s_(trong_leeway) (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200689+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_3_s_(trong_leeway)","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.200716+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_4_s_(trong_leeway)"}
+{"Time":"2026-11-19T03:27:29.200729+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_4_s_(trong_leeway)","Output":"=== RUN   TestVerify_Leeway/hết_hạn_4_s_(trong_leeway)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200849+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_4_s_(trong_leeway)","Output":"--- PASS: TestVerify_Leeway/hết_hạn_4_s_(trong_leeway) (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.200866+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_4_s_(trong_leeway)","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.200921+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_4,9_s_(trong_leeway)"}
+{"Time":"2026-11-19T03:27:29.200934+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_4,9_s_(trong_leeway)","Output":"=== RUN   TestVerify_Leeway/hết_hạn_4,9_s_(trong_leeway)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.20104+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_4,9_s_(trong_leeway)","Output":"--- PASS: TestVerify_Leeway/hết_hạn_4,9_s_(trong_leeway) (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.201056+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_4,9_s_(trong_leeway)","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.20111+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_đúng_5_s_(hết_leeway)"}
+{"Time":"2026-11-19T03:27:29.201136+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_đúng_5_s_(hết_leeway)","Output":"=== RUN   TestVerify_Leeway/hết_hạn_đúng_5_s_(hết_leeway)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.201237+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_đúng_5_s_(hết_leeway)","Output":"--- PASS: TestVerify_Leeway/hết_hạn_đúng_5_s_(hết_leeway) (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.201266+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_đúng_5_s_(hết_leeway)","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.201303+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_6_s_(quá_leeway)"}
+{"Time":"2026-11-19T03:27:29.201315+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_6_s_(quá_leeway)","Output":"=== RUN   TestVerify_Leeway/hết_hạn_6_s_(quá_leeway)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.201445+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_6_s_(quá_leeway)","Output":"--- PASS: TestVerify_Leeway/hết_hạn_6_s_(quá_leeway) (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.20146+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_6_s_(quá_leeway)","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.201493+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_7_s"}
+{"Time":"2026-11-19T03:27:29.201504+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_7_s","Output":"=== RUN   TestVerify_Leeway/hết_hạn_7_s\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.201629+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_7_s","Output":"--- PASS: TestVerify_Leeway/hết_hạn_7_s (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.201645+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_7_s","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.201678+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_10_s"}
+{"Time":"2026-11-19T03:27:29.201689+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_10_s","Output":"=== RUN   TestVerify_Leeway/hết_hạn_10_s\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.201819+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_10_s","Output":"--- PASS: TestVerify_Leeway/hết_hạn_10_s (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.201833+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/hết_hạn_10_s","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.201917+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/nbf_trước_3_s"}
+{"Time":"2026-11-19T03:27:29.201935+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/nbf_trước_3_s","Output":"=== RUN   TestVerify_Leeway/nbf_trước_3_s\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.202154+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/nbf_trước_3_s","Output":"--- PASS: TestVerify_Leeway/nbf_trước_3_s (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.202167+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/nbf_trước_3_s","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.202237+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/nbf_trước_10_s"}
+{"Time":"2026-11-19T03:27:29.20225+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/nbf_trước_10_s","Output":"=== RUN   TestVerify_Leeway/nbf_trước_10_s\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.202443+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/nbf_trước_10_s","Output":"--- PASS: TestVerify_Leeway/nbf_trước_10_s (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.202469+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway/nbf_trước_10_s","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.202477+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway","Output":"--- PASS: TestVerify_Leeway (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.202483+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerify_Leeway","Elapsed":0}
+{"Time":"2026-11-19T03:27:29.20473+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite"}
+{"Time":"2026-11-19T03:27:29.20479+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"=== RUN   TestRegisterInvitedResendsInvite\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:29.246173+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"2026/11/19 03:27:29 github.com/testcontainers/testcontainers-go - Connected to docker: \n"}
+{"Time":"2026-11-19T03:27:29.246219+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  Server Version: 29.5.2\n"}
+{"Time":"2026-11-19T03:27:29.246226+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  API Version: 1.54\n"}
+{"Time":"2026-11-19T03:27:29.246232+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  Operating System: Ubuntu 24.04.4 LTS\n"}
+{"Time":"2026-11-19T03:27:29.246236+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  Total Memory: 9923 MB\n"}
+{"Time":"2026-11-19T03:27:29.246239+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  Testcontainers for Go Version: v0.44.0\n"}
+{"Time":"2026-11-19T03:27:29.246243+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock\n"}
+{"Time":"2026-11-19T03:27:29.246246+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock\n"}
+{"Time":"2026-11-19T03:27:29.24625+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  Test SessionID: 895d2134ba505fbfb8a3a5695b1faa691c4026691d59803dc5fde6f5947f6b3c\n"}
+{"Time":"2026-11-19T03:27:29.246253+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"  Test ProcessID: 43752bb2-f090-498b-b77a-809554623637\n"}
+{"Time":"2026-11-19T03:27:29.260152+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"2026/11/19 03:27:29 ✅ Container started: 68f6ff853df5\n"}
+{"Time":"2026-11-19T03:27:29.260218+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"2026/11/19 03:27:29 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening\n"}
+{"Time":"2026-11-19T03:27:29.299448+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"2026/11/19 03:27:29 🔔 Container is ready: 68f6ff853df5\n"}
+{"Time":"2026-11-19T03:27:29.983367+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"2026/11/19 03:27:29 ✅ Container started: 5636bc78d64d\n"}
+{"Time":"2026-11-19T03:27:29.983412+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"2026/11/19 03:27:29 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening\n"}
+{"Time":"2026-11-19T03:27:30.025992+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"2026/11/19 03:27:30 🔔 Container is ready: 5636bc78d64d\n"}
+{"Time":"2026-11-19T03:27:30.124873+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Output":"--- PASS: TestRegisterInvitedResendsInvite (0.92s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:30.124925+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRegisterInvitedResendsInvite","Elapsed":0.92}
+{"Time":"2026-11-19T03:27:30.125247+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmail"}
+{"Time":"2026-11-19T03:27:30.125258+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmail","Output":"=== RUN   TestVerifyEmail\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:30.81303+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmail","Output":"--- PASS: TestVerifyEmail (0.69s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:30.813112+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmail","Elapsed":0.69}
+{"Time":"2026-11-19T03:27:30.813187+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailSingleUseRace"}
+{"Time":"2026-11-19T03:27:30.813244+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailSingleUseRace","Output":"=== RUN   TestVerifyEmailSingleUseRace\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:31.70601+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailSingleUseRace","Output":"--- PASS: TestVerifyEmailSingleUseRace (0.89s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:31.706145+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailSingleUseRace","Elapsed":0.89}
+{"Time":"2026-11-19T03:27:31.706216+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailExpired24h"}
+{"Time":"2026-11-19T03:27:31.706224+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailExpired24h","Output":"=== RUN   TestVerifyEmailExpired24h\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:32.518159+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailExpired24h","Output":"--- PASS: TestVerifyEmailExpired24h (0.81s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:32.518242+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailExpired24h","Elapsed":0.81}
+{"Time":"2026-11-19T03:27:32.518267+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailUnknown"}
+{"Time":"2026-11-19T03:27:32.518272+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailUnknown","Output":"=== RUN   TestVerifyEmailUnknown\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:33.248897+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailUnknown","Output":"--- PASS: TestVerifyEmailUnknown (0.73s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:33.249008+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailUnknown","Elapsed":0.73}
+{"Time":"2026-11-19T03:27:33.249091+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailReplaced"}
+{"Time":"2026-11-19T03:27:33.249099+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailReplaced","Output":"=== RUN   TestVerifyEmailReplaced\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:35.043762+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailReplaced","Output":"--- PASS: TestVerifyEmailReplaced (1.79s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:35.04382+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyEmailReplaced","Elapsed":1.79}
+{"Time":"2026-11-19T03:27:35.043979+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResendRevokesOld"}
+{"Time":"2026-11-19T03:27:35.044001+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResendRevokesOld","Output":"=== RUN   TestResendRevokesOld\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:37.919193+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResendRevokesOld","Output":"--- PASS: TestResendRevokesOld (2.88s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:37.91925+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResendRevokesOld","Elapsed":2.88}
+{"Time":"2026-11-19T03:27:37.919559+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyPromotesRosterPending"}
+{"Time":"2026-11-19T03:27:37.91958+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyPromotesRosterPending","Output":"=== RUN   TestVerifyPromotesRosterPending\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:38.592321+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyPromotesRosterPending","Output":"--- PASS: TestVerifyPromotesRosterPending (0.67s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:38.592381+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestVerifyPromotesRosterPending","Elapsed":0.67}
+{"Time":"2026-11-19T03:27:38.592624+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInvite"}
+{"Time":"2026-11-19T03:27:38.592642+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInvite","Output":"=== RUN   TestAcceptInvite\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:39.269255+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInvite","Output":"--- PASS: TestAcceptInvite (0.68s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:39.269348+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInvite","Elapsed":0.68}
+{"Time":"2026-11-19T03:27:39.269367+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteReuse"}
+{"Time":"2026-11-19T03:27:39.269377+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteReuse","Output":"=== RUN   TestAcceptInviteReuse\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:39.892107+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteReuse","Output":"--- PASS: TestAcceptInviteReuse (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:39.892161+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteReuse","Elapsed":0.62}
+{"Time":"2026-11-19T03:27:39.892208+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteExpired72h"}
+{"Time":"2026-11-19T03:27:39.892224+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteExpired72h","Output":"=== RUN   TestAcceptInviteExpired72h\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:40.501454+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteExpired72h","Output":"--- PASS: TestAcceptInviteExpired72h (0.61s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:40.501509+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteExpired72h","Elapsed":0.61}
+{"Time":"2026-11-19T03:27:40.501561+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteRace"}
+{"Time":"2026-11-19T03:27:40.501572+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteRace","Output":"=== RUN   TestAcceptInviteRace\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:41.189735+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteRace","Output":"--- PASS: TestAcceptInviteRace (0.69s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:41.189773+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteRace","Elapsed":0.69}
+{"Time":"2026-11-19T03:27:41.189843+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteWeakPassword"}
+{"Time":"2026-11-19T03:27:41.189857+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteWeakPassword","Output":"=== RUN   TestAcceptInviteWeakPassword\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:41.878319+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteWeakPassword","Output":"--- PASS: TestAcceptInviteWeakPassword (0.69s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:41.878361+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteWeakPassword","Elapsed":0.69}
+{"Time":"2026-11-19T03:27:41.878416+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteOnlyWhileInvited"}
+{"Time":"2026-11-19T03:27:41.878429+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteOnlyWhileInvited","Output":"=== RUN   TestAcceptInviteOnlyWhileInvited\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:42.629819+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteOnlyWhileInvited","Output":"--- PASS: TestAcceptInviteOnlyWhileInvited (0.75s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:42.629868+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAcceptInviteOnlyWhileInvited","Elapsed":0.75}
+{"Time":"2026-11-19T03:27:42.62988+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffSchedule"}
+{"Time":"2026-11-19T03:27:42.629885+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffSchedule","Output":"=== RUN   TestLockoutBackoffSchedule\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:43.438836+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffSchedule","Output":"--- PASS: TestLockoutBackoffSchedule (0.81s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:43.438886+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffSchedule","Elapsed":0.81}
+{"Time":"2026-11-19T03:27:43.438921+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffBlocksCorrectPassword"}
+{"Time":"2026-11-19T03:27:43.438931+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffBlocksCorrectPassword","Output":"=== RUN   TestLockoutBackoffBlocksCorrectPassword\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:44.28402+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffBlocksCorrectPassword","Output":"--- PASS: TestLockoutBackoffBlocksCorrectPassword (0.85s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:44.284062+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffBlocksCorrectPassword","Elapsed":0.85}
+{"Time":"2026-11-19T03:27:44.284078+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffRetryAfterAccurate"}
+{"Time":"2026-11-19T03:27:44.284083+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffRetryAfterAccurate","Output":"=== RUN   TestLockoutBackoffRetryAfterAccurate\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:45.055866+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffRetryAfterAccurate","Output":"--- PASS: TestLockoutBackoffRetryAfterAccurate (0.77s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:45.055894+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBackoffRetryAfterAccurate","Elapsed":0.77}
+{"Time":"2026-11-19T03:27:45.055979+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutAfter10"}
+{"Time":"2026-11-19T03:27:45.055993+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutAfter10","Output":"=== RUN   TestLockoutAfter10\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:45.877918+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutAfter10","Output":"--- PASS: TestLockoutAfter10 (0.82s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:45.87804+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutAfter10","Elapsed":0.82}
+{"Time":"2026-11-19T03:27:45.878615+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBlocksCorrectPassword"}
+{"Time":"2026-11-19T03:27:45.87869+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBlocksCorrectPassword","Output":"=== RUN   TestLockoutBlocksCorrectPassword\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:46.725374+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBlocksCorrectPassword","Output":"--- PASS: TestLockoutBlocksCorrectPassword (0.85s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:46.725417+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutBlocksCorrectPassword","Elapsed":0.85}
+{"Time":"2026-11-19T03:27:46.725491+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutMailOnce"}
+{"Time":"2026-11-19T03:27:46.725511+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutMailOnce","Output":"=== RUN   TestLockoutMailOnce\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:47.734145+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutMailOnce","Output":"--- PASS: TestLockoutMailOnce (1.01s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:47.734218+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutMailOnce","Elapsed":1.01}
+{"Time":"2026-11-19T03:27:47.734242+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutExpires"}
+{"Time":"2026-11-19T03:27:47.734248+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutExpires","Output":"=== RUN   TestLockoutExpires\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:48.621427+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutExpires","Output":"--- PASS: TestLockoutExpires (0.89s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:48.621457+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutExpires","Elapsed":0.89}
+{"Time":"2026-11-19T03:27:48.62161+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestCounterResetsOnSuccess"}
+{"Time":"2026-11-19T03:27:48.621617+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestCounterResetsOnSuccess","Output":"=== RUN   TestCounterResetsOnSuccess\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:49.444719+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestCounterResetsOnSuccess","Output":"--- PASS: TestCounterResetsOnSuccess (0.82s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:49.444758+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestCounterResetsOnSuccess","Elapsed":0.82}
+{"Time":"2026-11-19T03:27:49.444872+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetUnlocks"}
+{"Time":"2026-11-19T03:27:49.444877+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetUnlocks","Output":"=== RUN   TestResetUnlocks\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:50.517881+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetUnlocks","Output":"--- PASS: TestResetUnlocks (1.07s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:50.517967+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetUnlocks","Elapsed":1.07}
+{"Time":"2026-11-19T03:27:50.517985+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutWithoutRedis"}
+{"Time":"2026-11-19T03:27:50.517991+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutWithoutRedis","Output":"=== RUN   TestLockoutWithoutRedis\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:51.677701+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutWithoutRedis","Output":"--- PASS: TestLockoutWithoutRedis (1.16s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:51.677853+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestLockoutWithoutRedis","Elapsed":1.16}
+{"Time":"2026-11-19T03:27:51.678542+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAdminSubjectToLockout"}
+{"Time":"2026-11-19T03:27:51.678555+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAdminSubjectToLockout","Output":"=== RUN   TestAdminSubjectToLockout\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:52.578812+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAdminSubjectToLockout","Output":"--- PASS: TestAdminSubjectToLockout (0.90s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:52.578869+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAdminSubjectToLockout","Elapsed":0.9}
+{"Time":"2026-11-19T03:27:52.579349+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetSuccess"}
+{"Time":"2026-11-19T03:27:52.57937+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetSuccess","Output":"=== RUN   TestResetSuccess\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:53.498161+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetSuccess","Output":"--- PASS: TestResetSuccess (0.92s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:53.498218+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetSuccess","Elapsed":0.92}
+{"Time":"2026-11-19T03:27:53.498228+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetRevokesAllSessions"}
+{"Time":"2026-11-19T03:27:53.498232+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetRevokesAllSessions","Output":"=== RUN   TestResetRevokesAllSessions\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:54.312483+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetRevokesAllSessions","Output":"--- PASS: TestResetRevokesAllSessions (0.81s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:54.312537+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetRevokesAllSessions","Elapsed":0.81}
+{"Time":"2026-11-19T03:27:54.31255+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetClearsLockout"}
+{"Time":"2026-11-19T03:27:54.312584+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetClearsLockout","Output":"=== RUN   TestResetClearsLockout\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:55.13075+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetClearsLockout","Output":"--- PASS: TestResetClearsLockout (0.82s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:55.130832+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetClearsLockout","Elapsed":0.82}
+{"Time":"2026-11-19T03:27:55.130862+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetVerifiesEmail"}
+{"Time":"2026-11-19T03:27:55.130868+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetVerifiesEmail","Output":"=== RUN   TestResetVerifiesEmail\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:55.906807+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetVerifiesEmail","Output":"--- PASS: TestResetVerifiesEmail (0.78s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:55.90685+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetVerifiesEmail","Elapsed":0.78}
+{"Time":"2026-11-19T03:27:55.90693+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetNoAutoLogin"}
+{"Time":"2026-11-19T03:27:55.906956+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetNoAutoLogin","Output":"=== RUN   TestResetNoAutoLogin\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:56.66544+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetNoAutoLogin","Output":"--- PASS: TestResetNoAutoLogin (0.76s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:56.665524+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetNoAutoLogin","Elapsed":0.76}
+{"Time":"2026-11-19T03:27:56.665589+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetSingleUseRace"}
+{"Time":"2026-11-19T03:27:56.66566+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetSingleUseRace","Output":"=== RUN   TestResetSingleUseRace\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:57.452882+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetSingleUseRace","Output":"--- PASS: TestResetSingleUseRace (0.79s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:57.45294+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetSingleUseRace","Elapsed":0.79}
+{"Time":"2026-11-19T03:27:57.452965+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetExpired30m"}
+{"Time":"2026-11-19T03:27:57.452984+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetExpired30m","Output":"=== RUN   TestResetExpired30m\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:58.23768+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetExpired30m","Output":"--- PASS: TestResetExpired30m (0.78s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:58.23772+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetExpired30m","Elapsed":0.78}
+{"Time":"2026-11-19T03:27:58.23778+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetUnknownToken"}
+{"Time":"2026-11-19T03:27:58.237815+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetUnknownToken","Output":"=== RUN   TestResetUnknownToken\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:58.93327+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetUnknownToken","Output":"--- PASS: TestResetUnknownToken (0.70s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:58.933341+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetUnknownToken","Elapsed":0.7}
+{"Time":"2026-11-19T03:27:58.933353+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetWeakPasswordKeepsToken"}
+{"Time":"2026-11-19T03:27:58.933358+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetWeakPasswordKeepsToken","Output":"=== RUN   TestResetWeakPasswordKeepsToken\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:59.735621+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetWeakPasswordKeepsToken","Output":"--- PASS: TestResetWeakPasswordKeepsToken (0.80s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:27:59.735684+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestResetWeakPasswordKeepsToken","Elapsed":0.8}
+{"Time":"2026-11-19T03:27:59.736121+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeOwnSession"}
+{"Time":"2026-11-19T03:27:59.736138+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeOwnSession","Output":"=== RUN   TestRevokeOwnSession\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:00.45003+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeOwnSession","Output":"--- PASS: TestRevokeOwnSession (0.71s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:00.450093+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeOwnSession","Elapsed":0.71}
+{"Time":"2026-11-19T03:28:00.450105+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeOthersSessionIs404"}
+{"Time":"2026-11-19T03:28:00.45011+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeOthersSessionIs404","Output":"=== RUN   TestRevokeOthersSessionIs404\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:01.266481+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeOthersSessionIs404","Output":"--- PASS: TestRevokeOthersSessionIs404 (0.82s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:01.266548+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeOthersSessionIs404","Elapsed":0.82}
+{"Time":"2026-11-19T03:28:01.266562+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeAllOthers"}
+{"Time":"2026-11-19T03:28:01.266592+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeAllOthers","Output":"=== RUN   TestRevokeAllOthers\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:02.006619+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeAllOthers","Output":"--- PASS: TestRevokeAllOthers (0.74s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:02.006671+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokeAllOthers","Elapsed":0.74}
+{"Time":"2026-11-19T03:28:02.006693+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAdminCannotRevokeViaMe"}
+{"Time":"2026-11-19T03:28:02.006698+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAdminCannotRevokeViaMe","Output":"=== RUN   TestAdminCannotRevokeViaMe\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:02.698579+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAdminCannotRevokeViaMe","Output":"--- PASS: TestAdminCannotRevokeViaMe (0.69s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:02.698629+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestAdminCannotRevokeViaMe","Elapsed":0.69}
+{"Time":"2026-11-19T03:28:02.699308+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshRotates"}
+{"Time":"2026-11-19T03:28:02.699324+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshRotates","Output":"=== RUN   TestRefreshRotates\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:03.437831+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshRotates","Output":"--- PASS: TestRefreshRotates (0.74s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:03.437886+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshRotates","Elapsed":0.74}
+{"Time":"2026-11-19T03:28:03.437896+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshSliding"}
+{"Time":"2026-11-19T03:28:03.437901+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshSliding","Output":"=== RUN   TestRefreshSliding\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:04.142673+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshSliding","Output":"--- PASS: TestRefreshSliding (0.70s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:04.142724+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshSliding","Elapsed":0.7}
+{"Time":"2026-11-19T03:28:04.142735+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshAbsoluteCap"}
+{"Time":"2026-11-19T03:28:04.142741+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshAbsoluteCap","Output":"=== RUN   TestRefreshAbsoluteCap\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:04.844527+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshAbsoluteCap","Output":"--- PASS: TestRefreshAbsoluteCap (0.70s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:04.844616+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshAbsoluteCap","Elapsed":0.7}
+{"Time":"2026-11-19T03:28:04.844631+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshAbsoluteExpired"}
+{"Time":"2026-11-19T03:28:04.844641+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshAbsoluteExpired","Output":"=== RUN   TestRefreshAbsoluteExpired\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:05.493046+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshAbsoluteExpired","Output":"--- PASS: TestRefreshAbsoluteExpired (0.65s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:05.493111+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshAbsoluteExpired","Elapsed":0.65}
+{"Time":"2026-11-19T03:28:05.493152+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshStoresHashOnly"}
+{"Time":"2026-11-19T03:28:05.49316+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshStoresHashOnly","Output":"=== RUN   TestRefreshStoresHashOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:06.123524+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshStoresHashOnly","Output":"--- PASS: TestRefreshStoresHashOnly (0.63s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:06.123567+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshStoresHashOnly","Elapsed":0.63}
+{"Time":"2026-11-19T03:28:06.123577+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseRevokesSession"}
+{"Time":"2026-11-19T03:28:06.123582+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseRevokesSession","Output":"=== RUN   TestRefreshReuseRevokesSession\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:06.755294+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseRevokesSession","Output":"--- PASS: TestRefreshReuseRevokesSession (0.63s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:06.755347+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseRevokesSession","Elapsed":0.63}
+{"Time":"2026-11-19T03:28:06.755355+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseThiefFirst"}
+{"Time":"2026-11-19T03:28:06.75536+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseThiefFirst","Output":"=== RUN   TestRefreshReuseThiefFirst\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:07.377153+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseThiefFirst","Output":"--- PASS: TestRefreshReuseThiefFirst (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:07.377192+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseThiefFirst","Elapsed":0.62}
+{"Time":"2026-11-19T03:28:07.3772+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseVictimFirst"}
+{"Time":"2026-11-19T03:28:07.377204+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseVictimFirst","Output":"=== RUN   TestRefreshReuseVictimFirst\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:08.046297+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseVictimFirst","Output":"--- PASS: TestRefreshReuseVictimFirst (0.67s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:08.046366+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseVictimFirst","Elapsed":0.67}
+{"Time":"2026-11-19T03:28:08.046395+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseAudit"}
+{"Time":"2026-11-19T03:28:08.046401+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseAudit","Output":"=== RUN   TestRefreshReuseAudit\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:08.67002+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseAudit","Output":"--- PASS: TestRefreshReuseAudit (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:08.670071+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshReuseAudit","Elapsed":0.62}
+{"Time":"2026-11-19T03:28:08.67008+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshConcurrentSameToken"}
+{"Time":"2026-11-19T03:28:08.670085+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshConcurrentSameToken","Output":"=== RUN   TestRefreshConcurrentSameToken\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:09.330701+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshConcurrentSameToken","Output":"--- PASS: TestRefreshConcurrentSameToken (0.66s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:09.330751+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshConcurrentSameToken","Elapsed":0.66}
+{"Time":"2026-11-19T03:28:09.330761+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshMissing"}
+{"Time":"2026-11-19T03:28:09.330766+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshMissing","Output":"=== RUN   TestRefreshMissing\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:09.910865+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshMissing","Output":"--- PASS: TestRefreshMissing (0.58s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:09.910905+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshMissing","Elapsed":0.58}
+{"Time":"2026-11-19T03:28:09.910914+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshUnknown"}
+{"Time":"2026-11-19T03:28:09.910918+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshUnknown","Output":"=== RUN   TestRefreshUnknown\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:10.532974+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshUnknown","Output":"--- PASS: TestRefreshUnknown (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:10.533016+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshUnknown","Elapsed":0.62}
+{"Time":"2026-11-19T03:28:10.533025+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshExpired"}
+{"Time":"2026-11-19T03:28:10.53303+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshExpired","Output":"=== RUN   TestRefreshExpired\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:11.203037+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshExpired","Output":"--- PASS: TestRefreshExpired (0.67s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:11.203078+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshExpired","Elapsed":0.67}
+{"Time":"2026-11-19T03:28:11.20309+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshDisabledUser"}
+{"Time":"2026-11-19T03:28:11.203095+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshDisabledUser","Output":"=== RUN   TestRefreshDisabledUser\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:11.847765+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshDisabledUser","Output":"--- PASS: TestRefreshDisabledUser (0.64s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:11.847848+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRefreshDisabledUser","Elapsed":0.64}
+{"Time":"2026-11-19T03:28:11.848225+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokedSidRejected"}
+{"Time":"2026-11-19T03:28:11.848238+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokedSidRejected","Output":"=== RUN   TestRevokedSidRejected\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:12.53282+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokedSidRejected","Output":"--- PASS: TestRevokedSidRejected (0.68s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:12.532869+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestRevokedSidRejected","Elapsed":0.68}
+{"Time":"2026-11-19T03:28:12.533167+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestTokenIssueRevokesPrevious"}
+{"Time":"2026-11-19T03:28:12.533182+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestTokenIssueRevokesPrevious","Output":"=== RUN   TestTokenIssueRevokesPrevious\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:13.142071+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestTokenIssueRevokesPrevious","Output":"--- PASS: TestTokenIssueRevokesPrevious (0.61s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:13.142109+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Test":"TestTokenIssueRevokesPrevious","Elapsed":0.61}
+{"Time":"2026-11-19T03:28:13.142375+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:28:14.15054+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/auth","Output":"ok  \tgithub.com/edupilot/backend-go/internal/auth\t45.764s\n"}
+{"Time":"2026-11-19T03:28:14.150629+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/auth","Elapsed":45.765}

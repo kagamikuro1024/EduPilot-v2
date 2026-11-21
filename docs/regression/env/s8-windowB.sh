@@ -1,6 +1,6 @@
 #!/bin/bash
 # SEED-19 (kill giữa chừng + resume) + SEED-36 (SEED_RNG=1): DB mới, seed RNG=1; kill khi thấy [15/20]; resume.
-cd ~/Documents/TA_Agent_qc2/docs/regression/env; L=../evidence-8/logs
+L=$HOME/Documents/TA_Agent_qc2/docs/regression/evidence-8/logs; cd $HOME/Documents/TA_Agent_qc2/docs/regression/env
 ./qc2s-stack.sh up > $L/winB-up.log 2>&1
 cd ~/Documents/TA_Agent_qc2
 export SEED_RNG=1 MOCK_IMAP_URL=http://127.0.0.1:8791 MOCK_GRAPH_URL=http://127.0.0.1:8790 NODE_TLS_REJECT_UNAUTHORIZED=0 API_URL=http://127.0.0.1:18231/api/v1 MAILPIT_URL=http://127.0.0.1:18233 SEED_DEFAULT_PASSWORD='Edupilot#Seed-2026'

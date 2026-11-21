@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+(node:14282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+F TC-P209-45 GV: mã lớn hiện «EFPTM94»=true; Sao chép mã → bộ nhớ tạm «EFPTM94» (khớp mã=true), «Đã sao chép» tại chỗ=true; Sao chép liên kết (1 nút) → «https://localhost/join/EFPTM94» (toast: ["Đã sao chép"]); «Tạo lại mã» (nút: Button-module__lwrakq__btn Button-module__lwrakq__ghost  |gh) mở hộp «Tạo lại mã ch
+P TC-P209-46 bàn phím: Tab tới «Tạo lại mã» (Tạo lại mã) + Enter mở hộp xác nhận=true, Esc đóng; axe serious/critical=[] (tổng vi phạm 0); 375 px: tràn ngang 0; từ kỹ thuật trong trang: không
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4b.spec.ts:8:3 › GV 1440 › [P209-45] /class/settings (1.2m)
+
+  1 passed (1.3m)
+done rc=0

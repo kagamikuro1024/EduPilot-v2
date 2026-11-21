@@ -1,0 +1,41 @@
+
+Running 1 test using 1 worker
+
+INFO số SV: 30
+INFO chọn: Vũ Hoàng Giang, Vũ Minh Long | vắng ban đầu: 2
+INFO thanh lưu 375: {"text":"Lưu điểm danh · 26 có mặt · 4 vắng","h":44,"bottom":748,"navTop":755,"pos":"fixed","innerH":812,"warnH":null}
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại (23.1s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 
+
+    TimeoutError: locator.scrollIntoViewIfNeeded: Timeout 14997.019ms exceeded.
+    Call log:
+      - attempting scroll into view action
+        2 × waiting for element to be stable
+          - element is not visible
+        - retrying scroll into view action
+        - waiting 20ms
+        2 × waiting for element to be stable
+          - element is not visible
+        - retrying scroll into view action
+          - waiting 100ms
+        29 × waiting for element to be stable
+           - element is not visible
+         - retrying scroll into view action
+           - waiting 500ms
+
+
+      720 |   if (bar.navTop) expect.soft(bar.bottom!, "nằm trên thanh điều hướng đáy").toBeLessThanOrEqual(bar.navTop + 1);
+      721 |   // hàng cuối không bị che
+    > 722 |   await rows.last().scrollIntoViewIfNeeded();
+          |                     ^
+      723 |   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      724 |   await page.waitForTimeout(300);
+      725 |   const lastGap = await page.evaluate(() => { const r = [...document.querySelectorAll("main tbody tr")].pop()!.getBoundingClientRect(); const b = [...document.querySelectorAll("button")].find((x) => /Lưu điểm danh/.test((x as HTMLElement).innerText) && x.getBoundingClientRect().height > 0)!.getBoundingClientRect(); return Math.round(b.top - r.bottom); });
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:722:21
+
+    Error Context: ../docs/regression/evidence-9.1/pw-out/qc-uiux91-rw4-real-TC-UX12-cb978-Vắng-≤-60-s-không-hộp-thoại-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 

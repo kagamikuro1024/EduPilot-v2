@@ -1,0 +1,19 @@
+{
+ "noToken": {
+  "url": "http://localhost:3310/login?next=%2Fsettings%2Fllm",
+  "text": "Đăng nhập EduPilot Email Mật khẩu Đăng nhập Quên mật khẩu? Chưa có tài khoản? Đăng ký Cần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.",
+  "llmRequests": 0
+ },
+ "withToken": {
+  "url": "http://localhost:3310/settings/llm",
+  "llmRequests": [
+   "GET /admin/llm/providers",
+   "GET /admin/llm/routes",
+   "GET /admin/llm/decision",
+   "GET /admin/llm/usage?from=2026-11-11T19%3A06%3A09.179Z&to=2026-11-18T19%3A06%3A09.179Z&group=task",
+   "GET /admin/llm/budget"
+  ],
+  "h1": "Cấu hình LLM",
+  "hasProviders": true
+ }
+}

@@ -1,0 +1,25 @@
+2026-11-21 02:47:26.099 UTC [21910] LOG:  execute <unnamed>: -- name: TodayViewer :many
+2026-11-21 02:47:26.117 UTC [21910] LOG:  execute <unnamed>: -- name: CrmAttention :many
+2026-11-21 02:47:26.125 UTC [21938] LOG:  execute <unnamed>: select $1::text::regtype::oid;
+2026-11-21 02:47:26.126 UTC [21938] LOG:  execute <unnamed>: select typtype::text, typbasetype from pg_type where oid=$1
+2026-11-21 02:47:26.127 UTC [21938] LOG:  execute <unnamed>: select typelem, typdelim::text from pg_type where oid=$1
+2026-11-21 02:47:26.127 UTC [21938] LOG:  execute <unnamed>: select $1::text::regtype::oid;
+2026-11-21 02:47:26.127 UTC [21939] LOG:  execute <unnamed>: select $1::text::regtype::oid;
+2026-11-21 02:47:26.132 UTC [21939] LOG:  execute <unnamed>: select typtype::text, typbasetype from pg_type where oid=$1
+2026-11-21 02:47:26.133 UTC [21938] LOG:  execute <unnamed>: select typtype::text, typbasetype from pg_type where oid=$1
+2026-11-21 02:47:26.134 UTC [21938] LOG:  execute <unnamed>: select typelem, typdelim::text from pg_type where oid=$1
+2026-11-21 02:47:26.134 UTC [21939] LOG:  execute <unnamed>: select typelem, typdelim::text from pg_type where oid=$1
+2026-11-21 02:47:26.134 UTC [21938] LOG:  execute <unnamed>: select $1::text::regtype::oid;
+2026-11-21 02:47:26.135 UTC [21938] LOG:  execute <unnamed>: select typtype::text, typbasetype from pg_type where oid=$1
+2026-11-21 02:47:26.135 UTC [21938] LOG:  execute <unnamed>: select typelem, typdelim::text from pg_type where oid=$1
+2026-11-21 02:47:26.135 UTC [21939] LOG:  execute <unnamed>: select $1::text::regtype::oid;
+2026-11-21 02:47:26.136 UTC [21939] LOG:  execute <unnamed>: select typtype::text, typbasetype from pg_type where oid=$1
+2026-11-21 02:47:26.137 UTC [21939] LOG:  execute <unnamed>: select typelem, typdelim::text from pg_type where oid=$1
+2026-11-21 02:47:26.138 UTC [21939] LOG:  execute <unnamed>: select $1::text::regtype::oid;
+2026-11-21 02:47:26.138 UTC [21939] LOG:  execute <unnamed>: select typtype::text, typbasetype from pg_type where oid=$1
+2026-11-21 02:47:26.139 UTC [21910] LOG:  execute <unnamed>: -- name: TodayStaffAssignmentBatch :many
+2026-11-21 02:47:26.139 UTC [21939] LOG:  execute <unnamed>: select typelem, typdelim::text from pg_type where oid=$1
+2026-11-21 02:47:26.144 UTC [21938] LOG:  execute <unnamed>: -- name: GradeStatusFacts :many
+2026-11-21 02:47:26.159 UTC [21939] LOG:  execute <unnamed>: -- name: TodayStaffPending :many
+2026-11-21 02:47:26.175 UTC [21939] LOG:  execute <unnamed>: -- name: TodaySetup :many
+2026-11-21 02:47:26.178 UTC [21939] LOG:  execute <unnamed>: -- name: TodaySessions :many

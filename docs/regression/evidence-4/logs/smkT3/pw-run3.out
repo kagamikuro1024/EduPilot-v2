@@ -1,0 +1,45 @@
+
+Running 2 tests using 1 worker
+
+(node:11292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11292) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✘  1 [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:361:1 › [TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N giờ trước / hôm qua HH:mm / dd/MM; không chuỗi cứng ngoài timeAgo (21.3s)
+(node:11819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11819) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  2 [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:404:1 › [TC-P208-37] lỗi Admin lớp: mã trùng 409 tại ô, 422 sai vai, VERSION_CONFLICT, offline cùng khoá, lưu trữ lớp đã lưu trữ (4.5s)
+
+
+  1) [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:361:1 › [TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N giờ trước / hôm qua HH:mm / dd/MM; không chuỗi cứng ngoài timeAgo 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('[data-part=notifications]')
+    Expected substring: "Thử n59s"
+    Received string:    "Thông báoThử n5mThông báo · 5 phút trướcThử n3hThông báo · 3 giờ trướcThử nydThông báo · Hôm qua, 16:40Thử n5dThông báo · Thứ Bảy, 07:03Thử n10dThông báo · Thứ Hai, 09/11 · 07:03"
+    Timeout: 20000ms
+
+    Call log:
+      - Expect "toContainText" locator('[data-part=notifications]') with timeout 20000ms
+      - waiting for locator('[data-part=notifications]')
+        44 × locator resolved to <div data-part="notifications" class="AppShell-module__f1vhnG__notes">…</div>
+           - unexpected value "Thông báoThử n5mThông báo · 5 phút trướcThử n3hThông báo · 3 giờ trướcThử nydThông báo · Hôm qua, 16:40Thử n5dThông báo · Thứ Bảy, 07:03Thử n10dThông báo · Thứ Hai, 09/11 · 07:03"
+
+
+      381 |   await page.getByRole("button", { name: /^Thông báo/ }).click();
+      382 |   const panel = page.locator("[data-part=notifications]");
+    > 383 |   await expect(panel).toContainText("Thử n59s", { timeout: 20_000 });
+          |                       ^
+      384 |   const txt = await panel.innerText();
+      385 |   const line = (k: string) => (txt.split("\n").join(" ").match(new RegExp(`Thử ${k}[^]*?(?=Thử n|$)`)) ?? [""])[0];
+      386 |   const lk = Object.fromEntries(rows.map(([k]) => [k, line(k)]));
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/r4ui-admin.spec.ts:383:23
+
+    Error Context: ../../../../../tmp/qc2-pwout3/r4ui-admin--TC-P208-35-thờ-bd1cb-ng-chuỗi-cứng-ngoài-timeAgo-desktop/error-context.md
+
+  1 failed
+    [desktop] › e2e/qc2-r4/r4ui-admin.spec.ts:361:1 › [TC-P208-35] thời gian thông báo: vừa xong / N phút trước / N giờ trước / hôm qua HH:mm / dd/MM; không chuỗi cứng ngoài timeAgo 
+  1 passed (26.8s)

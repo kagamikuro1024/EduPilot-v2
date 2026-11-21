@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:40408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+F TC-P209-51 D: xem trước «Lớp QC2S4 QSE2E248 · QSE2E248 · TS. Lê Thu Hà · HK1 2026–2027 Lớp này cần giảng viên duyệt»; cần duyệt=true; sau tham gia «Tham gia lớp Đã gửi yêu cầu, chờ giảng viên duyệt. Về Hôm nay»; DB status=PENDING ‖ GV: chuông chấm=1; khung thông báo «Thông báo QC2S4 ue1 xin vào lớp QSE2E248 Th
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts:8:1 › [P209-51] join flow end to end (1.9m)
+
+  1 passed (1.9m)
+done rc=0

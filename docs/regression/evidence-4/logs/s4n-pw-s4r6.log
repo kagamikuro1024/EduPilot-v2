@@ -1,0 +1,53 @@
+
+Running 1 test using 1 worker
+
+(node:18365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts:8:1 › [P209-51] join flow end to end (1.4m)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts:8:1 › [P209-51] join flow end to end 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /^Chọn lớp, đang xem/ }).first()
+        - locator resolved to <button type="button" aria-haspopup="true" aria-expanded="false" title="QSE2E955 · Lớp QC2S4 QSE2E955" class="AppShell-module__f1vhnG__courseBtn" aria-label="Chọn lớp, đang xem QSE2E955 · Lớp QC2S4 QSE2E955">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        19 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <dialog open="" role="dialog" aria-labelledby="_r_7_" class="Dialog-module__rUw9Ha__overlay Dialog-module__rUw9Ha__dialog  ">…</dialog> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+
+
+      29 |   // D thấy lớp
+      30 |   await pD.goto(`/?course=${E.id}`); await settle(pD, 3000); const pk = pD.getByRole("button", { name: /^Chọn lớp, đang xem/ }); const hasPk = await pk.count(); let items: string[] = [];
+    > 31 |   if (hasPk) { await pk.first().click({ timeout: 10_000 }); await pD.waitForTimeout(600); items = (await pD.getByRole("menuitem").allInnerTexts()).map((x) => x.replace(/\s+/g, " ")); await pD.keyboard.press("Escape"); }
+         |                                 ^
+      32 |   const bar = await text(pD, "[data-part=topbar]"); await shot(pD, "e2e-d-picker");
+      33 |   const today = await text(pD); const inPicker = items.some((x) => x.includes(E.class_code)) || bar.includes(E.class_code); const inToday = today.includes(E.class_code) || /Hôm nay/.test(today);
+      34 |   const ox = await pD.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts:31:33
+
+    Error Context: ../docs/regression/evidence-4/pw-out/s4r-join-e2e--P209-51-join-flow-end-to-end-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/s4r-join-e2e.spec.ts:8:1 › [P209-51] join flow end to end 
+done rc=1

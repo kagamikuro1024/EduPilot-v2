@@ -1,0 +1,16 @@
+{"code":"NOT_FOUND","message":"Không tìm thấy.","trace_id":"beb5630102b206988350d5fcd8523fa3"}
+
+phiên: 01a1fbd1-4648-71fb-974f-1df6162c72e0 01a1fbd1-465c-7274-9578-b4f9262e9a81 01a1fbd1-4670-70e0-ad8a-2a72a7b8e335
+-- Redis chạy (đối chứng)
+200 0.047775 : ok  id: 1:1795226158741-0 event: status data: {"message_id":"01a1fbd1-468e-7596-9e3f-b9a337ed0c7c","stage":"received"}  id: 1:1795226158747-0 event: status data: {"message_id":"01a1fbd1-468e-7596-9e
+08:55:58 REDIS STOP
+-- t=08:55:59 lượt 1
+503 3.687761 {"code":"OVERLOADED","message":"Hệ thống đang rất đông. Vui lòng thử lại sau ít giây.","trace_id":"707b7d5a3916bc51b595f08fd4336701","retry_after":5} 
+-- t=08:56:02 lượt 2
+503 3.718424 {"code":"OVERLOADED","message":"Hệ thống đang rất đông. Vui lòng thử lại sau ít giây.","trace_id":"4f7f65ac326bec1cb28d9a6e2157e498","retry_after":5} 
+-- t=08:56:06 lượt 3
+503 3.779407 {"code":"OVERLOADED","message":"Hệ thống đang rất đông. Vui lòng thử lại sau ít giây.","trace_id":"44336daddaa71b251619b821e47f09cf","retry_after":5} 
+-- readyz khi Redis tắt: 200
+-- tạo phiên khi Redis tắt:
+503 1.956336
+08:56:12 REDIS START

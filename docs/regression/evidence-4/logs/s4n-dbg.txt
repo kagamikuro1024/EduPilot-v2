@@ -1,0 +1,24 @@
+## SVC
+Chào Huy Thứ Bảy, 21/11 Việc nên làm tiếp Hôm nay bạn không có việc gấp Hôm nay Buổi 11 · QC nhóm D QR91H Ngày mai, 09:00–11:30 · P.302 Sắp tới
+A cls=ActionList-module__1xx9La__main var=null part=null «Buổi 11 · QC nhóm D QR91HNgày mai, 09:00»
+## SVA
+Chào Trung Thứ Bảy, 21/11 Việc nên làm tiếp Hôm nay bạn không có việc gấp
+
+## GV
+4 việc cần xử lý hôm nay Thứ Bảy, 21/11 Gấp · 1 Câu hỏi chờ giảng viên 1 câu hỏi đang chờ · 0 câu bạn đã nhận · lâu nhất 2 ngày Mở Hôm nay · 2 Thiết lập lớp mới 2/4 bước xong: chia sẻ mã lớp → tải quy chế môn học → tạo lịch buổi học → tải tài liệu. Xem 4 bước Mở thiết lập Bỏ qua 6 sinh viên mới vào 
+A cls=ActionList-module__1xx9La__main var=null part=null «Câu hỏi chờ giảng viên1 câu hỏi đang chờ»
+A cls=Button-module__lwrakq__btn Button-module__lwrakq__primary Bu var=primary part=null «Mở»
+BUTTON cls=Button-module__lwrakq__btn Button-module__lwrakq__text Butto var=text part=null «Xem 4 bước»
+A cls=Button-module__lwrakq__btn Button-module__lwrakq__ghost Butt var=ghost part=null «Mở thiết lập»
+BUTTON cls=Button-module__lwrakq__btn Button-module__lwrakq__ghost Butt var=ghost part=null «Bỏ qua»
+A cls=ActionList-module__1xx9La__main var=null part=null «6 sinh viên mới vào diện cần chú ý»
+A cls=Button-module__lwrakq__btn Button-module__lwrakq__ghost Butt var=ghost part=null «Mở»
+A cls=ActionList-module__1xx9La__main var=null part=null «26 bài nộp chưa khớp sinh viênGán cho si»
+A cls=Button-module__lwrakq__btn Button-module__lwrakq__ghost Butt var=ghost part=null «Xem bài chưa khớp»
+A cls=ActionList-module__1xx9La__main var=null part=null «Ngô Ngọc Cẩmvắng 1/1 buổi; điểm quá trìn»
+A cls=ActionList-module__1xx9La__main var=null part=null «Lê Thanh Hảiđiểm quá trình thấp; học ít;»
+A cls=ActionList-module__1xx9La__main var=null part=null «Hồ Đức Thảođiểm quá trình thấp; học ít; »
+A cls=ActionList-module__1xx9La__main var=null part=null «Huỳnh Thu Longđiểm quá trình thấp; học í»
+A cls=ActionList-module__1xx9La__main var=null part=null «Võ Hữu Bìnhđiểm quá trình thấp; học ít; »
+A cls=Button-module__lwrakq__btn Button-module__lwrakq__ghost   var=ghost part=null «Xem tất cả (6)»
+A cls=ActionList-module__1xx9La__main var=null part=null «Buổi 11 · QC nhóm D QR91HNgày mai, 09:00»

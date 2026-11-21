@@ -1,0 +1,9 @@
+/inbox → /inbox | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/events,200 /api/v1/notifications,200 /api/v1/me/courses
+/students → /students | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/events,200 /api/v1/notifications,200 /api/v1/me/courses
+/attendance → /attendance | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/events,200 /api/v1/notifications,200 /api/v1/me/courses
+/class/members → /class/members | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/events,200 /api/v1/notifications,200 /api/v1/me/courses
+/gradebook → /gradebook | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/events,200 /api/v1/me/courses,200 /api/v1/notifications
+/grading → /grading | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/events,200 /api/v1/notifications,200 /api/v1/me/courses
+/questions → /questions | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/notifications,200 /api/v1/events,200 /api/v1/me/courses
+/documents → /documents | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/events,200 /api/v1/notifications,200 /api/v1/me/courses
+/insights → /insights | Bạn không có quyền xem màn này Về Hôm nay Trang này dành cho giảng viên và trợ giảng. | API: 200 /api/v1/auth/refresh,200 /api/v1/events,200 /api/v1/notifications,200 /api/v1/me/courses

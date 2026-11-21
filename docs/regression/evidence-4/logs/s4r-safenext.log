@@ -1,0 +1,28 @@
+
+Running 21 tests using 1 worker
+
+(node:6610) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › e2e/safe-next.spec.ts:12:23 › safeNext › giữ "/" (6ms)
+  ✓   2 [desktop] › e2e/safe-next.spec.ts:12:23 › safeNext › giữ "/chat" (0ms)
+  ✓   3 [desktop] › e2e/safe-next.spec.ts:12:23 › safeNext › giữ "/join/BX4P9TW" (0ms)
+  ✓   4 [desktop] › e2e/safe-next.spec.ts:12:23 › safeNext › giữ "/class/members?tab=pending" (0ms)
+  ✓   5 [desktop] › e2e/safe-next.spec.ts:12:23 › safeNext › giữ "/settings/llm#top" (0ms)
+  ✓   6 [desktop] › e2e/safe-next.spec.ts:12:23 › safeNext › giữ "/a/b/c?x=1&y=%20z" (0ms)
+  ✓   7 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "//evil.example" (0ms)
+  ✓   8 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "https://evil.example" (0ms)
+  ✓   9 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "/\\evil.example" (1ms)
+  ✓  10 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "javascript:alert(1)" (0ms)
+  ✓  11 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "/%2F%2Fevil.example" (0ms)
+  ✓  12 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "\\\\evil" (0ms)
+  ✓  13 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "http:evil" (0ms)
+  ✓  14 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "/%5Cevil.example" (0ms)
+  ✓  15 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "/a:b" (0ms)
+  ✓  16 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "/x\u0000y" (0ms)
+  ✓  17 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "/x\ny" (0ms)
+  ✓  18 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "" (1ms)
+  ✓  19 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "chat" (0ms)
+  ✓  20 [desktop] › e2e/safe-next.spec.ts:13:25 › safeNext › bỏ "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaa" (0ms)
+  ✓  21 [desktop] › e2e/safe-next.spec.ts:14:3 › safeNext › thiếu → / (0ms)
+
+  21 passed (751ms)

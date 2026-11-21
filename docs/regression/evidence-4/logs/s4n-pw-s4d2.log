@@ -1,0 +1,16 @@
+
+Running 5 tests using 1 worker
+
+(node:76941) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:8:3 › 375 SV › [P211-32] / Sinh viên (5.0m)
+(node:84147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:27:3 › 375 SV › [P211-33] khung xương, lỗi, 3 giây (7.7s)
+(node:84338) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+P TC-P211-41 500 → «Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng. Thử lại» + Thử lại; bấm Thử lại → 1 yêu cầu mới (đúng 1) và hiện dữ liệu; làm mới lỗi khi đã có dữ liệu: dữ liệu cũ vẫn hiện=true, dòng cảnh báo=0; ngoại tuyến → banner=false
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:40:3 › 375 SV › [P211-41] lỗi UI: thử lại, giữ dữ liệu cũ, ngoại tuyến (20.8s)
+done rc=124

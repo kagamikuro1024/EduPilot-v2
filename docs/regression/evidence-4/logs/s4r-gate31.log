@@ -1,0 +1,20 @@
+[WebServer] (node:47766) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[WebServer] (node:47805) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:47808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/data-layer.spec.ts:245:1 › auto refresh: 5 request cùng 401 TOKEN_EXPIRED ⇒ đúng 1 refresh, mỗi request phát lại 1 lần; POST giữ Idempotency-Key (720ms)
+  ✓  2 [desktop] › e2e/data-layer.spec.ts:272:1 › auto refresh: refresh thất bại ⇒ auth:expired, KHÔNG phát lại; SESSION_REVOKED ⇒ không làm mới (506ms)
+(node:47834) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  3 [mobile] › e2e/data-layer.spec.ts:245:1 › auto refresh: 5 request cùng 401 TOKEN_EXPIRED ⇒ đúng 1 refresh, mỗi request phát lại 1 lần; POST giữ Idempotency-Key
+  -  4 [mobile] › e2e/data-layer.spec.ts:272:1 › auto refresh: refresh thất bại ⇒ auth:expired, KHÔNG phát lại; SESSION_REVOKED ⇒ không làm mới
+
+  2 skipped
+  2 passed (4.7s)
+rc=0

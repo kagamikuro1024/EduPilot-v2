@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+INFO số SV: 30
+INFO chọn: Võ Thanh Trang, Võ Thị An | vắng ban đầu: 4
+INFO thanh lưu 375: {"text":"Lưu điểm danh · 24 có mặt · 6 vắng","h":44,"bottom":748,"navTop":755,"pos":"fixed","innerH":812,"warnH":null}
+INFO khoảng hàng cuối → thanh: 289
+INFO sau lưu: Đã lưu 10:37 | tổng thời gian: 7 s
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại (10.0s)
+
+  1 passed (10.6s)

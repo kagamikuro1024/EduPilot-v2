@@ -1,0 +1,15 @@
+
+Running 5 tests using 1 worker
+
+(node:30436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:8:3 › 375 SV › [P211-32] / Sinh viên (118ms)
+(node:30459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+F TC-P211-33 khung xương: phần tử aria-busy=0 khi API chậm 2,5 s (0 lượt gọi); lỗi 500 → «p» + nút Thử lại=0; từ kỹ thuật (RAG|PII|trace|provider): không; 375 px tràn ngang 0; mục chạm < 40 px: 0; axe serious/critical []; thời gian tới hành động chính hiện: 10077 ms (≈ 3 s)
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:27:3 › 375 SV › [P211-33] khung xương, lỗi, 3 giây (25.1s)
+
+  ✘  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:40:3 › 375 SV › [P211-41] lỗi UI: thử lại, giữ dữ liệu cũ, ngoại tuyến (5.0m)
+(node:36430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+done rc=124

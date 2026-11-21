@@ -1,0 +1,25 @@
+{"Time":"2026-11-19T03:11:50.957046+07:00","Action":"start","Package":"github.com/edupilot/backend-go/internal/store"}
+{"Time":"2026-11-19T03:11:51.134125+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema"}
+{"Time":"2026-11-19T03:11:51.134226+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"=== RUN   TestCourseSchema\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:11:51.134272+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"=== PAUSE TestCourseSchema\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:11:51.134281+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema"}
+{"Time":"2026-11-19T03:11:51.134302+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema"}
+{"Time":"2026-11-19T03:11:51.134306+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"=== CONT  TestCourseSchema\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:11:51.160457+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"2026/11/19 03:11:51 github.com/testcontainers/testcontainers-go - Connected to docker: \n"}
+{"Time":"2026-11-19T03:11:51.160508+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  Server Version: 29.5.2\n"}
+{"Time":"2026-11-19T03:11:51.160521+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  API Version: 1.54\n"}
+{"Time":"2026-11-19T03:11:51.160527+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  Operating System: Ubuntu 24.04.4 LTS\n"}
+{"Time":"2026-11-19T03:11:51.160532+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  Total Memory: 9923 MB\n"}
+{"Time":"2026-11-19T03:11:51.160537+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  Testcontainers for Go Version: v0.44.0\n"}
+{"Time":"2026-11-19T03:11:51.160542+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock\n"}
+{"Time":"2026-11-19T03:11:51.160558+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock\n"}
+{"Time":"2026-11-19T03:11:51.160562+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  Test SessionID: 2760351ffaf4833da4563d98017346f01f9580c5064fd9b159d3697fd5c715ad\n"}
+{"Time":"2026-11-19T03:11:51.160566+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"  Test ProcessID: e957b2cc-f0a3-4c15-9eb0-4781dc04433d\n"}
+{"Time":"2026-11-19T03:11:51.176986+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"2026/11/19 03:11:51 ✅ Container started: 68f6ff853df5\n"}
+{"Time":"2026-11-19T03:11:51.177049+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"2026/11/19 03:11:51 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening\n"}
+{"Time":"2026-11-19T03:11:51.212317+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"2026/11/19 03:11:51 🔔 Container is ready: 68f6ff853df5\n"}
+{"Time":"2026-11-19T03:11:51.7501+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Output":"--- PASS: TestCourseSchema (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:11:51.750165+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/store","Test":"TestCourseSchema","Elapsed":0.62}
+{"Time":"2026-11-19T03:11:51.750204+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-19T03:11:51.751662+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/store","Output":"ok  \tgithub.com/edupilot/backend-go/internal/store\t0.794s\n"}
+{"Time":"2026-11-19T03:11:51.751693+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/store","Elapsed":0.795}

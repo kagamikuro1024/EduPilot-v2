@@ -1,0 +1,16 @@
+GRANT
+== cấu hình: gateway edupilot-gateway:latest APP_ENV=test, DB bản sao qc2i_s4t (2626 user, 475 lớp), redis riêng, Postgres postgres (PostgreSQL) 18.6 (Debian 18.6-
+== nền: GV 200 0.115556s · SV 200 0.021819s · Admin 200 0.007406s
+== P211-02 (revoke select on assignments): GV 200 0.021170s items=50 ['count', 'actions', 'attention', 'attention_total', 'upcoming'] · SV 200 0.010813s · Admin 200 0.005784s
+{"time":"2026-11-21T02:17:08.239273058Z","level":"WARN","msg":"today: bỏ Provider lỗi","service":"gateway","instance":"79f163bac28d","provider":"assignment","error":"today: việc chấm bài của nhân viên: ERROR: permission denied for table assignments (SQLSTATE 42501)","trace_id":"cddff58852d611ada43ac6415eac8b0c"}
+{"time":"2026-11-21T02:17:08.279297539Z","level":"WARN","msg":"today: bỏ Provider lỗi","service":"gateway","instance":"79f163bac28d","provider":"assignment","error":"today: bài tập: ERROR: permission denied for table assignments (SQLSTATE 42501)","trace_id":"c19bdca2a401645de742884db19d2cfc"}
+log warn mới: 2
+== P211-40 (a) assignments chậm 1 s/dòng (> 150 ms của Provider): GV 200 0.166948s (phần còn lại): {"count":402,"actions":[{"id":"TICKET:01a1df34-4fd1-7f3e-ab8c-51963c095082","kind":"TICKET","title":"Câu hỏi chờ giảng viên · lớp E6C1","reason":"22 câu hỏi chờ quá 72 giờ làm vi�
+== P211-40 (b) enrollments chậm 5 s > REQUEST_TIMEOUT=3s: GV 504 3.006570s → {"code":"DEADLINE_EXCEEDED","message":"Xử lý quá thời hạn.","trace_id":"d9aac5a33b1b3950b2d3cd920386dbcf"}
+== sau khôi phục: GV 200 0.076385s · SV 200 0.026002s
+== P211-28 (redis dừng): 12 yêu cầu GV liên tiếp mã: 200 0.508405s | 200 0.471713s | 200 0.491466s |  SV 200 0.464177s
+log error fail-open từ 2026-11-21T02:17:20 (12+ yêu cầu trong 8 s): 1
+ERROR:  parameter "log_line_prefix" cannot be changed now
+== P211-30 (cache tắt = redis dừng; đếm dòng execute/statement của DB qc2i_s4t trong log Postgres cho 1 yêu cầu /me/today, đã gồm xác thực): GV 0 · SV 0 · GV lại 0
+Etag: W/"KC4oPbjUVuf58W92"
+== ETag W/"KC4oPbjUVuf58W92"; If-None-Match → 304

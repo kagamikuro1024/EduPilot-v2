@@ -1,5 +1,5 @@
 {
- "admin1440_idx": "Đánh chỉ mục tài liệu\t555\t114.962 / 7.668\t1.000 đ\t384 ms\t20\t4",
+ "admin1440_idx": "Đánh chỉ mục tài liệu\t2.684\t2.759.969 / 2.680\t372 đ\t13.745 ms\t41\t3",
  "admin1440": {
   "hits": [],
   "usage": true,
@@ -18,6 +18,7 @@
    "Thêm hành động cho SmkB-S5",
    "Thêm hành động cho S9G-stub",
    "Thêm hành động cho S8R-stub",
+   "Thêm hành động cho S8R-stub2",
    "Thêm nhà cung cấp",
    "Cài đặt nâng cao",
    "Lưu",
@@ -58,6 +59,7 @@
    "Thêm hành động cho SmkB-S5",
    "Thêm hành động cho S9G-stub",
    "Thêm hành động cho S8R-stub",
+   "Thêm hành động cho S8R-stub2",
    "Thêm nhà cung cấp",
    "Cài đặt nâng cao",
    "Lưu",
@@ -88,6 +90,7 @@
    "Thêm hành động cho SmkB-S5",
    "Thêm hành động cho S9G-stub",
    "Thêm hành động cho S8R-stub",
+   "Thêm hành động cho S8R-stub2",
    "Thêm nhà cung cấp",
    "Cài đặt nâng cao",
    "Lưu",
@@ -127,6 +130,7 @@
    "Thêm hành động cho SmkB-S5",
    "Thêm hành động cho S9G-stub",
    "Thêm hành động cho S8R-stub",
+   "Thêm hành động cho S8R-stub2",
    "Thêm nhà cung cấp",
    "Cài đặt nâng cao",
    "Lưu",
@@ -139,12 +143,12 @@
    "30 ngày"
   ]
  },
- "teacher1440_idx": "Đánh chỉ mục tài liệu\t555\t114.962 / 7.668\t1.000 đ\t384 ms\t20\t4",
+ "teacher1440_idx": "Đánh chỉ mục tài liệu\t2.684\t2.759.969 / 2.680\t372 đ\t13.745 ms\t41\t3",
  "teacher1440": {
   "hits": [],
   "usage": true,
   "names": [
-   "Chọn lớp, đang xem QC3S6C · QC3 sprint 6 QC3S6C",
+   "Chọn lớp, đang xem QSE2EB05 · Lớp QC2S4 QSE2EB05",
    "Tìm nhanh hoặc đi đến…\n⌘\nK",
    "Thông báo, 9+ chưa đọc",
    "H\nTài khoản:\nTS. Lê Thu Hà",
@@ -160,7 +164,7 @@
    "nâng cao"
   ],
   "nonVerbSample": [
-   "Chọn lớp, đang xem QC3S6C · QC3 sprint 6 QC3S6C",
+   "Chọn lớp, đang xem QSE2EB05 · Lớp QC2S4 QSE2EB05",
    "Tìm nhanh hoặc đi đến…\n⌘\nK",
    "Thông báo, 9+ chưa đọc",
    "H\nTài khoản:\nTS. Lê Thu Hà",

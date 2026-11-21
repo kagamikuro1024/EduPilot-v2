@@ -1,0 +1,31 @@
+
+Running 1 test using 1 worker
+
+INFO số SV: 30
+INFO chọn: Vũ Hoàng Giang, Vũ Minh Long | vắng ban đầu: 1
+INFO thanh lưu 375: {"text":"Lưu điểm danh · 26 có mặt · 4 vắng","h":44,"bottom":748,"navTop":755,"pos":"fixed","innerH":812,"warnH":null}
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại (8.0s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 
+
+    Error: số có mặt / vắng cập nhật
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /3 vắng/
+    Received string:  "Lưu điểm danh · 26 có mặt · 4 vắng"
+
+      716 |   expect(bar.pos, "dính").toMatch(/sticky|fixed/);
+      717 |   expect(bar.text).toMatch(/Lưu điểm danh/);
+    > 718 |   expect(bar.text, "số có mặt / vắng cập nhật").toMatch(new RegExp(`${abs0 + 2} vắng`));
+          |                                                 ^
+      719 |   expect(bar.h ?? 0).toBeGreaterThanOrEqual(43);
+      720 |   if (bar.navTop) expect.soft(bar.bottom!, "nằm trên thanh điều hướng đáy").toBeLessThanOrEqual(bar.navTop + 1);
+      721 |   // hàng cuối không bị che
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:718:49
+
+    Error Context: ../docs/regression/evidence-9.1/pw-out/qc-uiux91-rw4-real-TC-UX12-cb978-Vắng-≤-60-s-không-hộp-thoại-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-rw4-real.spec.ts:687:1 › TC-UX12-9/10/11/15/19 điểm danh 375: thanh lưu dính trên thanh điều hướng, số cập nhật, lưu 2 SV Vắng ≤ 60 s không hộp thoại 

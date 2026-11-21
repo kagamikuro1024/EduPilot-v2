@@ -1,0 +1,14 @@
+
+Running 3 tests using 1 worker
+
+(node:70344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+P TC-P210-15 GV tab Chờ duyệt lớp QSURA5C: 2 hàng nhãn «Email chưa khớp MSSV»; «Hôm nay» (chọn lớp QSURA5C) có 1 mục về email chưa khớp: «1 yêu cầu có email chưa khớp MSSV Cần bạn xác nhận: email đăng ký khác email trong danh sách lớp. Xem và xác nhận» (nguồn việc F14 EMAIL_MISMATCH)
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:9:3 › GV 1440 › [P210-15] GV thấy cảnh báo + Hôm nay (40.8s)
+F TC-P210-32 lớp cùng học phần: mục «Dùng lại nội dung từ lớp khác» hiện=1; bấm nguồn 761987 → tại chỗ «Đã dùng lại 10 tài liệu từ lớp 761987.»; nguồn chưa có tài liệu (QSRI2ED) → «Lớp QS470E05F · Lớp IDOR QS470E05F · 2026-2027-HK1 · 0 tài liệu Dùng lại tài liệu Lớp QS520E05F · Lớp tệp độc QS520E05F · 2026-2027-
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:19:3 › GV 1440 › [P210-32] Dùng lại nội dung từ lớp khác (39.0s)
+P TC-P210-34 tab «Nhập danh sách» tại chỗ (dialog=0); tuỳ chọn mời mặc định bật=true; Xem trước loi-2.csv gọi 1 POST dry_run=true; bảng có «Dòng 7»=true, «Email không đúng dạng»=true, «Dòng 19»=true; nút «Nhập 28 sinh viên»; nút chính hiện=1; ELF .csv → alert «Không đọc được tệp. Hãy dùng CSV UTF-8 hoặc XLSX. | 
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:34:3 › GV 1440 › [P210-34] Nhập danh sách (UI) (1.0m)
+
+  3 passed (2.4m)
+done rc=0

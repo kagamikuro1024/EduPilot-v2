@@ -215,3 +215,10 @@ CHẠY LẠI @b98b9926 (SmkS4 2026-11-21; sửa tài liệu f45d1abd + c81edd2e)
 - Bước tái hiện: `bash docs/regression/evidence-9.5/scripts/n07-02-idle-stats-smk91.sh` (smk91 nghỉ 5 phút, T0 60 SV) → tổng 12 container 278 MiB; `jq .idle benchmarks/reports/baseline.json` → 570,2 MiB (stack `ep-t1`, T1 1.000 SV, DB 409 MB). Postgres 67,5 vs 329,6 MiB (−80 %), redis −65 %, caddy −44 %; 7 container còn lại trong ±30 %.
 - Kỳ vọng (TC): RAM từng container và tổng khớp bảng dev ±30 % (P-95-7 Q13) · Thực tế: tổng −51 %; chênh do quy mô, không phải rò rỉ / lỗi mã.
 - Cần PM quyết: (a) sửa TC thành «đo ở T1 cùng quy mô» và QC đo lại sau khi seed T1, hoặc (b) dev ghi RAM nghỉ theo quy mô (T0 / T1) trong báo cáo. Bằng chứng: evidence-9.5/rerun/n07-02-idle-stats-smk91.log.
+
+### DEF-R9.5-26 — `seed.mjs` bước 3 không chạy lại được khi DB có hơn 100 lớp (TC-N02-02/03 chạy lại, Thấp)
+- Sprint gốc: 8/9 (scripts/seed.mjs:307-316) · TC: TC-N02-02, TC-N02-03 (chạy lại sau DEF-R9.5-17) · Phát hiện: SmkS4R 2026-11-21 · Hồi quy do sprint sau?: KHÔNG RÕ
+- Môi trường: ep-r (479 lớp), HEAD qc2 sau merge sprint/11.
+- Bước tái hiện: `node scripts/seed.mjs --verbose` (biến môi trường ep-r như STATE-DefR) → «[3/20] Mở hai lớp…», `GET /admin/courses?limit=100` 200, `POST /admin/courses` → 201 (phát lại theo khoá Idempotency `seed-course-761987`), `GET /admin/courses?limit=100` 200 → «Seed lỗi: Cannot read properties of undefined (reading 'teacher')», rc=1. Nguyên nhân: danh sách lớp xếp mới nhất trước, lớp 761987 (tạo 2026-11-15) nằm ngoài 100 dòng đầu (ep-r có 479 lớp); `step3Courses` dùng `limit=100` không phân trang / không `q=` (khác dòng 238 đã dùng `&q=${code}`).
+- Kỳ vọng: seed chạy lại được trên DB đã có dữ liệu (TC-N02-03: mã 0, N1 = N2) · Thực tế: dừng ở bước 3, không tới bước 15 nên KHÔNG kiểm được sửa DEF-R9.5-17 (khoá nhập điểm theo upload_id, 6ec47f79) trên ep-r.
+- Đề xuất: tra lớp theo `q=<class_code>` (như dòng 238) ở dòng 307/313/316. Bằng chứng: evidence-defrerun/R9.5-17/seed-run1.log, seed-run2.log.

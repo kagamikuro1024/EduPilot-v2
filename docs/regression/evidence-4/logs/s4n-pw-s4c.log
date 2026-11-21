@@ -1,0 +1,36 @@
+
+Running 3 tests using 1 worker
+
+(node:20111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+P TC-P210-15 GV tab Chờ duyệt lớp QSURA5C: 2 hàng nhãn «Email chưa khớp MSSV»; «Hôm nay» (chọn lớp QSURA5C) có 1 mục về email chưa khớp: «1 yêu cầu có email chưa khớp MSSV Cần bạn xác nhận: email đăng ký khác email trong danh sách lớp. Xem và xác nhận» (nguồn việc F14 EMAIL_MISMATCH)
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:9:3 › GV 1440 › [P210-15] GV thấy cảnh báo + Hôm nay (39.8s)
+F TC-P210-32 lớp cùng học phần: mục «Dùng lại nội dung từ lớp khác» hiện=1; bấm nguồn 761987 → tại chỗ «Đã dùng lại 10 tài liệu từ lớp 761987.»; nguồn chưa có tài liệu (QSRI2ED) → «Lớp QS470E05F · Lớp IDOR QS470E05F · 2026-2027-HK1 · 0 tài liệu Dùng lại tài liệu Lớp QS520E05F · Lớp tệp độc QS520E05F · 2026-2027-
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:19:3 › GV 1440 › [P210-32] Dùng lại nội dung từ lớp khác (39.4s)
+
+  ✘  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:34:3 › GV 1440 › [P210-34] Nhập danh sách (UI) (5.0m)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:34:3 › GV 1440 › [P210-34] Nhập danh sách (UI) 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: page.waitForTimeout: Target page, context or browser has been closed
+
+      44 |     await page.locator("input[type=file]").setInputFiles("../docs/regression/evidence-4/fx/fake-ext.csv"); await page.getByRole("button", { name: "Xem trước" }).click().catch(() => undefined); await page.waitForTimeout(2500); const fake = await text(page);
+      45 |     writeFileSync("../docs/regression/evidence-4/fx/big3m.csv", "Email,Họ và tên,MSSV\n" + "a@b.vn,x,1\n".repeat(280000));
+    > 46 |     await page.locator("input[type=file]").setInputFiles("../docs/regression/evidence-4/fx/big3m.csv"); await page.getByRole("button", { name: "Xem trước" }).click().catch(() => undefined); await page.waitForTimeout(2500); const big = await text(page);
+         |                                                                                                                                                                                                          ^
+      47 |     // nhập thật loi-2.csv
+      48 |     await page.locator("input[type=file]").setInputFiles("../docs/regression/evidence-4/fx/loi-2.csv"); await page.getByRole("button", { name: "Xem trước" }).click(); await page.waitForTimeout(2500);
+      49 |     await page.getByRole("button", { name: /^Nhập \d+ sinh viên$/ }).click(); await page.waitForTimeout(4000); const done = await text(page); await shot(page, "p210-34-done");
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:46:202
+
+    Error Context: ../docs/regression/evidence-4/pw-out/ui-s4c-GV-1440-P210-34-Nhập-danh-sách-UI--desktop/error-context.md
+
+  Slow test file: [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts (6.3m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4c.spec.ts:34:3 › GV 1440 › [P210-34] Nhập danh sách (UI) 
+  2 passed (6.3m)
+done rc=1

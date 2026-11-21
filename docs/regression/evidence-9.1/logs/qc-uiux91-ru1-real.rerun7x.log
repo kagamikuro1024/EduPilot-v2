@@ -1,0 +1,32 @@
+
+Running 1 test using 1 worker
+
+INFO UX12-2 LATE chuột-xa=rgb(206, 22, 40) chuột-trên-ô=rgb(206, 22, 40)
+INFO UX12-2 EXCUSED chuột-xa=rgb(206, 22, 40) chuột-trên-ô=rgb(206, 22, 40)
+INFO UX12-2 ABSENT chuột-xa=rgb(206, 22, 40) chuột-trên-ô=rgb(206, 22, 40)
+INFO UX12-2 375: {"hoverHover":false,"rules":[]}
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:105:1 › TC-UX12-2 chấm điểm danh đã chọn giữ đỏ khi rê (desktop) + luật rê không áp trên cảm ứng 375 (12.5s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:105:1 › TC-UX12-2 chấm điểm danh đã chọn giữ đỏ khi rê (desktop) + luật rê không áp trên cảm ứng 375 
+
+    Error: có luật :hover cho .radio
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      136 |   console.log("INFO UX12-2 375:", JSON.stringify(r));
+      137 |   expect(r.hoverHover, "375 + cảm ứng: (hover: hover) sai").toBe(false);
+    > 138 |   expect(r.rules.length, "có luật :hover cho .radio").toBeGreaterThan(0);
+          |                                                       ^
+      139 |   for (const x of r.rules) expect(x.applies, `luật ${x.sel} không áp trên cảm ứng`).toBe(false);
+      140 |   await m.ctx.close();
+      141 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:138:55
+
+    Error Context: ../docs/regression/evidence-9.1/pw-out/qc-uiux91-ru1-real-TC-UX12-945cb-ê-không-áp-trên-cảm-ứng-375-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:105:1 › TC-UX12-2 chấm điểm danh đã chọn giữ đỏ khi rê (desktop) + luật rê không áp trên cảm ứng 375 

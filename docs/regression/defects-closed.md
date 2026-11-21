@@ -60,3 +60,9 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - **DEF-R10.8-02** (b8c43df8): ĐÓNG — TC-AS13-05, TC-AS14-11 P (34/34 tên test SRS §11 có trong mã; 7 test PASS).
 - **DEF-R9.5-20** (98d4373d): ĐÓNG — TC-N06-04 P (Redis tắt trên ep-r: 503 OVERLOADED 3,7 s; cũ 39,5 s; TestSendRedisDownFailsFast xanh).
 - **DEF-R5-03** (46bf5626), **DEF-R5-04** (4cd9c07e): ĐÓNG — TC-PE03-49, TC-PE03-51 P (ui lượt smkP_q.cjs 08:56).
+- DEF-R4-04 · TC-P206-28 · 3121bda8 · P: EXPLAIN ListUsersAdmin trên DB tạm 60.000 user (schema ep-r có migration 00029): trang đầu / lọc role / lọc status / con trỏ đều Index Scan users_created_idx, 0,04–0,07 ms (SmkT4N, evidence-4/logs/s4n-p20628-explain.txt)
+- DEF-R4-08 · TC-GATEP2-09 (phần --if-empty) · 69b06337+3b82e1cd · P: node scripts/seed.mjs --if-empty trên ep-r 475 lớp in «Đã có dữ liệu, không seed.» sau ~1 s, số dòng users/courses/enrollments/documents không đổi (SmkT4N, evidence-4/logs/s4n-seedifempty.txt); thời gian seed ≤ 360 s (P-11-76) do qc2 đo
+- DEF-R4-03 · TC-P202-46 · P-11-72 (sửa TC, bỏ COOKIE_DOMAIN) · P: 4 biến TTL sai rc=1 nêu tên biến (SmkT4N, evidence-4/logs/s4n-p20246.txt)
+- DEF-R4-06 · TC-P202-47 · P-11-73 (sửa TC, phạm vi AC15) · P: grep JWT_EXPIRATION phạm vi sản phẩm = 0, go test ./internal/contract ok
+- DEF-R4-07 · TC-P201-19 · P-11-74 (sửa TC, dung sai +0,5 s +0,1 s) · P: 1,49–1,50 / 5,5 / 30,5 s nằm trong dung sai
+- **DEF-R9.1-06** (6d127b88): ĐÓNG — TC-UX12-2 P (ep-r: Muộn / Vắng phép / Vắng giữ đỏ rgb(206,22,40) khi rê chuột, trước sửa xám; 375 cảm ứng luật rê không áp; evidence-9.1/logs/qc-uiux91-ru1-real.rerun7z2.log).

@@ -1,0 +1,49 @@
+GRANT
+== cấu hình: gateway edupilot-gateway:latest APP_ENV=test, DB bản sao qc2i_s4t (2628 user, 475 lớp), redis riêng, Postgres postgres (PostgreSQL) 18.6 (Debian 18.6-
+== nền: GV 200 0.135558s · SV 200 0.046700s · Admin 200 0.025269s
+== P211-30 (cache tắt = redis dừng; log_statement=all, đếm trong log Postgres của DB bản sao; lần 2 sau khởi động pool): GV /me/today: truy vấn có tên (sqlc)=7, ping pool=3, khác (đăng ký kiểu pgx regtype/pg_type)=0 · GV (lần 3) /me/today: truy vấn có tên (sqlc)=7, ping pool=3, khác (đăng ký kiểu pgx regtype/pg_type)=0 · SV 1 lớp /courses/01a1f04e-019d-7cef-aa4b-55c856ddd136/today: truy vấn có tên (sqlc)=2, ping pool=1, khác (đăng ký kiểu pgx regtype/pg_type)=0 · SV tất cả lớp /me/today: truy vấn có tên (sqlc)=6, ping pool=3, khác (đăng ký kiểu pgx regtype/pg_type)=0
+Etag: W/"38lHR5ub2PgOFUi7"
+== ETag W/"38lHR5ub2PgOFUi7"; If-None-Match → 304
+== burst 40 yêu cầu/token (1 vòng nhanh): GV   40 200  · SV   40 200 
+== trước k6: 6 yêu cầu GV: 200 200 200 200 200 200  · SV: 200 200 200 200 200 200 
+== k6 20 req/s 60 s, token GV + SV luân phiên, qua gateway phụ (không Caddy): máy Apple M3 Pro, 11 lõi, colima 6 CPU / 9923 MB
+              * t: 20.00 iterations/s for 1m0s (maxVUs: 20-80, gracefulStop: 30s)
+running (0m01.0s), 00/20 VUs, 20 complete and 0 interrupted iterations
+running (0m02.0s), 00/20 VUs, 40 complete and 0 interrupted iterations
+running (0m03.0s), 00/20 VUs, 60 complete and 0 interrupted iterations
+running (0m04.0s), 00/20 VUs, 80 complete and 0 interrupted iterations
+running (0m05.0s), 00/20 VUs, 100 complete and 0 interrupted iterations
+running (0m06.0s), 00/20 VUs, 120 complete and 0 interrupted iterations
+running (0m07.0s), 00/20 VUs, 140 complete and 0 interrupted iterations
+running (0m08.0s), 00/20 VUs, 160 complete and 0 interrupted iterations
+running (0m09.0s), 00/20 VUs, 180 complete and 0 interrupted iterations
+running (0m10.0s), 00/20 VUs, 200 complete and 0 interrupted iterations
+running (0m11.0s), 00/20 VUs, 220 complete and 0 interrupted iterations
+running (0m12.0s), 00/20 VUs, 240 complete and 0 interrupted iterations
+running (0m13.0s), 00/20 VUs, 260 complete and 0 interrupted iterations
+running (0m14.0s), 00/20 VUs, 280 complete and 0 interrupted iterations
+running (0m15.0s), 00/20 VUs, 300 complete and 0 interrupted iterations
+running (0m16.0s), 00/20 VUs, 320 complete and 0 interrupted iterations
+running (0m17.0s), 00/20 VUs, 340 complete and 0 interrupted iterations
+running (0m18.0s), 00/20 VUs, 360 complete and 0 interrupted iterations
+running (0m19.0s), 00/20 VUs, 380 complete and 0 interrupted iterations
+running (0m20.0s), 00/20 VUs, 400 complete and 0 interrupted iterations
+running (0m21.0s), 00/20 VUs, 420 complete and 0 interrupted iterations
+running (0m22.0s), 00/20 VUs, 440 complete and 0 interrupted iterations
+running (0m23.0s), 00/20 VUs, 460 complete and 0 interrupted iterations
+running (0m24.0s), 00/20 VUs, 480 complete and 0 interrupted iterations
+running (0m25.0s), 00/20 VUs, 500 complete and 0 interrupted iterations
+running (0m26.0s), 00/20 VUs, 520 complete and 0 interrupted iterations
+running (0m27.0s), 00/20 VUs, 540 complete and 0 interrupted iterations
+running (0m28.0s), 00/20 VUs, 560 complete and 0 interrupted iterations
+running (0m29.0s), 00/20 VUs, 580 complete and 0 interrupted iterations
+running (0m30.0s), 00/20 VUs, 600 complete and 0 interrupted iterations
+running (0m31.0s), 02/20 VUs, 618 complete and 0 interrupted iterations
+running (0m32.0s), 00/20 VUs, 640 complete and 0 interrupted iterations
+running (0m33.0s), 00/20 VUs, 660 complete and 0 interrupted iterations
+running (0m34.0s), 00/20 VUs, 680 complete and 0 interrupted iterations
+running (0m35.0s), 00/20 VUs, 700 complete and 0 interrupted iterations
+running (0m36.0s), 00/20 VUs, 720 complete and 0 interrupted iterations
+running (0m37.0s), 00/20 VUs, 740 complete and 0 interrupted iterations
+running (0m38.0s), 00/20 VUs, 760 complete and 0 interrupted iterations
+running (0m39.0s), 00/20 VUs, 780 complete and 0 interrupted iterations

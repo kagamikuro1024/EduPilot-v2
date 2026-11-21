@@ -1,0 +1,71 @@
+{
+ "49": {
+  "Origin evil.example": [
+   403,
+   "origin"
+  ],
+  "Origin null": [
+   403,
+   "origin"
+  ],
+  "Origin localhost.evil.example": [
+   403,
+   "origin"
+  ],
+  "Sec-Fetch-Site cross-site": [
+   403,
+   "origin"
+  ],
+  "Origin hợp lệ": 200,
+  "không Origin/SFS (sau xoay)": 200,
+  "cookie cũ ck sau xoay (kẻ phá)": 401,
+  "refresh hợp lệ sau các lần bị chặn (cùng cookie)": 200,
+  "GET /auth/refresh": 405
+ },
+ "42": {
+  "tokens": [
+   [
+    404,
+    404,
+    404,
+    404,
+    404,
+    429,
+    429,
+    429
+   ],
+   [
+    404,
+    404,
+    404,
+    404,
+    404,
+    429,
+    429,
+    429
+   ],
+   [
+    403,
+    403,
+    403,
+    403,
+    403,
+    403,
+    403,
+    403
+   ],
+   [
+    404,
+    404,
+    404,
+    404,
+    404,
+    429,
+    429,
+    429
+   ]
+  ],
+  "tổng mã thử": 32,
+  "mã thử xuất hiện trong log": 0
+ }
+}

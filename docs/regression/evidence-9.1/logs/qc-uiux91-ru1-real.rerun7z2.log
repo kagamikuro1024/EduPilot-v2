@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+INFO UX12-2 LATE chuột-xa=rgb(206, 22, 40) chuột-trên-ô=rgb(206, 22, 40)
+INFO UX12-2 EXCUSED chuột-xa=rgb(206, 22, 40) chuột-trên-ô=rgb(206, 22, 40)
+INFO UX12-2 ABSENT chuột-xa=rgb(206, 22, 40) chuột-trên-ô=rgb(206, 22, 40)
+INFO UX12-2 375: {"hoverHover":false,"rules":[{"sel":".AttendanceGrid-module__2hSoEW__cell:hover .AttendanceGrid-module__2hSoEW__radio:not(:checked)","cond":"(hover: hover) and (pointer: fine)","applies":false},{"sel":".AttendanceGrid-module__2hSoEW__cell:hover .AttendanceGrid-module__2hSoEW__radio:not(:checked)","cond":"(hover: hover) and (pointer: fine)","applies":false}]}
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-ru1-real.spec.ts:105:1 › TC-UX12-2 chấm điểm danh đã chọn giữ đỏ khi rê (desktop) + luật rê không áp trên cảm ứng 375 (11.5s)
+
+  1 passed (12.2s)

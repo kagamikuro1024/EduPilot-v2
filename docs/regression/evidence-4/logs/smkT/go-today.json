@@ -1,0 +1,464 @@
+{"Time":"2026-11-19T02:27:07.550793+07:00","Action":"start","Package":"github.com/edupilot/backend-go/internal/today"}
+{"Time":"2026-11-19T02:27:08.302278+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankTierOrder"}
+{"Time":"2026-11-19T02:27:08.302652+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankTierOrder","Output":"=== RUN   TestRankTierOrder\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302719+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankTierOrder","Output":"=== PAUSE TestRankTierOrder\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302726+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankTierOrder"}
+{"Time":"2026-11-19T02:27:08.302735+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankAllTierPairs"}
+{"Time":"2026-11-19T02:27:08.302738+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankAllTierPairs","Output":"=== RUN   TestRankAllTierPairs\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302749+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankAllTierPairs","Output":"=== PAUSE TestRankAllTierPairs\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302753+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankAllTierPairs"}
+{"Time":"2026-11-19T02:27:08.302757+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankOverdueFirst"}
+{"Time":"2026-11-19T02:27:08.302763+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankOverdueFirst","Output":"=== RUN   TestRankOverdueFirst\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302767+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankOverdueFirst","Output":"=== PAUSE TestRankOverdueFirst\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302771+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankOverdueFirst"}
+{"Time":"2026-11-19T02:27:08.302774+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankStableTiebreak"}
+{"Time":"2026-11-19T02:27:08.302777+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankStableTiebreak","Output":"=== RUN   TestRankStableTiebreak\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.30278+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankStableTiebreak","Output":"=== PAUSE TestRankStableTiebreak\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302784+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankStableTiebreak"}
+{"Time":"2026-11-19T02:27:08.302788+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankingDeterministic"}
+{"Time":"2026-11-19T02:27:08.302791+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankingDeterministic","Output":"=== RUN   TestRankingDeterministic\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302796+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankingDeterministic","Output":"=== PAUSE TestRankingDeterministic\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302799+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankingDeterministic"}
+{"Time":"2026-11-19T02:27:08.302803+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderRegistry"}
+{"Time":"2026-11-19T02:27:08.302806+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderRegistry","Output":"=== RUN   TestProviderRegistry\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302817+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderRegistry","Output":"=== PAUSE TestProviderRegistry\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302821+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderRegistry"}
+{"Time":"2026-11-19T02:27:08.302829+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorSkipsFailingProvider"}
+{"Time":"2026-11-19T02:27:08.302834+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorSkipsFailingProvider","Output":"=== RUN   TestAggregatorSkipsFailingProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302839+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorSkipsFailingProvider","Output":"=== PAUSE TestAggregatorSkipsFailingProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302842+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorSkipsFailingProvider"}
+{"Time":"2026-11-19T02:27:08.302846+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorFiltersByRole"}
+{"Time":"2026-11-19T02:27:08.302849+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorFiltersByRole","Output":"=== RUN   TestAggregatorFiltersByRole\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302855+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorFiltersByRole","Output":"=== PAUSE TestAggregatorFiltersByRole\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302857+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorFiltersByRole"}
+{"Time":"2026-11-19T02:27:08.30286+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorCapsAt50"}
+{"Time":"2026-11-19T02:27:08.302862+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorCapsAt50","Output":"=== RUN   TestAggregatorCapsAt50\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302871+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorCapsAt50","Output":"=== PAUSE TestAggregatorCapsAt50\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302875+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorCapsAt50"}
+{"Time":"2026-11-19T02:27:08.30288+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorParentDeadline"}
+{"Time":"2026-11-19T02:27:08.302887+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorParentDeadline","Output":"=== RUN   TestAggregatorParentDeadline\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302891+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorParentDeadline","Output":"=== PAUSE TestAggregatorParentDeadline\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302896+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorParentDeadline"}
+{"Time":"2026-11-19T02:27:08.302899+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAgeFormat"}
+{"Time":"2026-11-19T02:27:08.302905+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAgeFormat","Output":"=== RUN   TestAgeFormat\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302908+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAgeFormat","Output":"=== PAUSE TestAgeFormat\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302912+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAgeFormat"}
+{"Time":"2026-11-19T02:27:08.302918+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestMaskEmail"}
+{"Time":"2026-11-19T02:27:08.302921+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestMaskEmail","Output":"=== RUN   TestMaskEmail\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302924+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestMaskEmail","Output":"=== PAUSE TestMaskEmail\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302926+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestMaskEmail"}
+{"Time":"2026-11-19T02:27:08.30293+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestNoLLMImport"}
+{"Time":"2026-11-19T02:27:08.302934+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestNoLLMImport","Output":"=== RUN   TestNoLLMImport\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302938+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestNoLLMImport","Output":"=== PAUSE TestNoLLMImport\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.302941+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestNoLLMImport"}
+{"Time":"2026-11-19T02:27:08.302945+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue"}
+{"Time":"2026-11-19T02:27:08.302947+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"=== RUN   TestTodayAssignmentDue\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:08.331481+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"2026/11/19 02:27:08 github.com/testcontainers/testcontainers-go - Connected to docker: \n"}
+{"Time":"2026-11-19T02:27:08.331525+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  Server Version: 29.5.2\n"}
+{"Time":"2026-11-19T02:27:08.331537+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  API Version: 1.54\n"}
+{"Time":"2026-11-19T02:27:08.331541+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  Operating System: Ubuntu 24.04.4 LTS\n"}
+{"Time":"2026-11-19T02:27:08.331546+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  Total Memory: 9923 MB\n"}
+{"Time":"2026-11-19T02:27:08.331549+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  Testcontainers for Go Version: v0.44.0\n"}
+{"Time":"2026-11-19T02:27:08.331556+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock\n"}
+{"Time":"2026-11-19T02:27:08.33156+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock\n"}
+{"Time":"2026-11-19T02:27:08.331563+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  Test SessionID: 3ac640b537e94d8287b81d50b47be89c7f11cd9ea8ca415e7426ad24efd59964\n"}
+{"Time":"2026-11-19T02:27:08.331567+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"  Test ProcessID: 3e735fb1-819a-4bd9-8f4f-a36f03e5126e\n"}
+{"Time":"2026-11-19T02:27:08.339018+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"2026/11/19 02:27:08 ✅ Container started: 68f6ff853df5\n"}
+{"Time":"2026-11-19T02:27:08.339076+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"2026/11/19 02:27:08 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening\n"}
+{"Time":"2026-11-19T02:27:08.371065+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"2026/11/19 02:27:08 🔔 Container is ready: 68f6ff853df5\n"}
+{"Time":"2026-11-19T02:27:08.864799+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"2026/11/19 02:27:08 ✅ Container started: 5636bc78d64d\n"}
+{"Time":"2026-11-19T02:27:08.864828+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"2026/11/19 02:27:08 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening\n"}
+{"Time":"2026-11-19T02:27:08.902003+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"2026/11/19 02:27:08 🔔 Container is ready: 5636bc78d64d\n"}
+{"Time":"2026-11-19T02:27:09.040808+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Output":"--- PASS: TestTodayAssignmentDue (0.74s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:09.04085+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayAssignmentDue","Elapsed":0.74}
+{"Time":"2026-11-19T02:27:09.041047+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderUnmatchedSubmission"}
+{"Time":"2026-11-19T02:27:09.041054+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderUnmatchedSubmission","Output":"=== RUN   TestProviderUnmatchedSubmission\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:09.597051+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderUnmatchedSubmission","Output":"--- PASS: TestProviderUnmatchedSubmission (0.56s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:09.597089+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderUnmatchedSubmission","Elapsed":0.56}
+{"Time":"2026-11-19T02:27:09.597097+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderUnmatchedCleared"}
+{"Time":"2026-11-19T02:27:09.597102+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderUnmatchedCleared","Output":"=== RUN   TestProviderUnmatchedCleared\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:10.050821+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderUnmatchedCleared","Output":"--- PASS: TestProviderUnmatchedCleared (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:10.050866+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderUnmatchedCleared","Elapsed":0.45}
+{"Time":"2026-11-19T02:27:10.050875+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradingError"}
+{"Time":"2026-11-19T02:27:10.05088+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradingError","Output":"=== RUN   TestProviderGradingError\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:10.584025+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradingError","Output":"--- PASS: TestProviderGradingError (0.53s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:10.58409+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradingError","Elapsed":0.53}
+{"Time":"2026-11-19T02:27:10.584113+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradingReview"}
+{"Time":"2026-11-19T02:27:10.58412+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradingReview","Output":"=== RUN   TestProviderGradingReview\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:11.403034+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradingReview","Output":"--- PASS: TestProviderGradingReview (0.82s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:11.403119+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradingReview","Elapsed":0.82}
+{"Time":"2026-11-19T02:27:11.403134+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderStaffAggregatedOneQuery"}
+{"Time":"2026-11-19T02:27:11.403143+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderStaffAggregatedOneQuery","Output":"=== RUN   TestProviderStaffAggregatedOneQuery\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:12.548876+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderStaffAggregatedOneQuery","Output":"--- PASS: TestProviderStaffAggregatedOneQuery (1.15s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:12.549044+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderStaffAggregatedOneQuery","Elapsed":1.15}
+{"Time":"2026-11-19T02:27:12.549128+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderStudentAggregatedOneQuery"}
+{"Time":"2026-11-19T02:27:12.549143+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderStudentAggregatedOneQuery","Output":"=== RUN   TestProviderStudentAggregatedOneQuery\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:13.795411+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderStudentAggregatedOneQuery","Output":"--- PASS: TestProviderStudentAggregatedOneQuery (1.25s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:13.795637+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderStudentAggregatedOneQuery","Elapsed":1.25}
+{"Time":"2026-11-19T02:27:13.795661+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderPublishPendingTier33"}
+{"Time":"2026-11-19T02:27:13.795676+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderPublishPendingTier33","Output":"=== RUN   TestProviderPublishPendingTier33\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:14.929699+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderPublishPendingTier33","Output":"--- PASS: TestProviderPublishPendingTier33 (1.13s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:14.929951+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderPublishPendingTier33","Elapsed":1.13}
+{"Time":"2026-11-19T02:27:14.929968+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPublishPendingNotSameTierAsExamHold"}
+{"Time":"2026-11-19T02:27:14.929978+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPublishPendingNotSameTierAsExamHold","Output":"=== RUN   TestPublishPendingNotSameTierAsExamHold\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:14.930018+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPublishPendingNotSameTierAsExamHold","Output":"--- PASS: TestPublishPendingNotSameTierAsExamHold (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:14.93005+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPublishPendingNotSameTierAsExamHold","Elapsed":0}
+{"Time":"2026-11-19T02:27:14.930079+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderPublishPendingTeacherOnly"}
+{"Time":"2026-11-19T02:27:14.930087+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderPublishPendingTeacherOnly","Output":"=== RUN   TestProviderPublishPendingTeacherOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:15.991273+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderPublishPendingTeacherOnly","Output":"--- PASS: TestProviderPublishPendingTeacherOnly (1.06s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:15.991382+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderPublishPendingTeacherOnly","Elapsed":1.06}
+{"Time":"2026-11-19T02:27:15.991399+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAssignmentGradedPublishedOnly"}
+{"Time":"2026-11-19T02:27:15.991471+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAssignmentGradedPublishedOnly","Output":"=== RUN   TestProviderAssignmentGradedPublishedOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:16.922549+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAssignmentGradedPublishedOnly","Output":"--- PASS: TestProviderAssignmentGradedPublishedOnly (0.93s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:16.92264+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAssignmentGradedPublishedOnly","Elapsed":0.93}
+{"Time":"2026-11-19T02:27:16.922654+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealTeacherOnly"}
+{"Time":"2026-11-19T02:27:16.922681+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealTeacherOnly","Output":"=== RUN   TestProviderAppealTeacherOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:17.85086+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealTeacherOnly","Output":"--- PASS: TestProviderAppealTeacherOnly (0.93s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:17.851004+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealTeacherOnly","Elapsed":0.93}
+{"Time":"2026-11-19T02:27:17.851024+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealOverdue48h"}
+{"Time":"2026-11-19T02:27:17.851038+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealOverdue48h","Output":"=== RUN   TestProviderAppealOverdue48h\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:18.743664+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealOverdue48h","Output":"--- PASS: TestProviderAppealOverdue48h (0.89s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:18.743763+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealOverdue48h","Elapsed":0.89}
+{"Time":"2026-11-19T02:27:18.743779+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealReplyStudentOnly"}
+{"Time":"2026-11-19T02:27:18.743802+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealReplyStudentOnly","Output":"=== RUN   TestProviderAppealReplyStudentOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:19.951236+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealReplyStudentOnly","Output":"--- PASS: TestProviderAppealReplyStudentOnly (1.21s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:19.951343+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderAppealReplyStudentOnly","Elapsed":1.21}
+{"Time":"2026-11-19T02:27:19.951402+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentAttentionProvider"}
+{"Time":"2026-11-19T02:27:19.951413+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentAttentionProvider","Output":"=== RUN   TestStudentAttentionProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:21.069141+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentAttentionProvider","Output":"--- PASS: TestStudentAttentionProvider (1.12s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:21.069239+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentAttentionProvider","Elapsed":1.12}
+{"Time":"2026-11-19T02:27:21.069254+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionBlockMax5"}
+{"Time":"2026-11-19T02:27:21.069263+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionBlockMax5","Output":"=== RUN   TestAttentionBlockMax5\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:21.920597+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionBlockMax5","Output":"--- PASS: TestAttentionBlockMax5 (0.85s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:21.920682+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionBlockMax5","Elapsed":0.85}
+{"Time":"2026-11-19T02:27:21.920696+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionHiddenWhenNone"}
+{"Time":"2026-11-19T02:27:21.920706+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionHiddenWhenNone","Output":"=== RUN   TestAttentionHiddenWhenNone\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:22.687566+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionHiddenWhenNone","Output":"--- PASS: TestAttentionHiddenWhenNone (0.77s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:22.687677+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionHiddenWhenNone","Elapsed":0.77}
+{"Time":"2026-11-19T02:27:22.687708+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionStaffOnly"}
+{"Time":"2026-11-19T02:27:22.687721+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionStaffOnly","Output":"=== RUN   TestAttentionStaffOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:23.678677+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionStaffOnly","Output":"--- PASS: TestAttentionStaffOnly (0.99s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:23.678797+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAttentionStaffOnly","Elapsed":0.99}
+{"Time":"2026-11-19T02:27:23.678816+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamProvidersStudent"}
+{"Time":"2026-11-19T02:27:23.678831+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamProvidersStudent","Output":"=== RUN   TestExamProvidersStudent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:24.807647+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamProvidersStudent","Output":"--- PASS: TestExamProvidersStudent (1.13s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:24.807808+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamProvidersStudent","Elapsed":1.13}
+{"Time":"2026-11-19T02:27:24.808004+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamTodayInvalidation"}
+{"Time":"2026-11-19T02:27:24.80803+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamTodayInvalidation","Output":"=== RUN   TestExamTodayInvalidation\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:25.978217+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamTodayInvalidation","Output":"--- PASS: TestExamTodayInvalidation (1.17s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:25.978353+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamTodayInvalidation","Elapsed":1.17}
+{"Time":"2026-11-19T02:27:25.978392+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamResultTodayItems"}
+{"Time":"2026-11-19T02:27:25.978399+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamResultTodayItems","Output":"=== RUN   TestExamResultTodayItems\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:27.073659+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamResultTodayItems","Output":"--- PASS: TestExamResultTodayItems (1.10s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:27.073741+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestExamResultTodayItems","Elapsed":1.1}
+{"Time":"2026-11-19T02:27:27.073757+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradeSchemeUnconfirmed"}
+{"Time":"2026-11-19T02:27:27.073793+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradeSchemeUnconfirmed","Output":"=== RUN   TestProviderGradeSchemeUnconfirmed\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:28.424885+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradeSchemeUnconfirmed","Output":"--- PASS: TestProviderGradeSchemeUnconfirmed (1.35s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:28.424991+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradeSchemeUnconfirmed","Elapsed":1.35}
+{"Time":"2026-11-19T02:27:28.425015+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderClearedOnConfirm"}
+{"Time":"2026-11-19T02:27:28.425027+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderClearedOnConfirm","Output":"=== RUN   TestProviderClearedOnConfirm\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:29.364387+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderClearedOnConfirm","Output":"--- PASS: TestProviderClearedOnConfirm (0.94s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:29.364452+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderClearedOnConfirm","Elapsed":0.94}
+{"Time":"2026-11-19T02:27:29.364463+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradeSkipsArchived"}
+{"Time":"2026-11-19T02:27:29.364468+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradeSkipsArchived","Output":"=== RUN   TestProviderGradeSkipsArchived\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:30.231477+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradeSkipsArchived","Output":"--- PASS: TestProviderGradeSkipsArchived (0.87s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:30.231598+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGradeSkipsArchived","Elapsed":0.87}
+{"Time":"2026-11-19T02:27:30.231622+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGuidance"}
+{"Time":"2026-11-19T02:27:30.231633+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGuidance","Output":"=== RUN   TestProviderGuidance\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:31.376696+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGuidance","Output":"--- PASS: TestProviderGuidance (1.15s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:31.37683+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderGuidance","Elapsed":1.15}
+{"Time":"2026-11-19T02:27:31.37686+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueChatSessions"}
+{"Time":"2026-11-19T02:27:31.376872+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueChatSessions","Output":"=== RUN   TestContinueChatSessions\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:32.383878+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueChatSessions","Output":"--- PASS: TestContinueChatSessions (1.01s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:32.384091+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueChatSessions","Elapsed":1.01}
+{"Time":"2026-11-19T02:27:32.384243+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueOnlyOwn"}
+{"Time":"2026-11-19T02:27:32.384445+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueOnlyOwn","Output":"=== RUN   TestContinueOnlyOwn\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:33.503289+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueOnlyOwn","Output":"--- PASS: TestContinueOnlyOwn (1.12s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:33.503409+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueOnlyOwn","Elapsed":1.12}
+{"Time":"2026-11-19T02:27:33.503427+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueEmptyHidden"}
+{"Time":"2026-11-19T02:27:33.503441+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueEmptyHidden","Output":"=== RUN   TestContinueEmptyHidden\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:34.363146+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueEmptyHidden","Output":"--- PASS: TestContinueEmptyHidden (0.86s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:34.363262+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestContinueEmptyHidden","Elapsed":0.86}
+{"Time":"2026-11-19T02:27:34.36328+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAIConfirmProviderStaffOnly"}
+{"Time":"2026-11-19T02:27:34.363293+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAIConfirmProviderStaffOnly","Output":"=== RUN   TestAIConfirmProviderStaffOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:35.717097+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAIConfirmProviderStaffOnly","Output":"--- PASS: TestAIConfirmProviderStaffOnly (1.35s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:35.717292+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAIConfirmProviderStaffOnly","Elapsed":1.35}
+{"Time":"2026-11-19T02:27:35.717347+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAIConfirmInvalidatedOnDecision"}
+{"Time":"2026-11-19T02:27:35.717415+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAIConfirmInvalidatedOnDecision","Output":"=== RUN   TestAIConfirmInvalidatedOnDecision\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:36.654386+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAIConfirmInvalidatedOnDecision","Output":"--- PASS: TestAIConfirmInvalidatedOnDecision (0.94s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:36.654513+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAIConfirmInvalidatedOnDecision","Elapsed":0.94}
+{"Time":"2026-11-19T02:27:36.654538+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedProvider"}
+{"Time":"2026-11-19T02:27:36.654549+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedProvider","Output":"=== RUN   TestPostReportedProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:37.48163+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedProvider","Output":"--- PASS: TestPostReportedProvider (0.83s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:37.481735+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedProvider","Elapsed":0.83}
+{"Time":"2026-11-19T02:27:37.481752+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedStaffOnly"}
+{"Time":"2026-11-19T02:27:37.481761+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedStaffOnly","Output":"=== RUN   TestPostReportedStaffOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:38.448824+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedStaffOnly","Output":"--- PASS: TestPostReportedStaffOnly (0.97s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:38.448981+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedStaffOnly","Elapsed":0.97}
+{"Time":"2026-11-19T02:27:38.448997+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedClears"}
+{"Time":"2026-11-19T02:27:38.449006+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedClears","Output":"=== RUN   TestPostReportedClears\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:39.465541+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedClears","Output":"--- PASS: TestPostReportedClears (1.02s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:39.465697+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPostReportedClears","Elapsed":1.02}
+{"Time":"2026-11-19T02:27:39.465728+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestHiddenThreadNotInToday"}
+{"Time":"2026-11-19T02:27:39.465755+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestHiddenThreadNotInToday","Output":"=== RUN   TestHiddenThreadNotInToday\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:40.308791+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestHiddenThreadNotInToday","Output":"--- PASS: TestHiddenThreadNotInToday (0.84s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:40.30885+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestHiddenThreadNotInToday","Elapsed":0.84}
+{"Time":"2026-11-19T02:27:40.308861+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPracticeUpdatedInvalidatesCourseScope"}
+{"Time":"2026-11-19T02:27:40.308866+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPracticeUpdatedInvalidatesCourseScope","Output":"=== RUN   TestPracticeUpdatedInvalidatesCourseScope\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:41.275106+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPracticeUpdatedInvalidatesCourseScope","Output":"--- PASS: TestPracticeUpdatedInvalidatesCourseScope (0.97s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:41.275208+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestPracticeUpdatedInvalidatesCourseScope","Elapsed":0.97}
+{"Time":"2026-11-19T02:27:41.275233+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestQuestionReviewProvider"}
+{"Time":"2026-11-19T02:27:41.275247+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestQuestionReviewProvider","Output":"=== RUN   TestQuestionReviewProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:42.248826+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestQuestionReviewProvider","Output":"--- PASS: TestQuestionReviewProvider (0.97s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:42.248937+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestQuestionReviewProvider","Elapsed":0.97}
+{"Time":"2026-11-19T02:27:42.248977+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestQuestionReviewInvalidates"}
+{"Time":"2026-11-19T02:27:42.249034+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestQuestionReviewInvalidates","Output":"=== RUN   TestQuestionReviewInvalidates\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:43.446988+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestQuestionReviewInvalidates","Output":"--- PASS: TestQuestionReviewInvalidates (1.20s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:43.447167+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestQuestionReviewInvalidates","Elapsed":1.2}
+{"Time":"2026-11-19T02:27:43.447192+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedProvider"}
+{"Time":"2026-11-19T02:27:43.4472+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedProvider","Output":"=== RUN   TestSessionUnmarkedProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:44.438571+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedProvider","Output":"--- PASS: TestSessionUnmarkedProvider (0.99s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:44.43874+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedProvider","Elapsed":0.99}
+{"Time":"2026-11-19T02:27:44.43878+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedOverdueAfterEnd"}
+{"Time":"2026-11-19T02:27:44.438789+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedOverdueAfterEnd","Output":"=== RUN   TestSessionUnmarkedOverdueAfterEnd\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:45.272722+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedOverdueAfterEnd","Output":"--- PASS: TestSessionUnmarkedOverdueAfterEnd (0.83s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:45.272933+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedOverdueAfterEnd","Elapsed":0.83}
+{"Time":"2026-11-19T02:27:45.272973+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedClearsOnComplete"}
+{"Time":"2026-11-19T02:27:45.272983+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedClearsOnComplete","Output":"=== RUN   TestSessionUnmarkedClearsOnComplete\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:46.152986+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedClearsOnComplete","Output":"--- PASS: TestSessionUnmarkedClearsOnComplete (0.88s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:46.15308+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedClearsOnComplete","Elapsed":0.88}
+{"Time":"2026-11-19T02:27:46.1531+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedStaffOnly"}
+{"Time":"2026-11-19T02:27:46.153121+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedStaffOnly","Output":"=== RUN   TestSessionUnmarkedStaffOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:46.916938+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedStaffOnly","Output":"--- PASS: TestSessionUnmarkedStaffOnly (0.76s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:46.917009+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedStaffOnly","Elapsed":0.76}
+{"Time":"2026-11-19T02:27:46.917021+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedTier"}
+{"Time":"2026-11-19T02:27:46.917028+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedTier","Output":"=== RUN   TestSessionUnmarkedTier\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:46.917046+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedTier","Output":"--- PASS: TestSessionUnmarkedTier (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:46.917051+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSessionUnmarkedTier","Elapsed":0}
+{"Time":"2026-11-19T02:27:46.917055+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestCourseSetupSessionsStepHref"}
+{"Time":"2026-11-19T02:27:46.917058+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestCourseSetupSessionsStepHref","Output":"=== RUN   TestCourseSetupSessionsStepHref\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:48.013368+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestCourseSetupSessionsStepHref","Output":"--- PASS: TestCourseSetupSessionsStepHref (1.10s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:48.013514+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestCourseSetupSessionsStepHref","Elapsed":1.1}
+{"Time":"2026-11-19T02:27:48.013536+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSimilarityTodayProvider"}
+{"Time":"2026-11-19T02:27:48.013593+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSimilarityTodayProvider","Output":"=== RUN   TestSimilarityTodayProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:48.934629+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSimilarityTodayProvider","Output":"--- PASS: TestSimilarityTodayProvider (0.92s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:48.934724+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestSimilarityTodayProvider","Elapsed":0.92}
+{"Time":"2026-11-19T02:27:48.934839+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodaySingleCourse"}
+{"Time":"2026-11-19T02:27:48.934891+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodaySingleCourse","Output":"=== RUN   TestStaffTodaySingleCourse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:49.817077+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodaySingleCourse","Output":"--- PASS: TestStaffTodaySingleCourse (0.88s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:49.817164+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodaySingleCourse","Elapsed":0.88}
+{"Time":"2026-11-19T02:27:49.817195+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayAllCourses"}
+{"Time":"2026-11-19T02:27:49.817206+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayAllCourses","Output":"=== RUN   TestStaffTodayAllCourses\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:50.674015+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayAllCourses","Output":"--- PASS: TestStaffTodayAllCourses (0.86s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:50.674137+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayAllCourses","Elapsed":0.86}
+{"Time":"2026-11-19T02:27:50.674171+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayReasonsFromData"}
+{"Time":"2026-11-19T02:27:50.674189+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayReasonsFromData","Output":"=== RUN   TestStaffTodayReasonsFromData\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:51.52777+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayReasonsFromData","Output":"--- PASS: TestStaffTodayReasonsFromData (0.85s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:51.52801+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayReasonsFromData","Elapsed":0.85}
+{"Time":"2026-11-19T02:27:51.528069+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayCountAndCap"}
+{"Time":"2026-11-19T02:27:51.528408+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayCountAndCap","Output":"=== RUN   TestStaffTodayCountAndCap\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:52.663133+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayCountAndCap","Output":"--- PASS: TestStaffTodayCountAndCap (1.14s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:52.663187+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayCountAndCap","Elapsed":1.14}
+{"Time":"2026-11-19T02:27:52.663203+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayUpcoming"}
+{"Time":"2026-11-19T02:27:52.663211+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayUpcoming","Output":"=== RUN   TestStaffTodayUpcoming\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:53.416839+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayUpcoming","Output":"--- PASS: TestStaffTodayUpcoming (0.75s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:53.416928+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffTodayUpcoming","Elapsed":0.75}
+{"Time":"2026-11-19T02:27:53.416945+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderJoinRequest"}
+{"Time":"2026-11-19T02:27:53.41696+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderJoinRequest","Output":"=== RUN   TestProviderJoinRequest\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:54.199051+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderJoinRequest","Output":"--- PASS: TestProviderJoinRequest (0.78s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:54.199234+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderJoinRequest","Elapsed":0.78}
+{"Time":"2026-11-19T02:27:54.199254+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderEmailMismatchTeacherOnly"}
+{"Time":"2026-11-19T02:27:54.199264+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderEmailMismatchTeacherOnly","Output":"=== RUN   TestProviderEmailMismatchTeacherOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:55.062012+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderEmailMismatchTeacherOnly","Output":"--- PASS: TestProviderEmailMismatchTeacherOnly (0.86s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:55.06215+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderEmailMismatchTeacherOnly","Elapsed":0.86}
+{"Time":"2026-11-19T02:27:55.062169+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupSteps"}
+{"Time":"2026-11-19T02:27:55.06218+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupSteps","Output":"=== RUN   TestProviderCourseSetupSteps\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:55.958641+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupSteps","Output":"--- PASS: TestProviderCourseSetupSteps (0.90s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:55.958736+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupSteps","Elapsed":0.9}
+{"Time":"2026-11-19T02:27:55.958758+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupDisappears"}
+{"Time":"2026-11-19T02:27:55.958825+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupDisappears","Output":"=== RUN   TestProviderCourseSetupDisappears\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:56.775132+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupDisappears","Output":"--- PASS: TestProviderCourseSetupDisappears (0.82s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:56.775279+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupDisappears","Elapsed":0.82}
+{"Time":"2026-11-19T02:27:56.775311+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupDismiss"}
+{"Time":"2026-11-19T02:27:56.775319+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupDismiss","Output":"=== RUN   TestProviderCourseSetupDismiss\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:57.513637+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupDismiss","Output":"--- PASS: TestProviderCourseSetupDismiss (0.74s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:57.513699+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderCourseSetupDismiss","Elapsed":0.74}
+{"Time":"2026-11-19T02:27:57.513713+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderOverdueAfter48h"}
+{"Time":"2026-11-19T02:27:57.513722+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderOverdueAfter48h","Output":"=== RUN   TestProviderOverdueAfter48h\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:59.088438+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderOverdueAfter48h","Output":"--- PASS: TestProviderOverdueAfter48h (1.57s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:59.088624+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderOverdueAfter48h","Elapsed":1.57}
+{"Time":"2026-11-19T02:27:59.088658+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayLLMProviderError"}
+{"Time":"2026-11-19T02:27:59.088697+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayLLMProviderError","Output":"=== RUN   TestAdminTodayLLMProviderError\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:59.703822+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayLLMProviderError","Output":"--- PASS: TestAdminTodayLLMProviderError (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:27:59.703895+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayLLMProviderError","Elapsed":0.62}
+{"Time":"2026-11-19T02:27:59.703906+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayBudget"}
+{"Time":"2026-11-19T02:27:59.703912+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayBudget","Output":"=== RUN   TestAdminTodayBudget\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:00.338378+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayBudget","Output":"--- PASS: TestAdminTodayBudget (0.63s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:00.338469+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayBudget","Elapsed":0.63}
+{"Time":"2026-11-19T02:28:00.33852+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayCourseNoTeacher"}
+{"Time":"2026-11-19T02:28:00.338533+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayCourseNoTeacher","Output":"=== RUN   TestAdminTodayCourseNoTeacher\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:00.963713+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayCourseNoTeacher","Output":"--- PASS: TestAdminTodayCourseNoTeacher (0.63s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:00.96378+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayCourseNoTeacher","Elapsed":0.63}
+{"Time":"2026-11-19T02:28:00.963805+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayExpiredInvites"}
+{"Time":"2026-11-19T02:28:00.963822+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayExpiredInvites","Output":"=== RUN   TestAdminTodayExpiredInvites\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:01.535892+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayExpiredInvites","Output":"--- PASS: TestAdminTodayExpiredInvites (0.57s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:01.535967+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodayExpiredInvites","Elapsed":0.57}
+{"Time":"2026-11-19T02:28:01.535988+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminCannotCourseToday"}
+{"Time":"2026-11-19T02:28:01.536041+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminCannotCourseToday","Output":"=== RUN   TestAdminCannotCourseToday\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:02.254577+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminCannotCourseToday","Output":"--- PASS: TestAdminCannotCourseToday (0.72s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:02.254645+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminCannotCourseToday","Elapsed":0.72}
+{"Time":"2026-11-19T02:28:02.25466+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayRBACMatrix"}
+{"Time":"2026-11-19T02:28:02.254679+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayRBACMatrix","Output":"=== RUN   TestTodayRBACMatrix\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:03.209734+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayRBACMatrix","Output":"--- PASS: TestTodayRBACMatrix (0.96s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:03.209847+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayRBACMatrix","Elapsed":0.96}
+{"Time":"2026-11-19T02:28:03.209877+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayCacheHit"}
+{"Time":"2026-11-19T02:28:03.209891+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayCacheHit","Output":"=== RUN   TestTodayCacheHit\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:03.834529+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayCacheHit","Output":"--- PASS: TestTodayCacheHit (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:03.834582+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayCacheHit","Elapsed":0.62}
+{"Time":"2026-11-19T02:28:03.834592+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayTTLSafetyNet"}
+{"Time":"2026-11-19T02:28:03.834597+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayTTLSafetyNet","Output":"=== RUN   TestTodayTTLSafetyNet\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:04.508822+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayTTLSafetyNet","Output":"--- PASS: TestTodayTTLSafetyNet (0.67s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:04.508896+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayTTLSafetyNet","Elapsed":0.67}
+{"Time":"2026-11-19T02:28:04.508906+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayInvalidatedByOutbox"}
+{"Time":"2026-11-19T02:28:04.508912+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayInvalidatedByOutbox","Output":"=== RUN   TestTodayInvalidatedByOutbox\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:05.878033+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayInvalidatedByOutbox","Output":"--- PASS: TestTodayInvalidatedByOutbox (1.37s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:05.878107+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayInvalidatedByOutbox","Elapsed":1.37}
+{"Time":"2026-11-19T02:28:05.878134+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayInvalidatedByApprove"}
+{"Time":"2026-11-19T02:28:05.878147+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayInvalidatedByApprove","Output":"=== RUN   TestTodayInvalidatedByApprove\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:06.560978+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayInvalidatedByApprove","Output":"--- PASS: TestTodayInvalidatedByApprove (0.68s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:06.56105+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayInvalidatedByApprove","Elapsed":0.68}
+{"Time":"2026-11-19T02:28:06.561064+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayRedisDownFailsOpen"}
+{"Time":"2026-11-19T02:28:06.561075+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayRedisDownFailsOpen","Output":"=== RUN   TestTodayRedisDownFailsOpen\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:07.332684+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayRedisDownFailsOpen","Output":"--- PASS: TestTodayRedisDownFailsOpen (0.77s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:07.332782+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayRedisDownFailsOpen","Elapsed":0.77}
+{"Time":"2026-11-19T02:28:07.332847+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayQueryBudget"}
+{"Time":"2026-11-19T02:28:07.332883+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayQueryBudget","Output":"=== RUN   TestTodayQueryBudget\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:08.346221+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayQueryBudget","Output":"--- PASS: TestTodayQueryBudget (1.01s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:08.346337+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayQueryBudget","Elapsed":1.01}
+{"Time":"2026-11-19T02:28:08.346377+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayETag"}
+{"Time":"2026-11-19T02:28:08.346392+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayETag","Output":"=== RUN   TestTodayETag\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:09.013705+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayETag","Output":"--- PASS: TestTodayETag (0.67s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:09.013807+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayETag","Elapsed":0.67}
+{"Time":"2026-11-19T02:28:09.013835+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayProviderErrorPartial"}
+{"Time":"2026-11-19T02:28:09.013863+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayProviderErrorPartial","Output":"=== RUN   TestTodayProviderErrorPartial\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:09.664426+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayProviderErrorPartial","Output":"--- PASS: TestTodayProviderErrorPartial (0.65s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:09.664481+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayProviderErrorPartial","Elapsed":0.65}
+{"Time":"2026-11-19T02:28:09.66449+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayDeadline504"}
+{"Time":"2026-11-19T02:28:09.664496+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayDeadline504","Output":"=== RUN   TestTodayDeadline504\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:10.300613+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayDeadline504","Output":"--- PASS: TestTodayDeadline504 (0.64s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:10.300696+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayDeadline504","Elapsed":0.64}
+{"Time":"2026-11-19T02:28:10.300726+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodaySurvivesHangingLLMSignals"}
+{"Time":"2026-11-19T02:28:10.300743+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodaySurvivesHangingLLMSignals","Output":"=== RUN   TestAdminTodaySurvivesHangingLLMSignals\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:11.012656+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodaySurvivesHangingLLMSignals","Output":"--- PASS: TestAdminTodaySurvivesHangingLLMSignals (0.71s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:11.012745+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAdminTodaySurvivesHangingLLMSignals","Elapsed":0.71}
+{"Time":"2026-11-19T02:28:11.01277+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProvider"}
+{"Time":"2026-11-19T02:28:11.012787+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProvider","Output":"=== RUN   TestTicketProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:11.78863+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProvider","Output":"--- PASS: TestTicketProvider (0.78s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:11.788692+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProvider","Elapsed":0.78}
+{"Time":"2026-11-19T02:28:11.788708+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProviderStaffOnly"}
+{"Time":"2026-11-19T02:28:11.788712+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProviderStaffOnly","Output":"=== RUN   TestTicketProviderStaffOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:12.373229+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProviderStaffOnly","Output":"--- PASS: TestTicketProviderStaffOnly (0.58s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:12.373296+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProviderStaffOnly","Elapsed":0.58}
+{"Time":"2026-11-19T02:28:12.373318+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProviderClears"}
+{"Time":"2026-11-19T02:28:12.373327+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProviderClears","Output":"=== RUN   TestTicketProviderClears\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:12.978411+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProviderClears","Output":"--- PASS: TestTicketProviderClears (0.61s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:12.978473+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTicketProviderClears","Elapsed":0.61}
+{"Time":"2026-11-19T02:28:12.978487+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffAnswerUnreadItem"}
+{"Time":"2026-11-19T02:28:12.978493+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffAnswerUnreadItem","Output":"=== RUN   TestStaffAnswerUnreadItem\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:13.453629+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffAnswerUnreadItem","Output":"--- PASS: TestStaffAnswerUnreadItem (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:13.45368+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffAnswerUnreadItem","Elapsed":0.48}
+{"Time":"2026-11-19T02:28:13.453689+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayNoCourse"}
+{"Time":"2026-11-19T02:28:13.453694+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayNoCourse","Output":"=== RUN   TestStudentTodayNoCourse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:13.884627+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayNoCourse","Output":"--- PASS: TestStudentTodayNoCourse (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:13.884672+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayNoCourse","Elapsed":0.43}
+{"Time":"2026-11-19T02:28:13.88468+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayUnverified"}
+{"Time":"2026-11-19T02:28:13.884685+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayUnverified","Output":"=== RUN   TestStudentTodayUnverified\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:14.321262+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayUnverified","Output":"--- PASS: TestStudentTodayUnverified (0.44s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:14.321309+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayUnverified","Elapsed":0.44}
+{"Time":"2026-11-19T02:28:14.321318+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayPendingOnly"}
+{"Time":"2026-11-19T02:28:14.321324+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayPendingOnly","Output":"=== RUN   TestStudentTodayPendingOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:14.767983+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayPendingOnly","Output":"--- PASS: TestStudentTodayPendingOnly (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:14.768016+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayPendingOnly","Elapsed":0.45}
+{"Time":"2026-11-19T02:28:14.768024+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayNoUrgent"}
+{"Time":"2026-11-19T02:28:14.768028+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayNoUrgent","Output":"=== RUN   TestStudentTodayNoUrgent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:15.236875+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayNoUrgent","Output":"--- PASS: TestStudentTodayNoUrgent (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:15.236915+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayNoUrgent","Elapsed":0.47}
+{"Time":"2026-11-19T02:28:15.236924+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayTimeline"}
+{"Time":"2026-11-19T02:28:15.236929+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayTimeline","Output":"=== RUN   TestStudentTodayTimeline\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:15.690762+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayTimeline","Output":"--- PASS: TestStudentTodayTimeline (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:15.690825+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayTimeline","Elapsed":0.45}
+{"Time":"2026-11-19T02:28:15.690834+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayAtMostOneRecommended"}
+{"Time":"2026-11-19T02:28:15.690839+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayAtMostOneRecommended","Output":"=== RUN   TestStudentTodayAtMostOneRecommended\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:16.116181+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayAtMostOneRecommended","Output":"--- PASS: TestStudentTodayAtMostOneRecommended (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:16.116235+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayAtMostOneRecommended","Elapsed":0.43}
+{"Time":"2026-11-19T02:28:16.116275+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayOnlyOwnData"}
+{"Time":"2026-11-19T02:28:16.116281+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayOnlyOwnData","Output":"=== RUN   TestStudentTodayOnlyOwnData\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:16.572761+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayOnlyOwnData","Output":"--- PASS: TestStudentTodayOnlyOwnData (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:16.572816+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStudentTodayOnlyOwnData","Elapsed":0.46}
+{"Time":"2026-11-19T02:28:16.572827+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffKindsNeverInStudentResponse"}
+{"Time":"2026-11-19T02:28:16.572833+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffKindsNeverInStudentResponse","Output":"=== RUN   TestStaffKindsNeverInStudentResponse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:17.050326+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffKindsNeverInStudentResponse","Output":"--- PASS: TestStaffKindsNeverInStudentResponse (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:17.050367+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestStaffKindsNeverInStudentResponse","Elapsed":0.48}
+{"Time":"2026-11-19T02:28:17.050377+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayOutsider403"}
+{"Time":"2026-11-19T02:28:17.050383+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayOutsider403","Output":"=== RUN   TestTodayOutsider403\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:17.490052+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayOutsider403","Output":"--- PASS: TestTodayOutsider403 (0.44s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:17.490114+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayOutsider403","Elapsed":0.44}
+{"Time":"2026-11-19T02:28:17.490138+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayFuzzCourseScope"}
+{"Time":"2026-11-19T02:28:17.490144+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayFuzzCourseScope","Output":"=== RUN   TestTodayFuzzCourseScope\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018297+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayFuzzCourseScope","Output":"--- PASS: TestTodayFuzzCourseScope (2.53s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018359+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestTodayFuzzCourseScope","Elapsed":2.53}
+{"Time":"2026-11-19T02:28:20.01837+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankTierOrder"}
+{"Time":"2026-11-19T02:28:20.018381+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankTierOrder","Output":"=== CONT  TestRankTierOrder\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018413+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorFiltersByRole"}
+{"Time":"2026-11-19T02:28:20.018426+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorFiltersByRole","Output":"=== CONT  TestAggregatorFiltersByRole\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018433+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankingDeterministic"}
+{"Time":"2026-11-19T02:28:20.018438+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankingDeterministic","Output":"=== CONT  TestRankingDeterministic\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018444+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankTierOrder","Output":"--- PASS: TestRankTierOrder (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018448+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankTierOrder","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.018454+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankStableTiebreak"}
+{"Time":"2026-11-19T02:28:20.018458+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankStableTiebreak","Output":"=== CONT  TestRankStableTiebreak\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018463+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankStableTiebreak","Output":"--- PASS: TestRankStableTiebreak (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018467+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankStableTiebreak","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.018471+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankOverdueFirst"}
+{"Time":"2026-11-19T02:28:20.018474+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankOverdueFirst","Output":"=== CONT  TestRankOverdueFirst\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018479+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankOverdueFirst","Output":"--- PASS: TestRankOverdueFirst (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018482+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankOverdueFirst","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.018498+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAgeFormat"}
+{"Time":"2026-11-19T02:28:20.018502+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAgeFormat","Output":"=== CONT  TestAgeFormat\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018506+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAgeFormat","Output":"--- PASS: TestAgeFormat (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.01851+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAgeFormat","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.018513+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestNoLLMImport"}
+{"Time":"2026-11-19T02:28:20.018517+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestNoLLMImport","Output":"=== CONT  TestNoLLMImport\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018521+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorFiltersByRole","Output":"--- PASS: TestAggregatorFiltersByRole (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018524+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorFiltersByRole","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.018528+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankAllTierPairs"}
+{"Time":"2026-11-19T02:28:20.018531+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankAllTierPairs","Output":"=== CONT  TestRankAllTierPairs\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018534+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorParentDeadline"}
+{"Time":"2026-11-19T02:28:20.018537+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorParentDeadline","Output":"=== CONT  TestAggregatorParentDeadline\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018541+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorCapsAt50"}
+{"Time":"2026-11-19T02:28:20.018544+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorCapsAt50","Output":"=== CONT  TestAggregatorCapsAt50\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018548+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankAllTierPairs","Output":"--- PASS: TestRankAllTierPairs (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018552+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankAllTierPairs","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.018555+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestMaskEmail"}
+{"Time":"2026-11-19T02:28:20.018558+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestMaskEmail","Output":"=== CONT  TestMaskEmail\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018562+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestMaskEmail","Output":"--- PASS: TestMaskEmail (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018565+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestMaskEmail","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.018568+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorSkipsFailingProvider"}
+{"Time":"2026-11-19T02:28:20.018572+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorSkipsFailingProvider","Output":"=== CONT  TestAggregatorSkipsFailingProvider\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018577+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderRegistry"}
+{"Time":"2026-11-19T02:28:20.01858+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderRegistry","Output":"=== CONT  TestProviderRegistry\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018583+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderRegistry","Output":"--- PASS: TestProviderRegistry (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.018587+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestProviderRegistry","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.018591+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorCapsAt50","Output":"--- PASS: TestAggregatorCapsAt50 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.022053+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorCapsAt50","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.022078+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestNoLLMImport","Output":"--- PASS: TestNoLLMImport (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.027975+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestNoLLMImport","Elapsed":0}
+{"Time":"2026-11-19T02:28:20.028007+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankingDeterministic","Output":"--- PASS: TestRankingDeterministic (0.01s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.028913+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestRankingDeterministic","Elapsed":0.01}
+{"Time":"2026-11-19T02:28:20.028922+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorParentDeadline","Output":"--- PASS: TestAggregatorParentDeadline (0.01s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.059091+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorParentDeadline","Elapsed":0.01}
+{"Time":"2026-11-19T02:28:20.059117+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorSkipsFailingProvider","Output":"--- PASS: TestAggregatorSkipsFailingProvider (0.04s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.059124+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Test":"TestAggregatorSkipsFailingProvider","Elapsed":0.04}
+{"Time":"2026-11-19T02:28:20.059137+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:28:20.061565+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/today","Output":"ok  \tgithub.com/edupilot/backend-go/internal/today\t72.510s\n"}
+{"Time":"2026-11-19T02:28:20.061596+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/today","Elapsed":72.511}

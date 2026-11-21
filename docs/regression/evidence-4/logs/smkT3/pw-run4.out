@@ -1,0 +1,103 @@
+
+Running 4 tests using 1 worker
+
+(node:14457) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14457) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✓  1 [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:15:1 › [TC-P208-34] B: được gán rồi đăng nhập → bấm thông báo → đúng đường dẫn, bộ chọn lớp đúng lớp, unread giảm 1 (2.5s)
+
+  ✘  2 [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp (7.2s)
+(node:14700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14700) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+
+  ✘  3 [desktop] › e2e/qc2-r4/smkt3-g21.spec.ts:7:1 › [TC-P204-14 GATEP2-21] đặt lại mật khẩu ở máy A → máy B bị đăng xuất, thấy câu giải thích (32.9s)
+(node:15376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15376) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+TIMELINE
+   69 REFRESH →
+   86 REFRESH ← 200
+ 4115 --- armed, reload
+ 4145 REFRESH →
+ 4160 REFRESH ← 200
+ 4177 401! GET /api/v1/notifications?limit=30 tok=…dfR3LU n=1
+ 4179 pass GET /api/v1/me/courses?limit=100 tok=…dfR3LU n=1
+ 4181 REFRESH →
+ 4189 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/ass tok=…dfR3LU n=1
+ 4190 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/sub tok=…dfR3LU n=1
+ 4192 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/sub tok=…dfR3LU n=1
+ 4193 REFRESH ← 200
+ 4195 pass GET /api/v1/notifications?limit=30 tok=…0Eoxb8 n=2
+ 4195 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/ass tok=…0Eoxb8 n=2
+ 4195 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/sub tok=…0Eoxb8 n=2
+ 4196 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/sub tok=…0Eoxb8 n=2
+  ✘  4 [desktop] › e2e/qc2-r4/smkt3-p20231.spec.ts:8:1 › [TC-P202-31] 5 request song song nhận 401 TOKEN_EXPIRED: đúng 1 refresh, mỗi cái phát lại đúng 1 lần (dòng thời gian) (12.7s)
+
+
+  1) [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "QC2IUAAMWMSH46J"
+    Received string:    "QC2IUBBMWMSGZPX · QC2IU BB"
+
+      59 |   const opts = await picker(page).click().then(() => page.getByRole("option").allInnerTexts().catch(() => [] as string[]));
+      60 |   note(`A: chấm sau ${dt.toFixed(1)} s; sau bấm url=${url1} bộ chọn="${sel1}" (mong ${c.code}); /me/courses gọi lại sau gán: ${reqs.length}; sau tải lại, danh sách chọn lớp chứa ${c.code}: ${opts.join("|").includes(c.code)}`);
+    > 61 |   expect(sel1).toContain(c.code);
+         |                ^
+      62 | });
+      63 |
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/smkt3-bell.spec.ts:61:16
+
+    Error Context: ../../../../../tmp/qc2-pwout3/smkt3-bell--TC-P208-34-A-G-b041f-bấm-thông-báo-→-bộ-chọn-lớp-desktop/error-context.md
+
+  2) [desktop] › e2e/qc2-r4/smkt3-g21.spec.ts:7:1 › [TC-P204-14 GATEP2-21] đặt lại mật khẩu ở máy A → máy B bị đăng xuất, thấy câu giải thích 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/login/
+    Received string:  "https://localhost:1143/"
+    Timeout: 30000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        63 × locator resolved to <html lang="vi" class="be_vietnam_pro_6898ec37-module__flx2KG__variable m-on m-armed">…</html>
+           - unexpected value "https://localhost:1143/"
+
+
+      35 |   // máy B: yêu cầu kế tiếp (tải lại) → bị đăng xuất
+      36 |   await pb.reload();
+    > 37 |   await expect(pb).toHaveURL(/\/login/, { timeout: 30_000 });
+         |                    ^
+      38 |   const msg = "Bạn đã bị đăng xuất vì mật khẩu của tài khoản vừa được đổi.";
+      39 |   const shown = await pb.getByText(msg).isVisible().catch(() => false);
+      40 |   await pb.screenshot({ path: "/Users/kuro/Documents/TA_Agent_qc2/docs/regression/evidence-4/shots/gatep2-21-may-B.png" });
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/smkt3-g21.spec.ts:37:20
+
+    Error Context: ../../../../../tmp/qc2-pwout3/smkt3-g21--TC-P204-14-GATE-cf3cf-ng-xuất-thấy-câu-giải-thích-desktop/error-context.md
+
+  3) [desktop] › e2e/qc2-r4/smkt3-p20231.spec.ts:8:1 › [TC-P202-31] 5 request song song nhận 401 TOKEN_EXPIRED: đúng 1 refresh, mỗi cái phát lại đúng 1 lần (dòng thời gian) 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 5
+    Received:    4
+
+      42 |   const refs = tl.filter((l) => l.includes("REFRESH →")).length;
+      43 |   note(`ép ${exp.length} request 401; refresh sau khi armed: ${refs}; ${tl.filter((l) => /REFRESH|401!/.test(l)).map((l) => l.trim().slice(0, 70)).join(" | ")}`);
+    > 44 |   expect(exp.length).toBeGreaterThanOrEqual(5);
+         |                      ^
+      45 |   void expect;
+      46 | });
+      47 |
+        at /Users/kuro/Documents/TA_Agent_qc2/frontend/e2e/qc2-r4/smkt3-p20231.spec.ts:44:22
+
+    Error Context: ../../../../../tmp/qc2-pwout3/smkt3-p20231--TC-P202-31-5-078ce--đúng-1-lần-dòng-thời-gian--desktop/error-context.md
+
+  3 failed
+    [desktop] › e2e/qc2-r4/smkt3-bell.spec.ts:40:1 › [TC-P208-34] A: GV mở sẵn trang rồi mới được gán lớp (chuông sống) → bấm thông báo → bộ chọn lớp 
+    [desktop] › e2e/qc2-r4/smkt3-g21.spec.ts:7:1 › [TC-P204-14 GATEP2-21] đặt lại mật khẩu ở máy A → máy B bị đăng xuất, thấy câu giải thích 
+    [desktop] › e2e/qc2-r4/smkt3-p20231.spec.ts:8:1 › [TC-P202-31] 5 request song song nhận 401 TOKEN_EXPIRED: đúng 1 refresh, mỗi cái phát lại đúng 1 lần (dòng thời gian) 
+  1 passed (56.8s)

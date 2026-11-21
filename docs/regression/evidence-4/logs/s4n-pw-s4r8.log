@@ -1,0 +1,258 @@
+
+Running 1 test using 1 worker
+
+(node:32258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32258) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+ROUTE gv1 /: ép 3, refresh sau 401 đầu 1, tổng refresh 2
+   99 REFRESH →
+  568 401! GET /api/v1/notifications?limit=30 n=1
+  572 pass GET /api/v1/me/courses?limit=100 n=1
+  577 REFRESH →
+  606 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/today n=1
+  609 401! GET /api/v1/me/today n=1
+  628 pass GET /api/v1/notifications?limit=30 n=2
+  628 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/today n=2
+  629 pass GET /api/v1/me/today n=2
+ 3738 --- armed
+ROUTE gv1 /documents: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   47 REFRESH →
+  148 401! GET /api/v1/notifications?limit=30 n=1
+  150 pass GET /api/v1/me/courses?limit=100 n=1
+  155 REFRESH →
+  186 pass GET /api/v1/notifications?limit=30 n=2
+  491 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/documen n=1
+  492 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/documen n=1
+ 3637 --- armed
+ROUTE gv1 /library: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   56 REFRESH →
+  121 401! GET /api/v1/notifications?limit=30 n=1
+  122 pass GET /api/v1/me/courses?limit=100 n=1
+  131 REFRESH →
+  144 pass GET /api/v1/notifications?limit=30 n=2
+ 3608 --- armed
+ROUTE gv1 /exams: ép 2, refresh sau 401 đầu 1, tổng refresh 2
+   36 REFRESH →
+   77 401! GET /api/v1/notifications?limit=30 n=1
+   78 pass GET /api/v1/me/courses?limit=100 n=1
+   82 REFRESH →
+  102 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/exams?l n=1
+  104 pass GET /api/v1/notifications?limit=30 n=2
+  105 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/exams?l n=2
+ 3571 --- armed
+ROUTE gv1 /assignments: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   29 REFRESH →
+   61 401! GET /api/v1/notifications?limit=30 n=1
+   63 pass GET /api/v1/me/courses?limit=100 n=1
+   64 REFRESH →
+   71 pass GET /api/v1/notifications?limit=30 n=2
+ 3556 --- armed
+ROUTE gv1 /attendance: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   55 REFRESH →
+  175 401! GET /api/v1/notifications?limit=30 n=1
+  176 pass GET /api/v1/me/courses?limit=100 n=1
+  177 REFRESH →
+  200 pass GET /api/v1/notifications?limit=30 n=2
+  499 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/session n=1
+  500 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf n=1
+ 3669 --- armed
+ROUTE gv1 /calendar: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   54 REFRESH →
+  139 401! GET /api/v1/notifications?limit=30 n=1
+  140 pass GET /api/v1/me/courses?limit=100 n=1
+  143 REFRESH →
+  169 pass GET /api/v1/notifications?limit=30 n=2
+  471 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/calenda n=1
+ 3632 --- armed
+ROUTE gv1 /threads: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   58 REFRESH →
+  154 401! GET /api/v1/notifications?limit=30 n=1
+  155 pass GET /api/v1/me/courses?limit=100 n=1
+  158 REFRESH →
+  220 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/threads n=1
+  220 pass GET /api/v1/notifications?limit=30 n=2
+ 3651 --- armed
+ROUTE gv1 /observability: ép 2, refresh sau 401 đầu 1, tổng refresh 2
+   43 REFRESH →
+   99 401! GET /api/v1/notifications?limit=30 n=1
+   99 pass GET /api/v1/me/courses?limit=100 n=1
+  101 REFRESH →
+  114 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/observa n=1
+  116 pass GET /api/v1/notifications?limit=30 n=2
+  117 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/observa n=2
+ 3592 --- armed
+ROUTE gv1 /settings/llm: ép 3, refresh sau 401 đầu 1, tổng refresh 2
+  117 REFRESH →
+  233 401! GET /api/v1/admin/llm/providers n=1
+  234 401! GET /api/v1/admin/llm/routes n=1
+  245 401! GET /api/v1/notifications?limit=30 n=1
+  246 pass GET /api/v1/me/courses?limit=100 n=1
+  250 REFRESH →
+  280 pass GET /api/v1/admin/llm/providers n=2
+  280 pass GET /api/v1/admin/llm/routes n=2
+  280 pass GET /api/v1/notifications?limit=30 n=2
+  608 pass GET /api/v1/admin/llm/usage?from=2026-11-14T03%3A33%3A45.298Z&to n=1
+  609 pass GET /api/v1/admin/llm/budget n=1
+ 3725 --- armed
+ROUTE gv1 /questions: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   66 REFRESH →
+  131 401! GET /api/v1/notifications?limit=30 n=1
+  134 pass GET /api/v1/me/courses?limit=100 n=1
+  137 REFRESH →
+  156 pass GET /api/v1/notifications?limit=30 n=2
+  161 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/questio n=1
+  162 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/questio n=1
+ 3620 --- armed
+ROUTE gv1 /class/members: ép 3, refresh sau 401 đầu 1, tổng refresh 2
+   58 REFRESH →
+  129 401! GET /api/v1/notifications?limit=30 n=1
+  130 pass GET /api/v1/me/courses?limit=100 n=1
+  140 REFRESH →
+  159 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/members n=1
+  160 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/members n=1
+  161 pass GET /api/v1/notifications?limit=30 n=2
+  163 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/members n=2
+  163 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/members n=2
+ 3623 --- armed
+ROUTE gv1 /gradebook: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   54 REFRESH →
+  176 401! GET /api/v1/notifications?limit=30 n=1
+  178 pass GET /api/v1/me/courses?limit=100 n=1
+  185 REFRESH →
+  265 pass GET /api/v1/notifications?limit=30 n=2
+  309 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/gradebo n=1
+  311 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/grade-s n=1
+ 3665 --- armed
+ROUTE gv1 /inbox: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   66 REFRESH →
+  191 401! GET /api/v1/notifications?limit=30 n=1
+  192 pass GET /api/v1/me/courses?limit=100 n=1
+  198 REFRESH →
+  277 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/tickets n=1
+  279 pass GET /api/v1/notifications?limit=30 n=2
+ 3681 --- armed
+ROUTE gv1 /insights: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   46 REFRESH →
+  162 401! GET /api/v1/notifications?limit=30 n=1
+  165 pass GET /api/v1/me/courses?limit=100 n=1
+  168 REFRESH →
+  230 pass GET /api/v1/notifications?limit=30 n=2
+  234 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/insight n=1
+ 3647 --- armed
+ROUTE gv1 /grading: ép 2, refresh sau 401 đầu 1, tổng refresh 2
+   53 REFRESH →
+  132 401! GET /api/v1/notifications?limit=30 n=1
+  133 pass GET /api/v1/me/courses?limit=100 n=1
+  136 REFRESH →
+  157 401! GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/submiss n=1
+  159 pass GET /api/v1/notifications?limit=30 n=2
+  162 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/submiss n=2
+  194 pass GET /api/v1/courses/01a1f11a-e4da-73e3-b4ed-8f6608c49edf/assignm n=1
+ 3622 --- armed
+ROUTE gv1 /analytics: ép 1, refresh sau 401 đầu 1, tổng refresh 2
+   41 REFRESH →
+  162 401! GET /api/v1/notifications?limit=30 n=1
+  162 pass GET /api/v1/me/courses?limit=100 n=1
+  164 REFRESH →
+  191 pass GET /api/v1/notifications?limit=30 n=2
+ 3646 --- armed
+ROUTE adm /admin/courses: ép 2, refresh sau 401 đầu 1, tổng refresh 2
+   43 REFRESH →
+  218 401! GET /api/v1/admin/courses?limit=30 n=1
+  222 401! GET /api/v1/notifications?limit=30 n=1
+  224 pass GET /api/v1/me/courses?limit=100 n=1
+  226 REFRESH →
+  266 pass GET /api/v1/admin/courses?limit=30 n=2
+  268 pass GET /api/v1/notifications?limit=30 n=2
+ 3710 --- armed
+ROUTE adm /admin/users: ép 2, refresh sau 401 đầu 1, tổng refresh 2
+   64 REFRESH →
+  165 401! GET /api/v1/admin/users?limit=30 n=1
+  166 401! GET /api/v1/notifications?limit=30 n=1
+  166 pass GET /api/v1/me/courses?limit=100 n=1
+  172 REFRESH →
+  203 pass GET /api/v1/admin/users?limit=30 n=2
+  203 pass GET /api/v1/notifications?limit=30 n=2
+ 3657 --- armed
+ROUTE adm /admin/audit: ép 2, refresh sau 401 đầu 1, tổng refresh 2
+   70 REFRESH →
+  152 401! GET /api/v1/admin/audit?from=2026-11-14T03%3A35%3A21.870Z&limit= n=1
+  154 401! GET /api/v1/notifications?limit=30 n=1
+  155 pass GET /api/v1/me/courses?limit=100 n=1
+  156 REFRESH →
+  173 pass GET /api/v1/admin/audit?from=2026-11-14T03%3A35%3A21.870Z&limit= n=2
+  173 pass GET /api/v1/notifications?limit=30 n=2
+ 3645 --- armed
+ROUTE adm /observability: ép 4, refresh sau 401 đầu 1, tổng refresh 2
+   60 REFRESH →
+  222 401! GET /api/v1/admin/observability/failed-mail?limit=30 n=1
+  229 401! GET /api/v1/admin/observability/summary?window=24h n=1
+  231 401! GET /api/v1/admin/observability/requests?filter=all&from=2026-11 n=1
+  235 401! GET /api/v1/notifications?limit=30 n=1
+  237 pass GET /api/v1/me/courses?limit=100 n=1
+  241 REFRESH →
+  273 pass GET /api/v1/admin/observability/failed-mail?limit=30 n=2
+  275 pass GET /api/v1/admin/observability/summary?window=24h n=2
+  276 pass GET /api/v1/admin/observability/requests?filter=all&from=2026-11 n=2
+  277 pass GET /api/v1/notifications?limit=30 n=2
+  350 pass GET /api/v1/admin/observability/decision?window=24h n=1
+ 3717 --- armed
+ROUTE adm /settings/llm: ép 3, refresh sau 401 đầu 1, tổng refresh 2
+   67 REFRESH →
+  167 401! GET /api/v1/admin/llm/providers n=1
+  170 401! GET /api/v1/admin/llm/routes n=1
+  172 401! GET /api/v1/notifications?limit=30 n=1
+  173 pass GET /api/v1/me/courses?limit=100 n=1
+  177 REFRESH →
+  188 pass GET /api/v1/admin/llm/providers n=2
+  188 pass GET /api/v1/admin/llm/routes n=2
+  188 pass GET /api/v1/notifications?limit=30 n=2
+  232 pass GET /api/v1/admin/llm/decision n=1
+  533 pass GET /api/v1/admin/llm/usage?from=2026-11-14T03%3A35%3A41.645Z&to n=1
+  534 pass GET /api/v1/admin/llm/budget n=1
+ 3666 --- armed
+ROUTE adm /settings/integrations: ép 2, refresh sau 401 đầu 1, tổng refresh 2
+   55 REFRESH →
+  127 401! GET /api/v1/admin/courses?limit=100 n=1
+  129 401! GET /api/v1/notifications?limit=30 n=1
+  130 pass GET /api/v1/me/courses?limit=100 n=1
+  132 REFRESH →
+  164 pass GET /api/v1/admin/courses?limit=100 n=2
+  165 pass GET /api/v1/notifications?limit=30 n=2
+  186 pass GET /api/v1/courses/01a1fc2c-866c-7008-96a0-e477f7e2e116/integra n=1
+  190 pass GET /api/v1/courses/01a1fc2c-866c-7008-96a0-e477f7e2e116/integra n=1
+  191 pass GET /api/v1/courses/01a1fc2c-866c-7008-96a0-e477f7e2e116/integra n=1
+ 3622 --- armed
+ROUTE adm /: ép 2, refresh sau 401 đầu 1, tổng refresh 2
+   57 REFRESH →
+  619 401! GET /api/v1/me/today n=1
+  624 401! GET /api/v1/notifications?limit=30 n=1
+  625 pass GET /api/v1/me/courses?limit=100 n=1
+  627 REFRESH →
+  663 pass GET /api/v1/me/today n=2
+  664 pass GET /api/v1/notifications?limit=30 n=2
+ 3807 --- armed
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:54:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key (3.9m)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:54:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 5
+    Received:    4
+
+      68 |   const b = best!;
+      69 |   note(`${route}: ép 401 TOKEN_EXPIRED ${b.forced.length} request song song (${b.forced.map((h) => h.k.replace("/api/v1", "").slice(0, 30)).join("; ")}); POST /auth/refresh sau 401 đầu = ${b.afterFirst} (tổng kể cả lần làm mới sớm lúc tải trang = ${b.refreshAll}); số lần mỗi request tới mạng (1 bị ép + 1 phát lại = 2) = [${b.replays.join(",")}]`);
+    > 70 |   expect(b.forced.length).toBeGreaterThanOrEqual(5);
+         |                           ^
+      71 |   expect(b.afterFirst).toBe(1);
+      72 |   for (const n of b.replays) expect(n).toBe(2);
+      73 | });
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:70:27
+
+    Error Context: ../docs/regression/evidence-4/pw-out/smkt3-p20231--TC-P202-31-≥-0d267-n-POST-cùng-Idempotency-Key-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/smkt3-p20231.spec.ts:54:1 › [TC-P202-31] ≥ 5 request song song 401 TOKEN_EXPIRED → đúng 1 refresh, mỗi cái phát lại đúng 1 lần, POST cùng Idempotency-Key 
+done rc=1

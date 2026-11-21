@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 9.1 — kết quả (SmkS4 2026-11-21: chạy nốt N còn lại + chạy lại F đã sửa)
 Mã đã chạy: 425396a7 (sprint/11-p10-eval) · ep-r + lớp sao sạch QR91A…H (evidence-9.1/scripts/r91-clone.sh + r91-fixgrades.sh + r91-fixseed.sh) + stack smk91 (UX09-16) · Người chạy: qc2 / SmkS · Ngày: 2026-11-21
-Tổng TC cũ: 414 · Lỗi thời (LT, loại khỏi tổng): 53 · Tổng tính = 361 · Đạt: 352 · Trượt (F xác nhận): 1 · K: 0 · Chưa chạy (N): 8   (P+F+K+N = 361)
+Tổng TC cũ: 414 · Lỗi thời (LT, loại khỏi tổng): 53 · Tổng tính = 361 · Đạt: 361 · Trượt (F xác nhận): 0 · K: 0 · Chưa chạy (N): 0   (P+F+K+N = 361)
 Cách chạy: `evidence-9.1/run8.sh <spec> <lớp> [grep]` (spec ở docs/regression/specs-qc2/qc2-r91, config qc2g; khoá /tmp/qc2-pw.lock qua scripts/pwlock.sh, xoá bộ đếm auth mỗi 3 s, log logs/*.rerun7*.log); `make_overrides7.py` ghi P từ ✓ thật + kết quả chấm tay `results-smkS.tsv` (P/F/LT, dòng sau thắng); `build_smoke91.py` dựng `s91-rows.json` (đọc TC từ docs/sprints/9.1/qc); `build_smoke91_md.py` dựng tệp này. Dữ liệu sạch: 761987 đã bị QC ghi đè nên chạy trên lớp sao QR91*.
 Lượt SmkS4: LT mới có nguồn: TC-UX13-1 (3b259963 + P-107-15), TC-UX08-28 (US-08 AC7 sửa 10.7, P-107-12/13). Chạy lại DEF đã sửa: DEF-R9.1-06 (6d127b88, TC-UX12-2), DEF-R9.1-07 (TC-UX16-14 theo P-11-75, ≤ 200 ms), DEF-R9.1-08 (e0ac8dc9, TC-UX09-16), TC-UX16-10 theo P-11-64. Chi tiết từng ca ở cột Ghi chú.
 
@@ -20,16 +20,16 @@ Lượt SmkS4: LT mới có nguồn: TC-UX13-1 (3b259963 + P-107-15), TC-UX08-28
 | UX14 | 14 | 14 | 0 | 0 | 0 |
 | UX15 | 22 | 22 | 0 | 0 | 0 |
 | UX16 | 24 | 24 | 0 | 0 | 0 |
-| UX12 | 23 | 20 | 1 | 0 | 2 |
-| UX13 | 28 | 25 | 0 | 1 | 2 |
+| UX12 | 23 | 23 | 0 | 0 | 0 |
+| UX13 | 28 | 27 | 0 | 1 | 0 |
 | UX19 | 15 | 15 | 0 | 0 | 0 |
 | UX20 | 11 | 11 | 0 | 0 | 0 |
-| UX18 | 12 | 8 | 0 | 0 | 4 |
+| UX18 | 12 | 12 | 0 | 0 | 0 |
 | UX17 | 15 | 15 | 0 | 0 | 0 |
 | UX91 | 4 | 4 | 0 | 0 | 0 |
 | UX08 | 57 | 16 | 0 | 41 | 0 |
 | UX09 | 21 | 15 | 0 | 6 | 0 |
-| **Cộng** | **414** | **352** | **1** | **53** | **8** |
+| **Cộng** | **414** | **361** | **0** | **53** | **0** |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -258,15 +258,15 @@ Lượt SmkS4: LT mới có nguồn: TC-UX13-1 (3b259963 + P-107-15), TC-UX08-28
 | TC-UX16-23 | P | shots/gradebook-1440.png + gradebook-375.png (ep-r, HEAD); trước audit/shots/gradebook__teacher__1440.png (audit không chụp 375 của giảng viên); ảnh mốc gradebook-1440/390 đổi ở f8a744bd (CI Linux xanh) |
 | TC-UX16-24 | P | RERUN7 trên lớp sao QR91G (seed gốc: điểm Giữa/Cuối kỳ IMPORT v1, điểm danh + phát biểu về bản /tmp/smk91-pristine.dump qua scripts/r91-fixgrades.sh + r91-fixseed.sh): rw4d khớp 30/30 (logs/qc-uiux91-rw4d-real.rerun7c.log). Lệch 28/30 ở QR91A là dữ liệu sao có phát biểu/điểm danh do QC ghi thêm |
 | TC-UX12-1 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
-| TC-UX12-2 | F | DEF-R9.1-06: dot đã chọn Muộn / Vắng phép / Vắng chuyển XÁM (border lab(45 4 2) = --ep-ink-3) khi chuột đang rê lên đúng ô, vì `.cell:hover .radio` (0,3,0) thắng `.radio:checked` (0,2,0) trong AttendanceGrid.module.css; chuột rời ra mới đỏ rgb(206,22,40). Bằng chứng logs/qc-uiux91-rzprobe-real.rerun7q.log (LATE/EXCUSED/ABSENT: chuột-xa đỏ, chuột-trên-ô xám). Người dùng chuột bấm xong thấy dot xám ⇒ AC1 «chấm của lựa chọn đó đỏ» không đạt khi đang trỏ |
+| TC-UX12-2 | P | RERUN S9R sau sửa 6d127b88 (ep-r, lớp QR91A, ru1 «UX12-2», logs/qc-uiux91-ru1-real.rerun7z2.log ✓): chọn Muộn / Vắng phép / Vắng ở hàng 5 → viền ba chấm rgb(206,22,40) (đỏ) cả khi chuột xa lẫn khi rê lên đúng ô (trước sửa: lab(45 4 2) xám); 375 cảm ứng: (hover: hover) = false, 2 luật `.cell:hover .radio:not(:checked)` nằm trong @media (hover: hover) and (pointer: fine) ⇒ applies=false |
 | TC-UX12-3 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log) |
 | TC-UX12-4 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
 | TC-UX12-5 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4b-real ✓ (qc-uiux91-rw4b-real.rerun7j.log) |
 | TC-UX12-6 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
 | TC-UX12-7 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
 | TC-UX12-8 | P | rg "0[,.]25" frontend/src/features/attendance: 0 kết quả |
-| TC-UX12-9 | N | chưa chạy sạch: spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX12-10 | N | chưa chạy sạch: spec w4-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX12-9 | P | RERUN S9R (rw4 «UX12-9/10/11/15/19», logs/qc-uiux91-rw4-real.rerun7z6.log ✓, 375×812): chọn 2 SV Vắng → thanh «Lưu điểm danh · 20 có mặt · 10 vắng» (vắng +2 so với 8 trước đó; vắng = tổng − Có mặt − Muộn, RealAttendance.tsx:283), position fixed, cao 44 px, đáy 748 < đỉnh thanh điều hướng 755. Spec đã sửa 3 lỗi kịch bản (nút ẩn trùng tên, đếm vắng gồm Vắng phép, hàng thật ở 375 là li) |
+| TC-UX12-10 | P | RERUN S9R (cùng lượt z6, đã cuộn hết cỡ): thẻ cuối «Vũ Minh Long» cách thanh lưu 289 px (≥ 0), không bị che |
 | TC-UX12-11 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4f-real ✓ (qc-uiux91-rw4f-real.rerun7j.log) |
 | TC-UX12-12 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7j.log) |
 | TC-UX12-13 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec qc-uiux91-rw4-real ✓ (qc-uiux91-rw4-real.rerun7h.log) |
@@ -285,8 +285,8 @@ Lượt SmkS4: LT mới có nguồn: TC-UX13-1 (3b259963 + P-107-15), TC-UX08-28
 | TC-UX13-4 | P | spec w5i-real |
 | TC-UX13-5 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log) |
 | TC-UX13-6 | P | RERUN 425396a7 (r91sv 7w, sv.kha): ⋯ → Xoá: hàng 49→48 ngay, 0 hộp thoại sau khi bấm Xoá, dòng «Đã xoá · Hoàn tác» hiện (logs/qc-uiux91-r91sv-real.rerun7w.log) |
-| TC-UX13-7 | N | chưa chạy sạch: spec ../docs/regression/specs-qc2/qc2-r91/r91sv-real: 1 lượt đỏ / 0 xanh (xem logs/) |
-| TC-UX13-8 | N | chưa chạy sạch: spec ../docs/regression/specs-qc2/qc2-r91/r91sv-real: 1 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX13-7 | P | RERUN S9R (r91sv «UX13-6/7/8/10/15», logs/qc-uiux91-r91sv-real.rerun7z.log ✓, sv.kha): chấm theo AC3 US-UX91-13 (useUndoableAction hiện có: DELETE ngay rồi POST restore). Bấm Hoàn tác trong 5 s → hàng 49→50 trở lại đúng chỗ; yêu cầu ghi nhận: POST sessions, POST messages, DELETE sessions/‹id›, POST sessions/‹id›/restore. Lệch TC cũ («không DELETE») đã ghi ở defects-9.1.md mục SmkS4: TC ≠ AC, mã theo AC |
+| TC-UX13-8 | P | RERUN S9R (cùng lượt z): Xoá, không Hoàn tác, đợi 6,5 s → DELETE tổng 2 (≥ 2, tức có DELETE của lần xoá thứ hai); tải lại → lịch sử không còn phiên vừa xoá (đối chiếu nội dung phiên) |
 | TC-UX13-9 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log) |
 | TC-UX13-10 | P | RERUN 425396a7 (r91sv 7v, sv.kha): sau khi gửi 1 tin nút «Phiên mới» hiện, data-variant=secondary, nền lab(100 0 0) (trắng, không --ep-red / rgb(206,22,40)); đo trước dòng che PII nên giữ dù ca PII còn chờ (logs/qc-uiux91-r91sv-real.rerun7v.log) |
 | TC-UX13-11 | P | RERUN7 SmkS (ep-r, lớp sạch QR91A khi cần): spec ../docs/regression/specs-qc2/qc2-r91/qc-uiux91-r91sv-real ✓ (qc-uiux91-r91sv-real.rerun7u.log) |
@@ -336,14 +336,14 @@ Lượt SmkS4: LT mới có nguồn: TC-UX13-1 (3b259963 + P-107-15), TC-UX08-28
 | TC-UX18-1 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
 | TC-UX18-2 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
 | TC-UX18-3 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
-| TC-UX18-4 | N | chưa chạy sạch: spec ../docs/regression/specs-qc2/qc2-r91/ru1-real,w5g-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX18-4 | P | RERUN S9R (ru1 «UX18-4/6/8/PQ», logs/qc-uiux91-ru1-real.rerun7z.log ✓, GV, lớp 761987): 22 công tắc, 100 % có tên «Dùng cho AI: bật/tắt» (7+4) hoặc «Hiện cho sinh viên: bật/tắt» (8+3); màu đường ray ::before bật rgb(35,31,32) khác tắt lab(87.1 3.7 2.0), đồng nhất mọi hàng (1 giá trị mỗi trạng thái) |
 | TC-UX18-5 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
-| TC-UX18-6 | N | chưa chạy sạch: spec ../docs/regression/specs-qc2/qc2-r91/ru1-real,w5g-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX18-6 | P | RERUN S9R (cùng lượt z): 3 tài liệu «Hiện cho sinh viên: tắt» («QC Đáp án thiếu», «Đáp án đề mẫu luyện tập», «Đáp án đề tham khảo tuần 5») không có trong /library của sv.kha (274 ký tự) |
 | TC-UX18-7 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
-| TC-UX18-8 | N | chưa chạy sạch: spec ../docs/regression/specs-qc2/qc2-r91/ru1-real,w5g-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX18-8 | P | RERUN S9R (cùng lượt z): SV /documents → «Bạn không có quyền xem màn này … dành cho giảng viên và trợ giảng»; API GET /courses/‹id›/documents = 403; /library mở được (274 ký tự) |
 | TC-UX18-9 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
 | TC-UX18-10 | P | shots/documents-1440.png + documents-375.png (ep-r, HEAD, teacher); trước audit/shots/documents__teacher__1440.png: đủ ảnh |
-| TC-UX18-PQ | N | chưa chạy sạch: spec ../docs/regression/specs-qc2/qc2-r91/ru1-real,w5g-real: 2 lượt đỏ / 0 xanh (xem logs/) |
+| TC-UX18-PQ | P | RERUN S9R (cùng lượt z): GV gọi GET /courses/01a1df30-…/documents của lớp mình không phụ trách → 403 |
 | TC-UX18-ID | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs18-real (qc-uiux91-rs18-real.rerun6.log) xanh |
 | TC-UX17-1 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs17-real (qc-uiux91-rs17-real.rerun6.log) xanh |
 | TC-UX17-2 | P | RERUN6 SmkR 1409b04d (ep-r): spec qc-uiux91-rs17-real (qc-uiux91-rs17-real.rerun6.log) xanh |

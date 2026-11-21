@@ -1,0 +1,18 @@
+{
+ "enrollment X": "PENDING|EMAIL_MISMATCH|CODE",
+ "MSSV trùng B (users.student_code)": "3",
+ "me/courses X": [
+  [
+   null,
+   null
+  ]
+ ],
+ "GET courses/R/members": 403,
+ "GET courses/R/today": 403,
+ "GET courses/R/threads": 403,
+ "GET courses/R/gradebook": 403,
+ "GET courses/R/roster": 404,
+ "GET courses/R/documents": 403,
+ "GET courses/R/assignments": 403,
+ "me/today có lớp R": true
+}

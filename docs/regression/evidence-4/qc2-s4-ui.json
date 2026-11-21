@@ -40,5 +40,16 @@
   "id": "01a1fbc7-adc9-7b66-90b6-81ab19497ba4",
   "class_code": "QSUOFD1",
   "code": "VFZZZMY"
+ },
+ "E2E": {
+  "id": "01a1fc2b-ffed-7aa3-a9ba-4d00835ff33f",
+  "class_code": "QSE2E248",
+  "code": "NPWU4DX",
+  "D": "qc2s4.ue1.70a51@edupilot.local",
+  "D5": "qc2s4.ue5.70a51@edupilot.local"
+ },
+ "OTH2": {
+  "id": "01a1fc2c-866c-7008-96a0-e477f7e2e116",
+  "class_code": "QSOTH2091"
  }
 }

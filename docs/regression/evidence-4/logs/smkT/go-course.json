@@ -1,0 +1,824 @@
+{"Time":"2026-11-19T02:14:51.650714+07:00","Action":"start","Package":"github.com/edupilot/backend-go/internal/course"}
+{"Time":"2026-11-19T02:14:52.38067+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeAlphabet"}
+{"Time":"2026-11-19T02:14:52.380807+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeAlphabet","Output":"=== RUN   TestJoinCodeAlphabet\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:14:52.380916+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeAlphabet","Output":"=== PAUSE TestJoinCodeAlphabet\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:14:52.380927+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeAlphabet"}
+{"Time":"2026-11-19T02:14:52.380938+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeDistribution"}
+{"Time":"2026-11-19T02:14:52.380948+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeDistribution","Output":"=== RUN   TestJoinCodeDistribution\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:14:52.380965+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeDistribution","Output":"=== PAUSE TestJoinCodeDistribution\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:14:52.380974+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeDistribution"}
+{"Time":"2026-11-19T02:14:52.380995+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry"}
+{"Time":"2026-11-19T02:14:52.381005+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"=== RUN   TestJoinCodeCollisionRetry\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:14:52.593434+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"2026/11/19 02:14:52 github.com/testcontainers/testcontainers-go - Connected to docker: \n"}
+{"Time":"2026-11-19T02:14:52.593554+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  Server Version: 29.5.2\n"}
+{"Time":"2026-11-19T02:14:52.593582+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  API Version: 1.54\n"}
+{"Time":"2026-11-19T02:14:52.593601+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  Operating System: Ubuntu 24.04.4 LTS\n"}
+{"Time":"2026-11-19T02:14:52.593617+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  Total Memory: 9923 MB\n"}
+{"Time":"2026-11-19T02:14:52.593629+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  Testcontainers for Go Version: v0.44.0\n"}
+{"Time":"2026-11-19T02:14:52.593642+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock\n"}
+{"Time":"2026-11-19T02:14:52.593661+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock\n"}
+{"Time":"2026-11-19T02:14:52.593671+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  Test SessionID: 7b9bf2e0ae1c392faa9571866b6731546d8f99f8242b6075eaddbb047c50e4fd\n"}
+{"Time":"2026-11-19T02:14:52.593682+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"  Test ProcessID: d57c5409-2218-446a-bb48-ba22f745a1e2\n"}
+{"Time":"2026-11-19T02:14:52.631765+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"2026/11/19 02:14:52 🐳 Starting container: 68f6ff853df5\n"}
+{"Time":"2026-11-19T02:14:53.112104+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"2026/11/19 02:14:53 ✅ Container started: 68f6ff853df5\n"}
+{"Time":"2026-11-19T02:14:53.112187+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"2026/11/19 02:14:53 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening\n"}
+{"Time":"2026-11-19T02:14:53.877659+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"2026/11/19 02:14:53 🔔 Container is ready: 68f6ff853df5\n"}
+{"Time":"2026-11-19T02:14:53.877746+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"2026/11/19 02:14:53 ✅ Container started: 68f6ff853df5\n"}
+{"Time":"2026-11-19T02:14:53.87776+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"2026/11/19 02:14:53 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening\n"}
+{"Time":"2026-11-19T02:14:54.001974+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"2026/11/19 02:14:54 🔔 Container is ready: 68f6ff853df5\n"}
+{"Time":"2026-11-19T02:14:59.403182+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Output":"--- PASS: TestJoinCodeCollisionRetry (7.02s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:14:59.403463+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCollisionRetry","Elapsed":7.02}
+{"Time":"2026-11-19T02:14:59.403551+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeFixedOnlyOutsideProduction"}
+{"Time":"2026-11-19T02:14:59.403563+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeFixedOnlyOutsideProduction","Output":"=== RUN   TestJoinCodeFixedOnlyOutsideProduction\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:00.292651+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeFixedOnlyOutsideProduction","Output":"--- PASS: TestJoinCodeFixedOnlyOutsideProduction (0.89s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:00.2927+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeFixedOnlyOutsideProduction","Elapsed":0.89}
+{"Time":"2026-11-19T02:15:00.292748+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse"}
+{"Time":"2026-11-19T02:15:00.292757+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"=== RUN   TestCreateCourse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:00.891894+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"2026/11/19 02:15:00 🐳 Starting container: 5636bc78d64d\n"}
+{"Time":"2026-11-19T02:15:00.987493+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"2026/11/19 02:15:00 ✅ Container started: 5636bc78d64d\n"}
+{"Time":"2026-11-19T02:15:00.9888+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"2026/11/19 02:15:00 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening\n"}
+{"Time":"2026-11-19T02:15:01.023789+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"2026/11/19 02:15:01 🔔 Container is ready: 5636bc78d64d\n"}
+{"Time":"2026-11-19T02:15:01.023873+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"2026/11/19 02:15:01 ✅ Container started: 5636bc78d64d\n"}
+{"Time":"2026-11-19T02:15:01.023899+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"2026/11/19 02:15:01 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening\n"}
+{"Time":"2026-11-19T02:15:01.050431+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"2026/11/19 02:15:01 🔔 Container is ready: 5636bc78d64d\n"}
+{"Time":"2026-11-19T02:15:01.155461+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Output":"--- PASS: TestCreateCourse (0.86s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:01.155515+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourse","Elapsed":0.86}
+{"Time":"2026-11-19T02:15:01.155532+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseIdempotent"}
+{"Time":"2026-11-19T02:15:01.155537+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseIdempotent","Output":"=== RUN   TestCreateCourseIdempotent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:01.688913+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseIdempotent","Output":"--- PASS: TestCreateCourseIdempotent (0.53s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:01.689011+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseIdempotent","Elapsed":0.53}
+{"Time":"2026-11-19T02:15:01.689054+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseDuplicateClassCode"}
+{"Time":"2026-11-19T02:15:01.689092+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseDuplicateClassCode","Output":"=== RUN   TestCreateCourseDuplicateClassCode\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:02.164163+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseDuplicateClassCode","Output":"--- PASS: TestCreateCourseDuplicateClassCode (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:02.164206+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseDuplicateClassCode","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:02.164216+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseDuplicateClassCodeCaseInsensitive"}
+{"Time":"2026-11-19T02:15:02.164243+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseDuplicateClassCodeCaseInsensitive","Output":"=== RUN   TestCreateCourseDuplicateClassCodeCaseInsensitive\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:02.629919+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseDuplicateClassCodeCaseInsensitive","Output":"--- PASS: TestCreateCourseDuplicateClassCodeCaseInsensitive (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:02.629978+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseDuplicateClassCodeCaseInsensitive","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:02.630019+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseValidation"}
+{"Time":"2026-11-19T02:15:02.630039+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseValidation","Output":"=== RUN   TestCreateCourseValidation\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:03.109509+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseValidation","Output":"--- PASS: TestCreateCourseValidation (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:03.109551+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCreateCourseValidation","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:03.109559+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateCourse"}
+{"Time":"2026-11-19T02:15:03.109566+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateCourse","Output":"=== RUN   TestUpdateCourse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:03.578157+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateCourse","Output":"--- PASS: TestUpdateCourse (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:03.578207+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateCourse","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:03.578216+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateCapacityBelowActive"}
+{"Time":"2026-11-19T02:15:03.578222+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateCapacityBelowActive","Output":"=== RUN   TestUpdateCapacityBelowActive\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:04.037588+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateCapacityBelowActive","Output":"--- PASS: TestUpdateCapacityBelowActive (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:04.037663+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateCapacityBelowActive","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:04.037677+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateVersionConflict"}
+{"Time":"2026-11-19T02:15:04.037686+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateVersionConflict","Output":"=== RUN   TestUpdateVersionConflict\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:04.485259+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateVersionConflict","Output":"--- PASS: TestUpdateVersionConflict (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:04.48529+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUpdateVersionConflict","Elapsed":0.45}
+{"Time":"2026-11-19T02:15:04.485298+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchiveCourse"}
+{"Time":"2026-11-19T02:15:04.485303+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchiveCourse","Output":"=== RUN   TestArchiveCourse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:04.959005+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchiveCourse","Output":"--- PASS: TestArchiveCourse (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:04.959086+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchiveCourse","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:04.959104+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchiveIdempotent"}
+{"Time":"2026-11-19T02:15:04.959114+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchiveIdempotent","Output":"=== RUN   TestArchiveIdempotent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:05.444878+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchiveIdempotent","Output":"--- PASS: TestArchiveIdempotent (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:05.444943+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchiveIdempotent","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:05.444952+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchivedRejectsWrites"}
+{"Time":"2026-11-19T02:15:05.444957+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchivedRejectsWrites","Output":"=== RUN   TestArchivedRejectsWrites\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:05.947304+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchivedRejectsWrites","Output":"--- PASS: TestArchivedRejectsWrites (0.50s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:05.947358+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestArchivedRejectsWrites","Elapsed":0.5}
+{"Time":"2026-11-19T02:15:05.947367+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignTeacher"}
+{"Time":"2026-11-19T02:15:05.947374+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignTeacher","Output":"=== RUN   TestAssignTeacher\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:06.429076+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignTeacher","Output":"--- PASS: TestAssignTeacher (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:06.429131+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignTeacher","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:06.42914+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignRejectsWrongRole"}
+{"Time":"2026-11-19T02:15:06.429145+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignRejectsWrongRole","Output":"=== RUN   TestAssignRejectsWrongRole\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:06.910455+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignRejectsWrongRole","Output":"--- PASS: TestAssignRejectsWrongRole (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:06.910527+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignRejectsWrongRole","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:06.910539+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignReplacesTAs"}
+{"Time":"2026-11-19T02:15:06.910565+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignReplacesTAs","Output":"=== RUN   TestAssignReplacesTAs\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:07.39516+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignReplacesTAs","Output":"--- PASS: TestAssignReplacesTAs (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:07.395212+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignReplacesTAs","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:07.39522+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignOldTeacherLosesAccessNow"}
+{"Time":"2026-11-19T02:15:07.395225+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignOldTeacherLosesAccessNow","Output":"=== RUN   TestAssignOldTeacherLosesAccessNow\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:07.930279+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignOldTeacherLosesAccessNow","Output":"--- PASS: TestAssignOldTeacherLosesAccessNow (0.54s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:07.930328+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignOldTeacherLosesAccessNow","Elapsed":0.54}
+{"Time":"2026-11-19T02:15:07.930351+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignOneActiveTeacher"}
+{"Time":"2026-11-19T02:15:07.930358+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignOneActiveTeacher","Output":"=== RUN   TestAssignOneActiveTeacher\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:08.412538+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignOneActiveTeacher","Output":"--- PASS: TestAssignOneActiveTeacher (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:08.412592+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignOneActiveTeacher","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:08.412602+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignAtomicWithOutbox"}
+{"Time":"2026-11-19T02:15:08.412608+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignAtomicWithOutbox","Output":"=== RUN   TestAssignAtomicWithOutbox\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:08.888549+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignAtomicWithOutbox","Output":"--- PASS: TestAssignAtomicWithOutbox (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:08.888624+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignAtomicWithOutbox","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:08.888657+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNoRenotify"}
+{"Time":"2026-11-19T02:15:08.88867+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNoRenotify","Output":"=== RUN   TestAssignNoRenotify\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:09.366839+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNoRenotify","Output":"--- PASS: TestAssignNoRenotify (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:09.366964+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNoRenotify","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:09.367004+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignAudit"}
+{"Time":"2026-11-19T02:15:09.367012+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignAudit","Output":"=== RUN   TestAssignAudit\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:09.800154+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignAudit","Output":"--- PASS: TestAssignAudit (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:09.800194+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignAudit","Elapsed":0.43}
+{"Time":"2026-11-19T02:15:09.800202+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestTeacherManagesOwnTAs"}
+{"Time":"2026-11-19T02:15:09.800207+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestTeacherManagesOwnTAs","Output":"=== RUN   TestTeacherManagesOwnTAs\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:10.316551+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestTeacherManagesOwnTAs","Output":"--- PASS: TestTeacherManagesOwnTAs (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:10.316592+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestTeacherManagesOwnTAs","Elapsed":0.52}
+{"Time":"2026-11-19T02:15:10.3166+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestOtherTeacherCannotManageTAs"}
+{"Time":"2026-11-19T02:15:10.316616+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestOtherTeacherCannotManageTAs","Output":"=== RUN   TestOtherTeacherCannotManageTAs\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:10.795782+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestOtherTeacherCannotManageTAs","Output":"--- PASS: TestOtherTeacherCannotManageTAs (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:10.795859+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestOtherTeacherCannotManageTAs","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:10.795874+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssistantCandidates"}
+{"Time":"2026-11-19T02:15:10.795904+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssistantCandidates","Output":"=== RUN   TestAssistantCandidates\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:11.365316+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssistantCandidates","Output":"--- PASS: TestAssistantCandidates (0.57s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:11.365425+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssistantCandidates","Elapsed":0.57}
+{"Time":"2026-11-19T02:15:11.365462+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestChangeTeacherMidTerm"}
+{"Time":"2026-11-19T02:15:11.365485+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestChangeTeacherMidTerm","Output":"=== RUN   TestChangeTeacherMidTerm\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:11.826541+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestChangeTeacherMidTerm","Output":"--- PASS: TestChangeTeacherMidTerm (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:11.826583+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestChangeTeacherMidTerm","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:11.826592+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsList"}
+{"Time":"2026-11-19T02:15:11.82661+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsList","Output":"=== RUN   TestNotificationsList\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:12.296403+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsList","Output":"--- PASS: TestNotificationsList (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:12.296458+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsList","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:12.296466+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsOnlyMine"}
+{"Time":"2026-11-19T02:15:12.296472+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsOnlyMine","Output":"=== RUN   TestNotificationsOnlyMine\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:12.766187+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsOnlyMine","Output":"--- PASS: TestNotificationsOnlyMine (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:12.766227+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsOnlyMine","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:12.766263+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationReadIdempotent"}
+{"Time":"2026-11-19T02:15:12.766269+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationReadIdempotent","Output":"=== RUN   TestNotificationReadIdempotent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:13.230251+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationReadIdempotent","Output":"--- PASS: TestNotificationReadIdempotent (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:13.230306+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationReadIdempotent","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:13.230316+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationOtherUser404"}
+{"Time":"2026-11-19T02:15:13.230322+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationOtherUser404","Output":"=== RUN   TestNotificationOtherUser404\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:13.662667+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationOtherUser404","Output":"--- PASS: TestNotificationOtherUser404 (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:13.662714+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationOtherUser404","Elapsed":0.43}
+{"Time":"2026-11-19T02:15:13.662723+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsUnreadCount"}
+{"Time":"2026-11-19T02:15:13.662727+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsUnreadCount","Output":"=== RUN   TestNotificationsUnreadCount\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:14.100824+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsUnreadCount","Output":"--- PASS: TestNotificationsUnreadCount (0.44s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:14.101012+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestNotificationsUnreadCount","Elapsed":0.44}
+{"Time":"2026-11-19T02:15:14.101028+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesRBACMatrix"}
+{"Time":"2026-11-19T02:15:14.101034+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesRBACMatrix","Output":"=== RUN   TestAdminCoursesRBACMatrix\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:14.606032+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesRBACMatrix","Output":"--- PASS: TestAdminCoursesRBACMatrix (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:14.606083+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesRBACMatrix","Elapsed":0.51}
+{"Time":"2026-11-19T02:15:14.606091+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesList"}
+{"Time":"2026-11-19T02:15:14.606096+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesList","Output":"=== RUN   TestAdminCoursesList\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:15.094263+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesList","Output":"--- PASS: TestAdminCoursesList (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:15.094317+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesList","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:15.094326+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesNoJoinCodeNoStudents"}
+{"Time":"2026-11-19T02:15:15.094332+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesNoJoinCodeNoStudents","Output":"=== RUN   TestAdminCoursesNoJoinCodeNoStudents\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:15.559306+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesNoJoinCodeNoStudents","Output":"--- PASS: TestAdminCoursesNoJoinCodeNoStudents (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:15.559359+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesNoJoinCodeNoStudents","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:15.559368+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesNoNPlusOne"}
+{"Time":"2026-11-19T02:15:15.559373+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesNoNPlusOne","Output":"=== RUN   TestAdminCoursesNoNPlusOne\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:16.198771+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesNoNPlusOne","Output":"--- PASS: TestAdminCoursesNoNPlusOne (0.64s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:16.198823+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesNoNPlusOne","Elapsed":0.64}
+{"Time":"2026-11-19T02:15:16.198832+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesCursor"}
+{"Time":"2026-11-19T02:15:16.198837+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesCursor","Output":"=== RUN   TestAdminCoursesCursor\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:16.678344+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesCursor","Output":"--- PASS: TestAdminCoursesCursor (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:16.678392+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAdminCoursesCursor","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:16.678401+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNotificationTexts"}
+{"Time":"2026-11-19T02:15:16.678405+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNotificationTexts","Output":"=== RUN   TestAssignNotificationTexts\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:17.127444+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNotificationTexts","Output":"--- PASS: TestAssignNotificationTexts (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:17.127507+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNotificationTexts","Elapsed":0.45}
+{"Time":"2026-11-19T02:15:17.127518+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNotifyOnce"}
+{"Time":"2026-11-19T02:15:17.127525+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNotifyOnce","Output":"=== RUN   TestAssignNotifyOnce\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:17.567833+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNotifyOnce","Output":"--- PASS: TestAssignNotifyOnce (0.44s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:17.56794+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignNotifyOnce","Elapsed":0.44}
+{"Time":"2026-11-19T02:15:17.567976+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignRemovedBeforeWorkerGetsNothing"}
+{"Time":"2026-11-19T02:15:17.567983+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignRemovedBeforeWorkerGetsNothing","Output":"=== RUN   TestAssignRemovedBeforeWorkerGetsNothing\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:18.034906+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignRemovedBeforeWorkerGetsNothing","Output":"--- PASS: TestAssignRemovedBeforeWorkerGetsNothing (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:18.034967+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAssignRemovedBeforeWorkerGetsNothing","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:18.034976+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesStudent"}
+{"Time":"2026-11-19T02:15:18.034982+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesStudent","Output":"=== RUN   TestMeCoursesStudent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:18.490173+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesStudent","Output":"--- PASS: TestMeCoursesStudent (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:18.490222+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesStudent","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:18.490231+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesStaff"}
+{"Time":"2026-11-19T02:15:18.490236+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesStaff","Output":"=== RUN   TestMeCoursesStaff\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:18.902982+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesStaff","Output":"--- PASS: TestMeCoursesStaff (0.41s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:18.903033+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesStaff","Elapsed":0.41}
+{"Time":"2026-11-19T02:15:18.903042+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesAdminEmpty"}
+{"Time":"2026-11-19T02:15:18.903046+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesAdminEmpty","Output":"=== RUN   TestMeCoursesAdminEmpty\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:19.339625+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesAdminEmpty","Output":"--- PASS: TestMeCoursesAdminEmpty (0.44s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:19.339674+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesAdminEmpty","Elapsed":0.44}
+{"Time":"2026-11-19T02:15:19.339682+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesNoJoinCode"}
+{"Time":"2026-11-19T02:15:19.339689+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesNoJoinCode","Output":"=== RUN   TestMeCoursesNoJoinCode\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:19.786892+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesNoJoinCode","Output":"--- PASS: TestMeCoursesNoJoinCode (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:19.786944+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesNoJoinCode","Elapsed":0.45}
+{"Time":"2026-11-19T02:15:19.786953+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesCursor"}
+{"Time":"2026-11-19T02:15:19.786958+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesCursor","Output":"=== RUN   TestMeCoursesCursor\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:20.218753+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesCursor","Output":"--- PASS: TestMeCoursesCursor (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:20.218804+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesCursor","Elapsed":0.43}
+{"Time":"2026-11-19T02:15:20.218813+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesETag"}
+{"Time":"2026-11-19T02:15:20.21883+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesETag","Output":"=== RUN   TestMeCoursesETag\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:20.635733+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesETag","Output":"--- PASS: TestMeCoursesETag (0.42s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:20.635789+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesETag","Elapsed":0.42}
+{"Time":"2026-11-19T02:15:20.635798+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesNoNPlusOne"}
+{"Time":"2026-11-19T02:15:20.635803+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesNoNPlusOne","Output":"=== RUN   TestMeCoursesNoNPlusOne\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:21.066125+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesNoNPlusOne","Output":"--- PASS: TestMeCoursesNoNPlusOne (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:21.066174+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeCoursesNoNPlusOne","Elapsed":0.43}
+{"Time":"2026-11-19T02:15:21.066184+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseStudentView"}
+{"Time":"2026-11-19T02:15:21.066189+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseStudentView","Output":"=== RUN   TestGetCourseStudentView\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:21.475954+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseStudentView","Output":"--- PASS: TestGetCourseStudentView (0.41s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:21.476005+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseStudentView","Elapsed":0.41}
+{"Time":"2026-11-19T02:15:21.47602+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseStaffView"}
+{"Time":"2026-11-19T02:15:21.476026+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseStaffView","Output":"=== RUN   TestGetCourseStaffView\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:21.899353+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseStaffView","Output":"--- PASS: TestGetCourseStaffView (0.42s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:21.899398+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseStaffView","Elapsed":0.42}
+{"Time":"2026-11-19T02:15:21.899407+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseAdminBasic"}
+{"Time":"2026-11-19T02:15:21.899437+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseAdminBasic","Output":"=== RUN   TestGetCourseAdminBasic\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:22.302027+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseAdminBasic","Output":"--- PASS: TestGetCourseAdminBasic (0.40s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:22.302075+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseAdminBasic","Elapsed":0.4}
+{"Time":"2026-11-19T02:15:22.302084+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseOutsider403"}
+{"Time":"2026-11-19T02:15:22.302089+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseOutsider403","Output":"=== RUN   TestGetCourseOutsider403\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:22.736343+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseOutsider403","Output":"--- PASS: TestGetCourseOutsider403 (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:22.736398+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGetCourseOutsider403","Elapsed":0.43}
+{"Time":"2026-11-19T02:15:22.736436+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeEndpointsRequireJWT"}
+{"Time":"2026-11-19T02:15:22.736442+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeEndpointsRequireJWT","Output":"=== RUN   TestMeEndpointsRequireJWT\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:23.138864+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeEndpointsRequireJWT","Output":"--- PASS: TestMeEndpointsRequireJWT (0.40s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:23.138916+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeEndpointsRequireJWT","Elapsed":0.4}
+{"Time":"2026-11-19T02:15:23.138925+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeEndpointsNoUserIDParam"}
+{"Time":"2026-11-19T02:15:23.13893+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeEndpointsNoUserIDParam","Output":"=== RUN   TestMeEndpointsNoUserIDParam\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:23.547107+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeEndpointsNoUserIDParam","Output":"--- PASS: TestMeEndpointsNoUserIDParam (0.41s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:23.547164+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMeEndpointsNoUserIDParam","Elapsed":0.41}
+{"Time":"2026-11-19T02:15:23.547175+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAllRolesGetOwnCourses"}
+{"Time":"2026-11-19T02:15:23.54718+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAllRolesGetOwnCourses","Output":"=== RUN   TestAllRolesGetOwnCourses\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:23.969474+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAllRolesGetOwnCourses","Output":"--- PASS: TestAllRolesGetOwnCourses (0.42s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:23.969526+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestAllRolesGetOwnCourses","Elapsed":0.42}
+{"Time":"2026-11-19T02:15:23.969536+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinFailureTimingEqualized"}
+{"Time":"2026-11-19T02:15:23.969541+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinFailureTimingEqualized","Output":"=== RUN   TestJoinFailureTimingEqualized\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:25.015877+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinFailureTimingEqualized","Output":"--- PASS: TestJoinFailureTimingEqualized (1.05s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:25.015931+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinFailureTimingEqualized","Elapsed":1.05}
+{"Time":"2026-11-19T02:15:25.01594+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimit5Per10Min"}
+{"Time":"2026-11-19T02:15:25.015946+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimit5Per10Min","Output":"=== RUN   TestJoinRateLimit5Per10Min\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:25.50153+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimit5Per10Min","Output":"--- PASS: TestJoinRateLimit5Per10Min (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:25.501579+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimit5Per10Min","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:25.501588+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitPerIP"}
+{"Time":"2026-11-19T02:15:25.501593+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitPerIP","Output":"=== RUN   TestJoinRateLimitPerIP\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:26.144052+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitPerIP","Output":"--- PASS: TestJoinRateLimitPerIP (0.64s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:26.144113+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitPerIP","Elapsed":0.64}
+{"Time":"2026-11-19T02:15:26.144122+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitOnlyFailures"}
+{"Time":"2026-11-19T02:15:26.144127+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitOnlyFailures","Output":"=== RUN   TestJoinRateLimitOnlyFailures\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:26.998616+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitOnlyFailures","Output":"--- PASS: TestJoinRateLimitOnlyFailures (0.85s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:26.998665+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitOnlyFailures","Elapsed":0.85}
+{"Time":"2026-11-19T02:15:26.998673+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitSharedAcrossInstances"}
+{"Time":"2026-11-19T02:15:26.998678+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitSharedAcrossInstances","Output":"=== RUN   TestJoinRateLimitSharedAcrossInstances\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:27.475045+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitSharedAcrossInstances","Output":"--- PASS: TestJoinRateLimitSharedAcrossInstances (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:27.475089+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRateLimitSharedAcrossInstances","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:27.475098+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinAttemptNotLogged"}
+{"Time":"2026-11-19T02:15:27.475103+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinAttemptNotLogged","Output":"=== RUN   TestJoinAttemptNotLogged\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:27.949955+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinAttemptNotLogged","Output":"--- PASS: TestJoinAttemptNotLogged (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:27.950008+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinAttemptNotLogged","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:27.950016+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinGuessSimulation"}
+{"Time":"2026-11-19T02:15:27.950021+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinGuessSimulation","Output":"=== RUN   TestJoinGuessSimulation\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:28.528773+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinGuessSimulation","Output":"--- PASS: TestJoinGuessSimulation (0.58s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:28.528845+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinGuessSimulation","Elapsed":0.58}
+{"Time":"2026-11-19T02:15:28.528857+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateOldCodeDeadImmediately"}
+{"Time":"2026-11-19T02:15:28.528862+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateOldCodeDeadImmediately","Output":"=== RUN   TestRegenerateOldCodeDeadImmediately\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:28.971482+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateOldCodeDeadImmediately","Output":"--- PASS: TestRegenerateOldCodeDeadImmediately (0.44s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:28.971529+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateOldCodeDeadImmediately","Elapsed":0.44}
+{"Time":"2026-11-19T02:15:28.971539+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateNewCodeWorks"}
+{"Time":"2026-11-19T02:15:28.971545+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateNewCodeWorks","Output":"=== RUN   TestRegenerateNewCodeWorks\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:29.41763+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateNewCodeWorks","Output":"--- PASS: TestRegenerateNewCodeWorks (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:29.417677+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateNewCodeWorks","Elapsed":0.45}
+{"Time":"2026-11-19T02:15:29.417685+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateExistingMembersUnaffected"}
+{"Time":"2026-11-19T02:15:29.41769+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateExistingMembersUnaffected","Output":"=== RUN   TestRegenerateExistingMembersUnaffected\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:29.878633+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateExistingMembersUnaffected","Output":"--- PASS: TestRegenerateExistingMembersUnaffected (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:29.878695+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateExistingMembersUnaffected","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:29.878706+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateTAForbidden"}
+{"Time":"2026-11-19T02:15:29.878712+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateTAForbidden","Output":"=== RUN   TestRegenerateTAForbidden\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:30.351028+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateTAForbidden","Output":"--- PASS: TestRegenerateTAForbidden (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:30.351094+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateTAForbidden","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:30.351103+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateAuditNoFullCode"}
+{"Time":"2026-11-19T02:15:30.351108+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateAuditNoFullCode","Output":"=== RUN   TestRegenerateAuditNoFullCode\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:30.811404+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateAuditNoFullCode","Output":"--- PASS: TestRegenerateAuditNoFullCode (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:30.811453+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRegenerateAuditNoFullCode","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:30.811474+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsGetShape"}
+{"Time":"2026-11-19T02:15:30.811481+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsGetShape","Output":"=== RUN   TestJoinSettingsGetShape\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:31.274918+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsGetShape","Output":"--- PASS: TestJoinSettingsGetShape (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:31.274962+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsGetShape","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:31.27497+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsValidation"}
+{"Time":"2026-11-19T02:15:31.274975+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsValidation","Output":"=== RUN   TestJoinSettingsValidation\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:31.769322+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsValidation","Output":"--- PASS: TestJoinSettingsValidation (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:31.769373+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsValidation","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:31.769382+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectDisabled"}
+{"Time":"2026-11-19T02:15:31.769387+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectDisabled","Output":"=== RUN   TestJoinSettingsEffectDisabled\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:32.255495+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectDisabled","Output":"--- PASS: TestJoinSettingsEffectDisabled (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:32.255531+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectDisabled","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:32.25554+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectExpired"}
+{"Time":"2026-11-19T02:15:32.255545+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectExpired","Output":"=== RUN   TestJoinSettingsEffectExpired\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:32.719431+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectExpired","Output":"--- PASS: TestJoinSettingsEffectExpired (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:32.719497+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectExpired","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:32.719509+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectDomain"}
+{"Time":"2026-11-19T02:15:32.719517+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectDomain","Output":"=== RUN   TestJoinSettingsEffectDomain\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:33.199191+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectDomain","Output":"--- PASS: TestJoinSettingsEffectDomain (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:33.199235+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectDomain","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:33.199267+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectCapacity"}
+{"Time":"2026-11-19T02:15:33.199273+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectCapacity","Output":"=== RUN   TestJoinSettingsEffectCapacity\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:33.69193+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectCapacity","Output":"--- PASS: TestJoinSettingsEffectCapacity (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:33.691981+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectCapacity","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:33.691991+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectApproval"}
+{"Time":"2026-11-19T02:15:33.691997+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectApproval","Output":"=== RUN   TestJoinSettingsEffectApproval\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:34.162657+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectApproval","Output":"--- PASS: TestJoinSettingsEffectApproval (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:34.162712+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsEffectApproval","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:34.162722+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsTAForbidden"}
+{"Time":"2026-11-19T02:15:34.162728+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsTAForbidden","Output":"=== RUN   TestJoinSettingsTAForbidden\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:34.630197+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsTAForbidden","Output":"--- PASS: TestJoinSettingsTAForbidden (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:34.630252+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSettingsTAForbidden","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:34.63026+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRedisDownLogsOncePer30s"}
+{"Time":"2026-11-19T02:15:34.630265+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRedisDownLogsOncePer30s","Output":"=== RUN   TestJoinRedisDownLogsOncePer30s\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:35.043889+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRedisDownLogsOncePer30s","Output":"--- PASS: TestJoinRedisDownLogsOncePer30s (0.41s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:35.043939+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRedisDownLogsOncePer30s","Elapsed":0.41}
+{"Time":"2026-11-19T02:15:35.043947+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinPreviewShape"}
+{"Time":"2026-11-19T02:15:35.043953+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinPreviewShape","Output":"=== RUN   TestJoinPreviewShape\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:35.568869+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinPreviewShape","Output":"--- PASS: TestJoinPreviewShape (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:35.568928+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinPreviewShape","Elapsed":0.52}
+{"Time":"2026-11-19T02:15:35.568937+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinOpen"}
+{"Time":"2026-11-19T02:15:35.568971+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinOpen","Output":"=== RUN   TestJoinOpen\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:36.058587+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinOpen","Output":"--- PASS: TestJoinOpen (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:36.058627+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinOpen","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:36.058636+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCaseInsensitive"}
+{"Time":"2026-11-19T02:15:36.05864+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCaseInsensitive","Output":"=== RUN   TestJoinCodeCaseInsensitive\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:36.519298+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCaseInsensitive","Output":"--- PASS: TestJoinCodeCaseInsensitive (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:36.519354+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeCaseInsensitive","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:36.519362+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSnapshotStudentCode"}
+{"Time":"2026-11-19T02:15:36.519367+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSnapshotStudentCode","Output":"=== RUN   TestJoinSnapshotStudentCode\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:36.997354+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSnapshotStudentCode","Output":"--- PASS: TestJoinSnapshotStudentCode (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:36.997392+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinSnapshotStudentCode","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:36.997401+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinAudit"}
+{"Time":"2026-11-19T02:15:36.997407+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinAudit","Output":"=== RUN   TestJoinAudit\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:37.471569+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinAudit","Output":"--- PASS: TestJoinAudit (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:37.471611+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinAudit","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:37.471619+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinTwiceOneEnrollment"}
+{"Time":"2026-11-19T02:15:37.471624+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinTwiceOneEnrollment","Output":"=== RUN   TestJoinTwiceOneEnrollment\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:37.955632+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinTwiceOneEnrollment","Output":"--- PASS: TestJoinTwiceOneEnrollment (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:37.95567+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinTwiceOneEnrollment","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:37.955679+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinConcurrentOneEnrollment"}
+{"Time":"2026-11-19T02:15:37.955684+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinConcurrentOneEnrollment","Output":"=== RUN   TestJoinConcurrentOneEnrollment\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:38.50495+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinConcurrentOneEnrollment","Output":"--- PASS: TestJoinConcurrentOneEnrollment (0.55s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:38.505061+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinConcurrentOneEnrollment","Elapsed":0.55}
+{"Time":"2026-11-19T02:15:38.505076+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinUniformFailure"}
+{"Time":"2026-11-19T02:15:38.505106+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinUniformFailure","Output":"=== RUN   TestJoinUniformFailure\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:39.324298+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinUniformFailure","Output":"--- PASS: TestJoinUniformFailure (0.82s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:39.324338+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinUniformFailure","Elapsed":0.82}
+{"Time":"2026-11-19T02:15:39.324347+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinFullIsDistinct"}
+{"Time":"2026-11-19T02:15:39.324351+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinFullIsDistinct","Output":"=== RUN   TestJoinFullIsDistinct\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:39.799352+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinFullIsDistinct","Output":"--- PASS: TestJoinFullIsDistinct (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:39.799396+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinFullIsDistinct","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:39.799404+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinUnverified403"}
+{"Time":"2026-11-19T02:15:39.799409+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinUnverified403","Output":"=== RUN   TestJoinUnverified403\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:40.26293+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinUnverified403","Output":"--- PASS: TestJoinUnverified403 (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:40.262979+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinUnverified403","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:40.262988+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinNonStudent403"}
+{"Time":"2026-11-19T02:15:40.262993+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinNonStudent403","Output":"=== RUN   TestJoinNonStudent403\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:40.745284+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinNonStudent403","Output":"--- PASS: TestJoinNonStudent403 (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:40.745338+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinNonStudent403","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:40.745347+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinNoJWT401"}
+{"Time":"2026-11-19T02:15:40.745352+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinNoJWT401","Output":"=== RUN   TestJoinNoJWT401\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:41.139366+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinNoJWT401","Output":"--- PASS: TestJoinNoJWT401 (0.39s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:41.13941+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinNoJWT401","Elapsed":0.39}
+{"Time":"2026-11-19T02:15:41.139418+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinActiveEmitsMemberChanged"}
+{"Time":"2026-11-19T02:15:41.139423+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinActiveEmitsMemberChanged","Output":"=== RUN   TestJoinActiveEmitsMemberChanged\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:41.620633+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinActiveEmitsMemberChanged","Output":"--- PASS: TestJoinActiveEmitsMemberChanged (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:41.620691+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinActiveEmitsMemberChanged","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:41.620699+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRequiresApprovalPending"}
+{"Time":"2026-11-19T02:15:41.620705+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRequiresApprovalPending","Output":"=== RUN   TestJoinRequiresApprovalPending\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:42.10104+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRequiresApprovalPending","Output":"--- PASS: TestJoinRequiresApprovalPending (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:42.101075+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRequiresApprovalPending","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:42.101083+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestPendingHasNoAccess"}
+{"Time":"2026-11-19T02:15:42.101088+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestPendingHasNoAccess","Output":"=== RUN   TestPendingHasNoAccess\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:42.608001+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestPendingHasNoAccess","Output":"--- PASS: TestPendingHasNoAccess (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:42.608056+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestPendingHasNoAccess","Elapsed":0.51}
+{"Time":"2026-11-19T02:15:42.608066+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRequestNotifiesStaff"}
+{"Time":"2026-11-19T02:15:42.608071+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRequestNotifiesStaff","Output":"=== RUN   TestJoinRequestNotifiesStaff\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:43.117495+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRequestNotifiesStaff","Output":"--- PASS: TestJoinRequestNotifiesStaff (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:43.117551+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinRequestNotifiesStaff","Elapsed":0.51}
+{"Time":"2026-11-19T02:15:43.117561+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestPendingResubmitNoDuplicate"}
+{"Time":"2026-11-19T02:15:43.117566+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestPendingResubmitNoDuplicate","Output":"=== RUN   TestPendingResubmitNoDuplicate\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:43.600282+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestPendingResubmitNoDuplicate","Output":"--- PASS: TestPendingResubmitNoDuplicate (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:43.600336+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestPendingResubmitNoDuplicate","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:43.600344+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestApproveReject"}
+{"Time":"2026-11-19T02:15:43.600349+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestApproveReject","Output":"=== RUN   TestApproveReject\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:44.136027+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestApproveReject","Output":"--- PASS: TestApproveReject (0.54s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:44.136074+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestApproveReject","Elapsed":0.54}
+{"Time":"2026-11-19T02:15:44.136083+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemoveTeacherOnly"}
+{"Time":"2026-11-19T02:15:44.136088+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemoveTeacherOnly","Output":"=== RUN   TestRemoveTeacherOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:44.605385+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemoveTeacherOnly","Output":"--- PASS: TestRemoveTeacherOnly (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:44.605423+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemoveTeacherOnly","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:44.605431+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestApproveRechecksCapacity"}
+{"Time":"2026-11-19T02:15:44.605436+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestApproveRechecksCapacity","Output":"=== RUN   TestApproveRechecksCapacity\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:45.126804+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestApproveRechecksCapacity","Output":"--- PASS: TestApproveRechecksCapacity (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:45.126866+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestApproveRechecksCapacity","Elapsed":0.52}
+{"Time":"2026-11-19T02:15:45.126875+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUndoWithin60s"}
+{"Time":"2026-11-19T02:15:45.126881+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUndoWithin60s","Output":"=== RUN   TestUndoWithin60s\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:45.860216+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUndoWithin60s","Output":"--- PASS: TestUndoWithin60s (0.73s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:45.860286+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUndoWithin60s","Elapsed":0.73}
+{"Time":"2026-11-19T02:15:45.860341+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUndoExpired"}
+{"Time":"2026-11-19T02:15:45.860376+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUndoExpired","Output":"=== RUN   TestUndoExpired\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:46.5206+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUndoExpired","Output":"--- PASS: TestUndoExpired (0.66s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:46.520649+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestUndoExpired","Elapsed":0.66}
+{"Time":"2026-11-19T02:15:46.520658+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestDecisionNotifiesStudent"}
+{"Time":"2026-11-19T02:15:46.520662+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestDecisionNotifiesStudent","Output":"=== RUN   TestDecisionNotifiesStudent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:47.083046+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestDecisionNotifiesStudent","Output":"--- PASS: TestDecisionNotifiesStudent (0.56s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:47.083098+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestDecisionNotifiesStudent","Elapsed":0.56}
+{"Time":"2026-11-19T02:15:47.083107+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCannotRemoveStaffViaMembers"}
+{"Time":"2026-11-19T02:15:47.083112+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCannotRemoveStaffViaMembers","Output":"=== RUN   TestCannotRemoveStaffViaMembers\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:47.574827+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCannotRemoveStaffViaMembers","Output":"--- PASS: TestCannotRemoveStaffViaMembers (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:47.574881+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestCannotRemoveStaffViaMembers","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:47.57489+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMemberActionsAudit"}
+{"Time":"2026-11-19T02:15:47.574896+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMemberActionsAudit","Output":"=== RUN   TestMemberActionsAudit\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:48.112407+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMemberActionsAudit","Output":"--- PASS: TestMemberActionsAudit (0.54s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:48.112466+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMemberActionsAudit","Elapsed":0.54}
+{"Time":"2026-11-19T02:15:48.11248+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemovedLosesAccessImmediately"}
+{"Time":"2026-11-19T02:15:48.112486+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemovedLosesAccessImmediately","Output":"=== RUN   TestRemovedLosesAccessImmediately\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:48.584118+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemovedLosesAccessImmediately","Output":"--- PASS: TestRemovedLosesAccessImmediately (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:48.584174+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemovedLosesAccessImmediately","Elapsed":0.47}
+{"Time":"2026-11-19T02:15:48.584184+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRejoinReusesRowPending"}
+{"Time":"2026-11-19T02:15:48.58419+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRejoinReusesRowPending","Output":"=== RUN   TestRejoinReusesRowPending\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:49.074923+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRejoinReusesRowPending","Output":"--- PASS: TestRejoinReusesRowPending (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:49.074971+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRejoinReusesRowPending","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:49.075001+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemovedKeepsLearningData"}
+{"Time":"2026-11-19T02:15:49.075014+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemovedKeepsLearningData","Output":"=== RUN   TestRemovedKeepsLearningData\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:49.527118+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemovedKeepsLearningData","Output":"--- PASS: TestRemovedKeepsLearningData (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:49.527184+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRemovedKeepsLearningData","Elapsed":0.45}
+{"Time":"2026-11-19T02:15:49.527195+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersAndJoinRBACMatrix"}
+{"Time":"2026-11-19T02:15:49.5272+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersAndJoinRBACMatrix","Output":"=== RUN   TestMembersAndJoinRBACMatrix\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:50.164132+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersAndJoinRBACMatrix","Output":"--- PASS: TestMembersAndJoinRBACMatrix (0.64s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:50.164186+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersAndJoinRBACMatrix","Elapsed":0.64}
+{"Time":"2026-11-19T02:15:50.164195+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListCursor"}
+{"Time":"2026-11-19T02:15:50.164201+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListCursor","Output":"=== RUN   TestMembersListCursor\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:50.66675+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListCursor","Output":"--- PASS: TestMembersListCursor (0.50s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:50.666812+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListCursor","Elapsed":0.5}
+{"Time":"2026-11-19T02:15:50.666823+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListFilters"}
+{"Time":"2026-11-19T02:15:50.666829+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListFilters","Output":"=== RUN   TestMembersListFilters\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:51.173601+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListFilters","Output":"--- PASS: TestMembersListFilters (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:51.173652+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListFilters","Elapsed":0.51}
+{"Time":"2026-11-19T02:15:51.173662+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersSearchByStudentCodeStaffOnly"}
+{"Time":"2026-11-19T02:15:51.173668+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersSearchByStudentCodeStaffOnly","Output":"=== RUN   TestMembersSearchByStudentCodeStaffOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:51.739995+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersSearchByStudentCodeStaffOnly","Output":"--- PASS: TestMembersSearchByStudentCodeStaffOnly (0.57s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:51.740087+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersSearchByStudentCodeStaffOnly","Elapsed":0.57}
+{"Time":"2026-11-19T02:15:51.740125+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListMinimalFields"}
+{"Time":"2026-11-19T02:15:51.740167+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListMinimalFields","Output":"=== RUN   TestMembersListMinimalFields\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:52.202034+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListMinimalFields","Output":"--- PASS: TestMembersListMinimalFields (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:52.202088+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListMinimalFields","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:52.202098+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListNoNPlusOne"}
+{"Time":"2026-11-19T02:15:52.202104+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListNoNPlusOne","Output":"=== RUN   TestMembersListNoNPlusOne\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:52.722614+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListNoNPlusOne","Output":"--- PASS: TestMembersListNoNPlusOne (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:52.722716+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMembersListNoNPlusOne","Elapsed":0.52}
+{"Time":"2026-11-19T02:15:52.722742+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReportRowNumbers"}
+{"Time":"2026-11-19T02:15:52.72275+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReportRowNumbers","Output":"=== RUN   TestRosterReportRowNumbers\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:53.255221+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReportRowNumbers","Output":"--- PASS: TestRosterReportRowNumbers (0.53s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:53.255282+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReportRowNumbers","Elapsed":0.53}
+{"Time":"2026-11-19T02:15:53.255292+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterDryRunWritesNothing"}
+{"Time":"2026-11-19T02:15:53.255298+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterDryRunWritesNothing","Output":"=== RUN   TestRosterDryRunWritesNothing\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:53.897206+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterDryRunWritesNothing","Output":"--- PASS: TestRosterDryRunWritesNothing (0.64s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:53.897306+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterDryRunWritesNothing","Elapsed":0.64}
+{"Time":"2026-11-19T02:15:53.897335+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterPartialCommit"}
+{"Time":"2026-11-19T02:15:53.897342+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterPartialCommit","Output":"=== RUN   TestRosterPartialCommit\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:54.429505+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterPartialCommit","Output":"--- PASS: TestRosterPartialCommit (0.53s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:54.429568+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterPartialCommit","Elapsed":0.53}
+{"Time":"2026-11-19T02:15:54.42958+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCreatesInvitedUser"}
+{"Time":"2026-11-19T02:15:54.429587+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCreatesInvitedUser","Output":"=== RUN   TestRosterCreatesInvitedUser\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:54.888488+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCreatesInvitedUser","Output":"--- PASS: TestRosterCreatesInvitedUser (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:54.888558+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCreatesInvitedUser","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:54.88857+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLinksVerifiedByEmail"}
+{"Time":"2026-11-19T02:15:54.888583+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLinksVerifiedByEmail","Output":"=== RUN   TestRosterLinksVerifiedByEmail\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:55.368503+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLinksVerifiedByEmail","Output":"--- PASS: TestRosterLinksVerifiedByEmail (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:55.368557+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLinksVerifiedByEmail","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:55.368567+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterUnverifiedPending"}
+{"Time":"2026-11-19T02:15:55.368574+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterUnverifiedPending","Output":"=== RUN   TestRosterUnverifiedPending\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:55.831073+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterUnverifiedPending","Output":"--- PASS: TestRosterUnverifiedPending (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:55.831135+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterUnverifiedPending","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:55.831145+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInvitedAccountLinkedStaysInvited"}
+{"Time":"2026-11-19T02:15:55.831151+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInvitedAccountLinkedStaysInvited","Output":"=== RUN   TestRosterInvitedAccountLinkedStaysInvited\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:56.335881+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInvitedAccountLinkedStaysInvited","Output":"--- PASS: TestRosterInvitedAccountLinkedStaysInvited (0.50s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:56.335955+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInvitedAccountLinkedStaysInvited","Elapsed":0.5}
+{"Time":"2026-11-19T02:15:56.335966+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterStaffEmailError"}
+{"Time":"2026-11-19T02:15:56.335972+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterStaffEmailError","Output":"=== RUN   TestRosterStaffEmailError\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:56.797418+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterStaffEmailError","Output":"--- PASS: TestRosterStaffEmailError (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:56.797468+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterStaffEmailError","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:56.797477+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterSkipsRemoved"}
+{"Time":"2026-11-19T02:15:56.797483+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterSkipsRemoved","Output":"=== RUN   TestRosterSkipsRemoved\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:57.355972+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterSkipsRemoved","Output":"--- PASS: TestRosterSkipsRemoved (0.56s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:57.35604+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterSkipsRemoved","Elapsed":0.56}
+{"Time":"2026-11-19T02:15:57.356057+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowErrorCodes"}
+{"Time":"2026-11-19T02:15:57.356065+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowErrorCodes","Output":"=== RUN   TestRosterRowErrorCodes\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:57.849446+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowErrorCodes","Output":"--- PASS: TestRosterRowErrorCodes (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:57.849498+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowErrorCodes","Elapsed":0.49}
+{"Time":"2026-11-19T02:15:57.849507+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReportTotals"}
+{"Time":"2026-11-19T02:15:57.849513+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReportTotals","Output":"=== RUN   TestRosterReportTotals\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:58.367794+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReportTotals","Output":"--- PASS: TestRosterReportTotals (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:58.367849+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReportTotals","Elapsed":0.52}
+{"Time":"2026-11-19T02:15:58.36786+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReimportNoDuplicate"}
+{"Time":"2026-11-19T02:15:58.36788+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReimportNoDuplicate","Output":"=== RUN   TestRosterReimportNoDuplicate\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:58.943219+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReimportNoDuplicate","Output":"--- PASS: TestRosterReimportNoDuplicate (0.58s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:58.943275+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterReimportNoDuplicate","Elapsed":0.58}
+{"Time":"2026-11-19T02:15:58.943286+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterSameStudentCodeConflict"}
+{"Time":"2026-11-19T02:15:58.943292+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterSameStudentCodeConflict","Output":"=== RUN   TestRosterSameStudentCodeConflict\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:59.402896+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterSameStudentCodeConflict","Output":"--- PASS: TestRosterSameStudentCodeConflict (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:59.402931+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterSameStudentCodeConflict","Elapsed":0.46}
+{"Time":"2026-11-19T02:15:59.40294+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterStudentCodeConflictWithMember"}
+{"Time":"2026-11-19T02:15:59.402946+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterStudentCodeConflictWithMember","Output":"=== RUN   TestRosterStudentCodeConflictWithMember\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:59.883666+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterStudentCodeConflictWithMember","Output":"--- PASS: TestRosterStudentCodeConflictWithMember (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:15:59.88372+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterStudentCodeConflictWithMember","Elapsed":0.48}
+{"Time":"2026-11-19T02:15:59.883731+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInviteMails"}
+{"Time":"2026-11-19T02:15:59.883738+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInviteMails","Output":"=== RUN   TestRosterInviteMails\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:00.474623+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInviteMails","Output":"--- PASS: TestRosterInviteMails (0.59s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:00.474682+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInviteMails","Elapsed":0.59}
+{"Time":"2026-11-19T02:16:00.474694+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterNoInvites"}
+{"Time":"2026-11-19T02:16:00.4747+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterNoInvites","Output":"=== RUN   TestRosterNoInvites\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:00.941057+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterNoInvites","Output":"--- PASS: TestRosterNoInvites (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:00.941114+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterNoInvites","Elapsed":0.47}
+{"Time":"2026-11-19T02:16:00.941124+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInviteMailNoStudentCode"}
+{"Time":"2026-11-19T02:16:00.941135+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInviteMailNoStudentCode","Output":"=== RUN   TestRosterInviteMailNoStudentCode\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:01.398795+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInviteMailNoStudentCode","Output":"--- PASS: TestRosterInviteMailNoStudentCode (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:01.398852+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterInviteMailNoStudentCode","Elapsed":0.46}
+{"Time":"2026-11-19T02:16:01.398862+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterImportRBACMatrix"}
+{"Time":"2026-11-19T02:16:01.398867+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterImportRBACMatrix","Output":"=== RUN   TestRosterImportRBACMatrix\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:01.90659+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterImportRBACMatrix","Output":"--- PASS: TestRosterImportRBACMatrix (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:01.906645+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterImportRBACMatrix","Elapsed":0.51}
+{"Time":"2026-11-19T02:16:01.906656+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFileSizeLimit"}
+{"Time":"2026-11-19T02:16:01.906662+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFileSizeLimit","Output":"=== RUN   TestRosterFileSizeLimit\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:02.460019+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFileSizeLimit","Output":"--- PASS: TestRosterFileSizeLimit (0.55s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:02.46009+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFileSizeLimit","Elapsed":0.55}
+{"Time":"2026-11-19T02:16:02.460102+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterIdempotent"}
+{"Time":"2026-11-19T02:16:02.460109+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterIdempotent","Output":"=== RUN   TestRosterIdempotent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:02.924668+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterIdempotent","Output":"--- PASS: TestRosterIdempotent (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:02.924732+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterIdempotent","Elapsed":0.46}
+{"Time":"2026-11-19T02:16:02.924742+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingFileAndColumn"}
+{"Time":"2026-11-19T02:16:02.924747+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingFileAndColumn","Output":"=== RUN   TestRosterMissingFileAndColumn\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:03.377389+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingFileAndColumn","Output":"--- PASS: TestRosterMissingFileAndColumn (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:03.377425+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingFileAndColumn","Elapsed":0.45}
+{"Time":"2026-11-19T02:16:03.377437+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXImport"}
+{"Time":"2026-11-19T02:16:03.377442+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXImport","Output":"=== RUN   TestRosterXLSXImport\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:03.857673+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXImport","Output":"--- PASS: TestRosterXLSXImport (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:03.85772+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXImport","Elapsed":0.48}
+{"Time":"2026-11-19T02:16:03.85773+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongNameTruncated"}
+{"Time":"2026-11-19T02:16:03.857736+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongNameTruncated","Output":"=== RUN   TestRosterLongNameTruncated\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.286261+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongNameTruncated","Output":"--- PASS: TestRosterLongNameTruncated (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.286335+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongNameTruncated","Elapsed":0.43}
+{"Time":"2026-11-19T02:16:04.286346+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXlsxExtensionNeedsZip"}
+{"Time":"2026-11-19T02:16:04.286352+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXlsxExtensionNeedsZip","Output":"=== RUN   TestRosterXlsxExtensionNeedsZip\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781681+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXlsxExtensionNeedsZip","Output":"--- PASS: TestRosterXlsxExtensionNeedsZip (0.50s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781732+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXlsxExtensionNeedsZip","Elapsed":0.5}
+{"Time":"2026-11-19T02:16:04.781754+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCSVParse"}
+{"Time":"2026-11-19T02:16:04.781761+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCSVParse","Output":"=== RUN   TestRosterCSVParse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781768+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCSVParse","Output":"=== PAUSE TestRosterCSVParse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781792+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCSVParse"}
+{"Time":"2026-11-19T02:16:04.781797+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXParse"}
+{"Time":"2026-11-19T02:16:04.781801+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXParse","Output":"=== RUN   TestRosterXLSXParse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781819+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXParse","Output":"=== PAUSE TestRosterXLSXParse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781823+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXParse"}
+{"Time":"2026-11-19T02:16:04.781827+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterBOMAndSemicolon"}
+{"Time":"2026-11-19T02:16:04.781833+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterBOMAndSemicolon","Output":"=== RUN   TestRosterBOMAndSemicolon\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781838+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterBOMAndSemicolon","Output":"=== PAUSE TestRosterBOMAndSemicolon\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781855+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterBOMAndSemicolon"}
+{"Time":"2026-11-19T02:16:04.781883+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowLimit500"}
+{"Time":"2026-11-19T02:16:04.781887+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowLimit500","Output":"=== RUN   TestRosterRowLimit500\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781891+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowLimit500","Output":"=== PAUSE TestRosterRowLimit500\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781894+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowLimit500"}
+{"Time":"2026-11-19T02:16:04.781898+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMagicBytes"}
+{"Time":"2026-11-19T02:16:04.781937+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMagicBytes","Output":"=== RUN   TestRosterMagicBytes\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.781952+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMagicBytes","Output":"=== PAUSE TestRosterMagicBytes\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782014+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMagicBytes"}
+{"Time":"2026-11-19T02:16:04.782018+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterGarbageFile"}
+{"Time":"2026-11-19T02:16:04.782048+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterGarbageFile","Output":"=== RUN   TestRosterGarbageFile\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782053+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterGarbageFile","Output":"=== PAUSE TestRosterGarbageFile\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782056+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterGarbageFile"}
+{"Time":"2026-11-19T02:16:04.78206+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCorruptXLSX"}
+{"Time":"2026-11-19T02:16:04.782137+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCorruptXLSX","Output":"=== RUN   TestRosterCorruptXLSX\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782153+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCorruptXLSX","Output":"=== PAUSE TestRosterCorruptXLSX\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782157+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCorruptXLSX"}
+{"Time":"2026-11-19T02:16:04.782161+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterZipBomb"}
+{"Time":"2026-11-19T02:16:04.782166+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterZipBomb","Output":"=== RUN   TestRosterZipBomb\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.78219+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterZipBomb","Output":"=== PAUSE TestRosterZipBomb\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782195+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterZipBomb"}
+{"Time":"2026-11-19T02:16:04.782198+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongLine"}
+{"Time":"2026-11-19T02:16:04.782201+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongLine","Output":"=== RUN   TestRosterLongLine\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782207+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongLine","Output":"=== PAUSE TestRosterLongLine\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782239+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongLine"}
+{"Time":"2026-11-19T02:16:04.782244+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingColumn"}
+{"Time":"2026-11-19T02:16:04.782247+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingColumn","Output":"=== RUN   TestRosterMissingColumn\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782251+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingColumn","Output":"=== PAUSE TestRosterMissingColumn\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782278+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingColumn"}
+{"Time":"2026-11-19T02:16:04.782311+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFormulaStoredAsText"}
+{"Time":"2026-11-19T02:16:04.782316+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFormulaStoredAsText","Output":"=== RUN   TestRosterFormulaStoredAsText\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.78232+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFormulaStoredAsText","Output":"=== PAUSE TestRosterFormulaStoredAsText\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:04.782481+07:00","Action":"pause","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFormulaStoredAsText"}
+{"Time":"2026-11-19T02:16:04.782495+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateDryRunNoWrites"}
+{"Time":"2026-11-19T02:16:04.782649+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateDryRunNoWrites","Output":"=== RUN   TestGenerateDryRunNoWrites\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:05.207418+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateDryRunNoWrites","Output":"--- PASS: TestGenerateDryRunNoWrites (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:05.207457+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateDryRunNoWrites","Elapsed":0.43}
+{"Time":"2026-11-19T02:16:05.207466+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateDryRunNoIdempotencyKey"}
+{"Time":"2026-11-19T02:16:05.207474+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateDryRunNoIdempotencyKey","Output":"=== RUN   TestGenerateDryRunNoIdempotencyKey\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:05.709341+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateDryRunNoIdempotencyKey","Output":"--- PASS: TestGenerateDryRunNoIdempotencyKey (0.50s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:05.70939+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateDryRunNoIdempotencyKey","Elapsed":0.5}
+{"Time":"2026-11-19T02:16:05.709402+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGeneratePreviewEqualsCreate"}
+{"Time":"2026-11-19T02:16:05.709427+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGeneratePreviewEqualsCreate","Output":"=== RUN   TestGeneratePreviewEqualsCreate\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:06.226346+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGeneratePreviewEqualsCreate","Output":"--- PASS: TestGeneratePreviewEqualsCreate (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:06.2264+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGeneratePreviewEqualsCreate","Elapsed":0.52}
+{"Time":"2026-11-19T02:16:06.226409+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateValidation"}
+{"Time":"2026-11-19T02:16:06.226417+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateValidation","Output":"=== RUN   TestGenerateValidation\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:06.841824+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateValidation","Output":"--- PASS: TestGenerateValidation (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:06.842421+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateValidation","Elapsed":0.62}
+{"Time":"2026-11-19T02:16:06.842443+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateTooMany"}
+{"Time":"2026-11-19T02:16:06.84245+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateTooMany","Output":"=== RUN   TestGenerateTooMany\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:07.866638+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateTooMany","Output":"--- PASS: TestGenerateTooMany (1.02s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:07.866696+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateTooMany","Elapsed":1.02}
+{"Time":"2026-11-19T02:16:07.866717+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateOneTxAndAudit"}
+{"Time":"2026-11-19T02:16:07.866723+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateOneTxAndAudit","Output":"=== RUN   TestGenerateOneTxAndAudit\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:08.48692+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateOneTxAndAudit","Output":"--- PASS: TestGenerateOneTxAndAudit (0.62s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:08.486993+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateOneTxAndAudit","Elapsed":0.62}
+{"Time":"2026-11-19T02:16:08.487004+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateIdempotentKey"}
+{"Time":"2026-11-19T02:16:08.48701+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateIdempotentKey","Output":"=== RUN   TestGenerateIdempotentKey\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:09.130861+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateIdempotentKey","Output":"--- PASS: TestGenerateIdempotentKey (0.64s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:09.130914+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateIdempotentKey","Elapsed":0.64}
+{"Time":"2026-11-19T02:16:09.130942+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateRerunSkipsDuplicates"}
+{"Time":"2026-11-19T02:16:09.130969+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateRerunSkipsDuplicates","Output":"=== RUN   TestGenerateRerunSkipsDuplicates\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:09.666233+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateRerunSkipsDuplicates","Output":"--- PASS: TestGenerateRerunSkipsDuplicates (0.54s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:09.666279+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateRerunSkipsDuplicates","Elapsed":0.54}
+{"Time":"2026-11-19T02:16:09.666288+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateRollsBackOnError"}
+{"Time":"2026-11-19T02:16:09.666294+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateRollsBackOnError","Output":"=== RUN   TestGenerateRollsBackOnError\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:10.140175+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateRollsBackOnError","Output":"--- PASS: TestGenerateRollsBackOnError (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:10.140227+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateRollsBackOnError","Elapsed":0.47}
+{"Time":"2026-11-19T02:16:10.140237+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateConcurrentTwoKeys"}
+{"Time":"2026-11-19T02:16:10.140244+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateConcurrentTwoKeys","Output":"=== RUN   TestGenerateConcurrentTwoKeys\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:10.709908+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateConcurrentTwoKeys","Output":"--- PASS: TestGenerateConcurrentTwoKeys (0.57s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:10.709958+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestGenerateConcurrentTwoKeys","Elapsed":0.57}
+{"Time":"2026-11-19T02:16:10.709969+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdate"}
+{"Time":"2026-11-19T02:16:10.709987+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdate","Output":"=== RUN   TestSessionUpdate\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:11.271489+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdate","Output":"--- PASS: TestSessionUpdate (0.56s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:11.27154+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdate","Elapsed":0.56}
+{"Time":"2026-11-19T02:16:11.271554+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateVersionConflict"}
+{"Time":"2026-11-19T02:16:11.271561+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateVersionConflict","Output":"=== RUN   TestSessionUpdateVersionConflict\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:11.753873+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateVersionConflict","Output":"--- PASS: TestSessionUpdateVersionConflict (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:11.753935+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateVersionConflict","Elapsed":0.48}
+{"Time":"2026-11-19T02:16:11.753947+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateDuplicate"}
+{"Time":"2026-11-19T02:16:11.753953+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateDuplicate","Output":"=== RUN   TestSessionUpdateDuplicate\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:12.24896+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateDuplicate","Output":"--- PASS: TestSessionUpdateDuplicate (0.50s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:12.249012+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateDuplicate","Elapsed":0.5}
+{"Time":"2026-11-19T02:16:12.249021+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateValidation"}
+{"Time":"2026-11-19T02:16:12.249027+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateValidation","Output":"=== RUN   TestSessionUpdateValidation\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:12.719998+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateValidation","Output":"--- PASS: TestSessionUpdateValidation (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:12.720052+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionUpdateValidation","Elapsed":0.47}
+{"Time":"2026-11-19T02:16:12.720093+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionDeleteNoAttendance"}
+{"Time":"2026-11-19T02:16:12.720099+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionDeleteNoAttendance","Output":"=== RUN   TestSessionDeleteNoAttendance\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:13.206985+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionDeleteNoAttendance","Output":"--- PASS: TestSessionDeleteNoAttendance (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:13.207037+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionDeleteNoAttendance","Elapsed":0.49}
+{"Time":"2026-11-19T02:16:13.207049+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionDeleteBlockedWithAttendance"}
+{"Time":"2026-11-19T02:16:13.20723+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionDeleteBlockedWithAttendance","Output":"=== RUN   TestSessionDeleteBlockedWithAttendance\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:13.723859+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionDeleteBlockedWithAttendance","Output":"--- PASS: TestSessionDeleteBlockedWithAttendance (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:13.723918+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionDeleteBlockedWithAttendance","Elapsed":0.52}
+{"Time":"2026-11-19T02:16:13.723934+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMakeupSession"}
+{"Time":"2026-11-19T02:16:13.723944+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMakeupSession","Output":"=== RUN   TestMakeupSession\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:14.198933+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMakeupSession","Output":"--- PASS: TestMakeupSession (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:14.198979+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestMakeupSession","Elapsed":0.48}
+{"Time":"2026-11-19T02:16:14.199004+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionNoGapNotFilled"}
+{"Time":"2026-11-19T02:16:14.199011+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionNoGapNotFilled","Output":"=== RUN   TestSessionNoGapNotFilled\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:14.679453+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionNoGapNotFilled","Output":"--- PASS: TestSessionNoGapNotFilled (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:14.679525+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionNoGapNotFilled","Elapsed":0.48}
+{"Time":"2026-11-19T02:16:14.679536+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionNoReusedAfterDeleteLast"}
+{"Time":"2026-11-19T02:16:14.679542+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionNoReusedAfterDeleteLast","Output":"=== RUN   TestSessionNoReusedAfterDeleteLast\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:15.16788+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionNoReusedAfterDeleteLast","Output":"--- PASS: TestSessionNoReusedAfterDeleteLast (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:15.167932+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionNoReusedAfterDeleteLast","Elapsed":0.49}
+{"Time":"2026-11-19T02:16:15.167943+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsRBACMatrix"}
+{"Time":"2026-11-19T02:16:15.167949+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsRBACMatrix","Output":"=== RUN   TestSessionsRBACMatrix\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:15.720961+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsRBACMatrix","Output":"--- PASS: TestSessionsRBACMatrix (0.55s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:15.721021+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsRBACMatrix","Elapsed":0.55}
+{"Time":"2026-11-19T02:16:15.721034+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsArchived"}
+{"Time":"2026-11-19T02:16:15.72104+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsArchived","Output":"=== RUN   TestSessionsArchived\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:16.22735+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsArchived","Output":"--- PASS: TestSessionsArchived (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:16.227401+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsArchived","Elapsed":0.51}
+{"Time":"2026-11-19T02:16:16.227412+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionCrossCourse404"}
+{"Time":"2026-11-19T02:16:16.227419+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionCrossCourse404","Output":"=== RUN   TestSessionCrossCourse404\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:16.747415+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionCrossCourse404","Output":"--- PASS: TestSessionCrossCourse404 (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:16.747464+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionCrossCourse404","Elapsed":0.52}
+{"Time":"2026-11-19T02:16:16.747472+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerate"}
+{"Time":"2026-11-19T02:16:16.747477+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerate","Output":"=== RUN   TestSessionsGenerate\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:17.249747+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerate","Output":"--- PASS: TestSessionsGenerate (0.50s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:17.2498+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerate","Elapsed":0.5}
+{"Time":"2026-11-19T02:16:17.249814+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateNoDuplicate"}
+{"Time":"2026-11-19T02:16:17.249819+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateNoDuplicate","Output":"=== RUN   TestSessionsGenerateNoDuplicate\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:17.67996+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateNoDuplicate","Output":"--- PASS: TestSessionsGenerateNoDuplicate (0.43s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:17.680002+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateNoDuplicate","Elapsed":0.43}
+{"Time":"2026-11-19T02:16:17.680011+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateLimit60"}
+{"Time":"2026-11-19T02:16:17.680016+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateLimit60","Output":"=== RUN   TestSessionsGenerateLimit60\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:18.243349+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateLimit60","Output":"--- PASS: TestSessionsGenerateLimit60 (0.56s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:18.24341+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateLimit60","Elapsed":0.56}
+{"Time":"2026-11-19T02:16:18.243419+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateExcludeDates"}
+{"Time":"2026-11-19T02:16:18.243425+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateExcludeDates","Output":"=== RUN   TestSessionsGenerateExcludeDates\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:18.696949+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateExcludeDates","Output":"--- PASS: TestSessionsGenerateExcludeDates (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:18.696993+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateExcludeDates","Elapsed":0.45}
+{"Time":"2026-11-19T02:16:18.697003+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateValidation"}
+{"Time":"2026-11-19T02:16:18.697009+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateValidation","Output":"=== RUN   TestSessionsGenerateValidation\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:19.134125+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateValidation","Output":"--- PASS: TestSessionsGenerateValidation (0.44s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:19.13418+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateValidation","Elapsed":0.44}
+{"Time":"2026-11-19T02:16:19.13419+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateRBAC"}
+{"Time":"2026-11-19T02:16:19.134196+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateRBAC","Output":"=== RUN   TestSessionsGenerateRBAC\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:19.600796+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateRBAC","Output":"--- PASS: TestSessionsGenerateRBAC (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:19.600855+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSessionsGenerateRBAC","Elapsed":0.47}
+{"Time":"2026-11-19T02:16:19.600864+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareDocuments"}
+{"Time":"2026-11-19T02:16:19.600874+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareDocuments","Output":"=== RUN   TestShareDocuments\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:20.123692+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareDocuments","Output":"--- PASS: TestShareDocuments (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:20.123738+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareDocuments","Elapsed":0.52}
+{"Time":"2026-11-19T02:16:20.123748+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareExcludesCoursePolicy"}
+{"Time":"2026-11-19T02:16:20.123754+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareExcludesCoursePolicy","Output":"=== RUN   TestShareExcludesCoursePolicy\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:20.623274+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareExcludesCoursePolicy","Output":"--- PASS: TestShareExcludesCoursePolicy (0.50s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:20.623346+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareExcludesCoursePolicy","Elapsed":0.5}
+{"Time":"2026-11-19T02:16:20.623356+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareNoReembed"}
+{"Time":"2026-11-19T02:16:20.623372+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareNoReembed","Output":"=== RUN   TestShareNoReembed\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:21.115426+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareNoReembed","Output":"--- PASS: TestShareNoReembed (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:21.115487+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareNoReembed","Elapsed":0.49}
+{"Time":"2026-11-19T02:16:21.115497+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareIdempotent"}
+{"Time":"2026-11-19T02:16:21.115503+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareIdempotent","Output":"=== RUN   TestShareIdempotent\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:21.582263+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareIdempotent","Output":"--- PASS: TestShareIdempotent (0.47s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:21.582324+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareIdempotent","Elapsed":0.47}
+{"Time":"2026-11-19T02:16:21.582336+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSubjectMismatch"}
+{"Time":"2026-11-19T02:16:21.582344+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSubjectMismatch","Output":"=== RUN   TestShareSubjectMismatch\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:22.088888+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSubjectMismatch","Output":"--- PASS: TestShareSubjectMismatch (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:22.088938+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSubjectMismatch","Elapsed":0.51}
+{"Time":"2026-11-19T02:16:22.088948+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareRequiresSourceTeacher"}
+{"Time":"2026-11-19T02:16:22.088954+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareRequiresSourceTeacher","Output":"=== RUN   TestShareRequiresSourceTeacher\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:22.600214+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareRequiresSourceTeacher","Output":"--- PASS: TestShareRequiresSourceTeacher (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:22.600284+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareRequiresSourceTeacher","Elapsed":0.51}
+{"Time":"2026-11-19T02:16:22.600295+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareNotAvailableKinds"}
+{"Time":"2026-11-19T02:16:22.6003+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareNotAvailableKinds","Output":"=== RUN   TestShareNotAvailableKinds\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:23.115474+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareNotAvailableKinds","Output":"--- PASS: TestShareNotAvailableKinds (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:23.115553+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareNotAvailableKinds","Elapsed":0.52}
+{"Time":"2026-11-19T02:16:23.115586+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareRBACAndArchive"}
+{"Time":"2026-11-19T02:16:23.115611+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareRBACAndArchive","Output":"=== RUN   TestShareRBACAndArchive\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:23.602733+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareRBACAndArchive","Output":"--- PASS: TestShareRBACAndArchive (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:23.60279+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareRBACAndArchive","Elapsed":0.49}
+{"Time":"2026-11-19T02:16:23.6028+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSourcesEligibleOnly"}
+{"Time":"2026-11-19T02:16:23.602805+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSourcesEligibleOnly","Output":"=== RUN   TestShareSourcesEligibleOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:24.086787+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSourcesEligibleOnly","Output":"--- PASS: TestShareSourcesEligibleOnly (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:24.086822+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSourcesEligibleOnly","Elapsed":0.48}
+{"Time":"2026-11-19T02:16:24.08683+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSourcesTeacherOnly"}
+{"Time":"2026-11-19T02:16:24.086836+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSourcesTeacherOnly","Output":"=== RUN   TestShareSourcesTeacherOnly\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:24.597474+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSourcesTeacherOnly","Output":"--- PASS: TestShareSourcesTeacherOnly (0.51s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:24.597521+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestShareSourcesTeacherOnly","Elapsed":0.51}
+{"Time":"2026-11-19T02:16:24.59753+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestKnowledgeNotShared"}
+{"Time":"2026-11-19T02:16:24.597535+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestKnowledgeNotShared","Output":"=== RUN   TestKnowledgeNotShared\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:25.082912+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestKnowledgeNotShared","Output":"--- PASS: TestKnowledgeNotShared (0.49s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:25.082968+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestKnowledgeNotShared","Elapsed":0.49}
+{"Time":"2026-11-19T02:16:25.08298+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdRange"}
+{"Time":"2026-11-19T02:16:25.082986+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdRange","Output":"=== RUN   TestSettingsThresholdRange\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:25.562236+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdRange","Output":"--- PASS: TestSettingsThresholdRange (0.48s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:25.562308+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdRange","Elapsed":0.48}
+{"Time":"2026-11-19T02:16:25.562318+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdRBAC"}
+{"Time":"2026-11-19T02:16:25.562324+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdRBAC","Output":"=== RUN   TestSettingsThresholdRBAC\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.010619+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdRBAC","Output":"--- PASS: TestSettingsThresholdRBAC (0.45s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.010684+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdRBAC","Elapsed":0.45}
+{"Time":"2026-11-19T02:16:26.010702+07:00","Action":"run","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdVersion"}
+{"Time":"2026-11-19T02:16:26.010708+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdVersion","Output":"=== RUN   TestSettingsThresholdVersion\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475208+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdVersion","Output":"--- PASS: TestSettingsThresholdVersion (0.46s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475265+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestSettingsThresholdVersion","Elapsed":0.46}
+{"Time":"2026-11-19T02:16:26.475276+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeAlphabet"}
+{"Time":"2026-11-19T02:16:26.475282+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeAlphabet","Output":"=== CONT  TestJoinCodeAlphabet\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475303+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFormulaStoredAsText"}
+{"Time":"2026-11-19T02:16:26.47531+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFormulaStoredAsText","Output":"=== CONT  TestRosterFormulaStoredAsText\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475315+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMagicBytes"}
+{"Time":"2026-11-19T02:16:26.475319+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMagicBytes","Output":"=== CONT  TestRosterMagicBytes\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475324+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFormulaStoredAsText","Output":"--- PASS: TestRosterFormulaStoredAsText (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.47533+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterFormulaStoredAsText","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.475335+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterZipBomb"}
+{"Time":"2026-11-19T02:16:26.475339+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterZipBomb","Output":"=== CONT  TestRosterZipBomb\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475344+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXParse"}
+{"Time":"2026-11-19T02:16:26.475347+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXParse","Output":"=== CONT  TestRosterXLSXParse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475351+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCSVParse"}
+{"Time":"2026-11-19T02:16:26.475354+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCSVParse","Output":"=== CONT  TestRosterCSVParse\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475359+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCorruptXLSX"}
+{"Time":"2026-11-19T02:16:26.475363+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCorruptXLSX","Output":"=== CONT  TestRosterCorruptXLSX\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475367+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowLimit500"}
+{"Time":"2026-11-19T02:16:26.47537+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowLimit500","Output":"=== CONT  TestRosterRowLimit500\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475374+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCSVParse","Output":"--- PASS: TestRosterCSVParse (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475378+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCSVParse","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.475381+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeDistribution"}
+{"Time":"2026-11-19T02:16:26.475385+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeDistribution","Output":"=== CONT  TestJoinCodeDistribution\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.47539+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingColumn"}
+{"Time":"2026-11-19T02:16:26.475393+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingColumn","Output":"=== CONT  TestRosterMissingColumn\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475514+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterBOMAndSemicolon"}
+{"Time":"2026-11-19T02:16:26.475539+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterBOMAndSemicolon","Output":"=== CONT  TestRosterBOMAndSemicolon\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475548+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingColumn","Output":"--- PASS: TestRosterMissingColumn (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475554+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMissingColumn","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.475559+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterBOMAndSemicolon","Output":"--- PASS: TestRosterBOMAndSemicolon (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475564+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterBOMAndSemicolon","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.475569+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongLine"}
+{"Time":"2026-11-19T02:16:26.475573+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongLine","Output":"=== CONT  TestRosterLongLine\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475579+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongLine","Output":"--- PASS: TestRosterLongLine (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475585+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterLongLine","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.475588+07:00","Action":"cont","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterGarbageFile"}
+{"Time":"2026-11-19T02:16:26.475592+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterGarbageFile","Output":"=== CONT  TestRosterGarbageFile\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.475596+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterGarbageFile","Output":"--- PASS: TestRosterGarbageFile (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.476155+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterGarbageFile","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.476207+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowLimit500","Output":"--- PASS: TestRosterRowLimit500 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.479109+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterRowLimit500","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.479161+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMagicBytes","Output":"--- PASS: TestRosterMagicBytes (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.479173+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterMagicBytes","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.479181+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCorruptXLSX","Output":"--- PASS: TestRosterCorruptXLSX (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.479732+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterCorruptXLSX","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.479748+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXParse","Output":"--- PASS: TestRosterXLSXParse (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.488785+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterXLSXParse","Elapsed":0}
+{"Time":"2026-11-19T02:16:26.488826+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterZipBomb","Output":"--- PASS: TestRosterZipBomb (0.01s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.490405+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestRosterZipBomb","Elapsed":0.01}
+{"Time":"2026-11-19T02:16:26.490423+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeAlphabet","Output":"--- PASS: TestJoinCodeAlphabet (0.02s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.570267+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeAlphabet","Elapsed":0.02}
+{"Time":"2026-11-19T02:16:26.570321+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeDistribution","Output":"--- PASS: TestJoinCodeDistribution (0.09s)\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.570331+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Test":"TestJoinCodeDistribution","Elapsed":0.09}
+{"Time":"2026-11-19T02:16:26.570337+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-19T02:16:26.572787+07:00","Action":"output","Package":"github.com/edupilot/backend-go/internal/course","Output":"ok  \tgithub.com/edupilot/backend-go/internal/course\t94.921s\n"}
+{"Time":"2026-11-19T02:16:26.57281+07:00","Action":"pass","Package":"github.com/edupilot/backend-go/internal/course","Elapsed":94.922}

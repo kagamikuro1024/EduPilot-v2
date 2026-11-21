@@ -1,0 +1,39 @@
+
+Running 4 tests using 1 worker
+
+(node:23022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:23022) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✘  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · teacher (1.2m)
+(node:24635) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24635) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:65:3 › [TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · teacher (40.5s)
+
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · admin (22.4s)
+
+  ✓  4 [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:65:3 › [TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · admin (41.4s)
+
+
+  1) [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · teacher 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      60 |     const fails = rows.filter((x) => !x.pass);
+      61 |     note(`AUDIT ${role}: ${rows.length - fails.length}/${rows.length} PASS; FAIL ${fails.length}; FORBIDDEN=${rows.reduce((s, x) => s + Number(x.forb ?? 0), 0)}; ` + fails.map((x) => `${x.route}@${x.w}${x.notFound ? "(404)" : ""}${x.err ? "(err)" : ""}:${JSON.stringify({ ox: x.ox, cut: x.cut, ell: x.ell, touch: x.touch, forb: x.forb })}`).join(" | "));
+    > 62 |     expect(fails.length).toBe(0);
+         |                          ^
+      63 |   });
+      64 |
+      65 |   test(`[TC-P212-21] ma trận vai × route (tương đương proto-curl matrix) · ${role}`, async ({ page }, info) => {
+        at /Users/kuro/Documents/TA_Agent_qc2/docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:62:26
+
+    Error Context: ../docs/regression/evidence-4/pw-out/r4ui-audit--TC-P212-21-audit-đăng-nhập-thật-·-teacher-desktop/error-context.md
+
+  1 failed
+    [desktop] › ../docs/regression/specs-qc2/qc2-r4/r4ui-audit.spec.ts:32:3 › [TC-P212-21] audit đăng nhập thật · teacher 
+  3 passed (3.0m)
+done rc=1

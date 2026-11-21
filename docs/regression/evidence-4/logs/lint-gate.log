@@ -1,0 +1,48 @@
+HEAD 0934e523
+== golangci-lint run
+0 issues.
+rc=0
+== go vet ./...
+rc=0
+== go vet -tags testroutes
+rc=0
+== go test -race ./internal/today/...
+2026/11/21 10:10:28 github.com/testcontainers/testcontainers-go - Connected to docker: 
+  Server Version: 29.5.2
+  API Version: 1.54
+  Operating System: Ubuntu 24.04.4 LTS
+  Total Memory: 9923 MB
+  Testcontainers for Go Version: v0.44.0
+  Resolved Docker Host: unix:///Users/kuro/.colima/default/docker.sock
+  Resolved Docker Socket Path: /Users/kuro/.colima/default/docker.sock
+  Test SessionID: 8c00604016de5c5ee3c2fb02d7bd62507b251d43ff00873b6c2f6aa8202f6ded
+  Test ProcessID: f8a9f03a-2054-470b-b0aa-62fc83f88753
+2026/11/21 10:10:28 ✅ Container started: 68f6ff853df5
+2026/11/21 10:10:28 ⏳ Waiting for container id 68f6ff853df5 image: pgvector/pgvector:pg18. Waiting for: port 5432/tcp to be listening
+2026/11/21 10:10:28 🔔 Container is ready: 68f6ff853df5
+2026/11/21 10:10:31 ✅ Container started: 5636bc78d64d
+2026/11/21 10:10:31 ⏳ Waiting for container id 5636bc78d64d image: redis:8. Waiting for: port 6379/tcp to be listening
+2026/11/21 10:10:31 🔔 Container is ready: 5636bc78d64d
+--- FAIL: TestTodayRedisDownFailsOpen (3.71s)
+    staff_test.go:608: 
+        	Error Trace:	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/today/staff_test.go:608
+        	Error:      	"{\"count\":1,\"actions\":[{\"id\":\"GRADE_SCHEME_UNCONFIRMED:01a1fc1b-63d7-7893-84bf-d063ae8c889b\",\"kind\":\"GRADE_SCHEME_UNCONFIRMED\",\"title\":\"Công thức điểm chưa xác nhận · 761988\",\"reason\":\"Lớp chưa có quy chế môn học.\",\"urgency\":\"normal\",\"href\":\"/gradebook/scheme?course=01a1fc1b-63d7-7893-84bf-d063ae8c889b\",\"course\":{\"id\":\"01a1fc1b-63d7-7893-84bf-d063ae8c889b\",\"class_code\":\"761988\"}}],\"attention\":[],\"attention_total\":0,\"upcoming\":[]}" does not contain "JOIN_REQUEST"
+        	Test:       	TestTodayRedisDownFailsOpen
+--- FAIL: TestTodayProviderErrorPartial (2.73s)
+    staff_test.go:688: 
+        	Error Trace:	/Users/kuro/Documents/TA_Agent_qc2/backend-go/internal/today/staff_test.go:688
+        	Error:      	"{\"count\":1,\"actions\":[{\"id\":\"GRADE_SCHEME_UNCONFIRMED:01a1fc1b-940e-742e-8f6b-c329753ead24\",\"kind\":\"GRADE_SCHEME_UNCONFIRMED\",\"title\":\"Công thức điểm chưa xác nhận · 761988\",\"reason\":\"Lớp chưa có quy chế môn học.\",\"urgency\":\"normal\",\"href\":\"/gradebook/scheme?course=01a1fc1b-940e-742e-8f6b-c329753ead24\",\"course\":{\"id\":\"01a1fc1b-940e-742e-8f6b-c329753ead24\",\"class_code\":\"761988\"}}],\"attention\":[],\"attention_total\":0,\"upcoming\":[]}" does not contain "JOIN_REQUEST"
+        	Test:       	TestTodayProviderErrorPartial
+        	Messages:   	phần còn lại vẫn trả
+FAIL
+FAIL	github.com/edupilot/backend-go/internal/today	451.042s
+FAIL
+rc=1
+== go test -tags integration ./internal/integration/...
+ok  	github.com/edupilot/backend-go/internal/integration	385.096s
+rc=0
+== node --check scripts/seed.mjs
+rc=0
+== shellcheck
+rc=1
+DONE

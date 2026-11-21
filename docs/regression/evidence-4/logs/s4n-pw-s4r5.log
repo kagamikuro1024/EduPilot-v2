@@ -1,0 +1,19 @@
+
+Running 5 tests using 1 worker
+
+(node:22990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+P TC-P211-32 D: ô mã trên trang=true (placeholder AN7K2MQ); nhập → /join; nút chính 1; có «Vào lớp bằng mã»=true ‖ chưa xác minh: có «Xác minh email»=true; thời lượng «1 phút»; ô nhập mã vẫn ở dưới=true ‖ sv.gioi: nút/liên kết chính 0; lời chào=true; «Hôm nay»=true; «Tiếp tục học»=false; tràn ngang 0; đầu trang 
+  ✓  1 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:8:3 › 375 SV › [P211-32] / Sinh viên (55.6s)
+F TC-P211-33 khung xương: phần tử aria-busy=1 khi API chậm 2,5 s (1 lượt gọi); lỗi 500 → «Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng. Thử lại» + nút Thử lại=1; từ kỹ thuật (RAG|PII|trace|provider): không; 375 px tràn ngang 0; mục chạm < 40 px: 0; axe serious/critical []; thời gian tới hành độ
+  ✓  2 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:27:3 › 375 SV › [P211-33] khung xương, lỗi, 3 giây (24.2s)
+F TC-P211-41 500 → «Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng. Thử lại» + Thử lại; bấm Thử lại → 1 yêu cầu mới (đúng 1) và hiện dữ liệu; làm mới lỗi khi đã có dữ liệu: dữ liệu cũ vẫn hiện=true, dòng cảnh báo=0; ngoại tuyến → banner=false
+  ✓  3 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:40:3 › 375 SV › [P211-41] lỗi UI: thử lại, giữ dữ liệu cũ, ngoại tuyến (20.7s)
+P TC-P211-35 GV: tiêu đề «4 việc cần xử lý hôm nay»; có «Lớp cần chú ý»=true; «Sắp tới»=true; chuỗi mock=false; hàng đầu «Câu hỏi chờ giảng viên 1 câu hỏi đang chờ · 0 câu bạn đã nhận · lâu nhất 2 ngày Mở» ‖ TA: tiêu đề «3 việc cần xử lý hôm nay»; có «Lớp cần chú ý»=true; «Sắp tới»=true; chuỗi mock=false; hàng đ
+P TC-P211-38 innerText của / (GV, TA, Admin) không chứa «Phiếu hỗ trợ», «QUIZ01», «Bài tập 03»; grep 'mock' trong app/page.tsx + features/today = 0
+  ✓  4 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:53:3 › 1440 staff › [P211-35/36/38] GV TA Admin (41.7s)
+P TC-P211-36 trước khi duyệt 1 mục liên quan; duyệt xong (PENDING còn 0); hàng JOIN_REQUEST biến mất sau 14.9 s (≤ 60 s; vô hiệu theo sự kiện)
+  ✓  5 [desktop] › ../docs/regression/specs-qc2/qc2-r4/ui-s4d.spec.ts:63:3 › 1440 staff › [P211-36] việc biến mất ≤ 60 s sau duyệt (55.7s)
+
+  5 passed (3.3m)
+done rc=0
