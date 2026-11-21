@@ -4,6 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { loadAudit, runAudit } from "./support/audit";
 import { BASE_URL } from "./support/env";
 import { asJwt } from "./support/session";
+import { chatApi, frame, json as chatJson, sse as chatSse, MID } from "./support/chat-fixtures";
 
 // US-PE-03 AC13 — `/questions` thật (ngân hàng câu hỏi). Gateway giả bằng page.route; bản chạy với gateway thật là `@real` (không chạy ở CI).
 
@@ -1531,6 +1532,69 @@ test("student result: 375 px — phần trắc nghiệm dùng được, mã code
   await expect(r.locator("pre").first()).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+});
+
+// DEF-R5-21 (TC-PE09-25, US-PE-09 AC9): câu code có bảng «Kết quả test mẫu» — mở câu ở 375 / 720 px không làm trang tràn ngang; bảng cuộn trong khung data-scroll-x.
+for (const w of [375, 720]) {
+  test(`student result: bảng test mẫu ở ${w} px không làm trang tràn ngang`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: 800 });
+    await studentResultSetup(page, "PUBLISHED");
+    const body = studentResultBody({ status: null, response: null }) as { items: Array<{ samples?: unknown[] }> };
+    const samples = [1, 2, 3].map((n) => ({ name: `kiem_tra_mau_so_${n}_voi_ten_rat_dai_khong_ngat`, verdict: "WA", time_ms: 1200 + n, memory_kb: 123456 + n }));
+    body.items.forEach((it) => { if (Array.isArray(it.samples)) it.samples = samples; });
+    body.items.forEach((it) => { const f = (it as { final_submission?: { source: string } }).final_submission; if (f) f.source = `#include <cstdio>\nint main(){long long a,b;scanf("%lld %lld",&a,&b);printf("%lld\\n",a+b);return 0;} // ${"x".repeat(80)}`; });
+    await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E_R}/attempts/${A_1}/result`), (route) =>
+      route.request().method() === "OPTIONS" ? route.fallback() : route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(body) }));
+    await page.goto(`/exams/${E_R}/take?course=${C1}`);
+    const r = page.locator("[data-part=student-result]");
+    await expect(r.locator("[data-part=final-score]")).toBeVisible();
+    await r.locator("[data-part=result-item] summary").nth(1).click();
+    await r.getByText("Mã của bạn", { exact: false }).click(); // dòng mã dài trong khối mã không được kéo rộng cả cột
+    await expect(r.getByRole("table", { name: "Kết quả test mẫu" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+  });
+}
+
+// DEF-R5-22 (TC-PE09-20, US-PE-09 AC7 ý 9): trong giờ làm bài chat bị từ chối (ô khoá, tin không gửi, chữ còn); sau nộp (khoá gỡ) gửi được.
+test("chat-gate: trong giờ làm bài chat bị từ chối, sau nộp cho phép", async ({ page }) => {
+  await studentSetup(page, []);
+  let locked = true;
+  await page.route("**/api/v1/me/exam-lock", (r) => r.request().method() === "OPTIONS" ? r.fallback() : r.fulfill(chatJson(locked ? { locked: true, until: new Date(Date.now() + 600_000).toISOString() } : { locked: false })));
+  const calls = await chatApi(page, {
+    "POST /chat/sessions": chatJson({ id: "00000000-0000-7000-8000-0000000000d1", title: "Mới", last_message_at: "2026-10-11T02:00:00Z", document_id: null }, 201),
+    "POST /chat/sessions/00000000-0000-7000-8000-0000000000d1/messages": (route) => route.fulfill(locked
+      ? chatJson({ code: "EXAM_IN_PROGRESS", message: "m", trace_id: "b".repeat(32) }, 409)
+      : chatSse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("done", { message_id: MID, citations: [], low_confidence: false, degraded: false }, "1:2-0"))),
+  });
+  await page.goto("/chat");
+  const box = page.getByRole("textbox", { name: "Câu hỏi của bạn" });
+  await expect(page.getByRole("status").filter({ hasText: "Chat tạm khóa trong lúc bạn làm bài thi" })).toBeVisible();
+  await expect(box).toBeDisabled();
+  expect(calls.filter((c) => c.method === "POST")).toEqual([]);
+  locked = false; // đã nộp bài
+  await page.reload();
+  await expect(box).toBeEnabled();
+  await box.fill("Cho mình hỏi về quy chế");
+  await box.press("Enter");
+  await expect.poll(() => calls.filter((c) => c.method === "POST" && c.path.endsWith("/messages")).length).toBe(1);
+});
+
+// DEF-R5-22 (ý 11): trước công bố, trình duyệt không gọi tới điểm / đáp án và không phản hồi mạng nào (cũng như DOM) chứa canary đáp án.
+test("answer leak: trước công bố không phản hồi mạng nào của trình duyệt chứa canary đáp án", async ({ page }) => {
+  const CANARY = "QCR5CANARYa174b2ee";
+  await studentResultSetup(page, "CLOSED");
+  const leaked: string[] = [];
+  const asked: string[] = [];
+  const secret = studentResultBody({ status: null, response: null });
+  (secret.items[0] as { explanation?: string }).explanation = CANARY;
+  await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E_R}/attempts/${A_1}/result`), (route) => { asked.push(route.request().url()); return route.request().method() === "OPTIONS" ? route.fallback() : route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(secret) }); });
+  page.on("response", async (res) => { try { if ((await res.text()).includes(CANARY)) leaked.push(res.url()); } catch { /* phản hồi không đọc được (chuyển hướng) */ } });
+  await page.goto(`/exams/${E_R}/take?course=${C1}`);
+  await expect(page.getByText("Điểm đang được chấm.")).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(leaked).toEqual([]);
+  expect(asked).toEqual([]);
+  expect(await page.locator("body").innerText()).not.toContain(CANARY);
 });
 
 test("student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án", async ({ page }) => {
