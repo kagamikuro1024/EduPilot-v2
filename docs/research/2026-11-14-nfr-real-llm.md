@@ -23,7 +23,7 @@ Thiết bị: **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1
 | (b) TTFT cache p95 ≤ 1,5 s | 103,8 ms | 102,3 ms | PASS | `load-b-ttft.json`, `-x2` |
 | (b) TTFT RAG p95 ≤ 4 s | 633,9 ms | 626,4 ms | PASS | cùng tệp |
 | (c) TTFT chat lúc chấm xấu đi ≤ 20 % (50 bài, provider giả 300 ms) | nền 410 ms → chấm 381 ms (−7 %) | nền 415 ms → chấm 401 ms (−3,5 %) | PASS | `load-c-baseline*.json`, `load-c-grading*.json` |
-| (c) chấm 1.000 bài thời gian thật ≤ 3 giờ (9router `ag/gemini-3.8-flash`, 5 luồng) | lần 1: 322/1.000 xong, 678 `FAILED`, 0,55 h; lần 2: 1.000/1.000, 0 `FAILED`, 0 mồ côi, 0 chấm hai lần, 1,68 h | – | lần 1 **FAIL**, lần 2 **PASS** | `load-c-1000-9router-run1-hong.json`, `load-c-1000-9router-run2.json` (lần Gemini trực tiếp dừng ở 235/1.000: `load-c-1000-dung-theo-chu-du-an.json`) |
+| (c) chấm 1.000 bài thời gian thật ≤ 3 giờ (9router `ag/gemini-3.8-flash`, 5 luồng) | lần 1: 322/1.000 xong, 678 `FAILED`, 0,55 h; lần 2: 1.000/1.000, 0 `FAILED`, 0 mồ côi, 0 chấm hai lần, 1,68 h | – | lần 1 **FAIL**, lần 2 **PASS** | `load-c-1000-9router-run1-hong.json`, `load-c-1000-9router-run2.json` (`load-c-1000-dung-theo-chu-du-an.json`: nhà cung cấp giả trễ 20 s, dừng ở 235/1.000 vì AC9 đòi LLM thật, không tính là số đo) |
 | (d) dashboard / 360 / sổ điểm p95 ≤ 3 s | 18,3 ms | – (AC3 chỉ (a)–(c)) | PASS | `load-d.json` |
 | Baseline: p95 13 endpoint tuần tự × 200 (10 đọc ≤ 300 ms, 3 ghi ≤ 500 ms) | đọc ≤ 11,0 ms; ghi lớn nhất `w_thread` 327,5 ms | – | PASS | `load-baseline-p95.json`, `baseline.md` |
 | RAM nghỉ cả stack · khởi động lạnh (up → readyz 200) | 570 MiB · 18,1 s (18,1 / 18,1 / 18,9) | – | ghi nhận | `baseline.json` |
@@ -127,7 +127,7 @@ Các lượt bị lặp hoặc không dùng đều có lý do khác và được
 | --- | --- | --- |
 | `load-a-lan1.json`, `load-a-x2-lan1.json` | lần đầu, trên gateway dev thường (hạn mức IP 5.000/phút), chưa có bước gọi `gradebook` phải 403 | `load-a.json`, `load-a-x2.json` |
 | `load-c-1000-lan1-khong-hop-le.json` (và `load-c-baseline-1000-lan1.json`, chat nền đi kèm, cùng bản `aafd87f0`, tối 13/11) | lỗi script đo: `Idempotency-Key` trùng giữa 20 lớp nên chỉ 150 việc được xếp (`note` trong tệp) | `load-c-1000-9router-run2.json`, `load-c-baseline-1000.json` |
-| `load-c-1000-dung-theo-chu-du-an.json` | provider giả trễ 20 s (`meta.config`); dừng ở 235/1.000 vì AC9 đòi chạy LLM thật (`note` trong tệp) | lượt 9router |
+| `load-c-1000-dung-theo-chu-du-an.json` | nhà cung cấp giả trễ 20 s (`meta.config`), dừng ở 235/1.000 vì AC9 đòi LLM thật, không tính là số đo (`note` trong tệp) | lượt 9router |
 | `load-c-1000-9router-run1-hong.json` | 9router bị watchdog khởi động lại giữa lượt, 678 `FAILED`; lỗi mã, sửa ở P-11-23 | `load-c-1000-9router-run2.json` |
 | `real-llm/lan-1-khong-hop-le/` | lượt Gemini trực tiếp hỏng (`circuit_open`, `RATE_LIMIT`), DEF-R9.5-14 | `real-llm/*.json` (9router, 2026-11-15) |
 | `real-llm/mask-luot1.json` | chỉ 17 probe tới mô hình (cần ≥ 20) | `real-llm/mask.json` |

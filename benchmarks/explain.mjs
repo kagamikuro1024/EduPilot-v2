@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// US-NFR-05: EXPLAIN (ANALYZE, BUFFERS) của 10 truy vấn nặng nhất (xếp theo total_exec_time của pg_stat_statements sau k6 (a)–(d), xem docs/research/…-explain.md)
+// US-NFR-05: EXPLAIN (ANALYZE, BUFFERS) của 10 truy vấn đọc chính (chọn tay: màn giảng viên / sinh viên của kịch bản (a), (d) và tìm lai RAG; không xếp theo total_exec_time — cách chọn và hạn chế ở docs/research/2026-11-14-explain.md)
 // trên DB edupilot_t1, tham số đại diện (lớp T1-01, SV đầu, giảng viên t1gv1). Mỗi truy vấn chạy 1 lần làm nóng + 5 lần đo, lấy trung vị.
 //   COMPOSE_PROJECT_NAME=ep-t1 node benchmarks/explain.mjs before|after   → benchmarks/reports/explain.json (khoá `before` / `after`)
 // Chỉ stack -p ep-*, DB edupilot_t1; chỉ đọc (mỗi truy vấn trong giao dịch read-only).
