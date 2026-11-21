@@ -1,0 +1,9 @@
+file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-assignments-seed.mjs:31
+if (!bt03 || !bt04) throw new Error("Chưa có Bài tập 03 / 04 (chạy `node scripts/seed.mjs` trước).");
+                          ^
+
+Error: Chưa có Bài tập 03 / 04 (chạy `node scripts/seed.mjs` trước).
+    at file:///Users/kuro/Documents/TA_Agent_qc2/scripts/check-assignments-seed.mjs:31:27
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.21.0

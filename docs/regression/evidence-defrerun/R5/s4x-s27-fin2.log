@@ -1,0 +1,32 @@
+r5s03 200 202
+r5s06 200 202
+r5s02 201 202
+r5s05 200 202
+r5s12 200 202
+r5s01 200 202
+r5s22 201 202
+r5s07 200 202
+r5s10 201 202
+r5s08 201 202
+r5s04 201 202
+r5s30 201 202
+r5s25 201 202
+r5s28 201 202
+r5s17 201 202
+r5s09 201 202
+r5s27 201 202
+r5s18 201 202
+r5s21 201 202
+r5s23 201 202
+r5s14 201 202
+r5s29 201 202
+r5s15 ERR 'NoneType' object is not subscriptable
+r5s26 201 202
+r5s20 201 202
+r5s24 201 202
+r5s16 ERR 'NoneType' object is not subscriptable
+r5s19 201 202
+r5s11r5s13 201  202
+201 202
+F TC-PE06-27 smkP @634d59c5: r5s33 nộp code khi 30 SV khác đang xếp hàng chấm (smkP_flood.py): chuỗi trạng thái ["…@0.0s","Đã nhận, đang xếp hàng@0.2s"]; nhãn «Đã nhận, đang
+rc=0

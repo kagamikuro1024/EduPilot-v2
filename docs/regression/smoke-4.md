@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 4 — kết quả
 Mã đã chạy: be0c0d96 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc2/SmkB · Ngày: 2026-11-15
-Tổng TC cũ: 547 · Đạt: 533 · Trượt: 3 · Lỗi thời (LT): 6 · Không kiểm được K (a/b/c): 0/1/2 · Chưa chạy (N): 2   (P+F+LT+K+N = T)
+Tổng TC cũ: 547 · Đạt: 534 · Trượt: 3 · Lỗi thời (LT): 6 · Không kiểm được K (a/b/c): 0/1/2 · Chưa chạy (N): 1   (P+F+LT+K+N = T)
 Tổng hợp N=0 đợt 2026-11-16 (qc2/SmkN): kết quả từng ca ở các tệp `evidence-4/results-smk34/*.tsv`; gộp bằng `evidence-3/scripts/smk34-merge.py 4`.
 
 Cách chạy: (1) API ep-r bằng script Python trên tài khoản TỰ TẠO (đăng ký→Mailpit→xác minh; Admin mời GV/TA; lớp/GV/TA riêng hậu tố SK…): đăng nhập/refresh/CSRF/token giả, đăng ký/xác minh/gửi lại, quên/đặt lại mật khẩu, phiên, mời GV, khoá/mở khoá, vai, lớp (mã tham gia, duyệt, mời ra), roster import, Admin mở lớp/gán GV; (2) gateway phụ mặc định giới hạn (`docker run edupilot-gateway-test`, Redis db 9) cho ca giới hạn tốc độ IP (ep-r nới 1000/phút); (3) Playwright account/class-join/me trên bản build gate (gateway giả) + `qc-real-f1-account` / `qc-real-f2-class` (ep-r); (4) go test auth/mail/course/user/today.
@@ -20,8 +20,8 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | US-P2-08 | 42 | 42 | 0 | 0 | 0 | 0 | |
 | US-P2-09 | 54 | 53 | 1 | 0 | 0 | 0 | |
 | US-P2-10 | 40 | 40 | 0 | 0 | 0 | 0 | |
-| US-P2-11 | 44 | 42 | 1 | 1 | 0 | 0 | |
-| US-P2-12 | 27 | 23 | 1 | 1 | 1 | 1 | |
+| US-P2-11 | 44 | 43 | 0 | 1 | 0 | 0 | |
+| US-P2-12 | 27 | 23 | 2 | 1 | 1 | 0 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -69,7 +69,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-GATEP2-51 | P | ep-r: 14 lần sai, mỗi lần X-Forwarded-For khác → [401, 401, 401, 401, 401, 429, 429, 429, 429, 429, 429, 429, 429, 429]; đăng nhập ĐÚNG ngay sau → 429 RATE_LIMITED; DB failed_logins/locked 5/f (header giả vô tác dụng); các bước chờ tăng dần, khoá 15 phút (đo thật 899,8 s), IP chặn 40 lần, Admin cũng bị: ca nền TC-P205-01…19, P205-35, P205-36 đều P |
 | TC-GATEP2-52 | P | dry_run: {'ELF→.csv': 422, 'PNG→.csv': 422, 'zip bomb .xlsx': 422, 'rỗng': 422} (zip bomb 60 MB giải nén → 422 sau 0.0 s; gateway còn sống 200); tệp công thức =HYPERLINK / @SUM / +1+1: dry_run 200, nhập thật 200; tên lưu trong users: '+1+1' (lưu nguyên văn như chữ, không thực thi); ca nền TC-P210-03/04/36; ghi nhận DEF-R4-02 (.xlsx thực chất là văn bản được đọc như CSV, vẫn qua kiểm tra dòng: Thấp) không thuộc ca độc hại |
 | TC-GATEP2-53 | P | Quét lại log ep-r 2026-11-21 (logs/s4r-gate53-scan.txt): Caddy 0 dòng lộ /invite//join/token= sau bản sửa f5f8a8be (8 dòng khớp mẫu: 2 dòng Next-Url=/invite/<token>,/join/VFC45PW ngày 11-19 trước sửa; 6 dòng là /join?_rsc= không có mã); gateway/worker/redis/pgbouncer 0 dòng «Bearer eyJ»/password/token=; repo: chỉ .env.example được commit (ca 11-19); /join/<mã> ở đường dẫn Caddy: ghi nhận như TC gốc |
-| TC-GATEP2-99 | N | Dọn toàn gate do qc2 làm sau cùng: docker ps còn qc2s-gw/worker/mail/redis và DB qc2i_auth/qc2i_seed/qc2i_r3go/qc2i_r4b của cửa sổ SEED/agent khác, không phải của SmkT4N. Phần SmkT4N: không còn container s4n-*, DB tạm qc2i_s4idx/s4prod/s4t đã xoá (script tự dọn), evidence-4/fx đã xoá; còn evidence-4/pw-out (tạm, qc2 xoá khi hết lượt)  |
+| TC-GATEP2-99 | N | Dọn gate chỉ làm được khi mọi agent dừng và cần down -v/docker rm (không được phép ở lượt này). Chụp hiện trạng 2026-11-21 21:00 (logs/s4x/gate99-snapshot.txt): cây git không có sửa mã sản phẩm (chỉ docs/regression, benchmarks/reports), không tệp nhị phân > 5 MB, không container/DB của SmkT4N (s4n-*, qc2i_s4*); CÒN stack/DB của agent khác (qc2s-*, qc3s-*, ep-qc-*, edupilot-test-*, 60 container đã dừng, DB qc2*/qc3*/smkpr). qc2 chạy lại bash evidence-4/scripts/s4x-gate99.sh lúc cuối để ghi P/F. |
 | TC-P201-01 | P | 00003 và 00004 áp dụng; phiên bản hiện tại 25 |
 | TC-P201-02 | P | 4 bảng 00004 có đủ; enum kind: VERIFY_EMAIL,RESET_PASSWORD,INVITE |
 | TC-P201-03 | P | git log --diff-filter=M trên 00001/00002 = rỗng (chỉ commit tạo: 240621b1 s1, 01242098 s2); git diff --stat origin/main = 0 dòng; sha256 aac87ca60f76b485 14c303b5ebcf21a0  |
@@ -536,7 +536,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P211-41 | P | Playwright ui-s4d (s4r9): lỗi 500 → «Chưa tải được việc hôm nay…» + Thử lại; bấm Thử lại → đúng 1 yêu cầu mới và hiện dữ liệu; làm mới lỗi khi đã có dữ liệu: dữ liệu cũ còn, 0 dòng cảnh báo; ngoại tuyến → banner «Mất kết nối mạng» hiện (ngoài <main>, sửa bộ chọn kịch bản) |
 | TC-P211-42 | P | go test ./internal/today -run 'TestTodayProviderErrorPartial/TestTodayDeadline504' -v: PASS cả hai (0,70 s / 0,49 s); playwright today.spec.ts -g 'today errors' → 2 passed rc=0 |
 | TC-P211-43 | P | llm_audit trước/sau 3 lần me/today: 2235→2235 (chênh do nhóm khác dùng chung stack) |
-| TC-P211-44 | F | DEF-R4-09: go vet ./... rc=0; golangci-lint run rc=1 (1 lỗi: internal/practice/extract.go:130 defaultRetryWait gochecknoglobals, thêm ở e42d8b49 sprint 11); go test -race -count=1 ./internal/today/... ok 128 s; go test -tags integration -count=1 ./internal/integration/... ok 107 s. CI Go (static) run 44850023210 cũng failure. evidence-4/logs/s4n-go44-*.log  |
+| TC-P211-44 | P | qc2 21/11 @0934e523 (có 9754c523 sửa DEF-R4-09): golangci-lint run rc=0; go vet ./... rc=0; go vet -tags testroutes rc=0; go test -race ./internal/today/... lượt 1 FAIL 2 ca (TestTodayRedisDownFailsOpen, TestTodayProviderErrorPartial, 451 s, máy tải nặng; chạy riêng 2 ca ok 7 s) → lượt 2 toàn gói ok 357 s rc=0; go test -tags integration ./internal/integration/... ok 385 s rc=0 (logs/lint-gate.log, logs/today-rerun.log). DEF-R4-09 ĐÓNG |
 | TC-P212-01 | P | seed.mjs: 0 psql/INSERT/pg/_test; ≥1 api/v1 |
 | TC-P212-02 | P | qc2 2026-11-19 trên DB trống qc2i_seed (stack qc2s, PM duyệt): lấy mẫu pg_stat_activity mỗi 2 s × 25 lần trong lúc seed.mjs chạy lại — mọi kết nối tới DB chỉ từ 172.22.0.24 (application_name edupilot-worker, 10 kết nối) và 172.22.0.23 (edupilot-gateway, 4 kết nối); không kết nối nào từ máy chạy seed; grep -nE "psql/INSERT /UPDATE /require.pg./from .pg./_test/" scripts/seed.mjs = 0. Ghi chú: log_line_prefix của Postgres ep-r là «%m [%p] » (không có application_name) nên không lọc được câu INSERT theo application_name; dùng pg_stat_activity thay thế |
 | TC-P212-03 | P | users @edupilot.local theo vai (stack đã dùng chung nên lớn hơn seed gốc): ADMIN=1 STUDENT=74 TA=3 TEACHER=3 |
@@ -550,7 +550,7 @@ Lưu ý môi trường: Postgres ep-r tự phục hồi sau crash lúc ~12:59:54
 | TC-P212-11 | P | go test ./internal/course -count=1 -json -v (HEAD 7c9f8b56): 5/5 test pass; log docs/regression/evidence-4/logs/smkT/ |
 | TC-P212-12 | P | sau seed đủ trên DB trống: đếm (users, enrollments, mail_outbox, notifications, class_sessions, courses) = 60/61/79/240/21/2; chạy lại seed (rc=0, 24 s, in «Đã tạo 0 lượt luyện mới») → 60/61/79/240/21/2; diff = «files are identical» (SAME). Log evidence-4/logs/qc2s/seed12.log |
 | TC-P212-13 | P | DB trống qc2i_seed, giới hạn đăng nhập nới như dev.mjs: ngắt bằng timeout 10 s, 30 s, 60 s (rc=124 mỗi lần, dừng ở bước 3–6) rồi chạy đủ: tiếp tục từ chỗ dở, rc=0, «Seed xong trong 752 s». Số liệu AC2: ADMIN 1, TEACHER 1, TA 1, STUDENT 57; lớp 761987 ACTIVE 30 + PENDING 1; lớp 761988 ACTIVE 24 + PENDING 3; 3 sinh viên học cả hai lớp; mã AN7K2MQ / BX4P9TW; buổi học 15 / 6. mail_outbox DEAD = 1: đó là mẫu cố ý của màn quan sát (to_addr khong-ton-tai@example.invalid, template seed_observability_failed, dedupe_key seed-obs-dead-mail), không phải do ngắt giữa chừng (không có DEAD nào sau ba lần ngắt). Log seed13.log. Ghi nhận: hai lần chạy đầu thất bại do hạ tầng QC (PGBOUNCER_URL, mạng judge, bucket) — đã sửa script qc2s-stack.sh, không phải lỗi sản phẩm |
-| TC-P212-14 | N | P-11-76 (seed ≤ 360 s): qc2 đo ở cửa sổ SEED cuối, SmkT4N không chạy seed đầy đủ. Kiểm DEF-R4-08 phần --if-empty xem TC-GATEP2-09  |
+| TC-P212-14 | F | qc2 22/11 cửa sổ cuối (P-11-76: ≤ 360 s, đo trên DB trống, chỉ ep-r nền chạy): node scripts/seed.mjs --if-empty trên DB trống qc2s rc=0 nhưng 516 s > 360 s (lượt trước 752 s dưới tải; lần đo lại sạch sau rebuild ep-r, log evidence-8/logs/winD-seed1.log, winD-time.txt; lượt đo đầu bị mock-graph ep-r khởi động lại do rebuild, bỏ: winD-try1/). DEF-Q2-S4-01 vẫn mở (516 s > 360 s); chưa đo thời gian từng bước vì log seed không có mốc giờ |
 | TC-P212-15 | P | APP_ENV=production → rc=1: Seed bị chặn: APP_ENV=production. Seed chỉ chạy ở môi trường dev / test. |
 | TC-P212-16 | P | seed.mjs không chứa secret/mật khẩu cứng |
 | TC-P212-17 | P | gateway phụ APP_ENV=production (DB riêng qc2i_s4prod, redis riêng, đã xoá sau đo): POST /admin/courses có join_code=ABCDEFG → 422 VALIDATION_FAILED details field=join_code code=NOT_ALLOWED «Không đặt được mã tham gia ở môi trường chạy thật.»; không join_code → 201 (mã sinh ERF36JM); đối chứng APP_ENV=test: join_code đặt tay → 201, DB join_code=ABCDEFG. evidence-4/logs/s4n-p21217.txt  |

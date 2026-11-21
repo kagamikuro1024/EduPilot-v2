@@ -14,3 +14,7 @@ regrade sv09@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ li
 regrade sv10@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
 regrade sv11@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
 regrade sv12@edupilot.local 409 {'code': 'VERSION_CONFLICT', 'message': 'Dữ liệu đã được người khác thay đổi. Hãy tải lại rồi thử lạ
+always_no regrade 0 nhận 0
+rc=124
+== d0409.py error 21:36:40
+/tmp/qc2-pw.sh: line 5: 40111 Terminated: 15          "$@"

@@ -1,9 +1,9 @@
-(node:64067) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(node:42569) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
 (Use `node --trace-warnings ...` to show where the warning was created)
 tri thức=25 (POST 20, TICKET 5) có trích dẫn=2
   ✗ POST "Câu hỏi: ĐẠI HỌC QUỐC GIA HÀ NỘI TRƯỜNG …": không có trích dẫn tri thức (200)
   ✗ POST "Câu hỏi: HIỆU TRƯỞNG TRƯỜNG QUỐC TẾ Căn …": không có trích dẫn tri thức (200)
-  ✗ POST "Câu hỏi: ĐẠI HỌC QUỐC GIA HÀ NỘI TRƯỜNG …": không có trích dẫn tri thức (200)
+  ✗ POST "Câu hỏi: Linear Trend Projection - If a …": không có trích dẫn tri thức (200)
   ✗ POST "Câu hỏi: ▪ Example: Auger's Plumbing Ser…": không có trích dẫn tri thức (200)
   ✗ POST "Câu hỏi: Hash functions SHA-256 produces…": không có trích dẫn tri thức (200)
   ✗ POST "Câu hỏi: Hash functions SHA-256 produces…": không có trích dẫn tri thức (200)
@@ -21,6 +21,6 @@ tri thức=25 (POST 20, TICKET 5) có trích dẫn=2
   ✗ POST "Câu hỏi: Thảo luận QCV44 AI Nội dung câu…": không có trích dẫn tri thức (200)
   ✗ POST "Câu hỏi: Thảo luận QCV44-1 Nội dung câu …": không có trích dẫn tri thức (200)
   ✗ TICKET "Câu hỏi: Quy định nộp bài muộn kỳ QCKX9 …": không có trích dẫn tri thức (200)
-  ✗ TICKET "Câu hỏi: Quy định bảo lưu kỳ QCDEAD của …": không có trích dẫn tri thức (200)
+  ✗ TICKET "Câu hỏi: Quy định bảo lưu kỳ QCDEAD của …": không có trích dẫn tri thức (429)
   ✗ TICKET "Câu hỏi: Quy định nộp bài muộn QCKB42 củ…": không có trích dẫn tri thức (429)
   ✗ TICKET "Câu hỏi: Quy định nộp bài muộn QCKB42 củ…": không có trích dẫn tri thức (429)

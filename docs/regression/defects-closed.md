@@ -73,3 +73,11 @@ Chờ chạy lại: 9.5 DEF-01/02/12/16/17/19/20 (SmkF dừng, tôi chạy tiế
 - **DEF-R5-10** (dd160463) phần API: TC-PE03-33 P (tests_stale=[True], GV 200 tests_version 7→8, TA 403, QUESTION_IN_USE 409); phần giao diện chờ chạy lại sau rebuild.
 - **DEF-R5-11** (3f748ec2): ĐÓNG — TC-PE08-04 P (nộp MCQ-only 200 trong 0,02 s, GRADED; chủ lượt nhận SSE `exam.attempt` status GRADED).
 - **DEF-R7-02** (e4b82a05): ĐÓNG — TC-P4-02-14 P (số về 0 → ticket mới: dòng gộp chưa đọc + 1 khung SSE; evidence-defrerun/R7-02/p402-14.log).
+- **DEF-R5-07** (d7fecdc2): ĐÓNG — TC-PE07-18 P (dán rồi đóng ngay: rời trang và đóng tab thật PASTE 0→1, không lộ nội dung; browserContext.close() không phát pagehide là hạn chế Playwright).
+- **DEF-R5-08** (473472ec): ĐÓNG — TC-PE08-31 P. **DEF-R5-09** (247bf4e4): ĐÓNG — TC-PE08-38 P (bài trống dùng bài OPEN mới; bài cố định cũ đã đóng nên hiện «Vắng», đúng US). **DEF-R5-10** (dd160463): ĐÓNG — TC-PE03-33 P cả API (tests_stale) lẫn Drawer «Chấm theo bộ test cũ».
+- **DEF-R3-01** (ffb46656): ĐÓNG — TC-P105-44 P (/settings/llm Admin 1440/390, GV 1440: 0 từ RAG/PII/trace/fallback/embedding/prompt).
+- **DEF-R5-06** (0e52f1e5): ĐÓNG — TC-PE06-27 P (nhãn «Đã nhận, đang xếp hàng» 0,2 s → KẾT QUẢ 7,7 s khi 30 SV khác xếp hàng; r5s34, ep-r @aba738ef).
+- DEF-R9.5-17 (TC-N02-02/03, 6ec47f79): ĐÓNG — RERUN 22/11 @859a90db trên qc2s: seed lần 2 rc=0, đếm bảng nghiệp vụ không đổi, không trùng; sửa tay 6 điểm rồi seed 2 lượt rc=0, không 422 IDEMPOTENCY_KEY_REUSED (evidence-8/logs/winD-*; evidence-defrerun/results-S4X.tsv). DEF-R9.5-26 (seed trên ep-r >100 lớp) vẫn mở, riêng.
+
+## Đợt chạy lại DefR — S10X (qc2, 2026-11-21; ep-r aba738ef)
+- **DEF-R10.7-01..04**: ĐÓNG — audit 10.7 pha `rr-defrerun` chạy lại đủ (data×4 vai, rỗng ×4 gồm teacher @1440/@375 với lớp QCEMPTYr107, đang tải, lỗi): 310 lượt chụp, lỗi chụp 0; H3=0, E7=0, P5=0 (01), H7=0, X3=0 (02, 03), T2=0 (04). Lệch còn lại 4 (H6×2, E5×2, chỉ student/practice/history) KHÔNG thuộc bốn DEF này: mục mới, chưa có DEF. Lỗi lượt trước (empty-teacher 2 failed) do dữ liệu: danh sách lớp của teacher (196 lớp) chỉ nạp ~100 lớp mới nhất nên không thấy QCEMPTYr107; đã đặt enrollment lớp này lên đầu, không phải lỗi sản phẩm. Bằng chứng: evidence-10.7/audit-rr-defrerun.md, evidence-defrerun/R10.7/all.log, results-S10X.tsv.

@@ -1,0 +1,14 @@
+
+Running 6 tests using 1 worker
+
+(node:50868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp teacher loading @1440 (36.8s)
+  ✓  2 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp student loading @1440 (11.4s)
+  ✓  3 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp admin loading @1440 (4.5s)
+  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp teacher loading @375 (36.3s)
+  ✓  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp student loading @375 (11.3s)
+  ✓  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp admin loading @375 (4.7s)
+
+  6 passed (1.8m)
+rc=0

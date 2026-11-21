@@ -1,0 +1,7 @@
+available MB: 6366
+DROP DATABASE
+CREATE DATABASE
+goose: applied 00029_users_created_idx.sql (1.285517ms)
+goose: up to date, version=29 (26 migration mới)
+{"db":"up","redis":"up","status":"ready"}
+

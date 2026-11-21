@@ -1,0 +1,217 @@
+{
+ "r5t1440": {
+  "heads": [
+   "Họ tên",
+   "MSSV",
+   "Trạng thái",
+   "Điểm",
+   "Nộp lúc",
+   "Tín hiệu"
+  ],
+  "tabs": [
+   "Bảng điểm",
+   "Xem lại điểm",
+   "Thống kê",
+   "Nghi giống nhau"
+  ],
+  "prim": [],
+  "a": {
+   "ox": 0,
+   "cut": 0,
+   "ell": 0,
+   "touch": 0
+  },
+  "rows": 22,
+  "drawerHidden": "Test ẩn: đạt 2 trên 2",
+  "hidVerdict": false,
+  "drawerMeta": {
+   "mssv": true,
+   "nop": true
+  },
+  "signalCol": true
+ },
+ "r5t1100": {
+  "heads": [
+   "Họ tên",
+   "MSSV",
+   "Trạng thái",
+   "Điểm",
+   "Nộp lúc",
+   "Tín hiệu"
+  ],
+  "tabs": [
+   "Bảng điểm",
+   "Xem lại điểm",
+   "Thống kê",
+   "Nghi giống nhau"
+  ],
+  "prim": [],
+  "a": {
+   "ox": 0,
+   "cut": 0,
+   "ell": 0,
+   "touch": 0
+  },
+  "rows": 22,
+  "drawerHidden": "Test ẩn: đạt 2 trên 2",
+  "hidVerdict": false,
+  "drawerMeta": {
+   "mssv": true,
+   "nop": true
+  },
+  "signalCol": true
+ },
+ "r5t720": {
+  "heads": [
+   "Họ tên",
+   "MSSV",
+   "Trạng thái",
+   "Điểm",
+   "Nộp lúc",
+   "Tín hiệu"
+  ],
+  "tabs": [
+   "Bảng điểm",
+   "Xem lại điểm",
+   "Thống kê",
+   "Nghi giống nhau"
+  ],
+  "prim": [],
+  "a": {
+   "ox": 0,
+   "cut": 0,
+   "ell": 0,
+   "touch": 0
+  },
+  "rows": 22,
+  "drawerHidden": "Test ẩn: đạt 2 trên 2",
+  "hidVerdict": false,
+  "drawerMeta": {
+   "mssv": true,
+   "nop": true
+  },
+  "signalCol": true
+ },
+ "r5t719": {
+  "heads": [
+   "Họ tên",
+   "Trạng thái",
+   "Điểm"
+  ],
+  "tabs": [
+   "Bảng điểm",
+   "Xem lại điểm",
+   "Thống kê",
+   "Nghi giống nhau"
+  ],
+  "prim": [],
+  "a": {
+   "ox": 0,
+   "cut": 0,
+   "ell": 0,
+   "touch": 0
+  },
+  "rows": 22,
+  "drawerHidden": "Test ẩn: đạt 2 trên 2",
+  "hidVerdict": false,
+  "drawerMeta": {
+   "mssv": true,
+   "nop": true
+  },
+  "signalCol": false
+ },
+ "r5t390": {
+  "heads": [
+   "Họ tên",
+   "Trạng thái",
+   "Điểm"
+  ],
+  "tabs": [
+   "Bảng điểm",
+   "Xem lại điểm",
+   "Thống kê",
+   "Nghi giống nhau"
+  ],
+  "prim": [],
+  "a": {
+   "ox": 0,
+   "cut": 0,
+   "ell": 0,
+   "touch": 0
+  },
+  "rows": 22,
+  "drawerHidden": "Test ẩn: đạt 2 trên 2",
+  "hidVerdict": false,
+  "drawerMeta": {
+   "mssv": true,
+   "nop": true
+  },
+  "signalCol": false
+ },
+ "r5ta1440": {
+  "heads": [
+   "Họ tên",
+   "MSSV",
+   "Trạng thái",
+   "Điểm",
+   "Nộp lúc"
+  ],
+  "tabs": [
+   "Bảng điểm",
+   "Xem lại điểm",
+   "Thống kê"
+  ],
+  "prim": [],
+  "a": {
+   "ox": 0,
+   "cut": 0,
+   "ell": 0,
+   "touch": 0
+  },
+  "rows": 22,
+  "drawerHidden": "Test ẩn: đạt 2 trên 2",
+  "hidVerdict": false,
+  "drawerMeta": {
+   "mssv": true,
+   "nop": true
+  },
+  "signalCol": false
+ },
+ "r5ta390": {
+  "heads": [
+   "Họ tên",
+   "Trạng thái",
+   "Điểm"
+  ],
+  "tabs": [
+   "Bảng điểm",
+   "Xem lại điểm",
+   "Thống kê"
+  ],
+  "prim": [],
+  "a": {
+   "ox": 0,
+   "cut": 0,
+   "ell": 0,
+   "touch": 0
+  },
+  "rows": 22,
+  "drawerHidden": "Test ẩn: đạt 2 trên 2",
+  "hidVerdict": false,
+  "drawerMeta": {
+   "mssv": true,
+   "nop": true
+  },
+  "signalCol": false
+ },
+ "empty": {
+  "chuaBatDau": 19,
+  "head": "Bài thi ¦ Kết quả · R5M UI trắc nghiệm 30 phút ¦ Bài thi chưa mở nên chưa có kết quả. ¦ Bảng điểm ¦ Xem lại điểm ¦ Thống kê ¦ Nghi giống nhau ¦  ¦ Đã chấm 0 ¦  ¦ Tất cả ¦ Đã chấm ¦ Đang chấm ¦ Vắng ¦ ",
+  "rows": 20,
+  "prog": ""
+ },
+ "stats": true,
+ "sim": true
+}
+P TC-PE08-38 smkP @88ab83e4 (247bf4e4, P-11-59): ≥720 cột ["Họ tên","MSSV","Trạng thái","Điểm","Nộp lúc","Tín hiệu"] (GV có Tín hiệu=true) ok=true; <720 (719/390 GV, 390 TA)
+rc=0

@@ -1,0 +1,9 @@
+scripts/check-assignments-seed.mjs 0
+scripts/check-chat-seed.mjs 0
+scripts/check-crm-seed.mjs 0
+scripts/check-docs-seed.mjs 0
+scripts/check-exam-seed.mjs bank 0
+scripts/check-exam-seed.mjs scores 0
+scripts/check-exam-seed.mjs demo 0
+scripts/check-grade-seed.mjs 0
+scripts/check-knowledge-seed.mjs 1

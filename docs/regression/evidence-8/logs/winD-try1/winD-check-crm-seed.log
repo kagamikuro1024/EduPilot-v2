@@ -1,0 +1,1 @@
+attendance=270 absent=21 speak=65 risk={"AT_RISK":1,"WATCH":3,"NONE":26} tickets=5 {"OPEN":2,"CLAIMED":1,"ANSWERED":1,"CLOSED":1} queue=2 idempotent=bỏ qua (--no-rerun)

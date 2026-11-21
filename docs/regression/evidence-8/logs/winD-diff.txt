@@ -1,0 +1,22 @@
+5,6c5,6
+< audit_log 444
+< auth_sessions 141
+---
+> audit_log 445
+> auth_sessions 229
+49c49
+< idempotency_keys 399
+---
+> idempotency_keys 400
+54c54
+< llm_audit 727
+---
+> llm_audit 738
+63c63
+< login_attempts 111
+---
+> login_attempts 199
+67c67
+< outbox 673
+---
+> outbox 677

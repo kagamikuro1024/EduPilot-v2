@@ -12,3 +12,60 @@ rc=0
   6 skipped
   2 passed (1.2m)
 rc=0
+== data-teacher 21:30:45
+  -  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440
+  -  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375
+
+  6 skipped
+  2 passed (1.4m)
+rc=0
+== data-admin 21:33:43
+  ✓  7 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @1440 (15.2s)
+  ✓  8 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp admin data @375 (15.2s)
+
+  6 skipped
+  2 passed (30.8s)
+rc=0
+== empty-student 21:36:15
+  -  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @1440
+  -  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @375
+
+  4 skipped
+  2 passed (47.3s)
+rc=0
+== empty-ta 21:38:23
+  -  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @1440
+  -  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @375
+
+  4 skipped
+  2 passed (1.2m)
+rc=0
+== empty-teacher 21:41:48
+  ✓  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @1440 (43.2s)
+  ✓  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @375 (42.0s)
+
+  4 skipped
+  2 passed (1.4m)
+rc=0
+== empty-admin 21:44:24
+  -  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp ta empty @375
+  -  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @1440
+  -  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:170:7 › chụp teacher empty @375
+
+  6 skipped
+rc=0
+== loading 21:44:55
+  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp teacher loading @375 (36.3s)
+  ✓  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp student loading @375 (11.3s)
+  ✓  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp admin loading @375 (4.7s)
+
+  6 passed (1.8m)
+rc=0
+== error 21:47:12
+  ✓  4 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp teacher error @375 (1.0m)
+  ✓  5 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp student error @375 (17.3s)
+  ✓  6 [desktop] › e2e/qc-ui-audit-real.spec.ts:193:7 › chụp admin error @375 (7.0s)
+
+  6 passed (2.8m)
+rc=0
+ALLDONE

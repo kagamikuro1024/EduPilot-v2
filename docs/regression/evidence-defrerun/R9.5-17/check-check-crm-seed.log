@@ -1,0 +1,23 @@
+(node:42402) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1/20] Admin đầu tiên (gateway admin create)…
+(node:42510) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2/20] Mời giảng viên và trợ giảng, nhận lời mời…
+[3/20] Mở hai lớp 761987 / 761988, gán giảng viên và TA…
+Seed lỗi: Cannot read properties of undefined (reading 'teacher')
+attendance=300 absent=22 speak=72 risk={"AT_RISK":2,"WATCH":7,"NONE":29} tickets=143 {"OPEN":140,"CLAIMED":1,"ANSWERED":1,"CLOSED":1} queue=2 idempotent=ok
+  ✗ attendance_records lớp 1 = 300, cần 270
+  ✗ sv.gioi: 10,10,0,0,0,12,3.00 ≠ 9,9,0,0,0,12,3.00
+  ✗ sv.kha: 10,7,1,0,2,2,0.50 ≠ 9,6,1,0,2,2,0.50
+  ✗ sv.nguyco: 10,4,1,0,5,1,0.25 ≠ 9,3,1,0,5,1,0.25
+  ✗ filter=attention = 2 (cần đúng Sinh viên C)
+  ✗ mức rủi ro lớp 1 {"AT_RISK":2,"WATCH":7,"NONE":29}, cần AT_RISK 1, WATCH 3 (sv12, sv19, sv26 — expected_risk.csv, #5)
+  ✗ ticket lớp 1 = 143, cần đúng 5 (BUG-S1: lịch sử chat không được tự mở ticket)
+  ✗ sinh viên B không được có ticket (demo D3: B tự tạo ticket mới)
+  ✗ lớp 761988 không được có ticket
+  ✗ sv.gioi: me/attendance 200
+  ✗ sv.kha: me/attendance 200
+  ✗ sv.nguyco: me/attendance 200
+  ✗ Sinh viên D (chưa vào lớp) không được có lớp nào
+  ✗ chạy lại seed.mjs lỗi

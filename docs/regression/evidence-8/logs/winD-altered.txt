@@ -1,0 +1,2 @@
+seed sau khi sửa 6 điểm, lượt 1: rc=0 24 s
+seed sau khi sửa 6 điểm, lượt 2: rc=0 22 s

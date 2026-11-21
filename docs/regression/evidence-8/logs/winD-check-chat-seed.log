@@ -1,0 +1,1 @@
+chat=151 sessions=34 outside=10 threads=12/3 states={"PENDING":4,"REJECTED":1,"CORRECTED":2,"VERIFIED":3,"SKIPPED":2} idempotent=bỏ qua (--no-rerun)

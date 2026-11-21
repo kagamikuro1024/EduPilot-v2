@@ -1,0 +1,4 @@
+seed --if-empty DB trống: rc=1 324 s (đồng hồ treo tường; không có stack/agent nặng khác ngoài ep-r nền)
+seed lần 2: rc=1 80 s
+diff rc=1 dòng=      14
+DONE

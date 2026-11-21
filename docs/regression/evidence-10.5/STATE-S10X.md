@@ -1,15 +1,11 @@
-# STATE S10X (qc2, 2026-11-21)
-Đã xong (ghi smoke-10.5.md / smoke-10.6.md / results-S10X.tsv): TC-G07-12 F (DEF-R106S-16), TC-G10-13 P, TC-D08-14 F (DEF-R105S-02), TC-D04-11 N.
-Dữ liệu tôi tạo trên ep-r: lớp QD105A (mk105.py), enrollments TEACHER/TA lớp QCEMPTYr107 bị đặt created_at=now() để lên đầu danh sách /me/courses (picker chỉ ~100 lớp đầu); QR91A: không còn ca hồi quy / bài nộp được khôi phục.
-
-## CÒN LẠI (ep-r rebuild lúc 20:40; chờ «ep-r lên lại»)
-1. Audit 10.7 (DEF-R10.7-01..04, DEF-R10.8-02 đã P): `rm -rf evidence-10.7/audit/rr-defrerun evidence-defrerun/R10.7/*.log; (cd evidence-defrerun && nohup bash run-r107.sh &)`. Lượt trước empty-teacher 2 failed vì picker không thấy lớp QCEMPTYr107 (không phải lỗi sản phẩm; đã sửa dữ liệu). Sau ALLDONE: đọc evidence-10.7/audit-rr-defrerun.md.
-2. TC-D01-07: `cd evidence-10.5/s10x && SEED_DEFAULT_PASSWORD=… /tmp/qc2-pw.sh python3 d0107.py` (a: 200 lời gọi nhịp 1,6/s; b: lỗi 0,5 chạy tới đủ 200 lời gọi thực; c: mặc định 426/682). ≤ 8 phút/lượt: tách phần nếu cần.
-3. TC-D04-09 / D04-01: `python3 d0409.py p1` (12 bài + chấm, cờ bật), rồi `d0409.py always_yes`, `always_no`, `error`, rồi `d0409.py fin` — mỗi lượt qua khoá. Ghi vào results-s10x.jsonl.
-
-## Cập nhật 21:30
-- D04-09 P (ghi smoke-10.5.md). D01-07 N: (c) P, (a) p50/p95 lệch do tải máy (4–10) / nhóm khác dùng chung `_test/llm/fake`, (b) 0,24 (nghi bản giả bị nhóm khác đổi); cần ep-r riêng hoặc khoá cả bản giả + máy rảnh; chạy: `cd evidence-10.5/s10x; SEED_DEFAULT_PASSWORD=… /tmp/qc2-pw.sh timeout 470 python3 d0107.py a|b|c`.
-- Lỗi script cũ (b3_lat2.py): `time.sleep(i/rate)` tính từ lúc luồng bắt đầu nên 200 bài mất ~35 phút; bản s10x/d0107.py sửa bằng mốc T0.
-- D04-01: lượt 1 (điều khiển bằng route thử) KHÔNG hợp lệ: tầng decision của cờ chèn lệnh chạy ở WORKER, route `_test/llm/fake` chỉ đổi bản giả của gateway. Làm lại bằng `LLM_DECISION_FAKE_MODE` của worker: `run-s10x3.sh` (always_yes, always_no, error, fin; mỗi lượt restart worker rồi khôi phục env rỗng) — xem run-s10x3.log và dòng TC-D04-01 cuối results-s10x.jsonl. Nếu bị kill giữa lượt: kiểm worker `docker inspect ep-r-worker-1 | grep FAKE_MODE` phải rỗng, nếu không chạy `source docs/regression/env/ep-r-env.sh; $EPR_C up -d --no-deps --force-recreate worker`.
-- Audit 10.7: `run-s10x2.sh` đang chạy run-r107.sh nền (log evidence-defrerun/R10.7/all.log). Xong → evidence-10.7/audit-rr-defrerun.md, rồi ghi P/F DEF-R10.7-01..04 vào results-S10X.tsv + defects-closed.md.
-- Việc 10.6 (G07-12 F DEF-R106S-16, G10-13 P) đã chuyển Main: evidence-10.6/s10x/KETLUAN.md.
+# STATE S10X (qc2, 2026-11-21) — chốt khi Main xin máy yên
+## Đã ghi
+- smoke-10.5.md (cuối file, «Lượt 2026-11-21 — S10X»): D08-14 F (DEF-R105S-02 trong defects-10.5.md), D04-09 P, D04-11 N, D01-07 N, D04-01 N. Bảng: evidence-defrerun/results-S10X.tsv.
+- DEF-R10.7-01..04: 4 P, đã ghi defects-closed.md. DEF-R10.8-02 đã P ở lượt trước.
+- 10.6 (chuyển Main/qc3, không ghi file 10.6): G07-12 F (DEF-R106S-16: audit_log regress.export không có «ai»), G10-13 P — evidence-10.6/s10x/KETLUAN.md.
+## CÒN LẠI (N) và cách chạy
+1. TC-D04-11 (lượt thật ≤ 300 lời gọi): không có GEMINI_API_KEY (.env.local rỗng, ep-r real_allowed:false) + `benchmarks/decision/run.py` chưa có đường thật (DEF-R105S-02). Cần PM cấp khoá trả phí + bật LLM_DECISION_ALLOW_REAL (Main đổi env gateway/worker trong khung khoá global), rồi chạy tay: temp Go test gọi provider.NewDecision (mẫu ở lịch sử S10X) hoặc bổ sung cột «thật» cho run.py.
+2. TC-D04-01 (bảng OR 7 tổ hợp ở stack): tầng decision của cờ chèn lệnh chạy ở WORKER ⇒ phải đặt `LLM_DECISION_FAKE_MODE` (always_yes / always_no / error) cho worker, KHÔNG dùng route /_test/llm/fake. Việc này cần Main recreate worker bằng env chuẩn (`source docs/regression/env/ep-r-env.sh` trong shell sạch — không export DATABASE_URL/REDIS_URL). Sau mỗi cấu hình: `cd evidence-10.5/s10x; SEED_DEFAULT_PASSWORD=Edupilot#Seed-2026 /tmp/qc2-pw.sh timeout 470 python3 d0409.py <always_yes|always_no|error>` (chấm lại 12 bài QD105A bằng LLM thật ≈ 3–8 phút; bỏ phần `wk(...)` trong d0409.py vì Main tự đổi env), cuối cùng `python3 d0409.py fin` ghi dòng TC-D04-01 vào results-s10x.jsonl. Dữ liệu: lớp QD105A, assignment trong state.json (xoá table.json trước).
+3. TC-D01-07: (c) P (p50=434 p95=627, 120 lời gọi). (a) lệch ±20 % (p50 116/209, p95 ~605) khi máy tải 4–10; (b) tỉ lệ lỗi 0,24 (lẽ ra ~0,5; nghi nhóm khác đổi `_test/llm/fake`). Chạy lại lúc máy rảnh và không ai đụng bản giả: `cd evidence-10.5/s10x; SEED_DEFAULT_PASSWORD=… /tmp/qc2-pw.sh timeout 470 python3 d0107.py a` (≈ 3 phút) / `b` (cần > 8 phút nếu cầu dao mở: chạy `timeout 900`, Main cho phép) / `c`. Cuối lượt tự `fake_reset` + tắt cổng.
+- Dữ liệu tôi tạo trên ep-r: lớp QD105A (+bài DMS10… 12 bài nộp, kết quả chấm), enrollments QCEMPTYr107 (created_at=now), 3 hàng grading_regression_cases đã xoá, bài QR91A đã khôi phục (sha256 khớp). Cổng decision đã tắt, fake đã reset, worker FAKE_MODE rỗng (Main sửa lại env).
+- Bài học: script cũ b3_lat2.py có lỗi nhịp (`sleep(i/rate)` tính từ lúc luồng bắt đầu → ~35 phút); đã sửa ở s10x/d0107.py. Kill lượt đang giữ khoá `/tmp/qc2-pw.sh` có thể để khoá mồ côi (đã gỡ 2 lần, ghi trong /tmp/qc2-global-changes.log).

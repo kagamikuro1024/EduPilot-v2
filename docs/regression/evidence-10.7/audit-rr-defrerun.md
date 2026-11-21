@@ -1,6 +1,6 @@
 # QC 10.7 — audit khung trang «rr-defrerun» (móc `data-ep-*`)
 
-**162** lượt chụp (dữ liệu 108, rỗng 54, đang tải 0, lỗi 0); lỗi chụp 0. Số đo từ DOM (`frontend/e2e/qc-ui-audit-real.spec.ts` v2), tiêu chí theo `techlead.md` mục 1.2. Ảnh có hai đường gióng xanh ở mép cột mong đợi. Lưới ảnh: `audit.html` (xếp theo kiểu trang). So với hiện trạng: `audit-truoc.md`.
+**310** lượt chụp (dữ liệu 108, rỗng 94, đang tải 54, lỗi 54); lỗi chụp 0. Số đo từ DOM (`frontend/e2e/qc-ui-audit-real.spec.ts` v2), tiêu chí theo `techlead.md` mục 1.2. Ảnh có hai đường gióng xanh ở mép cột mong đợi. Lưới ảnh: `audit.html` (xếp theo kiểu trang). So với hiện trạng: `audit-truoc.md`.
 
 - Dữ liệu = lớp 761987; rỗng = lớp QCEMPTY (sv31, teacher, ta). Đang tải = mọi `/api/v1/**` (trừ `auth`, `me`) giữ 5 s, chụp ở 0,8 s. Lỗi = 500. Đang tải / lỗi chỉ một vai mỗi route.
 - Không đo: C1 (`contrast.spec.ts`), C2 diện tích đỏ (xem mục cuối nếu có PIL), P5 giữa các `Split`.
@@ -51,45 +51,43 @@
 
 ## Chữ ký khung (kiểu, h1.left, cột.left, cột.width, có meta, đệm panel, hình khối rỗng)
 
-### 1440 px — **13** chữ ký (đạt ≤ 4: CHƯA)
+### 1440 px — **12** chữ ký (đạt ≤ 4: CHƯA)
 
 | Số lượt | Chữ ký | Ví dụ (tối đa 4) |
 | --- | --- | --- |
-| 18 | ('read', 428, 428, 800, False, 24, '-') | student/practice[data], student/practice/history[data], student/exams[data], student/library[data] |
-| 17 | ('work', 240, 240, 1176, False, 24, '-') | student/threads[data], student/calendar[data], ta/grading[data], ta/threads[data] |
-| 15 | ('work', 240, 240, 1176, True, 24, '-') | ta/[data], ta/students[data], ta/attendance[data], ta/gradebook[data] |
-| 10 | ('work', 240, 240, 1176, False, 24, 'title') | student/threads[empty], student/calendar[empty], ta/inbox[empty], ta/gradebook[empty] |
+| 21 | ('read', 428, 428, 800, False, 24, '-') | student/practice[data], student/practice/history[data], student/exams[data], student/library[data] |
+| 20 | ('work', 240, 240, 1176, False, 24, '-') | student/threads[data], student/calendar[data], ta/grading[data], ta/threads[data] |
+| 18 | ('work', 240, 240, 1176, True, 24, '-') | ta/[data], ta/students[data], ta/attendance[data], ta/gradebook[data] |
+| 17 | ('work', 240, 240, 1176, False, 24, 'title') | student/threads[empty], student/calendar[empty], ta/inbox[empty], ta/gradebook[empty] |
+| 6 | ('read', 428, 428, 800, False, 24, 'title') | student/practice[empty], student/exams[empty], student/library[empty], student/me[empty] |
 | 5 | ('read', 428, 428, 800, True, 24, '-') | student/[data], ta/insights[data], ta/analytics[data], teacher/insights[data] |
-| 5 | ('read', 428, 428, 800, False, 24, 'title') | student/practice[empty], student/exams[empty], student/library[empty], student/me[empty] |
+| 3 | ('read', 428, 428, 800, True, 24, 'title') | student/[empty], ta/analytics[empty], teacher/analytics[empty] |
+| 3 | ('read', 428, 428, 800, False, 24, 'title+nút') | student/practice/history[empty], ta/insights[empty], teacher/insights[empty] |
+| 3 | ('work', 240, 240, 1176, False, 24, 'title+nút') | ta/attendance[empty], teacher/attendance[empty], teacher/gradebook[empty] |
 | 2 | ('work', 240, 240, 1176, False, 0, 'title') | student/chat[data], student/chat[empty] |
 | 2 | ('work', 240, 240, 1176, False, 0, '-') | ta/inbox[data], teacher/inbox[data] |
-| 2 | ('read', 428, 428, 800, True, 24, 'title') | student/[empty], ta/analytics[empty] |
-| 2 | ('read', 428, 428, 800, False, 24, 'title+nút') | student/practice/history[empty], ta/insights[empty] |
 | 1 | ('read', 428, 428, 800, True, None, '-') | admin/[data] |
-| 1 | ('work', 240, 240, 1176, True, 24, 'title') | admin/observability[data] |
-| 1 | ('work', 240, 240, 1176, False, 24, 'title+nút') | ta/attendance[empty] |
 
-### 375 px — **13** chữ ký (đạt ≤ 2: CHƯA)
+### 375 px — **12** chữ ký (đạt ≤ 2: CHƯA)
 
 | Số lượt | Chữ ký | Ví dụ (tối đa 4) |
 | --- | --- | --- |
-| 18 | ('work', 12, 12, 351, False, 16, '-') | student/threads[data], student/calendar[data], ta/grading[data], ta/threads[data] |
-| 18 | ('read', 12, 12, 351, False, 16, '-') | student/practice[data], student/practice/history[data], student/exams[data], student/library[data] |
-| 15 | ('work', 12, 12, 351, True, 16, '-') | ta/[data], ta/students[data], ta/attendance[data], ta/gradebook[data] |
-| 9 | ('work', 12, 12, 351, False, 16, 'title') | student/threads[empty], student/calendar[empty], ta/inbox[empty], ta/gradebook/scheme[empty] |
+| 21 | ('read', 12, 12, 351, False, 16, '-') | student/practice[data], student/practice/history[data], student/exams[data], student/library[data] |
+| 19 | ('work', 12, 12, 351, False, 16, '-') | student/threads[data], student/calendar[data], ta/grading[data], ta/threads[data] |
+| 18 | ('work', 12, 12, 351, True, 16, '-') | ta/[data], ta/students[data], ta/attendance[data], ta/gradebook[data] |
+| 18 | ('work', 12, 12, 351, False, 16, 'title') | student/threads[empty], student/calendar[empty], ta/inbox[empty], ta/gradebook[empty] |
+| 6 | ('read', 12, 12, 351, False, 16, 'title') | student/practice[empty], student/exams[empty], student/library[empty], student/me[empty] |
 | 5 | ('read', 12, 12, 351, True, 16, '-') | student/[data], ta/insights[data], ta/analytics[data], teacher/insights[data] |
-| 5 | ('read', 12, 12, 351, False, 16, 'title') | student/practice[empty], student/exams[empty], student/library[empty], student/me[empty] |
+| 3 | ('read', 12, 12, 351, True, 16, 'title') | student/[empty], ta/analytics[empty], teacher/analytics[empty] |
+| 3 | ('read', 12, 12, 351, False, 16, 'title+nút') | student/practice/history[empty], ta/insights[empty], teacher/insights[empty] |
+| 3 | ('work', 12, 12, 351, False, 16, 'title+nút') | ta/attendance[empty], teacher/attendance[empty], teacher/gradebook[empty] |
 | 2 | ('work', 12, 12, 351, False, 0, 'title') | student/chat[data], student/chat[empty] |
 | 2 | ('work', 12, 12, 351, False, 0, '-') | ta/inbox[data], teacher/inbox[data] |
-| 2 | ('read', 12, 12, 351, True, 16, 'title') | student/[empty], ta/analytics[empty] |
-| 2 | ('read', 12, 12, 351, False, 16, 'title+nút') | student/practice/history[empty], ta/insights[empty] |
 | 1 | ('read', 12, 12, 351, True, None, '-') | admin/[data] |
-| 1 | ('work', 12, 12, 351, True, 16, 'title') | admin/observability[data] |
-| 1 | ('work', 12, 12, 351, False, 16, 'title+nút') | ta/attendance[empty] |
 
 ## Chưa đo / không áp dụng (TL 14)
 
-- **E7 chưa đo:** ta/students (empty@1440/empty@375) — lớp QCEMPTY vẫn có 1 sinh viên; `analytics` là màn mô phỏng (nợ sprint 11).
+- **E7 chưa đo:** ta/students (empty@1440/empty@375), teacher/students (empty@1440/empty@375) — lớp QCEMPTY vẫn có 1 sinh viên; `analytics` là màn mô phỏng (nợ sprint 11).
 - **E7 không áp dụng (11 route):** student/settings, ta/ và teacher/ (Hôm nay), ta/ và teacher/ class/members, class/settings, ta/ và teacher/ settings, teacher/settings/llm, teacher/settings/integrations.
 
 - **D3 mục > 112 px ở 375 (liệt kê để xem ảnh, không tính lệch; TL 14.8):** –

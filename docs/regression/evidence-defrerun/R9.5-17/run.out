@@ -1,0 +1,14 @@
+[6/20] Đăng ký, xác minh email và đăng nhập các sinh viên còn lại…
+Seed lỗi: Chưa xác minh được email của sv38
+rc=1 11 s
+[6/20] Đăng ký, xác minh email và đăng nhập các sinh viên còn lại…
+Seed lỗi: Chưa xác minh được email của sv38
+rc=1 10 s
+scripts/check-assignments-seed.mjs 0
+scripts/check-chat-seed.mjs 1
+scripts/check-crm-seed.mjs 1
+scripts/check-docs-seed.mjs 1
+scripts/check-exam-seed.mjs 2
+scripts/check-grade-seed.mjs 1
+scripts/check-knowledge-seed.mjs 1
+diff rc=1 lines=       8

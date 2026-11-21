@@ -1,0 +1,32 @@
+r5s06 r5s12201  202201
+ 202
+r5s01 201 202
+r5s03 201 202
+r5s07 201 202
+r5s05 201 202
+r5s11 ERR login r5s11 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s20 ERR login r5s20 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s09 ERR login r5s09 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s21 ERR login r5s21 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s13 ERR login r5s13 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s28 ERR login r5s28 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s27r5s26 ERR  ERR login r5s27 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+login r5s26 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s04 ERR login r5s04 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s08 ERR login r5s08 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s16 ERR login r5s16 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s23 ERR login r5s23 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s10 ERR login r5s10 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s14 ERR login r5s14 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s29r5s30 r5s17r5s24ERR ERR  ERR login r5s24 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+ ERRlogin r5s29 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+ login r5s30 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát." login r5s17 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s25 ERR login r5s25 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+
+r5s18 ERR login r5s18 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s15 ERR login r5s15 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s19 ERR login r5s19 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s22 ERR login r5s22 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+r5s02 ERR login r5s02 429 {"code":"RATE_LIMITED","message":"Bạn thao tác quá nhanh. Hãy thử lại sau giây lát."
+F TC-PE06-27 smkP @634d59c5: r5s32 nộp code khi 30 SV khác đang xếp hàng chấm (smkP_flood.py): chuỗi trạng thái ["…@0.0s","Đã nhận, đang xếp hàng@0.2s"]; nhãn «Đã nhận, đang
+rc=0

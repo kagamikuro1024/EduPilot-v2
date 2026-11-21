@@ -4,4 +4,9 @@ TC-G10-13	P	(chuyển qc3 ghi 10.6); evidence-10.6/s10x/g10-13.md
 TC-D08-14	F	DEF-R105S-02; evidence-10.5/s10x/d0814.txt
 TC-D04-09	P	evidence-10.5/s10x/run-s10x.log, regex-alone.log
 TC-D01-07	N	đo lệch do tải/bản giả dùng chung, cần ep-r riêng; xem smoke-10.5.md
+TC-D04-01	N	cần worker đổi env + lượt > 8 phút; xem smoke-10.5.md
 TC-D04-11	N	không có GEMINI_API_KEY (ep-r real_allowed:false); xem smoke-10.5.md
+DEF-R10.7-01	H3,E7,P5 (teacher+admin /observability, 1440/375)	P	H3=0 E7=0 P5=0; ep-r aba738ef, audit pha rr-defrerun 310 lượt (data 108, rỗng 94, tải 54, lỗi 54; lỗi chụp 0), evidence-10.7/audit-rr-defrerun.md; log evidence-defrerun/R10.7/all.log
+DEF-R10.7-02	H7,X3 (/gradebook)	P	H7=0 X3=0; ep-r aba738ef, audit pha rr-defrerun 310 lượt (data 108, rỗng 94, tải 54, lỗi 54; lỗi chụp 0), evidence-10.7/audit-rr-defrerun.md; log evidence-defrerun/R10.7/all.log
+DEF-R10.7-03	X3 (student /practice 375 tải/lỗi)	P	X3=0; ep-r aba738ef, audit pha rr-defrerun 310 lượt (data 108, rỗng 94, tải 54, lỗi 54; lỗi chụp 0), evidence-10.7/audit-rr-defrerun.md; log evidence-defrerun/R10.7/all.log
+DEF-R10.7-04	T2 (/settings/llm)	P	T2=0; ep-r aba738ef, audit pha rr-defrerun 310 lượt (data 108, rỗng 94, tải 54, lỗi 54; lỗi chụp 0), evidence-10.7/audit-rr-defrerun.md; log evidence-defrerun/R10.7/all.log

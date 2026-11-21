@@ -1,3 +1,10 @@
 scripts/check-docs-seed.mjs 143
 scripts/check-exam-seed.mjs 2
 scripts/check-grade-seed.mjs 1
+scripts/check-assignments-seed.mjs 0
+scripts/check-chat-seed.mjs 1
+scripts/check-crm-seed.mjs 1
+scripts/check-docs-seed.mjs 1
+scripts/check-exam-seed.mjs 2
+scripts/check-grade-seed.mjs 1
+scripts/check-knowledge-seed.mjs 1
