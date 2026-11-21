@@ -1,0 +1,1629 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: exam-submit.js
+        output: -
+
+     scenarios: (100.00%) 3 scenarios, 122 max VUs, 5m30s max duration (incl. graceful stop):
+              * chat: 50 looping VUs for 5m0s (exec: chatVU, gracefulStop: 30s)
+              * judge_burst: 0.20 iterations/s for 5m0s (maxVUs: 30-60, exec: judgeBurst, gracefulStop: 30s)
+              * run_probe: 0.10 iterations/s for 5m0s (maxVUs: 6-12, exec: runProbe, gracefulStop: 30s)
+
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+Run           [ 100% ] setup()
+chat          [   0% ]
+judge_burst   [   0% ]
+run_probe     [   0% ]
+
+running (0m18.0s), 052/086 VUs, 50 complete and 0 interrupted iterations
+chat          [   0% ] 50 VUs     0m00.6s/5m0s 
+judge_burst   [   0% ] 01/30 VUs  0m00.6s/5m0s  0.20 iters/s
+run_probe     [   0% ] 01/06 VUs  0m00.6s/5m0s  0.10 iters/s
+
+running (0m19.0s), 052/086 VUs, 250 complete and 0 interrupted iterations
+chat          [   1% ] 50 VUs     0m01.6s/5m0s 
+judge_burst   [   1% ] 01/30 VUs  0m01.6s/5m0s  0.20 iters/s
+run_probe     [   1% ] 01/06 VUs  0m01.6s/5m0s  0.10 iters/s
+
+running (0m20.0s), 051/086 VUs, 401 complete and 0 interrupted iterations
+chat          [   1% ] 50 VUs     0m02.6s/5m0s 
+judge_burst   [   1% ] 01/30 VUs  0m02.6s/5m0s  0.20 iters/s
+run_probe     [   1% ] 00/06 VUs  0m02.6s/5m0s  0.10 iters/s
+
+running (0m21.0s), 050/086 VUs, 552 complete and 0 interrupted iterations
+chat          [   1% ] 50 VUs     0m03.6s/5m0s 
+judge_burst   [   1% ] 00/30 VUs  0m03.6s/5m0s  0.20 iters/s
+run_probe     [   1% ] 00/06 VUs  0m03.6s/5m0s  0.10 iters/s
+
+running (0m22.0s), 050/086 VUs, 713 complete and 0 interrupted iterations
+chat          [   2% ] 50 VUs     0m04.6s/5m0s 
+judge_burst   [   2% ] 00/30 VUs  0m04.6s/5m0s  0.20 iters/s
+run_probe     [   2% ] 00/06 VUs  0m04.6s/5m0s  0.10 iters/s
+
+running (0m23.0s), 051/086 VUs, 902 complete and 0 interrupted iterations
+chat          [   2% ] 50 VUs     0m05.6s/5m0s 
+judge_burst   [   2% ] 01/30 VUs  0m05.6s/5m0s  0.20 iters/s
+run_probe     [   2% ] 00/06 VUs  0m05.6s/5m0s  0.10 iters/s
+
+running (0m24.0s), 051/086 VUs, 1052 complete and 0 interrupted iterations
+chat          [   2% ] 50 VUs     0m06.6s/5m0s 
+judge_burst   [   2% ] 01/30 VUs  0m06.6s/5m0s  0.20 iters/s
+run_probe     [   2% ] 00/06 VUs  0m06.6s/5m0s  0.10 iters/s
+
+running (0m25.0s), 050/086 VUs, 1203 complete and 0 interrupted iterations
+chat          [   3% ] 50 VUs     0m07.6s/5m0s 
+judge_burst   [   3% ] 00/30 VUs  0m07.6s/5m0s  0.20 iters/s
+run_probe     [   3% ] 00/06 VUs  0m07.6s/5m0s  0.10 iters/s
+
+running (0m26.0s), 050/086 VUs, 1403 complete and 0 interrupted iterations
+chat          [   3% ] 50 VUs     0m08.6s/5m0s 
+judge_burst   [   3% ] 00/30 VUs  0m08.6s/5m0s  0.20 iters/s
+run_probe     [   3% ] 00/06 VUs  0m08.6s/5m0s  0.10 iters/s
+
+running (0m27.0s), 050/086 VUs, 1553 complete and 0 interrupted iterations
+chat          [   3% ] 50 VUs     0m09.6s/5m0s 
+judge_burst   [   3% ] 00/30 VUs  0m09.6s/5m0s  0.20 iters/s
+run_probe     [   3% ] 00/06 VUs  0m09.6s/5m0s  0.10 iters/s
+
+running (0m28.0s), 052/086 VUs, 1703 complete and 0 interrupted iterations
+chat          [   4% ] 50 VUs     0m10.6s/5m0s 
+judge_burst   [   4% ] 01/30 VUs  0m10.6s/5m0s  0.20 iters/s
+run_probe     [   4% ] 01/06 VUs  0m10.6s/5m0s  0.10 iters/s
+
+running (0m29.0s), 052/086 VUs, 1858 complete and 0 interrupted iterations
+chat          [   4% ] 50 VUs     0m11.6s/5m0s 
+judge_burst   [   4% ] 01/30 VUs  0m11.6s/5m0s  0.20 iters/s
+run_probe     [   4% ] 01/06 VUs  0m11.6s/5m0s  0.10 iters/s
+
+running (0m30.0s), 050/086 VUs, 2055 complete and 0 interrupted iterations
+chat          [   4% ] 50 VUs     0m12.6s/5m0s 
+judge_burst   [   4% ] 00/30 VUs  0m12.6s/5m0s  0.20 iters/s
+run_probe     [   4% ] 00/06 VUs  0m12.6s/5m0s  0.10 iters/s
+
+running (0m31.0s), 050/086 VUs, 2205 complete and 0 interrupted iterations
+chat          [   5% ] 50 VUs     0m13.6s/5m0s 
+judge_burst   [   5% ] 00/30 VUs  0m13.6s/5m0s  0.20 iters/s
+run_probe     [   5% ] 00/06 VUs  0m13.6s/5m0s  0.10 iters/s
+
+running (0m32.0s), 050/086 VUs, 2355 complete and 0 interrupted iterations
+chat          [   5% ] 50 VUs     0m14.6s/5m0s 
+judge_burst   [   5% ] 00/30 VUs  0m14.6s/5m0s  0.20 iters/s
+run_probe     [   5% ] 00/06 VUs  0m14.6s/5m0s  0.10 iters/s
+
+running (0m33.0s), 051/086 VUs, 2542 complete and 0 interrupted iterations
+chat          [   5% ] 50 VUs     0m15.6s/5m0s 
+judge_burst   [   5% ] 01/30 VUs  0m15.6s/5m0s  0.20 iters/s
+run_probe     [   5% ] 00/06 VUs  0m15.6s/5m0s  0.10 iters/s
+
+running (0m34.0s), 051/086 VUs, 2705 complete and 0 interrupted iterations
+chat          [   6% ] 50 VUs     0m16.6s/5m0s 
+judge_burst   [   6% ] 01/30 VUs  0m16.6s/5m0s  0.20 iters/s
+run_probe     [   6% ] 00/06 VUs  0m16.6s/5m0s  0.10 iters/s
+
+running (0m35.0s), 050/086 VUs, 2856 complete and 0 interrupted iterations
+chat          [   6% ] 50 VUs     0m17.6s/5m0s 
+judge_burst   [   6% ] 00/30 VUs  0m17.6s/5m0s  0.20 iters/s
+run_probe     [   6% ] 00/06 VUs  0m17.6s/5m0s  0.10 iters/s
+
+running (0m36.0s), 050/086 VUs, 3017 complete and 0 interrupted iterations
+chat          [   6% ] 50 VUs     0m18.6s/5m0s 
+judge_burst   [   6% ] 00/30 VUs  0m18.6s/5m0s  0.20 iters/s
+run_probe     [   6% ] 00/06 VUs  0m18.6s/5m0s  0.10 iters/s
+
+running (0m37.0s), 050/086 VUs, 3206 complete and 0 interrupted iterations
+chat          [   7% ] 50 VUs     0m19.6s/5m0s 
+judge_burst   [   7% ] 00/30 VUs  0m19.6s/5m0s  0.20 iters/s
+run_probe     [   7% ] 00/06 VUs  0m19.6s/5m0s  0.10 iters/s
+
+running (0m38.0s), 052/086 VUs, 3356 complete and 0 interrupted iterations
+chat          [   7% ] 50 VUs     0m20.6s/5m0s 
+judge_burst   [   7% ] 01/30 VUs  0m20.6s/5m0s  0.20 iters/s
+run_probe     [   7% ] 01/06 VUs  0m20.6s/5m0s  0.10 iters/s
+
+running (0m39.0s), 052/086 VUs, 3506 complete and 0 interrupted iterations
+chat          [   7% ] 50 VUs     0m21.6s/5m0s 
+judge_burst   [   7% ] 01/30 VUs  0m21.6s/5m0s  0.20 iters/s
+run_probe     [   7% ] 01/06 VUs  0m21.6s/5m0s  0.10 iters/s
+
+running (0m40.0s), 050/086 VUs, 3670 complete and 0 interrupted iterations
+chat          [   8% ] 50 VUs     0m22.6s/5m0s 
+judge_burst   [   8% ] 00/30 VUs  0m22.6s/5m0s  0.20 iters/s
+run_probe     [   8% ] 00/06 VUs  0m22.6s/5m0s  0.10 iters/s
+
+running (0m41.0s), 050/086 VUs, 3858 complete and 0 interrupted iterations
+chat          [   8% ] 50 VUs     0m23.6s/5m0s 
+judge_burst   [   8% ] 00/30 VUs  0m23.6s/5m0s  0.20 iters/s
+run_probe     [   8% ] 00/06 VUs  0m23.6s/5m0s  0.10 iters/s
+
+running (0m42.0s), 050/086 VUs, 4008 complete and 0 interrupted iterations
+chat          [   8% ] 50 VUs     0m24.6s/5m0s 
+judge_burst   [   8% ] 00/30 VUs  0m24.6s/5m0s  0.20 iters/s
+run_probe     [   8% ] 00/06 VUs  0m24.6s/5m0s  0.10 iters/s
+
+running (0m43.0s), 051/086 VUs, 4159 complete and 0 interrupted iterations
+chat          [   9% ] 50 VUs     0m25.6s/5m0s 
+judge_burst   [   9% ] 01/30 VUs  0m25.6s/5m0s  0.20 iters/s
+run_probe     [   9% ] 00/06 VUs  0m25.6s/5m0s  0.10 iters/s
+
+running (0m44.0s), 051/086 VUs, 4358 complete and 0 interrupted iterations
+chat          [   9% ] 50 VUs     0m26.6s/5m0s 
+judge_burst   [   9% ] 01/30 VUs  0m26.6s/5m0s  0.20 iters/s
+run_probe     [   9% ] 00/06 VUs  0m26.6s/5m0s  0.10 iters/s
+
+running (0m45.0s), 050/086 VUs, 4509 complete and 0 interrupted iterations
+chat          [   9% ] 50 VUs     0m27.6s/5m0s 
+judge_burst   [   9% ] 00/30 VUs  0m27.6s/5m0s  0.20 iters/s
+run_probe     [   9% ] 00/06 VUs  0m27.6s/5m0s  0.10 iters/s
+
+running (0m46.0s), 050/086 VUs, 4659 complete and 0 interrupted iterations
+chat          [  10% ] 50 VUs     0m28.6s/5m0s 
+judge_burst   [  10% ] 00/30 VUs  0m28.6s/5m0s  0.20 iters/s
+run_probe     [  10% ] 00/06 VUs  0m28.6s/5m0s  0.10 iters/s
+
+running (0m47.0s), 050/086 VUs, 4836 complete and 0 interrupted iterations
+chat          [  10% ] 50 VUs     0m29.6s/5m0s 
+judge_burst   [  10% ] 00/30 VUs  0m29.6s/5m0s  0.20 iters/s
+run_probe     [  10% ] 00/06 VUs  0m29.6s/5m0s  0.10 iters/s
+
+running (0m48.0s), 052/086 VUs, 5009 complete and 0 interrupted iterations
+chat          [  10% ] 50 VUs     0m30.6s/5m0s 
+judge_burst   [  10% ] 01/30 VUs  0m30.6s/5m0s  0.20 iters/s
+run_probe     [  10% ] 01/06 VUs  0m30.6s/5m0s  0.10 iters/s
+
+running (0m49.0s), 052/086 VUs, 5159 complete and 0 interrupted iterations
+chat          [  11% ] 50 VUs     0m31.6s/5m0s 
+judge_burst   [  11% ] 01/30 VUs  0m31.6s/5m0s  0.20 iters/s
+run_probe     [  11% ] 01/06 VUs  0m31.6s/5m0s  0.10 iters/s
+
+running (0m50.0s), 052/086 VUs, 5310 complete and 0 interrupted iterations
+chat          [  11% ] 50 VUs     0m32.6s/5m0s 
+judge_burst   [  11% ] 01/30 VUs  0m32.6s/5m0s  0.20 iters/s
+run_probe     [  11% ] 01/06 VUs  0m32.6s/5m0s  0.10 iters/s
+
+running (0m51.0s), 051/086 VUs, 5465 complete and 0 interrupted iterations
+chat          [  11% ] 50 VUs     0m33.6s/5m0s 
+judge_burst   [  11% ] 00/30 VUs  0m33.6s/5m0s  0.20 iters/s
+run_probe     [  11% ] 01/06 VUs  0m33.6s/5m0s  0.10 iters/s
+
+running (0m52.0s), 050/086 VUs, 5626 complete and 0 interrupted iterations
+chat          [  12% ] 50 VUs     0m34.6s/5m0s 
+judge_burst   [  12% ] 00/30 VUs  0m34.6s/5m0s  0.20 iters/s
+run_probe     [  12% ] 00/06 VUs  0m34.6s/5m0s  0.10 iters/s
+
+running (0m53.0s), 051/086 VUs, 5785 complete and 0 interrupted iterations
+chat          [  12% ] 50 VUs     0m35.6s/5m0s 
+judge_burst   [  12% ] 01/30 VUs  0m35.6s/5m0s  0.20 iters/s
+run_probe     [  12% ] 00/06 VUs  0m35.6s/5m0s  0.10 iters/s
+
+running (0m54.0s), 051/086 VUs, 5962 complete and 0 interrupted iterations
+chat          [  12% ] 50 VUs     0m36.6s/5m0s 
+judge_burst   [  12% ] 01/30 VUs  0m36.6s/5m0s  0.20 iters/s
+run_probe     [  12% ] 00/06 VUs  0m36.6s/5m0s  0.10 iters/s
+
+running (0m55.0s), 050/086 VUs, 6120 complete and 0 interrupted iterations
+chat          [  13% ] 50 VUs     0m37.6s/5m0s 
+judge_burst   [  13% ] 00/30 VUs  0m37.6s/5m0s  0.20 iters/s
+run_probe     [  13% ] 00/06 VUs  0m37.6s/5m0s  0.10 iters/s
+
+running (0m56.0s), 050/086 VUs, 6280 complete and 0 interrupted iterations
+chat          [  13% ] 50 VUs     0m38.6s/5m0s 
+judge_burst   [  13% ] 00/30 VUs  0m38.6s/5m0s  0.20 iters/s
+run_probe     [  13% ] 00/06 VUs  0m38.6s/5m0s  0.10 iters/s
+
+running (0m57.0s), 050/086 VUs, 6436 complete and 0 interrupted iterations
+chat          [  13% ] 50 VUs     0m39.6s/5m0s 
+judge_burst   [  13% ] 00/30 VUs  0m39.6s/5m0s  0.20 iters/s
+run_probe     [  13% ] 00/06 VUs  0m39.6s/5m0s  0.10 iters/s
+
+running (0m58.0s), 052/086 VUs, 6602 complete and 0 interrupted iterations
+chat          [  14% ] 50 VUs     0m40.6s/5m0s 
+judge_burst   [  14% ] 01/30 VUs  0m40.6s/5m0s  0.20 iters/s
+run_probe     [  14% ] 01/06 VUs  0m40.6s/5m0s  0.10 iters/s
+
+running (0m59.0s), 052/086 VUs, 6754 complete and 0 interrupted iterations
+chat          [  14% ] 50 VUs     0m41.6s/5m0s 
+judge_burst   [  14% ] 01/30 VUs  0m41.6s/5m0s  0.20 iters/s
+run_probe     [  14% ] 01/06 VUs  0m41.6s/5m0s  0.10 iters/s
+
+running (1m00.0s), 052/086 VUs, 6929 complete and 0 interrupted iterations
+chat          [  14% ] 50 VUs     0m42.6s/5m0s 
+judge_burst   [  14% ] 01/30 VUs  0m42.6s/5m0s  0.20 iters/s
+run_probe     [  14% ] 01/06 VUs  0m42.6s/5m0s  0.10 iters/s
+
+running (1m01.0s), 050/086 VUs, 7088 complete and 0 interrupted iterations
+chat          [  15% ] 50 VUs     0m43.6s/5m0s 
+judge_burst   [  15% ] 00/30 VUs  0m43.6s/5m0s  0.20 iters/s
+run_probe     [  15% ] 00/06 VUs  0m43.6s/5m0s  0.10 iters/s
+
+running (1m02.0s), 050/086 VUs, 7247 complete and 0 interrupted iterations
+chat          [  15% ] 50 VUs     0m44.6s/5m0s 
+judge_burst   [  15% ] 00/30 VUs  0m44.6s/5m0s  0.20 iters/s
+run_probe     [  15% ] 00/06 VUs  0m44.6s/5m0s  0.10 iters/s
+
+running (1m03.0s), 051/086 VUs, 7411 complete and 0 interrupted iterations
+chat          [  15% ] 50 VUs     0m45.6s/5m0s 
+judge_burst   [  15% ] 01/30 VUs  0m45.6s/5m0s  0.20 iters/s
+run_probe     [  15% ] 00/06 VUs  0m45.6s/5m0s  0.10 iters/s
+
+running (1m04.0s), 051/086 VUs, 7584 complete and 0 interrupted iterations
+chat          [  16% ] 50 VUs     0m46.6s/5m0s 
+judge_burst   [  16% ] 01/30 VUs  0m46.6s/5m0s  0.20 iters/s
+run_probe     [  16% ] 00/06 VUs  0m46.6s/5m0s  0.10 iters/s
+
+running (1m05.0s), 051/086 VUs, 7739 complete and 0 interrupted iterations
+chat          [  16% ] 50 VUs     0m47.6s/5m0s 
+judge_burst   [  16% ] 01/30 VUs  0m47.6s/5m0s  0.20 iters/s
+run_probe     [  16% ] 00/06 VUs  0m47.6s/5m0s  0.10 iters/s
+
+running (1m06.0s), 050/086 VUs, 7900 complete and 0 interrupted iterations
+chat          [  16% ] 50 VUs     0m48.6s/5m0s 
+judge_burst   [  16% ] 00/30 VUs  0m48.6s/5m0s  0.20 iters/s
+run_probe     [  16% ] 00/06 VUs  0m48.6s/5m0s  0.10 iters/s
+
+running (1m07.0s), 050/086 VUs, 8064 complete and 0 interrupted iterations
+chat          [  17% ] 50 VUs     0m49.6s/5m0s 
+judge_burst   [  17% ] 00/30 VUs  0m49.6s/5m0s  0.20 iters/s
+run_probe     [  17% ] 00/06 VUs  0m49.6s/5m0s  0.10 iters/s
+
+running (1m08.0s), 052/086 VUs, 8215 complete and 0 interrupted iterations
+chat          [  17% ] 50 VUs     0m50.6s/5m0s 
+judge_burst   [  17% ] 01/30 VUs  0m50.6s/5m0s  0.20 iters/s
+run_probe     [  17% ] 01/06 VUs  0m50.6s/5m0s  0.10 iters/s
+
+running (1m09.0s), 052/086 VUs, 8374 complete and 0 interrupted iterations
+chat          [  17% ] 50 VUs     0m51.6s/5m0s 
+judge_burst   [  17% ] 01/30 VUs  0m51.6s/5m0s  0.20 iters/s
+run_probe     [  17% ] 01/06 VUs  0m51.6s/5m0s  0.10 iters/s
+
+running (1m10.0s), 051/086 VUs, 8553 complete and 0 interrupted iterations
+chat          [  18% ] 50 VUs     0m52.6s/5m0s 
+judge_burst   [  18% ] 01/30 VUs  0m52.6s/5m0s  0.20 iters/s
+run_probe     [  18% ] 00/06 VUs  0m52.6s/5m0s  0.10 iters/s
+
+running (1m11.0s), 050/086 VUs, 8717 complete and 0 interrupted iterations
+chat          [  18% ] 50 VUs     0m53.6s/5m0s 
+judge_burst   [  18% ] 00/30 VUs  0m53.6s/5m0s  0.20 iters/s
+run_probe     [  18% ] 00/06 VUs  0m53.6s/5m0s  0.10 iters/s
+
+running (1m12.0s), 050/086 VUs, 8867 complete and 0 interrupted iterations
+chat          [  18% ] 50 VUs     0m54.6s/5m0s 
+judge_burst   [  18% ] 00/30 VUs  0m54.6s/5m0s  0.20 iters/s
+run_probe     [  18% ] 00/06 VUs  0m54.6s/5m0s  0.10 iters/s
+
+running (1m13.0s), 051/086 VUs, 9026 complete and 0 interrupted iterations
+chat          [  19% ] 50 VUs     0m55.6s/5m0s 
+judge_burst   [  19% ] 01/30 VUs  0m55.6s/5m0s  0.20 iters/s
+run_probe     [  19% ] 00/06 VUs  0m55.6s/5m0s  0.10 iters/s
+
+running (1m14.0s), 051/086 VUs, 9196 complete and 0 interrupted iterations
+chat          [  19% ] 50 VUs     0m56.6s/5m0s 
+judge_burst   [  19% ] 01/30 VUs  0m56.6s/5m0s  0.20 iters/s
+run_probe     [  19% ] 00/06 VUs  0m56.6s/5m0s  0.10 iters/s
+
+running (1m15.0s), 051/086 VUs, 9356 complete and 0 interrupted iterations
+chat          [  19% ] 50 VUs     0m57.6s/5m0s 
+judge_burst   [  19% ] 01/30 VUs  0m57.6s/5m0s  0.20 iters/s
+run_probe     [  19% ] 00/06 VUs  0m57.6s/5m0s  0.10 iters/s
+
+running (1m16.0s), 050/086 VUs, 9518 complete and 0 interrupted iterations
+chat          [  20% ] 50 VUs     0m58.6s/5m0s 
+judge_burst   [  20% ] 00/30 VUs  0m58.6s/5m0s  0.20 iters/s
+run_probe     [  20% ] 00/06 VUs  0m58.6s/5m0s  0.10 iters/s
+
+running (1m17.0s), 050/086 VUs, 9678 complete and 0 interrupted iterations
+chat          [  20% ] 50 VUs     0m59.6s/5m0s 
+judge_burst   [  20% ] 00/30 VUs  0m59.6s/5m0s  0.20 iters/s
+run_probe     [  20% ] 00/06 VUs  0m59.6s/5m0s  0.10 iters/s
+
+running (1m18.0s), 052/086 VUs, 9840 complete and 0 interrupted iterations
+chat          [  20% ] 50 VUs     1m00.6s/5m0s 
+judge_burst   [  20% ] 01/30 VUs  1m00.6s/5m0s  0.20 iters/s
+run_probe     [  20% ] 01/06 VUs  1m00.6s/5m0s  0.10 iters/s
+
+running (1m19.0s), 052/086 VUs, 9998 complete and 0 interrupted iterations
+chat          [  21% ] 50 VUs     1m01.6s/5m0s 
+judge_burst   [  21% ] 01/30 VUs  1m01.6s/5m0s  0.20 iters/s
+run_probe     [  21% ] 01/06 VUs  1m01.6s/5m0s  0.10 iters/s
+
+running (1m20.0s), 050/086 VUs, 10170 complete and 0 interrupted iterations
+chat          [  21% ] 50 VUs     1m02.6s/5m0s 
+judge_burst   [  21% ] 00/30 VUs  1m02.6s/5m0s  0.20 iters/s
+run_probe     [  21% ] 00/06 VUs  1m02.6s/5m0s  0.10 iters/s
+
+running (1m21.0s), 050/086 VUs, 10330 complete and 0 interrupted iterations
+chat          [  21% ] 50 VUs     1m03.6s/5m0s 
+judge_burst   [  21% ] 00/30 VUs  1m03.6s/5m0s  0.20 iters/s
+run_probe     [  21% ] 00/06 VUs  1m03.6s/5m0s  0.10 iters/s
+
+running (1m22.0s), 050/086 VUs, 10492 complete and 0 interrupted iterations
+chat          [  22% ] 50 VUs     1m04.6s/5m0s 
+judge_burst   [  22% ] 00/30 VUs  1m04.6s/5m0s  0.20 iters/s
+run_probe     [  22% ] 00/06 VUs  1m04.6s/5m0s  0.10 iters/s
+
+running (1m23.0s), 051/086 VUs, 10654 complete and 0 interrupted iterations
+chat          [  22% ] 50 VUs     1m05.6s/5m0s 
+judge_burst   [  22% ] 01/30 VUs  1m05.6s/5m0s  0.20 iters/s
+run_probe     [  22% ] 00/06 VUs  1m05.6s/5m0s  0.10 iters/s
+
+running (1m24.0s), 051/086 VUs, 10820 complete and 0 interrupted iterations
+chat          [  22% ] 50 VUs     1m06.6s/5m0s 
+judge_burst   [  22% ] 01/30 VUs  1m06.6s/5m0s  0.20 iters/s
+run_probe     [  22% ] 00/06 VUs  1m06.6s/5m0s  0.10 iters/s
+
+running (1m25.0s), 050/086 VUs, 10983 complete and 0 interrupted iterations
+chat          [  23% ] 50 VUs     1m07.6s/5m0s 
+judge_burst   [  23% ] 00/30 VUs  1m07.6s/5m0s  0.20 iters/s
+run_probe     [  23% ] 00/06 VUs  1m07.6s/5m0s  0.10 iters/s
+
+running (1m26.0s), 050/086 VUs, 11140 complete and 0 interrupted iterations
+chat          [  23% ] 50 VUs     1m08.6s/5m0s 
+judge_burst   [  23% ] 00/30 VUs  1m08.6s/5m0s  0.20 iters/s
+run_probe     [  23% ] 00/06 VUs  1m08.6s/5m0s  0.10 iters/s
+
+running (1m27.0s), 050/086 VUs, 11302 complete and 0 interrupted iterations
+chat          [  23% ] 50 VUs     1m09.6s/5m0s 
+judge_burst   [  23% ] 00/30 VUs  1m09.6s/5m0s  0.20 iters/s
+run_probe     [  23% ] 00/06 VUs  1m09.6s/5m0s  0.10 iters/s
+
+running (1m28.0s), 052/086 VUs, 11472 complete and 0 interrupted iterations
+chat          [  24% ] 50 VUs     1m10.6s/5m0s 
+judge_burst   [  24% ] 01/30 VUs  1m10.6s/5m0s  0.20 iters/s
+run_probe     [  24% ] 01/06 VUs  1m10.6s/5m0s  0.10 iters/s
+
+running (1m29.0s), 052/086 VUs, 11636 complete and 0 interrupted iterations
+chat          [  24% ] 50 VUs     1m11.6s/5m0s 
+judge_burst   [  24% ] 01/30 VUs  1m11.6s/5m0s  0.20 iters/s
+run_probe     [  24% ] 01/06 VUs  1m11.6s/5m0s  0.10 iters/s
+
+running (1m30.0s), 051/086 VUs, 11792 complete and 0 interrupted iterations
+chat          [  24% ] 50 VUs     1m12.6s/5m0s 
+judge_burst   [  24% ] 01/30 VUs  1m12.6s/5m0s  0.20 iters/s
+run_probe     [  24% ] 00/06 VUs  1m12.6s/5m0s  0.10 iters/s
+
+running (1m31.0s), 050/086 VUs, 11966 complete and 0 interrupted iterations
+chat          [  25% ] 50 VUs     1m13.6s/5m0s 
+judge_burst   [  25% ] 00/30 VUs  1m13.6s/5m0s  0.20 iters/s
+run_probe     [  25% ] 00/06 VUs  1m13.6s/5m0s  0.10 iters/s
+
+running (1m32.0s), 050/086 VUs, 12124 complete and 0 interrupted iterations
+chat          [  25% ] 50 VUs     1m14.6s/5m0s 
+judge_burst   [  25% ] 00/30 VUs  1m14.6s/5m0s  0.20 iters/s
+run_probe     [  25% ] 00/06 VUs  1m14.6s/5m0s  0.10 iters/s
+
+running (1m33.0s), 051/086 VUs, 12290 complete and 0 interrupted iterations
+chat          [  25% ] 50 VUs     1m15.6s/5m0s 
+judge_burst   [  25% ] 01/30 VUs  1m15.6s/5m0s  0.20 iters/s
+run_probe     [  25% ] 00/06 VUs  1m15.6s/5m0s  0.10 iters/s
+
+running (1m34.0s), 051/086 VUs, 12454 complete and 0 interrupted iterations
+chat          [  26% ] 50 VUs     1m16.6s/5m0s 
+judge_burst   [  26% ] 01/30 VUs  1m16.6s/5m0s  0.20 iters/s
+run_probe     [  26% ] 00/06 VUs  1m16.6s/5m0s  0.10 iters/s
+
+running (1m35.0s), 050/086 VUs, 12617 complete and 0 interrupted iterations
+chat          [  26% ] 50 VUs     1m17.6s/5m0s 
+judge_burst   [  26% ] 00/30 VUs  1m17.6s/5m0s  0.20 iters/s
+run_probe     [  26% ] 00/06 VUs  1m17.6s/5m0s  0.10 iters/s
+
+running (1m36.0s), 050/086 VUs, 12779 complete and 0 interrupted iterations
+chat          [  26% ] 50 VUs     1m18.6s/5m0s 
+judge_burst   [  26% ] 00/30 VUs  1m18.6s/5m0s  0.20 iters/s
+run_probe     [  26% ] 00/06 VUs  1m18.6s/5m0s  0.10 iters/s
+
+running (1m37.0s), 050/086 VUs, 12944 complete and 0 interrupted iterations
+chat          [  27% ] 50 VUs     1m19.6s/5m0s 
+judge_burst   [  27% ] 00/30 VUs  1m19.6s/5m0s  0.20 iters/s
+run_probe     [  27% ] 00/06 VUs  1m19.6s/5m0s  0.10 iters/s
+
+running (1m38.0s), 052/086 VUs, 13117 complete and 0 interrupted iterations
+chat          [  27% ] 50 VUs     1m20.6s/5m0s 
+judge_burst   [  27% ] 01/30 VUs  1m20.6s/5m0s  0.20 iters/s
+run_probe     [  27% ] 01/06 VUs  1m20.6s/5m0s  0.10 iters/s
+
+running (1m39.0s), 052/086 VUs, 13268 complete and 0 interrupted iterations
+chat          [  27% ] 50 VUs     1m21.6s/5m0s 
+judge_burst   [  27% ] 01/30 VUs  1m21.6s/5m0s  0.20 iters/s
+run_probe     [  27% ] 01/06 VUs  1m21.6s/5m0s  0.10 iters/s
+
+running (1m40.0s), 052/086 VUs, 13430 complete and 0 interrupted iterations
+chat          [  28% ] 50 VUs     1m22.6s/5m0s 
+judge_burst   [  28% ] 01/30 VUs  1m22.6s/5m0s  0.20 iters/s
+run_probe     [  28% ] 01/06 VUs  1m22.6s/5m0s  0.10 iters/s
+
+running (1m41.0s), 052/086 VUs, 13583 complete and 0 interrupted iterations
+chat          [  28% ] 50 VUs     1m23.6s/5m0s 
+judge_burst   [  28% ] 01/30 VUs  1m23.6s/5m0s  0.20 iters/s
+run_probe     [  28% ] 01/06 VUs  1m23.6s/5m0s  0.10 iters/s
+
+running (1m42.0s), 050/086 VUs, 13755 complete and 0 interrupted iterations
+chat          [  28% ] 50 VUs     1m24.6s/5m0s 
+judge_burst   [  28% ] 00/30 VUs  1m24.6s/5m0s  0.20 iters/s
+run_probe     [  28% ] 00/06 VUs  1m24.6s/5m0s  0.10 iters/s
+
+running (1m43.0s), 051/086 VUs, 13919 complete and 0 interrupted iterations
+chat          [  29% ] 50 VUs     1m25.6s/5m0s 
+judge_burst   [  29% ] 01/30 VUs  1m25.6s/5m0s  0.20 iters/s
+run_probe     [  29% ] 00/06 VUs  1m25.6s/5m0s  0.10 iters/s
+
+running (1m44.0s), 051/086 VUs, 14070 complete and 0 interrupted iterations
+chat          [  29% ] 50 VUs     1m26.6s/5m0s 
+judge_burst   [  29% ] 01/30 VUs  1m26.6s/5m0s  0.20 iters/s
+run_probe     [  29% ] 00/06 VUs  1m26.6s/5m0s  0.10 iters/s
+
+running (1m45.0s), 051/086 VUs, 14235 complete and 0 interrupted iterations
+chat          [  29% ] 50 VUs     1m27.6s/5m0s 
+judge_burst   [  29% ] 01/30 VUs  1m27.6s/5m0s  0.20 iters/s
+run_probe     [  29% ] 00/06 VUs  1m27.6s/5m0s  0.10 iters/s
+
+running (1m46.0s), 050/086 VUs, 14413 complete and 0 interrupted iterations
+chat          [  30% ] 50 VUs     1m28.6s/5m0s 
+judge_burst   [  30% ] 00/30 VUs  1m28.6s/5m0s  0.20 iters/s
+run_probe     [  30% ] 00/06 VUs  1m28.6s/5m0s  0.10 iters/s
+
+running (1m47.0s), 050/086 VUs, 14570 complete and 0 interrupted iterations
+chat          [  30% ] 50 VUs     1m29.6s/5m0s 
+judge_burst   [  30% ] 00/30 VUs  1m29.6s/5m0s  0.20 iters/s
+run_probe     [  30% ] 00/06 VUs  1m29.6s/5m0s  0.10 iters/s
+
+running (1m48.0s), 052/086 VUs, 14735 complete and 0 interrupted iterations
+chat          [  30% ] 50 VUs     1m30.6s/5m0s 
+judge_burst   [  30% ] 01/30 VUs  1m30.6s/5m0s  0.20 iters/s
+run_probe     [  30% ] 01/06 VUs  1m30.6s/5m0s  0.10 iters/s
+
+running (1m49.0s), 052/086 VUs, 14892 complete and 0 interrupted iterations
+chat          [  31% ] 50 VUs     1m31.6s/5m0s 
+judge_burst   [  31% ] 01/30 VUs  1m31.6s/5m0s  0.20 iters/s
+run_probe     [  31% ] 01/06 VUs  1m31.6s/5m0s  0.10 iters/s
+
+running (1m50.0s), 050/086 VUs, 15072 complete and 0 interrupted iterations
+chat          [  31% ] 50 VUs     1m32.6s/5m0s 
+judge_burst   [  31% ] 00/30 VUs  1m32.6s/5m0s  0.20 iters/s
+run_probe     [  31% ] 00/06 VUs  1m32.6s/5m0s  0.10 iters/s
+
+running (1m51.0s), 050/086 VUs, 15223 complete and 0 interrupted iterations
+chat          [  31% ] 50 VUs     1m33.6s/5m0s 
+judge_burst   [  31% ] 00/30 VUs  1m33.6s/5m0s  0.20 iters/s
+run_probe     [  31% ] 00/06 VUs  1m33.6s/5m0s  0.10 iters/s
+
+running (1m52.0s), 050/086 VUs, 15388 complete and 0 interrupted iterations
+chat          [  32% ] 50 VUs     1m34.6s/5m0s 
+judge_burst   [  32% ] 00/30 VUs  1m34.6s/5m0s  0.20 iters/s
+run_probe     [  32% ] 00/06 VUs  1m34.6s/5m0s  0.10 iters/s
+
+running (1m53.0s), 051/086 VUs, 15570 complete and 0 interrupted iterations
+chat          [  32% ] 50 VUs     1m35.6s/5m0s 
+judge_burst   [  32% ] 01/30 VUs  1m35.6s/5m0s  0.20 iters/s
+run_probe     [  32% ] 00/06 VUs  1m35.6s/5m0s  0.10 iters/s
+
+running (1m54.0s), 051/086 VUs, 15723 complete and 0 interrupted iterations
+chat          [  32% ] 50 VUs     1m36.6s/5m0s 
+judge_burst   [  32% ] 01/30 VUs  1m36.6s/5m0s  0.20 iters/s
+run_probe     [  32% ] 00/06 VUs  1m36.6s/5m0s  0.10 iters/s
+
+running (1m55.0s), 050/086 VUs, 15874 complete and 0 interrupted iterations
+chat          [  33% ] 50 VUs     1m37.6s/5m0s 
+judge_burst   [  33% ] 00/30 VUs  1m37.6s/5m0s  0.20 iters/s
+run_probe     [  33% ] 00/06 VUs  1m37.6s/5m0s  0.10 iters/s
+
+running (1m56.0s), 050/086 VUs, 16045 complete and 0 interrupted iterations
+chat          [  33% ] 50 VUs     1m38.6s/5m0s 
+judge_burst   [  33% ] 00/30 VUs  1m38.6s/5m0s  0.20 iters/s
+run_probe     [  33% ] 00/06 VUs  1m38.6s/5m0s  0.10 iters/s
+
+running (1m57.0s), 050/086 VUs, 16223 complete and 0 interrupted iterations
+chat          [  33% ] 50 VUs     1m39.6s/5m0s 
+judge_burst   [  33% ] 00/30 VUs  1m39.6s/5m0s  0.20 iters/s
+run_probe     [  33% ] 00/06 VUs  1m39.6s/5m0s  0.10 iters/s
+
+running (1m58.0s), 052/086 VUs, 16374 complete and 0 interrupted iterations
+chat          [  34% ] 50 VUs     1m40.6s/5m0s 
+judge_burst   [  34% ] 01/30 VUs  1m40.6s/5m0s  0.20 iters/s
+run_probe     [  34% ] 01/06 VUs  1m40.6s/5m0s  0.10 iters/s
+
+running (1m59.0s), 052/086 VUs, 16526 complete and 0 interrupted iterations
+chat          [  34% ] 50 VUs     1m41.6s/5m0s 
+judge_burst   [  34% ] 01/30 VUs  1m41.6s/5m0s  0.20 iters/s
+run_probe     [  34% ] 01/06 VUs  1m41.6s/5m0s  0.10 iters/s
+
+running (2m00.0s), 051/086 VUs, 16697 complete and 0 interrupted iterations
+chat          [  34% ] 50 VUs     1m42.6s/5m0s 
+judge_burst   [  34% ] 01/30 VUs  1m42.6s/5m0s  0.20 iters/s
+run_probe     [  34% ] 00/06 VUs  1m42.6s/5m0s  0.10 iters/s
+
+running (2m01.0s), 050/086 VUs, 16871 complete and 0 interrupted iterations
+chat          [  35% ] 50 VUs     1m43.6s/5m0s 
+judge_burst   [  35% ] 00/30 VUs  1m43.6s/5m0s  0.20 iters/s
+run_probe     [  35% ] 00/06 VUs  1m43.6s/5m0s  0.10 iters/s
+
+running (2m02.0s), 050/086 VUs, 17026 complete and 0 interrupted iterations
+chat          [  35% ] 50 VUs     1m44.6s/5m0s 
+judge_burst   [  35% ] 00/30 VUs  1m44.6s/5m0s  0.20 iters/s
+run_probe     [  35% ] 00/06 VUs  1m44.6s/5m0s  0.10 iters/s
+
+running (2m03.0s), 051/086 VUs, 17193 complete and 0 interrupted iterations
+chat          [  35% ] 50 VUs     1m45.6s/5m0s 
+judge_burst   [  35% ] 01/30 VUs  1m45.6s/5m0s  0.20 iters/s
+run_probe     [  35% ] 00/06 VUs  1m45.6s/5m0s  0.10 iters/s
+
+running (2m04.0s), 051/086 VUs, 17363 complete and 0 interrupted iterations
+chat          [  36% ] 50 VUs     1m46.6s/5m0s 
+judge_burst   [  36% ] 01/30 VUs  1m46.6s/5m0s  0.20 iters/s
+run_probe     [  36% ] 00/06 VUs  1m46.6s/5m0s  0.10 iters/s
+
+running (2m05.0s), 051/086 VUs, 17526 complete and 0 interrupted iterations
+chat          [  36% ] 50 VUs     1m47.6s/5m0s 
+judge_burst   [  36% ] 01/30 VUs  1m47.6s/5m0s  0.20 iters/s
+run_probe     [  36% ] 00/06 VUs  1m47.6s/5m0s  0.10 iters/s
+
+running (2m06.0s), 050/086 VUs, 17677 complete and 0 interrupted iterations
+chat          [  36% ] 50 VUs     1m48.6s/5m0s 
+judge_burst   [  36% ] 00/30 VUs  1m48.6s/5m0s  0.20 iters/s
+run_probe     [  36% ] 00/06 VUs  1m48.6s/5m0s  0.10 iters/s
+
+running (2m07.0s), 050/086 VUs, 17851 complete and 0 interrupted iterations
+chat          [  37% ] 50 VUs     1m49.6s/5m0s 
+judge_burst   [  37% ] 00/30 VUs  1m49.6s/5m0s  0.20 iters/s
+run_probe     [  37% ] 00/06 VUs  1m49.6s/5m0s  0.10 iters/s
+
+running (2m08.0s), 052/086 VUs, 18022 complete and 0 interrupted iterations
+chat          [  37% ] 50 VUs     1m50.6s/5m0s 
+judge_burst   [  37% ] 01/30 VUs  1m50.6s/5m0s  0.20 iters/s
+run_probe     [  37% ] 01/06 VUs  1m50.6s/5m0s  0.10 iters/s
+
+running (2m09.0s), 052/086 VUs, 18177 complete and 0 interrupted iterations
+chat          [  37% ] 50 VUs     1m51.6s/5m0s 
+judge_burst   [  37% ] 01/30 VUs  1m51.6s/5m0s  0.20 iters/s
+run_probe     [  37% ] 01/06 VUs  1m51.6s/5m0s  0.10 iters/s
+
+running (2m10.0s), 050/086 VUs, 18333 complete and 0 interrupted iterations
+chat          [  38% ] 50 VUs     1m52.6s/5m0s 
+judge_burst   [  38% ] 00/30 VUs  1m52.6s/5m0s  0.20 iters/s
+run_probe     [  38% ] 00/06 VUs  1m52.6s/5m0s  0.10 iters/s
+
+running (2m11.0s), 050/086 VUs, 18516 complete and 0 interrupted iterations
+chat          [  38% ] 50 VUs     1m53.6s/5m0s 
+judge_burst   [  38% ] 00/30 VUs  1m53.6s/5m0s  0.20 iters/s
+run_probe     [  38% ] 00/06 VUs  1m53.6s/5m0s  0.10 iters/s
+
+running (2m12.0s), 050/086 VUs, 18679 complete and 0 interrupted iterations
+chat          [  38% ] 50 VUs     1m54.6s/5m0s 
+judge_burst   [  38% ] 00/30 VUs  1m54.6s/5m0s  0.20 iters/s
+run_probe     [  38% ] 00/06 VUs  1m54.6s/5m0s  0.10 iters/s
+
+running (2m13.0s), 051/086 VUs, 18829 complete and 0 interrupted iterations
+chat          [  39% ] 50 VUs     1m55.6s/5m0s 
+judge_burst   [  39% ] 01/30 VUs  1m55.6s/5m0s  0.20 iters/s
+run_probe     [  39% ] 00/06 VUs  1m55.6s/5m0s  0.10 iters/s
+
+running (2m14.0s), 051/086 VUs, 19007 complete and 0 interrupted iterations
+chat          [  39% ] 50 VUs     1m56.6s/5m0s 
+judge_burst   [  39% ] 01/30 VUs  1m56.6s/5m0s  0.20 iters/s
+run_probe     [  39% ] 00/06 VUs  1m56.6s/5m0s  0.10 iters/s
+
+running (2m15.0s), 050/086 VUs, 19174 complete and 0 interrupted iterations
+chat          [  39% ] 50 VUs     1m57.6s/5m0s 
+judge_burst   [  39% ] 00/30 VUs  1m57.6s/5m0s  0.20 iters/s
+run_probe     [  39% ] 00/06 VUs  1m57.6s/5m0s  0.10 iters/s
+
+running (2m16.0s), 050/086 VUs, 19330 complete and 0 interrupted iterations
+chat          [  40% ] 50 VUs     1m58.6s/5m0s 
+judge_burst   [  40% ] 00/30 VUs  1m58.6s/5m0s  0.20 iters/s
+run_probe     [  40% ] 00/06 VUs  1m58.6s/5m0s  0.10 iters/s
+
+running (2m17.0s), 050/086 VUs, 19494 complete and 0 interrupted iterations
+chat          [  40% ] 50 VUs     1m59.6s/5m0s 
+judge_burst   [  40% ] 00/30 VUs  1m59.6s/5m0s  0.20 iters/s
+run_probe     [  40% ] 00/06 VUs  1m59.6s/5m0s  0.10 iters/s
+
+running (2m18.0s), 052/086 VUs, 19668 complete and 0 interrupted iterations
+chat          [  40% ] 50 VUs     2m00.6s/5m0s 
+judge_burst   [  40% ] 01/30 VUs  2m00.6s/5m0s  0.20 iters/s
+run_probe     [  40% ] 01/06 VUs  2m00.6s/5m0s  0.10 iters/s
+
+running (2m19.0s), 052/086 VUs, 19830 complete and 0 interrupted iterations
+chat          [  41% ] 50 VUs     2m01.6s/5m0s 
+judge_burst   [  41% ] 01/30 VUs  2m01.6s/5m0s  0.20 iters/s
+run_probe     [  41% ] 01/06 VUs  2m01.6s/5m0s  0.10 iters/s
+
+running (2m20.0s), 050/086 VUs, 19986 complete and 0 interrupted iterations
+chat          [  41% ] 50 VUs     2m02.6s/5m0s 
+judge_burst   [  41% ] 00/30 VUs  2m02.6s/5m0s  0.20 iters/s
+run_probe     [  41% ] 00/06 VUs  2m02.6s/5m0s  0.10 iters/s
+
+running (2m21.0s), 050/086 VUs, 20164 complete and 0 interrupted iterations
+chat          [  41% ] 50 VUs     2m03.6s/5m0s 
+judge_burst   [  41% ] 00/30 VUs  2m03.6s/5m0s  0.20 iters/s
+run_probe     [  41% ] 00/06 VUs  2m03.6s/5m0s  0.10 iters/s
+
+running (2m22.0s), 050/086 VUs, 20330 complete and 0 interrupted iterations
+chat          [  42% ] 50 VUs     2m04.6s/5m0s 
+judge_burst   [  42% ] 00/30 VUs  2m04.6s/5m0s  0.20 iters/s
+run_probe     [  42% ] 00/06 VUs  2m04.6s/5m0s  0.10 iters/s
+
+running (2m23.0s), 051/086 VUs, 20482 complete and 0 interrupted iterations
+chat          [  42% ] 50 VUs     2m05.6s/5m0s 
+judge_burst   [  42% ] 01/30 VUs  2m05.6s/5m0s  0.20 iters/s
+run_probe     [  42% ] 00/06 VUs  2m05.6s/5m0s  0.10 iters/s
+
+running (2m24.0s), 051/086 VUs, 20639 complete and 0 interrupted iterations
+chat          [  42% ] 50 VUs     2m06.6s/5m0s 
+judge_burst   [  42% ] 01/30 VUs  2m06.6s/5m0s  0.20 iters/s
+run_probe     [  42% ] 00/06 VUs  2m06.6s/5m0s  0.10 iters/s
+
+running (2m25.0s), 050/086 VUs, 20821 complete and 0 interrupted iterations
+chat          [  43% ] 50 VUs     2m07.6s/5m0s 
+judge_burst   [  43% ] 00/30 VUs  2m07.6s/5m0s  0.20 iters/s
+run_probe     [  43% ] 00/06 VUs  2m07.6s/5m0s  0.10 iters/s
+
+running (2m26.0s), 050/086 VUs, 20983 complete and 0 interrupted iterations
+chat          [  43% ] 50 VUs     2m08.6s/5m0s 
+judge_burst   [  43% ] 00/30 VUs  2m08.6s/5m0s  0.20 iters/s
+run_probe     [  43% ] 00/06 VUs  2m08.6s/5m0s  0.10 iters/s
+
+running (2m27.0s), 050/086 VUs, 21140 complete and 0 interrupted iterations
+chat          [  43% ] 50 VUs     2m09.6s/5m0s 
+judge_burst   [  43% ] 00/30 VUs  2m09.6s/5m0s  0.20 iters/s
+run_probe     [  43% ] 00/06 VUs  2m09.6s/5m0s  0.10 iters/s
+
+running (2m28.0s), 052/086 VUs, 21321 complete and 0 interrupted iterations
+chat          [  44% ] 50 VUs     2m10.6s/5m0s 
+judge_burst   [  44% ] 01/30 VUs  2m10.6s/5m0s  0.20 iters/s
+run_probe     [  44% ] 01/06 VUs  2m10.6s/5m0s  0.10 iters/s
+
+running (2m29.0s), 051/086 VUs, 21484 complete and 0 interrupted iterations
+chat          [  44% ] 50 VUs     2m11.6s/5m0s 
+judge_burst   [  44% ] 01/30 VUs  2m11.6s/5m0s  0.20 iters/s
+run_probe     [  44% ] 00/06 VUs  2m11.6s/5m0s  0.10 iters/s
+
+running (2m30.0s), 050/086 VUs, 21639 complete and 0 interrupted iterations
+chat          [  44% ] 50 VUs     2m12.6s/5m0s 
+judge_burst   [  44% ] 00/30 VUs  2m12.6s/5m0s  0.20 iters/s
+run_probe     [  44% ] 00/06 VUs  2m12.6s/5m0s  0.10 iters/s
+
+running (2m31.0s), 050/086 VUs, 21799 complete and 0 interrupted iterations
+chat          [  45% ] 50 VUs     2m13.6s/5m0s 
+judge_burst   [  45% ] 00/30 VUs  2m13.6s/5m0s  0.20 iters/s
+run_probe     [  45% ] 00/06 VUs  2m13.6s/5m0s  0.10 iters/s
+
+running (2m32.0s), 050/086 VUs, 21973 complete and 0 interrupted iterations
+chat          [  45% ] 50 VUs     2m14.6s/5m0s 
+judge_burst   [  45% ] 00/30 VUs  2m14.6s/5m0s  0.20 iters/s
+run_probe     [  45% ] 00/06 VUs  2m14.6s/5m0s  0.10 iters/s
+
+running (2m33.0s), 051/086 VUs, 22135 complete and 0 interrupted iterations
+chat          [  45% ] 50 VUs     2m15.6s/5m0s 
+judge_burst   [  45% ] 01/30 VUs  2m15.6s/5m0s  0.20 iters/s
+run_probe     [  45% ] 00/06 VUs  2m15.6s/5m0s  0.10 iters/s
+
+running (2m34.0s), 051/086 VUs, 22292 complete and 0 interrupted iterations
+chat          [  46% ] 50 VUs     2m16.6s/5m0s 
+judge_burst   [  46% ] 01/30 VUs  2m16.6s/5m0s  0.20 iters/s
+run_probe     [  46% ] 00/06 VUs  2m16.6s/5m0s  0.10 iters/s
+
+running (2m35.0s), 050/086 VUs, 22459 complete and 0 interrupted iterations
+chat          [  46% ] 50 VUs     2m17.6s/5m0s 
+judge_burst   [  46% ] 00/30 VUs  2m17.6s/5m0s  0.20 iters/s
+run_probe     [  46% ] 00/06 VUs  2m17.6s/5m0s  0.10 iters/s
+
+running (2m36.0s), 050/086 VUs, 22624 complete and 0 interrupted iterations
+chat          [  46% ] 50 VUs     2m18.6s/5m0s 
+judge_burst   [  46% ] 00/30 VUs  2m18.6s/5m0s  0.20 iters/s
+run_probe     [  46% ] 00/06 VUs  2m18.6s/5m0s  0.10 iters/s
+
+running (2m37.0s), 050/086 VUs, 22790 complete and 0 interrupted iterations
+chat          [  47% ] 50 VUs     2m19.6s/5m0s 
+judge_burst   [  47% ] 00/30 VUs  2m19.6s/5m0s  0.20 iters/s
+run_probe     [  47% ] 00/06 VUs  2m19.6s/5m0s  0.10 iters/s
+
+running (2m38.0s), 052/086 VUs, 22951 complete and 0 interrupted iterations
+chat          [  47% ] 50 VUs     2m20.6s/5m0s 
+judge_burst   [  47% ] 01/30 VUs  2m20.6s/5m0s  0.20 iters/s
+run_probe     [  47% ] 01/06 VUs  2m20.6s/5m0s  0.10 iters/s
+
+running (2m39.0s), 051/086 VUs, 23113 complete and 0 interrupted iterations
+chat          [  47% ] 50 VUs     2m21.6s/5m0s 
+judge_burst   [  47% ] 01/30 VUs  2m21.6s/5m0s  0.20 iters/s
+run_probe     [  47% ] 00/06 VUs  2m21.6s/5m0s  0.10 iters/s
+
+running (2m40.0s), 050/086 VUs, 23288 complete and 0 interrupted iterations
+chat          [  48% ] 50 VUs     2m22.6s/5m0s 
+judge_burst   [  48% ] 00/30 VUs  2m22.6s/5m0s  0.20 iters/s
+run_probe     [  48% ] 00/06 VUs  2m22.6s/5m0s  0.10 iters/s
+
+running (2m41.0s), 050/086 VUs, 23445 complete and 0 interrupted iterations
+chat          [  48% ] 50 VUs     2m23.6s/5m0s 
+judge_burst   [  48% ] 00/30 VUs  2m23.6s/5m0s  0.20 iters/s
+run_probe     [  48% ] 00/06 VUs  2m23.6s/5m0s  0.10 iters/s
+
+running (2m42.0s), 050/086 VUs, 23607 complete and 0 interrupted iterations
+chat          [  48% ] 50 VUs     2m24.6s/5m0s 
+judge_burst   [  48% ] 00/30 VUs  2m24.6s/5m0s  0.20 iters/s
+run_probe     [  48% ] 00/06 VUs  2m24.6s/5m0s  0.10 iters/s
+
+running (2m43.0s), 051/086 VUs, 23788 complete and 0 interrupted iterations
+chat          [  49% ] 50 VUs     2m25.6s/5m0s 
+judge_burst   [  49% ] 01/30 VUs  2m25.6s/5m0s  0.20 iters/s
+run_probe     [  49% ] 00/06 VUs  2m25.6s/5m0s  0.10 iters/s
+
+running (2m44.0s), 051/086 VUs, 23942 complete and 0 interrupted iterations
+chat          [  49% ] 50 VUs     2m26.6s/5m0s 
+judge_burst   [  49% ] 01/30 VUs  2m26.6s/5m0s  0.20 iters/s
+run_probe     [  49% ] 00/06 VUs  2m26.6s/5m0s  0.10 iters/s
+
+running (2m45.0s), 050/086 VUs, 24097 complete and 0 interrupted iterations
+chat          [  49% ] 50 VUs     2m27.6s/5m0s 
+judge_burst   [  49% ] 00/30 VUs  2m27.6s/5m0s  0.20 iters/s
+run_probe     [  49% ] 00/06 VUs  2m27.6s/5m0s  0.10 iters/s
+
+running (2m46.0s), 050/086 VUs, 24277 complete and 0 interrupted iterations
+chat          [  50% ] 50 VUs     2m28.6s/5m0s 
+judge_burst   [  50% ] 00/30 VUs  2m28.6s/5m0s  0.20 iters/s
+run_probe     [  50% ] 00/06 VUs  2m28.6s/5m0s  0.10 iters/s
+
+running (2m47.0s), 050/086 VUs, 24439 complete and 0 interrupted iterations
+chat          [  50% ] 50 VUs     2m29.6s/5m0s 
+judge_burst   [  50% ] 00/30 VUs  2m29.6s/5m0s  0.20 iters/s
+run_probe     [  50% ] 00/06 VUs  2m29.6s/5m0s  0.10 iters/s
+
+running (2m48.0s), 052/086 VUs, 24597 complete and 0 interrupted iterations
+chat          [  50% ] 50 VUs     2m30.6s/5m0s 
+judge_burst   [  50% ] 01/30 VUs  2m30.6s/5m0s  0.20 iters/s
+run_probe     [  50% ] 01/06 VUs  2m30.6s/5m0s  0.10 iters/s
+
+running (2m49.0s), 052/086 VUs, 24765 complete and 0 interrupted iterations
+chat          [  51% ] 50 VUs     2m31.6s/5m0s 
+judge_burst   [  51% ] 01/30 VUs  2m31.6s/5m0s  0.20 iters/s
+run_probe     [  51% ] 01/06 VUs  2m31.6s/5m0s  0.10 iters/s
+
+running (2m50.0s), 050/086 VUs, 24941 complete and 0 interrupted iterations
+chat          [  51% ] 50 VUs     2m32.6s/5m0s 
+judge_burst   [  51% ] 00/30 VUs  2m32.6s/5m0s  0.20 iters/s
+run_probe     [  51% ] 00/06 VUs  2m32.6s/5m0s  0.10 iters/s
+
+running (2m51.0s), 050/086 VUs, 25098 complete and 0 interrupted iterations
+chat          [  51% ] 50 VUs     2m33.6s/5m0s 
+judge_burst   [  51% ] 00/30 VUs  2m33.6s/5m0s  0.20 iters/s
+run_probe     [  51% ] 00/06 VUs  2m33.6s/5m0s  0.10 iters/s
+
+running (2m52.0s), 050/086 VUs, 25252 complete and 0 interrupted iterations
+chat          [  52% ] 50 VUs     2m34.6s/5m0s 
+judge_burst   [  52% ] 00/30 VUs  2m34.6s/5m0s  0.20 iters/s
+run_probe     [  52% ] 00/06 VUs  2m34.6s/5m0s  0.10 iters/s
+
+running (2m53.0s), 051/086 VUs, 25424 complete and 0 interrupted iterations
+chat          [  52% ] 50 VUs     2m35.6s/5m0s 
+judge_burst   [  52% ] 01/30 VUs  2m35.6s/5m0s  0.20 iters/s
+run_probe     [  52% ] 00/06 VUs  2m35.6s/5m0s  0.10 iters/s
+
+running (2m54.0s), 051/086 VUs, 25591 complete and 0 interrupted iterations
+chat          [  52% ] 50 VUs     2m36.6s/5m0s 
+judge_burst   [  52% ] 01/30 VUs  2m36.6s/5m0s  0.20 iters/s
+run_probe     [  52% ] 00/06 VUs  2m36.6s/5m0s  0.10 iters/s
+
+running (2m55.0s), 050/086 VUs, 25750 complete and 0 interrupted iterations
+chat          [  53% ] 50 VUs     2m37.6s/5m0s 
+judge_burst   [  53% ] 00/30 VUs  2m37.6s/5m0s  0.20 iters/s
+run_probe     [  53% ] 00/06 VUs  2m37.6s/5m0s  0.10 iters/s
+
+running (2m56.0s), 050/086 VUs, 25918 complete and 0 interrupted iterations
+chat          [  53% ] 50 VUs     2m38.6s/5m0s 
+judge_burst   [  53% ] 00/30 VUs  2m38.6s/5m0s  0.20 iters/s
+run_probe     [  53% ] 00/06 VUs  2m38.6s/5m0s  0.10 iters/s
+
+running (2m57.0s), 050/086 VUs, 26092 complete and 0 interrupted iterations
+chat          [  53% ] 50 VUs     2m39.6s/5m0s 
+judge_burst   [  53% ] 00/30 VUs  2m39.6s/5m0s  0.20 iters/s
+run_probe     [  53% ] 00/06 VUs  2m39.6s/5m0s  0.10 iters/s
+
+running (2m58.0s), 052/086 VUs, 26250 complete and 0 interrupted iterations
+chat          [  54% ] 50 VUs     2m40.6s/5m0s 
+judge_burst   [  54% ] 01/30 VUs  2m40.6s/5m0s  0.20 iters/s
+run_probe     [  54% ] 01/06 VUs  2m40.6s/5m0s  0.10 iters/s
+
+running (2m59.0s), 052/086 VUs, 26410 complete and 0 interrupted iterations
+chat          [  54% ] 50 VUs     2m41.6s/5m0s 
+judge_burst   [  54% ] 01/30 VUs  2m41.6s/5m0s  0.20 iters/s
+run_probe     [  54% ] 01/06 VUs  2m41.6s/5m0s  0.10 iters/s
+
+running (3m00.0s), 050/086 VUs, 26574 complete and 0 interrupted iterations
+chat          [  54% ] 50 VUs     2m42.6s/5m0s 
+judge_burst   [  54% ] 00/30 VUs  2m42.6s/5m0s  0.20 iters/s
+run_probe     [  54% ] 00/06 VUs  2m42.6s/5m0s  0.10 iters/s
+
+running (3m01.0s), 050/086 VUs, 26748 complete and 0 interrupted iterations
+chat          [  55% ] 50 VUs     2m43.6s/5m0s 
+judge_burst   [  55% ] 00/30 VUs  2m43.6s/5m0s  0.20 iters/s
+run_probe     [  55% ] 00/06 VUs  2m43.6s/5m0s  0.10 iters/s
+
+running (3m02.0s), 050/086 VUs, 26902 complete and 0 interrupted iterations
+chat          [  55% ] 50 VUs     2m44.6s/5m0s 
+judge_burst   [  55% ] 00/30 VUs  2m44.6s/5m0s  0.20 iters/s
+run_probe     [  55% ] 00/06 VUs  2m44.6s/5m0s  0.10 iters/s
+
+running (3m03.0s), 051/086 VUs, 27070 complete and 0 interrupted iterations
+chat          [  55% ] 50 VUs     2m45.6s/5m0s 
+judge_burst   [  55% ] 01/30 VUs  2m45.6s/5m0s  0.20 iters/s
+run_probe     [  55% ] 00/06 VUs  2m45.6s/5m0s  0.10 iters/s
+
+running (3m04.0s), 051/086 VUs, 27244 complete and 0 interrupted iterations
+chat          [  56% ] 50 VUs     2m46.6s/5m0s 
+judge_burst   [  56% ] 01/30 VUs  2m46.6s/5m0s  0.20 iters/s
+run_probe     [  56% ] 00/06 VUs  2m46.6s/5m0s  0.10 iters/s
+
+running (3m05.0s), 050/086 VUs, 27403 complete and 0 interrupted iterations
+chat          [  56% ] 50 VUs     2m47.6s/5m0s 
+judge_burst   [  56% ] 00/30 VUs  2m47.6s/5m0s  0.20 iters/s
+run_probe     [  56% ] 00/06 VUs  2m47.6s/5m0s  0.10 iters/s
+
+running (3m06.0s), 050/086 VUs, 27563 complete and 0 interrupted iterations
+chat          [  56% ] 50 VUs     2m48.6s/5m0s 
+judge_burst   [  56% ] 00/30 VUs  2m48.6s/5m0s  0.20 iters/s
+run_probe     [  56% ] 00/06 VUs  2m48.6s/5m0s  0.10 iters/s
+
+running (3m07.0s), 050/086 VUs, 27742 complete and 0 interrupted iterations
+chat          [  57% ] 50 VUs     2m49.6s/5m0s 
+judge_burst   [  57% ] 00/30 VUs  2m49.6s/5m0s  0.20 iters/s
+run_probe     [  57% ] 00/06 VUs  2m49.6s/5m0s  0.10 iters/s
+
+running (3m08.0s), 052/086 VUs, 27902 complete and 0 interrupted iterations
+chat          [  57% ] 50 VUs     2m50.6s/5m0s 
+judge_burst   [  57% ] 01/30 VUs  2m50.6s/5m0s  0.20 iters/s
+run_probe     [  57% ] 01/06 VUs  2m50.6s/5m0s  0.10 iters/s
+
+running (3m09.0s), 052/086 VUs, 28053 complete and 0 interrupted iterations
+chat          [  57% ] 50 VUs     2m51.6s/5m0s 
+judge_burst   [  57% ] 01/30 VUs  2m51.6s/5m0s  0.20 iters/s
+run_probe     [  57% ] 01/06 VUs  2m51.6s/5m0s  0.10 iters/s
+
+running (3m10.0s), 051/086 VUs, 28217 complete and 0 interrupted iterations
+chat          [  58% ] 50 VUs     2m52.6s/5m0s 
+judge_burst   [  58% ] 01/30 VUs  2m52.6s/5m0s  0.20 iters/s
+run_probe     [  58% ] 00/06 VUs  2m52.6s/5m0s  0.10 iters/s
+
+running (3m11.0s), 050/086 VUs, 28383 complete and 0 interrupted iterations
+chat          [  58% ] 50 VUs     2m53.6s/5m0s 
+judge_burst   [  58% ] 00/30 VUs  2m53.6s/5m0s  0.20 iters/s
+run_probe     [  58% ] 00/06 VUs  2m53.6s/5m0s  0.10 iters/s
+
+running (3m12.0s), 050/086 VUs, 28555 complete and 0 interrupted iterations
+chat          [  58% ] 50 VUs     2m54.6s/5m0s 
+judge_burst   [  58% ] 00/30 VUs  2m54.6s/5m0s  0.20 iters/s
+run_probe     [  58% ] 00/06 VUs  2m54.6s/5m0s  0.10 iters/s
+
+running (3m13.0s), 051/086 VUs, 28715 complete and 0 interrupted iterations
+chat          [  59% ] 50 VUs     2m55.6s/5m0s 
+judge_burst   [  59% ] 01/30 VUs  2m55.6s/5m0s  0.20 iters/s
+run_probe     [  59% ] 00/06 VUs  2m55.6s/5m0s  0.10 iters/s
+
+running (3m14.0s), 051/086 VUs, 28873 complete and 0 interrupted iterations
+chat          [  59% ] 50 VUs     2m56.6s/5m0s 
+judge_burst   [  59% ] 01/30 VUs  2m56.6s/5m0s  0.20 iters/s
+run_probe     [  59% ] 00/06 VUs  2m56.6s/5m0s  0.10 iters/s
+
+running (3m15.0s), 050/086 VUs, 29035 complete and 0 interrupted iterations
+chat          [  59% ] 50 VUs     2m57.6s/5m0s 
+judge_burst   [  59% ] 00/30 VUs  2m57.6s/5m0s  0.20 iters/s
+run_probe     [  59% ] 00/06 VUs  2m57.6s/5m0s  0.10 iters/s
+
+running (3m16.0s), 050/086 VUs, 29207 complete and 0 interrupted iterations
+chat          [  60% ] 50 VUs     2m58.6s/5m0s 
+judge_burst   [  60% ] 00/30 VUs  2m58.6s/5m0s  0.20 iters/s
+run_probe     [  60% ] 00/06 VUs  2m58.6s/5m0s  0.10 iters/s
+
+running (3m17.0s), 050/086 VUs, 29374 complete and 0 interrupted iterations
+chat          [  60% ] 50 VUs     2m59.6s/5m0s 
+judge_burst   [  60% ] 00/30 VUs  2m59.6s/5m0s  0.20 iters/s
+run_probe     [  60% ] 00/06 VUs  2m59.6s/5m0s  0.10 iters/s
+
+running (3m18.0s), 052/086 VUs, 29535 complete and 0 interrupted iterations
+chat          [  60% ] 50 VUs     3m00.6s/5m0s 
+judge_burst   [  60% ] 01/30 VUs  3m00.6s/5m0s  0.20 iters/s
+run_probe     [  60% ] 01/06 VUs  3m00.6s/5m0s  0.10 iters/s
+
+running (3m19.0s), 052/086 VUs, 29691 complete and 0 interrupted iterations
+chat          [  61% ] 50 VUs     3m01.6s/5m0s 
+judge_burst   [  61% ] 01/30 VUs  3m01.6s/5m0s  0.20 iters/s
+run_probe     [  61% ] 01/06 VUs  3m01.6s/5m0s  0.10 iters/s
+
+running (3m20.0s), 050/086 VUs, 29868 complete and 0 interrupted iterations
+chat          [  61% ] 50 VUs     3m02.6s/5m0s 
+judge_burst   [  61% ] 00/30 VUs  3m02.6s/5m0s  0.20 iters/s
+run_probe     [  61% ] 00/06 VUs  3m02.6s/5m0s  0.10 iters/s
+
+running (3m21.0s), 050/086 VUs, 30037 complete and 0 interrupted iterations
+chat          [  61% ] 50 VUs     3m03.6s/5m0s 
+judge_burst   [  61% ] 00/30 VUs  3m03.6s/5m0s  0.20 iters/s
+run_probe     [  61% ] 00/06 VUs  3m03.6s/5m0s  0.10 iters/s
+
+running (3m22.0s), 050/086 VUs, 30189 complete and 0 interrupted iterations
+chat          [  62% ] 50 VUs     3m04.6s/5m0s 
+judge_burst   [  62% ] 00/30 VUs  3m04.6s/5m0s  0.20 iters/s
+run_probe     [  62% ] 00/06 VUs  3m04.6s/5m0s  0.10 iters/s
+
+running (3m23.0s), 051/086 VUs, 30368 complete and 0 interrupted iterations
+chat          [  62% ] 50 VUs     3m05.6s/5m0s 
+judge_burst   [  62% ] 01/30 VUs  3m05.6s/5m0s  0.20 iters/s
+run_probe     [  62% ] 00/06 VUs  3m05.6s/5m0s  0.10 iters/s
+
+running (3m24.0s), 051/086 VUs, 30526 complete and 0 interrupted iterations
+chat          [  62% ] 50 VUs     3m06.6s/5m0s 
+judge_burst   [  62% ] 01/30 VUs  3m06.6s/5m0s  0.20 iters/s
+run_probe     [  62% ] 00/06 VUs  3m06.6s/5m0s  0.10 iters/s
+
+running (3m25.0s), 050/086 VUs, 30688 complete and 0 interrupted iterations
+chat          [  63% ] 50 VUs     3m07.6s/5m0s 
+judge_burst   [  63% ] 00/30 VUs  3m07.6s/5m0s  0.20 iters/s
+run_probe     [  63% ] 00/06 VUs  3m07.6s/5m0s  0.10 iters/s
+
+running (3m26.0s), 050/086 VUs, 30844 complete and 0 interrupted iterations
+chat          [  63% ] 50 VUs     3m08.6s/5m0s 
+judge_burst   [  63% ] 00/30 VUs  3m08.6s/5m0s  0.20 iters/s
+run_probe     [  63% ] 00/06 VUs  3m08.6s/5m0s  0.10 iters/s
+
+running (3m27.0s), 050/086 VUs, 31019 complete and 0 interrupted iterations
+chat          [  63% ] 50 VUs     3m09.6s/5m0s 
+judge_burst   [  63% ] 00/30 VUs  3m09.6s/5m0s  0.20 iters/s
+run_probe     [  63% ] 00/06 VUs  3m09.6s/5m0s  0.10 iters/s
+
+running (3m28.0s), 052/086 VUs, 31188 complete and 0 interrupted iterations
+chat          [  64% ] 50 VUs     3m10.6s/5m0s 
+judge_burst   [  64% ] 01/30 VUs  3m10.6s/5m0s  0.20 iters/s
+run_probe     [  64% ] 01/06 VUs  3m10.6s/5m0s  0.10 iters/s
+
+running (3m29.0s), 052/086 VUs, 31344 complete and 0 interrupted iterations
+chat          [  64% ] 50 VUs     3m11.6s/5m0s 
+judge_burst   [  64% ] 01/30 VUs  3m11.6s/5m0s  0.20 iters/s
+run_probe     [  64% ] 01/06 VUs  3m11.6s/5m0s  0.10 iters/s
+
+running (3m30.0s), 050/086 VUs, 31510 complete and 0 interrupted iterations
+chat          [  64% ] 50 VUs     3m12.6s/5m0s 
+judge_burst   [  64% ] 00/30 VUs  3m12.6s/5m0s  0.20 iters/s
+run_probe     [  64% ] 00/06 VUs  3m12.6s/5m0s  0.10 iters/s
+
+running (3m31.0s), 050/086 VUs, 31679 complete and 0 interrupted iterations
+chat          [  65% ] 50 VUs     3m13.6s/5m0s 
+judge_burst   [  65% ] 00/30 VUs  3m13.6s/5m0s  0.20 iters/s
+run_probe     [  65% ] 00/06 VUs  3m13.6s/5m0s  0.10 iters/s
+
+running (3m32.0s), 050/086 VUs, 31840 complete and 0 interrupted iterations
+chat          [  65% ] 50 VUs     3m14.6s/5m0s 
+judge_burst   [  65% ] 00/30 VUs  3m14.6s/5m0s  0.20 iters/s
+run_probe     [  65% ] 00/06 VUs  3m14.6s/5m0s  0.10 iters/s
+
+running (3m33.0s), 051/086 VUs, 31996 complete and 0 interrupted iterations
+chat          [  65% ] 50 VUs     3m15.6s/5m0s 
+judge_burst   [  65% ] 01/30 VUs  3m15.6s/5m0s  0.20 iters/s
+run_probe     [  65% ] 00/06 VUs  3m15.6s/5m0s  0.10 iters/s
+
+running (3m34.0s), 051/086 VUs, 32171 complete and 0 interrupted iterations
+chat          [  66% ] 50 VUs     3m16.6s/5m0s 
+judge_burst   [  66% ] 01/30 VUs  3m16.6s/5m0s  0.20 iters/s
+run_probe     [  66% ] 00/06 VUs  3m16.6s/5m0s  0.10 iters/s
+
+running (3m35.0s), 050/086 VUs, 32341 complete and 0 interrupted iterations
+chat          [  66% ] 50 VUs     3m17.6s/5m0s 
+judge_burst   [  66% ] 00/30 VUs  3m17.6s/5m0s  0.20 iters/s
+run_probe     [  66% ] 00/06 VUs  3m17.6s/5m0s  0.10 iters/s
+
+running (3m36.0s), 050/086 VUs, 32497 complete and 0 interrupted iterations
+chat          [  66% ] 50 VUs     3m18.6s/5m0s 
+judge_burst   [  66% ] 00/30 VUs  3m18.6s/5m0s  0.20 iters/s
+run_probe     [  66% ] 00/06 VUs  3m18.6s/5m0s  0.10 iters/s
+
+running (3m37.0s), 050/086 VUs, 32672 complete and 0 interrupted iterations
+chat          [  67% ] 50 VUs     3m19.6s/5m0s 
+judge_burst   [  67% ] 00/30 VUs  3m19.6s/5m0s  0.20 iters/s
+run_probe     [  67% ] 00/06 VUs  3m19.6s/5m0s  0.10 iters/s
+
+running (3m38.0s), 052/086 VUs, 32830 complete and 0 interrupted iterations
+chat          [  67% ] 50 VUs     3m20.6s/5m0s 
+judge_burst   [  67% ] 01/30 VUs  3m20.6s/5m0s  0.20 iters/s
+run_probe     [  67% ] 01/06 VUs  3m20.6s/5m0s  0.10 iters/s
+
+running (3m39.0s), 052/086 VUs, 32991 complete and 0 interrupted iterations
+chat          [  67% ] 50 VUs     3m21.6s/5m0s 
+judge_burst   [  67% ] 01/30 VUs  3m21.6s/5m0s  0.20 iters/s
+run_probe     [  67% ] 01/06 VUs  3m21.6s/5m0s  0.10 iters/s
+
+running (3m40.0s), 050/086 VUs, 33157 complete and 0 interrupted iterations
+chat          [  68% ] 50 VUs     3m22.6s/5m0s 
+judge_burst   [  68% ] 00/30 VUs  3m22.6s/5m0s  0.20 iters/s
+run_probe     [  68% ] 00/06 VUs  3m22.6s/5m0s  0.10 iters/s
+
+running (3m41.0s), 050/086 VUs, 33324 complete and 0 interrupted iterations
+chat          [  68% ] 50 VUs     3m23.6s/5m0s 
+judge_burst   [  68% ] 00/30 VUs  3m23.6s/5m0s  0.20 iters/s
+run_probe     [  68% ] 00/06 VUs  3m23.6s/5m0s  0.10 iters/s
+
+running (3m42.0s), 050/086 VUs, 33484 complete and 0 interrupted iterations
+chat          [  68% ] 50 VUs     3m24.6s/5m0s 
+judge_burst   [  68% ] 00/30 VUs  3m24.6s/5m0s  0.20 iters/s
+run_probe     [  68% ] 00/06 VUs  3m24.6s/5m0s  0.10 iters/s
+
+running (3m43.0s), 051/086 VUs, 33638 complete and 0 interrupted iterations
+chat          [  69% ] 50 VUs     3m25.6s/5m0s 
+judge_burst   [  69% ] 01/30 VUs  3m25.6s/5m0s  0.20 iters/s
+run_probe     [  69% ] 00/06 VUs  3m25.6s/5m0s  0.10 iters/s
+
+running (3m44.0s), 051/086 VUs, 33799 complete and 0 interrupted iterations
+chat          [  69% ] 50 VUs     3m26.6s/5m0s 
+judge_burst   [  69% ] 01/30 VUs  3m26.6s/5m0s  0.20 iters/s
+run_probe     [  69% ] 00/06 VUs  3m26.6s/5m0s  0.10 iters/s
+
+running (3m45.0s), 050/086 VUs, 33963 complete and 0 interrupted iterations
+chat          [  69% ] 50 VUs     3m27.6s/5m0s 
+judge_burst   [  69% ] 00/30 VUs  3m27.6s/5m0s  0.20 iters/s
+run_probe     [  69% ] 00/06 VUs  3m27.6s/5m0s  0.10 iters/s
+
+running (3m46.0s), 050/086 VUs, 34137 complete and 0 interrupted iterations
+chat          [  70% ] 50 VUs     3m28.6s/5m0s 
+judge_burst   [  70% ] 00/30 VUs  3m28.6s/5m0s  0.20 iters/s
+run_probe     [  70% ] 00/06 VUs  3m28.6s/5m0s  0.10 iters/s
+
+running (3m47.0s), 050/086 VUs, 34289 complete and 0 interrupted iterations
+chat          [  70% ] 50 VUs     3m29.6s/5m0s 
+judge_burst   [  70% ] 00/30 VUs  3m29.6s/5m0s  0.20 iters/s
+run_probe     [  70% ] 00/06 VUs  3m29.6s/5m0s  0.10 iters/s
+
+running (3m48.0s), 052/086 VUs, 34455 complete and 0 interrupted iterations
+chat          [  70% ] 50 VUs     3m30.6s/5m0s 
+judge_burst   [  70% ] 01/30 VUs  3m30.6s/5m0s  0.20 iters/s
+run_probe     [  70% ] 01/06 VUs  3m30.6s/5m0s  0.10 iters/s
+
+running (3m49.0s), 051/086 VUs, 34636 complete and 0 interrupted iterations
+chat          [  71% ] 50 VUs     3m31.6s/5m0s 
+judge_burst   [  71% ] 01/30 VUs  3m31.6s/5m0s  0.20 iters/s
+run_probe     [  71% ] 00/06 VUs  3m31.6s/5m0s  0.10 iters/s
+
+running (3m50.0s), 050/086 VUs, 34791 complete and 0 interrupted iterations
+chat          [  71% ] 50 VUs     3m32.6s/5m0s 
+judge_burst   [  71% ] 00/30 VUs  3m32.6s/5m0s  0.20 iters/s
+run_probe     [  71% ] 00/06 VUs  3m32.6s/5m0s  0.10 iters/s
+
+running (3m51.0s), 050/086 VUs, 34953 complete and 0 interrupted iterations
+chat          [  71% ] 50 VUs     3m33.6s/5m0s 
+judge_burst   [  71% ] 00/30 VUs  3m33.6s/5m0s  0.20 iters/s
+run_probe     [  71% ] 00/06 VUs  3m33.6s/5m0s  0.10 iters/s
+
+running (3m52.0s), 050/086 VUs, 35124 complete and 0 interrupted iterations
+chat          [  72% ] 50 VUs     3m34.6s/5m0s 
+judge_burst   [  72% ] 00/30 VUs  3m34.6s/5m0s  0.20 iters/s
+run_probe     [  72% ] 00/06 VUs  3m34.6s/5m0s  0.10 iters/s
+
+running (3m53.0s), 051/086 VUs, 35290 complete and 0 interrupted iterations
+chat          [  72% ] 50 VUs     3m35.6s/5m0s 
+judge_burst   [  72% ] 01/30 VUs  3m35.6s/5m0s  0.20 iters/s
+run_probe     [  72% ] 00/06 VUs  3m35.6s/5m0s  0.10 iters/s
+
+running (3m54.0s), 051/086 VUs, 35444 complete and 0 interrupted iterations
+chat          [  72% ] 50 VUs     3m36.6s/5m0s 
+judge_burst   [  72% ] 01/30 VUs  3m36.6s/5m0s  0.20 iters/s
+run_probe     [  72% ] 00/06 VUs  3m36.6s/5m0s  0.10 iters/s
+
+running (3m55.0s), 050/086 VUs, 35608 complete and 0 interrupted iterations
+chat          [  73% ] 50 VUs     3m37.6s/5m0s 
+judge_burst   [  73% ] 00/30 VUs  3m37.6s/5m0s  0.20 iters/s
+run_probe     [  73% ] 00/06 VUs  3m37.6s/5m0s  0.10 iters/s
+
+running (3m56.0s), 050/086 VUs, 35791 complete and 0 interrupted iterations
+chat          [  73% ] 50 VUs     3m38.6s/5m0s 
+judge_burst   [  73% ] 00/30 VUs  3m38.6s/5m0s  0.20 iters/s
+run_probe     [  73% ] 00/06 VUs  3m38.6s/5m0s  0.10 iters/s
+
+running (3m57.0s), 050/086 VUs, 35942 complete and 0 interrupted iterations
+chat          [  73% ] 50 VUs     3m39.6s/5m0s 
+judge_burst   [  73% ] 00/30 VUs  3m39.6s/5m0s  0.20 iters/s
+run_probe     [  73% ] 00/06 VUs  3m39.6s/5m0s  0.10 iters/s
+
+running (3m58.0s), 052/086 VUs, 36108 complete and 0 interrupted iterations
+chat          [  74% ] 50 VUs     3m40.6s/5m0s 
+judge_burst   [  74% ] 01/30 VUs  3m40.6s/5m0s  0.20 iters/s
+run_probe     [  74% ] 01/06 VUs  3m40.6s/5m0s  0.10 iters/s
+
+running (3m59.0s), 052/086 VUs, 36261 complete and 0 interrupted iterations
+chat          [  74% ] 50 VUs     3m41.6s/5m0s 
+judge_burst   [  74% ] 01/30 VUs  3m41.6s/5m0s  0.20 iters/s
+run_probe     [  74% ] 01/06 VUs  3m41.6s/5m0s  0.10 iters/s
+
+running (4m00.0s), 051/086 VUs, 36417 complete and 0 interrupted iterations
+chat          [  74% ] 50 VUs     3m42.6s/5m0s 
+judge_burst   [  74% ] 01/30 VUs  3m42.6s/5m0s  0.20 iters/s
+run_probe     [  74% ] 00/06 VUs  3m42.6s/5m0s  0.10 iters/s
+
+running (4m01.0s), 050/086 VUs, 36568 complete and 0 interrupted iterations
+chat          [  75% ] 50 VUs     3m43.6s/5m0s 
+judge_burst   [  75% ] 00/30 VUs  3m43.6s/5m0s  0.20 iters/s
+run_probe     [  75% ] 00/06 VUs  3m43.6s/5m0s  0.10 iters/s
+
+running (4m02.0s), 050/086 VUs, 36726 complete and 0 interrupted iterations
+chat          [  75% ] 50 VUs     3m44.6s/5m0s 
+judge_burst   [  75% ] 00/30 VUs  3m44.6s/5m0s  0.20 iters/s
+run_probe     [  75% ] 00/06 VUs  3m44.6s/5m0s  0.10 iters/s
+
+running (4m03.0s), 051/086 VUs, 36884 complete and 0 interrupted iterations
+chat          [  75% ] 50 VUs     3m45.6s/5m0s 
+judge_burst   [  75% ] 01/30 VUs  3m45.6s/5m0s  0.20 iters/s
+run_probe     [  75% ] 00/06 VUs  3m45.6s/5m0s  0.10 iters/s
+
+running (4m04.0s), 051/086 VUs, 37041 complete and 0 interrupted iterations
+chat          [  76% ] 50 VUs     3m46.6s/5m0s 
+judge_burst   [  76% ] 01/30 VUs  3m46.6s/5m0s  0.20 iters/s
+run_probe     [  76% ] 00/06 VUs  3m46.6s/5m0s  0.10 iters/s
+
+running (4m05.0s), 051/086 VUs, 37213 complete and 0 interrupted iterations
+chat          [  76% ] 50 VUs     3m47.6s/5m0s 
+judge_burst   [  76% ] 01/30 VUs  3m47.6s/5m0s  0.20 iters/s
+run_probe     [  76% ] 00/06 VUs  3m47.6s/5m0s  0.10 iters/s
+
+running (4m06.0s), 050/086 VUs, 37384 complete and 0 interrupted iterations
+chat          [  76% ] 50 VUs     3m48.6s/5m0s 
+judge_burst   [  76% ] 00/30 VUs  3m48.6s/5m0s  0.20 iters/s
+run_probe     [  76% ] 00/06 VUs  3m48.6s/5m0s  0.10 iters/s
+
+running (4m07.0s), 050/086 VUs, 37536 complete and 0 interrupted iterations
+chat          [  77% ] 50 VUs     3m49.6s/5m0s 
+judge_burst   [  77% ] 00/30 VUs  3m49.6s/5m0s  0.20 iters/s
+run_probe     [  77% ] 00/06 VUs  3m49.6s/5m0s  0.10 iters/s
+
+running (4m08.0s), 052/086 VUs, 37697 complete and 0 interrupted iterations
+chat          [  77% ] 50 VUs     3m50.6s/5m0s 
+judge_burst   [  77% ] 01/30 VUs  3m50.6s/5m0s  0.20 iters/s
+run_probe     [  77% ] 01/06 VUs  3m50.6s/5m0s  0.10 iters/s
+
+running (4m09.0s), 052/086 VUs, 37874 complete and 0 interrupted iterations
+chat          [  77% ] 50 VUs     3m51.6s/5m0s 
+judge_burst   [  77% ] 01/30 VUs  3m51.6s/5m0s  0.20 iters/s
+run_probe     [  77% ] 01/06 VUs  3m51.6s/5m0s  0.10 iters/s
+
+running (4m10.0s), 051/086 VUs, 38035 complete and 0 interrupted iterations
+chat          [  78% ] 50 VUs     3m52.6s/5m0s 
+judge_burst   [  78% ] 01/30 VUs  3m52.6s/5m0s  0.20 iters/s
+run_probe     [  78% ] 00/06 VUs  3m52.6s/5m0s  0.10 iters/s
+
+running (4m11.0s), 050/086 VUs, 38190 complete and 0 interrupted iterations
+chat          [  78% ] 50 VUs     3m53.6s/5m0s 
+judge_burst   [  78% ] 00/30 VUs  3m53.6s/5m0s  0.20 iters/s
+run_probe     [  78% ] 00/06 VUs  3m53.6s/5m0s  0.10 iters/s
+
+running (4m12.0s), 050/086 VUs, 38353 complete and 0 interrupted iterations
+chat          [  78% ] 50 VUs     3m54.6s/5m0s 
+judge_burst   [  78% ] 00/30 VUs  3m54.6s/5m0s  0.20 iters/s
+run_probe     [  78% ] 00/06 VUs  3m54.6s/5m0s  0.10 iters/s
+
+running (4m13.0s), 051/086 VUs, 38528 complete and 0 interrupted iterations
+chat          [  79% ] 50 VUs     3m55.6s/5m0s 
+judge_burst   [  79% ] 01/30 VUs  3m55.6s/5m0s  0.20 iters/s
+run_probe     [  79% ] 00/06 VUs  3m55.6s/5m0s  0.10 iters/s
+
+running (4m14.0s), 051/086 VUs, 38688 complete and 0 interrupted iterations
+chat          [  79% ] 50 VUs     3m56.6s/5m0s 
+judge_burst   [  79% ] 01/30 VUs  3m56.6s/5m0s  0.20 iters/s
+run_probe     [  79% ] 00/06 VUs  3m56.6s/5m0s  0.10 iters/s
+
+running (4m15.0s), 051/086 VUs, 38841 complete and 0 interrupted iterations
+chat          [  79% ] 50 VUs     3m57.6s/5m0s 
+judge_burst   [  79% ] 01/30 VUs  3m57.6s/5m0s  0.20 iters/s
+run_probe     [  79% ] 00/06 VUs  3m57.6s/5m0s  0.10 iters/s
+
+running (4m16.0s), 051/086 VUs, 38996 complete and 0 interrupted iterations
+chat          [  80% ] 50 VUs     3m58.6s/5m0s 
+judge_burst   [  80% ] 01/30 VUs  3m58.6s/5m0s  0.20 iters/s
+run_probe     [  80% ] 00/06 VUs  3m58.6s/5m0s  0.10 iters/s
+
+running (4m17.0s), 051/086 VUs, 39157 complete and 0 interrupted iterations
+chat          [  80% ] 50 VUs     3m59.6s/5m0s 
+judge_burst   [  80% ] 01/30 VUs  3m59.6s/5m0s  0.20 iters/s
+run_probe     [  80% ] 00/06 VUs  3m59.6s/5m0s  0.10 iters/s
+
+running (4m18.0s), 053/086 VUs, 39321 complete and 0 interrupted iterations
+chat          [  80% ] 50 VUs     4m00.6s/5m0s 
+judge_burst   [  80% ] 02/30 VUs  4m00.6s/5m0s  0.20 iters/s
+run_probe     [  80% ] 01/06 VUs  4m00.6s/5m0s  0.10 iters/s
+
+running (4m19.0s), 052/086 VUs, 39481 complete and 0 interrupted iterations
+chat          [  81% ] 50 VUs     4m01.6s/5m0s 
+judge_burst   [  81% ] 01/30 VUs  4m01.6s/5m0s  0.20 iters/s
+run_probe     [  81% ] 01/06 VUs  4m01.6s/5m0s  0.10 iters/s
+
+running (4m20.0s), 052/086 VUs, 39634 complete and 0 interrupted iterations
+chat          [  81% ] 50 VUs     4m02.6s/5m0s 
+judge_burst   [  81% ] 01/30 VUs  4m02.6s/5m0s  0.20 iters/s
+run_probe     [  81% ] 01/06 VUs  4m02.6s/5m0s  0.10 iters/s
+
+running (4m21.0s), 052/086 VUs, 39802 complete and 0 interrupted iterations
+chat          [  81% ] 50 VUs     4m03.6s/5m0s 
+judge_burst   [  81% ] 01/30 VUs  4m03.6s/5m0s  0.20 iters/s
+run_probe     [  81% ] 01/06 VUs  4m03.6s/5m0s  0.10 iters/s
+
+running (4m22.0s), 052/086 VUs, 39961 complete and 0 interrupted iterations
+chat          [  82% ] 50 VUs     4m04.6s/5m0s 
+judge_burst   [  82% ] 01/30 VUs  4m04.6s/5m0s  0.20 iters/s
+run_probe     [  82% ] 01/06 VUs  4m04.6s/5m0s  0.10 iters/s
+
+running (4m23.0s), 053/086 VUs, 40100 complete and 0 interrupted iterations
+chat          [  82% ] 50 VUs     4m05.6s/5m0s 
+judge_burst   [  82% ] 02/30 VUs  4m05.6s/5m0s  0.20 iters/s
+run_probe     [  82% ] 01/06 VUs  4m05.6s/5m0s  0.10 iters/s
+
+running (4m24.0s), 052/086 VUs, 40262 complete and 0 interrupted iterations
+chat          [  82% ] 50 VUs     4m06.6s/5m0s 
+judge_burst   [  82% ] 02/30 VUs  4m06.6s/5m0s  0.20 iters/s
+run_probe     [  82% ] 00/06 VUs  4m06.6s/5m0s  0.10 iters/s
+
+running (4m25.0s), 052/086 VUs, 40423 complete and 0 interrupted iterations
+chat          [  83% ] 50 VUs     4m07.6s/5m0s 
+judge_burst   [  83% ] 02/30 VUs  4m07.6s/5m0s  0.20 iters/s
+run_probe     [  83% ] 00/06 VUs  4m07.6s/5m0s  0.10 iters/s
+
+running (4m26.0s), 051/086 VUs, 40588 complete and 0 interrupted iterations
+chat          [  83% ] 50 VUs     4m08.6s/5m0s 
+judge_burst   [  83% ] 01/30 VUs  4m08.6s/5m0s  0.20 iters/s
+run_probe     [  83% ] 00/06 VUs  4m08.6s/5m0s  0.10 iters/s
+
+running (4m27.0s), 050/086 VUs, 40752 complete and 0 interrupted iterations
+chat          [  83% ] 50 VUs     4m09.6s/5m0s 
+judge_burst   [  83% ] 00/30 VUs  4m09.6s/5m0s  0.20 iters/s
+run_probe     [  83% ] 00/06 VUs  4m09.6s/5m0s  0.10 iters/s
+
+running (4m28.0s), 052/086 VUs, 40911 complete and 0 interrupted iterations
+chat          [  84% ] 50 VUs     4m10.6s/5m0s 
+judge_burst   [  84% ] 01/30 VUs  4m10.6s/5m0s  0.20 iters/s
+run_probe     [  84% ] 01/06 VUs  4m10.6s/5m0s  0.10 iters/s
+
+running (4m29.0s), 052/086 VUs, 41073 complete and 0 interrupted iterations
+chat          [  84% ] 50 VUs     4m11.6s/5m0s 
+judge_burst   [  84% ] 01/30 VUs  4m11.6s/5m0s  0.20 iters/s
+run_probe     [  84% ] 01/06 VUs  4m11.6s/5m0s  0.10 iters/s
+
+running (4m30.0s), 052/086 VUs, 41230 complete and 0 interrupted iterations
+chat          [  84% ] 50 VUs     4m12.6s/5m0s 
+judge_burst   [  84% ] 01/30 VUs  4m12.6s/5m0s  0.20 iters/s
+run_probe     [  84% ] 01/06 VUs  4m12.6s/5m0s  0.10 iters/s
+
+running (4m31.0s), 052/086 VUs, 41397 complete and 0 interrupted iterations
+chat          [  85% ] 50 VUs     4m13.6s/5m0s 
+judge_burst   [  85% ] 01/30 VUs  4m13.6s/5m0s  0.20 iters/s
+run_probe     [  85% ] 01/06 VUs  4m13.6s/5m0s  0.10 iters/s
+
+running (4m32.0s), 050/086 VUs, 41556 complete and 0 interrupted iterations
+chat          [  85% ] 50 VUs     4m14.6s/5m0s 
+judge_burst   [  85% ] 00/30 VUs  4m14.6s/5m0s  0.20 iters/s
+run_probe     [  85% ] 00/06 VUs  4m14.6s/5m0s  0.10 iters/s
+
+running (4m33.0s), 051/086 VUs, 41729 complete and 0 interrupted iterations
+chat          [  85% ] 50 VUs     4m15.6s/5m0s 
+judge_burst   [  85% ] 01/30 VUs  4m15.6s/5m0s  0.20 iters/s
+run_probe     [  85% ] 00/06 VUs  4m15.6s/5m0s  0.10 iters/s
+
+running (4m34.0s), 051/086 VUs, 41889 complete and 0 interrupted iterations
+chat          [  86% ] 50 VUs     4m16.6s/5m0s 
+judge_burst   [  86% ] 01/30 VUs  4m16.6s/5m0s  0.20 iters/s
+run_probe     [  86% ] 00/06 VUs  4m16.6s/5m0s  0.10 iters/s
+
+running (4m35.0s), 051/086 VUs, 42052 complete and 0 interrupted iterations
+chat          [  86% ] 50 VUs     4m17.6s/5m0s 
+judge_burst   [  86% ] 01/30 VUs  4m17.6s/5m0s  0.20 iters/s
+run_probe     [  86% ] 00/06 VUs  4m17.6s/5m0s  0.10 iters/s
+
+running (4m36.0s), 050/086 VUs, 42210 complete and 0 interrupted iterations
+chat          [  86% ] 50 VUs     4m18.6s/5m0s 
+judge_burst   [  86% ] 00/30 VUs  4m18.6s/5m0s  0.20 iters/s
+run_probe     [  86% ] 00/06 VUs  4m18.6s/5m0s  0.10 iters/s
+
+running (4m37.0s), 050/086 VUs, 42382 complete and 0 interrupted iterations
+chat          [  87% ] 50 VUs     4m19.6s/5m0s 
+judge_burst   [  87% ] 00/30 VUs  4m19.6s/5m0s  0.20 iters/s
+run_probe     [  87% ] 00/06 VUs  4m19.6s/5m0s  0.10 iters/s
+
+running (4m38.0s), 052/086 VUs, 42540 complete and 0 interrupted iterations
+chat          [  87% ] 50 VUs     4m20.6s/5m0s 
+judge_burst   [  87% ] 01/30 VUs  4m20.6s/5m0s  0.20 iters/s
+run_probe     [  87% ] 01/06 VUs  4m20.6s/5m0s  0.10 iters/s
+
+running (4m39.0s), 052/086 VUs, 42707 complete and 0 interrupted iterations
+chat          [  87% ] 50 VUs     4m21.6s/5m0s 
+judge_burst   [  87% ] 01/30 VUs  4m21.6s/5m0s  0.20 iters/s
+run_probe     [  87% ] 01/06 VUs  4m21.6s/5m0s  0.10 iters/s
+
+running (4m40.0s), 051/086 VUs, 42863 complete and 0 interrupted iterations
+chat          [  88% ] 50 VUs     4m22.6s/5m0s 
+judge_burst   [  88% ] 01/30 VUs  4m22.6s/5m0s  0.20 iters/s
+run_probe     [  88% ] 00/06 VUs  4m22.6s/5m0s  0.10 iters/s
+
+running (4m41.0s), 050/086 VUs, 43036 complete and 0 interrupted iterations
+chat          [  88% ] 50 VUs     4m23.6s/5m0s 
+judge_burst   [  88% ] 00/30 VUs  4m23.6s/5m0s  0.20 iters/s
+run_probe     [  88% ] 00/06 VUs  4m23.6s/5m0s  0.10 iters/s
+
+running (4m42.0s), 050/086 VUs, 43194 complete and 0 interrupted iterations
+chat          [  88% ] 50 VUs     4m24.6s/5m0s 
+judge_burst   [  88% ] 00/30 VUs  4m24.6s/5m0s  0.20 iters/s
+run_probe     [  88% ] 00/06 VUs  4m24.6s/5m0s  0.10 iters/s
+
+running (4m43.0s), 051/086 VUs, 43362 complete and 0 interrupted iterations
+chat          [  89% ] 50 VUs     4m25.6s/5m0s 
+judge_burst   [  89% ] 01/30 VUs  4m25.6s/5m0s  0.20 iters/s
+run_probe     [  89% ] 00/06 VUs  4m25.6s/5m0s  0.10 iters/s
+
+running (4m44.0s), 051/086 VUs, 43517 complete and 0 interrupted iterations
+chat          [  89% ] 50 VUs     4m26.6s/5m0s 
+judge_burst   [  89% ] 01/30 VUs  4m26.6s/5m0s  0.20 iters/s
+run_probe     [  89% ] 00/06 VUs  4m26.6s/5m0s  0.10 iters/s
+
+running (4m45.0s), 050/086 VUs, 43693 complete and 0 interrupted iterations
+chat          [  89% ] 50 VUs     4m27.6s/5m0s 
+judge_burst   [  89% ] 00/30 VUs  4m27.6s/5m0s  0.20 iters/s
+run_probe     [  89% ] 00/06 VUs  4m27.6s/5m0s  0.10 iters/s
+
+running (4m46.0s), 050/086 VUs, 43862 complete and 0 interrupted iterations
+chat          [  90% ] 50 VUs     4m28.6s/5m0s 
+judge_burst   [  90% ] 00/30 VUs  4m28.6s/5m0s  0.20 iters/s
+run_probe     [  90% ] 00/06 VUs  4m28.6s/5m0s  0.10 iters/s
+
+running (4m47.0s), 050/086 VUs, 44015 complete and 0 interrupted iterations
+chat          [  90% ] 50 VUs     4m29.6s/5m0s 
+judge_burst   [  90% ] 00/30 VUs  4m29.6s/5m0s  0.20 iters/s
+run_probe     [  90% ] 00/06 VUs  4m29.6s/5m0s  0.10 iters/s
+
+running (4m48.0s), 052/086 VUs, 44187 complete and 0 interrupted iterations
+chat          [  90% ] 50 VUs     4m30.6s/5m0s 
+judge_burst   [  90% ] 01/30 VUs  4m30.6s/5m0s  0.20 iters/s
+run_probe     [  90% ] 01/06 VUs  4m30.6s/5m0s  0.10 iters/s
+
+running (4m49.0s), 052/086 VUs, 44349 complete and 0 interrupted iterations
+chat          [  91% ] 50 VUs     4m31.6s/5m0s 
+judge_burst   [  91% ] 01/30 VUs  4m31.6s/5m0s  0.20 iters/s
+run_probe     [  91% ] 01/06 VUs  4m31.6s/5m0s  0.10 iters/s
+
+running (4m50.0s), 050/086 VUs, 44517 complete and 0 interrupted iterations
+chat          [  91% ] 50 VUs     4m32.6s/5m0s 
+judge_burst   [  91% ] 00/30 VUs  4m32.6s/5m0s  0.20 iters/s
+run_probe     [  91% ] 00/06 VUs  4m32.6s/5m0s  0.10 iters/s
+
+running (4m51.0s), 050/086 VUs, 44674 complete and 0 interrupted iterations
+chat          [  91% ] 50 VUs     4m33.6s/5m0s 
+judge_burst   [  91% ] 00/30 VUs  4m33.6s/5m0s  0.20 iters/s
+run_probe     [  91% ] 00/06 VUs  4m33.6s/5m0s  0.10 iters/s
+
+running (4m52.0s), 050/086 VUs, 44845 complete and 0 interrupted iterations
+chat          [  92% ] 50 VUs     4m34.6s/5m0s 
+judge_burst   [  92% ] 00/30 VUs  4m34.6s/5m0s  0.20 iters/s
+run_probe     [  92% ] 00/06 VUs  4m34.6s/5m0s  0.10 iters/s
+
+running (4m53.0s), 051/086 VUs, 45014 complete and 0 interrupted iterations
+chat          [  92% ] 50 VUs     4m35.6s/5m0s 
+judge_burst   [  92% ] 01/30 VUs  4m35.6s/5m0s  0.20 iters/s
+run_probe     [  92% ] 00/06 VUs  4m35.6s/5m0s  0.10 iters/s
+
+running (4m54.0s), 051/086 VUs, 45170 complete and 0 interrupted iterations
+chat          [  92% ] 50 VUs     4m36.6s/5m0s 
+judge_burst   [  92% ] 01/30 VUs  4m36.6s/5m0s  0.20 iters/s
+run_probe     [  92% ] 00/06 VUs  4m36.6s/5m0s  0.10 iters/s
+
+running (4m55.0s), 050/086 VUs, 45332 complete and 0 interrupted iterations
+chat          [  93% ] 50 VUs     4m37.6s/5m0s 
+judge_burst   [  93% ] 00/30 VUs  4m37.6s/5m0s  0.20 iters/s
+run_probe     [  93% ] 00/06 VUs  4m37.6s/5m0s  0.10 iters/s
+
+running (4m56.0s), 050/086 VUs, 45496 complete and 0 interrupted iterations
+chat          [  93% ] 50 VUs     4m38.6s/5m0s 
+judge_burst   [  93% ] 00/30 VUs  4m38.6s/5m0s  0.20 iters/s
+run_probe     [  93% ] 00/06 VUs  4m38.6s/5m0s  0.10 iters/s
+
+running (4m57.0s), 050/086 VUs, 45668 complete and 0 interrupted iterations
+chat          [  93% ] 50 VUs     4m39.6s/5m0s 
+judge_burst   [  93% ] 00/30 VUs  4m39.6s/5m0s  0.20 iters/s
+run_probe     [  93% ] 00/06 VUs  4m39.6s/5m0s  0.10 iters/s
+
+running (4m58.0s), 052/086 VUs, 45828 complete and 0 interrupted iterations
+chat          [  94% ] 50 VUs     4m40.6s/5m0s 
+judge_burst   [  94% ] 01/30 VUs  4m40.6s/5m0s  0.20 iters/s
+run_probe     [  94% ] 01/06 VUs  4m40.6s/5m0s  0.10 iters/s
+
+running (4m59.0s), 052/086 VUs, 45986 complete and 0 interrupted iterations
+chat          [  94% ] 50 VUs     4m41.6s/5m0s 
+judge_burst   [  94% ] 01/30 VUs  4m41.6s/5m0s  0.20 iters/s
+run_probe     [  94% ] 01/06 VUs  4m41.6s/5m0s  0.10 iters/s
+
+running (5m00.0s), 050/086 VUs, 46157 complete and 0 interrupted iterations
+chat          [  94% ] 50 VUs     4m42.6s/5m0s 
+judge_burst   [  94% ] 00/30 VUs  4m42.6s/5m0s  0.20 iters/s
+run_probe     [  94% ] 00/06 VUs  4m42.6s/5m0s  0.10 iters/s
+
+running (5m01.0s), 050/086 VUs, 46323 complete and 0 interrupted iterations
+chat          [  95% ] 50 VUs     4m43.6s/5m0s 
+judge_burst   [  95% ] 00/30 VUs  4m43.6s/5m0s  0.20 iters/s
+run_probe     [  95% ] 00/06 VUs  4m43.6s/5m0s  0.10 iters/s
+
+running (5m02.0s), 050/086 VUs, 46480 complete and 0 interrupted iterations
+chat          [  95% ] 50 VUs     4m44.6s/5m0s 
+judge_burst   [  95% ] 00/30 VUs  4m44.6s/5m0s  0.20 iters/s
+run_probe     [  95% ] 00/06 VUs  4m44.6s/5m0s  0.10 iters/s
+
+running (5m03.0s), 051/086 VUs, 46648 complete and 0 interrupted iterations
+chat          [  95% ] 50 VUs     4m45.6s/5m0s 
+judge_burst   [  95% ] 01/30 VUs  4m45.6s/5m0s  0.20 iters/s
+run_probe     [  95% ] 00/06 VUs  4m45.6s/5m0s  0.10 iters/s
+
+running (5m04.0s), 051/086 VUs, 46820 complete and 0 interrupted iterations
+chat          [  96% ] 50 VUs     4m46.6s/5m0s 
+judge_burst   [  96% ] 01/30 VUs  4m46.6s/5m0s  0.20 iters/s
+run_probe     [  96% ] 00/06 VUs  4m46.6s/5m0s  0.10 iters/s
+
+running (5m05.0s), 050/086 VUs, 46976 complete and 0 interrupted iterations
+chat          [  96% ] 50 VUs     4m47.6s/5m0s 
+judge_burst   [  96% ] 00/30 VUs  4m47.6s/5m0s  0.20 iters/s
+run_probe     [  96% ] 00/06 VUs  4m47.6s/5m0s  0.10 iters/s
+
+running (5m06.0s), 050/086 VUs, 47139 complete and 0 interrupted iterations
+chat          [  96% ] 50 VUs     4m48.6s/5m0s 
+judge_burst   [  96% ] 00/30 VUs  4m48.6s/5m0s  0.20 iters/s
+run_probe     [  96% ] 00/06 VUs  4m48.6s/5m0s  0.10 iters/s
+
+running (5m07.0s), 050/086 VUs, 47305 complete and 0 interrupted iterations
+chat          [  97% ] 50 VUs     4m49.6s/5m0s 
+judge_burst   [  97% ] 00/30 VUs  4m49.6s/5m0s  0.20 iters/s
+run_probe     [  97% ] 00/06 VUs  4m49.6s/5m0s  0.10 iters/s
+
+running (5m08.0s), 052/086 VUs, 47465 complete and 0 interrupted iterations
+chat          [  97% ] 50 VUs     4m50.6s/5m0s 
+judge_burst   [  97% ] 01/30 VUs  4m50.6s/5m0s  0.20 iters/s
+run_probe     [  97% ] 01/06 VUs  4m50.6s/5m0s  0.10 iters/s
+
+running (5m09.0s), 052/086 VUs, 47631 complete and 0 interrupted iterations
+chat          [  97% ] 50 VUs     4m51.6s/5m0s 
+judge_burst   [  97% ] 01/30 VUs  4m51.6s/5m0s  0.20 iters/s
+run_probe     [  97% ] 01/06 VUs  4m51.6s/5m0s  0.10 iters/s
+
+running (5m10.0s), 052/086 VUs, 47789 complete and 0 interrupted iterations
+chat          [  98% ] 50 VUs     4m52.6s/5m0s 
+judge_burst   [  98% ] 01/30 VUs  4m52.6s/5m0s  0.20 iters/s
+run_probe     [  98% ] 01/06 VUs  4m52.6s/5m0s  0.10 iters/s
+
+running (5m11.0s), 050/086 VUs, 47952 complete and 0 interrupted iterations
+chat          [  98% ] 50 VUs     4m53.6s/5m0s 
+judge_burst   [  98% ] 00/30 VUs  4m53.6s/5m0s  0.20 iters/s
+run_probe     [  98% ] 00/06 VUs  4m53.6s/5m0s  0.10 iters/s
+
+running (5m12.0s), 050/086 VUs, 48118 complete and 0 interrupted iterations
+chat          [  98% ] 50 VUs     4m54.6s/5m0s 
+judge_burst   [  98% ] 00/30 VUs  4m54.6s/5m0s  0.20 iters/s
+run_probe     [  98% ] 00/06 VUs  4m54.6s/5m0s  0.10 iters/s
+
+running (5m13.0s), 051/086 VUs, 48283 complete and 0 interrupted iterations
+chat          [  99% ] 50 VUs     4m55.6s/5m0s 
+judge_burst   [  99% ] 01/30 VUs  4m55.6s/5m0s  0.20 iters/s
+run_probe     [  99% ] 00/06 VUs  4m55.6s/5m0s  0.10 iters/s
+
+running (5m14.0s), 051/086 VUs, 48452 complete and 0 interrupted iterations
+chat          [  99% ] 50 VUs     4m56.6s/5m0s 
+judge_burst   [  99% ] 01/30 VUs  4m56.6s/5m0s  0.20 iters/s
+run_probe     [  99% ] 00/06 VUs  4m56.6s/5m0s  0.10 iters/s
+
+running (5m15.0s), 051/086 VUs, 48605 complete and 0 interrupted iterations
+chat          [  99% ] 50 VUs     4m57.6s/5m0s 
+judge_burst   [  99% ] 01/30 VUs  4m57.6s/5m0s  0.20 iters/s
+run_probe     [  99% ] 00/06 VUs  4m57.6s/5m0s  0.10 iters/s
+
+running (5m16.0s), 050/086 VUs, 48784 complete and 0 interrupted iterations
+chat          [ 100% ] 50 VUs     4m58.6s/5m0s 
+judge_burst   [ 100% ] 00/30 VUs  4m58.6s/5m0s  0.20 iters/s
+run_probe     [ 100% ] 00/06 VUs  4m58.6s/5m0s  0.10 iters/s
+
+running (5m17.0s), 050/086 VUs, 48936 complete and 0 interrupted iterations
+chat          [ 100% ] 50 VUs     4m59.6s/5m0s 
+judge_burst   [ 100% ] 00/30 VUs  4m59.6s/5m0s  0.20 iters/s
+run_probe     [ 100% ] 00/06 VUs  4m59.6s/5m0s  0.10 iters/s
+
+running (5m18.0s), 001/086 VUs, 49053 complete and 0 interrupted iterations
+chat        ✓ [ 100% ] 50 VUs     5m0s 
+judge_burst ↓ [ 100% ] 01/30 VUs  5m0s  0.20 iters/s
+run_probe   ✓ [ 100% ] 00/06 VUs  5m0s  0.10 iters/s
+
+running (5m19.0s), 001/086 VUs, 49053 complete and 0 interrupted iterations
+chat        ✓ [ 100% ] 50 VUs     5m0s 
+judge_burst ↓ [ 100% ] 01/30 VUs  5m0s  0.20 iters/s
+run_probe   ✓ [ 100% ] 00/06 VUs  5m0s  0.10 iters/s
+
+=== pe-exam-submit · mixed ===
+judge_done_ms: avg=2596.689 p(50)=2032 p(95)=4097 max=8102
+judge_ie: count=0 rate=0
+run_ms: p(50)=2075 p(95)=3618.1 max=5744 avg=2458
+chat_ttft_ms: avg=306.306 p(50)=304.037 p(95)=317.265 max=482.431
+http_req_failed: rate=0 passes=0 fails=49513
+ngưỡng judge_ie: count==0 PASS
+ngưỡng judge_done_ms: p(95)<60000 PASS
+ngưỡng run_ms: p(95)<5000 PASS
+ngưỡng chat_ttft_ms: p(95)<1500 PASS
+ngưỡng http_req_failed: rate<0.005 PASS
+
+running (5m19.4s), 000/086 VUs, 49054 complete and 0 interrupted iterations
+chat        ✓ [ 100% ] 50 VUs     5m0s 
+judge_burst ✓ [ 100% ] 00/30 VUs  5m0s  0.20 iters/s
+run_probe   ✓ [ 100% ] 00/06 VUs  5m0s  0.10 iters/s

@@ -1,0 +1,1 @@
+time="2026-11-21T10:36:41+07:00" level=error msg="could not initialize 'pe19.js': could not load JS test 'file:///Users/kuro/Documents/TA_Agent_qc3/docs/regression/evidence-6/k6/pe/pe19.js': unknown executor type 'per-vru-iterations'"

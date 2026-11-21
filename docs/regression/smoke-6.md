@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 511 · Trượt: 13 · Chờ test N: 6   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 514 · Trượt: 13 · Chờ test N: 3   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -24,8 +24,8 @@ Cách chạy:
 | US-P3-05 | 55 | 54 | 1 | 0 |  |
 | US-P3-06 | 49 | 49 | 0 | 0 |  |
 | US-P3-07 | 27 | 27 | 0 | 0 |  |
-| US-P3-08 | 29 | 27 | 0 | 2 |  |
-| US-P8-01 | 62 | 56 | 3 | 3 |  |
+| US-P3-08 | 29 | 29 | 0 | 0 |  |
+| US-P8-01 | 62 | 57 | 3 | 2 |  |
 | US-P8-02 | 49 | 42 | 7 | 0 |  |
 | US-P8-03 | 60 | 58 | 1 | 1 |  |
 
@@ -364,7 +364,7 @@ Cách chạy:
 | TC-P3-07-27 | P | scripts/gate-p3.sh dòng 19: run "E1: eval_pii.py --min-recall 0.95 --max-false-block 0.05"; hàm run (gate-lib.sh) ghi FAIL khi rc≠0: True; finish P3 đếm lỗi |
 | TC-P3-08-01 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): seed.mjs 20 bước xong (bước 19 phải bật lại mock-graph rồi chạy tiếp); node scripts/check-chat-seed.mjs → «chat=151 sessions=34 outside=10 threads=12/3 states={PENDING:4,REJECTED:1,CORRECTED:2,VERIFIED:3,SKIPPED:2} idempotent=ok» (150±5; 10 câu ngoài tài liệu). Cách ghi: bước 12 dùng gateway admin seed-chat (ghi thẳng bằng mã sản phẩm, id suy từ khoá) — lệch với chữ «đúng luồng chat» của AC1 nhưng là quyết định của PM (BUG-S1, docs/sprints/7/handoff/dev-US-S7-SEED.md: provider giả làm mọi câu tự nhiên th |
 | TC-P3-08-02 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): đếm chat_sessions/chat_messages/forum_threads/forum_posts (+documents, calendar_events, enrollments) trước = 54/383/15/14 (9 tài liệu, 3 sự kiện, 61 ghi danh); chạy lại seed.mjs (trong check-chat-seed) → sau = 54/383/15/14 (9/3/61): không hàng nào thêm; check in «idempotent=ok»; lần chạy lại 38 s |
-| TC-P3-08-03 | N | chờ chạy lượt R3 |
+| TC-P3-08-03 | P | stack seed riêng qc3s, DB trống: seed.mjs từ đầu tới cuối «Seed xong trong 652 s» (máy dùng chung, load ~10); mốc «trước P3» ở sprint 5 không còn là một con số riêng, nên đo phần P3 thêm vào bằng seed-t0.json seconds_by_step: bước 12 (≈150 câu chat, gateway admin seed-chat) 0 s + bước 13 (12+3 thread) 22 s = 22 s ≤ 60 s (các bước khác: 11 tài liệu docling 241 s thuộc P8, 19 bài tập 78 s, 20 luyện đề 204 s thuộc sprint khác); chạy lại seed lần hai 38 s. evidence-6/k6/seed/seed-t0-clean.json |
 | TC-P3-08-04 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): check-chat-seed.mjs threads in bảng PENDING 4, REJECTED 1, CORRECTED 2, VERIFIED 3, SKIPPED 2; SQL forum_posts kind=AI lớp 761987: PENDING 4, VERIFIED 3, CORRECTED 2, REJECTED 1; forum_threads lớp 761987 = 12, ai_state=SKIPPED 2 (+ANSWERED 10); lớp 761988 = 3 thread. (Câu SQL không lọc lớp của TC gộp thêm 3 bài PENDING của lớp 2 → 7; lọc theo lớp 1 như AC2 thì đúng 4) |
 | TC-P3-08-05 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): GET /courses/{lớp 1}/threads bằng sv.gioi: items=10 + pinned=1 = 11 thread khác nhau (API trả thread ghim ở mảng pinned riêng, chữ TC «.items length» thiếu pinned; check-chat-seed gộp pinned theo #41); thread có bài REJECTED vẫn có trong danh sách và GET thread trả posts=[] (bài AI REJECTED biến mất); 1 thread tự ẩn không hiện |
 | TC-P3-08-06 | P | stack seed riêng qc3s (DB trống qc3_seed, gateway :18241, LLM giả, docling thật của ep-r): không chạy được nguyên văn scan-pii-leak.sh vì lỗi của chính script (tách biểu thức ở «::» cuối nên forum_posts/pii_events/outbox/jobs/audit_log trả ERR; log compose cần shim) → quét bằng Python/psql row::text ILIKE: 7 bảng (forum_threads 15 dòng, forum_posts 14, pii_events 0, outbox, jobs, audit_log, llm_audit 717) × 6 chuỗi canary (Vũ Hoàng Giang, Vu Hoang Giang, 20229001, sv.gioi@edupilot.local, 0912345678, 001099012345) = 42 phép đếm, mọi ô = 0; log qc3s-gw + qc3s-worker: 0/6 khớp (evidence-6/k6/seed |
@@ -388,7 +388,7 @@ Cách chạy:
 | TC-P3-08-24 | P | gate-p3.sh chạy TestChatMatrix + TestThreadsMatrix; router_test.go dựng STUDENT + TA + TEACHER + ADMIN (+PENDING, ngoài lớp) — đủ bốn vai |
 | TC-P3-08-25 | P | PATH không có k6: "SKIP k6 chat.js: chưa cài", dòng cuối "GATE P3: PASS (có SKIP)", rc=0 (chạy khối k6 của gate-lib, không chạy toàn gate) |
 | TC-P3-08-26 | P | harness dùng đúng scripts/gate-lib.sh với Docker không tới được (DOCKER_HOST sai): strict_test TestNoPayloadLeak → «FAIL … thiếu stack (Docker không tới được)», bảng FAIL, «GATE P3: FAIL» (finish() exit 1) — khớp US-P3-08 AC9 (TestNoPayloadLeak thiếu stack → FAIL, không SKIP); eval_pii.py khi API không tới được → rc=2 (TC-P3-07-20); chỉ bước k6 được SKIP → «GATE P3: PASS (có SKIP)» (chạy harness). Chữ TC «các bước cần stack ghi SKIP» là diễn đạt lỏng hơn AC9 |
-| TC-P3-08-27 | N | chờ chạy lượt R3 |
+| TC-P3-08-27 | P | DB trống qc3_seed: goose up chạy sạch tới 00029 («applied 00029_users_created_idx.sql … up to date, version=29», gồm 00007/00008/00009, không lỗi; evidence-6/k6/seed/up3.log); seed 20 bước có dữ liệu cho /chat (151 câu, 34 phiên) và /threads (12+3 thread); test cũ không đỏ: CI run 44380374004 (@07a6b69c) mọi gói Go ok trừ TestSeedCanaryNotToStudents (do giả định ngày trong seed); QC chạy lại đúng test đó trên 425396a7 bằng go test ./internal/integration -run TestSeedCanaryNotToStudents → PASS (2,40 s) |
 | TC-P3-08-28 | P | fetch( ngoài shared/: 0; OFFSET trong store/queries: 1 dòng chỉ là chú thích «không OFFSET» |
 | TC-P3-08-29 | P | ui-antipatterns.sh rc=0 |
 | TC-P8-01-01 | P | presign hợp lệ → 200 |
@@ -434,7 +434,7 @@ Cách chạy:
 | TC-P8-01-41 | P | tải lên với use_for_rag=f → READY, (đoạn/có embedding/dim)=3/0/0 (NULL); PATCH true → 200; job document.reindex 22→23; sau xử lý 3/3/1536: mọi đoạn có embedding 1536 chiều |
 | TC-P8-01-42 | N | chờ chạy lượt R3 |
 | TC-P8-01-43 | F | docling dừng, tải PDF QMB12 variant: complete → 202; sau 2 phút documents.status=FAILED (không FAILED, error='Chưa đọc được tài liệu lúc này. Thử lại sau.'); bật lại docling → tự chạy tiếp tới FAILED sau 0s |
-| TC-P8-01-44 | N | chờ chạy lượt R3 |
+| TC-P8-01-44 | P | PDF Mordern…pdf (143 trang) tải vào lớp QC3P8B (use_for_rag); PROCESSING và docling đang chạy (310.13% 1.635GiB / 3GiB); kill -9 tiến trình docling-serve (mô phỏng sập; `docker kill` thuần cho Exited 137 và KHÔNG tự khởi động lại vì bị tính là dừng thủ công — đã thử lúc 09:41, RestartCount 0 sau 3 phút) → container tự khởi động lại (restart: unless-stopped) và healthy sau 13 s; không can thiệp thêm; tài liệu cuối cùng READY sau 4.3 phút kể từ lúc kill (≤25); content_chunks: tổng/khác ord/ord max+1 = 82/82/82 (đúng một bộ đoạn, không trùng), trang lớn nhất 141; job: SUCCEEDED|- |
 | TC-P8-01-45 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
 | TC-P8-01-46 | P | vn_bigram_query("canh bao hoc vu") = 'canh' <-> 'bao' | 'bao' <-> 'hoc' | 'hoc' <-> 'vu' (OR các cặp âm tiết liền nhau, đúng SRS 195); một âm tiết «học» → 'hoc'; tsv @@ khớp 8 đoạn của Quyche; chèn NFD + NFC rồi truy vấn bằng NFC → 2/2, bằng NFD → 2/2; câu «điều kiện bị cảnh báo học vụ là gì» → đoạn hạng 1 theo ts_rank_cd có «cảnh báo học vụ»=True (ord 11); đã xoá 2 đoạn thử |
 | TC-P8-01-47 | N | chờ chạy lượt R3 |
