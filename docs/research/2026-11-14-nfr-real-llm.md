@@ -33,6 +33,8 @@ Thiết bị: **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1
 | Lighthouse (build production, đăng nhập thật) | LCP devtools (≤ 2.500) / TBT mô phỏng (≤ 200) / CLS (≤ 0,1) / script KB (≤ 256): `/` 1574 / 28 / 0 / 191; `/chat` 1554 / 32 / 0.01 / 225; `/threads` 4896 / 33 / 0 / 216; `/inbox` 6717 / 32 / 0 / 215; `/gradebook` 5887 / 29 / 0 / 248; `/me` 6256 / 35 / 0 / 223; `/settings/llm` 4786 / 32 / 0 / 228; `/assignments/[id]` 4639 / 36 / 0.028 / 222 | – | FAIL: LCP devtools trượt ở `/threads`, `/inbox`, `/gradebook`, `/me`, `/settings/llm`, `/assignments/[id]`; TBT, CLS, script đạt mọi route | `lighthouse.json` |
 | EXPLAIN 10 truy vấn | ≤ 13,1 ms (1 truy vấn), chín truy vấn ≤ 1,3 ms | – | không cần chỉ mục | `explain.json`, `docs/research/2026-11-14-explain.md` |
 
+Hạn chế Mac cho mọi số trong bảng: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB. k6 và stack chung 6 vCPU nên độ trễ là cận trên bảo thủ [INFERENCE: chưa kiểm bằng máy đo riêng]; mạng là loopback trong VM nên p95 là cận dưới về phần mạng.
+
 ## Từng phép đo
 Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phương pháp · cấu hình · số liệu · PASS/FAIL · giới hạn.
 
@@ -42,7 +44,7 @@ Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phươ
 - **Cấu hình:** stack `ep-research`, provider giả (chat + nhúng) như `pnpm dev`, `docling-serve` thật (`--profile ingest`), `SEED_RNG` 20261029, bản `9d2b02b3`, 2026-11-13.
 - **Số liệu:** lần 1 mã thoát 0, 314 s (bước chậm nhất: bước 11 135 s, bước 19 78 s, bước 10 38 s); lần 2 mã thoát 0, 20 s; 10/10 kiểm tra xanh (assignments, chat, crm, docs, knowledge, exam bank, exam scores, exam demo, grade, docs timing); số dòng trước = sau (`rows_before_equals_after: true`). Nguồn: `seed-t0.json`, `seed-t0-checks.json`.
 - **PASS/FAIL:** AC1, AC2 PASS. AC3 (Hôm nay từng vai), AC4 (đối chiếu DEMO_SCRIPT), AC6 (quét canary): không có số trong `benchmarks/reports/`, báo cáo này không kết luận.
-- **Giới hạn:** một lượt; thời gian seed phụ thuộc `docling-serve` (bước 11, 15 cần profile `ingest`).
+- **Giới hạn:** một lượt; thời gian seed phụ thuộc `docling-serve` (bước 11, 15 cần profile `ingest`). Hạn chế Mac: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB; `docling-serve` và stack chung 6 vCPU nên thời gian seed là của máy này, không phải máy chủ; không có k6.
 
 ### US-NFR-03: dữ liệu T1
 - **Câu hỏi:** bộ sinh T1 có tạo đúng quy mô thiết kế (1.000 SV, 20 lớp, một học kỳ) để các phép đo tải có nghĩa không.
@@ -50,7 +52,7 @@ Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phươ
 - **Cấu hình:** stack `ep-t1`, quy mô 1 (không hạ), có vectơ, `SEED_RNG` 20261029. Lượt ghi trong `seed-t1.json`: bản `a96bf120`, 2026-11-15.
 - **Số liệu:** 50 s; 1.009 tài khoản, 20 lớp, 1.040 ghi danh, 300 buổi, 15.000 điểm danh, 90.000 tin chat, 525.000 dòng `study_time_daily`, 4.000 bài nộp, 3.000 kết quả chấm, 100 tài liệu, 20.000 đoạn; DB 404 MB; RAM Postgres 227,5 MiB. Lúc đo EXPLAIN (13–14/11) DB ghi 409 MB (`docs/research/2026-11-14-explain.md`). Kiểm cô lập lớp (`benchmarks/check-t1-api.mjs`, bản `e006e845`, 2026-11-13): 24 cặp SV lớp X đọc lớp Y, 0 rò rỉ, 0 lỗi 5xx (`t1-api-check.json`).
 - **PASS/FAIL:** AC1, AC7 PASS (đủ quy mô, không thu nhỏ); AC4 PASS (24 cặp ≥ 20, 0 rò rỉ, 0 5xx). AC2 (tất định qua hai DB), AC3 (đếm `course_id` mồ côi): không có số trong tệp nguồn, không kết luận.
-- **Giới hạn:** chỉ một lượt có tệp; dữ liệu mô phỏng (D44), phân bố không lấy từ lớp thật.
+- **Giới hạn:** chỉ một lượt có tệp; dữ liệu mô phỏng (D44), phân bố không lấy từ lớp thật. Hạn chế Mac: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB; thời gian seed và kích thước DB là của máy này; kiểm cô lập lớp gọi qua loopback trong VM.
 
 ### US-NFR-04: tải T1 với LLM giả, ×1 và ×2
 - **Câu hỏi:** ở T1 hệ thống có giữ SLO đọc / ghi / SSE / TTFT / dashboard / chấm-khi-chat không, và nhân đôi gateway / worker có đổi gì không.
@@ -58,7 +60,7 @@ Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phươ
 - **Cấu hình:** stack `ep-t1`, DB `edupilot_t1`, k6 trong VM 1,5 CPU; ×1 = 1 gateway 1 worker, ×2 = `--scale gateway=2 worker=2`, không đổi mã; `benchmarks/load/k6-stack.yml` (nới hạn mức IP / người, `LLM_MAX_CONCURRENCY` 100) từ lượt thứ hai, `load-d.json` và các tệp `*-lan1` chạy trước khi bật tệp này; provider giả trễ 5–15 s ở (b) sự kiện đầu, 300 ms ở (b) TTFT và (c) 50 bài; chấm 1.000 bài dùng 9router `ag/gemini-3.8-flash`, 5 luồng.
 - **Số liệu:** bảng «SLO → số đo» ở trên, dòng (a)–(d); tệp `load-a*.json`, `load-b-*.json`, `load-c-*.json`, `load-d.json`.
 - **PASS/FAIL:** (a), (b), (c) 50 bài, (d) PASS ở ×1 và ×2; (c) 1.000 bài: lần 1 FAIL (322/1.000, 678 `FAILED`, 0,55 h; 9router bị khởi động lại giữa lượt, sửa ở P-11-23), lần 2 PASS (1.000/1.000, 1,68 h).
-- **Giới hạn:** provider giả ở (a)–(c) 50 bài nên độ trễ không gồm LLM thật; (d) chạy trước `k6-stack.yml`.
+- **Giới hạn:** provider giả ở (a)–(c) 50 bài nên độ trễ không gồm LLM thật; (d) chạy trước `k6-stack.yml`. Hạn chế Mac: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB; k6 (VM 1,5 CPU) và stack chung 6 vCPU nên độ trễ là cận trên bảo thủ [INFERENCE: chưa kiểm bằng máy đo riêng]; mạng loopback trong VM nên p95 là cận dưới về phần mạng; chấm 1.000 bài gọi 9router chạy cùng máy.
 
 ### US-NFR-05: EXPLAIN 10 truy vấn nặng nhất và chỉ mục
 - **Câu hỏi:** ở T1 truy vấn nào nặng nhất, có cần thêm chỉ mục không.
@@ -66,7 +68,7 @@ Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phươ
 - **Cấu hình:** stack `ep-t1`, DB `edupilot_t1`, tham số đại diện lớp `T1-01`. Cách chọn 10 truy vấn: `docs/research/2026-11-14-explain.md`.
 - **Số liệu:** truy vấn nặng nhất `rag_hybrid` 13,1 ms; chín truy vấn còn lại ≤ 1,3 ms; HNSW và hai chỉ mục ghép không được planner chọn hoặc không đổi kế hoạch. Nguồn: `explain.json`.
 - **PASS/FAIL:** không truy vấn nào chạm SLO đọc 300 ms; không cần chỉ mục, không tạo `00018` (P-95-8).
-- **Giới hạn:** tham số một lớp; văn bản truy vấn trong `explain.mjs` là bản viết lại tham số cố định của SQL ứng dụng.
+- **Giới hạn:** tham số một lớp; văn bản truy vấn trong `explain.mjs` là bản viết lại tham số cố định của SQL ứng dụng. Hạn chế Mac: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB; thời gian là thời gian thực thi trong Postgres, không qua mạng, không có k6.
 
 ### US-NFR-06: hỗn loạn
 - **Câu hỏi:** giết worker, tắt Redis, tắt `docling-serve` giữa lượt việc nền có làm mất hay lặp việc không.
@@ -74,7 +76,7 @@ Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phươ
 - **Cấu hình:** stack `ep-t1`, bản `6402ddff`, 2026-11-13; tải nền: chấm 150 bài (3 lớp × BT4) + chat, provider giả trễ 2 s mỗi lượt chấm (`K6_GRADE_LAT=2000-2000`); 2 worker ở ca `kill -9`.
 - **Số liệu:** `kill -9`: 150 vào = 150 xong, 0 mồ côi, 0 chấm hai lần, `XPENDING` 0, hồi trong 113 s. Redis tắt 70 s: 150 = 150, 0 mồ côi, 0 chấm hai lần, hồi trong 129 s; `/me/today` trả 200 suốt lúc Redis tắt; chat treo ≈ 19 s rồi trả câu suy giảm (TL-2d). `docling-serve` dừng 2 phút: 3/3 `READY`, 0 mồ côi, 0 hàng mở, hồi trong 41 s. Nguồn: `chaos.json`.
 - **PASS/FAIL:** PASS cả ba ca về việc nền; chat lúc Redis tắt là phát hiện TL-2d (chuyển PM).
-- **Giới hạn:** mỗi ca một lượt.
+- **Giới hạn:** mỗi ca một lượt. Hạn chế Mac: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB; thời gian hồi phụ thuộc máy này; k6 và stack chung 6 vCPU [INFERENCE: chưa kiểm bằng máy đo riêng]; mạng loopback trong VM.
 
 ### US-NFR-07: số đo nền của bản Go
 - **Câu hỏi:** bản Go tốn bao nhiêu RAM, khởi động bao lâu, image lớn bao nhiêu, p95 endpoint đơn lẻ và Lighthouse ra sao.
@@ -82,14 +84,14 @@ Mỗi phép đo US-NFR-02…08 một mục, đủ 6 phần: câu hỏi · phươ
 - **Cấu hình:** stack `ep-t1` (DB `edupilot_t1`) lúc nghỉ, bản `6402ddff`, 2026-11-13; Lighthouse chạy bản build production, đăng nhập thật bằng tài khoản T1.
 - **Số liệu:** RAM nghỉ 570 MiB cả stack (postgres 330 MiB); image gateway 17,7 MB, worker 16,7 MB, frontend 96,2 MB; khởi động lạnh trung vị 18,1 s; mọi đọc p95 ≤ 11,0 ms, ghi lớn nhất `w_thread` 327,5 ms; Lighthouse: TBT mô phỏng ≤ 36 ms, CLS ≤ 0,028, script ≤ 248 KB ở mọi route; LCP devtools `/` 1574, `/chat` 1554, `/threads` 4896, `/inbox` 6717, `/gradebook` 5887, `/me` 6256, `/settings/llm` 4786, `/assignments/[id]` 4639 ms; LCP mô phỏng 2.857–3.459 ms. Nguồn: `baseline.json`, `load-baseline-p95.json`, `lighthouse.json`.
 - **PASS/FAIL:** RAM, khởi động, image: ghi nhận (không có ngưỡng). p95 endpoint PASS. Lighthouse FAIL: LCP devtools > 2.500 ms ở 6/8 route; TBT, CLS, script PASS. Không nới ngưỡng; nguyên nhân chưa điều tra trong 9.5 (nghi ngờ: LCP đợi dữ liệu API sau bước làm mới phiên; mạng devtools giả lập 150 ms).
-- **Giới hạn:** Lighthouse đo trên cùng máy với stack.
+- **Giới hạn:** Lighthouse đo trên cùng máy với stack. Hạn chế Mac: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB; RAM, khởi động lạnh là của VM này; p95 endpoint qua loopback trong VM nên là cận dưới về phần mạng; k6 và stack chung 6 vCPU nên độ trễ là cận trên bảo thủ [INFERENCE: chưa kiểm bằng máy đo riêng].
 
 ### US-NFR-08: LLM thật
 - **Câu hỏi:** các việc LLM (trích công thức, chấm, che danh tính, chat, Threads, khủng hoảng, gợi ý rubric, tóm tắt, chat khi chấm) chạy với mô hình thật ra sao.
 - **Phương pháp:** `benchmarks/real-llm/real_llm.py` (R1–R5) và k6 (R6); mỗi phép đo một bộ dữ liệu cố định, ghi kết quả thô vào `benchmarks/reports/real-llm/*.json`.
 - **Cấu hình, số liệu:** hai đoạn và bảng R1–R6 ngay dưới đây.
 - **PASS/FAIL:** theo ngưỡng của US-NFR-08: R3 lượt 2 PASS (khôi phục 35/35 ≥ 95 %; lượt 1 không đủ ≥ 20 probe); R4 sự kiện đầu p95 14 ms ≤ 300 ms PASS; R5 khủng hoảng 4/4 đi đường an toàn PASS; R6 TTFT lúc chấm không xấu đi (mẫu nhỏ, chỉ lượt Gemini trực tiếp). R1, R2 và độ đúng nội dung R4/R5: AC không đặt ngưỡng, chỉ ghi số.
-- **Giới hạn:** dưới bảng.
+- **Giới hạn:** xem dưới bảng. Hạn chế Mac: đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB; 9router chạy cùng máy với stack nên độ trễ LLM gồm đường mạng từ Mac tới nhà cung cấp, không phải từ máy chủ; R6: k6 và stack chung 6 vCPU [INFERENCE: chưa kiểm bằng máy đo riêng].
 
 **Cấu hình LLM áp dụng từ 2026-11-14 (luật của chủ dự án):** sinh chữ (chat, chấm, trích công thức, insight, eval) chỉ qua 9router trên Mac (`http://127.0.0.1:20128/v1`; từ container `http://host.docker.internal:20128/v1`; model `ag/gemini-3.8-flash`); dựng bằng `CHAT_PROVIDER=9router PHASE=live MODEL=ag/gemini-3.8-flash BASE=https://localhost:<cổng> node deploy/vps-llm.mjs` (nhà cung cấp `router-chat`, loại `openai_compatible`, khoá lấy từ `~/.9router/db/data.sqlite` bảng `apiKeys`, không ghi vào repo). Embedding mặc định `embed-gia` (fake); `GEMINI_API_KEY` chỉ còn cho decision model và embedding khi PM cho phép (`EMBED_PROVIDER=gemini`).
 
