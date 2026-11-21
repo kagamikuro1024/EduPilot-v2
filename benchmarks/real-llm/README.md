@@ -4,7 +4,7 @@ Script `real_llm.py` là client ngoài: chỉ gọi HTTP API của gateway, ch�
 - Kết quả ghi vào `benchmarks/reports/real-llm/*.json` (có khối `meta`). Báo cáo: `docs/research/2026-11-xx-nfr-real-llm.md`.
 - Dữ liệu gửi qua 9router tới nhà cung cấp phía sau chỉ gồm dữ liệu mô phỏng (D44) đã che tên / MSSV.
 
-**Chạy trên Mac, stack `-p ep-research`, cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; không dùng stack demo.** Không gọi Gemini trực tiếp. Khoá 9router đọc từ `ROUTER_API_KEY` hoặc `~/.9router/db/data.sqlite` (không in, không commit). `CHAT_RPM` mặc định 10; gặp `429` có `Retry-After` > 60 s thì dừng lượt và ghi lý do, chạy tiếp bằng `--resume`.
+**Chạy trên Mac, stack `-p ep-research`, cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; không dùng stack demo.** Không gọi Gemini trực tiếp. Khoá 9router đọc từ `ROUTER_API_KEY` hoặc `~/.9router/db/data.sqlite` (không in, không commit). `CHAT_RPM` mặc định 10; gặp `429` có `Retry-After` > 60 s hoặc mất kết nối thì dừng lượt, ghi `resume.json` và thoát mã 3; chạy tiếp bằng `--resume <lệnh>`: chỉ gọi các mục chưa có kết quả (tiến độ từng mục ở `progress-<lệnh>.json`, xoá khi lệnh xong).
 
 Dựng stack như `benchmarks/README.md` (project `ep-research`, `EP_PORT_OFFSET=300`), `PHASE=seed` → `node scripts/seed.mjs` (cần `--profile ingest`) → `PHASE=live`.
 
