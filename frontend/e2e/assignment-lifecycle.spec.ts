@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { A1, RECEIVED, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mailRow, mineOut, mineResult, queueRow, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
+import { A1, RECEIVED, j, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mailRow, mineOut, mineResult, queueRow, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -807,6 +807,25 @@ test("queue → review: bộ đếm «Đã duyệt 0/M» mở từ hàng chờ (
   await page.getByRole("link", { name: "Hàng chờ chấm" }).first().click(); // về hàng chờ: bộ lọc đi theo URL
   await expect(page.getByRole("button", { name: "Cần xem kỹ" })).toHaveAttribute("aria-pressed", "false"); // không tự bật lại
   expect(page.url()).toContain("needs=0");
+});
+
+test("queue: lọc «Cần xem kỹ» người dùng đã tắt GIỮ khi sang tab Bài tập rồi về, và khi tải lại (DEF-R106S-20, P-106-13 d)", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const rowsAll = defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result }));
+  await openQueue(page, context, { rows: rowsAll });
+  const flag = () => page.getByRole("button", { name: "Cần xem kỹ" });
+  await expect(flag()).toHaveAttribute("aria-pressed", "true");
+  await flag().click();
+  await expect(flag()).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("tab", { name: "Bài tập" }).click();
+  await expect(page).toHaveURL(/tab=assignments/);
+  await page.getByRole("tab", { name: "Hàng chờ" }).click();
+  await expect(flag()).toHaveAttribute("aria-pressed", "false");
+  await page.goto("/grading?tab=queue");
+  await expect(flag()).toHaveAttribute("aria-pressed", "false");
+  await flag().click(); // bật lại là lựa chọn mới của người dùng
+  await page.goto("/grading?tab=queue");
+  await expect(flag()).toHaveAttribute("aria-pressed", "true");
 });
 
 test("review: bấm Duyệt ngay sau khi gõ nhận xét — lần lưu do blur chạy xong RỒI duyệt, không bị bỏ im lặng", async ({ page, context }, info) => {

@@ -57,6 +57,16 @@ const subscribeNarrow = (cb: () => void) => {
   return () => m.removeEventListener("change", cb);
 };
 
+const NEEDS_KEY = "ep.grading.queue.needs";
+const subscribeNone = () => () => {};
+const readSavedNeeds = () => {
+  try {
+    return sessionStorage.getItem(NEEDS_KEY);
+  } catch {
+    return null;
+  }
+};
+
 export type QueueHeader = { primary?: HeaderAction; secondary?: [HeaderAction?, HeaderAction?] };
 
 /** Tab `Hàng chờ` của `/grading` (US-P7-08 AC1): bảng ảo hoá, lọc mặc định `Cần xem kỹ` + `Chưa duyệt`. */
@@ -69,7 +79,9 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const assignmentId = params.get("assignment") ?? "";
   const askedStatus = params.get("status") as QueueStatus | null;
   const status: QueueStatus = STATUS_OPTIONS.some((o) => o.value === askedStatus) ? (askedStatus as QueueStatus) : "DRAFT";
-  const flagOnly = params.has("needs") ? params.get("needs") === "1" : true;
+  // Lựa chọn «Cần xem kỹ» của người dùng sống qua đổi tab / tải lại trong phiên (URL không có `needs` thì lấy bản đã lưu; chưa chọn bao giờ → bật)
+  const savedNeeds = useSyncExternalStore(subscribeNone, readSavedNeeds, () => null);
+  const flagOnly = params.has("needs") ? params.get("needs") === "1" : savedNeeds !== null ? savedNeeds === "1" : true;
   // `router.replace` chưa kịp áp thì `params` còn cũ: giữ phần vừa ghi 1 giây để hai lần ghi liền nhau (tự nới lọc + người dùng chọn) không đè nhau.
   const pend = useRef<Record<string, { v: string; t: number }>>({});
   const patch = (next: Record<string, string>) => {
@@ -85,7 +97,14 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   };
   const setAssignmentId = (v: string) => patch({ assignment: v });
   const setStatus = (v: QueueStatus) => patch({ status: v });
-  const setFlagOnly = (v: boolean) => patch({ needs: v ? "1" : "0" });
+  const setFlagOnly = (v: boolean) => {
+    try {
+      sessionStorage.setItem(NEEDS_KEY, v ? "1" : "0");
+    } catch {
+      /* chế độ riêng tư: chỉ mất khả năng nhớ */
+    }
+    patch({ needs: v ? "1" : "0" });
+  };
   // `patch` đổi theo mỗi lần vẽ (đọc `params`); hai effect tự nới lọc dưới đây gọi bản mới nhất qua ref để không đưa nó vào deps (sẽ chạy lại mỗi lần).
   const patchRef = useRef(patch);
   useEffect(() => {
@@ -99,7 +118,7 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
   const [job, setJob] = useState<{ id: string; queued: number; regrade?: boolean } | null>(null);
   const [confirming, setConfirming] = useState(false);
   const publishIdem = useRef<string | null>(null);
-  const relaxed = useRef(params.has("needs")); // người dùng đã chọn (URL có tham số): không tự nới lại
+  const relaxed = useRef(params.has("needs") || savedNeeds !== null); // người dùng đã chọn (URL có tham số hoặc đã lưu): không tự nới lại
   const relaxedStatus = useRef(params.has("status"));
   const [teamsJob, setTeamsJob] = useState<string | null>(null);
   const [teamsWait, setTeamsWait] = useState(0);
@@ -116,11 +135,11 @@ export function QueueTab({ courseId, teacher, onHeader }: { courseId: string; te
 
   // Lọc mặc định có `Cần xem kỹ`; nếu không còn việc chờ nào thì bỏ lọc cờ MỘT lần (AC1).
   useEffect(() => {
-    if (!relaxed.current && flagOnly && !list.isPending && !list.isError && rows.length === 0) {
+    if (!relaxed.current && savedNeeds === null && flagOnly && !list.isPending && !list.isError && rows.length === 0) {
       relaxed.current = true;
       patchRef.current({ needs: "0" });
     }
-  }, [flagOnly, list.isPending, list.isError, rows.length]);
+  }, [flagOnly, savedNeeds, list.isPending, list.isError, rows.length]);
 
   // Hàng chờ «Chưa duyệt» trống mà còn bài chưa chấm: chuyển MỘT lần sang «Chưa chấm» để giảng viên thấy việc cần làm.
   useEffect(() => {
