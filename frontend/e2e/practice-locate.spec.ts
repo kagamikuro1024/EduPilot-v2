@@ -21,8 +21,6 @@ test("mở /practice/[id] không ?course=: đúng 1 request tìm lượt, không
   page.on("request", (r) => /\/courses\/[^/]+\/practice\/attempts\/[^/]+$/.test(r.url()) && r.method() === "GET" && probes.push(r.url()));
 
   // tạo lượt ở lớp 2 qua gateway giả (start không phân biệt lớp), rồi mở thẳng bằng id, không ?course=
-  await page.goto(`/practice?course=${C2}`);
-  await page.evaluate(([c]) => localStorage.setItem("ep:ui:course", c), [C2]);
   await page.goto("/practice");
   await page.getByRole("listitem").filter({ hasText: "Hàm băm" }).getByRole("button").click();
   await page.waitForURL(/\/practice\/att-1/);
@@ -33,4 +31,25 @@ test("mở /practice/[id] không ?course=: đúng 1 request tìm lượt, không
   expect(locates).toBe(1);
   expect(probes.length).toBe(1);
   expect(probes[0]).toContain(`/courses/${C2}/`);
+});
+
+// Bắt đầu → /practice/<id>?course=… giữ tham số (không bị bỏ như deep link thường): đúng 0 request tìm lượt, 1 GET lượt; tải lại vẫn 0 request tìm lượt.
+test("bắt đầu luyện: 0 request tìm lượt, ?course= ở lại URL, tải lại vẫn 0", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-1" });
+  await practiceApi(page, {}, { topicCount: 5 });
+  let locates = 0;
+  const gets: string[] = [];
+  await page.route(/\/api\/v1\/me\/practice\/attempts\/[^/]+$/, (r) => { locates++; return r.fulfill(json({ course_id: C1 })); });
+  page.on("request", (r) => /\/courses\/[^/]+\/practice\/attempts\/[^/]+$/.test(r.url()) && r.method() === "GET" && gets.push(r.url()));
+  await page.goto("/practice");
+  await page.getByRole("listitem").filter({ hasText: "Hàm băm" }).getByRole("button").click();
+  await page.waitForURL(/\/practice\/att-1/);
+  await expect(page.getByRole("button", { name: /^Phương án B của câu 1/ })).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(page.url()).toContain(`?course=${C1}`);
+  expect(locates).toBe(0);
+  expect(gets.length).toBe(1);
+  await page.reload();
+  await expect(page.getByRole("button", { name: /^Phương án B của câu 1/ })).toBeVisible();
+  expect(locates).toBe(0);
 });
