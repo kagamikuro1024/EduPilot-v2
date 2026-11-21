@@ -1,0 +1,141 @@
+job	run	phút	conclusion
+Changes	44343596969	0.4	success
+Changes	44361693563	0.3	success
+Changes	44367157472	0.2	success
+Changes	44371210850	0.3	success
+Changes	44394469327	0.2	success
+Changes	44394768852	0.3	success
+Changes	44422674595	0.2	success
+Frontend (lint + build)	44343596969	1.8	success
+Frontend (lint + build)	44361693563	1.4	success
+Frontend (lint + build)	44367157472	1.7	success
+Frontend (lint + build)	44371210850	1.9	success
+Frontend (lint + build)	44394469327	1.9	success
+Frontend (lint + build)	44394768852	1.4	success
+Frontend (lint + build)	44422674595	1.7	success
+Frontend Lighthouse (devtools A)	44343596969	7.6	success
+Frontend Lighthouse (devtools A)	44361693563	14.6	success
+Frontend Lighthouse (devtools A)	44367157472	15.3	success
+Frontend Lighthouse (devtools A)	44371210850	7.9	success
+Frontend Lighthouse (devtools A)	44394469327	8.4	success
+Frontend Lighthouse (devtools A)	44394768852	7.9	success
+Frontend Lighthouse (devtools A)	44422674595	7.8	success
+Frontend Lighthouse (devtools B)	44343596969	14.2	success
+Frontend Lighthouse (devtools B)	44361693563	14.1	success
+Frontend Lighthouse (devtools B)	44367157472	15.7	success
+Frontend Lighthouse (devtools B)	44371210850	8.2	success
+Frontend Lighthouse (devtools B)	44394469327	10.8	success
+Frontend Lighthouse (devtools B)	44394768852	11.4	success
+Frontend Lighthouse (devtools B)	44422674595	10.4	success
+Frontend Lighthouse (simulate A)	44343596969	11.8	success
+Frontend Lighthouse (simulate A)	44361693563	15.3	success
+Frontend Lighthouse (simulate A)	44367157472	11.4	success
+Frontend Lighthouse (simulate A)	44371210850	7.3	success
+Frontend Lighthouse (simulate A)	44394469327	6.4	success
+Frontend Lighthouse (simulate A)	44394768852	5.9	success
+Frontend Lighthouse (simulate A)	44422674595	6.3	success
+Frontend Lighthouse (simulate B)	44343596969	5.5	success
+Frontend Lighthouse (simulate B)	44361693563	9.3	success
+Frontend Lighthouse (simulate B)	44367157472	5.2	success
+Frontend Lighthouse (simulate B)	44371210850	6.2	success
+Frontend Lighthouse (simulate B)	44394469327	6.2	success
+Frontend Lighthouse (simulate B)	44394768852	5.5	success
+Frontend Lighthouse (simulate B)	44422674595	5.9	success
+Frontend e2e (Playwright 1/4)	44343596969	6.9	success
+Frontend e2e (Playwright 1/4)	44361693563	11.8	success
+Frontend e2e (Playwright 1/4)	44367157472	7.0	success
+Frontend e2e (Playwright 1/4)	44371210850	7.8	success
+Frontend e2e (Playwright 1/4)	44394469327	6.9	success
+Frontend e2e (Playwright 1/4)	44394768852	7.7	success
+Frontend e2e (Playwright 1/4)	44422674595	7.0	success
+Frontend e2e (Playwright 2/4)	44343596969	6.7	success
+Frontend e2e (Playwright 2/4)	44361693563	11.2	success
+Frontend e2e (Playwright 2/4)	44367157472	7.2	success
+Frontend e2e (Playwright 2/4)	44371210850	7.2	success
+Frontend e2e (Playwright 2/4)	44394469327	6.5	success
+Frontend e2e (Playwright 2/4)	44394768852	7.7	success
+Frontend e2e (Playwright 2/4)	44422674595	7.2	success
+Frontend e2e (Playwright 3/4)	44343596969	11.2	success
+Frontend e2e (Playwright 3/4)	44361693563	7.7	success
+Frontend e2e (Playwright 3/4)	44367157472	8.1	success
+Frontend e2e (Playwright 3/4)	44371210850	6.7	success
+Frontend e2e (Playwright 3/4)	44394469327	6.8	success
+Frontend e2e (Playwright 3/4)	44394768852	6.7	success
+Frontend e2e (Playwright 3/4)	44422674595	6.8	success
+Frontend e2e (Playwright 4/4)	44343596969	8.2	success
+Frontend e2e (Playwright 4/4)	44361693563	10.7	success
+Frontend e2e (Playwright 4/4)	44367157472	11.3	success
+Frontend e2e (Playwright 4/4)	44371210850	7.5	success
+Frontend e2e (Playwright 4/4)	44394469327	8.3	success
+Frontend e2e (Playwright 4/4)	44394768852	7.5	success
+Frontend e2e (Playwright 4/4)	44422674595	7.2	success
+Go (static)	44343596969	6.3	success
+Go (static)	44361693563	4.5	success
+Go (static)	44367157472	5.1	success
+Go (static)	44371210850	2.1	success
+Go (static)	44394469327	4.7	success
+Go (static)	44394768852	4.7	success
+Go (static)	44422674595	-0.0	skipped
+Go test (${{ matrix.name }})	44422674595	-0.0	skipped
+Go test (auth)	44343596969	4.6	success
+Go test (auth)	44361693563	4.9	success
+Go test (auth)	44367157472	4.9	success
+Go test (auth)	44371210850	5.2	success
+Go test (auth)	44394469327	5.9	success
+Go test (auth)	44394768852	5.5	success
+Go test (course)	44343596969	4.3	success
+Go test (course)	44361693563	5.6	success
+Go test (course)	44367157472	5.0	success
+Go test (course)	44371210850	7.8	success
+Go test (course)	44394469327	9.1	success
+Go test (course)	44394768852	4.2	success
+Go test (rest-1)	44343596969	9.7	success
+Go test (rest-1)	44361693563	6.5	success
+Go test (rest-1)	44367157472	8.6	success
+Go test (rest-1)	44371210850	5.2	success
+Go test (rest-1)	44394469327	6.8	success
+Go test (rest-1)	44394768852	8.0	success
+Go test (rest-2)	44343596969	8.4	success
+Go test (rest-2)	44361693563	5.9	success
+Go test (rest-2)	44367157472	8.3	success
+Go test (rest-2)	44371210850	9.0	success
+Go test (rest-2)	44394469327	6.5	success
+Go test (rest-2)	44394768852	5.6	success
+Go test (rest-3)	44343596969	6.4	success
+Go test (rest-3)	44361693563	6.6	success
+Go test (rest-3)	44367157472	9.3	success
+Go test (rest-3)	44371210850	8.2	success
+Go test (rest-3)	44394469327	8.0	success
+Go test (rest-3)	44394768852	6.0	success
+Go test không tag (${{ matrix.shard }}/4)	44422674595	-0.0	skipped
+Go test không tag (1/4)	44343596969	5.5	success
+Go test không tag (1/4)	44361693563	3.7	success
+Go test không tag (1/4)	44367157472	4.5	success
+Go test không tag (1/4)	44371210850	3.8	success
+Go test không tag (1/4)	44394469327	5.3	success
+Go test không tag (1/4)	44394768852	3.6	success
+Go test không tag (2/4)	44343596969	3.6	success
+Go test không tag (2/4)	44361693563	3.8	success
+Go test không tag (2/4)	44367157472	5.3	success
+Go test không tag (2/4)	44371210850	5.0	success
+Go test không tag (2/4)	44394469327	3.6	success
+Go test không tag (2/4)	44394768852	4.4	success
+Go test không tag (3/4)	44343596969	4.0	success
+Go test không tag (3/4)	44361693563	4.6	success
+Go test không tag (3/4)	44367157472	5.4	success
+Go test không tag (3/4)	44371210850	4.6	success
+Go test không tag (3/4)	44394469327	3.9	success
+Go test không tag (3/4)	44394768852	4.5	success
+Go test không tag (4/4)	44343596969	4.2	success
+Go test không tag (4/4)	44361693563	6.0	success
+Go test không tag (4/4)	44367157472	4.2	success
+Go test không tag (4/4)	44371210850	5.0	success
+Go test không tag (4/4)	44394469327	4.0	success
+Go test không tag (4/4)	44394768852	6.5	success
+Judge attacks (amd64, seccomp bật)	44343596969	3.0	success
+Judge attacks (amd64, seccomp bật)	44361693563	2.7	success
+Judge attacks (amd64, seccomp bật)	44367157472	3.0	success
+Judge attacks (amd64, seccomp bật)	44371210850	3.0	success
+Judge attacks (amd64, seccomp bật)	44394469327	3.6	success
+Judge attacks (amd64, seccomp bật)	44394768852	3.2	success
+Judge attacks (amd64, seccomp bật)	44422674595	-0.0	skipped

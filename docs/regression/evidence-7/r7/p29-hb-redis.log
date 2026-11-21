@@ -1,0 +1,17 @@
+mốc: stop gọi xong 2026-11-21T02:28:20.827680Z | nhịp cuối xong 2026-11-21T02:28:26.808231Z | start redis 2026-11-21T02:28:27.004837Z | healthy 2026-11-21T02:28:32.197537Z
+base 2026-11-21T02:28:20.572310Z 204 7 ms
+base 2026-11-21T02:28:20.579432Z 204 4 ms
+down 2026-11-21T02:28:20.827693Z 204 689 ms
+down 2026-11-21T02:28:22.020878Z 204 687 ms
+down 2026-11-21T02:28:23.212054Z 204 692 ms
+down 2026-11-21T02:28:24.408684Z 204 691 ms
+down 2026-11-21T02:28:25.603923Z 204 700 ms
+after 2026-11-21T02:28:32.197571Z 204 16 ms
+log gateway: 74 dòng trong cửa sổ; 5 dòng activity_heartbeat_dropped_total
+{"time":"2026-11-21T02:28:21.566755655Z","level":"WARN","msg":"activity_heartbeat_dropped_total","service":"gateway","instance":"aee7a3baba2e","error":"context deadline exceeded","total":1,"trace_id":"aa9b208eb7d73a188737ed22702f184d"}
+{"time":"2026-11-21T02:28:22.758751079Z","level":"WARN","msg":"activity_heartbeat_dropped_total","service":"gateway","instance":"aee7a3baba2e","error":"context deadline exceeded","total":2,"trace_id":"1100c4d114c0e152b517e5b3beb20427"}
+{"time":"2026-11-21T02:28:23.952069775Z","level":"WARN","msg":"activity_heartbeat_dropped_total","service":"gateway","instance":"aee7a3baba2e","error":"context deadline exceeded","total":3,"trace_id":"5829687abe67505c4a1a4e9549a703b6"}
+{"time":"2026-11-21T02:28:25.14946233Z","level":"WARN","msg":"activity_heartbeat_dropped_total","service":"gateway","instance":"aee7a3baba2e","error":"context deadline exceeded","total":4,"trace_id":"38a2ae73ccb751bcf4123abc57a2ed9a"}
+{"time":"2026-11-21T02:28:26.353278333Z","level":"WARN","msg":"activity_heartbeat_dropped_total","service":"gateway","instance":"aee7a3baba2e","error":"context deadline exceeded","total":5,"trace_id":"3d495dc5d67edc74c4cd498081fdc3b8"}
+dòng có user_id/area (PII): 0
+PASS TC-P5-03-29 docker stop ep-r-redis-1 2026-11-21T02:28:20.827680Z; 5 nhịp: [(204, 689), (204, 687), (204, 692), (204, 691), (204, 700)] ms (≤ 1000 ms; ma

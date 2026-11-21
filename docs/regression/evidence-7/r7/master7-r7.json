@@ -1,0 +1,1 @@
+{"TC-P5-03-29": ["P", "docker stop ep-r-redis-1 2026-11-21T02:28:20.827680Z; 5 nhịp: [(204, 689), (204, 687), (204, 692), (204, 691), (204, 700)] ms (≤ 1000 ms; max 700); log WARN activity_heartbeat_dropped_total=5; PII=0; redis bật lại 2026-11-21T02:28:27.004837Z healthy 2026-11-21T02:28:32.197537Z"]}

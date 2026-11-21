@@ -1,0 +1,21 @@
+Changes	completed	success	0.4
+Go (static)	completed	failure	4.3
+Judge attacks (amd64, seccomp bật)	completed	success	3.6
+Frontend e2e (Playwright 1/4)	completed	failure	7.2
+Frontend e2e (Playwright 4/4)	completed	success	7.2
+Frontend (lint + build)	completed	success	1.8
+Frontend e2e (Playwright 2/4)	completed	failure	6.4
+Go test (auth)	completed	success	5.7
+Go test (rest-1)	completed	failure	9
+Frontend Lighthouse (simulate B)	completed	success	5.7
+Go test không tag (3/4)	completed	success	3.7
+Go test không tag (1/4)	completed	failure	3.6
+Frontend e2e (Playwright 3/4)	completed	success	7.7
+Frontend Lighthouse (devtools B)	in_progress		
+Go test không tag (4/4)	completed	success	4.1
+Go test (course)	completed	success	5.9
+Go test không tag (2/4)	completed	failure	3.5
+Go test (rest-3)	completed	success	6.7
+Frontend Lighthouse (simulate A)	completed	success	6.3
+Go test (rest-2)	completed	success	8.5
+Frontend Lighthouse (devtools A)	completed	success	7.8

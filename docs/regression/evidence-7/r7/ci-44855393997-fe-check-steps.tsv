@@ -1,0 +1,13 @@
+Set up job	success
+Run actions/checkout@v7	success
+Run ./.github/actions/fe-setup	success
+lint	success
+ui antipatterns	success
+lint selftest	success
+mobile prepare.mjs (chỉ nhận HTTPS)	success
+kit token ⊆ tokens.css (DEF-R3-02)	success
+CI guard (timeout mọi job, shard e2e rỗng — DEF-R7-06/07)	success
+build (như production)	success
+Post Run ./.github/actions/fe-setup	success
+Post Run actions/checkout@v7	success
+Complete job	success

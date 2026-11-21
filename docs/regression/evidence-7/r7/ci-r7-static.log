@@ -1,0 +1,38 @@
+HEAD: 425396a7 Merge remote-tracking branch 'origin/sprint/11-p10-eval' into HEAD
+ancestor 7062b009 trong HEAD: có
+--- TC-E4: shard rỗng N=200 (bước CI: mapfile + guard)
+shard 1/4:
+số phần tử mảng files=31
+playwright sẽ chạy 31 đối số; phần tử 0=<e2e/frame.spec.ts>
+shard 4/4:
+số phần tử mảng files=40
+playwright sẽ chạy 40 đối số; phần tử 0=<e2e/panels.spec.ts>
+shard 150/200:
+số phần tử mảng files=0
+(bước CI) shard rỗng: thoát 0, KHÔNG gọi playwright
+shard 200/200:
+số phần tử mảng files=0
+(bước CI) shard rỗng: thoát 0, KHÔNG gọi playwright
+--- shard thật 1/4..4/4 (mỗi tệp đúng 1 shard)
+shard 1/4:       31 tệp
+shard 2/4:       35 tệp
+shard 3/4:       35 tệp
+shard 4/4:       40 tệp
+tệp trùng giữa các shard:        0
+--- scripts/ci-guard.test.mjs
+✔ shard rỗng in ra ĐÚNG rỗng (mapfile không được ra một phần tử rỗng → playwright chạy cả bộ) (49.178875ms)
+✔ mỗi tệp spec thuộc đúng một shard (192.842791ms)
+✔ mọi job trong ci.yml khai báo timeout-minutes (1.03325ms)
+ℹ tests 3
+ℹ pass 3
+ℹ fail 0
+--- TC-E2: timeout-minutes từng job @HEAD
+changes          Changes                                       timeout-minutes=5
+go-static        Go (static)                                   timeout-minutes=20
+go-test          Go test (${{ matrix.name }})                  timeout-minutes=30
+go-test-default  Go test không tag (${{ matrix.shard }}/4)     timeout-minutes=25
+judge-attacks    Judge attacks (amd64, seccomp bật)            timeout-minutes=10
+fe-check         Frontend (lint + build)                       timeout-minutes=15
+e2e              Frontend e2e (Playwright ${{ matrix.shard }}/4) timeout-minutes=25
+lhci             Frontend Lighthouse (${{ matrix.name }})      timeout-minutes=25
+tổng số tệp spec e2e: 141; số tệp trong 4 shard (sort -u): 141
