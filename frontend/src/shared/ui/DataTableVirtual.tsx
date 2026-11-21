@@ -2,6 +2,7 @@
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
+import { useScrollRow } from "@/shared/lib/useScrollRow";
 import type { CellNav, Column, Pagination } from "./DataTable";
 import { InlineNotice } from "./Feedback";
 import s from "./DataTable.module.css";
@@ -38,6 +39,7 @@ export default function VirtualTable<T>({
   pagination?: Pagination;
 }) {
   const parentRef = useRef<HTMLDivElement>(null);
+  useScrollRow(parentRef, columns.length); // khung cuộn ngang thật mang data-scroll-x (AUDIT không tính là chữ bị cắt), mép mờ như bảng thường
   const [cursorIdx, setCursorIdx] = useState(-1);
   const requested = useRef<string | null>(null);
   const footer = Boolean(pagination && (pagination.nextCursor !== null || pagination.error));
