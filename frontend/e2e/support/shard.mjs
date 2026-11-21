@@ -30,5 +30,6 @@ if (a === "--report") {
 } else {
   const i = Number(a), n = Number(b);
   if (!(i >= 1 && i <= n)) { console.error("dùng: shard.mjs <1..N> <N>"); process.exit(2); }
-  console.log(plan(n)[i - 1].files.map((f) => `e2e/${f}`).join("\n"));
+  const files = plan(n)[i - 1].files; // shard rỗng: không in gì (một dòng trống làm `mapfile` ra phần tử "" và playwright chạy cả bộ — DEF-R7-07)
+  if (files.length > 0) console.log(files.map((f) => `e2e/${f}`).join("\n"));
 }
