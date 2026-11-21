@@ -1,6 +1,6 @@
 # Đo phi chức năng T1 trên Mac và đánh giá LLM thật (sprint 9.5)
 
-Thiết bị: **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU**. Stack đo `ep-t1`, DB `edupilot_t1` (1.000 SV, 20 lớp, 409 MB). Stack demo đã `stop` trong mọi lượt đo (bằng chứng: `benchmarks/reports/demo-stack.json`). Dữ liệu mô phỏng hoàn toàn (D44). Mọi số có tệp nguồn trong `benchmarks/reports/`; số trong bảng dưới đây không có nguồn nào khác.
+Thiết bị: **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU**. Stack đo `ep-t1`, DB `edupilot_t1` (1.000 SV, 20 lớp, 409 MB). Stack demo đã `stop` trong các lượt đo, trừ ba lượt ghi `running` (mục «Lần đo bị nhiễu, lần đo lại»; bằng chứng: `benchmarks/reports/demo-stack.json`, `meta.demo_stack`). Dữ liệu mô phỏng hoàn toàn (D44). Mọi số có tệp nguồn trong `benchmarks/reports/`; số trong bảng dưới đây không có nguồn nào khác.
 
 ## Tóm tắt (đọc trong ≤ 5 phút)
 - **Đạt:** (a) duyệt 300 người + 300 SSE, (b) chat (sự kiện đầu, TTFT cache và RAG), (c) chấm 50 bài khi chat, (d) dashboard / hồ sơ 360 / sổ điểm, baseline p95 13 endpoint, chaos (kill -9 worker, Redis tắt 70 s): đều trong SLO ở ×1 và ×2, không đổi mã giữa hai cấu hình.
@@ -115,6 +115,20 @@ Phát hiện từ lượt Gemini trực tiếp (đã sửa mã, giữ lại): Ge
 | Judge amd64 có seccomp | không đo được trên arm64 (D58) |
 | E3 chấm tay, E4 nhiều provider | thuộc P10 |
 | Mạng thật / VPS | ngoài phạm vi (CONTEXT mục 4) |
+
+## Lần đo bị nhiễu, lần đo lại
+**CPU nền: không đo.** Không lượt nào lấy mẫu CPU của máy Mac hay của VM trước / trong khi đo, nên báo cáo không biết lượt nào có CPU nền > 30 %, và không có lượt nào bị loại hay đo lại vì lý do đó. Dấu vết duy nhất về tải nền là trạng thái stack demo `edupilot` trong `meta.demo_stack` của `load-*.json`: `stopped` ở mọi tệp, trừ ba tệp ghi `running`: `load-c-baseline-real.json`, `load-c-grading-real.json` (R6) và `load-c-1000-9router-run1-hong.json`. Ba lượt này có thể bị nhiễu bởi stack demo; mức nhiễu không đo.
+
+Các lượt bị lặp hoặc không dùng đều có lý do khác và được giữ tệp, không xoá:
+
+| Tệp | Lý do lặp / không dùng | Lượt thay |
+| --- | --- | --- |
+| `load-a-lan1.json`, `load-a-x2-lan1.json` | lần đầu, trên gateway dev thường (hạn mức IP 5.000/phút), chưa có bước gọi `gradebook` phải 403 | `load-a.json`, `load-a-x2.json` |
+| `load-c-1000-lan1-khong-hop-le.json` (và `load-c-baseline-1000-lan1.json`, chat nền đi kèm, cùng bản `aafd87f0`, tối 13/11) | lỗi script đo: `Idempotency-Key` trùng giữa 20 lớp nên chỉ 150 việc được xếp (`note` trong tệp) | `load-c-1000-9router-run2.json`, `load-c-baseline-1000.json` |
+| `load-c-1000-dung-theo-chu-du-an.json` | provider giả trễ 20 s (`meta.config`); dừng ở 235/1.000 vì AC9 đòi chạy LLM thật (`note` trong tệp) | lượt 9router |
+| `load-c-1000-9router-run1-hong.json` | 9router bị watchdog khởi động lại giữa lượt, 678 `FAILED`; lỗi mã, sửa ở P-11-23 | `load-c-1000-9router-run2.json` |
+| `real-llm/lan-1-khong-hop-le/` | lượt Gemini trực tiếp hỏng (`circuit_open`, `RATE_LIMIT`), DEF-R9.5-14 | `real-llm/*.json` (9router, 2026-11-15) |
+| `real-llm/mask-luot1.json` | chỉ 17 probe tới mô hình (cần ≥ 20) | `real-llm/mask.json` |
 
 ## Danh sách câu cần vá ở báo cáo cũ (US-NFR-09 AC3)
 | Vị trí | Câu hiện có | Câu mới đề xuất |
