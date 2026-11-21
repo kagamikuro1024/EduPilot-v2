@@ -230,6 +230,29 @@ test("attendance offline reload keeps queue: tải lại giữa chừng vẫn th
   expect(bodyOf(api.puts().at(-1)!).records).toEqual([{ student_id: sid(6), status: "ABSENT" }]);
 });
 
+test("attendance offline complete (AC13, TC-P5-02-33): Lưu điểm danh lúc mất mạng xếp hàng cùng complete:true, có mạng thì gửi và đặt done_at — có hoặc không còn thay đổi chờ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await open(page, context);
+  await context.setOffline(true);
+  await radio(page, 3, "Vắng").check();
+  await expect(page.locator("[data-part=att-save-state]")).toHaveText("Chờ mạng · 1 thay đổi");
+  await expect(page.getByRole("button", { name: "Lưu điểm danh" }).first()).toBeEnabled({ timeout: 500 });
+  await page.getByRole("button", { name: "Lưu điểm danh" }).first().click();
+  await expect(page.getByText(/^Đã lưu điểm danh/)).toHaveCount(0); // chưa lên máy chủ thì không báo đã lưu
+  await context.setOffline(false);
+  await expect(page.getByText("Đã lưu điểm danh · 30 sinh viên · vắng 1")).toBeVisible({ timeout: 15000 });
+  expect(api.puts().some((c) => bodyOf(c).complete)).toBe(true);
+});
+
+test("attendance offline complete không còn thay đổi chờ: bấm Lưu điểm danh khi offline vẫn gửi complete:true lúc có mạng", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await open(page, context);
+  await context.setOffline(true);
+  await page.getByRole("button", { name: "Lưu điểm danh" }).first().click();
+  await context.setOffline(false);
+  await expect(page.getByText("Đã lưu điểm danh · 30 sinh viên · vắng 0")).toBeVisible({ timeout: 15000 });
+});
+
 test("attendance logout asks first: còn thay đổi chưa lưu thì hỏi; Ở lại giữ nguyên, Đăng xuất xoá khoá attendance của người đó ở máy", async ({ page, context }, info) => {
   desktopOnly(info);
   await open(page, context, { h: { "PUT attendance": (r) => r.abort("internetdisconnected") } });
