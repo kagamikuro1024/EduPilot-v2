@@ -1,0 +1,14 @@
+PASS TC-P5-03-41 GV qc3pg lớp D (QC3P5D | · QC3 QC3P5D | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 4 thông báo mới | 4 ) chưa có SV: công tắc «Cho sinh viên tắt đo thời gian học» đổi được=true (bật=true); bấm → DB t→f (hiển thị bật=false), bấm lại → t; lớp C (QC3P5 | · QC3 QC3P5 | Tìm nhanh hoặc đi đến… | ⌘ | K | Có 4 thông báo mới | 4 | ) đã có SV: disabled=true, giá trị bật=true, tooltip lý do ở chính công tắc «Lớp đã có sinh viên», dòng mô tả riêng=0; TA qc3ph lớp D: công tắc disabled=true (chỉ đọc); GET /courses/{id} cờ trả về (Member, trình duyệt) = [401,null]
+08 nhịp theo giây giả lập sau t0 (fetch trong trang): [-2,28,58,88]; số request ngoài: 4
+08 sau 310 s: [-2,28,58,88]
+08 chạm lại: [-2,28,58,88,319]
+08b runFor(130 s) một lần: nhịp theo giây giả lập (fetch trong trang) [-2,28,43,58,58,73,88,88,103,118]; request ngoài 10
+08b thêm runFor(180 s): [-2,28,43,58,58,73,88,88,103,118]
+10 nhịp(giây giả lập)=[-2,28,28,29,58,60,61,88,88,93,118,119,148,178]; trước offline 1; sau 95 s offline 11 (+10); online +35 s 13 (+2); sau 403 (65 s) 14 (+1); alert/toast=1, dialog=0; bỏ chặn 65 s: 14 (+0); offSeq=[-2,28,28,29,58,60,61,88,88,93,118]
+08c mạng (giây giả lập): 0s POST /auth/refresh 200 ; 0s GET /events 200 ; 0s GET /notifications?limit=30 200 ; 0s GET /me/courses?limit=100 200 ; 0s GET /courses/01a1f016-3d18-728c-ae7c-5277e9ad3fd9/threads?limit= 200 ; 3s POST /activity/heartbeat 204 ; 3s GET /events 200
+08d chunk 20s: [-2,28,58,88]
+08d chunk 30s: [-2,28,58,88]
+08d chunk 65s: [-2,28,43,58,58,88,103,118]
+10e offline: sự kiện nhịp=["fail","fail","fail","fail","fail","fail","fail","204","204","204"]; phần tử alert khi offline=["DIV[|offline-banner]: Mất kết nối mạng. Chữ bạn đã nhập vẫn được giữ; hệ thống sẽ ","DIV[alert|]: "]; sau online=["DIV: ","DIV: "]; số fetch trong trang=[-2,28,28,31,58,60,62,88,88,118,148]
+10e 403: sự kiện=["403"] (kỳ vọng đúng 1 rồi ngừng); alert/toast=[""]; dialog=0; số fetch=2
+10e 422: sự kiện=["422"] (kỳ vọng đúng 1 rồi ngừng); alert/toast=[""]; dialog=0; số fetch=2

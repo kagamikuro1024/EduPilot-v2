@@ -1,0 +1,22 @@
+import { test } from "@playwright/test";
+import { go, FX, shot, log, psql, newUser } from "../specs/lib";
+const FP = FX("fx_p5") as { C: string; D: string };
+const R = (tc: string, ok: boolean, note: string) => log("p503d", `${ok ? "PASS" : "FAIL"} ${tc} ${note}`);
+const NAME = "Cho sinh viên tắt đo thời gian học";
+const info = (e: HTMLElement) => { const id = e.getAttribute("aria-describedby"); return id ? document.getElementById(id)?.innerText ?? "" : (e.getAttribute("title") ?? ""); };
+test("41 class settings", async ({ browser }) => {
+  const t = await newUser(browser, "qc3pg");
+  await go(t.page, `/class/settings?course=${FP.D}`); const top = (await t.page.locator("[data-part=topbar]").innerText()).replace(/\n+/g, " | ").slice(0, 80);
+  const sw = t.page.getByRole("switch", { name: NAME }); await sw.waitFor({ timeout: 20000 });
+  const en0 = await sw.isEnabled(), c0 = await sw.isChecked(); const d0 = psql(`select allow_study_time_opt_out from courses where id='${FP.D}'`);
+  await sw.click(); await t.page.waitForTimeout(2000); const d1 = psql(`select allow_study_time_opt_out from courses where id='${FP.D}'`); const c1 = await sw.isChecked();
+  await sw.click(); await t.page.waitForTimeout(2000); const d2 = psql(`select allow_study_time_opt_out from courses where id='${FP.D}'`);
+  await shot(t.page, "p503d-41-teacher-empty");
+  await go(t.page, `/class/settings?course=${FP.C}`); const top2 = (await t.page.locator("[data-part=topbar]").innerText()).replace(/\n+/g, " | ").slice(0, 80);
+  const sw2 = t.page.getByRole("switch", { name: NAME }); await sw2.waitFor({ timeout: 20000 }); const dis2 = await sw2.isDisabled(); const ch2 = await sw2.isChecked(); const tip = await sw2.evaluate(info);
+  const para = tip ? await t.page.locator("main p", { hasText: tip }).count() : 0; await shot(t.page, "p503d-41-teacher-locked");
+  const ta = await newUser(browser, "qc3ph"); await go(ta.page, `/class/settings?course=${FP.D}`); const swT = ta.page.getByRole("switch", { name: NAME }); await swT.waitFor({ timeout: 20000 }); const disT = await swT.isDisabled(); await shot(ta.page, "p503d-41-ta");
+  const api = await ta.page.evaluate(async (c) => { const r = await fetch(`/api/v1/courses/${c}`, { credentials: "include" }); return [r.status, (await r.json().catch(() => ({}))).allow_study_time_opt_out]; }, FP.C).catch((e) => String(e));
+  R("TC-P5-03-41", en0 && d1 !== d0 && d2 === d0 && dis2 && !!tip && para === 0 && disT, `GV qc3pg lớp D (${top}) chưa có SV: công tắc «${NAME}» đổi được=${en0} (bật=${c0}); bấm → DB ${d0}→${d1} (hiển thị bật=${c1}), bấm lại → ${d2}; lớp C (${top2}) đã có SV: disabled=${dis2}, giá trị bật=${ch2}, tooltip lý do ở chính công tắc «${tip}», dòng mô tả riêng=${para}; TA qc3ph lớp D: công tắc disabled=${disT} (chỉ đọc); GET /courses/{id} cờ trả về (Member, trình duyệt) = ${JSON.stringify(api)}`);
+  await t.ctx.close(); await ta.ctx.close();
+});

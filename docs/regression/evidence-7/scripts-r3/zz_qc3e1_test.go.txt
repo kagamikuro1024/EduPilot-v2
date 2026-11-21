@@ -1,0 +1,44 @@
+package crm_test
+
+import (
+	"io"
+	"log/slog"
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/fake"
+)
+
+// TC-P5-05-E1 (QC): ai-summary với nhà cung cấp trả JSON SAI SCHEMA qua llm.Gateway thật → lỗi 503 LLM_UNAVAILABLE, không lưu ghi chú.
+func TestZZAISummaryWrongSchema(t *testing.T) {
+	r := newRig(t)
+	w := r.world(1)
+	w.dataFor(0)
+	ctx := t.Context()
+	f := filepath.Join(t.TempDir(), "demo.json")
+	require.NoError(t, os.WriteFile(f, []byte(`{"recordings":[{"name":"sai-schema","match":["{"],"response":{"summary":123,"strengths":"không phải mảng","khac":true}}]}`), 0o600))
+	log := slog.New(slog.NewTextHandler(io.Discard, nil))
+	reg := llm.NewRegistry(nil, llm.EnvConfig{Provider: "fake", Fake: fake.Settings{StreamDelay: 1, DemoFile: f}}, nil, log)
+	require.NoError(t, reg.Load(ctx))
+	aud := llm.NewAuditor(ctx, llm.PGWriter(r.pool), log)
+	g := llm.New(llm.Options{Registry: reg, Auditor: aud, NoMask: true, Log: log})
+	svc := r.svc()
+	svc.LLM = g
+	before := r.count(`select count(*) from student_observations where student_id = $1`, w.students[0].ID)
+	d, err := svc.AISummary(ctx, w.teacher.ID, w.course, w.students[0].ID)
+	require.Error(t, err)
+	t.Logf("lỗi trả về: %v", err)
+	require.Contains(t, err.Error(), "LLM_UNAVAILABLE")
+	require.Empty(t, d.Summary, "không được trả bản nháp từ JSON sai schema")
+	require.GreaterOrEqual(t, reg.Fake().Calls(), int64(1), "provider đã được gọi")
+	aud.Close(ctx)
+	require.Equal(t, before, r.count(`select count(*) from student_observations where student_id = $1`, w.students[0].ID), "không lưu gì")
+	var task, status, kind string
+	require.NoError(t, r.pool.QueryRow(ctx, `select task, status, coalesce(error_kind, '') from llm_audit order by created_at desc limit 1`).Scan(&task, &status, &kind))
+	t.Logf("llm_audit: task=%s status=%s error_kind=%s", task, status, kind)
+	require.NotEqual(t, "ok", status)
+}

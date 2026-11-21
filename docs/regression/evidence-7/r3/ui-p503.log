@@ -12,3 +12,6 @@ PASS TC-P5-06-22 /settings của qc3me01 (ghi danh M lớp cho tắt, M2 không 
 PASS TC-P5-06-23 tắt công tắc M (DB track_study_time=f); /me lớp M: «Thời gian học |  | Đang tắt» (Đang tắt=true); /me lớp M2: «Tuần này: 30 phút»; sai version (ngữ cảnh khác đổi trước): dòng thông báo ["Nhập lại mật khẩu mới"], công tắc sau đó bật=true, DB=t
 PASS TC-P5-06-24 mở /settings: SV chưa «Đã hiểu», TEACHER, TA, ADMIN — số phần tử nhóm «Thời gian học»/công tắc lớp: {"qc3me04":0,"qc3t":0,"qc3ta":0,"admin":0}
 PASS TC-P5-06-25 375×812, /class/settings lớp M2 (đã có SV): công tắc «Cho sinh viên tắt đo thời gian học» cao 44 px (hàng 44), disabled=true, trạng thái bật=true (giá trị «Không» = tắt/không cho); ngữ cảnh: Cho sinh viên tắt đo thời gian học | Lớp đã có sinh viên | Học từ lần sửa | Lưu ý chấm
+PASS TC-P5-03-06 hai tab /chat cùng người dùng, thao tác cả hai, 600 s thật: tab 1 gửi 20 nhịp, tab 2 gửi 20 nhịp (tab_id khác nhau=2); Redis ep:study:<uuid>:<uuid>:20261119:CHAT tăng 600 s (≤ 600 + 30; không gấp đôi 1.200)
+PASS TC-P5-03-11 tab /chat hiện suốt 600 s thật, thao tác 180 s đầu rồi dừng (nhịp ngừng sau mốc idle 120 s): 9 nhịp gửi, Redis tăng 270 s (kỳ vọng 300 ± 30)
+PASS TC-P5-03-12 tab /chat, thao tác liên tục, ẩn tab (visibilityState=hidden) từ giây 180 đến 420 (4 phút): 12 nhịp gửi, Redis tăng 360 s (kỳ vọng 360 ± 30: đúng 6 phút hiện, 4 phút ẩn không cộng)
