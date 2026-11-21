@@ -1,0 +1,22 @@
+Changes	completed	success	2026-11-21T13:13:09Z	2026-11-21T13:13:22Z	1
+Frontend (lint + build)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:14:55Z	1
+Frontend e2e (Playwright 2/4)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:20:48Z	1
+Go (static)	completed	success	2026-11-21T13:13:25Z	2026-11-21T13:17:00Z	1
+Frontend e2e (Playwright 1/4)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:19:52Z	1
+Frontend e2e (Playwright 3/4)	completed	success	2026-11-21T13:13:25Z	2026-11-21T13:21:21Z	1
+Go test không tag (1/4)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:19:27Z	1
+Judge attacks (amd64, seccomp bật)	completed	success	2026-11-21T13:13:25Z	2026-11-21T13:16:08Z	1
+Frontend e2e (Playwright 4/4)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:21:55Z	1
+Go test không tag (2/4)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:16:36Z	1
+Frontend Lighthouse (devtools C)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:19:29Z	1
+Go test (rest-2)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:20:07Z	1
+Frontend Lighthouse (simulate A)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:19:30Z	1
+Go test không tag (3/4)	completed	success	2026-11-21T13:13:25Z	2026-11-21T13:17:30Z	1
+Go test (rest-3)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:20:06Z	1
+Go test (course)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:20:36Z	1
+Frontend Lighthouse (simulate B)	completed	success	2026-11-21T13:13:25Z	2026-11-21T13:19:14Z	1
+Go test (rest-1)	completed	success	2026-11-21T13:13:28Z	2026-11-21T13:18:29Z	1
+Go test không tag (4/4)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:19:08Z	1
+Go test (auth)	completed	success	2026-11-21T13:13:25Z	2026-11-21T13:18:42Z	1
+Frontend Lighthouse (devtools B)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:19:54Z	1
+Frontend Lighthouse (devtools A)	completed	success	2026-11-21T13:13:24Z	2026-11-21T13:21:24Z	1
