@@ -81,6 +81,13 @@
 - Kỳ vọng: «Loại khỏi tri thức» (giảng viên). Thực tế: mục «Loại». Các phần khác của AC14 (menu Báo cáo, danh sách lý do, «Đã báo cáo · Hoàn tác» 5 s, Ẩn bài/Ghim/Giữ bài, Sửa/Xoá, 375 px) đạt.
 - Bằng chứng: `evidence-7/r3/ui-p7c.log` (TC-P4-06-47c)
 
+### DEF-R7-13 — Trạng thái rỗng khối Chuyên cần của /me thiếu dấu chấm cuối
+- Mức: Thấp
+- Sprint gốc: 7 · TC gốc: TC-P5-06-18 (US-P5-06 AC7) · Hồi quy do sprint sau?: chưa xác định
+- Bước tái hiện: SV vào /me của lớp có buổi học nhưng chưa điểm danh lần nào (hoặc chưa có dữ liệu).
+- Kỳ vọng (US-P5-06 AC7, TC-P5-06-18): «Chưa có buổi nào được điểm danh.» Thực tế: «Chưa có buổi nào được điểm danh» (EmptyState title, không dấu chấm; e2e me.spec cũng khớp chữ không chấm). Các vế còn lại của TC (khung xương, 500 + Thử lại, offline giữ nội dung + dải mất mạng, không nút) đạt. Lệch chỉ ở dấu câu; nếu PM chốt quy ước tiêu đề EmptyState không có dấu chấm thì sửa SRS/TC.
+- Bằng chứng: `evidence-7/r3/ui-p506.log`, `ui-p506d.log`, `shots/p506d-18-qc3p5s04.png`
+
 ## Ca lỗi thời có nguồn quyết định (xoá khỏi smoke-7.md và khỏi tổng; qc3 18/11/2026)
 - TC-P5-06-19 (US-P5-06 AC8: giảng viên/TA/ADMIN mở `/me` «được chuyển về `/`») — thay bằng màn chặn chung «Bạn không có quyền xem màn này» + nút Về Hôm nay: `docs/sprints/7/proposals.md` #34 (PM ACCEPTED 2026-10-15).
 - TC-S7-SEED-10 (US-S7-SEED AC3: «đúng 2 WATCH» ghim) — thêm tín hiệu GRADE, số WATCH không còn ghim, đáp án tính lại ở `seed/expected_crm.csv`: `docs/sprints/8/proposals.md` #5 (ACCEPTED có sửa, 2026-10-31).
