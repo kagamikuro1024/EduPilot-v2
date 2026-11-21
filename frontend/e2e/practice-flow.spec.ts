@@ -74,3 +74,12 @@ test("STUDENT B không mở được lượt của A: 404 → «Không tìm th�
   await expect(page.locator("[data-part=practice-mock]")).toHaveCount(0);
   await expect(page.getByText(/Phương án [ABC] của câu/)).toHaveCount(0);
 });
+
+// Chập chờn (STUDENT B mobile, mock run…): bấm tab «Thi thử» khi lớp còn đang tải rơi vào khung chờ — tab ở đó từng KHÔNG làm gì, nên nút «Bắt đầu thi thử» không bao giờ hiện. Khung chờ phải khoá tab (bấm chờ tới khi dùng được), không nuốt cú bấm.
+test("bấm «Thi thử» lúc lớp còn đang tải: không mất cú bấm", async ({ page }) => {
+  await practiceApi(page, {}, { mockCount: 5 });
+  await page.route("**/api/v1/me/courses**", async (r) => { await new Promise((res) => setTimeout(res, 1500)); await r.fallback(); });
+  await page.goto("/practice");
+  await page.getByRole("tab", { name: /Thi thử/ }).click({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: "Bắt đầu thi thử" })).toBeVisible();
+});
