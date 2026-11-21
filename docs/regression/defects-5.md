@@ -92,12 +92,12 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - Tái hiện: `cd backend-go && golangci-lint run` → `internal/practice/extract.go:130:5: defaultRetryWait is a global variable (gochecknoglobals)`, `1 issues`, rc=1. Các bước còn lại của cổng đạt: `go vet ./...` rc=0, `sqlc diff` rc=0, `go test -race` exam/judge/quiz rc=0, `go test` contract (có và không `-tags testroutes`) rc=0, `pnpm lint` rc=0, `build:gate` rc=0.
 - Nghi ngờ mã: `var defaultRetryWait = []time.Duration{…}` ở extract.go:130 (đổi thành hàm trả giá trị hoặc `//nolint:gochecknoglobals` có lý do). Log: `evidence-5/logs-r3/g1-static.log`.
 
-### DEF-R5-14 — Seed PE không có lượt nộp code `TLE` (TC-PE09-07)
+### DEF-R5-14 — [ĐÃ SỬA d27b87b0, chạy lại 2026-11-21 @58448e0a: sv07 gcd TLE 0/8, matched 30/30] Seed PE không có lượt nộp code `TLE` (TC-PE09-07)
 - Mức: Thấp · Sprint gốc: 5 (US-PE-09 AC2) · Hồi quy: KHÔNG
 - US AC2 / TC: 6 bài code «AC đủ, một phần, `CE`, `TLE`, `WA`» + một cặp giống nhau. Seed sạch trên qc3s: verdict thực tế chỉ có AC (sv.gioi, sv05, sv07 dem-tu, sv.kha dem-tu), WA một phần (sv.kha gcd 6/8, sv04/sv06 dem-tu 3/5), CE (sv04 gcd), NONE (sv07 gcd); không có `TLE`. `seed/expected_exam_scores.csv` cũng không có TLE. Điểm 30/30 khớp, hai DB seed sạch độc lập cho điểm giống hệt.
 - Nghi ngờ mã: `scripts/exam-seed-data.mjs` CODE_ATTEMPTS (`wordsLoop` thực ra AC, không có lời giải vòng lặp vô hạn). Cần BA/PM chọn: thêm lời giải TLE hoặc bỏ «TLE» khỏi US AC2.
 
-### DEF-R5-15 — Seed lần hai không in «Seed xong (không đổi)» (TC-PE09-12)
+### DEF-R5-15 — [SỬA CHƯA ĐỦ: d0d548e0 hết ở seedThreads, còn step19Practice:843 → DEF-R5-20; chạy lại 2026-11-21] Seed lần hai không in «Seed xong (không đổi)» (TC-PE09-12)
 - Mức: Thấp · Sprint gốc: 5 (US-PE-09 AC5) nhưng lỗi nằm ở bước thêm sau · Hồi quy: không rõ
 - Tái hiện (qc3s, DB đã seed): `node scripts/seed.mjs` lần 2, 3, 4 → «Seed xong trong 25 s.» (không có dòng «Seed xong (không đổi)»). Đếm dòng 85 bảng trước/sau: nghiệp vụ không đổi (users, courses, exams, question_bank, exam_attempts, code_submissions, forum_threads; Mailpit 168 = 168), chỉ tăng phiên đăng nhập / outbox / audit do chính seed đăng nhập.
 - Nguyên nhân (bằng cách gắn dò vào bản sao seed.mjs): `ctx.changed = true` ở `seedThreads` (scripts/seed.mjs:1010): thread mẫu «Modern Network Security Threats» không khớp danh sách thread hiện có (11 thread thấy được, thread «· Phisher» bị ẩn ở bước 18) nên bị POST lại; Idempotency-Key trả dòng cũ nên không tạo thêm. Log: `evidence-5/logs-r3/pe09-12-*`.
@@ -123,4 +123,18 @@ Tất cả đạt (bản ghi mới trong `evidence-5/results-q2.jsonl`, bản gh
 - Mức: Thấp · Sprint gốc: 5 (US-PU-06 AC1: CLS ≤ 0,1) · Hồi quy: có thể (đo tay cũ 0,0869 ở sprint 5)
 - Tái hiện: ep-r @aba738ef, đăng nhập `sv.gioi@edupilot.local`, 1440 × 900, vào `/chat`, đo `PerformanceObserver('layout-shift')` (bỏ hadRecentInput): 0,1618 / 0,1560 / 0,1618. Một dịch 0,156 lúc ~370 ms: `DIV.Layout-module__…ldDetail` («Hỏi bất cứ điều gì về lớp») x 621 → 241, rộng 794 → 1174; kéo `Composer`, `UL…suggest` (3 LI). 14 route khác của SV/GV/Admin ≤ 0,0002.
 - Nghi ngờ mã: bố cục hai cột của Chat (`Layout…ldDetail`, features/chat RealChat/ChatScreen): chỗ cột danh sách phiên chỉ được bỏ sau khi dữ liệu phiên về. Script `evidence-5/ui-r3/ui5d.cjs`.
+
+### DEF-R5-20 — Seed lần hai vẫn không in «Seed xong (không đổi)»: `ctx.changed = true` vô điều kiện ở step19Practice (TC-PE09-12)
+- Mức: Thấp · Sprint gốc: 5 (US-PE-09 AC5), lỗi ở bước Luyện đề thêm sau · Hồi quy: không rõ
+- Tái hiện (qc3s, DB seed sạch @58448e0a): `node scripts/seed.mjs` lần hai → «Seed xong trong 23 s.»; gắn dò: `CHANGED-AT at step19Practice (scripts/seed.mjs:843)`: dòng `ctx.changed = true;` ngay sau khối «lượt đang dở của sv.nguyco» chạy cả khi không tạo gì (`attempts` = 0). Dữ liệu không đổi (đếm 85 bảng). Đề xuất: `if (attempts > 0 || …) ctx.changed = true`.
+- DEF-R5-16 (652 s → 618 s ở lần đo sau, trần ≤ 6 phút theo P-11-76): vẫn vượt trên máy chung.
+
+### DEF-R5-21 — Kết quả sinh viên `/exams/[id]/take`: bảng «Kết quả test mẫu» làm trang tràn ngang 287 px ở 375, 34 px ở 720 khi mở câu code (TC-PE09-25, US-PE-09 AC9)
+- Mức: Thấp (nhìn thấy: bảng bị cắt trong thẻ, vẫn có «Vuốt ngang để xem thêm»; số đo trang vẫn dương) · Sprint gốc: 5 · Hồi quy: không rõ
+- Tái hiện: ep-r @aba738ef, bài có câu code đã công bố, đăng nhập SV đã làm bài, 375 px (hoặc 720), mở các câu (summary) → `document.documentElement.scrollWidth − innerWidth` = 287 (375) / 34 (720); gập hết: 0. Phần tử vượt: `DIV.DataTable…root`, `…scrollHint`, `…scroll`, `TABLE` (right = 662 > 375). Spec `student result: 375 px …không tràn ngang` đạt vì dữ liệu giả không có bảng mẫu. Ảnh `ui-r3/shots/f19b-21-ketqua-375-mo.png`, `pe09-25-sv-*`; log `logs-r3/ui5e.log`, `ui5f` (`pe09-25-rows.json`).
+- Nghi ngờ mã: `features/exam/results/ResultItems.tsx` (DataTable «Kết quả test mẫu») không bị ép rộng theo khung cha (thiếu `min-width: 0` / khung `data-scroll-x`).
+
+### DEF-R5-22 — exam.spec.ts chưa phủ ý (9) chat-gate và (11) rò đáp án quét mạng của AC7 (TC-PE09-20)
+- Mức: Thấp · Sprint gốc: 5 (US-PE-09 AC7) · Hồi quy: không
+- `exam.spec.ts` có 46 ca (đạt hết) nhưng không có ca «trong giờ làm bài chat bị từ chối, sau nộp cho phép» (chỉ `private-chat.spec.ts` mock `EXAM_IN_PROGRESS`) và không ca nào đọc mọi phản hồi mạng của trình duyệt tìm canary (chỉ Go `TestNoAnswerLeak`). QC quét tay thay thế (TC-PE09-21): 0 rò trước công bố.
 

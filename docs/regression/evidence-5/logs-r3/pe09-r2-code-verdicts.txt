@@ -1,0 +1,12 @@
+sv04@edupilot.local|WA|3/5
+sv04@edupilot.local|CE|0/8
+sv05@edupilot.local|AC|8/8
+sv05@edupilot.local|AC|5/5
+sv06@edupilot.local|AC|8/8
+sv06@edupilot.local|WA|3/5
+sv07@edupilot.local|AC|5/5
+sv07@edupilot.local|TLE|0/8
+sv.gioi@edupilot.local|AC|8/8
+sv.gioi@edupilot.local|AC|5/5
+sv.kha@edupilot.local|AC|5/5
+sv.kha@edupilot.local|WA|6/8
