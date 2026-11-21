@@ -159,7 +159,7 @@ function AiPost({ courseId, threadId, p, staff }: { courseId: string; threadId: 
         <div className={r.actions}>
           {state !== "VERIFIED" && <Button disabled={busy} onClick={() => void act(() => apiClient.post(`${base}/verify`))}>Xác nhận</Button>}
           <Button variant="ghost" disabled={busy} onClick={() => { setText(p.body); setEditing(true); }}>Chỉnh sửa</Button>
-          <OverflowMenu items={[{ label: "Loại", danger: true, onSelect: () => void act(() => apiClient.post(`${base}/reject`)) }]} />
+          <OverflowMenu items={[{ label: "Loại khỏi tri thức", danger: true, onSelect: () => void act(() => apiClient.post(`${base}/reject`)) }]} />
         </div>
       )}
       {error && <InlineNotice tone="danger" compact>{error.code === "VERSION_CONFLICT" ? "Có người vừa sửa câu trả lời này. Tải lại để xem bản mới." : error.userMessage}</InlineNotice>}
@@ -186,7 +186,7 @@ function Reply({ courseId, threadId, canChat }: { courseId: string; threadId: st
     <form className={r.composer} onSubmit={(e) => { e.preventDefault(); if (draft.value.trim()) void gate.submit(false); }} data-part="reply-form">
       <Field label="Bình luận">{(fid) => <Textarea id={fid} rows={3} value={draft.value} onChange={(e) => draft.setValue(e.target.value)} />}</Field>
       {gate.check && !gate.check.allowed && <p className={r.noticeLine} role="status" data-part="pii-notice">Phát hiện {describeReasons(gate.check.reasons)}</p>}
-      {gate.error && <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Gửi lại</Button>}>{gate.error.userMessage}</InlineNotice>}
+      {gate.error && <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Đăng lại</Button>}>{gate.error.userMessage}</InlineNotice>}
       <div className={r.actions}>
         <Button type="submit" variant="primary" disabled={!draft.value.trim() || gate.pending}>Đăng</Button>
         {draft.status === "saved" && <StatusText>Đã lưu nháp</StatusText>}

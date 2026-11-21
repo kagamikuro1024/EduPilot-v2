@@ -55,6 +55,10 @@ export function RealInbox({ courseId }: { courseId: string }) {
   const [lastSel, setLastSel] = useState<TicketRow | null>(null);
   const found = rows.find((t) => t.id === picked) ?? (picked ? undefined : rows[0]);
   if (found && (found.id !== lastSel?.id || found.status !== lastSel.status)) setLastSel(found); // điều chỉnh state ngay lúc render (mẫu React cho state suy ra)
+  // vị trí phiếu trong danh sách lần cuối còn thấy: phiếu vừa nhận / trả lời rời bộ lọc thì phiếu "kế" là phiếu đang nằm đúng vị trí đó
+  const [lastIdx, setLastIdx] = useState(0);
+  const foundIdx = rows.findIndex((t) => t.id === found?.id);
+  if (foundIdx >= 0 && foundIdx !== lastIdx) setLastIdx(foundIdx);
   const selected = found ?? (!picked || lastSel?.id === picked ? (lastSel ?? undefined) : undefined);
   const detail = useTicketDetail(selected?.course.id, selected?.id);
 
@@ -149,7 +153,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
                     {detail.isPending ? <Skeleton lines={8} /> : detail.isError ? (
                       <ApiErrorNotice error={detail.error} onRetry={() => void detail.refetch()} showTechnical />
                     ) : (
-                      <TicketPanel key={detail.data.ticket.id} d={detail.data} userId={identity?.sub} me={identity?.sub} onNext={() => { const i = rows.findIndex((r) => r.id === selected.id); if (i >= 0 && i < rows.length - 1) open(rows[i + 1].id); }} />
+                      <TicketPanel key={detail.data.ticket.id} d={detail.data} userId={identity?.sub} me={identity?.sub} onNext={() => { const i = rows.findIndex((r) => r.id === selected.id); const next = i >= 0 ? rows[i + 1] : rows[lastIdx]; if (next) open(next.id); }} />
                     )}
                   </>
                 ) : (
@@ -278,7 +282,7 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
 
       {t.status !== "CLOSED" && (
         <div
-          className={s.reply}
+          className={`${s.reply} ${s.dock}`}
           data-part="inbox-reply"
           onKeyDownCapture={(e) => {
             // ⌘↵ / Ctrl+↵: gửi rồi sang ticket kế

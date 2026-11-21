@@ -297,6 +297,63 @@ test("inbox shortcuts: J / K đổi ticket, R vào ô soạn, không kích hoạ
   await expect(page).toHaveURL(/ticket=(?!.*f8)/);
 });
 
+/** Hai phiếu OPEN; danh sách lọc theo `status=` như máy chủ thật, Nhận / Trả lời đổi trạng thái. */
+async function twoTickets(page: Page) {
+  const ids = [TID, "00000000-0000-7000-8000-0000000000f8"];
+  const st: Record<string, ReturnType<typeof ticket>> = {
+    [ids[0]]: ticket({ id: ids[0] }),
+    [ids[1]]: ticket({ id: ids[1], student: { id: "s2", full_name: "Sinh Viên Hai" } }),
+  };
+  await page.route("**/api/v1/courses/*/tickets**", (r) => {
+    const req = r.request();
+    if (req.method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+    const u = new URL(req.url());
+    const path = u.pathname.replace("/api/v1", "");
+    if (req.method() === "GET") {
+      if (path.endsWith("/tickets")) {
+        const want = u.searchParams.get("status");
+        return r.fulfill(json({ items: ids.map((i) => st[i]).filter((t) => !want || t.status === want).map(row), next_cursor: null }));
+      }
+      return r.fulfill(json(detail(st[ids.find((i) => path.includes(i))!])));
+    }
+    const id = ids.find((i) => path.includes(i))!;
+    const mine = { id: SUB, full_name: "Giảng Viên Thử" };
+    st[id] = path.endsWith("/claim") ? ticket({ ...st[id], status: "CLAIMED", claimed_by: mine, version: 2 }) : ticket({ ...st[id], status: "ANSWERED", answered_by: mine, version: 3 });
+    return r.fulfill(json({ ticket: st[id], message: { id: "m1", content: "x", created_at: st[id].created_at } }));
+  });
+  return ids;
+}
+
+test("inbox Ctrl+↵ (DEF-R7-04, AC11): bộ lọc «Đang chờ», phiếu đã Nhận rời danh sách — gửi xong vẫn sang phiếu kế", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "đo một lần");
+  await asDemo(context, "teacher");
+  const ids = await twoTickets(page);
+  await page.goto("/inbox");
+  const detailPane = page.locator("[data-part=inbox-detail]");
+  await page.locator("[data-part=inbox-list]").getByText("Sinh Viên Thử").click(); // chọn phiếu: ?ticket= của phiếu này
+  await detailPane.getByRole("button", { name: "Nhận", exact: true }).click();
+  const box = detailPane.getByRole("textbox", { name: "Câu trả lời gửi sinh viên" });
+  await box.fill("Em xem lại bài 3 nhé.");
+  await box.press("Control+Enter");
+  await expect(page).toHaveURL(new RegExp(`ticket=${ids[1]}`));
+  await expect(detailPane.getByRole("heading", { name: "Sinh Viên Hai" })).toBeVisible();
+});
+
+test("inbox 375 (DEF-R7-05, AC10): ô trả lời dính đáy, nằm ngay trên thanh điều hướng dưới", async ({ page, context }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await asDemo(context, "teacher");
+  await twoTickets(page);
+  await page.goto(`/inbox?ticket=${TID}`);
+  await page.getByRole("button", { name: "Nhận", exact: true }).click();
+  const box = page.locator("[data-part=inbox-reply]");
+  await expect(box.getByRole("textbox")).toBeVisible();
+  const vh = page.viewportSize()!.height;
+  const bottom = await box.evaluate((e) => e.getBoundingClientRect().bottom);
+  const pane = await page.locator("[data-part=inbox-detail]").evaluate((e) => e.parentElement!.getBoundingClientRect().bottom);
+  expect(bottom).toBeGreaterThan(pane - 24); // sát đáy ngăn chi tiết, không lơ lửng giữa trang
+  expect(bottom).toBeLessThanOrEqual(Math.min(pane, vh - 56) + 1);
+});
+
 test("bell count: số chưa đọc trên chuông, tối đa 9+", async ({ page }) => {
   await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 15 }) });
   await page.goto("/");

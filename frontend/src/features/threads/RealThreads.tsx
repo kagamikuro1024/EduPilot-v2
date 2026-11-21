@@ -185,7 +185,7 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       )}
       {locked && <p className={r.noticeLine} role="status">{THREAD_LOCK_TEXT}{until ? ` Dùng lại được sau ${formatTime(until)}.` : ""}</p>}
       {gate.error && (
-        <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Gửi lại</Button>}>{gate.error.code === "EXAM_IN_PROGRESS" ? THREAD_LOCK_TEXT : gate.error.userMessage}</InlineNotice>
+        <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Đăng lại</Button>}>{gate.error.code === "EXAM_IN_PROGRESS" ? THREAD_LOCK_TEXT : gate.error.userMessage}</InlineNotice>
       )}
       <div className={r.actions}>
         <Button type="submit" variant="primary" disabled={empty || locked || gate.pending}>Đăng</Button>

@@ -16,7 +16,7 @@ export type RequestOpts = {
   query?: Record<string, string | number | boolean | undefined | null>;
   headers?: Record<string, string>;
   signal?: AbortSignal;
-  /** PUT / PATCH / DELETE tự sinh Idempotency-Key (POST luôn có). */
+  /** PUT / PATCH / DELETE tự sinh Idempotency-Key (POST luôn có); `false` = POST chỉ đọc (xem trước) không gửi khoá. */
   idempotent?: boolean;
   /** ép khoá (gửi lại cùng ý định). */
   idempotencyKey?: string;
@@ -127,7 +127,7 @@ async function withRetry<T>(attempt: Attempt<T>, method: string, hasKey: boolean
 async function request<T>(method: string, path: string, body: unknown, opts: RequestOpts = {}): Promise<ApiResult<T>> {
   const url = resolve(path, opts.query); // BAD_TARGET ném TRƯỚC khi gửi — không kèm Authorization
   const upper = method.toUpperCase();
-  const key = opts.idempotencyKey ?? (upper === "POST" || opts.idempotent ? newIdempotencyKey() : undefined);
+  const key = opts.idempotencyKey ?? (opts.idempotent === false ? undefined : upper === "POST" || opts.idempotent ? newIdempotencyKey() : undefined);
   const hasBody = body !== undefined;
 
   const send = async (tk: string | null): Promise<ApiResult<T>> => {

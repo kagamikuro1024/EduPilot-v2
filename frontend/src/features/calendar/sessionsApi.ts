@@ -42,7 +42,7 @@ function useRefresh(course: string) {
 /** Xem trước: chỉ đọc, server không ghi gì và không đòi khoá idempotency. */
 export function usePreviewSessions(course: string) {
   return useMutation({
-    mutationFn: async (b: GenerateInput) => (await apiClient.post<Preview>(`/courses/${course}/sessions/generate`, b, { query: { dry_run: true } })).data,
+    mutationFn: async (b: GenerateInput) => (await apiClient.post<Preview>(`/courses/${course}/sessions/generate`, b, { query: { dry_run: true }, idempotent: false })).data,
   });
 }
 

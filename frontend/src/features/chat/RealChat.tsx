@@ -43,6 +43,7 @@ const newKey = () => crypto.randomUUID();
 function errorLine(code: string | null, retryAfter?: number): string {
   if (code === "OVERLOADED") return retryAfter ? `AI đang bận. Thử lại sau khoảng ${retryAfter} giây.` : "AI đang bận. Thử lại sau ít giây.";
   if (code === "INTERRUPTED") return "Câu trả lời bị gián đoạn.";
+  if (code === "MASK_FAILED") return "Chưa gửi được tin nhắn. Thử lại.";
   if (code === "NETWORK") return "Mất kết nối. Câu trả lời vẫn được lưu nếu AI đã trả lời xong.";
   return "AI đang gián đoạn. Thử lại sau.";
 }
@@ -413,7 +414,7 @@ function Masked({ n }: { n: number }) {
           Tìm hiểu
         </button>
       </p>
-      {why && <p className={s.privacyWhy}>Tên, MSSV, email, số điện thoại được thay bằng ký hiệu trước khi gửi cho AI và khôi phục khi hiển thị cho bạn.</p>}
+      {why && <p className={s.privacyWhy}>Tên, mã số sinh viên, email và số điện thoại được thay bằng ký hiệu trước khi gửi cho AI, rồi hiện lại cho bạn.</p>}
     </>
   );
 }
