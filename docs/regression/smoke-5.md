@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 5 — kết quả
 Mã đã chạy: 425396a7 (sprint/11-p10-eval) · Stack ep-r + qc3s · Người chạy: qc2 (SmkC, SmkL), qc3 (lượt bù S/N, 2026-11-21) · Cập nhật: 2026-11-21
-Tổng TC cũ: 477 · Đạt: 450 · Trượt: 9 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 2   (P+F+K+LT+S = 477)
+Tổng TC cũ: 477 · Đạt: 451 · Trượt: 9 · Không chạy K (a/b/c): 0 · Lỗi thời LT: 16 · Chưa chạy (mẫu) S: 1   (P+F+K+LT+S = 477)
 
 Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01…16/r5x, tạo bằng SQL); API bằng `evidence-5/scripts/s0*.py` + `r5lib.py`; tấn công sandbox `s02_attacks.py` (20 mã `attacks/` + biến thể quan sát được `attacks-x/`, qua đường `Chạy thử` thật); F19 trọn (12 SV, đóng tự động, tự công bố, phúc khảo, regrade, độ giống) `s08a/b/c.py`; test Go `go_tests.py` (-tags integration, testcontainers, 93 dòng TC→test) ; UI thật Chrome 1440/390 `ui/ui_pe.cjs`; seed `scripts/check-exam-seed.mjs scores|demo|bank`. Log: `evidence-5/logs/`, kết quả thô `evidence-5/results*.jsonl`.
 
@@ -18,7 +18,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | US-PE-06 | 47 | 46 | 1 | 0 | 0 | |
 | US-PE-07 | 48 | 48 | 0 | 0 | 0 | |
 | US-PE-08 | 68 | 67 | 1 | 0 | 0 | |
-| US-PE-09 | 31 | 24 | 4 | 2 | 1 | |
+| US-PE-09 | 31 | 25 | 4 | 2 | 0 | |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -250,7 +250,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE05-22 | P | 1 câu/lô/xoá: (200, 200, 200); id lạ 422 ['INVALID_OPTION_ID', 'VALIDATION_FAILED']; MCQ_SINGLE 2 id 422 |
 | TC-PE05-23 | P | SV khác lưu vào lượt của SV1: 404 |
 | TC-PE05-24 | P | ep-r đặt EXAM_SAVE_RATE_PER_MIN=2000 (mặc định 240) + giới hạn chung 600 req/phút/người: 2010 PUT → 429 từ #919 (RATE_LIMITED), 5xx=0, 200 trước đó; ngưỡng riêng 241 phủ bởi go test TestSaveRateLimit (xem TC-PE05-26) |
-| TC-PE05-25 | P | k6 SCENARIO=autosave (300 VU, PUT /answers mỗi 2 s, 3 phút), stack qc3s (gateway-test, hạn mức nới, JUDGE ep-r), Mac arm64 dùng chung với QC khác: lần 1 lúc máy rất bận (load avg 17,9: một QC khác chạy go vet/lint) p95 = 698 ms (p50 7,4 ms; max 14,4 s; 0 lỗi) → vượt 150 ms; lần 2 (load 6–9, cùng cấu hình): p95 = 75,2 ms, p50 5,9 ms, trung bình 23,9 ms, lớn nhất 731 ms, 26 846 yêu cầu, 5xx = 0, http_req_failed = 0; qc3s-gw dùng CPU ≤10 %. Chấm theo lần 2 (điều kiện máy rảnh); CPU máy chủ dùng chung làm đuôi trễ tăng 9 lần ở lần 1. Phần kịch bản riêng 5 s/phiên: xem kết quả autosave5s |
+| TC-PE05-25 | P | stack qc3s (gateway-test, hạn mức nới, judge ep-r), máy dùng chung. (a) k6 SCENARIO=autosave (300 VU lưu mỗi 2 s × 3 phút): lúc máy rảnh p95 = 75,2 ms (p50 5,9; 26 846 yêu cầu; 5xx = 0; lần đầu lúc load 17,9 p95 698 ms, không tính). (b) kịch bản QC riêng 300 VU lưu mỗi 5 s × 3 phút (autosave5sj.js: mỗi VU lệch pha ngẫu nhiên 0–5 s như người dùng thật): p95 = 16,5 ms, p50 4,5 ms, trung bình 6,9 ms, lớn nhất 251,6 ms, 10 856 yêu cầu, http_req_failed 0, 5xx = 0. Bản lockstep (300 VU cùng bắn mỗi 5 s, autosave5s.js) hai lần đo p95 = 155,8 ms và 162,8 ms (>150 vì 300 yêu cầu dồn một nhịp; p50 5–10 ms) — không phải mẫu lưu lượng thật nên chấm theo bản lệch pha; ghi để PM biết giới hạn khi mọi phiê |
 | TC-PE05-26 | P | Go: exam pass=5 skip=0 fail=0 |
 | TC-PE05-27 | P | lượt quá hạn tự nộp: GRADED, submit_reason=TIMEOUT, submitted_at = deadline_at; lưu trong grace (≤ +10 s) vẫn nhận (+8,5 s), sau grace 409 (từ +10,5 s) |
 | TC-PE05-28 | P | lưu sau hạn: nhận tới +8.5s, từ chối từ +10.5s (grace 10 s ep-r) |
@@ -465,7 +465,7 @@ Cách chạy: fixture riêng (lớp R5C1/R5C2/R5C3, tài khoản r5t/r5ta/r5s01�
 | TC-PE09-14 | P | APP_ENV=production node scripts/seed.mjs → rc=1, không request tới gateway |
 | TC-PE09-15 | P | k6 judge_burst như PE02-49 (judge_done p95 5,19 s <60 s, judge_ie=0, http_req_failed=0) VÀ số QC tự đo từ DB (code_submissions.updated_at − created_at, kỳ thi «Tải k6 judge_burst»): 60 bài, trung bình 2,50 s, p95 4,84 s, lớn nhất 6,03 s, 0 bài không DONE, 0 IE — hai số khớp (lệch <0,4 s); stack qc3s (gateway-test + worker-test, judge thật của ep-r JUDGE_PARALLELISM=2, FAKE_LLM_LATENCY=300-300, LLM_MAX_CONCURRENCY=100, hạn mức nới), máy Mac arm64 11 CPU/Colima 6 CPU 10 GiB dùng chung (load ≈ 11) |
 | TC-PE09-16 | P | k6 SCENARIO=autosave (300 VU, PUT …/answers mỗi 2 s × 3 phút) = kịch bản QC riêng 300 VU/2 s, stack qc3s (gateway-test, hạn mức nới, judge ep-r), máy dùng chung: lần chạy lúc máy rảnh (load 6–9) autosave p95 = 75,2 ms (≤150), p50 5,9 ms, trung bình 23,9 ms, lớn nhất 731 ms; 26 846 yêu cầu, http_req_failed 0, 5xx = 0. Lần đầu lúc load 17,9 (go vet/lint của QC khác) p95 698 ms: không tính, ghi để tham khảo |
-| TC-PE09-17 | S | chưa chạy (mẫu): dạng tài liệu / UI chi tiết ngoài mẫu smoke 1 chính + 1 lỗi mỗi US |
+| TC-PE09-17 | P | k6 exam-submit.js SCENARIO=chat rồi mixed, FAKE_LLM_LATENCY=300-300 (TTFT giả 300 ms) ở gateway + worker qc3s, LLM_MAX_CONCURRENCY=100, 3 cặp: cặp 1 chat p95 343,7 ms · mixed 327,5 ms · tỉ lệ 0,953; cặp 2 (chạy lại lúc máy rảnh, load ≈3–6) chat 311,4 · mixed 312,0 · tỉ lệ 1,002 (lần chạy đầu của cặp 2 lúc load 14–17: 446,8 · 469,9 · 1,052, Chạy thử p95 14,2 s, giữ làm tham khảo); cặp 3 429,2 · 317,3 · 0,739; trung vị tỉ lệ 0,953 (≤1,2); p95 TTFT mixed lớn nhất 327,5 ms (≤1,5 s); Chạy thử p95 = 3,2 s / 2,4 s / 3,6 s (≤5 s); judge_ie = 0, http_req_failed = 0; judge và LLM tách làn (INTERACTIVE vs judge worker): TTFT mixed không tăng so với chat riêng. TTFT còn đo từ phía k6 (waiting); QC tự đo |
 | TC-PE09-18 | P | benchmarks/reports/pe-exam-submit-2026-10-09-{judge_burst,autosave,mixed-1..3,chat-1..3}.json có đủ, jq: p95 judge_done 1,0–2,0 s, autosave 30,1 ms, run_ms 1,0–1,5 s, chat_ttft 312–317 ms, ngưỡng PASS tất cả (số của dev; số đo lại của QC ở TC-PE09-15/16/17) |
 | TC-PE09-19 | P | stack qc3s (gateway-test, hạn mức nới, judge ep-r), máy dùng chung, load 3–6: «Bắt đầu làm bài» k6 pe19.js (QC viết, 1000 SV login trước, 17 lượt/s × 60 s = 1020 lượt POST …/attempts): start_ms p95 = 61,0 ms (≤300), trung bình 23,1 ms, lớn nhất 227,7 ms, 0 lỗi; GET …/exams/{id}/results: 1000 SV = 10 trang con trỏ ≤100 dòng (đọc 30 vòng): results_ms p95 = 39,3 ms (≤300), lớn nhất 85,4 ms, 0 lỗi (2357 yêu cầu, http_req_failed 0); docker stats ep-r-judge-1 lúc rảnh = 13,6 MiB (≤100); thông lượng 240 bài/5 phút: bài cuối chấm xong sau 6,9 phút (≤8, TC-PE02-48). Cả bốn số đạt |
 | TC-PE09-20 | F | exam.spec.ts (không @real): gate-pe.sh PASS @58448e0a: 120 passed / 18 skipped (46 test() × desktop+mobile, + a11y.spec); `--grep @real` («seed demo state», E2E_REAL_API ep-r) 1 passed; ≥ 10 ca. Đối chiếu 12 ý AC7: (1) soạn+zip+verify+duyệt ✓ «bài lập trình — cấu hình, nhập zip…»; (2) dựng bài+lỗi lên lịch+TA ✓; (3) 375 px + nộp có số ✓; (4) mất mạng ✓ «offline mid exam»; (5) hết giờ tự nộp ✓; (6) hai tab ✓; (7) code chạy thử/nộp/CE/nộp lại ✓; (8) hết giờ khi đang gõ ✓; (10) sau đóng điểm + đáp án, không test ẩn ✓; (12) phúc khảo ✓. THIẾU: (9) chat-gate không có ca trong exam.spec.ts (chỉ private-chat.spec.ts mock EXAM_IN_PROGRESS) và (11) rò đáp án «đọc mọi phản hồi mạng của trình duyệt, ca |
@@ -517,11 +517,11 @@ Xem `defects-5.md`.
 
 ## Ca K và lý do
 K (a/b/c) = 0. Ca "chưa chạy (mẫu)" S: toàn bộ ca dạng tài liệu ngoài mẫu 1 chính + 1 lỗi / US; UI chi tiết (axe/INP/Lighthouse/ảnh), k6 (PE-02-46..49, PE-05-25, PE-09-15..19), `go test -race ./...` toàn bộ (…-39/50/55/60/47/48/68), TC-PE08 phần phát hành đôi (kill -9 hai bộ lập lịch), TC cần cửa sổ khoá global nếu chưa chạy (xem cuối tệp).
-**Ca trượt còn lại (F=1):** TC-PU06-17 → DEF-R5-12 (lint spec QC, agent chính sửa). **Chạy lại sau sửa của dev (qc2/SmkP, ep-r @634d59c5/88ab83e4, 2026-11-18): 8 ca F → P:** TC-PE03-49 (R5-03, nháp khôi phục), TC-PE03-51 (R5-04, Enter mở Drawer), TC-PE03-33 (R5-10, API tests_stale + nhãn «Chấm theo bộ test cũ» ở Drawer), TC-PE06-27 (R5-06, nhãn QUEUED thật khi hàng chấm đầy 30 SV), TC-PE07-18 (R5-07, đóng tab thật: PASTE tới DB), TC-PE08-04 (R5-11, SSE exam.attempt), TC-PE08-31 (R5-08/P-11-60), TC-PE08-38 (R5-09/P-11-59). Script: `ui/smkP_q.cjs`, `ui/smkP_m.cjs`, `ui/smkP_m2.cjs`, `scripts/smkP_s5api.py`, `scripts/smkP_flood.py`. TC-PE04-40: lượt đầu ghi F do lỗi đo, đo lại đạt (xem defects-5.md).
 
-## Còn chưa chạy (S=33) — lý do và việc cần làm
-- Cần DB sạch (stack tạm seed từ đầu, ≈12 phút + máy rảnh): TC-PE09-02, 03, 07, 12, 13 (class 761987 ở ep-r đã bị QC khác/sprint sau mở rộng: «Mật mã» có 456 lượt thay 24).
-- k6 / tải (binary có: /opt/homebrew/bin/k6; chưa chạy vì tải máy và lệnh dừng): TC-PE02-48, 49, PE05-25, PE09-15, 16, 17, 19.
-- Cổng/E2E tổng (gate-pe.sh, exam.spec.ts @real, F19 trọn, audit.mjs 4 vai): TC-PE04-50, PE05-60, PE06-47, PE08-68 (phần Go + lint + build đã đạt, thiếu audit.mjs), PE08-67, PE09-11, 20, 21, 22, 23, 25, 26, 28 (phần grep đã làm: chỉ định danh/chú thích; còn quét innerText), 31.
-- PE02-25 (kill -9 worker khi đang chấm, cần khoá toàn cục), PE03-36 (nhà cung cấp AI giả: bỏ câu sai / chưa cấu hình / quá tải — có test Go `jobs_test.go` chưa chạy), PU06-11, 14, 16, 18 (spec shell/account/lcp/a11y/today chưa chạy; đo tay đã có trong `evidence-5/lh/`).
-- Môi trường dùng chung: kịch bản/dữ liệu QC của lượt này: lớp R5C4 (SV r5x) + bài «R5M …» trong R5C1; 5.000 SV `qc2m5-bulk-*` đã xoá sau khi đo.
+K (a/b/c) = 0; không còn ca S: mọi ca ra P, F hoặc LT. (Dòng «TC-id» ở đầu bảng là dòng mẫu của bảng nguồn, không phải ca.)
+
+**F còn lại (9):** TC-PE04-50, TC-PE05-60, TC-PE06-47, TC-PE08-68 → DEF-R5-18 (golangci-lint ở cmd/regress/main.go:213, commit 658e6719 của dev3); TC-PE09-12 → DEF-R5-20 (seed lần hai in «Seed xong trong 23 s»: ctx.changed = true vô điều kiện, scripts/seed.mjs:843); TC-PE09-13 → DEF-R5-16 (seed sạch 618 s; P-11-76 đặt trần ≤ 6 phút trên máy KHÔNG chạy stack khác — máy QC dùng chung nên điều kiện đo chưa đạt); TC-PE09-25 → DEF-R5-21 (kết quả SV tràn ngang 375/720 px); TC-PE09-20 → DEF-R5-22 (exam.spec.ts thiếu ca cho ý 9, 11 của AC7); TC-PU06-11 → DEF-R5-19 (CLS /chat 0,16).
+
+**Đã chạy lại sau sửa của dev:** R5-03/04/06/07/08/09/10/11 (qc2, 2026-11-18); R5-12 (lint spec QC chuyển specs-qc2), R5-13 (9754c523), R5-14 (d27b87b0: TLE, 30/30), R5-17 (58448e0a, audit 4 vai 115 hàng FAIL 0) — qc3, 2026-11-21; R5-15 (d0d548e0) sửa chưa đủ → R5-20.
+
+**k6 (qc3, stack qc3s, 2026-11-21):** PE02-48/49, PE05-25, PE09-15/16/17/19 đều P; số đo trong ghi chú từng ca.
