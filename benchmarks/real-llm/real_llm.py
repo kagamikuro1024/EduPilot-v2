@@ -25,6 +25,7 @@ Tôn trọng hạn mức 9router: mọi lời gọi LLM tuần tự, có giãn c
 """
 import argparse
 import hashlib
+import http.client
 import json
 import math
 import os
@@ -68,6 +69,10 @@ class QuotaOut(Fail):
     def __init__(self, msg, retry_after):
         super().__init__(msg)
         self.retry_after = retry_after
+
+
+NET_ERRORS = (OSError, http.client.HTTPException)  # máy chủ đóng kết nối / hết giờ / không tới được (DEF-R9.5-21)
+NET_WAIT = float(os.environ.get("NET_WAIT", "2"))  # giây, nhân đôi mỗi lần thử lại
 
 
 QUOTA_WAIT = 60.0
@@ -157,6 +162,11 @@ class Api:
                     h["Authorization"] = "Bearer " + self.tokens[self.login(auth)]
                     continue
                 raise Fail(f"{method} {path} → {e.code} {b[:300].decode(errors='replace')}") from None
+            except NET_ERRORS as e:
+                if i < tries - 1:
+                    time.sleep(NET_WAIT * 2**i)
+                    continue
+                raise  # main() ghi resume.json, thoát 3
         raise Fail(f"{method} {path}: hết lượt thử")
 
     def put_blob(self, url, headers, payload):
@@ -913,6 +923,11 @@ def main():
         OUT.mkdir(parents=True, exist_ok=True)
         (OUT / "resume.json").write_text(json.dumps({"cmd": a.cmd, "at": iso(now()), "reason": "chưa hoàn tất — hết hạn mức", "retry_after_s": e.retry_after, "detail": str(e)}, ensure_ascii=False, indent=1) + "\n")
         print(f"CHƯA HOÀN TẤT — hết hạn mức ({e}). Chạy tiếp sau {e.retry_after:.0f}s: real_llm.py --resume {a.cmd}", file=sys.stderr)
+        sys.exit(3)
+    except NET_ERRORS as e:
+        OUT.mkdir(parents=True, exist_ok=True)
+        (OUT / "resume.json").write_text(json.dumps({"cmd": a.cmd, "at": iso(now()), "reason": "chưa hoàn tất — mất kết nối tới máy chủ", "detail": f"{type(e).__name__}: {e}"}, ensure_ascii=False, indent=1) + "\n")
+        print(f"CHƯA HOÀN TẤT — mất kết nối ({type(e).__name__}). Chạy tiếp: real_llm.py --resume {a.cmd}", file=sys.stderr)
         sys.exit(3)
     except Fail as e:
         print("LỖI:", e, file=sys.stderr)

@@ -73,12 +73,12 @@ jobs:
             go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-
       - name: Caddy - URL ký sẵn của MinIO cùng origin (local + VPS)
         working-directory: .
-        run: node --test deploy/caddy/blob-route.test.mjs
+        run: node --test deploy/caddy/blob-route.test.mjs deploy/caddy/log-redact.test.mjs
       - name: Script - canary-scan xoá đủ hai nhà cung cấp, seed từ chối mật khẩu trắng
         working-directory: .
         run: |
           bash scripts/canary-scan.test.sh
-          node --test scripts/seed-password.test.mjs scripts/seed-clock.test.mjs
+          node --test scripts/seed-password.test.mjs scripts/seed-clock.test.mjs scripts/seed-if-empty.test.mjs
       - name: go vet
         run: go vet ./...
       - name: go vet (testroutes)
