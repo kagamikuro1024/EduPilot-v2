@@ -5,10 +5,10 @@
 - Kỳ vọng: 409 → tải lại hàng + báo tại chỗ · Thực tế: báo «Có người vừa sửa mục này. Chọn giữ bản nào. Thử lại» đúng, nhưng công tắc tab 2 vẫn «Tắt» trong khi DB enabled=t (v4). `GuidanceFlagsSection.tsx` chỉ `invalidateQueries` sau khi thành công.
 - Bằng chứng: /tmp/qc9s/s106-g0117.png
 
-### DEF-R106S-02 — «Rút lưu ý» thất bại rồi bấm lại trong 1 giờ trả lại đúng job đã FAILED (TC-G03-14)
+### DEF-R106S-02 — «Rút lưu ý» FAILED: bấm lại trong 1 giờ trả lại đúng job FAILED dù Idempotency-Key mới (TC-G03-14)
 - Mức: Trung bình · Sprint gốc: 10.6 · Mã 4ac1638a
-- Tái hiện: bài có ≥5 bài duyệt / ≥3 lệch; stub LLM trả JSON sai (`rf_fake_support`) → job REFLECT_FAILED «Chưa rút được lưu ý. Thử lại.»; sửa nguồn lỗi, POST `/guidance/reflect` lại (Idempotency-Key mới).
-- Kỳ vọng: thử lại tạo việc mới · Thực tế: 202 với CÙNG job_id FAILED (khoá Redis `ep:guidance:reflect:<sha>` giữ 1 giờ, `guidance.go:366-370`; không bị xoá khi job FAILED) → giảng viên không thử lại được tới khi dữ liệu duyệt đổi. Chỉ xoá khoá Redis mới ra job mới.
+- Tái hiện: bài có ≥5 bài duyệt / ≥3 lệch; stub LLM trả JSON sai (`rf_fake_support`) → job FAILED `REFLECT_FAILED` «Chưa rút được lưu ý. Thử lại.» (3 lần thử); sửa stub; POST `/guidance/reflect` lại với **Idempotency-Key khác** (UUID mới) và dữ liệu duyệt không đổi.
+- Kỳ vọng: việc mới (retry) · Thực tế: 202 với CÙNG `job_id` FAILED; không có job mới (bảng `jobs` chỉ 1 dòng), LLM không được gọi. Khoá chống trùng là `ep:guidance:reflect:sha256(assignment|max(reviewed_at)|guidance_version)` giữ 1 giờ (`guidance.go:340-370`), không phụ thuộc khoá client, và không bị xoá khi job FAILED → nút «Thử lại» vô tác dụng tới khi giảng viên duyệt thêm bài. Chỉ xoá khoá Redis mới ra job mới. (Chống trùng khi cùng dữ liệu là chủ ý của SRS cho job còn chạy / đã xong; lỗi là áp cho cả job FAILED.)
 
 ### DEF-R106S-03 — `reflect` với bài tập không phải ESSAY trả 404 «Không tìm thấy bài tập» (TC-G03-03)
 - Mức: Thấp · Mã 4ac1638a
@@ -19,9 +19,10 @@
 - Mức: Thấp · Mã 4ac1638a · ngăn bài tập (`/grading?tab=assignments&open=…`; TC ghi `/assignments/[id]` nhưng route đó chỉ dành cho sinh viên)
 - Kỳ vọng AC1: dòng `bản v2 · 3 chờ duyệt` + `Rút lưu ý` phụ · Thực tế: tiêu đề «Lưu ý chấm · Bản v2», nút «Rút lưu ý» (phụ, đúng) và «Áp dụng (2)» (đếm mục chờ áp dụng/nghỉ); không có số mục «chờ duyệt» (DB có 3 DRAFT). `GuidancePanel.tsx` head chỉ in `Bản vN`.
 
-### DEF-R106S-05 — Danh sách mục: thiếu trạng thái «Đã nghỉ», «Đã áp dụng» hiển thị «Đang dùng · vN» (TC-G04-02)
-- Mức: Thấp · Mã 4ac1638a · TC-G04-02 / US-GD-04 AC2
-- Thực tế (fixture 1 mục mỗi trạng thái + 3 Chờ duyệt): UI hiện 7 mục với nhãn «Chờ duyệt», «Chờ áp dụng», «Đang dùng · v2», «Chờ nghỉ», «Đã bỏ»; mục RETIRED («Đã nghỉ») không hiện (`groups` lọc chỉ DRAFT/APPROVED/REJECTED, `GuidancePanel.tsx`); «Đã áp dụng» không có (thay bằng «Đang dùng · vN», cũng là chữ TC-G04-29 dùng); «n lần sửa» thay bằng «n bài đổi điểm» (UX h, handoff 10.6). Cần PM/BA chốt chữ chuẩn; nếu AC2 đúng thì mã sai ở «Đã nghỉ» + nhãn.
+### DEF-R106S-05 — Danh sách mục sai chữ + không hiện mục «Đã nghỉ» (TC-G04-02)
+- Mức: Thấp · Mã 4ac1638a · US-GD-04 AC2 / SRS FEAT-grading-guidance 201, 410, 412, 416 (BA xác nhận spec rõ)
+- Thực tế (fixture 1 mục mỗi trạng thái + 3 Chờ duyệt): (1) `GuidancePanel.tsx:21` «Đang dùng · v{n}» thay «Đã áp dụng»; (2) `:125` «{n} bài đổi điểm» thay «{n} lần sửa»; (3) mục RETIRED có trong DB (`retired_in_version=2`) nhưng không hiện: `groups` (`GuidancePanel.tsx` ~dòng 214) lọc `i.status === DRAFT|APPROVED|REJECTED` nên «Đã nghỉ» (`stateOf` dòng 22) không bao giờ xuất hiện.
+- Bằng chứng: /tmp/qc9s/s106-g0402.png; evidence-9s/s106/specs/qc-real-106-g04.spec.ts
 
 ### DEF-R106S-06 — Khối «Lưu ý chấm»: không EmptyState khi chưa có lưu ý, GET lỗi 500 làm khối biến mất không «Thử lại» (TC-G04-15)
 - Mức: Thấp · Mã 4ac1638a

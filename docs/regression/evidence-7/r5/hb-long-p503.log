@@ -1,0 +1,13 @@
+
+Running 1 test using 1 worker
+
+(node:72984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS TC-P5-03-06 hai tab /chat cùng người dùng, thao tác cả hai, 600 s thật: tab 1 gửi 20 nhịp, tab 2 gửi 20 nhịp (tab_id khác nhau=2); Redis ep:study:<uuid>:<uuid>:20261119:CHAT tăng 600 s (≤ 600 + 30; không gấp đôi 1.200)
+PASS TC-P5-03-11 tab /chat hiện suốt 600 s thật, thao tác 180 s đầu rồi dừng (nhịp ngừng sau mốc idle 120 s): 9 nhịp gửi, Redis tăng 270 s (kỳ vọng 300 ± 30)
+PASS TC-P5-03-12 tab /chat, thao tác liên tục, ẩn tab (visibilityState=hidden) từ giây 180 đến 420 (4 phút): 12 nhịp gửi, Redis tăng 360 s (kỳ vọng 360 ± 30: đúng 6 phút hiện, 4 phút ẩn không cộng)
+  ✓  1 [desktop] › ../../../../../private/tmp/qc3e/specs/hb-p503.spec.ts:126:1 › 06/11/12 mười phút thật: hai tab, thao tác 3 phút, ẩn 4 phút (10.3m)
+
+  Slow test file: [desktop] › ../../../../../private/tmp/qc3e/specs/hb-p503.spec.ts (10.3m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 passed (10.3m)

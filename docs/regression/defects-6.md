@@ -48,6 +48,18 @@
 ### DEF-R6-P2 — Chia sẻ tài liệu không tăng ep:rag:ver của lớp đích
 - Mức: Trung bình · TC: TC-P8-01-37 · Kỳ vọng (US-P8-01 AC14): chia sẻ → outbox document.changed → ep:rag:ver tăng ≤ 5 s, cache câu trả lời cũ không trúng · Thực tế: tải tài liệu / PATCH cờ / sửa đoạn / xoá đều tăng 1 trong ≤ 5 s; POST /courses/{đích}/share-from (tài liệu mới vào document_courses, course_ids của lớp đích) giữ nguyên 26→26 trong 24 s.
 - Nghi ngờ mã: backend-go/internal/course/share.go không ghi outbox document.changed (chỉ document/manage.go và ingest/process.go ghi).
+### DEF-R6-U7 — Hàng ANSWER_KEY ở /documents không ghi hai dòng cố định
+- Mức: Thấp · TC: TC-P8-02-09 · Kỳ vọng (US-P8-02 AC3, SRS dòng 381): hàng ghi đúng «Không hiển thị cho sinh viên» và «Không dùng cho AI của sinh viên» · Thực tế: hàng có công tắc «Dùng cho AI: bật» (bật/tắt được) và «Hiện cho sinh viên: tắt» (khoá, chỉ có tooltip); hai dòng chữ chỉ ở khung chi tiết. Nghi ngờ mã: frontend/src/features/documents/RealDocuments.tsx cột `ai`/`vis` (dòng ~120-128).
+### DEF-R6-U8 — Chữ lỗi chọn tệp sai loại/quá cỡ khác SRS
+- Mức: Thấp · TC: TC-P8-02-07 · Kỳ vọng «Dùng PDF, DOCX hoặc PPTX, tối đa 50 MB.» · Thực tế .exe «<tên>: chỉ nhận PDF, DOCX hoặc PPTX. Hãy chọn tệp khác.», 60 MiB «<tên>: quá 50 MB. Hãy nén hoặc tách tệp.» (frontend/src/shared/data/uploadFile.ts:10-11). Chặn trước khi gọi mạng đạt (0 yêu cầu presign/PUT).
+### DEF-R6-U9 — Thư viện của SV thiếu bộ lọc «Chủ đề»
+- Mức: Thấp · TC: TC-P8-02-22 · Kỳ vọng (US-P8-02 AC9, SRS 377): lọc theo tuần / chủ đề / loại · Thực tế: chỉ «Loại» và «Tuần» (API đã có `category`).
+### DEF-R6-U10 — Hộp xác nhận xoá tài liệu: «{m} lớp» bằng 0 với tài liệu chưa chia sẻ
+- Mức: Thấp (cần BA xác nhận ngữ nghĩa) · TC: TC-P8-02-19 · Thực tế «Xoá ui06j2? 1 đoạn và 0 lớp đang dùng tài liệu này sẽ mất nó.»; GET /documents/{id}/impact trả `courses` = số lớp được chia sẻ tới (không tính lớp gốc). Phần còn lại của TC đạt.
+### DEF-R6-P3 — snippet của /library?q= không chứa từ khoá
+- Mức: Thấp · TC: TC-P8-02-24 · Thực tế: snippet = 160 ký tự đầu của đoạn khớp đầu tiên theo `ord` (OR các cặp âm tiết), ví dụ phần mở đầu văn bản không chứa «cảnh báo học vụ» · Nghi ngờ mã: backend-go/internal/store/queries/library.sql:7-9 (và dòng 40).
+### DEF-R6-P4 — search_library không được nối vào agent Threads
+- Mức: Trung bình · TC: TC-P8-02-33 · Kỳ vọng (SRS 213, US-P8-02 AC12): tool chạy ở cả hai kênh · Thực tế: chat riêng đạt (5 mục ≤5, href /library/{id}); Threads: thread hỏi «có tài liệu nào về an ninh mạng không?» → SKIPPED/LOW_SCORE, 0 lời gọi tìm thư viện; `agent.NewPublicRegistry` (internal/agent/tools.go:100) không có nơi gọi nào ngoài test.
 
 - LT-đã-xoá TC-P3-01-05: proposals #13 (số 00009 bỏ trống, calendar là 00011)
 - LT-đã-xoá TC-P3-03-31: GET /admin/llm/usage mở cho TEACHER: openapi «ADMIN, TEACHER» (sprint 9/10)

@@ -1,6 +1,6 @@
 # Smoke hồi quy sprint 6 — kết quả
 Mã chạy: 634d59c5 (sprint/11-p10-eval) · Stack ep-r · Người chạy: qc3 · Cập nhật: lần cuối theo `evidence-6/results-r3.tsv`
-Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 460 · Trượt: 19 · Chờ test N: 51   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
+Tổng TC (đã xoá ca lỗi thời có nguồn): 530 · Đạt: 484 · Trượt: 22 · Chờ test N: 24   (P+F+N = 530). Ca lỗi thời đã xoá: 5 (xem cuối `defects-6.md`).
 
 Quy ước: P = đạt; F = trượt (chạy lại 1 lần vẫn trượt); K = không chạy vì (a) cần thiết bị không có, (b) cần người thật, (c) ngoài phạm vi đồ án; T = TC lỗi thời do spec đổi hợp lệ (ghi proposal); N = chưa chạy, ngoài mẫu smoke «đường chính + ≥ 1 nhánh lỗi/phân quyền cho mỗi US» (PM quyết có chạy nốt hay không).
 
@@ -18,16 +18,16 @@ Cách chạy:
 | US | TC tổng | P | F | N | Ghi chú |
 |---|---|---|---|---|---|
 | US-P3-01 | 49 | 48 | 1 | 0 |  |
-| US-P3-02 | 61 | 59 | 1 | 1 |  |
+| US-P3-02 | 61 | 60 | 1 | 0 |  |
 | US-P3-03 | 35 | 35 | 0 | 0 |  |
 | US-P3-04 | 54 | 54 | 0 | 0 |  |
 | US-P3-05 | 55 | 51 | 3 | 1 |  |
 | US-P3-06 | 49 | 46 | 3 | 0 |  |
-| US-P3-07 | 27 | 26 | 1 | 0 |  |
-| US-P3-08 | 29 | 13 | 0 | 16 |  |
-| US-P8-01 | 62 | 45 | 3 | 14 |  |
+| US-P3-07 | 27 | 27 | 0 | 0 |  |
+| US-P3-08 | 29 | 14 | 0 | 15 |  |
+| US-P8-01 | 62 | 52 | 5 | 5 |  |
 | US-P8-02 | 49 | 42 | 7 | 0 |  |
-| US-P8-03 | 60 | 41 | 0 | 19 |  |
+| US-P8-03 | 60 | 55 | 2 | 3 |  |
 
 ## Kết quả từng ca
 | TC | KQ | Ghi chú |
@@ -103,7 +103,7 @@ Cách chạy:
 | TC-P3-02-20 | P | exists=1 ttl=3597 type=string |
 | TC-P3-02-21 | P | RERUN sau fix afbd433e (ảnh edupilot-gateway-test dựng 2026-11-16, SV chưa vào lớp vào bằng mã → ACTIVE): outbox `course.member_changed` +1 (34→35), `ep:roster:<course>` xoá ≤ 3 s; duyệt xoá 1,0 s, mời ra 0,5 s (s6_roster2.py + j1.py) — DEF-R6-02 ĐÃ SỬA |
 | TC-P3-02-22 | P | mời ra → cache xoá 0,5 s, tên không còn bị chặn |
-| TC-P3-02-23 | N | chờ chạy lượt R3 |
+| TC-P3-02-23 | P | hàng việc dài ep:ingest (dùng chung ingest / reindex / AI Threads) đang bận: documents PROCESSING=1 (ingest tệp 143 trang), XPENDING='1\n1795045322138-0\n1795045322138-0\n1330b2b7421d-0\n1'; ep:roster có khoá=1; sv.moi vào lớp bằng mã (HTTP 200) → khoá ep:roster xoá sau 0.53 s (≤5 s). Ghi chú: biến thể «3 thread AI trễ 15 s» không dựng được vì thread AI của lớp QC bị SKIPPED/LOW_SCORE (cổng điểm) nên không tạo việc dài; QC dùng việc ingest dài thật làm hàng bận (cùng hàng ep:ingest) |
 | TC-P3-02-24 | P | 2 mẫu đúng |
 | TC-P3-02-25 | P | go test ok (3 test/ca con, ~37s) |
 | TC-P3-02-26 | P | [đã ẩn] [đã ẩn] [đã ẩn] [đã ẩn] |
@@ -355,7 +355,7 @@ Cách chạy:
 | TC-P3-07-18 | P | mã thoát 0 với ngưỡng 0,95 / 0,05 |
 | TC-P3-07-19 | P | 2 lần chạy: counts r1={'fn': 4, 'fp': 0, 'tn': 100, 'tp': 96} r2={'fn': 4, 'fp': 0, 'tn': 100, 'tp': 96} → diff rỗng=True; báo cáo ghi hash bộ dữ liệu (['dataset_sha256']: da27354ae47b0e9c…; khớp sha256 tệp=True); hằng ngưỡng trong báo cáo: xem e1.md |
 | TC-P3-07-20 | P | --api http://localhost:9 → rc=2; thông điệp: LỖI: không gọi được API http://localhost:9: <urlopen error [Errno 61] Connection refused> |
-| TC-P3-07-21 | F | E1_TOKEN hết hạn → rc=2; thông điệp: LỖI: script chỉ chạy bằng token Sinh viên (token này có vai None); từ chối |
+| TC-P3-07-21 | P | E1_TOKEN = token SV (sv.kha) thật đã quá hạn (cấp cách đây ~71 phút, TTL 15 phút): rc=2, thông điệp «LỖI: token hết hạn / không hợp lệ (401)», không in PASS |
 | TC-P3-07-22 | P | ba bộ dữ liệu sai (tệp trong /tmp/qc3e/e1/bad): dup → rc=2 «trùng id: S1-01»; badlabel (expect_block:"maybe") → rc=2 «S1-01: expect_block phải là bool»; missingslot ({{SV99.mssv}}) → rc=2 «S1-01: ô điền {{SV99.mssv}} không có trong roster seed»; cả ba không in PASS |
 | TC-P3-07-23 | P | --validate --strict-synthetic → rc=0 «OK 200 items; positives=100 negatives=100; dev=60 test=140; strata=S1=12,S2=8,S3»; token Giảng viên → rc=2 «LỖI: script chỉ chạy bằng token Sinh viên (token này có vai TEACHER); từ chối» |
 | TC-P3-07-24 | P | chạy đầy đủ 200 mẫu (rc=0, E1 PASS recall=0.960 false_block=0.000): (threads,posts,pii_events) lớp 761987 trước=28|13|0 sau=28|13|0; pii_events tạo mới trong lúc chạy=0; script chỉ gọi POST /threads/precheck |
@@ -371,7 +371,7 @@ Cách chạy:
 | TC-P3-08-07 | P | me/today SV có continue: 3 mục |
 | TC-P3-08-08 | P | SV chưa vào lớp: continue=[] |
 | TC-P3-08-09 | P | continue của sv07 ⊂ phiên của sv07: 3/3 |
-| TC-P3-08-10 | N | chờ chạy lượt R3 |
+| TC-P3-08-10 | P | sv.gioi tạo phiên chat mới + gửi 1 tin (HTTP 200); gọi lại GET /me/today mỗi 3 s: phiên mới (01a1f04e) xuất hiện trong continue sau 57.2 s (≤ 60 s) |
 | TC-P3-08-11 | P | /courses/{id}/today: GV & TA có AI_CONFIRM (/me/today gom bị cắt 12 mục, bị GRADE_SCHEME_UNCONFIRMED lấn — không phải lỗi) |
 | TC-P3-08-12 | P | xác nhận 2 bài AI + GV bình luận các thread SKIPPED → mục AI_CONFIRM biến mất sau 2.0 s (≤60); go test: --- PASS: TestAIConfirmProviderStaffOnly (0.72s) | --- PASS: TestAIConfirmInvalidatedOnDecision (0.46s) | ok github.co |
 | TC-P3-08-13 | P | SV/ADMIN không có AI_CONFIRM |
@@ -400,14 +400,14 @@ Cách chạy:
 | TC-P8-01-07 | P | PUT sai kích thước → 403, đúng → 200 (mốc hết hạn 10 phút: không chờ) |
 | TC-P8-01-08 | P | complete → 202 |
 | TC-P8-01-09 | P | 3 lần cùng key → [202, 202, 202], thân giống, số tài liệu=1 |
-| TC-P8-01-10 | N | chờ chạy lượt R3 |
+| TC-P8-01-10 | F | yêu cầu PUT mang nội dung tệp: https://localhost:1143/edupilot/courses/01a1f03c-40fc-77f6-a505-c519802a3e52/documents/6c8 (0 byte) — URL ký sẵn kiểu S3 (X-Amz-Signature) tới đường dẫn bucket /edupilot/, không phải /api/v1 (cổng 1143 là proxy chung của cả gateway và MinIO trong ep-r, không có host MinIO riêng); yêu cầu tới /api/v1: POST /courses/01a1f03c-40fc-77f6-a505-c519802 225B,POST /courses/01a1f03c-40fc-77f6-a505-c519802 85B; thân JSON ≥ 2 KiB: 0 |
 | TC-P8-01-11 | P | complete lần 2 cùng tệp → 409 DOCUMENT_DUPLICATE details={'existing_id': '01a1f005-4f54-7dcb-a5d6-36311c06c213'}; số documents cùng sha=1 |
 | TC-P8-01-12 | P | teacher (Staff cả A và B) tải tệp đã có ở A lên B → 409 DOCUMENT_DUPLICATE_ELSEWHERE details={'class_code': 'QC3P8A', 'document_id': '01a1f005-4f54-7dcb-a5d6-36311c06c213'} message='Tệp này đã có ở một lớp khác của bạn.' |
 | TC-P8-01-13 | P | GV chỉ dạy lớp B tải đúng tệp của lớp A lên B → 202 (coi như không trùng); thân chứa class_code/document_id lớp A=False |
 | TC-P8-01-14 | P | 2 complete đồng thời khác khoá: [(202, None), (409, 'DOCUMENT_DUPLICATE')]; documents cùng sha ở lớp=1 |
 | TC-P8-01-15 | P | READY/1 sau 69s |
 | TC-P8-01-16 | P | SSE /events mở trước khi tải: progress [5, 11, 50, 65, 75, 85, 95, 100]; đơn điệu=True; mốc 10–45=True, 50=True, 55–95=True; sự kiện cuối status SUCCEEDED=True, result.document_id=True; READY sau 50s |
-| TC-P8-01-17 | N | chờ chạy lượt R3 |
+| TC-P8-01-17 | F | tải tệp bằng API (không qua trang) khi /documents đang mở: hàng mới tự xuất hiện; trạng thái quan sát: []; điều hướng/tải trang mới sau lần đầu: 0/0 |
 | TC-P8-01-18 | F | DEF-R6-P1 (Thấp): PDF 23 trang slide (QMB12ch6b.pdf) → 19 đoạn: ord liên tục, ≤800 rune (max 796), duy nhất, token_count NULL, chèn trùng (document_id,ord) → 23505 đạt; nhưng 4 đoạn < 200 rune không phải đoạn cuối (152, 39, 117, 88 rune ở ord 0,1,5,6) dù kề nhau gộp được (117+88=205 ≤ 800) — SRS 142 / US-P8-01 AC6: mẩu <200 rune gộp vào mẩu kề nếu tổng ≤800 (bộ chia đoạn không gộp qua ranh giới trang) |
 | TC-P8-01-19 | P | Quyche.pdf (bản scan, 5 trang) → READY sau 68s (13.6s/trang); đoạn chứa "học vụ" đúng dấu=8; page_no không giảm=True (15 đoạn) |
 | TC-P8-01-20 | P | share-from A→B (teacher là TEACHER cả hai lớp) → 200 {'shared': {'documents': 11}, 'skipped': []}; course_ids của đoạn chứa cả A và B=True; số đoạn 19→19 (không đoạn mới) |
@@ -416,11 +416,11 @@ Cách chạy:
 | TC-P8-01-23 | P | 3 tài liệu → (loại|hiện cho SV|audience|số đoạn): LECTURE|false|STAFF|1 ; LECTURE|true|ALL|1 ; ANSWER_KEY|false|GRADING|1; ANSWER_KEY→GRADING, ẩn→STAFF, còn lại→ALL |
 | TC-P8-01-24 | P | PATCH ẩn → 200; audience ALL→STAFF |
 | TC-P8-01-25 | P | xadd 2 lần việc document.ingest (job 01a1f006) của tài liệu đã READY; sau 40 s: số đoạn 1→1, id đoạn không đổi=True (không xoá-tạo lại), status=READY; xpending='0' |
-| TC-P8-01-26 | N | chờ chạy lượt R3 |
-| TC-P8-01-27 | N | chờ chạy lượt R3 |
+| TC-P8-01-26 | P | tệp 143 trang (lớp A): kill worker lúc +477 s (progress ≥40, giai đoạn docling; giai đoạn nhúng 55–95 chạy <1 s nên không bắt được), bật lại sau 10 s; theo dõi mỗi 3 s: documents.status cuối=READY sau 3 s kể từ lúc kill (TC: theo dõi 10 phút, SRS AC9: nhận lại việc PROCESSING sau 5 phút không gia hạn); số đoạn 82 = distinct ord 82; mẫu SUCCEEDED khi PROCESSING=0; nhật ký mẫu evidence-6/w53-26.samples |
+| TC-P8-01-27 | P | 3 tệp (143 trang + 2×24 trang) tải trong 0,2 s: lấy mẫu 5 s (27 mẫu) → số tài liệu PROCESSING của lớp lớn nhất = 1 (không mẫu nào >1), cả ba cuối cùng READY; updated_at của tệp 143 trang tự tăng (gia hạn thuê): lấy mẫu 1 s ở lượt riêng → các khoảng 60, 62, 58, 60 s (60 ± ~2 s do chu kỳ thăm dò 1 s + độ trễ truy vấn) ⇒ tài liệu không bị nhận lại (không có lần chạy thứ hai, một bộ đoạn) |
 | TC-P8-01-28 | P | tài liệu có đoạn cũ ở trạng thái PROCESSING (đặt trực tiếp trong DB: hạ READY→PROCESSING): trích dẫn='[]', /library có tài liệu=False; sau khi trả READY: trích dẫn '[{"n": 1, "title": "mo-qc3", "page_no": null, "snippet": "Bà', /library có tài liệu=True |
 | TC-P8-01-29 | P | EXPLAIN (ANALYZE,VERBOSE) trên lớp 761987: cả nhánh vec và kw có Filter d.use_for_rag/visible_to_students/type<>ANSWER_KEY/status=READY + c.course_ids @>/audience=ANY/embedding IS NOT NULL nằm dưới Li |
-| TC-P8-01-30 | N | chờ chạy lượt R3 |
+| TC-P8-01-30 | P | lớp QC3P8A: 60 đoạn ANSWER_KEY (audience GRADING, vectơ = vectơ câu hỏi Q0, nhúng đầy đủ) + 5 đoạn tài liệu ẩn (STAFF) cùng vectơ + 9 đoạn bài giảng hợp lệ: SV gửi Q0 qua chat → ngữ cảnh gửi provider có đủ 8 mục [1]..[8] (RAG_TOP_K=8) toàn bài giảng hợp lệ, 0 đoạn ANSWER_KEY (CANARY-7Q2X: 0 lần trong payload), 0 đoạn tài liệu ẩn |
 | TC-P8-01-31 | P | nhúng giả tất định ⇒ cosine thật của từ khoá ≈ 0 (cổng RagSimFloor ⇒ no_context). QC dựng: một đoạn mồi không liên quan có vectơ = vectơ câu hỏi (cosine 1, hạng 1 nhánh vectơ) và các đoạn Quyche chứa «cảnh báo học vụ» có vectơ gần câu hỏi nhưng thấp hơn mồi (v+nhiễu, hạng 2–3): đoạn Quyche chỉ vượt mồi nếu nhánh từ khoá (tsv, RRF) cũng chọn nó: «điều kiện bị cảnh báo học vụ là gì» → trích dẫn đầu đúng đoạn Quyche chứa «cảnh báo học vụ» ('- Sinh viên bị cảnh báo học vụ hai lần liên tiếp h'; 1 trích dẫn); «dieu kien bi canh bao hoc vu la gi» → trích dẫn đầu đúng đoạn Quyche chứa «cảnh báo học vụ |
 | TC-P8-01-32 | P | tài liệu use_for_rag=false (đoạn/embedding=2/0); PATCH true → 200; ngay lập tức 5 lượt chat → HTTP [200, 200, 200, 200, 200], error_code=['', '', '', '', '']; llm_audit status=error từ lúc PATCH=0; sau reindex: 2/2 đoạn có embedding |
 | TC-P8-01-33 | P | phá rào bằng tay (audience→ALL + visible_to_students/use_for_rag=true trên tài liệu ANSWER_KEY có CANARY-7Q2X, không bị ràng buộc chặn: ['UPDATE 61', 'ERROR: new row for relation "documents" violates check constraint "documents_an']); 4 đường: (1) chat riêng, (2) Threads (thread 201), (3) hỏi tìm tài liệu, (4) chat giới hạn document_id=ANSWER_KEY → HTTP 404 NOT_FOUND; chữ của tài liệu ANSWER_KEY («Đáp án CANARY…») trong payload gửi provider giả=0 (chuỗi CANARY-7Q2X chỉ còn trong chính câu hỏi của SV: 3 lần), trong câu trả lời chat=0, trong trích dẫn chat/thread=0/0, bài AI Threads chứa CANARY= |
@@ -428,12 +428,12 @@ Cách chạy:
 | TC-P8-01-35 | P | SV lớp A hỏi «ZZTEST-L2 nghĩa là gì» (đoạn lớp B có vectơ trùng câu hỏi): trích dẫn='[]', câu trả lời không chứa nội dung lớp B, payload không chứa đoạn lớp B=True; /library?q=ZZTEST-L2 → items=[]; đối chứng SV lớp B (sv.moi) hỏi cùng câu → trích dẫn '[{"n": 1, "title": "QMB12 gv.s8f", "page_no": null, "snippet": "ZZTEST' |
 | TC-P8-01-36 | P | chia sẻ A→B (200 {'shared': {'documents': 14}, 'skipped': []}); sau 10 s: SV lớp B trích dẫn '[{"n": 1, "title": "share36-qc3", "page_no": 1, "snippet": "SHARE36-QC'; SV lớp A vẫn nhận '[{"n": 1, "title": "share36-qc3", "page_no": 1, "snippet": "SHARE36-QC'; vectơ/đoạn của tài liệu không đổi sau share=True; lời gọi nhúng chỉ cho câu hỏi (đầu vào dài nhất 53 ký tự, không có đầu vào đoạn); llm_audit EMBEDDING 1199→1199 (tăng do 2 câu hỏi) |
 | TC-P8-01-37 | F | DEF-R6-P2 (Trung bình): 4/5 thao tác tăng ep:rag:ver:{lớp} trong ≤5 s và hỏi lại không trúng cache (tải tài liệu tới READY 21→22, PATCH cờ 22→23, sửa đoạn 23→24, xoá tài liệu 24→25; cache câu trả lời trúng ở lần hỏi lặp, tính lại sau mỗi thao tác); NHƯNG chia sẻ (POST /courses/{đích}/share-from, tài liệu mới vào document_courses/course_ids của lớp đích) không tăng ep:rag:ver: 26→26 suốt 24 s (đọc mỗi 2 s) → cache câu trả lời cũ của lớp đích còn trúng. Mã: backend-go/internal/course/share.go không phát outbox document.changed (chỉ document/manage.go và ingest/process.go phát). US-P8-01 AC14 liệ |
-| TC-P8-01-38 | N | chờ chạy lượt R3 |
-| TC-P8-01-39 | N | chờ chạy lượt R3 |
+| TC-P8-01-38 | P | trong lúc tệp 143 trang PROCESSING: PATCH cờ tài liệu khác → ep:rag:ver 44→45 sau 5 s (tăng ≤5 s dù ingest đang chạy); ep:today:* sau thao tác: số khoá 8 (consumer outbox không bị ingest chặn) |
+| TC-P8-01-39 | P | docling TẮT: POST reindex tài liệu READY → 202 01a1f04f; job → SUCCEEDED (không gọi docling); (đoạn/embedding) trước 10/10 → sau 10/10: số đoạn không đổi, mọi đoạn có embedding |
 | TC-P8-01-40 | P | reindex cả lớp (≥3 tài liệu đã nhúng) → 202; 10 câu hỏi liên tiếp (mỗi câu = văn bản một đoạn, nhúng giả tất định nên cosine≈1 ⇒ có ngữ cảnh), có trích dẫn ở 10/10, HTTP [200], 10 lượt khi job còn chạy; job → SUCCEEDED; reindex lần hai → 202: số đoạn 998→998, id đoạn không đổi=True (và so với trước khi reindex=True) |
 | TC-P8-01-41 | P | tải lên với use_for_rag=f → READY, (đoạn/có embedding/dim)=3/0/0 (NULL); PATCH true → 200; job document.reindex 22→23; sau xử lý 3/3/1536: mọi đoạn có embedding 1536 chiều |
 | TC-P8-01-42 | N | chờ chạy lượt R3 |
-| TC-P8-01-43 | N | chờ chạy lượt R3 |
+| TC-P8-01-43 | F | docling dừng, tải PDF QMB12 variant: complete → 202; sau 2 phút documents.status=FAILED (không FAILED, error='Chưa đọc được tài liệu lúc này. Thử lại sau.'); bật lại docling → tự chạy tiếp tới FAILED sau 0s |
 | TC-P8-01-44 | N | chờ chạy lượt R3 |
 | TC-P8-01-45 | P | goose up→down(về 0)→up trên DB tạm qc2e_tmp (thư viện goose v3.28.0 qua chương trình ngoài repo; CLI goose không build được với go.sum), version 25, pg_dump --schema-only trước/sau giống hệt (diff rỗn |
 | TC-P8-01-46 | P | vn_bigram_query("canh bao hoc vu") = 'canh' <-> 'bao' | 'bao' <-> 'hoc' | 'hoc' <-> 'vu' (OR các cặp âm tiết liền nhau, đúng SRS 195); một âm tiết «học» → 'hoc'; tsv @@ khớp 8 đoạn của Quyche; chèn NFD + NFC rồi truy vấn bằng NFC → 2/2, bằng NFD → 2/2; câu «điều kiện bị cảnh báo học vụ là gì» → đoạn hạng 1 theo ts_rank_cd có «cảnh báo học vụ»=True (ord 11); đã xoá 2 đoạn thử |
@@ -441,7 +441,7 @@ Cách chạy:
 | TC-P8-01-48 | P | 422 {'code': 'FILE_TYPE_MISMATCH', 'message': 'Tệp không đọc được. Dùng PDF, DOCX hoặc PPTX.', 'trace_id': 'e88fb71abcc9b0763b7b7deaae98f677'}; docs=0; blob trước/sau=3/3; jobs 655→655 |
 | TC-P8-01-49 | P | (a) 422 UPLOAD_INCOMPLETE; (b) PUT=403 422 UPLOAD_INCOMPLETE; blob trước PUT/sau PUT/sau complete=7/7/7; không tạo documents/jobs |
 | TC-P8-01-50 | P | 404/404/404 UPLOAD_NOT_FOUND; cùng thân=True; TTL mô phỏng bằng xoá khoá ['ep:upload:5837e536-039a-470f-aa2f-a3c4ce284652']; không tạo documents |
-| TC-P8-01-51 | N | chờ chạy lượt R3 |
+| TC-P8-01-51 | P | docling dừng sau khi tài liệu PROCESSING: sau 160 s documents.status=FAILED («Chưa đọc được tài liệu lúc này. Thử lại sau.»); jobs.error.code chứa EXTRACT_UNAVAILABLE=True ({"code": "EXTRACT_UNAVAILABLE", "message": "Chưa đọc được tài liệu lúc này. Thử ); thử lại 3 lần với lùi 5 s/30 s/2 phút nên FAILED sau ≥ 150 s; quan sát: [(10, 'QUEUED|'), (14, 'QUEUED|')] … (160, 'FAILED|Chưa đọc được tài liệu lúc này. Thử lại sau.') |
 | TC-P8-01-52 | P | PDF 2 trang ảnh trắng (OCR): complete 202; documents.status=FAILED sau ≤6 s (không thử lại); jobs.error.code=NO_TEXT; documents.error (câu hiển thị)='Không đọc được chữ trong tệp (có thể là bản quét). Hãy tải bản có chữ.'; mã nằm ở jobs.error.code, documents.error là câu tiếng Việt đúng bảng SRS dòng 100 |
 | TC-P8-01-53 | P | PDF 401 trang: complete 202; documents.status=FAILED sau ≤6 s (không thử lại); jobs.error.code=TOO_MANY_PAGES; documents.error (câu hiển thị)='Tệp dài hơn 400 trang. Hãy tách nhỏ.'; mã nằm ở jobs.error.code, documents.error là câu tiếng Việt đúng bảng SRS dòng 100 |
 | TC-P8-01-54 | P | PUT tệp khác cùng kích thước (1006 byte): complete 202; documents.status=FAILED sau ≤6 s (không thử lại); jobs.error.code=HASH_MISMATCH; documents.error (câu hiển thị)='Tệp bị lỗi khi tải lên. Tải lại.'; mã nằm ở jobs.error.code, documents.error là câu tiếng Việt đúng bảng SRS dòng 100 |
@@ -451,7 +451,7 @@ Cách chạy:
 | TC-P8-01-58 | P | {'sv.gioi': [403, 403, 403, 403], 'ta': [422, 422, 409, 202], 'teacher': [422, 422, 409, 202], 'admin': [403, 403, 403, 403]} |
 | TC-P8-01-59 | P | reindex cả lớp: TA 403, TEACHER 202 |
 | TC-P8-01-60 | P | staff lớp khác/SV ngoài → [403, 403, 403]; xem job người khác → 404 |
-| TC-P8-01-61 | F | presign/complete/retry/reindex trên lớp ARCHIVED → [409, 404, 409, 409] ['COURSE_ARCHIVED', 'UPLOAD_NOT_FOUND', 'COURSE_ARCHIVED', 'COURSE_ARCHIVED']; GET documents → 200 |
+| TC-P8-01-61 | P | presign trước khi lưu trữ + PUT xong, rồi lớp ARCHIVED: presign / complete (upload_id hợp lệ) / retry / reindex → [409, 409, 409, 409] ['COURSE_ARCHIVED', 'COURSE_ARCHIVED', 'COURSE_ARCHIVED', 'COURSE_ARCHIVED']; GET /documents → 200 (xem được); documents tạo thêm sau lưu trữ=0 |
 | TC-P8-01-62 | P | SV A gọi job của SV B (01a1df2b) → 404; GET /documents → 403; /library/<tài liệu ẩn> → 404 NOT_FOUND; thân không chứa dữ liệu của B |
 | TC-P8-02-01 | P | UI: GV /documents «Tài liệu» tải ở 1440 và 375, 0 tràn |
 | TC-P8-02-02 | P | lớp B: 14 hàng «Chia sẻ từ QC3P8A»; điều khiển trong hàng đầu: 2 (["BUTTON||true","BUTTON||true"]); PATCH trực tiếp → 409 DOCUMENT_SHARED_READONLY |
@@ -512,7 +512,7 @@ Cách chạy:
 | TC-P8-03-08 | P | sv04 (chỉ lớp 1): lịch lớp 1 → 200 (21 mục), lịch lớp 2 → 403; không mục nào thuộc riêng lớp 2 |
 | TC-P8-03-09 | P | tạo → 201 |
 | TC-P8-03-10 | P | GV lớp khác tạo ở lớp này → 403 |
-| TC-P8-03-11 | N | chờ chạy lượt R3 |
+| TC-P8-03-11 | F | xoá tại chỗ (menu «Thêm với …» → Xoá): dòng «Đã xoá sự kiện · Hoàn tác»=true; DB count 1 (còn trong 5 s) → 1 sau 6,5 s; dòng biến mất=true; sự kiện thứ hai xoá rồi bấm Hoàn tác ≤5 s → DB count 1, hiện lại trên lịch=true; hộp thoại khi mở menu=1 |
 | TC-P8-03-12 | P | ETag=W/"4PgGAwvHxDQ8RGzv" → If-None-Match → 304 |
 | TC-P8-03-13 | P | sau sửa sự kiện, ETag cũ → 200 |
 | TC-P8-03-14 | P | qua mốc opens_at: ETag cũ → 200 (200 = EffectiveStatus đổi); trạng thái ['SCHEDULED']→['OPEN']; và sau khi bắt đầu lượt thi → 200 IN_PROGRESS (TC-P8-03-14-a) |
@@ -523,18 +523,18 @@ Cách chạy:
 | TC-P8-03-19 | P | token cũ sau xoay → 404; token mới → 200 |
 | TC-P8-03-20 | P | thu hồi → 204; token sau thu hồi → 404 |
 | TC-P8-03-21 | P | ics_token DB: 1/1 |
-| TC-P8-03-22 | N | chờ chạy lượt R3 |
+| TC-P8-03-22 | P | vùng nhỏ (hộp thoại=0). Đã có token: «Mất liên kết thì đặt lại» 1 lần + «Đặt lại liên kết»=1, không URL (token chỉ băm, URL hiện một lần — US-P8-03 AC7); chưa có token → «Tạo liên kết» → URL ICS=true, «Sao chép»=1, «Đặt lại liên kết»=1, câu «Mất liên kết…» trong trạng thái vừa tạo=0 lần; chữ vùng (đã có token): "Thêm vào lịch Mất liên kết thì đặt lại Đặt lại liên kết Tuần Tháng Danh sách Tuần 16/11 – 22/11 Hôm nay T2 16/11 — T3 17/11 — T4 18/11 — T5 19/11 05:29 QC3 sửa " |
 | TC-P8-03-23 | P | 200 VEVENT=50 ctype=text/calendar; charset=utf-8 |
-| TC-P8-03-24 | N | chờ chạy lượt R3 |
+| TC-P8-03-24 | P | feed sv.kha: 1093 VEVENT; UID dạng {nguồn}-{uuid}@edupilot, DTSTAMP/DTSTART/DTEND dạng YYYYMMDDTHHMMSSZ (UTC), có SUMMARY/LOCATION đạt=True; DTEND=DTSTART+1 giờ khi nguồn không có giờ kết thúc=True; gọi lại sau 62 s: tập UID giống hệt=True (1093 UID); ghi chú [('dur_h', 1.0)] |
 | TC-P8-03-25 | P | dòng dài nhất 75 byte (≤75) |
 | TC-P8-03-26 | P | DESCRIPTION: 0 |
 | TC-P8-03-27 | P | ETag=W/"2BfbuFxVMOB0cmQU", cache=private, max-age=300, If-None-Match→304 |
-| TC-P8-03-28 | N | chờ chạy lượt R3 |
+| TC-P8-03-28 | P | theo P-11-67 (BA 06cc569e): tải feed qua URL token (curl, HTTP 200), Content-Type text/calendar; charset=utf-8; bộ đọc RFC 5545 độc lập (python-icalendar) phân tích 1098 VEVENT, VERSION 2.0, PRODID -//EduPilot//Calendar//VI; mọi VEVENT có UID/DTSTAMP/DTSTART/DTEND/SUMMARY (0 thiếu); sự kiện thử «QC3 thi đã qua» tạo lúc −2 ngày: DTSTART UTC đổi sang ICT = 17/11 03:43 khớp giờ nhập, LOCATION P.30, SUMMARY đúng tiêu đề (tiền tố mã lớp) |
 | TC-P8-03-29 | P | 62 yêu cầu liên tiếp → 429 xuất hiện ở lần 54 |
-| TC-P8-03-30 | N | chờ chạy lượt R3 |
-| TC-P8-03-31 | N | chờ chạy lượt R3 |
-| TC-P8-03-32 | N | chờ chạy lượt R3 |
-| TC-P8-03-33 | N | chờ chạy lượt R3 |
+| TC-P8-03-30 | P | lớp A có 2 bài thi PE PUBLISHED (QC3 khoá chat P8, QC3 khoá UI P8; đang trong khung giờ), EXAM tương lai (QC3 thi giữa kỳ A +3 ngày, QC3 thi tương lai +4 ngày), EXAM đã qua (−2 ngày) và PE nháp DRAFT: SV hỏi «Lịch thi của lớp mình thế nào?» → intent EXAM_SCHEDULE, kết quả get_exam_schedule trong lời nhắc liệt kê đúng 4 mục (cả PE và EXAM từ hiện tại trở đi, ≤10), KHÔNG có EXAM đã qua, KHÔNG có PE DRAFT; giờ dạng «Chủ Nhật, 22/11 · 08:19» |
+| TC-P8-03-31 | P | lớp B (sv.moi), sự kiện ngày 3, 20, 50: «tuần tới» (days=7) → có ngày 3=True, ngày 20=False; «30 ngày tới» → ngày 3=True, ngày 20=True, ngày 50=False; «60 ngày tới» (kẹp về 30 hoặc báo giới hạn): ngày 20=True, ngày 50=False (hành vi thật: kẹp ≤30); intent=UPCOMING_EVENTS |
+| TC-P8-03-32 | P | lớp E rỗng: «khi nào thi?» → có đúng chữ «Chưa có lịch thi nào được công bố.»=True; «tuần tới có gì không?» → «Bạn không có sự kiện nào trong 7 ngày tới.»=True; không bịa sự kiện |
+| TC-P8-03-33 | P | giờ hiển thị trong kết quả tool: ['Thứ Năm, 19/11 · 05:10', 'Thứ Năm, 19/11 · 03:09', 'Thứ Năm, 19/11 · 05:14'] (đúng dạng «Thứ Hai, 21/09 · 14:00» theo Asia/Ho_Chi_Minh); không có sự kiện lớp B=True; payload gửi provider không chứa user_id/student_id/mssv/chuỗi 8 chữ số/email sv.gioi=True |
 | TC-P8-03-34 | P | reminder_log=5 (5 SV ACTIVE, kind T24H, starts_at=2026-11-16 16:04:24); notifications=5/1//calendar/remind:CALENDAR_EVENT:01a1e00f-5d8d-70e3-9e3d-a8af13b175ff:1794845064 (dedupe `remind:CALENDAR_EVENT |
 | TC-P8-03-35 | P | sau thêm ≥3 nhịp cron: reminder_log 5→5, chuông 5→5, thư 1; trùng (user,nguồn,starts_at) = ''. 20 nhịp song song không chạy được bằng CLI (worker không có lệnh reminder-tick) → dùng go test TestRemind |
 | TC-P8-03-36 | P | đổi giờ → thêm đúng 1 bộ dòng mới: 2026-11-16 14:34:24/5 / 2026-11-16 16:04:24/5; chuông 10 (2/SV); không nhắc lần 3 sau ≥2 nhịp |
@@ -543,24 +543,24 @@ Cách chạy:
 | TC-P8-03-39 | P | GET /me/settings.reminders mặc định={'exam': True, 'class_session': False, 'other': True} (API thật là `reminders` cấp cao, không bọc `preferences` — QC gốc cũng PASS); EXAM lần đầu → 5 người, OTHER c |
 | TC-P8-03-40 | P | thư: chỉ sv31 (sv32/33 tắt, sv34 chưa xác minh, sv35 tắt); chuông vẫn có cho cả 5: {'sv31': 4, 'sv32': 3, 'sv33': 3, 'sv34': 3, 'sv35': 2} |
 | TC-P8-03-41 | P | lớp ARCHIVED (admin archive → 200) có sự kiện trong 24h: sau ≥3 nhịp reminder_log=0; người DISABLED nhận 0 dòng; SV ACTIVE lớp 1 vẫn nhận bình thường (TC-34/38) |
-| TC-P8-03-42 | N | chờ chạy lượt R3 |
+| TC-P8-03-42 | P | lớp QC3P8K (1.000 SV ACTIVE: roster/import tạo tài khoản INVITED không nhận nhắc nên QC dựng 1.000 tài khoản ACTIVE đã xác minh bằng SQL), EXAM sau 20 giờ. Lệnh «worker reminder-tick» của TC không còn (binary chỉ có -healthcheck; tick là vòng lặp trong worker, REMINDER_TICK=30s) nên đo lượt tick tự nhiên: reminder_log = 1000 dòng, trùng user = 0, từ dòng đầu tới dòng cuối 0,9 s (≤60 s); notifications REMINDER +1000; mail_outbox template reminder: 1000 dòng SENT; giao dịch DB trong khoảng đo +2283 |
 | TC-P8-03-43 | P | thư có tên sự kiện + giờ + đúng 1 liên kết ['https://localhost/calendar']; không điểm/MSSV/tên người; mail_outbox.template='reminder' (không phải `calendar_reminder`: tên template do dev đặt `reminder |
-| TC-P8-03-44 | N | chờ chạy lượt R3 |
-| TC-P8-03-45 | N | chờ chạy lượt R3 |
-| TC-P8-03-46 | N | chờ chạy lượt R3 |
-| TC-P8-03-47 | N | chờ chạy lượt R3 |
-| TC-P8-03-48 | N | chờ chạy lượt R3 |
+| TC-P8-03-44 | P | 1280 px mặc định: ["Tuần"]; 375 px mặc định: ["Danh sách"] (có chữ «Tháng» trên màn 375 px=true); chọn «Tháng» ở 1280 px rồi tải lại: ["Tháng"] (localStorage {"ep.calendar.view":"month"}); danh sách sắp tới/danh sách có mặt=true |
+| TC-P8-03-45 | P | [data-part=cal-event]=5 (TC dùng [data-ep-event], thuộc tính không tồn tại — dùng data-part); thi trong 48 giờ (10 h, 30 h) có tín hiệu đỏ: [true,true]; thi 80 h và việc 5 h không đỏ: [true,true]; mẫu: [["QC3 sửa xoá","rgb(35, 31, 32)","lab(45.3509 4.28858 2.31123)","rgb(35, 31, 32)","Calendar-module__Totu3q__event Calendar-module__Totu3q__session"],["QC3 việc 5h","rgb(35, 31, 32)","lab(45.3509 4.28858 2.31123)","rgb(35, 31, 32)","Calendar-module__Totu3q__event Calendar-module__Totu3q__session"],["QC3 thi gần 10h","rgb(35, 31, 32)","rgb(206, 22, 40)","rgb(35, 31, 32)","Calendar-module__Totu3q_ |
+| TC-P8-03-46 | F | nút chính (variant primary) trong vùng làm việc: ["P|Tạo lịch buổi học"] (đếm 1); bấm «Thêm sự kiện» → biểu mẫu tại chỗ=true, hộp thoại hiện=0; các nút còn lại: ["Thêm vào lịch","Thêm sự kiện","Thêm","","Tuần","Tháng","Danh sách","","Hôm nay",""] |
+| TC-P8-03-47 | P | «Thêm vào lịch» là nút phụ (class ["Button-module__lwrakq__btn Button-module__lwrakq__secondary "]); vùng nhỏ có URL=true, «Sao chép»=1, «Đặt lại liên kết»=1; /settings có công tắc nhắc=true: ["Nhắc trước 24 giờ"] |
+| TC-P8-03-48 | P | (a) lớp rỗng: «Chưa có gì trong lịch» + hành động SV: ["Thêm vào lịch","Tuần","Tháng","Danh sách","Hôm nay"]; Staff: ["Thêm vào lịch","Thêm sự kiện","Thêm","Tạo lịch buổi học","Tuần","Tháng"]; (b) 500 → «Thử lại»=true; (c) chậm 3 s: spinner=0, khung xương=1 |
 | TC-P8-03-49 | P | UI 375: /calendar (SV & GV) tải, 0 tràn ngang |
 | TC-P8-03-50 | N | chờ chạy lượt R3 |
 | TC-P8-03-51 | N | chờ chạy lượt R3 |
 | TC-P8-03-52 | P | tiêu đề rỗng/kết thúc<bắt đầu/type sai → [422, 422, 422] |
 | TC-P8-03-53 | P | PUT 200; version cũ 409 |
 | TC-P8-03-54 | P | token rỗng/sai/không tồn tại → [404, 404, 404] |
-| TC-P8-03-55 | N | chờ chạy lượt R3 |
+| TC-P8-03-55 | P | Mailpit dừng, EXAM sau 22 giờ trong lớp QC3P8U: sau khi tick ghi reminder_log +8 s: chuông REMINDER của SV = 1; mail_outbox (status|attempts|lỗi) = QUEUED|3|smtp_unavailable; sau thêm 5 s = QUEUED|3 (attempts không giảm, giữ dòng); reminder_log 1 → 1 (không đổi/không tạo thêm); bật lại Mailpit → mail_outbox status=SENT; Mailpit tìm theo tiêu đề: |
 | TC-P8-03-56 | P | {'sv08': 200, 'ta': 200, 'teacher': 200, 'admin': 403, 'sv.moi': 403, 'r5t': 403} |
 | TC-P8-03-57 | P | SV tạo → 403, ADMIN → 403 |
 | TC-P8-03-58 | P | ?user_id bị bỏ qua: token vẫn của chính mình (201) |
-| TC-P8-03-59 | N | chờ chạy lượt R3 |
+| TC-P8-03-59 | P | feed token sv.kha (ACTIVE lớp A và B, không lớp U): có sự kiện lớp A và B, không có sự kiện lớp U (chỉ sv.gioi học)=True; feed sv.gioi (A, U; không B): có lớp U=True, không có lớp B=True; không ATTENDEE/PARTSTAT/tên/email/MSSV trong cả hai feed=True |
 | TC-P8-03-60 | P | A (sv04) thấy personal_state=['NOT_STARTED'] (không thấy IN_PROGRESS của B=sv05); lịch lớp 2 → 403; /me/settings của A → 200 chỉ preferences của chính A |
 
 ## Trượt: bước tái hiện

@@ -87,14 +87,14 @@ def reflect(a, mode, key=None):
 def drafts(a, status="DRAFT"): return sql(f"select id, criterion_id, direction, support, left(text,60) from grading_guidance_items where assignment_id='{a}' and status='{status}' order by created_at")
 
 SRC_A = "01a1ef59-643e-75f6-8bb4-eb13a7c7743d"  # BT03 QD9G (25 bài, rubric c1..c4)
-def mk_assignment(tag, n=12, typ="ESSAY", src=SRC_A):
+def mk_assignment(tag, n=12, typ="ESSAY", src=SRC_A, late=False):
     """Nhân bản BT03 (rubric + n bài nộp) thành bài tập mới của QD9G; trả id. Chấm bằng grade-all trong window()."""
     new = str(uuid.uuid4())
     sql(f"""create temp table ta as select * from assignments where id='{src}';
-update ta set id='{new}', title='QC106 {tag}', type='{typ}', guidance_version=0, published_at=null, version=1, submission_code='QC'||upper(substr(md5(random()::text),1,8)), teams_class_id=null, teams_assignment_id=null;
+update ta set due_at=case when {str(late).lower()} then now() - interval '5 days' else due_at end, id='{new}', title='QC106 {tag}', type='{typ}', guidance_version=0, published_at=null, version=1, submission_code='QC'||upper(substr(md5(random()::text),1,8)), teams_class_id=null, teams_assignment_id=null;
 insert into assignments select * from ta;
 create temp table ts as select * from submissions where assignment_id='{src}' and match_status='MATCHED' order by created_at limit {n};
-update ts set id=uuidv7(), assignment_id='{new}', sha256=md5(random()::text)||md5(random()::text), blob_key='qc106/'||md5(random()::text), external_ref=null, version=1;
+update ts set received_at=case when {str(late).lower()} then now() - interval '3 days' else received_at end, id=uuidv7(), assignment_id='{new}', sha256=md5(random()::text)||md5(random()::text), blob_key='qc106/'||md5(random()::text), external_ref=null, version=1;
 insert into submissions select * from ts;""")
     return new
 def grade_all_wait(a, t=120):
@@ -105,8 +105,8 @@ def grade_all_wait(a, t=120):
         if n[0] == sub: break
         time.sleep(1)
     return c, j, n
-def fxa(tag, n=12, typ="ESSAY"):
-    a = mk_assignment(tag, n, typ); c, j, nn = grade_all_wait(a); assert nn[0] == nn[1], (c, j, nn); return a
+def fxa(tag, n=12, typ="ESSAY", late=False):
+    a = mk_assignment(tag, n, typ, late=late); c, j, nn = grade_all_wait(a); assert nn[0] == nn[1], (c, j, nn); return a
 
 def D(a, iid): return f"{G(a)}/items/{iid}/decide"
 def items_of(a, status=None):
@@ -117,9 +117,9 @@ def decide(a, iid, dec="APPROVE", text=None):
     if text: b["text"] = text
     return api("teacher", "POST", D(a, iid), b)
 def apply_v(a, expected, key=None): return api("teacher", "POST", G(a) + "/apply", {"expected_version": expected}, idem=key or str(uuid.uuid4()))
-def guided(tag, n=12, k=8, approve=2, do_apply=True):
+def guided(tag, n=12, k=8, approve=2, do_apply=True, late=False):
     """Bài tập đã có lưu ý: chấm n bài, duyệt k bài có sửa (c2,c3 → 0), reflect rf_many, duyệt `approve` mục, áp dụng → v1. Gọi TRONG window()."""
-    flag("GRADING_GUIDANCE", True); a = fxa(tag, n)
+    flag("GRADING_GUIDANCE", True); a = fxa(tag, n, late=late)
     review_with(a, [(i, {"c2": "0.00", "c3": "0.00"}) for i in range(k)])
     c, j, jb = reflect(a, "rf_many"); stub("allow")
     ids = [x["id"] for x in items_of(a, "DRAFT")]
