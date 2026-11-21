@@ -18,7 +18,7 @@ func TestSchemaPractice(t *testing.T) {
 		"practice_attempts":    {"id", "course_id", "student_id", "mode", "topic", "status", "started_at", "deadline_at", "submitted_at", "item_count", "current_index", "correct_count", "score", "matrix", "notes", "tab_id", "version", "created_at", "updated_at"},
 		"practice_items":       {"id", "course_id", "attempt_id", "question_id", "position", "option_order", "answer_key", "question", "question_version"},
 		"practice_answers":     {"id", "course_id", "attempt_id", "item_id", "answer", "is_correct", "answered_at", "locked", "version"},
-		"forms_import_batches": {"id", "course_id", "item_id", "file_hash", "blob_key", "mapping", "matched", "unmatched", "created_by", "created_at"},
+		"forms_import_batches": {"id", "course_id", "item_id", "file_hash", "blob_key", "mapping", "matched", "unmatched", "created_by", "created_at", "blob_purged_at"},
 		"forms_import_rows":    {"course_id", "batch_id", "row_no", "student_id", "identifier_masked", "correct", "total", "score"},
 	}
 	for table, cols := range want {
