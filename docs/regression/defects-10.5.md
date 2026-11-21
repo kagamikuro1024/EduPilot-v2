@@ -33,3 +33,11 @@
 - Kỳ vọng (theo TC/AC): cột «thật» chỉ chạy khi ALLOW_REAL=true **và** có xác nhận rõ; mặc định bỏ qua; trần 300 · Thực tế: từ chối cứng khi provider không phải bản giả; không có mã cho lượt thật nên không có chặn «có xác nhận» / trần 300 để kiểm (mặc định an toàn nhưng AC chưa có mã)
 - Bằng chứng: `evidence-10.5/s10x/d0814.txt`
 - Lưu ý: kéo theo TC-D04-11 (lượt thật ≤ 300 lời gọi) chưa chạy được ở ep-r: không có `GEMINI_API_KEY` (.env.local và gateway ep-r đều rỗng) và không có công cụ đo lượt thật → ghi N.
+
+## DEF-R105S-03 — Provider «Quyết định» tắt nhưng cổng chat / chèn lệnh vẫn gọi decision
+- Mức: Trung bình · TC: TC-D02-10, TC-D01-25 · Mã: 37084f11 (ep-qc, CLASSIFY/CHAT qua provider fake)
+- Bước tái hiện: 1. Bật CHAT_ROUTING (hệ thống + lớp) và INJECTION_FLAG (hệ thống + lớp). 2. `PUT /admin/llm/providers/{id}` provider «Quyết định» enabled=false (GET /admin/llm/decision → provider=null). 3. Chat một câu; chấm một bài; đăng bài. 4. `select … from llm_audit where task='DECIDE'`.
+- Kỳ vọng (SRS 4.4, TC): hiệu lực = cờ hệ thống ∧ cờ lớp ∧ provider sẵn sàng → provider tắt: 0 lời gọi DECIDE, mọi cổng như trước 10.5.
+- Thực tế: THREADS_PRECHECK đúng (0 DECIDE); CHAT_ROUTING vẫn 1 dòng DECIDE (ok, FALLBACK) ở chat sau +3 / +23 / +63 s; INJECTION_FLAG 1 dòng DECIDE ở lượt chấm.
+- Bằng chứng: `evidence-9s/s106/g105j.py`, `g105i.py`.
+- Trạng thái: MỞ
