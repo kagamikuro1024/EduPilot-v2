@@ -1,0 +1,3 @@
+pid=55689
+08:36:14 kill -9 pid=55689 sau 9 lệnh PUT điểm danh (bước 14); bước cuối trong log: [14/20] Điểm danh buổi 1–9 và phát biểu lớp 761987 (270 dòng, kế hoạch theo SEED_RNG)…
+final attendance_records=270

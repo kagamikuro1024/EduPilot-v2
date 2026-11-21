@@ -1,0 +1,65 @@
+[1/20] Admin đầu tiên (gateway admin create)…
+    POST /auth/login → 401
+    POST /auth/login → 200
+[2/20] Mời giảng viên và trợ giảng, nhận lời mời…
+    GET /admin/users?q=teacher%40edupilot.local&limit=10 → 200
+    POST /admin/users → 201
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=ta%40edupilot.local&limit=10 → 200
+    POST /admin/users → 201
+    POST /auth/accept-invite → 200
+[3/20] Mở hai lớp 761987 / 761988, gán giảng viên và TA…
+    GET /admin/courses?limit=100 → 200
+    POST /admin/courses → 201
+    GET /admin/courses?limit=100 → 200
+    POST /admin/courses/01a1fbb5-b7d9-7313-bd58-ccc9e0192719/assign → 200
+    GET /admin/courses?limit=100 → 200
+    POST /admin/courses → 201
+    GET /admin/courses?limit=100 → 200
+    POST /admin/courses/01a1fbb5-b7e3-73aa-920c-9d9a3f0a891e/assign → 200
+    GET /courses/01a1fbb5-b7e3-73aa-920c-9d9a3f0a891e → 200
+    PUT /courses/01a1fbb5-b7e3-73aa-920c-9d9a3f0a891e/settings → 200
+    GET /notifications?limit=100 → 200
+    GET /notifications?limit=100 → 200
+    POST /notifications/01a1fbb5-b8df-7972-bb3f-90ab8fd0d447/read → 204
+[4/20] Tạo buổi học (buổi hôm nay của hai lớp)…
+    GET /courses/01a1fbb5-b7d9-7313-bd58-ccc9e0192719/sessions?limit=100 → 200
+    POST /courses/01a1fbb5-b7d9-7313-bd58-ccc9e0192719/sessions/generate → 201
+    GET /courses/01a1fbb5-b7e3-73aa-920c-9d9a3f0a891e/sessions?limit=100 → 200
+    POST /courses/01a1fbb5-b7e3-73aa-920c-9d9a3f0a891e/sessions/generate → 201
+[5/20] Lớp 761987: nhập danh sách 30 sinh viên, nhận lời mời…
+    GET /courses/01a1fbb5-b7d9-7313-bd58-ccc9e0192719/members?limit=1&status=ACTIVE&role=STUDENT → 200
+    POST /courses/01a1fbb5-b7d9-7313-bd58-ccc9e0192719/roster/import → 200
+    GET /admin/users?q=sv.gioi%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv.kha%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv.nguyco%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv04%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv05%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv06%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv07%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv08%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv09%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv10%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv11%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv12%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv13%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv14%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv15%40edupilot.local&limit=10 → 200
+    POST /auth/accept-invite → 200
+    GET /admin/users?q=sv16%40edupilot.local&limit=10 → 503
+Seed lỗi: GET /admin/users?q=sv16%40edupilot.local&limit=10 → 503 NOT_READY
+EXIT=1
